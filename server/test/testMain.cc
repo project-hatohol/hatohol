@@ -227,25 +227,29 @@ bool parsePIDFile(int &grandchildPid, const string &grandChildPidFilePath)
 	// TODO: Consider that we should use inotify.
 	// At this time, the deamon process may still write the pid to the file.
 	// We try to read it some times.
-	const size_t TIMEOUT = 10; // sec.
-	const size_t RETRY_INTERVAL = 100 * 1000; // us.
-	const size_t MAX_NUM_RETRY = TIMEOUT * 1000 * 1000 /  RETRY_INTERVAL;
-	int scanResult = EOF;
-	for (size_t i = 0; i < MAX_NUM_RETRY; i++) {
-		FILE *grandchildPidFile;
-		grandchildPidFile = fopen(grandChildPidFilePath.c_str(), "r");
-		cppcut_assert_not_null(grandchildPidFile);
-		scanResult = fscanf(grandchildPidFile, "%d", &grandchildPid);
-		cppcut_assert_equal(0, fclose(grandchildPidFile));
-		if (scanResult == 1)
-			break;
-		if (usleep(RETRY_INTERVAL) == -1) {
-			if (errno != EINTR)
-				cut_assert_errno();
+	struct : public Watcher {
+		const char *grandChildPidFilePathCStr;
+		int pid;
+		virtual bool watch(void)
+		{
+			FILE *fp = fopen(grandChildPidFilePathCStr, "r");
+			cppcut_assert_not_null(fp);
+			int scanResult = fscanf(fp, "%d", &pid);
+			cppcut_assert_equal(0, fclose(fp));
+			if (scanResult == 1)
+				return true;
+			return false;
 		}
-	}
-	cppcut_assert_equal(1, scanResult);
+	} reader;
+	reader.grandChildPidFilePathCStr = grandChildPidFilePath.c_str();
+
+	const size_t TIMEOUT = 10 * 1000; // 10sec.
+	const size_t RETRY_INTERVAL = 100; // us.
+	cppcut_assert_equal(true, reader.start(TIMEOUT, RETRY_INTERVAL));
+	grandchildPid = reader.pid;
 	return true;
+
+
 }
 
 static void parseStatFile(int &parentPid, int grandchildPid)
