@@ -1749,7 +1749,7 @@ void test_deleteAccessInfo(void)
 	assertAccessInfoInDB(accessInfoIdSet);
 }
 
-static void assertOverviewInParser(JsonParserAgent *parser)
+static void _assertOverviewInParser(JsonParserAgent *parser)
 {
 	assertValueInParser(parser, "numberOfServers",
 	                    (uint32_t)NumServerInfo);
@@ -1780,6 +1780,7 @@ static void assertOverviewInParser(JsonParserAgent *parser)
 
 	// TODO: check badServers
 }
+#define assertOverviewInParser(P) cut_trace(_assertOverviewInParser(P))
 
 void test_overview(void)
 {
