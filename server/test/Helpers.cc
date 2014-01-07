@@ -811,12 +811,13 @@ bool Watcher::start(const size_t &timeout, const size_t &interval)
 {
 	timerId = g_timeout_add(timeout, _run, this);
 	while (!expired) {
-		gboolean block = TRUE;
-		if (interval > 0) {
-			block = FALSE;
+		if (interval == 0) {
+			g_main_context_iteration(NULL, TRUE);
+		} else {
+			while (g_main_context_iteration(NULL, FALSE))
+				;
 			usleep(interval);
 		}
-		g_main_context_iteration(NULL, block);
 		if (watch())
 			return true;
 	}
