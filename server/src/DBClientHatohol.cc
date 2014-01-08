@@ -749,9 +749,9 @@ HostsQueryOption::HostsQueryOption(UserIdType userId)
 	// Currently we don't have a DB table for hosts.
 	// Fetch hosts information from triggers table instead.
 	setServerIdColumnName(
-	  COLUMN_DEF_ITEMS[IDX_TRIGGERS_SERVER_ID].columnName);
+	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName);
 	setHostIdColumnName(
-	  COLUMN_DEF_ITEMS[IDX_TRIGGERS_HOST_ID].columnName);
+	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName);
 }
 
 // ---------------------------------------------------------------------------
