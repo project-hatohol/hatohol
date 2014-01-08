@@ -959,7 +959,7 @@ static void assertSystemStatusInParser(JsonParserAgent *parser, uint32_t serverI
 		  serverId, hostGroupId, static_cast<TriggerSeverityType>(severity));
 		parser->startElement(severity);
 		assertValueInParser(parser, "hostGroupId", (uint32_t)0);
-		assertValueInParser(parser, "severity", (uint32_t)0);
+		assertValueInParser(parser, "severity", (uint32_t)severity);
 		assertValueInParser(parser, "numberOfTriggers", expected_triggers);
 		parser->endElement();
 	}
@@ -989,7 +989,7 @@ static void _assertOverviewInParser(JsonParserAgent *parser)
 		assertValueInParser(parser, "numberOfOnlineUsers", zero);
 		assertValueInParser(parser, "numberOfMonitoredItemsPerSecond", zero);
 		assertHostGroupsInParser(parser, svInfo.id);
-		// TODO: check systemStatus
+		assertSystemStatusInParser(parser, svInfo.id);
 		assertHostStatusInParser(parser, svInfo.id);
 		parser->endElement();
 	}
