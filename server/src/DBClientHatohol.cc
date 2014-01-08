@@ -895,7 +895,7 @@ bool DBClientHatohol::getTriggerInfo(TriggerInfo &triggerInfo,
 }
 
 void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
-					 TriggersQueryOption &option,
+					 const TriggersQueryOption &option,
 					 uint64_t targetTriggerId)
 {
 	string optCond = option.getCondition();
@@ -1176,7 +1176,7 @@ void DBClientHatohol::addItemInfoList(const ItemInfoList &itemInfoList)
 }
 
 void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
-				      ItemsQueryOption &option,
+				      const ItemsQueryOption &option,
 				      uint64_t targetItemId)
 {
 	string optCond = option.getCondition();
@@ -1245,7 +1245,7 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 	}
 }
 
-size_t DBClientHatohol::getNumberOfTriggers(TriggersQueryOption &option,
+size_t DBClientHatohol::getNumberOfTriggers(const TriggersQueryOption &option,
                                             TriggerSeverityType severity)
 {
 	DBAgentSelectExArg arg;

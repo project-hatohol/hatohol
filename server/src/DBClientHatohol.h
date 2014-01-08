@@ -223,7 +223,7 @@ public:
 	bool getTriggerInfo(TriggerInfo &triggerInfo,
 	                    uint32_t serverId, uint64_t triggerId);
 	void getTriggerInfoList(TriggerInfoList &triggerInfoList,
-				TriggersQueryOption &option,
+				const TriggersQueryOption &option,
 	                        uint64_t targetTriggerId = ALL_TRIGGERS);
 	void setTriggerInfoList(const TriggerInfoList &triggerInfoList,
 	                        uint32_t serverId);
@@ -257,7 +257,7 @@ public:
 	void addItemInfo(ItemInfo *itemInfo);
 	void addItemInfoList(const ItemInfoList &itemInfoList);
 	void getItemInfoList(ItemInfoList &itemInfoList,
-			     ItemsQueryOption &option,
+			     const ItemsQueryOption &option,
 			     uint64_t targetItemId = ALL_ITEMS);
 	void getItemInfoList(ItemInfoList &itemInfoList,
 			     const string &condition);
@@ -278,7 +278,7 @@ public:
 	 *
 	 * @return The number matched triggers.
 	 */
-	size_t getNumberOfTriggers(TriggersQueryOption &option,
+	size_t getNumberOfTriggers(const TriggersQueryOption &option,
 	                           TriggerSeverityType severity);
 	size_t getNumberOfHosts(uint32_t serverId, uint64_t hostGroupId);
 	size_t getNumberOfGoodHosts(uint32_t serverId, uint64_t hostGroupId);

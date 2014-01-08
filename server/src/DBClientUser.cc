@@ -642,13 +642,13 @@ bool DBClientUser::getUserInfo(UserInfo &userInfo, const UserIdType userId)
 }
 
 void DBClientUser::getUserInfoList(UserInfoList &userInfoList,
-                                   UserQueryOption &option)
+                                   const UserQueryOption &option)
 {
 	getUserInfoList(userInfoList, option.getCondition());
 }
 
 HatoholError DBClientUser::getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
-					    AccessInfoQueryOption &option)
+					    const AccessInfoQueryOption &option)
 {
 	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_ACCESS_LIST;

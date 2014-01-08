@@ -40,12 +40,12 @@ public:
 	virtual void fetchItems(uint32_t targetServerId = ALL_SERVERS);
 
 	virtual void getTriggerList(TriggerInfoList &triggerList,
-				    TriggersQueryOption &option,
+				    const TriggersQueryOption &option,
 	                            uint64_t targetTriggerId = ALL_TRIGGERS);
 	virtual HatoholError getEventList(EventInfoList &eventList,
 	                                  EventsQueryOption &option);
 	virtual void getItemList(ItemInfoList &itemList,
-	                         ItemsQueryOption &option,
+	                         const ItemsQueryOption &option,
 	                         uint64_t targetItemId = ALL_ITEMS);
 	virtual bool getItemListAsync(ClosureBase *closure,
 				      uint32_t targetServerId = ALL_SERVERS);
@@ -61,7 +61,7 @@ public:
 	  const OperationPrivilege &privilege);
 
 	virtual size_t getNumberOfTriggers
-	                 (TriggersQueryOption &option,
+	                 (const TriggersQueryOption &option,
 	                  TriggerSeverityType severity);
 	virtual size_t getNumberOfGoodHosts(uint32_t serverId,
 	                                    uint64_t hostGroupId);
@@ -79,7 +79,7 @@ public:
 	virtual void addEventList(const EventInfoList &eventList);
 
 	virtual void getUserList(UserInfoList &userList,
-                                 UserQueryOption &option);
+                                 const UserQueryOption &option);
 	virtual HatoholError addUser(
 	  UserInfo &userInfo, const OperationPrivilege &privilege);
 	virtual HatoholError updateUser(
@@ -87,7 +87,8 @@ public:
 	virtual HatoholError deleteUser(
 	  UserIdType userId, const OperationPrivilege &privilege);
 	virtual HatoholError getAccessInfoMap(
-	  ServerAccessInfoMap &srvAccessInfoMap, AccessInfoQueryOption &option);
+	  ServerAccessInfoMap &srvAccessInfoMap,
+	  const AccessInfoQueryOption &option);
 	virtual HatoholError addAccessInfo(
 	  AccessInfo &userInfo, const OperationPrivilege &privilege);
 	virtual HatoholError deleteAccessInfo(
