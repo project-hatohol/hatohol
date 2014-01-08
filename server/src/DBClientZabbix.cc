@@ -1721,6 +1721,16 @@ void DBClientZabbix::addApplicationsRaw2_0(ItemTablePtr tablePtr)
 	} DBCLIENT_TRANSACTION_END();
 }
 
+void DBClientZabbix::addGroupsRaw2_0(ItemTablePtr tablePtr)
+{
+	DBCLIENT_TRANSACTION_BEGIN() {
+		addItems(tablePtr, TABLE_NAME_GROUPS_RAW_2_0,
+		         NUM_COLUMNS_GROUPS_RAW_2_0,
+		         COLUMN_DEF_GROUPS_RAW_2_0,
+		         IDX_GROUPS_RAW_2_0_GROUPID);
+	} DBCLIENT_TRANSACTION_END();
+}
+
 void DBClientZabbix::getTriggersAsHatoholFormat(TriggerInfoList &triggerInfoList)
 {
 	// get data from data base
