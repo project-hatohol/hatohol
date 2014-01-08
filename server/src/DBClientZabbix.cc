@@ -43,6 +43,7 @@ static const char *TABLE_NAME_ITEMS_RAW_2_0 = "items_raw_2_0";
 static const char *TABLE_NAME_HOSTS_RAW_2_0 = "hosts_raw_2_0";
 static const char *TABLE_NAME_EVENTS_RAW_2_0 = "events_raw_2_0";
 static const char *TABLE_NAME_APPLICATIONS_RAW_2_0 = "applications_raw_2_0";
+static const char *TABLE_NAME_GROUPS_RAW_2_0 = "groups_raw_2_0";
 
 static const ColumnDef COLUMN_DEF_SYSTEM[] = {
 {
@@ -1477,6 +1478,52 @@ enum {
 	NUM_IDX_APPLICATIONS_RAW_2_0,
 };
 
+static const ColumnDef COLUMN_DEF_GROUPS_RAW_2_0[] = {
+{
+	ITEM_ID_ZBX_GROUPS_GROUPID,        // itemId
+	TABLE_NAME_GROUPS_RAW_2_0,         // tableName
+	"groupid",                         // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_ZBX_GROUPS_NAME,           // itemId
+	TABLE_NAME_GROUPS_RAW_2_0,         // tableName
+	"name",                            // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	128,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_ZBX_GROUPS_INTERNAL,       // itemId
+	TABLE_NAME_GROUPS_RAW_2_0,         // tableName
+	"internal",                        // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}
+};
+static const size_t NUM_COLUMNS_GROUPS_RAW_2_0 =
+   sizeof(COLUMN_DEF_GROUPS_RAW_2_0) / sizeof(ColumnDef);
+
+enum {
+	IDX_GROUPS_RAW_2_0_GROUPID,
+	IDX_GROUPS_RAW_2_0_NAME,
+	IDX_GROUPS_RAW_2_0_INTERNAL,
+	NUM_IDX_GROUPS_RAW_2_0
+};
+
 struct DBClientZabbix::PrivateContext
 {
 	size_t             serverId;
@@ -1529,6 +1576,12 @@ void DBClientZabbix::init(void)
 	  "Invalid number of elements: NUM_COLUMNS_APPLICATIONS_RAW_2_0 (%zd), "
 	  "NUM_IDX_APPLICATIONS_RAW_2_0 (%d)",
 	  NUM_COLUMNS_APPLICATIONS_RAW_2_0, NUM_IDX_APPLICATIONS_RAW_2_0);
+
+	HATOHOL_ASSERT(
+	  NUM_COLUMNS_GROUPS_RAW_2_0 == NUM_IDX_GROUPS_RAW_2_0,
+	  "Invalid number of elements: NUM_COLUMNS_GROUPS_RAW_2_0 (%zd), "
+	  "NUM_IDX_GROUPS_RAW_2_0 (%d)",
+	  NUM_COLUMNS_GROUPS_RAW_2_0, NUM_IDX_GROUPS_RAW_2_0);
 }
 
 DBDomainId DBClientZabbix::getDBDomainId(const ServerIdType zabbixServerId)
@@ -1568,7 +1621,11 @@ DBClientZabbix *DBClientZabbix::create(const ServerIdType zabbixServerId)
 		TABLE_NAME_APPLICATIONS_RAW_2_0,
 		NUM_COLUMNS_APPLICATIONS_RAW_2_0,
 		COLUMN_DEF_APPLICATIONS_RAW_2_0,
-	},
+	}, {
+		TABLE_NAME_GROUPS_RAW_2_0,
+		NUM_COLUMNS_GROUPS_RAW_2_0,
+		COLUMN_DEF_GROUPS_RAW_2_0,
+	}
 	};
 	static const size_t NUM_TABLE_INFO =
 	sizeof(DB_TABLE_INFO) / sizeof(DBClient::DBSetupTableInfo);
