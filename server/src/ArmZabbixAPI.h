@@ -164,6 +164,7 @@ protected:
 	 */
 	void updateApplications(const ItemTable *items);
 
+	void updateGroups(void);
 	void makeHatoholTriggers(void);
 	void makeHatoholEvents(ItemTablePtr events);
 	void makeHatoholItems(ItemTablePtr events);

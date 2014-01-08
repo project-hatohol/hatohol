@@ -1056,6 +1056,13 @@ void ArmZabbixAPI::updateApplications(const ItemTable *items)
 	  &DBClientZabbix::addApplicationsRaw2_0);
 }
 
+void ArmZabbixAPI::updateGroups(void)
+{
+	ItemTablePtr tablePtr;
+	tablePtr = getGroups();
+	m_ctx->dbClientZabbix->addGroupsRaw2_0(tablePtr);
+}
+
 //
 // virtual methods
 //
@@ -1158,6 +1165,7 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 		// update needed hosts
 		updateHosts(triggers);
 
+		updateGroups();
 		// Currently functions are no longer updated, because ZABBIX
 		// API can return host ID directly (If we use DBs as exactly
 		// the same as those in Zabbix Server, we have to join
