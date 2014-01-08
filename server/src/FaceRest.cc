@@ -1107,7 +1107,7 @@ static void addHostsMap(
 }
 
 static string getTriggerBrief(
-  const ServerID serverId, const TriggerID triggerId)
+  FaceRest::RestJob *job, const ServerID serverId, const TriggerID triggerId)
 {
 	// TODO: use UnifiedDataStore
 	DBClientHatohol dbHatohol;
@@ -1126,6 +1126,7 @@ static string getTriggerBrief(
 }
 
 static void addTriggersIdBriefHash(
+  FaceRest::RestJob *job,
   JsonBuilderAgent &agent, MonitoringServerInfo &serverInfo,
   TriggerBriefMaps &triggerMaps, bool lookupTriggerBrief = false)
 {
@@ -1138,7 +1139,9 @@ static void addTriggersIdBriefHash(
 		TriggerID triggerId = it->first;
 		string &triggerBrief = it->second;
 		if (lookupTriggerBrief)
-			triggerBrief = getTriggerBrief(serverId, triggerId);
+			triggerBrief = getTriggerBrief(job,
+						       serverId,
+						       triggerId);
 		agent.startObject(StringUtils::toString(triggerId));
 		agent.add("brief", triggerBrief);
 		agent.endObject();
@@ -1170,7 +1173,8 @@ static void addServersMap(
 				    *hostMaps, lookupHostName);
 		}
 		if (triggerMaps) {
-			addTriggersIdBriefHash(agent, serverInfo, *triggerMaps,
+			addTriggersIdBriefHash(job, agent, serverInfo,
+					       *triggerMaps,
 			                       lookupTriggerBrief);
 		}
 		agent.endObject();
