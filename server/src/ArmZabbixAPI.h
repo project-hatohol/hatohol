@@ -61,6 +61,7 @@ public:
 	ItemTablePtr getEvents(uint64_t eventIdOffset, uint64_t eventIdTill);
 	uint64_t getLastEventId(void);
 	virtual void onGotNewEvents(const ItemTablePtr &itemPtr);
+	ItemTablePtr getGroups(void);
 
 protected:
 	SoupSession *getSession(void);

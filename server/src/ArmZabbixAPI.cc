@@ -292,6 +292,31 @@ void ArmZabbixAPI::onGotNewEvents(const ItemTablePtr &itemPtr)
 	// This function is used on a test class.
 }
 
+ItemTablePtr ArmZabbixAPI::getGroups(void)
+{
+	SoupMessage *msg = queryGroup();
+	if (!msg)
+		THROW_DATA_STORE_EXCEPTION("Failed to query groups.");
+
+	JsonParserAgent parser(msg->response_body->data);
+	g_object_unref(msg);
+	if (parser.hasError()) {
+		THROW_DATA_STORE_EXCEPTION(
+		  "Failed to parser: %s", parser.getErrorMessage());
+	}
+	startObject(parser, "result");
+
+	VariableItemTablePtr tablePtr;
+	int numData = parser.countElements();
+	MLPL_DBG("The number of groups: %d\n", numData);
+	if (numData < 1)
+		return ItemTablePtr(tablePtr);
+
+	for (int i = 0; i < numData; i++)
+		parseAndPushGroupsData(parser, tablePtr, i);
+	return ItemTablePtr(tablePtr);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
