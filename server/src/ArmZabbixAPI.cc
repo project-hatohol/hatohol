@@ -899,6 +899,18 @@ void ArmZabbixAPI::parseAndPushEventsData
 	parser.endElement();
 }
 
+void ArmZabbixAPI::parseAndPushEventsData
+  (JsonParserAgent &parser, VariableItemTablePtr, int index)
+{
+	startElement(parser, index);
+	VriableItemGroupPtr grp;
+	pushUint64(parser, grp, "groupid",      ITEM_ID_ZBX_GROUPS_GROUPID);
+	pushString(parser, grp, "name",         ITEM_ID_ZBX_GROUPS_NAME);
+	pushInt   (parser, grp, "internal",     ITEM_ID_ZBX_GROUPS_INTERNAL);
+	tablePtr->add(grp);
+	parser.endElement();
+}
+
 template<typename T>
 void ArmZabbixAPI::updateOnlyNeededItem
   (const ItemTable *primaryTable,

@@ -120,6 +120,8 @@ protected:
 	                                  int index);
 	void parseAndPushEventsData(JsonParserAgent &parser,
 	                            VariableItemTablePtr &tablePtr, int index);
+	void parseAndPushGroupsData(JsonParserAgent &parser,
+	                            VariableItemTablePtr &tablePtr, int index);
 
 	template<typename T>
 	void updateOnlyNeededItem(
