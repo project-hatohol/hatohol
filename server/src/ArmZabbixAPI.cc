@@ -524,7 +524,7 @@ SoupMessage *ArmZabbixAPI::queryGetLastEventId(void)
 	return queryCommon(agent);
 }
 
-SoupMessage *queryGroup(void)
+SoupMessage *ArmZabbixAPI::queryGroup(void)
 {
 	JsonBuilderAgent agent;
 	agent.startObject();
