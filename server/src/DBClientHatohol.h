@@ -185,6 +185,11 @@ public:
 	ItemsQueryOption(UserIdType userId = INVALID_USER_ID);
 };
 
+class HostsQueryOption : public HostResourceQueryOption {
+public:
+	HostsQueryOption(UserIdType userId = INVALID_USER_ID);
+};
+
 class DBClientHatohol : public DBClient {
 public:
 	static uint64_t EVENT_NOT_FOUND;

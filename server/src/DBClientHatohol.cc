@@ -743,6 +743,17 @@ ItemsQueryOption::ItemsQueryOption(UserIdType userId)
 	  COLUMN_DEF_ITEMS[IDX_ITEMS_HOST_ID].columnName);
 }
 
+HostsQueryOption::HostsQueryOption(UserIdType userId)
+: HostResourceQueryOption(userId)
+{
+	// Currently we don't have a DB table for hosts.
+	// Fetch hosts information from triggers table instead.
+	setServerIdColumnName(
+	  COLUMN_DEF_ITEMS[IDX_TRIGGERS_SERVER_ID].columnName);
+	setHostIdColumnName(
+	  COLUMN_DEF_ITEMS[IDX_TRIGGERS_HOST_ID].columnName);
+}
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
