@@ -61,7 +61,7 @@ public:
 	  const OperationPrivilege &privilege);
 
 	virtual size_t getNumberOfTriggers
-	                 (uint32_t serverId, uint64_t hostGroupId,
+	                 (TriggersQueryOption &option,
 	                  TriggerSeverityType severity);
 	virtual size_t getNumberOfGoodHosts(uint32_t serverId,
 	                                    uint64_t hostGroupId);

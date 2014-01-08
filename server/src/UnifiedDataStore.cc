@@ -397,12 +397,11 @@ HatoholError UnifiedDataStore::deleteActionList(
 	return dbAction.deleteActions(actionIdList, privilege);
 }
 
-size_t UnifiedDataStore::getNumberOfTriggers(uint32_t serverId,
-                                          uint64_t hostGroupId,
-                                          TriggerSeverityType severity)
+size_t UnifiedDataStore::getNumberOfTriggers(TriggersQueryOption &option,
+					     TriggerSeverityType severity)
 {
 	DBClientHatohol dbHatohol;
-	return dbHatohol.getNumberOfTriggers(serverId, hostGroupId, severity);
+	return dbHatohol.getNumberOfTriggers(option, severity);
 }
 
 size_t UnifiedDataStore::getNumberOfGoodHosts(uint32_t serverId,

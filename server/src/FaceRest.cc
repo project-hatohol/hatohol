@@ -969,14 +969,17 @@ static void addOverviewEachServer(FaceRest::RestJob *job,
 		uint64_t hostGroupId = hostGroupIds[i];
 		for (int severity = 0;
 		     severity < NUM_TRIGGER_SEVERITY; severity++) {
+			TriggersQueryOption option(job->userId);
+			option.setTargetServerId(svInfo.id);
+			//TODO: Currently host group isn't supported yet
+			//option.setTargetHostGroupId(hostGroupId);
 			agent.startObject();
 			agent.add("hostGroupId", hostGroupId);
 			agent.add("severity", severity);
 			agent.add(
 			  "numberOfTriggers",
 			  dataStore->getNumberOfTriggers
-			    (svInfo.id, hostGroupId,
-			     (TriggerSeverityType)severity));
+			    (option, (TriggerSeverityType)severity));
 			agent.endObject();
 		}
 	}

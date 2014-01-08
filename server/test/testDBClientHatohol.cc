@@ -762,17 +762,43 @@ void test_getNumberOfTriggersBySeverity(void)
 	setupTestTriggerDB();
 
 	uint32_t targetServerId = testTriggerInfo[0].serverId;
-	// TODO: should should give the appropriate host group ID after
+	// TODO: should give the appropriate host group ID after
 	//       Hatohol support it.
 	uint64_t hostGroupId = 0;
 
 	DBClientHatohol dbHatohol;
 	for (int i = 0; i < NUM_TRIGGER_SEVERITY; i++) {
+		TriggersQueryOption option(USER_ID_SYSTEM);
+		option.setTargetServerId(targetServerId);
+		//TODO: uncomment it after Hatohol supports host group
+		//option.setTargetHostGroupId(hostGroupId);
 		TriggerSeverityType severity = (TriggerSeverityType)i;
-		size_t actual = dbHatohol.getNumberOfTriggers
-		                  (targetServerId, hostGroupId, severity);
+		size_t actual = dbHatohol.getNumberOfTriggers(option, severity);
 		size_t expected = getNumberOfTestTriggers
 		                    (targetServerId, hostGroupId, severity);
+		cppcut_assert_equal(expected, actual,
+		                    cut_message("severity: %d", i));
+	}
+}
+
+void test_getNumberOfTriggersBySeverityWithoutPriviledge(void)
+{
+	setupTestTriggerDB();
+
+	uint32_t targetServerId = testTriggerInfo[0].serverId;
+	// TODO: should give the appropriate host group ID after
+	//       Hatohol support it.
+	//uint64_t hostGroupId = 0;
+
+	DBClientHatohol dbHatohol;
+	for (int i = 0; i < NUM_TRIGGER_SEVERITY; i++) {
+		TriggersQueryOption option;
+		option.setTargetServerId(targetServerId);
+		//TODO: uncomment it after Hatohol supports host group
+		//option.setTargetHostGroupId(hostGroupId);
+		TriggerSeverityType severity = (TriggerSeverityType)i;
+		size_t actual = dbHatohol.getNumberOfTriggers(option, severity);
+		size_t expected = 0;
 		cppcut_assert_equal(expected, actual,
 		                    cut_message("severity: %d", i));
 	}

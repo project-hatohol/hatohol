@@ -1234,29 +1234,23 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 	}
 }
 
-size_t DBClientHatohol::getNumberOfTriggers(uint32_t serverId,
-                                            uint64_t hostGroupId,
+size_t DBClientHatohol::getNumberOfTriggers(TriggersQueryOption &option,
                                             TriggerSeverityType severity)
 {
-	// TODO: use hostGroupId after Hatohol supports it. 
 	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_TRIGGERS;
 	arg.statements.push_back("count (*)");
 	arg.columnTypes.push_back(SQL_COLUMN_TYPE_INT);
 
 	// condition
-	arg.condition =
+	arg.condition = option.getCondition();
+	if (!arg.condition.empty())
+		arg.condition += " and ";
+	arg.condition +=
 	  StringUtils::sprintf("%s=%d and %s=%d",
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SEVERITY].columnName, severity,
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_STATUS].columnName,
 	    TRIGGER_STATUS_PROBLEM);
-
-	if (serverId != ALL_SERVERS) {
-		const char *colName = 
-		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName;
-		arg.condition += StringUtils::sprintf(" and %s=%"PRIu32,
-		                                      colName, serverId);
-	}
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
