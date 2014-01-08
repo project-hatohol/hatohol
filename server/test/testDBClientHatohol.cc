@@ -403,7 +403,9 @@ static void _assertGetHostInfoList(uint32_t serverId)
 	HostInfoList expectedHostList;
 	ServerIdHostIdMap svIdHostIdMap;
 	DBClientHatohol dbHatohol;
-	dbHatohol.getHostInfoList(actualHostList, serverId);
+	HostsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(serverId);
+	dbHatohol.getHostInfoList(actualHostList, option);
 	getTestHostInfoList(expectedHostList, serverId, &svIdHostIdMap);
 
 	// comapre two lists

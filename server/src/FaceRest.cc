@@ -928,7 +928,9 @@ static void addOverviewEachServer(FaceRest::RestJob *job,
 	// TODO: This implementeation is not effective.
 	//       We should add a function only to get the number of list.
 	HostInfoList hostInfoList;
-	dataStore->getHostList(hostInfoList, svInfo.id);
+	HostsQueryOption option(job->userId);
+	option.setTargetServerId(svInfo.id);
+	dataStore->getHostList(hostInfoList, option);
 	agent.add("numberOfHosts", hostInfoList.size());
 
 	ItemInfoList itemInfoList;
@@ -1047,12 +1049,15 @@ static void addServers(FaceRest::RestJob *job, JsonBuilderAgent &agent,
 	agent.endArray();
 }
 
-static void addHosts(JsonBuilderAgent &agent,
+static void addHosts(FaceRest::RestJob *job, JsonBuilderAgent &agent,
                      uint32_t targetServerId, uint64_t targetHostId)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HostInfoList hostInfoList;
-	dataStore->getHostList(hostInfoList, targetServerId, targetHostId);
+	HostsQueryOption option(job->userId);
+	option.setTargetServerId(targetServerId);
+	option.setTargetHostId(targetHostId);
+	dataStore->getHostList(hostInfoList, option);
 
 	agent.add("numberOfHosts", hostInfoList.size());
 	agent.startArray("hosts");
@@ -1068,12 +1073,16 @@ static void addHosts(JsonBuilderAgent &agent,
 	agent.endArray();
 }
 
-static string getHostName(const ServerID serverId, const HostID hostId)
+static string getHostName(const UserIdType userId,
+			  const ServerID serverId, const HostID hostId)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	string hostName;
 	HostInfoList hostInfoList;
-	dataStore->getHostList(hostInfoList, serverId, hostId);
+	HostsQueryOption option(userId);
+	option.setTargetServerId(serverId);
+	option.setTargetHostId(hostId);
+	dataStore->getHostList(hostInfoList, option);
 	if (hostInfoList.empty()) {
 		MLPL_WARN("Failed to get HostInfo: "
 		          "%"PRIu64", %"PRIu64"\n",
@@ -1086,6 +1095,7 @@ static string getHostName(const ServerID serverId, const HostID hostId)
 }
 
 static void addHostsMap(
+  FaceRest::RestJob *job,
   JsonBuilderAgent &agent, MonitoringServerInfo &serverInfo,
   HostNameMaps &hostMaps, bool lookupHostName = false)
 {
@@ -1098,7 +1108,7 @@ static void addHostsMap(
 		HostID hostId = it->first;
 		string &hostName = it->second;
 		if (lookupHostName)
-			hostName = getHostName(serverId, hostId);
+			hostName = getHostName(job->userId, serverId, hostId);
 		agent.startObject(StringUtils::toString(hostId));
 		agent.add("name", hostName);
 		agent.endObject();
@@ -1173,7 +1183,7 @@ static void addServersMap(
 		agent.add("type", serverInfo.type);
 		agent.add("ipAddress", serverInfo.ipAddress);
 		if (hostMaps) {
-			addHostsMap(agent, serverInfo,
+			addHostsMap(job, agent, serverInfo,
 				    *hostMaps, lookupHostName);
 		}
 		if (triggerMaps) {
@@ -1469,7 +1479,7 @@ void FaceRest::handlerGetHost(RestJob *job)
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
-	addHosts(agent, targetServerId, targetHostId);
+	addHosts(job, agent, targetServerId, targetHostId);
 	agent.endObject();
 
 	replyJsonData(agent, job);

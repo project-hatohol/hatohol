@@ -376,11 +376,11 @@ bool UnifiedDataStore::getItemListAsync(ClosureBase *closure,
 	return m_ctx->startFetchingItems(targetServerId, closure);
 }
 
-void UnifiedDataStore::getHostList(
-  HostInfoList &hostInfoList, uint32_t targetServerId, uint64_t targetHostId)
+void UnifiedDataStore::getHostList(HostInfoList &hostInfoList,
+				   const HostsQueryOption &option)
 {
 	DBClientHatohol dbHatohol;
-	dbHatohol.getHostInfoList(hostInfoList, targetServerId, targetHostId);
+	dbHatohol.getHostInfoList(hostInfoList, option);
 }
 
 HatoholError UnifiedDataStore::getActionList(

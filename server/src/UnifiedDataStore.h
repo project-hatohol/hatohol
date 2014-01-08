@@ -50,8 +50,7 @@ public:
 	virtual bool getItemListAsync(ClosureBase *closure,
 				      uint32_t targetServerId = ALL_SERVERS);
 	virtual void getHostList(HostInfoList &hostInfoList,
-	                         uint32_t targetServerId = ALL_SERVERS,
-	                         uint64_t targetHostId = ALL_HOSTS);
+				 const HostsQueryOption &option);
 	virtual HatoholError getActionList(ActionDefList &actionList,
 	                                   const OperationPrivilege &privilege);
 	virtual HatoholError addAction(ActionDef &actionDef,

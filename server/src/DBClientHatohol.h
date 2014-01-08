@@ -201,8 +201,7 @@ public:
 	virtual ~DBClientHatohol();
 
 	void getHostInfoList(HostInfoList &hostInfoList,
-	                     uint32_t targetServerId = ALL_SERVERS,
-	                     uint64_t targetHostId = ALL_HOSTS);
+			     const HostsQueryOption &option);
 
 	void addTriggerInfo(TriggerInfo *triggerInfo);
 	void addTriggerInfoList(const TriggerInfoList &triggerInfoList);
