@@ -1109,17 +1109,21 @@ static void addHostsMap(
 static string getTriggerBrief(
   FaceRest::RestJob *job, const ServerID serverId, const TriggerID triggerId)
 {
-	// TODO: use UnifiedDataStore
-	DBClientHatohol dbHatohol;
 	string triggerBrief;
-	TriggerInfo triggerInfo;
-	bool succeeded = dbHatohol.getTriggerInfo(triggerInfo,
-	                                          serverId, triggerId);
-	if (!succeeded) {
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	TriggerInfoList triggerInfoList;
+	TriggersQueryOption triggersQueryOption(job->userId);
+	triggersQueryOption.setTargetServerId(serverId);
+	dataStore->getTriggerList(triggerInfoList, triggersQueryOption,
+				  triggerId);
+
+	if (triggerInfoList.size() != 1) {
 		MLPL_WARN("Failed to get TriggerInfo: "
 		          "%"PRIu64", %"PRIu64"\n",
 		          serverId, triggerId);
 	} else {
+		TriggerInfoListIterator it = triggerInfoList.begin();
+		TriggerInfo &triggerInfo = *it;
 		triggerBrief = triggerInfo.brief;
 	}
 	return triggerBrief;
