@@ -444,6 +444,7 @@ static void _assertServers(const string &path, const string &callbackName = "")
 static void _assertHosts(const string &path, const string &callbackName = "",
                          uint32_t serverId = ALL_SERVERS)
 {
+	setupUserDB();
 	startFaceRest();
 	StringMap queryMap;
 	if (serverId != ALL_SERVERS) {
