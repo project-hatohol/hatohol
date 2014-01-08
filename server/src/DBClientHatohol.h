@@ -260,10 +260,17 @@ public:
 	/**
 	 * get the number of triggers with the given server ID, host group ID,
 	 * the severity. The triggers with status: TRIGGER_STATUS_OK is NOT
-	 * counted.
-	 * @param serverId A target server Id.
-	 * @param hostGroupId A target host group ID.
-	 * @param severity    A target severity.
+	 * counted. When the user doesn't have privilege to access to the
+	 * server or host group, the trigger concerned with it isn't counted
+	 * too.
+	 *
+	 * @param option
+	 * A query option to specify user ID (or privilege), target server ID
+	 * and host group ID.
+	 *
+	 * @param severity
+	 * A target severity.
+	 *
 	 * @return The number matched triggers.
 	 */
 	size_t getNumberOfTriggers(TriggersQueryOption &option,
