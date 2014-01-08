@@ -92,7 +92,6 @@ static ItemTablePtr makeTestTriggerData(void)
 	grp->ADD_NEW_ITEM(Int,    ITEM_ID_ZBX_TRIGGERS_VALUE_FLAGS,0);
 	grp->ADD_NEW_ITEM(Int,    ITEM_ID_ZBX_TRIGGERS_FLAGS,      0);
 	grp->ADD_NEW_ITEM(Uint64, ITEM_ID_ZBX_TRIGGERS_HOSTID,     1);
-	grp->ADD_NEW_ITEM(Uint64, ITEM_ID_ZBX_TRIGGERS_GROUPID,    1);
 	triggers->add(grp);
 
 	return (ItemTablePtr)triggers;
