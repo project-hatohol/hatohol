@@ -899,11 +899,11 @@ void ArmZabbixAPI::parseAndPushEventsData
 	parser.endElement();
 }
 
-void ArmZabbixAPI::parseAndPushEventsData
-  (JsonParserAgent &parser, VariableItemTablePtr, int index)
+void ArmZabbixAPI::parseAndPushGroupsData
+  (JsonParserAgent &parser, VariableItemTablePtr &tablePtr, int index)
 {
 	startElement(parser, index);
-	VriableItemGroupPtr grp;
+	VariableItemGroupPtr grp;
 	pushUint64(parser, grp, "groupid",      ITEM_ID_ZBX_GROUPS_GROUPID);
 	pushString(parser, grp, "name",         ITEM_ID_ZBX_GROUPS_NAME);
 	pushInt   (parser, grp, "internal",     ITEM_ID_ZBX_GROUPS_INTERNAL);
