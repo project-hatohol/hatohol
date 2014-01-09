@@ -152,12 +152,14 @@ struct AssertGetHostResourceArg {
 					continue;
 			}
 			if (targetHostId != ALL_HOSTS) {
-				if (record->hostId != targetHostId)
+				if (getHostId(*record) != targetHostId)
 					continue;
 			}
 			expectedRecords.push_back(record);
 		}
 	}
+
+	virtual uint64_t getHostId(TResourceType &record) = 0;
 
 	virtual TResourceType &getExpectedRecord(size_t idx)
 	{
@@ -205,7 +207,12 @@ struct AssertGetTriggersArg
 		numberOfFixtures = NumTestTriggerInfo;
 	}
 
-	string makeOutputText(const TriggerInfo &triggerInfo)
+	virtual uint64_t getHostId(TriggerInfo &info)
+	{
+		return info.hostId;
+	}
+
+	virtual string makeOutputText(const TriggerInfo &triggerInfo)
 	{
 		return makeTriggerOutput(triggerInfo);
 	}
@@ -281,7 +288,12 @@ struct AssertGetEventsArg
 		numberOfFixtures = NumTestEventInfo;
 	}
 
-	string makeOutputText(const EventInfo &eventInfo)
+	virtual uint64_t getHostId(EventInfo &info)
+	{
+		return info.hostId;
+	}
+
+	virtual string makeOutputText(const EventInfo &eventInfo)
 	{
 		return makeEventOutput(eventInfo);
 	}
@@ -341,7 +353,12 @@ struct AssertGetItemsArg
 		numberOfFixtures = NumTestItemInfo;
 	}
 
-	string makeOutputText(const ItemInfo &itemInfo)
+	virtual uint64_t getHostId(ItemInfo &info)
+	{
+		return info.hostId;
+	}
+
+	virtual string makeOutputText(const ItemInfo &itemInfo)
 	{
 		return makeItemOutput(itemInfo);
 	}
@@ -432,6 +449,35 @@ static void _assertGetHostInfoList(uint32_t serverId)
 }
 #define assertGetHostInfoList(SERVER_ID) \
 cut_trace(_assertGetHostInfoList(SERVER_ID))
+
+struct AssertGetHostsArg
+  : public AssertGetHostResourceArg<HostInfo, HostsQueryOption>
+{
+	AssertGetHostsArg(void)
+	{
+	}
+
+	virtual uint64_t getHostId(HostInfo &info)
+	{
+		return info.id;
+	}
+
+	virtual string makeOutputText(const HostInfo &hostInfo)
+	{
+		return string();
+	}
+
+	virtual void assert(void) {
+		assertGetHostInfoList(targetServerId);
+	}
+};
+
+static void _assertGetHosts(AssertGetHostsArg &arg)
+{
+	arg.fixup();
+	arg.assert();
+}
+#define assertGetHosts(A) cut_trace(_assertGetHosts(A))
 
 static void _assertGetNumberOfHostsWithStatus(bool status)
 {
@@ -748,13 +794,15 @@ void test_getLastEventId(void)
 
 void test_getHostInfoList(void)
 {
-	assertGetHostInfoList(ALL_SERVERS);
+	AssertGetHostsArg arg;
+	assertGetHosts(arg);
 }
 
 void test_getHostInfoListForOneServer(void)
 {
-	uint32_t targetServerId = testTriggerInfo[0].serverId;
-	assertGetHostInfoList(targetServerId);
+	AssertGetHostsArg arg;
+	arg.targetServerId = testTriggerInfo[0].serverId;
+	assertGetHosts(arg);
 }
 
 void test_getNumberOfTriggersBySeverity(void)
