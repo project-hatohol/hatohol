@@ -177,7 +177,7 @@ struct AssertGetHostResourceArg {
 		cppcut_assert_equal(expectedNum, actualRecordList.size());
 	}
 
-	virtual string makeExpectedOutput(const TResourceType &record) = 0;
+	virtual string makeOutputText(const TResourceType &record) = 0;
 
 	virtual void assert(void)
 	{
@@ -189,8 +189,8 @@ struct AssertGetHostResourceArg {
 		  = actualRecordList.begin();
 		for (size_t i = 0; it != actualRecordList.end(); i++, ++it) {
 			TResourceType &expectedRecord = getExpectedRecord(i);
-			expectedText += makeExpectedOutput(expectedRecord);
-			actualText += makeExpectedOutput(*it);
+			expectedText += makeOutputText(expectedRecord);
+			actualText += makeOutputText(*it);
 		}
 		cppcut_assert_equal(expectedText, actualText);
 	}
@@ -205,7 +205,7 @@ struct AssertGetTriggersArg
 		numberOfFixtures = NumTestTriggerInfo;
 	}
 
-	string makeExpectedOutput(const TriggerInfo &triggerInfo)
+	string makeOutputText(const TriggerInfo &triggerInfo)
 	{
 		return makeTriggerOutput(triggerInfo);
 	}
@@ -281,7 +281,7 @@ struct AssertGetEventsArg
 		numberOfFixtures = NumTestEventInfo;
 	}
 
-	string makeExpectedOutput(const EventInfo &eventInfo)
+	string makeOutputText(const EventInfo &eventInfo)
 	{
 		return makeEventOutput(eventInfo);
 	}
@@ -341,7 +341,7 @@ struct AssertGetItemsArg
 		numberOfFixtures = NumTestItemInfo;
 	}
 
-	string makeExpectedOutput(const ItemInfo &itemInfo)
+	string makeOutputText(const ItemInfo &itemInfo)
 	{
 		return makeItemOutput(itemInfo);
 	}
