@@ -430,17 +430,6 @@ struct AssertGetHostsArg
 	}
 
 	virtual void assert(void) {
-		// We have to insert test trigger data in DB first. Because
-		// current implementation of DBClientHatohol creates
-		// hostInfoList from trigger table.
-		// TODO: The implementation will be fixed in the future. The DB
-		//       table for host will be added. After that, we will fix
-		//       this setup.
-		setupTestTriggerDB();
-
-		DBClientHatohol dbHatohol;
-		dbHatohol.getHostInfoList(actualRecordList, option);
-
 		// comapre two lists
 		cppcut_assert_equal(expectedHostList.size(),
 				    actualRecordList.size());
@@ -471,7 +460,16 @@ struct AssertGetHostsArg
 
 static void _assertGetHosts(AssertGetHostsArg &arg)
 {
+	// We have to insert test trigger data in DB first. Because current
+	// implementation of DBClientHatohol creates hostInfoList from trigger
+	// table.
+	// TODO: The implementation will be fixed in the future. The DB table
+	//       for host will be added. After that, we will fix this setup.
+	setupTestTriggerDB();
+
+	DBClientHatohol dbHatohol;
 	arg.fixup();
+	dbHatohol.getHostInfoList(arg.actualRecordList, option);
 	arg.assert();
 }
 #define assertGetHosts(A) cut_trace(_assertGetHosts(A))
