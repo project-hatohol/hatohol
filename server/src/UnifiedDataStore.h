@@ -37,7 +37,6 @@ public:
 	virtual void parseCommandLineArgument(CommandLineArg &cmdArg);
 	virtual void start(void);
 	virtual void stop(void);
-	virtual void fetchItems(uint32_t targetServerId = ALL_SERVERS);
 	virtual bool getCopyOnDemandEnabled(void) const;
 	virtual void setCopyOnDemandEnabled(bool enable);
 
@@ -60,9 +59,10 @@ public:
 	                                  EventsQueryOption &option);
 	virtual void getItemList(ItemInfoList &itemList,
 	                         const ItemsQueryOption &option,
-	                         uint64_t targetItemId = ALL_ITEMS);
-	virtual bool getItemListAsync(ClosureBase *closure,
-				      uint32_t targetServerId = ALL_SERVERS);
+	                         uint64_t targetItemId = ALL_ITEMS,
+				 bool fetchItemsSynchronously = false);
+	virtual bool fetchItemsAsync(ClosureBase *closure,
+				     uint32_t targetServerId = ALL_SERVERS);
 	virtual void getHostList(HostInfoList &hostInfoList,
 				 const HostsQueryOption &option);
 	virtual HatoholError getActionList(ActionDefList &actionList,
@@ -98,6 +98,9 @@ public:
 	  MonitoringServerInfo &svInfo, const OperationPrivilege &privilege);
 	virtual HatoholError deleteTargetServer(
 	  ServerIdType serverId, const OperationPrivilege &privilege);
+
+protected:
+	virtual void fetchItems(uint32_t targetServerId = ALL_SERVERS);
 
 private:
 	struct PrivateContext;

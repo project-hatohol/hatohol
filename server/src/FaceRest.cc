@@ -935,9 +935,10 @@ static void addOverviewEachServer(FaceRest::RestJob *job,
 
 	ItemInfoList itemInfoList;
 	ItemsQueryOption itemsQueryOption(job->userId);
+	bool fetchItemsSynchronously = true;
 	itemsQueryOption.setTargetServerId(svInfo.id);
-	dataStore->fetchItems(svInfo.id);
-	dataStore->getItemList(itemInfoList, itemsQueryOption);
+	dataStore->getItemList(itemInfoList, itemsQueryOption,
+			       ALL_ITEMS, fetchItemsSynchronously);
 	agent.add("numberOfItems", itemInfoList.size());
 
 	TriggerInfoList triggerInfoList;
@@ -1654,7 +1655,7 @@ void FaceRest::handlerGetItem(RestJob *job)
 	GetItemClosure *closure =
 	  new GetItemClosure(face, &FaceRest::itemFetchedCallback, job);
 
-	bool handled = dataStore->getItemListAsync(closure);
+	bool handled = dataStore->fetchItemsAsync(closure);
 	if (!handled) {
 		face->replyGetItem(job);
 		// avoid freeing m_restJob because m_restJob will be freed at

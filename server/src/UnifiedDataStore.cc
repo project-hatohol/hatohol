@@ -359,14 +359,17 @@ HatoholError UnifiedDataStore::getEventList(EventInfoList &eventList,
 
 void UnifiedDataStore::getItemList(ItemInfoList &itemList,
 				   const ItemsQueryOption &option,
-				   uint64_t targetItemId)
+				   uint64_t targetItemId,
+				   bool fetchItemsSynchronously)
 {
+	if (fetchItemsSynchronously)
+		fetchItems(option.getTargetServerId());
 	DBClientHatohol dbHatohol;
 	dbHatohol.getItemInfoList(itemList, option, targetItemId);
 }
 
-bool UnifiedDataStore::getItemListAsync(ClosureBase *closure,
-					uint32_t targetServerId)
+bool UnifiedDataStore::fetchItemsAsync(ClosureBase *closure,
+				       uint32_t targetServerId)
 {
 	if (!getCopyOnDemandEnabled())
 		return false;
