@@ -257,8 +257,6 @@ static void _assertGetTriggerInfoList(uint32_t serverId, uint64_t hostId = ALL_H
 cut_trace(_assertGetTriggerInfoList(SERVER_ID, ##__VA_ARGS__))
 
 
-// TODO: The names of makeExpectedOutput() and makeExpectedItemOutput()
-//       will be changed to be the similar of this function.
 static string makeEventOutput(const EventInfo &eventInfo)
 {
 	string output =
@@ -318,7 +316,7 @@ static void _assertGetEventsWithFilter(AssertGetEventsArg &arg)
 #define assertGetEventsWithFilter(ARG) \
 cut_trace(_assertGetEventsWithFilter(ARG))
 
-static string makeExpectedItemOutput(const ItemInfo &itemInfo)
+static string makeItemOutput(const ItemInfo &itemInfo)
 {
 	string expectedOut =
 	  StringUtils::sprintf(
@@ -345,7 +343,7 @@ struct AssertGetItemsArg
 
 	string makeExpectedOutput(const ItemInfo &itemInfo)
 	{
-		return makeExpectedItemOutput(itemInfo);
+		return makeItemOutput(itemInfo);
 	}
 };
 
