@@ -153,9 +153,8 @@ void ActorCollector::resetOnCollectorThread(void)
 	// This function is mainly for the test. In the normal use,
 	// waitChildSet is of course empty when this function is called
 	// at the start-up.
-	WaitChildSetIterator it = PrivateContext::waitChildSet.begin();
-	for (; it != PrivateContext::waitChildSet.end(); ++it) {
-
+	while (!PrivateContext::waitChildSet.empty()) {
+		WaitChildSetIterator it = PrivateContext::waitChildSet.begin();
 		delete it->second; // actorInfo;
 		pid_t pid = it->first;
 		PrivateContext::waitChildSet.erase(it);
