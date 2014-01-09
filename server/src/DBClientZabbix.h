@@ -66,6 +66,7 @@ public:
 	void addEventsRaw2_0(ItemTablePtr tablePtr);
 	void addApplicationsRaw2_0(ItemTablePtr tablePtr);
 	void addGroupsRaw2_0(ItemTablePtr tablePtr);
+	void addHostsGroupsRaw2_0(ItemTablePtr tablePtr);
 
 	void getTriggersAsHatoholFormat(TriggerInfoList &triggerInfoList);
 	void getEventsAsHatoholFormat(EventInfoList &eventInfoList);
