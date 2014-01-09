@@ -697,7 +697,7 @@ void test_addTriggerInfoList(void)
 	assertGetTriggers(arg);
 }
 
-void test_getTriggerWithOneAutorizedServer(void)
+void test_getTriggerWithOneAuthorizedServer(void)
 {
 	setupTestDBUser(true, true);
 	AssertGetTriggersArg arg;
@@ -705,7 +705,7 @@ void test_getTriggerWithOneAutorizedServer(void)
 	assertGetTriggersWithFilter(arg);
 }
 
-void test_getTriggerWithNoAutorizedServer(void)
+void test_getTriggerWithNoAuthorizedServer(void)
 {
 	setupTestDBUser(true, true);
 	AssertGetTriggersArg arg;
@@ -744,7 +744,7 @@ void test_addItemInfoList(void)
 	assertGetItems(arg);
 }
 
-void test_getItemsWithOneAutorizedServer(void)
+void test_getItemsWithOneAuthorizedServer(void)
 {
 	setupTestDBUser(true, true);
 	AssertGetItemsArg arg;
@@ -752,7 +752,7 @@ void test_getItemsWithOneAutorizedServer(void)
 	assertGetItemsWithFilter(arg);
 }
 
-void test_getItemWithNoAutorizedServer(void)
+void test_getItemWithNoAuthorizedServer(void)
 {
 	setupTestDBUser(true, true);
 	AssertGetItemsArg arg;
@@ -1151,7 +1151,7 @@ void test_getEventWithStartIdWithoutSortOrder(void)
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventWithOneAutorizedServer(void)
+void test_getEventWithOneAuthorizedServer(void)
 {
 	setupTestDBUser(true, true);
 	AssertGetEventsArg arg;
@@ -1159,7 +1159,7 @@ void test_getEventWithOneAutorizedServer(void)
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventWithNoAutorizedServer(void)
+void test_getEventWithNoAuthorizedServer(void)
 {
 	setupTestDBUser(true, true);
 	AssertGetEventsArg arg;
