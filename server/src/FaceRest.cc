@@ -443,6 +443,8 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	m_ctx->soupServer = soup_server_new(SOUP_SERVER_PORT, m_ctx->port,
 	                                    SOUP_SERVER_ASYNC_CONTEXT,
 	                                    m_ctx->gMainCtx, NULL);
+	if (errno == EADDRINUSE)
+		MLPL_ERR("%s", Utils::getUsingPortInfo(m_ctx->port).c_str());
 	HATOHOL_ASSERT(m_ctx->soupServer,
 	               "failed: soup_server_new: %u, errno: %d\n",
 	               m_ctx->port, errno);
