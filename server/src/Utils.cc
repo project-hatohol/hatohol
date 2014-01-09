@@ -377,7 +377,6 @@ string Utils::getUsingPortInfo(const int &port)
 	if (!succeeded) {
 		const gchar *errorMsg =
 		   error ? error->message : "Unknown reason";
-		if (error)
 		MLPL_ERR("Failed to execute: %s: %s\n", cmd.c_str(), errorMsg);
 		return "";
 	}
