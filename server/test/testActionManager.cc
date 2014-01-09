@@ -113,6 +113,7 @@ struct ExecCommandContext : public ResidentPullHelper<ExecCommandContext> {
 	  receivedActTpArgList(false),
 	  receivedActTpQuit(false)
 	{
+		initEventInfo(eventInfo);
 		timerTag = g_timeout_add(timeout, timeoutHandler, this);
 	}
 

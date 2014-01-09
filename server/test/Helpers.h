@@ -30,6 +30,7 @@ using namespace mlpl;
 #include "DBClient.h"
 #include "HatoholError.h"
 #include "OperationPrivilege.h"
+#include "DBClientHatohol.h"
 
 #define DBCONTENT_MAGIC_CURR_DATETIME "#CURR_DATETIME#"
 #define DBCONTENT_MAGIC_NULL          "#NULL#"
@@ -168,6 +169,7 @@ UserIdType searchMaxTestUserId(void);
 UserIdType findUserWith(const OperationPrivilegeType &type,
                         const OperationPrivilegeFlag &excludeFlags = 0);
 UserIdType findUserWithout(const OperationPrivilegeType &type);
+void initEventInfo(EventInfo &eventInfo);
 
 class Watcher {
 	bool expired;
