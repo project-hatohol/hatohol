@@ -405,51 +405,6 @@ void _assertItemInfoList(uint32_t serverId)
 }
 #define assertItemInfoList(SERVER_ID) cut_trace(_assertItemInfoList(SERVER_ID))
 
-static void _assertGetHostInfoList(uint32_t serverId)
-{
-	// We have to insert test trigger data in DB first. Because current
-	// implementation of DBClientHatohol creates hostInfoList
-	// from trigger table.
-	// TODO: The implementation will be fixed in the future. The DB table
-	//       for host will be added. After that, we will fix this setup.
-	setupTestTriggerDB();
-
-	HostInfoList actualHostList;
-	HostInfoList expectedHostList;
-	ServerIdHostIdMap svIdHostIdMap;
-	DBClientHatohol dbHatohol;
-	HostsQueryOption option(USER_ID_SYSTEM);
-	option.setTargetServerId(serverId);
-	dbHatohol.getHostInfoList(actualHostList, option);
-	getTestHostInfoList(expectedHostList, serverId, &svIdHostIdMap);
-
-	// comapre two lists
-	cppcut_assert_equal(expectedHostList.size(), actualHostList.size());
-
-	HostInfoListIterator actualHost = actualHostList.begin();
-	for (; actualHost != actualHostList.end(); ++actualHost) {
-		// server ID
-		ServerIdHostIdMapIterator svIt =
-		   svIdHostIdMap.find(actualHost->serverId);
-		cppcut_assert_equal(true, svIt != svIdHostIdMap.end());
-
-		// Host ID
-		HostIdSet &hostIdSet = svIt->second;
-		HostIdSetIterator hostIt = hostIdSet.find(actualHost->id);
-		cppcut_assert_equal(true, hostIt != hostIdSet.end());
-
-		// delete the element from svIdHostIdMap.
-		// This is needed to check the duplication of hosts in
-		// actualHostList
-		hostIdSet.erase(hostIt);
-		if (hostIdSet.empty())
-			svIdHostIdMap.erase(svIt);
-	}
-	cppcut_assert_equal((size_t)0, svIdHostIdMap.size());
-}
-#define assertGetHostInfoList(SERVER_ID) \
-cut_trace(_assertGetHostInfoList(SERVER_ID))
-
 struct AssertGetHostsArg
   : public AssertGetHostResourceArg<HostInfo, HostsQueryOption>
 {
@@ -468,7 +423,49 @@ struct AssertGetHostsArg
 	}
 
 	virtual void assert(void) {
-		assertGetHostInfoList(targetServerId);
+		// We have to insert test trigger data in DB first. Because
+		// current implementation of DBClientHatohol creates
+		// hostInfoList from trigger table.
+		// TODO: The implementation will be fixed in the future. The DB
+		//       table for host will be added. After that, we will fix
+		//       this setup.
+		setupTestTriggerDB();
+
+		HostInfoList actualHostList;
+		HostInfoList expectedHostList;
+		ServerIdHostIdMap svIdHostIdMap;
+		DBClientHatohol dbHatohol;
+		HostsQueryOption option(USER_ID_SYSTEM);
+		option.setTargetServerId(targetServerId);
+		dbHatohol.getHostInfoList(actualHostList, option);
+		getTestHostInfoList(expectedHostList, targetServerId,
+				    &svIdHostIdMap);
+
+		// comapre two lists
+		cppcut_assert_equal(expectedHostList.size(),
+				    actualHostList.size());
+
+		HostInfoListIterator actualHost = actualHostList.begin();
+		for (; actualHost != actualHostList.end(); ++actualHost) {
+			// server ID
+			ServerIdHostIdMapIterator svIt =
+				svIdHostIdMap.find(actualHost->serverId);
+			cppcut_assert_equal(true, svIt != svIdHostIdMap.end());
+
+			// Host ID
+			HostIdSet &hostIdSet = svIt->second;
+			HostIdSetIterator hostIt
+			  = hostIdSet.find(actualHost->id);
+			cppcut_assert_equal(true, hostIt != hostIdSet.end());
+
+			// delete the element from svIdHostIdMap.
+			// This is needed to check the duplication of hosts in
+			// actualHostList
+			hostIdSet.erase(hostIt);
+			if (hostIdSet.empty())
+				svIdHostIdMap.erase(svIt);
+		}
+		cppcut_assert_equal((size_t)0, svIdHostIdMap.size());
 	}
 };
 
