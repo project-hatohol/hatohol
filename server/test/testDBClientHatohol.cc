@@ -431,22 +431,21 @@ struct AssertGetHostsArg
 		//       this setup.
 		setupTestTriggerDB();
 
-		HostInfoList actualHostList;
 		HostInfoList expectedHostList;
 		ServerIdHostIdMap svIdHostIdMap;
 		DBClientHatohol dbHatohol;
 		HostsQueryOption option(USER_ID_SYSTEM);
 		option.setTargetServerId(targetServerId);
-		dbHatohol.getHostInfoList(actualHostList, option);
+		dbHatohol.getHostInfoList(actualRecordList, option);
 		getTestHostInfoList(expectedHostList, targetServerId,
 				    &svIdHostIdMap);
 
 		// comapre two lists
 		cppcut_assert_equal(expectedHostList.size(),
-				    actualHostList.size());
+				    actualRecordList.size());
 
-		HostInfoListIterator actualHost = actualHostList.begin();
-		for (; actualHost != actualHostList.end(); ++actualHost) {
+		HostInfoListIterator actualHost = actualRecordList.begin();
+		for (; actualHost != actualRecordList.end(); ++actualHost) {
 			// server ID
 			ServerIdHostIdMapIterator svIt =
 				svIdHostIdMap.find(actualHost->serverId);
