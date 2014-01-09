@@ -147,6 +147,12 @@ public:
 
 	static pid_t getThreadId(void);
 
+	/**
+	 * Return information about the program using a port.
+	 * Tihs method internally uses a 'lsof' command.
+	 */
+	static std::string getUsingPortInfo(const int &port);
+
 protected:
 	static string makeDemangledStackTraceString(string &stackTraceLine);
 };
