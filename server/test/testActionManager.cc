@@ -1276,7 +1276,7 @@ void test_checkExitWaitedCommandAction(void)
 	while (!aliveIndexSet.empty()) {
 		set<size_t>::iterator it = aliveIndexSet.begin();
 		size_t idx = *it;
-		ExecCommandContext *ctx = g_execCommandCtxVect[*it];
+		ExecCommandContext *ctx = g_execCommandCtxVect[idx];
 		sendQuit(ctx);
 		bool waiting = (idx >= (size_t)maxNum);
 		int expectedNullFlags = waiting ? 0 : ACTLOG_FLAG_QUEUING_TIME;
