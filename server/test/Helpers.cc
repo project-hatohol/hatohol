@@ -794,14 +794,6 @@ void initEventInfo(EventInfo &eventInfo)
 	eventInfo.hostId = 0;
 }
 
-void initActionDef(ActionDef &actionDef)
-{
-	actionDef.id = 0;
-	actionDef.type = ACTION_COMMAND;
-	actionDef.timeout = 0;
-	actionDef.ownerUserId = INVALID_USER_ID;;
-}
-
 // ---------------------------------------------------------------------------
 // Watcher
 // ---------------------------------------------------------------------------

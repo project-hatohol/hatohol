@@ -31,7 +31,6 @@ using namespace mlpl;
 #include "HatoholError.h"
 #include "OperationPrivilege.h"
 #include "DBClientHatohol.h"
-#include "DBClientAction.h"
 
 #define DBCONTENT_MAGIC_CURR_DATETIME "#CURR_DATETIME#"
 #define DBCONTENT_MAGIC_NULL          "#NULL#"
@@ -171,7 +170,6 @@ UserIdType findUserWith(const OperationPrivilegeType &type,
                         const OperationPrivilegeFlag &excludeFlags = 0);
 UserIdType findUserWithout(const OperationPrivilegeType &type);
 void initEventInfo(EventInfo &eventInfo);
-void initActionDef(ActionDef &actionDef);
 
 class Watcher {
 	bool expired;
