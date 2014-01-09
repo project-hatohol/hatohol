@@ -434,8 +434,6 @@ struct AssertGetHostsArg
 		HostInfoList expectedHostList;
 		ServerIdHostIdMap svIdHostIdMap;
 		DBClientHatohol dbHatohol;
-		HostsQueryOption option(USER_ID_SYSTEM);
-		option.setTargetServerId(targetServerId);
 		dbHatohol.getHostInfoList(actualRecordList, option);
 		getTestHostInfoList(expectedHostList, targetServerId,
 				    &svIdHostIdMap);
