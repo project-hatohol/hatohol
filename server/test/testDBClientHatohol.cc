@@ -415,6 +415,16 @@ struct AssertGetHostsArg
 	{
 		getTestHostInfoList(expectedHostList, targetServerId,
 				    &svIdHostIdMap);
+		HostInfoListIterator it = expectedHostList.begin();
+		for (; it != expectedHostList.end();) {	
+			HostInfo &record = *it;
+			if (!isAuthorized(record)) {
+				svIdHostIdMap.erase(record.serverId);
+				it = expectedHostList.erase(it);
+				continue;
+			}
+			++it;
+		}
 	}
 
 	virtual uint64_t getHostId(HostInfo &info)
@@ -795,6 +805,14 @@ void test_getHostInfoListForOneServer(void)
 {
 	AssertGetHostsArg arg;
 	arg.targetServerId = testTriggerInfo[0].serverId;
+	assertGetHosts(arg);
+}
+
+void test_getHostInfoListWithNoAuthorizedServer(void)
+{
+	setupTestDBUser(true, true);
+	AssertGetHostsArg arg;
+	arg.userId = 4;
 	assertGetHosts(arg);
 }
 
