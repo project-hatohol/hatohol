@@ -164,7 +164,7 @@ struct AssertGetHostResourceArg {
 		if (startId)
 			idx += (startId - 1);
 		if (sortOrder == DataQueryOption::SORT_DESCENDING)
-			idx = (NumTestEventInfo - 1) - idx;
+			idx = (expectedRecords.size() - 1) - idx;
 		cut_assert_true(idx < expectedRecords.size());
 		return *expectedRecords[idx];
 	}
