@@ -447,31 +447,19 @@ struct AssertGetHostsArg
 	}
 
 	virtual void assert(void) {
-		// comapre two lists
 		cppcut_assert_equal(expectedHostList.size(),
 				    actualRecordList.size());
 
+		string expectedText;
+		string actualText;
+		HostInfoListIterator expectedHost = expectedHostList.begin();
 		HostInfoListIterator actualHost = actualRecordList.begin();
-		for (; actualHost != actualRecordList.end(); ++actualHost) {
-			// server ID
-			ServerIdHostIdMapIterator svIt =
-				svIdHostIdMap.find(actualHost->serverId);
-			cppcut_assert_equal(true, svIt != svIdHostIdMap.end());
-
-			// Host ID
-			HostIdSet &hostIdSet = svIt->second;
-			HostIdSetIterator hostIt
-			  = hostIdSet.find(actualHost->id);
-			cppcut_assert_equal(true, hostIt != hostIdSet.end());
-
-			// delete the element from svIdHostIdMap.
-			// This is needed to check the duplication of hosts in
-			// actualHostList
-			hostIdSet.erase(hostIt);
-			if (hostIdSet.empty())
-				svIdHostIdMap.erase(svIt);
+		for (; actualHost != actualHostList.end();
+		     ++actualHost, ++expectedHost) {
+			expectedText += makeOutputText(*expectedHost);
+			actualText += makeOutputText(*actualHost);
 		}
-		cppcut_assert_equal((size_t)0, svIdHostIdMap.size());
+		cppcut_assert_equal(expectedText, actualText);
 	}
 };
 
