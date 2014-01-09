@@ -38,6 +38,20 @@ public:
 	virtual void start(void);
 	virtual void stop(void);
 	virtual void fetchItems(uint32_t targetServerId = ALL_SERVERS);
+	virtual bool getCopyOnDemandEnabled(void) const;
+	virtual void setCopyOnDemandEnabled(bool enable);
+
+	/**
+	 * Add events in the Hatohol DB and executes action if needed. 
+	 * 
+	 * @param eventList A list of EventInfo.
+	 */
+	virtual void addEventList(const EventInfoList &eventList);
+
+
+	/*
+	 *  Functions which require operation privilege
+	 */
 
 	virtual void getTriggerList(TriggerInfoList &triggerList,
 				    const TriggersQueryOption &option,
@@ -64,16 +78,6 @@ public:
 	                  TriggerSeverityType severity);
 	virtual size_t getNumberOfGoodHosts(const HostsQueryOption &option);
 	virtual size_t getNumberOfBadHosts(const HostsQueryOption &option);
-
-	virtual bool getCopyOnDemandEnabled(void) const;
-	virtual void setCopyOnDemandEnabled(bool enable);
-
-	/**
-	 * Add events in the Hatohol DB and executes action if needed. 
-	 * 
-	 * @param eventList A list of EventInfo.
-	 */
-	virtual void addEventList(const EventInfoList &eventList);
 
 	virtual void getUserList(UserInfoList &userList,
                                  const UserQueryOption &option);
