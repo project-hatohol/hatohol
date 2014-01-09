@@ -414,7 +414,6 @@ struct AssertGetHostsArg
   : public AssertGetHostResourceArg<HostInfo, HostsQueryOption>
 {
 	HostInfoList expectedHostList;
-	ServerIdHostIdMap svIdHostIdMap;
 
 	AssertGetHostsArg(void)
 	{
@@ -422,17 +421,12 @@ struct AssertGetHostsArg
 
 	virtual void fixupExpectedRecords(void)
 	{
-		getTestHostInfoList(expectedHostList, targetServerId,
-				    &svIdHostIdMap);
+		getTestHostInfoList(expectedHostList, targetServerId, NULL);
 		HostInfoListIterator it = expectedHostList.begin();
-		for (; it != expectedHostList.end();) {	
+		for (; it != expectedHostList.end(); ++it) {	
 			HostInfo &record = *it;
-			if (!isAuthorized(record)) {
-				svIdHostIdMap.erase(record.serverId);
-				it = expectedHostList.erase(it);
-				continue;
-			}
-			++it;
+			if (isAuthorized(record))
+				expectedRecords.push_back(&record);
 		}
 	}
 
@@ -444,22 +438,6 @@ struct AssertGetHostsArg
 	virtual string makeOutputText(const HostInfo &hostInfo)
 	{
 		return makeHostOutput(hostInfo);
-	}
-
-	virtual void assert(void) {
-		cppcut_assert_equal(expectedHostList.size(),
-				    actualRecordList.size());
-
-		string expectedText;
-		string actualText;
-		HostInfoListIterator expectedHost = expectedHostList.begin();
-		HostInfoListIterator actualHost = actualRecordList.begin();
-		for (; actualHost != actualHostList.end();
-		     ++actualHost, ++expectedHost) {
-			expectedText += makeOutputText(*expectedHost);
-			actualText += makeOutputText(*actualHost);
-		}
-		cppcut_assert_equal(expectedText, actualText);
 	}
 };
 
