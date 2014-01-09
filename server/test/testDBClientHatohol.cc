@@ -404,8 +404,19 @@ void _assertItemInfoList(uint32_t serverId)
 struct AssertGetHostsArg
   : public AssertGetHostResourceArg<HostInfo, HostsQueryOption>
 {
+	HostInfoList expectedHostList;
+	ServerIdHostIdMap svIdHostIdMap;
+
 	AssertGetHostsArg(void)
 	{
+	}
+
+	virtual void fixupExpectedRecords(void)
+	{
+		HostInfoList expectedHostList;
+		ServerIdHostIdMap svIdHostIdMap;
+		getTestHostInfoList(expectedHostList, targetServerId,
+				    &svIdHostIdMap);
 	}
 
 	virtual uint64_t getHostId(HostInfo &info)
@@ -427,12 +438,8 @@ struct AssertGetHostsArg
 		//       this setup.
 		setupTestTriggerDB();
 
-		HostInfoList expectedHostList;
-		ServerIdHostIdMap svIdHostIdMap;
 		DBClientHatohol dbHatohol;
 		dbHatohol.getHostInfoList(actualRecordList, option);
-		getTestHostInfoList(expectedHostList, targetServerId,
-				    &svIdHostIdMap);
 
 		// comapre two lists
 		cppcut_assert_equal(expectedHostList.size(),
