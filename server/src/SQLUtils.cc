@@ -185,7 +185,7 @@ ItemDataPtr SQLUtils::createFromString(const char *str, SQLColumnType type)
 			break;
 		}
 
-		struct tm tm;
+		struct tm tm = {0, 0};
 		int numVal = sscanf(str,
 		                    "%04d-%02d-%02d %02d:%02d:%02d",
 		                    &tm.tm_year, &tm.tm_mon, &tm.tm_mday,
