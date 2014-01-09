@@ -558,6 +558,7 @@ SoupMessage *ArmZabbixAPI::queryGroup(void)
 
 	agent.startObject("params");
 	agent.add("output", "extend");
+	agent.add("selectHosts", "refer");
 	agent.endObject(); //params
 
 	agent.add("auth", m_ctx->authToken);
