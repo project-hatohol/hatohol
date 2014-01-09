@@ -40,7 +40,8 @@ Session::Session(void)
 
 Session::~Session()
 {
-	g_source_remove(timerId);
+	if (timerId != INVALID_EVENT_ID)
+		g_source_remove(timerId);
 }
 
 // ---------------------------------------------------------------------------
