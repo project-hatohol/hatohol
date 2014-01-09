@@ -44,6 +44,7 @@ static const char *TABLE_NAME_HOSTS_RAW_2_0 = "hosts_raw_2_0";
 static const char *TABLE_NAME_EVENTS_RAW_2_0 = "events_raw_2_0";
 static const char *TABLE_NAME_APPLICATIONS_RAW_2_0 = "applications_raw_2_0";
 static const char *TABLE_NAME_GROUPS_RAW_2_0 = "groups_raw_2_0";
+static const char *TABLE_NAME_HOSTS_GROUPS_RAW_2_0 = "hosts_groups_raw_2_0";
 
 static const ColumnDef COLUMN_DEF_SYSTEM[] = {
 {
@@ -1524,6 +1525,52 @@ enum {
 	NUM_IDX_GROUPS_RAW_2_0
 };
 
+static const ColumnDef COLUMN_DEF_HOSTS_GROUPS_RAW_2_0[] = {
+{
+	ITEM_ID_ZBX_HOSTS_GROUPS_HOSTGROUPID, // itemId
+	TABLE_NAME_HOSTS_GROUPS_RAW_2_0,      // tableName
+	"hostgroupid",                        // columnName
+	SQL_COLUMN_TYPE_BIGUINT,              // type
+	20,                                   // columnLength
+	0,                                    // decFracLength
+	false,                                // canBeNull
+	SQL_KEY_PRI,                          // keyType
+	0,                                    // flags
+	NULL,                                 // defaultValue
+}, {
+	ITEM_ID_ZBX_HOSTS_GROUPS_HOSTID,      // itemId
+	TABLE_NAME_HOSTS_GROUPS_RAW_2_0,      // tableName
+	"hostid",                             // columnName
+	SQL_COLUMN_TYPE_BIGUINT,              // type
+	20,                                   // columnLength
+	0,                                    // decFracLength
+	false,                                // canBeNull
+	SQL_KEY_MUL,                          // keyType
+	0,                                    // flags
+	NULL,                                 // defaultValue
+}, {
+	ITEM_ID_ZBX_HOSTS_GROUPS_GROUPID,     // itemId
+	TABLE_NAME_HOSTS_GROUPS_RAW_2_0,      // tableName
+	"groupid",                            // columnName
+	SQL_COLUMN_TYPE_BIGUINT,              // type
+	20,                                   // columnLength
+	0,                                    // decFracLength
+	false,                                // canBeNull
+	SQL_KEY_MUL,                          // keyType
+	0,                                    // flags
+	NULL,                                 // defaultValue
+}
+};
+static const size_t NUM_COLUMNS_HOSTS_GROUPS_RAW_2_0 =
+   sizeof(COLUMN_DEF_GROUPS_RAW_2_0) / sizeof(ColumnDef);
+
+enum {
+	IDX_HOSTS_GROUPS_RAW_2_0_HOSTGROUPID,
+	IDX_HOSTS_GROUPS_RAW_2_0_HOSTID,
+	IDX_HOSTS_GROUPS_RAW_2_0_GROUPID,
+	NUM_IDX_HOSTS_GROUPS_RAW_2_0
+};
+
 struct DBClientZabbix::PrivateContext
 {
 	size_t             serverId;
@@ -1582,6 +1629,12 @@ void DBClientZabbix::init(void)
 	  "Invalid number of elements: NUM_COLUMNS_GROUPS_RAW_2_0 (%zd), "
 	  "NUM_IDX_GROUPS_RAW_2_0 (%d)",
 	  NUM_COLUMNS_GROUPS_RAW_2_0, NUM_IDX_GROUPS_RAW_2_0);
+
+	HATOHOL_ASSERT(
+	  NUM_COLUMNS_HOSTS_GROUPS_RAW_2_0 == NUM_IDX_HOSTS_GROUPS_RAW_2_0,
+	  "Invalid number of elements: NUM_COLUMNS_HOSTS_GROUPS_RAW_2_0 (%zd), "
+	  "NUM_IDX_HOSTS_GROUPS_RAW_2_0 (%d)",
+	  NUM_COLUMNS_HOSTS_GROUPS_RAW_2_0, NUM_IDX_HOSTS_GROUPS_RAW_2_0);
 }
 
 DBDomainId DBClientZabbix::getDBDomainId(const ServerIdType zabbixServerId)
@@ -1625,6 +1678,10 @@ DBClientZabbix *DBClientZabbix::create(const ServerIdType zabbixServerId)
 		TABLE_NAME_GROUPS_RAW_2_0,
 		NUM_COLUMNS_GROUPS_RAW_2_0,
 		COLUMN_DEF_GROUPS_RAW_2_0,
+	}, {
+		TABLE_NAME_HOSTS_GROUPS_RAW_2_0,
+		NUM_COLUMNS_HOSTS_GROUPS_RAW_2_0,
+		COLUMN_DEF_HOSTS_GROUPS_RAW_2_0,
 	}
 	};
 	static const size_t NUM_TABLE_INFO =
