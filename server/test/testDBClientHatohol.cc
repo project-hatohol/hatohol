@@ -413,8 +413,6 @@ struct AssertGetHostsArg
 
 	virtual void fixupExpectedRecords(void)
 	{
-		HostInfoList expectedHostList;
-		ServerIdHostIdMap svIdHostIdMap;
 		getTestHostInfoList(expectedHostList, targetServerId,
 				    &svIdHostIdMap);
 	}
@@ -469,7 +467,7 @@ static void _assertGetHosts(AssertGetHostsArg &arg)
 
 	DBClientHatohol dbHatohol;
 	arg.fixup();
-	dbHatohol.getHostInfoList(arg.actualRecordList, option);
+	dbHatohol.getHostInfoList(arg.actualRecordList, arg.option);
 	arg.assert();
 }
 #define assertGetHosts(A) cut_trace(_assertGetHosts(A))
