@@ -223,8 +223,6 @@ static void _assertGetTriggers(AssertGetTriggersArg &arg)
 	DBClientHatohol dbHatohol;
 	arg.fixup();
 	dbHatohol.getTriggerInfoList(arg.actualRecordList, arg.option);
-	if (arg.expectedErrorCode != HTERR_OK)
-		return;
 	arg.assert();
 }
 #define assertGetTriggers(A) cut_trace(_assertGetTriggers(A))
@@ -369,8 +367,6 @@ static void _assertGetItems(AssertGetItemsArg &arg)
 	DBClientHatohol dbHatohol;
 	arg.fixup();
 	dbHatohol.getItemInfoList(arg.actualRecordList, arg.option);
-	if (arg.expectedErrorCode != HTERR_OK)
-		return;
 	arg.assert();
 }
 #define assertGetItems(A) cut_trace(_assertGetItems(A))
