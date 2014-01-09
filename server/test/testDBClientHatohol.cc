@@ -401,6 +401,15 @@ void _assertItemInfoList(uint32_t serverId)
 }
 #define assertItemInfoList(SERVER_ID) cut_trace(_assertItemInfoList(SERVER_ID))
 
+static string makeHostOutput(const HostInfo &hostInfo)
+{
+	string expectedOut =
+	  StringUtils::sprintf(
+	    "%"PRIu32"|%"PRIu64"|%s\n",
+	    hostInfo.serverId, hostInfo.id, hostInfo.hostName.c_str());
+	return expectedOut;
+}
+
 struct AssertGetHostsArg
   : public AssertGetHostResourceArg<HostInfo, HostsQueryOption>
 {
@@ -434,7 +443,7 @@ struct AssertGetHostsArg
 
 	virtual string makeOutputText(const HostInfo &hostInfo)
 	{
-		return string();
+		return makeHostOutput(hostInfo);
 	}
 
 	virtual void assert(void) {
