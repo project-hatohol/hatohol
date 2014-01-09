@@ -292,7 +292,7 @@ void ArmZabbixAPI::onGotNewEvents(const ItemTablePtr &itemPtr)
 	// This function is used on a test class.
 }
 
-ItemTablePtr ArmZabbixAPI::getGroups(void)
+void ArmZabbixAPI::getGroups(ItemTablePtr &groupsTablePtr, ItemTablePtr &hostsGroupsTablePtr)
 {
 	SoupMessage *msg = queryGroup();
 	if (!msg)
@@ -306,15 +306,14 @@ ItemTablePtr ArmZabbixAPI::getGroups(void)
 	}
 	startObject(parser, "result");
 
-	VariableItemTablePtr tablePtr;
+	VariableItemTablePtr variableGroupsTablePtr;
 	int numData = parser.countElements();
 	MLPL_DBG("The number of groups: %d\n", numData);
-	if (numData < 1)
-		return ItemTablePtr(tablePtr);
 
 	for (int i = 0; i < numData; i++)
-		parseAndPushGroupsData(parser, tablePtr, i);
-	return ItemTablePtr(tablePtr);
+		parseAndPushGroupsData(parser, variableGroupsTablePtr, i);
+
+	groupsTablePtr = ItemTablePtr(variableGroupsTablePtr);
 }
 
 // ---------------------------------------------------------------------------
@@ -1059,9 +1058,9 @@ void ArmZabbixAPI::updateApplications(const ItemTable *items)
 
 void ArmZabbixAPI::updateGroups(void)
 {
-	ItemTablePtr tablePtr;
-	tablePtr = getGroups();
-	m_ctx->dbClientZabbix->addGroupsRaw2_0(tablePtr);
+	ItemTablePtr groupsTablePtr, hostsGroupsTablePtr;
+	getGroups(groupsTablePtr, hostsGroupsTablePtr);
+	m_ctx->dbClientZabbix->addGroupsRaw2_0(groupsTablePtr);
 }
 
 //
