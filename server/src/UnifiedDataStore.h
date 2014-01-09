@@ -62,10 +62,8 @@ public:
 	virtual size_t getNumberOfTriggers
 	                 (const TriggersQueryOption &option,
 	                  TriggerSeverityType severity);
-	virtual size_t getNumberOfGoodHosts(uint32_t serverId,
-	                                    uint64_t hostGroupId);
-	virtual size_t getNumberOfBadHosts(uint32_t serverId,
-	                                   uint64_t hostGroupId);
+	virtual size_t getNumberOfGoodHosts(const HostsQueryOption &option);
+	virtual size_t getNumberOfBadHosts(const HostsQueryOption &option);
 
 	virtual bool getCopyOnDemandEnabled(void) const;
 	virtual void setCopyOnDemandEnabled(bool enable);

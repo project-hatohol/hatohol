@@ -404,18 +404,16 @@ size_t UnifiedDataStore::getNumberOfTriggers(const TriggersQueryOption &option,
 	return dbHatohol.getNumberOfTriggers(option, severity);
 }
 
-size_t UnifiedDataStore::getNumberOfGoodHosts(uint32_t serverId,
-                                              uint64_t hostGroupId)
+size_t UnifiedDataStore::getNumberOfGoodHosts(const HostsQueryOption &option)
 {
 	DBClientHatohol dbHatohol;
-	return dbHatohol.getNumberOfGoodHosts(serverId, hostGroupId);
+	return dbHatohol.getNumberOfGoodHosts(option);
 }
 
-size_t UnifiedDataStore::getNumberOfBadHosts(uint32_t serverId,
-                                             uint64_t hostGroupId)
+size_t UnifiedDataStore::getNumberOfBadHosts(const HostsQueryOption &option)
 {
 	DBClientHatohol dbHatohol;
-	return dbHatohol.getNumberOfBadHosts(serverId, hostGroupId);
+	return dbHatohol.getNumberOfBadHosts(option);
 }
 
 bool UnifiedDataStore::getCopyOnDemandEnabled(void) const

@@ -1256,8 +1256,7 @@ size_t DBClientHatohol::getNumberOfTriggers(const TriggersQueryOption &option,
 	return ItemDataUtils::getInt(count);
 }
 
-size_t DBClientHatohol::getNumberOfHosts(uint32_t serverId,
-                                         uint64_t hostGroupId)
+size_t DBClientHatohol::getNumberOfHosts(const HostsQueryOption &option)
 {
 	// TODO: use hostGroupId after Hatohol supports it. 
 	DBAgentSelectExArg arg;
@@ -1269,12 +1268,7 @@ size_t DBClientHatohol::getNumberOfHosts(uint32_t serverId,
 	arg.columnTypes.push_back(SQL_COLUMN_TYPE_INT);
 
 	// condition
-	if (serverId != ALL_SERVERS) {
-		const char *colName = 
-		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName;
-		arg.condition += StringUtils::sprintf("%s=%"PRIu32,
-		                                      colName, serverId);
-	}
+	arg.condition = option.getCondition();
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -1285,19 +1279,17 @@ size_t DBClientHatohol::getNumberOfHosts(uint32_t serverId,
 	return ItemDataUtils::getInt(count);
 }
 
-size_t DBClientHatohol::getNumberOfGoodHosts(uint32_t serverId,
-                                             uint64_t hostGroupId)
+size_t DBClientHatohol::getNumberOfGoodHosts(const HostsQueryOption &option)
 {
-	size_t numTotalHost = getNumberOfHosts(serverId, hostGroupId);
-	size_t numBadHosts = getNumberOfBadHosts(serverId, hostGroupId);
+	size_t numTotalHost = getNumberOfHosts(option);
+	size_t numBadHosts = getNumberOfBadHosts(option);
 	HATOHOL_ASSERT(numTotalHost >= numBadHosts,
 	               "numTotalHost: %zd, numBadHosts: %zd",
 	               numTotalHost, numBadHosts);
 	return numTotalHost - numBadHosts;
 }
 
-size_t DBClientHatohol::getNumberOfBadHosts(uint32_t serverId,
-                                            uint64_t hostGroupId)
+size_t DBClientHatohol::getNumberOfBadHosts(const HostsQueryOption &option)
 {
 	// TODO: use hostGroupId after Hatohol supports it. 
 	DBAgentSelectExArg arg;
@@ -1309,17 +1301,14 @@ size_t DBClientHatohol::getNumberOfBadHosts(uint32_t serverId,
 	arg.columnTypes.push_back(SQL_COLUMN_TYPE_INT);
 
 	// condition
-	arg.condition =
+	arg.condition = option.getCondition();
+	if (!arg.condition.empty())
+		arg.condition += " AND ";
+
+	arg.condition +=
 	  StringUtils::sprintf("%s=%d",
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_STATUS].columnName,
 	    TRIGGER_STATUS_PROBLEM);
-
-	if (serverId != ALL_SERVERS) {
-		const char *colName = 
-		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName;
-		arg.condition += StringUtils::sprintf(" and %s=%"PRIu32,
-		                                      colName, serverId);
-	}
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);

@@ -279,9 +279,9 @@ public:
 	 */
 	size_t getNumberOfTriggers(const TriggersQueryOption &option,
 	                           TriggerSeverityType severity);
-	size_t getNumberOfHosts(uint32_t serverId, uint64_t hostGroupId);
-	size_t getNumberOfGoodHosts(uint32_t serverId, uint64_t hostGroupId);
-	size_t getNumberOfBadHosts(uint32_t serverId, uint64_t hostGroupId);
+	size_t getNumberOfHosts(const HostsQueryOption &option);
+	size_t getNumberOfGoodHosts(const HostsQueryOption &option);
+	size_t getNumberOfBadHosts(const HostsQueryOption &option);
 
 protected:
 	void addTriggerInfoBare(const TriggerInfo &triggerInfo);

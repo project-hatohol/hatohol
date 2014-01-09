@@ -991,13 +991,16 @@ static void addOverviewEachServer(FaceRest::RestJob *job,
 	agent.startArray("hostStatus");
 	for (size_t i = 0; i < numHostGroup; i++) {
 		uint64_t hostGroupId = hostGroupIds[i];
-		uint32_t svid = svInfo.id;
+		HostsQueryOption option(job->userId);
+		option.setTargetServerId(svInfo.id);
+		//TODO: Host group isn't supported yet
+		//option.setTargetHostGroupId(hostGroupId);
 		agent.startObject();
 		agent.add("hostGroupId", hostGroupId);
 		agent.add("numberOfGoodHosts",
-		          dataStore->getNumberOfGoodHosts(svid, hostGroupId));
+		          dataStore->getNumberOfGoodHosts(option));
 		agent.add("numberOfBadHosts",
-		          dataStore->getNumberOfBadHosts(svid, hostGroupId));
+		          dataStore->getNumberOfBadHosts(option));
 		agent.endObject();
 	}
 	agent.endArray();

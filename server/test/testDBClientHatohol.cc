@@ -470,10 +470,15 @@ static void _assertGetNumberOfHostsWithStatus(bool status)
 	int expected = getNumberOfTestHostsWithStatus(serverId, hostGroupId,
 	                                              status);
 	int actual;
+	HostsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(serverId);
+	//TODO: hostGroupId isn't supported yet
+	//option.setTargetHostGroupId(hostGroupId);
+
 	if (status)
-		actual  = dbHatohol.getNumberOfGoodHosts(serverId, hostGroupId);
+		actual  = dbHatohol.getNumberOfGoodHosts(option);
 	else
-		actual  = dbHatohol.getNumberOfBadHosts(serverId, hostGroupId);
+		actual  = dbHatohol.getNumberOfBadHosts(option);
 	cppcut_assert_equal(expected, actual);
 }
 #define assertGetNumberOfHostsWithStatus(ST) \
