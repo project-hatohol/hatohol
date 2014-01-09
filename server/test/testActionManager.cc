@@ -1273,8 +1273,8 @@ void test_checkExitWaitedCommandAction(void)
 	}
 
 	// quit process at the head and the tail alternately
-	set<size_t>::iterator it = aliveIndexSet.begin();
-	for (; it != aliveIndexSet.end(); ++it) {
+	while (!aliveIndexSet.empty()) {
+		set<size_t>::iterator it = aliveIndexSet.begin();
 		size_t idx = *it;
 		ExecCommandContext *ctx = g_execCommandCtxVect[*it];
 		sendQuit(ctx);
