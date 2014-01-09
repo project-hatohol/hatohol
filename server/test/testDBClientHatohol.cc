@@ -816,6 +816,14 @@ void test_getHostInfoListWithNoAuthorizedServer(void)
 	assertGetHosts(arg);
 }
 
+void test_getHostInfoListWithOneAuthorizedServer(void)
+{
+	setupTestDBUser(true, true);
+	AssertGetHostsArg arg;
+	arg.userId = 5;
+	assertGetHosts(arg);
+}
+
 void test_getNumberOfTriggersBySeverity(void)
 {
 	setupTestTriggerDB();
