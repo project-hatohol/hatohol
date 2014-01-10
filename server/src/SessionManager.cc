@@ -75,7 +75,6 @@ struct SessionManager::PrivateContext {
 SessionManager *SessionManager::PrivateContext::instance = NULL;
 MutexLock SessionManager::PrivateContext::initLock;
 
-
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
