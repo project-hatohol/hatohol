@@ -385,11 +385,8 @@ void test_getLastInsertId(void)
 
 void test_getNumberOfAffectedRows(void)
 {
-	cut_omit("Not implemented yet");
-	/*
 	DBAgentSQLite3 dbAgent;
 	dbAgentGetNumberOfAffectedRows(dbAgent, dbAgentChecker);
-	*/
 }
 
 } // testDBAgentSQLite3

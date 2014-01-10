@@ -90,6 +90,7 @@ protected:
 	                                     sqlite3_stmt *stmt,
 	                                     VariableItemTablePtr &dataTable);
 	static uint64_t getLastInsertId(sqlite3 *db);
+	static uint64_t getNumberOfAffectedRows(sqlite3 *db);
 	static ItemDataPtr getValue(sqlite3_stmt *stmt, size_t index,
 	                            SQLColumnType columnType);
 	static void createIndex(sqlite3 *db,

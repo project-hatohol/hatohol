@@ -279,10 +279,8 @@ uint64_t DBAgentSQLite3::getLastInsertId(void)
 
 uint64_t DBAgentSQLite3::getNumberOfAffectedRows(void)
 {
-	// It is a little difficult to implement this method, becuase SQLite3
-	// doesn't give a function for this purpose, different from MySQL.
-	HATOHOL_ASSERT(false, "Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return 0;
+	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
+	return getNumberOfAffectedRows(m_ctx->db);
 }
 
 // ---------------------------------------------------------------------------
@@ -664,6 +662,11 @@ void DBAgentSQLite3::selectGetValuesIteration(DBAgentSelectArg &selectArg,
 uint64_t DBAgentSQLite3::getLastInsertId(sqlite3 *db)
 {
 	return sqlite3_last_insert_rowid(db);
+}
+
+uint64_t DBAgentSQLite3::getNumberOfAffectedRows(sqlite3 *db)
+{
+	return sqlite3_changes(db);
 }
 
 ItemDataPtr DBAgentSQLite3::getValue(sqlite3_stmt *stmt,
