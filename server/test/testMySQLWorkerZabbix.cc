@@ -17,6 +17,11 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Now MySQLWorkerZabbix is not used. In addtion, we dont' have a plan to
+// implement a feature using this class. So we temporarily leave off
+// an execution of this test to simplify the output of the test.
+#if 0
+
 #include <string>
 #include <vector>
 #include <map>
@@ -46,7 +51,6 @@ gint     g_exitStatus;
 
 void cut_setup()
 {
-	cut_omit("This test will be recreated to execute without the running hatohol process.");
 }
 
 void cut_teardown()
@@ -569,3 +573,4 @@ void test_selectTAll()
 
 
 } // namespace testMySQLWorkerZabbix
+#endif // if 0
