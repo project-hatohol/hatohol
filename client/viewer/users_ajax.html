@@ -40,7 +40,7 @@
   <table class="table table-condensed table-striped table-hover" id="table">
     <thead>
       <tr>
-        <th>  </th>
+        <th class="delete-selector" style='display:none;'>  </th>
         <th data-sort="int">{% trans "ID" %}</th>
         <th data-sort="string">{% trans "User name" %}</th>
         <th data-sort="string">{% trans "User type" %}</th>
@@ -92,18 +92,22 @@
     // Event handlers for forms in the main view
     //
     function setupCheckboxHandler() {
-        $(".selectcheckbox").change(function() {
-          var check = $(this).is(":checked");
-          var prevNumSelected = numSelected;
-          if (check)
-            numSelected += 1;
-          else
-            numSelected -= 1;
-          if (prevNumSelected == 0 && numSelected == 1)
-            $("#delete-user-button").attr("disabled", false);
-          else if (prevNumSelected == 1 && numSelected == 0)
-            $("#delete-user-button").attr("disabled", true);
-        });
+      $(".selectcheckbox").change(function() {
+        var check = $(this).is(":checked");
+        var prevNumSelected = numSelected;
+        if (check)
+          numSelected += 1;
+        else
+          numSelected -= 1;
+         if (prevNumSelected == 0 && numSelected == 1)
+          $("#delete-user-button").attr("disabled", false);
+        else if (prevNumSelected == 1 && numSelected == 0)
+          $("#delete-user-button").attr("disabled", true);
+      });
+
+      if (hasPrivilege(userProfile.user, hatohol.OPPRVLG_DELETE_USER)) {
+        $(".delete-selector").show();
+      }
     }
 
     function setupEditLinksAndButtons(reply)
@@ -180,9 +184,9 @@
       for (i = 0; i < reply["users"].length; ++i) {
         user = reply["users"][i];
         html += "<tr>";
-
-        html += "<td><input type='checkbox' class='selectcheckbox' " +
-                "userId='" + user["userId"] + "'></td>";
+        html += "<td class='delete-selector' style='display:none;'>";
+        html += "<input type='checkbox' class='selectcheckbox' userId='" + user["userId"] + "'>";
+        html += "</td>";
         html += "<td>" + user["userId"] + "</td>";
         html += "<td><a href='javascript:void(0);' id='edit-user" + user["userId"];
         html += "' userId='"+ user["userId"] + "'>" + user["name"]   + "</a></td>";
