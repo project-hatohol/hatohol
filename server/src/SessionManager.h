@@ -55,8 +55,9 @@ typedef ItemPtr<Session> SessionPtr;
 class SessionManager {
 public:
 	static const size_t SESSION_ID_LEN;
-	static const size_t DEFAULT_TIMEOUT;
+	static const size_t INITIAL_TIMEOUT;
 	static const size_t NO_TIMEOUT;
+	static const char * ENV_NAME_TIMEOUT;
 
 	static void reset(void);
 	static SessionManager *getInstance(void);
@@ -72,7 +73,7 @@ public:
 	 * @return       A newly created session ID.
 	 */
 	std::string create(const UserIdType &userId,
-	                   const size_t &timeout = DEFAULT_TIMEOUT);
+	                   const size_t &timeout = m_defaultTimeout);
 
 	/**
 	 * Get the session instance associated with the given sessionId.
@@ -107,6 +108,8 @@ public:
 	const SessionIdMap &getSessionIdMap(void);
 	void releaseSessionIdMap(void);
 
+	static const size_t getDefaultTimeout(void);
+
 protected:
 	SessionManager(void);
 	virtual ~SessionManager();
@@ -116,6 +119,7 @@ protected:
 	static gboolean timerCb(gpointer data);
 
 protected:
+	static size_t m_defaultTimeout;
 	struct PrivateContext;
 	PrivateContext *m_ctx;
 };

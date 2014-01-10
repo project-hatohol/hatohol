@@ -50,8 +50,11 @@ Session::~Session()
 // Ref. man uuid_unparse.
 const size_t SessionManager::SESSION_ID_LEN = 36;
 
-const size_t SessionManager::DEFAULT_TIMEOUT = 10 * 60; // 10 min.
+const size_t SessionManager::INITIAL_TIMEOUT = 10 * 60; // 10 min.
 const size_t SessionManager::NO_TIMEOUT = 0;
+const char * SessionManager::ENV_NAME_TIMEOUT = "HATOHOL_SESSION_TIMEOUT";
+
+size_t SessionManager::m_defaultTimeout = INITIAL_TIMEOUT;
 
 struct SessionManager::PrivateContext {
 	static MutexLock initLock;
@@ -83,6 +86,19 @@ void SessionManager::reset(void)
 	if (PrivateContext::instance) {
 		delete PrivateContext::instance;
 		PrivateContext::instance = NULL;
+	}
+
+	char *env = getenv(ENV_NAME_TIMEOUT);
+	if (env) {
+		size_t timeout = 0;
+		if (sscanf(env, "%zd", &timeout) != 1) {
+			MLPL_ERR("Invalid value: %s. Use the default timeout\n",
+			         env);
+		} else {
+			m_defaultTimeout = timeout;
+		}
+		MLPL_INFO("Default session timeout: %zd (sec)\n",
+		          m_defaultTimeout);
 	}
 }
 
@@ -155,6 +171,11 @@ const SessionIdMap &SessionManager::getSessionIdMap(void)
 void SessionManager::releaseSessionIdMap(void)
 {
 	m_ctx->rwlock.unlock();
+}
+
+const size_t SessionManager::getDefaultTimeout(void)
+{
+	return m_defaultTimeout;
 }
 
 // ---------------------------------------------------------------------------

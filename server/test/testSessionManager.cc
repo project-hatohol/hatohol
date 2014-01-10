@@ -198,5 +198,12 @@ void test_removeNonExistingSession(void)
 	                    sessionMgr->remove("non-existing-sesion-id"));
 }
 
+void test_getInitialTimeout(void)
+{
+	cppcut_assert_equal(SessionManager::INITIAL_TIMEOUT,
+	                    SessionManager::getDefaultTimeout());
+}
+
+
 } // namespace testSessionManager
 
