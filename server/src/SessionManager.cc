@@ -40,8 +40,7 @@ Session::Session(void)
 
 Session::~Session()
 {
-	if (timerId != INVALID_EVENT_ID)
-		g_source_remove(timerId);
+	Utils::removeGSourceIfNeeded(timerId);
 }
 
 // ---------------------------------------------------------------------------
@@ -188,8 +187,7 @@ string SessionManager::generateSessionId(void)
 void SessionManager::updateTimer(Session *session)
 {
 	PrivateContext *ctx = session->sessionMgr->m_ctx;
-	if (session->timerId != INVALID_EVENT_ID)
-		g_source_remove(session->timerId);
+	Utils::removeGSourceIfNeeded(session->timerId);
 
 	if (session->timeout) {
 		session->timerId = g_timeout_add(session->timeout,
