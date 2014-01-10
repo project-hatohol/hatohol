@@ -20,6 +20,7 @@
 #include <string>
 #include <cppcutter.h>
 #include <unistd.h>
+#include <errno.h>
 #include "SessionManager.h"
 #include "Helpers.h"
 using namespace std;
@@ -36,6 +37,45 @@ const SessionIdMap &safeGetSessionIdMap(SessionManager *sessionMgr)
 	return sessionMgr->getSessionIdMap();
 }
 
+class TimeoutEnvManager {
+	bool   m_saved;
+	string m_originalEnv;
+
+public:
+	TimeoutEnvManager(void)
+	: m_saved(false)
+	{
+	}
+
+	void save(void)
+	{
+		cppcut_assert_equal(false, m_saved);
+
+		char *env = getenv(SessionManager::ENV_NAME_TIMEOUT);
+		if (env)
+			m_originalEnv = env;
+		m_saved = true;
+	}
+
+	void restore(void)
+	{
+		errno = 0;
+		if (!m_saved)
+			return;
+		if (m_originalEnv.empty()) {
+			if (getenv(SessionManager::ENV_NAME_TIMEOUT))
+				unsetenv(SessionManager::ENV_NAME_TIMEOUT);
+		} else {
+			setenv(SessionManager::ENV_NAME_TIMEOUT,
+			       m_originalEnv.c_str(), 1);
+			m_originalEnv.clear();
+		}
+		m_saved = false;
+		cut_assert_errno();
+	}
+};
+static TimeoutEnvManager g_timeoutEnvMgr;
+
 void cut_setup(void)
 {
 	// The reset() clears sessions managed by SessionManager.
@@ -50,6 +90,8 @@ void cut_teardown(void)
 		g_sessionIdMapOwner->releaseSessionIdMap();
 		g_sessionIdMapOwner = NULL;
 	}
+
+	g_timeoutEnvMgr.restore();
 }
 
 // ---------------------------------------------------------------------------
@@ -200,10 +242,28 @@ void test_removeNonExistingSession(void)
 
 void test_getInitialTimeout(void)
 {
+	if (getenv(SessionManager::ENV_NAME_TIMEOUT)) {
+		cut_notify("Unset %s temporarily.",
+		           SessionManager::ENV_NAME_TIMEOUT);
+		g_timeoutEnvMgr.save();
+		unsetenv(SessionManager::ENV_NAME_TIMEOUT);
+		SessionManager::reset(); // to reload the default value
+	}
 	cppcut_assert_equal(SessionManager::INITIAL_TIMEOUT,
 	                    SessionManager::getDefaultTimeout());
 }
 
+void test_setTimeoutByEnv(void)
+{
+	g_timeoutEnvMgr.save();
+	const size_t timeout = 120;
+	string timeoutStr = StringUtils::sprintf("%zd", timeout);
+	const int overwrite = 1;
+	setenv(SessionManager::ENV_NAME_TIMEOUT, timeoutStr.c_str(), overwrite);
+	cut_assert_errno();
+	SessionManager::reset(); // to reload the default value
+	cppcut_assert_equal(timeout, SessionManager::getDefaultTimeout());
+}
 
 } // namespace testSessionManager
 

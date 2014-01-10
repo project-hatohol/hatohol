@@ -88,6 +88,7 @@ void SessionManager::reset(void)
 		PrivateContext::instance = NULL;
 	}
 
+	m_defaultTimeout = INITIAL_TIMEOUT;
 	char *env = getenv(ENV_NAME_TIMEOUT);
 	if (env) {
 		size_t timeout = 0;
