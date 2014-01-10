@@ -123,6 +123,8 @@ protected:
 	                            VariableItemTablePtr &tablePtr, int index);
 	void parseAndPushGroupsData(JsonParserAgent &parser,
 	                            VariableItemTablePtr &tablePtr, int index);
+	void parseAndPushHostsGroupsData(JsonParserAgent &parser,
+	                                 VariableItemTablePtr &tablePtr, int index);
 
 	template<typename T>
 	void updateOnlyNeededItem(

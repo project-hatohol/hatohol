@@ -936,6 +936,32 @@ void ArmZabbixAPI::parseAndPushGroupsData
 	parser.endElement();
 }
 
+void ArmZabbixAPI::parseAndPushHostsGroupsData
+  (JsonParserAgent &parser, VariableItemTablePtr &tablePtr, int index)
+{
+	startElement(parser, index);
+	startObject(parser, "hosts");
+	int numElem = parser.countElements();
+	MLPL_DBG("Number of hosts in this group: %d\n", numElem);
+	if (numElem != 0) {
+		for (int i = 0; i < numElem; i++) {
+			VariableItemGroupPtr grp;
+			startElement(parser, i);
+			grp->ADD_NEW_ITEM(Uint64, 0);
+			pushUint64(parser, grp, "hostid", ITEM_ID_ZBX_HOSTS_GROUPS_HOSTID);
+			startObject(parser, "groups");
+			startElement(parser, 0);
+			pushUint64(parser, grp, "groupid", ITEM_ID_ZBX_HOSTS_GROUPS_GROUPID);
+			parser.endElement();
+			parser.endObject();
+			parser.endElement();
+			tablePtr->add(grp);
+		}
+	}
+	parser.endObject();
+	parser.endElement();
+}
+
 template<typename T>
 void ArmZabbixAPI::updateOnlyNeededItem
   (const ItemTable *primaryTable,
