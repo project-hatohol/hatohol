@@ -18,8 +18,8 @@
  */
 
 // Now MySQLWorkerZabbix is not used. In addtion, we dont' have a plan to
-// implement a feature using this class. So we temporarily leave off
-// an execution of this test to simplify the output of the test.
+// implement a feature using the class. So we temporarily leave off
+// an execution of this test to simplify the output of cutter.
 #if 0
 
 #include <string>
