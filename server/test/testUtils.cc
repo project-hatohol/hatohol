@@ -301,4 +301,10 @@ void test_removeGSource(void)
 	cppcut_assert_equal(true, Utils::removeGSourceIfNeeded(tag));
 }
 
+void test_removeGSourceWithInvalidTag(void)
+{
+	cppcut_assert_equal(true,
+	                    Utils::removeGSourceIfNeeded(INVALID_EVENT_ID));
+}
+
 } // namespace testUtils
