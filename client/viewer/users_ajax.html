@@ -44,7 +44,7 @@
         <th data-sort="int">{% trans "ID" %}</th>
         <th data-sort="string">{% trans "User name" %}</th>
         <th data-sort="string">{% trans "User type" %}</th>
-        <th data-sort="string">{% trans "Privileges" %}</th>
+        <th data-sort="string" class="privilege-column" style="display:none;">{% trans "Privileges" %}</th>
       </tr>
     </thead>
     <tbody>
@@ -130,6 +130,10 @@
           new HatoholPrivilegeEditDialog(userId, applyPrivilegesCb);
         });
       }
+
+      if (hasPrivilege(userProfile.user, hatohol.OPPRVLG_UPDATE_USER)) {
+        $(".privilege-column").show();
+      }
     }
 
     function applyPrivilegesCb() {
@@ -194,7 +198,7 @@
         if (user["flags"] == hatohol.ALL_PRIVILEGES) {
           html += "<td>" + '{% trans "All" %}' + "</td>";
         } else {
-          html += "<td>";
+          html += "<td class='privilege-column' style='display:none;'>";
           html += "<form class='form-inline' style='margin: 0'>";
           html += "  <input id='edit-user" + user["userId"] + "-privileges'";
           html += "    type='button' class='btn'";
