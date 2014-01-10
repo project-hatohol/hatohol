@@ -192,8 +192,13 @@
         html += "<input type='checkbox' class='selectcheckbox' userId='" + user["userId"] + "'>";
         html += "</td>";
         html += "<td>" + user["userId"] + "</td>";
-        html += "<td><a href='javascript:void(0);' id='edit-user" + user["userId"];
-        html += "' userId='"+ user["userId"] + "'>" + user["name"]   + "</a></td>";
+        html += "<td>";
+        if (hasPrivilege(userProfile.user, hatohol.OPPRVLG_UPDATE_USER)) {
+          html += "<a href='javascript:void(0);' id='edit-user" + user["userId"];
+          html += "' userId='"+ user["userId"] + "'>" + user["name"]   + "</a></td>";
+        } else {
+          html += user["name"];
+        }
         html += "<td>" + getUserTypeFromFlags(user["flags"])  + "</td>";
         if (user["flags"] == hatohol.ALL_PRIVILEGES) {
           html += "<td class='privilege-column' style='display:none;'>"
