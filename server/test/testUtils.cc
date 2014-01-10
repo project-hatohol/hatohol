@@ -289,4 +289,16 @@ void test_getUsingPortInformation(void)
 	  StringUtils::sprintf("Self PID: %d, exit status: 0", getpid()));
 }
 
+void test_removeGSource(void)
+{
+	struct Dummy {
+		static gboolean func(gpointer data)
+		{
+			return G_SOURCE_REMOVE;
+		}
+	};
+	const guint tag = g_idle_add(Dummy::func, NULL);
+	cppcut_assert_equal(true, Utils::removeGSourceIfNeeded(tag));
+}
+
 } // namespace testUtils

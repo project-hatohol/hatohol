@@ -153,6 +153,20 @@ public:
 	 */
 	static std::string getUsingPortInfo(const int &port);
 
+	/**
+	 * Call g_source_remove() and show an error message if it fails.
+	 *
+	 * @param
+	 * A event tag passed to g_source_remove(). If this parameters is
+	 * INVALID_EVENT_ID, the function immediately returns
+	 * with doing nothing.
+	 *
+	 * @return
+	 * If the tag is INVALID_EVENT_ID or the removal is sucessfully done,
+	 * true is returned. Otherwise, false is returned.
+	 */
+	static bool removeGSourceIfNeeded(const guint &tag);
+
 protected:
 	static string makeDemangledStackTraceString(string &stackTraceLine);
 };

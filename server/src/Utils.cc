@@ -385,6 +385,18 @@ string Utils::getUsingPortInfo(const int &port)
 	  getpid(), exitStatus, stdOut, stdErr);
 }
 
+bool Utils::removeGSourceIfNeeded(const guint &tag)
+{
+	if (tag == INVALID_EVENT_ID)
+		return true;
+
+	if (!g_source_remove(tag)) {
+		MLPL_ERR("Failed to remove source: %u\n", tag);
+		return false;
+	}
+	return true;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
