@@ -35,6 +35,7 @@ public:
 	static SmartTime getCurrTime(void);
 
 	SmartTime(InitType initType = INIT_NONE);
+	SmartTime(const SmartTime &stime);
 	SmartTime(const timespec &ts);
 	virtual ~SmartTime();
 

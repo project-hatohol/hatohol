@@ -113,6 +113,8 @@ struct ExecCommandContext : public ResidentPullHelper<ExecCommandContext> {
 	  receivedActTpArgList(false),
 	  receivedActTpQuit(false)
 	{
+		initActionDef(actDef);
+		initEventInfo(eventInfo);
 		timerTag = g_timeout_add(timeout, timeoutHandler, this);
 	}
 
@@ -1271,10 +1273,10 @@ void test_checkExitWaitedCommandAction(void)
 	}
 
 	// quit process at the head and the tail alternately
-	set<size_t>::iterator it = aliveIndexSet.begin();
-	for (; it != aliveIndexSet.end(); ++it) {
+	while (!aliveIndexSet.empty()) {
+		set<size_t>::iterator it = aliveIndexSet.begin();
 		size_t idx = *it;
-		ExecCommandContext *ctx = g_execCommandCtxVect[*it];
+		ExecCommandContext *ctx = g_execCommandCtxVect[idx];
 		sendQuit(ctx);
 		bool waiting = (idx >= (size_t)maxNum);
 		int expectedNullFlags = waiting ? 0 : ACTLOG_FLAG_QUEUING_TIME;

@@ -36,7 +36,7 @@ static const char *TABLE_NAME_ITEMS    = "items";
 uint64_t DBClientHatohol::EVENT_NOT_FOUND = -1;
 int DBClientHatohol::HATOHOL_DB_VERSION = 4;
 
-const char *DBClientHatohol::DEFAULT_DB_NAME = "hotohol";
+const char *DBClientHatohol::DEFAULT_DB_NAME = "hatohol";
 
 static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 {
@@ -743,6 +743,17 @@ ItemsQueryOption::ItemsQueryOption(UserIdType userId)
 	  COLUMN_DEF_ITEMS[IDX_ITEMS_HOST_ID].columnName);
 }
 
+HostsQueryOption::HostsQueryOption(UserIdType userId)
+: HostResourceQueryOption(userId)
+{
+	// Currently we don't have a DB table for hosts.
+	// Fetch hosts information from triggers table instead.
+	setServerIdColumnName(
+	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName);
+	setHostIdColumnName(
+	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName);
+}
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
@@ -778,8 +789,7 @@ DBClientHatohol::~DBClientHatohol()
 }
 
 void DBClientHatohol::getHostInfoList(HostInfoList &hostInfoList,
-                                      uint32_t targetServerId,
-                                      uint64_t targetHostId)
+				      const HostsQueryOption &option)
 {
 	// Now we don't have a DB table for hosts. So we get a host list from
 	// the trigger table. In the future, we will add the table for hosts
@@ -807,22 +817,7 @@ void DBClientHatohol::getHostInfoList(HostInfoList &hostInfoList,
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOSTNAME].type);
 
 	// condition
-	string condition;
-	if (targetServerId != ALL_SERVERS) {
-		const char *colName = 
-		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName;
-		condition = StringUtils::sprintf("%s=%"PRIu32, colName,
-		                                 targetServerId);
-	}
-	if (targetHostId != ALL_HOSTS) {
-		if (!condition.empty())
-			condition += " AND ";
-		const char *colName = 
-		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName;
-		condition += StringUtils::sprintf("%s=%"PRIu64, colName,
-		                                  targetHostId);
-	}
-	arg.condition = condition;
+	arg.condition = option.getCondition();
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -884,7 +879,7 @@ bool DBClientHatohol::getTriggerInfo(TriggerInfo &triggerInfo,
 }
 
 void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
-					 TriggersQueryOption &option,
+					 const TriggersQueryOption &option,
 					 uint64_t targetTriggerId)
 {
 	string optCond = option.getCondition();
@@ -1165,7 +1160,7 @@ void DBClientHatohol::addItemInfoList(const ItemInfoList &itemInfoList)
 }
 
 void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
-				      ItemsQueryOption &option,
+				      const ItemsQueryOption &option,
 				      uint64_t targetItemId)
 {
 	string optCond = option.getCondition();
@@ -1234,29 +1229,23 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 	}
 }
 
-size_t DBClientHatohol::getNumberOfTriggers(uint32_t serverId,
-                                            uint64_t hostGroupId,
+size_t DBClientHatohol::getNumberOfTriggers(const TriggersQueryOption &option,
                                             TriggerSeverityType severity)
 {
-	// TODO: use hostGroupId after Hatohol supports it. 
 	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_TRIGGERS;
 	arg.statements.push_back("count (*)");
 	arg.columnTypes.push_back(SQL_COLUMN_TYPE_INT);
 
 	// condition
-	arg.condition =
+	arg.condition = option.getCondition();
+	if (!arg.condition.empty())
+		arg.condition += " and ";
+	arg.condition +=
 	  StringUtils::sprintf("%s=%d and %s=%d",
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SEVERITY].columnName, severity,
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_STATUS].columnName,
 	    TRIGGER_STATUS_PROBLEM);
-
-	if (serverId != ALL_SERVERS) {
-		const char *colName = 
-		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName;
-		arg.condition += StringUtils::sprintf(" and %s=%"PRIu32,
-		                                      colName, serverId);
-	}
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -1267,8 +1256,7 @@ size_t DBClientHatohol::getNumberOfTriggers(uint32_t serverId,
 	return ItemDataUtils::getInt(count);
 }
 
-size_t DBClientHatohol::getNumberOfHosts(uint32_t serverId,
-                                         uint64_t hostGroupId)
+size_t DBClientHatohol::getNumberOfHosts(const HostsQueryOption &option)
 {
 	// TODO: use hostGroupId after Hatohol supports it. 
 	DBAgentSelectExArg arg;
@@ -1280,12 +1268,7 @@ size_t DBClientHatohol::getNumberOfHosts(uint32_t serverId,
 	arg.columnTypes.push_back(SQL_COLUMN_TYPE_INT);
 
 	// condition
-	if (serverId != ALL_SERVERS) {
-		const char *colName = 
-		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName;
-		arg.condition += StringUtils::sprintf("%s=%"PRIu32,
-		                                      colName, serverId);
-	}
+	arg.condition = option.getCondition();
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -1296,19 +1279,17 @@ size_t DBClientHatohol::getNumberOfHosts(uint32_t serverId,
 	return ItemDataUtils::getInt(count);
 }
 
-size_t DBClientHatohol::getNumberOfGoodHosts(uint32_t serverId,
-                                             uint64_t hostGroupId)
+size_t DBClientHatohol::getNumberOfGoodHosts(const HostsQueryOption &option)
 {
-	size_t numTotalHost = getNumberOfHosts(serverId, hostGroupId);
-	size_t numBadHosts = getNumberOfBadHosts(serverId, hostGroupId);
+	size_t numTotalHost = getNumberOfHosts(option);
+	size_t numBadHosts = getNumberOfBadHosts(option);
 	HATOHOL_ASSERT(numTotalHost >= numBadHosts,
 	               "numTotalHost: %zd, numBadHosts: %zd",
 	               numTotalHost, numBadHosts);
 	return numTotalHost - numBadHosts;
 }
 
-size_t DBClientHatohol::getNumberOfBadHosts(uint32_t serverId,
-                                            uint64_t hostGroupId)
+size_t DBClientHatohol::getNumberOfBadHosts(const HostsQueryOption &option)
 {
 	// TODO: use hostGroupId after Hatohol supports it. 
 	DBAgentSelectExArg arg;
@@ -1320,17 +1301,14 @@ size_t DBClientHatohol::getNumberOfBadHosts(uint32_t serverId,
 	arg.columnTypes.push_back(SQL_COLUMN_TYPE_INT);
 
 	// condition
-	arg.condition =
+	arg.condition = option.getCondition();
+	if (!arg.condition.empty())
+		arg.condition += " AND ";
+
+	arg.condition +=
 	  StringUtils::sprintf("%s=%d",
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_STATUS].columnName,
 	    TRIGGER_STATUS_PROBLEM);
-
-	if (serverId != ALL_SERVERS) {
-		const char *colName = 
-		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName;
-		arg.condition += StringUtils::sprintf(" and %s=%"PRIu32,
-		                                      colName, serverId);
-	}
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);

@@ -77,8 +77,9 @@ extern const size_t NumTestAccessInfo;
 void getTestTriggersIndexes(
   map<uint32_t, map<uint64_t, size_t> > &indexMap,
   uint32_t serverId, uint64_t hostId);
-size_t getNumberOfTestTriggers(uint32_t serverId, uint64_t hostGroupId,
-                               TriggerSeverityType severity);
+size_t getNumberOfTestTriggers(uint32_t serverId,
+			       uint64_t hostGroupId = ALL_HOST_GROUPS,
+                               TriggerSeverityType severity = NUM_TRIGGER_SEVERITY);
 
 size_t getNumberOfTestItems(uint32_t serverId);
 
@@ -86,8 +87,12 @@ void getTestHostInfoList(HostInfoList &hostInfoList,
                          uint32_t targetServerId,
                          ServerIdHostIdMap *serverIdHostIdMap = NULL);
 
+size_t getNumberOfTestHosts(uint32_t serverId,
+			    uint64_t hostGroupId = ALL_HOST_GROUPS);
 size_t getNumberOfTestHostsWithStatus(uint32_t serverId,
-                                      uint64_t hostGroupId, bool status);
+                                      uint64_t hostGroupId,
+				      bool status,
+				      UserIdType userId = USER_ID_SYSTEM);
 
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo);
 

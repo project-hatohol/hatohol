@@ -23,6 +23,7 @@
 #include <sys/time.h>
 #include <sys/types.h> 
 #include <syscall.h>
+#include <libsoup/soup.h>
 #include <MutexLock.h>
 using namespace mlpl;
 #include "Hatohol.h"
@@ -270,6 +271,43 @@ void test_executeOnGlibEventLoopAsync(void)
 	cppcut_assert_equal(Utils::getThreadId(), thread.eventLoopThreadId);
 	cppcut_assert_not_equal(0, thread.eventLoopThreadId);
 	cppcut_assert_not_equal(thread.threadId, thread.eventLoopThreadId);
+}
+
+void test_getUsingPortInformation(void)
+{
+	const int port = 12345;
+	SoupServer *soupSv = soup_server_new(SOUP_SERVER_PORT, port, NULL);
+	string info = Utils::getUsingPortInfo(port);
+	g_object_unref(soupSv);
+	MLPL_INFO("%s", info.c_str());
+
+	StringVector lines;
+	StringUtils::split(lines, info, '\n');
+	cppcut_assert_equal(true, lines.size() >= 3);
+	cppcut_assert_equal(
+	  lines[0],
+	  StringUtils::sprintf("Self PID: %d, exit status: 0", getpid()));
+}
+
+void test_removeGSource(void)
+{
+	struct Dummy {
+		static gboolean func(gpointer data)
+		{
+			return G_SOURCE_REMOVE;
+		}
+	};
+	const guint tag = g_idle_add(Dummy::func, NULL);
+	cppcut_assert_equal(true, Utils::removeGSourceIfNeeded(tag));
+
+	// Is absence of the event with tag + 1 guaranteed ?
+	cppcut_assert_equal(false, Utils::removeGSourceIfNeeded(tag+1));
+}
+
+void test_removeGSourceWithInvalidTag(void)
+{
+	cppcut_assert_equal(true,
+	                    Utils::removeGSourceIfNeeded(INVALID_EVENT_ID));
 }
 
 } // namespace testUtils

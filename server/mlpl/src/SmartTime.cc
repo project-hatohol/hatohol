@@ -57,6 +57,13 @@ SmartTime::SmartTime(InitType initType)
 	}
 }
 
+SmartTime::SmartTime(const SmartTime &stime)
+: m_ctx(NULL)
+{
+	m_ctx = new PrivateContext();
+	*this = stime;
+}
+
 SmartTime::SmartTime(const timespec &ts)
 : m_ctx(NULL)
 {

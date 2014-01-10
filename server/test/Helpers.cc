@@ -779,3 +779,74 @@ UserIdType findUserWithout(const OperationPrivilegeType &type)
 {
 	return findUserCommon(type, false);
 }
+
+void initEventInfo(EventInfo &eventInfo)
+{
+	eventInfo.unifiedId = 0;
+	eventInfo.serverId = 0;
+	eventInfo.id = 0;
+	eventInfo.time.tv_sec = 0;
+	eventInfo.time.tv_nsec = 0;
+	eventInfo.type = EVENT_TYPE_UNKNOWN;
+	eventInfo.triggerId = 0;
+	eventInfo.status = TRIGGER_STATUS_UNKNOWN;
+	eventInfo.severity = TRIGGER_SEVERITY_UNKNOWN;
+	eventInfo.hostId = 0;
+}
+
+void initActionDef(ActionDef &actionDef)
+{
+       actionDef.id = 0;
+       actionDef.type = ACTION_COMMAND;
+       actionDef.timeout = 0;
+       actionDef.ownerUserId = INVALID_USER_ID;;
+}
+
+// ---------------------------------------------------------------------------
+// Watcher
+// ---------------------------------------------------------------------------
+Watcher::Watcher(void)
+: expired(false),
+  timerId(INVALID_EVENT_ID)
+{ 
+}
+
+Watcher::~Watcher()
+{
+	if (timerId != INVALID_EVENT_ID)
+		g_source_remove(timerId);
+}
+
+gboolean Watcher::_run(gpointer data)
+{
+	Watcher *obj = static_cast<Watcher *>(data);
+	return obj->run();
+}
+
+gboolean Watcher::run(void)
+{
+	expired = true;
+	return G_SOURCE_REMOVE;
+}
+
+bool Watcher::start(const size_t &timeout, const size_t &interval)
+{
+	timerId = g_timeout_add(timeout, _run, this);
+	while (!expired) {
+		if (interval == 0) {
+			g_main_context_iteration(NULL, TRUE);
+		} else {
+			while (g_main_context_iteration(NULL, FALSE))
+				;
+			usleep(interval);
+		}
+		if (watch())
+			return true;
+	}
+	return false;
+}
+
+bool Watcher::watch(void)
+{
+	return false;
+}

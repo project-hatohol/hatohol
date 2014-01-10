@@ -27,10 +27,15 @@
 #include "ItemPtr.h"
 #include "UsedCountable.h"
 
+class SessionManager;
 struct Session : public UsedCountable {
 	UserIdType userId;
+	std::string id;
 	mlpl::SmartTime loginTime;
 	mlpl::SmartTime lastAccessTime;
+	size_t timeout;
+	guint timerId;
+	SessionManager *sessionMgr;
 
 	// constructor
 	Session(void);
@@ -50,6 +55,10 @@ typedef ItemPtr<Session> SessionPtr;
 class SessionManager {
 public:
 	static const size_t SESSION_ID_LEN;
+	static const size_t INITIAL_TIMEOUT;
+	static const size_t DEFAULT_TIMEOUT;
+	static const size_t NO_TIMEOUT;
+	static const char * ENV_NAME_TIMEOUT;
 
 	static void reset(void);
 	static SessionManager *getInstance(void);
@@ -58,9 +67,14 @@ public:
 	 * Create a new session ID.
 	 *
 	 * @param userId A user ID
+	 * @param timeout
+	 * A timeout of the session in second. If this parameter is
+	 * NO_TIMEOUT, the session is never timed out.
+	 *
 	 * @return       A newly created session ID.
 	 */
-	std::string create(const UserIdType &userId);
+	std::string create(const UserIdType &userId,
+	                   const size_t &timeout = DEFAULT_TIMEOUT);
 
 	/**
 	 * Get the session instance associated with the given sessionId.
@@ -95,13 +109,17 @@ public:
 	const SessionIdMap &getSessionIdMap(void);
 	void releaseSessionIdMap(void);
 
+	static const size_t getDefaultTimeout(void);
+
 protected:
 	SessionManager(void);
 	virtual ~SessionManager();
 
 	static std::string generateSessionId(void);
+	static void updateTimer(Session *session);
+	static gboolean timerCb(gpointer data);
 
-protected:
+private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
 };

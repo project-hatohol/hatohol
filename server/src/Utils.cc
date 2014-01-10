@@ -20,6 +20,7 @@
 #include <StringUtils.h>
 #include <Logger.h>
 #include <MutexLock.h>
+#include <Reaper.h>
 using namespace mlpl;
 
 #include <cstdio>
@@ -357,6 +358,43 @@ string Utils::sha256(const string &data)
 pid_t Utils::getThreadId(void)
 {
 	return syscall(SYS_gettid);
+}
+
+string Utils::getUsingPortInfo(const int &port)
+{
+	gchar *stdOut = NULL;
+	gchar *stdErr = NULL;
+	gint exitStatus = 0;
+	GError *error = NULL;;
+	Reaper<void> stdOutReaper(stdOut, g_free);
+	Reaper<void> stdErrReaper(stdErr, g_free);
+	Reaper<GError> errorReaper(error, g_error_free);
+
+	string cmd = StringUtils::sprintf("lsof -i:%d", port);
+	gboolean succeeded =
+	  g_spawn_command_line_sync(cmd.c_str(),
+	                            &stdOut, &stdErr, &exitStatus, &error);
+	if (!succeeded) {
+		const gchar *errorMsg =
+		   error ? error->message : "Unknown reason";
+		MLPL_ERR("Failed to execute: %s: %s\n", cmd.c_str(), errorMsg);
+		return "";
+	}
+	return StringUtils::sprintf(
+	  "Self PID: %d, exit status: %d\n<<stdout>> %s\n<<stderr>> %s\n",
+	  getpid(), exitStatus, stdOut, stdErr);
+}
+
+bool Utils::removeGSourceIfNeeded(const guint &tag)
+{
+	if (tag == INVALID_EVENT_ID)
+		return true;
+
+	if (!g_source_remove(tag)) {
+		MLPL_ERR("Failed to remove source: %u\n", tag);
+		return false;
+	}
+	return true;
 }
 
 // ---------------------------------------------------------------------------

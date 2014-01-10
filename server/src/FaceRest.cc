@@ -443,6 +443,8 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	m_ctx->soupServer = soup_server_new(SOUP_SERVER_PORT, m_ctx->port,
 	                                    SOUP_SERVER_ASYNC_CONTEXT,
 	                                    m_ctx->gMainCtx, NULL);
+	if (errno == EADDRINUSE)
+		MLPL_ERR("%s", Utils::getUsingPortInfo(m_ctx->port).c_str());
 	HATOHOL_ASSERT(m_ctx->soupServer,
 	               "failed: soup_server_new: %u, errno: %d\n",
 	               m_ctx->port, errno);
@@ -928,20 +930,23 @@ static void addOverviewEachServer(FaceRest::RestJob *job,
 	// TODO: This implementeation is not effective.
 	//       We should add a function only to get the number of list.
 	HostInfoList hostInfoList;
-	dataStore->getHostList(hostInfoList, svInfo.id);
+	HostsQueryOption option(job->userId);
+	option.setTargetServerId(svInfo.id);
+	dataStore->getHostList(hostInfoList, option);
 	agent.add("numberOfHosts", hostInfoList.size());
 
 	ItemInfoList itemInfoList;
 	ItemsQueryOption itemsQueryOption(job->userId);
+	bool fetchItemsSynchronously = true;
 	itemsQueryOption.setTargetServerId(svInfo.id);
-	dataStore->fetchItems(svInfo.id);
-	dataStore->getItemList(itemInfoList, itemsQueryOption);
+	dataStore->getItemList(itemInfoList, itemsQueryOption,
+			       ALL_ITEMS, fetchItemsSynchronously);
 	agent.add("numberOfItems", itemInfoList.size());
 
 	TriggerInfoList triggerInfoList;
 	TriggersQueryOption triggersQueryOption(job->userId);
-	dataStore->getTriggerList(triggerInfoList, triggersQueryOption,
-				  svInfo.id);
+	triggersQueryOption.setTargetServerId(svInfo.id);
+	dataStore->getTriggerList(triggerInfoList, triggersQueryOption);
 	agent.add("numberOfTriggers", triggerInfoList.size());
 
 	// TODO: These elements should be fixed
@@ -969,14 +974,17 @@ static void addOverviewEachServer(FaceRest::RestJob *job,
 		uint64_t hostGroupId = hostGroupIds[i];
 		for (int severity = 0;
 		     severity < NUM_TRIGGER_SEVERITY; severity++) {
+			TriggersQueryOption option(job->userId);
+			option.setTargetServerId(svInfo.id);
+			//TODO: Currently host group isn't supported yet
+			//option.setTargetHostGroupId(hostGroupId);
 			agent.startObject();
 			agent.add("hostGroupId", hostGroupId);
 			agent.add("severity", severity);
 			agent.add(
-			  "numberOfHosts",
+			  "numberOfTriggers",
 			  dataStore->getNumberOfTriggers
-			    (svInfo.id, hostGroupId,
-			     (TriggerSeverityType)severity));
+			    (option, (TriggerSeverityType)severity));
 			agent.endObject();
 		}
 	}
@@ -986,13 +994,16 @@ static void addOverviewEachServer(FaceRest::RestJob *job,
 	agent.startArray("hostStatus");
 	for (size_t i = 0; i < numHostGroup; i++) {
 		uint64_t hostGroupId = hostGroupIds[i];
-		uint32_t svid = svInfo.id;
+		HostsQueryOption option(job->userId);
+		option.setTargetServerId(svInfo.id);
+		//TODO: Host group isn't supported yet
+		//option.setTargetHostGroupId(hostGroupId);
 		agent.startObject();
 		agent.add("hostGroupId", hostGroupId);
 		agent.add("numberOfGoodHosts",
-		          dataStore->getNumberOfGoodHosts(svid, hostGroupId));
+		          dataStore->getNumberOfGoodHosts(option));
 		agent.add("numberOfBadHosts",
-		          dataStore->getNumberOfBadHosts(svid, hostGroupId));
+		          dataStore->getNumberOfBadHosts(option));
 		agent.endObject();
 	}
 	agent.endArray();
@@ -1044,12 +1055,15 @@ static void addServers(FaceRest::RestJob *job, JsonBuilderAgent &agent,
 	agent.endArray();
 }
 
-static void addHosts(JsonBuilderAgent &agent,
+static void addHosts(FaceRest::RestJob *job, JsonBuilderAgent &agent,
                      uint32_t targetServerId, uint64_t targetHostId)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HostInfoList hostInfoList;
-	dataStore->getHostList(hostInfoList, targetServerId, targetHostId);
+	HostsQueryOption option(job->userId);
+	option.setTargetServerId(targetServerId);
+	option.setTargetHostId(targetHostId);
+	dataStore->getHostList(hostInfoList, option);
 
 	agent.add("numberOfHosts", hostInfoList.size());
 	agent.startArray("hosts");
@@ -1065,12 +1079,16 @@ static void addHosts(JsonBuilderAgent &agent,
 	agent.endArray();
 }
 
-static string getHostName(const ServerID serverId, const HostID hostId)
+static string getHostName(const UserIdType userId,
+			  const ServerID serverId, const HostID hostId)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	string hostName;
 	HostInfoList hostInfoList;
-	dataStore->getHostList(hostInfoList, serverId, hostId);
+	HostsQueryOption option(userId);
+	option.setTargetServerId(serverId);
+	option.setTargetHostId(hostId);
+	dataStore->getHostList(hostInfoList, option);
 	if (hostInfoList.empty()) {
 		MLPL_WARN("Failed to get HostInfo: "
 		          "%"PRIu64", %"PRIu64"\n",
@@ -1083,6 +1101,7 @@ static string getHostName(const ServerID serverId, const HostID hostId)
 }
 
 static void addHostsMap(
+  FaceRest::RestJob *job,
   JsonBuilderAgent &agent, MonitoringServerInfo &serverInfo,
   HostNameMaps &hostMaps, bool lookupHostName = false)
 {
@@ -1095,7 +1114,7 @@ static void addHostsMap(
 		HostID hostId = it->first;
 		string &hostName = it->second;
 		if (lookupHostName)
-			hostName = getHostName(serverId, hostId);
+			hostName = getHostName(job->userId, serverId, hostId);
 		agent.startObject(StringUtils::toString(hostId));
 		agent.add("name", hostName);
 		agent.endObject();
@@ -1104,25 +1123,30 @@ static void addHostsMap(
 }
 
 static string getTriggerBrief(
-  const ServerID serverId, const TriggerID triggerId)
+  FaceRest::RestJob *job, const ServerID serverId, const TriggerID triggerId)
 {
-	// TODO: use UnifiedDataStore
-	DBClientHatohol dbHatohol;
 	string triggerBrief;
-	TriggerInfo triggerInfo;
-	bool succeeded = dbHatohol.getTriggerInfo(triggerInfo,
-	                                          serverId, triggerId);
-	if (!succeeded) {
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	TriggerInfoList triggerInfoList;
+	TriggersQueryOption triggersQueryOption(job->userId);
+	triggersQueryOption.setTargetServerId(serverId);
+	dataStore->getTriggerList(triggerInfoList, triggersQueryOption,
+				  triggerId);
+
+	if (triggerInfoList.size() != 1) {
 		MLPL_WARN("Failed to get TriggerInfo: "
 		          "%"PRIu64", %"PRIu64"\n",
 		          serverId, triggerId);
 	} else {
+		TriggerInfoListIterator it = triggerInfoList.begin();
+		TriggerInfo &triggerInfo = *it;
 		triggerBrief = triggerInfo.brief;
 	}
 	return triggerBrief;
 }
 
 static void addTriggersIdBriefHash(
+  FaceRest::RestJob *job,
   JsonBuilderAgent &agent, MonitoringServerInfo &serverInfo,
   TriggerBriefMaps &triggerMaps, bool lookupTriggerBrief = false)
 {
@@ -1135,7 +1159,9 @@ static void addTriggersIdBriefHash(
 		TriggerID triggerId = it->first;
 		string &triggerBrief = it->second;
 		if (lookupTriggerBrief)
-			triggerBrief = getTriggerBrief(serverId, triggerId);
+			triggerBrief = getTriggerBrief(job,
+						       serverId,
+						       triggerId);
 		agent.startObject(StringUtils::toString(triggerId));
 		agent.add("brief", triggerBrief);
 		agent.endObject();
@@ -1163,11 +1189,12 @@ static void addServersMap(
 		agent.add("type", serverInfo.type);
 		agent.add("ipAddress", serverInfo.ipAddress);
 		if (hostMaps) {
-			addHostsMap(agent, serverInfo,
+			addHostsMap(job, agent, serverInfo,
 				    *hostMaps, lookupHostName);
 		}
 		if (triggerMaps) {
-			addTriggersIdBriefHash(agent, serverInfo, *triggerMaps,
+			addTriggersIdBriefHash(job, agent, serverInfo,
+					       *triggerMaps,
 			                       lookupTriggerBrief);
 		}
 		agent.endObject();
@@ -1458,7 +1485,7 @@ void FaceRest::handlerGetHost(RestJob *job)
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
-	addHosts(agent, targetServerId, targetHostId);
+	addHosts(job, agent, targetServerId, targetHostId);
 	agent.endObject();
 
 	replyJsonData(agent, job);
@@ -1630,7 +1657,7 @@ void FaceRest::handlerGetItem(RestJob *job)
 	GetItemClosure *closure =
 	  new GetItemClosure(face, &FaceRest::itemFetchedCallback, job);
 
-	bool handled = dataStore->getItemListAsync(closure);
+	bool handled = dataStore->fetchItemsAsync(closure);
 	if (!handled) {
 		face->replyGetItem(job);
 		// avoid freeing m_restJob because m_restJob will be freed at

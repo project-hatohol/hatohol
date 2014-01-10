@@ -444,6 +444,7 @@ static void _assertServers(const string &path, const string &callbackName = "")
 static void _assertHosts(const string &path, const string &callbackName = "",
                          uint32_t serverId = ALL_SERVERS)
 {
+	setupUserDB();
 	startFaceRest();
 	StringMap queryMap;
 	if (serverId != ALL_SERVERS) {
@@ -452,9 +453,7 @@ static void _assertHosts(const string &path, const string &callbackName = "",
 	}
 	RequestArg arg(path, callbackName);
 	arg.parameters = queryMap;
-	// TODO: find an appropriate user when a previlege check for hosts
-	//       is implemented. Now any userId is allowed.
-	arg.userId = testUserInfo[0].id;
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
 	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
 	assertHostsInParser(g_parser, serverId);
@@ -922,6 +921,82 @@ void _assertAddAccessInfoWithCond(
 }
 #define assertAddAccessInfoWithCond(SVID, HGRP_ID, ...) \
 cut_trace(_assertAddAccessInfoWithCond(SVID, HGRP_ID, ##__VA_ARGS__))
+
+static void assertHostGroupsInParser(JsonParserAgent *parser, uint32_t serverId)
+{
+	// TODO: currently only one hostGroup "No group" exists in the object
+	cut_assert_true(parser->startObject("hostGroups"));
+	cut_assert_true(parser->startObject("0"));
+	assertValueInParser(parser, string("name"), string("No group"));
+	parser->endObject();
+	parser->endObject();
+}
+
+static void assertHostStatusInParser(JsonParserAgent *parser, uint32_t serverId)
+{
+	parser->startObject("hostStatus");
+	// TODO: currently only one hostGroup "No group" exists in the array
+	parser->startElement(0);
+	assertValueInParser(parser, "hostGroupId",   (uint32_t)0);
+	size_t expected_good_hosts = getNumberOfTestHostsWithStatus(
+	  serverId, ALL_HOST_GROUPS, true);
+	size_t expected_bad_hosts = getNumberOfTestHostsWithStatus(
+	  serverId, ALL_HOST_GROUPS, false);
+	assertValueInParser(parser, "numberOfGoodHosts", expected_good_hosts);
+	assertValueInParser(parser, "numberOfBadHosts", expected_bad_hosts);
+	parser->endElement();
+	parser->endObject();
+}
+
+static void assertSystemStatusInParser(JsonParserAgent *parser, uint32_t serverId)
+{
+	parser->startObject("systemStatus");
+	// TODO: currently only one hostGroup "No group" exists in the array
+	uint64_t hostGroupId = 0;
+	for (int severity = 0; severity < NUM_TRIGGER_SEVERITY; ++severity) {
+		uint32_t expected_triggers = getNumberOfTestTriggers(
+		  serverId, hostGroupId, static_cast<TriggerSeverityType>(severity));
+		parser->startElement(severity);
+		assertValueInParser(parser, "hostGroupId", (uint32_t)0);
+		assertValueInParser(parser, "severity", (uint32_t)severity);
+		assertValueInParser(parser, "numberOfTriggers", expected_triggers);
+		parser->endElement();
+	}
+	parser->endObject();
+}
+
+static void _assertOverviewInParser(JsonParserAgent *parser)
+{
+	assertValueInParser(parser, "numberOfServers",
+	                    (uint32_t)NumServerInfo);
+	parser->startObject("serverStatus");
+	for (size_t i = 0; i < NumServerInfo; i++) {
+		parser->startElement(i);
+		MonitoringServerInfo &svInfo = serverInfo[i];
+		assertValueInParser(parser, "serverId",   (uint32_t)svInfo.id);
+		assertValueInParser(parser, "serverHostName",  svInfo.hostName);
+		assertValueInParser(parser, "serverIpAddr", svInfo.ipAddress);
+		assertValueInParser(parser, "serverNickname",  svInfo.nickname);
+		assertValueInParser(parser, "numberOfHosts",
+				    getNumberOfTestHosts(svInfo.id));
+		assertValueInParser(parser, "numberOfItems",
+				    getNumberOfTestItems(svInfo.id));
+		assertValueInParser(parser, "numberOfTriggers",
+				    getNumberOfTestTriggers(svInfo.id));
+		uint32_t zero = 0;
+		assertValueInParser(parser, "numberOfUsers", zero);
+		assertValueInParser(parser, "numberOfOnlineUsers", zero);
+		assertValueInParser(parser, "numberOfMonitoredItemsPerSecond", zero);
+		assertHostGroupsInParser(parser, svInfo.id);
+		assertSystemStatusInParser(parser, svInfo.id);
+		assertHostStatusInParser(parser, svInfo.id);
+		parser->endElement();
+	}
+	parser->endObject();
+
+	// TODO: check badServers
+}
+#define assertOverviewInParser(P) cut_trace(_assertOverviewInParser(P))
 
 static void setupPostAction(void)
 {
@@ -1747,6 +1822,17 @@ void test_deleteAccessInfo(void)
 	AccessInfoIdSet accessInfoIdSet;
 	accessInfoIdSet.insert(targetId);
 	assertAccessInfoInDB(accessInfoIdSet);
+}
+
+void test_overview(void)
+{
+	setupUserDB();
+	startFaceRest();
+	RequestArg arg("/overview");
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	g_parser = getResponseAsJsonParser(arg);
+	assertErrorCode(g_parser);
+	assertOverviewInParser(g_parser);
 }
 
 } // namespace testFaceRest

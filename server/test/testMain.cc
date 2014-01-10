@@ -36,6 +36,7 @@
 #include "Hatohol.h"
 #include "Utils.h"
 #include "Logger.h"
+#include "Helpers.h"
 using namespace std;
 using namespace mlpl;
 
@@ -128,17 +129,28 @@ DaemonizeVariable *g_daemonizeValue;
 
 static pid_t getParentPid(pid_t pid, string &programName)
 {
-	stringstream procStatPath;
-	procStatPath << "/proc/" << pid << "/stat";
-	ifstream ifs(procStatPath.str().c_str());
-	cppcut_assert_equal(
-	  true, ifs.good(),
+	struct : public Watcher
+	{
+		ifstream ifs;
+		stringstream procStatPath;
+		virtual bool watch(void)
+		{
+			ifs.open(procStatPath.str().c_str());
+			return ifs.good();
+		}
+	} fileOpener;
+	fileOpener.procStatPath << "/proc/" << pid << "/stat";
+
+	const size_t timeout = 5 * 1000; // 5sec.
+	const size_t interval = 100; // 100 usec.
+	cppcut_assert_equal(true, fileOpener.start(timeout, interval),
 	  cut_message("path: %s, errno: %d",
-	              procStatPath.str().c_str(), errno));
+	              fileOpener.procStatPath.str().c_str(), errno));
 
 	pid_t mypid = 0;
 	pid_t parentPid = 0;
 	string status;
+	ifstream &ifs = fileOpener.ifs;
 	ifs >> mypid;
 	ifs >> programName;
 	ifs >> status;
@@ -215,25 +227,27 @@ bool parsePIDFile(int &grandchildPid, const string &grandChildPidFilePath)
 	// TODO: Consider that we should use inotify.
 	// At this time, the deamon process may still write the pid to the file.
 	// We try to read it some times.
-	const size_t TIMEOUT = 10; // sec.
-	const size_t RETRY_INTERVAL = 100 * 1000; // us.
-	const size_t MAX_NUM_RETRY = TIMEOUT * 1000 * 1000 /  RETRY_INTERVAL;
-	int scanResult = EOF;
-	for (size_t i = 0; i < MAX_NUM_RETRY; i++) {
-		FILE *grandchildPidFile;
-		grandchildPidFile = fopen(grandChildPidFilePath.c_str(), "r");
-		cppcut_assert_not_null(grandchildPidFile);
-		scanResult = fscanf(grandchildPidFile, "%d", &grandchildPid);
-		cppcut_assert_equal(0, fclose(grandchildPidFile));
-		if (scanResult == 1)
-			break;
-		if (usleep(RETRY_INTERVAL) == -1) {
-			if (errno != EINTR)
-				cut_assert_errno();
+	struct : public Watcher {
+		const char *fileName;
+		int pid;
+		virtual bool watch(void)
+		{
+			FILE *fp = fopen(fileName, "r");
+			cppcut_assert_not_null(fp);
+			int scanResult = fscanf(fp, "%d", &pid);
+			cppcut_assert_equal(0, fclose(fp));
+			return scanResult == 1;
 		}
-	}
-	cppcut_assert_equal(1, scanResult);
+	} reader;
+	reader.fileName = grandChildPidFilePath.c_str();
+
+	const size_t TIMEOUT = 10 * 1000; // 10sec.
+	const size_t RETRY_INTERVAL = 100; // us.
+	cppcut_assert_equal(true, reader.start(TIMEOUT, RETRY_INTERVAL));
+	grandchildPid = reader.pid;
 	return true;
+
+
 }
 
 static void parseStatFile(int &parentPid, int grandchildPid)

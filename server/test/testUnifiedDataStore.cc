@@ -79,9 +79,9 @@ void test_getTriggerList(void)
 	cppcut_assert_equal(expected, actual);
 }
 
-static const char *eventTypeToString(EventType type)
+static string eventTypeToString(EventType type)
 {
-	return LabelUtils::getEventTypeLabel(type).c_str();
+	return LabelUtils::getEventTypeLabel(type);
 }
 
 static string dumpEventInfo(const EventInfo &info)
@@ -92,7 +92,7 @@ static string dumpEventInfo(const EventInfo &info)
 		info.id,
 		info.time.tv_sec,
 		info.time.tv_nsec,
-		eventTypeToString(info.type),
+		eventTypeToString(info.type).c_str(),
 		triggerStatusToString(info.status).c_str(),
 		triggerSeverityToString(info.severity).c_str(),
 		info.hostId,

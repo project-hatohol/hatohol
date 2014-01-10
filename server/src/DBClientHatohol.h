@@ -185,6 +185,11 @@ public:
 	ItemsQueryOption(UserIdType userId = INVALID_USER_ID);
 };
 
+class HostsQueryOption : public HostResourceQueryOption {
+public:
+	HostsQueryOption(UserIdType userId = INVALID_USER_ID);
+};
+
 class DBClientHatohol : public DBClient {
 public:
 	static uint64_t EVENT_NOT_FOUND;
@@ -196,8 +201,7 @@ public:
 	virtual ~DBClientHatohol();
 
 	void getHostInfoList(HostInfoList &hostInfoList,
-	                     uint32_t targetServerId = ALL_SERVERS,
-	                     uint64_t targetHostId = ALL_HOSTS);
+			     const HostsQueryOption &option);
 
 	void addTriggerInfo(TriggerInfo *triggerInfo);
 	void addTriggerInfoList(const TriggerInfoList &triggerInfoList);
@@ -218,7 +222,7 @@ public:
 	bool getTriggerInfo(TriggerInfo &triggerInfo,
 	                    uint32_t serverId, uint64_t triggerId);
 	void getTriggerInfoList(TriggerInfoList &triggerInfoList,
-				TriggersQueryOption &option,
+				const TriggersQueryOption &option,
 	                        uint64_t targetTriggerId = ALL_TRIGGERS);
 	void setTriggerInfoList(const TriggerInfoList &triggerInfoList,
 	                        uint32_t serverId);
@@ -252,7 +256,7 @@ public:
 	void addItemInfo(ItemInfo *itemInfo);
 	void addItemInfoList(const ItemInfoList &itemInfoList);
 	void getItemInfoList(ItemInfoList &itemInfoList,
-			     ItemsQueryOption &option,
+			     const ItemsQueryOption &option,
 			     uint64_t targetItemId = ALL_ITEMS);
 	void getItemInfoList(ItemInfoList &itemInfoList,
 			     const string &condition);
@@ -260,17 +264,24 @@ public:
 	/**
 	 * get the number of triggers with the given server ID, host group ID,
 	 * the severity. The triggers with status: TRIGGER_STATUS_OK is NOT
-	 * counted.
-	 * @param serverId A target server Id.
-	 * @param hostGroupId A target host group ID.
-	 * @param severity    A target severity.
+	 * counted. When the user doesn't have privilege to access to the
+	 * server or host group, the trigger concerned with it isn't counted
+	 * too.
+	 *
+	 * @param option
+	 * A query option to specify user ID (or privilege), target server ID
+	 * and host group ID.
+	 *
+	 * @param severity
+	 * A target severity.
+	 *
 	 * @return The number matched triggers.
 	 */
-	size_t getNumberOfTriggers(uint32_t serverId, uint64_t hostGroupId,
+	size_t getNumberOfTriggers(const TriggersQueryOption &option,
 	                           TriggerSeverityType severity);
-	size_t getNumberOfHosts(uint32_t serverId, uint64_t hostGroupId);
-	size_t getNumberOfGoodHosts(uint32_t serverId, uint64_t hostGroupId);
-	size_t getNumberOfBadHosts(uint32_t serverId, uint64_t hostGroupId);
+	size_t getNumberOfHosts(const HostsQueryOption &option);
+	size_t getNumberOfGoodHosts(const HostsQueryOption &option);
+	size_t getNumberOfBadHosts(const HostsQueryOption &option);
 
 protected:
 	void addTriggerInfoBare(const TriggerInfo &triggerInfo);

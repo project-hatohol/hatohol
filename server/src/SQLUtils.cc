@@ -17,6 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cstring>
 #include "SQLUtils.h"
 #include "SQLProcessorTypes.h"
 #include "SQLProcessorException.h"
@@ -186,6 +187,7 @@ ItemDataPtr SQLUtils::createFromString(const char *str, SQLColumnType type)
 		}
 
 		struct tm tm;
+		memset(&tm, 0, sizeof(tm));
 		int numVal = sscanf(str,
 		                    "%04d-%02d-%02d %02d:%02d:%02d",
 		                    &tm.tm_year, &tm.tm_mon, &tm.tm_mday,

@@ -30,6 +30,8 @@ using namespace mlpl;
 #include "DBClient.h"
 #include "HatoholError.h"
 #include "OperationPrivilege.h"
+#include "DBClientHatohol.h"
+#include "DBClientAction.h"
 
 #define DBCONTENT_MAGIC_CURR_DATETIME "#CURR_DATETIME#"
 #define DBCONTENT_MAGIC_NULL          "#NULL#"
@@ -168,5 +170,40 @@ UserIdType searchMaxTestUserId(void);
 UserIdType findUserWith(const OperationPrivilegeType &type,
                         const OperationPrivilegeFlag &excludeFlags = 0);
 UserIdType findUserWithout(const OperationPrivilegeType &type);
+void initEventInfo(EventInfo &eventInfo);
+void initActionDef(ActionDef &actionDef);
+
+class Watcher {
+	bool expired;
+	guint timerId;
+
+	static gboolean _run(gpointer data);
+
+protected:
+	virtual gboolean run(void);
+	virtual bool watch(void);
+
+public:
+	Watcher(void);
+	virtual ~Watcher();
+
+	/**
+	 * Start a watch loop.
+	 * NOTE: this function must be called on the default GLIB context.
+	 * 
+	 * @ @param timeout
+	 * A timeout value in milli-second.
+	 *
+	 * @param interval
+	 * A watch interval in micro-second. If this parameter is zero,
+	 * the watch is peformed every return of
+	 * g_main_context_iteration(NULL, FALSE).
+	 *
+	 * @return
+	 * If watch() returns true, this function immediately returns true.
+	 * Othewise false is returned after the timeout.
+	 */
+	bool start(const size_t &timeout, const size_t &interval = 0);
+};
 
 #endif // Helpers_h
