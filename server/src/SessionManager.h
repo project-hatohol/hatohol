@@ -118,7 +118,7 @@ protected:
 	static void updateTimer(Session *session);
 	static gboolean timerCb(gpointer data);
 
-protected:
+private:
 	static size_t m_defaultTimeout;
 	struct PrivateContext;
 	PrivateContext *m_ctx;
