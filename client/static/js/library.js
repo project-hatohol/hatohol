@@ -270,5 +270,5 @@ if (typeof module !== 'undefined' && module.exports) {
 }
 
 function hasPrivilege(user, privilege) {
-  return (user.flags & (1 << hatohol.OPPRVLG_CREATE_USER));
+  return (user.flags & (1 << privilege));
 }
