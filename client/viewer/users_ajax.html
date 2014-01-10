@@ -24,9 +24,10 @@
   <h2>{% trans "Users" %}</h2>
 
   <form class="form-inline">
-    <input id="add-user-button" type="button" class="btn" value="{% trans "ADD USER" %}" />
+    <input id="add-user-button" type="button" class="btn"
+     value="{% trans "ADD USER" %}" style="display: none;" />
     <input id="delete-user-button" type="button" class="btn" disabled
-     value="{% trans "DELETE USER" %}" />
+     value="{% trans "DELETE USER" %}" style="display: none;" />
   </form>
 
   <div id="msgbox" title="Message Box">
@@ -215,7 +216,11 @@
     //
     // main code
     //
-    userProfile.addOnLoadCb(function() {
+    userProfile.addOnLoadCb(function(user) {
+      if (hasPrivilege(user, hatohol.OPPRVLG_CREATE_USER))
+        $("#add-user-button").show();
+      if (hasPrivilege(user, hatohol.OPPRVLG_DELETE_USER))
+        $("#delete-user-button").show();
       startConnection('user', updateCore);
     });
   </script>

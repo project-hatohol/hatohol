@@ -24,9 +24,10 @@
   <h2>{% trans "Servers" %}</h2>
 
   <form class="form-inline">
-    <input id="add-server-button" type="button" class="btn" value="{% trans "ADD SERVER" %}" />
+    <input id="add-server-button" type="button" class="btn"
+     value="{% trans "ADD SERVER" %}" style="display: none;" />
     <input id="delete-server-button" type="button" class="btn" disabled
-      value="{% trans "DELETE SERVER" %}" />
+     value="{% trans "DELETE SERVER" %}" style="display: none;" />
   </form>
 
   <div id="msgbox" title="Message Box">
@@ -191,7 +192,11 @@
       numSelected = 0;
     }
 
-    userProfile.addOnLoadCb(function() {
+    userProfile.addOnLoadCb(function(user) {
+      if (hasPrivilege(user, hatohol.OPPRVLG_CREATE_SERVER))
+        $("#add-server-button").show();
+      if (hasPrivilege(user, hatohol.OPPRVLG_DELETE_SERVER))
+        $("#delete-server-button").show();
       startConnection('server', updateCore);
     });
   </script>
