@@ -543,11 +543,14 @@ size_t getNumberOfTestHosts(uint32_t serverId, uint64_t hostGroupId)
 }
 
 size_t getNumberOfTestHostsWithStatus(uint32_t serverId, uint64_t hostGroupId,
-                                      bool status)
+                                      bool status, UserIdType userId)
 {
 	ServerIdHostGroupHostIdMap svIdHostGrpIdMap;
 	ServerIdHostGroupHostIdMapIterator svIt;
 	HostGroupHostIdMapIterator         hostIt;
+	ServerHostGrpSetMap authMap;
+
+	makeServerHostGrpSetMap(authMap, userId);
 
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
 		TriggerInfo &trigInfo = testTriggerInfo[i];
@@ -555,6 +558,8 @@ size_t getNumberOfTestHostsWithStatus(uint32_t serverId, uint64_t hostGroupId,
 		uint64_t hostGrpIdForTrig = hostGroupId;
 
 		if (serverId != ALL_SERVERS && trigInfo.serverId != serverId)
+			continue;
+		if (!isAuthorized(authMap, userId, serverId, hostGroupId))
 			continue;
 		if (isGoodStatus(trigInfo) != status) {
 			if (status) {

@@ -457,7 +457,7 @@ static void _assertGetHosts(AssertGetHostsArg &arg)
 }
 #define assertGetHosts(A) cut_trace(_assertGetHosts(A))
 
-static void _assertGetNumberOfHostsWithStatus(bool status)
+static void _assertGetNumberOfHostsWithUserAndStatus(UserIdType userId, bool status)
 {
 	setupTestTriggerDB();
 
@@ -468,9 +468,9 @@ static void _assertGetNumberOfHostsWithStatus(bool status)
 
 	DBClientHatohol dbHatohol;
 	int expected = getNumberOfTestHostsWithStatus(serverId, hostGroupId,
-	                                              status);
+	                                              status, userId);
 	int actual;
-	HostsQueryOption option(USER_ID_SYSTEM);
+	HostsQueryOption option(userId);
 	option.setTargetServerId(serverId);
 	//TODO: hostGroupId isn't supported yet
 	//option.setTargetHostGroupId(hostGroupId);
@@ -481,8 +481,8 @@ static void _assertGetNumberOfHostsWithStatus(bool status)
 		actual  = dbHatohol.getNumberOfBadHosts(option);
 	cppcut_assert_equal(expected, actual);
 }
-#define assertGetNumberOfHostsWithStatus(ST) \
-cut_trace(_assertGetNumberOfHostsWithStatus(ST))
+#define assertGetNumberOfHostsWithUserAndStatus(U, ST) \
+cut_trace(_assertGetNumberOfHostsWithUserAndStatus(U, ST))
 
 static
 void _assertTriggerInfo(const TriggerInfo &expect, const TriggerInfo &actual)
@@ -853,12 +853,40 @@ void test_getNumberOfTriggersBySeverityWithoutPriviledge(void)
 
 void test_getNumberOfGoodHosts(void)
 {
-	assertGetNumberOfHostsWithStatus(true);
+	assertGetNumberOfHostsWithUserAndStatus(USER_ID_SYSTEM, true);
 }
 
 void test_getNumberOfBadHosts(void)
 {
-	assertGetNumberOfHostsWithStatus(false);
+	assertGetNumberOfHostsWithUserAndStatus(USER_ID_SYSTEM, false);
+}
+
+void test_getNumberOfGoodHostsWithNoAuthorizedServer(void)
+{
+	setupTestDBUser(true, true);
+	UserIdType userId = 4;
+	assertGetNumberOfHostsWithUserAndStatus(userId, true);
+}
+
+void test_getNumberOfBadHostsWithNoAuthorizedServer(void)
+{
+	setupTestDBUser(true, true);
+	UserIdType userId = 4;
+	assertGetNumberOfHostsWithUserAndStatus(userId, false);
+}
+
+void test_getNumberOfGoodHostsWithOneAuthorizedServer(void)
+{
+	setupTestDBUser(true, true);
+	UserIdType userId = 5;
+	assertGetNumberOfHostsWithUserAndStatus(userId, true);
+}
+
+void test_getNumberOfBadHostsWithOneAuthorizedServer(void)
+{
+	setupTestDBUser(true, true);
+	UserIdType userId = 5;
+	assertGetNumberOfHostsWithUserAndStatus(userId, false);
 }
 
 void test_makeConditionEmpty(void)
