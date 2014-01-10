@@ -196,7 +196,8 @@
         html += "' userId='"+ user["userId"] + "'>" + user["name"]   + "</a></td>";
         html += "<td>" + getUserTypeFromFlags(user["flags"])  + "</td>";
         if (user["flags"] == hatohol.ALL_PRIVILEGES) {
-          html += "<td>" + '{% trans "All" %}' + "</td>";
+          html += "<td class='privilege-column' style='display:none;'>"
+          html += '{% trans "All" %}' + "</td>";
         } else {
           html += "<td class='privilege-column' style='display:none;'>";
           html += "<form class='form-inline' style='margin: 0'>";
