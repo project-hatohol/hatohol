@@ -66,7 +66,7 @@ public:
 	 *
 	 * @param userId A user ID
 	 * @param timeout
-	 * A timeout of the session in millisecond. If this parameter is
+	 * A timeout of the session in second. If this parameter is
 	 * NO_TIMEOUT, the session is never timed out.
 	 *
 	 * @return       A newly created session ID.
