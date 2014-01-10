@@ -170,7 +170,6 @@ UserIdType searchMaxTestUserId(void);
 UserIdType findUserWith(const OperationPrivilegeType &type,
                         const OperationPrivilegeFlag &excludeFlags = 0);
 UserIdType findUserWithout(const OperationPrivilegeType &type);
-void initEventInfo(EventInfo &eventInfo);
 void initActionDef(ActionDef &actionDef);
 
 class Watcher {

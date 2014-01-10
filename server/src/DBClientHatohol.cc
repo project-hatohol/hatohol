@@ -468,6 +468,23 @@ struct DBClientHatohol::PrivateContext
 };
 
 // ---------------------------------------------------------------------------
+// EventInfo
+// ---------------------------------------------------------------------------
+void initEventInfo(EventInfo &eventInfo)
+{
+	eventInfo.unifiedId = 0;
+	eventInfo.serverId = 0;
+	eventInfo.id = 0;
+	eventInfo.time.tv_sec = 0;
+	eventInfo.time.tv_nsec = 0;
+	eventInfo.type = EVENT_TYPE_UNKNOWN;
+	eventInfo.triggerId = 0;
+	eventInfo.status = TRIGGER_STATUS_UNKNOWN;
+	eventInfo.severity = TRIGGER_SEVERITY_UNKNOWN;
+	eventInfo.hostId = 0;
+}
+
+// ---------------------------------------------------------------------------
 // HostResourceQueryOption
 // ---------------------------------------------------------------------------
 struct HostResourceQueryOption::PrivateContext {

@@ -1858,6 +1858,7 @@ void DBClientZabbix::transformEventsToHatoholFormat
 	ItemGroupListConstIterator it = itemGroupList.begin();
 	for (; it != itemGroupList.end(); ++it) {
 		EventInfo eventInfo;
+		initEventInfo(eventInfo);
 		eventInfo.serverId = serverId;
 		if (!transformEventItemGroupToEventInfo(eventInfo, *it))
 			continue;

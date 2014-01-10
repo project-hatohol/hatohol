@@ -103,6 +103,7 @@ struct EventInfo {
 	string              hostName;
 	string              brief;
 };
+void initEventInfo(EventInfo &eventInfo);
 
 typedef list<EventInfo>               EventInfoList;
 typedef EventInfoList::iterator       EventInfoListIterator;

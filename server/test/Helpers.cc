@@ -780,20 +780,6 @@ UserIdType findUserWithout(const OperationPrivilegeType &type)
 	return findUserCommon(type, false);
 }
 
-void initEventInfo(EventInfo &eventInfo)
-{
-	eventInfo.unifiedId = 0;
-	eventInfo.serverId = 0;
-	eventInfo.id = 0;
-	eventInfo.time.tv_sec = 0;
-	eventInfo.time.tv_nsec = 0;
-	eventInfo.type = EVENT_TYPE_UNKNOWN;
-	eventInfo.triggerId = 0;
-	eventInfo.status = TRIGGER_STATUS_UNKNOWN;
-	eventInfo.severity = TRIGGER_SEVERITY_UNKNOWN;
-	eventInfo.hostId = 0;
-}
-
 void initActionDef(ActionDef &actionDef)
 {
        actionDef.id = 0;
