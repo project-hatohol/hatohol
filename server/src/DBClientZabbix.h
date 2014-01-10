@@ -32,6 +32,7 @@ public:
 
 	static const int ZABBIX_DB_VERSION;
 	static const uint64_t EVENT_ID_NOT_FOUND;
+	static const uint64_t HOSTS_GROUPS_ID_NOT_FOUND;
 	static const int TRIGGER_CHANGE_TIME_NOT_FOUND;
 
 	static void init(void);
