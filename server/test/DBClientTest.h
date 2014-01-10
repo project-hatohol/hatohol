@@ -90,7 +90,9 @@ void getTestHostInfoList(HostInfoList &hostInfoList,
 size_t getNumberOfTestHosts(uint32_t serverId,
 			    uint64_t hostGroupId = ALL_HOST_GROUPS);
 size_t getNumberOfTestHostsWithStatus(uint32_t serverId,
-                                      uint64_t hostGroupId, bool status);
+                                      uint64_t hostGroupId,
+				      bool status,
+				      UserIdType userId = USER_ID_SYSTEM);
 
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo);
 

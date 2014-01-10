@@ -342,7 +342,7 @@ void UnifiedDataStore::fetchItems(uint32_t targetServerId)
 }
 
 void UnifiedDataStore::getTriggerList(TriggerInfoList &triggerList,
-				      TriggersQueryOption &option,
+				      const TriggersQueryOption &option,
                                       uint64_t targetTriggerId)
 {
 	DBClientHatohol dbHatohol;
@@ -358,15 +358,18 @@ HatoholError UnifiedDataStore::getEventList(EventInfoList &eventList,
 }
 
 void UnifiedDataStore::getItemList(ItemInfoList &itemList,
-				   ItemsQueryOption &option,
-				   uint64_t targetItemId)
+				   const ItemsQueryOption &option,
+				   uint64_t targetItemId,
+				   bool fetchItemsSynchronously)
 {
+	if (fetchItemsSynchronously)
+		fetchItems(option.getTargetServerId());
 	DBClientHatohol dbHatohol;
 	dbHatohol.getItemInfoList(itemList, option, targetItemId);
 }
 
-bool UnifiedDataStore::getItemListAsync(ClosureBase *closure,
-					uint32_t targetServerId)
+bool UnifiedDataStore::fetchItemsAsync(ClosureBase *closure,
+				       uint32_t targetServerId)
 {
 	if (!getCopyOnDemandEnabled())
 		return false;
@@ -376,11 +379,11 @@ bool UnifiedDataStore::getItemListAsync(ClosureBase *closure,
 	return m_ctx->startFetchingItems(targetServerId, closure);
 }
 
-void UnifiedDataStore::getHostList(
-  HostInfoList &hostInfoList, uint32_t targetServerId, uint64_t targetHostId)
+void UnifiedDataStore::getHostList(HostInfoList &hostInfoList,
+				   const HostsQueryOption &option)
 {
 	DBClientHatohol dbHatohol;
-	dbHatohol.getHostInfoList(hostInfoList, targetServerId, targetHostId);
+	dbHatohol.getHostInfoList(hostInfoList, option);
 }
 
 HatoholError UnifiedDataStore::getActionList(
@@ -397,26 +400,23 @@ HatoholError UnifiedDataStore::deleteActionList(
 	return dbAction.deleteActions(actionIdList, privilege);
 }
 
-size_t UnifiedDataStore::getNumberOfTriggers(uint32_t serverId,
-                                          uint64_t hostGroupId,
-                                          TriggerSeverityType severity)
+size_t UnifiedDataStore::getNumberOfTriggers(const TriggersQueryOption &option,
+					     TriggerSeverityType severity)
 {
 	DBClientHatohol dbHatohol;
-	return dbHatohol.getNumberOfTriggers(serverId, hostGroupId, severity);
+	return dbHatohol.getNumberOfTriggers(option, severity);
 }
 
-size_t UnifiedDataStore::getNumberOfGoodHosts(uint32_t serverId,
-                                              uint64_t hostGroupId)
+size_t UnifiedDataStore::getNumberOfGoodHosts(const HostsQueryOption &option)
 {
 	DBClientHatohol dbHatohol;
-	return dbHatohol.getNumberOfGoodHosts(serverId, hostGroupId);
+	return dbHatohol.getNumberOfGoodHosts(option);
 }
 
-size_t UnifiedDataStore::getNumberOfBadHosts(uint32_t serverId,
-                                             uint64_t hostGroupId)
+size_t UnifiedDataStore::getNumberOfBadHosts(const HostsQueryOption &option)
 {
 	DBClientHatohol dbHatohol;
-	return dbHatohol.getNumberOfBadHosts(serverId, hostGroupId);
+	return dbHatohol.getNumberOfBadHosts(option);
 }
 
 bool UnifiedDataStore::getCopyOnDemandEnabled(void) const
@@ -445,7 +445,7 @@ void UnifiedDataStore::addEventList(const EventInfoList &eventList)
 }
 
 void UnifiedDataStore::getUserList(UserInfoList &userList,
-                                   UserQueryOption &option)
+                                   const UserQueryOption &option)
 {
 	CacheServiceDBClient cache;
 	DBClientUser *dbUser = cache.getUser();
@@ -476,8 +476,8 @@ HatoholError UnifiedDataStore::deleteUser(
 	return dbUser->deleteUserInfo(userId, privilege);
 }
 
-HatoholError UnifiedDataStore::getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
-					AccessInfoQueryOption &option)
+HatoholError UnifiedDataStore::getAccessInfoMap(
+  ServerAccessInfoMap &srvAccessInfoMap, const AccessInfoQueryOption &option)
 {
 	CacheServiceDBClient cache;
 	DBClientUser *dbUser = cache.getUser();

@@ -37,37 +37,6 @@ public:
 	virtual void parseCommandLineArgument(CommandLineArg &cmdArg);
 	virtual void start(void);
 	virtual void stop(void);
-	virtual void fetchItems(uint32_t targetServerId = ALL_SERVERS);
-
-	virtual void getTriggerList(TriggerInfoList &triggerList,
-				    TriggersQueryOption &option,
-	                            uint64_t targetTriggerId = ALL_TRIGGERS);
-	virtual HatoholError getEventList(EventInfoList &eventList,
-	                                  EventsQueryOption &option);
-	virtual void getItemList(ItemInfoList &itemList,
-	                         ItemsQueryOption &option,
-	                         uint64_t targetItemId = ALL_ITEMS);
-	virtual bool getItemListAsync(ClosureBase *closure,
-				      uint32_t targetServerId = ALL_SERVERS);
-	virtual void getHostList(HostInfoList &hostInfoList,
-	                         uint32_t targetServerId = ALL_SERVERS,
-	                         uint64_t targetHostId = ALL_HOSTS);
-	virtual HatoholError getActionList(ActionDefList &actionList,
-	                                   const OperationPrivilege &privilege);
-	virtual HatoholError addAction(ActionDef &actionDef,
-	                               const OperationPrivilege &privilege);
-	virtual HatoholError deleteActionList(
-	  const ActionIdList &actionIdList,
-	  const OperationPrivilege &privilege);
-
-	virtual size_t getNumberOfTriggers
-	                 (uint32_t serverId, uint64_t hostGroupId,
-	                  TriggerSeverityType severity);
-	virtual size_t getNumberOfGoodHosts(uint32_t serverId,
-	                                    uint64_t hostGroupId);
-	virtual size_t getNumberOfBadHosts(uint32_t serverId,
-	                                   uint64_t hostGroupId);
-
 	virtual bool getCopyOnDemandEnabled(void) const;
 	virtual void setCopyOnDemandEnabled(bool enable);
 
@@ -78,8 +47,40 @@ public:
 	 */
 	virtual void addEventList(const EventInfoList &eventList);
 
+
+	/*
+	 *  Functions which require operation privilege
+	 */
+
+	virtual void getTriggerList(TriggerInfoList &triggerList,
+				    const TriggersQueryOption &option,
+	                            uint64_t targetTriggerId = ALL_TRIGGERS);
+	virtual HatoholError getEventList(EventInfoList &eventList,
+	                                  EventsQueryOption &option);
+	virtual void getItemList(ItemInfoList &itemList,
+	                         const ItemsQueryOption &option,
+	                         uint64_t targetItemId = ALL_ITEMS,
+				 bool fetchItemsSynchronously = false);
+	virtual bool fetchItemsAsync(ClosureBase *closure,
+				     uint32_t targetServerId = ALL_SERVERS);
+	virtual void getHostList(HostInfoList &hostInfoList,
+				 const HostsQueryOption &option);
+	virtual HatoholError getActionList(ActionDefList &actionList,
+	                                   const OperationPrivilege &privilege);
+	virtual HatoholError addAction(ActionDef &actionDef,
+	                               const OperationPrivilege &privilege);
+	virtual HatoholError deleteActionList(
+	  const ActionIdList &actionIdList,
+	  const OperationPrivilege &privilege);
+
+	virtual size_t getNumberOfTriggers
+	                 (const TriggersQueryOption &option,
+	                  TriggerSeverityType severity);
+	virtual size_t getNumberOfGoodHosts(const HostsQueryOption &option);
+	virtual size_t getNumberOfBadHosts(const HostsQueryOption &option);
+
 	virtual void getUserList(UserInfoList &userList,
-                                 UserQueryOption &option);
+                                 const UserQueryOption &option);
 	virtual HatoholError addUser(
 	  UserInfo &userInfo, const OperationPrivilege &privilege);
 	virtual HatoholError updateUser(
@@ -87,7 +88,8 @@ public:
 	virtual HatoholError deleteUser(
 	  UserIdType userId, const OperationPrivilege &privilege);
 	virtual HatoholError getAccessInfoMap(
-	  ServerAccessInfoMap &srvAccessInfoMap, AccessInfoQueryOption &option);
+	  ServerAccessInfoMap &srvAccessInfoMap,
+	  const AccessInfoQueryOption &option);
 	virtual HatoholError addAccessInfo(
 	  AccessInfo &userInfo, const OperationPrivilege &privilege);
 	virtual HatoholError deleteAccessInfo(
@@ -96,6 +98,9 @@ public:
 	  MonitoringServerInfo &svInfo, const OperationPrivilege &privilege);
 	virtual HatoholError deleteTargetServer(
 	  ServerIdType serverId, const OperationPrivilege &privilege);
+
+protected:
+	virtual void fetchItems(uint32_t targetServerId = ALL_SERVERS);
 
 private:
 	struct PrivateContext;

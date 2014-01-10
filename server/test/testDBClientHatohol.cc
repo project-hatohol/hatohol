@@ -152,19 +152,21 @@ struct AssertGetHostResourceArg {
 					continue;
 			}
 			if (targetHostId != ALL_HOSTS) {
-				if (record->hostId != targetHostId)
+				if (getHostId(*record) != targetHostId)
 					continue;
 			}
 			expectedRecords.push_back(record);
 		}
 	}
 
+	virtual uint64_t getHostId(TResourceType &record) = 0;
+
 	virtual TResourceType &getExpectedRecord(size_t idx)
 	{
 		if (startId)
 			idx += (startId - 1);
 		if (sortOrder == DataQueryOption::SORT_DESCENDING)
-			idx = (NumTestEventInfo - 1) - idx;
+			idx = (expectedRecords.size() - 1) - idx;
 		cut_assert_true(idx < expectedRecords.size());
 		return *expectedRecords[idx];
 	}
@@ -177,7 +179,7 @@ struct AssertGetHostResourceArg {
 		cppcut_assert_equal(expectedNum, actualRecordList.size());
 	}
 
-	virtual string makeExpectedOutput(const TResourceType &record) = 0;
+	virtual string makeOutputText(const TResourceType &record) = 0;
 
 	virtual void assert(void)
 	{
@@ -189,8 +191,8 @@ struct AssertGetHostResourceArg {
 		  = actualRecordList.begin();
 		for (size_t i = 0; it != actualRecordList.end(); i++, ++it) {
 			TResourceType &expectedRecord = getExpectedRecord(i);
-			expectedText += makeExpectedOutput(expectedRecord);
-			actualText += makeExpectedOutput(*it);
+			expectedText += makeOutputText(expectedRecord);
+			actualText += makeOutputText(*it);
 		}
 		cppcut_assert_equal(expectedText, actualText);
 	}
@@ -205,7 +207,12 @@ struct AssertGetTriggersArg
 		numberOfFixtures = NumTestTriggerInfo;
 	}
 
-	string makeExpectedOutput(const TriggerInfo &triggerInfo)
+	virtual uint64_t getHostId(TriggerInfo &info)
+	{
+		return info.hostId;
+	}
+
+	virtual string makeOutputText(const TriggerInfo &triggerInfo)
 	{
 		return makeTriggerOutput(triggerInfo);
 	}
@@ -216,8 +223,6 @@ static void _assertGetTriggers(AssertGetTriggersArg &arg)
 	DBClientHatohol dbHatohol;
 	arg.fixup();
 	dbHatohol.getTriggerInfoList(arg.actualRecordList, arg.option);
-	if (arg.expectedErrorCode != HTERR_OK)
-		return;
 	arg.assert();
 }
 #define assertGetTriggers(A) cut_trace(_assertGetTriggers(A))
@@ -257,8 +262,6 @@ static void _assertGetTriggerInfoList(uint32_t serverId, uint64_t hostId = ALL_H
 cut_trace(_assertGetTriggerInfoList(SERVER_ID, ##__VA_ARGS__))
 
 
-// TODO: The names of makeExpectedOutput() and makeExpectedItemOutput()
-//       will be changed to be the similar of this function.
 static string makeEventOutput(const EventInfo &eventInfo)
 {
 	string output =
@@ -283,7 +286,12 @@ struct AssertGetEventsArg
 		numberOfFixtures = NumTestEventInfo;
 	}
 
-	string makeExpectedOutput(const EventInfo &eventInfo)
+	virtual uint64_t getHostId(EventInfo &info)
+	{
+		return info.hostId;
+	}
+
+	virtual string makeOutputText(const EventInfo &eventInfo)
 	{
 		return makeEventOutput(eventInfo);
 	}
@@ -318,7 +326,7 @@ static void _assertGetEventsWithFilter(AssertGetEventsArg &arg)
 #define assertGetEventsWithFilter(ARG) \
 cut_trace(_assertGetEventsWithFilter(ARG))
 
-static string makeExpectedItemOutput(const ItemInfo &itemInfo)
+static string makeItemOutput(const ItemInfo &itemInfo)
 {
 	string expectedOut =
 	  StringUtils::sprintf(
@@ -343,9 +351,14 @@ struct AssertGetItemsArg
 		numberOfFixtures = NumTestItemInfo;
 	}
 
-	string makeExpectedOutput(const ItemInfo &itemInfo)
+	virtual uint64_t getHostId(ItemInfo &info)
 	{
-		return makeExpectedItemOutput(itemInfo);
+		return info.hostId;
+	}
+
+	virtual string makeOutputText(const ItemInfo &itemInfo)
+	{
+		return makeItemOutput(itemInfo);
 	}
 };
 
@@ -354,8 +367,6 @@ static void _assertGetItems(AssertGetItemsArg &arg)
 	DBClientHatohol dbHatohol;
 	arg.fixup();
 	dbHatohol.getItemInfoList(arg.actualRecordList, arg.option);
-	if (arg.expectedErrorCode != HTERR_OK)
-		return;
 	arg.assert();
 }
 #define assertGetItems(A) cut_trace(_assertGetItems(A))
@@ -390,70 +401,88 @@ void _assertItemInfoList(uint32_t serverId)
 }
 #define assertItemInfoList(SERVER_ID) cut_trace(_assertItemInfoList(SERVER_ID))
 
-static void _assertGetHostInfoList(uint32_t serverId)
+static string makeHostOutput(const HostInfo &hostInfo)
+{
+	string expectedOut =
+	  StringUtils::sprintf(
+	    "%"PRIu32"|%"PRIu64"|%s\n",
+	    hostInfo.serverId, hostInfo.id, hostInfo.hostName.c_str());
+	return expectedOut;
+}
+
+struct AssertGetHostsArg
+  : public AssertGetHostResourceArg<HostInfo, HostsQueryOption>
+{
+	HostInfoList expectedHostList;
+
+	AssertGetHostsArg(void)
+	{
+	}
+
+	virtual void fixupExpectedRecords(void)
+	{
+		getTestHostInfoList(expectedHostList, targetServerId, NULL);
+		HostInfoListIterator it = expectedHostList.begin();
+		for (; it != expectedHostList.end(); ++it) {	
+			HostInfo &record = *it;
+			if (isAuthorized(record))
+				expectedRecords.push_back(&record);
+		}
+	}
+
+	virtual uint64_t getHostId(HostInfo &info)
+	{
+		return info.id;
+	}
+
+	virtual string makeOutputText(const HostInfo &hostInfo)
+	{
+		return makeHostOutput(hostInfo);
+	}
+};
+
+static void _assertGetHosts(AssertGetHostsArg &arg)
 {
 	// We have to insert test trigger data in DB first. Because current
-	// implementation of DBClientHatohol creates hostInfoList
-	// from trigger table.
+	// implementation of DBClientHatohol creates hostInfoList from trigger
+	// table.
 	// TODO: The implementation will be fixed in the future. The DB table
 	//       for host will be added. After that, we will fix this setup.
 	setupTestTriggerDB();
 
-	HostInfoList actualHostList;
-	HostInfoList expectedHostList;
-	ServerIdHostIdMap svIdHostIdMap;
 	DBClientHatohol dbHatohol;
-	dbHatohol.getHostInfoList(actualHostList, serverId);
-	getTestHostInfoList(expectedHostList, serverId, &svIdHostIdMap);
-
-	// comapre two lists
-	cppcut_assert_equal(expectedHostList.size(), actualHostList.size());
-
-	HostInfoListIterator actualHost = actualHostList.begin();
-	for (; actualHost != actualHostList.end(); ++actualHost) {
-		// server ID
-		ServerIdHostIdMapIterator svIt =
-		   svIdHostIdMap.find(actualHost->serverId);
-		cppcut_assert_equal(true, svIt != svIdHostIdMap.end());
-
-		// Host ID
-		HostIdSet &hostIdSet = svIt->second;
-		HostIdSetIterator hostIt = hostIdSet.find(actualHost->id);
-		cppcut_assert_equal(true, hostIt != hostIdSet.end());
-
-		// delete the element from svIdHostIdMap.
-		// This is needed to check the duplication of hosts in
-		// actualHostList
-		hostIdSet.erase(hostIt);
-		if (hostIdSet.empty())
-			svIdHostIdMap.erase(svIt);
-	}
-	cppcut_assert_equal((size_t)0, svIdHostIdMap.size());
+	arg.fixup();
+	dbHatohol.getHostInfoList(arg.actualRecordList, arg.option);
+	arg.assert();
 }
-#define assertGetHostInfoList(SERVER_ID) \
-cut_trace(_assertGetHostInfoList(SERVER_ID))
+#define assertGetHosts(A) cut_trace(_assertGetHosts(A))
 
-static void _assertGetNumberOfHostsWithStatus(bool status)
+static void _assertGetNumberOfHostsWithUserAndStatus(UserIdType userId, bool status)
 {
 	setupTestTriggerDB();
 
 	uint32_t serverId = testTriggerInfo[0].serverId;
-	// TODO: should should give the appropriate host group ID after
+	// TODO: should give the appropriate host group ID after
 	//       Hatohol support it.
 	uint64_t hostGroupId = 0;
 
 	DBClientHatohol dbHatohol;
 	int expected = getNumberOfTestHostsWithStatus(serverId, hostGroupId,
-	                                              status);
+	                                              status, userId);
 	int actual;
+	HostsQueryOption option(userId);
+	option.setTargetServerId(serverId);
+	//TODO: hostGroupId isn't supported yet
+	//option.setTargetHostGroupId(hostGroupId);
+
 	if (status)
-		actual  = dbHatohol.getNumberOfGoodHosts(serverId, hostGroupId);
+		actual  = dbHatohol.getNumberOfGoodHosts(option);
 	else
-		actual  = dbHatohol.getNumberOfBadHosts(serverId, hostGroupId);
+		actual  = dbHatohol.getNumberOfBadHosts(option);
 	cppcut_assert_equal(expected, actual);
 }
-#define assertGetNumberOfHostsWithStatus(ST) \
-cut_trace(_assertGetNumberOfHostsWithStatus(ST))
+#define assertGetNumberOfHostsWithUserAndStatus(U, ST) \
+cut_trace(_assertGetNumberOfHostsWithUserAndStatus(U, ST))
 
 static
 void _assertTriggerInfo(const TriggerInfo &expect, const TriggerInfo &actual)
@@ -648,7 +677,7 @@ void test_addTriggerInfoList(void)
 	assertGetTriggers(arg);
 }
 
-void test_getTriggerWithOneAutorizedServer(void)
+void test_getTriggerWithOneAuthorizedServer(void)
 {
 	setupTestDBUser(true, true);
 	AssertGetTriggersArg arg;
@@ -656,7 +685,7 @@ void test_getTriggerWithOneAutorizedServer(void)
 	assertGetTriggersWithFilter(arg);
 }
 
-void test_getTriggerWithNoAutorizedServer(void)
+void test_getTriggerWithNoAuthorizedServer(void)
 {
 	setupTestDBUser(true, true);
 	AssertGetTriggersArg arg;
@@ -695,7 +724,7 @@ void test_addItemInfoList(void)
 	assertGetItems(arg);
 }
 
-void test_getItemsWithOneAutorizedServer(void)
+void test_getItemsWithOneAuthorizedServer(void)
 {
 	setupTestDBUser(true, true);
 	AssertGetItemsArg arg;
@@ -703,7 +732,7 @@ void test_getItemsWithOneAutorizedServer(void)
 	assertGetItemsWithFilter(arg);
 }
 
-void test_getItemWithNoAutorizedServer(void)
+void test_getItemWithNoAuthorizedServer(void)
 {
 	setupTestDBUser(true, true);
 	AssertGetItemsArg arg;
@@ -748,13 +777,31 @@ void test_getLastEventId(void)
 
 void test_getHostInfoList(void)
 {
-	assertGetHostInfoList(ALL_SERVERS);
+	AssertGetHostsArg arg;
+	assertGetHosts(arg);
 }
 
 void test_getHostInfoListForOneServer(void)
 {
-	uint32_t targetServerId = testTriggerInfo[0].serverId;
-	assertGetHostInfoList(targetServerId);
+	AssertGetHostsArg arg;
+	arg.targetServerId = testTriggerInfo[0].serverId;
+	assertGetHosts(arg);
+}
+
+void test_getHostInfoListWithNoAuthorizedServer(void)
+{
+	setupTestDBUser(true, true);
+	AssertGetHostsArg arg;
+	arg.userId = 4;
+	assertGetHosts(arg);
+}
+
+void test_getHostInfoListWithOneAuthorizedServer(void)
+{
+	setupTestDBUser(true, true);
+	AssertGetHostsArg arg;
+	arg.userId = 5;
+	assertGetHosts(arg);
 }
 
 void test_getNumberOfTriggersBySeverity(void)
@@ -762,15 +809,18 @@ void test_getNumberOfTriggersBySeverity(void)
 	setupTestTriggerDB();
 
 	uint32_t targetServerId = testTriggerInfo[0].serverId;
-	// TODO: should should give the appropriate host group ID after
+	// TODO: should give the appropriate host group ID after
 	//       Hatohol support it.
 	uint64_t hostGroupId = 0;
 
 	DBClientHatohol dbHatohol;
 	for (int i = 0; i < NUM_TRIGGER_SEVERITY; i++) {
+		TriggersQueryOption option(USER_ID_SYSTEM);
+		option.setTargetServerId(targetServerId);
+		//TODO: uncomment it after Hatohol supports host group
+		//option.setTargetHostGroupId(hostGroupId);
 		TriggerSeverityType severity = (TriggerSeverityType)i;
-		size_t actual = dbHatohol.getNumberOfTriggers
-		                  (targetServerId, hostGroupId, severity);
+		size_t actual = dbHatohol.getNumberOfTriggers(option, severity);
 		size_t expected = getNumberOfTestTriggers
 		                    (targetServerId, hostGroupId, severity);
 		cppcut_assert_equal(expected, actual,
@@ -778,14 +828,65 @@ void test_getNumberOfTriggersBySeverity(void)
 	}
 }
 
+void test_getNumberOfTriggersBySeverityWithoutPriviledge(void)
+{
+	setupTestTriggerDB();
+
+	uint32_t targetServerId = testTriggerInfo[0].serverId;
+	// TODO: should give the appropriate host group ID after
+	//       Hatohol support it.
+	//uint64_t hostGroupId = 0;
+
+	DBClientHatohol dbHatohol;
+	for (int i = 0; i < NUM_TRIGGER_SEVERITY; i++) {
+		TriggersQueryOption option;
+		option.setTargetServerId(targetServerId);
+		//TODO: uncomment it after Hatohol supports host group
+		//option.setTargetHostGroupId(hostGroupId);
+		TriggerSeverityType severity = (TriggerSeverityType)i;
+		size_t actual = dbHatohol.getNumberOfTriggers(option, severity);
+		size_t expected = 0;
+		cppcut_assert_equal(expected, actual,
+		                    cut_message("severity: %d", i));
+	}
+}
+
 void test_getNumberOfGoodHosts(void)
 {
-	assertGetNumberOfHostsWithStatus(true);
+	assertGetNumberOfHostsWithUserAndStatus(USER_ID_SYSTEM, true);
 }
 
 void test_getNumberOfBadHosts(void)
 {
-	assertGetNumberOfHostsWithStatus(false);
+	assertGetNumberOfHostsWithUserAndStatus(USER_ID_SYSTEM, false);
+}
+
+void test_getNumberOfGoodHostsWithNoAuthorizedServer(void)
+{
+	setupTestDBUser(true, true);
+	UserIdType userId = 4;
+	assertGetNumberOfHostsWithUserAndStatus(userId, true);
+}
+
+void test_getNumberOfBadHostsWithNoAuthorizedServer(void)
+{
+	setupTestDBUser(true, true);
+	UserIdType userId = 4;
+	assertGetNumberOfHostsWithUserAndStatus(userId, false);
+}
+
+void test_getNumberOfGoodHostsWithOneAuthorizedServer(void)
+{
+	setupTestDBUser(true, true);
+	UserIdType userId = 5;
+	assertGetNumberOfHostsWithUserAndStatus(userId, true);
+}
+
+void test_getNumberOfBadHostsWithOneAuthorizedServer(void)
+{
+	setupTestDBUser(true, true);
+	UserIdType userId = 5;
+	assertGetNumberOfHostsWithUserAndStatus(userId, false);
 }
 
 void test_makeConditionEmpty(void)
@@ -1058,7 +1159,7 @@ void test_getEventWithStartIdWithoutSortOrder(void)
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventWithOneAutorizedServer(void)
+void test_getEventWithOneAuthorizedServer(void)
 {
 	setupTestDBUser(true, true);
 	AssertGetEventsArg arg;
@@ -1066,7 +1167,7 @@ void test_getEventWithOneAutorizedServer(void)
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventWithNoAutorizedServer(void)
+void test_getEventWithNoAuthorizedServer(void)
 {
 	setupTestDBUser(true, true);
 	AssertGetEventsArg arg;

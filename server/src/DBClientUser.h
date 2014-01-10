@@ -177,7 +177,7 @@ public:
 	 * this method searches only that.
 	 */
 	void getUserInfoList(UserInfoList &userInfoList,
-	                     UserQueryOption &option);
+	                     const UserQueryOption &option);
 
 	/**
 	 * Make a map that has the ServerAccessInfo instances for
@@ -187,7 +187,7 @@ public:
 	 * @param option A AccessInfoQueryOption instance.
 	 */
 	HatoholError getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
-				      AccessInfoQueryOption &option);
+				      const AccessInfoQueryOption &option);
 	static void destroyServerAccessInfoMap(
 	  ServerAccessInfoMap &srvAccessInfoMap);
 
