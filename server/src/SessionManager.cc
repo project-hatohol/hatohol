@@ -51,14 +51,14 @@ Session::~Session()
 const size_t SessionManager::SESSION_ID_LEN = 36;
 
 const size_t SessionManager::INITIAL_TIMEOUT = 10 * 60; // 10 min.
+const size_t SessionManager::DEFAULT_TIMEOUT = -1;
 const size_t SessionManager::NO_TIMEOUT = 0;
 const char * SessionManager::ENV_NAME_TIMEOUT = "HATOHOL_SESSION_TIMEOUT";
-
-size_t SessionManager::m_defaultTimeout = INITIAL_TIMEOUT;
 
 struct SessionManager::PrivateContext {
 	static MutexLock initLock;
 	static SessionManager *instance;
+	static size_t defaultTimeout;
 
 	ReadWriteLock rwlock;
 	SessionIdMap  sessionIdMap;
@@ -77,6 +77,8 @@ struct SessionManager::PrivateContext {
 
 SessionManager *SessionManager::PrivateContext::instance = NULL;
 MutexLock SessionManager::PrivateContext::initLock;
+size_t SessionManager::PrivateContext::defaultTimeout = INITIAL_TIMEOUT;
+
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -88,7 +90,7 @@ void SessionManager::reset(void)
 		PrivateContext::instance = NULL;
 	}
 
-	m_defaultTimeout = INITIAL_TIMEOUT;
+	PrivateContext::defaultTimeout = INITIAL_TIMEOUT;
 	char *env = getenv(ENV_NAME_TIMEOUT);
 	if (env) {
 		size_t timeout = 0;
@@ -96,10 +98,10 @@ void SessionManager::reset(void)
 			MLPL_ERR("Invalid value: %s. Use the default timeout\n",
 			         env);
 		} else {
-			m_defaultTimeout = timeout;
+			PrivateContext::defaultTimeout = timeout;
 		}
 		MLPL_INFO("Default session timeout: %zd (sec)\n",
-		          m_defaultTimeout);
+		          PrivateContext::defaultTimeout);
 	}
 }
 
@@ -118,7 +120,10 @@ string SessionManager::create(const UserIdType &userId, const size_t &timeout)
 	session->userId = userId;
 	session->id = generateSessionId();
 	session->sessionMgr = this;
-	session->timeout = timeout;
+	if (timeout == DEFAULT_TIMEOUT)
+		session->timeout =  m_ctx->defaultTimeout;
+	else
+		session->timeout = timeout;
 	updateTimer(session);
 	return session->id;
 }
@@ -176,7 +181,7 @@ void SessionManager::releaseSessionIdMap(void)
 
 const size_t SessionManager::getDefaultTimeout(void)
 {
-	return m_defaultTimeout;
+	return PrivateContext::defaultTimeout;
 }
 
 // ---------------------------------------------------------------------------

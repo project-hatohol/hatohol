@@ -56,6 +56,7 @@ class SessionManager {
 public:
 	static const size_t SESSION_ID_LEN;
 	static const size_t INITIAL_TIMEOUT;
+	static const size_t DEFAULT_TIMEOUT;
 	static const size_t NO_TIMEOUT;
 	static const char * ENV_NAME_TIMEOUT;
 
@@ -73,7 +74,7 @@ public:
 	 * @return       A newly created session ID.
 	 */
 	std::string create(const UserIdType &userId,
-	                   const size_t &timeout = m_defaultTimeout);
+	                   const size_t &timeout = DEFAULT_TIMEOUT);
 
 	/**
 	 * Get the session instance associated with the given sessionId.
@@ -119,7 +120,6 @@ protected:
 	static gboolean timerCb(gpointer data);
 
 private:
-	static size_t m_defaultTimeout;
 	struct PrivateContext;
 	PrivateContext *m_ctx;
 };
