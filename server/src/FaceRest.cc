@@ -2035,9 +2035,9 @@ void FaceRest::handlerPutUser(RestJob *job)
 	}
 
 	// try to update
-	DataQueryOption option(job->userId);
+	OperationPrivilege privilege(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	err = dataStore->updateUser(userInfo, option);
+	err = dataStore->updateUser(userInfo, privilege);
 
 	// make a response
 	JsonBuilderAgent agent;
