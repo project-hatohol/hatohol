@@ -216,7 +216,7 @@ void SessionManager::updateTimer(Session *session)
 	Utils::removeGSourceIfNeeded(session->timerId);
 
 	if (session->timeout) {
-		session->timerId = g_timeout_add(session->timeout,
+		session->timerId = g_timeout_add(session->timeout * 1000,
 		                                 timerCb, session);
 	}
 	session->lastAccessTime.setCurrTime();
