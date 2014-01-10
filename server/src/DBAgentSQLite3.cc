@@ -133,7 +133,7 @@ bool DBAgentSQLite3::defineDBPath(DBDomainId domainId, const string &path,
 	return ret;
 }
 
-const string &DBAgentSQLite3::getDBPath(DBDomainId domainId)
+string &DBAgentSQLite3::getDBPath(DBDomainId domainId)
 {
 	string dbPath;
 	PrivateContext::lock();

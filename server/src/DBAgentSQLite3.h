@@ -44,7 +44,7 @@ public:
 	 */
 	static bool defineDBPath(DBDomainId domainId, const string &path,
 	                         bool allowOverwrite = true);
-	static const string &getDBPath(DBDomainId domainId);
+	static string &getDBPath(DBDomainId domainId);
 
 	// constructor and destructor
 	DBAgentSQLite3(const string &dbName = "",
