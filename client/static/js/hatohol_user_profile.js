@@ -60,7 +60,7 @@ var HatoholUserProfile = function() {
 
 HatoholUserProfile.prototype.addOnLoadCb = function(onLoadCb) {
   if (userProfile.user) {
-    onLoadCb();
+    onLoadCb(userProfile.user);
   } else {
     userProfile.onLoadCb.push(onLoadCb);
   };
