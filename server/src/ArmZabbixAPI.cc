@@ -307,13 +307,17 @@ void ArmZabbixAPI::getGroups(ItemTablePtr &groupsTablePtr, ItemTablePtr &hostsGr
 	startObject(parser, "result");
 
 	VariableItemTablePtr variableGroupsTablePtr;
+	VariableItemTablePtr variableHostsGroupsTablePtr;
 	int numData = parser.countElements();
 	MLPL_DBG("The number of groups: %d\n", numData);
 
-	for (int i = 0; i < numData; i++)
+	for (int i = 0; i < numData; i++) {
 		parseAndPushGroupsData(parser, variableGroupsTablePtr, i);
+		parseAndPushHostsGroupsData(parser, variableHostsGroupsTablePtr, i);
+	}
 
 	groupsTablePtr = ItemTablePtr(variableGroupsTablePtr);
+	hostsGroupsTablePtr = ItemTablePtr(variableHostsGroupsTablePtr);
 }
 
 // ---------------------------------------------------------------------------
@@ -1087,6 +1091,7 @@ void ArmZabbixAPI::updateGroups(void)
 	ItemTablePtr groupsTablePtr, hostsGroupsTablePtr;
 	getGroups(groupsTablePtr, hostsGroupsTablePtr);
 	m_ctx->dbClientZabbix->addGroupsRaw2_0(groupsTablePtr);
+	m_ctx->dbClientZabbix->addHostsGroupsRaw2_0(hostsGroupsTablePtr);
 }
 
 //
