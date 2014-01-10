@@ -1535,7 +1535,7 @@ static const ColumnDef COLUMN_DEF_HOSTS_GROUPS_RAW_2_0[] = {
 	0,                                    // decFracLength
 	false,                                // canBeNull
 	SQL_KEY_PRI,                          // keyType
-	0,                                    // flags
+	SQL_COLUMN_FLAG_AUTO_INC,             // flags
 	NULL,                                 // defaultValue
 }, {
 	ITEM_ID_ZBX_HOSTS_GROUPS_HOSTID,      // itemId
