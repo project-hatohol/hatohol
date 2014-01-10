@@ -34,7 +34,6 @@ struct BriefElem {
 
 const int DBClientZabbix::ZABBIX_DB_VERSION = 4;
 const uint64_t DBClientZabbix::EVENT_ID_NOT_FOUND = -1;
-const uint64_t DBClientZabbix::HOSTS_GROUPS_ID_NOT_FOUND = -1;
 const int DBClientZabbix::TRIGGER_CHANGE_TIME_NOT_FOUND = -1;
 
 static const char *TABLE_NAME_SYSTEM = "system";
@@ -2088,30 +2087,6 @@ uint64_t DBClientZabbix::getLastEventId(void)
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	const ItemData *lastEventId = (*grpList.begin())->getItemAt(0);
 	return ItemDataUtils::getUint64(lastEventId);
-}
-
-uint64_t DBClientZabbix::getLastHostGroupId(void)
-{
-	const ColumnDef &columnDefHostsGroupsId =
-	  COLUMN_DEF_HOSTS_GROUPS_RAW_2_0[NUM_IDX_HOSTS_GROUPS_RAW_2_0];
-
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_HOSTS_GROUPS_RAW_2_0;
-	arg.statements.push_back(
-	  StringUtils::sprintf("max(%s)",
-	                       columnDefHostsGroupsId.columnName));
-	arg.columnTypes.push_back(columnDefHostsGroupsId.type);
-
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
-
-	if (arg.dataTable->getNumberOfRows() == 0)
-		return HOSTS_GROUPS_ID_NOT_FOUND;
-
-	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	const ItemData *lastHostsGroupsId = (*grpList.begin())->getItemAt(0);
-	return ItemDataUtils::getUint64(lastHostsGroupsId);
 }
 
 int DBClientZabbix::getTriggerLastChange(void)

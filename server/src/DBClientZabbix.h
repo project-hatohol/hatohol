@@ -32,7 +32,6 @@ public:
 
 	static const int ZABBIX_DB_VERSION;
 	static const uint64_t EVENT_ID_NOT_FOUND;
-	static const uint64_t HOSTS_GROUPS_ID_NOT_FOUND;
 	static const int TRIGGER_CHANGE_TIME_NOT_FOUND;
 
 	static void init(void);
@@ -79,9 +78,6 @@ public:
 	 * EVENT_ID_NOT_FOUND is returned.
 	 */
 	uint64_t getLastEventId(void);
-
-	// TODO: Add a description of this function.
-	uint64_t getLastHostGroupId(void);
 
 	/**
 	 * get the last trigger change time in the database.
