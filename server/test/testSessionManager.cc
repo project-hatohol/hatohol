@@ -247,6 +247,7 @@ void test_getInitialTimeout(void)
 		           SessionManager::ENV_NAME_TIMEOUT);
 		g_timeoutEnvMgr.save();
 		unsetenv(SessionManager::ENV_NAME_TIMEOUT);
+		cut_assert_errno();
 		SessionManager::reset(); // to reload the default value
 	}
 	cppcut_assert_equal(SessionManager::INITIAL_TIMEOUT,
