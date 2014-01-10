@@ -462,7 +462,7 @@ static void _assertGetNumberOfHostsWithStatus(bool status)
 	setupTestTriggerDB();
 
 	uint32_t serverId = testTriggerInfo[0].serverId;
-	// TODO: should should give the appropriate host group ID after
+	// TODO: should give the appropriate host group ID after
 	//       Hatohol support it.
 	uint64_t hostGroupId = 0;
 
