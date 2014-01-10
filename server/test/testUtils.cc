@@ -299,6 +299,9 @@ void test_removeGSource(void)
 	};
 	const guint tag = g_idle_add(Dummy::func, NULL);
 	cppcut_assert_equal(true, Utils::removeGSourceIfNeeded(tag));
+
+	// Is absence of the event with tag + 1 guaranteed ?
+	cppcut_assert_equal(false, Utils::removeGSourceIfNeeded(tag+1));
 }
 
 void test_removeGSourceWithInvalidTag(void)
