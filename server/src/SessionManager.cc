@@ -234,8 +234,14 @@ gboolean SessionManager::timerCb(gpointer data)
 {
 	Session *session = static_cast<Session *>(data);
 	SessionManager *sessionMgr = session->sessionMgr;
-	if (!sessionMgr->remove(session->id))
-		MLPL_BUG("Failed to remove session: %s\n", session->id.c_str());
 	session->timerId = INVALID_EVENT_ID;
+
+	// Make a copy, because session may be deleted in the follwoing
+	// remove(). However, it is used only when the remove() fails, 
+	// which is a rare event. So this is a kind of wasted way.
+	string sessionId = session->id;
+
+	if (!sessionMgr->remove(session->id))
+		MLPL_BUG("Failed to remove session: %s\n", sessionId.c_str());
 	return G_SOURCE_REMOVE;
 }
