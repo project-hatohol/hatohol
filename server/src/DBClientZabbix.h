@@ -80,6 +80,9 @@ public:
 	 */
 	uint64_t getLastEventId(void);
 
+	// TODO: Add a description of this function.
+	uint64_t getLastHostGroupId(void);
+
 	/**
 	 * get the last trigger change time in the database.
 	 * @return
