@@ -397,6 +397,12 @@ bool Utils::removeGSourceIfNeeded(const guint &tag)
 	return true;
 }
 
+void Utils::flushPendingGLibEvents(GMainContext *context)
+{
+	while (g_main_context_iteration(context, FALSE))
+		;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

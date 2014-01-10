@@ -167,6 +167,8 @@ public:
 	 */
 	static bool removeGSourceIfNeeded(const guint &tag);
 
+	static void flushPendingGLibEvents(GMainContext *context = NULL);
+
 protected:
 	static string makeDemangledStackTraceString(string &stackTraceLine);
 };
