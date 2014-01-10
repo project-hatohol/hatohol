@@ -36,7 +36,7 @@ static const char *TABLE_NAME_ITEMS    = "items";
 uint64_t DBClientHatohol::EVENT_NOT_FOUND = -1;
 int DBClientHatohol::HATOHOL_DB_VERSION = 4;
 
-const char *DBClientHatohol::DEFAULT_DB_NAME = "hotohol";
+const char *DBClientHatohol::DEFAULT_DB_NAME = "hatohol";
 
 static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 {
