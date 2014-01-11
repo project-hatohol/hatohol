@@ -23,7 +23,8 @@ Standards & Libraries
 - GLib
   * Event loop
   * I/O functions associated with the event loop such as timer, idle, and GIOChannel.
-  * Functions for conncurrency such as therad and locks. Actually some of these functions are wrapped by MLPL that is a part of Hatohol.
+- pthread
+  * Actually features are wrapped by MLPL that is a part of Hatohol.
 
 ### Not using
 - Boost
