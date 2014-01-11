@@ -278,12 +278,13 @@ static void parseStatFile(int &parentPid, int grandchildPid)
 static bool parseEnvironFile(string magicString, const int &pid)
 {
 	string path = StringUtils::sprintf("/proc/%d/environ", pid);
-	ifstream ifs(path.c_str());
+	FileOpener fileOpener(path);
 	cppcut_assert_equal(
-	  true, ifs.good(),
-	  cut_message("Failed to open: %s, errno: %d", path.c_str(), errno));
+	  true, fileOpener.start(),
+	  cut_message("path: %s, errno: %d", path.c_str(), errno));
 
 	string line;
+	ifstream &ifs = fileOpener.getFileStream();
 	bool found = false;
 	while (getline(ifs, line, '\0')) {
 		found = (line == magicString);
