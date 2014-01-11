@@ -256,21 +256,22 @@ static void parseStatFile(int &parentPid, int grandchildPid)
 	parentPid = getParentPid(grandchildPid, programName);
 }
 
-bool parseEnvironFile(string makedMagicNumber, int grandchildPid)
+static bool parseEnvironFile(string magicString, const int &pid)
 {
-	bool isMagicNumber;
-	stringstream grandchildProcEnvironPath;
-	ifstream grandchildEnvironFile;
-	string env;
-	grandchildProcEnvironPath << "/proc/" << grandchildPid << "/environ";
-	grandchildEnvironFile.open(grandchildProcEnvironPath.str().c_str());
-	while (getline(grandchildEnvironFile, env, '\0')) {
-		isMagicNumber = env == makedMagicNumber;
-		if (isMagicNumber)
+	string path = StringUtils::sprintf("/proc/%d/environ", pid);
+	ifstream ifs(path.c_str());
+	cppcut_assert_equal(
+	  true, ifs.good(),
+	  cut_message("Failed to open: %s, errno: %d", path.c_str(), errno));
+
+	string line;
+	bool found = false;
+	while (getline(ifs, line, '\0')) {
+		found = (line == magicString);
+		if (found)
 			break;
 	}
-	cppcut_assert_equal(true, isMagicNumber);
-
+	cppcut_assert_equal(true, found);
 	return true;
 }
 
