@@ -61,6 +61,37 @@ struct FunctionArg {
 	}
 };
 
+class FileOpener : public Watcher
+{
+public:
+	FileOpener(const string &path)
+	: m_path(path)
+	{
+	}
+
+	bool start(const size_t &timeout = 5 * 1000, /* 5 sec */
+	           const size_t &interval = 100 /* 100 usec */)
+	{
+		return Watcher::start(timeout, interval);
+	}
+
+	ifstream &getFileStream(void)
+	{
+		return m_ifs;
+	}
+
+protected:
+	virtual bool watch(void)
+	{
+		m_ifs.open(m_path.c_str());
+		return m_ifs.good();
+	}
+
+private:
+	ifstream     m_ifs;
+	string       m_path;
+};
+
 struct DaemonizeVariable {
 	pid_t grandchildParentPid;
 	string magicNumber;
@@ -129,28 +160,16 @@ DaemonizeVariable *g_daemonizeValue;
 
 static pid_t getParentPid(pid_t pid, string &programName)
 {
-	struct : public Watcher
-	{
-		ifstream ifs;
-		stringstream procStatPath;
-		virtual bool watch(void)
-		{
-			ifs.open(procStatPath.str().c_str());
-			return ifs.good();
-		}
-	} fileOpener;
-	fileOpener.procStatPath << "/proc/" << pid << "/stat";
-
-	const size_t timeout = 5 * 1000; // 5sec.
-	const size_t interval = 100; // 100 usec.
-	cppcut_assert_equal(true, fileOpener.start(timeout, interval),
-	  cut_message("path: %s, errno: %d",
-	              fileOpener.procStatPath.str().c_str(), errno));
+	string path = StringUtils::sprintf("/proc/%d/stat", pid);
+	FileOpener fileOpener(path);
+	cppcut_assert_equal(
+	  true, fileOpener.start(),
+	  cut_message("path: %s, errno: %d", path.c_str(), errno));
 
 	pid_t mypid = 0;
 	pid_t parentPid = 0;
 	string status;
-	ifstream &ifs = fileOpener.ifs;
+	ifstream &ifs = fileOpener.getFileStream();
 	ifs >> mypid;
 	ifs >> programName;
 	ifs >> status;
