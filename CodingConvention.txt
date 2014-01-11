@@ -12,7 +12,25 @@ File name: upper camel case
 	DatabaseConnector
 
 Function argument:
-An input parameter shall be 'const &type'.
+An input parameter shall be 'const TYPE &'.
+
+Standards & Libraries
+---------------------
+### Using
+- STL
+  * Containers such as list, vector and map.
+  * String (We use UTF-8. So wstring is not used)
+- GLib
+  * Event loop
+  * I/O functions associated with the event loop such as timer, idle, and GIOChannel.
+  * Functions for conncurrency such as therad and locks. Actually some of these functions are wrapped by MLPL that is a part of Hatohol.
+
+### Not using
+- Boost
+- C++11
+However, we'll begin to use features of C++11 in near future. Probably it is
+when we support CentOS7 (g++4.7) instead of CentOS6 (g++4.4) series.
+Of course, we can now use features supported by g++4.4.
 
 Python
 ======
