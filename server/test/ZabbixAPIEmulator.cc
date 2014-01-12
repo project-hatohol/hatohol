@@ -141,6 +141,8 @@ ZabbixAPIEmulator::ZabbixAPIEmulator(void)
 	  &ZabbixAPIEmulator::APIHandlerEventGet;
 	m_ctx->apiHandlerMap["application.get"] = 
 	  &ZabbixAPIEmulator::APIHandlerApplicationGet;
+	m_ctx->apiHandlerMap["hostgroup.get"] =
+	  &ZabbixAPIEmulator::APIHandlerHostgroupGet;
 }
 
 ZabbixAPIEmulator::~ZabbixAPIEmulator()
@@ -424,6 +426,16 @@ void ZabbixAPIEmulator::APIHandlerHostGet(APIHandlerArg &arg)
 {
 	static const char *DATA_FILE = "zabbix-api-res-hosts-001.json";
 	APIHandlerGetWithFile(arg, DATA_FILE);
+}
+
+void ZabbixAPIEmulator::APIHandlerHostgroupGet(APIHandlerArg &arg)
+{
+	const char *dataFileName;
+	if (hasParameter(arg, "selectHosts", "refer"))
+		dataFileName = "zabbix-api-res-hostgroup-002-refer.json";
+	else
+		dataFileName = "zabbix-api-res-hostgroup-001.json";
+	APIHandlerGetWithFile(arg, dataFileName);
 }
 
 void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)

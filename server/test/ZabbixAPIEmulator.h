@@ -74,6 +74,7 @@ protected:
 	void APIHandlerHostGet(APIHandlerArg &arg);
 	void APIHandlerEventGet(APIHandlerArg &arg);
 	void APIHandlerApplicationGet(APIHandlerArg &arg);
+	void APIHandlerHostgroupGet(APIHandlerArg &arg);
 	void makeEventJsonData(const string &path);
 	string addJsonResponse(const string &slice, APIHandlerArg &arg);
 	void parseEventGetParameter(APIHandlerArg &arg);
