@@ -30,7 +30,7 @@ describe('HatoholNavi', function() {
   it('do not show users against guest', function() {
     var nav = new HatoholNavi(guestUser);
     var links = $("a[href = 'ajax_users']");
-    expect(links.length).to.be(0);
+    expect(links).to.have.length(0);
   });
 
   it('with no current page', function() {
