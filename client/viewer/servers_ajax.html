@@ -24,9 +24,10 @@
   <h2>{% trans "Servers" %}</h2>
 
   <form class="form-inline">
-    <input id="add-server-button" type="button" class="btn" value="{% trans "ADD SERVER" %}" />
+    <input id="add-server-button" type="button" class="btn"
+     value="{% trans "ADD SERVER" %}" style="display: none;" />
     <input id="delete-server-button" type="button" class="btn" disabled
-      value="{% trans "DELETE SERVER" %}" />
+     value="{% trans "DELETE SERVER" %}" style="display: none;" />
   </form>
 
   <div id="msgbox" title="Message Box">
@@ -39,7 +40,7 @@
   <table class="table table-condensed table-striped table-hover" id="table">
     <thead>
       <tr>
-        <th> </th>
+        <th class="delete-selector" style='display:none;'> </th>
         <th>{% trans "ID" %}</th>
         <th>{% trans "Type" %}</th>
         <th>{% trans "Hostname" %}</th>
@@ -88,6 +89,10 @@
         else if (prevNumSelected == 1 && numSelected == 0)
           $("#delete-server-button").attr("disabled", true);
       });
+
+      if (hasPrivilege(userProfile.user, hatohol.OPPRVLG_DELETE_SERVER)) {
+        $(".delete-selector").show();
+      }
     }
 
     function parseResult(data) {
@@ -161,8 +166,9 @@
         serverURL = getServerLocation(o);
         mapsURL = getMapsLocation(o);
         s += "<tr>";
-        s += "<td><input type='checkbox' class='selectcheckbox' " +
-             "serverId='" + o["id"] + "'></td>";
+        s += "<td class='delete-selector' style='display:none;'>";
+        s += "<input type='checkbox' class='selectcheckbox' serverId='" + o["id"] + "'>";
+        s += "</td>";
         s += "<td>" + o["id"] + "</td>";
         s += "<td>" + getServerTypeFromFlags(o["type"]) + "</td>";
         if (serverURL) {
@@ -191,7 +197,11 @@
       numSelected = 0;
     }
 
-    userProfile.addOnLoadCb(function() {
+    userProfile.addOnLoadCb(function(user) {
+      if (hasPrivilege(user, hatohol.OPPRVLG_CREATE_SERVER))
+        $("#add-server-button").show();
+      if (hasPrivilege(user, hatohol.OPPRVLG_DELETE_SERVER))
+        $("#delete-server-button").show();
       startConnection('server', updateCore);
     });
   </script>
