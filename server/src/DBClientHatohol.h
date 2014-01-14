@@ -298,6 +298,7 @@ protected:
 	void addTriggerInfoBare(const TriggerInfo &triggerInfo);
 	void addEventInfoBare(const EventInfo &eventInfo);
 	void addItemInfoBare(const ItemInfo &itemInfo);
+	void addGroupInfoBare(const GroupInfo &groupInfo);
 
 	void getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	                        const string &condition);

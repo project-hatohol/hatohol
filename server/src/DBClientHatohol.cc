@@ -1707,6 +1707,42 @@ void DBClientHatohol::addItemInfoBare(const ItemInfo &itemInfo)
 	}
 }
 
+void DBClientHatohol::addGroupInfoBare(const GroupInfo &groupInfo)
+{
+	string condition = StringUtils::sprintf("server_id=%d and groupid=%"PRIu64,
+	                                        groupInfo.serverId, groupInfo.groupId);
+	VariableItemGroupPtr row;
+	if (!isRecordExisting(TABLE_NAME_GROUPS, condition)) {
+		DBAgentInsertArg arg;
+		arg.tableName = TABLE_NAME_GROUPS;
+		arg.numColumns = NUM_COLUMNS_GROUPS;
+		arg.columnDefs = COLUMN_DEF_GROUPS;
+		row->ADD_NEW_ITEM(Int, groupInfo.id);
+		row->ADD_NEW_ITEM(Int, groupInfo.serverId);
+		row->ADD_NEW_ITEM(Uint64, groupInfo.groupId);
+		row->ADD_NEW_ITEM(String, groupInfo.groupName);
+		arg.row = row;
+		insert(arg);
+	} else {
+		DBAgentUpdateArg arg;
+		arg.tableName = TABLE_NAME_GROUPS;
+		arg.columnDefs = COLUMN_DEF_GROUPS;
+
+		row->ADD_NEW_ITEM(Int, groupInfo.serverId);
+		arg.columnIndexes.push_back(IDX_GROUPS_SERVER_ID);
+
+		row->ADD_NEW_ITEM(Int, groupInfo.groupId);
+		arg.columnIndexes.push_back(IDX_GROUPS_GROUPID);
+
+		row->ADD_NEW_ITEM(String, groupInfo.groupName);
+		arg.columnIndexes.push_back(IDX_GROUPS_GROUPNAME);
+
+		arg.row = row;
+		arg.condition = condition;
+		update(arg);
+	}
+}
+
 void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
                                          const string &condition)
 {
