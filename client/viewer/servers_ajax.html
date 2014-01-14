@@ -90,7 +90,7 @@
           $("#delete-server-button").attr("disabled", true);
       });
 
-      if (hasPrivilege(userProfile.user, hatohol.OPPRVLG_DELETE_SERVER)) {
+      if (hasFlag(userProfile.user, hatohol.OPPRVLG_DELETE_SERVER)) {
         $(".delete-selector").show();
       }
     }
@@ -198,9 +198,9 @@
     }
 
     userProfile.addOnLoadCb(function(user) {
-      if (hasPrivilege(user, hatohol.OPPRVLG_CREATE_SERVER))
+      if (hasFlag(user, hatohol.OPPRVLG_CREATE_SERVER))
         $("#add-server-button").show();
-      if (hasPrivilege(user, hatohol.OPPRVLG_DELETE_SERVER))
+      if (hasFlag(user, hatohol.OPPRVLG_DELETE_SERVER))
         $("#delete-server-button").show();
       startConnection('server', updateCore);
     });

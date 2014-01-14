@@ -269,6 +269,6 @@ if (typeof module !== 'undefined' && module.exports) {
   var hatohol = require("../../static/js/hatohol_def");
 }
 
-function hasPrivilege(user, privilege) {
-  return (user.flags & (1 << privilege));
+function hasFlag(user, flag) {
+  return (user.flags & (1 << flag));
 }

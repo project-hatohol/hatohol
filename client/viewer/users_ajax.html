@@ -105,7 +105,7 @@
           $("#delete-user-button").attr("disabled", true);
       });
 
-      if (hasPrivilege(userProfile.user, hatohol.OPPRVLG_DELETE_USER)) {
+      if (hasFlag(userProfile.user, hatohol.OPPRVLG_DELETE_USER)) {
         $(".delete-selector").show();
       }
     }
@@ -131,7 +131,7 @@
         });
       }
 
-      if (hasPrivilege(userProfile.user, hatohol.OPPRVLG_UPDATE_USER)) {
+      if (hasFlag(userProfile.user, hatohol.OPPRVLG_UPDATE_USER)) {
         $(".privilege-column").show();
       }
     }
@@ -193,7 +193,7 @@
         html += "</td>";
         html += "<td>" + user["userId"] + "</td>";
         html += "<td>";
-        if (hasPrivilege(userProfile.user, hatohol.OPPRVLG_UPDATE_USER)) {
+        if (hasFlag(userProfile.user, hatohol.OPPRVLG_UPDATE_USER)) {
           html += "<a href='javascript:void(0);' id='edit-user" + user["userId"];
           html += "' userId='"+ user["userId"] + "'>" + user["name"]   + "</a></td>";
         } else {
@@ -231,9 +231,9 @@
     // main code
     //
     userProfile.addOnLoadCb(function(user) {
-      if (hasPrivilege(user, hatohol.OPPRVLG_CREATE_USER))
+      if (hasFlag(user, hatohol.OPPRVLG_CREATE_USER))
         $("#add-user-button").show();
-      if (hasPrivilege(user, hatohol.OPPRVLG_DELETE_USER))
+      if (hasFlag(user, hatohol.OPPRVLG_DELETE_USER))
         $("#delete-user-button").show();
       startConnection('user', updateCore);
     });
