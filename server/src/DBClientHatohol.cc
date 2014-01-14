@@ -29,11 +29,11 @@ using namespace mlpl;
 #include "CacheServiceDBClient.h"
 #include "Params.h"
 
-static const char *TABLE_NAME_TRIGGERS = "triggers";
-static const char *TABLE_NAME_EVENTS   = "events";
-static const char *TABLE_NAME_ITEMS    = "items";
-static const char *TABLE_NAME_HOSTS    = "hosts";
-static const char *TABLE_NAME_GROUPS   = "groups";
+static const char *TABLE_NAME_TRIGGERS    = "triggers";
+static const char *TABLE_NAME_EVENTS      = "events";
+static const char *TABLE_NAME_ITEMS       = "items";
+static const char *TABLE_NAME_HOSTS       = "hosts";
+static const char *TABLE_NAME_GROUPS      = "groups";
 static const char *TABLE_NAME_HOSTSGROUPS = "hosts_groups";
 
 uint64_t DBClientHatohol::EVENT_NOT_FOUND = -1;
