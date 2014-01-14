@@ -32,6 +32,7 @@
 #include "ConfigManager.h"
 #include "SmartTime.h"
 #include "SessionManager.h"
+#include "Reaper.h"
 
 using namespace std;
 using namespace mlpl;
@@ -618,12 +619,14 @@ bool ActionManager::spawn(
 	// before the following 'ActorCollector::addActor(&childPid)' is
 	// called, ActorCollector::notifyChildSiginfo() possibly ignores it,
 	// because the pid of the child isn't in the wait child set.
-	ActorCollector::lock();
+	CppReaper<ActorCollector::Locker>
+	  actorCollectorLockReaper(new ActorCollector::Locker());
+
 	gboolean succeeded =
 	  g_spawn_async(workingDirectory, (gchar **)argv, (gchar **)envp,
 	                flags, childSetup, userData, &actorInfo->pid, &error);
 	if (!succeeded) {
-		ActorCollector::unlock();
+		actorCollectorLockReaper.reap();
 		uint64_t logId;
 		bool logUpdateFlag = false;
 		if (waitCmdInfo) {
@@ -657,7 +660,6 @@ bool ActionManager::spawn(
 		(*postproc)(actorInfo, actionDef,
 		            actorInfo->logId, postprocPriv);
 	}
-	ActorCollector::unlock();
 	return true;
 }
 
