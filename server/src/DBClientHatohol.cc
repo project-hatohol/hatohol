@@ -32,6 +32,7 @@ using namespace mlpl;
 static const char *TABLE_NAME_TRIGGERS = "triggers";
 static const char *TABLE_NAME_EVENTS   = "events";
 static const char *TABLE_NAME_ITEMS    = "items";
+static const char *TABLE_NAME_HOSTS    = "hosts";
 
 uint64_t DBClientHatohol::EVENT_NOT_FOUND = -1;
 int DBClientHatohol::HATOHOL_DB_VERSION = 4;
@@ -431,6 +432,65 @@ enum {
 	NUM_IDX_ITEMS,
 };
 
+static const ColumnDef COLUMN_DEF_HOSTS[] = {
+{
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_HOSTS,                  // tableName
+	"id",                              // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_HOSTS,                  // tableName
+	"server_id",                       // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_HOSTS,                  // tableName
+	"hostid",                          // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_HOSTS,                  // tableName
+	"hostname",                        // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+},
+};
+
+static const size_t NUM_COLUMNS_HOSTS =
+  sizeof(COLUMN_DEF_HOSTS) / sizeof(ColumnDef);
+
+enum {
+	IDX_HOSTS_SERVER_ID,
+	IDX_HOSTS_ID,
+	IDX_HOSTS_HOSTID,
+	IDX_HOSTS_HOSTNAME,
+	NUM_IDX_HOSTS,
+};
+
 static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
 {
 	TABLE_NAME_TRIGGERS,
@@ -444,6 +504,10 @@ static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
 	TABLE_NAME_ITEMS,
 	NUM_COLUMNS_ITEMS,
 	COLUMN_DEF_ITEMS,
+}, {
+	TABLE_NAME_HOSTS,
+	NUM_COLUMNS_HOSTS,
+	COLUMN_DEF_HOSTS,
 }
 };
 
@@ -770,6 +834,10 @@ void DBClientHatohol::init(void)
 	HATOHOL_ASSERT(NUM_COLUMNS_ITEMS == NUM_IDX_ITEMS,
 	  "NUM_COLUMNS_ITEMS: %zd, NUM_IDX_ITEMS: %d",
 	  NUM_COLUMNS_ITEMS, NUM_IDX_ITEMS);
+
+	HATOHOL_ASSERT(NUM_COLUMNS_HOSTS == NUM_IDX_HOSTS,
+	  "NUM_COLUMNS_HOSTS: %zd, NUM_IDX_ITEMS: %d",
+	  NUM_COLUMNS_HOSTS, NUM_IDX_HOSTS);
 
 	registerSetupInfo(
 	  DB_DOMAIN_ID_HATOHOL, DEFAULT_DB_NAME, &DB_SETUP_FUNC_ARG);
