@@ -235,7 +235,7 @@ struct WaitingCommandActionInfo {
 
 struct CommandActionContext {
 	// We must take locks with the following order to prevent a deadlock.
-	// (1) ActorCollector::lock()
+	// (1) ActorCollector's lock: new ActorCollector::locker()
 	// (2) ActionManager::PrivateContext::lock
 	static MutexLock     lock;
 
