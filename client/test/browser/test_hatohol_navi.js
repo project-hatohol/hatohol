@@ -11,15 +11,13 @@ describe('HatoholNavi', function() {
     "flags": 0
   };
 
-  beforeEach(function(done) {
+  beforeEach(function() {
     var nav = $("<ul/>").addClass("nav");
     $("body").append(nav);
-    done();
   });
 
-  afterEach(function(done) {
+  afterEach(function() {
     $(".nav").remove();
-    done();
   });
 
   it('show users against admin', function() {
