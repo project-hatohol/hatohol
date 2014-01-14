@@ -2069,6 +2069,25 @@ void DBClientZabbix::transformItemsToHatoholFormat
 	}
 }
 
+void DBClientZabbix::transformGroupItemGroupToGroupInfo
+  (GroupInfo &groupInfo, const ItemGroup *groupItemGroup)
+{
+	groupInfo.id = 0; // This is automatically set.
+	                  // (0 is dummy)
+
+	// groupid
+	DEFINE_AND_ASSERT(
+	  groupItemGroup->getItem(ITEM_ID_ZBX_GROUPS_GROUPID),
+	  ItemUint64, itemGroupId);
+	groupInfo.groupId = itemGroupId->get();
+
+	// groupname
+	DEFINE_AND_ASSERT(
+	  groupItemGroup->getItem(ITEM_ID_ZBX_GROUPS_NAME),
+	  ItemString, itemGroupName);
+	groupInfo.groupName = itemGroupName->get();
+}
+
 uint64_t DBClientZabbix::getLastEventId(void)
 {
 	const ColumnDef &columnDefEventId = 

@@ -47,6 +47,9 @@ public:
 	static bool transformItemItemGroupToItemInfo(ItemInfo &itemInfo,
 	                                             const ItemGroup *item,
 	                                             DBClientZabbix &dbZabbix);
+	static void transformGroupItemGroupToGroupInfo(GroupInfo &groupInfo,
+	                                               const ItemGroup *groupItemGroup);
+
 	/**
 	 * create a DBClientZabbix instance.
 	 *
