@@ -49,6 +49,9 @@ public:
 	                                             DBClientZabbix &dbZabbix);
 	static void transformGroupItemGroupToGroupInfo(GroupInfo &groupInfo,
 	                                               const ItemGroup *groupItemGroup);
+	static void transformGroupsToHatoholFormat(GroupInfoList &groupInfoList,
+	                                           const ItemTablePtr groups,
+	                                           uint32_t serverId);
 
 	/**
 	 * create a DBClientZabbix instance.

@@ -2088,6 +2088,19 @@ void DBClientZabbix::transformGroupItemGroupToGroupInfo
 	groupInfo.groupName = itemGroupName->get();
 }
 
+void DBClientZabbix::transformGroupsToHatoholFormat
+  (GroupInfoList &groupInfoList, const ItemTablePtr groups, uint32_t serverId)
+{
+	const ItemGroupList &itemGroupList = groups->getItemGroupList();
+	ItemGroupListConstIterator it = itemGroupList.begin();
+	for (; it != itemGroupList.end(); ++it) {
+		GroupInfo groupInfo;
+		groupInfo.serverId = serverId;
+		transformGroupItemGroupToGroupInfo(groupInfo, *it);
+		groupInfoList.push_back(groupInfo);
+	}
+}
+
 uint64_t DBClientZabbix::getLastEventId(void)
 {
 	const ColumnDef &columnDefEventId = 
