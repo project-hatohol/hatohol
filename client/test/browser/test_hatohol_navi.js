@@ -80,5 +80,6 @@ describe('HatoholNavi', function() {
       gettext('Servers') + '</a></li>';
     expected += '<li><a href="ajax_actions">' +
       gettext('Actions') + '</a></li>';
+    expect($("ul.nav")[0].innerHTML).to.be(expected);
   });
 });
