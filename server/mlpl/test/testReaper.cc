@@ -78,10 +78,8 @@ void test_reap(void)
 {
 	TestContext ctx;
 	cppcut_assert_equal(false, ctx.called);
-	{
-		Reaper<TestContext> var(&ctx, destFunc);
-		var.reap();
-	}
+	Reaper<TestContext> var(&ctx, destFunc);
+	var.reap();
 	cppcut_assert_equal(true, ctx.called);
 }
 
