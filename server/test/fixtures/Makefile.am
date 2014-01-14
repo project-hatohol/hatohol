@@ -35,4 +35,6 @@ EXTRA_DIST= \
 	zabbix-api-res-items-003.json \
 	zabbix-api-res-login-001.json \
 	zabbix-api-res-triggers-001.json \
-	zabbix-api-res-triggers-003-hosts.json
+	zabbix-api-res-triggers-003-hosts.json \
+	zabbix-api-res-hostgroup-001.json \
+	zabbix-api-res-hostgroup-002-refer.json
