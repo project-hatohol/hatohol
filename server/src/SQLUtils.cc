@@ -283,3 +283,11 @@ ItemDataPtr SQLUtils::creatorDatetime(const ColumnDef *columnDef,
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 	return ItemDataPtr();
 }
+
+// ---------------------------------------------------------------------------
+// ItemDataCaster
+// ---------------------------------------------------------------------------
+const ItemInt *ItemDataCaster<SQL_COLUMN_TYPE_INT>::cast(const ItemData *item)
+{
+	return ItemDataCasterBase<SQL_COLUMN_TYPE_INT>::cast<ItemInt>(item);
+}

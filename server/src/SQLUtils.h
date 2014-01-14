@@ -127,5 +127,32 @@ private:
 	static size_t          m_numItemDataCreators;
 };
 
+template<SQLColumnType type> 
+struct ItemDataCasterBase {
+	template<typename ITEM_TYPE>
+	static const ITEM_TYPE *cast(const ItemData *item)
+	{
+		const ITEM_TYPE *downObj =
+		  dynamic_cast<const ITEM_TYPE *>(item);
+		HATOHOL_ASSERT(downObj != NULL,
+		               "Failed to dynamic cast: %s -> %s",
+		               DEMANGLED_TYPE_NAME(*item),
+		               DEMANGLED_TYPE_NAME(ITEM_TYPE));
+		return downObj;
+	}
+};
+
+template <SQLColumnType type>
+struct ItemDataCaster : public ItemDataCasterBase<type>
+{
+};
+
+template <>
+struct ItemDataCaster<SQL_COLUMN_TYPE_INT>
+  : public ItemDataCasterBase<SQL_COLUMN_TYPE_INT>
+{
+	static const ItemInt *cast(const ItemData *item);
+};
+
 #endif // SQLUtils_h
 
