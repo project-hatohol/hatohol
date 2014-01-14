@@ -28,6 +28,7 @@
 #include "Logger.h"
 #include "MutexLock.h"
 #include "SessionManager.h"
+#include "Reaper.h"
 
 using namespace mlpl;
 
@@ -133,14 +134,12 @@ void ActorCollector::reset(void)
 	// in cut_setup().
 	registerSIGCHLD();
 
-	lock();
-	if (!PrivateContext::collector) {
-		unlock();
+	CppReaper<Locker> lockReaper(new Locker());
+	if (!PrivateContext::collector)
 		return;
-	}
 	incWaitingActor(); // to unblock wait_sem().
 	PrivateContext::inReset = true;
-	unlock();
+	lockReaper.reap();
 
 	// Wait for the completion of reset() on the collected thread
 	while (true) {
