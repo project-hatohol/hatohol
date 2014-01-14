@@ -822,6 +822,7 @@ gboolean Watcher::_run(gpointer data)
 gboolean Watcher::run(void)
 {
 	expired = true;
+	timerId = INVALID_EVENT_ID;
 	return G_SOURCE_REMOVE;
 }
 
