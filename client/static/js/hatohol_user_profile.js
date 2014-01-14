@@ -59,10 +59,10 @@ var HatoholUserProfile = function() {
 };
 
 HatoholUserProfile.prototype.addOnLoadCb = function(onLoadCb) {
-  if (userProfile.user) {
-    onLoadCb();
+  if (this.user) {
+    onLoadCb(this.user);
   } else {
-    userProfile.onLoadCb.push(onLoadCb);
+    this.onLoadCb.push(onLoadCb);
   };
 };
 

@@ -2037,9 +2037,9 @@ void FaceRest::handlerPutUser(RestJob *job)
 	}
 
 	// try to update
-	DataQueryOption option(job->userId);
+	OperationPrivilege privilege(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	err = dataStore->updateUser(userInfo, option);
+	err = dataStore->updateUser(userInfo, privilege);
 
 	// make a response
 	JsonBuilderAgent agent;
@@ -2229,9 +2229,8 @@ HatoholError FaceRest::parseUserParameter(UserInfo &userInfo, GHashTable *query,
 
 	// password
 	value = (char *)g_hash_table_lookup(query, "password");
-	if (!value && !forUpdate) {
+	if (!value && !forUpdate)
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "password\n");
-	}
 	userInfo.password = value ? value : "";
 
 	// flags

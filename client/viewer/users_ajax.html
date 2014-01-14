@@ -24,9 +24,10 @@
   <h2>{% trans "Users" %}</h2>
 
   <form class="form-inline">
-    <input id="add-user-button" type="button" class="btn" value="{% trans "ADD USER" %}" />
+    <input id="add-user-button" type="button" class="btn"
+     value="{% trans "ADD USER" %}" style="display: none;" />
     <input id="delete-user-button" type="button" class="btn" disabled
-     value="{% trans "DELETE USER" %}" />
+     value="{% trans "DELETE USER" %}" style="display: none;" />
   </form>
 
   <div id="msgbox" title="Message Box">
@@ -39,11 +40,11 @@
   <table class="table table-condensed table-striped table-hover" id="table">
     <thead>
       <tr>
-        <th>  </th>
+        <th class="delete-selector" style='display:none;'>  </th>
         <th data-sort="int">{% trans "ID" %}</th>
         <th data-sort="string">{% trans "User name" %}</th>
         <th data-sort="string">{% trans "User type" %}</th>
-        <th data-sort="string">{% trans "Privileges" %}</th>
+        <th data-sort="string" class="privilege-column" style="display:none;">{% trans "Privileges" %}</th>
       </tr>
     </thead>
     <tbody>
@@ -91,18 +92,22 @@
     // Event handlers for forms in the main view
     //
     function setupCheckboxHandler() {
-        $(".selectcheckbox").change(function() {
-          var check = $(this).is(":checked");
-          var prevNumSelected = numSelected;
-          if (check)
-            numSelected += 1;
-          else
-            numSelected -= 1;
-          if (prevNumSelected == 0 && numSelected == 1)
-            $("#delete-user-button").attr("disabled", false);
-          else if (prevNumSelected == 1 && numSelected == 0)
-            $("#delete-user-button").attr("disabled", true);
-        });
+      $(".selectcheckbox").change(function() {
+        var check = $(this).is(":checked");
+        var prevNumSelected = numSelected;
+        if (check)
+          numSelected += 1;
+        else
+          numSelected -= 1;
+         if (prevNumSelected == 0 && numSelected == 1)
+          $("#delete-user-button").attr("disabled", false);
+        else if (prevNumSelected == 1 && numSelected == 0)
+          $("#delete-user-button").attr("disabled", true);
+      });
+
+      if (hasPrivilege(userProfile.user, hatohol.OPPRVLG_DELETE_USER)) {
+        $(".delete-selector").show();
+      }
     }
 
     function setupEditLinksAndButtons(reply)
@@ -124,6 +129,10 @@
           var userId = this.getAttribute("userId");
           new HatoholPrivilegeEditDialog(userId, applyPrivilegesCb);
         });
+      }
+
+      if (hasPrivilege(userProfile.user, hatohol.OPPRVLG_UPDATE_USER)) {
+        $(".privilege-column").show();
       }
     }
 
@@ -179,17 +188,23 @@
       for (i = 0; i < reply["users"].length; ++i) {
         user = reply["users"][i];
         html += "<tr>";
-
-        html += "<td><input type='checkbox' class='selectcheckbox' " +
-                "userId='" + user["userId"] + "'></td>";
+        html += "<td class='delete-selector' style='display:none;'>";
+        html += "<input type='checkbox' class='selectcheckbox' userId='" + user["userId"] + "'>";
+        html += "</td>";
         html += "<td>" + user["userId"] + "</td>";
-        html += "<td><a href='javascript:void(0);' id='edit-user" + user["userId"];
-        html += "' userId='"+ user["userId"] + "'>" + user["name"]   + "</a></td>";
+        html += "<td>";
+        if (hasPrivilege(userProfile.user, hatohol.OPPRVLG_UPDATE_USER)) {
+          html += "<a href='javascript:void(0);' id='edit-user" + user["userId"];
+          html += "' userId='"+ user["userId"] + "'>" + user["name"]   + "</a></td>";
+        } else {
+          html += user["name"];
+        }
         html += "<td>" + getUserTypeFromFlags(user["flags"])  + "</td>";
         if (user["flags"] == hatohol.ALL_PRIVILEGES) {
-          html += "<td>" + '{% trans "All" %}' + "</td>";
+          html += "<td class='privilege-column' style='display:none;'>"
+          html += '{% trans "All" %}' + "</td>";
         } else {
-          html += "<td>";
+          html += "<td class='privilege-column' style='display:none;'>";
           html += "<form class='form-inline' style='margin: 0'>";
           html += "  <input id='edit-user" + user["userId"] + "-privileges'";
           html += "    type='button' class='btn'";
@@ -215,7 +230,11 @@
     //
     // main code
     //
-    userProfile.addOnLoadCb(function() {
+    userProfile.addOnLoadCb(function(user) {
+      if (hasPrivilege(user, hatohol.OPPRVLG_CREATE_USER))
+        $("#add-user-button").show();
+      if (hasPrivilege(user, hatohol.OPPRVLG_DELETE_USER))
+        $("#delete-user-button").show();
       startConnection('user', updateCore);
     });
   </script>
