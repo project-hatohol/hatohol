@@ -47,7 +47,7 @@ public:
 	 * When the object is not set or after deactiveate() is called,
 	 * this function does nothing.
 	 */
-	void reap(void)
+	virtual void reap(void)
 	{
 		if (m_obj) {
 			(*m_destroyFunc)(m_obj);
@@ -89,6 +89,11 @@ public:
 	}
 
 	virtual ~CppReaper()
+	{
+		reap();
+	}
+
+	virtual void reap(void) // override
 	{
 		if (Reaper<T>::m_obj) {
 			delete Reaper<T>::m_obj;

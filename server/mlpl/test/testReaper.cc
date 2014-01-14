@@ -88,6 +88,20 @@ void test_reap(void)
 	cppcut_assert_equal(false, ctx.called);
 }
 
+void test_reapCppObject(void)
+{
+	TestContext ctx;
+	cppcut_assert_equal(false, ctx.called);
+	CppReaper<TestContextOperator> var(new TestContextOperator(&ctx));
+	var.reap();
+	cppcut_assert_equal(true, ctx.called);
+
+	// call twice
+	ctx.called = false;
+	var.reap();
+	cppcut_assert_equal(false, ctx.called);
+}
+
 void test_deactivate(void)
 {
 	TestContext ctx;
