@@ -253,6 +253,7 @@ public:
 	                              EventsQueryOption &option);
 	void setEventInfoList(const EventInfoList &eventInfoList,
 	                      uint32_t serverId);
+	void addGroupInfo(GroupInfo *eventInfo);
 
 	/**
 	 * get the last (maximum) event ID of the event that belongs to

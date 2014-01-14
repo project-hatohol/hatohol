@@ -1323,6 +1323,13 @@ void DBClientHatohol::setEventInfoList(const EventInfoList &eventInfoList,
 	} DBCLIENT_TRANSACTION_END();
 }
 
+void DBClientHatohol::addGroupInfo(GroupInfo *groupInfo)
+{
+	DBCLIENT_TRANSACTION_BEGIN() {
+		addGroupInfoBare(*groupInfo);
+	} DBCLIENT_TRANSACTION_END();
+}
+
 uint64_t DBClientHatohol::getLastEventId(uint32_t serverId)
 {
 	DBAgentSelectExArg arg;
