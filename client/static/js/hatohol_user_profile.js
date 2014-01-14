@@ -67,7 +67,5 @@ HatoholUserProfile.prototype.addOnLoadCb = function(onLoadCb) {
 };
 
 HatoholUserProfile.prototype.hasFlags = function(flags) {
-  if (!this.user)
-    return false;
-  return this.user.flags & flags;
+  return hasFlags(this.user.flags, flags);
 };

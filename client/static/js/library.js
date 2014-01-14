@@ -270,5 +270,11 @@ if (typeof module !== 'undefined' && module.exports) {
 }
 
 function hasFlag(user, flag) {
-  return (user.flags & (1 << flag));
+  return hasFlags(user, (1 << flag));
 }
+
+function hasFlags(user, flags) {
+  if (!user)
+    return false;
+  return user.flags & flags;
+};
