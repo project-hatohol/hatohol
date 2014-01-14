@@ -1747,7 +1747,7 @@ void DBClientHatohol::addGroupInfoBare(const GroupInfo &groupInfo)
 		row->ADD_NEW_ITEM(Int, groupInfo.serverId);
 		arg.columnIndexes.push_back(IDX_GROUPS_SERVER_ID);
 
-		row->ADD_NEW_ITEM(Int, groupInfo.groupId);
+		row->ADD_NEW_ITEM(Uint64, groupInfo.groupId);
 		arg.columnIndexes.push_back(IDX_GROUPS_GROUPID);
 
 		row->ADD_NEW_ITEM(String, groupInfo.groupName);
