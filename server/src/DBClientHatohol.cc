@@ -34,6 +34,7 @@ static const char *TABLE_NAME_EVENTS   = "events";
 static const char *TABLE_NAME_ITEMS    = "items";
 static const char *TABLE_NAME_HOSTS    = "hosts";
 static const char *TABLE_NAME_GROUPS   = "groups";
+static const char *TABLE_NAME_HOSTSGROUPS = "hosts_groups";
 
 uint64_t DBClientHatohol::EVENT_NOT_FOUND = -1;
 int DBClientHatohol::HATOHOL_DB_VERSION = 4;
@@ -551,6 +552,65 @@ enum {
 	NUM_IDX_GROUPS,
 };
 
+static const ColumnDef COLUMN_DEF_HOSTSGROUPS[] = {
+{
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_HOSTSGROUPS,            // tableName
+	"id",                              // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_HOSTSGROUPS,            // tableName
+	"server_id",                       // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_HOSTSGROUPS,            // tableName
+	"hostid",                          // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_HOSTSGROUPS,            // tableName
+	"groupid",                         // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+},
+};
+
+static const size_t NUM_COLUMNS_HOSTSGROUPS =
+  sizeof(COLUMN_DEF_HOSTSGROUPS) / sizeof(ColumnDef);
+
+enum {
+	IDX_HOSTSGROUPS_SERVER_ID,
+	IDX_HOSTSGROUPS_ID,
+	IDX_HOSTSGROUPS_HOSTID,
+	IDX_HOSTSGROUPS_GROUPID,
+	NUM_IDX_HOSTSGROUPS,
+};
+
 static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
 {
 	TABLE_NAME_TRIGGERS,
@@ -572,6 +632,10 @@ static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
 	TABLE_NAME_GROUPS,
 	NUM_COLUMNS_GROUPS,
 	COLUMN_DEF_GROUPS,
+}, {
+	TABLE_NAME_HOSTSGROUPS,
+	NUM_COLUMNS_HOSTSGROUPS,
+	COLUMN_DEF_HOSTSGROUPS,
 }
 };
 
@@ -905,7 +969,11 @@ void DBClientHatohol::init(void)
 
 	HATOHOL_ASSERT(NUM_COLUMNS_GROUPS == NUM_IDX_GROUPS,
 	  "NUM_COLUMN_GROUPS: %zd, NUM_IDX_ITEMS: %d",
-	  NUM_COLUMNS_GROUPS, NUM_IDX_HOSTS);
+	  NUM_COLUMNS_GROUPS, NUM_IDX_GROUPS);
+
+	HATOHOL_ASSERT(NUM_COLUMNS_HOSTSGROUPS == NUM_IDX_HOSTSGROUPS,
+	  "NUM_COLUMN_HOSTSGROUPS: %zd, NUM_IDX_HOSTSGROUPS: %d",
+	  NUM_COLUMNS_HOSTSGROUPS, NUM_IDX_HOSTSGROUPS);
 
 	registerSetupInfo(
 	  DB_DOMAIN_ID_HATOHOL, DEFAULT_DB_NAME, &DB_SETUP_FUNC_ARG);
