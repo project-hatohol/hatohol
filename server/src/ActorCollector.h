@@ -47,6 +47,12 @@ struct ActorInfo {
 class ActorCollector : public HatoholThreadBase
 {
 public:
+	struct Locker
+	{
+		Locker(void);
+		virtual ~Locker();
+	};
+
 	static void init(void);
 	static void reset(void);
 	static void resetOnCollectorThread(void);

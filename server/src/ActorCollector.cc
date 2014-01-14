@@ -101,6 +101,19 @@ ActorInfo::~ActorInfo()
 }
 
 // ---------------------------------------------------------------------------
+// ActorCollector::Locker
+// ---------------------------------------------------------------------------
+ActorCollector::Locker::Locker(void)
+{
+	ActorCollector::lock();
+}
+
+ActorCollector::Locker::~Locker()
+{
+	ActorCollector::unlock();
+}
+
+// ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 void ActorCollector::init(void)
@@ -400,3 +413,4 @@ void ActorCollector::notifyChildSiginfo(siginfo_t *info)
 	// default GLib event loop. So we delete actorInfo on that.
 	Utils::deleteOnGLibEventLoop<ActorInfo>(actorInfo, ASYNC);
 }
+
