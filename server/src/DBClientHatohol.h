@@ -123,6 +123,17 @@ typedef list<ItemInfo>               ItemInfoList;
 typedef ItemInfoList::iterator       ItemInfoListIterator;
 typedef ItemInfoList::const_iterator ItemInfoListConstIterator;
 
+struct GroupInfo {
+	uint32_t            id;
+	uint32_t            serverId;
+	uint64_t            groupId;
+	string              groupName;
+};
+
+typedef list<GroupInfo>               GroupInfoList;
+typedef GroupInfoList::iterator       GroupInfoListIterator;
+typedef GroupInfoList::const_iterator GroupInfoListConstIterator;
+
 class HostResourceQueryOption : public DataQueryOption {
 public:
 	HostResourceQueryOption(UserIdType userId = INVALID_USER_ID);
