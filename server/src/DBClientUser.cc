@@ -20,7 +20,7 @@
 #define __STDC_LIMIT_MACROS
 #include <stdint.h>
 #include "DBClientUser.h"
-# include "DBClientConfig.h"
+#include "DBClientConfig.h"
 
 const UserIdSet EMPTY_USER_ID_SET;
 const AccessInfoIdSet EMPTY_ACCESS_INFO_ID_SET;
