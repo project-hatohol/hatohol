@@ -461,7 +461,7 @@ static const ColumnDef COLUMN_DEF_HOSTS[] = {
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_HOSTS,                  // tableName
 	"hostid",                          // columnName
-	SQL_COLUMN_TYPE_BIGUINT,               // type
+	SQL_COLUMN_TYPE_BIGUINT,           // type
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
@@ -579,7 +579,7 @@ static const ColumnDef COLUMN_DEF_HOSTSGROUPS[] = {
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_HOSTSGROUPS,            // tableName
 	"hostid",                          // columnName
-	SQL_COLUMN_TYPE_BIGUINT,               // type
+	SQL_COLUMN_TYPE_BIGUINT,           // type
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
