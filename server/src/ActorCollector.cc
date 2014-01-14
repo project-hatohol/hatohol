@@ -200,16 +200,6 @@ void ActorCollector::quit(void)
 	incWaitingActor(); 
 }
 
-void ActorCollector::lock(void)
-{
-	PrivateContext::lock.lock();
-}
-
-void ActorCollector::unlock(void)
-{
-	PrivateContext::lock.unlock();
-}
-
 void ActorCollector::addActor(ActorInfo *actorInfo)
 {
 	// This function is currently called only from
@@ -268,6 +258,16 @@ void ActorCollector::incWaitingActor(void)
 	HATOHOL_ASSERT(
 	  sem_post(&PrivateContext::collectorSem) == 0,
 	  "Failed to call sem_post(): %d\n", errno);
+}
+
+void ActorCollector::lock(void)
+{
+	PrivateContext::lock.lock();
+}
+
+void ActorCollector::unlock(void)
+{
+	PrivateContext::lock.unlock();
 }
 
 bool ActorCollector::isWatching(pid_t pid)

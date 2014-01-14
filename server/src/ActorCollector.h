@@ -57,8 +57,6 @@ public:
 	static void reset(void);
 	static void resetOnCollectorThread(void);
 	static void quit(void);
-	static void lock(void);
-	static void unlock(void);
 
 	/**
 	 * lock() has to be called before this function is used.
@@ -82,6 +80,8 @@ public:
 protected:
 	static void registerSIGCHLD(void);
 	static void incWaitingActor(void);
+	static void lock(void);
+	static void unlock(void);
 
 	// we redefine start() as protected so that HatoholThreadBase::start()
 	// cannot be called from other classes.
