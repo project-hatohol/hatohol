@@ -1128,6 +1128,14 @@ void ArmZabbixAPI::makeHatoholItems(ItemTablePtr items)
 	m_ctx->dbClientHatohol.addItemInfoList(itemInfoList);
 }
 
+void ArmZabbixAPI::makeHatoholGroups(ItemTablePtr groups)
+{
+	GroupInfoList groupInfoList;
+	DBClientZabbix::transformGroupsToHatoholFormat(groupInfoList, groups,
+	                                               m_ctx->zabbixServerId);
+	m_ctx->dbClientHatohol.addGroupInfoList(groupInfoList);
+}
+
 uint64_t ArmZabbixAPI::getMaximumNumberGetEventPerOnce(void)
 {
 	return NUMBER_OF_GET_EVENT_PER_ONCE;
