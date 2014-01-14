@@ -287,13 +287,16 @@ static bool parseEnvironFile(string magicString, const int &pid)
 	string line;
 	ifstream &ifs = fileOpener.getFileStream();
 	bool found = false;
+	size_t readLines = 0;
 	while (getline(ifs, line, '\0')) {
+		readLines++;
 		found = (line == magicString);
 		if (found)
 			break;
 	}
 	cppcut_assert_equal(true, found,
-	                    cut_message("magicString: %s", magicString.c_str()));
+	                    cut_message("magicString: %s, readLines: %zd",
+	                    magicString.c_str(), readLines));
 	return true;
 }
 
