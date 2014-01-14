@@ -1,19 +1,15 @@
 describe('HatoholNavi', function() {
-  function adminUser() {
-    return {
-      "userId": 1,
-      "name": "admin",
-      "flags": hatohol.ALL_PRIVILEGES
-    };
-  }
+  var adminUser = {
+    "userId": 1,
+    "name": "admin",
+    "flags": hatohol.ALL_PRIVILEGES
+  };
 
-  function guestUser() {
-    return {
-      "userId": 23,
-      "name": "guest",
-      "flags": 0
-    };
-  }
+  var guestUser = {
+    "userId": 23,
+    "name": "guest",
+    "flags": 0
+  };
 
   beforeEach(function(done) {
     var nav = $("<ul/>").addClass("nav");
@@ -27,20 +23,20 @@ describe('HatoholNavi', function() {
   });
 
   it('show users against admin', function() {
-    var nav = new HatoholNavi(adminUser());
+    var nav = new HatoholNavi(adminUser);
     var links = $("a[href = 'ajax_users']");
     expect(links.length).to.be(1);
     expect(links[0].text).to.be(gettext("Users"));
   });
 
   it('do not show users against guest', function() {
-    var nav = new HatoholNavi(guestUser());
+    var nav = new HatoholNavi(guestUser);
     var links = $("a[href = 'ajax_users']");
     expect(links.length).to.be(0);
   });
 
   it('with no current page', function() {
-    var nav = new HatoholNavi(guestUser());
+    var nav = new HatoholNavi(guestUser);
     var expected = '';
     expected += '<li><a href="ajax_dashboard">' +
       gettext('Dashboard') + '</a></li>';
@@ -62,7 +58,7 @@ describe('HatoholNavi', function() {
   });
 
   it('with a current page argument', function() {
-    var nav = new HatoholNavi(guestUser(), "ajax_latest");
+    var nav = new HatoholNavi(guestUser, "ajax_latest");
     var expected = '';
     expected += '<li><a href="ajax_dashboard">' +
       gettext('Dashboard') + '</a></li>';
