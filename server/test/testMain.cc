@@ -292,7 +292,8 @@ static bool parseEnvironFile(string magicString, const int &pid)
 		if (found)
 			break;
 	}
-	cppcut_assert_equal(true, found);
+	cppcut_assert_equal(true, found,
+	                    cut_message("magicString: %s", magicString.c_str()));
 	return true;
 }
 
