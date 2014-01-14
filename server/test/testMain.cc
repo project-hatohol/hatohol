@@ -281,7 +281,8 @@ static bool parseEnvironFile(string magicString, const int &pid)
 	FileOpener fileOpener(path);
 	cppcut_assert_equal(
 	  true, fileOpener.start(),
-	  cut_message("path: %s, errno: %d", path.c_str(), errno));
+	  cut_message("path: %s, errno: %d\n%s", path.c_str(), errno,
+	              getSyslogTail(100).c_str()));
 
 	string line;
 	ifstream &ifs = fileOpener.getFileStream();

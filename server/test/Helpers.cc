@@ -788,6 +788,16 @@ void initActionDef(ActionDef &actionDef)
        actionDef.ownerUserId = INVALID_USER_ID;;
 }
 
+string getSyslogTail(size_t numLines)
+{
+	// TODO: consider the environment that uses /var/log/messages.
+	//       mlpl's testLogger does the similar things. We should
+	//       create a commonly used method.
+	const string cmd =
+	  StringUtils::sprintf("tail -%zd /var/log/syslog", numLines);
+	return executeCommand(cmd);
+}
+
 // ---------------------------------------------------------------------------
 // Watcher
 // ---------------------------------------------------------------------------

@@ -171,6 +171,7 @@ UserIdType findUserWith(const OperationPrivilegeType &type,
                         const OperationPrivilegeFlag &excludeFlags = 0);
 UserIdType findUserWithout(const OperationPrivilegeType &type);
 void initActionDef(ActionDef &actionDef);
+std::string getSyslogTail(size_t numLines);
 
 class Watcher {
 	bool expired;
