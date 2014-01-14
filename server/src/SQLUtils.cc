@@ -291,3 +291,9 @@ const ItemInt *ItemDataCaster<SQL_COLUMN_TYPE_INT>::cast(const ItemData *item)
 {
 	return ItemDataCasterBase<SQL_COLUMN_TYPE_INT>::cast<ItemInt>(item);
 }
+
+const ItemUint64 *
+ItemDataCaster<SQL_COLUMN_TYPE_BIGUINT>::cast(const ItemData *item)
+{
+	return ItemDataCasterBase<SQL_COLUMN_TYPE_BIGUINT>::cast<ItemUint64>(item);
+}
