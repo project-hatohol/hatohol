@@ -254,6 +254,7 @@ public:
 	void setEventInfoList(const EventInfoList &eventInfoList,
 	                      uint32_t serverId);
 	void addGroupInfo(GroupInfo *eventInfo);
+	void addGroupInfoList(const GroupInfoList &groupInfoList);
 
 	/**
 	 * get the last (maximum) event ID of the event that belongs to
