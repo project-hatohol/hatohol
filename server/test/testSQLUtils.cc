@@ -243,4 +243,13 @@ void test_itemUint64(void)
 	  val, ItemDataCaster<SQL_COLUMN_TYPE_BIGUINT>::cast(item)->get());
 }
 
+void test_itemString(void)
+{
+	const bool doRef = false;
+	const string val = "foo bar ABX";
+	ItemDataPtr item(new ItemString(val), doRef);
+	cppcut_assert_equal(
+	  val, ItemDataCaster<SQL_COLUMN_TYPE_VARCHAR>::cast(item)->get());
+}
+
 } // namespace testItemDataCaster

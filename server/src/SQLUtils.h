@@ -161,5 +161,12 @@ struct ItemDataCaster<SQL_COLUMN_TYPE_BIGUINT>
 	static const ItemUint64 *cast(const ItemData *item);
 };
 
+template <>
+struct ItemDataCaster<SQL_COLUMN_TYPE_VARCHAR>
+  : public ItemDataCasterBase<SQL_COLUMN_TYPE_VARCHAR>
+{
+	static const ItemString *cast(const ItemData *item);
+};
+
 #endif // SQLUtils_h
 

@@ -297,3 +297,9 @@ ItemDataCaster<SQL_COLUMN_TYPE_BIGUINT>::cast(const ItemData *item)
 {
 	return ItemDataCasterBase<SQL_COLUMN_TYPE_BIGUINT>::cast<ItemUint64>(item);
 }
+
+const ItemString *
+ItemDataCaster<SQL_COLUMN_TYPE_VARCHAR>::cast(const ItemData *item)
+{
+	return ItemDataCasterBase<SQL_COLUMN_TYPE_VARCHAR>::cast<ItemString>(item);
+}
