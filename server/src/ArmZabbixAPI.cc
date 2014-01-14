@@ -946,7 +946,6 @@ void ArmZabbixAPI::parseAndPushHostsGroupsData
 	startElement(parser, index);
 	startObject(parser, "hosts");
 	int numElem = parser.countElements();
-	MLPL_DBG("Number of hosts in this group: %d\n", numElem);
 	if (numElem != 0) {
 		for (int i = 0; i < numElem; i++) {
 			VariableItemGroupPtr grp;
