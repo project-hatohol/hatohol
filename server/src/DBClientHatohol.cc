@@ -33,8 +33,8 @@ static const char *TABLE_NAME_TRIGGERS    = "triggers";
 static const char *TABLE_NAME_EVENTS      = "events";
 static const char *TABLE_NAME_ITEMS       = "items";
 static const char *TABLE_NAME_HOSTS       = "hosts";
-static const char *TABLE_NAME_GROUPS      = "groups";
-static const char *TABLE_NAME_HOSTSGROUPS = "hosts_groups";
+static const char *TABLE_NAME_HOSTGROUPS      = "hostgroups";
+static const char *TABLE_NAME_MAP_HOSTS_HOSTGROUPS = "map_hosts_hostgroups";
 
 uint64_t DBClientHatohol::EVENT_NOT_FOUND = -1;
 int DBClientHatohol::HATOHOL_DB_VERSION = 4;
@@ -496,7 +496,7 @@ enum {
 static const ColumnDef COLUMN_DEF_GROUPS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_GROUPS,                 // tableName
+	TABLE_NAME_HOSTGROUPS,                 // tableName
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -507,7 +507,7 @@ static const ColumnDef COLUMN_DEF_GROUPS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_GROUPS,                 // tableName
+	TABLE_NAME_HOSTGROUPS,                 // tableName
 	"server_id",                       // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -518,7 +518,7 @@ static const ColumnDef COLUMN_DEF_GROUPS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_GROUPS,                 // tableName
+	TABLE_NAME_HOSTGROUPS,                 // tableName
 	"groupid",                         // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	11,                                // columnLength
@@ -529,7 +529,7 @@ static const ColumnDef COLUMN_DEF_GROUPS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_GROUPS,                 // tableName
+	TABLE_NAME_HOSTGROUPS,                 // tableName
 	"groupname",                       // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -555,7 +555,7 @@ enum {
 static const ColumnDef COLUMN_DEF_HOSTSGROUPS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_HOSTSGROUPS,            // tableName
+	TABLE_NAME_MAP_HOSTS_HOSTGROUPS,            // tableName
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -566,7 +566,7 @@ static const ColumnDef COLUMN_DEF_HOSTSGROUPS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_HOSTSGROUPS,            // tableName
+	TABLE_NAME_MAP_HOSTS_HOSTGROUPS,            // tableName
 	"server_id",                       // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -577,7 +577,7 @@ static const ColumnDef COLUMN_DEF_HOSTSGROUPS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_HOSTSGROUPS,            // tableName
+	TABLE_NAME_MAP_HOSTS_HOSTGROUPS,            // tableName
 	"hostid",                          // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	11,                                // columnLength
@@ -588,7 +588,7 @@ static const ColumnDef COLUMN_DEF_HOSTSGROUPS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_HOSTSGROUPS,            // tableName
+	TABLE_NAME_MAP_HOSTS_HOSTGROUPS,            // tableName
 	"groupid",                         // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	11,                                // columnLength
@@ -629,11 +629,11 @@ static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
 	NUM_COLUMNS_HOSTS,
 	COLUMN_DEF_HOSTS,
 }, {
-	TABLE_NAME_GROUPS,
+	TABLE_NAME_HOSTGROUPS,
 	NUM_COLUMNS_GROUPS,
 	COLUMN_DEF_GROUPS,
 }, {
-	TABLE_NAME_HOSTSGROUPS,
+	TABLE_NAME_MAP_HOSTS_HOSTGROUPS,
 	NUM_COLUMNS_HOSTSGROUPS,
 	COLUMN_DEF_HOSTSGROUPS,
 }
@@ -1728,9 +1728,9 @@ void DBClientHatohol::addGroupInfoBare(const GroupInfo &groupInfo)
 	string condition = StringUtils::sprintf("server_id=%d and groupid=%"PRIu64,
 	                                        groupInfo.serverId, groupInfo.groupId);
 	VariableItemGroupPtr row;
-	if (!isRecordExisting(TABLE_NAME_GROUPS, condition)) {
+	if (!isRecordExisting(TABLE_NAME_HOSTGROUPS, condition)) {
 		DBAgentInsertArg arg;
-		arg.tableName = TABLE_NAME_GROUPS;
+		arg.tableName = TABLE_NAME_HOSTGROUPS;
 		arg.numColumns = NUM_COLUMNS_GROUPS;
 		arg.columnDefs = COLUMN_DEF_GROUPS;
 		row->ADD_NEW_ITEM(Int, groupInfo.id);
@@ -1741,7 +1741,7 @@ void DBClientHatohol::addGroupInfoBare(const GroupInfo &groupInfo)
 		insert(arg);
 	} else {
 		DBAgentUpdateArg arg;
-		arg.tableName = TABLE_NAME_GROUPS;
+		arg.tableName = TABLE_NAME_HOSTGROUPS;
 		arg.columnDefs = COLUMN_DEF_GROUPS;
 
 		row->ADD_NEW_ITEM(Int, groupInfo.serverId);
