@@ -15,6 +15,7 @@ install:
   - mysql -u root -e "GRANT ALL PRIVILEGES ON test_hatohol_client.* TO hatohol@localhost IDENTIFIED BY 'hatohol';"
   - npm install -g mocha
   - npm install -g expect.js
+  - npm install -g sinon
   - npm install -g mocha-phantomjs phantomjs
   - sudo pip install django==1.5.4
   - sudo pip install mysql-python

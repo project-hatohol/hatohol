@@ -4,6 +4,7 @@ Install packages (for Ubuntu 12.04)
     # apt-get install npm
     # npm install -g mocha
     # npm install -g expect.js
+    # npm install -g sinon
     # apt-get install nodejs-legacy
     # npm install -g mocha-phantomjs phantomjs
     # pip install django==1.5.4

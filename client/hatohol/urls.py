@@ -45,6 +45,11 @@ def makeTestUrl(file_name):
                TemplateView.as_view(template_name='test/browser/' + file_name,
                                     content_type=content_type))
 
+def sinon(request, path):
+    view = TemplateView.as_view(template_name='test/browser/sinon/' + path,
+                                content_type="text/javascript")
+    return view(request)
+
 urlpatterns = patterns('',
     # Examples:
     # url(r'^$', 'hatohol.views.home', name='home'),
@@ -88,5 +93,7 @@ if 'HATOHOL_DEBUG' in os.environ and os.environ['HATOHOL_DEBUG'] == '1':
         makeTestUrl('mocha.js'),
         makeTestUrl('mocha.css'),
         makeTestUrl('expect.js'),
+        makeTestUrl('sinon.js'),
+        url(r'^test/sinon/(.*\.js)$', sinon),
     )
 
