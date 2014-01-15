@@ -1,6 +1,7 @@
 describe('HatoholUserProfile', function() {
   var TEST_USER = "test-user-for-user-profile-test";
   var TEST_PASSWORD = "test-user-for-user-profile-test";
+  var TEST_FIXTURE_ID = "userProfileTestFixture";
   var CSRF_TOKEN;
 
   function setLoginDialogCallback() {
@@ -8,6 +9,24 @@ describe('HatoholUserProfile', function() {
       if (id == "hatohol_login_dialog")
         obj.makeInput(TEST_USER, TEST_PASSWORD);
     });
+  }
+
+  function appendFixture() {
+    var fixture = $('<div/>', {id: TEST_FIXTURE_ID});
+    var html = '';
+    html += '<button id="userProfileButton">';
+    html += '  <span id="currentUserName"></span>';
+    html += '</button>';
+    html += '<ul>';
+    html += '  <li><a id="logoutMenuItem"></a></li>';
+    html += '  <li><a id="changePasswordMenuItem"></a></li>';
+    html += '</ul>';
+    fixture.html(html);
+    $("body").append(fixture);
+  }
+
+  function removeFixture() {
+    $('#' + TEST_FIXTURE_ID).remove();
   }
 
   before(function(done) {
@@ -33,12 +52,14 @@ describe('HatoholUserProfile', function() {
   });
 
   beforeEach(function(done) {
+    appendFixture();
     HatoholSessionManager.deleteCookie();
     setLoginDialogCallback();
     done();
   });
 
   afterEach(function(done) {
+    removeFixture();
     HatoholDialogObserver.reset();
     done();
   });
@@ -54,6 +75,14 @@ describe('HatoholUserProfile', function() {
       };
       expect(user).to.eql(expectedUser);
       expect(profile.user).to.eql(expectedUser);
+      done();
+    });
+  });
+
+  it('show user name', function(done) {
+    var profile = new HatoholUserProfile();
+    profile.addOnLoadCb(function(user) {
+      expect($("#currentUserName").text()).to.be(TEST_USER);
       done();
     });
   });
