@@ -496,7 +496,7 @@ enum {
 static const ColumnDef COLUMN_DEF_HOSTGROUPS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_HOSTGROUPS,                 // tableName
+	TABLE_NAME_HOSTGROUPS,             // tableName
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -507,7 +507,7 @@ static const ColumnDef COLUMN_DEF_HOSTGROUPS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_HOSTGROUPS,                 // tableName
+	TABLE_NAME_HOSTGROUPS,             // tableName
 	"server_id",                       // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -518,7 +518,7 @@ static const ColumnDef COLUMN_DEF_HOSTGROUPS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_HOSTGROUPS,                 // tableName
+	TABLE_NAME_HOSTGROUPS,             // tableName
 	"groupid",                         // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	11,                                // columnLength
@@ -529,7 +529,7 @@ static const ColumnDef COLUMN_DEF_HOSTGROUPS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_HOSTGROUPS,                 // tableName
+	TABLE_NAME_HOSTGROUPS,             // tableName
 	"groupname",                       // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -555,7 +555,7 @@ enum {
 static const ColumnDef COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_MAP_HOSTS_HOSTGROUPS,            // tableName
+	TABLE_NAME_MAP_HOSTS_HOSTGROUPS,   // tableName
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -566,7 +566,7 @@ static const ColumnDef COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_MAP_HOSTS_HOSTGROUPS,            // tableName
+	TABLE_NAME_MAP_HOSTS_HOSTGROUPS,   // tableName
 	"server_id",                       // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -577,7 +577,7 @@ static const ColumnDef COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_MAP_HOSTS_HOSTGROUPS,            // tableName
+	TABLE_NAME_MAP_HOSTS_HOSTGROUPS,   // tableName
 	"hostid",                          // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	11,                                // columnLength
@@ -588,7 +588,7 @@ static const ColumnDef COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_MAP_HOSTS_HOSTGROUPS,            // tableName
+	TABLE_NAME_MAP_HOSTS_HOSTGROUPS,   // tableName
 	"groupid",                         // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	11,                                // columnLength
