@@ -16,7 +16,6 @@ describe('EventsView', function() {
     xhr.onCreate = function(xhr) {
       requests.push(xhr);
     };
-    var start = sinon.spy(HatoholConnector.prototype, "start");
     var view = new EventsView($('#' + TEST_FIXTURE_ID).get(0));
     // userconfig
     requests[0].respond(200, { "Content-Type": "application/json" },
