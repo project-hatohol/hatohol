@@ -106,11 +106,11 @@ describe('HatoholUserProfile', function() {
     profile.addOnLoadCb(function(user) {
       var fakeStart = function(params) {
         expect(params.url).to.be("/logout");
-        done();
       };
       var stub = sinon.stub(HatoholConnector.prototype, "start", fakeStart);
       $("#logoutMenuItem").click();
       stub.restore();
+      done();
     });
   });
 });
