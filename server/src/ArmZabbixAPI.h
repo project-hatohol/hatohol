@@ -166,7 +166,7 @@ protected:
 	 */
 	void updateApplications(const ItemTable *items);
 
-	void updateGroups(void);
+	void updateHostgroups(void);
 	void makeHatoholTriggers(void);
 	void makeHatoholEvents(ItemTablePtr events);
 	void makeHatoholItems(ItemTablePtr events);
