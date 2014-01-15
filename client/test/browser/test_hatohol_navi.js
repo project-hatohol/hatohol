@@ -23,7 +23,7 @@ describe('HatoholNavi', function() {
   it('show users against admin', function() {
     var nav = new HatoholNavi(adminUser);
     var links = $("a[href = 'ajax_users']");
-    expect(links.length).to.be(1);
+    expect(links).to.have.length(1);
     expect(links[0].text).to.be(gettext("Users"));
   });
 
