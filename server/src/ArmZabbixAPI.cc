@@ -1137,6 +1137,15 @@ void ArmZabbixAPI::makeHatoholHostgroups(ItemTablePtr groups)
 	m_ctx->dbClientHatohol.addHostgroupInfoList(groupInfoList);
 }
 
+void ArmZabbixAPI::makeHatoholMapHostsHostgroups(ItemTablePtr hostsGroups)
+{
+	MapHostsHostgroupsInfoList hostsHostgroupsInfoList;
+	DBClientZabbix::transformHostsGroupsToHatoholFormat(hostsHostgroupsInfoList,
+	                                                    hostsGroups,
+	                                                    m_ctx->zabbixServerId);
+	m_ctx->dbClientHatohol.addMapHostsHostgroupsInfoList(hostsHostgroupsInfoList);
+}
+
 uint64_t ArmZabbixAPI::getMaximumNumberGetEventPerOnce(void)
 {
 	return NUMBER_OF_GET_EVENT_PER_ONCE;
