@@ -26,7 +26,7 @@ from django.views.generic import TemplateView
 # from django.contrib import admin
 # admin.autodiscover()
 
-def guessContentTypeFromFileName(ext):
+def guessContentTypeFromExt(ext):
     if ext is "js":
         return 'text/javascript'
     elif ext is "css":
@@ -34,7 +34,7 @@ def guessContentTypeFromFileName(ext):
     return 'text/html'
 
 def staticFile(request, prefix, path, ext):
-    content_type = guessContentTypeFromFileName(ext)
+    content_type = guessContentTypeFromExt(ext)
     view = TemplateView.as_view(template_name=prefix + path,
                                 content_type=content_type)
     return view(request)
