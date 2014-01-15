@@ -2121,6 +2121,21 @@ void DBClientZabbix::transformHostsGroupsItemGroupToHatoholFormat
 	mapHostsHostgroupsInfo.groupId = itemGroupId->get();
 }
 
+void DBClientZabbix::transformHostsGroupsToHatoholFormat
+  (MapHostsHostgroupsInfoList &mapHostsHostgroupsInfoList,
+   const ItemTablePtr mapHostHostgroups,
+   uint32_t serverId)
+{
+	const ItemGroupList &itemGroupList = mapHostHostgroups->getItemGroupList();
+	ItemGroupListConstIterator it = itemGroupList.begin();
+	for (; it != itemGroupList.end(); ++it) {
+		MapHostsHostgroupsInfo mapHostsHostgroupsInfo;
+		mapHostsHostgroupsInfo.serverId = serverId;
+		transformHostsGroupsItemGroupToHatoholFormat
+		  (mapHostsHostgroupsInfo, *it);
+	}
+}
+
 uint64_t DBClientZabbix::getLastEventId(void)
 {
 	const ColumnDef &columnDefEventId = 

@@ -55,6 +55,10 @@ public:
 	static void transformHostsGroupsItemGroupToHatoholFormat
 	  (MapHostsHostgroupsInfo &mapHostsHostgroupsInfo,
 	   const ItemGroup *groupHostsGroups);
+	static void transformHostsGroupsToHatoholFormat
+	  (MapHostsHostgroupsInfoList &mapHostsHostgroupsInfoList,
+	   const ItemTablePtr mapHostHostgroups,
+	   uint32_t serverId);
 
 	/**
 	 * create a DBClientZabbix instance.
