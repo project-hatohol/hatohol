@@ -292,7 +292,7 @@ void ArmZabbixAPI::onGotNewEvents(const ItemTablePtr &itemPtr)
 	// This function is used on a test class.
 }
 
-void ArmZabbixAPI::getGroups(ItemTablePtr &groupsTablePtr, ItemTablePtr &hostsGroupsTablePtr)
+void ArmZabbixAPI::getHostgroups(ItemTablePtr &groupsTablePtr, ItemTablePtr &hostsGroupsTablePtr)
 {
 	SoupMessage *msg = queryGroup();
 	if (!msg)
@@ -1088,7 +1088,7 @@ void ArmZabbixAPI::updateApplications(const ItemTable *items)
 void ArmZabbixAPI::updateHostgroups(void)
 {
 	ItemTablePtr groupsTablePtr, hostsGroupsTablePtr;
-	getGroups(groupsTablePtr, hostsGroupsTablePtr);
+	getHostgroups(groupsTablePtr, hostsGroupsTablePtr);
 	m_ctx->dbClientZabbix->addGroupsRaw2_0(groupsTablePtr);
 	m_ctx->dbClientZabbix->addHostsGroupsRaw2_0(hostsGroupsTablePtr);
 	makeHatoholHostgroups(groupsTablePtr);
