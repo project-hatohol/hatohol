@@ -86,4 +86,18 @@ describe('HatoholUserProfile', function() {
       done();
     });
   });
+
+  it('change password callback should be set', function(done) {
+    $("#changePasswordMenuItem").click();
+    expect($("#password-change-dialog")).to.have.length(0);
+
+    var profile = new HatoholUserProfile();
+    profile.addOnLoadCb(function(user) {
+      $("#changePasswordMenuItem").click();
+      var dialogs = $("#password-change-dialog");
+      expect(dialogs).to.have.length(1);
+      dialogs.parent()[0].remove();
+      done();
+    });
+  });
 });
