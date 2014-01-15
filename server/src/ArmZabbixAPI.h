@@ -61,7 +61,7 @@ public:
 	ItemTablePtr getEvents(uint64_t eventIdOffset, uint64_t eventIdTill);
 	uint64_t getLastEventId(void);
 	virtual void onGotNewEvents(const ItemTablePtr &itemPtr);
-	void getHostgroups(ItemTablePtr &groupsTablePtr, ItemTablePtr &hostsGroupsTablePtr);
+	void getGroups(ItemTablePtr &groupsTablePtr, ItemTablePtr &hostsGroupsTablePtr);
 
 protected:
 	SoupSession *getSession(void);
@@ -89,7 +89,7 @@ protected:
 	SoupMessage *queryApplication(const vector<uint64_t> &appIdVector);
 	SoupMessage *queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill);
 	SoupMessage *queryGetLastEventId(void);
-	SoupMessage *queryHostgroup(void);
+	SoupMessage *queryGroup(void);
 	string getInitialJsonRequest(void);
 	bool parseInitialResponse(SoupMessage *msg);
 	void startObject(JsonParserAgent &parser, const string &name);
@@ -166,7 +166,7 @@ protected:
 	 */
 	void updateApplications(const ItemTable *items);
 
-	void updateHostgroups(void);
+	void updateGroups(void);
 	void makeHatoholTriggers(void);
 	void makeHatoholEvents(ItemTablePtr events);
 	void makeHatoholItems(ItemTablePtr events);

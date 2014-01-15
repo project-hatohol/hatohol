@@ -292,9 +292,9 @@ void ArmZabbixAPI::onGotNewEvents(const ItemTablePtr &itemPtr)
 	// This function is used on a test class.
 }
 
-void ArmZabbixAPI::getHostgroups(ItemTablePtr &groupsTablePtr, ItemTablePtr &hostsGroupsTablePtr)
+void ArmZabbixAPI::getGroups(ItemTablePtr &groupsTablePtr, ItemTablePtr &hostsGroupsTablePtr)
 {
-	SoupMessage *msg = queryHostgroup();
+	SoupMessage *msg = queryGroup();
 	if (!msg)
 		THROW_DATA_STORE_EXCEPTION("Failed to query groups.");
 
@@ -552,7 +552,7 @@ SoupMessage *ArmZabbixAPI::queryGetLastEventId(void)
 	return queryCommon(agent);
 }
 
-SoupMessage *ArmZabbixAPI::queryHostgroup(void)
+SoupMessage *ArmZabbixAPI::queryGroup(void)
 {
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -1085,10 +1085,10 @@ void ArmZabbixAPI::updateApplications(const ItemTable *items)
 	  &DBClientZabbix::addApplicationsRaw2_0);
 }
 
-void ArmZabbixAPI::updateHostgroups(void)
+void ArmZabbixAPI::updateGroups(void)
 {
 	ItemTablePtr groupsTablePtr, hostsGroupsTablePtr;
-	getHostgroups(groupsTablePtr, hostsGroupsTablePtr);
+	getGroups(groupsTablePtr, hostsGroupsTablePtr);
 	m_ctx->dbClientZabbix->addGroupsRaw2_0(groupsTablePtr);
 	m_ctx->dbClientZabbix->addHostsGroupsRaw2_0(hostsGroupsTablePtr);
 	makeHatoholHostgroups(groupsTablePtr);
@@ -1204,7 +1204,7 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 		// update needed hosts
 		updateHosts(triggers);
 
-		updateHostgroups();
+		updateGroups();
 		// Currently functions are no longer updated, because ZABBIX
 		// API can return host ID directly (If we use DBs as exactly
 		// the same as those in Zabbix Server, we have to join
