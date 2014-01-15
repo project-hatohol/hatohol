@@ -2101,6 +2101,26 @@ void DBClientZabbix::transformGroupsToHatoholFormat
 	}
 }
 
+void DBClientZabbix::transformHostsGroupsItemGroupToHatoholFormat
+  (MapHostsHostgroupsInfo &mapHostsHostgroupsInfo,
+   const ItemGroup *groupHostsGroups)
+{
+	mapHostsHostgroupsInfo.id = 0; // This is automatically set.
+	                               // (0 is dummy)
+
+	// hostid
+	DEFINE_AND_ASSERT(
+	  groupHostsGroups->getItem(ITEM_ID_ZBX_HOSTS_GROUPS_HOSTID),
+	  ItemUint64, itemHostId);
+	mapHostsHostgroupsInfo.hostId = itemHostId->get();
+
+	// groupid
+	DEFINE_AND_ASSERT(
+	  groupHostsGroups->getItem(ITEM_ID_ZBX_HOSTS_GROUPS_GROUPID),
+	  ItemUint64, itemGroupId);
+	mapHostsHostgroupsInfo.groupId = itemGroupId->get();
+}
+
 uint64_t DBClientZabbix::getLastEventId(void)
 {
 	const ColumnDef &columnDefEventId = 
