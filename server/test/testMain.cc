@@ -277,12 +277,14 @@ static void parseStatFile(int &parentPid, int grandchildPid)
 
 static bool parseEnvironFile(string magicString, const int &pid)
 {
+	errno = 0;
 	string path = StringUtils::sprintf("/proc/%d/environ", pid);
 	FileOpener fileOpener(path);
+	if (errno != 0)
+		MLPL_ERR("%s\n", getSyslogTail(100).c_str());
 	cppcut_assert_equal(
 	  true, fileOpener.start(),
-	  cut_message("path: %s, errno: %d\n%s", path.c_str(), errno,
-	              getSyslogTail(100).c_str()));
+	  cut_message("path: %s, errno: %d", path.c_str(), errno));
 
 	string line;
 	ifstream &ifs = fileOpener.getFileStream();
@@ -294,6 +296,8 @@ static bool parseEnvironFile(string magicString, const int &pid)
 		if (found)
 			break;
 	}
+	if (errno != 0)
+		MLPL_ERR("%s\n", getSyslogTail(100).c_str());
 	cppcut_assert_equal(true, found,
 	                    cut_message("magicString: %s, readLines: %zd",
 	                    magicString.c_str(), readLines));
