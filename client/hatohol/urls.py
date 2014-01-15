@@ -26,24 +26,24 @@ from django.views.generic import TemplateView
 # from django.contrib import admin
 # admin.autodiscover()
 
-def guessContentTypeFromFileName(file_name):
-    if re.search('\.js$', file_name):
+def guessContentTypeFromFileName(ext):
+    if ext is "js":
         return 'text/javascript'
-    elif re.search('\.css$', file_name):
+    elif ext is "css":
         return 'text/css'
     return 'text/html'
 
-def makeTastingUrl(file_name):
-    content_type = guessContentTypeFromFileName(file_name)
-    return url(r'^tasting/' + file_name + '$',
-               TemplateView.as_view(template_name='tasting/' + file_name,
-                                    content_type=content_type))
+def staticFile(request, prefix, path, ext):
+    content_type = guessContentTypeFromFileName(ext)
+    view = TemplateView.as_view(template_name=prefix + path,
+                                content_type=content_type)
+    return view(request)
 
-def makeTestUrl(file_name):
-    content_type = guessContentTypeFromFileName(file_name)
-    return url(r'^test/' + file_name + '$',
-               TemplateView.as_view(template_name='test/browser/' + file_name,
-                                    content_type=content_type))
+def tastingFile(request, path, ext):
+    return staticFile(request, "tasting/", path, ext)
+
+def testFile(request, path, ext):
+    return staticFile(request, "test/browser/", path, ext)
 
 urlpatterns = patterns('',
     # Examples:
@@ -70,25 +70,9 @@ if 'HATOHOL_DEBUG' in os.environ and os.environ['HATOHOL_DEBUG'] == '1':
     import test.python.utils
 
     urlpatterns += patterns('',
-        makeTastingUrl('index.html'),
-        makeTastingUrl('hatohol_login_dialog.html'),
-        makeTastingUrl('hatohol_message_box.html'),
-        makeTastingUrl('hatohol_session_manager.html'),
-        makeTastingUrl('hatohol_connector.html'),
-        makeTastingUrl('js_loader.js'),
+        url(r'^tasting/(.+\.(js|css|html))$', tastingFile),
         url(r'^test/hello', test.python.utils.hello),
         url(r'^test/delete_user_config', test.python.utils.delete_user_config),
-        makeTestUrl('index.html'),
-        makeTestUrl('test_hatohol_session_manager.js'),
-        makeTestUrl('test_hatohol_connector.js'),
-        makeTestUrl('test_hatohol_message_box.js'),
-        makeTestUrl('test_hatohol_userconfig.js'),
-        makeTestUrl('test_hatohol_navi.js'),
-        makeTestUrl('test_hatohol_user_profile.js'),
-        makeTestUrl('test_events_view.js'),
-        makeTestUrl('mocha.js'),
-        makeTestUrl('mocha.css'),
-        makeTestUrl('expect.js'),
-        makeTestUrl('sinon.js'),
+        url(r'^test/(.+\.(js|css|html))$', testFile),
     )
 
