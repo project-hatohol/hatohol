@@ -1347,6 +1347,16 @@ void DBClientHatohol::addMapHostsHostgroupsInfo
 	} DBCLIENT_TRANSACTION_END();
 }
 
+void DBClientHatohol::addMapHostsHostgroupsInfoList
+  (const MapHostsHostgroupsInfoList &mapHostsHostgroupsInfoList)
+{
+	MapHostsHostgroupsInfoListConstIterator it = mapHostsHostgroupsInfoList.begin();
+	DBCLIENT_TRANSACTION_BEGIN() {
+		for (; it != mapHostsHostgroupsInfoList.end(); ++it)
+			addMapHostsHostgroupsInfoBare(*it);
+	} DBCLIENT_TRANSACTION_END();
+}
+
 uint64_t DBClientHatohol::getLastEventId(uint32_t serverId)
 {
 	DBAgentSelectExArg arg;
