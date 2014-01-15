@@ -493,7 +493,7 @@ enum {
 	NUM_IDX_HOSTS,
 };
 
-static const ColumnDef COLUMN_DEF_GROUPS[] = {
+static const ColumnDef COLUMN_DEF_HOSTGROUPS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_HOSTGROUPS,                 // tableName
@@ -541,15 +541,15 @@ static const ColumnDef COLUMN_DEF_GROUPS[] = {
 },
 };
 
-static const size_t NUM_COLUMNS_GROUPS =
-  sizeof(COLUMN_DEF_GROUPS) / sizeof(ColumnDef);
+static const size_t NUM_COLUMNS_HOSTGROUPS =
+  sizeof(COLUMN_DEF_HOSTGROUPS) / sizeof(ColumnDef);
 
 enum {
-	IDX_GROUPS_ID,
-	IDX_GROUPS_SERVER_ID,
-	IDX_GROUPS_GROUPID,
-	IDX_GROUPS_GROUPNAME,
-	NUM_IDX_GROUPS,
+	IDX_HOSTGROUPS_ID,
+	IDX_HOSTGROUPS_SERVER_ID,
+	IDX_HOSTGROUPS_GROUPID,
+	IDX_HOSTGROUPS_GROUPNAME,
+	NUM_IDX_HOSTGROUPS,
 };
 
 static const ColumnDef COLUMN_DEF_HOSTSGROUPS[] = {
@@ -630,8 +630,8 @@ static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
 	COLUMN_DEF_HOSTS,
 }, {
 	TABLE_NAME_HOSTGROUPS,
-	NUM_COLUMNS_GROUPS,
-	COLUMN_DEF_GROUPS,
+	NUM_COLUMNS_HOSTGROUPS,
+	COLUMN_DEF_HOSTGROUPS,
 }, {
 	TABLE_NAME_MAP_HOSTS_HOSTGROUPS,
 	NUM_COLUMNS_HOSTSGROUPS,
@@ -967,9 +967,9 @@ void DBClientHatohol::init(void)
 	  "NUM_COLUMNS_HOSTS: %zd, NUM_IDX_ITEMS: %d",
 	  NUM_COLUMNS_HOSTS, NUM_IDX_HOSTS);
 
-	HATOHOL_ASSERT(NUM_COLUMNS_GROUPS == NUM_IDX_GROUPS,
+	HATOHOL_ASSERT(NUM_COLUMNS_HOSTGROUPS == NUM_IDX_HOSTGROUPS,
 	  "NUM_COLUMN_GROUPS: %zd, NUM_IDX_ITEMS: %d",
-	  NUM_COLUMNS_GROUPS, NUM_IDX_GROUPS);
+	  NUM_COLUMNS_HOSTGROUPS, NUM_IDX_HOSTGROUPS);
 
 	HATOHOL_ASSERT(NUM_COLUMNS_HOSTSGROUPS == NUM_IDX_HOSTSGROUPS,
 	  "NUM_COLUMN_HOSTSGROUPS: %zd, NUM_IDX_HOSTSGROUPS: %d",
@@ -1731,8 +1731,8 @@ void DBClientHatohol::addGroupInfoBare(const GroupInfo &groupInfo)
 	if (!isRecordExisting(TABLE_NAME_HOSTGROUPS, condition)) {
 		DBAgentInsertArg arg;
 		arg.tableName = TABLE_NAME_HOSTGROUPS;
-		arg.numColumns = NUM_COLUMNS_GROUPS;
-		arg.columnDefs = COLUMN_DEF_GROUPS;
+		arg.numColumns = NUM_COLUMNS_HOSTGROUPS;
+		arg.columnDefs = COLUMN_DEF_HOSTGROUPS;
 		row->ADD_NEW_ITEM(Int, groupInfo.id);
 		row->ADD_NEW_ITEM(Int, groupInfo.serverId);
 		row->ADD_NEW_ITEM(Uint64, groupInfo.groupId);
@@ -1742,16 +1742,16 @@ void DBClientHatohol::addGroupInfoBare(const GroupInfo &groupInfo)
 	} else {
 		DBAgentUpdateArg arg;
 		arg.tableName = TABLE_NAME_HOSTGROUPS;
-		arg.columnDefs = COLUMN_DEF_GROUPS;
+		arg.columnDefs = COLUMN_DEF_HOSTGROUPS;
 
 		row->ADD_NEW_ITEM(Int, groupInfo.serverId);
-		arg.columnIndexes.push_back(IDX_GROUPS_SERVER_ID);
+		arg.columnIndexes.push_back(IDX_HOSTGROUPS_SERVER_ID);
 
 		row->ADD_NEW_ITEM(Uint64, groupInfo.groupId);
-		arg.columnIndexes.push_back(IDX_GROUPS_GROUPID);
+		arg.columnIndexes.push_back(IDX_HOSTGROUPS_GROUPID);
 
 		row->ADD_NEW_ITEM(String, groupInfo.groupName);
-		arg.columnIndexes.push_back(IDX_GROUPS_GROUPNAME);
+		arg.columnIndexes.push_back(IDX_HOSTGROUPS_GROUPNAME);
 
 		arg.row = row;
 		arg.condition = condition;
