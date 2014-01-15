@@ -2133,6 +2133,7 @@ void DBClientZabbix::transformHostsGroupsToHatoholFormat
 		mapHostsHostgroupsInfo.serverId = serverId;
 		transformHostsGroupsItemGroupToHatoholFormat
 		  (mapHostsHostgroupsInfo, *it);
+		mapHostsHostgroupsInfoList.push_back(mapHostsHostgroupsInfo);
 	}
 }
 
