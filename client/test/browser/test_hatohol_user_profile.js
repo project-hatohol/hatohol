@@ -89,7 +89,7 @@ describe('HatoholUserProfile', function() {
 
   it('change password callback should be set', function(done) {
     $("#changePasswordMenuItem").click();
-    expect($("#password-change-dialog")).to.have.length(0);
+    expect($("#password-change-dialog")).to.be.empty();
 
     var profile = new HatoholUserProfile();
     profile.addOnLoadCb(function(user) {
