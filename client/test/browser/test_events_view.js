@@ -26,5 +26,6 @@ describe('EventsView', function() {
     expect($('h2').first().text()).to.be(gettext("Events"));
     expect($('#table')).to.have.length(1);
     expect($('#num-events-per-page').val()).to.be("50");
+    xhr.restore();
   });
 });
