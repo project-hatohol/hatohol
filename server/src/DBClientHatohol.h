@@ -134,6 +134,17 @@ typedef list<GroupInfo>               GroupInfoList;
 typedef GroupInfoList::iterator       GroupInfoListIterator;
 typedef GroupInfoList::const_iterator GroupInfoListConstIterator;
 
+struct HostsGroupsInfo {
+	uint32_t            id;
+	uint32_t            serverId;
+	uint64_t            hostId;
+	uint64_t            groupId;
+};
+
+typedef list<HostsGroupsInfo> HostsGroupsInfoList;
+typedef HostsGroupsInfoList::iterator HostsGroupsInfoListIterator;
+typedef HostsGroupsInfoList::const_iterator HostsGroupsInfoListConstIterator;
+
 class HostResourceQueryOption : public DataQueryOption {
 public:
 	HostResourceQueryOption(UserIdType userId = INVALID_USER_ID);
