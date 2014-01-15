@@ -170,7 +170,7 @@ protected:
 	void makeHatoholTriggers(void);
 	void makeHatoholEvents(ItemTablePtr events);
 	void makeHatoholItems(ItemTablePtr events);
-	void makeHatoholGroups(ItemTablePtr groups);
+	void makeHatoholHostgroups(ItemTablePtr groups);
 
 	template<typename T>
 	void makeItemVector(vector<T> &idVector, const ItemTable *itemTable,

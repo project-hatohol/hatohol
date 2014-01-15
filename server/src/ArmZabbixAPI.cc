@@ -1091,7 +1091,7 @@ void ArmZabbixAPI::updateGroups(void)
 	getGroups(groupsTablePtr, hostsGroupsTablePtr);
 	m_ctx->dbClientZabbix->addGroupsRaw2_0(groupsTablePtr);
 	m_ctx->dbClientZabbix->addHostsGroupsRaw2_0(hostsGroupsTablePtr);
-	makeHatoholGroups(groupsTablePtr);
+	makeHatoholHostgroups(groupsTablePtr);
 }
 
 //
@@ -1129,7 +1129,7 @@ void ArmZabbixAPI::makeHatoholItems(ItemTablePtr items)
 	m_ctx->dbClientHatohol.addItemInfoList(itemInfoList);
 }
 
-void ArmZabbixAPI::makeHatoholGroups(ItemTablePtr groups)
+void ArmZabbixAPI::makeHatoholHostgroups(ItemTablePtr groups)
 {
 	HostgroupInfoList groupInfoList;
 	DBClientZabbix::transformGroupsToHatoholFormat(groupInfoList, groups,
