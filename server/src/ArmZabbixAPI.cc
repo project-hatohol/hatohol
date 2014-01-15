@@ -1092,6 +1092,7 @@ void ArmZabbixAPI::updateGroups(void)
 	m_ctx->dbClientZabbix->addGroupsRaw2_0(groupsTablePtr);
 	m_ctx->dbClientZabbix->addHostsGroupsRaw2_0(hostsGroupsTablePtr);
 	makeHatoholHostgroups(groupsTablePtr);
+	makeHatoholMapHostsHostgroups(hostsGroupsTablePtr);
 }
 
 //
