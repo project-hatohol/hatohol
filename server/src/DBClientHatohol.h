@@ -313,6 +313,8 @@ protected:
 	void addEventInfoBare(const EventInfo &eventInfo);
 	void addItemInfoBare(const ItemInfo &itemInfo);
 	void addHostgroupInfoBare(const HostgroupInfo &groupInfo);
+	void addMapHostsHostgroupsInfoBare
+	  (const MapHostsHostgroupsInfo mapHostsHostgroupsInfo);
 
 	void getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	                        const string &condition);

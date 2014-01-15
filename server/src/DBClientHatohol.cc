@@ -1759,6 +1759,43 @@ void DBClientHatohol::addHostgroupInfoBare(const HostgroupInfo &groupInfo)
 	}
 }
 
+void DBClientHatohol::addMapHostsHostgroupsInfoBare
+  (const MapHostsHostgroupsInfo mapHostsHostgroupsInfo)
+{
+	string condition = StringUtils::sprintf("server_id=%d and hostid=%"PRIu64" "
+	                                        "and groupid=%"PRIu64,
+	                                        mapHostsHostgroupsInfo.serverId,
+	                                        mapHostsHostgroupsInfo.hostId,
+	                                        mapHostsHostgroupsInfo.groupId);
+
+	VariableItemGroupPtr row;
+	if (!isRecordExisting(TABLE_NAME_MAP_HOSTS_HOSTGROUPS, condition)) {
+		DBAgentInsertArg arg;
+		arg.tableName = TABLE_NAME_MAP_HOSTS_HOSTGROUPS;
+		arg.numColumns = NUM_COLUMNS_MAP_HOSTS_HOSTGROUPS;
+		arg.columnDefs = COLUMN_DEF_MAP_HOSTS_HOSTGROUPS;
+		row->ADD_NEW_ITEM(Int, mapHostsHostgroupsInfo.id);
+		row->ADD_NEW_ITEM(Int, mapHostsHostgroupsInfo.serverId);
+		row->ADD_NEW_ITEM(Uint64, mapHostsHostgroupsInfo.hostId);
+		row->ADD_NEW_ITEM(Uint64, mapHostsHostgroupsInfo.groupId);
+		arg.row = row;
+		insert(arg);
+	} else {
+		DBAgentUpdateArg arg;
+		arg.tableName = TABLE_NAME_MAP_HOSTS_HOSTGROUPS;
+		arg.columnDefs = COLUMN_DEF_MAP_HOSTS_HOSTGROUPS;
+
+		row->ADD_NEW_ITEM(Int, mapHostsHostgroupsInfo.serverId);
+		arg.columnIndexes.push_back(IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID);
+
+		row->ADD_NEW_ITEM(Uint64, mapHostsHostgroupsInfo.hostId);
+		arg.columnIndexes.push_back(IDX_MAP_HOSTS_HOSTGROUPS_HOSTID);
+
+		row->ADD_NEW_ITEM(Uint64, mapHostsHostgroupsInfo.groupId);
+		arg.columnIndexes.push_back(IDX_MAP_HOSTS_HOSTGROUPS_GROUPID);
+	}
+}
+
 void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
                                          const string &condition)
 {
