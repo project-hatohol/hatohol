@@ -128,9 +128,11 @@ private:
 };
 
 // NOTE (TODO):
-// We originally use ItemDataCaster for improving type safety in the code
-// that get the native value from ItemData. E.g. DBClient sub-classes typically
-// have lines like below.
+//
+// We were going to use ItemDataCaster for improving type safety in the code
+// that get the native value from ItemData.
+//
+// E.g. DBClient sub-classes typically have lines like below.
 // 
 //    arg.pushColumn(COLUMN_DEF_USERS[IDX_USERS_ID]);
 //    ...
@@ -138,11 +140,10 @@ private:
 //    ...
 //    DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemUserId);
 //
-// A developper has explicitly to choose the type such as 'ItemInt' in
-// DEFINE_AND_ASSERT(). This may make a wrong choice. In principle,
-// the type can be selected automatically, because COLUMN_DEF_USERS is
-// statically defined and COLUMN_DEF_USERS[IDX_USERS_ID].type is fixed at
-// a build time.
+// A developper has to choose the type such as 'ItemInt' in DEFINE_AND_ASSERT().
+// This may make a wrong choice. In principle, the type can be selected
+// automatically, because COLUMN_DEF_USERS is statically defined and
+// COLUMN_DEF_USERS[IDX_USERS_ID].type is fixed at a build time.
 //
 // However, C++99 (03) only accept a constant-expression as a template
 // parameter. We cannot use ItemDatCaster for the purpose like
