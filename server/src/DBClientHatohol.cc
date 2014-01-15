@@ -1323,19 +1323,19 @@ void DBClientHatohol::setEventInfoList(const EventInfoList &eventInfoList,
 	} DBCLIENT_TRANSACTION_END();
 }
 
-void DBClientHatohol::addGroupInfo(GroupInfo *groupInfo)
+void DBClientHatohol::addHostgroupInfo(HostgroupInfo *groupInfo)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
-		addGroupInfoBare(*groupInfo);
+		addHostgroupInfoBare(*groupInfo);
 	} DBCLIENT_TRANSACTION_END();
 }
 
-void DBClientHatohol::addGroupInfoList(const GroupInfoList &groupInfoList)
+void DBClientHatohol::addHostgroupInfoList(const HostgroupInfoList &groupInfoList)
 {
-	GroupInfoListConstIterator it = groupInfoList.begin();
+	HostgroupInfoListConstIterator it = groupInfoList.begin();
 	DBCLIENT_TRANSACTION_BEGIN() {
 		for (; it != groupInfoList.end(); ++it)
-			addGroupInfoBare(*it);
+			addHostgroupInfoBare(*it);
 	} DBCLIENT_TRANSACTION_END();
 }
 
@@ -1723,7 +1723,7 @@ void DBClientHatohol::addItemInfoBare(const ItemInfo &itemInfo)
 	}
 }
 
-void DBClientHatohol::addGroupInfoBare(const GroupInfo &groupInfo)
+void DBClientHatohol::addHostgroupInfoBare(const HostgroupInfo &groupInfo)
 {
 	string condition = StringUtils::sprintf("server_id=%d and groupid=%"PRIu64,
 	                                        groupInfo.serverId, groupInfo.groupId);

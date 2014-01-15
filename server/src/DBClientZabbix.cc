@@ -2069,8 +2069,8 @@ void DBClientZabbix::transformItemsToHatoholFormat
 	}
 }
 
-void DBClientZabbix::transformGroupItemGroupToGroupInfo
-  (GroupInfo &groupInfo, const ItemGroup *groupItemGroup)
+void DBClientZabbix::transformGroupItemGroupToHostgroupInfo
+  (HostgroupInfo &groupInfo, const ItemGroup *groupItemGroup)
 {
 	groupInfo.id = 0; // This is automatically set.
 	                  // (0 is dummy)
@@ -2089,14 +2089,14 @@ void DBClientZabbix::transformGroupItemGroupToGroupInfo
 }
 
 void DBClientZabbix::transformGroupsToHatoholFormat
-  (GroupInfoList &groupInfoList, const ItemTablePtr groups, uint32_t serverId)
+  (HostgroupInfoList &groupInfoList, const ItemTablePtr groups, uint32_t serverId)
 {
 	const ItemGroupList &itemGroupList = groups->getItemGroupList();
 	ItemGroupListConstIterator it = itemGroupList.begin();
 	for (; it != itemGroupList.end(); ++it) {
-		GroupInfo groupInfo;
+		HostgroupInfo groupInfo;
 		groupInfo.serverId = serverId;
-		transformGroupItemGroupToGroupInfo(groupInfo, *it);
+		transformGroupItemGroupToHostgroupInfo(groupInfo, *it);
 		groupInfoList.push_back(groupInfo);
 	}
 }

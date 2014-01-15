@@ -123,16 +123,16 @@ typedef list<ItemInfo>               ItemInfoList;
 typedef ItemInfoList::iterator       ItemInfoListIterator;
 typedef ItemInfoList::const_iterator ItemInfoListConstIterator;
 
-struct GroupInfo {
+struct HostgroupInfo {
 	uint32_t            id;
 	uint32_t            serverId;
 	uint64_t            groupId;
 	string              groupName;
 };
 
-typedef list<GroupInfo>               GroupInfoList;
-typedef GroupInfoList::iterator       GroupInfoListIterator;
-typedef GroupInfoList::const_iterator GroupInfoListConstIterator;
+typedef list<HostgroupInfo>               HostgroupInfoList;
+typedef HostgroupInfoList::iterator       HostgroupInfoListIterator;
+typedef HostgroupInfoList::const_iterator HostgroupInfoListConstIterator;
 
 struct MapHostsHostgroupsInfo {
 	uint32_t            id;
@@ -264,8 +264,8 @@ public:
 	                              EventsQueryOption &option);
 	void setEventInfoList(const EventInfoList &eventInfoList,
 	                      uint32_t serverId);
-	void addGroupInfo(GroupInfo *eventInfo);
-	void addGroupInfoList(const GroupInfoList &groupInfoList);
+	void addHostgroupInfo(HostgroupInfo *eventInfo);
+	void addHostgroupInfoList(const HostgroupInfoList &groupInfoList);
 
 	/**
 	 * get the last (maximum) event ID of the event that belongs to
@@ -311,7 +311,7 @@ protected:
 	void addTriggerInfoBare(const TriggerInfo &triggerInfo);
 	void addEventInfoBare(const EventInfo &eventInfo);
 	void addItemInfoBare(const ItemInfo &itemInfo);
-	void addGroupInfoBare(const GroupInfo &groupInfo);
+	void addHostgroupInfoBare(const HostgroupInfo &groupInfo);
 
 	void getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	                        const string &condition);
