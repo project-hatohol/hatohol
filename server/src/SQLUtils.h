@@ -127,6 +127,33 @@ private:
 	static size_t          m_numItemDataCreators;
 };
 
+// NOTE (TODO):
+// We originally use ItemDataCaster for improving type safety in the code
+// that get the native value from ItemData. E.g. DBClient sub-classes typically
+// have lines like below.
+// 
+//    arg.pushColumn(COLUMN_DEF_USERS[IDX_USERS_ID]);
+//    ...
+//    select(arg); 
+//    ...
+//    DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemUserId);
+//
+// A developper has explicitly to choose the type such as 'ItemInt' in
+// DEFINE_AND_ASSERT(). This may make a wrong choice. In principle,
+// the type can be selected automatically, because COLUMN_DEF_USERS is
+// statically defined and COLUMN_DEF_USERS[IDX_USERS_ID].type is fixed at
+// a build time.
+//
+// However, C++99 (03) only accept a constant-expression as a template
+// parameter. We cannot use ItemDatCaster for the purpose like
+//
+//    ItemDataCaster<COLUMN_DEF_USERS[IDX_USERS_ID].type>::cast().
+//
+// 'constexpr', one of the new features of C++11, will resolve this problem.
+// So we will use the following classes when our target platforms support
+// the feature. As for g++, it supports constexpr since 4.6 according to
+// http://gcc.gnu.org/projects/cxx0x.html.
+
 template<SQLColumnType type> 
 struct ItemDataCasterBase {
 	template<typename ITEM_TYPE>
