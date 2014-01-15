@@ -14,15 +14,17 @@ describe('EventsView', function() {
   }
 
   function respondUserConfig(configJson) {
+    var request = requests[0];
     if (!configJson)
       configJson = '{}';
-    requests[0].respond(200, { "Content-Type": "application/json" },
-                        configJson);
+    request.respond(200, { "Content-Type": "application/json" },
+                    configJson);
   }
 
   function respondEvents(eventsJson) {
-    requests[1].respond(200, { "Content-Type": "application/json" },
-                        eventsJson);
+    var request = requests[1];
+    request.respond(200, { "Content-Type": "application/json" },
+                    eventsJson);
   }
 
   function respond(eventsJson, configJson) {
