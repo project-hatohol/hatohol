@@ -96,7 +96,8 @@ describe('HatoholUserProfile', function() {
       $("#changePasswordMenuItem").click();
       var dialogs = $("#password-change-dialog");
       expect(dialogs).to.have.length(1);
-      dialogs.parent()[0].remove();
+      var parent = dialogs.parent("div")[0]; 
+      parent.remove();
       done();
     });
   });
