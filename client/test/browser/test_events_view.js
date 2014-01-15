@@ -1,6 +1,15 @@
 describe('EventsView', function() {
   var TEST_FIXTURE_ID = 'eventsViewFixture';
 
+  function eventsJson(events, servers) {
+    return JSON.stringify({
+      apiVersion: hatohol.FACE_REST_API_VERSION,
+      errorCode: hatohol.HTERR_OK,
+      events: events ? events : [],
+      servers: servers ? servers : []
+    });
+  }
+
   function fakeAjax() {
     var requests = this.requests = [];
     this.xhr = sinon.useFakeXMLHttpRequest();
@@ -45,7 +54,7 @@ describe('EventsView', function() {
 
   it('new with empty data', function() {
     var view = new EventsView($('#' + TEST_FIXTURE_ID).get(0));
-    respond('{ "events":[], "servers":[] }');
+    respond(eventsJson());
     var heads = $('div#' + TEST_FIXTURE_ID + ' h2');
     expect(heads).to.have.length(1);
     expect(heads.first().text()).to.be(gettext("Events"));
