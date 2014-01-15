@@ -264,6 +264,7 @@ public:
 	                              EventsQueryOption &option);
 	void setEventInfoList(const EventInfoList &eventInfoList,
 	                      uint32_t serverId);
+
 	void addHostgroupInfo(HostgroupInfo *eventInfo);
 	void addHostgroupInfoList(const HostgroupInfoList &groupInfoList);
 
