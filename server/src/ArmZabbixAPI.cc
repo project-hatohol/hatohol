@@ -294,7 +294,7 @@ void ArmZabbixAPI::onGotNewEvents(const ItemTablePtr &itemPtr)
 
 void ArmZabbixAPI::getHostgroups(ItemTablePtr &groupsTablePtr, ItemTablePtr &hostsGroupsTablePtr)
 {
-	SoupMessage *msg = queryGroup();
+	SoupMessage *msg = queryHostgroup();
 	if (!msg)
 		THROW_DATA_STORE_EXCEPTION("Failed to query groups.");
 
@@ -552,7 +552,7 @@ SoupMessage *ArmZabbixAPI::queryGetLastEventId(void)
 	return queryCommon(agent);
 }
 
-SoupMessage *ArmZabbixAPI::queryGroup(void)
+SoupMessage *ArmZabbixAPI::queryHostgroup(void)
 {
 	JsonBuilderAgent agent;
 	agent.startObject();

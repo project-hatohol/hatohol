@@ -89,7 +89,7 @@ protected:
 	SoupMessage *queryApplication(const vector<uint64_t> &appIdVector);
 	SoupMessage *queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill);
 	SoupMessage *queryGetLastEventId(void);
-	SoupMessage *queryGroup(void);
+	SoupMessage *queryHostgroup(void);
 	string getInitialJsonRequest(void);
 	bool parseInitialResponse(SoupMessage *msg);
 	void startObject(JsonParserAgent &parser, const string &name);
