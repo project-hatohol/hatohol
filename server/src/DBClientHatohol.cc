@@ -1339,21 +1339,21 @@ void DBClientHatohol::addHostgroupInfoList(const HostgroupInfoList &groupInfoLis
 	} DBCLIENT_TRANSACTION_END();
 }
 
-void DBClientHatohol::addMapHostsHostgroupsInfo
-  (MapHostsHostgroupsInfo *mapHostsHostgroupsInfo)
+void DBClientHatohol::addHostgroupElement
+  (HostgroupElement *hostgroupElement)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
-		addMapHostsHostgroupsInfoBare(*mapHostsHostgroupsInfo);
+		addHostgroupElementBare(*hostgroupElement);
 	} DBCLIENT_TRANSACTION_END();
 }
 
-void DBClientHatohol::addMapHostsHostgroupsInfoList
-  (const MapHostsHostgroupsInfoList &mapHostsHostgroupsInfoList)
+void DBClientHatohol::addHostgroupElementList
+  (const HostgroupElementList &hostgroupElementList)
 {
-	MapHostsHostgroupsInfoListConstIterator it = mapHostsHostgroupsInfoList.begin();
+	HostgroupElementListConstIterator it = hostgroupElementList.begin();
 	DBCLIENT_TRANSACTION_BEGIN() {
-		for (; it != mapHostsHostgroupsInfoList.end(); ++it)
-			addMapHostsHostgroupsInfoBare(*it);
+		for (; it != hostgroupElementList.end(); ++it)
+			addHostgroupElementBare(*it);
 	} DBCLIENT_TRANSACTION_END();
 }
 
@@ -1777,14 +1777,14 @@ void DBClientHatohol::addHostgroupInfoBare(const HostgroupInfo &groupInfo)
 	}
 }
 
-void DBClientHatohol::addMapHostsHostgroupsInfoBare
-  (const MapHostsHostgroupsInfo mapHostsHostgroupsInfo)
+void DBClientHatohol::addHostgroupElementBare
+  (const HostgroupElement hostgroupElement)
 {
 	string condition = StringUtils::sprintf("server_id=%d and hostid=%"PRIu64" "
 	                                        "and groupid=%"PRIu64,
-	                                        mapHostsHostgroupsInfo.serverId,
-	                                        mapHostsHostgroupsInfo.hostId,
-	                                        mapHostsHostgroupsInfo.groupId);
+	                                        hostgroupElement.serverId,
+	                                        hostgroupElement.hostId,
+	                                        hostgroupElement.groupId);
 
 	VariableItemGroupPtr row;
 	if (!isRecordExisting(TABLE_NAME_MAP_HOSTS_HOSTGROUPS, condition)) {
@@ -1792,10 +1792,10 @@ void DBClientHatohol::addMapHostsHostgroupsInfoBare
 		arg.tableName = TABLE_NAME_MAP_HOSTS_HOSTGROUPS;
 		arg.numColumns = NUM_COLUMNS_MAP_HOSTS_HOSTGROUPS;
 		arg.columnDefs = COLUMN_DEF_MAP_HOSTS_HOSTGROUPS;
-		row->ADD_NEW_ITEM(Int, mapHostsHostgroupsInfo.id);
-		row->ADD_NEW_ITEM(Int, mapHostsHostgroupsInfo.serverId);
-		row->ADD_NEW_ITEM(Uint64, mapHostsHostgroupsInfo.hostId);
-		row->ADD_NEW_ITEM(Uint64, mapHostsHostgroupsInfo.groupId);
+		row->ADD_NEW_ITEM(Int, hostgroupElement.id);
+		row->ADD_NEW_ITEM(Int, hostgroupElement.serverId);
+		row->ADD_NEW_ITEM(Uint64, hostgroupElement.hostId);
+		row->ADD_NEW_ITEM(Uint64, hostgroupElement.groupId);
 		arg.row = row;
 		insert(arg);
 	} else {
@@ -1803,13 +1803,13 @@ void DBClientHatohol::addMapHostsHostgroupsInfoBare
 		arg.tableName = TABLE_NAME_MAP_HOSTS_HOSTGROUPS;
 		arg.columnDefs = COLUMN_DEF_MAP_HOSTS_HOSTGROUPS;
 
-		row->ADD_NEW_ITEM(Int, mapHostsHostgroupsInfo.serverId);
+		row->ADD_NEW_ITEM(Int, hostgroupElement.serverId);
 		arg.columnIndexes.push_back(IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID);
 
-		row->ADD_NEW_ITEM(Uint64, mapHostsHostgroupsInfo.hostId);
+		row->ADD_NEW_ITEM(Uint64, hostgroupElement.hostId);
 		arg.columnIndexes.push_back(IDX_MAP_HOSTS_HOSTGROUPS_HOSTID);
 
-		row->ADD_NEW_ITEM(Uint64, mapHostsHostgroupsInfo.groupId);
+		row->ADD_NEW_ITEM(Uint64, hostgroupElement.groupId);
 		arg.columnIndexes.push_back(IDX_MAP_HOSTS_HOSTGROUPS_GROUPID);
 	}
 }

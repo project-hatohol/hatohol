@@ -134,16 +134,16 @@ typedef list<HostgroupInfo>               HostgroupInfoList;
 typedef HostgroupInfoList::iterator       HostgroupInfoListIterator;
 typedef HostgroupInfoList::const_iterator HostgroupInfoListConstIterator;
 
-struct MapHostsHostgroupsInfo {
+struct HostgroupElement {
 	uint32_t            id;
 	uint32_t            serverId;
 	uint64_t            hostId;
 	uint64_t            groupId;
 };
 
-typedef list<MapHostsHostgroupsInfo> MapHostsHostgroupsInfoList;
-typedef MapHostsHostgroupsInfoList::iterator MapHostsHostgroupsInfoListIterator;
-typedef MapHostsHostgroupsInfoList::const_iterator MapHostsHostgroupsInfoListConstIterator;
+typedef list<HostgroupElement> HostgroupElementList;
+typedef HostgroupElementList::iterator HostgroupElementListIterator;
+typedef HostgroupElementList::const_iterator HostgroupElementListConstIterator;
 
 class HostResourceQueryOption : public DataQueryOption {
 public:
@@ -268,9 +268,9 @@ public:
 	void addHostgroupInfo(HostgroupInfo *eventInfo);
 	void addHostgroupInfoList(const HostgroupInfoList &groupInfoList);
 
-	void addMapHostsHostgroupsInfo(MapHostsHostgroupsInfo *mapHostHostgroupsInfo);
-	void addMapHostsHostgroupsInfoList
-	  (const MapHostsHostgroupsInfoList &mapHostHostgroupsInfoList);
+	void addHostgroupElement(HostgroupElement *mapHostHostgroupsInfo);
+	void addHostgroupElementList
+	  (const HostgroupElementList &mapHostHostgroupsInfoList);
 
 	/**
 	 * get the last (maximum) event ID of the event that belongs to
@@ -317,8 +317,8 @@ protected:
 	void addEventInfoBare(const EventInfo &eventInfo);
 	void addItemInfoBare(const ItemInfo &itemInfo);
 	void addHostgroupInfoBare(const HostgroupInfo &groupInfo);
-	void addMapHostsHostgroupsInfoBare
-	  (const MapHostsHostgroupsInfo mapHostsHostgroupsInfo);
+	void addHostgroupElementBare
+	  (const HostgroupElement hostgroupElement);
 
 	void getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	                        const string &condition);

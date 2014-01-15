@@ -53,10 +53,10 @@ public:
 	                                           const ItemTablePtr groups,
 	                                           uint32_t serverId);
 	static void transformHostsGroupsItemGroupToHatoholFormat
-	  (MapHostsHostgroupsInfo &mapHostsHostgroupsInfo,
+	  (HostgroupElement &hostgroupElement,
 	   const ItemGroup *groupHostsGroups);
 	static void transformHostsGroupsToHatoholFormat
-	  (MapHostsHostgroupsInfoList &mapHostsHostgroupsInfoList,
+	  (HostgroupElementList &hostgroupElementList,
 	   const ItemTablePtr mapHostHostgroups,
 	   uint32_t serverId);
 

@@ -2102,38 +2102,38 @@ void DBClientZabbix::transformGroupsToHatoholFormat
 }
 
 void DBClientZabbix::transformHostsGroupsItemGroupToHatoholFormat
-  (MapHostsHostgroupsInfo &mapHostsHostgroupsInfo,
+  (HostgroupElement &hostgroupElement,
    const ItemGroup *groupHostsGroups)
 {
-	mapHostsHostgroupsInfo.id = 0; // This is automatically set.
+	hostgroupElement.id = 0; // This is automatically set.
 	                               // (0 is dummy)
 
 	// hostid
 	DEFINE_AND_ASSERT(
 	  groupHostsGroups->getItem(ITEM_ID_ZBX_HOSTS_GROUPS_HOSTID),
 	  ItemUint64, itemHostId);
-	mapHostsHostgroupsInfo.hostId = itemHostId->get();
+	hostgroupElement.hostId = itemHostId->get();
 
 	// groupid
 	DEFINE_AND_ASSERT(
 	  groupHostsGroups->getItem(ITEM_ID_ZBX_HOSTS_GROUPS_GROUPID),
 	  ItemUint64, itemGroupId);
-	mapHostsHostgroupsInfo.groupId = itemGroupId->get();
+	hostgroupElement.groupId = itemGroupId->get();
 }
 
 void DBClientZabbix::transformHostsGroupsToHatoholFormat
-  (MapHostsHostgroupsInfoList &mapHostsHostgroupsInfoList,
+  (HostgroupElementList &hostgroupElementList,
    const ItemTablePtr mapHostHostgroups,
    uint32_t serverId)
 {
 	const ItemGroupList &itemGroupList = mapHostHostgroups->getItemGroupList();
 	ItemGroupListConstIterator it = itemGroupList.begin();
 	for (; it != itemGroupList.end(); ++it) {
-		MapHostsHostgroupsInfo mapHostsHostgroupsInfo;
-		mapHostsHostgroupsInfo.serverId = serverId;
+		HostgroupElement hostgroupElement;
+		hostgroupElement.serverId = serverId;
 		transformHostsGroupsItemGroupToHatoholFormat
-		  (mapHostsHostgroupsInfo, *it);
-		mapHostsHostgroupsInfoList.push_back(mapHostsHostgroupsInfo);
+		  (hostgroupElement, *it);
+		hostgroupElementList.push_back(hostgroupElement);
 	}
 }
 
