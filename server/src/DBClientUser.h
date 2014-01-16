@@ -159,9 +159,9 @@ public:
 	 * An AccessInfo instance that has parameters to be stored.
 	 */
 	HatoholError addAccessInfo(AccessInfo &accessInfo,
-				   const OperationPrivilege &privilege);
+	                           const OperationPrivilege &privilege);
 	HatoholError deleteAccessInfo(AccessInfoIdType id,
-				      const OperationPrivilege &privilege);
+	                              const OperationPrivilege &privilege);
 
 	bool getUserInfo(UserInfo &userInfo, const UserIdType userId);
 
@@ -187,7 +187,7 @@ public:
 	 * @param option A AccessInfoQueryOption instance.
 	 */
 	HatoholError getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
-				      const AccessInfoQueryOption &option);
+	                              const AccessInfoQueryOption &option);
 	static void destroyServerAccessInfoMap(
 	  ServerAccessInfoMap &srvAccessInfoMap);
 
@@ -203,8 +203,7 @@ public:
 
 	static HatoholError isValidUserName(const string &name);
 	static HatoholError isValidPassword(const string &password);
-	static HatoholError isValidFlags(
-	                           const OperationPrivilegeFlag flags);
+	static HatoholError isValidFlags(const OperationPrivilegeFlag flags);
 
 	bool isAccessible(const ServerIdType serverId,
 	                  const OperationPrivilege &privilege,
@@ -214,8 +213,7 @@ protected:
 	void getUserInfoList(UserInfoList &userInfoList,
 	                     const string &condition);
 	HatoholError hasPrivilegeForUpdateUserInfo(
-		UserInfo &userInfo,
-		const OperationPrivilege &privilege);
+	  UserInfo &userInfo, const OperationPrivilege &privilege);
 
 private:
 	struct PrivateContext;
