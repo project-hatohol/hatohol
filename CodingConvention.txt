@@ -36,6 +36,7 @@ Of course, we can now use features supported by g++4.4.
 Others
 ------
 - Don't use 'using namespace' in a header file.
+- Use 'static const' instead of #define to define a constant.
 
 Python
 ======
