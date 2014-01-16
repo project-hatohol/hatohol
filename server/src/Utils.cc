@@ -401,7 +401,7 @@ void Utils::flushPendingGLibEvents(GMainContext *context)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-string Utils::makeDemangledStackTraceString(string &stackTraceLine)
+string Utils::makeDemangledStackTraceString(const string &stackTraceLine)
 {
 	StringVector stringsHead;
 	StringUtils::split(stringsHead, stackTraceLine, '(');

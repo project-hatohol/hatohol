@@ -169,7 +169,8 @@ public:
 	static void flushPendingGLibEvents(GMainContext *context = NULL);
 
 protected:
-	static string makeDemangledStackTraceString(string &stackTraceLine);
+	static string makeDemangledStackTraceString(
+	  const string &stackTraceLine);
 };
 
 #define TRMSG(msg, fmt, ...) \
