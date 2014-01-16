@@ -2137,6 +2137,22 @@ void DBClientZabbix::transformHostsGroupsToHatoholFormat
 	}
 }
 
+void DBClientZabbix::transformHostsItemGroupToHatoholFormat
+  (HostInfo &hostInfo, const ItemGroup *groupHosts)
+{
+	// hostid
+	DEFINE_AND_ASSERT(
+	  groupHosts->getItem(ITEM_ID_ZBX_HOSTS_HOSTID),
+	  ItemUint64, itemHostId);
+	hostInfo.id = itemHostId->get();
+
+	// hostName
+	DEFINE_AND_ASSERT(
+	  groupHosts->getItem(ITEM_ID_ZBX_HOSTS_NAME),
+	  ItemString, itemHostName);
+	hostInfo.hostName = itemHostName->get();
+}
+
 uint64_t DBClientZabbix::getLastEventId(void)
 {
 	const ColumnDef &columnDefEventId = 
