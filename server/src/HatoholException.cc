@@ -64,7 +64,7 @@ const char* HatoholException::what() const _HATOHOL_NOEXCEPT
 	return m_whatCache.c_str();
 }
 
-const string HatoholException::getFancyMessage(void) const
+string HatoholException::getFancyMessage(void) const
 {
 	string msg =
 	   StringUtils::sprintf("<%s:%d> %s\n",

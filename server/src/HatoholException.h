@@ -47,7 +47,7 @@ public:
 	                        int lineNumber = UNKNOWN_LINE_NUMBER);
 	virtual ~HatoholException() _HATOHOL_NOEXCEPT;
 	virtual const char* what() const _HATOHOL_NOEXCEPT;
-	virtual const string getFancyMessage(void) const;
+	virtual string getFancyMessage(void) const;
 
 	const string &getSourceFileName(void) const;
 	int getLineNumber(void) const;
