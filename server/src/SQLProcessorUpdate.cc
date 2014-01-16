@@ -368,7 +368,7 @@ SQLProcessorUpdate::formulaColumnDataGetterFactory(const string &name,
 
 bool SQLProcessorUpdate::updateMatchingCell
   (const ItemGroup *itemGroup, PrivateContext *ctx,
-   string &columnName, string &value)
+   const string &columnName, const string &value)
 {
 	SQLUpdateInfo *updateInfo = ctx->updateInfo;
 	ItemDataPtr dataPtr = 

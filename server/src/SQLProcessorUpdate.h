@@ -116,7 +116,8 @@ protected:
 	                               PrivateContext *ctx);
 	static bool updateMatchingCell(const ItemGroup *itemGroup,
 	                               PrivateContext *ctx,
-	                               string &columnName, string &value);
+	                               const string &columnName,
+	                               const string &value);
 
 private:
 	static const UpdateSubParser m_updateSubParsers[];
