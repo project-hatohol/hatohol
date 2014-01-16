@@ -33,7 +33,7 @@ struct SQLInsertInfo : public SQLProcessorInfo {
 	//
 	// constructor and destructor
 	//
-	SQLInsertInfo(ParsableString &_statment);
+	SQLInsertInfo(const ParsableString &_statment);
 	virtual ~SQLInsertInfo();
 };
 

@@ -85,7 +85,7 @@ SQLProcessorInsert::m_insertSubParsers[] = {
 // ---------------------------------------------------------------------------
 // Public methods (SQLInsertInfo)
 // ---------------------------------------------------------------------------
-SQLInsertInfo::SQLInsertInfo(ParsableString &_statement)
+SQLInsertInfo::SQLInsertInfo(const ParsableString &_statement)
 : SQLProcessorInfo(_statement)
 {
 }
