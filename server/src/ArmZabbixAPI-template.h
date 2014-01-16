@@ -16,14 +16,15 @@
  * You should have received a copy of the GNU General Public License
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
+#include <set>
 
 template<typename T>
-void ArmZabbixAPI::makeItemVector(vector<T> &idVector,
+void ArmZabbixAPI::makeItemVector(std::vector<T> &idVector,
                                   const ItemTable *itemTable,
                                   const ItemId itemId)
 {
 	// First, make a set to remove duplication
-	set<T> idSet;
+	std::set<T> idSet;
 	const ItemGroupList &grpList = itemTable->getItemGroupList();
 	ItemGroupListConstIterator it = grpList.begin();
 	for (; it != grpList.end(); ++it) {
@@ -35,7 +36,7 @@ void ArmZabbixAPI::makeItemVector(vector<T> &idVector,
 	}
 
 	// Then, make a set to remove duplication
-	typename set<T>::iterator jt = idSet.begin();
+	typename std::set<T>::iterator jt = idSet.begin();
 	for (; jt != idSet.end(); ++jt)
 		idVector.push_back(*jt);
 }

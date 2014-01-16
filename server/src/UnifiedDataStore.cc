@@ -28,7 +28,7 @@
 #include "DBClientConfig.h"
 #include "ActionManager.h"
 #include "CacheServiceDBClient.h"
-
+using namespace std;
 using namespace mlpl;
 
 // ---------------------------------------------------------------------------

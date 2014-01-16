@@ -21,6 +21,7 @@
 #include "Hatohol.h"
 #include "ArmNagiosNDOUtils.h"
 #include "Helpers.h"
+using namespace std;
 
 namespace testArmNagiosNDOUtils {
 

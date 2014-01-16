@@ -22,8 +22,6 @@
 
 #include <string>
 #include <stdint.h>
-using namespace std;
-
 #include <glib.h>
 #include <json-glib/json-glib.h>
 #include "HatoholException.h"
@@ -31,15 +29,15 @@ using namespace std;
 class JsonParserAgent
 {
 public:
-	JsonParserAgent(const string &data);
+	JsonParserAgent(const std::string &data);
 	virtual ~JsonParserAgent();
 	const char *getErrorMessage(void);
 	bool hasError(void);
-	bool read(const string &member, bool &dest);
-	bool read(const string &member, int64_t &dest);
-	bool read(const string &member, string &dest);
-	bool read(int index, string &dest);
-	bool isMember(const string &member);
+	bool read(const std::string &member, bool &dest);
+	bool read(const std::string &member, int64_t &dest);
+	bool read(const std::string &member, std::string &dest);
+	bool read(int index, std::string &dest);
+	bool isMember(const std::string &member);
 
 	/**
 	 * checks whether the element is Null.
@@ -54,8 +52,8 @@ public:
 	 * true if the parse is successed, which doesn't depends on whether
 	 * the element is null. Otherwise false is returned.
 	 */ 
-	bool isNull(const string &member, bool &dest);
-	bool startObject(const string &member);
+	bool isNull(const std::string &member, bool &dest);
+	bool startObject(const std::string &member);
 	void endObject(void);
 	bool startElement(unsigned int index);
 	void endElement(void);

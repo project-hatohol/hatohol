@@ -30,7 +30,7 @@
 #include "UnifiedDataStore.h"
 #include "ZabbixAPIEmulator.h"
 #include "SessionManager.h"
-
+using namespace std;
 using namespace mlpl;
 
 namespace testFaceRest {

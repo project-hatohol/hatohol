@@ -34,7 +34,7 @@ class ArmZabbixAPI : public ArmBase
 {
 public:
 	typedef ItemTablePtr
-	  (ArmZabbixAPI::*DataGetter)(const vector<uint64_t> &idVector);
+	  (ArmZabbixAPI::*DataGetter)(const std::vector<uint64_t> &idVector);
 
 	static const int POLLING_DISABLED = -1;
 	static const int DEFAULT_SERVER_PORT = 80;
@@ -55,9 +55,9 @@ public:
 	 * @return
 	 * An ItemTablePtr instance that has hosts data.
 	 */
-	ItemTablePtr getHosts(const vector<uint64_t> &hostIdVector);
+	ItemTablePtr getHosts(const std::vector<uint64_t> &hostIdVector);
 
-	ItemTablePtr getApplications(const vector<uint64_t> &appIdVector);
+	ItemTablePtr getApplications(const std::vector<uint64_t> &appIdVector);
 	ItemTablePtr getEvents(uint64_t eventIdOffset, uint64_t eventIdTill);
 	uint64_t getLastEventId(void);
 	virtual void onGotNewEvents(const ItemTablePtr &itemPtr);
@@ -79,28 +79,28 @@ protected:
 	 */
 	bool openSession(SoupMessage **msgPtr = NULL);
 	bool updateAuthTokenIfNeeded(void);
-	string getAuthToken(void);
+	std::string getAuthToken(void);
 
 	SoupMessage *queryCommon(JsonBuilderAgent &agent);
 	SoupMessage *queryTrigger(int requestSince = 0);
 	SoupMessage *queryItem(void);
-	SoupMessage *queryHost(const vector<uint64_t> &hostIdVector);
-	SoupMessage *queryApplication(const vector<uint64_t> &appIdVector);
+	SoupMessage *queryHost(const std::vector<uint64_t> &hostIdVector);
+	SoupMessage *queryApplication(const std::vector<uint64_t> &appIdVector);
 	SoupMessage *queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill);
 	SoupMessage *queryGetLastEventId(void);
-	string getInitialJsonRequest(void);
+	std::string getInitialJsonRequest(void);
 	bool parseInitialResponse(SoupMessage *msg);
-	void startObject(JsonParserAgent &parser, const string &name);
+	void startObject(JsonParserAgent &parser, const std::string &name);
 	void startElement(JsonParserAgent &parser, int index);
-	void getString(JsonParserAgent &parser, const string &name,
-	               string &value);
+	void getString(JsonParserAgent &parser, const std::string &name,
+	               std::string &value);
 
-	int      pushInt   (JsonParserAgent &parser, ItemGroup *itemGroup,
-	                    const string &name, ItemId itemId);
+	int pushInt(JsonParserAgent &parser, ItemGroup *itemGroup,
+	            const std::string &name, ItemId itemId);
 	uint64_t pushUint64(JsonParserAgent &parser, ItemGroup *itemGroup,
-	                    const string &name, ItemId itemId);
-	string   pushString(JsonParserAgent &parser, ItemGroup *itemGroup,
-	                    const string &name, ItemId itemId);
+	                    const std::string &name, ItemId itemId);
+	std::string pushString(JsonParserAgent &parser, ItemGroup *itemGroup,
+	                       const std::string &name, ItemId itemId);
 
 	void pushFunctionsCache(JsonParserAgent &parser);
 	void pushFunctionsCacheOne(JsonParserAgent &parser,
@@ -109,7 +109,7 @@ protected:
 	                             VariableItemTablePtr &tablePtr, int index);
 	void pushApplicationid(JsonParserAgent &parser, ItemGroup *itemGroup);
 	void pushTriggersHostid(JsonParserAgent &parser, ItemGroup *itemGroup);
-	uint64_t convertStrToUint64(const string strData);
+	uint64_t convertStrToUint64(const std::string strData);
 	void parseAndPushItemsData(JsonParserAgent &parser,
 	                           VariableItemTablePtr &tablePtr, int index);
 	void parseAndPushHostsData(JsonParserAgent &parser,
@@ -165,11 +165,11 @@ protected:
 	void makeHatoholItems(ItemTablePtr events);
 
 	template<typename T>
-	void makeItemVector(vector<T> &idVector, const ItemTable *itemTable,
-	                    const ItemId itemId);
+	void makeItemVector(std::vector<T> &idVector,
+	                    const ItemTable *itemTable, const ItemId itemId);
 	template<typename T>
 	void checkObtainedItems(const ItemTable *obtainedItemTable,
-	                        const vector<T> &requestedItemVector,
+	                        const std::vector<T> &requestedItemVector,
 	                        const ItemId itemId);
 	uint64_t getMaximumNumberGetEventPerOnce(void);
 

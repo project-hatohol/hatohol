@@ -25,6 +25,7 @@
 #include "VirtualDataStoreZabbixMacro.h"
 #include "DBClientConfig.h"
 #include "DBClientHatohol.h"
+using namespace std;
 using namespace mlpl;
 
 MutexLock    VirtualDataStoreZabbix::m_mutex;

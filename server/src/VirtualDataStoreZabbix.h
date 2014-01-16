@@ -48,8 +48,8 @@ protected:
 
 private:
 	typedef ItemTablePtr (VirtualDataStoreZabbix::*DataGenerator)(void);
-	typedef map<ItemGroupId, DataGenerator>  DataGeneratorMap;
-	typedef DataGeneratorMap::iterator       DataGeneratorMapIterator;
+	typedef std::map<ItemGroupId, DataGenerator> DataGeneratorMap;
+	typedef DataGeneratorMap::iterator           DataGeneratorMapIterator;
 
 	static mlpl::MutexLock         m_mutex;
 	static VirtualDataStoreZabbix *m_instance;
