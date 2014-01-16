@@ -29,7 +29,7 @@ public:
 
 	SQLWhereParser(void);
 	virtual ~SQLWhereParser();
-	virtual void add(string& word, string &wordLower);
+	virtual void add(const string& word, const string &wordLower);
 	void clear(void);
 
 protected:
