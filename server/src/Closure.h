@@ -23,9 +23,6 @@
 #include <list>
 #include <ReadWriteLock.h>
 
-using namespace std;
-using namespace mlpl;
-
 struct ClosureBase
 {
 	ClosureBase(void) {};
@@ -61,7 +58,7 @@ struct Closure : public ClosureBase
 	callback m_func;
 };
 
-typedef list<ClosureBase *>             ClosureBaseList;
+typedef std::list<ClosureBase *>        ClosureBaseList;
 typedef ClosureBaseList::iterator       ClosureBaseIterator;
 typedef ClosureBaseList::const_iterator ClosureBaseListConstIterator;
 
@@ -74,7 +71,7 @@ struct Signal
 	virtual void clear(void);
 	virtual void operator()(void);
 	ClosureBaseList m_closures;
-	ReadWriteLock m_rwlock;
+	mlpl::ReadWriteLock m_rwlock;
 };
 
 #endif // Closure_h
