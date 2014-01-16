@@ -26,24 +26,24 @@ from django.views.generic import TemplateView
 # from django.contrib import admin
 # admin.autodiscover()
 
-def guessContentTypeFromExt(ext):
+def guess_content_type_from_ext(ext):
     if ext is "js":
         return 'text/javascript'
     elif ext is "css":
         return 'text/css'
     return 'text/html'
 
-def staticFile(request, prefix, path, ext):
-    content_type = guessContentTypeFromExt(ext)
+def static_file(request, prefix, path, ext):
+    content_type = guess_content_type_from_ext(ext)
     view = TemplateView.as_view(template_name=prefix + path,
                                 content_type=content_type)
     return view(request)
 
-def tastingFile(request, path, ext):
-    return staticFile(request, "tasting/", path, ext)
+def tasting_file(request, path, ext):
+    return static_file(request, "tasting/", path, ext)
 
-def testFile(request, path, ext):
-    return staticFile(request, "test/browser/", path, ext)
+def test_file(request, path, ext):
+    return static_file(request, "test/browser/", path, ext)
 
 urlpatterns = patterns('',
     # Examples:
@@ -70,9 +70,9 @@ if 'HATOHOL_DEBUG' in os.environ and os.environ['HATOHOL_DEBUG'] == '1':
     import test.python.utils
 
     urlpatterns += patterns('',
-        url(r'^tasting/(.+\.(js|css|html))$', tastingFile),
+        url(r'^tasting/(.+\.(js|css|html))$', tasting_file),
         url(r'^test/hello', test.python.utils.hello),
         url(r'^test/delete_user_config', test.python.utils.delete_user_config),
-        url(r'^test/(.+\.(js|css|html))$', testFile),
+        url(r'^test/(.+\.(js|css|html))$', test_file),
     )
 
