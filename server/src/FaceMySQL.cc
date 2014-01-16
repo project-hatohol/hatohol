@@ -22,13 +22,12 @@
 #include <glib.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-
 #include <Logger.h>
-using namespace mlpl;
-
 #include "Utils.h"
 #include "FaceMySQL.h"
 #include "FaceMySQLWorker.h"
+using namespace std;
+using namespace mlpl;
 
 static const int DEFAULT_PORT = 3306;
 

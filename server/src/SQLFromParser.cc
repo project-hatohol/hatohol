@@ -22,6 +22,8 @@
 #include "ItemDataUtils.h"
 #include "SQLProcessorException.h"
 #include "SQLUtils.h"
+using namespace std;
+using namespace mlpl;
 
 SQLFromParser::SubParser SQLFromParser::m_subParsers[] = {
 	&SQLFromParser::subParserExpectTableName,

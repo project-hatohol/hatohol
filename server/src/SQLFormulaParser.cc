@@ -18,13 +18,12 @@
  */
 
 #include <stdexcept>
-
 #include "Logger.h"
-using namespace mlpl;
-
 #include "SQLFormulaParser.h"
 #include "FormulaOperator.h"
 #include "SQLProcessorException.h"
+using namespace std;
+using namespace mlpl;
 
 struct SQLFormulaParser::PrivateContext {
 	bool                    quotOpen;

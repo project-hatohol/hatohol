@@ -31,31 +31,31 @@
 
 struct HandshakeResponse41
 {
-	uint32_t capability;
-	uint32_t maxPacketSize;
-	uint8_t  characterSet;
-	string   username;
-	uint16_t lenAuthResponse;
-	string   authResponse;
+	uint32_t    capability;
+	uint32_t    maxPacketSize;
+	uint8_t     characterSet;
+	std::string username;
+	uint16_t    lenAuthResponse;
+	std::string authResponse;
 
 	//  if capabilities & CLIENT_CONNECT_WITH_DB
-	string   database;
+	std::string database;
 
 	// if capabilities & CLIENT_PLUGIN_AUTH
-	string authPluginName;
+	std::string authPluginName;
 
 	// if capabilities & CLIENT_CONNECT_ATTRS
 	uint16_t lenKeyValue;
-	map<string, string> keyValueMap;
+	std::map<std::string, std::string> keyValueMap;
 };
 
 class FaceMySQLWorker;
-typedef bool (FaceMySQLWorker::*commandProcFunc)(SmartBuffer &pkt);
-typedef map<int, commandProcFunc> CommandProcFuncMap;
+typedef bool (FaceMySQLWorker::*commandProcFunc)(mlpl::SmartBuffer &pkt);
+typedef std::map<int, commandProcFunc> CommandProcFuncMap;
 typedef CommandProcFuncMap::iterator CommandProcFuncMapIterator;
 
-typedef bool (FaceMySQLWorker::*queryProcFunc)(ParsableString &query);
-typedef map<string, queryProcFunc> QueryProcFuncMap;
+typedef bool (FaceMySQLWorker::*queryProcFunc)(mlpl::ParsableString &query);
+typedef std::map<std::string, queryProcFunc> QueryProcFuncMap;
 typedef QueryProcFuncMap::iterator QueryProcFuncMapIterator;
 
 class FaceMySQLWorker : public HatoholThreadBase {
@@ -66,13 +66,14 @@ public:
 
 protected:
 	uint32_t makePacketHeader(uint32_t length);
-	void addPacketHeaderRegion(SmartBuffer &pkt);
-	void allocAndAddPacketHeaderRegion(SmartBuffer &pkt, size_t packetSize);
-	void addLenEncInt(SmartBuffer &buf, uint64_t num);
-	void addLenEncStr(SmartBuffer &pkt, const string &str);
+	void addPacketHeaderRegion(mlpl::SmartBuffer &pkt);
+	void allocAndAddPacketHeaderRegion(mlpl::SmartBuffer &pkt,
+	                                   size_t packetSize);
+	void addLenEncInt(mlpl::SmartBuffer &buf, uint64_t num);
+	void addLenEncStr(mlpl::SmartBuffer &pkt, const std::string &str);
 	bool sendHandshakeV10(void);
 	bool receiveHandshakeResponse41(void);
-	bool receivePacket(SmartBuffer &pkt);
+	bool receivePacket(mlpl::SmartBuffer &pkt);
 
 	/**
 	 * When this function returns false, mainThread() exits from the loop.
@@ -83,67 +84,67 @@ protected:
 	bool sendEOF(uint16_t warningCount, uint16_t status);
 	bool sendNull(void);
 	bool sendColumnDef41(
-	  const string &schema, const string &table, const string &orgTable,
-	  const string &name, const string &orgName,
+	  const std::string &schema, const std::string &table,
+	  const std::string &orgTable, const std::string &name,
+	  const std::string &orgName,
 	  uint32_t columnLength, uint8_t type,
 	  uint16_t flags, uint8_t decimals);
 	bool sendSelectResult(const SQLSelectInfo &selectInfo);
 	bool sendInsertResult(const SQLInsertInfo &insertInfo);
 	bool sendUpdateResult(const SQLUpdateInfo &updateInfo);
 	bool sendLenEncInt(uint64_t num);
-	bool sendLenEncStr(const string &str);
-	bool sendPacket(SmartBuffer &pkt);
-	bool send(SmartBuffer &buf);
+	bool sendLenEncStr(const std::string &str);
+	bool sendPacket(mlpl::SmartBuffer &pkt);
+	bool send(mlpl::SmartBuffer &buf);
 	bool receive(char* buf, size_t size);
-	uint64_t decodeLenEncInt(SmartBuffer &buf);
-	string   decodeLenEncStr(SmartBuffer &buf);
-	string getNullTermStringAndIncIndex(SmartBuffer &buf);
-	string getEOFString(SmartBuffer &buf);
-	string getFixedLengthStringAndIncIndex(SmartBuffer &buf,
-	                                       uint64_t length);
+	uint64_t decodeLenEncInt(mlpl::SmartBuffer &buf);
+	std::string decodeLenEncStr(mlpl::SmartBuffer &buf);
+	std::string getNullTermStringAndIncIndex(mlpl::SmartBuffer &buf);
+	std::string getEOFString(mlpl::SmartBuffer &buf);
+	std::string getFixedLengthStringAndIncIndex(mlpl::SmartBuffer &buf,
+	                                            uint64_t length);
 	int typeConvert(SQLColumnType type);
 
 	// Command handlers
-	bool comQuit(SmartBuffer &pkt);
-	bool comQuery(SmartBuffer &pkt);
-	bool comInitDB(SmartBuffer &pkt);
-	bool comSetOption(SmartBuffer &pkt);
+	bool comQuit(mlpl::SmartBuffer &pkt);
+	bool comQuery(mlpl::SmartBuffer &pkt);
+	bool comInitDB(mlpl::SmartBuffer &pkt);
+	bool comSetOption(mlpl::SmartBuffer &pkt);
 
 	// Query handlers
-	bool querySelect(ParsableString &query);
-	bool queryInsert(ParsableString &query);
-	bool queryUpdate(ParsableString &query);
-	bool querySet(ParsableString &query);
-	bool queryBegin(ParsableString &query);
-	bool queryRollback(ParsableString &query);
-	bool queryCommit(ParsableString &query);
+	bool querySelect(mlpl::ParsableString &query);
+	bool queryInsert(mlpl::ParsableString &query);
+	bool queryUpdate(mlpl::ParsableString &query);
+	bool querySet(mlpl::ParsableString &query);
+	bool queryBegin(mlpl::ParsableString &query);
+	bool queryRollback(mlpl::ParsableString &query);
+	bool queryCommit(mlpl::ParsableString &query);
 
 	// System select handlers
-	bool querySelectVersionComment(ParsableString &query);
-	bool querySelectDatabase(ParsableString &query);
-
+	bool querySelectVersionComment(mlpl::ParsableString &query);
+	bool querySelectDatabase(mlpl::ParsableString &query);
 
 	// virtual methods
 	gpointer mainThread(HatoholThreadArg *arg);
 private:
-	typedef bool (FaceMySQLWorker::*SelectProcFunc)(ParsableString &);
+	typedef bool (FaceMySQLWorker::*SelectProcFunc)(mlpl::ParsableString &);
 	static const size_t TYPE_CONVERT_TABLE_SIZE = 0x100;
-	static map<string, SelectProcFunc> m_selectProcFuncMap;
+	static std::map<std::string, SelectProcFunc> m_selectProcFuncMap;
 	static int m_typeConverTable[TYPE_CONVERT_TABLE_SIZE];
 
 	GSocket *m_socket;
 	uint32_t m_connId;
 	uint32_t m_packetId;
 	uint32_t m_charSet;
-	string   m_currDBname;
+	std::string m_currDBname;
 	uint16_t m_mysql_option;
 	uint16_t m_statusFlags;
 	HandshakeResponse41 m_hsResp41;
 	CommandProcFuncMap m_cmdProcMap;
 	QueryProcFuncMap   m_queryProcMap;
 	SQLProcessor        *m_sqlProcessor;
-	map<string, SQLProcessor *> m_sqlProcessorMap;
-	SeparatorChecker m_separatorSpaceComma;
+	std::map<std::string, SQLProcessor *> m_sqlProcessorMap;
+	mlpl::SeparatorChecker m_separatorSpaceComma;
 
 	void initHandshakeResponse41(HandshakeResponse41 &hsResp41);
 };

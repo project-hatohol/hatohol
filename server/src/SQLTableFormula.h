@@ -23,12 +23,8 @@
 #include <vector>
 #include <map>
 #include <string>
-using namespace std;
-
 #include <ParsableString.h>
 #include <StringUtils.h>
-using namespace mlpl;
-
 #include "SQLProcessorTypes.h"
 #include "ItemTablePtr.h"
 #include "ItemGroupPtr.h"
@@ -70,8 +66,8 @@ private:
 	// The body of 'itemDataIndex' in ItemTable instance
 	ItemDataIndex          *m_itemDataIndex;
 
-	vector<ItemDataPtrForIndex> m_indexMatchedItems;
-	size_t                      m_indexMatchedItemsIndex;
+	std::vector<ItemDataPtrForIndex> m_indexMatchedItems;
+	size_t                           m_indexMatchedItemsIndex;
 
 };
 
@@ -102,7 +98,7 @@ struct SQLTableProcessContext {
 	SQLTableElement        *tableElement;
 
 	// SQLTableRowIterator instances and a pointer to the selected one
-	vector<SQLTableRowIterator *> rowIteratorVector;
+	std::vector<SQLTableRowIterator *> rowIteratorVector;
 
 	// methods
 	SQLTableProcessContext(void);
@@ -113,17 +109,17 @@ struct SQLTableProcessContext {
 // SQLTableProcessContextIndex
 // ---------------------------------------------------------------------------
 struct SQLTableProcessContextIndex {
-	map<string, SQLTableProcessContext *> tableNameCtxMap;
-	map<string, SQLTableProcessContext *> tableVarCtxMap;
+	std::map<std::string, SQLTableProcessContext *> tableNameCtxMap;
+	std::map<std::string, SQLTableProcessContext *> tableVarCtxMap;
 
 	// This vector is the owner of SQLTableProcessContext instances.
-	vector<SQLTableProcessContext *>      tableCtxVector;
+	std::vector<SQLTableProcessContext *>      tableCtxVector;
 
 	// methods
 	virtual ~SQLTableProcessContextIndex();
 	void clear(void);
 	SQLTableProcessContext *
-	  getTableContext(const string &name,
+	  getTableContext(const std::string &name,
 	                  bool throwExceptionIfNotFound = true);
 };
 
@@ -134,17 +130,17 @@ class SQLTableFormula
 {
 public:
 	struct TableSizeInfo {
-		string name;
-		string varName;
-		size_t numColumns;
-		size_t accumulatedColumnOffset;
+		std::string name;
+		std::string varName;
+		size_t      numColumns;
+		size_t      accumulatedColumnOffset;
 	};
-	typedef vector<TableSizeInfo *>       TableSizeInfoVector;
+	typedef std::vector<TableSizeInfo *>  TableSizeInfoVector;
 	typedef TableSizeInfoVector::iterator TableSizeInfoVectorIterator;
 	typedef TableSizeInfoVector::const_iterator
 	  TableSizeInfoVectorConstIterator;
-	typedef map<string, TableSizeInfo *>  TableSizeInfoMap;
-	typedef TableSizeInfoMap::iterator    TableSizeInfoMapIterator;
+	typedef std::map<std::string, TableSizeInfo *> TableSizeInfoMap;
+	typedef TableSizeInfoMap::iterator             TableSizeInfoMapIterator;
 
 	virtual ~SQLTableFormula();
 	virtual ItemTablePtr getTable(void) = 0;
@@ -159,13 +155,13 @@ public:
 	 *         happens when the condition on the join is not satisfied.
 	 */
 	virtual ItemGroupPtr getActiveRow(void) = 0;
-	virtual size_t getColumnIndexOffset(const string &tableName);
+	virtual size_t getColumnIndexOffset(const std::string &tableName);
 	const TableSizeInfoVector &getTableSizeInfoVector(void);
 
 protected:
 	virtual void fixupTableSizeInfo(void) = 0;
-	void addTableSizeInfo(const string &tableName,
-	                      const string &tableVar, size_t numColumns);
+	void addTableSizeInfo(const std::string &tableName,
+	                      const std::string &tableVar, size_t numColumns);
 	void makeTableSizeInfo(const TableSizeInfoVector &leftList,
 	                       const TableSizeInfoVector &rightList);
 
@@ -181,11 +177,11 @@ private:
 class SQLTableElement : public SQLTableFormula
 {
 public:
-	SQLTableElement(const string &name, const string &varName,
+	SQLTableElement(const std::string &name, const std::string &varName,
 	                SQLColumnIndexResoveler *resolver,
 	                SQLSubQueryMode subQueryMode);
-	const string &getName(void) const;
-	const string &getVarName(void) const;
+	const std::string &getName(void) const;
+	const std::string &getVarName(void) const;
 	void setItemTable(ItemTablePtr itemTablePtr);
 	void selectRowIterator(SQLTableProcessContext *tableCtx);
 	virtual void prepareJoin(SQLTableProcessContextIndex *ctxIndex);
@@ -204,8 +200,8 @@ protected:
 	virtual void fixupTableSizeInfo(void);
 
 private:
-	string m_name;
-	string m_varName;
+	std::string m_name;
+	std::string m_varName;
 	ItemTablePtr m_itemTablePtr;
 	SQLColumnIndexResoveler *m_columnIndexResolver;
 	ItemGroupListConstIterator m_currSelectedGroup;
@@ -214,7 +210,7 @@ private:
 	SQLSubQueryMode            m_subQueryMode;
 };
 
-typedef list<SQLTableElement *>             SQLTableElementList;
+typedef std::list<SQLTableElement *>        SQLTableElementList;
 typedef SQLTableElementList::iterator       SQLTableElementListIterator;
 typedef SQLTableElementList::const_iterator SQLTableElementListConstIterator;
 
@@ -259,26 +255,26 @@ private:
 class SQLTableInnerJoin : public SQLTableJoin
 {
 public:
-	SQLTableInnerJoin(const string &leftTableName,
-	                  const string &leftColumnName,
-	                  const string &rightTableName,
-	                  const string &rightColumnName,
+	SQLTableInnerJoin(const std::string &leftTableName,
+	                  const std::string &leftColumnName,
+	                  const std::string &rightTableName,
+	                  const std::string &rightColumnName,
 	                  SQLColumnIndexResoveler *resolver);
 	virtual void prepareJoin(SQLTableProcessContextIndex *ctxIndex);
 	virtual ItemTablePtr getTable(void);
 	virtual ItemGroupPtr getActiveRow(void);
 
-	const string &getLeftTableName(void) const;
-	const string &getLeftColumnName(void) const;
-	const string &getRightTableName(void) const;
-	const string &getRightColumnName(void) const;
+	const std::string &getLeftTableName(void) const;
+	const std::string &getLeftColumnName(void) const;
+	const std::string &getRightTableName(void) const;
+	const std::string &getRightColumnName(void) const;
 
 private:
 	static const size_t INDEX_NOT_SET = -1;
-	string m_leftTableName;
-	string m_leftColumnName;
-	string m_rightTableName;
-	string m_rightColumnName;
+	std::string m_leftTableName;
+	std::string m_leftColumnName;
+	std::string m_rightTableName;
+	std::string m_rightColumnName;
 	size_t m_indexLeftJoinColumn;
 	size_t m_indexRightJoinColumn;
 	SQLColumnIndexResoveler *m_columnIndexResolver;

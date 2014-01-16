@@ -19,6 +19,7 @@
 
 #include "SQLProcessorFactory.h"
 #include "SQLProcessorZabbix.h"
+using namespace std;
 
 #ifdef GLIB_VERSION_2_32
 GRWLock SQLProcessorFactory::m_lock;

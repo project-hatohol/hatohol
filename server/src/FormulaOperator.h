@@ -164,15 +164,15 @@ private:
 // ---------------------------------------------------------------------------
 class FormulaExists : public FormulaElement {
 public:
-	FormulaExists(const string &statement,
+	FormulaExists(const std::string &statement,
 	              SQLProcessorSelectFactory &selectFactory);
 	virtual ~FormulaExists();
 	virtual ItemDataPtr evaluate(void);
-	const string &getStatement(void) const;
+	const std::string &getStatement(void) const;
 
 private:
 	SQLProcessorSelectFactory &m_processorSelectFactory;
-	string                     m_statement;
+	std::string                m_statement;
 	SQLProcessorSelect        *m_processorSelect;
 	SQLSelectInfo             *m_selectInfo;
 	SQLSubQueryMode            m_subQueryMode;

@@ -34,7 +34,7 @@ public:
 	virtual ~SQLFromParser();
 	SQLTableFormula *getTableFormula(void) const;
 	SQLTableElementList &getTableElementList(void) const;
-	SeparatorCheckerWithCallback *getSeparatorChecker(void);
+	mlpl::SeparatorCheckerWithCallback *getSeparatorChecker(void);
 	void setColumnIndexResolver(SQLColumnIndexResoveler *resolver);
 	void setSubQueryMode(SQLSubQueryMode subQueryMode);
 	void prepareJoin
@@ -90,7 +90,7 @@ protected:
 	void insertTableFormula(SQLTableFormula *tableFormula);
 	void makeTableElement(
 	  const std::string &tableName,
-	  const std::string &varName = StringUtils::EMPTY_STRING);
+	  const std::string &varName = mlpl::StringUtils::EMPTY_STRING);
 	void associatePrimaryConditionsWithTableProcessorContext
 	       (const PrimaryConditionList &primaryConditionList,
 	        SQLTableProcessContextIndex *ctxIndex);
@@ -125,7 +125,7 @@ private:
 	static SubParser             m_subParsers[];
 	static size_t                m_numSubParsers;
 	PrivateContext              *m_ctx;
-	SeparatorCheckerWithCallback m_separator;
+	mlpl::SeparatorCheckerWithCallback m_separator;
 };
 
 #endif // SQLFromParser_h

@@ -18,6 +18,7 @@
  */
 
 #include "SQLProcessor.h"
+using namespace std;
 
 bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 {

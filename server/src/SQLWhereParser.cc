@@ -22,6 +22,8 @@
 #include "ItemDataUtils.h"
 #include "SQLProcessorException.h"
 #include "FormulaOperator.h"
+using namespace std;
+using namespace mlpl;
 
 enum KeywordParsingStep {
 	KEYWORD_STEP_NULL,

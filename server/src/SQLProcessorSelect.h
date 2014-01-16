@@ -80,7 +80,7 @@ struct SQLTableInfo {
 	// SelectInfo::columns in the SQLSelectInfo instance including this.
 	// It is added in associateColumnWithTable().
 	// So we must not explicitly free it.
-	list<const SQLColumnInfo *> columnList;
+	std::list<const SQLColumnInfo *> columnList;
 
 	// We assume that the body of 'staticInfo' that is given in
 	// the constructor via m_tableNameStaticInfoMap exists
@@ -96,7 +96,7 @@ struct SQLTableInfo {
 	SQLTableInfo(void);
 };
 
-typedef list<SQLTableInfo *>         SQLTableInfoList;
+typedef std::list<SQLTableInfo *>    SQLTableInfoList;
 typedef SQLTableInfoList::iterator   SQLTableInfoListIterator;
 
 struct SQLColumnInfo {
@@ -168,7 +168,7 @@ struct SQLSelectInfo : public SQLProcessorInfo {
 	ItemTablePtrList groupedTables;
 
 	// output
-	vector<StringVector> textRows;
+	std::vector<mlpl::StringVector> textRows;
 
 	// flags
 	bool useIndex;
@@ -179,7 +179,7 @@ struct SQLSelectInfo : public SQLProcessorInfo {
 	//
 	// constructor and destructor
 	//
-	SQLSelectInfo(const ParsableString &_statement);
+	SQLSelectInfo(const mlpl::ParsableString &_statement);
 	virtual ~SQLSelectInfo();
 };
 
@@ -279,7 +279,7 @@ protected:
 	// General sub routines
 	//
 	void setup(void);
-	std::string readNextWord(ParsingPosition *position = NULL);
+	std::string readNextWord(mlpl::ParsingPosition *position = NULL);
 	static void parseColumnName(const std::string &name,
 	                            std::string &baseName,
 	                            std::string &tableVar);

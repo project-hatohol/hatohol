@@ -114,9 +114,10 @@ void _assertFormulaBetweenWithVarName(FormulaElement *elem, int v0, int v1, cons
 cut_trace(_assertFormulaBetweenWithVarName(X, V0, V1, N))
 
 void _assertFormulaInWithVarName(FormulaElement *elem,
-                                 vector<int> &expectedValues, const char *name);
+                                 std::vector<int> &expectedValues,
+                                 const char *name);
 void _assertFormulaInWithVarName(FormulaElement *elem,
-                                 StringVector &expectedValues,
+                                 mlpl::StringVector &expectedValues,
                                  const char *name);
 #define assertFormulaInWithVarName(X, E, N) \
 cut_trace(_assertFormulaInWithVarName(X, E, N))
@@ -131,7 +132,7 @@ void _assertBinomialFormula(FormulaElement *formula,
 
 	assertFormulaVariable(formula->getLeftHand(), expectedLeft);
 
-	const type_info &typeR = typeid(RightElementType);
+	const std::type_info &typeR = typeid(RightElementType);
 	if (typeR == typeid(FormulaVariable)) {
 		// 'reinterpret_cast' is somewhat ad-hoc.
 		// We want to call the proper method gracefully.

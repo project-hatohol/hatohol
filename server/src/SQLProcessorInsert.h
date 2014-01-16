@@ -26,14 +26,14 @@
 
 struct SQLInsertInfo : public SQLProcessorInfo {
 	// parsed matter
-	std::string      table;
-	StringVector     columnVector;
-	StringVector     valueVector;
+	std::string        table;
+	mlpl::StringVector columnVector;
+	mlpl::StringVector valueVector;
 
 	//
 	// constructor and destructor
 	//
-	SQLInsertInfo(const ParsableString &_statment);
+	SQLInsertInfo(const mlpl::ParsableString &_statment);
 	virtual ~SQLInsertInfo();
 };
 

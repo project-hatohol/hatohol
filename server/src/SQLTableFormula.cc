@@ -20,6 +20,8 @@
 #include "SQLTableFormula.h"
 #include "SQLProcessorException.h"
 #include "HatoholException.h"
+using namespace std;
+using namespace mlpl;
 
 // ---------------------------------------------------------------------------
 // SQLRowIterator
