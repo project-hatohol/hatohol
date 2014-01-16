@@ -22,10 +22,7 @@
 
 #include <map>
 #include <list>
-using namespace std;
-
 #include <inttypes.h>
-
 #include "ItemData.h"
 #include "ItemGroupType.h"
 
