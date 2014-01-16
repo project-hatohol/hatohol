@@ -1777,8 +1777,7 @@ void DBClientHatohol::addHostgroupInfoBare(const HostgroupInfo &groupInfo)
 	}
 }
 
-void DBClientHatohol::addHostgroupElementBare
-  (const HostgroupElement hostgroupElement)
+void DBClientHatohol::addHostgroupElementBare(const HostgroupElement &hostgroupElement)
 {
 	string condition = StringUtils::sprintf("server_id=%d and hostid=%"PRIu64" "
 	                                        "and groupid=%"PRIu64,
