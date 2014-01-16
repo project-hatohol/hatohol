@@ -33,8 +33,9 @@ class SQLProcessorFactory
 {
 public:
 	static void init(void);
-	static SQLProcessor *create(string &DBName);
-	static void addFactory(string name, SQLProcessorCreatorFunc factory);
+	static SQLProcessor *create(const string &DBName);
+	static void addFactory(const string &name,
+	                       SQLProcessorCreatorFunc factory);
 
 protected:
 

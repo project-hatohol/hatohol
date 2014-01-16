@@ -76,7 +76,7 @@ void SQLProcessorFactory::init(void)
 	           SQLProcessorZabbix::createInstance);
 }
 
-SQLProcessor *SQLProcessorFactory::create(string &DBName)
+SQLProcessor *SQLProcessorFactory::create(const string &DBName)
 {
 	map<string, SQLProcessorCreatorFunc>::iterator it;
 	SQLProcessor *composer = NULL;
@@ -92,7 +92,8 @@ SQLProcessor *SQLProcessorFactory::create(string &DBName)
 	return composer;
 }
 
-void SQLProcessorFactory::addFactory(string name, SQLProcessorCreatorFunc factory)
+void SQLProcessorFactory::addFactory(const string &name,
+                                     SQLProcessorCreatorFunc factory)
 {
 	writer_lock(&m_lock);
 	m_factoryMap[name] = factory;
