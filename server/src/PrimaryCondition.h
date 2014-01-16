@@ -22,8 +22,6 @@
 
 #include <list>
 #include <string>
-using namespace std;
-
 #include "ItemDataPtr.h"
 #include "ItemGroupPtr.h"
 
@@ -35,7 +33,7 @@ public:
 	virtual ~PrimaryCondition();
 };
 
-typedef list<PrimaryCondition *>             PrimaryConditionList;
+typedef std::list<PrimaryCondition *>        PrimaryConditionList;
 typedef PrimaryConditionList::iterator       PrimaryConditionListIterator;
 typedef PrimaryConditionList::const_iterator PrimaryConditionListConstIterator;
 
@@ -44,20 +42,20 @@ typedef PrimaryConditionList::const_iterator PrimaryConditionListConstIterator;
 // ---------------------------------------------------------------------------
 class PrimaryConditionColumnsEqual : public PrimaryCondition {
 public:
-	PrimaryConditionColumnsEqual(const string &leftTableName,
-	                             const string &leftColumnName,
-	                             const string &rightTableName,
-	                             const string &rightColumnName);
-	const string &getLeftTableName(void) const;
-	const string &getLeftColumnName(void) const;
-	const string &getRightTableName(void) const;
-	const string &getRightColumnName(void) const;
+	PrimaryConditionColumnsEqual(const std::string &leftTableName,
+	                             const std::string &leftColumnName,
+	                             const std::string &rightTableName,
+	                             const std::string &rightColumnName);
+	const std::string &getLeftTableName(void) const;
+	const std::string &getLeftColumnName(void) const;
+	const std::string &getRightTableName(void) const;
+	const std::string &getRightColumnName(void) const;
 
 private:
-	string m_leftTableName;
-	string m_leftColumnName;
-	string m_rightTableName;
-	string m_rightColumnName;
+	std::string m_leftTableName;
+	std::string m_leftColumnName;
+	std::string m_rightTableName;
+	std::string m_rightColumnName;
 };
 
 // ---------------------------------------------------------------------------
@@ -65,16 +63,16 @@ private:
 // ---------------------------------------------------------------------------
 class PrimaryConditionConstants : public PrimaryCondition {
 public:
-	PrimaryConditionConstants(const string &leftTableName,
-	                          const string &leftColumnName);
-	const string &getTableName(void) const;
-	const string &getColumnName(void) const;
+	PrimaryConditionConstants(const std::string &leftTableName,
+	                          const std::string &leftColumnName);
+	const std::string &getTableName(void) const;
+	const std::string &getColumnName(void) const;
 	void add(ItemDataPtr itemData);
 	const ItemGroupPtr getConstants(void) const;
 
 private:
-	string       m_tableName;
-	string       m_columnName;
+	std::string          m_tableName;
+	std::string          m_columnName;
 	VariableItemGroupPtr m_itemGroup;
 };
 
