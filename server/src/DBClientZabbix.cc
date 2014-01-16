@@ -2153,6 +2153,19 @@ void DBClientZabbix::transformHostsItemGroupToHatoholFormat
 	hostInfo.hostName = itemHostName->get();
 }
 
+void DBClientZabbix::transformHostsToHatoholFormat
+  (HostInfoList &hostInfoList, const ItemTablePtr hosts, uint32_t serverId)
+{
+	const ItemGroupList &itemGroupList = hosts->getItemGroupList();
+	ItemGroupListConstIterator it = itemGroupList.begin();
+	for (; it != itemGroupList.end(); ++it) {
+		HostInfo hostInfo;
+		hostInfo.serverId = serverId;
+		transformHostsItemGroupToHatoholFormat(hostInfo, *it);
+		hostInfoList.push_back(hostInfo);
+	}
+}
+
 uint64_t DBClientZabbix::getLastEventId(void)
 {
 	const ColumnDef &columnDefEventId = 
