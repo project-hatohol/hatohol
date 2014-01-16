@@ -277,7 +277,7 @@ FormulaValue::FormulaValue(double number)
 	m_itemDataPtr = ItemDataPtr(new ItemDouble(number), false);
 }
 
-FormulaValue::FormulaValue(string &str)
+FormulaValue::FormulaValue(const string &str)
 : FormulaElement(FORMULA_ELEM_PRIO_VALUE)
 {
 	setTerminalElement();
