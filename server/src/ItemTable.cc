@@ -18,11 +18,11 @@
  */
 
 #include <Logger.h>
-using namespace mlpl;
-
 #include <stdexcept>
 #include "Utils.h"
 #include "ItemTable.h"
+using namespace std;
+using namespace mlpl;
 
 struct ItemTable::CrossJoinArg
 {
