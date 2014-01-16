@@ -1800,6 +1800,43 @@ void DBClientHatohol::addHostgroupElementBare(const HostgroupElement &hostgroupE
 	}
 }
 
+void DBClientHatohol::addHostInfoBare(const HostInfo &hostInfo)
+{
+	string condition = StringUtils::sprintf("server_id=%d and hostid=%"PRIu64,
+	                                       hostInfo.serverId, hostInfo.id);
+
+	VariableItemGroupPtr row;
+	if (!isRecordExisting(TABLE_NAME_HOSTS, condition)) {
+		DBAgentInsertArg arg;
+		arg.tableName = TABLE_NAME_HOSTS;
+		arg.numColumns = NUM_COLUMNS_HOSTS;
+		arg.columnDefs = COLUMN_DEF_HOSTS;
+		row->ADD_NEW_ITEM(Int, 0); // This is automatically set (0 is dummy)
+		row->ADD_NEW_ITEM(Int, hostInfo.serverId);
+		row->ADD_NEW_ITEM(Uint64, hostInfo.id);
+		row->ADD_NEW_ITEM(String, hostInfo.hostName);
+		arg.row = row;
+		insert(arg);
+	} else {
+		DBAgentUpdateArg arg;
+		arg.tableName = TABLE_NAME_HOSTS;
+		arg.columnDefs = COLUMN_DEF_HOSTS;
+
+		row->ADD_NEW_ITEM(Int, hostInfo.serverId);
+		arg.columnIndexes.push_back(IDX_HOSTS_SERVER_ID);
+
+		row->ADD_NEW_ITEM(Uint64, hostInfo.id);
+		arg.columnIndexes.push_back(IDX_HOSTS_HOSTID);
+
+		row->ADD_NEW_ITEM(String, hostInfo.hostName);
+		arg.columnIndexes.push_back(IDX_HOSTS_HOSTNAME);
+
+		arg.row = row;
+		arg.condition = condition;
+		update(arg);
+	}
+}
+
 void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
                                          const string &condition)
 {

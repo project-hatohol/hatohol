@@ -318,6 +318,7 @@ protected:
 	void addItemInfoBare(const ItemInfo &itemInfo);
 	void addHostgroupInfoBare(const HostgroupInfo &groupInfo);
 	void addHostgroupElementBare(const HostgroupElement &hostgroupElement);
+	void addHostInfoBare(const HostInfo &hostInfo);
 
 	void getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	                        const string &condition);
