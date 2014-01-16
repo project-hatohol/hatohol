@@ -21,8 +21,6 @@
 #define FormulaElement_h
 
 #include <vector>
-using namespace std;
-
 #include "ItemDataPtr.h"
 
 // The lower value has high priority
