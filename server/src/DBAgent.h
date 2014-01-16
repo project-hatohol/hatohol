@@ -30,6 +30,7 @@ using namespace std;
 #include "SQLProcessorTypes.h"
 
 #define CURR_DATETIME -1
+static const int AUTO_INCREMENT_VALUE = 0;
 
 struct DBAgentTableCreationArg {
 	string              tableName;
