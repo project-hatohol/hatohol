@@ -102,7 +102,8 @@ protected:
 	//
 	// General sub routines
 	//
-	bool checkCurrWord(string expected, InsertParseSection nextSection);
+	bool checkCurrWord(const string &expected,
+	                   InsertParseSection nextSection);
 	bool pushColumn(void);
 	bool pushValue(void);
 

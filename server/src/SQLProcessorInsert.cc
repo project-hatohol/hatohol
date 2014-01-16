@@ -418,7 +418,7 @@ void SQLProcessorInsert::separatorCbQuot(const char separator)
 //
 // General sub routines
 //
-bool SQLProcessorInsert::checkCurrWord(string expected,
+bool SQLProcessorInsert::checkCurrWord(const string &expected,
                                        InsertParseSection nextSection)
 {
 	if (m_ctx->currWordLower != expected) {
