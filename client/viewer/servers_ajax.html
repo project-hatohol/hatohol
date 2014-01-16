@@ -137,6 +137,9 @@
       new HatoholItemRemover({
         id: delId,
         type: "server",
+        completionCallback: function() {
+          startConnection("server", updateCore);
+        },
       });
       hatoholInfoMsgBox("{% trans "Deleting..." %}");
     }

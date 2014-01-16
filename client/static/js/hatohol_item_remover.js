@@ -73,7 +73,7 @@ var HatoholItemRemover = function(deleteParameters) {
     hatoholInfoMsgBox(msg + gettext("Completed. (Number of errors: ") +
                       errors + "/" + total + ")");
 
-    // update the main view
-    startConnection(deleteParameters.type, updateCore);
+    if (deleteParameters.completionCallback)
+      deleteParameters.completionCallback();
   }
 }
