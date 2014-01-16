@@ -53,7 +53,7 @@ public:
 
 	SQLColumnParser(void);
 	virtual ~SQLColumnParser();
-	virtual void add(string& word, string &wordLower);
+	virtual void add(const string& word, const string &wordLower);
 	virtual void close(void);
 	const SQLFormulaInfoVector &getFormulaInfoVector(void) const;
 	bool getDistinctFlag(void) const;
@@ -63,7 +63,7 @@ protected:
 	// general sub routines
 	//
 	void appendFormulaString(const char character);
-	void appendFormulaString(string &str);
+	void appendFormulaString(const string &str);
 	void closeCurrFormulaInfo(void);
 	void closeCurrentFormulaString(void);
 	void closeCurrentFormula(void);

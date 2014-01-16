@@ -40,7 +40,7 @@ public:
 	void setColumnDataGetterFactory
 	       (FormulaVariableDataGetterFactory columnDataGetterFactory,
 	        void *columnDataGetterFactoryPriv);
-	virtual void add(string& word, string &wordLower);
+	virtual void add(const string& word, const string &wordLower);
 	virtual void flush(void);
 	virtual void close(void);
 	SeparatorCheckerWithCallback *getSeparatorChecker(void);
@@ -70,15 +70,15 @@ protected:
 
 	void setKeywordHandlerMap(KeywordHandlerMap *kwHandlerMap);
 	void setFunctionParserMap(FunctionParserMap *fncParserMap);
-	FormulaVariable *makeFormulaVariable(string &name);
-	FormulaElement *makeFormulaVariableOrValue(string &word);
-	bool passFunctionArgIfOpen(string &word);
+	FormulaVariable *makeFormulaVariable(const string &name);
+	FormulaElement *makeFormulaVariableOrValue(const string &word);
+	bool passFunctionArgIfOpen(const string &word);
 	void insertElement(FormulaElement *formulaElement);
 	FormulaElement *getCurrentElement(void) const;
 	void insertAsRightHand(FormulaElement *formulaElement);
 	void insertAsHand(FormulaElement *formulaElement);
 	void makeFormulaElementFromPendingWord(void);
-	void addStringValue(string &word);
+	void addStringValue(const string &word);
 	FormulaElement *takeFormula(void);
 	bool makeFunctionParserIfPendingWordIsFunction(void);
 

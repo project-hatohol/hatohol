@@ -106,7 +106,7 @@ SQLColumnParser::~SQLColumnParser()
 		delete m_ctx;
 }
 
-void SQLColumnParser::add(string &word, string &wordLower)
+void SQLColumnParser::add(const string &word, const string &wordLower)
 {
 	if (m_ctx->expectAlias) {
 		m_ctx->alias = word;
@@ -148,7 +148,7 @@ void SQLColumnParser::appendFormulaString(const char character)
 	m_ctx->currFormulaString += character;
 }
 
-void SQLColumnParser::appendFormulaString(string &str)
+void SQLColumnParser::appendFormulaString(const string &str)
 {
 	m_ctx->currFormulaString += str;
 }
