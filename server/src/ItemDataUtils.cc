@@ -18,6 +18,7 @@
  */
 
 #include "ItemDataUtils.h"
+using namespace std;
 
 // ---------------------------------------------------------------------------
 // ItemDataUtils

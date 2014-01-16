@@ -19,9 +19,9 @@
 
 #include <cutter.h>
 #include <cppcutter.h>
-
 #include "FormulaElement.h"
 #include "ItemDataUtils.h"
+using namespace std;
 
 namespace testFormulaElement {
 

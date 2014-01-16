@@ -82,8 +82,8 @@ struct ItemDataPtrComparator {
 	}
 };
 
-typedef set<ItemDataPtr, ItemDataPtrComparator> ItemDataSet;
-typedef multiset<ItemDataPtr, ItemDataPtrComparator> ItemDataMultiSet;
+typedef std::set<ItemDataPtr, ItemDataPtrComparator> ItemDataSet;
+typedef std::multiset<ItemDataPtr, ItemDataPtrComparator> ItemDataMultiSet;
 
 struct ItemGroupPtrComparator {
 	bool operator()(const ItemGroupPtr &grpPtr0,
@@ -118,10 +118,12 @@ struct ItemDataPtrForIndex : public ItemDataPtr {
 	ItemDataPtrForIndex(const ItemData *itemData, const ItemGroup *itemGrp);
 };
 
-typedef set<ItemDataPtrForIndex, ItemDataPtrComparator> ItemDataForIndexSet;
+typedef std::set<ItemDataPtrForIndex, ItemDataPtrComparator>
+  ItemDataForIndexSet;
 typedef ItemDataForIndexSet::iterator ItemDataForIndexSetIterator;
 
-typedef multiset<ItemDataPtrForIndex, ItemDataPtrComparator> ItemDataForIndexMultiSet;
+typedef std::multiset<ItemDataPtrForIndex, ItemDataPtrComparator>
+  ItemDataForIndexMultiSet;
 typedef ItemDataForIndexMultiSet::iterator ItemDataForIndexMultiSetIterator;
 
 class ItemDataIndex {
@@ -131,14 +133,14 @@ public:
 	ItemDataIndexType getIndexType(void) const;
 	bool insert(const ItemData *itemData, const ItemGroup* itemGroup);
 	void find(const ItemData *itemData,
-	          vector<ItemDataPtrForIndex> &foundItems) const;
+	          std::vector<ItemDataPtrForIndex> &foundItems) const;
 private:
 	ItemDataIndexType m_type;
 	ItemDataForIndexSet      *m_index;
 	ItemDataForIndexMultiSet *m_multiIndex;
 };
 
-typedef vector<ItemDataIndex *>             ItemDataIndexVector;
+typedef std::vector<ItemDataIndex *>        ItemDataIndexVector;
 typedef ItemDataIndexVector::iterator       ItemDataIndexVectorIterator;
 typedef ItemDataIndexVector::const_iterator ItemDataIndexVectorConstIterator;
 

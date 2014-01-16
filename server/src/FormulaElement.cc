@@ -18,12 +18,11 @@
  */
 
 #include <stdexcept>
-
 #include "Logger.h"
-using namespace mlpl;
-
 #include "FormulaElement.h"
 #include "ItemEnum.h"
+using namespace std;
+using namespace mlpl;
 
 // ---------------------------------------------------------------------------
 // FormulaOptimizationResult

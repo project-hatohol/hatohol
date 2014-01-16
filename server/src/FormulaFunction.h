@@ -45,8 +45,8 @@ protected:
 	const FormulaElementVector &getArgVector(void) const;
 
 private:
-	int                      m_numArgument;
-	vector<FormulaElement *> m_argVector;
+	int                           m_numArgument;
+	std::vector<FormulaElement *> m_argVector;
 };
 
 // ---------------------------------------------------------------------------

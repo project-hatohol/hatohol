@@ -35,6 +35,7 @@ using namespace mlpl;
 #include <limits.h>
 #include "Utils.h"
 #include "FormulaElement.h"
+using namespace std;
 
 const static size_t SIZE_JS_METHOD_VALID_CODE_MAP = 0x100;
 static bool g_jsMethodValidCodeMap[SIZE_JS_METHOD_VALID_CODE_MAP];

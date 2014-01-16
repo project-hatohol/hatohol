@@ -104,7 +104,7 @@ public:
 	virtual void resetStatistics(void);
 
 	// mainly for debug
-	int getTreeInfo(string &str, int maxNumElem = -1, int currNum = 0,
+	int getTreeInfo(std::string &str, int maxNumElem = -1, int currNum = 0,
 	                int depth = 0);
 
 protected:
@@ -115,7 +115,7 @@ protected:
 	void setTerminalElement(void);
 	virtual void setOptimizationResult(FormulaOptimizationResult &result);
 	FormulaOptimizationResult &getOptimizationResult(void);
-	virtual string getTreeInfoAdditional(void);
+	virtual std::string getTreeInfoAdditional(void);
 
 private:
 	bool             m_unary;
@@ -127,7 +127,7 @@ private:
 	FormulaOptimizationResult m_optimizationResult;
 };
 
-typedef vector<FormulaElement *>       FormulaElementVector;
+typedef std::vector<FormulaElement *>  FormulaElementVector;
 typedef FormulaElementVector::iterator FormulaElementVectorIterator;
 
 // ---------------------------------------------------------------------------
@@ -138,12 +138,12 @@ public:
 	FormulaValue(bool val);
 	FormulaValue(int number);
 	FormulaValue(double number);
-	FormulaValue(const string &str);
+	FormulaValue(const std::string &str);
 	virtual FormulaOptimizationResult optimize(void);
 	virtual ItemDataPtr evaluate(void);
 
 protected:
-	virtual string getTreeInfoAdditional(void);
+	virtual std::string getTreeInfoAdditional(void);
 
 private:
 	ItemDataPtr m_itemDataPtr;
@@ -160,23 +160,23 @@ public:
 };
 
 typedef FormulaVariableDataGetter *
-(*FormulaVariableDataGetterFactory)(const string &name, void *priv);
+(*FormulaVariableDataGetterFactory)(const std::string &name, void *priv);
 
 class FormulaVariable : public FormulaElement {
 public:
-	FormulaVariable(const string &name,
+	FormulaVariable(const std::string &name,
 	                FormulaVariableDataGetter *variableDataGetter);
 	virtual ~FormulaVariable();
 	virtual ItemDataPtr evaluate(void);
 
-	const string &getName(void) const;
+	const std::string &getName(void) const;
 	FormulaVariableDataGetter *getFormulaVariableGetter(void) const;
 
 protected:
-	virtual string getTreeInfoAdditional(void);
+	virtual std::string getTreeInfoAdditional(void);
 
 private:
-	string                     m_name;
+	std::string                m_name;
 	FormulaVariableDataGetter *m_variableGetter;
 };
 

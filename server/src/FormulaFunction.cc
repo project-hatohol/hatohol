@@ -21,6 +21,7 @@
 
 #include "FormulaFunction.h"
 #include "Utils.h"
+using namespace std;
 
 // ---------------------------------------------------------------------------
 // FormulaFunction

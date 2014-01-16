@@ -17,12 +17,12 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Logger.h"
-using namespace mlpl;
-
 #include <stdexcept>
+#include "Logger.h"
 #include "Utils.h"
 #include "ItemGroup.h"
+using namespace std;
+using namespace mlpl;
 
 // ---------------------------------------------------------------------------
 // Public methods

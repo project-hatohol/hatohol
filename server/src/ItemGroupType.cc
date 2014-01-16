@@ -20,6 +20,7 @@
 #include <stdexcept>
 #include "ItemGroupType.h"
 #include "Utils.h"
+using namespace std;
 
 // ---------------------------------------------------------------------------
 // Public methods (ItemGroupTypeSetComp)

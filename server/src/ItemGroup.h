@@ -31,11 +31,11 @@ typedef uint64_t ItemGroupId;
 #define PRIu_ITEM_GROUP PRIu64
 
 class ItemGroup;
-typedef map<ItemGroupId, ItemGroup *> ItemGroupMap;
-typedef ItemGroupMap::iterator        ItemGroupMapIterator;
-typedef ItemGroupMap::const_iterator  ItemGroupMapConstIterator;
+typedef std::map<ItemGroupId, ItemGroup *> ItemGroupMap;
+typedef ItemGroupMap::iterator             ItemGroupMapIterator;
+typedef ItemGroupMap::const_iterator       ItemGroupMapConstIterator;
 
-typedef list<const ItemGroup *>       ItemGroupList;
+typedef std::list<const ItemGroup *>  ItemGroupList;
 typedef ItemGroupList::iterator       ItemGroupListIterator;
 typedef ItemGroupList::const_iterator ItemGroupListConstIterator;
 

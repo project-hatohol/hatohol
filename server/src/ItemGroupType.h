@@ -21,8 +21,7 @@
 #define ItemGroupType_h
 
 #include <set>
-using namespace std;
-
+#include <vector>
 #include "ItemData.h"
 
 /**
@@ -45,14 +44,14 @@ public:
 	bool operator!=(const ItemGroupType &itemGroupType) const;
 
 private:
-	vector<ItemDataType> m_typeVector;
+	std::vector<ItemDataType> m_typeVector;
 };
 
 struct ItemGroupTypeSetComp {
 	bool operator()(const ItemGroupType *t0, const ItemGroupType *t1) const;
 };
 
-typedef set<ItemGroupType *, ItemGroupTypeSetComp> ItemGroupTypeSet;
+typedef std::set<ItemGroupType *, ItemGroupTypeSetComp> ItemGroupTypeSet;
 typedef ItemGroupTypeSet::iterator       ItemGroupTypeSetIterator;
 typedef ItemGroupTypeSet::const_iterator ItemGroupTypeSetConstIterator;
 
