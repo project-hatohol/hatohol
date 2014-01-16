@@ -21,6 +21,7 @@
 #include <cppcutter.h>
 #include <time.h>
 #include "SQLUtils.h"
+using namespace mlpl;
 
 namespace testSQLUtils {
 

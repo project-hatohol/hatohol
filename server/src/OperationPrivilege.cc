@@ -20,6 +20,7 @@
 #include "OperationPrivilege.h"
 #include "DBClientUser.h"
 #include "CacheServiceDBClient.h"
+using namespace mlpl;
 
 struct OperationPrivilege::PrivateContext {
 	UserIdType userId;

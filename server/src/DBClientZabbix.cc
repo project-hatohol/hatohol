@@ -18,14 +18,13 @@
  */
 
 #include <MutexLock.h>
-using namespace mlpl;
-
 #include "DBClientZabbix.h"
 #include "ItemEnum.h"
 #include "Params.h"
 #include "HatoholException.h"
 #include "ItemTableUtils.h"
 #include "DBAgentFactory.h"
+using namespace mlpl;
 
 struct BriefElem {
 	string word;

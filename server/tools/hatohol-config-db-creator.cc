@@ -33,8 +33,8 @@
 #include "DBClientConfig.h"
 #include "ConfigManager.h"
 #include "DBAgentMySQL.h"
-
 using namespace std;
+using namespace mlpl;
 
 struct ConfigValue {
 	string                   configDBServer;

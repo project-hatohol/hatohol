@@ -159,7 +159,7 @@ protected:
 	static void execCommandActionCore(
 	  const ActionDef &actionDef, const EventInfo &eventInfo,
 	  DBClientAction &dbAction, void *postprocCtx,
-	  const StringVector &argVect);
+	  const mlpl::StringVector &argVect);
 	
 	static void addCommandDirectory(string &path);
 

@@ -34,7 +34,7 @@ private:
 
 #define THROW_SQL_PROCESSOR_EXCEPTION(FMT, ...) \
 do { \
-	std::string msg = StringUtils::sprintf(FMT, ##__VA_ARGS__); \
+	std::string msg = mlpl::StringUtils::sprintf(FMT, ##__VA_ARGS__); \
 	throw SQLProcessorException(msg, __FILE__, __LINE__); \
 } while (0)
 

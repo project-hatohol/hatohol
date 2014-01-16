@@ -19,6 +19,7 @@
 
 #include "ItemDataUtils.h"
 using namespace std;
+using namespace mlpl;
 
 // ---------------------------------------------------------------------------
 // ItemDataUtils

@@ -27,8 +27,8 @@
 #include "HatoholError.h"
 #include "FaceRest.h"
 #include "SessionManager.h"
-
 using namespace std;
+using namespace mlpl;
 
 enum LanguageType {
 	JAVASCRIPT,

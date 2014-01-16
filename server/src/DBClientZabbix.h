@@ -107,11 +107,12 @@ protected:
 	 * -1 is returned.
 	 */
 	static int  getItemVariable(const string &word);
-	static void extractItemKeys(StringVector &params, const string &key);
+	static void extractItemKeys(mlpl::StringVector &params,
+	                            const string &key);
 
 	DBClientZabbix(const ServerIdType zabbixServerId);
 	void addItems(
-	  ItemTablePtr tablePtr, const string &tableName,
+	  ItemTablePtr tablePtr, const std::string &tableName,
 	  size_t numColumns, const ColumnDef *columnDefs,
 	  int updateCheckIndex);
 	void makeSelectExArgForTriggerAsHatoholFormat(void);

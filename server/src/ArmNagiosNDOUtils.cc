@@ -22,8 +22,8 @@
 #include "DBAgentMySQL.h"
 #include "Utils.h"
 #include "UnifiedDataStore.h"
-
 using namespace std;
+using namespace mlpl;
 
 static const char *TABLE_NAME_SERVICES      = "nagios_services";
 static const char *TABLE_NAME_SERVICESTATUS = "nagios_servicestatus";

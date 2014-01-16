@@ -21,6 +21,7 @@
 #include <stdint.h>
 #include "DBClientUser.h"
 #include "DBClientConfig.h"
+using namespace mlpl;
 
 const UserIdSet EMPTY_USER_ID_SET;
 const AccessInfoIdSet EMPTY_ACCESS_INFO_ID_SET;

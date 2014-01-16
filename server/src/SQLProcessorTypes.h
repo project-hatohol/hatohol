@@ -63,15 +63,15 @@ enum SQLColumnFlags {
 
 struct SQLProcessorInfo {
 	// input statement
-	ParsableString   statement;
+	mlpl::ParsableString  statement;
 
 	// error information
-	string           errorMessage;
+	std::string           errorMessage;
 
 	//
 	// constructor and destructor
 	//
-	SQLProcessorInfo(const ParsableString &_statement);
+	SQLProcessorInfo(const mlpl::ParsableString &_statement);
 	virtual ~SQLProcessorInfo();
 };
 
@@ -140,9 +140,9 @@ public:
 };
 
 struct SQLProcessorSelectShareInfo {
-	SQLProcessorSelectFactory &processorSelectFactory;
-	const ParsableString      *statement;
-	bool                       allowSectionParserChange;
+	SQLProcessorSelectFactory  &processorSelectFactory;
+	const mlpl::ParsableString *statement;
+	bool                        allowSectionParserChange;
 
 	// methods
 	SQLProcessorSelectShareInfo(SQLProcessorSelectFactory &selectFactory);

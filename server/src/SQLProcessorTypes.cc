@@ -19,6 +19,7 @@
 
 #include "SQLProcessorTypes.h"
 #include "SQLProcessorException.h"
+using namespace mlpl;
 
 // ---------------------------------------------------------------------------
 // SQLProcessorInfo

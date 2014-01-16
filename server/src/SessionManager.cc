@@ -20,6 +20,7 @@
 #include <cstdio>
 #include <map>
 #include <uuid/uuid.h>
+#include "Logger.h"
 #include "SessionManager.h"
 #include "MutexLock.h"
 #include "ReadWriteLock.h"
