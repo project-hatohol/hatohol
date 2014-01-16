@@ -22,8 +22,6 @@
 
 #include <string>
 #include <map>
-using namespace std;
-
 #include <glib.h>
 #include "SQLProcessor.h"
 
@@ -34,7 +32,7 @@ class SQLProcessorFactory
 public:
 	static void init(void);
 	static SQLProcessor *create(const string &DBName);
-	static void addFactory(const string &name,
+	static void addFactory(const std::string &name,
 	                       SQLProcessorCreatorFunc factory);
 
 protected:
@@ -45,7 +43,7 @@ private:
 #else
 	static GStaticMutex m_lock;
 #endif // GLIB_VERSION_2_32
-	static map<string, SQLProcessorCreatorFunc> m_factoryMap;
+	static std::map<string, SQLProcessorCreatorFunc> m_factoryMap;
 };
 
 #endif // SQLProcessorFactory_h
