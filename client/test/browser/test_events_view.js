@@ -8,7 +8,7 @@ describe('EventsView', function() {
       apiVersion: 3,
       errorCode: hatohol.HTERR_OK,
       events: events ? events : [],
-      servers: servers ? servers : []
+      servers: servers ? servers : {}
     });
   }
 
