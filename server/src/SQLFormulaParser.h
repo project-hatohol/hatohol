@@ -22,11 +22,7 @@
 
 #include <string>
 #include <map>
-using namespace std;
-
 #include <ParsableString.h>
-using namespace mlpl;
-
 #include "FormulaElement.h"
 #include "FormulaFunction.h"
 #include "SQLProcessorTypes.h"
@@ -40,10 +36,10 @@ public:
 	void setColumnDataGetterFactory
 	       (FormulaVariableDataGetterFactory columnDataGetterFactory,
 	        void *columnDataGetterFactoryPriv);
-	virtual void add(const string& word, const string &wordLower);
+	virtual void add(const std::string &word, const std::string &wordLower);
 	virtual void flush(void);
 	virtual void close(void);
-	SeparatorCheckerWithCallback *getSeparatorChecker(void);
+	mlpl::SeparatorCheckerWithCallback *getSeparatorChecker(void);
 	FormulaElement *getFormula(void) const;
 	bool hasStatisticalFunc(void) const;
 	void setShareInfo(SQLProcessorSelectShareInfo *shareInfo);
@@ -54,11 +50,11 @@ protected:
 	// type definition
 	//
 	typedef void (SQLFormulaParser::*KeywordHandler)(void);
-	typedef map<std::string, KeywordHandler> KeywordHandlerMap;
+	typedef std::map<std::string, KeywordHandler> KeywordHandlerMap;
 	typedef KeywordHandlerMap::iterator KeywordHandlerMapIterator;
 
 	typedef void (SQLFormulaParser::*FunctionParser)(void);
-	typedef map<std::string, FunctionParser> FunctionParserMap;
+	typedef std::map<std::string, FunctionParser> FunctionParserMap;
 	typedef FunctionParserMap::iterator FunctionParserMapIterator;
 
 
@@ -143,7 +139,7 @@ private:
 	PrivateContext                   *m_ctx;
 	FormulaVariableDataGetterFactory  m_columnDataGetterFactory;
 	void                             *m_columnDataGetterFactoryPriv;
-	SeparatorCheckerWithCallback      m_separator;
+	mlpl::SeparatorCheckerWithCallback m_separator;
 	FormulaElement                   *m_formula;
 	bool                              m_hasStatisticalFunc;
 	KeywordHandlerMap                *m_keywordHandlerMap;

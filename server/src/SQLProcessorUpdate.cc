@@ -19,13 +19,13 @@
 
 #include <Logger.h>
 #include <StringUtils.h>
-using namespace mlpl;
-
 #include "SQLProcessorUpdate.h"
 #include "Utils.h"
 #include "HatoholException.h"
 #include "SQLProcessorException.h"
 #include "SQLUtils.h"
+using namespace std;
+using namespace mlpl;
 
 struct SQLProcessorUpdate::PrivateContext {
 	TableNameStaticInfoMap      &tableNameStaticInfoMap;

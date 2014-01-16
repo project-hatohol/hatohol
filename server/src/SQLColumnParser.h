@@ -39,7 +39,7 @@ struct SQLFormulaInfo {
 	~SQLFormulaInfo();
 };
 
-typedef vector<SQLFormulaInfo *>       SQLFormulaInfoVector;
+typedef std::vector<SQLFormulaInfo *>  SQLFormulaInfoVector;
 typedef SQLFormulaInfoVector::iterator SQLFormulaInfoVectorIterator;
 
 class SQLColumnParser : public SQLFormulaParser
@@ -49,7 +49,7 @@ public:
 
 	SQLColumnParser(void);
 	virtual ~SQLColumnParser();
-	virtual void add(const string& word, const string &wordLower);
+	virtual void add(const std::string &word, const std::string &wordLower);
 	virtual void close(void);
 	const SQLFormulaInfoVector &getFormulaInfoVector(void) const;
 	bool getDistinctFlag(void) const;
@@ -59,7 +59,7 @@ protected:
 	// general sub routines
 	//
 	void appendFormulaString(const char character);
-	void appendFormulaString(const string &str);
+	void appendFormulaString(const std::string &str);
 	void closeCurrFormulaInfo(void);
 	void closeCurrentFormulaString(void);
 	void closeCurrentFormula(void);

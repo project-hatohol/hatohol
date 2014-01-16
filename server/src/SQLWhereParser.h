@@ -29,7 +29,7 @@ public:
 
 	SQLWhereParser(void);
 	virtual ~SQLWhereParser();
-	virtual void add(const string& word, const string &wordLower);
+	virtual void add(const std::string& word, const std::string &wordLower);
 	void clear(void);
 
 protected:
@@ -37,10 +37,12 @@ protected:
 	// general sub routines
 	//
 	void createBetweenElement(void);
-	void addForBetween(const string &word, const string &wordLower);
-	void addForIn(const string &word, const string &wordLower);
-	void addForExists(const string &word, const string &wordLower);
-	void addForIs(const string &word, const string &wordLower);
+	void addForBetween(const std::string &word,
+	                   const std::string &wordLower);
+	void addForIn(const std::string &word, const std::string &wordLower);
+	void addForExists(const std::string &word,
+	                  const std::string &wordLower);
+	void addForIs(const std::string &word, const std::string &wordLower);
 	void closeInParenthesis(void);
 	void setupParsingExists(void);
 	void makeFormulaExistsAndCleanup(void);

@@ -21,6 +21,8 @@
 #include "SQLColumnParser.h"
 #include "FormulaFunction.h"
 #include "SQLProcessorException.h"
+using namespace std;
+using namespace mlpl;
 
 struct SQLColumnParser::PrivateContext {
 	string                       currFormulaString;
