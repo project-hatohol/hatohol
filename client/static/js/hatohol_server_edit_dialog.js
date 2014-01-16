@@ -181,14 +181,14 @@ HatoholServerEditDialog.prototype.createMainElement = function() {
 
 HatoholServerEditDialog.prototype.onAppendMainElement = function () {
   var self = this;
-  var validHostName = false;
-  var validIpAddress = false;
-  var validNickName = false;
-  var validPort = false;
-  var validPollingInterval = false;
-  var validRetryInterval = false;
-  var validUserName = false;
-  var validPassword = false;
+  var validHostName = !!$("#inputHostName").val();
+  var validIpAddress = !!$("#inputIpAddress").val();
+  var validNickName = !!$("#inputNickName").val();
+  var validPort = !!$("#inputPort").val();
+  var validPollingInterval = !!$("#inputPollingInterval").val();
+  var validRetryInterval = !!$("#inputRetryInterval").val();
+  var validUserName = !!$("#inputUserName").val();
+  var validPassword = !!$("#inputPassword").val();
   self.setDBNameTextState(false);
   $("#inputHostName").keyup(function() {
     validHostName = !!$("#inputHostName").val();
