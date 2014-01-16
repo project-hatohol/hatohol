@@ -26,12 +26,9 @@
 #include <MutexLock.h>
 #include <SmartTime.h>
 #include <AtomicValue.h>
-using namespace mlpl;
-
 #include <errno.h>
 #include <uuid/uuid.h>
 #include <semaphore.h>
-
 #include "FaceRest.h"
 #include "JsonBuilderAgent.h"
 #include "HatoholException.h"
@@ -40,6 +37,8 @@ using namespace mlpl;
 #include "DBClientUser.h"
 #include "DBClientConfig.h"
 #include "SessionManager.h"
+using namespace std;
+using namespace mlpl;
 
 int FaceRest::API_VERSION = 3;
 const char *FaceRest::SESSION_ID_HEADER_NAME = "X-Hatohol-Session";

@@ -18,6 +18,7 @@
  */
 
 #include "JsonBuilderAgent.h"
+using namespace std;
 
 // ---------------------------------------------------------------------------
 // Public methods

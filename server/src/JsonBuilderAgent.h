@@ -21,8 +21,6 @@
 #define JsonBuilderAgent_h
 
 #include <string>
-using namespace std;
-
 #include <json-glib/json-glib.h>
 
 class JsonBuilderAgent
@@ -30,18 +28,18 @@ class JsonBuilderAgent
 public:
 	JsonBuilderAgent(void);
 	~JsonBuilderAgent();
-	string generate(void);
+	std::string generate(void);
 	void startObject(const char *member = NULL);
-	void startObject(const string &member);
+	void startObject(const std::string &member);
 	void endObject(void);
-	void startArray(const string &member);
+	void startArray(const std::string &member);
 	void endArray(void);
-	void add(const string &member, const string &value);
-	void add(const string &member, gint64 value);
+	void add(const std::string &member, const std::string &value);
+	void add(const std::string &member, gint64 value);
 	void add(const gint64 value);
-	void addTrue(const string &member);
-	void addFalse(const string &member);
-	void addNull(const string &member);
+	void addTrue(const std::string &member);
+	void addFalse(const std::string &member);
+	void addNull(const std::string &member);
 
 private:
 	JsonBuilder *m_builder;

@@ -72,9 +72,9 @@ protected:
 	                       const HatoholError &hatoholError);
 	static void replyError(RestJob *job,
 	                       const HatoholErrorCode &errorCode,
-	                       const string &optionMessage = "");
-	static string wrapForJsonp(const string &jsonBody,
-                                   const string &callbackName);
+	                       const std::string &optionMessage = "");
+	static std::string wrapForJsonp(const std::string &jsonBody,
+	                                const std::string &callbackName);
 	static void replyJsonData(JsonBuilderAgent &agent, RestJob *job);
 	static void replyGetItem(RestJob *job);
 	static void finishRestJobIfNeeded(RestJob *job);

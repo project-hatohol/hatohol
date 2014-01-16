@@ -20,7 +20,7 @@
 #include <cppcutter.h>
 #include <StringUtils.h>
 #include "JsonBuilderAgent.h"
-
+using namespace std;
 using namespace mlpl;
 
 namespace testJsonBuilderAgent {
