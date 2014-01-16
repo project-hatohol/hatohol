@@ -23,11 +23,9 @@
 #include <string>
 #include <sstream>
 #include <map>
-using namespace std;
 
 #include <Logger.h>
 #include <StringUtils.h>
-using namespace mlpl;
 
 #include <stdint.h>
 #include <inttypes.h>
