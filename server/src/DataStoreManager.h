@@ -22,8 +22,6 @@
 
 #include <map>
 #include <string>
-using namespace std;
-
 #include "DataStore.h"
 #include "Utils.h"
 
