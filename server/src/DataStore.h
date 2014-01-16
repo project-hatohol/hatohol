@@ -24,7 +24,6 @@
 #include <vector>
 #include <ArmBase.h>
 #include "UsedCountable.h"
-using namespace std;
 
 class DataStore : public UsedCountable {
 public:
