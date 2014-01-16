@@ -6,6 +6,7 @@
 #include "DBAgentSQLite3.h"
 #include "DBClientHatohol.h"
 #include "ConfigManager.h"
+using namespace std;
 
 typedef void (*DBMaker)(const string &dbName);
 

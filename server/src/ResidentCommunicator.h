@@ -47,7 +47,7 @@ public:
 	void setModuleLoaded(uint32_t code);
 	void setNotifyEventBody(const ActionIdType &actionId,
 	                        const EventInfo &eventInfo,
-	                        const string &sessionId);
+	                        const std::string &sessionId);
 	void setNotifyEventAck(uint32_t resuletCode);
 
 private:

@@ -119,15 +119,15 @@ struct ActionDef {
 	UserIdType  ownerUserId;
 };
 
-typedef list<ActionDef>               ActionDefList;
+typedef std::list<ActionDef>          ActionDefList;
 typedef ActionDefList::iterator       ActionDefListIterator;
 typedef ActionDefList::const_iterator ActionDefListConstIterator;
 
-typedef list<ActionIdType>            ActionIdList;
+typedef std::list<ActionIdType>       ActionIdList;
 typedef ActionIdList::iterator        ActionIdListIterator;
 typedef ActionIdList::const_iterator  ActionIdListConstIterator;
 
-typedef set<ActionIdType>             ActionIdSet;
+typedef std::set<ActionIdType>        ActionIdSet;
 typedef ActionIdSet::iterator         ActionIdSetIterator;
 typedef ActionIdSet::const_iterator   ActionIdSetConstIterator;
 
@@ -315,7 +315,7 @@ public:
 protected:
 	ItemDataNullFlagType getNullFlag(const ActionDef &actionDef,
 	                                 ActionConditionEnableFlag enableFlag);
-	string makeActionDefCondition(const EventInfo &eventInfo);
+	std::string makeActionDefCondition(const EventInfo &eventInfo);
 
 	/**
 	 * Get the action log.
@@ -327,7 +327,7 @@ protected:
 	 *
 	 * @return true if the log is found. Otherwise false.
 	 */
-	bool getLog(ActionLog &actionLog, const string &condition);
+	bool getLog(ActionLog &actionLog, const std::string &condition);
 
 	HatoholError checkPrivilegeForDelete(
 	  const OperationPrivilege &privilege);

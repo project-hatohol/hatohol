@@ -27,6 +27,7 @@
 #include "Utils.h"
 #include "Logger.h"
 #include "StringUtils.h"
+using namespace std;
 using namespace mlpl;
 
 struct Context : public ResidentPullHelper<Context> {

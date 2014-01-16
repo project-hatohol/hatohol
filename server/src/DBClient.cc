@@ -18,12 +18,11 @@
  */
 
 #include <memory>
-
 #include <MutexLock.h>
-using namespace mlpl;
-
 #include "DBClient.h"
 #include "DBAgentFactory.h"
+using namespace std;
+using namespace mlpl;
 
 static const char *TABLE_NAME_DBCLIENT_VERSION = "_dbclient_version";
 

@@ -23,8 +23,6 @@
 #include <cppcutter.h>
 #include <StringUtils.h>
 #include <SmartTime.h>
-using namespace mlpl;
-
 #include "ItemTable.h"
 #include "DBAgent.h"
 #include "DBClient.h"
@@ -36,14 +34,14 @@ using namespace mlpl;
 #define DBCONTENT_MAGIC_CURR_DATETIME "#CURR_DATETIME#"
 #define DBCONTENT_MAGIC_NULL          "#NULL#"
 
-typedef pair<int,int>      IntIntPair;
-typedef vector<IntIntPair> IntIntPairVector;
+typedef std::pair<int,int>      IntIntPair;
+typedef std::vector<IntIntPair> IntIntPairVector;
 
-void _assertStringVector(const StringVector &expected,
-                         const StringVector &actual);
+void _assertStringVector(const mlpl::StringVector &expected,
+                         const mlpl::StringVector &actual);
 #define assertStringVector(E,A) cut_trace(_assertStringVector(E,A))
 
-void _assertStringVectorVA(const StringVector &actual, ...);
+void _assertStringVectorVA(const mlpl::StringVector &actual, ...);
 #define assertStringVectorVA(A,...) \
 cut_trace(_assertStringVectorVA(A,##__VA_ARGS__))
 
@@ -75,38 +73,38 @@ static void _assertItemData(const ItemGroup *itemGroup, const T &expected, int &
 #define assertItemData(T, IGRP, E, IDX) \
 cut_trace(_assertItemData<T>(IGRP, E, IDX))
 
-extern void _assertExist(const string &target, const string &words);
+extern void _assertExist(const std::string &target, const std::string &words);
 #define assertExist(T,W) cut_trace(_assertExist(T,W))
 
-string executeCommand(const string &commandLine);
-string getFixturesDir(void);
+std::string executeCommand(const std::string &commandLine);
+std::string getFixturesDir(void);
 bool isVerboseMode(void);
 
-string deleteDBClientHatoholDB(void);
-string deleteDBClientZabbixDB(const ServerIdType serverId);
+std::string deleteDBClientHatoholDB(void);
+std::string deleteDBClientZabbixDB(const ServerIdType serverId);
 
-string getDBPathForDBClientHatohol(void);
-string getDBPathForDBClientZabbix(const ServerIdType serverId);
+std::string getDBPathForDBClientHatohol(void);
+std::string getDBPathForDBClientZabbix(const ServerIdType serverId);
 
-string execSqlite3ForDBClientHatohol(const string &statement);
-string execSqlite3ForDBClientZabbix(const ServerIdType serverId,
-                                    const string &statement);
-string execMySQL(const string &dbName, const string &statement,
-                 bool showHeader = false);
+std::string execSqlite3ForDBClientHatohol(const std::string &statement);
+std::string execSqlite3ForDBClientZabbix(const ServerIdType serverId,
+                                         const std::string &statement);
+std::string execMySQL(const std::string &dbName, const std::string &statement,
+                      bool showHeader = false);
 
 void _assertDatetime(int expectedClock, int actualClock);
 #define assertDatetime(E,A) cut_trace(_assertDatetime(E,A))
 
-void _assertCurrDatetime(const string &datetime);
+void _assertCurrDatetime(const std::string &datetime);
 void _assertCurrDatetime(int datetime);
 #define assertCurrDatetime(D) cut_trace(_assertCurrDatetime(D))
 
-void _assertDBContent(DBAgent *dbAgent, const string &statement,
-                      const string &expect);
+void _assertDBContent(DBAgent *dbAgent, const std::string &statement,
+                      const std::string &expect);
 #define assertDBContent(DB_AGENT, FMT, EXPECT) \
 cut_trace(_assertDBContent(DB_AGENT, FMT, EXPECT))
 
-void _assertCreateTable(DBAgent *dbAgent, const string &tableName);
+void _assertCreateTable(DBAgent *dbAgent, const std::string &tableName);
 #define assertCreateTable(DBAGENT,TBL_NAME) \
 cut_trace(_assertCreateTable(DBAGENT,TBL_NAME))
 
@@ -137,17 +135,18 @@ void _assertUsersInDB(const UserIdSet &excludeUserIdSet = EMPTY_USER_ID_SET);
 void _assertAccessInfoInDB(const AccessInfoIdSet &excludeAccessInfoIdSet = EMPTY_ACCESS_INFO_ID_SET);
 #define assertAccessInfoInDB(E) cut_trace(_assertAccessInfoInDB(E))
 
-void makeTestMySQLDBIfNeeded(const string &dbName, bool recreate = false);
+void makeTestMySQLDBIfNeeded(const std::string &dbName, bool recreate = false);
 void setupTestDBServers(void);
 void setupTestDBAction(bool dbRecreate = true, bool loadTestDat = false);
 void setupTestDBUser(bool dbRecreate = true, bool loadTestDat = false);
 void loadTestDBAction(void);
 void loadTestDBUser(void);
 void loadTestDBAccessList(void);
-string execSQL(DBAgent *agent, const string &statement,
-               bool showHeader = false);
-string joinStringVector(const StringVector &strVect, const string &pad = "",
-                        bool isPaddingTail = true);
+std::string execSQL(DBAgent *agent, const std::string &statement,
+                    bool showHeader = false);
+std::string joinStringVector(const mlpl::StringVector &strVect,
+                             const std::string &pad = "",
+                             bool isPaddingTail = true);
 
 void crash(void);
 
@@ -159,13 +158,13 @@ void crash(void);
  * @return A format string.
  *
  */
-string makeDoubleFloatFormat(const ColumnDef &columnDef);
+std::string makeDoubleFloatFormat(const ColumnDef &columnDef);
 
 void _acquireDefaultContext(void);
 #define acquireDefaultContext() cut_trace(_acquireDefaultContext())
 void releaseDefaultContext(void);
 
-void defineDBPath(DBDomainId domainId, const string &dbPath);
+void defineDBPath(DBDomainId domainId, const std::string &dbPath);
 
 UserIdType searchMaxTestUserId(void);
 UserIdType findUserWith(const OperationPrivilegeType &type,

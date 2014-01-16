@@ -21,6 +21,7 @@
 #include <stdint.h>
 #include "DBClientUser.h"
 #include "DBClientConfig.h"
+using namespace std;
 using namespace mlpl;
 
 const UserIdSet EMPTY_USER_ID_SET;

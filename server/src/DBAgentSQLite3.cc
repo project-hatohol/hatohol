@@ -22,9 +22,9 @@
 #include <stdarg.h>
 #include <inttypes.h>
 #include <gio/gio.h>
-
 #include <MutexLock.h>
 #include <Logger.h>
+using namespace std;
 using namespace mlpl;
 
 #include "DBAgentSQLite3.h"

@@ -21,13 +21,14 @@
 #include <stdint.h>
 #include <cppcutter.h>
 #include <cutter.h>
-
 #include "Helpers.h"
 #include "DBClientUser.h"
 #include "DBClientTest.h"
 #include "Helpers.h"
 #include "Hatohol.h"
 #include "CacheServiceDBClient.h"
+using namespace std;
+using namespace mlpl;
 
 namespace testDBClientUser {
 

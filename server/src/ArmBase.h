@@ -66,7 +66,7 @@ private:
 	PrivateContext *m_ctx;
 };
 
-typedef vector<ArmBase *>             ArmBaseVector;
+typedef std::vector<ArmBase *>        ArmBaseVector;
 typedef ArmBaseVector::iterator       ArmBaseVectorIterator;
 typedef ArmBaseVector::const_iterator ArmBaseVectorConstIterator;
 

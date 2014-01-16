@@ -18,16 +18,15 @@
  */
 
 #include <memory>
-
 #include <MutexLock.h>
-using namespace mlpl;
-
 #include "DBAgentFactory.h"
 #include "DBClientHatohol.h"
 #include "DBClientUser.h"
 #include "DBClientUtils.h"
 #include "CacheServiceDBClient.h"
 #include "Params.h"
+using namespace std;
+using namespace mlpl;
 
 static const char *TABLE_NAME_TRIGGERS = "triggers";
 static const char *TABLE_NAME_EVENTS   = "events";

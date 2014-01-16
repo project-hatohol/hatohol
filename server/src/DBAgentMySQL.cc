@@ -22,6 +22,7 @@
 #include "DBAgentMySQL.h"
 #include "SQLUtils.h"
 #include "Params.h"
+using namespace std;
 using namespace mlpl;
 
 static const size_t DEFAULT_NUM_RETRY = 5;

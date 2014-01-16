@@ -20,15 +20,14 @@
 #include <cppcutter.h>
 #include <cutter.h>
 #include <unistd.h>
-
 #include "StringUtils.h"
-using namespace mlpl;
-
 #include "DBAgentSQLite3.h"
 #include "HatoholException.h"
 #include "Helpers.h"
 #include "ConfigManager.h"
 #include "DBAgentTest.h"
+using namespace std;
+using namespace mlpl;
 
 namespace testDBAgentSQLite3 {
 

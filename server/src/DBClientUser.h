@@ -29,8 +29,8 @@
 
 struct UserInfo {
 	UserIdType id;
-	string name;
-	string password;
+	std::string name;
+	std::string password;
 	OperationPrivilegeFlag flags;
 
 	bool operator==(const UserInfo &u) {
@@ -79,7 +79,7 @@ public:
 	UserQueryOption(UserIdType userId = INVALID_USER_ID);
 	virtual ~UserQueryOption();
 
-	HatoholError setTargetName(const string &name);
+	HatoholError setTargetName(const std::string &name);
 	void         queryOnlyMyself(void);
 
 	// Overriding virtual methods
@@ -150,7 +150,8 @@ public:
 	 * A user ID if authentification is successed.
 	 * Otherwise INVALID_USER_ID is returned.
 	 */
-	UserIdType getUserId(const string &user, const string &password);
+	UserIdType getUserId(const std::string &user,
+	                     const std::string &password);
 
 	/**
 	 * Add an access list element.
@@ -201,8 +202,8 @@ public:
 	void getServerHostGrpSetMap(ServerHostGrpSetMap &srvHostGrpSetMap,
 	                            const UserIdType userId);
 
-	static HatoholError isValidUserName(const string &name);
-	static HatoholError isValidPassword(const string &password);
+	static HatoholError isValidUserName(const std::string &name);
+	static HatoholError isValidPassword(const std::string &password);
 	static HatoholError isValidFlags(const OperationPrivilegeFlag flags);
 
 	bool isAccessible(const ServerIdType serverId,
@@ -211,7 +212,7 @@ public:
 
 protected:
 	void getUserInfoList(UserInfoList &userInfoList,
-	                     const string &condition);
+	                     const std::string &condition);
 	HatoholError hasPrivilegeForUpdateUserInfo(
 	  UserInfo &userInfo, const OperationPrivilege &privilege);
 

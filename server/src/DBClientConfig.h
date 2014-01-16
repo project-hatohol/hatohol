@@ -32,9 +32,9 @@ enum MonitoringSystemType {
 struct MonitoringServerInfo {
 	int                  id;
 	MonitoringSystemType type;
-	string               hostName;
-	string               ipAddress;
-	string               nickname;
+	std::string          hostName;
+	std::string          ipAddress;
+	std::string          nickname;
 	int                  port;
 	int                  pollingIntervalSec;
 	int                  retryIntervalSec;
@@ -49,9 +49,9 @@ struct MonitoringServerInfo {
 	// [MONITORING_SYSTEM_NAGIOS]
 	//   userName, passowrd: MySQL user name and the password.
 	//   dbName            : MySQL database name.
-	string               userName;
-	string               password;
-	string               dbName; // for naigos ndutils
+	std::string          userName;
+	std::string          password;
+	std::string          dbName; // for naigos ndutils
 
 	// methods
 
@@ -65,7 +65,7 @@ struct MonitoringServerInfo {
 	const char *getHostAddress(void) const;
 };
 
-typedef list<MonitoringServerInfo>         MonitoringServerInfoList;
+typedef std::list<MonitoringServerInfo>    MonitoringServerInfoList;
 typedef MonitoringServerInfoList::iterator MonitoringServerInfoListIterator;
 
 class ServerQueryOption : public DataQueryOption {
@@ -79,7 +79,7 @@ public:
 	virtual std::string getCondition(void) const;
 
 protected:
-	bool hasPrivilegeCondition(string &condition) const;
+	bool hasPrivilegeCondition(std::string &condition) const;
 
 private:
 	struct PrivateContext;
@@ -98,8 +98,8 @@ public:
 	DBClientConfig(void);
 	virtual ~DBClientConfig();
 
-	string  getDatabaseDir(void);
-	void setDatabaseDir(const string &dir);
+	std::string getDatabaseDir(void);
+	void setDatabaseDir(const std::string &dir);
 	bool isFaceMySQLEnabled(void);
 	int  getFaceRestPort(void);
 	void setFaceRestPort(int port);
@@ -126,8 +126,8 @@ public:
 protected:
 	static bool parseCommandLineArgument(const CommandLineArg &cmdArg);
 	static void tableInitializerSystem(DBAgent *dbAgent, void *data);
-	static bool parseDBServer(const string &dbServer,
-	                          string &host, size_t &port);
+	static bool parseDBServer(const std::string &dbServer,
+	                          std::string &host, size_t &port);
 
 	static bool canUpdateTargetServer(
 	  MonitoringServerInfo *monitoringServerInfo,
@@ -150,7 +150,7 @@ protected:
 	 */
 	HatoholError _updateTargetServer(
 	  MonitoringServerInfo *monitoringServerInfo,
-	  const OperationPrivilege &privilege, const string &condition);
+	  const OperationPrivilege &privilege, const std::string &condition);
 
 private:
 	struct PrivateContext;

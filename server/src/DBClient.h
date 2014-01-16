@@ -63,9 +63,9 @@ public:
 	 * is used.
 	 */
 	static void setDefaultDBParams(DBDomainId domainId,
-	                               const string &dbName,
-	                               const string &user = "",
-	                               const string &password = "");
+	                               const std::string &dbName,
+	                               const std::string &user = "",
+	                               const std::string &password = "");
 	static DBConnectInfo getDBConnectInfo(DBDomainId domainId);
 
 	DBClient(DBDomainId domainId);
@@ -76,8 +76,8 @@ public:
 
 protected:
 	struct DBSetupContext;
-	typedef map<DBDomainId, DBSetupContext *> DBSetupContextMap;
-	typedef DBSetupContextMap::iterator       DBSetupContextMapIterator;
+	typedef std::map<DBDomainId, DBSetupContext *> DBSetupContextMap;
+	typedef DBSetupContextMap::iterator            DBSetupContextMapIterator;
 
 	// static methods
 	/**
@@ -92,12 +92,13 @@ protected:
 	 * A pointer to DBSetupFuncArg instance. The region doesn't have to
 	 * be changed or freed after this function returns.
 	 */
-	static void registerSetupInfo(DBDomainId domainId, const string &dbName,
+	static void registerSetupInfo(DBDomainId domainId,
+	                              const std::string &dbName,
 	                              const DBSetupFuncArg *dbSetupFuncArg);
 	static void setConnectInfo(DBDomainId domainId,
 	                           const DBConnectInfo &connectInfo);
 	static void createTable
-	  (DBAgent *dbAgent, const string &tableName, size_t numColumns,
+	  (DBAgent *dbAgent, const std::string &tableName, size_t numColumns,
 	   const ColumnDef *columnDefs,
 	   CreateTableInitializer initializer = NULL, void *data = NULL);
 	static void insertDBClientVersion(DBAgent *dbAgent,
@@ -137,11 +138,11 @@ protected:
 	void select(DBAgentSelectExArg &selectExArg);
 	void deleteRows(DBAgentDeleteArg &deleteArg);
 	void addColumns(DBAgentAddColumnsArg &addColumnsArg);
-	bool isRecordExisting(const string &tableName,
-	                      const string &condition);
+	bool isRecordExisting(const std::string &tableName,
+	                      const std::string &condition);
 	uint64_t getLastInsertId(void);
 	bool updateIfExistElseInsert(
-	  const ItemGroup *itemGroup, const string &tableName,
+	  const ItemGroup *itemGroup, const std::string &tableName,
 	  size_t numColumns, const ColumnDef *columnDefs, size_t targetIndex);
 private:
 	struct PrivateContext;

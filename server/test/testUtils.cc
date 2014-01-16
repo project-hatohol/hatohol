@@ -25,11 +25,12 @@
 #include <syscall.h>
 #include <libsoup/soup.h>
 #include <MutexLock.h>
-using namespace mlpl;
 #include "Hatohol.h"
 #include "Utils.h"
 #include "Helpers.h"
 #include "HatoholThreadBase.h"
+using namespace std;
+using namespace mlpl;
 
 namespace testUtils {
 

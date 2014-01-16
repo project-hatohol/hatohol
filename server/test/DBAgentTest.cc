@@ -20,6 +20,8 @@
 #include "DBAgentTest.h"
 #include "SQLUtils.h"
 #include "Helpers.h"
+using namespace std;
+using namespace mlpl;
 
 class TestDBAgent : public DBAgent {
 public:

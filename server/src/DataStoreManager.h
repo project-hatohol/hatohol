@@ -20,8 +20,7 @@
 #ifndef DataStoreManager_h
 #define DataStoreManager_h
 
-#include <map>
-#include <string>
+#include <list>
 #include "DataStore.h"
 #include "Utils.h"
 
@@ -32,7 +31,7 @@ public:
 	virtual void onAdded(DataStore *dataStore);
 };
 
-typedef list<DataStoreEventProc *>       DataStoreEventProcList;
+typedef std::list<DataStoreEventProc *>  DataStoreEventProcList;
 typedef DataStoreEventProcList::iterator DataStoreEventProcListIterator;
 
 class DataStoreManager {

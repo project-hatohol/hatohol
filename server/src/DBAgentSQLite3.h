@@ -21,7 +21,6 @@
 #define DBAgentSQLite3_h
 
 #include <sqlite3.h>
-
 #include "SQLProcessorTypes.h"
 #include "DBAgent.h"
 
@@ -42,20 +41,20 @@ public:
 	 * When allowOverwrite is true and the path for domainId is already
 	 * defined, false is retruened. Otherwise true is returned.
 	 */
-	static bool defineDBPath(DBDomainId domainId, const string &path,
+	static bool defineDBPath(DBDomainId domainId, const std::string &path,
 	                         bool allowOverwrite = true);
-	static string &getDBPath(DBDomainId domainId);
+	static std::string &getDBPath(DBDomainId domainId);
 
 	// constructor and destructor
-	DBAgentSQLite3(const string &dbName = "",
+	DBAgentSQLite3(const std::string &dbName = "",
 	               DBDomainId domainId = DEFAULT_DB_DOMAIN_ID,
 	               bool skipSetup = false);
 	virtual ~DBAgentSQLite3();
 
 	// virtual methods
-	virtual bool isTableExisting(const string &tableName);
-	virtual bool isRecordExisting(const string &tableName,
-	                              const string &condition);
+	virtual bool isTableExisting(const std::string &tableName);
+	virtual bool isRecordExisting(const std::string &tableName,
+	                              const std::string &condition);
 	virtual void begin(void);
 	virtual void commit(void);
 	virtual void rollback(void);
@@ -68,17 +67,17 @@ public:
 	virtual void addColumns(DBAgentAddColumnsArg &addColumnsArg);
 	virtual uint64_t getLastInsertId(void);
 	virtual uint64_t getNumberOfAffectedRows(void);
-	string getDBPath(void) const;
+	std::string getDBPath(void) const;
 
 protected:
-	static string makeDBPathFromName(const string &name);
-	static string getDefaultDBPath(DBDomainId domainId);
-	static void checkDBPath(const string &dbPath);
-	static sqlite3 *openDatabase(const string &dbPath);
+	static std::string makeDBPathFromName(const std::string &name);
+	static std::string getDefaultDBPath(DBDomainId domainId);
+	static void checkDBPath(const std::string &dbPath);
+	static sqlite3 *openDatabase(const std::string &dbPath);
 	static void execSql(sqlite3 *db, const char *fmt, ...);
-	static void _execSql(sqlite3 *db, const string &sql);
+	static void _execSql(sqlite3 *db, const std::string &sql);
 	static bool isTableExisting(sqlite3 *db,
-	                            const string &tableName);
+	                            const std::string &tableName);
 	static void createTable(sqlite3 *db,
 	                        DBAgentTableCreationArg &tableCreationArg);
 	static void insert(sqlite3 *db, DBAgentInsertArg &insertArg);
@@ -94,10 +93,10 @@ protected:
 	static ItemDataPtr getValue(sqlite3_stmt *stmt, size_t index,
 	                            SQLColumnType columnType);
 	static void createIndex(sqlite3 *db,
-	                        const string &tableName,
+	                        const std::string &tableName,
 	                        const ColumnDef *columnDefs,
-	                        const string &indexName,
-	                        const vector<size_t> &targetIndexes,
+	                        const std::string &indexName,
+	                        const std::vector<size_t> &targetIndexes,
 	                        bool isUniqueKey);
 
 	void openDatabase(void);

@@ -19,12 +19,13 @@
 
 #include <cppcutter.h>
 #include <gcutter.h>
-
 #include "Hatohol.h"
 #include "DBClientConfig.h"
 #include "ConfigManager.h"
 #include "Helpers.h"
 #include "DBClientTest.h"
+using namespace std;
+using namespace mlpl;
 
 static const char *TEST_DB_NAME = "test_db_config";
 

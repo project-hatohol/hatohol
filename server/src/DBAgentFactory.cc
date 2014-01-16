@@ -21,6 +21,7 @@
 #include "DBAgentSQLite3.h"
 #include "DBAgentMySQL.h"
 #include "Params.h"
+using namespace std;
 
 // ---------------------------------------------------------------------------
 // Public methods

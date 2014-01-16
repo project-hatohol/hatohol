@@ -36,6 +36,8 @@
 #include "DBClientTest.h"
 #include "ConfigManager.h"
 #include "SessionManager.h"
+using namespace std;
+using namespace mlpl;
 
 class TestActionManager : public ActionManager
 {

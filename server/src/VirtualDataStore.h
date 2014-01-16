@@ -80,7 +80,7 @@ protected:
 	}
 };
 
-typedef list<VirtualDataStore *>       VirtualDataStoreList;
+typedef std::list<VirtualDataStore *>  VirtualDataStoreList;
 typedef VirtualDataStoreList::iterator VirtualDataStoreListIterator;
 
 #endif // VirtualDataStore_h

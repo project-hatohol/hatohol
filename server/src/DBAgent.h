@@ -23,48 +23,47 @@
 #include <string>
 #include <glib.h>
 #include <stdint.h>
-
 #include "Params.h"
 #include "SQLProcessorTypes.h"
 
 static const int CURR_DATETIME = -1;
 
 struct DBAgentTableCreationArg {
-	string              tableName;
+	std::string         tableName;
 	size_t              numColumns;
 	const ColumnDef    *columnDefs;
 };
 
 struct DBAgentInsertArg {
-	string tableName;
+	std::string         tableName;
 	size_t              numColumns;
 	const ColumnDef    *columnDefs;
 	ItemGroupPtr        row;
 };
 
 struct DBAgentUpdateArg {
-	string tableName;
+	std::string         tableName;
 	const ColumnDef    *columnDefs;
-	vector<size_t>      columnIndexes;
+	std::vector<size_t> columnIndexes;
 	ItemGroupPtr        row;
-	string condition;
+	std::string         condition;
 };
 
 struct DBAgentSelectArg {
-	string tableName;
+	std::string         tableName;
 	const ColumnDef    *columnDefs;
-	vector<size_t>      columnIndexes;
+	std::vector<size_t> columnIndexes;
 
 	// output
 	ItemTablePtr        dataTable;
 };
 
 struct DBAgentSelectExArg {
-	string tableName;
-	vector<string>        statements;
-	vector<SQLColumnType> columnTypes;
-	string condition;
-	string orderBy;
+	std::string                tableName;
+	std::vector<std::string>   statements;
+	std::vector<SQLColumnType> columnTypes;
+	std::string condition;
+	std::string orderBy;
 	size_t limit;
 	size_t offset;
 
@@ -73,26 +72,27 @@ struct DBAgentSelectExArg {
 
 	// constructor and methods
 	DBAgentSelectExArg(void);
-	void pushColumn(const ColumnDef &columnDef, const string &varName = "");
+	void pushColumn(const ColumnDef &columnDef,
+	                const std::string &varName = "");
 };
 
 struct DBAgentDeleteArg {
-	string tableName;
-	string condition;
+	std::string tableName;
+	std::string condition;
 };
 
 struct DBAgentAddColumnsArg {
-	string              tableName;
+	std::string         tableName;
 	const ColumnDef    *columnDefs;
-	vector<size_t>      columnIndexes;
+	std::vector<size_t> columnIndexes;
 };
 
 struct DBConnectInfo {
-	string host;
-	size_t port;
-	string user;
-	string password;
-	string dbName;
+	std::string host;
+	size_t      port;
+	std::string user;
+	std::string password;
+	std::string dbName;
 
 	DBConnectInfo(void);
 	virtual ~DBConnectInfo();
@@ -115,9 +115,9 @@ public:
 	DBDomainId getDBDomainId(void) const;
 
 	// virtual methods
-	virtual bool isTableExisting(const string &tableName) = 0;
-	virtual bool isRecordExisting(const string &tableName,
-	                              const string &condition) = 0;
+	virtual bool isTableExisting(const std::string &tableName) = 0;
+	virtual bool isRecordExisting(const std::string &tableName,
+	                              const std::string &condition) = 0;
 	virtual void begin(void) = 0;
 	virtual void commit(void) = 0;
 	virtual void rollback(void) = 0;
@@ -153,17 +153,17 @@ public:
 	 * @return true if updated, otherwise false.
 	 */
 	virtual bool updateIfExistElseInsert(
-	  const ItemGroup *itemGroup, const string &tableName,
+	  const ItemGroup *itemGroup, const std::string &tableName,
 	  size_t numColumns, const ColumnDef *columnDefs, size_t targetIndex);
 
 protected:
-	static string makeSelectStatement(DBAgentSelectArg &selectArg);
-	static string makeSelectStatement(DBAgentSelectExArg &selectExArg);
-	static string getColumnValueString(const ColumnDef *columnDef,
-	                                   const ItemData *itemData);
-	static string makeUpdateStatement(DBAgentUpdateArg &updateArg);
-	static string makeDeleteStatement(DBAgentDeleteArg &deleteArg);
-	static string makeDatetimeString(int datetime);
+	static std::string makeSelectStatement(DBAgentSelectArg &selectArg);
+	static std::string makeSelectStatement(DBAgentSelectExArg &selectExArg);
+	static std::string getColumnValueString(const ColumnDef *columnDef,
+	                                        const ItemData *itemData);
+	static std::string makeUpdateStatement(DBAgentUpdateArg &updateArg);
+	static std::string makeDeleteStatement(DBAgentDeleteArg &deleteArg);
+	static std::string makeDatetimeString(int datetime);
 
 private:
 	struct PrivateContext;

@@ -22,6 +22,7 @@
 #include "SQLProcessorTypes.h"
 #include "SQLProcessorException.h"
 #include "HatoholException.h"
+using namespace std;
 using namespace mlpl;
 
 SQLUtils::ItemDataCreator SQLUtils::m_itemDataCreators[] =

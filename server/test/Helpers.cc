@@ -30,6 +30,8 @@
 #include "DBAgentMySQL.h"
 #include "CacheServiceDBClient.h"
 #include "SQLUtils.h"
+using namespace std;
+using namespace mlpl;
 
 void _assertStringVector(const StringVector &expected,
                          const StringVector &actual)

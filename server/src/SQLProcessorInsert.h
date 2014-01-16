@@ -21,10 +21,10 @@
 #define SQLProcessorInsert_h
 
 #include "ParsableString.h"
-using namespace mlpl;
-
 #include "SQLProcessorTypes.h"
 #include "ItemDataPtr.h"
+using namespace std;
+using namespace mlpl;
 
 struct SQLInsertInfo : public SQLProcessorInfo {
 	// parsed matter

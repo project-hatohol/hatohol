@@ -35,7 +35,7 @@ protected:
 	virtual ~DataStore();
 };
 
-typedef vector<DataStore *>             DataStoreVector;
+typedef std::vector<DataStore *>        DataStoreVector;
 typedef DataStoreVector::iterator       DataStoreVectorIterator;
 typedef DataStoreVector::const_iterator DataStoreVectorConstIterator;
 

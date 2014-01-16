@@ -40,8 +40,9 @@ public:
 	 *         the table on success.
 	 *         When an error, SQLProcessorException is thrown.
 	 */
-	static const ColumnAccessInfo &getColumnAccessInfo
-	  (const string &columnName, const SQLTableStaticInfo *tableStaticInfo);
+	static const ColumnAccessInfo &getColumnAccessInfo(
+	  const std::string &columnName,
+	  const SQLTableStaticInfo *tableStaticInfo);
 
 	/**
 	 * get an index of the column in the table.
@@ -53,7 +54,7 @@ public:
 	 * @return An index of the column in the table on success.
 	 *         When an error, SQLProcessorException is thrown.
 	 */
-	static int getColumnIndex(const string &columnName,
+	static int getColumnIndex(const std::string &columnName,
 	                          const SQLTableStaticInfo *staticInfo);
 
 	static ItemDataPtr createDefaultItemData(const ColumnDef *columnDef);
@@ -68,7 +69,7 @@ public:
 	 *         When an error, SQLProcessorException is thrown.
 	 */
 	static const ColumnDef *
-	  getColumnDef(const string &columnName,
+	  getColumnDef(const std::string &columnName,
 	               const SQLTableStaticInfo *tableStaticInfo);
 
 	/**
@@ -81,7 +82,7 @@ public:
 	 *         have a reference (i.e. hasData() returns falase).
 	 */
 	static ItemDataPtr createItemData(const ColumnDef *columnDef,
-	                                  const string &value);
+	                                  const std::string &value);
 
 	/**
 	 * get ItemDataPtr form an ItemGroup with a column name.
@@ -94,12 +95,13 @@ public:
 	 *         have a reference (i.e. hasData() returns falase).
 	 */
 	static ItemDataPtr getItemDataFromItemGroupWithColumnName(
-	  const string &columnName, const SQLTableStaticInfo *tableStaticInfo,
+	  const std::string &columnName,
+	  const SQLTableStaticInfo *tableStaticInfo,
 	  const ItemGroup *itemGroup);
 
-	static void decomposeTableAndColumn(const string &fieldName,
-	                                    string &tableName,
-	                                    string &columnName,
+	static void decomposeTableAndColumn(const std::string &fieldName,
+	                                    std::string &tableName,
+	                                    std::string &columnName,
 	                                    bool allowNoTableName = false);
 	static ItemDataPtr createFromString(const char *str,
 	                                    SQLColumnType type);

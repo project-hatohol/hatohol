@@ -20,6 +20,8 @@
 #include <cutter.h>
 #include <cppcutter.h>
 #include "DBClientTest.h"
+using namespace std;
+using namespace mlpl;
 
 MonitoringServerInfo serverInfo[] = 
 {{

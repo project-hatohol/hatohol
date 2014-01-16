@@ -23,7 +23,7 @@
 #include "DBClientUtils.h"
 #include "DBClientHatohol.h"
 #include "MutexLock.h"
-
+using namespace std;
 using namespace mlpl;
 
 const char *TABLE_NAME_ACTIONS     = "actions";

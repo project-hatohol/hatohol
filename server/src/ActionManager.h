@@ -81,7 +81,8 @@ protected:
 	                              const ActionDef &actionDef,
 	                              uint64_t logId, void *priv);
 
-	static void setupPathForAction(string &path, string &ldLibraryPath);
+	static void setupPathForAction(std::string &path,
+	                               std::string &ldLibraryPath);
 
 	static gboolean residentReadErrCb(GIOChannel *source,
 	                                  GIOCondition condition,
@@ -161,7 +162,7 @@ protected:
 	  DBClientAction &dbAction, void *postprocCtx,
 	  const mlpl::StringVector &argVect);
 	
-	static void addCommandDirectory(string &path);
+	static void addCommandDirectory(std::string &path);
 
 	/**
 	 * execute a resident-type action.
@@ -234,8 +235,8 @@ protected:
 
 	void fillTriggerInfoInEventInfo(EventInfo &eventInfo);
 	static size_t getNumberOfOnstageCommandActors(void);
-	static string makeSessionIdEnv(const ActionDef &actionDef,
-	                               std::string &sessionId);
+	static std::string makeSessionIdEnv(const ActionDef &actionDef,
+	                                    std::string &sessionId);
 
 private:
 	PrivateContext *m_ctx;

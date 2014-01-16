@@ -29,7 +29,7 @@
 #include "MutexLock.h"
 #include "SessionManager.h"
 #include "Reaper.h"
-
+using namespace std;
 using namespace mlpl;
 
 typedef map<pid_t, ActorInfo *>      WaitChildSet;
