@@ -49,8 +49,7 @@ public:
 	static void init(void);
 	static string makeDemangledStackTraceLines(void **trace, int num);
 	static void assertNotNull(const void *ptr);
-	static string demangle(string &str);
-	static string demangle(const char *);
+	static string demangle(const string &str);
 	static void showTreeInfo(FormulaElement *formulaElement, int fd = 1,
 	                         bool fromRoot = true, int maxNumElem = -1,
 	                         int currNum = 0, int depth = 0);
