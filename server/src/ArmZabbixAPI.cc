@@ -1149,7 +1149,6 @@ void ArmZabbixAPI::makeHatoholMapHostsHostgroups(ItemTablePtr hostsGroups)
 
 void ArmZabbixAPI::makeHatoholHosts(ItemTablePtr hosts)
 {
-	MLPL_DBG("Called makeHatoholHosts function\n");
 	HostInfoList hostInfoList;
 	DBClientZabbix::transformHostsToHatoholFormat(hostInfoList, hosts,
 	                                              m_ctx->zabbixServerId);
