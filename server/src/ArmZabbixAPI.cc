@@ -1095,6 +1095,11 @@ void ArmZabbixAPI::updateGroups(void)
 	makeHatoholMapHostsHostgroups(hostsGroupsTablePtr);
 }
 
+void ArmZabbixAPI::addApplicationsDataToDB(ItemTablePtr &applications)
+{
+	m_ctx->dbClientZabbix->addApplicationsRaw2_0(applications);
+}
+
 //
 // virtual methods
 //
