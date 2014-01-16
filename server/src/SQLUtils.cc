@@ -103,7 +103,7 @@ ItemDataPtr SQLUtils::createItemData(const ColumnDef *columnDef,
 }
 
 ItemDataPtr SQLUtils::getItemDataFromItemGroupWithColumnName
-  (string &columnName, const SQLTableStaticInfo *tableStaticInfo,
+  (const string &columnName, const SQLTableStaticInfo *tableStaticInfo,
    const ItemGroup *itemGroup)
 {
 	const ColumnDef *columnDef = getColumnDef(columnName, tableStaticInfo);

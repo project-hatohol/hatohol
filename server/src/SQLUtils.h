@@ -93,10 +93,9 @@ public:
 	 *         When an error, the returned ItemDataPtr doesn't
 	 *         have a reference (i.e. hasData() returns falase).
 	 */
-	static ItemDataPtr
-	  getItemDataFromItemGroupWithColumnName
-	    (string &columnName, const SQLTableStaticInfo *tableStaticInfo,
-	     const ItemGroup *itemGroup);
+	static ItemDataPtr getItemDataFromItemGroupWithColumnName(
+	  const string &columnName, const SQLTableStaticInfo *tableStaticInfo,
+	  const ItemGroup *itemGroup);
 
 	static void decomposeTableAndColumn(const string &fieldName,
 	                                    string &tableName,
