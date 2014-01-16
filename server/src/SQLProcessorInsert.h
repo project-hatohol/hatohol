@@ -23,12 +23,10 @@
 #include "ParsableString.h"
 #include "SQLProcessorTypes.h"
 #include "ItemDataPtr.h"
-using namespace std;
-using namespace mlpl;
 
 struct SQLInsertInfo : public SQLProcessorInfo {
 	// parsed matter
-	string           table;
+	std::string      table;
 	StringVector     columnVector;
 	StringVector     valueVector;
 
@@ -102,7 +100,7 @@ protected:
 	//
 	// General sub routines
 	//
-	bool checkCurrWord(const string &expected,
+	bool checkCurrWord(const std::string &expected,
 	                   InsertParseSection nextSection);
 	bool pushColumn(void);
 	bool pushValue(void);

@@ -26,6 +26,7 @@ using namespace mlpl;
 #include "SQLProcessorInsert.h"
 #include "SQLProcessorException.h"
 #include "Helpers.h"
+using namespace std;
 
 namespace testSQLProcessorInsert {
 
