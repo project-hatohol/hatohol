@@ -91,7 +91,7 @@ protected:
 	bool sendInsertResult(const SQLInsertInfo &insertInfo);
 	bool sendUpdateResult(const SQLUpdateInfo &updateInfo);
 	bool sendLenEncInt(uint64_t num);
-	bool sendLenEncStr(string &str);
+	bool sendLenEncStr(const string &str);
 	bool sendPacket(SmartBuffer &pkt);
 	bool send(SmartBuffer &buf);
 	bool receive(char* buf, size_t size);
