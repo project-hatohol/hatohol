@@ -81,7 +81,7 @@ public:
 	 *         have a reference (i.e. hasData() returns falase).
 	 */
 	static ItemDataPtr createItemData(const ColumnDef *columnDef,
-	                                  string &value);
+	                                  const string &value);
 
 	/**
 	 * get ItemDataPtr form an ItemGroup with a column name.

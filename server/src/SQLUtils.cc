@@ -92,7 +92,7 @@ ItemDataPtr SQLUtils::createDefaultItemData(const ColumnDef *columnDef)
 }
 
 ItemDataPtr SQLUtils::createItemData(const ColumnDef *columnDef,
-                                     string &value)
+                                     const string &value)
 {
 	if (columnDef->type >= NUM_SQL_COLUMN_TYPES) {
 		THROW_HATOHOL_EXCEPTION(
