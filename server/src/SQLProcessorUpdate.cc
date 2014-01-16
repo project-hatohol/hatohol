@@ -345,7 +345,7 @@ string SQLProcessorUpdate::readCurrWord(void)
 	return m_ctx->updateInfo->statement.readWord(*separator);
 }
 
-void SQLProcessorUpdate::checkCurrWord(string expected,
+void SQLProcessorUpdate::checkCurrWord(const string &expected,
                                        UpdateParseSection nextSection)
 {
 	if (m_ctx->currWordLower != expected) {

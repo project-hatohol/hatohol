@@ -108,7 +108,8 @@ protected:
 	// General sub routines
 	//
 	string readCurrWord(void); 
-	void checkCurrWord(string expected, UpdateParseSection nextSection);
+	void checkCurrWord(const string &expected,
+	                   UpdateParseSection nextSection);
 	static FormulaVariableDataGetter *
 	  formulaColumnDataGetterFactory(const string &name, void *priv);
 	static bool updateMatchingRows(const ItemGroup *itemGroup,
