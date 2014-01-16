@@ -20,10 +20,6 @@
 #ifndef PrimaryConditionPicker_h
 #define PrimaryConditionPicker_h
 
-#include <list>
-#include <string>
-using namespace std;
-
 #include "FormulaElement.h"
 #include "FormulaOperator.h"
 
