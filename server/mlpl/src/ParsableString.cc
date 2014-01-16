@@ -18,6 +18,7 @@
  */
 
 #include "ParsableString.h"
+using namespace std;
 using namespace mlpl;
 
 #include <cstdio>

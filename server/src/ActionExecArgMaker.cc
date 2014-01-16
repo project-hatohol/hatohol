@@ -19,6 +19,7 @@
 
 #include "ActionExecArgMaker.h"
 #include "ParsableString.h"
+using namespace std;
 using namespace mlpl;
 
 struct ActionExecArgMaker::PrivateContext {
