@@ -169,6 +169,7 @@ protected:
 	void updateGroups(void);
 
 	void addApplicationsDataToDB(ItemTablePtr &applications);
+	void addHostsDataToDB(ItemTablePtr &hosts);
 
 	void makeHatoholTriggers(void);
 	void makeHatoholEvents(ItemTablePtr events);

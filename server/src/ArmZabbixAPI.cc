@@ -1100,6 +1100,12 @@ void ArmZabbixAPI::addApplicationsDataToDB(ItemTablePtr &applications)
 	m_ctx->dbClientZabbix->addApplicationsRaw2_0(applications);
 }
 
+void ArmZabbixAPI::addHostsDataToDB(ItemTablePtr &hosts)
+{
+	m_ctx->dbClientZabbix->addHostsRaw2_0(hosts);
+	makeHatoholHosts(hosts);
+}
+
 //
 // virtual methods
 //
