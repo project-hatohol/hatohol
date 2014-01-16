@@ -54,11 +54,11 @@ protected:
 	// type definition
 	//
 	typedef void (SQLFormulaParser::*KeywordHandler)(void);
-	typedef map<string, KeywordHandler> KeywordHandlerMap;
+	typedef map<std::string, KeywordHandler> KeywordHandlerMap;
 	typedef KeywordHandlerMap::iterator KeywordHandlerMapIterator;
 
 	typedef void (SQLFormulaParser::*FunctionParser)(void);
-	typedef map<string, FunctionParser> FunctionParserMap;
+	typedef map<std::string, FunctionParser> FunctionParserMap;
 	typedef FunctionParserMap::iterator FunctionParserMapIterator;
 
 
@@ -70,15 +70,15 @@ protected:
 
 	void setKeywordHandlerMap(KeywordHandlerMap *kwHandlerMap);
 	void setFunctionParserMap(FunctionParserMap *fncParserMap);
-	FormulaVariable *makeFormulaVariable(const string &name);
-	FormulaElement *makeFormulaVariableOrValue(const string &word);
-	bool passFunctionArgIfOpen(const string &word);
+	FormulaVariable *makeFormulaVariable(const std::string &name);
+	FormulaElement *makeFormulaVariableOrValue(const std::string &word);
+	bool passFunctionArgIfOpen(const std::string &word);
 	void insertElement(FormulaElement *formulaElement);
 	FormulaElement *getCurrentElement(void) const;
 	void insertAsRightHand(FormulaElement *formulaElement);
 	void insertAsHand(FormulaElement *formulaElement);
 	void makeFormulaElementFromPendingWord(void);
-	void addStringValue(const string &word);
+	void addStringValue(const std::string &word);
 	FormulaElement *takeFormula(void);
 	bool makeFunctionParserIfPendingWordIsFunction(void);
 

@@ -23,19 +23,15 @@
 #include <string>
 #include <list>
 #include <deque>
-using namespace std;
-
 #include "ParsableString.h"
-using namespace mlpl;
-
 #include "SQLFormulaParser.h"
 #include "FormulaElement.h"
 #include "FormulaFunction.h"
 
 struct SQLFormulaInfo {
 	FormulaElement *formula;
-	string          expression;
-	string          alias;
+	std::string     expression;
+	std::string     alias;
 	bool            hasStatisticalFunc;
 
 	// construct and destructor
