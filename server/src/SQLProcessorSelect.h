@@ -179,7 +179,7 @@ struct SQLSelectInfo : public SQLProcessorInfo {
 	//
 	// constructor and destructor
 	//
-	SQLSelectInfo(ParsableString &_statement);
+	SQLSelectInfo(const ParsableString &_statement);
 	virtual ~SQLSelectInfo();
 };
 

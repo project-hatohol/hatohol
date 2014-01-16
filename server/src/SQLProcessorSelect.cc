@@ -457,7 +457,7 @@ void SQLColumnInfo::setColumnType(void)
 // ---------------------------------------------------------------------------
 // Public methods (SQLSelectInfo)
 // ---------------------------------------------------------------------------
-SQLSelectInfo::SQLSelectInfo(ParsableString &_statement)
+SQLSelectInfo::SQLSelectInfo(const ParsableString &_statement)
 : SQLProcessorInfo(_statement),
   useIndex(false),
   itemFalsePtr(new ItemBool(false), false)
