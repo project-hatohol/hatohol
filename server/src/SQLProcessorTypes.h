@@ -21,11 +21,7 @@
 #define SQLProcessorTypes_h
 
 #include <list>
-using namespace std;
-
 #include "ParsableString.h"
-using namespace mlpl;
-
 #include "ItemTablePtr.h"
 
 enum SQLColumnType {
