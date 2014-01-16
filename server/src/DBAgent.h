@@ -27,7 +27,7 @@
 #include "Params.h"
 #include "SQLProcessorTypes.h"
 
-#define CURR_DATETIME -1
+static const int CURR_DATETIME = -1;
 
 struct DBAgentTableCreationArg {
 	string              tableName;
