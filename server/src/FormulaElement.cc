@@ -309,7 +309,7 @@ string FormulaValue::getTreeInfoAdditional(void)
 // ---------------------------------------------------------------------------
 // class: FormulaVariable
 // ---------------------------------------------------------------------------
-FormulaVariable::FormulaVariable(string &name,
+FormulaVariable::FormulaVariable(const string &name,
                                  FormulaVariableDataGetter *variableDataGetter)
 : FormulaElement(FORMULA_ELEM_PRIO_VARIABLE),
   m_name(name),

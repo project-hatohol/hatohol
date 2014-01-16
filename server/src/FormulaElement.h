@@ -164,7 +164,7 @@ typedef FormulaVariableDataGetter *
 
 class FormulaVariable : public FormulaElement {
 public:
-	FormulaVariable(string &name,
+	FormulaVariable(const string &name,
 	                FormulaVariableDataGetter *variableDataGetter);
 	virtual ~FormulaVariable();
 	virtual ItemDataPtr evaluate(void);
