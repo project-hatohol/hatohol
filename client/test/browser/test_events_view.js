@@ -1,9 +1,11 @@
 describe('EventsView', function() {
   var TEST_FIXTURE_ID = 'eventsViewFixture';
 
+  // TODO: we should use actual server response to follow changes of the json
+  //       format automatically
   function eventsJson(events, servers) {
     return JSON.stringify({
-      apiVersion: hatohol.FACE_REST_API_VERSION,
+      apiVersion: 3,
       errorCode: hatohol.HTERR_OK,
       events: events ? events : [],
       servers: servers ? servers : []
