@@ -1573,6 +1573,25 @@ size_t DBClientHatohol::getNumberOfBadHosts(const HostsQueryOption &option)
 	return ItemDataUtils::getInt(count);
 }
 
+void DBClientHatohol::pickupAbsentHostIds(vector<uint64_t> &absentHostIdVector,
+                         const vector<uint64_t> &hostIdVector)
+{
+	string condition;
+	static const string tableName = TABLE_NAME_HOSTS;
+	static const string hostIdName =
+	  COLUMN_DEF_HOSTS[IDX_HOSTS_HOSTID].columnName;
+	DBCLIENT_TRANSACTION_BEGIN() {
+		for (size_t i = 0; i < hostIdVector.size(); i++) {
+			uint64_t id = hostIdVector[i];
+			condition = hostIdName;
+			condition += StringUtils::sprintf("=%"PRIu64, id);
+			if (isRecordExisting(tableName, condition))
+				continue;
+			absentHostIdVector.push_back(id);
+		}
+	} DBCLIENT_TRANSACTION_END();
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

@@ -315,6 +315,9 @@ public:
 	size_t getNumberOfGoodHosts(const HostsQueryOption &option);
 	size_t getNumberOfBadHosts(const HostsQueryOption &option);
 
+	void pickupAbsentHostIds(vector<uint64_t> &absentHostIdVector,
+	                         const vector<uint64_t> &hostIdVector);
+
 protected:
 	void addTriggerInfoBare(const TriggerInfo &triggerInfo);
 	void addEventInfoBare(const EventInfo &eventInfo);
