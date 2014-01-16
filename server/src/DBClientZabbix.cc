@@ -24,6 +24,7 @@
 #include "HatoholException.h"
 #include "ItemTableUtils.h"
 #include "DBAgentFactory.h"
+using namespace std;
 using namespace mlpl;
 
 struct BriefElem {
