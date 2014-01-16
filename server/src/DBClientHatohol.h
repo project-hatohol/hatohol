@@ -272,6 +272,8 @@ public:
 	void addHostgroupElementList
 	  (const HostgroupElementList &mapHostHostgroupsInfoList);
 
+	void addHostInfo(HostInfo *hostInfo);
+
 	/**
 	 * get the last (maximum) event ID of the event that belongs to
 	 * the specified server

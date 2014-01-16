@@ -1357,6 +1357,13 @@ void DBClientHatohol::addHostgroupElementList
 	} DBCLIENT_TRANSACTION_END();
 }
 
+void DBClientHatohol::addHostInfo(HostInfo *hostInfo)
+{
+	DBCLIENT_TRANSACTION_BEGIN() {
+		addHostInfoBare(*hostInfo);
+	} DBCLIENT_TRANSACTION_END();
+}
+
 uint64_t DBClientHatohol::getLastEventId(uint32_t serverId)
 {
 	DBAgentSelectExArg arg;
