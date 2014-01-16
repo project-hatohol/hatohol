@@ -42,7 +42,7 @@ struct SQLUpdateInfo : public SQLProcessorInfo {
 	//
 	// constructor and destructor
 	//
-	SQLUpdateInfo(ParsableString &_statment);
+	SQLUpdateInfo(const ParsableString &_statment);
 	virtual ~SQLUpdateInfo();
 };
 

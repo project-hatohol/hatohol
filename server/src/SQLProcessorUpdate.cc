@@ -105,7 +105,7 @@ private:
 // ---------------------------------------------------------------------------
 // Public methods (SQLUpdateInfo)
 // ---------------------------------------------------------------------------
-SQLUpdateInfo::SQLUpdateInfo(ParsableString &_statement)
+SQLUpdateInfo::SQLUpdateInfo(const ParsableString &_statement)
 : SQLProcessorInfo(_statement),
   itemFalsePtr(new ItemBool(false), false)
 {
