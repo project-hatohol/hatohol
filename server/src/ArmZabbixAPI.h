@@ -172,6 +172,7 @@ protected:
 	void makeHatoholItems(ItemTablePtr events);
 	void makeHatoholHostgroups(ItemTablePtr groups);
 	void makeHatoholMapHostsHostgroups(ItemTablePtr hostsGroups);
+	void makeHatoholHosts(ItemTablePtr hosts);
 
 	template<typename T>
 	void makeItemVector(vector<T> &idVector, const ItemTable *itemTable,
