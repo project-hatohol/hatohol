@@ -148,20 +148,20 @@
     // delete-user dialog
     //
     function deleteUsers() {
-        $(this).dialog("close");
-        checkbox = $(".selectcheckbox");
-        var delId = [];
-        for (var i = 0; i < checkbox.length; i++) {
-          if (!checkbox[i].checked)
-            continue;
-          var userId = checkbox[i].getAttribute("userId");
-          delId.push(userId);
-        }
-        new HatoholItemRemover({
-          id: delId,
-          type: "user",
-        });
-        hatoholInfoMsgBox("{% trans "Deleting..." %}");
+      $(this).dialog("close");
+      checkbox = $(".selectcheckbox");
+      var delId = [];
+      for (var i = 0; i < checkbox.length; i++) {
+        if (!checkbox[i].checked)
+          continue;
+        var userId = checkbox[i].getAttribute("userId");
+        delId.push(userId);
+      }
+      new HatoholItemRemover({
+        id: delId,
+        type: "user",
+      });
+      hatoholInfoMsgBox("{% trans "Deleting..." %}");
     }
 
     function getUserTypeFromFlags(flags) {
