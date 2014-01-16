@@ -28,7 +28,6 @@ public:
 	typedef void (DBClientZabbix::*AbsentItemPicker)
 	               (vector<uint64_t> &absentHostIdVector,
 	                const vector<uint64_t> &hostIdVector);
-	typedef void (DBClientZabbix::*TableSaver)(ItemTablePtr tablePtr);
 
 	static const int ZABBIX_DB_VERSION;
 	static const uint64_t EVENT_ID_NOT_FOUND;
