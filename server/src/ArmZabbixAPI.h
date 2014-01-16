@@ -35,6 +35,7 @@ class ArmZabbixAPI : public ArmBase
 public:
 	typedef ItemTablePtr
 	  (ArmZabbixAPI::*DataGetter)(const vector<uint64_t> &idVector);
+	typedef void (ArmZabbixAPI::*TableSaver)(ItemTablePtr &tablePtr);
 
 	static const int POLLING_DISABLED = -1;
 	static const int DEFAULT_SERVER_PORT = 80;
@@ -132,7 +133,7 @@ protected:
 	  const ItemId pickupItemId, const ItemId checkItemId,
 	  ArmZabbixAPI::DataGetter dataGetter,
 	  DBClientZabbix::AbsentItemPicker absentItemPicker,
-	  DBClientZabbix::TableSaver tableSaver);
+	  ArmZabbixAPI::TableSaver tableSaver);
 
 	ItemTablePtr updateTriggers(void);
 	void updateFunctions(void);

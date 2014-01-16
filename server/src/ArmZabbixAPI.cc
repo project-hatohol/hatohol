@@ -971,7 +971,7 @@ void ArmZabbixAPI::updateOnlyNeededItem
    const ItemId pickupItemId, const ItemId checkItemId,
    ArmZabbixAPI::DataGetter dataGetter,
    DBClientZabbix::AbsentItemPicker absentItemPicker,
-   DBClientZabbix::TableSaver tableSaver)
+   ArmZabbixAPI::TableSaver tableSaver)
 {
 	if (primaryTable->getNumberOfRows() == 0)
 		return;
@@ -991,7 +991,7 @@ void ArmZabbixAPI::updateOnlyNeededItem
 
 	// get needed data via ZABBIX API
 	ItemTablePtr tablePtr = (this->*dataGetter)(absentItemVector);
-	(m_ctx->dbClientZabbix->*tableSaver)(tablePtr);
+	(this->*tableSaver)(tablePtr);
 
 	// check the result
 	checkObtainedItems<uint64_t>(tablePtr, absentItemVector, checkItemId);
@@ -1041,7 +1041,7 @@ void ArmZabbixAPI::updateHosts(const ItemTable *triggers)
 	  ITEM_ID_ZBX_HOSTS_HOSTID,
 	  &ArmZabbixAPI::getHosts,
 	  &DBClientZabbix::pickupAbsentHostIds,
-	  &DBClientZabbix::addHostsRaw2_0);
+	  &ArmZabbixAPI::addHostsDataToDB);
 }
 
 void ArmZabbixAPI::updateEvents(void)
@@ -1082,7 +1082,7 @@ void ArmZabbixAPI::updateApplications(const ItemTable *items)
 	  ITEM_ID_ZBX_APPLICATIONS_APPLICATIONID,
 	  &ArmZabbixAPI::getApplications,
 	  &DBClientZabbix::pickupAbsentApplcationIds,
-	  &DBClientZabbix::addApplicationsRaw2_0);
+	  &ArmZabbixAPI::addApplicationsDataToDB);
 }
 
 void ArmZabbixAPI::updateGroups(void)
