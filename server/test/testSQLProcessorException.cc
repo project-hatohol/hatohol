@@ -20,6 +20,7 @@
 #include <cppcutter.h>
 #include "SQLProcessorException.h"
 #include "ExceptionTestUtils.h"
+using namespace std;
 
 namespace testSQLProcessorException {
 

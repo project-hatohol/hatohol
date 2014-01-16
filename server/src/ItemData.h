@@ -63,7 +63,7 @@ public:
 	                  const char *operatorName,
 	                  const ItemData &lhs, const ItemData &rhs);
 protected:
-	string getMessageHeader(const ItemDataExceptionType type);
+	std::string getMessageHeader(const ItemDataExceptionType type);
 };
 #define THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(OP, ...) \
 throw ItemDataException(ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION, __FILE__, __LINE__, OP, *this, ##__VA_ARGS__)
@@ -71,20 +71,20 @@ throw ItemDataException(ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION, __FILE__, __LIN
 #define THROW_ITEM_DATA_EXCEPTION_INVALID_OPERATION(OP, ...) \
 throw ItemDataException(ITEM_DATA_EXCEPTION_INVALID_OPERATION, __FILE__, __LINE__, OP, *this, ##__VA_ARGS__)
 
-typedef vector<ItemId>               ItemIdVector;
+typedef std::vector<ItemId>          ItemIdVector;
 typedef ItemIdVector::iterator       ItemIdVectorIterator;
 typedef ItemIdVector::const_iterator ItemIdVectorConstIterator;
 
 class ItemData;
-typedef map<ItemId, const ItemData *> ItemDataMap;
-typedef ItemDataMap::iterator         ItemDataMapIterator;
-typedef ItemDataMap::const_iterator   ItemDataMapConstIterator;
+typedef std::map<ItemId, const ItemData *> ItemDataMap;
+typedef ItemDataMap::iterator              ItemDataMapIterator;
+typedef ItemDataMap::const_iterator        ItemDataMapConstIterator;
 
-typedef multimap<ItemId, const ItemData *> ItemDataMultimap;
-typedef ItemDataMultimap::iterator         ItemDataMultimapIterator;
-typedef ItemDataMultimap::const_iterator   ItemDataMultimapConstIterator;
+typedef std::multimap<ItemId, const ItemData *> ItemDataMultimap;
+typedef ItemDataMultimap::iterator              ItemDataMultimapIterator;
+typedef ItemDataMultimap::const_iterator        ItemDataMultimapConstIterator;
 
-typedef vector<const ItemData *>       ItemDataVector;
+typedef std::vector<const ItemData *>  ItemDataVector;
 typedef ItemDataVector::iterator       ItemDataVectorIterator;
 typedef ItemDataVector::const_iterator ItemDataVectorConstIterator;
 
@@ -103,7 +103,7 @@ public:
 	ItemId getId(void) const;
 	const ItemDataType &getItemType(void) const;
 	const char *getNativeTypeName(void) const;
-	virtual string getString(void) const = 0;
+	virtual std::string getString(void) const = 0;
 	virtual bool isNull(void) const;
 	virtual void setNull(void);
 	virtual ItemData *clone(void) const = 0;
@@ -131,7 +131,7 @@ private:
 	bool         m_null;
 };
 
-ostream &operator<<(ostream &os, const ItemData &itemData);
+std::ostream &operator<<(std::ostream &os, const ItemData &itemData);
 
 template <typename T, ItemDataType ITEM_TYPE>
 class ItemGeneric : public ItemData {
@@ -180,9 +180,9 @@ public:
 		return new ItemGeneric<T, ITEM_TYPE>(getId(), m_data);
 	}
 
-	virtual string getString(void) const
+	virtual std::string getString(void) const
 	{
-		stringstream ss;
+		std::stringstream ss;
 		ss << m_data;
 		return ss.str();
 	}
@@ -292,11 +292,11 @@ private:
 	T m_data;
 };
 
-typedef ItemGeneric<bool,     ITEM_TYPE_BOOL>   ItemBool;
-typedef ItemGeneric<uint64_t, ITEM_TYPE_UINT64> ItemUint64;
-typedef ItemGeneric<int,      ITEM_TYPE_INT>    ItemInt;
-typedef ItemGeneric<double,   ITEM_TYPE_DOUBLE> ItemDouble;
-typedef ItemGeneric<string,   ITEM_TYPE_STRING> ItemString;
+typedef ItemGeneric<bool,        ITEM_TYPE_BOOL>   ItemBool;
+typedef ItemGeneric<uint64_t,    ITEM_TYPE_UINT64> ItemUint64;
+typedef ItemGeneric<int,         ITEM_TYPE_INT>    ItemInt;
+typedef ItemGeneric<double,      ITEM_TYPE_DOUBLE> ItemDouble;
+typedef ItemGeneric<std::string, ITEM_TYPE_STRING> ItemString;
 
 template<> ItemBool::operator bool() const;
 

@@ -18,6 +18,7 @@
  */
 
 #include "DataStoreException.h"
+using namespace std;
 
 DataStoreException::DataStoreException(const string &brief,
                                        const char *sourceFileName,

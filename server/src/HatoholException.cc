@@ -20,6 +20,8 @@
 #include <cstdlib>
 #include "HatoholException.h"
 #include "Utils.h"
+using namespace std;
+using namespace mlpl;
 
 bool HatoholException::m_saveStackTrace = false;
 

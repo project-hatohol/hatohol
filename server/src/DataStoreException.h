@@ -25,7 +25,7 @@
 class DataStoreException : public HatoholException
 {
 public:
-	explicit DataStoreException(const string &brief,
+	explicit DataStoreException(const std::string &brief,
 	                            const char *sourceFileName = "",
 	                            int lineNumber = UNKNOWN_LINE_NUMBER);
 	virtual ~DataStoreException() _HATOHOL_NOEXCEPT;

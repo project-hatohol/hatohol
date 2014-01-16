@@ -20,6 +20,7 @@
 #include <cppcutter.h>
 #include "HatoholException.h"
 #include "ExceptionTestUtils.h"
+using namespace std;
 
 namespace testHatoholException {
 

@@ -173,7 +173,7 @@ protected:
 do { \
   void *trace[128]; \
   int n = backtrace(trace, sizeof(trace) / sizeof(trace[0])); \
-  msg = StringUtils::sprintf("<%s:%d> " fmt "\n", __FILE__, __LINE__, ##__VA_ARGS__); \
+  msg = mlpl::StringUtils::sprintf("<%s:%d> " fmt "\n", __FILE__, __LINE__, ##__VA_ARGS__); \
   msg += Utils::makeDemangledStackTraceLines(trace, n); \
 } while (0)
 
