@@ -43,7 +43,7 @@ void _assertStringVector(const StringVector &expected,
                          const StringVector &actual);
 #define assertStringVector(E,A) cut_trace(_assertStringVector(E,A))
 
-void _assertStringVectorVA(StringVector &actual, ...);
+void _assertStringVectorVA(const StringVector &actual, ...);
 #define assertStringVectorVA(A,...) \
 cut_trace(_assertStringVectorVA(A,##__VA_ARGS__))
 

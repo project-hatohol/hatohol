@@ -39,7 +39,7 @@ void _assertStringVector(const StringVector &expected,
 		cppcut_assert_equal(expected[i], actual[i]);
 }
 
-void _assertStringVectorVA(StringVector &actual, ...)
+void _assertStringVectorVA(const StringVector &actual, ...)
 {
 	StringVector expectedVect;
 	va_list valist;
