@@ -21,15 +21,10 @@
 #define FaceMySQLWorker_h
 
 #include <map>
-using namespace std;
-
 #include <glib.h>
 #include <gio/gio.h>
-
 #include <SmartBuffer.h>
 #include <StringUtils.h>
-using namespace mlpl;
-
 #include "Utils.h"
 #include "HatoholThreadBase.h"
 #include "SQLProcessor.h"
