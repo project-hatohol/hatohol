@@ -20,6 +20,7 @@
 #include <cppcutter.h>
 #include "ActionExecArgMaker.h"
 #include "StringUtils.h"
+using namespace std;
 using namespace mlpl;
 
 namespace testActionExecArgMaker {
