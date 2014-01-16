@@ -39,7 +39,8 @@ using namespace mlpl;
 typedef pair<int,int>      IntIntPair;
 typedef vector<IntIntPair> IntIntPairVector;
 
-void _assertStringVector(StringVector &expected, StringVector &actual);
+void _assertStringVector(const StringVector &expected,
+                         const StringVector &actual);
 #define assertStringVector(E,A) cut_trace(_assertStringVector(E,A))
 
 void _assertStringVectorVA(StringVector &actual, ...);

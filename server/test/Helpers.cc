@@ -31,7 +31,8 @@
 #include "CacheServiceDBClient.h"
 #include "SQLUtils.h"
 
-void _assertStringVector(StringVector &expected, StringVector &actual)
+void _assertStringVector(const StringVector &expected,
+                         const StringVector &actual)
 {
 	cppcut_assert_equal(expected.size(), actual.size());
 	for (size_t i = 0; i < expected.size(); i++)
