@@ -1364,6 +1364,15 @@ void DBClientHatohol::addHostInfo(HostInfo *hostInfo)
 	} DBCLIENT_TRANSACTION_END();
 }
 
+void DBClientHatohol::addHostInfoList(const HostInfoList &hostInfoList)
+{
+	HostInfoListConstIterator it = hostInfoList.begin();
+	DBCLIENT_TRANSACTION_BEGIN() {
+		for(; it != hostInfoList.end(); ++it)
+			addHostInfoBare(*it);
+	} DBCLIENT_TRANSACTION_END();
+}
+
 uint64_t DBClientHatohol::getLastEventId(uint32_t serverId)
 {
 	DBAgentSelectExArg arg;
