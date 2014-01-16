@@ -1798,19 +1798,6 @@ void DBClientHatohol::addHostgroupElementBare
 		row->ADD_NEW_ITEM(Uint64, hostgroupElement.groupId);
 		arg.row = row;
 		insert(arg);
-	} else {
-		DBAgentUpdateArg arg;
-		arg.tableName = TABLE_NAME_MAP_HOSTS_HOSTGROUPS;
-		arg.columnDefs = COLUMN_DEF_MAP_HOSTS_HOSTGROUPS;
-
-		row->ADD_NEW_ITEM(Int, hostgroupElement.serverId);
-		arg.columnIndexes.push_back(IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID);
-
-		row->ADD_NEW_ITEM(Uint64, hostgroupElement.hostId);
-		arg.columnIndexes.push_back(IDX_MAP_HOSTS_HOSTGROUPS_HOSTID);
-
-		row->ADD_NEW_ITEM(Uint64, hostgroupElement.groupId);
-		arg.columnIndexes.push_back(IDX_MAP_HOSTS_HOSTGROUPS_GROUPID);
 	}
 }
 
