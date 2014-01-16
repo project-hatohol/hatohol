@@ -29,7 +29,7 @@ struct ActorInfo {
 	pid_t    pid;
 	uint64_t logId;
 	bool     dontLog;
-	string   sessionId;
+	std::string sessionId;
 
 	// collectedCb is called with taking ActorCollector::lock().
 	// postCollectedCb is called after calling ActorCollector::unlock().

@@ -86,7 +86,7 @@ public:
 	 * to call unref() explicitly. If the sessionId is invalid,
 	 * SessionPtr::hasData() will return false.
 	 */
-	SessionPtr getSession(const string &sessionId);
+	SessionPtr getSession(const std::string &sessionId);
 
 	/**
 	 * Remove the session instance associated with the given sessionId.
@@ -95,7 +95,7 @@ public:
 	 * @return true If the session is found and successfully removed.
 	 * Otherwise false will be returned.
 	 */
-	bool remove(const string &sessionId);
+	bool remove(const std::string &sessionId);
 
 	/**
 	 * Get a reference of the seesion ID map.

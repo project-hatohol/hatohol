@@ -26,11 +26,7 @@
 #include <typeinfo>
 #include <inttypes.h>
 #include <glib.h>
-using namespace std;
-
 #include <StringUtils.h>
-using namespace mlpl;
-
 #include <execinfo.h>
 #include "Params.h"
 
@@ -40,26 +36,26 @@ using namespace mlpl;
 
 class FormulaElement;
 
-typedef vector<string> CommandLineArg;
+typedef std::vector<std::string> CommandLineArg;
 
 static const guint INVALID_EVENT_ID = -1;
 
 class Utils {
 public:
 	static void init(void);
-	static string makeDemangledStackTraceLines(void **trace, int num);
+	static std::string makeDemangledStackTraceLines(void **trace, int num);
 	static void assertNotNull(const void *ptr);
-	static string demangle(const string &str);
+	static std::string demangle(const std::string &str);
 	static void showTreeInfo(FormulaElement *formulaElement, int fd = 1,
 	                         bool fromRoot = true, int maxNumElem = -1,
 	                         int currNum = 0, int depth = 0);
 	static uint64_t getCurrTimeAsMicroSecond(void);
 	static bool isValidPort(int port, bool showErrorMsg = true);
-	static string getExtension(const string &path);
-	static bool validateJSMethodName(const string &name,
-	                                 string &errorMessage);
-	static string getSelfExeDir(void);
-	static string getStringFromGIOCondition(GIOCondition condition);
+	static std::string getExtension(const std::string &path);
+	static bool validateJSMethodName(const std::string &name,
+	                                 std::string &errorMessage);
+	static std::string getSelfExeDir(void);
+	static std::string getStringFromGIOCondition(GIOCondition condition);
 
 	static guint setGLibIdleEvent(GSourceFunc func, gpointer data = NULL,
 	                              GMainContext *context = NULL);
@@ -142,7 +138,7 @@ public:
 	 *
 	 * @return A SHA256 string.
 	 */
-	static string sha256(const string &data);
+	static std::string sha256(const std::string &data);
 
 	static pid_t getThreadId(void);
 
@@ -169,8 +165,8 @@ public:
 	static void flushPendingGLibEvents(GMainContext *context = NULL);
 
 protected:
-	static string makeDemangledStackTraceString(
-	  const string &stackTraceLine);
+	static std::string makeDemangledStackTraceString(
+	  const std::string &stackTraceLine);
 };
 
 #define TRMSG(msg, fmt, ...) \
