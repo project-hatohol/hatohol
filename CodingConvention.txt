@@ -37,6 +37,9 @@ Others
 ------
 - Don't use 'using namespace' in a header file.
 - Use 'static const' instead of #define to define a constant.
+- Don't return const object such as 'const string func()'.
+NOTE: If a function returns a reference, this convention is not applied.
+      E.g. 'const string &func()' is OK
 
 Python
 ======
