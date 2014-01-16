@@ -33,6 +33,10 @@ However, we'll begin to use features of C++11 in near future. Probably it is
 when we support CentOS7 (g++4.7) instead of CentOS6 (g++4.4) series.
 Of course, we can now use features supported by g++4.4.
 
+Others
+------
+- Don't use 'using namespace' in a header file.
+
 Python
 ======
 Baisically follow PEP 8
