@@ -148,13 +148,13 @@
     // delete-user dialog
     //
     function deleteUsers() {
+      var delId = [], userId;
+      var checkbox = $(".selectcheckbox");
       $(this).dialog("close");
-      checkbox = $(".selectcheckbox");
-      var delId = [];
       for (var i = 0; i < checkbox.length; i++) {
         if (!checkbox[i].checked)
           continue;
-        var userId = checkbox[i].getAttribute("userId");
+        userId = checkbox[i].getAttribute("userId");
         delId.push(userId);
       }
       new HatoholItemRemover({
