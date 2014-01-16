@@ -21,8 +21,6 @@
 #define DBAgent_h
 
 #include <string>
-using namespace std;
-
 #include <glib.h>
 #include <stdint.h>
 
