@@ -28,6 +28,8 @@
      value="{% trans "ADD USER" %}" style="display: none;" />
     <input id="delete-user-button" type="button" class="btn" disabled
      value="{% trans "DELETE USER" %}" style="display: none;" />
+    <input id="edit-user-roles-button" type="button" class="btn"
+     value="{% trans "EDIT USER ROLES" %}" style="display: none;" />
   </form>
 
   <div id="msgbox" title="Message Box">
@@ -55,6 +57,7 @@
 {% block option %}
   <script src="{{ STATIC_URL }}js/hatohol_user_edit_dialog.js"></script>
   <script src="{{ STATIC_URL }}js/hatohol_privilege_edit_dialog.js"></script>
+  <script src="{{ STATIC_URL }}js/hatohol_user_role_editor.js"></script>
 {% endblock %}
 
 {% block logic %}

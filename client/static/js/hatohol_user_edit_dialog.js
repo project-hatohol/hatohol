@@ -56,6 +56,10 @@ var HatoholUserEditDialog = function(succeededCb, user) {
     self.closeDialog();
   }
 
+  $("#edit-user-roles").click(function() {
+    new HatoholUserRoleEditor();
+  });
+
   function makeQueryData() {
       var queryData = {};
       var password = $("#editPassword").val();
@@ -145,6 +149,8 @@ HatoholUserEditDialog.prototype.createMainElement = function() {
     s += '  <option value="guest">' + gettext('Guest') + '</option>';
     s += '  <option value="admin" ' + adminSelected + '>' + gettext('Admin') + '</option>';
     s += '</select>';
+    s += '  <input id="edit-user-roles" type="button" class="btn" ';
+    s += '    value="' + gettext('EDIT') + '" style="margin-bottom: 10;"/>';
     s += '</div">';
     return s;
   }
