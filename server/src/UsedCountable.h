@@ -20,6 +20,8 @@
 #ifndef UsedCountable_h
 #define UsedCountable_h
 
+#include <AtomicValue.h>
+
 class UsedCountable {
 public:
 	void ref(void) const;
@@ -31,7 +33,7 @@ protected:
 	virtual ~UsedCountable();
 
 private:
-	mutable volatile int m_usedCount;
+	mutable mlpl::AtomicValue<int> m_usedCount;
 };
 
 #endif // UsedCountable_h

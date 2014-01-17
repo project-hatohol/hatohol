@@ -17,27 +17,27 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <glib.h>
 #include "UsedCountable.h"
 #include "HatoholException.h"
+using namespace mlpl;
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 void UsedCountable::ref(void) const
 {
-	g_atomic_int_inc(&m_usedCount);
+	m_usedCount.add(1);
 }
 
 void UsedCountable::unref(void) const
 {
-	if (g_atomic_int_dec_and_test(&m_usedCount))
+	if (m_usedCount.sub(1) == 0)
 		delete this;
 }
 
 int UsedCountable::getUsedCount(void) const
 {
-	return g_atomic_int_get(&m_usedCount);
+	return m_usedCount.get();
 }
 
 // ---------------------------------------------------------------------------
@@ -50,7 +50,8 @@ UsedCountable::UsedCountable(const int &initialUsedCount)
 
 UsedCountable::~UsedCountable()
 {
-	HATOHOL_ASSERT(m_usedCount == 0, "used count: %d.", m_usedCount);
+	int count = m_usedCount.get();
+	HATOHOL_ASSERT(count == 0, "used count: %d.", count);
 }
 
 // ---------------------------------------------------------------------------
