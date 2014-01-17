@@ -27,7 +27,7 @@ public:
 	int getUsedCount(void) const;
 
 protected:
-	UsedCountable(int initialUsedCount = 1);
+	UsedCountable(const int &initialUsedCount = 1);
 	virtual ~UsedCountable();
 
 private:

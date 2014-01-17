@@ -43,7 +43,7 @@ int UsedCountable::getUsedCount(void) const
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-UsedCountable::UsedCountable(int initialUsedCount)
+UsedCountable::UsedCountable(const int &initialUsedCount)
 : m_usedCount(initialUsedCount)
 {
 }

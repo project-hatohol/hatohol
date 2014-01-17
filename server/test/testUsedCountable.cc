@@ -27,7 +27,7 @@ struct TestUsedCountable : public UsedCountable {
 	{
 	}
 
-	TestUsedCountable(int initialCount)
+	TestUsedCountable(const int &initialCount)
 	: UsedCountable(initialCount)
 	{
 	}
