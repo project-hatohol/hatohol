@@ -50,8 +50,7 @@ UsedCountable::UsedCountable(int initialUsedCount)
 
 UsedCountable::~UsedCountable()
 {
-	HATOHOL_ASSERT(m_usedCount == 0,
-	             "used count: %d.", m_usedCount);
+	HATOHOL_ASSERT(m_usedCount == 0, "used count: %d.", m_usedCount);
 }
 
 // ---------------------------------------------------------------------------
