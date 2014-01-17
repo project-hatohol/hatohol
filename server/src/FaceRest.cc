@@ -1049,6 +1049,7 @@ static void addServers(FaceRest::RestJob *job, JsonBuilderAgent &agent,
 		agent.add("hostName", serverInfo.hostName);
 		agent.add("ipAddress", serverInfo.ipAddress);
 		agent.add("nickname", serverInfo.nickname);
+		agent.add("port", serverInfo.port);
 		agent.endObject();
 	}
 	agent.endArray();

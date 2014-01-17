@@ -322,6 +322,7 @@ static void assertServersInParser(JsonParserAgent *parser)
 		assertValueInParser(parser, "hostName",  svInfo.hostName);
 		assertValueInParser(parser, "ipAddress", svInfo.ipAddress);
 		assertValueInParser(parser, "nickname",  svInfo.nickname);
+		assertValueInParser(parser, "port",  (uint32_t)svInfo.port);
 		parser->endElement();
 	}
 	parser->endObject();

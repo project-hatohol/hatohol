@@ -208,11 +208,15 @@ function makeMonitoringSystemTypeLabel(type) {
 }
 
 function getServerLocation(server) {
-  var ipAddress, url;
+  var ipAddress, port, url;
   switch (server["type"]) {
   case hatohol.MONITORING_SYSTEM_ZABBIX:
     ipAddress = server["ipAddress"];
-    url = "http://" + ipAddress + "/zabbix/";
+    port = server["port"];
+    url = "http://" + ipAddress
+    if (!isNaN(port) && port != "80")
+      url += ":" + port;
+    url += "/zabbix/";
     break;
   default:
     break;

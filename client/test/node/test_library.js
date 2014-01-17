@@ -6,9 +6,21 @@ describe('getServerLocation', function() {
     var server = {
       "type": 0,
       "ipAddress": "127.0.0.1",
-      "name": "localhost"
+      "name": "localhost",
+      "port": 80
     };
     var expected = "http://127.0.0.1/zabbix/";
+    expect(Library.getServerLocation(server)).to.be(expected);
+  });
+
+  it('zabbix server with port', function() {
+    var server = {
+      "type": 0,
+      "ipAddress": "127.0.0.1",
+      "name": "localhost",
+      "port": 8080
+    };
+    var expected = "http://127.0.0.1:8080/zabbix/";
     expect(Library.getServerLocation(server)).to.be(expected);
   });
 
