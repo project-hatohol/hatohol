@@ -22,7 +22,15 @@
 
 namespace testUsedCountable {
 
-class TestUsedCountable : public UsedCountable {
+struct TestUsedCountable : public UsedCountable {
+	TestUsedCountable(void)
+	{
+	}
+
+	TestUsedCountable(int initialCount)
+	: UsedCountable(initialCount)
+	{
+	}
 };
 
 static TestUsedCountable *g_countable = NULL;
@@ -43,6 +51,13 @@ void test_constructor(void)
 {
 	g_countable = new TestUsedCountable();
 	cppcut_assert_equal(1, g_countable->getUsedCount());
+}
+
+void test_constructorWithInitialCount(void)
+{
+	const int initialCount = 3;
+	g_countable = new TestUsedCountable(initialCount);
+	cppcut_assert_equal(initialCount, g_countable->getUsedCount());
 }
 
 } // namespace testUsedCountable
