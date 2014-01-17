@@ -16,7 +16,6 @@
 # along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import re
 from django.conf.urls import patterns, include, url
 from django.conf.urls.i18n import i18n_patterns
 from hatohol.forwardview import jsonforward
