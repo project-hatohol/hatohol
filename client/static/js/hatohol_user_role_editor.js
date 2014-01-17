@@ -17,7 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var HatoholUserRoleEditor = function() {
+var HatoholUserRolesEditor = function() {
   var self = this;
   var dialogButtons = [{
     text: gettext("CLOSE"),
@@ -27,7 +27,7 @@ var HatoholUserRoleEditor = function() {
   // call the constructor of the super class
   dialogAttrs = { width: "auto" };
   HatoholDialog.apply(
-    this, ["user-role-editor", gettext("EDIT USER ROLE"),
+    this, ["user-roles-editor", gettext("EDIT USER ROLES"),
            dialogButtons, dialogAttrs]);
 
   //
@@ -38,10 +38,10 @@ var HatoholUserRoleEditor = function() {
   }
 };
 
-HatoholUserRoleEditor.prototype = Object.create(HatoholDialog.prototype);
-HatoholUserRoleEditor.prototype.constructor = HatoholUserRoleEditor;
+HatoholUserRolesEditor.prototype = Object.create(HatoholDialog.prototype);
+HatoholUserRolesEditor.prototype.constructor = HatoholUserRolesEditor;
 
-HatoholUserRoleEditor.prototype.createMainElement = function() {
+HatoholUserRolesEditor.prototype.createMainElement = function() {
   var self = this;
   var div = $(makeMainDivHTML());
   return div;
@@ -53,5 +53,5 @@ HatoholUserRoleEditor.prototype.createMainElement = function() {
   }
 };
 
-HatoholUserRoleEditor.prototype.onAppendMainElement = function () {
+HatoholUserRolesEditor.prototype.onAppendMainElement = function () {
 };

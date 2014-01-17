@@ -57,7 +57,7 @@ var HatoholUserEditDialog = function(succeededCb, user) {
   }
 
   $("#edit-user-roles").click(function() {
-    new HatoholUserRoleEditor();
+    new HatoholUserRolesEditor();
   });
 
   function makeQueryData() {

@@ -1,4 +1,4 @@
-describe('HatoholUserRoleEditor', function() {
+describe('HatoholUserRolesEditor', function() {
   var editor;
 
   beforeEach(function() {
@@ -11,8 +11,8 @@ describe('HatoholUserRoleEditor', function() {
   });
 
   it('new', function() {
-    var expectedId = "#user-role-editor";
-    editor = new HatoholUserRoleEditor();
+    var expectedId = "#user-roles-editor";
+    editor = new HatoholUserRolesEditor();
     expect(editor).not.to.be(undefined);
     expect($(expectedId)).to.have.length(1);
     var buttons = $(expectedId).dialog("option", "buttons");
