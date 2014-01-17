@@ -41,6 +41,12 @@ Others
 NOTE: If a function returns a reference, this convention is not applied.
       E.g. 'const string &func()' is OK
 
+- Basically use Pimpl idiom
+Many existing code have private members in the structure named PrivateContext,
+which is defined in the source (.cc) file.
+However, for classes that needs performance, definition of private members
+in the heder file is allowed.
+
 Python
 ======
 Baisically follow PEP 8
