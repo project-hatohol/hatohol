@@ -180,12 +180,13 @@ void ArmBase::sleepInterruptible(int sleepTime)
 		sleep(10); // to avoid burnup
 	}
 	ts.tv_sec += sleepTime;
+retry:
 	int result = sem_timedwait(&m_ctx->sleepSemaphore, &ts);
 	if (result == -1) {
 		if (errno == ETIMEDOUT)
 			; // This is normal case
 		else if (errno == EINTR)
-			; // In this case, we also do nothing
+			goto retry;
 	}
 	// The up of the semaphore is done only from the destructor.
 }
