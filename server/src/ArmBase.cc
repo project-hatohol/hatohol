@@ -21,6 +21,7 @@
 #include <semaphore.h>
 #include <errno.h>
 #include <Logger.h>
+#include <AtomicValue.h>
 #include "ArmBase.h"
 #include "HatoholException.h"
 
@@ -31,14 +32,14 @@ struct ArmBase::PrivateContext
 	MonitoringServerInfo serverInfo; // we have the copy.
 	timespec             lastPollingTime;
 	sem_t                sleepSemaphore;
-	volatile int         exitRequest;
+	AtomicValue<bool>    exitRequest;
 	ArmBase::UpdateType  updateType;
 	bool                 isCopyOnDemandEnabled;
 	ReadWriteLock        rwlock;
 
 	PrivateContext(const MonitoringServerInfo &_serverInfo)
 	: serverInfo(_serverInfo),
-	  exitRequest(0),
+	  exitRequest(false),
 	  updateType(UPDATE_POLLING),
 	  isCopyOnDemandEnabled(false)
 	{
@@ -153,7 +154,7 @@ int ArmBase::getRetryInterval(void) const
 // ---------------------------------------------------------------------------
 bool ArmBase::hasExitRequest(void) const
 {
-	return g_atomic_int_get(&m_ctx->exitRequest);
+	return m_ctx->exitRequest.get();
 }
 
 void ArmBase::requestExit(void)
@@ -161,7 +162,7 @@ void ArmBase::requestExit(void)
 	// to return immediately from the waiting.
 	if (sem_post(&m_ctx->sleepSemaphore) == -1)
 		MLPL_ERR("Failed to call sem_post: %d\n", errno);
-	g_atomic_int_set(&m_ctx->exitRequest, 1);
+	m_ctx->exitRequest.set(true);
 }
 
 const MonitoringServerInfo &ArmBase::getServerInfo(void) const
