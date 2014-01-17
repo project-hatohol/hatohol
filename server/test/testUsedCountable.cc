@@ -60,4 +60,18 @@ void test_constructorWithInitialCount(void)
 	cppcut_assert_equal(initialCount, g_countable->getUsedCount());
 }
 
+void test_refUnref(void)
+{
+	g_countable = new TestUsedCountable();
+	cppcut_assert_equal(1, g_countable->getUsedCount());
+	g_countable->ref();
+	cppcut_assert_equal(2, g_countable->getUsedCount());
+	g_countable->ref();
+	cppcut_assert_equal(3, g_countable->getUsedCount());
+	g_countable->unref();
+	cppcut_assert_equal(2, g_countable->getUsedCount());
+	g_countable->unref();
+	cppcut_assert_equal(1, g_countable->getUsedCount());
+}
+
 } // namespace testUsedCountable
