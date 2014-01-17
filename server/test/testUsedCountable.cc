@@ -38,8 +38,12 @@ static TestUsedCountable *g_countable = NULL;
 void cut_teardown(void)
 {
 	if (g_countable) {
-		while (g_countable->getUsedCount() >= 1)
+		while (true) {
+			int count = g_countable->getUsedCount();
 			g_countable->unref();
+			if (count == 1)
+				break;
+		}
 		g_countable = NULL;
 	}
 }
