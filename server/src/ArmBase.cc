@@ -178,6 +178,7 @@ void ArmBase::sleepInterruptible(int sleepTime)
 	if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
 		MLPL_ERR("Failed to call clock_gettime: %d\n", errno);
 		sleep(10); // to avoid burnup
+		return;
 	}
 	ts.tv_sec += sleepTime;
 retry:
