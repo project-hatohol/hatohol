@@ -187,6 +187,8 @@ retry:
 			; // This is normal case
 		else if (errno == EINTR)
 			goto retry;
+		else
+			MLPL_ERR("sem_timedwiat(): errno: %d\n", errno);
 	}
 	// The up of the semaphore is done only from the destructor.
 }
