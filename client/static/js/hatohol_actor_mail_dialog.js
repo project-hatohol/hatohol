@@ -32,7 +32,7 @@ var HatoholActorMailDialog = function(applyCallback, currCommand) {
 
   // call the constructor of the super class
   var id = "hatohol_actor_mail_dialog";
-  var title = "Execution parameter maker";
+  var title = gettext("Execution parameter maker");
   HatoholDialog.apply(this, [id, title, dialogButtons]);
 
   if ($("#inputTo").val())
