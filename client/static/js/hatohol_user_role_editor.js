@@ -53,5 +53,5 @@ HatoholUserRoleEditor.prototype.createMainElement = function() {
   }
 };
 
-HatoholUserEditDialog.prototype.onAppendMainElement = function () {
+HatoholUserRoleEditor.prototype.onAppendMainElement = function () {
 };
