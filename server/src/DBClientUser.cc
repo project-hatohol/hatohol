@@ -902,6 +902,48 @@ HatoholError DBClientUser::addUserRoleInfo(UserRoleInfo &userRoleInfo,
 	return err;
 }
 
+HatoholError DBClientUser::updateUserRoleInfo(
+  UserRoleInfo &userRoleInfo, const OperationPrivilege &privilege)
+{
+	HatoholError err;
+#if 0
+	// TODO: Add the privilege
+	if (!privilege.has(OPPRVLG_UPDATE_USER_ROLE))
+		return HatoholError(HTERR_NO_PRIVILEGE);
+#endif
+	err = isValidUserRoleName(userRoleInfo.name);
+	if (err != HTERR_OK)
+		return err;
+	err = isValidFlags(userRoleInfo.flags);
+	if (err != HTERR_OK)
+		return err;
+
+	VariableItemGroupPtr row;
+	DBAgentUpdateArg arg;
+	arg.tableName = TABLE_NAME_USER_ROLES;
+	arg.columnDefs = COLUMN_DEF_USER_ROLES;
+
+	row->ADD_NEW_ITEM(String, userRoleInfo.name);
+	arg.columnIndexes.push_back(IDX_USER_ROLES_NAME);
+
+	row->ADD_NEW_ITEM(Uint64, userRoleInfo.flags);
+	arg.columnIndexes.push_back(IDX_USER_ROLES_FLAGS);
+	arg.row = row;
+
+	arg.condition = StringUtils::sprintf("%s=%"FMT_USER_ROLE_ID,
+	  COLUMN_DEF_USERS[IDX_USERS_ID].columnName, userRoleInfo.id);
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		if (!isRecordExisting(TABLE_NAME_USER_ROLES, arg.condition)) {
+			err = HTERR_NOT_FOUND_USER_ID; // TODO: Add a new HTERR?
+		} else {
+			update(arg);
+			err = HTERR_OK;
+		}
+	} DBCLIENT_TRANSACTION_END();
+	return err;
+}
+
 HatoholError DBClientUser::deleteUserRoleInfo(
   const UserRoleIdType userRoleId, const OperationPrivilege &privilege)
 {
