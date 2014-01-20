@@ -390,12 +390,7 @@ UserRoleQueryOption::~UserRoleQueryOption()
 
 string UserRoleQueryOption::getCondition(void) const
 {
-	UserIdType userId = getUserId();
-	if (userId == INVALID_USER_ID) {
-		MLPL_WARN("INVALID_USER_ID\n");
-		return DBClientUser::getAlwaysFalseCondition();
-	}
-
+	// All users can get all user roles
 	return "";
 }
 
@@ -973,9 +968,6 @@ void DBClientUser::getUserRoleInfoList(UserRoleInfoList &userRoleInfoList,
 	arg.pushColumn(COLUMN_DEF_USERS[IDX_USER_ROLES_NAME]);
 	arg.pushColumn(COLUMN_DEF_USERS[IDX_USER_ROLES_FLAGS]);
 	arg.condition = option.getCondition();
-
-	if (isAlwaysFalseCondition(arg.condition))
-		return;
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
