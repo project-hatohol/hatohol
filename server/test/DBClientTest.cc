@@ -374,20 +374,20 @@ UserRoleInfo testUserRoleInfo[] = {
 	0,                 // id
 	"Action master",   // name
 	// flags
-	(OPPRVLG_CREATE_ACTION << 1)     |
-	(OPPRVLG_UPDATE_ACTION << 1)     |
-	(OPPRVLG_UPDATE_ALL_ACTION << 1) |
-	(OPPRVLG_DELETE_ACTION << 1)     |
-	(OPPRVLG_DELETE_ALL_ACTION << 1) |
-	(OPPRVLG_GET_ALL_ACTION << 1)
+	(1 << OPPRVLG_CREATE_ACTION)     |
+	(1 << OPPRVLG_UPDATE_ACTION)     |
+	(1 << OPPRVLG_UPDATE_ALL_ACTION) |
+	(1 << OPPRVLG_DELETE_ACTION)     |
+	(1 << OPPRVLG_DELETE_ALL_ACTION) |
+	(1 << OPPRVLG_GET_ALL_ACTION)
 }, {
 	0,                 // id
 	"Sweeper",         // name
 	// flags
-	(OPPRVLG_DELETE_USER << 1)          |
-	(OPPRVLG_DELETE_ALL_SERVER << 1)    |
-	(OPPRVLG_DELETE_ALL_ACTION << 1)    |
-	(OPPRVLG_DELETE_ALL_USER_ROLE << 1)
+	(1 << OPPRVLG_DELETE_USER)          |
+	(1 << OPPRVLG_DELETE_ALL_SERVER)    |
+	(1 << OPPRVLG_DELETE_ALL_ACTION)    |
+	(1 << OPPRVLG_DELETE_ALL_USER_ROLE)
 }
 };
 const size_t NumTestUserRoleInfo = sizeof(testUserRoleInfo) / sizeof(UserRoleInfo);
