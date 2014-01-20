@@ -27,8 +27,12 @@ using namespace mlpl;
 const UserIdSet EMPTY_USER_ID_SET;
 const AccessInfoIdSet EMPTY_ACCESS_INFO_ID_SET;
 
-// 1 -> 2: NUM_OPPRVLG:10 -> 16
-const int   DBClientUser::USER_DB_VERSION = 2;
+// 1 -> 2:
+//   * NUM_OPPRVLG:10 -> 16
+// 2 -> 3:
+//   * NUM_OPPRVLG:16 -> 19
+//   * Add user_roles table
+const int   DBClientUser::USER_DB_VERSION = 3;
 
 const char *DBClientUser::DEFAULT_DB_NAME = DBClientConfig::DEFAULT_DB_NAME;
 const char *DBClientUser::TABLE_NAME_USERS = "users";
@@ -222,27 +226,37 @@ struct DBClientUser::PrivateContext {
 
 bool DBClientUser::PrivateContext::validUsernameChars[UINT8_MAX+1];
 
+static void updateAdminPrivilege(DBAgent *dbAgent,
+				 const OperationPrivilegeType old_NUM_OPPRVLG)
+{
+	static const OperationPrivilegeFlag oldAdminFlags =
+		OperationPrivilege::makeFlag(old_NUM_OPPRVLG) - 1;
+	DBAgentUpdateArg arg;
+	arg.tableName = TABLE_NAME_USERS;
+	arg.columnDefs = COLUMN_DEF_USERS;
+
+	VariableItemGroupPtr row;
+	row->ADD_NEW_ITEM(Uint64, ALL_PRIVILEGES);
+	arg.columnIndexes.push_back(IDX_USERS_FLAGS);
+	arg.row = row;
+
+	arg.condition = StringUtils::sprintf(
+	  "%s=%"FMT_OPPRVLG,
+	  COLUMN_DEF_USERS[IDX_USERS_FLAGS].columnName, oldAdminFlags);
+	dbAgent->update(arg);
+}
+
 static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
 {
+	static OperationPrivilegeType old_NUM_OPPRVLG;
+
 	if (oldVer <= 1) {
-		// Update the Admin's privilege
-		static const OperationPrivilegeType old_NUM_OPPRVLG =
-		  static_cast<OperationPrivilegeType>(10);
-		static const OperationPrivilegeFlag oldAdminFlags =
-		  OperationPrivilege::makeFlag(old_NUM_OPPRVLG) - 1;
-		DBAgentUpdateArg arg;
-		arg.tableName = TABLE_NAME_USERS;
-		arg.columnDefs = COLUMN_DEF_USERS;
-
-		VariableItemGroupPtr row;
-		row->ADD_NEW_ITEM(Uint64, ALL_PRIVILEGES);
-		arg.columnIndexes.push_back(IDX_USERS_FLAGS);
-		arg.row = row;
-
-		arg.condition = StringUtils::sprintf(
-		  "%s=%"FMT_OPPRVLG,
-		  COLUMN_DEF_USERS[IDX_USERS_FLAGS].columnName, oldAdminFlags);
-		dbAgent->update(arg);
+		old_NUM_OPPRVLG = static_cast<OperationPrivilegeType>(10);
+		updateAdminPrivilege(dbAgent, old_NUM_OPPRVLG);
+	}
+	if (oldVer <= 2) {
+		old_NUM_OPPRVLG = static_cast<OperationPrivilegeType>(16);
+		updateAdminPrivilege(dbAgent, old_NUM_OPPRVLG);
 	}
 	return true;
 }
@@ -858,11 +872,8 @@ HatoholError DBClientUser::addUserRoleInfo(UserRoleInfo &userRoleInfo,
 					   const OperationPrivilege &privilege)
 {
 	HatoholError err;
-#if 0
-	// TODO: Add the privilege
 	if (!privilege.has(OPPRVLG_CREATE_USER_ROLE))
 		return HatoholError(HTERR_NO_PRIVILEGE);
-#endif
 	err = isValidUserRoleName(userRoleInfo.name);
 	if (err != HTERR_OK)
 		return err;
@@ -901,11 +912,8 @@ HatoholError DBClientUser::updateUserRoleInfo(
   UserRoleInfo &userRoleInfo, const OperationPrivilege &privilege)
 {
 	HatoholError err;
-#if 0
-	// TODO: Add the privilege
-	if (!privilege.has(OPPRVLG_UPDATE_USER_ROLE))
+	if (!privilege.has(OPPRVLG_UPDATE_ALL_USER_ROLE))
 		return HatoholError(HTERR_NO_PRIVILEGE);
-#endif
 	err = isValidUserRoleName(userRoleInfo.name);
 	if (err != HTERR_OK)
 		return err;
@@ -942,11 +950,8 @@ HatoholError DBClientUser::updateUserRoleInfo(
 HatoholError DBClientUser::deleteUserRoleInfo(
   const UserRoleIdType userRoleId, const OperationPrivilege &privilege)
 {
-#if 0
-	// TODO: Add the privilege
-	if (!privilege.has(OPPRVLG_DELETE_USER_ROLE))
+	if (!privilege.has(OPPRVLG_DELETE_ALL_USER_ROLE))
 		return HTERR_NO_PRIVILEGE;
-#endif
 
 	DBAgentDeleteArg arg;
 	arg.tableName = TABLE_NAME_USER_ROLES;
