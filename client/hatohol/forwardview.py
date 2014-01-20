@@ -21,6 +21,16 @@ from django.http import HttpResponse
 import hatoholserver
 import hatohol_def
 
+def utf8_dict(src_dict):
+    dest_dict = {}
+    for key, value in src_dict.iteritems():
+        if isinstance(value, unicode):
+            value = value.encode('utf8')
+        elif isinstance(value, str):
+            value.decode('utf8')
+        dest_dict[key] = value
+    return dest_dict
+
 def jsonforward(request, path):
     server  = hatoholserver.get_address()
     port    = hatoholserver.get_port()
@@ -30,7 +40,8 @@ def jsonforward(request, path):
         hdrs = {hatohol_def.FACE_REST_SESSION_ID_HEADER_NAME:
                 request.META[hatoholserver.SESSION_NAME_META]}
     if request.method == 'POST':
-        req = urllib2.Request(url, urllib.urlencode(request.REQUEST),
+        encoded_query = urllib.urlencode(utf8_dict(request.POST))
+        req = urllib2.Request(url, encoded_query,
                             headers=hdrs)
     elif request.method == 'PUT':
         req = urllib2.Request(url, request.read(),
@@ -40,7 +51,7 @@ def jsonforward(request, path):
         req = urllib2.Request(url, headers=hdrs)
         req.get_method = lambda: 'DELETE'
     else:
-        encoded_query = urllib.urlencode(request.REQUEST)
+        encoded_query = urllib.urlencode(utf8_dict(request.GET))
         url += '?' + encoded_query
         req = urllib2.Request(url, headers=hdrs)
     content = urllib2.urlopen(req)
