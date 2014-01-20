@@ -365,6 +365,33 @@ AccessInfo testAccessInfo[] = {
 };
 const size_t NumTestAccessInfo = sizeof(testAccessInfo) / sizeof(AccessInfo);
 
+UserRoleInfo testUserRoleInfo[] = {
+{
+	0,                           // id
+	"Specific Sever admin",      // name
+	(OPPRVLG_UPDATE_SERVER << 1) // flags
+}, {
+	0,                 // id
+	"Action master",   // name
+	// flags
+	(OPPRVLG_CREATE_ACTION << 1)     |
+	(OPPRVLG_UPDATE_ACTION << 1)     |
+	(OPPRVLG_UPDATE_ALL_ACTION << 1) |
+	(OPPRVLG_DELETE_ACTION << 1)     |
+	(OPPRVLG_DELETE_ALL_ACTION << 1) |
+	(OPPRVLG_GET_ALL_ACTION << 1)
+}, {
+	0,                 // id
+	"Sweeper",         // name
+	// flags
+	(OPPRVLG_DELETE_USER << 1)          |
+	(OPPRVLG_DELETE_ALL_SERVER << 1)    |
+	(OPPRVLG_DELETE_ALL_ACTION << 1)    |
+	(OPPRVLG_DELETE_ALL_USER_ROLE << 1)
+}
+};
+const size_t NumTestUserRoleInfo = sizeof(testUserRoleInfo) / sizeof(UserRoleInfo);
+
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 {
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
