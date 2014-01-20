@@ -367,6 +367,38 @@ UserIdType AccessInfoQueryOption::getTargetUserId(void) const
 }
 
 // ---------------------------------------------------------------------------
+// UserRoleQueryOption
+// ---------------------------------------------------------------------------
+struct UserRoleQueryOption::PrivateContext {
+	PrivateContext(void)
+	{
+	}
+};
+
+UserRoleQueryOption::UserRoleQueryOption(UserIdType userId)
+: DataQueryOption(userId), m_ctx(NULL)
+{
+	m_ctx = new PrivateContext();
+}
+
+UserRoleQueryOption::~UserRoleQueryOption()
+{
+	if (m_ctx)
+		delete m_ctx;
+}
+
+string UserRoleQueryOption::getCondition(void) const
+{
+	UserIdType userId = getUserId();
+	if (userId == INVALID_USER_ID) {
+		MLPL_WARN("INVALID_USER_ID\n");
+		return DBClientUser::getAlwaysFalseCondition();
+	}
+
+	return "";
+}
+
+// ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 void DBClientUser::init(void)

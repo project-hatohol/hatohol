@@ -116,6 +116,19 @@ private:
 	PrivateContext *m_ctx;
 };
 
+class UserRoleQueryOption : public DataQueryOption {
+public:
+	UserRoleQueryOption(UserIdType userId = INVALID_USER_ID);
+	virtual ~UserRoleQueryOption();
+
+	// Overriding of virtual methods
+	virtual std::string getCondition(void) const;
+
+private:
+	struct PrivateContext;
+	PrivateContext *m_ctx;
+};
+
 class DBClientUser : public DBClient {
 public:
 	static const int   USER_DB_VERSION;
