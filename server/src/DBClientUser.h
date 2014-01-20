@@ -138,6 +138,7 @@ public:
 	static const char *TABLE_NAME_USER_ROLES;
 	static const size_t MAX_USER_NAME_LENGTH;
 	static const size_t MAX_PASSWORD_LENGTH;
+	static const size_t MAX_USER_ROLE_NAME_LENGTH;
 	static void init(void);
 	static void reset(void);
 
@@ -226,12 +227,15 @@ public:
 	void getServerHostGrpSetMap(ServerHostGrpSetMap &srvHostGrpSetMap,
 	                            const UserIdType userId);
 
+	HatoholError addUserRoleInfo(UserRoleInfo &userInfo,
+	                             const OperationPrivilege &privilege);
 	void getUserRoleInfoList(UserRoleInfoList &userRoleInfoList,
 	                         const UserRoleQueryOption &option);
 
 	static HatoholError isValidUserName(const std::string &name);
 	static HatoholError isValidPassword(const std::string &password);
 	static HatoholError isValidFlags(const OperationPrivilegeFlag flags);
+	static HatoholError isValidUserRoleName(const std::string &name);
 
 	bool isAccessible(const ServerIdType serverId,
 	                  const OperationPrivilege &privilege,

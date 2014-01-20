@@ -36,6 +36,7 @@ const char *DBClientUser::TABLE_NAME_ACCESS_LIST = "access_list";
 const char *DBClientUser::TABLE_NAME_USER_ROLES = "user_roles";
 const size_t DBClientUser::MAX_USER_NAME_LENGTH = 128;
 const size_t DBClientUser::MAX_PASSWORD_LENGTH = 128;
+const size_t DBClientUser::MAX_USER_ROLE_NAME_LENGTH = 128;
 static const char *TABLE_NAME_USERS = DBClientUser::TABLE_NAME_USERS;
 static const char *TABLE_NAME_ACCESS_LIST =
   DBClientUser::TABLE_NAME_ACCESS_LIST;
@@ -858,6 +859,49 @@ void DBClientUser::getServerHostGrpSetMap(
 	}
 }
 
+HatoholError DBClientUser::addUserRoleInfo(UserRoleInfo &userRoleInfo,
+					   const OperationPrivilege &privilege)
+{
+	HatoholError err;
+#if 0
+	// TODO: Add the privilege
+	if (!privilege.has(OPPRVLG_CREATE_USER_ROLE))
+		return HatoholError(HTERR_NO_PRIVILEGE);
+#endif
+	err = isValidUserRoleName(userRoleInfo.name);
+	if (err != HTERR_OK)
+		return err;
+	err = isValidFlags(userRoleInfo.flags);
+	if (err != HTERR_OK)
+		return err;
+
+	VariableItemGroupPtr row;
+	DBAgentInsertArg arg;
+	arg.tableName = TABLE_NAME_USER_ROLES;
+	arg.numColumns = NUM_COLUMNS_USER_ROLES;
+	arg.columnDefs = COLUMN_DEF_USER_ROLES;
+
+	row->ADD_NEW_ITEM(Int, 0); // This is automaticall set (0 is dummy)
+	row->ADD_NEW_ITEM(String, userRoleInfo.name);
+	row->ADD_NEW_ITEM(Uint64, userRoleInfo.flags);
+	arg.row = row;
+
+	string dupCheckCond = StringUtils::sprintf("%s='%s'",
+	  COLUMN_DEF_USERS[IDX_USER_ROLES_NAME].columnName,
+	  userRoleInfo.name.c_str());
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		if (isRecordExisting(TABLE_NAME_USER_ROLES, dupCheckCond)) {
+			err = HTERR_USER_NAME_EXIST; // TODO: Add a new HTERR?
+		} else {
+			insert(arg);
+			userRoleInfo.id = getLastInsertId();
+			err = HTERR_OK;
+		}
+	} DBCLIENT_TRANSACTION_END();
+	return err;
+}
+
 void DBClientUser::getUserRoleInfoList(UserRoleInfoList &userRoleInfoList,
 				       const UserRoleQueryOption &option)
 {
@@ -928,6 +972,16 @@ HatoholError DBClientUser::isValidFlags(const OperationPrivilegeFlag flags)
 {
 	if (flags >= OperationPrivilege::makeFlag(NUM_OPPRVLG))
 		return HTERR_INVALID_USER_FLAGS;
+	return HTERR_OK;
+}
+
+HatoholError DBClientUser::isValidUserRoleName(const string &name)
+{
+	// TODO: Add new errors?
+	if (name.empty())
+		return HTERR_EMPTY_USER_NAME;
+	if (name.size() > MAX_USER_ROLE_NAME_LENGTH)
+		return HTERR_TOO_LONG_USER_NAME;
 	return HTERR_OK;
 }
 
