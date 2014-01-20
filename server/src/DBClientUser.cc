@@ -902,6 +902,26 @@ HatoholError DBClientUser::addUserRoleInfo(UserRoleInfo &userRoleInfo,
 	return err;
 }
 
+HatoholError DBClientUser::deleteUserRoleInfo(
+  const UserRoleIdType userRoleId, const OperationPrivilege &privilege)
+{
+#if 0
+	// TODO: Add the privilege
+	if (!privilege.has(OPPRVLG_DELETE_USER_ROLE))
+		return HTERR_NO_PRIVILEGE;
+#endif
+
+	DBAgentDeleteArg arg;
+	arg.tableName = TABLE_NAME_USER_ROLES;
+	const ColumnDef &colId = COLUMN_DEF_USERS[IDX_USER_ROLES_ID];
+	arg.condition = StringUtils::sprintf("%s=%"FMT_USER_ROLE_ID,
+	                                     colId.columnName, userRoleId);
+	DBCLIENT_TRANSACTION_BEGIN() {
+		deleteRows(arg);
+	} DBCLIENT_TRANSACTION_END();
+	return HTERR_OK;
+}
+
 void DBClientUser::getUserRoleInfoList(UserRoleInfoList &userRoleInfoList,
 				       const UserRoleQueryOption &option)
 {

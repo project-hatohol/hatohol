@@ -229,6 +229,8 @@ public:
 
 	HatoholError addUserRoleInfo(UserRoleInfo &userInfo,
 	                             const OperationPrivilege &privilege);
+	HatoholError deleteUserRoleInfo(const UserRoleIdType userRoleId,
+					const OperationPrivilege &privilege);
 	void getUserRoleInfoList(UserRoleInfoList &userRoleInfoList,
 	                         const UserRoleQueryOption &option);
 
