@@ -227,7 +227,7 @@ public:
 	void getServerHostGrpSetMap(ServerHostGrpSetMap &srvHostGrpSetMap,
 	                            const UserIdType userId);
 
-	HatoholError addUserRoleInfo(UserRoleInfo &userInfo,
+	HatoholError addUserRoleInfo(UserRoleInfo &userRoleInfo,
 	                             const OperationPrivilege &privilege);
 	HatoholError updateUserRoleInfo(UserRoleInfo &userRoleInfo,
 					const OperationPrivilege &privilege);
