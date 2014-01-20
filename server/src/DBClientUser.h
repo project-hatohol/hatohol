@@ -80,6 +80,10 @@ struct UserRoleInfo {
 	OperationPrivilegeFlag flags;
 };
 
+typedef std::list<UserRoleInfo>          UserRoleInfoList;
+typedef UserRoleInfoList::iterator       UserRoleInfoListIterator;
+typedef UserRoleInfoList::const_iterator UserRoleInfoListConstIterator;
+
 class UserQueryOption : public DataQueryOption {
 public:
 	UserQueryOption(UserIdType userId = INVALID_USER_ID);
