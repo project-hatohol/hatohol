@@ -858,6 +858,49 @@ void DBClientUser::getServerHostGrpSetMap(
 	}
 }
 
+void DBClientUser::getUserRoleInfoList(UserRoleInfoList &userRoleInfoList,
+				       const UserRoleQueryOption &option)
+{
+	DBAgentSelectExArg arg;
+	arg.tableName = TABLE_NAME_USER_ROLES;
+	arg.pushColumn(COLUMN_DEF_USERS[IDX_USER_ROLES_ID]);
+	arg.pushColumn(COLUMN_DEF_USERS[IDX_USER_ROLES_NAME]);
+	arg.pushColumn(COLUMN_DEF_USERS[IDX_USER_ROLES_FLAGS]);
+	arg.condition = option.getCondition();
+
+	if (isAlwaysFalseCondition(arg.condition))
+		return;
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator it = grpList.begin();
+	for (; it != grpList.end(); ++it) {
+		size_t idx = 0;
+		const ItemGroup *itemGroup = *it;
+		UserRoleInfo userRoleInfo;
+
+		// user role ID
+		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt,
+		                  itemUserId);
+		userRoleInfo.id = itemUserId->get();
+
+		// name
+		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemString,
+		                  itemName);
+		userRoleInfo.name = itemName->get();
+
+		// flags
+		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemUint64,
+		                  itemFlags);
+		userRoleInfo.flags = itemFlags->get();
+
+		userRoleInfoList.push_back(userRoleInfo);
+	}
+}
+
 HatoholError DBClientUser::isValidUserName(const string &name)
 {
 	if (name.empty())

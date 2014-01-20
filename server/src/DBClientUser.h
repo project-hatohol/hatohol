@@ -226,6 +226,9 @@ public:
 	void getServerHostGrpSetMap(ServerHostGrpSetMap &srvHostGrpSetMap,
 	                            const UserIdType userId);
 
+	void getUserRoleInfoList(UserRoleInfoList &userRoleInfoList,
+	                         const UserRoleQueryOption &option);
+
 	static HatoholError isValidUserName(const std::string &name);
 	static HatoholError isValidPassword(const std::string &password);
 	static HatoholError isValidFlags(const OperationPrivilegeFlag flags);
