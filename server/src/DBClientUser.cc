@@ -33,11 +33,14 @@ const int   DBClientUser::USER_DB_VERSION = 2;
 const char *DBClientUser::DEFAULT_DB_NAME = DBClientConfig::DEFAULT_DB_NAME;
 const char *DBClientUser::TABLE_NAME_USERS = "users";
 const char *DBClientUser::TABLE_NAME_ACCESS_LIST = "access_list";
+const char *DBClientUser::TABLE_NAME_USER_ROLES = "user_roles";
 const size_t DBClientUser::MAX_USER_NAME_LENGTH = 128;
 const size_t DBClientUser::MAX_PASSWORD_LENGTH = 128;
 static const char *TABLE_NAME_USERS = DBClientUser::TABLE_NAME_USERS;
 static const char *TABLE_NAME_ACCESS_LIST =
   DBClientUser::TABLE_NAME_ACCESS_LIST;
+static const char *TABLE_NAME_USER_ROLES =
+  DBClientUser::TABLE_NAME_USER_ROLES;
 
 static const ColumnDef COLUMN_DEF_USERS[] = {
 {
@@ -153,6 +156,52 @@ enum {
 	IDX_ACCESS_LIST_SERVER_ID,
 	IDX_ACCESS_LIST_HOST_GROUP_ID,
 	NUM_IDX_ACCESS_LIST,
+};
+
+static const ColumnDef COLUMN_DEF_USER_ROLES[] = {
+{
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_USER_ROLES,             // tableName
+	"id",                              // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	SQL_COLUMN_FLAG_AUTO_INC,          // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_USER_ROLES,             // tableName
+	"name",                            // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_USER_ROLES,             // tableName
+	"flags",                           // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}
+};
+static const size_t NUM_COLUMNS_USER_ROLES =
+  sizeof(COLUMN_DEF_USER_ROLES) / sizeof(ColumnDef);
+
+enum {
+	IDX_USER_ROLES_ID,
+	IDX_USER_ROLES_NAME,
+	IDX_USER_ROLES_FLAGS,
+	NUM_IDX_USER_ROLES,
 };
 
 ServerAccessInfoMap::~ServerAccessInfoMap()

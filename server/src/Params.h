@@ -45,6 +45,9 @@ typedef int ActionIdType;
 typedef int UserIdType;
 #define FMT_USER_ID "d"
 
+typedef int UserRoleIdType;
+#define FMT_USER_ROLE_ID "d"
+
 static const UserIdType INVALID_USER_ID = -1;
 static const UserIdType USER_ID_ANY     = -2;
 

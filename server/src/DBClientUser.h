@@ -74,6 +74,12 @@ typedef std::map<uint32_t, HostGroupSet>    ServerHostGrpSetMap;
 typedef ServerHostGrpSetMap::iterator       ServerHostGrpSetMapIterator;
 typedef ServerHostGrpSetMap::const_iterator ServerHostGrpSetMapConstIterator;
 
+struct UserRoleInfo {
+	UserRoleIdType id;
+	std::string name;
+	OperationPrivilegeFlag flags;
+};
+
 class UserQueryOption : public DataQueryOption {
 public:
 	UserQueryOption(UserIdType userId = INVALID_USER_ID);
@@ -112,6 +118,7 @@ public:
 	static const char *DEFAULT_DB_NAME;
 	static const char *TABLE_NAME_USERS;
 	static const char *TABLE_NAME_ACCESS_LIST;
+	static const char *TABLE_NAME_USER_ROLES;
 	static const size_t MAX_USER_NAME_LENGTH;
 	static const size_t MAX_PASSWORD_LENGTH;
 	static void init(void);
