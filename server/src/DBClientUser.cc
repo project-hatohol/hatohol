@@ -952,7 +952,7 @@ HatoholError DBClientUser::updateUserRoleInfo(
 	  "(%s='%s' and %s<>%" FMT_USER_ROLE_ID ")",
 	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_NAME].columnName,
 	  userRoleInfo.name.c_str(),
-	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_NAME].columnName,
+	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_ID].columnName,
 	  userRoleInfo.id);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
