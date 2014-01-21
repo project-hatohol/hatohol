@@ -26,6 +26,7 @@ using namespace mlpl;
 
 const UserIdSet EMPTY_USER_ID_SET;
 const AccessInfoIdSet EMPTY_ACCESS_INFO_ID_SET;
+const UserRoleIdSet EMPTY_USER_ROLE_ID_SET;
 
 // 1 -> 2:
 //   * NUM_OPPRVLG:10 -> 16

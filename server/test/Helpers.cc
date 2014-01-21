@@ -466,7 +466,7 @@ void _assertAccessInfoInDB(const AccessInfoIdSet &excludeAccessInfoIdSet)
 	assertDBContent(cache.getUser()->getDBAgent(), statement, expect);
 }
 
-void _assertUserRolesInDB(void)
+void _assertUserRolesInDB(const UserRoleIdSet &excludeUserRoleIdSet)
 {
 	string statement = "select * from ";
 	statement += DBClientUser::TABLE_NAME_USER_ROLES;
@@ -474,6 +474,9 @@ void _assertUserRolesInDB(void)
 	string expect;
 	for (size_t i = 0; i < NumTestUserRoleInfo; i++) {
 		UserIdType userId = i + 1;
+		UserRoleIdSetIterator endIt = excludeUserRoleIdSet.end();
+		if (excludeUserRoleIdSet.find(userId) != endIt)
+			continue;
 		const UserRoleInfo &userRoleInfo = testUserRoleInfo[i];
 		expect += StringUtils::sprintf(
 		  "%"FMT_USER_ROLE_ID"|%s|%"FMT_OPPRVLG"\n",

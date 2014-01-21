@@ -135,8 +135,8 @@ void _assertUsersInDB(const UserIdSet &excludeUserIdSet = EMPTY_USER_ID_SET);
 void _assertAccessInfoInDB(const AccessInfoIdSet &excludeAccessInfoIdSet = EMPTY_ACCESS_INFO_ID_SET);
 #define assertAccessInfoInDB(E) cut_trace(_assertAccessInfoInDB(E))
 
-void _assertUserRolesInDB(void);
-#define assertUserRolesInDB() cut_trace(_assertUserRolesInDB())
+void _assertUserRolesInDB(const UserRoleIdSet &excludeUserRoleIdSet = EMPTY_USER_ROLE_ID_SET);
+#define assertUserRolesInDB(E) cut_trace(_assertUserRolesInDB(E))
 
 void makeTestMySQLDBIfNeeded(const std::string &dbName, bool recreate = false);
 void setupTestDBServers(void);
