@@ -908,7 +908,7 @@ HatoholError DBClientUser::addUserRoleInfo(UserRoleInfo &userRoleInfo,
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		if (isRecordExisting(TABLE_NAME_USER_ROLES, dupCheckCond)) {
-			err = HTERR_USER_NAME_EXIST; // TODO: Add a new HTERR?
+			err = HTERR_USER_ROLE_NAME_EXIST;
 		} else {
 			insert(arg);
 			userRoleInfo.id = getLastInsertId();
@@ -948,7 +948,7 @@ HatoholError DBClientUser::updateUserRoleInfo(
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		if (!isRecordExisting(TABLE_NAME_USER_ROLES, arg.condition)) {
-			err = HTERR_NOT_FOUND_USER_ID; // TODO: Add a new HTERR?
+			err = HTERR_NOT_FOUND_USER_ROLE_ID;
 		} else {
 			update(arg);
 			err = HTERR_OK;
@@ -1046,11 +1046,10 @@ HatoholError DBClientUser::isValidFlags(const OperationPrivilegeFlag flags)
 
 HatoholError DBClientUser::isValidUserRoleName(const string &name)
 {
-	// TODO: Add new errors?
 	if (name.empty())
-		return HTERR_EMPTY_USER_NAME;
+		return HTERR_EMPTY_USER_ROLE_NAME;
 	if (name.size() > MAX_USER_ROLE_NAME_LENGTH)
-		return HTERR_TOO_LONG_USER_NAME;
+		return HTERR_TOO_LONG_USER_ROLE_NAME;
 	return HTERR_OK;
 }
 
