@@ -508,6 +508,9 @@ void test_deleteUserWithoutPrivilege(void)
 	OperationPrivilege privilege;
 	HatoholError err = dbUser.deleteUserInfo(targetId, privilege);
 	assertHatoholError(HTERR_NO_PRIVILEGE, err);
+
+	// check the version
+	assertUsersInDB();
 }
 
 void test_getUserId(void)
