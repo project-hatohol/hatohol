@@ -323,6 +323,48 @@ void test_addUserDuplicate(void)
 	UserInfo &userInfo = testUserInfo[1];
 	assertHatoholError(HTERR_USER_NAME_EXIST,
 	                   dbUser.addUserInfo(userInfo, privilege));
+	assertUsersInDB();
+}
+
+void test_addUserWithLongName(void)
+{
+	loadTestDBUser();
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	DBClientUser dbUser;
+	const size_t limitLength = DBClientUser::MAX_USER_NAME_LENGTH;
+	UserInfo userInfo = testUserInfo[1];
+	for (size_t i = 0; userInfo.name.size() <= limitLength; i++)
+		userInfo.name += "A";
+	assertHatoholError(HTERR_TOO_LONG_USER_NAME,
+	                   dbUser.addUserInfo(userInfo, privilege));
+	assertUsersInDB();
+}
+
+void test_addUserWithInvalidFlags(void)
+{
+	loadTestDBUser();
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	DBClientUser dbUser;
+	UserInfo userInfo = testUserInfo[1];
+	userInfo.name = "Crasher";
+	userInfo.flags = ALL_PRIVILEGES + 1;
+	assertHatoholError(HTERR_INVALID_USER_FLAGS,
+	                   dbUser.addUserInfo(userInfo, privilege));
+	assertUsersInDB();
+}
+
+void test_addUserWithoutPrivilege(void)
+{
+	loadTestDBUser();
+	OperationPrivilegeFlag flags = ALL_PRIVILEGES;
+	flags &= ~(1 << OPPRVLG_CREATE_USER);
+	OperationPrivilege privilege(flags);
+	DBClientUser dbUser;
+	UserInfo userInfo = testUserInfo[1];
+	userInfo.name = "UniqueName-9srne7tskrgo";
+	assertHatoholError(HTERR_NO_PRIVILEGE,
+	                   dbUser.addUserInfo(userInfo, privilege));
+	assertUsersInDB();
 }
 
 void test_updateUser(void)
