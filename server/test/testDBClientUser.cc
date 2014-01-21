@@ -851,7 +851,7 @@ void test_addUserRole(void)
 	assertUserRolesInDB();
 }
 
-void test_addUserRoleWithDuplicateName(void)
+void test_addUserRoleWithDuplicatedName(void)
 {
 	loadTestDBUserRole();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
