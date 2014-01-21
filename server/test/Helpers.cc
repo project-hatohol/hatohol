@@ -473,14 +473,14 @@ void _assertUserRolesInDB(const UserRoleIdSet &excludeUserRoleIdSet)
 	statement += " ORDER BY id ASC";
 	string expect;
 	for (size_t i = 0; i < NumTestUserRoleInfo; i++) {
-		UserIdType userId = i + 1;
+		UserRoleIdType userRoleId = i + 1;
 		UserRoleIdSetIterator endIt = excludeUserRoleIdSet.end();
-		if (excludeUserRoleIdSet.find(userId) != endIt)
+		if (excludeUserRoleIdSet.find(userRoleId) != endIt)
 			continue;
 		const UserRoleInfo &userRoleInfo = testUserRoleInfo[i];
 		expect += StringUtils::sprintf(
 		  "%"FMT_USER_ROLE_ID"|%s|%"FMT_OPPRVLG"\n",
-		  userId, userRoleInfo.name.c_str(),
+		  userRoleId, userRoleInfo.name.c_str(),
 		  userRoleInfo.flags);
 	}
 	CacheServiceDBClient cache;
