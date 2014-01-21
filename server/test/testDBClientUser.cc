@@ -851,4 +851,14 @@ void test_addUserRole(void)
 	assertUserRolesInDB();
 }
 
+void test_addUserRoleWithDuplicateName(void)
+{
+	loadTestDBUserRole();
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	DBClientUser dbUser;
+	UserRoleInfo &userRoleInfo = testUserRoleInfo[1];
+	assertHatoholError(HTERR_USER_ROLE_NAME_EXIST,
+	                   dbUser.addUserRoleInfo(userRoleInfo, privilege));
+}
+
 } // namespace testDBClientUser
