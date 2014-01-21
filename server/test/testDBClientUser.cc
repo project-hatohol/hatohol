@@ -613,14 +613,19 @@ void test_getUserInfoWithNonExistId(void)
 
 void test_getUserInfoListByNormalUser(void)
 {
-	assertGetUserInfo(0, 1, false);
+	OperationPrivilegeFlag noPrivilege = 0;
+	const size_t expectedNumUsers = 1;
+	const bool expectAllUsers = true;
+	assertGetUserInfo(noPrivilege, expectedNumUsers, !expectAllUsers);
 }
 
 void test_getUserInfoListByUserWithGetAllUsersFlag(void)
 {
-	assertGetUserInfo(
-	  OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_USER),
-	  NumTestUserInfo, true);
+	OperationPrivilegeFlag canGetAllUsers =
+	  OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_USER);
+	const size_t expectedNumUsers = NumTestUserInfo;
+	const bool expectAllUsers = true;
+	assertGetUserInfo(canGetAllUsers, expectedNumUsers, expectAllUsers);
 }
 
 void test_getUserInfoListWithNonExistUser(void)
@@ -641,17 +646,26 @@ void test_getUserInfoListWithMyNameAsTargetName(void)
 
 void test_getUserInfoListWithMyNameAsTargetNameWithoutPrivileges(void)
 {
-	assertGetUserInfoListWithTargetName(0, 1);
+	OperationPrivilegeFlag noPrivilege = 0;
+	const size_t expectNumList = 1;
+	assertGetUserInfoListWithTargetName(noPrivilege, expectNumList);
 }
 
 void test_getUserInfoListWithOtherName(void)
 {
-	assertGetUserInfoListWithTargetName(ALL_PRIVILEGES, 1, false);
+	const size_t expectNumList = 1;
+	const bool searchMySelf = true;
+	assertGetUserInfoListWithTargetName(ALL_PRIVILEGES, expectNumList,
+					    !searchMySelf);
 }
 
 void test_getUserInfoListWithOtherNameWithoutPrivileges(void)
 {
-	assertGetUserInfoListWithTargetName(0, 0, false);
+	OperationPrivilegeFlag noPrivilege = 0;
+	const size_t expectNumList = 0;
+	const bool searchMySelf = true;
+	assertGetUserInfoListWithTargetName(noPrivilege, expectNumList,
+					    !searchMySelf);
 }
 
 void test_getUserInfoListOnlyMyself(void)
