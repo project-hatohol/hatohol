@@ -890,6 +890,19 @@ void test_addUserRoleWithInvalidFlags(void)
 	assertUserRolesInDB();
 }
 
+void test_addUserRoleWithEmptyUserName(void)
+{
+	loadTestDBUserRole();
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	DBClientUser dbUser;
+	UserRoleInfo userRoleInfo;
+	userRoleInfo.id = 0;
+	userRoleInfo.flags = ALL_PRIVILEGES;
+	assertHatoholError(HTERR_EMPTY_USER_ROLE_NAME,
+	                   dbUser.addUserRoleInfo(userRoleInfo, privilege));
+	assertUserRolesInDB();
+}
+
 void test_addUserRoleWithoutPrivilege(void)
 {
 	loadTestDBUserRole();
