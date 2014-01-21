@@ -369,7 +369,7 @@ UserRoleInfo testUserRoleInfo[] = {
 {
 	0,                           // id
 	"Specific Sever admin",      // name
-	(OPPRVLG_UPDATE_SERVER << 1) // flags
+	(1 << OPPRVLG_UPDATE_SERVER) // flags
 }, {
 	0,                 // id
 	"Action master",   // name
