@@ -1025,4 +1025,30 @@ void test_getUserRoleInfoListWithNoPrivilege(void)
 	assertGetUserRoleInfo(noPrivilege);
 }
 
+void test_deleteUserRole(void)
+{
+	loadTestDBUserRole();
+	DBClientUser dbUser;
+	const UserRoleIdType targetId = 2;
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	HatoholError err = dbUser.deleteUserRoleInfo(targetId, privilege);
+	assertHatoholError(HTERR_OK, err);
+
+	UserRoleIdSet userRoleIdSet;
+	userRoleIdSet.insert(targetId);
+	assertUserRolesInDB(userRoleIdSet);
+}
+
+void test_deleteUserRoleWithoutPrivilege(void)
+{
+	loadTestDBUserRole();
+	DBClientUser dbUser;
+	const UserRoleIdType targetId = 2;
+	OperationPrivilege privilege;
+	HatoholError err = dbUser.deleteUserRoleInfo(targetId, privilege);
+	assertHatoholError(HTERR_NO_PRIVILEGE, err);
+
+	assertUserRolesInDB();
+}
+
 } // namespace testDBClientUser
