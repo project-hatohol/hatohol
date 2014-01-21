@@ -593,9 +593,18 @@ HatoholError DBClientUser::updateUserInfo(
 	arg.condition = StringUtils::sprintf("%s=%"FMT_USER_ID,
 	  COLUMN_DEF_USERS[IDX_USERS_ID].columnName, userInfo.id);
 
+	string dupCheckCond = StringUtils::sprintf(
+	  "(%s='%s' and %s<>%" FMT_USER_ID ")",
+	  COLUMN_DEF_USERS[IDX_USERS_NAME].columnName,
+	  userInfo.name.c_str(),
+	  COLUMN_DEF_USERS[IDX_USERS_ID].columnName,
+	  userInfo.id);
+
 	DBCLIENT_TRANSACTION_BEGIN() {
-		if (!isRecordExisting(TABLE_NAME_USERS, arg.condition)) {
+		if (!isRecordExisting(arg.tableName, arg.condition)) {
 			err = HTERR_NOT_FOUND_USER_ID;
+		} else if (isRecordExisting(arg.tableName, dupCheckCond)) {
+			err = HTERR_USER_NAME_EXIST;
 		} else {
 			update(arg);
 			err = HTERR_OK;

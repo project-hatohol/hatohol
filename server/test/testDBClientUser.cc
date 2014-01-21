@@ -427,6 +427,28 @@ void test_updateUser(void)
 	assertUserInfoInDB(userInfo);
 }
 
+void test_updateUserWithExistingUserName(void)
+{
+	loadTestDBUser();
+	size_t targetIdx = 1;
+	UserInfo userInfo = testUserInfo[targetIdx];
+	string expectedName = testUserInfo[targetIdx].name;
+	string expectedPassword = testUserInfo[targetIdx].password;
+	userInfo.id = targetIdx + 1;
+	userInfo.name = testUserInfo[targetIdx + 1].name;
+	userInfo.password.clear();
+	DBClientUser dbUser;
+	OperationPrivilege
+	   privilege(OperationPrivilege::makeFlag(OPPRVLG_UPDATE_USER));
+	HatoholError err = dbUser.updateUserInfo(userInfo, privilege);
+	assertHatoholError(HTERR_USER_NAME_EXIST, err);
+
+	// check the version
+	userInfo.name = expectedName;
+	userInfo.password = expectedPassword;
+	assertUserInfoInDB(userInfo);
+}
+
 void test_updateUserWithEmptyPassword(void)
 {
 	UserIdType targetIndex = 1;
