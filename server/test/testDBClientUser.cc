@@ -844,4 +844,11 @@ void test_isAccessibleFalse(void)
 	cppcut_assert_equal(false, dbUser->isAccessible(serverId, privilege));
 }
 
+void test_addUserRole(void)
+{
+	loadTestDBUserRole();
+	DBClientUser dbUser;
+	assertUserRolesInDB();
+}
+
 } // namespace testDBClientUser

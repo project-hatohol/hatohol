@@ -135,6 +135,9 @@ void _assertUsersInDB(const UserIdSet &excludeUserIdSet = EMPTY_USER_ID_SET);
 void _assertAccessInfoInDB(const AccessInfoIdSet &excludeAccessInfoIdSet = EMPTY_ACCESS_INFO_ID_SET);
 #define assertAccessInfoInDB(E) cut_trace(_assertAccessInfoInDB(E))
 
+void _assertUserRolesInDB(void);
+#define assertUserRolesInDB() cut_trace(_assertUserRolesInDB())
+
 void makeTestMySQLDBIfNeeded(const std::string &dbName, bool recreate = false);
 void setupTestDBServers(void);
 void setupTestDBAction(bool dbRecreate = true, bool loadTestDat = false);
@@ -142,6 +145,7 @@ void setupTestDBUser(bool dbRecreate = true, bool loadTestDat = false);
 void loadTestDBAction(void);
 void loadTestDBUser(void);
 void loadTestDBAccessList(void);
+void loadTestDBUserRole(void);
 std::string execSQL(DBAgent *agent, const std::string &statement,
                     bool showHeader = false);
 std::string joinStringVector(const mlpl::StringVector &strVect,

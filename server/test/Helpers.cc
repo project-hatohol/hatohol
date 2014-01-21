@@ -466,6 +466,24 @@ void _assertAccessInfoInDB(const AccessInfoIdSet &excludeAccessInfoIdSet)
 	assertDBContent(cache.getUser()->getDBAgent(), statement, expect);
 }
 
+void _assertUserRolesInDB(void)
+{
+	string statement = "select * from ";
+	statement += DBClientUser::TABLE_NAME_USER_ROLES;
+	statement += " ORDER BY id ASC";
+	string expect;
+	for (size_t i = 0; i < NumTestUserRoleInfo; i++) {
+		UserIdType userId = i + 1;
+		const UserRoleInfo &userRoleInfo = testUserRoleInfo[i];
+		expect += StringUtils::sprintf(
+		  "%"FMT_USER_ROLE_ID"|%s|%"FMT_OPPRVLG"\n",
+		  userId, userRoleInfo.name.c_str(),
+		  userRoleInfo.flags);
+	}
+	CacheServiceDBClient cache;
+	assertDBContent(cache.getUser()->getDBAgent(), statement, expect);
+}
+
 static bool makeTestDB(MYSQL *mysql, const string &dbName)
 {
 	string query = "CREATE DATABASE ";
@@ -593,6 +611,17 @@ void loadTestDBAccessList(void)
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	for (size_t i = 0; i < NumTestAccessInfo; i++) {
 		err = dbUser.addAccessInfo(testAccessInfo[i], privilege);
+		assertHatoholError(HTERR_OK, err);
+	}
+}
+
+void loadTestDBUserRole(void)
+{
+	DBClientUser dbUser;
+	HatoholError err;
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	for (size_t i = 0; i < NumTestUserRoleInfo; i++) {
+		err = dbUser.addUserRoleInfo(testUserRoleInfo[i], privilege);
 		assertHatoholError(HTERR_OK, err);
 	}
 }
