@@ -965,10 +965,10 @@ HatoholError DBClientUser::updateUserRoleInfo(
 	  userRoleInfo.id);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
-		if (isRecordExisting(arg.tableName, dupCheckCond)) {
-			err = HTERR_USER_ROLE_NAME_EXIST;
-		} else if (!isRecordExisting(arg.tableName, arg.condition)) {
+		if (!isRecordExisting(arg.tableName, arg.condition)) {
 			err = HTERR_NOT_FOUND_USER_ROLE_ID;
+		} else if (isRecordExisting(arg.tableName, dupCheckCond)) {
+			err = HTERR_USER_ROLE_NAME_EXIST;
 		} else {
 			update(arg);
 			err = HTERR_OK;
