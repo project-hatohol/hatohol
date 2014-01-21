@@ -904,7 +904,7 @@ HatoholError DBClientUser::addUserRoleInfo(UserRoleInfo &userRoleInfo,
 	arg.row = row;
 
 	string dupCheckCond = StringUtils::sprintf("%s='%s'",
-	  COLUMN_DEF_USERS[IDX_USER_ROLES_NAME].columnName,
+	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_NAME].columnName,
 	  userRoleInfo.name.c_str());
 
 	DBCLIENT_TRANSACTION_BEGIN() {
@@ -976,7 +976,7 @@ HatoholError DBClientUser::deleteUserRoleInfo(
 
 	DBAgentDeleteArg arg;
 	arg.tableName = TABLE_NAME_USER_ROLES;
-	const ColumnDef &colId = COLUMN_DEF_USERS[IDX_USER_ROLES_ID];
+	const ColumnDef &colId = COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_ID];
 	arg.condition = StringUtils::sprintf("%s=%"FMT_USER_ROLE_ID,
 	                                     colId.columnName, userRoleId);
 	DBCLIENT_TRANSACTION_BEGIN() {
