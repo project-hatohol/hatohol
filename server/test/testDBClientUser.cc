@@ -859,6 +859,65 @@ void test_addUserRoleWithDuplicatedName(void)
 	UserRoleInfo &userRoleInfo = testUserRoleInfo[1];
 	assertHatoholError(HTERR_USER_ROLE_NAME_EXIST,
 	                   dbUser.addUserRoleInfo(userRoleInfo, privilege));
+	assertUserRolesInDB();
+}
+
+void test_addUserRoleWithLongName(void)
+{
+	loadTestDBUserRole();
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	DBClientUser dbUser;
+	const size_t limitLength = DBClientUser::MAX_USER_ROLE_NAME_LENGTH;
+	UserRoleInfo userRoleInfo = testUserRoleInfo[1];
+	for (size_t i = 0; userRoleInfo.name.size() <= limitLength; i++)
+		userRoleInfo.name += "A";
+	assertHatoholError(HTERR_TOO_LONG_USER_ROLE_NAME,
+	                   dbUser.addUserRoleInfo(userRoleInfo, privilege));
+	assertUserRolesInDB();
+}
+
+void test_addUserRoleWithInvalidFlags(void)
+{
+	loadTestDBUserRole();
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	DBClientUser dbUser;
+	UserRoleInfo userRoleInfo;
+	userRoleInfo.id = 0;
+	userRoleInfo.name = "Crasher";
+	userRoleInfo.flags = ALL_PRIVILEGES + 1;
+	assertHatoholError(HTERR_INVALID_USER_FLAGS,
+	                   dbUser.addUserRoleInfo(userRoleInfo, privilege));
+	assertUserRolesInDB();
+}
+
+void test_addUserRoleWithoutPrivilege(void)
+{
+	loadTestDBUserRole();
+	OperationPrivilegeFlag flags = ALL_PRIVILEGES;
+	flags &= ~(1 << OPPRVLG_CREATE_USER_ROLE);
+	OperationPrivilege privilege(flags);
+	DBClientUser dbUser;
+	UserRoleInfo &userRoleInfo = testUserRoleInfo[1];
+	assertHatoholError(HTERR_NO_PRIVILEGE,
+	                   dbUser.addUserRoleInfo(userRoleInfo, privilege));
+	assertUserRolesInDB();
+}
+
+void test_isValidUserRoleName(void)
+{
+	string name;
+	for (size_t i = 0; i < DBClientUser::MAX_USER_ROLE_NAME_LENGTH; i++)
+		name += "A";
+	assertHatoholError(HTERR_OK, DBClientUser::isValidUserRoleName(name));
+}
+
+void test_isValidUserRoleNameWithLongName(void)
+{
+	string name;
+	for (size_t i = 0; i <= DBClientUser::MAX_USER_ROLE_NAME_LENGTH; i++)
+		name += "A";
+	assertHatoholError(HTERR_TOO_LONG_USER_ROLE_NAME,
+	                   DBClientUser::isValidUserRoleName(name));
 }
 
 } // namespace testDBClientUser
