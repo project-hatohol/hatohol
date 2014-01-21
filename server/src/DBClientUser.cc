@@ -945,10 +945,20 @@ HatoholError DBClientUser::updateUserRoleInfo(
 	arg.row = row;
 
 	arg.condition = StringUtils::sprintf("%s=%"FMT_USER_ROLE_ID,
-	  COLUMN_DEF_USERS[IDX_USERS_ID].columnName, userRoleInfo.id);
+	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_ID].columnName,
+	  userRoleInfo.id);
+
+	string dupCheckCond = StringUtils::sprintf(
+	  "(%s='%s' and %s<>%" FMT_USER_ROLE_ID ")",
+	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_NAME].columnName,
+	  userRoleInfo.name.c_str(),
+	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_NAME].columnName,
+	  userRoleInfo.id);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
-		if (!isRecordExisting(TABLE_NAME_USER_ROLES, arg.condition)) {
+		if (isRecordExisting(arg.tableName, dupCheckCond)) {
+			err = HTERR_USER_ROLE_NAME_EXIST;
+		} else if (!isRecordExisting(arg.tableName, arg.condition)) {
 			err = HTERR_NOT_FOUND_USER_ROLE_ID;
 		} else {
 			update(arg);
