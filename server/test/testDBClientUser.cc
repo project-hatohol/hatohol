@@ -258,6 +258,31 @@ void _assertIsAccessible(const bool useAllServers = false)
 }
 #define assertIsAccessible(...) cut_trace(_assertIsAccessible(__VA_ARGS__))
 
+static void _assertGetUserRoleInfo(const OperationPrivilegeFlag flags)
+{
+	loadTestDBUser();
+	loadTestDBUserRole();
+	UserRoleInfoList userRoleInfoList;
+	UserRoleQueryOption option;
+	const UserInfo userInfo = findFirstTestUserInfoByFlag(flags);
+	option.setUserId(userInfo.id);
+	DBClientUser dbUser;
+	dbUser.getUserRoleInfoList(userRoleInfoList, option);
+	string expected, actual;
+	for (size_t i = 0; i < NumTestUserRoleInfo; i++) {
+		UserRoleInfo &userRoleInfo = testUserRoleInfo[i];
+		userRoleInfo.id = i + 1;
+		expected += makeUserRoleInfoOutput(userRoleInfo);
+	}
+	UserRoleInfoListIterator it = userRoleInfoList.begin();
+	for (; it != userRoleInfoList.end(); ++it) {
+		UserRoleInfo &userRoleInfo = *it;
+		actual += makeUserRoleInfoOutput(userRoleInfo);
+	}
+	cppcut_assert_equal(expected, actual);
+}
+#define assertGetUserRoleInfo(F) cut_trace(_assertGetUserRoleInfo(F))
+
 static UserInfo setupForUpdate(size_t targetIndex = 1)
 {
 	loadTestDBUser();
@@ -987,6 +1012,17 @@ void test_isValidUserRoleNameWithLongName(void)
 		name += "A";
 	assertHatoholError(HTERR_TOO_LONG_USER_ROLE_NAME,
 	                   DBClientUser::isValidUserRoleName(name));
+}
+
+void test_getUserRoleInfoList(void)
+{
+	assertGetUserRoleInfo(ALL_PRIVILEGES);
+}
+
+void test_getUserRoleInfoListWithNoPrivilege(void)
+{
+	const OperationPrivilegeFlag noPrivilege = 0;
+	assertGetUserRoleInfo(noPrivilege);
 }
 
 } // namespace testDBClientUser

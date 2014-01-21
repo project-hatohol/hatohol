@@ -466,6 +466,14 @@ void _assertAccessInfoInDB(const AccessInfoIdSet &excludeAccessInfoIdSet)
 	assertDBContent(cache.getUser()->getDBAgent(), statement, expect);
 }
 
+std::string makeUserRoleInfoOutput(const UserRoleInfo &userRoleInfo)
+{
+	return StringUtils::sprintf(
+		 "%"FMT_USER_ROLE_ID"|%s|%"FMT_OPPRVLG"\n",
+		 userRoleInfo.id, userRoleInfo.name.c_str(),
+		 userRoleInfo.flags);
+}
+
 void _assertUserRolesInDB(const UserRoleIdSet &excludeUserRoleIdSet)
 {
 	string statement = "select * from ";
@@ -477,11 +485,9 @@ void _assertUserRolesInDB(const UserRoleIdSet &excludeUserRoleIdSet)
 		UserRoleIdSetIterator endIt = excludeUserRoleIdSet.end();
 		if (excludeUserRoleIdSet.find(userRoleId) != endIt)
 			continue;
-		const UserRoleInfo &userRoleInfo = testUserRoleInfo[i];
-		expect += StringUtils::sprintf(
-		  "%"FMT_USER_ROLE_ID"|%s|%"FMT_OPPRVLG"\n",
-		  userRoleId, userRoleInfo.name.c_str(),
-		  userRoleInfo.flags);
+		UserRoleInfo userRoleInfo = testUserRoleInfo[i];
+		userRoleInfo.id = userRoleId;
+		expect += makeUserRoleInfoOutput(userRoleInfo);
 	}
 	CacheServiceDBClient cache;
 	assertDBContent(cache.getUser()->getDBAgent(), statement, expect);

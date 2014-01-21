@@ -980,9 +980,9 @@ void DBClientUser::getUserRoleInfoList(UserRoleInfoList &userRoleInfoList,
 {
 	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_USER_ROLES;
-	arg.pushColumn(COLUMN_DEF_USERS[IDX_USER_ROLES_ID]);
-	arg.pushColumn(COLUMN_DEF_USERS[IDX_USER_ROLES_NAME]);
-	arg.pushColumn(COLUMN_DEF_USERS[IDX_USER_ROLES_FLAGS]);
+	arg.pushColumn(COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_ID]);
+	arg.pushColumn(COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_NAME]);
+	arg.pushColumn(COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_FLAGS]);
 	arg.condition = option.getCondition();
 
 	DBCLIENT_TRANSACTION_BEGIN() {
