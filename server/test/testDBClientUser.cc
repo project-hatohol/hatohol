@@ -56,18 +56,6 @@ void _assertUserInfoInDB(UserInfo &userInfo)
 }
 #define assertUserInfoInDB(I) cut_trace(_assertUserInfoInDB(I))
 
-void _assertUserRoleInfoInDB(UserRoleInfo &userRoleInfo) 
-{
-	string statement = StringUtils::sprintf(
-	                     "select * from %s where id=%d",
-	                     DBClientUser::TABLE_NAME_USER_ROLES,
-			     userRoleInfo.id);
-	string expect = makeUserRoleInfoOutput(userRoleInfo);
-	DBClientUser dbUser;
-	assertDBContent(dbUser.getDBAgent(), statement, expect);
-}
-#define assertUserRoleInfoInDB(I) cut_trace(_assertUserRoleInfoInDB(I))
-
 static size_t countServerAccessInfoMapElements(
   const ServerAccessInfoMap &srvServerAccessInfoMap)
 {

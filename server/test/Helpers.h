@@ -137,6 +137,8 @@ std::string makeUserRoleInfoOutput(const UserRoleInfo &userRoleInfo);
 void _assertAccessInfoInDB(const AccessInfoIdSet &excludeAccessInfoIdSet = EMPTY_ACCESS_INFO_ID_SET);
 #define assertAccessInfoInDB(E) cut_trace(_assertAccessInfoInDB(E))
 
+void _assertUserRoleInfoInDB(UserRoleInfo &userRoleInfo);
+#define assertUserRoleInfoInDB(I) cut_trace(_assertUserRoleInfoInDB(I))
 void _assertUserRolesInDB(const UserRoleIdSet &excludeUserRoleIdSet = EMPTY_USER_ROLE_ID_SET);
 #define assertUserRolesInDB(E) cut_trace(_assertUserRolesInDB(E))
 

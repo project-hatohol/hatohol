@@ -1867,6 +1867,39 @@ void test_getUserRole(void)
 	assertUserRoles("/user-role", USER_ID_SYSTEM, "cbname");
 }
 
+#define assertAddUserRole(P, ...) \
+cut_trace(_assertAddRecord(P, "/user-role", ##__VA_ARGS__))
+
+void _assertAddUserRoleWithSetup(const StringMap &params,
+				 const HatoholErrorCode &expectCode)
+{
+	const bool dbRecreate = true;
+	const bool loadTestDat = true;
+	setupTestDBUser(dbRecreate, loadTestDat);
+	loadTestDBUserRole();
+	const UserIdType userId = findUserWith(OPPRVLG_CREATE_USER_ROLE);
+	assertAddUserRole(params, userId, expectCode, NumTestUserRoleInfo + 1);
+}
+#define assertAddUserRoleWithSetup(P,C) \
+cut_trace(_assertAddUserRoleWithSetup(P,C))
+
+void test_addUserRole(void)
+{
+	UserRoleInfo expectedUserRoleInfo;
+	expectedUserRoleInfo.id = NumTestUserRoleInfo + 1;
+	expectedUserRoleInfo.name = "maintainer";
+	expectedUserRoleInfo.flags = ALL_PRIVILEGES;
+
+	StringMap params;
+	params["name"] = expectedUserRoleInfo.name;
+	params["flags"] = StringUtils::sprintf(
+	  "%"FMT_OPPRVLG, expectedUserRoleInfo.flags);
+	assertAddUserRoleWithSetup(params, HTERR_OK);
+
+	// check the content in the DB
+	assertUserRoleInfoInDB(expectedUserRoleInfo);
+}
+
 void _assertDeleteUserRoleWithSetup(
   string url = "",
   HatoholErrorCode expectedErrorCode = HTERR_OK,
