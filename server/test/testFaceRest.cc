@@ -77,6 +77,7 @@ static void startFaceRest(void)
 	arg.push_back("--face-rest-port");
 	arg.push_back(StringUtils::sprintf("%u", TEST_PORT));
 	g_faceRest = new FaceRest(arg, &param);
+	g_faceRest->setNumberOfPreLoadWorkers(1);
 
 	param.mutex.lock();
 	g_faceRest->start();

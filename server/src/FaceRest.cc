@@ -115,6 +115,7 @@ struct FaceRest::PrivateContext {
 
 	// for async mode
 	bool                asyncMode;
+	size_t              numPreLoadWorkers;
 	set<Worker *>       workers;
 	queue<RestJob *>    restJobQueue;
 	MutexLock           restJobLock;
@@ -126,7 +127,8 @@ struct FaceRest::PrivateContext {
 	  gMainCtx(NULL),
 	  param(_param),
 	  quitRequest(false),
-	  asyncMode(true)
+	  asyncMode(true),
+	  numPreLoadWorkers(DEFAULT_NUM_WORKERS)
 	{
 		gMainCtx = g_main_context_new();
 		sem_init(&waitJobSemaphore, 0, 0);
@@ -363,6 +365,11 @@ void FaceRest::stop(void)
 	HatoholThreadBase::stop();
 }
 
+void FaceRest::setNumberOfPreLoadWorkers(size_t num)
+{
+	m_ctx->numPreLoadWorkers = num;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -411,7 +418,7 @@ bool FaceRest::isAsyncMode(void)
 
 void FaceRest::startWorkers(void)
 {
-	for (int i = 0; i < DEFAULT_NUM_WORKERS; i++) {
+	for (size_t i = 0; i < m_ctx->numPreLoadWorkers; i++) {
 		Worker *worker = new Worker(this);
 		worker->start();
 		m_ctx->workers.insert(worker);
