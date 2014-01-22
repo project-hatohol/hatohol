@@ -68,6 +68,7 @@ const char *FaceRest::pathForGetEvent    = "/event";
 const char *FaceRest::pathForGetItem     = "/item";
 const char *FaceRest::pathForAction      = "/action";
 const char *FaceRest::pathForUser        = "/user";
+const char *FaceRest::pathForUserRole    = "/user-role";
 
 static const char *MIME_HTML = "text/html";
 static const char *MIME_JSON = "application/json";
@@ -496,6 +497,10 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	soup_server_add_handler(m_ctx->soupServer, pathForUser,
 	                        queueRestJob,
 	                        new HandlerClosure(this, handlerUser),
+	                        deleteHandlerClosure);
+	soup_server_add_handler(m_ctx->soupServer, pathForUserRole,
+	                        queueRestJob,
+	                        new HandlerClosure(this, handlerUserRole),
 	                        deleteHandlerClosure);
 	if (m_ctx->param)
 		m_ctx->param->setupDoneNotifyFunc();
@@ -2214,6 +2219,98 @@ void FaceRest::handlerDeleteAccessInfo(RestJob *job)
 	replyJsonData(agent, job);
 }
 
+void FaceRest::handlerUserRole(RestJob *job)
+{
+	if (StringUtils::casecmp(job->message->method, "GET")) {
+		handlerGetUserRole(job);
+	} else if (StringUtils::casecmp(job->message->method, "POST")) {
+		handlerPostUserRole(job);
+	} else if (StringUtils::casecmp(job->message->method, "DELETE")) {
+		handlerDeleteUserRole(job);
+	} else {
+		MLPL_ERR("Unknown method: %s\n", job->message->method);
+		soup_message_set_status(job->message,
+		                        SOUP_STATUS_METHOD_NOT_ALLOWED);
+		job->replyIsPrepared = true;
+	}
+}
+
+void FaceRest::handlerGetUserRole(RestJob *job)
+{
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+
+	UserRoleInfoList userRoleList;
+	UserRoleQueryOption option(job->userId);
+	dataStore->getUserRoleList(userRoleList, option);
+
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, HatoholError(HTERR_OK));
+	agent.add("numberOfUserRoles", userRoleList.size());
+	agent.startArray("userRoles");
+	UserRoleInfoListIterator it = userRoleList.begin();
+	for (; it != userRoleList.end(); ++it) {
+		const UserRoleInfo &userRoleInfo = *it;
+		agent.startObject();
+		agent.add("userRoleId",  userRoleInfo.id);
+		agent.add("name", userRoleInfo.name);
+		agent.add("flags", userRoleInfo.flags);
+		agent.endObject();
+	}
+	agent.endArray();
+	agent.endObject();
+
+	replyJsonData(agent, job);
+}
+
+void FaceRest::handlerPostUserRole(RestJob *job)
+{
+	UserRoleInfo userRoleInfo;
+	HatoholError err = parseUserRoleParameter(userRoleInfo, job->query);
+	if (err != HTERR_OK) {
+		replyError(job, err);
+		return;
+	}
+
+	// try to add
+	OperationPrivilege privilege(job->userId);
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	err = dataStore->addUserRole(userRoleInfo, privilege);
+
+	// make a response
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, err);
+	if (err == HTERR_OK)
+		agent.add("id", userRoleInfo.id);
+	agent.endObject();
+	replyJsonData(agent, job);
+}
+
+void FaceRest::handlerDeleteUserRole(RestJob *job)
+{
+	uint64_t id = job->getResourceId();
+	if (id == INVALID_ID) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
+		            "id: %s", job->getResourceIdString().c_str());
+		return;
+	}
+	UserRoleIdType userRoleId = id;
+
+	OperationPrivilege privilege(job->userId);
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	HatoholError err = dataStore->deleteUserRole(userRoleId, privilege);
+
+	// replay
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, err);
+	if (err == HTERR_OK)
+		agent.add("id", userRoleId);
+	agent.endObject();
+	replyJsonData(agent, job);
+}
+
 HatoholError FaceRest::parseUserParameter(UserInfo &userInfo, GHashTable *query,
 					  bool forUpdate)
 {
@@ -2235,6 +2332,26 @@ HatoholError FaceRest::parseUserParameter(UserInfo &userInfo, GHashTable *query,
 	// flags
 	HatoholError err = getParam<OperationPrivilegeFlag>(
 		query, "flags", "%"FMT_OPPRVLG, userInfo.flags);
+	if (err != HTERR_OK && !forUpdate)
+		return err;
+	return HatoholError(HTERR_OK);
+}
+
+HatoholError FaceRest::parseUserRoleParameter(
+  UserRoleInfo &userRoleInfo, GHashTable *query, bool forUpdate)
+{
+	char *value;
+
+	// name
+	value = (char *)g_hash_table_lookup(query, "name");
+	if (!value && !forUpdate)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "name\n");
+	if (value)
+		userRoleInfo.name = value;
+
+	// flags
+	HatoholError err = getParam<OperationPrivilegeFlag>(
+		query, "flags", "%"FMT_OPPRVLG, userRoleInfo.flags);
 	if (err != HTERR_OK && !forUpdate)
 		return err;
 	return HatoholError(HTERR_OK);
