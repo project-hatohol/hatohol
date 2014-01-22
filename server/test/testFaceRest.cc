@@ -1998,6 +1998,40 @@ void test_updateUserRole(void)
 	assertUserRoleInfoInDB(expectedUserRoleInfo);
 }
 
+void test_updateUserRoleWithoutName(void)
+{
+	int targetIdx = 0;
+	UserRoleInfo expectedUserRoleInfo = testUserRoleInfo[targetIdx];
+	expectedUserRoleInfo.id = targetIdx + 1;
+	expectedUserRoleInfo.flags =
+	  (1 << OPPRVLG_UPDATE_SERVER) | ( 1 << OPPRVLG_DELETE_SERVER);
+
+	StringMap params;
+	params["flags"] = StringUtils::sprintf(
+	  "%"FMT_OPPRVLG, expectedUserRoleInfo.flags);
+	assertUpdateUserRoleWithSetup(params, expectedUserRoleInfo.id,
+				      HTERR_OK);
+
+	// check the content in the DB
+	assertUserRoleInfoInDB(expectedUserRoleInfo);
+}
+
+void test_updateUserRoleWithoutFlags(void)
+{
+	int targetIdx = 0;
+	UserRoleInfo expectedUserRoleInfo = testUserRoleInfo[targetIdx];
+	expectedUserRoleInfo.id = targetIdx + 1;
+	expectedUserRoleInfo.name = "ServerAdmin";
+
+	StringMap params;
+	params["name"] = expectedUserRoleInfo.name;
+	assertUpdateUserRoleWithSetup(params, expectedUserRoleInfo.id,
+				      HTERR_OK);
+
+	// check the content in the DB
+	assertUserRoleInfoInDB(expectedUserRoleInfo);
+}
+
 void test_updateUserRoleWithoutPrivilege(void)
 {
 	UserRoleIdType targetUserRoleId = 1;
