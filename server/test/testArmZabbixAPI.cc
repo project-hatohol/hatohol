@@ -197,7 +197,7 @@ public:
 		}
 	}
 
-	ItemTablePtr testMakeItemTable(void)
+	ItemTablePtr testMakeEventsItemTable(void)
 	{
 		ifstream ifs("fixtures/zabbix-api-res-events-002.json");
 		cppcut_assert_equal(false, ifs.fail());
@@ -737,7 +737,7 @@ void test_verifyEventsObtanedBySplitWay(void)
 	ArmZabbixAPITestee armZbxApiTestee(setupServer());
 	armZbxApiTestee.testOpenSession();
 
-	ItemTablePtr expectTable = armZbxApiTestee.testMakeItemTable();
+	ItemTablePtr expectTable = armZbxApiTestee.testMakeEventsItemTable();
 	armZbxApiTestee.callUpdateEvents();
 	cppcut_assert_equal(true, armZbxApiTestee.assertItemTable(expectTable));
 	const uint64_t upperLimitOfEventsAtOneTime = 
