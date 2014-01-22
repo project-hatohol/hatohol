@@ -674,8 +674,7 @@ void _assertAddRecord(const StringMap &params, const string &url,
 
 void _assertUpdateRecord(const StringMap &params, const string &baseUrl,
                          uint32_t targetId = 1,
-                         const HatoholErrorCode &expectCode = HTERR_OK,
-                         uint32_t expectedId = 1)
+                         const HatoholErrorCode &expectCode = HTERR_OK)
 {
 	startFaceRest();
 	string url;
@@ -692,7 +691,7 @@ void _assertUpdateRecord(const StringMap &params, const string &baseUrl,
 	assertErrorCode(g_parser, expectCode);
 	if (expectCode != HTERR_OK)
 		return;
-	assertValueInParser(g_parser, "id", expectedId);
+	assertValueInParser(g_parser, "id", targetId);
 }
 
 #define assertAddAction(P, ...) \
@@ -1954,6 +1953,41 @@ void test_addUserRoleWithInvalidFlags(void)
 	assertAddUserRoleWithSetup(params, HTERR_INVALID_USER_FLAGS);
 
 	assertUserRolesInDB();
+}
+
+#define assertUpdateUserRole(P, ...) \
+cut_trace(_assertUpdateRecord(P, "/user-role", ##__VA_ARGS__))
+
+void _assertUpdateUserRoleWithSetup(const StringMap &params,
+				    uint32_t targetUserRoleId,
+				    const HatoholErrorCode &expectCode)
+{
+	const bool dbRecreate = true;
+	const bool loadTestDat = true;
+	setupTestDBUser(dbRecreate, loadTestDat);
+	loadTestDBUserRole();
+	assertUpdateUserRole(params, targetUserRoleId, expectCode);
+}
+#define assertUpdateUserRoleWithSetup(P,...) \
+  cut_trace(_assertUpdateUserRoleWithSetup(P, ##__VA_ARGS__))
+
+void test_updateUserRole(void)
+{
+	UserRoleInfo expectedUserRoleInfo;
+	expectedUserRoleInfo.id = 1;
+	expectedUserRoleInfo.name = "ServerAdmin";
+	expectedUserRoleInfo.flags =
+	  (1 << OPPRVLG_UPDATE_SERVER) | ( 1 << OPPRVLG_DELETE_SERVER);
+
+	StringMap params;
+	params["name"] = expectedUserRoleInfo.name;
+	params["flags"] = StringUtils::sprintf(
+	  "%"FMT_OPPRVLG, expectedUserRoleInfo.flags);
+	assertUpdateUserRoleWithSetup(params, expectedUserRoleInfo.id,
+				      HTERR_OK);
+
+	// check the content in the DB
+	assertUserRoleInfoInDB(expectedUserRoleInfo);
 }
 
 void _assertDeleteUserRoleWithSetup(

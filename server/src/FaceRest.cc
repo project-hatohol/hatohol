@@ -2224,6 +2224,8 @@ void FaceRest::handlerUserRole(RestJob *job)
 		handlerGetUserRole(job);
 	} else if (StringUtils::casecmp(job->message->method, "POST")) {
 		handlerPostUserRole(job);
+	} else if (StringUtils::casecmp(job->message->method, "PUT")) {
+		handlerPutUserRole(job);
 	} else if (StringUtils::casecmp(job->message->method, "DELETE")) {
 		handlerDeleteUserRole(job);
 	} else {
@@ -2250,8 +2252,8 @@ void FaceRest::handlerPutUserRole(RestJob *job)
 	UserRoleQueryOption option(job->userId);
 	option.setTargetUserRoleId(userRoleInfo.id);
 	dataStore->getUserRoleList(userRoleList, option);
-	if (!userRoleList.empty()) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_USER_ID,
+	if (userRoleList.empty()) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_USER_ROLE_ID,
 		            "id: %"FMT_USER_ID, userRoleInfo.id);
 		return;
 	}
