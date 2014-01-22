@@ -121,6 +121,9 @@ public:
 	UserRoleQueryOption(UserIdType userId = INVALID_USER_ID);
 	virtual ~UserRoleQueryOption();
 
+	void setTargetUserRoleId(UserRoleIdType userRoleId);
+        UserRoleIdType getTargetUserRoleId(void) const;
+
 	// Overriding of virtual methods
 	virtual std::string getCondition(void) const;
 

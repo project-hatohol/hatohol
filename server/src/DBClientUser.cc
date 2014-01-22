@@ -386,7 +386,10 @@ UserIdType AccessInfoQueryOption::getTargetUserId(void) const
 // UserRoleQueryOption
 // ---------------------------------------------------------------------------
 struct UserRoleQueryOption::PrivateContext {
+	UserRoleIdType targetUserRoleId;
+
 	PrivateContext(void)
+	: targetUserRoleId(INVALID_USER_ROLE_ID)
 	{
 	}
 };
@@ -403,10 +406,26 @@ UserRoleQueryOption::~UserRoleQueryOption()
 		delete m_ctx;
 }
 
+void UserRoleQueryOption::setTargetUserRoleId(UserRoleIdType userRoleId)
+{
+	m_ctx->targetUserRoleId = userRoleId;
+}
+
+UserRoleIdType UserRoleQueryOption::getTargetUserRoleId(void) const
+{
+	return m_ctx->targetUserRoleId;
+}
+
 string UserRoleQueryOption::getCondition(void) const
 {
-	// All users can get all user roles
-	return "";
+	string condition;
+
+	if (m_ctx->targetUserRoleId != INVALID_USER_ROLE_ID)
+		condition = StringUtils::sprintf("%s=%"FMT_USER_ROLE_ID"",
+		  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_ID].columnName,
+		  m_ctx->targetUserRoleId);
+
+	return condition;
 }
 
 // ---------------------------------------------------------------------------

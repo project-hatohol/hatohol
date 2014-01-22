@@ -58,6 +58,8 @@ static const UserIdType USER_ID_ANY     = -2;
 // This program and the tests use it internally.
 static const UserIdType USER_ID_SYSTEM  = 0;
 
+static const UserRoleIdType INVALID_USER_ROLE_ID = -1;
+
 typedef std::set<UserIdType>      UserIdSet;
 typedef UserIdSet::iterator       UserIdSetIterator;
 typedef UserIdSet::const_iterator UserIdSetIterator;

@@ -270,7 +270,9 @@ void _assertIsAccessible(const bool useAllServers = false)
 }
 #define assertIsAccessible(...) cut_trace(_assertIsAccessible(__VA_ARGS__))
 
-static void _assertGetUserRoleInfo(const OperationPrivilegeFlag flags)
+static void _assertGetUserRoleInfo(
+  const OperationPrivilegeFlag flags,
+  UserRoleIdType targetUserRoleId = INVALID_USER_ROLE_ID)
 {
 	loadTestDBUser();
 	loadTestDBUserRole();
@@ -278,13 +280,19 @@ static void _assertGetUserRoleInfo(const OperationPrivilegeFlag flags)
 	UserRoleQueryOption option;
 	const UserInfo userInfo = findFirstTestUserInfoByFlag(flags);
 	option.setUserId(userInfo.id);
+	if (targetUserRoleId != INVALID_USER_ROLE_ID)
+		option.setTargetUserRoleId(targetUserRoleId);
 	DBClientUser dbUser;
 	dbUser.getUserRoleInfoList(userRoleInfoList, option);
 	string expected, actual;
 	for (size_t i = 0; i < NumTestUserRoleInfo; i++) {
 		UserRoleInfo &userRoleInfo = testUserRoleInfo[i];
 		userRoleInfo.id = i + 1;
-		expected += makeUserRoleInfoOutput(userRoleInfo);
+		if (targetUserRoleId == INVALID_USER_ROLE_ID ||
+		    userRoleInfo.id == targetUserRoleId)
+		{
+			expected += makeUserRoleInfoOutput(userRoleInfo);
+		}
 	}
 	UserRoleInfoListIterator it = userRoleInfoList.begin();
 	for (; it != userRoleInfoList.end(); ++it) {
@@ -293,7 +301,8 @@ static void _assertGetUserRoleInfo(const OperationPrivilegeFlag flags)
 	}
 	cppcut_assert_equal(expected, actual);
 }
-#define assertGetUserRoleInfo(F) cut_trace(_assertGetUserRoleInfo(F))
+#define assertGetUserRoleInfo(F, ...) \
+  cut_trace(_assertGetUserRoleInfo(F, ##__VA_ARGS__))
 
 static UserInfo setupForUpdate(size_t targetIndex = 1)
 {
@@ -1064,6 +1073,12 @@ void test_isValidUserRoleNameWithLongName(void)
 void test_getUserRoleInfoList(void)
 {
 	assertGetUserRoleInfo(ALL_PRIVILEGES);
+}
+
+void test_getUserRoleInfoListWithTargetId(void)
+{
+	UserRoleIdType targetUserRoleId = 2;
+	assertGetUserRoleInfo(ALL_PRIVILEGES, targetUserRoleId);
 }
 
 void test_getUserRoleInfoListWithNoPrivilege(void)
