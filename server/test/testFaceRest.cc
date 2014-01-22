@@ -770,16 +770,16 @@ void _assertAddUserWithSetup(const StringMap &params,
 cut_trace(_assertUpdateRecord(P, "/user", ##__VA_ARGS__))
 
 void _assertUpdateUserWithSetup(const StringMap &params,
-                                const HatoholErrorCode &expectCode,
-                                uint32_t targetUserId = 1)
+                                uint32_t targetUserId,
+                                const HatoholErrorCode &expectCode)
 {
 	const bool dbRecreate = true;
 	const bool loadTestDat = true;
 	setupTestDBUser(dbRecreate, loadTestDat);
 	assertUpdateUser(params, targetUserId, expectCode);
 }
-#define assertUpdateUserWithSetup(P,...) \
-  cut_trace(_assertUpdateUserWithSetup(P, ##__VA_ARGS__))
+#define assertUpdateUserWithSetup(P,U,C) \
+cut_trace(_assertUpdateUserWithSetup(P,U,C))
 
 static void setupTestMode(void)
 {
@@ -1589,7 +1589,7 @@ void test_updateUser(void)
 	params["user"] = user;
 	params["password"] = password;
 	params["flags"] = StringUtils::sprintf("%"FMT_OPPRVLG, flags);
-	assertUpdateUserWithSetup(params, HTERR_OK);
+	assertUpdateUserWithSetup(params, targetId, HTERR_OK);
 
 	// check the content in the DB
 	DBClientUser dbUser;
@@ -1611,7 +1611,7 @@ void test_updateUserWithoutPassword(void)
 	StringMap params;
 	params["user"] = user;
 	params["flags"] = StringUtils::sprintf("%"FMT_OPPRVLG, flags);
-	assertUpdateUserWithSetup(params, HTERR_OK);
+	assertUpdateUserWithSetup(params, targetId, HTERR_OK);
 
 	// check the content in the DB
 	DBClientUser dbUser;
@@ -1634,7 +1634,7 @@ void test_updateUserWithoutUserId(void)
 	StringMap params;
 	params["user"] = user;
 	params["flags"] = StringUtils::sprintf("%"FMT_OPPRVLG, flags);
-	assertUpdateUserWithSetup(params, HTERR_NOT_FOUND_ID_IN_URL, -1);
+	assertUpdateUserWithSetup(params, -1, HTERR_NOT_FOUND_ID_IN_URL);
 }
 
 void test_addUserWithoutUser(void)
