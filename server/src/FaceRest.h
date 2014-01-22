@@ -147,6 +147,7 @@ protected:
 	static void handlerUserRole(RestJob *job);
 	static void handlerGetUserRole(RestJob *job);
 	static void handlerPostUserRole(RestJob *job);
+	static void handlerPutUserRole(RestJob *job);
 	static void handlerDeleteUserRole(RestJob *job);
 
 	void itemFetchedCallback(ClosureBase *closure);

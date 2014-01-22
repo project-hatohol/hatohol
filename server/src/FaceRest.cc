@@ -2235,6 +2235,51 @@ void FaceRest::handlerUserRole(RestJob *job)
 	}
 }
 
+void FaceRest::handlerPutUserRole(RestJob *job)
+{
+	uint64_t id = job->getResourceId();
+	if (id == INVALID_ID) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
+		            "id: %s", job->getResourceIdString().c_str());
+		return;
+	}
+	UserRoleInfo userRoleInfo;
+	userRoleInfo.id = id;
+
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	UserRoleInfoList userRoleList;
+	UserRoleQueryOption option(job->userId);
+	option.setTargetUserRoleId(userRoleInfo.id);
+	dataStore->getUserRoleList(userRoleList, option);
+	if (!userRoleList.empty()) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_USER_ID,
+		            "id: %"FMT_USER_ID, userRoleInfo.id);
+		return;
+	}
+	userRoleInfo = *(userRoleList.begin());
+
+	bool forUpdate = true;
+	HatoholError err = parseUserRoleParameter(userRoleInfo, job->query,
+						  forUpdate);
+	if (err != HTERR_OK) {
+		replyError(job, err);
+		return;
+	}
+
+	// try to update
+	OperationPrivilege privilege(job->userId);
+	err = dataStore->updateUserRole(userRoleInfo, privilege);
+
+	// make a response
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, err);
+	if (err == HTERR_OK)
+		agent.add("id", userRoleInfo.id);
+	agent.endObject();
+	replyJsonData(agent, job);
+}
+
 void FaceRest::handlerGetUserRole(RestJob *job)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
