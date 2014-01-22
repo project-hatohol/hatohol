@@ -144,18 +144,40 @@ struct RequestArg {
 
 	// output
 	string response;
+	int httpStatusCode;
+	string httpReasonPhrase;
 	StringVector responseHeaders;
 
 	RequestArg(const string &_url, const string &_cbname = "")
 	: url(_url),
 	  callbackName(_cbname),
 	  request("GET"),
-	  userId(INVALID_USER_ID)
+	  userId(INVALID_USER_ID),
+	  httpStatusCode(-1)
 	{
 	}
 };
 
 static void getSessionId(RequestArg &arg);
+static bool parseStatusLine(RequestArg &arg, const gchar *line)
+{
+	bool succeeded = false;
+	gchar **fields = g_strsplit(line, " ", -1);
+	cut_take_string_array(fields);
+	for (int i = 0; fields[i]; i++) {
+		string field = fields[i];
+		if (i == 0 && field != "HTTP/1.1")
+			break;
+		if (i == 1)
+			arg.httpStatusCode = atoi(field.c_str());
+		if (i == 2) {
+			arg.httpReasonPhrase = field;
+			succeeded = true;
+		}
+	}
+	return succeeded;
+}
+
 static void getServerResponse(RequestArg &arg)
 {
 	getSessionId(arg);
@@ -194,15 +216,20 @@ static void getServerResponse(RequestArg &arg)
 		string headers = arg.response.substr(0, pos);
 		arg.response = arg.response.substr(pos + separator.size());
 		gchar **tmp = g_strsplit(headers.c_str(), "\r\n", -1);
-		for (size_t i = 0; tmp[i]; i++)
-			arg.responseHeaders.push_back(tmp[i]);
-		g_strfreev(tmp);
+		cut_take_string_array(tmp);
+		for (size_t i = 0; tmp[i]; i++) {
+			if (i == 0)
+				cut_assert_true(parseStatusLine(arg, tmp[i]));
+			else
+				arg.responseHeaders.push_back(tmp[i]);
+		}
 	}
 }
 
 static JsonParserAgent *getResponseAsJsonParser(RequestArg &arg)
 {
 	getServerResponse(arg);
+	cut_assert_true(SOUP_STATUS_IS_SUCCESSFUL(arg.httpStatusCode));
 
 	// if JSONP, check the callback name
 	if (!arg.callbackName.empty()) {
