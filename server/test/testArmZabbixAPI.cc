@@ -217,6 +217,36 @@ public:
 		return ItemTablePtr(tablePtr);
 	}
 
+	void testMakeGroupsItemTable(ItemTablePtr &groupsTablePtr,
+	                             ItemTablePtr &hostsGroupsTablePtr)
+	{
+		ifstream ifs("fixtures/zabbix-api-res-hostgroup-002-refer.json");
+		cppcut_assert_equal(false, ifs.fail());
+
+		string fixtureData;
+		getline(ifs, fixtureData);
+		JsonParserAgent parser(fixtureData);
+		cppcut_assert_equal(false, parser.hasError());
+		startObject(parser, "result");
+
+		VariableItemTablePtr variableGroupsTablePtr;
+		VariableItemTablePtr variableHostsGroupsTablePtr;
+		int numData = parser.countElements();
+		if (numData < 1)
+			cut_fail("Value of the elements is empty.");
+		for (int i = 0; i < numData; i++) {
+			ArmZabbixAPI::parseAndPushGroupsData(parser,
+			                                     variableGroupsTablePtr,
+			                                     i);
+			ArmZabbixAPI::parseAndPushHostsGroupsData(parser,
+			                                          variableHostsGroupsTablePtr,
+			                                          i);
+		}
+
+		groupsTablePtr = ItemTablePtr(variableGroupsTablePtr);
+		hostsGroupsTablePtr = ItemTablePtr(variableHostsGroupsTablePtr);
+	}
+
 	bool assertItemTable(const ItemTablePtr &expect)
 	{
 		const ItemGroupList &expectList = expect->getItemGroupList();
