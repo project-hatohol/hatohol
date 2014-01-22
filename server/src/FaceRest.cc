@@ -1442,10 +1442,9 @@ void FaceRest::handlerPostServer(RestJob *job)
 		svInfo.dbName = charValue;
 	}
 
-	DataQueryOption option;
-	option.setUserId(job->userId);
+	OperationPrivilege privilege(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HatoholError err = dataStore->addTargetServer(svInfo, option);
+	HatoholError err = dataStore->addTargetServer(svInfo, privilege);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -1465,9 +1464,9 @@ void FaceRest::handlerDeleteServer(RestJob *job)
 		return;
 	}
 
-	DataQueryOption option(job->userId);
+	OperationPrivilege privilege(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HatoholError err = dataStore->deleteTargetServer(serverId, option);
+	HatoholError err = dataStore->deleteTargetServer(serverId, privilege);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -2002,9 +2001,9 @@ void FaceRest::handlerPostUser(RestJob *job)
 	}
 
 	// try to add
-	DataQueryOption option(job->userId);
+	OperationPrivilege privilege(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	err = dataStore->addUser(userInfo, option);
+	err = dataStore->addUser(userInfo, privilege);
 
 	// make a response
 	JsonBuilderAgent agent;
@@ -2064,9 +2063,9 @@ void FaceRest::handlerDeleteUser(RestJob *job)
 		return;
 	}
 
-	DataQueryOption option(job->userId);
+	OperationPrivilege privilege(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HatoholError err = dataStore->deleteUser(userId, option);
+	HatoholError err = dataStore->deleteUser(userId, privilege);
 
 	// replay
 	JsonBuilderAgent agent;
@@ -2181,9 +2180,9 @@ void FaceRest::handlerPostAccessInfo(RestJob *job)
 	}
 
 	// try to add
-	DataQueryOption option(job->userId);
+	OperationPrivilege privilege(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HatoholError err = dataStore->addAccessInfo(accessInfo, option);
+	HatoholError err = dataStore->addAccessInfo(accessInfo, privilege);
 
 	// make a response
 	JsonBuilderAgent agent;
@@ -2205,9 +2204,9 @@ void FaceRest::handlerDeleteAccessInfo(RestJob *job)
 		return;
 	}
 
-	DataQueryOption option(job->userId);
+	OperationPrivilege privilege(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HatoholError err = dataStore->deleteAccessInfo(id, option);
+	HatoholError err = dataStore->deleteAccessInfo(id, privilege);
 
 	// replay
 	JsonBuilderAgent agent;
