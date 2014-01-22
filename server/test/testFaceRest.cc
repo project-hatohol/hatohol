@@ -1867,6 +1867,65 @@ void test_getUserRole(void)
 	assertUserRoles("/user-role", USER_ID_SYSTEM, "cbname");
 }
 
+void _assertDeleteUserRoleWithSetup(
+  string url = "",
+  HatoholErrorCode expectedErrorCode = HTERR_OK,
+  bool operatorHasPrivilege = true,
+  const UserRoleIdType targetUserRoleId = 2)
+{
+	startFaceRest();
+	bool dbRecreate = true;
+	bool loadTestData = true;
+	setupTestDBUser(dbRecreate, loadTestData);
+	loadTestDBUserRole();
+
+	if (url.empty())
+		url = StringUtils::sprintf("/user-role/%"FMT_USER_ROLE_ID,
+					   targetUserRoleId);
+	RequestArg arg(url, "cbname");
+	arg.request = "DELETE";
+	if (operatorHasPrivilege)
+		arg.userId = findUserWith(OPPRVLG_DELETE_ALL_USER_ROLE);
+	else
+		arg.userId = findUserWithout(OPPRVLG_DELETE_ALL_USER_ROLE);
+	g_parser = getResponseAsJsonParser(arg);
+
+	// check the reply
+	assertErrorCode(g_parser, expectedErrorCode);
+	UserRoleIdSet userRoleIdSet;
+	if (expectedErrorCode == HTERR_OK)
+		userRoleIdSet.insert(targetUserRoleId);
+	// check the version
+	assertUserRolesInDB(userRoleIdSet);
+}
+#define assertDeleteUserRoleWithSetup(...) \
+cut_trace(_assertDeleteUserRoleWithSetup(__VA_ARGS__))
+
+void test_deleteUserRole(void)
+{
+	assertDeleteUserRoleWithSetup();
+}
+
+void test_deleteUserRoleWithoutId(void)
+{
+	assertDeleteUserRoleWithSetup("/user-role",
+				      HTERR_NOT_FOUND_ID_IN_URL);
+}
+
+void test_deleteUserRoleWithNonNumericId(void)
+{
+	assertDeleteUserRoleWithSetup("/user-role/maintainer",
+				      HTERR_NOT_FOUND_ID_IN_URL);
+}
+
+void test_deleteUserRoleWithoutPrivilege(void)
+{
+	bool operatorHasPrivilege = true;
+	assertDeleteUserRoleWithSetup(string(), // set automatically
+				      HTERR_NO_PRIVILEGE,
+				      !operatorHasPrivilege);
+}
+
 void test_overview(void)
 {
 	setupUserDB();
