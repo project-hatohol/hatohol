@@ -674,6 +674,7 @@ void _assertAddRecord(const StringMap &params, const string &url,
 
 void _assertUpdateRecord(const StringMap &params, const string &baseUrl,
                          uint32_t targetId = 1,
+                         const UserIdType &userId = INVALID_USER_ID,
                          const HatoholErrorCode &expectCode = HTERR_OK)
 {
 	startFaceRest();
@@ -686,7 +687,7 @@ void _assertUpdateRecord(const StringMap &params, const string &baseUrl,
 	RequestArg arg(url, "foo");
 	arg.parameters = params;
 	arg.request = "PUT";
-	arg.userId = findUserWith(OPPRVLG_UPDATE_USER);
+	arg.userId = userId;
 	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser, expectCode);
 	if (expectCode != HTERR_OK)
@@ -776,7 +777,8 @@ void _assertUpdateUserWithSetup(const StringMap &params,
 	const bool dbRecreate = true;
 	const bool loadTestDat = true;
 	setupTestDBUser(dbRecreate, loadTestDat);
-	assertUpdateUser(params, targetUserId, expectCode);
+	const UserIdType userId = findUserWith(OPPRVLG_CREATE_USER);
+	assertUpdateUser(params, targetUserId, userId, expectCode);
 }
 #define assertUpdateUserWithSetup(P,U,C) \
 cut_trace(_assertUpdateUserWithSetup(P,U,C))
@@ -1966,7 +1968,8 @@ void _assertUpdateUserRoleWithSetup(const StringMap &params,
 	const bool loadTestDat = true;
 	setupTestDBUser(dbRecreate, loadTestDat);
 	loadTestDBUserRole();
-	assertUpdateUserRole(params, targetUserRoleId, expectCode);
+	const UserIdType userId = findUserWith(OPPRVLG_CREATE_USER);
+	assertUpdateUserRole(params, targetUserRoleId, userId, expectCode);
 }
 #define assertUpdateUserRoleWithSetup(P,...) \
   cut_trace(_assertUpdateUserRoleWithSetup(P, ##__VA_ARGS__))
