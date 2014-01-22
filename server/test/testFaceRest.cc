@@ -922,6 +922,40 @@ void _assertAddAccessInfoWithCond(
 #define assertAddAccessInfoWithCond(SVID, HGRP_ID, ...) \
 cut_trace(_assertAddAccessInfoWithCond(SVID, HGRP_ID, ##__VA_ARGS__))
 
+static void _assertUserRole(JsonParserAgent *parser,
+			    const UserRoleInfo &userRoleInfo,
+			    uint32_t expectUserRoleId = 0)
+{
+	if (expectUserRoleId)
+		assertValueInParser(parser, "userRoleId", expectUserRoleId);
+	assertValueInParser(parser, "name", userRoleInfo.name);
+	assertValueInParser(parser, "flags", userRoleInfo.flags);
+}
+#define assertUserRole(P,I,...) cut_trace(_assertUserRole(P,I,##__VA_ARGS__))
+
+static void _assertUserRoles(const string &path,
+			     const UserIdType &userId,
+			     const string &callbackName = "")
+{
+	startFaceRest();
+	RequestArg arg(path, callbackName);
+	arg.userId = userId;
+	g_parser = getResponseAsJsonParser(arg);
+	assertErrorCode(g_parser);
+	assertValueInParser(g_parser, "numberOfUserRoles",
+	                    (uint32_t)NumTestUserRoleInfo);
+	g_parser->startObject("userRoles");
+	for (size_t i = 0; i < NumTestUserRoleInfo; i++) {
+		g_parser->startElement(i);
+		const UserRoleInfo &userRoleInfo = testUserRoleInfo[i];
+		assertUserRole(g_parser, userRoleInfo, (uint32_t)(i + 1));
+		g_parser->endElement();
+	}
+	g_parser->endObject();
+}
+#define assertUserRoles(P, U, ...) \
+  cut_trace(_assertUserRoles(P, U, ##__VA_ARGS__))
+
 static void assertHostGroupsInParser(JsonParserAgent *parser, uint32_t serverId)
 {
 	// TODO: currently only one hostGroup "No group" exists in the object
@@ -1822,6 +1856,15 @@ void test_deleteAccessInfo(void)
 	AccessInfoIdSet accessInfoIdSet;
 	accessInfoIdSet.insert(targetId);
 	assertAccessInfoInDB(accessInfoIdSet);
+}
+
+void test_getUserRole(void)
+{
+	const bool dbRecreate = true;
+	const bool loadTestDat = false;
+	setupTestDBUser(dbRecreate, loadTestDat);
+	loadTestDBUserRole();
+	assertUserRoles("/user-role", USER_ID_SYSTEM, "cbname");
 }
 
 void test_overview(void)
