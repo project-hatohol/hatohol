@@ -1962,17 +1962,22 @@ cut_trace(_assertUpdateRecord(P, "/user-role", ##__VA_ARGS__))
 
 void _assertUpdateUserRoleWithSetup(const StringMap &params,
 				    uint32_t targetUserRoleId,
-				    const HatoholErrorCode &expectCode)
+				    const HatoholErrorCode &expectCode,
+				    bool operatorHasPrivilege = true)
 {
 	const bool dbRecreate = true;
 	const bool loadTestDat = true;
 	setupTestDBUser(dbRecreate, loadTestDat);
 	loadTestDBUserRole();
-	const UserIdType userId = findUserWith(OPPRVLG_CREATE_USER);
+	UserIdType userId;
+	if (operatorHasPrivilege)
+		userId = findUserWith(OPPRVLG_UPDATE_ALL_USER_ROLE);
+	else
+		userId = findUserWithout(OPPRVLG_UPDATE_ALL_USER_ROLE);
 	assertUpdateUserRole(params, targetUserRoleId, userId, expectCode);
 }
-#define assertUpdateUserRoleWithSetup(P,...) \
-  cut_trace(_assertUpdateUserRoleWithSetup(P, ##__VA_ARGS__))
+#define assertUpdateUserRoleWithSetup(P,T,E, ...) \
+cut_trace(_assertUpdateUserRoleWithSetup(P,T,E, ##__VA_ARGS__))
 
 void test_updateUserRole(void)
 {
@@ -1991,6 +1996,23 @@ void test_updateUserRole(void)
 
 	// check the content in the DB
 	assertUserRoleInfoInDB(expectedUserRoleInfo);
+}
+
+void test_updateUserRoleWithoutPrivilege(void)
+{
+	UserRoleIdType targetUserRoleId = 1;
+	OperationPrivilegeFlag flags =
+	  (1 << OPPRVLG_UPDATE_SERVER) | ( 1 << OPPRVLG_DELETE_SERVER);
+
+	StringMap params;
+	params["name"] = "ServerAdmin";
+	params["flags"] = StringUtils::sprintf("%"FMT_OPPRVLG, flags);
+	bool operatorHasPrivilege = true;
+	assertUpdateUserRoleWithSetup(params, targetUserRoleId,
+				      HTERR_NO_PRIVILEGE,
+				      !operatorHasPrivilege);
+
+	assertUserRolesInDB();
 }
 
 void _assertDeleteUserRoleWithSetup(
