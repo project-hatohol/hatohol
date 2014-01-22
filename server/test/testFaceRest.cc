@@ -1871,17 +1871,22 @@ void test_getUserRole(void)
 cut_trace(_assertAddRecord(P, "/user-role", ##__VA_ARGS__))
 
 void _assertAddUserRoleWithSetup(const StringMap &params,
-				 const HatoholErrorCode &expectCode)
+				 const HatoholErrorCode &expectCode,
+				 bool operatorHasPrivilege = true)
 {
 	const bool dbRecreate = true;
 	const bool loadTestDat = true;
 	setupTestDBUser(dbRecreate, loadTestDat);
 	loadTestDBUserRole();
-	const UserIdType userId = findUserWith(OPPRVLG_CREATE_USER_ROLE);
+	UserIdType userId;
+	if (operatorHasPrivilege)
+		userId = findUserWith(OPPRVLG_CREATE_USER_ROLE);
+	else
+		userId = findUserWithout(OPPRVLG_CREATE_USER_ROLE);
 	assertAddUserRole(params, userId, expectCode, NumTestUserRoleInfo + 1);
 }
-#define assertAddUserRoleWithSetup(P,C) \
-cut_trace(_assertAddUserRoleWithSetup(P,C))
+#define assertAddUserRoleWithSetup(P, C, ...) \
+cut_trace(_assertAddUserRoleWithSetup(P, C, ##__VA_ARGS__))
 
 void test_addUserRole(void)
 {
@@ -1898,6 +1903,57 @@ void test_addUserRole(void)
 
 	// check the content in the DB
 	assertUserRoleInfoInDB(expectedUserRoleInfo);
+}
+
+void test_addUserRoleWithoutPrivilege(void)
+{
+	StringMap params;
+	params["name"] = "maintainer";
+	params["flags"] = StringUtils::sprintf("%"FMT_OPPRVLG, ALL_PRIVILEGES);
+	bool operatorHasPrivilege = true;
+	assertAddUserRoleWithSetup(params, HTERR_NO_PRIVILEGE,
+				   !operatorHasPrivilege);
+
+	assertUserRolesInDB();
+}
+
+void test_addUserRoleWithoutName(void)
+{
+	StringMap params;
+	params["flags"] = StringUtils::sprintf("%"FMT_OPPRVLG, ALL_PRIVILEGES);
+	assertAddUserRoleWithSetup(params, HTERR_NOT_FOUND_PARAMETER);
+
+	assertUserRolesInDB();
+}
+
+void test_addUserRoleWithoutFlags(void)
+{
+	StringMap params;
+	params["name"] = "maintainer";
+	assertAddUserRoleWithSetup(params, HTERR_NOT_FOUND_PARAMETER);
+
+	assertUserRolesInDB();
+}
+
+void test_addUserRoleWithEmptyUserName(void)
+{
+	StringMap params;
+	params["name"] = "";
+	params["flags"] = StringUtils::sprintf("%"FMT_OPPRVLG, ALL_PRIVILEGES);
+	assertAddUserRoleWithSetup(params, HTERR_EMPTY_USER_ROLE_NAME);
+
+	assertUserRolesInDB();
+}
+
+void test_addUserRoleWithInvalidFlags(void)
+{
+	StringMap params;
+	params["name"] = "maintainer";
+	params["flags"] = StringUtils::sprintf(
+	  "%"FMT_OPPRVLG, ALL_PRIVILEGES + 1);
+	assertAddUserRoleWithSetup(params, HTERR_INVALID_USER_FLAGS);
+
+	assertUserRolesInDB();
 }
 
 void _assertDeleteUserRoleWithSetup(
