@@ -16,7 +16,7 @@ interact
 "
 error_code=$?
 if [ $error_code -ne 0 ]; then
-  exit $exit_code
+  exit $error_code
 fi
 
 HATOHOL_DB_DIR=/tmp $server_dir/src/.libs/hatohol --pid-file-path /tmp/hatohol.pid --foreground --test-mode &
