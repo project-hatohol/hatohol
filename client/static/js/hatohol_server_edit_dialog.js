@@ -171,7 +171,7 @@ HatoholServerEditDialog.prototype.createMainElement = function() {
     s += '  <input id="inputPort" type="text" value="80" style="width:4em" class="input-xlarge">';
     s += '</form>';
     s += '<form class="form-inline">';
-    s += '  <label for="inputDbName">' + gettext("DB name") + '</label>';
+    s += '  <label for="inputDbName">' + gettext("DB name (only for Nagios)") + '</label>';
     s += '  <input id="inputDbName" type="text" value="" style="width:10em" class="input-xlarge">';
     s += '</form>';
     s += '<form class="form-inline">';
@@ -181,9 +181,9 @@ HatoholServerEditDialog.prototype.createMainElement = function() {
     s += '  <input id="inputPassword" type="password" value="" style="width:10em" class="input-xlarge">';
     s += '</form>';
     s += '<form class="form-inline">';
-    s += '  <label for="inputPollingInterval">' + gettext("Polling interval") + '</label>';
+    s += '  <label for="inputPollingInterval">' + gettext("Polling interval (sec)") + '</label>';
     s += '  <input id="inputPollingInterval" type="text" value="30" style="width:4em;" class="input-xlarge">';
-    s += '  <label for="inputRetryInterval">' + gettext("Retry interval") + '</label>';
+    s += '  <label for="inputRetryInterval">' + gettext("Retry interval (sec)") + '</label>';
     s += '  <input id="inputRetryInterval" type="text" value="10" style="width:4em;" class="input-xlarge">';
     s += '</form>';
     s += '</div>';
