@@ -170,8 +170,8 @@ HatoholServerEditDialog.prototype.createMainElement = function() {
     s += '  <label for="inputPort">' + gettext("Port") + '</label>';
     s += '  <input id="inputPort" type="text" value="80" style="width:4em" class="input-xlarge">';
     s += '</form>';
-    s += '<form class="form-inline">';
-    s += '  <label for="inputDbName">' + gettext("DB name (only for Nagios)") + '</label>';
+    s += '<form class="form-inline" style="display:none;" id="dbNameArea">';
+    s += '  <label for="inputDbName">' + gettext("DB name") + '</label>';
     s += '  <input id="inputDbName" type="text" value="" style="width:10em" class="input-xlarge">';
     s += '</form>';
     s += '<form class="form-inline">';
@@ -277,11 +277,11 @@ HatoholServerEditDialog.prototype.setAddButtonState = function(state) {
 };
 
 HatoholServerEditDialog.prototype.setDBNameTextState = function(state) {
-  var txt = $("#inputDbName");
+  var dbNameArea = $("#dbNameArea");
 
   if (state) {
-    txt.removeAttr("disabled");
+    dbNameArea.show();
   } else {
-    txt.attr("disabled", "disabled");
+    dbNameArea.hide();
   }
 };
