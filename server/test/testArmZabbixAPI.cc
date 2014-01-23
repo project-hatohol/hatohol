@@ -779,4 +779,24 @@ void test_verifyEventsObtanedBySplitWay(void)
 	for (; itr != armZbxApiTestee.m_numbersOfGotEvents.end(); ++itr)
 		cppcut_assert_equal(true, *itr <= upperLimitOfEventsAtOneTime);
 }
+
+void test_verifyGroupsAndHostsGroups(void)
+{
+	ArmZabbixAPITestee armZbxApiTestee(setupServer());
+	armZbxApiTestee.testOpenSession();
+
+	ItemTablePtr expectGroupsTablePtr;
+	ItemTablePtr expectHostsGroupsTablePtr;
+	ItemTablePtr actualGroupsTablePtr;
+	ItemTablePtr actualHostsGroupsTablePtr;
+	armZbxApiTestee.testMakeGroupsItemTable(expectGroupsTablePtr,
+	                                        expectHostsGroupsTablePtr);
+	armZbxApiTestee.getGroups(actualGroupsTablePtr,
+	                          actualHostsGroupsTablePtr);
+
+	armZbxApiTestee.assertItemTable(expectGroupsTablePtr,
+	                                actualGroupsTablePtr);
+	armZbxApiTestee.assertItemTable(expectHostsGroupsTablePtr,
+	                                actualHostsGroupsTablePtr);
+}
 } // namespace testArmZabbixAPI
