@@ -158,7 +158,7 @@ HatoholServerEditDialog.prototype.createMainElement = function() {
     s += '    <option value="nagios">' + gettext("Nagios") + '</option>';
     s += '  </select>';
     s += '</form>';
-    s += '<form class="form-inline">'
+    s += '<form class="form-inline">';
     s += '  <label for="inputHostName">' + gettext("Host name") + '</label>';
     s += '  <input id="inputHostName" type="text" value="" style="height:1.8em;" class="input-xlarge">';
     s += '  <label for="inputIpAddress">' + gettext("IP address") + '</label>';
