@@ -162,7 +162,8 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 			break;
 	}
 	cppcut_assert_equal(true, syslogFileStream.good(),
-	                    cut_message("Failed to find a syslog file."));
+	                    cut_message("Failed to find a syslog file: %s: "
+	                                "errno: %d.", syslogPath, errno));
 	syslogFileStream.seekg(0, ios_base::end);
 
 	int fd = inotify_init();
