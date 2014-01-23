@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-22 23:09-0600\n"
+"POT-Creation-Date: 2014-01-22 23:27-0600\n"
 "PO-Revision-Date: 2013-12-24 11:40+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -104,15 +104,11 @@ msgstr "Hatohol"
 msgid "PREPARE"
 msgstr "準備中"
 
-#: viewer/base_ajax.html:63
-msgid "Preparing"
-msgstr "準備中"
-
-#: viewer/base_ajax.html:74
+#: viewer/base_ajax.html:70
 msgid "Logout"
 msgstr "ログアウト"
 
-#: viewer/base_ajax.html:78
+#: viewer/base_ajax.html:74
 msgid "Change password"
 msgstr "パスワード変更"
 
@@ -353,6 +349,9 @@ msgstr "全て"
 #: viewer/users_ajax.html:215
 msgid "Show / Edit"
 msgstr "表示 / 編集"
+
+#~ msgid "Preparing"
+#~ msgstr "準備中"
 
 #~ msgid "Time"
 #~ msgstr "時間"
