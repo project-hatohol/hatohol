@@ -111,6 +111,8 @@ if test "$ac_cv_use_cutter" != "no"; then
   have_cutter=yes
 fi
 
+m4_ifdef([AC_CHECK_COVERAGE], [AC_CHECK_COVERAGE])
+
 dnl **************************************************************
 dnl Mocha, expect.js, and npm (indirectly node.js)
 dnl **************************************************************
