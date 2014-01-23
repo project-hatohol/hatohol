@@ -247,10 +247,10 @@ public:
 		hostsGroupsTablePtr = ItemTablePtr(variableHostsGroupsTablePtr);
 	}
 
-	bool assertItemTable(const ItemTablePtr &expect)
+	bool assertItemTable(const ItemTablePtr &expect, const ItemTablePtr &actual)
 	{
 		const ItemGroupList &expectList = expect->getItemGroupList();
-		const ItemGroupList &actualList = m_actualEventTablePtr->getItemGroupList();
+		const ItemGroupList &actualList = actual->getItemGroupList();
 		cppcut_assert_equal(expectList.size(), actualList.size());
 		ItemGroupListConstIterator exItr = expectList.begin();
 		ItemGroupListConstIterator acItr = actualList.begin();
@@ -769,7 +769,9 @@ void test_verifyEventsObtanedBySplitWay(void)
 
 	ItemTablePtr expectTable = armZbxApiTestee.testMakeEventsItemTable();
 	armZbxApiTestee.callUpdateEvents();
-	cppcut_assert_equal(true, armZbxApiTestee.assertItemTable(expectTable));
+	cppcut_assert_equal(true,
+	                    armZbxApiTestee.assertItemTable(expectTable,
+	                      ItemTablePtr(armZbxApiTestee.m_actualEventTablePtr)));
 	const uint64_t upperLimitOfEventsAtOneTime = 
 	  armZbxApiTestee.testGetMaximumNumberGetEventPerOnce();
 	list<uint64_t>::iterator itr =
