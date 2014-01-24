@@ -5,7 +5,7 @@ libmlpl_la_SOURCES = \
 	ParsableString.cc SmartTime.cc
  
 AM_CXXFLAGS = -Wall -g3 -O2 $(COVERAGE_CFLAGS)
-AM_LDFLAGS = -lpthread -lrt
+AM_LDFLAGS = -lpthread -lrt $(COVERAGE_LIBS)
 
 includedir = $(prefix)/include/mlpl
 include_HEADERS = \

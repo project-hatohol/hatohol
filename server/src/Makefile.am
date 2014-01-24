@@ -96,7 +96,7 @@ AM_CXXFLAGS = -Wall -g3 \
 AM_LDFLAGS = -lrt \
 	$(MLPL_LIBS) $(GLIB_LIBS) $(GTHREAD_LIBS) $(GIO_LIBS) \
 	$(LIBSOUP_LIBS) $(JSON_GLIB_LIBS) $(SQLITE3_LIBS) \
-	$(UUID_LIBS) $(MYSQL_LIBS)
+	$(UUID_LIBS) $(MYSQL_LIBS) $(COVERAGE_LIBS)
 
 hatohol_LDADD = libhatohol.la
 hatohol_resident_yard_LDADD = libhatohol.la

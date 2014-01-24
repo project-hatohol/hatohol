@@ -113,6 +113,12 @@ fi
 
 m4_ifdef([AC_CHECK_COVERAGE], [AC_CHECK_COVERAGE])
 
+if test "$cutter_enable_coverage" = "yes" -a -z "$COVERAGE_LIBS"; then
+  # old cutter doesn't have it
+  COVERAGE_LIBS="-lgcov"
+fi
+AC_SUBST(COVERAGE_LIBS)
+
 dnl **************************************************************
 dnl Mocha, expect.js, and npm (indirectly node.js)
 dnl **************************************************************
