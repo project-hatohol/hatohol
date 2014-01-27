@@ -39,13 +39,38 @@ var HatoholUserRolesEditor = function() {
     self.closeDialog();
   }
 
-  self.start();
+  function deleteUserRoles() {
+    var deleteList = [], id;
+    var checkboxes = $(".userRoleSelectCheckbox");
+    $(this).dialog("close");
+    for (var i = 0; i < checkboxes.length; i++) {
+      if (!checkboxes[i].checked)
+        continue;
+      id = checkboxes[i].getAttribute("userRoleId");
+      deleteList.push(id);
+    }
+    new HatoholItemRemover({
+      id: deleteList,
+      type: "user-role",
+      completionCallback: function() {
+        self.load();
+      }
+    });
+    hatoholInfoMsgBox(gettext("Deleting..."));
+  }
+
+  $("#deleteUserRolesButton").click(function() {
+    var msg = gettext("Are you sure to delete selected items?");
+    hatoholNoYesMsgBox(msg, deleteUserRoles);
+  });
+
+  self.load();
 };
 
 HatoholUserRolesEditor.prototype = Object.create(HatoholDialog.prototype);
 HatoholUserRolesEditor.prototype.constructor = HatoholUserRolesEditor;
 
-HatoholUserRolesEditor.prototype.start = function() {
+HatoholUserRolesEditor.prototype.load = function() {
   var self = this;
 
   new HatoholConnector({
@@ -86,7 +111,7 @@ HatoholUserRolesEditor.prototype.updateMainTable = function() {
     return;
 
   var rows = this.generateTableRows(this.userRolesData);
-  $("#" + this.mainTableId).append(rows);
+  $("#" + this.mainTableId).empty().append(rows);
   setupCheckboxHandler();
 };
 
