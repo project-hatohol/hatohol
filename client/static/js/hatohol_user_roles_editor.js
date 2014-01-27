@@ -387,6 +387,7 @@ HatoholUserRoleEditor.prototype.createMainElement = function() {
   // Checkboxes for privilege flags
   html +=
   '<label>' + gettext("Privileges") + '</label>' +
+  '<div class="ui-widget-content" style="overflow-y: scroll; height: 200px">' +
   '<table class="table table-condensed table-striped table-hover">' +
   '<tbody>';
   for (i = 0; i < privileges.length; ++i) {
