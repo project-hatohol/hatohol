@@ -48,27 +48,19 @@ HatoholUserRolesEditor.prototype.constructor = HatoholUserRolesEditor;
 HatoholUserRolesEditor.prototype.start = function() {
   var self = this;
 
-  self.setMessage(gettext("Now getting information..."));
-
   new HatoholConnector({
     url: "/user-role",
     request: "GET",
     data: {},
     replyCallback: function(userRolesData, parser) {
-      if (!userRolesData.numberOfUserRoles) {
-        self.setMessage(gettext("No data."));
-        return;
-      }
       self.userRolesData = userRolesData;
       self.updateMainTable();
     },
-    parseErrorCallback: function(reply, parser) {
-      self.setMessage(parser.getStatusMessage());
-    },
+    parseErrorCallback: hatoholErrorMsgBoxForParser,
     connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
       var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
                      XMLHttpRequest.statusText;
-      self.setMessage(errorMsg);
+      hatoholErrorMsgBox(errorMsg);
     }
   });
 };
@@ -77,9 +69,7 @@ HatoholUserRolesEditor.prototype.updateMainTable = function() {
   if (!this.userRolesData)
     return;
 
-  var table = this.generateMainTable();
   var rows = this.generateTableRows(this.userRolesData);
-  this.replaceMainElement(table);
   $("#" + this.mainTableId).append(rows);
 };
 
@@ -115,15 +105,10 @@ HatoholUserRolesEditor.prototype.generateTableRows = function(data) {
   return html;
 };
 
-HatoholUserRolesEditor.prototype.setMessage = function(msg) {
-  $("#userRolesEditorMsgArea").text(msg);
-};
-
 HatoholUserRolesEditor.prototype.createMainElement = function() {
-  var ptag = $("<p/>");
-  ptag.attr("id", "userRolesEditorMsgArea");
-  ptag.text(gettext("Now getting information..."));
-  return ptag;
+  var self = this;
+  var element = $(this.generateMainTable());
+  return element;
 };
 
 HatoholUserRolesEditor.prototype.onAppendMainElement = function () {
