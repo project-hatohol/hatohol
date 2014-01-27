@@ -150,20 +150,21 @@ HatoholUserRolesEditor.prototype.generateTableRows = function(data) {
   var html = '', role;
   for (var i = 0; i < data.userRoles.length; i++) {
     role = data.userRoles[i];
-    html += '<tr>';
-    html += '<td><input type="checkbox" class="userRoleSelectCheckbox" ' +
-            'userRoleId="' + role.userRoleId + '"></td>';
-    html += '<td>' + role.userRoleId + '</td>';
-    html += '<td>' + role.name + '</td>';
-    html += '<td>';
-    html += '<form class="form-inline" style="margin: 0">';
-    html += '  <input id="editUserRole' + role["userRoleId"] + '"';
-    html += '    type="button" class="btn"';
-    html += '    userRoleId="' + role["userRoleId"] + '"';
-    html += '    value="' + gettext("Show / Edit") + '" />';
-    html += '</form>';
-    html += '</td>';
-    html += '</tr>';
+    html =
+    '<tr>' +
+    '<td><input type="checkbox" class="userRoleSelectCheckbox" ' +
+    '           userRoleId="' + role.userRoleId + '"></td>' +
+    '<td>' + role.userRoleId + '</td>' +
+    '<td>' + role.name + '</td>' +
+    '<td>' +
+    '<form class="form-inline" style="margin: 0">' +
+    '  <input id="editUserRole' + role["userRoleId"] + '"' +
+    '    type="button" class="btn"' +
+    '    userRoleId="' + role["userRoleId"] + '"' +
+    '    value="' + gettext("Show / Edit") + '" />' +
+    '</form>' +
+    '</td>' +
+    '</tr>';
   }
   return html;
 };
