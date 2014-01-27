@@ -66,19 +66,36 @@ HatoholUserRolesEditor.prototype.start = function() {
 };
 
 HatoholUserRolesEditor.prototype.updateMainTable = function() {
+  var numSelected = 0;
+  var setupCheckboxHandler = function() {
+    $(".userRoleSelectCheckbox").change(function() {
+      var check = $(this).is(":checked");
+      var prevNumSelected = numSelected;
+      if (check)
+        numSelected += 1;
+      else
+        numSelected -= 1;
+      if (prevNumSelected == 0 && numSelected == 1)
+        $("#deleteUserRolesButton").attr("disabled", false);
+      else if (prevNumSelected == 1 && numSelected == 0)
+        $("#deleteUserRolesButton").attr("disabled", true);
+    });
+  };
+
   if (!this.userRolesData)
     return;
 
   var rows = this.generateTableRows(this.userRolesData);
   $("#" + this.mainTableId).append(rows);
+  setupCheckboxHandler();
 };
 
 HatoholUserRolesEditor.prototype.generateMainTable = function() {
   var html =
   '<form class="form-inline">' +
-  '  <input id="add-user-button" type="button" class="btn"' +
+  '  <input id="addUserRoleButton" type="button" class="btn"' +
   '   value="' + gettext("ADD") + '" />' +
-  '  <input id="delete-user-button" type="button" class="btn" disabled' +
+  '  <input id="deleteUserRolesButton" type="button" class="btn" disabled' +
   '   value="' + gettext("DELETE") + '" />' +
   '</form>' +
   '<table class="table table-condensed table-striped table-hover" id=' +
