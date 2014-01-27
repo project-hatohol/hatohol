@@ -111,7 +111,8 @@ HatoholUserRolesEditor.prototype.updateMainTable = function() {
     return;
 
   var rows = this.generateTableRows(this.userRolesData);
-  $("#" + this.mainTableId).empty().append(rows);
+  var tbody = $("#" + this.mainTableId + " tbody");
+  tbody.empty().append(rows);
   setupCheckboxHandler();
 };
 
