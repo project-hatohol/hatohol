@@ -544,7 +544,7 @@ static string makeExpectedConditionForUser(UserIdType userId)
 static string makeHostgroupOutput(const HostgroupInfo &hostgroupInfo, size_t id)
 {
 	string expectedOut = StringUtils::sprintf(
-	  "%"PRIu64"|%"PRIu32"|%"PRIu64"|%s\n",
+	  "%"PRIu64"|%"FMT_SERVER_ID"|%"FMT_GROUP_ID"|%s\n",
 	  id + 1, hostgroupInfo.serverId,
 	  hostgroupInfo.groupId, hostgroupInfo.groupName.c_str());
 
