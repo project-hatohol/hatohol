@@ -36,10 +36,43 @@ var HatoholUserRolesEditor = function() {
   function closeButtonClickedCb() {
     self.closeDialog();
   }
+
+  self.start();
 };
 
 HatoholUserRolesEditor.prototype = Object.create(HatoholDialog.prototype);
 HatoholUserRolesEditor.prototype.constructor = HatoholUserRolesEditor;
+
+HatoholUserRolesEditor.prototype.start = function() {
+  var self = this;
+
+  self.setMessage(gettext("Now getting information..."));
+
+  new HatoholConnector({
+    url: "/user-role",
+    request: "GET",
+    data: {},
+    replyCallback: function(userRolesData, parser) {
+      if (!userRolesData.numberOfUserRoles) {
+        self.setMessage(gettext("No data."));
+        return;
+      }
+      self.userRolesData = userRolesData;
+    },
+    parseErrorCallback: function(reply, parser) {
+      self.setMessage(parser.getStatusMessage());
+    },
+    connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
+      var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
+                     XMLHttpRequest.statusText;
+      self.setMessage(errorMsg);
+    }
+  });
+};
+
+HatoholUserRolesEditor.prototype.setMessage = function(msg) {
+  $("#user-roles-area").text(msg);
+};
 
 HatoholUserRolesEditor.prototype.createMainElement = function() {
   var self = this;
@@ -48,7 +81,7 @@ HatoholUserRolesEditor.prototype.createMainElement = function() {
 
   function makeMainDivHTML() {
     var html = "";
-    html += '<div></div>';
+    html += '<div id="user-roles-area"></div>';
     return html;
   }
 };
