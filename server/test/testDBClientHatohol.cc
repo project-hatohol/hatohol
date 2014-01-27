@@ -552,7 +552,7 @@ static string makeHostgroupsOutput(const HostgroupInfo &hostgroupInfo, size_t id
 }
 
 static string makeMapHostsHostgroupsOutput
-  (const HostgroupElement hostgroupElement, size_t id)
+  (const HostgroupElement &hostgroupElement, size_t id)
 {
 	string expectedOut = StringUtils::sprintf(
 	  "%"PRIu64"|%"FMT_SERVER_ID"|%"FMT_HOST_ID"|%"FMT_HOST_GROUP_ID"\n",
