@@ -333,7 +333,6 @@ HatoholUserRoleEditor.prototype.hatoholPrivileges = [
     flag: hatohol.OPPRVLG_GET_ALL_SERVER,
     message: gettext("Get all servers")
   },
-
   {
     flag: hatohol.OPPRVLG_CREATE_ACTION,
     message: gettext("Create a action")
