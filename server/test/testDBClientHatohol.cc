@@ -541,6 +541,16 @@ static string makeExpectedConditionForUser(UserIdType userId)
 	return exp;
 }
 
+static string makeHostgroupOutput(const HostgroupInfo &hostgroupInfo, size_t id)
+{
+	string expectedOut = StringUtils::sprintf(
+	  "%"PRIu64"|%"PRIu32"|%"PRIu64"|%s\n",
+	  id + 1, hostgroupInfo.serverId,
+	  hostgroupInfo.groupId, hostgroupInfo.groupName.c_str());
+
+	return expectedOut;
+}
+
 void cut_setup(void)
 {
 	hatoholInit();
