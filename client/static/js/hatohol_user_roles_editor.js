@@ -295,80 +295,80 @@ HatoholUserRoleEditor.prototype.constructor = HatoholUserRoleEditor;
 HatoholUserRoleEditor.prototype.hatoholPrivileges = [
   {
     flag: hatohol.OPPRVLG_CREATE_USER,
-    message: "Create a user"
+    message: gettext("Create a user")
   },
   {
     flag: hatohol.OPPRVLG_UPDATE_USER,
-    message: "Update users"
+    message: gettext("Update users")
   },
   {
     flag: hatohol.OPPRVLG_DELETE_USER,
-    message: "Delete users"
+    message: gettext("Delete users")
   },
   {
     flag: hatohol.OPPRVLG_GET_ALL_USER,
-    message: "Get all users"
+    message: gettext("Get all users")
   },
   {
     flag: hatohol.OPPRVLG_CREATE_SERVER,
-    message: "Create a server"
+    message: gettext("Create a server")
   },
   {
     flag: hatohol.OPPRVLG_UPDATE_SERVER,
-    message: "Update allowed servers"
+    message: gettext("Update allowed servers")
   },
   {
     flag: hatohol.OPPRVLG_UPDATE_ALL_SERVER,
-    message: "Update all servers"
+    message: gettext("Update all servers")
   },
   {
     flag: hatohol.OPPRVLG_DELETE_SERVER,
-    message: "Delete allowed servers"
+    message: gettext("Delete allowed servers")
   },
   {
     flag: hatohol.OPPRVLG_DELETE_ALL_SERVER,
-    message: "Delete all servers"
+    message: gettext("Delete all servers")
   },
   {
     flag: hatohol.OPPRVLG_GET_ALL_SERVER,
-    message: "Get all servers"
+    message: gettext("Get all servers")
   },
 
   {
     flag: hatohol.OPPRVLG_CREATE_ACTION,
-    message: "Create a action"
+    message: gettext("Create a action")
   },
   {
     flag: hatohol.OPPRVLG_UPDATE_ACTION,
-    message: "Update own actions"
+    message: gettext("Update own actions")
   },
   {
     flag: hatohol.OPPRVLG_UPDATE_ALL_ACTION,
-    message: "Update all actions"
+    message: gettext("Update all actions")
   },
   {
     flag: hatohol.OPPRVLG_DELETE_ACTION,
-    message: "Delete own actions"
+    message: gettext("Delete own actions")
   },
   {
     flag: hatohol.OPPRVLG_DELETE_ALL_ACTION,
-    message: "Delete all actions"
+    message: gettext("Delete all actions")
   },
   {
     flag: hatohol.OPPRVLG_GET_ALL_ACTION,
-    message: "Get all actions"
+    message: gettext("Get all actions")
   },
   {
     flag: hatohol.OPPRVLG_CREATE_USER_ROLE,
-    message: "Create a user role"
+    message: gettext("Create a user role")
   },
   {
     flag: hatohol.OPPRVLG_UPDATE_ALL_USER_ROLE,
-    message: "Update all user roles"
+    message: gettext("Update all user roles")
   },
   {
     flag: hatohol.OPPRVLG_DELETE_ALL_USER_ROLE,
-    message: "Delete all user roles"
+    message: gettext("Delete all user roles")
   },
 ];
 
