@@ -1219,4 +1219,21 @@ void test_addHostgroupInfo(void)
 	dbClientHatohol.addHostgroupInfoList(hostgroupInfoList);
 	assertDBContent(dbAgent, statement, expect);
 }
+
+void test_addHostgroupElement(void)
+{
+	DBClientHatohol dbClientHatohol;
+	HostgroupElementList hostgroupElementList;
+	DBAgent *dbAgent = dbClientHatohol.getDBAgent();
+	string statement = "select * from map_hosts_hostgroups";
+	string expect;
+
+	for (size_t i = 0; i < NumTestHostgroupElement; i++) {
+		hostgroupElementList.push_back(testHostgroupElement[i]);
+		expect += makeMapHostsHostgroupsOutput(
+		            testHostgroupElement[i], i);
+	}
+	dbClientHatohol.addHostgroupElementList(hostgroupElementList);
+	assertDBContent(dbAgent, statement, expect);
+}
 } // namespace testDBClientHatohol
