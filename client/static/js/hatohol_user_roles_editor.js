@@ -238,10 +238,21 @@ var HatoholUserRoleEditor = function(succeededCb, userRole) {
     self.closeDialog();
   }
 
+  function getPrivilegeFlags() {
+    var i, flags = 0;
+    var privileges = self.hatoholPrivileges;
+    for (i = 0; i < privileges.length; ++i) {
+      var checked = $("#privilegeFlagId" + i).is(":checked");
+      if (checked)
+        flags |= (1 << privileges[i].flag);
+    }
+    return flags;
+  }
+
   function makeQueryData() {
       var queryData = {};
       queryData.name = $("#editUserRoleName").val();
-      queryData.flags = parseInt($("#editUserRoleFlags").val());
+      queryData.flags = getPrivilegeFlags();
       return queryData;
   }
 
@@ -274,10 +285,6 @@ var HatoholUserRoleEditor = function(succeededCb, userRole) {
       hatoholErrorMsgBox(gettext("User role name is empty!"));
       return false;
     }
-    if (isNaN($("#editUserRoleFlags").val())) {
-      hatoholErrorMsgBox(gettext("Invalid flags!"));
-      return false;
-    }
     return true;
   }
 };
@@ -285,19 +292,114 @@ var HatoholUserRoleEditor = function(succeededCb, userRole) {
 HatoholUserRoleEditor.prototype = Object.create(HatoholDialog.prototype);
 HatoholUserRoleEditor.prototype.constructor = HatoholUserRoleEditor;
 
+HatoholUserRoleEditor.prototype.hatoholPrivileges = [
+  {
+    flag: hatohol.OPPRVLG_CREATE_USER,
+    message: "Create a user"
+  },
+  {
+    flag: hatohol.OPPRVLG_UPDATE_USER,
+    message: "Update users"
+  },
+  {
+    flag: hatohol.OPPRVLG_DELETE_USER,
+    message: "Delete users"
+  },
+  {
+    flag: hatohol.OPPRVLG_GET_ALL_USER,
+    message: "Get all users"
+  },
+  {
+    flag: hatohol.OPPRVLG_CREATE_SERVER,
+    message: "Create a server"
+  },
+  {
+    flag: hatohol.OPPRVLG_UPDATE_SERVER,
+    message: "Update allowed servers"
+  },
+  {
+    flag: hatohol.OPPRVLG_UPDATE_ALL_SERVER,
+    message: "Update all servers"
+  },
+  {
+    flag: hatohol.OPPRVLG_DELETE_SERVER,
+    message: "Delete allowed servers"
+  },
+  {
+    flag: hatohol.OPPRVLG_DELETE_ALL_SERVER,
+    message: "Delete all servers"
+  },
+  {
+    flag: hatohol.OPPRVLG_GET_ALL_SERVER,
+    message: "Get all servers"
+  },
+
+  {
+    flag: hatohol.OPPRVLG_CREATE_ACTION,
+    message: "Create a action"
+  },
+  {
+    flag: hatohol.OPPRVLG_UPDATE_ACTION,
+    message: "Update own actions"
+  },
+  {
+    flag: hatohol.OPPRVLG_UPDATE_ALL_ACTION,
+    message: "Update all actions"
+  },
+  {
+    flag: hatohol.OPPRVLG_DELETE_ACTION,
+    message: "Delete own actions"
+  },
+  {
+    flag: hatohol.OPPRVLG_DELETE_ALL_ACTION,
+    message: "Delete own actions"
+  },
+  {
+    flag: hatohol.OPPRVLG_GET_ALL_ACTION,
+    message: "Get all actions"
+  },
+  {
+    flag: hatohol.OPPRVLG_CREATE_USER_ROLE,
+    message: "Create a user role"
+  },
+  {
+    flag: hatohol.OPPRVLG_UPDATE_ALL_USER_ROLE,
+    message: "Update all user roles"
+  },
+  {
+    flag: hatohol.OPPRVLG_DELETE_ALL_USER_ROLE,
+    message: "Update all user roles"
+  },
+];
+
 HatoholUserRoleEditor.prototype.createMainElement = function() {
   var name = this.userRole ? this.userRole.name : "";
   var flags = this.userRole ? this.userRole.flags : 0;
+  var i, privileges = this.hatoholPrivileges;
+  var html = '<div>';
 
-  var html =
-  '<div>' +
+  // User role name
+  html +=
   '<label for="editUserRoleName">' + gettext("User role name") + '</label>' +
   '<input id="editUserRoleName" type="text" value="' + name + '"' +
-  '       class="input-xlarge">' +
-  // FIXME: Will be replaced with checkboxes
-  '<label for="editUserRoleFlags">' + gettext("Flags") + '</label>' +
-  '<input id="editUserRoleFlags" type="text" value="' + flags + '"' +
-  '       class="input-xlarge">' +
-  '</div>';
+  '       class="input-xlarge">';
+
+  // Checkboxes for privilege flags
+  html +=
+  '<label>' + gettext("Privileges") + '</label>' +
+  '<table class="table table-condensed table-striped table-hover">' +
+  '<tbody>';
+  for (i = 0; i < privileges.length; ++i) {
+    var checked = (flags & (1 << privileges[i].flag)) ? "checked" : "";
+    html +=
+    '<tr>' +
+    '<td><input type="checkbox" class="privilegeCheckbox" ' + checked +
+    '  id="privilegeFlagId' + i + '"></td>' +
+    '<td>' + privileges[i].message + '</td>' +
+    '</tr>';
+  }
+  html += '</tbody></table></div>';
+
+  html += '</div>';
   return $(html);
 };
