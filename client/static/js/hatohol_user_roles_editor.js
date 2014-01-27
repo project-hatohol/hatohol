@@ -205,10 +205,61 @@ var HatoholUserRoleEditor = function(succeededCb, userRole) {
   // Dialog button handlers
   //
   function applyButtonClickedCb() {
+    if (validateParameters()) {
+      makeQueryData();
+      if (self.userRole)
+        hatoholInfoMsgBox(gettext("Now updating the user ..."));
+      else
+        hatoholInfoMsgBox(gettext("Now creating a user ..."));
+      postAddUserRole();
+    }
   }
 
   function cancelButtonClickedCb() {
     self.closeDialog();
+  }
+
+  function makeQueryData() {
+      var queryData = {};
+      queryData.name = $("#editUserRoleName").val();
+      queryData.flags = parseInt($("#editUserRoleFlags").val());
+      return queryData;
+  }
+
+  function postAddUserRole() {
+    var url = "/user-role";
+    if (self.userRole)
+      url += "/" + self.userRole.userRoleId;
+    new HatoholConnector({
+      url: url,
+      request: self.userRole ? "PUT" : "POST",
+      data: makeQueryData(),
+      replyCallback: replyCallback,
+      parseErrorCallback: hatoholErrorMsgBoxForParser
+    });
+  }
+
+  function replyCallback(reply, parser) {
+    self.closeDialog();
+    if (self.userRole)
+      hatoholInfoMsgBox(gettext("Successfully updated."));
+    else
+      hatoholInfoMsgBox(gettext("Successfully created."));
+
+    if (succeededCb)
+      succeededCb();
+  }
+
+  function validateParameters() {
+    if ($("#editUserRoleName").val() == "") {
+      hatoholErrorMsgBox(gettext("User role name is empty!"));
+      return false;
+    }
+    if (isNaN($("#editUserRoleFlags").val())) {
+      hatoholErrorMsgBox(gettext("Invalid flags!"));
+      return false;
+    }
+    return true;
   }
 };
 
@@ -216,4 +267,18 @@ HatoholUserRoleEditor.prototype = Object.create(HatoholDialog.prototype);
 HatoholUserRoleEditor.prototype.constructor = HatoholUserRoleEditor;
 
 HatoholUserRoleEditor.prototype.createMainElement = function() {
+  var name = self.user ? self.userRole.name : "";
+  var flags = self.user ? self.userRole.flags : 0;
+
+  var html =
+  '<div>' +
+  '<label for="editUserRoleName">' + gettext("User role name") + '</label>' +
+  '<input id="editUserRoleName" type="text" value="' + name + '"' +
+  '       class="input-xlarge">' +
+  // FIXME: Will be replaced with checkboxes
+  '<label for="editUserRoleFlags">' + gettext("Flags") + '</label>' +
+  '<input id="editUserRoleFlags" type="text" value="' + flags + '"' +
+  '       class="input-xlarge">' +
+  '</div>';
+  return $(html);
 };
