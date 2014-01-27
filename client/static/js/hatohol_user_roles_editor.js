@@ -150,7 +150,7 @@ HatoholUserRolesEditor.prototype.generateTableRows = function(data) {
   var html = '', role;
   for (var i = 0; i < data.userRoles.length; i++) {
     role = data.userRoles[i];
-    html =
+    html +=
     '<tr>' +
     '<td><input type="checkbox" class="userRoleSelectCheckbox" ' +
     '           userRoleId="' + role.userRoleId + '"></td>' +
