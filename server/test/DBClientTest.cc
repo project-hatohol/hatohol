@@ -363,6 +363,31 @@ AccessInfo testAccessInfo[] = {
 };
 const size_t NumTestAccessInfo = sizeof(testAccessInfo) / sizeof(AccessInfo);
 
+HostgroupInfo testHostgroupInfo[] = {
+{
+	AUTO_INCREMENT_VALUE,  // id
+	1,                     // serverId
+	1,                     // groupId
+	"Monitor Servers"      // groupName
+}, {
+	AUTO_INCREMENT_VALUE,  // id
+	1,                     // serverId
+	2,                     // groupId
+	"Monitored Servers"    // groupName
+}, {
+	AUTO_INCREMENT_VALUE,  // id
+	2,                     // serverId
+	1,                     // groupId
+	"Checking Servers"     // groupName
+}, {
+	AUTO_INCREMENT_VALUE,  // id
+	2,                     // serverId
+	2,                     // groupId
+	"Checked Servers"      // groupName
+}
+};
+const size_t NumTestHostgroupInfo = sizeof(testHostgroupInfo) / sizeof(HostgroupInfo);
+
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 {
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
