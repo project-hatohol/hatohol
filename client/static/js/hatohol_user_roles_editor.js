@@ -98,6 +98,7 @@ HatoholUserRolesEditor.prototype.load = function() {
 };
 
 HatoholUserRolesEditor.prototype.updateMainTable = function() {
+  var self = this;
   var numSelected = 0;
   var setupCheckboxHandler = function() {
     $(".userRoleSelectCheckbox").change(function() {
@@ -113,6 +114,23 @@ HatoholUserRolesEditor.prototype.updateMainTable = function() {
         $("#deleteUserRolesButton").attr("disabled", true);
     });
   };
+  var setupEditButtons = function()
+  {
+    var userRoles = self.userRolesData.userRoles, userRolesMap = {};
+    var i, id;
+
+    for (i = 0; i < userRoles.length; ++i)
+      userRolesMap[userRoles[i]["userRoleId"]] = userRoles[i];
+
+    for (i = 0; i < userRoles.length; ++i) {
+      id = "#editUserRole" + userRoles[i]["userRoleId"];
+      $(id).click(function() {
+        var userRoleId = this.getAttribute("userRoleId");
+        new HatoholUserRoleEditor(function(){ self.load(); },
+                                  userRolesMap[userRoleId]);
+      });
+    }
+  };
 
   if (!this.userRolesData)
     return;
@@ -121,6 +139,7 @@ HatoholUserRolesEditor.prototype.updateMainTable = function() {
   var tbody = $("#" + this.mainTableId + " tbody");
   tbody.empty().append(rows);
   setupCheckboxHandler();
+  setupEditButtons();
 };
 
 HatoholUserRolesEditor.prototype.generateMainTable = function() {
@@ -267,8 +286,8 @@ HatoholUserRoleEditor.prototype = Object.create(HatoholDialog.prototype);
 HatoholUserRoleEditor.prototype.constructor = HatoholUserRoleEditor;
 
 HatoholUserRoleEditor.prototype.createMainElement = function() {
-  var name = self.user ? self.userRole.name : "";
-  var flags = self.user ? self.userRole.flags : 0;
+  var name = this.userRole ? this.userRole.name : "";
+  var flags = this.userRole ? this.userRole.flags : 0;
 
   var html =
   '<div>' +
