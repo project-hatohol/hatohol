@@ -1193,4 +1193,19 @@ void test_getEventWithInvalidUserId(void)
 	assertGetEventsWithFilter(arg);
 }
 
+void test_addHostgroupInfo(void)
+{
+	DBClientHatohol dbClientHatohol;
+	HostgroupInfoList hostgroupInfoList;
+	DBAgent *dbAgent = dbClientHatohol.getDBAgent();
+	string statement = "select * from hostgroups;";
+	string expect;
+
+	for(size_t i = 0; i < NumTestHostInfo; i++) {
+		hostgroupInfoList.push_back(testHostgroupInfo[i]);
+		expect += makeHostgroupOutput(testHostgroupInfo[i], i);
+	}
+	dbClientHatohol.addHostgroupInfoList(hostgroupInfoList);
+	assertDBContent(dbAgent, statement, expect);
+}
 } // namespace testDBClientHatohol
