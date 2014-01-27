@@ -27,7 +27,7 @@ var HatoholUserRolesEditor = function() {
   self.userRolesData = null;
 
   // call the constructor of the super class
-  dialogAttrs = { width: "auto" };
+  dialogAttrs = { width: "600" };
   HatoholDialog.apply(
     this, ["user-roles-editor", gettext("EDIT USER ROLES"),
            dialogButtons, dialogAttrs]);
@@ -75,6 +75,12 @@ HatoholUserRolesEditor.prototype.updateMainTable = function() {
 
 HatoholUserRolesEditor.prototype.generateMainTable = function() {
   var html =
+  '<form class="form-inline">' +
+  '  <input id="add-user-button" type="button" class="btn"' +
+  '   value="' + gettext("ADD") + '" />' +
+  '  <input id="delete-user-button" type="button" class="btn" disabled' +
+  '   value="' + gettext("DELETE") + '" />' +
+  '</form>' +
   '<table class="table table-condensed table-striped table-hover" id=' +
   this.mainTableId + '>' +
   '  <thead>' +
