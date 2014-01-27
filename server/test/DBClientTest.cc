@@ -443,6 +443,7 @@ HostgroupElement testHostgroupElement[] = {
 	2,                     // groupId
 }
 };
+const size_t NumTestHostgroupElement = sizeof(testHostgroupElement) / sizeof(HostgroupElement);
 
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 {
