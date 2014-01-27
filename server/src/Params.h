@@ -73,4 +73,6 @@ enum SyncType {
 typedef uint32_t HostGroupIdType;
 #define FMT_HOST_GROUP_ID PRIu64
 
+typedef uint32_t HostIdType;
+#define FMT_HOST_ID PRIu64
 #endif // Params_h
