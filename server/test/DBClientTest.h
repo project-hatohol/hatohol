@@ -66,6 +66,9 @@ extern const size_t NumTestHostgroupInfo;
 extern HostInfo testHostInfo[];
 extern const size_t NumTestHostInfo;
 
+extern HostgroupElement testHostgroupElement[];
+extern const size_t NumTestHostgroupElement;
+
 /**
  * get the test trigger data indexes whose serverId and hostId are 
  * matched with the specified.
