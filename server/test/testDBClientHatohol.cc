@@ -1245,4 +1245,20 @@ void test_addHostgroupElement(void)
 	dbClientHatohol.addHostgroupElementList(hostgroupElementList);
 	assertDBContent(dbAgent, statement, expect);
 }
+
+void test_addHostInfo(void)
+{
+	DBClientHatohol dbClientHatohol;
+	HostInfoList hostInfoList;
+	DBAgent *dbAgent = dbClientHatohol.getDBAgent();
+	string statement = "select * from hosts;";
+	string expect;
+
+	for(size_t i = 0; i < NumTestHostInfo; i++) {
+		hostInfoList.push_back(testHostInfo[i]);
+		expect += makeHostsOutput(testHostInfo[i], i);
+	}
+	dbClientHatohol.addHostInfoList(hostInfoList);
+	assertDBContent(dbAgent, statement, expect);
+}
 } // namespace testDBClientHatohol
