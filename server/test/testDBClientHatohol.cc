@@ -541,7 +541,7 @@ static string makeExpectedConditionForUser(UserIdType userId)
 	return exp;
 }
 
-static string makeHostgroupOutput(const HostgroupInfo &hostgroupInfo, size_t id)
+static string makeHostgroupsOutput(const HostgroupInfo &hostgroupInfo, size_t id)
 {
 	string expectedOut = StringUtils::sprintf(
 	  "%"PRIu64"|%"FMT_SERVER_ID"|%"FMT_HOST_GROUP_ID"|%s\n",
@@ -1203,7 +1203,7 @@ void test_addHostgroupInfo(void)
 
 	for(size_t i = 0; i < NumTestHostInfo; i++) {
 		hostgroupInfoList.push_back(testHostgroupInfo[i]);
-		expect += makeHostgroupOutput(testHostgroupInfo[i], i);
+		expect += makeHostgroupsOutput(testHostgroupInfo[i], i);
 	}
 	dbClientHatohol.addHostgroupInfoList(hostgroupInfoList);
 	assertDBContent(dbAgent, statement, expect);
