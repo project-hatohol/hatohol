@@ -352,7 +352,7 @@ HatoholUserRoleEditor.prototype.hatoholPrivileges = [
   },
   {
     flag: hatohol.OPPRVLG_DELETE_ALL_ACTION,
-    message: "Delete own actions"
+    message: "Delete all actions"
   },
   {
     flag: hatohol.OPPRVLG_GET_ALL_ACTION,
@@ -368,7 +368,7 @@ HatoholUserRoleEditor.prototype.hatoholPrivileges = [
   },
   {
     flag: hatohol.OPPRVLG_DELETE_ALL_USER_ROLE,
-    message: "Update all user roles"
+    message: "Delete all user roles"
   },
 ];
 
