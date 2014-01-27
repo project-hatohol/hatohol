@@ -562,6 +562,15 @@ static string makeMapHostsHostgroupsOutput
 	return expectedOut;
 }
 
+static string makeHostsOutput(const HostInfo &hostInfo, size_t id)
+{
+	string expectedOut = StringUtils::sprintf(
+	  "%"PRIu64"|%"FMT_SERVER_ID"|%"FMT_HOST_ID"|%s\n",
+	  id + 1, hostInfo.serverId, hostInfo.id, hostInfo.hostName.c_str());
+
+	return expectedOut;
+}
+
 void cut_setup(void)
 {
 	hatoholInit();
