@@ -208,9 +208,9 @@ var HatoholUserRoleEditor = function(succeededCb, userRole) {
     if (validateParameters()) {
       makeQueryData();
       if (self.userRole)
-        hatoholInfoMsgBox(gettext("Now updating the user ..."));
+        hatoholInfoMsgBox(gettext("Now updating the user role ..."));
       else
-        hatoholInfoMsgBox(gettext("Now creating a user ..."));
+        hatoholInfoMsgBox(gettext("Now creating a user role ..."));
       postAddUserRole();
     }
   }
