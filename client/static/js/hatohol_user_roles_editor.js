@@ -295,79 +295,98 @@ HatoholUserRoleEditor.prototype.constructor = HatoholUserRoleEditor;
 HatoholUserRoleEditor.prototype.hatoholPrivileges = [
   {
     flag: hatohol.OPPRVLG_CREATE_USER,
-    message: gettext("Create a user")
+    message: gettext("Create a user"),
+    category: gettext("Users")
   },
   {
     flag: hatohol.OPPRVLG_UPDATE_USER,
-    message: gettext("Update users")
+    message: gettext("Update users"),
+    category: gettext("Users")
   },
   {
     flag: hatohol.OPPRVLG_DELETE_USER,
-    message: gettext("Delete users")
+    message: gettext("Delete users"),
+    category: gettext("Users")
   },
   {
     flag: hatohol.OPPRVLG_GET_ALL_USER,
-    message: gettext("Get all users")
+    message: gettext("Get all users"),
+    category: gettext("Users")
   },
   {
     flag: hatohol.OPPRVLG_CREATE_SERVER,
-    message: gettext("Create a server")
+    message: gettext("Create a server"),
+    category: gettext("Servers")
   },
   {
     flag: hatohol.OPPRVLG_UPDATE_SERVER,
-    message: gettext("Update allowed servers")
+    message: gettext("Update allowed servers"),
+    category: gettext("Servers")
   },
   {
     flag: hatohol.OPPRVLG_UPDATE_ALL_SERVER,
-    message: gettext("Update all servers")
+    message: gettext("Update all servers"),
+    category: gettext("Servers")
   },
   {
     flag: hatohol.OPPRVLG_DELETE_SERVER,
-    message: gettext("Delete allowed servers")
+    message: gettext("Delete allowed servers"),
+    category: gettext("Servers")
   },
   {
     flag: hatohol.OPPRVLG_DELETE_ALL_SERVER,
-    message: gettext("Delete all servers")
+    message: gettext("Delete all servers"),
+    category: gettext("Servers")
   },
   {
     flag: hatohol.OPPRVLG_GET_ALL_SERVER,
-    message: gettext("Get all servers")
+    message: gettext("Get all servers"),
+    category: gettext("Servers")
   },
   {
     flag: hatohol.OPPRVLG_CREATE_ACTION,
-    message: gettext("Create a action")
+    message: gettext("Create a action"),
+    category: gettext("Actions")
   },
   {
     flag: hatohol.OPPRVLG_UPDATE_ACTION,
-    message: gettext("Update own actions")
+    message: gettext("Update own actions"),
+    category: gettext("Actions")
   },
   {
     flag: hatohol.OPPRVLG_UPDATE_ALL_ACTION,
-    message: gettext("Update all actions")
+    message: gettext("Update all actions"),
+    category: gettext("Actions")
   },
   {
     flag: hatohol.OPPRVLG_DELETE_ACTION,
-    message: gettext("Delete own actions")
+    message: gettext("Delete own actions"),
+    category: gettext("Actions")
   },
   {
     flag: hatohol.OPPRVLG_DELETE_ALL_ACTION,
-    message: gettext("Delete all actions")
+    message: gettext("Delete all actions"),
+    category: gettext("Actions")
   },
   {
     flag: hatohol.OPPRVLG_GET_ALL_ACTION,
-    message: gettext("Get all actions")
+    message: gettext("Get all actions"),
+    category: gettext("Actions")
   },
   {
     flag: hatohol.OPPRVLG_CREATE_USER_ROLE,
-    message: gettext("Create a user role")
+    message: gettext("Create a user role"),
+    category: gettext("User roles")
   },
   {
     flag: hatohol.OPPRVLG_UPDATE_ALL_USER_ROLE,
-    message: gettext("Update all user roles")
+    message: gettext("Update all user roles"),
+    category: gettext("User roles")
   },
   {
     flag: hatohol.OPPRVLG_DELETE_ALL_USER_ROLE,
-    message: gettext("Delete all user roles")
+    message: gettext("Delete all user roles"),
+    category: gettext("User roles")
   },
 ];
 
