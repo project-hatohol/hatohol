@@ -395,7 +395,7 @@ HostInfo testHostInfo[] = {
 	"penguin"              // hostName
 }, {
 	1,                     // serverId
-	1,                     // id(hostId)
+	2,                     // id(hostId)
 	"platypus"             // hostName
 } ,{
 	2,                     // serverId
@@ -411,7 +411,6 @@ const size_t NumTestHostInfo = sizeof(testHostInfo) / sizeof(HostInfo);
 
 HostgroupElement testHostgroupElement[] = {
 {
-}, {
 	AUTO_INCREMENT_VALUE,  // id
 	1,                     // serverId
 	1,                     // hostId
