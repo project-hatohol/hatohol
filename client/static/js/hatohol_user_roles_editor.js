@@ -59,6 +59,13 @@ var HatoholUserRolesEditor = function() {
     hatoholInfoMsgBox(gettext("Deleting..."));
   }
 
+  $("#addUserRoleButton").click(function() {
+    var succeededCb = function() {
+      self.load();
+    };
+    new HatoholUserRoleEditor(succeededCb);
+  });
+
   $("#deleteUserRolesButton").click(function() {
     var msg = gettext("Are you sure to delete selected items?");
     hatoholNoYesMsgBox(msg, deleteUserRoles);
@@ -168,4 +175,44 @@ HatoholUserRolesEditor.prototype.createMainElement = function() {
 };
 
 HatoholUserRolesEditor.prototype.onAppendMainElement = function () {
+};
+
+
+var HatoholUserRoleEditor = function(succeededCb, userRole) {
+  var self = this;
+
+  self.userRole = userRole;
+  self.windowTitle = userRole ?
+    gettext("EDIT USER ROLE") : gettext("ADD USER ROLE");
+  self.applyButtonTitle = userRole ? gettext("APPLY") : gettext("ADD");
+
+  var dialogButtons = [{
+    text: self.applyButtonTitle,
+    click: applyButtonClickedCb
+  }, {
+    text: gettext("CANCEL"),
+    click: cancelButtonClickedCb
+  }];
+
+  // call the constructor of the super class
+  dialogAttrs = { width: "auto" };
+  HatoholDialog.apply(
+    this, ["user-role-editor", self.windowTitle,
+           dialogButtons, dialogAttrs]);
+
+  //
+  // Dialog button handlers
+  //
+  function applyButtonClickedCb() {
+  }
+
+  function cancelButtonClickedCb() {
+    self.closeDialog();
+  }
+};
+
+HatoholUserRoleEditor.prototype = Object.create(HatoholDialog.prototype);
+HatoholUserRoleEditor.prototype.constructor = HatoholUserRoleEditor;
+
+HatoholUserRoleEditor.prototype.createMainElement = function() {
 };
