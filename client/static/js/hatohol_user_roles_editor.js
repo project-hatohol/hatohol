@@ -100,7 +100,7 @@ HatoholUserRolesEditor.prototype.load = function() {
 HatoholUserRolesEditor.prototype.updateMainTable = function() {
   var self = this;
   var numSelected = 0;
-  var setupCheckboxHandler = function() {
+  var setupCheckboxes = function() {
     $(".userRoleSelectCheckbox").change(function() {
       var check = $(this).is(":checked");
       var prevNumSelected = numSelected;
@@ -138,7 +138,7 @@ HatoholUserRolesEditor.prototype.updateMainTable = function() {
   var rows = this.generateTableRows(this.userRolesData);
   var tbody = $("#" + this.mainTableId + " tbody");
   tbody.empty().append(rows);
-  setupCheckboxHandler();
+  setupCheckboxes();
   setupEditButtons();
 };
 
