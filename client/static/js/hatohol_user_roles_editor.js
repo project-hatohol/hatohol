@@ -88,7 +88,7 @@ HatoholUserRolesEditor.prototype.generateMainTable = function() {
   '      <th> </th>' +
   '      <th>ID</th>' +
   '      <th>' + gettext("Name") + '</th>' +
-  '      <th>' + gettext("Flags") + '</th>' +
+  '      <th>' + gettext("Privilege") + '</th>' +
   '    </tr>' +
   '  </thead>' +
   '  <tbody></tbody>' +
@@ -105,7 +105,14 @@ HatoholUserRolesEditor.prototype.generateTableRows = function(data) {
             'userRoleId="' + role.userRoleId + '"></td>';
     html += '<td>' + role.userRoleId + '</td>';
     html += '<td>' + role.name + '</td>';
-    html += '<td>' + role.flags + '</td>';
+    html += '<td>';
+    html += '<form class="form-inline" style="margin: 0">';
+    html += '  <input id="editUserRole' + role["userRoleId"] + '"';
+    html += '    type="button" class="btn"';
+    html += '    userRoleId="' + role["userRoleId"] + '"';
+    html += '    value="' + gettext("Show / Edit") + '" />';
+    html += '</form>';
+    html += '</td>';
     html += '</tr>';
   }
   return html;
