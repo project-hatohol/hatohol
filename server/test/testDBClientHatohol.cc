@@ -1212,7 +1212,7 @@ void test_addHostgroupInfo(void)
 	string statement = "select * from hostgroups;";
 	string expect;
 
-	for(size_t i = 0; i < NumTestHostInfo; i++) {
+	for (size_t i = 0; i < NumTestHostInfo; i++) {
 		hostgroupInfoList.push_back(testHostgroupInfo[i]);
 		expect += makeHostgroupsOutput(testHostgroupInfo[i], i);
 	}
