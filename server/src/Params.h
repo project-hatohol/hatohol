@@ -70,7 +70,7 @@ enum SyncType {
 	ASYNC,
 };
 
-typedef uint32_t GroupIdType;
-#define FMT_GROUP_ID PRIu64
+typedef uint32_t HostGroupIdType;
+#define FMT_HOST_GROUP_ID PRIu64
 
 #endif // Params_h
