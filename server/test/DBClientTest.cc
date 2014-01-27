@@ -388,6 +388,27 @@ HostgroupInfo testHostgroupInfo[] = {
 };
 const size_t NumTestHostgroupInfo = sizeof(testHostgroupInfo) / sizeof(HostgroupInfo);
 
+HostInfo testHostInfo[] = {
+{
+	1,                     // serverId
+	1,                     // id(hostId)
+	"penguin"              // hostName
+}, {
+	1,                     // serverId
+	1,                     // id(hostId)
+	"platypus"             // hostName
+} ,{
+	2,                     // serverId
+	1,                     // id(hostId)
+	"chick"                // hostName
+}, {
+	2,                     // serverId
+	2,                     // id(hostId)
+	"robot"                // hostName
+}
+};
+const size_t NumTestHostInfo = sizeof(testHostInfo) / sizeof(HostInfo);
+
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 {
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
