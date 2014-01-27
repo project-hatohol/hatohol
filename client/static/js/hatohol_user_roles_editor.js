@@ -23,6 +23,8 @@ var HatoholUserRolesEditor = function() {
     text: gettext("CLOSE"),
     click: closeButtonClickedCb
   }];
+  self.mainTableId = "userRoleEditorMainTable";
+  self.userRolesData = null;
 
   // call the constructor of the super class
   dialogAttrs = { width: "auto" };
@@ -58,6 +60,7 @@ HatoholUserRolesEditor.prototype.start = function() {
         return;
       }
       self.userRolesData = userRolesData;
+      self.updateMainTable();
     },
     parseErrorCallback: function(reply, parser) {
       self.setMessage(parser.getStatusMessage());
@@ -70,20 +73,57 @@ HatoholUserRolesEditor.prototype.start = function() {
   });
 };
 
+HatoholUserRolesEditor.prototype.updateMainTable = function() {
+  if (!this.userRolesData)
+    return;
+
+  var table = this.generateMainTable();
+  var rows = this.generateTableRows(this.userRolesData);
+  this.replaceMainElement(table);
+  $("#" + this.mainTableId).append(rows);
+};
+
+HatoholUserRolesEditor.prototype.generateMainTable = function() {
+  var html =
+  '<table class="table table-condensed table-striped table-hover" id=' +
+  this.mainTableId + '>' +
+  '  <thead>' +
+  '    <tr>' +
+  '      <th> </th>' +
+  '      <th>ID</th>' +
+  '      <th>' + gettext("Name") + '</th>' +
+  '      <th>' + gettext("Flags") + '</th>' +
+  '    </tr>' +
+  '  </thead>' +
+  '  <tbody></tbody>' +
+  '</table>';
+  return html;
+};
+
+HatoholUserRolesEditor.prototype.generateTableRows = function(data) {
+  var html = '', role;
+  for (var i = 0; i < data.userRoles.length; i++) {
+    role = data.userRoles[i];
+    html += '<tr>';
+    html += '<td><input type="checkbox" class="userRoleSelectCheckbox" ' +
+            'userRoleId="' + role.userRoleId + '"></td>';
+    html += '<td>' + role.userRoleId + '</td>';
+    html += '<td>' + role.name + '</td>';
+    html += '<td>' + role.flags + '</td>';
+    html += '</tr>';
+  }
+  return html;
+};
+
 HatoholUserRolesEditor.prototype.setMessage = function(msg) {
-  $("#user-roles-area").text(msg);
+  $("#userRolesEditorMsgArea").text(msg);
 };
 
 HatoholUserRolesEditor.prototype.createMainElement = function() {
-  var self = this;
-  var div = $(makeMainDivHTML());
-  return div;
-
-  function makeMainDivHTML() {
-    var html = "";
-    html += '<div id="user-roles-area"></div>';
-    return html;
-  }
+  var ptag = $("<p/>");
+  ptag.attr("id", "userRolesEditorMsgArea");
+  ptag.text(gettext("Now getting information..."));
+  return ptag;
 };
 
 HatoholUserRolesEditor.prototype.onAppendMainElement = function () {
