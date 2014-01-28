@@ -20,7 +20,7 @@
 var HatoholUserEditDialog = function(succeededCb, user) {
   var self = this;
 
-  self.user = user
+  self.user = user;
   self.userRolesData = null;
   self.windowTitle = user ? gettext("EDIT USER") : gettext("ADD USER");
   self.applyButtonTitle = user ? gettext("APPLY") : gettext("ADD");
