@@ -1968,6 +1968,31 @@ void FaceRest::handlerUser(RestJob *job)
 	}
 }
 
+static void addUserRolesMap(
+  FaceRest::RestJob *job, JsonBuilderAgent &agent)
+{
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	UserRoleInfoList userRoleList;
+	UserRoleQueryOption option(job->userId);
+	dataStore->getUserRoleList(userRoleList, option);
+
+	agent.startObject("userRoles");
+	UserRoleInfoListIterator it = userRoleList.begin();
+	agent.startObject(StringUtils::toString(NONE_PRIVILEGE));
+	agent.add("name", "Guest");
+	agent.endObject();
+	agent.startObject(StringUtils::toString(ALL_PRIVILEGES));
+	agent.add("name", "Admin");
+	agent.endObject();
+	for (; it != userRoleList.end(); ++it) {
+		UserRoleInfo &userRoleInfo = *it;
+		agent.startObject(StringUtils::toString(userRoleInfo.flags));
+		agent.add("name", userRoleInfo.name);
+		agent.endObject();
+	}
+	agent.endObject();
+}
+
 void FaceRest::handlerGetUser(RestJob *job)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
@@ -1993,6 +2018,7 @@ void FaceRest::handlerGetUser(RestJob *job)
 		agent.endObject();
 	}
 	agent.endArray();
+	addUserRolesMap(job, agent);
 	agent.endObject();
 
 	replyJsonData(agent, job);
