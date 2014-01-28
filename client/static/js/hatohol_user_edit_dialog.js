@@ -17,14 +17,15 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var HatoholUserEditDialog = function(succeededCb, user) {
+var HatoholUserEditDialog = function(params) {
   var self = this;
 
-  self.operator = userProfile.user;
-  self.user = user;
+  self.operator = params.operator;
+  self.user = params.targetUser;
+  self.succeededCallback = params.succeededCallback;
   self.userRolesData = null;
-  self.windowTitle = user ? gettext("EDIT USER") : gettext("ADD USER");
-  self.applyButtonTitle = user ? gettext("APPLY") : gettext("ADD");
+  self.windowTitle = self.user ? gettext("EDIT USER") : gettext("ADD USER");
+  self.applyButtonTitle = self.user ? gettext("APPLY") : gettext("ADD");
 
   var dialogButtons = [{
     text: self.applyButtonTitle,
@@ -60,8 +61,11 @@ var HatoholUserEditDialog = function(succeededCb, user) {
   }
 
   $("#editUserRoles").click(function() {
-    new HatoholUserRolesEditor(function() {
-      self.loadUserRoles();
+    new HatoholUserRolesEditor({
+      operator: self.operator,
+      succeededCallback: function() {
+        self.loadUserRoles();
+      }
     });
   });
 
@@ -95,8 +99,8 @@ var HatoholUserEditDialog = function(succeededCb, user) {
     else
       hatoholInfoMsgBox(gettext("Successfully created."));
 
-    if (succeededCb)
-      succeededCb();
+    if (self.succeededCallback)
+      self.succeededCallback();
   }
 
   function validateParameters() {

@@ -17,13 +17,14 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var HatoholUserRolesEditor = function(changedCb) {
+var HatoholUserRolesEditor = function(params) {
   var self = this;
   var dialogButtons = [{
     text: gettext("CLOSE"),
     click: closeButtonClickedCb
   }];
-  self.operator = userProfile.user;
+  self.operator = params.operator;
+  self.changedCallback = params.changedCallback;
   self.mainTableId = "userRoleEditorMainTable";
   self.userRolesData = null;
   self.changed = false;
@@ -39,8 +40,8 @@ var HatoholUserRolesEditor = function(changedCb) {
   //
   function closeButtonClickedCb() {
     self.closeDialog();
-    if (self.changed && changedCb)
-      changedCb();
+    if (self.changed && self.changedCallback)
+      self.changedCallback();
   }
 
   function deleteUserRoles() {
@@ -65,11 +66,13 @@ var HatoholUserRolesEditor = function(changedCb) {
   }
 
   $("#addUserRoleButton").click(function() {
-    var succeededCb = function() {
-      self.load();
-      self.changed = true;
-    };
-    new HatoholUserRoleEditor(succeededCb);
+    new HatoholUserRoleEditor({
+      operator: self.operator,
+      succeededCallback: function() {
+        self.load();
+        self.changed = true;
+      }
+    });
   });
 
   $("#deleteUserRolesButton").click(function() {
@@ -132,11 +135,14 @@ HatoholUserRolesEditor.prototype.updateMainTable = function() {
       id = "#editUserRole" + userRoles[i]["userRoleId"];
       $(id).click(function() {
         var userRoleId = this.getAttribute("userRoleId");
-        var succeededCallback = function() {
-          self.load();
-          self.changed = true;
-        };
-        new HatoholUserRoleEditor(succeededCallback, userRolesMap[userRoleId]);
+        new HatoholUserRoleEditor({
+          operator: self.operator,
+          succeededCallback: function() {
+            self.load();
+            self.changed = true;
+          },
+          targetUserRole: userRolesMap[userRoleId]
+        });
       });
     }
   };
@@ -233,14 +239,15 @@ HatoholUserRolesEditor.prototype.onAppendMainElement = function () {
 };
 
 
-var HatoholUserRoleEditor = function(succeededCb, userRole) {
+var HatoholUserRoleEditor = function(params) {
   var self = this;
 
-  self.operator = userProfile.user;
-  self.userRole = userRole;
-  self.windowTitle = userRole ?
+  self.operator = params.operator;
+  self.userRole = params.targetUserRole;
+  self.succeededCallback = params.succeededCallback;
+  self.windowTitle = self.userRole ?
     gettext("EDIT USER ROLE") : gettext("ADD USER ROLE");
-  self.applyButtonTitle = userRole ? gettext("APPLY") : gettext("ADD");
+  self.applyButtonTitle = self.userRole ? gettext("APPLY") : gettext("ADD");
 
   var dialogButtons = [{
     text: self.applyButtonTitle,
@@ -312,8 +319,8 @@ var HatoholUserRoleEditor = function(succeededCb, userRole) {
     else
       hatoholInfoMsgBox(gettext("Successfully created."));
 
-    if (succeededCb)
-      succeededCb();
+    if (self.succeededCallback)
+      self.succeededCallback();
   }
 
   function validateParameters() {

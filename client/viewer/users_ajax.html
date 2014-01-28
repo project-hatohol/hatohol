@@ -79,7 +79,10 @@
     });
 
     $("#add-user-button").click(function() {
-      new HatoholUserEditDialog(addOrEditSucceededCb);
+      new HatoholUserEditDialog({
+        operator: userProfile.user,
+        succeededCallback: addOrEditSucceededCb
+      });
     });
 
     $("#delete-user-button").click(function() {
@@ -124,7 +127,11 @@
         id = "#edit-user" + users[i]["userId"];
         $(id).click(function() {
           var userId = this.getAttribute("userId");
-          new HatoholUserEditDialog(addOrEditSucceededCb, usersMap[userId]);
+          new HatoholUserEditDialog({
+            operator: userProfile.user,
+            succeededCallback: addOrEditSucceededCb,
+            targetUser: usersMap[userId]
+          });
         });
 
         id = id + "-privileges";
