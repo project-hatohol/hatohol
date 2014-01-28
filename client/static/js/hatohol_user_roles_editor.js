@@ -23,6 +23,7 @@ var HatoholUserRolesEditor = function(changedCb) {
     text: gettext("CLOSE"),
     click: closeButtonClickedCb
   }];
+  self.operator = userProfile.user;
   self.mainTableId = "userRoleEditorMainTable";
   self.userRolesData = null;
   self.changed = false;
@@ -148,21 +149,22 @@ HatoholUserRolesEditor.prototype.updateMainTable = function() {
   tbody.empty().append(rows);
   setupCheckboxes();
   setupEditButtons();
+  this.setupWidgetsState();
 };
 
 HatoholUserRolesEditor.prototype.generateMainTable = function() {
   var html =
   '<form class="form-inline">' +
-  '  <input id="addUserRoleButton" type="button" class="btn"' +
-  '   value="' + gettext("ADD") + '" />' +
-  '  <input id="deleteUserRolesButton" type="button" class="btn" disabled' +
-  '   value="' + gettext("DELETE") + '" />' +
+  '  <input id="addUserRoleButton" type="button" ' +
+  '    class="btn addUserRole"    value="' + gettext("ADD") + '" />' +
+  '  <input id="deleteUserRolesButton" type="button" disabled ' +
+  '    class="btn deleteUserRole" value="' + gettext("DELETE") + '" />' +
   '</form>' +
   '<table class="table table-condensed table-striped table-hover" id=' +
   this.mainTableId + '>' +
   '  <thead>' +
   '    <tr>' +
-  '      <th> </th>' +
+  '      <th class="deleteUserRole"> </th>' +
   '      <th>ID</th>' +
   '      <th>' + gettext("Name") + '</th>' +
   '      <th>' + gettext("Privilege") + '</th>' +
@@ -176,23 +178,24 @@ HatoholUserRolesEditor.prototype.generateMainTable = function() {
 HatoholUserRolesEditor.prototype.generateTableRows = function(data) {
   var html = '', role;
 
-  html += '<tr><td></td><td>-</td><td>' +
+  html += '<tr><td class="deleteUserRole"></td><td>-</td><td>' +
     gettext('Guest') + '</td><td>' + gettext("None") +'</td></tr>';
-  html += '<tr><td></td><td>-</td><td>' +
+  html += '<tr><td class="deleteUserRole"></td><td>-</td><td>' +
     gettext('Admin') + '</td><td>' + gettext("All") +'</td></tr>';
 
   for (var i = 0; i < data.userRoles.length; i++) {
     role = data.userRoles[i];
     html +=
     '<tr>' +
-    '<td><input type="checkbox" class="userRoleSelectCheckbox" ' +
-    '           userRoleId="' + role.userRoleId + '"></td>' +
+    '<td class="deleteUserRole">' +
+    '  <input type="checkbox" class="userRoleSelectCheckbox" ' +
+    '         userRoleId="' + role.userRoleId + '"></td>' +
     '<td>' + role.userRoleId + '</td>' +
     '<td>' + role.name + '</td>' +
     '<td>' +
     '<form class="form-inline" style="margin: 0">' +
     '  <input id="editUserRole' + role["userRoleId"] + '"' +
-    '    type="button" class="btn"' +
+    '    type="button" class="btn editUserRole"' +
     '    userRoleId="' + role["userRoleId"] + '"' +
     '    value="' + gettext("Show / Edit") + '" />' +
     '</form>' +
@@ -208,7 +211,25 @@ HatoholUserRolesEditor.prototype.createMainElement = function() {
   return element;
 };
 
+HatoholUserRolesEditor.prototype.setupWidgetsState = function () {
+  if (hasFlag(this.operator, hatohol.OPPRVLG_CREATE_USER_ROLE))
+    $(".addUserRole").show();
+  else
+    $(".addUserRole").hide();
+
+  if (hasFlag(this.operator, hatohol.OPPRVLG_DELETE_ALL_USER_ROLE))
+    $(".deleteUserRole").show();
+  else
+    $(".deleteUserRole").hide();
+
+  if (hasFlag(this.operator, hatohol.OPPRVLG_EDIT_ALL_USER_ROLE))
+    $(".editUserRole").val(gettext("Show / Edit"));
+  else
+    $(".editUserRole").val(gettext("Show"));
+};
+
 HatoholUserRolesEditor.prototype.onAppendMainElement = function () {
+  this.setupWidgetsState();
 };
 
 
