@@ -411,7 +411,7 @@ HatoholError DBClientUser::addUserInfo(
 	arg.numColumns = NUM_COLUMNS_USERS;
 	arg.columnDefs = COLUMN_DEF_USERS;
 
-	row->ADD_NEW_ITEM(Int, 0); // This is automaticall set (0 is dummy)
+	row->ADD_NEW_ITEM(Int, AUTO_INCREMENT_VALUE);
 	row->ADD_NEW_ITEM(String, userInfo.name);
 	row->ADD_NEW_ITEM(String, Utils::sha256(userInfo.password));
 	row->ADD_NEW_ITEM(Uint64, userInfo.flags);

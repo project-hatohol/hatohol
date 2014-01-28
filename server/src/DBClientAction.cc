@@ -529,7 +529,7 @@ HatoholError DBClientAction::addAction(ActionDef &actionDef,
 	arg.numColumns = NUM_COLUMNS_ACTIONS;
 	arg.columnDefs = COLUMN_DEF_ACTIONS;
 
-	row->ADD_NEW_ITEM(Int, 0); // This is automaticall set (0 is dummy)
+	row->ADD_NEW_ITEM(Int, AUTO_INCREMENT_VALUE);
 	row->ADD_NEW_ITEM(Uint64, actionDef.condition.serverId,
 	                  getNullFlag(actionDef, ACTCOND_SERVER_ID));
 	row->ADD_NEW_ITEM(Uint64, actionDef.condition.hostId,

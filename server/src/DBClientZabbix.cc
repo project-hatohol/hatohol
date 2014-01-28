@@ -2072,8 +2072,7 @@ void DBClientZabbix::transformItemsToHatoholFormat
 void DBClientZabbix::transformGroupItemGroupToHostgroupInfo
   (HostgroupInfo &groupInfo, const ItemGroup *groupItemGroup)
 {
-	groupInfo.id = 0; // This is automatically set.
-	                  // (0 is dummy)
+	groupInfo.id = AUTO_INCREMENT_VALUE;
 
 	// groupid
 	DEFINE_AND_ASSERT(
@@ -2105,8 +2104,7 @@ void DBClientZabbix::transformHostsGroupsItemGroupToHatoholFormat
   (HostgroupElement &hostgroupElement,
    const ItemGroup *groupHostsGroups)
 {
-	hostgroupElement.id = 0; // This is automatically set.
-	                               // (0 is dummy)
+	hostgroupElement.id = AUTO_INCREMENT_VALUE;
 
 	// hostid
 	DEFINE_AND_ASSERT(

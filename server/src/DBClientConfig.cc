@@ -725,8 +725,7 @@ HatoholError DBClientConfig::_addTargetServer(
 	arg.columnDefs = COLUMN_DEF_SERVERS;
 
 	VariableItemGroupPtr row;
-	row->ADD_NEW_ITEM(Int, 0);	// This is automatically set
-					// (0 is dummy)
+	row->ADD_NEW_ITEM(Int, AUTO_INCREMENT_VALUE);
 	row->ADD_NEW_ITEM(Int, monitoringServerInfo->type);
 	row->ADD_NEW_ITEM(String,
 	                  monitoringServerInfo->hostName);
