@@ -175,13 +175,16 @@
       hatoholInfoMsgBox("{% trans "Deleting..." %}");
     }
 
-    function getUserTypeFromFlags(flags) {
+    function getUserTypeFromFlags(flags, reply) {
+      rolesMap = reply.userRoles;
       switch(flags) {
       case hatohol.ALL_PRIVILEGES:
         return gettext("Admin");
       case hatohol.NONE_PRIVILEGE:
         return gettext("Guest");
       default:
+        if (rolesMap && rolesMap[flags])
+          return rolesMap[flags].name;
         break;
       }
       return gettext("Unknown");
@@ -210,7 +213,7 @@
         } else {
           html += user["name"];
         }
-        html += "<td>" + getUserTypeFromFlags(user["flags"])  + "</td>";
+        html += "<td>" + getUserTypeFromFlags(user["flags"], reply)  + "</td>";
         if (user["flags"] == hatohol.ALL_PRIVILEGES) {
           html += "<td class='privilege-column' style='display:none;'>"
           html += '{% trans "All" %}' + "</td>";
