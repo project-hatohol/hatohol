@@ -20,6 +20,7 @@
 var HatoholUserEditDialog = function(succeededCb, user) {
   var self = this;
 
+  self.operator = userProfile.user;
   self.user = user;
   self.userRolesData = null;
   self.windowTitle = user ? gettext("EDIT USER") : gettext("ADD USER");
@@ -130,6 +131,12 @@ HatoholUserEditDialog.prototype.createMainElement = function() {
   var div = $(makeMainDivHTML());
   return div;
 
+  function canEditUserRoles() {
+    return hasFlag(self.operator, hatohol.OPPRVLG_CREATE_USER_ROLE) ||
+      hasFlag(self.operator, hatohol.OPPRVLG_UPDATE_ALL_USER_ROLE) ||
+      hasFlag(self.operator, hatohol.OPPRVLG_DELETE_ALL_USER_ROLE);
+  };
+
   function makeMainDivHTML() {
     var userName = self.user ? self.user.name : "";
     var isAdmin = self.user && (self.user.flags == hatohol.ALL_PRIVILEGES);
@@ -146,10 +153,13 @@ HatoholUserEditDialog.prototype.createMainElement = function() {
     '  <option value="guest">' + gettext('Guest') + '</option>' +
     '  <option value="admin" ' + adminSelected + '>' + gettext('Admin') +
     '  </option>' +
-    '</select>' +
-    '<input id="editUserRoles" type="button" class="btn" ' +
-    '  value="' + gettext('EDIT') + '" style="margin-bottom: 10;"/>' +
-    '</div">';
+    '</select>';
+    if (canEditUserRoles()) {
+      html +=
+      '<input id="editUserRoles" type="button" class="btn" ' +
+      '  value="' + gettext('EDIT') + '" style="margin-bottom: 10;"/>';
+    }
+    html += '</div">';
     return html;
   }
 };
