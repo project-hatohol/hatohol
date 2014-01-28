@@ -350,6 +350,8 @@ var HatoholUserRoleEditor = function(params) {
 
     for (i = 0; userRoles && i < userRoles.length; ++i) {
       role = userRoles[i];
+      if (self.userRole && self.userRole.userRoleId == role.userRoleId)
+        continue;
       if (name == role.name) {
         hatoholErrorMsgBox(gettext("The user role name is already used!"));
         return false;
