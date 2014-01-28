@@ -197,6 +197,7 @@ private:
 	static const char *pathForGetItem;
 	static const char *pathForAction;
 	static const char *pathForUser;
+	static const char *pathForHostgroup;
 };
 
 #endif // FaceRest_h

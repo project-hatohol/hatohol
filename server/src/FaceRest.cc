@@ -69,6 +69,7 @@ const char *FaceRest::pathForGetEvent    = "/event";
 const char *FaceRest::pathForGetItem     = "/item";
 const char *FaceRest::pathForAction      = "/action";
 const char *FaceRest::pathForUser        = "/user";
+const char *FaceRest::pathForHostgroup   = "/hostgroup";
 
 static const char *MIME_HTML = "text/html";
 static const char *MIME_JSON = "application/json";
