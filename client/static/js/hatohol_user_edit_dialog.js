@@ -57,7 +57,7 @@ var HatoholUserEditDialog = function(succeededCb, user) {
     self.closeDialog();
   }
 
-  $("#edit-user-roles").click(function() {
+  $("#editUserRoles").click(function() {
     new HatoholUserRolesEditor();
   });
 
@@ -132,7 +132,7 @@ HatoholUserEditDialog.prototype.createMainElement = function() {
     var isAdmin = self.user && (self.user.flags == hatohol.ALL_PRIVILEGES);
     var adminSelected = isAdmin ? "selected" : "";
     var html = "" +
-    '<div id="add-user-div">' +
+    '<div id="addUserDiv">' +
     '<label for="editUserName">' + gettext("User name") + '</label>' +
     '<input id="editUserName" type="text" value="' + userName +
     '"  class="input-xlarge">' +
@@ -144,7 +144,7 @@ HatoholUserEditDialog.prototype.createMainElement = function() {
     '  <option value="admin" ' + adminSelected + '>' + gettext('Admin') +
     '  </option>' +
     '</select>' +
-    '<input id="edit-user-roles" type="button" class="btn" ' +
+    '<input id="editUserRoles" type="button" class="btn" ' +
     '  value="' + gettext('EDIT') + '" style="margin-bottom: 10;"/>' +
     '</div">';
     return html;
