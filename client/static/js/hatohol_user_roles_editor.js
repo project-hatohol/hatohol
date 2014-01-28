@@ -141,7 +141,8 @@ HatoholUserRolesEditor.prototype.updateMainTable = function() {
             self.load();
             self.changed = true;
           },
-          targetUserRole: userRolesMap[userRoleId]
+          targetUserRole: userRolesMap[userRoleId],
+          userRoles: userRoles
         });
       });
     }
@@ -244,6 +245,7 @@ var HatoholUserRoleEditor = function(params) {
 
   self.operator = params.operator;
   self.userRole = params.targetUserRole;
+  self.userRoles = params.userRoles;
   self.succeededCallback = params.succeededCallback;
   self.windowTitle = self.userRole ?
     gettext("EDIT USER ROLE") : gettext("ADD USER ROLE");
@@ -324,9 +326,38 @@ var HatoholUserRoleEditor = function(params) {
   }
 
   function validateParameters() {
+    var i, role, msg;
+    var name = $("#editUserRoleName").val();
+    var flags = getPrivilegeFlags();
+    var userRoles = [
+      {
+        name: gettext("Guest"),
+        flags: hatohol.NONE_PRIVILEGE
+      },
+      {
+        name: gettext("Admin"),
+        flags: hatohol.ALL_PRIVILEGES
+      }
+    ];
+    userRoles = userRoles.concat(self.userRoles);
+
     if ($("#editUserRoleName").val() == "") {
       hatoholErrorMsgBox(gettext("User role name is empty!"));
       return false;
+    }
+
+    for (i = 0; userRoles && i < userRoles.length; ++i) {
+      role = userRoles[i];
+      if (name == role.name) {
+        hatoholErrorMsgBox(gettext("The user role name is already used!"));
+        return false;
+      }
+      if (flags == role.flags) {
+        msg = gettext("Same privilege is already defined as: ");
+        msg += role.name;
+        hatoholErrorMsgBox(msg);
+        return false;
+      }
     }
     return true;
   }
