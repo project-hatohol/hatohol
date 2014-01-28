@@ -37,6 +37,7 @@ var HatoholUserEditDialog = function(succeededCb, user) {
   HatoholDialog.apply(
     this, ["user-edit-dialog", self.windowTitle, dialogButtons, dialogAttrs]);
   setTimeout(function(){self.setApplyButtonState(false);}, 1);
+  self.loadUserRoles();
 
   //
   // Dialog button handlers
@@ -66,7 +67,7 @@ var HatoholUserEditDialog = function(succeededCb, user) {
       queryData.user = $("#editUserName").val();
       if (password)
         queryData.password = password;
-      queryData.flags = getFlagsFromUserType();
+      queryData.flags = getFlags();
       return queryData;
   }
 
@@ -95,7 +96,7 @@ var HatoholUserEditDialog = function(succeededCb, user) {
   }
 
   function validateParameters() {
-    var type = $("#selectUserType").val();
+    var flags = $("#selectUserType").val();
 
     if ($("#editUserName").val() == "") {
       hatoholErrorMsgBox(gettext("User name is empty!"));
@@ -105,24 +106,16 @@ var HatoholUserEditDialog = function(succeededCb, user) {
       hatoholErrorMsgBox(gettext("Password is empty!"));
       return false;
     }
-    if (type != "guest" && type != "admin") {
+    if (isNaN(flags) || flags < 0 || flags > hatohol.ALL_PRIVILEGES) {
       hatoholErrorMsgBox(gettext("Invalid user type!"));
       return false;
     }
     return true;
   }
 
-  function getFlagsFromUserType(type) {
-    if (!type)
-      type = $("#selectUserType").val();
-    switch(type) {
-    case "admin":
-      return hatohol.ALL_PRIVILEGES;
-    case "guest":
-    default:
-      break;
-    }
-    return hatohol.NONE_PRIVILEGE;
+  function getFlags() {
+    var flags = $("#selectUserType").val();
+    return parseInt(flags);
   }
 };
 
@@ -193,4 +186,43 @@ HatoholUserEditDialog.prototype.setApplyButtonState = function(state) {
      btn.attr("disabled", "disabled");
      btn.addClass("ui-state-disabled");
   }
+};
+
+HatoholUserEditDialog.prototype.updateUserRolesSelector = function() {
+  var userRoles = this.userRolesData.userRoles;
+  var html = "" +
+  '<option value="' + hatohol.NONE_PRIVILEGE + '">' +
+    gettext("Guest") + '</option>' +
+  '<option value="' + hatohol.ALL_PRIVILEGES + '">' +
+    gettext("Admin") + '</option>';
+
+  for (i = 0; i < userRoles.length; i++) {
+    html +=
+    '<option value="' + userRoles[i].flags + '">' +
+    userRoles[i].name +
+    '</option>';
+  }
+
+  $("#selectUserType").html(html);
+  if (this.user)
+    $("#selectUserType").val(this.user.flags);
+};
+
+HatoholUserEditDialog.prototype.loadUserRoles = function() {
+  var self = this;
+  new HatoholConnector({
+    url: "/user-role",
+    request: "GET",
+    data: {},
+    replyCallback: function(userRolesData, parser) {
+      self.userRolesData = userRolesData;
+      self.updateUserRolesSelector(userRolesData);
+    },
+    parseErrorCallback: hatoholErrorMsgBoxForParser,
+    connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
+      var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
+                     XMLHttpRequest.statusText;
+      hatoholErrorMsgBox(errorMsg);
+    }
+  });
 };
