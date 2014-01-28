@@ -12,7 +12,7 @@ describe('HatoholUserRolesEditor', function() {
 
   it('new', function() {
     var expectedId = "#user-roles-editor";
-    editor = new HatoholUserRolesEditor();
+    editor = new HatoholUserRolesEditor({});
     expect(editor).not.to.be(undefined);
     expect($(expectedId)).to.have.length(1);
     var buttons = $(expectedId).dialog("option", "buttons");
