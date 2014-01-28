@@ -658,6 +658,7 @@ void setupTestDBUser(bool dbRecreate, bool loadTestData)
 	if (loadTestData) {
 		loadTestDBUser();
 		loadTestDBAccessList();
+		loadTestDBUserRole();
 	}
 }
 

@@ -760,6 +760,31 @@ static void _assertUser(JsonParserAgent *parser, const UserInfo &userInfo,
 }
 #define assertUser(P,I,...) cut_trace(_assertUser(P,I,##__VA_ARGS__))
 
+static void assertUserRolesMapInParser(JsonParserAgent *parser)
+{
+	cut_assert_true(parser->startObject("userRoles"));
+
+	string flagsStr =
+	  StringUtils::sprintf("%"FMT_OPPRVLG, NONE_PRIVILEGE);
+	cut_assert_true(parser->startObject(flagsStr));
+	assertValueInParser(parser, "name", string("Guest"));
+	parser->endObject();
+
+	flagsStr = StringUtils::sprintf("%"FMT_OPPRVLG, ALL_PRIVILEGES);
+	cut_assert_true(parser->startObject(flagsStr));
+	assertValueInParser(parser, "name", string("Admin"));
+	parser->endObject();
+
+	for (size_t i = 0; i < NumTestUserRoleInfo; i++) {
+		UserRoleInfo &userRoleInfo = testUserRoleInfo[i];
+		flagsStr = StringUtils::toString(userRoleInfo.flags);
+		cut_assert_true(parser->startObject(flagsStr));
+		assertValueInParser(parser, "name", userRoleInfo.name);
+		parser->endObject();
+	}
+	parser->endObject();
+}
+
 static void _assertUsers(const string &path, const UserIdType &userId,
                          const string &callbackName = "")
 {
@@ -778,6 +803,7 @@ static void _assertUsers(const string &path, const UserIdType &userId,
 		g_parser->endElement();
 	}
 	g_parser->endObject();
+	assertUserRolesMapInParser(g_parser);
 }
 #define assertUsers(P, U, ...) cut_trace(_assertUsers(P, U, ##__VA_ARGS__))
 
@@ -1906,7 +1932,6 @@ void _assertAddUserRoleWithSetup(const StringMap &params,
 	const bool dbRecreate = true;
 	const bool loadTestDat = true;
 	setupTestDBUser(dbRecreate, loadTestDat);
-	loadTestDBUserRole();
 	UserIdType userId;
 	if (operatorHasPrivilege)
 		userId = findUserWith(OPPRVLG_CREATE_USER_ROLE);
@@ -1996,7 +2021,6 @@ void _assertUpdateUserRoleWithSetup(const StringMap &params,
 	const bool dbRecreate = true;
 	const bool loadTestDat = true;
 	setupTestDBUser(dbRecreate, loadTestDat);
-	loadTestDBUserRole();
 	UserIdType userId;
 	if (operatorHasPrivilege)
 		userId = findUserWith(OPPRVLG_UPDATE_ALL_USER_ROLE);
@@ -2087,7 +2111,6 @@ void _assertDeleteUserRoleWithSetup(
 	bool dbRecreate = true;
 	bool loadTestData = true;
 	setupTestDBUser(dbRecreate, loadTestData);
-	loadTestDBUserRole();
 
 	if (url.empty())
 		url = StringUtils::sprintf("/user-role/%"FMT_USER_ROLE_ID,
