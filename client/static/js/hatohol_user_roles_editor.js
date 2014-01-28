@@ -236,6 +236,7 @@ HatoholUserRolesEditor.prototype.onAppendMainElement = function () {
 var HatoholUserRoleEditor = function(succeededCb, userRole) {
   var self = this;
 
+  self.operator = userProfile.user;
   self.userRole = userRole;
   self.windowTitle = userRole ?
     gettext("EDIT USER ROLE") : gettext("ADD USER ROLE");
@@ -435,7 +436,7 @@ HatoholUserRoleEditor.prototype.createMainElement = function() {
   html +=
   '<label for="editUserRoleName">' + gettext("User role name") + '</label>' +
   '<input id="editUserRoleName" type="text" value="' + name + '"' +
-  '       class="input-xlarge">';
+  '       class="input-xlarge editUserRoleProp">';
 
   // Checkboxes for privilege flags
   html +=
@@ -447,8 +448,8 @@ HatoholUserRoleEditor.prototype.createMainElement = function() {
     var checked = (flags & (1 << privileges[i].flag)) ? "checked" : "";
     html +=
     '<tr>' +
-    '<td><input type="checkbox" class="privilegeCheckbox" ' + checked +
-    '  id="privilegeFlagId' + i + '"></td>' +
+    '<td><input type="checkbox" class="privilegeCheckbox editUserRoleProp" '+
+    checked + '  id="privilegeFlagId' + i + '"></td>' +
     '<td>' + privileges[i].message + '</td>' +
     '</tr>';
   }
@@ -456,4 +457,10 @@ HatoholUserRoleEditor.prototype.createMainElement = function() {
 
   html += '</div>';
   return $(html);
+};
+
+HatoholUserRoleEditor.prototype.onAppendMainElement = function () {
+  var widgets = $(".editUserRoleProp");
+  if (!hasFlag(this.operator, hatohol.OPPRVLG_EDIT_ALL_USER_ROLE))
+    widgets.attr("disabled", "disabled");
 };
