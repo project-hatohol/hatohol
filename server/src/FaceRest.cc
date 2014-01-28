@@ -2216,6 +2216,16 @@ void FaceRest::handlerDeleteAccessInfo(RestJob *job)
 	replyJsonData(agent, job);
 }
 
+void FaceRest::handlerGetHostgroup(RestJob *job)
+{
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, HatoholError(HTERR_OK));
+	agent.endObject();
+
+	replyJsonData(agent, job);
+}
+
 HatoholError FaceRest::parseUserParameter(UserInfo &userInfo, GHashTable *query,
 					  bool forUpdate)
 {

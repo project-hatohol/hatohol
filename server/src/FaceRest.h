@@ -144,6 +144,8 @@ protected:
 	static void handlerPostAccessInfo(RestJob *job);
 	static void handlerDeleteAccessInfo(RestJob *job);
 
+	static void handlerGetHostgroup(RestJob *job);
+
 	void itemFetchedCallback(ClosureBase *closure);
 
 	static HatoholError parseUserParameter(UserInfo &userInfo,
