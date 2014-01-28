@@ -20,7 +20,8 @@
 var HatoholUserEditDialog = function(succeededCb, user) {
   var self = this;
 
-  self.user = user;
+  self.user = user
+  self.userRolesData = null;
   self.windowTitle = user ? gettext("EDIT USER") : gettext("ADD USER");
   self.applyButtonTitle = user ? gettext("APPLY") : gettext("ADD");
 
@@ -132,7 +133,7 @@ HatoholUserEditDialog.prototype.createMainElement = function() {
     var isAdmin = self.user && (self.user.flags == hatohol.ALL_PRIVILEGES);
     var adminSelected = isAdmin ? "selected" : "";
     var html = "" +
-    '<div id="addUserDiv">' +
+    '<div>' +
     '<label for="editUserName">' + gettext("User name") + '</label>' +
     '<input id="editUserName" type="text" value="' + userName +
     '"  class="input-xlarge">' +
