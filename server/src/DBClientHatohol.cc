@@ -1606,7 +1606,7 @@ void DBClientHatohol::pickupAbsentHostIds(vector<uint64_t> &absentHostIdVector,
 void DBClientHatohol::addTriggerInfoBare(const TriggerInfo &triggerInfo)
 {
 	string condition = StringUtils::sprintf
-	  ("server_id=%d and id=%"PRIu64, triggerInfo.serverId, triggerInfo.id);
+	  ("server_id=%"FMT_SERVER_ID" and id=%"PRIu64, triggerInfo.serverId, triggerInfo.id);
 	VariableItemGroupPtr row;
 	if (!isRecordExisting(TABLE_NAME_TRIGGERS, condition)) {
 		DBAgentInsertArg arg;
@@ -1663,7 +1663,7 @@ void DBClientHatohol::addTriggerInfoBare(const TriggerInfo &triggerInfo)
 void DBClientHatohol::addEventInfoBare(const EventInfo &eventInfo)
 {
 	string condition = StringUtils::sprintf
-	  ("server_id=%d and id=%"PRIu64, eventInfo.serverId, eventInfo.id);
+	  ("server_id=%"FMT_SERVER_ID" and id=%"PRIu64, eventInfo.serverId, eventInfo.id);
 	VariableItemGroupPtr row;
 	if (!isRecordExisting(TABLE_NAME_EVENTS, condition)) {
 		DBAgentInsertArg arg;
@@ -1727,7 +1727,7 @@ void DBClientHatohol::addEventInfoBare(const EventInfo &eventInfo)
 
 void DBClientHatohol::addItemInfoBare(const ItemInfo &itemInfo)
 {
-	string condition = StringUtils::sprintf("server_id=%d and id=%"PRIu64,
+	string condition = StringUtils::sprintf("server_id=%"FMT_SERVER_ID" and id=%"PRIu64,
 	                                        itemInfo.serverId, itemInfo.id);
 	VariableItemGroupPtr row;
 	if (!isRecordExisting(TABLE_NAME_ITEMS, condition)) {
@@ -1786,7 +1786,7 @@ void DBClientHatohol::addItemInfoBare(const ItemInfo &itemInfo)
 
 void DBClientHatohol::addHostgroupInfoBare(const HostgroupInfo &groupInfo)
 {
-	string condition = StringUtils::sprintf("server_id=%d and host_group_id=%"PRIu64,
+	string condition = StringUtils::sprintf("server_id=%"FMT_SERVER_ID" and host_group_id=%"PRIu64,
 	                                        groupInfo.serverId, groupInfo.groupId);
 	VariableItemGroupPtr row;
 	if (!isRecordExisting(TABLE_NAME_HOSTGROUPS, condition)) {
@@ -1822,7 +1822,7 @@ void DBClientHatohol::addHostgroupInfoBare(const HostgroupInfo &groupInfo)
 
 void DBClientHatohol::addHostgroupElementBare(const HostgroupElement &hostgroupElement)
 {
-	string condition = StringUtils::sprintf("server_id=%d and hostid=%"PRIu64" "
+	string condition = StringUtils::sprintf("server_id=%"FMT_SERVER_ID" and hostid=%"PRIu64" "
 	                                        "and host_group_id=%"PRIu64,
 	                                        hostgroupElement.serverId,
 	                                        hostgroupElement.hostId,
@@ -1845,7 +1845,7 @@ void DBClientHatohol::addHostgroupElementBare(const HostgroupElement &hostgroupE
 
 void DBClientHatohol::addHostInfoBare(const HostInfo &hostInfo)
 {
-	string condition = StringUtils::sprintf("server_id=%d and hostid=%"PRIu64,
+	string condition = StringUtils::sprintf("server_id=%"FMT_SERVER_ID" and hostid=%"PRIu64,
 	                                       hostInfo.serverId, hostInfo.id);
 
 	VariableItemGroupPtr row;
