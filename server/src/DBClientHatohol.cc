@@ -722,8 +722,7 @@ void HostResourceQueryOption::setHostGroupIdColumnName(
 
 string HostResourceQueryOption::getHostGroupIdColumnName(void) const
 {
-	// TODO: this is temporarily
-	return "host_group_id";
+	return m_ctx->hostGroupIdColumnName;
 }
 
 void HostResourceQueryOption::setHostIdColumnName(
