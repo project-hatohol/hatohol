@@ -63,13 +63,13 @@ var HatoholUserEditDialog = function(succeededCb, user) {
   });
 
   function makeQueryData() {
-      var queryData = {};
-      var password = $("#editPassword").val();
-      queryData.user = $("#editUserName").val();
-      if (password)
-        queryData.password = password;
-      queryData.flags = getFlags();
-      return queryData;
+    var queryData = {};
+    var password = $("#editPassword").val();
+    queryData.user = $("#editUserName").val();
+    if (password)
+      queryData.password = password;
+    queryData.flags = getFlags();
+    return queryData;
   }
 
   function postAddUser() {
