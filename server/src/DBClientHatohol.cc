@@ -519,7 +519,7 @@ static const ColumnDef COLUMN_DEF_HOSTGROUPS[] = {
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_HOSTGROUPS,             // tableName
-	"groupid",                         // columnName
+	"host_group_id",                   // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	11,                                // columnLength
 	0,                                 // decFracLength
@@ -589,7 +589,7 @@ static const ColumnDef COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[] = {
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_MAP_HOSTS_HOSTGROUPS,   // tableName
-	"groupid",                         // columnName
+	"host_group_id",                   // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	11,                                // columnLength
 	0,                                 // decFracLength
@@ -1778,7 +1778,7 @@ void DBClientHatohol::addItemInfoBare(const ItemInfo &itemInfo)
 
 void DBClientHatohol::addHostgroupInfoBare(const HostgroupInfo &groupInfo)
 {
-	string condition = StringUtils::sprintf("server_id=%d and groupid=%"PRIu64,
+	string condition = StringUtils::sprintf("server_id=%d and host_group_id=%"PRIu64,
 	                                        groupInfo.serverId, groupInfo.groupId);
 	VariableItemGroupPtr row;
 	if (!isRecordExisting(TABLE_NAME_HOSTGROUPS, condition)) {
@@ -1815,7 +1815,7 @@ void DBClientHatohol::addHostgroupInfoBare(const HostgroupInfo &groupInfo)
 void DBClientHatohol::addHostgroupElementBare(const HostgroupElement &hostgroupElement)
 {
 	string condition = StringUtils::sprintf("server_id=%d and hostid=%"PRIu64" "
-	                                        "and groupid=%"PRIu64,
+	                                        "and host_group_id=%"PRIu64,
 	                                        hostgroupElement.serverId,
 	                                        hostgroupElement.hostId,
 	                                        hostgroupElement.groupId);
