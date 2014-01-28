@@ -135,24 +135,26 @@ HatoholUserEditDialog.prototype.createMainElement = function() {
   return div;
 
   function makeMainDivHTML() {
-    var s = "";
     var userName = self.user ? self.user.name : "";
     var isAdmin = self.user && (self.user.flags == hatohol.ALL_PRIVILEGES);
     var adminSelected = isAdmin ? "selected" : "";
-    s += '<div id="add-user-div">';
-    s += '<label for="editUserName">' + gettext("User name") + '</label>';
-    s += '<input id="editUserName" type="text" value="' + userName + '" class="input-xlarge">';
-    s += '<label for="editPassword">' + gettext("Password") + '</label>';
-    s += '<input id="editPassword" type="password" value="" class="input-xlarge">';
-    s += '<label>' + gettext("User type") + '</label>';
-    s += '<select id="selectUserType" style="width: 12em;">';
-    s += '  <option value="guest">' + gettext('Guest') + '</option>';
-    s += '  <option value="admin" ' + adminSelected + '>' + gettext('Admin') + '</option>';
-    s += '</select>';
-    s += '  <input id="edit-user-roles" type="button" class="btn" ';
-    s += '    value="' + gettext('EDIT') + '" style="margin-bottom: 10;"/>';
-    s += '</div">';
-    return s;
+    var html = "" +
+    '<div id="add-user-div">' +
+    '<label for="editUserName">' + gettext("User name") + '</label>' +
+    '<input id="editUserName" type="text" value="' + userName +
+    '"  class="input-xlarge">' +
+    '<label for="editPassword">' + gettext("Password") + '</label>' +
+    '<input id="editPassword" type="password" value="" class="input-xlarge">' +
+    '<label>' + gettext("User type") + '</label>' +
+    '<select id="selectUserType" style="width: 12em;">' +
+    '  <option value="guest">' + gettext('Guest') + '</option>' +
+    '  <option value="admin" ' + adminSelected + '>' + gettext('Admin') +
+    '  </option>' +
+    '</select>' +
+    '<input id="edit-user-roles" type="button" class="btn" ' +
+    '  value="' + gettext('EDIT') + '" style="margin-bottom: 10;"/>' +
+    '</div">';
+    return html;
   }
 };
 
