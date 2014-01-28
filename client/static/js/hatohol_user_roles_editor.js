@@ -175,6 +175,12 @@ HatoholUserRolesEditor.prototype.generateMainTable = function() {
 
 HatoholUserRolesEditor.prototype.generateTableRows = function(data) {
   var html = '', role;
+
+  html += '<tr><td></td><td>-</td><td>' +
+    gettext('Guest') + '</td><td>' + gettext("None") +'</td></tr>';
+  html += '<tr><td></td><td>-</td><td>' +
+    gettext('Admin') + '</td><td>' + gettext("All") +'</td></tr>';
+
   for (var i = 0; i < data.userRoles.length; i++) {
     role = data.userRoles[i];
     html +=
