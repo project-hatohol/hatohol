@@ -981,8 +981,22 @@ void test_addUserRoleWithDuplicatedName(void)
 	loadTestDBUserRole();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	DBClientUser dbUser;
-	UserRoleInfo &userRoleInfo = testUserRoleInfo[1];
-	assertHatoholError(HTERR_USER_ROLE_NAME_EXIST,
+	UserRoleInfo userRoleInfo = testUserRoleInfo[1];
+	userRoleInfo.flags
+	  = OperationPrivilege::makeFlag(OPPRVLG_DELETE_ACTION);
+	assertHatoholError(HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST,
+	                   dbUser.addUserRoleInfo(userRoleInfo, privilege));
+	assertUserRolesInDB();
+}
+
+void test_addUserRoleWithDuplicatedFlags(void)
+{
+	loadTestDBUserRole();
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	DBClientUser dbUser;
+	UserRoleInfo userRoleInfo = testUserRoleInfo[1];
+	userRoleInfo.name = "Unique name kea#osemrnscs+";
+	assertHatoholError(HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST,
 	                   dbUser.addUserRoleInfo(userRoleInfo, privilege));
 	assertUserRolesInDB();
 }
@@ -1109,7 +1123,21 @@ void test_updateUserRoleWithExistingName(void)
 	OperationPrivilege privilege(
 	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_ALL_USER_ROLE));
 	HatoholError err = dbUser.updateUserRoleInfo(userRoleInfo, privilege);
-	assertHatoholError(HTERR_USER_ROLE_NAME_EXIST, err);
+	assertHatoholError(HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST, err);
+
+	assertUserRolesInDB();
+}
+
+void test_updateUserRoleWithExistingFlags(void)
+{
+	size_t targetIndex = 1;
+	UserRoleInfo userRoleInfo = setupUserRoleInfoForUpdate(targetIndex);
+	userRoleInfo.flags = testUserRoleInfo[targetIndex + 1].flags;
+	DBClientUser dbUser;
+	OperationPrivilege privilege(
+	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_ALL_USER_ROLE));
+	HatoholError err = dbUser.updateUserRoleInfo(userRoleInfo, privilege);
+	assertHatoholError(HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST, err);
 
 	assertUserRolesInDB();
 }

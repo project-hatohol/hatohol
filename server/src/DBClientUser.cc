@@ -931,13 +931,16 @@ HatoholError DBClientUser::addUserRoleInfo(UserRoleInfo &userRoleInfo,
 	row->ADD_NEW_ITEM(Uint64, userRoleInfo.flags);
 	arg.row = row;
 
-	string dupCheckCond = StringUtils::sprintf("%s='%s'",
+	string dupCheckCond = StringUtils::sprintf(
+	  "(%s='%s' or %s=%"FMT_OPPRVLG")",
 	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_NAME].columnName,
-	  userRoleInfo.name.c_str());
+	  userRoleInfo.name.c_str(),
+	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_FLAGS].columnName,
+	  userRoleInfo.flags);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		if (isRecordExisting(TABLE_NAME_USER_ROLES, dupCheckCond)) {
-			err = HTERR_USER_ROLE_NAME_EXIST;
+			err = HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST;
 		} else {
 			insert(arg);
 			userRoleInfo.id = getLastInsertId();
@@ -977,9 +980,11 @@ HatoholError DBClientUser::updateUserRoleInfo(
 	  userRoleInfo.id);
 
 	string dupCheckCond = StringUtils::sprintf(
-	  "(%s='%s' and %s<>%" FMT_USER_ROLE_ID ")",
+	  "((%s='%s' or %s=%" FMT_OPPRVLG ") and %s<>%" FMT_USER_ROLE_ID ")",
 	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_NAME].columnName,
 	  userRoleInfo.name.c_str(),
+	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_FLAGS].columnName,
+	  userRoleInfo.flags,
 	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_ID].columnName,
 	  userRoleInfo.id);
 
@@ -987,7 +992,7 @@ HatoholError DBClientUser::updateUserRoleInfo(
 		if (!isRecordExisting(arg.tableName, arg.condition)) {
 			err = HTERR_NOT_FOUND_USER_ROLE_ID;
 		} else if (isRecordExisting(arg.tableName, dupCheckCond)) {
-			err = HTERR_USER_ROLE_NAME_EXIST;
+			err = HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST;
 		} else {
 			update(arg);
 			err = HTERR_OK;

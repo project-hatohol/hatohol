@@ -170,7 +170,7 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 	ADD_LINE(s, langType, HTERR_NOT_FOUND_USER_ID);
 	ADD_LINE(s, langType, HTERR_EMPTY_USER_ROLE_NAME);
 	ADD_LINE(s, langType, HTERR_TOO_LONG_USER_ROLE_NAME);
-	ADD_LINE(s, langType, HTERR_USER_ROLE_NAME_EXIST);
+	ADD_LINE(s, langType, HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST);
 	ADD_LINE(s, langType, HTERR_NOT_FOUND_USER_ROLE_ID);
 	APPEND(s, "\n");
 
