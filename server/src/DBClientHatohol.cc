@@ -1786,7 +1786,7 @@ void DBClientHatohol::addItemInfoBare(const ItemInfo &itemInfo)
 
 void DBClientHatohol::addHostgroupInfoBare(const HostgroupInfo &groupInfo)
 {
-	string condition = StringUtils::sprintf("server_id=%"FMT_SERVER_ID" and host_group_id=%"PRIu64,
+	string condition = StringUtils::sprintf("server_id=%"FMT_SERVER_ID" and host_group_id=%"FMT_HOST_GROUP_ID,
 	                                        groupInfo.serverId, groupInfo.groupId);
 	VariableItemGroupPtr row;
 	if (!isRecordExisting(TABLE_NAME_HOSTGROUPS, condition)) {
@@ -1823,7 +1823,7 @@ void DBClientHatohol::addHostgroupInfoBare(const HostgroupInfo &groupInfo)
 void DBClientHatohol::addHostgroupElementBare(const HostgroupElement &hostgroupElement)
 {
 	string condition = StringUtils::sprintf("server_id=%"FMT_SERVER_ID" and hostid=%"PRIu64" "
-	                                        "and host_group_id=%"PRIu64,
+	                                        "and host_group_id=%"FMT_HOST_GROUP_ID,
 	                                        hostgroupElement.serverId,
 	                                        hostgroupElement.hostId,
 	                                        hostgroupElement.groupId);
