@@ -71,7 +71,8 @@ var HatoholUserRolesEditor = function(params) {
       succeededCallback: function() {
         self.load();
         self.changed = true;
-      }
+      },
+      userRoles: self.userRoles
     });
   });
 
@@ -339,7 +340,8 @@ var HatoholUserRoleEditor = function(params) {
         flags: hatohol.ALL_PRIVILEGES
       }
     ];
-    userRoles = userRoles.concat(self.userRoles);
+    if (self.userRoles)
+      userRoles = userRoles.concat(self.userRoles);
 
     if ($("#editUserRoleName").val() == "") {
       hatoholErrorMsgBox(gettext("User role name is empty!"));
