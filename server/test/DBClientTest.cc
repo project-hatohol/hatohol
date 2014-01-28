@@ -371,8 +371,8 @@ UserRoleInfo testUserRoleInfo[] = {
 	"Specific Server maintainer", // name
 	(1 << OPPRVLG_UPDATE_SERVER)  // flags
 }, {
-	0,                 // id
-	"Action master",   // name
+	0,                     // id
+	"We're Action master", // name
 	// flags
 	(1 << OPPRVLG_CREATE_ACTION)     |
 	(1 << OPPRVLG_UPDATE_ACTION)     |

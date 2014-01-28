@@ -934,7 +934,7 @@ HatoholError DBClientUser::addUserRoleInfo(UserRoleInfo &userRoleInfo,
 	string dupCheckCond = StringUtils::sprintf(
 	  "(%s='%s' or %s=%"FMT_OPPRVLG")",
 	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_NAME].columnName,
-	  userRoleInfo.name.c_str(),
+	  StringUtils::replace(userRoleInfo.name, "'", "''").c_str(),
 	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_FLAGS].columnName,
 	  userRoleInfo.flags);
 
@@ -982,7 +982,7 @@ HatoholError DBClientUser::updateUserRoleInfo(
 	string dupCheckCond = StringUtils::sprintf(
 	  "((%s='%s' or %s=%" FMT_OPPRVLG ") and %s<>%" FMT_USER_ROLE_ID ")",
 	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_NAME].columnName,
-	  userRoleInfo.name.c_str(),
+	  StringUtils::replace(userRoleInfo.name, "'", "''").c_str(),
 	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_FLAGS].columnName,
 	  userRoleInfo.flags,
 	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_ID].columnName,
