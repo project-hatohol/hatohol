@@ -106,7 +106,7 @@ public:
 	virtual HatoholError addTargetServer(
 	  MonitoringServerInfo &svInfo, const OperationPrivilege &privilege);
 	virtual HatoholError deleteTargetServer(
-	  ServerIdType serverId, const OperationPrivilege &privilege);
+	  const ServerIdType &serverId, const OperationPrivilege &privilege);
 
 protected:
 	virtual void fetchItems(

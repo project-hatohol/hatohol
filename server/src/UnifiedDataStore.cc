@@ -557,7 +557,7 @@ HatoholError UnifiedDataStore::addTargetServer(
 }
 
 HatoholError UnifiedDataStore::deleteTargetServer(
-  ServerIdType serverId, const OperationPrivilege &privilege)
+  const ServerIdType &serverId, const OperationPrivilege &privilege)
 {
 	CacheServiceDBClient cache;
 	DBClientConfig *dbConfig = cache.getConfig();
