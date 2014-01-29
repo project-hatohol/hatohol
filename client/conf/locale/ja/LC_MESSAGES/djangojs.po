@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-28 22:03-0600\n"
-"PO-Revision-Date: 2014-01-29 13:32+0900\n"
+"POT-Creation-Date: 2014-01-28 22:58-0600\n"
+"PO-Revision-Date: 2014-01-29 13:58+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -790,7 +790,7 @@ msgstr "全てのユーザ種別の更新"
 
 #: static/js/hatohol_user_roles_editor.js:468
 msgid "Delete all user roles"
-msgstr "全てのユーザー種別の削除"
+msgstr "全てのユーザ種別の削除"
 
 #: static/js/hatohol_user_roles_editor.js:481
 msgid "User role name"
