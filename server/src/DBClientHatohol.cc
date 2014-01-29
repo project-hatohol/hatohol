@@ -1587,7 +1587,7 @@ void DBClientHatohol::pickupAbsentHostIds(vector<uint64_t> &absentHostIdVector,
 	string condition;
 	static const string tableName = TABLE_NAME_HOSTS;
 	static const string hostIdName =
-	  COLUMN_DEF_HOSTS[IDX_HOSTS_HOSTID].columnName;
+	  COLUMN_DEF_HOSTS[IDX_HOSTS_HOST_ID].columnName;
 	DBCLIENT_TRANSACTION_BEGIN() {
 		for (size_t i = 0; i < hostIdVector.size(); i++) {
 			uint64_t id = hostIdVector[i];
@@ -1869,10 +1869,10 @@ void DBClientHatohol::addHostInfoBare(const HostInfo &hostInfo)
 		arg.columnIndexes.push_back(IDX_HOSTS_SERVER_ID);
 
 		row->ADD_NEW_ITEM(Uint64, hostInfo.id);
-		arg.columnIndexes.push_back(IDX_HOSTS_HOSTID);
+		arg.columnIndexes.push_back(IDX_HOSTS_HOST_ID);
 
 		row->ADD_NEW_ITEM(String, hostInfo.hostName);
-		arg.columnIndexes.push_back(IDX_HOSTS_HOSTNAME);
+		arg.columnIndexes.push_back(IDX_HOSTS_HOST_NAME);
 
 		arg.row = row;
 		arg.condition = condition;
