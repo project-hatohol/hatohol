@@ -35,7 +35,7 @@ void VirtualDataStore::start(void)
 {
 }
 
-bool VirtualDataStore::start(MonitoringServerInfo &svInfo)
+bool VirtualDataStore::start(const MonitoringServerInfo &svInfo)
 {
 	return false;
 }
@@ -46,7 +46,7 @@ void VirtualDataStore::stop(void)
 	closeAllStores();
 }
 
-bool VirtualDataStore::stop(const ServerIdType serverId)
+bool VirtualDataStore::stop(const ServerIdType &serverId)
 {
 	uint32_t storeId = serverId;
 	if (!hasDataStore(storeId))

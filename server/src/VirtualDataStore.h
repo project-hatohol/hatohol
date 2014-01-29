@@ -44,10 +44,10 @@ public:
 	 * true if an monitoring instance is started. Otherwise (typicall,
 	 * server type is not matched), false is returned.
 	 */
-	virtual bool start(MonitoringServerInfo &svInfo);
+	virtual bool start(const MonitoringServerInfo &svInfo);
 
 	virtual void stop(void);
-	virtual bool stop(const ServerIdType serverId);
+	virtual bool stop(const ServerIdType &serverId);
 
 protected:
 	template<class T>
