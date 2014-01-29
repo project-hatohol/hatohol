@@ -272,6 +272,8 @@ public:
 
 	void addHostgroupInfo(HostgroupInfo *eventInfo);
 	void addHostgroupInfoList(const HostgroupInfoList &groupInfoList);
+	void getHostgroupInfoList(HostgroupInfoList &hostgroupInfoList,
+	                      const HostgroupsQueryOption &option);
 
 	void addHostgroupElement(HostgroupElement *mapHostHostgroupsInfo);
 	void addHostgroupElementList

@@ -1926,3 +1926,50 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 		trigInfo.brief     = GET_STRING_FROM_GRP(itemGroup, idx++);
 	}
 }
+
+void DBClientHatohol::getHostgroupInfoList
+  (HostgroupInfoList &hostgroupInfoList, const HostgroupsQueryOption &option)
+{
+	DBAgentSelectExArg arg;
+	arg.tableName = TABLE_NAME_HOSTGROUPS;
+
+	arg.statements.push_back(
+	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_ID].columnName);
+	arg.columnTypes.push_back(
+	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_ID].type);
+
+	arg.statements.push_back(
+	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_SERVER_ID].columnName);
+	arg.columnTypes.push_back(
+	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_SERVER_ID].type);
+
+	arg.statements.push_back(
+	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_GROUPID].columnName);
+	arg.columnTypes.push_back(
+	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_GROUPID].type);
+
+	arg.statements.push_back(
+	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_GROUPNAME].columnName);
+	arg.columnTypes.push_back(
+	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_GROUPNAME].type);
+
+	arg.condition = option.getCondition();
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator it = grpList.begin();
+	for(; it != grpList.end(); ++it) {
+		size_t idx = 0;
+		const ItemGroup *itemGroup = *it;
+		hostgroupInfoList.push_back(HostgroupInfo());
+		HostgroupInfo &hostgroupInfo = hostgroupInfoList.back();
+
+		hostgroupInfo.id        = GET_INT_FROM_GRP(itemGroup, idx++);
+		hostgroupInfo.serverId  = GET_INT_FROM_GRP(itemGroup, idx++);
+		hostgroupInfo.groupId   = GET_UINT64_FROM_GRP(itemGroup, idx++);
+		hostgroupInfo.groupName = GET_STRING_FROM_GRP(itemGroup, idx++);
+	}
+}
