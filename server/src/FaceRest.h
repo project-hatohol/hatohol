@@ -51,6 +51,7 @@ public:
 	FaceRest(CommandLineArg &cmdArg, FaceRestParam *param = NULL);
 	virtual ~FaceRest();
 	virtual void stop(void);
+	virtual void setNumberOfPreLoadWorkers(size_t num);
 
 	class Worker;
 	struct RestJob;
@@ -144,11 +145,20 @@ protected:
 	static void handlerPostAccessInfo(RestJob *job);
 	static void handlerDeleteAccessInfo(RestJob *job);
 
+	static void handlerUserRole(RestJob *job);
+	static void handlerGetUserRole(RestJob *job);
+	static void handlerPostUserRole(RestJob *job);
+	static void handlerPutUserRole(RestJob *job);
+	static void handlerDeleteUserRole(RestJob *job);
+
 	void itemFetchedCallback(ClosureBase *closure);
 
 	static HatoholError parseUserParameter(UserInfo &userInfo,
 	                                       GHashTable *query,
 					       bool forUpdate = false);
+	static HatoholError parseUserRoleParameter(UserRoleInfo &userRoleInfo,
+	                                           GHashTable *query,
+					           bool forUpdate = false);
 
 	/**
 	 * Update the user informformation if 'name' specifined in 'query'
@@ -197,6 +207,7 @@ private:
 	static const char *pathForGetItem;
 	static const char *pathForAction;
 	static const char *pathForUser;
+	static const char *pathForUserRole;
 };
 
 #endif // FaceRest_h

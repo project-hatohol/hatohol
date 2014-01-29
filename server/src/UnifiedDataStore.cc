@@ -500,6 +500,38 @@ HatoholError UnifiedDataStore::deleteAccessInfo(
 	return dbUser->deleteAccessInfo(id, privilege);
 }
 
+void UnifiedDataStore::getUserRoleList(UserRoleInfoList &userRoleList,
+				       const UserRoleQueryOption &option)
+{
+	CacheServiceDBClient cache;
+	DBClientUser *dbUser = cache.getUser();
+	dbUser->getUserRoleInfoList(userRoleList, option);
+}
+
+HatoholError UnifiedDataStore::addUserRole(
+  UserRoleInfo &userRoleInfo, const OperationPrivilege &privilege)
+{
+	CacheServiceDBClient cache;
+	DBClientUser *dbUser = cache.getUser();
+	return dbUser->addUserRoleInfo(userRoleInfo, privilege);
+}
+
+HatoholError UnifiedDataStore::updateUserRole(
+  UserRoleInfo &userRoleInfo, const OperationPrivilege &privilege)
+{
+	CacheServiceDBClient cache;
+	DBClientUser *dbUser = cache.getUser();
+	return dbUser->updateUserRoleInfo(userRoleInfo, privilege);
+}
+
+HatoholError UnifiedDataStore::deleteUserRole(
+  UserRoleIdType userRoleId, const OperationPrivilege &privilege)
+{
+	CacheServiceDBClient cache;
+	DBClientUser *dbUser = cache.getUser();
+	return dbUser->deleteUserRoleInfo(userRoleId, privilege);
+}
+
 HatoholError UnifiedDataStore::addTargetServer(
   MonitoringServerInfo &svInfo, const OperationPrivilege &privilege)
 {

@@ -132,8 +132,15 @@ template<typename T> void _assertAddToDB(T *arg, void (*func)(T *))
 void _assertUsersInDB(const UserIdSet &excludeUserIdSet = EMPTY_USER_ID_SET);
 #define assertUsersInDB(E) cut_trace(_assertUsersInDB(E))
 
+std::string makeUserRoleInfoOutput(const UserRoleInfo &userRoleInfo);
+
 void _assertAccessInfoInDB(const AccessInfoIdSet &excludeAccessInfoIdSet = EMPTY_ACCESS_INFO_ID_SET);
 #define assertAccessInfoInDB(E) cut_trace(_assertAccessInfoInDB(E))
+
+void _assertUserRoleInfoInDB(UserRoleInfo &userRoleInfo);
+#define assertUserRoleInfoInDB(I) cut_trace(_assertUserRoleInfoInDB(I))
+void _assertUserRolesInDB(const UserRoleIdSet &excludeUserRoleIdSet = EMPTY_USER_ROLE_ID_SET);
+#define assertUserRolesInDB(E) cut_trace(_assertUserRolesInDB(E))
 
 void makeTestMySQLDBIfNeeded(const std::string &dbName, bool recreate = false);
 void setupTestDBServers(void);
@@ -142,6 +149,7 @@ void setupTestDBUser(bool dbRecreate = true, bool loadTestDat = false);
 void loadTestDBAction(void);
 void loadTestDBUser(void);
 void loadTestDBAccessList(void);
+void loadTestDBUserRole(void);
 std::string execSQL(DBAgent *agent, const std::string &statement,
                     bool showHeader = false);
 std::string joinStringVector(const mlpl::StringVector &strVect,

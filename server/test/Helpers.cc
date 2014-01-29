@@ -466,6 +466,45 @@ void _assertAccessInfoInDB(const AccessInfoIdSet &excludeAccessInfoIdSet)
 	assertDBContent(cache.getUser()->getDBAgent(), statement, expect);
 }
 
+std::string makeUserRoleInfoOutput(const UserRoleInfo &userRoleInfo)
+{
+	return StringUtils::sprintf(
+		 "%"FMT_USER_ROLE_ID"|%s|%"FMT_OPPRVLG"\n",
+		 userRoleInfo.id, userRoleInfo.name.c_str(),
+		 userRoleInfo.flags);
+}
+
+void _assertUserRoleInfoInDB(UserRoleInfo &userRoleInfo) 
+{
+	string statement = StringUtils::sprintf(
+	                     "select * from %s where id=%d",
+	                     DBClientUser::TABLE_NAME_USER_ROLES,
+			     userRoleInfo.id);
+	string expect = makeUserRoleInfoOutput(userRoleInfo);
+	DBClientUser dbUser;
+	assertDBContent(dbUser.getDBAgent(), statement, expect);
+}
+#define assertUserRoleInfoInDB(I) cut_trace(_assertUserRoleInfoInDB(I))
+
+void _assertUserRolesInDB(const UserRoleIdSet &excludeUserRoleIdSet)
+{
+	string statement = "select * from ";
+	statement += DBClientUser::TABLE_NAME_USER_ROLES;
+	statement += " ORDER BY id ASC";
+	string expect;
+	for (size_t i = 0; i < NumTestUserRoleInfo; i++) {
+		UserRoleIdType userRoleId = i + 1;
+		UserRoleIdSetIterator endIt = excludeUserRoleIdSet.end();
+		if (excludeUserRoleIdSet.find(userRoleId) != endIt)
+			continue;
+		UserRoleInfo userRoleInfo = testUserRoleInfo[i];
+		userRoleInfo.id = userRoleId;
+		expect += makeUserRoleInfoOutput(userRoleInfo);
+	}
+	CacheServiceDBClient cache;
+	assertDBContent(cache.getUser()->getDBAgent(), statement, expect);
+}
+
 static bool makeTestDB(MYSQL *mysql, const string &dbName)
 {
 	string query = "CREATE DATABASE ";
@@ -597,6 +636,17 @@ void loadTestDBAccessList(void)
 	}
 }
 
+void loadTestDBUserRole(void)
+{
+	DBClientUser dbUser;
+	HatoholError err;
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	for (size_t i = 0; i < NumTestUserRoleInfo; i++) {
+		err = dbUser.addUserRoleInfo(testUserRoleInfo[i], privilege);
+		assertHatoholError(HTERR_OK, err);
+	}
+}
+
 void setupTestDBUser(bool dbRecreate, bool loadTestData)
 {
 	static const char *TEST_DB_NAME = "test_db_user";
@@ -608,6 +658,7 @@ void setupTestDBUser(bool dbRecreate, bool loadTestData)
 	if (loadTestData) {
 		loadTestDBUser();
 		loadTestDBAccessList();
+		loadTestDBUserRole();
 	}
 }
 

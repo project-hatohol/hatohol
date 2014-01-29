@@ -26,18 +26,27 @@ using namespace mlpl;
 
 const UserIdSet EMPTY_USER_ID_SET;
 const AccessInfoIdSet EMPTY_ACCESS_INFO_ID_SET;
+const UserRoleIdSet EMPTY_USER_ROLE_ID_SET;
 
-// 1 -> 2: NUM_OPPRVLG:10 -> 16
-const int   DBClientUser::USER_DB_VERSION = 2;
+// 1 -> 2:
+//   * NUM_OPPRVLG:10 -> 16
+// 2 -> 3:
+//   * NUM_OPPRVLG:16 -> 19
+//   * Add user_roles table
+const int   DBClientUser::USER_DB_VERSION = 3;
 
 const char *DBClientUser::DEFAULT_DB_NAME = DBClientConfig::DEFAULT_DB_NAME;
 const char *DBClientUser::TABLE_NAME_USERS = "users";
 const char *DBClientUser::TABLE_NAME_ACCESS_LIST = "access_list";
+const char *DBClientUser::TABLE_NAME_USER_ROLES = "user_roles";
 const size_t DBClientUser::MAX_USER_NAME_LENGTH = 128;
 const size_t DBClientUser::MAX_PASSWORD_LENGTH = 128;
+const size_t DBClientUser::MAX_USER_ROLE_NAME_LENGTH = 128;
 static const char *TABLE_NAME_USERS = DBClientUser::TABLE_NAME_USERS;
 static const char *TABLE_NAME_ACCESS_LIST =
   DBClientUser::TABLE_NAME_ACCESS_LIST;
+static const char *TABLE_NAME_USER_ROLES =
+  DBClientUser::TABLE_NAME_USER_ROLES;
 
 static const ColumnDef COLUMN_DEF_USERS[] = {
 {
@@ -155,6 +164,52 @@ enum {
 	NUM_IDX_ACCESS_LIST,
 };
 
+static const ColumnDef COLUMN_DEF_USER_ROLES[] = {
+{
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_USER_ROLES,             // tableName
+	"id",                              // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	SQL_COLUMN_FLAG_AUTO_INC,          // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_USER_ROLES,             // tableName
+	"name",                            // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_USER_ROLES,             // tableName
+	"flags",                           // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}
+};
+static const size_t NUM_COLUMNS_USER_ROLES =
+  sizeof(COLUMN_DEF_USER_ROLES) / sizeof(ColumnDef);
+
+enum {
+	IDX_USER_ROLES_ID,
+	IDX_USER_ROLES_NAME,
+	IDX_USER_ROLES_FLAGS,
+	NUM_IDX_USER_ROLES,
+};
+
 ServerAccessInfoMap::~ServerAccessInfoMap()
 {
 	for (ServerAccessInfoMapIterator it = begin(); it != end(); ++it) {
@@ -172,27 +227,37 @@ struct DBClientUser::PrivateContext {
 
 bool DBClientUser::PrivateContext::validUsernameChars[UINT8_MAX+1];
 
+static void updateAdminPrivilege(DBAgent *dbAgent,
+				 const OperationPrivilegeType old_NUM_OPPRVLG)
+{
+	static const OperationPrivilegeFlag oldAdminFlags =
+		OperationPrivilege::makeFlag(old_NUM_OPPRVLG) - 1;
+	DBAgentUpdateArg arg;
+	arg.tableName = TABLE_NAME_USERS;
+	arg.columnDefs = COLUMN_DEF_USERS;
+
+	VariableItemGroupPtr row;
+	row->ADD_NEW_ITEM(Uint64, ALL_PRIVILEGES);
+	arg.columnIndexes.push_back(IDX_USERS_FLAGS);
+	arg.row = row;
+
+	arg.condition = StringUtils::sprintf(
+	  "%s=%"FMT_OPPRVLG,
+	  COLUMN_DEF_USERS[IDX_USERS_FLAGS].columnName, oldAdminFlags);
+	dbAgent->update(arg);
+}
+
 static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
 {
+	static OperationPrivilegeType old_NUM_OPPRVLG;
+
 	if (oldVer <= 1) {
-		// Update the Admin's privilege
-		static const OperationPrivilegeType old_NUM_OPPRVLG =
-		  static_cast<OperationPrivilegeType>(10);
-		static const OperationPrivilegeFlag oldAdminFlags =
-		  OperationPrivilege::makeFlag(old_NUM_OPPRVLG) - 1;
-		DBAgentUpdateArg arg;
-		arg.tableName = TABLE_NAME_USERS;
-		arg.columnDefs = COLUMN_DEF_USERS;
-
-		VariableItemGroupPtr row;
-		row->ADD_NEW_ITEM(Uint64, ALL_PRIVILEGES);
-		arg.columnIndexes.push_back(IDX_USERS_FLAGS);
-		arg.row = row;
-
-		arg.condition = StringUtils::sprintf(
-		  "%s=%"FMT_OPPRVLG,
-		  COLUMN_DEF_USERS[IDX_USERS_FLAGS].columnName, oldAdminFlags);
-		dbAgent->update(arg);
+		old_NUM_OPPRVLG = static_cast<OperationPrivilegeType>(10);
+		updateAdminPrivilege(dbAgent, old_NUM_OPPRVLG);
+	}
+	if (oldVer <= 2) {
+		old_NUM_OPPRVLG = static_cast<OperationPrivilegeType>(16);
+		updateAdminPrivilege(dbAgent, old_NUM_OPPRVLG);
 	}
 	return true;
 }
@@ -318,6 +383,52 @@ UserIdType AccessInfoQueryOption::getTargetUserId(void) const
 }
 
 // ---------------------------------------------------------------------------
+// UserRoleQueryOption
+// ---------------------------------------------------------------------------
+struct UserRoleQueryOption::PrivateContext {
+	UserRoleIdType targetUserRoleId;
+
+	PrivateContext(void)
+	: targetUserRoleId(INVALID_USER_ROLE_ID)
+	{
+	}
+};
+
+UserRoleQueryOption::UserRoleQueryOption(UserIdType userId)
+: DataQueryOption(userId), m_ctx(NULL)
+{
+	m_ctx = new PrivateContext();
+}
+
+UserRoleQueryOption::~UserRoleQueryOption()
+{
+	if (m_ctx)
+		delete m_ctx;
+}
+
+void UserRoleQueryOption::setTargetUserRoleId(UserRoleIdType userRoleId)
+{
+	m_ctx->targetUserRoleId = userRoleId;
+}
+
+UserRoleIdType UserRoleQueryOption::getTargetUserRoleId(void) const
+{
+	return m_ctx->targetUserRoleId;
+}
+
+string UserRoleQueryOption::getCondition(void) const
+{
+	string condition;
+
+	if (m_ctx->targetUserRoleId != INVALID_USER_ROLE_ID)
+		condition = StringUtils::sprintf("%s=%"FMT_USER_ROLE_ID"",
+		  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_ID].columnName,
+		  m_ctx->targetUserRoleId);
+
+	return condition;
+}
+
+// ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 void DBClientUser::init(void)
@@ -334,6 +445,12 @@ void DBClientUser::init(void)
 	  "NUM_IDX_ACCESS_LIST (%d)",
 	  NUM_COLUMNS_ACCESS_LIST, NUM_IDX_ACCESS_LIST);
 
+	HATOHOL_ASSERT(
+	  NUM_COLUMNS_USER_ROLES == NUM_IDX_USER_ROLES,
+	  "Invalid number of elements: NUM_COLUMNS_USER_ROLES (%zd), "
+	  "NUM_IDX_USER_ROLES (%d)",
+	  NUM_COLUMNS_USER_ROLES, NUM_IDX_USER_ROLES);
+
 	static const DBSetupTableInfo DB_TABLE_INFO[] = {
 	{
 		TABLE_NAME_USERS,
@@ -343,6 +460,10 @@ void DBClientUser::init(void)
 		TABLE_NAME_ACCESS_LIST,
 		NUM_COLUMNS_ACCESS_LIST,
 		COLUMN_DEF_ACCESS_LIST,
+	}, {
+		TABLE_NAME_USER_ROLES,
+		NUM_COLUMNS_USER_ROLES,
+		COLUMN_DEF_USER_ROLES,
 	},
 	};
 	static const size_t NUM_TABLE_INFO =
@@ -491,9 +612,18 @@ HatoholError DBClientUser::updateUserInfo(
 	arg.condition = StringUtils::sprintf("%s=%"FMT_USER_ID,
 	  COLUMN_DEF_USERS[IDX_USERS_ID].columnName, userInfo.id);
 
+	string dupCheckCond = StringUtils::sprintf(
+	  "(%s='%s' and %s<>%" FMT_USER_ID ")",
+	  COLUMN_DEF_USERS[IDX_USERS_NAME].columnName,
+	  userInfo.name.c_str(),
+	  COLUMN_DEF_USERS[IDX_USERS_ID].columnName,
+	  userInfo.id);
+
 	DBCLIENT_TRANSACTION_BEGIN() {
-		if (!isRecordExisting(TABLE_NAME_USERS, arg.condition)) {
+		if (!isRecordExisting(arg.tableName, arg.condition)) {
 			err = HTERR_NOT_FOUND_USER_ID;
+		} else if (isRecordExisting(arg.tableName, dupCheckCond)) {
+			err = HTERR_USER_NAME_EXIST;
 		} else {
 			update(arg);
 			err = HTERR_OK;
@@ -777,6 +907,165 @@ void DBClientUser::getServerHostGrpSetMap(
 	}
 }
 
+HatoholError DBClientUser::addUserRoleInfo(UserRoleInfo &userRoleInfo,
+					   const OperationPrivilege &privilege)
+{
+	HatoholError err;
+	if (!privilege.has(OPPRVLG_CREATE_USER_ROLE))
+		return HatoholError(HTERR_NO_PRIVILEGE);
+	err = isValidUserRoleName(userRoleInfo.name);
+	if (err != HTERR_OK)
+		return err;
+	err = isValidFlags(userRoleInfo.flags);
+	if (err != HTERR_OK)
+		return err;
+	if (userRoleInfo.flags == ALL_PRIVILEGES ||
+	    userRoleInfo.flags == NONE_PRIVILEGE) {
+		return HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST;
+	}
+
+	VariableItemGroupPtr row;
+	DBAgentInsertArg arg;
+	arg.tableName = TABLE_NAME_USER_ROLES;
+	arg.numColumns = NUM_COLUMNS_USER_ROLES;
+	arg.columnDefs = COLUMN_DEF_USER_ROLES;
+
+	row->ADD_NEW_ITEM(Int, 0); // This is automaticall set (0 is dummy)
+	row->ADD_NEW_ITEM(String, userRoleInfo.name);
+	row->ADD_NEW_ITEM(Uint64, userRoleInfo.flags);
+	arg.row = row;
+
+	string dupCheckCond = StringUtils::sprintf(
+	  "(%s='%s' or %s=%"FMT_OPPRVLG")",
+	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_NAME].columnName,
+	  StringUtils::replace(userRoleInfo.name, "'", "''").c_str(),
+	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_FLAGS].columnName,
+	  userRoleInfo.flags);
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		if (isRecordExisting(TABLE_NAME_USER_ROLES, dupCheckCond)) {
+			err = HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST;
+		} else {
+			insert(arg);
+			userRoleInfo.id = getLastInsertId();
+			err = HTERR_OK;
+		}
+	} DBCLIENT_TRANSACTION_END();
+	return err;
+}
+
+HatoholError DBClientUser::updateUserRoleInfo(
+  UserRoleInfo &userRoleInfo, const OperationPrivilege &privilege)
+{
+	HatoholError err;
+	if (!privilege.has(OPPRVLG_UPDATE_ALL_USER_ROLE))
+		return HatoholError(HTERR_NO_PRIVILEGE);
+	err = isValidUserRoleName(userRoleInfo.name);
+	if (err != HTERR_OK)
+		return err;
+	err = isValidFlags(userRoleInfo.flags);
+	if (err != HTERR_OK)
+		return err;
+	if (userRoleInfo.flags == ALL_PRIVILEGES ||
+	    userRoleInfo.flags == NONE_PRIVILEGE) {
+		return HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST;
+	}
+
+	VariableItemGroupPtr row;
+	DBAgentUpdateArg arg;
+	arg.tableName = TABLE_NAME_USER_ROLES;
+	arg.columnDefs = COLUMN_DEF_USER_ROLES;
+
+	row->ADD_NEW_ITEM(String, userRoleInfo.name);
+	arg.columnIndexes.push_back(IDX_USER_ROLES_NAME);
+
+	row->ADD_NEW_ITEM(Uint64, userRoleInfo.flags);
+	arg.columnIndexes.push_back(IDX_USER_ROLES_FLAGS);
+	arg.row = row;
+
+	arg.condition = StringUtils::sprintf("%s=%"FMT_USER_ROLE_ID,
+	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_ID].columnName,
+	  userRoleInfo.id);
+
+	string dupCheckCond = StringUtils::sprintf(
+	  "((%s='%s' or %s=%" FMT_OPPRVLG ") and %s<>%" FMT_USER_ROLE_ID ")",
+	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_NAME].columnName,
+	  StringUtils::replace(userRoleInfo.name, "'", "''").c_str(),
+	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_FLAGS].columnName,
+	  userRoleInfo.flags,
+	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_ID].columnName,
+	  userRoleInfo.id);
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		if (!isRecordExisting(arg.tableName, arg.condition)) {
+			err = HTERR_NOT_FOUND_USER_ROLE_ID;
+		} else if (isRecordExisting(arg.tableName, dupCheckCond)) {
+			err = HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST;
+		} else {
+			update(arg);
+			err = HTERR_OK;
+		}
+	} DBCLIENT_TRANSACTION_END();
+	return err;
+}
+
+HatoholError DBClientUser::deleteUserRoleInfo(
+  const UserRoleIdType userRoleId, const OperationPrivilege &privilege)
+{
+	if (!privilege.has(OPPRVLG_DELETE_ALL_USER_ROLE))
+		return HTERR_NO_PRIVILEGE;
+
+	DBAgentDeleteArg arg;
+	arg.tableName = TABLE_NAME_USER_ROLES;
+	const ColumnDef &colId = COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_ID];
+	arg.condition = StringUtils::sprintf("%s=%"FMT_USER_ROLE_ID,
+	                                     colId.columnName, userRoleId);
+	DBCLIENT_TRANSACTION_BEGIN() {
+		deleteRows(arg);
+	} DBCLIENT_TRANSACTION_END();
+	return HTERR_OK;
+}
+
+void DBClientUser::getUserRoleInfoList(UserRoleInfoList &userRoleInfoList,
+				       const UserRoleQueryOption &option)
+{
+	DBAgentSelectExArg arg;
+	arg.tableName = TABLE_NAME_USER_ROLES;
+	arg.pushColumn(COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_ID]);
+	arg.pushColumn(COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_NAME]);
+	arg.pushColumn(COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_FLAGS]);
+	arg.condition = option.getCondition();
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator it = grpList.begin();
+	for (; it != grpList.end(); ++it) {
+		size_t idx = 0;
+		const ItemGroup *itemGroup = *it;
+		UserRoleInfo userRoleInfo;
+
+		// user role ID
+		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt,
+		                  itemUserId);
+		userRoleInfo.id = itemUserId->get();
+
+		// name
+		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemString,
+		                  itemName);
+		userRoleInfo.name = itemName->get();
+
+		// flags
+		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemUint64,
+		                  itemFlags);
+		userRoleInfo.flags = itemFlags->get();
+
+		userRoleInfoList.push_back(userRoleInfo);
+	}
+}
+
 HatoholError DBClientUser::isValidUserName(const string &name)
 {
 	if (name.empty())
@@ -804,6 +1093,15 @@ HatoholError DBClientUser::isValidFlags(const OperationPrivilegeFlag flags)
 {
 	if (flags >= OperationPrivilege::makeFlag(NUM_OPPRVLG))
 		return HTERR_INVALID_USER_FLAGS;
+	return HTERR_OK;
+}
+
+HatoholError DBClientUser::isValidUserRoleName(const string &name)
+{
+	if (name.empty())
+		return HTERR_EMPTY_USER_ROLE_NAME;
+	if (name.size() > MAX_USER_ROLE_NAME_LENGTH)
+		return HTERR_TOO_LONG_USER_ROLE_NAME;
 	return HTERR_OK;
 }
 

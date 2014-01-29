@@ -103,7 +103,8 @@ protected:
 	   CreateTableInitializer initializer = NULL, void *data = NULL);
 	static void insertDBClientVersion(DBAgent *dbAgent,
 	                                  const DBSetupFuncArg *setupFuncArg);
-	static void updateDBIfNeeded(DBAgent *dbAgent,
+	static void updateDBIfNeeded(DBDomainId domainId,
+	                             DBAgent *dbAgent,
 	                             const DBSetupFuncArg *setupFuncArg);
 	/**
 	 * Get the DB version.

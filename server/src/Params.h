@@ -45,6 +45,12 @@ typedef int ActionIdType;
 typedef int UserIdType;
 #define FMT_USER_ID "d"
 
+typedef int AccessInfoIdType;
+#define FMT_ACCESS_INFO_ID "d"
+
+typedef int UserRoleIdType;
+#define FMT_USER_ROLE_ID "d"
+
 static const UserIdType INVALID_USER_ID = -1;
 static const UserIdType USER_ID_ANY     = -2;
 
@@ -52,18 +58,22 @@ static const UserIdType USER_ID_ANY     = -2;
 // This program and the tests use it internally.
 static const UserIdType USER_ID_SYSTEM  = 0;
 
+static const UserRoleIdType INVALID_USER_ROLE_ID = -1;
+
 typedef std::set<UserIdType>      UserIdSet;
 typedef UserIdSet::iterator       UserIdSetIterator;
 typedef UserIdSet::const_iterator UserIdSetIterator;
 extern const UserIdSet EMPTY_USER_ID_SET;
 
-typedef int AccessInfoIdType;
-#define FMT_ACCESS_INFO_ID "d"
-
 typedef std::set<AccessInfoIdType>      AccessInfoIdSet;
 typedef AccessInfoIdSet::iterator       AccessInfoIdSetIterator;
 typedef AccessInfoIdSet::const_iterator AccessInfoIdSetIterator;
 extern const AccessInfoIdSet EMPTY_ACCESS_INFO_ID_SET;
+
+typedef std::set<UserRoleIdType>      UserRoleIdSet;
+typedef UserRoleIdSet::iterator       UserRoleIdSetIterator;
+typedef UserRoleIdSet::const_iterator UserRoleIdSetIterator;
+extern const UserRoleIdSet EMPTY_USER_ROLE_ID_SET;
 
 enum SyncType {
 	SYNC,

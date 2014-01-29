@@ -77,6 +77,7 @@ static void startFaceRest(void)
 	arg.push_back("--face-rest-port");
 	arg.push_back(StringUtils::sprintf("%u", TEST_PORT));
 	g_faceRest = new FaceRest(arg, &param);
+	g_faceRest->setNumberOfPreLoadWorkers(1);
 
 	param.mutex.lock();
 	g_faceRest->start();
@@ -143,18 +144,40 @@ struct RequestArg {
 
 	// output
 	string response;
+	int httpStatusCode;
+	string httpReasonPhrase;
 	StringVector responseHeaders;
 
 	RequestArg(const string &_url, const string &_cbname = "")
 	: url(_url),
 	  callbackName(_cbname),
 	  request("GET"),
-	  userId(INVALID_USER_ID)
+	  userId(INVALID_USER_ID),
+	  httpStatusCode(-1)
 	{
 	}
 };
 
 static void getSessionId(RequestArg &arg);
+static bool parseStatusLine(RequestArg &arg, const gchar *line)
+{
+	bool succeeded = false;
+	gchar **fields = g_strsplit(line, " ", -1);
+	cut_take_string_array(fields);
+	for (int i = 0; fields[i]; i++) {
+		string field = fields[i];
+		if (i == 0 && field != "HTTP/1.1")
+			break;
+		if (i == 1)
+			arg.httpStatusCode = atoi(field.c_str());
+		if (i == 2) {
+			arg.httpReasonPhrase = field;
+			succeeded = true;
+		}
+	}
+	return succeeded;
+}
+
 static void getServerResponse(RequestArg &arg)
 {
 	getSessionId(arg);
@@ -193,15 +216,20 @@ static void getServerResponse(RequestArg &arg)
 		string headers = arg.response.substr(0, pos);
 		arg.response = arg.response.substr(pos + separator.size());
 		gchar **tmp = g_strsplit(headers.c_str(), "\r\n", -1);
-		for (size_t i = 0; tmp[i]; i++)
-			arg.responseHeaders.push_back(tmp[i]);
-		g_strfreev(tmp);
+		cut_take_string_array(tmp);
+		for (size_t i = 0; tmp[i]; i++) {
+			if (i == 0)
+				cut_assert_true(parseStatusLine(arg, tmp[i]));
+			else
+				arg.responseHeaders.push_back(tmp[i]);
+		}
 	}
 }
 
 static JsonParserAgent *getResponseAsJsonParser(RequestArg &arg)
 {
 	getServerResponse(arg);
+	cut_assert_true(SOUP_STATUS_IS_SUCCESSFUL(arg.httpStatusCode));
 
 	// if JSONP, check the callback name
 	if (!arg.callbackName.empty()) {
@@ -675,8 +703,8 @@ void _assertAddRecord(const StringMap &params, const string &url,
 
 void _assertUpdateRecord(const StringMap &params, const string &baseUrl,
                          uint32_t targetId = 1,
-                         const HatoholErrorCode &expectCode = HTERR_OK,
-                         uint32_t expectedId = 1)
+                         const UserIdType &userId = INVALID_USER_ID,
+                         const HatoholErrorCode &expectCode = HTERR_OK)
 {
 	startFaceRest();
 	string url;
@@ -688,12 +716,12 @@ void _assertUpdateRecord(const StringMap &params, const string &baseUrl,
 	RequestArg arg(url, "foo");
 	arg.parameters = params;
 	arg.request = "PUT";
-	arg.userId = findUserWith(OPPRVLG_UPDATE_USER);
+	arg.userId = userId;
 	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser, expectCode);
 	if (expectCode != HTERR_OK)
 		return;
-	assertValueInParser(g_parser, "id", expectedId);
+	assertValueInParser(g_parser, "id", targetId);
 }
 
 #define assertAddAction(P, ...) \
@@ -733,6 +761,31 @@ static void _assertUser(JsonParserAgent *parser, const UserInfo &userInfo,
 }
 #define assertUser(P,I,...) cut_trace(_assertUser(P,I,##__VA_ARGS__))
 
+static void assertUserRolesMapInParser(JsonParserAgent *parser)
+{
+	cut_assert_true(parser->startObject("userRoles"));
+
+	string flagsStr =
+	  StringUtils::sprintf("%"FMT_OPPRVLG, NONE_PRIVILEGE);
+	cut_assert_true(parser->startObject(flagsStr));
+	assertValueInParser(parser, "name", string("Guest"));
+	parser->endObject();
+
+	flagsStr = StringUtils::sprintf("%"FMT_OPPRVLG, ALL_PRIVILEGES);
+	cut_assert_true(parser->startObject(flagsStr));
+	assertValueInParser(parser, "name", string("Admin"));
+	parser->endObject();
+
+	for (size_t i = 0; i < NumTestUserRoleInfo; i++) {
+		UserRoleInfo &userRoleInfo = testUserRoleInfo[i];
+		flagsStr = StringUtils::toString(userRoleInfo.flags);
+		cut_assert_true(parser->startObject(flagsStr));
+		assertValueInParser(parser, "name", userRoleInfo.name);
+		parser->endObject();
+	}
+	parser->endObject();
+}
+
 static void _assertUsers(const string &path, const UserIdType &userId,
                          const string &callbackName = "")
 {
@@ -751,6 +804,7 @@ static void _assertUsers(const string &path, const UserIdType &userId,
 		g_parser->endElement();
 	}
 	g_parser->endObject();
+	assertUserRolesMapInParser(g_parser);
 }
 #define assertUsers(P, U, ...) cut_trace(_assertUsers(P, U, ##__VA_ARGS__))
 
@@ -772,16 +826,17 @@ void _assertAddUserWithSetup(const StringMap &params,
 cut_trace(_assertUpdateRecord(P, "/user", ##__VA_ARGS__))
 
 void _assertUpdateUserWithSetup(const StringMap &params,
-                                const HatoholErrorCode &expectCode,
-                                uint32_t targetUserId = 1)
+                                uint32_t targetUserId,
+                                const HatoholErrorCode &expectCode)
 {
 	const bool dbRecreate = true;
 	const bool loadTestDat = true;
 	setupTestDBUser(dbRecreate, loadTestDat);
-	assertUpdateUser(params, targetUserId, expectCode);
+	const UserIdType userId = findUserWith(OPPRVLG_CREATE_USER);
+	assertUpdateUser(params, targetUserId, userId, expectCode);
 }
-#define assertUpdateUserWithSetup(P,...) \
-  cut_trace(_assertUpdateUserWithSetup(P, ##__VA_ARGS__))
+#define assertUpdateUserWithSetup(P,U,C) \
+cut_trace(_assertUpdateUserWithSetup(P,U,C))
 
 static void setupTestMode(void)
 {
@@ -922,6 +977,40 @@ void _assertAddAccessInfoWithCond(
 }
 #define assertAddAccessInfoWithCond(SVID, HGRP_ID, ...) \
 cut_trace(_assertAddAccessInfoWithCond(SVID, HGRP_ID, ##__VA_ARGS__))
+
+static void _assertUserRole(JsonParserAgent *parser,
+			    const UserRoleInfo &userRoleInfo,
+			    uint32_t expectUserRoleId = 0)
+{
+	if (expectUserRoleId)
+		assertValueInParser(parser, "userRoleId", expectUserRoleId);
+	assertValueInParser(parser, "name", userRoleInfo.name);
+	assertValueInParser(parser, "flags", userRoleInfo.flags);
+}
+#define assertUserRole(P,I,...) cut_trace(_assertUserRole(P,I,##__VA_ARGS__))
+
+static void _assertUserRoles(const string &path,
+			     const UserIdType &userId,
+			     const string &callbackName = "")
+{
+	startFaceRest();
+	RequestArg arg(path, callbackName);
+	arg.userId = userId;
+	g_parser = getResponseAsJsonParser(arg);
+	assertErrorCode(g_parser);
+	assertValueInParser(g_parser, "numberOfUserRoles",
+	                    (uint32_t)NumTestUserRoleInfo);
+	g_parser->startObject("userRoles");
+	for (size_t i = 0; i < NumTestUserRoleInfo; i++) {
+		g_parser->startElement(i);
+		const UserRoleInfo &userRoleInfo = testUserRoleInfo[i];
+		assertUserRole(g_parser, userRoleInfo, (uint32_t)(i + 1));
+		g_parser->endElement();
+	}
+	g_parser->endObject();
+}
+#define assertUserRoles(P, U, ...) \
+  cut_trace(_assertUserRoles(P, U, ##__VA_ARGS__))
 
 static void assertHostGroupsInParser(JsonParserAgent *parser, uint32_t serverId)
 {
@@ -1557,7 +1646,7 @@ void test_updateUser(void)
 	params["user"] = user;
 	params["password"] = password;
 	params["flags"] = StringUtils::sprintf("%"FMT_OPPRVLG, flags);
-	assertUpdateUserWithSetup(params, HTERR_OK);
+	assertUpdateUserWithSetup(params, targetId, HTERR_OK);
 
 	// check the content in the DB
 	DBClientUser dbUser;
@@ -1579,7 +1668,7 @@ void test_updateUserWithoutPassword(void)
 	StringMap params;
 	params["user"] = user;
 	params["flags"] = StringUtils::sprintf("%"FMT_OPPRVLG, flags);
-	assertUpdateUserWithSetup(params, HTERR_OK);
+	assertUpdateUserWithSetup(params, targetId, HTERR_OK);
 
 	// check the content in the DB
 	DBClientUser dbUser;
@@ -1602,7 +1691,7 @@ void test_updateUserWithoutUserId(void)
 	StringMap params;
 	params["user"] = user;
 	params["flags"] = StringUtils::sprintf("%"FMT_OPPRVLG, flags);
-	assertUpdateUserWithSetup(params, HTERR_NOT_FOUND_ID_IN_URL, -1);
+	assertUpdateUserWithSetup(params, -1, HTERR_NOT_FOUND_ID_IN_URL);
 }
 
 void test_addUserWithoutUser(void)
@@ -1823,6 +1912,253 @@ void test_deleteAccessInfo(void)
 	AccessInfoIdSet accessInfoIdSet;
 	accessInfoIdSet.insert(targetId);
 	assertAccessInfoInDB(accessInfoIdSet);
+}
+
+void test_getUserRole(void)
+{
+	const bool dbRecreate = true;
+	const bool loadTestDat = false;
+	setupTestDBUser(dbRecreate, loadTestDat);
+	loadTestDBUserRole();
+	assertUserRoles("/user-role", USER_ID_SYSTEM, "cbname");
+}
+
+#define assertAddUserRole(P, ...) \
+cut_trace(_assertAddRecord(P, "/user-role", ##__VA_ARGS__))
+
+void _assertAddUserRoleWithSetup(const StringMap &params,
+				 const HatoholErrorCode &expectCode,
+				 bool operatorHasPrivilege = true)
+{
+	const bool dbRecreate = true;
+	const bool loadTestDat = true;
+	setupTestDBUser(dbRecreate, loadTestDat);
+	UserIdType userId;
+	if (operatorHasPrivilege)
+		userId = findUserWith(OPPRVLG_CREATE_USER_ROLE);
+	else
+		userId = findUserWithout(OPPRVLG_CREATE_USER_ROLE);
+	assertAddUserRole(params, userId, expectCode, NumTestUserRoleInfo + 1);
+}
+#define assertAddUserRoleWithSetup(P, C, ...) \
+cut_trace(_assertAddUserRoleWithSetup(P, C, ##__VA_ARGS__))
+
+void test_addUserRole(void)
+{
+	UserRoleInfo expectedUserRoleInfo;
+	expectedUserRoleInfo.id = NumTestUserRoleInfo + 1;
+	expectedUserRoleInfo.name = "maintainer";
+	expectedUserRoleInfo.flags =
+	  OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_SERVER);
+
+	StringMap params;
+	params["name"] = expectedUserRoleInfo.name;
+	params["flags"] = StringUtils::sprintf(
+	  "%"FMT_OPPRVLG, expectedUserRoleInfo.flags);
+	assertAddUserRoleWithSetup(params, HTERR_OK);
+
+	// check the content in the DB
+	assertUserRoleInfoInDB(expectedUserRoleInfo);
+}
+
+void test_addUserRoleWithoutPrivilege(void)
+{
+	StringMap params;
+	params["name"] = "maintainer";
+	params["flags"] = StringUtils::sprintf("%"FMT_OPPRVLG, ALL_PRIVILEGES);
+	bool operatorHasPrivilege = true;
+	assertAddUserRoleWithSetup(params, HTERR_NO_PRIVILEGE,
+				   !operatorHasPrivilege);
+
+	assertUserRolesInDB();
+}
+
+void test_addUserRoleWithoutName(void)
+{
+	StringMap params;
+	params["flags"] = StringUtils::sprintf("%"FMT_OPPRVLG, ALL_PRIVILEGES);
+	assertAddUserRoleWithSetup(params, HTERR_NOT_FOUND_PARAMETER);
+
+	assertUserRolesInDB();
+}
+
+void test_addUserRoleWithoutFlags(void)
+{
+	StringMap params;
+	params["name"] = "maintainer";
+	assertAddUserRoleWithSetup(params, HTERR_NOT_FOUND_PARAMETER);
+
+	assertUserRolesInDB();
+}
+
+void test_addUserRoleWithEmptyUserName(void)
+{
+	StringMap params;
+	params["name"] = "";
+	params["flags"] = StringUtils::sprintf("%"FMT_OPPRVLG, ALL_PRIVILEGES);
+	assertAddUserRoleWithSetup(params, HTERR_EMPTY_USER_ROLE_NAME);
+
+	assertUserRolesInDB();
+}
+
+void test_addUserRoleWithInvalidFlags(void)
+{
+	StringMap params;
+	params["name"] = "maintainer";
+	params["flags"] = StringUtils::sprintf(
+	  "%"FMT_OPPRVLG, ALL_PRIVILEGES + 1);
+	assertAddUserRoleWithSetup(params, HTERR_INVALID_USER_FLAGS);
+
+	assertUserRolesInDB();
+}
+
+#define assertUpdateUserRole(P, ...) \
+cut_trace(_assertUpdateRecord(P, "/user-role", ##__VA_ARGS__))
+
+void _assertUpdateUserRoleWithSetup(const StringMap &params,
+				    uint32_t targetUserRoleId,
+				    const HatoholErrorCode &expectCode,
+				    bool operatorHasPrivilege = true)
+{
+	const bool dbRecreate = true;
+	const bool loadTestDat = true;
+	setupTestDBUser(dbRecreate, loadTestDat);
+	UserIdType userId;
+	if (operatorHasPrivilege)
+		userId = findUserWith(OPPRVLG_UPDATE_ALL_USER_ROLE);
+	else
+		userId = findUserWithout(OPPRVLG_UPDATE_ALL_USER_ROLE);
+	assertUpdateUserRole(params, targetUserRoleId, userId, expectCode);
+}
+#define assertUpdateUserRoleWithSetup(P,T,E, ...) \
+cut_trace(_assertUpdateUserRoleWithSetup(P,T,E, ##__VA_ARGS__))
+
+void test_updateUserRole(void)
+{
+	UserRoleInfo expectedUserRoleInfo;
+	expectedUserRoleInfo.id = 1;
+	expectedUserRoleInfo.name = "ServerAdmin";
+	expectedUserRoleInfo.flags =
+	  (1 << OPPRVLG_UPDATE_SERVER) | ( 1 << OPPRVLG_DELETE_SERVER);
+
+	StringMap params;
+	params["name"] = expectedUserRoleInfo.name;
+	params["flags"] = StringUtils::sprintf(
+	  "%"FMT_OPPRVLG, expectedUserRoleInfo.flags);
+	assertUpdateUserRoleWithSetup(params, expectedUserRoleInfo.id,
+				      HTERR_OK);
+
+	// check the content in the DB
+	assertUserRoleInfoInDB(expectedUserRoleInfo);
+}
+
+void test_updateUserRoleWithoutName(void)
+{
+	int targetIdx = 0;
+	UserRoleInfo expectedUserRoleInfo = testUserRoleInfo[targetIdx];
+	expectedUserRoleInfo.id = targetIdx + 1;
+	expectedUserRoleInfo.flags =
+	  (1 << OPPRVLG_UPDATE_SERVER) | ( 1 << OPPRVLG_DELETE_SERVER);
+
+	StringMap params;
+	params["flags"] = StringUtils::sprintf(
+	  "%"FMT_OPPRVLG, expectedUserRoleInfo.flags);
+	assertUpdateUserRoleWithSetup(params, expectedUserRoleInfo.id,
+				      HTERR_OK);
+
+	// check the content in the DB
+	assertUserRoleInfoInDB(expectedUserRoleInfo);
+}
+
+void test_updateUserRoleWithoutFlags(void)
+{
+	int targetIdx = 0;
+	UserRoleInfo expectedUserRoleInfo = testUserRoleInfo[targetIdx];
+	expectedUserRoleInfo.id = targetIdx + 1;
+	expectedUserRoleInfo.name = "ServerAdmin";
+
+	StringMap params;
+	params["name"] = expectedUserRoleInfo.name;
+	assertUpdateUserRoleWithSetup(params, expectedUserRoleInfo.id,
+				      HTERR_OK);
+
+	// check the content in the DB
+	assertUserRoleInfoInDB(expectedUserRoleInfo);
+}
+
+void test_updateUserRoleWithoutPrivilege(void)
+{
+	UserRoleIdType targetUserRoleId = 1;
+	OperationPrivilegeFlag flags =
+	  (1 << OPPRVLG_UPDATE_SERVER) | ( 1 << OPPRVLG_DELETE_SERVER);
+
+	StringMap params;
+	params["name"] = "ServerAdmin";
+	params["flags"] = StringUtils::sprintf("%"FMT_OPPRVLG, flags);
+	bool operatorHasPrivilege = true;
+	assertUpdateUserRoleWithSetup(params, targetUserRoleId,
+				      HTERR_NO_PRIVILEGE,
+				      !operatorHasPrivilege);
+
+	assertUserRolesInDB();
+}
+
+void _assertDeleteUserRoleWithSetup(
+  string url = "",
+  HatoholErrorCode expectedErrorCode = HTERR_OK,
+  bool operatorHasPrivilege = true,
+  const UserRoleIdType targetUserRoleId = 2)
+{
+	startFaceRest();
+	bool dbRecreate = true;
+	bool loadTestData = true;
+	setupTestDBUser(dbRecreate, loadTestData);
+
+	if (url.empty())
+		url = StringUtils::sprintf("/user-role/%"FMT_USER_ROLE_ID,
+					   targetUserRoleId);
+	RequestArg arg(url, "cbname");
+	arg.request = "DELETE";
+	if (operatorHasPrivilege)
+		arg.userId = findUserWith(OPPRVLG_DELETE_ALL_USER_ROLE);
+	else
+		arg.userId = findUserWithout(OPPRVLG_DELETE_ALL_USER_ROLE);
+	g_parser = getResponseAsJsonParser(arg);
+
+	// check the reply
+	assertErrorCode(g_parser, expectedErrorCode);
+	UserRoleIdSet userRoleIdSet;
+	if (expectedErrorCode == HTERR_OK)
+		userRoleIdSet.insert(targetUserRoleId);
+	// check the version
+	assertUserRolesInDB(userRoleIdSet);
+}
+#define assertDeleteUserRoleWithSetup(...) \
+cut_trace(_assertDeleteUserRoleWithSetup(__VA_ARGS__))
+
+void test_deleteUserRole(void)
+{
+	assertDeleteUserRoleWithSetup();
+}
+
+void test_deleteUserRoleWithoutId(void)
+{
+	assertDeleteUserRoleWithSetup("/user-role",
+				      HTERR_NOT_FOUND_ID_IN_URL);
+}
+
+void test_deleteUserRoleWithNonNumericId(void)
+{
+	assertDeleteUserRoleWithSetup("/user-role/maintainer",
+				      HTERR_NOT_FOUND_ID_IN_URL);
+}
+
+void test_deleteUserRoleWithoutPrivilege(void)
+{
+	bool operatorHasPrivilege = true;
+	assertDeleteUserRoleWithSetup(string(), // set automatically
+				      HTERR_NO_PRIVILEGE,
+				      !operatorHasPrivilege);
 }
 
 void test_overview(void)
