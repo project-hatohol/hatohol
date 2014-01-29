@@ -460,7 +460,7 @@ static const ColumnDef COLUMN_DEF_HOSTS[] = {
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_HOSTS,                  // tableName
-	"hostid",                          // columnName
+	"host_id",                          // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	11,                                // columnLength
 	0,                                 // decFracLength
@@ -471,7 +471,7 @@ static const ColumnDef COLUMN_DEF_HOSTS[] = {
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_HOSTS,                  // tableName
-	"hostname",                        // columnName
+	"host_name",                        // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
 	0,                                 // decFracLength
@@ -488,8 +488,8 @@ static const size_t NUM_COLUMNS_HOSTS =
 enum {
 	IDX_HOSTS_SERVER_ID,
 	IDX_HOSTS_ID,
-	IDX_HOSTS_HOSTID,
-	IDX_HOSTS_HOSTNAME,
+	IDX_HOSTS_HOST_ID,
+	IDX_HOSTS_HOST_NAME,
 	NUM_IDX_HOSTS,
 };
 
@@ -530,7 +530,7 @@ static const ColumnDef COLUMN_DEF_HOSTGROUPS[] = {
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_HOSTGROUPS,             // tableName
-	"groupname",                       // columnName
+	"group_name",                      // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
 	0,                                 // decFracLength
@@ -547,8 +547,8 @@ static const size_t NUM_COLUMNS_HOSTGROUPS =
 enum {
 	IDX_HOSTGROUPS_ID,
 	IDX_HOSTGROUPS_SERVER_ID,
-	IDX_HOSTGROUPS_GROUPID,
-	IDX_HOSTGROUPS_GROUPNAME,
+	IDX_HOSTGROUPS_GROUP_ID,
+	IDX_HOSTGROUPS_GROUP_NAME,
 	NUM_IDX_HOSTGROUPS,
 };
 
@@ -578,7 +578,7 @@ static const ColumnDef COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[] = {
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_MAP_HOSTS_HOSTGROUPS,   // tableName
-	"hostid",                          // columnName
+	"host_id",                          // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	11,                                // columnLength
 	0,                                 // decFracLength
@@ -606,8 +606,8 @@ static const size_t NUM_COLUMNS_MAP_HOSTS_HOSTGROUPS =
 enum {
 	IDX_MAP_HOSTS_HOSTGROUPS_ID,
 	IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID,
-	IDX_MAP_HOSTS_HOSTGROUPS_HOSTID,
-	IDX_MAP_HOSTS_HOSTGROUPS_GROUPID,
+	IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
+	IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID,
 	NUM_IDX_MAP_HOSTS_HOSTGROUPS,
 };
 
@@ -951,7 +951,7 @@ HostgroupsQueryOption::HostgroupsQueryOption(UserIdType userId)
 	setServerIdColumnName(
 	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_SERVER_ID].columnName);
 	setHostGroupIdColumnName(
-	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_GROUPID].columnName);
+	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_GROUP_ID].columnName);
 }
 
 // ---------------------------------------------------------------------------
@@ -1809,10 +1809,10 @@ void DBClientHatohol::addHostgroupInfoBare(const HostgroupInfo &groupInfo)
 		arg.columnIndexes.push_back(IDX_HOSTGROUPS_SERVER_ID);
 
 		row->ADD_NEW_ITEM(Uint64, groupInfo.groupId);
-		arg.columnIndexes.push_back(IDX_HOSTGROUPS_GROUPID);
+		arg.columnIndexes.push_back(IDX_HOSTGROUPS_GROUP_ID);
 
 		row->ADD_NEW_ITEM(String, groupInfo.groupName);
-		arg.columnIndexes.push_back(IDX_HOSTGROUPS_GROUPNAME);
+		arg.columnIndexes.push_back(IDX_HOSTGROUPS_GROUP_NAME);
 
 		arg.row = row;
 		arg.condition = condition;
@@ -1944,14 +1944,14 @@ void DBClientHatohol::getHostgroupInfoList
 	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_SERVER_ID].type);
 
 	arg.statements.push_back(
-	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_GROUPID].columnName);
+	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_GROUP_ID].columnName);
 	arg.columnTypes.push_back(
-	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_GROUPID].type);
+	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_GROUP_ID].type);
 
 	arg.statements.push_back(
-	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_GROUPNAME].columnName);
+	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_GROUP_NAME].columnName);
 	arg.columnTypes.push_back(
-	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_GROUPNAME].type);
+	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_GROUP_NAME].type);
 
 	arg.condition = option.getCondition();
 
