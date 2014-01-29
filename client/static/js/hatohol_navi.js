@@ -64,12 +64,14 @@ var HatoholNavi = function(user, currentPage) {
 
   if (currentPage) {
     this.currentPage = currentPage;
-  } else if (location.pathname.match(".+/$")) {
+  } else if (location.pathname.match(".*/$")) {
     this.currentPage = menuItems[0].href;
   } else {
-    matchResults = location.pathname.match(".+/(.+)$");
+    matchResults = location.pathname.match(".*/(.+)$");
     if (matchResults && matchResults.length > 1)
       this.currentPage = matchResults[1];
+    else
+      this.currentPage = location.pathname;
   }
 
   for (i = 0; i < menuItems.length; ++i) {
