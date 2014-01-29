@@ -133,7 +133,7 @@ public:
 	// Overriding of virtual methods
 	virtual std::string getCondition(void) const;
 
-	virtual uint32_t getTargetServerId(void) const;
+	virtual ServerIdType getTargetServerId(void) const;
 	virtual void setTargetServerId(const ServerIdType &targetServerId);
 	virtual uint64_t getTargetHostId(void) const;
 	virtual void setTargetHostId(uint64_t targetHostId);
@@ -221,12 +221,12 @@ public:
 	 *
 	 */
 	bool getTriggerInfo(TriggerInfo &triggerInfo,
-	                    uint32_t serverId, uint64_t triggerId);
+	                    const ServerIdType &serverId, uint64_t triggerId);
 	void getTriggerInfoList(TriggerInfoList &triggerInfoList,
 				const TriggersQueryOption &option,
 	                        uint64_t targetTriggerId = ALL_TRIGGERS);
 	void setTriggerInfoList(const TriggerInfoList &triggerInfoList,
-	                        uint32_t serverId);
+	                        const ServerIdType &serverId);
 	/**
 	 * get the last change time of the trigger that belongs to
 	 * the specified server
@@ -235,14 +235,14 @@ public:
 	 * The last change time of tringer in unix time. If there is no
 	 * trigger information, 0 is returned.
 	 */
-	int  getLastChangeTimeOfTrigger(uint32_t serverId);
+	int  getLastChangeTimeOfTrigger(const ServerIdType &serverId);
 
 	void addEventInfo(EventInfo *eventInfo);
 	void addEventInfoList(const EventInfoList &eventInfoList);
 	HatoholError getEventInfoList(EventInfoList &eventInfoList,
 	                              EventsQueryOption &option);
 	void setEventInfoList(const EventInfoList &eventInfoList,
-	                      uint32_t serverId);
+	                      const ServerIdType &serverId);
 
 	/**
 	 * get the last (maximum) event ID of the event that belongs to
@@ -252,7 +252,7 @@ public:
 	 * The last event ID. If there is no event data, EVENT_NOT_FOUND
 	 * is returned.
 	 */
-	uint64_t getLastEventId(uint32_t serverId);
+	uint64_t getLastEventId(const ServerIdType &serverId);
 
 	void addItemInfo(ItemInfo *itemInfo);
 	void addItemInfoList(const ItemInfoList &itemInfoList);
