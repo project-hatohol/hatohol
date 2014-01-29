@@ -400,6 +400,13 @@ HatoholError UnifiedDataStore::deleteActionList(
 	return dbAction.deleteActions(actionIdList, privilege);
 }
 
+HatoholError UnifiedDataStore::getHostgroupInfoList
+  (HostgroupInfoList &hostgroupInfoList, const HostgroupsQueryOption &option)
+{
+	DBClientHatohol dbClientHatohol;
+	return dbClientHatohol.getHostgroupInfoList(hostgroupInfoList,option);
+}
+
 size_t UnifiedDataStore::getNumberOfTriggers(const TriggersQueryOption &option,
 					     TriggerSeverityType severity)
 {

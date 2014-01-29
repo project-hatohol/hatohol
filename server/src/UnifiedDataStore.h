@@ -72,6 +72,9 @@ public:
 	virtual HatoholError deleteActionList(
 	  const ActionIdList &actionIdList,
 	  const OperationPrivilege &privilege);
+	virtual HatoholError getHostgroupInfoList(
+	  HostgroupInfoList &hostgroupInfoList,
+	  const HostgroupsQueryOption &option);
 
 	virtual size_t getNumberOfTriggers
 	                 (const TriggersQueryOption &option,
