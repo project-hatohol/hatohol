@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-28 22:40-0600\n"
+"POT-Creation-Date: 2014-01-29 01:14-0600\n"
 "PO-Revision-Date: 2014-01-29 13:42+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: viewer/actions_ajax.html:24 viewer/index.html:31
+#: viewer/actions_ajax.html:24
 msgid "Actions"
 msgstr "アクション"
 
@@ -96,7 +96,7 @@ msgstr "常駐"
 msgid "No limit"
 msgstr "制限なし"
 
-#: viewer/base.html:37 viewer/base_ajax.html:53
+#: viewer/base_ajax.html:53
 msgid "Hatohol"
 msgstr "Hatohol"
 
@@ -112,7 +112,7 @@ msgstr "ログアウト"
 msgid "Change password"
 msgstr "パスワード変更"
 
-#: viewer/dashboard_ajax.html:28 viewer/index.html:24
+#: viewer/dashboard_ajax.html:28
 msgid "Dashboard"
 msgstr "ダッシュボード"
 
@@ -188,29 +188,9 @@ msgstr "ユーザ数 [オンライン]"
 msgid "New values per second"
 msgstr "１秒あたりの監視項目数"
 
-#: viewer/index.html:25 viewer/overview_triggers_ajax.html:28
-msgid "Overview : Triggers"
-msgstr "概要:トリガー"
-
-#: viewer/index.html:26 viewer/overview_items_ajax.html:28
-msgid "Overview : Items"
-msgstr "概要:アイテム"
-
-#: viewer/index.html:27 viewer/latest_ajax.html:28
+#: viewer/latest_ajax.html:28
 msgid "Latest data"
 msgstr "最新データ"
-
-#: viewer/index.html:28 viewer/triggers_ajax.html:24
-msgid "Triggers"
-msgstr "トリガー"
-
-#: viewer/index.html:29
-msgid "Events"
-msgstr "イベント"
-
-#: viewer/index.html:30 viewer/servers_ajax.html:24
-msgid "Servers"
-msgstr "サーバ"
 
 #: viewer/latest_ajax.html:31 viewer/overview_items_ajax.html:41
 #: viewer/overview_triggers_ajax.html:45 viewer/triggers_ajax.html:41
@@ -246,6 +226,10 @@ msgstr "最新の値"
 msgid "Previous value"
 msgstr "前回の値"
 
+#: viewer/overview_items_ajax.html:28
+msgid "Overview : Items"
+msgstr "概要:アイテム"
+
 #: viewer/overview_items_ajax.html:32 viewer/overview_triggers_ajax.html:31
 #: viewer/triggers_ajax.html:27
 msgid "Minimum Severity:"
@@ -255,6 +239,10 @@ msgstr "最小の深刻度:"
 #: viewer/triggers_ajax.html:46
 msgid "Group:"
 msgstr "グループ:"
+
+#: viewer/overview_triggers_ajax.html:28
+msgid "Overview : Triggers"
+msgstr "概要:トリガー"
 
 #: viewer/overview_triggers_ajax.html:39 viewer/triggers_ajax.html:35
 msgid "Status:"
@@ -269,6 +257,10 @@ msgstr "正常"
 #: viewer/triggers_ajax.html.py:98
 msgid "Problem"
 msgstr "障害"
+
+#: viewer/servers_ajax.html:24
+msgid "Servers"
+msgstr "サーバ"
 
 #: viewer/servers_ajax.html:28
 msgid "ADD SERVER"
@@ -297,6 +289,10 @@ msgstr "ニックネーム"
 #: viewer/servers_ajax.html:49 viewer/servers_ajax.html.py:186
 msgid "Maps"
 msgstr "マップ"
+
+#: viewer/triggers_ajax.html:24
+msgid "Triggers"
+msgstr "トリガー"
 
 #: viewer/triggers_ajax.html:63
 msgid "Last change"
@@ -349,6 +345,9 @@ msgstr "全て"
 #: viewer/users_ajax.html:226
 msgid "Show / Edit"
 msgstr "表示 / 編集"
+
+#~ msgid "Events"
+#~ msgstr "イベント"
 
 #~ msgid "Preparing"
 #~ msgstr "準備中"

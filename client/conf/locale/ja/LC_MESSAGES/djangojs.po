@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-28 22:58-0600\n"
-"PO-Revision-Date: 2014-01-29 13:58+0900\n"
+"POT-Creation-Date: 2014-01-29 01:14-0600\n"
+"PO-Revision-Date: 2014-01-29 16:16+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -620,12 +620,12 @@ msgid "User name is empty!"
 msgstr "ユーザ名が入力されていません！"
 
 #: static/js/hatohol_user_edit_dialog.js:118
-msgid "Invalid user type!"
-msgstr "ユーザの種類が正しくありません！"
+msgid "Invalid user role!"
+msgstr "ユーザ種別が正しくありません！"
 
 #: static/js/hatohol_user_edit_dialog.js:155
-msgid "User type"
-msgstr "ユーザの種類"
+msgid "User role"
+msgstr "ユーザ種別"
 
 #: static/js/hatohol_user_edit_dialog.js:157
 #: static/js/hatohol_user_edit_dialog.js:212
@@ -831,6 +831,9 @@ msgstr "ステータスコード"
 #: test/browser/test_hatohol_message_box.js:175
 msgid "HATOHOL SERVER ERROR CODE"
 msgstr "HATOHOLサーバエラーコード"
+
+#~ msgid "User type"
+#~ msgstr "ユーザの種類"
 
 #~ msgid "Comment"
 #~ msgstr "コメント"
