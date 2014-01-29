@@ -499,6 +499,10 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	                        queueRestJob,
 	                        new HandlerClosure(this, handlerUser),
 	                        deleteHandlerClosure);
+	soup_server_add_handler(m_ctx->soupServer, pathForHostgroup,
+	                        queueRestJob,
+	                        new HandlerClosure(this, handlerGetHostgroup),
+	                        deleteHandlerClosure);
 	if (m_ctx->param)
 		m_ctx->param->setupDoneNotifyFunc();
 	soup_server_run_async(m_ctx->soupServer);
@@ -2218,9 +2222,28 @@ void FaceRest::handlerDeleteAccessInfo(RestJob *job)
 
 void FaceRest::handlerGetHostgroup(RestJob *job)
 {
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+
+	HostgroupInfoList hostgroupInfoList;
+	HostgroupsQueryOption option(job->userId);
+	HatoholError err =
+	        dataStore->getHostgroupInfoList(hostgroupInfoList, option);
+
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
+	agent.startArray("hostgroups");
+	HostgroupInfoListIterator it = hostgroupInfoList.begin();
+	for (; it != hostgroupInfoList.end(); ++it) {
+		HostgroupInfo hostgroupInfo = *it;
+		agent.startObject();
+		agent.add("id", hostgroupInfo.id);
+		agent.add("serverId", hostgroupInfo.serverId);
+		agent.add("groupId", hostgroupInfo.groupId);
+		agent.add("groupName", hostgroupInfo.groupName.c_str());
+		agent.endObject();
+	}
+	agent.endArray();
 	agent.endObject();
 
 	replyJsonData(agent, job);
