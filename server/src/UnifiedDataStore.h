@@ -61,8 +61,9 @@ public:
 	                         const ItemsQueryOption &option,
 	                         uint64_t targetItemId = ALL_ITEMS,
 				 bool fetchItemsSynchronously = false);
-	virtual bool fetchItemsAsync(ClosureBase *closure,
-				     uint32_t targetServerId = ALL_SERVERS);
+	virtual bool fetchItemsAsync(
+	  ClosureBase *closure,
+	  const ServerIdType &targetServerId = ALL_SERVERS);
 	virtual void getHostList(HostInfoList &hostInfoList,
 				 const HostsQueryOption &option);
 	virtual HatoholError getActionList(ActionDefList &actionList,
@@ -108,7 +109,8 @@ public:
 	  ServerIdType serverId, const OperationPrivilege &privilege);
 
 protected:
-	virtual void fetchItems(uint32_t targetServerId = ALL_SERVERS);
+	virtual void fetchItems(
+	  const ServerIdType &targetServerId = ALL_SERVERS);
 
 private:
 	struct PrivateContext;

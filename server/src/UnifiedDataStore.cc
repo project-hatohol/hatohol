@@ -327,7 +327,7 @@ void UnifiedDataStore::stop(void)
 	m_ctx->virtualDataStoreForeach(&stopper);
 }
 
-void UnifiedDataStore::fetchItems(uint32_t targetServerId)
+void UnifiedDataStore::fetchItems(const ServerIdType &targetServerId)
 {
 	if (!getCopyOnDemandEnabled())
 		return;
@@ -370,7 +370,7 @@ void UnifiedDataStore::getItemList(ItemInfoList &itemList,
 }
 
 bool UnifiedDataStore::fetchItemsAsync(ClosureBase *closure,
-				       uint32_t targetServerId)
+                                       const ServerIdType &targetServerId)
 {
 	if (!getCopyOnDemandEnabled())
 		return false;
