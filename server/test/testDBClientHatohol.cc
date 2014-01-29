@@ -69,7 +69,7 @@ static string makeTriggerOutput(const TriggerInfo &triggerInfo)
 {
 	string expectedOut =
 	  StringUtils::sprintf(
-	    "%"PRIu32"|%"PRIu64"|%d|%d|%ld|%lu|%"PRIu64"|%s|%s\n",
+	    "%"FMT_SERVER_ID"|%"PRIu64"|%d|%d|%ld|%lu|%"PRIu64"|%s|%s\n",
 	    triggerInfo.serverId,
 	    triggerInfo.id,
 	    triggerInfo.status, triggerInfo.severity,
@@ -86,7 +86,7 @@ struct AssertGetHostResourceArg {
 	list<TResourceType> actualRecordList;
 	TQueryOption option;
 	UserIdType userId;
-	uint32_t targetServerId;
+	ServerIdType targetServerId;
 	uint64_t targetHostId;
 	DataQueryOption::SortOrder sortOrder;
 	size_t maxNumber;
