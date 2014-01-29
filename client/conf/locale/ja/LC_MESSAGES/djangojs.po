@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-01-28 22:03-0600\n"
-"PO-Revision-Date: 2014-01-29 13:15+0900\n"
+"PO-Revision-Date: 2014-01-29 13:32+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -335,11 +335,11 @@ msgstr "受信パケットの解析に失敗しました."
 
 #: static/js/hatohol_message_box.js:193
 msgid " STATUS CODE"
-msgstr ""
+msgstr " ステータスコード"
 
 #: static/js/hatohol_message_box.js:195
 msgid " HATOHOL SERVER ERROR CODE"
-msgstr ""
+msgstr " HATOHOLサーバエラーコード"
 
 #: static/js/hatohol_navi.js:24 test/browser/test_hatohol_navi.js:40
 #: test/browser/test_hatohol_navi.js:62
@@ -826,11 +826,11 @@ msgstr "受信パケットの解析に失敗しました."
 
 #: static/js/library.js:154 test/browser/test_hatohol_message_box.js:161
 msgid "STATUS CODE"
-msgstr ""
+msgstr "ステータスコード"
 
 #: test/browser/test_hatohol_message_box.js:175
 msgid "HATOHOL SERVER ERROR CODE"
-msgstr ""
+msgstr "HATOHOLサーバエラーコード"
 
 #~ msgid "Comment"
 #~ msgstr "コメント"
