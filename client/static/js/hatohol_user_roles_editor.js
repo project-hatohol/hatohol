@@ -168,6 +168,7 @@ HatoholUserRolesEditor.prototype.generateMainTable = function() {
   '  <input id="deleteUserRolesButton" type="button" disabled ' +
   '    class="btn deleteUserRole" value="' + gettext("DELETE") + '" />' +
   '</form>' +
+  '<div class="ui-widget-content" style="overflow-y: auto; height: 200px">' +
   '<table class="table table-condensed table-striped table-hover" id=' +
   this.mainTableId + '>' +
   '  <thead>' +
@@ -179,7 +180,8 @@ HatoholUserRolesEditor.prototype.generateMainTable = function() {
   '    </tr>' +
   '  </thead>' +
   '  <tbody></tbody>' +
-  '</table>';
+  '</table>' +
+  '</div>';
   return html;
 };
 
