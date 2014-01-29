@@ -308,7 +308,8 @@ static UserRoleInfo setupUserRoleInfoForUpdate(size_t targetIndex = 1)
 	UserRoleInfo userRoleInfo = testUserRoleInfo[targetIndex];
 	userRoleInfo.id = targetIndex + 1;
 	userRoleInfo.name = ">=_=<3";
-	userRoleInfo.flags = 0;
+	userRoleInfo.flags =
+	  OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_SERVER);
 	return userRoleInfo;
 }
 
@@ -1001,6 +1002,32 @@ void test_addUserRoleWithDuplicatedFlags(void)
 	assertUserRolesInDB();
 }
 
+void test_addUserRoleWithAllPrivilegeFlags(void)
+{
+	loadTestDBUserRole();
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	DBClientUser dbUser;
+	UserRoleInfo userRoleInfo = testUserRoleInfo[1];
+	userRoleInfo.name = "Unique name kea#osemrnscs+";
+	userRoleInfo.flags = ALL_PRIVILEGES;
+	assertHatoholError(HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST,
+	                   dbUser.addUserRoleInfo(userRoleInfo, privilege));
+	assertUserRolesInDB();
+}
+
+void test_addUserRoleWithNonePrivilegeFlags(void)
+{
+	loadTestDBUserRole();
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	DBClientUser dbUser;
+	UserRoleInfo userRoleInfo = testUserRoleInfo[1];
+	userRoleInfo.name = "Unique name kea#osemrnscs+";
+	userRoleInfo.flags = NONE_PRIVILEGE;
+	assertHatoholError(HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST,
+	                   dbUser.addUserRoleInfo(userRoleInfo, privilege));
+	assertUserRolesInDB();
+}
+
 void test_addUserRoleWithLongName(void)
 {
 	loadTestDBUserRole();
@@ -1133,6 +1160,34 @@ void test_updateUserRoleWithExistingFlags(void)
 	size_t targetIndex = 1;
 	UserRoleInfo userRoleInfo = setupUserRoleInfoForUpdate(targetIndex);
 	userRoleInfo.flags = testUserRoleInfo[targetIndex + 1].flags;
+	DBClientUser dbUser;
+	OperationPrivilege privilege(
+	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_ALL_USER_ROLE));
+	HatoholError err = dbUser.updateUserRoleInfo(userRoleInfo, privilege);
+	assertHatoholError(HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST, err);
+
+	assertUserRolesInDB();
+}
+
+void test_updateUserRoleWithAllPrivilegeFlags(void)
+{
+	size_t targetIndex = 1;
+	UserRoleInfo userRoleInfo = setupUserRoleInfoForUpdate(targetIndex);
+	userRoleInfo.flags = ALL_PRIVILEGES;
+	DBClientUser dbUser;
+	OperationPrivilege privilege(
+	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_ALL_USER_ROLE));
+	HatoholError err = dbUser.updateUserRoleInfo(userRoleInfo, privilege);
+	assertHatoholError(HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST, err);
+
+	assertUserRolesInDB();
+}
+
+void test_updateUserRoleWithNonePrivilegeFlags(void)
+{
+	size_t targetIndex = 1;
+	UserRoleInfo userRoleInfo = setupUserRoleInfoForUpdate(targetIndex);
+	userRoleInfo.flags = NONE_PRIVILEGE;
 	DBClientUser dbUser;
 	OperationPrivilege privilege(
 	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_ALL_USER_ROLE));

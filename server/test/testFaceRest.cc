@@ -1947,7 +1947,8 @@ void test_addUserRole(void)
 	UserRoleInfo expectedUserRoleInfo;
 	expectedUserRoleInfo.id = NumTestUserRoleInfo + 1;
 	expectedUserRoleInfo.name = "maintainer";
-	expectedUserRoleInfo.flags = ALL_PRIVILEGES;
+	expectedUserRoleInfo.flags =
+	  OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_SERVER);
 
 	StringMap params;
 	params["name"] = expectedUserRoleInfo.name;

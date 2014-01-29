@@ -919,6 +919,10 @@ HatoholError DBClientUser::addUserRoleInfo(UserRoleInfo &userRoleInfo,
 	err = isValidFlags(userRoleInfo.flags);
 	if (err != HTERR_OK)
 		return err;
+	if (userRoleInfo.flags == ALL_PRIVILEGES ||
+	    userRoleInfo.flags == NONE_PRIVILEGE) {
+		return HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST;
+	}
 
 	VariableItemGroupPtr row;
 	DBAgentInsertArg arg;
@@ -962,6 +966,10 @@ HatoholError DBClientUser::updateUserRoleInfo(
 	err = isValidFlags(userRoleInfo.flags);
 	if (err != HTERR_OK)
 		return err;
+	if (userRoleInfo.flags == ALL_PRIVILEGES ||
+	    userRoleInfo.flags == NONE_PRIVILEGE) {
+		return HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST;
+	}
 
 	VariableItemGroupPtr row;
 	DBAgentUpdateArg arg;
