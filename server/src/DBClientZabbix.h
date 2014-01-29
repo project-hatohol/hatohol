@@ -36,14 +36,14 @@ public:
 
 	static void init(void);
 	static DBDomainId getDBDomainId(const ServerIdType zabbixServerId);
-	static void transformEventsToHatoholFormat(EventInfoList &eventInfoList,
-	                                         const ItemTablePtr events,
-	                                         uint32_t serverId);
+	static void transformEventsToHatoholFormat(
+	  EventInfoList &eventInfoList, const ItemTablePtr events,
+	  const ServerIdType &serverId);
 	static bool transformEventItemGroupToEventInfo(EventInfo &eventInfo,
 	                                               const ItemGroup *event);
 	static void transformItemsToHatoholFormat(ItemInfoList &eventInfoList,
-	                                        const ItemTablePtr events,
-	                                        uint32_t serverId);
+	                                          const ItemTablePtr events,
+	                                          const ServerIdType &serverId);
 	static bool transformItemItemGroupToItemInfo(ItemInfo &itemInfo,
 	                                             const ItemGroup *item,
 	                                             DBClientZabbix &dbZabbix);

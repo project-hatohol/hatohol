@@ -1852,7 +1852,8 @@ bool DBClientZabbix::transformEventItemGroupToEventInfo
 }
 
 void DBClientZabbix::transformEventsToHatoholFormat
-  (EventInfoList &eventInfoList, const ItemTablePtr events, uint32_t serverId)
+  (EventInfoList &eventInfoList, const ItemTablePtr events,
+   const ServerIdType &serverId)
 {
 	const ItemGroupList &itemGroupList = events->getItemGroupList();
 	ItemGroupListConstIterator it = itemGroupList.begin();
@@ -1918,8 +1919,9 @@ bool DBClientZabbix::transformItemItemGroupToItemInfo
 	return true;
 }
 
-void DBClientZabbix::transformItemsToHatoholFormat
-  (ItemInfoList &itemInfoList, const ItemTablePtr items, uint32_t serverId)
+void DBClientZabbix::transformItemsToHatoholFormat(
+ ItemInfoList &itemInfoList, const ItemTablePtr items,
+ const ServerIdType &serverId)
 {
 	DBClientZabbix dbZabbix(serverId);
 	const ItemGroupList &itemGroupList = items->getItemGroupList();
