@@ -60,7 +60,7 @@ typedef std::map<uint64_t, AccessInfo *>      HostGrpAccessInfoMap;
 typedef HostGrpAccessInfoMap::iterator        HostGrpAccessInfoMapIterator;
 typedef HostGrpAccessInfoMap::const_iterator  HostGrpAccessInfoMapConstIterator;
 
-struct ServerAccessInfoMap : std::map<uint32_t, HostGrpAccessInfoMap *> {
+struct ServerAccessInfoMap : std::map<ServerIdType, HostGrpAccessInfoMap *> {
 	virtual ~ServerAccessInfoMap();
 };
 typedef ServerAccessInfoMap::iterator         ServerAccessInfoMapIterator;
@@ -70,7 +70,7 @@ typedef std::set<uint64_t>                  HostGroupSet;
 typedef HostGroupSet::iterator              HostGroupSetIterator;
 typedef HostGroupSet::const_iterator        HostGroupSetConstIterator;
 
-typedef std::map<uint32_t, HostGroupSet>    ServerHostGrpSetMap;
+typedef std::map<ServerIdType, HostGroupSet>    ServerHostGrpSetMap;
 typedef ServerHostGrpSetMap::iterator       ServerHostGrpSetMapIterator;
 typedef ServerHostGrpSetMap::const_iterator ServerHostGrpSetMapConstIterator;
 
@@ -228,7 +228,7 @@ public:
 	 * @param userId a user ID.
 	 */
 	void getServerHostGrpSetMap(ServerHostGrpSetMap &srvHostGrpSetMap,
-	                            const UserIdType userId);
+	                            const UserIdType &userId);
 
 	HatoholError addUserRoleInfo(UserRoleInfo &userRoleInfo,
 	                             const OperationPrivilege &privilege);
@@ -244,9 +244,9 @@ public:
 	static HatoholError isValidFlags(const OperationPrivilegeFlag flags);
 	static HatoholError isValidUserRoleName(const std::string &name);
 
-	bool isAccessible(const ServerIdType serverId,
+	bool isAccessible(const ServerIdType &serverId,
 	                  const OperationPrivilege &privilege,
-	                  const bool useTransaction = true);
+	                  const bool &useTransaction = true);
 
 protected:
 	void getUserInfoList(UserInfoList &userInfoList,

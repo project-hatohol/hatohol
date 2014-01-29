@@ -839,7 +839,7 @@ HatoholError DBClientUser::getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMa
 		  hostGrpAccessInfoMap->find(accessInfo->hostGroupId);
 		if (jt != hostGrpAccessInfoMap->end()) {
 			MLPL_WARN("Found duplicated serverId and hostGroupId: "
-			          "%"PRIu32 ", %" PRIu64"\n",
+			          "%"FMT_SERVER_ID", %"PRIu64"\n",
 			          accessInfo->serverId,
 			          accessInfo->hostGroupId);
 			delete accessInfo;
@@ -867,7 +867,7 @@ void DBClientUser::destroyServerAccessInfoMap(ServerAccessInfoMap &srvAccessInfo
 }
 
 void DBClientUser::getServerHostGrpSetMap(
-  ServerHostGrpSetMap &srvHostGrpSetMap, const UserIdType userId)
+  ServerHostGrpSetMap &srvHostGrpSetMap, const UserIdType &userId)
 {
 	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_ACCESS_LIST;
@@ -888,7 +888,7 @@ void DBClientUser::getServerHostGrpSetMap(
 		// server ID
 		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++),
 		                  ItemInt, itemServerId);
-		uint32_t serverId = itemServerId->get();
+		ServerIdType serverId = itemServerId->get();
 
 		// host group ID
 		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++),
@@ -900,7 +900,7 @@ void DBClientUser::getServerHostGrpSetMap(
 		  srvHostGrpSetMap[serverId].insert(hostGroupId);
 		if (!result.second) {
 			MLPL_WARN("Found duplicated serverId and hostGroupId: "
-			          "%"PRIu32 ", %" PRIu64"\n",
+			          "%"FMT_SERVER_ID", %"PRIu64"\n",
 			          serverId, hostGroupId);
 			continue;
 		}
@@ -1105,9 +1105,9 @@ HatoholError DBClientUser::isValidUserRoleName(const string &name)
 	return HTERR_OK;
 }
 
-bool DBClientUser::isAccessible(const ServerIdType serverId,
+bool DBClientUser::isAccessible(const ServerIdType &serverId,
                                 const OperationPrivilege &privilege,
-                                const bool useTransaction)
+                                const bool &useTransaction)
 {
 	UserIdType userId = privilege.getUserId();
 	if (userId == INVALID_USER_ID) {
