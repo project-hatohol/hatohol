@@ -267,6 +267,15 @@ void test_castBoolToBool(void)
 	cppcut_assert_equal(false, static_cast<bool>(*y_item));
 }
 
+// -------------------------------------------------------------------------
+// operator cast to int
+// -------------------------------------------------------------------------
+void test_castIntToInt(void)
+{
+	const int expect = 5;
+	x_item = new ItemInt(expect);
+	cppcut_assert_equal(expect, static_cast<int>(*x_item));
+}
 
 // -------------------------------------------------------------------------
 // operatorGt
