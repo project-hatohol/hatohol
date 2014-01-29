@@ -149,6 +149,11 @@ template<> ItemBool::operator bool() const
 //
 // ItemInt
 //
+template<> ItemInt::operator int() const
+{
+	return get();
+}
+
 template<> bool ItemInt::operator >(const ItemData &itemData) const
 {
 	if (itemData.getItemType() == ITEM_TYPE_INT) {
