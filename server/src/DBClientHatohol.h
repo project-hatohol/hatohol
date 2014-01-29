@@ -272,7 +272,7 @@ public:
 
 	void addHostgroupInfo(HostgroupInfo *eventInfo);
 	void addHostgroupInfoList(const HostgroupInfoList &groupInfoList);
-	void getHostgroupInfoList(HostgroupInfoList &hostgroupInfoList,
+	HatoholError getHostgroupInfoList(HostgroupInfoList &hostgroupInfoList,
 	                      const HostgroupsQueryOption &option);
 
 	void addHostgroupElement(HostgroupElement *mapHostHostgroupsInfo);

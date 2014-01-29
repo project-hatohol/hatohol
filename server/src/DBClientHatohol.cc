@@ -1929,7 +1929,7 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	}
 }
 
-void DBClientHatohol::getHostgroupInfoList
+HatoholError DBClientHatohol::getHostgroupInfoList
   (HostgroupInfoList &hostgroupInfoList, const HostgroupsQueryOption &option)
 {
 	DBAgentSelectExArg arg;
@@ -1974,4 +1974,6 @@ void DBClientHatohol::getHostgroupInfoList
 		hostgroupInfo.groupId   = GET_UINT64_FROM_GRP(itemGroup, idx++);
 		hostgroupInfo.groupName = GET_STRING_FROM_GRP(itemGroup, idx++);
 	}
+
+	return HTERR_OK;
 }
