@@ -45,7 +45,7 @@ extern size_t NumTestTriggerInfo;
 
 extern EventInfo testEventInfo[];
 extern size_t NumTestEventInfo;
-extern uint64_t findLastEventId(uint32_t serverId);
+extern uint64_t findLastEventId(const ServerIdType &serverId);
 
 extern ItemInfo testItemInfo[];
 extern size_t NumTestItemInfo;
@@ -77,29 +77,29 @@ extern const size_t NumTestUserRoleInfo;
  * A host ID. ALL_HOSTS can be specified.
  */
 void getTestTriggersIndexes(
-  std::map<uint32_t, std::map<uint64_t, size_t> > &indexMap,
-  uint32_t serverId, uint64_t hostId);
+  std::map<ServerIdType, std::map<uint64_t, size_t> > &indexMap,
+  const ServerIdType &serverId, uint64_t hostId);
 size_t getNumberOfTestTriggers(
-  uint32_t serverId, uint64_t hostGroupId = ALL_HOST_GROUPS,
+  const ServerIdType &serverId, uint64_t hostGroupId = ALL_HOST_GROUPS,
   TriggerSeverityType severity = NUM_TRIGGER_SEVERITY);
 
-size_t getNumberOfTestItems(uint32_t serverId);
+size_t getNumberOfTestItems(const ServerIdType &serverId);
 
 void getTestHostInfoList(HostInfoList &hostInfoList,
-                         uint32_t targetServerId,
+                         const ServerIdType &targetServerId,
                          ServerIdHostIdMap *serverIdHostIdMap = NULL);
 
-size_t getNumberOfTestHosts(uint32_t serverId,
-			    uint64_t hostGroupId = ALL_HOST_GROUPS);
-size_t getNumberOfTestHostsWithStatus(uint32_t serverId,
+size_t getNumberOfTestHosts(const ServerIdType &serverId,
+                            uint64_t hostGroupId = ALL_HOST_GROUPS);
+size_t getNumberOfTestHostsWithStatus(const ServerIdType &serverId,
                                       uint64_t hostGroupId,
-				      bool status,
-				      UserIdType userId = USER_ID_SYSTEM);
+                                      bool status,
+                                      UserIdType userId = USER_ID_SYSTEM);
 
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo);
 
 void getDBCTestHostInfo(HostInfoList &hostInfoList,
-                        uint32_t targetServerId = ALL_SERVERS);
+                        const ServerIdType &targetServerId = ALL_SERVERS);
 
 typedef std::map<UserIdType, std::set<int> > UserIdIndexMap;
 typedef UserIdIndexMap::iterator UserIdIndexMapIterator;

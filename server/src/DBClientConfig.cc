@@ -288,7 +288,7 @@ static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
 // ServerQueryOption
 // ---------------------------------------------------------------------------
 struct ServerQueryOption::PrivateContext {
-	uint32_t targetServerId;
+	ServerIdType targetServerId;
 
 	PrivateContext(void)
 	: targetServerId(ALL_SERVERS)
@@ -341,7 +341,7 @@ void ServerQueryOption::setTargetServerId(uint32_t serverId)
 string ServerQueryOption::getCondition(void) const
 {
 	string condition;
-	uint32_t targetId = m_ctx->targetServerId;
+	ServerIdType targetId = m_ctx->targetServerId;
 
 	if (hasPrivilegeCondition(condition))
 		return condition;
@@ -367,7 +367,7 @@ string ServerQueryOption::getCondition(void) const
 	numServers = 0;
 	ServerHostGrpSetMapConstIterator it = srvHostGrpSetMap.begin();
 	for (; it != srvHostGrpSetMap.end(); ++it) {
-		const uint32_t serverId = it->first;
+		const ServerIdType &serverId = it->first;
 
 		if (serverId == ALL_SERVERS)
 			return "";

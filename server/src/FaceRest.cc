@@ -2146,7 +2146,7 @@ void FaceRest::handlerGetAccessInfo(RestJob *job)
 	ServerAccessInfoMapIterator it = serversMap.begin();
 	agent.startObject("allowedServers");
 	for (; it != serversMap.end(); it++) {
-		uint32_t serverId = it->first;
+		const ServerIdType &serverId = it->first;
 		string serverIdString;
 		HostGrpAccessInfoMap *hostGroupsMap = it->second;
 		if (serverId == ALL_SERVERS)

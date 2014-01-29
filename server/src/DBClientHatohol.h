@@ -41,14 +41,14 @@ enum TriggerSeverityType {
 	NUM_TRIGGER_SEVERITY,
 };
 
-static const uint32_t ALL_SERVERS = -1;
+static const ServerIdType ALL_SERVERS = -1;
 static const uint64_t ALL_HOSTS   = -1;
 static const uint64_t ALL_TRIGGERS = -1;
 static const uint64_t ALL_ITEMS    = -1;
 static const uint64_t ALL_HOST_GROUPS = -1;
 
 struct HostInfo {
-	uint32_t            serverId;
+	ServerIdType        serverId;
 	uint64_t            id;
 	std::string         hostName;
 
@@ -64,7 +64,7 @@ typedef HostInfoList::iterator       HostInfoListIterator;
 typedef HostInfoList::const_iterator HostInfoListConstIterator;
 
 struct TriggerInfo {
-	uint32_t            serverId;
+	ServerIdType        serverId;
 	uint64_t            id;
 	TriggerStatusType   status;
 	TriggerSeverityType severity;
@@ -89,7 +89,7 @@ struct EventInfo {
 	// 'id' is the unique in a 'serverId'. It is typically the same as
 	// the event ID of a monitroing system such as ZABBIX and Nagios.
 	uint64_t            unifiedId;
-	uint32_t            serverId;
+	ServerIdType        serverId;
 	uint64_t            id;
 	timespec            time;
 	EventType           type;
@@ -110,7 +110,7 @@ typedef EventInfoList::iterator       EventInfoListIterator;
 typedef EventInfoList::const_iterator EventInfoListConstIterator;
 
 struct ItemInfo {
-	uint32_t            serverId;
+	ServerIdType        serverId;
 	uint64_t            id;
 	uint64_t            hostId;
 	std::string         brief;
@@ -134,7 +134,7 @@ public:
 	virtual std::string getCondition(void) const;
 
 	virtual uint32_t getTargetServerId(void) const;
-	virtual void setTargetServerId(uint32_t targetServerId);
+	virtual void setTargetServerId(const ServerIdType &targetServerId);
 	virtual uint64_t getTargetHostId(void) const;
 	virtual void setTargetHostId(uint64_t targetHostId);
 
@@ -155,10 +155,10 @@ protected:
 	  const std::string &serverIdColumnName,
 	  const std::string &hostGroupIdColumnName,
 	  const std::string &hostIdColumnName,
-	  uint32_t targetServerId = ALL_SERVERS,
+	  const ServerIdType &targetServerId = ALL_SERVERS,
 	  uint64_t targetHostId = ALL_HOSTS);
 	static std::string makeConditionServer(
-	  uint32_t serverId,
+	  const ServerIdType &serverId,
 	  const HostGroupSet &hostGroupSet,
 	  const std::string &serverIdColumnName,
 	  const std::string &hostGroupIdColumnName);

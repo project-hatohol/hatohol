@@ -171,8 +171,9 @@ struct UnifiedDataStore::PrivateContext
 		rwlock.unlock();
 	}
 
-	bool startFetchingItems(uint32_t targetServerId = ALL_SERVERS,
-				ClosureBase *closure = NULL)
+	bool startFetchingItems(
+	  const ServerIdType &targetServerId = ALL_SERVERS,
+	  ClosureBase *closure = NULL)
 	{
 		// TODO: Make the design smart
 		struct : public VirtualDataStoreForeachProc

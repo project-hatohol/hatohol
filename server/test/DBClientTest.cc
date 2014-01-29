@@ -407,7 +407,7 @@ const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 	return *(new TriggerInfo()); // never exectuted, just to pass build
 }
 
-uint64_t findLastEventId(uint32_t serverId)
+uint64_t findLastEventId(const ServerIdType &serverId)
 {
 	bool found = false;
 	uint64_t maxId = 0;
@@ -436,8 +436,8 @@ static void addHostInfoToList(HostInfoList &hostInfoList,
 }
 
 void getTestTriggersIndexes(
-  map<uint32_t, map<uint64_t, size_t> > &indexMap,
-  uint32_t serverId, uint64_t hostId)
+  map<ServerIdType, map<uint64_t, size_t> > &indexMap,
+  const ServerIdType &serverId, uint64_t hostId)
 {
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
 		const TriggerInfo &trigInfo = testTriggerInfo[i];
@@ -456,7 +456,7 @@ void getTestTriggersIndexes(
 	}
 }
 
-size_t getNumberOfTestItems(uint32_t serverId)
+size_t getNumberOfTestItems(const ServerIdType &serverId)
 {
 	if (serverId == ALL_SERVERS)
 		return NumTestItemInfo;
@@ -470,7 +470,7 @@ size_t getNumberOfTestItems(uint32_t serverId)
 }
 
 void getTestHostInfoList(HostInfoList &hostInfoList,
-                         uint32_t targetServerId,
+                         const ServerIdType &targetServerId,
                          ServerIdHostIdMap *serverIdHostIdMap)
 {
 	size_t numHostInfo0 =  hostInfoList.size();
@@ -522,8 +522,9 @@ void getTestHostInfoList(HostInfoList &hostInfoList,
 		delete svIdHostIdMap;
 }
 
-size_t getNumberOfTestTriggers(uint32_t serverId, uint64_t hostGroupId, 
-                            TriggerSeverityType severity)
+size_t getNumberOfTestTriggers(const ServerIdType &serverId,
+                               uint64_t hostGroupId, 
+                               TriggerSeverityType severity)
 {
 	// TODO: use hostGroupId after Hatohol support it.
 	int count = 0;
@@ -565,13 +566,14 @@ static void removeHostIdIfNeeded(ServerIdHostGroupHostIdMap &svIdHostGrpIdMap,
 	hostIdSet.erase(trigInfo.hostId);
 }
 
-size_t getNumberOfTestHosts(uint32_t serverId, uint64_t hostGroupId)
+size_t getNumberOfTestHosts(const ServerIdType &serverId, uint64_t hostGroupId)
 {
 	return getNumberOfTestHostsWithStatus(serverId, hostGroupId, false) +
 	       getNumberOfTestHostsWithStatus(serverId, hostGroupId, true);
 }
 
-size_t getNumberOfTestHostsWithStatus(uint32_t serverId, uint64_t hostGroupId,
+size_t getNumberOfTestHostsWithStatus(const ServerIdType &serverId,
+                                      uint64_t hostGroupId,
                                       bool status, UserIdType userId)
 {
 	ServerIdHostGroupHostIdMap svIdHostGrpIdMap;
@@ -646,13 +648,14 @@ size_t getNumberOfTestHostsWithStatus(uint32_t serverId, uint64_t hostGroupId,
 	return hostIdSet.size();
 }
 
-void getDBCTestHostInfo(HostInfoList &hostInfoList, uint32_t targetServerId)
+void getDBCTestHostInfo(HostInfoList &hostInfoList,
+                        const ServerIdType &targetServerId)
 {
 	map<uint32_t, set<uint64_t> > svIdHostIdsMap;
 	map<uint32_t, set<uint64_t> >::iterator it;
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
 		const TriggerInfo &trigInfo = testTriggerInfo[i];
-		const uint32_t svId = trigInfo.serverId;
+		const ServerIdType &svId = trigInfo.serverId;
 		const uint64_t hostId = trigInfo.hostId;
 		if (targetServerId != ALL_SERVERS && svId != targetServerId)
 			continue;

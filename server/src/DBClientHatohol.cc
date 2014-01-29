@@ -491,7 +491,7 @@ struct HostResourceQueryOption::PrivateContext {
 	string serverIdColumnName;
 	string hostGroupIdColumnName;
 	string hostIdColumnName;
-	uint32_t targetServerId;
+	ServerIdType targetServerId;
 	uint64_t targetHostId;
 
 	PrivateContext()
@@ -591,7 +591,7 @@ string HostResourceQueryOption::makeConditionHostGroup(
 }
 
 string HostResourceQueryOption::makeConditionServer(
-  uint32_t serverId, const HostGroupSet &hostGroupSet,
+  const ServerIdType &serverId, const HostGroupSet &hostGroupSet,
   const string &serverIdColumnName, const string &hostGroupIdColumnName)
 {
 	string condition;
@@ -614,7 +614,7 @@ string HostResourceQueryOption::makeCondition(
   const string &serverIdColumnName,
   const string &hostGroupIdColumnName,
   const string &hostIdColumnName,
-  uint32_t targetServerId, uint64_t targetHostId)
+  const ServerIdType &targetServerId, uint64_t targetHostId)
 {
 	string condition;
 
@@ -633,7 +633,7 @@ string HostResourceQueryOption::makeCondition(
 	numServers = 0;
 	ServerHostGrpSetMapConstIterator it = srvHostGrpSetMap.begin();
 	for (; it != srvHostGrpSetMap.end(); ++it) {
-		const uint32_t serverId = it->first;
+		const ServerIdType &serverId = it->first;
 
 		if (targetServerId != ALL_SERVERS && targetServerId != serverId)
 			continue;
@@ -707,7 +707,7 @@ uint32_t HostResourceQueryOption::getTargetServerId(void) const
 	return m_ctx->targetServerId;
 }
 
-void HostResourceQueryOption::setTargetServerId(uint32_t targetServerId)
+void HostResourceQueryOption::setTargetServerId(const ServerIdType &targetServerId)
 {
 	m_ctx->targetServerId = targetServerId;
 }
