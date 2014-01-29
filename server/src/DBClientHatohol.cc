@@ -1822,7 +1822,8 @@ void DBClientHatohol::addHostgroupInfoBare(const HostgroupInfo &groupInfo)
 
 void DBClientHatohol::addHostgroupElementBare(const HostgroupElement &hostgroupElement)
 {
-	string condition = StringUtils::sprintf("server_id=%"FMT_SERVER_ID" and hostid=%"PRIu64" "
+	string condition = StringUtils::sprintf("server_id=%"FMT_SERVER_ID" "
+	                                        "and host_id=%"FMT_HOST_ID" "
 	                                        "and host_group_id=%"FMT_HOST_GROUP_ID,
 	                                        hostgroupElement.serverId,
 	                                        hostgroupElement.hostId,
@@ -1845,7 +1846,8 @@ void DBClientHatohol::addHostgroupElementBare(const HostgroupElement &hostgroupE
 
 void DBClientHatohol::addHostInfoBare(const HostInfo &hostInfo)
 {
-	string condition = StringUtils::sprintf("server_id=%"FMT_SERVER_ID" and hostid=%"PRIu64,
+	string condition = StringUtils::sprintf("server_id=%"FMT_SERVER_ID" "
+	                                        "and host_id=%"FMT_HOST_ID,
 	                                       hostInfo.serverId, hostInfo.id);
 
 	VariableItemGroupPtr row;
@@ -1854,7 +1856,7 @@ void DBClientHatohol::addHostInfoBare(const HostInfo &hostInfo)
 		arg.tableName = TABLE_NAME_HOSTS;
 		arg.numColumns = NUM_COLUMNS_HOSTS;
 		arg.columnDefs = COLUMN_DEF_HOSTS;
-		row->ADD_NEW_ITEM(Int, 0); // This is automatically set (0 is dummy)
+		row->ADD_NEW_ITEM(Int, AUTO_INCREMENT_VALUE);
 		row->ADD_NEW_ITEM(Int, hostInfo.serverId);
 		row->ADD_NEW_ITEM(Uint64, hostInfo.id);
 		row->ADD_NEW_ITEM(String, hostInfo.hostName);
