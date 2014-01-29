@@ -22,11 +22,8 @@
 
 #include <Logger.h>
 #include <StringUtils.h>
-using namespace mlpl;
-
 #include <exception>
 #include <string>
-using namespace std;
 
 #ifdef _GLIBCXX_USE_NOEXCEPT
 #define _HATOHOL_NOEXCEPT _GLIBCXX_USE_NOEXCEPT
@@ -36,41 +33,41 @@ using namespace std;
 
 #define HATOHOL_STACK_TRACE_SET_ENV "HATOHOL_EXCEPTION_STACK_TRACE"
 
-class HatoholException : public exception
+class HatoholException : public std::exception
 {
 public:
 	static const int UNKNOWN_LINE_NUMBER = -1;
 	static void init(void);
 
-	explicit HatoholException(const string &brief,
+	explicit HatoholException(const std::string &brief,
 	                        const char *sourceFileName = "",
 	                        int lineNumber = UNKNOWN_LINE_NUMBER);
 	virtual ~HatoholException() _HATOHOL_NOEXCEPT;
 	virtual const char* what() const _HATOHOL_NOEXCEPT;
-	virtual const string getFancyMessage(void) const;
+	virtual std::string getFancyMessage(void) const;
 
-	const string &getSourceFileName(void) const;
+	const std::string &getSourceFileName(void) const;
 	int getLineNumber(void) const;
-	const string &getStackTrace(void) const;
+	const std::string &getStackTrace(void) const;
 
 protected:
 	void saveStackTrace(void);
-	void setBrief(const string &brief);
+	void setBrief(const std::string &brief);
 
 private:
 	static bool m_saveStackTrace;
 
-	string m_what;
-	mutable string m_whatCache;
-	string m_sourceFileName;
-	int    m_lineNumber;
-	string m_stackTrace;
+	std::string m_what;
+	mutable std::string m_whatCache;
+	std::string m_sourceFileName;
+	int         m_lineNumber;
+	std::string m_stackTrace;
 };
 
 #define THROW_HATOHOL_EXCEPTION(FMT, ...) \
 do { \
 	throw HatoholException( \
-	  StringUtils::sprintf(FMT, ##__VA_ARGS__), \
+	  mlpl::StringUtils::sprintf(FMT, ##__VA_ARGS__), \
 	  __FILE__, __LINE__); \
 } while (0)
 

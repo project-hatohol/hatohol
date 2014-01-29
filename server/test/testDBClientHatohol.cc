@@ -19,13 +19,14 @@
 
 #include <cppcutter.h>
 #include <cutter.h>
-
 #include "Hatohol.h"
 #include "DBClientHatohol.h"
 #include "Helpers.h"
 #include "DBClientTest.h"
 #include "Params.h"
 #include "CacheServiceDBClient.h"
+using namespace std;
+using namespace mlpl;
 
 namespace testDBClientHatohol {
 

@@ -588,7 +588,7 @@ bool FaceMySQLWorker::sendLenEncInt(uint64_t num)
 	return sendPacket(pkt);
 }
 
-bool FaceMySQLWorker::sendLenEncStr(string &str)
+bool FaceMySQLWorker::sendLenEncStr(const string &str)
 {
 	SmartBuffer pkt;
 	allocAndAddPacketHeaderRegion(pkt, str.size() + MAX_LENENC_INT_LENGTH);

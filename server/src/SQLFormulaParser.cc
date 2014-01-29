@@ -18,13 +18,12 @@
  */
 
 #include <stdexcept>
-
 #include "Logger.h"
-using namespace mlpl;
-
 #include "SQLFormulaParser.h"
 #include "FormulaOperator.h"
 #include "SQLProcessorException.h"
+using namespace std;
+using namespace mlpl;
 
 struct SQLFormulaParser::PrivateContext {
 	bool                    quotOpen;
@@ -43,7 +42,7 @@ struct SQLFormulaParser::PrivateContext {
 	{
 	}
 
-	void pushPendingWords(string &raw, string &lower) {
+	void pushPendingWords(const string &raw, const string &lower) {
 		pendingWord = raw;
 		pendingWordLower = lower;
 	}
@@ -119,7 +118,7 @@ void SQLFormulaParser::setColumnDataGetterFactory
        m_columnDataGetterFactoryPriv = columnDataGetterFactoryPriv;
 }
 
-void SQLFormulaParser::add(string& word, string &wordLower)
+void SQLFormulaParser::add(const string& word, const string &wordLower)
 {
 	if (word.empty())
 		return;
@@ -231,7 +230,7 @@ void SQLFormulaParser::setFunctionParserMap(FunctionParserMap *fncParserMap)
 	m_functionParserMap = fncParserMap;
 }
 
-FormulaVariable *SQLFormulaParser::makeFormulaVariable(string &name)
+FormulaVariable *SQLFormulaParser::makeFormulaVariable(const string &name)
 {
 	if (!m_columnDataGetterFactory)
 		THROW_HATOHOL_EXCEPTION("m_columnDataGetterFactory: NULL.");
@@ -242,7 +241,7 @@ FormulaVariable *SQLFormulaParser::makeFormulaVariable(string &name)
 	return formulaVariable;
 }
 
-FormulaElement *SQLFormulaParser::makeFormulaVariableOrValue(string &word)
+FormulaElement *SQLFormulaParser::makeFormulaVariableOrValue(const string &word)
 {
 	bool isFloat;
 	FormulaElement *formulaElement;
@@ -263,7 +262,7 @@ FormulaElement *SQLFormulaParser::makeFormulaVariableOrValue(string &word)
 
 }
 
-bool SQLFormulaParser::passFunctionArgIfOpen(string &word)
+bool SQLFormulaParser::passFunctionArgIfOpen(const string &word)
 {
 	if (!m_ctx->currElement)
 		return false;
@@ -415,7 +414,7 @@ void SQLFormulaParser::makeFormulaElementFromPendingWord(void)
 	insertElement(formulaElement);
 }
 
-void SQLFormulaParser::addStringValue(string &word)
+void SQLFormulaParser::addStringValue(const string &word)
 {
 	insertAsRightHand(new FormulaValue(word));
 }

@@ -24,6 +24,8 @@
 #include "CacheServiceDBClient.h"
 #include "HatoholThreadBase.h"
 #include "Helpers.h"
+using namespace std;
+using namespace mlpl;
 
 namespace testCacheServiceDBClient {
 

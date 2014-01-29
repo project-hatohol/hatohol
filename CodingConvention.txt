@@ -12,7 +12,40 @@ File name: upper camel case
 	DatabaseConnector
 
 Function argument:
-An input parameter shall be 'const &type'.
+An input parameter shall be 'const TYPE &'.
+
+Standards & Libraries
+---------------------
+### Using
+- STL
+  * Containers such as list, vector and map.
+  * String (We use UTF-8. So wstring is not used)
+- GLib
+  * Event loop
+  * I/O functions associated with the event loop such as timer, idle, and GIOChannel.
+- pthread
+  * Actually features are wrapped by MLPL that is a part of Hatohol.
+
+### Not using
+- Boost
+- C++11
+However, we'll begin to use features of C++11 in near future. Probably it is
+when we support CentOS7 (g++4.7) instead of CentOS6 (g++4.4) series.
+Of course, we can now use features supported by g++4.4.
+
+Others
+------
+- Don't use 'using namespace' in a header file.
+- Use 'static const' instead of #define to define a constant.
+- Don't return const object such as 'const string func()'.
+NOTE: If a function returns a reference, this convention is not applied.
+      E.g. 'const string &func()' is OK
+
+- Basically use Pimpl idiom
+Many existing code have private members in the structure named PrivateContext,
+which is defined in the source (.cc) file.
+However, for classes that needs performance, definition of private members
+in the heder file is allowed.
 
 Python
 ======

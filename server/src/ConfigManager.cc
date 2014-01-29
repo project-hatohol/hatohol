@@ -22,10 +22,10 @@
 #endif // HAVE_CONFIG_H
 
 #include <MutexLock.h>
-using namespace mlpl;
-
 #include "ConfigManager.h"
 #include "DBClientConfig.h"
+using namespace std;
+using namespace mlpl;
 
 const char *ConfigManager::HATOHOL_DB_DIR_ENV_VAR_NAME = "HATOHOL_DB_DIR";
 static const char *DEFAULT_DATABASE_DIR = "/tmp";

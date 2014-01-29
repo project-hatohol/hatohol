@@ -18,14 +18,14 @@
  */
 
 #include <MutexLock.h>
-using namespace mlpl;
-
 #include "DBClientZabbix.h"
 #include "ItemEnum.h"
 #include "Params.h"
 #include "HatoholException.h"
 #include "ItemTableUtils.h"
 #include "DBAgentFactory.h"
+using namespace std;
+using namespace mlpl;
 
 struct BriefElem {
 	string word;
@@ -1995,6 +1995,7 @@ void DBClientZabbix::transformEventsToHatoholFormat
 	ItemGroupListConstIterator it = itemGroupList.begin();
 	for (; it != itemGroupList.end(); ++it) {
 		EventInfo eventInfo;
+		initEventInfo(eventInfo);
 		eventInfo.serverId = serverId;
 		if (!transformEventItemGroupToEventInfo(eventInfo, *it))
 			continue;

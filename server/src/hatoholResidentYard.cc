@@ -28,16 +28,15 @@
 #include <glib-object.h>
 #include <inttypes.h>
 #include <dlfcn.h>
-
 #include <Logger.h>
 #include <SmartBuffer.h>
-using namespace mlpl;
-
 #include "Hatohol.h"
 #include "HatoholException.h"
 #include "NamedPipe.h"
 #include "ResidentProtocol.h"
 #include "ResidentCommunicator.h"
+using namespace std;
+using namespace mlpl;
 
 struct PrivateContext : public ResidentPullHelper<PrivateContext> {
 	GMainLoop *loop;

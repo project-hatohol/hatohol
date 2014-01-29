@@ -18,7 +18,6 @@
  */
 
 #include <stdexcept>
-
 #include "Utils.h"
 #include "VirtualDataStoreZabbix.h"
 #include "ItemGroupEnum.h"
@@ -26,6 +25,8 @@
 #include "VirtualDataStoreZabbixMacro.h"
 #include "DBClientConfig.h"
 #include "DBClientHatohol.h"
+using namespace std;
+using namespace mlpl;
 
 MutexLock    VirtualDataStoreZabbix::m_mutex;
 VirtualDataStoreZabbix *VirtualDataStoreZabbix::m_instance = NULL;

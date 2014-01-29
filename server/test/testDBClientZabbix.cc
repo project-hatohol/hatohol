@@ -20,13 +20,12 @@
 #include <cppcutter.h>
 #include <cutter.h>
 #include <unistd.h>
-
 #include "Hatohol.h"
 #include "DBClientZabbix.h"
 #include "ConfigManager.h"
 #include "Helpers.h"
-
 #include "StringUtils.h"
+using namespace std;
 using namespace mlpl;
 
 namespace testDBClientZabbix {

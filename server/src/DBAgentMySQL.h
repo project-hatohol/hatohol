@@ -36,12 +36,12 @@ public:
 	             DBDomainId domainId = DB_DOMAIN_ID_NONE,
 	             bool skipSetup = false);
 	virtual ~DBAgentMySQL();
-	string getDBName(void) const;
+	std::string getDBName(void) const;
 
 	// virtual methods
-	virtual bool isTableExisting(const string &tableName);
-	virtual bool isRecordExisting(const string &tableName,
-	                              const string &condition);
+	virtual bool isTableExisting(const std::string &tableName);
+	virtual bool isRecordExisting(const std::string &tableName,
+	                              const std::string &condition);
 	virtual void begin(void);
 	virtual void commit(void);
 	virtual void rollback(void);
@@ -56,11 +56,11 @@ public:
 	virtual uint64_t getNumberOfAffectedRows(void);
 
 protected:
-	static const char *getCStringOrNullIfEmpty(const string &str);
+	static const char *getCStringOrNullIfEmpty(const std::string &str);
 	void connect(void);
 	void sleepAndReconnect(unsigned int sleepTimeSec);
-	void queryWithRetry(const string &statement);
-	void execSql(const string &statement);
+	void queryWithRetry(const std::string &statement);
+	void execSql(const std::string &statement);
 
 private:
 	struct PrivateContext;

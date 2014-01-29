@@ -22,6 +22,8 @@
 #include "SQLProcessorTypes.h"
 #include "SQLProcessorException.h"
 #include "HatoholException.h"
+using namespace std;
+using namespace mlpl;
 
 SQLUtils::ItemDataCreator SQLUtils::m_itemDataCreators[] =
 {
@@ -91,7 +93,7 @@ ItemDataPtr SQLUtils::createDefaultItemData(const ColumnDef *columnDef)
 }
 
 ItemDataPtr SQLUtils::createItemData(const ColumnDef *columnDef,
-                                     string &value)
+                                     const string &value)
 {
 	if (columnDef->type >= NUM_SQL_COLUMN_TYPES) {
 		THROW_HATOHOL_EXCEPTION(
@@ -102,7 +104,7 @@ ItemDataPtr SQLUtils::createItemData(const ColumnDef *columnDef,
 }
 
 ItemDataPtr SQLUtils::getItemDataFromItemGroupWithColumnName
-  (string &columnName, const SQLTableStaticInfo *tableStaticInfo,
+  (const string &columnName, const SQLTableStaticInfo *tableStaticInfo,
    const ItemGroup *itemGroup)
 {
 	const ColumnDef *columnDef = getColumnDef(columnName, tableStaticInfo);
@@ -282,4 +284,24 @@ ItemDataPtr SQLUtils::creatorDatetime(const ColumnDef *columnDef,
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 	return ItemDataPtr();
+}
+
+// ---------------------------------------------------------------------------
+// ItemDataCaster
+// ---------------------------------------------------------------------------
+const ItemInt *ItemDataCaster<SQL_COLUMN_TYPE_INT>::cast(const ItemData *item)
+{
+	return ItemDataCasterBase<SQL_COLUMN_TYPE_INT>::cast<ItemInt>(item);
+}
+
+const ItemUint64 *
+ItemDataCaster<SQL_COLUMN_TYPE_BIGUINT>::cast(const ItemData *item)
+{
+	return ItemDataCasterBase<SQL_COLUMN_TYPE_BIGUINT>::cast<ItemUint64>(item);
+}
+
+const ItemString *
+ItemDataCaster<SQL_COLUMN_TYPE_VARCHAR>::cast(const ItemData *item)
+{
+	return ItemDataCasterBase<SQL_COLUMN_TYPE_VARCHAR>::cast<ItemString>(item);
 }

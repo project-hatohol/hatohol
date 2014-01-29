@@ -22,6 +22,8 @@
 #include "SQLUtils.h"
 #include "DBAgentTest.h"
 #include "Helpers.h"
+using namespace std;
+using namespace mlpl;
 
 namespace testDBAgentMySQL {
 

@@ -19,6 +19,7 @@
 
 #include "PrimaryConditionPicker.h"
 #include "SQLUtils.h"
+using namespace std;
 
 // ---------------------------------------------------------------------------
 // Public methods

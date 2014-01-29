@@ -22,6 +22,8 @@
 #include "HatoholException.h"
 #include "SQLProcessorSelect.h"
 #include "SQLProcessorException.h"
+using namespace std;
+using namespace mlpl;
 
 // ---------------------------------------------------------------------------
 // class: FormulaParenthesis

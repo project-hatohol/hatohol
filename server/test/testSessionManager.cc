@@ -24,6 +24,7 @@
 #include "SessionManager.h"
 #include "Helpers.h"
 using namespace std;
+using namespace mlpl;
 
 namespace testSessionManager {
 

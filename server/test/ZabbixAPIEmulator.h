@@ -38,7 +38,7 @@ public:
 	typedef void (ZabbixAPIEmulator::*APIHandler)(APIHandlerArg &);
 
 	// key: Event ID
-	typedef map<int64_t, ZabbixAPIEvent>        ZabbixAPIEventMap;
+	typedef std::map<int64_t, ZabbixAPIEvent>   ZabbixAPIEventMap;
 	typedef ZabbixAPIEventMap::iterator         ZabbixAPIEventMapIterator;
 	typedef ZabbixAPIEventMap::reverse_iterator ZabbixAPIEventMapReverseIterator;
 
@@ -55,19 +55,22 @@ public:
 protected:
 	static gpointer _mainThread(gpointer data);
 	gpointer mainThread(void);
-	static void startObject(JsonParserAgent &parser, const string &name);
+	static void startObject(JsonParserAgent &parser,
+	                        const std::string &name);
 	static void handlerDefault
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, gpointer user_data);
 	static void handlerAPI
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, gpointer user_data);
-	static bool hasParameter(APIHandlerArg &arg, const string &paramName,
-	                         const string &expectedValue);
+	static bool hasParameter(APIHandlerArg &arg,
+	                         const std::string &paramName,
+	                         const std::string &expectedValue);
 
-	string generateAuthToken(void);
+	std::string generateAuthToken(void);
 	void handlerAPIDispatch(APIHandlerArg &arg);
-	void APIHandlerGetWithFile(APIHandlerArg &arg, const string &dataFile);
+	void APIHandlerGetWithFile(APIHandlerArg &arg,
+	                           const std::string &dataFile);
 	void APIHandlerUserLogin(APIHandlerArg &arg);
 	void APIHandlerTriggerGet(APIHandlerArg &arg);
 	void APIHandlerItemGet(APIHandlerArg &arg);
@@ -75,10 +78,11 @@ protected:
 	void APIHandlerEventGet(APIHandlerArg &arg);
 	void APIHandlerApplicationGet(APIHandlerArg &arg);
 	void APIHandlerHostgroupGet(APIHandlerArg &arg);
-	void makeEventJsonData(const string &path);
-	string addJsonResponse(const string &slice, APIHandlerArg &arg);
+	void makeEventJsonData(const std::string &path);
+	std::string addJsonResponse(const std::string &slice,
+	                            APIHandlerArg &arg);
 	void parseEventGetParameter(APIHandlerArg &arg);
-	string makeJsonString(const ZabbixAPIEvent &data);
+	std::string makeJsonString(const ZabbixAPIEvent &data);
 	void loadTestEventsIfNeeded(APIHandlerArg &arg);
 private:
 	struct PrivateContext;

@@ -18,12 +18,11 @@
  */
 
 #include <stdexcept>
-
 #include "Logger.h"
-using namespace mlpl;
-
 #include "FormulaElement.h"
 #include "ItemEnum.h"
+using namespace std;
+using namespace mlpl;
 
 // ---------------------------------------------------------------------------
 // FormulaOptimizationResult
@@ -277,7 +276,7 @@ FormulaValue::FormulaValue(double number)
 	m_itemDataPtr = ItemDataPtr(new ItemDouble(number), false);
 }
 
-FormulaValue::FormulaValue(string &str)
+FormulaValue::FormulaValue(const string &str)
 : FormulaElement(FORMULA_ELEM_PRIO_VALUE)
 {
 	setTerminalElement();
@@ -309,7 +308,7 @@ string FormulaValue::getTreeInfoAdditional(void)
 // ---------------------------------------------------------------------------
 // class: FormulaVariable
 // ---------------------------------------------------------------------------
-FormulaVariable::FormulaVariable(string &name,
+FormulaVariable::FormulaVariable(const string &name,
                                  FormulaVariableDataGetter *variableDataGetter)
 : FormulaElement(FORMULA_ELEM_PRIO_VARIABLE),
   m_name(name),

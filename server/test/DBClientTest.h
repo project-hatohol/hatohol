@@ -22,20 +22,19 @@
 
 #include <map>
 #include <set>
-
 #include "DBClientConfig.h"
 #include "DBClientHatohol.h"
 #include "DBClientAction.h"
 #include "DBClientUser.h"
 
-typedef set<uint64_t>       HostIdSet;
+typedef std::set<uint64_t>  HostIdSet;
 typedef HostIdSet::iterator HostIdSetIterator;
-typedef map<uint32_t, HostIdSet>    ServerIdHostIdMap;
-typedef ServerIdHostIdMap::iterator ServerIdHostIdMapIterator;
+typedef std::map<uint32_t, HostIdSet> ServerIdHostIdMap;
+typedef ServerIdHostIdMap::iterator   ServerIdHostIdMapIterator;
 
-typedef map<uint64_t, HostIdSet>             HostGroupHostIdMap;
-typedef HostGroupHostIdMap::iterator         HostGroupHostIdMapIterator;
-typedef map<uint32_t, HostGroupHostIdMap>    ServerIdHostGroupHostIdMap;
+typedef std::map<uint64_t, HostIdSet> HostGroupHostIdMap;
+typedef HostGroupHostIdMap::iterator  HostGroupHostIdMapIterator;
+typedef std::map<uint32_t, HostGroupHostIdMap> ServerIdHostGroupHostIdMap;
 typedef ServerIdHostGroupHostIdMap::iterator ServerIdHostGroupHostIdMapIterator;
 
 extern MonitoringServerInfo serverInfo[];
@@ -69,6 +68,9 @@ extern const size_t NumTestHostInfo;
 extern HostgroupElement testHostgroupElement[];
 extern const size_t NumTestHostgroupElement;
 
+extern UserRoleInfo testUserRoleInfo[];
+extern const size_t NumTestUserRoleInfo;
+
 /**
  * get the test trigger data indexes whose serverId and hostId are 
  * matched with the specified.
@@ -84,11 +86,11 @@ extern const size_t NumTestHostgroupElement;
  * A host ID. ALL_HOSTS can be specified.
  */
 void getTestTriggersIndexes(
-  map<uint32_t, map<uint64_t, size_t> > &indexMap,
+  std::map<uint32_t, std::map<uint64_t, size_t> > &indexMap,
   uint32_t serverId, uint64_t hostId);
-size_t getNumberOfTestTriggers(uint32_t serverId,
-			       uint64_t hostGroupId = ALL_HOST_GROUPS,
-                               TriggerSeverityType severity = NUM_TRIGGER_SEVERITY);
+size_t getNumberOfTestTriggers(
+  uint32_t serverId, uint64_t hostGroupId = ALL_HOST_GROUPS,
+  TriggerSeverityType severity = NUM_TRIGGER_SEVERITY);
 
 size_t getNumberOfTestItems(uint32_t serverId);
 

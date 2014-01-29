@@ -51,6 +51,7 @@ public:
 	FaceRest(CommandLineArg &cmdArg, FaceRestParam *param = NULL);
 	virtual ~FaceRest();
 	virtual void stop(void);
+	virtual void setNumberOfPreLoadWorkers(size_t num);
 
 	class Worker;
 	struct RestJob;
@@ -72,9 +73,9 @@ protected:
 	                       const HatoholError &hatoholError);
 	static void replyError(RestJob *job,
 	                       const HatoholErrorCode &errorCode,
-	                       const string &optionMessage = "");
-	static string wrapForJsonp(const string &jsonBody,
-                                   const string &callbackName);
+	                       const std::string &optionMessage = "");
+	static std::string wrapForJsonp(const std::string &jsonBody,
+	                                const std::string &callbackName);
 	static void replyJsonData(JsonBuilderAgent &agent, RestJob *job);
 	static void replyGetItem(RestJob *job);
 	static void finishRestJobIfNeeded(RestJob *job);
@@ -146,11 +147,20 @@ protected:
 
 	static void handlerGetHostgroup(RestJob *job);
 
+	static void handlerUserRole(RestJob *job);
+	static void handlerGetUserRole(RestJob *job);
+	static void handlerPostUserRole(RestJob *job);
+	static void handlerPutUserRole(RestJob *job);
+	static void handlerDeleteUserRole(RestJob *job);
+
 	void itemFetchedCallback(ClosureBase *closure);
 
 	static HatoholError parseUserParameter(UserInfo &userInfo,
 	                                       GHashTable *query,
 					       bool forUpdate = false);
+	static HatoholError parseUserRoleParameter(UserRoleInfo &userRoleInfo,
+	                                           GHashTable *query,
+					           bool forUpdate = false);
 
 	/**
 	 * Update the user informformation if 'name' specifined in 'query'
@@ -200,6 +210,7 @@ private:
 	static const char *pathForAction;
 	static const char *pathForUser;
 	static const char *pathForHostgroup;
+	static const char *pathForUserRole;
 };
 
 #endif // FaceRest_h

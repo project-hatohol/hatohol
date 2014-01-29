@@ -17,9 +17,9 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DataStoreZabbix.h"
-
 #include <cstdio>
+#include "DataStoreZabbix.h"
+using namespace std;
 
 // ---------------------------------------------------------------------------
 // Public methods

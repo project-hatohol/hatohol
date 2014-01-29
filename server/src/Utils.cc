@@ -35,6 +35,7 @@ using namespace mlpl;
 #include <limits.h>
 #include "Utils.h"
 #include "FormulaElement.h"
+using namespace std;
 
 const static size_t SIZE_JS_METHOD_VALID_CODE_MAP = 0x100;
 static bool g_jsMethodValidCodeMap[SIZE_JS_METHOD_VALID_CODE_MAP];
@@ -78,15 +79,10 @@ void Utils::assertNotNull(const void *ptr)
 	throw logic_error(msg);
 }
 
-string Utils::demangle(string &str)
-{
-	return Utils::demangle(str.c_str());
-}
-
-string Utils::demangle(const char *str)
+string Utils::demangle(const string &str)
 {
 	int status;
-	char *demangled = abi::__cxa_demangle(str, 0, 0, &status);
+	char *demangled = abi::__cxa_demangle(str.c_str(), 0, 0, &status);
 	string demangledStr;
 	if (demangled) {
 		demangledStr = demangled;
@@ -397,10 +393,16 @@ bool Utils::removeGSourceIfNeeded(const guint &tag)
 	return true;
 }
 
+void Utils::flushPendingGLibEvents(GMainContext *context)
+{
+	while (g_main_context_iteration(context, FALSE))
+		;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-string Utils::makeDemangledStackTraceString(string &stackTraceLine)
+string Utils::makeDemangledStackTraceString(const string &stackTraceLine)
 {
 	StringVector stringsHead;
 	StringUtils::split(stringsHead, stackTraceLine, '(');

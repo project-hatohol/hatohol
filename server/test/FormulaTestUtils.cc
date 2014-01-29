@@ -20,6 +20,8 @@
 #include <cppcutter.h>
 #include "ItemDataUtils.h"
 #include "FormulaTestUtils.h"
+using namespace std;
+using namespace mlpl;
 
 void _assertFormulaVariable(FormulaElement *elem, const char *expected)
 {

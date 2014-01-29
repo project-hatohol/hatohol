@@ -18,9 +18,10 @@
  */
 
 #include <stdexcept>
-
 #include "FormulaFunction.h"
 #include "Utils.h"
+using namespace std;
+using namespace mlpl;
 
 // ---------------------------------------------------------------------------
 // FormulaFunction

@@ -18,10 +18,10 @@
  */
 
 #include <MutexLock.h>
-using namespace mlpl;
-
 #include "DBAgent.h"
 #include "HatoholException.h"
+using namespace std;
+using namespace mlpl;
 
 struct DBSetupInfo {
 	DBSetupFunc func;

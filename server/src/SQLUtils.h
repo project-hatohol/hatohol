@@ -40,8 +40,9 @@ public:
 	 *         the table on success.
 	 *         When an error, SQLProcessorException is thrown.
 	 */
-	static const ColumnAccessInfo &getColumnAccessInfo
-	  (const string &columnName, const SQLTableStaticInfo *tableStaticInfo);
+	static const ColumnAccessInfo &getColumnAccessInfo(
+	  const std::string &columnName,
+	  const SQLTableStaticInfo *tableStaticInfo);
 
 	/**
 	 * get an index of the column in the table.
@@ -53,7 +54,7 @@ public:
 	 * @return An index of the column in the table on success.
 	 *         When an error, SQLProcessorException is thrown.
 	 */
-	static int getColumnIndex(const string &columnName,
+	static int getColumnIndex(const std::string &columnName,
 	                          const SQLTableStaticInfo *staticInfo);
 
 	static ItemDataPtr createDefaultItemData(const ColumnDef *columnDef);
@@ -68,7 +69,7 @@ public:
 	 *         When an error, SQLProcessorException is thrown.
 	 */
 	static const ColumnDef *
-	  getColumnDef(const string &columnName,
+	  getColumnDef(const std::string &columnName,
 	               const SQLTableStaticInfo *tableStaticInfo);
 
 	/**
@@ -81,7 +82,7 @@ public:
 	 *         have a reference (i.e. hasData() returns falase).
 	 */
 	static ItemDataPtr createItemData(const ColumnDef *columnDef,
-	                                  string &value);
+	                                  const std::string &value);
 
 	/**
 	 * get ItemDataPtr form an ItemGroup with a column name.
@@ -93,14 +94,14 @@ public:
 	 *         When an error, the returned ItemDataPtr doesn't
 	 *         have a reference (i.e. hasData() returns falase).
 	 */
-	static ItemDataPtr
-	  getItemDataFromItemGroupWithColumnName
-	    (string &columnName, const SQLTableStaticInfo *tableStaticInfo,
-	     const ItemGroup *itemGroup);
+	static ItemDataPtr getItemDataFromItemGroupWithColumnName(
+	  const std::string &columnName,
+	  const SQLTableStaticInfo *tableStaticInfo,
+	  const ItemGroup *itemGroup);
 
-	static void decomposeTableAndColumn(const string &fieldName,
-	                                    string &tableName,
-	                                    string &columnName,
+	static void decomposeTableAndColumn(const std::string &fieldName,
+	                                    std::string &tableName,
+	                                    std::string &columnName,
 	                                    bool allowNoTableName = false);
 	static ItemDataPtr createFromString(const char *str,
 	                                    SQLColumnType type);
@@ -125,6 +126,75 @@ protected:
 private:
 	static ItemDataCreator m_itemDataCreators[];
 	static size_t          m_numItemDataCreators;
+};
+
+// NOTE (TODO):
+//
+// We were going to use ItemDataCaster for improving type safety in the code
+// that get the native value from ItemData.
+//
+// E.g. DBClient sub-classes typically have lines like below.
+// 
+//    arg.pushColumn(COLUMN_DEF_USERS[IDX_USERS_ID]);
+//    ...
+//    select(arg); 
+//    ...
+//    DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemUserId);
+//
+// A developper has to choose the type such as 'ItemInt' in DEFINE_AND_ASSERT().
+// This may make a wrong choice. In principle, the type can be selected
+// automatically, because COLUMN_DEF_USERS is statically defined and
+// COLUMN_DEF_USERS[IDX_USERS_ID].type is fixed at a build time.
+//
+// However, C++99 (03) only accept a constant-expression as a template
+// parameter. We cannot use ItemDatCaster for the purpose like
+//
+//    ItemDataCaster<COLUMN_DEF_USERS[IDX_USERS_ID].type>::cast().
+//
+// 'constexpr', one of the new features of C++11, will resolve this problem.
+// So we will use the following classes when our target platforms support
+// the feature. As for g++, it supports constexpr since 4.6 according to
+// http://gcc.gnu.org/projects/cxx0x.html.
+
+template<SQLColumnType type> 
+struct ItemDataCasterBase {
+	template<typename ITEM_TYPE>
+	static const ITEM_TYPE *cast(const ItemData *item)
+	{
+		const ITEM_TYPE *downObj =
+		  dynamic_cast<const ITEM_TYPE *>(item);
+		HATOHOL_ASSERT(downObj != NULL,
+		               "Failed to dynamic cast: %s -> %s",
+		               DEMANGLED_TYPE_NAME(*item),
+		               DEMANGLED_TYPE_NAME(ITEM_TYPE));
+		return downObj;
+	}
+};
+
+template <SQLColumnType type>
+struct ItemDataCaster : public ItemDataCasterBase<type>
+{
+};
+
+template <>
+struct ItemDataCaster<SQL_COLUMN_TYPE_INT>
+  : public ItemDataCasterBase<SQL_COLUMN_TYPE_INT>
+{
+	static const ItemInt *cast(const ItemData *item);
+};
+
+template <>
+struct ItemDataCaster<SQL_COLUMN_TYPE_BIGUINT>
+  : public ItemDataCasterBase<SQL_COLUMN_TYPE_BIGUINT>
+{
+	static const ItemUint64 *cast(const ItemData *item);
+};
+
+template <>
+struct ItemDataCaster<SQL_COLUMN_TYPE_VARCHAR>
+  : public ItemDataCasterBase<SQL_COLUMN_TYPE_VARCHAR>
+{
+	static const ItemString *cast(const ItemData *item);
 };
 
 #endif // SQLUtils_h

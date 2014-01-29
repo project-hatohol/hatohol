@@ -22,7 +22,6 @@
 
 #include <glib.h>
 #include <stdint.h>
-
 #include "DBClientConfig.h"
 
 class ConfigManager {
@@ -35,7 +34,7 @@ public:
 
 	void getTargetServers(MonitoringServerInfoList &monitoringServers,
 	                      ServerQueryOption &option);
-	const string &getDatabaseDirectory(void) const;
+	const std::string &getDatabaseDirectory(void) const;
 	size_t getNumberOfPreservedReplicaGeneration(void) const;
 
 	/**
@@ -53,10 +52,10 @@ public:
 
 	int getMaxNumberOfRunningCommandAction(void);
 
-	static string getActionCommandDirectory(void);
-	static void setActionCommandDirectory(const string &dir);
-	static string getResidentYardDirectory(void);
-	static void setResidentYardDirectory(const string &dir);
+	static std::string getActionCommandDirectory(void);
+	static void setActionCommandDirectory(const std::string &dir);
+	static std::string getResidentYardDirectory(void);
+	static void setResidentYardDirectory(const std::string &dir);
 
 private:
 	struct PrivateContext;

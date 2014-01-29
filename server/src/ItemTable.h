@@ -21,14 +21,12 @@
 #define ItemTable_h
 
 #include <map>
-using namespace std;
-
 #include "UsedCountable.h"
 #include "ItemGroup.h"
 #include "ItemDataUtils.h"
 
 class ItemTable;
-typedef map<ItemGroupId, ItemTable *>       ItemGroupIdTableMap;
+typedef std::map<ItemGroupId, ItemTable *>  ItemGroupIdTableMap;
 typedef ItemGroupIdTableMap::iterator       ItemGroupIdTableMapIterator;
 typedef ItemGroupIdTableMap::const_iterator ItemGroupIdTableMapConstIterator;
 
@@ -49,9 +47,9 @@ public:
 	ItemTable *crossJoin(const ItemTable *itemTable) const;
 	const ItemGroupList &getItemGroupList(void) const;
 	bool hasIndex(void) const;
-	void defineIndex(const vector<ItemDataIndexType> &indexTypeVector);
+	void defineIndex(const std::vector<ItemDataIndexType> &indexTypeVector);
 	const ItemDataIndexVector &getIndexVector(void) const;
-	const vector<size_t> &getIndexedColumns(void) const;
+	const std::vector<size_t> &getIndexedColumns(void) const;
 
 	template <typename T>
 	bool foreach(bool (*func)(const ItemGroup *, T arg), T arg) const
@@ -88,7 +86,7 @@ protected:
 private:
 	ItemGroupList m_groupList;
 	ItemDataIndexVector m_indexVector;
-	vector<size_t>      m_indexedColumnIndexes;
+	std::vector<size_t> m_indexedColumnIndexes;
 };
 
 #endif  // ItemTable_h

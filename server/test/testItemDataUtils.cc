@@ -18,11 +18,10 @@
  */
 
 #include <cppcutter.h>
-
-#include "StringUtils.h"
-using namespace mlpl;
-
 #include "ItemDataUtils.h"
+#include "StringUtils.h"
+using namespace std;
+using namespace mlpl;
 
 namespace testItemDataUtils {
 

@@ -20,6 +20,8 @@
 #include <cstdlib>
 #include "HatoholException.h"
 #include "Utils.h"
+using namespace std;
+using namespace mlpl;
 
 bool HatoholException::m_saveStackTrace = false;
 
@@ -64,7 +66,7 @@ const char* HatoholException::what() const _HATOHOL_NOEXCEPT
 	return m_whatCache.c_str();
 }
 
-const string HatoholException::getFancyMessage(void) const
+string HatoholException::getFancyMessage(void) const
 {
 	string msg =
 	   StringUtils::sprintf("<%s:%d> %s\n",

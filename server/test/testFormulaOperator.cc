@@ -19,9 +19,9 @@
 
 #include <stdexcept>
 #include <cppcutter.h>
-
 #include "FormulaOperator.h"
 #include "FormulaTestUtils.h"
+using namespace std;
 
 namespace testFormulaOperator {
 

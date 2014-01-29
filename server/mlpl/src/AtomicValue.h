@@ -44,6 +44,15 @@ public:
 		__sync_bool_compare_and_swap(&m_value, m_value, newVal);
 	}
 
+	T add(const T &val)
+	{
+		return __sync_add_and_fetch(&m_value, val);
+	}
+
+	T sub(const T &val)
+	{
+		return __sync_sub_and_fetch(&m_value, val);
+	}
 
 private:
 	volatile T m_value;

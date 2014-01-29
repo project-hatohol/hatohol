@@ -26,12 +26,9 @@
 #include <MutexLock.h>
 #include <SmartTime.h>
 #include <AtomicValue.h>
-using namespace mlpl;
-
 #include <errno.h>
 #include <uuid/uuid.h>
 #include <semaphore.h>
-
 #include "FaceRest.h"
 #include "JsonBuilderAgent.h"
 #include "HatoholException.h"
@@ -40,6 +37,8 @@ using namespace mlpl;
 #include "DBClientUser.h"
 #include "DBClientConfig.h"
 #include "SessionManager.h"
+using namespace std;
+using namespace mlpl;
 
 int FaceRest::API_VERSION = 3;
 const char *FaceRest::SESSION_ID_HEADER_NAME = "X-Hatohol-Session";
@@ -70,6 +69,7 @@ const char *FaceRest::pathForGetItem     = "/item";
 const char *FaceRest::pathForAction      = "/action";
 const char *FaceRest::pathForUser        = "/user";
 const char *FaceRest::pathForHostgroup   = "/hostgroup";
+const char *FaceRest::pathForUserRole    = "/user-role";
 
 static const char *MIME_HTML = "text/html";
 static const char *MIME_JSON = "application/json";
@@ -116,6 +116,7 @@ struct FaceRest::PrivateContext {
 
 	// for async mode
 	bool                asyncMode;
+	size_t              numPreLoadWorkers;
 	set<Worker *>       workers;
 	queue<RestJob *>    restJobQueue;
 	MutexLock           restJobLock;
@@ -127,7 +128,8 @@ struct FaceRest::PrivateContext {
 	  gMainCtx(NULL),
 	  param(_param),
 	  quitRequest(false),
-	  asyncMode(true)
+	  asyncMode(true),
+	  numPreLoadWorkers(DEFAULT_NUM_WORKERS)
 	{
 		gMainCtx = g_main_context_new();
 		sem_init(&waitJobSemaphore, 0, 0);
@@ -364,6 +366,11 @@ void FaceRest::stop(void)
 	HatoholThreadBase::stop();
 }
 
+void FaceRest::setNumberOfPreLoadWorkers(size_t num)
+{
+	m_ctx->numPreLoadWorkers = num;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -412,7 +419,7 @@ bool FaceRest::isAsyncMode(void)
 
 void FaceRest::startWorkers(void)
 {
-	for (int i = 0; i < DEFAULT_NUM_WORKERS; i++) {
+	for (size_t i = 0; i < m_ctx->numPreLoadWorkers; i++) {
 		Worker *worker = new Worker(this);
 		worker->start();
 		m_ctx->workers.insert(worker);
@@ -502,6 +509,10 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	soup_server_add_handler(m_ctx->soupServer, pathForHostgroup,
 	                        queueRestJob,
 	                        new HandlerClosure(this, handlerGetHostgroup),
+	                        deleteHandlerClosure);
+	soup_server_add_handler(m_ctx->soupServer, pathForUserRole,
+	                        queueRestJob,
+	                        new HandlerClosure(this, handlerUserRole),
 	                        deleteHandlerClosure);
 	if (m_ctx->param)
 		m_ctx->param->setupDoneNotifyFunc();
@@ -1055,6 +1066,7 @@ static void addServers(FaceRest::RestJob *job, JsonBuilderAgent &agent,
 		agent.add("hostName", serverInfo.hostName);
 		agent.add("ipAddress", serverInfo.ipAddress);
 		agent.add("nickname", serverInfo.nickname);
+		agent.add("port", serverInfo.port);
 		agent.endObject();
 	}
 	agent.endArray();
@@ -1443,10 +1455,9 @@ void FaceRest::handlerPostServer(RestJob *job)
 		svInfo.dbName = charValue;
 	}
 
-	DataQueryOption option;
-	option.setUserId(job->userId);
+	OperationPrivilege privilege(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HatoholError err = dataStore->addTargetServer(svInfo, option);
+	HatoholError err = dataStore->addTargetServer(svInfo, privilege);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -1466,9 +1477,9 @@ void FaceRest::handlerDeleteServer(RestJob *job)
 		return;
 	}
 
-	DataQueryOption option(job->userId);
+	OperationPrivilege privilege(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HatoholError err = dataStore->deleteTargetServer(serverId, option);
+	HatoholError err = dataStore->deleteTargetServer(serverId, privilege);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -1963,6 +1974,31 @@ void FaceRest::handlerUser(RestJob *job)
 	}
 }
 
+static void addUserRolesMap(
+  FaceRest::RestJob *job, JsonBuilderAgent &agent)
+{
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	UserRoleInfoList userRoleList;
+	UserRoleQueryOption option(job->userId);
+	dataStore->getUserRoleList(userRoleList, option);
+
+	agent.startObject("userRoles");
+	UserRoleInfoListIterator it = userRoleList.begin();
+	agent.startObject(StringUtils::toString(NONE_PRIVILEGE));
+	agent.add("name", "Guest");
+	agent.endObject();
+	agent.startObject(StringUtils::toString(ALL_PRIVILEGES));
+	agent.add("name", "Admin");
+	agent.endObject();
+	for (; it != userRoleList.end(); ++it) {
+		UserRoleInfo &userRoleInfo = *it;
+		agent.startObject(StringUtils::toString(userRoleInfo.flags));
+		agent.add("name", userRoleInfo.name);
+		agent.endObject();
+	}
+	agent.endObject();
+}
+
 void FaceRest::handlerGetUser(RestJob *job)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
@@ -1988,6 +2024,7 @@ void FaceRest::handlerGetUser(RestJob *job)
 		agent.endObject();
 	}
 	agent.endArray();
+	addUserRolesMap(job, agent);
 	agent.endObject();
 
 	replyJsonData(agent, job);
@@ -2003,9 +2040,9 @@ void FaceRest::handlerPostUser(RestJob *job)
 	}
 
 	// try to add
-	DataQueryOption option(job->userId);
+	OperationPrivilege privilege(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	err = dataStore->addUser(userInfo, option);
+	err = dataStore->addUser(userInfo, privilege);
 
 	// make a response
 	JsonBuilderAgent agent;
@@ -2042,9 +2079,9 @@ void FaceRest::handlerPutUser(RestJob *job)
 	}
 
 	// try to update
-	DataQueryOption option(job->userId);
+	OperationPrivilege privilege(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	err = dataStore->updateUser(userInfo, option);
+	err = dataStore->updateUser(userInfo, privilege);
 
 	// make a response
 	JsonBuilderAgent agent;
@@ -2065,9 +2102,9 @@ void FaceRest::handlerDeleteUser(RestJob *job)
 		return;
 	}
 
-	DataQueryOption option(job->userId);
+	OperationPrivilege privilege(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HatoholError err = dataStore->deleteUser(userId, option);
+	HatoholError err = dataStore->deleteUser(userId, privilege);
 
 	// replay
 	JsonBuilderAgent agent;
@@ -2182,9 +2219,9 @@ void FaceRest::handlerPostAccessInfo(RestJob *job)
 	}
 
 	// try to add
-	DataQueryOption option(job->userId);
+	OperationPrivilege privilege(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HatoholError err = dataStore->addAccessInfo(accessInfo, option);
+	HatoholError err = dataStore->addAccessInfo(accessInfo, privilege);
 
 	// make a response
 	JsonBuilderAgent agent;
@@ -2206,9 +2243,9 @@ void FaceRest::handlerDeleteAccessInfo(RestJob *job)
 		return;
 	}
 
-	DataQueryOption option(job->userId);
+	OperationPrivilege privilege(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HatoholError err = dataStore->deleteAccessInfo(id, option);
+	HatoholError err = dataStore->deleteAccessInfo(id, privilege);
 
 	// replay
 	JsonBuilderAgent agent;
@@ -2230,8 +2267,6 @@ void FaceRest::handlerGetHostgroup(RestJob *job)
 	        dataStore->getHostgroupInfoList(hostgroupInfoList, option);
 
 	JsonBuilderAgent agent;
-	agent.startObject();
-	addHatoholError(agent, HatoholError(HTERR_OK));
 	agent.startArray("hostgroups");
 	HostgroupInfoListIterator it = hostgroupInfoList.begin();
 	for (; it != hostgroupInfoList.end(); ++it) {
@@ -2249,6 +2284,145 @@ void FaceRest::handlerGetHostgroup(RestJob *job)
 	replyJsonData(agent, job);
 }
 
+void FaceRest::handlerUserRole(RestJob *job)
+{
+	if (StringUtils::casecmp(job->message->method, "GET")) {
+		handlerGetUserRole(job);
+	} else if (StringUtils::casecmp(job->message->method, "POST")) {
+		handlerPostUserRole(job);
+	} else if (StringUtils::casecmp(job->message->method, "PUT")) {
+		handlerPutUserRole(job);
+	} else if (StringUtils::casecmp(job->message->method, "DELETE")) {
+		handlerDeleteUserRole(job);
+	} else {
+		MLPL_ERR("Unknown method: %s\n", job->message->method);
+		soup_message_set_status(job->message,
+		                        SOUP_STATUS_METHOD_NOT_ALLOWED);
+		job->replyIsPrepared = true;
+	}
+}
+
+void FaceRest::handlerPutUserRole(RestJob *job)
+{
+	uint64_t id = job->getResourceId();
+	if (id == INVALID_ID) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
+		            "id: %s", job->getResourceIdString().c_str());
+		return;
+	}
+	UserRoleInfo userRoleInfo;
+	userRoleInfo.id = id;
+
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	UserRoleInfoList userRoleList;
+	UserRoleQueryOption option(job->userId);
+	option.setTargetUserRoleId(userRoleInfo.id);
+	dataStore->getUserRoleList(userRoleList, option);
+	if (userRoleList.empty()) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_USER_ROLE_ID,
+		            "id: %"FMT_USER_ID, userRoleInfo.id);
+		return;
+	}
+	userRoleInfo = *(userRoleList.begin());
+
+	bool forUpdate = true;
+	HatoholError err = parseUserRoleParameter(userRoleInfo, job->query,
+						  forUpdate);
+	if (err != HTERR_OK) {
+		replyError(job, err);
+		return;
+	}
+
+	// try to update
+	OperationPrivilege privilege(job->userId);
+	err = dataStore->updateUserRole(userRoleInfo, privilege);
+
+	// make a response
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, err);
+	if (err == HTERR_OK)
+		agent.add("id", userRoleInfo.id);
+	agent.endObject();
+	replyJsonData(agent, job);
+}
+
+void FaceRest::handlerGetUserRole(RestJob *job)
+{
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+
+	UserRoleInfoList userRoleList;
+	UserRoleQueryOption option(job->userId);
+	dataStore->getUserRoleList(userRoleList, option);
+
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, HatoholError(HTERR_OK));
+	agent.add("numberOfUserRoles", userRoleList.size());
+	agent.startArray("userRoles");
+	UserRoleInfoListIterator it = userRoleList.begin();
+	for (; it != userRoleList.end(); ++it) {
+		const UserRoleInfo &userRoleInfo = *it;
+		agent.startObject();
+		agent.add("userRoleId",  userRoleInfo.id);
+		agent.add("name", userRoleInfo.name);
+		agent.add("flags", userRoleInfo.flags);
+		agent.endObject();
+	}
+	agent.endArray();
+	agent.endObject();
+
+	replyJsonData(agent, job);
+}
+
+void FaceRest::handlerPostUserRole(RestJob *job)
+{
+	UserRoleInfo userRoleInfo;
+	HatoholError err = parseUserRoleParameter(userRoleInfo, job->query);
+	if (err != HTERR_OK) {
+		replyError(job, err);
+		return;
+	}
+
+	// try to add
+	OperationPrivilege privilege(job->userId);
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	err = dataStore->addUserRole(userRoleInfo, privilege);
+
+	// make a response
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, err);
+	if (err == HTERR_OK)
+		agent.add("id", userRoleInfo.id);
+	agent.endObject();
+	replyJsonData(agent, job);
+}
+
+void FaceRest::handlerDeleteUserRole(RestJob *job)
+{
+	uint64_t id = job->getResourceId();
+	if (id == INVALID_ID) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
+		            "id: %s", job->getResourceIdString().c_str());
+		return;
+	}
+	UserRoleIdType userRoleId = id;
+
+	OperationPrivilege privilege(job->userId);
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	HatoholError err = dataStore->deleteUserRole(userRoleId, privilege);
+
+	// replay
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, err);
+	if (err == HTERR_OK)
+		agent.add("id", userRoleId);
+	agent.endObject();
+	replyJsonData(agent, job);
+}
+
 HatoholError FaceRest::parseUserParameter(UserInfo &userInfo, GHashTable *query,
 					  bool forUpdate)
 {
@@ -2263,14 +2437,33 @@ HatoholError FaceRest::parseUserParameter(UserInfo &userInfo, GHashTable *query,
 
 	// password
 	value = (char *)g_hash_table_lookup(query, "password");
-	if (!value && !forUpdate) {
+	if (!value && !forUpdate)
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "password\n");
-	}
 	userInfo.password = value ? value : "";
 
 	// flags
 	HatoholError err = getParam<OperationPrivilegeFlag>(
 		query, "flags", "%"FMT_OPPRVLG, userInfo.flags);
+	if (err != HTERR_OK && !forUpdate)
+		return err;
+	return HatoholError(HTERR_OK);
+}
+
+HatoholError FaceRest::parseUserRoleParameter(
+  UserRoleInfo &userRoleInfo, GHashTable *query, bool forUpdate)
+{
+	char *value;
+
+	// name
+	value = (char *)g_hash_table_lookup(query, "name");
+	if (!value && !forUpdate)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "name\n");
+	if (value)
+		userRoleInfo.name = value;
+
+	// flags
+	HatoholError err = getParam<OperationPrivilegeFlag>(
+		query, "flags", "%"FMT_OPPRVLG, userRoleInfo.flags);
 	if (err != HTERR_OK && !forUpdate)
 		return err;
 	return HatoholError(HTERR_OK);

@@ -19,9 +19,9 @@
 
 #include <cstdio>
 #include <cstdlib>
-
 #include "Hatohol.h"
 #include "ArmZabbixAPI.h"
+using namespace std;
 
 static const int DEFAULT_PORT = 80;
 static const int ZBX_SVR_ID = 0;

@@ -52,24 +52,24 @@ public:
 	               uint64_t id, int age, const char *name, double height,
 	               int datetime, size_t numColumns,
 	               const ColumnDef *columnDefs,
-	               const set<size_t> *nullIndexes = NULL) = 0;
+	               const std::set<size_t> *nullIndexes = NULL) = 0;
 	virtual void getIDStringVector(const ColumnDef &columnDefId,
-	                               vector<string> &actualIds) = 0;
+	                               std::vector<std::string> &actualIds) = 0;
 
 	static void createTable(DBAgent &dbAgent);
 	static void insert(DBAgent &dbAgent, uint64_t id, int age,
 	                   const char *name, double height, int time);
 	static void makeTestData(DBAgent &dbAgent);
-	static void makeTestData(DBAgent &dbAgent,
-	                         map<uint64_t, size_t> &testDataIdIndexMap);
+	static void makeTestData(
+	  DBAgent &dbAgent, std::map<uint64_t, size_t> &testDataIdIndexMap);
 protected:
 	static void assertExistingRecordEachWord
 	              (uint64_t id, int age, const char *name, double height,
 	               int datetime, size_t numColumns,
-	               const ColumnDef *columnDefs, const string &line,
+	               const ColumnDef *columnDefs, const std::string &line,
 	               const char splitChar,
-	               const set<size_t> *nullIndexes,
-	               const string &expectedNullNotation,
+	               const std::set<size_t> *nullIndexes,
+	               const std::string &expectedNullNotation,
 	               const char *U64fmt = "%"PRIu64);
 };
 

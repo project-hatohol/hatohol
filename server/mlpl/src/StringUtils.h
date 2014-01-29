@@ -23,39 +23,38 @@
 #include <vector>
 #include <list>
 #include <string>
-using namespace std;
 
 #include <stdarg.h>
 
 namespace mlpl {
 
 class StringUtils;
-typedef list<string> StringList;
-typedef vector<string> StringVector;
+typedef std::list<std::string> StringList;
+typedef std::vector<std::string> StringVector;
 typedef StringList::iterator StringListIterator;
 typedef StringVector::iterator StringVectorIterator;
 
 class StringUtils {
 public:
-	static const string EMPTY_STRING;
+	static const std::string EMPTY_STRING;
 
 	static const size_t SPRINTF_BUF_ON_STACK_LENGTH = 0x400;
-	static void split(StringList &stringList, const string &target,
+	static void split(StringList &stringList, const std::string &target,
 	                  const char separator, bool doMerge = true);
-	static void split(StringVector &stringVector, const string &target,
+	static void split(StringVector &stringVector, const std::string &target,
 	                  const char separator, bool doMerget = true);
-	static string &getAt(StringList &stringList, size_t index);
+	static std::string &getAt(StringList &stringList, size_t index);
 	static bool casecmp(const char *str1, const char *str2);
-	static bool casecmp(const string &str1, const char *str2);
-	static bool casecmp(const char *str1, const string &str2);
-	static bool casecmp(const string &str1, const string &str2);
-	static string sprintf(const char *fmt, ...) __attribute__((__format__ (__printf__, 1, 2)));
-	static string vsprintf(const char *fmt, va_list ap);
+	static bool casecmp(const std::string &str1, const char *str2);
+	static bool casecmp(const char *str1, const std::string &str2);
+	static bool casecmp(const std::string &str1, const std::string &str2);
+	static std::string sprintf(const char *fmt, ...) __attribute__((__format__ (__printf__, 1, 2)));
+	static std::string vsprintf(const char *fmt, va_list ap);
 	static bool isNumber(const char *str, bool *isFloat = NULL);
-	static bool isNumber(const string &str, bool *isFloat = NULL);
-	static string toString(int number);
-	static string toLower(string str);
-	static string stripBothEndsSpaces(const string &str);
+	static bool isNumber(const std::string &str, bool *isFloat = NULL);
+	static std::string toString(int number);
+	static std::string toLower(std::string str);
+	static std::string stripBothEndsSpaces(const std::string &str);
 
 	/**
 	 * Erase specified characters in a string.
@@ -79,8 +78,8 @@ public:
 	 * returned.
 	 *
 	 */
-	static string eraseChars(const string &source,
-	                         const string &eraseChars);
+	static std::string eraseChars(const std::string &source,
+	                              const std::string &eraseChars);
 	/**
 	 * Replace specified characters with a word.
 	 *
@@ -107,8 +106,9 @@ public:
 	 * returned.
 	 *
 	 */
-	static string replace(const string &source, const string &targetChars,
-	                      const string &newWord);
+	static std::string replace(const std::string &source,
+	                           const std::string &targetChars,
+	                           const std::string &newWord);
 };
 
 } // namespace mlpl

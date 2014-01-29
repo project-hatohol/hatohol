@@ -18,6 +18,7 @@
  */
 
 #include "VirtualDataStore.h"
+using namespace mlpl;
 
 // ---------------------------------------------------------------------------
 // Public methods

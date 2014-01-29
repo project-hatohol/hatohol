@@ -21,8 +21,6 @@
 #define ItemTableUtils_h
 
 #include <string>
-using namespace std;
-
 #include "ItemTable.h"
 #include "HatoholException.h"
 #include "Utils.h"

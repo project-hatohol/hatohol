@@ -26,8 +26,9 @@
 class DBClientZabbix : public DBClient {
 public:
 	typedef void (DBClientZabbix::*AbsentItemPicker)
-	               (vector<uint64_t> &absentHostIdVector,
-	                const vector<uint64_t> &hostIdVector);
+	               (std::vector<uint64_t> &absentHostIdVector,
+	                const std::vector<uint64_t> &hostIdVector);
+	typedef void (DBClientZabbix::*TableSaver)(ItemTablePtr tablePtr);
 
 	static const int ZABBIX_DB_VERSION;
 	static const uint64_t EVENT_ID_NOT_FOUND;
@@ -104,18 +105,19 @@ public:
 	 */
 	int getTriggerLastChange(void);
 
-	string getApplicationName(uint64_t applicationId);
+	std::string getApplicationName(uint64_t applicationId);
 
-	void pickupAbsentHostIds(vector<uint64_t> &absentHostIdVector,
-	                         const vector<uint64_t> &hostIdVector);
-	void pickupAbsentApplcationIds(vector<uint64_t> &absentAppIdVector,
-	                               const vector<uint64_t> &appIdVector);
+	void pickupAbsentHostIds(std::vector<uint64_t> &absentHostIdVector,
+	                         const std::vector<uint64_t> &hostIdVector);
+	void pickupAbsentApplcationIds(
+	  std::vector<uint64_t> &absentAppIdVector,
+	  const std::vector<uint64_t> &appIdVector);
 
 protected:
-	static string getDBName(const ServerIdType zabbixServerId);
+	static std::string getDBName(const ServerIdType zabbixServerId);
 	static void tableInitializerSystem(DBAgent *dbAgent, void *data);
 	static void updateDBIfNeeded(DBAgent *dbAgent, int oldVer, void *data);
-	static string makeItemBrief(const ItemGroup *itemItemGroup);
+	static std::string makeItemBrief(const ItemGroup *itemItemGroup);
 
 	/**
 	 * check if the given word is a variable (e.g. $1, $2, ...).
@@ -125,12 +127,13 @@ protected:
 	 * A variable number if the given word is a variable. Otherwise
 	 * -1 is returned.
 	 */
-	static int  getItemVariable(const string &word);
-	static void extractItemKeys(StringVector &params, const string &key);
+	static int  getItemVariable(const std::string &word);
+	static void extractItemKeys(mlpl::StringVector &params,
+	                            const std::string &key);
 
 	DBClientZabbix(const ServerIdType zabbixServerId);
 	void addItems(
-	  ItemTablePtr tablePtr, const string &tableName,
+	  ItemTablePtr tablePtr, const std::string &tableName,
 	  size_t numColumns, const ColumnDef *columnDefs,
 	  int updateCheckIndex);
 	void makeSelectExArgForTriggerAsHatoholFormat(void);

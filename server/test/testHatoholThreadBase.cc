@@ -21,6 +21,8 @@
 #include "HatoholThreadBase.h"
 #include "HatoholException.h"
 #include "Synchronizer.h"
+using namespace std;
+using namespace mlpl;
 
 namespace testHatoholThreadBase {
 

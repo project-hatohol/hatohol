@@ -30,15 +30,18 @@
 #include "DBAgentMySQL.h"
 #include "CacheServiceDBClient.h"
 #include "SQLUtils.h"
+using namespace std;
+using namespace mlpl;
 
-void _assertStringVector(StringVector &expected, StringVector &actual)
+void _assertStringVector(const StringVector &expected,
+                         const StringVector &actual)
 {
 	cppcut_assert_equal(expected.size(), actual.size());
 	for (size_t i = 0; i < expected.size(); i++)
 		cppcut_assert_equal(expected[i], actual[i]);
 }
 
-void _assertStringVectorVA(StringVector &actual, ...)
+void _assertStringVectorVA(const StringVector &actual, ...)
 {
 	StringVector expectedVect;
 	va_list valist;
@@ -463,6 +466,45 @@ void _assertAccessInfoInDB(const AccessInfoIdSet &excludeAccessInfoIdSet)
 	assertDBContent(cache.getUser()->getDBAgent(), statement, expect);
 }
 
+std::string makeUserRoleInfoOutput(const UserRoleInfo &userRoleInfo)
+{
+	return StringUtils::sprintf(
+		 "%"FMT_USER_ROLE_ID"|%s|%"FMT_OPPRVLG"\n",
+		 userRoleInfo.id, userRoleInfo.name.c_str(),
+		 userRoleInfo.flags);
+}
+
+void _assertUserRoleInfoInDB(UserRoleInfo &userRoleInfo) 
+{
+	string statement = StringUtils::sprintf(
+	                     "select * from %s where id=%d",
+	                     DBClientUser::TABLE_NAME_USER_ROLES,
+			     userRoleInfo.id);
+	string expect = makeUserRoleInfoOutput(userRoleInfo);
+	DBClientUser dbUser;
+	assertDBContent(dbUser.getDBAgent(), statement, expect);
+}
+#define assertUserRoleInfoInDB(I) cut_trace(_assertUserRoleInfoInDB(I))
+
+void _assertUserRolesInDB(const UserRoleIdSet &excludeUserRoleIdSet)
+{
+	string statement = "select * from ";
+	statement += DBClientUser::TABLE_NAME_USER_ROLES;
+	statement += " ORDER BY id ASC";
+	string expect;
+	for (size_t i = 0; i < NumTestUserRoleInfo; i++) {
+		UserRoleIdType userRoleId = i + 1;
+		UserRoleIdSetIterator endIt = excludeUserRoleIdSet.end();
+		if (excludeUserRoleIdSet.find(userRoleId) != endIt)
+			continue;
+		UserRoleInfo userRoleInfo = testUserRoleInfo[i];
+		userRoleInfo.id = userRoleId;
+		expect += makeUserRoleInfoOutput(userRoleInfo);
+	}
+	CacheServiceDBClient cache;
+	assertDBContent(cache.getUser()->getDBAgent(), statement, expect);
+}
+
 static bool makeTestDB(MYSQL *mysql, const string &dbName)
 {
 	string query = "CREATE DATABASE ";
@@ -594,6 +636,17 @@ void loadTestDBAccessList(void)
 	}
 }
 
+void loadTestDBUserRole(void)
+{
+	DBClientUser dbUser;
+	HatoholError err;
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	for (size_t i = 0; i < NumTestUserRoleInfo; i++) {
+		err = dbUser.addUserRoleInfo(testUserRoleInfo[i], privilege);
+		assertHatoholError(HTERR_OK, err);
+	}
+}
+
 void setupTestDBUser(bool dbRecreate, bool loadTestData)
 {
 	static const char *TEST_DB_NAME = "test_db_user";
@@ -605,6 +658,7 @@ void setupTestDBUser(bool dbRecreate, bool loadTestData)
 	if (loadTestData) {
 		loadTestDBUser();
 		loadTestDBAccessList();
+		loadTestDBUserRole();
 	}
 }
 
@@ -780,26 +834,22 @@ UserIdType findUserWithout(const OperationPrivilegeType &type)
 	return findUserCommon(type, false);
 }
 
-void initEventInfo(EventInfo &eventInfo)
-{
-	eventInfo.unifiedId = 0;
-	eventInfo.serverId = 0;
-	eventInfo.id = 0;
-	eventInfo.time.tv_sec = 0;
-	eventInfo.time.tv_nsec = 0;
-	eventInfo.type = EVENT_TYPE_UNKNOWN;
-	eventInfo.triggerId = 0;
-	eventInfo.status = TRIGGER_STATUS_UNKNOWN;
-	eventInfo.severity = TRIGGER_SEVERITY_UNKNOWN;
-	eventInfo.hostId = 0;
-}
-
 void initActionDef(ActionDef &actionDef)
 {
        actionDef.id = 0;
        actionDef.type = ACTION_COMMAND;
        actionDef.timeout = 0;
        actionDef.ownerUserId = INVALID_USER_ID;;
+}
+
+string getSyslogTail(size_t numLines)
+{
+	// TODO: consider the environment that uses /var/log/messages.
+	//       mlpl's testLogger does the similar things. We should
+	//       create a commonly used method.
+	const string cmd =
+	  StringUtils::sprintf("tail -%zd /var/log/syslog", numLines);
+	return executeCommand(cmd);
 }
 
 // ---------------------------------------------------------------------------
@@ -826,6 +876,7 @@ gboolean Watcher::_run(gpointer data)
 gboolean Watcher::run(void)
 {
 	expired = true;
+	timerId = INVALID_EVENT_ID;
 	return G_SOURCE_REMOVE;
 }
 

@@ -51,6 +51,13 @@ enum OperationPrivilegeType
 	OPPRVLG_DELETE_ALL_ACTION,     // can delte all actions
 	OPPRVLG_GET_ALL_ACTION,        // can get all actions
 
+	// User role
+	// All users can get all user roles.
+	// Without any flags, a user can't edit user roles
+	OPPRVLG_CREATE_USER_ROLE,
+	OPPRVLG_UPDATE_ALL_USER_ROLE,
+	OPPRVLG_DELETE_ALL_USER_ROLE,
+
 	NUM_OPPRVLG,
 };
 

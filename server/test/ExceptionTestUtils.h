@@ -31,10 +31,10 @@ void _assertThrow(void)
 		throw ThrowExceptionType(brief);
 	} catch (const CaughtExceptionType &e) {
 		exceptionReceived = true;
-		string expected = "<:-1> ";
+		std::string expected = "<:-1> ";
 		expected += brief;
 		expected += "\n";
-		cppcut_assert_equal(expected, string(e.what()));
+		cppcut_assert_equal(expected, std::string(e.what()));
 	}
 	cppcut_assert_equal(true, exceptionReceived);
 }

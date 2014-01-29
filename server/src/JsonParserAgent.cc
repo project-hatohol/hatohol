@@ -19,10 +19,10 @@
 
 #include <Logger.h>
 #include <string.h>
-using namespace mlpl;
-
 #include <stdexcept>
 #include "JsonParserAgent.h"
+using namespace std;
+using namespace mlpl;
 
 struct JsonParserAgent::PrivateContext
 {

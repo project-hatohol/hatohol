@@ -19,6 +19,9 @@
 
 #include "DataStoreManager.h"
 #include <MutexLock.h>
+using namespace std;
+using namespace mlpl;
+
 typedef map<uint32_t, DataStore*> DataStoreMap;
 typedef DataStoreMap::iterator    DataStoreMapIterator;
 

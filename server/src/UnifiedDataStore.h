@@ -97,6 +97,14 @@ public:
 	  AccessInfo &userInfo, const OperationPrivilege &privilege);
 	virtual HatoholError deleteAccessInfo(
 	  AccessInfoIdType userId, const OperationPrivilege &privilege);
+	virtual void getUserRoleList(UserRoleInfoList &userRoleList,
+                                     const UserRoleQueryOption &option);
+	virtual HatoholError addUserRole(
+	  UserRoleInfo &userRoleInfo, const OperationPrivilege &privilege);
+	virtual HatoholError updateUserRole(
+	  UserRoleInfo &userRoleInfo, const OperationPrivilege &privilege);
+	virtual HatoholError deleteUserRole(
+	  UserRoleIdType userRoleId, const OperationPrivilege &privilege);
 	virtual HatoholError addTargetServer(
 	  MonitoringServerInfo &svInfo, const OperationPrivilege &privilege);
 	virtual HatoholError deleteTargetServer(

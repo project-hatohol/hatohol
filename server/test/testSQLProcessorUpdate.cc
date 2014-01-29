@@ -19,14 +19,14 @@
 
 #include <ParsableString.h>
 #include <StringUtils.h>
-using namespace mlpl;
-
 #include <cppcutter.h>
 #include "Hatohol.h"
 #include "SQLProcessorUpdate.h"
 #include "SQLProcessorException.h"
 #include "FormulaTestUtils.h"
 #include "Helpers.h"
+using namespace std;
+using namespace mlpl;
 
 namespace testSQLProcessorUpdate {
 

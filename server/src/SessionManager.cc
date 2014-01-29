@@ -20,6 +20,7 @@
 #include <cstdio>
 #include <map>
 #include <uuid/uuid.h>
+#include "Logger.h"
 #include "SessionManager.h"
 #include "MutexLock.h"
 #include "ReadWriteLock.h"
@@ -68,10 +69,23 @@ struct SessionManager::PrivateContext {
 		SessionIdMapIterator it = sessionIdMap.begin();
 		for (; it != sessionIdMap.end(); ++it) {
 			Session *session = it->second;
+			clearSessionManagerIfNeeded(session);
 			session->unref();
+
 		}
 		sessionIdMap.clear();
 		rwlock.unlock();
+	}
+
+private:
+	void clearSessionManagerIfNeeded(Session *session)
+	{
+		if (session->getUsedCount() == 1)
+			return;
+
+		// To avoid an invalid access. Or timeCb() will access
+		// the deleted 'this' instance.
+		session->sessionMgr = NULL;
 	}
 };
 
@@ -216,7 +230,7 @@ void SessionManager::updateTimer(Session *session)
 	Utils::removeGSourceIfNeeded(session->timerId);
 
 	if (session->timeout) {
-		session->timerId = g_timeout_add(session->timeout,
+		session->timerId = g_timeout_add(session->timeout * 1000,
 		                                 timerCb, session);
 	}
 	session->lastAccessTime.setCurrTime();
@@ -234,6 +248,10 @@ gboolean SessionManager::timerCb(gpointer data)
 {
 	Session *session = static_cast<Session *>(data);
 	SessionManager *sessionMgr = session->sessionMgr;
+	if (!sessionMgr) {
+		MLPL_BUG("Session Manager: NULL, %s\n", session->id.c_str());
+		return G_SOURCE_REMOVE;
+	}
 	session->timerId = INVALID_EVENT_ID;
 
 	// Make a copy, because session may be deleted in the follwoing

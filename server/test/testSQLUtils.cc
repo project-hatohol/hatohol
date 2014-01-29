@@ -21,6 +21,8 @@
 #include <cppcutter.h>
 #include <time.h>
 #include "SQLUtils.h"
+using namespace std;
+using namespace mlpl;
 
 namespace testSQLUtils {
 
@@ -218,5 +220,38 @@ void test_createFromStringDatetimeWithNull(void)
 	cppcut_assert_equal(true, dataPtr->isNull());
 	cppcut_assert_equal(ITEM_TYPE_INT, dataPtr->getItemType());
 }
-
 } // namespace testSQLUtils
+
+// ---------------------------------------------------------------------------
+// ItemDataCaster
+// ---------------------------------------------------------------------------
+namespace testItemDataCaster {
+
+void test_itemInt(void)
+{
+	const bool doRef = false;
+	const int val = 3;
+	ItemDataPtr item(new ItemInt(val), doRef);
+	cppcut_assert_equal(
+	  val, ItemDataCaster<SQL_COLUMN_TYPE_INT>::cast(item)->get());
+}
+
+void test_itemUint64(void)
+{
+	const bool doRef = false;
+	const uint64_t val = 0xfedcba9876543210;
+	ItemDataPtr item(new ItemUint64(val), doRef);
+	cppcut_assert_equal(
+	  val, ItemDataCaster<SQL_COLUMN_TYPE_BIGUINT>::cast(item)->get());
+}
+
+void test_itemString(void)
+{
+	const bool doRef = false;
+	const string val = "foo bar ABX";
+	ItemDataPtr item(new ItemString(val), doRef);
+	cppcut_assert_equal(
+	  val, ItemDataCaster<SQL_COLUMN_TYPE_VARCHAR>::cast(item)->get());
+}
+
+} // namespace testItemDataCaster

@@ -208,11 +208,15 @@ function makeMonitoringSystemTypeLabel(type) {
 }
 
 function getServerLocation(server) {
-  var ipAddress, url;
+  var ipAddress, port, url;
   switch (server["type"]) {
   case hatohol.MONITORING_SYSTEM_ZABBIX:
     ipAddress = server["ipAddress"];
-    url = "http://" + ipAddress + "/zabbix/";
+    port = server["port"];
+    url = "http://" + ipAddress
+    if (!isNaN(port) && port != "80")
+      url += ":" + port;
+    url += "/zabbix/";
     break;
   default:
     break;
@@ -261,6 +265,16 @@ function getHostName(server, hostId) {
     return "Unknown:" + hostId;
   return server["hosts"][hostId]["name"];
 }
+
+function hasFlag(user, flag) {
+  return hasFlags(user, (1 << flag));
+}
+
+function hasFlags(user, flags) {
+  if (!user)
+    return false;
+  return user.flags & flags;
+};
 
 if (typeof module !== 'undefined' && module.exports) {
   module.exports.getServerLocation = getServerLocation;

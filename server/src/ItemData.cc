@@ -19,6 +19,8 @@
 
 #include <cstdio>
 #include "ItemData.h"
+using namespace std;
+using namespace mlpl;
 
 ostream &operator<<(ostream &os, const ItemData &itemData)
 {

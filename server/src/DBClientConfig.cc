@@ -20,14 +20,14 @@
 #include <memory>
 
 #include <MutexLock.h>
-using namespace std;
-
 #include "DBAgentFactory.h"
 #include "DBClientConfig.h"
 #include "DBClientUtils.h"
 #include "CacheServiceDBClient.h"
 #include "HatoholError.h"
 #include "Params.h"
+using namespace std;
+using namespace mlpl;
 
 static const char *TABLE_NAME_SYSTEM  = "system";
 static const char *TABLE_NAME_SERVERS = "servers";

@@ -23,19 +23,15 @@
 #include <string>
 #include <list>
 #include <deque>
-using namespace std;
-
 #include "ParsableString.h"
-using namespace mlpl;
-
 #include "SQLFormulaParser.h"
 #include "FormulaElement.h"
 #include "FormulaFunction.h"
 
 struct SQLFormulaInfo {
 	FormulaElement *formula;
-	string          expression;
-	string          alias;
+	std::string     expression;
+	std::string     alias;
 	bool            hasStatisticalFunc;
 
 	// construct and destructor
@@ -43,7 +39,7 @@ struct SQLFormulaInfo {
 	~SQLFormulaInfo();
 };
 
-typedef vector<SQLFormulaInfo *>       SQLFormulaInfoVector;
+typedef std::vector<SQLFormulaInfo *>  SQLFormulaInfoVector;
 typedef SQLFormulaInfoVector::iterator SQLFormulaInfoVectorIterator;
 
 class SQLColumnParser : public SQLFormulaParser
@@ -53,7 +49,7 @@ public:
 
 	SQLColumnParser(void);
 	virtual ~SQLColumnParser();
-	virtual void add(string& word, string &wordLower);
+	virtual void add(const std::string &word, const std::string &wordLower);
 	virtual void close(void);
 	const SQLFormulaInfoVector &getFormulaInfoVector(void) const;
 	bool getDistinctFlag(void) const;
@@ -63,7 +59,7 @@ protected:
 	// general sub routines
 	//
 	void appendFormulaString(const char character);
-	void appendFormulaString(string &str);
+	void appendFormulaString(const std::string &str);
 	void closeCurrFormulaInfo(void);
 	void closeCurrentFormulaString(void);
 	void closeCurrentFormula(void);

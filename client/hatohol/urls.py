@@ -16,7 +16,6 @@
 # along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import re
 from django.conf.urls import patterns, include, url
 from django.conf.urls.i18n import i18n_patterns
 from hatohol.forwardview import jsonforward
@@ -26,24 +25,24 @@ from django.views.generic import TemplateView
 # from django.contrib import admin
 # admin.autodiscover()
 
-def guessContentTypeFromFileName(file_name):
-    if re.search('\.js$', file_name):
+def guess_content_type_from_ext(ext):
+    if ext is "js":
         return 'text/javascript'
-    elif re.search('\.css$', file_name):
+    elif ext is "css":
         return 'text/css'
     return 'text/html'
 
-def makeTastingUrl(file_name):
-    content_type = guessContentTypeFromFileName(file_name)
-    return url(r'^tasting/' + file_name + '$',
-               TemplateView.as_view(template_name='tasting/' + file_name,
-                                    content_type=content_type))
+def static_file(request, prefix, path, ext):
+    content_type = guess_content_type_from_ext(ext)
+    view = TemplateView.as_view(template_name=prefix + path,
+                                content_type=content_type)
+    return view(request)
 
-def makeTestUrl(file_name):
-    content_type = guessContentTypeFromFileName(file_name)
-    return url(r'^test/' + file_name + '$',
-               TemplateView.as_view(template_name='test/browser/' + file_name,
-                                    content_type=content_type))
+def tasting_file(request, path, ext):
+    return static_file(request, "tasting/", path, ext)
+
+def test_file(request, path, ext):
+    return static_file(request, "test/browser/", path, ext)
 
 urlpatterns = patterns('',
     # Examples:
@@ -70,21 +69,9 @@ if 'HATOHOL_DEBUG' in os.environ and os.environ['HATOHOL_DEBUG'] == '1':
     import test.python.utils
 
     urlpatterns += patterns('',
-        makeTastingUrl('index.html'),
-        makeTastingUrl('hatohol_login_dialog.html'),
-        makeTastingUrl('hatohol_message_box.html'),
-        makeTastingUrl('hatohol_session_manager.html'),
-        makeTastingUrl('hatohol_connector.html'),
-        makeTastingUrl('js_loader.js'),
+        url(r'^tasting/(.+\.(js|css|html))$', tasting_file),
         url(r'^test/hello', test.python.utils.hello),
         url(r'^test/delete_user_config', test.python.utils.delete_user_config),
-        makeTestUrl('index.html'),
-        makeTestUrl('test_hatohol_session_manager.js'),
-        makeTestUrl('test_hatohol_connector.js'),
-        makeTestUrl('test_hatohol_message_box.js'),
-        makeTestUrl('test_hatohol_userconfig.js'),
-        makeTestUrl('mocha.js'),
-        makeTestUrl('mocha.css'),
-        makeTestUrl('expect.js'),
+        url(r'^test/(.+\.(js|css|html))$', test_file),
     )
 

@@ -21,6 +21,7 @@
 #include "config.h"
 #include "ConfigManager.h"
 #include "Hatohol.h"
+using namespace std;;
 
 namespace testConfigManager {
 

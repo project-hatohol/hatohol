@@ -21,21 +21,19 @@
 #define SQLProcessorInsert_h
 
 #include "ParsableString.h"
-using namespace mlpl;
-
 #include "SQLProcessorTypes.h"
 #include "ItemDataPtr.h"
 
 struct SQLInsertInfo : public SQLProcessorInfo {
 	// parsed matter
-	string           table;
-	StringVector     columnVector;
-	StringVector     valueVector;
+	std::string        table;
+	mlpl::StringVector columnVector;
+	mlpl::StringVector valueVector;
 
 	//
 	// constructor and destructor
 	//
-	SQLInsertInfo(ParsableString &_statment);
+	SQLInsertInfo(const mlpl::ParsableString &_statment);
 	virtual ~SQLInsertInfo();
 };
 
@@ -102,7 +100,8 @@ protected:
 	//
 	// General sub routines
 	//
-	bool checkCurrWord(string expected, InsertParseSection nextSection);
+	bool checkCurrWord(const std::string &expected,
+	                   InsertParseSection nextSection);
 	bool pushColumn(void);
 	bool pushValue(void);
 

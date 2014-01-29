@@ -21,6 +21,7 @@
 #include <semaphore.h>
 #include <errno.h>
 #include <Logger.h>
+#include <AtomicValue.h>
 #include "ArmBase.h"
 #include "HatoholException.h"
 
@@ -31,14 +32,14 @@ struct ArmBase::PrivateContext
 	MonitoringServerInfo serverInfo; // we have the copy.
 	timespec             lastPollingTime;
 	sem_t                sleepSemaphore;
-	volatile int         exitRequest;
+	AtomicValue<bool>    exitRequest;
 	ArmBase::UpdateType  updateType;
 	bool                 isCopyOnDemandEnabled;
 	ReadWriteLock        rwlock;
 
 	PrivateContext(const MonitoringServerInfo &_serverInfo)
 	: serverInfo(_serverInfo),
-	  exitRequest(0),
+	  exitRequest(false),
 	  updateType(UPDATE_POLLING),
 	  isCopyOnDemandEnabled(false)
 	{
@@ -153,7 +154,7 @@ int ArmBase::getRetryInterval(void) const
 // ---------------------------------------------------------------------------
 bool ArmBase::hasExitRequest(void) const
 {
-	return g_atomic_int_get(&m_ctx->exitRequest);
+	return m_ctx->exitRequest.get();
 }
 
 void ArmBase::requestExit(void)
@@ -161,7 +162,7 @@ void ArmBase::requestExit(void)
 	// to return immediately from the waiting.
 	if (sem_post(&m_ctx->sleepSemaphore) == -1)
 		MLPL_ERR("Failed to call sem_post: %d\n", errno);
-	g_atomic_int_set(&m_ctx->exitRequest, 1);
+	m_ctx->exitRequest.set(true);
 }
 
 const MonitoringServerInfo &ArmBase::getServerInfo(void) const
@@ -177,14 +178,18 @@ void ArmBase::sleepInterruptible(int sleepTime)
 	if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
 		MLPL_ERR("Failed to call clock_gettime: %d\n", errno);
 		sleep(10); // to avoid burnup
+		return;
 	}
 	ts.tv_sec += sleepTime;
+retry:
 	int result = sem_timedwait(&m_ctx->sleepSemaphore, &ts);
 	if (result == -1) {
 		if (errno == ETIMEDOUT)
 			; // This is normal case
 		else if (errno == EINTR)
-			; // In this case, we also do nothing
+			goto retry;
+		else
+			MLPL_ERR("sem_timedwait(): errno: %d\n", errno);
 	}
 	// The up of the semaphore is done only from the destructor.
 }

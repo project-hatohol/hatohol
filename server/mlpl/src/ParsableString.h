@@ -24,7 +24,6 @@
 #include <list>
 #include <string>
 #include <queue>
-using namespace std;
 
 namespace mlpl {
 
@@ -62,7 +61,7 @@ public:
 	void resetCounter(void);
 	int getCount(const char c);
 	char getLastSeparator(void);
-	string &getForwardSeparators(void);
+	std::string &getForwardSeparators(void);
 	virtual ~SeparatorCheckerWithCounter();
 	virtual bool isSeparator(const char c);
 	virtual void notifyFound(void);
@@ -75,7 +74,7 @@ private:
 	int *m_counter;
 	char m_lastSeparator;
 	bool m_afterFound;
-	string m_forwardSeparators;
+	std::string m_forwardSeparators;
 };
 
 // ---------------------------------------------------------------------------
@@ -120,14 +119,14 @@ public:
 	static SeparatorChecker SEPARATOR_PARENTHESIS;
 
 	ParsableString(const ParsableString &parsable);
-	ParsableString(const string &str);
+	ParsableString(const std::string &str);
 	virtual ~ParsableString();
 
 	bool finished(void);
-	string readWord(const char *separators,
-	                bool keepParsingPosition = false);
-	string readWord(SeparatorChecker &checker,
-	                bool keepParsingPosition = false);
+	std::string readWord(const char *separators,
+	                     bool keepParsingPosition = false);
+	std::string readWord(SeparatorChecker &checker,
+	                     bool keepParsingPosition = false);
 	const char *getString(void) const;
 	ParsingPosition getParsingPosition(void) const;
 	void setParsingPosition(ParsingPosition position);
@@ -153,8 +152,8 @@ protected:
 	void readWordFinish(void *arg);
 
 private:
-	string      m_string;
-	string      m_readWord;
+	std::string m_string;
+	std::string m_readWord;
 	const char *m_parsingPosition;
 	bool        m_keepParsingPosition;
 	char        m_pendingNotifySeparator;

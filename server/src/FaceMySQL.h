@@ -22,8 +22,6 @@
 
 #include <vector>
 #include <string>
-using namespace std;
-
 #include <gio/gio.h>
 #include "Utils.h"
 #include "FaceBase.h"

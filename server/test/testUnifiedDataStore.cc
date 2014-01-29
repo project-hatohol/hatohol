@@ -20,13 +20,14 @@
 #include <cppcutter.h>
 #include <cutter.h>
 #include <unistd.h>
-
 #include "Hatohol.h"
 #include "Params.h"
 #include "UnifiedDataStore.h"
 #include "DBClientTest.h"
 #include "LabelUtils.h"
 #include "Helpers.h"
+using namespace std;
+using namespace mlpl;
 
 namespace testUnifiedDataStore {
 

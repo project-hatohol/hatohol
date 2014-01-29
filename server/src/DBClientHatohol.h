@@ -50,16 +50,16 @@ static const uint64_t ALL_HOST_GROUPS = -1;
 struct HostInfo {
 	uint32_t            serverId;
 	uint64_t            id;
-	string              hostName;
+	std::string         hostName;
 
 	// The follwong members are currently not used.
-	string              ipAddr;
-	string              nickname;
+	std::string         ipAddr;
+	std::string         nickname;
 };
 
 static const uint64_t INVALID_HOST_ID = -1;
 
-typedef list<HostInfo>               HostInfoList;
+typedef std::list<HostInfo>          HostInfoList;
 typedef HostInfoList::iterator       HostInfoListIterator;
 typedef HostInfoList::const_iterator HostInfoListConstIterator;
 
@@ -70,11 +70,11 @@ struct TriggerInfo {
 	TriggerSeverityType severity;
 	timespec            lastChangeTime;
 	uint64_t            hostId;
-	string              hostName;
-	string              brief;
+	std::string         hostName;
+	std::string         brief;
 };
 
-typedef list<TriggerInfo>               TriggerInfoList;
+typedef std::list<TriggerInfo>          TriggerInfoList;
 typedef TriggerInfoList::iterator       TriggerInfoListIterator;
 typedef TriggerInfoList::const_iterator TriggerInfoListConstIterator;
 
@@ -100,11 +100,12 @@ struct EventInfo {
 	TriggerStatusType   status;
 	TriggerSeverityType severity;
 	uint64_t            hostId;
-	string              hostName;
-	string              brief;
+	std::string         hostName;
+	std::string         brief;
 };
+void initEventInfo(EventInfo &eventInfo);
 
-typedef list<EventInfo>               EventInfoList;
+typedef std::list<EventInfo>          EventInfoList;
 typedef EventInfoList::iterator       EventInfoListIterator;
 typedef EventInfoList::const_iterator EventInfoListConstIterator;
 
@@ -112,14 +113,14 @@ struct ItemInfo {
 	uint32_t            serverId;
 	uint64_t            id;
 	uint64_t            hostId;
-	string              brief;
+	std::string         brief;
 	timespec            lastValueTime;
-	string              lastValue;
-	string              prevValue;
-	string              itemGroupName;
+	std::string         lastValue;
+	std::string         prevValue;
+	std::string         itemGroupName;
 };
 
-typedef list<ItemInfo>               ItemInfoList;
+typedef std::list<ItemInfo>          ItemInfoList;
 typedef ItemInfoList::iterator       ItemInfoListIterator;
 typedef ItemInfoList::const_iterator ItemInfoListConstIterator;
 
@@ -127,10 +128,10 @@ struct HostgroupInfo {
 	uint32_t            id;
 	uint32_t            serverId;
 	uint64_t            groupId;
-	string              groupName;
+	std::string              groupName;
 };
 
-typedef list<HostgroupInfo>               HostgroupInfoList;
+typedef std::list<HostgroupInfo>               HostgroupInfoList;
 typedef HostgroupInfoList::iterator       HostgroupInfoListIterator;
 typedef HostgroupInfoList::const_iterator HostgroupInfoListConstIterator;
 
@@ -141,7 +142,7 @@ struct HostgroupElement {
 	uint64_t            groupId;
 };
 
-typedef list<HostgroupElement> HostgroupElementList;
+typedef std::list<HostgroupElement> HostgroupElementList;
 typedef HostgroupElementList::iterator HostgroupElementListIterator;
 typedef HostgroupElementList::const_iterator HostgroupElementListConstIterator;
 
@@ -181,8 +182,8 @@ protected:
 	static std::string makeConditionServer(
 	  uint32_t serverId,
 	  const HostGroupSet &hostGroupSet,
-	  const string &serverIdColumnName,
-	  const string &hostGroupIdColumnName);
+	  const std::string &serverIdColumnName,
+	  const std::string &hostGroupIdColumnName);
 	static std::string makeConditionHostGroup(
 	  const HostGroupSet &hostGroupSet,
 	  const std::string &hostGroupIdColumnName);
@@ -298,7 +299,7 @@ public:
 			     const ItemsQueryOption &option,
 			     uint64_t targetItemId = ALL_ITEMS);
 	void getItemInfoList(ItemInfoList &itemInfoList,
-			     const string &condition);
+			     const std::string &condition);
 
 	/**
 	 * get the number of triggers with the given server ID, host group ID,
@@ -322,8 +323,8 @@ public:
 	size_t getNumberOfGoodHosts(const HostsQueryOption &option);
 	size_t getNumberOfBadHosts(const HostsQueryOption &option);
 
-	void pickupAbsentHostIds(vector<uint64_t> &absentHostIdVector,
-	                         const vector<uint64_t> &hostIdVector);
+	void pickupAbsentHostIds(std::vector<uint64_t> &absentHostIdVector,
+	                         const std::vector<uint64_t> &hostIdVector);
 
 protected:
 	void addTriggerInfoBare(const TriggerInfo &triggerInfo);
@@ -334,7 +335,7 @@ protected:
 	void addHostInfoBare(const HostInfo &hostInfo);
 
 	void getTriggerInfoList(TriggerInfoList &triggerInfoList,
-	                        const string &condition);
+	                        const std::string &condition);
 
 private:
 	struct PrivateContext;

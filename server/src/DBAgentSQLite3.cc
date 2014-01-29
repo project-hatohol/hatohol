@@ -22,9 +22,9 @@
 #include <stdarg.h>
 #include <inttypes.h>
 #include <gio/gio.h>
-
 #include <MutexLock.h>
 #include <Logger.h>
+using namespace std;
 using namespace mlpl;
 
 #include "DBAgentSQLite3.h"
@@ -133,7 +133,7 @@ bool DBAgentSQLite3::defineDBPath(DBDomainId domainId, const string &path,
 	return ret;
 }
 
-const string &DBAgentSQLite3::getDBPath(DBDomainId domainId)
+string &DBAgentSQLite3::getDBPath(DBDomainId domainId)
 {
 	string dbPath;
 	PrivateContext::lock();
@@ -279,10 +279,8 @@ uint64_t DBAgentSQLite3::getLastInsertId(void)
 
 uint64_t DBAgentSQLite3::getNumberOfAffectedRows(void)
 {
-	// It is a little difficult to implement this method, becuase SQLite3
-	// doesn't give a function for this purpose, different from MySQL.
-	HATOHOL_ASSERT(false, "Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return 0;
+	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
+	return getNumberOfAffectedRows(m_ctx->db);
 }
 
 // ---------------------------------------------------------------------------
@@ -664,6 +662,11 @@ void DBAgentSQLite3::selectGetValuesIteration(DBAgentSelectArg &selectArg,
 uint64_t DBAgentSQLite3::getLastInsertId(sqlite3 *db)
 {
 	return sqlite3_last_insert_rowid(db);
+}
+
+uint64_t DBAgentSQLite3::getNumberOfAffectedRows(sqlite3 *db)
+{
+	return sqlite3_changes(db);
 }
 
 ItemDataPtr DBAgentSQLite3::getValue(sqlite3_stmt *stmt,

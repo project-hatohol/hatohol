@@ -28,7 +28,8 @@
 #include "Logger.h"
 #include "MutexLock.h"
 #include "SessionManager.h"
-
+#include "Reaper.h"
+using namespace std;
 using namespace mlpl;
 
 typedef map<pid_t, ActorInfo *>      WaitChildSet;
@@ -101,6 +102,19 @@ ActorInfo::~ActorInfo()
 }
 
 // ---------------------------------------------------------------------------
+// ActorCollector::Locker
+// ---------------------------------------------------------------------------
+ActorCollector::Locker::Locker(void)
+{
+	ActorCollector::lock();
+}
+
+ActorCollector::Locker::~Locker()
+{
+	ActorCollector::unlock();
+}
+
+// ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 void ActorCollector::init(void)
@@ -120,14 +134,12 @@ void ActorCollector::reset(void)
 	// in cut_setup().
 	registerSIGCHLD();
 
-	lock();
-	if (!PrivateContext::collector) {
-		unlock();
+	CppReaper<Locker> lockReaper(new Locker());
+	if (!PrivateContext::collector)
 		return;
-	}
 	incWaitingActor(); // to unblock wait_sem().
 	PrivateContext::inReset = true;
-	unlock();
+	lockReaper.reap();
 
 	// Wait for the completion of reset() on the collected thread
 	while (true) {
@@ -185,16 +197,6 @@ void ActorCollector::quit(void)
 	PrivateContext::collectorExitRequest = true;;
 	unlock();
 	incWaitingActor(); 
-}
-
-void ActorCollector::lock(void)
-{
-	PrivateContext::lock.lock();
-}
-
-void ActorCollector::unlock(void)
-{
-	PrivateContext::lock.unlock();
 }
 
 void ActorCollector::addActor(ActorInfo *actorInfo)
@@ -255,6 +257,16 @@ void ActorCollector::incWaitingActor(void)
 	HATOHOL_ASSERT(
 	  sem_post(&PrivateContext::collectorSem) == 0,
 	  "Failed to call sem_post(): %d\n", errno);
+}
+
+void ActorCollector::lock(void)
+{
+	PrivateContext::lock.lock();
+}
+
+void ActorCollector::unlock(void)
+{
+	PrivateContext::lock.unlock();
 }
 
 bool ActorCollector::isWatching(pid_t pid)
@@ -400,3 +412,4 @@ void ActorCollector::notifyChildSiginfo(siginfo_t *info)
 	// default GLib event loop. So we delete actorInfo on that.
 	Utils::deleteOnGLibEventLoop<ActorInfo>(actorInfo, ASYNC);
 }
+

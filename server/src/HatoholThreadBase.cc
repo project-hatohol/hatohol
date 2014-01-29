@@ -19,20 +19,18 @@
 
 #include <glib.h>
 #include <glib-object.h>
-
 #include <Logger.h>
 #include <MutexLock.h>
 #include <ReadWriteLock.h>
 #include <Reaper.h>
-using namespace mlpl;
-
 #include <exception>
 #include <stdexcept>
-
 #include "Utils.h"
 #include "HatoholThreadBase.h"
 #include "HatoholException.h"
 #include "CacheServiceDBClient.h"
+using namespace std;
+using namespace mlpl;
 
 struct HatoholThreadBase::PrivateContext {
 	GThread *thread;

@@ -19,7 +19,7 @@
 
 #include "SQLProcessorException.h"
 
-SQLProcessorException::SQLProcessorException(const string &brief,
+SQLProcessorException::SQLProcessorException(const std::string &brief,
                                              const char *sourceFileName,
                                              int lineNumber)
 : HatoholException(brief, sourceFileName, lineNumber)

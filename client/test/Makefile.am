@@ -2,7 +2,7 @@ if WITH_JS_TEST
 
 TARGET_FILES = \
 	node_modules \
-	browser/mocha.js browser/mocha.css browser/expect.js
+	browser/mocha.js browser/mocha.css browser/expect.js browser/sinon.js
 
 noinst_DATA = $(TARGET_FILES)
 endif
@@ -18,6 +18,9 @@ browser/mocha.css:
 
 browser/expect.js:
 	ln -s ../node_modules/expect.js/expect.js $@
+
+browser/sinon.js:
+	ln -s ../node_modules/sinon/pkg/sinon.js $@
 
 clean-local:
 	-rm -fr $(TARGET_FILES)

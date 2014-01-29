@@ -24,13 +24,9 @@
 #include <vector>
 #include <map>
 #include <list>
-using namespace std;
-
+#include <glib.h>
 #include "StringUtils.h"
 #include "ParsableString.h"
-using namespace mlpl;
-
-#include <glib.h>
 #include "ItemGroupPtr.h"
 #include "ItemTablePtr.h"
 #include "FormulaElement.h"
@@ -61,11 +57,11 @@ struct SQLOutputColumn
 	// So we must not explicitly free it.
 	const SQLTableInfo *tableInfo;
 
-	string schema;
-	string table;
-	string tableVar;
-	string column;
-	string columnVar;
+	std::string schema;
+	std::string table;
+	std::string tableVar;
+	std::string column;
+	std::string columnVar;
 
 	// constructor and methods
 	SQLOutputColumn(SQLFormulaInfo *_formulaInfo);
@@ -77,14 +73,14 @@ struct SQLOutputColumn
 
 struct SQLColumnInfo;
 struct SQLTableInfo {
-	string name;
-	string varName;
+	std::string name;
+	std::string varName;
 
 	// A pointer in 'columnList' points an instance in 
 	// SelectInfo::columns in the SQLSelectInfo instance including this.
 	// It is added in associateColumnWithTable().
 	// So we must not explicitly free it.
-	list<const SQLColumnInfo *> columnList;
+	std::list<const SQLColumnInfo *> columnList;
 
 	// We assume that the body of 'staticInfo' that is given in
 	// the constructor via m_tableNameStaticInfoMap exists
@@ -100,13 +96,13 @@ struct SQLTableInfo {
 	SQLTableInfo(void);
 };
 
-typedef list<SQLTableInfo *>         SQLTableInfoList;
+typedef std::list<SQLTableInfo *>    SQLTableInfoList;
 typedef SQLTableInfoList::iterator   SQLTableInfoListIterator;
 
 struct SQLColumnInfo {
-	string name;         // ex.) tableVarName.column1
-	string baseName;     // ex.) column1
-	string tableVar;     // ex.) tableVarName
+	std::string name;         // ex.) tableVarName.column1
+	std::string baseName;     // ex.) column1
+	std::string tableVar;     // ex.) tableVarName
 
 	// 'tableInfo' points an instance in SQLSelectInfo::tables.
 	// So we must not it free them.
@@ -129,21 +125,22 @@ struct SQLColumnInfo {
 	ItemGroupPtr *currTargetItemGroupAddr;
 
 	// constructor and methods
-	SQLColumnInfo(const string &_name);
+	SQLColumnInfo(const std::string &_name);
 	void associate(SQLTableInfo *tableInfo);
 	void setColumnType(void);
 };
 
-typedef map<string, SQLColumnInfo *>    SQLColumnNameMap;
-typedef SQLColumnNameMap::iterator      SQLColumnNameMapIterator;
+typedef std::map<std::string, SQLColumnInfo *> SQLColumnNameMap;
+typedef SQLColumnNameMap::iterator             SQLColumnNameMapIterator;
 
-typedef map<const SQLTableInfo *, ItemIdVector> SQLTableInfoItemIdVectorMap;
+typedef std::map<const SQLTableInfo *, ItemIdVector>
+   SQLTableInfoItemIdVectorMap;
 typedef SQLTableInfoItemIdVectorMap::iterator
   SQLTableInfoItemIdVectorMapIterator;
 typedef SQLTableInfoItemIdVectorMap::const_iterator
   SQLTableInfoItemIdVectorMapConstIterator;
 
-typedef map<string, SQLTableInfo *>       SQLTableVarNameInfoMap;
+typedef std::map<std::string, SQLTableInfo *>  SQLTableVarNameInfoMap;
 typedef SQLTableVarNameInfoMap::iterator  SQLTableVarNameInfoMapIterator;
 
 struct SQLSelectInfo : public SQLProcessorInfo {
@@ -156,12 +153,12 @@ struct SQLSelectInfo : public SQLProcessorInfo {
 	// The value (const SQLTableInfo *) in the following map points
 	// an instance in 'tables' in this struct.
 	// Key is a table var name.
-	SQLTableVarNameInfoMap tableVarInfoMap;
-	SQLWhereParser         whereParser;
-	vector<string>         orderedColumns;
+	SQLTableVarNameInfoMap   tableVarInfoMap;
+	SQLWhereParser           whereParser;
+	std::vector<std::string> orderedColumns;
 
 	// definition of output Columns
-	vector<SQLOutputColumn>     outputColumnVector;
+	std::vector<SQLOutputColumn> outputColumnVector;
 
 	// unified table
 	ItemTablePtr joinedTable;
@@ -171,7 +168,7 @@ struct SQLSelectInfo : public SQLProcessorInfo {
 	ItemTablePtrList groupedTables;
 
 	// output
-	vector<StringVector> textRows;
+	std::vector<mlpl::StringVector> textRows;
 
 	// flags
 	bool useIndex;
@@ -182,7 +179,7 @@ struct SQLSelectInfo : public SQLProcessorInfo {
 	//
 	// constructor and destructor
 	//
-	SQLSelectInfo(ParsableString &_statement);
+	SQLSelectInfo(const mlpl::ParsableString &_statement);
 	virtual ~SQLSelectInfo();
 };
 
@@ -190,7 +187,7 @@ class SQLProcessorSelect
 {
 public:
 	static void init(void);
-	SQLProcessorSelect(const string &dbName,
+	SQLProcessorSelect(const std::string &dbName,
 	                   TableNameStaticInfoMap &tableNameStaticInfoMap);
 	SQLProcessorSelect(const SQLProcessorSelect *parent,
 	                   SQLSubQueryMode subQueryMode);
@@ -282,20 +279,21 @@ protected:
 	// General sub routines
 	//
 	void setup(void);
-	string readNextWord(ParsingPosition *position = NULL);
-	static void parseColumnName(const string &name,
-	                            string &baseName, string &tableVar);
+	std::string readNextWord(mlpl::ParsingPosition *position = NULL);
+	static void parseColumnName(const std::string &name,
+	                            std::string &baseName,
+	                            std::string &tableVar);
 	SQLTableInfo *
 	  getTableInfoFromColumnInfo(SQLColumnInfo *columnInfo) const;
 	SQLTableInfo *
 	  getTableInfoWithScanTables(SQLColumnInfo *columnInfo) const;
 	SQLTableInfo *
-	  getTableInfoFromVarName(const string &tableVar) const;
+	  getTableInfoFromVarName(const std::string &tableVar) const;
 	static FormulaVariableDataGetter *
-	  formulaColumnDataGetterFactory(const string &name, void *priv);
+	  formulaColumnDataGetterFactory(const std::string &name, void *priv);
 	void makeGroupByTables(void);
 	bool checkSectionParserChange(void);
-	size_t getColumnIndexInJoinedTable(const string &columnName);
+	size_t getColumnIndexInJoinedTable(const std::string &columnName);
 
 private:
 	struct PrivateContext;

@@ -20,6 +20,8 @@
 #include <cutter.h>
 #include <cppcutter.h>
 #include "DBClientTest.h"
+using namespace std;
+using namespace mlpl;
 
 MonitoringServerInfo serverInfo[] = 
 {{
@@ -443,6 +445,33 @@ HostgroupElement testHostgroupElement[] = {
 }
 };
 const size_t NumTestHostgroupElement = sizeof(testHostgroupElement) / sizeof(HostgroupElement);
+
+UserRoleInfo testUserRoleInfo[] = {
+{
+	0,                            // id
+	"Specific Server maintainer", // name
+	(1 << OPPRVLG_UPDATE_SERVER)  // flags
+}, {
+	0,                     // id
+	"We're Action master", // name
+	// flags
+	(1 << OPPRVLG_CREATE_ACTION)     |
+	(1 << OPPRVLG_UPDATE_ACTION)     |
+	(1 << OPPRVLG_UPDATE_ALL_ACTION) |
+	(1 << OPPRVLG_DELETE_ACTION)     |
+	(1 << OPPRVLG_DELETE_ALL_ACTION) |
+	(1 << OPPRVLG_GET_ALL_ACTION)
+}, {
+	0,                 // id
+	"Sweeper",         // name
+	// flags
+	(1 << OPPRVLG_DELETE_USER)          |
+	(1 << OPPRVLG_DELETE_ALL_SERVER)    |
+	(1 << OPPRVLG_DELETE_ALL_ACTION)    |
+	(1 << OPPRVLG_DELETE_ALL_USER_ROLE)
+}
+};
+const size_t NumTestUserRoleInfo = sizeof(testUserRoleInfo) / sizeof(UserRoleInfo);
 
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 {

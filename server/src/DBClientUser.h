@@ -29,8 +29,8 @@
 
 struct UserInfo {
 	UserIdType id;
-	string name;
-	string password;
+	std::string name;
+	std::string password;
 	OperationPrivilegeFlag flags;
 
 	bool operator==(const UserInfo &u) {
@@ -74,12 +74,22 @@ typedef std::map<uint32_t, HostGroupSet>    ServerHostGrpSetMap;
 typedef ServerHostGrpSetMap::iterator       ServerHostGrpSetMapIterator;
 typedef ServerHostGrpSetMap::const_iterator ServerHostGrpSetMapConstIterator;
 
+struct UserRoleInfo {
+	UserRoleIdType id;
+	std::string name;
+	OperationPrivilegeFlag flags;
+};
+
+typedef std::list<UserRoleInfo>          UserRoleInfoList;
+typedef UserRoleInfoList::iterator       UserRoleInfoListIterator;
+typedef UserRoleInfoList::const_iterator UserRoleInfoListConstIterator;
+
 class UserQueryOption : public DataQueryOption {
 public:
 	UserQueryOption(UserIdType userId = INVALID_USER_ID);
 	virtual ~UserQueryOption();
 
-	HatoholError setTargetName(const string &name);
+	HatoholError setTargetName(const std::string &name);
 	void         queryOnlyMyself(void);
 
 	// Overriding virtual methods
@@ -106,14 +116,32 @@ private:
 	PrivateContext *m_ctx;
 };
 
+class UserRoleQueryOption : public DataQueryOption {
+public:
+	UserRoleQueryOption(UserIdType userId = INVALID_USER_ID);
+	virtual ~UserRoleQueryOption();
+
+	void setTargetUserRoleId(UserRoleIdType userRoleId);
+        UserRoleIdType getTargetUserRoleId(void) const;
+
+	// Overriding of virtual methods
+	virtual std::string getCondition(void) const;
+
+private:
+	struct PrivateContext;
+	PrivateContext *m_ctx;
+};
+
 class DBClientUser : public DBClient {
 public:
 	static const int   USER_DB_VERSION;
 	static const char *DEFAULT_DB_NAME;
 	static const char *TABLE_NAME_USERS;
 	static const char *TABLE_NAME_ACCESS_LIST;
+	static const char *TABLE_NAME_USER_ROLES;
 	static const size_t MAX_USER_NAME_LENGTH;
 	static const size_t MAX_PASSWORD_LENGTH;
+	static const size_t MAX_USER_ROLE_NAME_LENGTH;
 	static void init(void);
 	static void reset(void);
 
@@ -150,7 +178,8 @@ public:
 	 * A user ID if authentification is successed.
 	 * Otherwise INVALID_USER_ID is returned.
 	 */
-	UserIdType getUserId(const string &user, const string &password);
+	UserIdType getUserId(const std::string &user,
+	                     const std::string &password);
 
 	/**
 	 * Add an access list element.
@@ -159,9 +188,9 @@ public:
 	 * An AccessInfo instance that has parameters to be stored.
 	 */
 	HatoholError addAccessInfo(AccessInfo &accessInfo,
-				   const OperationPrivilege &privilege);
+	                           const OperationPrivilege &privilege);
 	HatoholError deleteAccessInfo(AccessInfoIdType id,
-				      const OperationPrivilege &privilege);
+	                              const OperationPrivilege &privilege);
 
 	bool getUserInfo(UserInfo &userInfo, const UserIdType userId);
 
@@ -187,7 +216,7 @@ public:
 	 * @param option A AccessInfoQueryOption instance.
 	 */
 	HatoholError getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
-				      const AccessInfoQueryOption &option);
+	                              const AccessInfoQueryOption &option);
 	static void destroyServerAccessInfoMap(
 	  ServerAccessInfoMap &srvAccessInfoMap);
 
@@ -201,10 +230,19 @@ public:
 	void getServerHostGrpSetMap(ServerHostGrpSetMap &srvHostGrpSetMap,
 	                            const UserIdType userId);
 
-	static HatoholError isValidUserName(const string &name);
-	static HatoholError isValidPassword(const string &password);
-	static HatoholError isValidFlags(
-	                           const OperationPrivilegeFlag flags);
+	HatoholError addUserRoleInfo(UserRoleInfo &userRoleInfo,
+	                             const OperationPrivilege &privilege);
+	HatoholError updateUserRoleInfo(UserRoleInfo &userRoleInfo,
+					const OperationPrivilege &privilege);
+	HatoholError deleteUserRoleInfo(const UserRoleIdType userRoleId,
+					const OperationPrivilege &privilege);
+	void getUserRoleInfoList(UserRoleInfoList &userRoleInfoList,
+	                         const UserRoleQueryOption &option);
+
+	static HatoholError isValidUserName(const std::string &name);
+	static HatoholError isValidPassword(const std::string &password);
+	static HatoholError isValidFlags(const OperationPrivilegeFlag flags);
+	static HatoholError isValidUserRoleName(const std::string &name);
 
 	bool isAccessible(const ServerIdType serverId,
 	                  const OperationPrivilege &privilege,
@@ -212,10 +250,9 @@ public:
 
 protected:
 	void getUserInfoList(UserInfoList &userInfoList,
-	                     const string &condition);
+	                     const std::string &condition);
 	HatoholError hasPrivilegeForUpdateUserInfo(
-		UserInfo &userInfo,
-		const OperationPrivilege &privilege);
+	  UserInfo &userInfo, const OperationPrivilege &privilege);
 
 private:
 	struct PrivateContext;

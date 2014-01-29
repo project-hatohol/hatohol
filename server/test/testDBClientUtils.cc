@@ -21,6 +21,7 @@
 #include "DBClientUtils.h"
 #include "ItemGroupPtr.h"
 #include "ItemDataPtr.h"
+using namespace std;
 
 namespace testDBClientUtils {
 

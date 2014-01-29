@@ -21,11 +21,8 @@
 #define VirtualDataStoreZabbix_h
 
 #include <map>
-using namespace std;
-
 #include <MutexLock.h>
 #include <ReadWriteLock.h>
-
 #include <glib.h>
 #include "ItemTablePtr.h"
 #include "VirtualDataStore.h"
@@ -51,13 +48,13 @@ protected:
 
 private:
 	typedef ItemTablePtr (VirtualDataStoreZabbix::*DataGenerator)(void);
-	typedef map<ItemGroupId, DataGenerator>  DataGeneratorMap;
-	typedef DataGeneratorMap::iterator       DataGeneratorMapIterator;
+	typedef std::map<ItemGroupId, DataGenerator> DataGeneratorMap;
+	typedef DataGeneratorMap::iterator           DataGeneratorMapIterator;
 
 	static mlpl::MutexLock         m_mutex;
 	static VirtualDataStoreZabbix *m_instance;
 	ItemGroupIdTableMap m_staticItemTableMap;
-	ReadWriteLock       m_staticItemTableMapLock;
+	mlpl::ReadWriteLock m_staticItemTableMapLock;
 
 	DataGeneratorMap    m_dataGeneratorMap;
 

@@ -35,6 +35,7 @@
 #include "ItemData.h"
 #include "JsonParserAgent.h"
 #include "DBClientAction.h"
+using namespace std;
 
 namespace testArmZabbixAPI {
 static Synchronizer g_sync;

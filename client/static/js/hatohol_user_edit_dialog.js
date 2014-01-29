@@ -17,12 +17,15 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var HatoholUserEditDialog = function(succeededCb, user) {
+var HatoholUserEditDialog = function(params) {
   var self = this;
 
-  self.user = user;
-  self.windowTitle = user ? gettext("EDIT USER") : gettext("ADD USER");
-  self.applyButtonTitle = user ? gettext("APPLY") : gettext("ADD");
+  self.operator = params.operator;
+  self.user = params.targetUser;
+  self.succeededCallback = params.succeededCallback;
+  self.userRolesData = null;
+  self.windowTitle = self.user ? gettext("EDIT USER") : gettext("ADD USER");
+  self.applyButtonTitle = self.user ? gettext("APPLY") : gettext("ADD");
 
   var dialogButtons = [{
     text: self.applyButtonTitle,
@@ -37,6 +40,7 @@ var HatoholUserEditDialog = function(succeededCb, user) {
   HatoholDialog.apply(
     this, ["user-edit-dialog", self.windowTitle, dialogButtons, dialogAttrs]);
   setTimeout(function(){self.setApplyButtonState(false);}, 1);
+  self.loadUserRoles();
 
   //
   // Dialog button handlers
@@ -56,14 +60,23 @@ var HatoholUserEditDialog = function(succeededCb, user) {
     self.closeDialog();
   }
 
+  $("#editUserRoles").click(function() {
+    new HatoholUserRolesEditor({
+      operator: self.operator,
+      succeededCallback: function() {
+        self.loadUserRoles();
+      }
+    });
+  });
+
   function makeQueryData() {
-      var queryData = {};
-      var password = $("#editPassword").val();
-      queryData.user = $("#editUserName").val();
-      if (password)
-        queryData.password = password;
-      queryData.flags = getFlagsFromUserType();
-      return queryData;
+    var queryData = {};
+    var password = $("#editPassword").val();
+    queryData.user = $("#editUserName").val();
+    if (password)
+      queryData.password = password;
+    queryData.flags = getFlags();
+    return queryData;
   }
 
   function postAddUser() {
@@ -86,12 +99,12 @@ var HatoholUserEditDialog = function(succeededCb, user) {
     else
       hatoholInfoMsgBox(gettext("Successfully created."));
 
-    if (succeededCb)
-      succeededCb();
+    if (self.succeededCallback)
+      self.succeededCallback();
   }
 
   function validateParameters() {
-    var type = $("#selectUserType").val();
+    var flags = $("#selectUserType").val();
 
     if ($("#editUserName").val() == "") {
       hatoholErrorMsgBox(gettext("User name is empty!"));
@@ -101,24 +114,16 @@ var HatoholUserEditDialog = function(succeededCb, user) {
       hatoholErrorMsgBox(gettext("Password is empty!"));
       return false;
     }
-    if (type != "guest" && type != "admin") {
+    if (isNaN(flags) || flags < 0 || flags > hatohol.ALL_PRIVILEGES) {
       hatoholErrorMsgBox(gettext("Invalid user type!"));
       return false;
     }
     return true;
   }
 
-  function getFlagsFromUserType(type) {
-    if (!type)
-      type = $("#selectUserType").val();
-    switch(type) {
-    case "admin":
-      return hatohol.ALL_PRIVILEGES;
-    case "guest":
-    default:
-      break;
-    }
-    return hatohol.NONE_PRIVILEGE;
+  function getFlags() {
+    var flags = $("#selectUserType").val();
+    return parseInt(flags);
   }
 };
 
@@ -130,23 +135,36 @@ HatoholUserEditDialog.prototype.createMainElement = function() {
   var div = $(makeMainDivHTML());
   return div;
 
+  function canEditUserRoles() {
+    return hasFlag(self.operator, hatohol.OPPRVLG_CREATE_USER_ROLE) ||
+      hasFlag(self.operator, hatohol.OPPRVLG_UPDATE_ALL_USER_ROLE) ||
+      hasFlag(self.operator, hatohol.OPPRVLG_DELETE_ALL_USER_ROLE);
+  };
+
   function makeMainDivHTML() {
-    var s = "";
     var userName = self.user ? self.user.name : "";
     var isAdmin = self.user && (self.user.flags == hatohol.ALL_PRIVILEGES);
     var adminSelected = isAdmin ? "selected" : "";
-    s += '<div id="add-user-div">';
-    s += '<label for="editUserName">' + gettext("User name") + '</label>';
-    s += '<input id="editUserName" type="text" value="' + userName + '" class="input-xlarge">';
-    s += '<label for="editPassword">' + gettext("Password") + '</label>';
-    s += '<input id="editPassword" type="password" value="" class="input-xlarge">';
-    s += '<label>' + gettext("User type") + '</label>';
-    s += '<select id="selectUserType">';
-    s += '  <option value="guest">' + gettext('Guest') + '</option>';
-    s += '  <option value="admin" ' + adminSelected + '>' + gettext('Admin') + '</option>';
-    s += '</select>';
-    s += '</div">';
-    return s;
+    var html = "" +
+    '<div>' +
+    '<label for="editUserName">' + gettext("User name") + '</label>' +
+    '<input id="editUserName" type="text" value="' + userName +
+    '"  class="input-xlarge">' +
+    '<label for="editPassword">' + gettext("Password") + '</label>' +
+    '<input id="editPassword" type="password" value="" class="input-xlarge">' +
+    '<label>' + gettext("User type") + '</label>' +
+    '<select id="selectUserType" style="width: 12em;">' +
+    '  <option value="guest">' + gettext('Guest') + '</option>' +
+    '  <option value="admin" ' + adminSelected + '>' + gettext('Admin') +
+    '  </option>' +
+    '</select>';
+    if (canEditUserRoles()) {
+      html +=
+      '<input id="editUserRoles" type="button" class="btn" ' +
+      '  value="' + gettext('EDIT') + '" style="margin-bottom: 10;"/>';
+    }
+    html += '</div">';
+    return html;
   }
 };
 
@@ -185,4 +203,43 @@ HatoholUserEditDialog.prototype.setApplyButtonState = function(state) {
      btn.attr("disabled", "disabled");
      btn.addClass("ui-state-disabled");
   }
+};
+
+HatoholUserEditDialog.prototype.updateUserRolesSelector = function() {
+  var userRoles = this.userRolesData.userRoles;
+  var html = "" +
+  '<option value="' + hatohol.NONE_PRIVILEGE + '">' +
+    gettext("Guest") + '</option>' +
+  '<option value="' + hatohol.ALL_PRIVILEGES + '">' +
+    gettext("Admin") + '</option>';
+
+  for (i = 0; i < userRoles.length; i++) {
+    html +=
+    '<option value="' + userRoles[i].flags + '">' +
+    userRoles[i].name +
+    '</option>';
+  }
+
+  $("#selectUserType").html(html);
+  if (this.user)
+    $("#selectUserType").val(this.user.flags);
+};
+
+HatoholUserEditDialog.prototype.loadUserRoles = function() {
+  var self = this;
+  new HatoholConnector({
+    url: "/user-role",
+    request: "GET",
+    data: {},
+    replyCallback: function(userRolesData, parser) {
+      self.userRolesData = userRolesData;
+      self.updateUserRolesSelector(userRolesData);
+    },
+    parseErrorCallback: hatoholErrorMsgBoxForParser,
+    connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
+      var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
+                     XMLHttpRequest.statusText;
+      hatoholErrorMsgBox(errorMsg);
+    }
+  });
 };

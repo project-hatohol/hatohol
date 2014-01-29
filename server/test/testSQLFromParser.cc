@@ -19,13 +19,13 @@
 
 #include <ParsableString.h>
 #include <StringUtils.h>
-using namespace mlpl;
-
 #include <stdarg.h>
 #include <cppcutter.h>
 #include "SQLFromParser.h"
 #include "Hatohol.h"
 #include "HatoholException.h"
+using namespace std;
+using namespace mlpl;
 
 namespace testSQLFromParser {
 

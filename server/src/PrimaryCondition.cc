@@ -18,6 +18,7 @@
  */
 
 #include "PrimaryCondition.h"
+using namespace std;
 
 // ---------------------------------------------------------------------------
 // PrimaryCondition

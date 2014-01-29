@@ -27,8 +27,8 @@
 #include "HatoholError.h"
 #include "FaceRest.h"
 #include "SessionManager.h"
-
 using namespace std;
+using namespace mlpl;
 
 enum LanguageType {
 	JAVASCRIPT,
@@ -168,6 +168,10 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 	ADD_LINE(s, langType, HTERR_NO_PRIVILEGE);
 	ADD_LINE(s, langType, HTERR_INVALID_USER_FLAGS);
 	ADD_LINE(s, langType, HTERR_NOT_FOUND_USER_ID);
+	ADD_LINE(s, langType, HTERR_EMPTY_USER_ROLE_NAME);
+	ADD_LINE(s, langType, HTERR_TOO_LONG_USER_ROLE_NAME);
+	ADD_LINE(s, langType, HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST);
+	ADD_LINE(s, langType, HTERR_NOT_FOUND_USER_ROLE_ID);
 	APPEND(s, "\n");
 
 	// DBClientHatohol
@@ -231,6 +235,10 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 	ADD_LINE(s, langType, OPPRVLG_DELETE_ACTION);
 	ADD_LINE(s, langType, OPPRVLG_DELETE_ALL_ACTION);
 	ADD_LINE(s, langType, OPPRVLG_GET_ALL_ACTION);
+
+	ADD_LINE(s, langType, OPPRVLG_CREATE_USER_ROLE);
+	ADD_LINE(s, langType, OPPRVLG_UPDATE_ALL_USER_ROLE);
+	ADD_LINE(s, langType, OPPRVLG_DELETE_ALL_USER_ROLE);
 
 	ADD_LINE(s, langType, NUM_OPPRVLG);
 	APPEND(s, "\n");

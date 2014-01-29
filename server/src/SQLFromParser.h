@@ -21,11 +21,7 @@
 #define SQLFromParser_h
 
 #include <string>
-using namespace std;
-
 #include <ParsableString.h>
-using namespace mlpl;
-
 #include "SQLTableFormula.h"
 #include "FormulaElement.h"
 #include "PrimaryCondition.h"
@@ -38,7 +34,7 @@ public:
 	virtual ~SQLFromParser();
 	SQLTableFormula *getTableFormula(void) const;
 	SQLTableElementList &getTableElementList(void) const;
-	SeparatorCheckerWithCallback *getSeparatorChecker(void);
+	mlpl::SeparatorCheckerWithCallback *getSeparatorChecker(void);
 	void setColumnIndexResolver(SQLColumnIndexResoveler *resolver);
 	void setSubQueryMode(SQLSubQueryMode subQueryMode);
 	void prepareJoin
@@ -46,13 +42,13 @@ public:
 	   SQLTableProcessContextIndex *ctxIndex);
 	ItemTablePtr doJoin(FormulaElement *whereFormula);
 
-	virtual void add(const string& word, const string &wordLower);
+	virtual void add(const std::string &word, const std::string &wordLower);
 	virtual void flush(void);
 	virtual void close(void);
 
 protected:
 	typedef void (SQLFromParser::*SubParser)
-	               (const string &word, const string &wordLower);
+	  (const std::string &word, const std::string &wordLower);
 	enum ParsingState {
 		PARSING_STAT_EXPECT_TABLE_NAME,
 		PARSING_STAT_POST_TABLE_NAME,
@@ -68,30 +64,33 @@ protected:
 	//
 	// Sub parsers
 	//
-	void subParserExpectTableName
-	       (const string &word, const string &wordLower);
-	void subParserPostTableName
-	       (const string &word, const string &wordLower);
-	void subParserCreatedTable(const string &word, const string &wordLower);
-	void subParserGotInner(const string &word, const string &wordLower);
-	void subParserExpectOn(const string &word, const string &wordLower);
-	void subParserExpectLeftField
-	       (const string &word, const string &wordLower);
-	void subParserExpectJoinEqual
-	       (const string &word, const string &wordLower);
-	void subParserExpectRightField
-	       (const string &word, const string &wordLower);
+	void subParserExpectTableName(const std::string &word,
+	                              const std::string &wordLower);
+	void subParserPostTableName(const std::string &word,
+	                            const std::string &wordLower);
+	void subParserCreatedTable(const std::string &word,
+	                           const std::string &wordLower);
+	void subParserGotInner(const std::string &word,
+	                       const std::string &wordLower);
+	void subParserExpectOn(const std::string &word,
+	                       const std::string &wordLower);
+	void subParserExpectLeftField(const std::string &word,
+	                              const std::string &wordLower);
+	void subParserExpectJoinEqual(const std::string &word,
+	                              const std::string &wordLower);
+	void subParserExpectRightField(const std::string &word,
+	                               const std::string &wordLower);
 
 	//
 	// general sub routines
 	//
-	void goNextStateIfWordIsExpected(const string &expectedWord,
-	                                 const string &actualWord,
+	void goNextStateIfWordIsExpected(const std::string &expectedWord,
+	                                 const std::string &actualWord,
 	                                 ParsingState nextState);
 	void insertTableFormula(SQLTableFormula *tableFormula);
 	void makeTableElement(
-	       const string &tableName,
-	       const string &varName = StringUtils::EMPTY_STRING);
+	  const std::string &tableName,
+	  const std::string &varName = mlpl::StringUtils::EMPTY_STRING);
 	void associatePrimaryConditionsWithTableProcessorContext
 	       (const PrimaryConditionList &primaryConditionList,
 	        SQLTableProcessContextIndex *ctxIndex);
@@ -104,8 +103,8 @@ protected:
 	void selectTableRowIteratorEachTable(SQLTableProcessContext *tableCtx);
 	void makeCrossJoin(void);
 	void makeInnerJoin(void);
-	void parseInnerJoinLeftField(const string &fieldName);
-	void parseInnerJoinRightField(const string &fieldName);
+	void parseInnerJoinLeftField(const std::string &fieldName);
+	void parseInnerJoinRightField(const std::string &fieldName);
 	void doJoineOneRow(FormulaElement *whereFormula);
 	void IterateTableRowForJoin(SQLTableElementListIterator tableItr,
 	                            FormulaElement *whereFormula);
@@ -126,7 +125,7 @@ private:
 	static SubParser             m_subParsers[];
 	static size_t                m_numSubParsers;
 	PrivateContext              *m_ctx;
-	SeparatorCheckerWithCallback m_separator;
+	mlpl::SeparatorCheckerWithCallback m_separator;
 };
 
 #endif // SQLFromParser_h

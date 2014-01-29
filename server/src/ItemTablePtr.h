@@ -21,17 +21,16 @@
 #define ItemTablePtr_h
 
 #include <list>
-using namespace std;
-
+#include <map>
 #include "ItemPtr.h"
 #include "ItemTable.h"
 
 typedef ItemPtr<ItemTable>       VariableItemTablePtr;
 typedef ItemPtr<const ItemTable> ItemTablePtr;
 
-typedef list<ItemTablePtr>                 ItemTablePtrList;
-typedef list<ItemTablePtr>::iterator       ItemTablePtrListIterator;
-typedef list<ItemTablePtr>::const_iterator ItemTablePtrListConstIterator;
+typedef std::list<ItemTablePtr>                 ItemTablePtrList;
+typedef std::list<ItemTablePtr>::iterator       ItemTablePtrListIterator;
+typedef std::list<ItemTablePtr>::const_iterator ItemTablePtrListConstIterator;
 
 ItemTablePtr
 innerJoin     (const ItemTablePtr &tablePtr0, const ItemTablePtr &tablePtr1,
@@ -52,7 +51,7 @@ crossJoin     (const ItemTablePtr &tablePtr0, const ItemTablePtr &tablePtr1);
 template<> VariableItemTablePtr::ItemPtr(void);
 template<> ItemTablePtr::ItemPtr(void);
 
-typedef map<ItemGroupPtr, VariableItemTablePtr, ItemGroupPtrComparator>
+typedef std::map<ItemGroupPtr, VariableItemTablePtr, ItemGroupPtrComparator>
   ItemGroupTableMap;
 typedef ItemGroupTableMap::iterator ItemGroupTableMapIterator;
 

@@ -22,6 +22,8 @@
 #include "ItemDataUtils.h"
 #include "SQLProcessorException.h"
 #include "FormulaOperator.h"
+using namespace std;
+using namespace mlpl;
 
 enum KeywordParsingStep {
 	KEYWORD_STEP_NULL,
@@ -131,7 +133,7 @@ SQLWhereParser::~SQLWhereParser()
 		delete m_ctx;
 }
 
-void SQLWhereParser::add(string& word, string &wordLower)
+void SQLWhereParser::add(const string& word, const string &wordLower)
 {
 	if (m_ctx->kwParsingStep == KEYWORD_STEP_NULL)
 		SQLFormulaParser::add(word, wordLower);

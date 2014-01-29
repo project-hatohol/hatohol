@@ -19,11 +19,7 @@
 
 #include <Logger.h>
 #include <StringUtils.h>
-using namespace mlpl;
-
 #include <algorithm>
-using namespace std;
-
 #include <stdexcept>
 #include <cstring>
 #include "SQLProcessorSelect.h"
@@ -33,6 +29,8 @@ using namespace std;
 #include "SQLUtils.h"
 #include "Utils.h"
 #include "PrimaryConditionPicker.h"
+using namespace std;
+using namespace mlpl;
 
 typedef bool (SQLProcessorSelect::*SelectSectionParser)(void);
 typedef void (SQLProcessorSelect::*SelectSubParser)(void);
@@ -457,7 +455,7 @@ void SQLColumnInfo::setColumnType(void)
 // ---------------------------------------------------------------------------
 // Public methods (SQLSelectInfo)
 // ---------------------------------------------------------------------------
-SQLSelectInfo::SQLSelectInfo(ParsableString &_statement)
+SQLSelectInfo::SQLSelectInfo(const ParsableString &_statement)
 : SQLProcessorInfo(_statement),
   useIndex(false),
   itemFalsePtr(new ItemBool(false), false)

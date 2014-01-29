@@ -29,7 +29,7 @@ struct ActorInfo {
 	pid_t    pid;
 	uint64_t logId;
 	bool     dontLog;
-	string   sessionId;
+	std::string sessionId;
 
 	// collectedCb is called with taking ActorCollector::lock().
 	// postCollectedCb is called after calling ActorCollector::unlock().
@@ -47,12 +47,16 @@ struct ActorInfo {
 class ActorCollector : public HatoholThreadBase
 {
 public:
+	struct Locker
+	{
+		Locker(void);
+		virtual ~Locker();
+	};
+
 	static void init(void);
 	static void reset(void);
 	static void resetOnCollectorThread(void);
 	static void quit(void);
-	static void lock(void);
-	static void unlock(void);
 
 	/**
 	 * lock() has to be called before this function is used.
@@ -76,6 +80,8 @@ public:
 protected:
 	static void registerSIGCHLD(void);
 	static void incWaitingActor(void);
+	static void lock(void);
+	static void unlock(void);
 
 	// we redefine start() as protected so that HatoholThreadBase::start()
 	// cannot be called from other classes.

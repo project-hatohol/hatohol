@@ -20,16 +20,15 @@
 #include <set>
 #include <cstdio>
 #include <Logger.h>
-
 #include "ZabbixAPIEmulator.h"
 #include "JsonParserAgent.h"
 #include "JsonBuilderAgent.h"
 #include "HatoholException.h"
 #include "Helpers.h"
+using namespace std;
+using namespace mlpl;
 
 static const int COUNT_ELEMENT_NAMES = 10;
-
-using namespace mlpl;
 
 struct ZabbixAPIEmulator::APIHandlerArg
 {
@@ -41,7 +40,7 @@ struct ZabbixAPIEmulator::APIHandlerArg
 	int64_t            id;
 };
 
-typedef map<string, ZabbixAPIEmulator::APIHandler> APIHandlerMap;
+typedef std::map<string, ZabbixAPIEmulator::APIHandler> APIHandlerMap;
 typedef APIHandlerMap::iterator APIHandlerMapIterator;
 
 struct ZabbixAPIEmulator::ParameterEventGet {

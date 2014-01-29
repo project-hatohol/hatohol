@@ -21,8 +21,6 @@
 #define ItemDataUtils_h
 
 #include <string>
-using namespace std;
-
 #include "ItemDataPtr.h"
 #include "ItemGroupPtr.h"
 #include "ItemEnum.h"
@@ -30,8 +28,8 @@ using namespace std;
 
 class ItemDataUtils {
 public:
-	static ItemDataPtr createAsNumber(const string &word);
-	static ItemDataPtr createAsNumberOrString(const string &word);
+	static ItemDataPtr createAsNumber(const std::string &word);
+	static ItemDataPtr createAsNumberOrString(const std::string &word);
 	template<typename NativeType, typename ItemDataType>
 	static const NativeType
 	   &get(const ItemData *itemData, bool *isNull = NULL) {
@@ -55,11 +53,11 @@ public:
 		return *(new NativeType()); // never executed, just to build
 	}
 
-	static const bool     &getBool  (const ItemData *itemData);
-	static const int      &getInt   (const ItemData *itemData);
-	static const uint64_t &getUint64(const ItemData *itemData);
-	static const double   &getDouble(const ItemData *itemData);
-	static const string   &getString(const ItemData *itemData);
+	static const bool        &getBool  (const ItemData *itemData);
+	static const int         &getInt   (const ItemData *itemData);
+	static const uint64_t    &getUint64(const ItemData *itemData);
+	static const double      &getDouble(const ItemData *itemData);
+	static const std::string &getString(const ItemData *itemData);
 };
 
 // The reason why this function is specialized:
@@ -75,7 +73,7 @@ const uint64_t &ItemDataUtils::get<uint64_t> (const ItemData *itemData);
 template<>
 const double &ItemDataUtils::get<double>(const ItemData *itemData);
 template<>
-const string &ItemDataUtils::get<string>(const ItemData *itemData);
+const std::string &ItemDataUtils::get<std::string>(const ItemData *itemData);
 
 struct ItemDataPtrComparator {
 	bool operator()(const ItemDataPtr &dataPtr0,
@@ -84,8 +82,8 @@ struct ItemDataPtrComparator {
 	}
 };
 
-typedef set<ItemDataPtr, ItemDataPtrComparator> ItemDataSet;
-typedef multiset<ItemDataPtr, ItemDataPtrComparator> ItemDataMultiSet;
+typedef std::set<ItemDataPtr, ItemDataPtrComparator> ItemDataSet;
+typedef std::multiset<ItemDataPtr, ItemDataPtrComparator> ItemDataMultiSet;
 
 struct ItemGroupPtrComparator {
 	bool operator()(const ItemGroupPtr &grpPtr0,
@@ -120,10 +118,12 @@ struct ItemDataPtrForIndex : public ItemDataPtr {
 	ItemDataPtrForIndex(const ItemData *itemData, const ItemGroup *itemGrp);
 };
 
-typedef set<ItemDataPtrForIndex, ItemDataPtrComparator> ItemDataForIndexSet;
+typedef std::set<ItemDataPtrForIndex, ItemDataPtrComparator>
+  ItemDataForIndexSet;
 typedef ItemDataForIndexSet::iterator ItemDataForIndexSetIterator;
 
-typedef multiset<ItemDataPtrForIndex, ItemDataPtrComparator> ItemDataForIndexMultiSet;
+typedef std::multiset<ItemDataPtrForIndex, ItemDataPtrComparator>
+  ItemDataForIndexMultiSet;
 typedef ItemDataForIndexMultiSet::iterator ItemDataForIndexMultiSetIterator;
 
 class ItemDataIndex {
@@ -133,14 +133,14 @@ public:
 	ItemDataIndexType getIndexType(void) const;
 	bool insert(const ItemData *itemData, const ItemGroup* itemGroup);
 	void find(const ItemData *itemData,
-	          vector<ItemDataPtrForIndex> &foundItems) const;
+	          std::vector<ItemDataPtrForIndex> &foundItems) const;
 private:
 	ItemDataIndexType m_type;
 	ItemDataForIndexSet      *m_index;
 	ItemDataForIndexMultiSet *m_multiIndex;
 };
 
-typedef vector<ItemDataIndex *>             ItemDataIndexVector;
+typedef std::vector<ItemDataIndex *>        ItemDataIndexVector;
 typedef ItemDataIndexVector::iterator       ItemDataIndexVectorIterator;
 typedef ItemDataIndexVector::const_iterator ItemDataIndexVectorConstIterator;
 

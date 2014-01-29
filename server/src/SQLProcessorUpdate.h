@@ -26,10 +26,10 @@
 
 struct SQLUpdateInfo : public SQLProcessorInfo {
 	// parsed matter
-	string           table;
-	StringVector     columnVector;
-	StringVector     valueVector;
-	SQLWhereParser   whereParser;
+	std::string        table;
+	mlpl::StringVector columnVector;
+	mlpl::StringVector valueVector;
+	SQLWhereParser     whereParser;
 
 	// table to be updated
 	const SQLTableStaticInfo *tableStaticInfo;
@@ -42,7 +42,7 @@ struct SQLUpdateInfo : public SQLProcessorInfo {
 	//
 	// constructor and destructor
 	//
-	SQLUpdateInfo(ParsableString &_statment);
+	SQLUpdateInfo(const mlpl::ParsableString &_statment);
 	virtual ~SQLUpdateInfo();
 };
 
@@ -107,15 +107,17 @@ protected:
 	//
 	// General sub routines
 	//
-	string readCurrWord(void); 
-	void checkCurrWord(string expected, UpdateParseSection nextSection);
+	std::string readCurrWord(void); 
+	void checkCurrWord(const std::string &expected,
+	                   UpdateParseSection nextSection);
 	static FormulaVariableDataGetter *
-	  formulaColumnDataGetterFactory(const string &name, void *priv);
+	  formulaColumnDataGetterFactory(const std::string &name, void *priv);
 	static bool updateMatchingRows(const ItemGroup *itemGroup,
 	                               PrivateContext *ctx);
 	static bool updateMatchingCell(const ItemGroup *itemGroup,
 	                               PrivateContext *ctx,
-	                               string &columnName, string &value);
+	                               const std::string &columnName,
+	                               const std::string &value);
 
 private:
 	static const UpdateSubParser m_updateSubParsers[];

@@ -17,7 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var HatoholNavi = function(currentPage) {
+var HatoholNavi = function(user, currentPage) {
   var i, title, klass;
   var menuItems = [
     {
@@ -45,8 +45,7 @@ var HatoholNavi = function(currentPage) {
     },
     {
       title: gettext("Servers"),
-      href:  "ajax_servers" ,
-      flags: (1 << hatohol.OPPRVLG_GET_ALL_SERVERS)
+      href:  "ajax_servers"
     },
     {
       title: gettext("Actions"),
@@ -69,7 +68,7 @@ var HatoholNavi = function(currentPage) {
 
   for (i = 0; i < menuItems.length; ++i) {
     if (menuItems[i].flags != undefined &&
-        !userProfile.hasFlags(menuItems[i].flags))
+        !hasFlags(user, menuItems[i].flags))
     {
       continue;
     }

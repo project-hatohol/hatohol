@@ -19,13 +19,13 @@
 
 #include <Logger.h>
 #include <StringUtils.h>
-using namespace mlpl;
-
 #include "SQLProcessorUpdate.h"
 #include "Utils.h"
 #include "HatoholException.h"
 #include "SQLProcessorException.h"
 #include "SQLUtils.h"
+using namespace std;
+using namespace mlpl;
 
 struct SQLProcessorUpdate::PrivateContext {
 	TableNameStaticInfoMap      &tableNameStaticInfoMap;
@@ -105,7 +105,7 @@ private:
 // ---------------------------------------------------------------------------
 // Public methods (SQLUpdateInfo)
 // ---------------------------------------------------------------------------
-SQLUpdateInfo::SQLUpdateInfo(ParsableString &_statement)
+SQLUpdateInfo::SQLUpdateInfo(const ParsableString &_statement)
 : SQLProcessorInfo(_statement),
   itemFalsePtr(new ItemBool(false), false)
 {
@@ -345,7 +345,7 @@ string SQLProcessorUpdate::readCurrWord(void)
 	return m_ctx->updateInfo->statement.readWord(*separator);
 }
 
-void SQLProcessorUpdate::checkCurrWord(string expected,
+void SQLProcessorUpdate::checkCurrWord(const string &expected,
                                        UpdateParseSection nextSection)
 {
 	if (m_ctx->currWordLower != expected) {
@@ -368,7 +368,7 @@ SQLProcessorUpdate::formulaColumnDataGetterFactory(const string &name,
 
 bool SQLProcessorUpdate::updateMatchingCell
   (const ItemGroup *itemGroup, PrivateContext *ctx,
-   string &columnName, string &value)
+   const string &columnName, const string &value)
 {
 	SQLUpdateInfo *updateInfo = ctx->updateInfo;
 	ItemDataPtr dataPtr = 

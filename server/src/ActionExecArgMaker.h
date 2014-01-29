@@ -30,9 +30,9 @@ private:
 public:
 	ActionExecArgMaker(void);
 	virtual ~ActionExecArgMaker();
-	void makeExecArg(mlpl::StringVector &argVect, const string &cmd);
+	void makeExecArg(mlpl::StringVector &argVect, const std::string &cmd);
 	static void parseResidentCommand(
-	  const string &command, string &path, string &option);
+	  const std::string &command, std::string &path, std::string &option);
 
 protected:
 	static void separatorCallback(const char sep, PrivateContext *ctx);

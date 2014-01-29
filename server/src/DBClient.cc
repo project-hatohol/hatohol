@@ -18,12 +18,11 @@
  */
 
 #include <memory>
-
 #include <MutexLock.h>
-using namespace mlpl;
-
 #include "DBClient.h"
 #include "DBAgentFactory.h"
+using namespace std;
+using namespace mlpl;
 
 static const char *TABLE_NAME_DBCLIENT_VERSION = "_dbclient_version";
 
@@ -282,11 +281,15 @@ void DBClient::insertDBClientVersion(DBAgent *dbAgent,
 	dbAgent->insert(insArg);
 }
 
-void DBClient::updateDBIfNeeded(DBAgent *dbAgent,
+void DBClient::updateDBIfNeeded(DBDomainId domainId, DBAgent *dbAgent,
                                 const DBSetupFuncArg *setupFuncArg)
 {
 	int dbVersion = getDBVersion(dbAgent);
 	if (dbVersion != setupFuncArg->version) {
+		MLPL_INFO("DBDomain %d is outdated, try to update it ...\n"
+		          "\told-version: %"PRIu32"\n"
+		          "\tnew-version: %"PRIu32"\n",
+		          domainId, dbVersion, setupFuncArg->version);
 		void *data = setupFuncArg->dbUpdaterData;
 		HATOHOL_ASSERT(setupFuncArg->dbUpdater,
 		             "Updater: NULL, expect/actual ver. %d/%d",
@@ -297,6 +300,8 @@ void DBClient::updateDBIfNeeded(DBAgent *dbAgent,
 		               "Failed to update DB, expect/actual ver. %d/%d",
 		               setupFuncArg->version, dbVersion);
 		setDBVersion(dbAgent, setupFuncArg->version);
+		MLPL_INFO("Succeeded to update DBDomain %"PRIu32"\n",
+		          domainId);
 	}
 }
 
@@ -369,7 +374,7 @@ void DBClient::dbSetupFunc(DBDomainId domainId, void *data)
 	                                  condition))
 		insertDBClientVersion(rawDBAgent.get(), setupFuncArg);
 	else
-		updateDBIfNeeded(rawDBAgent.get(), setupFuncArg);
+		updateDBIfNeeded(domainId, rawDBAgent.get(), setupFuncArg);
 
 	for (size_t i = 0; i < setupFuncArg->numTableInfo; i++) {
 		const DBSetupTableInfo &tableInfo

@@ -20,6 +20,7 @@
 #include <fstream>
 #include <cppcutter.h>
 #include "JsonParserAgent.h"
+using namespace std;
 
 namespace testJsonParserAgent {
 

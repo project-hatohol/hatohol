@@ -85,7 +85,7 @@ struct TimeoutInfo {
 		// core CPU.
 		obj->tag = INVALID_EVENT_ID;
 		(*obj->cbFunc)(namedPipe, obj->priv);
-		return FALSE;
+		return G_SOURCE_REMOVE;
 	}
 
 	void setTimeoutIfNeeded(void)

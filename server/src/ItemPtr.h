@@ -21,9 +21,6 @@
 #define ItemPtr_h
 
 #include <cstdio>
-#include "Logger.h"
-using namespace mlpl;
-
 #include "Utils.h"
 
 template<class T>

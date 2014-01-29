@@ -21,16 +21,8 @@
 #define SQLProcessor_h
 
 #include <string>
-#include <vector>
-#include <map>
-#include <list>
-using namespace std;
-
 #include "StringUtils.h"
 #include "ParsableString.h"
-using namespace mlpl;
-
-#include <glib.h>
 #include "ItemGroupPtr.h"
 #include "ItemTablePtr.h"
 #include "FormulaElement.h"
@@ -60,7 +52,7 @@ protected:
 	 *                         The body of it is typicall allocated in
 	 *                         the sub class.
 	 */
-	SQLProcessor(const string &dbName,
+	SQLProcessor(const std::string &dbName,
 	             TableNameStaticInfoMap &tableNameStaticInfoMap);
 	virtual ~SQLProcessor();
 

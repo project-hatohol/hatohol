@@ -24,6 +24,8 @@
 #include "DBClientAction.h"
 #include "DBClientTest.h"
 #include "Helpers.h"
+using namespace std;
+using namespace mlpl;
 
 namespace testDBClientAction {
 

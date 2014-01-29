@@ -25,6 +25,7 @@
 #include "DBClientUser.h"
 #include "DBClientTest.h"
 #include "Helpers.h"
+using namespace std;;
 
 namespace testDataQueryOption {
 
