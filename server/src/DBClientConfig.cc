@@ -308,10 +308,10 @@ ServerQueryOption::~ServerQueryOption()
 		delete m_ctx;
 }
 
-static string serverIdCondition(uint32_t serverId)
+static string serverIdCondition(const ServerIdType &serverId)
 {
 	const char *columnName = COLUMN_DEF_SERVERS[IDX_SERVERS_ID].columnName;
-	return StringUtils::sprintf("%s=%"PRIu32, columnName, serverId);
+	return StringUtils::sprintf("%s=%"FMT_SERVER_ID, columnName, serverId);
 }
 
 bool ServerQueryOption::hasPrivilegeCondition(string &condition) const
@@ -333,7 +333,7 @@ bool ServerQueryOption::hasPrivilegeCondition(string &condition) const
 	return false;
 }
 
-void ServerQueryOption::setTargetServerId(uint32_t serverId)
+void ServerQueryOption::setTargetServerId(const ServerIdType &serverId)
 {
 	m_ctx->targetServerId = serverId;
 }
@@ -566,7 +566,7 @@ HatoholError DBClientConfig::addOrUpdateTargetServer(
 }
 
 HatoholError DBClientConfig::deleteTargetServer(
-  const ServerIdType serverId,
+  const ServerIdType &serverId,
   const OperationPrivilege &privilege)
 {
 	if (!canDeleteTargetServer(serverId, privilege))
@@ -807,7 +807,7 @@ HatoholError DBClientConfig::_updateTargetServer(
 }
 
 bool DBClientConfig::canDeleteTargetServer(
-  const ServerIdType serverId, const OperationPrivilege &privilege)
+  const ServerIdType &serverId, const OperationPrivilege &privilege)
 {
 	if (privilege.has(OPPRVLG_DELETE_ALL_SERVER))
 		return true;
