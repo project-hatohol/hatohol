@@ -90,7 +90,8 @@ protected:
 	 * If 'serverId' query parameter is found, the value is set to
 	 * this variable. Otherwise, ALL_SERVERS is set.
 	 */
-	static void parseQueryServerId(GHashTable *query, uint32_t &serverId);
+	static void parseQueryServerId(GHashTable *query,
+	                               ServerIdType &serverId);
 
 	/**
 	 * Parse 'hostId' query parameter if it exists.
