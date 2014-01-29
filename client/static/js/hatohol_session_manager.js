@@ -23,14 +23,14 @@ var HatoholSessionManager = function() {
 
   return {
     get: function() {
-      var cookie = document.cookie;
-      var cookies = cookie.split(";");
+      var cookies = document.cookie.split(";");
       for(var i = 0; i < cookies.length; i++) {
-        var hands = cookies[i].split("=");
+        var cookie = cookies[i].replace(/^\s*(.*?)\s*$/, "$1");
+        var hands = cookie.split("=");
         if (hands.length != 2)
           continue;
         if (hands[0] == HATOHOL_SID_COOKIE_NAME)
-          return hands[1]
+          return hands[1];
       }
       return null;
     },
@@ -46,5 +46,5 @@ var HatoholSessionManager = function() {
       document.cookie = HATOHOL_SID_COOKIE_NAME + "=; expires=" +
                         date.toGMTString();
     }
-  }
+  };
 }();
