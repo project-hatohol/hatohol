@@ -60,11 +60,17 @@ var HatoholNavi = function(user, currentPage) {
              (1 << hatohol.OPPRVLG_GET_ALL_USERS)
     },
   ];
+  var matchResults;
 
-  if (currentPage)
+  if (currentPage) {
     this.currentPage = currentPage;
-  else
-    this.currentPage = location.pathname.match(".+/(.+)$")[1];
+  } else if (location.pathname.match(".+/$")) {
+    this.currentPage = menuItems[0].href;
+  } else {
+    matchResults = location.pathname.match(".+/(.+)$");
+    if (matchResults && matchResults.length > 1)
+      this.currentPage = matchResults[1];
+  }
 
   for (i = 0; i < menuItems.length; ++i) {
     if (menuItems[i].flags != undefined &&

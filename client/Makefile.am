@@ -65,10 +65,8 @@ nobase_dist_hatohol_client_DATA = \
 	viewer/triggers_ajax.html \
 	viewer/servers_ajax.html \
 	viewer/latest_ajax.html \
-	viewer/base.html \
 	viewer/overview_triggers_ajax.html \
 	viewer/views.py \
-	viewer/index.html \
 	viewer/events_ajax.html \
 	viewer/base_ajax.html \
 	viewer/overview_items_ajax.html \
