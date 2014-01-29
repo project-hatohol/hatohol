@@ -2194,7 +2194,7 @@ void FaceRest::handlerPostAccessInfo(RestJob *job)
 	accessInfo.userId = job->getResourceId(userIdPos);
 
 	// serverId
-	succeeded = getParamWithErrorReply<uint32_t>(
+	succeeded = getParamWithErrorReply<ServerIdType>(
 	              job, "serverId", "%"PRIu32, accessInfo.serverId, &exist);
 	if (!succeeded)
 		return;

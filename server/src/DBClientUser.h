@@ -48,7 +48,7 @@ typedef UserInfoList::const_iterator UserInfoListConstIterator;
 struct AccessInfo {
 	AccessInfoIdType id;
 	UserIdType userId;
-	uint32_t serverId;
+	ServerIdType serverId;
 	uint64_t hostGroupId;
 };
 
