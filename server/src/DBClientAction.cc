@@ -23,6 +23,7 @@
 #include "DBClientUtils.h"
 #include "DBClientHatohol.h"
 #include "MutexLock.h"
+#include "ItemGroupStream.h"
 using namespace std;
 using namespace mlpl;
 
@@ -898,56 +899,36 @@ bool DBClientAction::getLog(ActionLog &actionLog, const string &condition)
 	if (numGrpList == 0)
 		return false;
 
-	ItemGroupListConstIterator it = grpList.begin();
-	const ItemGroup *itemGroup = *it;
-	int idx = 0;
+	ItemGroupStream itemGroupStream(*grpList.begin());
 	actionLog.nullFlags = 0;
 
-	// action log ID
-	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemUint64, itemLogId);
-	actionLog.id = itemLogId->get();
+	actionLog.id          << itemGroupStream;
+	actionLog.actionId    << itemGroupStream;
+	actionLog.status      << itemGroupStream;
+	actionLog.starterId   << itemGroupStream;
 
-	// action ID
-	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemActionId);
-	actionLog.actionId = itemActionId->get();
-
-	// status
-	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemStatus);
-	actionLog.status = itemStatus->get();
-
-	// starter ID
-	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemStarterId);
-	actionLog.starterId = itemStarterId->get();
-
-	// queuing time
-	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++),
-	                  ItemInt, itemQueuingTime);
-	actionLog.queuingTime = itemQueuingTime->get();
-	if (itemQueuingTime->isNull())
+	// queing time
+	if (itemGroupStream.getItem()->isNull())
 		actionLog.nullFlags |= ACTLOG_FLAG_QUEUING_TIME;
+	actionLog.queuingTime << itemGroupStream;
 
 	// start time
-	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemStartTime);
-	actionLog.startTime = itemStartTime->get();
-	if (itemStartTime->isNull())
+	if (itemGroupStream.getItem()->isNull())
 		actionLog.nullFlags |= ACTLOG_FLAG_START_TIME;
+	actionLog.startTime   << itemGroupStream;
 
 	// end time
-	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemEndTime);
-	actionLog.endTime = itemEndTime->get();
-	if (itemEndTime->isNull())
+	if (itemGroupStream.getItem()->isNull())
 		actionLog.nullFlags |= ACTLOG_FLAG_END_TIME;
+	actionLog.endTime << itemGroupStream;
 
 	// failure code
-	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++),
-	                  ItemInt, itemFailureCode);
-	actionLog.failureCode = itemFailureCode->get();
+	actionLog.failureCode << itemGroupStream;
 
 	// exit code
-	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemExitCode);
-	actionLog.exitCode = itemExitCode->get();
-	if (itemExitCode->isNull())
+	if (itemGroupStream.getItem()->isNull())
 		actionLog.nullFlags |= ACTLOG_FLAG_EXIT_CODE;
+	actionLog.exitCode    << itemGroupStream;
 
 	return true;
 }
