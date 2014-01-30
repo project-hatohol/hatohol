@@ -65,4 +65,24 @@ void test_operatorLeftShiftToString(void)
 	assertOperatorLeftShift(string, ItemString, expects, num_expects);
 }
 
+void test_getItem(void)
+{
+	const size_t num_test = 3;
+	vector<const ItemData *> itemDataVect;
+	VariableItemGroupPtr itemGroup(new ItemGroup(), false);
+	for (size_t i = 0; i < num_test; i++) {
+		const ItemData *itemData = new ItemInt(i);
+		itemGroup->add(itemData, false);
+		itemDataVect.push_back(itemData);
+	}
+
+	int dummy;
+	ItemGroupStream itemGroupStream(itemGroup);
+	for (size_t i = 0; i < num_test; i++) {
+		const ItemData *actual = itemGroupStream.getItem();
+		cppcut_assert_equal(itemDataVect[i], actual);
+		dummy << itemGroupStream;
+	}
+}
+
 } // namespace testItemGroupStream

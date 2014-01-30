@@ -28,11 +28,8 @@ class ItemGroupStream {
 	friend uint64_t &operator<<(uint64_t &lhs, ItemGroupStream &igStream);
 	friend std::string &operator<<(std::string &lhs, ItemGroupStream &igStream);
 public:
-	ItemGroupStream(const ItemGroup *itemGroup)
-	: m_itemGroup(itemGroup),
-	  m_index(0)
-	{
-	}
+	ItemGroupStream(const ItemGroup *itemGroup);
+	const ItemData *getItem(void) const;
 
 protected:
 	template <typename T>
