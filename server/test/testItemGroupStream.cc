@@ -34,12 +34,12 @@ static ItemGroupPtr makeTestData(const T *expects, const size_t numExpects)
 }
 
 template<typename T, typename ITEM_DATA>
-void _assertOperatorLeftShift(const T *expects, const size_t num_expects)
+void _assertOperatorLeftShift(const T *expects, const size_t numExepects)
 {
 	ItemGroupPtr itemGroup
-	  = makeTestData<T, ITEM_DATA>(expects, num_expects);
+	  = makeTestData<T, ITEM_DATA>(expects, numExepects);
 	ItemGroupStream igStream(itemGroup);
-	for (size_t i = 0; i < num_expects; i++) {
+	for (size_t i = 0; i < numExepects; i++) {
 		T actual;
 		actual << igStream;
 		cppcut_assert_equal(actual, expects[i]);
@@ -69,29 +69,29 @@ cut_trace((_assertOperatorRightShift<T, ITEM_DATA>(ARRAY, NUM)));
 void test_operatorRightShiftToInt(void)
 {
 	const int expects[] = {-3, 5, 8};
-	const size_t num_expects = sizeof(expects) / sizeof(int);
-	assertOperatorRightShift(int, ItemInt, expects, num_expects);
+	const size_t numExepects = sizeof(expects) / sizeof(int);
+	assertOperatorRightShift(int, ItemInt, expects, numExepects);
 }
 
 void test_operatorLeftShiftToInt(void)
 {
 	const int expects[] = {-3, 5, 8};
-	const size_t num_expects = sizeof(expects) / sizeof(int);
-	assertOperatorLeftShift(int, ItemInt, expects, num_expects);
+	const size_t numExepects = sizeof(expects) / sizeof(int);
+	assertOperatorLeftShift(int, ItemInt, expects, numExepects);
 }
 
 void test_operatorLeftShiftToUint64(void)
 {
 	const uint64_t expects[] = {0xfedcba9876543210, 3, 0x7fffeeee5555};
-	const size_t num_expects = sizeof(expects) / sizeof(uint64_t);
-	assertOperatorLeftShift(uint64_t, ItemUint64, expects, num_expects);
+	const size_t numExepects = sizeof(expects) / sizeof(uint64_t);
+	assertOperatorLeftShift(uint64_t, ItemUint64, expects, numExepects);
 }
 
 void test_operatorLeftShiftToString(void)
 {
 	const string expects[] = {"FOO", "", "dog dog dog dog dog"};
-	const size_t num_expects = sizeof(expects) / sizeof(string);
-	assertOperatorLeftShift(string, ItemString, expects, num_expects);
+	const size_t numExepects = sizeof(expects) / sizeof(string);
+	assertOperatorLeftShift(string, ItemString, expects, numExepects);
 }
 
 void test_getItem(void)
