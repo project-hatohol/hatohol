@@ -144,29 +144,6 @@ typedef std::vector<ItemDataIndex *>        ItemDataIndexVector;
 typedef ItemDataIndexVector::iterator       ItemDataIndexVectorIterator;
 typedef ItemDataIndexVector::const_iterator ItemDataIndexVectorConstIterator;
 
-// convenient operators
-template <typename T>
-T &substituteFromItemDataPtr(T &lhs, const ItemDataPtr &itemPtr)
-{
-	lhs = static_cast<T>(*itemPtr);
-	return lhs;
-}
-
-inline int &operator<<(int &lhs, const ItemDataPtr &itemData)
-{
-	return substituteFromItemDataPtr<int>(lhs, itemData);
-}
-
-inline uint64_t &operator<<(uint64_t &lhs, const ItemDataPtr &itemData)
-{
-	return substituteFromItemDataPtr<uint64_t>(lhs, itemData);
-}
-
-inline std::string &operator<<(std::string &lhs, const ItemDataPtr &itemData)
-{
-	return substituteFromItemDataPtr<std::string>(lhs, itemData);
-}
-
 #endif // ItemDataUtils_h
 
 
