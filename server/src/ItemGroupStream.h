@@ -24,6 +24,7 @@
 
 class ItemGroupStream {
 	friend int &operator<<(int &lhs, ItemGroupStream &igStream);
+	friend uint64_t &operator<<(uint64_t &lhs, ItemGroupStream &igStream);
 public:
 	ItemGroupStream(const ItemGroup *itemGroup)
 	: m_itemGroup(itemGroup),
@@ -53,6 +54,10 @@ inline int &operator<<(int &lhs, ItemGroupStream &igStream)
 	return ItemGroupStream::substitute<int>(lhs, igStream);
 }
 
+inline uint64_t &operator<<(uint64_t &lhs, ItemGroupStream &igStream)
+{
+	return ItemGroupStream::substitute<uint64_t>(lhs, igStream);
+}
 
 #endif // ItemGroupStream_h
 

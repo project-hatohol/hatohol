@@ -23,6 +23,23 @@
 
 namespace testItemGroupStream {
 
+template<typename T, typename ITEM_DATA>
+void _assertOperatorLeftShift(const T *expects, const size_t num_expects)
+{
+	VariableItemGroupPtr itemGroup(new ItemGroup(), false);
+	for (size_t i = 0; i < num_expects; i++)
+		itemGroup->add(new ITEM_DATA(expects[i]), false);
+
+	ItemGroupStream igStream(itemGroup);
+	for (size_t i = 0; i < num_expects; i++) {
+		T actual;
+		actual << igStream;
+		cppcut_assert_equal(actual, expects[i]);
+	}
+}
+#define assertOperatorLeftShift(T, ITEM_DATA, ARRAY, NUM) \
+cut_trace((_assertOperatorLeftShift<T, ITEM_DATA>(ARRAY, NUM)));
+
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
@@ -40,6 +57,13 @@ void test_operatorLeftShiftToInt(void)
 		actual << igStream;
 		cppcut_assert_equal(actual, expects[i]);
 	}
+}
+
+void test_operatorLeftShiftToUint64(void)
+{
+	const uint64_t expects[] = {0xfedcba9876543210, 3, 0x7fffeeee5555};
+	const size_t num_expects = sizeof(expects) / sizeof(uint64_t);
+	assertOperatorLeftShift(uint64_t, ItemUint64, expects, num_expects);
 }
 
 } // namespace testItemGroupStream
