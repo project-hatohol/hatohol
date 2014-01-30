@@ -601,57 +601,48 @@ HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
 
 	// convert a format of the query result.
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator it = grpList.begin();
-	for (; it != grpList.end(); ++it) {
-		size_t idx = 0;
-		const ItemGroup *itemGroup = *it;
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		int intVal;
+		ItemGroupStream itemGroupStream(*itemGrpItr);
 		actionDefList.push_back(ActionDef());
 		ActionDef &actionDef = actionDefList.back();
 
-		actionDef.id = GET_INT_FROM_GRP(itemGroup, idx++);
+		actionDef.id << itemGroupStream;
 
 		// conditions
-		bool isNull;
-		actionDef.condition.serverId =
-		   GET_INT_FROM_GRP(itemGroup, idx++, &isNull);
-		if (!isNull)
+		if (!itemGroupStream.getItem()->isNull())
 			actionDef.condition.enable(ACTCOND_SERVER_ID);
+		actionDef.condition.serverId << itemGroupStream;
 
-		actionDef.condition.hostId =
-		   GET_UINT64_FROM_GRP(itemGroup, idx++, &isNull);
-		if (!isNull)
+		if (!itemGroupStream.getItem()->isNull())
 			actionDef.condition.enable(ACTCOND_HOST_ID);
+		actionDef.condition.hostId << itemGroupStream;
 
-		actionDef.condition.hostGroupId =
-		   GET_UINT64_FROM_GRP(itemGroup, idx++, &isNull);
-		if (!isNull)
+		if (!itemGroupStream.getItem()->isNull())
 			actionDef.condition.enable(ACTCOND_HOST_GROUP_ID);
+		actionDef.condition.hostGroupId << itemGroupStream;
 
-		actionDef.condition.triggerId =
-		   GET_UINT64_FROM_GRP(itemGroup, idx++, &isNull);
-		if (!isNull)
+		if (!itemGroupStream.getItem()->isNull())
 			actionDef.condition.enable(ACTCOND_TRIGGER_ID);
+		actionDef.condition.triggerId << itemGroupStream;
 
-		actionDef.condition.triggerStatus =
-		   GET_INT_FROM_GRP(itemGroup, idx++, &isNull);
-		if (!isNull)
+		if (!itemGroupStream.getItem()->isNull())
 			actionDef.condition.enable(ACTCOND_TRIGGER_STATUS);
+		actionDef.condition.triggerStatus << itemGroupStream;
 
-		actionDef.condition.triggerSeverity =
-		   GET_INT_FROM_GRP(itemGroup, idx++, &isNull);
-		if (!isNull)
+		if (!itemGroupStream.getItem()->isNull())
 			actionDef.condition.enable(ACTCOND_TRIGGER_SEVERITY);
+		actionDef.condition.triggerSeverity << itemGroupStream;
 
 		actionDef.condition.triggerSeverityCompType =
-		  static_cast<ComparisonType>
-		    (GET_INT_FROM_GRP(itemGroup, idx++));
-
+		   static_cast<ComparisonType>(intVal << itemGroupStream);
 		actionDef.type =
-		   static_cast<ActionType>(GET_INT_FROM_GRP(itemGroup, idx++));
-		actionDef.command    = GET_STRING_FROM_GRP(itemGroup, idx++);
-		actionDef.workingDir = GET_STRING_FROM_GRP(itemGroup, idx++);
-		actionDef.timeout    = GET_INT_FROM_GRP(itemGroup, idx++);
-		actionDef.ownerUserId = GET_INT_FROM_GRP(itemGroup, idx++);
+		  static_cast<ActionType>(intVal << itemGroupStream);
+		actionDef.command     << itemGroupStream;
+		actionDef.workingDir  << itemGroupStream;
+		actionDef.timeout     << itemGroupStream;
+		actionDef.ownerUserId << itemGroupStream;
 	}
 	return HTERR_OK;
 }
