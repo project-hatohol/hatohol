@@ -47,6 +47,7 @@ libhatohol_la_SOURCES = \
 	ItemDataUtils.cc ItemDataUtils.h \
 	ItemEnum.h \
 	ItemGroup.cc ItemGroup.h \
+	ItemGroupStream.h \
 	ItemGroupEnum.h \
 	ItemGroupPtr.cc ItemGroupPtr.h \
 	ItemGroupType.cc ItemGroupType.h \
