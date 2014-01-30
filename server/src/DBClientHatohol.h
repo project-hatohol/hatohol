@@ -159,6 +159,8 @@ public:
 	virtual void setTargetServerId(uint32_t targetServerId);
 	virtual uint64_t getTargetHostId(void) const;
 	virtual void setTargetHostId(uint64_t targetHostId);
+	virtual uint64_t getTargetHostgroupId(void) const;
+	virtual void setTargetHostgroupId(uint64_t targetHostGroupId);
 
 	virtual std::string getTableNameForServerId(void) const;
 	virtual void setTableNameForServerId(const std::string &name);

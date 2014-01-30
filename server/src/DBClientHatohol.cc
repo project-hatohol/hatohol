@@ -923,6 +923,16 @@ void HostResourceQueryOption::setTargetHostId(uint64_t targetHostId)
 	m_ctx->targetHostId = targetHostId;
 }
 
+uint64_t HostResourceQueryOption::getTargetHostgroupId(void) const
+{
+	return m_ctx->targetHostgroupId;
+}
+
+void HostResourceQueryOption::setTargetHostgroupId(uint64_t targetHostgroupId)
+{
+	m_ctx->targetHostgroupId = targetHostgroupId;
+}
+
 string HostResourceQueryOption::getTableNameForServerId(void) const
 {
 	return m_ctx->tableNameForServerId;
