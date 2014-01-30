@@ -65,6 +65,12 @@ void test_operatorShiftFromItemIntToInt(void)
 	assertOperatorShiftFromItemDataPtr(int, ItemInt, -8);
 }
 
+void test_operatorShiftFromItemUint64ToUnt64(void)
+{
+	assertOperatorShiftFromItemDataPtr(uint64_t, ItemUint64,
+	                                   0xfedcba9876543210);
+}
+
 void test_operatorShiftFromItemStringToString(void)
 {
 	assertOperatorShiftFromItemDataPtr(string, ItemString, "Test string");
