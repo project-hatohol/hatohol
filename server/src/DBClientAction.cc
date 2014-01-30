@@ -34,6 +34,18 @@ const char *TABLE_NAME_ACTION_LOGS = "action_logs";
 int DBClientAction::ACTION_DB_VERSION = 9;
 const char *DBClientAction::DEFAULT_DB_NAME = DBClientConfig::DEFAULT_DB_NAME;
 
+static void operator>>(
+  ItemGroupStream &itemGroupStream, ComparisonType &compType)
+{
+	compType = itemGroupStream.pull<int, ComparisonType>();
+}
+
+static void operator>>(
+  ItemGroupStream &itemGroupStream, ActionType &actionType)
+{
+	actionType = itemGroupStream.pull<int, ActionType>();
+}
+
 static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
@@ -607,40 +619,39 @@ HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
 		actionDefList.push_back(ActionDef());
 		ActionDef &actionDef = actionDefList.back();
 
-		actionDef.id << itemGroupStream;
+		itemGroupStream >> actionDef.id;
 
 		// conditions
 		if (!itemGroupStream.getItem()->isNull())
 			actionDef.condition.enable(ACTCOND_SERVER_ID);
-		actionDef.condition.serverId << itemGroupStream;
+		itemGroupStream >> actionDef.condition.serverId;
 
 		if (!itemGroupStream.getItem()->isNull())
 			actionDef.condition.enable(ACTCOND_HOST_ID);
-		actionDef.condition.hostId << itemGroupStream;
+		itemGroupStream >> actionDef.condition.hostId;
 
 		if (!itemGroupStream.getItem()->isNull())
 			actionDef.condition.enable(ACTCOND_HOST_GROUP_ID);
-		actionDef.condition.hostGroupId << itemGroupStream;
+		itemGroupStream >> actionDef.condition.hostGroupId;
 
 		if (!itemGroupStream.getItem()->isNull())
 			actionDef.condition.enable(ACTCOND_TRIGGER_ID);
-		actionDef.condition.triggerId << itemGroupStream;
+		itemGroupStream >> actionDef.condition.triggerId;
 
 		if (!itemGroupStream.getItem()->isNull())
 			actionDef.condition.enable(ACTCOND_TRIGGER_STATUS);
-		actionDef.condition.triggerStatus << itemGroupStream;
+		itemGroupStream >> actionDef.condition.triggerStatus;
 
 		if (!itemGroupStream.getItem()->isNull())
 			actionDef.condition.enable(ACTCOND_TRIGGER_SEVERITY);
-		actionDef.condition.triggerSeverity << itemGroupStream;
+		itemGroupStream >> actionDef.condition.triggerSeverity;
 
-		actionDef.condition.triggerSeverityCompType
-		   = itemGroupStream.pull<int, ComparisonType>();
-		actionDef.type = itemGroupStream.pull<int, ActionType>();
-		actionDef.command     << itemGroupStream;
-		actionDef.workingDir  << itemGroupStream;
-		actionDef.timeout     << itemGroupStream;
-		actionDef.ownerUserId << itemGroupStream;
+		itemGroupStream >> actionDef.condition.triggerSeverityCompType;
+		itemGroupStream >> actionDef.type;
+		itemGroupStream >> actionDef.command;
+		itemGroupStream >> actionDef.workingDir;
+		itemGroupStream >> actionDef.timeout;
+		itemGroupStream >> actionDef.ownerUserId;
 	}
 	return HTERR_OK;
 }
@@ -891,33 +902,33 @@ bool DBClientAction::getLog(ActionLog &actionLog, const string &condition)
 	ItemGroupStream itemGroupStream(*grpList.begin());
 	actionLog.nullFlags = 0;
 
-	actionLog.id          << itemGroupStream;
-	actionLog.actionId    << itemGroupStream;
-	actionLog.status      << itemGroupStream;
-	actionLog.starterId   << itemGroupStream;
+	itemGroupStream >> actionLog.id;
+	itemGroupStream >> actionLog.actionId;
+	itemGroupStream >> actionLog.status;
+	itemGroupStream >> actionLog.starterId;
 
 	// queing time
 	if (itemGroupStream.getItem()->isNull())
 		actionLog.nullFlags |= ACTLOG_FLAG_QUEUING_TIME;
-	actionLog.queuingTime << itemGroupStream;
+	itemGroupStream >> actionLog.queuingTime;
 
 	// start time
 	if (itemGroupStream.getItem()->isNull())
 		actionLog.nullFlags |= ACTLOG_FLAG_START_TIME;
-	actionLog.startTime   << itemGroupStream;
+	itemGroupStream >> actionLog.startTime;
 
 	// end time
 	if (itemGroupStream.getItem()->isNull())
 		actionLog.nullFlags |= ACTLOG_FLAG_END_TIME;
-	actionLog.endTime << itemGroupStream;
+	itemGroupStream >> actionLog.endTime;
 
 	// failure code
-	actionLog.failureCode << itemGroupStream;
+	itemGroupStream >> actionLog.failureCode;
 
 	// exit code
 	if (itemGroupStream.getItem()->isNull())
 		actionLog.nullFlags |= ACTLOG_FLAG_EXIT_CODE;
-	actionLog.exitCode    << itemGroupStream;
+	itemGroupStream >> actionLog.exitCode;
 
 	return true;
 }
