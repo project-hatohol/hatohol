@@ -26,6 +26,7 @@
 #include "CacheServiceDBClient.h"
 #include "HatoholError.h"
 #include "Params.h"
+#include "ItemGroupStream.h"
 using namespace std;
 using namespace mlpl;
 
@@ -608,27 +609,23 @@ void DBClientConfig::getTargetServers
 
 	// check the result and copy
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator it = grpList.begin();
-	for (; it != grpList.end(); ++it) {
-		size_t idx = 0;
-		const ItemGroup *itemGroup = *it;
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
 		monitoringServers.push_back(MonitoringServerInfo());
 		MonitoringServerInfo &svInfo = monitoringServers.back();
 
-		svInfo.id        = GET_INT_FROM_GRP(itemGroup, idx++);
-		int type         = GET_INT_FROM_GRP(itemGroup, idx++);
-		svInfo.type      = static_cast<MonitoringSystemType>(type);
-		svInfo.hostName  = GET_STRING_FROM_GRP(itemGroup, idx++);
-		svInfo.ipAddress = GET_STRING_FROM_GRP(itemGroup, idx++);
-		svInfo.nickname  = GET_STRING_FROM_GRP(itemGroup, idx++);
-		svInfo.port      = GET_INT_FROM_GRP(itemGroup, idx++);
-		svInfo.pollingIntervalSec
-		                 = GET_INT_FROM_GRP(itemGroup, idx++);
-		svInfo.retryIntervalSec
-		                 = GET_INT_FROM_GRP(itemGroup, idx++);
-		svInfo.userName  = GET_STRING_FROM_GRP(itemGroup, idx++);
-		svInfo.password  = GET_STRING_FROM_GRP(itemGroup, idx++);
-		svInfo.dbName    = GET_STRING_FROM_GRP(itemGroup, idx++);
+		svInfo.id        << itemGroupStream;
+		svInfo.type = itemGroupStream.pull<int, MonitoringSystemType>();
+		svInfo.hostName  << itemGroupStream;
+		svInfo.ipAddress << itemGroupStream;
+		svInfo.nickname  << itemGroupStream;
+		svInfo.port      << itemGroupStream;
+		svInfo.pollingIntervalSec << itemGroupStream;
+		svInfo.retryIntervalSec   << itemGroupStream;
+		svInfo.userName  << itemGroupStream;
+		svInfo.password  << itemGroupStream;
+		svInfo.dbName    << itemGroupStream;
 	}
 }
 
