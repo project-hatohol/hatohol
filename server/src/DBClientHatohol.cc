@@ -37,26 +37,17 @@ int DBClientHatohol::HATOHOL_DB_VERSION = 4;
 
 const char *DBClientHatohol::DEFAULT_DB_NAME = "hatohol";
 
-static void operator>>(
-  ItemGroupStream &itemGroupStream, TriggerStatusType &rhs)
+void operator>>(ItemGroupStream &itemGroupStream, TriggerStatusType &rhs)
 {
 	rhs = itemGroupStream.read<int, TriggerStatusType>();
 }
 
-static void operator>>(
-  ItemGroupStream &itemGroupStream, TriggerSeverityType &rhs)
+void operator>>(ItemGroupStream &itemGroupStream, TriggerSeverityType &rhs)
 {
 	rhs = itemGroupStream.read<int, TriggerSeverityType>();
 }
 
-static void operator>>(
-  ItemGroupStream &itemGroupStream, time_t &rhs)
-{
-	rhs = itemGroupStream.read<int, time_t>();
-}
-
-static void operator>>(
-  ItemGroupStream &itemGroupStream, EventType &rhs)
+void operator>>(ItemGroupStream &itemGroupStream, EventType &rhs)
 {
 	rhs = itemGroupStream.read<int, EventType>();
 }

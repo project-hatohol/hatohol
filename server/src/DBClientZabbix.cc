@@ -24,6 +24,7 @@
 #include "HatoholException.h"
 #include "ItemTableUtils.h"
 #include "DBAgentFactory.h"
+#include "ItemGroupStream.h"
 using namespace std;
 using namespace mlpl;
 
@@ -1676,51 +1677,20 @@ void DBClientZabbix::getTriggersAsHatoholFormat(TriggerInfoList &triggerInfoList
 
 	// copy obtained data to triggerInfoList
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator it = grpList.begin();
-	for (; it != grpList.end(); ++it) {
-		int idx = 0;
-		const ItemGroup *itemGroup = *it;
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
 		TriggerInfo trigInfo;
-
-		// serverId
 		trigInfo.serverId = m_ctx->serverId;
-
-		// id
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemUint64, itemId);
-		trigInfo.id = itemId->get();
-
-		// value
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemValue);
-		trigInfo.status = (TriggerStatusType)itemValue->get();
-
-		// severity
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemSeverity);
-		trigInfo.severity = (TriggerSeverityType)itemSeverity->get();
-
-		// lastChangeTime
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemLastchange);
-		trigInfo.lastChangeTime.tv_sec = itemLastchange->get();
 		trigInfo.lastChangeTime.tv_nsec = 0;
 
-		// brief
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemString, itemDescription);
-		trigInfo.brief = itemDescription->get();
-
-		// hostId
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemUint64, itemHostid);
-		trigInfo.hostId = itemHostid->get();
-
-		// hostName
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemString, itemHostName);
-		trigInfo.hostName = itemHostName->get();
-
+		itemGroupStream >> trigInfo.id;
+		itemGroupStream >> trigInfo.status;
+		itemGroupStream >> trigInfo.severity;
+		itemGroupStream >> trigInfo.lastChangeTime.tv_sec;
+		itemGroupStream >> trigInfo.brief;
+		itemGroupStream >> trigInfo.hostId;
+		itemGroupStream >> trigInfo.hostName;
 		triggerInfoList.push_back(trigInfo);
 	}
 }
@@ -1744,48 +1714,19 @@ void DBClientZabbix::getEventsAsHatoholFormat(EventInfoList &eventInfoList)
 
 	// copy obtained data to eventInfoList
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator it = grpList.begin();
-	for (; it != grpList.end(); ++it) {
-		int idx = 0;
-		const ItemGroup *itemGroup = *it;
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
 		EventInfo eventInfo;
-
-		// serverId
 		eventInfo.serverId = m_ctx->serverId;
 
-		// event id
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemUint64, itemEventId);
-		eventInfo.id = itemEventId->get();
-
-		// object
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemObject);
-		int object = itemObject->get();
-		if (object != EVENT_OBJECT_TRIGGER)
+		itemGroupStream >> eventInfo.id;
+		if (itemGroupStream.read<int>() != EVENT_OBJECT_TRIGGER)
 			continue;
-
-		// object id
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemUint64, itemObjectId);
-		eventInfo.triggerId = itemObjectId->get();
-
-		// clock
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemSec);
-		eventInfo.time.tv_sec = itemSec->get();
-
-		// type
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemValue);
-		eventInfo.type = (EventType)itemValue->get();
-
-		// ns
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemNs);
-		eventInfo.time.tv_nsec = itemNs->get();
-
-		// push back this event
+		itemGroupStream >> eventInfo.triggerId;
+		itemGroupStream >> eventInfo.time.tv_sec;
+		itemGroupStream >> eventInfo.type;
+		itemGroupStream >> eventInfo.time.tv_nsec;
 		eventInfoList.push_back(eventInfo);
 	}
 }

@@ -24,6 +24,7 @@
 #include "DBClient.h"
 #include "DataQueryOption.h"
 #include "DBClientUser.h"
+#include "ItemGroupStream.h"
 
 enum TriggerStatusType {
 	TRIGGER_STATUS_OK,
@@ -296,5 +297,9 @@ private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
 };
+
+void operator>>(ItemGroupStream &itemGroupStream, TriggerStatusType &rhs);
+void operator>>(ItemGroupStream &itemGroupStream, TriggerSeverityType &rhs);
+void operator>>(ItemGroupStream &itemGroupStream, EventType &rhs);
 
 #endif // DBClientHatohol_h

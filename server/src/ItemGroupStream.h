@@ -89,6 +89,11 @@ public:
 		substitute<std::string>(rhs, *this);
 	}
 
+	void operator>>(time_t &rhs)
+	{
+		rhs = read<int, time_t>();
+	}
+
 protected:
 	template <typename T>
 	static T &
