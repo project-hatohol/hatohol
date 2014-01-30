@@ -20,11 +20,13 @@
 #ifndef ItemGroupStream_h 
 #define ItemGroupStream_h
 
+#include <string>
 #include "ItemGroup.h"
 
 class ItemGroupStream {
 	friend int &operator<<(int &lhs, ItemGroupStream &igStream);
 	friend uint64_t &operator<<(uint64_t &lhs, ItemGroupStream &igStream);
+	friend std::string &operator<<(std::string &lhs, ItemGroupStream &igStream);
 public:
 	ItemGroupStream(const ItemGroup *itemGroup)
 	: m_itemGroup(itemGroup),
@@ -57,6 +59,11 @@ inline int &operator<<(int &lhs, ItemGroupStream &igStream)
 inline uint64_t &operator<<(uint64_t &lhs, ItemGroupStream &igStream)
 {
 	return ItemGroupStream::substitute<uint64_t>(lhs, igStream);
+}
+
+inline std::string &operator<<(std::string &lhs, ItemGroupStream &igStream)
+{
+	return ItemGroupStream::substitute<std::string>(lhs, igStream);
 }
 
 #endif // ItemGroupStream_h

@@ -20,6 +20,7 @@
 #include <cppcutter.h>
 #include "ItemGroupPtr.h"
 #include "ItemGroupStream.h"
+using namespace std;
 
 namespace testItemGroupStream {
 
@@ -55,6 +56,13 @@ void test_operatorLeftShiftToUint64(void)
 	const uint64_t expects[] = {0xfedcba9876543210, 3, 0x7fffeeee5555};
 	const size_t num_expects = sizeof(expects) / sizeof(uint64_t);
 	assertOperatorLeftShift(uint64_t, ItemUint64, expects, num_expects);
+}
+
+void test_operatorLeftShiftToString(void)
+{
+	const string expects[] = {"FOO", "", "dog dog dog dog dog"};
+	const size_t num_expects = sizeof(expects) / sizeof(string);
+	assertOperatorLeftShift(string, ItemString, expects, num_expects);
 }
 
 } // namespace testItemGroupStream
