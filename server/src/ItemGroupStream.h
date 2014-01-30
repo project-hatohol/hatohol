@@ -36,8 +36,8 @@ protected:
 	static T &
 	substitute(T &lhs, ItemGroupStream &igStream)
 	{
-		size_t idx = igStream.m_index++;
-		const ItemData *itemData = igStream.m_itemGroup->getItemAt(idx);
+		const ItemData *itemData = igStream.getItem();
+		igStream.m_index++;
 		lhs = static_cast<T>(*itemData);
 		return lhs;
 	}
