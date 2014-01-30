@@ -42,6 +42,23 @@ public:
 	 * This method forwards the stream position.
 	 *
 	 * @param NATIVE_TYPE A native type of ItemData.
+	 *
+	 * @return a value of the current ItemData.
+	 */
+	template <typename NATIVE_TYPE>
+	NATIVE_TYPE read(void)
+	{
+		NATIVE_TYPE val;
+		*this >> val;
+                return val;
+	}
+
+	/**
+	 * Read a value of the current ItemData with casting.
+	 *
+	 * This method forwards the stream position.
+	 *
+	 * @param NATIVE_TYPE A native type of ItemData.
 	 * @param CAST_TYPE   A type of returned value.
 	 *
 	 * @return a casted value.
@@ -49,9 +66,7 @@ public:
 	template <typename NATIVE_TYPE, typename CAST_TYPE>
 	CAST_TYPE read(void)
 	{
-		NATIVE_TYPE val;
-		*this >> val;
-		return static_cast<CAST_TYPE>(val);
+		return static_cast<CAST_TYPE>(read<NATIVE_TYPE>());
 	}
 
 	void operator>>(int &rhs)
