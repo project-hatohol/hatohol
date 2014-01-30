@@ -995,8 +995,8 @@ HostgroupElementQueryOption::HostgroupElementQueryOption(UserIdType userId)
 {
 	setServerIdColumnName(
 	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID].columnName);
-	setHostIdColumnName(
-	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID].columnName);
+	setHostGroupIdColumnName(
+	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID].columnName);
 }
 
 // ---------------------------------------------------------------------------
