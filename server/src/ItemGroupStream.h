@@ -50,7 +50,7 @@ public:
 	{
 		NATIVE_TYPE val;
 		*this >> val;
-                return val;
+		return val;
 	}
 
 	/**
