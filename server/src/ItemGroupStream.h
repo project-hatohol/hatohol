@@ -39,6 +39,24 @@ public:
 	 */
 	const ItemData *getItem(void) const;
 
+	/**
+	 * Get a value of the current ItemData with casting.
+	 *
+	 * This method forwards the stream position.
+	 *
+	 * @param NATIVE_TYPE A native type of ItemData.
+	 * @param CAST_TYPE   A type of returned value.
+	 *
+	 * @return a casted value.
+	 */
+	template <typename NATIVE_TYPE, typename CAST_TYPE>
+	CAST_TYPE pull(void)
+	{
+		NATIVE_TYPE val;
+		val << *this;
+		return static_cast<CAST_TYPE>(val);
+	}
+
 protected:
 	template <typename T>
 	static T &

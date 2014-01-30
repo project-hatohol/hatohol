@@ -603,7 +603,6 @@ HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
-		int intVal;
 		ItemGroupStream itemGroupStream(*itemGrpItr);
 		actionDefList.push_back(ActionDef());
 		ActionDef &actionDef = actionDefList.back();
@@ -635,10 +634,9 @@ HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
 			actionDef.condition.enable(ACTCOND_TRIGGER_SEVERITY);
 		actionDef.condition.triggerSeverity << itemGroupStream;
 
-		actionDef.condition.triggerSeverityCompType =
-		   static_cast<ComparisonType>(intVal << itemGroupStream);
-		actionDef.type =
-		  static_cast<ActionType>(intVal << itemGroupStream);
+		actionDef.condition.triggerSeverityCompType
+		   = itemGroupStream.pull<int, ComparisonType>();
+		actionDef.type = itemGroupStream.pull<int, ActionType>();
 		actionDef.command     << itemGroupStream;
 		actionDef.workingDir  << itemGroupStream;
 		actionDef.timeout     << itemGroupStream;
