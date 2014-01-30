@@ -36,10 +36,8 @@ static ItemGroupPtr makeTestData(const T *expects, const size_t numExpects)
 template<typename T, typename ITEM_DATA>
 void _assertOperatorLeftShift(const T *expects, const size_t num_expects)
 {
-	VariableItemGroupPtr itemGroup(new ItemGroup(), false);
-	for (size_t i = 0; i < num_expects; i++)
-		itemGroup->add(new ITEM_DATA(expects[i]), false);
-
+	ItemGroupPtr itemGroup
+	  = makeTestData<T, ITEM_DATA>(expects, num_expects);
 	ItemGroupStream igStream(itemGroup);
 	for (size_t i = 0; i < num_expects; i++) {
 		T actual;
