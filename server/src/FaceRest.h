@@ -69,6 +69,10 @@ protected:
 	size_t parseCmdArgPort(CommandLineArg &cmdArg, size_t idx);
 	static void addHatoholError(JsonBuilderAgent &agent,
 	                            const HatoholError &err);
+	static void addHostsIsMemberOfGroup(RestJob *job,
+	                                   JsonBuilderAgent &agent,
+	                                   uint64_t targetServerId,
+	                                   uint64_t targetGroupId);
 	static void replyError(RestJob *job,
 	                       const HatoholError &hatoholError);
 	static void replyError(RestJob *job,

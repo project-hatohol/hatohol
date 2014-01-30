@@ -2294,12 +2294,36 @@ void FaceRest::handlerGetHostgroup(RestJob *job)
 		agent.add("serverId", hostgroupInfo.serverId);
 		agent.add("groupId", hostgroupInfo.groupId);
 		agent.add("groupName", hostgroupInfo.groupName.c_str());
+		addHostsIsMemberOfGroup(job, agent,
+		                        hostgroupInfo.serverId,
+		                        hostgroupInfo.groupId);
 		agent.endObject();
 	}
 	agent.endArray();
 	agent.endObject();
 
 	replyJsonData(agent, job);
+}
+
+void FaceRest::addHostsIsMemberOfGroup(
+  RestJob *job, JsonBuilderAgent &agent,
+  uint64_t targetServerId, uint64_t targetGroupId)
+{
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+
+	HostgroupElementList hostgroupElementList;
+	HostgroupElementQueryOption option(job->userId);
+	option.setTargetServerId(targetServerId);
+	option.setTargetHostgroupId(targetGroupId);
+	dataStore->getHostgroupElementList(hostgroupElementList, option);
+
+	agent.startArray("hosts");
+	HostgroupElementListIterator it = hostgroupElementList.begin();
+	for (; it != hostgroupElementList.end(); ++it) {
+		HostgroupElement hostgroupElement = *it;
+		agent.add(hostgroupElement.hostId);
+	}
+	agent.endArray();
 }
 
 void FaceRest::handlerUserRole(RestJob *job)
