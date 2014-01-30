@@ -21,7 +21,6 @@
 #define ItemDataPtr_h
 
 #include "ItemData.h"
-#include "ItemGroup.h"
 #include "ItemPtr.h"
 
 typedef ItemPtr<ItemData>       VariableItemDataPtr;
