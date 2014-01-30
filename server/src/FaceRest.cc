@@ -666,6 +666,22 @@ void FaceRest::parseQueryTriggerId(GHashTable *query, uint64_t &triggerId)
 		MLPL_INFO("Invalid requested ID: %s\n", value);
 }
 
+void FaceRest::parseQueryHostgroupId(GHashTable *query, uint64_t &hostgroupId)
+{
+	hostgroupId = ALL_HOST_GROUPS;
+	if (!query)
+		return;
+	gchar *value = (gchar *)g_hash_table_lookup(query, "hostgroupId");
+	if (!value)
+		return;
+
+	uint64_t id;
+	if (sscanf(value, "%"PRIu64, &id) == 1)
+		hostgroupId = id;
+	else
+		MLPL_INFO("Invalid requested ID: %s\n", value);
+}
+
 // handlers
 void FaceRest::handlerDefault(SoupServer *server, SoupMessage *msg,
                               const char *path, GHashTable *query,

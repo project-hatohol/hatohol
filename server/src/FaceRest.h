@@ -104,6 +104,7 @@ protected:
 	 */
 	static void parseQueryHostId(GHashTable *query, uint64_t &hostId);
 	static void parseQueryTriggerId(GHashTable *query, uint64_t &triggerId);
+	static void parseQueryHostgroupId(GHashTable *query, uint64_t &hostgroupId);
 
 	// handlers
 	static void
