@@ -38,6 +38,12 @@ const char *DBClientConfig::DEFAULT_DB_NAME = "hatohol";
 const char *DBClientConfig::DEFAULT_USER_NAME = "hatohol";
 const char *DBClientConfig::DEFAULT_PASSWORD  = "hatohol";
 
+static void operator>>(
+  ItemGroupStream &itemGroupStream, MonitoringSystemType &monSysType)
+{
+	monSysType = itemGroupStream.pull<int, MonitoringSystemType>();
+}
+
 static const ColumnDef COLUMN_DEF_SYSTEM[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
@@ -615,17 +621,17 @@ void DBClientConfig::getTargetServers
 		monitoringServers.push_back(MonitoringServerInfo());
 		MonitoringServerInfo &svInfo = monitoringServers.back();
 
-		svInfo.id        << itemGroupStream;
-		svInfo.type = itemGroupStream.pull<int, MonitoringSystemType>();
-		svInfo.hostName  << itemGroupStream;
-		svInfo.ipAddress << itemGroupStream;
-		svInfo.nickname  << itemGroupStream;
-		svInfo.port      << itemGroupStream;
-		svInfo.pollingIntervalSec << itemGroupStream;
-		svInfo.retryIntervalSec   << itemGroupStream;
-		svInfo.userName  << itemGroupStream;
-		svInfo.password  << itemGroupStream;
-		svInfo.dbName    << itemGroupStream;
+		itemGroupStream >> svInfo.id;
+		itemGroupStream >> svInfo.type;
+		itemGroupStream >> svInfo.hostName;
+		itemGroupStream >> svInfo.ipAddress;
+		itemGroupStream >> svInfo.nickname;
+		itemGroupStream >> svInfo.port;
+		itemGroupStream >> svInfo.pollingIntervalSec;
+		itemGroupStream >> svInfo.retryIntervalSec;
+		itemGroupStream >> svInfo.userName;
+		itemGroupStream >> svInfo.password;
+		itemGroupStream >> svInfo.dbName;
 	}
 }
 
