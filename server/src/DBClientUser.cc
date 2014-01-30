@@ -674,8 +674,8 @@ UserIdType DBClientUser::getUserId(const string &user, const string &password)
 	ItemGroupStream itemGroupStream(*grpList.begin());
 	UserIdType userId;
 	string truePasswd;
-	userId << itemGroupStream;
-	truePasswd << itemGroupStream;
+	itemGroupStream >> userId;
+	itemGroupStream >> truePasswd;
 
 	// comapare the passwords
 	bool matched = (truePasswd == Utils::sha256(password));
@@ -797,10 +797,10 @@ HatoholError DBClientUser::getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMa
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
 		ItemGroupStream itemGroupStream(*itemGrpItr);
 		AccessInfo *accessInfo = new AccessInfo();
-		accessInfo->id          << itemGroupStream;
-		accessInfo->userId      << itemGroupStream;
-		accessInfo->serverId    << itemGroupStream;
-		accessInfo->hostGroupId << itemGroupStream;
+		itemGroupStream >> accessInfo->id;
+		itemGroupStream >> accessInfo->userId;
+		itemGroupStream >> accessInfo->serverId;
+		itemGroupStream >> accessInfo->hostGroupId;
 
 		// insert data
 		HostGrpAccessInfoMap *hostGrpAccessInfoMap = NULL;
@@ -864,8 +864,8 @@ void DBClientUser::getServerHostGrpSetMap(
 		ServerIdType serverId;
 		uint64_t hostGroupId;
 		ItemGroupStream itemGroupStream(*itemGrpItr);
-		serverId    << itemGroupStream;
-		hostGroupId << itemGroupStream;
+		itemGroupStream >> serverId;
+		itemGroupStream >> hostGroupId;
 
 		// insert data
 		pair<HostGroupSetIterator, bool> result =
@@ -1017,9 +1017,9 @@ void DBClientUser::getUserRoleInfoList(UserRoleInfoList &userRoleInfoList,
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
 		ItemGroupStream itemGroupStream(*itemGrpItr);
 		UserRoleInfo userRoleInfo;
-		userRoleInfo.id    << itemGroupStream;
-		userRoleInfo.name  << itemGroupStream;
-		userRoleInfo.flags << itemGroupStream;
+		itemGroupStream >> userRoleInfo.id;
+		itemGroupStream >> userRoleInfo.name;
+		itemGroupStream >> userRoleInfo.flags;
 		userRoleInfoList.push_back(userRoleInfo);
 	}
 }
@@ -1133,10 +1133,10 @@ void DBClientUser::getUserInfoList(UserInfoList &userInfoList,
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
 		ItemGroupStream itemGroupStream(*itemGrpItr);
 		UserInfo userInfo;
-		userInfo.id       << itemGroupStream;
-		userInfo.name     << itemGroupStream;
-		userInfo.password << itemGroupStream;
-		userInfo.flags    << itemGroupStream;
+		itemGroupStream >> userInfo.id;
+		itemGroupStream >> userInfo.name;
+		itemGroupStream >> userInfo.password;
+		itemGroupStream >> userInfo.flags;
 		userInfoList.push_back(userInfo);
 	}
 }
