@@ -186,3 +186,12 @@ void ItemDataIndex::find(const ItemData *itemData,
 		MLPL_WARN("Unexpectedly find() is called: type: %d\n", m_type);
 	}
 }
+
+//
+// convenient operators
+//
+string &operator<<(string &lhs, const ItemData *itemData)
+{
+	lhs = static_cast<string>(*itemData);
+	return lhs;
+}

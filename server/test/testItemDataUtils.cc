@@ -25,6 +25,18 @@ using namespace mlpl;
 
 namespace testItemDataUtils {
 
+static ItemData *g_item = NULL;
+void cut_teardown(void)
+{
+	if (g_item) {
+		g_item->unref();
+		g_item = NULL;
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Test cases
+// ---------------------------------------------------------------------------
 void test_createAsNumberInt(void)
 {
 	int number = 50;
@@ -41,6 +53,18 @@ void test_createAsNumberInvalid(void)
 	string word = "ABC";
 	ItemDataPtr dataPtr = ItemDataUtils::createAsNumber(word);
 	cppcut_assert_equal(false, dataPtr.hasData());
+}
+
+//
+// Convenient operators
+//
+void test_operatorShiftFromItemStringToString(void)
+{
+	const string expect = "Test string";
+	g_item = new ItemString(expect);
+	string actual;
+	actual << g_item;
+	cppcut_assert_equal(expect, actual);
 }
 
 } // namespace testItemDataUtils

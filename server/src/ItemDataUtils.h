@@ -144,6 +144,9 @@ typedef std::vector<ItemDataIndex *>        ItemDataIndexVector;
 typedef ItemDataIndexVector::iterator       ItemDataIndexVectorIterator;
 typedef ItemDataIndexVector::const_iterator ItemDataIndexVectorConstIterator;
 
+// convenient operators
+std::string &operator<<(std::string &lhs, const ItemData *itemData);
+
 #endif // ItemDataUtils_h
 
 
