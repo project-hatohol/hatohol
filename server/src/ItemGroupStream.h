@@ -79,6 +79,11 @@ public:
 		substitute<uint64_t>(rhs, *this);
 	}
 
+	void operator>>(double &rhs)
+	{
+		substitute<double>(rhs, *this);
+	}
+
 	void operator>>(std::string &rhs)
 	{
 		substitute<std::string>(rhs, *this);

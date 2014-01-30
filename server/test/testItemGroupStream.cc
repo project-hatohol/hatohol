@@ -65,6 +65,13 @@ void test_operatorRightShiftToUint64(void)
 	assertOperatorRightShift(uint64_t, ItemUint64, expects, numExepects);
 }
 
+void test_operatorRightShiftToDouble(void)
+{
+	const double expects[] = {0.5, -1.03e5, 3.141592};
+	const size_t numExepects = sizeof(expects) / sizeof(double);
+	assertOperatorRightShift(double, ItemDouble, expects, numExepects);
+}
+
 void test_operatorRightShiftToString(void)
 {
 	const string expects[] = {"FOO", "", "dog dog dog dog dog"};
