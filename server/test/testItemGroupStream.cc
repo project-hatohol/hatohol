@@ -25,6 +25,15 @@ using namespace std;
 namespace testItemGroupStream {
 
 template<typename T, typename ITEM_DATA>
+static ItemGroupPtr makeTestData(const T *expects, const size_t numExpects)
+{
+	VariableItemGroupPtr itemGroup(new ItemGroup(), false);
+	for (size_t i = 0; i < numExpects; i++)
+		itemGroup->add(new ITEM_DATA(expects[i]), false);
+	return ItemGroupPtr(itemGroup);
+}
+
+template<typename T, typename ITEM_DATA>
 void _assertOperatorLeftShift(const T *expects, const size_t num_expects)
 {
 	VariableItemGroupPtr itemGroup(new ItemGroup(), false);
@@ -41,9 +50,31 @@ void _assertOperatorLeftShift(const T *expects, const size_t num_expects)
 #define assertOperatorLeftShift(T, ITEM_DATA, ARRAY, NUM) \
 cut_trace((_assertOperatorLeftShift<T, ITEM_DATA>(ARRAY, NUM)));
 
+template<typename T, typename ITEM_DATA>
+void _assertOperatorRightShift(const T *expects, const size_t numExpects)
+{
+	ItemGroupPtr itemGroup
+	  = makeTestData<T, ITEM_DATA>(expects, numExpects);
+	ItemGroupStream igStream(itemGroup);
+	for (size_t i = 0; i < numExpects; i++) {
+		T actual;
+		igStream >> actual;
+		cppcut_assert_equal(actual, expects[i]);
+	}
+}
+#define assertOperatorRightShift(T, ITEM_DATA, ARRAY, NUM) \
+cut_trace((_assertOperatorRightShift<T, ITEM_DATA>(ARRAY, NUM)));
+
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
+void test_operatorRightShiftToInt(void)
+{
+	const int expects[] = {-3, 5, 8};
+	const size_t num_expects = sizeof(expects) / sizeof(int);
+	assertOperatorRightShift(int, ItemInt, expects, num_expects);
+}
+
 void test_operatorLeftShiftToInt(void)
 {
 	const int expects[] = {-3, 5, 8};

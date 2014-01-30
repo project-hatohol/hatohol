@@ -57,6 +57,11 @@ public:
 		return static_cast<CAST_TYPE>(val);
 	}
 
+	void operator>>(int &rhs)
+	{
+		substitute<int>(rhs, *this);
+	}
+
 protected:
 	template <typename T>
 	static T &
