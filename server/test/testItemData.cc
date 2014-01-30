@@ -288,6 +288,16 @@ void test_castUint64ToUint64(void)
 }
 
 // -------------------------------------------------------------------------
+// operator cast to string
+// -------------------------------------------------------------------------
+void test_castStringToString(void)
+{
+	const string expect = "Test string!";
+	x_item = new ItemString(expect);
+	cppcut_assert_equal(expect, static_cast<string>(*x_item));
+}
+
+// -------------------------------------------------------------------------
 // operatorGt
 // -------------------------------------------------------------------------
 void test_operatorGtIntPositive(void)
