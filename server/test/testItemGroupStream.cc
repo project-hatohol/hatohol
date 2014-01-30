@@ -94,6 +94,13 @@ void test_operatorLeftShiftToUint64(void)
 	assertOperatorLeftShift(uint64_t, ItemUint64, expects, numExepects);
 }
 
+void test_operatorRightShiftToString(void)
+{
+	const string expects[] = {"FOO", "", "dog dog dog dog dog"};
+	const size_t numExepects = sizeof(expects) / sizeof(string);
+	assertOperatorRightShift(string, ItemString, expects, numExepects);
+}
+
 void test_operatorLeftShiftToString(void)
 {
 	const string expects[] = {"FOO", "", "dog dog dog dog dog"};

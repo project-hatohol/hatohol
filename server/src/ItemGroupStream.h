@@ -67,6 +67,11 @@ public:
 		substitute<uint64_t>(rhs, *this);
 	}
 
+	void operator>>(std::string &rhs)
+	{
+		substitute<std::string>(rhs, *this);
+	}
+
 protected:
 	template <typename T>
 	static T &
