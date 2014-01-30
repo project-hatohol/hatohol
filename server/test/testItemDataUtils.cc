@@ -25,14 +25,16 @@ using namespace mlpl;
 
 namespace testItemDataUtils {
 
-static ItemData *g_item = NULL;
-void cut_teardown(void)
+template<typename T, typename ITEM_DATA>
+void _assertOperatorShiftFromItemDataPtr(const T &val)
 {
-	if (g_item) {
-		g_item->unref();
-		g_item = NULL;
-	}
+	ItemDataPtr itemPtr(new ITEM_DATA(val), false);
+	T actual;
+	actual << itemPtr;
+	cppcut_assert_equal(val, actual);
 }
+#define assertOperatorShiftFromItemDataPtr(T, ITEM_DATA, V) \
+cut_trace((_assertOperatorShiftFromItemDataPtr<T, ITEM_DATA>(V)))
 
 // ---------------------------------------------------------------------------
 // Test cases
@@ -60,20 +62,12 @@ void test_createAsNumberInvalid(void)
 //
 void test_operatorShiftFromItemIntToInt(void)
 {
-	const int expect = -8;
-	ItemDataPtr itemPtr(new ItemInt(expect), false);
-	int actual;
-	actual << itemPtr;
-	cppcut_assert_equal(expect, actual);
+	assertOperatorShiftFromItemDataPtr(int, ItemInt, -8);
 }
 
 void test_operatorShiftFromItemStringToString(void)
 {
-	const string expect = "Test string";
-	g_item = new ItemString(expect);
-	string actual;
-	actual << g_item;
-	cppcut_assert_equal(expect, actual);
+	assertOperatorShiftFromItemDataPtr(string, ItemString, "Test string");
 }
 
 } // namespace testItemDataUtils
