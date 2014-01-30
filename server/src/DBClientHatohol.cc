@@ -888,8 +888,8 @@ string HostResourceQueryOption::getCondition(void) const
 	                          getServerIdColumnName(),
 	                          getHostGroupIdColumnName(),
 	                          getHostIdColumnName(),
-				  m_ctx->targetServerId,
-				  m_ctx->targetHostId);
+	                          m_ctx->targetServerId,
+	                          m_ctx->targetHostId);
 	return condition;
 }
 
