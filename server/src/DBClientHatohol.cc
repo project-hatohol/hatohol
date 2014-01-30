@@ -874,6 +874,14 @@ string HostResourceQueryOption::getCondition(void) const
 				getHostIdColumnName().c_str(),
 				m_ctx->targetHostId);
 		}
+		if (m_ctx->targetHostId != ALL_HOST_GROUPS) {
+			if (!condition.empty())
+				condition += " AND ";
+			condition += StringUtils::sprintf(
+				"%s=%"FMT_HOST_GROUP_ID,
+				getHostGroupIdColumnName().c_str(),
+				m_ctx->targetHostgroupId);
+		}
 		return condition;
 	}
 
