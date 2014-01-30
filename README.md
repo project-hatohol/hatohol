@@ -82,10 +82,10 @@ The detailed document is [here](doc/install/hatohol0.1-centos6.4.md)
 
 Plans
 -----
-We will add useful features. If you have requests or good ideas,
-please tell us them. The following lists are our recent major plans.
+See [Milestone](https://github.com/project-hatohol/hatohol/issues/milestones)
 
-See also [the issues page](https://github.com/project-hatohol/hatohol/issues/milestones)
+We will add useful features. If you have requests or good ideas,
+please tell us them.
 
 Mailing Lists
 -------------
