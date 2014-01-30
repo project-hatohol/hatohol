@@ -36,7 +36,6 @@
 class HatoholException : public std::exception
 {
 public:
-	static const int UNKNOWN_LINE_NUMBER;
 	static void init(void);
 
 	explicit HatoholException(const std::string &brief,
@@ -51,6 +50,8 @@ public:
 	const std::string &getStackTrace(void) const;
 
 protected:
+	static const int UNKNOWN_LINE_NUMBER;
+
 	void saveStackTrace(void);
 	void setBrief(const std::string &brief);
 
