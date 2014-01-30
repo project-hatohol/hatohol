@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -36,12 +36,12 @@
 class HatoholException : public std::exception
 {
 public:
-	static const int UNKNOWN_LINE_NUMBER = -1;
+	static const int UNKNOWN_LINE_NUMBER;
 	static void init(void);
 
 	explicit HatoholException(const std::string &brief,
-	                        const char *sourceFileName = "",
-	                        int lineNumber = UNKNOWN_LINE_NUMBER);
+	                          const std::string &sourceFileName = "",
+	                          const int &lineNumber = UNKNOWN_LINE_NUMBER);
 	virtual ~HatoholException() _HATOHOL_NOEXCEPT;
 	virtual const char* what() const _HATOHOL_NOEXCEPT;
 	virtual std::string getFancyMessage(void) const;

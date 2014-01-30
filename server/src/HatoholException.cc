@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -24,6 +24,7 @@ using namespace std;
 using namespace mlpl;
 
 bool HatoholException::m_saveStackTrace = false;
+const int HatoholException::UNKNOWN_LINE_NUMBER = -1;
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -37,8 +38,8 @@ void HatoholException::init(void)
 		m_saveStackTrace = true;
 }
 
-HatoholException::HatoholException(const string &brief,
-                               const char *sourceFileName, int lineNumber)
+HatoholException::HatoholException(
+  const string &brief, const string &sourceFileName, const int &lineNumber)
 : m_what(brief),
   m_sourceFileName(sourceFileName),
   m_lineNumber(lineNumber)
