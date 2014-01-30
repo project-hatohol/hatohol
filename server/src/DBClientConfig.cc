@@ -41,7 +41,7 @@ const char *DBClientConfig::DEFAULT_PASSWORD  = "hatohol";
 static void operator>>(
   ItemGroupStream &itemGroupStream, MonitoringSystemType &monSysType)
 {
-	monSysType = itemGroupStream.pull<int, MonitoringSystemType>();
+	monSysType = itemGroupStream.read<int, MonitoringSystemType>();
 }
 
 static const ColumnDef COLUMN_DEF_SYSTEM[] = {

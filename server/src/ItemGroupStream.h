@@ -40,7 +40,7 @@ public:
 	const ItemData *getItem(void) const;
 
 	/**
-	 * Get a value of the current ItemData with casting.
+	 * Read a value of the current ItemData with casting.
 	 *
 	 * This method forwards the stream position.
 	 *
@@ -50,7 +50,7 @@ public:
 	 * @return a casted value.
 	 */
 	template <typename NATIVE_TYPE, typename CAST_TYPE>
-	CAST_TYPE pull(void)
+	CAST_TYPE read(void)
 	{
 		NATIVE_TYPE val;
 		val << *this;

@@ -37,13 +37,13 @@ const char *DBClientAction::DEFAULT_DB_NAME = DBClientConfig::DEFAULT_DB_NAME;
 static void operator>>(
   ItemGroupStream &itemGroupStream, ComparisonType &compType)
 {
-	compType = itemGroupStream.pull<int, ComparisonType>();
+	compType = itemGroupStream.read<int, ComparisonType>();
 }
 
 static void operator>>(
   ItemGroupStream &itemGroupStream, ActionType &actionType)
 {
-	actionType = itemGroupStream.pull<int, ActionType>();
+	actionType = itemGroupStream.read<int, ActionType>();
 }
 
 static const ColumnDef COLUMN_DEF_ACTIONS[] = {
