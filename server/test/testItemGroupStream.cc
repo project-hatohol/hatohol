@@ -34,21 +34,6 @@ static ItemGroupPtr makeTestData(const T *expects, const size_t numExpects)
 }
 
 template<typename T, typename ITEM_DATA>
-void _assertOperatorLeftShift(const T *expects, const size_t numExepects)
-{
-	ItemGroupPtr itemGroup
-	  = makeTestData<T, ITEM_DATA>(expects, numExepects);
-	ItemGroupStream igStream(itemGroup);
-	for (size_t i = 0; i < numExepects; i++) {
-		T actual;
-		actual << igStream;
-		cppcut_assert_equal(actual, expects[i]);
-	}
-}
-#define assertOperatorLeftShift(T, ITEM_DATA, ARRAY, NUM) \
-cut_trace((_assertOperatorLeftShift<T, ITEM_DATA>(ARRAY, NUM)));
-
-template<typename T, typename ITEM_DATA>
 void _assertOperatorRightShift(const T *expects, const size_t numExpects)
 {
 	ItemGroupPtr itemGroup
@@ -73,13 +58,6 @@ void test_operatorRightShiftToInt(void)
 	assertOperatorRightShift(int, ItemInt, expects, numExepects);
 }
 
-void test_operatorLeftShiftToInt(void)
-{
-	const int expects[] = {-3, 5, 8};
-	const size_t numExepects = sizeof(expects) / sizeof(int);
-	assertOperatorLeftShift(int, ItemInt, expects, numExepects);
-}
-
 void test_operatorRightShiftToUint64(void)
 {
 	const uint64_t expects[] = {0xfedcba9876543210, 3, 0x7fffeeee5555};
@@ -87,25 +65,11 @@ void test_operatorRightShiftToUint64(void)
 	assertOperatorRightShift(uint64_t, ItemUint64, expects, numExepects);
 }
 
-void test_operatorLeftShiftToUint64(void)
-{
-	const uint64_t expects[] = {0xfedcba9876543210, 3, 0x7fffeeee5555};
-	const size_t numExepects = sizeof(expects) / sizeof(uint64_t);
-	assertOperatorLeftShift(uint64_t, ItemUint64, expects, numExepects);
-}
-
 void test_operatorRightShiftToString(void)
 {
 	const string expects[] = {"FOO", "", "dog dog dog dog dog"};
 	const size_t numExepects = sizeof(expects) / sizeof(string);
 	assertOperatorRightShift(string, ItemString, expects, numExepects);
-}
-
-void test_operatorLeftShiftToString(void)
-{
-	const string expects[] = {"FOO", "", "dog dog dog dog dog"};
-	const size_t numExepects = sizeof(expects) / sizeof(string);
-	assertOperatorLeftShift(string, ItemString, expects, numExepects);
 }
 
 void test_getItem(void)
@@ -119,12 +83,11 @@ void test_getItem(void)
 		itemDataVect.push_back(itemData);
 	}
 
-	int dummy;
 	ItemGroupStream itemGroupStream(itemGroup);
 	for (size_t i = 0; i < num_test; i++) {
 		const ItemData *actual = itemGroupStream.getItem();
 		cppcut_assert_equal(itemDataVect[i], actual);
-		dummy << itemGroupStream;
+		itemGroupStream.read<int,int>(); // forward the stream position
 	}
 }
 

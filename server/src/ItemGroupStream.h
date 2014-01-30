@@ -24,9 +24,6 @@
 #include "ItemGroup.h"
 
 class ItemGroupStream {
-	friend int &operator<<(int &lhs, ItemGroupStream &igStream);
-	friend uint64_t &operator<<(uint64_t &lhs, ItemGroupStream &igStream);
-	friend std::string &operator<<(std::string &lhs, ItemGroupStream &igStream);
 public:
 	ItemGroupStream(const ItemGroup *itemGroup);
 
@@ -53,7 +50,7 @@ public:
 	CAST_TYPE read(void)
 	{
 		NATIVE_TYPE val;
-		val << *this;
+		*this >> val;
 		return static_cast<CAST_TYPE>(val);
 	}
 
@@ -88,21 +85,6 @@ private:
 	const ItemGroup *m_itemGroup;
 	size_t           m_index;
 };
-
-inline int &operator<<(int &lhs, ItemGroupStream &igStream)
-{
-	return ItemGroupStream::substitute<int>(lhs, igStream);
-}
-
-inline uint64_t &operator<<(uint64_t &lhs, ItemGroupStream &igStream)
-{
-	return ItemGroupStream::substitute<uint64_t>(lhs, igStream);
-}
-
-inline std::string &operator<<(std::string &lhs, ItemGroupStream &igStream)
-{
-	return ItemGroupStream::substitute<std::string>(lhs, igStream);
-}
 
 #endif // ItemGroupStream_h
 
