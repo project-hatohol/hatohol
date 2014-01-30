@@ -288,6 +288,16 @@ void test_castUint64ToUint64(void)
 }
 
 // -------------------------------------------------------------------------
+// operator cast to double
+// -------------------------------------------------------------------------
+void test_castDoubleToDouble(void)
+{
+	const double expect = -5.234343e7;
+	x_item = new ItemDouble(expect);
+	cppcut_assert_equal(expect, static_cast<double>(*x_item));
+}
+
+// -------------------------------------------------------------------------
 // operator cast to string
 // -------------------------------------------------------------------------
 void test_castStringToString(void)

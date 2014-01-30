@@ -111,6 +111,7 @@ public:
 	virtual operator bool () const = 0;
 	virtual operator int() const = 0;
 	virtual operator uint64_t() const = 0;
+	virtual operator double() const = 0;
 	virtual operator std::string() const = 0;
 	virtual ItemData & operator =(const ItemData &itemData) = 0;
 	virtual ItemData * operator +(const ItemData &itemData) const = 0;
@@ -206,6 +207,12 @@ public:
 	virtual operator uint64_t() const
 	{
 		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("cast to uint64_t");
+		return 0;
+	}
+
+	virtual operator double() const
+	{
+		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("cast to double");
 		return 0;
 	}
 
@@ -323,6 +330,7 @@ typedef ItemGeneric<std::string, ITEM_TYPE_STRING> ItemString;
 template<> ItemBool::operator bool() const;
 template<> ItemInt::operator int() const;
 template<> ItemUint64::operator uint64_t() const;
+template<> ItemDouble::operator double() const;
 template<> ItemString::operator std::string() const;
 
 template<> bool ItemInt::operator >(const ItemData &itemData) const;

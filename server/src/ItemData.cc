@@ -315,6 +315,14 @@ template<> ItemData * ItemString::operator /(const ItemData &itemData) const
 }
 
 //
+// ItemDouble
+//
+template<> ItemDouble::operator double() const
+{
+	return get();
+}
+
+//
 // ItemString
 //
 template<> ItemString::operator string() const
