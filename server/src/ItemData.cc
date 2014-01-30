@@ -207,6 +207,11 @@ template<> bool ItemInt::operator <=(const ItemData &itemData) const
 //
 // ItemUint64
 //
+template<> ItemUint64::operator uint64_t() const
+{
+	return get();
+}
+
 template<> bool ItemUint64::operator >(const ItemData &itemData) const
 {
 	if (itemData.getItemType() == ITEM_TYPE_UINT64) {

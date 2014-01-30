@@ -278,6 +278,16 @@ void test_castIntToInt(void)
 }
 
 // -------------------------------------------------------------------------
+// operator cast to uint64_t
+// -------------------------------------------------------------------------
+void test_castUint64ToUint64(void)
+{
+	const uint64_t expect = 0xfedcba9876543210;
+	x_item = new ItemUint64(expect);
+	cppcut_assert_equal(expect, static_cast<uint64_t>(*x_item));
+}
+
+// -------------------------------------------------------------------------
 // operatorGt
 // -------------------------------------------------------------------------
 void test_operatorGtIntPositive(void)
