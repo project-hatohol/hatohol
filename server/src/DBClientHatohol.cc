@@ -785,14 +785,22 @@ string HostResourceQueryOption::makeConditionHostGroup(
 
 string HostResourceQueryOption::makeConditionServer(
   const uint32_t &serverId, const HostGroupSet &hostGroupSet,
-  const string &serverIdColumnName, const string &hostGroupIdColumnName)
+  const string &serverIdColumnName, const string &hostGroupIdColumnName,
+  const uint64_t &hostgroupId)
 {
 	string condition;
 	condition = StringUtils::sprintf(
 	  "%s=%"PRIu32, serverIdColumnName.c_str(), serverId);
 
-	string conditionHostGroup
-	  = makeConditionHostGroup(hostGroupSet, hostGroupIdColumnName);
+	string conditionHostGroup;
+	if (hostgroupId == ALL_HOST_GROUPS) {
+		conditionHostGroup =
+		  makeConditionHostGroup(hostGroupSet, hostGroupIdColumnName);
+	} else {
+		conditionHostGroup = StringUtils::sprintf(
+		  "%s=%"FMT_HOST_GROUP_ID, hostGroupIdColumnName.c_str(),
+		  hostgroupId);
+	}
 	if (!conditionHostGroup.empty()) {
 		return StringUtils::sprintf("(%s AND %s)",
 					    condition.c_str(),
@@ -807,7 +815,8 @@ string HostResourceQueryOption::makeCondition(
   const string &serverIdColumnName,
   const string &hostGroupIdColumnName,
   const string &hostIdColumnName,
-  uint32_t targetServerId, uint64_t targetHostId)
+  uint32_t targetServerId, uint64_t targetHostId,
+  uint64_t targetHostgroupId)
 {
 	string condition;
 
@@ -837,7 +846,8 @@ string HostResourceQueryOption::makeCondition(
 		string conditionServer = makeConditionServer(
 					   serverId, it->second,
 					   serverIdColumnName,
-					   hostGroupIdColumnName);
+					   hostGroupIdColumnName,
+					   targetHostgroupId);
 		appendCondition(condition, conditionServer);
 		++numServers;
 	}
@@ -899,7 +909,8 @@ string HostResourceQueryOption::getCondition(void) const
 	                          getHostGroupIdColumnName(),
 	                          getHostIdColumnName(),
 	                          m_ctx->targetServerId,
-	                          m_ctx->targetHostId);
+	                          m_ctx->targetHostId,
+	                          m_ctx->targetHostgroupId);
 	return condition;
 }
 
