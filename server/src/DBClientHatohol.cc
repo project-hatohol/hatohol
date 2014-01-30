@@ -685,13 +685,15 @@ struct HostResourceQueryOption::PrivateContext {
 	string hostIdColumnName;
 	uint32_t targetServerId;
 	uint64_t targetHostId;
+	uint64_t targetHostgroupId;
 
 	PrivateContext()
 	: serverIdColumnName("server_id"),
 	  hostGroupIdColumnName("host_group_id"),
 	  hostIdColumnName("host_id"),
 	  targetServerId(ALL_SERVERS),
-	  targetHostId(ALL_HOSTS)
+	  targetHostId(ALL_HOSTS),
+	  targetHostgroupId(ALL_HOST_GROUPS)
 	{
 	}
 };
