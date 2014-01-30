@@ -407,6 +407,15 @@ HatoholError UnifiedDataStore::getHostgroupInfoList
 	return dbClientHatohol.getHostgroupInfoList(hostgroupInfoList,option);
 }
 
+HatoholError UnifiedDataStore::getHostgroupElementList(
+  HostgroupElementList &hostgroupElementList,
+  const HostgroupElementQueryOption &option)
+{
+	DBClientHatohol dbClientHatohol;
+	return dbClientHatohol.getHostgroupElementList(hostgroupElementList,
+	                                               option);
+}
+
 size_t UnifiedDataStore::getNumberOfTriggers(const TriggersQueryOption &option,
 					     TriggerSeverityType severity)
 {

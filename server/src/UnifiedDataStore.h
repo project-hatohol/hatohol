@@ -75,6 +75,9 @@ public:
 	virtual HatoholError getHostgroupInfoList(
 	  HostgroupInfoList &hostgroupInfoList,
 	  const HostgroupsQueryOption &option);
+	virtual HatoholError getHostgroupElementList(
+	  HostgroupElementList &hostgroupElementList,
+	  const HostgroupElementQueryOption &option);
 
 	virtual size_t getNumberOfTriggers
 	                 (const TriggersQueryOption &option,
