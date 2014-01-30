@@ -180,7 +180,7 @@ protected:
 	  uint32_t targetServerId = ALL_SERVERS,
 	  uint64_t targetHostId = ALL_HOSTS);
 	static std::string makeConditionServer(
-	  uint32_t serverId,
+	  const uint32_t &serverId,
 	  const HostGroupSet &hostGroupSet,
 	  const std::string &serverIdColumnName,
 	  const std::string &hostGroupIdColumnName);
