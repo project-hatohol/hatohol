@@ -229,26 +229,23 @@ string DBAgent::getColumnValueString(const ColumnDef *columnDef,
 	switch (columnDef->type) {
 	case SQL_COLUMN_TYPE_INT:
 	{
-		DEFINE_AND_ASSERT(itemData, ItemInt, item);
-		valueStr = StringUtils::sprintf("%d", item->get());
+		valueStr = StringUtils::sprintf("%d", (int)*itemData);
 		break;
 	}
 	case SQL_COLUMN_TYPE_BIGUINT:
 	{
-		DEFINE_AND_ASSERT(itemData, ItemUint64, item);
-		valueStr = StringUtils::sprintf("%"PRId64, item->get());
+		valueStr = StringUtils::sprintf("%"PRId64, (uint64_t)*itemData);
 		break;
 	}
 	case SQL_COLUMN_TYPE_VARCHAR:
 	case SQL_COLUMN_TYPE_CHAR:
 	case SQL_COLUMN_TYPE_TEXT:
 	{
-		DEFINE_AND_ASSERT(itemData, ItemString, item);
-		if (item->isNull()) {
+		if (itemData->isNull()) {
 			valueStr = "NULL";
 		} else {
 			string escaped =
-			   StringUtils::replace(item->get(), "'", "''");
+			   StringUtils::replace((string)*itemData, "'", "''");
 			valueStr =
 			   StringUtils::sprintf("'%s'", escaped.c_str());
 		}
@@ -256,16 +253,14 @@ string DBAgent::getColumnValueString(const ColumnDef *columnDef,
 	}
 	case SQL_COLUMN_TYPE_DOUBLE:
 	{
-		string fmt;
-		DEFINE_AND_ASSERT(itemData, ItemDouble, item);
-		fmt = StringUtils::sprintf("%%.%zdlf", columnDef->decFracLength);
-		valueStr = StringUtils::sprintf(fmt.c_str(), item->get());
+		string fmt
+		  = StringUtils::sprintf("%%.%zdlf", columnDef->decFracLength);
+		valueStr = StringUtils::sprintf(fmt.c_str(), (double)*itemData);
 		break;
 	}
 	case SQL_COLUMN_TYPE_DATETIME:
 	{
-		DEFINE_AND_ASSERT(itemData, ItemInt, item);
-		valueStr = makeDatetimeString(item->get());
+		valueStr = makeDatetimeString(*itemData);
 		break;
 	}
 	default:
