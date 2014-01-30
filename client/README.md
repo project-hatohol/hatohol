@@ -42,7 +42,7 @@ The following shows examples to install Required Packages.
 
 #### On Ubuntu 12.04 and 13.10
 
-    # apt-get install python-pip python-dev
+    # apt-get install python-pip python-dev gettext
     # pip install django==1.5.4 mysql-python
 
 
