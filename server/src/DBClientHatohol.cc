@@ -2066,8 +2066,8 @@ HatoholError DBClientHatohol::getHostgroupElementList
 
 		hostgroupElement.id = GET_INT_FROM_GRP(itemGroup, idx++);
 		hostgroupElement.serverId = GET_INT_FROM_GRP(itemGroup, idx++);
-		hostgroupElement.hostId = GET_INT_FROM_GRP(itemGroup, idx++);
-		hostgroupElement.groupId = GET_INT_FROM_GRP(itemGroup, idx++);
+		hostgroupElement.hostId = GET_UINT64_FROM_GRP(itemGroup, idx++);
+		hostgroupElement.groupId = GET_UINT64_FROM_GRP(itemGroup, idx++);
 	}
 
 	return HTERR_OK;
