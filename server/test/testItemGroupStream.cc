@@ -47,16 +47,7 @@ void test_operatorLeftShiftToInt(void)
 {
 	const int expects[] = {-3, 5, 8};
 	const size_t num_expects = sizeof(expects) / sizeof(int);
-	VariableItemGroupPtr itemGroup(new ItemGroup(), false);
-	for (size_t i = 0; i < num_expects; i++)
-		itemGroup->add(new ItemInt(expects[i]), false);
-
-	ItemGroupStream igStream(itemGroup);
-	for (size_t i = 0; i < num_expects; i++) {
-		int actual;
-		actual << igStream;
-		cppcut_assert_equal(actual, expects[i]);
-	}
+	assertOperatorLeftShift(int, ItemInt, expects, num_expects);
 }
 
 void test_operatorLeftShiftToUint64(void)
