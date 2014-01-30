@@ -22,7 +22,6 @@
 #include <MutexLock.h>
 #include "DBAgentFactory.h"
 #include "DBClientConfig.h"
-#include "DBClientUtils.h"
 #include "CacheServiceDBClient.h"
 #include "HatoholError.h"
 #include "Params.h"

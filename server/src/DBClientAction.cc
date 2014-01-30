@@ -20,7 +20,6 @@
 #include "ConfigManager.h"
 #include "DBAgentFactory.h"
 #include "DBClientAction.h"
-#include "DBClientUtils.h"
 #include "DBClientHatohol.h"
 #include "MutexLock.h"
 #include "ItemGroupStream.h"

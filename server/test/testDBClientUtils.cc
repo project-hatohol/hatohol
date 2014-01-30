@@ -18,9 +18,9 @@
  */
 
 #include <cppcutter.h>
-#include "DBClientUtils.h"
 #include "ItemGroupPtr.h"
 #include "ItemDataPtr.h"
+#include "ItemGroupStream.h"
 using namespace std;
 
 namespace testDBClientUtils {
@@ -55,10 +55,9 @@ void test_getUint64FromGrp(void)
 	 = makeItemGroup<uint64_t, ItemUint64>(DATA, NUM_DATA);
 
 	// check
-	for (size_t i = 0; i < NUM_DATA; i++) {
-		uint64_t data = GET_UINT64_FROM_GRP(itemGrp, i);
-		cppcut_assert_equal(DATA[i], data);
-	}
+	ItemGroupStream itemGroupStream(itemGrp);
+	for (size_t i = 0; i < NUM_DATA; i++)
+		cppcut_assert_equal(DATA[i], itemGroupStream.read<uint64_t>());
 }
 
 void test_getUint64FromGrpWithNull(void)
@@ -70,11 +69,11 @@ void test_getUint64FromGrpWithNull(void)
 	 = makeItemGroup<uint64_t, ItemUint64>(DATA, NUM_DATA, NULL_VECT);
 
 	// check
+	ItemGroupStream itemGroupStream(itemGrp);
 	for (size_t i = 0; i < NUM_DATA; i++) {
-		bool isNull;
-		uint64_t data = GET_UINT64_FROM_GRP(itemGrp, i, &isNull);
-		cppcut_assert_equal(DATA[i], data);
+		bool isNull = itemGroupStream.getItem()->isNull();
 		cppcut_assert_equal(NULL_VECT[i], isNull);
+		cppcut_assert_equal(DATA[i], itemGroupStream.read<uint64_t>());
 	}
 }
 
@@ -84,10 +83,9 @@ void test_getIntFromGrp(void)
 	static const size_t NUM_DATA = sizeof(DATA) / sizeof(int);
 	ItemGroupPtr itemGrp = makeItemGroup<int, ItemInt>(DATA, NUM_DATA);
 	// check
-	for (size_t i = 0; i < NUM_DATA; i++) {
-		int data = GET_INT_FROM_GRP(itemGrp, i);
-		cppcut_assert_equal(DATA[i], data);
-	}
+	ItemGroupStream itemGroupStream(itemGrp);
+	for (size_t i = 0; i < NUM_DATA; i++)
+		cppcut_assert_equal(DATA[i], itemGroupStream.read<int>());
 }
 
 void test_getIntFromGrpWithNull(void)
@@ -98,11 +96,11 @@ void test_getIntFromGrpWithNull(void)
 	ItemGroupPtr itemGrp =
 	   makeItemGroup<int, ItemInt>(DATA, NUM_DATA, NULL_VECT);
 	// check
+	ItemGroupStream itemGroupStream(itemGrp);
 	for (size_t i = 0; i < NUM_DATA; i++) {
-		bool isNull;
-		int data = GET_INT_FROM_GRP(itemGrp, i, &isNull);
-		cppcut_assert_equal(DATA[i], data);
+		bool isNull = itemGroupStream.getItem()->isNull();
 		cppcut_assert_equal(NULL_VECT[i], isNull);
+		cppcut_assert_equal(DATA[i], itemGroupStream.read<int>());
 	}
 }
 
@@ -114,10 +112,9 @@ void test_getStringFromGrp(void)
 	   makeItemGroup<string, ItemString>(DATA, NUM_DATA);
 
 	// check
-	for (size_t i = 0; i < NUM_DATA; i++) {
-		string data = GET_STRING_FROM_GRP(itemGrp, i);
-		cppcut_assert_equal(DATA[i], data);
-	}
+	ItemGroupStream itemGroupStream(itemGrp);
+	for (size_t i = 0; i < NUM_DATA; i++)
+		cppcut_assert_equal(DATA[i], itemGroupStream.read<string>());
 }
 
 void test_getStringFromGrpWithNull(void)
@@ -129,11 +126,11 @@ void test_getStringFromGrpWithNull(void)
 	   makeItemGroup<string, ItemString>(DATA, NUM_DATA, NULL_VECT);
 
 	// check
+	ItemGroupStream itemGroupStream(itemGrp);
 	for (size_t i = 0; i < NUM_DATA; i++) {
-		bool isNull;
-		string data = GET_STRING_FROM_GRP(itemGrp, i, &isNull);
-		cppcut_assert_equal(DATA[i], data);
+		bool isNull = itemGroupStream.getItem()->isNull();
 		cppcut_assert_equal(NULL_VECT[i], isNull);
+		cppcut_assert_equal(DATA[i], itemGroupStream.read<string>());
 	}
 }
 
