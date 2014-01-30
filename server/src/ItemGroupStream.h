@@ -29,6 +29,14 @@ class ItemGroupStream {
 	friend std::string &operator<<(std::string &lhs, ItemGroupStream &igStream);
 public:
 	ItemGroupStream(const ItemGroup *itemGroup);
+
+	/**
+	 * Get a ItemData instance at the current position.
+	 *
+	 * This method doesn't move the stream position.
+	 *
+	 * @return a pointer of ItemData instances.
+	 */
 	const ItemData *getItem(void) const;
 
 protected:
