@@ -58,6 +58,15 @@ void test_createAsNumberInvalid(void)
 //
 // Convenient operators
 //
+void test_operatorShiftFromItemIntToInt(void)
+{
+	const int expect = -8;
+	ItemDataPtr itemPtr(new ItemInt(expect), false);
+	int actual;
+	actual << itemPtr;
+	cppcut_assert_equal(expect, actual);
+}
+
 void test_operatorShiftFromItemStringToString(void)
 {
 	const string expect = "Test string";

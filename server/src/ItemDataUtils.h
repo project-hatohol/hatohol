@@ -152,6 +152,11 @@ T &substituteFromItemDataPtr(T &lhs, const ItemDataPtr &itemPtr)
 	return lhs;
 }
 
+inline int &operator<<(int &lhs, const ItemDataPtr &itemData)
+{
+	return substituteFromItemDataPtr<int>(lhs, itemData);
+}
+
 inline std::string &operator<<(std::string &lhs, const ItemDataPtr &itemData)
 {
 	return substituteFromItemDataPtr<std::string>(lhs, itemData);
