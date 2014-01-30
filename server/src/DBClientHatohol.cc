@@ -874,7 +874,7 @@ string HostResourceQueryOption::getCondition(void) const
 				getHostIdColumnName().c_str(),
 				m_ctx->targetHostId);
 		}
-		if (m_ctx->targetHostGroupId != ALL_HOST_GROUPS) {
+		if (m_ctx->targetHostgroupId != ALL_HOST_GROUPS) {
 			if (!condition.empty())
 				condition += " AND ";
 			condition += StringUtils::sprintf(
