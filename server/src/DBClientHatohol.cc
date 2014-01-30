@@ -2002,3 +2002,53 @@ HatoholError DBClientHatohol::getHostgroupInfoList
 
 	return HTERR_OK;
 }
+
+HatoholError DBClientHatohol::getHostgroupElementList
+  (HostgroupElementList &hostgroupElementList,
+   const HostgroupElementQueryOption &option)
+{
+	DBAgentSelectExArg arg;
+	arg.tableName = TABLE_NAME_MAP_HOSTS_HOSTGROUPS;
+
+	arg.statements.push_back(
+	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_ID].columnName);
+	arg.columnTypes.push_back(
+	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_ID].type);
+
+	arg.statements.push_back(
+	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID].columnName);
+	arg.columnTypes.push_back(
+	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID].type);
+
+	arg.statements.push_back(
+	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID].columnName);
+	arg.columnTypes.push_back(
+	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID].type);
+
+	arg.statements.push_back(
+	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID].columnName);
+	arg.columnTypes.push_back(
+	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID].type);
+
+	arg.condition = option.getCondition();
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator it = grpList.begin();
+	for(; it != grpList.end(); ++it) {
+		size_t idx = 0;
+		const ItemGroup *itemGroup = *it;
+		hostgroupElementList.push_back(HostgroupElement());
+		HostgroupElement &hostgroupElement = hostgroupElementList.back();
+
+		hostgroupElement.id = GET_INT_FROM_GRP(itemGroup, idx++);
+		hostgroupElement.serverId = GET_INT_FROM_GRP(itemGroup, idx++);
+		hostgroupElement.hostId = GET_INT_FROM_GRP(itemGroup, idx++);
+		hostgroupElement.groupId = GET_INT_FROM_GRP(itemGroup, idx++);
+	}
+
+	return HTERR_OK;
+}

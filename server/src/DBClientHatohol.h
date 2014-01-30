@@ -280,6 +280,9 @@ public:
 	void addHostgroupInfoList(const HostgroupInfoList &groupInfoList);
 	HatoholError getHostgroupInfoList(HostgroupInfoList &hostgroupInfoList,
 	                      const HostgroupsQueryOption &option);
+	HatoholError getHostgroupElementList
+	  (HostgroupElementList &hostgroupElementList,
+	   const HostgroupElementQueryOption &option);
 
 	void addHostgroupElement(HostgroupElement *mapHostHostgroupsInfo);
 	void addHostgroupElementList
