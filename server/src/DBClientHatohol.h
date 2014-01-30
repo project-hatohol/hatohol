@@ -218,6 +218,11 @@ public:
 	HostgroupsQueryOption(UserIdType userId = INVALID_USER_ID);
 };
 
+class HostgroupElementQueryOption: public HostResourceQueryOption {
+public:
+	HostgroupElementQueryOption(UserIdType userId = INVALID_USER_ID);
+};
+
 class DBClientHatohol : public DBClient {
 public:
 	static uint64_t EVENT_NOT_FOUND;
