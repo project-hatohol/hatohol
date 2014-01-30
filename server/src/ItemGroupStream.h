@@ -62,6 +62,11 @@ public:
 		substitute<int>(rhs, *this);
 	}
 
+	void operator>>(uint64_t &rhs)
+	{
+		substitute<uint64_t>(rhs, *this);
+	}
+
 protected:
 	template <typename T>
 	static T &

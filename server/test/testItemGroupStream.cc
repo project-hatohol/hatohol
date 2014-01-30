@@ -80,6 +80,13 @@ void test_operatorLeftShiftToInt(void)
 	assertOperatorLeftShift(int, ItemInt, expects, numExepects);
 }
 
+void test_operatorRightShiftToUint64(void)
+{
+	const uint64_t expects[] = {0xfedcba9876543210, 3, 0x7fffeeee5555};
+	const size_t numExepects = sizeof(expects) / sizeof(uint64_t);
+	assertOperatorRightShift(uint64_t, ItemUint64, expects, numExepects);
+}
+
 void test_operatorLeftShiftToUint64(void)
 {
 	const uint64_t expects[] = {0xfedcba9876543210, 3, 0x7fffeeee5555};
