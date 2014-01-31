@@ -2027,17 +2027,16 @@ HatoholError DBClientHatohol::getHostgroupInfoList
 	} DBCLIENT_TRANSACTION_END();
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator it = grpList.begin();
-	for(; it != grpList.end(); ++it) {
-		size_t idx = 0;
-		const ItemGroup *itemGroup = *it;
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
 		hostgroupInfoList.push_back(HostgroupInfo());
 		HostgroupInfo &hostgroupInfo = hostgroupInfoList.back();
 
-		hostgroupInfo.id        = GET_INT_FROM_GRP(itemGroup, idx++);
-		hostgroupInfo.serverId  = GET_INT_FROM_GRP(itemGroup, idx++);
-		hostgroupInfo.groupId   = GET_UINT64_FROM_GRP(itemGroup, idx++);
-		hostgroupInfo.groupName = GET_STRING_FROM_GRP(itemGroup, idx++);
+		itemGroupStream >> hostgroupInfo.id;
+		itemGroupStream >> hostgroupInfo.serverId;
+		itemGroupStream >> hostgroupInfo.groupId;
+		itemGroupStream >> hostgroupInfo.groupName;
 	}
 
 	return HTERR_OK;
@@ -2077,17 +2076,15 @@ HatoholError DBClientHatohol::getHostgroupElementList
 	} DBCLIENT_TRANSACTION_END();
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator it = grpList.begin();
-	for(; it != grpList.end(); ++it) {
-		size_t idx = 0;
-		const ItemGroup *itemGroup = *it;
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
 		hostgroupElementList.push_back(HostgroupElement());
 		HostgroupElement &hostgroupElement = hostgroupElementList.back();
-
-		hostgroupElement.id = GET_INT_FROM_GRP(itemGroup, idx++);
-		hostgroupElement.serverId = GET_INT_FROM_GRP(itemGroup, idx++);
-		hostgroupElement.hostId = GET_UINT64_FROM_GRP(itemGroup, idx++);
-		hostgroupElement.groupId = GET_UINT64_FROM_GRP(itemGroup, idx++);
+		itemGroupStream >> hostgroupElement.id;
+		itemGroupStream >> hostgroupElement.serverId;
+		itemGroupStream >> hostgroupElement.hostId;
+		itemGroupStream >> hostgroupElement.groupId;
 	}
 
 	return HTERR_OK;

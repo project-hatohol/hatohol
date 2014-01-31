@@ -1985,17 +1985,13 @@ void DBClientZabbix::transformGroupItemGroupToHostgroupInfo
 {
 	groupInfo.id = AUTO_INCREMENT_VALUE;
 
-	// groupid
-	DEFINE_AND_ASSERT(
-	  groupItemGroup->getItem(ITEM_ID_ZBX_GROUPS_GROUPID),
-	  ItemUint64, itemGroupId);
-	groupInfo.groupId = itemGroupId->get();
+	ItemGroupStream itemGroupStream(groupItemGroup);
 
-	// groupname
-	DEFINE_AND_ASSERT(
-	  groupItemGroup->getItem(ITEM_ID_ZBX_GROUPS_NAME),
-	  ItemString, itemGroupName);
-	groupInfo.groupName = itemGroupName->get();
+	itemGroupStream.seek(ITEM_ID_ZBX_GROUPS_GROUPID);
+	itemGroupStream >> groupInfo.groupId;
+
+	itemGroupStream.seek(ITEM_ID_ZBX_GROUPS_NAME);
+	itemGroupStream >> groupInfo.groupName;
 }
 
 void DBClientZabbix::transformGroupsToHatoholFormat
@@ -2017,17 +2013,13 @@ void DBClientZabbix::transformHostsGroupsItemGroupToHatoholFormat
 {
 	hostgroupElement.id = AUTO_INCREMENT_VALUE;
 
-	// hostid
-	DEFINE_AND_ASSERT(
-	  groupHostsGroups->getItem(ITEM_ID_ZBX_HOSTS_GROUPS_HOSTID),
-	  ItemUint64, itemHostId);
-	hostgroupElement.hostId = itemHostId->get();
+	ItemGroupStream itemGroupStream(groupHostsGroups);
 
-	// groupid
-	DEFINE_AND_ASSERT(
-	  groupHostsGroups->getItem(ITEM_ID_ZBX_HOSTS_GROUPS_GROUPID),
-	  ItemUint64, itemGroupId);
-	hostgroupElement.groupId = itemGroupId->get();
+	itemGroupStream.seek(ITEM_ID_ZBX_HOSTS_GROUPS_HOSTID);
+	itemGroupStream >> hostgroupElement.hostId;
+
+	itemGroupStream.seek(ITEM_ID_ZBX_HOSTS_GROUPS_GROUPID);
+	itemGroupStream >> hostgroupElement.groupId;
 }
 
 void DBClientZabbix::transformHostsGroupsToHatoholFormat
@@ -2049,17 +2041,13 @@ void DBClientZabbix::transformHostsGroupsToHatoholFormat
 void DBClientZabbix::transformHostsItemGroupToHatoholFormat
   (HostInfo &hostInfo, const ItemGroup *groupHosts)
 {
-	// hostid
-	DEFINE_AND_ASSERT(
-	  groupHosts->getItem(ITEM_ID_ZBX_HOSTS_HOSTID),
-	  ItemUint64, itemHostId);
-	hostInfo.id = itemHostId->get();
+	ItemGroupStream itemGroupStream(groupHosts);
 
-	// hostName
-	DEFINE_AND_ASSERT(
-	  groupHosts->getItem(ITEM_ID_ZBX_HOSTS_NAME),
-	  ItemString, itemHostName);
-	hostInfo.hostName = itemHostName->get();
+	itemGroupStream.seek(ITEM_ID_ZBX_HOSTS_HOSTID);
+	itemGroupStream >> hostInfo.id;
+
+	itemGroupStream.seek(ITEM_ID_ZBX_HOSTS_NAME);
+	itemGroupStream >> hostInfo.hostName;
 }
 
 void DBClientZabbix::transformHostsToHatoholFormat

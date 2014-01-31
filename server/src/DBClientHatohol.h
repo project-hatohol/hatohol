@@ -126,7 +126,7 @@ typedef ItemInfoList::iterator       ItemInfoListIterator;
 typedef ItemInfoList::const_iterator ItemInfoListConstIterator;
 
 struct HostgroupInfo {
-	uint32_t            id;
+	int                 id;
 	ServerIdType        serverId;
 	uint64_t            groupId;
 	std::string              groupName;
@@ -137,7 +137,7 @@ typedef HostgroupInfoList::iterator       HostgroupInfoListIterator;
 typedef HostgroupInfoList::const_iterator HostgroupInfoListConstIterator;
 
 struct HostgroupElement {
-	uint32_t            id;
+	int                 id;
 	ServerIdType            serverId;
 	uint64_t            hostId;
 	uint64_t            groupId;
