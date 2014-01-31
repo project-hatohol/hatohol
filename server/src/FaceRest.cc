@@ -618,7 +618,8 @@ void FaceRest::replyJsonData(JsonBuilderAgent &agent, RestJob *job)
 	job->replyIsPrepared = true;
 }
 
-void FaceRest::parseQueryServerId(GHashTable *query, uint32_t &serverId)
+void FaceRest::parseQueryServerId(GHashTable *query,
+                                  ServerIdType &serverId)
 {
 	serverId = ALL_SERVERS;
 	if (!query)
@@ -627,8 +628,8 @@ void FaceRest::parseQueryServerId(GHashTable *query, uint32_t &serverId)
 	if (!value)
 		return;
 
-	uint32_t svId;
-	if (sscanf(value, "%"PRIu32, &svId) == 1)
+	ServerIdType svId;
+	if (sscanf(value, "%"FMT_SERVER_ID, &svId) == 1)
 		serverId = svId;
 	else
 		MLPL_INFO("Invalid requested ID: %s\n", value);
@@ -1063,7 +1064,7 @@ static void addOverview(FaceRest::RestJob *job, JsonBuilderAgent &agent)
 }
 
 static void addServers(FaceRest::RestJob *job, JsonBuilderAgent &agent,
-		       uint32_t targetServerId)
+                       const ServerIdType &targetServerId)
 {
 	ConfigManager *configManager = ConfigManager::getInstance();
 	MonitoringServerInfoList monitoringServers;
@@ -1089,7 +1090,7 @@ static void addServers(FaceRest::RestJob *job, JsonBuilderAgent &agent,
 }
 
 static void addHosts(FaceRest::RestJob *job, JsonBuilderAgent &agent,
-                     uint32_t targetServerId, uint64_t targetHostId)
+                     const ServerIdType &targetServerId, uint64_t targetHostId)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HostInfoList hostInfoList;
@@ -1364,7 +1365,7 @@ void FaceRest::handlerServer(RestJob *job)
 
 void FaceRest::handlerGetServer(RestJob *job)
 {
-	uint32_t targetServerId;
+	ServerIdType targetServerId;
 	parseQueryServerId(job->query, targetServerId);
 
 	JsonBuilderAgent agent;
@@ -1509,7 +1510,7 @@ void FaceRest::handlerDeleteServer(RestJob *job)
 
 void FaceRest::handlerGetHost(RestJob *job)
 {
-	uint32_t targetServerId;
+	ServerIdType targetServerId;
 	parseQueryServerId(job->query, targetServerId);
 	uint64_t targetHostId;
 	parseQueryHostId(job->query, targetHostId);
@@ -1526,7 +1527,7 @@ void FaceRest::handlerGetHost(RestJob *job)
 void FaceRest::handlerGetTrigger(RestJob *job)
 {
 
-	uint32_t serverId;
+	ServerIdType serverId;
 	parseQueryServerId(job->query, serverId);
 	uint64_t hostId;
 	parseQueryHostId(job->query, hostId);
@@ -1754,7 +1755,7 @@ void FaceRest::handlerGetAction(RestJob *job)
 		agent.startObject();
 		agent.add("actionId",  actionDef.id);
 		agent.add("enableBits", cond.enableBits);
-		setActionCondition<uint32_t>(
+		setActionCondition<ServerIdType>(
 		  agent, cond, "serverId", ACTCOND_SERVER_ID, cond.serverId);
 		setActionCondition<uint64_t>(
 		  agent, cond, "hostId", ACTCOND_HOST_ID, cond.hostId);
@@ -2167,7 +2168,7 @@ void FaceRest::handlerGetAccessInfo(RestJob *job)
 	ServerAccessInfoMapIterator it = serversMap.begin();
 	agent.startObject("allowedServers");
 	for (; it != serversMap.end(); it++) {
-		uint32_t serverId = it->first;
+		const ServerIdType &serverId = it->first;
 		string serverIdString;
 		HostGrpAccessInfoMap *hostGroupsMap = it->second;
 		if (serverId == ALL_SERVERS)
@@ -2215,8 +2216,9 @@ void FaceRest::handlerPostAccessInfo(RestJob *job)
 	accessInfo.userId = job->getResourceId(userIdPos);
 
 	// serverId
-	succeeded = getParamWithErrorReply<uint32_t>(
-	              job, "serverId", "%"PRIu32, accessInfo.serverId, &exist);
+	succeeded = getParamWithErrorReply<ServerIdType>(
+	              job, "serverId", "%"FMT_SERVER_ID,
+	              accessInfo.serverId, &exist);
 	if (!succeeded)
 		return;
 	if (!exist) {

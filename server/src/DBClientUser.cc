@@ -674,8 +674,7 @@ UserIdType DBClientUser::getUserId(const string &user, const string &password)
 	int idx = 0;
 
 	// user ID
-	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemUserId);
-	UserIdType userId = itemUserId->get();
+	UserIdType userId = *itemGroup->getItemAt(idx++);
 
 	// password
 	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemString, itemPasswd);
@@ -717,8 +716,7 @@ HatoholError DBClientUser::addAccessInfo(AccessInfo &accessInfo,
 	ItemGroupListConstIterator it = grpList.begin();
 	if (it != grpList.end()) {
 		const ItemGroup *itemGroup = *it;
-		DEFINE_AND_ASSERT(itemGroup->getItemAt(0), ItemInt, itemId);
-		accessInfo.id = itemId->get();
+		accessInfo.id = *itemGroup->getItemAt(0);
 		return HTERR_OK;
 	}
 
@@ -805,18 +803,13 @@ HatoholError DBClientUser::getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMa
 		AccessInfo *accessInfo = new AccessInfo();
 
 		// ID
-		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemId);
-		accessInfo->id = itemId->get();
+		accessInfo->id = *itemGroup->getItemAt(idx++);
 
 		// user ID
-		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++),
-		                  ItemInt, itemUserId);
-		accessInfo->userId = itemUserId->get();
+		accessInfo->userId = *itemGroup->getItemAt(idx++);
 
 		// server ID
-		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++),
-		                  ItemInt, itemServerId);
-		accessInfo->serverId = itemServerId->get();
+		accessInfo->serverId = *itemGroup->getItemAt(idx++);
 
 		// host group ID
 		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++),
@@ -839,7 +832,7 @@ HatoholError DBClientUser::getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMa
 		  hostGrpAccessInfoMap->find(accessInfo->hostGroupId);
 		if (jt != hostGrpAccessInfoMap->end()) {
 			MLPL_WARN("Found duplicated serverId and hostGroupId: "
-			          "%"PRIu32 ", %" PRIu64"\n",
+			          "%"FMT_SERVER_ID", %"PRIu64"\n",
 			          accessInfo->serverId,
 			          accessInfo->hostGroupId);
 			delete accessInfo;
@@ -867,7 +860,7 @@ void DBClientUser::destroyServerAccessInfoMap(ServerAccessInfoMap &srvAccessInfo
 }
 
 void DBClientUser::getServerHostGrpSetMap(
-  ServerHostGrpSetMap &srvHostGrpSetMap, const UserIdType userId)
+  ServerHostGrpSetMap &srvHostGrpSetMap, const UserIdType &userId)
 {
 	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_ACCESS_LIST;
@@ -886,9 +879,7 @@ void DBClientUser::getServerHostGrpSetMap(
 		int idx = 0;
 
 		// server ID
-		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++),
-		                  ItemInt, itemServerId);
-		uint32_t serverId = itemServerId->get();
+		ServerIdType serverId = *itemGroup->getItemAt(idx++);
 
 		// host group ID
 		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++),
@@ -900,7 +891,7 @@ void DBClientUser::getServerHostGrpSetMap(
 		  srvHostGrpSetMap[serverId].insert(hostGroupId);
 		if (!result.second) {
 			MLPL_WARN("Found duplicated serverId and hostGroupId: "
-			          "%"PRIu32 ", %" PRIu64"\n",
+			          "%"FMT_SERVER_ID", %"PRIu64"\n",
 			          serverId, hostGroupId);
 			continue;
 		}
@@ -1048,9 +1039,7 @@ void DBClientUser::getUserRoleInfoList(UserRoleInfoList &userRoleInfoList,
 		UserRoleInfo userRoleInfo;
 
 		// user role ID
-		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt,
-		                  itemUserId);
-		userRoleInfo.id = itemUserId->get();
+		userRoleInfo.id = *itemGroup->getItemAt(idx++);
 
 		// name
 		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemString,
@@ -1105,9 +1094,9 @@ HatoholError DBClientUser::isValidUserRoleName(const string &name)
 	return HTERR_OK;
 }
 
-bool DBClientUser::isAccessible(const ServerIdType serverId,
+bool DBClientUser::isAccessible(const ServerIdType &serverId,
                                 const OperationPrivilege &privilege,
-                                const bool useTransaction)
+                                const bool &useTransaction)
 {
 	UserIdType userId = privilege.getUserId();
 	if (userId == INVALID_USER_ID) {
@@ -1145,8 +1134,8 @@ bool DBClientUser::isAccessible(const ServerIdType serverId,
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	HATOHOL_ASSERT(!grpList.empty(), "No result");
 	const ItemGroup *itemGroup = *grpList.begin();
-	DEFINE_AND_ASSERT(itemGroup->getItemAt(0), ItemInt, itemCount);
-	return itemCount->get();
+	int count = *itemGroup->getItemAt(0);
+	return count > 0;
 }
 
 // ---------------------------------------------------------------------------
@@ -1178,9 +1167,7 @@ void DBClientUser::getUserInfoList(UserInfoList &userInfoList,
 		UserInfo userInfo;
 
 		// user ID
-		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt,
-		                  itemUserId);
-		userInfo.id = itemUserId->get();
+		userInfo.id = *itemGroup->getItemAt(idx++);
 
 		// password
 		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemString,

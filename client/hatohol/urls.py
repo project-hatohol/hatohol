@@ -58,11 +58,13 @@ urlpatterns = patterns('',
     url(r'^tunnel/(?P<path>.+)', jsonforward),
     url(r'^userconfig$', 'viewer.userconfig.index'),
     url(r'^jsi18n/$', 'django.views.i18n.javascript_catalog'),
+    url(r'', include('viewer.urls')),
 )
 
 urlpatterns += i18n_patterns('',
     url(r'^viewer/', include('viewer.urls')),
     url(r'^jsi18n/$', 'django.views.i18n.javascript_catalog'),
+    url(r'', include('viewer.urls')),
 )
 
 if 'HATOHOL_DEBUG' in os.environ and os.environ['HATOHOL_DEBUG'] == '1':

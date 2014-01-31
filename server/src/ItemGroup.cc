@@ -86,6 +86,11 @@ const ItemData *ItemGroup::getItemAt(size_t index) const
 	return data;
 }
 
+const ItemDataPtr ItemGroup::getItemPtrAt(size_t index) const
+{
+        return getItemAt(index);
+}
+
 size_t ItemGroup::getNumberOfItems(void) const
 {
 	size_t ret = m_itemVector.size();

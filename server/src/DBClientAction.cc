@@ -832,13 +832,13 @@ bool DBClientAction::getLog(ActionLog &actionLog, uint64_t logId)
 }
 
 bool DBClientAction::getLog(ActionLog &actionLog,
-                            uint32_t serverId, uint64_t eventId)
+                            const ServerIdType &serverId, uint64_t eventId)
 {
 	const ColumnDef *def = COLUMN_DEF_ACTION_LOGS;
 	const char *idColNameSvId = def[IDX_ACTION_LOGS_SERVER_ID].columnName;
 	const char *idColNameEvtId = def[IDX_ACTION_LOGS_EVENT_ID].columnName;
 	string condition = StringUtils::sprintf(
-	  "%s=%"PRIu32" AND %s=%"PRIu64,
+	  "%s=%"FMT_SERVER_ID" AND %s=%"PRIu64,
 	  idColNameSvId, serverId, idColNameEvtId, eventId);
 	return getLog(actionLog, condition);
 }

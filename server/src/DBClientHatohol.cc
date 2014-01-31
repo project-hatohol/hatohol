@@ -683,7 +683,7 @@ struct HostResourceQueryOption::PrivateContext {
 	string serverIdColumnName;
 	string hostGroupIdColumnName;
 	string hostIdColumnName;
-	uint32_t targetServerId;
+	ServerIdType targetServerId;
 	uint64_t targetHostId;
 	uint64_t targetHostgroupId;
 
@@ -790,7 +790,7 @@ string HostResourceQueryOption::makeConditionServer(
 {
 	string condition;
 	condition = StringUtils::sprintf(
-	  "%s=%"PRIu32, serverIdColumnName.c_str(), serverId);
+	  "%s=%"FMT_SERVER_ID, serverIdColumnName.c_str(), serverId);
 
 	string conditionHostGroup;
 	if (hostgroupId == ALL_HOST_GROUPS) {
@@ -835,7 +835,7 @@ string HostResourceQueryOption::makeCondition(
 	numServers = 0;
 	ServerHostGrpSetMapConstIterator it = srvHostGrpSetMap.begin();
 	for (; it != srvHostGrpSetMap.end(); ++it) {
-		const uint32_t serverId = it->first;
+		const ServerIdType &serverId = it->first;
 
 		if (targetServerId != ALL_SERVERS && targetServerId != serverId)
 			continue;
@@ -872,7 +872,7 @@ string HostResourceQueryOption::getCondition(void) const
 	if (userId == USER_ID_SYSTEM || has(OPPRVLG_GET_ALL_SERVER)) {
 		if (m_ctx->targetServerId != ALL_SERVERS) {
 			condition = StringUtils::sprintf(
-				"%s=%"PRIu32,
+				"%s=%"FMT_SERVER_ID,
 				getServerIdColumnName().c_str(),
 				m_ctx->targetServerId);
 		}
@@ -914,12 +914,12 @@ string HostResourceQueryOption::getCondition(void) const
 	return condition;
 }
 
-uint32_t HostResourceQueryOption::getTargetServerId(void) const
+ServerIdType HostResourceQueryOption::getTargetServerId(void) const
 {
 	return m_ctx->targetServerId;
 }
 
-void HostResourceQueryOption::setTargetServerId(uint32_t targetServerId)
+void HostResourceQueryOption::setTargetServerId(const ServerIdType &targetServerId)
 {
 	m_ctx->targetServerId = targetServerId;
 }
@@ -1123,14 +1123,15 @@ void DBClientHatohol::addTriggerInfoList(const TriggerInfoList &triggerInfoList)
 }
 
 bool DBClientHatohol::getTriggerInfo(TriggerInfo &triggerInfo,
-                                     uint32_t serverId, uint64_t triggerId)
+                                     const ServerIdType &serverId,
+                                     uint64_t triggerId)
 {
 	string condition;
 	const char *colNameServerId = 
 	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName;
 	const char *colNameId = 
 	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID].columnName;
-	condition = StringUtils::sprintf("%s=%"PRIu32" and %s=%"PRIu64,
+	condition = StringUtils::sprintf("%s=%"FMT_SERVER_ID" and %s=%"PRIu64,
 	                                  colNameServerId, serverId,
 	                                  colNameId, triggerId);
 
@@ -1172,14 +1173,13 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 }
 
 void DBClientHatohol::setTriggerInfoList(const TriggerInfoList &triggerInfoList,
-                                         uint32_t serverId)
+                                         const ServerIdType &serverId)
 {
 	DBAgentDeleteArg deleteArg;
 	deleteArg.tableName = TABLE_NAME_TRIGGERS;
 	deleteArg.condition =
-	  StringUtils::sprintf("%s=%u",
-	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName,
-	    serverId);
+	  StringUtils::sprintf("%s=%"FMT_SERVER_ID,
+	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName, serverId);
 
 	TriggerInfoListConstIterator it = triggerInfoList.begin();
 	DBCLIENT_TRANSACTION_BEGIN() {
@@ -1189,7 +1189,7 @@ void DBClientHatohol::setTriggerInfoList(const TriggerInfoList &triggerInfoList,
 	} DBCLIENT_TRANSACTION_END();
 }
 
-int DBClientHatohol::getLastChangeTimeOfTrigger(uint32_t serverId)
+int DBClientHatohol::getLastChangeTimeOfTrigger(const ServerIdType &serverId)
 {
 	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_TRIGGERS;
@@ -1198,7 +1198,7 @@ int DBClientHatohol::getLastChangeTimeOfTrigger(uint32_t serverId)
 	arg.statements.push_back(stmt);
 	arg.columnTypes.push_back(
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].type);
-	arg.condition = StringUtils::sprintf("%s=%u",
+	arg.condition = StringUtils::sprintf("%s=%"FMT_SERVER_ID,
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName,
 	    serverId);
 
@@ -1370,12 +1370,12 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 }
 
 void DBClientHatohol::setEventInfoList(const EventInfoList &eventInfoList,
-                                     uint32_t serverId)
+                                       const ServerIdType &serverId)
 {
 	DBAgentDeleteArg deleteArg;
 	deleteArg.tableName = TABLE_NAME_EVENTS;
 	deleteArg.condition =
-	  StringUtils::sprintf("%s=%u",
+	  StringUtils::sprintf("%s=%"FMT_SERVER_ID,
 	    COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName,
 	    serverId);
 
@@ -1437,7 +1437,7 @@ void DBClientHatohol::addHostInfoList(const HostInfoList &hostInfoList)
 	} DBCLIENT_TRANSACTION_END();
 }
 
-uint64_t DBClientHatohol::getLastEventId(uint32_t serverId)
+uint64_t DBClientHatohol::getLastEventId(const ServerIdType &serverId)
 {
 	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_EVENTS;
@@ -1445,7 +1445,7 @@ uint64_t DBClientHatohol::getLastEventId(uint32_t serverId)
 	    COLUMN_DEF_EVENTS[IDX_EVENTS_ID].columnName);
 	arg.statements.push_back(stmt);
 	arg.columnTypes.push_back(COLUMN_DEF_EVENTS[IDX_EVENTS_ID].type);
-	arg.condition = StringUtils::sprintf("%s=%u",
+	arg.condition = StringUtils::sprintf("%s=%"FMT_SERVER_ID,
 	    COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName, serverId);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
@@ -1661,8 +1661,9 @@ void DBClientHatohol::pickupAbsentHostIds(vector<uint64_t> &absentHostIdVector,
 // ---------------------------------------------------------------------------
 void DBClientHatohol::addTriggerInfoBare(const TriggerInfo &triggerInfo)
 {
-	string condition = StringUtils::sprintf
-	  ("server_id=%"FMT_SERVER_ID" and id=%"PRIu64, triggerInfo.serverId, triggerInfo.id);
+	string condition = StringUtils::sprintf(
+	  "server_id=%"FMT_SERVER_ID" and id=%"PRIu64,
+	  triggerInfo.serverId, triggerInfo.id);
 	VariableItemGroupPtr row;
 	if (!isRecordExisting(TABLE_NAME_TRIGGERS, condition)) {
 		DBAgentInsertArg arg;
@@ -1718,8 +1719,9 @@ void DBClientHatohol::addTriggerInfoBare(const TriggerInfo &triggerInfo)
 
 void DBClientHatohol::addEventInfoBare(const EventInfo &eventInfo)
 {
-	string condition = StringUtils::sprintf
-	  ("server_id=%"FMT_SERVER_ID" and id=%"PRIu64, eventInfo.serverId, eventInfo.id);
+	string condition = StringUtils::sprintf(
+	  "server_id=%"FMT_SERVER_ID" and id=%"PRIu64,
+	   eventInfo.serverId, eventInfo.id);
 	VariableItemGroupPtr row;
 	if (!isRecordExisting(TABLE_NAME_EVENTS, condition)) {
 		DBAgentInsertArg arg;
@@ -1783,8 +1785,9 @@ void DBClientHatohol::addEventInfoBare(const EventInfo &eventInfo)
 
 void DBClientHatohol::addItemInfoBare(const ItemInfo &itemInfo)
 {
-	string condition = StringUtils::sprintf("server_id=%"FMT_SERVER_ID" and id=%"PRIu64,
-	                                        itemInfo.serverId, itemInfo.id);
+	string condition = StringUtils::sprintf(
+	  "server_id=%"FMT_SERVER_ID" and id=%"PRIu64,
+	  itemInfo.serverId, itemInfo.id);
 	VariableItemGroupPtr row;
 	if (!isRecordExisting(TABLE_NAME_ITEMS, condition)) {
 		DBAgentInsertArg arg;

@@ -171,8 +171,9 @@ struct UnifiedDataStore::PrivateContext
 		rwlock.unlock();
 	}
 
-	bool startFetchingItems(uint32_t targetServerId = ALL_SERVERS,
-				ClosureBase *closure = NULL)
+	bool startFetchingItems(
+	  const ServerIdType &targetServerId = ALL_SERVERS,
+	  ClosureBase *closure = NULL)
 	{
 		// TODO: Make the design smart
 		struct : public VirtualDataStoreForeachProc
@@ -326,7 +327,7 @@ void UnifiedDataStore::stop(void)
 	m_ctx->virtualDataStoreForeach(&stopper);
 }
 
-void UnifiedDataStore::fetchItems(uint32_t targetServerId)
+void UnifiedDataStore::fetchItems(const ServerIdType &targetServerId)
 {
 	if (!getCopyOnDemandEnabled())
 		return;
@@ -369,7 +370,7 @@ void UnifiedDataStore::getItemList(ItemInfoList &itemList,
 }
 
 bool UnifiedDataStore::fetchItemsAsync(ClosureBase *closure,
-				       uint32_t targetServerId)
+                                       const ServerIdType &targetServerId)
 {
 	if (!getCopyOnDemandEnabled())
 		return false;
@@ -572,7 +573,7 @@ HatoholError UnifiedDataStore::addTargetServer(
 }
 
 HatoholError UnifiedDataStore::deleteTargetServer(
-  ServerIdType serverId, const OperationPrivilege &privilege)
+  const ServerIdType &serverId, const OperationPrivilege &privilege)
 {
 	CacheServiceDBClient cache;
 	DBClientConfig *dbConfig = cache.getConfig();

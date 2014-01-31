@@ -267,6 +267,35 @@ void test_castBoolToBool(void)
 	cppcut_assert_equal(false, static_cast<bool>(*y_item));
 }
 
+// -------------------------------------------------------------------------
+// operator cast to int
+// -------------------------------------------------------------------------
+void test_castIntToInt(void)
+{
+	const int expect = 5;
+	x_item = new ItemInt(expect);
+	cppcut_assert_equal(expect, static_cast<int>(*x_item));
+}
+
+// -------------------------------------------------------------------------
+// operator cast to uint64_t
+// -------------------------------------------------------------------------
+void test_castUint64ToUint64(void)
+{
+	const uint64_t expect = 0xfedcba9876543210;
+	x_item = new ItemUint64(expect);
+	cppcut_assert_equal(expect, static_cast<uint64_t>(*x_item));
+}
+
+// -------------------------------------------------------------------------
+// operator cast to string
+// -------------------------------------------------------------------------
+void test_castStringToString(void)
+{
+	const string expect = "Test string!";
+	x_item = new ItemString(expect);
+	cppcut_assert_equal(expect, static_cast<string>(*x_item));
+}
 
 // -------------------------------------------------------------------------
 // operatorGt

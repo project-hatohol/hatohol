@@ -104,7 +104,7 @@ var HatoholUserEditDialog = function(params) {
   }
 
   function validateParameters() {
-    var flags = $("#selectUserType").val();
+    var flags = $("#selectUserRole").val();
 
     if ($("#editUserName").val() == "") {
       hatoholErrorMsgBox(gettext("User name is empty!"));
@@ -115,14 +115,14 @@ var HatoholUserEditDialog = function(params) {
       return false;
     }
     if (isNaN(flags) || flags < 0 || flags > hatohol.ALL_PRIVILEGES) {
-      hatoholErrorMsgBox(gettext("Invalid user type!"));
+      hatoholErrorMsgBox(gettext("Invalid user role!"));
       return false;
     }
     return true;
   }
 
   function getFlags() {
-    var flags = $("#selectUserType").val();
+    var flags = $("#selectUserRole").val();
     return parseInt(flags);
   }
 };
@@ -152,8 +152,8 @@ HatoholUserEditDialog.prototype.createMainElement = function() {
     '"  class="input-xlarge">' +
     '<label for="editPassword">' + gettext("Password") + '</label>' +
     '<input id="editPassword" type="password" value="" class="input-xlarge">' +
-    '<label>' + gettext("User type") + '</label>' +
-    '<select id="selectUserType" style="width: 12em;">' +
+    '<label>' + gettext("User role") + '</label>' +
+    '<select id="selectUserRole" style="width: 12em;">' +
     '  <option value="guest">' + gettext('Guest') + '</option>' +
     '  <option value="admin" ' + adminSelected + '>' + gettext('Admin') +
     '  </option>' +
@@ -183,7 +183,7 @@ HatoholUserEditDialog.prototype.onAppendMainElement = function () {
     fixupApplyButtonState();
   });
 
-  $("#selectUserType").change(function() {
+  $("#selectUserRole").change(function() {
     fixupApplyButtonState();
   });
 
@@ -220,9 +220,9 @@ HatoholUserEditDialog.prototype.updateUserRolesSelector = function() {
     '</option>';
   }
 
-  $("#selectUserType").html(html);
+  $("#selectUserRole").html(html);
   if (this.user)
-    $("#selectUserType").val(this.user.flags);
+    $("#selectUserRole").val(this.user.flags);
 };
 
 HatoholUserEditDialog.prototype.loadUserRoles = function() {

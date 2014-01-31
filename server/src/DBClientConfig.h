@@ -73,7 +73,7 @@ public:
 	ServerQueryOption(UserIdType userId = INVALID_USER_ID);
 	virtual ~ServerQueryOption();
 
-	void setTargetServerId(uint32_t serverId);
+	void setTargetServerId(const ServerIdType &serverId);
 
 	// Overriding virtual methods
 	virtual std::string getCondition(void) const;
@@ -118,7 +118,7 @@ public:
 	  MonitoringServerInfo *monitoringServerInfo,
 	  const OperationPrivilege &privilege);
 
-	HatoholError deleteTargetServer(const ServerIdType serverId,
+	HatoholError deleteTargetServer(const ServerIdType &serverId,
 	                                const OperationPrivilege &privilege);
 	void getTargetServers(MonitoringServerInfoList &monitoringServers,
 	                      ServerQueryOption &option);
@@ -134,7 +134,7 @@ protected:
 	  const OperationPrivilege &privilege);
 
 	static bool canDeleteTargetServer(
-	  const ServerIdType serverId, const OperationPrivilege &privilege);
+	  const ServerIdType &serverId, const OperationPrivilege &privilege);
 
 	/**
 	 * Add a target server. This is only for internal use and

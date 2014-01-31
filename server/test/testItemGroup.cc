@@ -157,6 +157,20 @@ void test_getItemGroupType(void)
 	cppcut_assert_equal(ITEM_TYPE_STRING, groupType->getType(1));
 }
 
+void test_getItemPtrAt(void)
+{
+	const int expect = 5;
+	x_grp = new ItemGroup();
+	x_grp->add(new ItemInt(expect), false);
+
+	const ItemDataPtr itemPtr = x_grp->getItemPtrAt(0);
+	cppcut_assert_equal(true, itemPtr.hasData());
+	const ItemData *itemData = static_cast<const ItemData *>(itemPtr); 
+	const ItemInt *itemInt = dynamic_cast<const ItemInt*>(itemData);
+	cppcut_assert_not_null(itemInt);
+	cppcut_assert_equal(expect, itemInt->get());
+}
+
 } // testItemGroup
 
 

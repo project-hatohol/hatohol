@@ -19,7 +19,7 @@ from django.conf.urls import patterns, url
 from django.views.generic import TemplateView
 
 urlpatterns = patterns('',
-    url(r'^$', TemplateView.as_view(template_name='viewer/index.html')),
+    url(r'^$', TemplateView.as_view(template_name='viewer/dashboard_ajax.html')),
     url(r'^ajax_dashboard$', TemplateView.as_view(template_name='viewer/dashboard_ajax.html')),
     url(r'^ajax_overview_triggers$', TemplateView.as_view(template_name='viewer/overview_triggers_ajax.html')),
     url(r'^ajax_overview_items$', TemplateView.as_view(template_name='viewer/overview_items_ajax.html')),

@@ -50,7 +50,7 @@ enum ActionConditionEnableFlag {
 struct ActionCondition {
 	uint32_t enableBits;
 
-	int      serverId;
+	ServerIdType serverId;
 	uint64_t hostId;
 	uint64_t hostGroupId;
 	uint64_t triggerId;
@@ -65,7 +65,8 @@ struct ActionCondition {
 	{
 	}
 
-	ActionCondition(uint32_t _enableBits, int _serverId, uint64_t _hostId,
+	ActionCondition(uint32_t _enableBits, const ServerIdType &_serverId,
+	                uint64_t _hostId,
 	                uint64_t _hostGroupId, uint64_t _triggerId,
 	                int _triggerStatus, int _triggerSeverity, 
 	                ComparisonType _triggerSeverityCompType)
@@ -310,7 +311,8 @@ public:
 	 *
 	 * @return true if the log is found. Otherwise false.
 	 */
-	bool getLog(ActionLog &actionLog, uint32_t serverId, uint64_t eventId);
+	bool getLog(ActionLog &actionLog, const ServerIdType &serverId,
+	            uint64_t eventId);
 
 protected:
 	ItemDataNullFlagType getNullFlag(const ActionDef &actionDef,

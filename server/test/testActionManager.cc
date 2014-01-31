@@ -706,7 +706,8 @@ static void replyEventInfoCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 
 	// check each component
 	const EventInfo &expected = ctx->eventInfo;
-	cppcut_assert_equal(expected.serverId, eventArg->serverId);
+	cppcut_assert_equal(static_cast<uint32_t>(expected.serverId),
+	                    eventArg->serverId);
 	cppcut_assert_equal(expected.hostId, eventArg->hostId);
 	cppcut_assert_equal(expected.time.tv_sec, eventArg->time.tv_sec);
 	cppcut_assert_equal(expected.time.tv_nsec, eventArg->time.tv_nsec);

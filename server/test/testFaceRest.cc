@@ -281,6 +281,16 @@ static void _assertValueInParser(JsonParserAgent *parser,
 }
 
 static void _assertValueInParser(JsonParserAgent *parser,
+                                 const string &member, int expected)
+{
+	int64_t val;
+	cppcut_assert_equal(true, parser->read(member, val),
+	                    cut_message("member: %s, expect: %d",
+	                                member.c_str(), expected));
+	cppcut_assert_equal(expected, (int)val);
+}
+
+static void _assertValueInParser(JsonParserAgent *parser,
                                  const string &member, uint64_t expected)
 {
 	int64_t val;
@@ -293,7 +303,7 @@ static void _assertValueInParser(JsonParserAgent *parser,
 {
 	int64_t val;
 	cppcut_assert_equal(true, parser->read(member, val));
-	cppcut_assert_equal((uint32_t)expected.tv_sec, (uint32_t)val);
+	cppcut_assert_equal((int64_t)expected.tv_sec, val);
 }
 
 static void _assertValueInParser(JsonParserAgent *parser,
@@ -317,18 +327,15 @@ static void _assertNullInParser(JsonParserAgent *parser, const string &member)
 static void _assertErrorCode(JsonParserAgent *parser,
                              const HatoholErrorCode &expectCode = HTERR_OK)
 {
-	assertValueInParser(parser, "apiVersion",
-	                    (uint32_t)FaceRest::API_VERSION);
-	assertValueInParser(parser, "errorCode", (uint32_t)expectCode);
+	assertValueInParser(parser, "apiVersion", FaceRest::API_VERSION);
+	assertValueInParser(parser, "errorCode", expectCode);
 }
 #define assertErrorCode(P, ...) cut_trace(_assertErrorCode(P, ##__VA_ARGS__))
 
 static void _assertTestTriggerInfo(const TriggerInfo &triggerInfo)
 {
-	assertValueInParser(g_parser, "status", 
-	                    (uint32_t)triggerInfo.status);
-	assertValueInParser(g_parser, "severity",
-	                    (uint32_t)triggerInfo.severity);
+	assertValueInParser(g_parser, "status", triggerInfo.status);
+	assertValueInParser(g_parser, "severity", triggerInfo.severity);
 	assertValueInParser(g_parser, "lastChangeTime",
 	                    triggerInfo.lastChangeTime);
 	assertValueInParser(g_parser, "serverId", triggerInfo.serverId);
@@ -339,33 +346,31 @@ static void _assertTestTriggerInfo(const TriggerInfo &triggerInfo)
 
 static void assertServersInParser(JsonParserAgent *parser)
 {
-	assertValueInParser(parser, "numberOfServers",
-	                    (uint32_t)NumServerInfo);
+	assertValueInParser(parser, "numberOfServers", NumServerInfo);
 	parser->startObject("servers");
 	for (size_t i = 0; i < NumServerInfo; i++) {
 		parser->startElement(i);
 		MonitoringServerInfo &svInfo = serverInfo[i];
-		assertValueInParser(parser, "id",   (uint32_t)svInfo.id);
-		assertValueInParser(parser, "type", (uint32_t)svInfo.type);
+		assertValueInParser(parser, "id",   svInfo.id);
+		assertValueInParser(parser, "type", svInfo.type);
 		assertValueInParser(parser, "hostName",  svInfo.hostName);
 		assertValueInParser(parser, "ipAddress", svInfo.ipAddress);
 		assertValueInParser(parser, "nickname",  svInfo.nickname);
-		assertValueInParser(parser, "port",  (uint32_t)svInfo.port);
+		assertValueInParser(parser, "port",  svInfo.port);
 		parser->endElement();
 	}
 	parser->endObject();
 }
 
 static void assertHostsInParser(JsonParserAgent *parser,
-                                uint32_t targetServerId)
+                                const ServerIdType &targetServerId)
 {
 	HostInfoList hostInfoList;
 	getDBCTestHostInfo(hostInfoList, targetServerId);
-	assertValueInParser(parser, "numberOfHosts",
-	                    (uint32_t)hostInfoList.size());
+	assertValueInParser(parser, "numberOfHosts", hostInfoList.size());
 
 	// make an index
-	map<uint32_t, map<uint64_t, const HostInfo *> > hostInfoMap;
+	map<ServerIdType, map<uint64_t, const HostInfo *> > hostInfoMap;
 	map<uint64_t, const HostInfo *>::iterator hostMapIt;
 	HostInfoListConstIterator it = hostInfoList.begin();
 	for (; it != hostInfoList.end(); ++it) {
@@ -377,15 +382,13 @@ static void assertHostsInParser(JsonParserAgent *parser,
 	}
 
 	parser->startObject("hosts");
-	uint32_t serverId;
-	uint64_t hostId;
 	for (size_t i = 0; i < hostInfoList.size(); i++) {
 		int64_t var64;
 		parser->startElement(i);
 		cppcut_assert_equal(true, parser->read("serverId", var64));
-		serverId = (uint32_t)var64;
+		const ServerIdType serverId = static_cast<ServerIdType>(var64);
 		cppcut_assert_equal(true, parser->read("id", var64));
-		hostId = (uint64_t)var64;
+		uint64_t hostId = (uint64_t)var64;
 
 		hostMapIt = hostInfoMap[serverId].find(hostId);
 		cppcut_assert_equal(true,
@@ -471,7 +474,7 @@ static void _assertServers(const string &path, const string &callbackName = "")
 #define assertServers(P,...) cut_trace(_assertServers(P,##__VA_ARGS__))
 
 static void _assertHosts(const string &path, const string &callbackName = "",
-                         uint32_t serverId = ALL_SERVERS)
+                         const ServerIdType &serverId = ALL_SERVERS)
 {
 	setupUserDB();
 	startFaceRest();
@@ -490,15 +493,15 @@ static void _assertHosts(const string &path, const string &callbackName = "",
 #define assertHosts(P,...) cut_trace(_assertHosts(P,##__VA_ARGS__))
 
 static void _assertTriggers(const string &path, const string &callbackName = "",
-                            uint32_t serverId = ALL_SERVERS,
+                            const ServerIdType &serverId = ALL_SERVERS,
                             uint64_t hostId = ALL_HOSTS)
 {
 	setupUserDB();
 	startFaceRest();
 
 	// calculate the expected test triggers
-	map<uint32_t, map<uint64_t, size_t> > indexMap;
-	map<uint32_t, map<uint64_t, size_t> >::iterator indexMapIt;
+	map<ServerIdType, map<uint64_t, size_t> > indexMap;
+	map<ServerIdType, map<uint64_t, size_t> >::iterator indexMapIt;
 	map<uint64_t, size_t>::iterator trigIdIdxIt;
 	getTestTriggersIndexes(indexMap, serverId, hostId);
 	size_t expectedNumTrig = 0;
@@ -521,14 +524,14 @@ static void _assertTriggers(const string &path, const string &callbackName = "",
 
 	// Check the reply
 	assertErrorCode(g_parser);
-	assertValueInParser(g_parser, "numberOfTriggers",
-	                    (uint32_t)expectedNumTrig);
+	assertValueInParser(g_parser, "numberOfTriggers", expectedNumTrig);
 	g_parser->startObject("triggers");
 	for (size_t i = 0; i < expectedNumTrig; i++) {
 		g_parser->startElement(i);
 		int64_t var64;
 		cppcut_assert_equal(true, g_parser->read("serverId", var64));
-		uint32_t actSvId = (uint32_t)var64;
+		const ServerIdType actSvId =
+		  static_cast<ServerIdType>(var64);
 		cppcut_assert_equal(true, g_parser->read("id", var64));
 		uint64_t actTrigId = (uint64_t)var64;
 
@@ -557,8 +560,7 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
 	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
-	assertValueInParser(g_parser, "numberOfEvents",
-	                    (uint32_t)NumTestEventInfo);
+	assertValueInParser(g_parser, "numberOfEvents", NumTestEventInfo);
 	g_parser->startObject("events");
 	for (size_t i = 0; i < NumTestEventInfo; i++) {
 		g_parser->startElement(i);
@@ -566,15 +568,12 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 		assertValueInParser(g_parser, "unifiedId", i + 1);
 		assertValueInParser(g_parser, "serverId", eventInfo.serverId);
 		assertValueInParser(g_parser, "time", eventInfo.time);
-		assertValueInParser(g_parser, "type", (uint32_t)eventInfo.type);
-		assertValueInParser(g_parser, "triggerId",
-		                    (uint32_t)eventInfo.triggerId);
-		assertValueInParser(g_parser, "status",
-		                    (uint32_t)eventInfo.status);
-		assertValueInParser(g_parser, "severity",
-		                    (uint32_t)eventInfo.severity);
-		assertValueInParser(g_parser, "hostId",   eventInfo.hostId);
-		assertValueInParser(g_parser, "brief",    eventInfo.brief);
+		assertValueInParser(g_parser, "type", eventInfo.type);
+		assertValueInParser(g_parser, "triggerId", eventInfo.triggerId);
+		assertValueInParser(g_parser, "status",    eventInfo.status);
+		assertValueInParser(g_parser, "severity",  eventInfo.severity);
+		assertValueInParser(g_parser, "hostId",    eventInfo.hostId);
+		assertValueInParser(g_parser, "brief",     eventInfo.brief);
 		g_parser->endElement();
 	}
 	g_parser->endObject();
@@ -592,8 +591,7 @@ static void _assertItems(const string &path, const string &callbackName = "")
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
 	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
-	assertValueInParser(g_parser, "numberOfItems",
-	                    (uint32_t)NumTestItemInfo);
+	assertValueInParser(g_parser, "numberOfItems", NumTestItemInfo);
 	g_parser->startObject("items");
 	for (size_t i = 0; i < NumTestItemInfo; i++) {
 		g_parser->startElement(i);
@@ -634,20 +632,18 @@ static void _assertActions(const string &path, const string &callbackName = "")
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_USER);
 	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
-	assertValueInParser(g_parser, "numberOfActions",
-	                    (uint32_t)NumTestActionDef);
+	assertValueInParser(g_parser, "numberOfActions", NumTestActionDef);
 	g_parser->startObject("actions");
 	for (size_t i = 0; i < NumTestActionDef; i++) {
 		g_parser->startElement(i);
 		const ActionDef &actionDef = testActionDef[i];
 		const ActionCondition &cond = actionDef.condition;
-		assertValueInParser(g_parser, "actionId",
-		                    (uint32_t)actionDef.id);
+		assertValueInParser(g_parser, "actionId", actionDef.id);
 
 		assertValueInParser(g_parser, "enableBits", cond.enableBits);
 		asssertActionCondition(
 		  g_parser, cond, "serverId", ACTCOND_SERVER_ID,
-		  uint32_t, cond.serverId);
+		  ServerIdType, cond.serverId);
 		asssertActionCondition(
 		  g_parser, cond, "hostId", ACTCOND_HOST_ID,
 		  uint64_t, cond.hostId);
@@ -671,12 +667,11 @@ static void _assertActions(const string &path, const string &callbackName = "")
 		                    "triggerSeverityComparatorType",
 		                    expectCompType);
 
-		assertValueInParser(g_parser, "type", (uint32_t)actionDef.type);
+		assertValueInParser(g_parser, "type", actionDef.type);
 		assertValueInParser(g_parser, "workingDirectory",
 		                    actionDef.workingDir);
 		assertValueInParser(g_parser, "command", actionDef.command);
-		assertValueInParser(g_parser, "timeout",
-		                    (uint32_t)actionDef.timeout);
+		assertValueInParser(g_parser, "timeout", actionDef.timeout);
 		g_parser->endElement();
 	}
 	g_parser->endObject();
@@ -794,13 +789,12 @@ static void _assertUsers(const string &path, const UserIdType &userId,
 	arg.userId = userId;
 	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
-	assertValueInParser(g_parser, "numberOfUsers",
-	                    (uint32_t)NumTestUserInfo);
+	assertValueInParser(g_parser, "numberOfUsers", NumTestUserInfo);
 	g_parser->startObject("users");
 	for (size_t i = 0; i < NumTestUserInfo; i++) {
 		g_parser->startElement(i);
 		const UserInfo &userInfo = testUserInfo[i];
-		assertUser(g_parser, userInfo, (uint32_t)(i + 1));
+		assertUser(g_parser, userInfo, i + 1);
 		g_parser->endElement();
 	}
 	g_parser->endObject();
@@ -927,7 +921,7 @@ static void _assertAllowedServers(const string &path, const UserIdType &userId,
 	g_parser->startObject("allowedServers");
 	ServerAccessInfoMapIterator it = srvAccessInfoMap.begin();
 	for (; it != srvAccessInfoMap.end(); ++it) {
-		uint32_t serverId = it->first;
+		const ServerIdType &serverId = it->first;
 		string idStr;
 		if (serverId == ALL_SERVERS)
 			idStr = "-1";
@@ -998,13 +992,12 @@ static void _assertUserRoles(const string &path,
 	arg.userId = userId;
 	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
-	assertValueInParser(g_parser, "numberOfUserRoles",
-	                    (uint32_t)NumTestUserRoleInfo);
+	assertValueInParser(g_parser, "numberOfUserRoles", NumTestUserRoleInfo);
 	g_parser->startObject("userRoles");
 	for (size_t i = 0; i < NumTestUserRoleInfo; i++) {
 		g_parser->startElement(i);
 		const UserRoleInfo &userRoleInfo = testUserRoleInfo[i];
-		assertUserRole(g_parser, userRoleInfo, (uint32_t)(i + 1));
+		assertUserRole(g_parser, userRoleInfo, i + 1);
 		g_parser->endElement();
 	}
 	g_parser->endObject();
@@ -1012,7 +1005,8 @@ static void _assertUserRoles(const string &path,
 #define assertUserRoles(P, U, ...) \
   cut_trace(_assertUserRoles(P, U, ##__VA_ARGS__))
 
-static void assertHostGroupsInParser(JsonParserAgent *parser, uint32_t serverId)
+static void assertHostGroupsInParser(JsonParserAgent *parser,
+                                     const ServerIdType &serverId)
 {
 	// TODO: currently only one hostGroup "No group" exists in the object
 	cut_assert_true(parser->startObject("hostGroups"));
@@ -1022,12 +1016,13 @@ static void assertHostGroupsInParser(JsonParserAgent *parser, uint32_t serverId)
 	parser->endObject();
 }
 
-static void assertHostStatusInParser(JsonParserAgent *parser, uint32_t serverId)
+static void assertHostStatusInParser(JsonParserAgent *parser,
+                                     const ServerIdType &serverId)
 {
 	parser->startObject("hostStatus");
 	// TODO: currently only one hostGroup "No group" exists in the array
 	parser->startElement(0);
-	assertValueInParser(parser, "hostGroupId",   (uint32_t)0);
+	assertValueInParser(parser, "hostGroupId",  0);
 	size_t expected_good_hosts = getNumberOfTestHostsWithStatus(
 	  serverId, ALL_HOST_GROUPS, true);
 	size_t expected_bad_hosts = getNumberOfTestHostsWithStatus(
@@ -1038,17 +1033,20 @@ static void assertHostStatusInParser(JsonParserAgent *parser, uint32_t serverId)
 	parser->endObject();
 }
 
-static void assertSystemStatusInParser(JsonParserAgent *parser, uint32_t serverId)
+static void assertSystemStatusInParser(JsonParserAgent *parser,
+                                       const ServerIdType &serverId)
 {
 	parser->startObject("systemStatus");
 	// TODO: currently only one hostGroup "No group" exists in the array
 	uint64_t hostGroupId = 0;
 	for (int severity = 0; severity < NUM_TRIGGER_SEVERITY; ++severity) {
-		uint32_t expected_triggers = getNumberOfTestTriggers(
-		  serverId, hostGroupId, static_cast<TriggerSeverityType>(severity));
+		size_t expected_triggers =
+		  getNumberOfTestTriggers(
+		    serverId, hostGroupId,
+		    static_cast<TriggerSeverityType>(severity));
 		parser->startElement(severity);
-		assertValueInParser(parser, "hostGroupId", (uint32_t)0);
-		assertValueInParser(parser, "severity", (uint32_t)severity);
+		assertValueInParser(parser, "hostGroupId", 0);
+		assertValueInParser(parser, "severity", severity);
 		assertValueInParser(parser, "numberOfTriggers", expected_triggers);
 		parser->endElement();
 	}
@@ -1057,26 +1055,24 @@ static void assertSystemStatusInParser(JsonParserAgent *parser, uint32_t serverI
 
 static void _assertOverviewInParser(JsonParserAgent *parser)
 {
-	assertValueInParser(parser, "numberOfServers",
-	                    (uint32_t)NumServerInfo);
+	assertValueInParser(parser, "numberOfServers", NumServerInfo);
 	parser->startObject("serverStatus");
 	for (size_t i = 0; i < NumServerInfo; i++) {
 		parser->startElement(i);
 		MonitoringServerInfo &svInfo = serverInfo[i];
-		assertValueInParser(parser, "serverId",   (uint32_t)svInfo.id);
-		assertValueInParser(parser, "serverHostName",  svInfo.hostName);
+		assertValueInParser(parser, "serverId", svInfo.id);
+		assertValueInParser(parser, "serverHostName", svInfo.hostName);
 		assertValueInParser(parser, "serverIpAddr", svInfo.ipAddress);
-		assertValueInParser(parser, "serverNickname",  svInfo.nickname);
+		assertValueInParser(parser, "serverNickname", svInfo.nickname);
 		assertValueInParser(parser, "numberOfHosts",
 				    getNumberOfTestHosts(svInfo.id));
 		assertValueInParser(parser, "numberOfItems",
 				    getNumberOfTestItems(svInfo.id));
 		assertValueInParser(parser, "numberOfTriggers",
 				    getNumberOfTestTriggers(svInfo.id));
-		uint32_t zero = 0;
-		assertValueInParser(parser, "numberOfUsers", zero);
-		assertValueInParser(parser, "numberOfOnlineUsers", zero);
-		assertValueInParser(parser, "numberOfMonitoredItemsPerSecond", zero);
+		assertValueInParser(parser, "numberOfUsers", 0);
+		assertValueInParser(parser, "numberOfOnlineUsers", 0);
+		assertValueInParser(parser, "numberOfMonitoredItemsPerSecond", 0);
 		assertHostGroupsInParser(parser, svInfo.id);
 		assertSystemStatusInParser(parser, svInfo.id);
 		assertHostStatusInParser(parser, svInfo.id);
@@ -1606,7 +1602,7 @@ void test_getUserMe(void)
 	arg.headers.push_back(makeSessionIdHeader(sessionId));
 	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
-	assertValueInParser(g_parser, "numberOfUsers", (uint32_t)1);
+	assertValueInParser(g_parser, "numberOfUsers", 1);
 	g_parser->startObject("users");
 	g_parser->startElement(0);
 	assertUser(g_parser, user);

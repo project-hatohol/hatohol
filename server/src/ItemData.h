@@ -109,6 +109,9 @@ public:
 	virtual ItemData *clone(void) const = 0;
 
 	virtual operator bool () const = 0;
+	virtual operator int() const = 0;
+	virtual operator uint64_t() const = 0;
+	virtual operator std::string() const = 0;
 	virtual ItemData & operator =(const ItemData &itemData) = 0;
 	virtual ItemData * operator +(const ItemData &itemData) const = 0;
 	virtual ItemData * operator /(const ItemData &itemData) const = 0;
@@ -187,10 +190,29 @@ public:
 		return ss.str();
 	}
 
+	// The following cast operators are assumed to be specialized
 	virtual operator bool () const
 	{
 		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("cast to bool");
 		return false;
+	}
+
+	virtual operator int() const
+	{
+		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("cast to int");
+		return 0;
+	}
+
+	virtual operator uint64_t() const
+	{
+		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("cast to uint64_t");
+		return 0;
+	}
+
+	virtual operator std::string() const
+	{
+		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("cast to std::string");
+		return 0;
 	}
 
 	virtual ItemData & operator =(const ItemData &itemData)
@@ -299,6 +321,9 @@ typedef ItemGeneric<double,      ITEM_TYPE_DOUBLE> ItemDouble;
 typedef ItemGeneric<std::string, ITEM_TYPE_STRING> ItemString;
 
 template<> ItemBool::operator bool() const;
+template<> ItemInt::operator int() const;
+template<> ItemUint64::operator uint64_t() const;
+template<> ItemString::operator std::string() const;
 
 template<> bool ItemInt::operator >(const ItemData &itemData) const;
 template<> bool ItemInt::operator <(const ItemData &itemData) const;

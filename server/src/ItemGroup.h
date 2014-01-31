@@ -24,6 +24,7 @@
 #include <list>
 #include <inttypes.h>
 #include "ItemData.h"
+#include "ItemDataPtr.h"
 #include "ItemGroupType.h"
 
 typedef uint64_t ItemGroupId;
@@ -46,6 +47,7 @@ public:
 	const ItemData *getItem(ItemId itemId) const;
 	ItemDataVector getItems(ItemId itemId) const;
 	const ItemData *getItemAt(size_t index) const;
+	const ItemDataPtr getItemPtrAt(size_t index) const;
 	size_t getNumberOfItems(void) const;
 	void freeze();
 	bool isFreezed(void) const;

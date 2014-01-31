@@ -149,6 +149,11 @@ template<> ItemBool::operator bool() const
 //
 // ItemInt
 //
+template<> ItemInt::operator int() const
+{
+	return get();
+}
+
 template<> bool ItemInt::operator >(const ItemData &itemData) const
 {
 	if (itemData.getItemType() == ITEM_TYPE_INT) {
@@ -202,6 +207,11 @@ template<> bool ItemInt::operator <=(const ItemData &itemData) const
 //
 // ItemUint64
 //
+template<> ItemUint64::operator uint64_t() const
+{
+	return get();
+}
+
 template<> bool ItemUint64::operator >(const ItemData &itemData) const
 {
 	if (itemData.getItemType() == ITEM_TYPE_UINT64) {
@@ -303,3 +313,12 @@ template<> ItemData * ItemString::operator /(const ItemData &itemData) const
 	THROW_ITEM_DATA_EXCEPTION_INVALID_OPERATION("/", itemData);
 	return NULL;
 }
+
+//
+// ItemString
+//
+template<> ItemString::operator string() const
+{
+	return get();
+}
+
