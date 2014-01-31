@@ -180,11 +180,5 @@ do { \
 #define TYPE_NAME(X)            typeid(X).name()
 #define DEMANGLED_TYPE_NAME(X)  Utils::demangle(TYPE_NAME(X)).c_str()
 
-#define DEFINE_AND_ASSERT(ITEM_DATA, ACTUAL_TYPE, VAR_NAME) \
-	const ACTUAL_TYPE *VAR_NAME = \
-	  dynamic_cast<const ACTUAL_TYPE *>(ITEM_DATA); \
-	HATOHOL_ASSERT(VAR_NAME != NULL, "Failed to dynamic cast: %s -> %s", \
-	             DEMANGLED_TYPE_NAME(*ITEM_DATA), #ACTUAL_TYPE); \
-
 #endif // Utils_h
 
