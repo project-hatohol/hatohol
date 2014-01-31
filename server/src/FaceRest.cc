@@ -1382,7 +1382,6 @@ HatoholError FaceRest::parseServerParameter(
 {
 	HatoholError err;
 	char *charValue;
-	int intValue;
 
 	// type
 	err = getParam<MonitoringSystemType>(
@@ -1409,25 +1408,22 @@ HatoholError FaceRest::parseServerParameter(
 	svInfo.nickname = charValue;
 
 	// port
-	charValue = (char *)g_hash_table_lookup(query, "port");
-	if (!charValue)
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "port");
-	sscanf(charValue, "%d", &intValue);
-	svInfo.port = intValue;
+	err = getParam<int>(
+		query, "port", "%d", svInfo.port);
+	if (err != HTERR_OK)
+		return err;
 
 	// polling
-	charValue = (char *)g_hash_table_lookup(query, "polling");
-	if (!charValue)
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "polling");
-	sscanf(charValue, "%d", &intValue);
-	svInfo.pollingIntervalSec = intValue;
+	err = getParam<int>(
+		query, "polling", "%d", svInfo.pollingIntervalSec);
+	if (err != HTERR_OK)
+		return err;
 
 	// retry
-	charValue = (char *)g_hash_table_lookup(query, "retry");
-	if (!charValue)
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "retry");
-	sscanf(charValue, "%d", &intValue);
-	svInfo.retryIntervalSec = intValue;
+	err = getParam<int>(
+		query, "retry", "%d", svInfo.retryIntervalSec);
+	if (err != HTERR_OK)
+		return err;
 
 	// username
 	charValue = (char *)g_hash_table_lookup(query, "user");
