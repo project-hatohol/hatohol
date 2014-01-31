@@ -57,13 +57,17 @@ class ItemDataException : public HatoholException
 {
 public:
 	ItemDataException(ItemDataExceptionType type,
-	                  const char *sourceFileName, int lineNumber,
-	                  const char *operatorName,
+	                  const std::string &sourceFileName,
+	                  const int &lineNumber,
+	                  const std::string &operatorName,
 	                  const ItemData &lhs);
+
 	ItemDataException(ItemDataExceptionType type,
-	                  const char *sourceFileName, int lineNumber,
-	                  const char *operatorName,
+	                  const std::string &sourceFileName,
+	                  const int &lineNumber,
+	                  const std::string &operatorName,
 	                  const ItemData &lhs, const ItemData &rhs);
+
 	ItemDataException(ItemDataExceptionType type,
 	                  const std::string &sourceFileName,
 	                  const int &lineNumber, const ItemId &itemId);

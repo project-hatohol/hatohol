@@ -40,30 +40,32 @@ const char *ItemData::m_nativeTypeNames[] =
 // ---------------------------------------------------------------------------
 // ItemDataException
 // ---------------------------------------------------------------------------
-ItemDataException::ItemDataException(ItemDataExceptionType type,
-                                     const char *sourceFileName, int lineNumber,
-                                     const char *operatorName,
-                                     const ItemData &lhs)
+ItemDataException::ItemDataException(
+  ItemDataExceptionType type,
+  const string &sourceFileName, const int &lineNumber,
+  const string &operatorName, const ItemData &lhs)
 : HatoholException("", sourceFileName, lineNumber),
   m_type(type)
 {
 	string header = getMessageHeader(type);
 	string msg = StringUtils::sprintf(
 	  "%s: '%s' (%s) (ItemID: %"PRIu_ITEM")",
-	  header.c_str(), operatorName, lhs.getNativeTypeName(), lhs.getId());
+	  header.c_str(), operatorName.c_str(),
+	  lhs.getNativeTypeName(), lhs.getId());
 	setBrief(msg);
 }
-ItemDataException::ItemDataException(ItemDataExceptionType type,
-                                     const char *sourceFileName, int lineNumber,
-                                     const char *operatorName,
-                                     const ItemData &lhs, const ItemData &rhs)
+
+ItemDataException::ItemDataException(
+  ItemDataExceptionType type,
+  const string &sourceFileName, const int &lineNumber,
+  const string &operatorName, const ItemData &lhs, const ItemData &rhs)
 : HatoholException("", sourceFileName, lineNumber),
   m_type(type)
 {
 	string header = getMessageHeader(type);
 	string msg = StringUtils::sprintf(
 	  "%s: '%s' between %s and %s (ItemID: %"PRIu_ITEM" and %"PRIu_ITEM")",
-	  header.c_str(), operatorName,
+	  header.c_str(), operatorName.c_str(),
 	  lhs.getNativeTypeName(), rhs.getNativeTypeName(),
 	  lhs.getId(), rhs.getId());
 
