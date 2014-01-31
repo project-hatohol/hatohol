@@ -22,10 +22,10 @@
 #include <MutexLock.h>
 #include "DBAgentFactory.h"
 #include "DBClientConfig.h"
-#include "DBClientUtils.h"
 #include "CacheServiceDBClient.h"
 #include "HatoholError.h"
 #include "Params.h"
+#include "ItemGroupStream.h"
 using namespace std;
 using namespace mlpl;
 
@@ -36,6 +36,12 @@ int DBClientConfig::CONFIG_DB_VERSION = 8;
 const char *DBClientConfig::DEFAULT_DB_NAME = "hatohol";
 const char *DBClientConfig::DEFAULT_USER_NAME = "hatohol";
 const char *DBClientConfig::DEFAULT_PASSWORD  = "hatohol";
+
+static void operator>>(
+  ItemGroupStream &itemGroupStream, MonitoringSystemType &monSysType)
+{
+	monSysType = itemGroupStream.read<int, MonitoringSystemType>();
+}
 
 static const ColumnDef COLUMN_DEF_SYSTEM[] = {
 {
@@ -473,7 +479,8 @@ string DBClientConfig::getDatabaseDir(void)
 	} DBCLIENT_TRANSACTION_END();
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	HATOHOL_ASSERT(!grpList.empty(), "Obtained Table: empty");
-	return ItemDataUtils::getString((*grpList.begin())->getItemAt(0));
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	return itemGroupStream.read<string>();
 }
 
 void DBClientConfig::setDatabaseDir(const string &dir)
@@ -501,7 +508,8 @@ bool DBClientConfig::isFaceMySQLEnabled(void)
 	} DBCLIENT_TRANSACTION_END();
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	HATOHOL_ASSERT(!grpList.empty(), "Obtained Table: empty");
-	return ItemDataUtils::getInt((*grpList.begin())->getItemAt(0));
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	return itemGroupStream.read<int>();
 }
 
 int  DBClientConfig::getFaceRestPort(void)
@@ -515,7 +523,8 @@ int  DBClientConfig::getFaceRestPort(void)
 	} DBCLIENT_TRANSACTION_END();
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	HATOHOL_ASSERT(!grpList.empty(), "Obtained Table: empty");
-	return ItemDataUtils::getInt((*grpList.begin())->getItemAt(0));
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	return itemGroupStream.read<int>();
 }
 
 void DBClientConfig::setFaceRestPort(int port)
@@ -543,7 +552,8 @@ bool DBClientConfig::isCopyOnDemandEnabled(void)
 	} DBCLIENT_TRANSACTION_END();
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	HATOHOL_ASSERT(!grpList.empty(), "Obtained Table: empty");
-	return ItemDataUtils::getInt((*grpList.begin())->getItemAt(0));
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	return itemGroupStream.read<int>();
 }
 
 HatoholError DBClientConfig::addOrUpdateTargetServer(
@@ -608,27 +618,23 @@ void DBClientConfig::getTargetServers
 
 	// check the result and copy
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator it = grpList.begin();
-	for (; it != grpList.end(); ++it) {
-		size_t idx = 0;
-		const ItemGroup *itemGroup = *it;
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
 		monitoringServers.push_back(MonitoringServerInfo());
 		MonitoringServerInfo &svInfo = monitoringServers.back();
 
-		svInfo.id        = GET_INT_FROM_GRP(itemGroup, idx++);
-		int type         = GET_INT_FROM_GRP(itemGroup, idx++);
-		svInfo.type      = static_cast<MonitoringSystemType>(type);
-		svInfo.hostName  = GET_STRING_FROM_GRP(itemGroup, idx++);
-		svInfo.ipAddress = GET_STRING_FROM_GRP(itemGroup, idx++);
-		svInfo.nickname  = GET_STRING_FROM_GRP(itemGroup, idx++);
-		svInfo.port      = GET_INT_FROM_GRP(itemGroup, idx++);
-		svInfo.pollingIntervalSec
-		                 = GET_INT_FROM_GRP(itemGroup, idx++);
-		svInfo.retryIntervalSec
-		                 = GET_INT_FROM_GRP(itemGroup, idx++);
-		svInfo.userName  = GET_STRING_FROM_GRP(itemGroup, idx++);
-		svInfo.password  = GET_STRING_FROM_GRP(itemGroup, idx++);
-		svInfo.dbName    = GET_STRING_FROM_GRP(itemGroup, idx++);
+		itemGroupStream >> svInfo.id;
+		itemGroupStream >> svInfo.type;
+		itemGroupStream >> svInfo.hostName;
+		itemGroupStream >> svInfo.ipAddress;
+		itemGroupStream >> svInfo.nickname;
+		itemGroupStream >> svInfo.port;
+		itemGroupStream >> svInfo.pollingIntervalSec;
+		itemGroupStream >> svInfo.retryIntervalSec;
+		itemGroupStream >> svInfo.userName;
+		itemGroupStream >> svInfo.password;
+		itemGroupStream >> svInfo.dbName;
 	}
 }
 

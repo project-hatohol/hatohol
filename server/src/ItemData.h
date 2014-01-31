@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -43,6 +43,8 @@ static const ItemId SYSTEM_ITEM_ID_ANONYMOUS = 0xffffffffffffffff;
 enum ItemDataExceptionType {
 	ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION,
 	ITEM_DATA_EXCEPTION_INVALID_OPERATION,
+	ITEM_DATA_EXCEPTION_ITEM_NOT_FOUND,
+	ITEM_DATA_EXCEPTION_UNKNOWN,
 };
 
 enum ItemDataNullFlagType {
@@ -55,21 +57,38 @@ class ItemDataException : public HatoholException
 {
 public:
 	ItemDataException(ItemDataExceptionType type,
-	                  const char *sourceFileName, int lineNumber,
-	                  const char *operatorName,
+	                  const std::string &sourceFileName,
+	                  const int &lineNumber,
+	                  const std::string &operatorName,
 	                  const ItemData &lhs);
+
 	ItemDataException(ItemDataExceptionType type,
-	                  const char *sourceFileName, int lineNumber,
-	                  const char *operatorName,
+	                  const std::string &sourceFileName,
+	                  const int &lineNumber,
+	                  const std::string &operatorName,
 	                  const ItemData &lhs, const ItemData &rhs);
+
+	ItemDataException(ItemDataExceptionType type,
+	                  const std::string &sourceFileName,
+	                  const int &lineNumber, const ItemId &itemId);
+
+	ItemDataExceptionType getType(void) const;
+
 protected:
 	std::string getMessageHeader(const ItemDataExceptionType type);
+
+private:
+	ItemDataExceptionType m_type;
 };
+
 #define THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(OP, ...) \
 throw ItemDataException(ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION, __FILE__, __LINE__, OP, *this, ##__VA_ARGS__)
 
 #define THROW_ITEM_DATA_EXCEPTION_INVALID_OPERATION(OP, ...) \
 throw ItemDataException(ITEM_DATA_EXCEPTION_INVALID_OPERATION, __FILE__, __LINE__, OP, *this, ##__VA_ARGS__)
+
+#define THROW_ITEM_DATA_EXCEPTION_ITEM_NOT_FOUND(ITEM_ID) \
+throw ItemDataException(ITEM_DATA_EXCEPTION_ITEM_NOT_FOUND, __FILE__, __LINE__, ITEM_ID);
 
 typedef std::vector<ItemId>          ItemIdVector;
 typedef ItemIdVector::iterator       ItemIdVectorIterator;
@@ -111,6 +130,7 @@ public:
 	virtual operator bool () const = 0;
 	virtual operator int() const = 0;
 	virtual operator uint64_t() const = 0;
+	virtual operator double() const = 0;
 	virtual operator std::string() const = 0;
 	virtual ItemData & operator =(const ItemData &itemData) = 0;
 	virtual ItemData * operator +(const ItemData &itemData) const = 0;
@@ -206,6 +226,12 @@ public:
 	virtual operator uint64_t() const
 	{
 		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("cast to uint64_t");
+		return 0;
+	}
+
+	virtual operator double() const
+	{
+		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("cast to double");
 		return 0;
 	}
 
@@ -320,10 +346,30 @@ typedef ItemGeneric<int,         ITEM_TYPE_INT>    ItemInt;
 typedef ItemGeneric<double,      ITEM_TYPE_DOUBLE> ItemDouble;
 typedef ItemGeneric<std::string, ITEM_TYPE_STRING> ItemString;
 
-template<> ItemBool::operator bool() const;
-template<> ItemInt::operator int() const;
-template<> ItemUint64::operator uint64_t() const;
-template<> ItemString::operator std::string() const;
+template<> inline ItemBool::operator bool() const
+{
+	return get();
+}
+
+template<> inline ItemInt::operator int() const
+{
+	return get();
+}
+
+template<> inline ItemUint64::operator uint64_t() const
+{
+	return get();
+}
+
+template<> inline ItemDouble::operator double() const
+{
+	return get();
+}
+
+template<> inline ItemString::operator std::string() const
+{
+	return get();
+}
 
 template<> bool ItemInt::operator >(const ItemData &itemData) const;
 template<> bool ItemInt::operator <(const ItemData &itemData) const;

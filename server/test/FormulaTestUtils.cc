@@ -39,7 +39,7 @@ void _assertFormulaValue(FormulaElement *elem, int expected)
 	cut_assert_not_null(formulaValue);
 	ItemDataPtr dataPtr = formulaValue->evaluate();
 	cppcut_assert_equal(ITEM_TYPE_INT, dataPtr->getItemType());
-	int actual = ItemDataUtils::getInt(dataPtr);
+	int actual = *dataPtr;
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -50,7 +50,7 @@ void _assertFormulaValue(FormulaElement *elem, double expected)
 	cut_assert_not_null(formulaValue);
 	ItemDataPtr dataPtr = formulaValue->evaluate();
 	cppcut_assert_equal(ITEM_TYPE_DOUBLE, dataPtr->getItemType());
-	double actual = ItemDataUtils::getDouble(dataPtr);
+	double actual = *dataPtr;
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -61,7 +61,7 @@ void _assertFormulaValue(FormulaElement *elem, const char *expected)
 	cut_assert_not_null(formulaValue);
 	ItemDataPtr dataPtr = formulaValue->evaluate();
 	cppcut_assert_equal(ITEM_TYPE_STRING, dataPtr->getItemType());
-	string actual = ItemDataUtils::getString(dataPtr);
+	string actual = *dataPtr;
 	cppcut_assert_equal(string(expected), actual);
 }
 

@@ -40,32 +40,53 @@ const char *ItemData::m_nativeTypeNames[] =
 // ---------------------------------------------------------------------------
 // ItemDataException
 // ---------------------------------------------------------------------------
-ItemDataException::ItemDataException(ItemDataExceptionType type,
-                                     const char *sourceFileName, int lineNumber,
-                                     const char *operatorName,
-                                     const ItemData &lhs)
-: HatoholException("", sourceFileName, lineNumber)
+ItemDataException::ItemDataException(
+  ItemDataExceptionType type,
+  const string &sourceFileName, const int &lineNumber,
+  const string &operatorName, const ItemData &lhs)
+: HatoholException("", sourceFileName, lineNumber),
+  m_type(type)
 {
 	string header = getMessageHeader(type);
 	string msg = StringUtils::sprintf(
 	  "%s: '%s' (%s) (ItemID: %"PRIu_ITEM")",
-	  header.c_str(), operatorName, lhs.getNativeTypeName(), lhs.getId());
+	  header.c_str(), operatorName.c_str(),
+	  lhs.getNativeTypeName(), lhs.getId());
 	setBrief(msg);
 }
-ItemDataException::ItemDataException(ItemDataExceptionType type,
-                                     const char *sourceFileName, int lineNumber,
-                                     const char *operatorName,
-                                     const ItemData &lhs, const ItemData &rhs)
-: HatoholException("", sourceFileName, lineNumber)
+
+ItemDataException::ItemDataException(
+  ItemDataExceptionType type,
+  const string &sourceFileName, const int &lineNumber,
+  const string &operatorName, const ItemData &lhs, const ItemData &rhs)
+: HatoholException("", sourceFileName, lineNumber),
+  m_type(type)
 {
 	string header = getMessageHeader(type);
 	string msg = StringUtils::sprintf(
 	  "%s: '%s' between %s and %s (ItemID: %"PRIu_ITEM" and %"PRIu_ITEM")",
-	  header.c_str(), operatorName,
+	  header.c_str(), operatorName.c_str(),
 	  lhs.getNativeTypeName(), rhs.getNativeTypeName(),
 	  lhs.getId(), rhs.getId());
 
 	setBrief(msg);
+}
+
+ItemDataException::ItemDataException(
+  ItemDataExceptionType type,
+   const string &sourceFileName, const int &lineNumber, const ItemId &itemId)
+: HatoholException("", sourceFileName, lineNumber),
+  m_type(type)
+{
+	string header = getMessageHeader(type);
+	string msg =
+	   StringUtils::sprintf("%s: %"PRIu_ITEM, header.c_str(), itemId);
+	setBrief(msg);
+}
+
+ItemDataExceptionType ItemDataException::getType(void) const
+{
+	return m_type;
 }
 
 string ItemDataException::getMessageHeader(const ItemDataExceptionType type)
@@ -75,6 +96,8 @@ string ItemDataException::getMessageHeader(const ItemDataExceptionType type)
 		header = "Undefined operation";
 	else if (type == ITEM_DATA_EXCEPTION_INVALID_OPERATION)
 		header = "Invalid operation";
+	else if (type == ITEM_DATA_EXCEPTION_ITEM_NOT_FOUND)
+		header = "Item not found";
 	else
 		header = StringUtils::sprintf("Unknown exception (%d)", type);
 	return header;
@@ -139,21 +162,8 @@ void ItemData::setNull(void)
 }
 
 //
-// ItemBool
-//
-template<> ItemBool::operator bool() const
-{
-	return get();
-}
-
-//
 // ItemInt
 //
-template<> ItemInt::operator int() const
-{
-	return get();
-}
-
 template<> bool ItemInt::operator >(const ItemData &itemData) const
 {
 	if (itemData.getItemType() == ITEM_TYPE_INT) {
@@ -207,11 +217,6 @@ template<> bool ItemInt::operator <=(const ItemData &itemData) const
 //
 // ItemUint64
 //
-template<> ItemUint64::operator uint64_t() const
-{
-	return get();
-}
-
 template<> bool ItemUint64::operator >(const ItemData &itemData) const
 {
 	if (itemData.getItemType() == ITEM_TYPE_UINT64) {
@@ -313,12 +318,3 @@ template<> ItemData * ItemString::operator /(const ItemData &itemData) const
 	THROW_ITEM_DATA_EXCEPTION_INVALID_OPERATION("/", itemData);
 	return NULL;
 }
-
-//
-// ItemString
-//
-template<> ItemString::operator string() const
-{
-	return get();
-}
-

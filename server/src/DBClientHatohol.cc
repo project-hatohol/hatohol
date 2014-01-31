@@ -22,9 +22,9 @@
 #include "DBAgentFactory.h"
 #include "DBClientHatohol.h"
 #include "DBClientUser.h"
-#include "DBClientUtils.h"
 #include "CacheServiceDBClient.h"
 #include "Params.h"
+#include "ItemGroupStream.h"
 using namespace std;
 using namespace mlpl;
 
@@ -39,6 +39,21 @@ uint64_t DBClientHatohol::EVENT_NOT_FOUND = -1;
 int DBClientHatohol::HATOHOL_DB_VERSION = 4;
 
 const char *DBClientHatohol::DEFAULT_DB_NAME = "hatohol";
+
+void operator>>(ItemGroupStream &itemGroupStream, TriggerStatusType &rhs)
+{
+	rhs = itemGroupStream.read<int, TriggerStatusType>();
+}
+
+void operator>>(ItemGroupStream &itemGroupStream, TriggerSeverityType &rhs)
+{
+	rhs = itemGroupStream.read<int, TriggerSeverityType>();
+}
+
+void operator>>(ItemGroupStream &itemGroupStream, EventType &rhs)
+{
+	rhs = itemGroupStream.read<int, EventType>();
+}
 
 static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 {
@@ -1093,16 +1108,14 @@ void DBClientHatohol::getHostInfoList(HostInfoList &hostInfoList,
 
 	// get the result
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator it = grpList.begin();
-	for (; it != grpList.end(); ++it) {
-		size_t idx = 0;
-		const ItemGroup *itemGroup = *it;
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
 		hostInfoList.push_back(HostInfo());
 		HostInfo &hostInfo = hostInfoList.back();
-
-		hostInfo.serverId  = GET_INT_FROM_GRP(itemGroup, idx++);
-		hostInfo.id        = GET_UINT64_FROM_GRP(itemGroup, idx++);
-		hostInfo.hostName  = GET_STRING_FROM_GRP(itemGroup, idx++);
+		itemGroupStream >> hostInfo.serverId;
+		itemGroupStream >> hostInfo.id;
+		itemGroupStream >> hostInfo.hostName;
 	}
 }
 
@@ -1211,8 +1224,14 @@ int DBClientHatohol::getLastChangeTimeOfTrigger(const ServerIdType &serverId)
 		return 0;
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	const ItemData *lastTime = (*grpList.begin())->getItemAt(0);
-	return ItemDataUtils::getInt(lastTime);
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	// TODO: we want to select the template parameter automatically.
+	//       Since the above code pushes
+	//       COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].type, so the
+	//       template parameter is decided at the compile time in principle.
+	//       However, I don't have a good idea. Propably constexpr,
+	//       feature of C++11, may solve this problem.
+	return itemGroupStream.read<int>();
 }
 
 void DBClientHatohol::addEventInfo(EventInfo *eventInfo)
@@ -1342,29 +1361,24 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 
 	// check the result and copy
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator it = grpList.begin();
-	for (; it != grpList.end(); ++it) {
-		size_t idx = 0;
-		const ItemGroup *itemGroup = *it;
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
 		eventInfoList.push_back(EventInfo());
 		EventInfo &eventInfo = eventInfoList.back();
 
-		eventInfo.unifiedId  = GET_UINT64_FROM_GRP(itemGroup, idx++);
-		eventInfo.serverId   = GET_INT_FROM_GRP(itemGroup, idx++);
-		eventInfo.id         = GET_UINT64_FROM_GRP(itemGroup, idx++);
-		eventInfo.time.tv_sec  = GET_INT_FROM_GRP(itemGroup, idx++);
-		eventInfo.time.tv_nsec = GET_INT_FROM_GRP(itemGroup, idx++);
-		int type             = GET_INT_FROM_GRP(itemGroup, idx++);
-		eventInfo.type       = static_cast<EventType>(type);
-		eventInfo.triggerId  = GET_UINT64_FROM_GRP(itemGroup, idx++);
-
-		int status          = GET_INT_FROM_GRP(itemGroup, idx++);
-		eventInfo.status    = static_cast<TriggerStatusType>(status);
-		int severity        = GET_INT_FROM_GRP(itemGroup, idx++);
-		eventInfo.severity  = static_cast<TriggerSeverityType>(severity);
-		eventInfo.hostId    = GET_UINT64_FROM_GRP(itemGroup, idx++);
-		eventInfo.hostName  = GET_STRING_FROM_GRP(itemGroup, idx++);
-		eventInfo.brief     = GET_STRING_FROM_GRP(itemGroup, idx++);
+		itemGroupStream >> eventInfo.unifiedId;
+		itemGroupStream >> eventInfo.serverId;
+		itemGroupStream >> eventInfo.id;
+		itemGroupStream >> eventInfo.time.tv_sec;
+		itemGroupStream >> eventInfo.time.tv_nsec;
+		itemGroupStream >> eventInfo.type;
+		itemGroupStream >> eventInfo.triggerId;
+		itemGroupStream >> eventInfo.status;
+		itemGroupStream >> eventInfo.severity;
+		itemGroupStream >> eventInfo.hostId;
+		itemGroupStream >> eventInfo.hostName;
+		itemGroupStream >> eventInfo.brief;
 	}
 	return HatoholError(HTERR_OK);
 }
@@ -1457,8 +1471,8 @@ uint64_t DBClientHatohol::getLastEventId(const ServerIdType &serverId)
 		return EVENT_NOT_FOUND;
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	const ItemData *lastId = (*grpList.begin())->getItemAt(0);
-	return ItemDataUtils::getUint64(lastId);
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	return itemGroupStream.read<uint64_t>();
 }
 
 void DBClientHatohol::addItemInfo(ItemInfo *itemInfo)
@@ -1526,24 +1540,21 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 
 	// check the result and copy
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator it = grpList.begin();
-	for (; it != grpList.end(); ++it) {
-		size_t idx = 0;
-		const ItemGroup *itemGroup = *it;
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
 		itemInfoList.push_back(ItemInfo());
 		ItemInfo &itemInfo = itemInfoList.back();
 
-		itemInfo.serverId  = GET_INT_FROM_GRP(itemGroup, idx++);
-		itemInfo.id        = GET_UINT64_FROM_GRP(itemGroup, idx++);
-		itemInfo.hostId    = GET_UINT64_FROM_GRP(itemGroup, idx++);
-		itemInfo.brief     = GET_STRING_FROM_GRP(itemGroup, idx++);
-		itemInfo.lastValueTime.tv_sec = 
-		  GET_INT_FROM_GRP(itemGroup, idx++);
-		itemInfo.lastValueTime.tv_nsec =
-		  GET_INT_FROM_GRP(itemGroup, idx++);
-		itemInfo.lastValue = GET_STRING_FROM_GRP(itemGroup, idx++);
-		itemInfo.prevValue = GET_STRING_FROM_GRP(itemGroup, idx++);
-		itemInfo.itemGroupName = GET_STRING_FROM_GRP(itemGroup, idx++);
+		itemGroupStream >> itemInfo.serverId;
+		itemGroupStream >> itemInfo.id;
+		itemGroupStream >> itemInfo.hostId;
+		itemGroupStream >> itemInfo.brief;
+		itemGroupStream >> itemInfo.lastValueTime.tv_sec;
+		itemGroupStream >> itemInfo.lastValueTime.tv_nsec;
+		itemGroupStream >> itemInfo.lastValue;
+		itemGroupStream >> itemInfo.prevValue;
+		itemGroupStream >> itemInfo.itemGroupName;
 	}
 }
 
@@ -1570,8 +1581,8 @@ size_t DBClientHatohol::getNumberOfTriggers(const TriggersQueryOption &option,
 	} DBCLIENT_TRANSACTION_END();
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	const ItemData *count = (*grpList.begin())->getItemAt(0);
-	return ItemDataUtils::getInt(count);
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	return itemGroupStream.read<int>();
 }
 
 size_t DBClientHatohol::getNumberOfHosts(const HostsQueryOption &option)
@@ -1593,8 +1604,8 @@ size_t DBClientHatohol::getNumberOfHosts(const HostsQueryOption &option)
 	} DBCLIENT_TRANSACTION_END();
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	const ItemData *count = (*grpList.begin())->getItemAt(0);
-	return ItemDataUtils::getInt(count);
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	return itemGroupStream.read<int>();
 }
 
 size_t DBClientHatohol::getNumberOfGoodHosts(const HostsQueryOption &option)
@@ -1633,8 +1644,8 @@ size_t DBClientHatohol::getNumberOfBadHosts(const HostsQueryOption &option)
 	} DBCLIENT_TRANSACTION_END();
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	const ItemData *count = (*grpList.begin())->getItemAt(0);
-	return ItemDataUtils::getInt(count);
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	return itemGroupStream.read<int>();
 }
 
 void DBClientHatohol::pickupAbsentHostIds(vector<uint64_t> &absentHostIdVector,
@@ -1965,26 +1976,21 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 
 	// check the result and copy
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator it = grpList.begin();
-	for (; it != grpList.end(); ++it) {
-		size_t idx = 0;
-		const ItemGroup *itemGroup = *it;
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
 		triggerInfoList.push_back(TriggerInfo());
 		TriggerInfo &trigInfo = triggerInfoList.back();
 
-		trigInfo.serverId  = GET_INT_FROM_GRP(itemGroup, idx++);
-		trigInfo.id        = GET_UINT64_FROM_GRP(itemGroup, idx++);
-		int status         = GET_INT_FROM_GRP(itemGroup, idx++);
-		trigInfo.status    = static_cast<TriggerStatusType>(status);
-		int severity       = GET_INT_FROM_GRP(itemGroup, idx++);
-		trigInfo.severity  = static_cast<TriggerSeverityType>(severity);
-		trigInfo.lastChangeTime.tv_sec = 
-		  GET_INT_FROM_GRP(itemGroup, idx++);
-		trigInfo.lastChangeTime.tv_nsec =
-		  GET_INT_FROM_GRP(itemGroup, idx++);
-		trigInfo.hostId    = GET_UINT64_FROM_GRP(itemGroup, idx++);
-		trigInfo.hostName  = GET_STRING_FROM_GRP(itemGroup, idx++);
-		trigInfo.brief     = GET_STRING_FROM_GRP(itemGroup, idx++);
+		itemGroupStream >> trigInfo.serverId;
+		itemGroupStream >> trigInfo.id;
+		itemGroupStream >> trigInfo.status;
+		itemGroupStream >> trigInfo.severity;
+		itemGroupStream >> trigInfo.lastChangeTime.tv_sec;
+		itemGroupStream >> trigInfo.lastChangeTime.tv_nsec;
+		itemGroupStream >> trigInfo.hostId;
+		itemGroupStream >> trigInfo.hostName;
+		itemGroupStream >> trigInfo.brief;
 	}
 }
 

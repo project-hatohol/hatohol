@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -22,6 +22,7 @@
 #include "DBAgentMySQL.h"
 #include "Utils.h"
 #include "UnifiedDataStore.h"
+#include "ItemGroupStream.h"
 using namespace std;
 using namespace mlpl;
 
@@ -611,24 +612,19 @@ void ArmNagiosNDOUtils::getTrigger(void)
 	TriggerInfoList triggerInfoList;
 	const ItemGroupList &grpList =
 	  m_ctx->selectTriggerArg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator it = grpList.begin();
-	for (; it != grpList.end(); ++it) {
-		int idx = 0;
-		const ItemGroup *itemGroup = *it;
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		int currentStatus;
+		ItemGroupStream itemGroupStream(*itemGrpItr);
 		TriggerInfo trigInfo;
-
-		// serverId
 		trigInfo.serverId = svInfo.id;
+		trigInfo.lastChangeTime.tv_nsec = 0;
 
-		// id (service_id)
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemId);
-		trigInfo.id = itemId->get();
+		itemGroupStream >> trigInfo.id;      // service_id
 
+		// TODO: severity should not depend on the status.
 		// status and severity (current_status)
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemStatus);
-		int currentStatus = itemStatus->get();
+		itemGroupStream >> currentStatus;
 		trigInfo.status = TRIGGER_STATUS_OK;
 		trigInfo.severity = TRIGGER_SEVERITY_INFO;
 		if (currentStatus != STATE_OK) {
@@ -641,27 +637,11 @@ void ArmNagiosNDOUtils::getTrigger(void)
 				trigInfo.severity = TRIGGER_SEVERITY_UNKNOWN;
 		}
 
-		// lastChangeTime (status_update_time)
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemLastchange);
-		trigInfo.lastChangeTime.tv_sec = itemLastchange->get();
-		trigInfo.lastChangeTime.tv_nsec = 0;
-
-		// hostId (host_id)
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemHostid);
-		trigInfo.hostId = itemHostid->get();
-
-		// hostName (hosts.display_name)
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemString, itemHostName);
-		trigInfo.hostName = itemHostName->get();
-
-		// brief (output)
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemString, itemDescription);
-		trigInfo.brief = itemDescription->get();
-
+		itemGroupStream >> trigInfo.lastChangeTime.tv_sec;
+		                                      //status_update_time
+		itemGroupStream >> trigInfo.hostId;   // host_id
+		itemGroupStream >> trigInfo.hostName; // hosts.display_name
+		itemGroupStream >> trigInfo.brief;    // output
 		triggerInfoList.push_back(trigInfo);
 	}
 	m_ctx->dbHatohol.addTriggerInfoList(triggerInfoList);
@@ -682,24 +662,17 @@ void ArmNagiosNDOUtils::getEvent(void)
 	EventInfoList eventInfoList;
 	const ItemGroupList &grpList =
 	  m_ctx->selectEventArg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator it = grpList.begin();
-	for (; it != grpList.end(); ++it) {
-		int idx = 0;
-		const ItemGroup *itemGroup = *it;
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		int state;
+		ItemGroupStream itemGroupStream(*itemGrpItr);
 		EventInfo eventInfo;
-
-		// serverId
 		eventInfo.serverId = svInfo.id;
+		eventInfo.time.tv_nsec = 0;
 
-		// id (statehistory_id)
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemId);
-		eventInfo.id = itemId->get();
-
+		itemGroupStream >> eventInfo.id; // statehistory_id
 		// type, status, and severity (state)
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemState);
-		int state = itemState->get();
+		itemGroupStream >> state;
 		if (state == STATE_OK) {
 			eventInfo.type = EVENT_TYPE_GOOD;
 			eventInfo.status = TRIGGER_STATUS_OK,
@@ -714,33 +687,11 @@ void ArmNagiosNDOUtils::getEvent(void)
 			else
 				eventInfo.severity = TRIGGER_SEVERITY_UNKNOWN;
 		}
-
-		// time (state_time)
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemStateTime);
-		eventInfo.time.tv_sec = itemStateTime->get();
-		eventInfo.time.tv_nsec = 0;
-
-		// trigger id (service_id)
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemServiceId);
-		eventInfo.triggerId = itemServiceId->get();
-
-		// hostId (host_id)
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemHostid);
-		eventInfo.hostId = itemHostid->get();
-
-		// hostName (hosts.display_name)
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemString, itemHostName);
-		eventInfo.hostName = itemHostName->get();
-
-		// brief (output)
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemString, itemDescription);
-		eventInfo.brief = itemDescription->get();
-
+		itemGroupStream >> eventInfo.time.tv_sec; // state_time
+		itemGroupStream >> eventInfo.triggerId;   // service_id
+		itemGroupStream >> eventInfo.hostId;      // host_id
+		itemGroupStream >> eventInfo.hostName;    // hosts.display_name
+		itemGroupStream >> eventInfo.brief;       // output
 		eventInfoList.push_back(eventInfo);
 	}
 	m_ctx->dataStore->addEventList(eventInfoList);
@@ -758,45 +709,22 @@ void ArmNagiosNDOUtils::getItem(void)
 	ItemInfoList itemInfoList;
 	const ItemGroupList &grpList =
 	  m_ctx->selectItemArg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator it = grpList.begin();
-	for (; it != grpList.end(); ++it) {
-		int idx = 0;
-		const ItemGroup *itemGroup = *it;
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
+
 		ItemInfo itemInfo;
-
-		// serverId
 		itemInfo.serverId = svInfo.id;
-
-		// id (service_id)
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemId);
-		itemInfo.id = itemId->get();
-
-		// host Id (host_id)
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemHostid);
-		itemInfo.hostId = itemHostid->get();
-
-		// brief (check_command)
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemString, itemCheckCmd);
-		itemInfo.brief = itemCheckCmd->get();
-
-		// lastChangeTime (status_update_time)
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemUpdateTime);
-		itemInfo.lastValueTime.tv_sec = itemUpdateTime->get();
 		itemInfo.lastValueTime.tv_nsec = 0;
-
-		// last_value (last_value)
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemString, itemOutput);
-		itemInfo.lastValue = itemOutput->get();
-
-		// prev_value (Not available)
 		itemInfo.prevValue = "N/A";
 
-		// itemGroupName
+		itemGroupStream >> itemInfo.id;        // service_id
+		itemGroupStream >> itemInfo.hostId;    // host_id
+		itemGroupStream >> itemInfo.brief;     // check_command
+		itemGroupStream >> itemInfo.lastValueTime.tv_sec;
+		                                       // status_update_time
+		itemGroupStream >> itemInfo.lastValue; // last_value
+
 		// TODO: We will take into account 'servicegroup' table.
 		itemInfo.itemGroupName = "No group";
 

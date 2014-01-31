@@ -20,9 +20,9 @@
 #include "ConfigManager.h"
 #include "DBAgentFactory.h"
 #include "DBClientAction.h"
-#include "DBClientUtils.h"
 #include "DBClientHatohol.h"
 #include "MutexLock.h"
+#include "ItemGroupStream.h"
 using namespace std;
 using namespace mlpl;
 
@@ -32,6 +32,18 @@ const char *TABLE_NAME_ACTION_LOGS = "action_logs";
 // 8 -> 9: Add actions.onwer_user_id
 int DBClientAction::ACTION_DB_VERSION = 9;
 const char *DBClientAction::DEFAULT_DB_NAME = DBClientConfig::DEFAULT_DB_NAME;
+
+static void operator>>(
+  ItemGroupStream &itemGroupStream, ComparisonType &compType)
+{
+	compType = itemGroupStream.read<int, ComparisonType>();
+}
+
+static void operator>>(
+  ItemGroupStream &itemGroupStream, ActionType &actionType)
+{
+	actionType = itemGroupStream.read<int, ActionType>();
+}
 
 static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 {
@@ -600,57 +612,45 @@ HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
 
 	// convert a format of the query result.
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator it = grpList.begin();
-	for (; it != grpList.end(); ++it) {
-		size_t idx = 0;
-		const ItemGroup *itemGroup = *it;
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
 		actionDefList.push_back(ActionDef());
 		ActionDef &actionDef = actionDefList.back();
 
-		actionDef.id = GET_INT_FROM_GRP(itemGroup, idx++);
+		itemGroupStream >> actionDef.id;
 
 		// conditions
-		bool isNull;
-		actionDef.condition.serverId =
-		   GET_INT_FROM_GRP(itemGroup, idx++, &isNull);
-		if (!isNull)
+		if (!itemGroupStream.getItem()->isNull())
 			actionDef.condition.enable(ACTCOND_SERVER_ID);
+		itemGroupStream >> actionDef.condition.serverId;
 
-		actionDef.condition.hostId =
-		   GET_UINT64_FROM_GRP(itemGroup, idx++, &isNull);
-		if (!isNull)
+		if (!itemGroupStream.getItem()->isNull())
 			actionDef.condition.enable(ACTCOND_HOST_ID);
+		itemGroupStream >> actionDef.condition.hostId;
 
-		actionDef.condition.hostGroupId =
-		   GET_UINT64_FROM_GRP(itemGroup, idx++, &isNull);
-		if (!isNull)
+		if (!itemGroupStream.getItem()->isNull())
 			actionDef.condition.enable(ACTCOND_HOST_GROUP_ID);
+		itemGroupStream >> actionDef.condition.hostGroupId;
 
-		actionDef.condition.triggerId =
-		   GET_UINT64_FROM_GRP(itemGroup, idx++, &isNull);
-		if (!isNull)
+		if (!itemGroupStream.getItem()->isNull())
 			actionDef.condition.enable(ACTCOND_TRIGGER_ID);
+		itemGroupStream >> actionDef.condition.triggerId;
 
-		actionDef.condition.triggerStatus =
-		   GET_INT_FROM_GRP(itemGroup, idx++, &isNull);
-		if (!isNull)
+		if (!itemGroupStream.getItem()->isNull())
 			actionDef.condition.enable(ACTCOND_TRIGGER_STATUS);
+		itemGroupStream >> actionDef.condition.triggerStatus;
 
-		actionDef.condition.triggerSeverity =
-		   GET_INT_FROM_GRP(itemGroup, idx++, &isNull);
-		if (!isNull)
+		if (!itemGroupStream.getItem()->isNull())
 			actionDef.condition.enable(ACTCOND_TRIGGER_SEVERITY);
+		itemGroupStream >> actionDef.condition.triggerSeverity;
 
-		actionDef.condition.triggerSeverityCompType =
-		  static_cast<ComparisonType>
-		    (GET_INT_FROM_GRP(itemGroup, idx++));
-
-		actionDef.type =
-		   static_cast<ActionType>(GET_INT_FROM_GRP(itemGroup, idx++));
-		actionDef.command    = GET_STRING_FROM_GRP(itemGroup, idx++);
-		actionDef.workingDir = GET_STRING_FROM_GRP(itemGroup, idx++);
-		actionDef.timeout    = GET_INT_FROM_GRP(itemGroup, idx++);
-		actionDef.ownerUserId = GET_INT_FROM_GRP(itemGroup, idx++);
+		itemGroupStream >> actionDef.condition.triggerSeverityCompType;
+		itemGroupStream >> actionDef.type;
+		itemGroupStream >> actionDef.command;
+		itemGroupStream >> actionDef.workingDir;
+		itemGroupStream >> actionDef.timeout;
+		itemGroupStream >> actionDef.ownerUserId;
 	}
 	return HTERR_OK;
 }
@@ -898,56 +898,36 @@ bool DBClientAction::getLog(ActionLog &actionLog, const string &condition)
 	if (numGrpList == 0)
 		return false;
 
-	ItemGroupListConstIterator it = grpList.begin();
-	const ItemGroup *itemGroup = *it;
-	int idx = 0;
+	ItemGroupStream itemGroupStream(*grpList.begin());
 	actionLog.nullFlags = 0;
 
-	// action log ID
-	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemUint64, itemLogId);
-	actionLog.id = itemLogId->get();
+	itemGroupStream >> actionLog.id;
+	itemGroupStream >> actionLog.actionId;
+	itemGroupStream >> actionLog.status;
+	itemGroupStream >> actionLog.starterId;
 
-	// action ID
-	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemActionId);
-	actionLog.actionId = itemActionId->get();
-
-	// status
-	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemStatus);
-	actionLog.status = itemStatus->get();
-
-	// starter ID
-	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemStarterId);
-	actionLog.starterId = itemStarterId->get();
-
-	// queuing time
-	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++),
-	                  ItemInt, itemQueuingTime);
-	actionLog.queuingTime = itemQueuingTime->get();
-	if (itemQueuingTime->isNull())
+	// queing time
+	if (itemGroupStream.getItem()->isNull())
 		actionLog.nullFlags |= ACTLOG_FLAG_QUEUING_TIME;
+	itemGroupStream >> actionLog.queuingTime;
 
 	// start time
-	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemStartTime);
-	actionLog.startTime = itemStartTime->get();
-	if (itemStartTime->isNull())
+	if (itemGroupStream.getItem()->isNull())
 		actionLog.nullFlags |= ACTLOG_FLAG_START_TIME;
+	itemGroupStream >> actionLog.startTime;
 
 	// end time
-	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemEndTime);
-	actionLog.endTime = itemEndTime->get();
-	if (itemEndTime->isNull())
+	if (itemGroupStream.getItem()->isNull())
 		actionLog.nullFlags |= ACTLOG_FLAG_END_TIME;
+	itemGroupStream >> actionLog.endTime;
 
 	// failure code
-	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++),
-	                  ItemInt, itemFailureCode);
-	actionLog.failureCode = itemFailureCode->get();
+	itemGroupStream >> actionLog.failureCode;
 
 	// exit code
-	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemExitCode);
-	actionLog.exitCode = itemExitCode->get();
-	if (itemExitCode->isNull())
+	if (itemGroupStream.getItem()->isNull())
 		actionLog.nullFlags |= ACTLOG_FLAG_EXIT_CODE;
+	itemGroupStream >> actionLog.exitCode;
 
 	return true;
 }

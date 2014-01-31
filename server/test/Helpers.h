@@ -64,10 +64,11 @@ static ItemTable * addItems(T* srcTable, int numTable,
 template<typename T>
 static void _assertItemData(const ItemGroup *itemGroup, const T &expected, int &idx)
 {
+	// TODO: replace with ItemGroupStream
 	const ItemData *itemZ = itemGroup->getItemAt(idx);
 	cut_assert_not_null(itemZ);
 	idx++;
-	const T &val = ItemDataUtils::get<T>(itemZ);
+	T val = *itemZ;
 	cut_trace(cppcut_assert_equal(expected, val));
 }
 #define assertItemData(T, IGRP, E, IDX) \

@@ -327,7 +327,7 @@ void _assertCurrDatetime(const string &datetime)
 {
 	ItemDataPtr item = SQLUtils::createFromString(datetime.c_str(),
 	                                              SQL_COLUMN_TYPE_DATETIME);
-	int clock = ItemDataUtils::getInt(item);
+	int clock = *item;
 	assertCurrDatetime(clock);
 }
 

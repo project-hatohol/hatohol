@@ -308,8 +308,7 @@ void DBAgentMySQL::insert(DBAgentInsertArg &insertArg)
 		}
 		case SQL_COLUMN_TYPE_DATETIME:
 		{ // bracket is used to avoid an error: jump to case label
-			DEFINE_AND_ASSERT(itemData, ItemInt, item);
-			query += makeDatetimeString(item->get());
+			query += makeDatetimeString(*itemData);
 			break;
 		}
 		default:

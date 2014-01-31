@@ -21,6 +21,7 @@
 #include <stdint.h>
 #include "DBClientUser.h"
 #include "DBClientConfig.h"
+#include "ItemGroupStream.h"
 using namespace std;
 using namespace mlpl;
 
@@ -670,15 +671,11 @@ UserIdType DBClientUser::getUserId(const string &user, const string &password)
 	if (grpList.empty())
 		return INVALID_USER_ID;
 
-	const ItemGroup *itemGroup = *grpList.begin();
-	int idx = 0;
-
-	// user ID
-	UserIdType userId = *itemGroup->getItemAt(idx++);
-
-	// password
-	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemString, itemPasswd);
-	string truePasswd = itemPasswd->get();
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	UserIdType userId;
+	string truePasswd;
+	itemGroupStream >> userId;
+	itemGroupStream >> truePasswd;
 
 	// comapare the passwords
 	bool matched = (truePasswd == Utils::sha256(password));
@@ -796,25 +793,14 @@ HatoholError DBClientUser::getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMa
 	} DBCLIENT_TRANSACTION_END();
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator it = grpList.begin();
-	for (; it != grpList.end(); ++it) {
-		const ItemGroup *itemGroup = *it;
-		int idx = 0;
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
 		AccessInfo *accessInfo = new AccessInfo();
-
-		// ID
-		accessInfo->id = *itemGroup->getItemAt(idx++);
-
-		// user ID
-		accessInfo->userId = *itemGroup->getItemAt(idx++);
-
-		// server ID
-		accessInfo->serverId = *itemGroup->getItemAt(idx++);
-
-		// host group ID
-		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++),
-		                  ItemUint64, itemHostGrpId);
-		accessInfo->hostGroupId = itemHostGrpId->get();
+		itemGroupStream >> accessInfo->id;
+		itemGroupStream >> accessInfo->userId;
+		itemGroupStream >> accessInfo->serverId;
+		itemGroupStream >> accessInfo->hostGroupId;
 
 		// insert data
 		HostGrpAccessInfoMap *hostGrpAccessInfoMap = NULL;
@@ -873,18 +859,13 @@ void DBClientUser::getServerHostGrpSetMap(
 	} DBCLIENT_TRANSACTION_END();
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator it = grpList.begin();
-	for (; it != grpList.end(); ++it) {
-		const ItemGroup *itemGroup = *it;
-		int idx = 0;
-
-		// server ID
-		ServerIdType serverId = *itemGroup->getItemAt(idx++);
-
-		// host group ID
-		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++),
-		                  ItemUint64, itemHostGrpId);
-		uint64_t hostGroupId = itemHostGrpId->get();
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ServerIdType serverId;
+		uint64_t hostGroupId;
+		ItemGroupStream itemGroupStream(*itemGrpItr);
+		itemGroupStream >> serverId;
+		itemGroupStream >> hostGroupId;
 
 		// insert data
 		pair<HostGroupSetIterator, bool> result =
@@ -1032,25 +1013,13 @@ void DBClientUser::getUserRoleInfoList(UserRoleInfoList &userRoleInfoList,
 	} DBCLIENT_TRANSACTION_END();
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator it = grpList.begin();
-	for (; it != grpList.end(); ++it) {
-		size_t idx = 0;
-		const ItemGroup *itemGroup = *it;
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
 		UserRoleInfo userRoleInfo;
-
-		// user role ID
-		userRoleInfo.id = *itemGroup->getItemAt(idx++);
-
-		// name
-		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemString,
-		                  itemName);
-		userRoleInfo.name = itemName->get();
-
-		// flags
-		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemUint64,
-		                  itemFlags);
-		userRoleInfo.flags = itemFlags->get();
-
+		itemGroupStream >> userRoleInfo.id;
+		itemGroupStream >> userRoleInfo.name;
+		itemGroupStream >> userRoleInfo.flags;
 		userRoleInfoList.push_back(userRoleInfo);
 	}
 }
@@ -1160,30 +1129,14 @@ void DBClientUser::getUserInfoList(UserInfoList &userInfoList,
 	} DBCLIENT_TRANSACTION_END();
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator it = grpList.begin();
-	for (; it != grpList.end(); ++it) {
-		size_t idx = 0;
-		const ItemGroup *itemGroup = *it;
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
 		UserInfo userInfo;
-
-		// user ID
-		userInfo.id = *itemGroup->getItemAt(idx++);
-
-		// password
-		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemString,
-		                  itemName);
-		userInfo.name = itemName->get();
-
-		// password
-		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemString,
-		                  itemPasswd);
-		userInfo.password = itemPasswd->get();
-
-		// flags
-		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemUint64,
-		                  itemFlags);
-		userInfo.flags = itemFlags->get();
-
+		itemGroupStream >> userInfo.id;
+		itemGroupStream >> userInfo.name;
+		itemGroupStream >> userInfo.password;
+		itemGroupStream >> userInfo.flags;
 		userInfoList.push_back(userInfo);
 	}
 }

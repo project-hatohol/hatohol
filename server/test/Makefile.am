@@ -46,7 +46,7 @@ testHatohol_la_SOURCES = \
 	testSQLColumnParser.cc \
 	testMySQLWorkerZabbix.cc testFaceRest.cc \
 	testSessionManager.cc \
-	testItemData.cc testItemGroup.cc \
+	testItemData.cc testItemGroup.cc testItemGroupStream.cc \
 	testItemPtr.cc testItemGroupType.cc testItemTable.cc \
 	testItemTablePtr.cc \
 	testItemDataUtils.cc \
