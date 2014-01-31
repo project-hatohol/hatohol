@@ -52,16 +52,7 @@ public:
 		                      DEMANGLED_TYPE_NAME(itemData));
 		return *(new NativeType()); // never executed, just to build
 	}
-
-	static const std::string &getString(const ItemData *itemData);
 };
-
-// The reason why this function is specialized:
-// Ex.) If the above general template function ItemData::get() is
-//      called with [NativeType = int], the build fails because
-//      'string' cannot be converted to 'int'.
-template<>
-const std::string &ItemDataUtils::get<std::string>(const ItemData *itemData);
 
 struct ItemDataPtrComparator {
 	bool operator()(const ItemDataPtr &dataPtr0,

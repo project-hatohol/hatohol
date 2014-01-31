@@ -167,7 +167,8 @@ void test_createFromStringVarchar(void)
 	string val = "I like a soft-serve ice cream.";
 	ItemDataPtr dataPtr =
 	  SQLUtils::createFromString(val.c_str(), SQL_COLUMN_TYPE_VARCHAR);
-	cppcut_assert_equal(val, ItemDataUtils::getString(dataPtr));
+	string actual = *dataPtr;
+	cppcut_assert_equal(val, actual);
 }
 
 void test_createFromStringVarcharWithNull(void)

@@ -61,7 +61,7 @@ void _assertFormulaValue(FormulaElement *elem, const char *expected)
 	cut_assert_not_null(formulaValue);
 	ItemDataPtr dataPtr = formulaValue->evaluate();
 	cppcut_assert_equal(ITEM_TYPE_STRING, dataPtr->getItemType());
-	string actual = ItemDataUtils::getString(dataPtr);
+	string actual = *dataPtr;
 	cppcut_assert_equal(string(expected), actual);
 }
 

@@ -234,7 +234,7 @@ void test_formulaValueString(void)
 	FormulaValue formulaValue(str);
 	cppcut_assert_equal(true, formulaValue.isTerminalElement());
 	ItemDataPtr itemData = formulaValue.evaluate();
-	string actual = ItemDataUtils::getString(itemData);
+	string actual = *itemData;
 	cppcut_assert_equal(str, actual);
 	cppcut_assert_equal(2, itemData->getUsedCount());
 }

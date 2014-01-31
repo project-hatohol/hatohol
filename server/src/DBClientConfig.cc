@@ -479,7 +479,8 @@ string DBClientConfig::getDatabaseDir(void)
 	} DBCLIENT_TRANSACTION_END();
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	HATOHOL_ASSERT(!grpList.empty(), "Obtained Table: empty");
-	return ItemDataUtils::getString((*grpList.begin())->getItemAt(0));
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	return itemGroupStream.read<string>();
 }
 
 void DBClientConfig::setDatabaseDir(const string &dir)

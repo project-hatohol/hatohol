@@ -50,17 +50,6 @@ ItemDataPtr ItemDataUtils::createAsNumberOrString(const string &word)
 	return createAsNumber(word);
 }
 
-template<>
-const string &ItemDataUtils::get<string>(const ItemData *itemData)
-{
-	return getString(itemData);
-}
-
-const string &ItemDataUtils::getString(const ItemData *itemData)
-{
-	return get<string, ItemString>(itemData);
-}
-
 // ---------------------------------------------------------------------------
 // ItemDataPtrForIndex
 // ---------------------------------------------------------------------------

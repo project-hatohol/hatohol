@@ -1907,8 +1907,8 @@ string DBClientZabbix::getApplicationName(uint64_t applicationId)
 		return "";
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	const ItemData *applicationName = (*grpList.begin())->getItemAt(0);
-	return ItemDataUtils::getString(applicationName);
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	return itemGroupStream.read<string>();
 }
 
 void DBClientZabbix::pickupAbsentHostIds(vector<uint64_t> &absentHostIdVector,
