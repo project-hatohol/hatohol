@@ -39,7 +39,9 @@ var HatoholAddActionDialog = function(addSucceededCb) {
   // call the constructor of the super class
   HatoholDialog.apply(
     this, ["add-action-dialog", gettext("ADD ACTION"), dialogButtons]);
-  self.setAddButtonState(false);
+  setTimeout(function(){
+    self.setAddButtonState(false);
+  }, 1);
 
   //
   // Dialog button handlers

@@ -32,7 +32,9 @@ var HatoholServerEditDialog = function(succeededCb) {
   dialogAttrs = { width: "auto" };
   HatoholDialog.apply(
       this, ["server-edit-dialog", gettext("ADD SERVER"), dialogButtons, dialogAttrs]);
-  self.setAddButtonState(false);
+  setTimeout(function(){
+    self.setAddButtonState(false);
+  }, 1);
 
   //
   // Dialog button handlers
