@@ -126,7 +126,7 @@ typedef ItemInfoList::const_iterator ItemInfoListConstIterator;
 
 struct HostgroupInfo {
 	uint32_t            id;
-	uint32_t            serverId;
+	ServerIdType        serverId;
 	uint64_t            groupId;
 	std::string              groupName;
 };
@@ -137,7 +137,7 @@ typedef HostgroupInfoList::const_iterator HostgroupInfoListConstIterator;
 
 struct HostgroupElement {
 	uint32_t            id;
-	uint32_t            serverId;
+	serverIdType            serverId;
 	uint64_t            hostId;
 	uint64_t            groupId;
 };
@@ -179,11 +179,11 @@ protected:
 	  const std::string &serverIdColumnName,
 	  const std::string &hostGroupIdColumnName,
 	  const std::string &hostIdColumnName,
-	  uint32_t targetServerId = ALL_SERVERS,
+	  ServerIdType targetServerId = ALL_SERVERS,
 	  uint64_t targetHostId = ALL_HOSTS,
 	  uint64_t targetHostgroup = ALL_HOST_GROUPS);
 	static std::string makeConditionServer(
-	  const uint32_t &serverId,
+	  const ServerIdType &serverId,
 	  const HostGroupSet &hostGroupSet,
 	  const std::string &serverIdColumnName,
 	  const std::string &hostGroupIdColumnName,
