@@ -129,7 +129,7 @@ public:
 
 	virtual operator const bool &() const = 0;
 	virtual operator const int &() const = 0;
-	virtual operator uint64_t() const = 0;
+	virtual operator const uint64_t &() const = 0;
 	virtual operator double() const = 0;
 	virtual operator std::string() const = 0;
 	virtual ItemData & operator =(const ItemData &itemData) = 0;
@@ -225,10 +225,11 @@ public:
 		return ret;
 	}
 
-	virtual operator uint64_t() const
+	virtual operator const uint64_t &() const
 	{
+		static const uint64_t ret = 0;
 		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("cast to uint64_t");
-		return 0;
+		return ret;
 	}
 
 	virtual operator double() const
@@ -358,7 +359,7 @@ template<> inline ItemInt::operator const int &() const
 	return get();
 }
 
-template<> inline ItemUint64::operator uint64_t() const
+template<> inline ItemUint64::operator const uint64_t &() const
 {
 	return get();
 }
