@@ -1377,104 +1377,96 @@ void FaceRest::handlerGetServer(RestJob *job)
 	replyJsonData(agent, job);
 }
 
-void FaceRest::handlerPostServer(RestJob *job)
+HatoholError FaceRest::parseServerParameter(
+  MonitoringServerInfo &svInfo, GHashTable *query, bool forUpdate)
 {
+	HatoholError err;
 	char *charValue;
 	int intValue;
-	bool succeeded;
-	bool exist;
-	MonitoringServerInfo svInfo;
 
 	// type
-	succeeded = getParamWithErrorReply<MonitoringSystemType>(
-			job, "type", "%d", svInfo.type, &exist);
-	if (!succeeded)
-		return;
-	if (!exist) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "type");
-		return;
-	}
+	err = getParam<MonitoringSystemType>(
+		query, "type", "%d", svInfo.type);
+	if (err != HTERR_OK)
+		return err;
 
 	// hostname
-	charValue = (char *)g_hash_table_lookup(job->query, "hostName");
-	if (!charValue) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "hostName");
-		return;
-	}
+	charValue = (char *)g_hash_table_lookup(query, "hostName");
+	if (!charValue)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "hostName");
 	svInfo.hostName = charValue;
 
 	// ipAddress
-	charValue = (char *)g_hash_table_lookup(job->query, "ipAddress");
-	if (!charValue) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "ipAddress");
-		return;
-	}
+	charValue = (char *)g_hash_table_lookup(query, "ipAddress");
+	if (!charValue)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "ipAddress");
 	svInfo.ipAddress = charValue;
 
 	// nickname
-	charValue = (char *)g_hash_table_lookup(job->query, "nickname");
-	if (!charValue) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "nickname");
-		return;
-	}
+	charValue = (char *)g_hash_table_lookup(query, "nickname");
+	if (!charValue)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "nickname");
 	svInfo.nickname = charValue;
 
 	// port
-	charValue = (char *)g_hash_table_lookup(job->query, "port");
-	if (!charValue) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "port");
-		return;
-	}
+	charValue = (char *)g_hash_table_lookup(query, "port");
+	if (!charValue)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "port");
 	sscanf(charValue, "%d", &intValue);
 	svInfo.port = intValue;
 
 	// polling
-	charValue = (char *)g_hash_table_lookup(job->query, "polling");
-	if (!charValue) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "polling");
-		return;
-	}
+	charValue = (char *)g_hash_table_lookup(query, "polling");
+	if (!charValue)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "polling");
 	sscanf(charValue, "%d", &intValue);
 	svInfo.pollingIntervalSec = intValue;
 
 	// retry
-	charValue = (char *)g_hash_table_lookup(job->query, "retry");
-	if (!charValue) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "retry");
-		return;
-	}
+	charValue = (char *)g_hash_table_lookup(query, "retry");
+	if (!charValue)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "retry");
 	sscanf(charValue, "%d", &intValue);
 	svInfo.retryIntervalSec = intValue;
 
 	// username
-	charValue = (char *)g_hash_table_lookup(job->query, "user");
-	if (!charValue) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "user");
-		return;
-	}
+	charValue = (char *)g_hash_table_lookup(query, "user");
+	if (!charValue)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "user");
 	svInfo.userName = charValue;
 
 	// password
-	charValue = (char *)g_hash_table_lookup(job->query, "password");
-	if (!charValue) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "password");
-		return;
-	}
+	charValue = (char *)g_hash_table_lookup(query, "password");
+	if (!charValue)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "password");
 	svInfo.password = charValue;
 
 	// dbname
 	if (svInfo.type == MONITORING_SYSTEM_NAGIOS) {
-		charValue = (char *)g_hash_table_lookup(job->query, "dbName");
-		if (!charValue) {
-			REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "dbName");
-			return;
-		}
+		charValue = (char *)g_hash_table_lookup(query, "dbName");
+		if (!charValue)
+			return HatoholError(HTERR_NOT_FOUND_PARAMETER,
+					    "dbName");
 		svInfo.dbName = charValue;
+	}
+
+	return HTERR_OK;
+}
+
+void FaceRest::handlerPostServer(RestJob *job)
+{
+	MonitoringServerInfo svInfo;
+	HatoholError err;
+
+	err = parseServerParameter(svInfo, job->query);
+	if (err != HTERR_OK) {
+		replyError(job, err);
+		return;
 	}
 
 	OperationPrivilege privilege(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HatoholError err = dataStore->addTargetServer(svInfo, privilege);
+	err = dataStore->addTargetServer(svInfo, privilege);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
