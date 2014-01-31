@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -621,38 +621,41 @@ void test_operatorSubstBoolString(void)
 void test_throwUndefinedOperator(void)
 {
 	ItemIntTester *tester = new ItemIntTester(SYSTEM_ITEM_ID_ANONYMOUS, 0);
-	bool gotException = false;
+	ItemDataExceptionType exceptionType = ITEM_DATA_EXCEPTION_UNKNOWN;
 	try {
 		tester->throwUndefinedOperator();
 	} catch (const ItemDataException &e) {
-		gotException = true;
+		exceptionType = e.getType();
 	}
-	cppcut_assert_equal(true, gotException);
+	cppcut_assert_equal(ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION,
+	                    exceptionType);
 }
 
 void test_throwUndefinedOperatorTwoArg(void)
 {
 	ItemIntTester *tester = new ItemIntTester(SYSTEM_ITEM_ID_ANONYMOUS, 0);
-	bool gotException = false;
+	ItemDataExceptionType exceptionType = ITEM_DATA_EXCEPTION_UNKNOWN;
 	try {
 		tester->throwUndefinedOperatorTwoArg();
 	} catch (const ItemDataException &e) {
-		gotException = true;
+		exceptionType = e.getType();
 	}
-	cppcut_assert_equal(true, gotException);
+	cppcut_assert_equal(ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION,
+	                    exceptionType);
 }
 
 void test_throwItemNotFound(void)
 {
 	ItemIntTester *tester = new ItemIntTester(SYSTEM_ITEM_ID_ANONYMOUS, 0);
-	bool gotException = false;
+	ItemDataExceptionType exceptionType = ITEM_DATA_EXCEPTION_UNKNOWN;
 	try {
 		const ItemId itemId = 5;
 		tester->throwItemNotFound(itemId);
 	} catch (const ItemDataException &e) {
-		gotException = true;
+		exceptionType = e.getType();
 	}
-	cppcut_assert_equal(true, gotException);
+	cppcut_assert_equal(ITEM_DATA_EXCEPTION_ITEM_NOT_FOUND,
+	                    exceptionType);
 }
 
 } // namespace testItemData

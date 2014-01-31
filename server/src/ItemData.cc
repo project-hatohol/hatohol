@@ -44,7 +44,8 @@ ItemDataException::ItemDataException(ItemDataExceptionType type,
                                      const char *sourceFileName, int lineNumber,
                                      const char *operatorName,
                                      const ItemData &lhs)
-: HatoholException("", sourceFileName, lineNumber)
+: HatoholException("", sourceFileName, lineNumber),
+  m_type(type)
 {
 	string header = getMessageHeader(type);
 	string msg = StringUtils::sprintf(
@@ -56,7 +57,8 @@ ItemDataException::ItemDataException(ItemDataExceptionType type,
                                      const char *sourceFileName, int lineNumber,
                                      const char *operatorName,
                                      const ItemData &lhs, const ItemData &rhs)
-: HatoholException("", sourceFileName, lineNumber)
+: HatoholException("", sourceFileName, lineNumber),
+  m_type(type)
 {
 	string header = getMessageHeader(type);
 	string msg = StringUtils::sprintf(
@@ -71,12 +73,18 @@ ItemDataException::ItemDataException(ItemDataExceptionType type,
 ItemDataException::ItemDataException(
   ItemDataExceptionType type,
    const string &sourceFileName, const int &lineNumber, const ItemId &itemId)
-: HatoholException("", sourceFileName, lineNumber)
+: HatoholException("", sourceFileName, lineNumber),
+  m_type(type)
 {
 	string header = getMessageHeader(type);
 	string msg =
 	   StringUtils::sprintf("%s: %"PRIu_ITEM, header.c_str(), itemId);
 	setBrief(msg);
+}
+
+ItemDataExceptionType ItemDataException::getType(void) const
+{
+	return m_type;
 }
 
 string ItemDataException::getMessageHeader(const ItemDataExceptionType type)

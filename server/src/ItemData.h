@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -44,6 +44,7 @@ enum ItemDataExceptionType {
 	ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION,
 	ITEM_DATA_EXCEPTION_INVALID_OPERATION,
 	ITEM_DATA_EXCEPTION_ITEM_NOT_FOUND,
+	ITEM_DATA_EXCEPTION_UNKNOWN,
 };
 
 enum ItemDataNullFlagType {
@@ -66,9 +67,16 @@ public:
 	ItemDataException(ItemDataExceptionType type,
 	                  const std::string &sourceFileName,
 	                  const int &lineNumber, const ItemId &itemId);
+
+	ItemDataExceptionType getType(void) const;
+
 protected:
 	std::string getMessageHeader(const ItemDataExceptionType type);
+
+private:
+	ItemDataExceptionType m_type;
 };
+
 #define THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(OP, ...) \
 throw ItemDataException(ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION, __FILE__, __LINE__, OP, *this, ##__VA_ARGS__)
 
