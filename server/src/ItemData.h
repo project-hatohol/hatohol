@@ -128,7 +128,7 @@ public:
 	virtual ItemData *clone(void) const = 0;
 
 	virtual operator const bool &() const = 0;
-	virtual operator int() const = 0;
+	virtual operator const int &() const = 0;
 	virtual operator uint64_t() const = 0;
 	virtual operator double() const = 0;
 	virtual operator std::string() const = 0;
@@ -218,10 +218,11 @@ public:
 		return ret;
 	}
 
-	virtual operator int() const
+	virtual operator const int &() const
 	{
+		static const int ret = 0;
 		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("cast to int");
-		return 0;
+		return ret;
 	}
 
 	virtual operator uint64_t() const
@@ -352,7 +353,7 @@ template<> inline ItemBool::operator const bool &() const
 	return get();
 }
 
-template<> inline ItemInt::operator int() const
+template<> inline ItemInt::operator const int &() const
 {
 	return get();
 }
