@@ -1169,8 +1169,8 @@ uint64_t DBClientHatohol::getLastEventId(const ServerIdType &serverId)
 		return EVENT_NOT_FOUND;
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	const ItemData *lastId = (*grpList.begin())->getItemAt(0);
-	return ItemDataUtils::getUint64(lastId);
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	return itemGroupStream.read<uint64_t>();
 }
 
 void DBClientHatohol::addItemInfo(ItemInfo *itemInfo)

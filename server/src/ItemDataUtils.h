@@ -53,7 +53,6 @@ public:
 		return *(new NativeType()); // never executed, just to build
 	}
 
-	static const uint64_t    &getUint64(const ItemData *itemData);
 	static const double      &getDouble(const ItemData *itemData);
 	static const std::string &getString(const ItemData *itemData);
 };
@@ -62,8 +61,6 @@ public:
 // Ex.) If the above general template function ItemData::get() is
 //      called with [NativeType = int], the build fails because
 //      'string' cannot be converted to 'int'.
-template<>
-const uint64_t &ItemDataUtils::get<uint64_t> (const ItemData *itemData);
 template<>
 const double &ItemDataUtils::get<double>(const ItemData *itemData);
 template<>

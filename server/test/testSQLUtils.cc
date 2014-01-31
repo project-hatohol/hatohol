@@ -150,7 +150,8 @@ void test_createFromStringBiguint(void)
 	  SQLUtils::createFromString(
 	    StringUtils::sprintf("%"PRIu64, val).c_str(),
 	                         SQL_COLUMN_TYPE_BIGUINT);
-	cppcut_assert_equal(val, ItemDataUtils::getUint64(dataPtr));
+	uint64_t actual = *dataPtr;
+	cppcut_assert_equal(val, actual);
 }
 
 void test_createFromStringBiguintWithNull(void)

@@ -1862,8 +1862,8 @@ uint64_t DBClientZabbix::getLastEventId(void)
 		return EVENT_ID_NOT_FOUND;
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	const ItemData *lastEventId = (*grpList.begin())->getItemAt(0);
-	return ItemDataUtils::getUint64(lastEventId);
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	return itemGroupStream.read<uint64_t>();
 }
 
 int DBClientZabbix::getTriggerLastChange(void)

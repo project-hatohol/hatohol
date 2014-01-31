@@ -1062,7 +1062,7 @@ void ArmZabbixAPI::checkObtainedItems(const ItemTable *obtainedItemTable,
 	ItemGroupListConstIterator it = grpList.begin();
 	for (; it != grpList.end(); ++it) {
 		const ItemData *itemData = (*it)->getItem(itemId);
-		T item = ItemDataUtils::get<T>(itemData);
+		T item = *itemData;
 		obtainedItemSet.insert(item);
 	}
 
