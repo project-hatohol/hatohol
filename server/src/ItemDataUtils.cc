@@ -51,12 +51,6 @@ ItemDataPtr ItemDataUtils::createAsNumberOrString(const string &word)
 }
 
 template<>
-const bool &ItemDataUtils::get<bool> (const ItemData *itemData)
-{
-	return getBool(itemData);
-}
-
-template<>
 const int &ItemDataUtils::get<int> (const ItemData *itemData)
 {
 	return getInt(itemData);
@@ -78,11 +72,6 @@ template<>
 const string &ItemDataUtils::get<string>(const ItemData *itemData)
 {
 	return getString(itemData);
-}
-
-const bool &ItemDataUtils::getBool(const ItemData *itemData)
-{
-	return get<bool, ItemBool>(itemData);
 }
 
 const int &ItemDataUtils::getInt(const ItemData *itemData)
