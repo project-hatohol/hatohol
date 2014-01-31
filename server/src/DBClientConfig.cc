@@ -546,11 +546,21 @@ bool DBClientConfig::isCopyOnDemandEnabled(void)
 	return ItemDataUtils::getInt((*grpList.begin())->getItemAt(0));
 }
 
+HatoholError validServerInfo(const MonitoringServerInfo &serverInfo)
+{
+	if (serverInfo.type < 0 || serverInfo.type >= NUM_MONITORING_SYSTEMS)
+	    return HTERR_INVALID_MONITORING_SYSTEM_TYPE;
+	return HTERR_OK;
+}
+
 HatoholError DBClientConfig::addOrUpdateTargetServer(
   MonitoringServerInfo *monitoringServerInfo,
   const OperationPrivilege &privilege)
 {
-	HatoholError err = HTERR_UNINITIALIZED;
+	HatoholError err = validServerInfo(*monitoringServerInfo);
+	if (err != HTERR_OK)
+		return err;
+
 	string condition = StringUtils::sprintf("id=%u",
 	                                        monitoringServerInfo->id);
 	DBCLIENT_TRANSACTION_BEGIN() {

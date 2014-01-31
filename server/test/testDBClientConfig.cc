@@ -193,6 +193,21 @@ void test_addTargetServer(void)
 	assertDBContent(dbConfig.getDBAgent(), statement, expectedOut);
 }
 
+void test_addTargetServerWithInvalidServerType(void)
+{
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	testInfo.type = NUM_MONITORING_SYSTEMS;
+
+	DBClientConfig dbConfig;
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	HatoholError err;
+	err = dbConfig.addOrUpdateTargetServer(&testInfo, privilege);
+	assertHatoholError(HTERR_INVALID_MONITORING_SYSTEM_TYPE, err);
+
+	string statement = "select * from servers";
+	assertDBContent(dbConfig.getDBAgent(), statement, "");
+}
+
 void _assertGetTargetServers(UserIdType userId)
 {
 	ServerHostGrpSetMap authMap;

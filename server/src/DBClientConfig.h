@@ -27,6 +27,7 @@
 enum MonitoringSystemType {
 	MONITORING_SYSTEM_ZABBIX,
 	MONITORING_SYSTEM_NAGIOS,
+	NUM_MONITORING_SYSTEMS,
 };
 
 struct MonitoringServerInfo {
