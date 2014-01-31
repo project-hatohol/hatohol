@@ -56,6 +56,11 @@ public:
 		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(
 		  "TestOperator", *this);
 	}
+
+	static void throwItemNotFound(const ItemId &itemId)
+	{
+		THROW_ITEM_DATA_EXCEPTION_ITEM_NOT_FOUND(itemId);
+	}
 };
 
 static const int TEST_ITEM_ID = 1;
@@ -631,6 +636,19 @@ void test_throwUndefinedOperatorTwoArg(void)
 	bool gotException = false;
 	try {
 		tester->throwUndefinedOperatorTwoArg();
+	} catch (const ItemDataException &e) {
+		gotException = true;
+	}
+	cppcut_assert_equal(true, gotException);
+}
+
+void test_throwItemNotFound(void)
+{
+	ItemIntTester *tester = new ItemIntTester(SYSTEM_ITEM_ID_ANONYMOUS, 0);
+	bool gotException = false;
+	try {
+		const ItemId itemId = 5;
+		tester->throwItemNotFound(itemId);
 	} catch (const ItemDataException &e) {
 		gotException = true;
 	}

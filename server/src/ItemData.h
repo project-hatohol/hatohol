@@ -43,6 +43,7 @@ static const ItemId SYSTEM_ITEM_ID_ANONYMOUS = 0xffffffffffffffff;
 enum ItemDataExceptionType {
 	ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION,
 	ITEM_DATA_EXCEPTION_INVALID_OPERATION,
+	ITEM_DATA_EXCEPTION_ITEM_NOT_FOUND,
 };
 
 enum ItemDataNullFlagType {
@@ -62,6 +63,9 @@ public:
 	                  const char *sourceFileName, int lineNumber,
 	                  const char *operatorName,
 	                  const ItemData &lhs, const ItemData &rhs);
+	ItemDataException(ItemDataExceptionType type,
+	                  const std::string &sourceFileName,
+	                  const int &lineNumber, const ItemId &itemId);
 protected:
 	std::string getMessageHeader(const ItemDataExceptionType type);
 };
@@ -70,6 +74,9 @@ throw ItemDataException(ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION, __FILE__, __LIN
 
 #define THROW_ITEM_DATA_EXCEPTION_INVALID_OPERATION(OP, ...) \
 throw ItemDataException(ITEM_DATA_EXCEPTION_INVALID_OPERATION, __FILE__, __LINE__, OP, *this, ##__VA_ARGS__)
+
+#define THROW_ITEM_DATA_EXCEPTION_ITEM_NOT_FOUND(ITEM_ID) \
+throw ItemDataException(ITEM_DATA_EXCEPTION_ITEM_NOT_FOUND, __FILE__, __LINE__, ITEM_ID);
 
 typedef std::vector<ItemId>          ItemIdVector;
 typedef ItemIdVector::iterator       ItemIdVectorIterator;

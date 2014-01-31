@@ -68,6 +68,17 @@ ItemDataException::ItemDataException(ItemDataExceptionType type,
 	setBrief(msg);
 }
 
+ItemDataException::ItemDataException(
+  ItemDataExceptionType type,
+   const string &sourceFileName, const int &lineNumber, const ItemId &itemId)
+: HatoholException("", sourceFileName, lineNumber)
+{
+	string header = getMessageHeader(type);
+	string msg =
+	   StringUtils::sprintf("%s: %"PRIu_ITEM, header.c_str(), itemId);
+	setBrief(msg);
+}
+
 string ItemDataException::getMessageHeader(const ItemDataExceptionType type)
 {
 	string header;
@@ -75,6 +86,8 @@ string ItemDataException::getMessageHeader(const ItemDataExceptionType type)
 		header = "Undefined operation";
 	else if (type == ITEM_DATA_EXCEPTION_INVALID_OPERATION)
 		header = "Invalid operation";
+	else if (type == ITEM_DATA_EXCEPTION_ITEM_NOT_FOUND)
+		header = "Item not found";
 	else
 		header = StringUtils::sprintf("Unknown exception (%d)", type);
 	return header;
