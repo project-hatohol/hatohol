@@ -1381,7 +1381,7 @@ HatoholError FaceRest::parseServerParameter(
   MonitoringServerInfo &svInfo, GHashTable *query, bool forUpdate)
 {
 	HatoholError err;
-	char *charValue;
+	char *value;
 
 	// type
 	err = getParam<MonitoringSystemType>(
@@ -1390,22 +1390,22 @@ HatoholError FaceRest::parseServerParameter(
 		return err;
 
 	// hostname
-	charValue = (char *)g_hash_table_lookup(query, "hostName");
-	if (!charValue)
+	value = (char *)g_hash_table_lookup(query, "hostName");
+	if (!value)
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "hostName");
-	svInfo.hostName = charValue;
+	svInfo.hostName = value;
 
 	// ipAddress
-	charValue = (char *)g_hash_table_lookup(query, "ipAddress");
-	if (!charValue)
+	value = (char *)g_hash_table_lookup(query, "ipAddress");
+	if (!value)
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "ipAddress");
-	svInfo.ipAddress = charValue;
+	svInfo.ipAddress = value;
 
 	// nickname
-	charValue = (char *)g_hash_table_lookup(query, "nickname");
-	if (!charValue)
+	value = (char *)g_hash_table_lookup(query, "nickname");
+	if (!value)
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "nickname");
-	svInfo.nickname = charValue;
+	svInfo.nickname = value;
 
 	// port
 	err = getParam<int>(
@@ -1426,24 +1426,24 @@ HatoholError FaceRest::parseServerParameter(
 		return err;
 
 	// username
-	charValue = (char *)g_hash_table_lookup(query, "user");
-	if (!charValue)
+	value = (char *)g_hash_table_lookup(query, "user");
+	if (!value)
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "user");
-	svInfo.userName = charValue;
+	svInfo.userName = value;
 
 	// password
-	charValue = (char *)g_hash_table_lookup(query, "password");
-	if (!charValue)
+	value = (char *)g_hash_table_lookup(query, "password");
+	if (!value)
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "password");
-	svInfo.password = charValue;
+	svInfo.password = value;
 
 	// dbname
 	if (svInfo.type == MONITORING_SYSTEM_NAGIOS) {
-		charValue = (char *)g_hash_table_lookup(query, "dbName");
-		if (!charValue)
+		value = (char *)g_hash_table_lookup(query, "dbName");
+		if (!value)
 			return HatoholError(HTERR_NOT_FOUND_PARAMETER,
 					    "dbName");
-		svInfo.dbName = charValue;
+		svInfo.dbName = value;
 	}
 
 	return HTERR_OK;
