@@ -41,13 +41,13 @@ public:
 	 *
 	 * The set itemData can be obtain by '>>' or read() operation.
 	 * Note that the above function shall not be repeated
-	 * before set() is called again.
+	 * before seek() is called again.
 	 *
 	 * If the item is not found, ItemNotFoundException is throw.
 	 *
 	 * @param itemId An item ID.
 	 */
-	void set(const ItemId &itemId);
+	void seek(const ItemId &itemId);
 
 	/**
 	 * Read a value of the current ItemData with casting.

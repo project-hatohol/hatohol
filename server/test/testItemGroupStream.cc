@@ -121,7 +121,7 @@ void test_set(void)
 	const size_t numTargetItemIds = sizeof(targetItemIds) / sizeof(ItemId);
 	for (size_t i = 0; i < numTargetItemIds; i++) {
 		const ItemId &targetItemId = targetItemIds[i];
-		itemGroupStream.set(targetItemId);
+		itemGroupStream.seek(targetItemId);
 		cppcut_assert_equal(valueGenerator.calc(targetItemId),
 		                    itemGroupStream.read<int>());
 	}
@@ -130,7 +130,7 @@ void test_set(void)
 	for (size_t i = 0; i < numTargetItemIds; i++) {
 		int actual;
 		const ItemId &targetItemId = targetItemIds[i];
-		itemGroupStream.set(targetItemId);
+		itemGroupStream.seek(targetItemId);
 		itemGroupStream >> actual;
 		cppcut_assert_equal(valueGenerator.calc(targetItemId), actual);
 	}
@@ -149,7 +149,7 @@ void test_setNotFound(void)
 	ItemDataExceptionType exceptionType = ITEM_DATA_EXCEPTION_UNKNOWN;
 	int val = -1;
 	try {
-		itemGroupStream.set(numItems);
+		itemGroupStream.seek(numItems);
 		val = itemGroupStream.read<int>();
 	} catch (ItemDataException &e) {
 		exceptionType = e.getType();

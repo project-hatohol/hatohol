@@ -38,7 +38,7 @@ const ItemData *ItemGroupStream::getItem(void) const
 	return m_itemGroup->getItemAt(m_index);
 }
  
-void ItemGroupStream::set(const ItemId &itemId)
+void ItemGroupStream::seek(const ItemId &itemId)
 {
 	const ItemData *itemData = m_itemGroup->getItem(itemId);
 	if (!itemData)
