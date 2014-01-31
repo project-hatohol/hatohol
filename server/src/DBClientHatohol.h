@@ -129,7 +129,7 @@ struct HostgroupInfo {
 	int                 id;
 	ServerIdType        serverId;
 	uint64_t            groupId;
-	std::string              groupName;
+	std::string         groupName;
 };
 
 typedef std::list<HostgroupInfo>               HostgroupInfoList;
@@ -138,7 +138,7 @@ typedef HostgroupInfoList::const_iterator HostgroupInfoListConstIterator;
 
 struct HostgroupElement {
 	int                 id;
-	ServerIdType            serverId;
+	ServerIdType        serverId;
 	uint64_t            hostId;
 	uint64_t            groupId;
 };
