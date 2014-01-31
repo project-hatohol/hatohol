@@ -127,7 +127,7 @@ public:
 	virtual void setNull(void);
 	virtual ItemData *clone(void) const = 0;
 
-	virtual operator bool () const = 0;
+	virtual operator const bool &() const = 0;
 	virtual operator int() const = 0;
 	virtual operator uint64_t() const = 0;
 	virtual operator double() const = 0;
@@ -211,10 +211,11 @@ public:
 	}
 
 	// The following cast operators are assumed to be specialized
-	virtual operator bool () const
+	virtual operator const bool &() const
 	{
+		static const bool ret = false;
 		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("cast to bool");
-		return false;
+		return ret;
 	}
 
 	virtual operator int() const
@@ -346,7 +347,7 @@ typedef ItemGeneric<int,         ITEM_TYPE_INT>    ItemInt;
 typedef ItemGeneric<double,      ITEM_TYPE_DOUBLE> ItemDouble;
 typedef ItemGeneric<std::string, ITEM_TYPE_STRING> ItemString;
 
-template<> inline ItemBool::operator bool() const
+template<> inline ItemBool::operator const bool &() const
 {
 	return get();
 }
