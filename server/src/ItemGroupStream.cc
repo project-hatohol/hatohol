@@ -23,17 +23,29 @@
 // ---------------------------------------------------------------------------
 ItemGroupStream::ItemGroupStream(const ItemGroup *itemGroup)
 : m_itemGroup(itemGroup),
-  m_index(0)
+  m_index(0),
+  m_reservedItem(NULL)
 {
 }
 
 const ItemData *ItemGroupStream::getItem(void) const
 {
+	if (m_reservedItem)
+		return m_reservedItem;
 	HATOHOL_ASSERT(m_index < m_itemGroup->getNumberOfItems(),
 	               "Invalid index: %zd, group: %zd",
 	               m_index, m_itemGroup->getNumberOfItems());
 	return m_itemGroup->getItemAt(m_index);
 }
+ 
+void ItemGroupStream::set(const ItemId &itemId)
+{
+	const ItemData *itemData = m_itemGroup->getItem(itemId);
+	if (!itemData)
+		THROW_ITEM_DATA_EXCEPTION_ITEM_NOT_FOUND(itemId);
+	m_reservedItem = itemData;
+}
+
 
 // ---------------------------------------------------------------------------
 // Protected methods

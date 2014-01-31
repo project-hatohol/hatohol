@@ -98,4 +98,33 @@ void test_getItem(void)
 	}
 }
 
+void test_set(void)
+{
+	struct {
+		int calc(const ItemId id) {
+			return id * 5;
+		}
+	} valueGenerator;
+
+	// Make ItemGroup
+	const size_t numItems = 10;
+	VariableItemGroupPtr itemGroup(new ItemGroup(), false);
+	for (size_t i = 0; i < numItems; i++) {
+		ItemId itemId = i;
+		int data = valueGenerator.calc(itemId);
+		itemGroup->add(new ItemInt(itemId, data), false);
+	}
+	ItemGroupStream itemGroupStream(itemGroup);
+
+	// check
+	ItemId targetItemIds[] = {5, 1, 8, 4, 3};
+	const size_t numTargetItemIds = sizeof(targetItemIds) / sizeof(ItemId);
+	for (size_t i = 0; i < numTargetItemIds; i++) {
+		const ItemId &targetItemId = targetItemIds[i];
+		itemGroupStream.set(targetItemId);
+		cppcut_assert_equal(valueGenerator.calc(targetItemId),
+		                    itemGroupStream.read<int>());
+	}
+}
+
 } // namespace testItemGroupStream

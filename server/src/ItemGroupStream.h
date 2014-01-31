@@ -37,6 +37,19 @@ public:
 	const ItemData *getItem(void) const;
 
 	/**
+	 * Set the stream position at the item with the given ID.
+	 *
+	 * The set itemData can be obtain by '>>' or read() operation.
+	 * Note that the above function shall not be repeated
+	 * before set() is called again.
+	 *
+	 * If the item is not found, ItemNotFoundException is throw.
+	 *
+	 * @param itemId An item ID.
+	 */
+	void set(const ItemId &itemId);
+
+	/**
 	 * Read a value of the current ItemData with casting.
 	 *
 	 * This method forwards the stream position.
@@ -100,7 +113,10 @@ protected:
 	substitute(T &lhs, ItemGroupStream &igStream)
 	{
 		const ItemData *itemData = igStream.getItem();
-		igStream.m_index++;
+		if (igStream.m_reservedItem)
+			igStream.m_reservedItem = NULL;
+		else
+			igStream.m_index++;
 		lhs = static_cast<T>(*itemData);
 		return lhs;
 	}
@@ -109,6 +125,7 @@ private:
 	// To keep peformance, we don't use private context.
 	const ItemGroup *m_itemGroup;
 	size_t           m_index;
+	const ItemData  *m_reservedItem;
 };
 
 #endif // ItemGroupStream_h
