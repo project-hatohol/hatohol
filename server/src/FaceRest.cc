@@ -574,7 +574,7 @@ void FaceRest::replyError(RestJob *job,
 	if (optionMessage.empty()) {
 		MLPL_INFO("reply error: %d\n", errorCode);
 	} else {
-		MLPL_INFO("reply error: %d, %s",
+		MLPL_INFO("reply error: %d, %s\n",
 		          errorCode, optionMessage.c_str());
 	}
 
@@ -1820,7 +1820,7 @@ void FaceRest::handlerPostAction(RestJob *job)
 	if (!(actionDef.type == ACTION_COMMAND ||
 	      actionDef.type == ACTION_RESIDENT)) {
 		REPLY_ERROR(job, HTERR_INVALID_PARAMETER,
-		            "type: %d\n", actionDef.type);
+		            "type: %d", actionDef.type);
 		return;
 	}
 
@@ -2475,14 +2475,14 @@ HatoholError FaceRest::parseUserParameter(UserInfo &userInfo, GHashTable *query,
 	// name
 	value = (char *)g_hash_table_lookup(query, "user");
 	if (!value && !forUpdate)
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "user\n");
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "user");
 	if (value)
 		userInfo.name = value;
 
 	// password
 	value = (char *)g_hash_table_lookup(query, "password");
 	if (!value && !forUpdate)
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "password\n");
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "password");
 	userInfo.password = value ? value : "";
 
 	// flags
@@ -2501,7 +2501,7 @@ HatoholError FaceRest::parseUserRoleParameter(
 	// name
 	value = (char *)g_hash_table_lookup(query, "name");
 	if (!value && !forUpdate)
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "name\n");
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "name");
 	if (value)
 		userRoleInfo.name = value;
 
@@ -2601,7 +2601,7 @@ HatoholError FaceRest::getParam(
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, paramName);
 
 	if (sscanf(value, scanFmt, &dest) != 1) {
-		string optMsg = StringUtils::sprintf("%s: %s\n",
+		string optMsg = StringUtils::sprintf("%s: %s",
 		                                     paramName, value);
 		return HatoholError(HTERR_INVALID_PARAMETER, optMsg);
 	}
@@ -2621,7 +2621,7 @@ bool FaceRest::getParamWithErrorReply(
 
 	if (sscanf(value, scanFmt, &dest) != 1) {
 		REPLY_ERROR(job, HTERR_INVALID_PARAMETER,
-		            "%s: %s\n", paramName, value);
+		            "%s: %s", paramName, value);
 		return false;
 	}
 	return true;
