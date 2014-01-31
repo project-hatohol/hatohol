@@ -63,10 +63,6 @@ public:
 //      called with [NativeType = int], the build fails because
 //      'string' cannot be converted to 'int'.
 template<>
-const bool &ItemDataUtils::get<bool> (const ItemData *itemData);
-template<>
-const int &ItemDataUtils::get<int> (const ItemData *itemData);
-template<>
 const uint64_t &ItemDataUtils::get<uint64_t> (const ItemData *itemData);
 template<>
 const double &ItemDataUtils::get<double>(const ItemData *itemData);
