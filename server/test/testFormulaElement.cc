@@ -223,7 +223,7 @@ void test_formulaValueInt(void)
 	FormulaValue formulaValue(num);
 	cppcut_assert_equal(true, formulaValue.isTerminalElement());
 	ItemDataPtr itemData = formulaValue.evaluate();
-	int actual = ItemDataUtils::getInt(itemData);
+	int actual = *itemData;
 	cppcut_assert_equal(num, actual);
 	cppcut_assert_equal(2, itemData->getUsedCount());
 }

@@ -83,7 +83,7 @@ template<typename NativeType, class ItemDataType>
 static void _assertGet(NativeType val)
 {
 	A_item = new ItemDataType(val);
-	NativeType readValue = ItemDataUtils::get<NativeType>(A_item);
+	NativeType readValue = *A_item;
 	cppcut_assert_equal(val, readValue);
 }
 #define assertGet(NT,IDT,V) cut_trace((_assertGet<NT,IDT>(V)))
@@ -172,7 +172,7 @@ void test_Clone(void)
 	cppcut_assert_not_null(y_item);
 	cppcut_assert_equal(id, y_item->getId());
 	cppcut_assert_equal(x_item->getItemType(), y_item->getItemType());
-	cppcut_assert_equal(val, ItemDataUtils::get<int>(y_item));
+	cppcut_assert_equal(val, (int)*y_item);
 }
 
 // -------------------------------------------------------------------------

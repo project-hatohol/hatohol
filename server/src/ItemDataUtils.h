@@ -53,7 +53,6 @@ public:
 		return *(new NativeType()); // never executed, just to build
 	}
 
-	static const int         &getInt   (const ItemData *itemData);
 	static const uint64_t    &getUint64(const ItemData *itemData);
 	static const double      &getDouble(const ItemData *itemData);
 	static const std::string &getString(const ItemData *itemData);

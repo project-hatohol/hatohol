@@ -507,7 +507,8 @@ bool DBClientConfig::isFaceMySQLEnabled(void)
 	} DBCLIENT_TRANSACTION_END();
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	HATOHOL_ASSERT(!grpList.empty(), "Obtained Table: empty");
-	return ItemDataUtils::getInt((*grpList.begin())->getItemAt(0));
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	return itemGroupStream.read<int>();
 }
 
 int  DBClientConfig::getFaceRestPort(void)
@@ -521,7 +522,8 @@ int  DBClientConfig::getFaceRestPort(void)
 	} DBCLIENT_TRANSACTION_END();
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	HATOHOL_ASSERT(!grpList.empty(), "Obtained Table: empty");
-	return ItemDataUtils::getInt((*grpList.begin())->getItemAt(0));
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	return itemGroupStream.read<int>();
 }
 
 void DBClientConfig::setFaceRestPort(int port)
@@ -549,7 +551,8 @@ bool DBClientConfig::isCopyOnDemandEnabled(void)
 	} DBCLIENT_TRANSACTION_END();
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	HATOHOL_ASSERT(!grpList.empty(), "Obtained Table: empty");
-	return ItemDataUtils::getInt((*grpList.begin())->getItemAt(0));
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	return itemGroupStream.read<int>();
 }
 
 HatoholError DBClientConfig::addOrUpdateTargetServer(

@@ -39,7 +39,7 @@ void _assertFormulaValue(FormulaElement *elem, int expected)
 	cut_assert_not_null(formulaValue);
 	ItemDataPtr dataPtr = formulaValue->evaluate();
 	cppcut_assert_equal(ITEM_TYPE_INT, dataPtr->getItemType());
-	int actual = ItemDataUtils::getInt(dataPtr);
+	int actual = *dataPtr;
 	cppcut_assert_equal(expected, actual);
 }
 

@@ -51,12 +51,6 @@ ItemDataPtr ItemDataUtils::createAsNumberOrString(const string &word)
 }
 
 template<>
-const int &ItemDataUtils::get<int> (const ItemData *itemData)
-{
-	return getInt(itemData);
-}
-
-template<>
 const uint64_t &ItemDataUtils::get<uint64_t> (const ItemData *itemData)
 {
 	return getUint64(itemData);
@@ -72,11 +66,6 @@ template<>
 const string &ItemDataUtils::get<string>(const ItemData *itemData)
 {
 	return getString(itemData);
-}
-
-const int &ItemDataUtils::getInt(const ItemData *itemData)
-{
-	return get<int, ItemInt>(itemData);
 }
 
 const uint64_t &ItemDataUtils::getUint64(const ItemData *itemData)

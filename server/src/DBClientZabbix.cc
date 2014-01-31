@@ -1886,8 +1886,8 @@ int DBClientZabbix::getTriggerLastChange(void)
 		return TRIGGER_CHANGE_TIME_NOT_FOUND;
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	const ItemData *itemData = (*grpList.begin())->getItemAt(0);
-	return ItemDataUtils::getInt(itemData);
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	return itemGroupStream.read<int>();
 }
 
 string DBClientZabbix::getApplicationName(uint64_t applicationId)

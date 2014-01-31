@@ -131,7 +131,8 @@ void test_createFromStringInt(void)
 	ItemDataPtr dataPtr =
 	  SQLUtils::createFromString(StringUtils::sprintf("%d", val).c_str(),
 	                             SQL_COLUMN_TYPE_INT);
-	cppcut_assert_equal(val, ItemDataUtils::getInt(dataPtr));
+	int actual = *dataPtr;
+	cppcut_assert_equal(val, actual);
 }
 
 void test_createFromStringIntWithNull(void)
@@ -210,7 +211,8 @@ void test_createFromStringDatetime(void)
 	                                  tm.tm_hour, tm.tm_min, tm.tm_sec);
 	ItemDataPtr dataPtr =
 	  SQLUtils::createFromString(str.c_str(), SQL_COLUMN_TYPE_DATETIME);
-	cppcut_assert_equal((int)time_local, ItemDataUtils::getInt(dataPtr));
+	int actual = *dataPtr;
+	cppcut_assert_equal((int)time_local, actual);
 }
 
 void test_createFromStringDatetimeWithNull(void)

@@ -972,8 +972,14 @@ int DBClientHatohol::getLastChangeTimeOfTrigger(const ServerIdType &serverId)
 		return 0;
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	const ItemData *lastTime = (*grpList.begin())->getItemAt(0);
-	return ItemDataUtils::getInt(lastTime);
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	// TODO: we want to select the template parameter automatically.
+	//       Since the above code pushes
+	//       COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].type, so the
+	//       template parameter is decided at the compile time in principle.
+	//       However, I don't have a good idea. Propably constexpr,
+	//       feature of C++11, may solve this problem.
+	return itemGroupStream.read<int>();
 }
 
 void DBClientHatohol::addEventInfo(EventInfo *eventInfo)
@@ -1273,8 +1279,8 @@ size_t DBClientHatohol::getNumberOfTriggers(const TriggersQueryOption &option,
 	} DBCLIENT_TRANSACTION_END();
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	const ItemData *count = (*grpList.begin())->getItemAt(0);
-	return ItemDataUtils::getInt(count);
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	return itemGroupStream.read<int>();
 }
 
 size_t DBClientHatohol::getNumberOfHosts(const HostsQueryOption &option)
@@ -1296,8 +1302,8 @@ size_t DBClientHatohol::getNumberOfHosts(const HostsQueryOption &option)
 	} DBCLIENT_TRANSACTION_END();
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	const ItemData *count = (*grpList.begin())->getItemAt(0);
-	return ItemDataUtils::getInt(count);
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	return itemGroupStream.read<int>();
 }
 
 size_t DBClientHatohol::getNumberOfGoodHosts(const HostsQueryOption &option)
@@ -1336,8 +1342,8 @@ size_t DBClientHatohol::getNumberOfBadHosts(const HostsQueryOption &option)
 	} DBCLIENT_TRANSACTION_END();
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	const ItemData *count = (*grpList.begin())->getItemAt(0);
-	return ItemDataUtils::getInt(count);
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	return itemGroupStream.read<int>();
 }
 
 // ---------------------------------------------------------------------------

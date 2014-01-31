@@ -305,37 +305,35 @@ void dbAgentTestSelect(DBAgent &dbAgent)
 	const ItemGroupList &groupList = arg.dataTable->getItemGroupList();
 	cppcut_assert_equal(groupList.size(), arg.dataTable->getNumberOfRows());
 	cppcut_assert_equal(NUM_TEST_DATA, groupList.size());
-	ItemGroupListConstIterator it = groupList.begin();
 	size_t srcDataIdx = 0;
 	map<uint64_t, size_t>::iterator itrId;
-	for (; it != groupList.end(); ++it, srcDataIdx++) {
-		const ItemData *itemData;
-		size_t columnIdx = 0;
-		const ItemGroup *itemGroup = *it;
-		cppcut_assert_equal(itemGroup->getNumberOfItems(),
+	ItemGroupListConstIterator itemGrpItr = groupList.begin();
+	for (; itemGrpItr != groupList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
+		cppcut_assert_equal((*itemGrpItr)->getNumberOfItems(),
 		                    NUM_COLUMNS_TEST);
 
 		// id
-		itemData = itemGroup->getItemAt(columnIdx++);
-		uint64_t id = ItemDataUtils::getUint64(itemData);
+		uint64_t id;
+		itemGroupStream >> id;
 		itrId = testDataIdIndexMap.find(id);
 		cppcut_assert_equal(false, itrId == testDataIdIndexMap.end(),
 		                    cut_message("id: 0x%"PRIx64, id));
 		srcDataIdx = itrId->second;
 
 		// age
-		itemData = itemGroup->getItemAt(columnIdx++);
-		int valInt = ItemDataUtils::getInt(itemData);
+		int valInt;
+		itemGroupStream >> valInt;
 		cppcut_assert_equal(AGE[srcDataIdx], valInt);
 
 		// name
-		itemData = itemGroup->getItemAt(columnIdx++);
-		string valStr = ItemDataUtils::getString(itemData);
+		string valStr;
+		itemGroupStream >> valStr;
 		cppcut_assert_equal(NAME[srcDataIdx], valStr.c_str());
 
 		// height
-		itemData = itemGroup->getItemAt(columnIdx++);
-		double valDouble = ItemDataUtils::getDouble(itemData);
+		double valDouble;
+		itemGroupStream >> valDouble;
 		cppcut_assert_equal(HEIGHT[srcDataIdx], valDouble);
 
 		// delete the element from idSet
