@@ -183,7 +183,7 @@ void test_createTableServers(void)
 void test_addTargetServer(void)
 {
 	// added a record
-	MonitoringServerInfo *testInfo = serverInfo;
+	MonitoringServerInfo *testInfo = testServerInfo;
 	assertAddServerToDB(testInfo);
 
 	// confirm with the command line tool
@@ -199,11 +199,11 @@ void _assertGetTargetServers(UserIdType userId)
 	MonitoringServerInfoList expected;
 	makeServerHostGrpSetMap(authMap, userId);
 	for (size_t i = 0; i < NumServerInfo; i++)
-		if (isAuthorized(authMap, userId, serverInfo[i].id))
-			expected.push_back(serverInfo[i]);
+		if (isAuthorized(authMap, userId, testServerInfo[i].id))
+			expected.push_back(testServerInfo[i]);
 
 	for (size_t i = 0; i < NumServerInfo; i++)
-		assertAddServerToDB(&serverInfo[i]);
+		assertAddServerToDB(&testServerInfo[i]);
 
 	MonitoringServerInfoList actual;
 	ServerQueryOption option(userId);

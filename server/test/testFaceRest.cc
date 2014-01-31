@@ -350,7 +350,7 @@ static void assertServersInParser(JsonParserAgent *parser)
 	parser->startObject("servers");
 	for (size_t i = 0; i < NumServerInfo; i++) {
 		parser->startElement(i);
-		MonitoringServerInfo &svInfo = serverInfo[i];
+		MonitoringServerInfo &svInfo = testServerInfo[i];
 		assertValueInParser(parser, "id",   svInfo.id);
 		assertValueInParser(parser, "type", svInfo.type);
 		assertValueInParser(parser, "hostName",  svInfo.hostName);
@@ -442,7 +442,7 @@ static void assertServersIdNameHashInParser(JsonParserAgent *parser)
 {
 	parser->startObject("servers");
 	for (size_t i = 0; i < NumServerInfo; i++) {
-		MonitoringServerInfo &svInfo = serverInfo[i];
+		MonitoringServerInfo &svInfo = testServerInfo[i];
 		parser->startObject(StringUtils::toString(svInfo.id));
 		assertValueInParser(parser, "name", svInfo.hostName);
 		parser->endObject();
@@ -1059,7 +1059,7 @@ static void _assertOverviewInParser(JsonParserAgent *parser)
 	parser->startObject("serverStatus");
 	for (size_t i = 0; i < NumServerInfo; i++) {
 		parser->startElement(i);
-		MonitoringServerInfo &svInfo = serverInfo[i];
+		MonitoringServerInfo &svInfo = testServerInfo[i];
 		assertValueInParser(parser, "serverId", svInfo.id);
 		assertValueInParser(parser, "serverHostName", svInfo.hostName);
 		assertValueInParser(parser, "serverIpAddr", svInfo.ipAddress);

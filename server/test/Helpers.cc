@@ -595,7 +595,7 @@ void setupTestDBServers(void)
 
 		DBClientConfig dbConfig;
 		for (size_t i = 0; i < NumServerInfo; i++) {
-			dbConfig.addOrUpdateTargetServer(&serverInfo[i],
+			dbConfig.addOrUpdateTargetServer(&testServerInfo[i],
 			                                 privilege);
 		}
 		dbServerReady = true;
