@@ -356,13 +356,6 @@ template<> inline ItemBool::operator const bool &() const
 	return get();
 }
 
-template<> inline ItemInt::operator const bool &() const
-{
-	static const bool retTrue  = true;
-	static const bool retFalse = false;
-	return get() ? retTrue : retFalse;
-}
-
 template<> inline ItemInt::operator const int &() const
 {
 	return get();
