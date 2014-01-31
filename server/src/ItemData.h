@@ -214,35 +214,40 @@ public:
 	virtual operator const bool &() const
 	{
 		static const bool ret = false;
-		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("cast to bool");
+		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(
+		  "cast to const bool &");
 		return ret;
 	}
 
 	virtual operator const int &() const
 	{
 		static const int ret = 0;
-		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("cast to int");
+		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(
+		  "cast to const int &");
 		return ret;
 	}
 
 	virtual operator const uint64_t &() const
 	{
 		static const uint64_t ret = 0;
-		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("cast to uint64_t");
+		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(
+		  "cast to const uint64_t &");
 		return ret;
 	}
 
 	virtual operator const double &() const
 	{
 		static const double ret = 0;
-		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("cast to double");
+		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(
+		  "cast to const double &");
 		return ret;
 	}
 
 	virtual operator const std::string &() const
 	{
 		static const std::string ret;
-		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("cast to std::string");
+		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(
+		  "cast to const std::string &");
 		return ret;
 	}
 
