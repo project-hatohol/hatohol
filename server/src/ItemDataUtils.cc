@@ -51,20 +51,9 @@ ItemDataPtr ItemDataUtils::createAsNumberOrString(const string &word)
 }
 
 template<>
-const double &ItemDataUtils::get<double>(const ItemData *itemData)
-{
-	return getDouble(itemData);
-}
-
-template<>
 const string &ItemDataUtils::get<string>(const ItemData *itemData)
 {
 	return getString(itemData);
-}
-
-const double &ItemDataUtils::getDouble(const ItemData *itemData)
-{
-	return get<double, ItemDouble>(itemData);
 }
 
 const string &ItemDataUtils::getString(const ItemData *itemData)
