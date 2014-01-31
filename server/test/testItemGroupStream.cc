@@ -116,7 +116,7 @@ void test_set(void)
 	}
 	ItemGroupStream itemGroupStream(itemGroup);
 
-	// check
+	// check: read()
 	ItemId targetItemIds[] = {5, 1, 8, 4, 3};
 	const size_t numTargetItemIds = sizeof(targetItemIds) / sizeof(ItemId);
 	for (size_t i = 0; i < numTargetItemIds; i++) {
@@ -124,6 +124,15 @@ void test_set(void)
 		itemGroupStream.set(targetItemId);
 		cppcut_assert_equal(valueGenerator.calc(targetItemId),
 		                    itemGroupStream.read<int>());
+	}
+
+	// check: '>>'
+	for (size_t i = 0; i < numTargetItemIds; i++) {
+		int actual;
+		const ItemId &targetItemId = targetItemIds[i];
+		itemGroupStream.set(targetItemId);
+		itemGroupStream >> actual;
+		cppcut_assert_equal(valueGenerator.calc(targetItemId), actual);
 	}
 }
 
