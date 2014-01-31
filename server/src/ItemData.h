@@ -131,7 +131,7 @@ public:
 	virtual operator const int &() const = 0;
 	virtual operator const uint64_t &() const = 0;
 	virtual operator const double &() const = 0;
-	virtual operator std::string() const = 0;
+	virtual operator const std::string &() const = 0;
 	virtual ItemData & operator =(const ItemData &itemData) = 0;
 	virtual ItemData * operator +(const ItemData &itemData) const = 0;
 	virtual ItemData * operator /(const ItemData &itemData) const = 0;
@@ -239,10 +239,11 @@ public:
 		return ret;
 	}
 
-	virtual operator std::string() const
+	virtual operator const std::string &() const
 	{
+		static const std::string ret;
 		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("cast to std::string");
-		return 0;
+		return ret;
 	}
 
 	virtual ItemData & operator =(const ItemData &itemData)
@@ -370,7 +371,7 @@ template<> inline ItemDouble::operator const double &() const
 	return get();
 }
 
-template<> inline ItemString::operator std::string() const
+template<> inline ItemString::operator const std::string &() const
 {
 	return get();
 }
