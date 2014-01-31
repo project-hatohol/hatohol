@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -1734,43 +1734,26 @@ void DBClientZabbix::getEventsAsHatoholFormat(EventInfoList &eventInfoList)
 bool DBClientZabbix::transformEventItemGroupToEventInfo
   (EventInfo &eventInfo, const ItemGroup *eventItemGroup)
 {
-	// event id
-	DEFINE_AND_ASSERT(
-	  eventItemGroup->getItem(ITEM_ID_ZBX_EVENTS_EVENTID),
-	  ItemUint64, itemEventId);
-	eventInfo.id = itemEventId->get();
+	ItemGroupStream itemGroupStream(eventItemGroup);
 
-	// object
-	DEFINE_AND_ASSERT(
-	   eventItemGroup->getItem(ITEM_ID_ZBX_EVENTS_OBJECT),
-	   ItemInt, itemObject);
-	int object = itemObject->get();
-	if (object != EVENT_OBJECT_TRIGGER)
+	itemGroupStream.seek(ITEM_ID_ZBX_EVENTS_EVENTID);
+	itemGroupStream >> eventInfo.id;
+
+	itemGroupStream.seek(ITEM_ID_ZBX_EVENTS_OBJECT);
+	if (itemGroupStream.read<int>() != EVENT_OBJECT_TRIGGER)
 		return false;
 
-	// object id
-	DEFINE_AND_ASSERT(
-	  eventItemGroup->getItem(ITEM_ID_ZBX_EVENTS_OBJECTID),
-	  ItemUint64, itemObjectId);
-	eventInfo.triggerId = itemObjectId->get();
+	itemGroupStream.seek(ITEM_ID_ZBX_EVENTS_OBJECTID);
+	itemGroupStream >> eventInfo.triggerId;
 
-	// clock
-	DEFINE_AND_ASSERT(
-	  eventItemGroup->getItem(ITEM_ID_ZBX_EVENTS_CLOCK),
-	  ItemInt, itemSec);
-	eventInfo.time.tv_sec = itemSec->get();
+	itemGroupStream.seek(ITEM_ID_ZBX_EVENTS_CLOCK);
+	itemGroupStream >> eventInfo.time.tv_sec;
 
-	// type
-	DEFINE_AND_ASSERT(
-	  eventItemGroup->getItem(ITEM_ID_ZBX_EVENTS_VALUE),
-	  ItemInt, itemValue);
-	eventInfo.type = (EventType)itemValue->get();
+	itemGroupStream.seek(ITEM_ID_ZBX_EVENTS_VALUE);
+	itemGroupStream >> eventInfo.type;
 
-	// ns
-	DEFINE_AND_ASSERT(
-	  eventItemGroup->getItem(ITEM_ID_ZBX_EVENTS_NS),
-	  ItemInt, itemNs);
-	eventInfo.time.tv_nsec = itemNs->get();
+	itemGroupStream.seek(ITEM_ID_ZBX_EVENTS_NS);
+	itemGroupStream >> eventInfo.time.tv_nsec;
 
 	// Trigger's value. This can be transformed from Event's value
 	// This value is refered in ActionManager. So we set here.
@@ -1811,50 +1794,34 @@ void DBClientZabbix::transformEventsToHatoholFormat
 bool DBClientZabbix::transformItemItemGroupToItemInfo
   (ItemInfo &itemInfo, const ItemGroup *itemItemGroup, DBClientZabbix &dbZabbix)
 {
-	// item id
-	DEFINE_AND_ASSERT(
-	  itemItemGroup->getItem(ITEM_ID_ZBX_ITEMS_ITEMID),
-	  ItemUint64, itemItemId);
-	itemInfo.id = itemItemId->get();
-
-	// host id
-	DEFINE_AND_ASSERT(
-	   itemItemGroup->getItem(ITEM_ID_ZBX_ITEMS_HOSTID),
-	   ItemUint64, itemHostId);
-	itemInfo.hostId = itemHostId->get();
-
-	// brief
+	itemInfo.lastValueTime.tv_nsec = 0;
 	itemInfo.brief = makeItemBrief(itemItemGroup);
 
-	// last value time
-	DEFINE_AND_ASSERT(
-	  itemItemGroup->getItem(ITEM_ID_ZBX_ITEMS_LASTCLOCK),
-	  ItemInt, itemLastClock);
-	itemInfo.lastValueTime.tv_sec = itemLastClock->get();
-	itemInfo.lastValueTime.tv_nsec = 0;
+	ItemGroupStream itemGroupStream(itemItemGroup);
+
+	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_ITEMID);
+	itemGroupStream >> itemInfo.id;
+
+	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_HOSTID);
+	itemGroupStream >> itemInfo.hostId;
+
+	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_LASTCLOCK),
+	itemGroupStream >> itemInfo.lastValueTime.tv_sec;
 	if (itemInfo.lastValueTime.tv_sec == 0) {
 		// We assume that the item in this case is a kind of
 		// template such as 'Incoming network traffic on {#IFNAME}'.
 		return false;
 	}
 
-	// last value
-	DEFINE_AND_ASSERT(
-	  itemItemGroup->getItem(ITEM_ID_ZBX_ITEMS_LASTVALUE),
-	  ItemString, itemLastValue);
-	itemInfo.lastValue = itemLastValue->get();
+	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_LASTVALUE);
+	itemGroupStream >> itemInfo.lastValue;
 
-	// prev value
-	DEFINE_AND_ASSERT(
-	  itemItemGroup->getItem(ITEM_ID_ZBX_ITEMS_PREVVALUE),
-	  ItemString, itemPrevValue);
-	itemInfo.prevValue = itemPrevValue->get();
+	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_PREVVALUE);
+	itemGroupStream >> itemInfo.prevValue;
 
-	// itemGroupName
-	DEFINE_AND_ASSERT(
-	  itemItemGroup->getItem(ITEM_ID_ZBX_ITEMS_APPLICATIONID),
-	  ItemUint64, itemApplicationid);
-	uint64_t applicationId = itemApplicationid->get();
+	uint64_t applicationId;
+	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_APPLICATIONID);
+	itemGroupStream >> applicationId;
 	itemInfo.itemGroupName = dbZabbix.getApplicationName(applicationId);
 
 	return true;
@@ -2015,11 +1982,12 @@ void DBClientZabbix::updateDBIfNeeded(DBAgent *dbAgent, int oldVer, void *data)
 
 string DBClientZabbix::makeItemBrief(const ItemGroup *itemItemGroup)
 {
+	ItemGroupStream itemGroupStream(itemItemGroup);
+
 	// get items.name
-	DEFINE_AND_ASSERT(
-	  itemItemGroup->getItem(ITEM_ID_ZBX_ITEMS_NAME),
-	  ItemString, itemName);
-	string name = itemName->get();
+	string name;
+	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_NAME);
+	itemGroupStream >> name;
 	StringVector vect;
 	StringUtils::split(vect, name, ' ');
 
@@ -2034,10 +2002,9 @@ string DBClientZabbix::makeItemBrief(const ItemGroup *itemItemGroup)
 	}
 
 	// extract words to be replace
-	DEFINE_AND_ASSERT(
-	  itemItemGroup->getItem(ITEM_ID_ZBX_ITEMS_KEY_),
-	  ItemString, itemKey_);
-	string itemKey = itemKey_->get();
+	string itemKey;
+	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_KEY_);
+	itemGroupStream >> itemKey;
 
 	StringVector params;
 	extractItemKeys(params, itemKey);
