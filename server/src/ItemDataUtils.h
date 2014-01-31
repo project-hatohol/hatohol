@@ -30,28 +30,6 @@ class ItemDataUtils {
 public:
 	static ItemDataPtr createAsNumber(const std::string &word);
 	static ItemDataPtr createAsNumberOrString(const std::string &word);
-	template<typename NativeType, typename ItemDataType>
-	static const NativeType
-	   &get(const ItemData *itemData, bool *isNull = NULL) {
-		HATOHOL_ASSERT(itemData, "itemData: NULL");
-		const ItemDataType *casted = ItemDataType::cast(*itemData);
-		HATOHOL_ASSERT(casted, "Invalid cast: %s -> %s",
-		             DEMANGLED_TYPE_NAME(itemData),
-		             DEMANGLED_TYPE_NAME(ItemDataType));
-		if (isNull)
-			*isNull = casted->isNull();
-		return casted->get();
-	}
-
-	template<typename NativeType>
-	static const NativeType &get(const ItemData *itemData) {
-		// Without bug, this is never called, because
-		//  the specilizations are is defined below.
-		THROW_HATOHOL_EXCEPTION("Unknown type: %d: %s",
-		                      itemData->getItemType(),
-		                      DEMANGLED_TYPE_NAME(itemData));
-		return *(new NativeType()); // never executed, just to build
-	}
 };
 
 struct ItemDataPtrComparator {
