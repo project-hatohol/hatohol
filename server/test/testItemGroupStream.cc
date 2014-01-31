@@ -127,4 +127,26 @@ void test_set(void)
 	}
 }
 
+void test_setNotFound(void)
+{
+	// Make ItemGroup
+	const size_t numItems = 3;
+	VariableItemGroupPtr itemGroup(new ItemGroup(), false);
+	for (size_t i = 0; i < numItems; i++)
+		itemGroup->add(new ItemInt(i, 0), false);
+	ItemGroupStream itemGroupStream(itemGroup);
+
+	// check
+	ItemDataExceptionType exceptionType = ITEM_DATA_EXCEPTION_UNKNOWN;
+	int val = -1;
+	try {
+		itemGroupStream.set(numItems);
+		val = itemGroupStream.read<int>();
+	} catch (ItemDataException &e) {
+		exceptionType = e.getType();
+	}
+	cppcut_assert_equal(ITEM_DATA_EXCEPTION_ITEM_NOT_FOUND, exceptionType);
+	cppcut_assert_equal(val, -1);
+}
+
 } // namespace testItemGroupStream
