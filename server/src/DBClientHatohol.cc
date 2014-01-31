@@ -784,7 +784,7 @@ string HostResourceQueryOption::makeConditionHostGroup(
 }
 
 string HostResourceQueryOption::makeConditionServer(
-  const uint32_t &serverId, const HostGroupSet &hostGroupSet,
+  const ServerIdType &serverId, const HostGroupSet &hostGroupSet,
   const string &serverIdColumnName, const string &hostGroupIdColumnName,
   const uint64_t &hostgroupId)
 {

@@ -137,7 +137,7 @@ typedef HostgroupInfoList::const_iterator HostgroupInfoListConstIterator;
 
 struct HostgroupElement {
 	uint32_t            id;
-	serverIdType            serverId;
+	ServerIdType            serverId;
 	uint64_t            hostId;
 	uint64_t            groupId;
 };
