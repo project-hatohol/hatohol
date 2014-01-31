@@ -300,7 +300,7 @@ void DBClient::updateDBIfNeeded(DBDomainId domainId, DBAgent *dbAgent,
 		               "Failed to update DB, expect/actual ver. %d/%d",
 		               setupFuncArg->version, dbVersion);
 		setDBVersion(dbAgent, setupFuncArg->version);
-		MLPL_INFO("Succeeded to update DBDomain %"PRIu32"\n",
+		MLPL_INFO("Succeeded in updating DBDomain %"PRIu32"\n",
 		          domainId);
 	}
 }
