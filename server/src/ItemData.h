@@ -159,8 +159,8 @@ std::ostream &operator<<(std::ostream &os, const ItemData &itemData);
 template <typename T, ItemDataType ITEM_TYPE>
 class ItemGeneric : public ItemData {
 public:
-	ItemGeneric(ItemId id, T data,
-	            ItemDataNullFlagType nullFlag = ITEM_DATA_NOT_NULL)
+	ItemGeneric(const ItemId &id, const T &data,
+	            const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL)
 	: ItemData(id, ITEM_TYPE),
 	  m_data(data)
 	{
@@ -168,8 +168,8 @@ public:
 			setNull();
 	}
 
-	ItemGeneric(T data,
-	            ItemDataNullFlagType nullFlag = ITEM_DATA_NOT_NULL)
+	ItemGeneric(const T &data,
+	            const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL)
 	: ItemData(SYSTEM_ITEM_ID_ANONYMOUS, ITEM_TYPE),
 	  m_data(data)
 	{
