@@ -51,26 +51,30 @@ public:
 	 * @param data     An initial data.
 	 * @param nullFlag A null flag of the created item.
 	 */
-	void add_new(const int &data,
-	             const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL)
+	void addNewItem(
+	  const int &data,
+	  const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL)
 	{
 		add(new ItemInt(data, nullFlag), false);
 	}
 
-	void add_new(const uint64_t &data,
-	             const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL)
+	void addNewItem(
+	  const uint64_t &data,
+	  const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL)
 	{
 		add(new ItemUint64(data, nullFlag), false);
 	}
 
-	void add_new(const double &data,
-	             const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL)
+	void addNewItem(
+	  const double &data,
+	  const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL)
 	{
 		add(new ItemDouble(data, nullFlag), false);
 	}
 
-	void add_new(const std::string &data,
-	             const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL)
+	void addNewItem(
+	  const std::string &data,
+	  const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL)
 	{
 		add(new ItemString(data, nullFlag), false);
 	}

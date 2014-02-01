@@ -81,7 +81,7 @@ void _assertAddNew(void)
 	const size_t numData = 5;
 	for (dataGen.idx = 0; dataGen.idx < numData; dataGen.idx++) {
 		NATIVE_TYPE data = dataGen;
-		x_grp->add_new(data, dataGen.getNullFlag());
+		x_grp->addNewItem(data, dataGen.getNullFlag());
 	}
 
 	// check
