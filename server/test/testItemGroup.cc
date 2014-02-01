@@ -80,7 +80,7 @@ void _assertAddNew(void)
 	x_grp = new ItemGroup();
 	const size_t numData = 5;
 	for (dataGen.idx = 0; dataGen.idx < numData; dataGen.idx++) {
-		NATIVE_TYPE data = static_cast<NATIVE_TYPE>(dataGen);
+		NATIVE_TYPE data = dataGen;
 		x_grp->add_new<ITEM_TYPE>(data, dataGen.getNullFlag());
 	}
 
