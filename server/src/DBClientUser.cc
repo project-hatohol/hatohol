@@ -535,7 +535,7 @@ HatoholError DBClientUser::addUserInfo(
 	arg.numColumns = NUM_COLUMNS_USERS;
 	arg.columnDefs = COLUMN_DEF_USERS;
 
-	row->ADD_NEW_ITEM(Int, AUTO_INCREMENT_VALUE);
+	row->addNewItem(AUTO_INCREMENT_VALUE);
 	row->addNewItem(userInfo.name);
 	row->addNewItem(Utils::sha256(userInfo.password));
 	row->addNewItem(userInfo.flags);
@@ -724,9 +724,9 @@ HatoholError DBClientUser::addAccessInfo(AccessInfo &accessInfo,
 	arg.numColumns = NUM_COLUMNS_ACCESS_LIST;
 	arg.columnDefs = COLUMN_DEF_ACCESS_LIST;
 
-	row->ADD_NEW_ITEM(Int, 0); // This is automatically set (0 is dummy)
-	row->ADD_NEW_ITEM(Int, accessInfo.userId);
-	row->ADD_NEW_ITEM(Int, accessInfo.serverId);
+	row->addNewItem(AUTO_INCREMENT_VALUE);
+	row->addNewItem(accessInfo.userId);
+	row->addNewItem(accessInfo.serverId);
 	row->addNewItem(accessInfo.hostGroupId);
 	arg.row = row;
 
@@ -902,7 +902,7 @@ HatoholError DBClientUser::addUserRoleInfo(UserRoleInfo &userRoleInfo,
 	arg.numColumns = NUM_COLUMNS_USER_ROLES;
 	arg.columnDefs = COLUMN_DEF_USER_ROLES;
 
-	row->ADD_NEW_ITEM(Int, 0); // This is automaticall set (0 is dummy)
+	row->addNewItem(AUTO_INCREMENT_VALUE);
 	row->addNewItem(userRoleInfo.name);
 	row->addNewItem(userRoleInfo.flags);
 	arg.row = row;
