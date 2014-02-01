@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -34,17 +34,6 @@ using namespace mlpl;
 
 namespace testItemGroup {
 
-struct ItemDataGenerator {
-	int getIntData(int i)
-	{
-		return i * 8;
-	}
-
-	ItemDataNullFlagType getNullFlag(int i) {
-		return i % 2 ? ITEM_DATA_NOT_NULL : ITEM_DATA_NULL;
-	}
-};
-
 enum {
 	DEFAULT_ITEM_ID,
 	ITEM_ID_0,
@@ -56,6 +45,44 @@ const static int NUM_GROUP_POOL = 10;
 static ItemGroup *g_grp[NUM_GROUP_POOL];
 static ItemGroup *&x_grp = g_grp[0];
 static ItemGroup *&y_grp = g_grp[1];
+
+template<typename NATIVE_TYPE, typename ITEM_TYPE>
+void _assertAddNew(void)
+{
+	struct {
+		size_t idx;
+		operator int (void) const
+		{
+			return idx * 8;
+		}
+
+		ItemDataNullFlagType getNullFlag(void)
+		{
+			return idx % 2 ? ITEM_DATA_NOT_NULL : ITEM_DATA_NULL;
+		}
+	} dataGen;
+
+	x_grp = new ItemGroup();
+	const size_t numData = 5;
+	for (dataGen.idx = 0; dataGen.idx < numData; dataGen.idx++) {
+		NATIVE_TYPE data = static_cast<int>(dataGen);
+		x_grp->add_new<ITEM_TYPE>(data, dataGen.getNullFlag());
+	}
+
+	// check
+	cppcut_assert_equal(numData, x_grp->getNumberOfItems());
+	for (dataGen.idx = 0; dataGen.idx < numData; dataGen.idx++) {
+		const ItemInt *itemData =
+		   dynamic_cast<const ItemInt *>(x_grp->getItemAt(dataGen.idx));
+		cppcut_assert_not_null(itemData);
+		NATIVE_TYPE expect = dataGen;
+		cppcut_assert_equal(expect, itemData->get());
+		bool expectNull = (dataGen.getNullFlag() == ITEM_DATA_NULL);
+		cppcut_assert_equal(expectNull, itemData->isNull());
+	}
+}
+#define assertAddNew(NATIVE_TYPE, ITEM_TYPE) \
+cut_trace((_assertAddNew<NATIVE_TYPE, ITEM_TYPE>)())
 
 void cut_teardown()
 {
@@ -131,27 +158,7 @@ void test_addWhenFreezed(void)
 
 void test_addNewInt(void)
 {
-	// setup data
-	ItemDataGenerator dataGenerator;
-	x_grp = new ItemGroup();
-	const size_t numData = 5;
-	for (size_t i = 0; i < numData; i++) {
-		x_grp->add_new<ItemInt>(dataGenerator.getIntData(i),
-		                        dataGenerator.getNullFlag(i));
-	}
-
-	// check
-	cppcut_assert_equal(numData, x_grp->getNumberOfItems());
-	for (size_t i = 0; i < numData; i++) {
-		const ItemInt *itemData =
-		   dynamic_cast<const ItemInt *>(x_grp->getItemAt(i));
-		cppcut_assert_not_null(itemData);
-		cppcut_assert_equal(dataGenerator.getIntData(i),
-		                    itemData->get());
-		bool expectNull = 
-		  dataGenerator.getNullFlag(i) == ITEM_DATA_NULL;
-		cppcut_assert_equal(expectNull, itemData->isNull());
-	}
+	assertAddNew(int, ItemInt);
 }
 
 void test_getNumberOfItems(void)
