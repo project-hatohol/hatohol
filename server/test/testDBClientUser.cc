@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -469,6 +469,7 @@ void test_updateUserWithoutPrivilege(void)
 	DBClientUser dbUser;
 	const size_t targetIndex = 1;
 	UserInfo expectedUserInfo = testUserInfo[targetIndex];
+	expectedUserInfo.id = targetIndex + 1;
 	UserInfo userInfo = setupForUpdate(targetIndex);
 	OperationPrivilege privilege;
 	HatoholError err = dbUser.updateUserInfo(userInfo, privilege);
