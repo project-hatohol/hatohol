@@ -536,8 +536,8 @@ HatoholError DBClientUser::addUserInfo(
 	arg.columnDefs = COLUMN_DEF_USERS;
 
 	row->ADD_NEW_ITEM(Int, AUTO_INCREMENT_VALUE);
-	row->ADD_NEW_ITEM(String, userInfo.name);
-	row->ADD_NEW_ITEM(String, Utils::sha256(userInfo.password));
+	row->addNewItem(userInfo.name);
+	row->addNewItem(Utils::sha256(userInfo.password));
 	row->ADD_NEW_ITEM(Uint64, userInfo.flags);
 	arg.row = row;
 
@@ -598,11 +598,11 @@ HatoholError DBClientUser::updateUserInfo(
 	arg.tableName = TABLE_NAME_USERS;
 	arg.columnDefs = COLUMN_DEF_USERS;
 
-	row->ADD_NEW_ITEM(String, userInfo.name);
+	row->addNewItem(userInfo.name);
 	arg.columnIndexes.push_back(IDX_USERS_NAME);
 
 	if (!userInfo.password.empty()) {
-		row->ADD_NEW_ITEM(String, Utils::sha256(userInfo.password));
+		row->addNewItem(Utils::sha256(userInfo.password));
 		arg.columnIndexes.push_back(IDX_USERS_PASSWORD);
 	}
 
@@ -903,7 +903,7 @@ HatoholError DBClientUser::addUserRoleInfo(UserRoleInfo &userRoleInfo,
 	arg.columnDefs = COLUMN_DEF_USER_ROLES;
 
 	row->ADD_NEW_ITEM(Int, 0); // This is automaticall set (0 is dummy)
-	row->ADD_NEW_ITEM(String, userRoleInfo.name);
+	row->addNewItem(userRoleInfo.name);
 	row->ADD_NEW_ITEM(Uint64, userRoleInfo.flags);
 	arg.row = row;
 
@@ -948,7 +948,7 @@ HatoholError DBClientUser::updateUserRoleInfo(
 	arg.tableName = TABLE_NAME_USER_ROLES;
 	arg.columnDefs = COLUMN_DEF_USER_ROLES;
 
-	row->ADD_NEW_ITEM(String, userRoleInfo.name);
+	row->addNewItem(userRoleInfo.name);
 	arg.columnIndexes.push_back(IDX_USER_ROLES_NAME);
 
 	row->ADD_NEW_ITEM(Uint64, userRoleInfo.flags);
