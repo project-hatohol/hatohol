@@ -66,6 +66,11 @@ void _assertAddNew(void)
 			return idx * 0.1;
 		}
 
+		operator string (void) const
+		{
+			return StringUtils::sprintf("idx:%zd", idx);
+		}
+
 		ItemDataNullFlagType getNullFlag(void)
 		{
 			return idx % 2 ? ITEM_DATA_NOT_NULL : ITEM_DATA_NULL;
@@ -181,6 +186,11 @@ void test_addNewUint64(void)
 void test_addNewDouble(void)
 {
 	assertAddNew(double, ItemDouble);
+}
+
+void test_addNewString(void)
+{
+	assertAddNew(string, ItemString);
 }
 
 void test_getNumberOfItems(void)

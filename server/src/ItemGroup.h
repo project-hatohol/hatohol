@@ -73,6 +73,13 @@ public:
 		add(new T(data, nullFlag), false);
 	}
 
+	template <typename T>
+	void add_new(const std::string &data,
+	             const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL)
+	{
+		add(new T(data, nullFlag), false);
+	}
+
 	const ItemData *getItem(ItemId itemId) const;
 	ItemDataVector getItems(ItemId itemId) const;
 	const ItemData *getItemAt(size_t index) const;
