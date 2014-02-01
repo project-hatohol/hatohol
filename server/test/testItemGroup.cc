@@ -93,6 +93,7 @@ void _assertAddNew(void)
 		cppcut_assert_equal(expect, actual);
 		bool expectNull = (dataGen.getNullFlag() == ITEM_DATA_NULL);
 		cppcut_assert_equal(expectNull, itemData->isNull());
+		cppcut_assert_equal(1, itemData->getUsedCount());
 	}
 }
 #define assertAddNew(NATIVE_TYPE) cut_trace((_assertAddNew<NATIVE_TYPE>)())
