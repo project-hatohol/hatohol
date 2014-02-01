@@ -34,6 +34,17 @@ using namespace mlpl;
 
 namespace testItemGroup {
 
+struct ItemDataGenerator {
+	int getIntData(int i)
+	{
+		return i * 8;
+	}
+
+	ItemDataNullFlagType getNullFlag(int i) {
+		return i % 2 ? ITEM_DATA_NOT_NULL : ITEM_DATA_NULL;
+	}
+};
+
 enum {
 	DEFAULT_ITEM_ID,
 	ITEM_ID_0,
@@ -116,6 +127,31 @@ void test_addWhenFreezed(void)
 		gotException = true;
 	}
 	cppcut_assert_equal(true, gotException);
+}
+
+void test_addNewInt(void)
+{
+	// setup data
+	ItemDataGenerator dataGenerator;
+	x_grp = new ItemGroup();
+	const size_t numData = 5;
+	for (size_t i = 0; i < numData; i++) {
+		x_grp->add_new<ItemInt>(dataGenerator.getIntData(i),
+		                        dataGenerator.getNullFlag(i));
+	}
+
+	// check
+	cppcut_assert_equal(numData, x_grp->getNumberOfItems());
+	for (size_t i = 0; i < numData; i++) {
+		const ItemInt *itemData =
+		   dynamic_cast<const ItemInt *>(x_grp->getItemAt(i));
+		cppcut_assert_not_null(itemData);
+		cppcut_assert_equal(dataGenerator.getIntData(i),
+		                    itemData->get());
+		bool expectNull = 
+		  dataGenerator.getNullFlag(i) == ITEM_DATA_NULL;
+		cppcut_assert_equal(expectNull, itemData->isNull());
+	}
 }
 
 void test_getNumberOfItems(void)

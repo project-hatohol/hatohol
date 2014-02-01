@@ -44,6 +44,21 @@ class ItemGroup : public UsedCountable {
 public:
 	ItemGroup(void);
 	void add(const ItemData *data, bool doRef = true);
+
+	/**
+	 * Create an ItemData family instance and append it to this group.
+	 *
+	 * @param T        A type to be created.
+	 * @param data     An initial data.
+	 * @param nullFlag A null flag of the created item.
+	 */
+	template <typename T>
+	void add_new(const int &data,
+	             const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL)
+	{
+		add(new T(data, nullFlag), false);
+	}
+
 	const ItemData *getItem(ItemId itemId) const;
 	ItemDataVector getItems(ItemId itemId) const;
 	const ItemData *getItemAt(size_t index) const;
