@@ -238,7 +238,7 @@ static void updateAdminPrivilege(DBAgent *dbAgent,
 	arg.columnDefs = COLUMN_DEF_USERS;
 
 	VariableItemGroupPtr row;
-	row->ADD_NEW_ITEM(Uint64, ALL_PRIVILEGES);
+	row->addNewItem(ALL_PRIVILEGES);
 	arg.columnIndexes.push_back(IDX_USERS_FLAGS);
 	arg.row = row;
 
@@ -538,7 +538,7 @@ HatoholError DBClientUser::addUserInfo(
 	row->ADD_NEW_ITEM(Int, AUTO_INCREMENT_VALUE);
 	row->addNewItem(userInfo.name);
 	row->addNewItem(Utils::sha256(userInfo.password));
-	row->ADD_NEW_ITEM(Uint64, userInfo.flags);
+	row->addNewItem(userInfo.flags);
 	arg.row = row;
 
 	string dupCheckCond = StringUtils::sprintf("%s='%s'",
@@ -606,7 +606,7 @@ HatoholError DBClientUser::updateUserInfo(
 		arg.columnIndexes.push_back(IDX_USERS_PASSWORD);
 	}
 
-	row->ADD_NEW_ITEM(Uint64, userInfo.flags);
+	row->addNewItem(userInfo.flags);
 	arg.columnIndexes.push_back(IDX_USERS_FLAGS);
 	arg.row = row;
 
@@ -727,7 +727,7 @@ HatoholError DBClientUser::addAccessInfo(AccessInfo &accessInfo,
 	row->ADD_NEW_ITEM(Int, 0); // This is automatically set (0 is dummy)
 	row->ADD_NEW_ITEM(Int, accessInfo.userId);
 	row->ADD_NEW_ITEM(Int, accessInfo.serverId);
-	row->ADD_NEW_ITEM(Uint64, accessInfo.hostGroupId);
+	row->addNewItem(accessInfo.hostGroupId);
 	arg.row = row;
 
 	DBCLIENT_TRANSACTION_BEGIN() {
@@ -904,7 +904,7 @@ HatoholError DBClientUser::addUserRoleInfo(UserRoleInfo &userRoleInfo,
 
 	row->ADD_NEW_ITEM(Int, 0); // This is automaticall set (0 is dummy)
 	row->addNewItem(userRoleInfo.name);
-	row->ADD_NEW_ITEM(Uint64, userRoleInfo.flags);
+	row->addNewItem(userRoleInfo.flags);
 	arg.row = row;
 
 	string dupCheckCond = StringUtils::sprintf(
@@ -951,7 +951,7 @@ HatoholError DBClientUser::updateUserRoleInfo(
 	row->addNewItem(userRoleInfo.name);
 	arg.columnIndexes.push_back(IDX_USER_ROLES_NAME);
 
-	row->ADD_NEW_ITEM(Uint64, userRoleInfo.flags);
+	row->addNewItem(userRoleInfo.flags);
 	arg.columnIndexes.push_back(IDX_USER_ROLES_FLAGS);
 	arg.row = row;
 
