@@ -70,18 +70,20 @@ void _assertAddNew(void)
 	x_grp = new ItemGroup();
 	const size_t numData = 5;
 	for (dataGen.idx = 0; dataGen.idx < numData; dataGen.idx++) {
-		NATIVE_TYPE data = static_cast<int>(dataGen);
+		NATIVE_TYPE data = static_cast<NATIVE_TYPE>(dataGen);
 		x_grp->add_new<ITEM_TYPE>(data, dataGen.getNullFlag());
 	}
 
 	// check
 	cppcut_assert_equal(numData, x_grp->getNumberOfItems());
 	for (dataGen.idx = 0; dataGen.idx < numData; dataGen.idx++) {
-		const ItemInt *itemData =
-		   dynamic_cast<const ItemInt *>(x_grp->getItemAt(dataGen.idx));
+		const ITEM_TYPE *itemData =
+		  dynamic_cast<const ITEM_TYPE *>
+		    (x_grp->getItemAt(dataGen.idx));
 		cppcut_assert_not_null(itemData);
 		NATIVE_TYPE expect = dataGen;
-		cppcut_assert_equal(expect, itemData->get());
+		NATIVE_TYPE actual = itemData->get();
+		cppcut_assert_equal(expect, actual);
 		bool expectNull = (dataGen.getNullFlag() == ITEM_DATA_NULL);
 		cppcut_assert_equal(expectNull, itemData->isNull());
 	}
@@ -168,7 +170,7 @@ void test_addNewInt(void)
 
 void test_addNewUint64(void)
 {
-	assertAddNew(int, ItemInt);
+	assertAddNew(uint64_t, ItemUint64);
 }
 
 void test_getNumberOfItems(void)
