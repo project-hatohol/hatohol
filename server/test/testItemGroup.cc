@@ -56,6 +56,11 @@ void _assertAddNew(void)
 			return idx * 8;
 		}
 
+		operator uint64_t (void) const
+		{
+			return idx * 12;
+		}
+
 		ItemDataNullFlagType getNullFlag(void)
 		{
 			return idx % 2 ? ITEM_DATA_NOT_NULL : ITEM_DATA_NULL;
@@ -157,6 +162,11 @@ void test_addWhenFreezed(void)
 }
 
 void test_addNewInt(void)
+{
+	assertAddNew(int, ItemInt);
+}
+
+void test_addNewUint64(void)
 {
 	assertAddNew(int, ItemInt);
 }
