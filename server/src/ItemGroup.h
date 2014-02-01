@@ -48,36 +48,31 @@ public:
 	/**
 	 * Create an ItemData family instance and append it to this group.
 	 *
-	 * @param T        A type to be created.
 	 * @param data     An initial data.
 	 * @param nullFlag A null flag of the created item.
 	 */
-	template <typename T>
 	void add_new(const int &data,
 	             const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL)
 	{
-		add(new T(data, nullFlag), false);
+		add(new ItemInt(data, nullFlag), false);
 	}
 
-	template <typename T>
 	void add_new(const uint64_t &data,
 	             const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL)
 	{
-		add(new T(data, nullFlag), false);
+		add(new ItemUint64(data, nullFlag), false);
 	}
 
-	template <typename T>
 	void add_new(const double &data,
 	             const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL)
 	{
-		add(new T(data, nullFlag), false);
+		add(new ItemDouble(data, nullFlag), false);
 	}
 
-	template <typename T>
 	void add_new(const std::string &data,
 	             const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL)
 	{
-		add(new T(data, nullFlag), false);
+		add(new ItemString(data, nullFlag), false);
 	}
 
 	const ItemData *getItem(ItemId itemId) const;

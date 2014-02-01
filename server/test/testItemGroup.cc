@@ -46,7 +46,7 @@ static ItemGroup *g_grp[NUM_GROUP_POOL];
 static ItemGroup *&x_grp = g_grp[0];
 static ItemGroup *&y_grp = g_grp[1];
 
-template<typename NATIVE_TYPE, typename ITEM_TYPE>
+template<typename NATIVE_TYPE>
 void _assertAddNew(void)
 {
 	struct {
@@ -81,25 +81,21 @@ void _assertAddNew(void)
 	const size_t numData = 5;
 	for (dataGen.idx = 0; dataGen.idx < numData; dataGen.idx++) {
 		NATIVE_TYPE data = dataGen;
-		x_grp->add_new<ITEM_TYPE>(data, dataGen.getNullFlag());
+		x_grp->add_new(data, dataGen.getNullFlag());
 	}
 
 	// check
 	cppcut_assert_equal(numData, x_grp->getNumberOfItems());
 	for (dataGen.idx = 0; dataGen.idx < numData; dataGen.idx++) {
-		const ITEM_TYPE *itemData =
-		  dynamic_cast<const ITEM_TYPE *>
-		    (x_grp->getItemAt(dataGen.idx));
-		cppcut_assert_not_null(itemData);
+		const ItemData *itemData = x_grp->getItemAt(dataGen.idx);
 		NATIVE_TYPE expect = dataGen;
-		NATIVE_TYPE actual = itemData->get();
+		NATIVE_TYPE actual = *itemData;
 		cppcut_assert_equal(expect, actual);
 		bool expectNull = (dataGen.getNullFlag() == ITEM_DATA_NULL);
 		cppcut_assert_equal(expectNull, itemData->isNull());
 	}
 }
-#define assertAddNew(NATIVE_TYPE, ITEM_TYPE) \
-cut_trace((_assertAddNew<NATIVE_TYPE, ITEM_TYPE>)())
+#define assertAddNew(NATIVE_TYPE) cut_trace((_assertAddNew<NATIVE_TYPE>)())
 
 void cut_teardown()
 {
@@ -175,22 +171,22 @@ void test_addWhenFreezed(void)
 
 void test_addNewInt(void)
 {
-	assertAddNew(int, ItemInt);
+	assertAddNew(int);
 }
 
 void test_addNewUint64(void)
 {
-	assertAddNew(uint64_t, ItemUint64);
+	assertAddNew(uint64_t);
 }
 
 void test_addNewDouble(void)
 {
-	assertAddNew(double, ItemDouble);
+	assertAddNew(double);
 }
 
 void test_addNewString(void)
 {
-	assertAddNew(string, ItemString);
+	assertAddNew(string);
 }
 
 void test_getNumberOfItems(void)
