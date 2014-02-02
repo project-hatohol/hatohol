@@ -949,21 +949,25 @@ void ArmZabbixAPI::parseAndPushHostsGroupsData
 	startElement(parser, index);
 	startObject(parser, "hosts");
 	int numElem = parser.countElements();
-	if (numElem != 0) {
-		for (int i = 0; i < numElem; i++) {
-			const uint64_t hostgroupid = 0;
-			VariableItemGroupPtr grp;
-			startElement(parser, i);
-			grp->addNewItem(hostgroupid);
-			pushUint64(parser, grp, "hostid", ITEM_ID_ZBX_HOSTS_GROUPS_HOSTID);
-			startObject(parser, "groups");
-			startElement(parser, 0);
-			pushUint64(parser, grp, "groupid", ITEM_ID_ZBX_HOSTS_GROUPS_GROUPID);
-			parser.endElement();
-			parser.endObject();
-			parser.endElement();
-			tablePtr->add(grp);
-		}
+	for (int i = 0; i < numElem; i++) {
+		VariableItemGroupPtr grp;
+		startElement(parser, i);
+
+		const uint64_t hostgroupid = 0;
+		grp->addNewItem(hostgroupid);
+
+		pushUint64(parser, grp, "hostid",
+		           ITEM_ID_ZBX_HOSTS_GROUPS_HOSTID);
+
+		startObject(parser, "groups");
+		startElement(parser, 0);
+		pushUint64(parser, grp, "groupid",
+		           ITEM_ID_ZBX_HOSTS_GROUPS_GROUPID);
+		parser.endElement();
+		parser.endObject();
+
+		parser.endElement();
+		tablePtr->add(grp);
 	}
 	parser.endObject();
 	parser.endElement();
