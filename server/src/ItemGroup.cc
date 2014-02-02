@@ -60,6 +60,30 @@ void ItemGroup::add(const ItemData *data, bool doRef)
 }
 
 ItemData *ItemGroup::addNewItem(
+  const int &data, const ItemDataNullFlagType &nullFlag)
+{
+	return addNewItemTempl<int, ItemInt>(data, nullFlag);
+}
+
+ItemData *ItemGroup::addNewItem(
+  const uint64_t &data, const ItemDataNullFlagType &nullFlag)
+{
+	return addNewItemTempl<uint64_t, ItemUint64>(data, nullFlag);
+}
+
+ItemData *ItemGroup::addNewItem(
+  const double &data, const ItemDataNullFlagType &nullFlag)
+{
+	return addNewItemTempl<double, ItemDouble>(data, nullFlag);
+}
+
+ItemData *ItemGroup::addNewItem(
+  const std::string &data, const ItemDataNullFlagType &nullFlag)
+{
+	return addNewItemTempl<string, ItemString>(data, nullFlag);
+}
+
+ItemData *ItemGroup::addNewItem(
   const ItemId &itemId, const int &data,
   const ItemDataNullFlagType &nullFlag)
 {
@@ -165,6 +189,15 @@ ItemGroup::~ItemGroup()
 // ---------------------------------------------------------------------------
 // Private methods
 // ---------------------------------------------------------------------------
+template<typename NATIVE_TYPE, typename ITEM_TYPE>
+ItemData *ItemGroup::addNewItemTempl(
+  const NATIVE_TYPE &data, const ItemDataNullFlagType &nullFlag)
+{
+	ItemData *itemData = new ITEM_TYPE(data, nullFlag);
+	add(itemData, false);
+	return itemData;
+}
+
 template<typename NATIVE_TYPE, typename ITEM_TYPE>
 ItemData *ItemGroup::addNewItemTempl(
   const ItemId &itemId, const NATIVE_TYPE &data,
