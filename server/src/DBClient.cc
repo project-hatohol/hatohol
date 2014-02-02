@@ -275,8 +275,8 @@ void DBClient::insertDBClientVersion(DBAgent *dbAgent,
 	insArg.numColumns = NUM_COLUMNS_DBCLIENT_VERSION;
 	insArg.columnDefs = COLUMN_DEF_DBCLIENT_VERSION;
 	VariableItemGroupPtr row;
-	row->ADD_NEW_ITEM(Int, dbAgent->getDBDomainId());
-	row->ADD_NEW_ITEM(Int, setupFuncArg->version);
+	row->addNewItem(dbAgent->getDBDomainId());
+	row->addNewItem(setupFuncArg->version);
 	insArg.row = row;
 	dbAgent->insert(insArg);
 }
@@ -339,7 +339,7 @@ void DBClient::setDBVersion(DBAgent *dbAgent, int version)
 	arg.columnDefs = COLUMN_DEF_DBCLIENT_VERSION;
 	arg.columnIndexes.push_back(1);
 	VariableItemGroupPtr row;
-	row->ADD_NEW_ITEM(Int, version);
+	row->addNewItem(version);
 	arg.row = row;
 	arg.condition = StringUtils::sprintf("%s=%d",
 	  COLUMN_DEF_DBCLIENT_VERSION[IDX_DBCLIENT_VERSION_DOMAIN_ID].columnName,
