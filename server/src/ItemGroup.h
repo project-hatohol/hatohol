@@ -50,37 +50,34 @@ public:
 	 *
 	 * @param data     An initial data.
 	 * @param nullFlag A null flag of the created item.
+	 *
+	 * @return A pointer of the created ItemData instance.
 	 */
-	void addNewItem(
+	ItemData *addNewItem(
 	  const int &data,
-	  const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL)
-	{
-		add(new ItemInt(data, nullFlag), false);
-	}
+	  const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL);
 
-	void addNewItem(
+	ItemData *addNewItem(
 	  const uint64_t &data,
-	  const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL)
-	{
-		add(new ItemUint64(data, nullFlag), false);
-	}
+	  const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL);
 
-	void addNewItem(
+	ItemData *addNewItem(
 	  const double &data,
-	  const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL)
-	{
-		add(new ItemDouble(data, nullFlag), false);
-	}
+	  const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL);
 
-	void addNewItem(
+	ItemData *addNewItem(
 	  const std::string &data,
-	  const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL)
-	{
-		add(new ItemString(data, nullFlag), false);
-	}
+	  const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL);
 
-	// Other version of this three parameters addNewItem()
-	// will be added when it is needed.
+	/**
+	 * Create an ItemData family instance and append it to this group.
+	 *
+	 * @param itemId   An item Id of the created instance.
+	 * @param data     An initial data.
+	 * @param nullFlag A null flag of the created item.
+	 *
+	 * @return A pointer of the created ItemData instance.
+	 */
 	ItemData *addNewItem(
 	  const ItemId &itemId, const int &data,
 	  const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL);
@@ -114,6 +111,10 @@ private:
 	const ItemGroupType *m_groupType;
 	ItemDataMultimap     m_itemMap;
 	ItemDataVector       m_itemVector;
+
+	template<typename NATIVE_TYPE, typename ITEM_TYPE>
+	ItemData *addNewItemTempl(
+	  const NATIVE_TYPE &data, const ItemDataNullFlagType &nullFlag);
 
 	template<typename NATIVE_TYPE, typename ITEM_TYPE>
 	ItemData *addNewItemTempl(
