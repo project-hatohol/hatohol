@@ -24,7 +24,7 @@
 #include <stdint.h>
 #include <set>
 
-typedef uint32_t DBDomainId;
+typedef int DBDomainId;
 
 static const DBDomainId DB_DOMAIN_ID_CONFIG  = 0x0010;
 static const DBDomainId DB_DOMAIN_ID_ACTION  = 0x0018;
