@@ -236,20 +236,6 @@ void test_createDB(void)
 	cppcut_assert_equal(expectedOut, output);
 }
 
-void test_createTableSystem(void)
-{
-	int svId = TEST_ZABBIX_SERVER_ID + 1;
-	assertCreateTableZBX(svId, "system");
-
-	// check content
-	string statement = "select * from system";
-	string output = execSqlite3ForDBClientZabbix(svId, statement);
-	int dummyValue = 0;
-	string expectedOut =
-	   StringUtils::sprintf("%d\n", dummyValue);
-	cppcut_assert_equal(expectedOut, output);
-}
-
 void test_createTableTriggersRaw2_0(void)
 {
 	assertCreateTableZBX(TEST_ZABBIX_SERVER_ID + 3, "triggers_raw_2_0");
