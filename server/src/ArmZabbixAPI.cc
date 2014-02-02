@@ -727,7 +727,8 @@ void ArmZabbixAPI::pushApplicationid(JsonParserAgent &parser,
 	startObject(parser, "applications");
 	int numElem = parser.countElements();
 	if (numElem == 0) {
-		itemGroup->ADD_NEW_ITEM(Uint64, itemId, 0, ITEM_DATA_NULL);
+		const uint64_t dummyData = 0;
+		itemGroup->addNewItem(dummyData, ITEM_DATA_NULL);
 	} else  {
 		for (int i = 0; i < numElem; i++) {
 			startElement(parser, i);
@@ -746,7 +747,8 @@ void ArmZabbixAPI::pushTriggersHostid(JsonParserAgent &parser,
 	startObject(parser, "hosts");
 	int numElem = parser.countElements();
 	if (numElem == 0) {
-		itemGroup->ADD_NEW_ITEM(Uint64, itemId, 0, ITEM_DATA_NULL);
+		const uint64_t dummyData = 0;
+		itemGroup->addNewItem(dummyData, ITEM_DATA_NULL);
 	} else  {
 		for (int i = 0; i < numElem; i++) {
 			startElement(parser, i);
@@ -949,9 +951,10 @@ void ArmZabbixAPI::parseAndPushHostsGroupsData
 	int numElem = parser.countElements();
 	if (numElem != 0) {
 		for (int i = 0; i < numElem; i++) {
+			const uint64_t hostgroupid = 0;
 			VariableItemGroupPtr grp;
 			startElement(parser, i);
-			grp->ADD_NEW_ITEM(Uint64, 0);
+			grp->addNewItem(hostgroupid);
 			pushUint64(parser, grp, "hostid", ITEM_ID_ZBX_HOSTS_GROUPS_HOSTID);
 			startObject(parser, "groups");
 			startElement(parser, 0);
