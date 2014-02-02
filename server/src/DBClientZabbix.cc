@@ -37,7 +37,6 @@ const int DBClientZabbix::ZABBIX_DB_VERSION = 4;
 const uint64_t DBClientZabbix::EVENT_ID_NOT_FOUND = -1;
 const int DBClientZabbix::TRIGGER_CHANGE_TIME_NOT_FOUND = -1;
 
-static const char *TABLE_NAME_SYSTEM = "system";
 static const char *TABLE_NAME_TRIGGERS_RAW_2_0 = "triggers_raw_2_0";
 static const char *TABLE_NAME_FUNCTIONS_RAW_2_0 = "functions_raw_2_0";
 static const char *TABLE_NAME_ITEMS_RAW_2_0 = "items_raw_2_0";
@@ -46,28 +45,6 @@ static const char *TABLE_NAME_EVENTS_RAW_2_0 = "events_raw_2_0";
 static const char *TABLE_NAME_APPLICATIONS_RAW_2_0 = "applications_raw_2_0";
 static const char *TABLE_NAME_GROUPS_RAW_2_0 = "groups_raw_2_0";
 static const char *TABLE_NAME_HOSTS_GROUPS_RAW_2_0 = "hosts_groups_raw_2_0";
-
-static const ColumnDef COLUMN_DEF_SYSTEM[] = {
-{
-	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_SYSTEM,                 // tableName
-	"dummy",                           // columnName
-	SQL_COLUMN_TYPE_INT,               // type
-	11,                                // columnLength
-	0,                                 // decFracLength
-	false,                             // canBeNull
-	SQL_KEY_NONE,                      // keyType
-	0,                                 // flags
-	NULL,                              // defaultValue
-}
-};
-static const size_t NUM_COLUMNS_SYSTEM =
-  sizeof(COLUMN_DEF_SYSTEM) / sizeof(ColumnDef);
-
-enum {
-	IDX_SYSTEM_DUMMY,
-	NUM_IDX_SYSTEM,
-};
 
 static const ColumnDef COLUMN_DEF_TRIGGERS_RAW_2_0[] = {
 {
@@ -1647,11 +1624,6 @@ DBClientZabbix *DBClientZabbix::create(const ServerIdType zabbixServerId)
 {
 	static const DBSetupTableInfo DB_TABLE_INFO[] = {
 	{
-		TABLE_NAME_SYSTEM,
-		NUM_COLUMNS_SYSTEM,
-		COLUMN_DEF_SYSTEM,
-		tableInitializerSystem,
-	}, {
 		TABLE_NAME_TRIGGERS_RAW_2_0,
 		NUM_COLUMNS_TRIGGERS_RAW_2_0,
 		COLUMN_DEF_TRIGGERS_RAW_2_0,
@@ -2178,19 +2150,6 @@ string DBClientZabbix::getDBName(const ServerIdType zabbixServerId)
 {
 	return StringUtils::sprintf("hatohol_cache_zabbix_%"FMT_SERVER_ID,
 	                            zabbixServerId);
-}
-
-void DBClientZabbix::tableInitializerSystem(DBAgent *dbAgent, void *data)
-{
-	// insert default value
-	DBAgentInsertArg insArg;
-	insArg.tableName = TABLE_NAME_SYSTEM;
-	insArg.numColumns = NUM_COLUMNS_SYSTEM;
-	insArg.columnDefs = COLUMN_DEF_SYSTEM;
-	VariableItemGroupPtr row;
-	row->ADD_NEW_ITEM(Int, 0); // dummy
-	insArg.row = row;
-	dbAgent->insert(insArg);
 }
 
 void DBClientZabbix::updateDBIfNeeded(DBAgent *dbAgent, int oldVer, void *data)

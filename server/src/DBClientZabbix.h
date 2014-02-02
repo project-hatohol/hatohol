@@ -115,7 +115,6 @@ public:
 
 protected:
 	static std::string getDBName(const ServerIdType zabbixServerId);
-	static void tableInitializerSystem(DBAgent *dbAgent, void *data);
 	static void updateDBIfNeeded(DBAgent *dbAgent, int oldVer, void *data);
 	static std::string makeItemBrief(const ItemGroup *itemItemGroup);
 
