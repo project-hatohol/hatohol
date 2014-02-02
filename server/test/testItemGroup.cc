@@ -47,7 +47,7 @@ static ItemGroup *&x_grp = g_grp[0];
 static ItemGroup *&y_grp = g_grp[1];
 
 template<typename NATIVE_TYPE>
-void _assertAddNew(void)
+void _assertAddNew(const bool &useItemId)
 {
 	struct {
 		size_t idx;
@@ -75,13 +75,23 @@ void _assertAddNew(void)
 		{
 			return idx % 2 ? ITEM_DATA_NOT_NULL : ITEM_DATA_NULL;
 		}
+
+		ItemId getItemId(void)
+		{
+			return idx * 10;
+		}
 	} dataGen;
 
 	x_grp = new ItemGroup();
 	const size_t numData = 5;
 	for (dataGen.idx = 0; dataGen.idx < numData; dataGen.idx++) {
 		NATIVE_TYPE data = dataGen;
-		x_grp->addNewItem(data, dataGen.getNullFlag());
+		if (useItemId) {
+			const ItemId itemId = dataGen.getItemId();
+			x_grp->addNewItem(itemId, data, dataGen.getNullFlag());
+		} else {
+			x_grp->addNewItem(data, dataGen.getNullFlag());
+		}
 	}
 
 	// check
@@ -94,9 +104,14 @@ void _assertAddNew(void)
 		bool expectNull = (dataGen.getNullFlag() == ITEM_DATA_NULL);
 		cppcut_assert_equal(expectNull, itemData->isNull());
 		cppcut_assert_equal(1, itemData->getUsedCount());
+		if (useItemId) {
+			const ItemId expectItemId = dataGen.getItemId();
+			cppcut_assert_equal(expectItemId, itemData->getId());
+		}
 	}
 }
-#define assertAddNew(NATIVE_TYPE) cut_trace((_assertAddNew<NATIVE_TYPE>)())
+#define assertAddNew(NATIVE_TYPE, USE_ITEM_ID) \
+cut_trace((_assertAddNew<NATIVE_TYPE>)(USE_ITEM_ID))
 
 void cut_teardown()
 {
@@ -170,24 +185,44 @@ void test_addWhenFreezed(void)
 	cppcut_assert_equal(true, gotException);
 }
 
+void test_addNewIntWithItemId(void)
+{
+	assertAddNew(int, true);
+}
+
+void test_addNewUint64WithItemId(void)
+{
+	assertAddNew(uint64_t, true);
+}
+
+void test_addNewDoubleWithItemId(void)
+{
+	assertAddNew(double, true);
+}
+
+void test_addNewStringWithItemId(void)
+{
+	assertAddNew(string, true);
+}
+
 void test_addNewInt(void)
 {
-	assertAddNew(int);
+	assertAddNew(int, false);
 }
 
 void test_addNewUint64(void)
 {
-	assertAddNew(uint64_t);
+	assertAddNew(uint64_t, false);
 }
 
 void test_addNewDouble(void)
 {
-	assertAddNew(double);
+	assertAddNew(double, false);
 }
 
 void test_addNewString(void)
 {
-	assertAddNew(string);
+	assertAddNew(string, false);
 }
 
 void test_getNumberOfItems(void)
