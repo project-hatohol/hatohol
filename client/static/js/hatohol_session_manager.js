@@ -40,11 +40,14 @@ var HatoholSessionManager = function() {
                         "; max-age=" + HATOHOL_SID_COOKIE_MAX_AGE;
     },
 
-    deleteCookie: function() {
+    deleteCookie: function(path) {
       var date = new Date();
       date.setTime(0);
-      document.cookie = HATOHOL_SID_COOKIE_NAME + "=; expires=" +
-                        date.toGMTString();
+      var cookie = HATOHOL_SID_COOKIE_NAME + "=; expires=" +
+                   date.toGMTString();
+      if (path)
+        cookie += "; path=" + path;
+      document.cookie = cookie;
     }
   };
 }();
