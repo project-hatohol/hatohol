@@ -595,7 +595,7 @@ bool validIPv6Address(const string &ipAddress)
 {
 	StringVector fields;
 	StringUtils::split(fields, ipAddress,  ':');
-	if (fields.size() > 8)
+	if (fields.size() < 3 || fields.size() > 8)
 		return false;
 	bool hasEmptyField = false;
 	for (size_t i = 0; i < fields.size(); i++) {

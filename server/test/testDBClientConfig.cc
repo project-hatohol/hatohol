@@ -281,6 +281,13 @@ void test_addTargetServerWithInvalidIPv6AddressCharacter(void)
 	assertAddTargetServer(testInfo, HTERR_INVALID_IP_ADDRESS);
 }
 
+void test_addTargetServerWithSimpleNumber(void)
+{
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	testInfo.ipAddress = "123";
+	assertAddTargetServer(testInfo, HTERR_INVALID_IP_ADDRESS);
+}
+
 void _assertGetTargetServers(UserIdType userId)
 {
 	ServerHostGrpSetMap authMap;
