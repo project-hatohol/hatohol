@@ -629,6 +629,13 @@ bool validIPAddress(const string &ipAddress)
 	return false;
 }
 
+bool validHostName(const string &hostName)
+{
+	// Currently do nothing to pass through IDN (Internationalized Domain
+	// Name) to libsoup.
+	return true;
+}
+
 HatoholError validServerInfo(const MonitoringServerInfo &serverInfo)
 {
 	if (serverInfo.type < 0 || serverInfo.type >= NUM_MONITORING_SYSTEMS)
@@ -637,6 +644,10 @@ HatoholError validServerInfo(const MonitoringServerInfo &serverInfo)
 		return HTERR_INVALID_PORT_NUMBER;
 	if (serverInfo.ipAddress.empty() && serverInfo.hostName.empty())
 		return HTERR_NO_IP_ADDRESS_AND_HOST_NAME;
+	if (!serverInfo.hostName.empty() &&
+	    !validHostName(serverInfo.hostName)) {
+		return HTERR_INVALID_HOST_NAME;
+	}
 	if (!serverInfo.ipAddress.empty() &&
 	    !validIPAddress(serverInfo.ipAddress)) {
 		return HTERR_INVALID_IP_ADDRESS;
