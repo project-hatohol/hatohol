@@ -70,7 +70,8 @@ public:
 	  const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL);
 
 	ItemData *addNewItem(
-	  const time_t &data, const ItemDataNullFlagType &nullFlag);
+	  const time_t &data,
+	  const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL);
 
 	/**
 	 * Create an ItemData family instance and append it to this group.
