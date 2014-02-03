@@ -345,11 +345,11 @@ void _assertGetTargetServers(UserIdType userId)
 	ServerHostGrpSetMap authMap;
 	MonitoringServerInfoList expected;
 	makeServerHostGrpSetMap(authMap, userId);
-	for (size_t i = 0; i < NumServerInfo; i++)
+	for (size_t i = 0; i < NumTestServerInfo; i++)
 		if (isAuthorized(authMap, userId, testServerInfo[i].id))
 			expected.push_back(testServerInfo[i]);
 
-	for (size_t i = 0; i < NumServerInfo; i++)
+	for (size_t i = 0; i < NumTestServerInfo; i++)
 		assertAddServerToDB(&testServerInfo[i]);
 
 	MonitoringServerInfoList actual;

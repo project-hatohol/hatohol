@@ -346,9 +346,9 @@ static void _assertTestTriggerInfo(const TriggerInfo &triggerInfo)
 
 static void assertServersInParser(JsonParserAgent *parser)
 {
-	assertValueInParser(parser, "numberOfServers", NumServerInfo);
+	assertValueInParser(parser, "numberOfServers", NumTestServerInfo);
 	parser->startObject("servers");
-	for (size_t i = 0; i < NumServerInfo; i++) {
+	for (size_t i = 0; i < NumTestServerInfo; i++) {
 		parser->startElement(i);
 		MonitoringServerInfo &svInfo = testServerInfo[i];
 		assertValueInParser(parser, "id",   svInfo.id);
@@ -441,7 +441,7 @@ static void assertHostsIdNameHashInParser(EventInfo *events,
 static void assertServersIdNameHashInParser(JsonParserAgent *parser)
 {
 	parser->startObject("servers");
-	for (size_t i = 0; i < NumServerInfo; i++) {
+	for (size_t i = 0; i < NumTestServerInfo; i++) {
 		MonitoringServerInfo &svInfo = testServerInfo[i];
 		parser->startObject(StringUtils::toString(svInfo.id));
 		assertValueInParser(parser, "name", svInfo.hostName);
@@ -1055,9 +1055,9 @@ static void assertSystemStatusInParser(JsonParserAgent *parser,
 
 static void _assertOverviewInParser(JsonParserAgent *parser)
 {
-	assertValueInParser(parser, "numberOfServers", NumServerInfo);
+	assertValueInParser(parser, "numberOfServers", NumTestServerInfo);
 	parser->startObject("serverStatus");
-	for (size_t i = 0; i < NumServerInfo; i++) {
+	for (size_t i = 0; i < NumTestServerInfo; i++) {
 		parser->startElement(i);
 		MonitoringServerInfo &svInfo = testServerInfo[i];
 		assertValueInParser(parser, "serverId", svInfo.id);

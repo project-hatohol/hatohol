@@ -594,7 +594,7 @@ void setupTestDBServers(void)
 		makeTestMySQLDBIfNeeded(TEST_DB_NAME, recreate);
 
 		DBClientConfig dbConfig;
-		for (size_t i = 0; i < NumServerInfo; i++) {
+		for (size_t i = 0; i < NumTestServerInfo; i++) {
 			dbConfig.addOrUpdateTargetServer(&testServerInfo[i],
 			                                 privilege);
 		}
