@@ -1681,15 +1681,15 @@ void DBClientHatohol::addTriggerInfoBare(const TriggerInfo &triggerInfo)
 		arg.tableName = TABLE_NAME_TRIGGERS;
 		arg.numColumns = NUM_COLUMNS_TRIGGERS;
 		arg.columnDefs = COLUMN_DEF_TRIGGERS;
-		row->ADD_NEW_ITEM(Int, triggerInfo.serverId);
-		row->ADD_NEW_ITEM(Uint64, triggerInfo.id);
-		row->ADD_NEW_ITEM(Int, triggerInfo.status);
-		row->ADD_NEW_ITEM(Int, triggerInfo.severity),
-		row->ADD_NEW_ITEM(Int, triggerInfo.lastChangeTime.tv_sec); 
-		row->ADD_NEW_ITEM(Int, triggerInfo.lastChangeTime.tv_nsec); 
-		row->ADD_NEW_ITEM(Uint64, triggerInfo.hostId);
-		row->ADD_NEW_ITEM(String, triggerInfo.hostName);
-		row->ADD_NEW_ITEM(String, triggerInfo.brief);
+		row->addNewItem(triggerInfo.serverId);
+		row->addNewItem(triggerInfo.id);
+		row->addNewItem(triggerInfo.status);
+		row->addNewItem(triggerInfo.severity),
+		row->addNewItem(triggerInfo.lastChangeTime.tv_sec); 
+		row->addNewItem(triggerInfo.lastChangeTime.tv_nsec); 
+		row->addNewItem(triggerInfo.hostId);
+		row->addNewItem(triggerInfo.hostName);
+		row->addNewItem(triggerInfo.brief);
 		arg.row = row;
 		insert(arg);
 	} else {
@@ -1697,30 +1697,30 @@ void DBClientHatohol::addTriggerInfoBare(const TriggerInfo &triggerInfo)
 		arg.tableName = TABLE_NAME_TRIGGERS;
 		arg.columnDefs = COLUMN_DEF_TRIGGERS;
 
-		row->ADD_NEW_ITEM(Int, triggerInfo.serverId);
+		row->addNewItem(triggerInfo.serverId);
 		arg.columnIndexes.push_back(IDX_TRIGGERS_SERVER_ID);
 
-		row->ADD_NEW_ITEM(Int, triggerInfo.status);
+		row->addNewItem(triggerInfo.status);
 		arg.columnIndexes.push_back(IDX_TRIGGERS_STATUS);
 
-		row->ADD_NEW_ITEM(Int, triggerInfo.severity);
+		row->addNewItem(triggerInfo.severity);
 		arg.columnIndexes.push_back(IDX_TRIGGERS_SEVERITY);
 
-		row->ADD_NEW_ITEM(Int, triggerInfo.lastChangeTime.tv_sec); 
+		row->addNewItem(triggerInfo.lastChangeTime.tv_sec); 
 		arg.columnIndexes.push_back
 		  (IDX_TRIGGERS_LAST_CHANGE_TIME_SEC);
 
-		row->ADD_NEW_ITEM(Int, triggerInfo.lastChangeTime.tv_nsec); 
+		row->addNewItem(triggerInfo.lastChangeTime.tv_nsec); 
 		arg.columnIndexes.push_back
 		  (IDX_TRIGGERS_LAST_CHANGE_TIME_NS);
 
-		row->ADD_NEW_ITEM(Uint64, triggerInfo.hostId);
+		row->addNewItem(triggerInfo.hostId);
 		arg.columnIndexes.push_back(IDX_TRIGGERS_HOST_ID);
 
-		row->ADD_NEW_ITEM(String, triggerInfo.hostName);
+		row->addNewItem(triggerInfo.hostName);
 		arg.columnIndexes.push_back(IDX_TRIGGERS_HOSTNAME);
 
-		row->ADD_NEW_ITEM(String, triggerInfo.brief);
+		row->addNewItem(triggerInfo.brief);
 		arg.columnIndexes.push_back(IDX_TRIGGERS_BRIEF);
 		arg.row = row;
 		arg.condition = condition;
@@ -1739,18 +1739,19 @@ void DBClientHatohol::addEventInfoBare(const EventInfo &eventInfo)
 		arg.tableName = TABLE_NAME_EVENTS;
 		arg.numColumns = NUM_COLUMNS_EVENTS;
 		arg.columnDefs = COLUMN_DEF_EVENTS;
-		row->ADD_NEW_ITEM(Uint64, 0, ITEM_DATA_NULL),
-		row->ADD_NEW_ITEM(Int, eventInfo.serverId),
-		row->ADD_NEW_ITEM(Uint64, eventInfo.id);
-		row->ADD_NEW_ITEM(Int, eventInfo.time.tv_sec); 
-		row->ADD_NEW_ITEM(Int, eventInfo.time.tv_nsec); 
-		row->ADD_NEW_ITEM(Int, eventInfo.type);
-		row->ADD_NEW_ITEM(Uint64, eventInfo.triggerId);
-		row->ADD_NEW_ITEM(Int, eventInfo.status);
-		row->ADD_NEW_ITEM(Int, eventInfo.severity);
-		row->ADD_NEW_ITEM(Uint64, eventInfo.hostId);
-		row->ADD_NEW_ITEM(String, eventInfo.hostName);
-		row->ADD_NEW_ITEM(String, eventInfo.brief);
+		// TODO: Should we use AUTO_INCREMENT_VALUE_U64 ? Check later
+		row->addNewItem((uint64_t)0, ITEM_DATA_NULL);
+		row->addNewItem(eventInfo.serverId);
+		row->addNewItem(eventInfo.id);
+		row->addNewItem(eventInfo.time.tv_sec); 
+		row->addNewItem(eventInfo.time.tv_nsec); 
+		row->addNewItem(eventInfo.type);
+		row->addNewItem(eventInfo.triggerId);
+		row->addNewItem(eventInfo.status);
+		row->addNewItem(eventInfo.severity);
+		row->addNewItem(eventInfo.hostId);
+		row->addNewItem(eventInfo.hostName);
+		row->addNewItem(eventInfo.brief);
 		arg.row = row;
 		insert(arg);
 	} else {
@@ -1758,34 +1759,34 @@ void DBClientHatohol::addEventInfoBare(const EventInfo &eventInfo)
 		arg.tableName = TABLE_NAME_EVENTS;
 		arg.columnDefs = COLUMN_DEF_EVENTS;
 
-		row->ADD_NEW_ITEM(Int, eventInfo.serverId);
+		row->addNewItem(eventInfo.serverId);
 		arg.columnIndexes.push_back(IDX_EVENTS_SERVER_ID);
 
-		row->ADD_NEW_ITEM(Int, eventInfo.time.tv_sec); 
+		row->addNewItem(eventInfo.time.tv_sec); 
 		arg.columnIndexes.push_back(IDX_EVENTS_TIME_SEC);
 
-		row->ADD_NEW_ITEM(Int, eventInfo.time.tv_nsec); 
+		row->addNewItem(eventInfo.time.tv_nsec); 
 		arg.columnIndexes.push_back(IDX_EVENTS_TIME_NS);
 
-		row->ADD_NEW_ITEM(Int, eventInfo.type);
+		row->addNewItem(eventInfo.type);
 		arg.columnIndexes.push_back(IDX_EVENTS_EVENT_TYPE);
 
-		row->ADD_NEW_ITEM(Uint64, eventInfo.triggerId);
+		row->addNewItem(eventInfo.triggerId);
 		arg.columnIndexes.push_back(IDX_EVENTS_TRIGGER_ID);
 
-		row->ADD_NEW_ITEM(Int, eventInfo.status);
+		row->addNewItem(eventInfo.status);
 		arg.columnIndexes.push_back(IDX_EVENTS_STATUS);
 
-		row->ADD_NEW_ITEM(Int, eventInfo.severity);
+		row->addNewItem(eventInfo.severity);
 		arg.columnIndexes.push_back(IDX_EVENTS_SEVERITY);
 
-		row->ADD_NEW_ITEM(Uint64, eventInfo.hostId);
+		row->addNewItem(eventInfo.hostId);
 		arg.columnIndexes.push_back(IDX_EVENTS_HOST_ID);
 
-		row->ADD_NEW_ITEM(String, eventInfo.hostName);
+		row->addNewItem(eventInfo.hostName);
 		arg.columnIndexes.push_back(IDX_EVENTS_HOST_NAME);
 
-		row->ADD_NEW_ITEM(String, eventInfo.brief);
+		row->addNewItem(eventInfo.brief);
 		arg.columnIndexes.push_back(IDX_EVENTS_BRIEF);
 
 		arg.row = row;
@@ -1805,15 +1806,15 @@ void DBClientHatohol::addItemInfoBare(const ItemInfo &itemInfo)
 		arg.tableName = TABLE_NAME_ITEMS;
 		arg.numColumns = NUM_COLUMNS_ITEMS;
 		arg.columnDefs = COLUMN_DEF_ITEMS;
-		row->ADD_NEW_ITEM(Int,    itemInfo.serverId);
-		row->ADD_NEW_ITEM(Uint64, itemInfo.id);
-		row->ADD_NEW_ITEM(Uint64, itemInfo.hostId);
-		row->ADD_NEW_ITEM(String, itemInfo.brief);
-		row->ADD_NEW_ITEM(Int,    itemInfo.lastValueTime.tv_sec); 
-		row->ADD_NEW_ITEM(Int,    itemInfo.lastValueTime.tv_nsec); 
-		row->ADD_NEW_ITEM(String, itemInfo.lastValue);
-		row->ADD_NEW_ITEM(String, itemInfo.prevValue);
-		row->ADD_NEW_ITEM(String, itemInfo.itemGroupName);
+		row->addNewItem(itemInfo.serverId);
+		row->addNewItem(itemInfo.id);
+		row->addNewItem(itemInfo.hostId);
+		row->addNewItem(itemInfo.brief);
+		row->addNewItem(itemInfo.lastValueTime.tv_sec); 
+		row->addNewItem(itemInfo.lastValueTime.tv_nsec); 
+		row->addNewItem(itemInfo.lastValue);
+		row->addNewItem(itemInfo.prevValue);
+		row->addNewItem(itemInfo.itemGroupName);
 		arg.row = row;
 		insert(arg);
 	} else {
@@ -1821,31 +1822,31 @@ void DBClientHatohol::addItemInfoBare(const ItemInfo &itemInfo)
 		arg.tableName = TABLE_NAME_ITEMS;
 		arg.columnDefs = COLUMN_DEF_ITEMS;
 
-		row->ADD_NEW_ITEM(Int, itemInfo.serverId);
+		row->addNewItem(itemInfo.serverId);
 		arg.columnIndexes.push_back(IDX_ITEMS_SERVER_ID);
 
-		row->ADD_NEW_ITEM(Uint64, itemInfo.id);
+		row->addNewItem(itemInfo.id);
 		arg.columnIndexes.push_back(IDX_ITEMS_ID);
 
-		row->ADD_NEW_ITEM(Uint64, itemInfo.hostId);
+		row->addNewItem(itemInfo.hostId);
 		arg.columnIndexes.push_back(IDX_ITEMS_HOST_ID);
 
-		row->ADD_NEW_ITEM(String, itemInfo.brief);
+		row->addNewItem(itemInfo.brief);
 		arg.columnIndexes.push_back(IDX_ITEMS_BRIEF);
 
-		row->ADD_NEW_ITEM(Int, itemInfo.lastValueTime.tv_sec); 
+		row->addNewItem(itemInfo.lastValueTime.tv_sec); 
 		arg.columnIndexes.push_back(IDX_ITEMS_LAST_VALUE_TIME_SEC);
 
-		row->ADD_NEW_ITEM(Int, itemInfo.lastValueTime.tv_nsec); 
+		row->addNewItem(itemInfo.lastValueTime.tv_nsec); 
 		arg.columnIndexes.push_back(IDX_ITEMS_LAST_VALUE_TIME_NS);
 
-		row->ADD_NEW_ITEM(String, itemInfo.lastValue);
+		row->addNewItem(itemInfo.lastValue);
 		arg.columnIndexes.push_back(IDX_ITEMS_LAST_VALUE);
 
-		row->ADD_NEW_ITEM(String, itemInfo.prevValue);
+		row->addNewItem(itemInfo.prevValue);
 		arg.columnIndexes.push_back(IDX_ITEMS_PREV_VALUE);
 
-		row->ADD_NEW_ITEM(String, itemInfo.itemGroupName);
+		row->addNewItem(itemInfo.itemGroupName);
 		arg.columnIndexes.push_back(IDX_ITEMS_ITEM_GROUP_NAME);
 
 		arg.row = row;
@@ -1864,10 +1865,10 @@ void DBClientHatohol::addHostgroupInfoBare(const HostgroupInfo &groupInfo)
 		arg.tableName = TABLE_NAME_HOSTGROUPS;
 		arg.numColumns = NUM_COLUMNS_HOSTGROUPS;
 		arg.columnDefs = COLUMN_DEF_HOSTGROUPS;
-		row->ADD_NEW_ITEM(Int, groupInfo.id);
-		row->ADD_NEW_ITEM(Int, groupInfo.serverId);
-		row->ADD_NEW_ITEM(Uint64, groupInfo.groupId);
-		row->ADD_NEW_ITEM(String, groupInfo.groupName);
+		row->addNewItem(groupInfo.id);
+		row->addNewItem(groupInfo.serverId);
+		row->addNewItem(groupInfo.groupId);
+		row->addNewItem(groupInfo.groupName);
 		arg.row = row;
 		insert(arg);
 	} else {
@@ -1875,13 +1876,13 @@ void DBClientHatohol::addHostgroupInfoBare(const HostgroupInfo &groupInfo)
 		arg.tableName = TABLE_NAME_HOSTGROUPS;
 		arg.columnDefs = COLUMN_DEF_HOSTGROUPS;
 
-		row->ADD_NEW_ITEM(Int, groupInfo.serverId);
+		row->addNewItem(groupInfo.serverId);
 		arg.columnIndexes.push_back(IDX_HOSTGROUPS_SERVER_ID);
 
-		row->ADD_NEW_ITEM(Uint64, groupInfo.groupId);
+		row->addNewItem(groupInfo.groupId);
 		arg.columnIndexes.push_back(IDX_HOSTGROUPS_GROUP_ID);
 
-		row->ADD_NEW_ITEM(String, groupInfo.groupName);
+		row->addNewItem(groupInfo.groupName);
 		arg.columnIndexes.push_back(IDX_HOSTGROUPS_GROUP_NAME);
 
 		arg.row = row;
@@ -1905,10 +1906,10 @@ void DBClientHatohol::addHostgroupElementBare(const HostgroupElement &hostgroupE
 		arg.tableName = TABLE_NAME_MAP_HOSTS_HOSTGROUPS;
 		arg.numColumns = NUM_COLUMNS_MAP_HOSTS_HOSTGROUPS;
 		arg.columnDefs = COLUMN_DEF_MAP_HOSTS_HOSTGROUPS;
-		row->ADD_NEW_ITEM(Int, hostgroupElement.id);
-		row->ADD_NEW_ITEM(Int, hostgroupElement.serverId);
-		row->ADD_NEW_ITEM(Uint64, hostgroupElement.hostId);
-		row->ADD_NEW_ITEM(Uint64, hostgroupElement.groupId);
+		row->addNewItem(hostgroupElement.id);
+		row->addNewItem(hostgroupElement.serverId);
+		row->addNewItem(hostgroupElement.hostId);
+		row->addNewItem(hostgroupElement.groupId);
 		arg.row = row;
 		insert(arg);
 	}
@@ -1926,10 +1927,10 @@ void DBClientHatohol::addHostInfoBare(const HostInfo &hostInfo)
 		arg.tableName = TABLE_NAME_HOSTS;
 		arg.numColumns = NUM_COLUMNS_HOSTS;
 		arg.columnDefs = COLUMN_DEF_HOSTS;
-		row->ADD_NEW_ITEM(Int, AUTO_INCREMENT_VALUE);
-		row->ADD_NEW_ITEM(Int, hostInfo.serverId);
-		row->ADD_NEW_ITEM(Uint64, hostInfo.id);
-		row->ADD_NEW_ITEM(String, hostInfo.hostName);
+		row->addNewItem(AUTO_INCREMENT_VALUE);
+		row->addNewItem(hostInfo.serverId);
+		row->addNewItem(hostInfo.id);
+		row->addNewItem(hostInfo.hostName);
 		arg.row = row;
 		insert(arg);
 	} else {
@@ -1937,13 +1938,13 @@ void DBClientHatohol::addHostInfoBare(const HostInfo &hostInfo)
 		arg.tableName = TABLE_NAME_HOSTS;
 		arg.columnDefs = COLUMN_DEF_HOSTS;
 
-		row->ADD_NEW_ITEM(Int, hostInfo.serverId);
+		row->addNewItem(hostInfo.serverId);
 		arg.columnIndexes.push_back(IDX_HOSTS_SERVER_ID);
 
-		row->ADD_NEW_ITEM(Uint64, hostInfo.id);
+		row->addNewItem(hostInfo.id);
 		arg.columnIndexes.push_back(IDX_HOSTS_HOST_ID);
 
-		row->ADD_NEW_ITEM(String, hostInfo.hostName);
+		row->addNewItem(hostInfo.hostName);
 		arg.columnIndexes.push_back(IDX_HOSTS_HOST_NAME);
 
 		arg.row = row;
