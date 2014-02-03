@@ -90,9 +90,10 @@ ArmZabbixAPI::ArmZabbixAPI(const MonitoringServerInfo &serverInfo)
 : ArmBase(serverInfo),
   m_ctx(NULL)
 {
+	bool forURI = true;
 	m_ctx = new PrivateContext(serverInfo);
 	m_ctx->uri = "http://";
-	m_ctx->uri += serverInfo.getHostAddress();
+	m_ctx->uri += serverInfo.getHostAddress(forURI);
 	m_ctx->uri += StringUtils::sprintf(":%d", serverInfo.port);
 	m_ctx->uri += "/zabbix/api_jsonrpc.php";
 
