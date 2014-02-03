@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -283,7 +283,7 @@ static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
 		arg.columnDefs = COLUMN_DEF_SYSTEM;
 		arg.columnIndexes.push_back(IDX_SYSTEM_ENABLE_COPY_ON_DEMAND);
 		VariableItemGroupPtr row;
-		row->ADD_NEW_ITEM(Int, 1);
+		row->addNewItem(1);
 		arg.row = row;
 		dbAgent->update(arg);
 	}
@@ -490,7 +490,7 @@ void DBClientConfig::setDatabaseDir(const string &dir)
 	arg.columnDefs = COLUMN_DEF_SYSTEM;
 	arg.columnIndexes.push_back(IDX_SYSTEM_DATABASE_DIR);
 	VariableItemGroupPtr row;
-	row->ADD_NEW_ITEM(String, dir);
+	row->addNewItem(dir);
 	arg.row = row;
 	DBCLIENT_TRANSACTION_BEGIN() {
 		update(arg);
@@ -534,7 +534,7 @@ void DBClientConfig::setFaceRestPort(int port)
 	arg.columnDefs = COLUMN_DEF_SYSTEM;
 	arg.columnIndexes.push_back(IDX_SYSTEM_FACE_REST_PORT);
 	VariableItemGroupPtr row;
-	row->ADD_NEW_ITEM(Int, port);
+	row->addNewItem(port);
 	arg.row = row;
 	DBCLIENT_TRANSACTION_BEGIN() {
 		update(arg);
@@ -684,15 +684,15 @@ void DBClientConfig::tableInitializerSystem(DBAgent *dbAgent, void *data)
 	VariableItemGroupPtr row;
 
 	// database_dir
-	row->ADD_NEW_ITEM(String, columnDefDatabaseDir.defaultValue);
+	row->addNewItem(columnDefDatabaseDir.defaultValue);
 
-	row->ADD_NEW_ITEM(Int, 0); // enable_face_mysql
+	row->addNewItem(0); // enable_face_mysql
 
 	// face_reset_port
-	row->ADD_NEW_ITEM(Int, atoi(columnDefFaceRestPort.defaultValue));
+	row->addNewItem(atoi(columnDefFaceRestPort.defaultValue));
 
 	// enable_copy_on_demand
-	row->ADD_NEW_ITEM(Int, atoi(columnDefEnableCopyOnDemand.defaultValue));
+	row->addNewItem(atoi(columnDefEnableCopyOnDemand.defaultValue));
 
 	insArg.row = row;
 	dbAgent->insert(insArg);
@@ -731,18 +731,17 @@ HatoholError DBClientConfig::_addTargetServer(
 	arg.columnDefs = COLUMN_DEF_SERVERS;
 
 	VariableItemGroupPtr row;
-	row->ADD_NEW_ITEM(Int, AUTO_INCREMENT_VALUE);
-	row->ADD_NEW_ITEM(Int, monitoringServerInfo->type);
-	row->ADD_NEW_ITEM(String,
-	                  monitoringServerInfo->hostName);
-	row->ADD_NEW_ITEM(String, monitoringServerInfo->ipAddress);
-	row->ADD_NEW_ITEM(String, monitoringServerInfo->nickname);
-	row->ADD_NEW_ITEM(Int, monitoringServerInfo->port);
-	row->ADD_NEW_ITEM(Int, monitoringServerInfo->pollingIntervalSec);
-	row->ADD_NEW_ITEM(Int, monitoringServerInfo->retryIntervalSec);
-	row->ADD_NEW_ITEM(String, monitoringServerInfo->userName);
-	row->ADD_NEW_ITEM(String, monitoringServerInfo->password);
-	row->ADD_NEW_ITEM(String, monitoringServerInfo->dbName);
+	row->addNewItem(AUTO_INCREMENT_VALUE);
+	row->addNewItem(monitoringServerInfo->type);
+	row->addNewItem(monitoringServerInfo->hostName);
+	row->addNewItem(monitoringServerInfo->ipAddress);
+	row->addNewItem(monitoringServerInfo->nickname);
+	row->addNewItem(monitoringServerInfo->port);
+	row->addNewItem(monitoringServerInfo->pollingIntervalSec);
+	row->addNewItem(monitoringServerInfo->retryIntervalSec);
+	row->addNewItem(monitoringServerInfo->userName);
+	row->addNewItem(monitoringServerInfo->password);
+	row->addNewItem(monitoringServerInfo->dbName);
 	arg.row = row;
 	insert(arg);
 	monitoringServerInfo->id = getLastInsertId();
@@ -779,31 +778,31 @@ HatoholError DBClientConfig::_updateTargetServer(
 	arg.condition  = condition;
 
 	VariableItemGroupPtr row;
-	row->ADD_NEW_ITEM(Int, monitoringServerInfo->type);
+	row->addNewItem(monitoringServerInfo->type);
 	arg.columnIndexes.push_back(IDX_SERVERS_TYPE);
 
-	row->ADD_NEW_ITEM(String, monitoringServerInfo->hostName);
+	row->addNewItem(monitoringServerInfo->hostName);
 	arg.columnIndexes.push_back(IDX_SERVERS_HOSTNAME);
 
-	row->ADD_NEW_ITEM(String, monitoringServerInfo->ipAddress);
+	row->addNewItem(monitoringServerInfo->ipAddress);
 	arg.columnIndexes.push_back(IDX_SERVERS_IP_ADDRESS);
 
-	row->ADD_NEW_ITEM(String, monitoringServerInfo->nickname);
+	row->addNewItem(monitoringServerInfo->nickname);
 	arg.columnIndexes.push_back(IDX_SERVERS_NICKNAME);
 
-	row->ADD_NEW_ITEM(Int, monitoringServerInfo->port);
+	row->addNewItem(monitoringServerInfo->port);
 	arg.columnIndexes.push_back(IDX_SERVERS_PORT);
 
-	row->ADD_NEW_ITEM(Int, monitoringServerInfo->pollingIntervalSec);
+	row->addNewItem(monitoringServerInfo->pollingIntervalSec);
 	arg.columnIndexes.push_back(IDX_SERVERS_POLLING_INTERVAL_SEC);
-	row->ADD_NEW_ITEM(Int, monitoringServerInfo->retryIntervalSec);
+	row->addNewItem(monitoringServerInfo->retryIntervalSec);
 	arg.columnIndexes.push_back(IDX_SERVERS_RETRY_INTERVAL_SEC);
 
-	row->ADD_NEW_ITEM(String, monitoringServerInfo->userName);
+	row->addNewItem(monitoringServerInfo->userName);
 	arg.columnIndexes.push_back(IDX_SERVERS_USER_NAME);
-	row->ADD_NEW_ITEM(String, monitoringServerInfo->password);
+	row->addNewItem(monitoringServerInfo->password);
 	arg.columnIndexes.push_back(IDX_SERVERS_PASSWORD);
-	row->ADD_NEW_ITEM(String, monitoringServerInfo->dbName);
+	row->addNewItem(monitoringServerInfo->dbName);
 	arg.columnIndexes.push_back(IDX_SERVERS_DB_NAME);
 
 	arg.row = row;
