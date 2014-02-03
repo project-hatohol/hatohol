@@ -54,7 +54,7 @@ describe('EventsView', function() {
     $("#" + TEST_FIXTURE_ID).remove();
   });
 
-  it('new with empty data', function() {
+  it.skip('new with empty data', function() {
     var view = new EventsView($('#' + TEST_FIXTURE_ID).get(0));
     respond(eventsJson());
     var heads = $('div#' + TEST_FIXTURE_ID + ' h2');
