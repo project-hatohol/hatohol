@@ -84,6 +84,12 @@ ItemData *ItemGroup::addNewItem(
 }
 
 ItemData *ItemGroup::addNewItem(
+  const time_t &data, const ItemDataNullFlagType &nullFlag)
+{
+	return addNewItem(static_cast<int>(data), nullFlag);
+}
+
+ItemData *ItemGroup::addNewItem(
   const ItemId &itemId, const int &data,
   const ItemDataNullFlagType &nullFlag)
 {
