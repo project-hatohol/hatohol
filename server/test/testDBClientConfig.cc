@@ -180,47 +180,98 @@ void test_createTableServers(void)
 	assertDBContent(dbConfig.getDBAgent(), statement, expectedOut);
 }
 
+void _assertAddTargetServer(
+  MonitoringServerInfo serverInfo, const HatoholErrorCode expectedErrorCode)
+{
+	DBClientConfig dbConfig;
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	HatoholError err;
+	err = dbConfig.addOrUpdateTargetServer(&serverInfo, privilege);
+	assertHatoholError(expectedErrorCode, err);
+
+	string expectedOut("");
+	if (expectedErrorCode == HTERR_OK)
+		expectedOut = makeExpectedOutput(&serverInfo);
+	string statement("select * from servers");
+	assertDBContent(dbConfig.getDBAgent(), statement, expectedOut);
+}
+#define assertAddTargetServer(I,E) cut_trace(_assertAddTargetServer(I,E))
+
 void test_addTargetServer(void)
 {
-	// added a record
 	MonitoringServerInfo *testInfo = testServerInfo;
-	assertAddServerToDB(testInfo);
-
-	// confirm with the command line tool
-	string statement = "select * from servers";
-	string expectedOut = makeExpectedOutput(testInfo);
-	DBClientConfig dbConfig;
-	assertDBContent(dbConfig.getDBAgent(), statement, expectedOut);
+	assertAddTargetServer(*testInfo, HTERR_OK);
 }
 
 void test_addTargetServerWithInvalidServerType(void)
 {
 	MonitoringServerInfo testInfo = testServerInfo[0];
 	testInfo.type = NUM_MONITORING_SYSTEMS;
-
-	DBClientConfig dbConfig;
-	OperationPrivilege privilege(ALL_PRIVILEGES);
-	HatoholError err;
-	err = dbConfig.addOrUpdateTargetServer(&testInfo, privilege);
-	assertHatoholError(HTERR_INVALID_MONITORING_SYSTEM_TYPE, err);
-
-	string statement = "select * from servers";
-	assertDBContent(dbConfig.getDBAgent(), statement, "");
+	assertAddTargetServer(testInfo, HTERR_INVALID_MONITORING_SYSTEM_TYPE);
 }
 
 void test_addTargetServerWithInvalidPortNumber(void)
 {
 	MonitoringServerInfo testInfo = testServerInfo[0];
 	testInfo.port = 65536;
+	assertAddTargetServer(testInfo, HTERR_INVALID_PORT_NUMBER);
+}
 
-	DBClientConfig dbConfig;
-	OperationPrivilege privilege(ALL_PRIVILEGES);
-	HatoholError err;
-	err = dbConfig.addOrUpdateTargetServer(&testInfo, privilege);
-	assertHatoholError(HTERR_INVALID_PORT_NUMBER, err);
+void test_addTargetServerWithLackedIPv4Address(void)
+{
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	testInfo.ipAddress = "192.168.1.";
+	assertAddTargetServer(testInfo, HTERR_INVALID_IP_ADDRESS);
+}
 
-	string statement = "select * from servers";
-	assertDBContent(dbConfig.getDBAgent(), statement, "");
+void test_addTargetServerWithOverflowIPv4Address(void)
+{
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	testInfo.ipAddress = "192.168.1.256";
+	assertAddTargetServer(testInfo, HTERR_INVALID_IP_ADDRESS);
+}
+
+void test_addTargetServerWithTooManyIPv4Fields(void)
+{
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	testInfo.ipAddress = "1.192.168.1.1";
+	assertAddTargetServer(testInfo, HTERR_INVALID_IP_ADDRESS);
+}
+
+void test_addTargetServerWithValidIPv6Address(void)
+{
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	testInfo.ipAddress = "FE80:0000:0000:0000:0202:B3FF:FE1E:8329";
+	assertAddTargetServer(testInfo, HTERR_OK);
+}
+
+void test_addTargetServerWithShortenIPv6Address(void)
+{
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	testInfo.ipAddress = "FE80::0202:B3FF:FE1E:8329";
+	assertAddTargetServer(testInfo, HTERR_OK);
+}
+
+void test_addTargetServerWithMixedIPv6Address(void)
+{
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	testInfo.ipAddress = "fe80::0202:b3ff:fe1e:192.168.1.1";
+	string expectedOut = makeExpectedOutput(&testInfo);
+	assertAddTargetServer(testInfo, HTERR_OK);
+}
+
+void test_addTargetServerWithTooManyIPv6AddressFields(void)
+{
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	testInfo.ipAddress = "FE80:0000:0000:0000:0202:B3FF:FE1E:8329::1";
+	assertAddTargetServer(testInfo, HTERR_INVALID_IP_ADDRESS);
+}
+
+void test_addTargetServerWithOverflowIPv6Address(void)
+{
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	testInfo.ipAddress = "FE80::02:B3FF:10000:8329";
+	assertAddTargetServer(testInfo, HTERR_INVALID_IP_ADDRESS);
 }
 
 void _assertGetTargetServers(UserIdType userId)

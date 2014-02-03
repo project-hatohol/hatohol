@@ -546,12 +546,97 @@ bool DBClientConfig::isCopyOnDemandEnabled(void)
 	return ItemDataUtils::getInt((*grpList.begin())->getItemAt(0));
 }
 
+bool isNumber(const string &str, bool isHex = false)
+{
+	for (size_t i = 0; i < str.size(); i++) {
+		int ch = str[i];
+		if (ch >= '0' && ch <= '9')
+			continue;
+		if (!isHex)
+			return false;
+		if (ch >= 'A' && ch <= 'Z')
+			continue;
+		if (ch >= 'a' && ch <= 'z')
+			continue;
+		return false;
+	}
+	return true;
+}
+
+bool validIPv4Address(const string &ipAddress) {
+	StringVector fields;
+	StringUtils::split(fields, ipAddress,  '.');
+	if (fields.size() != 4)
+		return false;
+	for (size_t i = 0; i < fields.size(); i++) {
+		if (fields[i].empty())
+			return false;
+		if (!isNumber(fields[i]))
+			return false;
+		int value = atoi(fields[i].c_str());
+		if (value < 0 || value > 255)
+			return false;
+	}
+	return true;
+}
+
+bool validIPv6AddressField(const string &field)
+{
+	bool isHex = true;
+	if (!isNumber(field, isHex))
+		return false;
+	long int value = strtol(field.c_str(), NULL, 16);
+	if (value < 0 || value > 0xFFFF)
+		return false;
+	return true;
+}
+
+bool validIPv6Address(const string &ipAddress)
+{
+	StringVector fields;
+	StringUtils::split(fields, ipAddress,  ':');
+	if (fields.size() > 8)
+		return false;
+	bool hasEmptyField = false;
+	for (size_t i = 0; i < fields.size(); i++) {
+		if (fields[i].empty()) {
+			// only one empty filed is allowed
+			if (hasEmptyField)
+				return false;
+			hasEmptyField = true;
+			continue;
+		}
+		if (validIPv6AddressField(fields[i]))
+			continue;
+		if (i < 8 && i == fields.size() - 1 &&
+		    validIPv4Address(fields[i])) {
+			// It's v4 compatible address.
+			// The last field is the IPv4 address.
+			return true;
+		} else {
+			return false;
+		}
+	}
+	return true;
+}
+
+bool validIPAddress(const string &ipAddress)
+{
+	if (validIPv4Address(ipAddress))
+		return true;
+	if (validIPv6Address(ipAddress))
+		return true;
+	return false;
+}
+
 HatoholError validServerInfo(const MonitoringServerInfo &serverInfo)
 {
 	if (serverInfo.type < 0 || serverInfo.type >= NUM_MONITORING_SYSTEMS)
-	    return HTERR_INVALID_MONITORING_SYSTEM_TYPE;
+		return HTERR_INVALID_MONITORING_SYSTEM_TYPE;
 	if (serverInfo.port < 0 || serverInfo.port > 65535)
-	    return HTERR_INVALID_PORT_NUMBER;
+		return HTERR_INVALID_PORT_NUMBER;
+	if (!validIPAddress(serverInfo.ipAddress))
+		return HTERR_INVALID_IP_ADDRESS;
 	return HTERR_OK;
 }
 
