@@ -153,11 +153,11 @@ static void checkInsert(DBAgent &dbAgent, DBAgentChecker &checker,
 	arg.columnDefs = COLUMN_DEF_TEST;
 	VariableItemGroupPtr row;
 	size_t idx = 0;
-	row->ADD_NEW_ITEM(Uint64, id, calcNullFlag(nullIndexes, idx++));
-	row->ADD_NEW_ITEM(Int, age, calcNullFlag(nullIndexes, idx++));
-	row->ADD_NEW_ITEM(String, name, calcNullFlag(nullIndexes, idx++));
-	row->ADD_NEW_ITEM(Double, height, calcNullFlag(nullIndexes, idx++));
-	row->ADD_NEW_ITEM(Int, CURR_DATETIME, calcNullFlag(nullIndexes, idx++));
+	row->addNewItem(id, calcNullFlag(nullIndexes, idx++));
+	row->addNewItem(age, calcNullFlag(nullIndexes, idx++));
+	row->addNewItem(name, calcNullFlag(nullIndexes, idx++));
+	row->addNewItem(height, calcNullFlag(nullIndexes, idx++));
+	row->addNewItem(CURR_DATETIME, calcNullFlag(nullIndexes, idx++));
 	arg.row = row;
 	dbAgent.insert(arg);
 
@@ -176,11 +176,11 @@ static void checkUpdate(DBAgent &dbAgent, DBAgentChecker &checker,
 		arg.columnIndexes.push_back(i);
 	arg.columnDefs = COLUMN_DEF_TEST;
 	VariableItemGroupPtr row;
-	row->ADD_NEW_ITEM(Uint64, id);
-	row->ADD_NEW_ITEM(Int, age);
-	row->ADD_NEW_ITEM(String, name);
-	row->ADD_NEW_ITEM(Double, height);
-	row->ADD_NEW_ITEM(Int, CURR_DATETIME);
+	row->addNewItem(id);
+	row->addNewItem(age);
+	row->addNewItem(name);
+	row->addNewItem(height);
+	row->addNewItem(CURR_DATETIME);
 	arg.row = row;
 	arg.condition = condition;
 	dbAgent.update(arg);
@@ -539,8 +539,8 @@ static void insertRowToTestTableAutoInc(DBAgent &dbAgent,
 	arg.numColumns = NUM_COLUMNS_TEST_AUTO_INC;
 	arg.columnDefs = COLUMN_DEF_TEST_AUTO_INC;
 	VariableItemGroupPtr row;
-	row->ADD_NEW_ITEM(Int, 0, ITEM_DATA_NULL);
-	row->ADD_NEW_ITEM(Int, val);
+	row->addNewItem(AUTO_INCREMENT_VALUE, ITEM_DATA_NULL);
+	row->addNewItem(val);
 	arg.row = row;
 	dbAgent.insert(arg);
 }
@@ -590,11 +590,11 @@ static bool dbAgentUpdateIfExistEleseInsertOneRecord(
   uint64_t id, int age, const char *name, double height, int time)
 {
 	VariableItemGroupPtr row;
-	row->ADD_NEW_ITEM(Uint64, id);
-	row->ADD_NEW_ITEM(Int, age);
-	row->ADD_NEW_ITEM(String, name);
-	row->ADD_NEW_ITEM(Double, height);
-	row->ADD_NEW_ITEM(Int, time);
+	row->addNewItem(id);
+	row->addNewItem(age);
+	row->addNewItem(name);
+	row->addNewItem(height);
+	row->addNewItem(time);
 	bool updated = dbAgent.updateIfExistElseInsert(
 	                 row, TABLE_NAME_TEST, NUM_COLUMNS_TEST,
 	                 COLUMN_DEF_TEST, targetIndex);
@@ -703,11 +703,11 @@ void DBAgentChecker::insert
 	arg.numColumns = NUM_COLUMNS_TEST;
 	arg.columnDefs = COLUMN_DEF_TEST;
 	VariableItemGroupPtr row;
-	row->ADD_NEW_ITEM(Uint64, id);
-	row->ADD_NEW_ITEM(Int, age);
-	row->ADD_NEW_ITEM(String, name);
-	row->ADD_NEW_ITEM(Double, height);
-	row->ADD_NEW_ITEM(Int, time);
+	row->addNewItem(id);
+	row->addNewItem(age);
+	row->addNewItem(name);
+	row->addNewItem(height);
+	row->addNewItem(time);
 	arg.row = row;
 	dbAgent.insert(arg);
 }
