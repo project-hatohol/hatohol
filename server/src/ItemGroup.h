@@ -69,6 +69,9 @@ public:
 	  const std::string &data,
 	  const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL);
 
+	ItemData *addNewItem(
+	  const time_t &data, const ItemDataNullFlagType &nullFlag);
+
 	/**
 	 * Create an ItemData family instance and append it to this group.
 	 *
