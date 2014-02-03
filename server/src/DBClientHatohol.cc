@@ -1739,8 +1739,7 @@ void DBClientHatohol::addEventInfoBare(const EventInfo &eventInfo)
 		arg.tableName = TABLE_NAME_EVENTS;
 		arg.numColumns = NUM_COLUMNS_EVENTS;
 		arg.columnDefs = COLUMN_DEF_EVENTS;
-		// TODO: Should we use AUTO_INCREMENT_VALUE_U64 ? Check later
-		row->addNewItem((uint64_t)0, ITEM_DATA_NULL);
+		row->addNewItem(AUTO_INCREMENT_VALUE_U64);
 		row->addNewItem(eventInfo.serverId);
 		row->addNewItem(eventInfo.id);
 		row->addNewItem(eventInfo.time.tv_sec); 
