@@ -23,6 +23,11 @@
 {% block main %}
   <h2>{% trans "Hosts" %}</h2>
 
+  <form class="form-inline">
+    <input id="show-host-group" type="button" class="btn"
+     value="{% trans "SHOW GROUP" %}" />
+  </form>
+
   <div id="msgbox" title="Message Box">
     <p id="msgbox-text"></p>
   </div>
@@ -30,7 +35,7 @@
   <table class="table table-condensed table-striped table-hover" id="table">
     <thead>
       <tr>
-        <th class="delete-selector" style='display:none;'> </th>
+        <th class="show-selector"> </th>
         <th>{% trans "ID" %}</th>
         <th>{% trans "Type" %}</th>
         <th>{% trans "Hostname" %}</th>
@@ -45,7 +50,8 @@
 {% endblock %}
 
 {% block option %}
-  <script src="{{ STATIC_URL }}js/hatohol_server_edit_dialog.js"></script>
+  <script src="{{ STATIC_URL }}js/hatohol_selector_dialog.js"></script>
+  <script src="{{ STATIC_URL }}js/hatohol_hostgroup_dialog.js"></script>
 {% endblock %}
 
 {% block logic %}
@@ -53,8 +59,24 @@
 
     var numSelected = 0;
 
+    $("#show-host-group").click(function() {
+      var targetServerId = getSelectedServerId();
+      new HatoholHostgroupDialog(targetServerId, addSucceededCb);
+    });
+
     function addSucceededCb() {
       startConnection('server', updateCore);
+    };
+
+    function getSelectedServerId() {
+      var selectedId;
+      var radiobox = $(".selectradiobox");
+      for (var i = 0; i < radiobox.length; i++) {
+        if (!radiobox[i].checked)
+          continue;
+        selectedId = radiobox[i].getAttribute("serverId");
+      }
+      return selectedId;
     };
 
     function parseResult(data) {
@@ -106,13 +128,12 @@
 
       s = "";
       for (x = 0; x < rd["servers"].length; ++x) {
-        o = rd["servers"][x];
-        ip = o["ipAddress"];
+        o = rd["servers"][x]; ip = o["ipAddress"];
         serverURL = getServerLocation(o);
         mapsURL = getMapsLocation(o);
         s += "<tr>";
-        s += "<td class='delete-selector' style='display:none;'>";
-        s += "<input type='checkbox' class='selectcheckbox' serverId='" + o["id"] + "'>";
+        s += "<td class='show-selector'>";
+        s += "<input type='radio' class='selectradiobox' serverId='" + o["id"] + "'>";
         s += "</td>";
         s += "<td>" + o["id"] + "</td>";
         s += "<td>" + getServerTypeFromFlags(o["type"]) + "</td>";
