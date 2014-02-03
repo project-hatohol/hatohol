@@ -2279,8 +2279,11 @@ void FaceRest::handlerGetHostgroup(RestJob *job)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
+	ServerIdType serverId;
+	parseQueryServerId(job->query, serverId);
 	HostgroupInfoList hostgroupInfoList;
 	HostgroupsQueryOption option(job->userId);
+	option.setTargetServerId(serverId);
 	HatoholError err =
 	        dataStore->getHostgroupInfoList(hostgroupInfoList, option);
 
