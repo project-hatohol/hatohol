@@ -550,6 +550,8 @@ HatoholError validServerInfo(const MonitoringServerInfo &serverInfo)
 {
 	if (serverInfo.type < 0 || serverInfo.type >= NUM_MONITORING_SYSTEMS)
 	    return HTERR_INVALID_MONITORING_SYSTEM_TYPE;
+	if (serverInfo.port < 0 || serverInfo.port > 65535)
+	    return HTERR_INVALID_PORT_NUMBER;
 	return HTERR_OK;
 }
 

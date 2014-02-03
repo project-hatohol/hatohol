@@ -208,6 +208,21 @@ void test_addTargetServerWithInvalidServerType(void)
 	assertDBContent(dbConfig.getDBAgent(), statement, "");
 }
 
+void test_addTargetServerWithInvalidPortNumber(void)
+{
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	testInfo.port = 65536;
+
+	DBClientConfig dbConfig;
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	HatoholError err;
+	err = dbConfig.addOrUpdateTargetServer(&testInfo, privilege);
+	assertHatoholError(HTERR_INVALID_PORT_NUMBER, err);
+
+	string statement = "select * from servers";
+	assertDBContent(dbConfig.getDBAgent(), statement, "");
+}
+
 void _assertGetTargetServers(UserIdType userId)
 {
 	ServerHostGrpSetMap authMap;
