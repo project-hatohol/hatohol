@@ -541,26 +541,26 @@ HatoholError DBClientAction::addAction(ActionDef &actionDef,
 	arg.numColumns = NUM_COLUMNS_ACTIONS;
 	arg.columnDefs = COLUMN_DEF_ACTIONS;
 
-	row->ADD_NEW_ITEM(Int, AUTO_INCREMENT_VALUE);
-	row->ADD_NEW_ITEM(Int, actionDef.condition.serverId,
-	                  getNullFlag(actionDef, ACTCOND_SERVER_ID));
-	row->ADD_NEW_ITEM(Uint64, actionDef.condition.hostId,
-	                  getNullFlag(actionDef, ACTCOND_HOST_ID));
-	row->ADD_NEW_ITEM(Uint64, actionDef.condition.hostGroupId,
-	                  getNullFlag(actionDef, ACTCOND_HOST_GROUP_ID));
-	row->ADD_NEW_ITEM(Uint64, actionDef.condition.triggerId,
-	                  getNullFlag(actionDef, ACTCOND_TRIGGER_ID));
-	row->ADD_NEW_ITEM(Int, actionDef.condition.triggerStatus,
-	                  getNullFlag(actionDef, ACTCOND_TRIGGER_STATUS));
-	row->ADD_NEW_ITEM(Int, actionDef.condition.triggerSeverity,
-	                  getNullFlag(actionDef, ACTCOND_TRIGGER_SEVERITY));
-	row->ADD_NEW_ITEM(Int, actionDef.condition.triggerSeverityCompType,
-	                  getNullFlag(actionDef, ACTCOND_TRIGGER_SEVERITY));
-	row->ADD_NEW_ITEM(Int, actionDef.type);
-	row->ADD_NEW_ITEM(String, actionDef.command);
-	row->ADD_NEW_ITEM(String, actionDef.workingDir);
-	row->ADD_NEW_ITEM(Int, actionDef.timeout);
-	row->ADD_NEW_ITEM(Int, ownerUserId);
+	row->addNewItem(AUTO_INCREMENT_VALUE);
+	row->addNewItem(actionDef.condition.serverId,
+	                getNullFlag(actionDef, ACTCOND_SERVER_ID));
+	row->addNewItem(actionDef.condition.hostId,
+	                getNullFlag(actionDef, ACTCOND_HOST_ID));
+	row->addNewItem(actionDef.condition.hostGroupId,
+	                getNullFlag(actionDef, ACTCOND_HOST_GROUP_ID));
+	row->addNewItem(actionDef.condition.triggerId,
+	                getNullFlag(actionDef, ACTCOND_TRIGGER_ID));
+	row->addNewItem(actionDef.condition.triggerStatus,
+	                getNullFlag(actionDef, ACTCOND_TRIGGER_STATUS));
+	row->addNewItem(actionDef.condition.triggerSeverity,
+	                getNullFlag(actionDef, ACTCOND_TRIGGER_SEVERITY));
+	row->addNewItem(actionDef.condition.triggerSeverityCompType,
+	                getNullFlag(actionDef, ACTCOND_TRIGGER_SEVERITY));
+	row->addNewItem(actionDef.type);
+	row->addNewItem(actionDef.command);
+	row->addNewItem(actionDef.workingDir);
+	row->addNewItem(actionDef.timeout);
+	row->addNewItem(ownerUserId);
 
 	arg.row = row;
 
@@ -717,8 +717,8 @@ uint64_t DBClientAction::createActionLog(
 	arg.numColumns = NUM_COLUMNS_ACTION_LOGS;
 	arg.columnDefs = COLUMN_DEF_ACTION_LOGS;
 
-	row->ADD_NEW_ITEM(Uint64, 0); // action_log_id (automatically set)
-	row->ADD_NEW_ITEM(Int, actionDef.id);
+	row->addNewItem(AUTO_INCREMENT_VALUE_U64);
+	row->addNewItem(actionDef.id);
 
 	// status
 	ActionLogStatus status;
@@ -726,30 +726,32 @@ uint64_t DBClientAction::createActionLog(
 		status = initialStatus;
 	else
 		status = ACTLOG_STAT_FAILED;
-	row->ADD_NEW_ITEM(Int, status);
+	row->addNewItem(status);
 
 	// TODO: set the appropriate the following starter ID.
-	row->ADD_NEW_ITEM(Int, 0); // starter_id
+	int starterId = 0;
+	row->addNewItem(starterId);
 
 	// queuing_time
+	const int dummyTime = 0;
 	if (initialStatus == ACTLOG_STAT_QUEUING)
-		row->ADD_NEW_ITEM(Int, CURR_DATETIME);
+		row->addNewItem(CURR_DATETIME);
 	else
-		row->ADD_NEW_ITEM(Int, 0, ITEM_DATA_NULL);
-	row->ADD_NEW_ITEM(Int, CURR_DATETIME);     // start_time
+		row->addNewItem(dummyTime, ITEM_DATA_NULL);
+	row->addNewItem(CURR_DATETIME);     // start_time
 
 	// end_time
 	if (failureCode == ACTLOG_EXECFAIL_NONE)
-		row->ADD_NEW_ITEM(Int, 0, ITEM_DATA_NULL);
+		row->addNewItem(dummyTime, ITEM_DATA_NULL);
 	else
-		row->ADD_NEW_ITEM(Int, CURR_DATETIME);
+		row->addNewItem(CURR_DATETIME);
 
-	row->ADD_NEW_ITEM(Int, failureCode);
-	row->ADD_NEW_ITEM(Int, 0, ITEM_DATA_NULL); // exit_code
+	row->addNewItem(failureCode);
+	row->addNewItem(dummyTime, ITEM_DATA_NULL); // exit_code
 
 	// server ID and event ID
-	row->ADD_NEW_ITEM(Int, eventInfo.serverId);
-	row->ADD_NEW_ITEM(Uint64, eventInfo.id);
+	row->addNewItem(eventInfo.serverId);
+	row->addNewItem(eventInfo.id);
 
 	arg.row = row;
 	uint64_t logId;
@@ -773,22 +775,22 @@ void DBClientAction::logEndExecAction(const LogEndExecActionArg &logArg)
 	                                     actionLogIdColumnName,
 	                                     logArg.logId);
 	// status
-	row->ADD_NEW_ITEM(Int, logArg.status);
+	row->addNewItem(logArg.status);
 	arg.columnIndexes.push_back(IDX_ACTION_LOGS_STATUS);
 
 	// end_time
 	if (!(logArg.nullFlags & ACTLOG_FLAG_END_TIME)) {
-		row->ADD_NEW_ITEM(Int, CURR_DATETIME);
+		row->addNewItem(CURR_DATETIME);
 		arg.columnIndexes.push_back(IDX_ACTION_LOGS_END_TIME);
 	}
 
 	// exec_failure_code
-	row->ADD_NEW_ITEM(Int, logArg.failureCode);
+	row->addNewItem(logArg.failureCode);
 	arg.columnIndexes.push_back(IDX_ACTION_LOGS_EXEC_FAILURE_CODE);
 
 	// exit_code
 	if (!(logArg.nullFlags & ACTLOG_FLAG_EXIT_CODE)) {
-		row->ADD_NEW_ITEM(Int, logArg.exitCode);
+		row->addNewItem(logArg.exitCode);
 		arg.columnIndexes.push_back(IDX_ACTION_LOGS_EXIT_CODE);
 	}
 
@@ -810,11 +812,11 @@ void DBClientAction::updateLogStatusToStart(uint64_t logId)
 	arg.condition = StringUtils::sprintf("%s=%"PRIu64,
 	                                     actionLogIdColumnName, logId);
 	// status
-	row->ADD_NEW_ITEM(Int, ACTLOG_STAT_STARTED);
+	row->addNewItem(ACTLOG_STAT_STARTED);
 	arg.columnIndexes.push_back(IDX_ACTION_LOGS_STATUS);
 
 	// start_time
-	row->ADD_NEW_ITEM(Int, CURR_DATETIME);
+	row->addNewItem(CURR_DATETIME);
 	arg.columnIndexes.push_back(IDX_ACTION_LOGS_START_TIME);
 
 	arg.row = row;
