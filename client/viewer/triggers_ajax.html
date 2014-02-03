@@ -147,6 +147,11 @@
       return parsedData;
     }
 
+    function parseGroup(replyData) {
+      // TODO: Parse data from hatohol server.
+      //       And return parsed data.
+    }
+
     function getTargetServerName() {
       var name = $("#select-server").val();
       if (name == "---------")
@@ -225,8 +230,14 @@
       drawTableContents(rawData);
     }
 
+    function updateGroup(reply) {
+      rawData = reply;
+      parsedData = parseGroup(rawData);
+    }
+
     userProfile.addOnLoadCb(function() {
       startConnection('trigger', updateCore);
+      startConnection('hostgroups', updateGroup);
     });
   </script>
 {% endblock %}
