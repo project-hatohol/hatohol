@@ -43,15 +43,17 @@ struct TestDBClientConfig : public DBClientConfig {
 namespace testDBClientConfig {
 
 void _assertGetHostAddress
-  (const string &ipAddr, const string &hostName, const char *expectValue)
+  (const string &ipAddr, const string &hostName, const char *expectValue,
+   bool forURI = false)
 {
 	MonitoringServerInfo svInfo;
 	svInfo.ipAddress = ipAddr;
 	svInfo.hostName  = hostName;
-	cppcut_assert_equal(expectValue, svInfo.getHostAddress());
+	string actualValue = svInfo.getHostAddress(forURI);
+	cppcut_assert_equal(expectValue, actualValue.c_str());
 }
-#define assertGetHostAddress(IP, HOSTNAME, EXPECT) \
-cut_trace(_assertGetHostAddress(IP, HOSTNAME, EXPECT))
+#define assertGetHostAddress(IP, HOSTNAME, EXPECTED, ...) \
+cut_trace(_assertGetHostAddress(IP, HOSTNAME, EXPECTED, ##__VA_ARGS__))
 
 static void addTargetServer(MonitoringServerInfo *serverInfo)
 {
@@ -122,15 +124,42 @@ void test_getHostAddressIP(void)
 	assertGetHostAddress(ipAddr, "example.com", ipAddr);
 }
 
+void test_getHostAddressIPv4ForURI(void)
+{
+	const char *ipAddr = "192.168.1.1";
+	bool forURI = true;
+	assertGetHostAddress(ipAddr, "example.com", ipAddr, forURI);
+}
+
+void test_getHostAddressIPv6(void)
+{
+	const char *ipAddr = "::1";
+	assertGetHostAddress(ipAddr, "", ipAddr);
+}
+
+void test_getHostAddressIPv6ForURI(void)
+{
+	const char *ipAddr = "::1";
+	bool forURI = true;
+	assertGetHostAddress(ipAddr, "", "[::1]", forURI);
+}
+
 void test_getHostAddressHostName(void)
 {
 	const char *hostName = "example.com";
 	assertGetHostAddress("", hostName, hostName);
 }
 
+void test_getHostAddressHostNameForURI(void)
+{
+	const char *hostName = "example.com";
+	bool forURI = true;
+	assertGetHostAddress("", hostName, hostName, forURI);
+}
+
 void test_getHostAddressBothNotSet(void)
 {
-	assertGetHostAddress("", "", NULL);
+	assertGetHostAddress("", "", "");
 }
 
 void test_createDB(void)

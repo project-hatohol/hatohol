@@ -237,13 +237,21 @@ enum {
 	NUM_IDX_SERVERS,
 };
 
-const char *MonitoringServerInfo::getHostAddress(void) const
+static bool validIPv4Address(const string &ipAddress);
+static bool validIPv6Address(const string &ipAddress);
+
+string MonitoringServerInfo::getHostAddress(bool forURI) const
 {
-	if (!ipAddress.empty())
-		return ipAddress.c_str();
-	if (!hostName.empty())
-		return hostName.c_str();
-	return NULL;
+	if (ipAddress.empty())
+		return hostName;
+
+	if (!forURI)
+		return ipAddress;
+
+	if (!validIPv4Address(ipAddress) && validIPv6Address(ipAddress))
+		return StringUtils::sprintf("[%s]", ipAddress.c_str());
+	else
+		return ipAddress;
 }
 
 struct DBClientConfig::PrivateContext
