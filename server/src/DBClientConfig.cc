@@ -635,8 +635,12 @@ HatoholError validServerInfo(const MonitoringServerInfo &serverInfo)
 		return HTERR_INVALID_MONITORING_SYSTEM_TYPE;
 	if (serverInfo.port < 0 || serverInfo.port > 65535)
 		return HTERR_INVALID_PORT_NUMBER;
-	if (!validIPAddress(serverInfo.ipAddress))
+	if (serverInfo.ipAddress.empty() && serverInfo.hostName.empty())
+		return HTERR_NO_IP_ADDRESS_AND_HOST_NAME;
+	if (!serverInfo.ipAddress.empty() &&
+	    !validIPAddress(serverInfo.ipAddress)) {
 		return HTERR_INVALID_IP_ADDRESS;
+	}
 	return HTERR_OK;
 }
 

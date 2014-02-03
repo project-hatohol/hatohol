@@ -288,6 +288,22 @@ void test_addTargetServerWithSimpleNumber(void)
 	assertAddTargetServer(testInfo, HTERR_INVALID_IP_ADDRESS);
 }
 
+void test_addTargetServerWithEmptyIPAddress(void)
+{
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	testInfo.ipAddress = "";
+	// Allow empty IP address when the host name isn't empty.
+	assertAddTargetServer(testInfo, HTERR_OK);
+}
+
+void test_addTargetServerWithEmptyIPAddressAndHostname(void)
+{
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	testInfo.hostName = "";
+	testInfo.ipAddress = "";
+	assertAddTargetServer(testInfo, HTERR_NO_IP_ADDRESS_AND_HOST_NAME);
+}
+
 void _assertGetTargetServers(UserIdType userId)
 {
 	ServerHostGrpSetMap authMap;
