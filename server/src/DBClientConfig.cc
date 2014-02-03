@@ -554,9 +554,9 @@ bool isNumber(const string &str, bool isHex = false)
 			continue;
 		if (!isHex)
 			return false;
-		if (ch >= 'A' && ch <= 'Z')
+		if (ch >= 'A' && ch <= 'F')
 			continue;
-		if (ch >= 'a' && ch <= 'z')
+		if (ch >= 'a' && ch <= 'f')
 			continue;
 		return false;
 	}

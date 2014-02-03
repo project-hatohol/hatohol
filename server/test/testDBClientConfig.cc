@@ -274,6 +274,13 @@ void test_addTargetServerWithOverflowIPv6Address(void)
 	assertAddTargetServer(testInfo, HTERR_INVALID_IP_ADDRESS);
 }
 
+void test_addTargetServerWithInvalidIPv6AddressCharacter(void)
+{
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	testInfo.ipAddress = "FE80::02:B3FG:8329";
+	assertAddTargetServer(testInfo, HTERR_INVALID_IP_ADDRESS);
+}
+
 void _assertGetTargetServers(UserIdType userId)
 {
 	ServerHostGrpSetMap authMap;
