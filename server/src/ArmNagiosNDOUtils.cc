@@ -340,7 +340,7 @@ struct ArmNagiosNDOUtils::PrivateContext
 		dbAgent = new DBAgentMySQL(
 		  serverInfo.dbName.c_str(), serverInfo.userName.c_str(),
 		  serverInfo.password.c_str(),
-		  serverInfo.getHostAddress(), serverInfo.port);
+		  serverInfo.getHostAddress().c_str(), serverInfo.port);
 	}
 };
 
