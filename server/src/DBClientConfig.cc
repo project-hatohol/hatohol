@@ -593,6 +593,9 @@ bool validIPv6AddressField(const string &field)
 
 bool validIPv6Address(const string &ipAddress)
 {
+	if (ipAddress == "::1")
+		return true;
+
 	StringVector fields;
 	StringUtils::split(fields, ipAddress,  ':');
 	if (fields.size() < 3 || fields.size() > 8)
