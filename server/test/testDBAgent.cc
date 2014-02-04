@@ -79,6 +79,7 @@ public:
 			const T actual = *elem->dataPtr;
 			cppcut_assert_equal(i, elem->columnIndex);
 			cppcut_assert_equal(vals[i], actual);
+			cppcut_assert_equal(1, elem->dataPtr->getUsedCount());
 		}
 	}
 
