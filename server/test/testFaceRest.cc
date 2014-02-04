@@ -820,6 +820,19 @@ void _assertAddUserWithSetup(const StringMap &params,
 #define assertUpdateUser(P, ...) \
 cut_trace(_assertUpdateRecord(P, "/user", ##__VA_ARGS__))
 
+void _assertUpdateUserWithSetup(const StringMap &params,
+                                uint32_t targetUserId,
+                                const HatoholErrorCode &expectCode)
+{
+	const bool dbRecreate = true;
+	const bool loadTestDat = true;
+	setupTestDBUser(dbRecreate, loadTestDat);
+	const UserIdType userId = findUserWith(OPPRVLG_CREATE_USER);
+	assertUpdateUser(params, targetUserId, userId, expectCode);
+}
+#define assertUpdateUserWithSetup(P,U,C) \
+cut_trace(_assertUpdateUserWithSetup(P,U,C))
+
 #define assertAddServer(P, ...) \
 cut_trace(_assertAddRecord(P, "/server", ##__VA_ARGS__))
 
@@ -833,19 +846,6 @@ void _assertAddServerWithSetup(const StringMap &params,
 	assertAddServer(params, userId, expectCode, NumTestServerInfo + 1);
 }
 #define assertAddServerWithSetup(P,C) cut_trace(_assertAddServerWithSetup(P,C))
-
-void _assertUpdateUserWithSetup(const StringMap &params,
-                                uint32_t targetUserId,
-                                const HatoholErrorCode &expectCode)
-{
-	const bool dbRecreate = true;
-	const bool loadTestDat = true;
-	setupTestDBUser(dbRecreate, loadTestDat);
-	const UserIdType userId = findUserWith(OPPRVLG_CREATE_USER);
-	assertUpdateUser(params, targetUserId, userId, expectCode);
-}
-#define assertUpdateUserWithSetup(P,U,C) \
-cut_trace(_assertUpdateUserWithSetup(P,U,C))
 
 static void setupTestMode(void)
 {
