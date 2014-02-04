@@ -128,7 +128,7 @@ public:
 	virtual ItemData *clone(void) const = 0;
 
 	/**
-	 * Cast ItemData to native types.
+	 * Cast an ItemData instance to a reference of the native type.
 	 *
 	 * Note that the returned reference value
 	 * shall not be passed to other threads and
