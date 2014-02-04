@@ -28,24 +28,21 @@ public:
 	void assertCreateTableProfile(void)
 	{
 		const char *name = "foo bar";
-		const size_t numTestColumns = 5;
-		ColumnDef testColumnDefs[numTestColumns];
-		TableProfile tblprof(name, testColumnDefs,
-		                     sizeof(testColumnDefs), numTestColumns);
-		cppcut_assert_equal(name, tblprof.name);
-		cppcut_assert_equal(testColumnDefs, tblprof.columnDefs);
-		cppcut_assert_equal(numTestColumns, tblprof.numColumns);
+		TableProfile tblProf(name, m_testColumnDefs,
+		                     sizeof(m_testColumnDefs),
+		                     m_numTestColumns);
+		cppcut_assert_equal(name, tblProf.name);
+		cppcut_assert_equal(m_testColumnDefs, tblProf.columnDefs);
+		cppcut_assert_equal(m_numTestColumns, tblProf.numColumns);
 	}
 
 	void assertCreateTableProfileWithInvalidNumIndexes(void)
 	{
 		bool gotException = false;
-		const size_t numTestColumns = 5;
-		ColumnDef testColumnDefs[numTestColumns];
 		try {
-			TableProfile tblprof("name", testColumnDefs,
-			                     sizeof(testColumnDefs),
-			                     numTestColumns+1);
+			TableProfile tblProf("name", m_testColumnDefs,
+			                     sizeof(m_testColumnDefs),
+			                     m_numTestColumns+1);
 		} catch (const HatoholException &e) {
 			gotException = true;
 		}
