@@ -56,7 +56,7 @@ def add_session_id(request):
   env_name = hatohol.ENV_NAME_SESSION_ID
   session_id = os.getenv(env_name)
   if session_id is None:
-    print "Found found an environment varible: %s" % env_name
+    print "Found an environment varible: %s" % env_name
     return
   request.add_header(hatohol.FACE_REST_SESSION_ID_HEADER_NAME, session_id)
 
