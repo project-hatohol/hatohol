@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -47,7 +47,8 @@ public:
 	virtual void rollback(void);
 	virtual void createTable(DBAgentTableCreationArg &tableCreationArg);
 	virtual void insert(DBAgentInsertArg &insertArg);
-	virtual void update(DBAgentUpdateArg &updateArg);
+	virtual void update(DBAgentUpdateArg &updateArg) __attribute__ ((deprecated));
+	virtual void update(const UpdateArg &updateArg); // override
 	virtual void select(DBAgentSelectArg &selectArg);
 	virtual void select(DBAgentSelectExArg &selectExArg);
 	virtual void deleteRows(DBAgentDeleteArg &deleteArg);

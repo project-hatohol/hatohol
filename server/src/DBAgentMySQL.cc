@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -321,6 +321,13 @@ void DBAgentMySQL::insert(DBAgentInsertArg &insertArg)
 }
 
 void DBAgentMySQL::update(DBAgentUpdateArg &updateArg)
+{
+	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
+	string sql = makeUpdateStatement(updateArg);
+	execSql(sql);
+}
+
+void DBAgentMySQL::update(const UpdateArg &updateArg)
 {
 	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
 	string sql = makeUpdateStatement(updateArg);

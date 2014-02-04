@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -152,6 +152,7 @@ public:
 	virtual void createTable(DBAgentTableCreationArg &tableCreationArg) = 0;
 	virtual void insert(DBAgentInsertArg &insertArg) = 0;
 	virtual void update(DBAgentUpdateArg &updateArg) = 0;
+	virtual void update(const UpdateArg &updateArg) = 0;
 	virtual void select(DBAgentSelectArg &selectArg) = 0;
 	virtual void select(DBAgentSelectExArg &selectExArg) = 0;
 	virtual void deleteRows(DBAgentDeleteArg &deleteArg) = 0;
