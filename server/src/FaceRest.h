@@ -73,7 +73,6 @@ protected:
 	                                   JsonBuilderAgent &agent,
 	                                   uint64_t targetServerId,
 	                                   uint64_t targetGroupId);
-	static void addHostgroupData(RestJob *job, JsonBuilderAgent &agent);
 	static void replyError(RestJob *job,
 	                       const HatoholError &hatoholError);
 	static void replyError(RestJob *job,

@@ -1236,8 +1236,8 @@ static void addServersMap(
 	agent.endObject();
 }
 
-void FaceRest::addHostgroupData(
-  RestJob *job, JsonBuilderAgent &agent)
+static void buildHostgroup(
+  FaceRest::RestJob *job, JsonBuilderAgent &outputJson)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
@@ -1245,21 +1245,18 @@ void FaceRest::addHostgroupData(
 	HostgroupsQueryOption option(job->userId);
 	dataStore->getHostgroupInfoList(hostgroupInfoList, option);
 
-	agent.startObject("hostgroups");
+	outputJson.startArray("hostgroups");
 	HostgroupInfoListIterator it = hostgroupInfoList.begin();
 	for (; it != hostgroupInfoList.end(); ++it) {
-		HostgroupInfo hostgroupInfo = *it;
-		agent.startObject();
-		agent.add("id", hostgroupInfo.id);
-		agent.add("serverId", hostgroupInfo.serverId);
-		agent.add("groupId", hostgroupInfo.groupId);
-		agent.add("groupName", hostgroupInfo.groupName.c_str());
-		addHostsIsMemberOfGroup(job, agent,
-		                                  hostgroupInfo.serverId,
-		                                  hostgroupInfo.groupId);
-		agent.endObject();
+		HostgroupInfo &hostgroupInfo = *it;
+		outputJson.startObject();
+		outputJson.add("id", hostgroupInfo.id);
+		outputJson.add("serverId", hostgroupInfo.serverId);
+		outputJson.add("groupId", hostgroupInfo.groupId);
+		outputJson.add("groupName", hostgroupInfo.groupName.c_str());
+		outputJson.endObject();
 	}
-	agent.endObject();
+	outputJson.endArray();
 }
 
 void FaceRest::handlerTest(RestJob *job)
@@ -1591,6 +1588,7 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 	}
 	agent.endArray();
 	addServersMap(job, agent, &hostMaps);
+	buildHostgroupData(job, agent);
 	agent.endObject();
 
 	replyJsonData(agent, job);
