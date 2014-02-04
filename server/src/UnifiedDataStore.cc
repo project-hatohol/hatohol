@@ -549,6 +549,14 @@ HatoholError UnifiedDataStore::deleteUserRole(
 	return dbUser->deleteUserRoleInfo(userRoleId, privilege);
 }
 
+void UnifiedDataStore::getTargetServers(
+  MonitoringServerInfoList &monitoringServers, ServerQueryOption &option)
+{
+	CacheServiceDBClient cache;
+	DBClientConfig *dbConfig = cache.getConfig();
+	dbConfig->getTargetServers(monitoringServers, option);
+}
+
 HatoholError UnifiedDataStore::addTargetServer(
   MonitoringServerInfo &svInfo, const OperationPrivilege &privilege)
 {

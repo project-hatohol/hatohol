@@ -32,7 +32,6 @@
 #include "FaceRest.h"
 #include "JsonBuilderAgent.h"
 #include "HatoholException.h"
-#include "ConfigManager.h"
 #include "UnifiedDataStore.h"
 #include "DBClientUser.h"
 #include "DBClientConfig.h"
@@ -1044,10 +1043,10 @@ static void addOverviewEachServer(FaceRest::RestJob *job,
 
 static void addOverview(FaceRest::RestJob *job, JsonBuilderAgent &agent)
 {
-	ConfigManager *configManager = ConfigManager::getInstance();
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	MonitoringServerInfoList monitoringServers;
 	ServerQueryOption option(job->userId);
-	configManager->getTargetServers(monitoringServers, option);
+	dataStore->getTargetServers(monitoringServers, option);
 	MonitoringServerInfoListIterator it = monitoringServers.begin();
 	agent.add("numberOfServers", monitoringServers.size());
 	agent.startArray("serverStatus");
@@ -1066,11 +1065,11 @@ static void addOverview(FaceRest::RestJob *job, JsonBuilderAgent &agent)
 static void addServers(FaceRest::RestJob *job, JsonBuilderAgent &agent,
                        const ServerIdType &targetServerId)
 {
-	ConfigManager *configManager = ConfigManager::getInstance();
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	MonitoringServerInfoList monitoringServers;
 	ServerQueryOption option(job->userId);
 	option.setTargetServerId(targetServerId);
-	configManager->getTargetServers(monitoringServers, option);
+	dataStore->getTargetServers(monitoringServers, option);
 
 	agent.add("numberOfServers", monitoringServers.size());
 	agent.startArray("servers");
@@ -1209,10 +1208,10 @@ static void addServersMap(
   HostNameMaps *hostMaps = NULL, bool lookupHostName = false,
   TriggerBriefMaps *triggerMaps = NULL, bool lookupTriggerBrief = false)
 {
-	ConfigManager *configManager = ConfigManager::getInstance();
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	MonitoringServerInfoList monitoringServers;
 	ServerQueryOption option(job->userId);
-	configManager->getTargetServers(monitoringServers, option);
+	dataStore->getTargetServers(monitoringServers, option);
 
 	agent.startObject("servers");
 	MonitoringServerInfoListIterator it = monitoringServers.begin();
@@ -1486,10 +1485,10 @@ void FaceRest::handlerPutServer(RestJob *job)
 	}
 
 	// check the existing record
-	ConfigManager *configManager = ConfigManager::getInstance();
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	MonitoringServerInfoList serversList;
 	ServerQueryOption option(job->userId);
-	configManager->getTargetServers(serversList, option);
+	dataStore->getTargetServers(serversList, option);
 	if (!serversList.empty()) {
 		REPLY_ERROR(job, HTERR_NOT_FOUND_SERVER_ID,
 		            "id: %"PRIu64, serverId);
@@ -1510,7 +1509,6 @@ void FaceRest::handlerPutServer(RestJob *job)
 	}
 
 	// try to update
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	err = dataStore->addTargetServer(serverInfo, option);
 
 	// make a response

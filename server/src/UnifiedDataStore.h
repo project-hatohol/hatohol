@@ -109,6 +109,9 @@ public:
 	  UserRoleInfo &userRoleInfo, const OperationPrivilege &privilege);
 	virtual HatoholError deleteUserRole(
 	  UserRoleIdType userRoleId, const OperationPrivilege &privilege);
+	virtual void getTargetServers(
+	  MonitoringServerInfoList &monitoringServers,
+	  ServerQueryOption &option);
 	virtual HatoholError addTargetServer(
 	  MonitoringServerInfo &svInfo, const OperationPrivilege &privilege);
 	virtual HatoholError deleteTargetServer(
