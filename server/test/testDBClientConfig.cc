@@ -64,23 +64,6 @@ static void addTargetServer(MonitoringServerInfo *serverInfo)
 #define assertAddServerToDB(X) \
 cut_trace(_assertAddToDB<MonitoringServerInfo>(X, addTargetServer))
 
-static string makeServerOutput(MonitoringServerInfo &serverInfo)
-{
-	string expectedOut = StringUtils::sprintf
-	                       ("%u|%d|%s|%s|%s|%d|%d|%d|%s|%s|%s\n",
-	                        serverInfo.id, serverInfo.type,
-	                        serverInfo.hostName.c_str(),
-	                        serverInfo.ipAddress.c_str(),
-	                        serverInfo.nickname.c_str(),
-	                        serverInfo.port,
-	                        serverInfo.pollingIntervalSec,
-	                        serverInfo.retryIntervalSec,
-	                        serverInfo.userName.c_str(),
-	                        serverInfo.password.c_str(),
-	                        serverInfo.dbName.c_str());
-	return expectedOut;
-}
-
 static const char *TEST_DB_USER = "hatohol_test_user";
 static const char *TEST_DB_PASSWORD = ""; // empty: No password is used
 void cut_setup(void)

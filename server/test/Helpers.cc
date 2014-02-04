@@ -343,6 +343,31 @@ string getExpectedNullNotation(DBAgent &dbAgent)
 	return "";
 }
 
+string makeServerOutput(const MonitoringServerInfo &serverInfo)
+{
+	string expectedOut = StringUtils::sprintf
+	                       ("%u|%d|%s|%s|%s|%d|%d|%d|%s|%s|%s\n",
+	                        serverInfo.id, serverInfo.type,
+	                        serverInfo.hostName.c_str(),
+	                        serverInfo.ipAddress.c_str(),
+	                        serverInfo.nickname.c_str(),
+	                        serverInfo.port,
+	                        serverInfo.pollingIntervalSec,
+	                        serverInfo.retryIntervalSec,
+	                        serverInfo.userName.c_str(),
+	                        serverInfo.password.c_str(),
+	                        serverInfo.dbName.c_str());
+	return expectedOut;
+}
+
+std::string makeUserRoleInfoOutput(const UserRoleInfo &userRoleInfo)
+{
+	return StringUtils::sprintf(
+		 "%"FMT_USER_ROLE_ID"|%s|%"FMT_OPPRVLG"\n",
+		 userRoleInfo.id, userRoleInfo.name.c_str(),
+		 userRoleInfo.flags);
+}
+
 static void assertDBContentForComponets(const string &expect,
                                         const string &actual,
                                         DBAgent *dbAgent)
@@ -464,14 +489,6 @@ void _assertAccessInfoInDB(const AccessInfoIdSet &excludeAccessInfoIdSet)
 	}
 	CacheServiceDBClient cache;
 	assertDBContent(cache.getUser()->getDBAgent(), statement, expect);
-}
-
-std::string makeUserRoleInfoOutput(const UserRoleInfo &userRoleInfo)
-{
-	return StringUtils::sprintf(
-		 "%"FMT_USER_ROLE_ID"|%s|%"FMT_OPPRVLG"\n",
-		 userRoleInfo.id, userRoleInfo.name.c_str(),
-		 userRoleInfo.flags);
 }
 
 void _assertUserRoleInfoInDB(UserRoleInfo &userRoleInfo) 
