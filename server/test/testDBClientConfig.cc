@@ -27,8 +27,6 @@
 using namespace std;
 using namespace mlpl;
 
-static const char *TEST_DB_NAME = "test_db_config";
-
 struct TestDBClientConfig : public DBClientConfig {
 
 	static bool callParseCommandLineArgument(const CommandLineArg &cmdArg)
@@ -69,11 +67,8 @@ static const char *TEST_DB_PASSWORD = ""; // empty: No password is used
 void cut_setup(void)
 {
 	hatoholInit();
-	DBClient::setDefaultDBParams(
-	  DB_DOMAIN_ID_CONFIG, TEST_DB_NAME, TEST_DB_USER, TEST_DB_PASSWORD);
-
-	bool recreate = true;
-	makeTestMySQLDBIfNeeded(TEST_DB_NAME, recreate);
+	bool dbRecreate = true;
+	setupTestDBConfig(dbRecreate);
 }
 
 void cut_teardown(void)
@@ -217,7 +212,7 @@ void test_addTargetServer(void)
 
 void test_deleteTargetServer(void)
 {
-	setupTestDBServers();
+	loadTestDBServer();
 	ServerIdType targetServerId = 1;
 	OperationPrivilege privilege(findUserWith(OPPRVLG_DELETE_ALL_SERVER));
 	DBClientConfig dbConfig;
@@ -232,7 +227,7 @@ void test_deleteTargetServer(void)
 
 void test_deleteTargetServerWithoutPrivilege(void)
 {
-	setupTestDBServers();
+	loadTestDBServer();
 	ServerIdType targetServerId = 1;
 	OperationPrivilege privilege;
 	DBClientConfig dbConfig;

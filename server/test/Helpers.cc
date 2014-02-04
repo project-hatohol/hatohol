@@ -615,22 +615,27 @@ exit:
 	   cut_message("Failed to query: %s", errmsg.c_str()));
 }
 
-void setupTestDBServers(void)
+void loadTestDBServer(void)
+{
+	DBClientConfig dbConfig;
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	for (size_t i = 0; i < NumTestServerInfo; i++) {
+		dbConfig.addOrUpdateTargetServer(&testServerInfo[i],
+						 privilege);
+	}
+}
+
+void setupTestDBConfig(bool dbRecreate, bool loadTestData)
 {
 	static const char *TEST_DB_NAME = "test_servers_in_helper";
 	static const char *TEST_DB_USER = "hatohol_test_user";
 	static const char *TEST_DB_PASSWORD = ""; // empty: No password is used
 	DBClient::setDefaultDBParams(DB_DOMAIN_ID_CONFIG, TEST_DB_NAME,
 	                             TEST_DB_USER, TEST_DB_PASSWORD);
-	OperationPrivilege privilege(ALL_PRIVILEGES);
 	bool recreate = true;
 	makeTestMySQLDBIfNeeded(TEST_DB_NAME, recreate);
-
-	DBClientConfig dbConfig;
-	for (size_t i = 0; i < NumTestServerInfo; i++) {
-		dbConfig.addOrUpdateTargetServer(&testServerInfo[i],
-						 privilege);
-	}
+	if (loadTestData)
+		loadTestDBServer();
 }
 
 void setupTestDBAction(bool dbRecreate, bool loadTestData)

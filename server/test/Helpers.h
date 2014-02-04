@@ -149,9 +149,10 @@ void _assertUserRolesInDB(const UserRoleIdSet &excludeUserRoleIdSet = EMPTY_USER
 #define assertUserRolesInDB(E) cut_trace(_assertUserRolesInDB(E))
 
 void makeTestMySQLDBIfNeeded(const std::string &dbName, bool recreate = false);
-void setupTestDBServers(void);
+void setupTestDBConfig(bool dbRecreate = true, bool loadTestDat = false);
 void setupTestDBAction(bool dbRecreate = true, bool loadTestDat = false);
 void setupTestDBUser(bool dbRecreate = true, bool loadTestDat = false);
+void loadTestDBServer(void);
 void loadTestDBAction(void);
 void loadTestDBUser(void);
 void loadTestDBAccessList(void);

@@ -69,7 +69,8 @@ static void startFaceRest(void)
 	} param;
 
 	string dbPathHatohol  = getFixturesDir() + TEST_DB_HATOHOL_NAME;
-	setupTestDBServers();
+	bool dbRecreate = true, loadTestData = true;
+	setupTestDBConfig(dbRecreate, loadTestData);
 
 	defineDBPath(DB_DOMAIN_ID_HATOHOL, dbPathHatohol);
 
