@@ -27,8 +27,6 @@
 using namespace std;
 using namespace mlpl;
 
-static const char *TEST_DB_NAME = "test_db_config";
-
 struct TestDBClientConfig : public DBClientConfig {
 
 	static bool callParseCommandLineArgument(const CommandLineArg &cmdArg)
@@ -64,33 +62,13 @@ static void addTargetServer(MonitoringServerInfo *serverInfo)
 #define assertAddServerToDB(X) \
 cut_trace(_assertAddToDB<MonitoringServerInfo>(X, addTargetServer))
 
-static string makeExpectedOutput(MonitoringServerInfo *serverInfo)
-{
-	string expectedOut = StringUtils::sprintf
-	                       ("%u|%d|%s|%s|%s|%d|%d|%d|%s|%s|%s\n",
-	                        serverInfo->id, serverInfo->type,
-	                        serverInfo->hostName.c_str(),
-	                        serverInfo->ipAddress.c_str(),
-	                        serverInfo->nickname.c_str(),
-	                        serverInfo->port,
-	                        serverInfo->pollingIntervalSec,
-	                        serverInfo->retryIntervalSec,
-	                        serverInfo->userName.c_str(),
-	                        serverInfo->password.c_str(),
-	                        serverInfo->dbName.c_str());
-	return expectedOut;
-}
-
 static const char *TEST_DB_USER = "hatohol_test_user";
 static const char *TEST_DB_PASSWORD = ""; // empty: No password is used
 void cut_setup(void)
 {
 	hatoholInit();
-	DBClient::setDefaultDBParams(
-	  DB_DOMAIN_ID_CONFIG, TEST_DB_NAME, TEST_DB_USER, TEST_DB_PASSWORD);
-
-	bool recreate = true;
-	makeTestMySQLDBIfNeeded(TEST_DB_NAME, recreate);
+	bool dbRecreate = true;
+	setupTestDBConfig(dbRecreate);
 }
 
 void cut_teardown(void)
@@ -220,7 +198,7 @@ void _assertAddTargetServer(
 
 	string expectedOut("");
 	if (expectedErrorCode == HTERR_OK)
-		expectedOut = makeExpectedOutput(&serverInfo);
+		expectedOut = makeServerInfoOutput(serverInfo);
 	string statement("select * from servers");
 	assertDBContent(dbConfig.getDBAgent(), statement, expectedOut);
 }
@@ -285,7 +263,7 @@ void test_addTargetServerWithMixedIPv6Address(void)
 {
 	MonitoringServerInfo testInfo = testServerInfo[0];
 	testInfo.ipAddress = "fe80::0202:b3ff:fe1e:192.168.1.1";
-	string expectedOut = makeExpectedOutput(&testInfo);
+	string expectedOut = makeServerInfoOutput(testInfo);
 	assertAddTargetServer(testInfo, HTERR_OK);
 }
 
@@ -340,16 +318,47 @@ void test_addTargetServerWithEmptyIPAddressAndHostname(void)
 	assertAddTargetServer(testInfo, HTERR_NO_IP_ADDRESS_AND_HOST_NAME);
 }
 
+void test_deleteTargetServer(void)
+{
+	setupTestDBUser(true, true);
+	loadTestDBServer();
+	ServerIdType targetServerId = 1;
+	OperationPrivilege privilege(findUserWith(OPPRVLG_DELETE_ALL_SERVER));
+	DBClientConfig dbConfig;
+	HatoholError err = dbConfig.deleteTargetServer(targetServerId,
+						       privilege);
+	assertHatoholError(HTERR_OK, err);
+
+	ServerIdSet serverIdSet;
+	serverIdSet.insert(targetServerId);
+	assertServersInDB(serverIdSet);
+}
+
+void test_deleteTargetServerWithoutPrivilege(void)
+{
+	setupTestDBUser(true, true);
+	loadTestDBServer();
+	ServerIdType targetServerId = 1;
+	OperationPrivilege privilege;
+	DBClientConfig dbConfig;
+	HatoholError err = dbConfig.deleteTargetServer(targetServerId,
+						       privilege);
+	assertHatoholError(HTERR_NO_PRIVILEGE, err);
+
+	ServerIdSet serverIdSet;
+	assertServersInDB(serverIdSet);
+}
+
 void _assertGetTargetServers(UserIdType userId)
 {
 	ServerHostGrpSetMap authMap;
 	MonitoringServerInfoList expected;
 	makeServerHostGrpSetMap(authMap, userId);
-	for (size_t i = 0; i < NumServerInfo; i++)
+	for (size_t i = 0; i < NumTestServerInfo; i++)
 		if (isAuthorized(authMap, userId, testServerInfo[i].id))
 			expected.push_back(testServerInfo[i]);
 
-	for (size_t i = 0; i < NumServerInfo; i++)
+	for (size_t i = 0; i < NumTestServerInfo; i++)
 		assertAddServerToDB(&testServerInfo[i]);
 
 	MonitoringServerInfoList actual;
@@ -363,8 +372,8 @@ void _assertGetTargetServers(UserIdType userId)
 	MonitoringServerInfoListIterator it_expected = expected.begin();
 	MonitoringServerInfoListIterator it_actual = actual.begin();
 	for (; it_expected != expected.end(); ++it_expected, ++it_actual) {
-		expectedText += makeExpectedOutput(&(*it_expected));
-		actualText += makeExpectedOutput(&(*it_actual));
+		expectedText += makeServerInfoOutput(*it_expected);
+		actualText += makeServerInfoOutput(*it_actual);
 	}
 	cppcut_assert_equal(expectedText, actualText);
 }

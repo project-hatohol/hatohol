@@ -61,7 +61,7 @@ MonitoringServerInfo testServerInfo[] =
 	"fermion",                // password
 	"",                       // db_name
 }};
-size_t NumServerInfo = sizeof(testServerInfo) / sizeof(MonitoringServerInfo);
+size_t NumTestServerInfo = sizeof(testServerInfo) / sizeof(MonitoringServerInfo);
 
 TriggerInfo testTriggerInfo[] = 
 {{

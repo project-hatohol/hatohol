@@ -343,6 +343,31 @@ string getExpectedNullNotation(DBAgent &dbAgent)
 	return "";
 }
 
+string makeServerInfoOutput(const MonitoringServerInfo &serverInfo)
+{
+	string expectedOut = StringUtils::sprintf
+	                       ("%u|%d|%s|%s|%s|%d|%d|%d|%s|%s|%s\n",
+	                        serverInfo.id, serverInfo.type,
+	                        serverInfo.hostName.c_str(),
+	                        serverInfo.ipAddress.c_str(),
+	                        serverInfo.nickname.c_str(),
+	                        serverInfo.port,
+	                        serverInfo.pollingIntervalSec,
+	                        serverInfo.retryIntervalSec,
+	                        serverInfo.userName.c_str(),
+	                        serverInfo.password.c_str(),
+	                        serverInfo.dbName.c_str());
+	return expectedOut;
+}
+
+std::string makeUserRoleInfoOutput(const UserRoleInfo &userRoleInfo)
+{
+	return StringUtils::sprintf(
+		 "%"FMT_USER_ROLE_ID"|%s|%"FMT_OPPRVLG"\n",
+		 userRoleInfo.id, userRoleInfo.name.c_str(),
+		 userRoleInfo.flags);
+}
+
 static void assertDBContentForComponets(const string &expect,
                                         const string &actual,
                                         DBAgent *dbAgent)
@@ -426,6 +451,24 @@ void _assertHatoholError(const HatoholErrorCode &code,
 	cppcut_assert_equal(code, err.getCode());
 }
 
+void _assertServersInDB(const ServerIdSet &excludeServerIdSet)
+{
+	string statement = "select * from servers ";
+	statement += " ORDER BY id ASC";
+	string expect;
+	for (size_t i = 0; i < NumTestServerInfo; i++) {
+		ServerIdType serverId = i + 1;
+		MonitoringServerInfo serverInfo = testServerInfo[i];
+		serverInfo.id = serverId;
+		ServerIdSetIterator it = excludeServerIdSet.find(serverId);
+		if (it != excludeServerIdSet.end())
+			continue;
+		expect += makeServerInfoOutput(serverInfo);
+	}
+	CacheServiceDBClient cache;
+	assertDBContent(cache.getConfig()->getDBAgent(), statement, expect);
+}
+
 void _assertUsersInDB(const UserIdSet &excludeUserIdSet)
 {
 	string statement = "select * from ";
@@ -464,14 +507,6 @@ void _assertAccessInfoInDB(const AccessInfoIdSet &excludeAccessInfoIdSet)
 	}
 	CacheServiceDBClient cache;
 	assertDBContent(cache.getUser()->getDBAgent(), statement, expect);
-}
-
-std::string makeUserRoleInfoOutput(const UserRoleInfo &userRoleInfo)
-{
-	return StringUtils::sprintf(
-		 "%"FMT_USER_ROLE_ID"|%s|%"FMT_OPPRVLG"\n",
-		 userRoleInfo.id, userRoleInfo.name.c_str(),
-		 userRoleInfo.flags);
 }
 
 void _assertUserRoleInfoInDB(UserRoleInfo &userRoleInfo) 
@@ -580,26 +615,27 @@ exit:
 	   cut_message("Failed to query: %s", errmsg.c_str()));
 }
 
-void setupTestDBServers(void)
+void loadTestDBServer(void)
+{
+	DBClientConfig dbConfig;
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	for (size_t i = 0; i < NumTestServerInfo; i++) {
+		dbConfig.addOrUpdateTargetServer(&testServerInfo[i],
+						 privilege);
+	}
+}
+
+void setupTestDBConfig(bool dbRecreate, bool loadTestData)
 {
 	static const char *TEST_DB_NAME = "test_servers_in_helper";
 	static const char *TEST_DB_USER = "hatohol_test_user";
 	static const char *TEST_DB_PASSWORD = ""; // empty: No password is used
 	DBClient::setDefaultDBParams(DB_DOMAIN_ID_CONFIG, TEST_DB_NAME,
 	                             TEST_DB_USER, TEST_DB_PASSWORD);
-	static bool dbServerReady = false;
-	OperationPrivilege privilege(ALL_PRIVILEGES);
-	if (!dbServerReady) {
-		bool recreate = true;
-		makeTestMySQLDBIfNeeded(TEST_DB_NAME, recreate);
-
-		DBClientConfig dbConfig;
-		for (size_t i = 0; i < NumServerInfo; i++) {
-			dbConfig.addOrUpdateTargetServer(&testServerInfo[i],
-			                                 privilege);
-		}
-		dbServerReady = true;
-	}
+	bool recreate = true;
+	makeTestMySQLDBIfNeeded(TEST_DB_NAME, recreate);
+	if (loadTestData)
+		loadTestDBServer();
 }
 
 void setupTestDBAction(bool dbRecreate, bool loadTestData)

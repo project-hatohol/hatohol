@@ -38,7 +38,7 @@ typedef std::map<uint32_t, HostGroupHostIdMap> ServerIdHostGroupHostIdMap;
 typedef ServerIdHostGroupHostIdMap::iterator ServerIdHostGroupHostIdMapIterator;
 
 extern MonitoringServerInfo testServerInfo[];
-extern size_t NumServerInfo;
+extern size_t NumTestServerInfo;
 
 extern TriggerInfo testTriggerInfo[];
 extern size_t NumTestTriggerInfo;

@@ -28,6 +28,7 @@
 #include "DBClient.h"
 #include "HatoholError.h"
 #include "OperationPrivilege.h"
+#include "DBClientConfig.h"
 #include "DBClientHatohol.h"
 #include "DBClientAction.h"
 
@@ -93,6 +94,9 @@ std::string execSqlite3ForDBClientZabbix(const ServerIdType serverId,
 std::string execMySQL(const std::string &dbName, const std::string &statement,
                       bool showHeader = false);
 
+std::string makeServerInfoOutput(const MonitoringServerInfo &serverInfo);
+std::string makeUserRoleInfoOutput(const UserRoleInfo &userRoleInfo);
+
 void _assertDatetime(int expectedClock, int actualClock);
 #define assertDatetime(E,A) cut_trace(_assertDatetime(E,A))
 
@@ -130,10 +134,11 @@ template<typename T> void _assertAddToDB(T *arg, void (*func)(T *))
 	cppcut_assert_equal(false, gotException);
 }
 
+void _assertServersInDB(const ServerIdSet &excludeServerIdSet = EMPTY_SERVER_ID_SET);
+#define assertServersInDB(E) cut_trace(_assertServersInDB(E))
+
 void _assertUsersInDB(const UserIdSet &excludeUserIdSet = EMPTY_USER_ID_SET);
 #define assertUsersInDB(E) cut_trace(_assertUsersInDB(E))
-
-std::string makeUserRoleInfoOutput(const UserRoleInfo &userRoleInfo);
 
 void _assertAccessInfoInDB(const AccessInfoIdSet &excludeAccessInfoIdSet = EMPTY_ACCESS_INFO_ID_SET);
 #define assertAccessInfoInDB(E) cut_trace(_assertAccessInfoInDB(E))
@@ -144,9 +149,10 @@ void _assertUserRolesInDB(const UserRoleIdSet &excludeUserRoleIdSet = EMPTY_USER
 #define assertUserRolesInDB(E) cut_trace(_assertUserRolesInDB(E))
 
 void makeTestMySQLDBIfNeeded(const std::string &dbName, bool recreate = false);
-void setupTestDBServers(void);
+void setupTestDBConfig(bool dbRecreate = true, bool loadTestDat = false);
 void setupTestDBAction(bool dbRecreate = true, bool loadTestDat = false);
 void setupTestDBUser(bool dbRecreate = true, bool loadTestDat = false);
+void loadTestDBServer(void);
 void loadTestDBAction(void);
 void loadTestDBUser(void);
 void loadTestDBAccessList(void);

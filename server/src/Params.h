@@ -75,6 +75,11 @@ typedef UserRoleIdSet::iterator       UserRoleIdSetIterator;
 typedef UserRoleIdSet::const_iterator UserRoleIdSetIterator;
 extern const UserRoleIdSet EMPTY_USER_ROLE_ID_SET;
 
+typedef std::set<ServerIdType>      ServerIdSet;
+typedef ServerIdSet::iterator       ServerIdSetIterator;
+typedef ServerIdSet::const_iterator ServerIdSetIterator;
+extern const ServerIdSet EMPTY_SERVER_ID_SET;
+
 enum SyncType {
 	SYNC,
 	ASYNC,
