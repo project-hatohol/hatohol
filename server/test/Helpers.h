@@ -94,7 +94,7 @@ std::string execSqlite3ForDBClientZabbix(const ServerIdType serverId,
 std::string execMySQL(const std::string &dbName, const std::string &statement,
                       bool showHeader = false);
 
-std::string makeServerOutput(const MonitoringServerInfo &serverInfo);
+std::string makeServerInfoOutput(const MonitoringServerInfo &serverInfo);
 std::string makeUserRoleInfoOutput(const UserRoleInfo &userRoleInfo);
 
 void _assertDatetime(int expectedClock, int actualClock);

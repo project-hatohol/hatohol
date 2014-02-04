@@ -343,7 +343,7 @@ string getExpectedNullNotation(DBAgent &dbAgent)
 	return "";
 }
 
-string makeServerOutput(const MonitoringServerInfo &serverInfo)
+string makeServerInfoOutput(const MonitoringServerInfo &serverInfo)
 {
 	string expectedOut = StringUtils::sprintf
 	                       ("%u|%d|%s|%s|%s|%d|%d|%d|%s|%s|%s\n",

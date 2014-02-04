@@ -1270,7 +1270,7 @@ void test_addServer(void)
 	DBClientConfig dbConfig;
 	string statement = "select * from servers ";
 	statement += " order by id desc limit 1";
-	string expectedOutput = makeServerOutput(expected);
+	string expectedOutput = makeServerInfoOutput(expected);
 	assertDBContent(dbConfig.getDBAgent(), statement, expectedOutput);
 }
 

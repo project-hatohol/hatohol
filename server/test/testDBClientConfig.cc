@@ -203,7 +203,7 @@ void _assertAddTargetServer(
 
 	string expectedOut("");
 	if (expectedErrorCode == HTERR_OK)
-		expectedOut = makeServerOutput(serverInfo);
+		expectedOut = makeServerInfoOutput(serverInfo);
 	string statement("select * from servers");
 	assertDBContent(dbConfig.getDBAgent(), statement, expectedOut);
 }
@@ -268,7 +268,7 @@ void test_addTargetServerWithMixedIPv6Address(void)
 {
 	MonitoringServerInfo testInfo = testServerInfo[0];
 	testInfo.ipAddress = "fe80::0202:b3ff:fe1e:192.168.1.1";
-	string expectedOut = makeServerOutput(testInfo);
+	string expectedOut = makeServerInfoOutput(testInfo);
 	assertAddTargetServer(testInfo, HTERR_OK);
 }
 
@@ -346,8 +346,8 @@ void _assertGetTargetServers(UserIdType userId)
 	MonitoringServerInfoListIterator it_expected = expected.begin();
 	MonitoringServerInfoListIterator it_actual = actual.begin();
 	for (; it_expected != expected.end(); ++it_expected, ++it_actual) {
-		expectedText += makeServerOutput(*it_expected);
-		actualText += makeServerOutput(*it_actual);
+		expectedText += makeServerInfoOutput(*it_expected);
+		actualText += makeServerInfoOutput(*it_actual);
 	}
 	cppcut_assert_equal(expectedText, actualText);
 }
