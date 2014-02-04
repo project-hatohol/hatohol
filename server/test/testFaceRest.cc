@@ -819,6 +819,20 @@ void _assertAddUserWithSetup(const StringMap &params,
 #define assertUpdateUser(P, ...) \
 cut_trace(_assertUpdateRecord(P, "/user", ##__VA_ARGS__))
 
+#define assertAddServer(P, ...) \
+cut_trace(_assertAddRecord(P, "/server", ##__VA_ARGS__))
+
+void _assertAddServerWithSetup(const StringMap &params,
+			       const HatoholErrorCode &expectCode)
+{
+	const bool dbRecreate = true;
+	const bool loadTestDat = true;
+	setupTestDBUser(dbRecreate, loadTestDat);
+	const UserIdType userId = findUserWith(OPPRVLG_CREATE_SERVER);
+	assertAddServer(params, userId, expectCode, NumTestServerInfo + 1);
+}
+#define assertAddServerWithSetup(P,C) cut_trace(_assertAddServerWithSetup(P,C))
+
 void _assertUpdateUserWithSetup(const StringMap &params,
                                 uint32_t targetUserId,
                                 const HatoholErrorCode &expectCode)
@@ -1223,6 +1237,45 @@ void test_servers(void)
 void test_serversJsonp(void)
 {
 	assertServers("/server", "foo");
+}
+
+void test_addServer(void)
+{
+	const int type = 0;
+	const string hostName = "zabbix";
+	const string ipAddress = "10.1.1.1";
+	const string nickName = "TestZabbixServer";
+	const int port = 80;
+	const int polling = 30;
+	const int retry = 10;
+	const string user = "w(^_^)d";
+	const string password = "y@ru0";
+	const string dbName = "";
+
+	StringMap params;
+	params["type"] = StringUtils::toString(type);
+	params["hostName"] = hostName;
+	params["ipAddress"] = ipAddress;
+	params["nickname"] = nickName;
+	params["port"] = StringUtils::toString(port);
+	params["polling"] = StringUtils::toString(polling);
+	params["retry"] = StringUtils::toString(retry);
+	params["user"] = user;
+	params["password"] = password;
+	params["dbName"] = dbName;
+	const int expectedId = NumTestServerInfo + 1;
+	assertAddServerWithSetup(params, HTERR_OK);
+
+	// check the content in the DB
+	DBClientConfig dbConfig;
+	string statement = "select * from servers ";
+	statement += " order by id desc limit 1";
+	string expect = StringUtils::sprintf(
+	  "%d|%d|%s|%s|%s|%d|%d|%d|%s|%s|%s",
+	  expectedId, type, hostName.c_str(), ipAddress.c_str(),
+	  nickName.c_str(), port, polling, retry,
+	  user.c_str(), password.c_str(), dbName.c_str());
+	assertDBContent(dbConfig.getDBAgent(), statement, expect);
 }
 
 void test_hosts(void)
