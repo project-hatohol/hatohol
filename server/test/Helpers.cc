@@ -451,6 +451,24 @@ void _assertHatoholError(const HatoholErrorCode &code,
 	cppcut_assert_equal(code, err.getCode());
 }
 
+void _assertServersInDB(const ServerIdSet &excludeServerIdSet)
+{
+	string statement = "select * from servers ";
+	statement += " ORDER BY id ASC";
+	string expect;
+	for (size_t i = 0; i < NumTestServerInfo; i++) {
+		ServerIdType serverId = i + 1;
+		MonitoringServerInfo serverInfo = testServerInfo[i];
+		serverInfo.id = serverId;
+		ServerIdSetIterator it = excludeServerIdSet.find(serverId);
+		if (it != excludeServerIdSet.end())
+			continue;
+		expect += makeServerInfoOutput(serverInfo);
+	}
+	CacheServiceDBClient cache;
+	assertDBContent(cache.getConfig()->getDBAgent(), statement, expect);
+}
+
 void _assertUsersInDB(const UserIdSet &excludeUserIdSet)
 {
 	string statement = "select * from ";

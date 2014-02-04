@@ -1274,6 +1274,29 @@ void test_addServer(void)
 	assertDBContent(dbConfig.getDBAgent(), statement, expectedOutput);
 }
 
+void test_deleteServer(void)
+{
+	startFaceRest();
+	bool dbRecreate = true;
+	bool loadTestData = true;
+	setupTestDBUser(dbRecreate, loadTestData);
+
+	const ServerIdType targetServerId = 1;
+	const UserIdType userId = findUserWith(OPPRVLG_DELETE_SERVER);
+	string url = StringUtils::sprintf("/server/%"FMT_SERVER_ID,
+					  targetServerId);
+	RequestArg arg(url);
+	arg.request = "DELETE";
+	arg.userId = userId;
+	g_parser = getResponseAsJsonParser(arg);
+
+	// check the reply
+	assertErrorCode(g_parser);
+	ServerIdSet serverIdSet;
+	serverIdSet.insert(targetServerId);
+	assertServersInDB(serverIdSet);
+}
+
 void test_hosts(void)
 {
 	assertHosts("/host");
