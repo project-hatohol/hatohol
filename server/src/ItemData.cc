@@ -37,6 +37,10 @@ const char *ItemData::m_nativeTypeNames[] =
 	"String",
 };
 
+static __thread struct {
+	uint64_t v_uint64;
+} refValsForCast;
+
 // ---------------------------------------------------------------------------
 // ItemDataException
 // ---------------------------------------------------------------------------
@@ -179,13 +183,13 @@ template<> ItemInt::operator const int &() const
 
 template<> ItemInt::operator const uint64_t &() const
 {
-	const int &rawVal = get();
-	if (rawVal < 0) {
+	const int &val = get();
+	if (val < 0) {
 		THROW_ITEM_DATA_EXCEPTION_INVALID_OPERATION(
 		  "cast to const uint64_t &", *this);
 	}
-	static __thread uint64_t val = rawVal;
-	return val;
+	refValsForCast.v_uint64 = val;
+	return refValsForCast.v_uint64;
 }
 
 
