@@ -36,6 +36,21 @@ public:
 		cppcut_assert_equal(numTestColumns, tblprof.numColumns);
 	}
 
+	void assertCreateTableProfileWithInvalidNumIndexes(void)
+	{
+		bool gotException = false;
+		const size_t numTestColumns = 5;
+		ColumnDef testColumnDefs[numTestColumns];
+		try {
+			TableProfile tblprof("name", testColumnDefs,
+			                     sizeof(testColumnDefs),
+			                     numTestColumns+1);
+		} catch (const HatoholException &e) {
+			gotException = true;
+		}
+		cppcut_assert_equal(true, gotException);
+	}
+
 private:
 	// stub implementations
 	virtual bool isTableExisting(const std::string &tableName)
@@ -79,6 +94,12 @@ void test_createTableProfile(void)
 {
 	TestDBAgent dbAgent;
 	dbAgent.assertCreateTableProfile();
+}
+
+void test_createTableProfileWithIvalidNumIndexes(void)
+{
+	TestDBAgent dbAgent;
+	dbAgent.assertCreateTableProfileWithInvalidNumIndexes();
 }
 
 } // namespace testDBAgent
