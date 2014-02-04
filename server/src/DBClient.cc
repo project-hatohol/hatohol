@@ -415,6 +415,11 @@ void DBClient::update(DBAgentUpdateArg &updateArg)
 	getDBAgent()->update(updateArg);
 }
 
+void DBClient::update(const DBAgent::UpdateArg &updateArg)
+{
+	getDBAgent()->update(updateArg);
+}
+
 void DBClient::select(DBAgentSelectArg &selectArg)
 {
 	getDBAgent()->select(selectArg);

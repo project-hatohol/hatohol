@@ -135,7 +135,8 @@ protected:
 	void commit(void);
 
 	void insert(DBAgentInsertArg &insertArg);
-	void update(DBAgentUpdateArg &updateArg);
+	void update(DBAgentUpdateArg &updateArg) __attribute__ ((deprecated));
+	void update(const DBAgent::UpdateArg &updateArg);
 	void select(DBAgentSelectArg &selectArg);
 	void select(DBAgentSelectExArg &selectExArg);
 	void deleteRows(DBAgentDeleteArg &deleteArg);
