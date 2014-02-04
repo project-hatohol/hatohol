@@ -118,6 +118,23 @@ MutexLock      DBAgent::PrivateContext::mutex;
 DBSetupInfoMap DBAgent::PrivateContext::setupInfoMap;
 
 // ---------------------------------------------------------------------------
+// DBAgent::TableProfile
+// ---------------------------------------------------------------------------
+DBAgent::TableProfile::TableProfile(
+  const char *_name,  const ColumnDef *_columnDefs,
+  const size_t &columnDefSize, const size_t &numIndexes)
+: name(_name),
+  columnDefs(_columnDefs),
+  numColumns(columnDefSize/sizeof(ColumnDef))
+{
+	HATOHOL_ASSERT(
+	  numColumns == numIndexes,
+	  "tableName: %s, Invalid number of elements: numColumns (%zd), "
+	  "numIndexes(%zd)",
+	  name, numColumns, numIndexes);
+}
+
+// ---------------------------------------------------------------------------
 // DBAgent::UpdateArg
 // ---------------------------------------------------------------------------
 DBAgent::UpdateRow::UpdateRow(const size_t &index, ItemData *itemData)

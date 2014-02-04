@@ -113,6 +113,10 @@ public:
 		const char         *name;
 		const ColumnDef    *columnDefs;
 		const size_t        numColumns;
+
+		TableProfile(const char *name,  const ColumnDef *columnDefs,
+		             const size_t &columnDefSize,
+		             const size_t &numIndexes);
 	};
 
 	struct UpdateRow {
