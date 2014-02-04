@@ -1240,41 +1240,38 @@ void test_serversJsonp(void)
 
 void test_addServer(void)
 {
-	const int type = 0;
-	const string hostName = "zabbix";
-	const string ipAddress = "10.1.1.1";
-	const string nickName = "TestZabbixServer";
-	const int port = 80;
-	const int polling = 30;
-	const int retry = 10;
-	const string user = "w(^_^)d";
-	const string password = "y@ru0";
-	const string dbName = "";
+	MonitoringServerInfo expected;
+	expected.id = NumTestServerInfo + 1;
+	expected.type = static_cast<MonitoringSystemType>(0);
+	expected.hostName = "zabbix";
+	expected.ipAddress = "10.1.1.1";
+	expected.nickname = "TestZabbixServer";
+	expected.port = 80;
+	expected.pollingIntervalSec = 30;
+	expected.retryIntervalSec = 10;
+	expected.userName = "w(^_^)d";
+	expected.password = "y@ru0";
+	expected.dbName = "";
 
 	StringMap params;
-	params["type"] = StringUtils::toString(type);
-	params["hostName"] = hostName;
-	params["ipAddress"] = ipAddress;
-	params["nickname"] = nickName;
-	params["port"] = StringUtils::toString(port);
-	params["polling"] = StringUtils::toString(polling);
-	params["retry"] = StringUtils::toString(retry);
-	params["user"] = user;
-	params["password"] = password;
-	params["dbName"] = dbName;
-	const int expectedId = NumTestServerInfo + 1;
+	params["type"] = StringUtils::toString(expected.type);
+	params["hostName"] = expected.hostName;
+	params["ipAddress"] = expected.ipAddress;
+	params["nickname"] = expected.nickname;
+	params["port"] = StringUtils::toString(expected.port);
+	params["polling"] = StringUtils::toString(expected.pollingIntervalSec);
+	params["retry"] = StringUtils::toString(expected.retryIntervalSec);
+	params["user"] = expected.userName;
+	params["password"] = expected.password;
+	params["dbName"] = expected.dbName;
 	assertAddServerWithSetup(params, HTERR_OK);
 
 	// check the content in the DB
 	DBClientConfig dbConfig;
 	string statement = "select * from servers ";
 	statement += " order by id desc limit 1";
-	string expect = StringUtils::sprintf(
-	  "%d|%d|%s|%s|%s|%d|%d|%d|%s|%s|%s",
-	  expectedId, type, hostName.c_str(), ipAddress.c_str(),
-	  nickName.c_str(), port, polling, retry,
-	  user.c_str(), password.c_str(), dbName.c_str());
-	assertDBContent(dbConfig.getDBAgent(), statement, expect);
+	string expectedOutput = makeServerOutput(expected);
+	assertDBContent(dbConfig.getDBAgent(), statement, expectedOutput);
 }
 
 void test_hosts(void)
