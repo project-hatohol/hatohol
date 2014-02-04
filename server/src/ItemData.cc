@@ -181,7 +181,7 @@ template<> ItemInt::operator const uint64_t &() const
 {
 	const int &rawVal = get();
 	if (rawVal < 0) {
-		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(
+		THROW_ITEM_DATA_EXCEPTION_INVALID_OPERATION(
 		  "cast to const uint64_t &", *this);
 	}
 	static __thread uint64_t val = rawVal;
