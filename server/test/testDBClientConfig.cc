@@ -212,6 +212,7 @@ void test_addTargetServer(void)
 
 void test_deleteTargetServer(void)
 {
+	setupTestDBUser(true, true);
 	loadTestDBServer();
 	ServerIdType targetServerId = 1;
 	OperationPrivilege privilege(findUserWith(OPPRVLG_DELETE_ALL_SERVER));
@@ -227,6 +228,7 @@ void test_deleteTargetServer(void)
 
 void test_deleteTargetServerWithoutPrivilege(void)
 {
+	setupTestDBUser(true, true);
 	loadTestDBServer();
 	ServerIdType targetServerId = 1;
 	OperationPrivilege privilege;
