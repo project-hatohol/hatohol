@@ -24,6 +24,7 @@ namespace testDBAgent {
 
 class TestDBAgent : public DBAgent {
 public:
+
 	void assertCreateTableProfile(void)
 	{
 		const char *name = "foo bar";
@@ -51,7 +52,21 @@ public:
 		cppcut_assert_equal(true, gotException);
 	}
 
+	void assertCreateUpdateArg(void)
+	{
+		TableProfile tblProf("name", m_testColumnDefs,
+		                     sizeof(m_testColumnDefs),
+		                     m_numTestColumns);
+		UpdateArg arg(tblProf);
+		cppcut_assert_equal(&tblProf, &arg.tableProfile);
+		cppcut_assert_equal(true, arg.condition.empty());
+		cppcut_assert_equal(true, arg.rows.empty());
+	}
+
 private:
+	static const size_t m_numTestColumns = 5;
+	ColumnDef m_testColumnDefs[m_numTestColumns];
+
 	// stub implementations
 	virtual bool isTableExisting(const std::string &tableName)
 	{
@@ -87,6 +102,8 @@ private:
 	}
 };
 
+const size_t TestDBAgent::m_numTestColumns;
+
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
@@ -100,6 +117,12 @@ void test_createTableProfileWithIvalidNumIndexes(void)
 {
 	TestDBAgent dbAgent;
 	dbAgent.assertCreateTableProfileWithInvalidNumIndexes();
+}
+
+void test_createUpdateArg(void)
+{
+	TestDBAgent dbAgent;
+	dbAgent.assertCreateUpdateArg();
 }
 
 } // namespace testDBAgent
