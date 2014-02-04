@@ -891,7 +891,9 @@ HatoholError DBClientConfig::_updateTargetServer(
 	arg.add(IDX_SERVERS_PASSWORD,   monitoringServerInfo->password);
 	arg.add(IDX_SERVERS_DB_NAME,    monitoringServerInfo->dbName);
 
-	update(arg);
+	DBCLIENT_TRANSACTION_BEGIN() {
+		update(arg);
+	} DBCLIENT_TRANSACTION_END();
 	return HTERR_OK;
 }
 
