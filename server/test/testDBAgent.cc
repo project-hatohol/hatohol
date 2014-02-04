@@ -60,6 +60,26 @@ public:
 		cppcut_assert_equal(true, arg.rows.empty());
 	}
 
+	template <typename T>
+	void assertUpdateArgAdd(const T *vals, const size_t &numVals)
+	{
+		TableProfile tblProf("name", m_testColumnDefs,
+		                     sizeof(m_testColumnDefs),
+		                     m_numTestColumns);
+		UpdateArg arg(tblProf);
+		for (size_t i = 0; i < numVals; i++)
+			arg.add(i, vals[i]);
+
+		// check
+		cppcut_assert_equal(numVals, arg.rows.size());
+		for (size_t i = 0; i < numVals; i++) {
+			const RowElement *elem = arg.rows[i];
+			const T actual = *elem->dataPtr;
+			cppcut_assert_equal(i, elem->columnIndex);
+			cppcut_assert_equal(vals[i], actual);
+		}
+	}
+
 private:
 	static const size_t m_numTestColumns = 5;
 	ColumnDef m_testColumnDefs[m_numTestColumns];
@@ -121,5 +141,14 @@ void test_createUpdateArg(void)
 	TestDBAgent dbAgent;
 	dbAgent.assertCreateUpdateArg();
 }
+
+void test_updateArgAddInt(void)
+{
+	TestDBAgent dbAgent;
+	const int vals[] = {3, -1, 500};
+	const size_t numVals = sizeof(vals) / sizeof(int);
+	dbAgent.assertUpdateArgAdd<int>(vals, numVals);
+}
+
 
 } // namespace testDBAgent
