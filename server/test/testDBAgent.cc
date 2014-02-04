@@ -150,5 +150,12 @@ void test_updateArgAddInt(void)
 	dbAgent.assertUpdateArgAdd<int>(vals, numVals);
 }
 
+void test_updateArgAddUint64(void)
+{
+	TestDBAgent dbAgent;
+	const uint64_t vals[] = {0, 0xfedcba987654321, 0x0123456789abcdef};
+	const size_t numVals = sizeof(vals) / sizeof(uint64_t);
+	dbAgent.assertUpdateArgAdd<uint64_t>(vals, numVals);
+}
 
 } // namespace testDBAgent
