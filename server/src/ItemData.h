@@ -358,6 +358,7 @@ typedef ItemGeneric<std::string, ITEM_TYPE_STRING> ItemString;
 
 template<> ItemBool::operator   const bool        &() const;
 template<> ItemInt::operator    const int         &() const;
+template<> ItemInt::operator    const uint64_t    &() const;
 template<> ItemUint64::operator const uint64_t    &() const;
 template<> ItemDouble::operator const double      &() const;
 template<> ItemString::operator const std::string &() const;

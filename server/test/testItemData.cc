@@ -282,6 +282,14 @@ void test_castIntToInt(void)
 	cppcut_assert_equal(expect, static_cast<int>(*x_item));
 }
 
+void test_castIntToUint64(void)
+{
+	const int src = 5;
+	x_item = new ItemInt(src);
+	const uint64_t expect = src;
+	cppcut_assert_equal(expect, static_cast<uint64_t>(*x_item));
+}
+
 // -------------------------------------------------------------------------
 // operator cast to uint64_t
 // -------------------------------------------------------------------------
