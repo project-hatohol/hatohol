@@ -587,18 +587,14 @@ void setupTestDBServers(void)
 	static const char *TEST_DB_PASSWORD = ""; // empty: No password is used
 	DBClient::setDefaultDBParams(DB_DOMAIN_ID_CONFIG, TEST_DB_NAME,
 	                             TEST_DB_USER, TEST_DB_PASSWORD);
-	static bool dbServerReady = false;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	if (!dbServerReady) {
-		bool recreate = true;
-		makeTestMySQLDBIfNeeded(TEST_DB_NAME, recreate);
+	bool recreate = true;
+	makeTestMySQLDBIfNeeded(TEST_DB_NAME, recreate);
 
-		DBClientConfig dbConfig;
-		for (size_t i = 0; i < NumTestServerInfo; i++) {
-			dbConfig.addOrUpdateTargetServer(&testServerInfo[i],
-			                                 privilege);
-		}
-		dbServerReady = true;
+	DBClientConfig dbConfig;
+	for (size_t i = 0; i < NumTestServerInfo; i++) {
+		dbConfig.addOrUpdateTargetServer(&testServerInfo[i],
+						 privilege);
 	}
 }
 
