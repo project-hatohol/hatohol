@@ -1353,6 +1353,8 @@ void FaceRest::handlerServer(RestJob *job)
 		handlerGetServer(job);
 	} else if (StringUtils::casecmp(job->message->method, "POST")) {
 		handlerPostServer(job);
+	} else if (StringUtils::casecmp(job->message->method, "PUT")) {
+		handlerPutServer(job);
 	} else if (StringUtils::casecmp(job->message->method, "DELETE")) {
 		handlerDeleteServer(job);
 	} else {
@@ -1469,6 +1471,54 @@ void FaceRest::handlerPostServer(RestJob *job)
 	addHatoholError(agent, err);
 	if (err == HTERR_OK)
 		agent.add("id", svInfo.id);
+	agent.endObject();
+	replyJsonData(agent, job);
+}
+
+void FaceRest::handlerPutServer(RestJob *job)
+{
+	uint64_t serverId;
+	serverId = job->getResourceId();
+	if (serverId == INVALID_ID) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
+		            "id: %s", job->getResourceIdString().c_str());
+		return;
+	}
+
+	// check the existing record
+	ConfigManager *configManager = ConfigManager::getInstance();
+	MonitoringServerInfoList serversList;
+	ServerQueryOption option(job->userId);
+	configManager->getTargetServers(serversList, option);
+	if (!serversList.empty()) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_SERVER_ID,
+		            "id: %"PRIu64, serverId);
+		return;
+	}
+
+	MonitoringServerInfo serverInfo;
+	serverInfo = *serversList.begin();
+	serverInfo.id = serverId;
+
+	// check the request
+	bool forUpdate = true;
+	HatoholError err = parseServerParameter(serverInfo, job->query,
+						forUpdate);
+	if (err != HTERR_OK) {
+		replyError(job, err);
+		return;
+	}
+
+	// try to update
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	err = dataStore->addTargetServer(serverInfo, option);
+
+	// make a response
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, err);
+	if (err == HTERR_OK)
+		agent.add("id", serverInfo.id);
 	agent.endObject();
 	replyJsonData(agent, job);
 }
