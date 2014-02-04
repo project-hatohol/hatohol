@@ -109,6 +109,26 @@ static const DBDomainId DEFAULT_DB_DOMAIN_ID = 0;
 
 class DBAgent {
 public:
+	struct TableProfile {
+		std::string         tableName;
+		const ColumnDef    *columnDefs;
+		const size_t        numColumns;
+	};
+	
+	struct UpdateArg {
+		UpdateArg(const TableProfile &tableProfile);
+		virtual ~UpdateArg();
+
+		std::string         condition;
+		void add(const size_t &columnIndex, const int         &val);
+		void add(const size_t &columnIndex, const uint64_t    &val);
+		void add(const size_t &columnIndex, const double      &val);
+		void add(const size_t &columnIndex, const std::string &val);
+	private:
+		struct PrivateContext;
+		PrivateContext *ctx; 
+	};
+
 	static void addSetupFunction(DBDomainId domainId,
 	                             DBSetupFunc setupFunc, void *data = NULL);
 

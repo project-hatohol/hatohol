@@ -118,6 +118,57 @@ MutexLock      DBAgent::PrivateContext::mutex;
 DBSetupInfoMap DBAgent::PrivateContext::setupInfoMap;
 
 // ---------------------------------------------------------------------------
+// DBAgent::UpdateArg
+// ---------------------------------------------------------------------------
+struct UpdateArgElement {
+	size_t      columnIndex;
+	ItemDataPtr dataPtr;
+};
+
+struct DBAgent::UpdateArg::PrivateContext
+{
+	const TableProfile      &tableProfile;
+	vector<UpdateArgElement> dataVect;
+
+	PrivateContext(const TableProfile &profile)
+	: tableProfile(profile)
+	{
+	}
+};
+
+DBAgent::UpdateArg::UpdateArg(const TableProfile &profile)
+: ctx(NULL)
+{
+	ctx = new PrivateContext(profile);
+}
+
+DBAgent::UpdateArg::~UpdateArg()
+{
+	if (ctx)
+		delete ctx;
+}
+
+void DBAgent::UpdateArg::add(const size_t &columnIndex, const int &val)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
+void DBAgent::UpdateArg::add(const size_t &columnIndex, const uint64_t &val)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
+void DBAgent::UpdateArg::add(const size_t &columnIndex, const double &val)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
+void DBAgent::UpdateArg::add(const size_t &columnIndex, const std::string &val)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
+// ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 void DBAgent::addSetupFunction(DBDomainId domainId,
