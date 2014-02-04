@@ -96,8 +96,6 @@ static const ColumnDef COLUMN_DEF_USERS[] = {
 	NULL,                              // defaultValue
 }
 };
-static const size_t NUM_COLUMNS_USERS =
-  sizeof(COLUMN_DEF_USERS) / sizeof(ColumnDef);
 
 enum {
 	IDX_USERS_ID,
@@ -106,6 +104,10 @@ enum {
 	IDX_USERS_FLAGS,
 	NUM_IDX_USERS,
 };
+
+static DBAgent::TableProfile tableProfileUsers(
+  DBClientUser::TABLE_NAME_USERS, COLUMN_DEF_USERS,
+  sizeof(COLUMN_DEF_USERS), NUM_IDX_USERS);
 
 static const ColumnDef COLUMN_DEF_ACCESS_LIST[] = {
 {
@@ -435,12 +437,6 @@ string UserRoleQueryOption::getCondition(void) const
 void DBClientUser::init(void)
 {
 	HATOHOL_ASSERT(
-	  NUM_COLUMNS_USERS == NUM_IDX_USERS,
-	  "Invalid number of elements: NUM_COLUMNS_USERS (%zd), "
-	  "NUM_IDX_USERS (%d)",
-	  NUM_COLUMNS_USERS, NUM_IDX_USERS);
-
-	HATOHOL_ASSERT(
 	  NUM_COLUMNS_ACCESS_LIST == NUM_IDX_ACCESS_LIST,
 	  "Invalid number of elements: NUM_COLUMNS_ACCESS_LIST (%zd), "
 	  "NUM_IDX_ACCESS_LIST (%d)",
@@ -455,7 +451,7 @@ void DBClientUser::init(void)
 	static const DBSetupTableInfo DB_TABLE_INFO[] = {
 	{
 		TABLE_NAME_USERS,
-		NUM_COLUMNS_USERS,
+		tableProfileUsers.numColumns,
 		COLUMN_DEF_USERS,
 	}, {
 		TABLE_NAME_ACCESS_LIST,
@@ -532,7 +528,7 @@ HatoholError DBClientUser::addUserInfo(
 	VariableItemGroupPtr row;
 	DBAgentInsertArg arg;
 	arg.tableName = TABLE_NAME_USERS;
-	arg.numColumns = NUM_COLUMNS_USERS;
+	arg.numColumns = tableProfileUsers.numColumns;
 	arg.columnDefs = COLUMN_DEF_USERS;
 
 	row->addNewItem(AUTO_INCREMENT_VALUE);
