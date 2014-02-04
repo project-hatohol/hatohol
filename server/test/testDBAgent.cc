@@ -18,7 +18,9 @@
  */
 
 #include <cppcutter.h>
+#include <string>
 #include "DBAgent.h"
+using namespace std;
 
 namespace testDBAgent {
 
@@ -164,6 +166,14 @@ void test_updateArgAddDouble(void)
 	const double vals[] = {0.8, -0.53432e237, 234.43243e8};
 	const size_t numVals = sizeof(vals) / sizeof(double);
 	dbAgent.assertUpdateArgAdd<double>(vals, numVals);
+}
+
+void test_updateArgAddString(void)
+{
+	TestDBAgent dbAgent;
+	const string vals[] = {"booo", "v.v;", "Ueno Zoo"};
+	const size_t numVals = sizeof(vals) / sizeof(string);
+	dbAgent.assertUpdateArgAdd<string>(vals, numVals);
 }
 
 } // namespace testDBAgent
