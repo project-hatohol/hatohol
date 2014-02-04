@@ -215,6 +215,35 @@ void test_addTargetServer(void)
 	assertAddTargetServer(*testInfo, HTERR_OK);
 }
 
+void test_deleteTargetServer(void)
+{
+	setupTestDBServers();
+	ServerIdType targetServerId = 1;
+	OperationPrivilege privilege(findUserWith(OPPRVLG_DELETE_ALL_SERVER));
+	DBClientConfig dbConfig;
+	HatoholError err = dbConfig.deleteTargetServer(targetServerId,
+						       privilege);
+	assertHatoholError(HTERR_OK, err);
+
+	ServerIdSet serverIdSet;
+	serverIdSet.insert(targetServerId);
+	assertServersInDB(serverIdSet);
+}
+
+void test_deleteTargetServerWithoutPrivilege(void)
+{
+	setupTestDBServers();
+	ServerIdType targetServerId = 1;
+	OperationPrivilege privilege;
+	DBClientConfig dbConfig;
+	HatoholError err = dbConfig.deleteTargetServer(targetServerId,
+						       privilege);
+	assertHatoholError(HTERR_NO_PRIVILEGE, err);
+
+	ServerIdSet serverIdSet;
+	assertServersInDB(serverIdSet);
+}
+
 void test_addTargetServerWithInvalidServerType(void)
 {
 	MonitoringServerInfo testInfo = testServerInfo[0];
