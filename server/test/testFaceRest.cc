@@ -1141,7 +1141,6 @@ static void changeLocale(const char *locale)
 void cut_setup(void)
 {
 	hatoholInit();
-	//setupTestDBServers();
 }
 
 void cut_teardown(void)
