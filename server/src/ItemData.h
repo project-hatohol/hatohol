@@ -356,30 +356,11 @@ typedef ItemGeneric<int,         ITEM_TYPE_INT>    ItemInt;
 typedef ItemGeneric<double,      ITEM_TYPE_DOUBLE> ItemDouble;
 typedef ItemGeneric<std::string, ITEM_TYPE_STRING> ItemString;
 
-template<> inline ItemBool::operator const bool &() const
-{
-	return get();
-}
-
-template<> inline ItemInt::operator const int &() const
-{
-	return get();
-}
-
-template<> inline ItemUint64::operator const uint64_t &() const
-{
-	return get();
-}
-
-template<> inline ItemDouble::operator const double &() const
-{
-	return get();
-}
-
-template<> inline ItemString::operator const std::string &() const
-{
-	return get();
-}
+template<> ItemBool::operator   const bool        &() const;
+template<> ItemInt::operator    const int         &() const;
+template<> ItemUint64::operator const uint64_t    &() const;
+template<> ItemDouble::operator const double      &() const;
+template<> ItemString::operator const std::string &() const;
 
 template<> bool ItemInt::operator >(const ItemData &itemData) const;
 template<> bool ItemInt::operator <(const ItemData &itemData) const;
