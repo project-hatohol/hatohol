@@ -127,11 +127,21 @@ public:
 	virtual void setNull(void);
 	virtual ItemData *clone(void) const = 0;
 
+	/**
+	 * Cast ItemData to native types.
+	 *
+	 * Note that the returned reference value
+	 * shall not be passed to other threads and
+	 * shall not be used after casting to the same type again is
+	 * performed in the same thread.
+	 * If you want to do the above things, you just make a copy of it.
+	 */
 	virtual operator const bool &() const = 0;
 	virtual operator const int &() const = 0;
 	virtual operator const uint64_t &() const = 0;
 	virtual operator const double &() const = 0;
 	virtual operator const std::string &() const = 0;
+
 	virtual ItemData & operator =(const ItemData &itemData) = 0;
 	virtual ItemData * operator +(const ItemData &itemData) const = 0;
 	virtual ItemData * operator /(const ItemData &itemData) const = 0;
