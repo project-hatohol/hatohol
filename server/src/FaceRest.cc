@@ -1236,6 +1236,32 @@ static void addServersMap(
 	agent.endObject();
 }
 
+void FaceRest::addHostgroupData(
+  RestJob *job, JsonBuilderAgent &agent)
+{
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+
+	HostgroupInfoList hostgroupInfoList;
+	HostgroupsQueryOption option(job->userId);
+	dataStore->getHostgroupInfoList(hostgroupInfoList, option);
+
+	agent.startObject("hostgroups");
+	HostgroupInfoListIterator it = hostgroupInfoList.begin();
+	for (; it != hostgroupInfoList.end(); ++it) {
+		HostgroupInfo hostgroupInfo = *it;
+		agent.startObject();
+		agent.add("id", hostgroupInfo.id);
+		agent.add("serverId", hostgroupInfo.serverId);
+		agent.add("groupId", hostgroupInfo.groupId);
+		agent.add("groupName", hostgroupInfo.groupName.c_str());
+		addHostsIsMemberOfGroup(job, agent,
+		                                  hostgroupInfo.serverId,
+		                                  hostgroupInfo.groupId);
+		agent.endObject();
+	}
+	agent.endObject();
+}
+
 void FaceRest::handlerTest(RestJob *job)
 {
 	JsonBuilderAgent agent;
