@@ -342,6 +342,34 @@ string DBAgent::makeUpdateStatement(DBAgentUpdateArg &updateArg)
 	return statement;
 }
 
+string DBAgent::makeUpdateStatement(const UpdateArg &updateArg)
+{
+	// make a SQL statement
+	string statement = StringUtils::sprintf("UPDATE %s SET ",
+	                                        updateArg.tableProfile.name);
+	const size_t numColumns = updateArg.rows.size();
+	for (size_t i = 0; i < numColumns; i++) {
+		const UpdateRow *row = updateArg.rows[i];
+		const ColumnDef &columnDef =
+		  updateArg.tableProfile.columnDefs[row->columnIndex];
+		const string valueStr =
+		  getColumnValueString(&columnDef, row->dataPtr);
+
+		statement += StringUtils::sprintf("%s=%s",
+		                                  columnDef.columnName,
+		                                  valueStr.c_str());
+		if (i < numColumns-1)
+			statement += ",";
+	}
+
+	// condition
+	if (!updateArg.condition.empty()) {
+		statement += StringUtils::sprintf(" WHERE %s",
+		                                  updateArg.condition.c_str());
+	}
+	return statement;
+}
+
 string DBAgent::makeDeleteStatement(DBAgentDeleteArg &deleteArg)
 {
 	string statement = "DELETE FROM ";

@@ -110,7 +110,7 @@ static const DBDomainId DEFAULT_DB_DOMAIN_ID = 0;
 class DBAgent {
 public:
 	struct TableProfile {
-		std::string         tableName;
+		const char         *name;
 		const ColumnDef    *columnDefs;
 		const size_t        numColumns;
 	};
@@ -189,7 +189,9 @@ protected:
 	static std::string makeSelectStatement(DBAgentSelectExArg &selectExArg);
 	static std::string getColumnValueString(const ColumnDef *columnDef,
 	                                        const ItemData *itemData);
-	static std::string makeUpdateStatement(DBAgentUpdateArg &updateArg);
+	static std::string makeUpdateStatement(DBAgentUpdateArg &updateArg)
+	  __attribute__ ((deprecated));
+	static std::string makeUpdateStatement(const UpdateArg &updateArg);
 	static std::string makeDeleteStatement(DBAgentDeleteArg &deleteArg);
 	static std::string makeDatetimeString(int datetime);
 
