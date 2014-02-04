@@ -589,22 +589,12 @@ HatoholError DBClientUser::updateUserInfo(
 	if (err != HTERR_OK)
 		return err;
 
-	VariableItemGroupPtr row;
-	DBAgentUpdateArg arg;
-	arg.tableName = TABLE_NAME_USERS;
-	arg.columnDefs = COLUMN_DEF_USERS;
+	DBAgent::UpdateArg arg(tableProfileUsers);
 
-	row->addNewItem(userInfo.name);
-	arg.columnIndexes.push_back(IDX_USERS_NAME);
-
-	if (!userInfo.password.empty()) {
-		row->addNewItem(Utils::sha256(userInfo.password));
-		arg.columnIndexes.push_back(IDX_USERS_PASSWORD);
-	}
-
-	row->addNewItem(userInfo.flags);
-	arg.columnIndexes.push_back(IDX_USERS_FLAGS);
-	arg.row = row;
+	arg.add(IDX_USERS_NAME, userInfo.name);
+	if (!userInfo.password.empty())
+		arg.add(IDX_USERS_PASSWORD, Utils::sha256(userInfo.password));
+	arg.add(IDX_USERS_FLAGS, userInfo.flags);
 
 	arg.condition = StringUtils::sprintf("%s=%"FMT_USER_ID,
 	  COLUMN_DEF_USERS[IDX_USERS_ID].columnName, userInfo.id);
@@ -617,9 +607,10 @@ HatoholError DBClientUser::updateUserInfo(
 	  userInfo.id);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
-		if (!isRecordExisting(arg.tableName, arg.condition)) {
+		const char *tableName = arg.tableProfile.name;
+		if (!isRecordExisting(tableName, arg.condition)) {
 			err = HTERR_NOT_FOUND_USER_ID;
-		} else if (isRecordExisting(arg.tableName, dupCheckCond)) {
+		} else if (isRecordExisting(tableName, dupCheckCond)) {
 			err = HTERR_USER_NAME_EXIST;
 		} else {
 			update(arg);
