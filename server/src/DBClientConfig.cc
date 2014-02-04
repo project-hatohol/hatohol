@@ -90,8 +90,6 @@ static const ColumnDef COLUMN_DEF_SYSTEM[] = {
 	"1",                               // defaultValue
 },
 };
-static const size_t NUM_COLUMNS_SYSTEM =
-  sizeof(COLUMN_DEF_SYSTEM) / sizeof(ColumnDef);
 
 enum {
 	IDX_SYSTEM_DATABASE_DIR,
@@ -100,6 +98,10 @@ enum {
 	IDX_SYSTEM_ENABLE_COPY_ON_DEMAND,
 	NUM_IDX_SYSTEM,
 };
+
+static DBAgent::TableProfile tableProfileSystem(
+  TABLE_NAME_SYSTEM, COLUMN_DEF_SYSTEM,
+  sizeof(COLUMN_DEF_SYSTEM), NUM_IDX_SYSTEM);
 
 static const ColumnDef COLUMN_DEF_SERVERS[] = {
 {
@@ -286,13 +288,8 @@ static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
 	}
 	if (oldVer <= 7) {
 		// enable copy-on-demand by default
-		DBAgentUpdateArg arg;
-		arg.tableName = TABLE_NAME_SYSTEM;
-		arg.columnDefs = COLUMN_DEF_SYSTEM;
-		arg.columnIndexes.push_back(IDX_SYSTEM_ENABLE_COPY_ON_DEMAND);
-		VariableItemGroupPtr row;
-		row->addNewItem(1);
-		arg.row = row;
+		DBAgent::UpdateArg arg(tableProfileSystem);
+		arg.add(IDX_SYSTEM_ENABLE_COPY_ON_DEMAND, 1);
 		dbAgent->update(arg);
 	}
 	return true;
@@ -402,10 +399,6 @@ string ServerQueryOption::getCondition(void) const
 // ---------------------------------------------------------------------------
 void DBClientConfig::init(const CommandLineArg &cmdArg)
 {
-	HATOHOL_ASSERT(NUM_COLUMNS_SYSTEM == NUM_IDX_SYSTEM,
-	  "NUM_COLUMNS_SYSTEM: %zd, NUM_IDX_SYSTEM: %d",
-	  NUM_COLUMNS_SYSTEM, NUM_IDX_SYSTEM);
-
 	HATOHOL_ASSERT(NUM_COLUMNS_SERVERS == NUM_IDX_SERVERS,
 	  "NUM_COLUMNS_SERVERS: %zd, NUM_IDX_SERVERS: %d",
 	  NUM_COLUMNS_SERVERS, NUM_IDX_SERVERS);
@@ -416,7 +409,7 @@ void DBClientConfig::init(const CommandLineArg &cmdArg)
 	static const DBSetupTableInfo DB_TABLE_INFO[] = {
 	{
 		TABLE_NAME_SYSTEM,
-		NUM_COLUMNS_SYSTEM,
+		tableProfileSystem.numColumns,
 		COLUMN_DEF_SYSTEM,
 		tableInitializerSystem,
 	}, {
@@ -493,13 +486,8 @@ string DBClientConfig::getDatabaseDir(void)
 
 void DBClientConfig::setDatabaseDir(const string &dir)
 {
-	DBAgentUpdateArg arg;
-	arg.tableName = TABLE_NAME_SYSTEM;
-	arg.columnDefs = COLUMN_DEF_SYSTEM;
-	arg.columnIndexes.push_back(IDX_SYSTEM_DATABASE_DIR);
-	VariableItemGroupPtr row;
-	row->addNewItem(dir);
-	arg.row = row;
+	DBAgent::UpdateArg arg(tableProfileSystem);
+	arg.add(IDX_SYSTEM_DATABASE_DIR, dir);
 	DBCLIENT_TRANSACTION_BEGIN() {
 		update(arg);
 	} DBCLIENT_TRANSACTION_END();
@@ -537,13 +525,8 @@ int  DBClientConfig::getFaceRestPort(void)
 
 void DBClientConfig::setFaceRestPort(int port)
 {
-	DBAgentUpdateArg arg;
-	arg.tableName = TABLE_NAME_SYSTEM;
-	arg.columnDefs = COLUMN_DEF_SYSTEM;
-	arg.columnIndexes.push_back(IDX_SYSTEM_FACE_REST_PORT);
-	VariableItemGroupPtr row;
-	row->addNewItem(port);
-	arg.row = row;
+	DBAgent::UpdateArg arg(tableProfileSystem);
+	arg.add(IDX_SYSTEM_FACE_REST_PORT, port);
 	DBCLIENT_TRANSACTION_BEGIN() {
 		update(arg);
 	} DBCLIENT_TRANSACTION_END();
@@ -802,7 +785,7 @@ void DBClientConfig::tableInitializerSystem(DBAgent *dbAgent, void *data)
 	// insert default value
 	DBAgentInsertArg insArg;
 	insArg.tableName = TABLE_NAME_SYSTEM;
-	insArg.numColumns = NUM_COLUMNS_SYSTEM;
+	insArg.numColumns = tableProfileSystem.numColumns;
 	insArg.columnDefs = COLUMN_DEF_SYSTEM;
 	VariableItemGroupPtr row;
 
