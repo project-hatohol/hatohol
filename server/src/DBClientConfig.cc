@@ -227,8 +227,6 @@ static const ColumnDef COLUMN_DEF_SERVERS[] = {
 	NULL,                              // defaultValue
 }
 };
-static const size_t NUM_COLUMNS_SERVERS =
-  sizeof(COLUMN_DEF_SERVERS) / sizeof(ColumnDef);
 
 enum {
 	IDX_SERVERS_ID,
@@ -244,6 +242,10 @@ enum {
 	IDX_SERVERS_DB_NAME,
 	NUM_IDX_SERVERS,
 };
+
+static DBAgent::TableProfile tableProfileServers(
+  TABLE_NAME_SERVERS, COLUMN_DEF_SERVERS,
+  sizeof(COLUMN_DEF_SERVERS), NUM_IDX_SERVERS);
 
 static bool validIPv4Address(const string &ipAddress);
 static bool validIPv6Address(const string &ipAddress);
@@ -399,10 +401,6 @@ string ServerQueryOption::getCondition(void) const
 // ---------------------------------------------------------------------------
 void DBClientConfig::init(const CommandLineArg &cmdArg)
 {
-	HATOHOL_ASSERT(NUM_COLUMNS_SERVERS == NUM_IDX_SERVERS,
-	  "NUM_COLUMNS_SERVERS: %zd, NUM_IDX_SERVERS: %d",
-	  NUM_COLUMNS_SERVERS, NUM_IDX_SERVERS);
-
 	//
 	// set database info
 	//
@@ -414,7 +412,7 @@ void DBClientConfig::init(const CommandLineArg &cmdArg)
 		tableInitializerSystem,
 	}, {
 		TABLE_NAME_SERVERS,
-		NUM_COLUMNS_SERVERS,
+		tableProfileServers.numColumns,
 		COLUMN_DEF_SERVERS,
 	}
 	};
@@ -833,7 +831,7 @@ HatoholError DBClientConfig::_addTargetServer(
 
 	DBAgentInsertArg arg;
 	arg.tableName = TABLE_NAME_SERVERS;
-	arg.numColumns = NUM_COLUMNS_SERVERS;
+	arg.numColumns = tableProfileServers.numColumns;
 	arg.columnDefs = COLUMN_DEF_SERVERS;
 
 	VariableItemGroupPtr row;
@@ -877,41 +875,22 @@ HatoholError DBClientConfig::_updateTargetServer(
 	if (!canUpdateTargetServer(monitoringServerInfo, privilege))
 		return HatoholError(HTERR_NO_PRIVILEGE);
 
+	DBAgent::UpdateArg arg(tableProfileServers);
+	arg.condition = condition;
 
-	DBAgentUpdateArg arg;
-	arg.tableName = TABLE_NAME_SERVERS;
-	arg.columnDefs = COLUMN_DEF_SERVERS;
-	arg.condition  = condition;
+	arg.add(IDX_SERVERS_TYPE,       monitoringServerInfo->type);
+	arg.add(IDX_SERVERS_HOSTNAME,   monitoringServerInfo->hostName);
+	arg.add(IDX_SERVERS_IP_ADDRESS, monitoringServerInfo->ipAddress);
+	arg.add(IDX_SERVERS_NICKNAME,   monitoringServerInfo->nickname);
+	arg.add(IDX_SERVERS_PORT,       monitoringServerInfo->port);
+	arg.add(IDX_SERVERS_POLLING_INTERVAL_SEC,
+	        monitoringServerInfo->pollingIntervalSec);
+	arg.add(IDX_SERVERS_RETRY_INTERVAL_SEC,
+	        monitoringServerInfo->retryIntervalSec);
+	arg.add(IDX_SERVERS_USER_NAME,  monitoringServerInfo->userName);
+	arg.add(IDX_SERVERS_PASSWORD,   monitoringServerInfo->password);
+	arg.add(IDX_SERVERS_DB_NAME,    monitoringServerInfo->dbName);
 
-	VariableItemGroupPtr row;
-	row->addNewItem(monitoringServerInfo->type);
-	arg.columnIndexes.push_back(IDX_SERVERS_TYPE);
-
-	row->addNewItem(monitoringServerInfo->hostName);
-	arg.columnIndexes.push_back(IDX_SERVERS_HOSTNAME);
-
-	row->addNewItem(monitoringServerInfo->ipAddress);
-	arg.columnIndexes.push_back(IDX_SERVERS_IP_ADDRESS);
-
-	row->addNewItem(monitoringServerInfo->nickname);
-	arg.columnIndexes.push_back(IDX_SERVERS_NICKNAME);
-
-	row->addNewItem(monitoringServerInfo->port);
-	arg.columnIndexes.push_back(IDX_SERVERS_PORT);
-
-	row->addNewItem(monitoringServerInfo->pollingIntervalSec);
-	arg.columnIndexes.push_back(IDX_SERVERS_POLLING_INTERVAL_SEC);
-	row->addNewItem(monitoringServerInfo->retryIntervalSec);
-	arg.columnIndexes.push_back(IDX_SERVERS_RETRY_INTERVAL_SEC);
-
-	row->addNewItem(monitoringServerInfo->userName);
-	arg.columnIndexes.push_back(IDX_SERVERS_USER_NAME);
-	row->addNewItem(monitoringServerInfo->password);
-	arg.columnIndexes.push_back(IDX_SERVERS_PASSWORD);
-	row->addNewItem(monitoringServerInfo->dbName);
-	arg.columnIndexes.push_back(IDX_SERVERS_DB_NAME);
-
-	arg.row = row;
 	update(arg);
 	return HTERR_OK;
 }
