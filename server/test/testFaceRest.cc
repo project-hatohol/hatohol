@@ -41,7 +41,6 @@ typedef StringMap::const_iterator StringMapConstIterator;
 
 static const unsigned int TEST_PORT = 53194;
 static const char *TEST_DB_HATOHOL_NAME = "testDatabase-hatohol.db";
-static const char *TEST_DB_CONFIG_NAME = "test_db_config";
 
 static StringMap    emptyStringMap;
 static StringVector emptyStringVector;
@@ -1142,8 +1141,6 @@ static void changeLocale(const char *locale)
 void cut_setup(void)
 {
 	hatoholInit();
-	bool recreate = true;
-	makeTestMySQLDBIfNeeded(TEST_DB_CONFIG_NAME, recreate);
 	setupTestDBServers();
 }
 
