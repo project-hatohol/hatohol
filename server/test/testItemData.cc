@@ -300,7 +300,6 @@ void test_castNegativeIntToUint64(void)
 		actual = static_cast<uint64_t>(*x_item);
 	} catch (const ItemDataException &e) {
 		exceptionType = e.getType();
-		
 	}
 	cppcut_assert_equal(ITEM_DATA_EXCEPTION_INVALID_OPERATION,
 	                    exceptionType);
