@@ -38,7 +38,7 @@ const char *ItemData::m_nativeTypeNames[] =
 };
 
 static __thread struct {
-	uint64_t v_uint64;
+	uint64_t vUint64;
 } refValsForCast;
 
 // ---------------------------------------------------------------------------
@@ -188,8 +188,8 @@ template<> ItemInt::operator const uint64_t &() const
 		THROW_ITEM_DATA_EXCEPTION_INVALID_OPERATION(
 		  "cast to const uint64_t &", *this);
 	}
-	refValsForCast.v_uint64 = val;
-	return refValsForCast.v_uint64;
+	refValsForCast.vUint64 = val;
+	return refValsForCast.vUint64;
 }
 
 
