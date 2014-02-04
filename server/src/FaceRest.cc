@@ -1588,7 +1588,7 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 	}
 	agent.endArray();
 	addServersMap(job, agent, &hostMaps);
-	buildHostgroupData(job, agent);
+	buildHostgroup(job, agent);
 	agent.endObject();
 
 	replyJsonData(agent, job);
