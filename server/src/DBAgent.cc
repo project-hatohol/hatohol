@@ -120,52 +120,41 @@ DBSetupInfoMap DBAgent::PrivateContext::setupInfoMap;
 // ---------------------------------------------------------------------------
 // DBAgent::UpdateArg
 // ---------------------------------------------------------------------------
-struct UpdateArgElement {
-	size_t      columnIndex;
-	ItemDataPtr dataPtr;
-};
-
-struct DBAgent::UpdateArg::PrivateContext
+DBAgent::UpdateRow::UpdateRow(const size_t &index, ItemData *itemData)
+: columnIndex(index),
+  dataPtr(itemData, false)
 {
-	const TableProfile      &tableProfile;
-	vector<UpdateArgElement> dataVect;
-
-	PrivateContext(const TableProfile &profile)
-	: tableProfile(profile)
-	{
-	}
-};
+}
 
 DBAgent::UpdateArg::UpdateArg(const TableProfile &profile)
-: ctx(NULL)
+: tableProfile(profile)
 {
-	ctx = new PrivateContext(profile);
 }
 
 DBAgent::UpdateArg::~UpdateArg()
 {
-	if (ctx)
-		delete ctx;
+	for (size_t i = 0; i < rows.size(); i++)
+		delete rows[i];
 }
 
 void DBAgent::UpdateArg::add(const size_t &columnIndex, const int &val)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	rows.push_back(new UpdateRow(columnIndex, new ItemInt(val)));
 }
 
 void DBAgent::UpdateArg::add(const size_t &columnIndex, const uint64_t &val)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	rows.push_back(new UpdateRow(columnIndex, new ItemUint64(val)));
 }
 
 void DBAgent::UpdateArg::add(const size_t &columnIndex, const double &val)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	rows.push_back(new UpdateRow(columnIndex, new ItemDouble(val)));
 }
 
 void DBAgent::UpdateArg::add(const size_t &columnIndex, const std::string &val)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	rows.push_back(new UpdateRow(columnIndex, new ItemString(val)));
 }
 
 // ---------------------------------------------------------------------------

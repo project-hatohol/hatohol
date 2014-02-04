@@ -114,19 +114,25 @@ public:
 		const ColumnDef    *columnDefs;
 		const size_t        numColumns;
 	};
+
+	struct UpdateRow {
+		size_t      columnIndex;
+		ItemDataPtr dataPtr;
+
+		UpdateRow(const size_t &index, ItemData *itemData);
+	};
 	
 	struct UpdateArg {
+		const TableProfile            &tableProfile;
+		std::string                    condition;
+		std::vector<const UpdateRow *> rows;
+
 		UpdateArg(const TableProfile &tableProfile);
 		virtual ~UpdateArg();
-
-		std::string         condition;
 		void add(const size_t &columnIndex, const int         &val);
 		void add(const size_t &columnIndex, const uint64_t    &val);
 		void add(const size_t &columnIndex, const double      &val);
 		void add(const size_t &columnIndex, const std::string &val);
-	private:
-		struct PrivateContext;
-		PrivateContext *ctx; 
 	};
 
 	static void addSetupFunction(DBDomainId domainId,
