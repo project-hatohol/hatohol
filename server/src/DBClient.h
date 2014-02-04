@@ -28,6 +28,7 @@ public:
 	typedef bool (*DBUpdater)(DBAgent *, int oldVer, void *data);
 
 	struct DBSetupTableInfo {
+		// TODO: Replace the following three members with TableProfile.
 		const char            *name;
 		size_t                 numColumns;
 		const ColumnDef       *columnDefs;
