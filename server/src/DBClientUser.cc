@@ -203,8 +203,6 @@ static const ColumnDef COLUMN_DEF_USER_ROLES[] = {
 	NULL,                              // defaultValue
 }
 };
-static const size_t NUM_COLUMNS_USER_ROLES =
-  sizeof(COLUMN_DEF_USER_ROLES) / sizeof(ColumnDef);
 
 enum {
 	IDX_USER_ROLES_ID,
@@ -212,6 +210,10 @@ enum {
 	IDX_USER_ROLES_FLAGS,
 	NUM_IDX_USER_ROLES,
 };
+
+static DBAgent::TableProfile tableProfileUserRoles(
+  DBClientUser::TABLE_NAME_USER_ROLES, COLUMN_DEF_USER_ROLES,
+  sizeof(COLUMN_DEF_USER_ROLES), NUM_IDX_USER_ROLES);
 
 ServerAccessInfoMap::~ServerAccessInfoMap()
 {
@@ -442,12 +444,6 @@ void DBClientUser::init(void)
 	  "NUM_IDX_ACCESS_LIST (%d)",
 	  NUM_COLUMNS_ACCESS_LIST, NUM_IDX_ACCESS_LIST);
 
-	HATOHOL_ASSERT(
-	  NUM_COLUMNS_USER_ROLES == NUM_IDX_USER_ROLES,
-	  "Invalid number of elements: NUM_COLUMNS_USER_ROLES (%zd), "
-	  "NUM_IDX_USER_ROLES (%d)",
-	  NUM_COLUMNS_USER_ROLES, NUM_IDX_USER_ROLES);
-
 	static const DBSetupTableInfo DB_TABLE_INFO[] = {
 	{
 		TABLE_NAME_USERS,
@@ -459,7 +455,7 @@ void DBClientUser::init(void)
 		COLUMN_DEF_ACCESS_LIST,
 	}, {
 		TABLE_NAME_USER_ROLES,
-		NUM_COLUMNS_USER_ROLES,
+		tableProfileUserRoles.numColumns,
 		COLUMN_DEF_USER_ROLES,
 	},
 	};
@@ -886,7 +882,7 @@ HatoholError DBClientUser::addUserRoleInfo(UserRoleInfo &userRoleInfo,
 	VariableItemGroupPtr row;
 	DBAgentInsertArg arg;
 	arg.tableName = TABLE_NAME_USER_ROLES;
-	arg.numColumns = NUM_COLUMNS_USER_ROLES;
+	arg.numColumns = tableProfileUserRoles.numColumns;
 	arg.columnDefs = COLUMN_DEF_USER_ROLES;
 
 	row->addNewItem(AUTO_INCREMENT_VALUE);
@@ -930,17 +926,9 @@ HatoholError DBClientUser::updateUserRoleInfo(
 		return HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST;
 	}
 
-	VariableItemGroupPtr row;
-	DBAgentUpdateArg arg;
-	arg.tableName = TABLE_NAME_USER_ROLES;
-	arg.columnDefs = COLUMN_DEF_USER_ROLES;
-
-	row->addNewItem(userRoleInfo.name);
-	arg.columnIndexes.push_back(IDX_USER_ROLES_NAME);
-
-	row->addNewItem(userRoleInfo.flags);
-	arg.columnIndexes.push_back(IDX_USER_ROLES_FLAGS);
-	arg.row = row;
+	DBAgent::UpdateArg arg(tableProfileUserRoles);
+	arg.add(IDX_USER_ROLES_NAME, userRoleInfo.name);
+	arg.add(IDX_USER_ROLES_FLAGS, userRoleInfo.flags);
 
 	arg.condition = StringUtils::sprintf("%s=%"FMT_USER_ROLE_ID,
 	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_ID].columnName,
@@ -956,9 +944,10 @@ HatoholError DBClientUser::updateUserRoleInfo(
 	  userRoleInfo.id);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
-		if (!isRecordExisting(arg.tableName, arg.condition)) {
+		const char *tableName = arg.tableProfile.name;
+		if (!isRecordExisting(tableName, arg.condition)) {
 			err = HTERR_NOT_FOUND_USER_ROLE_ID;
-		} else if (isRecordExisting(arg.tableName, dupCheckCond)) {
+		} else if (isRecordExisting(tableName, dupCheckCond)) {
 			err = HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST;
 		} else {
 			update(arg);
