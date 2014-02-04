@@ -119,17 +119,17 @@ public:
 		             const size_t &numIndexes);
 	};
 
-	struct UpdateRow {
+	struct RowElement {
 		size_t      columnIndex;
 		ItemDataPtr dataPtr;
 
-		UpdateRow(const size_t &index, ItemData *itemData);
+		RowElement(const size_t &index, ItemData *itemData);
 	};
 	
 	struct UpdateArg {
-		const TableProfile            &tableProfile;
-		std::string                    condition;
-		std::vector<const UpdateRow *> rows;
+		const TableProfile             &tableProfile;
+		std::string                     condition;
+		std::vector<const RowElement *> rows;
 
 		UpdateArg(const TableProfile &tableProfile);
 		virtual ~UpdateArg();

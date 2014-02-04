@@ -137,7 +137,7 @@ DBAgent::TableProfile::TableProfile(
 // ---------------------------------------------------------------------------
 // DBAgent::UpdateArg
 // ---------------------------------------------------------------------------
-DBAgent::UpdateRow::UpdateRow(const size_t &index, ItemData *itemData)
+DBAgent::RowElement::RowElement(const size_t &index, ItemData *itemData)
 : columnIndex(index),
   dataPtr(itemData, false)
 {
@@ -156,22 +156,22 @@ DBAgent::UpdateArg::~UpdateArg()
 
 void DBAgent::UpdateArg::add(const size_t &columnIndex, const int &val)
 {
-	rows.push_back(new UpdateRow(columnIndex, new ItemInt(val)));
+	rows.push_back(new RowElement(columnIndex, new ItemInt(val)));
 }
 
 void DBAgent::UpdateArg::add(const size_t &columnIndex, const uint64_t &val)
 {
-	rows.push_back(new UpdateRow(columnIndex, new ItemUint64(val)));
+	rows.push_back(new RowElement(columnIndex, new ItemUint64(val)));
 }
 
 void DBAgent::UpdateArg::add(const size_t &columnIndex, const double &val)
 {
-	rows.push_back(new UpdateRow(columnIndex, new ItemDouble(val)));
+	rows.push_back(new RowElement(columnIndex, new ItemDouble(val)));
 }
 
 void DBAgent::UpdateArg::add(const size_t &columnIndex, const std::string &val)
 {
-	rows.push_back(new UpdateRow(columnIndex, new ItemString(val)));
+	rows.push_back(new RowElement(columnIndex, new ItemString(val)));
 }
 
 // ---------------------------------------------------------------------------
@@ -366,11 +366,11 @@ string DBAgent::makeUpdateStatement(const UpdateArg &updateArg)
 	                                        updateArg.tableProfile.name);
 	const size_t numColumns = updateArg.rows.size();
 	for (size_t i = 0; i < numColumns; i++) {
-		const UpdateRow *row = updateArg.rows[i];
+		const RowElement *elem = updateArg.rows[i];
 		const ColumnDef &columnDef =
-		  updateArg.tableProfile.columnDefs[row->columnIndex];
+		  updateArg.tableProfile.columnDefs[elem->columnIndex];
 		const string valueStr =
-		  getColumnValueString(&columnDef, row->dataPtr);
+		  getColumnValueString(&columnDef, elem->dataPtr);
 
 		statement += StringUtils::sprintf("%s=%s",
 		                                  columnDef.columnName,
