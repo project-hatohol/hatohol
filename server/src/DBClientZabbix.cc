@@ -1565,14 +1565,26 @@ static DBAgent::TableProfile tableProfileHostsGroupsRaw_2_0(
   TABLE_NAME_HOSTS_GROUPS_RAW_2_0, COLUMN_DEF_HOSTS_GROUPS_RAW_2_0,
   sizeof(COLUMN_DEF_HOSTS_GROUPS_RAW_2_0), NUM_IDX_HOSTS_GROUPS_RAW_2_0);
 
+
+static const char *VAR_TRIGGERS  = "t";
+static const char *VAR_HOSTS     = "h";
+
+static DBAgent::TableProfileEx tableProf[] = {
+  {&tableProfileTriggersRaw_2_0, VAR_TRIGGERS},
+  {&tableProfileHostsRaw_2_0, VAR_HOSTS},
+};
+static const size_t numTableProf =
+   sizeof(tableProf) / sizeof(DBAgent::TableProfileEx);
+
 struct DBClientZabbix::PrivateContext
 {
 	size_t             serverId;
-	DBAgentSelectExArg selectExArgForTriggerAsHatoholFormat;
+	DBAgent::SelectMultiTableArg selectExArgForTriggerAsHatoholFormat;
 
 	// methods
 	PrivateContext(size_t _serverId)
-	: serverId(_serverId)
+	: serverId(_serverId),
+	  selectExArgForTriggerAsHatoholFormat(tableProf, numTableProf)
 	{
 	}
 };
@@ -1712,8 +1724,9 @@ void DBClientZabbix::addHostsGroupsRaw2_0(ItemTablePtr tablePtr)
 void DBClientZabbix::getTriggersAsHatoholFormat(TriggerInfoList &triggerInfoList)
 {
 	// get data from data base
-	DBAgentSelectExArg &arg = m_ctx->selectExArgForTriggerAsHatoholFormat;
-	if (arg.tableName.empty())
+	DBAgent::SelectMultiTableArg &arg =
+	  m_ctx->selectExArgForTriggerAsHatoholFormat;
+	if (arg.tableField.empty())
 		makeSelectExArgForTriggerAsHatoholFormat();
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -2211,45 +2224,30 @@ void DBClientZabbix::addItems(
 
 void DBClientZabbix::makeSelectExArgForTriggerAsHatoholFormat(void)
 {
-	DBAgentSelectExArg &arg = m_ctx->selectExArgForTriggerAsHatoholFormat;
+	enum
+	{
+		TBLIDX_TRIGGERS,
+		TBLIDX_HOSTS,
+	};
 
-	// tableName
-	const ColumnDef &triggersTriggerid =
-	   COLUMN_DEF_TRIGGERS_RAW_2_0[IDX_TRIGGERS_RAW_2_0_TRIGGERID];
-	const ColumnDef &triggersHostid =
-	   COLUMN_DEF_TRIGGERS_RAW_2_0[IDX_TRIGGERS_RAW_2_0_HOSTID];
-	const ColumnDef &hostsHostid =
-	   COLUMN_DEF_HOSTS_RAW_2_0[IDX_HOSTS_RAW_2_0_HOSTID];
+	DBAgent::SelectMultiTableArg &arg =
+	  m_ctx->selectExArgForTriggerAsHatoholFormat;
 
-	static const char *VAR_TRIGGERS  = "t";
-	static const char *VAR_HOSTS     = "h";
-	arg.tableName = StringUtils::sprintf(
-	   "%s %s "
-	   "left join %s %s on %s.%s=%s.%s",
+	arg.tableField = StringUtils::sprintf(
+	   "%s %s left join %s %s on %s=%s",
 	   TABLE_NAME_TRIGGERS_RAW_2_0, VAR_TRIGGERS,
 	   TABLE_NAME_HOSTS_RAW_2_0, VAR_HOSTS,
-	     VAR_TRIGGERS, triggersHostid.columnName,
-	     VAR_HOSTS, hostsHostid.columnName);
+	   arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_RAW_2_0_HOSTID).c_str(),
+	   arg.getFullName(TBLIDX_HOSTS, IDX_HOSTS_RAW_2_0_HOSTID).c_str());
 
-	//
-	// statements and columnTypes
-	//
-	const ColumnDef &triggersValue =
-	   COLUMN_DEF_TRIGGERS_RAW_2_0[IDX_TRIGGERS_RAW_2_0_VALUE];
-	const ColumnDef &triggersSeverity =
-	   COLUMN_DEF_TRIGGERS_RAW_2_0[IDX_TRIGGERS_RAW_2_0_PRIORITY];
-	const ColumnDef &triggersLastchange = 
-	   COLUMN_DEF_TRIGGERS_RAW_2_0[IDX_TRIGGERS_RAW_2_0_LASTCHANGE];
-	const ColumnDef &triggersDescription =
-	   COLUMN_DEF_TRIGGERS_RAW_2_0[IDX_TRIGGERS_RAW_2_0_DESCRIPTION];
-	const ColumnDef &hostsName =
-	   COLUMN_DEF_HOSTS_RAW_2_0[IDX_HOSTS_RAW_2_0_NAME];
+	arg.setProfile(TBLIDX_TRIGGERS);
+	arg.add(IDX_TRIGGERS_RAW_2_0_TRIGGERID);
+	arg.add(IDX_TRIGGERS_RAW_2_0_VALUE);
+	arg.add(IDX_TRIGGERS_RAW_2_0_PRIORITY);
+	arg.add(IDX_TRIGGERS_RAW_2_0_LASTCHANGE);
+	arg.add(IDX_TRIGGERS_RAW_2_0_DESCRIPTION);
 
-	arg.pushColumn(triggersTriggerid,  VAR_TRIGGERS);
-	arg.pushColumn(triggersValue,      VAR_TRIGGERS);
-	arg.pushColumn(triggersSeverity,   VAR_TRIGGERS);
-	arg.pushColumn(triggersLastchange, VAR_TRIGGERS);
-	arg.pushColumn(triggersDescription,VAR_TRIGGERS);
-	arg.pushColumn(hostsHostid,        VAR_HOSTS);
-	arg.pushColumn(hostsName,          VAR_HOSTS);
+	arg.setProfile(TBLIDX_HOSTS);
+	arg.add(IDX_HOSTS_RAW_2_0_HOSTID);
+	arg.add(IDX_HOSTS_RAW_2_0_NAME);
 }
