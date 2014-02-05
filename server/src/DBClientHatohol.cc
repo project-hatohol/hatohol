@@ -1058,27 +1058,13 @@ void DBClientHatohol::getHostInfoList(HostInfoList &hostInfoList,
 	// Now we don't have a DB table for hosts. So we get a host list from
 	// the trigger table. In the future, we will add the table for hosts
 	// and fix the following implementation to use it.
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_TRIGGERS;
+	DBAgent::SelectExArg arg(tableProfileTriggers);
 
-	// server ID
 	string stmt = StringUtils::sprintf("distinct %s", 
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName);
-	arg.statements.push_back(stmt);
-	arg.columnTypes.push_back(
-	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].type);
-
-	// host ID
-	arg.statements.push_back(
-	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName);
-	arg.columnTypes.push_back(
-	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].type);
-
-	// host name
-	arg.statements.push_back(
-	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOSTNAME].columnName);
-	arg.columnTypes.push_back(
-	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOSTNAME].type);
+	arg.add(stmt, COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].type);
+	arg.add(IDX_TRIGGERS_HOST_ID);
+	arg.add(IDX_TRIGGERS_HOSTNAME);
 
 	// condition
 	arg.condition = option.getCondition();
@@ -1184,13 +1170,10 @@ void DBClientHatohol::setTriggerInfoList(const TriggerInfoList &triggerInfoList,
 
 int DBClientHatohol::getLastChangeTimeOfTrigger(const ServerIdType &serverId)
 {
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_TRIGGERS;
+	DBAgent::SelectExArg arg(tableProfileTriggers);
 	string stmt = StringUtils::sprintf("max(%s)", 
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC].columnName);
-	arg.statements.push_back(stmt);
-	arg.columnTypes.push_back(
-	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].type);
+	arg.add(stmt, COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].type);
 	arg.condition = StringUtils::sprintf("%s=%"FMT_SERVER_ID,
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName,
 	    serverId);
@@ -1432,12 +1415,10 @@ void DBClientHatohol::addHostInfoList(const HostInfoList &hostInfoList)
 
 uint64_t DBClientHatohol::getLastEventId(const ServerIdType &serverId)
 {
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_EVENTS;
+	DBAgent::SelectExArg arg(tableProfileEvents);
 	string stmt = StringUtils::sprintf("max(%s)", 
 	    COLUMN_DEF_EVENTS[IDX_EVENTS_ID].columnName);
-	arg.statements.push_back(stmt);
-	arg.columnTypes.push_back(COLUMN_DEF_EVENTS[IDX_EVENTS_ID].type);
+	arg.add(stmt, COLUMN_DEF_EVENTS[IDX_EVENTS_ID].type);
 	arg.condition = StringUtils::sprintf("%s=%"FMT_SERVER_ID,
 	    COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName, serverId);
 
@@ -1498,17 +1479,16 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
                                       const string &condition)
 {
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_ITEMS;
-	arg.pushColumn(COLUMN_DEF_ITEMS[IDX_ITEMS_SERVER_ID]);
-	arg.pushColumn(COLUMN_DEF_ITEMS[IDX_ITEMS_ID]);
-	arg.pushColumn(COLUMN_DEF_ITEMS[IDX_ITEMS_HOST_ID]);
-	arg.pushColumn(COLUMN_DEF_ITEMS[IDX_ITEMS_BRIEF]);
-	arg.pushColumn(COLUMN_DEF_ITEMS[IDX_ITEMS_LAST_VALUE_TIME_SEC]);
-	arg.pushColumn(COLUMN_DEF_ITEMS[IDX_ITEMS_LAST_VALUE_TIME_NS]);
-	arg.pushColumn(COLUMN_DEF_ITEMS[IDX_ITEMS_LAST_VALUE]);
-	arg.pushColumn(COLUMN_DEF_ITEMS[IDX_ITEMS_PREV_VALUE]);
-	arg.pushColumn(COLUMN_DEF_ITEMS[IDX_ITEMS_ITEM_GROUP_NAME]);
+	DBAgent::SelectExArg arg(tableProfileItems);
+	arg.add(IDX_ITEMS_SERVER_ID);
+	arg.add(IDX_ITEMS_ID);
+	arg.add(IDX_ITEMS_HOST_ID);
+	arg.add(IDX_ITEMS_BRIEF);
+	arg.add(IDX_ITEMS_LAST_VALUE_TIME_SEC);
+	arg.add(IDX_ITEMS_LAST_VALUE_TIME_NS);
+	arg.add(IDX_ITEMS_LAST_VALUE);
+	arg.add(IDX_ITEMS_PREV_VALUE);
+	arg.add(IDX_ITEMS_ITEM_GROUP_NAME);
 
 	// condition
 	arg.condition = condition;
@@ -1540,10 +1520,8 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 size_t DBClientHatohol::getNumberOfTriggers(const TriggersQueryOption &option,
                                             TriggerSeverityType severity)
 {
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_TRIGGERS;
-	arg.statements.push_back("count (*)");
-	arg.columnTypes.push_back(SQL_COLUMN_TYPE_INT);
+	DBAgent::SelectExArg arg(tableProfileTriggers);
+	arg.add("count (*)", SQL_COLUMN_TYPE_INT);
 
 	// condition
 	arg.condition = option.getCondition();
@@ -1567,13 +1545,11 @@ size_t DBClientHatohol::getNumberOfTriggers(const TriggersQueryOption &option,
 size_t DBClientHatohol::getNumberOfHosts(const HostsQueryOption &option)
 {
 	// TODO: use hostGroupId after Hatohol supports it. 
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_TRIGGERS;
+	DBAgent::SelectExArg arg(tableProfileTriggers);
 	string stmt =
 	  StringUtils::sprintf("count(distinct %s)",
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName);
-	arg.statements.push_back(stmt);
-	arg.columnTypes.push_back(SQL_COLUMN_TYPE_INT);
+	arg.add(stmt, SQL_COLUMN_TYPE_INT);
 
 	// condition
 	arg.condition = option.getCondition();
@@ -1600,13 +1576,11 @@ size_t DBClientHatohol::getNumberOfGoodHosts(const HostsQueryOption &option)
 size_t DBClientHatohol::getNumberOfBadHosts(const HostsQueryOption &option)
 {
 	// TODO: use hostGroupId after Hatohol supports it. 
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_TRIGGERS;
+	DBAgent::SelectExArg arg(tableProfileTriggers);
 	string stmt =
 	  StringUtils::sprintf("count(distinct %s)",
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName);
-	arg.statements.push_back(stmt);
-	arg.columnTypes.push_back(SQL_COLUMN_TYPE_INT);
+	arg.add(stmt, SQL_COLUMN_TYPE_INT);
 
 	// condition
 	arg.condition = option.getCondition();
@@ -1826,17 +1800,16 @@ void DBClientHatohol::addHostInfoWithoutTransaction(const HostInfo &hostInfo)
 void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
                                          const string &condition)
 {
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_TRIGGERS;
-	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID]);
-	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID]);
-	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_STATUS]);
-	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SEVERITY]);
-	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC]);
-	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_NS]);
-	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID]);
-	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOSTNAME]);
-	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_BRIEF]);
+	DBAgent::SelectExArg arg(tableProfileTriggers);
+	arg.add(IDX_TRIGGERS_SERVER_ID);
+	arg.add(IDX_TRIGGERS_ID);
+	arg.add(IDX_TRIGGERS_STATUS);
+	arg.add(IDX_TRIGGERS_SEVERITY);
+	arg.add(IDX_TRIGGERS_LAST_CHANGE_TIME_SEC);
+	arg.add(IDX_TRIGGERS_LAST_CHANGE_TIME_NS);
+	arg.add(IDX_TRIGGERS_HOST_ID);
+	arg.add(IDX_TRIGGERS_HOSTNAME);
+	arg.add(IDX_TRIGGERS_BRIEF);
 
 	// condition
 	arg.condition = condition;
@@ -1868,29 +1841,11 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 HatoholError DBClientHatohol::getHostgroupInfoList
   (HostgroupInfoList &hostgroupInfoList, const HostgroupsQueryOption &option)
 {
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_HOSTGROUPS;
-
-	arg.statements.push_back(
-	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_ID].columnName);
-	arg.columnTypes.push_back(
-	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_ID].type);
-
-	arg.statements.push_back(
-	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_SERVER_ID].columnName);
-	arg.columnTypes.push_back(
-	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_SERVER_ID].type);
-
-	arg.statements.push_back(
-	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_GROUP_ID].columnName);
-	arg.columnTypes.push_back(
-	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_GROUP_ID].type);
-
-	arg.statements.push_back(
-	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_GROUP_NAME].columnName);
-	arg.columnTypes.push_back(
-	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_GROUP_NAME].type);
-
+	DBAgent::SelectExArg arg(tableProfileHostgroups);
+	arg.add(IDX_HOSTGROUPS_ID);
+	arg.add(IDX_HOSTGROUPS_SERVER_ID);
+	arg.add(IDX_HOSTGROUPS_GROUP_ID);
+	arg.add(IDX_HOSTGROUPS_GROUP_NAME);
 	arg.condition = option.getCondition();
 
 	DBCLIENT_TRANSACTION_BEGIN() {
@@ -1917,29 +1872,11 @@ HatoholError DBClientHatohol::getHostgroupElementList
   (HostgroupElementList &hostgroupElementList,
    const HostgroupElementQueryOption &option)
 {
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_MAP_HOSTS_HOSTGROUPS;
-
-	arg.statements.push_back(
-	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_ID].columnName);
-	arg.columnTypes.push_back(
-	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_ID].type);
-
-	arg.statements.push_back(
-	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID].columnName);
-	arg.columnTypes.push_back(
-	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID].type);
-
-	arg.statements.push_back(
-	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID].columnName);
-	arg.columnTypes.push_back(
-	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID].type);
-
-	arg.statements.push_back(
-	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID].columnName);
-	arg.columnTypes.push_back(
-	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID].type);
-
+	DBAgent::SelectExArg arg(tableProfileMapHostsHostgroups);
+	arg.add(IDX_MAP_HOSTS_HOSTGROUPS_ID);
+	arg.add(IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID);
+	arg.add(IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID);
+	arg.add(IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
 	arg.condition = option.getCondition();
 
 	DBCLIENT_TRANSACTION_BEGIN() {
