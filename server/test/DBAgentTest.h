@@ -38,6 +38,8 @@ enum {
 	NUM_IDX_TEST_TABLE,
 };
 
+extern const DBAgent::TableProfile tableProfileTest;
+
 extern const size_t NUM_TEST_DATA;
 extern const uint64_t ID[];
 extern const int AGE[];

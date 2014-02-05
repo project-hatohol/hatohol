@@ -19,8 +19,11 @@
 
 #include <cppcutter.h>
 #include <string>
+#include <StringUtils.h>
 #include "DBAgent.h"
+#include "DBAgentTest.h"
 using namespace std;
+using namespace mlpl;
 
 namespace testDBAgent {
 
@@ -99,6 +102,41 @@ public:
 		cppcut_assert_equal((size_t)0, arg.offset);
 		cppcut_assert_equal((size_t)0,
 		                    arg.dataTable->getNumberOfRows());
+	}
+
+	void assertSelectExArgAdd(void)
+	{
+		SelectExArg arg(tableProfileTest);
+		vector<string> expectStmts;
+		for (size_t i = 0; i < tableProfileTest.numColumns; i++) {
+			string v;
+			string expect;
+			if (i % 2) {
+				v = StringUtils::sprintf("%c", 'a' + (int)i);
+				arg.add(i, v);
+				expect = v;
+				expect += ".";
+			} else {
+				arg.add(i);
+			}
+			expect += tableProfileTest.columnDefs[i].columnName;
+			expectStmts.push_back(expect);
+		}
+
+		// check
+		cppcut_assert_equal(tableProfileTest.numColumns,
+		                    arg.statements.size());
+		cppcut_assert_equal(tableProfileTest.numColumns,
+		                    arg.columnTypes.size());
+		for (size_t i = 0; i < tableProfileTest.numColumns; i++) {
+			const string &actualStmt = arg.statements[i];
+			cppcut_assert_equal(expectStmts[i], actualStmt);
+
+			const SQLColumnType &actualType = arg.columnTypes[i];
+			const SQLColumnType &expectType =
+			  tableProfileTest.columnDefs[i].type;
+			cppcut_assert_equal(expectType, actualType);
+		}
 	}
 
 	void assertCreateDeleteArg(void)
@@ -215,6 +253,12 @@ void test_createSelectExArg(void)
 {
 	TestDBAgent dbAgent;
 	dbAgent.assertCreateSelectExArg();
+}
+
+void test_selectExArgAdd(void)
+{
+	TestDBAgent dbAgent;
+	dbAgent.assertSelectExArgAdd();
 }
 
 void test_createDeleteArg(void)
