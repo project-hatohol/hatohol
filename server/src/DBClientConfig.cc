@@ -780,26 +780,12 @@ void DBClientConfig::tableInitializerSystem(DBAgent *dbAgent, void *data)
 	const ColumnDef &columnDefEnableCopyOnDemand =
 	  COLUMN_DEF_SYSTEM[IDX_SYSTEM_ENABLE_COPY_ON_DEMAND];
 
-	// insert default value
-	DBAgentInsertArg insArg;
-	insArg.tableName = TABLE_NAME_SYSTEM;
-	insArg.numColumns = tableProfileSystem.numColumns;
-	insArg.columnDefs = COLUMN_DEF_SYSTEM;
-	VariableItemGroupPtr row;
-
-	// database_dir
-	row->addNewItem(columnDefDatabaseDir.defaultValue);
-
-	row->addNewItem(0); // enable_face_mysql
-
-	// face_reset_port
-	row->addNewItem(atoi(columnDefFaceRestPort.defaultValue));
-
-	// enable_copy_on_demand
-	row->addNewItem(atoi(columnDefEnableCopyOnDemand.defaultValue));
-
-	insArg.row = row;
-	dbAgent->insert(insArg);
+	DBAgent::InsertArg arg(tableProfileSystem);
+	arg.row->addNewItem(columnDefDatabaseDir.defaultValue);
+	arg.row->addNewItem(0); // enable_face_mysql
+	arg.row->addNewItem(atoi(columnDefFaceRestPort.defaultValue));
+	arg.row->addNewItem(atoi(columnDefEnableCopyOnDemand.defaultValue));
+	dbAgent->insert(arg);
 }
 
 bool DBClientConfig::parseDBServer(const string &dbServer,
@@ -829,24 +815,18 @@ HatoholError DBClientConfig::_addTargetServer(
 
 	// TODO: ADD this server to the liset this user can access to
 
-	DBAgentInsertArg arg;
-	arg.tableName = TABLE_NAME_SERVERS;
-	arg.numColumns = tableProfileServers.numColumns;
-	arg.columnDefs = COLUMN_DEF_SERVERS;
-
-	VariableItemGroupPtr row;
-	row->addNewItem(AUTO_INCREMENT_VALUE);
-	row->addNewItem(monitoringServerInfo->type);
-	row->addNewItem(monitoringServerInfo->hostName);
-	row->addNewItem(monitoringServerInfo->ipAddress);
-	row->addNewItem(monitoringServerInfo->nickname);
-	row->addNewItem(monitoringServerInfo->port);
-	row->addNewItem(monitoringServerInfo->pollingIntervalSec);
-	row->addNewItem(monitoringServerInfo->retryIntervalSec);
-	row->addNewItem(monitoringServerInfo->userName);
-	row->addNewItem(monitoringServerInfo->password);
-	row->addNewItem(monitoringServerInfo->dbName);
-	arg.row = row;
+	DBAgent::InsertArg arg(tableProfileServers);
+	arg.row->addNewItem(AUTO_INCREMENT_VALUE);
+	arg.row->addNewItem(monitoringServerInfo->type);
+	arg.row->addNewItem(monitoringServerInfo->hostName);
+	arg.row->addNewItem(monitoringServerInfo->ipAddress);
+	arg.row->addNewItem(monitoringServerInfo->nickname);
+	arg.row->addNewItem(monitoringServerInfo->port);
+	arg.row->addNewItem(monitoringServerInfo->pollingIntervalSec);
+	arg.row->addNewItem(monitoringServerInfo->retryIntervalSec);
+	arg.row->addNewItem(monitoringServerInfo->userName);
+	arg.row->addNewItem(monitoringServerInfo->password);
+	arg.row->addNewItem(monitoringServerInfo->dbName);
 	insert(arg);
 	monitoringServerInfo->id = getLastInsertId();
 	return HTERR_OK;
