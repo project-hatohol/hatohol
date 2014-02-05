@@ -90,7 +90,13 @@ const ColumnDef COLUMN_DEF_TEST[] = {
 	NULL,                              // defaultValue
 }
 };
+// TODO: remove this and use the tableProfile
 const size_t NUM_COLUMNS_TEST = sizeof(COLUMN_DEF_TEST) / sizeof(ColumnDef);
+
+static DBAgent::TableProfile tableProfileTest(
+  TABLE_NAME_TEST, COLUMN_DEF_TEST,
+  sizeof(COLUMN_DEF_TEST), NUM_IDX_TEST_TABLE
+);
 
 const size_t NUM_TEST_DATA = 3;
 const uint64_t ID[NUM_TEST_DATA]   = {1, 2, 0xfedcba9876543210};
@@ -170,18 +176,13 @@ static void checkUpdate(DBAgent &dbAgent, DBAgentChecker &checker,
                         uint64_t id, int age, const char *name, double height,
                         const string &condition = "")
 {
-	DBAgentUpdateArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	for (size_t i = IDX_TEST_TABLE_ID; i < NUM_COLUMNS_TEST; i++)
-		arg.columnIndexes.push_back(i);
-	arg.columnDefs = COLUMN_DEF_TEST;
-	VariableItemGroupPtr row;
-	row->addNewItem(id);
-	row->addNewItem(age);
-	row->addNewItem(name);
-	row->addNewItem(height);
-	row->addNewItem(CURR_DATETIME);
-	arg.row = row;
+	DBAgent::UpdateArg arg(tableProfileTest);
+	int idx = IDX_TEST_TABLE_ID;
+	arg.add(idx++, id);
+	arg.add(idx++, age);
+	arg.add(idx++, name);
+	arg.add(idx++, height);
+	arg.add(idx++, CURR_DATETIME);
 	arg.condition = condition;
 	dbAgent.update(arg);
 
