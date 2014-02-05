@@ -397,11 +397,6 @@ void DBClient::commit(void)
 	getDBAgent()->commit();
 }
 
-void DBClient::insert(DBAgentInsertArg &insertArg)
-{
-	getDBAgent()->insert(insertArg);
-}
-
 void DBClient::insert(const DBAgent::InsertArg &insertArg)
 {
 	getDBAgent()->insert(insertArg);

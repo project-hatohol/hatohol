@@ -241,12 +241,6 @@ void DBAgentSQLite3::createTable(DBAgentTableCreationArg &tableCreationArg)
 	createTable(m_ctx->db,tableCreationArg);
 }
 
-void DBAgentSQLite3::insert(DBAgentInsertArg &insertArg)
-{
-	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
-	insert(m_ctx->db, insertArg);
-}
-
 void DBAgentSQLite3::insert(const DBAgent::InsertArg &insertArg)
 {
 	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
@@ -496,49 +490,6 @@ void DBAgentSQLite3::createTable(sqlite3 *db,
 		createIndex(db, tableCreationArg.tableName,
 		            tableCreationArg.columnDefs, indexName,
 		            uniqueKeyColumnIndexVector, isUniqueKey);
-	}
-}
-
-void DBAgentSQLite3::insert(sqlite3 *db, DBAgentInsertArg &insertArg)
-{
-	size_t numColumns = insertArg.row->getNumberOfItems();
-	HATOHOL_ASSERT(numColumns == insertArg.numColumns,
-	             "Invalid number of colums: %zd, %zd",
-	             numColumns, insertArg.numColumns);
-
-	// make a SQL statement
-	string sql = "INSERT INTO ";
-	sql += insertArg.tableName;
-	sql += " VALUES (";
-	for (size_t i = 0; i < numColumns; i++) {
-		if (i > 0)
-			sql += ",";
-		const ColumnDef &columnDef = insertArg.columnDefs[i];
-		const ItemData *itemData = insertArg.row->getItemAt(i);
-		string valueStr;
-		if (itemData->isNull()) {
-			valueStr = "NULL";
-		} else {
-			valueStr = getColumnValueString(&columnDef, itemData);
-			if (columnDef.flags & SQL_COLUMN_FLAG_AUTO_INC) {
-				// Converting 0 to NULL makes the behavior
-				// compatible with DBAgentMySQL.
-				if (valueStr == "0")
-					valueStr = "NULL";
-			}
-		}
-		sql += valueStr;
-	}
-	sql += ")";
-
-	// exectute the SQL statement
-	char *errmsg;
-	int result = sqlite3_exec(db, sql.c_str(), NULL, NULL, &errmsg);
-	if (result != SQLITE_OK) {
-		string err = errmsg;
-		sqlite3_free(errmsg);
-		THROW_HATOHOL_EXCEPTION("Failed to exec: %d, %s, %s",
-		                      result, err.c_str(), sql.c_str());
 	}
 }
 

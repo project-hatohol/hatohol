@@ -46,7 +46,6 @@ public:
 	virtual void commit(void);
 	virtual void rollback(void);
 	virtual void createTable(DBAgentTableCreationArg &tableCreationArg);
-	virtual void insert(DBAgentInsertArg &insertArg) __attribute__ ((deprecated));
 	virtual void insert(const InsertArg &insertArg); // override
 	virtual void update(const UpdateArg &updateArg); // override
 	virtual void select(DBAgentSelectArg &selectArg);

@@ -163,7 +163,6 @@ public:
 	virtual void commit(void) = 0;
 	virtual void rollback(void) = 0;
 	virtual void createTable(DBAgentTableCreationArg &tableCreationArg) = 0;
-	virtual void insert(DBAgentInsertArg &insertArg) = 0;
 	virtual void insert(const InsertArg &insertArg) = 0;
 	virtual void update(const UpdateArg &updateArg) = 0;
 	virtual void select(DBAgentSelectArg &selectArg) = 0;
@@ -200,8 +199,6 @@ protected:
 	static std::string makeSelectStatement(DBAgentSelectExArg &selectExArg);
 	static std::string getColumnValueString(const ColumnDef *columnDef,
 	                                        const ItemData *itemData);
-	static std::string makeUpdateStatement(DBAgentUpdateArg &updateArg)
-	  __attribute__ ((deprecated));
 	static std::string makeUpdateStatement(const UpdateArg &updateArg);
 	static std::string makeDeleteStatement(DBAgentDeleteArg &deleteArg);
 	static std::string makeDatetimeString(int datetime);
