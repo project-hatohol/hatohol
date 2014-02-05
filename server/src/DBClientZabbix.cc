@@ -214,8 +214,6 @@ static const ColumnDef COLUMN_DEF_TRIGGERS_RAW_2_0[] = {
 	"0",                               // defaultValue
 }
 };
-static const size_t NUM_COLUMNS_TRIGGERS_RAW_2_0 =
-   sizeof(COLUMN_DEF_TRIGGERS_RAW_2_0) / sizeof(ColumnDef);
 
 enum {
 	IDX_TRIGGERS_RAW_2_0_TRIGGERID,
@@ -235,6 +233,10 @@ enum {
 	IDX_TRIGGERS_RAW_2_0_HOSTID,
 	NUM_IDX_TRIGGERS_RAW_2_0,
 };
+
+static DBAgent::TableProfile tableProfileTriggersRaw_2_0(
+  TABLE_NAME_TRIGGERS_RAW_2_0, COLUMN_DEF_TRIGGERS_RAW_2_0,
+  sizeof(COLUMN_DEF_TRIGGERS_RAW_2_0), NUM_IDX_TRIGGERS_RAW_2_0);
 
 static const ColumnDef COLUMN_DEF_FUNCTIONS_RAW_2_0[] = {
 {
@@ -294,8 +296,6 @@ static const ColumnDef COLUMN_DEF_FUNCTIONS_RAW_2_0[] = {
 	NULL,                              // defaultValue
 }
 };
-static const size_t NUM_COLUMNS_FUNCTIONS_RAW_2_0 =
-   sizeof(COLUMN_DEF_FUNCTIONS_RAW_2_0) / sizeof(ColumnDef);
 
 enum {
 	IDX_FUNCTIONS_RAW_2_0_FUNCTIONSTIONID,
@@ -305,6 +305,10 @@ enum {
 	IDX_FUNCTIONS_RAW_2_0_PARAMETER,
 	NUM_IDX_FUNCTIONS_RAW_2_0,
 };
+
+static DBAgent::TableProfile tableProfileFunctionsRaw_2_0(
+  TABLE_NAME_FUNCTIONS_RAW_2_0, COLUMN_DEF_FUNCTIONS_RAW_2_0,
+  sizeof(COLUMN_DEF_FUNCTIONS_RAW_2_0), NUM_IDX_FUNCTIONS_RAW_2_0);
 
 static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 {
@@ -848,8 +852,6 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	NULL,                              // defaultValue
 }
 };
-static const size_t NUM_COLUMNS_ITEMS_RAW_2_0 =
-  sizeof(COLUMN_DEF_ITEMS_RAW_2_0) / sizeof(ColumnDef);
 
 enum {
 	IDX_ITEMS_RAW_2_0_ITEMID,
@@ -903,6 +905,10 @@ enum {
 	IDX_ITEMS_RAW_2_0_APPLICATIONID,
 	NUM_IDX_ITEMS_RAW_2_0,
 };
+
+static DBAgent::TableProfile tableProfileItemsRaw_2_0(
+  TABLE_NAME_ITEMS_RAW_2_0, COLUMN_DEF_ITEMS_RAW_2_0,
+  sizeof(COLUMN_DEF_ITEMS_RAW_2_0), NUM_IDX_ITEMS_RAW_2_0);
 
 static const ColumnDef COLUMN_DEF_HOSTS_RAW_2_0[] = {
 {
@@ -1237,8 +1243,6 @@ static const ColumnDef COLUMN_DEF_HOSTS_RAW_2_0[] = {
 	"",                                // defaultValue
 }
 };
-static const size_t NUM_COLUMNS_HOSTS_RAW_2_0 =
-   sizeof(COLUMN_DEF_HOSTS_RAW_2_0) / sizeof(ColumnDef);
 
 enum {
 	IDX_HOSTS_RAW_2_0_HOSTID,
@@ -1273,6 +1277,10 @@ enum {
 	IDX_HOSTS_RAW_2_0_NAME,
 	NUM_IDX_HOSTS_RAW_2_0,
 };
+
+static DBAgent::TableProfile tableProfileHostsRaw_2_0(
+  TABLE_NAME_HOSTS_RAW_2_0, COLUMN_DEF_HOSTS_RAW_2_0,
+  sizeof(COLUMN_DEF_HOSTS_RAW_2_0), NUM_IDX_HOSTS_RAW_2_0);
 
 static const ColumnDef COLUMN_DEF_EVENTS_RAW_2_0[] = {
 {
@@ -1376,8 +1384,6 @@ static const ColumnDef COLUMN_DEF_EVENTS_RAW_2_0[] = {
 	0,                                 // defaultValue
 },
 };
-static const size_t NUM_COLUMNS_EVENTS_RAW_2_0 =
-   sizeof(COLUMN_DEF_EVENTS_RAW_2_0) / sizeof(ColumnDef);
 
 enum {
 	IDX_EVENTS_RAW_2_0_EVENTID,
@@ -1391,6 +1397,10 @@ enum {
 	IDX_EVENTS_RAW_2_0_VALUE_CHANGED,
 	NUM_IDX_EVENTS_RAW_2_0,
 };
+
+static DBAgent::TableProfile tableProfileEventsRaw_2_0(
+  TABLE_NAME_EVENTS_RAW_2_0, COLUMN_DEF_EVENTS_RAW_2_0,
+  sizeof(COLUMN_DEF_EVENTS_RAW_2_0), NUM_IDX_EVENTS_RAW_2_0);
 
 enum {
 	EVENT_OBJECT_TRIGGER = 0,
@@ -1446,8 +1456,6 @@ static const ColumnDef COLUMN_DEF_APPLICATIONS_RAW_2_0[] = {
 	NULL,                              // defaultValue
 }
 };
-static const size_t NUM_COLUMNS_APPLICATIONS_RAW_2_0 =
-  sizeof(COLUMN_DEF_APPLICATIONS_RAW_2_0) / sizeof(ColumnDef);
 
 enum {
 	IDX_APPLICATIONS_RAW_2_0_APPLICATIONID,
@@ -1456,6 +1464,10 @@ enum {
 	IDX_APPLICATIONS_RAW_2_0_TEMPLATEID,
 	NUM_IDX_APPLICATIONS_RAW_2_0,
 };
+
+static DBAgent::TableProfile tableProfileApplicationsRaw_2_0(
+  TABLE_NAME_APPLICATIONS_RAW_2_0, COLUMN_DEF_APPLICATIONS_RAW_2_0,
+  sizeof(COLUMN_DEF_APPLICATIONS_RAW_2_0), NUM_IDX_APPLICATIONS_RAW_2_0);
 
 static const ColumnDef COLUMN_DEF_GROUPS_RAW_2_0[] = {
 {
@@ -1493,8 +1505,6 @@ static const ColumnDef COLUMN_DEF_GROUPS_RAW_2_0[] = {
 	NULL,                              // defaultValue
 }
 };
-static const size_t NUM_COLUMNS_GROUPS_RAW_2_0 =
-   sizeof(COLUMN_DEF_GROUPS_RAW_2_0) / sizeof(ColumnDef);
 
 enum {
 	IDX_GROUPS_RAW_2_0_GROUPID,
@@ -1502,6 +1512,10 @@ enum {
 	IDX_GROUPS_RAW_2_0_INTERNAL,
 	NUM_IDX_GROUPS_RAW_2_0
 };
+
+static DBAgent::TableProfile tableProfileGroupsRaw_2_0(
+  TABLE_NAME_GROUPS_RAW_2_0, COLUMN_DEF_GROUPS_RAW_2_0,
+  sizeof(COLUMN_DEF_GROUPS_RAW_2_0), NUM_IDX_GROUPS_RAW_2_0);
 
 static const ColumnDef COLUMN_DEF_HOSTS_GROUPS_RAW_2_0[] = {
 {
@@ -1539,8 +1553,6 @@ static const ColumnDef COLUMN_DEF_HOSTS_GROUPS_RAW_2_0[] = {
 	NULL,                                 // defaultValue
 }
 };
-static const size_t NUM_COLUMNS_HOSTS_GROUPS_RAW_2_0 =
-   sizeof(COLUMN_DEF_GROUPS_RAW_2_0) / sizeof(ColumnDef);
 
 enum {
 	IDX_HOSTS_GROUPS_RAW_2_0_HOSTGROUPID,
@@ -1548,6 +1560,10 @@ enum {
 	IDX_HOSTS_GROUPS_RAW_2_0_GROUPID,
 	NUM_IDX_HOSTS_GROUPS_RAW_2_0
 };
+
+static DBAgent::TableProfile tableProfileHostsGroupsRaw_2_0(
+  TABLE_NAME_HOSTS_GROUPS_RAW_2_0, COLUMN_DEF_HOSTS_GROUPS_RAW_2_0,
+  sizeof(COLUMN_DEF_HOSTS_GROUPS_RAW_2_0), NUM_IDX_HOSTS_GROUPS_RAW_2_0);
 
 struct DBClientZabbix::PrivateContext
 {
@@ -1566,53 +1582,6 @@ struct DBClientZabbix::PrivateContext
 // ---------------------------------------------------------------------------
 void DBClientZabbix::init(void)
 {
-	HATOHOL_ASSERT(
-	  NUM_COLUMNS_TRIGGERS_RAW_2_0 == NUM_IDX_TRIGGERS_RAW_2_0,
-	  "Invalid number of elements: NUM_COLUMNS_TRIGGERS_RAW_2_0 (%zd), "
-	  "NUM_IDX_TRIGGERS_RAW_2_0 (%d)",
-	  NUM_COLUMNS_TRIGGERS_RAW_2_0, NUM_IDX_TRIGGERS_RAW_2_0);
-
-	HATOHOL_ASSERT(
-	  NUM_COLUMNS_FUNCTIONS_RAW_2_0 == NUM_IDX_FUNCTIONS_RAW_2_0,
-	  "Invalid number of elements: NUM_COLUMNS_FUNCTIONS_RAW_2_0 (%zd), "
-	  "NUM_IDX_FUNCTIONS_RAW_2_0 (%d)",
-	  NUM_COLUMNS_FUNCTIONS_RAW_2_0, NUM_IDX_FUNCTIONS_RAW_2_0);
-
-	HATOHOL_ASSERT(
-	  NUM_COLUMNS_ITEMS_RAW_2_0 == NUM_IDX_ITEMS_RAW_2_0,
-	  "Invalid number of elements: NUM_COLUMNS_ITEMS_RAW_2_0 (%zd), "
-	  "NUM_IDX_ITEMS_RAW_2_0 (%d)",
-	  NUM_COLUMNS_ITEMS_RAW_2_0, NUM_IDX_ITEMS_RAW_2_0);
-
-	HATOHOL_ASSERT(
-	  NUM_COLUMNS_HOSTS_RAW_2_0 == NUM_IDX_HOSTS_RAW_2_0,
-	  "Invalid number of elements: NUM_COLUMNS_HOSTS_RAW_2_0 (%zd), "
-	  "NUM_IDX_HOSTS_RAW_2_0 (%d)",
-	  NUM_COLUMNS_HOSTS_RAW_2_0, NUM_IDX_HOSTS_RAW_2_0);
-
-	HATOHOL_ASSERT(
-	  NUM_COLUMNS_EVENTS_RAW_2_0 == NUM_IDX_EVENTS_RAW_2_0,
-	  "Invalid number of elements: NUM_COLUMNS_EVENTS_RAW_2_0 (%zd), "
-	  "NUM_IDX_EVENTS_RAW_2_0 (%d)",
-	  NUM_COLUMNS_EVENTS_RAW_2_0, NUM_IDX_EVENTS_RAW_2_0);
-
-	HATOHOL_ASSERT(
-	  NUM_COLUMNS_APPLICATIONS_RAW_2_0 == NUM_IDX_APPLICATIONS_RAW_2_0,
-	  "Invalid number of elements: NUM_COLUMNS_APPLICATIONS_RAW_2_0 (%zd), "
-	  "NUM_IDX_APPLICATIONS_RAW_2_0 (%d)",
-	  NUM_COLUMNS_APPLICATIONS_RAW_2_0, NUM_IDX_APPLICATIONS_RAW_2_0);
-
-	HATOHOL_ASSERT(
-	  NUM_COLUMNS_GROUPS_RAW_2_0 == NUM_IDX_GROUPS_RAW_2_0,
-	  "Invalid number of elements: NUM_COLUMNS_GROUPS_RAW_2_0 (%zd), "
-	  "NUM_IDX_GROUPS_RAW_2_0 (%d)",
-	  NUM_COLUMNS_GROUPS_RAW_2_0, NUM_IDX_GROUPS_RAW_2_0);
-
-	HATOHOL_ASSERT(
-	  NUM_COLUMNS_HOSTS_GROUPS_RAW_2_0 == NUM_IDX_HOSTS_GROUPS_RAW_2_0,
-	  "Invalid number of elements: NUM_COLUMNS_HOSTS_GROUPS_RAW_2_0 (%zd), "
-	  "NUM_IDX_HOSTS_GROUPS_RAW_2_0 (%d)",
-	  NUM_COLUMNS_HOSTS_GROUPS_RAW_2_0, NUM_IDX_HOSTS_GROUPS_RAW_2_0);
 }
 
 DBDomainId DBClientZabbix::getDBDomainId(const ServerIdType zabbixServerId)
@@ -1625,35 +1594,35 @@ DBClientZabbix *DBClientZabbix::create(const ServerIdType zabbixServerId)
 	static const DBSetupTableInfo DB_TABLE_INFO[] = {
 	{
 		TABLE_NAME_TRIGGERS_RAW_2_0,
-		NUM_COLUMNS_TRIGGERS_RAW_2_0,
+		tableProfileTriggersRaw_2_0.numColumns,
 		COLUMN_DEF_TRIGGERS_RAW_2_0,
 	}, {
 		TABLE_NAME_FUNCTIONS_RAW_2_0,
-		NUM_COLUMNS_FUNCTIONS_RAW_2_0,
+		tableProfileFunctionsRaw_2_0.numColumns,
 		COLUMN_DEF_FUNCTIONS_RAW_2_0,
 	}, {
 		TABLE_NAME_ITEMS_RAW_2_0,
-		NUM_COLUMNS_ITEMS_RAW_2_0,
+		tableProfileItemsRaw_2_0.numColumns,
 		COLUMN_DEF_ITEMS_RAW_2_0,
 	}, {
 		TABLE_NAME_HOSTS_RAW_2_0,
-		NUM_COLUMNS_HOSTS_RAW_2_0,
+		tableProfileHostsRaw_2_0.numColumns,
 		COLUMN_DEF_HOSTS_RAW_2_0,
 	}, {
 		TABLE_NAME_EVENTS_RAW_2_0,
-		NUM_COLUMNS_EVENTS_RAW_2_0,
+		tableProfileEventsRaw_2_0.numColumns,
 		COLUMN_DEF_EVENTS_RAW_2_0,
 	}, {
 		TABLE_NAME_APPLICATIONS_RAW_2_0,
-		NUM_COLUMNS_APPLICATIONS_RAW_2_0,
+		tableProfileApplicationsRaw_2_0.numColumns,
 		COLUMN_DEF_APPLICATIONS_RAW_2_0,
 	}, {
 		TABLE_NAME_GROUPS_RAW_2_0,
-		NUM_COLUMNS_GROUPS_RAW_2_0,
+		tableProfileGroupsRaw_2_0.numColumns,
 		COLUMN_DEF_GROUPS_RAW_2_0,
 	}, {
 		TABLE_NAME_HOSTS_GROUPS_RAW_2_0,
-		NUM_COLUMNS_HOSTS_GROUPS_RAW_2_0,
+		tableProfileHostsGroupsRaw_2_0.numColumns,
 		COLUMN_DEF_HOSTS_GROUPS_RAW_2_0,
 	}
 	};
@@ -1683,7 +1652,7 @@ void DBClientZabbix::addTriggersRaw2_0(ItemTablePtr tablePtr)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
 		addItems(tablePtr, TABLE_NAME_TRIGGERS_RAW_2_0,
-		         NUM_COLUMNS_TRIGGERS_RAW_2_0,
+		         tableProfileTriggersRaw_2_0.numColumns,
 		         COLUMN_DEF_TRIGGERS_RAW_2_0,
 		         IDX_TRIGGERS_RAW_2_0_TRIGGERID);
 	} DBCLIENT_TRANSACTION_END();
@@ -1698,7 +1667,7 @@ void DBClientZabbix::addFunctionsRaw2_0(ItemTablePtr tablePtr)
 		arg.tableName = TABLE_NAME_FUNCTIONS_RAW_2_0;
 		deleteRows(arg);
 		addItems(tablePtr, TABLE_NAME_FUNCTIONS_RAW_2_0,
-		         NUM_COLUMNS_FUNCTIONS_RAW_2_0,
+		         tableProfileFunctionsRaw_2_0.numColumns,
 		         COLUMN_DEF_FUNCTIONS_RAW_2_0,
 		         IDX_FUNCTIONS_RAW_2_0_FUNCTIONSTIONID);
 	} DBCLIENT_TRANSACTION_END();
@@ -1713,7 +1682,7 @@ void DBClientZabbix::addItemsRaw2_0(ItemTablePtr tablePtr)
 		arg.tableName = TABLE_NAME_ITEMS_RAW_2_0;
 		deleteRows(arg);
 		addItems(tablePtr, TABLE_NAME_ITEMS_RAW_2_0,
-		         NUM_COLUMNS_ITEMS_RAW_2_0,
+		         tableProfileItemsRaw_2_0.numColumns,
 		         COLUMN_DEF_ITEMS_RAW_2_0,
 		         IDX_ITEMS_RAW_2_0_ITEMID);
 	} DBCLIENT_TRANSACTION_END();
@@ -1723,7 +1692,7 @@ void DBClientZabbix::addHostsRaw2_0(ItemTablePtr tablePtr)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
 		addItems(tablePtr, TABLE_NAME_HOSTS_RAW_2_0,
-		         NUM_COLUMNS_HOSTS_RAW_2_0,
+		         tableProfileHostsRaw_2_0.numColumns,
 		         COLUMN_DEF_HOSTS_RAW_2_0,
 		         IDX_HOSTS_RAW_2_0_HOSTID);
 	} DBCLIENT_TRANSACTION_END();
@@ -1736,7 +1705,7 @@ void DBClientZabbix::addEventsRaw2_0(ItemTablePtr tablePtr)
 		// get the duplicated events. So we don't specify 5th argument
 		// for a update check.
 		addItems(tablePtr, TABLE_NAME_EVENTS_RAW_2_0,
-		         NUM_COLUMNS_EVENTS_RAW_2_0, COLUMN_DEF_EVENTS_RAW_2_0,
+		         tableProfileEventsRaw_2_0.numColumns, COLUMN_DEF_EVENTS_RAW_2_0,
 		         IDX_EVENTS_RAW_2_0_EVENTID);
 	} DBCLIENT_TRANSACTION_END();
 }
@@ -1745,7 +1714,7 @@ void DBClientZabbix::addApplicationsRaw2_0(ItemTablePtr tablePtr)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
 		addItems(tablePtr, TABLE_NAME_APPLICATIONS_RAW_2_0,
-		         NUM_COLUMNS_APPLICATIONS_RAW_2_0,
+		         tableProfileApplicationsRaw_2_0.numColumns,
 		         COLUMN_DEF_APPLICATIONS_RAW_2_0,
 		         IDX_APPLICATIONS_RAW_2_0_APPLICATIONID);
 	} DBCLIENT_TRANSACTION_END();
@@ -1758,7 +1727,7 @@ void DBClientZabbix::addGroupsRaw2_0(ItemTablePtr tablePtr)
 		arg.tableName = TABLE_NAME_HOSTS_GROUPS_RAW_2_0;
 		deleteRows(arg);
 		addItems(tablePtr, TABLE_NAME_GROUPS_RAW_2_0,
-		         NUM_COLUMNS_GROUPS_RAW_2_0,
+		         tableProfileGroupsRaw_2_0.numColumns,
 		         COLUMN_DEF_GROUPS_RAW_2_0,
 		         IDX_GROUPS_RAW_2_0_GROUPID);
 	} DBCLIENT_TRANSACTION_END();
@@ -1768,7 +1737,7 @@ void DBClientZabbix::addHostsGroupsRaw2_0(ItemTablePtr tablePtr)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
 		addItems(tablePtr, TABLE_NAME_HOSTS_GROUPS_RAW_2_0,
-		         NUM_COLUMNS_HOSTS_GROUPS_RAW_2_0,
+		         tableProfileHostsGroupsRaw_2_0.numColumns,
 			 COLUMN_DEF_HOSTS_GROUPS_RAW_2_0,
 			 IDX_HOSTS_GROUPS_RAW_2_0_HOSTGROUPID);
 	}DBCLIENT_TRANSACTION_END();
