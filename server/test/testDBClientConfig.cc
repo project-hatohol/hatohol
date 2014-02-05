@@ -318,6 +318,27 @@ void test_addTargetServerWithEmptyIPAddressAndHostname(void)
 	assertAddTargetServer(testInfo, HTERR_NO_IP_ADDRESS_AND_HOST_NAME);
 }
 
+void test_updateTargetServer(void)
+{
+	loadTestDBServer();
+
+	int targetId = 2;
+	MonitoringServerInfo serverInfo = testServerInfo[0];
+	serverInfo.id = targetId;
+	string expectedOut(makeServerInfoOutput(serverInfo));
+
+	DBClientConfig dbConfig;
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	HatoholError err;
+	err = dbConfig.addOrUpdateTargetServer(&serverInfo, privilege);
+	assertHatoholError(HTERR_OK, err);
+
+	string statement = StringUtils::sprintf(
+	                     "select * from servers where id=%d",
+			     targetId);
+	assertDBContent(dbConfig.getDBAgent(), statement, expectedOut);
+}
+
 void test_deleteTargetServer(void)
 {
 	setupTestDBUser(true, true);
