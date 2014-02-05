@@ -63,7 +63,7 @@ describe('HatoholServerEditDialog', function() {
   it('DB name visibility', function() {
     dialog = new HatoholServerEditDialog({});
     expect($("#dbNameArea").css("display")).to.be("none");
-    $("#selectServerType").val(1).change();
+    $("#selectServerType").val(hatohol.MONITORING_SYSTEM_NAGIOS).change();
     expect($("#dbNameArea").css("display")).not.to.be("none");
   });
 });
