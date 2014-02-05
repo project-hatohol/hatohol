@@ -112,7 +112,7 @@
           var serverId = this.getAttribute("serverId");
           new HatoholServerEditDialog({
             operator: userProfile.user,
-            succeededCallback: addOrUpdateSucceededCb
+            succeededCallback: addOrUpdateSucceededCb,
             targetServer: serversMap[serverId]
           });
         });
