@@ -605,8 +605,7 @@ HatoholError DBClientUser::deleteUserInfo(
 	if (!privilege.has(OPPRVLG_DELETE_USER))
 		return HTERR_NO_PRIVILEGE;
 
-	DBAgentDeleteArg arg;
-	arg.tableName = TABLE_NAME_USERS;
+	DBAgent::DeleteArg arg(tableProfileUsers);
 	const ColumnDef &colId = COLUMN_DEF_USERS[IDX_USERS_ID];
 	arg.condition = StringUtils::sprintf("%s=%"FMT_USER_ID,
 	                                     colId.columnName, userId);
