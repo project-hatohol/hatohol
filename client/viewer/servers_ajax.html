@@ -47,7 +47,7 @@
         <th>{% trans "IP Address" %}</th>
         <th>{% trans "Nickname" %}</th>
         <th>{% trans "Maps" %}</th>
-        <th></th>
+        <th class="edit-server-column" style="display:none;"></th>
       </tr>
     </thead>
     <tbody>
@@ -110,6 +110,12 @@
           var server = serversMap[serverId];
           new HatoholServerEditDialog();
         });
+      }
+
+      if (hasFlag(userProfile.user, hatohol.OPPRVLG_UPDATE_SERVER) ||
+          hasFlag(userProfile.user, hatohol.OPPRVLG_UPDATE_ALL_SERVER))
+      {
+        $(".edit-server-column").show();
       }
     }
 
@@ -205,18 +211,11 @@
         } else {
           s += "<td></td>";
         }
-
-        s += "<td>"
-
-        if (hasFlag(userProfile.user, hatohol.OPPRVLG_UPDATE_SERVER) ||
-            hasFlag(userProfile.user, hatohol.OPPRVLG_UPDATE_ALL_SERVER))
-        {
-          s += "<input id='edit-server" + o["id"] + "'";
-          s += "  type='button' class='btn'";
-          s += "  serverId='" + o["id"] + "'";
-          s += "  value='{% trans "Edit" %}' />";
-        }
-
+        s += "<td class='edit-server-column' style='display:none;'>"
+        s += "<input id='edit-server" + o["id"] + "'";
+        s += "  type='button' class='btn'";
+        s += "  serverId='" + o["id"] + "'";
+        s += "  value='{% trans "Edit" %}' />";
         s += "</td>";
         s += "</tr>";
       }
