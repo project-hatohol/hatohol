@@ -26,15 +26,15 @@ describe('HatoholServerEditDialog', function() {
     expect(parseInt($("#inputPort").val())).to.be(80);
   });
 
-  it('new with a server', function() {
+  it('new with a nagios server', function() {
     var expectedId = "#server-edit-dialog";
     var server = {
-      id: 0,
-      type: 0,
+      id: 1,
+      type: hatohol.MONITORING_SYSTEM_NAGIOS,
       hostName: "localhost",
       ipAddress: "127.0.0.1",
       nickname: "MySelf",
-      port: 80
+      port: 3306
     };
     dialog = new HatoholServerEditDialog({
       targetServer: server
