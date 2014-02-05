@@ -162,7 +162,7 @@ public:
 		const size_t numTables =
 		  sizeof(profiles) / sizeof(TableProfileEx);
 		SelectMultiTableArg arg(profiles, numTables);
-		cppcut_assert_equal(profiles, arg.tableProfiles);
+		cppcut_assert_equal(profiles, arg.profileExArray);
 		cppcut_assert_equal(numTables, arg.numTables);
 	}
 
