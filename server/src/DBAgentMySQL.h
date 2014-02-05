@@ -48,7 +48,7 @@ public:
 	virtual void createTable(DBAgentTableCreationArg &tableCreationArg);
 	virtual void insert(const InsertArg &insertArg); // override
 	virtual void update(const UpdateArg &updateArg); // override
-	virtual void select(DBAgentSelectArg &selectArg);
+	virtual void select(const SelectArg &selectArg); // override
 	virtual void select(DBAgentSelectExArg &selectExArg);
 	virtual void deleteRows(const DeleteArg &deleteArg); // override
 	virtual void addColumns(DBAgentAddColumnsArg &addColumnsArg);

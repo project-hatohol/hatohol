@@ -331,7 +331,7 @@ void DBAgentMySQL::update(const UpdateArg &updateArg)
 	execSql(sql);
 }
 
-void DBAgentMySQL::select(DBAgentSelectArg &selectArg)
+void DBAgentMySQL::select(const DBAgent::SelectArg &selectArg)
 {
 	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
 
@@ -351,7 +351,8 @@ void DBAgentMySQL::select(DBAgentSelectArg &selectArg)
 		VariableItemGroupPtr itemGroup;
 		for (size_t i = 0; i < numColumns; i++) {
 			size_t idx = selectArg.columnIndexes[i];
-			const ColumnDef &columnDef = selectArg.columnDefs[idx];
+			const ColumnDef &columnDef =
+			  selectArg.tableProfile.columnDefs[idx];
 			ItemDataPtr itemDataPtr =
 			  SQLUtils::createFromString(row[i], columnDef.type);
 			itemGroup->add(itemDataPtr);

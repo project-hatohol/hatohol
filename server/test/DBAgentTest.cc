@@ -291,9 +291,7 @@ void dbAgentTestSelect(DBAgent &dbAgent)
 	DBAgentChecker::makeTestData(dbAgent, testDataIdIndexMap);
 
 	// get records
-	DBAgentSelectArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	arg.columnDefs = COLUMN_DEF_TEST;
+	DBAgent::SelectArg arg(tableProfileTest);
 	arg.columnIndexes.push_back(IDX_TEST_TABLE_ID);
 	arg.columnIndexes.push_back(IDX_TEST_TABLE_AGE);
 	arg.columnIndexes.push_back(IDX_TEST_TABLE_NAME);

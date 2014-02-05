@@ -469,9 +469,7 @@ DBClientConfig::~DBClientConfig()
 
 string DBClientConfig::getDatabaseDir(void)
 {
-	DBAgentSelectArg arg;
-	arg.tableName = TABLE_NAME_SYSTEM;
-	arg.columnDefs = COLUMN_DEF_SYSTEM;
+	DBAgent::SelectArg arg(tableProfileSystem);
 	arg.columnIndexes.push_back(IDX_SYSTEM_DATABASE_DIR);
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -493,9 +491,7 @@ void DBClientConfig::setDatabaseDir(const string &dir)
 
 bool DBClientConfig::isFaceMySQLEnabled(void)
 {
-	DBAgentSelectArg arg;
-	arg.tableName = TABLE_NAME_SYSTEM;
-	arg.columnDefs = COLUMN_DEF_SYSTEM;
+	DBAgent::SelectArg arg(tableProfileSystem);
 	arg.columnIndexes.push_back(IDX_SYSTEM_ENABLE_FACE_MYSQL);
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -508,9 +504,7 @@ bool DBClientConfig::isFaceMySQLEnabled(void)
 
 int  DBClientConfig::getFaceRestPort(void)
 {
-	DBAgentSelectArg arg;
-	arg.tableName = TABLE_NAME_SYSTEM;
-	arg.columnDefs = COLUMN_DEF_SYSTEM;
+	DBAgent::SelectArg arg(tableProfileSystem);
 	arg.columnIndexes.push_back(IDX_SYSTEM_FACE_REST_PORT);
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -532,9 +526,7 @@ void DBClientConfig::setFaceRestPort(int port)
 
 bool DBClientConfig::isCopyOnDemandEnabled(void)
 {
-	DBAgentSelectArg arg;
-	arg.tableName = TABLE_NAME_SYSTEM;
-	arg.columnDefs = COLUMN_DEF_SYSTEM;
+	DBAgent::SelectArg arg(tableProfileSystem);
 	arg.columnIndexes.push_back(IDX_SYSTEM_ENABLE_COPY_ON_DEMAND);
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);

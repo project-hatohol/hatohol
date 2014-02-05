@@ -253,7 +253,7 @@ void DBAgentSQLite3::update(const UpdateArg &updateArg)
 	update(m_ctx->db, updateArg);
 }
 
-void DBAgentSQLite3::select(DBAgentSelectArg &selectArg)
+void DBAgentSQLite3::select(const SelectArg &selectArg)
 {
 	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
 	select(m_ctx->db, selectArg);
@@ -552,7 +552,7 @@ void DBAgentSQLite3::update(sqlite3 *db, const UpdateArg &updateArg)
 	}
 }
 
-void DBAgentSQLite3::select(sqlite3 *db, DBAgentSelectArg &selectArg)
+void DBAgentSQLite3::select(sqlite3 *db, const SelectArg &selectArg)
 {
 	string sql = makeSelectStatement(selectArg);
 
@@ -647,14 +647,15 @@ void DBAgentSQLite3::addColumns(DBAgentAddColumnsArg &addColumnsArg)
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 }
 
-void DBAgentSQLite3::selectGetValuesIteration(DBAgentSelectArg &selectArg,
+void DBAgentSQLite3::selectGetValuesIteration(const SelectArg &selectArg,
                                               sqlite3_stmt *stmt,
                                               VariableItemTablePtr &dataTable)
 {
 	VariableItemGroupPtr itemGroup;
 	for (size_t i = 0; i < selectArg.columnIndexes.size(); i++) {
 		size_t idx = selectArg.columnIndexes[i];
-		const ColumnDef &columnDef = selectArg.columnDefs[idx];
+		const ColumnDef &columnDef =
+		  selectArg.tableProfile.columnDefs[idx];
 		itemGroup->add(getValue(stmt, i, columnDef.type));
 	}
 	dataTable->add(itemGroup);

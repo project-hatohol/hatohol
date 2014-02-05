@@ -136,7 +136,7 @@ protected:
 
 	void insert(const DBAgent::InsertArg &insertArg);
 	void update(const DBAgent::UpdateArg &updateArg);
-	void select(DBAgentSelectArg &selectArg);
+	void select(const DBAgent::SelectArg &selectArg);
 	void select(DBAgentSelectExArg &selectExArg);
 	void deleteRows(const DBAgent::DeleteArg &deleteArg);
 	void addColumns(DBAgentAddColumnsArg &addColumnsArg);

@@ -132,7 +132,7 @@ public:
 		const TableProfile &tableProfile;
 		std::vector<size_t> columnIndexes;
 		// output
-		ItemTablePtr        dataTable;
+		mutable ItemTablePtr dataTable;
 
 		SelectArg(const TableProfile &tableProfile);
 	};
@@ -161,7 +161,7 @@ public:
 	virtual void createTable(DBAgentTableCreationArg &tableCreationArg) = 0;
 	virtual void insert(const InsertArg &insertArg) = 0;
 	virtual void update(const UpdateArg &updateArg) = 0;
-	virtual void select(DBAgentSelectArg &selectArg) = 0;
+	virtual void select(const SelectArg &selectArg) = 0;
 	virtual void select(DBAgentSelectExArg &selectExArg) = 0;
 	virtual void deleteRows(const DeleteArg &deleteArg) = 0;
 	virtual void addColumns(DBAgentAddColumnsArg &addColumnsArg) = 0;
@@ -191,7 +191,7 @@ public:
 	  size_t targetIndex);
 
 protected:
-	static std::string makeSelectStatement(DBAgentSelectArg &selectArg);
+	static std::string makeSelectStatement(const SelectArg &selectArg);
 	static std::string makeSelectStatement(DBAgentSelectExArg &selectExArg);
 	static std::string getColumnValueString(const ColumnDef *columnDef,
 	                                        const ItemData *itemData);

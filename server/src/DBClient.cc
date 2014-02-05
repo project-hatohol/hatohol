@@ -407,7 +407,7 @@ void DBClient::update(const DBAgent::UpdateArg &updateArg)
 	getDBAgent()->update(updateArg);
 }
 
-void DBClient::select(DBAgentSelectArg &selectArg)
+void DBClient::select(const DBAgent::SelectArg &selectArg)
 {
 	getDBAgent()->select(selectArg);
 }

@@ -61,7 +61,7 @@ public:
 	virtual void createTable(DBAgentTableCreationArg &tableCreationArg);
 	virtual void insert(const InsertArg &insertArg); // override
 	virtual void update(const UpdateArg &updateArg); // override
-	virtual void select(DBAgentSelectArg &selectArg);
+	virtual void select(const SelectArg &selectArg); // override
 	virtual void select(DBAgentSelectExArg &selectExArg);
 	virtual void deleteRows(const DeleteArg &deleteArg); // override
 	virtual void addColumns(DBAgentAddColumnsArg &addColumnsArg);
@@ -82,10 +82,10 @@ protected:
 	                        DBAgentTableCreationArg &tableCreationArg);
 	static void insert(sqlite3 *db, const InsertArg &insertArg);
 	static void update(sqlite3 *db, const UpdateArg &updateArg);
-	static void select(sqlite3 *db, DBAgentSelectArg &selectArg);
+	static void select(sqlite3 *db, const SelectArg &selectArg);
 	static void select(sqlite3 *db, DBAgentSelectExArg &selectExArg);
 	static void deleteRows(sqlite3 *db, const DeleteArg &deleteArg);
-	static void selectGetValuesIteration(DBAgentSelectArg &selectArg,
+	static void selectGetValuesIteration(const SelectArg &selectArg,
 	                                     sqlite3_stmt *stmt,
 	                                     VariableItemTablePtr &dataTable);
 	static uint64_t getLastInsertId(sqlite3 *db);

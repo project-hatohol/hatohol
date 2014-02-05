@@ -1758,9 +1758,7 @@ void DBClientZabbix::getTriggersAsHatoholFormat(TriggerInfoList &triggerInfoList
 void DBClientZabbix::getEventsAsHatoholFormat(EventInfoList &eventInfoList)
 {
 	// get data from data base
-	DBAgentSelectArg arg;
-	arg.tableName = TABLE_NAME_EVENTS_RAW_2_0;
-	arg.columnDefs = COLUMN_DEF_EVENTS_RAW_2_0;
+	DBAgent::SelectArg arg(tableProfileEventsRaw_2_0);
 	arg.columnIndexes.push_back(IDX_EVENTS_RAW_2_0_EVENTID);
 	arg.columnIndexes.push_back(IDX_EVENTS_RAW_2_0_OBJECT);
 	arg.columnIndexes.push_back(IDX_EVENTS_RAW_2_0_OBJECTID);
