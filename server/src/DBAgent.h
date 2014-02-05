@@ -128,6 +128,15 @@ public:
 		void add(const size_t &columnIndex, const time_t      &val);
 	};
 
+	struct SelectArg {
+		const TableProfile &tableProfile;
+		std::vector<size_t> columnIndexes;
+		// output
+		ItemTablePtr        dataTable;
+
+		SelectArg(const TableProfile &tableProfile);
+	};
+
 	struct DeleteArg {
 		const TableProfile &tableProfile;
 		std::string         condition;

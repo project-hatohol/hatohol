@@ -192,6 +192,14 @@ void DBAgent::UpdateArg::add(const size_t &columnIndex, const time_t &val)
 }
 
 // ---------------------------------------------------------------------------
+// DBAgent::SelectArg
+// ---------------------------------------------------------------------------
+DBAgent::SelectArg::SelectArg(const TableProfile &profile)
+: tableProfile(profile)
+{
+}
+
+// ---------------------------------------------------------------------------
 // DBAgent::DeleteArg
 // ---------------------------------------------------------------------------
 DBAgent::DeleteArg::DeleteArg(const TableProfile &profile)

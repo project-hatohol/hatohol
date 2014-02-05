@@ -72,6 +72,18 @@ public:
 		cppcut_assert_equal((size_t)0, arg.row->getNumberOfItems());
 	}
 
+	void assertCreateSelectArg(void)
+	{
+		TableProfile tblProf("name", m_testColumnDefs,
+		                     sizeof(m_testColumnDefs),
+		                     m_numTestColumns);
+		SelectArg arg(tblProf);
+		cppcut_assert_equal(&tblProf, &arg.tableProfile);
+		cppcut_assert_equal(true, arg.columnIndexes.empty());
+		cppcut_assert_equal((size_t)0,
+		                    arg.dataTable->getNumberOfRows());
+	}
+
 	void assertCreateDeleteArg(void)
 	{
 		TableProfile tblProf("name", m_testColumnDefs,
@@ -131,7 +143,8 @@ private:
 	virtual void createTable(DBAgentTableCreationArg &tableCreationArg) {}
 	virtual void insert(const InsertArg &insertArg) {}
 	virtual void update(const UpdateArg &updateArg) {}
-	virtual void select(DBAgentSelectArg &selectArg) {}
+	virtual void select(DBAgentSelectArg &selectArg) {} // TODO: delete
+	virtual void select(const SelectArg &selectArg) {}
 	virtual void select(DBAgentSelectExArg &selectExArg) {}
 	virtual void deleteRows(const DeleteArg &deleteArg) {}
 	virtual void addColumns(DBAgentAddColumnsArg &addColumnsArg) {}
@@ -174,6 +187,12 @@ void test_createUpdateArg(void)
 {
 	TestDBAgent dbAgent;
 	dbAgent.assertCreateUpdateArg();
+}
+
+void test_createSelectArg(void)
+{
+	TestDBAgent dbAgent;
+	dbAgent.assertCreateSelectArg();
 }
 
 void test_createDeleteArg(void)
