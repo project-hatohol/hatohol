@@ -373,7 +373,7 @@ void test_updateTargetServerWithoutPrivilege(void)
 	 (1 << OPPRVLG_UPDATE_SERVER) | (1 << OPPRVLG_UPDATE_ALL_SERVER);
 	privilege &= ~updateFlags;
 	assertUpdateTargetServer(
-	  serverInfo, HTERR_NO_PRIVILEGE, NONE_PRIVILEGE);
+	  serverInfo, HTERR_NO_PRIVILEGE, privilege);
 }
 
 void test_updateTargetServerWithNoHostNameAndIPAddress(void)
