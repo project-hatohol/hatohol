@@ -40,6 +40,8 @@ var HatoholServerEditDialog = function(params) {
   HatoholDialog.apply(
       this, ["server-edit-dialog", self.windowTitle,
              dialogButtons, dialogAttrs]);
+  if (self.server)
+    self.setServer(self.server);
   setTimeout(function(){
     self.setAddButtonState(false);
   }, 1);
@@ -61,7 +63,7 @@ var HatoholServerEditDialog = function(params) {
 
   function makeQueryData() {
     var queryData = {};
-    queryData.type = getFlagsFromServerType($("#selectServerType").val());
+    queryData.type = $("#selectServerType").val();
     queryData.hostName = $("#inputHostName").val();
     queryData.ipAddress = $("#inputIpAddress").val();
     queryData.nickname = $("#inputNickName").val();
@@ -137,18 +139,6 @@ var HatoholServerEditDialog = function(params) {
     }
     return true;
   }
-
-  function getFlagsFromServerType(type) {
-    switch(type) {
-      case "zabbix":
-        return hatohol.MONITORING_SYSTEM_ZABBIX;
-      case "nagios":
-        return hatohol.MONITORING_SYSTEM_NAGIOS;
-      default:
-        break;
-    }
-    return -1;
-  }
 };
 
 HatoholServerEditDialog.prototype = Object.create(HatoholDialog.prototype);
@@ -164,8 +154,10 @@ HatoholServerEditDialog.prototype.createMainElement = function() {
     s += '<form class="form-inline">';
     s += '  <label>' + gettext("Server type") + '</label>';
     s += '  <select id="selectServerType" style="width:10em">';
-    s += '    <option value="zabbix">' + gettext("Zabbix") + '</option>';
-    s += '    <option value="nagios">' + gettext("Nagios") + '</option>';
+    s += '    <option value="' + hatohol.MONITORING_SYSTEM_ZABBIX + '">' +
+      gettext("Zabbix") + '</option>';
+    s += '    <option value="' + hatohol.MONITORING_SYSTEM_NAGIOS +'">' +
+      gettext("Nagios") + '</option>';
     s += '  </select>';
     s += '</form>';
     s += '<form class="form-inline">';
@@ -294,4 +286,17 @@ HatoholServerEditDialog.prototype.setDBNameTextState = function(state) {
   } else {
     dbNameArea.hide();
   }
+};
+
+HatoholServerEditDialog.prototype.setServer = function(server) {
+  this.server = server;
+  $("#selectServerType").val(server.type);
+  $("#inputNickName").val(server.nickname);
+  $("#inputHostName").val(server.hostName);
+  $("#inputIpAddress").val(server.ipAddress);
+  $("#inputPort").val(server.port);
+
+  // TODO: fixup buttons state
+  // TODO: set remaining values
+  //       (Currently they aren't provided from hatohol server)
 };

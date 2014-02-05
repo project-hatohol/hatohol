@@ -18,6 +18,12 @@ describe('HatoholServerEditDialog', function() {
     var buttons = $(expectedId).dialog("option", "buttons");
     expect(buttons).to.have.length(2);
     expect(buttons[0].text).to.be(gettext("ADD"));
+
+    expect(parseInt($("#selectServerType").val())).to.be(0);
+    expect($("#inputNickName").val()).to.be.empty();
+    expect($("#inputHostName").val()).to.be.empty();
+    expect($("#inputIpAddress").val()).to.be.empty();
+    expect(parseInt($("#inputPort").val())).to.be(80);
   });
 
   it('new with a server', function() {
@@ -38,5 +44,10 @@ describe('HatoholServerEditDialog', function() {
     var buttons = $(expectedId).dialog("option", "buttons");
     expect(buttons).to.have.length(2);
     expect(buttons[0].text).to.be(gettext("APPLY"));
+    expect(parseInt($("#selectServerType").val())).to.be(server.type);
+    expect($("#inputNickName").val()).to.be(server.nickname);
+    expect($("#inputHostName").val()).to.be(server.hostName);
+    expect($("#inputIpAddress").val()).to.be(server.ipAddress);
+    expect(parseInt($("#inputPort").val())).to.be(server.port);
   });
 });
