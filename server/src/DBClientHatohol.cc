@@ -1169,8 +1169,7 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 void DBClientHatohol::setTriggerInfoList(const TriggerInfoList &triggerInfoList,
                                          const ServerIdType &serverId)
 {
-	DBAgentDeleteArg deleteArg;
-	deleteArg.tableName = TABLE_NAME_TRIGGERS;
+	DBAgent::DeleteArg deleteArg(tableProfileTriggers);
 	deleteArg.condition =
 	  StringUtils::sprintf("%s=%"FMT_SERVER_ID,
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName, serverId);
@@ -1367,8 +1366,7 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 void DBClientHatohol::setEventInfoList(const EventInfoList &eventInfoList,
                                        const ServerIdType &serverId)
 {
-	DBAgentDeleteArg deleteArg;
-	deleteArg.tableName = TABLE_NAME_EVENTS;
+	DBAgent::DeleteArg deleteArg(tableProfileEvents);
 	deleteArg.condition =
 	  StringUtils::sprintf("%s=%"FMT_SERVER_ID,
 	    COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName,
