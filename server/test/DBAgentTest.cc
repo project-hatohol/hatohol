@@ -339,10 +339,8 @@ void dbAgentTestSelectEx(DBAgent &dbAgent)
 	DBAgentChecker::createTable(dbAgent);
 	DBAgentChecker::makeTestData(dbAgent);
 
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	arg.statements.push_back("count(*)");
-	arg.columnTypes.push_back(SQL_COLUMN_TYPE_TEXT);
+	DBAgent::SelectExArg arg(tableProfileTest);
+	arg.add("count(*)", SQL_COLUMN_TYPE_TEXT);
 	dbAgent.select(arg);
 
 	const ItemGroupList &itemList = arg.dataTable->getItemGroupList();
@@ -363,10 +361,8 @@ void dbAgentTestSelectExWithCond(DBAgent &dbAgent)
 	DBAgentChecker::createTable(dbAgent);
 	DBAgentChecker::makeTestData(dbAgent);
 
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	arg.statements.push_back(columnDefId.columnName);
-	arg.columnTypes.push_back(SQL_COLUMN_TYPE_BIGUINT);
+	DBAgent::SelectExArg arg(tableProfileTest);
+	arg.add(IDX_TEST_TABLE_ID);
 
 	arg.condition = StringUtils::sprintf
 	                  ("%s=%"PRIu64, columnDefId.columnName, ID[targetRow]);
@@ -391,13 +387,9 @@ void dbAgentTestSelectExWithCondAllColumns(DBAgent &dbAgent)
 	DBAgentChecker::createTable(dbAgent);
 	DBAgentChecker::makeTestData(dbAgent);
 
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	for (size_t i = 0; i < NUM_COLUMNS_TEST; i++) {
-		const ColumnDef &columnDef = COLUMN_DEF_TEST[i];
-		arg.statements.push_back(columnDef.columnName);
-		arg.columnTypes.push_back(columnDef.type);
-	}
+	DBAgent::SelectExArg arg(tableProfileTest);
+	for (size_t i = 0; i < NUM_COLUMNS_TEST; i++)
+		arg.add(i);
 
 	arg.condition = StringUtils::sprintf
 	                  ("%s=%"PRIu64, columnDefId.columnName, ID[targetRow]);
@@ -422,11 +414,9 @@ void dbAgentTestSelectHeightOrder
 	DBAgentChecker::createTable(dbAgent);
 	DBAgentChecker::makeTestData(dbAgent);
 
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_TEST;
+	DBAgent::SelectExArg arg(tableProfileTest);
 	const ColumnDef &columnDef = COLUMN_DEF_TEST[IDX_TEST_TABLE_HEIGHT];
-	arg.statements.push_back(columnDef.columnName);
-	arg.columnTypes.push_back(columnDef.type);
+	arg.add(IDX_TEST_TABLE_HEIGHT);
 	arg.orderBy = StringUtils::sprintf("%s DESC", columnDef.columnName);
 	arg.limit = limit;
 	arg.offset = offset;
