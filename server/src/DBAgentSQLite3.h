@@ -60,7 +60,6 @@ public:
 	virtual void rollback(void);
 	virtual void createTable(DBAgentTableCreationArg &tableCreationArg);
 	virtual void insert(DBAgentInsertArg &insertArg);
-	virtual void update(DBAgentUpdateArg &updateArg) __attribute__ ((deprecated));
 	virtual void update(const UpdateArg &updateArg); // override
 	virtual void select(DBAgentSelectArg &selectArg);
 	virtual void select(DBAgentSelectExArg &selectExArg);
@@ -82,7 +81,6 @@ protected:
 	static void createTable(sqlite3 *db,
 	                        DBAgentTableCreationArg &tableCreationArg);
 	static void insert(sqlite3 *db, DBAgentInsertArg &insertArg);
-	static void update(sqlite3 *db, DBAgentUpdateArg &updateArg) __attribute__ ((deprecated));
 	static void update(sqlite3 *db, const UpdateArg &updateArg);
 	static void select(sqlite3 *db, DBAgentSelectArg &selectArg);
 	static void select(sqlite3 *db, DBAgentSelectExArg &selectExArg);

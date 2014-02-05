@@ -320,13 +320,6 @@ void DBAgentMySQL::insert(DBAgentInsertArg &insertArg)
 	execSql(query);
 }
 
-void DBAgentMySQL::update(DBAgentUpdateArg &updateArg)
-{
-	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
-	string sql = makeUpdateStatement(updateArg);
-	execSql(sql);
-}
-
 void DBAgentMySQL::update(const UpdateArg &updateArg)
 {
 	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");

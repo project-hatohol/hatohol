@@ -247,12 +247,6 @@ void DBAgentSQLite3::insert(DBAgentInsertArg &insertArg)
 	insert(m_ctx->db, insertArg);
 }
 
-void DBAgentSQLite3::update(DBAgentUpdateArg &updateArg)
-{
-	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
-	update(m_ctx->db, updateArg);
-}
-
 void DBAgentSQLite3::update(const UpdateArg &updateArg)
 {
 	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
@@ -530,21 +524,6 @@ void DBAgentSQLite3::insert(sqlite3 *db, DBAgentInsertArg &insertArg)
 		sql += valueStr;
 	}
 	sql += ")";
-
-	// exectute the SQL statement
-	char *errmsg;
-	int result = sqlite3_exec(db, sql.c_str(), NULL, NULL, &errmsg);
-	if (result != SQLITE_OK) {
-		string err = errmsg;
-		sqlite3_free(errmsg);
-		THROW_HATOHOL_EXCEPTION("Failed to exec: %d, %s, %s",
-		                      result, err.c_str(), sql.c_str());
-	}
-}
-
-void DBAgentSQLite3::update(sqlite3 *db, DBAgentUpdateArg &updateArg)
-{
-	string sql = makeUpdateStatement(updateArg);
 
 	// exectute the SQL statement
 	char *errmsg;

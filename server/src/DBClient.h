@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -135,7 +135,6 @@ protected:
 	void commit(void);
 
 	void insert(DBAgentInsertArg &insertArg);
-	void update(DBAgentUpdateArg &updateArg) __attribute__ ((deprecated));
 	void update(const DBAgent::UpdateArg &updateArg);
 	void select(DBAgentSelectArg &selectArg);
 	void select(DBAgentSelectExArg &selectExArg);

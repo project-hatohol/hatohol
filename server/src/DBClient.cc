@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -405,11 +405,6 @@ void DBClient::commit(void)
 void DBClient::insert(DBAgentInsertArg &insertArg)
 {
 	getDBAgent()->insert(insertArg);
-}
-
-void DBClient::update(DBAgentUpdateArg &updateArg)
-{
-	getDBAgent()->update(updateArg);
 }
 
 void DBClient::update(const DBAgent::UpdateArg &updateArg)

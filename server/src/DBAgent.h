@@ -126,7 +126,7 @@ public:
 		RowElement(const size_t &index, const ItemData *itemData,
 		           const bool &doRef = true);
 	};
-	
+
 	struct UpdateArg {
 		const TableProfile             &tableProfile;
 		std::string                     condition;
@@ -157,7 +157,6 @@ public:
 	virtual void rollback(void) = 0;
 	virtual void createTable(DBAgentTableCreationArg &tableCreationArg) = 0;
 	virtual void insert(DBAgentInsertArg &insertArg) = 0;
-	virtual void update(DBAgentUpdateArg &updateArg) = 0;
 	virtual void update(const UpdateArg &updateArg) = 0;
 	virtual void select(DBAgentSelectArg &selectArg) = 0;
 	virtual void select(DBAgentSelectExArg &selectExArg) = 0;
