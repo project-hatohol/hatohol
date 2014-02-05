@@ -314,6 +314,7 @@ static const DBAgent::TableProfile tableProfileStateHistory(
 const static char *VAR_SERVICES = "sv";
 const static char *VAR_STATUS   = "st";
 const static char *VAR_HOSTS    = "h";
+const static char *VAR_STATEHISTORY = "sh";
 
 static const DBAgent::TableProfileEx profTrig[] = {
   {&tableProfileServices, VAR_SERVICES}, 
@@ -323,13 +324,21 @@ static const DBAgent::TableProfileEx profTrig[] = {
 static const size_t numProfTrig =
   sizeof(profTrig) / sizeof(DBAgent::TableProfileEx);
 
+static const DBAgent::TableProfileEx profEvent[] = {
+  {&tableProfileStateHistory, VAR_STATEHISTORY},
+  {&tableProfileServices,     VAR_SERVICES},
+  {&tableProfileHosts,        VAR_HOSTS}, 
+};
+static const size_t numProfEvent =
+  sizeof(profEvent) / sizeof(DBAgent::TableProfileEx);
+
 struct ArmNagiosNDOUtils::PrivateContext
 {
 	DBAgentMySQL   *dbAgent;
 	DBClientHatohol dbHatohol;
 	DBAgent::SelectMultiTableArg selectTriggerArg;
 	string             selectTriggerBaseCondition;
-	DBAgentSelectExArg selectEventArg;
+	DBAgent::SelectMultiTableArg selectEventArg;
 	string             selectEventBaseCondition;
 	DBAgentSelectExArg selectItemArg;
 	UnifiedDataStore *dataStore;
@@ -339,6 +348,7 @@ struct ArmNagiosNDOUtils::PrivateContext
 	PrivateContext(const MonitoringServerInfo &_serverInfo)
 	: dbAgent(NULL),
 	  selectTriggerArg(profTrig, numProfTrig),
+	  selectEventArg(profEvent, numProfEvent),
 	  dataStore(NULL),
 	  serverInfo(_serverInfo)
 	{
@@ -443,81 +453,50 @@ void ArmNagiosNDOUtils::makeSelectTriggerArg(void)
 
 void ArmNagiosNDOUtils::makeSelectEventArg(void)
 {
-	const static char *VAR_STATEHISTORY = "sh";
-	const static char *VAR_SERVICES     = "sv";
-	const static char *VAR_HOSTS        = "h";
+	enum {
+		TBLIDX_HISTORY,
+		TBLIDX_SERVICES,
+		TBLIDX_HOSTS,
+	};
 
-	// table name
-	const ColumnDef &columnDefStateHistoryObjectId = 
-	  COLUMN_DEF_STATEHISTORY[IDX_STATEHISTORY_OBJECT_ID];
-	const ColumnDef &columnDefServicesServiceObjectId = 
-	  COLUMN_DEF_SERVICES[IDX_SERVICES_SERVICE_OBJECT_ID];
-	const ColumnDef &columnDefServicesHostObjectId = 
-	  COLUMN_DEF_SERVICES[IDX_SERVICES_HOST_OBJECT_ID];
-	const ColumnDef &columnDefHostsHostObjectId = 
-	  COLUMN_DEF_HOSTS[IDX_HOSTS_HOST_OBJECT_ID];
-	m_ctx->selectEventArg.tableName =
+	DBAgent::SelectMultiTableArg &arg = m_ctx->selectEventArg;
+	arg.tableField = 
 	  StringUtils::sprintf(
 	    "%s %s "
-	    "inner join %s %s on %s.%s=%s.%s "
-	    "inner join %s %s on %s.%s=%s.%s",
+	    "inner join %s %s on %s=%s "
+	    "inner join %s %s on %s=%s",
 	    TABLE_NAME_STATEHISTORY,  VAR_STATEHISTORY,
 	    TABLE_NAME_SERVICES,      VAR_SERVICES,
-	    VAR_STATEHISTORY, columnDefStateHistoryObjectId.columnName,
-	    VAR_SERVICES,     columnDefServicesServiceObjectId.columnName,
+	    arg.getFullName(TBLIDX_HISTORY, IDX_STATEHISTORY_OBJECT_ID).c_str(),
+	    arg.getFullName(TBLIDX_SERVICES,
+	                    IDX_SERVICES_SERVICE_OBJECT_ID).c_str(),
 	    TABLE_NAME_HOSTS,         VAR_HOSTS,
-	    VAR_SERVICES,     columnDefServicesHostObjectId.columnName,
-	    VAR_HOSTS,        columnDefHostsHostObjectId.columnName);
+	    arg.getFullName(TBLIDX_SERVICES,
+	                    IDX_SERVICES_SERVICE_OBJECT_ID).c_str(),
+	    arg.getFullName(TBLIDX_HOSTS, IDX_HOSTS_HOST_OBJECT_ID).c_str());
 
-	// statements
-	const ColumnDef &columnDefStateHistoryStateHistoryId =
-	  COLUMN_DEF_STATEHISTORY[IDX_STATEHISTORY_STATEHISTORY_ID];
-	const ColumnDef &columnDefStateHistoryState =
-	  COLUMN_DEF_STATEHISTORY[IDX_STATEHISTORY_STATE];
-	const ColumnDef &columnDefStateHistoryStateTime =
-	  COLUMN_DEF_STATEHISTORY[IDX_STATEHISTORY_STATE_TIME];
+	arg.setProfile(TBLIDX_HISTORY);
+	arg.add(IDX_STATEHISTORY_STATEHISTORY_ID);
+	arg.add(IDX_STATEHISTORY_STATE);
+	arg.add(IDX_STATEHISTORY_STATE_TIME);
 
-	const ColumnDef &columnDefServicesServiceId =
-	  COLUMN_DEF_SERVICES[IDX_SERVICES_SERVICE_ID];
-	const ColumnDef &columnDefHostsHostId =
-	  COLUMN_DEF_HOSTS[IDX_HOSTS_HOST_ID];
-	const ColumnDef &columnDefHostsDisplayName =
-	  COLUMN_DEF_HOSTS[IDX_HOSTS_DISPLAY_NAME];
+	arg.setProfile(TBLIDX_SERVICES);
+	arg.add(IDX_SERVICES_SERVICE_ID);
 
-	const ColumnDef &columnDefStateHistoryOutput = 
-	  COLUMN_DEF_STATEHISTORY[IDX_STATEHISTORY_OUTPUT];
-	const ColumnDef &columnDefStateHistoryStateType = 
-	  COLUMN_DEF_STATEHISTORY[IDX_STATEHISTORY_STATE_TYPE];
+	arg.setProfile(TBLIDX_HOSTS);
+	arg.setProfile(IDX_HOSTS_HOST_ID);
+	arg.setProfile(IDX_HOSTS_DISPLAY_NAME);
 
-	// statehistory_id
-	m_ctx->selectEventArg.pushColumn(columnDefStateHistoryStateHistoryId,
-	                                 VAR_STATEHISTORY);
-	// state
-	m_ctx->selectEventArg.pushColumn(columnDefStateHistoryState,
-	                                 VAR_STATEHISTORY);
-	// state time
-	m_ctx->selectEventArg.pushColumn(columnDefStateHistoryStateTime,
-	                                 VAR_STATEHISTORY);
-
-	// sevice id
-	m_ctx->selectEventArg.pushColumn(columnDefServicesServiceId,
-	                                 VAR_SERVICES);
-	// host_id
-	m_ctx->selectEventArg.pushColumn(columnDefHostsHostId,
-	                                 VAR_HOSTS);
-	// hosts.display_name 
-	m_ctx->selectEventArg.pushColumn(columnDefHostsDisplayName,
-	                                 VAR_HOSTS);
-	// output
-	m_ctx->selectEventArg.pushColumn(columnDefStateHistoryOutput,
-	                                 VAR_STATEHISTORY);
+	arg.setProfile(TBLIDX_HISTORY);
+	arg.add(IDX_STATEHISTORY_OUTPUT);
 
 	// contiditon
 	m_ctx->selectEventBaseCondition = StringUtils::sprintf(
-	  "%s.%s=%d and %s.%s>=",
-	  VAR_STATEHISTORY, columnDefStateHistoryStateType.columnName,
+	  "%s=%d and %s>=",
+	  arg.getFullName(TBLIDX_HISTORY, IDX_STATEHISTORY_STATE_TYPE).c_str(),
 	  HARD_STATE,
-	  VAR_STATEHISTORY, columnDefStateHistoryStateHistoryId.columnName);
+	  arg.getFullName(TBLIDX_HISTORY,
+	                  IDX_STATEHISTORY_STATEHISTORY_ID).c_str());
 }
 
 void ArmNagiosNDOUtils::makeSelectItemArg(void)
