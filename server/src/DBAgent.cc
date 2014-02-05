@@ -225,6 +225,13 @@ void DBAgent::SelectExArg::add(const size_t &columnIndex,
 	columnTypes.push_back(columnDef.type);
 }
 
+void DBAgent::SelectExArg::add(
+  const std::string &statement, const SQLColumnType &columnType)
+{
+	statements.push_back(statement);
+	columnTypes.push_back(columnType);
+}
+
 // ---------------------------------------------------------------------------
 // DBAgent::DeleteArg
 // ---------------------------------------------------------------------------

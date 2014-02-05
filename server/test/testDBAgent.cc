@@ -139,6 +139,21 @@ public:
 		}
 	}
 
+	void assertSelectExArgAddDirectStatement(void)
+	{
+		SelectExArg arg(tableProfileTest);
+		arg.add("count(*)", SQL_COLUMN_TYPE_INT);
+		arg.add("avg(foo)", SQL_COLUMN_TYPE_DOUBLE);
+
+		// check
+		cppcut_assert_equal((size_t)2, arg.statements.size());
+		cppcut_assert_equal((size_t)2, arg.columnTypes.size());
+		cppcut_assert_equal(string("count(*)"), arg.statements[0]);
+		cppcut_assert_equal(string("avg(foo)"), arg.statements[1]);
+		cppcut_assert_equal(SQL_COLUMN_TYPE_INT, arg.columnTypes[0]);
+		cppcut_assert_equal(SQL_COLUMN_TYPE_DOUBLE, arg.columnTypes[1]);
+	}
+
 	void assertCreateDeleteArg(void)
 	{
 		TableProfile tblProf("name", m_testColumnDefs,
@@ -260,6 +275,12 @@ void test_selectExArgAdd(void)
 {
 	TestDBAgent dbAgent;
 	dbAgent.assertSelectExArgAdd();
+}
+
+void test_selectExArgAddDirectStatement(void)
+{
+	TestDBAgent dbAgent;
+	dbAgent.assertSelectExArgAddDirectStatement();
 }
 
 void test_createDeleteArg(void)

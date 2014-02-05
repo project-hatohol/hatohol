@@ -130,6 +130,8 @@ public:
 		SelectExArg(const TableProfile &tableProfile);
 		void add(const size_t &columnIndex,
 		         const std::string &varName = "");
+		void add(const std::string &statement,
+		         const SQLColumnType &columnType);
 	};
 
 	struct DeleteArg {
