@@ -90,15 +90,16 @@ static const ColumnDef COLUMN_DEF_SERVICES[] = {
 },
 };
 
-static const size_t NUM_COLUMNS_SERVICES =
-  sizeof(COLUMN_DEF_SERVICES) / sizeof(ColumnDef);
-
 enum {
 	IDX_SERVICES_SERVICE_ID,
 	IDX_SERVICES_HOST_OBJECT_ID,
 	IDX_SERVICES_SERVICE_OBJECT_ID,
 	NUM_IDX_SERVICES,
 };
+
+static const DBAgent::TableProfile tableProfileService(
+  TABLE_NAME_SERVICES, COLUMN_DEF_SERVICES,
+  sizeof(COLUMN_DEF_SERVICES), NUM_IDX_SERVICES);
 
 // Definitions: nagios_servicestatus
 static const ColumnDef COLUMN_DEF_SERVICESTATUS[] = {
@@ -160,9 +161,6 @@ static const ColumnDef COLUMN_DEF_SERVICESTATUS[] = {
 },
 };
 
-static const size_t NUM_COLUMNS_SERVICESTATUS =
-  sizeof(COLUMN_DEF_SERVICESTATUS) / sizeof(ColumnDef);
-
 enum {
 	IDX_SERVICESTATUS_SERVICE_OBJECT_ID,
 	IDX_SERVICESTATUS_STATUS_UPDATE_TIME,
@@ -171,6 +169,10 @@ enum {
 	IDX_SERVICESTATUS_CHECK_COMMAND,
 	NUM_IDX_SERVICESTATUS,
 };
+
+static const DBAgent::TableProfile tableProfileServiceStatus(
+  TABLE_NAME_SERVICESTATUS, COLUMN_DEF_SERVICESTATUS,
+  sizeof(COLUMN_DEF_SERVICESTATUS), NUM_IDX_SERVICESTATUS);
 
 // Definitions: nagios_hosts
 static const ColumnDef COLUMN_DEF_HOSTS[] = {
@@ -210,15 +212,16 @@ static const ColumnDef COLUMN_DEF_HOSTS[] = {
 },
 };
 
-static const size_t NUM_COLUMNS_HOSTS =
-  sizeof(COLUMN_DEF_HOSTS) / sizeof(ColumnDef);
-
 enum {
 	IDX_HOSTS_HOST_ID,
 	IDX_HOSTS_HOST_OBJECT_ID,
 	IDX_HOSTS_DISPLAY_NAME,
 	NUM_IDX_HOSTS,
 };
+
+static const DBAgent::TableProfile tableProfileHosts(
+  TABLE_NAME_HOSTS, COLUMN_DEF_HOSTS,
+  sizeof(COLUMN_DEF_HOSTS), NUM_IDX_HOSTS);
 
 // Definitions: nagios_statehistory
 static const ColumnDef COLUMN_DEF_STATEHISTORY[] = {
@@ -291,9 +294,6 @@ static const ColumnDef COLUMN_DEF_STATEHISTORY[] = {
 },
 };
 
-static const size_t NUM_COLUMNS_STATEHISTORY =
-  sizeof(COLUMN_DEF_STATEHISTORY) / sizeof(ColumnDef);
-
 enum {
 	IDX_STATEHISTORY_STATEHISTORY_ID,
 	IDX_STATEHISTORY_STATE_TIME,
@@ -303,6 +303,10 @@ enum {
 	IDX_STATEHISTORY_OUTPUT,
 	NUM_IDX_STATEHISTORY,
 };
+
+static const DBAgent::TableProfile tableProfileStateHistory(
+  TABLE_NAME_STATEHISTORY, COLUMN_DEF_STATEHISTORY,
+  sizeof(COLUMN_DEF_STATEHISTORY), NUM_IDX_STATEHISTORY);
 
 // ---------------------------------------------------------------------------
 // Private context
