@@ -175,6 +175,7 @@ public:
 	virtual void select(DBAgentSelectArg &selectArg) = 0;
 	virtual void select(DBAgentSelectExArg &selectExArg) = 0;
 	virtual void deleteRows(DBAgentDeleteArg &deleteArg) = 0;
+	virtual void deleteRows(const DeleteArg &deleteArg) = 0;
 	virtual void addColumns(DBAgentAddColumnsArg &addColumnsArg) = 0;
 	virtual uint64_t getLastInsertId(void) = 0;
 	virtual uint64_t getNumberOfAffectedRows(void) = 0;
@@ -208,6 +209,7 @@ protected:
 	                                        const ItemData *itemData);
 	static std::string makeUpdateStatement(const UpdateArg &updateArg);
 	static std::string makeDeleteStatement(DBAgentDeleteArg &deleteArg);
+	static std::string makeDeleteStatement(const DeleteArg &deleteArg);
 	static std::string makeDatetimeString(int datetime);
 
 private:

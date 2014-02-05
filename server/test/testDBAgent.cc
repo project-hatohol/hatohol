@@ -133,7 +133,8 @@ private:
 	virtual void update(const UpdateArg &updateArg) {}
 	virtual void select(DBAgentSelectArg &selectArg) {}
 	virtual void select(DBAgentSelectExArg &selectExArg) {}
-	virtual void deleteRows(DBAgentDeleteArg &deleteArg) {}
+	virtual void deleteRows(DBAgentDeleteArg &deleteArg) {} // TODO: delete
+	virtual void deleteRows(const DeleteArg &deleteArg) {}
 	virtual void addColumns(DBAgentAddColumnsArg &addColumnsArg) {}
 
 	virtual uint64_t getLastInsertId(void)

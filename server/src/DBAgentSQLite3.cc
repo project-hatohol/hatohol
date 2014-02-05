@@ -271,6 +271,12 @@ void DBAgentSQLite3::deleteRows(DBAgentDeleteArg &deleteArg)
 	deleteRows(m_ctx->db, deleteArg);
 }
 
+void DBAgentSQLite3::deleteRows(const DeleteArg &deleteArg)
+{
+	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
+	deleteRows(m_ctx->db, deleteArg);
+}
+
 uint64_t DBAgentSQLite3::getLastInsertId(void)
 {
 	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
@@ -637,6 +643,12 @@ void DBAgentSQLite3::select(sqlite3 *db, DBAgentSelectExArg &selectExArg)
 }
 
 void DBAgentSQLite3::deleteRows(sqlite3 *db, DBAgentDeleteArg &deleteArg)
+{
+	string sql = makeDeleteStatement(deleteArg);
+	_execSql(db, sql.c_str());
+}
+
+void DBAgentSQLite3::deleteRows(sqlite3 *db, const DeleteArg &deleteArg)
 {
 	string sql = makeDeleteStatement(deleteArg);
 	_execSql(db, sql.c_str());

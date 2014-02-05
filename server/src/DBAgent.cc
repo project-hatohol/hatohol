@@ -391,6 +391,17 @@ string DBAgent::makeDeleteStatement(DBAgentDeleteArg &deleteArg)
 	return statement;
 }
 
+string DBAgent::makeDeleteStatement(const DeleteArg &deleteArg)
+{
+	string statement = "DELETE FROM ";
+	statement += deleteArg.tableProfile.name;
+	if (!deleteArg.condition.empty()) {
+		statement += " WHERE ";
+		statement += deleteArg.condition;
+	}
+	return statement;
+}
+
 string DBAgent::makeDatetimeString(int datetime)
 {
 	time_t clock;

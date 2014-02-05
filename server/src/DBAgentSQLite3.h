@@ -64,6 +64,7 @@ public:
 	virtual void select(DBAgentSelectArg &selectArg);
 	virtual void select(DBAgentSelectExArg &selectExArg);
 	virtual void deleteRows(DBAgentDeleteArg &deleteArg);
+	virtual void deleteRows(const DeleteArg &deleteArg);
 	virtual void addColumns(DBAgentAddColumnsArg &addColumnsArg);
 	virtual uint64_t getLastInsertId(void);
 	virtual uint64_t getNumberOfAffectedRows(void);
@@ -85,6 +86,7 @@ protected:
 	static void select(sqlite3 *db, DBAgentSelectArg &selectArg);
 	static void select(sqlite3 *db, DBAgentSelectExArg &selectExArg);
 	static void deleteRows(sqlite3 *db, DBAgentDeleteArg &deleteArg);
+	static void deleteRows(sqlite3 *db, const DeleteArg &deleteArg);
 	static void selectGetValuesIteration(DBAgentSelectArg &selectArg,
 	                                     sqlite3_stmt *stmt,
 	                                     VariableItemTablePtr &dataTable);

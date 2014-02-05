@@ -408,6 +408,13 @@ void DBAgentMySQL::deleteRows(DBAgentDeleteArg &deleteArg)
 	execSql(query);
 }
 
+void DBAgentMySQL::deleteRows(const DeleteArg &deleteArg)
+{
+	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
+	string query = makeDeleteStatement(deleteArg);
+	execSql(query);
+}
+
 uint64_t DBAgentMySQL::getLastInsertId(void)
 {
 	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
