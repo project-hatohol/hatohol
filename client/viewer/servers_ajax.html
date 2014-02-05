@@ -191,8 +191,8 @@
 
         s += "<td>"
 
-        if (hasFlag(userProfile.user, hatohol.OPPRVLG_CREATE_SERVER) ||
-            hasFlag(userProfile.user, hatohol.OPPRVLG_CREATE_ALL_SERVER))
+        if (hasFlag(userProfile.user, hatohol.OPPRVLG_UPDATE_SERVER) ||
+            hasFlag(userProfile.user, hatohol.OPPRVLG_UPDATE_ALL_SERVER))
         {
           s += "<input type='button' serverId='" + o["id"] + "'";
           s += "  value='{% trans "Edit" %}' />";
