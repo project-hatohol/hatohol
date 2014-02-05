@@ -53,14 +53,16 @@ static const ColumnDef COLUMN_DEF_DBCLIENT_VERSION[] = {
 	NULL,                              // defaultValue
 },
 };
-static const size_t NUM_COLUMNS_DBCLIENT_VERSION =
-  sizeof(COLUMN_DEF_DBCLIENT_VERSION) / sizeof(ColumnDef);
 
 enum {
 	IDX_DBCLIENT_VERSION_DOMAIN_ID,
 	IDX_DBCLIENT_VERSION_VERSION,
 	NUM_IDX_DBCLIENT,
 };
+
+static DBAgent::TableProfile tableProfileDBClientVersion(
+  TABLE_NAME_DBCLIENT_VERSION, COLUMN_DEF_DBCLIENT_VERSION,
+  sizeof(COLUMN_DEF_DBCLIENT_VERSION), NUM_IDX_DBCLIENT);
 
 // This structure instnace is created once every DB_DOMAIN_ID
 struct DBClient::DBSetupContext {
@@ -272,7 +274,7 @@ void DBClient::insertDBClientVersion(DBAgent *dbAgent,
 	// insert default value
 	DBAgentInsertArg insArg;
 	insArg.tableName = TABLE_NAME_DBCLIENT_VERSION;
-	insArg.numColumns = NUM_COLUMNS_DBCLIENT_VERSION;
+	insArg.numColumns = tableProfileDBClientVersion.numColumns;
 	insArg.columnDefs = COLUMN_DEF_DBCLIENT_VERSION;
 	VariableItemGroupPtr row;
 	row->addNewItem(dbAgent->getDBDomainId());
@@ -334,13 +336,8 @@ int DBClient::getDBVersion(DBAgent *dbAgent)
 
 void DBClient::setDBVersion(DBAgent *dbAgent, int version)
 {
-	DBAgentUpdateArg arg;
-	arg.tableName = TABLE_NAME_DBCLIENT_VERSION;
-	arg.columnDefs = COLUMN_DEF_DBCLIENT_VERSION;
-	arg.columnIndexes.push_back(1);
-	VariableItemGroupPtr row;
-	row->addNewItem(version);
-	arg.row = row;
+	DBAgent::UpdateArg arg(tableProfileDBClientVersion);
+	arg.add(IDX_DBCLIENT_VERSION_VERSION, version);
 	arg.condition = StringUtils::sprintf("%s=%d",
 	  COLUMN_DEF_DBCLIENT_VERSION[IDX_DBCLIENT_VERSION_DOMAIN_ID].columnName,
 	  dbAgent->getDBDomainId());
@@ -361,7 +358,7 @@ void DBClient::dbSetupFunc(DBDomainId domainId, void *data)
 	if (!rawDBAgent->isTableExisting(TABLE_NAME_DBCLIENT_VERSION)) {
 		createTable(rawDBAgent.get(),
 		            TABLE_NAME_DBCLIENT_VERSION,
-		            NUM_COLUMNS_DBCLIENT_VERSION,
+		            tableProfileDBClientVersion.numColumns,
 		            COLUMN_DEF_DBCLIENT_VERSION);
 	}
 
