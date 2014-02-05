@@ -36,15 +36,6 @@ struct DBAgentTableCreationArg {
 	const ColumnDef    *columnDefs;
 };
 
-struct DBAgentSelectArg {
-	std::string         tableName;
-	const ColumnDef    *columnDefs;
-	std::vector<size_t> columnIndexes;
-
-	// output
-	ItemTablePtr        dataTable;
-};
-
 struct DBAgentSelectExArg {
 	std::string                tableName;
 	std::vector<std::string>   statements;

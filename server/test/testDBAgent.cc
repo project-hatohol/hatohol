@@ -143,7 +143,6 @@ private:
 	virtual void createTable(DBAgentTableCreationArg &tableCreationArg) {}
 	virtual void insert(const InsertArg &insertArg) {}
 	virtual void update(const UpdateArg &updateArg) {}
-	virtual void select(DBAgentSelectArg &selectArg) {} // TODO: delete
 	virtual void select(const SelectArg &selectArg) {}
 	virtual void select(DBAgentSelectExArg &selectExArg) {}
 	virtual void deleteRows(const DeleteArg &deleteArg) {}
