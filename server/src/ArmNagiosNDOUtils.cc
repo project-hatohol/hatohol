@@ -332,6 +332,13 @@ static const DBAgent::TableProfileEx profEvent[] = {
 static const size_t numProfEvent =
   sizeof(profEvent) / sizeof(DBAgent::TableProfileEx);
 
+static const DBAgent::TableProfileEx profItem[] = {
+  {&tableProfileServices,      VAR_SERVICES},
+  {&tableProfileServiceStatus, VAR_STATUS}, 
+};
+static const size_t numProfItem =
+  sizeof(profItem) / sizeof(DBAgent::TableProfileEx);
+
 struct ArmNagiosNDOUtils::PrivateContext
 {
 	DBAgentMySQL   *dbAgent;
@@ -340,7 +347,7 @@ struct ArmNagiosNDOUtils::PrivateContext
 	string             selectTriggerBaseCondition;
 	DBAgent::SelectMultiTableArg selectEventArg;
 	string             selectEventBaseCondition;
-	DBAgentSelectExArg selectItemArg;
+	DBAgent::SelectMultiTableArg selectItemArg;
 	UnifiedDataStore *dataStore;
 	MonitoringServerInfo serverInfo;
 
@@ -349,6 +356,7 @@ struct ArmNagiosNDOUtils::PrivateContext
 	: dbAgent(NULL),
 	  selectTriggerArg(profTrig, numProfTrig),
 	  selectEventArg(profEvent, numProfEvent),
+	  selectItemArg(profItem, numProfItem),
 	  dataStore(NULL),
 	  serverInfo(_serverInfo)
 	{
@@ -501,50 +509,30 @@ void ArmNagiosNDOUtils::makeSelectEventArg(void)
 
 void ArmNagiosNDOUtils::makeSelectItemArg(void)
 {
-	const static char *VAR_SERVICES = "sv";
-	const static char *VAR_STATUS   = "st";
+	enum {
+		TBLIDX_SERVICES,
+		TBLIDX_STATUS,
+	};
 
-	// table name
-	const ColumnDef &columnDefServicesServiceObjectId = 
-	  COLUMN_DEF_SERVICES[IDX_SERVICES_SERVICE_OBJECT_ID];
-	const ColumnDef &columnDefStatusServiceObjectId = 
-	  COLUMN_DEF_SERVICESTATUS[IDX_SERVICESTATUS_SERVICE_OBJECT_ID];
-	m_ctx->selectItemArg.tableName =
+	DBAgent::SelectMultiTableArg &arg = m_ctx->selectItemArg;
+	arg.tableField =
 	  StringUtils::sprintf(
-	    "%s %s "
-	    "inner join %s %s on %s.%s=%s.%s",
+	    "%s %s inner join %s %s on %s=%s",
 	    TABLE_NAME_SERVICES,      VAR_SERVICES,
 	    TABLE_NAME_SERVICESTATUS, VAR_STATUS,
-	    VAR_SERVICES, columnDefServicesServiceObjectId.columnName,
-	    VAR_STATUS,   columnDefStatusServiceObjectId.columnName);
+	    arg.getFullName(TBLIDX_SERVICES,
+	                    IDX_SERVICES_SERVICE_OBJECT_ID).c_str(),
+	    arg.getFullName(TBLIDX_STATUS,
+	                    IDX_SERVICESTATUS_SERVICE_OBJECT_ID).c_str());
 
-	// statements
-	const ColumnDef &columnDefServicesServiceId = 
-	  COLUMN_DEF_SERVICES[IDX_SERVICES_SERVICE_ID];
-	const ColumnDef &columnDefServicesHostObjectId = 
-	  COLUMN_DEF_SERVICES[IDX_SERVICES_HOST_OBJECT_ID];
-	const ColumnDef &columnDefStatusCheckCommand =
-	  COLUMN_DEF_SERVICESTATUS[IDX_SERVICESTATUS_CHECK_COMMAND];
-	const ColumnDef &columnDefStatusOutput = 
-	  COLUMN_DEF_SERVICESTATUS[IDX_SERVICESTATUS_OUTPUT];
-	const ColumnDef &columnDefStatusUpdateTime =
-	  COLUMN_DEF_SERVICESTATUS[IDX_SERVICESTATUS_STATUS_UPDATE_TIME];
+	arg.setProfile(TBLIDX_SERVICES);
+	arg.add(IDX_SERVICES_SERVICE_ID);
+	arg.add(IDX_SERVICES_HOST_OBJECT_ID);
 
-	// service_id
-	m_ctx->selectItemArg.pushColumn(columnDefServicesServiceId,
-	                                VAR_SERVICES);
-	// host_id
-	m_ctx->selectItemArg.pushColumn(columnDefServicesHostObjectId,
-	                                VAR_SERVICES);
-	// check_command
-	m_ctx->selectItemArg.pushColumn(columnDefStatusCheckCommand,
-	                                VAR_STATUS);
-	// status_update_time
-	m_ctx->selectItemArg.pushColumn(columnDefStatusUpdateTime,
-	                                VAR_STATUS);
-	// output
-	m_ctx->selectItemArg.pushColumn(columnDefStatusOutput,
-	                                VAR_STATUS);
+	arg.setProfile(TBLIDX_STATUS);
+	arg.add(IDX_SERVICESTATUS_CHECK_COMMAND);
+	arg.add(IDX_SERVICESTATUS_STATUS_UPDATE_TIME);
+	arg.add(IDX_SERVICESTATUS_OUTPUT);
 }
 
 void ArmNagiosNDOUtils::addConditionForTriggerQuery(void)
