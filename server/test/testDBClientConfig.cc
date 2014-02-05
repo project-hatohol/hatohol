@@ -347,8 +347,6 @@ void _assertUpdateTargetServer(
 
 void test_updateTargetServer(void)
 {
-	loadTestDBServer();
-
 	int targetId = 2;
 	MonitoringServerInfo serverInfo = testServerInfo[0];
 	serverInfo.id = targetId;
