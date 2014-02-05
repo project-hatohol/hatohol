@@ -157,7 +157,7 @@ static void checkInsert(DBAgent &dbAgent, DBAgentChecker &checker,
                         uint64_t id, int age, const char *name, double height,
                         set<size_t> *nullIndexes = NULL)
 {
-	DBAgent::InsertArg arg(tableProfileTestAutoInc);
+	DBAgent::InsertArg arg(tableProfileTest);
 	size_t idx = 0;
 	arg.row->addNewItem(id, calcNullFlag(nullIndexes, idx++));
 	arg.row->addNewItem(age, calcNullFlag(nullIndexes, idx++));
