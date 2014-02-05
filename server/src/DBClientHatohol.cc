@@ -1651,6 +1651,7 @@ void DBClientHatohol::pickupAbsentHostIds(vector<uint64_t> &absentHostIdVector,
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+// TODO: Use DBAgent::updateIfExistElseInsert() for these methods.
 void DBClientHatohol::addTriggerInfoWithoutTransaction(
   const TriggerInfo &triggerInfo)
 {
