@@ -62,6 +62,16 @@ public:
 		cppcut_assert_equal(true, arg.rows.empty());
 	}
 
+	void assertCreateInsertArg(void)
+	{
+		TableProfile tblProf("name", m_testColumnDefs,
+		                     sizeof(m_testColumnDefs),
+		                     m_numTestColumns);
+		InsertArg arg(tblProf);
+		cppcut_assert_equal(&tblProf, &arg.tableProfile);
+		cppcut_assert_equal(false, arg.row.hasData());
+	}
+
 	template <typename T, typename T_READ>
 	void assertUpdateArgAdd(const T *vals, const size_t &numVals)
 	{
@@ -142,6 +152,12 @@ void test_createTableProfileWithIvalidNumIndexes(void)
 {
 	TestDBAgent dbAgent;
 	dbAgent.assertCreateTableProfileWithInvalidNumIndexes();
+}
+
+void test_createInsertArg(void)
+{
+	TestDBAgent dbAgent;
+	dbAgent.assertCreateInsertArg();
 }
 
 void test_createUpdateArg(void)

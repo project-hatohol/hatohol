@@ -127,6 +127,13 @@ public:
 		           const bool &doRef = true);
 	};
 
+	struct InsertArg {
+		const TableProfile &tableProfile;
+		ItemGroupPtr        row;
+
+		InsertArg(const TableProfile &tableProfile);
+	};
+
 	struct UpdateArg {
 		const TableProfile             &tableProfile;
 		std::string                     condition;

@@ -135,7 +135,7 @@ DBAgent::TableProfile::TableProfile(
 }
 
 // ---------------------------------------------------------------------------
-// DBAgent::UpdateArg
+// DBAgent::RowElement
 // ---------------------------------------------------------------------------
 DBAgent::RowElement::RowElement(const size_t &index, const ItemData *itemData,
                                const bool &doRef)
@@ -144,6 +144,17 @@ DBAgent::RowElement::RowElement(const size_t &index, const ItemData *itemData,
 {
 }
 
+// ---------------------------------------------------------------------------
+// DBAgent::InsertArg
+// ---------------------------------------------------------------------------
+DBAgent::InsertArg::InsertArg(const TableProfile &profile)
+: tableProfile(profile)
+{
+}
+
+// ---------------------------------------------------------------------------
+// DBAgent::UpdateArg
+// ---------------------------------------------------------------------------
 DBAgent::UpdateArg::UpdateArg(const TableProfile &profile)
 : tableProfile(profile)
 {
