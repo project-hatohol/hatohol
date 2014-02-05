@@ -199,7 +199,8 @@ private:
 	virtual void insert(const InsertArg &insertArg) {}
 	virtual void update(const UpdateArg &updateArg) {}
 	virtual void select(const SelectArg &selectArg) {}
-	virtual void select(DBAgentSelectExArg &selectExArg) {}
+	virtual void select(DBAgentSelectExArg &selectExArg) {} // TODO: remove
+	virtual void select(const SelectExArg &selectExArg) {}
 	virtual void deleteRows(const DeleteArg &deleteArg) {}
 	virtual void addColumns(const AddColumnsArg &addColumnsArg) {}
 

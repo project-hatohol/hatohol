@@ -62,7 +62,8 @@ public:
 	virtual void insert(const InsertArg &insertArg); // override
 	virtual void update(const UpdateArg &updateArg); // override
 	virtual void select(const SelectArg &selectArg); // override
-	virtual void select(DBAgentSelectExArg &selectExArg);
+	virtual void select(DBAgentSelectExArg &selectExArg); // TODO: remove
+	virtual void select(const SelectExArg &selectExArg); // override
 	virtual void deleteRows(const DeleteArg &deleteArg); // override
 	virtual void addColumns(const AddColumnsArg &addColumnsArg); // override
 	virtual uint64_t getLastInsertId(void);
@@ -82,7 +83,8 @@ protected:
 	static void insert(sqlite3 *db, const InsertArg &insertArg);
 	static void update(sqlite3 *db, const UpdateArg &updateArg);
 	static void select(sqlite3 *db, const SelectArg &selectArg);
-	static void select(sqlite3 *db, DBAgentSelectExArg &selectExArg);
+	static void select(sqlite3 *db, DBAgentSelectExArg &selectExArg); // TODO: remove
+	static void select(sqlite3 *db, const SelectExArg &selectExArg);
 	static void deleteRows(sqlite3 *db, const DeleteArg &deleteArg);
 	static void selectGetValuesIteration(const SelectArg &selectArg,
 	                                     sqlite3_stmt *stmt,

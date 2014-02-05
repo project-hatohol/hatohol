@@ -49,7 +49,8 @@ public:
 	virtual void insert(const InsertArg &insertArg); // override
 	virtual void update(const UpdateArg &updateArg); // override
 	virtual void select(const SelectArg &selectArg); // override
-	virtual void select(DBAgentSelectExArg &selectExArg);
+	virtual void select(DBAgentSelectExArg &selectExArg); // TODO: remove
+	virtual void select(const SelectExArg &selectExArg); // override
 	virtual void deleteRows(const DeleteArg &deleteArg); // override
 	virtual void addColumns(const AddColumnsArg &addColumnsArg);
 	virtual uint64_t getLastInsertId(void);

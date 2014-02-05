@@ -165,6 +165,7 @@ public:
 	virtual void update(const UpdateArg &updateArg) = 0;
 	virtual void select(const SelectArg &selectArg) = 0;
 	virtual void select(DBAgentSelectExArg &selectExArg) = 0;
+	virtual void select(const SelectExArg &selectExArg) = 0;
 	virtual void deleteRows(const DeleteArg &deleteArg) = 0;
 	virtual void addColumns(const AddColumnsArg &addColumnsArg) = 0;
 	virtual uint64_t getLastInsertId(void) = 0;
@@ -195,6 +196,7 @@ public:
 protected:
 	static std::string makeSelectStatement(const SelectArg &selectArg);
 	static std::string makeSelectStatement(DBAgentSelectExArg &selectExArg);
+	static std::string makeSelectStatement(const SelectExArg &selectExArg);
 	static std::string getColumnValueString(const ColumnDef *columnDef,
 	                                        const ItemData *itemData);
 	static std::string makeUpdateStatement(const UpdateArg &updateArg);
