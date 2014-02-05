@@ -2131,7 +2131,8 @@ void FaceRest::handlerPutUser(RestJob *job)
 		return;
 	}
 	bool allowEmpty = true;
-	HatoholError err = parseUserParameter(userInfo, job->query, allowEmpty);
+	HatoholError err = parseUserParameter(userInfo, job->query,
+					      allowEmpty);
 	if (err != HTERR_OK) {
 		replyError(job, err);
 		return;
@@ -2509,8 +2510,8 @@ void FaceRest::handlerDeleteUserRole(RestJob *job)
 	replyJsonData(agent, job);
 }
 
-HatoholError FaceRest::parseUserParameter(UserInfo &userInfo, GHashTable *query,
-					  bool allowEmpty)
+HatoholError FaceRest::parseUserParameter(
+  UserInfo &userInfo, GHashTable *query, bool allowEmpty)
 {
 	char *value;
 
