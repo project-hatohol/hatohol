@@ -1661,8 +1661,7 @@ void DBClientZabbix::addFunctionsRaw2_0(ItemTablePtr tablePtr)
 	DBCLIENT_TRANSACTION_BEGIN() {
 		// TODO: This implementaion is transitional. We'll implement
 		// a function that get data partially.
-		DBAgentDeleteArg arg;
-		arg.tableName = TABLE_NAME_FUNCTIONS_RAW_2_0;
+		DBAgent::DeleteArg arg(tableProfileFunctionsRaw_2_0);
 		deleteRows(arg);
 		addItems(tablePtr, tableProfileFunctionsRaw_2_0,
 		         IDX_FUNCTIONS_RAW_2_0_FUNCTIONSTIONID);
@@ -1674,8 +1673,7 @@ void DBClientZabbix::addItemsRaw2_0(ItemTablePtr tablePtr)
 	DBCLIENT_TRANSACTION_BEGIN() {
 		// TODO: This implementaion is transitional. We'll implement
 		// a function that get data partially.
-		DBAgentDeleteArg arg;
-		arg.tableName = TABLE_NAME_ITEMS_RAW_2_0;
+		DBAgent::DeleteArg arg(tableProfileItemsRaw_2_0);
 		deleteRows(arg);
 		addItems(tablePtr, tableProfileItemsRaw_2_0,
 		         IDX_ITEMS_RAW_2_0_ITEMID);
@@ -1712,8 +1710,7 @@ void DBClientZabbix::addApplicationsRaw2_0(ItemTablePtr tablePtr)
 void DBClientZabbix::addGroupsRaw2_0(ItemTablePtr tablePtr)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
-		DBAgentDeleteArg arg;
-		arg.tableName = TABLE_NAME_HOSTS_GROUPS_RAW_2_0;
+		DBAgent::DeleteArg arg(tableProfileHostsGroupsRaw_2_0);
 		deleteRows(arg);
 		addItems(tablePtr, tableProfileGroupsRaw_2_0,
 		         IDX_GROUPS_RAW_2_0_GROUPID);
