@@ -488,8 +488,7 @@ void dbAgentTestDelete(DBAgent &dbAgent, DBAgentChecker &checker)
 	}
 
 	// delete
-	DBAgentDeleteArg arg;
-	arg.tableName = TABLE_NAME_TEST;
+	DBAgent::DeleteArg arg(tableProfileTest);
 	const int thresAge = 15;
 	const ColumnDef &columnDefAge = COLUMN_DEF_TEST[IDX_TEST_TABLE_AGE];
 	arg.condition = StringUtils::sprintf
@@ -543,8 +542,7 @@ static void insertRowToTestTableAutoInc(DBAgent &dbAgent,
 static void deleteRowFromTestTableAutoInc(DBAgent &dbAgent,
                                           DBAgentChecker &checker, int id)
 {
-	DBAgentDeleteArg arg;
-	arg.tableName = TABLE_NAME_TEST_AUTO_INC;
+	DBAgent::DeleteArg arg(tableProfileTestAutoInc);
 	const ColumnDef &columnDefId =
 	   COLUMN_DEF_TEST_AUTO_INC[IDX_TEST_TABLE_AUTO_INC_ID];
 	arg.condition = StringUtils::sprintf
@@ -668,8 +666,7 @@ void dbAgentGetNumberOfAffectedRows(DBAgent &dbAgent, DBAgentChecker &checker)
 	DBAgentChecker::createTable(dbAgent);
 	DBAgentChecker::makeTestData(dbAgent);
 
-	DBAgentDeleteArg arg;
-	arg.tableName = TABLE_NAME_TEST;
+	DBAgent::DeleteArg arg(tableProfileTest);
 	dbAgent.deleteRows(arg);
 	cppcut_assert_equal(static_cast<uint64_t>(NUM_TEST_DATA),
 			    dbAgent.getNumberOfAffectedRows());
