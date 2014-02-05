@@ -530,34 +530,27 @@ HatoholError DBClientAction::addAction(ActionDef &actionDef,
 	if (userId == USER_ID_SYSTEM)
 		ownerUserId = actionDef.ownerUserId;
 
-	VariableItemGroupPtr row;
-	DBAgentInsertArg arg;
-	arg.tableName = TABLE_NAME_ACTIONS;
-	arg.numColumns = tableProfileActions.numColumns;
-	arg.columnDefs = COLUMN_DEF_ACTIONS;
-
-	row->addNewItem(AUTO_INCREMENT_VALUE);
-	row->addNewItem(actionDef.condition.serverId,
-	                getNullFlag(actionDef, ACTCOND_SERVER_ID));
-	row->addNewItem(actionDef.condition.hostId,
-	                getNullFlag(actionDef, ACTCOND_HOST_ID));
-	row->addNewItem(actionDef.condition.hostGroupId,
-	                getNullFlag(actionDef, ACTCOND_HOST_GROUP_ID));
-	row->addNewItem(actionDef.condition.triggerId,
-	                getNullFlag(actionDef, ACTCOND_TRIGGER_ID));
-	row->addNewItem(actionDef.condition.triggerStatus,
-	                getNullFlag(actionDef, ACTCOND_TRIGGER_STATUS));
-	row->addNewItem(actionDef.condition.triggerSeverity,
-	                getNullFlag(actionDef, ACTCOND_TRIGGER_SEVERITY));
-	row->addNewItem(actionDef.condition.triggerSeverityCompType,
-	                getNullFlag(actionDef, ACTCOND_TRIGGER_SEVERITY));
-	row->addNewItem(actionDef.type);
-	row->addNewItem(actionDef.command);
-	row->addNewItem(actionDef.workingDir);
-	row->addNewItem(actionDef.timeout);
-	row->addNewItem(ownerUserId);
-
-	arg.row = row;
+	DBAgent::InsertArg arg(tableProfileActions);
+	arg.row->addNewItem(AUTO_INCREMENT_VALUE);
+	arg.row->addNewItem(actionDef.condition.serverId,
+	                    getNullFlag(actionDef, ACTCOND_SERVER_ID));
+	arg.row->addNewItem(actionDef.condition.hostId,
+	                    getNullFlag(actionDef, ACTCOND_HOST_ID));
+	arg.row->addNewItem(actionDef.condition.hostGroupId,
+	                    getNullFlag(actionDef, ACTCOND_HOST_GROUP_ID));
+	arg.row->addNewItem(actionDef.condition.triggerId,
+	                    getNullFlag(actionDef, ACTCOND_TRIGGER_ID));
+	arg.row->addNewItem(actionDef.condition.triggerStatus,
+	                    getNullFlag(actionDef, ACTCOND_TRIGGER_STATUS));
+	arg.row->addNewItem(actionDef.condition.triggerSeverity,
+	                    getNullFlag(actionDef, ACTCOND_TRIGGER_SEVERITY));
+	arg.row->addNewItem(actionDef.condition.triggerSeverityCompType,
+	                    getNullFlag(actionDef, ACTCOND_TRIGGER_SEVERITY));
+	arg.row->addNewItem(actionDef.type);
+	arg.row->addNewItem(actionDef.command);
+	arg.row->addNewItem(actionDef.workingDir);
+	arg.row->addNewItem(actionDef.timeout);
+	arg.row->addNewItem(ownerUserId);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		insert(arg);
@@ -706,14 +699,9 @@ uint64_t DBClientAction::createActionLog(
   const ActionDef &actionDef, const EventInfo &eventInfo,
   ActionLogExecFailureCode failureCode, ActionLogStatus initialStatus)
 {
-	VariableItemGroupPtr row;
-	DBAgentInsertArg arg;
-	arg.tableName = TABLE_NAME_ACTION_LOGS;
-	arg.numColumns = tableProfileActionLogs.numColumns;
-	arg.columnDefs = COLUMN_DEF_ACTION_LOGS;
-
-	row->addNewItem(AUTO_INCREMENT_VALUE_U64);
-	row->addNewItem(actionDef.id);
+	DBAgent::InsertArg arg(tableProfileActionLogs);
+	arg.row->addNewItem(AUTO_INCREMENT_VALUE_U64);
+	arg.row->addNewItem(actionDef.id);
 
 	// status
 	ActionLogStatus status;
@@ -721,34 +709,33 @@ uint64_t DBClientAction::createActionLog(
 		status = initialStatus;
 	else
 		status = ACTLOG_STAT_FAILED;
-	row->addNewItem(status);
+	arg.row->addNewItem(status);
 
 	// TODO: set the appropriate the following starter ID.
 	int starterId = 0;
-	row->addNewItem(starterId);
+	arg.row->addNewItem(starterId);
 
 	// queuing_time
 	const int dummyTime = 0;
 	if (initialStatus == ACTLOG_STAT_QUEUING)
-		row->addNewItem(CURR_DATETIME);
+		arg.row->addNewItem(CURR_DATETIME);
 	else
-		row->addNewItem(dummyTime, ITEM_DATA_NULL);
-	row->addNewItem(CURR_DATETIME);     // start_time
+		arg.row->addNewItem(dummyTime, ITEM_DATA_NULL);
+	arg.row->addNewItem(CURR_DATETIME);     // start_time
 
 	// end_time
 	if (failureCode == ACTLOG_EXECFAIL_NONE)
-		row->addNewItem(dummyTime, ITEM_DATA_NULL);
+		arg.row->addNewItem(dummyTime, ITEM_DATA_NULL);
 	else
-		row->addNewItem(CURR_DATETIME);
+		arg.row->addNewItem(CURR_DATETIME);
 
-	row->addNewItem(failureCode);
-	row->addNewItem(dummyTime, ITEM_DATA_NULL); // exit_code
+	arg.row->addNewItem(failureCode);
+	arg.row->addNewItem(dummyTime, ITEM_DATA_NULL); // exit_code
 
 	// server ID and event ID
-	row->addNewItem(eventInfo.serverId);
-	row->addNewItem(eventInfo.id);
+	arg.row->addNewItem(eventInfo.serverId);
+	arg.row->addNewItem(eventInfo.id);
 
-	arg.row = row;
 	uint64_t logId;
 	DBCLIENT_TRANSACTION_BEGIN() {
 		insert(arg);
