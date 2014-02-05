@@ -210,37 +210,6 @@ void test_addTargetServer(void)
 	assertAddTargetServer(*testInfo, HTERR_OK);
 }
 
-void test_deleteTargetServer(void)
-{
-	setupTestDBUser(true, true);
-	loadTestDBServer();
-	ServerIdType targetServerId = 1;
-	OperationPrivilege privilege(findUserWith(OPPRVLG_DELETE_ALL_SERVER));
-	DBClientConfig dbConfig;
-	HatoholError err = dbConfig.deleteTargetServer(targetServerId,
-						       privilege);
-	assertHatoholError(HTERR_OK, err);
-
-	ServerIdSet serverIdSet;
-	serverIdSet.insert(targetServerId);
-	assertServersInDB(serverIdSet);
-}
-
-void test_deleteTargetServerWithoutPrivilege(void)
-{
-	setupTestDBUser(true, true);
-	loadTestDBServer();
-	ServerIdType targetServerId = 1;
-	OperationPrivilege privilege;
-	DBClientConfig dbConfig;
-	HatoholError err = dbConfig.deleteTargetServer(targetServerId,
-						       privilege);
-	assertHatoholError(HTERR_NO_PRIVILEGE, err);
-
-	ServerIdSet serverIdSet;
-	assertServersInDB(serverIdSet);
-}
-
 void test_addTargetServerWithInvalidServerType(void)
 {
 	MonitoringServerInfo testInfo = testServerInfo[0];
@@ -347,6 +316,37 @@ void test_addTargetServerWithEmptyIPAddressAndHostname(void)
 	testInfo.hostName = "";
 	testInfo.ipAddress = "";
 	assertAddTargetServer(testInfo, HTERR_NO_IP_ADDRESS_AND_HOST_NAME);
+}
+
+void test_deleteTargetServer(void)
+{
+	setupTestDBUser(true, true);
+	loadTestDBServer();
+	ServerIdType targetServerId = 1;
+	OperationPrivilege privilege(findUserWith(OPPRVLG_DELETE_ALL_SERVER));
+	DBClientConfig dbConfig;
+	HatoholError err = dbConfig.deleteTargetServer(targetServerId,
+						       privilege);
+	assertHatoholError(HTERR_OK, err);
+
+	ServerIdSet serverIdSet;
+	serverIdSet.insert(targetServerId);
+	assertServersInDB(serverIdSet);
+}
+
+void test_deleteTargetServerWithoutPrivilege(void)
+{
+	setupTestDBUser(true, true);
+	loadTestDBServer();
+	ServerIdType targetServerId = 1;
+	OperationPrivilege privilege;
+	DBClientConfig dbConfig;
+	HatoholError err = dbConfig.deleteTargetServer(targetServerId,
+						       privilege);
+	assertHatoholError(HTERR_NO_PRIVILEGE, err);
+
+	ServerIdSet serverIdSet;
+	assertServersInDB(serverIdSet);
 }
 
 void _assertGetTargetServers(UserIdType userId)
