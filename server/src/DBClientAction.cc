@@ -655,8 +655,7 @@ HatoholError DBClientAction::deleteActions(const ActionIdList &idList,
 		return HTERR_INVALID_PARAMETER;
 	}
 
-	DBAgentDeleteArg arg;
-	arg.tableName = TABLE_NAME_ACTIONS;
+	DBAgent::DeleteArg arg(tableProfileActions);
 	const ColumnDef &colId = COLUMN_DEF_ACTIONS[IDX_ACTIONS_ACTION_ID];
 	arg.condition = StringUtils::sprintf("%s in (", colId.columnName);
 	ActionIdListConstIterator it = idList.begin();
