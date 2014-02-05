@@ -30,24 +30,6 @@ static const int      AUTO_INCREMENT_VALUE = 0;
 static const uint64_t AUTO_INCREMENT_VALUE_U64 = 0;
 static const int CURR_DATETIME = -1;
 
-struct DBAgentSelectExArg {
-	std::string                tableName;
-	std::vector<std::string>   statements;
-	std::vector<SQLColumnType> columnTypes;
-	std::string condition;
-	std::string orderBy;
-	size_t limit;
-	size_t offset;
-
-	// output
-	ItemTablePtr        dataTable;
-
-	// constructor and methods
-	DBAgentSelectExArg(void);
-	void pushColumn(const ColumnDef &columnDef,
-	                const std::string &varName = "");
-};
-
 struct DBConnectInfo {
 	std::string host;
 	size_t      port;
@@ -185,7 +167,6 @@ public:
 	virtual void insert(const InsertArg &insertArg) = 0;
 	virtual void update(const UpdateArg &updateArg) = 0;
 	virtual void select(const SelectArg &selectArg) = 0;
-	virtual void select(DBAgentSelectExArg &selectExArg) = 0;
 	virtual void select(const SelectExArg &selectExArg) = 0;
 	virtual void deleteRows(const DeleteArg &deleteArg) = 0;
 	virtual void addColumns(const AddColumnsArg &addColumnsArg) = 0;
@@ -216,7 +197,6 @@ public:
 
 protected:
 	static std::string makeSelectStatement(const SelectArg &selectArg);
-	static std::string makeSelectStatement(DBAgentSelectExArg &selectExArg);
 	static std::string makeSelectStatement(const SelectExArg &selectExArg);
 	static std::string getColumnValueString(const ColumnDef *columnDef,
 	                                        const ItemData *itemData);

@@ -363,45 +363,6 @@ void DBAgentMySQL::select(const DBAgent::SelectArg &selectArg)
 	selectArg.dataTable = dataTable;
 }
 
-void DBAgentMySQL::select(DBAgentSelectExArg &selectExArg)
-{
-	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
-
-	string query = makeSelectStatement(selectExArg);
-	execSql(query);
-
-	MYSQL_RES *result = mysql_store_result(&m_ctx->mysql);
-	if (!result) {
-		THROW_HATOHOL_EXCEPTION("Failed to call mysql_store_result: %s\n",
-		                      mysql_error(&m_ctx->mysql));
-	}
-
-	MYSQL_ROW row;
-	VariableItemTablePtr dataTable;
-	size_t numColumns = selectExArg.statements.size();
-	while ((row = mysql_fetch_row(result))) {
-		VariableItemGroupPtr itemGroup;
-		for (size_t i = 0; i < numColumns; i++) {
-			SQLColumnType type = selectExArg.columnTypes[i];
-			ItemDataPtr itemDataPtr =
-			  SQLUtils::createFromString(row[i], type);
-			itemGroup->add(itemDataPtr);
-		}
-		dataTable->add(itemGroup);
-	}
-	mysql_free_result(result);
-	selectExArg.dataTable = dataTable;
-
-	// check the result
-	size_t numTableRows = selectExArg.dataTable->getNumberOfRows();
-	size_t numTableColumns = selectExArg.dataTable->getNumberOfColumns();
-	HATOHOL_ASSERT((numTableRows == 0) ||
-	             ((numTableRows > 0) && (numTableColumns == numColumns)),
-	             "Sanity check error: numTableRows: %zd, numTableColumns: "
-	             "%zd, numColumns: %zd",
-	             numTableRows, numTableColumns, numColumns);
-}
-
 void DBAgentMySQL::select(const SelectExArg &selectExArg)
 {
 	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");

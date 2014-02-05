@@ -31,27 +31,6 @@ struct DBSetupInfo {
 typedef multimap<DBDomainId, DBSetupInfo> DBSetupInfoMap;
 typedef DBSetupInfoMap::iterator          DBSetupInfoMapIterator;
 
-// TODO: remove when the new version is completed
-DBAgentSelectExArg::DBAgentSelectExArg(void)
-: limit(0),
-  offset(0)
-{
-}
-
-// TODO: remove when the new version is completed
-void DBAgentSelectExArg::pushColumn
-  (const ColumnDef &columnDef, const string &varName)
-{
-	string statement;
-	if (!varName.empty()) {
-		statement = varName;
-		statement += ".";
-	}
-	statement += columnDef.columnName;
-	statements.push_back(statement);
-	columnTypes.push_back(columnDef.type);
-}
-
 DBConnectInfo::DBConnectInfo(void)
 : host("localhost"),
   port(0)
@@ -357,37 +336,6 @@ string DBAgent::makeSelectStatement(const SelectArg &selectArg)
 	}
 	sql += "FROM ";
 	sql += selectArg.tableProfile.name;
-	return sql;
-}
-
-string DBAgent::makeSelectStatement(DBAgentSelectExArg &selectExArg)
-{
-	size_t numColumns = selectExArg.statements.size();
-	HATOHOL_ASSERT(numColumns > 0, "Vector size must not be zero");
-	HATOHOL_ASSERT(numColumns == selectExArg.columnTypes.size(),
-	             "Vector size mismatch: statements (%zd):columnTypes (%zd)",
-	             numColumns, selectExArg.columnTypes.size());
-
-	string sql = "SELECT ";
-	for (size_t i = 0; i < numColumns; i++) {
-		sql += selectExArg.statements[i];
-		if (i < numColumns-1)
-			sql += ",";
-	}
-	sql += " FROM ";
-	sql += selectExArg.tableName;
-	if (!selectExArg.condition.empty()) {
-		sql += " WHERE ";
-		sql += selectExArg.condition;
-	}
-	if (!selectExArg.orderBy.empty()) {
-		sql += " ORDER BY ";
-		sql += selectExArg.orderBy;
-	}
-	if (selectExArg.limit > 0)
-		sql += StringUtils::sprintf(" LIMIT %zd ", selectExArg.limit);
-	if (selectExArg.offset > 0)
-		sql += StringUtils::sprintf(" OFFSET %zd ", selectExArg.offset);
 	return sql;
 }
 

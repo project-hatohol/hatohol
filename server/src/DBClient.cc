@@ -401,11 +401,6 @@ void DBClient::select(const DBAgent::SelectArg &selectArg)
 	getDBAgent()->select(selectArg);
 }
 
-void DBClient::select(DBAgentSelectExArg &selectExArg)
-{
-	getDBAgent()->select(selectExArg);
-}
-
 void DBClient::select(const DBAgent::SelectExArg &selectExArg)
 {
 	getDBAgent()->select(selectExArg);

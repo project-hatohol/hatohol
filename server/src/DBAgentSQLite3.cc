@@ -259,12 +259,6 @@ void DBAgentSQLite3::select(const SelectArg &selectArg)
 	select(m_ctx->db, selectArg);
 }
 
-void DBAgentSQLite3::select(DBAgentSelectExArg &selectExArg)
-{
-	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
-	select(m_ctx->db, selectExArg);
-}
-
 void DBAgentSQLite3::select(const SelectExArg &selectExArg)
 {
 	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
@@ -589,56 +583,6 @@ void DBAgentSQLite3::select(sqlite3 *db, const SelectArg &selectArg)
 		                      result);
 	}
 	sqlite3_finalize(stmt);
-}
-
-void DBAgentSQLite3::select(sqlite3 *db, DBAgentSelectExArg &selectExArg)
-{
-	string sql = makeSelectStatement(selectExArg);
-
-	// exectute
-	int result;
-	sqlite3_stmt *stmt;
-	result = sqlite3_prepare(db, sql.c_str(), sql.size(), &stmt, NULL);
-	if (result != SQLITE_OK) {
-		sqlite3_finalize(stmt);
-		THROW_HATOHOL_EXCEPTION(
-		  "Failed to call sqlite3_prepare(): %d, %s",
-		  result, sql.c_str());
-	}
-
-	sqlite3_reset(stmt);
-	if (result != SQLITE_OK) {
-		sqlite3_finalize(stmt);
-		THROW_HATOHOL_EXCEPTION("Failed to call sqlite3_bind(): %d",
-		                      result);
-	}
-	size_t numColumns = selectExArg.statements.size();
-	VariableItemTablePtr dataTable;
-	while ((result = sqlite3_step(stmt)) == SQLITE_ROW) {
-		VariableItemGroupPtr itemGroup;
-		for (size_t index = 0; index < numColumns; index++) {
-			ItemDataPtr itemDataPtr =
-			  getValue(stmt, index, selectExArg.columnTypes[index]);
-			itemGroup->add(itemDataPtr);
-		}
-		dataTable->add(itemGroup);
-	}
-	selectExArg.dataTable = dataTable;
-	if (result != SQLITE_DONE) {
-		sqlite3_finalize(stmt);
-		THROW_HATOHOL_EXCEPTION("Failed to call sqlite3_step(): %d",
-		                      result);
-	}
-	sqlite3_finalize(stmt);
-
-	// check the result
-	size_t numTableRows = selectExArg.dataTable->getNumberOfRows();
-	size_t numTableColumns = selectExArg.dataTable->getNumberOfColumns();
-	HATOHOL_ASSERT((numTableRows == 0) ||
-	             ((numTableRows > 0) && (numTableColumns == numColumns)),
-	             "Sanity check error: numTableRows: %zd, numTableColumns: "
-	             "%zd, numColumns: %zd",
-	             numTableRows, numTableColumns, numColumns);
 }
 
 void DBAgentSQLite3::select(sqlite3 *db, const SelectExArg &selectExArg)
