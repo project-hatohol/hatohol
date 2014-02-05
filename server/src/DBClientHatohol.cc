@@ -1658,22 +1658,17 @@ void DBClientHatohol::addTriggerInfoWithoutTransaction(
 	string condition = StringUtils::sprintf(
 	  "server_id=%"FMT_SERVER_ID" and id=%"PRIu64,
 	  triggerInfo.serverId, triggerInfo.id);
-	VariableItemGroupPtr row;
 	if (!isRecordExisting(TABLE_NAME_TRIGGERS, condition)) {
-		DBAgentInsertArg arg;
-		arg.tableName = TABLE_NAME_TRIGGERS;
-		arg.numColumns = tableProfileTriggers.numColumns;
-		arg.columnDefs = COLUMN_DEF_TRIGGERS;
-		row->addNewItem(triggerInfo.serverId);
-		row->addNewItem(triggerInfo.id);
-		row->addNewItem(triggerInfo.status);
-		row->addNewItem(triggerInfo.severity),
-		row->addNewItem(triggerInfo.lastChangeTime.tv_sec); 
-		row->addNewItem(triggerInfo.lastChangeTime.tv_nsec); 
-		row->addNewItem(triggerInfo.hostId);
-		row->addNewItem(triggerInfo.hostName);
-		row->addNewItem(triggerInfo.brief);
-		arg.row = row;
+		DBAgent::InsertArg arg(tableProfileTriggers);
+		arg.row->addNewItem(triggerInfo.serverId);
+		arg.row->addNewItem(triggerInfo.id);
+		arg.row->addNewItem(triggerInfo.status);
+		arg.row->addNewItem(triggerInfo.severity),
+		arg.row->addNewItem(triggerInfo.lastChangeTime.tv_sec); 
+		arg.row->addNewItem(triggerInfo.lastChangeTime.tv_nsec); 
+		arg.row->addNewItem(triggerInfo.hostId);
+		arg.row->addNewItem(triggerInfo.hostName);
+		arg.row->addNewItem(triggerInfo.brief);
 		insert(arg);
 	} else {
 		DBAgent::UpdateArg arg(tableProfileTriggers);
@@ -1697,25 +1692,20 @@ void DBClientHatohol::addEventInfoWithoutTransaction(const EventInfo &eventInfo)
 	string condition = StringUtils::sprintf(
 	  "server_id=%"FMT_SERVER_ID" and id=%"PRIu64,
 	   eventInfo.serverId, eventInfo.id);
-	VariableItemGroupPtr row;
 	if (!isRecordExisting(TABLE_NAME_EVENTS, condition)) {
-		DBAgentInsertArg arg;
-		arg.tableName = TABLE_NAME_EVENTS;
-		arg.numColumns = tableProfileEvents.numColumns;
-		arg.columnDefs = COLUMN_DEF_EVENTS;
-		row->addNewItem(AUTO_INCREMENT_VALUE_U64);
-		row->addNewItem(eventInfo.serverId);
-		row->addNewItem(eventInfo.id);
-		row->addNewItem(eventInfo.time.tv_sec); 
-		row->addNewItem(eventInfo.time.tv_nsec); 
-		row->addNewItem(eventInfo.type);
-		row->addNewItem(eventInfo.triggerId);
-		row->addNewItem(eventInfo.status);
-		row->addNewItem(eventInfo.severity);
-		row->addNewItem(eventInfo.hostId);
-		row->addNewItem(eventInfo.hostName);
-		row->addNewItem(eventInfo.brief);
-		arg.row = row;
+		DBAgent::InsertArg arg(tableProfileEvents);
+		arg.row->addNewItem(AUTO_INCREMENT_VALUE_U64);
+		arg.row->addNewItem(eventInfo.serverId);
+		arg.row->addNewItem(eventInfo.id);
+		arg.row->addNewItem(eventInfo.time.tv_sec); 
+		arg.row->addNewItem(eventInfo.time.tv_nsec); 
+		arg.row->addNewItem(eventInfo.type);
+		arg.row->addNewItem(eventInfo.triggerId);
+		arg.row->addNewItem(eventInfo.status);
+		arg.row->addNewItem(eventInfo.severity);
+		arg.row->addNewItem(eventInfo.hostId);
+		arg.row->addNewItem(eventInfo.hostName);
+		arg.row->addNewItem(eventInfo.brief);
 		insert(arg);
 	} else {
 		DBAgent::UpdateArg arg(tableProfileEvents);
@@ -1739,22 +1729,17 @@ void DBClientHatohol::addItemInfoWithoutTransaction(const ItemInfo &itemInfo)
 	string condition = StringUtils::sprintf(
 	  "server_id=%"FMT_SERVER_ID" and id=%"PRIu64,
 	  itemInfo.serverId, itemInfo.id);
-	VariableItemGroupPtr row;
 	if (!isRecordExisting(TABLE_NAME_ITEMS, condition)) {
-		DBAgentInsertArg arg;
-		arg.tableName = TABLE_NAME_ITEMS;
-		arg.numColumns = tableProfileItems.numColumns;
-		arg.columnDefs = COLUMN_DEF_ITEMS;
-		row->addNewItem(itemInfo.serverId);
-		row->addNewItem(itemInfo.id);
-		row->addNewItem(itemInfo.hostId);
-		row->addNewItem(itemInfo.brief);
-		row->addNewItem(itemInfo.lastValueTime.tv_sec); 
-		row->addNewItem(itemInfo.lastValueTime.tv_nsec); 
-		row->addNewItem(itemInfo.lastValue);
-		row->addNewItem(itemInfo.prevValue);
-		row->addNewItem(itemInfo.itemGroupName);
-		arg.row = row;
+		DBAgent::InsertArg arg(tableProfileItems);
+		arg.row->addNewItem(itemInfo.serverId);
+		arg.row->addNewItem(itemInfo.id);
+		arg.row->addNewItem(itemInfo.hostId);
+		arg.row->addNewItem(itemInfo.brief);
+		arg.row->addNewItem(itemInfo.lastValueTime.tv_sec); 
+		arg.row->addNewItem(itemInfo.lastValueTime.tv_nsec); 
+		arg.row->addNewItem(itemInfo.lastValue);
+		arg.row->addNewItem(itemInfo.prevValue);
+		arg.row->addNewItem(itemInfo.itemGroupName);
 		insert(arg);
 	} else {
 		DBAgent::UpdateArg arg(tableProfileItems);
@@ -1779,17 +1764,12 @@ void DBClientHatohol::addHostgroupInfoWithoutTransaction(
 {
 	string condition = StringUtils::sprintf("server_id=%"FMT_SERVER_ID" and host_group_id=%"FMT_HOST_GROUP_ID,
 	                                        groupInfo.serverId, groupInfo.groupId);
-	VariableItemGroupPtr row;
 	if (!isRecordExisting(TABLE_NAME_HOSTGROUPS, condition)) {
-		DBAgentInsertArg arg;
-		arg.tableName = TABLE_NAME_HOSTGROUPS;
-		arg.numColumns = tableProfileHostgroups.numColumns;
-		arg.columnDefs = COLUMN_DEF_HOSTGROUPS;
-		row->addNewItem(groupInfo.id);
-		row->addNewItem(groupInfo.serverId);
-		row->addNewItem(groupInfo.groupId);
-		row->addNewItem(groupInfo.groupName);
-		arg.row = row;
+		DBAgent::InsertArg arg(tableProfileHostgroups);
+		arg.row->addNewItem(groupInfo.id);
+		arg.row->addNewItem(groupInfo.serverId);
+		arg.row->addNewItem(groupInfo.groupId);
+		arg.row->addNewItem(groupInfo.groupName);
 		insert(arg);
 	} else {
 		DBAgent::UpdateArg arg(tableProfileHostgroups);
@@ -1811,17 +1791,12 @@ void DBClientHatohol::addHostgroupElementWithoutTransaction(
 	                                        hostgroupElement.hostId,
 	                                        hostgroupElement.groupId);
 
-	VariableItemGroupPtr row;
 	if (!isRecordExisting(TABLE_NAME_MAP_HOSTS_HOSTGROUPS, condition)) {
-		DBAgentInsertArg arg;
-		arg.tableName = TABLE_NAME_MAP_HOSTS_HOSTGROUPS;
-		arg.numColumns = tableProfileMapHostsHostgroups.numColumns;
-		arg.columnDefs = COLUMN_DEF_MAP_HOSTS_HOSTGROUPS;
-		row->addNewItem(hostgroupElement.id);
-		row->addNewItem(hostgroupElement.serverId);
-		row->addNewItem(hostgroupElement.hostId);
-		row->addNewItem(hostgroupElement.groupId);
-		arg.row = row;
+		DBAgent::InsertArg arg(tableProfileMapHostsHostgroups);
+		arg.row->addNewItem(hostgroupElement.id);
+		arg.row->addNewItem(hostgroupElement.serverId);
+		arg.row->addNewItem(hostgroupElement.hostId);
+		arg.row->addNewItem(hostgroupElement.groupId);
 		insert(arg);
 	}
 }
@@ -1834,15 +1809,11 @@ void DBClientHatohol::addHostInfoWithoutTransaction(const HostInfo &hostInfo)
 
 	VariableItemGroupPtr row;
 	if (!isRecordExisting(TABLE_NAME_HOSTS, condition)) {
-		DBAgentInsertArg arg;
-		arg.tableName = TABLE_NAME_HOSTS;
-		arg.numColumns = tableProfileHosts.numColumns;
-		arg.columnDefs = COLUMN_DEF_HOSTS;
-		row->addNewItem(AUTO_INCREMENT_VALUE);
-		row->addNewItem(hostInfo.serverId);
-		row->addNewItem(hostInfo.id);
-		row->addNewItem(hostInfo.hostName);
-		arg.row = row;
+		DBAgent::InsertArg arg(tableProfileHosts);
+		arg.row->addNewItem(AUTO_INCREMENT_VALUE);
+		arg.row->addNewItem(hostInfo.serverId);
+		arg.row->addNewItem(hostInfo.id);
+		arg.row->addNewItem(hostInfo.hostName);
 		insert(arg);
 	} else {
 		DBAgent::UpdateArg arg(tableProfileHosts);
