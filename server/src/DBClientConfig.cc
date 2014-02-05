@@ -689,20 +689,18 @@ HatoholError DBClientConfig::deleteTargetServer(
 void DBClientConfig::getTargetServers
   (MonitoringServerInfoList &monitoringServers, ServerQueryOption &option)
 {
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_SERVERS;
-	arg.pushColumn(COLUMN_DEF_SERVERS[IDX_SERVERS_ID]);
-	arg.pushColumn(COLUMN_DEF_SERVERS[IDX_SERVERS_TYPE]);
-	arg.pushColumn(COLUMN_DEF_SERVERS[IDX_SERVERS_HOSTNAME]);
-	arg.pushColumn(COLUMN_DEF_SERVERS[IDX_SERVERS_IP_ADDRESS]);
-	arg.pushColumn(COLUMN_DEF_SERVERS[IDX_SERVERS_NICKNAME]);
-	arg.pushColumn(COLUMN_DEF_SERVERS[IDX_SERVERS_PORT]);
-	arg.pushColumn(COLUMN_DEF_SERVERS[IDX_SERVERS_POLLING_INTERVAL_SEC]);
-	arg.pushColumn(COLUMN_DEF_SERVERS[IDX_SERVERS_RETRY_INTERVAL_SEC]);
-	arg.pushColumn(COLUMN_DEF_SERVERS[IDX_SERVERS_USER_NAME]);
-	arg.pushColumn(COLUMN_DEF_SERVERS[IDX_SERVERS_PASSWORD]);
-	arg.pushColumn(COLUMN_DEF_SERVERS[IDX_SERVERS_DB_NAME]);
-
+	DBAgent::SelectExArg arg(tableProfileServers);
+	arg.add(IDX_SERVERS_ID);
+	arg.add(IDX_SERVERS_TYPE);
+	arg.add(IDX_SERVERS_HOSTNAME);
+	arg.add(IDX_SERVERS_IP_ADDRESS);
+	arg.add(IDX_SERVERS_NICKNAME);
+	arg.add(IDX_SERVERS_PORT);
+	arg.add(IDX_SERVERS_POLLING_INTERVAL_SEC);
+	arg.add(IDX_SERVERS_RETRY_INTERVAL_SEC);
+	arg.add(IDX_SERVERS_USER_NAME);
+	arg.add(IDX_SERVERS_PASSWORD);
+	arg.add(IDX_SERVERS_DB_NAME);
 	arg.condition = option.getCondition();
 
 	DBCLIENT_TRANSACTION_BEGIN() {
