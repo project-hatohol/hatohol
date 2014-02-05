@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -30,65 +30,6 @@ static const int      AUTO_INCREMENT_VALUE = 0;
 static const uint64_t AUTO_INCREMENT_VALUE_U64 = 0;
 static const int CURR_DATETIME = -1;
 
-struct DBAgentTableCreationArg {
-	std::string         tableName;
-	size_t              numColumns;
-	const ColumnDef    *columnDefs;
-};
-
-struct DBAgentInsertArg {
-	std::string         tableName;
-	size_t              numColumns;
-	const ColumnDef    *columnDefs;
-	ItemGroupPtr        row;
-};
-
-struct DBAgentUpdateArg {
-	std::string         tableName;
-	const ColumnDef    *columnDefs;
-	std::vector<size_t> columnIndexes;
-	ItemGroupPtr        row;
-	std::string         condition;
-};
-
-struct DBAgentSelectArg {
-	std::string         tableName;
-	const ColumnDef    *columnDefs;
-	std::vector<size_t> columnIndexes;
-
-	// output
-	ItemTablePtr        dataTable;
-};
-
-struct DBAgentSelectExArg {
-	std::string                tableName;
-	std::vector<std::string>   statements;
-	std::vector<SQLColumnType> columnTypes;
-	std::string condition;
-	std::string orderBy;
-	size_t limit;
-	size_t offset;
-
-	// output
-	ItemTablePtr        dataTable;
-
-	// constructor and methods
-	DBAgentSelectExArg(void);
-	void pushColumn(const ColumnDef &columnDef,
-	                const std::string &varName = "");
-};
-
-struct DBAgentDeleteArg {
-	std::string tableName;
-	std::string condition;
-};
-
-struct DBAgentAddColumnsArg {
-	std::string         tableName;
-	const ColumnDef    *columnDefs;
-	std::vector<size_t> columnIndexes;
-};
-
 struct DBConnectInfo {
 	std::string host;
 	size_t      port;
@@ -109,6 +50,105 @@ static const DBDomainId DEFAULT_DB_DOMAIN_ID = 0;
 
 class DBAgent {
 public:
+	struct TableProfile {
+		const char         *name;
+		const ColumnDef    *columnDefs;
+		const size_t        numColumns;
+
+		TableProfile(const char *name,  const ColumnDef *columnDefs,
+		             const size_t &columnDefSize,
+		             const size_t &numIndexes);
+	};
+
+	struct RowElement {
+		size_t      columnIndex;
+		ItemDataPtr dataPtr;
+
+		RowElement(const size_t &index, const ItemData *itemData,
+		           const bool &doRef = true);
+	};
+
+	struct InsertArg {
+		const TableProfile   &tableProfile;
+		VariableItemGroupPtr  row;
+
+		InsertArg(const TableProfile &tableProfile);
+	};
+
+	struct UpdateArg {
+		const TableProfile             &tableProfile;
+		std::string                     condition;
+		std::vector<const RowElement *> rows;
+
+		UpdateArg(const TableProfile &tableProfile);
+		virtual ~UpdateArg();
+		void add(const size_t &columnIndex, const int         &val);
+		void add(const size_t &columnIndex, const uint64_t    &val);
+		void add(const size_t &columnIndex, const double      &val);
+		void add(const size_t &columnIndex, const std::string &val);
+		void add(const size_t &columnIndex, const time_t      &val);
+	};
+
+	struct SelectArg {
+		const TableProfile &tableProfile;
+		std::vector<size_t> columnIndexes;
+		// output
+		mutable ItemTablePtr dataTable;
+
+		SelectArg(const TableProfile &tableProfile);
+	};
+
+	struct SelectExArg {
+		const TableProfile        *tableProfile;
+		std::vector<std::string>   statements;
+		std::vector<SQLColumnType> columnTypes;
+		std::string                condition;
+		std::string                orderBy;
+		size_t                     limit;
+		size_t                     offset;
+		std::string                tableField;
+		// output
+		mutable ItemTablePtr        dataTable;
+
+		SelectExArg(const TableProfile &tableProfile);
+		void add(const size_t &columnIndex,
+		         const std::string &varName = "");
+		void add(const std::string &statement,
+		         const SQLColumnType &columnType);
+	};
+
+	struct TableProfileEx {
+		const TableProfile *profile;
+		const char         *varName;
+	};
+
+	struct SelectMultiTableArg : public SelectExArg {
+		const TableProfileEx *profileExArray;
+		const size_t          numTables;
+		const TableProfileEx *currProfile;
+
+		SelectMultiTableArg(const TableProfileEx *profileExArray,
+		                    const size_t &numTables);
+		void setProfile(const size_t &index);
+		void add(const size_t &columnIndex);
+		std::string getFullName(const size_t &profileIndex,
+		                        const size_t &columnIndex);
+	};
+
+	struct DeleteArg {
+		const TableProfile &tableProfile;
+		std::string         condition;
+
+		DeleteArg(const TableProfile &tableProfile);
+	};
+
+	struct AddColumnsArg {
+		const TableProfile &tableProfile;
+		std::vector<size_t> columnIndexes;
+
+		AddColumnsArg(const TableProfile &tableProfile);
+	};
+
 	static void addSetupFunction(DBDomainId domainId,
 	                             DBSetupFunc setupFunc, void *data = NULL);
 
@@ -123,13 +163,13 @@ public:
 	virtual void begin(void) = 0;
 	virtual void commit(void) = 0;
 	virtual void rollback(void) = 0;
-	virtual void createTable(DBAgentTableCreationArg &tableCreationArg) = 0;
-	virtual void insert(DBAgentInsertArg &insertArg) = 0;
-	virtual void update(DBAgentUpdateArg &updateArg) = 0;
-	virtual void select(DBAgentSelectArg &selectArg) = 0;
-	virtual void select(DBAgentSelectExArg &selectExArg) = 0;
-	virtual void deleteRows(DBAgentDeleteArg &deleteArg) = 0;
-	virtual void addColumns(DBAgentAddColumnsArg &addColumnsArg) = 0;
+	virtual void createTable(const TableProfile &tableProfile) = 0;
+	virtual void insert(const InsertArg &insertArg) = 0;
+	virtual void update(const UpdateArg &updateArg) = 0;
+	virtual void select(const SelectArg &selectArg) = 0;
+	virtual void select(const SelectExArg &selectExArg) = 0;
+	virtual void deleteRows(const DeleteArg &deleteArg) = 0;
+	virtual void addColumns(const AddColumnsArg &addColumnsArg) = 0;
 	virtual uint64_t getLastInsertId(void) = 0;
 	virtual uint64_t getNumberOfAffectedRows(void) = 0;
 
@@ -143,11 +183,8 @@ public:
 	 * An ItemGroup instance that has values for the record to be
 	 * updated or inserted.
 	 *
-	 * @param tableName
-	 * The target table name.
-	 *
-	 * @param numColumns
-	 * The number of columns of the table.
+	 * @param tableProfile
+	 * The target table profile.
 	 *
 	 * @param targetIndex
 	 * A column index used for the comparison.
@@ -155,16 +192,16 @@ public:
 	 * @return true if updated, otherwise false.
 	 */
 	virtual bool updateIfExistElseInsert(
-	  const ItemGroup *itemGroup, const std::string &tableName,
-	  size_t numColumns, const ColumnDef *columnDefs, size_t targetIndex);
+	  const ItemGroup *itemGroup, const TableProfile &tableProfile,
+	  size_t targetIndex);
 
 protected:
-	static std::string makeSelectStatement(DBAgentSelectArg &selectArg);
-	static std::string makeSelectStatement(DBAgentSelectExArg &selectExArg);
+	static std::string makeSelectStatement(const SelectArg &selectArg);
+	static std::string makeSelectStatement(const SelectExArg &selectExArg);
 	static std::string getColumnValueString(const ColumnDef *columnDef,
 	                                        const ItemData *itemData);
-	static std::string makeUpdateStatement(DBAgentUpdateArg &updateArg);
-	static std::string makeDeleteStatement(DBAgentDeleteArg &deleteArg);
+	static std::string makeUpdateStatement(const UpdateArg &updateArg);
+	static std::string makeDeleteStatement(const DeleteArg &deleteArg);
 	static std::string makeDatetimeString(int datetime);
 
 private:

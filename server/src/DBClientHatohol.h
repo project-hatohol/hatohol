@@ -340,12 +340,13 @@ public:
 	                         const std::vector<uint64_t> &hostIdVector);
 
 protected:
-	void addTriggerInfoBare(const TriggerInfo &triggerInfo);
-	void addEventInfoBare(const EventInfo &eventInfo);
-	void addItemInfoBare(const ItemInfo &itemInfo);
-	void addHostgroupInfoBare(const HostgroupInfo &groupInfo);
-	void addHostgroupElementBare(const HostgroupElement &hostgroupElement);
-	void addHostInfoBare(const HostInfo &hostInfo);
+	void addTriggerInfoWithoutTransaction(const TriggerInfo &triggerInfo);
+	void addEventInfoWithoutTransaction(const EventInfo &eventInfo);
+	void addItemInfoWithoutTransaction(const ItemInfo &itemInfo);
+	void addHostgroupInfoWithoutTransaction(const HostgroupInfo &groupInfo);
+	void addHostgroupElementWithoutTransaction(
+	  const HostgroupElement &hostgroupElement);
+	void addHostInfoWithoutTransaction(const HostInfo &hostInfo);
 
 	void getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	                        const std::string &condition);

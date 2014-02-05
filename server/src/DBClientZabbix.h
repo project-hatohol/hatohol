@@ -132,8 +132,7 @@ protected:
 
 	DBClientZabbix(const ServerIdType zabbixServerId);
 	void addItems(
-	  ItemTablePtr tablePtr, const std::string &tableName,
-	  size_t numColumns, const ColumnDef *columnDefs,
+	  ItemTablePtr tablePtr, const DBAgent::TableProfile &tableProfile,
 	  int updateCheckIndex);
 	void makeSelectExArgForTriggerAsHatoholFormat(void);
 

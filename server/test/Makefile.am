@@ -33,6 +33,7 @@ testHatohol_la_SOURCES = \
 	testHatoholError.cc \
 	testHatoholException.cc testSQLProcessorException.cc \
 	testHatoholThreadBase.cc \
+	testDBAgent.cc \
 	testDBAgentSQLite3.cc testDBAgentMySQL.cc \
 	testDBClient.cc \
 	testDBClientUtils.cc \

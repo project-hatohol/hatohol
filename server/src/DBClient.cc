@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -53,14 +53,16 @@ static const ColumnDef COLUMN_DEF_DBCLIENT_VERSION[] = {
 	NULL,                              // defaultValue
 },
 };
-static const size_t NUM_COLUMNS_DBCLIENT_VERSION =
-  sizeof(COLUMN_DEF_DBCLIENT_VERSION) / sizeof(ColumnDef);
 
 enum {
 	IDX_DBCLIENT_VERSION_DOMAIN_ID,
 	IDX_DBCLIENT_VERSION_VERSION,
 	NUM_IDX_DBCLIENT,
 };
+
+static DBAgent::TableProfile tableProfileDBClientVersion(
+  TABLE_NAME_DBCLIENT_VERSION, COLUMN_DEF_DBCLIENT_VERSION,
+  sizeof(COLUMN_DEF_DBCLIENT_VERSION), NUM_IDX_DBCLIENT);
 
 // This structure instnace is created once every DB_DOMAIN_ID
 struct DBClient::DBSetupContext {
@@ -254,14 +256,10 @@ void DBClient::setConnectInfo(
 }
 
 void DBClient::createTable
-  (DBAgent *dbAgent, const string &tableName, size_t numColumns,
-   const ColumnDef *columnDefs, CreateTableInitializer initializer, void *data)
+  (DBAgent *dbAgent, const DBAgent::TableProfile &tableProfile,
+   CreateTableInitializer initializer, void *data)
 {
-	DBAgentTableCreationArg arg;
-	arg.tableName  = tableName;
-	arg.numColumns = numColumns;
-	arg.columnDefs = columnDefs;
-	dbAgent->createTable(arg);
+	dbAgent->createTable(tableProfile);
 	if (initializer)
 		(*initializer)(dbAgent, data);
 }
@@ -270,15 +268,10 @@ void DBClient::insertDBClientVersion(DBAgent *dbAgent,
                                      const DBSetupFuncArg *setupFuncArg)
 {
 	// insert default value
-	DBAgentInsertArg insArg;
-	insArg.tableName = TABLE_NAME_DBCLIENT_VERSION;
-	insArg.numColumns = NUM_COLUMNS_DBCLIENT_VERSION;
-	insArg.columnDefs = COLUMN_DEF_DBCLIENT_VERSION;
-	VariableItemGroupPtr row;
-	row->addNewItem(dbAgent->getDBDomainId());
-	row->addNewItem(setupFuncArg->version);
-	insArg.row = row;
-	dbAgent->insert(insArg);
+	DBAgent::InsertArg arg(tableProfileDBClientVersion);
+	arg.row->addNewItem(dbAgent->getDBDomainId());
+	arg.row->addNewItem(setupFuncArg->version);
+	dbAgent->insert(arg);
 }
 
 void DBClient::updateDBIfNeeded(DBDomainId domainId, DBAgent *dbAgent,
@@ -307,10 +300,8 @@ void DBClient::updateDBIfNeeded(DBDomainId domainId, DBAgent *dbAgent,
 
 int DBClient::getDBVersion(DBAgent *dbAgent)
 {
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_DBCLIENT_VERSION;
-	arg.pushColumn(
-	  COLUMN_DEF_DBCLIENT_VERSION[IDX_DBCLIENT_VERSION_VERSION]);
+	DBAgent::SelectExArg arg(tableProfileDBClientVersion);
+	arg.add(IDX_DBCLIENT_VERSION_VERSION);
 	arg.condition = StringUtils::sprintf("%s=%d",
 	  COLUMN_DEF_DBCLIENT_VERSION[IDX_DBCLIENT_VERSION_DOMAIN_ID].columnName,
 	  dbAgent->getDBDomainId());
@@ -334,13 +325,8 @@ int DBClient::getDBVersion(DBAgent *dbAgent)
 
 void DBClient::setDBVersion(DBAgent *dbAgent, int version)
 {
-	DBAgentUpdateArg arg;
-	arg.tableName = TABLE_NAME_DBCLIENT_VERSION;
-	arg.columnDefs = COLUMN_DEF_DBCLIENT_VERSION;
-	arg.columnIndexes.push_back(1);
-	VariableItemGroupPtr row;
-	row->addNewItem(version);
-	arg.row = row;
+	DBAgent::UpdateArg arg(tableProfileDBClientVersion);
+	arg.add(IDX_DBCLIENT_VERSION_VERSION, version);
 	arg.condition = StringUtils::sprintf("%s=%d",
 	  COLUMN_DEF_DBCLIENT_VERSION[IDX_DBCLIENT_VERSION_DOMAIN_ID].columnName,
 	  dbAgent->getDBDomainId());
@@ -358,12 +344,8 @@ void DBClient::dbSetupFunc(DBDomainId domainId, void *data)
 	                                                    setupCtx->dbName,
 	                                                    skipSetup,
 	                                                    connectInfo));
-	if (!rawDBAgent->isTableExisting(TABLE_NAME_DBCLIENT_VERSION)) {
-		createTable(rawDBAgent.get(),
-		            TABLE_NAME_DBCLIENT_VERSION,
-		            NUM_COLUMNS_DBCLIENT_VERSION,
-		            COLUMN_DEF_DBCLIENT_VERSION);
-	}
+	if (!rawDBAgent->isTableExisting(TABLE_NAME_DBCLIENT_VERSION))
+		createTable(rawDBAgent.get(), tableProfileDBClientVersion);
 
 	// If the row that has the version of this DBClient doesn't exist,
 	// we insert it.
@@ -379,10 +361,9 @@ void DBClient::dbSetupFunc(DBDomainId domainId, void *data)
 	for (size_t i = 0; i < setupFuncArg->numTableInfo; i++) {
 		const DBSetupTableInfo &tableInfo
 		  = setupFuncArg->tableInfoArray[i];
-		if (rawDBAgent->isTableExisting(tableInfo.name))
+		if (rawDBAgent->isTableExisting(tableInfo.profile->name))
 			continue;
-		createTable(rawDBAgent.get(), tableInfo.name,
-		            tableInfo.numColumns, tableInfo.columnDefs);
+		createTable(rawDBAgent.get(), *tableInfo.profile);
 		if (!tableInfo.initializer)
 			continue;
 		(*tableInfo.initializer)(rawDBAgent.get(),
@@ -405,32 +386,32 @@ void DBClient::commit(void)
 	getDBAgent()->commit();
 }
 
-void DBClient::insert(DBAgentInsertArg &insertArg)
+void DBClient::insert(const DBAgent::InsertArg &insertArg)
 {
 	getDBAgent()->insert(insertArg);
 }
 
-void DBClient::update(DBAgentUpdateArg &updateArg)
+void DBClient::update(const DBAgent::UpdateArg &updateArg)
 {
 	getDBAgent()->update(updateArg);
 }
 
-void DBClient::select(DBAgentSelectArg &selectArg)
+void DBClient::select(const DBAgent::SelectArg &selectArg)
 {
 	getDBAgent()->select(selectArg);
 }
 
-void DBClient::select(DBAgentSelectExArg &selectExArg)
+void DBClient::select(const DBAgent::SelectExArg &selectExArg)
 {
 	getDBAgent()->select(selectExArg);
 }
 
-void DBClient::deleteRows(DBAgentDeleteArg &deleteArg)
+void DBClient::deleteRows(const DBAgent::DeleteArg &deleteArg)
 {
 	getDBAgent()->deleteRows(deleteArg);
 }
 
-void DBClient::addColumns(DBAgentAddColumnsArg &addColumnsArg)
+void DBClient::addColumns(const DBAgent::AddColumnsArg &addColumnsArg)
 {
 	getDBAgent()->addColumns(addColumnsArg);
 }
@@ -447,10 +428,10 @@ uint64_t DBClient::getLastInsertId(void)
 }
 
 bool DBClient::updateIfExistElseInsert(
-  const ItemGroup *itemGroup, const string &tableName,
-  size_t numColumns, const ColumnDef *columnDefs, size_t targetIndex)
+  const ItemGroup *itemGroup, const DBAgent::TableProfile &tableProfile,
+  size_t targetIndex)
 {
-	return getDBAgent()->updateIfExistElseInsert(
-	         itemGroup, tableName, numColumns, columnDefs, targetIndex);
+	return getDBAgent()->updateIfExistElseInsert(itemGroup, tableProfile,
+	                                             targetIndex);
 }
 

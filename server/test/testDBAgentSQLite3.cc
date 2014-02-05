@@ -36,14 +36,14 @@ static string g_dbPath = DBAgentSQLite3::getDBPath(DEFAULT_DB_DOMAIN_ID);
 class DBAgentCheckerSQLite3 : public DBAgentChecker {
 public:
 	// overriden virtual methods
-	virtual void assertTable(const DBAgentTableCreationArg &arg)
+	virtual void assertTable(const DBAgent::TableProfile &tableProfile)
 	{
 		// check if the table has been created successfully
 		cut_assert_exist_path(g_dbPath.c_str());
 		string cmd = StringUtils::sprintf("sqlite3 %s \".table\"",
 		                                  g_dbPath.c_str());
 		string output = executeCommand(cmd);
-		assertExist(arg.tableName, output);
+		assertExist(tableProfile.name, output);
 
 		//
 		// check table definition
@@ -51,7 +51,7 @@ public:
 		cmd = StringUtils::sprintf(
 		  "sqlite3 %s \"select * from sqlite_master "
 		  "where tbl_name='%s'\"",
-		  g_dbPath.c_str(), arg.tableName.c_str());
+		  g_dbPath.c_str(), tableProfile.name);
 		output = executeCommand(cmd);
 		StringVector outVec;
 		StringUtils::split(outVec, output, '|');
@@ -64,17 +64,17 @@ public:
 		cppcut_assert_equal(expected, outVec[idx++]);
 
 		// name and table name
-		cppcut_assert_equal(arg.tableName, outVec[idx++]);
-		cppcut_assert_equal(arg.tableName, outVec[idx++]);
+		cppcut_assert_equal(string(tableProfile.name), outVec[idx++]);
+		cppcut_assert_equal(string(tableProfile.name), outVec[idx++]);
 
 		// rootpage (we ignore it)
 		idx++;
 
 		// table schema
 		expected = StringUtils::sprintf("CREATE TABLE %s(",
-		                                arg.tableName.c_str());
-		for (size_t i = 0; i < arg.numColumns; i++) {
-			const ColumnDef &columnDef = arg.columnDefs[i];
+		                                tableProfile.name);
+		for (size_t i = 0; i < tableProfile.numColumns; i++) {
+			const ColumnDef &columnDef = tableProfile.columnDefs[i];
 
 			// name
 			expected += columnDef.columnName;
@@ -109,7 +109,7 @@ public:
 					expected += " AUTOINCREMENT";
 			}
 
-			if (i < arg.numColumns - 1)
+			if (i < tableProfile.numColumns - 1)
 				expected += ",";
 		}
 		expected += ")\n";

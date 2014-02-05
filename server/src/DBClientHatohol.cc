@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -158,9 +158,6 @@ static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 }
 };
 
-static const size_t NUM_COLUMNS_TRIGGERS =
-  sizeof(COLUMN_DEF_TRIGGERS) / sizeof(ColumnDef);
-
 enum {
 	IDX_TRIGGERS_SERVER_ID,
 	IDX_TRIGGERS_ID,
@@ -173,6 +170,10 @@ enum {
 	IDX_TRIGGERS_BRIEF,
 	NUM_IDX_TRIGGERS,
 };
+
+static DBAgent::TableProfile tableProfileTriggers(
+  TABLE_NAME_TRIGGERS, COLUMN_DEF_TRIGGERS,
+  sizeof(COLUMN_DEF_TRIGGERS), NUM_IDX_TRIGGERS);
 
 static const ColumnDef COLUMN_DEF_EVENTS[] = {
 {
@@ -310,9 +311,6 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 },
 };
 
-static const size_t NUM_COLUMNS_EVENTS =
-  sizeof(COLUMN_DEF_EVENTS) / sizeof(ColumnDef);
-
 enum {
 	IDX_EVENTS_UNIFIED_ID,
 	IDX_EVENTS_SERVER_ID,
@@ -328,6 +326,10 @@ enum {
 	IDX_EVENTS_BRIEF,
 	NUM_IDX_EVENTS,
 };
+
+static DBAgent::TableProfile tableProfileEvents(
+  TABLE_NAME_EVENTS, COLUMN_DEF_EVENTS,
+  sizeof(COLUMN_DEF_EVENTS), NUM_IDX_EVENTS);
 
 static const ColumnDef COLUMN_DEF_ITEMS[] = {
 {
@@ -432,9 +434,6 @@ static const ColumnDef COLUMN_DEF_ITEMS[] = {
 },
 };
 
-static const size_t NUM_COLUMNS_ITEMS =
-  sizeof(COLUMN_DEF_ITEMS) / sizeof(ColumnDef);
-
 enum {
 	IDX_ITEMS_SERVER_ID,
 	IDX_ITEMS_ID,
@@ -447,6 +446,10 @@ enum {
 	IDX_ITEMS_ITEM_GROUP_NAME,
 	NUM_IDX_ITEMS,
 };
+
+static DBAgent::TableProfile tableProfileItems(
+  TABLE_NAME_ITEMS, COLUMN_DEF_ITEMS,
+  sizeof(COLUMN_DEF_ITEMS), NUM_IDX_ITEMS);
 
 static const ColumnDef COLUMN_DEF_HOSTS[] = {
 {
@@ -495,10 +498,6 @@ static const ColumnDef COLUMN_DEF_HOSTS[] = {
 	NULL,                              // defaultValue
 },
 };
-
-static const size_t NUM_COLUMNS_HOSTS =
-  sizeof(COLUMN_DEF_HOSTS) / sizeof(ColumnDef);
-
 enum {
 	IDX_HOSTS_SERVER_ID,
 	IDX_HOSTS_ID,
@@ -506,6 +505,10 @@ enum {
 	IDX_HOSTS_HOST_NAME,
 	NUM_IDX_HOSTS,
 };
+
+static DBAgent::TableProfile tableProfileHosts(
+  TABLE_NAME_HOSTS, COLUMN_DEF_HOSTS,
+  sizeof(COLUMN_DEF_HOSTS), NUM_IDX_HOSTS);
 
 static const ColumnDef COLUMN_DEF_HOSTGROUPS[] = {
 {
@@ -555,9 +558,6 @@ static const ColumnDef COLUMN_DEF_HOSTGROUPS[] = {
 },
 };
 
-static const size_t NUM_COLUMNS_HOSTGROUPS =
-  sizeof(COLUMN_DEF_HOSTGROUPS) / sizeof(ColumnDef);
-
 enum {
 	IDX_HOSTGROUPS_ID,
 	IDX_HOSTGROUPS_SERVER_ID,
@@ -565,6 +565,10 @@ enum {
 	IDX_HOSTGROUPS_GROUP_NAME,
 	NUM_IDX_HOSTGROUPS,
 };
+
+static DBAgent::TableProfile tableProfileHostgroups(
+  TABLE_NAME_HOSTGROUPS, COLUMN_DEF_HOSTGROUPS,
+  sizeof(COLUMN_DEF_HOSTGROUPS), NUM_IDX_HOSTGROUPS);
 
 static const ColumnDef COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[] = {
 {
@@ -614,9 +618,6 @@ static const ColumnDef COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[] = {
 },
 };
 
-static const size_t NUM_COLUMNS_MAP_HOSTS_HOSTGROUPS =
-  sizeof(COLUMN_DEF_MAP_HOSTS_HOSTGROUPS) / sizeof(ColumnDef);
-
 enum {
 	IDX_MAP_HOSTS_HOSTGROUPS_ID,
 	IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID,
@@ -625,31 +626,23 @@ enum {
 	NUM_IDX_MAP_HOSTS_HOSTGROUPS,
 };
 
+static DBAgent::TableProfile tableProfileMapHostsHostgroups(
+  TABLE_NAME_MAP_HOSTS_HOSTGROUPS, COLUMN_DEF_MAP_HOSTS_HOSTGROUPS,
+  sizeof(COLUMN_DEF_MAP_HOSTS_HOSTGROUPS), NUM_IDX_MAP_HOSTS_HOSTGROUPS);
+
 static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
 {
-	TABLE_NAME_TRIGGERS,
-	NUM_COLUMNS_TRIGGERS,
-	COLUMN_DEF_TRIGGERS,
+	&tableProfileTriggers,
 }, {
-	TABLE_NAME_EVENTS,
-	NUM_COLUMNS_EVENTS,
-	COLUMN_DEF_EVENTS,
+	&tableProfileEvents,
 }, {
-	TABLE_NAME_ITEMS,
-	NUM_COLUMNS_ITEMS,
-	COLUMN_DEF_ITEMS,
+	&tableProfileItems,
 }, {
-	TABLE_NAME_HOSTS,
-	NUM_COLUMNS_HOSTS,
-	COLUMN_DEF_HOSTS,
+	&tableProfileHosts,
 }, {
-	TABLE_NAME_HOSTGROUPS,
-	NUM_COLUMNS_HOSTGROUPS,
-	COLUMN_DEF_HOSTGROUPS,
+	&tableProfileHostgroups,
 }, {
-	TABLE_NAME_MAP_HOSTS_HOSTGROUPS,
-	NUM_COLUMNS_MAP_HOSTS_HOSTGROUPS,
-	COLUMN_DEF_MAP_HOSTS_HOSTGROUPS,
+	&tableProfileMapHostsHostgroups,
 }
 };
 
@@ -1030,30 +1023,6 @@ HostgroupElementQueryOption::HostgroupElementQueryOption(UserIdType userId)
 // ---------------------------------------------------------------------------
 void DBClientHatohol::init(void)
 {
-	HATOHOL_ASSERT(NUM_COLUMNS_TRIGGERS == NUM_IDX_TRIGGERS,
-	  "NUM_COLUMNS_TRIGGERS: %zd, NUM_IDX_TRIGGERS: %d",
-	  NUM_COLUMNS_TRIGGERS, NUM_IDX_TRIGGERS);
-
-	HATOHOL_ASSERT(NUM_COLUMNS_EVENTS == NUM_IDX_EVENTS,
-	  "NUM_COLUMNS_EVENTS: %zd, NUM_IDX_EVENTS: %d",
-	  NUM_COLUMNS_EVENTS, NUM_IDX_EVENTS);
-
-	HATOHOL_ASSERT(NUM_COLUMNS_ITEMS == NUM_IDX_ITEMS,
-	  "NUM_COLUMNS_ITEMS: %zd, NUM_IDX_ITEMS: %d",
-	  NUM_COLUMNS_ITEMS, NUM_IDX_ITEMS);
-
-	HATOHOL_ASSERT(NUM_COLUMNS_HOSTS == NUM_IDX_HOSTS,
-	  "NUM_COLUMNS_HOSTS: %zd, NUM_IDX_ITEMS: %d",
-	  NUM_COLUMNS_HOSTS, NUM_IDX_HOSTS);
-
-	HATOHOL_ASSERT(NUM_COLUMNS_HOSTGROUPS == NUM_IDX_HOSTGROUPS,
-	  "NUM_COLUMN_GROUPS: %zd, NUM_IDX_ITEMS: %d",
-	  NUM_COLUMNS_HOSTGROUPS, NUM_IDX_HOSTGROUPS);
-
-	HATOHOL_ASSERT(NUM_COLUMNS_MAP_HOSTS_HOSTGROUPS == NUM_IDX_MAP_HOSTS_HOSTGROUPS,
-	  "NUM_COLUMN_HOSTSGROUPS: %zd, NUM_IDX_MAP_HOSTS_HOSTGROUPS: %d",
-	  NUM_COLUMNS_MAP_HOSTS_HOSTGROUPS, NUM_IDX_MAP_HOSTS_HOSTGROUPS);
-
 	registerSetupInfo(
 	  DB_DOMAIN_ID_HATOHOL, DEFAULT_DB_NAME, &DB_SETUP_FUNC_ARG);
 }
@@ -1077,27 +1046,13 @@ void DBClientHatohol::getHostInfoList(HostInfoList &hostInfoList,
 	// Now we don't have a DB table for hosts. So we get a host list from
 	// the trigger table. In the future, we will add the table for hosts
 	// and fix the following implementation to use it.
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_TRIGGERS;
+	DBAgent::SelectExArg arg(tableProfileTriggers);
 
-	// server ID
 	string stmt = StringUtils::sprintf("distinct %s", 
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName);
-	arg.statements.push_back(stmt);
-	arg.columnTypes.push_back(
-	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].type);
-
-	// host ID
-	arg.statements.push_back(
-	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName);
-	arg.columnTypes.push_back(
-	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].type);
-
-	// host name
-	arg.statements.push_back(
-	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOSTNAME].columnName);
-	arg.columnTypes.push_back(
-	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOSTNAME].type);
+	arg.add(stmt, COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].type);
+	arg.add(IDX_TRIGGERS_HOST_ID);
+	arg.add(IDX_TRIGGERS_HOSTNAME);
 
 	// condition
 	arg.condition = option.getCondition();
@@ -1122,7 +1077,7 @@ void DBClientHatohol::getHostInfoList(HostInfoList &hostInfoList,
 void DBClientHatohol::addTriggerInfo(TriggerInfo *triggerInfo)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
-		addTriggerInfoBare(*triggerInfo);
+		addTriggerInfoWithoutTransaction(*triggerInfo);
 	} DBCLIENT_TRANSACTION_END();
 }
 
@@ -1131,7 +1086,7 @@ void DBClientHatohol::addTriggerInfoList(const TriggerInfoList &triggerInfoList)
 	TriggerInfoListConstIterator it = triggerInfoList.begin();
 	DBCLIENT_TRANSACTION_BEGIN() {
 		for (; it != triggerInfoList.end(); ++it)
-			addTriggerInfoBare(*it);
+			addTriggerInfoWithoutTransaction(*it);
 	} DBCLIENT_TRANSACTION_END();
 }
 
@@ -1188,8 +1143,7 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 void DBClientHatohol::setTriggerInfoList(const TriggerInfoList &triggerInfoList,
                                          const ServerIdType &serverId)
 {
-	DBAgentDeleteArg deleteArg;
-	deleteArg.tableName = TABLE_NAME_TRIGGERS;
+	DBAgent::DeleteArg deleteArg(tableProfileTriggers);
 	deleteArg.condition =
 	  StringUtils::sprintf("%s=%"FMT_SERVER_ID,
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName, serverId);
@@ -1198,19 +1152,16 @@ void DBClientHatohol::setTriggerInfoList(const TriggerInfoList &triggerInfoList,
 	DBCLIENT_TRANSACTION_BEGIN() {
 		deleteRows(deleteArg);
 		for (; it != triggerInfoList.end(); ++it)
-			addTriggerInfoBare(*it);
+			addTriggerInfoWithoutTransaction(*it);
 	} DBCLIENT_TRANSACTION_END();
 }
 
 int DBClientHatohol::getLastChangeTimeOfTrigger(const ServerIdType &serverId)
 {
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_TRIGGERS;
+	DBAgent::SelectExArg arg(tableProfileTriggers);
 	string stmt = StringUtils::sprintf("max(%s)", 
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC].columnName);
-	arg.statements.push_back(stmt);
-	arg.columnTypes.push_back(
-	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].type);
+	arg.add(stmt, COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].type);
 	arg.condition = StringUtils::sprintf("%s=%"FMT_SERVER_ID,
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName,
 	    serverId);
@@ -1237,7 +1188,7 @@ int DBClientHatohol::getLastChangeTimeOfTrigger(const ServerIdType &serverId)
 void DBClientHatohol::addEventInfo(EventInfo *eventInfo)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
-		addEventInfoBare(*eventInfo);
+		addEventInfoWithoutTransaction(*eventInfo);
 	} DBCLIENT_TRANSACTION_END();
 }
 
@@ -1246,77 +1197,59 @@ void DBClientHatohol::addEventInfoList(const EventInfoList &eventInfoList)
 	EventInfoListConstIterator it = eventInfoList.begin();
 	DBCLIENT_TRANSACTION_BEGIN() {
 		for (; it != eventInfoList.end(); ++it)
-			addEventInfoBare(*it);
+			addEventInfoWithoutTransaction(*it);
 	} DBCLIENT_TRANSACTION_END();
 }
 
 HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
                                                EventsQueryOption &option)
 {
-	const ColumnDef &eventsUnifiedId =
-	  COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID];
-	const ColumnDef &eventsServerId =
-	  COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID];
-	const ColumnDef &eventsId =
-	  COLUMN_DEF_EVENTS[IDX_EVENTS_ID];
-	const ColumnDef &eventsTimeSec =
-	  COLUMN_DEF_EVENTS[IDX_EVENTS_TIME_SEC];
-	const ColumnDef &eventsTimeNs =
-	  COLUMN_DEF_EVENTS[IDX_EVENTS_TIME_NS];
-	const ColumnDef &eventsEventValue = 
-	  COLUMN_DEF_EVENTS[IDX_EVENTS_EVENT_TYPE];
-	const ColumnDef &eventsTriggerId =
-	  COLUMN_DEF_EVENTS[IDX_EVENTS_TRIGGER_ID];
-
-	const ColumnDef &triggersServerId =
-	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID];
-	const ColumnDef &triggersTriggerId =
-	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID];
-	const ColumnDef &triggersStatus =
-	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_STATUS];
-	const ColumnDef &triggersSeverity =
-	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SEVERITY];
-	const ColumnDef &triggersHostId =
-	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID];
-	const ColumnDef &triggersHostName =
-	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOSTNAME];
-	const ColumnDef &triggersBrief =
-	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_BRIEF];
-
-	DBAgentSelectExArg arg;
-
-	// Tables
 	const static char *VAR_EVENTS = "e";
 	const static char *VAR_TRIGGERS = "t";
+	static const DBAgent::TableProfileEx prof[] = {
+	  {&tableProfileEvents, VAR_EVENTS},
+	  {&tableProfileTriggers, VAR_TRIGGERS},
+	};
+	enum {
+		TBLIDX_EVENTS,
+		TBLIDX_TRIGGERS,
+	};
+	static const size_t numTables =
+	  sizeof(prof) / sizeof(DBAgent::TableProfileEx);
+	DBAgent::SelectMultiTableArg arg(prof, numTables);
+
+	// Tables
 	option.setTableNameForServerId(VAR_EVENTS);
-	arg.tableName = StringUtils::sprintf(
-	  " %s %s inner join %s %s on %s.%s=%s.%s",
+	arg.tableField = StringUtils::sprintf(
+	  " %s %s inner join %s %s on %s=%s",
 	  TABLE_NAME_EVENTS, VAR_EVENTS,
 	  TABLE_NAME_TRIGGERS, VAR_TRIGGERS,
-	  VAR_EVENTS, eventsTriggerId.columnName,
-	  VAR_TRIGGERS, triggersTriggerId.columnName);
+	  arg.getFullName(TBLIDX_EVENTS, IDX_EVENTS_TRIGGER_ID).c_str(),
+	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_ID).c_str());
 
 	// Columns
-	arg.pushColumn(eventsUnifiedId,  VAR_EVENTS);
-	arg.pushColumn(eventsServerId,   VAR_EVENTS);
-	arg.pushColumn(eventsId,         VAR_EVENTS);
-	arg.pushColumn(eventsTimeSec,    VAR_EVENTS);
-	arg.pushColumn(eventsTimeNs,     VAR_EVENTS);
-	arg.pushColumn(eventsEventValue, VAR_EVENTS);
-	arg.pushColumn(eventsTriggerId,  VAR_EVENTS);
+	arg.setProfile(TBLIDX_EVENTS);
+	arg.add(IDX_EVENTS_UNIFIED_ID);
+	arg.add(IDX_EVENTS_SERVER_ID);
+	arg.add(IDX_EVENTS_ID);
+	arg.add(IDX_EVENTS_TIME_SEC);
+	arg.add(IDX_EVENTS_TIME_NS);
+	arg.add(IDX_EVENTS_EVENT_TYPE);
+	arg.add(IDX_EVENTS_TRIGGER_ID);
 
-	arg.pushColumn(triggersStatus,   VAR_TRIGGERS);
-	arg.pushColumn(triggersSeverity, VAR_TRIGGERS);
-	arg.pushColumn(triggersHostId,   VAR_TRIGGERS);
-	arg.pushColumn(triggersHostName, VAR_TRIGGERS);
-	arg.pushColumn(triggersBrief,    VAR_TRIGGERS);
+	arg.setProfile(TBLIDX_TRIGGERS);
+	arg.add(IDX_TRIGGERS_STATUS);
+	arg.add(IDX_TRIGGERS_SEVERITY);
+	arg.add(IDX_TRIGGERS_HOST_ID);
+	arg.add(IDX_TRIGGERS_HOSTNAME);
+	arg.add(IDX_TRIGGERS_BRIEF);
 
 	// Condition
 	DataQueryOption::SortOrder sortOrder = option.getSortOrder();
 	arg.condition = StringUtils::sprintf(
-	  "%s.%s=%s.%s", 
-	  VAR_EVENTS, eventsServerId.columnName,
-	  VAR_TRIGGERS, triggersServerId.columnName);
+	  "%s=%s", 
+	  arg.getFullName(TBLIDX_EVENTS, IDX_EVENTS_SERVER_ID).c_str(),
+	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_SERVER_ID).c_str());
 	uint64_t startId = option.getStartId();
 	if (startId) {
 		if (sortOrder != DataQueryOption::SORT_ASCENDING &&
@@ -1324,8 +1257,8 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 			return HatoholError(HTERR_NOT_FOUND_SORT_ORDER);
 		}
 		arg.condition += StringUtils::sprintf(
-		  " AND %s.%s%s%"PRIu64,
-		  VAR_EVENTS, eventsUnifiedId.columnName,
+		  " AND %s%s%"PRIu64,
+		  arg.getFullName(TBLIDX_EVENTS, IDX_EVENTS_UNIFIED_ID).c_str(),
 		  sortOrder == DataQueryOption::SORT_ASCENDING ? ">=" : "<=",
 		  startId);
 	}
@@ -1386,8 +1319,7 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 void DBClientHatohol::setEventInfoList(const EventInfoList &eventInfoList,
                                        const ServerIdType &serverId)
 {
-	DBAgentDeleteArg deleteArg;
-	deleteArg.tableName = TABLE_NAME_EVENTS;
+	DBAgent::DeleteArg deleteArg(tableProfileEvents);
 	deleteArg.condition =
 	  StringUtils::sprintf("%s=%"FMT_SERVER_ID,
 	    COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName,
@@ -1397,14 +1329,14 @@ void DBClientHatohol::setEventInfoList(const EventInfoList &eventInfoList,
 	DBCLIENT_TRANSACTION_BEGIN() {
 		deleteRows(deleteArg);
 		for (; it != eventInfoList.end(); ++it)
-			addEventInfoBare(*it);
+			addEventInfoWithoutTransaction(*it);
 	} DBCLIENT_TRANSACTION_END();
 }
 
 void DBClientHatohol::addHostgroupInfo(HostgroupInfo *groupInfo)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
-		addHostgroupInfoBare(*groupInfo);
+		addHostgroupInfoWithoutTransaction(*groupInfo);
 	} DBCLIENT_TRANSACTION_END();
 }
 
@@ -1413,7 +1345,7 @@ void DBClientHatohol::addHostgroupInfoList(const HostgroupInfoList &groupInfoLis
 	HostgroupInfoListConstIterator it = groupInfoList.begin();
 	DBCLIENT_TRANSACTION_BEGIN() {
 		for (; it != groupInfoList.end(); ++it)
-			addHostgroupInfoBare(*it);
+			addHostgroupInfoWithoutTransaction(*it);
 	} DBCLIENT_TRANSACTION_END();
 }
 
@@ -1421,7 +1353,7 @@ void DBClientHatohol::addHostgroupElement
   (HostgroupElement *hostgroupElement)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
-		addHostgroupElementBare(*hostgroupElement);
+		addHostgroupElementWithoutTransaction(*hostgroupElement);
 	} DBCLIENT_TRANSACTION_END();
 }
 
@@ -1431,14 +1363,14 @@ void DBClientHatohol::addHostgroupElementList
 	HostgroupElementListConstIterator it = hostgroupElementList.begin();
 	DBCLIENT_TRANSACTION_BEGIN() {
 		for (; it != hostgroupElementList.end(); ++it)
-			addHostgroupElementBare(*it);
+			addHostgroupElementWithoutTransaction(*it);
 	} DBCLIENT_TRANSACTION_END();
 }
 
 void DBClientHatohol::addHostInfo(HostInfo *hostInfo)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
-		addHostInfoBare(*hostInfo);
+		addHostInfoWithoutTransaction(*hostInfo);
 	} DBCLIENT_TRANSACTION_END();
 }
 
@@ -1447,18 +1379,16 @@ void DBClientHatohol::addHostInfoList(const HostInfoList &hostInfoList)
 	HostInfoListConstIterator it = hostInfoList.begin();
 	DBCLIENT_TRANSACTION_BEGIN() {
 		for(; it != hostInfoList.end(); ++it)
-			addHostInfoBare(*it);
+			addHostInfoWithoutTransaction(*it);
 	} DBCLIENT_TRANSACTION_END();
 }
 
 uint64_t DBClientHatohol::getLastEventId(const ServerIdType &serverId)
 {
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_EVENTS;
+	DBAgent::SelectExArg arg(tableProfileEvents);
 	string stmt = StringUtils::sprintf("max(%s)", 
 	    COLUMN_DEF_EVENTS[IDX_EVENTS_ID].columnName);
-	arg.statements.push_back(stmt);
-	arg.columnTypes.push_back(COLUMN_DEF_EVENTS[IDX_EVENTS_ID].type);
+	arg.add(stmt, COLUMN_DEF_EVENTS[IDX_EVENTS_ID].type);
 	arg.condition = StringUtils::sprintf("%s=%"FMT_SERVER_ID,
 	    COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName, serverId);
 
@@ -1478,7 +1408,7 @@ uint64_t DBClientHatohol::getLastEventId(const ServerIdType &serverId)
 void DBClientHatohol::addItemInfo(ItemInfo *itemInfo)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
-		addItemInfoBare(*itemInfo);
+		addItemInfoWithoutTransaction(*itemInfo);
 	} DBCLIENT_TRANSACTION_END();
 }
 
@@ -1487,7 +1417,7 @@ void DBClientHatohol::addItemInfoList(const ItemInfoList &itemInfoList)
 	ItemInfoListConstIterator it = itemInfoList.begin();
 	DBCLIENT_TRANSACTION_BEGIN() {
 		for (; it != itemInfoList.end(); ++it)
-			addItemInfoBare(*it);
+			addItemInfoWithoutTransaction(*it);
 	} DBCLIENT_TRANSACTION_END();
 }
 
@@ -1519,17 +1449,16 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
                                       const string &condition)
 {
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_ITEMS;
-	arg.pushColumn(COLUMN_DEF_ITEMS[IDX_ITEMS_SERVER_ID]);
-	arg.pushColumn(COLUMN_DEF_ITEMS[IDX_ITEMS_ID]);
-	arg.pushColumn(COLUMN_DEF_ITEMS[IDX_ITEMS_HOST_ID]);
-	arg.pushColumn(COLUMN_DEF_ITEMS[IDX_ITEMS_BRIEF]);
-	arg.pushColumn(COLUMN_DEF_ITEMS[IDX_ITEMS_LAST_VALUE_TIME_SEC]);
-	arg.pushColumn(COLUMN_DEF_ITEMS[IDX_ITEMS_LAST_VALUE_TIME_NS]);
-	arg.pushColumn(COLUMN_DEF_ITEMS[IDX_ITEMS_LAST_VALUE]);
-	arg.pushColumn(COLUMN_DEF_ITEMS[IDX_ITEMS_PREV_VALUE]);
-	arg.pushColumn(COLUMN_DEF_ITEMS[IDX_ITEMS_ITEM_GROUP_NAME]);
+	DBAgent::SelectExArg arg(tableProfileItems);
+	arg.add(IDX_ITEMS_SERVER_ID);
+	arg.add(IDX_ITEMS_ID);
+	arg.add(IDX_ITEMS_HOST_ID);
+	arg.add(IDX_ITEMS_BRIEF);
+	arg.add(IDX_ITEMS_LAST_VALUE_TIME_SEC);
+	arg.add(IDX_ITEMS_LAST_VALUE_TIME_NS);
+	arg.add(IDX_ITEMS_LAST_VALUE);
+	arg.add(IDX_ITEMS_PREV_VALUE);
+	arg.add(IDX_ITEMS_ITEM_GROUP_NAME);
 
 	// condition
 	arg.condition = condition;
@@ -1561,10 +1490,8 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 size_t DBClientHatohol::getNumberOfTriggers(const TriggersQueryOption &option,
                                             TriggerSeverityType severity)
 {
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_TRIGGERS;
-	arg.statements.push_back("count (*)");
-	arg.columnTypes.push_back(SQL_COLUMN_TYPE_INT);
+	DBAgent::SelectExArg arg(tableProfileTriggers);
+	arg.add("count (*)", SQL_COLUMN_TYPE_INT);
 
 	// condition
 	arg.condition = option.getCondition();
@@ -1588,13 +1515,11 @@ size_t DBClientHatohol::getNumberOfTriggers(const TriggersQueryOption &option,
 size_t DBClientHatohol::getNumberOfHosts(const HostsQueryOption &option)
 {
 	// TODO: use hostGroupId after Hatohol supports it. 
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_TRIGGERS;
+	DBAgent::SelectExArg arg(tableProfileTriggers);
 	string stmt =
 	  StringUtils::sprintf("count(distinct %s)",
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName);
-	arg.statements.push_back(stmt);
-	arg.columnTypes.push_back(SQL_COLUMN_TYPE_INT);
+	arg.add(stmt, SQL_COLUMN_TYPE_INT);
 
 	// condition
 	arg.condition = option.getCondition();
@@ -1621,13 +1546,11 @@ size_t DBClientHatohol::getNumberOfGoodHosts(const HostsQueryOption &option)
 size_t DBClientHatohol::getNumberOfBadHosts(const HostsQueryOption &option)
 {
 	// TODO: use hostGroupId after Hatohol supports it. 
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_TRIGGERS;
+	DBAgent::SelectExArg arg(tableProfileTriggers);
 	string stmt =
 	  StringUtils::sprintf("count(distinct %s)",
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName);
-	arg.statements.push_back(stmt);
-	arg.columnTypes.push_back(SQL_COLUMN_TYPE_INT);
+	arg.add(stmt, SQL_COLUMN_TYPE_INT);
 
 	// condition
 	arg.condition = option.getCondition();
@@ -1670,227 +1593,138 @@ void DBClientHatohol::pickupAbsentHostIds(vector<uint64_t> &absentHostIdVector,
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void DBClientHatohol::addTriggerInfoBare(const TriggerInfo &triggerInfo)
+// TODO: Use DBAgent::updateIfExistElseInsert() for these methods.
+void DBClientHatohol::addTriggerInfoWithoutTransaction(
+  const TriggerInfo &triggerInfo)
 {
 	string condition = StringUtils::sprintf(
 	  "server_id=%"FMT_SERVER_ID" and id=%"PRIu64,
 	  triggerInfo.serverId, triggerInfo.id);
-	VariableItemGroupPtr row;
 	if (!isRecordExisting(TABLE_NAME_TRIGGERS, condition)) {
-		DBAgentInsertArg arg;
-		arg.tableName = TABLE_NAME_TRIGGERS;
-		arg.numColumns = NUM_COLUMNS_TRIGGERS;
-		arg.columnDefs = COLUMN_DEF_TRIGGERS;
-		row->addNewItem(triggerInfo.serverId);
-		row->addNewItem(triggerInfo.id);
-		row->addNewItem(triggerInfo.status);
-		row->addNewItem(triggerInfo.severity),
-		row->addNewItem(triggerInfo.lastChangeTime.tv_sec); 
-		row->addNewItem(triggerInfo.lastChangeTime.tv_nsec); 
-		row->addNewItem(triggerInfo.hostId);
-		row->addNewItem(triggerInfo.hostName);
-		row->addNewItem(triggerInfo.brief);
-		arg.row = row;
+		DBAgent::InsertArg arg(tableProfileTriggers);
+		arg.row->addNewItem(triggerInfo.serverId);
+		arg.row->addNewItem(triggerInfo.id);
+		arg.row->addNewItem(triggerInfo.status);
+		arg.row->addNewItem(triggerInfo.severity),
+		arg.row->addNewItem(triggerInfo.lastChangeTime.tv_sec); 
+		arg.row->addNewItem(triggerInfo.lastChangeTime.tv_nsec); 
+		arg.row->addNewItem(triggerInfo.hostId);
+		arg.row->addNewItem(triggerInfo.hostName);
+		arg.row->addNewItem(triggerInfo.brief);
 		insert(arg);
 	} else {
-		DBAgentUpdateArg arg;
-		arg.tableName = TABLE_NAME_TRIGGERS;
-		arg.columnDefs = COLUMN_DEF_TRIGGERS;
-
-		row->addNewItem(triggerInfo.serverId);
-		arg.columnIndexes.push_back(IDX_TRIGGERS_SERVER_ID);
-
-		row->addNewItem(triggerInfo.status);
-		arg.columnIndexes.push_back(IDX_TRIGGERS_STATUS);
-
-		row->addNewItem(triggerInfo.severity);
-		arg.columnIndexes.push_back(IDX_TRIGGERS_SEVERITY);
-
-		row->addNewItem(triggerInfo.lastChangeTime.tv_sec); 
-		arg.columnIndexes.push_back
-		  (IDX_TRIGGERS_LAST_CHANGE_TIME_SEC);
-
-		row->addNewItem(triggerInfo.lastChangeTime.tv_nsec); 
-		arg.columnIndexes.push_back
-		  (IDX_TRIGGERS_LAST_CHANGE_TIME_NS);
-
-		row->addNewItem(triggerInfo.hostId);
-		arg.columnIndexes.push_back(IDX_TRIGGERS_HOST_ID);
-
-		row->addNewItem(triggerInfo.hostName);
-		arg.columnIndexes.push_back(IDX_TRIGGERS_HOSTNAME);
-
-		row->addNewItem(triggerInfo.brief);
-		arg.columnIndexes.push_back(IDX_TRIGGERS_BRIEF);
-		arg.row = row;
+		DBAgent::UpdateArg arg(tableProfileTriggers);
+		arg.add(IDX_TRIGGERS_SERVER_ID, triggerInfo.serverId);
+		arg.add(IDX_TRIGGERS_STATUS,    triggerInfo.status);
+		arg.add(IDX_TRIGGERS_SEVERITY,  triggerInfo.severity);
+		arg.add(IDX_TRIGGERS_LAST_CHANGE_TIME_SEC,
+		        triggerInfo.lastChangeTime.tv_sec);
+		arg.add(IDX_TRIGGERS_LAST_CHANGE_TIME_NS,
+		        triggerInfo.lastChangeTime.tv_nsec);
+		arg.add(IDX_TRIGGERS_HOST_ID,   triggerInfo.hostId);
+		arg.add(IDX_TRIGGERS_HOSTNAME,  triggerInfo.hostName);
+		arg.add(IDX_TRIGGERS_BRIEF,     triggerInfo.brief);
 		arg.condition = condition;
 		update(arg);
 	}
 }
 
-void DBClientHatohol::addEventInfoBare(const EventInfo &eventInfo)
+void DBClientHatohol::addEventInfoWithoutTransaction(const EventInfo &eventInfo)
 {
 	string condition = StringUtils::sprintf(
 	  "server_id=%"FMT_SERVER_ID" and id=%"PRIu64,
 	   eventInfo.serverId, eventInfo.id);
-	VariableItemGroupPtr row;
 	if (!isRecordExisting(TABLE_NAME_EVENTS, condition)) {
-		DBAgentInsertArg arg;
-		arg.tableName = TABLE_NAME_EVENTS;
-		arg.numColumns = NUM_COLUMNS_EVENTS;
-		arg.columnDefs = COLUMN_DEF_EVENTS;
-		row->addNewItem(AUTO_INCREMENT_VALUE_U64);
-		row->addNewItem(eventInfo.serverId);
-		row->addNewItem(eventInfo.id);
-		row->addNewItem(eventInfo.time.tv_sec); 
-		row->addNewItem(eventInfo.time.tv_nsec); 
-		row->addNewItem(eventInfo.type);
-		row->addNewItem(eventInfo.triggerId);
-		row->addNewItem(eventInfo.status);
-		row->addNewItem(eventInfo.severity);
-		row->addNewItem(eventInfo.hostId);
-		row->addNewItem(eventInfo.hostName);
-		row->addNewItem(eventInfo.brief);
-		arg.row = row;
+		DBAgent::InsertArg arg(tableProfileEvents);
+		arg.row->addNewItem(AUTO_INCREMENT_VALUE_U64);
+		arg.row->addNewItem(eventInfo.serverId);
+		arg.row->addNewItem(eventInfo.id);
+		arg.row->addNewItem(eventInfo.time.tv_sec); 
+		arg.row->addNewItem(eventInfo.time.tv_nsec); 
+		arg.row->addNewItem(eventInfo.type);
+		arg.row->addNewItem(eventInfo.triggerId);
+		arg.row->addNewItem(eventInfo.status);
+		arg.row->addNewItem(eventInfo.severity);
+		arg.row->addNewItem(eventInfo.hostId);
+		arg.row->addNewItem(eventInfo.hostName);
+		arg.row->addNewItem(eventInfo.brief);
 		insert(arg);
 	} else {
-		DBAgentUpdateArg arg;
-		arg.tableName = TABLE_NAME_EVENTS;
-		arg.columnDefs = COLUMN_DEF_EVENTS;
-
-		row->addNewItem(eventInfo.serverId);
-		arg.columnIndexes.push_back(IDX_EVENTS_SERVER_ID);
-
-		row->addNewItem(eventInfo.time.tv_sec); 
-		arg.columnIndexes.push_back(IDX_EVENTS_TIME_SEC);
-
-		row->addNewItem(eventInfo.time.tv_nsec); 
-		arg.columnIndexes.push_back(IDX_EVENTS_TIME_NS);
-
-		row->addNewItem(eventInfo.type);
-		arg.columnIndexes.push_back(IDX_EVENTS_EVENT_TYPE);
-
-		row->addNewItem(eventInfo.triggerId);
-		arg.columnIndexes.push_back(IDX_EVENTS_TRIGGER_ID);
-
-		row->addNewItem(eventInfo.status);
-		arg.columnIndexes.push_back(IDX_EVENTS_STATUS);
-
-		row->addNewItem(eventInfo.severity);
-		arg.columnIndexes.push_back(IDX_EVENTS_SEVERITY);
-
-		row->addNewItem(eventInfo.hostId);
-		arg.columnIndexes.push_back(IDX_EVENTS_HOST_ID);
-
-		row->addNewItem(eventInfo.hostName);
-		arg.columnIndexes.push_back(IDX_EVENTS_HOST_NAME);
-
-		row->addNewItem(eventInfo.brief);
-		arg.columnIndexes.push_back(IDX_EVENTS_BRIEF);
-
-		arg.row = row;
+		DBAgent::UpdateArg arg(tableProfileEvents);
+		arg.add(IDX_EVENTS_SERVER_ID,  eventInfo.serverId);
+		arg.add(IDX_EVENTS_TIME_SEC,   eventInfo.time.tv_sec);
+		arg.add(IDX_EVENTS_TIME_NS,    eventInfo.time.tv_nsec);
+		arg.add(IDX_EVENTS_EVENT_TYPE, eventInfo.type);
+		arg.add(IDX_EVENTS_TRIGGER_ID, eventInfo.triggerId);
+		arg.add(IDX_EVENTS_STATUS,     eventInfo.status);
+		arg.add(IDX_EVENTS_SEVERITY,   eventInfo.severity);
+		arg.add(IDX_EVENTS_HOST_ID,    eventInfo.hostId);
+		arg.add(IDX_EVENTS_HOST_NAME,  eventInfo.hostName);
+		arg.add(IDX_EVENTS_BRIEF,      eventInfo.brief);
 		arg.condition = condition;
 		update(arg);
 	}
 }
 
-void DBClientHatohol::addItemInfoBare(const ItemInfo &itemInfo)
+void DBClientHatohol::addItemInfoWithoutTransaction(const ItemInfo &itemInfo)
 {
 	string condition = StringUtils::sprintf(
 	  "server_id=%"FMT_SERVER_ID" and id=%"PRIu64,
 	  itemInfo.serverId, itemInfo.id);
-	VariableItemGroupPtr row;
 	if (!isRecordExisting(TABLE_NAME_ITEMS, condition)) {
-		DBAgentInsertArg arg;
-		arg.tableName = TABLE_NAME_ITEMS;
-		arg.numColumns = NUM_COLUMNS_ITEMS;
-		arg.columnDefs = COLUMN_DEF_ITEMS;
-		row->addNewItem(itemInfo.serverId);
-		row->addNewItem(itemInfo.id);
-		row->addNewItem(itemInfo.hostId);
-		row->addNewItem(itemInfo.brief);
-		row->addNewItem(itemInfo.lastValueTime.tv_sec); 
-		row->addNewItem(itemInfo.lastValueTime.tv_nsec); 
-		row->addNewItem(itemInfo.lastValue);
-		row->addNewItem(itemInfo.prevValue);
-		row->addNewItem(itemInfo.itemGroupName);
-		arg.row = row;
+		DBAgent::InsertArg arg(tableProfileItems);
+		arg.row->addNewItem(itemInfo.serverId);
+		arg.row->addNewItem(itemInfo.id);
+		arg.row->addNewItem(itemInfo.hostId);
+		arg.row->addNewItem(itemInfo.brief);
+		arg.row->addNewItem(itemInfo.lastValueTime.tv_sec); 
+		arg.row->addNewItem(itemInfo.lastValueTime.tv_nsec); 
+		arg.row->addNewItem(itemInfo.lastValue);
+		arg.row->addNewItem(itemInfo.prevValue);
+		arg.row->addNewItem(itemInfo.itemGroupName);
 		insert(arg);
 	} else {
-		DBAgentUpdateArg arg;
-		arg.tableName = TABLE_NAME_ITEMS;
-		arg.columnDefs = COLUMN_DEF_ITEMS;
-
-		row->addNewItem(itemInfo.serverId);
-		arg.columnIndexes.push_back(IDX_ITEMS_SERVER_ID);
-
-		row->addNewItem(itemInfo.id);
-		arg.columnIndexes.push_back(IDX_ITEMS_ID);
-
-		row->addNewItem(itemInfo.hostId);
-		arg.columnIndexes.push_back(IDX_ITEMS_HOST_ID);
-
-		row->addNewItem(itemInfo.brief);
-		arg.columnIndexes.push_back(IDX_ITEMS_BRIEF);
-
-		row->addNewItem(itemInfo.lastValueTime.tv_sec); 
-		arg.columnIndexes.push_back(IDX_ITEMS_LAST_VALUE_TIME_SEC);
-
-		row->addNewItem(itemInfo.lastValueTime.tv_nsec); 
-		arg.columnIndexes.push_back(IDX_ITEMS_LAST_VALUE_TIME_NS);
-
-		row->addNewItem(itemInfo.lastValue);
-		arg.columnIndexes.push_back(IDX_ITEMS_LAST_VALUE);
-
-		row->addNewItem(itemInfo.prevValue);
-		arg.columnIndexes.push_back(IDX_ITEMS_PREV_VALUE);
-
-		row->addNewItem(itemInfo.itemGroupName);
-		arg.columnIndexes.push_back(IDX_ITEMS_ITEM_GROUP_NAME);
-
-		arg.row = row;
+		DBAgent::UpdateArg arg(tableProfileItems);
+		arg.add(IDX_ITEMS_SERVER_ID,  itemInfo.serverId);
+		arg.add(IDX_ITEMS_ID,         itemInfo.id);
+		arg.add(IDX_ITEMS_HOST_ID,    itemInfo.hostId);
+		arg.add(IDX_ITEMS_BRIEF,      itemInfo.brief);
+		arg.add(IDX_ITEMS_LAST_VALUE_TIME_SEC,
+		        itemInfo.lastValueTime.tv_sec);
+		arg.add(IDX_ITEMS_LAST_VALUE_TIME_NS,
+		        itemInfo.lastValueTime.tv_nsec); 
+		arg.add(IDX_ITEMS_LAST_VALUE, itemInfo.lastValue);
+		arg.add(IDX_ITEMS_PREV_VALUE, itemInfo.prevValue);
+		arg.add(IDX_ITEMS_ITEM_GROUP_NAME, itemInfo.itemGroupName);
 		arg.condition = condition;
 		update(arg);
 	}
 }
 
-void DBClientHatohol::addHostgroupInfoBare(const HostgroupInfo &groupInfo)
+void DBClientHatohol::addHostgroupInfoWithoutTransaction(
+  const HostgroupInfo &groupInfo)
 {
 	string condition = StringUtils::sprintf("server_id=%"FMT_SERVER_ID" and host_group_id=%"FMT_HOST_GROUP_ID,
 	                                        groupInfo.serverId, groupInfo.groupId);
-	VariableItemGroupPtr row;
 	if (!isRecordExisting(TABLE_NAME_HOSTGROUPS, condition)) {
-		DBAgentInsertArg arg;
-		arg.tableName = TABLE_NAME_HOSTGROUPS;
-		arg.numColumns = NUM_COLUMNS_HOSTGROUPS;
-		arg.columnDefs = COLUMN_DEF_HOSTGROUPS;
-		row->addNewItem(groupInfo.id);
-		row->addNewItem(groupInfo.serverId);
-		row->addNewItem(groupInfo.groupId);
-		row->addNewItem(groupInfo.groupName);
-		arg.row = row;
+		DBAgent::InsertArg arg(tableProfileHostgroups);
+		arg.row->addNewItem(groupInfo.id);
+		arg.row->addNewItem(groupInfo.serverId);
+		arg.row->addNewItem(groupInfo.groupId);
+		arg.row->addNewItem(groupInfo.groupName);
 		insert(arg);
 	} else {
-		DBAgentUpdateArg arg;
-		arg.tableName = TABLE_NAME_HOSTGROUPS;
-		arg.columnDefs = COLUMN_DEF_HOSTGROUPS;
-
-		row->addNewItem(groupInfo.serverId);
-		arg.columnIndexes.push_back(IDX_HOSTGROUPS_SERVER_ID);
-
-		row->addNewItem(groupInfo.groupId);
-		arg.columnIndexes.push_back(IDX_HOSTGROUPS_GROUP_ID);
-
-		row->addNewItem(groupInfo.groupName);
-		arg.columnIndexes.push_back(IDX_HOSTGROUPS_GROUP_NAME);
-
-		arg.row = row;
+		DBAgent::UpdateArg arg(tableProfileHostgroups);
+		arg.add(IDX_HOSTGROUPS_SERVER_ID,  groupInfo.serverId);
+		arg.add(IDX_HOSTGROUPS_GROUP_ID,   groupInfo.groupId);
+		arg.add(IDX_HOSTGROUPS_GROUP_NAME, groupInfo.groupName);
 		arg.condition = condition;
 		update(arg);
 	}
 }
 
-void DBClientHatohol::addHostgroupElementBare(const HostgroupElement &hostgroupElement)
+void DBClientHatohol::addHostgroupElementWithoutTransaction(
+  const HostgroupElement &hostgroupElement)
 {
 	string condition = StringUtils::sprintf("server_id=%"FMT_SERVER_ID" "
 	                                        "and host_id=%"FMT_HOST_ID" "
@@ -1899,22 +1733,17 @@ void DBClientHatohol::addHostgroupElementBare(const HostgroupElement &hostgroupE
 	                                        hostgroupElement.hostId,
 	                                        hostgroupElement.groupId);
 
-	VariableItemGroupPtr row;
 	if (!isRecordExisting(TABLE_NAME_MAP_HOSTS_HOSTGROUPS, condition)) {
-		DBAgentInsertArg arg;
-		arg.tableName = TABLE_NAME_MAP_HOSTS_HOSTGROUPS;
-		arg.numColumns = NUM_COLUMNS_MAP_HOSTS_HOSTGROUPS;
-		arg.columnDefs = COLUMN_DEF_MAP_HOSTS_HOSTGROUPS;
-		row->addNewItem(hostgroupElement.id);
-		row->addNewItem(hostgroupElement.serverId);
-		row->addNewItem(hostgroupElement.hostId);
-		row->addNewItem(hostgroupElement.groupId);
-		arg.row = row;
+		DBAgent::InsertArg arg(tableProfileMapHostsHostgroups);
+		arg.row->addNewItem(hostgroupElement.id);
+		arg.row->addNewItem(hostgroupElement.serverId);
+		arg.row->addNewItem(hostgroupElement.hostId);
+		arg.row->addNewItem(hostgroupElement.groupId);
 		insert(arg);
 	}
 }
 
-void DBClientHatohol::addHostInfoBare(const HostInfo &hostInfo)
+void DBClientHatohol::addHostInfoWithoutTransaction(const HostInfo &hostInfo)
 {
 	string condition = StringUtils::sprintf("server_id=%"FMT_SERVER_ID" "
 	                                        "and host_id=%"FMT_HOST_ID,
@@ -1922,31 +1751,17 @@ void DBClientHatohol::addHostInfoBare(const HostInfo &hostInfo)
 
 	VariableItemGroupPtr row;
 	if (!isRecordExisting(TABLE_NAME_HOSTS, condition)) {
-		DBAgentInsertArg arg;
-		arg.tableName = TABLE_NAME_HOSTS;
-		arg.numColumns = NUM_COLUMNS_HOSTS;
-		arg.columnDefs = COLUMN_DEF_HOSTS;
-		row->addNewItem(AUTO_INCREMENT_VALUE);
-		row->addNewItem(hostInfo.serverId);
-		row->addNewItem(hostInfo.id);
-		row->addNewItem(hostInfo.hostName);
-		arg.row = row;
+		DBAgent::InsertArg arg(tableProfileHosts);
+		arg.row->addNewItem(AUTO_INCREMENT_VALUE);
+		arg.row->addNewItem(hostInfo.serverId);
+		arg.row->addNewItem(hostInfo.id);
+		arg.row->addNewItem(hostInfo.hostName);
 		insert(arg);
 	} else {
-		DBAgentUpdateArg arg;
-		arg.tableName = TABLE_NAME_HOSTS;
-		arg.columnDefs = COLUMN_DEF_HOSTS;
-
-		row->addNewItem(hostInfo.serverId);
-		arg.columnIndexes.push_back(IDX_HOSTS_SERVER_ID);
-
-		row->addNewItem(hostInfo.id);
-		arg.columnIndexes.push_back(IDX_HOSTS_HOST_ID);
-
-		row->addNewItem(hostInfo.hostName);
-		arg.columnIndexes.push_back(IDX_HOSTS_HOST_NAME);
-
-		arg.row = row;
+		DBAgent::UpdateArg arg(tableProfileHosts);
+		arg.add(IDX_HOSTS_SERVER_ID, hostInfo.serverId);
+		arg.add(IDX_HOSTS_HOST_ID,   hostInfo.id);
+		arg.add(IDX_HOSTS_HOST_NAME, hostInfo.hostName);
 		arg.condition = condition;
 		update(arg);
 	}
@@ -1955,17 +1770,16 @@ void DBClientHatohol::addHostInfoBare(const HostInfo &hostInfo)
 void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
                                          const string &condition)
 {
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_TRIGGERS;
-	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID]);
-	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID]);
-	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_STATUS]);
-	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SEVERITY]);
-	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC]);
-	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_NS]);
-	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID]);
-	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOSTNAME]);
-	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_BRIEF]);
+	DBAgent::SelectExArg arg(tableProfileTriggers);
+	arg.add(IDX_TRIGGERS_SERVER_ID);
+	arg.add(IDX_TRIGGERS_ID);
+	arg.add(IDX_TRIGGERS_STATUS);
+	arg.add(IDX_TRIGGERS_SEVERITY);
+	arg.add(IDX_TRIGGERS_LAST_CHANGE_TIME_SEC);
+	arg.add(IDX_TRIGGERS_LAST_CHANGE_TIME_NS);
+	arg.add(IDX_TRIGGERS_HOST_ID);
+	arg.add(IDX_TRIGGERS_HOSTNAME);
+	arg.add(IDX_TRIGGERS_BRIEF);
 
 	// condition
 	arg.condition = condition;
@@ -1997,29 +1811,11 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 HatoholError DBClientHatohol::getHostgroupInfoList
   (HostgroupInfoList &hostgroupInfoList, const HostgroupsQueryOption &option)
 {
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_HOSTGROUPS;
-
-	arg.statements.push_back(
-	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_ID].columnName);
-	arg.columnTypes.push_back(
-	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_ID].type);
-
-	arg.statements.push_back(
-	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_SERVER_ID].columnName);
-	arg.columnTypes.push_back(
-	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_SERVER_ID].type);
-
-	arg.statements.push_back(
-	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_GROUP_ID].columnName);
-	arg.columnTypes.push_back(
-	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_GROUP_ID].type);
-
-	arg.statements.push_back(
-	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_GROUP_NAME].columnName);
-	arg.columnTypes.push_back(
-	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_GROUP_NAME].type);
-
+	DBAgent::SelectExArg arg(tableProfileHostgroups);
+	arg.add(IDX_HOSTGROUPS_ID);
+	arg.add(IDX_HOSTGROUPS_SERVER_ID);
+	arg.add(IDX_HOSTGROUPS_GROUP_ID);
+	arg.add(IDX_HOSTGROUPS_GROUP_NAME);
 	arg.condition = option.getCondition();
 
 	DBCLIENT_TRANSACTION_BEGIN() {
@@ -2046,29 +1842,11 @@ HatoholError DBClientHatohol::getHostgroupElementList
   (HostgroupElementList &hostgroupElementList,
    const HostgroupElementQueryOption &option)
 {
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_MAP_HOSTS_HOSTGROUPS;
-
-	arg.statements.push_back(
-	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_ID].columnName);
-	arg.columnTypes.push_back(
-	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_ID].type);
-
-	arg.statements.push_back(
-	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID].columnName);
-	arg.columnTypes.push_back(
-	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID].type);
-
-	arg.statements.push_back(
-	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID].columnName);
-	arg.columnTypes.push_back(
-	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID].type);
-
-	arg.statements.push_back(
-	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID].columnName);
-	arg.columnTypes.push_back(
-	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID].type);
-
+	DBAgent::SelectExArg arg(tableProfileMapHostsHostgroups);
+	arg.add(IDX_MAP_HOSTS_HOSTGROUPS_ID);
+	arg.add(IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID);
+	arg.add(IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID);
+	arg.add(IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
 	arg.condition = option.getCondition();
 
 	DBCLIENT_TRANSACTION_BEGIN() {

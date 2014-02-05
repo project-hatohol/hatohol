@@ -92,8 +92,6 @@ static const ColumnDef COLUMN_DEF_SYSTEM[] = {
 	"1",                               // defaultValue
 },
 };
-static const size_t NUM_COLUMNS_SYSTEM =
-  sizeof(COLUMN_DEF_SYSTEM) / sizeof(ColumnDef);
 
 enum {
 	IDX_SYSTEM_DATABASE_DIR,
@@ -102,6 +100,10 @@ enum {
 	IDX_SYSTEM_ENABLE_COPY_ON_DEMAND,
 	NUM_IDX_SYSTEM,
 };
+
+static DBAgent::TableProfile tableProfileSystem(
+  TABLE_NAME_SYSTEM, COLUMN_DEF_SYSTEM,
+  sizeof(COLUMN_DEF_SYSTEM), NUM_IDX_SYSTEM);
 
 static const ColumnDef COLUMN_DEF_SERVERS[] = {
 {
@@ -227,8 +229,6 @@ static const ColumnDef COLUMN_DEF_SERVERS[] = {
 	NULL,                              // defaultValue
 }
 };
-static const size_t NUM_COLUMNS_SERVERS =
-  sizeof(COLUMN_DEF_SERVERS) / sizeof(ColumnDef);
 
 enum {
 	IDX_SERVERS_ID,
@@ -244,6 +244,10 @@ enum {
 	IDX_SERVERS_DB_NAME,
 	NUM_IDX_SERVERS,
 };
+
+static DBAgent::TableProfile tableProfileServers(
+  TABLE_NAME_SERVERS, COLUMN_DEF_SERVERS,
+  sizeof(COLUMN_DEF_SERVERS), NUM_IDX_SERVERS);
 
 static bool validIPv4Address(const string &ipAddress);
 static bool validIPv6Address(const string &ipAddress);
@@ -279,22 +283,15 @@ DBConnectInfo DBClientConfig::PrivateContext::connInfo;
 static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
 {
 	if (oldVer <= 5) {
-		DBAgentAddColumnsArg addColumnsArg;
-		addColumnsArg.tableName = TABLE_NAME_SYSTEM;
-		addColumnsArg.columnDefs = COLUMN_DEF_SYSTEM;
+		DBAgent::AddColumnsArg addColumnsArg(tableProfileSystem);
 		addColumnsArg.columnIndexes.push_back(
 		  IDX_SYSTEM_ENABLE_COPY_ON_DEMAND);
 		dbAgent->addColumns(addColumnsArg);
 	}
 	if (oldVer <= 7) {
 		// enable copy-on-demand by default
-		DBAgentUpdateArg arg;
-		arg.tableName = TABLE_NAME_SYSTEM;
-		arg.columnDefs = COLUMN_DEF_SYSTEM;
-		arg.columnIndexes.push_back(IDX_SYSTEM_ENABLE_COPY_ON_DEMAND);
-		VariableItemGroupPtr row;
-		row->addNewItem(1);
-		arg.row = row;
+		DBAgent::UpdateArg arg(tableProfileSystem);
+		arg.add(IDX_SYSTEM_ENABLE_COPY_ON_DEMAND, 1);
 		dbAgent->update(arg);
 	}
 	return true;
@@ -404,27 +401,15 @@ string ServerQueryOption::getCondition(void) const
 // ---------------------------------------------------------------------------
 void DBClientConfig::init(const CommandLineArg &cmdArg)
 {
-	HATOHOL_ASSERT(NUM_COLUMNS_SYSTEM == NUM_IDX_SYSTEM,
-	  "NUM_COLUMNS_SYSTEM: %zd, NUM_IDX_SYSTEM: %d",
-	  NUM_COLUMNS_SYSTEM, NUM_IDX_SYSTEM);
-
-	HATOHOL_ASSERT(NUM_COLUMNS_SERVERS == NUM_IDX_SERVERS,
-	  "NUM_COLUMNS_SERVERS: %zd, NUM_IDX_SERVERS: %d",
-	  NUM_COLUMNS_SERVERS, NUM_IDX_SERVERS);
-
 	//
 	// set database info
 	//
 	static const DBSetupTableInfo DB_TABLE_INFO[] = {
 	{
-		TABLE_NAME_SYSTEM,
-		NUM_COLUMNS_SYSTEM,
-		COLUMN_DEF_SYSTEM,
+		&tableProfileSystem,
 		tableInitializerSystem,
 	}, {
-		TABLE_NAME_SERVERS,
-		NUM_COLUMNS_SERVERS,
-		COLUMN_DEF_SERVERS,
+		&tableProfileServers,
 	}
 	};
 	static const size_t NUM_TABLE_INFO =
@@ -480,9 +465,7 @@ DBClientConfig::~DBClientConfig()
 
 string DBClientConfig::getDatabaseDir(void)
 {
-	DBAgentSelectArg arg;
-	arg.tableName = TABLE_NAME_SYSTEM;
-	arg.columnDefs = COLUMN_DEF_SYSTEM;
+	DBAgent::SelectArg arg(tableProfileSystem);
 	arg.columnIndexes.push_back(IDX_SYSTEM_DATABASE_DIR);
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -495,13 +478,8 @@ string DBClientConfig::getDatabaseDir(void)
 
 void DBClientConfig::setDatabaseDir(const string &dir)
 {
-	DBAgentUpdateArg arg;
-	arg.tableName = TABLE_NAME_SYSTEM;
-	arg.columnDefs = COLUMN_DEF_SYSTEM;
-	arg.columnIndexes.push_back(IDX_SYSTEM_DATABASE_DIR);
-	VariableItemGroupPtr row;
-	row->addNewItem(dir);
-	arg.row = row;
+	DBAgent::UpdateArg arg(tableProfileSystem);
+	arg.add(IDX_SYSTEM_DATABASE_DIR, dir);
 	DBCLIENT_TRANSACTION_BEGIN() {
 		update(arg);
 	} DBCLIENT_TRANSACTION_END();
@@ -509,9 +487,7 @@ void DBClientConfig::setDatabaseDir(const string &dir)
 
 bool DBClientConfig::isFaceMySQLEnabled(void)
 {
-	DBAgentSelectArg arg;
-	arg.tableName = TABLE_NAME_SYSTEM;
-	arg.columnDefs = COLUMN_DEF_SYSTEM;
+	DBAgent::SelectArg arg(tableProfileSystem);
 	arg.columnIndexes.push_back(IDX_SYSTEM_ENABLE_FACE_MYSQL);
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -524,9 +500,7 @@ bool DBClientConfig::isFaceMySQLEnabled(void)
 
 int  DBClientConfig::getFaceRestPort(void)
 {
-	DBAgentSelectArg arg;
-	arg.tableName = TABLE_NAME_SYSTEM;
-	arg.columnDefs = COLUMN_DEF_SYSTEM;
+	DBAgent::SelectArg arg(tableProfileSystem);
 	arg.columnIndexes.push_back(IDX_SYSTEM_FACE_REST_PORT);
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -539,13 +513,8 @@ int  DBClientConfig::getFaceRestPort(void)
 
 void DBClientConfig::setFaceRestPort(int port)
 {
-	DBAgentUpdateArg arg;
-	arg.tableName = TABLE_NAME_SYSTEM;
-	arg.columnDefs = COLUMN_DEF_SYSTEM;
-	arg.columnIndexes.push_back(IDX_SYSTEM_FACE_REST_PORT);
-	VariableItemGroupPtr row;
-	row->addNewItem(port);
-	arg.row = row;
+	DBAgent::UpdateArg arg(tableProfileSystem);
+	arg.add(IDX_SYSTEM_FACE_REST_PORT, port);
 	DBCLIENT_TRANSACTION_BEGIN() {
 		update(arg);
 	} DBCLIENT_TRANSACTION_END();
@@ -553,9 +522,7 @@ void DBClientConfig::setFaceRestPort(int port)
 
 bool DBClientConfig::isCopyOnDemandEnabled(void)
 {
-	DBAgentSelectArg arg;
-	arg.tableName = TABLE_NAME_SYSTEM;
-	arg.columnDefs = COLUMN_DEF_SYSTEM;
+	DBAgent::SelectArg arg(tableProfileSystem);
 	arg.columnIndexes.push_back(IDX_SYSTEM_ENABLE_COPY_ON_DEMAND);
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -707,8 +674,7 @@ HatoholError DBClientConfig::deleteTargetServer(
 	if (!canDeleteTargetServer(serverId, privilege))
 		return HatoholError(HTERR_NO_PRIVILEGE);
 
-	DBAgentDeleteArg arg;
-	arg.tableName = TABLE_NAME_SERVERS;
+	DBAgent::DeleteArg arg(tableProfileServers);
 	const ColumnDef &colId = COLUMN_DEF_SERVERS[IDX_SERVERS_ID];
 	arg.condition = StringUtils::sprintf("%s=%"FMT_SERVER_ID,
 	                                     colId.columnName, serverId);
@@ -721,20 +687,18 @@ HatoholError DBClientConfig::deleteTargetServer(
 void DBClientConfig::getTargetServers
   (MonitoringServerInfoList &monitoringServers, ServerQueryOption &option)
 {
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_SERVERS;
-	arg.pushColumn(COLUMN_DEF_SERVERS[IDX_SERVERS_ID]);
-	arg.pushColumn(COLUMN_DEF_SERVERS[IDX_SERVERS_TYPE]);
-	arg.pushColumn(COLUMN_DEF_SERVERS[IDX_SERVERS_HOSTNAME]);
-	arg.pushColumn(COLUMN_DEF_SERVERS[IDX_SERVERS_IP_ADDRESS]);
-	arg.pushColumn(COLUMN_DEF_SERVERS[IDX_SERVERS_NICKNAME]);
-	arg.pushColumn(COLUMN_DEF_SERVERS[IDX_SERVERS_PORT]);
-	arg.pushColumn(COLUMN_DEF_SERVERS[IDX_SERVERS_POLLING_INTERVAL_SEC]);
-	arg.pushColumn(COLUMN_DEF_SERVERS[IDX_SERVERS_RETRY_INTERVAL_SEC]);
-	arg.pushColumn(COLUMN_DEF_SERVERS[IDX_SERVERS_USER_NAME]);
-	arg.pushColumn(COLUMN_DEF_SERVERS[IDX_SERVERS_PASSWORD]);
-	arg.pushColumn(COLUMN_DEF_SERVERS[IDX_SERVERS_DB_NAME]);
-
+	DBAgent::SelectExArg arg(tableProfileServers);
+	arg.add(IDX_SERVERS_ID);
+	arg.add(IDX_SERVERS_TYPE);
+	arg.add(IDX_SERVERS_HOSTNAME);
+	arg.add(IDX_SERVERS_IP_ADDRESS);
+	arg.add(IDX_SERVERS_NICKNAME);
+	arg.add(IDX_SERVERS_PORT);
+	arg.add(IDX_SERVERS_POLLING_INTERVAL_SEC);
+	arg.add(IDX_SERVERS_RETRY_INTERVAL_SEC);
+	arg.add(IDX_SERVERS_USER_NAME);
+	arg.add(IDX_SERVERS_PASSWORD);
+	arg.add(IDX_SERVERS_DB_NAME);
 	arg.condition = option.getCondition();
 
 	DBCLIENT_TRANSACTION_BEGIN() {
@@ -801,26 +765,12 @@ void DBClientConfig::tableInitializerSystem(DBAgent *dbAgent, void *data)
 	const ColumnDef &columnDefEnableCopyOnDemand =
 	  COLUMN_DEF_SYSTEM[IDX_SYSTEM_ENABLE_COPY_ON_DEMAND];
 
-	// insert default value
-	DBAgentInsertArg insArg;
-	insArg.tableName = TABLE_NAME_SYSTEM;
-	insArg.numColumns = NUM_COLUMNS_SYSTEM;
-	insArg.columnDefs = COLUMN_DEF_SYSTEM;
-	VariableItemGroupPtr row;
-
-	// database_dir
-	row->addNewItem(columnDefDatabaseDir.defaultValue);
-
-	row->addNewItem(0); // enable_face_mysql
-
-	// face_reset_port
-	row->addNewItem(atoi(columnDefFaceRestPort.defaultValue));
-
-	// enable_copy_on_demand
-	row->addNewItem(atoi(columnDefEnableCopyOnDemand.defaultValue));
-
-	insArg.row = row;
-	dbAgent->insert(insArg);
+	DBAgent::InsertArg arg(tableProfileSystem);
+	arg.row->addNewItem(columnDefDatabaseDir.defaultValue);
+	arg.row->addNewItem(0); // enable_face_mysql
+	arg.row->addNewItem(atoi(columnDefFaceRestPort.defaultValue));
+	arg.row->addNewItem(atoi(columnDefEnableCopyOnDemand.defaultValue));
+	dbAgent->insert(arg);
 }
 
 bool DBClientConfig::parseDBServer(const string &dbServer,
@@ -850,24 +800,18 @@ HatoholError DBClientConfig::_addTargetServer(
 
 	// TODO: ADD this server to the liset this user can access to
 
-	DBAgentInsertArg arg;
-	arg.tableName = TABLE_NAME_SERVERS;
-	arg.numColumns = NUM_COLUMNS_SERVERS;
-	arg.columnDefs = COLUMN_DEF_SERVERS;
-
-	VariableItemGroupPtr row;
-	row->addNewItem(AUTO_INCREMENT_VALUE);
-	row->addNewItem(monitoringServerInfo->type);
-	row->addNewItem(monitoringServerInfo->hostName);
-	row->addNewItem(monitoringServerInfo->ipAddress);
-	row->addNewItem(monitoringServerInfo->nickname);
-	row->addNewItem(monitoringServerInfo->port);
-	row->addNewItem(monitoringServerInfo->pollingIntervalSec);
-	row->addNewItem(monitoringServerInfo->retryIntervalSec);
-	row->addNewItem(monitoringServerInfo->userName);
-	row->addNewItem(monitoringServerInfo->password);
-	row->addNewItem(monitoringServerInfo->dbName);
-	arg.row = row;
+	DBAgent::InsertArg arg(tableProfileServers);
+	arg.row->addNewItem(AUTO_INCREMENT_VALUE);
+	arg.row->addNewItem(monitoringServerInfo->type);
+	arg.row->addNewItem(monitoringServerInfo->hostName);
+	arg.row->addNewItem(monitoringServerInfo->ipAddress);
+	arg.row->addNewItem(monitoringServerInfo->nickname);
+	arg.row->addNewItem(monitoringServerInfo->port);
+	arg.row->addNewItem(monitoringServerInfo->pollingIntervalSec);
+	arg.row->addNewItem(monitoringServerInfo->retryIntervalSec);
+	arg.row->addNewItem(monitoringServerInfo->userName);
+	arg.row->addNewItem(monitoringServerInfo->password);
+	arg.row->addNewItem(monitoringServerInfo->dbName);
 	insert(arg);
 	monitoringServerInfo->id = getLastInsertId();
 	return HTERR_OK;
@@ -896,42 +840,25 @@ HatoholError DBClientConfig::_updateTargetServer(
 	if (!canUpdateTargetServer(monitoringServerInfo, privilege))
 		return HatoholError(HTERR_NO_PRIVILEGE);
 
+	DBAgent::UpdateArg arg(tableProfileServers);
+	arg.condition = condition;
 
-	DBAgentUpdateArg arg;
-	arg.tableName = TABLE_NAME_SERVERS;
-	arg.columnDefs = COLUMN_DEF_SERVERS;
-	arg.condition  = condition;
+	arg.add(IDX_SERVERS_TYPE,       monitoringServerInfo->type);
+	arg.add(IDX_SERVERS_HOSTNAME,   monitoringServerInfo->hostName);
+	arg.add(IDX_SERVERS_IP_ADDRESS, monitoringServerInfo->ipAddress);
+	arg.add(IDX_SERVERS_NICKNAME,   monitoringServerInfo->nickname);
+	arg.add(IDX_SERVERS_PORT,       monitoringServerInfo->port);
+	arg.add(IDX_SERVERS_POLLING_INTERVAL_SEC,
+	        monitoringServerInfo->pollingIntervalSec);
+	arg.add(IDX_SERVERS_RETRY_INTERVAL_SEC,
+	        monitoringServerInfo->retryIntervalSec);
+	arg.add(IDX_SERVERS_USER_NAME,  monitoringServerInfo->userName);
+	arg.add(IDX_SERVERS_PASSWORD,   monitoringServerInfo->password);
+	arg.add(IDX_SERVERS_DB_NAME,    monitoringServerInfo->dbName);
 
-	VariableItemGroupPtr row;
-	row->addNewItem(monitoringServerInfo->type);
-	arg.columnIndexes.push_back(IDX_SERVERS_TYPE);
-
-	row->addNewItem(monitoringServerInfo->hostName);
-	arg.columnIndexes.push_back(IDX_SERVERS_HOSTNAME);
-
-	row->addNewItem(monitoringServerInfo->ipAddress);
-	arg.columnIndexes.push_back(IDX_SERVERS_IP_ADDRESS);
-
-	row->addNewItem(monitoringServerInfo->nickname);
-	arg.columnIndexes.push_back(IDX_SERVERS_NICKNAME);
-
-	row->addNewItem(monitoringServerInfo->port);
-	arg.columnIndexes.push_back(IDX_SERVERS_PORT);
-
-	row->addNewItem(monitoringServerInfo->pollingIntervalSec);
-	arg.columnIndexes.push_back(IDX_SERVERS_POLLING_INTERVAL_SEC);
-	row->addNewItem(monitoringServerInfo->retryIntervalSec);
-	arg.columnIndexes.push_back(IDX_SERVERS_RETRY_INTERVAL_SEC);
-
-	row->addNewItem(monitoringServerInfo->userName);
-	arg.columnIndexes.push_back(IDX_SERVERS_USER_NAME);
-	row->addNewItem(monitoringServerInfo->password);
-	arg.columnIndexes.push_back(IDX_SERVERS_PASSWORD);
-	row->addNewItem(monitoringServerInfo->dbName);
-	arg.columnIndexes.push_back(IDX_SERVERS_DB_NAME);
-
-	arg.row = row;
-	update(arg);
+	DBCLIENT_TRANSACTION_BEGIN() {
+		update(arg);
+	} DBCLIENT_TRANSACTION_END();
 	return HTERR_OK;
 }
 

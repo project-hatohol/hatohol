@@ -191,8 +191,6 @@ static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 	USER_ID_SYSTEM,                     // defaultValue
 },
 };
-static const size_t NUM_COLUMNS_ACTIONS =
-  sizeof(COLUMN_DEF_ACTIONS) / sizeof(ColumnDef);
 
 enum {
 	IDX_ACTIONS_ACTION_ID,
@@ -210,6 +208,10 @@ enum {
 	IDX_ACTIONS_OWNER_USER_ID,
 	NUM_IDX_ACTIONS,
 };
+
+static DBAgent::TableProfile tableProfileActions(
+  TABLE_NAME_ACTIONS, COLUMN_DEF_ACTIONS,
+  sizeof(COLUMN_DEF_ACTIONS), NUM_IDX_ACTIONS);
 
 static const ColumnDef COLUMN_DEF_ACTION_LOGS[] = {
 {
@@ -336,18 +338,15 @@ static const ColumnDef COLUMN_DEF_ACTION_LOGS[] = {
 },
 };
 
-static const size_t NUM_COLUMNS_ACTION_LOGS =
-  sizeof(COLUMN_DEF_ACTION_LOGS) / sizeof(ColumnDef);
+static DBAgent::TableProfile tableProfileActionLogs(
+  TABLE_NAME_ACTION_LOGS, COLUMN_DEF_ACTION_LOGS,
+  sizeof(COLUMN_DEF_ACTION_LOGS), NUM_IDX_ACTION_LOGS);
 
 static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
 {
-	TABLE_NAME_ACTIONS,
-	NUM_COLUMNS_ACTIONS,
-	COLUMN_DEF_ACTIONS,
+	&tableProfileActions,
 }, {
-	TABLE_NAME_ACTION_LOGS,
-	NUM_COLUMNS_ACTION_LOGS,
-	COLUMN_DEF_ACTION_LOGS,
+	&tableProfileActionLogs,
 }
 };
 static const size_t NUM_TABLE_INFO =
@@ -355,9 +354,7 @@ sizeof(DB_TABLE_INFO) / sizeof(DBClient::DBSetupTableInfo);
 
 static bool addColumnOwnerUserId(DBAgent *dbAgent)
 {
-	DBAgentAddColumnsArg addColumnsArg;
-	addColumnsArg.tableName = TABLE_NAME_ACTIONS;
-	addColumnsArg.columnDefs = COLUMN_DEF_ACTIONS;
+	DBAgent::AddColumnsArg addColumnsArg(tableProfileActions);
 	addColumnsArg.columnIndexes.push_back(
 	  IDX_ACTIONS_OWNER_USER_ID);
 	dbAgent->addColumns(addColumnsArg);
@@ -475,14 +472,6 @@ DBClientAction::LogEndExecActionArg::LogEndExecActionArg(void)
 // ---------------------------------------------------------------------------
 void DBClientAction::init(void)
 {
-	HATOHOL_ASSERT(NUM_COLUMNS_ACTIONS == NUM_IDX_ACTIONS,
-	  "NUM_COLUMNS_ACTIONS: %zd, NUM_IDX_ACTIONS: %d",
-	  NUM_COLUMNS_ACTIONS, NUM_IDX_ACTIONS);
-
-	HATOHOL_ASSERT(NUM_COLUMNS_ACTION_LOGS == NUM_IDX_ACTION_LOGS,
-	  "NUM_COLUMNS_ACTION_LOGS: %zd, NUM_IDX_ACTION_LOGS: %d",
-	  NUM_COLUMNS_ACTION_LOGS, NUM_IDX_ACTION_LOGS);
-
 	registerSetupInfo(
 	  DB_DOMAIN_ID_ACTION, DEFAULT_DB_NAME, &DB_ACTION_SETUP_FUNC_ARG);
 }
@@ -535,34 +524,27 @@ HatoholError DBClientAction::addAction(ActionDef &actionDef,
 	if (userId == USER_ID_SYSTEM)
 		ownerUserId = actionDef.ownerUserId;
 
-	VariableItemGroupPtr row;
-	DBAgentInsertArg arg;
-	arg.tableName = TABLE_NAME_ACTIONS;
-	arg.numColumns = NUM_COLUMNS_ACTIONS;
-	arg.columnDefs = COLUMN_DEF_ACTIONS;
-
-	row->addNewItem(AUTO_INCREMENT_VALUE);
-	row->addNewItem(actionDef.condition.serverId,
-	                getNullFlag(actionDef, ACTCOND_SERVER_ID));
-	row->addNewItem(actionDef.condition.hostId,
-	                getNullFlag(actionDef, ACTCOND_HOST_ID));
-	row->addNewItem(actionDef.condition.hostGroupId,
-	                getNullFlag(actionDef, ACTCOND_HOST_GROUP_ID));
-	row->addNewItem(actionDef.condition.triggerId,
-	                getNullFlag(actionDef, ACTCOND_TRIGGER_ID));
-	row->addNewItem(actionDef.condition.triggerStatus,
-	                getNullFlag(actionDef, ACTCOND_TRIGGER_STATUS));
-	row->addNewItem(actionDef.condition.triggerSeverity,
-	                getNullFlag(actionDef, ACTCOND_TRIGGER_SEVERITY));
-	row->addNewItem(actionDef.condition.triggerSeverityCompType,
-	                getNullFlag(actionDef, ACTCOND_TRIGGER_SEVERITY));
-	row->addNewItem(actionDef.type);
-	row->addNewItem(actionDef.command);
-	row->addNewItem(actionDef.workingDir);
-	row->addNewItem(actionDef.timeout);
-	row->addNewItem(ownerUserId);
-
-	arg.row = row;
+	DBAgent::InsertArg arg(tableProfileActions);
+	arg.row->addNewItem(AUTO_INCREMENT_VALUE);
+	arg.row->addNewItem(actionDef.condition.serverId,
+	                    getNullFlag(actionDef, ACTCOND_SERVER_ID));
+	arg.row->addNewItem(actionDef.condition.hostId,
+	                    getNullFlag(actionDef, ACTCOND_HOST_ID));
+	arg.row->addNewItem(actionDef.condition.hostGroupId,
+	                    getNullFlag(actionDef, ACTCOND_HOST_GROUP_ID));
+	arg.row->addNewItem(actionDef.condition.triggerId,
+	                    getNullFlag(actionDef, ACTCOND_TRIGGER_ID));
+	arg.row->addNewItem(actionDef.condition.triggerStatus,
+	                    getNullFlag(actionDef, ACTCOND_TRIGGER_STATUS));
+	arg.row->addNewItem(actionDef.condition.triggerSeverity,
+	                    getNullFlag(actionDef, ACTCOND_TRIGGER_SEVERITY));
+	arg.row->addNewItem(actionDef.condition.triggerSeverityCompType,
+	                    getNullFlag(actionDef, ACTCOND_TRIGGER_SEVERITY));
+	arg.row->addNewItem(actionDef.type);
+	arg.row->addNewItem(actionDef.command);
+	arg.row->addNewItem(actionDef.workingDir);
+	arg.row->addNewItem(actionDef.timeout);
+	arg.row->addNewItem(ownerUserId);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		insert(arg);
@@ -576,24 +558,20 @@ HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
                                            const OperationPrivilege &privilege,
                                            const EventInfo *eventInfo)
 {
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_ACTIONS;
-	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_ACTION_ID]);
-
-	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_SERVER_ID]);
-	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_HOST_ID]);
-	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_HOST_GROUP_ID]);
-	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_ID]);
-	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_STATUS]);
-	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_SEVERITY]);
-	arg.pushColumn(
-	  COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_SEVERITY_COMP_TYPE]);
-
-	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_ACTION_TYPE]);
-	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_COMMAND]);
-	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_WORKING_DIR]);
-	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_TIMEOUT]);
-	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_OWNER_USER_ID]);
+	DBAgent::SelectExArg arg(tableProfileActions);
+	arg.add(IDX_ACTIONS_ACTION_ID);
+	arg.add(IDX_ACTIONS_SERVER_ID);
+	arg.add(IDX_ACTIONS_HOST_ID);
+	arg.add(IDX_ACTIONS_HOST_GROUP_ID);
+	arg.add(IDX_ACTIONS_TRIGGER_ID);
+	arg.add(IDX_ACTIONS_TRIGGER_STATUS);
+	arg.add(IDX_ACTIONS_TRIGGER_SEVERITY);
+	arg.add(IDX_ACTIONS_TRIGGER_SEVERITY_COMP_TYPE);
+	arg.add(IDX_ACTIONS_ACTION_TYPE);
+	arg.add(IDX_ACTIONS_COMMAND);
+	arg.add(IDX_ACTIONS_WORKING_DIR);
+	arg.add(IDX_ACTIONS_TIMEOUT);
+	arg.add(IDX_ACTIONS_OWNER_USER_ID);
 
 	if (eventInfo)
 		arg.condition = makeActionDefCondition(*eventInfo);
@@ -667,8 +645,7 @@ HatoholError DBClientAction::deleteActions(const ActionIdList &idList,
 		return HTERR_INVALID_PARAMETER;
 	}
 
-	DBAgentDeleteArg arg;
-	arg.tableName = TABLE_NAME_ACTIONS;
+	DBAgent::DeleteArg arg(tableProfileActions);
 	const ColumnDef &colId = COLUMN_DEF_ACTIONS[IDX_ACTIONS_ACTION_ID];
 	arg.condition = StringUtils::sprintf("%s in (", colId.columnName);
 	ActionIdListConstIterator it = idList.begin();
@@ -711,14 +688,9 @@ uint64_t DBClientAction::createActionLog(
   const ActionDef &actionDef, const EventInfo &eventInfo,
   ActionLogExecFailureCode failureCode, ActionLogStatus initialStatus)
 {
-	VariableItemGroupPtr row;
-	DBAgentInsertArg arg;
-	arg.tableName = TABLE_NAME_ACTION_LOGS;
-	arg.numColumns = NUM_COLUMNS_ACTION_LOGS;
-	arg.columnDefs = COLUMN_DEF_ACTION_LOGS;
-
-	row->addNewItem(AUTO_INCREMENT_VALUE_U64);
-	row->addNewItem(actionDef.id);
+	DBAgent::InsertArg arg(tableProfileActionLogs);
+	arg.row->addNewItem(AUTO_INCREMENT_VALUE_U64);
+	arg.row->addNewItem(actionDef.id);
 
 	// status
 	ActionLogStatus status;
@@ -726,34 +698,33 @@ uint64_t DBClientAction::createActionLog(
 		status = initialStatus;
 	else
 		status = ACTLOG_STAT_FAILED;
-	row->addNewItem(status);
+	arg.row->addNewItem(status);
 
 	// TODO: set the appropriate the following starter ID.
 	int starterId = 0;
-	row->addNewItem(starterId);
+	arg.row->addNewItem(starterId);
 
 	// queuing_time
 	const int dummyTime = 0;
 	if (initialStatus == ACTLOG_STAT_QUEUING)
-		row->addNewItem(CURR_DATETIME);
+		arg.row->addNewItem(CURR_DATETIME);
 	else
-		row->addNewItem(dummyTime, ITEM_DATA_NULL);
-	row->addNewItem(CURR_DATETIME);     // start_time
+		arg.row->addNewItem(dummyTime, ITEM_DATA_NULL);
+	arg.row->addNewItem(CURR_DATETIME);     // start_time
 
 	// end_time
 	if (failureCode == ACTLOG_EXECFAIL_NONE)
-		row->addNewItem(dummyTime, ITEM_DATA_NULL);
+		arg.row->addNewItem(dummyTime, ITEM_DATA_NULL);
 	else
-		row->addNewItem(CURR_DATETIME);
+		arg.row->addNewItem(CURR_DATETIME);
 
-	row->addNewItem(failureCode);
-	row->addNewItem(dummyTime, ITEM_DATA_NULL); // exit_code
+	arg.row->addNewItem(failureCode);
+	arg.row->addNewItem(dummyTime, ITEM_DATA_NULL); // exit_code
 
 	// server ID and event ID
-	row->addNewItem(eventInfo.serverId);
-	row->addNewItem(eventInfo.id);
+	arg.row->addNewItem(eventInfo.serverId);
+	arg.row->addNewItem(eventInfo.id);
 
-	arg.row = row;
 	uint64_t logId;
 	DBCLIENT_TRANSACTION_BEGIN() {
 		insert(arg);
@@ -764,10 +735,7 @@ uint64_t DBClientAction::createActionLog(
 
 void DBClientAction::logEndExecAction(const LogEndExecActionArg &logArg)
 {
-	VariableItemGroupPtr row;
-	DBAgentUpdateArg arg;
-	arg.tableName = TABLE_NAME_ACTION_LOGS;
-	arg.columnDefs = COLUMN_DEF_ACTION_LOGS;
+	DBAgent::UpdateArg arg(tableProfileActionLogs);
 
 	const char *actionLogIdColumnName = 
 	  COLUMN_DEF_ACTION_LOGS[IDX_ACTION_LOGS_ACTION_LOG_ID].columnName;
@@ -775,26 +743,17 @@ void DBClientAction::logEndExecAction(const LogEndExecActionArg &logArg)
 	                                     actionLogIdColumnName,
 	                                     logArg.logId);
 	// status
-	row->addNewItem(logArg.status);
-	arg.columnIndexes.push_back(IDX_ACTION_LOGS_STATUS);
-
-	// end_time
-	if (!(logArg.nullFlags & ACTLOG_FLAG_END_TIME)) {
-		row->addNewItem(CURR_DATETIME);
-		arg.columnIndexes.push_back(IDX_ACTION_LOGS_END_TIME);
-	}
+	arg.add(IDX_ACTION_LOGS_STATUS, logArg.status);
+	if (!(logArg.nullFlags & ACTLOG_FLAG_END_TIME))
+		arg.add(IDX_ACTION_LOGS_END_TIME, CURR_DATETIME);
 
 	// exec_failure_code
-	row->addNewItem(logArg.failureCode);
-	arg.columnIndexes.push_back(IDX_ACTION_LOGS_EXEC_FAILURE_CODE);
+	arg.add(IDX_ACTION_LOGS_EXEC_FAILURE_CODE, logArg.failureCode);
 
 	// exit_code
-	if (!(logArg.nullFlags & ACTLOG_FLAG_EXIT_CODE)) {
-		row->addNewItem(logArg.exitCode);
-		arg.columnIndexes.push_back(IDX_ACTION_LOGS_EXIT_CODE);
-	}
+	if (!(logArg.nullFlags & ACTLOG_FLAG_EXIT_CODE))
+		arg.add(IDX_ACTION_LOGS_EXIT_CODE, logArg.exitCode);
 
-	arg.row = row;
 	DBCLIENT_TRANSACTION_BEGIN() {
 		update(arg);
 	} DBCLIENT_TRANSACTION_END();
@@ -802,24 +761,15 @@ void DBClientAction::logEndExecAction(const LogEndExecActionArg &logArg)
 
 void DBClientAction::updateLogStatusToStart(uint64_t logId)
 {
-	VariableItemGroupPtr row;
-	DBAgentUpdateArg arg;
-	arg.tableName = TABLE_NAME_ACTION_LOGS;
-	arg.columnDefs = COLUMN_DEF_ACTION_LOGS;
+	DBAgent::UpdateArg arg(tableProfileActionLogs);
 
 	const char *actionLogIdColumnName = 
 	  COLUMN_DEF_ACTION_LOGS[IDX_ACTION_LOGS_ACTION_LOG_ID].columnName;
 	arg.condition = StringUtils::sprintf("%s=%"PRIu64,
 	                                     actionLogIdColumnName, logId);
-	// status
-	row->addNewItem(ACTLOG_STAT_STARTED);
-	arg.columnIndexes.push_back(IDX_ACTION_LOGS_STATUS);
+	arg.add(IDX_ACTION_LOGS_STATUS, ACTLOG_STAT_STARTED);
+	arg.add(IDX_ACTION_LOGS_START_TIME, CURR_DATETIME);
 
-	// start_time
-	row->addNewItem(CURR_DATETIME);
-	arg.columnIndexes.push_back(IDX_ACTION_LOGS_START_TIME);
-
-	arg.row = row;
 	DBCLIENT_TRANSACTION_BEGIN() {
 		update(arg);
 	} DBCLIENT_TRANSACTION_END();
@@ -875,19 +825,17 @@ string DBClientAction::makeActionDefCondition(const EventInfo &eventInfo)
 
 bool DBClientAction::getLog(ActionLog &actionLog, const string &condition)
 {
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_ACTION_LOGS;
-	const ColumnDef *def = COLUMN_DEF_ACTION_LOGS;
+	DBAgent::SelectExArg arg(tableProfileActionLogs);
 	arg.condition = condition;
-	arg.pushColumn(def[IDX_ACTION_LOGS_ACTION_LOG_ID]);
-	arg.pushColumn(def[IDX_ACTION_LOGS_ACTION_ID]);
-	arg.pushColumn(def[IDX_ACTION_LOGS_STATUS]); 
-	arg.pushColumn(def[IDX_ACTION_LOGS_STARTER_ID]);
-	arg.pushColumn(def[IDX_ACTION_LOGS_QUEUING_TIME]);
-	arg.pushColumn(def[IDX_ACTION_LOGS_START_TIME]);
-	arg.pushColumn(def[IDX_ACTION_LOGS_END_TIME]);
-	arg.pushColumn(def[IDX_ACTION_LOGS_EXEC_FAILURE_CODE]);
-	arg.pushColumn(def[IDX_ACTION_LOGS_EXIT_CODE]);
+	arg.add(IDX_ACTION_LOGS_ACTION_LOG_ID);
+	arg.add(IDX_ACTION_LOGS_ACTION_ID);
+	arg.add(IDX_ACTION_LOGS_STATUS); 
+	arg.add(IDX_ACTION_LOGS_STARTER_ID);
+	arg.add(IDX_ACTION_LOGS_QUEUING_TIME);
+	arg.add(IDX_ACTION_LOGS_START_TIME);
+	arg.add(IDX_ACTION_LOGS_END_TIME);
+	arg.add(IDX_ACTION_LOGS_EXEC_FAILURE_CODE);
+	arg.add(IDX_ACTION_LOGS_EXIT_CODE);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);

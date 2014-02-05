@@ -90,7 +90,13 @@ const ColumnDef COLUMN_DEF_TEST[] = {
 	NULL,                              // defaultValue
 }
 };
+// TODO: remove this and use the tableProfile
 const size_t NUM_COLUMNS_TEST = sizeof(COLUMN_DEF_TEST) / sizeof(ColumnDef);
+
+const DBAgent::TableProfile tableProfileTest(
+  TABLE_NAME_TEST, COLUMN_DEF_TEST,
+  sizeof(COLUMN_DEF_TEST), NUM_IDX_TEST_TABLE
+);
 
 const size_t NUM_TEST_DATA = 3;
 const uint64_t ID[NUM_TEST_DATA]   = {1, 2, 0xfedcba9876543210};
@@ -126,13 +132,17 @@ static const ColumnDef COLUMN_DEF_TEST_AUTO_INC[] = {
 	NULL,                              // defaultValue
 }
 };
-const size_t NUM_COLUMNS_TEST_AUTO_INC =
-   sizeof(COLUMN_DEF_TEST_AUTO_INC) / sizeof(ColumnDef);
 
 enum {
 	IDX_TEST_TABLE_AUTO_INC_ID,
 	IDX_TEST_TABLE_AUTO_INC_VAL,
+	NUM_IDX_TEST_TABLE_AUTO_INC,
 };
+
+const DBAgent::TableProfile tableProfileTestAutoInc(
+  TABLE_NAME_TEST_AUTO_INC, COLUMN_DEF_TEST_AUTO_INC,
+  sizeof(COLUMN_DEF_TEST_AUTO_INC), NUM_IDX_TEST_TABLE_AUTO_INC
+);
 
 static ItemDataNullFlagType calcNullFlag(set<size_t> *nullIndexes, size_t idx)
 {
@@ -147,18 +157,13 @@ static void checkInsert(DBAgent &dbAgent, DBAgentChecker &checker,
                         uint64_t id, int age, const char *name, double height,
                         set<size_t> *nullIndexes = NULL)
 {
-	DBAgentInsertArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	arg.numColumns = NUM_COLUMNS_TEST;
-	arg.columnDefs = COLUMN_DEF_TEST;
-	VariableItemGroupPtr row;
+	DBAgent::InsertArg arg(tableProfileTest);
 	size_t idx = 0;
-	row->addNewItem(id, calcNullFlag(nullIndexes, idx++));
-	row->addNewItem(age, calcNullFlag(nullIndexes, idx++));
-	row->addNewItem(name, calcNullFlag(nullIndexes, idx++));
-	row->addNewItem(height, calcNullFlag(nullIndexes, idx++));
-	row->addNewItem(CURR_DATETIME, calcNullFlag(nullIndexes, idx++));
-	arg.row = row;
+	arg.row->addNewItem(id, calcNullFlag(nullIndexes, idx++));
+	arg.row->addNewItem(age, calcNullFlag(nullIndexes, idx++));
+	arg.row->addNewItem(name, calcNullFlag(nullIndexes, idx++));
+	arg.row->addNewItem(height, calcNullFlag(nullIndexes, idx++));
+	arg.row->addNewItem(CURR_DATETIME, calcNullFlag(nullIndexes, idx++));
 	dbAgent.insert(arg);
 
 	checker.assertExistingRecord(id, age, name, height, CURR_DATETIME,
@@ -170,18 +175,13 @@ static void checkUpdate(DBAgent &dbAgent, DBAgentChecker &checker,
                         uint64_t id, int age, const char *name, double height,
                         const string &condition = "")
 {
-	DBAgentUpdateArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	for (size_t i = IDX_TEST_TABLE_ID; i < NUM_COLUMNS_TEST; i++)
-		arg.columnIndexes.push_back(i);
-	arg.columnDefs = COLUMN_DEF_TEST;
-	VariableItemGroupPtr row;
-	row->addNewItem(id);
-	row->addNewItem(age);
-	row->addNewItem(name);
-	row->addNewItem(height);
-	row->addNewItem(CURR_DATETIME);
-	arg.row = row;
+	DBAgent::UpdateArg arg(tableProfileTest);
+	int idx = IDX_TEST_TABLE_ID;
+	arg.add(idx++, id);
+	arg.add(idx++, age);
+	arg.add(idx++, name);
+	arg.add(idx++, height);
+	arg.add(idx++, CURR_DATETIME);
 	arg.condition = condition;
 	dbAgent.update(arg);
 
@@ -191,13 +191,8 @@ static void checkUpdate(DBAgent &dbAgent, DBAgentChecker &checker,
 
 void dbAgentTestCreateTable(DBAgent &dbAgent, DBAgentChecker &checker)
 {
-	DBAgentTableCreationArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	arg.numColumns = NUM_COLUMNS_TEST;
-	arg.columnDefs = COLUMN_DEF_TEST;
-	dbAgent.createTable(arg);
-
-	checker.assertTable(arg);
+	dbAgent.createTable(tableProfileTest);
+	checker.assertTable(tableProfileTest);
 }
 
 void dbAgentTestInsert(DBAgent &dbAgent, DBAgentChecker &checker)
@@ -291,9 +286,7 @@ void dbAgentTestSelect(DBAgent &dbAgent)
 	DBAgentChecker::makeTestData(dbAgent, testDataIdIndexMap);
 
 	// get records
-	DBAgentSelectArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	arg.columnDefs = COLUMN_DEF_TEST;
+	DBAgent::SelectArg arg(tableProfileTest);
 	arg.columnIndexes.push_back(IDX_TEST_TABLE_ID);
 	arg.columnIndexes.push_back(IDX_TEST_TABLE_AGE);
 	arg.columnIndexes.push_back(IDX_TEST_TABLE_NAME);
@@ -346,10 +339,8 @@ void dbAgentTestSelectEx(DBAgent &dbAgent)
 	DBAgentChecker::createTable(dbAgent);
 	DBAgentChecker::makeTestData(dbAgent);
 
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	arg.statements.push_back("count(*)");
-	arg.columnTypes.push_back(SQL_COLUMN_TYPE_TEXT);
+	DBAgent::SelectExArg arg(tableProfileTest);
+	arg.add("count(*)", SQL_COLUMN_TYPE_TEXT);
 	dbAgent.select(arg);
 
 	const ItemGroupList &itemList = arg.dataTable->getItemGroupList();
@@ -370,10 +361,8 @@ void dbAgentTestSelectExWithCond(DBAgent &dbAgent)
 	DBAgentChecker::createTable(dbAgent);
 	DBAgentChecker::makeTestData(dbAgent);
 
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	arg.statements.push_back(columnDefId.columnName);
-	arg.columnTypes.push_back(SQL_COLUMN_TYPE_BIGUINT);
+	DBAgent::SelectExArg arg(tableProfileTest);
+	arg.add(IDX_TEST_TABLE_ID);
 
 	arg.condition = StringUtils::sprintf
 	                  ("%s=%"PRIu64, columnDefId.columnName, ID[targetRow]);
@@ -398,13 +387,9 @@ void dbAgentTestSelectExWithCondAllColumns(DBAgent &dbAgent)
 	DBAgentChecker::createTable(dbAgent);
 	DBAgentChecker::makeTestData(dbAgent);
 
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	for (size_t i = 0; i < NUM_COLUMNS_TEST; i++) {
-		const ColumnDef &columnDef = COLUMN_DEF_TEST[i];
-		arg.statements.push_back(columnDef.columnName);
-		arg.columnTypes.push_back(columnDef.type);
-	}
+	DBAgent::SelectExArg arg(tableProfileTest);
+	for (size_t i = 0; i < NUM_COLUMNS_TEST; i++)
+		arg.add(i);
 
 	arg.condition = StringUtils::sprintf
 	                  ("%s=%"PRIu64, columnDefId.columnName, ID[targetRow]);
@@ -429,11 +414,9 @@ void dbAgentTestSelectHeightOrder
 	DBAgentChecker::createTable(dbAgent);
 	DBAgentChecker::makeTestData(dbAgent);
 
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_TEST;
+	DBAgent::SelectExArg arg(tableProfileTest);
 	const ColumnDef &columnDef = COLUMN_DEF_TEST[IDX_TEST_TABLE_HEIGHT];
-	arg.statements.push_back(columnDef.columnName);
-	arg.columnTypes.push_back(columnDef.type);
+	arg.add(IDX_TEST_TABLE_HEIGHT);
 	arg.orderBy = StringUtils::sprintf("%s DESC", columnDef.columnName);
 	arg.limit = limit;
 	arg.offset = offset;
@@ -488,8 +471,7 @@ void dbAgentTestDelete(DBAgent &dbAgent, DBAgentChecker &checker)
 	}
 
 	// delete
-	DBAgentDeleteArg arg;
-	arg.tableName = TABLE_NAME_TEST;
+	DBAgent::DeleteArg arg(tableProfileTest);
 	const int thresAge = 15;
 	const ColumnDef &columnDefAge = COLUMN_DEF_TEST[IDX_TEST_TABLE_AGE];
 	arg.condition = StringUtils::sprintf
@@ -522,34 +504,23 @@ void dbAgentTestIsTableExisting(DBAgent &dbAgent, DBAgentChecker &checker)
 
 static void createTestTableAutoInc(DBAgent &dbAgent, DBAgentChecker &checker)
 {
-	DBAgentTableCreationArg arg;
-	arg.tableName = TABLE_NAME_TEST_AUTO_INC;
-	arg.numColumns = NUM_COLUMNS_TEST_AUTO_INC;
-	arg.columnDefs = COLUMN_DEF_TEST_AUTO_INC;
-	dbAgent.createTable(arg);
-
-	checker.assertTable(arg);
+	dbAgent.createTable(tableProfileTestAutoInc);
+	checker.assertTable(tableProfileTestAutoInc);
 }
 
 static void insertRowToTestTableAutoInc(DBAgent &dbAgent,
                                         DBAgentChecker &checker, int val)
 {
-	DBAgentInsertArg arg;
-	arg.tableName = TABLE_NAME_TEST_AUTO_INC;
-	arg.numColumns = NUM_COLUMNS_TEST_AUTO_INC;
-	arg.columnDefs = COLUMN_DEF_TEST_AUTO_INC;
-	VariableItemGroupPtr row;
-	row->addNewItem(AUTO_INCREMENT_VALUE, ITEM_DATA_NULL);
-	row->addNewItem(val);
-	arg.row = row;
+	DBAgent::InsertArg arg(tableProfileTestAutoInc);
+	arg.row->addNewItem(AUTO_INCREMENT_VALUE, ITEM_DATA_NULL);
+	arg.row->addNewItem(val);
 	dbAgent.insert(arg);
 }
 
 static void deleteRowFromTestTableAutoInc(DBAgent &dbAgent,
                                           DBAgentChecker &checker, int id)
 {
-	DBAgentDeleteArg arg;
-	arg.tableName = TABLE_NAME_TEST_AUTO_INC;
+	DBAgent::DeleteArg arg(tableProfileTestAutoInc);
 	const ColumnDef &columnDefId =
 	   COLUMN_DEF_TEST_AUTO_INC[IDX_TEST_TABLE_AUTO_INC_ID];
 	arg.condition = StringUtils::sprintf
@@ -595,10 +566,8 @@ static bool dbAgentUpdateIfExistEleseInsertOneRecord(
 	row->addNewItem(name);
 	row->addNewItem(height);
 	row->addNewItem(time);
-	bool updated = dbAgent.updateIfExistElseInsert(
-	                 row, TABLE_NAME_TEST, NUM_COLUMNS_TEST,
-	                 COLUMN_DEF_TEST, targetIndex);
-
+	bool updated = dbAgent.updateIfExistElseInsert(row, tableProfileTest,
+	                                               targetIndex);
 	string expectedTimeStr;
 	if (time == CURR_DATETIME) {
 		expectedTimeStr = DBCONTENT_MAGIC_CURR_DATETIME;
@@ -675,8 +644,7 @@ void dbAgentGetNumberOfAffectedRows(DBAgent &dbAgent, DBAgentChecker &checker)
 	DBAgentChecker::createTable(dbAgent);
 	DBAgentChecker::makeTestData(dbAgent);
 
-	DBAgentDeleteArg arg;
-	arg.tableName = TABLE_NAME_TEST;
+	DBAgent::DeleteArg arg(tableProfileTest);
 	dbAgent.deleteRows(arg);
 	cppcut_assert_equal(static_cast<uint64_t>(NUM_TEST_DATA),
 			    dbAgent.getNumberOfAffectedRows());
@@ -687,28 +655,19 @@ void dbAgentGetNumberOfAffectedRows(DBAgent &dbAgent, DBAgentChecker &checker)
 // --------------------------------------------------------------------------
 void DBAgentChecker::createTable(DBAgent &dbAgent)
 {
-	DBAgentTableCreationArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	arg.numColumns = NUM_COLUMNS_TEST;
-	arg.columnDefs = COLUMN_DEF_TEST;
-	dbAgent.createTable(arg);
+	dbAgent.createTable(tableProfileTest);
 }
 
 void DBAgentChecker::insert
   (DBAgent &dbAgent, uint64_t id, int age, const char *name, double height,
    int time)
 {
-	DBAgentInsertArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	arg.numColumns = NUM_COLUMNS_TEST;
-	arg.columnDefs = COLUMN_DEF_TEST;
-	VariableItemGroupPtr row;
-	row->addNewItem(id);
-	row->addNewItem(age);
-	row->addNewItem(name);
-	row->addNewItem(height);
-	row->addNewItem(time);
-	arg.row = row;
+	DBAgent::InsertArg arg(tableProfileTest);
+	arg.row->addNewItem(id);
+	arg.row->addNewItem(age);
+	arg.row->addNewItem(name);
+	arg.row->addNewItem(height);
+	arg.row->addNewItem(time);
 	dbAgent.insert(arg);
 }
 

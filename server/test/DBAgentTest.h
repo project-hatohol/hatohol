@@ -24,6 +24,7 @@
 #include "SQLProcessorTypes.h"
 #include "DBAgent.h"
 
+// TODO: Replace these with tableProfileTest
 extern const char *TABLE_NAME_TEST;
 extern const ColumnDef COLUMN_DEF_TEST[];
 extern const size_t NUM_COLUMNS_TEST;
@@ -34,7 +35,11 @@ enum {
 	IDX_TEST_TABLE_NAME,
 	IDX_TEST_TABLE_HEIGHT,
 	IDX_TEST_TABLE_TIME,
+	NUM_IDX_TEST_TABLE,
 };
+
+extern const DBAgent::TableProfile tableProfileTest;
+extern const DBAgent::TableProfile tableProfileTestAutoInc;
 
 extern const size_t NUM_TEST_DATA;
 extern const uint64_t ID[];
@@ -47,7 +52,7 @@ extern const int MAX_ALLOWD_CURR_TIME_ERROR;
 
 class DBAgentChecker {
 public:
-	virtual void assertTable(const DBAgentTableCreationArg &arg) = 0;
+	virtual void assertTable(const DBAgent::TableProfile &tableProfile) = 0;
 	virtual void assertExistingRecord(
 	               uint64_t id, int age, const char *name, double height,
 	               int datetime, size_t numColumns,

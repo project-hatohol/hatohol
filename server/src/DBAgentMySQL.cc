@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -235,21 +235,21 @@ static string getColumnDefinitionQuery(const ColumnDef &columnDef)
 	return query;
 }
 
-void DBAgentMySQL::createTable(DBAgentTableCreationArg &tableCreationArg)
+void DBAgentMySQL::createTable(const TableProfile &tableProfile)
 {
 	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
 	string query = StringUtils::sprintf("CREATE TABLE %s (",
-	                                    tableCreationArg.tableName.c_str());
+	                                    tableProfile.name);
 	
-	for (size_t i = 0; i < tableCreationArg.numColumns; i++) {
-		const ColumnDef &columnDef = tableCreationArg.columnDefs[i];
+	for (size_t i = 0; i < tableProfile.numColumns; i++) {
+		const ColumnDef &columnDef = tableProfile.columnDefs[i];
 		query += getColumnDefinitionQuery(columnDef);
 
 		// auto increment
 		if (columnDef.flags & SQL_COLUMN_FLAG_AUTO_INC)
 			query += " AUTO_INCREMENT";
 
-		if (i < tableCreationArg.numColumns -1)
+		if (i < tableProfile.numColumns -1)
 			query += ",";
 	}
 	query += ")";
@@ -259,27 +259,30 @@ void DBAgentMySQL::createTable(DBAgentTableCreationArg &tableCreationArg)
 	execSql(query);
 }
 
-void DBAgentMySQL::insert(DBAgentInsertArg &insertArg)
+void DBAgentMySQL::insert(const DBAgent::InsertArg &insertArg)
 {
+	const size_t numColumns = insertArg.tableProfile.numColumns;
 	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
-	HATOHOL_ASSERT(insertArg.numColumns == insertArg.row->getNumberOfItems(),
-	             "numColumn: %zd != row: %zd",
-	             insertArg.numColumns, insertArg.row->getNumberOfItems());
+	HATOHOL_ASSERT(numColumns == insertArg.row->getNumberOfItems(),
+	               "numColumn: %zd != row: %zd",
+	               numColumns, insertArg.row->getNumberOfItems());
 
 	string query = StringUtils::sprintf("INSERT INTO %s (",
-	                                    insertArg.tableName.c_str());
-	for (size_t i = 0; i < insertArg.numColumns; i++) {
-		const ColumnDef &columnDef = insertArg.columnDefs[i];
+	                                    insertArg.tableProfile.name);
+	for (size_t i = 0; i < numColumns; i++) {
+		const ColumnDef &columnDef =
+		  insertArg.tableProfile.columnDefs[i];
 		query += columnDef.columnName;
-		if (i < insertArg.numColumns -1)
+		if (i < numColumns -1)
 			query += ",";
 	}
 	query += ") VALUES (";
-	for (size_t i = 0; i < insertArg.numColumns; i++) {
+	for (size_t i = 0; i < numColumns; i++) {
 		if (i > 0)
 			query += ",";
 
-		const ColumnDef &columnDef = insertArg.columnDefs[i];
+		const ColumnDef &columnDef =
+		  insertArg.tableProfile.columnDefs[i];
 		const ItemData *itemData = insertArg.row->getItemAt(i);
 		if (itemData->isNull()) {
 			query += "NULL";
@@ -320,14 +323,15 @@ void DBAgentMySQL::insert(DBAgentInsertArg &insertArg)
 	execSql(query);
 }
 
-void DBAgentMySQL::update(DBAgentUpdateArg &updateArg)
+
+void DBAgentMySQL::update(const UpdateArg &updateArg)
 {
 	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
 	string sql = makeUpdateStatement(updateArg);
 	execSql(sql);
 }
 
-void DBAgentMySQL::select(DBAgentSelectArg &selectArg)
+void DBAgentMySQL::select(const DBAgent::SelectArg &selectArg)
 {
 	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
 
@@ -347,7 +351,8 @@ void DBAgentMySQL::select(DBAgentSelectArg &selectArg)
 		VariableItemGroupPtr itemGroup;
 		for (size_t i = 0; i < numColumns; i++) {
 			size_t idx = selectArg.columnIndexes[i];
-			const ColumnDef &columnDef = selectArg.columnDefs[idx];
+			const ColumnDef &columnDef =
+			  selectArg.tableProfile.columnDefs[idx];
 			ItemDataPtr itemDataPtr =
 			  SQLUtils::createFromString(row[i], columnDef.type);
 			itemGroup->add(itemDataPtr);
@@ -358,7 +363,7 @@ void DBAgentMySQL::select(DBAgentSelectArg &selectArg)
 	selectArg.dataTable = dataTable;
 }
 
-void DBAgentMySQL::select(DBAgentSelectExArg &selectExArg)
+void DBAgentMySQL::select(const SelectExArg &selectExArg)
 {
 	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
 
@@ -397,7 +402,7 @@ void DBAgentMySQL::select(DBAgentSelectExArg &selectExArg)
 	             numTableRows, numTableColumns, numColumns);
 }
 
-void DBAgentMySQL::deleteRows(DBAgentDeleteArg &deleteArg)
+void DBAgentMySQL::deleteRows(const DeleteArg &deleteArg)
 {
 	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
 	string query = makeDeleteStatement(deleteArg);
@@ -432,14 +437,15 @@ uint64_t DBAgentMySQL::getNumberOfAffectedRows(void)
 	return num;
 }
 
-void DBAgentMySQL::addColumns(DBAgentAddColumnsArg &addColumnsArg)
+void DBAgentMySQL::addColumns(const AddColumnsArg &addColumnsArg)
 {
 	string query = "ALTER TABLE ";
-	query += addColumnsArg.tableName;
-	vector<size_t>::iterator it = addColumnsArg.columnIndexes.begin();
+	query += addColumnsArg.tableProfile.name;
+	vector<size_t>::const_iterator it = addColumnsArg.columnIndexes.begin();
 	for (; it != addColumnsArg.columnIndexes.end(); ++it) {
-		size_t index = *it;
-		const ColumnDef &columnDef = addColumnsArg.columnDefs[index];
+		const size_t index = *it;
+		const ColumnDef &columnDef =
+		  addColumnsArg.tableProfile.columnDefs[index];
 		query += " ADD COLUMN ";
 		query += getColumnDefinitionQuery(columnDef);
 		if (index < addColumnsArg.columnIndexes.size() - 1)
