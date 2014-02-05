@@ -1297,6 +1297,18 @@ void test_addServer(void)
 	assertDBContent(dbConfig.getDBAgent(), statement, expectedOutput);
 }
 
+void test_addServerWithoutNickname(void)
+{
+	MonitoringServerInfo serverInfo = testServerInfo[0];
+	StringMap params;
+	serverInfo2StringMap(serverInfo, params);
+	params.erase("nickname");
+	assertAddServerWithSetup(params, HTERR_NOT_FOUND_PARAMETER);
+
+	ServerIdSet serverIdSet;
+	assertServersInDB(serverIdSet);
+}
+
 void test_updateServer(void)
 {
 	int targetId = 2;
