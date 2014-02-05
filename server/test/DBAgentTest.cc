@@ -132,13 +132,17 @@ static const ColumnDef COLUMN_DEF_TEST_AUTO_INC[] = {
 	NULL,                              // defaultValue
 }
 };
-const size_t NUM_COLUMNS_TEST_AUTO_INC =
-   sizeof(COLUMN_DEF_TEST_AUTO_INC) / sizeof(ColumnDef);
 
 enum {
 	IDX_TEST_TABLE_AUTO_INC_ID,
 	IDX_TEST_TABLE_AUTO_INC_VAL,
+	NUM_IDX_TEST_TABLE_AUTO_INC,
 };
+
+static DBAgent::TableProfile tableProfileTestAutoInc(
+  TABLE_NAME_TEST_AUTO_INC, COLUMN_DEF_TEST_AUTO_INC,
+  sizeof(COLUMN_DEF_TEST_AUTO_INC), NUM_IDX_TEST_TABLE_AUTO_INC
+);
 
 static ItemDataNullFlagType calcNullFlag(set<size_t> *nullIndexes, size_t idx)
 {
@@ -153,18 +157,13 @@ static void checkInsert(DBAgent &dbAgent, DBAgentChecker &checker,
                         uint64_t id, int age, const char *name, double height,
                         set<size_t> *nullIndexes = NULL)
 {
-	DBAgentInsertArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	arg.numColumns = NUM_COLUMNS_TEST;
-	arg.columnDefs = COLUMN_DEF_TEST;
-	VariableItemGroupPtr row;
+	DBAgent::InsertArg arg(tableProfileTestAutoInc);
 	size_t idx = 0;
-	row->addNewItem(id, calcNullFlag(nullIndexes, idx++));
-	row->addNewItem(age, calcNullFlag(nullIndexes, idx++));
-	row->addNewItem(name, calcNullFlag(nullIndexes, idx++));
-	row->addNewItem(height, calcNullFlag(nullIndexes, idx++));
-	row->addNewItem(CURR_DATETIME, calcNullFlag(nullIndexes, idx++));
-	arg.row = row;
+	arg.row->addNewItem(id, calcNullFlag(nullIndexes, idx++));
+	arg.row->addNewItem(age, calcNullFlag(nullIndexes, idx++));
+	arg.row->addNewItem(name, calcNullFlag(nullIndexes, idx++));
+	arg.row->addNewItem(height, calcNullFlag(nullIndexes, idx++));
+	arg.row->addNewItem(CURR_DATETIME, calcNullFlag(nullIndexes, idx++));
 	dbAgent.insert(arg);
 
 	checker.assertExistingRecord(id, age, name, height, CURR_DATETIME,
@@ -525,7 +524,7 @@ static void createTestTableAutoInc(DBAgent &dbAgent, DBAgentChecker &checker)
 {
 	DBAgentTableCreationArg arg;
 	arg.tableName = TABLE_NAME_TEST_AUTO_INC;
-	arg.numColumns = NUM_COLUMNS_TEST_AUTO_INC;
+	arg.numColumns = tableProfileTestAutoInc.numColumns;
 	arg.columnDefs = COLUMN_DEF_TEST_AUTO_INC;
 	dbAgent.createTable(arg);
 
@@ -535,14 +534,9 @@ static void createTestTableAutoInc(DBAgent &dbAgent, DBAgentChecker &checker)
 static void insertRowToTestTableAutoInc(DBAgent &dbAgent,
                                         DBAgentChecker &checker, int val)
 {
-	DBAgentInsertArg arg;
-	arg.tableName = TABLE_NAME_TEST_AUTO_INC;
-	arg.numColumns = NUM_COLUMNS_TEST_AUTO_INC;
-	arg.columnDefs = COLUMN_DEF_TEST_AUTO_INC;
-	VariableItemGroupPtr row;
-	row->addNewItem(AUTO_INCREMENT_VALUE, ITEM_DATA_NULL);
-	row->addNewItem(val);
-	arg.row = row;
+	DBAgent::InsertArg arg(tableProfileTestAutoInc);
+	arg.row->addNewItem(AUTO_INCREMENT_VALUE, ITEM_DATA_NULL);
+	arg.row->addNewItem(val);
 	dbAgent.insert(arg);
 }
 
@@ -697,17 +691,12 @@ void DBAgentChecker::insert
   (DBAgent &dbAgent, uint64_t id, int age, const char *name, double height,
    int time)
 {
-	DBAgentInsertArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	arg.numColumns = NUM_COLUMNS_TEST;
-	arg.columnDefs = COLUMN_DEF_TEST;
-	VariableItemGroupPtr row;
-	row->addNewItem(id);
-	row->addNewItem(age);
-	row->addNewItem(name);
-	row->addNewItem(height);
-	row->addNewItem(time);
-	arg.row = row;
+	DBAgent::InsertArg arg(tableProfileTest);
+	arg.row->addNewItem(id);
+	arg.row->addNewItem(age);
+	arg.row->addNewItem(name);
+	arg.row->addNewItem(height);
+	arg.row->addNewItem(time);
 	dbAgent.insert(arg);
 }
 
