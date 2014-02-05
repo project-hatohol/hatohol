@@ -2524,8 +2524,10 @@ HatoholError FaceRest::parseUserParameter(UserInfo &userInfo, GHashTable *query,
 	// flags
 	HatoholError err = getParam<OperationPrivilegeFlag>(
 		query, "flags", "%"FMT_OPPRVLG, userInfo.flags);
-	if (err != HTERR_OK && !forUpdate)
-		return err;
+	if (err != HTERR_OK) {
+		if (!forUpdate || err != HTERR_NOT_FOUND_PARAMETER)
+			return err;
+	}
 	return HatoholError(HTERR_OK);
 }
 

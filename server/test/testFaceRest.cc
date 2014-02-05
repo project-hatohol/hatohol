@@ -1768,6 +1768,41 @@ void test_updateUser(void)
 	assertDBContent(dbUser.getDBAgent(), statement, expect);
 }
 
+void test_updateUserWithoutFlags(void)
+{
+	const UserIdType targetId = 1;
+	OperationPrivilegeFlag flags = testUserInfo[targetId - 1].flags;
+	const string user = "y@r@n@i0";
+	const string password = "=(-.-)zzZZ";
+
+	StringMap params;
+	params["user"] = user;
+	params["password"] = password;
+	assertUpdateUserWithSetup(params, targetId, HTERR_OK);
+
+	// check the content in the DB
+	DBClientUser dbUser;
+	string statement = StringUtils::sprintf(
+	                     "select * from %s where id=%d",
+	                     DBClientUser::TABLE_NAME_USERS, targetId);
+	string expect = StringUtils::sprintf("%d|%s|%s|%"FMT_OPPRVLG,
+	  targetId, user.c_str(), Utils::sha256(password).c_str(), flags);
+	assertDBContent(dbUser.getDBAgent(), statement, expect);
+}
+
+void test_updateUserWithInvalidFlags(void)
+{
+	const UserIdType targetId = 1;
+	const string user = "y@r@n@i0";
+	const string password = "=(-.-)zzZZ";
+
+	StringMap params;
+	params["user"] = user;
+	params["password"] = password;
+	params["flags"] = "no-number";
+	assertUpdateUserWithSetup(params, targetId, HTERR_INVALID_PARAMETER);
+}
+
 void test_updateUserWithoutPassword(void)
 {
 	const UserIdType targetId = 1;
