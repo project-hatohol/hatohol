@@ -622,10 +622,9 @@ UserIdType DBClientUser::getUserId(const string &user, const string &password)
 	if (isValidPassword(password) != HTERR_OK)
 		return INVALID_USER_ID;
 
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_USERS;
-	arg.pushColumn(COLUMN_DEF_USERS[IDX_USERS_ID]);
-	arg.pushColumn(COLUMN_DEF_USERS[IDX_USERS_PASSWORD]);
+	DBAgent::SelectExArg arg(tableProfileUsers);
+	arg.add(IDX_USERS_ID);
+	arg.add(IDX_USERS_PASSWORD);
 	arg.condition = StringUtils::sprintf("%s='%s'",
 	  COLUMN_DEF_USERS[IDX_USERS_NAME].columnName, user.c_str());
 	DBCLIENT_TRANSACTION_BEGIN() {
@@ -656,13 +655,12 @@ HatoholError DBClientUser::addAccessInfo(AccessInfo &accessInfo,
 		return HatoholError(HTERR_NO_PRIVILEGE);
 
 	// check existing data
-	DBAgentSelectExArg selectArg;
-	selectArg.tableName = TABLE_NAME_ACCESS_LIST;
-	selectArg.pushColumn(COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_ID]);
-	selectArg.pushColumn(COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID]);
-	selectArg.pushColumn(COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_SERVER_ID]);
-	selectArg.pushColumn(COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_HOST_GROUP_ID]);
-	selectArg.condition = StringUtils::sprintf(
+	DBAgent::SelectExArg selarg(tableProfileAccessList);
+	selarg.add(IDX_ACCESS_LIST_ID);
+	selarg.add(IDX_ACCESS_LIST_USER_ID);
+	selarg.add(IDX_ACCESS_LIST_SERVER_ID);
+	selarg.add(IDX_ACCESS_LIST_HOST_GROUP_ID);
+	selarg.condition = StringUtils::sprintf(
 	  "%s=%"FMT_USER_ID" AND %s=%"PRIu32" AND %s=%"PRIu64,
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID].columnName,
 	  accessInfo.userId,
@@ -671,10 +669,10 @@ HatoholError DBClientUser::addAccessInfo(AccessInfo &accessInfo,
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_HOST_GROUP_ID].columnName,
 	  accessInfo.hostGroupId);
 	DBCLIENT_TRANSACTION_BEGIN() {
-		select(selectArg);
+		select(selarg);
 	} DBCLIENT_TRANSACTION_END();
 
-	const ItemGroupList &grpList = selectArg.dataTable->getItemGroupList();
+	const ItemGroupList &grpList = selarg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator it = grpList.begin();
 	if (it != grpList.end()) {
 		const ItemGroup *itemGroup = *it;
@@ -735,12 +733,11 @@ void DBClientUser::getUserInfoList(UserInfoList &userInfoList,
 HatoholError DBClientUser::getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
 					    const AccessInfoQueryOption &option)
 {
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_ACCESS_LIST;
-	arg.pushColumn(COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_ID]);
-	arg.pushColumn(COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID]);
-	arg.pushColumn(COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_SERVER_ID]);
-	arg.pushColumn(COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_HOST_GROUP_ID]);
+	DBAgent::SelectExArg arg(tableProfileAccessList);
+	arg.add(IDX_ACCESS_LIST_ID);
+	arg.add(IDX_ACCESS_LIST_USER_ID);
+	arg.add(IDX_ACCESS_LIST_SERVER_ID);
+	arg.add(IDX_ACCESS_LIST_HOST_GROUP_ID);
 	arg.condition = option.getCondition();
 
 	if (isAlwaysFalseCondition(arg.condition))
@@ -806,10 +803,9 @@ void DBClientUser::destroyServerAccessInfoMap(ServerAccessInfoMap &srvAccessInfo
 void DBClientUser::getServerHostGrpSetMap(
   ServerHostGrpSetMap &srvHostGrpSetMap, const UserIdType &userId)
 {
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_ACCESS_LIST;
-	arg.pushColumn(COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_SERVER_ID]);
-	arg.pushColumn(COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_HOST_GROUP_ID]);
+	DBAgent::SelectExArg arg(tableProfileAccessList);
+	arg.add(IDX_ACCESS_LIST_SERVER_ID);
+	arg.add(IDX_ACCESS_LIST_HOST_GROUP_ID);
 	arg.condition = StringUtils::sprintf("%s=%"FMT_USER_ID"",
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID].columnName, userId);
 	DBCLIENT_TRANSACTION_BEGIN() {
@@ -945,11 +941,10 @@ HatoholError DBClientUser::deleteUserRoleInfo(
 void DBClientUser::getUserRoleInfoList(UserRoleInfoList &userRoleInfoList,
 				       const UserRoleQueryOption &option)
 {
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_USER_ROLES;
-	arg.pushColumn(COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_ID]);
-	arg.pushColumn(COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_NAME]);
-	arg.pushColumn(COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_FLAGS]);
+	DBAgent::SelectExArg arg(tableProfileUserRoles);
+	arg.add(IDX_USER_ROLES_ID);
+	arg.add(IDX_USER_ROLES_NAME);
+	arg.add(IDX_USER_ROLES_FLAGS);
 	arg.condition = option.getCondition();
 
 	DBCLIENT_TRANSACTION_BEGIN() {
@@ -1030,10 +1025,8 @@ bool DBClientUser::isAccessible(const ServerIdType &serverId,
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_HOST_GROUP_ID].columnName,
 	  ALL_HOST_GROUPS);
 
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_ACCESS_LIST;
-	arg.statements.push_back("count(*)");
-	arg.columnTypes.push_back(SQL_COLUMN_TYPE_INT);
+	DBAgent::SelectExArg arg(tableProfileAccessList);
+	arg.add("count(*)", SQL_COLUMN_TYPE_INT);
 	arg.condition = condition;
 
 	if (useTransaction) {
@@ -1060,12 +1053,11 @@ void DBClientUser::getUserInfoList(UserInfoList &userInfoList,
 	if (isAlwaysFalseCondition(condition))
 		return;
 
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_USERS;
-	arg.pushColumn(COLUMN_DEF_USERS[IDX_USERS_ID]);
-	arg.pushColumn(COLUMN_DEF_USERS[IDX_USERS_NAME]);
-	arg.pushColumn(COLUMN_DEF_USERS[IDX_USERS_PASSWORD]);
-	arg.pushColumn(COLUMN_DEF_USERS[IDX_USERS_FLAGS]);
+	DBAgent::SelectExArg arg(tableProfileUsers);
+	arg.add(IDX_USERS_ID);
+	arg.add(IDX_USERS_NAME);
+	arg.add(IDX_USERS_PASSWORD);
+	arg.add(IDX_USERS_FLAGS);
 	arg.condition = condition;
 
 	DBCLIENT_TRANSACTION_BEGIN() {
