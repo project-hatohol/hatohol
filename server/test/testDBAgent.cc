@@ -164,6 +164,7 @@ public:
 		SelectMultiTableArg arg(profiles, numTables);
 		cppcut_assert_equal(profiles, arg.profileExArray);
 		cppcut_assert_equal(numTables, arg.numTables);
+		cppcut_assert_equal(profiles, arg.currProfile);
 	}
 
 	void assertCreateDeleteArg(void)

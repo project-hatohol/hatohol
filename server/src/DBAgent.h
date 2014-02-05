@@ -142,6 +142,7 @@ public:
 	struct SelectMultiTableArg : public SelectExArg {
 		const TableProfileEx *profileExArray;
 		const size_t          numTables;
+		const TableProfileEx *currProfile;
 
 		SelectMultiTableArg(const TableProfileEx *profileExArray,
 		                    const size_t &numTables);

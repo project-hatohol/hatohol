@@ -237,9 +237,10 @@ void DBAgent::SelectExArg::add(
 // ---------------------------------------------------------------------------
 DBAgent::SelectMultiTableArg::SelectMultiTableArg(
   const TableProfileEx *_profileExArray, const size_t &_numTables)
-: SelectExArg(*_profileExArray[0].profile), // just to pass the build
+: SelectExArg(*_profileExArray[0].profile),
   profileExArray(_profileExArray),
-  numTables(_numTables)
+  numTables(_numTables),
+  currProfile(_profileExArray) // point the first element
 {
 }
 
