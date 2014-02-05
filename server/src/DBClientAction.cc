@@ -344,13 +344,9 @@ static DBAgent::TableProfile tableProfileActionLogs(
 
 static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
 {
-	TABLE_NAME_ACTIONS,
-	tableProfileActions.numColumns,
-	COLUMN_DEF_ACTIONS,
+	&tableProfileActions,
 }, {
-	TABLE_NAME_ACTION_LOGS,
-	tableProfileActionLogs.numColumns,
-	COLUMN_DEF_ACTION_LOGS,
+	&tableProfileActionLogs,
 }
 };
 static const size_t NUM_TABLE_INFO =

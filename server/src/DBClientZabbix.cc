@@ -1593,37 +1593,21 @@ DBClientZabbix *DBClientZabbix::create(const ServerIdType zabbixServerId)
 {
 	static const DBSetupTableInfo DB_TABLE_INFO[] = {
 	{
-		TABLE_NAME_TRIGGERS_RAW_2_0,
-		tableProfileTriggersRaw_2_0.numColumns,
-		COLUMN_DEF_TRIGGERS_RAW_2_0,
+		&tableProfileTriggersRaw_2_0,
 	}, {
-		TABLE_NAME_FUNCTIONS_RAW_2_0,
-		tableProfileFunctionsRaw_2_0.numColumns,
-		COLUMN_DEF_FUNCTIONS_RAW_2_0,
+		&tableProfileFunctionsRaw_2_0,
 	}, {
-		TABLE_NAME_ITEMS_RAW_2_0,
-		tableProfileItemsRaw_2_0.numColumns,
-		COLUMN_DEF_ITEMS_RAW_2_0,
+		&tableProfileItemsRaw_2_0,
 	}, {
-		TABLE_NAME_HOSTS_RAW_2_0,
-		tableProfileHostsRaw_2_0.numColumns,
-		COLUMN_DEF_HOSTS_RAW_2_0,
+		&tableProfileHostsRaw_2_0,
 	}, {
-		TABLE_NAME_EVENTS_RAW_2_0,
-		tableProfileEventsRaw_2_0.numColumns,
-		COLUMN_DEF_EVENTS_RAW_2_0,
+		&tableProfileEventsRaw_2_0,
 	}, {
-		TABLE_NAME_APPLICATIONS_RAW_2_0,
-		tableProfileApplicationsRaw_2_0.numColumns,
-		COLUMN_DEF_APPLICATIONS_RAW_2_0,
+		&tableProfileApplicationsRaw_2_0,
 	}, {
-		TABLE_NAME_GROUPS_RAW_2_0,
-		tableProfileGroupsRaw_2_0.numColumns,
-		COLUMN_DEF_GROUPS_RAW_2_0,
+		&tableProfileGroupsRaw_2_0,
 	}, {
-		TABLE_NAME_HOSTS_GROUPS_RAW_2_0,
-		tableProfileHostsGroupsRaw_2_0.numColumns,
-		COLUMN_DEF_HOSTS_GROUPS_RAW_2_0,
+		&tableProfileHostsGroupsRaw_2_0,
 	}
 	};
 	static const size_t NUM_TABLE_INFO =

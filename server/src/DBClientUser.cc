@@ -435,17 +435,11 @@ void DBClientUser::init(void)
 {
 	static const DBSetupTableInfo DB_TABLE_INFO[] = {
 	{
-		TABLE_NAME_USERS,
-		tableProfileUsers.numColumns,
-		COLUMN_DEF_USERS,
+		&tableProfileUsers,
 	}, {
-		TABLE_NAME_ACCESS_LIST,
-		tableProfileAccessList.numColumns,
-		COLUMN_DEF_ACCESS_LIST,
+		&tableProfileAccessList,
 	}, {
-		TABLE_NAME_USER_ROLES,
-		tableProfileUserRoles.numColumns,
-		COLUMN_DEF_USER_ROLES,
+		&tableProfileUserRoles,
 	},
 	};
 	static const size_t NUM_TABLE_INFO =

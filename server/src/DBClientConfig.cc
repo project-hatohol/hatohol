@@ -404,14 +404,10 @@ void DBClientConfig::init(const CommandLineArg &cmdArg)
 	//
 	static const DBSetupTableInfo DB_TABLE_INFO[] = {
 	{
-		TABLE_NAME_SYSTEM,
-		tableProfileSystem.numColumns,
-		COLUMN_DEF_SYSTEM,
+		&tableProfileSystem,
 		tableInitializerSystem,
 	}, {
-		TABLE_NAME_SERVERS,
-		tableProfileServers.numColumns,
-		COLUMN_DEF_SERVERS,
+		&tableProfileServers,
 	}
 	};
 	static const size_t NUM_TABLE_INFO =

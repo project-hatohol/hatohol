@@ -363,14 +363,9 @@ void DBClient::dbSetupFunc(DBDomainId domainId, void *data)
 	for (size_t i = 0; i < setupFuncArg->numTableInfo; i++) {
 		const DBSetupTableInfo &tableInfo
 		  = setupFuncArg->tableInfoArray[i];
-		if (rawDBAgent->isTableExisting(tableInfo.name))
+		if (rawDBAgent->isTableExisting(tableInfo.profile->name))
 			continue;
-		// TODO: Use tableInfo.profile when it is added
-		DBAgent::TableProfile
-		  tableProfile(tableInfo.name, tableInfo.columnDefs,
-		               tableInfo.numColumns * sizeof(ColumnDef),
-		               tableInfo.numColumns);
-		createTable(rawDBAgent.get(), tableProfile);
+		createTable(rawDBAgent.get(), *tableInfo.profile);
 		if (!tableInfo.initializer)
 			continue;
 		(*tableInfo.initializer)(rawDBAgent.get(),

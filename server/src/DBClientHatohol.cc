@@ -632,29 +632,17 @@ static DBAgent::TableProfile tableProfileMapHostsHostgroups(
 
 static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
 {
-	TABLE_NAME_TRIGGERS,
-	tableProfileTriggers.numColumns,
-	COLUMN_DEF_TRIGGERS,
+	&tableProfileTriggers,
 }, {
-	TABLE_NAME_EVENTS,
-	tableProfileEvents.numColumns,
-	COLUMN_DEF_EVENTS,
+	&tableProfileEvents,
 }, {
-	TABLE_NAME_ITEMS,
-	tableProfileItems.numColumns,
-	COLUMN_DEF_ITEMS,
+	&tableProfileItems,
 }, {
-	TABLE_NAME_HOSTS,
-	tableProfileHosts.numColumns,
-	COLUMN_DEF_HOSTS,
+	&tableProfileHosts,
 }, {
-	TABLE_NAME_HOSTGROUPS,
-	tableProfileHostgroups.numColumns,
-	COLUMN_DEF_HOSTGROUPS,
+	&tableProfileHostgroups,
 }, {
-	TABLE_NAME_MAP_HOSTS_HOSTGROUPS,
-	tableProfileMapHostsHostgroups.numColumns,
-	COLUMN_DEF_MAP_HOSTS_HOSTGROUPS,
+	&tableProfileMapHostsHostgroups,
 }
 };
 
