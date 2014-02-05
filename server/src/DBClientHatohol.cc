@@ -1103,7 +1103,7 @@ void DBClientHatohol::getHostInfoList(HostInfoList &hostInfoList,
 void DBClientHatohol::addTriggerInfo(TriggerInfo *triggerInfo)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
-		addTriggerInfoBare(*triggerInfo);
+		addTriggerInfoWithoutTransaction(*triggerInfo);
 	} DBCLIENT_TRANSACTION_END();
 }
 
@@ -1112,7 +1112,7 @@ void DBClientHatohol::addTriggerInfoList(const TriggerInfoList &triggerInfoList)
 	TriggerInfoListConstIterator it = triggerInfoList.begin();
 	DBCLIENT_TRANSACTION_BEGIN() {
 		for (; it != triggerInfoList.end(); ++it)
-			addTriggerInfoBare(*it);
+			addTriggerInfoWithoutTransaction(*it);
 	} DBCLIENT_TRANSACTION_END();
 }
 
@@ -1179,7 +1179,7 @@ void DBClientHatohol::setTriggerInfoList(const TriggerInfoList &triggerInfoList,
 	DBCLIENT_TRANSACTION_BEGIN() {
 		deleteRows(deleteArg);
 		for (; it != triggerInfoList.end(); ++it)
-			addTriggerInfoBare(*it);
+			addTriggerInfoWithoutTransaction(*it);
 	} DBCLIENT_TRANSACTION_END();
 }
 
@@ -1218,7 +1218,7 @@ int DBClientHatohol::getLastChangeTimeOfTrigger(const ServerIdType &serverId)
 void DBClientHatohol::addEventInfo(EventInfo *eventInfo)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
-		addEventInfoBare(*eventInfo);
+		addEventInfoWithoutTransaction(*eventInfo);
 	} DBCLIENT_TRANSACTION_END();
 }
 
@@ -1227,7 +1227,7 @@ void DBClientHatohol::addEventInfoList(const EventInfoList &eventInfoList)
 	EventInfoListConstIterator it = eventInfoList.begin();
 	DBCLIENT_TRANSACTION_BEGIN() {
 		for (; it != eventInfoList.end(); ++it)
-			addEventInfoBare(*it);
+			addEventInfoWithoutTransaction(*it);
 	} DBCLIENT_TRANSACTION_END();
 }
 
@@ -1378,14 +1378,14 @@ void DBClientHatohol::setEventInfoList(const EventInfoList &eventInfoList,
 	DBCLIENT_TRANSACTION_BEGIN() {
 		deleteRows(deleteArg);
 		for (; it != eventInfoList.end(); ++it)
-			addEventInfoBare(*it);
+			addEventInfoWithoutTransaction(*it);
 	} DBCLIENT_TRANSACTION_END();
 }
 
 void DBClientHatohol::addHostgroupInfo(HostgroupInfo *groupInfo)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
-		addHostgroupInfoBare(*groupInfo);
+		addHostgroupInfoWithoutTransaction(*groupInfo);
 	} DBCLIENT_TRANSACTION_END();
 }
 
@@ -1394,7 +1394,7 @@ void DBClientHatohol::addHostgroupInfoList(const HostgroupInfoList &groupInfoLis
 	HostgroupInfoListConstIterator it = groupInfoList.begin();
 	DBCLIENT_TRANSACTION_BEGIN() {
 		for (; it != groupInfoList.end(); ++it)
-			addHostgroupInfoBare(*it);
+			addHostgroupInfoWithoutTransaction(*it);
 	} DBCLIENT_TRANSACTION_END();
 }
 
@@ -1402,7 +1402,7 @@ void DBClientHatohol::addHostgroupElement
   (HostgroupElement *hostgroupElement)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
-		addHostgroupElementBare(*hostgroupElement);
+		addHostgroupElementWithoutTransaction(*hostgroupElement);
 	} DBCLIENT_TRANSACTION_END();
 }
 
@@ -1412,14 +1412,14 @@ void DBClientHatohol::addHostgroupElementList
 	HostgroupElementListConstIterator it = hostgroupElementList.begin();
 	DBCLIENT_TRANSACTION_BEGIN() {
 		for (; it != hostgroupElementList.end(); ++it)
-			addHostgroupElementBare(*it);
+			addHostgroupElementWithoutTransaction(*it);
 	} DBCLIENT_TRANSACTION_END();
 }
 
 void DBClientHatohol::addHostInfo(HostInfo *hostInfo)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
-		addHostInfoBare(*hostInfo);
+		addHostInfoWithoutTransaction(*hostInfo);
 	} DBCLIENT_TRANSACTION_END();
 }
 
@@ -1428,7 +1428,7 @@ void DBClientHatohol::addHostInfoList(const HostInfoList &hostInfoList)
 	HostInfoListConstIterator it = hostInfoList.begin();
 	DBCLIENT_TRANSACTION_BEGIN() {
 		for(; it != hostInfoList.end(); ++it)
-			addHostInfoBare(*it);
+			addHostInfoWithoutTransaction(*it);
 	} DBCLIENT_TRANSACTION_END();
 }
 
@@ -1459,7 +1459,7 @@ uint64_t DBClientHatohol::getLastEventId(const ServerIdType &serverId)
 void DBClientHatohol::addItemInfo(ItemInfo *itemInfo)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
-		addItemInfoBare(*itemInfo);
+		addItemInfoWithoutTransaction(*itemInfo);
 	} DBCLIENT_TRANSACTION_END();
 }
 
@@ -1468,7 +1468,7 @@ void DBClientHatohol::addItemInfoList(const ItemInfoList &itemInfoList)
 	ItemInfoListConstIterator it = itemInfoList.begin();
 	DBCLIENT_TRANSACTION_BEGIN() {
 		for (; it != itemInfoList.end(); ++it)
-			addItemInfoBare(*it);
+			addItemInfoWithoutTransaction(*it);
 	} DBCLIENT_TRANSACTION_END();
 }
 
@@ -1651,7 +1651,8 @@ void DBClientHatohol::pickupAbsentHostIds(vector<uint64_t> &absentHostIdVector,
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void DBClientHatohol::addTriggerInfoBare(const TriggerInfo &triggerInfo)
+void DBClientHatohol::addTriggerInfoWithoutTransaction(
+  const TriggerInfo &triggerInfo)
 {
 	string condition = StringUtils::sprintf(
 	  "server_id=%"FMT_SERVER_ID" and id=%"PRIu64,
@@ -1690,7 +1691,7 @@ void DBClientHatohol::addTriggerInfoBare(const TriggerInfo &triggerInfo)
 	}
 }
 
-void DBClientHatohol::addEventInfoBare(const EventInfo &eventInfo)
+void DBClientHatohol::addEventInfoWithoutTransaction(const EventInfo &eventInfo)
 {
 	string condition = StringUtils::sprintf(
 	  "server_id=%"FMT_SERVER_ID" and id=%"PRIu64,
@@ -1732,7 +1733,7 @@ void DBClientHatohol::addEventInfoBare(const EventInfo &eventInfo)
 	}
 }
 
-void DBClientHatohol::addItemInfoBare(const ItemInfo &itemInfo)
+void DBClientHatohol::addItemInfoWithoutTransaction(const ItemInfo &itemInfo)
 {
 	string condition = StringUtils::sprintf(
 	  "server_id=%"FMT_SERVER_ID" and id=%"PRIu64,
@@ -1772,7 +1773,8 @@ void DBClientHatohol::addItemInfoBare(const ItemInfo &itemInfo)
 	}
 }
 
-void DBClientHatohol::addHostgroupInfoBare(const HostgroupInfo &groupInfo)
+void DBClientHatohol::addHostgroupInfoWithoutTransaction(
+  const HostgroupInfo &groupInfo)
 {
 	string condition = StringUtils::sprintf("server_id=%"FMT_SERVER_ID" and host_group_id=%"FMT_HOST_GROUP_ID,
 	                                        groupInfo.serverId, groupInfo.groupId);
@@ -1798,7 +1800,8 @@ void DBClientHatohol::addHostgroupInfoBare(const HostgroupInfo &groupInfo)
 	}
 }
 
-void DBClientHatohol::addHostgroupElementBare(const HostgroupElement &hostgroupElement)
+void DBClientHatohol::addHostgroupElementWithoutTransaction(
+  const HostgroupElement &hostgroupElement)
 {
 	string condition = StringUtils::sprintf("server_id=%"FMT_SERVER_ID" "
 	                                        "and host_id=%"FMT_HOST_ID" "
@@ -1822,7 +1825,7 @@ void DBClientHatohol::addHostgroupElementBare(const HostgroupElement &hostgroupE
 	}
 }
 
-void DBClientHatohol::addHostInfoBare(const HostInfo &hostInfo)
+void DBClientHatohol::addHostInfoWithoutTransaction(const HostInfo &hostInfo)
 {
 	string condition = StringUtils::sprintf("server_id=%"FMT_SERVER_ID" "
 	                                        "and host_id=%"FMT_HOST_ID,
