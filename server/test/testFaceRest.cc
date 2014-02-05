@@ -1255,7 +1255,8 @@ void test_serversJsonp(void)
 	assertServers("/server", "foo");
 }
 
-void serverInfo2StringMap(const MonitoringServerInfo &src, StringMap &dest)
+static void serverInfo2StringMap(
+  const MonitoringServerInfo &src, StringMap &dest)
 {
 	dest["type"] = StringUtils::toString(src.type);
 	dest["hostName"] = src.hostName;
