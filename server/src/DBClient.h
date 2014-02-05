@@ -139,6 +139,7 @@ protected:
 	void select(DBAgentSelectArg &selectArg);
 	void select(DBAgentSelectExArg &selectExArg);
 	void deleteRows(DBAgentDeleteArg &deleteArg);
+	void deleteRows(const DBAgent::DeleteArg &deleteArg);
 	void addColumns(DBAgentAddColumnsArg &addColumnsArg);
 	bool isRecordExisting(const std::string &tableName,
 	                      const std::string &condition);
