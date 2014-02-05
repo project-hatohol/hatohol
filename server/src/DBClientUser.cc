@@ -239,15 +239,8 @@ static void updateAdminPrivilege(DBAgent *dbAgent,
 {
 	static const OperationPrivilegeFlag oldAdminFlags =
 		OperationPrivilege::makeFlag(old_NUM_OPPRVLG) - 1;
-	DBAgentUpdateArg arg;
-	arg.tableName = TABLE_NAME_USERS;
-	arg.columnDefs = COLUMN_DEF_USERS;
-
-	VariableItemGroupPtr row;
-	row->addNewItem(ALL_PRIVILEGES);
-	arg.columnIndexes.push_back(IDX_USERS_FLAGS);
-	arg.row = row;
-
+	DBAgent::UpdateArg arg(tableProfileUsers);
+	arg.add(IDX_USERS_FLAGS, ALL_PRIVILEGES);
 	arg.condition = StringUtils::sprintf(
 	  "%s=%"FMT_OPPRVLG,
 	  COLUMN_DEF_USERS[IDX_USERS_FLAGS].columnName, oldAdminFlags);
