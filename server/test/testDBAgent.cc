@@ -100,6 +100,7 @@ public:
 		cppcut_assert_equal(true, arg.orderBy.empty());
 		cppcut_assert_equal((size_t)0, arg.limit);
 		cppcut_assert_equal((size_t)0, arg.offset);
+		cppcut_assert_equal(true, arg.tableField.empty());
 		cppcut_assert_equal((size_t)0,
 		                    arg.dataTable->getNumberOfRows());
 	}

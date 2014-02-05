@@ -124,6 +124,7 @@ public:
 		std::string                orderBy;
 		size_t                     limit;
 		size_t                     offset;
+		std::string                tableField;
 		// output
 		mutable ItemTablePtr        dataTable;
 

@@ -406,7 +406,10 @@ string DBAgent::makeSelectStatement(const SelectExArg &selectExArg)
 			sql += ",";
 	}
 	sql += " FROM ";
-	sql += selectExArg.tableProfile->name;
+	if (!selectExArg.tableField.empty())
+		sql += selectExArg.tableField;
+	else
+		sql += selectExArg.tableProfile->name;
 	if (!selectExArg.condition.empty()) {
 		sql += " WHERE ";
 		sql += selectExArg.condition;
