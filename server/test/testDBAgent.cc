@@ -154,6 +154,18 @@ public:
 		cppcut_assert_equal(SQL_COLUMN_TYPE_DOUBLE, arg.columnTypes[1]);
 	}
 
+	void assertCreateSelectMultiTableArg(void)
+	{
+		TableProfileEx profiles[] = {
+		  {&tableProfileTest, "t"}, {&tableProfileTestAutoInc, "inc"}
+		};
+		const size_t numTables =
+		  sizeof(profiles) / sizeof(TableProfileEx);
+		SelectMultiTableArg arg(profiles, numTables);
+		cppcut_assert_equal(profiles, arg.tableProfiles);
+		cppcut_assert_equal(numTables, arg.numTables);
+	}
+
 	void assertCreateDeleteArg(void)
 	{
 		TableProfile tblProf("name", m_testColumnDefs,
@@ -281,6 +293,12 @@ void test_selectExArgAddDirectStatement(void)
 {
 	TestDBAgent dbAgent;
 	dbAgent.assertSelectExArgAddDirectStatement();
+}
+
+void test_createSelectMultiTableArg(void)
+{
+	TestDBAgent dbAgent;
+	dbAgent.assertCreateSelectMultiTableArg();
 }
 
 void test_createDeleteArg(void)

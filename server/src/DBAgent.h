@@ -134,6 +134,19 @@ public:
 		         const SQLColumnType &columnType);
 	};
 
+	struct TableProfileEx {
+		const TableProfile *profile;
+		const char         *varName;
+	};
+
+	struct SelectMultiTableArg : public SelectExArg {
+		const TableProfileEx *tableProfiles;
+		const size_t          numTables;
+
+		SelectMultiTableArg(const TableProfileEx *tableProfiles,
+		                    const size_t &numTables);
+	};
+
 	struct DeleteArg {
 		const TableProfile &tableProfile;
 		std::string         condition;

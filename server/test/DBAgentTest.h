@@ -39,6 +39,7 @@ enum {
 };
 
 extern const DBAgent::TableProfile tableProfileTest;
+extern const DBAgent::TableProfile tableProfileTestAutoInc;
 
 extern const size_t NUM_TEST_DATA;
 extern const uint64_t ID[];

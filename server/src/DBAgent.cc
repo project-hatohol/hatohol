@@ -233,6 +233,17 @@ void DBAgent::SelectExArg::add(
 }
 
 // ---------------------------------------------------------------------------
+// DBAgent::SelectMultiTableArg
+// ---------------------------------------------------------------------------
+DBAgent::SelectMultiTableArg::SelectMultiTableArg(
+  const TableProfileEx *_tableProfiles, const size_t &_numTables)
+: SelectExArg(*_tableProfiles[0].profile), // just to pass the build
+  tableProfiles(_tableProfiles),
+  numTables(_numTables)
+{
+}
+
+// ---------------------------------------------------------------------------
 // DBAgent::DeleteArg
 // ---------------------------------------------------------------------------
 DBAgent::DeleteArg::DeleteArg(const TableProfile &profile)

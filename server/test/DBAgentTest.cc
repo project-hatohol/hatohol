@@ -139,7 +139,7 @@ enum {
 	NUM_IDX_TEST_TABLE_AUTO_INC,
 };
 
-static DBAgent::TableProfile tableProfileTestAutoInc(
+const DBAgent::TableProfile tableProfileTestAutoInc(
   TABLE_NAME_TEST_AUTO_INC, COLUMN_DEF_TEST_AUTO_INC,
   sizeof(COLUMN_DEF_TEST_AUTO_INC), NUM_IDX_TEST_TABLE_AUTO_INC
 );
