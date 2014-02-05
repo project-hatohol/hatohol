@@ -417,11 +417,6 @@ void DBClient::select(DBAgentSelectExArg &selectExArg)
 	getDBAgent()->select(selectExArg);
 }
 
-void DBClient::deleteRows(DBAgentDeleteArg &deleteArg)
-{
-	getDBAgent()->deleteRows(deleteArg);
-}
-
 void DBClient::deleteRows(const DBAgent::DeleteArg &deleteArg)
 {
 	getDBAgent()->deleteRows(deleteArg);

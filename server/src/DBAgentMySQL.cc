@@ -401,13 +401,6 @@ void DBAgentMySQL::select(DBAgentSelectExArg &selectExArg)
 	             numTableRows, numTableColumns, numColumns);
 }
 
-void DBAgentMySQL::deleteRows(DBAgentDeleteArg &deleteArg)
-{
-	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
-	string query = makeDeleteStatement(deleteArg);
-	execSql(query);
-}
-
 void DBAgentMySQL::deleteRows(const DeleteArg &deleteArg)
 {
 	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");

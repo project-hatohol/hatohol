@@ -265,12 +265,6 @@ void DBAgentSQLite3::select(DBAgentSelectExArg &selectExArg)
 	select(m_ctx->db, selectExArg);
 }
 
-void DBAgentSQLite3::deleteRows(DBAgentDeleteArg &deleteArg)
-{
-	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
-	deleteRows(m_ctx->db, deleteArg);
-}
-
 void DBAgentSQLite3::deleteRows(const DeleteArg &deleteArg)
 {
 	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
@@ -640,12 +634,6 @@ void DBAgentSQLite3::select(sqlite3 *db, DBAgentSelectExArg &selectExArg)
 	             "Sanity check error: numTableRows: %zd, numTableColumns: "
 	             "%zd, numColumns: %zd",
 	             numTableRows, numTableColumns, numColumns);
-}
-
-void DBAgentSQLite3::deleteRows(sqlite3 *db, DBAgentDeleteArg &deleteArg)
-{
-	string sql = makeDeleteStatement(deleteArg);
-	_execSql(db, sql.c_str());
 }
 
 void DBAgentSQLite3::deleteRows(sqlite3 *db, const DeleteArg &deleteArg)
