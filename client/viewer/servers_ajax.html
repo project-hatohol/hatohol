@@ -47,6 +47,7 @@
         <th>{% trans "IP Address" %}</th>
         <th>{% trans "Nickname" %}</th>
         <th>{% trans "Maps" %}</th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
@@ -187,6 +188,17 @@
         } else {
           s += "<td></td>";
         }
+
+        s += "<td>"
+
+        if (hasFlag(userProfile.user, hatohol.OPPRVLG_CREATE_SERVER) ||
+            hasFlag(userProfile.user, hatohol.OPPRVLG_CREATE_ALL_SERVER))
+        {
+          s += "<input type='button' serverId='" + o["id"] + "'";
+          s += "  value='{% trans "Edit" %}' />";
+        }
+
+        s += "</td>";
         s += "</tr>";
       }
 
