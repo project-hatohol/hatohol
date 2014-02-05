@@ -703,8 +703,7 @@ HatoholError DBClientUser::deleteAccessInfo(const AccessInfoIdType id,
 	if (!privilege.has(OPPRVLG_UPDATE_USER))
 		return HatoholError(HTERR_NO_PRIVILEGE);
 
-	DBAgentDeleteArg arg;
-	arg.tableName = TABLE_NAME_ACCESS_LIST;
+	DBAgent::DeleteArg arg(tableProfileAccessList);
 	const ColumnDef &colId = COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_ID];
 	arg.condition = StringUtils::sprintf("%s=%"FMT_ACCESS_INFO_ID,
 	                                     colId.columnName, id);
@@ -934,8 +933,7 @@ HatoholError DBClientUser::deleteUserRoleInfo(
 	if (!privilege.has(OPPRVLG_DELETE_ALL_USER_ROLE))
 		return HTERR_NO_PRIVILEGE;
 
-	DBAgentDeleteArg arg;
-	arg.tableName = TABLE_NAME_USER_ROLES;
+	DBAgent::DeleteArg arg(tableProfileUserRoles);
 	const ColumnDef &colId = COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_ID];
 	arg.condition = StringUtils::sprintf("%s=%"FMT_USER_ROLE_ID,
 	                                     colId.columnName, userRoleId);
