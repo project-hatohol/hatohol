@@ -92,9 +92,7 @@ protected:
 	static ItemDataPtr getValue(sqlite3_stmt *stmt, size_t index,
 	                            SQLColumnType columnType);
 	// TODO: Use TableProfile
-	static void createIndex(sqlite3 *db,
-	                        const std::string &tableName,
-	                        const ColumnDef *columnDefs,
+	static void createIndex(sqlite3 *db, const TableProfile &tableProfile,
 	                        const std::string &indexName,
 	                        const std::vector<size_t> &targetIndexes,
 	                        bool isUniqueKey);

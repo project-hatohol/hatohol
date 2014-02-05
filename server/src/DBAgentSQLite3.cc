@@ -479,8 +479,7 @@ void DBAgentSQLite3::createTable(sqlite3 *db, const TableProfile &tableProfile)
 		bool isUniqueKey = false;
 		string indexName = StringUtils::sprintf("mul_index_%s",
 		                                        tableProfile.name);
-		createIndex(db, tableProfile.name,
-		            tableProfile.columnDefs, indexName,
+		createIndex(db, tableProfile, indexName,
 		            multipleKeyColumnIndexVector, isUniqueKey);
 	}
 
@@ -488,8 +487,7 @@ void DBAgentSQLite3::createTable(sqlite3 *db, const TableProfile &tableProfile)
 		bool isUniqueKey = true;
 		string indexName = StringUtils::sprintf("uni_index_%s",
 		                                        tableProfile.name);
-		createIndex(db, tableProfile.name,
-		            tableProfile.columnDefs, indexName,
+		createIndex(db, tableProfile, indexName,
 		            uniqueKeyColumnIndexVector, isUniqueKey);
 	}
 }
@@ -716,8 +714,7 @@ ItemDataPtr DBAgentSQLite3::getValue(sqlite3_stmt *stmt,
 	return ItemDataPtr(itemData, false);
 }
 
-void DBAgentSQLite3::createIndex(sqlite3 *db, const string &tableName, 
-                                 const ColumnDef *columnDefs,
+void DBAgentSQLite3::createIndex(sqlite3 *db, const TableProfile &tableProfile,
                                  const string &indexName,
                                  const vector<size_t> &targetIndexes,
                                  bool isUniqueKey)
@@ -731,10 +728,10 @@ void DBAgentSQLite3::createIndex(sqlite3 *db, const string &tableName,
 	sql += "INDEX ";
 	sql += indexName;
 	sql += " ON ";
-	sql += tableName;
+	sql += tableProfile.name;
 	sql += "(";
 	for (size_t i = 0; i < targetIndexes.size(); i++) {
-		const ColumnDef &columnDef = columnDefs[i];
+		const ColumnDef &columnDef = tableProfile.columnDefs[i];
 		sql += columnDef.columnName;
 		if (i < targetIndexes.size() - 1)
 			sql += ",";
