@@ -158,9 +158,6 @@ static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 }
 };
 
-static const size_t NUM_COLUMNS_TRIGGERS =
-  sizeof(COLUMN_DEF_TRIGGERS) / sizeof(ColumnDef);
-
 enum {
 	IDX_TRIGGERS_SERVER_ID,
 	IDX_TRIGGERS_ID,
@@ -173,6 +170,10 @@ enum {
 	IDX_TRIGGERS_BRIEF,
 	NUM_IDX_TRIGGERS,
 };
+
+static DBAgent::TableProfile tableProfileTriggers(
+  TABLE_NAME_TRIGGERS, COLUMN_DEF_TRIGGERS,
+  sizeof(COLUMN_DEF_TRIGGERS), NUM_IDX_TRIGGERS);
 
 static const ColumnDef COLUMN_DEF_EVENTS[] = {
 {
@@ -310,9 +311,6 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 },
 };
 
-static const size_t NUM_COLUMNS_EVENTS =
-  sizeof(COLUMN_DEF_EVENTS) / sizeof(ColumnDef);
-
 enum {
 	IDX_EVENTS_UNIFIED_ID,
 	IDX_EVENTS_SERVER_ID,
@@ -328,6 +326,10 @@ enum {
 	IDX_EVENTS_BRIEF,
 	NUM_IDX_EVENTS,
 };
+
+static DBAgent::TableProfile tableProfileEvents(
+  TABLE_NAME_EVENTS, COLUMN_DEF_EVENTS,
+  sizeof(COLUMN_DEF_EVENTS), NUM_IDX_EVENTS);
 
 static const ColumnDef COLUMN_DEF_ITEMS[] = {
 {
@@ -432,9 +434,6 @@ static const ColumnDef COLUMN_DEF_ITEMS[] = {
 },
 };
 
-static const size_t NUM_COLUMNS_ITEMS =
-  sizeof(COLUMN_DEF_ITEMS) / sizeof(ColumnDef);
-
 enum {
 	IDX_ITEMS_SERVER_ID,
 	IDX_ITEMS_ID,
@@ -447,6 +446,10 @@ enum {
 	IDX_ITEMS_ITEM_GROUP_NAME,
 	NUM_IDX_ITEMS,
 };
+
+static DBAgent::TableProfile tableProfileItems(
+  TABLE_NAME_ITEMS, COLUMN_DEF_ITEMS,
+  sizeof(COLUMN_DEF_ITEMS), NUM_IDX_ITEMS);
 
 static const ColumnDef COLUMN_DEF_HOSTS[] = {
 {
@@ -495,10 +498,6 @@ static const ColumnDef COLUMN_DEF_HOSTS[] = {
 	NULL,                              // defaultValue
 },
 };
-
-static const size_t NUM_COLUMNS_HOSTS =
-  sizeof(COLUMN_DEF_HOSTS) / sizeof(ColumnDef);
-
 enum {
 	IDX_HOSTS_SERVER_ID,
 	IDX_HOSTS_ID,
@@ -506,6 +505,10 @@ enum {
 	IDX_HOSTS_HOST_NAME,
 	NUM_IDX_HOSTS,
 };
+
+static DBAgent::TableProfile tableProfileHosts(
+  TABLE_NAME_HOSTS, COLUMN_DEF_HOSTS,
+  sizeof(COLUMN_DEF_HOSTS), NUM_IDX_HOSTS);
 
 static const ColumnDef COLUMN_DEF_HOSTGROUPS[] = {
 {
@@ -555,9 +558,6 @@ static const ColumnDef COLUMN_DEF_HOSTGROUPS[] = {
 },
 };
 
-static const size_t NUM_COLUMNS_HOSTGROUPS =
-  sizeof(COLUMN_DEF_HOSTGROUPS) / sizeof(ColumnDef);
-
 enum {
 	IDX_HOSTGROUPS_ID,
 	IDX_HOSTGROUPS_SERVER_ID,
@@ -565,6 +565,10 @@ enum {
 	IDX_HOSTGROUPS_GROUP_NAME,
 	NUM_IDX_HOSTGROUPS,
 };
+
+static DBAgent::TableProfile tableProfileHostgroups(
+  TABLE_NAME_HOSTGROUPS, COLUMN_DEF_HOSTGROUPS,
+  sizeof(COLUMN_DEF_HOSTGROUPS), NUM_IDX_HOSTGROUPS);
 
 static const ColumnDef COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[] = {
 {
@@ -614,9 +618,6 @@ static const ColumnDef COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[] = {
 },
 };
 
-static const size_t NUM_COLUMNS_MAP_HOSTS_HOSTGROUPS =
-  sizeof(COLUMN_DEF_MAP_HOSTS_HOSTGROUPS) / sizeof(ColumnDef);
-
 enum {
 	IDX_MAP_HOSTS_HOSTGROUPS_ID,
 	IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID,
@@ -625,30 +626,34 @@ enum {
 	NUM_IDX_MAP_HOSTS_HOSTGROUPS,
 };
 
+static DBAgent::TableProfile tableProfileMapHostsHostgroups(
+  TABLE_NAME_MAP_HOSTS_HOSTGROUPS, COLUMN_DEF_MAP_HOSTS_HOSTGROUPS,
+  sizeof(COLUMN_DEF_MAP_HOSTS_HOSTGROUPS), NUM_IDX_MAP_HOSTS_HOSTGROUPS);
+
 static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
 {
 	TABLE_NAME_TRIGGERS,
-	NUM_COLUMNS_TRIGGERS,
+	tableProfileTriggers.numColumns,
 	COLUMN_DEF_TRIGGERS,
 }, {
 	TABLE_NAME_EVENTS,
-	NUM_COLUMNS_EVENTS,
+	tableProfileEvents.numColumns,
 	COLUMN_DEF_EVENTS,
 }, {
 	TABLE_NAME_ITEMS,
-	NUM_COLUMNS_ITEMS,
+	tableProfileItems.numColumns,
 	COLUMN_DEF_ITEMS,
 }, {
 	TABLE_NAME_HOSTS,
-	NUM_COLUMNS_HOSTS,
+	tableProfileHosts.numColumns,
 	COLUMN_DEF_HOSTS,
 }, {
 	TABLE_NAME_HOSTGROUPS,
-	NUM_COLUMNS_HOSTGROUPS,
+	tableProfileHostgroups.numColumns,
 	COLUMN_DEF_HOSTGROUPS,
 }, {
 	TABLE_NAME_MAP_HOSTS_HOSTGROUPS,
-	NUM_COLUMNS_MAP_HOSTS_HOSTGROUPS,
+	tableProfileMapHostsHostgroups.numColumns,
 	COLUMN_DEF_MAP_HOSTS_HOSTGROUPS,
 }
 };
@@ -1030,30 +1035,6 @@ HostgroupElementQueryOption::HostgroupElementQueryOption(UserIdType userId)
 // ---------------------------------------------------------------------------
 void DBClientHatohol::init(void)
 {
-	HATOHOL_ASSERT(NUM_COLUMNS_TRIGGERS == NUM_IDX_TRIGGERS,
-	  "NUM_COLUMNS_TRIGGERS: %zd, NUM_IDX_TRIGGERS: %d",
-	  NUM_COLUMNS_TRIGGERS, NUM_IDX_TRIGGERS);
-
-	HATOHOL_ASSERT(NUM_COLUMNS_EVENTS == NUM_IDX_EVENTS,
-	  "NUM_COLUMNS_EVENTS: %zd, NUM_IDX_EVENTS: %d",
-	  NUM_COLUMNS_EVENTS, NUM_IDX_EVENTS);
-
-	HATOHOL_ASSERT(NUM_COLUMNS_ITEMS == NUM_IDX_ITEMS,
-	  "NUM_COLUMNS_ITEMS: %zd, NUM_IDX_ITEMS: %d",
-	  NUM_COLUMNS_ITEMS, NUM_IDX_ITEMS);
-
-	HATOHOL_ASSERT(NUM_COLUMNS_HOSTS == NUM_IDX_HOSTS,
-	  "NUM_COLUMNS_HOSTS: %zd, NUM_IDX_ITEMS: %d",
-	  NUM_COLUMNS_HOSTS, NUM_IDX_HOSTS);
-
-	HATOHOL_ASSERT(NUM_COLUMNS_HOSTGROUPS == NUM_IDX_HOSTGROUPS,
-	  "NUM_COLUMN_GROUPS: %zd, NUM_IDX_ITEMS: %d",
-	  NUM_COLUMNS_HOSTGROUPS, NUM_IDX_HOSTGROUPS);
-
-	HATOHOL_ASSERT(NUM_COLUMNS_MAP_HOSTS_HOSTGROUPS == NUM_IDX_MAP_HOSTS_HOSTGROUPS,
-	  "NUM_COLUMN_HOSTSGROUPS: %zd, NUM_IDX_MAP_HOSTS_HOSTGROUPS: %d",
-	  NUM_COLUMNS_MAP_HOSTS_HOSTGROUPS, NUM_IDX_MAP_HOSTS_HOSTGROUPS);
-
 	registerSetupInfo(
 	  DB_DOMAIN_ID_HATOHOL, DEFAULT_DB_NAME, &DB_SETUP_FUNC_ARG);
 }
@@ -1679,7 +1660,7 @@ void DBClientHatohol::addTriggerInfoBare(const TriggerInfo &triggerInfo)
 	if (!isRecordExisting(TABLE_NAME_TRIGGERS, condition)) {
 		DBAgentInsertArg arg;
 		arg.tableName = TABLE_NAME_TRIGGERS;
-		arg.numColumns = NUM_COLUMNS_TRIGGERS;
+		arg.numColumns = tableProfileTriggers.numColumns;
 		arg.columnDefs = COLUMN_DEF_TRIGGERS;
 		row->addNewItem(triggerInfo.serverId);
 		row->addNewItem(triggerInfo.id);
@@ -1693,36 +1674,17 @@ void DBClientHatohol::addTriggerInfoBare(const TriggerInfo &triggerInfo)
 		arg.row = row;
 		insert(arg);
 	} else {
-		DBAgentUpdateArg arg;
-		arg.tableName = TABLE_NAME_TRIGGERS;
-		arg.columnDefs = COLUMN_DEF_TRIGGERS;
-
-		row->addNewItem(triggerInfo.serverId);
-		arg.columnIndexes.push_back(IDX_TRIGGERS_SERVER_ID);
-
-		row->addNewItem(triggerInfo.status);
-		arg.columnIndexes.push_back(IDX_TRIGGERS_STATUS);
-
-		row->addNewItem(triggerInfo.severity);
-		arg.columnIndexes.push_back(IDX_TRIGGERS_SEVERITY);
-
-		row->addNewItem(triggerInfo.lastChangeTime.tv_sec); 
-		arg.columnIndexes.push_back
-		  (IDX_TRIGGERS_LAST_CHANGE_TIME_SEC);
-
-		row->addNewItem(triggerInfo.lastChangeTime.tv_nsec); 
-		arg.columnIndexes.push_back
-		  (IDX_TRIGGERS_LAST_CHANGE_TIME_NS);
-
-		row->addNewItem(triggerInfo.hostId);
-		arg.columnIndexes.push_back(IDX_TRIGGERS_HOST_ID);
-
-		row->addNewItem(triggerInfo.hostName);
-		arg.columnIndexes.push_back(IDX_TRIGGERS_HOSTNAME);
-
-		row->addNewItem(triggerInfo.brief);
-		arg.columnIndexes.push_back(IDX_TRIGGERS_BRIEF);
-		arg.row = row;
+		DBAgent::UpdateArg arg(tableProfileTriggers);
+		arg.add(IDX_TRIGGERS_SERVER_ID, triggerInfo.serverId);
+		arg.add(IDX_TRIGGERS_STATUS,    triggerInfo.status);
+		arg.add(IDX_TRIGGERS_SEVERITY,  triggerInfo.severity);
+		arg.add(IDX_TRIGGERS_LAST_CHANGE_TIME_SEC,
+		        triggerInfo.lastChangeTime.tv_sec);
+		arg.add(IDX_TRIGGERS_LAST_CHANGE_TIME_NS,
+		        triggerInfo.lastChangeTime.tv_nsec);
+		arg.add(IDX_TRIGGERS_HOST_ID,   triggerInfo.hostId);
+		arg.add(IDX_TRIGGERS_HOSTNAME,  triggerInfo.hostName);
+		arg.add(IDX_TRIGGERS_BRIEF,     triggerInfo.brief);
 		arg.condition = condition;
 		update(arg);
 	}
@@ -1737,7 +1699,7 @@ void DBClientHatohol::addEventInfoBare(const EventInfo &eventInfo)
 	if (!isRecordExisting(TABLE_NAME_EVENTS, condition)) {
 		DBAgentInsertArg arg;
 		arg.tableName = TABLE_NAME_EVENTS;
-		arg.numColumns = NUM_COLUMNS_EVENTS;
+		arg.numColumns = tableProfileEvents.numColumns;
 		arg.columnDefs = COLUMN_DEF_EVENTS;
 		row->addNewItem(AUTO_INCREMENT_VALUE_U64);
 		row->addNewItem(eventInfo.serverId);
@@ -1754,41 +1716,17 @@ void DBClientHatohol::addEventInfoBare(const EventInfo &eventInfo)
 		arg.row = row;
 		insert(arg);
 	} else {
-		DBAgentUpdateArg arg;
-		arg.tableName = TABLE_NAME_EVENTS;
-		arg.columnDefs = COLUMN_DEF_EVENTS;
-
-		row->addNewItem(eventInfo.serverId);
-		arg.columnIndexes.push_back(IDX_EVENTS_SERVER_ID);
-
-		row->addNewItem(eventInfo.time.tv_sec); 
-		arg.columnIndexes.push_back(IDX_EVENTS_TIME_SEC);
-
-		row->addNewItem(eventInfo.time.tv_nsec); 
-		arg.columnIndexes.push_back(IDX_EVENTS_TIME_NS);
-
-		row->addNewItem(eventInfo.type);
-		arg.columnIndexes.push_back(IDX_EVENTS_EVENT_TYPE);
-
-		row->addNewItem(eventInfo.triggerId);
-		arg.columnIndexes.push_back(IDX_EVENTS_TRIGGER_ID);
-
-		row->addNewItem(eventInfo.status);
-		arg.columnIndexes.push_back(IDX_EVENTS_STATUS);
-
-		row->addNewItem(eventInfo.severity);
-		arg.columnIndexes.push_back(IDX_EVENTS_SEVERITY);
-
-		row->addNewItem(eventInfo.hostId);
-		arg.columnIndexes.push_back(IDX_EVENTS_HOST_ID);
-
-		row->addNewItem(eventInfo.hostName);
-		arg.columnIndexes.push_back(IDX_EVENTS_HOST_NAME);
-
-		row->addNewItem(eventInfo.brief);
-		arg.columnIndexes.push_back(IDX_EVENTS_BRIEF);
-
-		arg.row = row;
+		DBAgent::UpdateArg arg(tableProfileEvents);
+		arg.add(IDX_EVENTS_SERVER_ID,  eventInfo.serverId);
+		arg.add(IDX_EVENTS_TIME_SEC,   eventInfo.time.tv_sec);
+		arg.add(IDX_EVENTS_TIME_NS,    eventInfo.time.tv_nsec);
+		arg.add(IDX_EVENTS_EVENT_TYPE, eventInfo.type);
+		arg.add(IDX_EVENTS_TRIGGER_ID, eventInfo.triggerId);
+		arg.add(IDX_EVENTS_STATUS,     eventInfo.status);
+		arg.add(IDX_EVENTS_SEVERITY,   eventInfo.severity);
+		arg.add(IDX_EVENTS_HOST_ID,    eventInfo.hostId);
+		arg.add(IDX_EVENTS_HOST_NAME,  eventInfo.hostName);
+		arg.add(IDX_EVENTS_BRIEF,      eventInfo.brief);
 		arg.condition = condition;
 		update(arg);
 	}
@@ -1803,7 +1741,7 @@ void DBClientHatohol::addItemInfoBare(const ItemInfo &itemInfo)
 	if (!isRecordExisting(TABLE_NAME_ITEMS, condition)) {
 		DBAgentInsertArg arg;
 		arg.tableName = TABLE_NAME_ITEMS;
-		arg.numColumns = NUM_COLUMNS_ITEMS;
+		arg.numColumns = tableProfileItems.numColumns;
 		arg.columnDefs = COLUMN_DEF_ITEMS;
 		row->addNewItem(itemInfo.serverId);
 		row->addNewItem(itemInfo.id);
@@ -1817,38 +1755,18 @@ void DBClientHatohol::addItemInfoBare(const ItemInfo &itemInfo)
 		arg.row = row;
 		insert(arg);
 	} else {
-		DBAgentUpdateArg arg;
-		arg.tableName = TABLE_NAME_ITEMS;
-		arg.columnDefs = COLUMN_DEF_ITEMS;
-
-		row->addNewItem(itemInfo.serverId);
-		arg.columnIndexes.push_back(IDX_ITEMS_SERVER_ID);
-
-		row->addNewItem(itemInfo.id);
-		arg.columnIndexes.push_back(IDX_ITEMS_ID);
-
-		row->addNewItem(itemInfo.hostId);
-		arg.columnIndexes.push_back(IDX_ITEMS_HOST_ID);
-
-		row->addNewItem(itemInfo.brief);
-		arg.columnIndexes.push_back(IDX_ITEMS_BRIEF);
-
-		row->addNewItem(itemInfo.lastValueTime.tv_sec); 
-		arg.columnIndexes.push_back(IDX_ITEMS_LAST_VALUE_TIME_SEC);
-
-		row->addNewItem(itemInfo.lastValueTime.tv_nsec); 
-		arg.columnIndexes.push_back(IDX_ITEMS_LAST_VALUE_TIME_NS);
-
-		row->addNewItem(itemInfo.lastValue);
-		arg.columnIndexes.push_back(IDX_ITEMS_LAST_VALUE);
-
-		row->addNewItem(itemInfo.prevValue);
-		arg.columnIndexes.push_back(IDX_ITEMS_PREV_VALUE);
-
-		row->addNewItem(itemInfo.itemGroupName);
-		arg.columnIndexes.push_back(IDX_ITEMS_ITEM_GROUP_NAME);
-
-		arg.row = row;
+		DBAgent::UpdateArg arg(tableProfileItems);
+		arg.add(IDX_ITEMS_SERVER_ID,  itemInfo.serverId);
+		arg.add(IDX_ITEMS_ID,         itemInfo.id);
+		arg.add(IDX_ITEMS_HOST_ID,    itemInfo.hostId);
+		arg.add(IDX_ITEMS_BRIEF,      itemInfo.brief);
+		arg.add(IDX_ITEMS_LAST_VALUE_TIME_SEC,
+		        itemInfo.lastValueTime.tv_sec);
+		arg.add(IDX_ITEMS_LAST_VALUE_TIME_NS,
+		        itemInfo.lastValueTime.tv_nsec); 
+		arg.add(IDX_ITEMS_LAST_VALUE, itemInfo.lastValue);
+		arg.add(IDX_ITEMS_PREV_VALUE, itemInfo.prevValue);
+		arg.add(IDX_ITEMS_ITEM_GROUP_NAME, itemInfo.itemGroupName);
 		arg.condition = condition;
 		update(arg);
 	}
@@ -1862,7 +1780,7 @@ void DBClientHatohol::addHostgroupInfoBare(const HostgroupInfo &groupInfo)
 	if (!isRecordExisting(TABLE_NAME_HOSTGROUPS, condition)) {
 		DBAgentInsertArg arg;
 		arg.tableName = TABLE_NAME_HOSTGROUPS;
-		arg.numColumns = NUM_COLUMNS_HOSTGROUPS;
+		arg.numColumns = tableProfileHostgroups.numColumns;
 		arg.columnDefs = COLUMN_DEF_HOSTGROUPS;
 		row->addNewItem(groupInfo.id);
 		row->addNewItem(groupInfo.serverId);
@@ -1871,20 +1789,10 @@ void DBClientHatohol::addHostgroupInfoBare(const HostgroupInfo &groupInfo)
 		arg.row = row;
 		insert(arg);
 	} else {
-		DBAgentUpdateArg arg;
-		arg.tableName = TABLE_NAME_HOSTGROUPS;
-		arg.columnDefs = COLUMN_DEF_HOSTGROUPS;
-
-		row->addNewItem(groupInfo.serverId);
-		arg.columnIndexes.push_back(IDX_HOSTGROUPS_SERVER_ID);
-
-		row->addNewItem(groupInfo.groupId);
-		arg.columnIndexes.push_back(IDX_HOSTGROUPS_GROUP_ID);
-
-		row->addNewItem(groupInfo.groupName);
-		arg.columnIndexes.push_back(IDX_HOSTGROUPS_GROUP_NAME);
-
-		arg.row = row;
+		DBAgent::UpdateArg arg(tableProfileHostgroups);
+		arg.add(IDX_HOSTGROUPS_SERVER_ID,  groupInfo.serverId);
+		arg.add(IDX_HOSTGROUPS_GROUP_ID,   groupInfo.groupId);
+		arg.add(IDX_HOSTGROUPS_GROUP_NAME, groupInfo.groupName);
 		arg.condition = condition;
 		update(arg);
 	}
@@ -1903,7 +1811,7 @@ void DBClientHatohol::addHostgroupElementBare(const HostgroupElement &hostgroupE
 	if (!isRecordExisting(TABLE_NAME_MAP_HOSTS_HOSTGROUPS, condition)) {
 		DBAgentInsertArg arg;
 		arg.tableName = TABLE_NAME_MAP_HOSTS_HOSTGROUPS;
-		arg.numColumns = NUM_COLUMNS_MAP_HOSTS_HOSTGROUPS;
+		arg.numColumns = tableProfileMapHostsHostgroups.numColumns;
 		arg.columnDefs = COLUMN_DEF_MAP_HOSTS_HOSTGROUPS;
 		row->addNewItem(hostgroupElement.id);
 		row->addNewItem(hostgroupElement.serverId);
@@ -1924,7 +1832,7 @@ void DBClientHatohol::addHostInfoBare(const HostInfo &hostInfo)
 	if (!isRecordExisting(TABLE_NAME_HOSTS, condition)) {
 		DBAgentInsertArg arg;
 		arg.tableName = TABLE_NAME_HOSTS;
-		arg.numColumns = NUM_COLUMNS_HOSTS;
+		arg.numColumns = tableProfileHosts.numColumns;
 		arg.columnDefs = COLUMN_DEF_HOSTS;
 		row->addNewItem(AUTO_INCREMENT_VALUE);
 		row->addNewItem(hostInfo.serverId);
@@ -1933,20 +1841,10 @@ void DBClientHatohol::addHostInfoBare(const HostInfo &hostInfo)
 		arg.row = row;
 		insert(arg);
 	} else {
-		DBAgentUpdateArg arg;
-		arg.tableName = TABLE_NAME_HOSTS;
-		arg.columnDefs = COLUMN_DEF_HOSTS;
-
-		row->addNewItem(hostInfo.serverId);
-		arg.columnIndexes.push_back(IDX_HOSTS_SERVER_ID);
-
-		row->addNewItem(hostInfo.id);
-		arg.columnIndexes.push_back(IDX_HOSTS_HOST_ID);
-
-		row->addNewItem(hostInfo.hostName);
-		arg.columnIndexes.push_back(IDX_HOSTS_HOST_NAME);
-
-		arg.row = row;
+		DBAgent::UpdateArg arg(tableProfileHosts);
+		arg.add(IDX_HOSTS_SERVER_ID, hostInfo.serverId);
+		arg.add(IDX_HOSTS_HOST_ID,   hostInfo.id);
+		arg.add(IDX_HOSTS_HOST_NAME, hostInfo.hostName);
 		arg.condition = condition;
 		update(arg);
 	}
