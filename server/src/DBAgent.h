@@ -36,21 +36,6 @@ struct DBAgentTableCreationArg {
 	const ColumnDef    *columnDefs;
 };
 
-struct DBAgentInsertArg {
-	std::string         tableName;
-	size_t              numColumns;
-	const ColumnDef    *columnDefs;
-	ItemGroupPtr        row;
-};
-
-struct DBAgentUpdateArg {
-	std::string         tableName;
-	const ColumnDef    *columnDefs;
-	std::vector<size_t> columnIndexes;
-	ItemGroupPtr        row;
-	std::string         condition;
-};
-
 struct DBAgentSelectArg {
 	std::string         tableName;
 	const ColumnDef    *columnDefs;
@@ -76,11 +61,6 @@ struct DBAgentSelectExArg {
 	DBAgentSelectExArg(void);
 	void pushColumn(const ColumnDef &columnDef,
 	                const std::string &varName = "");
-};
-
-struct DBAgentDeleteArg {
-	std::string tableName;
-	std::string condition;
 };
 
 struct DBAgentAddColumnsArg {

@@ -84,7 +84,6 @@ protected:
 	static void update(sqlite3 *db, const UpdateArg &updateArg);
 	static void select(sqlite3 *db, DBAgentSelectArg &selectArg);
 	static void select(sqlite3 *db, DBAgentSelectExArg &selectExArg);
-	static void deleteRows(sqlite3 *db, DBAgentDeleteArg &deleteArg);
 	static void deleteRows(sqlite3 *db, const DeleteArg &deleteArg);
 	static void selectGetValuesIteration(DBAgentSelectArg &selectArg,
 	                                     sqlite3_stmt *stmt,
