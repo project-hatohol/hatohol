@@ -510,17 +510,11 @@ HatoholError DBClientUser::addUserInfo(
 	if (err != HTERR_OK)
 		return err;
 
-	VariableItemGroupPtr row;
-	DBAgentInsertArg arg;
-	arg.tableName = TABLE_NAME_USERS;
-	arg.numColumns = tableProfileUsers.numColumns;
-	arg.columnDefs = COLUMN_DEF_USERS;
-
-	row->addNewItem(AUTO_INCREMENT_VALUE);
-	row->addNewItem(userInfo.name);
-	row->addNewItem(Utils::sha256(userInfo.password));
-	row->addNewItem(userInfo.flags);
-	arg.row = row;
+	DBAgent::InsertArg arg(tableProfileUsers);
+	arg.row->addNewItem(AUTO_INCREMENT_VALUE);
+	arg.row->addNewItem(userInfo.name);
+	arg.row->addNewItem(Utils::sha256(userInfo.password));
+	arg.row->addNewItem(userInfo.flags);
 
 	string dupCheckCond = StringUtils::sprintf("%s='%s'",
 	  COLUMN_DEF_USERS[IDX_USERS_NAME].columnName, userInfo.name.c_str());
@@ -690,17 +684,11 @@ HatoholError DBClientUser::addAccessInfo(AccessInfo &accessInfo,
 	}
 
 	// add new data
-	VariableItemGroupPtr row;
-	DBAgentInsertArg arg;
-	arg.tableName = TABLE_NAME_ACCESS_LIST;
-	arg.numColumns = tableProfileAccessList.numColumns;
-	arg.columnDefs = COLUMN_DEF_ACCESS_LIST;
-
-	row->addNewItem(AUTO_INCREMENT_VALUE);
-	row->addNewItem(accessInfo.userId);
-	row->addNewItem(accessInfo.serverId);
-	row->addNewItem(accessInfo.hostGroupId);
-	arg.row = row;
+	DBAgent::InsertArg arg(tableProfileAccessList);
+	arg.row->addNewItem(AUTO_INCREMENT_VALUE);
+	arg.row->addNewItem(accessInfo.userId);
+	arg.row->addNewItem(accessInfo.serverId);
+	arg.row->addNewItem(accessInfo.hostGroupId);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		insert(arg);
@@ -868,16 +856,10 @@ HatoholError DBClientUser::addUserRoleInfo(UserRoleInfo &userRoleInfo,
 		return HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST;
 	}
 
-	VariableItemGroupPtr row;
-	DBAgentInsertArg arg;
-	arg.tableName = TABLE_NAME_USER_ROLES;
-	arg.numColumns = tableProfileUserRoles.numColumns;
-	arg.columnDefs = COLUMN_DEF_USER_ROLES;
-
-	row->addNewItem(AUTO_INCREMENT_VALUE);
-	row->addNewItem(userRoleInfo.name);
-	row->addNewItem(userRoleInfo.flags);
-	arg.row = row;
+	DBAgent::InsertArg arg(tableProfileUserRoles);
+	arg.row->addNewItem(AUTO_INCREMENT_VALUE);
+	arg.row->addNewItem(userRoleInfo.name);
+	arg.row->addNewItem(userRoleInfo.flags);
 
 	string dupCheckCond = StringUtils::sprintf(
 	  "(%s='%s' or %s=%"FMT_OPPRVLG")",
