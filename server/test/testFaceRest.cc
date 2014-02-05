@@ -847,6 +847,22 @@ void _assertAddServerWithSetup(const StringMap &params,
 }
 #define assertAddServerWithSetup(P,C) cut_trace(_assertAddServerWithSetup(P,C))
 
+#define assertUpdateServer(P, ...) \
+cut_trace(_assertUpdateRecord(P, "/server", ##__VA_ARGS__))
+
+void _assertUpdateServerWithSetup(const StringMap &params,
+				  uint32_t targetServerId,
+				  const HatoholErrorCode &expectCode)
+{
+	const bool dbRecreate = true;
+	const bool loadTestDat = true;
+	setupTestDBUser(dbRecreate, loadTestDat);
+	const UserIdType userId = findUserWith(OPPRVLG_UPDATE_ALL_SERVER);
+	assertUpdateServer(params, targetServerId, userId, expectCode);
+}
+#define assertUpdateServerWithSetup(P,U,C) \
+cut_trace(_assertUpdateServerWithSetup(P,U,C))
+
 static void setupTestMode(void)
 {
 	CommandLineArg arg;
@@ -1239,6 +1255,20 @@ void test_serversJsonp(void)
 	assertServers("/server", "foo");
 }
 
+void serverInfo2StringMap(const MonitoringServerInfo &src, StringMap &dest)
+{
+	dest["type"] = StringUtils::toString(src.type);
+	dest["hostName"] = src.hostName;
+	dest["ipAddress"] = src.ipAddress;
+	dest["nickname"] = src.nickname;
+	dest["port"] = StringUtils::toString(src.port);
+	dest["polling"] = StringUtils::toString(src.pollingIntervalSec);
+	dest["retry"] = StringUtils::toString(src.retryIntervalSec);
+	dest["user"] = src.userName;
+	dest["password"] = src.password;
+	dest["dbName"] = src.dbName;
+}
+
 void test_addServer(void)
 {
 	MonitoringServerInfo expected;
@@ -1255,22 +1285,32 @@ void test_addServer(void)
 	expected.dbName = "";
 
 	StringMap params;
-	params["type"] = StringUtils::toString(expected.type);
-	params["hostName"] = expected.hostName;
-	params["ipAddress"] = expected.ipAddress;
-	params["nickname"] = expected.nickname;
-	params["port"] = StringUtils::toString(expected.port);
-	params["polling"] = StringUtils::toString(expected.pollingIntervalSec);
-	params["retry"] = StringUtils::toString(expected.retryIntervalSec);
-	params["user"] = expected.userName;
-	params["password"] = expected.password;
-	params["dbName"] = expected.dbName;
+	serverInfo2StringMap(expected, params);
 	assertAddServerWithSetup(params, HTERR_OK);
 
 	// check the content in the DB
 	DBClientConfig dbConfig;
 	string statement = "select * from servers ";
 	statement += " order by id desc limit 1";
+	string expectedOutput = makeServerInfoOutput(expected);
+	assertDBContent(dbConfig.getDBAgent(), statement, expectedOutput);
+}
+
+void test_updateServer(void)
+{
+	int targetId = 2;
+	MonitoringServerInfo expected = testServerInfo[0];
+	expected.id = targetId;
+
+	StringMap params;
+	serverInfo2StringMap(expected, params);
+	assertUpdateServerWithSetup(params, targetId, HTERR_OK);
+
+	// check the content in the DB
+	DBClientConfig dbConfig;
+	string statement = StringUtils::sprintf(
+	                     "select * from servers where id=%d",
+			     targetId);
 	string expectedOutput = makeServerInfoOutput(expected);
 	assertDBContent(dbConfig.getDBAgent(), statement, expectedOutput);
 }

@@ -1489,7 +1489,7 @@ void FaceRest::handlerPutServer(RestJob *job)
 	MonitoringServerInfoList serversList;
 	ServerQueryOption option(job->userId);
 	dataStore->getTargetServers(serversList, option);
-	if (!serversList.empty()) {
+	if (serversList.empty()) {
 		REPLY_ERROR(job, HTERR_NOT_FOUND_SERVER_ID,
 		            "id: %"PRIu64, serverId);
 		return;
