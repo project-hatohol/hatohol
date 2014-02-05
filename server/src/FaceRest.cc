@@ -1379,7 +1379,7 @@ void FaceRest::handlerGetServer(RestJob *job)
 }
 
 HatoholError FaceRest::parseServerParameter(
-  MonitoringServerInfo &svInfo, GHashTable *query, bool forUpdate)
+  MonitoringServerInfo &svInfo, GHashTable *query, bool allowEmpty)
 {
 	HatoholError err;
 	char *value;
@@ -1388,25 +1388,25 @@ HatoholError FaceRest::parseServerParameter(
 	err = getParam<MonitoringSystemType>(
 		query, "type", "%d", svInfo.type);
 	if (err != HTERR_OK) {
-		if (!forUpdate || err != HTERR_NOT_FOUND_PARAMETER)
+		if (!allowEmpty || err != HTERR_NOT_FOUND_PARAMETER)
 			return err;
 	}
 
 	// hostname
 	value = (char *)g_hash_table_lookup(query, "hostName");
-	if (!value && !forUpdate)
+	if (!value && !allowEmpty)
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "hostName");
 	svInfo.hostName = value;
 
 	// ipAddress
 	value = (char *)g_hash_table_lookup(query, "ipAddress");
-	if (!value && !forUpdate)
+	if (!value && !allowEmpty)
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "ipAddress");
 	svInfo.ipAddress = value;
 
 	// nickname
 	value = (char *)g_hash_table_lookup(query, "nickname");
-	if (!value && !forUpdate)
+	if (!value && !allowEmpty)
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "nickname");
 	svInfo.nickname = value;
 
@@ -1414,7 +1414,7 @@ HatoholError FaceRest::parseServerParameter(
 	err = getParam<int>(
 		query, "port", "%d", svInfo.port);
 	if (err != HTERR_OK) {
-		if (!forUpdate || err != HTERR_NOT_FOUND_PARAMETER)
+		if (!allowEmpty || err != HTERR_NOT_FOUND_PARAMETER)
 			return err;
 	}
 
@@ -1422,32 +1422,32 @@ HatoholError FaceRest::parseServerParameter(
 	err = getParam<int>(
 		query, "polling", "%d", svInfo.pollingIntervalSec);
 	if (err != HTERR_OK) {
-		if (!forUpdate || err != HTERR_NOT_FOUND_PARAMETER)
+		if (!allowEmpty || err != HTERR_NOT_FOUND_PARAMETER)
 			return err;
 	}
 
 	// retry
 	err = getParam<int>(
 		query, "retry", "%d", svInfo.retryIntervalSec);
-	if (err != HTERR_OK && !forUpdate)
+	if (err != HTERR_OK && !allowEmpty)
 		return err;
 
 	// username
 	value = (char *)g_hash_table_lookup(query, "user");
-	if (!value && !forUpdate)
+	if (!value && !allowEmpty)
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "user");
 	svInfo.userName = value;
 
 	// password
 	value = (char *)g_hash_table_lookup(query, "password");
-	if (!value && !forUpdate)
+	if (!value && !allowEmpty)
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "password");
 	svInfo.password = value;
 
 	// dbname
 	if (svInfo.type == MONITORING_SYSTEM_NAGIOS) {
 		value = (char *)g_hash_table_lookup(query, "dbName");
-		if (!value && !forUpdate)
+		if (!value && !allowEmpty)
 			return HatoholError(HTERR_NOT_FOUND_PARAMETER,
 					    "dbName");
 		svInfo.dbName = value;
@@ -1506,9 +1506,9 @@ void FaceRest::handlerPutServer(RestJob *job)
 	serverInfo.id = serverId;
 
 	// check the request
-	bool forUpdate = true;
+	bool allowEmpty = true;
 	HatoholError err = parseServerParameter(serverInfo, job->query,
-						forUpdate);
+						allowEmpty);
 	if (err != HTERR_OK) {
 		replyError(job, err);
 		return;
@@ -2130,8 +2130,8 @@ void FaceRest::handlerPutUser(RestJob *job)
 		            "id: %"FMT_USER_ID, userInfo.id);
 		return;
 	}
-	bool forUpdate = true;
-	HatoholError err = parseUserParameter(userInfo, job->query, forUpdate);
+	bool allowEmpty = true;
+	HatoholError err = parseUserParameter(userInfo, job->query, allowEmpty);
 	if (err != HTERR_OK) {
 		replyError(job, err);
 		return;
@@ -2411,9 +2411,9 @@ void FaceRest::handlerPutUserRole(RestJob *job)
 	}
 	userRoleInfo = *(userRoleList.begin());
 
-	bool forUpdate = true;
+	bool allowEmpty = true;
 	HatoholError err = parseUserRoleParameter(userRoleInfo, job->query,
-						  forUpdate);
+						  allowEmpty);
 	if (err != HTERR_OK) {
 		replyError(job, err);
 		return;
@@ -2510,20 +2510,20 @@ void FaceRest::handlerDeleteUserRole(RestJob *job)
 }
 
 HatoholError FaceRest::parseUserParameter(UserInfo &userInfo, GHashTable *query,
-					  bool forUpdate)
+					  bool allowEmpty)
 {
 	char *value;
 
 	// name
 	value = (char *)g_hash_table_lookup(query, "user");
-	if (!value && !forUpdate)
+	if (!value && !allowEmpty)
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "user");
 	if (value)
 		userInfo.name = value;
 
 	// password
 	value = (char *)g_hash_table_lookup(query, "password");
-	if (!value && !forUpdate)
+	if (!value && !allowEmpty)
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "password");
 	userInfo.password = value ? value : "";
 
@@ -2531,20 +2531,20 @@ HatoholError FaceRest::parseUserParameter(UserInfo &userInfo, GHashTable *query,
 	HatoholError err = getParam<OperationPrivilegeFlag>(
 		query, "flags", "%"FMT_OPPRVLG, userInfo.flags);
 	if (err != HTERR_OK) {
-		if (!forUpdate || err != HTERR_NOT_FOUND_PARAMETER)
+		if (!allowEmpty || err != HTERR_NOT_FOUND_PARAMETER)
 			return err;
 	}
 	return HatoholError(HTERR_OK);
 }
 
 HatoholError FaceRest::parseUserRoleParameter(
-  UserRoleInfo &userRoleInfo, GHashTable *query, bool forUpdate)
+  UserRoleInfo &userRoleInfo, GHashTable *query, bool allowEmpty)
 {
 	char *value;
 
 	// name
 	value = (char *)g_hash_table_lookup(query, "name");
-	if (!value && !forUpdate)
+	if (!value && !allowEmpty)
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "name");
 	if (value)
 		userRoleInfo.name = value;
@@ -2552,7 +2552,7 @@ HatoholError FaceRest::parseUserRoleParameter(
 	// flags
 	HatoholError err = getParam<OperationPrivilegeFlag>(
 		query, "flags", "%"FMT_OPPRVLG, userRoleInfo.flags);
-	if (err != HTERR_OK && !forUpdate)
+	if (err != HTERR_OK && !allowEmpty)
 		return err;
 	return HatoholError(HTERR_OK);
 }
