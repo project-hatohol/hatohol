@@ -116,6 +116,22 @@ public:
 		SelectArg(const TableProfile &tableProfile);
 	};
 
+	struct SelectExArg {
+		const TableProfile        &tableProfile;
+		std::vector<std::string>   statements;
+		std::vector<SQLColumnType> columnTypes;
+		std::string                condition;
+		std::string                orderBy;
+		size_t                     limit;
+		size_t                     offset;
+		// output
+		mutable ItemTablePtr        dataTable;
+
+		SelectExArg(const TableProfile &tableProfile);
+		void add(const size_t &columnIndex,
+		         const std::string &varName = "");
+	};
+
 	struct DeleteArg {
 		const TableProfile &tableProfile;
 		std::string         condition;

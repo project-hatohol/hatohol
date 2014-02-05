@@ -31,12 +31,14 @@ struct DBSetupInfo {
 typedef multimap<DBDomainId, DBSetupInfo> DBSetupInfoMap;
 typedef DBSetupInfoMap::iterator          DBSetupInfoMapIterator;
 
+// TODO: remove when the new version is completed
 DBAgentSelectExArg::DBAgentSelectExArg(void)
 : limit(0),
   offset(0)
 {
 }
 
+// TODO: remove when the new version is completed
 void DBAgentSelectExArg::pushColumn
   (const ColumnDef &columnDef, const string &varName)
 {
@@ -197,6 +199,30 @@ void DBAgent::UpdateArg::add(const size_t &columnIndex, const time_t &val)
 DBAgent::SelectArg::SelectArg(const TableProfile &profile)
 : tableProfile(profile)
 {
+}
+
+// ---------------------------------------------------------------------------
+// DBAgent::SelectExArg
+// ---------------------------------------------------------------------------
+DBAgent::SelectExArg::SelectExArg(const TableProfile &profile)
+: tableProfile(profile),
+  limit(0),
+  offset(0)
+{
+}
+
+void DBAgent::SelectExArg::add(const size_t &columnIndex,
+                               const std::string &varName)
+{
+	string statement;
+	if (!varName.empty()) {
+		statement = varName;
+		statement += ".";
+	}
+	const ColumnDef &columnDef = tableProfile.columnDefs[columnIndex];
+	statement += columnDef.columnName;
+	statements.push_back(statement);
+	columnTypes.push_back(columnDef.type);
 }
 
 // ---------------------------------------------------------------------------
