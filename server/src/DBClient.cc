@@ -272,15 +272,10 @@ void DBClient::insertDBClientVersion(DBAgent *dbAgent,
                                      const DBSetupFuncArg *setupFuncArg)
 {
 	// insert default value
-	DBAgentInsertArg insArg;
-	insArg.tableName = TABLE_NAME_DBCLIENT_VERSION;
-	insArg.numColumns = tableProfileDBClientVersion.numColumns;
-	insArg.columnDefs = COLUMN_DEF_DBCLIENT_VERSION;
-	VariableItemGroupPtr row;
-	row->addNewItem(dbAgent->getDBDomainId());
-	row->addNewItem(setupFuncArg->version);
-	insArg.row = row;
-	dbAgent->insert(insArg);
+	DBAgent::InsertArg arg(tableProfileDBClientVersion);
+	arg.row->addNewItem(dbAgent->getDBDomainId());
+	arg.row->addNewItem(setupFuncArg->version);
+	dbAgent->insert(arg);
 }
 
 void DBClient::updateDBIfNeeded(DBDomainId domainId, DBAgent *dbAgent,
