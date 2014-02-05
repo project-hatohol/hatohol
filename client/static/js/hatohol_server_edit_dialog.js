@@ -303,6 +303,8 @@ HatoholServerEditDialog.prototype.setServer = function(server) {
   $("#inputIpAddress").val(server.ipAddress);
   $("#inputPort").val(server.port);
 
+  this.setDBNameTextState(server.type == hatohol.MONITORING_SYSTEM_NAGIOS);
+
   // TODO: fixup buttons state
   // TODO: set remaining values
   //       (Currently they aren't provided from hatohol server)

@@ -44,11 +44,16 @@ describe('HatoholServerEditDialog', function() {
     var buttons = $(expectedId).dialog("option", "buttons");
     expect(buttons).to.have.length(2);
     expect(buttons[0].text).to.be(gettext("APPLY"));
+
+    // check initial values
     expect(parseInt($("#selectServerType").val())).to.be(server.type);
     expect($("#inputNickName").val()).to.be(server.nickname);
     expect($("#inputHostName").val()).to.be(server.hostName);
     expect($("#inputIpAddress").val()).to.be(server.ipAddress);
     expect(parseInt($("#inputPort").val())).to.be(server.port);
+
+    // check initial button state
+    expect($("#dbNameArea").css("display")).not.to.be("none");
   });
 
   it('DB name visibility', function() {
