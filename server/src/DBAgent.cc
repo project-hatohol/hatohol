@@ -257,11 +257,16 @@ void DBAgent::SelectMultiTableArg::add(const size_t &columnIndex)
 	SelectExArg::add(columnIndex, currProfile->varName);
 }
 
-string DBAgent::SelectMultiTableArg::getColumnName(const size_t &columnIndex)
+string DBAgent::SelectMultiTableArg::getColumnName(const size_t &profileIndex,
+                                                   const size_t &columnIndex)
 {
+	HATOHOL_ASSERT(profileIndex < numTables,
+	               "profileIndex (%zd) >= numTables (%zd)",
+	               profileIndex, numTables);
+	const TableProfileEx &prof = profileExArray[profileIndex];
 	return StringUtils::sprintf(
-	  "%s.%s", currProfile->varName,
-	  currProfile->profile->columnDefs[columnIndex].columnName);
+	  "%s.%s",
+	  prof.varName, prof.profile->columnDefs[columnIndex].columnName);
 }
 
 // ---------------------------------------------------------------------------

@@ -227,7 +227,8 @@ public:
 		SelectMultiTableArg arg(profiles, numTables);
 
 		const size_t columnIdx = 3;
-		const string actualName = arg.getColumnName(columnIdx);
+		const string actualName =
+		  arg.getColumnName(0, columnIdx);
 
 		const ColumnDef *def = &tableProfileTest.columnDefs[columnIdx];
 		cppcut_assert_equal(
