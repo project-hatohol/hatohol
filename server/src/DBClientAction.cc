@@ -191,8 +191,6 @@ static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 	USER_ID_SYSTEM,                     // defaultValue
 },
 };
-static const size_t NUM_COLUMNS_ACTIONS =
-  sizeof(COLUMN_DEF_ACTIONS) / sizeof(ColumnDef);
 
 enum {
 	IDX_ACTIONS_ACTION_ID,
@@ -210,6 +208,10 @@ enum {
 	IDX_ACTIONS_OWNER_USER_ID,
 	NUM_IDX_ACTIONS,
 };
+
+static DBAgent::TableProfile tableProfileActions(
+  TABLE_NAME_ACTIONS, COLUMN_DEF_ACTIONS,
+  sizeof(COLUMN_DEF_ACTIONS), NUM_IDX_ACTIONS);
 
 static const ColumnDef COLUMN_DEF_ACTION_LOGS[] = {
 {
@@ -336,17 +338,18 @@ static const ColumnDef COLUMN_DEF_ACTION_LOGS[] = {
 },
 };
 
-static const size_t NUM_COLUMNS_ACTION_LOGS =
-  sizeof(COLUMN_DEF_ACTION_LOGS) / sizeof(ColumnDef);
+static DBAgent::TableProfile tableProfileActionLogs(
+  TABLE_NAME_ACTION_LOGS, COLUMN_DEF_ACTION_LOGS,
+  sizeof(COLUMN_DEF_ACTION_LOGS), NUM_IDX_ACTION_LOGS);
 
 static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
 {
 	TABLE_NAME_ACTIONS,
-	NUM_COLUMNS_ACTIONS,
+	tableProfileActions.numColumns,
 	COLUMN_DEF_ACTIONS,
 }, {
 	TABLE_NAME_ACTION_LOGS,
-	NUM_COLUMNS_ACTION_LOGS,
+	tableProfileActionLogs.numColumns,
 	COLUMN_DEF_ACTION_LOGS,
 }
 };
@@ -475,14 +478,6 @@ DBClientAction::LogEndExecActionArg::LogEndExecActionArg(void)
 // ---------------------------------------------------------------------------
 void DBClientAction::init(void)
 {
-	HATOHOL_ASSERT(NUM_COLUMNS_ACTIONS == NUM_IDX_ACTIONS,
-	  "NUM_COLUMNS_ACTIONS: %zd, NUM_IDX_ACTIONS: %d",
-	  NUM_COLUMNS_ACTIONS, NUM_IDX_ACTIONS);
-
-	HATOHOL_ASSERT(NUM_COLUMNS_ACTION_LOGS == NUM_IDX_ACTION_LOGS,
-	  "NUM_COLUMNS_ACTION_LOGS: %zd, NUM_IDX_ACTION_LOGS: %d",
-	  NUM_COLUMNS_ACTION_LOGS, NUM_IDX_ACTION_LOGS);
-
 	registerSetupInfo(
 	  DB_DOMAIN_ID_ACTION, DEFAULT_DB_NAME, &DB_ACTION_SETUP_FUNC_ARG);
 }
@@ -538,7 +533,7 @@ HatoholError DBClientAction::addAction(ActionDef &actionDef,
 	VariableItemGroupPtr row;
 	DBAgentInsertArg arg;
 	arg.tableName = TABLE_NAME_ACTIONS;
-	arg.numColumns = NUM_COLUMNS_ACTIONS;
+	arg.numColumns = tableProfileActions.numColumns;
 	arg.columnDefs = COLUMN_DEF_ACTIONS;
 
 	row->addNewItem(AUTO_INCREMENT_VALUE);
@@ -714,7 +709,7 @@ uint64_t DBClientAction::createActionLog(
 	VariableItemGroupPtr row;
 	DBAgentInsertArg arg;
 	arg.tableName = TABLE_NAME_ACTION_LOGS;
-	arg.numColumns = NUM_COLUMNS_ACTION_LOGS;
+	arg.numColumns = tableProfileActionLogs.numColumns;
 	arg.columnDefs = COLUMN_DEF_ACTION_LOGS;
 
 	row->addNewItem(AUTO_INCREMENT_VALUE_U64);
@@ -764,10 +759,7 @@ uint64_t DBClientAction::createActionLog(
 
 void DBClientAction::logEndExecAction(const LogEndExecActionArg &logArg)
 {
-	VariableItemGroupPtr row;
-	DBAgentUpdateArg arg;
-	arg.tableName = TABLE_NAME_ACTION_LOGS;
-	arg.columnDefs = COLUMN_DEF_ACTION_LOGS;
+	DBAgent::UpdateArg arg(tableProfileActionLogs);
 
 	const char *actionLogIdColumnName = 
 	  COLUMN_DEF_ACTION_LOGS[IDX_ACTION_LOGS_ACTION_LOG_ID].columnName;
@@ -775,26 +767,17 @@ void DBClientAction::logEndExecAction(const LogEndExecActionArg &logArg)
 	                                     actionLogIdColumnName,
 	                                     logArg.logId);
 	// status
-	row->addNewItem(logArg.status);
-	arg.columnIndexes.push_back(IDX_ACTION_LOGS_STATUS);
-
-	// end_time
-	if (!(logArg.nullFlags & ACTLOG_FLAG_END_TIME)) {
-		row->addNewItem(CURR_DATETIME);
-		arg.columnIndexes.push_back(IDX_ACTION_LOGS_END_TIME);
-	}
+	arg.add(IDX_ACTION_LOGS_STATUS, logArg.status);
+	if (!(logArg.nullFlags & ACTLOG_FLAG_END_TIME))
+		arg.add(IDX_ACTION_LOGS_END_TIME, CURR_DATETIME);
 
 	// exec_failure_code
-	row->addNewItem(logArg.failureCode);
-	arg.columnIndexes.push_back(IDX_ACTION_LOGS_EXEC_FAILURE_CODE);
+	arg.add(IDX_ACTION_LOGS_EXEC_FAILURE_CODE, logArg.failureCode);
 
 	// exit_code
-	if (!(logArg.nullFlags & ACTLOG_FLAG_EXIT_CODE)) {
-		row->addNewItem(logArg.exitCode);
-		arg.columnIndexes.push_back(IDX_ACTION_LOGS_EXIT_CODE);
-	}
+	if (!(logArg.nullFlags & ACTLOG_FLAG_EXIT_CODE))
+		arg.add(IDX_ACTION_LOGS_EXIT_CODE, logArg.exitCode);
 
-	arg.row = row;
 	DBCLIENT_TRANSACTION_BEGIN() {
 		update(arg);
 	} DBCLIENT_TRANSACTION_END();
@@ -802,24 +785,15 @@ void DBClientAction::logEndExecAction(const LogEndExecActionArg &logArg)
 
 void DBClientAction::updateLogStatusToStart(uint64_t logId)
 {
-	VariableItemGroupPtr row;
-	DBAgentUpdateArg arg;
-	arg.tableName = TABLE_NAME_ACTION_LOGS;
-	arg.columnDefs = COLUMN_DEF_ACTION_LOGS;
+	DBAgent::UpdateArg arg(tableProfileActionLogs);
 
 	const char *actionLogIdColumnName = 
 	  COLUMN_DEF_ACTION_LOGS[IDX_ACTION_LOGS_ACTION_LOG_ID].columnName;
 	arg.condition = StringUtils::sprintf("%s=%"PRIu64,
 	                                     actionLogIdColumnName, logId);
-	// status
-	row->addNewItem(ACTLOG_STAT_STARTED);
-	arg.columnIndexes.push_back(IDX_ACTION_LOGS_STATUS);
+	arg.add(IDX_ACTION_LOGS_STATUS, ACTLOG_STAT_STARTED);
+	arg.add(IDX_ACTION_LOGS_START_TIME, CURR_DATETIME);
 
-	// start_time
-	row->addNewItem(CURR_DATETIME);
-	arg.columnIndexes.push_back(IDX_ACTION_LOGS_START_TIME);
-
-	arg.row = row;
 	DBCLIENT_TRANSACTION_BEGIN() {
 		update(arg);
 	} DBCLIENT_TRANSACTION_END();
