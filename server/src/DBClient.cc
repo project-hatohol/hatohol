@@ -300,10 +300,8 @@ void DBClient::updateDBIfNeeded(DBDomainId domainId, DBAgent *dbAgent,
 
 int DBClient::getDBVersion(DBAgent *dbAgent)
 {
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_DBCLIENT_VERSION;
-	arg.pushColumn(
-	  COLUMN_DEF_DBCLIENT_VERSION[IDX_DBCLIENT_VERSION_VERSION]);
+	DBAgent::SelectExArg arg(tableProfileDBClientVersion);
+	arg.add(IDX_DBCLIENT_VERSION_VERSION);
 	arg.condition = StringUtils::sprintf("%s=%d",
 	  COLUMN_DEF_DBCLIENT_VERSION[IDX_DBCLIENT_VERSION_DOMAIN_ID].columnName,
 	  dbAgent->getDBDomainId());
