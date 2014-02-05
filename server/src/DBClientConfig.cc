@@ -101,7 +101,7 @@ enum {
 	NUM_IDX_SYSTEM,
 };
 
-static DBAgent::TableProfile tableProfileSystem(
+static const DBAgent::TableProfile tableProfileSystem(
   TABLE_NAME_SYSTEM, COLUMN_DEF_SYSTEM,
   sizeof(COLUMN_DEF_SYSTEM), NUM_IDX_SYSTEM);
 
@@ -245,7 +245,7 @@ enum {
 	NUM_IDX_SERVERS,
 };
 
-static DBAgent::TableProfile tableProfileServers(
+static const DBAgent::TableProfile tableProfileServers(
   TABLE_NAME_SERVERS, COLUMN_DEF_SERVERS,
   sizeof(COLUMN_DEF_SERVERS), NUM_IDX_SERVERS);
 

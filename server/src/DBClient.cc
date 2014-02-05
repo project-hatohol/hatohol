@@ -60,7 +60,7 @@ enum {
 	NUM_IDX_DBCLIENT,
 };
 
-static DBAgent::TableProfile tableProfileDBClientVersion(
+static const DBAgent::TableProfile tableProfileDBClientVersion(
   TABLE_NAME_DBCLIENT_VERSION, COLUMN_DEF_DBCLIENT_VERSION,
   sizeof(COLUMN_DEF_DBCLIENT_VERSION), NUM_IDX_DBCLIENT);
 

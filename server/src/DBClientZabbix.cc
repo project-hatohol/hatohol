@@ -234,7 +234,7 @@ enum {
 	NUM_IDX_TRIGGERS_RAW_2_0,
 };
 
-static DBAgent::TableProfile tableProfileTriggersRaw_2_0(
+static const DBAgent::TableProfile tableProfileTriggersRaw_2_0(
   TABLE_NAME_TRIGGERS_RAW_2_0, COLUMN_DEF_TRIGGERS_RAW_2_0,
   sizeof(COLUMN_DEF_TRIGGERS_RAW_2_0), NUM_IDX_TRIGGERS_RAW_2_0);
 
@@ -306,7 +306,7 @@ enum {
 	NUM_IDX_FUNCTIONS_RAW_2_0,
 };
 
-static DBAgent::TableProfile tableProfileFunctionsRaw_2_0(
+static const DBAgent::TableProfile tableProfileFunctionsRaw_2_0(
   TABLE_NAME_FUNCTIONS_RAW_2_0, COLUMN_DEF_FUNCTIONS_RAW_2_0,
   sizeof(COLUMN_DEF_FUNCTIONS_RAW_2_0), NUM_IDX_FUNCTIONS_RAW_2_0);
 
@@ -906,7 +906,7 @@ enum {
 	NUM_IDX_ITEMS_RAW_2_0,
 };
 
-static DBAgent::TableProfile tableProfileItemsRaw_2_0(
+static const DBAgent::TableProfile tableProfileItemsRaw_2_0(
   TABLE_NAME_ITEMS_RAW_2_0, COLUMN_DEF_ITEMS_RAW_2_0,
   sizeof(COLUMN_DEF_ITEMS_RAW_2_0), NUM_IDX_ITEMS_RAW_2_0);
 
@@ -1278,7 +1278,7 @@ enum {
 	NUM_IDX_HOSTS_RAW_2_0,
 };
 
-static DBAgent::TableProfile tableProfileHostsRaw_2_0(
+static const DBAgent::TableProfile tableProfileHostsRaw_2_0(
   TABLE_NAME_HOSTS_RAW_2_0, COLUMN_DEF_HOSTS_RAW_2_0,
   sizeof(COLUMN_DEF_HOSTS_RAW_2_0), NUM_IDX_HOSTS_RAW_2_0);
 
@@ -1398,7 +1398,7 @@ enum {
 	NUM_IDX_EVENTS_RAW_2_0,
 };
 
-static DBAgent::TableProfile tableProfileEventsRaw_2_0(
+static const DBAgent::TableProfile tableProfileEventsRaw_2_0(
   TABLE_NAME_EVENTS_RAW_2_0, COLUMN_DEF_EVENTS_RAW_2_0,
   sizeof(COLUMN_DEF_EVENTS_RAW_2_0), NUM_IDX_EVENTS_RAW_2_0);
 
@@ -1465,7 +1465,7 @@ enum {
 	NUM_IDX_APPLICATIONS_RAW_2_0,
 };
 
-static DBAgent::TableProfile tableProfileApplicationsRaw_2_0(
+static const DBAgent::TableProfile tableProfileApplicationsRaw_2_0(
   TABLE_NAME_APPLICATIONS_RAW_2_0, COLUMN_DEF_APPLICATIONS_RAW_2_0,
   sizeof(COLUMN_DEF_APPLICATIONS_RAW_2_0), NUM_IDX_APPLICATIONS_RAW_2_0);
 
@@ -1513,7 +1513,7 @@ enum {
 	NUM_IDX_GROUPS_RAW_2_0
 };
 
-static DBAgent::TableProfile tableProfileGroupsRaw_2_0(
+static const DBAgent::TableProfile tableProfileGroupsRaw_2_0(
   TABLE_NAME_GROUPS_RAW_2_0, COLUMN_DEF_GROUPS_RAW_2_0,
   sizeof(COLUMN_DEF_GROUPS_RAW_2_0), NUM_IDX_GROUPS_RAW_2_0);
 
@@ -1561,7 +1561,7 @@ enum {
 	NUM_IDX_HOSTS_GROUPS_RAW_2_0
 };
 
-static DBAgent::TableProfile tableProfileHostsGroupsRaw_2_0(
+static const DBAgent::TableProfile tableProfileHostsGroupsRaw_2_0(
   TABLE_NAME_HOSTS_GROUPS_RAW_2_0, COLUMN_DEF_HOSTS_GROUPS_RAW_2_0,
   sizeof(COLUMN_DEF_HOSTS_GROUPS_RAW_2_0), NUM_IDX_HOSTS_GROUPS_RAW_2_0);
 
@@ -1569,7 +1569,7 @@ static DBAgent::TableProfile tableProfileHostsGroupsRaw_2_0(
 static const char *VAR_TRIGGERS  = "t";
 static const char *VAR_HOSTS     = "h";
 
-static DBAgent::TableProfileEx tableProf[] = {
+static const DBAgent::TableProfileEx tableProf[] = {
   {&tableProfileTriggersRaw_2_0, VAR_TRIGGERS},
   {&tableProfileHostsRaw_2_0, VAR_HOSTS},
 };

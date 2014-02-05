@@ -171,7 +171,7 @@ enum {
 	NUM_IDX_TRIGGERS,
 };
 
-static DBAgent::TableProfile tableProfileTriggers(
+static const DBAgent::TableProfile tableProfileTriggers(
   TABLE_NAME_TRIGGERS, COLUMN_DEF_TRIGGERS,
   sizeof(COLUMN_DEF_TRIGGERS), NUM_IDX_TRIGGERS);
 
@@ -327,7 +327,7 @@ enum {
 	NUM_IDX_EVENTS,
 };
 
-static DBAgent::TableProfile tableProfileEvents(
+static const DBAgent::TableProfile tableProfileEvents(
   TABLE_NAME_EVENTS, COLUMN_DEF_EVENTS,
   sizeof(COLUMN_DEF_EVENTS), NUM_IDX_EVENTS);
 
@@ -447,7 +447,7 @@ enum {
 	NUM_IDX_ITEMS,
 };
 
-static DBAgent::TableProfile tableProfileItems(
+static const DBAgent::TableProfile tableProfileItems(
   TABLE_NAME_ITEMS, COLUMN_DEF_ITEMS,
   sizeof(COLUMN_DEF_ITEMS), NUM_IDX_ITEMS);
 
@@ -506,7 +506,7 @@ enum {
 	NUM_IDX_HOSTS,
 };
 
-static DBAgent::TableProfile tableProfileHosts(
+static const DBAgent::TableProfile tableProfileHosts(
   TABLE_NAME_HOSTS, COLUMN_DEF_HOSTS,
   sizeof(COLUMN_DEF_HOSTS), NUM_IDX_HOSTS);
 
@@ -566,7 +566,7 @@ enum {
 	NUM_IDX_HOSTGROUPS,
 };
 
-static DBAgent::TableProfile tableProfileHostgroups(
+static const DBAgent::TableProfile tableProfileHostgroups(
   TABLE_NAME_HOSTGROUPS, COLUMN_DEF_HOSTGROUPS,
   sizeof(COLUMN_DEF_HOSTGROUPS), NUM_IDX_HOSTGROUPS);
 
@@ -626,7 +626,7 @@ enum {
 	NUM_IDX_MAP_HOSTS_HOSTGROUPS,
 };
 
-static DBAgent::TableProfile tableProfileMapHostsHostgroups(
+static const DBAgent::TableProfile tableProfileMapHostsHostgroups(
   TABLE_NAME_MAP_HOSTS_HOSTGROUPS, COLUMN_DEF_MAP_HOSTS_HOSTGROUPS,
   sizeof(COLUMN_DEF_MAP_HOSTS_HOSTGROUPS), NUM_IDX_MAP_HOSTS_HOSTGROUPS);
 

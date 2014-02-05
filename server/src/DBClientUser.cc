@@ -105,7 +105,7 @@ enum {
 	NUM_IDX_USERS,
 };
 
-static DBAgent::TableProfile tableProfileUsers(
+static const DBAgent::TableProfile tableProfileUsers(
   DBClientUser::TABLE_NAME_USERS, COLUMN_DEF_USERS,
   sizeof(COLUMN_DEF_USERS), NUM_IDX_USERS);
 
@@ -165,7 +165,7 @@ enum {
 	NUM_IDX_ACCESS_LIST,
 };
 
-static DBAgent::TableProfile tableProfileAccessList(
+static const DBAgent::TableProfile tableProfileAccessList(
   DBClientUser::TABLE_NAME_ACCESS_LIST, COLUMN_DEF_ACCESS_LIST,
   sizeof(COLUMN_DEF_ACCESS_LIST), NUM_IDX_ACCESS_LIST);
 
@@ -213,7 +213,7 @@ enum {
 	NUM_IDX_USER_ROLES,
 };
 
-static DBAgent::TableProfile tableProfileUserRoles(
+static const DBAgent::TableProfile tableProfileUserRoles(
   DBClientUser::TABLE_NAME_USER_ROLES, COLUMN_DEF_USER_ROLES,
   sizeof(COLUMN_DEF_USER_ROLES), NUM_IDX_USER_ROLES);
 
