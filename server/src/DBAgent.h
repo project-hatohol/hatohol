@@ -123,7 +123,8 @@ public:
 		size_t      columnIndex;
 		ItemDataPtr dataPtr;
 
-		RowElement(const size_t &index, const ItemData *itemData);
+		RowElement(const size_t &index, const ItemData *itemData,
+		           const bool &doRef = true);
 	};
 	
 	struct UpdateArg {

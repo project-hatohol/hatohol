@@ -137,9 +137,10 @@ DBAgent::TableProfile::TableProfile(
 // ---------------------------------------------------------------------------
 // DBAgent::UpdateArg
 // ---------------------------------------------------------------------------
-DBAgent::RowElement::RowElement(const size_t &index, const ItemData *itemData)
+DBAgent::RowElement::RowElement(const size_t &index, const ItemData *itemData,
+                               const bool &doRef)
 : columnIndex(index),
-  dataPtr(itemData, false)
+  dataPtr(itemData, doRef)
 {
 }
 
@@ -156,27 +157,27 @@ DBAgent::UpdateArg::~UpdateArg()
 
 void DBAgent::UpdateArg::add(const size_t &columnIndex, const int &val)
 {
-	rows.push_back(new RowElement(columnIndex, new ItemInt(val)));
+	rows.push_back(new RowElement(columnIndex, new ItemInt(val), false));
 }
 
 void DBAgent::UpdateArg::add(const size_t &columnIndex, const uint64_t &val)
 {
-	rows.push_back(new RowElement(columnIndex, new ItemUint64(val)));
+	rows.push_back(new RowElement(columnIndex, new ItemUint64(val), false));
 }
 
 void DBAgent::UpdateArg::add(const size_t &columnIndex, const double &val)
 {
-	rows.push_back(new RowElement(columnIndex, new ItemDouble(val)));
+	rows.push_back(new RowElement(columnIndex, new ItemDouble(val), false));
 }
 
 void DBAgent::UpdateArg::add(const size_t &columnIndex, const std::string &val)
 {
-	rows.push_back(new RowElement(columnIndex, new ItemString(val)));
+	rows.push_back(new RowElement(columnIndex, new ItemString(val), false));
 }
 
 void DBAgent::UpdateArg::add(const size_t &columnIndex, const time_t &val)
 {
-	rows.push_back(new RowElement(columnIndex, new ItemInt(val)));
+	rows.push_back(new RowElement(columnIndex, new ItemInt(val), false));
 }
 
 // ---------------------------------------------------------------------------
