@@ -54,12 +54,6 @@ struct DBAgentSelectExArg {
 	                const std::string &varName = "");
 };
 
-struct DBAgentAddColumnsArg {
-	std::string         tableName;
-	const ColumnDef    *columnDefs;
-	std::vector<size_t> columnIndexes;
-};
-
 struct DBConnectInfo {
 	std::string host;
 	size_t      port;
@@ -135,6 +129,13 @@ public:
 		DeleteArg(const TableProfile &tableProfile);
 	};
 
+	struct AddColumnsArg {
+		const TableProfile &tableProfile;
+		std::vector<size_t> columnIndexes;
+
+		AddColumnsArg(const TableProfile &tableProfile);
+	};
+
 	static void addSetupFunction(DBDomainId domainId,
 	                             DBSetupFunc setupFunc, void *data = NULL);
 
@@ -155,7 +156,7 @@ public:
 	virtual void select(const SelectArg &selectArg) = 0;
 	virtual void select(DBAgentSelectExArg &selectExArg) = 0;
 	virtual void deleteRows(const DeleteArg &deleteArg) = 0;
-	virtual void addColumns(DBAgentAddColumnsArg &addColumnsArg) = 0;
+	virtual void addColumns(const AddColumnsArg &addColumnsArg) = 0;
 	virtual uint64_t getLastInsertId(void) = 0;
 	virtual uint64_t getNumberOfAffectedRows(void) = 0;
 

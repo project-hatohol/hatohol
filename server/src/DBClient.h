@@ -139,7 +139,7 @@ protected:
 	void select(const DBAgent::SelectArg &selectArg);
 	void select(DBAgentSelectExArg &selectExArg);
 	void deleteRows(const DBAgent::DeleteArg &deleteArg);
-	void addColumns(DBAgentAddColumnsArg &addColumnsArg);
+	void addColumns(const DBAgent::AddColumnsArg &addColumnsArg);
 	bool isRecordExisting(const std::string &tableName,
 	                      const std::string &condition);
 	uint64_t getLastInsertId(void);

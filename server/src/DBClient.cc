@@ -422,7 +422,7 @@ void DBClient::deleteRows(const DBAgent::DeleteArg &deleteArg)
 	getDBAgent()->deleteRows(deleteArg);
 }
 
-void DBClient::addColumns(DBAgentAddColumnsArg &addColumnsArg)
+void DBClient::addColumns(const DBAgent::AddColumnsArg &addColumnsArg)
 {
 	getDBAgent()->addColumns(addColumnsArg);
 }

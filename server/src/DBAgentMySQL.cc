@@ -437,14 +437,15 @@ uint64_t DBAgentMySQL::getNumberOfAffectedRows(void)
 	return num;
 }
 
-void DBAgentMySQL::addColumns(DBAgentAddColumnsArg &addColumnsArg)
+void DBAgentMySQL::addColumns(const AddColumnsArg &addColumnsArg)
 {
 	string query = "ALTER TABLE ";
-	query += addColumnsArg.tableName;
-	vector<size_t>::iterator it = addColumnsArg.columnIndexes.begin();
+	query += addColumnsArg.tableProfile.name;
+	vector<size_t>::const_iterator it = addColumnsArg.columnIndexes.begin();
 	for (; it != addColumnsArg.columnIndexes.end(); ++it) {
-		size_t index = *it;
-		const ColumnDef &columnDef = addColumnsArg.columnDefs[index];
+		const size_t index = *it;
+		const ColumnDef &columnDef =
+		  addColumnsArg.tableProfile.columnDefs[index];
 		query += " ADD COLUMN ";
 		query += getColumnDefinitionQuery(columnDef);
 		if (index < addColumnsArg.columnIndexes.size() - 1)

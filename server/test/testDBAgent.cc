@@ -146,7 +146,7 @@ private:
 	virtual void select(const SelectArg &selectArg) {}
 	virtual void select(DBAgentSelectExArg &selectExArg) {}
 	virtual void deleteRows(const DeleteArg &deleteArg) {}
-	virtual void addColumns(DBAgentAddColumnsArg &addColumnsArg) {}
+	virtual void addColumns(const AddColumnsArg &addColumnsArg) {}
 
 	virtual uint64_t getLastInsertId(void)
 	{

@@ -281,9 +281,7 @@ DBConnectInfo DBClientConfig::PrivateContext::connInfo;
 static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
 {
 	if (oldVer <= 5) {
-		DBAgentAddColumnsArg addColumnsArg;
-		addColumnsArg.tableName = TABLE_NAME_SYSTEM;
-		addColumnsArg.columnDefs = COLUMN_DEF_SYSTEM;
+		DBAgent::AddColumnsArg addColumnsArg(tableProfileSystem);
 		addColumnsArg.columnIndexes.push_back(
 		  IDX_SYSTEM_ENABLE_COPY_ON_DEMAND);
 		dbAgent->addColumns(addColumnsArg);

@@ -358,9 +358,7 @@ sizeof(DB_TABLE_INFO) / sizeof(DBClient::DBSetupTableInfo);
 
 static bool addColumnOwnerUserId(DBAgent *dbAgent)
 {
-	DBAgentAddColumnsArg addColumnsArg;
-	addColumnsArg.tableName = TABLE_NAME_ACTIONS;
-	addColumnsArg.columnDefs = COLUMN_DEF_ACTIONS;
+	DBAgent::AddColumnsArg addColumnsArg(tableProfileActions);
 	addColumnsArg.columnIndexes.push_back(
 	  IDX_ACTIONS_OWNER_USER_ID);
 	dbAgent->addColumns(addColumnsArg);

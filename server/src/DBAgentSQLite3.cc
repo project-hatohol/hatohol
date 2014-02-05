@@ -642,7 +642,7 @@ void DBAgentSQLite3::deleteRows(sqlite3 *db, const DeleteArg &deleteArg)
 	_execSql(db, sql.c_str());
 }
 
-void DBAgentSQLite3::addColumns(DBAgentAddColumnsArg &addColumnsArg)
+void DBAgentSQLite3::addColumns(const AddColumnsArg &addColumnsArg)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 }

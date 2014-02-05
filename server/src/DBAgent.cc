@@ -208,6 +208,14 @@ DBAgent::DeleteArg::DeleteArg(const TableProfile &profile)
 }
 
 // ---------------------------------------------------------------------------
+// DBAgent::AddColumnsArg
+// ---------------------------------------------------------------------------
+DBAgent::AddColumnsArg::AddColumnsArg(const TableProfile &profile)
+: tableProfile(profile)
+{
+}
+
+// ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 void DBAgent::addSetupFunction(DBDomainId domainId,
