@@ -65,7 +65,10 @@
     var numSelected = 0;
 
     $("#add-server-button").click(function() {
-      new HatoholServerEditDialog(addOrUpdateSucceededCb);
+      new HatoholServerEditDialog({
+        operator: userProfile.user,
+        succeededCallback: addOrUpdateSucceededCb
+      });
     });
 
     $("#delete-server-button").click(function() {
@@ -107,8 +110,11 @@
         id = "#edit-server" + servers[i]["id"];
         $(id).click(function() {
           var serverId = this.getAttribute("serverId");
-          var server = serversMap[serverId];
-          new HatoholServerEditDialog(addOrUpdateSucceededCb);
+          new HatoholServerEditDialog({
+            operator: userProfile.user,
+            succeededCallback: addOrUpdateSucceededCb
+            targetServer: serversMap[serverId]
+          });
         });
       }
 

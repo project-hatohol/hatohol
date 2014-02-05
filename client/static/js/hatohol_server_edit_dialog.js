@@ -17,8 +17,12 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var HatoholServerEditDialog = function(succeededCb) {
+var HatoholServerEditDialog = function(params) {
   var self = this;
+
+  self.operator = params.operator;
+  self.server = params.targetServer;
+  self.succeededCallback = params.succeededCallback;
 
   var dialogButtons = [{
     text: gettext("ADD"),
@@ -81,8 +85,8 @@ var HatoholServerEditDialog = function(succeededCb) {
     self.closeDialog();
     hatoholInfoMsgBox(gettext("Successfully created."));
 
-    if (succeededCb)
-      succeededCb();
+    if (self.succeededCallback)
+      self.succeededCallback();
   }
 
   function validateParameters() {
