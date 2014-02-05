@@ -98,7 +98,7 @@
 
     function setupEditButtons(reply)
     {
-      var i, id, servers = reply["servers"], serversMap = {}, serverId;
+      var i, id, servers = reply["servers"], serversMap = {};
 
       for (i = 0; i < servers.length; ++i)
         serversMap[servers[i]["id"]] = servers[i];
