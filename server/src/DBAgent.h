@@ -117,7 +117,7 @@ public:
 	};
 
 	struct SelectExArg {
-		const TableProfile        &tableProfile;
+		const TableProfile        *tableProfile;
 		std::vector<std::string>   statements;
 		std::vector<SQLColumnType> columnTypes;
 		std::string                condition;

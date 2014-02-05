@@ -93,7 +93,7 @@ public:
 		                     sizeof(m_testColumnDefs),
 		                     m_numTestColumns);
 		SelectExArg arg(tblProf);
-		cppcut_assert_equal(&tblProf, &arg.tableProfile);
+		cppcut_assert_equal(&tblProf, arg.tableProfile);
 		cppcut_assert_equal(true, arg.statements.empty());
 		cppcut_assert_equal(true, arg.columnTypes.empty());
 		cppcut_assert_equal(true, arg.condition.empty());

@@ -205,7 +205,7 @@ DBAgent::SelectArg::SelectArg(const TableProfile &profile)
 // DBAgent::SelectExArg
 // ---------------------------------------------------------------------------
 DBAgent::SelectExArg::SelectExArg(const TableProfile &profile)
-: tableProfile(profile),
+: tableProfile(&profile),
   limit(0),
   offset(0)
 {
@@ -219,7 +219,7 @@ void DBAgent::SelectExArg::add(const size_t &columnIndex,
 		statement = varName;
 		statement += ".";
 	}
-	const ColumnDef &columnDef = tableProfile.columnDefs[columnIndex];
+	const ColumnDef &columnDef = tableProfile->columnDefs[columnIndex];
 	statement += columnDef.columnName;
 	statements.push_back(statement);
 	columnTypes.push_back(columnDef.type);
@@ -380,7 +380,7 @@ string DBAgent::makeSelectStatement(const SelectExArg &selectExArg)
 			sql += ",";
 	}
 	sql += " FROM ";
-	sql += selectExArg.tableProfile.name;
+	sql += selectExArg.tableProfile->name;
 	if (!selectExArg.condition.empty()) {
 		sql += " WHERE ";
 		sql += selectExArg.condition;
