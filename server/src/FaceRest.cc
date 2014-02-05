@@ -1237,12 +1237,12 @@ static void addServersMap(
 }
 
 static void buildHostgroup(
-  FaceRest::RestJob *job, JsonBuilderAgent &outputJson)
+  UserIdType userId, JsonBuilderAgent &outputJson)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	HostgroupInfoList hostgroupInfoList;
-	HostgroupsQueryOption option(job->userId);
+	HostgroupsQueryOption option(userId);
 	dataStore->getHostgroupInfoList(hostgroupInfoList, option);
 
 	outputJson.startArray("hostgroups");
@@ -1588,7 +1588,7 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 	}
 	agent.endArray();
 	addServersMap(job, agent, &hostMaps);
-	buildHostgroup(job, agent);
+	buildHostgroup(job->userId, agent);
 	agent.endObject();
 
 	replyJsonData(agent, job);
