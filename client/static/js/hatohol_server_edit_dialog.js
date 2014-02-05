@@ -77,9 +77,12 @@ var HatoholServerEditDialog = function(params) {
   }
 
   function postAddServer() {
+    var url = "/server";
+    if (self.server)
+      url += "/" + self.server.id;
     new HatoholConnector({
-      url: "/server",
-      request: "POST",
+      url: url,
+      request: self.server ? "PUT" : "POST",
       data: makeQueryData(),
       replyCallback: replyCallback,
       parseErrorCallback: hatoholErrorMsgBoxForParser
