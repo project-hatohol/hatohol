@@ -311,10 +311,10 @@ static const DBAgent::TableProfile tableProfileStateHistory(
 // ---------------------------------------------------------------------------
 // Private context
 // ---------------------------------------------------------------------------
-const static char *VAR_SERVICES     = "sv";
-const static char *VAR_STATUS       = "st";
-const static char *VAR_HOSTS        = "h";
-const static char *VAR_STATEHISTORY = "sh";
+static const char *VAR_SERVICES     = "sv";
+static const char *VAR_STATUS       = "st";
+static const char *VAR_HOSTS        = "h";
+static const char *VAR_STATEHISTORY = "sh";
 
 static const DBAgent::TableProfileEx profTrig[] = {
   {&tableProfileServices,      VAR_SERVICES}, 
