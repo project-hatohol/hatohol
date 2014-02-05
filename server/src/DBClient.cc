@@ -256,14 +256,10 @@ void DBClient::setConnectInfo(
 }
 
 void DBClient::createTable
-  (DBAgent *dbAgent, const string &tableName, size_t numColumns,
-   const ColumnDef *columnDefs, CreateTableInitializer initializer, void *data)
+  (DBAgent *dbAgent, const DBAgent::TableProfile &tableProfile,
+   CreateTableInitializer initializer, void *data)
 {
-	DBAgentTableCreationArg arg;
-	arg.tableName  = tableName;
-	arg.numColumns = numColumns;
-	arg.columnDefs = columnDefs;
-	dbAgent->createTable(arg);
+	dbAgent->createTable(tableProfile);
 	if (initializer)
 		(*initializer)(dbAgent, data);
 }
@@ -350,12 +346,8 @@ void DBClient::dbSetupFunc(DBDomainId domainId, void *data)
 	                                                    setupCtx->dbName,
 	                                                    skipSetup,
 	                                                    connectInfo));
-	if (!rawDBAgent->isTableExisting(TABLE_NAME_DBCLIENT_VERSION)) {
-		createTable(rawDBAgent.get(),
-		            TABLE_NAME_DBCLIENT_VERSION,
-		            tableProfileDBClientVersion.numColumns,
-		            COLUMN_DEF_DBCLIENT_VERSION);
-	}
+	if (!rawDBAgent->isTableExisting(TABLE_NAME_DBCLIENT_VERSION))
+		createTable(rawDBAgent.get(), tableProfileDBClientVersion);
 
 	// If the row that has the version of this DBClient doesn't exist,
 	// we insert it.
@@ -373,8 +365,12 @@ void DBClient::dbSetupFunc(DBDomainId domainId, void *data)
 		  = setupFuncArg->tableInfoArray[i];
 		if (rawDBAgent->isTableExisting(tableInfo.name))
 			continue;
-		createTable(rawDBAgent.get(), tableInfo.name,
-		            tableInfo.numColumns, tableInfo.columnDefs);
+		// TODO: Use tableInfo.profile when it is added
+		DBAgent::TableProfile
+		  tableProfile(tableInfo.name, tableInfo.columnDefs,
+		               tableInfo.numColumns * sizeof(ColumnDef),
+		               tableInfo.numColumns);
+		createTable(rawDBAgent.get(), tableProfile);
 		if (!tableInfo.initializer)
 			continue;
 		(*tableInfo.initializer)(rawDBAgent.get(),

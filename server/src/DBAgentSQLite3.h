@@ -58,7 +58,7 @@ public:
 	virtual void begin(void);
 	virtual void commit(void);
 	virtual void rollback(void);
-	virtual void createTable(DBAgentTableCreationArg &tableCreationArg);
+	virtual void createTable(const TableProfile &tableProfile); // override
 	virtual void insert(const InsertArg &insertArg); // override
 	virtual void update(const UpdateArg &updateArg); // override
 	virtual void select(const SelectArg &selectArg); // override
@@ -78,8 +78,7 @@ protected:
 	static void _execSql(sqlite3 *db, const std::string &sql);
 	static bool isTableExisting(sqlite3 *db,
 	                            const std::string &tableName);
-	static void createTable(sqlite3 *db,
-	                        DBAgentTableCreationArg &tableCreationArg);
+	static void createTable(sqlite3 *db, const TableProfile &tableProfile);
 	static void insert(sqlite3 *db, const InsertArg &insertArg);
 	static void update(sqlite3 *db, const UpdateArg &updateArg);
 	static void select(sqlite3 *db, const SelectArg &selectArg);
@@ -92,6 +91,7 @@ protected:
 	static uint64_t getNumberOfAffectedRows(sqlite3 *db);
 	static ItemDataPtr getValue(sqlite3_stmt *stmt, size_t index,
 	                            SQLColumnType columnType);
+	// TODO: Use TableProfile
 	static void createIndex(sqlite3 *db,
 	                        const std::string &tableName,
 	                        const ColumnDef *columnDefs,

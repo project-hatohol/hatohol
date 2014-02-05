@@ -235,21 +235,21 @@ static string getColumnDefinitionQuery(const ColumnDef &columnDef)
 	return query;
 }
 
-void DBAgentMySQL::createTable(DBAgentTableCreationArg &tableCreationArg)
+void DBAgentMySQL::createTable(const TableProfile &tableProfile)
 {
 	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
 	string query = StringUtils::sprintf("CREATE TABLE %s (",
-	                                    tableCreationArg.tableName.c_str());
+	                                    tableProfile.name);
 	
-	for (size_t i = 0; i < tableCreationArg.numColumns; i++) {
-		const ColumnDef &columnDef = tableCreationArg.columnDefs[i];
+	for (size_t i = 0; i < tableProfile.numColumns; i++) {
+		const ColumnDef &columnDef = tableProfile.columnDefs[i];
 		query += getColumnDefinitionQuery(columnDef);
 
 		// auto increment
 		if (columnDef.flags & SQL_COLUMN_FLAG_AUTO_INC)
 			query += " AUTO_INCREMENT";
 
-		if (i < tableCreationArg.numColumns -1)
+		if (i < tableProfile.numColumns -1)
 			query += ",";
 	}
 	query += ")";

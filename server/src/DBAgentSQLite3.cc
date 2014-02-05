@@ -235,10 +235,10 @@ void DBAgentSQLite3::rollback(void)
 	_execSql(m_ctx->db, "ROLLBACK");
 }
 
-void DBAgentSQLite3::createTable(DBAgentTableCreationArg &tableCreationArg)
+void DBAgentSQLite3::createTable(const TableProfile &tableProfile)
 {
 	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
-	createTable(m_ctx->db,tableCreationArg);
+	createTable(m_ctx->db, tableProfile);
 }
 
 void DBAgentSQLite3::insert(const DBAgent::InsertArg &insertArg)
@@ -405,18 +405,17 @@ bool DBAgentSQLite3::isTableExisting(sqlite3 *db,
 	return count > 0;
 }
 
-void DBAgentSQLite3::createTable(sqlite3 *db,
-                                 DBAgentTableCreationArg &tableCreationArg)
+void DBAgentSQLite3::createTable(sqlite3 *db, const TableProfile &tableProfile)
 {
 	vector<size_t> multipleKeyColumnIndexVector;
 	vector<size_t> uniqueKeyColumnIndexVector;
 
 	// make a SQL statement
 	string sql = "CREATE TABLE ";
-	sql += tableCreationArg.tableName;
+	sql += tableProfile.name;
 	sql += "(";
-	for (size_t i = 0; i < tableCreationArg.numColumns; i++) {
-		const ColumnDef &columnDef = tableCreationArg.columnDefs[i];
+	for (size_t i = 0; i < tableProfile.numColumns; i++) {
+		const ColumnDef &columnDef = tableProfile.columnDefs[i];
 
 		// set type
 		sql += columnDef.columnName;
@@ -460,7 +459,7 @@ void DBAgentSQLite3::createTable(sqlite3 *db,
 			             columnDef.keyType, columnDef.columnName);
 		}
 
-		if (i < tableCreationArg.numColumns - 1)
+		if (i < tableProfile.numColumns - 1)
 			sql += ",";
 	}
 	sql += ")";
@@ -478,17 +477,19 @@ void DBAgentSQLite3::createTable(sqlite3 *db,
 	// add indexes
 	if (!multipleKeyColumnIndexVector.empty()) {
 		bool isUniqueKey = false;
-		string indexName = "mul_index_" + tableCreationArg.tableName;
-		createIndex(db, tableCreationArg.tableName,
-		            tableCreationArg.columnDefs, indexName,
+		string indexName = StringUtils::sprintf("mul_index_%s",
+		                                        tableProfile.name);
+		createIndex(db, tableProfile.name,
+		            tableProfile.columnDefs, indexName,
 		            multipleKeyColumnIndexVector, isUniqueKey);
 	}
 
 	if (!uniqueKeyColumnIndexVector.empty()) {
 		bool isUniqueKey = true;
-		string indexName = "uni_index_" + tableCreationArg.tableName;
-		createIndex(db, tableCreationArg.tableName,
-		            tableCreationArg.columnDefs, indexName,
+		string indexName = StringUtils::sprintf("uni_index_%s",
+		                                        tableProfile.name);
+		createIndex(db, tableProfile.name,
+		            tableProfile.columnDefs, indexName,
 		            uniqueKeyColumnIndexVector, isUniqueKey);
 	}
 }

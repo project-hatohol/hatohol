@@ -30,12 +30,6 @@ static const int      AUTO_INCREMENT_VALUE = 0;
 static const uint64_t AUTO_INCREMENT_VALUE_U64 = 0;
 static const int CURR_DATETIME = -1;
 
-struct DBAgentTableCreationArg {
-	std::string         tableName;
-	size_t              numColumns;
-	const ColumnDef    *columnDefs;
-};
-
 struct DBAgentSelectExArg {
 	std::string                tableName;
 	std::vector<std::string>   statements;
@@ -150,7 +144,7 @@ public:
 	virtual void begin(void) = 0;
 	virtual void commit(void) = 0;
 	virtual void rollback(void) = 0;
-	virtual void createTable(DBAgentTableCreationArg &tableCreationArg) = 0;
+	virtual void createTable(const TableProfile &tableProfile) = 0;
 	virtual void insert(const InsertArg &insertArg) = 0;
 	virtual void update(const UpdateArg &updateArg) = 0;
 	virtual void select(const SelectArg &selectArg) = 0;

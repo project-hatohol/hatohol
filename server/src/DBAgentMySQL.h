@@ -45,7 +45,7 @@ public:
 	virtual void begin(void);
 	virtual void commit(void);
 	virtual void rollback(void);
-	virtual void createTable(DBAgentTableCreationArg &tableCreationArg);
+	virtual void createTable(const TableProfile &tableProfile); //override
 	virtual void insert(const InsertArg &insertArg); // override
 	virtual void update(const UpdateArg &updateArg); // override
 	virtual void select(const SelectArg &selectArg); // override

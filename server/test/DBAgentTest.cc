@@ -191,13 +191,8 @@ static void checkUpdate(DBAgent &dbAgent, DBAgentChecker &checker,
 
 void dbAgentTestCreateTable(DBAgent &dbAgent, DBAgentChecker &checker)
 {
-	DBAgentTableCreationArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	arg.numColumns = NUM_COLUMNS_TEST;
-	arg.columnDefs = COLUMN_DEF_TEST;
-	dbAgent.createTable(arg);
-
-	checker.assertTable(arg);
+	dbAgent.createTable(tableProfileTest);
+	checker.assertTable(tableProfileTest);
 }
 
 void dbAgentTestInsert(DBAgent &dbAgent, DBAgentChecker &checker)
@@ -519,13 +514,8 @@ void dbAgentTestIsTableExisting(DBAgent &dbAgent, DBAgentChecker &checker)
 
 static void createTestTableAutoInc(DBAgent &dbAgent, DBAgentChecker &checker)
 {
-	DBAgentTableCreationArg arg;
-	arg.tableName = TABLE_NAME_TEST_AUTO_INC;
-	arg.numColumns = tableProfileTestAutoInc.numColumns;
-	arg.columnDefs = COLUMN_DEF_TEST_AUTO_INC;
-	dbAgent.createTable(arg);
-
-	checker.assertTable(arg);
+	dbAgent.createTable(tableProfileTestAutoInc);
+	checker.assertTable(tableProfileTestAutoInc);
 }
 
 static void insertRowToTestTableAutoInc(DBAgent &dbAgent,
@@ -675,11 +665,7 @@ void dbAgentGetNumberOfAffectedRows(DBAgent &dbAgent, DBAgentChecker &checker)
 // --------------------------------------------------------------------------
 void DBAgentChecker::createTable(DBAgent &dbAgent)
 {
-	DBAgentTableCreationArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	arg.numColumns = NUM_COLUMNS_TEST;
-	arg.columnDefs = COLUMN_DEF_TEST;
-	dbAgent.createTable(arg);
+	dbAgent.createTable(tableProfileTest);
 }
 
 void DBAgentChecker::insert

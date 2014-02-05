@@ -34,18 +34,18 @@ DBAgentMySQL *g_dbAgent = NULL;
 class DBAgentCheckerMySQL : public DBAgentChecker {
 public:
 	// overriden virtual methods
-	virtual void assertTable(const DBAgentTableCreationArg &arg)
+	virtual void assertTable(const DBAgent::TableProfile &tableProfile)
 	{
 		// get the table information with mysql command.
 		string sql = "desc ";
-		sql += arg.tableName;
+		sql += tableProfile.name;
 		string result = execMySQL(TEST_DB_NAME, sql, true);
 
 		// check the number of obtained lines
 		size_t linesIdx = 0;
 		StringVector lines;
 		StringUtils::split(lines, result, '\n');
-		cppcut_assert_equal(arg.numColumns+1, lines.size());
+		cppcut_assert_equal(tableProfile.numColumns+1, lines.size());
 
 		// assert header output
 		const char *headers[] = {
@@ -62,14 +62,14 @@ public:
 
 		// assert tables
 		string expected;
-		for (size_t  i = 0; i < arg.numColumns; i++) {
+		for (size_t  i = 0; i < tableProfile.numColumns; i++) {
 			size_t idx = 0;
 			StringVector words;
 			const bool doMerge = false;
 			StringUtils::split(words, lines[linesIdx++], '\t',
 			                   doMerge);
 			cppcut_assert_equal(numHeaders, words.size());
-			const ColumnDef &columnDef = arg.columnDefs[i];
+			const ColumnDef &columnDef = tableProfile.columnDefs[i];
 
 			// column name
 			expected = columnDef.columnName;

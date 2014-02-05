@@ -49,7 +49,7 @@ extern const int MAX_ALLOWD_CURR_TIME_ERROR;
 
 class DBAgentChecker {
 public:
-	virtual void assertTable(const DBAgentTableCreationArg &arg) = 0;
+	virtual void assertTable(const DBAgent::TableProfile &tableProfile) = 0;
 	virtual void assertExistingRecord(
 	               uint64_t id, int age, const char *name, double height,
 	               int datetime, size_t numColumns,

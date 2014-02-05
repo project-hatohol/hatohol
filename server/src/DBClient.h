@@ -99,8 +99,7 @@ protected:
 	static void setConnectInfo(DBDomainId domainId,
 	                           const DBConnectInfo &connectInfo);
 	static void createTable
-	  (DBAgent *dbAgent, const std::string &tableName, size_t numColumns,
-	   const ColumnDef *columnDefs,
+	  (DBAgent *dbAgent, const DBAgent::TableProfile &tableProfile,
 	   CreateTableInitializer initializer = NULL, void *data = NULL);
 	static void insertDBClientVersion(DBAgent *dbAgent,
 	                                  const DBSetupFuncArg *setupFuncArg);

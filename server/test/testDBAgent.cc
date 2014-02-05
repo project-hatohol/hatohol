@@ -140,7 +140,7 @@ private:
 	virtual void begin(void) {}
 	virtual void commit(void) {}
 	virtual void rollback(void) {}
-	virtual void createTable(DBAgentTableCreationArg &tableCreationArg) {}
+	virtual void createTable(const DBAgent::TableProfile &tableProfile) {}
 	virtual void insert(const InsertArg &insertArg) {}
 	virtual void update(const UpdateArg &updateArg) {}
 	virtual void select(const SelectArg &selectArg) {}
