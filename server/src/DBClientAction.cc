@@ -829,19 +829,17 @@ string DBClientAction::makeActionDefCondition(const EventInfo &eventInfo)
 
 bool DBClientAction::getLog(ActionLog &actionLog, const string &condition)
 {
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_ACTION_LOGS;
-	const ColumnDef *def = COLUMN_DEF_ACTION_LOGS;
+	DBAgent::SelectExArg arg(tableProfileActionLogs);
 	arg.condition = condition;
-	arg.pushColumn(def[IDX_ACTION_LOGS_ACTION_LOG_ID]);
-	arg.pushColumn(def[IDX_ACTION_LOGS_ACTION_ID]);
-	arg.pushColumn(def[IDX_ACTION_LOGS_STATUS]); 
-	arg.pushColumn(def[IDX_ACTION_LOGS_STARTER_ID]);
-	arg.pushColumn(def[IDX_ACTION_LOGS_QUEUING_TIME]);
-	arg.pushColumn(def[IDX_ACTION_LOGS_START_TIME]);
-	arg.pushColumn(def[IDX_ACTION_LOGS_END_TIME]);
-	arg.pushColumn(def[IDX_ACTION_LOGS_EXEC_FAILURE_CODE]);
-	arg.pushColumn(def[IDX_ACTION_LOGS_EXIT_CODE]);
+	arg.add(IDX_ACTION_LOGS_ACTION_LOG_ID);
+	arg.add(IDX_ACTION_LOGS_ACTION_ID);
+	arg.add(IDX_ACTION_LOGS_STATUS); 
+	arg.add(IDX_ACTION_LOGS_STARTER_ID);
+	arg.add(IDX_ACTION_LOGS_QUEUING_TIME);
+	arg.add(IDX_ACTION_LOGS_START_TIME);
+	arg.add(IDX_ACTION_LOGS_END_TIME);
+	arg.add(IDX_ACTION_LOGS_EXEC_FAILURE_CODE);
+	arg.add(IDX_ACTION_LOGS_EXIT_CODE);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
