@@ -147,6 +147,7 @@ public:
 		SelectMultiTableArg(const TableProfileEx *profileExArray,
 		                    const size_t &numTables);
 		void setProfile(const size_t &index);
+		void add(const size_t &columnIndex);
 	};
 
 	struct DeleteArg {

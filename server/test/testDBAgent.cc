@@ -180,6 +180,43 @@ public:
 		cppcut_assert_equal(&tableProfileTestAutoInc, arg.tableProfile);
 	}
 
+	void assertSelectMultiTableArgAdd(void)
+	{
+		TableProfileEx profiles[] = {
+		  {&tableProfileTest, "t"}, {&tableProfileTestAutoInc, "inc"}
+		};
+		const size_t numTables =
+		  sizeof(profiles) / sizeof(TableProfileEx);
+		SelectMultiTableArg arg(profiles, numTables);
+
+		// 1st add()
+		size_t columnIdx = 2;
+		arg.add(columnIdx);
+
+		cppcut_assert_equal((size_t)1, arg.statements.size());
+		cppcut_assert_equal((size_t)1, arg.columnTypes.size());
+
+		const ColumnDef *def = &tableProfileTest.columnDefs[columnIdx];
+		cppcut_assert_equal(
+		  StringUtils::sprintf("t.%s", def->columnName),
+		  arg.statements[0]);
+		cppcut_assert_equal(def->type, arg.columnTypes[0]);
+
+		// 2nd add() after the change of the profile
+		arg.setProfile(1);
+		columnIdx = 0;
+		arg.add(columnIdx);
+
+		cppcut_assert_equal((size_t)2, arg.statements.size());
+		cppcut_assert_equal((size_t)2, arg.columnTypes.size());
+
+		def = &tableProfileTestAutoInc.columnDefs[columnIdx];
+		cppcut_assert_equal(
+		  StringUtils::sprintf("inc.%s", def->columnName),
+		  arg.statements[1]);
+		cppcut_assert_equal(def->type, arg.columnTypes[1]);
+	}
+
 	void assertCreateDeleteArg(void)
 	{
 		TableProfile tblProf("name", m_testColumnDefs,
@@ -319,6 +356,12 @@ void test_selectMultiTableArgSetProfile(void)
 {
 	TestDBAgent dbAgent;
 	dbAgent.assertSelectMultiTableArgSetProfile();
+}
+
+void test_selectMultiTableArgAdd(void)
+{
+	TestDBAgent dbAgent;
+	dbAgent.assertSelectMultiTableArgAdd();
 }
 
 void test_createDeleteArg(void)

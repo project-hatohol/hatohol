@@ -252,6 +252,11 @@ void DBAgent::SelectMultiTableArg::setProfile(const size_t &index)
 	SelectExArg::tableProfile = currProfile->profile;
 }
 
+void DBAgent::SelectMultiTableArg::add(const size_t &columnIndex)
+{
+	SelectExArg::add(columnIndex, currProfile->varName);
+}
+
 // ---------------------------------------------------------------------------
 // DBAgent::DeleteArg
 // ---------------------------------------------------------------------------
