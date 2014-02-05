@@ -1989,11 +1989,9 @@ uint64_t DBClientZabbix::getLastEventId(void)
 	const ColumnDef &columnDefEventId = 
 	  COLUMN_DEF_EVENTS_RAW_2_0[IDX_EVENTS_RAW_2_0_EVENTID];
 
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_EVENTS_RAW_2_0;
-	arg.statements.push_back(
-	  StringUtils::sprintf("max(%s)", columnDefEventId.columnName));
-	arg.columnTypes.push_back(columnDefEventId.type);
+	DBAgent::SelectExArg arg(tableProfileEventsRaw_2_0);
+	arg.add(StringUtils::sprintf("max(%s)", columnDefEventId.columnName),
+	        columnDefEventId.type);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -2012,12 +2010,10 @@ int DBClientZabbix::getTriggerLastChange(void)
 	const ColumnDef &columnDefTriggerLastChange =
 	  COLUMN_DEF_TRIGGERS_RAW_2_0[IDX_TRIGGERS_RAW_2_0_LASTCHANGE];
 
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_TRIGGERS_RAW_2_0;
-	arg.statements.push_back(
-	  StringUtils::sprintf("max(%s)",
-	                       columnDefTriggerLastChange.columnName));
-	arg.columnTypes.push_back(columnDefTriggerLastChange.type);
+	DBAgent::SelectExArg arg(tableProfileTriggersRaw_2_0);
+	string stmt = StringUtils::sprintf(
+	                "max(%s)", columnDefTriggerLastChange.columnName);
+	arg.add(stmt, columnDefTriggerLastChange.type);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -2033,11 +2029,8 @@ int DBClientZabbix::getTriggerLastChange(void)
 
 string DBClientZabbix::getApplicationName(uint64_t applicationId)
 {
-	const ColumnDef &columnAppName =
-	   COLUMN_DEF_APPLICATIONS_RAW_2_0[IDX_APPLICATIONS_RAW_2_0_NAME];
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_APPLICATIONS_RAW_2_0;
-	arg.pushColumn(columnAppName);
+	DBAgent::SelectExArg arg(tableProfileApplicationsRaw_2_0);
+	arg.add(IDX_APPLICATIONS_RAW_2_0_NAME);
 	arg.condition = StringUtils::sprintf("applicationid=%"PRIu64,
 	                                           applicationId);
 	DBCLIENT_TRANSACTION_BEGIN() {
