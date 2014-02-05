@@ -19,11 +19,15 @@ describe('HatoholServerEditDialog', function() {
     expect(buttons).to.have.length(2);
     expect(buttons[0].text).to.be(gettext("ADD"));
 
+    // check initial values
     expect(parseInt($("#selectServerType").val())).to.be(0);
     expect($("#inputNickName").val()).to.be.empty();
     expect($("#inputHostName").val()).to.be.empty();
     expect($("#inputIpAddress").val()).to.be.empty();
     expect(parseInt($("#inputPort").val())).to.be(80);
+
+    // check initial state
+    expect($("#dbNameArea").css("display")).to.be("none");
   });
 
   it('new with a nagios server', function() {
@@ -52,7 +56,7 @@ describe('HatoholServerEditDialog', function() {
     expect($("#inputIpAddress").val()).to.be(server.ipAddress);
     expect(parseInt($("#inputPort").val())).to.be(server.port);
 
-    // check initial button state
+    // check initial state
     expect($("#dbNameArea").css("display")).not.to.be("none");
   });
 
