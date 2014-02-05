@@ -257,8 +257,8 @@ void DBAgent::SelectMultiTableArg::add(const size_t &columnIndex)
 	SelectExArg::add(columnIndex, currProfile->varName);
 }
 
-string DBAgent::SelectMultiTableArg::getColumnName(const size_t &profileIndex,
-                                                   const size_t &columnIndex)
+string DBAgent::SelectMultiTableArg::getFullName(const size_t &profileIndex,
+                                                 const size_t &columnIndex)
 {
 	HATOHOL_ASSERT(profileIndex < numTables,
 	               "profileIndex (%zd) >= numTables (%zd)",
