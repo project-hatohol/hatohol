@@ -431,15 +431,9 @@ bool DBAgent::updateIfExistElseInsert(
 		update(arg);
 	} else {
 		// insert
-		DBAgentInsertArg arg;
-		arg.tableName = tableProfile.name;
-		arg.numColumns = tableProfile.numColumns;
-		arg.columnDefs = tableProfile.columnDefs;
-
-		VariableItemGroupPtr row;
+		DBAgent::InsertArg arg(tableProfile);
 		for (size_t i = 0; i < tableProfile.numColumns; i++)
-			row->add(itemGroup->getItemAt(i));
-		arg.row = row;
+			arg.row->add(itemGroup->getItemAt(i));
 		insert(arg);
 	}
 	return exist;
