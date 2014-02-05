@@ -1945,16 +1945,37 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
                                          const string &condition)
 {
 	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_TRIGGERS;
-	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID]);
-	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID]);
-	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_STATUS]);
-	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SEVERITY]);
-	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC]);
-	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_NS]);
-	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID]);
-	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOSTNAME]);
-	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_BRIEF]);
+	const static char *VAR_TRIGGERS = "t";
+	const static char *VAR_MAP_HOSTS_GROUPS = "m";
+	arg.tableName = StringUtils::sprintf(
+	  " %s %s inner join %s %s on %s.%s=%s.%s",
+	  TABLE_NAME_TRIGGERS, VAR_TRIGGERS,
+	  TABLE_NAME_MAP_HOSTS_HOSTGROUPS, VAR_MAP_HOSTS_GROUPS,
+	  VAR_TRIGGERS, COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName,
+	  VAR_MAP_HOSTS_GROUPS,
+	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID].columnName);
+
+	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID],
+	               VAR_TRIGGERS);
+	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID],
+	               VAR_TRIGGERS);
+	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_STATUS],
+	               VAR_TRIGGERS);
+	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SEVERITY],
+	               VAR_TRIGGERS);
+	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC],
+	               VAR_TRIGGERS);
+	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_NS],
+	               VAR_TRIGGERS);
+	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID],
+	               VAR_TRIGGERS);
+	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOSTNAME],
+	               VAR_TRIGGERS);
+	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_BRIEF],
+	               VAR_TRIGGERS);
+	arg.pushColumn(
+	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID],
+	  VAR_MAP_HOSTS_GROUPS);
 
 	// condition
 	arg.condition = condition;
@@ -1972,19 +1993,20 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 		triggerInfoList.push_back(TriggerInfo());
 		TriggerInfo &trigInfo = triggerInfoList.back();
 
-		trigInfo.serverId  = GET_INT_FROM_GRP(itemGroup, idx++);
-		trigInfo.id        = GET_UINT64_FROM_GRP(itemGroup, idx++);
-		int status         = GET_INT_FROM_GRP(itemGroup, idx++);
-		trigInfo.status    = static_cast<TriggerStatusType>(status);
-		int severity       = GET_INT_FROM_GRP(itemGroup, idx++);
-		trigInfo.severity  = static_cast<TriggerSeverityType>(severity);
+		trigInfo.serverId    = GET_INT_FROM_GRP(itemGroup, idx++);
+		trigInfo.id          = GET_UINT64_FROM_GRP(itemGroup, idx++);
+		int status           = GET_INT_FROM_GRP(itemGroup, idx++);
+		trigInfo.status      = static_cast<TriggerStatusType>(status);
+		int severity         = GET_INT_FROM_GRP(itemGroup, idx++);
+		trigInfo.severity    = static_cast<TriggerSeverityType>(severity);
 		trigInfo.lastChangeTime.tv_sec = 
 		  GET_INT_FROM_GRP(itemGroup, idx++);
 		trigInfo.lastChangeTime.tv_nsec =
 		  GET_INT_FROM_GRP(itemGroup, idx++);
-		trigInfo.hostId    = GET_UINT64_FROM_GRP(itemGroup, idx++);
-		trigInfo.hostName  = GET_STRING_FROM_GRP(itemGroup, idx++);
-		trigInfo.brief     = GET_STRING_FROM_GRP(itemGroup, idx++);
+		trigInfo.hostId      = GET_UINT64_FROM_GRP(itemGroup, idx++);
+		trigInfo.hostName    = GET_STRING_FROM_GRP(itemGroup, idx++);
+		trigInfo.brief       = GET_STRING_FROM_GRP(itemGroup, idx++);
+		trigInfo.hostgroupId = GET_UINT64_FROM_GRP(itemGroup, idx++);
 	}
 }
 
