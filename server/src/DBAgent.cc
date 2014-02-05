@@ -137,7 +137,7 @@ DBAgent::TableProfile::TableProfile(
 // ---------------------------------------------------------------------------
 // DBAgent::UpdateArg
 // ---------------------------------------------------------------------------
-DBAgent::RowElement::RowElement(const size_t &index, ItemData *itemData)
+DBAgent::RowElement::RowElement(const size_t &index, const ItemData *itemData)
 : columnIndex(index),
   dataPtr(itemData, false)
 {
