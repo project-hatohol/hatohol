@@ -827,7 +827,7 @@ void _assertUpdateUserWithSetup(const StringMap &params,
 	const bool dbRecreate = true;
 	const bool loadTestDat = true;
 	setupTestDBUser(dbRecreate, loadTestDat);
-	const UserIdType userId = findUserWith(OPPRVLG_CREATE_USER);
+	const UserIdType userId = findUserWith(OPPRVLG_UPDATE_USER);
 	assertUpdateUser(params, targetUserId, userId, expectCode);
 }
 #define assertUpdateUserWithSetup(P,U,C) \
