@@ -686,8 +686,7 @@ HatoholError DBClientConfig::deleteTargetServer(
 	if (!canDeleteTargetServer(serverId, privilege))
 		return HatoholError(HTERR_NO_PRIVILEGE);
 
-	DBAgentDeleteArg arg;
-	arg.tableName = TABLE_NAME_SERVERS;
+	DBAgent::DeleteArg arg(tableProfileServers);
 	const ColumnDef &colId = COLUMN_DEF_SERVERS[IDX_SERVERS_ID];
 	arg.condition = StringUtils::sprintf("%s=%"FMT_SERVER_ID,
 	                                     colId.columnName, serverId);
