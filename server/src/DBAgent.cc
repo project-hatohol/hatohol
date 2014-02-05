@@ -174,6 +174,11 @@ void DBAgent::UpdateArg::add(const size_t &columnIndex, const std::string &val)
 	rows.push_back(new RowElement(columnIndex, new ItemString(val)));
 }
 
+void DBAgent::UpdateArg::add(const size_t &columnIndex, const time_t &val)
+{
+	rows.push_back(new RowElement(columnIndex, new ItemInt(val)));
+}
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------

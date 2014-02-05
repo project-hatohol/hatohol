@@ -62,7 +62,7 @@ public:
 		cppcut_assert_equal(true, arg.rows.empty());
 	}
 
-	template <typename T>
+	template <typename T, typename T_READ>
 	void assertUpdateArgAdd(const T *vals, const size_t &numVals)
 	{
 		TableProfile tblProf("name", m_testColumnDefs,
@@ -76,11 +76,17 @@ public:
 		cppcut_assert_equal(numVals, arg.rows.size());
 		for (size_t i = 0; i < numVals; i++) {
 			const RowElement *elem = arg.rows[i];
-			const T actual = *elem->dataPtr;
+			const T_READ actual = *elem->dataPtr;
 			cppcut_assert_equal(i, elem->columnIndex);
-			cppcut_assert_equal(vals[i], actual);
+			cppcut_assert_equal(vals[i], static_cast<T>(actual));
 			cppcut_assert_equal(1, elem->dataPtr->getUsedCount());
 		}
+	}
+
+	template <typename T>
+	void assertUpdateArgAdd(const T *vals, const size_t &numVals)
+	{
+		assertUpdateArgAdd<T,T>(vals, numVals);
 	}
 
 private:
@@ -175,6 +181,14 @@ void test_updateArgAddString(void)
 	const string vals[] = {"booo", "v.v;", "Ueno Zoo"};
 	const size_t numVals = sizeof(vals) / sizeof(string);
 	dbAgent.assertUpdateArgAdd<string>(vals, numVals);
+}
+
+void test_updateArgAddTime_t(void)
+{
+	TestDBAgent dbAgent;
+	const time_t vals[] = {0, 0x7fffffff, 1391563132};
+	const size_t numVals = sizeof(vals) / sizeof(string);
+	dbAgent.assertUpdateArgAdd<time_t, int>(vals, numVals);
 }
 
 } // namespace testDBAgent

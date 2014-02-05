@@ -137,6 +137,7 @@ public:
 		void add(const size_t &columnIndex, const uint64_t    &val);
 		void add(const size_t &columnIndex, const double      &val);
 		void add(const size_t &columnIndex, const std::string &val);
+		void add(const size_t &columnIndex, const time_t      &val);
 	};
 
 	static void addSetupFunction(DBDomainId domainId,
