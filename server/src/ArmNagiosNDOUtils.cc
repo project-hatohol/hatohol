@@ -311,15 +311,15 @@ static const DBAgent::TableProfile tableProfileStateHistory(
 // ---------------------------------------------------------------------------
 // Private context
 // ---------------------------------------------------------------------------
-const static char *VAR_SERVICES = "sv";
-const static char *VAR_STATUS   = "st";
-const static char *VAR_HOSTS    = "h";
+const static char *VAR_SERVICES     = "sv";
+const static char *VAR_STATUS       = "st";
+const static char *VAR_HOSTS        = "h";
 const static char *VAR_STATEHISTORY = "sh";
 
 static const DBAgent::TableProfileEx profTrig[] = {
-  {&tableProfileServices, VAR_SERVICES}, 
+  {&tableProfileServices,      VAR_SERVICES}, 
   {&tableProfileServiceStatus, VAR_STATUS}, 
-  {&tableProfileHosts, VAR_HOSTS}, 
+  {&tableProfileHosts,         VAR_HOSTS}, 
 };
 static const size_t numProfTrig =
   sizeof(profTrig) / sizeof(DBAgent::TableProfileEx);
@@ -344,11 +344,11 @@ struct ArmNagiosNDOUtils::PrivateContext
 	DBAgentMySQL   *dbAgent;
 	DBClientHatohol dbHatohol;
 	DBAgent::SelectMultiTableArg selectTriggerArg;
-	string             selectTriggerBaseCondition;
 	DBAgent::SelectMultiTableArg selectEventArg;
-	string             selectEventBaseCondition;
 	DBAgent::SelectMultiTableArg selectItemArg;
-	UnifiedDataStore *dataStore;
+	string               selectTriggerBaseCondition;
+	string               selectEventBaseCondition;
+	UnifiedDataStore    *dataStore;
 	MonitoringServerInfo serverInfo;
 
 	// methods
