@@ -140,10 +140,10 @@ public:
 	};
 
 	struct SelectMultiTableArg : public SelectExArg {
-		const TableProfileEx *tableProfiles;
+		const TableProfileEx *profileExArray;
 		const size_t          numTables;
 
-		SelectMultiTableArg(const TableProfileEx *tableProfiles,
+		SelectMultiTableArg(const TableProfileEx *profileExArray,
 		                    const size_t &numTables);
 	};
 
