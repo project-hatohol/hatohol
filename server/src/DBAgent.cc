@@ -421,46 +421,44 @@ string DBAgent::makeDatetimeString(int datetime)
 }
 
 bool DBAgent::updateIfExistElseInsert(
-  const ItemGroup *itemGroup, const string &tableName,
-  size_t numColumns, const ColumnDef *columnDefs, size_t targetIndex)
+  const ItemGroup *itemGroup, const TableProfile &tableProfile,
+  size_t targetIndex)
 {
 	size_t numElemInItemGrp = itemGroup->getNumberOfItems();
 	HATOHOL_ASSERT(targetIndex < numElemInItemGrp,
 	               "targetIndex: %zd, number of items: %zd",
 	               targetIndex, numElemInItemGrp);
-	HATOHOL_ASSERT(numColumns == numElemInItemGrp,
+	HATOHOL_ASSERT(tableProfile.numColumns == numElemInItemGrp,
 	               "numColumns: %zd, number of items: %zd",
-	               numColumns, numElemInItemGrp);
+	               tableProfile.numColumns, numElemInItemGrp);
 	const ItemData *item = itemGroup->getItemAt(targetIndex);
-	const char *columnName = columnDefs[targetIndex].columnName;
+	const char *columnName =
+	  tableProfile.columnDefs[targetIndex].columnName;
 	string condition = StringUtils::sprintf("%s=%s", columnName,
 	                                        item->getString().c_str());
-	bool exist = isRecordExisting(tableName, condition);
+	bool exist = isRecordExisting(tableProfile.name, condition);
 	if (exist) {
 		// update
-		DBAgentUpdateArg arg;
-		arg.tableName = tableName;
-		arg.columnDefs = columnDefs;
+		DBAgent::UpdateArg arg(tableProfile);
 		VariableItemGroupPtr row;
-		for (size_t i = 0; i < numColumns; i++) {
-			// exclude primary
-			if (columnDefs[i].keyType == SQL_KEY_PRI)
+		for (size_t i = 0; i < tableProfile.numColumns; i++) {
+			// exclude a primary key
+			if (tableProfile.columnDefs[i].keyType == SQL_KEY_PRI)
 				continue;
-			row->add(itemGroup->getItemAt(i));
-			arg.columnIndexes.push_back(i);
+			arg.rows.push_back(
+			  new RowElement(i, itemGroup->getItemAt(i)));
 		}
-		arg.row = row;
 		arg.condition = condition;
 		update(arg);
 	} else {
 		// insert
 		DBAgentInsertArg arg;
-		arg.tableName = tableName;
-		arg.numColumns = numColumns;
-		arg.columnDefs = columnDefs;
+		arg.tableName = tableProfile.name;
+		arg.numColumns = tableProfile.numColumns;
+		arg.columnDefs = tableProfile.columnDefs;
 
 		VariableItemGroupPtr row;
-		for (size_t i = 0; i < numColumns; i++)
+		for (size_t i = 0; i < tableProfile.numColumns; i++)
 			row->add(itemGroup->getItemAt(i));
 		arg.row = row;
 		insert(arg);

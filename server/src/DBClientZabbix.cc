@@ -1651,9 +1651,7 @@ DBClientZabbix::~DBClientZabbix()
 void DBClientZabbix::addTriggersRaw2_0(ItemTablePtr tablePtr)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
-		addItems(tablePtr, TABLE_NAME_TRIGGERS_RAW_2_0,
-		         tableProfileTriggersRaw_2_0.numColumns,
-		         COLUMN_DEF_TRIGGERS_RAW_2_0,
+		addItems(tablePtr, tableProfileTriggersRaw_2_0,
 		         IDX_TRIGGERS_RAW_2_0_TRIGGERID);
 	} DBCLIENT_TRANSACTION_END();
 }
@@ -1666,9 +1664,7 @@ void DBClientZabbix::addFunctionsRaw2_0(ItemTablePtr tablePtr)
 		DBAgentDeleteArg arg;
 		arg.tableName = TABLE_NAME_FUNCTIONS_RAW_2_0;
 		deleteRows(arg);
-		addItems(tablePtr, TABLE_NAME_FUNCTIONS_RAW_2_0,
-		         tableProfileFunctionsRaw_2_0.numColumns,
-		         COLUMN_DEF_FUNCTIONS_RAW_2_0,
+		addItems(tablePtr, tableProfileFunctionsRaw_2_0,
 		         IDX_FUNCTIONS_RAW_2_0_FUNCTIONSTIONID);
 	} DBCLIENT_TRANSACTION_END();
 }
@@ -1681,9 +1677,7 @@ void DBClientZabbix::addItemsRaw2_0(ItemTablePtr tablePtr)
 		DBAgentDeleteArg arg;
 		arg.tableName = TABLE_NAME_ITEMS_RAW_2_0;
 		deleteRows(arg);
-		addItems(tablePtr, TABLE_NAME_ITEMS_RAW_2_0,
-		         tableProfileItemsRaw_2_0.numColumns,
-		         COLUMN_DEF_ITEMS_RAW_2_0,
+		addItems(tablePtr, tableProfileItemsRaw_2_0,
 		         IDX_ITEMS_RAW_2_0_ITEMID);
 	} DBCLIENT_TRANSACTION_END();
 }
@@ -1691,9 +1685,7 @@ void DBClientZabbix::addItemsRaw2_0(ItemTablePtr tablePtr)
 void DBClientZabbix::addHostsRaw2_0(ItemTablePtr tablePtr)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
-		addItems(tablePtr, TABLE_NAME_HOSTS_RAW_2_0,
-		         tableProfileHostsRaw_2_0.numColumns,
-		         COLUMN_DEF_HOSTS_RAW_2_0,
+		addItems(tablePtr, tableProfileHostsRaw_2_0,
 		         IDX_HOSTS_RAW_2_0_HOSTID);
 	} DBCLIENT_TRANSACTION_END();
 }
@@ -1704,8 +1696,7 @@ void DBClientZabbix::addEventsRaw2_0(ItemTablePtr tablePtr)
 		// Presently, the synchronization algorithm is not assumed to
 		// get the duplicated events. So we don't specify 5th argument
 		// for a update check.
-		addItems(tablePtr, TABLE_NAME_EVENTS_RAW_2_0,
-		         tableProfileEventsRaw_2_0.numColumns, COLUMN_DEF_EVENTS_RAW_2_0,
+		addItems(tablePtr, tableProfileEventsRaw_2_0,
 		         IDX_EVENTS_RAW_2_0_EVENTID);
 	} DBCLIENT_TRANSACTION_END();
 }
@@ -1713,9 +1704,7 @@ void DBClientZabbix::addEventsRaw2_0(ItemTablePtr tablePtr)
 void DBClientZabbix::addApplicationsRaw2_0(ItemTablePtr tablePtr)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
-		addItems(tablePtr, TABLE_NAME_APPLICATIONS_RAW_2_0,
-		         tableProfileApplicationsRaw_2_0.numColumns,
-		         COLUMN_DEF_APPLICATIONS_RAW_2_0,
+		addItems(tablePtr, tableProfileApplicationsRaw_2_0,
 		         IDX_APPLICATIONS_RAW_2_0_APPLICATIONID);
 	} DBCLIENT_TRANSACTION_END();
 }
@@ -1726,9 +1715,7 @@ void DBClientZabbix::addGroupsRaw2_0(ItemTablePtr tablePtr)
 		DBAgentDeleteArg arg;
 		arg.tableName = TABLE_NAME_HOSTS_GROUPS_RAW_2_0;
 		deleteRows(arg);
-		addItems(tablePtr, TABLE_NAME_GROUPS_RAW_2_0,
-		         tableProfileGroupsRaw_2_0.numColumns,
-		         COLUMN_DEF_GROUPS_RAW_2_0,
+		addItems(tablePtr, tableProfileGroupsRaw_2_0,
 		         IDX_GROUPS_RAW_2_0_GROUPID);
 	} DBCLIENT_TRANSACTION_END();
 }
@@ -1736,9 +1723,7 @@ void DBClientZabbix::addGroupsRaw2_0(ItemTablePtr tablePtr)
 void DBClientZabbix::addHostsGroupsRaw2_0(ItemTablePtr tablePtr)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
-		addItems(tablePtr, TABLE_NAME_HOSTS_GROUPS_RAW_2_0,
-		         tableProfileHostsGroupsRaw_2_0.numColumns,
-			 COLUMN_DEF_HOSTS_GROUPS_RAW_2_0,
+		addItems(tablePtr, tableProfileHostsGroupsRaw_2_0,
 			 IDX_HOSTS_GROUPS_RAW_2_0_HOSTGROUPID);
 	}DBCLIENT_TRANSACTION_END();
 }
@@ -2237,8 +2222,7 @@ DBClientZabbix::DBClientZabbix(const ServerIdType zabbixServerId)
 }
 
 void DBClientZabbix::addItems(
-  ItemTablePtr tablePtr,
-  const string &tableName, size_t numColumns, const ColumnDef *columnDefs,
+  ItemTablePtr tablePtr, const DBAgent::TableProfile &tableProfile,
   int updateCheckIndex)
 {
 	//
@@ -2248,8 +2232,8 @@ void DBClientZabbix::addItems(
 	ItemGroupListConstIterator it = itemGroupList.begin();
 	for (; it != itemGroupList.end(); ++it) {
 		const ItemGroup *itemGroup = *it;
-		updateIfExistElseInsert(itemGroup, tableName, numColumns,
-		                        columnDefs, updateCheckIndex);
+		updateIfExistElseInsert(itemGroup, tableProfile,
+		                        updateCheckIndex);
 	}
 }
 

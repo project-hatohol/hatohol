@@ -176,11 +176,8 @@ public:
 	 * An ItemGroup instance that has values for the record to be
 	 * updated or inserted.
 	 *
-	 * @param tableName
-	 * The target table name.
-	 *
-	 * @param numColumns
-	 * The number of columns of the table.
+	 * @param tableProfile
+	 * The target table profile.
 	 *
 	 * @param targetIndex
 	 * A column index used for the comparison.
@@ -188,8 +185,8 @@ public:
 	 * @return true if updated, otherwise false.
 	 */
 	virtual bool updateIfExistElseInsert(
-	  const ItemGroup *itemGroup, const std::string &tableName,
-	  size_t numColumns, const ColumnDef *columnDefs, size_t targetIndex);
+	  const ItemGroup *itemGroup, const TableProfile &tableProfile,
+	  size_t targetIndex);
 
 protected:
 	static std::string makeSelectStatement(DBAgentSelectArg &selectArg);

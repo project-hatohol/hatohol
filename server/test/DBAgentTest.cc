@@ -596,10 +596,8 @@ static bool dbAgentUpdateIfExistEleseInsertOneRecord(
 	row->addNewItem(name);
 	row->addNewItem(height);
 	row->addNewItem(time);
-	bool updated = dbAgent.updateIfExistElseInsert(
-	                 row, TABLE_NAME_TEST, NUM_COLUMNS_TEST,
-	                 COLUMN_DEF_TEST, targetIndex);
-
+	bool updated = dbAgent.updateIfExistElseInsert(row, tableProfileTest,
+	                                               targetIndex);
 	string expectedTimeStr;
 	if (time == CURR_DATETIME) {
 		expectedTimeStr = DBCONTENT_MAGIC_CURR_DATETIME;

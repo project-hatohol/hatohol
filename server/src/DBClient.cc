@@ -452,10 +452,10 @@ uint64_t DBClient::getLastInsertId(void)
 }
 
 bool DBClient::updateIfExistElseInsert(
-  const ItemGroup *itemGroup, const string &tableName,
-  size_t numColumns, const ColumnDef *columnDefs, size_t targetIndex)
+  const ItemGroup *itemGroup, const DBAgent::TableProfile &tableProfile,
+  size_t targetIndex)
 {
-	return getDBAgent()->updateIfExistElseInsert(
-	         itemGroup, tableName, numColumns, columnDefs, targetIndex);
+	return getDBAgent()->updateIfExistElseInsert(itemGroup, tableProfile,
+	                                             targetIndex);
 }
 
