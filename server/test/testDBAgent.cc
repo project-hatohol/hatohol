@@ -217,6 +217,24 @@ public:
 		cppcut_assert_equal(def->type, arg.columnTypes[1]);
 	}
 
+	void assertSelectMultiTableArgGetColumnName(void)
+	{
+		TableProfileEx profiles[] = {
+		  {&tableProfileTest, "t"}, {&tableProfileTestAutoInc, "inc"}
+		};
+		const size_t numTables =
+		  sizeof(profiles) / sizeof(TableProfileEx);
+		SelectMultiTableArg arg(profiles, numTables);
+
+		const size_t columnIdx = 3;
+		const string actualName = arg.getColumnName(columnIdx);
+
+		const ColumnDef *def = &tableProfileTest.columnDefs[columnIdx];
+		cppcut_assert_equal(
+		  StringUtils::sprintf("t.%s", def->columnName),
+		  actualName);
+	}
+
 	void assertCreateDeleteArg(void)
 	{
 		TableProfile tblProf("name", m_testColumnDefs,
@@ -362,6 +380,12 @@ void test_selectMultiTableArgAdd(void)
 {
 	TestDBAgent dbAgent;
 	dbAgent.assertSelectMultiTableArgAdd();
+}
+
+void test_selectMultiTableArgGetColumnName(void)
+{
+	TestDBAgent dbAgent;
+	dbAgent.assertSelectMultiTableArgGetColumnName();
 }
 
 void test_createDeleteArg(void)

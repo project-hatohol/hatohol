@@ -257,6 +257,13 @@ void DBAgent::SelectMultiTableArg::add(const size_t &columnIndex)
 	SelectExArg::add(columnIndex, currProfile->varName);
 }
 
+string DBAgent::SelectMultiTableArg::getColumnName(const size_t &columnIndex)
+{
+	return StringUtils::sprintf(
+	  "%s.%s", currProfile->varName,
+	  currProfile->profile->columnDefs[columnIndex].columnName);
+}
+
 // ---------------------------------------------------------------------------
 // DBAgent::DeleteArg
 // ---------------------------------------------------------------------------
