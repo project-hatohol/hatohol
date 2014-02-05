@@ -562,24 +562,20 @@ HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
                                            const OperationPrivilege &privilege,
                                            const EventInfo *eventInfo)
 {
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_ACTIONS;
-	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_ACTION_ID]);
-
-	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_SERVER_ID]);
-	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_HOST_ID]);
-	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_HOST_GROUP_ID]);
-	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_ID]);
-	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_STATUS]);
-	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_SEVERITY]);
-	arg.pushColumn(
-	  COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_SEVERITY_COMP_TYPE]);
-
-	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_ACTION_TYPE]);
-	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_COMMAND]);
-	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_WORKING_DIR]);
-	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_TIMEOUT]);
-	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_OWNER_USER_ID]);
+	DBAgent::SelectExArg arg(tableProfileActions);
+	arg.add(IDX_ACTIONS_ACTION_ID);
+	arg.add(IDX_ACTIONS_SERVER_ID);
+	arg.add(IDX_ACTIONS_HOST_ID);
+	arg.add(IDX_ACTIONS_HOST_GROUP_ID);
+	arg.add(IDX_ACTIONS_TRIGGER_ID);
+	arg.add(IDX_ACTIONS_TRIGGER_STATUS);
+	arg.add(IDX_ACTIONS_TRIGGER_SEVERITY);
+	arg.add(IDX_ACTIONS_TRIGGER_SEVERITY_COMP_TYPE);
+	arg.add(IDX_ACTIONS_ACTION_TYPE);
+	arg.add(IDX_ACTIONS_COMMAND);
+	arg.add(IDX_ACTIONS_WORKING_DIR);
+	arg.add(IDX_ACTIONS_TIMEOUT);
+	arg.add(IDX_ACTIONS_OWNER_USER_ID);
 
 	if (eventInfo)
 		arg.condition = makeActionDefCondition(*eventInfo);
