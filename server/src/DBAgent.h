@@ -128,8 +128,8 @@ public:
 	};
 
 	struct InsertArg {
-		const TableProfile &tableProfile;
-		ItemGroupPtr        row;
+		const TableProfile   &tableProfile;
+		VariableItemGroupPtr  row;
 
 		InsertArg(const TableProfile &tableProfile);
 	};

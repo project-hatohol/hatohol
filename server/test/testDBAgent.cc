@@ -69,7 +69,7 @@ public:
 		                     m_numTestColumns);
 		InsertArg arg(tblProf);
 		cppcut_assert_equal(&tblProf, &arg.tableProfile);
-		cppcut_assert_equal(false, arg.row.hasData());
+		cppcut_assert_equal((size_t)0, arg.row->getNumberOfItems());
 	}
 
 	template <typename T, typename T_READ>
