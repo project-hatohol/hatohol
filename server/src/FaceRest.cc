@@ -1387,61 +1387,67 @@ HatoholError FaceRest::parseServerParameter(
 	// type
 	err = getParam<MonitoringSystemType>(
 		query, "type", "%d", svInfo.type);
-	if (err != HTERR_OK)
-		return err;
+	if (err != HTERR_OK) {
+		if (!forUpdate || err != HTERR_NOT_FOUND_PARAMETER)
+			return err;
+	}
 
 	// hostname
 	value = (char *)g_hash_table_lookup(query, "hostName");
-	if (!value)
+	if (!value && !forUpdate)
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "hostName");
 	svInfo.hostName = value;
 
 	// ipAddress
 	value = (char *)g_hash_table_lookup(query, "ipAddress");
-	if (!value)
+	if (!value && !forUpdate)
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "ipAddress");
 	svInfo.ipAddress = value;
 
 	// nickname
 	value = (char *)g_hash_table_lookup(query, "nickname");
-	if (!value)
+	if (!value && !forUpdate)
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "nickname");
 	svInfo.nickname = value;
 
 	// port
 	err = getParam<int>(
 		query, "port", "%d", svInfo.port);
-	if (err != HTERR_OK)
-		return err;
+	if (err != HTERR_OK) {
+		if (!forUpdate || err != HTERR_NOT_FOUND_PARAMETER)
+			return err;
+	}
 
 	// polling
 	err = getParam<int>(
 		query, "polling", "%d", svInfo.pollingIntervalSec);
-	if (err != HTERR_OK)
-		return err;
+	if (err != HTERR_OK) {
+		if (!forUpdate || err != HTERR_NOT_FOUND_PARAMETER)
+			return err;
+	}
 
 	// retry
 	err = getParam<int>(
 		query, "retry", "%d", svInfo.retryIntervalSec);
-	if (err != HTERR_OK)
+	if (err != HTERR_OK && !forUpdate)
 		return err;
 
 	// username
 	value = (char *)g_hash_table_lookup(query, "user");
-	if (!value)
+	if (!value && !forUpdate)
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "user");
 	svInfo.userName = value;
 
 	// password
 	value = (char *)g_hash_table_lookup(query, "password");
-	if (!value)
+	if (!value && !forUpdate)
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "password");
 	svInfo.password = value;
 
 	// dbname
 	if (svInfo.type == MONITORING_SYSTEM_NAGIOS) {
 		value = (char *)g_hash_table_lookup(query, "dbName");
-		if (!value)
+		if (!value && !forUpdate)
 			return HatoholError(HTERR_NOT_FOUND_PARAMETER,
 					    "dbName");
 		svInfo.dbName = value;
