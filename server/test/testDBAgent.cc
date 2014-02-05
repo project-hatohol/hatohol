@@ -167,6 +167,19 @@ public:
 		cppcut_assert_equal(profiles, arg.currProfile);
 	}
 
+	void assertSelectMultiTableArgSetProfile(void)
+	{
+		TableProfileEx profiles[] = {
+		  {&tableProfileTest, "t"}, {&tableProfileTestAutoInc, "inc"}
+		};
+		const size_t numTables =
+		  sizeof(profiles) / sizeof(TableProfileEx);
+		SelectMultiTableArg arg(profiles, numTables);
+		arg.setProfile(1);
+		cppcut_assert_equal(&profiles[1], arg.currProfile);
+		cppcut_assert_equal(&tableProfileTestAutoInc, arg.tableProfile);
+	}
+
 	void assertCreateDeleteArg(void)
 	{
 		TableProfile tblProf("name", m_testColumnDefs,
@@ -300,6 +313,12 @@ void test_createSelectMultiTableArg(void)
 {
 	TestDBAgent dbAgent;
 	dbAgent.assertCreateSelectMultiTableArg();
+}
+
+void test_selectMultiTableArgSetProfile(void)
+{
+	TestDBAgent dbAgent;
+	dbAgent.assertSelectMultiTableArgSetProfile();
 }
 
 void test_createDeleteArg(void)

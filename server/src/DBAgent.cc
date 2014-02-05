@@ -244,6 +244,14 @@ DBAgent::SelectMultiTableArg::SelectMultiTableArg(
 {
 }
 
+void DBAgent::SelectMultiTableArg::setProfile(const size_t &index)
+{
+	HATOHOL_ASSERT(index < numTables, "index (%zd) >= numTables (%zd)",
+	               index, numTables);
+	currProfile = &profileExArray[index];
+	SelectExArg::tableProfile = currProfile->profile;
+}
+
 // ---------------------------------------------------------------------------
 // DBAgent::DeleteArg
 // ---------------------------------------------------------------------------
