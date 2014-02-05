@@ -43,7 +43,7 @@ var HatoholServerEditDialog = function(params) {
   if (self.server)
     self.setServer(self.server);
   setTimeout(function(){
-    self.setAddButtonState(false);
+    self.fixupApplyButtonState();
   }, 1);
 
   //
@@ -202,18 +202,12 @@ HatoholServerEditDialog.prototype.createMainElement = function() {
 
 HatoholServerEditDialog.prototype.onAppendMainElement = function () {
   var self = this;
-  var validHostName = !!$("#inputHostName").val();
-  var validIpAddress = !!$("#inputIpAddress").val();
-  var validNickName = !!$("#inputNickName").val();
-  var validPort = !!$("#inputPort").val();
-  var validPollingInterval = !!$("#inputPollingInterval").val();
-  var validRetryInterval = !!$("#inputRetryInterval").val();
-  var validUserName = !!$("#inputUserName").val();
-  var validPassword = !!$("#inputPassword").val();
-  self.setDBNameTextState(false);
+
+  self.fixupApplyButtonState();
+
   $("#inputHostName").keyup(function() {
-    validHostName = !!$("#inputHostName").val();
-    fixupAddButtonState(); });
+    self.fixupApplyButtonState();
+  });
 
   $("#selectServerType").change(function() {
     var type = $("#selectServerType").val();
@@ -225,57 +219,37 @@ HatoholServerEditDialog.prototype.onAppendMainElement = function () {
   });
 
   $("#inputIpAddress").keyup(function() {
-    validIpAddress = !!$("#inputIpAddress").val();
-    fixupAddButtonState();
+    self.fixupApplyButtonState();
   });
 
   $("#inputNickName").keyup(function() {
-    validNickName = !!$("#inputNickName").val();
-    fixupAddButtonState();
+    self.fixupApplyButtonState();
   });
 
   $("#inputPort").keyup(function() {
-    validPort = !!$("#inputPort").val();
-    fixupAddButtonState();
+    self.fixupApplyButtonState();
   });
 
   $("#inputPollingInterval").keyup(function() {
-    validPollingInterval = !!$("#inputPollingInterval").val();
-    fixupAddButtonState();
+    self.fixupApplyButtonState();
   });
 
   $("#inputRetryInterval").keyup(function() {
-    validRetryInterval = !!$("#inputRetryInterval").val();
-    fixupAddButtonState();
+    self.fixupApplyButtonState();
   });
 
   $("#inputUserName").keyup(function() {
-    validUserName = !!$("#inputUserName").val();
-    fixupAddButtonState();
+    self.fixupApplyButtonState();
   });
 
   $("#inputPassword").keyup(function() {
-    validPassword = !!$("#inputPassword").val();
-    fixupAddButtonState();
+    self.fixupApplyButtonState();
   });
-
-  function fixupAddButtonState() {
-    var state = (
-        validHostName &&
-        validIpAddress &&
-        validNickName &&
-        validPort &&
-        validPollingInterval &&
-        validRetryInterval &&
-        validUserName &&
-        validPassword);
-    self.setAddButtonState(state);
-  }
 };
 
-HatoholServerEditDialog.prototype.setAddButtonState = function(state) {
+HatoholServerEditDialog.prototype.setApplyButtonState = function(state) {
   var btn = $(".ui-dialog-buttonpane").find("button:contains(" +
-              gettext("ADD") + ")");
+              this.applyButtonTitle + ")");
   if (state) {
      btn.removeAttr("disabled");
      btn.removeClass("ui-state-disabled");
@@ -283,6 +257,28 @@ HatoholServerEditDialog.prototype.setAddButtonState = function(state) {
      btn.attr("disabled", "disable");
      btn.addClass("ui-state-disabled");
   }
+};
+
+HatoholServerEditDialog.prototype.fixupApplyButtonState = function(enable) {
+  var self = this;
+  var validHostName = !!$("#inputHostName").val();
+  var validIpAddress = !!$("#inputIpAddress").val();
+  var validNickName = !!$("#inputNickName").val();
+  var validPort = !!$("#inputPort").val();
+  var validPollingInterval = !!$("#inputPollingInterval").val();
+  var validRetryInterval = !!$("#inputRetryInterval").val();
+  var validUserName = !!$("#inputUserName").val();
+  var validPassword = !!$("#inputPassword").val();
+  var state =
+    validHostName &&
+    validIpAddress &&
+    validNickName &&
+    validPort &&
+    validPollingInterval &&
+    validRetryInterval &&
+    validUserName &&
+    validPassword;
+  self.setApplyButtonState(state);
 };
 
 HatoholServerEditDialog.prototype.setDBNameTextState = function(state) {
@@ -302,10 +298,10 @@ HatoholServerEditDialog.prototype.setServer = function(server) {
   $("#inputHostName").val(server.hostName);
   $("#inputIpAddress").val(server.ipAddress);
   $("#inputPort").val(server.port);
-
-  this.setDBNameTextState(server.type == hatohol.MONITORING_SYSTEM_NAGIOS);
-
-  // TODO: fixup buttons state
+  
   // TODO: set remaining values
   //       (Currently they aren't provided from hatohol server)
+
+  this.setDBNameTextState(server.type == hatohol.MONITORING_SYSTEM_NAGIOS);
+  this.fixupApplyButtonState();
 };
