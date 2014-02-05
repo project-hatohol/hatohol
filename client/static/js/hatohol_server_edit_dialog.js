@@ -31,7 +31,8 @@ var HatoholServerEditDialog = function(succeededCb) {
   // call the constructor of the super class
   dialogAttrs = { width: "auto" };
   HatoholDialog.apply(
-      this, ["server-edit-dialog", gettext("ADD SERVER"), dialogButtons, dialogAttrs]);
+      this, ["server-edit-dialog", gettext("ADD SERVER"),
+             dialogButtons, dialogAttrs]);
   setTimeout(function(){
     self.setAddButtonState(false);
   }, 1);
