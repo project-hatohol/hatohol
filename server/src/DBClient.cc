@@ -407,6 +407,11 @@ void DBClient::insert(DBAgentInsertArg &insertArg)
 	getDBAgent()->insert(insertArg);
 }
 
+void DBClient::insert(const DBAgent::InsertArg &insertArg)
+{
+	getDBAgent()->insert(insertArg);
+}
+
 void DBClient::update(const DBAgent::UpdateArg &updateArg)
 {
 	getDBAgent()->update(updateArg);

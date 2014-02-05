@@ -164,6 +164,7 @@ public:
 	virtual void rollback(void) = 0;
 	virtual void createTable(DBAgentTableCreationArg &tableCreationArg) = 0;
 	virtual void insert(DBAgentInsertArg &insertArg) = 0;
+	virtual void insert(const InsertArg &insertArg) = 0;
 	virtual void update(const UpdateArg &updateArg) = 0;
 	virtual void select(DBAgentSelectArg &selectArg) = 0;
 	virtual void select(DBAgentSelectExArg &selectExArg) = 0;

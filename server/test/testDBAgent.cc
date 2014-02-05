@@ -120,6 +120,7 @@ private:
 	virtual void rollback(void) {}
 	virtual void createTable(DBAgentTableCreationArg &tableCreationArg) {}
 	virtual void insert(DBAgentInsertArg &insertArg) {}
+	virtual void insert(const InsertArg &insertArg) {}
 	virtual void update(const UpdateArg &updateArg) {}
 	virtual void select(DBAgentSelectArg &selectArg) {}
 	virtual void select(DBAgentSelectExArg &selectExArg) {}

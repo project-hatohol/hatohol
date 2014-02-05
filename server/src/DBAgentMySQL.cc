@@ -320,6 +320,71 @@ void DBAgentMySQL::insert(DBAgentInsertArg &insertArg)
 	execSql(query);
 }
 
+void DBAgentMySQL::insert(const DBAgent::InsertArg &insertArg)
+{
+	const size_t numColumns = insertArg.tableProfile.numColumns;
+	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
+	HATOHOL_ASSERT(numColumns == insertArg.row->getNumberOfItems(),
+	               "numColumn: %zd != row: %zd",
+	               numColumns, insertArg.row->getNumberOfItems());
+
+	string query = StringUtils::sprintf("INSERT INTO %s (",
+	                                    insertArg.tableProfile.name);
+	for (size_t i = 0; i < numColumns; i++) {
+		const ColumnDef &columnDef =
+		  insertArg.tableProfile.columnDefs[i];
+		query += columnDef.columnName;
+		if (i < numColumns -1)
+			query += ",";
+	}
+	query += ") VALUES (";
+	for (size_t i = 0; i < numColumns; i++) {
+		if (i > 0)
+			query += ",";
+
+		const ColumnDef &columnDef =
+		  insertArg.tableProfile.columnDefs[i];
+		const ItemData *itemData = insertArg.row->getItemAt(i);
+		if (itemData->isNull()) {
+			query += "NULL";
+			continue;
+		}
+
+		switch (columnDef.type) {
+		case SQL_COLUMN_TYPE_INT:
+		case SQL_COLUMN_TYPE_BIGUINT:
+		case SQL_COLUMN_TYPE_DOUBLE:
+			query += itemData->getString();
+			break;
+		case SQL_COLUMN_TYPE_VARCHAR:
+		case SQL_COLUMN_TYPE_CHAR:
+		case SQL_COLUMN_TYPE_TEXT:
+		{ // bracket is used to avoid an error: jump to case label
+			string src =  itemData->getString();
+			char *escaped = new char[src.size() * 2 + 1]; 
+			mysql_real_escape_string(&m_ctx->mysql, escaped,
+			                         src.c_str(), src.size());
+			query += "'";
+			query += escaped,
+			query += "'";
+			delete [] escaped;
+			break;
+		}
+		case SQL_COLUMN_TYPE_DATETIME:
+		{ // bracket is used to avoid an error: jump to case label
+			query += makeDatetimeString(*itemData);
+			break;
+		}
+		default:
+			HATOHOL_ASSERT(false, "Unknown type: %d", columnDef.type);
+		}
+	}
+	query += ")";
+
+	execSql(query);
+}
+
+
 void DBAgentMySQL::update(const UpdateArg &updateArg)
 {
 	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
