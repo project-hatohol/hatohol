@@ -188,10 +188,10 @@ void test_createTableServers(void)
 }
 
 void _assertAddTargetServer(
-  MonitoringServerInfo serverInfo, const HatoholErrorCode expectedErrorCode)
+  MonitoringServerInfo serverInfo, const HatoholErrorCode expectedErrorCode,
+  OperationPrivilege privilege = ALL_PRIVILEGES)
 {
 	DBClientConfig dbConfig;
-	OperationPrivilege privilege(ALL_PRIVILEGES);
 	HatoholError err;
 	err = dbConfig.addOrUpdateTargetServer(&serverInfo, privilege);
 	assertHatoholError(expectedErrorCode, err);
@@ -202,12 +202,21 @@ void _assertAddTargetServer(
 	string statement("select * from servers");
 	assertDBContent(dbConfig.getDBAgent(), statement, expectedOut);
 }
-#define assertAddTargetServer(I,E) cut_trace(_assertAddTargetServer(I,E))
+#define assertAddTargetServer(I,E,...) \
+cut_trace(_assertAddTargetServer(I,E,##__VA_ARGS__))
 
 void test_addTargetServer(void)
 {
 	MonitoringServerInfo *testInfo = testServerInfo;
 	assertAddTargetServer(*testInfo, HTERR_OK);
+}
+
+void test_addTargetServerWithoutPrivilege(void)
+{
+	MonitoringServerInfo *testInfo = testServerInfo;
+	OperationPrivilegeFlag privilege = ALL_PRIVILEGES;
+	privilege &= ~(1 << OPPRVLG_CREATE_SERVER);
+	assertAddTargetServer(*testInfo, HTERR_NO_PRIVILEGE, privilege);
 }
 
 void test_addTargetServerWithInvalidServerType(void)
@@ -319,7 +328,8 @@ void test_addTargetServerWithEmptyIPAddressAndHostname(void)
 }
 
 void _assertUpdateTargetServer(
-  MonitoringServerInfo serverInfo, const HatoholErrorCode expectedErrorCode)
+  MonitoringServerInfo serverInfo, const HatoholErrorCode expectedErrorCode,
+  OperationPrivilege privilege = ALL_PRIVILEGES)
 {
 	loadTestDBServer();
 
@@ -333,7 +343,6 @@ void _assertUpdateTargetServer(
 		expectedOut = makeServerInfoOutput(testServerInfo[targetIdx]);
 
 	DBClientConfig dbConfig;
-	OperationPrivilege privilege(ALL_PRIVILEGES);
 	HatoholError err;
 	err = dbConfig.addOrUpdateTargetServer(&serverInfo, privilege);
 	assertHatoholError(expectedErrorCode, err);
@@ -343,7 +352,8 @@ void _assertUpdateTargetServer(
 			     targetId);
 	assertDBContent(dbConfig.getDBAgent(), statement, expectedOut);
 }
-#define assertUpdateTargetServer(I,E) cut_trace(_assertUpdateTargetServer(I,E))
+#define assertUpdateTargetServer(I,E,...) \
+cut_trace(_assertUpdateTargetServer(I,E,##__VA_ARGS__))
 
 void test_updateTargetServer(void)
 {
@@ -351,6 +361,19 @@ void test_updateTargetServer(void)
 	MonitoringServerInfo serverInfo = testServerInfo[0];
 	serverInfo.id = targetId;
 	assertUpdateTargetServer(serverInfo, HTERR_OK);
+}
+
+void test_updateTargetServerWithoutPrivilege(void)
+{
+	int targetId = 2;
+	MonitoringServerInfo serverInfo = testServerInfo[0];
+	serverInfo.id = targetId;
+	OperationPrivilegeFlag privilege = ALL_PRIVILEGES;
+	OperationPrivilegeFlag updateFlags = 
+	 (1 << OPPRVLG_UPDATE_SERVER) | (1 << OPPRVLG_UPDATE_ALL_SERVER);
+	privilege &= ~updateFlags;
+	assertUpdateTargetServer(
+	  serverInfo, HTERR_NO_PRIVILEGE, NONE_PRIVILEGE);
 }
 
 void test_updateTargetServerWithNoHostNameAndIPAddress(void)
