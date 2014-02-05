@@ -50,4 +50,11 @@ describe('HatoholServerEditDialog', function() {
     expect($("#inputIpAddress").val()).to.be(server.ipAddress);
     expect(parseInt($("#inputPort").val())).to.be(server.port);
   });
+
+  it('DB name visibility', function() {
+    dialog = new HatoholServerEditDialog({});
+    expect($("#dbNameArea").css("display")).to.be("none");
+    $("#selectServerType").val(1).change();
+    expect($("#dbNameArea").css("display")).not.to.be("none");
+  });
 });

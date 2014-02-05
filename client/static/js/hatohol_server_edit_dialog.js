@@ -100,7 +100,9 @@ var HatoholServerEditDialog = function(params) {
   function validateParameters() {
     var type = $("#selectServerType").val();
 
-    if (type != "zabbix" && type != "nagios") {
+    if (type != hatohol.MONITORING_SYSTEM_ZABBIX &&
+        type != hatohol.MONITORING_SYSTEM_NAGIOS)
+    {
       hatoholErrorMsgBox(gettext("Invalid Server type!"));
       return false;
     }
@@ -136,7 +138,9 @@ var HatoholServerEditDialog = function(params) {
       hatoholErrorMsgBox(gettext("Password is empty!"));
       return false;
     }
-    if (type == "nagios" && $("#inputDbName").val() == "") {
+    if (type == hatohol.MONITORING_SYSTEM_NAGIOS &&
+        $("#inputDbName").val() == "")
+    {
       hatoholErrorMsgBox(gettext("DB name is empty!"));
       return false;
     }
@@ -213,9 +217,9 @@ HatoholServerEditDialog.prototype.onAppendMainElement = function () {
 
   $("#selectServerType").change(function() {
     var type = $("#selectServerType").val();
-    if (type == "zabbix") {
+    if (type == hatohol.MONITORING_SYSTEM_ZABBIX) {
       self.setDBNameTextState(false);
-    } else if (type == "nagios") {
+    } else if (type == hatohol.MONITORING_SYSTEM_NAGIOS) {
       self.setDBNameTextState(true);
     }
   });
