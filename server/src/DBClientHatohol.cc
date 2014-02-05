@@ -1204,70 +1204,52 @@ void DBClientHatohol::addEventInfoList(const EventInfoList &eventInfoList)
 HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
                                                EventsQueryOption &option)
 {
-	const ColumnDef &eventsUnifiedId =
-	  COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID];
-	const ColumnDef &eventsServerId =
-	  COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID];
-	const ColumnDef &eventsId =
-	  COLUMN_DEF_EVENTS[IDX_EVENTS_ID];
-	const ColumnDef &eventsTimeSec =
-	  COLUMN_DEF_EVENTS[IDX_EVENTS_TIME_SEC];
-	const ColumnDef &eventsTimeNs =
-	  COLUMN_DEF_EVENTS[IDX_EVENTS_TIME_NS];
-	const ColumnDef &eventsEventValue = 
-	  COLUMN_DEF_EVENTS[IDX_EVENTS_EVENT_TYPE];
-	const ColumnDef &eventsTriggerId =
-	  COLUMN_DEF_EVENTS[IDX_EVENTS_TRIGGER_ID];
-
-	const ColumnDef &triggersServerId =
-	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID];
-	const ColumnDef &triggersTriggerId =
-	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID];
-	const ColumnDef &triggersStatus =
-	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_STATUS];
-	const ColumnDef &triggersSeverity =
-	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SEVERITY];
-	const ColumnDef &triggersHostId =
-	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID];
-	const ColumnDef &triggersHostName =
-	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOSTNAME];
-	const ColumnDef &triggersBrief =
-	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_BRIEF];
-
-	DBAgentSelectExArg arg;
-
-	// Tables
 	const static char *VAR_EVENTS = "e";
 	const static char *VAR_TRIGGERS = "t";
+	static const DBAgent::TableProfileEx prof[] = {
+	  {&tableProfileEvents, VAR_EVENTS},
+	  {&tableProfileTriggers, VAR_TRIGGERS},
+	};
+	enum {
+		TBLIDX_EVENTS,
+		TBLIDX_TRIGGERS,
+	};
+	static const size_t numTables =
+	  sizeof(prof) / sizeof(DBAgent::TableProfileEx);
+	DBAgent::SelectMultiTableArg arg(prof, numTables);
+
+	// Tables
 	option.setTableNameForServerId(VAR_EVENTS);
-	arg.tableName = StringUtils::sprintf(
-	  " %s %s inner join %s %s on %s.%s=%s.%s",
+	arg.tableField = StringUtils::sprintf(
+	  " %s %s inner join %s %s on %s=%s",
 	  TABLE_NAME_EVENTS, VAR_EVENTS,
 	  TABLE_NAME_TRIGGERS, VAR_TRIGGERS,
-	  VAR_EVENTS, eventsTriggerId.columnName,
-	  VAR_TRIGGERS, triggersTriggerId.columnName);
+	  arg.getFullName(TBLIDX_EVENTS, IDX_EVENTS_TRIGGER_ID).c_str(),
+	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_ID).c_str());
 
 	// Columns
-	arg.pushColumn(eventsUnifiedId,  VAR_EVENTS);
-	arg.pushColumn(eventsServerId,   VAR_EVENTS);
-	arg.pushColumn(eventsId,         VAR_EVENTS);
-	arg.pushColumn(eventsTimeSec,    VAR_EVENTS);
-	arg.pushColumn(eventsTimeNs,     VAR_EVENTS);
-	arg.pushColumn(eventsEventValue, VAR_EVENTS);
-	arg.pushColumn(eventsTriggerId,  VAR_EVENTS);
+	arg.setProfile(TBLIDX_EVENTS);
+	arg.add(IDX_EVENTS_UNIFIED_ID);
+	arg.add(IDX_EVENTS_SERVER_ID);
+	arg.add(IDX_EVENTS_ID);
+	arg.add(IDX_EVENTS_TIME_SEC);
+	arg.add(IDX_EVENTS_TIME_NS);
+	arg.add(IDX_EVENTS_EVENT_TYPE);
+	arg.add(IDX_EVENTS_TRIGGER_ID);
 
-	arg.pushColumn(triggersStatus,   VAR_TRIGGERS);
-	arg.pushColumn(triggersSeverity, VAR_TRIGGERS);
-	arg.pushColumn(triggersHostId,   VAR_TRIGGERS);
-	arg.pushColumn(triggersHostName, VAR_TRIGGERS);
-	arg.pushColumn(triggersBrief,    VAR_TRIGGERS);
+	arg.setProfile(TBLIDX_TRIGGERS);
+	arg.add(IDX_TRIGGERS_STATUS);
+	arg.add(IDX_TRIGGERS_SEVERITY);
+	arg.add(IDX_TRIGGERS_HOST_ID);
+	arg.add(IDX_TRIGGERS_HOSTNAME);
+	arg.add(IDX_TRIGGERS_BRIEF);
 
 	// Condition
 	DataQueryOption::SortOrder sortOrder = option.getSortOrder();
 	arg.condition = StringUtils::sprintf(
-	  "%s.%s=%s.%s", 
-	  VAR_EVENTS, eventsServerId.columnName,
-	  VAR_TRIGGERS, triggersServerId.columnName);
+	  "%s=%s", 
+	  arg.getFullName(TBLIDX_EVENTS, IDX_EVENTS_SERVER_ID).c_str(),
+	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_SERVER_ID).c_str());
 	uint64_t startId = option.getStartId();
 	if (startId) {
 		if (sortOrder != DataQueryOption::SORT_ASCENDING &&
@@ -1275,8 +1257,8 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 			return HatoholError(HTERR_NOT_FOUND_SORT_ORDER);
 		}
 		arg.condition += StringUtils::sprintf(
-		  " AND %s.%s%s%"PRIu64,
-		  VAR_EVENTS, eventsUnifiedId.columnName,
+		  " AND %s%s%"PRIu64,
+		  arg.getFullName(TBLIDX_EVENTS, IDX_EVENTS_UNIFIED_ID).c_str(),
 		  sortOrder == DataQueryOption::SORT_ASCENDING ? ">=" : "<=",
 		  startId);
 	}
