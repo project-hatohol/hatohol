@@ -148,6 +148,13 @@ public:
 		void add(const size_t &columnIndex, const time_t      &val);
 	};
 
+	struct DeleteArg {
+		const TableProfile &tableProfile;
+		std::string         condition;
+
+		DeleteArg(const TableProfile &tableProfile);
+	};
+
 	static void addSetupFunction(DBDomainId domainId,
 	                             DBSetupFunc setupFunc, void *data = NULL);
 

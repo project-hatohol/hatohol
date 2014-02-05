@@ -72,6 +72,16 @@ public:
 		cppcut_assert_equal((size_t)0, arg.row->getNumberOfItems());
 	}
 
+	void assertCreateDeleteArg(void)
+	{
+		TableProfile tblProf("name", m_testColumnDefs,
+		                     sizeof(m_testColumnDefs),
+		                     m_numTestColumns);
+		DeleteArg arg(tblProf);
+		cppcut_assert_equal(&tblProf, &arg.tableProfile);
+		cppcut_assert_equal(true, arg.condition.empty());
+	}
+
 	template <typename T, typename T_READ>
 	void assertUpdateArgAdd(const T *vals, const size_t &numVals)
 	{
@@ -164,6 +174,12 @@ void test_createUpdateArg(void)
 {
 	TestDBAgent dbAgent;
 	dbAgent.assertCreateUpdateArg();
+}
+
+void test_createDeleteArg(void)
+{
+	TestDBAgent dbAgent;
+	dbAgent.assertCreateDeleteArg();
 }
 
 void test_updateArgAddInt(void)

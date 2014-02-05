@@ -192,6 +192,14 @@ void DBAgent::UpdateArg::add(const size_t &columnIndex, const time_t &val)
 }
 
 // ---------------------------------------------------------------------------
+// DBAgent::DeleteArg
+// ---------------------------------------------------------------------------
+DBAgent::DeleteArg::DeleteArg(const TableProfile &profile)
+: tableProfile(profile)
+{
+}
+
+// ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 void DBAgent::addSetupFunction(DBDomainId domainId,
