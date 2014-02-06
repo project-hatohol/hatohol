@@ -1206,7 +1206,7 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 {
 	const static char *VAR_EVENTS = "e";
 	const static char *VAR_TRIGGERS = "t";
-	static const DBAgent::TableProfileEx prof[] = {
+	static const DBAgent::NamedTable namedTables[] = {
 	  {&tableProfileEvents, VAR_EVENTS},
 	  {&tableProfileTriggers, VAR_TRIGGERS},
 	};
@@ -1214,9 +1214,9 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 		TBLIDX_EVENTS,
 		TBLIDX_TRIGGERS,
 	};
-	static const size_t numTables =
-	  sizeof(prof) / sizeof(DBAgent::TableProfileEx);
-	DBAgent::SelectMultiTableArg arg(prof, numTables);
+	static const size_t numNamedTables =
+	  sizeof(namedTables) / sizeof(DBAgent::NamedTable);
+	DBAgent::SelectMultiTableArg arg(namedTables, numNamedTables);
 
 	// Tables
 	option.setTableNameForServerId(VAR_EVENTS);

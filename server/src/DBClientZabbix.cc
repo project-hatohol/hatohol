@@ -1569,12 +1569,12 @@ static const DBAgent::TableProfile tableProfileHostsGroupsRaw_2_0(
 static const char *VAR_TRIGGERS  = "t";
 static const char *VAR_HOSTS     = "h";
 
-static const DBAgent::TableProfileEx tableProf[] = {
+static const DBAgent::NamedTable namedTables[] = {
   {&tableProfileTriggersRaw_2_0, VAR_TRIGGERS},
   {&tableProfileHostsRaw_2_0, VAR_HOSTS},
 };
-static const size_t numTableProf =
-   sizeof(tableProf) / sizeof(DBAgent::TableProfileEx);
+static const size_t numNamedTables =
+   sizeof(namedTables) / sizeof(DBAgent::NamedTable);
 
 struct DBClientZabbix::PrivateContext
 {
@@ -1584,7 +1584,7 @@ struct DBClientZabbix::PrivateContext
 	// methods
 	PrivateContext(size_t _serverId)
 	: serverId(_serverId),
-	  selectExArgForTriggerAsHatoholFormat(tableProf, numTableProf)
+	  selectExArgForTriggerAsHatoholFormat(namedTables, numNamedTables)
 	{
 	}
 };

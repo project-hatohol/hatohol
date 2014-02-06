@@ -316,28 +316,28 @@ static const char *VAR_STATUS       = "st";
 static const char *VAR_HOSTS        = "h";
 static const char *VAR_STATEHISTORY = "sh";
 
-static const DBAgent::TableProfileEx profTrig[] = {
+static const DBAgent::NamedTable namedTablesTrig[] = {
   {&tableProfileServices,      VAR_SERVICES}, 
   {&tableProfileServiceStatus, VAR_STATUS}, 
   {&tableProfileHosts,         VAR_HOSTS}, 
 };
-static const size_t numProfTrig =
-  sizeof(profTrig) / sizeof(DBAgent::TableProfileEx);
+static const size_t numNamedTablesTrig =
+  sizeof(namedTablesTrig) / sizeof(DBAgent::NamedTable);
 
-static const DBAgent::TableProfileEx profEvent[] = {
+static const DBAgent::NamedTable namedTablesEvent[] = {
   {&tableProfileStateHistory, VAR_STATEHISTORY},
   {&tableProfileServices,     VAR_SERVICES},
   {&tableProfileHosts,        VAR_HOSTS}, 
 };
-static const size_t numProfEvent =
-  sizeof(profEvent) / sizeof(DBAgent::TableProfileEx);
+static const size_t numNamedTablesEvent =
+  sizeof(namedTablesEvent) / sizeof(DBAgent::NamedTable);
 
-static const DBAgent::TableProfileEx profItem[] = {
+static const DBAgent::NamedTable namedTablesItem[] = {
   {&tableProfileServices,      VAR_SERVICES},
   {&tableProfileServiceStatus, VAR_STATUS}, 
 };
-static const size_t numProfItem =
-  sizeof(profItem) / sizeof(DBAgent::TableProfileEx);
+static const size_t numNamedTablesItem =
+  sizeof(namedTablesItem) / sizeof(DBAgent::NamedTable);
 
 struct ArmNagiosNDOUtils::PrivateContext
 {
@@ -354,9 +354,9 @@ struct ArmNagiosNDOUtils::PrivateContext
 	// methods
 	PrivateContext(const MonitoringServerInfo &_serverInfo)
 	: dbAgent(NULL),
-	  selectTriggerArg(profTrig, numProfTrig),
-	  selectEventArg(profEvent, numProfEvent),
-	  selectItemArg(profItem, numProfItem),
+	  selectTriggerArg(namedTablesTrig, numNamedTablesTrig),
+	  selectEventArg(namedTablesEvent, numNamedTablesEvent),
+	  selectItemArg(namedTablesItem, numNamedTablesItem),
 	  dataStore(NULL),
 	  serverInfo(_serverInfo)
 	{

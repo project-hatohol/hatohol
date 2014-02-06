@@ -157,38 +157,38 @@ public:
 
 	void assertCreateSelectMultiTableArg(void)
 	{
-		TableProfileEx profiles[] = {
+		const NamedTable namedTables[] = {
 		  {&tableProfileTest, "t"}, {&tableProfileTestAutoInc, "inc"}
 		};
-		const size_t numTables =
-		  sizeof(profiles) / sizeof(TableProfileEx);
-		SelectMultiTableArg arg(profiles, numTables);
-		cppcut_assert_equal(profiles, arg.profileExArray);
-		cppcut_assert_equal(numTables, arg.numTables);
-		cppcut_assert_equal(profiles, arg.currProfile);
+		const size_t numNamedTables =
+		  sizeof(namedTables) / sizeof(NamedTable);
+		SelectMultiTableArg arg(namedTables, numNamedTables);
+		cppcut_assert_equal(namedTables, arg.namedTables);
+		cppcut_assert_equal(numNamedTables, arg.numTables);
+		cppcut_assert_equal(namedTables, arg.currTable);
 	}
 
 	void assertSelectMultiTableArgSetProfile(void)
 	{
-		TableProfileEx profiles[] = {
+		const NamedTable namedTables[] = {
 		  {&tableProfileTest, "t"}, {&tableProfileTestAutoInc, "inc"}
 		};
-		const size_t numTables =
-		  sizeof(profiles) / sizeof(TableProfileEx);
-		SelectMultiTableArg arg(profiles, numTables);
+		const size_t numNamedTables =
+		  sizeof(namedTables) / sizeof(NamedTable);
+		SelectMultiTableArg arg(namedTables, numNamedTables);
 		arg.setProfile(1);
-		cppcut_assert_equal(&profiles[1], arg.currProfile);
+		cppcut_assert_equal(&namedTables[1], arg.currTable);
 		cppcut_assert_equal(&tableProfileTestAutoInc, arg.tableProfile);
 	}
 
 	void assertSelectMultiTableArgAdd(void)
 	{
-		TableProfileEx profiles[] = {
+		const NamedTable namedTables[] = {
 		  {&tableProfileTest, "t"}, {&tableProfileTestAutoInc, "inc"}
 		};
-		const size_t numTables =
-		  sizeof(profiles) / sizeof(TableProfileEx);
-		SelectMultiTableArg arg(profiles, numTables);
+		const size_t numNamedTables =
+		  sizeof(namedTables) / sizeof(NamedTable);
+		SelectMultiTableArg arg(namedTables, numNamedTables);
 
 		// 1st add()
 		size_t columnIdx = 2;
@@ -220,12 +220,12 @@ public:
 
 	void assertSelectMultiTableArgGetFullName(void)
 	{
-		TableProfileEx profiles[] = {
+		const NamedTable namedTables[] = {
 		  {&tableProfileTest, "t"}, {&tableProfileTestAutoInc, "inc"}
 		};
-		const size_t numTables =
-		  sizeof(profiles) / sizeof(TableProfileEx);
-		SelectMultiTableArg arg(profiles, numTables);
+		const size_t numNamedTables =
+		  sizeof(namedTables) / sizeof(NamedTable);
+		SelectMultiTableArg arg(namedTables, numNamedTables);
 
 		const size_t columnIdx = 3;
 		const string actualName = arg.getFullName(0, columnIdx);

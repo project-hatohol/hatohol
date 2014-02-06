@@ -117,21 +117,21 @@ public:
 		         const SQLColumnType &columnType);
 	};
 
-	struct TableProfileEx {
+	struct NamedTable {
 		const TableProfile *profile;
 		const char         *varName;
 	};
 
 	struct SelectMultiTableArg : public SelectExArg {
-		const TableProfileEx *profileExArray;
-		const size_t          numTables;
-		const TableProfileEx *currProfile;
+		const NamedTable *namedTables;
+		const size_t      numTables;
+		const NamedTable *currTable;
 
-		SelectMultiTableArg(const TableProfileEx *profileExArray,
+		SelectMultiTableArg(const NamedTable *namedTables,
 		                    const size_t &numTables);
 		void setProfile(const size_t &index);
 		void add(const size_t &columnIndex);
-		std::string getFullName(const size_t &profileIndex,
+		std::string getFullName(const size_t &tableIndex,
 		                        const size_t &columnIndex);
 	};
 

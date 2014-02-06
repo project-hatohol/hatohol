@@ -215,11 +215,11 @@ void DBAgent::SelectExArg::add(
 // DBAgent::SelectMultiTableArg
 // ---------------------------------------------------------------------------
 DBAgent::SelectMultiTableArg::SelectMultiTableArg(
-  const TableProfileEx *_profileExArray, const size_t &_numTables)
-: SelectExArg(*_profileExArray[0].profile),
-  profileExArray(_profileExArray),
+  const NamedTable *_namedTables, const size_t &_numTables)
+: SelectExArg(*_namedTables[0].profile),
+  namedTables(_namedTables),
   numTables(_numTables),
-  currProfile(_profileExArray) // point the first element
+  currTable(_namedTables) // point the first element
 {
 }
 
@@ -227,25 +227,26 @@ void DBAgent::SelectMultiTableArg::setProfile(const size_t &index)
 {
 	HATOHOL_ASSERT(index < numTables, "index (%zd) >= numTables (%zd)",
 	               index, numTables);
-	currProfile = &profileExArray[index];
-	SelectExArg::tableProfile = currProfile->profile;
+	currTable = namedTables + index;
+	SelectExArg::tableProfile = currTable->profile;
 }
 
 void DBAgent::SelectMultiTableArg::add(const size_t &columnIndex)
 {
-	SelectExArg::add(columnIndex, currProfile->varName);
+	SelectExArg::add(columnIndex, currTable->varName);
 }
 
-string DBAgent::SelectMultiTableArg::getFullName(const size_t &profileIndex,
+string DBAgent::SelectMultiTableArg::getFullName(const size_t &tableIndex,
                                                  const size_t &columnIndex)
 {
-	HATOHOL_ASSERT(profileIndex < numTables,
-	               "profileIndex (%zd) >= numTables (%zd)",
-	               profileIndex, numTables);
-	const TableProfileEx &prof = profileExArray[profileIndex];
+	HATOHOL_ASSERT(tableIndex < numTables,
+	               "tableIndex (%zd) >= numTables (%zd)",
+	               tableIndex, numTables);
+	const NamedTable &namedTable = namedTables[tableIndex];
 	return StringUtils::sprintf(
 	  "%s.%s",
-	  prof.varName, prof.profile->columnDefs[columnIndex].columnName);
+	  namedTable.varName,
+	  namedTable.profile->columnDefs[columnIndex].columnName);
 }
 
 // ---------------------------------------------------------------------------
