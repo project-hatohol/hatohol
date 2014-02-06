@@ -157,7 +157,7 @@ public:
 	virtual ~HostResourceQueryOption();
 
 	// Overriding of virtual methods
-	virtual std::string getCondition(void) const;
+	virtual std::string getCondition(const std::string &varName = "") const;
 
 	virtual ServerIdType getTargetServerId(void) const;
 	virtual void setTargetServerId(const ServerIdType &targetServerId);

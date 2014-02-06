@@ -875,16 +875,28 @@ string HostResourceQueryOption::makeCondition(
 	return StringUtils::sprintf("(%s)", condition.c_str());
 }
 
-string HostResourceQueryOption::getCondition(void) const
+string HostResourceQueryOption::getCondition(const string &varName) const
 {
 	string condition;
 	UserIdType userId = getUserId();
+	string serverIdColumnName;
+	string hostIdColumnName;
+	string hostgroupIdColumnName;
+	if (varName.empty()) {
+		serverIdColumnName = getServerIdColumnName();
+		hostIdColumnName = getServerIdColumnName();
+		hostgroupIdColumnName = getHostGroupIdColumnName();
+	} else {
+		serverIdColumnName = varName + "." +  getServerIdColumnName();
+		hostIdColumnName = varName + "." + getServerIdColumnName();
+		hostgroupIdColumnName = varName + "." + getHostGroupIdColumnName();
+	}
 
 	if (userId == USER_ID_SYSTEM || has(OPPRVLG_GET_ALL_SERVER)) {
 		if (m_ctx->targetServerId != ALL_SERVERS) {
 			condition = StringUtils::sprintf(
 				"%s=%"FMT_SERVER_ID,
-				getServerIdColumnName().c_str(),
+				serverIdColumnName.c_str(),
 				m_ctx->targetServerId);
 		}
 		if (m_ctx->targetHostId != ALL_HOSTS) {
@@ -892,7 +904,7 @@ string HostResourceQueryOption::getCondition(void) const
 				condition += " AND ";
 			condition += StringUtils::sprintf(
 				"%s=%"PRIu64,
-				getHostIdColumnName().c_str(),
+				hostIdColumnName.c_str(),
 				m_ctx->targetHostId);
 		}
 		if (m_ctx->targetHostgroupId != ALL_HOST_GROUPS) {
@@ -900,7 +912,7 @@ string HostResourceQueryOption::getCondition(void) const
 				condition += " AND ";
 			condition += StringUtils::sprintf(
 				"%s=%"FMT_HOST_GROUP_ID,
-				getHostGroupIdColumnName().c_str(),
+				hostgroupIdColumnName.c_str(),
 				m_ctx->targetHostgroupId);
 		}
 		return condition;
@@ -916,9 +928,9 @@ string HostResourceQueryOption::getCondition(void) const
 	ServerHostGrpSetMap srvHostGrpSetMap;
 	dbUser->getServerHostGrpSetMap(srvHostGrpSetMap, userId);
 	condition = makeCondition(srvHostGrpSetMap,
-	                          getServerIdColumnName(),
-	                          getHostGroupIdColumnName(),
-	                          getHostIdColumnName(),
+	                          serverIdColumnName,
+	                          hostIdColumnName,
+	                          hostgroupIdColumnName,
 	                          m_ctx->targetServerId,
 	                          m_ctx->targetHostId,
 	                          m_ctx->targetHostgroupId);
@@ -978,11 +990,9 @@ TriggersQueryOption::TriggersQueryOption(UserIdType userId)
 : HostResourceQueryOption(userId)
 {
 	setServerIdColumnName(
-	  StringUtils::sprintf("%s.%s", VAR_TRIGGERS,
-	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName));
+	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName);
 	setHostIdColumnName(
-	  StringUtils::sprintf("%s.%s", VAR_TRIGGERS,
-	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName));
+	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName);
 }
 
 ItemsQueryOption::ItemsQueryOption(UserIdType userId)
@@ -1126,7 +1136,7 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 					 const TriggersQueryOption &option,
 					 uint64_t targetTriggerId)
 {
-	string optCond = option.getCondition();
+	string optCond = option.getCondition(VAR_TRIGGERS);
 	if (isAlwaysFalseCondition(optCond))
 		return;
 
@@ -1142,8 +1152,7 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	if (!optCond.empty()) {
 		if (!condition.empty())
 			condition += " AND ";
-		condition += StringUtils::sprintf("(%s.%s)", VAR_TRIGGERS,
-		                                  optCond.c_str());
+		condition += StringUtils::sprintf("(%s)", optCond.c_str());
 	}
 
 	getTriggerInfoList(triggerInfoList, condition);
@@ -1507,9 +1516,9 @@ size_t DBClientHatohol::getNumberOfTriggers(const TriggersQueryOption &option,
 	if (!arg.condition.empty())
 		arg.condition += " and ";
 	arg.condition +=
-	  StringUtils::sprintf("%s.%s=%d and %s.%s=%d", VAR_TRIGGERS,
+	  StringUtils::sprintf("%s=%d and %s=%d",
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SEVERITY].columnName, severity,
-	    VAR_TRIGGERS,COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_STATUS].columnName,
+	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_STATUS].columnName,
 	    TRIGGER_STATUS_PROBLEM);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
