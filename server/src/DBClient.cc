@@ -269,8 +269,8 @@ void DBClient::insertDBClientVersion(DBAgent *dbAgent,
 {
 	// insert default value
 	DBAgent::InsertArg arg(tableProfileDBClientVersion);
-	arg.row->addNewItem(dbAgent->getDBDomainId());
-	arg.row->addNewItem(setupFuncArg->version);
+	arg.add(dbAgent->getDBDomainId());
+	arg.add(setupFuncArg->version);
 	dbAgent->insert(arg);
 }
 
