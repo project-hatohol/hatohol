@@ -316,6 +316,11 @@ UserInfo testUserInfo[] = {
 	"tiramisu",        // name
 	"qJN9DBkJRQSQo",   // password
 	0,                 // flags
+}, {
+	0,                    // id
+	"cannotUpdateServer", // name
+	"qJN9DBkJRQSQo",      // password
+	OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_SERVER),
 }
 };
 const size_t NumTestUserInfo = sizeof(testUserInfo) / sizeof(UserInfo);

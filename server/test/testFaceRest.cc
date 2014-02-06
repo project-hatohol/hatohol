@@ -317,6 +317,15 @@ static void _assertValueInParser(JsonParserAgent *parser,
 
 #define assertValueInParser(P,M,E) cut_trace(_assertValueInParser(P,M,E));
 
+static void _assertNoValueInParser(
+  JsonParserAgent *parser, const string &member)
+{
+	string val;
+	cppcut_assert_equal(false, parser->read(member, val));
+}
+
+#define assertNoValueInParser(P,M) cut_trace(_assertNoValueInParser(P,M));
+
 static void _assertNullInParser(JsonParserAgent *parser, const string &member)
 {
 	bool result = false;
@@ -345,7 +354,8 @@ static void _assertTestTriggerInfo(const TriggerInfo &triggerInfo)
 }
 #define assertTestTriggerInfo(T) cut_trace(_assertTestTriggerInfo(T))
 
-static void assertServersInParser(JsonParserAgent *parser)
+static void assertServersInParser(
+  JsonParserAgent *parser, bool shouldHaveAccountInfo = true)
 {
 	assertValueInParser(parser, "numberOfServers", NumTestServerInfo);
 	parser->startObject("servers");
@@ -362,9 +372,18 @@ static void assertServersInParser(JsonParserAgent *parser)
 				    svInfo.pollingIntervalSec);
 		assertValueInParser(parser, "retryInterval",
 				    svInfo.retryIntervalSec);
-		assertValueInParser(parser, "userName",  svInfo.userName);
-		assertValueInParser(parser, "password",  svInfo.password);
-		assertValueInParser(parser, "dbName",    svInfo.dbName);
+		if (shouldHaveAccountInfo) {
+			assertValueInParser(parser, "userName",
+					    svInfo.userName);
+			assertValueInParser(parser, "password",
+					    svInfo.password);
+			assertValueInParser(parser, "dbName",
+					    svInfo.dbName);
+		} else {
+			assertNoValueInParser(parser, "userName");
+			assertNoValueInParser(parser, "password");
+			assertNoValueInParser(parser, "dbName");
+		}
 		parser->endElement();
 	}
 	parser->endObject();
@@ -1260,6 +1279,20 @@ void test_servers(void)
 void test_serversJsonp(void)
 {
 	assertServers("/server", "foo");
+}
+
+void test_serversWithoutUpdatePrivilege(void)
+{
+	setupUserDB();
+	startFaceRest();
+	RequestArg arg("/server");
+	OperationPrivilegeFlag excludeFlags =
+	  (1 << OPPRVLG_UPDATE_ALL_SERVER) | (1 << OPPRVLG_UPDATE_SERVER);
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER, excludeFlags);
+	g_parser = getResponseAsJsonParser(arg);
+	assertErrorCode(g_parser);
+	bool shouldHaveAccountInfo = true;
+	assertServersInParser(g_parser, !shouldHaveAccountInfo);
 }
 
 static void serverInfo2StringMap(
