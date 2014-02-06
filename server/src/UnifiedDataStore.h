@@ -114,6 +114,8 @@ public:
 	  ServerQueryOption &option);
 	virtual HatoholError addTargetServer(
 	  MonitoringServerInfo &svInfo, const OperationPrivilege &privilege);
+	virtual HatoholError updateTargetServer(
+	  MonitoringServerInfo &svInfo, const OperationPrivilege &privilege);
 	virtual HatoholError deleteTargetServer(
 	  const ServerIdType &serverId, const OperationPrivilege &privilege);
 

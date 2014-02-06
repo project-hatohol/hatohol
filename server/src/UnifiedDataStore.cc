@@ -580,6 +580,32 @@ HatoholError UnifiedDataStore::addTargetServer(
 	return err;
 }
 
+HatoholError UnifiedDataStore::updateTargetServer(
+  MonitoringServerInfo &svInfo, const OperationPrivilege &privilege)
+{
+	CacheServiceDBClient cache;
+	DBClientConfig *dbConfig = cache.getConfig();
+	HatoholError err = dbConfig->addOrUpdateTargetServer(&svInfo,
+	                                                     privilege);
+	if (err != HTERR_OK)
+		return err;
+
+	struct : public PrivateContext::VirtualDataStoreForeachProc {
+		MonitoringServerInfo *svInfo;
+		virtual bool operator()(VirtualDataStore *virtDataStore) {
+			bool stopped = virtDataStore->stop(svInfo->id);
+			if (!stopped)
+				return false;
+			bool started = virtDataStore->start(*svInfo);
+			bool breakFlag = started;
+			return breakFlag;
+		}
+	} restarter;
+	restarter.svInfo = &svInfo;
+	m_ctx->virtualDataStoreForeach(&restarter);
+	return err;
+}
+
 HatoholError UnifiedDataStore::deleteTargetServer(
   const ServerIdType &serverId, const OperationPrivilege &privilege)
 {

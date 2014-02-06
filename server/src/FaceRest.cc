@@ -1537,7 +1537,7 @@ void FaceRest::handlerPutServer(RestJob *job)
 	}
 
 	// try to update
-	err = dataStore->addTargetServer(serverInfo, option);
+	err = dataStore->updateTargetServer(serverInfo, option);
 
 	// make a response
 	JsonBuilderAgent agent;
