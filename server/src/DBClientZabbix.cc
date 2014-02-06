@@ -2240,14 +2240,14 @@ void DBClientZabbix::makeSelectExArgForTriggerAsHatoholFormat(void)
 	   arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_RAW_2_0_HOSTID).c_str(),
 	   arg.getFullName(TBLIDX_HOSTS, IDX_HOSTS_RAW_2_0_HOSTID).c_str());
 
-	arg.setProfile(TBLIDX_TRIGGERS);
+	arg.setTable(TBLIDX_TRIGGERS);
 	arg.add(IDX_TRIGGERS_RAW_2_0_TRIGGERID);
 	arg.add(IDX_TRIGGERS_RAW_2_0_VALUE);
 	arg.add(IDX_TRIGGERS_RAW_2_0_PRIORITY);
 	arg.add(IDX_TRIGGERS_RAW_2_0_LASTCHANGE);
 	arg.add(IDX_TRIGGERS_RAW_2_0_DESCRIPTION);
 
-	arg.setProfile(TBLIDX_HOSTS);
+	arg.setTable(TBLIDX_HOSTS);
 	arg.add(IDX_HOSTS_RAW_2_0_HOSTID);
 	arg.add(IDX_HOSTS_RAW_2_0_NAME);
 }

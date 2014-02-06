@@ -438,18 +438,18 @@ void ArmNagiosNDOUtils::makeSelectTriggerArg(void)
 	    arg.getFullName(TBLIDX_HOSTS,
                             IDX_HOSTS_HOST_OBJECT_ID).c_str());
 
-	arg.setProfile(TBLIDX_SERVICES);
+	arg.setTable(TBLIDX_SERVICES);
 	arg.add(IDX_SERVICES_SERVICE_ID);
 
-	arg.setProfile(TBLIDX_STATUS);
+	arg.setTable(TBLIDX_STATUS);
 	arg.add(IDX_SERVICESTATUS_CURRENT_STATE);
 	arg.add(IDX_SERVICESTATUS_STATUS_UPDATE_TIME);
 
-	arg.setProfile(TBLIDX_HOSTS);
+	arg.setTable(TBLIDX_HOSTS);
 	arg.add(IDX_HOSTS_HOST_ID);
 	arg.add(IDX_HOSTS_DISPLAY_NAME);
 
-	arg.setProfile(TBLIDX_STATUS);
+	arg.setTable(TBLIDX_STATUS);
 	arg.add(IDX_SERVICESTATUS_OUTPUT);
 
 	// contiditon
@@ -483,19 +483,19 @@ void ArmNagiosNDOUtils::makeSelectEventArg(void)
 	                    IDX_SERVICES_SERVICE_OBJECT_ID).c_str(),
 	    arg.getFullName(TBLIDX_HOSTS, IDX_HOSTS_HOST_OBJECT_ID).c_str());
 
-	arg.setProfile(TBLIDX_HISTORY);
+	arg.setTable(TBLIDX_HISTORY);
 	arg.add(IDX_STATEHISTORY_STATEHISTORY_ID);
 	arg.add(IDX_STATEHISTORY_STATE);
 	arg.add(IDX_STATEHISTORY_STATE_TIME);
 
-	arg.setProfile(TBLIDX_SERVICES);
+	arg.setTable(TBLIDX_SERVICES);
 	arg.add(IDX_SERVICES_SERVICE_ID);
 
-	arg.setProfile(TBLIDX_HOSTS);
-	arg.setProfile(IDX_HOSTS_HOST_ID);
-	arg.setProfile(IDX_HOSTS_DISPLAY_NAME);
+	arg.setTable(TBLIDX_HOSTS);
+	arg.setTable(IDX_HOSTS_HOST_ID);
+	arg.setTable(IDX_HOSTS_DISPLAY_NAME);
 
-	arg.setProfile(TBLIDX_HISTORY);
+	arg.setTable(TBLIDX_HISTORY);
 	arg.add(IDX_STATEHISTORY_OUTPUT);
 
 	// contiditon
@@ -525,11 +525,11 @@ void ArmNagiosNDOUtils::makeSelectItemArg(void)
 	    arg.getFullName(TBLIDX_STATUS,
 	                    IDX_SERVICESTATUS_SERVICE_OBJECT_ID).c_str());
 
-	arg.setProfile(TBLIDX_SERVICES);
+	arg.setTable(TBLIDX_SERVICES);
 	arg.add(IDX_SERVICES_SERVICE_ID);
 	arg.add(IDX_SERVICES_HOST_OBJECT_ID);
 
-	arg.setProfile(TBLIDX_STATUS);
+	arg.setTable(TBLIDX_STATUS);
 	arg.add(IDX_SERVICESTATUS_CHECK_COMMAND);
 	arg.add(IDX_SERVICESTATUS_STATUS_UPDATE_TIME);
 	arg.add(IDX_SERVICESTATUS_OUTPUT);

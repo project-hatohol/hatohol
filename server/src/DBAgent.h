@@ -129,7 +129,7 @@ public:
 
 		SelectMultiTableArg(const NamedTable *namedTables,
 		                    const size_t &numTables);
-		void setProfile(const size_t &index);
+		void setTable(const size_t &index);
 		void add(const size_t &columnIndex);
 		std::string getFullName(const size_t &tableIndex,
 		                        const size_t &columnIndex);

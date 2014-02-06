@@ -176,7 +176,7 @@ public:
 		const size_t numNamedTables =
 		  sizeof(namedTables) / sizeof(NamedTable);
 		SelectMultiTableArg arg(namedTables, numNamedTables);
-		arg.setProfile(1);
+		arg.setTable(1);
 		cppcut_assert_equal(&namedTables[1], arg.currTable);
 		cppcut_assert_equal(&tableProfileTestAutoInc, arg.tableProfile);
 	}
@@ -204,7 +204,7 @@ public:
 		cppcut_assert_equal(def->type, arg.columnTypes[0]);
 
 		// 2nd add() after the change of the profile
-		arg.setProfile(1);
+		arg.setTable(1);
 		columnIdx = 0;
 		arg.add(columnIdx);
 

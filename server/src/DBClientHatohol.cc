@@ -1228,7 +1228,7 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_ID).c_str());
 
 	// Columns
-	arg.setProfile(TBLIDX_EVENTS);
+	arg.setTable(TBLIDX_EVENTS);
 	arg.add(IDX_EVENTS_UNIFIED_ID);
 	arg.add(IDX_EVENTS_SERVER_ID);
 	arg.add(IDX_EVENTS_ID);
@@ -1237,7 +1237,7 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	arg.add(IDX_EVENTS_EVENT_TYPE);
 	arg.add(IDX_EVENTS_TRIGGER_ID);
 
-	arg.setProfile(TBLIDX_TRIGGERS);
+	arg.setTable(TBLIDX_TRIGGERS);
 	arg.add(IDX_TRIGGERS_STATUS);
 	arg.add(IDX_TRIGGERS_SEVERITY);
 	arg.add(IDX_TRIGGERS_HOST_ID);

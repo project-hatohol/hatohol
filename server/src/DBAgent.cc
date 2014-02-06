@@ -223,7 +223,7 @@ DBAgent::SelectMultiTableArg::SelectMultiTableArg(
 {
 }
 
-void DBAgent::SelectMultiTableArg::setProfile(const size_t &index)
+void DBAgent::SelectMultiTableArg::setTable(const size_t &index)
 {
 	HATOHOL_ASSERT(index < numTables, "index (%zd) >= numTables (%zd)",
 	               index, numTables);
