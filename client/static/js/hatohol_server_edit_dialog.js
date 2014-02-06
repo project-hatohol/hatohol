@@ -298,9 +298,11 @@ HatoholServerEditDialog.prototype.setServer = function(server) {
   $("#inputHostName").val(server.hostName);
   $("#inputIpAddress").val(server.ipAddress);
   $("#inputPort").val(server.port);
-  
-  // TODO: set remaining values
-  //       (Currently they aren't provided from hatohol server)
+  $("#inputUserName").val(server.userName);
+  $("#inputPassword").val(server.password);
+  $("#inputDbName").val(server.dbName);
+  $("#inputPollingInterval").val(server.pollingInterval);
+  $("#inputRetryInterval").val(server.retryInterval);
 
   this.setDBNameTextState(server.type == hatohol.MONITORING_SYSTEM_NAGIOS);
   this.fixupApplyButtonState();
