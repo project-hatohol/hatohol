@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -37,6 +37,7 @@ enum HatoholErrorCode
 	HTERR_INVALID_IP_ADDRESS,
 	HTERR_INVALID_HOST_NAME,
 	HTERR_NO_IP_ADDRESS_AND_HOST_NAME,
+	HTERR_NOT_FOUND_SERVER_ID,
 
 	// DBClientUser
 	HTERR_EMPTY_USER_NAME,

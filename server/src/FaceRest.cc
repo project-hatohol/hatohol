@@ -32,11 +32,11 @@
 #include "FaceRest.h"
 #include "JsonBuilderAgent.h"
 #include "HatoholException.h"
-#include "ConfigManager.h"
 #include "UnifiedDataStore.h"
 #include "DBClientUser.h"
 #include "DBClientConfig.h"
 #include "SessionManager.h"
+#include "CacheServiceDBClient.h"
 using namespace std;
 using namespace mlpl;
 
@@ -1044,10 +1044,10 @@ static void addOverviewEachServer(FaceRest::RestJob *job,
 
 static void addOverview(FaceRest::RestJob *job, JsonBuilderAgent &agent)
 {
-	ConfigManager *configManager = ConfigManager::getInstance();
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	MonitoringServerInfoList monitoringServers;
 	ServerQueryOption option(job->userId);
-	configManager->getTargetServers(monitoringServers, option);
+	dataStore->getTargetServers(monitoringServers, option);
 	MonitoringServerInfoListIterator it = monitoringServers.begin();
 	agent.add("numberOfServers", monitoringServers.size());
 	agent.startArray("serverStatus");
@@ -1063,14 +1063,26 @@ static void addOverview(FaceRest::RestJob *job, JsonBuilderAgent &agent)
 	agent.endArray();
 }
 
+static bool canUpdateServer(
+  const OperationPrivilege &privilege, const MonitoringServerInfo &serverInfo)
+{
+        if (privilege.has(OPPRVLG_UPDATE_ALL_SERVER))
+                return true;
+        if (!privilege.has(OPPRVLG_UPDATE_SERVER))
+                return false;
+        CacheServiceDBClient cache;
+        DBClientUser *dbUser = cache.getUser();
+        return dbUser->isAccessible(serverInfo.id, privilege);
+}
+
 static void addServers(FaceRest::RestJob *job, JsonBuilderAgent &agent,
                        const ServerIdType &targetServerId)
 {
-	ConfigManager *configManager = ConfigManager::getInstance();
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	MonitoringServerInfoList monitoringServers;
 	ServerQueryOption option(job->userId);
 	option.setTargetServerId(targetServerId);
-	configManager->getTargetServers(monitoringServers, option);
+	dataStore->getTargetServers(monitoringServers, option);
 
 	agent.add("numberOfServers", monitoringServers.size());
 	agent.startArray("servers");
@@ -1084,6 +1096,15 @@ static void addServers(FaceRest::RestJob *job, JsonBuilderAgent &agent,
 		agent.add("ipAddress", serverInfo.ipAddress);
 		agent.add("nickname", serverInfo.nickname);
 		agent.add("port", serverInfo.port);
+		agent.add("pollingInterval", serverInfo.pollingIntervalSec);
+		agent.add("retryInterval", serverInfo.retryIntervalSec);
+		if (canUpdateServer(option, serverInfo)) {
+			// Shouldn't show account information of the server to
+			// a user who isn't allowed to update it.
+			agent.add("userName", serverInfo.userName);
+			agent.add("password", serverInfo.password);
+			agent.add("dbName", serverInfo.dbName);
+		}
 		agent.endObject();
 	}
 	agent.endArray();
@@ -1209,10 +1230,10 @@ static void addServersMap(
   HostNameMaps *hostMaps = NULL, bool lookupHostName = false,
   TriggerBriefMaps *triggerMaps = NULL, bool lookupTriggerBrief = false)
 {
-	ConfigManager *configManager = ConfigManager::getInstance();
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	MonitoringServerInfoList monitoringServers;
 	ServerQueryOption option(job->userId);
-	configManager->getTargetServers(monitoringServers, option);
+	dataStore->getTargetServers(monitoringServers, option);
 
 	agent.startObject("servers");
 	MonitoringServerInfoListIterator it = monitoringServers.begin();
@@ -1353,6 +1374,8 @@ void FaceRest::handlerServer(RestJob *job)
 		handlerGetServer(job);
 	} else if (StringUtils::casecmp(job->message->method, "POST")) {
 		handlerPostServer(job);
+	} else if (StringUtils::casecmp(job->message->method, "PUT")) {
+		handlerPutServer(job);
 	} else if (StringUtils::casecmp(job->message->method, "DELETE")) {
 		handlerDeleteServer(job);
 	} else {
@@ -1378,7 +1401,7 @@ void FaceRest::handlerGetServer(RestJob *job)
 }
 
 HatoholError FaceRest::parseServerParameter(
-  MonitoringServerInfo &svInfo, GHashTable *query, bool forUpdate)
+  MonitoringServerInfo &svInfo, GHashTable *query, bool allowEmpty)
 {
 	HatoholError err;
 	char *value;
@@ -1386,61 +1409,67 @@ HatoholError FaceRest::parseServerParameter(
 	// type
 	err = getParam<MonitoringSystemType>(
 		query, "type", "%d", svInfo.type);
-	if (err != HTERR_OK)
-		return err;
+	if (err != HTERR_OK) {
+		if (!allowEmpty || err != HTERR_NOT_FOUND_PARAMETER)
+			return err;
+	}
 
 	// hostname
 	value = (char *)g_hash_table_lookup(query, "hostName");
-	if (!value)
+	if (!value && !allowEmpty)
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "hostName");
 	svInfo.hostName = value;
 
 	// ipAddress
 	value = (char *)g_hash_table_lookup(query, "ipAddress");
-	if (!value)
+	if (!value && !allowEmpty)
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "ipAddress");
 	svInfo.ipAddress = value;
 
 	// nickname
 	value = (char *)g_hash_table_lookup(query, "nickname");
-	if (!value)
+	if (!value && !allowEmpty)
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "nickname");
 	svInfo.nickname = value;
 
 	// port
 	err = getParam<int>(
 		query, "port", "%d", svInfo.port);
-	if (err != HTERR_OK)
-		return err;
+	if (err != HTERR_OK) {
+		if (!allowEmpty || err != HTERR_NOT_FOUND_PARAMETER)
+			return err;
+	}
 
 	// polling
 	err = getParam<int>(
-		query, "polling", "%d", svInfo.pollingIntervalSec);
-	if (err != HTERR_OK)
-		return err;
+		query, "pollingInterval", "%d", svInfo.pollingIntervalSec);
+	if (err != HTERR_OK) {
+		if (!allowEmpty || err != HTERR_NOT_FOUND_PARAMETER)
+			return err;
+	}
 
 	// retry
 	err = getParam<int>(
-		query, "retry", "%d", svInfo.retryIntervalSec);
-	if (err != HTERR_OK)
+		query, "retryInterval", "%d", svInfo.retryIntervalSec);
+	if (err != HTERR_OK && !allowEmpty)
 		return err;
 
 	// username
 	value = (char *)g_hash_table_lookup(query, "user");
-	if (!value)
+	if (!value && !allowEmpty)
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "user");
 	svInfo.userName = value;
 
 	// password
 	value = (char *)g_hash_table_lookup(query, "password");
-	if (!value)
+	if (!value && !allowEmpty)
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "password");
 	svInfo.password = value;
 
 	// dbname
 	if (svInfo.type == MONITORING_SYSTEM_NAGIOS) {
 		value = (char *)g_hash_table_lookup(query, "dbName");
-		if (!value)
+		if (!value && !allowEmpty)
 			return HatoholError(HTERR_NOT_FOUND_PARAMETER,
 					    "dbName");
 		svInfo.dbName = value;
@@ -1469,6 +1498,53 @@ void FaceRest::handlerPostServer(RestJob *job)
 	addHatoholError(agent, err);
 	if (err == HTERR_OK)
 		agent.add("id", svInfo.id);
+	agent.endObject();
+	replyJsonData(agent, job);
+}
+
+void FaceRest::handlerPutServer(RestJob *job)
+{
+	uint64_t serverId;
+	serverId = job->getResourceId();
+	if (serverId == INVALID_ID) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
+		            "id: %s", job->getResourceIdString().c_str());
+		return;
+	}
+
+	// check the existing record
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	MonitoringServerInfoList serversList;
+	ServerQueryOption option(job->userId);
+	dataStore->getTargetServers(serversList, option);
+	if (serversList.empty()) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_SERVER_ID,
+		            "id: %"PRIu64, serverId);
+		return;
+	}
+
+	MonitoringServerInfo serverInfo;
+	serverInfo = *serversList.begin();
+	serverInfo.id = serverId;
+
+	// check the request
+	bool allowEmpty = true;
+	HatoholError err = parseServerParameter(serverInfo, job->query,
+						allowEmpty);
+	if (err != HTERR_OK) {
+		replyError(job, err);
+		return;
+	}
+
+	// try to update
+	err = dataStore->updateTargetServer(serverInfo, option);
+
+	// make a response
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, err);
+	if (err == HTERR_OK)
+		agent.add("id", serverInfo.id);
 	agent.endObject();
 	replyJsonData(agent, job);
 }
@@ -2076,8 +2152,9 @@ void FaceRest::handlerPutUser(RestJob *job)
 		            "id: %"FMT_USER_ID, userInfo.id);
 		return;
 	}
-	bool forUpdate = true;
-	HatoholError err = parseUserParameter(userInfo, job->query, forUpdate);
+	bool allowEmpty = true;
+	HatoholError err = parseUserParameter(userInfo, job->query,
+					      allowEmpty);
 	if (err != HTERR_OK) {
 		replyError(job, err);
 		return;
@@ -2357,9 +2434,9 @@ void FaceRest::handlerPutUserRole(RestJob *job)
 	}
 	userRoleInfo = *(userRoleList.begin());
 
-	bool forUpdate = true;
+	bool allowEmpty = true;
 	HatoholError err = parseUserRoleParameter(userRoleInfo, job->query,
-						  forUpdate);
+						  allowEmpty);
 	if (err != HTERR_OK) {
 		replyError(job, err);
 		return;
@@ -2455,40 +2532,42 @@ void FaceRest::handlerDeleteUserRole(RestJob *job)
 	replyJsonData(agent, job);
 }
 
-HatoholError FaceRest::parseUserParameter(UserInfo &userInfo, GHashTable *query,
-					  bool forUpdate)
+HatoholError FaceRest::parseUserParameter(
+  UserInfo &userInfo, GHashTable *query, bool allowEmpty)
 {
 	char *value;
 
 	// name
 	value = (char *)g_hash_table_lookup(query, "user");
-	if (!value && !forUpdate)
+	if (!value && !allowEmpty)
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "user");
 	if (value)
 		userInfo.name = value;
 
 	// password
 	value = (char *)g_hash_table_lookup(query, "password");
-	if (!value && !forUpdate)
+	if (!value && !allowEmpty)
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "password");
 	userInfo.password = value ? value : "";
 
 	// flags
 	HatoholError err = getParam<OperationPrivilegeFlag>(
 		query, "flags", "%"FMT_OPPRVLG, userInfo.flags);
-	if (err != HTERR_OK && !forUpdate)
-		return err;
+	if (err != HTERR_OK) {
+		if (!allowEmpty || err != HTERR_NOT_FOUND_PARAMETER)
+			return err;
+	}
 	return HatoholError(HTERR_OK);
 }
 
 HatoholError FaceRest::parseUserRoleParameter(
-  UserRoleInfo &userRoleInfo, GHashTable *query, bool forUpdate)
+  UserRoleInfo &userRoleInfo, GHashTable *query, bool allowEmpty)
 {
 	char *value;
 
 	// name
 	value = (char *)g_hash_table_lookup(query, "name");
-	if (!value && !forUpdate)
+	if (!value && !allowEmpty)
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "name");
 	if (value)
 		userRoleInfo.name = value;
@@ -2496,7 +2575,7 @@ HatoholError FaceRest::parseUserRoleParameter(
 	// flags
 	HatoholError err = getParam<OperationPrivilegeFlag>(
 		query, "flags", "%"FMT_OPPRVLG, userRoleInfo.flags);
-	if (err != HTERR_OK && !forUpdate)
+	if (err != HTERR_OK && !allowEmpty)
 		return err;
 	return HatoholError(HTERR_OK);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -188,10 +188,10 @@ void test_createTableServers(void)
 }
 
 void _assertAddTargetServer(
-  MonitoringServerInfo serverInfo, const HatoholErrorCode expectedErrorCode)
+  MonitoringServerInfo serverInfo, const HatoholErrorCode expectedErrorCode,
+  OperationPrivilege privilege = ALL_PRIVILEGES)
 {
 	DBClientConfig dbConfig;
-	OperationPrivilege privilege(ALL_PRIVILEGES);
 	HatoholError err;
 	err = dbConfig.addOrUpdateTargetServer(&serverInfo, privilege);
 	assertHatoholError(expectedErrorCode, err);
@@ -202,12 +202,21 @@ void _assertAddTargetServer(
 	string statement("select * from servers");
 	assertDBContent(dbConfig.getDBAgent(), statement, expectedOut);
 }
-#define assertAddTargetServer(I,E) cut_trace(_assertAddTargetServer(I,E))
+#define assertAddTargetServer(I,E,...) \
+cut_trace(_assertAddTargetServer(I,E,##__VA_ARGS__))
 
 void test_addTargetServer(void)
 {
 	MonitoringServerInfo *testInfo = testServerInfo;
 	assertAddTargetServer(*testInfo, HTERR_OK);
+}
+
+void test_addTargetServerWithoutPrivilege(void)
+{
+	MonitoringServerInfo *testInfo = testServerInfo;
+	OperationPrivilegeFlag privilege = ALL_PRIVILEGES;
+	privilege &= ~(1 << OPPRVLG_CREATE_SERVER);
+	assertAddTargetServer(*testInfo, HTERR_NO_PRIVILEGE, privilege);
 }
 
 void test_addTargetServerWithInvalidServerType(void)
@@ -316,6 +325,66 @@ void test_addTargetServerWithEmptyIPAddressAndHostname(void)
 	testInfo.hostName = "";
 	testInfo.ipAddress = "";
 	assertAddTargetServer(testInfo, HTERR_NO_IP_ADDRESS_AND_HOST_NAME);
+}
+
+void _assertUpdateTargetServer(
+  MonitoringServerInfo serverInfo, const HatoholErrorCode expectedErrorCode,
+  OperationPrivilege privilege = ALL_PRIVILEGES)
+{
+	loadTestDBServer();
+
+	int targetId = serverInfo.id;
+	int targetIdx = targetId - 1;
+
+	string expectedOut;
+	if (expectedErrorCode == HTERR_OK)
+		expectedOut = makeServerInfoOutput(serverInfo);
+	else
+		expectedOut = makeServerInfoOutput(testServerInfo[targetIdx]);
+
+	DBClientConfig dbConfig;
+	HatoholError err;
+	err = dbConfig.addOrUpdateTargetServer(&serverInfo, privilege);
+	assertHatoholError(expectedErrorCode, err);
+
+	string statement = StringUtils::sprintf(
+	                     "select * from servers where id=%d",
+			     targetId);
+	assertDBContent(dbConfig.getDBAgent(), statement, expectedOut);
+}
+#define assertUpdateTargetServer(I,E,...) \
+cut_trace(_assertUpdateTargetServer(I,E,##__VA_ARGS__))
+
+void test_updateTargetServer(void)
+{
+	int targetId = 2;
+	MonitoringServerInfo serverInfo = testServerInfo[0];
+	serverInfo.id = targetId;
+	assertUpdateTargetServer(serverInfo, HTERR_OK);
+}
+
+void test_updateTargetServerWithoutPrivilege(void)
+{
+	int targetId = 2;
+	MonitoringServerInfo serverInfo = testServerInfo[0];
+	serverInfo.id = targetId;
+	OperationPrivilegeFlag privilege = ALL_PRIVILEGES;
+	OperationPrivilegeFlag updateFlags = 
+	 (1 << OPPRVLG_UPDATE_SERVER) | (1 << OPPRVLG_UPDATE_ALL_SERVER);
+	privilege &= ~updateFlags;
+	assertUpdateTargetServer(
+	  serverInfo, HTERR_NO_PRIVILEGE, privilege);
+}
+
+void test_updateTargetServerWithNoHostNameAndIPAddress(void)
+{
+	int targetId = 2;
+	MonitoringServerInfo serverInfo = testServerInfo[0];
+	serverInfo.id = targetId;
+	serverInfo.hostName = "";
+	serverInfo.ipAddress = "";
+	assertUpdateTargetServer(
+	  serverInfo, HTERR_NO_IP_ADDRESS_AND_HOST_NAME);
 }
 
 void test_deleteTargetServer(void)

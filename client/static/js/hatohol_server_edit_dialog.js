@@ -17,11 +17,18 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var HatoholServerEditDialog = function(succeededCb) {
+var HatoholServerEditDialog = function(params) {
   var self = this;
 
+  self.operator = params.operator;
+  self.server = params.targetServer;
+  self.succeededCallback = params.succeededCallback;
+  self.windowTitle =
+    self.server ? gettext("EDIT SERVER") : gettext("ADD SERVER");
+  self.applyButtonTitle = self.server ? gettext("APPLY") : gettext("ADD");
+
   var dialogButtons = [{
-    text: gettext("ADD"),
+    text: self.applyButtonTitle,
     click: addButtonClickedCb
   }, {
     text: gettext("CANCEL"),
@@ -31,9 +38,12 @@ var HatoholServerEditDialog = function(succeededCb) {
   // call the constructor of the super class
   dialogAttrs = { width: "auto" };
   HatoholDialog.apply(
-      this, ["server-edit-dialog", gettext("ADD SERVER"), dialogButtons, dialogAttrs]);
+      this, ["server-edit-dialog", self.windowTitle,
+             dialogButtons, dialogAttrs]);
+  if (self.server)
+    self.setServer(self.server);
   setTimeout(function(){
-    self.setAddButtonState(false);
+    self.fixupApplyButtonState();
   }, 1);
 
   //
@@ -53,13 +63,13 @@ var HatoholServerEditDialog = function(succeededCb) {
 
   function makeQueryData() {
     var queryData = {};
-    queryData.type = getFlagsFromServerType($("#selectServerType").val());
+    queryData.type = $("#selectServerType").val();
     queryData.hostName = $("#inputHostName").val();
     queryData.ipAddress = $("#inputIpAddress").val();
     queryData.nickname = $("#inputNickName").val();
     queryData.port = $("#inputPort").val();
-    queryData.polling = $("#inputPollingInterval").val();
-    queryData.retry = $("#inputRetryInterval").val();
+    queryData.pollingInterval = $("#inputPollingInterval").val();
+    queryData.retryInterval = $("#inputRetryInterval").val();
     queryData.user = $("#inputUserName").val();
     queryData.password = $("#inputPassword").val();
     queryData.dbName = $("#inputDbName").val();
@@ -67,9 +77,12 @@ var HatoholServerEditDialog = function(succeededCb) {
   }
 
   function postAddServer() {
+    var url = "/server";
+    if (self.server)
+      url += "/" + self.server.id;
     new HatoholConnector({
-      url: "/server",
-      request: "POST",
+      url: url,
+      request: self.server ? "PUT" : "POST",
       data: makeQueryData(),
       replyCallback: replyCallback,
       parseErrorCallback: hatoholErrorMsgBoxForParser
@@ -80,14 +93,16 @@ var HatoholServerEditDialog = function(succeededCb) {
     self.closeDialog();
     hatoholInfoMsgBox(gettext("Successfully created."));
 
-    if (succeededCb)
-      succeededCb();
+    if (self.succeededCallback)
+      self.succeededCallback();
   }
 
   function validateParameters() {
     var type = $("#selectServerType").val();
 
-    if (type != "zabbix" && type != "nagios") {
+    if (type != hatohol.MONITORING_SYSTEM_ZABBIX &&
+        type != hatohol.MONITORING_SYSTEM_NAGIOS)
+    {
       hatoholErrorMsgBox(gettext("Invalid Server type!"));
       return false;
     }
@@ -123,23 +138,13 @@ var HatoholServerEditDialog = function(succeededCb) {
       hatoholErrorMsgBox(gettext("Password is empty!"));
       return false;
     }
-    if (type == "nagios" && $("#inputDbName").val() == "") {
+    if (type == hatohol.MONITORING_SYSTEM_NAGIOS &&
+        $("#inputDbName").val() == "")
+    {
       hatoholErrorMsgBox(gettext("DB name is empty!"));
       return false;
     }
     return true;
-  }
-
-  function getFlagsFromServerType(type) {
-    switch(type) {
-      case "zabbix":
-        return hatohol.MONITORING_SYSTEM_ZABBIX;
-      case "nagios":
-        return hatohol.MONITORING_SYSTEM_NAGIOS;
-      default:
-        break;
-    }
-    return -1;
   }
 };
 
@@ -156,8 +161,10 @@ HatoholServerEditDialog.prototype.createMainElement = function() {
     s += '<form class="form-inline">';
     s += '  <label>' + gettext("Server type") + '</label>';
     s += '  <select id="selectServerType" style="width:10em">';
-    s += '    <option value="zabbix">' + gettext("Zabbix") + '</option>';
-    s += '    <option value="nagios">' + gettext("Nagios") + '</option>';
+    s += '    <option value="' + hatohol.MONITORING_SYSTEM_ZABBIX + '">' +
+      gettext("Zabbix") + '</option>';
+    s += '    <option value="' + hatohol.MONITORING_SYSTEM_NAGIOS +'">' +
+      gettext("Nagios") + '</option>';
     s += '  </select>';
     s += '</form>';
     s += '<form class="form-inline">';
@@ -195,6 +202,65 @@ HatoholServerEditDialog.prototype.createMainElement = function() {
 
 HatoholServerEditDialog.prototype.onAppendMainElement = function () {
   var self = this;
+
+  self.fixupApplyButtonState();
+
+  $("#inputHostName").keyup(function() {
+    self.fixupApplyButtonState();
+  });
+
+  $("#selectServerType").change(function() {
+    var type = $("#selectServerType").val();
+    if (type == hatohol.MONITORING_SYSTEM_ZABBIX) {
+      self.setDBNameTextState(false);
+    } else if (type == hatohol.MONITORING_SYSTEM_NAGIOS) {
+      self.setDBNameTextState(true);
+    }
+  });
+
+  $("#inputIpAddress").keyup(function() {
+    self.fixupApplyButtonState();
+  });
+
+  $("#inputNickName").keyup(function() {
+    self.fixupApplyButtonState();
+  });
+
+  $("#inputPort").keyup(function() {
+    self.fixupApplyButtonState();
+  });
+
+  $("#inputPollingInterval").keyup(function() {
+    self.fixupApplyButtonState();
+  });
+
+  $("#inputRetryInterval").keyup(function() {
+    self.fixupApplyButtonState();
+  });
+
+  $("#inputUserName").keyup(function() {
+    self.fixupApplyButtonState();
+  });
+
+  $("#inputPassword").keyup(function() {
+    self.fixupApplyButtonState();
+  });
+};
+
+HatoholServerEditDialog.prototype.setApplyButtonState = function(state) {
+  var btn = $(".ui-dialog-buttonpane").find("button:contains(" +
+              this.applyButtonTitle + ")");
+  if (state) {
+     btn.removeAttr("disabled");
+     btn.removeClass("ui-state-disabled");
+  } else {
+     btn.attr("disabled", "disable");
+     btn.addClass("ui-state-disabled");
+  }
+};
+
+HatoholServerEditDialog.prototype.fixupApplyButtonState = function(enable) {
+  var self = this;
   var validHostName = !!$("#inputHostName").val();
   var validIpAddress = !!$("#inputIpAddress").val();
   var validNickName = !!$("#inputNickName").val();
@@ -203,79 +269,16 @@ HatoholServerEditDialog.prototype.onAppendMainElement = function () {
   var validRetryInterval = !!$("#inputRetryInterval").val();
   var validUserName = !!$("#inputUserName").val();
   var validPassword = !!$("#inputPassword").val();
-  self.setDBNameTextState(false);
-  $("#inputHostName").keyup(function() {
-    validHostName = !!$("#inputHostName").val();
-    fixupAddButtonState(); });
-
-  $("#selectServerType").change(function() {
-    var type = $("#selectServerType").val();
-    if (type == "zabbix") {
-      self.setDBNameTextState(false);
-    } else if (type == "nagios") {
-      self.setDBNameTextState(true);
-    }
-  });
-
-  $("#inputIpAddress").keyup(function() {
-    validIpAddress = !!$("#inputIpAddress").val();
-    fixupAddButtonState();
-  });
-
-  $("#inputNickName").keyup(function() {
-    validNickName = !!$("#inputNickName").val();
-    fixupAddButtonState();
-  });
-
-  $("#inputPort").keyup(function() {
-    validPort = !!$("#inputPort").val();
-    fixupAddButtonState();
-  });
-
-  $("#inputPollingInterval").keyup(function() {
-    validPollingInterval = !!$("#inputPollingInterval").val();
-    fixupAddButtonState();
-  });
-
-  $("#inputRetryInterval").keyup(function() {
-    validRetryInterval = !!$("#inputRetryInterval").val();
-    fixupAddButtonState();
-  });
-
-  $("#inputUserName").keyup(function() {
-    validUserName = !!$("#inputUserName").val();
-    fixupAddButtonState();
-  });
-
-  $("#inputPassword").keyup(function() {
-    validPassword = !!$("#inputPassword").val();
-    fixupAddButtonState();
-  });
-
-  function fixupAddButtonState() {
-    var state = (
-        validHostName &&
-        validIpAddress &&
-        validNickName &&
-        validPort &&
-        validPollingInterval &&
-        validRetryInterval &&
-        validUserName &&
-        validPassword);
-    self.setAddButtonState(state);
-  }
-};
-
-HatoholServerEditDialog.prototype.setAddButtonState = function(state) {
-  var btn = $(".ui-dialog-buttonpane").find("button:contains(" +
-              gettext("ADD") + ")");
-  if (state) {
-     btn.removeAttr("disabled");
-     btn.removeClass("ui-state-disabled");
-  } else {
-     btn.attr("disabled", "disable");
-     btn.addClass("ui-state-disabled");
-  }
+  var state =
+    validHostName &&
+    validIpAddress &&
+    validNickName &&
+    validPort &&
+    validPollingInterval &&
+    validRetryInterval &&
+    validUserName &&
+    validPassword;
+  self.setApplyButtonState(state);
 };
 
 HatoholServerEditDialog.prototype.setDBNameTextState = function(state) {
@@ -286,4 +289,21 @@ HatoholServerEditDialog.prototype.setDBNameTextState = function(state) {
   } else {
     dbNameArea.hide();
   }
+};
+
+HatoholServerEditDialog.prototype.setServer = function(server) {
+  this.server = server;
+  $("#selectServerType").val(server.type);
+  $("#inputNickName").val(server.nickname);
+  $("#inputHostName").val(server.hostName);
+  $("#inputIpAddress").val(server.ipAddress);
+  $("#inputPort").val(server.port);
+  $("#inputUserName").val(server.userName);
+  $("#inputPassword").val(server.password);
+  $("#inputDbName").val(server.dbName);
+  $("#inputPollingInterval").val(server.pollingInterval);
+  $("#inputRetryInterval").val(server.retryInterval);
+
+  this.setDBNameTextState(server.type == hatohol.MONITORING_SYSTEM_NAGIOS);
+  this.fixupApplyButtonState();
 };

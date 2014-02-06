@@ -518,12 +518,18 @@ static void _assertMakeCondition(const ServerHostGrpSetMap &srvHostGrpSetMap,
 #define assertMakeCondition(M, ...) \
   cut_trace(_assertMakeCondition(M, ##__VA_ARGS__))
 
-static string makeExpectedConditionForUser(UserIdType userId)
+static string makeExpectedConditionForUser(
+  UserIdType userId, OperationPrivilegeFlag flags)
 {
 	string exp;
 	UserIdIndexMap userIdIndexMap;
 	makeTestUserIdIndexMap(userIdIndexMap);
 	UserIdIndexMapIterator it = userIdIndexMap.find(userId);
+	if (flags & (1 << OPPRVLG_GET_ALL_SERVER)) {
+		// Although it's not correct when a target*Id is specified,
+		// currently no target is specified in this function.
+		return "";
+	}
 	if (it == userIdIndexMap.end())
 		return DBClientHatohol::getAlwaysFalseCondition();
 
@@ -1130,7 +1136,8 @@ void test_makeSelectCondition(void)
 		UserIdType userId = i + 1;
 		option.setUserId(userId);
 		string actual = option.getCondition();
-		string expect = makeExpectedConditionForUser(userId);
+		string expect = makeExpectedConditionForUser(
+		                  userId, testUserInfo[i].flags);
 		cppcut_assert_equal(expect, actual);
 	}
 }

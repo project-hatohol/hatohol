@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -109,7 +109,12 @@ public:
 	  UserRoleInfo &userRoleInfo, const OperationPrivilege &privilege);
 	virtual HatoholError deleteUserRole(
 	  UserRoleIdType userRoleId, const OperationPrivilege &privilege);
+	virtual void getTargetServers(
+	  MonitoringServerInfoList &monitoringServers,
+	  ServerQueryOption &option);
 	virtual HatoholError addTargetServer(
+	  MonitoringServerInfo &svInfo, const OperationPrivilege &privilege);
+	virtual HatoholError updateTargetServer(
 	  MonitoringServerInfo &svInfo, const OperationPrivilege &privilege);
 	virtual HatoholError deleteTargetServer(
 	  const ServerIdType &serverId, const OperationPrivilege &privilege);

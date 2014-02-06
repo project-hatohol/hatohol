@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -130,6 +130,7 @@ protected:
 	static void handlerServer(RestJob *job);
 	static void handlerGetServer(RestJob *job);
 	static void handlerPostServer(RestJob *job);
+	static void handlerPutServer(RestJob *job);
 	static void handlerDeleteServer(RestJob *job);
 	static void handlerGetHost(RestJob *job);
 	static void handlerGetTrigger(RestJob *job);

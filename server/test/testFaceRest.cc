@@ -317,6 +317,15 @@ static void _assertValueInParser(JsonParserAgent *parser,
 
 #define assertValueInParser(P,M,E) cut_trace(_assertValueInParser(P,M,E));
 
+static void _assertNoValueInParser(
+  JsonParserAgent *parser, const string &member)
+{
+	string val;
+	cppcut_assert_equal(false, parser->read(member, val));
+}
+
+#define assertNoValueInParser(P,M) cut_trace(_assertNoValueInParser(P,M));
+
 static void _assertNullInParser(JsonParserAgent *parser, const string &member)
 {
 	bool result = false;
@@ -345,7 +354,8 @@ static void _assertTestTriggerInfo(const TriggerInfo &triggerInfo)
 }
 #define assertTestTriggerInfo(T) cut_trace(_assertTestTriggerInfo(T))
 
-static void assertServersInParser(JsonParserAgent *parser)
+static void assertServersInParser(
+  JsonParserAgent *parser, bool shouldHaveAccountInfo = true)
 {
 	assertValueInParser(parser, "numberOfServers", NumTestServerInfo);
 	parser->startObject("servers");
@@ -358,6 +368,22 @@ static void assertServersInParser(JsonParserAgent *parser)
 		assertValueInParser(parser, "ipAddress", svInfo.ipAddress);
 		assertValueInParser(parser, "nickname",  svInfo.nickname);
 		assertValueInParser(parser, "port",  svInfo.port);
+		assertValueInParser(parser, "pollingInterval",
+				    svInfo.pollingIntervalSec);
+		assertValueInParser(parser, "retryInterval",
+				    svInfo.retryIntervalSec);
+		if (shouldHaveAccountInfo) {
+			assertValueInParser(parser, "userName",
+					    svInfo.userName);
+			assertValueInParser(parser, "password",
+					    svInfo.password);
+			assertValueInParser(parser, "dbName",
+					    svInfo.dbName);
+		} else {
+			assertNoValueInParser(parser, "userName");
+			assertNoValueInParser(parser, "password");
+			assertNoValueInParser(parser, "dbName");
+		}
 		parser->endElement();
 	}
 	parser->endObject();
@@ -827,7 +853,7 @@ void _assertUpdateUserWithSetup(const StringMap &params,
 	const bool dbRecreate = true;
 	const bool loadTestDat = true;
 	setupTestDBUser(dbRecreate, loadTestDat);
-	const UserIdType userId = findUserWith(OPPRVLG_CREATE_USER);
+	const UserIdType userId = findUserWith(OPPRVLG_UPDATE_USER);
 	assertUpdateUser(params, targetUserId, userId, expectCode);
 }
 #define assertUpdateUserWithSetup(P,U,C) \
@@ -846,6 +872,22 @@ void _assertAddServerWithSetup(const StringMap &params,
 	assertAddServer(params, userId, expectCode, NumTestServerInfo + 1);
 }
 #define assertAddServerWithSetup(P,C) cut_trace(_assertAddServerWithSetup(P,C))
+
+#define assertUpdateServer(P, ...) \
+cut_trace(_assertUpdateRecord(P, "/server", ##__VA_ARGS__))
+
+void _assertUpdateServerWithSetup(const StringMap &params,
+				  uint32_t targetServerId,
+				  const HatoholErrorCode &expectCode)
+{
+	const bool dbRecreate = true;
+	const bool loadTestDat = true;
+	setupTestDBUser(dbRecreate, loadTestDat);
+	const UserIdType userId = findUserWith(OPPRVLG_UPDATE_ALL_SERVER);
+	assertUpdateServer(params, targetServerId, userId, expectCode);
+}
+#define assertUpdateServerWithSetup(P,U,C) \
+cut_trace(_assertUpdateServerWithSetup(P,U,C))
 
 static void setupTestMode(void)
 {
@@ -1239,6 +1281,37 @@ void test_serversJsonp(void)
 	assertServers("/server", "foo");
 }
 
+void test_serversWithoutUpdatePrivilege(void)
+{
+	setupUserDB();
+	startFaceRest();
+	RequestArg arg("/server");
+	OperationPrivilegeFlag excludeFlags =
+	  (1 << OPPRVLG_UPDATE_ALL_SERVER) | (1 << OPPRVLG_UPDATE_SERVER);
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER, excludeFlags);
+	g_parser = getResponseAsJsonParser(arg);
+	assertErrorCode(g_parser);
+	bool shouldHaveAccountInfo = true;
+	assertServersInParser(g_parser, !shouldHaveAccountInfo);
+}
+
+static void serverInfo2StringMap(
+  const MonitoringServerInfo &src, StringMap &dest)
+{
+	dest["type"] = StringUtils::toString(src.type);
+	dest["hostName"] = src.hostName;
+	dest["ipAddress"] = src.ipAddress;
+	dest["nickname"] = src.nickname;
+	dest["port"] = StringUtils::toString(src.port);
+	dest["user"] = src.userName;
+	dest["password"] = src.password;
+	dest["dbName"] = src.dbName;
+	dest["pollingInterval"]
+	  = StringUtils::toString(src.pollingIntervalSec);
+	dest["retryInterval"]
+	  = StringUtils::toString(src.retryIntervalSec);
+}
+
 void test_addServer(void)
 {
 	MonitoringServerInfo expected;
@@ -1255,22 +1328,44 @@ void test_addServer(void)
 	expected.dbName = "";
 
 	StringMap params;
-	params["type"] = StringUtils::toString(expected.type);
-	params["hostName"] = expected.hostName;
-	params["ipAddress"] = expected.ipAddress;
-	params["nickname"] = expected.nickname;
-	params["port"] = StringUtils::toString(expected.port);
-	params["polling"] = StringUtils::toString(expected.pollingIntervalSec);
-	params["retry"] = StringUtils::toString(expected.retryIntervalSec);
-	params["user"] = expected.userName;
-	params["password"] = expected.password;
-	params["dbName"] = expected.dbName;
+	serverInfo2StringMap(expected, params);
 	assertAddServerWithSetup(params, HTERR_OK);
 
 	// check the content in the DB
 	DBClientConfig dbConfig;
 	string statement = "select * from servers ";
 	statement += " order by id desc limit 1";
+	string expectedOutput = makeServerInfoOutput(expected);
+	assertDBContent(dbConfig.getDBAgent(), statement, expectedOutput);
+}
+
+void test_addServerWithoutNickname(void)
+{
+	MonitoringServerInfo serverInfo = testServerInfo[0];
+	StringMap params;
+	serverInfo2StringMap(serverInfo, params);
+	params.erase("nickname");
+	assertAddServerWithSetup(params, HTERR_NOT_FOUND_PARAMETER);
+
+	ServerIdSet serverIdSet;
+	assertServersInDB(serverIdSet);
+}
+
+void test_updateServer(void)
+{
+	int targetId = 2;
+	MonitoringServerInfo expected = testServerInfo[0];
+	expected.id = targetId;
+
+	StringMap params;
+	serverInfo2StringMap(expected, params);
+	assertUpdateServerWithSetup(params, targetId, HTERR_OK);
+
+	// check the content in the DB
+	DBClientConfig dbConfig;
+	string statement = StringUtils::sprintf(
+	                     "select * from servers where id=%d",
+			     targetId);
 	string expectedOutput = makeServerInfoOutput(expected);
 	assertDBContent(dbConfig.getDBAgent(), statement, expectedOutput);
 }
@@ -1725,6 +1820,41 @@ void test_updateUser(void)
 	string expect = StringUtils::sprintf("%d|%s|%s|%"FMT_OPPRVLG,
 	  targetId, user.c_str(), Utils::sha256(password).c_str(), flags);
 	assertDBContent(dbUser.getDBAgent(), statement, expect);
+}
+
+void test_updateUserWithoutFlags(void)
+{
+	const UserIdType targetId = 1;
+	OperationPrivilegeFlag flags = testUserInfo[targetId - 1].flags;
+	const string user = "y@r@n@i0";
+	const string password = "=(-.-)zzZZ";
+
+	StringMap params;
+	params["user"] = user;
+	params["password"] = password;
+	assertUpdateUserWithSetup(params, targetId, HTERR_OK);
+
+	// check the content in the DB
+	DBClientUser dbUser;
+	string statement = StringUtils::sprintf(
+	                     "select * from %s where id=%d",
+	                     DBClientUser::TABLE_NAME_USERS, targetId);
+	string expect = StringUtils::sprintf("%d|%s|%s|%"FMT_OPPRVLG,
+	  targetId, user.c_str(), Utils::sha256(password).c_str(), flags);
+	assertDBContent(dbUser.getDBAgent(), statement, expect);
+}
+
+void test_updateUserWithInvalidFlags(void)
+{
+	const UserIdType targetId = 1;
+	const string user = "y@r@n@i0";
+	const string password = "=(-.-)zzZZ";
+
+	StringMap params;
+	params["user"] = user;
+	params["password"] = password;
+	params["flags"] = "no-number";
+	assertUpdateUserWithSetup(params, targetId, HTERR_INVALID_PARAMETER);
 }
 
 void test_updateUserWithoutPassword(void)

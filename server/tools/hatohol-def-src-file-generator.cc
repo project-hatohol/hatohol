@@ -164,6 +164,7 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 	ADD_LINE(s, langType, HTERR_INVALID_IP_ADDRESS);
 	ADD_LINE(s, langType, HTERR_INVALID_HOST_NAME);
 	ADD_LINE(s, langType, HTERR_NO_IP_ADDRESS_AND_HOST_NAME);
+	ADD_LINE(s, langType, HTERR_NOT_FOUND_SERVER_ID);
 
 	// DBClientUser
 	ADD_LINE(s, langType, HTERR_EMPTY_USER_NAME);

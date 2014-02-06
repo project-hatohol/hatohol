@@ -47,6 +47,7 @@
         <th>{% trans "IP Address" %}</th>
         <th>{% trans "Nickname" %}</th>
         <th>{% trans "Maps" %}</th>
+        <th class="edit-server-column" style="display:none;"></th>
       </tr>
     </thead>
     <tbody>
@@ -64,7 +65,10 @@
     var numSelected = 0;
 
     $("#add-server-button").click(function() {
-      new HatoholServerEditDialog(addSucceededCb);
+      new HatoholServerEditDialog({
+        operator: userProfile.user,
+        succeededCallback: addOrUpdateSucceededCb
+      });
     });
 
     $("#delete-server-button").click(function() {
@@ -72,7 +76,7 @@
       hatoholNoYesMsgBox(msg, deleteServers);
     });
 
-    function addSucceededCb() {
+    function addOrUpdateSucceededCb() {
       startConnection('server', updateCore);
     };
 
@@ -92,6 +96,32 @@
 
       if (hasFlag(userProfile.user, hatohol.OPPRVLG_DELETE_SERVER)) {
         $(".delete-selector").show();
+      }
+    }
+
+    function setupEditButtons(reply)
+    {
+      var i, id, servers = reply["servers"], serversMap = {};
+
+      for (i = 0; i < servers.length; ++i)
+        serversMap[servers[i]["id"]] = servers[i];
+
+      for (i = 0; i < servers.length; ++i) {
+        id = "#edit-server" + servers[i]["id"];
+        $(id).click(function() {
+          var serverId = this.getAttribute("serverId");
+          new HatoholServerEditDialog({
+            operator: userProfile.user,
+            succeededCallback: addOrUpdateSucceededCb,
+            targetServer: serversMap[serverId]
+          });
+        });
+      }
+
+      if (hasFlag(userProfile.user, hatohol.OPPRVLG_UPDATE_SERVER) ||
+          hasFlag(userProfile.user, hatohol.OPPRVLG_UPDATE_ALL_SERVER))
+      {
+        $(".edit-server-column").show();
       }
     }
 
@@ -183,10 +213,16 @@
         }
         s += "<td>" + o["nickname"]  + "</td>";
         if (mapsURL) {
-          s += "<td><a href='" + mapsURL + "'>" + "{% trans 'Maps' %}" + "</a></td>";
+          s += "<td><a href='" + mapsURL + "'>" + "{% trans 'Show Maps' %}" + "</a></td>";
         } else {
           s += "<td></td>";
         }
+        s += "<td class='edit-server-column' style='display:none;'>"
+        s += "<input id='edit-server" + o["id"] + "'";
+        s += "  type='button' class='btn'";
+        s += "  serverId='" + o["id"] + "'";
+        s += "  value='{% trans "EDIT" %}' />";
+        s += "</td>";
         s += "</tr>";
       }
 
@@ -197,6 +233,7 @@
       $("#table tbody").empty();
       $("#table tbody").append(drawTableBody(reply));
       setupCheckboxHandler();
+      setupEditButtons(reply);
       numSelected = 0;
     }
 
