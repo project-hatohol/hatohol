@@ -1455,9 +1455,9 @@ HatoholError FaceRest::parseServerParameter(
 		return err;
 
 	// username
-	value = (char *)g_hash_table_lookup(query, "user");
+	value = (char *)g_hash_table_lookup(query, "userName");
 	if (!value && !allowEmpty)
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "user");
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "userName");
 	svInfo.userName = value;
 
 	// password

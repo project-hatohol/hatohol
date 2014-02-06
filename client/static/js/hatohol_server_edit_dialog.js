@@ -70,7 +70,7 @@ var HatoholServerEditDialog = function(params) {
     queryData.port = $("#inputPort").val();
     queryData.pollingInterval = $("#inputPollingInterval").val();
     queryData.retryInterval = $("#inputRetryInterval").val();
-    queryData.user = $("#inputUserName").val();
+    queryData.userName = $("#inputUserName").val();
     queryData.password = $("#inputPassword").val();
     queryData.dbName = $("#inputDbName").val();
     return queryData;

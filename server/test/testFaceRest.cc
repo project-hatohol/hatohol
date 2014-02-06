@@ -1303,7 +1303,7 @@ static void serverInfo2StringMap(
 	dest["ipAddress"] = src.ipAddress;
 	dest["nickname"] = src.nickname;
 	dest["port"] = StringUtils::toString(src.port);
-	dest["user"] = src.userName;
+	dest["userName"] = src.userName;
 	dest["password"] = src.password;
 	dest["dbName"] = src.dbName;
 	dest["pollingInterval"]

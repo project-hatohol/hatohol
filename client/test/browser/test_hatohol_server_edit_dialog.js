@@ -35,9 +35,8 @@ describe('HatoholServerEditDialog', function() {
     expect($("#dbNameArea").css("display")).to.be("none");
   });
 
-  it('new with a nagios server', function() {
-    var expectedId = "#server-edit-dialog";
-    var server = {
+  function getNagiosServer() {
+    return {
       id: 1,
       type: hatohol.MONITORING_SYSTEM_NAGIOS,
       hostName: "localhost",
@@ -50,6 +49,11 @@ describe('HatoholServerEditDialog', function() {
       password: "soigan",
       dbName: "nagios-db"
     };
+  }
+
+  it('new with a nagios server', function() {
+    var expectedId = "#server-edit-dialog";
+    var server = getNagiosServer();
     dialog = new HatoholServerEditDialog({
       targetServer: server
     });
@@ -80,5 +84,25 @@ describe('HatoholServerEditDialog', function() {
     expect($("#dbNameArea").css("display")).to.be("none");
     $("#selectServerType").val(hatohol.MONITORING_SYSTEM_NAGIOS).change();
     expect($("#dbNameArea").css("display")).not.to.be("none");
+  });
+
+  it('click apply button', function() {
+    var expectedId = "#server-edit-dialog";
+    var server = getNagiosServer();
+    var connectorStart = function(params) {
+      var expectedPutData = getNagiosServer();
+      delete expectedPutData["id"];
+      expect(params.url).to.be("/server/1");
+      expect(params.request).to.be("PUT");
+      expect(params.data).to.eql(expectedPutData);
+    };
+    var stub = sinon.stub(HatoholConnector.prototype, "start", connectorStart);
+    dialog = new HatoholServerEditDialog({
+      targetServer: server
+    });
+    var buttons = $(expectedId).dialog("option", "buttons");
+    buttons[0].click();
+    // TODO: destroy information dialog
+    stub.restore();
   });
 });
