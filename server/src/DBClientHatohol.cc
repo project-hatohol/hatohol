@@ -35,6 +35,9 @@ static const char *TABLE_NAME_HOSTS                = "hosts";
 static const char *TABLE_NAME_HOSTGROUPS           = "hostgroups";
 static const char *TABLE_NAME_MAP_HOSTS_HOSTGROUPS = "map_hosts_hostgroups";
 
+static const char *VAR_TRIGGERS = "t";
+static const char *VAR_MAP_HOSTS_GROUPS = "m";
+
 uint64_t DBClientHatohol::EVENT_NOT_FOUND = -1;
 int DBClientHatohol::HATOHOL_DB_VERSION = 4;
 
@@ -967,9 +970,11 @@ TriggersQueryOption::TriggersQueryOption(UserIdType userId)
 : HostResourceQueryOption(userId)
 {
 	setServerIdColumnName(
-	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName);
+	  StringUtils::sprintf("%s.%s", VAR_TRIGGERS,
+	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName));
 	setHostIdColumnName(
-	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName);
+	  StringUtils::sprintf("%s.%s", VAR_TRIGGERS,
+	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName));
 }
 
 ItemsQueryOption::ItemsQueryOption(UserIdType userId)
@@ -1131,8 +1136,10 @@ bool DBClientHatohol::getTriggerInfo(TriggerInfo &triggerInfo,
 	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName;
 	const char *colNameId = 
 	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID].columnName;
-	condition = StringUtils::sprintf("%s=%"FMT_SERVER_ID" and %s=%"PRIu64,
+	condition = StringUtils::sprintf("%s.%s=%"FMT_SERVER_ID
+	                                 " and %s.%s=%"PRIu64, VAR_TRIGGERS,
 	                                  colNameServerId, serverId,
+	                                  VAR_TRIGGERS,
 	                                  colNameId, triggerId);
 
 	TriggerInfoList triggerInfoList;
@@ -1159,14 +1166,16 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	if (targetTriggerId != ALL_TRIGGERS) {
 		const char *colName = 
 		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID].columnName;
-		condition += StringUtils::sprintf("%s=%"PRIu64, colName,
+		condition += StringUtils::sprintf("%s.%s=%"PRIu64,
+		                                  VAR_TRIGGERS, colName,
 		                                  targetTriggerId);
 	}
 
 	if (!optCond.empty()) {
 		if (!condition.empty())
 			condition += " AND ";
-		condition += StringUtils::sprintf("(%s)", optCond.c_str());
+		condition += StringUtils::sprintf("(%s.%s)", VAR_TRIGGERS,
+		                                  optCond.c_str());
 	}
 
 	getTriggerInfoList(triggerInfoList, condition);
@@ -1192,13 +1201,15 @@ void DBClientHatohol::setTriggerInfoList(const TriggerInfoList &triggerInfoList,
 int DBClientHatohol::getLastChangeTimeOfTrigger(const ServerIdType &serverId)
 {
 	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_TRIGGERS;
-	string stmt = StringUtils::sprintf("max(%s)", 
+	arg.tableName = StringUtils::sprintf("%s %s", TABLE_NAME_TRIGGERS,
+	                                     VAR_TRIGGERS);
+	string stmt = StringUtils::sprintf("max(%s.%s)", VAR_TRIGGERS,
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC].columnName);
 	arg.statements.push_back(stmt);
 	arg.columnTypes.push_back(
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].type);
-	arg.condition = StringUtils::sprintf("%s=%"FMT_SERVER_ID,
+	arg.condition = StringUtils::sprintf("%s.%s=%"FMT_SERVER_ID,
+	    VAR_TRIGGERS,
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName,
 	    serverId);
 
@@ -1551,7 +1562,8 @@ size_t DBClientHatohol::getNumberOfTriggers(const TriggersQueryOption &option,
                                             TriggerSeverityType severity)
 {
 	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_TRIGGERS;
+	arg.tableName = StringUtils::sprintf("%s %s", TABLE_NAME_TRIGGERS,
+	                                     VAR_TRIGGERS);
 	arg.statements.push_back("count (*)");
 	arg.columnTypes.push_back(SQL_COLUMN_TYPE_INT);
 
@@ -1560,9 +1572,9 @@ size_t DBClientHatohol::getNumberOfTriggers(const TriggersQueryOption &option,
 	if (!arg.condition.empty())
 		arg.condition += " and ";
 	arg.condition +=
-	  StringUtils::sprintf("%s=%d and %s=%d",
+	  StringUtils::sprintf("%s.%s=%d and %s.%s=%d", VAR_TRIGGERS,
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SEVERITY].columnName, severity,
-	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_STATUS].columnName,
+	    VAR_TRIGGERS,COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_STATUS].columnName,
 	    TRIGGER_STATUS_PROBLEM);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
@@ -1945,8 +1957,6 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
                                          const string &condition)
 {
 	DBAgentSelectExArg arg;
-	const static char *VAR_TRIGGERS = "t";
-	const static char *VAR_MAP_HOSTS_GROUPS = "m";
 	arg.tableName = StringUtils::sprintf(
 	  " %s %s inner join %s %s on %s.%s=%s.%s",
 	  TABLE_NAME_TRIGGERS, VAR_TRIGGERS,
