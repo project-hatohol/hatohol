@@ -57,7 +57,7 @@ void VirtualDataStoreNagios::start(void)
 	VirtualDataStore::start<DataStoreNagios>(MONITORING_SYSTEM_NAGIOS);
 }
 
-bool VirtualDataStoreNagios::start(MonitoringServerInfo &svInfo)
+bool VirtualDataStoreNagios::start(const MonitoringServerInfo &svInfo)
 {
 	return VirtualDataStore::start<DataStoreNagios>
 	         (MONITORING_SYSTEM_NAGIOS, svInfo);

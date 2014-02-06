@@ -67,7 +67,7 @@ protected:
 
 	template<class T>
 	bool start(MonitoringSystemType systemType,
-	           MonitoringServerInfo &svInfo)
+	           const MonitoringServerInfo &svInfo)
 	{
 		if (svInfo.type != systemType)
 			return false;

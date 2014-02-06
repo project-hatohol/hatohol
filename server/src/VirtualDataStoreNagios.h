@@ -28,7 +28,7 @@ public:
 	static VirtualDataStoreNagios *getInstance(void);
 
 	virtual void start(void);
-	virtual bool start(MonitoringServerInfo &svInfo);
+	virtual bool start(const MonitoringServerInfo &svInfo);
 
 protected:
 	VirtualDataStoreNagios(void);

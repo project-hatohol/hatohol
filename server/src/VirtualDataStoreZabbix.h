@@ -37,7 +37,7 @@ public:
 	ItemTablePtr getItemTable(ItemGroupId groupId);
 
 	virtual void start(void);
-	virtual bool start(MonitoringServerInfo &svInfo);
+	virtual bool start(const MonitoringServerInfo &svInfo);
 
 protected:
 	ItemTable *createStaticItemTable(ItemGroupId groupId);
