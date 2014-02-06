@@ -1749,7 +1749,6 @@ void DBClientHatohol::addHostInfoWithoutTransaction(const HostInfo &hostInfo)
 	                                        "and host_id=%"FMT_HOST_ID,
 	                                       hostInfo.serverId, hostInfo.id);
 
-	VariableItemGroupPtr row;
 	if (!isRecordExisting(TABLE_NAME_HOSTS, condition)) {
 		DBAgent::InsertArg arg(tableProfileHosts);
 		arg.row->addNewItem(AUTO_INCREMENT_VALUE);
