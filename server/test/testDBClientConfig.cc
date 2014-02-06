@@ -27,8 +27,6 @@
 using namespace std;
 using namespace mlpl;
 
-static const char *TEST_DB_NAME = "test_db_config";
-
 struct TestDBClientConfig : public DBClientConfig {
 
 	static bool callParseCommandLineArgument(const CommandLineArg &cmdArg)
@@ -43,15 +41,17 @@ struct TestDBClientConfig : public DBClientConfig {
 namespace testDBClientConfig {
 
 void _assertGetHostAddress
-  (const string &ipAddr, const string &hostName, const char *expectValue)
+  (const string &ipAddr, const string &hostName, const char *expectValue,
+   bool forURI = false)
 {
 	MonitoringServerInfo svInfo;
 	svInfo.ipAddress = ipAddr;
 	svInfo.hostName  = hostName;
-	cppcut_assert_equal(expectValue, svInfo.getHostAddress());
+	string actualValue = svInfo.getHostAddress(forURI);
+	cppcut_assert_equal(expectValue, actualValue.c_str());
 }
-#define assertGetHostAddress(IP, HOSTNAME, EXPECT) \
-cut_trace(_assertGetHostAddress(IP, HOSTNAME, EXPECT))
+#define assertGetHostAddress(IP, HOSTNAME, EXPECTED, ...) \
+cut_trace(_assertGetHostAddress(IP, HOSTNAME, EXPECTED, ##__VA_ARGS__))
 
 static void addTargetServer(MonitoringServerInfo *serverInfo)
 {
@@ -62,33 +62,13 @@ static void addTargetServer(MonitoringServerInfo *serverInfo)
 #define assertAddServerToDB(X) \
 cut_trace(_assertAddToDB<MonitoringServerInfo>(X, addTargetServer))
 
-static string makeExpectedOutput(MonitoringServerInfo *serverInfo)
-{
-	string expectedOut = StringUtils::sprintf
-	                       ("%u|%d|%s|%s|%s|%d|%d|%d|%s|%s|%s\n",
-	                        serverInfo->id, serverInfo->type,
-	                        serverInfo->hostName.c_str(),
-	                        serverInfo->ipAddress.c_str(),
-	                        serverInfo->nickname.c_str(),
-	                        serverInfo->port,
-	                        serverInfo->pollingIntervalSec,
-	                        serverInfo->retryIntervalSec,
-	                        serverInfo->userName.c_str(),
-	                        serverInfo->password.c_str(),
-	                        serverInfo->dbName.c_str());
-	return expectedOut;
-}
-
 static const char *TEST_DB_USER = "hatohol_test_user";
 static const char *TEST_DB_PASSWORD = ""; // empty: No password is used
 void cut_setup(void)
 {
 	hatoholInit();
-	DBClient::setDefaultDBParams(
-	  DB_DOMAIN_ID_CONFIG, TEST_DB_NAME, TEST_DB_USER, TEST_DB_PASSWORD);
-
-	bool recreate = true;
-	makeTestMySQLDBIfNeeded(TEST_DB_NAME, recreate);
+	bool dbRecreate = true;
+	setupTestDBConfig(dbRecreate);
 }
 
 void cut_teardown(void)
@@ -122,15 +102,42 @@ void test_getHostAddressIP(void)
 	assertGetHostAddress(ipAddr, "example.com", ipAddr);
 }
 
+void test_getHostAddressIPv4ForURI(void)
+{
+	const char *ipAddr = "192.168.1.1";
+	bool forURI = true;
+	assertGetHostAddress(ipAddr, "example.com", ipAddr, forURI);
+}
+
+void test_getHostAddressIPv6(void)
+{
+	const char *ipAddr = "::1";
+	assertGetHostAddress(ipAddr, "", ipAddr);
+}
+
+void test_getHostAddressIPv6ForURI(void)
+{
+	const char *ipAddr = "::1";
+	bool forURI = true;
+	assertGetHostAddress(ipAddr, "", "[::1]", forURI);
+}
+
 void test_getHostAddressHostName(void)
 {
 	const char *hostName = "example.com";
 	assertGetHostAddress("", hostName, hostName);
 }
 
+void test_getHostAddressHostNameForURI(void)
+{
+	const char *hostName = "example.com";
+	bool forURI = true;
+	assertGetHostAddress("", hostName, hostName, forURI);
+}
+
 void test_getHostAddressBothNotSet(void)
 {
-	assertGetHostAddress("", "", NULL);
+	assertGetHostAddress("", "", "");
 }
 
 void test_createDB(void)
@@ -180,17 +187,166 @@ void test_createTableServers(void)
 	assertDBContent(dbConfig.getDBAgent(), statement, expectedOut);
 }
 
+void _assertAddTargetServer(
+  MonitoringServerInfo serverInfo, const HatoholErrorCode expectedErrorCode)
+{
+	DBClientConfig dbConfig;
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	HatoholError err;
+	err = dbConfig.addOrUpdateTargetServer(&serverInfo, privilege);
+	assertHatoholError(expectedErrorCode, err);
+
+	string expectedOut("");
+	if (expectedErrorCode == HTERR_OK)
+		expectedOut = makeServerInfoOutput(serverInfo);
+	string statement("select * from servers");
+	assertDBContent(dbConfig.getDBAgent(), statement, expectedOut);
+}
+#define assertAddTargetServer(I,E) cut_trace(_assertAddTargetServer(I,E))
+
 void test_addTargetServer(void)
 {
-	// added a record
-	MonitoringServerInfo *testInfo = serverInfo;
-	assertAddServerToDB(testInfo);
+	MonitoringServerInfo *testInfo = testServerInfo;
+	assertAddTargetServer(*testInfo, HTERR_OK);
+}
 
-	// confirm with the command line tool
-	string statement = "select * from servers";
-	string expectedOut = makeExpectedOutput(testInfo);
+void test_addTargetServerWithInvalidServerType(void)
+{
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	testInfo.type = NUM_MONITORING_SYSTEMS;
+	assertAddTargetServer(testInfo, HTERR_INVALID_MONITORING_SYSTEM_TYPE);
+}
+
+void test_addTargetServerWithInvalidPortNumber(void)
+{
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	testInfo.port = 65536;
+	assertAddTargetServer(testInfo, HTERR_INVALID_PORT_NUMBER);
+}
+
+void test_addTargetServerWithLackedIPv4Address(void)
+{
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	testInfo.ipAddress = "192.168.1.";
+	assertAddTargetServer(testInfo, HTERR_INVALID_IP_ADDRESS);
+}
+
+void test_addTargetServerWithOverflowIPv4Address(void)
+{
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	testInfo.ipAddress = "192.168.1.256";
+	assertAddTargetServer(testInfo, HTERR_INVALID_IP_ADDRESS);
+}
+
+void test_addTargetServerWithTooManyIPv4Fields(void)
+{
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	testInfo.ipAddress = "1.192.168.1.1";
+	assertAddTargetServer(testInfo, HTERR_INVALID_IP_ADDRESS);
+}
+
+void test_addTargetServerWithValidIPv6Address(void)
+{
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	testInfo.ipAddress = "FE80:0000:0000:0000:0202:B3FF:FE1E:8329";
+	assertAddTargetServer(testInfo, HTERR_OK);
+}
+
+void test_addTargetServerWithShortenIPv6Address(void)
+{
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	testInfo.ipAddress = "FE80::0202:B3FF:FE1E:8329";
+	assertAddTargetServer(testInfo, HTERR_OK);
+}
+
+void test_addTargetServerWithMixedIPv6Address(void)
+{
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	testInfo.ipAddress = "fe80::0202:b3ff:fe1e:192.168.1.1";
+	string expectedOut = makeServerInfoOutput(testInfo);
+	assertAddTargetServer(testInfo, HTERR_OK);
+}
+
+void test_addTargetServerWithTooManyIPv6AddressFields(void)
+{
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	testInfo.ipAddress = "FE80:0000:0000:0000:0202:B3FF:FE1E:8329::1";
+	assertAddTargetServer(testInfo, HTERR_INVALID_IP_ADDRESS);
+}
+
+void test_addTargetServerWithOverflowIPv6Address(void)
+{
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	testInfo.ipAddress = "FE80::02:B3FF:10000:8329";
+	assertAddTargetServer(testInfo, HTERR_INVALID_IP_ADDRESS);
+}
+
+void test_addTargetServerWithInvalidIPv6AddressCharacter(void)
+{
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	testInfo.ipAddress = "FE80::02:B3FG:8329";
+	assertAddTargetServer(testInfo, HTERR_INVALID_IP_ADDRESS);
+}
+
+void test_addTargetServerWithIPv6Loopback(void)
+{
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	testInfo.ipAddress = "::1";
+	assertAddTargetServer(testInfo, HTERR_OK);
+}
+
+void test_addTargetServerWithSimpleNumber(void)
+{
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	testInfo.ipAddress = "123";
+	assertAddTargetServer(testInfo, HTERR_INVALID_IP_ADDRESS);
+}
+
+void test_addTargetServerWithEmptyIPAddress(void)
+{
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	testInfo.ipAddress = "";
+	// Allow empty IP address when the host name isn't empty.
+	assertAddTargetServer(testInfo, HTERR_OK);
+}
+
+void test_addTargetServerWithEmptyIPAddressAndHostname(void)
+{
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	testInfo.hostName = "";
+	testInfo.ipAddress = "";
+	assertAddTargetServer(testInfo, HTERR_NO_IP_ADDRESS_AND_HOST_NAME);
+}
+
+void test_deleteTargetServer(void)
+{
+	setupTestDBUser(true, true);
+	loadTestDBServer();
+	ServerIdType targetServerId = 1;
+	OperationPrivilege privilege(findUserWith(OPPRVLG_DELETE_ALL_SERVER));
 	DBClientConfig dbConfig;
-	assertDBContent(dbConfig.getDBAgent(), statement, expectedOut);
+	HatoholError err = dbConfig.deleteTargetServer(targetServerId,
+						       privilege);
+	assertHatoholError(HTERR_OK, err);
+
+	ServerIdSet serverIdSet;
+	serverIdSet.insert(targetServerId);
+	assertServersInDB(serverIdSet);
+}
+
+void test_deleteTargetServerWithoutPrivilege(void)
+{
+	setupTestDBUser(true, true);
+	loadTestDBServer();
+	ServerIdType targetServerId = 1;
+	OperationPrivilege privilege;
+	DBClientConfig dbConfig;
+	HatoholError err = dbConfig.deleteTargetServer(targetServerId,
+						       privilege);
+	assertHatoholError(HTERR_NO_PRIVILEGE, err);
+
+	ServerIdSet serverIdSet;
+	assertServersInDB(serverIdSet);
 }
 
 void _assertGetTargetServers(UserIdType userId)
@@ -198,12 +354,12 @@ void _assertGetTargetServers(UserIdType userId)
 	ServerHostGrpSetMap authMap;
 	MonitoringServerInfoList expected;
 	makeServerHostGrpSetMap(authMap, userId);
-	for (size_t i = 0; i < NumServerInfo; i++)
-		if (isAuthorized(authMap, userId, serverInfo[i].id))
-			expected.push_back(serverInfo[i]);
+	for (size_t i = 0; i < NumTestServerInfo; i++)
+		if (isAuthorized(authMap, userId, testServerInfo[i].id))
+			expected.push_back(testServerInfo[i]);
 
-	for (size_t i = 0; i < NumServerInfo; i++)
-		assertAddServerToDB(&serverInfo[i]);
+	for (size_t i = 0; i < NumTestServerInfo; i++)
+		assertAddServerToDB(&testServerInfo[i]);
 
 	MonitoringServerInfoList actual;
 	ServerQueryOption option(userId);
@@ -216,8 +372,8 @@ void _assertGetTargetServers(UserIdType userId)
 	MonitoringServerInfoListIterator it_expected = expected.begin();
 	MonitoringServerInfoListIterator it_actual = actual.begin();
 	for (; it_expected != expected.end(); ++it_expected, ++it_actual) {
-		expectedText += makeExpectedOutput(&(*it_expected));
-		actualText += makeExpectedOutput(&(*it_actual));
+		expectedText += makeServerInfoOutput(*it_expected);
+		actualText += makeServerInfoOutput(*it_actual);
 	}
 	cppcut_assert_equal(expectedText, actualText);
 }

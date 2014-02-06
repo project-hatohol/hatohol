@@ -43,12 +43,12 @@ Hatohol13.12のアップデート方法
 ### Hatohol Server
 以下のURLからRPMをダウンロードしてください。
 
-- https://github.com/project-hatohol/hatohol-packages/raw/master/RPMS/hatohol-13.12-1.el6.x86_64.rpm
+- https://github.com/project-hatohol/hatohol-packages/raw/master/RPMS/13.12/hatohol-13.12-1.el6.x86_64.rpm
 
 ### Hatohol Client
 以下のURLからRPMをダウンロードしてください。
 
-- https://github.com/project-hatohol/hatohol-packages/raw/master/RPMS/hatohol-client-13.12-1.el6.x86_64.rpm
+- https://github.com/project-hatohol/hatohol-packages/raw/master/RPMS/13.12/hatohol-client-13.12-1.el6.x86_64.rpm
 
 ### アップデート方法
 次のコマンドでアップデートしてください。

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -58,13 +58,13 @@ public:
 	virtual void begin(void);
 	virtual void commit(void);
 	virtual void rollback(void);
-	virtual void createTable(DBAgentTableCreationArg &tableCreationArg);
-	virtual void insert(DBAgentInsertArg &insertArg);
-	virtual void update(DBAgentUpdateArg &updateArg);
-	virtual void select(DBAgentSelectArg &selectArg);
-	virtual void select(DBAgentSelectExArg &selectExArg);
-	virtual void deleteRows(DBAgentDeleteArg &deleteArg);
-	virtual void addColumns(DBAgentAddColumnsArg &addColumnsArg);
+	virtual void createTable(const TableProfile &tableProfile); // override
+	virtual void insert(const InsertArg &insertArg); // override
+	virtual void update(const UpdateArg &updateArg); // override
+	virtual void select(const SelectArg &selectArg); // override
+	virtual void select(const SelectExArg &selectExArg); // override
+	virtual void deleteRows(const DeleteArg &deleteArg); // override
+	virtual void addColumns(const AddColumnsArg &addColumnsArg); // override
 	virtual uint64_t getLastInsertId(void);
 	virtual uint64_t getNumberOfAffectedRows(void);
 	std::string getDBPath(void) const;
@@ -78,23 +78,20 @@ protected:
 	static void _execSql(sqlite3 *db, const std::string &sql);
 	static bool isTableExisting(sqlite3 *db,
 	                            const std::string &tableName);
-	static void createTable(sqlite3 *db,
-	                        DBAgentTableCreationArg &tableCreationArg);
-	static void insert(sqlite3 *db, DBAgentInsertArg &insertArg);
-	static void update(sqlite3 *db, DBAgentUpdateArg &updateArg);
-	static void select(sqlite3 *db, DBAgentSelectArg &selectArg);
-	static void select(sqlite3 *db, DBAgentSelectExArg &selectExArg);
-	static void deleteRows(sqlite3 *db, DBAgentDeleteArg &deleteArg);
-	static void selectGetValuesIteration(DBAgentSelectArg &selectArg,
+	static void createTable(sqlite3 *db, const TableProfile &tableProfile);
+	static void insert(sqlite3 *db, const InsertArg &insertArg);
+	static void update(sqlite3 *db, const UpdateArg &updateArg);
+	static void select(sqlite3 *db, const SelectArg &selectArg);
+	static void select(sqlite3 *db, const SelectExArg &selectExArg);
+	static void deleteRows(sqlite3 *db, const DeleteArg &deleteArg);
+	static void selectGetValuesIteration(const SelectArg &selectArg,
 	                                     sqlite3_stmt *stmt,
 	                                     VariableItemTablePtr &dataTable);
 	static uint64_t getLastInsertId(sqlite3 *db);
 	static uint64_t getNumberOfAffectedRows(sqlite3 *db);
 	static ItemDataPtr getValue(sqlite3_stmt *stmt, size_t index,
 	                            SQLColumnType columnType);
-	static void createIndex(sqlite3 *db,
-	                        const std::string &tableName,
-	                        const ColumnDef *columnDefs,
+	static void createIndex(sqlite3 *db, const TableProfile &tableProfile,
 	                        const std::string &indexName,
 	                        const std::vector<size_t> &targetIndexes,
 	                        bool isUniqueKey);

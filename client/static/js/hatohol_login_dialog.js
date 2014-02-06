@@ -33,7 +33,9 @@ var HatoholLoginDialog = function(readyCallback) {
   dialogAttr = {};
   dialogAttr.width = "auto";
   HatoholDialog.apply(this, [id, title, dialogButtons, dialogAttr]);
-  self.setButtonState(self.buttonName, false);
+  setTimeout(function(){
+    self.setButtonState(self.buttonName, false);
+  }, 1);
 
   function loginButtonClicked() {
     var user = $("#inputUserName").val();

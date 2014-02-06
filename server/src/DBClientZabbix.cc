@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -24,6 +24,7 @@
 #include "HatoholException.h"
 #include "ItemTableUtils.h"
 #include "DBAgentFactory.h"
+#include "ItemGroupStream.h"
 using namespace std;
 using namespace mlpl;
 
@@ -36,7 +37,6 @@ const int DBClientZabbix::ZABBIX_DB_VERSION = 4;
 const uint64_t DBClientZabbix::EVENT_ID_NOT_FOUND = -1;
 const int DBClientZabbix::TRIGGER_CHANGE_TIME_NOT_FOUND = -1;
 
-static const char *TABLE_NAME_SYSTEM = "system";
 static const char *TABLE_NAME_TRIGGERS_RAW_2_0 = "triggers_raw_2_0";
 static const char *TABLE_NAME_FUNCTIONS_RAW_2_0 = "functions_raw_2_0";
 static const char *TABLE_NAME_ITEMS_RAW_2_0 = "items_raw_2_0";
@@ -45,28 +45,6 @@ static const char *TABLE_NAME_EVENTS_RAW_2_0 = "events_raw_2_0";
 static const char *TABLE_NAME_APPLICATIONS_RAW_2_0 = "applications_raw_2_0";
 static const char *TABLE_NAME_GROUPS_RAW_2_0 = "groups_raw_2_0";
 static const char *TABLE_NAME_HOSTS_GROUPS_RAW_2_0 = "hosts_groups_raw_2_0";
-
-static const ColumnDef COLUMN_DEF_SYSTEM[] = {
-{
-	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_SYSTEM,                 // tableName
-	"dummy",                           // columnName
-	SQL_COLUMN_TYPE_INT,               // type
-	11,                                // columnLength
-	0,                                 // decFracLength
-	false,                             // canBeNull
-	SQL_KEY_NONE,                      // keyType
-	0,                                 // flags
-	NULL,                              // defaultValue
-}
-};
-static const size_t NUM_COLUMNS_SYSTEM =
-  sizeof(COLUMN_DEF_SYSTEM) / sizeof(ColumnDef);
-
-enum {
-	IDX_SYSTEM_DUMMY,
-	NUM_IDX_SYSTEM,
-};
 
 static const ColumnDef COLUMN_DEF_TRIGGERS_RAW_2_0[] = {
 {
@@ -236,8 +214,6 @@ static const ColumnDef COLUMN_DEF_TRIGGERS_RAW_2_0[] = {
 	"0",                               // defaultValue
 }
 };
-static const size_t NUM_COLUMNS_TRIGGERS_RAW_2_0 =
-   sizeof(COLUMN_DEF_TRIGGERS_RAW_2_0) / sizeof(ColumnDef);
 
 enum {
 	IDX_TRIGGERS_RAW_2_0_TRIGGERID,
@@ -257,6 +233,10 @@ enum {
 	IDX_TRIGGERS_RAW_2_0_HOSTID,
 	NUM_IDX_TRIGGERS_RAW_2_0,
 };
+
+static const DBAgent::TableProfile tableProfileTriggersRaw_2_0(
+  TABLE_NAME_TRIGGERS_RAW_2_0, COLUMN_DEF_TRIGGERS_RAW_2_0,
+  sizeof(COLUMN_DEF_TRIGGERS_RAW_2_0), NUM_IDX_TRIGGERS_RAW_2_0);
 
 static const ColumnDef COLUMN_DEF_FUNCTIONS_RAW_2_0[] = {
 {
@@ -316,8 +296,6 @@ static const ColumnDef COLUMN_DEF_FUNCTIONS_RAW_2_0[] = {
 	NULL,                              // defaultValue
 }
 };
-static const size_t NUM_COLUMNS_FUNCTIONS_RAW_2_0 =
-   sizeof(COLUMN_DEF_FUNCTIONS_RAW_2_0) / sizeof(ColumnDef);
 
 enum {
 	IDX_FUNCTIONS_RAW_2_0_FUNCTIONSTIONID,
@@ -327,6 +305,10 @@ enum {
 	IDX_FUNCTIONS_RAW_2_0_PARAMETER,
 	NUM_IDX_FUNCTIONS_RAW_2_0,
 };
+
+static const DBAgent::TableProfile tableProfileFunctionsRaw_2_0(
+  TABLE_NAME_FUNCTIONS_RAW_2_0, COLUMN_DEF_FUNCTIONS_RAW_2_0,
+  sizeof(COLUMN_DEF_FUNCTIONS_RAW_2_0), NUM_IDX_FUNCTIONS_RAW_2_0);
 
 static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 {
@@ -870,8 +852,6 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	NULL,                              // defaultValue
 }
 };
-static const size_t NUM_COLUMNS_ITEMS_RAW_2_0 =
-  sizeof(COLUMN_DEF_ITEMS_RAW_2_0) / sizeof(ColumnDef);
 
 enum {
 	IDX_ITEMS_RAW_2_0_ITEMID,
@@ -925,6 +905,10 @@ enum {
 	IDX_ITEMS_RAW_2_0_APPLICATIONID,
 	NUM_IDX_ITEMS_RAW_2_0,
 };
+
+static const DBAgent::TableProfile tableProfileItemsRaw_2_0(
+  TABLE_NAME_ITEMS_RAW_2_0, COLUMN_DEF_ITEMS_RAW_2_0,
+  sizeof(COLUMN_DEF_ITEMS_RAW_2_0), NUM_IDX_ITEMS_RAW_2_0);
 
 static const ColumnDef COLUMN_DEF_HOSTS_RAW_2_0[] = {
 {
@@ -1259,8 +1243,6 @@ static const ColumnDef COLUMN_DEF_HOSTS_RAW_2_0[] = {
 	"",                                // defaultValue
 }
 };
-static const size_t NUM_COLUMNS_HOSTS_RAW_2_0 =
-   sizeof(COLUMN_DEF_HOSTS_RAW_2_0) / sizeof(ColumnDef);
 
 enum {
 	IDX_HOSTS_RAW_2_0_HOSTID,
@@ -1295,6 +1277,10 @@ enum {
 	IDX_HOSTS_RAW_2_0_NAME,
 	NUM_IDX_HOSTS_RAW_2_0,
 };
+
+static const DBAgent::TableProfile tableProfileHostsRaw_2_0(
+  TABLE_NAME_HOSTS_RAW_2_0, COLUMN_DEF_HOSTS_RAW_2_0,
+  sizeof(COLUMN_DEF_HOSTS_RAW_2_0), NUM_IDX_HOSTS_RAW_2_0);
 
 static const ColumnDef COLUMN_DEF_EVENTS_RAW_2_0[] = {
 {
@@ -1398,8 +1384,6 @@ static const ColumnDef COLUMN_DEF_EVENTS_RAW_2_0[] = {
 	0,                                 // defaultValue
 },
 };
-static const size_t NUM_COLUMNS_EVENTS_RAW_2_0 =
-   sizeof(COLUMN_DEF_EVENTS_RAW_2_0) / sizeof(ColumnDef);
 
 enum {
 	IDX_EVENTS_RAW_2_0_EVENTID,
@@ -1413,6 +1397,10 @@ enum {
 	IDX_EVENTS_RAW_2_0_VALUE_CHANGED,
 	NUM_IDX_EVENTS_RAW_2_0,
 };
+
+static const DBAgent::TableProfile tableProfileEventsRaw_2_0(
+  TABLE_NAME_EVENTS_RAW_2_0, COLUMN_DEF_EVENTS_RAW_2_0,
+  sizeof(COLUMN_DEF_EVENTS_RAW_2_0), NUM_IDX_EVENTS_RAW_2_0);
 
 enum {
 	EVENT_OBJECT_TRIGGER = 0,
@@ -1468,8 +1456,6 @@ static const ColumnDef COLUMN_DEF_APPLICATIONS_RAW_2_0[] = {
 	NULL,                              // defaultValue
 }
 };
-static const size_t NUM_COLUMNS_APPLICATIONS_RAW_2_0 =
-  sizeof(COLUMN_DEF_APPLICATIONS_RAW_2_0) / sizeof(ColumnDef);
 
 enum {
 	IDX_APPLICATIONS_RAW_2_0_APPLICATIONID,
@@ -1478,6 +1464,10 @@ enum {
 	IDX_APPLICATIONS_RAW_2_0_TEMPLATEID,
 	NUM_IDX_APPLICATIONS_RAW_2_0,
 };
+
+static const DBAgent::TableProfile tableProfileApplicationsRaw_2_0(
+  TABLE_NAME_APPLICATIONS_RAW_2_0, COLUMN_DEF_APPLICATIONS_RAW_2_0,
+  sizeof(COLUMN_DEF_APPLICATIONS_RAW_2_0), NUM_IDX_APPLICATIONS_RAW_2_0);
 
 static const ColumnDef COLUMN_DEF_GROUPS_RAW_2_0[] = {
 {
@@ -1515,8 +1505,6 @@ static const ColumnDef COLUMN_DEF_GROUPS_RAW_2_0[] = {
 	NULL,                              // defaultValue
 }
 };
-static const size_t NUM_COLUMNS_GROUPS_RAW_2_0 =
-   sizeof(COLUMN_DEF_GROUPS_RAW_2_0) / sizeof(ColumnDef);
 
 enum {
 	IDX_GROUPS_RAW_2_0_GROUPID,
@@ -1524,6 +1512,10 @@ enum {
 	IDX_GROUPS_RAW_2_0_INTERNAL,
 	NUM_IDX_GROUPS_RAW_2_0
 };
+
+static const DBAgent::TableProfile tableProfileGroupsRaw_2_0(
+  TABLE_NAME_GROUPS_RAW_2_0, COLUMN_DEF_GROUPS_RAW_2_0,
+  sizeof(COLUMN_DEF_GROUPS_RAW_2_0), NUM_IDX_GROUPS_RAW_2_0);
 
 static const ColumnDef COLUMN_DEF_HOSTS_GROUPS_RAW_2_0[] = {
 {
@@ -1561,8 +1553,6 @@ static const ColumnDef COLUMN_DEF_HOSTS_GROUPS_RAW_2_0[] = {
 	NULL,                                 // defaultValue
 }
 };
-static const size_t NUM_COLUMNS_HOSTS_GROUPS_RAW_2_0 =
-   sizeof(COLUMN_DEF_GROUPS_RAW_2_0) / sizeof(ColumnDef);
 
 enum {
 	IDX_HOSTS_GROUPS_RAW_2_0_HOSTGROUPID,
@@ -1571,14 +1561,30 @@ enum {
 	NUM_IDX_HOSTS_GROUPS_RAW_2_0
 };
 
+static const DBAgent::TableProfile tableProfileHostsGroupsRaw_2_0(
+  TABLE_NAME_HOSTS_GROUPS_RAW_2_0, COLUMN_DEF_HOSTS_GROUPS_RAW_2_0,
+  sizeof(COLUMN_DEF_HOSTS_GROUPS_RAW_2_0), NUM_IDX_HOSTS_GROUPS_RAW_2_0);
+
+
+static const char *VAR_TRIGGERS  = "t";
+static const char *VAR_HOSTS     = "h";
+
+static const DBAgent::NamedTable namedTables[] = {
+  {&tableProfileTriggersRaw_2_0, VAR_TRIGGERS},
+  {&tableProfileHostsRaw_2_0, VAR_HOSTS},
+};
+static const size_t numNamedTables =
+   sizeof(namedTables) / sizeof(DBAgent::NamedTable);
+
 struct DBClientZabbix::PrivateContext
 {
 	size_t             serverId;
-	DBAgentSelectExArg selectExArgForTriggerAsHatoholFormat;
+	DBAgent::SelectMultiTableArg selectExArgForTriggerAsHatoholFormat;
 
 	// methods
 	PrivateContext(size_t _serverId)
-	: serverId(_serverId)
+	: serverId(_serverId),
+	  selectExArgForTriggerAsHatoholFormat(namedTables, numNamedTables)
 	{
 	}
 };
@@ -1588,53 +1594,6 @@ struct DBClientZabbix::PrivateContext
 // ---------------------------------------------------------------------------
 void DBClientZabbix::init(void)
 {
-	HATOHOL_ASSERT(
-	  NUM_COLUMNS_TRIGGERS_RAW_2_0 == NUM_IDX_TRIGGERS_RAW_2_0,
-	  "Invalid number of elements: NUM_COLUMNS_TRIGGERS_RAW_2_0 (%zd), "
-	  "NUM_IDX_TRIGGERS_RAW_2_0 (%d)",
-	  NUM_COLUMNS_TRIGGERS_RAW_2_0, NUM_IDX_TRIGGERS_RAW_2_0);
-
-	HATOHOL_ASSERT(
-	  NUM_COLUMNS_FUNCTIONS_RAW_2_0 == NUM_IDX_FUNCTIONS_RAW_2_0,
-	  "Invalid number of elements: NUM_COLUMNS_FUNCTIONS_RAW_2_0 (%zd), "
-	  "NUM_IDX_FUNCTIONS_RAW_2_0 (%d)",
-	  NUM_COLUMNS_FUNCTIONS_RAW_2_0, NUM_IDX_FUNCTIONS_RAW_2_0);
-
-	HATOHOL_ASSERT(
-	  NUM_COLUMNS_ITEMS_RAW_2_0 == NUM_IDX_ITEMS_RAW_2_0,
-	  "Invalid number of elements: NUM_COLUMNS_ITEMS_RAW_2_0 (%zd), "
-	  "NUM_IDX_ITEMS_RAW_2_0 (%d)",
-	  NUM_COLUMNS_ITEMS_RAW_2_0, NUM_IDX_ITEMS_RAW_2_0);
-
-	HATOHOL_ASSERT(
-	  NUM_COLUMNS_HOSTS_RAW_2_0 == NUM_IDX_HOSTS_RAW_2_0,
-	  "Invalid number of elements: NUM_COLUMNS_HOSTS_RAW_2_0 (%zd), "
-	  "NUM_IDX_HOSTS_RAW_2_0 (%d)",
-	  NUM_COLUMNS_HOSTS_RAW_2_0, NUM_IDX_HOSTS_RAW_2_0);
-
-	HATOHOL_ASSERT(
-	  NUM_COLUMNS_EVENTS_RAW_2_0 == NUM_IDX_EVENTS_RAW_2_0,
-	  "Invalid number of elements: NUM_COLUMNS_EVENTS_RAW_2_0 (%zd), "
-	  "NUM_IDX_EVENTS_RAW_2_0 (%d)",
-	  NUM_COLUMNS_EVENTS_RAW_2_0, NUM_IDX_EVENTS_RAW_2_0);
-
-	HATOHOL_ASSERT(
-	  NUM_COLUMNS_APPLICATIONS_RAW_2_0 == NUM_IDX_APPLICATIONS_RAW_2_0,
-	  "Invalid number of elements: NUM_COLUMNS_APPLICATIONS_RAW_2_0 (%zd), "
-	  "NUM_IDX_APPLICATIONS_RAW_2_0 (%d)",
-	  NUM_COLUMNS_APPLICATIONS_RAW_2_0, NUM_IDX_APPLICATIONS_RAW_2_0);
-
-	HATOHOL_ASSERT(
-	  NUM_COLUMNS_GROUPS_RAW_2_0 == NUM_IDX_GROUPS_RAW_2_0,
-	  "Invalid number of elements: NUM_COLUMNS_GROUPS_RAW_2_0 (%zd), "
-	  "NUM_IDX_GROUPS_RAW_2_0 (%d)",
-	  NUM_COLUMNS_GROUPS_RAW_2_0, NUM_IDX_GROUPS_RAW_2_0);
-
-	HATOHOL_ASSERT(
-	  NUM_COLUMNS_HOSTS_GROUPS_RAW_2_0 == NUM_IDX_HOSTS_GROUPS_RAW_2_0,
-	  "Invalid number of elements: NUM_COLUMNS_HOSTS_GROUPS_RAW_2_0 (%zd), "
-	  "NUM_IDX_HOSTS_GROUPS_RAW_2_0 (%d)",
-	  NUM_COLUMNS_HOSTS_GROUPS_RAW_2_0, NUM_IDX_HOSTS_GROUPS_RAW_2_0);
 }
 
 DBDomainId DBClientZabbix::getDBDomainId(const ServerIdType zabbixServerId)
@@ -1646,42 +1605,21 @@ DBClientZabbix *DBClientZabbix::create(const ServerIdType zabbixServerId)
 {
 	static const DBSetupTableInfo DB_TABLE_INFO[] = {
 	{
-		TABLE_NAME_SYSTEM,
-		NUM_COLUMNS_SYSTEM,
-		COLUMN_DEF_SYSTEM,
-		tableInitializerSystem,
+		&tableProfileTriggersRaw_2_0,
 	}, {
-		TABLE_NAME_TRIGGERS_RAW_2_0,
-		NUM_COLUMNS_TRIGGERS_RAW_2_0,
-		COLUMN_DEF_TRIGGERS_RAW_2_0,
+		&tableProfileFunctionsRaw_2_0,
 	}, {
-		TABLE_NAME_FUNCTIONS_RAW_2_0,
-		NUM_COLUMNS_FUNCTIONS_RAW_2_0,
-		COLUMN_DEF_FUNCTIONS_RAW_2_0,
+		&tableProfileItemsRaw_2_0,
 	}, {
-		TABLE_NAME_ITEMS_RAW_2_0,
-		NUM_COLUMNS_ITEMS_RAW_2_0,
-		COLUMN_DEF_ITEMS_RAW_2_0,
+		&tableProfileHostsRaw_2_0,
 	}, {
-		TABLE_NAME_HOSTS_RAW_2_0,
-		NUM_COLUMNS_HOSTS_RAW_2_0,
-		COLUMN_DEF_HOSTS_RAW_2_0,
+		&tableProfileEventsRaw_2_0,
 	}, {
-		TABLE_NAME_EVENTS_RAW_2_0,
-		NUM_COLUMNS_EVENTS_RAW_2_0,
-		COLUMN_DEF_EVENTS_RAW_2_0,
+		&tableProfileApplicationsRaw_2_0,
 	}, {
-		TABLE_NAME_APPLICATIONS_RAW_2_0,
-		NUM_COLUMNS_APPLICATIONS_RAW_2_0,
-		COLUMN_DEF_APPLICATIONS_RAW_2_0,
+		&tableProfileGroupsRaw_2_0,
 	}, {
-		TABLE_NAME_GROUPS_RAW_2_0,
-		NUM_COLUMNS_GROUPS_RAW_2_0,
-		COLUMN_DEF_GROUPS_RAW_2_0,
-	}, {
-		TABLE_NAME_HOSTS_GROUPS_RAW_2_0,
-		NUM_COLUMNS_HOSTS_GROUPS_RAW_2_0,
-		COLUMN_DEF_HOSTS_GROUPS_RAW_2_0,
+		&tableProfileHostsGroupsRaw_2_0,
 	}
 	};
 	static const size_t NUM_TABLE_INFO =
@@ -1709,9 +1647,7 @@ DBClientZabbix::~DBClientZabbix()
 void DBClientZabbix::addTriggersRaw2_0(ItemTablePtr tablePtr)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
-		addItems(tablePtr, TABLE_NAME_TRIGGERS_RAW_2_0,
-		         NUM_COLUMNS_TRIGGERS_RAW_2_0,
-		         COLUMN_DEF_TRIGGERS_RAW_2_0,
+		addItems(tablePtr, tableProfileTriggersRaw_2_0,
 		         IDX_TRIGGERS_RAW_2_0_TRIGGERID);
 	} DBCLIENT_TRANSACTION_END();
 }
@@ -1721,12 +1657,9 @@ void DBClientZabbix::addFunctionsRaw2_0(ItemTablePtr tablePtr)
 	DBCLIENT_TRANSACTION_BEGIN() {
 		// TODO: This implementaion is transitional. We'll implement
 		// a function that get data partially.
-		DBAgentDeleteArg arg;
-		arg.tableName = TABLE_NAME_FUNCTIONS_RAW_2_0;
+		DBAgent::DeleteArg arg(tableProfileFunctionsRaw_2_0);
 		deleteRows(arg);
-		addItems(tablePtr, TABLE_NAME_FUNCTIONS_RAW_2_0,
-		         NUM_COLUMNS_FUNCTIONS_RAW_2_0,
-		         COLUMN_DEF_FUNCTIONS_RAW_2_0,
+		addItems(tablePtr, tableProfileFunctionsRaw_2_0,
 		         IDX_FUNCTIONS_RAW_2_0_FUNCTIONSTIONID);
 	} DBCLIENT_TRANSACTION_END();
 }
@@ -1736,12 +1669,9 @@ void DBClientZabbix::addItemsRaw2_0(ItemTablePtr tablePtr)
 	DBCLIENT_TRANSACTION_BEGIN() {
 		// TODO: This implementaion is transitional. We'll implement
 		// a function that get data partially.
-		DBAgentDeleteArg arg;
-		arg.tableName = TABLE_NAME_ITEMS_RAW_2_0;
+		DBAgent::DeleteArg arg(tableProfileItemsRaw_2_0);
 		deleteRows(arg);
-		addItems(tablePtr, TABLE_NAME_ITEMS_RAW_2_0,
-		         NUM_COLUMNS_ITEMS_RAW_2_0,
-		         COLUMN_DEF_ITEMS_RAW_2_0,
+		addItems(tablePtr, tableProfileItemsRaw_2_0,
 		         IDX_ITEMS_RAW_2_0_ITEMID);
 	} DBCLIENT_TRANSACTION_END();
 }
@@ -1749,9 +1679,7 @@ void DBClientZabbix::addItemsRaw2_0(ItemTablePtr tablePtr)
 void DBClientZabbix::addHostsRaw2_0(ItemTablePtr tablePtr)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
-		addItems(tablePtr, TABLE_NAME_HOSTS_RAW_2_0,
-		         NUM_COLUMNS_HOSTS_RAW_2_0,
-		         COLUMN_DEF_HOSTS_RAW_2_0,
+		addItems(tablePtr, tableProfileHostsRaw_2_0,
 		         IDX_HOSTS_RAW_2_0_HOSTID);
 	} DBCLIENT_TRANSACTION_END();
 }
@@ -1762,8 +1690,7 @@ void DBClientZabbix::addEventsRaw2_0(ItemTablePtr tablePtr)
 		// Presently, the synchronization algorithm is not assumed to
 		// get the duplicated events. So we don't specify 5th argument
 		// for a update check.
-		addItems(tablePtr, TABLE_NAME_EVENTS_RAW_2_0,
-		         NUM_COLUMNS_EVENTS_RAW_2_0, COLUMN_DEF_EVENTS_RAW_2_0,
+		addItems(tablePtr, tableProfileEventsRaw_2_0,
 		         IDX_EVENTS_RAW_2_0_EVENTID);
 	} DBCLIENT_TRANSACTION_END();
 }
@@ -1771,9 +1698,7 @@ void DBClientZabbix::addEventsRaw2_0(ItemTablePtr tablePtr)
 void DBClientZabbix::addApplicationsRaw2_0(ItemTablePtr tablePtr)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
-		addItems(tablePtr, TABLE_NAME_APPLICATIONS_RAW_2_0,
-		         NUM_COLUMNS_APPLICATIONS_RAW_2_0,
-		         COLUMN_DEF_APPLICATIONS_RAW_2_0,
+		addItems(tablePtr, tableProfileApplicationsRaw_2_0,
 		         IDX_APPLICATIONS_RAW_2_0_APPLICATIONID);
 	} DBCLIENT_TRANSACTION_END();
 }
@@ -1781,12 +1706,9 @@ void DBClientZabbix::addApplicationsRaw2_0(ItemTablePtr tablePtr)
 void DBClientZabbix::addGroupsRaw2_0(ItemTablePtr tablePtr)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
-		DBAgentDeleteArg arg;
-		arg.tableName = TABLE_NAME_HOSTS_GROUPS_RAW_2_0;
+		DBAgent::DeleteArg arg(tableProfileHostsGroupsRaw_2_0);
 		deleteRows(arg);
-		addItems(tablePtr, TABLE_NAME_GROUPS_RAW_2_0,
-		         NUM_COLUMNS_GROUPS_RAW_2_0,
-		         COLUMN_DEF_GROUPS_RAW_2_0,
+		addItems(tablePtr, tableProfileGroupsRaw_2_0,
 		         IDX_GROUPS_RAW_2_0_GROUPID);
 	} DBCLIENT_TRANSACTION_END();
 }
@@ -1794,9 +1716,7 @@ void DBClientZabbix::addGroupsRaw2_0(ItemTablePtr tablePtr)
 void DBClientZabbix::addHostsGroupsRaw2_0(ItemTablePtr tablePtr)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
-		addItems(tablePtr, TABLE_NAME_HOSTS_GROUPS_RAW_2_0,
-		         NUM_COLUMNS_HOSTS_GROUPS_RAW_2_0,
-			 COLUMN_DEF_HOSTS_GROUPS_RAW_2_0,
+		addItems(tablePtr, tableProfileHostsGroupsRaw_2_0,
 			 IDX_HOSTS_GROUPS_RAW_2_0_HOSTGROUPID);
 	}DBCLIENT_TRANSACTION_END();
 }
@@ -1804,8 +1724,9 @@ void DBClientZabbix::addHostsGroupsRaw2_0(ItemTablePtr tablePtr)
 void DBClientZabbix::getTriggersAsHatoholFormat(TriggerInfoList &triggerInfoList)
 {
 	// get data from data base
-	DBAgentSelectExArg &arg = m_ctx->selectExArgForTriggerAsHatoholFormat;
-	if (arg.tableName.empty())
+	DBAgent::SelectMultiTableArg &arg =
+	  m_ctx->selectExArgForTriggerAsHatoholFormat;
+	if (arg.tableField.empty())
 		makeSelectExArgForTriggerAsHatoholFormat();
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -1813,51 +1734,20 @@ void DBClientZabbix::getTriggersAsHatoholFormat(TriggerInfoList &triggerInfoList
 
 	// copy obtained data to triggerInfoList
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator it = grpList.begin();
-	for (; it != grpList.end(); ++it) {
-		int idx = 0;
-		const ItemGroup *itemGroup = *it;
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
 		TriggerInfo trigInfo;
-
-		// serverId
 		trigInfo.serverId = m_ctx->serverId;
-
-		// id
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemUint64, itemId);
-		trigInfo.id = itemId->get();
-
-		// value
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemValue);
-		trigInfo.status = (TriggerStatusType)itemValue->get();
-
-		// severity
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemSeverity);
-		trigInfo.severity = (TriggerSeverityType)itemSeverity->get();
-
-		// lastChangeTime
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemLastchange);
-		trigInfo.lastChangeTime.tv_sec = itemLastchange->get();
 		trigInfo.lastChangeTime.tv_nsec = 0;
 
-		// brief
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemString, itemDescription);
-		trigInfo.brief = itemDescription->get();
-
-		// hostId
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemUint64, itemHostid);
-		trigInfo.hostId = itemHostid->get();
-
-		// hostName
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemString, itemHostName);
-		trigInfo.hostName = itemHostName->get();
-
+		itemGroupStream >> trigInfo.id;
+		itemGroupStream >> trigInfo.status;
+		itemGroupStream >> trigInfo.severity;
+		itemGroupStream >> trigInfo.lastChangeTime.tv_sec;
+		itemGroupStream >> trigInfo.brief;
+		itemGroupStream >> trigInfo.hostId;
+		itemGroupStream >> trigInfo.hostName;
 		triggerInfoList.push_back(trigInfo);
 	}
 }
@@ -1865,9 +1755,7 @@ void DBClientZabbix::getTriggersAsHatoholFormat(TriggerInfoList &triggerInfoList
 void DBClientZabbix::getEventsAsHatoholFormat(EventInfoList &eventInfoList)
 {
 	// get data from data base
-	DBAgentSelectArg arg;
-	arg.tableName = TABLE_NAME_EVENTS_RAW_2_0;
-	arg.columnDefs = COLUMN_DEF_EVENTS_RAW_2_0;
+	DBAgent::SelectArg arg(tableProfileEventsRaw_2_0);
 	arg.columnIndexes.push_back(IDX_EVENTS_RAW_2_0_EVENTID);
 	arg.columnIndexes.push_back(IDX_EVENTS_RAW_2_0_OBJECT);
 	arg.columnIndexes.push_back(IDX_EVENTS_RAW_2_0_OBJECTID);
@@ -1881,48 +1769,19 @@ void DBClientZabbix::getEventsAsHatoholFormat(EventInfoList &eventInfoList)
 
 	// copy obtained data to eventInfoList
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator it = grpList.begin();
-	for (; it != grpList.end(); ++it) {
-		int idx = 0;
-		const ItemGroup *itemGroup = *it;
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
 		EventInfo eventInfo;
-
-		// serverId
 		eventInfo.serverId = m_ctx->serverId;
 
-		// event id
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemUint64, itemEventId);
-		eventInfo.id = itemEventId->get();
-
-		// object
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemObject);
-		int object = itemObject->get();
-		if (object != EVENT_OBJECT_TRIGGER)
+		itemGroupStream >> eventInfo.id;
+		if (itemGroupStream.read<int>() != EVENT_OBJECT_TRIGGER)
 			continue;
-
-		// object id
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemUint64, itemObjectId);
-		eventInfo.triggerId = itemObjectId->get();
-
-		// clock
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemSec);
-		eventInfo.time.tv_sec = itemSec->get();
-
-		// type
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemValue);
-		eventInfo.type = (EventType)itemValue->get();
-
-		// ns
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemNs);
-		eventInfo.time.tv_nsec = itemNs->get();
-
-		// push back this event
+		itemGroupStream >> eventInfo.triggerId;
+		itemGroupStream >> eventInfo.time.tv_sec;
+		itemGroupStream >> eventInfo.type;
+		itemGroupStream >> eventInfo.time.tv_nsec;
 		eventInfoList.push_back(eventInfo);
 	}
 }
@@ -1930,43 +1789,26 @@ void DBClientZabbix::getEventsAsHatoholFormat(EventInfoList &eventInfoList)
 bool DBClientZabbix::transformEventItemGroupToEventInfo
   (EventInfo &eventInfo, const ItemGroup *eventItemGroup)
 {
-	// event id
-	DEFINE_AND_ASSERT(
-	  eventItemGroup->getItem(ITEM_ID_ZBX_EVENTS_EVENTID),
-	  ItemUint64, itemEventId);
-	eventInfo.id = itemEventId->get();
+	ItemGroupStream itemGroupStream(eventItemGroup);
 
-	// object
-	DEFINE_AND_ASSERT(
-	   eventItemGroup->getItem(ITEM_ID_ZBX_EVENTS_OBJECT),
-	   ItemInt, itemObject);
-	int object = itemObject->get();
-	if (object != EVENT_OBJECT_TRIGGER)
+	itemGroupStream.seek(ITEM_ID_ZBX_EVENTS_EVENTID);
+	itemGroupStream >> eventInfo.id;
+
+	itemGroupStream.seek(ITEM_ID_ZBX_EVENTS_OBJECT);
+	if (itemGroupStream.read<int>() != EVENT_OBJECT_TRIGGER)
 		return false;
 
-	// object id
-	DEFINE_AND_ASSERT(
-	  eventItemGroup->getItem(ITEM_ID_ZBX_EVENTS_OBJECTID),
-	  ItemUint64, itemObjectId);
-	eventInfo.triggerId = itemObjectId->get();
+	itemGroupStream.seek(ITEM_ID_ZBX_EVENTS_OBJECTID);
+	itemGroupStream >> eventInfo.triggerId;
 
-	// clock
-	DEFINE_AND_ASSERT(
-	  eventItemGroup->getItem(ITEM_ID_ZBX_EVENTS_CLOCK),
-	  ItemInt, itemSec);
-	eventInfo.time.tv_sec = itemSec->get();
+	itemGroupStream.seek(ITEM_ID_ZBX_EVENTS_CLOCK);
+	itemGroupStream >> eventInfo.time.tv_sec;
 
-	// type
-	DEFINE_AND_ASSERT(
-	  eventItemGroup->getItem(ITEM_ID_ZBX_EVENTS_VALUE),
-	  ItemInt, itemValue);
-	eventInfo.type = (EventType)itemValue->get();
+	itemGroupStream.seek(ITEM_ID_ZBX_EVENTS_VALUE);
+	itemGroupStream >> eventInfo.type;
 
-	// ns
-	DEFINE_AND_ASSERT(
-	  eventItemGroup->getItem(ITEM_ID_ZBX_EVENTS_NS),
-	  ItemInt, itemNs);
-	eventInfo.time.tv_nsec = itemNs->get();
+	itemGroupStream.seek(ITEM_ID_ZBX_EVENTS_NS);
+	itemGroupStream >> eventInfo.time.tv_nsec;
 
 	// Trigger's value. This can be transformed from Event's value
 	// This value is refered in ActionManager. So we set here.
@@ -2007,50 +1849,34 @@ void DBClientZabbix::transformEventsToHatoholFormat
 bool DBClientZabbix::transformItemItemGroupToItemInfo
   (ItemInfo &itemInfo, const ItemGroup *itemItemGroup, DBClientZabbix &dbZabbix)
 {
-	// item id
-	DEFINE_AND_ASSERT(
-	  itemItemGroup->getItem(ITEM_ID_ZBX_ITEMS_ITEMID),
-	  ItemUint64, itemItemId);
-	itemInfo.id = itemItemId->get();
-
-	// host id
-	DEFINE_AND_ASSERT(
-	   itemItemGroup->getItem(ITEM_ID_ZBX_ITEMS_HOSTID),
-	   ItemUint64, itemHostId);
-	itemInfo.hostId = itemHostId->get();
-
-	// brief
+	itemInfo.lastValueTime.tv_nsec = 0;
 	itemInfo.brief = makeItemBrief(itemItemGroup);
 
-	// last value time
-	DEFINE_AND_ASSERT(
-	  itemItemGroup->getItem(ITEM_ID_ZBX_ITEMS_LASTCLOCK),
-	  ItemInt, itemLastClock);
-	itemInfo.lastValueTime.tv_sec = itemLastClock->get();
-	itemInfo.lastValueTime.tv_nsec = 0;
+	ItemGroupStream itemGroupStream(itemItemGroup);
+
+	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_ITEMID);
+	itemGroupStream >> itemInfo.id;
+
+	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_HOSTID);
+	itemGroupStream >> itemInfo.hostId;
+
+	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_LASTCLOCK),
+	itemGroupStream >> itemInfo.lastValueTime.tv_sec;
 	if (itemInfo.lastValueTime.tv_sec == 0) {
 		// We assume that the item in this case is a kind of
 		// template such as 'Incoming network traffic on {#IFNAME}'.
 		return false;
 	}
 
-	// last value
-	DEFINE_AND_ASSERT(
-	  itemItemGroup->getItem(ITEM_ID_ZBX_ITEMS_LASTVALUE),
-	  ItemString, itemLastValue);
-	itemInfo.lastValue = itemLastValue->get();
+	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_LASTVALUE);
+	itemGroupStream >> itemInfo.lastValue;
 
-	// prev value
-	DEFINE_AND_ASSERT(
-	  itemItemGroup->getItem(ITEM_ID_ZBX_ITEMS_PREVVALUE),
-	  ItemString, itemPrevValue);
-	itemInfo.prevValue = itemPrevValue->get();
+	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_PREVVALUE);
+	itemGroupStream >> itemInfo.prevValue;
 
-	// itemGroupName
-	DEFINE_AND_ASSERT(
-	  itemItemGroup->getItem(ITEM_ID_ZBX_ITEMS_APPLICATIONID),
-	  ItemUint64, itemApplicationid);
-	uint64_t applicationId = itemApplicationid->get();
+	uint64_t applicationId;
+	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_APPLICATIONID);
+	itemGroupStream >> applicationId;
 	itemInfo.itemGroupName = dbZabbix.getApplicationName(applicationId);
 
 	return true;
@@ -2077,17 +1903,13 @@ void DBClientZabbix::transformGroupItemGroupToHostgroupInfo
 {
 	groupInfo.id = AUTO_INCREMENT_VALUE;
 
-	// groupid
-	DEFINE_AND_ASSERT(
-	  groupItemGroup->getItem(ITEM_ID_ZBX_GROUPS_GROUPID),
-	  ItemUint64, itemGroupId);
-	groupInfo.groupId = itemGroupId->get();
+	ItemGroupStream itemGroupStream(groupItemGroup);
 
-	// groupname
-	DEFINE_AND_ASSERT(
-	  groupItemGroup->getItem(ITEM_ID_ZBX_GROUPS_NAME),
-	  ItemString, itemGroupName);
-	groupInfo.groupName = itemGroupName->get();
+	itemGroupStream.seek(ITEM_ID_ZBX_GROUPS_GROUPID);
+	itemGroupStream >> groupInfo.groupId;
+
+	itemGroupStream.seek(ITEM_ID_ZBX_GROUPS_NAME);
+	itemGroupStream >> groupInfo.groupName;
 }
 
 void DBClientZabbix::transformGroupsToHatoholFormat
@@ -2109,17 +1931,13 @@ void DBClientZabbix::transformHostsGroupsItemGroupToHatoholFormat
 {
 	hostgroupElement.id = AUTO_INCREMENT_VALUE;
 
-	// hostid
-	DEFINE_AND_ASSERT(
-	  groupHostsGroups->getItem(ITEM_ID_ZBX_HOSTS_GROUPS_HOSTID),
-	  ItemUint64, itemHostId);
-	hostgroupElement.hostId = itemHostId->get();
+	ItemGroupStream itemGroupStream(groupHostsGroups);
 
-	// groupid
-	DEFINE_AND_ASSERT(
-	  groupHostsGroups->getItem(ITEM_ID_ZBX_HOSTS_GROUPS_GROUPID),
-	  ItemUint64, itemGroupId);
-	hostgroupElement.groupId = itemGroupId->get();
+	itemGroupStream.seek(ITEM_ID_ZBX_HOSTS_GROUPS_HOSTID);
+	itemGroupStream >> hostgroupElement.hostId;
+
+	itemGroupStream.seek(ITEM_ID_ZBX_HOSTS_GROUPS_GROUPID);
+	itemGroupStream >> hostgroupElement.groupId;
 }
 
 void DBClientZabbix::transformHostsGroupsToHatoholFormat
@@ -2141,17 +1959,13 @@ void DBClientZabbix::transformHostsGroupsToHatoholFormat
 void DBClientZabbix::transformHostsItemGroupToHatoholFormat
   (HostInfo &hostInfo, const ItemGroup *groupHosts)
 {
-	// hostid
-	DEFINE_AND_ASSERT(
-	  groupHosts->getItem(ITEM_ID_ZBX_HOSTS_HOSTID),
-	  ItemUint64, itemHostId);
-	hostInfo.id = itemHostId->get();
+	ItemGroupStream itemGroupStream(groupHosts);
 
-	// hostName
-	DEFINE_AND_ASSERT(
-	  groupHosts->getItem(ITEM_ID_ZBX_HOSTS_NAME),
-	  ItemString, itemHostName);
-	hostInfo.hostName = itemHostName->get();
+	itemGroupStream.seek(ITEM_ID_ZBX_HOSTS_HOSTID);
+	itemGroupStream >> hostInfo.id;
+
+	itemGroupStream.seek(ITEM_ID_ZBX_HOSTS_NAME);
+	itemGroupStream >> hostInfo.hostName;
 }
 
 void DBClientZabbix::transformHostsToHatoholFormat
@@ -2172,11 +1986,9 @@ uint64_t DBClientZabbix::getLastEventId(void)
 	const ColumnDef &columnDefEventId = 
 	  COLUMN_DEF_EVENTS_RAW_2_0[IDX_EVENTS_RAW_2_0_EVENTID];
 
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_EVENTS_RAW_2_0;
-	arg.statements.push_back(
-	  StringUtils::sprintf("max(%s)", columnDefEventId.columnName));
-	arg.columnTypes.push_back(columnDefEventId.type);
+	DBAgent::SelectExArg arg(tableProfileEventsRaw_2_0);
+	arg.add(StringUtils::sprintf("max(%s)", columnDefEventId.columnName),
+	        columnDefEventId.type);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -2186,8 +1998,8 @@ uint64_t DBClientZabbix::getLastEventId(void)
 		return EVENT_ID_NOT_FOUND;
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	const ItemData *lastEventId = (*grpList.begin())->getItemAt(0);
-	return ItemDataUtils::getUint64(lastEventId);
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	return itemGroupStream.read<uint64_t>();
 }
 
 int DBClientZabbix::getTriggerLastChange(void)
@@ -2195,12 +2007,10 @@ int DBClientZabbix::getTriggerLastChange(void)
 	const ColumnDef &columnDefTriggerLastChange =
 	  COLUMN_DEF_TRIGGERS_RAW_2_0[IDX_TRIGGERS_RAW_2_0_LASTCHANGE];
 
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_TRIGGERS_RAW_2_0;
-	arg.statements.push_back(
-	  StringUtils::sprintf("max(%s)",
-	                       columnDefTriggerLastChange.columnName));
-	arg.columnTypes.push_back(columnDefTriggerLastChange.type);
+	DBAgent::SelectExArg arg(tableProfileTriggersRaw_2_0);
+	string stmt = StringUtils::sprintf(
+	                "max(%s)", columnDefTriggerLastChange.columnName);
+	arg.add(stmt, columnDefTriggerLastChange.type);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -2210,17 +2020,14 @@ int DBClientZabbix::getTriggerLastChange(void)
 		return TRIGGER_CHANGE_TIME_NOT_FOUND;
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	const ItemData *itemData = (*grpList.begin())->getItemAt(0);
-	return ItemDataUtils::getInt(itemData);
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	return itemGroupStream.read<int>();
 }
 
 string DBClientZabbix::getApplicationName(uint64_t applicationId)
 {
-	const ColumnDef &columnAppName =
-	   COLUMN_DEF_APPLICATIONS_RAW_2_0[IDX_APPLICATIONS_RAW_2_0_NAME];
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_APPLICATIONS_RAW_2_0;
-	arg.pushColumn(columnAppName);
+	DBAgent::SelectExArg arg(tableProfileApplicationsRaw_2_0);
+	arg.add(IDX_APPLICATIONS_RAW_2_0_NAME);
 	arg.condition = StringUtils::sprintf("applicationid=%"PRIu64,
 	                                           applicationId);
 	DBCLIENT_TRANSACTION_BEGIN() {
@@ -2231,8 +2038,8 @@ string DBClientZabbix::getApplicationName(uint64_t applicationId)
 		return "";
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	const ItemData *applicationName = (*grpList.begin())->getItemAt(0);
-	return ItemDataUtils::getString(applicationName);
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	return itemGroupStream.read<string>();
 }
 
 void DBClientZabbix::pickupAbsentHostIds(vector<uint64_t> &absentHostIdVector,
@@ -2284,19 +2091,6 @@ string DBClientZabbix::getDBName(const ServerIdType zabbixServerId)
 	                            zabbixServerId);
 }
 
-void DBClientZabbix::tableInitializerSystem(DBAgent *dbAgent, void *data)
-{
-	// insert default value
-	DBAgentInsertArg insArg;
-	insArg.tableName = TABLE_NAME_SYSTEM;
-	insArg.numColumns = NUM_COLUMNS_SYSTEM;
-	insArg.columnDefs = COLUMN_DEF_SYSTEM;
-	VariableItemGroupPtr row;
-	row->ADD_NEW_ITEM(Int, 0); // dummy
-	insArg.row = row;
-	dbAgent->insert(insArg);
-}
-
 void DBClientZabbix::updateDBIfNeeded(DBAgent *dbAgent, int oldVer, void *data)
 {
 	THROW_HATOHOL_EXCEPTION(
@@ -2306,11 +2100,12 @@ void DBClientZabbix::updateDBIfNeeded(DBAgent *dbAgent, int oldVer, void *data)
 
 string DBClientZabbix::makeItemBrief(const ItemGroup *itemItemGroup)
 {
+	ItemGroupStream itemGroupStream(itemItemGroup);
+
 	// get items.name
-	DEFINE_AND_ASSERT(
-	  itemItemGroup->getItem(ITEM_ID_ZBX_ITEMS_NAME),
-	  ItemString, itemName);
-	string name = itemName->get();
+	string name;
+	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_NAME);
+	itemGroupStream >> name;
 	StringVector vect;
 	StringUtils::split(vect, name, ' ');
 
@@ -2325,10 +2120,9 @@ string DBClientZabbix::makeItemBrief(const ItemGroup *itemItemGroup)
 	}
 
 	// extract words to be replace
-	DEFINE_AND_ASSERT(
-	  itemItemGroup->getItem(ITEM_ID_ZBX_ITEMS_KEY_),
-	  ItemString, itemKey_);
-	string itemKey = itemKey_->get();
+	string itemKey;
+	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_KEY_);
+	itemGroupStream >> itemKey;
 
 	StringVector params;
 	extractItemKeys(params, itemKey);
@@ -2413,8 +2207,7 @@ DBClientZabbix::DBClientZabbix(const ServerIdType zabbixServerId)
 }
 
 void DBClientZabbix::addItems(
-  ItemTablePtr tablePtr,
-  const string &tableName, size_t numColumns, const ColumnDef *columnDefs,
+  ItemTablePtr tablePtr, const DBAgent::TableProfile &tableProfile,
   int updateCheckIndex)
 {
 	//
@@ -2424,52 +2217,37 @@ void DBClientZabbix::addItems(
 	ItemGroupListConstIterator it = itemGroupList.begin();
 	for (; it != itemGroupList.end(); ++it) {
 		const ItemGroup *itemGroup = *it;
-		updateIfExistElseInsert(itemGroup, tableName, numColumns,
-		                        columnDefs, updateCheckIndex);
+		updateIfExistElseInsert(itemGroup, tableProfile,
+		                        updateCheckIndex);
 	}
 }
 
 void DBClientZabbix::makeSelectExArgForTriggerAsHatoholFormat(void)
 {
-	DBAgentSelectExArg &arg = m_ctx->selectExArgForTriggerAsHatoholFormat;
+	enum
+	{
+		TBLIDX_TRIGGERS,
+		TBLIDX_HOSTS,
+	};
 
-	// tableName
-	const ColumnDef &triggersTriggerid =
-	   COLUMN_DEF_TRIGGERS_RAW_2_0[IDX_TRIGGERS_RAW_2_0_TRIGGERID];
-	const ColumnDef &triggersHostid =
-	   COLUMN_DEF_TRIGGERS_RAW_2_0[IDX_TRIGGERS_RAW_2_0_HOSTID];
-	const ColumnDef &hostsHostid =
-	   COLUMN_DEF_HOSTS_RAW_2_0[IDX_HOSTS_RAW_2_0_HOSTID];
+	DBAgent::SelectMultiTableArg &arg =
+	  m_ctx->selectExArgForTriggerAsHatoholFormat;
 
-	static const char *VAR_TRIGGERS  = "t";
-	static const char *VAR_HOSTS     = "h";
-	arg.tableName = StringUtils::sprintf(
-	   "%s %s "
-	   "left join %s %s on %s.%s=%s.%s",
+	arg.tableField = StringUtils::sprintf(
+	   "%s %s left join %s %s on %s=%s",
 	   TABLE_NAME_TRIGGERS_RAW_2_0, VAR_TRIGGERS,
 	   TABLE_NAME_HOSTS_RAW_2_0, VAR_HOSTS,
-	     VAR_TRIGGERS, triggersHostid.columnName,
-	     VAR_HOSTS, hostsHostid.columnName);
+	   arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_RAW_2_0_HOSTID).c_str(),
+	   arg.getFullName(TBLIDX_HOSTS, IDX_HOSTS_RAW_2_0_HOSTID).c_str());
 
-	//
-	// statements and columnTypes
-	//
-	const ColumnDef &triggersValue =
-	   COLUMN_DEF_TRIGGERS_RAW_2_0[IDX_TRIGGERS_RAW_2_0_VALUE];
-	const ColumnDef &triggersSeverity =
-	   COLUMN_DEF_TRIGGERS_RAW_2_0[IDX_TRIGGERS_RAW_2_0_PRIORITY];
-	const ColumnDef &triggersLastchange = 
-	   COLUMN_DEF_TRIGGERS_RAW_2_0[IDX_TRIGGERS_RAW_2_0_LASTCHANGE];
-	const ColumnDef &triggersDescription =
-	   COLUMN_DEF_TRIGGERS_RAW_2_0[IDX_TRIGGERS_RAW_2_0_DESCRIPTION];
-	const ColumnDef &hostsName =
-	   COLUMN_DEF_HOSTS_RAW_2_0[IDX_HOSTS_RAW_2_0_NAME];
+	arg.setTable(TBLIDX_TRIGGERS);
+	arg.add(IDX_TRIGGERS_RAW_2_0_TRIGGERID);
+	arg.add(IDX_TRIGGERS_RAW_2_0_VALUE);
+	arg.add(IDX_TRIGGERS_RAW_2_0_PRIORITY);
+	arg.add(IDX_TRIGGERS_RAW_2_0_LASTCHANGE);
+	arg.add(IDX_TRIGGERS_RAW_2_0_DESCRIPTION);
 
-	arg.pushColumn(triggersTriggerid,  VAR_TRIGGERS);
-	arg.pushColumn(triggersValue,      VAR_TRIGGERS);
-	arg.pushColumn(triggersSeverity,   VAR_TRIGGERS);
-	arg.pushColumn(triggersLastchange, VAR_TRIGGERS);
-	arg.pushColumn(triggersDescription,VAR_TRIGGERS);
-	arg.pushColumn(hostsHostid,        VAR_HOSTS);
-	arg.pushColumn(hostsName,          VAR_HOSTS);
+	arg.setTable(TBLIDX_HOSTS);
+	arg.add(IDX_HOSTS_RAW_2_0_HOSTID);
+	arg.add(IDX_HOSTS_RAW_2_0_NAME);
 }

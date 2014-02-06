@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -43,6 +43,8 @@ static const ItemId SYSTEM_ITEM_ID_ANONYMOUS = 0xffffffffffffffff;
 enum ItemDataExceptionType {
 	ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION,
 	ITEM_DATA_EXCEPTION_INVALID_OPERATION,
+	ITEM_DATA_EXCEPTION_ITEM_NOT_FOUND,
+	ITEM_DATA_EXCEPTION_UNKNOWN,
 };
 
 enum ItemDataNullFlagType {
@@ -55,21 +57,38 @@ class ItemDataException : public HatoholException
 {
 public:
 	ItemDataException(ItemDataExceptionType type,
-	                  const char *sourceFileName, int lineNumber,
-	                  const char *operatorName,
+	                  const std::string &sourceFileName,
+	                  const int &lineNumber,
+	                  const std::string &operatorName,
 	                  const ItemData &lhs);
+
 	ItemDataException(ItemDataExceptionType type,
-	                  const char *sourceFileName, int lineNumber,
-	                  const char *operatorName,
+	                  const std::string &sourceFileName,
+	                  const int &lineNumber,
+	                  const std::string &operatorName,
 	                  const ItemData &lhs, const ItemData &rhs);
+
+	ItemDataException(ItemDataExceptionType type,
+	                  const std::string &sourceFileName,
+	                  const int &lineNumber, const ItemId &itemId);
+
+	ItemDataExceptionType getType(void) const;
+
 protected:
 	std::string getMessageHeader(const ItemDataExceptionType type);
+
+private:
+	ItemDataExceptionType m_type;
 };
+
 #define THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(OP, ...) \
 throw ItemDataException(ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION, __FILE__, __LINE__, OP, *this, ##__VA_ARGS__)
 
 #define THROW_ITEM_DATA_EXCEPTION_INVALID_OPERATION(OP, ...) \
 throw ItemDataException(ITEM_DATA_EXCEPTION_INVALID_OPERATION, __FILE__, __LINE__, OP, *this, ##__VA_ARGS__)
+
+#define THROW_ITEM_DATA_EXCEPTION_ITEM_NOT_FOUND(ITEM_ID) \
+throw ItemDataException(ITEM_DATA_EXCEPTION_ITEM_NOT_FOUND, __FILE__, __LINE__, ITEM_ID);
 
 typedef std::vector<ItemId>          ItemIdVector;
 typedef ItemIdVector::iterator       ItemIdVectorIterator;
@@ -108,10 +127,21 @@ public:
 	virtual void setNull(void);
 	virtual ItemData *clone(void) const = 0;
 
-	virtual operator bool () const = 0;
-	virtual operator int() const = 0;
-	virtual operator uint64_t() const = 0;
-	virtual operator std::string() const = 0;
+	/**
+	 * Cast an ItemData instance to a reference of the native type.
+	 *
+	 * Note that the returned reference value
+	 * shall not be passed to other threads and
+	 * shall not be used after casting to the same type again is
+	 * performed in the same thread.
+	 * If you want to do the above things, you just make a copy of it.
+	 */
+	virtual operator const bool &() const = 0;
+	virtual operator const int &() const = 0;
+	virtual operator const uint64_t &() const = 0;
+	virtual operator const double &() const = 0;
+	virtual operator const std::string &() const = 0;
+
 	virtual ItemData & operator =(const ItemData &itemData) = 0;
 	virtual ItemData * operator +(const ItemData &itemData) const = 0;
 	virtual ItemData * operator /(const ItemData &itemData) const = 0;
@@ -139,8 +169,8 @@ std::ostream &operator<<(std::ostream &os, const ItemData &itemData);
 template <typename T, ItemDataType ITEM_TYPE>
 class ItemGeneric : public ItemData {
 public:
-	ItemGeneric(ItemId id, T data,
-	            ItemDataNullFlagType nullFlag = ITEM_DATA_NOT_NULL)
+	ItemGeneric(const ItemId &id, const T &data,
+	            const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL)
 	: ItemData(id, ITEM_TYPE),
 	  m_data(data)
 	{
@@ -148,8 +178,8 @@ public:
 			setNull();
 	}
 
-	ItemGeneric(T data,
-	            ItemDataNullFlagType nullFlag = ITEM_DATA_NOT_NULL)
+	ItemGeneric(const T &data,
+	            const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL)
 	: ItemData(SYSTEM_ITEM_ID_ANONYMOUS, ITEM_TYPE),
 	  m_data(data)
 	{
@@ -191,28 +221,44 @@ public:
 	}
 
 	// The following cast operators are assumed to be specialized
-	virtual operator bool () const
+	virtual operator const bool &() const
 	{
-		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("cast to bool");
-		return false;
+		static const bool ret = false;
+		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(
+		  "cast to const bool &");
+		return ret;
 	}
 
-	virtual operator int() const
+	virtual operator const int &() const
 	{
-		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("cast to int");
-		return 0;
+		static const int ret = 0;
+		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(
+		  "cast to const int &");
+		return ret;
 	}
 
-	virtual operator uint64_t() const
+	virtual operator const uint64_t &() const
 	{
-		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("cast to uint64_t");
-		return 0;
+		static const uint64_t ret = 0;
+		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(
+		  "cast to const uint64_t &");
+		return ret;
 	}
 
-	virtual operator std::string() const
+	virtual operator const double &() const
 	{
-		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("cast to std::string");
-		return 0;
+		static const double ret = 0;
+		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(
+		  "cast to const double &");
+		return ret;
+	}
+
+	virtual operator const std::string &() const
+	{
+		static const std::string ret;
+		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(
+		  "cast to const std::string &");
+		return ret;
 	}
 
 	virtual ItemData & operator =(const ItemData &itemData)
@@ -320,10 +366,12 @@ typedef ItemGeneric<int,         ITEM_TYPE_INT>    ItemInt;
 typedef ItemGeneric<double,      ITEM_TYPE_DOUBLE> ItemDouble;
 typedef ItemGeneric<std::string, ITEM_TYPE_STRING> ItemString;
 
-template<> ItemBool::operator bool() const;
-template<> ItemInt::operator int() const;
-template<> ItemUint64::operator uint64_t() const;
-template<> ItemString::operator std::string() const;
+template<> ItemBool::operator   const bool        &() const;
+template<> ItemInt::operator    const int         &() const;
+template<> ItemInt::operator    const uint64_t    &() const;
+template<> ItemUint64::operator const uint64_t    &() const;
+template<> ItemDouble::operator const double      &() const;
+template<> ItemString::operator const std::string &() const;
 
 template<> bool ItemInt::operator >(const ItemData &itemData) const;
 template<> bool ItemInt::operator <(const ItemData &itemData) const;
@@ -338,7 +386,5 @@ template<> bool ItemUint64::operator ==(const ItemData &itemData) const;
 
 template<> ItemData * ItemString::operator /(const ItemData &itemData) const;
 template<> ItemData * ItemString::operator /(const ItemData &itemData) const;
-
-#define ADD_NEW_ITEM(TYPE, ...) add(new Item##TYPE(__VA_ARGS__), false)
 
 #endif // ItemData_h

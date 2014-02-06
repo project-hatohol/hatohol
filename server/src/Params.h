@@ -24,7 +24,7 @@
 #include <stdint.h>
 #include <set>
 
-typedef uint32_t DBDomainId;
+typedef int DBDomainId;
 
 static const DBDomainId DB_DOMAIN_ID_CONFIG  = 0x0010;
 static const DBDomainId DB_DOMAIN_ID_ACTION  = 0x0018;
@@ -74,6 +74,11 @@ typedef std::set<UserRoleIdType>      UserRoleIdSet;
 typedef UserRoleIdSet::iterator       UserRoleIdSetIterator;
 typedef UserRoleIdSet::const_iterator UserRoleIdSetIterator;
 extern const UserRoleIdSet EMPTY_USER_ROLE_ID_SET;
+
+typedef std::set<ServerIdType>      ServerIdSet;
+typedef ServerIdSet::iterator       ServerIdSetIterator;
+typedef ServerIdSet::const_iterator ServerIdSetIterator;
+extern const ServerIdSet EMPTY_SERVER_ID_SET;
 
 enum SyncType {
 	SYNC,

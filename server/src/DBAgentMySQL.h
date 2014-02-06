@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -45,13 +45,13 @@ public:
 	virtual void begin(void);
 	virtual void commit(void);
 	virtual void rollback(void);
-	virtual void createTable(DBAgentTableCreationArg &tableCreationArg);
-	virtual void insert(DBAgentInsertArg &insertArg);
-	virtual void update(DBAgentUpdateArg &updateArg);
-	virtual void select(DBAgentSelectArg &selectArg);
-	virtual void select(DBAgentSelectExArg &selectExArg);
-	virtual void deleteRows(DBAgentDeleteArg &deleteArg);
-	virtual void addColumns(DBAgentAddColumnsArg &addColumnsArg);
+	virtual void createTable(const TableProfile &tableProfile); //override
+	virtual void insert(const InsertArg &insertArg); // override
+	virtual void update(const UpdateArg &updateArg); // override
+	virtual void select(const SelectArg &selectArg); // override
+	virtual void select(const SelectExArg &selectExArg); // override
+	virtual void deleteRows(const DeleteArg &deleteArg); // override
+	virtual void addColumns(const AddColumnsArg &addColumnsArg);
 	virtual uint64_t getLastInsertId(void);
 	virtual uint64_t getNumberOfAffectedRows(void);
 

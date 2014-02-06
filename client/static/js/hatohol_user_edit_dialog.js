@@ -39,7 +39,9 @@ var HatoholUserEditDialog = function(params) {
   dialogAttrs = { width: "auto" };
   HatoholDialog.apply(
     this, ["user-edit-dialog", self.windowTitle, dialogButtons, dialogAttrs]);
-  setTimeout(function(){self.setApplyButtonState(false);}, 1);
+  setTimeout(function(){
+    self.setApplyButtonState(false);
+  }, 1);
   self.loadUserRoles();
 
   //

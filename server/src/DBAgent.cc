@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -30,25 +30,6 @@ struct DBSetupInfo {
 
 typedef multimap<DBDomainId, DBSetupInfo> DBSetupInfoMap;
 typedef DBSetupInfoMap::iterator          DBSetupInfoMapIterator;
-
-DBAgentSelectExArg::DBAgentSelectExArg(void)
-: limit(0),
-  offset(0)
-{
-}
-
-void DBAgentSelectExArg::pushColumn
-  (const ColumnDef &columnDef, const string &varName)
-{
-	string statement;
-	if (!varName.empty()) {
-		statement = varName;
-		statement += ".";
-	}
-	statement += columnDef.columnName;
-	statements.push_back(statement);
-	columnTypes.push_back(columnDef.type);
-}
 
 DBConnectInfo::DBConnectInfo(void)
 : host("localhost"),
@@ -118,6 +99,173 @@ MutexLock      DBAgent::PrivateContext::mutex;
 DBSetupInfoMap DBAgent::PrivateContext::setupInfoMap;
 
 // ---------------------------------------------------------------------------
+// DBAgent::TableProfile
+// ---------------------------------------------------------------------------
+DBAgent::TableProfile::TableProfile(
+  const char *_name,  const ColumnDef *_columnDefs,
+  const size_t &columnDefSize, const size_t &numIndexes)
+: name(_name),
+  columnDefs(_columnDefs),
+  numColumns(columnDefSize/sizeof(ColumnDef))
+{
+	HATOHOL_ASSERT(
+	  numColumns == numIndexes,
+	  "tableName: %s, Invalid number of elements: numColumns (%zd), "
+	  "numIndexes(%zd)",
+	  name, numColumns, numIndexes);
+}
+
+// ---------------------------------------------------------------------------
+// DBAgent::RowElement
+// ---------------------------------------------------------------------------
+DBAgent::RowElement::RowElement(const size_t &index, const ItemData *itemData,
+                               const bool &doRef)
+: columnIndex(index),
+  dataPtr(itemData, doRef)
+{
+}
+
+// ---------------------------------------------------------------------------
+// DBAgent::InsertArg
+// ---------------------------------------------------------------------------
+DBAgent::InsertArg::InsertArg(const TableProfile &profile)
+: tableProfile(profile)
+{
+}
+
+// ---------------------------------------------------------------------------
+// DBAgent::UpdateArg
+// ---------------------------------------------------------------------------
+DBAgent::UpdateArg::UpdateArg(const TableProfile &profile)
+: tableProfile(profile)
+{
+}
+
+DBAgent::UpdateArg::~UpdateArg()
+{
+	for (size_t i = 0; i < rows.size(); i++)
+		delete rows[i];
+}
+
+void DBAgent::UpdateArg::add(const size_t &columnIndex, const int &val)
+{
+	rows.push_back(new RowElement(columnIndex, new ItemInt(val), false));
+}
+
+void DBAgent::UpdateArg::add(const size_t &columnIndex, const uint64_t &val)
+{
+	rows.push_back(new RowElement(columnIndex, new ItemUint64(val), false));
+}
+
+void DBAgent::UpdateArg::add(const size_t &columnIndex, const double &val)
+{
+	rows.push_back(new RowElement(columnIndex, new ItemDouble(val), false));
+}
+
+void DBAgent::UpdateArg::add(const size_t &columnIndex, const std::string &val)
+{
+	rows.push_back(new RowElement(columnIndex, new ItemString(val), false));
+}
+
+void DBAgent::UpdateArg::add(const size_t &columnIndex, const time_t &val)
+{
+	rows.push_back(new RowElement(columnIndex, new ItemInt(val), false));
+}
+
+// ---------------------------------------------------------------------------
+// DBAgent::SelectArg
+// ---------------------------------------------------------------------------
+DBAgent::SelectArg::SelectArg(const TableProfile &profile)
+: tableProfile(profile)
+{
+}
+
+// ---------------------------------------------------------------------------
+// DBAgent::SelectExArg
+// ---------------------------------------------------------------------------
+DBAgent::SelectExArg::SelectExArg(const TableProfile &profile)
+: tableProfile(&profile),
+  limit(0),
+  offset(0)
+{
+}
+
+void DBAgent::SelectExArg::add(const size_t &columnIndex,
+                               const std::string &varName)
+{
+	string statement;
+	if (!varName.empty()) {
+		statement = varName;
+		statement += ".";
+	}
+	const ColumnDef &columnDef = tableProfile->columnDefs[columnIndex];
+	statement += columnDef.columnName;
+	statements.push_back(statement);
+	columnTypes.push_back(columnDef.type);
+}
+
+void DBAgent::SelectExArg::add(
+  const std::string &statement, const SQLColumnType &columnType)
+{
+	statements.push_back(statement);
+	columnTypes.push_back(columnType);
+}
+
+// ---------------------------------------------------------------------------
+// DBAgent::SelectMultiTableArg
+// ---------------------------------------------------------------------------
+DBAgent::SelectMultiTableArg::SelectMultiTableArg(
+  const NamedTable *_namedTables, const size_t &_numTables)
+: SelectExArg(*_namedTables[0].profile),
+  namedTables(_namedTables),
+  numTables(_numTables),
+  currTable(_namedTables) // point the first element
+{
+}
+
+void DBAgent::SelectMultiTableArg::setTable(const size_t &index)
+{
+	HATOHOL_ASSERT(index < numTables, "index (%zd) >= numTables (%zd)",
+	               index, numTables);
+	currTable = namedTables + index;
+	SelectExArg::tableProfile = currTable->profile;
+}
+
+void DBAgent::SelectMultiTableArg::add(const size_t &columnIndex)
+{
+	SelectExArg::add(columnIndex, currTable->varName);
+}
+
+string DBAgent::SelectMultiTableArg::getFullName(const size_t &tableIndex,
+                                                 const size_t &columnIndex)
+{
+	HATOHOL_ASSERT(tableIndex < numTables,
+	               "tableIndex (%zd) >= numTables (%zd)",
+	               tableIndex, numTables);
+	const NamedTable &namedTable = namedTables[tableIndex];
+	return StringUtils::sprintf(
+	  "%s.%s",
+	  namedTable.varName,
+	  namedTable.profile->columnDefs[columnIndex].columnName);
+}
+
+// ---------------------------------------------------------------------------
+// DBAgent::DeleteArg
+// ---------------------------------------------------------------------------
+DBAgent::DeleteArg::DeleteArg(const TableProfile &profile)
+: tableProfile(profile)
+{
+}
+
+// ---------------------------------------------------------------------------
+// DBAgent::AddColumnsArg
+// ---------------------------------------------------------------------------
+DBAgent::AddColumnsArg::AddColumnsArg(const TableProfile &profile)
+: tableProfile(profile)
+{
+}
+
+// ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 void DBAgent::addSetupFunction(DBDomainId domainId,
@@ -174,24 +322,25 @@ DBDomainId DBAgent::getDBDomainId(void) const
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-string DBAgent::makeSelectStatement(DBAgentSelectArg &selectArg)
+string DBAgent::makeSelectStatement(const SelectArg &selectArg)
 {
 	size_t numColumns = selectArg.columnIndexes.size();
 	string sql = "SELECT ";
 	for (size_t i = 0; i < numColumns; i++) {
 		size_t idx = selectArg.columnIndexes[i];
-		const ColumnDef &columnDef = selectArg.columnDefs[idx];
+		const ColumnDef &columnDef =
+		  selectArg.tableProfile.columnDefs[idx];
 		sql += columnDef.columnName;
 		sql += " ";
 		if (i < selectArg.columnIndexes.size()- 1)
 			sql += ",";
 	}
 	sql += "FROM ";
-	sql += selectArg.tableName;
+	sql += selectArg.tableProfile.name;
 	return sql;
 }
 
-string DBAgent::makeSelectStatement(DBAgentSelectExArg &selectExArg)
+string DBAgent::makeSelectStatement(const SelectExArg &selectExArg)
 {
 	size_t numColumns = selectExArg.statements.size();
 	HATOHOL_ASSERT(numColumns > 0, "Vector size must not be zero");
@@ -206,7 +355,10 @@ string DBAgent::makeSelectStatement(DBAgentSelectExArg &selectExArg)
 			sql += ",";
 	}
 	sql += " FROM ";
-	sql += selectExArg.tableName;
+	if (!selectExArg.tableField.empty())
+		sql += selectExArg.tableField;
+	else
+		sql += selectExArg.tableProfile->name;
 	if (!selectExArg.condition.empty()) {
 		sql += " WHERE ";
 		sql += selectExArg.condition;
@@ -222,6 +374,7 @@ string DBAgent::makeSelectStatement(DBAgentSelectExArg &selectExArg)
 	return sql;
 }
 
+
 string DBAgent::getColumnValueString(const ColumnDef *columnDef,
                                      const ItemData *itemData)
 {
@@ -229,26 +382,23 @@ string DBAgent::getColumnValueString(const ColumnDef *columnDef,
 	switch (columnDef->type) {
 	case SQL_COLUMN_TYPE_INT:
 	{
-		DEFINE_AND_ASSERT(itemData, ItemInt, item);
-		valueStr = StringUtils::sprintf("%d", item->get());
+		valueStr = StringUtils::sprintf("%d", (int)*itemData);
 		break;
 	}
 	case SQL_COLUMN_TYPE_BIGUINT:
 	{
-		DEFINE_AND_ASSERT(itemData, ItemUint64, item);
-		valueStr = StringUtils::sprintf("%"PRId64, item->get());
+		valueStr = StringUtils::sprintf("%"PRId64, (uint64_t)*itemData);
 		break;
 	}
 	case SQL_COLUMN_TYPE_VARCHAR:
 	case SQL_COLUMN_TYPE_CHAR:
 	case SQL_COLUMN_TYPE_TEXT:
 	{
-		DEFINE_AND_ASSERT(itemData, ItemString, item);
-		if (item->isNull()) {
+		if (itemData->isNull()) {
 			valueStr = "NULL";
 		} else {
 			string escaped =
-			   StringUtils::replace(item->get(), "'", "''");
+			   StringUtils::replace((string)*itemData, "'", "''");
 			valueStr =
 			   StringUtils::sprintf("'%s'", escaped.c_str());
 		}
@@ -256,16 +406,14 @@ string DBAgent::getColumnValueString(const ColumnDef *columnDef,
 	}
 	case SQL_COLUMN_TYPE_DOUBLE:
 	{
-		string fmt;
-		DEFINE_AND_ASSERT(itemData, ItemDouble, item);
-		fmt = StringUtils::sprintf("%%.%zdlf", columnDef->decFracLength);
-		valueStr = StringUtils::sprintf(fmt.c_str(), item->get());
+		string fmt
+		  = StringUtils::sprintf("%%.%zdlf", columnDef->decFracLength);
+		valueStr = StringUtils::sprintf(fmt.c_str(), (double)*itemData);
 		break;
 	}
 	case SQL_COLUMN_TYPE_DATETIME:
 	{
-		DEFINE_AND_ASSERT(itemData, ItemInt, item);
-		valueStr = makeDatetimeString(item->get());
+		valueStr = makeDatetimeString(*itemData);
 		break;
 	}
 	default:
@@ -275,42 +423,38 @@ string DBAgent::getColumnValueString(const ColumnDef *columnDef,
 	return valueStr;
 }
 
-string DBAgent::makeUpdateStatement(DBAgentUpdateArg &updateArg)
+string DBAgent::makeUpdateStatement(const UpdateArg &updateArg)
 {
-	size_t numColumns = updateArg.row->getNumberOfItems();
-	HATOHOL_ASSERT(numColumns == updateArg.columnIndexes.size(),
-	             "Invalid number of colums: %zd, %zd",
-	             numColumns, updateArg.columnIndexes.size());
-
 	// make a SQL statement
-	string statement = "UPDATE ";
-	statement += updateArg.tableName;
-	statement += " SET ";
+	string statement = StringUtils::sprintf("UPDATE %s SET ",
+	                                        updateArg.tableProfile.name);
+	const size_t numColumns = updateArg.rows.size();
 	for (size_t i = 0; i < numColumns; i++) {
-		size_t columnIdx = updateArg.columnIndexes[i];
-		const ColumnDef &columnDef = updateArg.columnDefs[columnIdx];
-		const ItemData *itemData = updateArg.row->getItemAt(i);
-		string valueStr = getColumnValueString(&columnDef, itemData);
+		const RowElement *elem = updateArg.rows[i];
+		const ColumnDef &columnDef =
+		  updateArg.tableProfile.columnDefs[elem->columnIndex];
+		const string valueStr =
+		  getColumnValueString(&columnDef, elem->dataPtr);
 
-		statement += columnDef.columnName;
-		statement += "=";
-		statement += valueStr;
+		statement += StringUtils::sprintf("%s=%s",
+		                                  columnDef.columnName,
+		                                  valueStr.c_str());
 		if (i < numColumns-1)
 			statement += ",";
 	}
 
 	// condition
 	if (!updateArg.condition.empty()) {
-		statement += " WHERE ";
-		statement += updateArg.condition;
+		statement += StringUtils::sprintf(" WHERE %s",
+		                                  updateArg.condition.c_str());
 	}
 	return statement;
 }
 
-string DBAgent::makeDeleteStatement(DBAgentDeleteArg &deleteArg)
+string DBAgent::makeDeleteStatement(const DeleteArg &deleteArg)
 {
 	string statement = "DELETE FROM ";
-	statement += deleteArg.tableName;
+	statement += deleteArg.tableProfile.name;
 	if (!deleteArg.condition.empty()) {
 		statement += " WHERE ";
 		statement += deleteArg.condition;
@@ -335,48 +479,40 @@ string DBAgent::makeDatetimeString(int datetime)
 }
 
 bool DBAgent::updateIfExistElseInsert(
-  const ItemGroup *itemGroup, const string &tableName,
-  size_t numColumns, const ColumnDef *columnDefs, size_t targetIndex)
+  const ItemGroup *itemGroup, const TableProfile &tableProfile,
+  size_t targetIndex)
 {
 	size_t numElemInItemGrp = itemGroup->getNumberOfItems();
 	HATOHOL_ASSERT(targetIndex < numElemInItemGrp,
 	               "targetIndex: %zd, number of items: %zd",
 	               targetIndex, numElemInItemGrp);
-	HATOHOL_ASSERT(numColumns == numElemInItemGrp,
+	HATOHOL_ASSERT(tableProfile.numColumns == numElemInItemGrp,
 	               "numColumns: %zd, number of items: %zd",
-	               numColumns, numElemInItemGrp);
+	               tableProfile.numColumns, numElemInItemGrp);
 	const ItemData *item = itemGroup->getItemAt(targetIndex);
-	const char *columnName = columnDefs[targetIndex].columnName;
+	const char *columnName =
+	  tableProfile.columnDefs[targetIndex].columnName;
 	string condition = StringUtils::sprintf("%s=%s", columnName,
 	                                        item->getString().c_str());
-	bool exist = isRecordExisting(tableName, condition);
+	bool exist = isRecordExisting(tableProfile.name, condition);
 	if (exist) {
 		// update
-		DBAgentUpdateArg arg;
-		arg.tableName = tableName;
-		arg.columnDefs = columnDefs;
+		DBAgent::UpdateArg arg(tableProfile);
 		VariableItemGroupPtr row;
-		for (size_t i = 0; i < numColumns; i++) {
-			// exclude primary
-			if (columnDefs[i].keyType == SQL_KEY_PRI)
+		for (size_t i = 0; i < tableProfile.numColumns; i++) {
+			// exclude a primary key
+			if (tableProfile.columnDefs[i].keyType == SQL_KEY_PRI)
 				continue;
-			row->add(itemGroup->getItemAt(i));
-			arg.columnIndexes.push_back(i);
+			arg.rows.push_back(
+			  new RowElement(i, itemGroup->getItemAt(i)));
 		}
-		arg.row = row;
 		arg.condition = condition;
 		update(arg);
 	} else {
 		// insert
-		DBAgentInsertArg arg;
-		arg.tableName = tableName;
-		arg.numColumns = numColumns;
-		arg.columnDefs = columnDefs;
-
-		VariableItemGroupPtr row;
-		for (size_t i = 0; i < numColumns; i++)
-			row->add(itemGroup->getItemAt(i));
-		arg.row = row;
+		DBAgent::InsertArg arg(tableProfile);
+		for (size_t i = 0; i < tableProfile.numColumns; i++)
+			arg.row->add(itemGroup->getItemAt(i));
 		insert(arg);
 	}
 	return exist;

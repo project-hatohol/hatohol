@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -854,6 +854,12 @@ void teardown(void)
 	               g_pathForAction);
 	clearEnvString(ActionManager::ENV_NAME_LD_LIBRARY_PATH_FOR_ACTION,
 	               g_ldLibraryPathForAction);
+}
+
+void cut_shutdown(void)
+{
+	// To collect all spawned actions
+	ActorCollector::reset();
 }
 
 // ---------------------------------------------------------------------------

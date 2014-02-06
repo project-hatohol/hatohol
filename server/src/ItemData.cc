@@ -37,35 +37,60 @@ const char *ItemData::m_nativeTypeNames[] =
 	"String",
 };
 
+static __thread struct {
+	uint64_t vUint64;
+} refValsForCast;
+
 // ---------------------------------------------------------------------------
 // ItemDataException
 // ---------------------------------------------------------------------------
-ItemDataException::ItemDataException(ItemDataExceptionType type,
-                                     const char *sourceFileName, int lineNumber,
-                                     const char *operatorName,
-                                     const ItemData &lhs)
-: HatoholException("", sourceFileName, lineNumber)
+ItemDataException::ItemDataException(
+  ItemDataExceptionType type,
+  const string &sourceFileName, const int &lineNumber,
+  const string &operatorName, const ItemData &lhs)
+: HatoholException("", sourceFileName, lineNumber),
+  m_type(type)
 {
 	string header = getMessageHeader(type);
 	string msg = StringUtils::sprintf(
 	  "%s: '%s' (%s) (ItemID: %"PRIu_ITEM")",
-	  header.c_str(), operatorName, lhs.getNativeTypeName(), lhs.getId());
+	  header.c_str(), operatorName.c_str(),
+	  lhs.getNativeTypeName(), lhs.getId());
 	setBrief(msg);
 }
-ItemDataException::ItemDataException(ItemDataExceptionType type,
-                                     const char *sourceFileName, int lineNumber,
-                                     const char *operatorName,
-                                     const ItemData &lhs, const ItemData &rhs)
-: HatoholException("", sourceFileName, lineNumber)
+
+ItemDataException::ItemDataException(
+  ItemDataExceptionType type,
+  const string &sourceFileName, const int &lineNumber,
+  const string &operatorName, const ItemData &lhs, const ItemData &rhs)
+: HatoholException("", sourceFileName, lineNumber),
+  m_type(type)
 {
 	string header = getMessageHeader(type);
 	string msg = StringUtils::sprintf(
 	  "%s: '%s' between %s and %s (ItemID: %"PRIu_ITEM" and %"PRIu_ITEM")",
-	  header.c_str(), operatorName,
+	  header.c_str(), operatorName.c_str(),
 	  lhs.getNativeTypeName(), rhs.getNativeTypeName(),
 	  lhs.getId(), rhs.getId());
 
 	setBrief(msg);
+}
+
+ItemDataException::ItemDataException(
+  ItemDataExceptionType type,
+   const string &sourceFileName, const int &lineNumber, const ItemId &itemId)
+: HatoholException("", sourceFileName, lineNumber),
+  m_type(type)
+{
+	string header = getMessageHeader(type);
+	string msg =
+	   StringUtils::sprintf("%s: %"PRIu_ITEM, header.c_str(), itemId);
+	setBrief(msg);
+}
+
+ItemDataExceptionType ItemDataException::getType(void) const
+{
+	return m_type;
 }
 
 string ItemDataException::getMessageHeader(const ItemDataExceptionType type)
@@ -75,6 +100,8 @@ string ItemDataException::getMessageHeader(const ItemDataExceptionType type)
 		header = "Undefined operation";
 	else if (type == ITEM_DATA_EXCEPTION_INVALID_OPERATION)
 		header = "Invalid operation";
+	else if (type == ITEM_DATA_EXCEPTION_ITEM_NOT_FOUND)
+		header = "Item not found";
 	else
 		header = StringUtils::sprintf("Unknown exception (%d)", type);
 	return header;
@@ -141,7 +168,7 @@ void ItemData::setNull(void)
 //
 // ItemBool
 //
-template<> ItemBool::operator bool() const
+template<> ItemBool::operator const bool &() const
 {
 	return get();
 }
@@ -149,10 +176,22 @@ template<> ItemBool::operator bool() const
 //
 // ItemInt
 //
-template<> ItemInt::operator int() const
+template<> ItemInt::operator const int &() const
 {
 	return get();
 }
+
+template<> ItemInt::operator const uint64_t &() const
+{
+	const int &val = get();
+	if (val < 0) {
+		THROW_ITEM_DATA_EXCEPTION_INVALID_OPERATION(
+		  "cast to const uint64_t &", *this);
+	}
+	refValsForCast.vUint64 = val;
+	return refValsForCast.vUint64;
+}
+
 
 template<> bool ItemInt::operator >(const ItemData &itemData) const
 {
@@ -207,7 +246,7 @@ template<> bool ItemInt::operator <=(const ItemData &itemData) const
 //
 // ItemUint64
 //
-template<> ItemUint64::operator uint64_t() const
+template<> ItemUint64::operator const uint64_t &() const
 {
 	return get();
 }
@@ -308,17 +347,24 @@ template<> bool ItemUint64::operator ==(const ItemData &itemData) const
 	return false;
 }
 
-template<> ItemData * ItemString::operator /(const ItemData &itemData) const
+//
+// ItemDouble
+//
+template<> ItemDouble::operator const double &() const
 {
-	THROW_ITEM_DATA_EXCEPTION_INVALID_OPERATION("/", itemData);
-	return NULL;
+	return get();
 }
 
 //
 // ItemString
 //
-template<> ItemString::operator string() const
+template<> ItemString::operator const std::string &() const
 {
 	return get();
 }
 
+template<> ItemData * ItemString::operator /(const ItemData &itemData) const
+{
+	THROW_ITEM_DATA_EXCEPTION_INVALID_OPERATION("/", itemData);
+	return NULL;
+}

@@ -44,20 +44,17 @@ function formatSecond(sec) {
 
 function setCandidate(target, list) {
   var x;
-  var html = "";
-  if (!list) {
+  var html = "<option>---------</option>";
+
+  if (list) {
+    target.removeAttr("disabled");
+    for (x = 0; list && x < list.length; ++x)
+      html += "<option>" + list[x] + "</option>";
+  } else {
     target.attr("disabled", "disabled");
-    return;
   }
-  target.removeAttr("disabled");
 
-  target.empty();
-
-  html += "<option>---------</option>";
-  for (x = 0; list && x < list.length; ++x)
-    html += "<option>" + list[x] + "</option>";
-
-  target.append(html);
+  target.empty().append(html);
 }
 
 function buildChooser() {

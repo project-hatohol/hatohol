@@ -576,7 +576,7 @@ void FaceRest::replyError(RestJob *job,
 	if (optionMessage.empty()) {
 		MLPL_INFO("reply error: %d\n", errorCode);
 	} else {
-		MLPL_INFO("reply error: %d, %s",
+		MLPL_INFO("reply error: %d, %s\n",
 		          errorCode, optionMessage.c_str());
 	}
 
@@ -1410,104 +1410,92 @@ void FaceRest::handlerGetServer(RestJob *job)
 	replyJsonData(agent, job);
 }
 
-void FaceRest::handlerPostServer(RestJob *job)
+HatoholError FaceRest::parseServerParameter(
+  MonitoringServerInfo &svInfo, GHashTable *query, bool forUpdate)
 {
-	char *charValue;
-	int intValue;
-	bool succeeded;
-	bool exist;
-	MonitoringServerInfo svInfo;
+	HatoholError err;
+	char *value;
 
 	// type
-	succeeded = getParamWithErrorReply<MonitoringSystemType>(
-			job, "type", "%d", svInfo.type, &exist);
-	if (!succeeded)
-		return;
-	if (!exist) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "type");
-		return;
-	}
+	err = getParam<MonitoringSystemType>(
+		query, "type", "%d", svInfo.type);
+	if (err != HTERR_OK)
+		return err;
 
 	// hostname
-	charValue = (char *)g_hash_table_lookup(job->query, "hostName");
-	if (!charValue) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "hostName");
-		return;
-	}
-	svInfo.hostName = charValue;
+	value = (char *)g_hash_table_lookup(query, "hostName");
+	if (!value)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "hostName");
+	svInfo.hostName = value;
 
 	// ipAddress
-	charValue = (char *)g_hash_table_lookup(job->query, "ipAddress");
-	if (!charValue) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "ipAddress");
-		return;
-	}
-	svInfo.ipAddress = charValue;
+	value = (char *)g_hash_table_lookup(query, "ipAddress");
+	if (!value)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "ipAddress");
+	svInfo.ipAddress = value;
 
 	// nickname
-	charValue = (char *)g_hash_table_lookup(job->query, "nickname");
-	if (!charValue) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "nickname");
-		return;
-	}
-	svInfo.nickname = charValue;
+	value = (char *)g_hash_table_lookup(query, "nickname");
+	if (!value)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "nickname");
+	svInfo.nickname = value;
 
 	// port
-	charValue = (char *)g_hash_table_lookup(job->query, "port");
-	if (!charValue) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "port");
-		return;
-	}
-	sscanf(charValue, "%d", &intValue);
-	svInfo.port = intValue;
+	err = getParam<int>(
+		query, "port", "%d", svInfo.port);
+	if (err != HTERR_OK)
+		return err;
 
 	// polling
-	charValue = (char *)g_hash_table_lookup(job->query, "polling");
-	if (!charValue) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "polling");
-		return;
-	}
-	sscanf(charValue, "%d", &intValue);
-	svInfo.pollingIntervalSec = intValue;
+	err = getParam<int>(
+		query, "polling", "%d", svInfo.pollingIntervalSec);
+	if (err != HTERR_OK)
+		return err;
 
 	// retry
-	charValue = (char *)g_hash_table_lookup(job->query, "retry");
-	if (!charValue) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "retry");
-		return;
-	}
-	sscanf(charValue, "%d", &intValue);
-	svInfo.retryIntervalSec = intValue;
+	err = getParam<int>(
+		query, "retry", "%d", svInfo.retryIntervalSec);
+	if (err != HTERR_OK)
+		return err;
 
 	// username
-	charValue = (char *)g_hash_table_lookup(job->query, "user");
-	if (!charValue) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "user");
-		return;
-	}
-	svInfo.userName = charValue;
+	value = (char *)g_hash_table_lookup(query, "user");
+	if (!value)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "user");
+	svInfo.userName = value;
 
 	// password
-	charValue = (char *)g_hash_table_lookup(job->query, "password");
-	if (!charValue) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "password");
-		return;
-	}
-	svInfo.password = charValue;
+	value = (char *)g_hash_table_lookup(query, "password");
+	if (!value)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "password");
+	svInfo.password = value;
 
 	// dbname
 	if (svInfo.type == MONITORING_SYSTEM_NAGIOS) {
-		charValue = (char *)g_hash_table_lookup(job->query, "dbName");
-		if (!charValue) {
-			REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "dbName");
-			return;
-		}
-		svInfo.dbName = charValue;
+		value = (char *)g_hash_table_lookup(query, "dbName");
+		if (!value)
+			return HatoholError(HTERR_NOT_FOUND_PARAMETER,
+					    "dbName");
+		svInfo.dbName = value;
+	}
+
+	return HTERR_OK;
+}
+
+void FaceRest::handlerPostServer(RestJob *job)
+{
+	MonitoringServerInfo svInfo;
+	HatoholError err;
+
+	err = parseServerParameter(svInfo, job->query);
+	if (err != HTERR_OK) {
+		replyError(job, err);
+		return;
 	}
 
 	OperationPrivilege privilege(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HatoholError err = dataStore->addTargetServer(svInfo, privilege);
+	err = dataStore->addTargetServer(svInfo, privilege);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -1856,7 +1844,7 @@ void FaceRest::handlerPostAction(RestJob *job)
 	if (!(actionDef.type == ACTION_COMMAND ||
 	      actionDef.type == ACTION_RESIDENT)) {
 		REPLY_ERROR(job, HTERR_INVALID_PARAMETER,
-		            "type: %d\n", actionDef.type);
+		            "type: %d", actionDef.type);
 		return;
 	}
 
@@ -2514,14 +2502,14 @@ HatoholError FaceRest::parseUserParameter(UserInfo &userInfo, GHashTable *query,
 	// name
 	value = (char *)g_hash_table_lookup(query, "user");
 	if (!value && !forUpdate)
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "user\n");
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "user");
 	if (value)
 		userInfo.name = value;
 
 	// password
 	value = (char *)g_hash_table_lookup(query, "password");
 	if (!value && !forUpdate)
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "password\n");
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "password");
 	userInfo.password = value ? value : "";
 
 	// flags
@@ -2540,7 +2528,7 @@ HatoholError FaceRest::parseUserRoleParameter(
 	// name
 	value = (char *)g_hash_table_lookup(query, "name");
 	if (!value && !forUpdate)
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "name\n");
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "name");
 	if (value)
 		userRoleInfo.name = value;
 
@@ -2640,7 +2628,7 @@ HatoholError FaceRest::getParam(
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, paramName);
 
 	if (sscanf(value, scanFmt, &dest) != 1) {
-		string optMsg = StringUtils::sprintf("%s: %s\n",
+		string optMsg = StringUtils::sprintf("%s: %s",
 		                                     paramName, value);
 		return HatoholError(HTERR_INVALID_PARAMETER, optMsg);
 	}
@@ -2660,7 +2648,7 @@ bool FaceRest::getParamWithErrorReply(
 
 	if (sscanf(value, scanFmt, &dest) != 1) {
 		REPLY_ERROR(job, HTERR_INVALID_PARAMETER,
-		            "%s: %s\n", paramName, value);
+		            "%s: %s", paramName, value);
 		return false;
 	}
 	return true;

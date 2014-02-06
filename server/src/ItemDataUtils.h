@@ -30,50 +30,7 @@ class ItemDataUtils {
 public:
 	static ItemDataPtr createAsNumber(const std::string &word);
 	static ItemDataPtr createAsNumberOrString(const std::string &word);
-	template<typename NativeType, typename ItemDataType>
-	static const NativeType
-	   &get(const ItemData *itemData, bool *isNull = NULL) {
-		HATOHOL_ASSERT(itemData, "itemData: NULL");
-		const ItemDataType *casted = ItemDataType::cast(*itemData);
-		HATOHOL_ASSERT(casted, "Invalid cast: %s -> %s",
-		             DEMANGLED_TYPE_NAME(itemData),
-		             DEMANGLED_TYPE_NAME(ItemDataType));
-		if (isNull)
-			*isNull = casted->isNull();
-		return casted->get();
-	}
-
-	template<typename NativeType>
-	static const NativeType &get(const ItemData *itemData) {
-		// Without bug, this is never called, because
-		//  the specilizations are is defined below.
-		THROW_HATOHOL_EXCEPTION("Unknown type: %d: %s",
-		                      itemData->getItemType(),
-		                      DEMANGLED_TYPE_NAME(itemData));
-		return *(new NativeType()); // never executed, just to build
-	}
-
-	static const bool        &getBool  (const ItemData *itemData);
-	static const int         &getInt   (const ItemData *itemData);
-	static const uint64_t    &getUint64(const ItemData *itemData);
-	static const double      &getDouble(const ItemData *itemData);
-	static const std::string &getString(const ItemData *itemData);
 };
-
-// The reason why this function is specialized:
-// Ex.) If the above general template function ItemData::get() is
-//      called with [NativeType = int], the build fails because
-//      'string' cannot be converted to 'int'.
-template<>
-const bool &ItemDataUtils::get<bool> (const ItemData *itemData);
-template<>
-const int &ItemDataUtils::get<int> (const ItemData *itemData);
-template<>
-const uint64_t &ItemDataUtils::get<uint64_t> (const ItemData *itemData);
-template<>
-const double &ItemDataUtils::get<double>(const ItemData *itemData);
-template<>
-const std::string &ItemDataUtils::get<std::string>(const ItemData *itemData);
 
 struct ItemDataPtrComparator {
 	bool operator()(const ItemDataPtr &dataPtr0,
@@ -143,29 +100,6 @@ private:
 typedef std::vector<ItemDataIndex *>        ItemDataIndexVector;
 typedef ItemDataIndexVector::iterator       ItemDataIndexVectorIterator;
 typedef ItemDataIndexVector::const_iterator ItemDataIndexVectorConstIterator;
-
-// convenient operators
-template <typename T>
-T &substituteFromItemDataPtr(T &lhs, const ItemDataPtr &itemPtr)
-{
-	lhs = static_cast<T>(*itemPtr);
-	return lhs;
-}
-
-inline int &operator<<(int &lhs, const ItemDataPtr &itemData)
-{
-	return substituteFromItemDataPtr<int>(lhs, itemData);
-}
-
-inline uint64_t &operator<<(uint64_t &lhs, const ItemDataPtr &itemData)
-{
-	return substituteFromItemDataPtr<uint64_t>(lhs, itemData);
-}
-
-inline std::string &operator<<(std::string &lhs, const ItemDataPtr &itemData)
-{
-	return substituteFromItemDataPtr<std::string>(lhs, itemData);
-}
 
 #endif // ItemDataUtils_h
 

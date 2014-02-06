@@ -115,7 +115,6 @@ public:
 
 protected:
 	static std::string getDBName(const ServerIdType zabbixServerId);
-	static void tableInitializerSystem(DBAgent *dbAgent, void *data);
 	static void updateDBIfNeeded(DBAgent *dbAgent, int oldVer, void *data);
 	static std::string makeItemBrief(const ItemGroup *itemItemGroup);
 
@@ -133,8 +132,7 @@ protected:
 
 	DBClientZabbix(const ServerIdType zabbixServerId);
 	void addItems(
-	  ItemTablePtr tablePtr, const std::string &tableName,
-	  size_t numColumns, const ColumnDef *columnDefs,
+	  ItemTablePtr tablePtr, const DBAgent::TableProfile &tableProfile,
 	  int updateCheckIndex);
 	void makeSelectExArgForTriggerAsHatoholFormat(void);
 

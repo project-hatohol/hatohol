@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -56,6 +56,11 @@ public:
 		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(
 		  "TestOperator", *this);
 	}
+
+	static void throwItemNotFound(const ItemId &itemId)
+	{
+		THROW_ITEM_DATA_EXCEPTION_ITEM_NOT_FOUND(itemId);
+	}
 };
 
 static const int TEST_ITEM_ID = 1;
@@ -78,7 +83,7 @@ template<typename NativeType, class ItemDataType>
 static void _assertGet(NativeType val)
 {
 	A_item = new ItemDataType(val);
-	NativeType readValue = ItemDataUtils::get<NativeType>(A_item);
+	NativeType readValue = *A_item;
 	cppcut_assert_equal(val, readValue);
 }
 #define assertGet(NT,IDT,V) cut_trace((_assertGet<NT,IDT>(V)))
@@ -167,7 +172,7 @@ void test_Clone(void)
 	cppcut_assert_not_null(y_item);
 	cppcut_assert_equal(id, y_item->getId());
 	cppcut_assert_equal(x_item->getItemType(), y_item->getItemType());
-	cppcut_assert_equal(val, ItemDataUtils::get<int>(y_item));
+	cppcut_assert_equal(val, (int)*y_item);
 }
 
 // -------------------------------------------------------------------------
@@ -277,6 +282,30 @@ void test_castIntToInt(void)
 	cppcut_assert_equal(expect, static_cast<int>(*x_item));
 }
 
+void test_castIntToUint64(void)
+{
+	const int src = 5;
+	x_item = new ItemInt(src);
+	const uint64_t expect = src;
+	cppcut_assert_equal(expect, static_cast<uint64_t>(*x_item));
+}
+
+void test_castNegativeIntToUint64(void)
+{
+	const int src = -5;
+	x_item = new ItemInt(src);
+	uint64_t actual = 0;
+	ItemDataExceptionType exceptionType = ITEM_DATA_EXCEPTION_UNKNOWN;
+	try {
+		actual = static_cast<uint64_t>(*x_item);
+	} catch (const ItemDataException &e) {
+		exceptionType = e.getType();
+	}
+	cppcut_assert_equal(ITEM_DATA_EXCEPTION_INVALID_OPERATION,
+	                    exceptionType);
+	cppcut_assert_equal((uint64_t)0, actual); // Not to be changed
+}
+
 // -------------------------------------------------------------------------
 // operator cast to uint64_t
 // -------------------------------------------------------------------------
@@ -285,6 +314,16 @@ void test_castUint64ToUint64(void)
 	const uint64_t expect = 0xfedcba9876543210;
 	x_item = new ItemUint64(expect);
 	cppcut_assert_equal(expect, static_cast<uint64_t>(*x_item));
+}
+
+// -------------------------------------------------------------------------
+// operator cast to double
+// -------------------------------------------------------------------------
+void test_castDoubleToDouble(void)
+{
+	const double expect = -5.234343e7;
+	x_item = new ItemDouble(expect);
+	cppcut_assert_equal(expect, static_cast<double>(*x_item));
 }
 
 // -------------------------------------------------------------------------
@@ -606,25 +645,41 @@ void test_operatorSubstBoolString(void)
 void test_throwUndefinedOperator(void)
 {
 	ItemIntTester *tester = new ItemIntTester(SYSTEM_ITEM_ID_ANONYMOUS, 0);
-	bool gotException = false;
+	ItemDataExceptionType exceptionType = ITEM_DATA_EXCEPTION_UNKNOWN;
 	try {
 		tester->throwUndefinedOperator();
 	} catch (const ItemDataException &e) {
-		gotException = true;
+		exceptionType = e.getType();
 	}
-	cppcut_assert_equal(true, gotException);
+	cppcut_assert_equal(ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION,
+	                    exceptionType);
 }
 
 void test_throwUndefinedOperatorTwoArg(void)
 {
 	ItemIntTester *tester = new ItemIntTester(SYSTEM_ITEM_ID_ANONYMOUS, 0);
-	bool gotException = false;
+	ItemDataExceptionType exceptionType = ITEM_DATA_EXCEPTION_UNKNOWN;
 	try {
 		tester->throwUndefinedOperatorTwoArg();
 	} catch (const ItemDataException &e) {
-		gotException = true;
+		exceptionType = e.getType();
 	}
-	cppcut_assert_equal(true, gotException);
+	cppcut_assert_equal(ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION,
+	                    exceptionType);
+}
+
+void test_throwItemNotFound(void)
+{
+	ItemIntTester *tester = new ItemIntTester(SYSTEM_ITEM_ID_ANONYMOUS, 0);
+	ItemDataExceptionType exceptionType = ITEM_DATA_EXCEPTION_UNKNOWN;
+	try {
+		const ItemId itemId = 5;
+		tester->throwItemNotFound(itemId);
+	} catch (const ItemDataException &e) {
+		exceptionType = e.getType();
+	}
+	cppcut_assert_equal(ITEM_DATA_EXCEPTION_ITEM_NOT_FOUND,
+	                    exceptionType);
 }
 
 } // namespace testItemData

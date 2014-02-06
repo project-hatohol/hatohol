@@ -20,9 +20,9 @@
 #include "ConfigManager.h"
 #include "DBAgentFactory.h"
 #include "DBClientAction.h"
-#include "DBClientUtils.h"
 #include "DBClientHatohol.h"
 #include "MutexLock.h"
+#include "ItemGroupStream.h"
 using namespace std;
 using namespace mlpl;
 
@@ -32,6 +32,18 @@ const char *TABLE_NAME_ACTION_LOGS = "action_logs";
 // 8 -> 9: Add actions.onwer_user_id
 int DBClientAction::ACTION_DB_VERSION = 9;
 const char *DBClientAction::DEFAULT_DB_NAME = DBClientConfig::DEFAULT_DB_NAME;
+
+static void operator>>(
+  ItemGroupStream &itemGroupStream, ComparisonType &compType)
+{
+	compType = itemGroupStream.read<int, ComparisonType>();
+}
+
+static void operator>>(
+  ItemGroupStream &itemGroupStream, ActionType &actionType)
+{
+	actionType = itemGroupStream.read<int, ActionType>();
+}
 
 static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 {
@@ -179,8 +191,6 @@ static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 	USER_ID_SYSTEM,                     // defaultValue
 },
 };
-static const size_t NUM_COLUMNS_ACTIONS =
-  sizeof(COLUMN_DEF_ACTIONS) / sizeof(ColumnDef);
 
 enum {
 	IDX_ACTIONS_ACTION_ID,
@@ -198,6 +208,10 @@ enum {
 	IDX_ACTIONS_OWNER_USER_ID,
 	NUM_IDX_ACTIONS,
 };
+
+static const DBAgent::TableProfile tableProfileActions(
+  TABLE_NAME_ACTIONS, COLUMN_DEF_ACTIONS,
+  sizeof(COLUMN_DEF_ACTIONS), NUM_IDX_ACTIONS);
 
 static const ColumnDef COLUMN_DEF_ACTION_LOGS[] = {
 {
@@ -324,18 +338,15 @@ static const ColumnDef COLUMN_DEF_ACTION_LOGS[] = {
 },
 };
 
-static const size_t NUM_COLUMNS_ACTION_LOGS =
-  sizeof(COLUMN_DEF_ACTION_LOGS) / sizeof(ColumnDef);
+static const DBAgent::TableProfile tableProfileActionLogs(
+  TABLE_NAME_ACTION_LOGS, COLUMN_DEF_ACTION_LOGS,
+  sizeof(COLUMN_DEF_ACTION_LOGS), NUM_IDX_ACTION_LOGS);
 
 static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
 {
-	TABLE_NAME_ACTIONS,
-	NUM_COLUMNS_ACTIONS,
-	COLUMN_DEF_ACTIONS,
+	&tableProfileActions,
 }, {
-	TABLE_NAME_ACTION_LOGS,
-	NUM_COLUMNS_ACTION_LOGS,
-	COLUMN_DEF_ACTION_LOGS,
+	&tableProfileActionLogs,
 }
 };
 static const size_t NUM_TABLE_INFO =
@@ -343,9 +354,7 @@ sizeof(DB_TABLE_INFO) / sizeof(DBClient::DBSetupTableInfo);
 
 static bool addColumnOwnerUserId(DBAgent *dbAgent)
 {
-	DBAgentAddColumnsArg addColumnsArg;
-	addColumnsArg.tableName = TABLE_NAME_ACTIONS;
-	addColumnsArg.columnDefs = COLUMN_DEF_ACTIONS;
+	DBAgent::AddColumnsArg addColumnsArg(tableProfileActions);
 	addColumnsArg.columnIndexes.push_back(
 	  IDX_ACTIONS_OWNER_USER_ID);
 	dbAgent->addColumns(addColumnsArg);
@@ -463,14 +472,6 @@ DBClientAction::LogEndExecActionArg::LogEndExecActionArg(void)
 // ---------------------------------------------------------------------------
 void DBClientAction::init(void)
 {
-	HATOHOL_ASSERT(NUM_COLUMNS_ACTIONS == NUM_IDX_ACTIONS,
-	  "NUM_COLUMNS_ACTIONS: %zd, NUM_IDX_ACTIONS: %d",
-	  NUM_COLUMNS_ACTIONS, NUM_IDX_ACTIONS);
-
-	HATOHOL_ASSERT(NUM_COLUMNS_ACTION_LOGS == NUM_IDX_ACTION_LOGS,
-	  "NUM_COLUMNS_ACTION_LOGS: %zd, NUM_IDX_ACTION_LOGS: %d",
-	  NUM_COLUMNS_ACTION_LOGS, NUM_IDX_ACTION_LOGS);
-
 	registerSetupInfo(
 	  DB_DOMAIN_ID_ACTION, DEFAULT_DB_NAME, &DB_ACTION_SETUP_FUNC_ARG);
 }
@@ -523,34 +524,27 @@ HatoholError DBClientAction::addAction(ActionDef &actionDef,
 	if (userId == USER_ID_SYSTEM)
 		ownerUserId = actionDef.ownerUserId;
 
-	VariableItemGroupPtr row;
-	DBAgentInsertArg arg;
-	arg.tableName = TABLE_NAME_ACTIONS;
-	arg.numColumns = NUM_COLUMNS_ACTIONS;
-	arg.columnDefs = COLUMN_DEF_ACTIONS;
-
-	row->ADD_NEW_ITEM(Int, AUTO_INCREMENT_VALUE);
-	row->ADD_NEW_ITEM(Uint64, actionDef.condition.serverId,
-	                  getNullFlag(actionDef, ACTCOND_SERVER_ID));
-	row->ADD_NEW_ITEM(Uint64, actionDef.condition.hostId,
-	                  getNullFlag(actionDef, ACTCOND_HOST_ID));
-	row->ADD_NEW_ITEM(Uint64, actionDef.condition.hostGroupId,
-	                  getNullFlag(actionDef, ACTCOND_HOST_GROUP_ID));
-	row->ADD_NEW_ITEM(Uint64, actionDef.condition.triggerId,
-	                  getNullFlag(actionDef, ACTCOND_TRIGGER_ID));
-	row->ADD_NEW_ITEM(Int, actionDef.condition.triggerStatus,
-	                  getNullFlag(actionDef, ACTCOND_TRIGGER_STATUS));
-	row->ADD_NEW_ITEM(Int, actionDef.condition.triggerSeverity,
-	                  getNullFlag(actionDef, ACTCOND_TRIGGER_SEVERITY));
-	row->ADD_NEW_ITEM(Int, actionDef.condition.triggerSeverityCompType,
-	                  getNullFlag(actionDef, ACTCOND_TRIGGER_SEVERITY));
-	row->ADD_NEW_ITEM(Int, actionDef.type);
-	row->ADD_NEW_ITEM(String, actionDef.command);
-	row->ADD_NEW_ITEM(String, actionDef.workingDir);
-	row->ADD_NEW_ITEM(Int, actionDef.timeout);
-	row->ADD_NEW_ITEM(Int, ownerUserId);
-
-	arg.row = row;
+	DBAgent::InsertArg arg(tableProfileActions);
+	arg.row->addNewItem(AUTO_INCREMENT_VALUE);
+	arg.row->addNewItem(actionDef.condition.serverId,
+	                    getNullFlag(actionDef, ACTCOND_SERVER_ID));
+	arg.row->addNewItem(actionDef.condition.hostId,
+	                    getNullFlag(actionDef, ACTCOND_HOST_ID));
+	arg.row->addNewItem(actionDef.condition.hostGroupId,
+	                    getNullFlag(actionDef, ACTCOND_HOST_GROUP_ID));
+	arg.row->addNewItem(actionDef.condition.triggerId,
+	                    getNullFlag(actionDef, ACTCOND_TRIGGER_ID));
+	arg.row->addNewItem(actionDef.condition.triggerStatus,
+	                    getNullFlag(actionDef, ACTCOND_TRIGGER_STATUS));
+	arg.row->addNewItem(actionDef.condition.triggerSeverity,
+	                    getNullFlag(actionDef, ACTCOND_TRIGGER_SEVERITY));
+	arg.row->addNewItem(actionDef.condition.triggerSeverityCompType,
+	                    getNullFlag(actionDef, ACTCOND_TRIGGER_SEVERITY));
+	arg.row->addNewItem(actionDef.type);
+	arg.row->addNewItem(actionDef.command);
+	arg.row->addNewItem(actionDef.workingDir);
+	arg.row->addNewItem(actionDef.timeout);
+	arg.row->addNewItem(ownerUserId);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		insert(arg);
@@ -564,24 +558,20 @@ HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
                                            const OperationPrivilege &privilege,
                                            const EventInfo *eventInfo)
 {
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_ACTIONS;
-	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_ACTION_ID]);
-
-	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_SERVER_ID]);
-	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_HOST_ID]);
-	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_HOST_GROUP_ID]);
-	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_ID]);
-	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_STATUS]);
-	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_SEVERITY]);
-	arg.pushColumn(
-	  COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_SEVERITY_COMP_TYPE]);
-
-	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_ACTION_TYPE]);
-	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_COMMAND]);
-	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_WORKING_DIR]);
-	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_TIMEOUT]);
-	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_OWNER_USER_ID]);
+	DBAgent::SelectExArg arg(tableProfileActions);
+	arg.add(IDX_ACTIONS_ACTION_ID);
+	arg.add(IDX_ACTIONS_SERVER_ID);
+	arg.add(IDX_ACTIONS_HOST_ID);
+	arg.add(IDX_ACTIONS_HOST_GROUP_ID);
+	arg.add(IDX_ACTIONS_TRIGGER_ID);
+	arg.add(IDX_ACTIONS_TRIGGER_STATUS);
+	arg.add(IDX_ACTIONS_TRIGGER_SEVERITY);
+	arg.add(IDX_ACTIONS_TRIGGER_SEVERITY_COMP_TYPE);
+	arg.add(IDX_ACTIONS_ACTION_TYPE);
+	arg.add(IDX_ACTIONS_COMMAND);
+	arg.add(IDX_ACTIONS_WORKING_DIR);
+	arg.add(IDX_ACTIONS_TIMEOUT);
+	arg.add(IDX_ACTIONS_OWNER_USER_ID);
 
 	if (eventInfo)
 		arg.condition = makeActionDefCondition(*eventInfo);
@@ -600,57 +590,45 @@ HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
 
 	// convert a format of the query result.
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator it = grpList.begin();
-	for (; it != grpList.end(); ++it) {
-		size_t idx = 0;
-		const ItemGroup *itemGroup = *it;
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
 		actionDefList.push_back(ActionDef());
 		ActionDef &actionDef = actionDefList.back();
 
-		actionDef.id = GET_INT_FROM_GRP(itemGroup, idx++);
+		itemGroupStream >> actionDef.id;
 
 		// conditions
-		bool isNull;
-		actionDef.condition.serverId =
-		   GET_INT_FROM_GRP(itemGroup, idx++, &isNull);
-		if (!isNull)
+		if (!itemGroupStream.getItem()->isNull())
 			actionDef.condition.enable(ACTCOND_SERVER_ID);
+		itemGroupStream >> actionDef.condition.serverId;
 
-		actionDef.condition.hostId =
-		   GET_UINT64_FROM_GRP(itemGroup, idx++, &isNull);
-		if (!isNull)
+		if (!itemGroupStream.getItem()->isNull())
 			actionDef.condition.enable(ACTCOND_HOST_ID);
+		itemGroupStream >> actionDef.condition.hostId;
 
-		actionDef.condition.hostGroupId =
-		   GET_UINT64_FROM_GRP(itemGroup, idx++, &isNull);
-		if (!isNull)
+		if (!itemGroupStream.getItem()->isNull())
 			actionDef.condition.enable(ACTCOND_HOST_GROUP_ID);
+		itemGroupStream >> actionDef.condition.hostGroupId;
 
-		actionDef.condition.triggerId =
-		   GET_UINT64_FROM_GRP(itemGroup, idx++, &isNull);
-		if (!isNull)
+		if (!itemGroupStream.getItem()->isNull())
 			actionDef.condition.enable(ACTCOND_TRIGGER_ID);
+		itemGroupStream >> actionDef.condition.triggerId;
 
-		actionDef.condition.triggerStatus =
-		   GET_INT_FROM_GRP(itemGroup, idx++, &isNull);
-		if (!isNull)
+		if (!itemGroupStream.getItem()->isNull())
 			actionDef.condition.enable(ACTCOND_TRIGGER_STATUS);
+		itemGroupStream >> actionDef.condition.triggerStatus;
 
-		actionDef.condition.triggerSeverity =
-		   GET_INT_FROM_GRP(itemGroup, idx++, &isNull);
-		if (!isNull)
+		if (!itemGroupStream.getItem()->isNull())
 			actionDef.condition.enable(ACTCOND_TRIGGER_SEVERITY);
+		itemGroupStream >> actionDef.condition.triggerSeverity;
 
-		actionDef.condition.triggerSeverityCompType =
-		  static_cast<ComparisonType>
-		    (GET_INT_FROM_GRP(itemGroup, idx++));
-
-		actionDef.type =
-		   static_cast<ActionType>(GET_INT_FROM_GRP(itemGroup, idx++));
-		actionDef.command    = GET_STRING_FROM_GRP(itemGroup, idx++);
-		actionDef.workingDir = GET_STRING_FROM_GRP(itemGroup, idx++);
-		actionDef.timeout    = GET_INT_FROM_GRP(itemGroup, idx++);
-		actionDef.ownerUserId = GET_INT_FROM_GRP(itemGroup, idx++);
+		itemGroupStream >> actionDef.condition.triggerSeverityCompType;
+		itemGroupStream >> actionDef.type;
+		itemGroupStream >> actionDef.command;
+		itemGroupStream >> actionDef.workingDir;
+		itemGroupStream >> actionDef.timeout;
+		itemGroupStream >> actionDef.ownerUserId;
 	}
 	return HTERR_OK;
 }
@@ -667,8 +645,7 @@ HatoholError DBClientAction::deleteActions(const ActionIdList &idList,
 		return HTERR_INVALID_PARAMETER;
 	}
 
-	DBAgentDeleteArg arg;
-	arg.tableName = TABLE_NAME_ACTIONS;
+	DBAgent::DeleteArg arg(tableProfileActions);
 	const ColumnDef &colId = COLUMN_DEF_ACTIONS[IDX_ACTIONS_ACTION_ID];
 	arg.condition = StringUtils::sprintf("%s in (", colId.columnName);
 	ActionIdListConstIterator it = idList.begin();
@@ -711,14 +688,9 @@ uint64_t DBClientAction::createActionLog(
   const ActionDef &actionDef, const EventInfo &eventInfo,
   ActionLogExecFailureCode failureCode, ActionLogStatus initialStatus)
 {
-	VariableItemGroupPtr row;
-	DBAgentInsertArg arg;
-	arg.tableName = TABLE_NAME_ACTION_LOGS;
-	arg.numColumns = NUM_COLUMNS_ACTION_LOGS;
-	arg.columnDefs = COLUMN_DEF_ACTION_LOGS;
-
-	row->ADD_NEW_ITEM(Uint64, 0); // action_log_id (automatically set)
-	row->ADD_NEW_ITEM(Int, actionDef.id);
+	DBAgent::InsertArg arg(tableProfileActionLogs);
+	arg.row->addNewItem(AUTO_INCREMENT_VALUE_U64);
+	arg.row->addNewItem(actionDef.id);
 
 	// status
 	ActionLogStatus status;
@@ -726,32 +698,33 @@ uint64_t DBClientAction::createActionLog(
 		status = initialStatus;
 	else
 		status = ACTLOG_STAT_FAILED;
-	row->ADD_NEW_ITEM(Int, status);
+	arg.row->addNewItem(status);
 
 	// TODO: set the appropriate the following starter ID.
-	row->ADD_NEW_ITEM(Int, 0); // starter_id
+	int starterId = 0;
+	arg.row->addNewItem(starterId);
 
 	// queuing_time
+	const int dummyTime = 0;
 	if (initialStatus == ACTLOG_STAT_QUEUING)
-		row->ADD_NEW_ITEM(Int, CURR_DATETIME);
+		arg.row->addNewItem(CURR_DATETIME);
 	else
-		row->ADD_NEW_ITEM(Int, 0, ITEM_DATA_NULL);
-	row->ADD_NEW_ITEM(Int, CURR_DATETIME);     // start_time
+		arg.row->addNewItem(dummyTime, ITEM_DATA_NULL);
+	arg.row->addNewItem(CURR_DATETIME);     // start_time
 
 	// end_time
 	if (failureCode == ACTLOG_EXECFAIL_NONE)
-		row->ADD_NEW_ITEM(Int, 0, ITEM_DATA_NULL);
+		arg.row->addNewItem(dummyTime, ITEM_DATA_NULL);
 	else
-		row->ADD_NEW_ITEM(Int, CURR_DATETIME);
+		arg.row->addNewItem(CURR_DATETIME);
 
-	row->ADD_NEW_ITEM(Int, failureCode);
-	row->ADD_NEW_ITEM(Int, 0, ITEM_DATA_NULL); // exit_code
+	arg.row->addNewItem(failureCode);
+	arg.row->addNewItem(dummyTime, ITEM_DATA_NULL); // exit_code
 
 	// server ID and event ID
-	row->ADD_NEW_ITEM(Int, eventInfo.serverId);
-	row->ADD_NEW_ITEM(Uint64, eventInfo.id);
+	arg.row->addNewItem(eventInfo.serverId);
+	arg.row->addNewItem(eventInfo.id);
 
-	arg.row = row;
 	uint64_t logId;
 	DBCLIENT_TRANSACTION_BEGIN() {
 		insert(arg);
@@ -762,10 +735,7 @@ uint64_t DBClientAction::createActionLog(
 
 void DBClientAction::logEndExecAction(const LogEndExecActionArg &logArg)
 {
-	VariableItemGroupPtr row;
-	DBAgentUpdateArg arg;
-	arg.tableName = TABLE_NAME_ACTION_LOGS;
-	arg.columnDefs = COLUMN_DEF_ACTION_LOGS;
+	DBAgent::UpdateArg arg(tableProfileActionLogs);
 
 	const char *actionLogIdColumnName = 
 	  COLUMN_DEF_ACTION_LOGS[IDX_ACTION_LOGS_ACTION_LOG_ID].columnName;
@@ -773,26 +743,17 @@ void DBClientAction::logEndExecAction(const LogEndExecActionArg &logArg)
 	                                     actionLogIdColumnName,
 	                                     logArg.logId);
 	// status
-	row->ADD_NEW_ITEM(Int, logArg.status);
-	arg.columnIndexes.push_back(IDX_ACTION_LOGS_STATUS);
-
-	// end_time
-	if (!(logArg.nullFlags & ACTLOG_FLAG_END_TIME)) {
-		row->ADD_NEW_ITEM(Int, CURR_DATETIME);
-		arg.columnIndexes.push_back(IDX_ACTION_LOGS_END_TIME);
-	}
+	arg.add(IDX_ACTION_LOGS_STATUS, logArg.status);
+	if (!(logArg.nullFlags & ACTLOG_FLAG_END_TIME))
+		arg.add(IDX_ACTION_LOGS_END_TIME, CURR_DATETIME);
 
 	// exec_failure_code
-	row->ADD_NEW_ITEM(Int, logArg.failureCode);
-	arg.columnIndexes.push_back(IDX_ACTION_LOGS_EXEC_FAILURE_CODE);
+	arg.add(IDX_ACTION_LOGS_EXEC_FAILURE_CODE, logArg.failureCode);
 
 	// exit_code
-	if (!(logArg.nullFlags & ACTLOG_FLAG_EXIT_CODE)) {
-		row->ADD_NEW_ITEM(Int, logArg.exitCode);
-		arg.columnIndexes.push_back(IDX_ACTION_LOGS_EXIT_CODE);
-	}
+	if (!(logArg.nullFlags & ACTLOG_FLAG_EXIT_CODE))
+		arg.add(IDX_ACTION_LOGS_EXIT_CODE, logArg.exitCode);
 
-	arg.row = row;
 	DBCLIENT_TRANSACTION_BEGIN() {
 		update(arg);
 	} DBCLIENT_TRANSACTION_END();
@@ -800,24 +761,15 @@ void DBClientAction::logEndExecAction(const LogEndExecActionArg &logArg)
 
 void DBClientAction::updateLogStatusToStart(uint64_t logId)
 {
-	VariableItemGroupPtr row;
-	DBAgentUpdateArg arg;
-	arg.tableName = TABLE_NAME_ACTION_LOGS;
-	arg.columnDefs = COLUMN_DEF_ACTION_LOGS;
+	DBAgent::UpdateArg arg(tableProfileActionLogs);
 
 	const char *actionLogIdColumnName = 
 	  COLUMN_DEF_ACTION_LOGS[IDX_ACTION_LOGS_ACTION_LOG_ID].columnName;
 	arg.condition = StringUtils::sprintf("%s=%"PRIu64,
 	                                     actionLogIdColumnName, logId);
-	// status
-	row->ADD_NEW_ITEM(Int, ACTLOG_STAT_STARTED);
-	arg.columnIndexes.push_back(IDX_ACTION_LOGS_STATUS);
+	arg.add(IDX_ACTION_LOGS_STATUS, ACTLOG_STAT_STARTED);
+	arg.add(IDX_ACTION_LOGS_START_TIME, CURR_DATETIME);
 
-	// start_time
-	row->ADD_NEW_ITEM(Int, CURR_DATETIME);
-	arg.columnIndexes.push_back(IDX_ACTION_LOGS_START_TIME);
-
-	arg.row = row;
 	DBCLIENT_TRANSACTION_BEGIN() {
 		update(arg);
 	} DBCLIENT_TRANSACTION_END();
@@ -873,19 +825,17 @@ string DBClientAction::makeActionDefCondition(const EventInfo &eventInfo)
 
 bool DBClientAction::getLog(ActionLog &actionLog, const string &condition)
 {
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_ACTION_LOGS;
-	const ColumnDef *def = COLUMN_DEF_ACTION_LOGS;
+	DBAgent::SelectExArg arg(tableProfileActionLogs);
 	arg.condition = condition;
-	arg.pushColumn(def[IDX_ACTION_LOGS_ACTION_LOG_ID]);
-	arg.pushColumn(def[IDX_ACTION_LOGS_ACTION_ID]);
-	arg.pushColumn(def[IDX_ACTION_LOGS_STATUS]); 
-	arg.pushColumn(def[IDX_ACTION_LOGS_STARTER_ID]);
-	arg.pushColumn(def[IDX_ACTION_LOGS_QUEUING_TIME]);
-	arg.pushColumn(def[IDX_ACTION_LOGS_START_TIME]);
-	arg.pushColumn(def[IDX_ACTION_LOGS_END_TIME]);
-	arg.pushColumn(def[IDX_ACTION_LOGS_EXEC_FAILURE_CODE]);
-	arg.pushColumn(def[IDX_ACTION_LOGS_EXIT_CODE]);
+	arg.add(IDX_ACTION_LOGS_ACTION_LOG_ID);
+	arg.add(IDX_ACTION_LOGS_ACTION_ID);
+	arg.add(IDX_ACTION_LOGS_STATUS); 
+	arg.add(IDX_ACTION_LOGS_STARTER_ID);
+	arg.add(IDX_ACTION_LOGS_QUEUING_TIME);
+	arg.add(IDX_ACTION_LOGS_START_TIME);
+	arg.add(IDX_ACTION_LOGS_END_TIME);
+	arg.add(IDX_ACTION_LOGS_EXEC_FAILURE_CODE);
+	arg.add(IDX_ACTION_LOGS_EXIT_CODE);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -898,56 +848,36 @@ bool DBClientAction::getLog(ActionLog &actionLog, const string &condition)
 	if (numGrpList == 0)
 		return false;
 
-	ItemGroupListConstIterator it = grpList.begin();
-	const ItemGroup *itemGroup = *it;
-	int idx = 0;
+	ItemGroupStream itemGroupStream(*grpList.begin());
 	actionLog.nullFlags = 0;
 
-	// action log ID
-	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemUint64, itemLogId);
-	actionLog.id = itemLogId->get();
+	itemGroupStream >> actionLog.id;
+	itemGroupStream >> actionLog.actionId;
+	itemGroupStream >> actionLog.status;
+	itemGroupStream >> actionLog.starterId;
 
-	// action ID
-	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemActionId);
-	actionLog.actionId = itemActionId->get();
-
-	// status
-	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemStatus);
-	actionLog.status = itemStatus->get();
-
-	// starter ID
-	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemStarterId);
-	actionLog.starterId = itemStarterId->get();
-
-	// queuing time
-	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++),
-	                  ItemInt, itemQueuingTime);
-	actionLog.queuingTime = itemQueuingTime->get();
-	if (itemQueuingTime->isNull())
+	// queing time
+	if (itemGroupStream.getItem()->isNull())
 		actionLog.nullFlags |= ACTLOG_FLAG_QUEUING_TIME;
+	itemGroupStream >> actionLog.queuingTime;
 
 	// start time
-	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemStartTime);
-	actionLog.startTime = itemStartTime->get();
-	if (itemStartTime->isNull())
+	if (itemGroupStream.getItem()->isNull())
 		actionLog.nullFlags |= ACTLOG_FLAG_START_TIME;
+	itemGroupStream >> actionLog.startTime;
 
 	// end time
-	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemEndTime);
-	actionLog.endTime = itemEndTime->get();
-	if (itemEndTime->isNull())
+	if (itemGroupStream.getItem()->isNull())
 		actionLog.nullFlags |= ACTLOG_FLAG_END_TIME;
+	itemGroupStream >> actionLog.endTime;
 
 	// failure code
-	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++),
-	                  ItemInt, itemFailureCode);
-	actionLog.failureCode = itemFailureCode->get();
+	itemGroupStream >> actionLog.failureCode;
 
 	// exit code
-	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemExitCode);
-	actionLog.exitCode = itemExitCode->get();
-	if (itemExitCode->isNull())
+	if (itemGroupStream.getItem()->isNull())
 		actionLog.nullFlags |= ACTLOG_FLAG_EXIT_CODE;
+	itemGroupStream >> actionLog.exitCode;
 
 	return true;
 }

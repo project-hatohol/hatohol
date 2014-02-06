@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -28,11 +28,9 @@ public:
 	typedef bool (*DBUpdater)(DBAgent *, int oldVer, void *data);
 
 	struct DBSetupTableInfo {
-		const char            *name;
-		size_t                 numColumns;
-		const ColumnDef       *columnDefs;
-		CreateTableInitializer initializer;
-		void                  *initializerData;
+		const DBAgent::TableProfile *profile;
+		CreateTableInitializer       initializer;
+		void                        *initializerData;
 	};
 
 	struct DBSetupFuncArg {
@@ -98,8 +96,7 @@ protected:
 	static void setConnectInfo(DBDomainId domainId,
 	                           const DBConnectInfo &connectInfo);
 	static void createTable
-	  (DBAgent *dbAgent, const std::string &tableName, size_t numColumns,
-	   const ColumnDef *columnDefs,
+	  (DBAgent *dbAgent, const DBAgent::TableProfile &tableProfile,
 	   CreateTableInitializer initializer = NULL, void *data = NULL);
 	static void insertDBClientVersion(DBAgent *dbAgent,
 	                                  const DBSetupFuncArg *setupFuncArg);
@@ -133,18 +130,18 @@ protected:
 	void rollback(void);
 	void commit(void);
 
-	void insert(DBAgentInsertArg &insertArg);
-	void update(DBAgentUpdateArg &updateArg);
-	void select(DBAgentSelectArg &selectArg);
-	void select(DBAgentSelectExArg &selectExArg);
-	void deleteRows(DBAgentDeleteArg &deleteArg);
-	void addColumns(DBAgentAddColumnsArg &addColumnsArg);
+	void insert(const DBAgent::InsertArg &insertArg);
+	void update(const DBAgent::UpdateArg &updateArg);
+	void select(const DBAgent::SelectArg &selectArg);
+	void select(const DBAgent::SelectExArg &selectExArg);
+	void deleteRows(const DBAgent::DeleteArg &deleteArg);
+	void addColumns(const DBAgent::AddColumnsArg &addColumnsArg);
 	bool isRecordExisting(const std::string &tableName,
 	                      const std::string &condition);
 	uint64_t getLastInsertId(void);
 	bool updateIfExistElseInsert(
-	  const ItemGroup *itemGroup, const std::string &tableName,
-	  size_t numColumns, const ColumnDef *columnDefs, size_t targetIndex);
+	  const ItemGroup *itemGroup, const DBAgent::TableProfile &tableProfile,
+	  size_t targetIndex);
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;

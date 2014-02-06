@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -44,6 +44,60 @@ class ItemGroup : public UsedCountable {
 public:
 	ItemGroup(void);
 	void add(const ItemData *data, bool doRef = true);
+
+	/**
+	 * Create an ItemData family instance and append it to this group.
+	 *
+	 * @param data     An initial data.
+	 * @param nullFlag A null flag of the created item.
+	 *
+	 * @return A pointer of the created ItemData instance.
+	 */
+	ItemData *addNewItem(
+	  const int &data,
+	  const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL);
+
+	ItemData *addNewItem(
+	  const uint64_t &data,
+	  const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL);
+
+	ItemData *addNewItem(
+	  const double &data,
+	  const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL);
+
+	ItemData *addNewItem(
+	  const std::string &data,
+	  const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL);
+
+	ItemData *addNewItem(
+	  const time_t &data,
+	  const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL);
+
+	/**
+	 * Create an ItemData family instance and append it to this group.
+	 *
+	 * @param itemId   An item Id of the created instance.
+	 * @param data     An initial data.
+	 * @param nullFlag A null flag of the created item.
+	 *
+	 * @return A pointer of the created ItemData instance.
+	 */
+	ItemData *addNewItem(
+	  const ItemId &itemId, const int &data,
+	  const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL);
+
+	ItemData *addNewItem(
+	  const ItemId &itemId, const uint64_t &data,
+	  const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL);
+
+	ItemData *addNewItem(
+	  const ItemId &itemId, const double &data,
+	  const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL);
+
+	ItemData *addNewItem(
+	  const ItemId &itemId, const std::string &data,
+	  const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL);
+
 	const ItemData *getItem(ItemId itemId) const;
 	ItemDataVector getItems(ItemId itemId) const;
 	const ItemData *getItemAt(size_t index) const;
@@ -61,6 +115,15 @@ private:
 	const ItemGroupType *m_groupType;
 	ItemDataMultimap     m_itemMap;
 	ItemDataVector       m_itemVector;
+
+	template<typename NATIVE_TYPE, typename ITEM_TYPE>
+	ItemData *addNewItemTempl(
+	  const NATIVE_TYPE &data, const ItemDataNullFlagType &nullFlag);
+
+	template<typename NATIVE_TYPE, typename ITEM_TYPE>
+	ItemData *addNewItemTempl(
+	  const ItemId &itemId, const NATIVE_TYPE &data,
+	  const ItemDataNullFlagType &nullFlag);
 };
 
 #endif  // ItemGroup_h

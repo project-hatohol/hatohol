@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -22,6 +22,7 @@
 #include "DBAgentMySQL.h"
 #include "Utils.h"
 #include "UnifiedDataStore.h"
+#include "ItemGroupStream.h"
 using namespace std;
 using namespace mlpl;
 
@@ -89,15 +90,16 @@ static const ColumnDef COLUMN_DEF_SERVICES[] = {
 },
 };
 
-static const size_t NUM_COLUMNS_SERVICES =
-  sizeof(COLUMN_DEF_SERVICES) / sizeof(ColumnDef);
-
 enum {
 	IDX_SERVICES_SERVICE_ID,
 	IDX_SERVICES_HOST_OBJECT_ID,
 	IDX_SERVICES_SERVICE_OBJECT_ID,
 	NUM_IDX_SERVICES,
 };
+
+static const DBAgent::TableProfile tableProfileServices(
+  TABLE_NAME_SERVICES, COLUMN_DEF_SERVICES,
+  sizeof(COLUMN_DEF_SERVICES), NUM_IDX_SERVICES);
 
 // Definitions: nagios_servicestatus
 static const ColumnDef COLUMN_DEF_SERVICESTATUS[] = {
@@ -159,9 +161,6 @@ static const ColumnDef COLUMN_DEF_SERVICESTATUS[] = {
 },
 };
 
-static const size_t NUM_COLUMNS_SERVICESTATUS =
-  sizeof(COLUMN_DEF_SERVICESTATUS) / sizeof(ColumnDef);
-
 enum {
 	IDX_SERVICESTATUS_SERVICE_OBJECT_ID,
 	IDX_SERVICESTATUS_STATUS_UPDATE_TIME,
@@ -170,6 +169,10 @@ enum {
 	IDX_SERVICESTATUS_CHECK_COMMAND,
 	NUM_IDX_SERVICESTATUS,
 };
+
+static const DBAgent::TableProfile tableProfileServiceStatus(
+  TABLE_NAME_SERVICESTATUS, COLUMN_DEF_SERVICESTATUS,
+  sizeof(COLUMN_DEF_SERVICESTATUS), NUM_IDX_SERVICESTATUS);
 
 // Definitions: nagios_hosts
 static const ColumnDef COLUMN_DEF_HOSTS[] = {
@@ -209,15 +212,16 @@ static const ColumnDef COLUMN_DEF_HOSTS[] = {
 },
 };
 
-static const size_t NUM_COLUMNS_HOSTS =
-  sizeof(COLUMN_DEF_HOSTS) / sizeof(ColumnDef);
-
 enum {
 	IDX_HOSTS_HOST_ID,
 	IDX_HOSTS_HOST_OBJECT_ID,
 	IDX_HOSTS_DISPLAY_NAME,
 	NUM_IDX_HOSTS,
 };
+
+static const DBAgent::TableProfile tableProfileHosts(
+  TABLE_NAME_HOSTS, COLUMN_DEF_HOSTS,
+  sizeof(COLUMN_DEF_HOSTS), NUM_IDX_HOSTS);
 
 // Definitions: nagios_statehistory
 static const ColumnDef COLUMN_DEF_STATEHISTORY[] = {
@@ -290,9 +294,6 @@ static const ColumnDef COLUMN_DEF_STATEHISTORY[] = {
 },
 };
 
-static const size_t NUM_COLUMNS_STATEHISTORY =
-  sizeof(COLUMN_DEF_STATEHISTORY) / sizeof(ColumnDef);
-
 enum {
 	IDX_STATEHISTORY_STATEHISTORY_ID,
 	IDX_STATEHISTORY_STATE_TIME,
@@ -303,24 +304,59 @@ enum {
 	NUM_IDX_STATEHISTORY,
 };
 
+static const DBAgent::TableProfile tableProfileStateHistory(
+  TABLE_NAME_STATEHISTORY, COLUMN_DEF_STATEHISTORY,
+  sizeof(COLUMN_DEF_STATEHISTORY), NUM_IDX_STATEHISTORY);
+
 // ---------------------------------------------------------------------------
 // Private context
 // ---------------------------------------------------------------------------
+static const char *VAR_SERVICES     = "sv";
+static const char *VAR_STATUS       = "st";
+static const char *VAR_HOSTS        = "h";
+static const char *VAR_STATEHISTORY = "sh";
+
+static const DBAgent::NamedTable namedTablesTrig[] = {
+  {&tableProfileServices,      VAR_SERVICES}, 
+  {&tableProfileServiceStatus, VAR_STATUS}, 
+  {&tableProfileHosts,         VAR_HOSTS}, 
+};
+static const size_t numNamedTablesTrig =
+  sizeof(namedTablesTrig) / sizeof(DBAgent::NamedTable);
+
+static const DBAgent::NamedTable namedTablesEvent[] = {
+  {&tableProfileStateHistory, VAR_STATEHISTORY},
+  {&tableProfileServices,     VAR_SERVICES},
+  {&tableProfileHosts,        VAR_HOSTS}, 
+};
+static const size_t numNamedTablesEvent =
+  sizeof(namedTablesEvent) / sizeof(DBAgent::NamedTable);
+
+static const DBAgent::NamedTable namedTablesItem[] = {
+  {&tableProfileServices,      VAR_SERVICES},
+  {&tableProfileServiceStatus, VAR_STATUS}, 
+};
+static const size_t numNamedTablesItem =
+  sizeof(namedTablesItem) / sizeof(DBAgent::NamedTable);
+
 struct ArmNagiosNDOUtils::PrivateContext
 {
 	DBAgentMySQL   *dbAgent;
 	DBClientHatohol dbHatohol;
-	DBAgentSelectExArg selectTriggerArg;
-	string             selectTriggerBaseCondition;
-	DBAgentSelectExArg selectEventArg;
-	string             selectEventBaseCondition;
-	DBAgentSelectExArg selectItemArg;
-	UnifiedDataStore *dataStore;
+	DBAgent::SelectMultiTableArg selectTriggerArg;
+	DBAgent::SelectMultiTableArg selectEventArg;
+	DBAgent::SelectMultiTableArg selectItemArg;
+	string               selectTriggerBaseCondition;
+	string               selectEventBaseCondition;
+	UnifiedDataStore    *dataStore;
 	MonitoringServerInfo serverInfo;
 
 	// methods
 	PrivateContext(const MonitoringServerInfo &_serverInfo)
 	: dbAgent(NULL),
+	  selectTriggerArg(namedTablesTrig, numNamedTablesTrig),
+	  selectEventArg(namedTablesEvent, numNamedTablesEvent),
+	  selectItemArg(namedTablesItem, numNamedTablesItem),
 	  dataStore(NULL),
 	  serverInfo(_serverInfo)
 	{
@@ -339,7 +375,7 @@ struct ArmNagiosNDOUtils::PrivateContext
 		dbAgent = new DBAgentMySQL(
 		  serverInfo.dbName.c_str(), serverInfo.userName.c_str(),
 		  serverInfo.password.c_str(),
-		  serverInfo.getHostAddress(), serverInfo.port);
+		  serverInfo.getHostAddress().c_str(), serverInfo.port);
 	}
 };
 
@@ -378,195 +414,125 @@ ArmNagiosNDOUtils::~ArmNagiosNDOUtils()
 // ---------------------------------------------------------------------------
 void ArmNagiosNDOUtils::makeSelectTriggerArg(void)
 {
-	const static char *VAR_SERVICES = "sv";
-	const static char *VAR_STATUS   = "st";
-	const static char *VAR_HOSTS    = "h";
+	enum {
+		TBLIDX_SERVICES,
+		TBLIDX_STATUS,
+		TBLIDX_HOSTS,
+	};
 
-	// table name
-	const ColumnDef &columnDefServicesServiceObjectId = 
-	  COLUMN_DEF_SERVICES[IDX_SERVICES_SERVICE_OBJECT_ID];
-	const ColumnDef &columnDefServicesHostObjectId = 
-	  COLUMN_DEF_SERVICES[IDX_SERVICES_HOST_OBJECT_ID];
-	const ColumnDef &columnDefStatusServiceObjectId = 
-	  COLUMN_DEF_SERVICESTATUS[IDX_SERVICESTATUS_SERVICE_OBJECT_ID];
-	const ColumnDef &columnDefHostsHostObjectId = 
-	  COLUMN_DEF_HOSTS[IDX_HOSTS_HOST_OBJECT_ID];
-	m_ctx->selectTriggerArg.tableName =
+	DBAgent::SelectMultiTableArg &arg = m_ctx->selectTriggerArg;
+	arg.tableField = 
 	  StringUtils::sprintf(
 	    "%s %s "
-	    "inner join %s %s on %s.%s=%s.%s "
-	    "inner join %s %s on %s.%s=%s.%s",
+	    "inner join %s %s on %s=%s "
+	    "inner join %s %s on %s=%s",
 	    TABLE_NAME_SERVICES,      VAR_SERVICES,
 	    TABLE_NAME_SERVICESTATUS, VAR_STATUS,
-	    VAR_SERVICES, columnDefServicesServiceObjectId.columnName,
-	    VAR_STATUS,   columnDefStatusServiceObjectId.columnName,
+	    arg.getFullName(TBLIDX_SERVICES,
+                            IDX_SERVICES_SERVICE_OBJECT_ID).c_str(),
+	    arg.getFullName(TBLIDX_STATUS,
+                            IDX_SERVICESTATUS_SERVICE_OBJECT_ID).c_str(),
 	    TABLE_NAME_HOSTS,         VAR_HOSTS,
-	    VAR_SERVICES, columnDefServicesHostObjectId.columnName,
-	    VAR_HOSTS,    columnDefHostsHostObjectId.columnName);
+	    arg.getFullName(TBLIDX_SERVICES,
+                            IDX_SERVICES_SERVICE_OBJECT_ID).c_str(),
+	    arg.getFullName(TBLIDX_HOSTS,
+                            IDX_HOSTS_HOST_OBJECT_ID).c_str());
 
-	// statements
-	const ColumnDef &columnDefServicesServiceId = 
-	  COLUMN_DEF_SERVICES[IDX_SERVICES_SERVICE_ID];
-	const ColumnDef &columnDefStatusCurrentState =
-	  COLUMN_DEF_SERVICESTATUS[IDX_SERVICESTATUS_CURRENT_STATE];
-	const ColumnDef &columnDefStatusUpdateTime =
-	  COLUMN_DEF_SERVICESTATUS[IDX_SERVICESTATUS_STATUS_UPDATE_TIME];
-	const ColumnDef &columnDefHostsHostId =
-	  COLUMN_DEF_HOSTS[IDX_HOSTS_HOST_ID];
-	const ColumnDef &columnDefHostsDisplayName =
-	  COLUMN_DEF_HOSTS[IDX_HOSTS_DISPLAY_NAME];
-	const ColumnDef &columnDefStatusOutput = 
-	  COLUMN_DEF_SERVICESTATUS[IDX_SERVICESTATUS_OUTPUT];
+	arg.setTable(TBLIDX_SERVICES);
+	arg.add(IDX_SERVICES_SERVICE_ID);
 
-	// service_id
-	m_ctx->selectTriggerArg.pushColumn(columnDefServicesServiceId,
-	                                   VAR_SERVICES);
-	// current_status
-	m_ctx->selectTriggerArg.pushColumn(columnDefStatusCurrentState,
-	                                   VAR_STATUS);
-	// status_update_time
-	m_ctx->selectTriggerArg.pushColumn(columnDefStatusUpdateTime,
-	                                   VAR_STATUS);
-	// host_id
-	m_ctx->selectTriggerArg.pushColumn(columnDefHostsHostId,
-	                                   VAR_HOSTS);
-	// hosts.display_name 
-	m_ctx->selectTriggerArg.pushColumn(columnDefHostsDisplayName,
-	                                   VAR_HOSTS);
-	// output
-	m_ctx->selectTriggerArg.pushColumn(columnDefStatusOutput,
-	                                   VAR_STATUS);
+	arg.setTable(TBLIDX_STATUS);
+	arg.add(IDX_SERVICESTATUS_CURRENT_STATE);
+	arg.add(IDX_SERVICESTATUS_STATUS_UPDATE_TIME);
+
+	arg.setTable(TBLIDX_HOSTS);
+	arg.add(IDX_HOSTS_HOST_ID);
+	arg.add(IDX_HOSTS_DISPLAY_NAME);
+
+	arg.setTable(TBLIDX_STATUS);
+	arg.add(IDX_SERVICESTATUS_OUTPUT);
 
 	// contiditon
 	m_ctx->selectTriggerBaseCondition = StringUtils::sprintf(
-	  "%s.%s>=", VAR_STATUS, columnDefStatusUpdateTime.columnName);
+	  "%s>=",
+	  arg.getFullName(TBLIDX_STATUS,
+	                  IDX_SERVICESTATUS_STATUS_UPDATE_TIME).c_str());
 }
 
 void ArmNagiosNDOUtils::makeSelectEventArg(void)
 {
-	const static char *VAR_STATEHISTORY = "sh";
-	const static char *VAR_SERVICES     = "sv";
-	const static char *VAR_HOSTS        = "h";
+	enum {
+		TBLIDX_HISTORY,
+		TBLIDX_SERVICES,
+		TBLIDX_HOSTS,
+	};
 
-	// table name
-	const ColumnDef &columnDefStateHistoryObjectId = 
-	  COLUMN_DEF_STATEHISTORY[IDX_STATEHISTORY_OBJECT_ID];
-	const ColumnDef &columnDefServicesServiceObjectId = 
-	  COLUMN_DEF_SERVICES[IDX_SERVICES_SERVICE_OBJECT_ID];
-	const ColumnDef &columnDefServicesHostObjectId = 
-	  COLUMN_DEF_SERVICES[IDX_SERVICES_HOST_OBJECT_ID];
-	const ColumnDef &columnDefHostsHostObjectId = 
-	  COLUMN_DEF_HOSTS[IDX_HOSTS_HOST_OBJECT_ID];
-	m_ctx->selectEventArg.tableName =
+	DBAgent::SelectMultiTableArg &arg = m_ctx->selectEventArg;
+	arg.tableField = 
 	  StringUtils::sprintf(
 	    "%s %s "
-	    "inner join %s %s on %s.%s=%s.%s "
-	    "inner join %s %s on %s.%s=%s.%s",
+	    "inner join %s %s on %s=%s "
+	    "inner join %s %s on %s=%s",
 	    TABLE_NAME_STATEHISTORY,  VAR_STATEHISTORY,
 	    TABLE_NAME_SERVICES,      VAR_SERVICES,
-	    VAR_STATEHISTORY, columnDefStateHistoryObjectId.columnName,
-	    VAR_SERVICES,     columnDefServicesServiceObjectId.columnName,
+	    arg.getFullName(TBLIDX_HISTORY, IDX_STATEHISTORY_OBJECT_ID).c_str(),
+	    arg.getFullName(TBLIDX_SERVICES,
+	                    IDX_SERVICES_SERVICE_OBJECT_ID).c_str(),
 	    TABLE_NAME_HOSTS,         VAR_HOSTS,
-	    VAR_SERVICES,     columnDefServicesHostObjectId.columnName,
-	    VAR_HOSTS,        columnDefHostsHostObjectId.columnName);
+	    arg.getFullName(TBLIDX_SERVICES,
+	                    IDX_SERVICES_SERVICE_OBJECT_ID).c_str(),
+	    arg.getFullName(TBLIDX_HOSTS, IDX_HOSTS_HOST_OBJECT_ID).c_str());
 
-	// statements
-	const ColumnDef &columnDefStateHistoryStateHistoryId =
-	  COLUMN_DEF_STATEHISTORY[IDX_STATEHISTORY_STATEHISTORY_ID];
-	const ColumnDef &columnDefStateHistoryState =
-	  COLUMN_DEF_STATEHISTORY[IDX_STATEHISTORY_STATE];
-	const ColumnDef &columnDefStateHistoryStateTime =
-	  COLUMN_DEF_STATEHISTORY[IDX_STATEHISTORY_STATE_TIME];
+	arg.setTable(TBLIDX_HISTORY);
+	arg.add(IDX_STATEHISTORY_STATEHISTORY_ID);
+	arg.add(IDX_STATEHISTORY_STATE);
+	arg.add(IDX_STATEHISTORY_STATE_TIME);
 
-	const ColumnDef &columnDefServicesServiceId =
-	  COLUMN_DEF_SERVICES[IDX_SERVICES_SERVICE_ID];
-	const ColumnDef &columnDefHostsHostId =
-	  COLUMN_DEF_HOSTS[IDX_HOSTS_HOST_ID];
-	const ColumnDef &columnDefHostsDisplayName =
-	  COLUMN_DEF_HOSTS[IDX_HOSTS_DISPLAY_NAME];
+	arg.setTable(TBLIDX_SERVICES);
+	arg.add(IDX_SERVICES_SERVICE_ID);
 
-	const ColumnDef &columnDefStateHistoryOutput = 
-	  COLUMN_DEF_STATEHISTORY[IDX_STATEHISTORY_OUTPUT];
-	const ColumnDef &columnDefStateHistoryStateType = 
-	  COLUMN_DEF_STATEHISTORY[IDX_STATEHISTORY_STATE_TYPE];
+	arg.setTable(TBLIDX_HOSTS);
+	arg.setTable(IDX_HOSTS_HOST_ID);
+	arg.setTable(IDX_HOSTS_DISPLAY_NAME);
 
-	// statehistory_id
-	m_ctx->selectEventArg.pushColumn(columnDefStateHistoryStateHistoryId,
-	                                 VAR_STATEHISTORY);
-	// state
-	m_ctx->selectEventArg.pushColumn(columnDefStateHistoryState,
-	                                 VAR_STATEHISTORY);
-	// state time
-	m_ctx->selectEventArg.pushColumn(columnDefStateHistoryStateTime,
-	                                 VAR_STATEHISTORY);
-
-	// sevice id
-	m_ctx->selectEventArg.pushColumn(columnDefServicesServiceId,
-	                                 VAR_SERVICES);
-	// host_id
-	m_ctx->selectEventArg.pushColumn(columnDefHostsHostId,
-	                                 VAR_HOSTS);
-	// hosts.display_name 
-	m_ctx->selectEventArg.pushColumn(columnDefHostsDisplayName,
-	                                 VAR_HOSTS);
-	// output
-	m_ctx->selectEventArg.pushColumn(columnDefStateHistoryOutput,
-	                                 VAR_STATEHISTORY);
+	arg.setTable(TBLIDX_HISTORY);
+	arg.add(IDX_STATEHISTORY_OUTPUT);
 
 	// contiditon
 	m_ctx->selectEventBaseCondition = StringUtils::sprintf(
-	  "%s.%s=%d and %s.%s>=",
-	  VAR_STATEHISTORY, columnDefStateHistoryStateType.columnName,
+	  "%s=%d and %s>=",
+	  arg.getFullName(TBLIDX_HISTORY, IDX_STATEHISTORY_STATE_TYPE).c_str(),
 	  HARD_STATE,
-	  VAR_STATEHISTORY, columnDefStateHistoryStateHistoryId.columnName);
+	  arg.getFullName(TBLIDX_HISTORY,
+	                  IDX_STATEHISTORY_STATEHISTORY_ID).c_str());
 }
 
 void ArmNagiosNDOUtils::makeSelectItemArg(void)
 {
-	const static char *VAR_SERVICES = "sv";
-	const static char *VAR_STATUS   = "st";
+	enum {
+		TBLIDX_SERVICES,
+		TBLIDX_STATUS,
+	};
 
-	// table name
-	const ColumnDef &columnDefServicesServiceObjectId = 
-	  COLUMN_DEF_SERVICES[IDX_SERVICES_SERVICE_OBJECT_ID];
-	const ColumnDef &columnDefStatusServiceObjectId = 
-	  COLUMN_DEF_SERVICESTATUS[IDX_SERVICESTATUS_SERVICE_OBJECT_ID];
-	m_ctx->selectItemArg.tableName =
+	DBAgent::SelectMultiTableArg &arg = m_ctx->selectItemArg;
+	arg.tableField =
 	  StringUtils::sprintf(
-	    "%s %s "
-	    "inner join %s %s on %s.%s=%s.%s",
+	    "%s %s inner join %s %s on %s=%s",
 	    TABLE_NAME_SERVICES,      VAR_SERVICES,
 	    TABLE_NAME_SERVICESTATUS, VAR_STATUS,
-	    VAR_SERVICES, columnDefServicesServiceObjectId.columnName,
-	    VAR_STATUS,   columnDefStatusServiceObjectId.columnName);
+	    arg.getFullName(TBLIDX_SERVICES,
+	                    IDX_SERVICES_SERVICE_OBJECT_ID).c_str(),
+	    arg.getFullName(TBLIDX_STATUS,
+	                    IDX_SERVICESTATUS_SERVICE_OBJECT_ID).c_str());
 
-	// statements
-	const ColumnDef &columnDefServicesServiceId = 
-	  COLUMN_DEF_SERVICES[IDX_SERVICES_SERVICE_ID];
-	const ColumnDef &columnDefServicesHostObjectId = 
-	  COLUMN_DEF_SERVICES[IDX_SERVICES_HOST_OBJECT_ID];
-	const ColumnDef &columnDefStatusCheckCommand =
-	  COLUMN_DEF_SERVICESTATUS[IDX_SERVICESTATUS_CHECK_COMMAND];
-	const ColumnDef &columnDefStatusOutput = 
-	  COLUMN_DEF_SERVICESTATUS[IDX_SERVICESTATUS_OUTPUT];
-	const ColumnDef &columnDefStatusUpdateTime =
-	  COLUMN_DEF_SERVICESTATUS[IDX_SERVICESTATUS_STATUS_UPDATE_TIME];
+	arg.setTable(TBLIDX_SERVICES);
+	arg.add(IDX_SERVICES_SERVICE_ID);
+	arg.add(IDX_SERVICES_HOST_OBJECT_ID);
 
-	// service_id
-	m_ctx->selectItemArg.pushColumn(columnDefServicesServiceId,
-	                                VAR_SERVICES);
-	// host_id
-	m_ctx->selectItemArg.pushColumn(columnDefServicesHostObjectId,
-	                                VAR_SERVICES);
-	// check_command
-	m_ctx->selectItemArg.pushColumn(columnDefStatusCheckCommand,
-	                                VAR_STATUS);
-	// status_update_time
-	m_ctx->selectItemArg.pushColumn(columnDefStatusUpdateTime,
-	                                VAR_STATUS);
-	// output
-	m_ctx->selectItemArg.pushColumn(columnDefStatusOutput,
-	                                VAR_STATUS);
+	arg.setTable(TBLIDX_STATUS);
+	arg.add(IDX_SERVICESTATUS_CHECK_COMMAND);
+	arg.add(IDX_SERVICESTATUS_STATUS_UPDATE_TIME);
+	arg.add(IDX_SERVICESTATUS_OUTPUT);
 }
 
 void ArmNagiosNDOUtils::addConditionForTriggerQuery(void)
@@ -611,24 +577,19 @@ void ArmNagiosNDOUtils::getTrigger(void)
 	TriggerInfoList triggerInfoList;
 	const ItemGroupList &grpList =
 	  m_ctx->selectTriggerArg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator it = grpList.begin();
-	for (; it != grpList.end(); ++it) {
-		int idx = 0;
-		const ItemGroup *itemGroup = *it;
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		int currentStatus;
+		ItemGroupStream itemGroupStream(*itemGrpItr);
 		TriggerInfo trigInfo;
-
-		// serverId
 		trigInfo.serverId = svInfo.id;
+		trigInfo.lastChangeTime.tv_nsec = 0;
 
-		// id (service_id)
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemId);
-		trigInfo.id = itemId->get();
+		itemGroupStream >> trigInfo.id;      // service_id
 
+		// TODO: severity should not depend on the status.
 		// status and severity (current_status)
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemStatus);
-		int currentStatus = itemStatus->get();
+		itemGroupStream >> currentStatus;
 		trigInfo.status = TRIGGER_STATUS_OK;
 		trigInfo.severity = TRIGGER_SEVERITY_INFO;
 		if (currentStatus != STATE_OK) {
@@ -641,27 +602,11 @@ void ArmNagiosNDOUtils::getTrigger(void)
 				trigInfo.severity = TRIGGER_SEVERITY_UNKNOWN;
 		}
 
-		// lastChangeTime (status_update_time)
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemLastchange);
-		trigInfo.lastChangeTime.tv_sec = itemLastchange->get();
-		trigInfo.lastChangeTime.tv_nsec = 0;
-
-		// hostId (host_id)
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemHostid);
-		trigInfo.hostId = itemHostid->get();
-
-		// hostName (hosts.display_name)
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemString, itemHostName);
-		trigInfo.hostName = itemHostName->get();
-
-		// brief (output)
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemString, itemDescription);
-		trigInfo.brief = itemDescription->get();
-
+		itemGroupStream >> trigInfo.lastChangeTime.tv_sec;
+		                                      //status_update_time
+		itemGroupStream >> trigInfo.hostId;   // host_id
+		itemGroupStream >> trigInfo.hostName; // hosts.display_name
+		itemGroupStream >> trigInfo.brief;    // output
 		triggerInfoList.push_back(trigInfo);
 	}
 	m_ctx->dbHatohol.addTriggerInfoList(triggerInfoList);
@@ -682,24 +627,17 @@ void ArmNagiosNDOUtils::getEvent(void)
 	EventInfoList eventInfoList;
 	const ItemGroupList &grpList =
 	  m_ctx->selectEventArg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator it = grpList.begin();
-	for (; it != grpList.end(); ++it) {
-		int idx = 0;
-		const ItemGroup *itemGroup = *it;
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		int state;
+		ItemGroupStream itemGroupStream(*itemGrpItr);
 		EventInfo eventInfo;
-
-		// serverId
 		eventInfo.serverId = svInfo.id;
+		eventInfo.time.tv_nsec = 0;
 
-		// id (statehistory_id)
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemId);
-		eventInfo.id = itemId->get();
-
+		itemGroupStream >> eventInfo.id; // statehistory_id
 		// type, status, and severity (state)
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemState);
-		int state = itemState->get();
+		itemGroupStream >> state;
 		if (state == STATE_OK) {
 			eventInfo.type = EVENT_TYPE_GOOD;
 			eventInfo.status = TRIGGER_STATUS_OK,
@@ -714,33 +652,11 @@ void ArmNagiosNDOUtils::getEvent(void)
 			else
 				eventInfo.severity = TRIGGER_SEVERITY_UNKNOWN;
 		}
-
-		// time (state_time)
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemStateTime);
-		eventInfo.time.tv_sec = itemStateTime->get();
-		eventInfo.time.tv_nsec = 0;
-
-		// trigger id (service_id)
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemServiceId);
-		eventInfo.triggerId = itemServiceId->get();
-
-		// hostId (host_id)
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemHostid);
-		eventInfo.hostId = itemHostid->get();
-
-		// hostName (hosts.display_name)
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemString, itemHostName);
-		eventInfo.hostName = itemHostName->get();
-
-		// brief (output)
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemString, itemDescription);
-		eventInfo.brief = itemDescription->get();
-
+		itemGroupStream >> eventInfo.time.tv_sec; // state_time
+		itemGroupStream >> eventInfo.triggerId;   // service_id
+		itemGroupStream >> eventInfo.hostId;      // host_id
+		itemGroupStream >> eventInfo.hostName;    // hosts.display_name
+		itemGroupStream >> eventInfo.brief;       // output
 		eventInfoList.push_back(eventInfo);
 	}
 	m_ctx->dataStore->addEventList(eventInfoList);
@@ -758,45 +674,22 @@ void ArmNagiosNDOUtils::getItem(void)
 	ItemInfoList itemInfoList;
 	const ItemGroupList &grpList =
 	  m_ctx->selectItemArg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator it = grpList.begin();
-	for (; it != grpList.end(); ++it) {
-		int idx = 0;
-		const ItemGroup *itemGroup = *it;
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
+
 		ItemInfo itemInfo;
-
-		// serverId
 		itemInfo.serverId = svInfo.id;
-
-		// id (service_id)
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemId);
-		itemInfo.id = itemId->get();
-
-		// host Id (host_id)
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemHostid);
-		itemInfo.hostId = itemHostid->get();
-
-		// brief (check_command)
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemString, itemCheckCmd);
-		itemInfo.brief = itemCheckCmd->get();
-
-		// lastChangeTime (status_update_time)
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemUpdateTime);
-		itemInfo.lastValueTime.tv_sec = itemUpdateTime->get();
 		itemInfo.lastValueTime.tv_nsec = 0;
-
-		// last_value (last_value)
-		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemString, itemOutput);
-		itemInfo.lastValue = itemOutput->get();
-
-		// prev_value (Not available)
 		itemInfo.prevValue = "N/A";
 
-		// itemGroupName
+		itemGroupStream >> itemInfo.id;        // service_id
+		itemGroupStream >> itemInfo.hostId;    // host_id
+		itemGroupStream >> itemInfo.brief;     // check_command
+		itemGroupStream >> itemInfo.lastValueTime.tv_sec;
+		                                       // status_update_time
+		itemGroupStream >> itemInfo.lastValue; // last_value
+
 		// TODO: We will take into account 'servicegroup' table.
 		itemInfo.itemGroupName = "No group";
 

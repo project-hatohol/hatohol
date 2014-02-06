@@ -24,6 +24,7 @@
 #include "DBClient.h"
 #include "DataQueryOption.h"
 #include "DBClientUser.h"
+#include "ItemGroupStream.h"
 
 enum TriggerStatusType {
 	TRIGGER_STATUS_OK,
@@ -128,10 +129,10 @@ typedef ItemInfoList::iterator       ItemInfoListIterator;
 typedef ItemInfoList::const_iterator ItemInfoListConstIterator;
 
 struct HostgroupInfo {
-	uint32_t            id;
+	int                 id;
 	ServerIdType        serverId;
 	uint64_t            groupId;
-	std::string              groupName;
+	std::string         groupName;
 };
 
 typedef std::list<HostgroupInfo>               HostgroupInfoList;
@@ -139,8 +140,8 @@ typedef HostgroupInfoList::iterator       HostgroupInfoListIterator;
 typedef HostgroupInfoList::const_iterator HostgroupInfoListConstIterator;
 
 struct HostgroupElement {
-	uint32_t            id;
-	ServerIdType            serverId;
+	int                 id;
+	ServerIdType        serverId;
 	uint64_t            hostId;
 	uint64_t            groupId;
 };
@@ -342,12 +343,13 @@ public:
 	                         const std::vector<uint64_t> &hostIdVector);
 
 protected:
-	void addTriggerInfoBare(const TriggerInfo &triggerInfo);
-	void addEventInfoBare(const EventInfo &eventInfo);
-	void addItemInfoBare(const ItemInfo &itemInfo);
-	void addHostgroupInfoBare(const HostgroupInfo &groupInfo);
-	void addHostgroupElementBare(const HostgroupElement &hostgroupElement);
-	void addHostInfoBare(const HostInfo &hostInfo);
+	void addTriggerInfoWithoutTransaction(const TriggerInfo &triggerInfo);
+	void addEventInfoWithoutTransaction(const EventInfo &eventInfo);
+	void addItemInfoWithoutTransaction(const ItemInfo &itemInfo);
+	void addHostgroupInfoWithoutTransaction(const HostgroupInfo &groupInfo);
+	void addHostgroupElementWithoutTransaction(
+	  const HostgroupElement &hostgroupElement);
+	void addHostInfoWithoutTransaction(const HostInfo &hostInfo);
 
 	void getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	                        const std::string &condition);
@@ -356,5 +358,9 @@ private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
 };
+
+void operator>>(ItemGroupStream &itemGroupStream, TriggerStatusType &rhs);
+void operator>>(ItemGroupStream &itemGroupStream, TriggerSeverityType &rhs);
+void operator>>(ItemGroupStream &itemGroupStream, EventType &rhs);
 
 #endif // DBClientHatohol_h

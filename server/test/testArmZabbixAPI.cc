@@ -678,13 +678,13 @@ void test_oneProcWithFetchItems()
 	cppcut_assert_equal(false, itemInfoList.empty());
 }
 
-void test_makeItemVecotr(void)
+void test_makeItemVector(void)
 {
 	ArmZabbixAPITestee armZbxApiTestee(g_defaultServerInfo);
 	armZbxApiTestee.assertMakeItemVector();
 }
 
-void test_makeItemVecotrWithNullValue(void)
+void test_makeItemVectorWithNullValue(void)
 {
 	ArmZabbixAPITestee armZbxApiTestee(g_defaultServerInfo);
 	armZbxApiTestee.assertMakeItemVector(true);

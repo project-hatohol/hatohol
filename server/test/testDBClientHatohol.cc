@@ -545,7 +545,7 @@ static string makeExpectedConditionForUser(UserIdType userId)
 static string makeHostgroupsOutput(const HostgroupInfo &hostgroupInfo, size_t id)
 {
 	string expectedOut = StringUtils::sprintf(
-	  "%"PRIu64"|%"FMT_SERVER_ID"|%"FMT_HOST_GROUP_ID"|%s\n",
+	  "%zd|%"FMT_SERVER_ID"|%"FMT_HOST_GROUP_ID"|%s\n",
 	  id + 1, hostgroupInfo.serverId,
 	  hostgroupInfo.groupId, hostgroupInfo.groupName.c_str());
 
@@ -556,7 +556,7 @@ static string makeMapHostsHostgroupsOutput
   (const HostgroupElement &hostgroupElement, size_t id)
 {
 	string expectedOut = StringUtils::sprintf(
-	  "%"PRIu64"|%"FMT_SERVER_ID"|%"FMT_HOST_ID"|%"FMT_HOST_GROUP_ID"\n",
+	  "%zd|%"FMT_SERVER_ID"|%"FMT_HOST_ID"|%"FMT_HOST_GROUP_ID"\n",
 	  id + 1, hostgroupElement.serverId,
 	  hostgroupElement.hostId, hostgroupElement.groupId);
 
@@ -566,7 +566,7 @@ static string makeMapHostsHostgroupsOutput
 static string makeHostsOutput(const HostInfo &hostInfo, size_t id)
 {
 	string expectedOut = StringUtils::sprintf(
-	  "%"PRIu64"|%"FMT_SERVER_ID"|%"FMT_HOST_ID"|%s\n",
+	  "%zd|%"FMT_SERVER_ID"|%"FMT_HOST_ID"|%s\n",
 	  id + 1, hostInfo.serverId, hostInfo.id, hostInfo.hostName.c_str());
 
 	return expectedOut;

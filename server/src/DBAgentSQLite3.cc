@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -235,37 +235,37 @@ void DBAgentSQLite3::rollback(void)
 	_execSql(m_ctx->db, "ROLLBACK");
 }
 
-void DBAgentSQLite3::createTable(DBAgentTableCreationArg &tableCreationArg)
+void DBAgentSQLite3::createTable(const TableProfile &tableProfile)
 {
 	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
-	createTable(m_ctx->db,tableCreationArg);
+	createTable(m_ctx->db, tableProfile);
 }
 
-void DBAgentSQLite3::insert(DBAgentInsertArg &insertArg)
+void DBAgentSQLite3::insert(const DBAgent::InsertArg &insertArg)
 {
 	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
 	insert(m_ctx->db, insertArg);
 }
 
-void DBAgentSQLite3::update(DBAgentUpdateArg &updateArg)
+void DBAgentSQLite3::update(const UpdateArg &updateArg)
 {
 	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
 	update(m_ctx->db, updateArg);
 }
 
-void DBAgentSQLite3::select(DBAgentSelectArg &selectArg)
+void DBAgentSQLite3::select(const SelectArg &selectArg)
 {
 	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
 	select(m_ctx->db, selectArg);
 }
 
-void DBAgentSQLite3::select(DBAgentSelectExArg &selectExArg)
+void DBAgentSQLite3::select(const SelectExArg &selectExArg)
 {
 	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
 	select(m_ctx->db, selectExArg);
 }
 
-void DBAgentSQLite3::deleteRows(DBAgentDeleteArg &deleteArg)
+void DBAgentSQLite3::deleteRows(const DeleteArg &deleteArg)
 {
 	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
 	deleteRows(m_ctx->db, deleteArg);
@@ -405,18 +405,17 @@ bool DBAgentSQLite3::isTableExisting(sqlite3 *db,
 	return count > 0;
 }
 
-void DBAgentSQLite3::createTable(sqlite3 *db,
-                                 DBAgentTableCreationArg &tableCreationArg)
+void DBAgentSQLite3::createTable(sqlite3 *db, const TableProfile &tableProfile)
 {
 	vector<size_t> multipleKeyColumnIndexVector;
 	vector<size_t> uniqueKeyColumnIndexVector;
 
 	// make a SQL statement
 	string sql = "CREATE TABLE ";
-	sql += tableCreationArg.tableName;
+	sql += tableProfile.name;
 	sql += "(";
-	for (size_t i = 0; i < tableCreationArg.numColumns; i++) {
-		const ColumnDef &columnDef = tableCreationArg.columnDefs[i];
+	for (size_t i = 0; i < tableProfile.numColumns; i++) {
+		const ColumnDef &columnDef = tableProfile.columnDefs[i];
 
 		// set type
 		sql += columnDef.columnName;
@@ -460,7 +459,7 @@ void DBAgentSQLite3::createTable(sqlite3 *db,
 			             columnDef.keyType, columnDef.columnName);
 		}
 
-		if (i < tableCreationArg.numColumns - 1)
+		if (i < tableProfile.numColumns - 1)
 			sql += ",";
 	}
 	sql += ")";
@@ -478,36 +477,37 @@ void DBAgentSQLite3::createTable(sqlite3 *db,
 	// add indexes
 	if (!multipleKeyColumnIndexVector.empty()) {
 		bool isUniqueKey = false;
-		string indexName = "mul_index_" + tableCreationArg.tableName;
-		createIndex(db, tableCreationArg.tableName,
-		            tableCreationArg.columnDefs, indexName,
+		string indexName = StringUtils::sprintf("mul_index_%s",
+		                                        tableProfile.name);
+		createIndex(db, tableProfile, indexName,
 		            multipleKeyColumnIndexVector, isUniqueKey);
 	}
 
 	if (!uniqueKeyColumnIndexVector.empty()) {
 		bool isUniqueKey = true;
-		string indexName = "uni_index_" + tableCreationArg.tableName;
-		createIndex(db, tableCreationArg.tableName,
-		            tableCreationArg.columnDefs, indexName,
+		string indexName = StringUtils::sprintf("uni_index_%s",
+		                                        tableProfile.name);
+		createIndex(db, tableProfile, indexName,
 		            uniqueKeyColumnIndexVector, isUniqueKey);
 	}
 }
 
-void DBAgentSQLite3::insert(sqlite3 *db, DBAgentInsertArg &insertArg)
+void DBAgentSQLite3::insert(sqlite3 *db, const DBAgent::InsertArg &insertArg)
 {
 	size_t numColumns = insertArg.row->getNumberOfItems();
-	HATOHOL_ASSERT(numColumns == insertArg.numColumns,
-	             "Invalid number of colums: %zd, %zd",
-	             numColumns, insertArg.numColumns);
+	HATOHOL_ASSERT(numColumns == insertArg.tableProfile.numColumns,
+	               "Invalid number of colums: %zd, %zd",
+	               numColumns, insertArg.tableProfile.numColumns);
 
 	// make a SQL statement
 	string sql = "INSERT INTO ";
-	sql += insertArg.tableName;
+	sql += insertArg.tableProfile.name;
 	sql += " VALUES (";
 	for (size_t i = 0; i < numColumns; i++) {
 		if (i > 0)
 			sql += ",";
-		const ColumnDef &columnDef = insertArg.columnDefs[i];
+		const ColumnDef &columnDef =
+		  insertArg.tableProfile.columnDefs[i];
 		const ItemData *itemData = insertArg.row->getItemAt(i);
 		string valueStr;
 		if (itemData->isNull()) {
@@ -536,7 +536,7 @@ void DBAgentSQLite3::insert(sqlite3 *db, DBAgentInsertArg &insertArg)
 	}
 }
 
-void DBAgentSQLite3::update(sqlite3 *db, DBAgentUpdateArg &updateArg)
+void DBAgentSQLite3::update(sqlite3 *db, const UpdateArg &updateArg)
 {
 	string sql = makeUpdateStatement(updateArg);
 
@@ -551,7 +551,7 @@ void DBAgentSQLite3::update(sqlite3 *db, DBAgentUpdateArg &updateArg)
 	}
 }
 
-void DBAgentSQLite3::select(sqlite3 *db, DBAgentSelectArg &selectArg)
+void DBAgentSQLite3::select(sqlite3 *db, const SelectArg &selectArg)
 {
 	string sql = makeSelectStatement(selectArg);
 
@@ -585,7 +585,7 @@ void DBAgentSQLite3::select(sqlite3 *db, DBAgentSelectArg &selectArg)
 	sqlite3_finalize(stmt);
 }
 
-void DBAgentSQLite3::select(sqlite3 *db, DBAgentSelectExArg &selectExArg)
+void DBAgentSQLite3::select(sqlite3 *db, const SelectExArg &selectExArg)
 {
 	string sql = makeSelectStatement(selectExArg);
 
@@ -635,25 +635,26 @@ void DBAgentSQLite3::select(sqlite3 *db, DBAgentSelectExArg &selectExArg)
 	             numTableRows, numTableColumns, numColumns);
 }
 
-void DBAgentSQLite3::deleteRows(sqlite3 *db, DBAgentDeleteArg &deleteArg)
+void DBAgentSQLite3::deleteRows(sqlite3 *db, const DeleteArg &deleteArg)
 {
 	string sql = makeDeleteStatement(deleteArg);
 	_execSql(db, sql.c_str());
 }
 
-void DBAgentSQLite3::addColumns(DBAgentAddColumnsArg &addColumnsArg)
+void DBAgentSQLite3::addColumns(const AddColumnsArg &addColumnsArg)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 }
 
-void DBAgentSQLite3::selectGetValuesIteration(DBAgentSelectArg &selectArg,
+void DBAgentSQLite3::selectGetValuesIteration(const SelectArg &selectArg,
                                               sqlite3_stmt *stmt,
                                               VariableItemTablePtr &dataTable)
 {
 	VariableItemGroupPtr itemGroup;
 	for (size_t i = 0; i < selectArg.columnIndexes.size(); i++) {
 		size_t idx = selectArg.columnIndexes[i];
-		const ColumnDef &columnDef = selectArg.columnDefs[idx];
+		const ColumnDef &columnDef =
+		  selectArg.tableProfile.columnDefs[idx];
 		itemGroup->add(getValue(stmt, i, columnDef.type));
 	}
 	dataTable->add(itemGroup);
@@ -713,8 +714,7 @@ ItemDataPtr DBAgentSQLite3::getValue(sqlite3_stmt *stmt,
 	return ItemDataPtr(itemData, false);
 }
 
-void DBAgentSQLite3::createIndex(sqlite3 *db, const string &tableName, 
-                                 const ColumnDef *columnDefs,
+void DBAgentSQLite3::createIndex(sqlite3 *db, const TableProfile &tableProfile,
                                  const string &indexName,
                                  const vector<size_t> &targetIndexes,
                                  bool isUniqueKey)
@@ -728,10 +728,10 @@ void DBAgentSQLite3::createIndex(sqlite3 *db, const string &tableName,
 	sql += "INDEX ";
 	sql += indexName;
 	sql += " ON ";
-	sql += tableName;
+	sql += tableProfile.name;
 	sql += "(";
 	for (size_t i = 0; i < targetIndexes.size(); i++) {
-		const ColumnDef &columnDef = columnDefs[i];
+		const ColumnDef &columnDef = tableProfile.columnDefs[i];
 		sql += columnDef.columnName;
 		if (i < targetIndexes.size() - 1)
 			sql += ",";

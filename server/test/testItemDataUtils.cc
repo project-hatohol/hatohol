@@ -25,17 +25,6 @@ using namespace mlpl;
 
 namespace testItemDataUtils {
 
-template<typename T, typename ITEM_DATA>
-void _assertOperatorShiftFromItemDataPtr(const T &val)
-{
-	ItemDataPtr itemPtr(new ITEM_DATA(val), false);
-	T actual;
-	actual << itemPtr;
-	cppcut_assert_equal(val, actual);
-}
-#define assertOperatorShiftFromItemDataPtr(T, ITEM_DATA, V) \
-cut_trace((_assertOperatorShiftFromItemDataPtr<T, ITEM_DATA>(V)))
-
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
@@ -55,25 +44,6 @@ void test_createAsNumberInvalid(void)
 	string word = "ABC";
 	ItemDataPtr dataPtr = ItemDataUtils::createAsNumber(word);
 	cppcut_assert_equal(false, dataPtr.hasData());
-}
-
-//
-// Convenient operators
-//
-void test_operatorShiftFromItemIntToInt(void)
-{
-	assertOperatorShiftFromItemDataPtr(int, ItemInt, -8);
-}
-
-void test_operatorShiftFromItemUint64ToUnt64(void)
-{
-	assertOperatorShiftFromItemDataPtr(uint64_t, ItemUint64,
-	                                   0xfedcba9876543210);
-}
-
-void test_operatorShiftFromItemStringToString(void)
-{
-	assertOperatorShiftFromItemDataPtr(string, ItemString, "Test string");
 }
 
 } // namespace testItemDataUtils

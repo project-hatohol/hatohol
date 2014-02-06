@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -57,6 +57,64 @@ void ItemGroup::add(const ItemData *data, bool doRef)
 	m_itemVector.push_back(data);
 	if (doRef)
 		data->ref();
+}
+
+ItemData *ItemGroup::addNewItem(
+  const int &data, const ItemDataNullFlagType &nullFlag)
+{
+	return addNewItemTempl<int, ItemInt>(data, nullFlag);
+}
+
+ItemData *ItemGroup::addNewItem(
+  const uint64_t &data, const ItemDataNullFlagType &nullFlag)
+{
+	return addNewItemTempl<uint64_t, ItemUint64>(data, nullFlag);
+}
+
+ItemData *ItemGroup::addNewItem(
+  const double &data, const ItemDataNullFlagType &nullFlag)
+{
+	return addNewItemTempl<double, ItemDouble>(data, nullFlag);
+}
+
+ItemData *ItemGroup::addNewItem(
+  const std::string &data, const ItemDataNullFlagType &nullFlag)
+{
+	return addNewItemTempl<string, ItemString>(data, nullFlag);
+}
+
+ItemData *ItemGroup::addNewItem(
+  const time_t &data, const ItemDataNullFlagType &nullFlag)
+{
+	return addNewItem(static_cast<int>(data), nullFlag);
+}
+
+ItemData *ItemGroup::addNewItem(
+  const ItemId &itemId, const int &data,
+  const ItemDataNullFlagType &nullFlag)
+{
+	return addNewItemTempl<int, ItemInt>(itemId, data, nullFlag);
+}
+
+ItemData *ItemGroup::addNewItem(
+  const ItemId &itemId, const uint64_t &data,
+  const ItemDataNullFlagType &nullFlag)
+{
+	return addNewItemTempl<uint64_t, ItemUint64>(itemId, data, nullFlag);
+}
+
+ItemData *ItemGroup::addNewItem(
+  const ItemId &itemId, const double &data,
+  const ItemDataNullFlagType &nullFlag)
+{
+	return addNewItemTempl<double, ItemDouble>(itemId, data, nullFlag);
+}
+
+ItemData *ItemGroup::addNewItem(
+  const ItemId &itemId, const string &data,
+  const ItemDataNullFlagType &nullFlag)
+{
+	return addNewItemTempl<string, ItemString>(itemId, data, nullFlag);
 }
 
 const ItemData *ItemGroup::getItem(ItemId itemId) const
@@ -134,3 +192,24 @@ ItemGroup::~ItemGroup()
 		delete m_groupType;
 }
 
+// ---------------------------------------------------------------------------
+// Private methods
+// ---------------------------------------------------------------------------
+template<typename NATIVE_TYPE, typename ITEM_TYPE>
+ItemData *ItemGroup::addNewItemTempl(
+  const NATIVE_TYPE &data, const ItemDataNullFlagType &nullFlag)
+{
+	ItemData *itemData = new ITEM_TYPE(data, nullFlag);
+	add(itemData, false);
+	return itemData;
+}
+
+template<typename NATIVE_TYPE, typename ITEM_TYPE>
+ItemData *ItemGroup::addNewItemTempl(
+  const ItemId &itemId, const NATIVE_TYPE &data,
+  const ItemDataNullFlagType &nullFlag)
+{
+	ItemData *itemData = new ITEM_TYPE(itemId, data, nullFlag);
+	add(itemData, false);
+	return itemData;
+}

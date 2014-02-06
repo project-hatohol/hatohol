@@ -90,9 +90,10 @@ ArmZabbixAPI::ArmZabbixAPI(const MonitoringServerInfo &serverInfo)
 : ArmBase(serverInfo),
   m_ctx(NULL)
 {
+	bool forURI = true;
 	m_ctx = new PrivateContext(serverInfo);
 	m_ctx->uri = "http://";
-	m_ctx->uri += serverInfo.getHostAddress();
+	m_ctx->uri += serverInfo.getHostAddress(forURI);
 	m_ctx->uri += StringUtils::sprintf(":%d", serverInfo.port);
 	m_ctx->uri += "/zabbix/api_jsonrpc.php";
 
@@ -726,7 +727,8 @@ void ArmZabbixAPI::pushApplicationid(JsonParserAgent &parser,
 	startObject(parser, "applications");
 	int numElem = parser.countElements();
 	if (numElem == 0) {
-		itemGroup->ADD_NEW_ITEM(Uint64, itemId, 0, ITEM_DATA_NULL);
+		const uint64_t dummyData = 0;
+		itemGroup->addNewItem(itemId, dummyData, ITEM_DATA_NULL);
 	} else  {
 		for (int i = 0; i < numElem; i++) {
 			startElement(parser, i);
@@ -745,7 +747,8 @@ void ArmZabbixAPI::pushTriggersHostid(JsonParserAgent &parser,
 	startObject(parser, "hosts");
 	int numElem = parser.countElements();
 	if (numElem == 0) {
-		itemGroup->ADD_NEW_ITEM(Uint64, itemId, 0, ITEM_DATA_NULL);
+		const uint64_t dummyData = 0;
+		itemGroup->addNewItem(itemId, dummyData, ITEM_DATA_NULL);
 	} else  {
 		for (int i = 0; i < numElem; i++) {
 			startElement(parser, i);
@@ -946,20 +949,25 @@ void ArmZabbixAPI::parseAndPushHostsGroupsData
 	startElement(parser, index);
 	startObject(parser, "hosts");
 	int numElem = parser.countElements();
-	if (numElem != 0) {
-		for (int i = 0; i < numElem; i++) {
-			VariableItemGroupPtr grp;
-			startElement(parser, i);
-			grp->ADD_NEW_ITEM(Uint64, 0);
-			pushUint64(parser, grp, "hostid", ITEM_ID_ZBX_HOSTS_GROUPS_HOSTID);
-			startObject(parser, "groups");
-			startElement(parser, 0);
-			pushUint64(parser, grp, "groupid", ITEM_ID_ZBX_HOSTS_GROUPS_GROUPID);
-			parser.endElement();
-			parser.endObject();
-			parser.endElement();
-			tablePtr->add(grp);
-		}
+	for (int i = 0; i < numElem; i++) {
+		VariableItemGroupPtr grp;
+		startElement(parser, i);
+
+		const uint64_t hostgroupid = 0;
+		grp->addNewItem(hostgroupid);
+
+		pushUint64(parser, grp, "hostid",
+		           ITEM_ID_ZBX_HOSTS_GROUPS_HOSTID);
+
+		startObject(parser, "groups");
+		startElement(parser, 0);
+		pushUint64(parser, grp, "groupid",
+		           ITEM_ID_ZBX_HOSTS_GROUPS_GROUPID);
+		parser.endElement();
+		parser.endObject();
+
+		parser.endElement();
+		tablePtr->add(grp);
 	}
 	parser.endObject();
 	parser.endElement();
@@ -1192,7 +1200,7 @@ void ArmZabbixAPI::checkObtainedItems(const ItemTable *obtainedItemTable,
 	ItemGroupListConstIterator it = grpList.begin();
 	for (; it != grpList.end(); ++it) {
 		const ItemData *itemData = (*it)->getItem(itemId);
-		T item = ItemDataUtils::get<T>(itemData);
+		const T &item = *itemData;
 		obtainedItemSet.insert(item);
 	}
 

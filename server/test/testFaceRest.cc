@@ -69,7 +69,8 @@ static void startFaceRest(void)
 	} param;
 
 	string dbPathHatohol  = getFixturesDir() + TEST_DB_HATOHOL_NAME;
-	setupTestDBServers();
+	bool dbRecreate = true, loadTestData = true;
+	setupTestDBConfig(dbRecreate, loadTestData);
 
 	defineDBPath(DB_DOMAIN_ID_HATOHOL, dbPathHatohol);
 
@@ -346,11 +347,11 @@ static void _assertTestTriggerInfo(const TriggerInfo &triggerInfo)
 
 static void assertServersInParser(JsonParserAgent *parser)
 {
-	assertValueInParser(parser, "numberOfServers", NumServerInfo);
+	assertValueInParser(parser, "numberOfServers", NumTestServerInfo);
 	parser->startObject("servers");
-	for (size_t i = 0; i < NumServerInfo; i++) {
+	for (size_t i = 0; i < NumTestServerInfo; i++) {
 		parser->startElement(i);
-		MonitoringServerInfo &svInfo = serverInfo[i];
+		MonitoringServerInfo &svInfo = testServerInfo[i];
 		assertValueInParser(parser, "id",   svInfo.id);
 		assertValueInParser(parser, "type", svInfo.type);
 		assertValueInParser(parser, "hostName",  svInfo.hostName);
@@ -441,8 +442,8 @@ static void assertHostsIdNameHashInParser(EventInfo *events,
 static void assertServersIdNameHashInParser(JsonParserAgent *parser)
 {
 	parser->startObject("servers");
-	for (size_t i = 0; i < NumServerInfo; i++) {
-		MonitoringServerInfo &svInfo = serverInfo[i];
+	for (size_t i = 0; i < NumTestServerInfo; i++) {
+		MonitoringServerInfo &svInfo = testServerInfo[i];
 		parser->startObject(StringUtils::toString(svInfo.id));
 		assertValueInParser(parser, "name", svInfo.hostName);
 		parser->endObject();
@@ -832,6 +833,20 @@ void _assertUpdateUserWithSetup(const StringMap &params,
 #define assertUpdateUserWithSetup(P,U,C) \
 cut_trace(_assertUpdateUserWithSetup(P,U,C))
 
+#define assertAddServer(P, ...) \
+cut_trace(_assertAddRecord(P, "/server", ##__VA_ARGS__))
+
+void _assertAddServerWithSetup(const StringMap &params,
+			       const HatoholErrorCode &expectCode)
+{
+	const bool dbRecreate = true;
+	const bool loadTestDat = true;
+	setupTestDBUser(dbRecreate, loadTestDat);
+	const UserIdType userId = findUserWith(OPPRVLG_CREATE_SERVER);
+	assertAddServer(params, userId, expectCode, NumTestServerInfo + 1);
+}
+#define assertAddServerWithSetup(P,C) cut_trace(_assertAddServerWithSetup(P,C))
+
 static void setupTestMode(void)
 {
 	CommandLineArg arg;
@@ -1055,11 +1070,11 @@ static void assertSystemStatusInParser(JsonParserAgent *parser,
 
 static void _assertOverviewInParser(JsonParserAgent *parser)
 {
-	assertValueInParser(parser, "numberOfServers", NumServerInfo);
+	assertValueInParser(parser, "numberOfServers", NumTestServerInfo);
 	parser->startObject("serverStatus");
-	for (size_t i = 0; i < NumServerInfo; i++) {
+	for (size_t i = 0; i < NumTestServerInfo; i++) {
 		parser->startElement(i);
-		MonitoringServerInfo &svInfo = serverInfo[i];
+		MonitoringServerInfo &svInfo = testServerInfo[i];
 		assertValueInParser(parser, "serverId", svInfo.id);
 		assertValueInParser(parser, "serverHostName", svInfo.hostName);
 		assertValueInParser(parser, "serverIpAddr", svInfo.ipAddress);
@@ -1127,7 +1142,6 @@ static void changeLocale(const char *locale)
 void cut_setup(void)
 {
 	hatoholInit();
-	setupTestDBServers();
 }
 
 void cut_teardown(void)
@@ -1223,6 +1237,65 @@ void test_servers(void)
 void test_serversJsonp(void)
 {
 	assertServers("/server", "foo");
+}
+
+void test_addServer(void)
+{
+	MonitoringServerInfo expected;
+	expected.id = NumTestServerInfo + 1;
+	expected.type = static_cast<MonitoringSystemType>(0);
+	expected.hostName = "zabbix";
+	expected.ipAddress = "10.1.1.1";
+	expected.nickname = "TestZabbixServer";
+	expected.port = 80;
+	expected.pollingIntervalSec = 30;
+	expected.retryIntervalSec = 10;
+	expected.userName = "w(^_^)d";
+	expected.password = "y@ru0";
+	expected.dbName = "";
+
+	StringMap params;
+	params["type"] = StringUtils::toString(expected.type);
+	params["hostName"] = expected.hostName;
+	params["ipAddress"] = expected.ipAddress;
+	params["nickname"] = expected.nickname;
+	params["port"] = StringUtils::toString(expected.port);
+	params["polling"] = StringUtils::toString(expected.pollingIntervalSec);
+	params["retry"] = StringUtils::toString(expected.retryIntervalSec);
+	params["user"] = expected.userName;
+	params["password"] = expected.password;
+	params["dbName"] = expected.dbName;
+	assertAddServerWithSetup(params, HTERR_OK);
+
+	// check the content in the DB
+	DBClientConfig dbConfig;
+	string statement = "select * from servers ";
+	statement += " order by id desc limit 1";
+	string expectedOutput = makeServerInfoOutput(expected);
+	assertDBContent(dbConfig.getDBAgent(), statement, expectedOutput);
+}
+
+void test_deleteServer(void)
+{
+	startFaceRest();
+	bool dbRecreate = true;
+	bool loadTestData = true;
+	setupTestDBUser(dbRecreate, loadTestData);
+
+	const ServerIdType targetServerId = 1;
+	const UserIdType userId = findUserWith(OPPRVLG_DELETE_SERVER);
+	string url = StringUtils::sprintf("/server/%"FMT_SERVER_ID,
+					  targetServerId);
+	RequestArg arg(url);
+	arg.request = "DELETE";
+	arg.userId = userId;
+	g_parser = getResponseAsJsonParser(arg);
+
+	// check the reply
+	assertErrorCode(g_parser);
+	ServerIdSet serverIdSet;
+	serverIdSet.insert(targetServerId);
+	assertServersInDB(serverIdSet);
 }
 
 void test_hosts(void)

@@ -24,7 +24,6 @@ libhatohol_la_SOURCES = \
 	DBClientConfig.cc DBClientConfig.h \
 	DBClientHatohol.cc DBClientHatohol.h \
 	DBClientUser.h DBClientUser.cc \
-	DBClientUtils.h \
 	DBClientZabbix.cc DBClientZabbix.h \
 	DataStore.cc DataStore.h \
 	DataStoreException.cc DataStoreException.h \
@@ -47,6 +46,7 @@ libhatohol_la_SOURCES = \
 	ItemDataUtils.cc ItemDataUtils.h \
 	ItemEnum.h \
 	ItemGroup.cc ItemGroup.h \
+	ItemGroupStream.cc ItemGroupStream.h \
 	ItemGroupEnum.h \
 	ItemGroupPtr.cc ItemGroupPtr.h \
 	ItemGroupType.cc ItemGroupType.h \

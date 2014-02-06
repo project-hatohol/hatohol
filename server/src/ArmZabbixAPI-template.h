@@ -31,7 +31,7 @@ void ArmZabbixAPI::makeItemVector(std::vector<T> &idVector,
 		const ItemData *itemData = (*it)->getItem(itemId);
 		if (itemData->isNull())
 			continue;
-		T id = ItemDataUtils::get<T>(itemData);
+		const T &id = *itemData;
 		idSet.insert(id);
 	}
 

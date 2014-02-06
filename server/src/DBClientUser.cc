@@ -21,6 +21,7 @@
 #include <stdint.h>
 #include "DBClientUser.h"
 #include "DBClientConfig.h"
+#include "ItemGroupStream.h"
 using namespace std;
 using namespace mlpl;
 
@@ -95,8 +96,6 @@ static const ColumnDef COLUMN_DEF_USERS[] = {
 	NULL,                              // defaultValue
 }
 };
-static const size_t NUM_COLUMNS_USERS =
-  sizeof(COLUMN_DEF_USERS) / sizeof(ColumnDef);
 
 enum {
 	IDX_USERS_ID,
@@ -105,6 +104,10 @@ enum {
 	IDX_USERS_FLAGS,
 	NUM_IDX_USERS,
 };
+
+static const DBAgent::TableProfile tableProfileUsers(
+  DBClientUser::TABLE_NAME_USERS, COLUMN_DEF_USERS,
+  sizeof(COLUMN_DEF_USERS), NUM_IDX_USERS);
 
 static const ColumnDef COLUMN_DEF_ACCESS_LIST[] = {
 {
@@ -153,8 +156,6 @@ static const ColumnDef COLUMN_DEF_ACCESS_LIST[] = {
 	NULL,                              // defaultValue
 }
 };
-static const size_t NUM_COLUMNS_ACCESS_LIST =
-  sizeof(COLUMN_DEF_ACCESS_LIST) / sizeof(ColumnDef);
 
 enum {
 	IDX_ACCESS_LIST_ID,
@@ -163,6 +164,10 @@ enum {
 	IDX_ACCESS_LIST_HOST_GROUP_ID,
 	NUM_IDX_ACCESS_LIST,
 };
+
+static const DBAgent::TableProfile tableProfileAccessList(
+  DBClientUser::TABLE_NAME_ACCESS_LIST, COLUMN_DEF_ACCESS_LIST,
+  sizeof(COLUMN_DEF_ACCESS_LIST), NUM_IDX_ACCESS_LIST);
 
 static const ColumnDef COLUMN_DEF_USER_ROLES[] = {
 {
@@ -200,8 +205,6 @@ static const ColumnDef COLUMN_DEF_USER_ROLES[] = {
 	NULL,                              // defaultValue
 }
 };
-static const size_t NUM_COLUMNS_USER_ROLES =
-  sizeof(COLUMN_DEF_USER_ROLES) / sizeof(ColumnDef);
 
 enum {
 	IDX_USER_ROLES_ID,
@@ -209,6 +212,10 @@ enum {
 	IDX_USER_ROLES_FLAGS,
 	NUM_IDX_USER_ROLES,
 };
+
+static const DBAgent::TableProfile tableProfileUserRoles(
+  DBClientUser::TABLE_NAME_USER_ROLES, COLUMN_DEF_USER_ROLES,
+  sizeof(COLUMN_DEF_USER_ROLES), NUM_IDX_USER_ROLES);
 
 ServerAccessInfoMap::~ServerAccessInfoMap()
 {
@@ -232,15 +239,8 @@ static void updateAdminPrivilege(DBAgent *dbAgent,
 {
 	static const OperationPrivilegeFlag oldAdminFlags =
 		OperationPrivilege::makeFlag(old_NUM_OPPRVLG) - 1;
-	DBAgentUpdateArg arg;
-	arg.tableName = TABLE_NAME_USERS;
-	arg.columnDefs = COLUMN_DEF_USERS;
-
-	VariableItemGroupPtr row;
-	row->ADD_NEW_ITEM(Uint64, ALL_PRIVILEGES);
-	arg.columnIndexes.push_back(IDX_USERS_FLAGS);
-	arg.row = row;
-
+	DBAgent::UpdateArg arg(tableProfileUsers);
+	arg.add(IDX_USERS_FLAGS, ALL_PRIVILEGES);
 	arg.condition = StringUtils::sprintf(
 	  "%s=%"FMT_OPPRVLG,
 	  COLUMN_DEF_USERS[IDX_USERS_FLAGS].columnName, oldAdminFlags);
@@ -433,37 +433,13 @@ string UserRoleQueryOption::getCondition(void) const
 // ---------------------------------------------------------------------------
 void DBClientUser::init(void)
 {
-	HATOHOL_ASSERT(
-	  NUM_COLUMNS_USERS == NUM_IDX_USERS,
-	  "Invalid number of elements: NUM_COLUMNS_USERS (%zd), "
-	  "NUM_IDX_USERS (%d)",
-	  NUM_COLUMNS_USERS, NUM_IDX_USERS);
-
-	HATOHOL_ASSERT(
-	  NUM_COLUMNS_ACCESS_LIST == NUM_IDX_ACCESS_LIST,
-	  "Invalid number of elements: NUM_COLUMNS_ACCESS_LIST (%zd), "
-	  "NUM_IDX_ACCESS_LIST (%d)",
-	  NUM_COLUMNS_ACCESS_LIST, NUM_IDX_ACCESS_LIST);
-
-	HATOHOL_ASSERT(
-	  NUM_COLUMNS_USER_ROLES == NUM_IDX_USER_ROLES,
-	  "Invalid number of elements: NUM_COLUMNS_USER_ROLES (%zd), "
-	  "NUM_IDX_USER_ROLES (%d)",
-	  NUM_COLUMNS_USER_ROLES, NUM_IDX_USER_ROLES);
-
 	static const DBSetupTableInfo DB_TABLE_INFO[] = {
 	{
-		TABLE_NAME_USERS,
-		NUM_COLUMNS_USERS,
-		COLUMN_DEF_USERS,
+		&tableProfileUsers,
 	}, {
-		TABLE_NAME_ACCESS_LIST,
-		NUM_COLUMNS_ACCESS_LIST,
-		COLUMN_DEF_ACCESS_LIST,
+		&tableProfileAccessList,
 	}, {
-		TABLE_NAME_USER_ROLES,
-		NUM_COLUMNS_USER_ROLES,
-		COLUMN_DEF_USER_ROLES,
+		&tableProfileUserRoles,
 	},
 	};
 	static const size_t NUM_TABLE_INFO =
@@ -528,17 +504,11 @@ HatoholError DBClientUser::addUserInfo(
 	if (err != HTERR_OK)
 		return err;
 
-	VariableItemGroupPtr row;
-	DBAgentInsertArg arg;
-	arg.tableName = TABLE_NAME_USERS;
-	arg.numColumns = NUM_COLUMNS_USERS;
-	arg.columnDefs = COLUMN_DEF_USERS;
-
-	row->ADD_NEW_ITEM(Int, AUTO_INCREMENT_VALUE);
-	row->ADD_NEW_ITEM(String, userInfo.name);
-	row->ADD_NEW_ITEM(String, Utils::sha256(userInfo.password));
-	row->ADD_NEW_ITEM(Uint64, userInfo.flags);
-	arg.row = row;
+	DBAgent::InsertArg arg(tableProfileUsers);
+	arg.row->addNewItem(AUTO_INCREMENT_VALUE);
+	arg.row->addNewItem(userInfo.name);
+	arg.row->addNewItem(Utils::sha256(userInfo.password));
+	arg.row->addNewItem(userInfo.flags);
 
 	string dupCheckCond = StringUtils::sprintf("%s='%s'",
 	  COLUMN_DEF_USERS[IDX_USERS_NAME].columnName, userInfo.name.c_str());
@@ -592,22 +562,12 @@ HatoholError DBClientUser::updateUserInfo(
 	if (err != HTERR_OK)
 		return err;
 
-	VariableItemGroupPtr row;
-	DBAgentUpdateArg arg;
-	arg.tableName = TABLE_NAME_USERS;
-	arg.columnDefs = COLUMN_DEF_USERS;
+	DBAgent::UpdateArg arg(tableProfileUsers);
 
-	row->ADD_NEW_ITEM(String, userInfo.name);
-	arg.columnIndexes.push_back(IDX_USERS_NAME);
-
-	if (!userInfo.password.empty()) {
-		row->ADD_NEW_ITEM(String, Utils::sha256(userInfo.password));
-		arg.columnIndexes.push_back(IDX_USERS_PASSWORD);
-	}
-
-	row->ADD_NEW_ITEM(Uint64, userInfo.flags);
-	arg.columnIndexes.push_back(IDX_USERS_FLAGS);
-	arg.row = row;
+	arg.add(IDX_USERS_NAME, userInfo.name);
+	if (!userInfo.password.empty())
+		arg.add(IDX_USERS_PASSWORD, Utils::sha256(userInfo.password));
+	arg.add(IDX_USERS_FLAGS, userInfo.flags);
 
 	arg.condition = StringUtils::sprintf("%s=%"FMT_USER_ID,
 	  COLUMN_DEF_USERS[IDX_USERS_ID].columnName, userInfo.id);
@@ -620,9 +580,10 @@ HatoholError DBClientUser::updateUserInfo(
 	  userInfo.id);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
-		if (!isRecordExisting(arg.tableName, arg.condition)) {
+		const char *tableName = arg.tableProfile.name;
+		if (!isRecordExisting(tableName, arg.condition)) {
 			err = HTERR_NOT_FOUND_USER_ID;
-		} else if (isRecordExisting(arg.tableName, dupCheckCond)) {
+		} else if (isRecordExisting(tableName, dupCheckCond)) {
 			err = HTERR_USER_NAME_EXIST;
 		} else {
 			update(arg);
@@ -638,8 +599,7 @@ HatoholError DBClientUser::deleteUserInfo(
 	if (!privilege.has(OPPRVLG_DELETE_USER))
 		return HTERR_NO_PRIVILEGE;
 
-	DBAgentDeleteArg arg;
-	arg.tableName = TABLE_NAME_USERS;
+	DBAgent::DeleteArg arg(tableProfileUsers);
 	const ColumnDef &colId = COLUMN_DEF_USERS[IDX_USERS_ID];
 	arg.condition = StringUtils::sprintf("%s=%"FMT_USER_ID,
 	                                     colId.columnName, userId);
@@ -656,10 +616,9 @@ UserIdType DBClientUser::getUserId(const string &user, const string &password)
 	if (isValidPassword(password) != HTERR_OK)
 		return INVALID_USER_ID;
 
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_USERS;
-	arg.pushColumn(COLUMN_DEF_USERS[IDX_USERS_ID]);
-	arg.pushColumn(COLUMN_DEF_USERS[IDX_USERS_PASSWORD]);
+	DBAgent::SelectExArg arg(tableProfileUsers);
+	arg.add(IDX_USERS_ID);
+	arg.add(IDX_USERS_PASSWORD);
 	arg.condition = StringUtils::sprintf("%s='%s'",
 	  COLUMN_DEF_USERS[IDX_USERS_NAME].columnName, user.c_str());
 	DBCLIENT_TRANSACTION_BEGIN() {
@@ -670,15 +629,11 @@ UserIdType DBClientUser::getUserId(const string &user, const string &password)
 	if (grpList.empty())
 		return INVALID_USER_ID;
 
-	const ItemGroup *itemGroup = *grpList.begin();
-	int idx = 0;
-
-	// user ID
-	UserIdType userId = *itemGroup->getItemAt(idx++);
-
-	// password
-	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemString, itemPasswd);
-	string truePasswd = itemPasswd->get();
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	UserIdType userId;
+	string truePasswd;
+	itemGroupStream >> userId;
+	itemGroupStream >> truePasswd;
 
 	// comapare the passwords
 	bool matched = (truePasswd == Utils::sha256(password));
@@ -694,13 +649,12 @@ HatoholError DBClientUser::addAccessInfo(AccessInfo &accessInfo,
 		return HatoholError(HTERR_NO_PRIVILEGE);
 
 	// check existing data
-	DBAgentSelectExArg selectArg;
-	selectArg.tableName = TABLE_NAME_ACCESS_LIST;
-	selectArg.pushColumn(COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_ID]);
-	selectArg.pushColumn(COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID]);
-	selectArg.pushColumn(COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_SERVER_ID]);
-	selectArg.pushColumn(COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_HOST_GROUP_ID]);
-	selectArg.condition = StringUtils::sprintf(
+	DBAgent::SelectExArg selarg(tableProfileAccessList);
+	selarg.add(IDX_ACCESS_LIST_ID);
+	selarg.add(IDX_ACCESS_LIST_USER_ID);
+	selarg.add(IDX_ACCESS_LIST_SERVER_ID);
+	selarg.add(IDX_ACCESS_LIST_HOST_GROUP_ID);
+	selarg.condition = StringUtils::sprintf(
 	  "%s=%"FMT_USER_ID" AND %s=%"PRIu32" AND %s=%"PRIu64,
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID].columnName,
 	  accessInfo.userId,
@@ -709,10 +663,10 @@ HatoholError DBClientUser::addAccessInfo(AccessInfo &accessInfo,
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_HOST_GROUP_ID].columnName,
 	  accessInfo.hostGroupId);
 	DBCLIENT_TRANSACTION_BEGIN() {
-		select(selectArg);
+		select(selarg);
 	} DBCLIENT_TRANSACTION_END();
 
-	const ItemGroupList &grpList = selectArg.dataTable->getItemGroupList();
+	const ItemGroupList &grpList = selarg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator it = grpList.begin();
 	if (it != grpList.end()) {
 		const ItemGroup *itemGroup = *it;
@@ -721,17 +675,11 @@ HatoholError DBClientUser::addAccessInfo(AccessInfo &accessInfo,
 	}
 
 	// add new data
-	VariableItemGroupPtr row;
-	DBAgentInsertArg arg;
-	arg.tableName = TABLE_NAME_ACCESS_LIST;
-	arg.numColumns = NUM_COLUMNS_ACCESS_LIST;
-	arg.columnDefs = COLUMN_DEF_ACCESS_LIST;
-
-	row->ADD_NEW_ITEM(Int, 0); // This is automatically set (0 is dummy)
-	row->ADD_NEW_ITEM(Int, accessInfo.userId);
-	row->ADD_NEW_ITEM(Int, accessInfo.serverId);
-	row->ADD_NEW_ITEM(Uint64, accessInfo.hostGroupId);
-	arg.row = row;
+	DBAgent::InsertArg arg(tableProfileAccessList);
+	arg.row->addNewItem(AUTO_INCREMENT_VALUE);
+	arg.row->addNewItem(accessInfo.userId);
+	arg.row->addNewItem(accessInfo.serverId);
+	arg.row->addNewItem(accessInfo.hostGroupId);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		insert(arg);
@@ -746,8 +694,7 @@ HatoholError DBClientUser::deleteAccessInfo(const AccessInfoIdType id,
 	if (!privilege.has(OPPRVLG_UPDATE_USER))
 		return HatoholError(HTERR_NO_PRIVILEGE);
 
-	DBAgentDeleteArg arg;
-	arg.tableName = TABLE_NAME_ACCESS_LIST;
+	DBAgent::DeleteArg arg(tableProfileAccessList);
 	const ColumnDef &colId = COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_ID];
 	arg.condition = StringUtils::sprintf("%s=%"FMT_ACCESS_INFO_ID,
 	                                     colId.columnName, id);
@@ -780,12 +727,11 @@ void DBClientUser::getUserInfoList(UserInfoList &userInfoList,
 HatoholError DBClientUser::getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
 					    const AccessInfoQueryOption &option)
 {
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_ACCESS_LIST;
-	arg.pushColumn(COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_ID]);
-	arg.pushColumn(COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID]);
-	arg.pushColumn(COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_SERVER_ID]);
-	arg.pushColumn(COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_HOST_GROUP_ID]);
+	DBAgent::SelectExArg arg(tableProfileAccessList);
+	arg.add(IDX_ACCESS_LIST_ID);
+	arg.add(IDX_ACCESS_LIST_USER_ID);
+	arg.add(IDX_ACCESS_LIST_SERVER_ID);
+	arg.add(IDX_ACCESS_LIST_HOST_GROUP_ID);
 	arg.condition = option.getCondition();
 
 	if (isAlwaysFalseCondition(arg.condition))
@@ -796,25 +742,14 @@ HatoholError DBClientUser::getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMa
 	} DBCLIENT_TRANSACTION_END();
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator it = grpList.begin();
-	for (; it != grpList.end(); ++it) {
-		const ItemGroup *itemGroup = *it;
-		int idx = 0;
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
 		AccessInfo *accessInfo = new AccessInfo();
-
-		// ID
-		accessInfo->id = *itemGroup->getItemAt(idx++);
-
-		// user ID
-		accessInfo->userId = *itemGroup->getItemAt(idx++);
-
-		// server ID
-		accessInfo->serverId = *itemGroup->getItemAt(idx++);
-
-		// host group ID
-		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++),
-		                  ItemUint64, itemHostGrpId);
-		accessInfo->hostGroupId = itemHostGrpId->get();
+		itemGroupStream >> accessInfo->id;
+		itemGroupStream >> accessInfo->userId;
+		itemGroupStream >> accessInfo->serverId;
+		itemGroupStream >> accessInfo->hostGroupId;
 
 		// insert data
 		HostGrpAccessInfoMap *hostGrpAccessInfoMap = NULL;
@@ -862,10 +797,9 @@ void DBClientUser::destroyServerAccessInfoMap(ServerAccessInfoMap &srvAccessInfo
 void DBClientUser::getServerHostGrpSetMap(
   ServerHostGrpSetMap &srvHostGrpSetMap, const UserIdType &userId)
 {
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_ACCESS_LIST;
-	arg.pushColumn(COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_SERVER_ID]);
-	arg.pushColumn(COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_HOST_GROUP_ID]);
+	DBAgent::SelectExArg arg(tableProfileAccessList);
+	arg.add(IDX_ACCESS_LIST_SERVER_ID);
+	arg.add(IDX_ACCESS_LIST_HOST_GROUP_ID);
 	arg.condition = StringUtils::sprintf("%s=%"FMT_USER_ID"",
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID].columnName, userId);
 	DBCLIENT_TRANSACTION_BEGIN() {
@@ -873,18 +807,13 @@ void DBClientUser::getServerHostGrpSetMap(
 	} DBCLIENT_TRANSACTION_END();
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator it = grpList.begin();
-	for (; it != grpList.end(); ++it) {
-		const ItemGroup *itemGroup = *it;
-		int idx = 0;
-
-		// server ID
-		ServerIdType serverId = *itemGroup->getItemAt(idx++);
-
-		// host group ID
-		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++),
-		                  ItemUint64, itemHostGrpId);
-		uint64_t hostGroupId = itemHostGrpId->get();
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ServerIdType serverId;
+		uint64_t hostGroupId;
+		ItemGroupStream itemGroupStream(*itemGrpItr);
+		itemGroupStream >> serverId;
+		itemGroupStream >> hostGroupId;
 
 		// insert data
 		pair<HostGroupSetIterator, bool> result =
@@ -915,16 +844,10 @@ HatoholError DBClientUser::addUserRoleInfo(UserRoleInfo &userRoleInfo,
 		return HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST;
 	}
 
-	VariableItemGroupPtr row;
-	DBAgentInsertArg arg;
-	arg.tableName = TABLE_NAME_USER_ROLES;
-	arg.numColumns = NUM_COLUMNS_USER_ROLES;
-	arg.columnDefs = COLUMN_DEF_USER_ROLES;
-
-	row->ADD_NEW_ITEM(Int, 0); // This is automaticall set (0 is dummy)
-	row->ADD_NEW_ITEM(String, userRoleInfo.name);
-	row->ADD_NEW_ITEM(Uint64, userRoleInfo.flags);
-	arg.row = row;
+	DBAgent::InsertArg arg(tableProfileUserRoles);
+	arg.row->addNewItem(AUTO_INCREMENT_VALUE);
+	arg.row->addNewItem(userRoleInfo.name);
+	arg.row->addNewItem(userRoleInfo.flags);
 
 	string dupCheckCond = StringUtils::sprintf(
 	  "(%s='%s' or %s=%"FMT_OPPRVLG")",
@@ -962,17 +885,9 @@ HatoholError DBClientUser::updateUserRoleInfo(
 		return HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST;
 	}
 
-	VariableItemGroupPtr row;
-	DBAgentUpdateArg arg;
-	arg.tableName = TABLE_NAME_USER_ROLES;
-	arg.columnDefs = COLUMN_DEF_USER_ROLES;
-
-	row->ADD_NEW_ITEM(String, userRoleInfo.name);
-	arg.columnIndexes.push_back(IDX_USER_ROLES_NAME);
-
-	row->ADD_NEW_ITEM(Uint64, userRoleInfo.flags);
-	arg.columnIndexes.push_back(IDX_USER_ROLES_FLAGS);
-	arg.row = row;
+	DBAgent::UpdateArg arg(tableProfileUserRoles);
+	arg.add(IDX_USER_ROLES_NAME, userRoleInfo.name);
+	arg.add(IDX_USER_ROLES_FLAGS, userRoleInfo.flags);
 
 	arg.condition = StringUtils::sprintf("%s=%"FMT_USER_ROLE_ID,
 	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_ID].columnName,
@@ -988,9 +903,10 @@ HatoholError DBClientUser::updateUserRoleInfo(
 	  userRoleInfo.id);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
-		if (!isRecordExisting(arg.tableName, arg.condition)) {
+		const char *tableName = arg.tableProfile.name;
+		if (!isRecordExisting(tableName, arg.condition)) {
 			err = HTERR_NOT_FOUND_USER_ROLE_ID;
-		} else if (isRecordExisting(arg.tableName, dupCheckCond)) {
+		} else if (isRecordExisting(tableName, dupCheckCond)) {
 			err = HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST;
 		} else {
 			update(arg);
@@ -1006,8 +922,7 @@ HatoholError DBClientUser::deleteUserRoleInfo(
 	if (!privilege.has(OPPRVLG_DELETE_ALL_USER_ROLE))
 		return HTERR_NO_PRIVILEGE;
 
-	DBAgentDeleteArg arg;
-	arg.tableName = TABLE_NAME_USER_ROLES;
+	DBAgent::DeleteArg arg(tableProfileUserRoles);
 	const ColumnDef &colId = COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_ID];
 	arg.condition = StringUtils::sprintf("%s=%"FMT_USER_ROLE_ID,
 	                                     colId.columnName, userRoleId);
@@ -1020,11 +935,10 @@ HatoholError DBClientUser::deleteUserRoleInfo(
 void DBClientUser::getUserRoleInfoList(UserRoleInfoList &userRoleInfoList,
 				       const UserRoleQueryOption &option)
 {
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_USER_ROLES;
-	arg.pushColumn(COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_ID]);
-	arg.pushColumn(COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_NAME]);
-	arg.pushColumn(COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_FLAGS]);
+	DBAgent::SelectExArg arg(tableProfileUserRoles);
+	arg.add(IDX_USER_ROLES_ID);
+	arg.add(IDX_USER_ROLES_NAME);
+	arg.add(IDX_USER_ROLES_FLAGS);
 	arg.condition = option.getCondition();
 
 	DBCLIENT_TRANSACTION_BEGIN() {
@@ -1032,25 +946,13 @@ void DBClientUser::getUserRoleInfoList(UserRoleInfoList &userRoleInfoList,
 	} DBCLIENT_TRANSACTION_END();
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator it = grpList.begin();
-	for (; it != grpList.end(); ++it) {
-		size_t idx = 0;
-		const ItemGroup *itemGroup = *it;
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
 		UserRoleInfo userRoleInfo;
-
-		// user role ID
-		userRoleInfo.id = *itemGroup->getItemAt(idx++);
-
-		// name
-		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemString,
-		                  itemName);
-		userRoleInfo.name = itemName->get();
-
-		// flags
-		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemUint64,
-		                  itemFlags);
-		userRoleInfo.flags = itemFlags->get();
-
+		itemGroupStream >> userRoleInfo.id;
+		itemGroupStream >> userRoleInfo.name;
+		itemGroupStream >> userRoleInfo.flags;
 		userRoleInfoList.push_back(userRoleInfo);
 	}
 }
@@ -1117,10 +1019,8 @@ bool DBClientUser::isAccessible(const ServerIdType &serverId,
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_HOST_GROUP_ID].columnName,
 	  ALL_HOST_GROUPS);
 
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_ACCESS_LIST;
-	arg.statements.push_back("count(*)");
-	arg.columnTypes.push_back(SQL_COLUMN_TYPE_INT);
+	DBAgent::SelectExArg arg(tableProfileAccessList);
+	arg.add("count(*)", SQL_COLUMN_TYPE_INT);
 	arg.condition = condition;
 
 	if (useTransaction) {
@@ -1147,12 +1047,11 @@ void DBClientUser::getUserInfoList(UserInfoList &userInfoList,
 	if (isAlwaysFalseCondition(condition))
 		return;
 
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_USERS;
-	arg.pushColumn(COLUMN_DEF_USERS[IDX_USERS_ID]);
-	arg.pushColumn(COLUMN_DEF_USERS[IDX_USERS_NAME]);
-	arg.pushColumn(COLUMN_DEF_USERS[IDX_USERS_PASSWORD]);
-	arg.pushColumn(COLUMN_DEF_USERS[IDX_USERS_FLAGS]);
+	DBAgent::SelectExArg arg(tableProfileUsers);
+	arg.add(IDX_USERS_ID);
+	arg.add(IDX_USERS_NAME);
+	arg.add(IDX_USERS_PASSWORD);
+	arg.add(IDX_USERS_FLAGS);
 	arg.condition = condition;
 
 	DBCLIENT_TRANSACTION_BEGIN() {
@@ -1160,30 +1059,14 @@ void DBClientUser::getUserInfoList(UserInfoList &userInfoList,
 	} DBCLIENT_TRANSACTION_END();
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator it = grpList.begin();
-	for (; it != grpList.end(); ++it) {
-		size_t idx = 0;
-		const ItemGroup *itemGroup = *it;
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
 		UserInfo userInfo;
-
-		// user ID
-		userInfo.id = *itemGroup->getItemAt(idx++);
-
-		// password
-		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemString,
-		                  itemName);
-		userInfo.name = itemName->get();
-
-		// password
-		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemString,
-		                  itemPasswd);
-		userInfo.password = itemPasswd->get();
-
-		// flags
-		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemUint64,
-		                  itemFlags);
-		userInfo.flags = itemFlags->get();
-
+		itemGroupStream >> userInfo.id;
+		itemGroupStream >> userInfo.name;
+		itemGroupStream >> userInfo.password;
+		itemGroupStream >> userInfo.flags;
 		userInfoList.push_back(userInfo);
 	}
 }

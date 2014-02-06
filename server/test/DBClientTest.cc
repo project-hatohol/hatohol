@@ -23,7 +23,7 @@
 using namespace std;
 using namespace mlpl;
 
-MonitoringServerInfo serverInfo[] = 
+MonitoringServerInfo testServerInfo[] = 
 {{
 	1,                        // id
 	MONITORING_SYSTEM_ZABBIX, // type
@@ -61,7 +61,7 @@ MonitoringServerInfo serverInfo[] =
 	"fermion",                // password
 	"",                       // db_name
 }};
-size_t NumServerInfo = sizeof(serverInfo) / sizeof(MonitoringServerInfo);
+size_t NumTestServerInfo = sizeof(testServerInfo) / sizeof(MonitoringServerInfo);
 
 TriggerInfo testTriggerInfo[] = 
 {{

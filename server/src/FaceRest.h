@@ -26,6 +26,7 @@
 #include "SmartTime.h"
 #include "Params.h"
 #include "HatoholError.h"
+#include "DBClientConfig.h"
 #include "DBClientUser.h"
 #include "DBClientHatohol.h"
 #include "Closure.h"
@@ -161,6 +162,9 @@ protected:
 
 	void itemFetchedCallback(ClosureBase *closure);
 
+	static HatoholError parseServerParameter(MonitoringServerInfo &svInfo,
+						 GHashTable *query,
+						 bool forUpdate = false);
 	static HatoholError parseUserParameter(UserInfo &userInfo,
 	                                       GHashTable *query,
 					       bool forUpdate = false);

@@ -8,7 +8,7 @@ CentOS 6.4 (x86_64)でのRPMを用いたインストール方法
 ### json-glib
 以下のURLからRPMをダウンロードしてください。
 
-- https://github.com/project-hatohol/json-glib-for-distribution/blob/master/RPMS/x86_64/json-glib-0.12.6-1PH.x86_64.rpm?raw=true
+- https://github.com/project-hatohol/json-glib-for-distribution/raw/master/RPMS/x86_64/json-glib-0.12.6-1PH.x86_64.rpm
 
 次のようにインストールしてください。
 
@@ -17,7 +17,7 @@ CentOS 6.4 (x86_64)でのRPMを用いたインストール方法
 ### bootstrap
 以下のURLからRPMをダウンロードしてください。
 
-- https://github.com/project-hatohol/bootstrap-for-hatohol/blob/master/RPMS/x86_64/bootstrap-for-hatohol-2.3.2-1PH.x86_64.rpm?raw=true
+- https://github.com/project-hatohol/json-glib-for-distribution/raw/master/RPMS/x86_64/json-glib-0.12.6-1PH.x86_64.rpm
 
 次のようにインストールしてください。
 
@@ -37,7 +37,7 @@ Djangoをインストールします。
 ### Hatohol Server
 以下のURLからRPMをダウンロードしてください。
 
-- https://github.com/project-hatohol/hatohol-packages/blob/master/RPMS/hatohol-0.1-1.el6.x86_64.rpm?raw=true
+- https://github.com/project-hatohol/hatohol-packages/raw/master/RPMS/0.1/hatohol-0.1-1.el6.x86_64.rpm
 
 次のようにインストールしてください。
 
@@ -46,7 +46,7 @@ Djangoをインストールします。
 ### Hatohol Client
 以下のURLからRPMをダウンロードしてください。
 
-- https://github.com/project-hatohol/hatohol-packages/blob/master/RPMS/hatohol-client-0.1-1.el6.x86_64.rpm?raw=true
+- https://github.com/project-hatohol/hatohol-packages/raw/master/RPMS/0.1/hatohol-client-0.1-1.el6.x86_64.rpm
 
 次のようにインストールしてください。
 

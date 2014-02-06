@@ -56,10 +56,8 @@ public:
 	                              const string &expected)
 	{
 		VariableItemGroupPtr itemGroup;
-		itemGroup->ADD_NEW_ITEM(String,
-		                        ITEM_ID_ZBX_ITEMS_NAME, name);
-		itemGroup->ADD_NEW_ITEM(String,
-		                        ITEM_ID_ZBX_ITEMS_KEY_, key);
+		itemGroup->addNewItem(ITEM_ID_ZBX_ITEMS_NAME, name);
+		itemGroup->addNewItem(ITEM_ID_ZBX_ITEMS_KEY_, key);
 		cppcut_assert_equal(
 		  expected, DBClientZabbixTester::makeItemBrief(itemGroup));
 	}
@@ -76,21 +74,21 @@ static ItemTablePtr makeTestTriggerData(void)
 {
 	VariableItemTablePtr triggers;
 	VariableItemGroupPtr grp;
-	grp->ADD_NEW_ITEM(Uint64, ITEM_ID_ZBX_TRIGGERS_TRIGGERID, 1);
-	grp->ADD_NEW_ITEM(String, ITEM_ID_ZBX_TRIGGERS_EXPRESSION, "");
-	grp->ADD_NEW_ITEM(String, ITEM_ID_ZBX_TRIGGERS_DESCRIPTION,"");
-	grp->ADD_NEW_ITEM(String, ITEM_ID_ZBX_TRIGGERS_URL,        "");
-	grp->ADD_NEW_ITEM(Int,    ITEM_ID_ZBX_TRIGGERS_STATUS,     0);
-	grp->ADD_NEW_ITEM(Int,    ITEM_ID_ZBX_TRIGGERS_VALUE,      0);
-	grp->ADD_NEW_ITEM(Int,    ITEM_ID_ZBX_TRIGGERS_PRIORITY,   0);
-	grp->ADD_NEW_ITEM(Int,    ITEM_ID_ZBX_TRIGGERS_LASTCHANGE, 0);
-	grp->ADD_NEW_ITEM(String, ITEM_ID_ZBX_TRIGGERS_COMMENTS,   "");
-	grp->ADD_NEW_ITEM(String, ITEM_ID_ZBX_TRIGGERS_ERROR,      "");
-	grp->ADD_NEW_ITEM(Uint64, ITEM_ID_ZBX_TRIGGERS_TEMPLATEID, 0);
-	grp->ADD_NEW_ITEM(Int,    ITEM_ID_ZBX_TRIGGERS_TYPE,       0);
-	grp->ADD_NEW_ITEM(Int,    ITEM_ID_ZBX_TRIGGERS_VALUE_FLAGS,0);
-	grp->ADD_NEW_ITEM(Int,    ITEM_ID_ZBX_TRIGGERS_FLAGS,      0);
-	grp->ADD_NEW_ITEM(Uint64, ITEM_ID_ZBX_TRIGGERS_HOSTID,     1);
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_TRIGGERID,  (uint64_t)1);
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_EXPRESSION, "");
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_DESCRIPTION,"");
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_URL,        "");
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_STATUS,     0);
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_VALUE,      0);
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_PRIORITY,   0);
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_LASTCHANGE, 0);
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_COMMENTS,   "");
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_ERROR,      "");
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_TEMPLATEID, (uint64_t)0);
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_TYPE,       0);
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_VALUE_FLAGS,0);
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_FLAGS,      0);
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_HOSTID,     (uint64_t)1);
 	triggers->add(grp);
 
 	return (ItemTablePtr)triggers;
@@ -102,36 +100,36 @@ static ItemTablePtr makeTestHostData(bool returnEmptyTable = false)
 	if (returnEmptyTable)
 		return (ItemTablePtr)hosts;
 	VariableItemGroupPtr grp;
-	grp->ADD_NEW_ITEM(Uint64, ITEM_ID_ZBX_HOSTS_HOSTID,            1);
-	grp->ADD_NEW_ITEM(Uint64, ITEM_ID_ZBX_HOSTS_PROXY_HOSTID,      0);
-	grp->ADD_NEW_ITEM(String, ITEM_ID_ZBX_HOSTS_HOST,              "host");
-	grp->ADD_NEW_ITEM(Int,    ITEM_ID_ZBX_HOSTS_STATUS,            0);
-	grp->ADD_NEW_ITEM(Int,    ITEM_ID_ZBX_HOSTS_DISABLE_UNTIL,     0);
-	grp->ADD_NEW_ITEM(String, ITEM_ID_ZBX_HOSTS_ERROR,             "");
-	grp->ADD_NEW_ITEM(Int,    ITEM_ID_ZBX_HOSTS_AVAILABLE,         0);
-	grp->ADD_NEW_ITEM(Int,    ITEM_ID_ZBX_HOSTS_ERRORS_FROM,       0);
-	grp->ADD_NEW_ITEM(Int,    ITEM_ID_ZBX_HOSTS_LASTACCESS,        0);
-	grp->ADD_NEW_ITEM(Int,    ITEM_ID_ZBX_HOSTS_IPMI_AUTHTYPE,     0);
-	grp->ADD_NEW_ITEM(Int,    ITEM_ID_ZBX_HOSTS_IPMI_PRIVILEGE,    0);
-	grp->ADD_NEW_ITEM(String, ITEM_ID_ZBX_HOSTS_IPMI_USERNAME,     "");
-	grp->ADD_NEW_ITEM(String, ITEM_ID_ZBX_HOSTS_IPMI_PASSWORD,     "");
-	grp->ADD_NEW_ITEM(Int,    ITEM_ID_ZBX_HOSTS_IPMI_DISABLE_UNTIL,0);
-	grp->ADD_NEW_ITEM(Int,    ITEM_ID_ZBX_HOSTS_IPMI_AVAILABLE,    0);
-	grp->ADD_NEW_ITEM(Int,    ITEM_ID_ZBX_HOSTS_SNMP_DISABLE_UNTIL,0);
-	grp->ADD_NEW_ITEM(Int,    ITEM_ID_ZBX_HOSTS_SNMP_AVAILABLE,    0);
-	grp->ADD_NEW_ITEM(Uint64, ITEM_ID_ZBX_HOSTS_MAINTENANCEID,     0);
-	grp->ADD_NEW_ITEM(Int,    ITEM_ID_ZBX_HOSTS_MAINTENANCE_STATUS,0);
-	grp->ADD_NEW_ITEM(Int,    ITEM_ID_ZBX_HOSTS_MAINTENANCE_TYPE,  0);
-	grp->ADD_NEW_ITEM(Int,    ITEM_ID_ZBX_HOSTS_MAINTENANCE_FROM,  0);
-	grp->ADD_NEW_ITEM(Int,    ITEM_ID_ZBX_HOSTS_IPMI_ERRORS_FROM,  0);
-	grp->ADD_NEW_ITEM(Int,    ITEM_ID_ZBX_HOSTS_SNMP_ERRORS_FROM,  0);
-	grp->ADD_NEW_ITEM(String, ITEM_ID_ZBX_HOSTS_IPMI_ERROR,        "");
-	grp->ADD_NEW_ITEM(String, ITEM_ID_ZBX_HOSTS_SNMP_ERROR,        "");
-	grp->ADD_NEW_ITEM(Int,    ITEM_ID_ZBX_HOSTS_JMX_DISABLE_UNTIL, 0);
-	grp->ADD_NEW_ITEM(Int,    ITEM_ID_ZBX_HOSTS_JMX_AVAILABLE,     0);
-	grp->ADD_NEW_ITEM(Int,    ITEM_ID_ZBX_HOSTS_JMX_ERRORS_FROM,   0);
-	grp->ADD_NEW_ITEM(String, ITEM_ID_ZBX_HOSTS_JMX_ERROR,         "");
-	grp->ADD_NEW_ITEM(String, ITEM_ID_ZBX_HOSTS_NAME,              "name" );
+	grp->addNewItem(ITEM_ID_ZBX_HOSTS_HOSTID,             (uint64_t)1);
+	grp->addNewItem(ITEM_ID_ZBX_HOSTS_PROXY_HOSTID,       (uint64_t)0);
+	grp->addNewItem(ITEM_ID_ZBX_HOSTS_HOST,               "host");
+	grp->addNewItem(ITEM_ID_ZBX_HOSTS_STATUS,             0);
+	grp->addNewItem(ITEM_ID_ZBX_HOSTS_DISABLE_UNTIL,      0);
+	grp->addNewItem(ITEM_ID_ZBX_HOSTS_ERROR,              "");
+	grp->addNewItem(ITEM_ID_ZBX_HOSTS_AVAILABLE,          0);
+	grp->addNewItem(ITEM_ID_ZBX_HOSTS_ERRORS_FROM,        0);
+	grp->addNewItem(ITEM_ID_ZBX_HOSTS_LASTACCESS,         0);
+	grp->addNewItem(ITEM_ID_ZBX_HOSTS_IPMI_AUTHTYPE,      0);
+	grp->addNewItem(ITEM_ID_ZBX_HOSTS_IPMI_PRIVILEGE,     0);
+	grp->addNewItem(ITEM_ID_ZBX_HOSTS_IPMI_USERNAME,      "");
+	grp->addNewItem(ITEM_ID_ZBX_HOSTS_IPMI_PASSWORD,      "");
+	grp->addNewItem(ITEM_ID_ZBX_HOSTS_IPMI_DISABLE_UNTIL, 0);
+	grp->addNewItem(ITEM_ID_ZBX_HOSTS_IPMI_AVAILABLE,     0);
+	grp->addNewItem(ITEM_ID_ZBX_HOSTS_SNMP_DISABLE_UNTIL, 0);
+	grp->addNewItem(ITEM_ID_ZBX_HOSTS_SNMP_AVAILABLE,     0);
+	grp->addNewItem(ITEM_ID_ZBX_HOSTS_MAINTENANCEID,      (uint64_t)0);
+	grp->addNewItem(ITEM_ID_ZBX_HOSTS_MAINTENANCE_STATUS, 0);
+	grp->addNewItem(ITEM_ID_ZBX_HOSTS_MAINTENANCE_TYPE,   0);
+	grp->addNewItem(ITEM_ID_ZBX_HOSTS_MAINTENANCE_FROM,   0);
+	grp->addNewItem(ITEM_ID_ZBX_HOSTS_IPMI_ERRORS_FROM,   0);
+	grp->addNewItem(ITEM_ID_ZBX_HOSTS_SNMP_ERRORS_FROM,   0);
+	grp->addNewItem(ITEM_ID_ZBX_HOSTS_IPMI_ERROR,         "");
+	grp->addNewItem(ITEM_ID_ZBX_HOSTS_SNMP_ERROR,         "");
+	grp->addNewItem(ITEM_ID_ZBX_HOSTS_JMX_DISABLE_UNTIL,  0);
+	grp->addNewItem(ITEM_ID_ZBX_HOSTS_JMX_AVAILABLE,      0);
+	grp->addNewItem(ITEM_ID_ZBX_HOSTS_JMX_ERRORS_FROM,    0);
+	grp->addNewItem(ITEM_ID_ZBX_HOSTS_JMX_ERROR,          "");
+	grp->addNewItem(ITEM_ID_ZBX_HOSTS_NAME,               "name");
 	hosts->add(grp);
 	return (ItemTablePtr)hosts;
 }
@@ -140,10 +138,10 @@ static ItemTablePtr makeTestApplicationData(void)
 {
 	VariableItemTablePtr app;
 	VariableItemGroupPtr grp;
-	grp->ADD_NEW_ITEM(Uint64, ITEM_ID_ZBX_APPLICATIONS_APPLICATIONID, 1);
-	grp->ADD_NEW_ITEM(Uint64, ITEM_ID_ZBX_APPLICATIONS_HOSTID,        3);
-	grp->ADD_NEW_ITEM(String, ITEM_ID_ZBX_APPLICATIONS_NAME,        "App");
-	grp->ADD_NEW_ITEM(Uint64, ITEM_ID_ZBX_APPLICATIONS_TEMPLATEID,    0);
+	grp->addNewItem(ITEM_ID_ZBX_APPLICATIONS_APPLICATIONID, (uint64_t)1);
+	grp->addNewItem(ITEM_ID_ZBX_APPLICATIONS_HOSTID,        (uint64_t)3);
+	grp->addNewItem(ITEM_ID_ZBX_APPLICATIONS_NAME,          "App");
+	grp->addNewItem(ITEM_ID_ZBX_APPLICATIONS_TEMPLATEID,    (uint64_t)0);
 	app->add(grp);
 	return (ItemTablePtr)app;
 }
@@ -233,20 +231,6 @@ void test_createDB(void)
 	string expectedOut = StringUtils::sprintf("%d|%d\n",
 	   DBClientZabbix::getDBDomainId(TEST_ZABBIX_SERVER_ID),
 	   DBClientZabbix::ZABBIX_DB_VERSION);
-	cppcut_assert_equal(expectedOut, output);
-}
-
-void test_createTableSystem(void)
-{
-	int svId = TEST_ZABBIX_SERVER_ID + 1;
-	assertCreateTableZBX(svId, "system");
-
-	// check content
-	string statement = "select * from system";
-	string output = execSqlite3ForDBClientZabbix(svId, statement);
-	int dummyValue = 0;
-	string expectedOut =
-	   StringUtils::sprintf("%d\n", dummyValue);
 	cppcut_assert_equal(expectedOut, output);
 }
 

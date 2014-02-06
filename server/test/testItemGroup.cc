@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -45,6 +45,73 @@ const static int NUM_GROUP_POOL = 10;
 static ItemGroup *g_grp[NUM_GROUP_POOL];
 static ItemGroup *&x_grp = g_grp[0];
 static ItemGroup *&y_grp = g_grp[1];
+
+template<typename NATIVE_TYPE>
+void _assertAddNew(const bool &useItemId)
+{
+	struct {
+		size_t idx;
+		operator int (void) const
+		{
+			return idx * 8;
+		}
+
+		operator uint64_t (void) const
+		{
+			return idx * 12;
+		}
+
+		operator double (void) const
+		{
+			return idx * 0.1;
+		}
+
+		operator string (void) const
+		{
+			return StringUtils::sprintf("idx:%zd", idx);
+		}
+
+		ItemDataNullFlagType getNullFlag(void)
+		{
+			return idx % 2 ? ITEM_DATA_NOT_NULL : ITEM_DATA_NULL;
+		}
+
+		ItemId getItemId(void)
+		{
+			return idx * 10;
+		}
+	} dataGen;
+
+	x_grp = new ItemGroup();
+	const size_t numData = 5;
+	for (dataGen.idx = 0; dataGen.idx < numData; dataGen.idx++) {
+		NATIVE_TYPE data = dataGen;
+		if (useItemId) {
+			const ItemId itemId = dataGen.getItemId();
+			x_grp->addNewItem(itemId, data, dataGen.getNullFlag());
+		} else {
+			x_grp->addNewItem(data, dataGen.getNullFlag());
+		}
+	}
+
+	// check
+	cppcut_assert_equal(numData, x_grp->getNumberOfItems());
+	for (dataGen.idx = 0; dataGen.idx < numData; dataGen.idx++) {
+		const ItemData *itemData = x_grp->getItemAt(dataGen.idx);
+		NATIVE_TYPE expect = dataGen;
+		NATIVE_TYPE actual = *itemData;
+		cppcut_assert_equal(expect, actual);
+		bool expectNull = (dataGen.getNullFlag() == ITEM_DATA_NULL);
+		cppcut_assert_equal(expectNull, itemData->isNull());
+		cppcut_assert_equal(1, itemData->getUsedCount());
+		if (useItemId) {
+			const ItemId expectItemId = dataGen.getItemId();
+			cppcut_assert_equal(expectItemId, itemData->getId());
+		}
+	}
+}
+#define assertAddNew(NATIVE_TYPE, USE_ITEM_ID) \
+cut_trace((_assertAddNew<NATIVE_TYPE>)(USE_ITEM_ID))
 
 void cut_teardown()
 {
@@ -116,6 +183,46 @@ void test_addWhenFreezed(void)
 		gotException = true;
 	}
 	cppcut_assert_equal(true, gotException);
+}
+
+void test_addNewIntWithItemId(void)
+{
+	assertAddNew(int, true);
+}
+
+void test_addNewUint64WithItemId(void)
+{
+	assertAddNew(uint64_t, true);
+}
+
+void test_addNewDoubleWithItemId(void)
+{
+	assertAddNew(double, true);
+}
+
+void test_addNewStringWithItemId(void)
+{
+	assertAddNew(string, true);
+}
+
+void test_addNewInt(void)
+{
+	assertAddNew(int, false);
+}
+
+void test_addNewUint64(void)
+{
+	assertAddNew(uint64_t, false);
+}
+
+void test_addNewDouble(void)
+{
+	assertAddNew(double, false);
+}
+
+void test_addNewString(void)
+{
+	assertAddNew(string, false);
 }
 
 void test_getNumberOfItems(void)
