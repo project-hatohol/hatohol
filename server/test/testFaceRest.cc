@@ -358,6 +358,13 @@ static void assertServersInParser(JsonParserAgent *parser)
 		assertValueInParser(parser, "ipAddress", svInfo.ipAddress);
 		assertValueInParser(parser, "nickname",  svInfo.nickname);
 		assertValueInParser(parser, "port",  svInfo.port);
+		assertValueInParser(parser, "pollingInterval",
+				    svInfo.pollingIntervalSec);
+		assertValueInParser(parser, "retryInterval",
+				    svInfo.retryIntervalSec);
+		assertValueInParser(parser, "userName",  svInfo.userName);
+		assertValueInParser(parser, "password",  svInfo.password);
+		assertValueInParser(parser, "dbName",    svInfo.dbName);
 		parser->endElement();
 	}
 	parser->endObject();
