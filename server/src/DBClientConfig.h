@@ -112,16 +112,11 @@ public:
 	void setFaceRestPort(int port);
 	bool isCopyOnDemandEnabled(void);
 
-	/**
-	 * add if the record which id equals to hosemonitoringServerInfo->id
-	 * doesn't exist. Otherwise update the record.
-	 *
-	 * @param monitoringServerInfo
-	 * A pointer to a MonitoringServerInfo instance.
-	 *
-	 * @return A HatoholError.
-	 */
-	HatoholError addOrUpdateTargetServer(
+	HatoholError addTargetServer(
+	  MonitoringServerInfo *monitoringServerInfo,
+	  const OperationPrivilege &privilege);
+
+	HatoholError updateTargetServer(
 	  MonitoringServerInfo *monitoringServerInfo,
 	  const OperationPrivilege &privilege);
 
@@ -142,22 +137,6 @@ protected:
 
 	static bool canDeleteTargetServer(
 	  const ServerIdType &serverId, const OperationPrivilege &privilege);
-
-	/**
-	 * Add a target server. This is only for internal use and
-	 * should be called in DBCLIENT_TRANSACTION_BEGIN().
-	 */
-	HatoholError _addTargetServer(
-	  MonitoringServerInfo *monitoringServerInfo,
-	  const OperationPrivilege &privilege);
-
-	/**
-	 * Update a target server. This is only for internal use and
-	 * should be called in DBCLIENT_TRANSACTION_BEGIN().
-	 */
-	HatoholError _updateTargetServer(
-	  MonitoringServerInfo *monitoringServerInfo,
-	  const OperationPrivilege &privilege, const std::string &condition);
 
 private:
 	struct PrivateContext;

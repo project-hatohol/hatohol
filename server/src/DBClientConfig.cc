@@ -645,25 +645,73 @@ HatoholError validServerInfo(const MonitoringServerInfo &serverInfo)
 	return HTERR_OK;
 }
 
-HatoholError DBClientConfig::addOrUpdateTargetServer(
+HatoholError DBClientConfig::addTargetServer(
   MonitoringServerInfo *monitoringServerInfo,
   const OperationPrivilege &privilege)
 {
+	if (!privilege.has(OPPRVLG_CREATE_SERVER))
+		return HatoholError(HTERR_NO_PRIVILEGE);
+
 	HatoholError err = validServerInfo(*monitoringServerInfo);
 	if (err != HTERR_OK)
 		return err;
 
-	string condition = StringUtils::sprintf("id=%u",
-	                                        monitoringServerInfo->id);
+	DBAgent::InsertArg arg(tableProfileServers);
+	arg.row->addNewItem(AUTO_INCREMENT_VALUE);
+	arg.row->addNewItem(monitoringServerInfo->type);
+	arg.row->addNewItem(monitoringServerInfo->hostName);
+	arg.row->addNewItem(monitoringServerInfo->ipAddress);
+	arg.row->addNewItem(monitoringServerInfo->nickname);
+	arg.row->addNewItem(monitoringServerInfo->port);
+	arg.row->addNewItem(monitoringServerInfo->pollingIntervalSec);
+	arg.row->addNewItem(monitoringServerInfo->retryIntervalSec);
+	arg.row->addNewItem(monitoringServerInfo->userName);
+	arg.row->addNewItem(monitoringServerInfo->password);
+	arg.row->addNewItem(monitoringServerInfo->dbName);
+
 	DBCLIENT_TRANSACTION_BEGIN() {
-		if (!isRecordExisting(TABLE_NAME_SERVERS, condition)) {
-			err = _addTargetServer(monitoringServerInfo, privilege);
+		insert(arg);
+		monitoringServerInfo->id = getLastInsertId();
+		// TODO: Add AccessInfo for the server to enable the operator to
+		// access to it
+	} DBCLIENT_TRANSACTION_END();
+	return HTERR_OK;
+}
+
+HatoholError DBClientConfig::updateTargetServer(
+  MonitoringServerInfo *monitoringServerInfo,
+  const OperationPrivilege &privilege)
+{
+	if (!canUpdateTargetServer(monitoringServerInfo, privilege))
+		return HatoholError(HTERR_NO_PRIVILEGE);
+
+	HatoholError err = validServerInfo(*monitoringServerInfo);
+	if (err != HTERR_OK)
+		return err;
+
+	DBAgent::UpdateArg arg(tableProfileServers);
+	arg.add(IDX_SERVERS_TYPE,       monitoringServerInfo->type);
+	arg.add(IDX_SERVERS_HOSTNAME,   monitoringServerInfo->hostName);
+	arg.add(IDX_SERVERS_IP_ADDRESS, monitoringServerInfo->ipAddress);
+	arg.add(IDX_SERVERS_NICKNAME,   monitoringServerInfo->nickname);
+	arg.add(IDX_SERVERS_PORT,       monitoringServerInfo->port);
+	arg.add(IDX_SERVERS_POLLING_INTERVAL_SEC,
+	        monitoringServerInfo->pollingIntervalSec);
+	arg.add(IDX_SERVERS_RETRY_INTERVAL_SEC,
+	        monitoringServerInfo->retryIntervalSec);
+	arg.add(IDX_SERVERS_USER_NAME,  monitoringServerInfo->userName);
+	arg.add(IDX_SERVERS_PASSWORD,   monitoringServerInfo->password);
+	arg.add(IDX_SERVERS_DB_NAME,    monitoringServerInfo->dbName);
+	arg.condition = StringUtils::sprintf("id=%u", monitoringServerInfo->id);
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		if (!isRecordExisting(TABLE_NAME_SERVERS, arg.condition)) {
+			err = HTERR_NOT_FOUND_SERVER_ID;
 		} else {
-			err = _updateTargetServer(monitoringServerInfo,
-			                          privilege, condition);
+			update(arg);
+			err = HTERR_OK;
 		}
 	} DBCLIENT_TRANSACTION_END();
-
 	return err;
 }
 
@@ -791,32 +839,6 @@ bool DBClientConfig::parseDBServer(const string &dbServer,
 	return true;
 }
 
-HatoholError DBClientConfig::_addTargetServer(
-  MonitoringServerInfo *monitoringServerInfo,
-  const OperationPrivilege &privilege)
-{
-	if (!privilege.has(OPPRVLG_CREATE_SERVER))
-		return HatoholError(HTERR_NO_PRIVILEGE);
-
-	// TODO: ADD this server to the liset this user can access to
-
-	DBAgent::InsertArg arg(tableProfileServers);
-	arg.row->addNewItem(AUTO_INCREMENT_VALUE);
-	arg.row->addNewItem(monitoringServerInfo->type);
-	arg.row->addNewItem(monitoringServerInfo->hostName);
-	arg.row->addNewItem(monitoringServerInfo->ipAddress);
-	arg.row->addNewItem(monitoringServerInfo->nickname);
-	arg.row->addNewItem(monitoringServerInfo->port);
-	arg.row->addNewItem(monitoringServerInfo->pollingIntervalSec);
-	arg.row->addNewItem(monitoringServerInfo->retryIntervalSec);
-	arg.row->addNewItem(monitoringServerInfo->userName);
-	arg.row->addNewItem(monitoringServerInfo->password);
-	arg.row->addNewItem(monitoringServerInfo->dbName);
-	insert(arg);
-	monitoringServerInfo->id = getLastInsertId();
-	return HTERR_OK;
-}
-
 bool DBClientConfig::canUpdateTargetServer(
   MonitoringServerInfo *monitoringServerInfo,
   const OperationPrivilege &privilege)
@@ -830,36 +852,6 @@ bool DBClientConfig::canUpdateTargetServer(
 	CacheServiceDBClient cache;
 	DBClientUser *dbUser = cache.getUser();
 	return dbUser->isAccessible(monitoringServerInfo->id, privilege, false);
-}
-
-HatoholError DBClientConfig::_updateTargetServer(
-  MonitoringServerInfo *monitoringServerInfo,
-  const OperationPrivilege &privilege,
-  const string &condition)
-{
-	if (!canUpdateTargetServer(monitoringServerInfo, privilege))
-		return HatoholError(HTERR_NO_PRIVILEGE);
-
-	DBAgent::UpdateArg arg(tableProfileServers);
-	arg.condition = condition;
-
-	arg.add(IDX_SERVERS_TYPE,       monitoringServerInfo->type);
-	arg.add(IDX_SERVERS_HOSTNAME,   monitoringServerInfo->hostName);
-	arg.add(IDX_SERVERS_IP_ADDRESS, monitoringServerInfo->ipAddress);
-	arg.add(IDX_SERVERS_NICKNAME,   monitoringServerInfo->nickname);
-	arg.add(IDX_SERVERS_PORT,       monitoringServerInfo->port);
-	arg.add(IDX_SERVERS_POLLING_INTERVAL_SEC,
-	        monitoringServerInfo->pollingIntervalSec);
-	arg.add(IDX_SERVERS_RETRY_INTERVAL_SEC,
-	        monitoringServerInfo->retryIntervalSec);
-	arg.add(IDX_SERVERS_USER_NAME,  monitoringServerInfo->userName);
-	arg.add(IDX_SERVERS_PASSWORD,   monitoringServerInfo->password);
-	arg.add(IDX_SERVERS_DB_NAME,    monitoringServerInfo->dbName);
-
-	DBCLIENT_TRANSACTION_BEGIN() {
-		update(arg);
-	} DBCLIENT_TRANSACTION_END();
-	return HTERR_OK;
 }
 
 bool DBClientConfig::canDeleteTargetServer(

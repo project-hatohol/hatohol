@@ -619,10 +619,8 @@ void loadTestDBServer(void)
 {
 	DBClientConfig dbConfig;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	for (size_t i = 0; i < NumTestServerInfo; i++) {
-		dbConfig.addOrUpdateTargetServer(&testServerInfo[i],
-						 privilege);
-	}
+	for (size_t i = 0; i < NumTestServerInfo; i++)
+		dbConfig.addTargetServer(&testServerInfo[i], privilege);
 }
 
 void setupTestDBConfig(bool dbRecreate, bool loadTestData)

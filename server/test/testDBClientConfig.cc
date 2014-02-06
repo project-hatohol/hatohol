@@ -57,7 +57,7 @@ static void addTargetServer(MonitoringServerInfo *serverInfo)
 {
 	DBClientConfig dbConfig;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	dbConfig.addOrUpdateTargetServer(serverInfo, privilege);
+	dbConfig.addTargetServer(serverInfo, privilege);
 }
 #define assertAddServerToDB(X) \
 cut_trace(_assertAddToDB<MonitoringServerInfo>(X, addTargetServer))
@@ -193,7 +193,7 @@ void _assertAddTargetServer(
 {
 	DBClientConfig dbConfig;
 	HatoholError err;
-	err = dbConfig.addOrUpdateTargetServer(&serverInfo, privilege);
+	err = dbConfig.addTargetServer(&serverInfo, privilege);
 	assertHatoholError(expectedErrorCode, err);
 
 	string expectedOut("");
@@ -344,7 +344,7 @@ void _assertUpdateTargetServer(
 
 	DBClientConfig dbConfig;
 	HatoholError err;
-	err = dbConfig.addOrUpdateTargetServer(&serverInfo, privilege);
+	err = dbConfig.updateTargetServer(&serverInfo, privilege);
 	assertHatoholError(expectedErrorCode, err);
 
 	string statement = StringUtils::sprintf(

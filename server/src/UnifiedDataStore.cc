@@ -562,8 +562,7 @@ HatoholError UnifiedDataStore::addTargetServer(
 {
 	CacheServiceDBClient cache;
 	DBClientConfig *dbConfig = cache.getConfig();
-	HatoholError err = dbConfig->addOrUpdateTargetServer(&svInfo,
-	                                                     privilege);
+	HatoholError err = dbConfig->addTargetServer(&svInfo, privilege);
 	if (err != HTERR_OK)
 		return err;
 
@@ -585,8 +584,7 @@ HatoholError UnifiedDataStore::updateTargetServer(
 {
 	CacheServiceDBClient cache;
 	DBClientConfig *dbConfig = cache.getConfig();
-	HatoholError err = dbConfig->addOrUpdateTargetServer(&svInfo,
-	                                                     privilege);
+	HatoholError err = dbConfig->updateTargetServer(&svInfo, privilege);
 	if (err != HTERR_OK)
 		return err;
 
