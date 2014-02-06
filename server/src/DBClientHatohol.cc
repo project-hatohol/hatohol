@@ -1602,15 +1602,15 @@ void DBClientHatohol::addTriggerInfoWithoutTransaction(
 	  triggerInfo.serverId, triggerInfo.id);
 	if (!isRecordExisting(TABLE_NAME_TRIGGERS, condition)) {
 		DBAgent::InsertArg arg(tableProfileTriggers);
-		arg.row->addNewItem(triggerInfo.serverId);
-		arg.row->addNewItem(triggerInfo.id);
-		arg.row->addNewItem(triggerInfo.status);
-		arg.row->addNewItem(triggerInfo.severity),
-		arg.row->addNewItem(triggerInfo.lastChangeTime.tv_sec); 
-		arg.row->addNewItem(triggerInfo.lastChangeTime.tv_nsec); 
-		arg.row->addNewItem(triggerInfo.hostId);
-		arg.row->addNewItem(triggerInfo.hostName);
-		arg.row->addNewItem(triggerInfo.brief);
+		arg.add(triggerInfo.serverId);
+		arg.add(triggerInfo.id);
+		arg.add(triggerInfo.status);
+		arg.add(triggerInfo.severity),
+		arg.add(triggerInfo.lastChangeTime.tv_sec); 
+		arg.add(triggerInfo.lastChangeTime.tv_nsec); 
+		arg.add(triggerInfo.hostId);
+		arg.add(triggerInfo.hostName);
+		arg.add(triggerInfo.brief);
 		insert(arg);
 	} else {
 		DBAgent::UpdateArg arg(tableProfileTriggers);
@@ -1636,18 +1636,18 @@ void DBClientHatohol::addEventInfoWithoutTransaction(const EventInfo &eventInfo)
 	   eventInfo.serverId, eventInfo.id);
 	if (!isRecordExisting(TABLE_NAME_EVENTS, condition)) {
 		DBAgent::InsertArg arg(tableProfileEvents);
-		arg.row->addNewItem(AUTO_INCREMENT_VALUE_U64);
-		arg.row->addNewItem(eventInfo.serverId);
-		arg.row->addNewItem(eventInfo.id);
-		arg.row->addNewItem(eventInfo.time.tv_sec); 
-		arg.row->addNewItem(eventInfo.time.tv_nsec); 
-		arg.row->addNewItem(eventInfo.type);
-		arg.row->addNewItem(eventInfo.triggerId);
-		arg.row->addNewItem(eventInfo.status);
-		arg.row->addNewItem(eventInfo.severity);
-		arg.row->addNewItem(eventInfo.hostId);
-		arg.row->addNewItem(eventInfo.hostName);
-		arg.row->addNewItem(eventInfo.brief);
+		arg.add(AUTO_INCREMENT_VALUE_U64);
+		arg.add(eventInfo.serverId);
+		arg.add(eventInfo.id);
+		arg.add(eventInfo.time.tv_sec); 
+		arg.add(eventInfo.time.tv_nsec); 
+		arg.add(eventInfo.type);
+		arg.add(eventInfo.triggerId);
+		arg.add(eventInfo.status);
+		arg.add(eventInfo.severity);
+		arg.add(eventInfo.hostId);
+		arg.add(eventInfo.hostName);
+		arg.add(eventInfo.brief);
 		insert(arg);
 	} else {
 		DBAgent::UpdateArg arg(tableProfileEvents);
@@ -1673,15 +1673,15 @@ void DBClientHatohol::addItemInfoWithoutTransaction(const ItemInfo &itemInfo)
 	  itemInfo.serverId, itemInfo.id);
 	if (!isRecordExisting(TABLE_NAME_ITEMS, condition)) {
 		DBAgent::InsertArg arg(tableProfileItems);
-		arg.row->addNewItem(itemInfo.serverId);
-		arg.row->addNewItem(itemInfo.id);
-		arg.row->addNewItem(itemInfo.hostId);
-		arg.row->addNewItem(itemInfo.brief);
-		arg.row->addNewItem(itemInfo.lastValueTime.tv_sec); 
-		arg.row->addNewItem(itemInfo.lastValueTime.tv_nsec); 
-		arg.row->addNewItem(itemInfo.lastValue);
-		arg.row->addNewItem(itemInfo.prevValue);
-		arg.row->addNewItem(itemInfo.itemGroupName);
+		arg.add(itemInfo.serverId);
+		arg.add(itemInfo.id);
+		arg.add(itemInfo.hostId);
+		arg.add(itemInfo.brief);
+		arg.add(itemInfo.lastValueTime.tv_sec); 
+		arg.add(itemInfo.lastValueTime.tv_nsec); 
+		arg.add(itemInfo.lastValue);
+		arg.add(itemInfo.prevValue);
+		arg.add(itemInfo.itemGroupName);
 		insert(arg);
 	} else {
 		DBAgent::UpdateArg arg(tableProfileItems);
@@ -1708,10 +1708,10 @@ void DBClientHatohol::addHostgroupInfoWithoutTransaction(
 	                                        groupInfo.serverId, groupInfo.groupId);
 	if (!isRecordExisting(TABLE_NAME_HOSTGROUPS, condition)) {
 		DBAgent::InsertArg arg(tableProfileHostgroups);
-		arg.row->addNewItem(groupInfo.id);
-		arg.row->addNewItem(groupInfo.serverId);
-		arg.row->addNewItem(groupInfo.groupId);
-		arg.row->addNewItem(groupInfo.groupName);
+		arg.add(groupInfo.id);
+		arg.add(groupInfo.serverId);
+		arg.add(groupInfo.groupId);
+		arg.add(groupInfo.groupName);
 		insert(arg);
 	} else {
 		DBAgent::UpdateArg arg(tableProfileHostgroups);
@@ -1735,10 +1735,10 @@ void DBClientHatohol::addHostgroupElementWithoutTransaction(
 
 	if (!isRecordExisting(TABLE_NAME_MAP_HOSTS_HOSTGROUPS, condition)) {
 		DBAgent::InsertArg arg(tableProfileMapHostsHostgroups);
-		arg.row->addNewItem(hostgroupElement.id);
-		arg.row->addNewItem(hostgroupElement.serverId);
-		arg.row->addNewItem(hostgroupElement.hostId);
-		arg.row->addNewItem(hostgroupElement.groupId);
+		arg.add(hostgroupElement.id);
+		arg.add(hostgroupElement.serverId);
+		arg.add(hostgroupElement.hostId);
+		arg.add(hostgroupElement.groupId);
 		insert(arg);
 	}
 }
@@ -1751,10 +1751,10 @@ void DBClientHatohol::addHostInfoWithoutTransaction(const HostInfo &hostInfo)
 
 	if (!isRecordExisting(TABLE_NAME_HOSTS, condition)) {
 		DBAgent::InsertArg arg(tableProfileHosts);
-		arg.row->addNewItem(AUTO_INCREMENT_VALUE);
-		arg.row->addNewItem(hostInfo.serverId);
-		arg.row->addNewItem(hostInfo.id);
-		arg.row->addNewItem(hostInfo.hostName);
+		arg.add(AUTO_INCREMENT_VALUE);
+		arg.add(hostInfo.serverId);
+		arg.add(hostInfo.id);
+		arg.add(hostInfo.hostName);
 		insert(arg);
 	} else {
 		DBAgent::UpdateArg arg(tableProfileHosts);
