@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-29 01:14-0600\n"
-"PO-Revision-Date: 2014-01-29 13:42+0900\n"
+"POT-Creation-Date: 2014-02-06 01:50-0600\n"
+"PO-Revision-Date: 2014-02-06 16:50+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -70,13 +70,13 @@ msgstr "コマンド"
 msgid "Time-out (sec)"
 msgstr "タイムアウト (秒)"
 
-#: viewer/actions_ajax.html:94 viewer/servers_ajax.html:71
+#: viewer/actions_ajax.html:94 viewer/servers_ajax.html:75
 #: viewer/users_ajax.html:87
 msgid "Do you delete the selected items ?"
 msgstr "選択項目を削除しますか？"
 
 #: viewer/actions_ajax.html:168 viewer/actions_ajax.html.py:207
-#: viewer/servers_ajax.html:144 viewer/users_ajax.html:175
+#: viewer/servers_ajax.html:174 viewer/users_ajax.html:175
 msgid "Deleting..."
 msgstr "削除中..."
 
@@ -286,9 +286,17 @@ msgstr "IPアドレス"
 msgid "Nickname"
 msgstr "ニックネーム"
 
-#: viewer/servers_ajax.html:49 viewer/servers_ajax.html.py:186
+#: viewer/servers_ajax.html:49
 msgid "Maps"
 msgstr "マップ"
+
+#: viewer/servers_ajax.html:216
+msgid "Show Maps"
+msgstr "マップを表示"
+
+#: viewer/servers_ajax.html:224
+msgid "EDIT"
+msgstr "編集"
 
 #: viewer/triggers_ajax.html:24
 msgid "Triggers"
