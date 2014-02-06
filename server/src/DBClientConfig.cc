@@ -657,17 +657,17 @@ HatoholError DBClientConfig::addTargetServer(
 		return err;
 
 	DBAgent::InsertArg arg(tableProfileServers);
-	arg.row->addNewItem(AUTO_INCREMENT_VALUE);
-	arg.row->addNewItem(monitoringServerInfo->type);
-	arg.row->addNewItem(monitoringServerInfo->hostName);
-	arg.row->addNewItem(monitoringServerInfo->ipAddress);
-	arg.row->addNewItem(monitoringServerInfo->nickname);
-	arg.row->addNewItem(monitoringServerInfo->port);
-	arg.row->addNewItem(monitoringServerInfo->pollingIntervalSec);
-	arg.row->addNewItem(monitoringServerInfo->retryIntervalSec);
-	arg.row->addNewItem(monitoringServerInfo->userName);
-	arg.row->addNewItem(monitoringServerInfo->password);
-	arg.row->addNewItem(monitoringServerInfo->dbName);
+	arg.add(AUTO_INCREMENT_VALUE);
+	arg.add(monitoringServerInfo->type);
+	arg.add(monitoringServerInfo->hostName);
+	arg.add(monitoringServerInfo->ipAddress);
+	arg.add(monitoringServerInfo->nickname);
+	arg.add(monitoringServerInfo->port);
+	arg.add(monitoringServerInfo->pollingIntervalSec);
+	arg.add(monitoringServerInfo->retryIntervalSec);
+	arg.add(monitoringServerInfo->userName);
+	arg.add(monitoringServerInfo->password);
+	arg.add(monitoringServerInfo->dbName);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		insert(arg);
@@ -814,10 +814,10 @@ void DBClientConfig::tableInitializerSystem(DBAgent *dbAgent, void *data)
 	  COLUMN_DEF_SYSTEM[IDX_SYSTEM_ENABLE_COPY_ON_DEMAND];
 
 	DBAgent::InsertArg arg(tableProfileSystem);
-	arg.row->addNewItem(columnDefDatabaseDir.defaultValue);
-	arg.row->addNewItem(0); // enable_face_mysql
-	arg.row->addNewItem(atoi(columnDefFaceRestPort.defaultValue));
-	arg.row->addNewItem(atoi(columnDefEnableCopyOnDemand.defaultValue));
+	arg.add(columnDefDatabaseDir.defaultValue);
+	arg.add(0); // enable_face_mysql
+	arg.add(atoi(columnDefFaceRestPort.defaultValue));
+	arg.add(atoi(columnDefEnableCopyOnDemand.defaultValue));
 	dbAgent->insert(arg);
 }
 
