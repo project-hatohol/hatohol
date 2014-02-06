@@ -505,10 +505,10 @@ HatoholError DBClientUser::addUserInfo(
 		return err;
 
 	DBAgent::InsertArg arg(tableProfileUsers);
-	arg.row->addNewItem(AUTO_INCREMENT_VALUE);
-	arg.row->addNewItem(userInfo.name);
-	arg.row->addNewItem(Utils::sha256(userInfo.password));
-	arg.row->addNewItem(userInfo.flags);
+	arg.add(AUTO_INCREMENT_VALUE);
+	arg.add(userInfo.name);
+	arg.add(Utils::sha256(userInfo.password));
+	arg.add(userInfo.flags);
 
 	string dupCheckCond = StringUtils::sprintf("%s='%s'",
 	  COLUMN_DEF_USERS[IDX_USERS_NAME].columnName, userInfo.name.c_str());
@@ -676,10 +676,10 @@ HatoholError DBClientUser::addAccessInfo(AccessInfo &accessInfo,
 
 	// add new data
 	DBAgent::InsertArg arg(tableProfileAccessList);
-	arg.row->addNewItem(AUTO_INCREMENT_VALUE);
-	arg.row->addNewItem(accessInfo.userId);
-	arg.row->addNewItem(accessInfo.serverId);
-	arg.row->addNewItem(accessInfo.hostGroupId);
+	arg.add(AUTO_INCREMENT_VALUE);
+	arg.add(accessInfo.userId);
+	arg.add(accessInfo.serverId);
+	arg.add(accessInfo.hostGroupId);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		insert(arg);
@@ -845,9 +845,9 @@ HatoholError DBClientUser::addUserRoleInfo(UserRoleInfo &userRoleInfo,
 	}
 
 	DBAgent::InsertArg arg(tableProfileUserRoles);
-	arg.row->addNewItem(AUTO_INCREMENT_VALUE);
-	arg.row->addNewItem(userRoleInfo.name);
-	arg.row->addNewItem(userRoleInfo.flags);
+	arg.add(AUTO_INCREMENT_VALUE);
+	arg.add(userRoleInfo.name);
+	arg.add(userRoleInfo.flags);
 
 	string dupCheckCond = StringUtils::sprintf(
 	  "(%s='%s' or %s=%"FMT_OPPRVLG")",
