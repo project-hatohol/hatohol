@@ -36,6 +36,7 @@
 #include "DBClientUser.h"
 #include "DBClientConfig.h"
 #include "SessionManager.h"
+#include "CacheServiceDBClient.h"
 using namespace std;
 using namespace mlpl;
 
@@ -1062,6 +1063,18 @@ static void addOverview(FaceRest::RestJob *job, JsonBuilderAgent &agent)
 	agent.endArray();
 }
 
+static bool canUpdateServer(
+  const OperationPrivilege &privilege, const MonitoringServerInfo &serverInfo)
+{
+        if (privilege.has(OPPRVLG_UPDATE_ALL_SERVER))
+                return true;
+        if (!privilege.has(OPPRVLG_UPDATE_SERVER))
+                return false;
+        CacheServiceDBClient cache;
+        DBClientUser *dbUser = cache.getUser();
+        return dbUser->isAccessible(serverInfo.id, privilege);
+}
+
 static void addServers(FaceRest::RestJob *job, JsonBuilderAgent &agent,
                        const ServerIdType &targetServerId)
 {
@@ -1083,6 +1096,15 @@ static void addServers(FaceRest::RestJob *job, JsonBuilderAgent &agent,
 		agent.add("ipAddress", serverInfo.ipAddress);
 		agent.add("nickname", serverInfo.nickname);
 		agent.add("port", serverInfo.port);
+		agent.add("pollingInterval", serverInfo.pollingIntervalSec);
+		agent.add("retryInterval", serverInfo.retryIntervalSec);
+		if (canUpdateServer(option, serverInfo)) {
+			// Shouldn't show account information of the server to
+			// a user who isn't allowed to update it.
+			agent.add("userName", serverInfo.userName);
+			agent.add("password", serverInfo.password);
+			agent.add("dbName", serverInfo.dbName);
+		}
 		agent.endObject();
 	}
 	agent.endArray();
