@@ -133,6 +133,31 @@ DBAgent::InsertArg::InsertArg(const TableProfile &profile)
 {
 }
 
+void DBAgent::InsertArg::add(const int &val)
+{
+	row->addNewItem(val);
+}
+
+void DBAgent::InsertArg::add(const uint64_t &val)
+{
+	row->addNewItem(val);
+}
+
+void DBAgent::InsertArg::add(const double &val)
+{
+	row->addNewItem(val);
+}
+
+void DBAgent::InsertArg::add(const string &val)
+{
+	row->addNewItem(val);
+}
+
+void DBAgent::InsertArg::add(const time_t &val)
+{
+	row->addNewItem(val);
+}
+
 // ---------------------------------------------------------------------------
 // DBAgent::UpdateArg
 // ---------------------------------------------------------------------------

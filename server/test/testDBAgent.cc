@@ -247,6 +247,32 @@ public:
 	}
 
 	template <typename T, typename T_READ>
+	void assertInsertArgAdd(const T *vals, const size_t &numVals)
+	{
+		TableProfile tblProf("name", m_testColumnDefs,
+		                     sizeof(m_testColumnDefs),
+		                     m_numTestColumns);
+		InsertArg arg(tblProf);
+		for (size_t i = 0; i < numVals; i++)
+			arg.add(vals[i]);
+
+		// check
+		cppcut_assert_equal(numVals, arg.row->getNumberOfItems());
+		for (size_t i = 0; i < numVals; i++) {
+			const ItemData *itemData = arg.row->getItemAt(i);
+			const T_READ actual = *itemData;
+			cppcut_assert_equal(vals[i], static_cast<T>(actual));
+			cppcut_assert_equal(1, itemData->getUsedCount());
+		}
+	}
+
+	template <typename T>
+	void assertInsertArgAdd(const T *vals, const size_t &numVals)
+	{
+		assertInsertArgAdd<T,T>(vals, numVals);
+	}
+
+	template <typename T, typename T_READ>
 	void assertUpdateArgAdd(const T *vals, const size_t &numVals)
 	{
 		TableProfile tblProf("name", m_testColumnDefs,
@@ -392,6 +418,46 @@ void test_createDeleteArg(void)
 {
 	TestDBAgent dbAgent;
 	dbAgent.assertCreateDeleteArg();
+}
+
+void test_insertArgAddInt(void)
+{
+	TestDBAgent dbAgent;
+	const int vals[] = {3, -1, 500};
+	const size_t numVals = sizeof(vals) / sizeof(int);
+	dbAgent.assertInsertArgAdd<int>(vals, numVals);
+}
+
+void test_insertArgAddUint64(void)
+{
+	TestDBAgent dbAgent;
+	const uint64_t vals[] = {0, 0xfedcba987654321, 0x0123456789abcdef};
+	const size_t numVals = sizeof(vals) / sizeof(uint64_t);
+	dbAgent.assertInsertArgAdd<uint64_t>(vals, numVals);
+}
+
+void test_insertArgAddDouble(void)
+{
+	TestDBAgent dbAgent;
+	const double vals[] = {0.8, -0.53432e237, 234.43243e8};
+	const size_t numVals = sizeof(vals) / sizeof(double);
+	dbAgent.assertInsertArgAdd<double>(vals, numVals);
+}
+
+void test_insertArgAddString(void)
+{
+	TestDBAgent dbAgent;
+	const string vals[] = {"booo", "v.v;", "Ueno Zoo"};
+	const size_t numVals = sizeof(vals) / sizeof(string);
+	dbAgent.assertInsertArgAdd<string>(vals, numVals);
+}
+
+void test_insertArgAddTime_t(void)
+{
+	TestDBAgent dbAgent;
+	const time_t vals[] = {0, 0x7fffffff, 1391563132};
+	const size_t numVals = sizeof(vals) / sizeof(string);
+	dbAgent.assertInsertArgAdd<time_t, int>(vals, numVals);
 }
 
 void test_updateArgAddInt(void)

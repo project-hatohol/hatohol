@@ -73,6 +73,11 @@ public:
 		VariableItemGroupPtr  row;
 
 		InsertArg(const TableProfile &tableProfile);
+		void add(const int         &val);
+		void add(const uint64_t    &val);
+		void add(const double      &val);
+		void add(const std::string &val);
+		void add(const time_t      &val);
 	};
 
 	struct UpdateArg {
