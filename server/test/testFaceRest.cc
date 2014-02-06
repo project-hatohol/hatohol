@@ -1263,11 +1263,13 @@ static void serverInfo2StringMap(
 	dest["ipAddress"] = src.ipAddress;
 	dest["nickname"] = src.nickname;
 	dest["port"] = StringUtils::toString(src.port);
-	dest["polling"] = StringUtils::toString(src.pollingIntervalSec);
-	dest["retry"] = StringUtils::toString(src.retryIntervalSec);
 	dest["user"] = src.userName;
 	dest["password"] = src.password;
 	dest["dbName"] = src.dbName;
+	dest["pollingInterval"]
+	  = StringUtils::toString(src.pollingIntervalSec);
+	dest["retryInterval"]
+	  = StringUtils::toString(src.retryIntervalSec);
 }
 
 void test_addServer(void)

@@ -1442,7 +1442,7 @@ HatoholError FaceRest::parseServerParameter(
 
 	// polling
 	err = getParam<int>(
-		query, "polling", "%d", svInfo.pollingIntervalSec);
+		query, "pollingInterval", "%d", svInfo.pollingIntervalSec);
 	if (err != HTERR_OK) {
 		if (!allowEmpty || err != HTERR_NOT_FOUND_PARAMETER)
 			return err;
@@ -1450,7 +1450,7 @@ HatoholError FaceRest::parseServerParameter(
 
 	// retry
 	err = getParam<int>(
-		query, "retry", "%d", svInfo.retryIntervalSec);
+		query, "retryInterval", "%d", svInfo.retryIntervalSec);
 	if (err != HTERR_OK && !allowEmpty)
 		return err;
 
