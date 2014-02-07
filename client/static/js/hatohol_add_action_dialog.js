@@ -39,7 +39,9 @@ var HatoholAddActionDialog = function(addSucceededCb) {
   // call the constructor of the super class
   HatoholDialog.apply(
     this, ["add-action-dialog", gettext("ADD ACTION"), dialogButtons]);
+
   setTimeout(function(){
+    // use setTimeout() to avoid "disabled" attribute is removed by bootstrap
     self.setAddButtonState(false);
   }, 1);
 

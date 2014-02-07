@@ -36,6 +36,7 @@ var HatoholActorMailDialog = function(applyCallback, currCommand) {
   HatoholDialog.apply(this, [id, title, dialogButtons]);
 
   setTimeout(function(){
+    // use setTimeout() to avoid "disabled" attribute is removed by bootstrap
     if ($("#inputTo").val())
       self.setApplyButtonState(true);
     else

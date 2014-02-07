@@ -40,9 +40,11 @@ var HatoholUserEditDialog = function(params) {
   HatoholDialog.apply(
     this, ["user-edit-dialog", self.windowTitle, dialogButtons, dialogAttrs]);
 
+  // set initial state
   if (self.user)
     self.setUser(self.user);
   setTimeout(function(){
+    // use setTimeout() to avoid "disabled" attribute is removed by bootstrap
     self.setApplyButtonState(false);
   }, 1);
   self.loadUserRoles();

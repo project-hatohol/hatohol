@@ -40,9 +40,12 @@ var HatoholServerEditDialog = function(params) {
   HatoholDialog.apply(
       this, ["server-edit-dialog", self.windowTitle,
              dialogButtons, dialogAttrs]);
+
+  // set initial state
   if (self.server)
     self.setServer(self.server);
   setTimeout(function(){
+    // use setTimeout() to avoid "disabled" attribute is removed by bootstrap
     self.fixupApplyButtonState();
   }, 1);
 
