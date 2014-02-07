@@ -33,7 +33,11 @@ var HatoholSelectorDialog = function(id, title, selectedCallback) {
 
   // call the constructor of the super class
   HatoholDialog.apply(this, [id, title, dialogButtons]);
-  self.setSelectButtonState(false);
+
+  setTimeout(function(){
+    // use setTimeout() to avoid "disabled" attribute is removed by bootstrap
+    self.setSelectButtonState(false);
+  }, 1);
 }
 
 HatoholSelectorDialog.prototype = Object.create(HatoholDialog.prototype);
