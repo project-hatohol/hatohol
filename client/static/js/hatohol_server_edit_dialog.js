@@ -260,7 +260,6 @@ HatoholServerEditDialog.prototype.setApplyButtonState = function(state) {
 };
 
 HatoholServerEditDialog.prototype.fixupApplyButtonState = function(enable) {
-  var self = this;
   var validHostName = !!$("#inputHostName").val();
   var validIpAddress = !!$("#inputIpAddress").val();
   var validNickName = !!$("#inputNickName").val();
@@ -278,7 +277,7 @@ HatoholServerEditDialog.prototype.fixupApplyButtonState = function(enable) {
     validRetryInterval &&
     validUserName &&
     validPassword;
-  self.setApplyButtonState(state);
+  this.setApplyButtonState(state);
 };
 
 HatoholServerEditDialog.prototype.setDBNameTextState = function(state) {
