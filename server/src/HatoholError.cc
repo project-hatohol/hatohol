@@ -18,8 +18,10 @@
  */
 
 #include "HatoholError.h"
+#include <map>
+
 using namespace std;
-static const char *errorMessages[NUM_HATOHOL_ERROR_CODE];
+static map<HatoholErrorCode, string> errorMessages;
 
 // ---------------------------------------------------------------------------
 // Public methods
