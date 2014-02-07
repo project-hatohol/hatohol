@@ -22,7 +22,7 @@ describe('HatoholUserEditDialog', function() {
     // check initial values
     expect($("#editUserName").val()).to.be.empty();
     expect($("#editPassword").val()).to.be.empty();
-    expect($("#selectUserRole").val()).to.eql(hatohol.NONE_PRIVILEGE);
+    expect($("#selectUserRole").val()).eql(hatohol.NONE_PRIVILEGE);
   });
 
   it('new with admin user data', function() {
@@ -43,6 +43,6 @@ describe('HatoholUserEditDialog', function() {
     // check initial values
     expect($("#editUserName").val()).to.be(adminUser.name);
     expect($("#editPassword").val()).to.be.empty();
-    expect($("#selectUserRole").val()).to.eql(adminUser.flags);
+    expect($("#selectUserRole").val()).eql(adminUser.flags);
   });
 });

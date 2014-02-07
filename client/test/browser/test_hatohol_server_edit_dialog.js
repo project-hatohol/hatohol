@@ -60,16 +60,16 @@ describe('HatoholServerEditDialog', function() {
     expect(buttons[0].text).to.be(gettext("APPLY"));
 
     // check initial values
-    expect($("#selectServerType").val()).to.eql(server.type);
+    expect($("#selectServerType").val()).eql(server.type);
     expect($("#inputNickName").val()).to.be(server.nickname);
     expect($("#inputHostName").val()).to.be(server.hostName);
     expect($("#inputIpAddress").val()).to.be(server.ipAddress);
-    expect($("#inputPort").val()).to.eql(server.port);
+    expect($("#inputPort").val()).eql(server.port);
     expect($("#inputUserName").val()).to.be(server.userName);
     expect($("#inputPassword").val()).to.be(server.password);
     expect($("#inputDbName").val()).to.be(server.dbName);
-    expect($("#inputPollingInterval").val()).to.eql(server.pollingInterval);
-    expect($("#inputRetryInterval").val()).to.eql(server.retryInterval);
+    expect($("#inputPollingInterval").val()).eql(server.pollingInterval);
+    expect($("#inputRetryInterval").val()).eql(server.retryInterval);
 
     // check initial state
     expect($("#dbNameArea").css("display")).not.to.be("none");
