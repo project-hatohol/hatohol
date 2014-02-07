@@ -65,7 +65,7 @@ var HatoholUserEditDialog = function(params) {
   $("#editUserRoles").click(function() {
     new HatoholUserRolesEditor({
       operator: self.operator,
-      succeededCallback: function() {
+      changedCallback: function() {
         self.loadUserRoles();
       }
     });
