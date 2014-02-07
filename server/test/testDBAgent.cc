@@ -253,8 +253,12 @@ public:
 		                     sizeof(m_testColumnDefs),
 		                     m_numTestColumns);
 		InsertArg arg(tblProf);
-		for (size_t i = 0; i < numVals; i++)
-			arg.add(vals[i]);
+		for (size_t i = 0; i < numVals; i++) {
+			if (i % 2 == 0)
+				arg.add(vals[i]);
+			else
+				arg.add(vals[i], ITEM_DATA_NULL);
+		}
 
 		// check
 		cppcut_assert_equal(numVals, arg.row->getNumberOfItems());
@@ -262,6 +266,8 @@ public:
 			const ItemData *itemData = arg.row->getItemAt(i);
 			const T_READ actual = *itemData;
 			cppcut_assert_equal(vals[i], static_cast<T>(actual));
+			const bool expectedNull = (i % 2 == 1);
+			cppcut_assert_equal(expectedNull, itemData->isNull());
 			cppcut_assert_equal(1, itemData->getUsedCount());
 		}
 	}

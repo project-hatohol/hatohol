@@ -133,29 +133,34 @@ DBAgent::InsertArg::InsertArg(const TableProfile &profile)
 {
 }
 
-void DBAgent::InsertArg::add(const int &val)
+void DBAgent::InsertArg::add(const int &val,
+                             const ItemDataNullFlagType &nullFlag)
 {
-	row->addNewItem(val);
+	row->addNewItem(val, nullFlag);
 }
 
-void DBAgent::InsertArg::add(const uint64_t &val)
+void DBAgent::InsertArg::add(const uint64_t &val,
+                             const ItemDataNullFlagType &nullFlag)
 {
-	row->addNewItem(val);
+	row->addNewItem(val, nullFlag);
 }
 
-void DBAgent::InsertArg::add(const double &val)
+void DBAgent::InsertArg::add(const double &val,
+                             const ItemDataNullFlagType &nullFlag)
 {
-	row->addNewItem(val);
+	row->addNewItem(val, nullFlag);
 }
 
-void DBAgent::InsertArg::add(const string &val)
+void DBAgent::InsertArg::add(const string &val,
+                             const ItemDataNullFlagType &nullFlag)
 {
-	row->addNewItem(val);
+	row->addNewItem(val, nullFlag);
 }
 
-void DBAgent::InsertArg::add(const time_t &val)
+void DBAgent::InsertArg::add(const time_t &val,
+                             const ItemDataNullFlagType &nullFlag)
 {
-	row->addNewItem(val);
+	row->addNewItem(val, nullFlag);
 }
 
 // ---------------------------------------------------------------------------
