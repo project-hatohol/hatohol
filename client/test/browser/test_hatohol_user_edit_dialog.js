@@ -8,6 +8,9 @@ describe('HatoholUserEditDialog', function() {
   afterEach(function() {
     if (dialog)
       dialog.closeDialog();
+    // ensure to cleanup child dialogs
+    $("#hatohol-message-box").remove();
+    $(".ui-dialog").remove();
   });
 
   function getAdminUserData() {
