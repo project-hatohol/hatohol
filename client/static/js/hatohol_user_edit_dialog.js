@@ -183,7 +183,7 @@ HatoholUserEditDialog.prototype.onAppendMainElement = function () {
   });
 
   $("#selectUserRole").change(function() {
-    fixupApplyButtonState();
+    self.fixupApplyButtonState();
   });
 };
 
