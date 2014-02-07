@@ -8,6 +8,9 @@ describe('HatoholServerEditDialog', function() {
   afterEach(function() {
     if (dialog)
       dialog.closeDialog();
+    // ensure to cleanup child dialogs
+    $("#hatohol-message-box").remove();
+    $(".ui-dialog").remove();
   });
 
   it('new with empty params', function() {
@@ -102,7 +105,6 @@ describe('HatoholServerEditDialog', function() {
     });
     var buttons = $(expectedId).dialog("option", "buttons");
     buttons[0].click();
-    // TODO: destroy information dialog
     stub.restore();
   });
 });
