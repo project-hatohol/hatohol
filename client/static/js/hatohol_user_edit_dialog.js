@@ -173,27 +173,18 @@ HatoholUserEditDialog.prototype.createMainElement = function() {
 
 HatoholUserEditDialog.prototype.onAppendMainElement = function () {
   var self = this;
-  var validUserName = !!$("#editUserName").val();
-  var validPassword = !!$("#editPassword").val() || !!self.user;
 
   $("#editUserName").keyup(function() {
-    validUserName = !!$("#editUserName").val();
-    fixupApplyButtonState();
+    self.fixupApplyButtonState();
   });
 
   $("#editPassword").keyup(function() {
-    validPassword = !!$("#editPassword").val() || !!self.user;
-    fixupApplyButtonState();
+    self.fixupApplyButtonState();
   });
 
   $("#selectUserRole").change(function() {
     fixupApplyButtonState();
   });
-
-  function fixupApplyButtonState() {
-    var state = (validUserName && validPassword);
-    self.setApplyButtonState(state);
-  }
 };
 
 HatoholUserEditDialog.prototype.setApplyButtonState = function(state) {
@@ -206,6 +197,13 @@ HatoholUserEditDialog.prototype.setApplyButtonState = function(state) {
      btn.attr("disabled", "disabled");
      btn.addClass("ui-state-disabled");
   }
+};
+
+HatoholUserEditDialog.prototype.fixupApplyButtonState = function() {
+  var validUserName = !!$("#editUserName").val();
+  var validPassword = !!$("#editPassword").val() || !!this.user;
+  var state = (validUserName && validPassword);
+  this.setApplyButtonState(state);
 };
 
 HatoholUserEditDialog.prototype.updateUserRolesSelector = function() {
