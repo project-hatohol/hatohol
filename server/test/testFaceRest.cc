@@ -921,7 +921,7 @@ static void _assertUpdateOrAddUser(const string &name)
 	setupTestDBUser(dbRecreate, loadTestDat);
 
 	StringMap parameters;
-	parameters["user"] = name;
+	parameters["name"] = name;
 	parameters["password"] = "AR2c43fdsaf";
 	parameters["flags"] = "0";
 
@@ -936,7 +936,7 @@ static void _assertUpdateOrAddUser(const string &name)
 	  "select name,password,flags from %s where name='%s'",
 	  DBClientUser::TABLE_NAME_USERS, name.c_str());
 	string expect = StringUtils::sprintf("%s|%s|%s",
-	  parameters["user"].c_str(),
+	  parameters["name"].c_str(),
 	  Utils::sha256( parameters["password"]).c_str(),
 	  parameters["flags"].c_str());
 	CacheServiceDBClient cache;
@@ -1783,7 +1783,7 @@ void test_addUser(void)
 	const string password = "w(^_^)d";
 
 	StringMap params;
-	params["user"] = user;
+	params["name"] = user;
 	params["password"] = password;
 	params["flags"] = StringUtils::sprintf("%"FMT_OPPRVLG, flags);
 	assertAddUserWithSetup(params, HTERR_OK);
@@ -1807,7 +1807,7 @@ void test_updateUser(void)
 	const string password = "=(-.-)zzZZ";
 
 	StringMap params;
-	params["user"] = user;
+	params["name"] = user;
 	params["password"] = password;
 	params["flags"] = StringUtils::sprintf("%"FMT_OPPRVLG, flags);
 	assertUpdateUserWithSetup(params, targetId, HTERR_OK);
@@ -1830,7 +1830,7 @@ void test_updateUserWithoutFlags(void)
 	const string password = "=(-.-)zzZZ";
 
 	StringMap params;
-	params["user"] = user;
+	params["name"] = user;
 	params["password"] = password;
 	assertUpdateUserWithSetup(params, targetId, HTERR_OK);
 
@@ -1851,7 +1851,7 @@ void test_updateUserWithInvalidFlags(void)
 	const string password = "=(-.-)zzZZ";
 
 	StringMap params;
-	params["user"] = user;
+	params["name"] = user;
 	params["password"] = password;
 	params["flags"] = "no-number";
 	assertUpdateUserWithSetup(params, targetId, HTERR_INVALID_PARAMETER);
@@ -1865,7 +1865,7 @@ void test_updateUserWithoutPassword(void)
 	const string expectedPassword = testUserInfo[targetId - 1].password;
 
 	StringMap params;
-	params["user"] = user;
+	params["name"] = user;
 	params["flags"] = StringUtils::sprintf("%"FMT_OPPRVLG, flags);
 	assertUpdateUserWithSetup(params, targetId, HTERR_OK);
 
@@ -1888,7 +1888,7 @@ void test_updateUserWithoutUserId(void)
 	const string expectedPassword = testUserInfo[targetId - 1].password;
 
 	StringMap params;
-	params["user"] = user;
+	params["name"] = user;
 	params["flags"] = StringUtils::sprintf("%"FMT_OPPRVLG, flags);
 	assertUpdateUserWithSetup(params, -1, HTERR_NOT_FOUND_ID_IN_URL);
 }
@@ -1904,7 +1904,7 @@ void test_addUserWithoutUser(void)
 void test_addUserWithoutPassword(void)
 {
 	StringMap params;
-	params["user"] = "y@ru0";
+	params["name"] = "y@ru0";
 	params["flags"] = "0";
 	assertAddUserWithSetup(params, HTERR_NOT_FOUND_PARAMETER);
 }
@@ -1912,7 +1912,7 @@ void test_addUserWithoutPassword(void)
 void test_addUserWithoutFlags(void)
 {
 	StringMap params;
-	params["user"] = "y@ru0";
+	params["name"] = "y@ru0";
 	params["password"] = "w(^_^)d";
 	assertAddUserWithSetup(params, HTERR_NOT_FOUND_PARAMETER);
 }
@@ -1920,7 +1920,7 @@ void test_addUserWithoutFlags(void)
 void test_addUserInvalidUserName(void)
 {
 	StringMap params;
-	params["user"] = "!^.^!"; // '!' and '^' are invalid characters
+	params["name"] = "!^.^!"; // '!' and '^' are invalid characters
 	params["password"] = "w(^_^)d";
 	params["flags"] = "0";
 	assertAddUserWithSetup(params, HTERR_INVALID_CHAR);
@@ -1997,7 +1997,7 @@ void test_updateOrAddUserMissingUser(void)
 void test_updateOrAddUserMissingPassword(void)
 {
 	StringMap parameters;
-	parameters["user"] = "ABC";
+	parameters["name"] = "ABC";
 	parameters["flags"] = "2";
 	assertUpdateAddUserMissing(parameters);
 }
@@ -2005,7 +2005,7 @@ void test_updateOrAddUserMissingPassword(void)
 void test_updateOrAddUserMissingFlags(void)
 {
 	StringMap parameters;
-	parameters["user"] = "ABC";
+	parameters["name"] = "ABC";
 	parameters["password"] = "AR2c43fdsaf";
 	assertUpdateAddUserMissing(parameters);
 }

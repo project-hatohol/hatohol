@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -39,6 +39,9 @@ var HatoholUserEditDialog = function(params) {
   dialogAttrs = { width: "auto" };
   HatoholDialog.apply(
     this, ["user-edit-dialog", self.windowTitle, dialogButtons, dialogAttrs]);
+
+  if (self.user)
+    self.setUser(self.user);
   setTimeout(function(){
     self.setApplyButtonState(false);
   }, 1);
@@ -65,7 +68,7 @@ var HatoholUserEditDialog = function(params) {
   $("#editUserRoles").click(function() {
     new HatoholUserRolesEditor({
       operator: self.operator,
-      succeededCallback: function() {
+      changedCallback: function() {
         self.loadUserRoles();
       }
     });
@@ -74,7 +77,7 @@ var HatoholUserEditDialog = function(params) {
   function makeQueryData() {
     var queryData = {};
     var password = $("#editPassword").val();
-    queryData.user = $("#editUserName").val();
+    queryData.name = $("#editUserName").val();
     if (password)
       queryData.password = password;
     queryData.flags = getFlags();
@@ -144,21 +147,17 @@ HatoholUserEditDialog.prototype.createMainElement = function() {
   };
 
   function makeMainDivHTML() {
-    var userName = self.user ? self.user.name : "";
-    var isAdmin = self.user && (self.user.flags == hatohol.ALL_PRIVILEGES);
-    var adminSelected = isAdmin ? "selected" : "";
     var html = "" +
     '<div>' +
     '<label for="editUserName">' + gettext("User name") + '</label>' +
-    '<input id="editUserName" type="text" value="' + userName +
-    '"  class="input-xlarge">' +
+    '<input id="editUserName" type="text" value="" class="input-xlarge">' +
     '<label for="editPassword">' + gettext("Password") + '</label>' +
     '<input id="editPassword" type="password" value="" class="input-xlarge">' +
     '<label>' + gettext("User role") + '</label>' +
     '<select id="selectUserRole" style="width: 12em;">' +
     '  <option value="' + hatohol.NONE_PRIVILEGE + '">' +
       gettext('Guest') + '</option>' +
-    '  <option value="' + hatohol.ALL_PRIVILEGES + '" ' + adminSelected + '>' +
+    '  <option value="' + hatohol.ALL_PRIVILEGES + '" >' +
       gettext('Admin') + '  </option>' +
     '</select>';
     if (canEditUserRoles()) {
@@ -173,27 +172,18 @@ HatoholUserEditDialog.prototype.createMainElement = function() {
 
 HatoholUserEditDialog.prototype.onAppendMainElement = function () {
   var self = this;
-  var validUserName = !!$("#editUserName").val();
-  var validPassword = !!$("#editPassword").val() || !!self.user;
 
   $("#editUserName").keyup(function() {
-    validUserName = !!$("#editUserName").val();
-    fixupApplyButtonState();
+    self.fixupApplyButtonState();
   });
 
   $("#editPassword").keyup(function() {
-    validPassword = !!$("#editPassword").val() || !!self.user;
-    fixupApplyButtonState();
+    self.fixupApplyButtonState();
   });
 
   $("#selectUserRole").change(function() {
-    fixupApplyButtonState();
+    self.fixupApplyButtonState();
   });
-
-  function fixupApplyButtonState() {
-    var state = (validUserName && validPassword);
-    self.setApplyButtonState(state);
-  }
 };
 
 HatoholUserEditDialog.prototype.setApplyButtonState = function(state) {
@@ -206,6 +196,13 @@ HatoholUserEditDialog.prototype.setApplyButtonState = function(state) {
      btn.attr("disabled", "disabled");
      btn.addClass("ui-state-disabled");
   }
+};
+
+HatoholUserEditDialog.prototype.fixupApplyButtonState = function() {
+  var validUserName = !!$("#editUserName").val();
+  var validPassword = !!$("#editPassword").val() || !!this.user;
+  var state = (validUserName && validPassword);
+  this.setApplyButtonState(state);
 };
 
 HatoholUserEditDialog.prototype.updateUserRolesSelector = function() {
@@ -245,4 +242,12 @@ HatoholUserEditDialog.prototype.loadUserRoles = function() {
       hatoholErrorMsgBox(errorMsg);
     }
   });
+};
+
+HatoholUserEditDialog.prototype.setUser = function(user) {
+  this.user = user;
+  $("#editUserName").val(this.user.name);
+  $("#editPassword").val("");
+  $("#selectUserRole").val(this.user.flags);
+  this.fixupApplyButtonState();
 };
