@@ -525,26 +525,26 @@ HatoholError DBClientAction::addAction(ActionDef &actionDef,
 		ownerUserId = actionDef.ownerUserId;
 
 	DBAgent::InsertArg arg(tableProfileActions);
-	arg.row->addNewItem(AUTO_INCREMENT_VALUE);
-	arg.row->addNewItem(actionDef.condition.serverId,
-	                    getNullFlag(actionDef, ACTCOND_SERVER_ID));
-	arg.row->addNewItem(actionDef.condition.hostId,
-	                    getNullFlag(actionDef, ACTCOND_HOST_ID));
-	arg.row->addNewItem(actionDef.condition.hostGroupId,
-	                    getNullFlag(actionDef, ACTCOND_HOST_GROUP_ID));
-	arg.row->addNewItem(actionDef.condition.triggerId,
-	                    getNullFlag(actionDef, ACTCOND_TRIGGER_ID));
-	arg.row->addNewItem(actionDef.condition.triggerStatus,
-	                    getNullFlag(actionDef, ACTCOND_TRIGGER_STATUS));
-	arg.row->addNewItem(actionDef.condition.triggerSeverity,
-	                    getNullFlag(actionDef, ACTCOND_TRIGGER_SEVERITY));
-	arg.row->addNewItem(actionDef.condition.triggerSeverityCompType,
-	                    getNullFlag(actionDef, ACTCOND_TRIGGER_SEVERITY));
-	arg.row->addNewItem(actionDef.type);
-	arg.row->addNewItem(actionDef.command);
-	arg.row->addNewItem(actionDef.workingDir);
-	arg.row->addNewItem(actionDef.timeout);
-	arg.row->addNewItem(ownerUserId);
+	arg.add(AUTO_INCREMENT_VALUE);
+	arg.add(actionDef.condition.serverId,
+	        getNullFlag(actionDef, ACTCOND_SERVER_ID));
+	arg.add(actionDef.condition.hostId,
+	        getNullFlag(actionDef, ACTCOND_HOST_ID));
+	arg.add(actionDef.condition.hostGroupId,
+	        getNullFlag(actionDef, ACTCOND_HOST_GROUP_ID));
+	arg.add(actionDef.condition.triggerId,
+	        getNullFlag(actionDef, ACTCOND_TRIGGER_ID));
+	arg.add(actionDef.condition.triggerStatus,
+	        getNullFlag(actionDef, ACTCOND_TRIGGER_STATUS));
+	arg.add(actionDef.condition.triggerSeverity,
+	        getNullFlag(actionDef, ACTCOND_TRIGGER_SEVERITY));
+	arg.add(actionDef.condition.triggerSeverityCompType,
+	        getNullFlag(actionDef, ACTCOND_TRIGGER_SEVERITY));
+	arg.add(actionDef.type);
+	arg.add(actionDef.command);
+	arg.add(actionDef.workingDir);
+	arg.add(actionDef.timeout);
+	arg.add(ownerUserId);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		insert(arg);
