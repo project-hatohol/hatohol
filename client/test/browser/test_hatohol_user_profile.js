@@ -35,7 +35,7 @@ describe('HatoholUserProfile', function() {
     $.ajax({
       url: "/tunnel/test/user",
       type: "POST",
-      data: {"user":TEST_USER, "password":TEST_PASSWORD, "flags":0},
+      data: {"name":TEST_USER, "password":TEST_PASSWORD, "flags":0},
       beforeSend: function(xhr) {
         xhr.setRequestHeader("X-CSRFToken", CSRF_TOKEN);
       },

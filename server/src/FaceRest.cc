@@ -2538,9 +2538,9 @@ HatoholError FaceRest::parseUserParameter(
 	char *value;
 
 	// name
-	value = (char *)g_hash_table_lookup(query, "user");
+	value = (char *)g_hash_table_lookup(query, "name");
 	if (!value && !allowEmpty)
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "user");
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "name");
 	if (value)
 		userInfo.name = value;
 

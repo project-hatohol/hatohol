@@ -77,7 +77,7 @@ var HatoholUserEditDialog = function(params) {
   function makeQueryData() {
     var queryData = {};
     var password = $("#editPassword").val();
-    queryData.user = $("#editUserName").val();
+    queryData.name = $("#editUserName").val();
     if (password)
       queryData.password = password;
     queryData.flags = getFlags();
