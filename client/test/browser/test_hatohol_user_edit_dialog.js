@@ -18,5 +18,10 @@ describe('HatoholUserEditDialog', function() {
     var buttons = $(expectedId).dialog("option", "buttons");
     expect(buttons).to.have.length(2);
     expect(buttons[0].text).to.be(gettext("ADD"));
+
+    // check initial values
+    expect($("#editUserName").val()).to.be.empty();
+    expect($("#editPassword").val()).to.be.empty();
+    expect($("#selectUserRole").val()).to.eql(hatohol.NONE_PRIVILEGE);
   });
 });

@@ -156,9 +156,10 @@ HatoholUserEditDialog.prototype.createMainElement = function() {
     '<input id="editPassword" type="password" value="" class="input-xlarge">' +
     '<label>' + gettext("User role") + '</label>' +
     '<select id="selectUserRole" style="width: 12em;">' +
-    '  <option value="guest">' + gettext('Guest') + '</option>' +
-    '  <option value="admin" ' + adminSelected + '>' + gettext('Admin') +
-    '  </option>' +
+    '  <option value="' + hatohol.NONE_PRIVILEGE + '">' +
+      gettext('Guest') + '</option>' +
+    '  <option value="' + hatohol.ALL_PRIVILEGES + '" ' + adminSelected + '>' +
+      gettext('Admin') + '  </option>' +
     '</select>';
     if (canEditUserRoles()) {
       html +=
