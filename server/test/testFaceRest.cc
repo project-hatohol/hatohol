@@ -2049,6 +2049,30 @@ void test_addAccessInfo(void)
 	assertAddAccessInfoWithCond(serverId, hostGroupId);
 }
 
+void test_updateAccessInfo(void)
+{
+	setupUserDB();
+
+	const UserIdType userId = findUserWith(OPPRVLG_UPDATE_USER);
+	const UserIdType targetUserId = 1;
+	const string url = StringUtils::sprintf(
+	  "/user/%"FMT_USER_ID"/access-info/2", targetUserId);
+	StringMap params;
+	params["serverId"] = "2";
+	params["hostGroupId"] = "-1";
+
+	startFaceRest();
+
+	RequestArg arg(url);
+	arg.parameters = params;
+	arg.request = "PUT";
+	arg.userId = userId;
+	getServerResponse(arg);
+	cppcut_assert_equal(
+	  static_cast<int>(SOUP_STATUS_METHOD_NOT_ALLOWED),
+	  arg.httpStatusCode);
+}
+
 void test_addAccessInfoWithAllHostGroups(void)
 {
 	const string serverId = "2";
