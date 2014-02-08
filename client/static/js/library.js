@@ -206,6 +206,10 @@ function makeMonitoringSystemTypeLabel(type) {
 
 function getServerLocation(server) {
   var ipAddress, port, url;
+
+  if (!server)
+    return undefined;
+
   switch (server["type"]) {
   case hatohol.MONITORING_SYSTEM_ZABBIX:
     ipAddress = server["ipAddress"];

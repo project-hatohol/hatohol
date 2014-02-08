@@ -102,8 +102,8 @@
       for (x = 0; x < replyData["items"].length; ++x) {
         item = replyData["items"][x];
         server = replyData["servers"][item["serverId"]];
-        serverName = server["name"];
-        serverNames.push(server["name"]);
+        serverName = getServerName(server, item["serverId"]);
+        serverNames.push(serverName);
 
         if (item["itemGroupName"].length == 0)
           item["itemGroupName"] = "_non_";
@@ -112,7 +112,7 @@
 
         if (!hostNames[serverName])
           hostNames[serverName] = [];
-        hostNames[serverName].push(server["hosts"][item["hostId"]]["name"]);
+        hostNames[serverName].push(getHostName(server, item["hostId"]));
       }
 
       parsedData.servers = serverNames.uniq().sort();
@@ -158,8 +158,8 @@
         item       = replyData["items"][x];
         server     = replyData["servers"][item["serverId"]];
         url        = getItemGraphLocation(server, item["id"]);
-        serverName = server["name"];
-        hostName   = server["hosts"][item["hostId"]]["name"];
+        serverName = getServerName(server, item["serverId"]);
+        hostName   = getHostName(server, item["hostId"]);
         clock      = item["lastValueTime"];
         appName    = item["itemGroupName"];
 

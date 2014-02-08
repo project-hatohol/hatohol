@@ -103,8 +103,8 @@
       for (x = 0; x < replyData["items"].length; ++x) {
         item = replyData["items"][x];
         server = replyData["servers"][item["serverId"]]
-        serverName = server["name"];
-        hostName   = server["hosts"][item["hostId"]]["name"];
+        serverName = getServerName(server, item["serverId"]);
+        hostName   = getHostName(server, item["hostId"]);
         itemName   = item["brief"];
 
         serverNames.push(serverName);
