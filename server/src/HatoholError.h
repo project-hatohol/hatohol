@@ -82,6 +82,7 @@ public:
 	             const std::string &optMessage = "");
 	virtual ~HatoholError(void);
 	const HatoholErrorCode &getCode(void) const;
+	const std::string &getMessage(void) const;
 	const std::string &getOptionMessage(void) const;
 
 	bool operator==(const HatoholErrorCode &rhs) const;

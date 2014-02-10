@@ -100,6 +100,14 @@ const HatoholErrorCode &HatoholError::getCode(void) const
 	return m_code;
 }
 
+const std::string &HatoholError::getMessage(void) const
+{
+	static const string emptyMessage;
+	if (errorMessages.find(m_code) != errorMessages.end())
+		return errorMessages[m_code];
+	return emptyMessage;
+}
+
 const string &HatoholError::getOptionMessage(void) const
 {
 	return m_optMessage;
