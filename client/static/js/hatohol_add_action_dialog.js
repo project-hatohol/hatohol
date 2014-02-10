@@ -40,10 +40,7 @@ var HatoholAddActionDialog = function(addSucceededCb) {
   HatoholDialog.apply(
     this, ["add-action-dialog", gettext("ADD ACTION"), dialogButtons]);
 
-  setTimeout(function(){
-    // use setTimeout() to avoid "disabled" attribute is removed by bootstrap
-    self.setAddButtonState(false);
-  }, 1);
+  self.setAddButtonState(false);
 
   //
   // Dialog button handlers

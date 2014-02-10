@@ -35,13 +35,10 @@ var HatoholActorMailDialog = function(applyCallback, currCommand) {
   var title = gettext("Execution parameter maker");
   HatoholDialog.apply(this, [id, title, dialogButtons]);
 
-  setTimeout(function(){
-    // use setTimeout() to avoid "disabled" attribute is removed by bootstrap
-    if ($("#inputTo").val())
-      self.setApplyButtonState(true);
-    else
-      self.setApplyButtonState(false);
-  }, 1);
+  if ($("#inputTo").val())
+    self.setApplyButtonState(true);
+  else
+    self.setApplyButtonState(false);
 };
 
 HatoholActorMailDialog.prototype = Object.create(HatoholDialog.prototype);

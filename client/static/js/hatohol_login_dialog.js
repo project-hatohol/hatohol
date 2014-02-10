@@ -34,10 +34,7 @@ var HatoholLoginDialog = function(readyCallback) {
   dialogAttr.width = "auto";
   HatoholDialog.apply(this, [id, title, dialogButtons, dialogAttr]);
 
-  setTimeout(function(){
-    // use setTimeout() to avoid "disabled" attribute is removed by bootstrap
-    self.setButtonState(self.buttonName, false);
-  }, 1);
+  self.setButtonState(self.buttonName, false);
 
   function loginButtonClicked() {
     var user = $("#inputUserName").val();

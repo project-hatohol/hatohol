@@ -43,10 +43,7 @@ var HatoholUserEditDialog = function(params) {
   // set initial state
   if (self.user)
     self.setUser(self.user);
-  setTimeout(function(){
-    // use setTimeout() to avoid "disabled" attribute is removed by bootstrap
-    self.setApplyButtonState(false);
-  }, 1);
+  self.setApplyButtonState(false);
   self.loadUserRoles();
 
   //
