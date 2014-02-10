@@ -48,32 +48,32 @@
   <body style="padding-top: 60px">
 
     <div class="navbar navbar-inverse navbar-fixed-top">
-        <a class="navbar-brand">&nbsp;<i>{% trans "Hatohol" %}</i>&nbsp;</a>
-        <ul class="nav navbar-nav">
-        </ul>
+      <a class="navbar-brand">&nbsp;<i>{% trans "Hatohol" %}</i>&nbsp;</a>
+      <ul class="nav navbar-nav">
+      </ul>
 
-        <div class="pull-right btn-group" id ="sts">
-          <button class="btn btn-info">
-            <span>{% trans "PREPARE" %}</span> 
-          </button>
-        </div>
+      <div class="pull-right btn-group" id ="sts">
+        <button class="btn btn-info">
+          <span>{% trans "PREPARE" %}</span> 
+        </button>
+      </div>
 
-        <div class="pull-right btn-group" id ="userMenu">
-          <button class="btn dropdown-toggle btn-inverse" data-toggle="dropdown" id="userProfileButton">
-            <span id="currentUserName"></span> 
-            <span class="caret"></span>
-          </button>
-          <ul class="dropdown-menu" role="menu" aria-labelledby="userProfileButton">
-            <li role="presentation">
-              <a id="logoutMenuItem" role="menuitem" href="javascript:void(0);">{% trans "Logout" %}</a>
-            </li>
-            <li role="presentation">
-              <a id="changePasswordMenuItem" role="menuitem" href="javascript:void(0);">
+      <div class="pull-right btn-group" id ="userMenu">
+        <button class="btn dropdown-toggle btn-inverse" data-toggle="dropdown" id="userProfileButton">
+          <span id="currentUserName"></span> 
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" role="menu" aria-labelledby="userProfileButton">
+          <li role="presentation">
+            <a id="logoutMenuItem" role="menuitem" href="javascript:void(0);">{% trans "Logout" %}</a>
+          </li>
+          <li role="presentation">
+            <a id="changePasswordMenuItem" role="menuitem" href="javascript:void(0);">
                 {% trans "Change password" %}
-              </a>
-            </li>
-          </ul>
-        </div>
+            </a>
+          </li>
+        </ul>
+      </div>
     </div>
 
 {% block main %}
