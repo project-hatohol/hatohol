@@ -557,9 +557,9 @@ void FaceRest::addHatoholError(JsonBuilderAgent &agent,
 	agent.add("apiVersion", API_VERSION);
 	agent.add("errorCode", err.getCode());
 	if (err != HTERR_OK && !err.getMessage().empty())
-		agent.add("errorMessage", err.getMessage().c_str());
+		agent.add("errorMessage", err.getMessage());
 	if (!err.getOptionMessage().empty())
-		agent.add("optionMessages", err.getOptionMessage().c_str());
+		agent.add("optionMessages", err.getOptionMessage());
 }
 
 void FaceRest::replyError(RestJob *job,
