@@ -8,7 +8,7 @@ Required software and settings
 ----------------------------------------
 - Python 2.6
 - Django 1.5
-- Bootstrap (from twitter) 2.3.2
+- Bootstrap (from twitter) 3.1.0
 - JavaScript enabled (web browser side)
 
 Containing modules
@@ -28,7 +28,7 @@ How to setup
 Hatohol Client is written as PATH FREE. So you can place it anywhere.
 
 ### Install Bootstrap
-Get a Bootstrap 2.3.2 tar ball (http://getbootstrap.com/2.3.2/) and extract them
+Get a Bootstrap 3.1.0 tar ball (http://getbootstrap.com) and extract them
 onto static/js and static/css.
 
 ### Install Required Libraries
