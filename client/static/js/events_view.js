@@ -109,7 +109,7 @@ var EventsView = function(baseElem) {
     s += '    <option>---------</option>';
     s += '  </select>';
     s += '  <label for="num-events-per-page">' + gettext("# of events per page") + '</label>';
-    s += '  <input type="text" class="input-mini" id="num-events-per-page">';
+    s += '  <input type="text" class="input-mini" id="num-events-per-page" style="width:4em;">';
     s += '</form>';
 
     s += '<table class="table table-condensed table-hover" id="table">';
