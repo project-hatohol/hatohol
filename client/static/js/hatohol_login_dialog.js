@@ -58,10 +58,10 @@ HatoholLoginDialog.prototype.createMainElement = function() {
 
   function makeMainDivHTML(initParams) {
     var s = '';
-    s += '<label for="inputUserName">' + gettext("User name") + '</label>';
-    s += '<input id="inputUserName" type="text" value="" class="input-xlarge">';
-    s += '<label for="inputPassword">' + gettext("Password") + '</label>';
-    s += '<input id="inputPassword" type="password" value="" class="input-xlarge">';
+    s += '<label for="inputUserName">' + gettext("User name") + '</label><br>';
+    s += '<input id="inputUserName" type="text" value="" class="input-xlarge"><br>';
+    s += '<label for="inputPassword">' + gettext("Password") + '</label><br>';
+    s += '<input id="inputPassword" type="password" value="" class="input-xlarge"><br>';
     return s;
   }
 }

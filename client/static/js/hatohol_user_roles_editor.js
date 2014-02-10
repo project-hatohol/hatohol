@@ -480,7 +480,8 @@ HatoholUserRoleEditor.prototype.createMainElement = function() {
   html +=
   '<label for="editUserRoleName">' + gettext("User role name") + '</label>' +
   '<input id="editUserRoleName" type="text" value="' + name + '"' +
-  '       class="input-xlarge editUserRoleProp">';
+  '       class="input-xlarge editUserRoleProp">' +
+  '<br>';
 
   // Checkboxes for privilege flags
   html +=

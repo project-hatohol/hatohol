@@ -151,11 +151,11 @@ HatoholUserEditDialog.prototype.createMainElement = function() {
   function makeMainDivHTML() {
     var html = "" +
     '<div>' +
-    '<label for="editUserName">' + gettext("User name") + '</label>' +
-    '<input id="editUserName" type="text" value="" class="input-xlarge">' +
-    '<label for="editPassword">' + gettext("Password") + '</label>' +
-    '<input id="editPassword" type="password" value="" class="input-xlarge">' +
-    '<label>' + gettext("User role") + '</label>' +
+    '<label for="editUserName">' + gettext("User name") + '</label><br>' +
+    '<input id="editUserName" type="text" value="" class="input-xlarge"><br>' +
+    '<label for="editPassword">' + gettext("Password") + '</label><br>' +
+    '<input id="editPassword" type="password" value="" class="input-xlarge"><br>' +
+    '<label>' + gettext("User role") + '</label><br>' +
     '<select id="selectUserRole" style="width: 12em;">' +
     '  <option value="' + hatohol.NONE_PRIVILEGE + '">' +
       gettext('Guest') + '</option>' +
@@ -165,7 +165,7 @@ HatoholUserEditDialog.prototype.createMainElement = function() {
     if (canEditUserRoles()) {
       html +=
       '<input id="editUserRoles" type="button" class="btn" ' +
-      '  value="' + gettext('EDIT') + '" style="margin-bottom: 10;"/>';
+      '  value="' + gettext('EDIT') + '" />';
     }
     html += '</div">';
     return html;
