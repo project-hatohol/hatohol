@@ -87,6 +87,8 @@ HatoholError::HatoholError(const HatoholErrorCode &code,
                            const string &optMessage)
 : m_code(code)
 {
+	if (errorMessages.empty())
+		init();
 	if (!optMessage.empty())
 		m_optMessage = optMessage;
 }
