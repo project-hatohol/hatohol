@@ -94,7 +94,7 @@ function setStatus(value) {
   var s;
 
   if ( "class" in value ) {
-    $("#sts button").attr("class", "btn dropdown-toggle btn-" + value["class"]);
+    $("#sts button").attr("class", "navbar-btn btn btn-" + value["class"]);
   }
 
   if ( "label" in value ) {
