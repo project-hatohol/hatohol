@@ -556,31 +556,39 @@ void FaceRest::addHatoholError(JsonBuilderAgent &agent,
 {
 	agent.add("apiVersion", API_VERSION);
 	agent.add("errorCode", err.getCode());
+	if (err != HTERR_OK && !err.getMessage().empty())
+		agent.add("errorMessage", err.getMessage().c_str());
 	if (!err.getOptionMessage().empty())
 		agent.add("optionMessages", err.getOptionMessage().c_str());
-}
-
-void FaceRest::replyError(RestJob *job,
-                          const HatoholError &hatoholError)
-{
-	replyError(job, hatoholError.getCode(),
-	           hatoholError.getOptionMessage());
 }
 
 void FaceRest::replyError(RestJob *job,
                           const HatoholErrorCode &errorCode,
                           const string &optionMessage)
 {
-	if (optionMessage.empty()) {
-		MLPL_INFO("reply error: %d\n", errorCode);
-	} else {
-		MLPL_INFO("reply error: %d, %s\n",
-		          errorCode, optionMessage.c_str());
+	HatoholError hatoholError(errorCode, optionMessage);
+	replyError(job, hatoholError);
+}
+
+void FaceRest::replyError(RestJob *job,
+                          const HatoholError &hatoholError)
+{
+	string message = StringUtils::sprintf("%d", hatoholError.getCode());
+
+	if (!hatoholError.getMessage().empty()) {
+		message += " (";
+		message += hatoholError.getMessage();
+		message += ")";
 	}
+	if (!hatoholError.getOptionMessage().empty()) {
+		message += ", ";
+		message += hatoholError.getOptionMessage();
+	}
+	MLPL_INFO("reply error: %s\n", message.c_str());
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	addHatoholError(agent, errorCode);
+	addHatoholError(agent, hatoholError);
 	agent.endObject();
 	string response = agent.generate();
 	if (!job->jsonpCallbackName.empty())
