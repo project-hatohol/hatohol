@@ -68,7 +68,7 @@ void HatoholError::init(void)
 	errorMessages[HTERR_NOT_FOUND_SORT_ORDER] = "Not found sort order.";
 
 	// DBClientAction
-	errorMessages[HTERR_DELETE_IMCOMPLETE] = "Deletion imcpleted.";
+	errorMessages[HTERR_DELETE_IMCOMPLETE] = "Deletion incompleted.";
 
 	// FaceRest
 	errorMessages[HTERR_UNSUPORTED_FORMAT]    = "Unsupported format.";
