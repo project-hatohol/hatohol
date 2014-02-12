@@ -272,10 +272,3 @@ function hasFlags(user, flags) {
     return false;
   return user.flags & flags;
 };
-
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports.getServerLocation = getServerLocation;
-  module.exports.getItemGraphLocation = getItemGraphLocation;
-  module.exports.getMapsLocation = getMapsLocation;
-  var hatohol = require("../../static/js/hatohol_def");
-}

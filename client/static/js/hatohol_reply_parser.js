@@ -65,12 +65,6 @@ var HatoholReplyParser = function(reply) {
     this.optionMessage = reply.optionMessage;
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = HatoholReplyParser;
-  module.exports.REPLY_STATUS = REPLY_STATUS;
-  var hatohol = require("../../static/js/hatohol_def");
-}
-
 HatoholReplyParser.prototype.getStatus = function() {
   return this.stat;
 }
