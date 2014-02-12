@@ -18,7 +18,7 @@ describe("HatoholReplyParser", function() {
     expect(stat).to.be(REPLY_STATUS.NOT_FOUND_API_VERSION);
   });
 
-  it("not suport API version", function() {
+  it("not support API version", function() {
     var reply = {"apiVersion":1};
     var parser = new HatoholReplyParser(reply);
     var stat = parser.getStatus();
