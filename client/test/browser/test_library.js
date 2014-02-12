@@ -34,7 +34,7 @@ describe('getServerLocation', function() {
 });
 
 describe('getItemGraphLocation', function() {
-  it('getItemGrapLocation with valid zabbix server', function() {
+  it('with valid zabbix server', function() {
     var server = {
       "type": 0,
       "ipAddress": "127.0.0.1",
@@ -46,7 +46,7 @@ describe('getItemGraphLocation', function() {
     expect(getItemGraphLocation(server, itemId)).to.be(expected);
   });
 
-  it('getItemGraphLocation with valid nagios server', function() {
+  it('with valid nagios server', function() {
     var server = {
       "type": 1,
       "ipAddress": "127.0.0.1",
@@ -58,7 +58,7 @@ describe('getItemGraphLocation', function() {
 });
 
 describe('getMapsLocation', function() {
-  it('getMapsLocation with valid zabbix server', function() {
+  it('with valid zabbix server', function() {
     var server = {
       "type": 0,
       "ipAddress": "192.168.23.119",
@@ -68,7 +68,7 @@ describe('getMapsLocation', function() {
     expect(getMapsLocation(server)).to.be(expected);
   });
 
-  it('getMapsLocation with valid nagios server', function() {
+  it('with valid nagios server', function() {
     var server = {
       "type": 1,
       "ipAddress": "192.168.22.118",
@@ -77,7 +77,7 @@ describe('getMapsLocation', function() {
     expect(getMapsLocation(server)).to.be(undefined);
   });
 
-  it('getMapsLocation with unknown server type', function() {
+  it('with unknown server type', function() {
     var server = {
       "type": 2,
       "ipAddress": "192.168.19.111",
