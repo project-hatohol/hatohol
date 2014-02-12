@@ -18,7 +18,6 @@
  */
 
 /* Override jQuery's default values to overcome bootstrap's style */
-
 .ui-front { z-index: 2000 !important }
 
 label {
