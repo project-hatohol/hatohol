@@ -55,6 +55,7 @@ var HatoholReplyParser = function(reply) {
     return;
   }
   this.errorCode = reply.errorCode;
+  this.errorMessage = reply.errorMessage;
   if (reply.errorCode != hatohol.HTERR_OK) {
     this.stat = REPLY_STATUS.ERROR_CODE_IS_NOT_OK;
     return;
