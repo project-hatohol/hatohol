@@ -86,7 +86,7 @@ var EventsView = function(baseElem) {
 
     s += '<form class="form-inline">';
     s += '  <label>' + gettext('Minimum Severity:') + '</label>';
-    s += '  <select id="select-severity" style="width:5em;">';
+    s += '  <select id="select-severity">';
     s += '    <option>0</option>';
     s += '    <option>1</option>';
     s += '    <option>2</option>';
