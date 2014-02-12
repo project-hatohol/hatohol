@@ -88,7 +88,7 @@ HatoholPrivilegeEditDialog.prototype.start = function() {
     parseErrorCallback: function(reply, parser) {
       if (self.loadError)
         return;
-      self.setMessage(parser.getStatusMessage());
+      self.setMessage(parser.getMessage());
       self.loadError = true;
     },
     connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -110,7 +110,7 @@ HatoholPrivilegeEditDialog.prototype.start = function() {
       self.updateAllowCheckboxes();
     },
     parseErrorCallback: function(reply, parser) {
-      self.setMessage(parser.getStatusMessage());
+      self.setMessage(parser.getMessage());
       self.loadError = true;
     },
     connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {

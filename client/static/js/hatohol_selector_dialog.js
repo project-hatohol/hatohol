@@ -128,7 +128,7 @@ HatoholSelectorDialog.prototype.start = function(url, requestType) {
       });
     },
     parseErrorCallback: function(reply, parser) {
-      self.setMessage(replyParser.getStatusMessage());
+      self.setMessage(replyParser.getMessage());
     },
     connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
       var errorMsg = "Error: " + XMLHttpRequest.status + ": " +

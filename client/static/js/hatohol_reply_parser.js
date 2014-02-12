@@ -74,7 +74,21 @@ HatoholReplyParser.prototype.getErrorCode = function() {
   return this.errorCode;
 }
 
-HatoholReplyParser.prototype.getStatusMessage = function() {
+HatoholReplyParser.prototype.getErrorMessage = function() {
+  // Ensure to translate well known errors
+  switch (this.errorCode) {
+  case hatohol.HTERR_AUTH_FAILED:
+    return gettext("Invalid user name or password.");
+  }
+
+  // Return raw errorMessage or errorCode
+  if (this.errorMessage)
+    return this.errorMessage;
+  else
+    return gettext("Unknown error: ") + this.errorCode;
+}
+
+HatoholReplyParser.prototype.getMessage = function() {
   switch (this.stat) {
   case REPLY_STATUS.OK:
     return gettext("OK.");
@@ -83,29 +97,12 @@ HatoholReplyParser.prototype.getStatusMessage = function() {
   case REPLY_STATUS.NOT_FOUND_ERROR_CODE:
     return gettext("Not found errorCode.");
   case REPLY_STATUS.ERROR_CODE_IS_NOT_OK:
-    return gettext("Error: ") + this.errorMessage;
   case REPLY_STATUS.NOT_FOUND_ERROR_MESSAGE:
-    return gettext("An error occurred, but message is not found. ") +
-      gettext("Error code: ") + this.errorCode;
+    return this.getErrorMessage();
   case REPLY_STATUS.NOT_FOUND_SESSION_ID:
     return gettext("Not found sessionId.");
   }
   return gettext("Unknown status: ") + this.stat;
-}
-
-HatoholReplyParser.prototype.getErrorMessage = function() {
-  switch (this.errorCode) {
-  case hatohol.HTERR_AUTH_FAILED:
-    return gettext("Invalid user name or password.");
-  }
-  return gettext("Unknown error: ") + this.errorCode;
-}
-
-HatoholReplyParser.prototype.getMessage = function() {
-  if (this.stat == REPLY_STATUS.ERROR_CODE_IS_NOT_OK)
-    return this.getErrorMessage();
-  else
-    return this.getStatusMessage();
 }
 
 // ---------------------------------------------------------------------------

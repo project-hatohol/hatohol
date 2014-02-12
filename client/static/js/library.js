@@ -148,7 +148,7 @@ function startConnection(tableName, completionCallback, callbackParam) {
       // We assume the parser is HatoholReplyParser.
       var statusCode = parser.getStatus();
       if (statusCode != REPLY_STATUS.ERROR_CODE_IS_NOT_OK)
-        msg += gettext('STATUS CODE') + ': ' + statusCode + ', ' + parser.getStatusMessage();
+        msg += gettext('STATUS CODE') + ': ' + statusCode + ', ' + parser.getMessage();
       else
         msg += 'Hathol server error code: ' + parser.getErrorCode();
       hatoholErrorMsgBox(msg);
