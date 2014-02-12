@@ -57,13 +57,12 @@ var HatoholReplyParser = function(reply) {
   }
   this.errorCode = reply.errorCode;
   this.errorMessage = reply.errorMessage;
+  if ("optionMessage" in reply)
+    this.optionMessage = reply.optionMessage;
   if (reply.errorCode != hatohol.HTERR_OK) {
     this.stat = REPLY_STATUS.ERROR_CODE_IS_NOT_OK;
     return;
   }
-
-  if ("optionMessage" in reply)
-    this.optionMessage = reply.optionMessage;
 }
 
 HatoholReplyParser.prototype.getStatus = function() {
