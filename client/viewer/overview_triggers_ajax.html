@@ -174,13 +174,13 @@
           continue;
 
         hostNames = parsedData.hosts[serverName];
-        serversRow += "<td style='text-align: center' colspan='" + hostNames.length + "'>" + serverName + "</td>";
+        serversRow += "<th style='text-align: center' colspan='" + hostNames.length + "'>" + serverName + "</th>";
         for (x = 0; x < hostNames.length; ++x) {
           hostName  = hostNames[x];
           if (targetHostName && hostName != targetHostName)
             continue;
 
-          hostsRow += "<td>" + hostName + "</td>";
+          hostsRow += "<th>" + hostName + "</th>";
         }
       }
       serversRow += "</tr>";
