@@ -114,7 +114,7 @@ var HatoholLoginReplyParser = function(reply) {
     return;
   if (!("sessionId" in reply))
     this.stat = REPLY_STATUS.NOT_FOUND_SESSION_ID;
-  this.sessionId = reply.sessionId
+  this.sessionId = reply.sessionId;
 };
 
 HatoholLoginReplyParser.prototype = Object.create(HatoholReplyParser.prototype);
