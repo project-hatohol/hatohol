@@ -479,6 +479,7 @@ HatoholUserRoleEditor.prototype.createMainElement = function() {
   // User role name
   html +=
   '<label for="editUserRoleName">' + gettext("User role name") + '</label>' +
+  '<br>' +
   '<input id="editUserRoleName" type="text" value="' + name + '"' +
   '       class="input-xlarge editUserRoleProp">' +
   '<br>';
