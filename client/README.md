@@ -8,13 +8,13 @@ Required software and settings
 ----------------------------------------
 - Python 2.6
 - Django 1.5
-- Bootstrap (from twitter) 3.1.0
 - JavaScript enabled (web browser side)
 
 Containing modules
 ----------------------------------------
 This application contains following foreign modules. Thanks a lot!
-- jQuery
+- jQuery 1.9.1 (http://jquery.com/)
+- Bootstrap 3.1.0 (http://getbootstrap.com/)
 - Stupid-table-plugin
 maintained by [joequery]
 (http://joequery.github.io/Stupid-Table-Plugin/)
@@ -26,10 +26,6 @@ How to setup
 
 ### Install Hatohol Client
 Hatohol Client is written as PATH FREE. So you can place it anywhere.
-
-### Install Bootstrap
-Get a Bootstrap 3.1.0 tar ball (http://getbootstrap.com) and extract them
-onto static/js and static/css.
 
 ### Install Required Libraries
 The following shows examples to install Required Packages.
