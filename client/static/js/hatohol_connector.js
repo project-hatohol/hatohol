@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -161,12 +161,12 @@ HatoholConnector.prototype.start = function(connectParams) {
       beforeSend: function(xhr, settings) {
         // For the Django's CSRF protection mechanism
         if (isCsrfTokenNeeded())
-          xhr.setRequestHeader('X-CSRFToken', getCsrfToken())
+          xhr.setRequestHeader('X-CSRFToken', getCsrfToken());
       },
       success: function(data) {
         var parser;
         if (connectParams.replyParser)
-          parser = new connectParams.replyParser(data)
+          parser = new connectParams.replyParser(data);
         else
           parser = new HatoholReplyParser(data);
         if (parser.getStatus() == REPLY_STATUS.ERROR_CODE_IS_NOT_OK) {
@@ -175,7 +175,7 @@ HatoholConnector.prototype.start = function(connectParams) {
             return;
           }
           if (connectParams.parseErrorCallback) {
-            connectParams.parseErrorCallback(data, parser)
+            connectParams.parseErrorCallback(data, parser);
             return;
           }
         }
@@ -203,6 +203,6 @@ HatoholConnector.prototype.start = function(connectParams) {
 
 function getInactionParser() {
   return function(data) {
-    return { getStatus: function() { return REPLY_STATUS.OK; } }
+    return { getStatus: function() { return REPLY_STATUS.OK; } };
   };
 }
