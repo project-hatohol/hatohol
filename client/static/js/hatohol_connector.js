@@ -94,7 +94,7 @@ HatoholConnector.prototype.start = function(connectParams) {
         continue;
       var key = hands[0].replace(/^\s*|\s*$/g, ''); // strip spaces
       if (key == 'csrftoken')
-        return hands[1]
+        return hands[1];
     }
     return null;
   }
