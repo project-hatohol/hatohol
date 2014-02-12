@@ -41,11 +41,11 @@
     <thead>
       <tr>
         <th class="delete-selector" style='display:none;'> </th>
-        <th>{% trans "ID" %}</th>
-        <th>{% trans "Type" %}</th>
-        <th>{% trans "Hostname" %}</th>
-        <th>{% trans "IP Address" %}</th>
-        <th>{% trans "Nickname" %}</th>
+        <th data-sort="int">{% trans "ID" %}</th>
+        <th data-sort="string">{% trans "Type" %}</th>
+        <th data-sort="string">{% trans "Hostname" %}</th>
+        <th data-sort="string">{% trans "IP Address" %}</th>
+        <th data-sort="string">{% trans "Nickname" %}</th>
         <th>{% trans "Maps" %}</th>
         <th class="edit-server-column" style="display:none;"></th>
       </tr>
@@ -63,6 +63,14 @@
   <script type="text/javascript">
 
     var numSelected = 0;
+
+    $("#table").stupidtable();
+    $("#table").bind('aftertablesort', function(event, data) {
+      var th = $(this).find("th");
+      th.find("i.sort").remove();
+      var icon = data.direction === "asc" ? "up" : "down";
+      th.eq(data.column).append("<i class='sort glyphicon glyphicon-arrow-" + icon +"'></i>");
+    });
 
     $("#add-server-button").click(function() {
       new HatoholServerEditDialog({
