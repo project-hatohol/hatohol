@@ -1,3 +1,5 @@
+describe('library.js', function() {
+
 describe('getServerLocation', function() {
   it('with valid zabbix server', function() {
     var server = {
@@ -83,4 +85,6 @@ describe('getMapsLocation', function() {
     };
     expect(getMapsLocation(server)).to.be(undefined);
   });
+});
+
 });
