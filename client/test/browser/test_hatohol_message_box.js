@@ -158,7 +158,7 @@ describe('HatoholMessageBox', function() {
     HatoholDialogObserver.registerCreatedCallback(function(id, obj) {
       if (!isTargetObject(id, obj))
         return;
-      var expectRe = new RegExp('^.*' + gettext('STATUS CODE') + ': ' + REPLY_STATUS.NOT_FOUND_API_VERSION + '.*$');
+      var expectRe = new RegExp('^.*' + gettext('Unknown status: ') + REPLY_STATUS.NOT_FOUND_API_VERSION + '.*$');
       expect(obj.getMessage()).to.match(expectRe);
       obj.destroy();
       done();
@@ -172,7 +172,7 @@ describe('HatoholMessageBox', function() {
     HatoholDialogObserver.registerCreatedCallback(function(id, obj) {
       if (!isTargetObject(id, obj))
         return;
-      var expectRe = new RegExp('^.*' + gettext('HATOHOL SERVER ERROR CODE') + ': ' + hatohol.HTERR_ERROR_TEST + '.*$');
+      var expectRe = new RegExp('^.*' + gettext('Unknown error: ') + hatohol.HTERR_ERROR_TEST + '.*$');
       expect(obj.getMessage()).to.match(expectRe);
       obj.destroy();
       done();
