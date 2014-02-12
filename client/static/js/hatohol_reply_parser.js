@@ -27,7 +27,8 @@ var REPLY_STATUS = {
   UNSUPPORTED_API_VERSION:  3,
   NOT_FOUND_ERROR_CODE:     4,
   ERROR_CODE_IS_NOT_OK:     5,
-  NOT_FOUND_SESSION_ID:     6,
+  NOT_FOUND_ERROR_MESSAGE:  6,
+  NOT_FOUND_SESSION_ID:     7,
 };
 
 var HatoholReplyParser = function(reply) {
@@ -81,9 +82,9 @@ HatoholReplyParser.prototype.getStatusMessage = function() {
     return gettext("Null or undefined.");
   case REPLY_STATUS.NOT_FOUND_ERROR_CODE:
     return gettext("Not found errorCode.");
-  case REPLY_STATUS.RESULT_IS_FALSE:
+  case REPLY_STATUS.ERROR_CODE_IS_NOT_OK:
     return gettext("Result is false: ") + this.errorMessage;
-  case REPLY_STATUS.RESULT_IS_FALSE_BUT_NOT_FOUND_MSG:
+  case REPLY_STATUS.NOT_FOUND_ERROR_MESSAGE:
     return gettext("Result is false, but message is not found.");
   case REPLY_STATUS.NOT_FOUND_SESSION_ID:
     return gettext("Not found: sessionId.");
