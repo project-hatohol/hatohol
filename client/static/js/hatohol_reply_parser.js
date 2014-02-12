@@ -80,8 +80,8 @@ HatoholReplyParser.prototype.getStatusMessage = function() {
     return gettext("OK.");
   case REPLY_STATUS.NULL_OR_UNDEFINED:
     return gettext("Null or undefined.");
-  case REPLY_STATUS.NOT_FOUND_RESULT:
-    return gettext("Not found: result.");
+  case REPLY_STATUS.NOT_FOUND_ERROR_CODE:
+    return gettext("Not found errorCode.");
   case REPLY_STATUS.RESULT_IS_FALSE:
     return gettext("Result is false: ") + this.errorMessage;
   case REPLY_STATUS.RESULT_IS_FALSE_BUT_NOT_FOUND_MSG:

@@ -29,7 +29,10 @@ describe("HatoholReplyParser", function() {
     var reply = {"apiVersion":hatohol.FACE_REST_API_VERSION};
     var parser = new HatoholReplyParser(reply);
     var stat = parser.getStatus();
+    var message = parser.getStatusMessage();
+    var expectedMessage = gettext("Not found errorCode.");
     expect(stat).to.be(REPLY_STATUS.NOT_FOUND_ERROR_CODE);
+    expect(message).to.be(expectedMessage);
   });
 
   it("errorCode is not OK", function() {
