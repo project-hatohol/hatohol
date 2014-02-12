@@ -172,7 +172,9 @@ describe('HatoholMessageBox', function() {
     HatoholDialogObserver.registerCreatedCallback(function(id, obj) {
       if (!isTargetObject(id, obj))
         return;
-      var expectRe = new RegExp('^.*' + gettext('Unknown error: ') + hatohol.HTERR_ERROR_TEST + '.*$');
+      var expectRe = new RegExp(gettext('^Error: ') +
+                                hatohol.HTERR_ERROR_TEST +
+                                ", HTERR_ERROR_TEST.*$");
       expect(obj.getMessage()).to.match(expectRe);
       obj.destroy();
       done();

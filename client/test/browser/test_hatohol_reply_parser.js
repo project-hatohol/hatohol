@@ -52,6 +52,14 @@ describe("HatoholReplyParser", function() {
     expect(stat).to.be(REPLY_STATUS.ERROR_CODE_IS_NOT_OK);
     expect(errorCode).to.be(hatohol.HTERR_ERROR_TEST);
   });
+
+  it("get error code name", function() {
+    var reply = {"apiVersion":hatohol.FACE_REST_API_VERSION,
+                 "errorCode":hatohol.HTERR_ERROR_TEST};
+    var parser = new HatoholReplyParser(reply);
+    var errorCodeName = parser.getErrorCodeName();
+    expect(errorCodeName).to.be("HTERR_ERROR_TEST");
+  });
 });
 
 describe("HatoholLoginReplyParser", function() {

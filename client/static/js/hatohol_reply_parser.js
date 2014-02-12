@@ -82,10 +82,14 @@ HatoholReplyParser.prototype.getErrorMessage = function() {
   }
 
   // Return raw errorMessage or errorCode
-  if (this.errorMessage)
+  var errorCodeName;
+  if (this.errorMessage) {
     return this.errorMessage;
-  else
+  } else if ((errorCodeName = this.getErrorCodeName())) {
+    return gettext("Error: ") + this.errorCode + ", " + errorCodeName;
+  } else {
     return gettext("Unknown error: ") + this.errorCode;
+  }
 };
 
 HatoholReplyParser.prototype.getMessage = function() {
@@ -103,6 +107,15 @@ HatoholReplyParser.prototype.getMessage = function() {
     return gettext("Not found sessionId.");
   }
   return gettext("Unknown status: ") + this.stat;
+};
+
+HatoholReplyParser.prototype.getErrorCodeName = function() {
+  var key, code = this.getErrorCode();
+  for (key in hatohol) {
+    if (key.match(/^HTERR_/) && hatohol[key] == code)
+      return key;
+  }
+  return null;
 };
 
 // ---------------------------------------------------------------------------
