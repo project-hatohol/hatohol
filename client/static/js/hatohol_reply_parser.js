@@ -27,6 +27,7 @@ var REPLY_STATUS = {
   UNSUPPORTED_API_VERSION:  3,
   NOT_FOUND_ERROR_CODE:     4,
   ERROR_CODE_IS_NOT_OK:     5,
+  NOT_FOUND_SESSION_ID:     6,
 };
 
 var HatoholReplyParser = function(reply) {

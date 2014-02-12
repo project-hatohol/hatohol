@@ -50,3 +50,15 @@ describe("HatoholReplyParser", function() {
     expect(errorCode).to.be(hatohol.HTERR_ERROR_TEST);
   });
 });
+
+describe("HatoholLoginReplyParser", function() {
+  it("no sessionId", function() {
+    var reply = {
+      "apiVersion": hatohol.FACE_REST_API_VERSION,
+      "errorCode": hatohol.HTERR_OK
+    };
+    var parser = new HatoholLoginReplyParser(reply);
+    var stat = parser.getStatus();
+    expect(stat).to.be(REPLY_STATUS.NOT_FOUND_SESSION_ID);
+  });
+});
