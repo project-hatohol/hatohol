@@ -64,15 +64,15 @@ var HatoholReplyParser = function(reply) {
     this.stat = REPLY_STATUS.ERROR_CODE_IS_NOT_OK;
     return;
   }
-}
+};
 
 HatoholReplyParser.prototype.getStatus = function() {
   return this.stat;
-}
+};
 
 HatoholReplyParser.prototype.getErrorCode = function() {
   return this.errorCode;
-}
+};
 
 HatoholReplyParser.prototype.getErrorMessage = function() {
   // Ensure to translate well known errors
@@ -86,7 +86,7 @@ HatoholReplyParser.prototype.getErrorMessage = function() {
     return this.errorMessage;
   else
     return gettext("Unknown error: ") + this.errorCode;
-}
+};
 
 HatoholReplyParser.prototype.getMessage = function() {
   switch (this.stat) {
@@ -103,7 +103,7 @@ HatoholReplyParser.prototype.getMessage = function() {
     return gettext("Not found sessionId.");
   }
   return gettext("Unknown status: ") + this.stat;
-}
+};
 
 // ---------------------------------------------------------------------------
 // HatoholLoginReplyParser
@@ -115,12 +115,12 @@ var HatoholLoginReplyParser = function(reply) {
   if (!("sessionId" in reply))
     this.stat = REPLY_STATUS.NOT_FOUND_SESSION_ID;
   this.sessionId = reply.sessionId
-}
+};
 
 HatoholLoginReplyParser.prototype = Object.create(HatoholReplyParser.prototype);
 HatoholLoginReplyParser.prototype.constructor = HatoholLoginReplyParser;
 
 HatoholLoginReplyParser.prototype.getSessionId = function() {
   return this.sessionId;
-}
+};
 
