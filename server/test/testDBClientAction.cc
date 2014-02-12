@@ -412,7 +412,7 @@ void test_deleteActionOfOthersWithoutPrivilege(void)
 	const int expectedId = testActionDef[targetIdx].id + 1;
 	idList.push_back(expectedId);
 	OperationPrivilege privilege(userId);
-	assertHatoholError(HTERR_DELETE_INCOMPLETED,
+	assertHatoholError(HTERR_DELETE_INCOMPLETE,
 	                   dbAction.deleteActions(idList, privilege));
 }
 

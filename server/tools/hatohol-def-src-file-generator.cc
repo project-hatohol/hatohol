@@ -187,7 +187,7 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 	APPEND(s, "\n");
 
 	// DBClientAction
-	ADD_LINE(s, langType, HTERR_DELETE_INCOMPLETED);
+	ADD_LINE(s, langType, HTERR_DELETE_INCOMPLETE);
 	APPEND(s, "\n");
 
 	// FaceRest
