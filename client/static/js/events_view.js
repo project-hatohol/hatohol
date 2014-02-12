@@ -149,7 +149,7 @@ var EventsView = function(baseElem) {
       var th = $(this).find("th");
       th.find("i.sort").remove();
       var icon = data.direction === "asc" ? "up" : "down";
-      th.eq(data.column).append("<i class='sort icon-arrow-" + icon +"'></i>");
+      th.eq(data.column).append("<i class='sort glyphicon glyphicon-arrow-" + icon +"'></i>");
     });
 
     $("#select-severity").change(function() {
