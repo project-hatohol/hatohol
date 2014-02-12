@@ -58,7 +58,7 @@ enum HatoholErrorCode
 	HTERR_NOT_FOUND_SORT_ORDER,
 
 	// DBClientAction
-	HTERR_DELETE_IMCOMPLETE,
+	HTERR_DELETE_INCOMPLETE,
 
 	// FaceRest
 	HTERR_UNSUPORTED_FORMAT,
@@ -82,6 +82,7 @@ public:
 	             const std::string &optMessage = "");
 	virtual ~HatoholError(void);
 	const HatoholErrorCode &getCode(void) const;
+	const std::string &getMessage(void) const;
 	const std::string &getOptionMessage(void) const;
 
 	bool operator==(const HatoholErrorCode &rhs) const;

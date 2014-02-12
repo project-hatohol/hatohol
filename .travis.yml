@@ -34,7 +34,5 @@ script:
   - popd; pushd .
   - cd client/test/python && ./run-test.sh
   - popd; pushd .
-  - cd client/test/node && ./run-test.sh
-  - popd; pushd .
   - test/launch-hatohol-for-test.sh
   - mocha-phantomjs http://localhost:8000/test/index.html

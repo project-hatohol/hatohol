@@ -144,13 +144,10 @@ function startConnection(tableName, completionCallback, callbackParam) {
       updateScreen(reply, completionCallback, callbackParam);
     },
     parseErrorCallback: function(reply, parser) {
-      var msg = gettext('Failed to parse the recieved packt.');
       // We assume the parser is HatoholReplyParser.
-      var statusCode = parser.getStatus();
-      if (statusCode != REPLY_STATUS.ERROR_CODE_IS_NOT_OK)
-        msg += gettext('STATUS CODE') + ': ' + statusCode + ', ' + parser.getStatusMessage();
-      else
-        msg += 'Hathol server error code: ' + parser.getErrorCode();
+      var msg = parser.getMessage();
+      if (!msg)
+        msg = gettext("Failed to parse the received packet.");
       hatoholErrorMsgBox(msg);
 
       setStatus({
@@ -276,10 +273,3 @@ function hasFlags(user, flags) {
     return false;
   return user.flags & flags;
 };
-
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports.getServerLocation = getServerLocation;
-  module.exports.getItemGraphLocation = getItemGraphLocation;
-  module.exports.getMapsLocation = getMapsLocation;
-  var hatohol = require("../../static/js/hatohol_def");
-}

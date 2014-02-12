@@ -47,7 +47,7 @@ var HatoholMessageBox = function(msg, param) {
   var self = this;
 
   var id = getId();
-  self.msgDivId = "#" + id
+  self.msgDivId = "#" + id;
   var msgDiv = $(self.msgDivId)[0];
   if (!msgDiv) {
     var div = "<div id='" + id + "'>" + msg + "</div>";
@@ -112,37 +112,37 @@ var HatoholMessageBox = function(msg, param) {
 HatoholMessageBox.prototype.getDefaultId = function () {
   var DEFAULT_ID = "hatohol-message-box";
   return DEFAULT_ID;
-}
+};
 
 HatoholMessageBox.prototype.getDefaultButtonLabel = function () {
   var DEFAULT_LABEL = gettext("CLOSE");
   return DEFAULT_LABEL;
-}
+};
 
 HatoholMessageBox.prototype.getDefaultTitleString = function () {
     var DEFAULT_TITLE_BAR_STRING = gettext("MessageBox");
     return DEFAULT_TITLE_BAR_STRING;
-}
+};
 
 HatoholMessageBox.prototype.getMessage = function () {
   return $(this.msgDivId).text();
-}
+};
 
 HatoholMessageBox.prototype.getTitleBar = function () {
   return $(this.msgDivId).siblings(".ui-dialog-titlebar");
-}
+};
 
 HatoholMessageBox.prototype.getTitleString = function () {
   return this.title;
-}
+};
 
 HatoholMessageBox.prototype.isTitleBarVisible = function () {
   return this.getTitleBar().is(":visible");
-}
+};
 
 HatoholMessageBox.prototype.getButtons = function () {
   return this.buttons;
-}
+};
 
 HatoholMessageBox.prototype.getBuiltinNoYesButtons = function () {
   var button = [{
@@ -157,12 +157,12 @@ HatoholMessageBox.prototype.getBuiltinNoYesButtons = function () {
   }];
   // return a copy so that caller can modify the button.
   return jQuery.extend(true, [], button);
-}
+};
 
 HatoholMessageBox.prototype.destroy = function() {
   $(this.msgDivId).dialog("destroy");
   $(this.msgDivId).remove();
-}
+};
 
 function hatoholInfoMsgBox(msg) {
   var param = {title: gettext("Information")};
@@ -187,12 +187,9 @@ function hatoholNoYesMsgBox(msg, yesCallback) {
 };
 
 function hatoholMsgBoxForParser(reply, parser, title) {
-  var msg = gettext("Failed to parse the received packet.");
-  var statusCode = parser.getStatus();
-  if (statusCode != REPLY_STATUS.ERROR_CODE_IS_NOT_OK)
-    msg += gettext(' STATUS CODE') + ': ' + statusCode + ', ' + parser.getStatusMessage();
-  else
-    msg += gettext(' HATOHOL SERVER ERROR CODE') + ': ' + parser.getErrorCode();
+  var msg = parser.getMessage();
+  if (!msg)
+    msg = gettext("Failed to parse the received packet.");
   hatoholErrorMsgBox(msg);
 };
 

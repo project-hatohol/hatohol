@@ -678,7 +678,7 @@ HatoholError DBClientAction::deleteActions(const ActionIdList &idList,
 	if (numAffectedRows != idList.size()) {
 		MLPL_ERR("affectedRows: %"PRIu64", idList.size(): %zd\n",
 		         numAffectedRows, idList.size());
-		return HTERR_DELETE_IMCOMPLETE;
+		return HTERR_DELETE_INCOMPLETE;
 	}
 
 	return HTERR_OK;
