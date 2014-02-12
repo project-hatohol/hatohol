@@ -267,15 +267,6 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 	APPEND(s, "\n");
 }
 
-static string makeNodeModuleExport(void)
-{
-	string s;
-	s += "if (typeof module !== 'undefined' && module.exports) {\n";
-	s += "  module.exports = hatohol;\n";
-	s += "}\n";
-	return s;
-}
-
 static string makeDefSource(LanguageType langType)
 {
 	string s;
@@ -287,7 +278,6 @@ static string makeDefSource(LanguageType langType)
 		makeDefSourceValues(s, langType);
 		APPEND(s, "};\n");
 		APPEND(s, "\n");
-		s += makeNodeModuleExport();
 		break;
 	case PYTHON:
 		APPEND(s, "\"\"\"\n");
