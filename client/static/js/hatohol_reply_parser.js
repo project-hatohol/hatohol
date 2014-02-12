@@ -83,11 +83,12 @@ HatoholReplyParser.prototype.getStatusMessage = function() {
   case REPLY_STATUS.NOT_FOUND_ERROR_CODE:
     return gettext("Not found errorCode.");
   case REPLY_STATUS.ERROR_CODE_IS_NOT_OK:
-    return gettext("Result is false: ") + this.errorMessage;
+    return gettext("Error: ") + this.errorMessage;
   case REPLY_STATUS.NOT_FOUND_ERROR_MESSAGE:
-    return gettext("Result is false, but message is not found.");
+    return gettext("An error occurred, but message is not found. ") +
+      gettext("Error code: ") + this.errorCode;
   case REPLY_STATUS.NOT_FOUND_SESSION_ID:
-    return gettext("Not found: sessionId.");
+    return gettext("Not found sessionId.");
   }
   return gettext("Unknown status: ") + this.stat;
 }
