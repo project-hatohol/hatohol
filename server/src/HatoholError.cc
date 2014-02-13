@@ -42,6 +42,10 @@ void HatoholError::init(void)
 		   "Invalid user.");
 
 	// DBClientConfig
+	DEFINE_ERR(NOT_FOUND_TARGET_RECORD,
+		   "Not found target record.");
+
+	// DBClientConfig
 	DEFINE_ERR(INVALID_MONITORING_SYSTEM_TYPE,
 		   "Invalid monitoring system type.");
 	DEFINE_ERR(INVALID_PORT_NUMBER,
@@ -52,8 +56,6 @@ void HatoholError::init(void)
 		   "Invalid host name.");
 	DEFINE_ERR(NO_IP_ADDRESS_AND_HOST_NAME,
 		   "No IP address and host name.");
-	DEFINE_ERR(NOT_FOUND_SERVER_ID,
-		   "Not found server ID.");
 
 	// DBClientUser
 	DEFINE_ERR(EMPTY_USER_NAME,
@@ -72,8 +74,6 @@ void HatoholError::init(void)
 		   "No privilege.");
 	DEFINE_ERR(INVALID_PRIVILEGE_FLAGS,
 		   "Invalid privilege flags.");
-	DEFINE_ERR(NOT_FOUND_USER_ID,
-		   "Not found user ID.");
 	DEFINE_ERR(EMPTY_USER_ROLE_NAME,
 		   "Empty user role name.");
 	DEFINE_ERR(TOO_LONG_USER_ROLE_NAME,
@@ -81,8 +81,6 @@ void HatoholError::init(void)
 	DEFINE_ERR(USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST,
 		   "The same user role name or a user role with the same "
 		   "privilege already exists.");
-	DEFINE_ERR(NOT_FOUND_USER_ROLE_ID,
-		   "Not found user role ID.");
 
 	// DBClientHatohol
 	DEFINE_ERR(NOT_FOUND_SORT_ORDER,

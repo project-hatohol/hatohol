@@ -525,7 +525,7 @@ void test_updateNonExistUser(void)
 	userInfo.id = NumTestUserInfo + 5;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	HatoholError err = dbUser.updateUserInfo(userInfo, privilege);
-	assertHatoholError(HTERR_NOT_FOUND_USER_ID, err);
+	assertHatoholError(HTERR_NOT_FOUND_TARGET_RECORD, err);
 }
 
 void test_deleteUser(void)
