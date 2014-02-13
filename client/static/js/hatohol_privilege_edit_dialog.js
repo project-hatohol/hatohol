@@ -71,55 +71,62 @@ HatoholPrivilegeEditDialog.prototype.start = function() {
   var self = this;
   self.loadError = false;
 
-  new HatoholConnector({
-    url: "/server",
-    request: "GET",
-    data: {},
-    replyCallback: function(serversData, parser) {
-      if (self.loadError)
-        return;
-      if (!serversData.numberOfServers) {
-        self.setMessage(gettext("No data."));
-        return;
-      }
-      self.serversData = serversData;
-      self.updateServersTable();
-    },
-    parseErrorCallback: function(reply, parser) {
-      if (self.loadError)
-        return;
-      self.setMessage(parser.getMessage());
-      self.loadError = true;
-    },
-    connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
-      var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
-                     XMLHttpRequest.statusText;
-      self.setMessage(errorMsg);
-      self.erorr = true;
-    }
-  });
+  loadServers();
 
-  new HatoholConnector({
-    url: "/user/" + self.userId + "/access-info",
-    request: "GET",
-    data: {},
-    replyCallback: function(reply, parser) {
-      if (self.loadError)
-        return;
-      self.allowedServers = reply.allowedServers;
-      self.updateAllowCheckboxes();
-    },
-    parseErrorCallback: function(reply, parser) {
-      self.setMessage(parser.getMessage());
-      self.loadError = true;
-    },
-    connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
-      var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
-                     XMLHttpRequest.statusText;
-      self.setMessage(errorMsg);
-      self.erorr = true;
-    }
-  });
+  function loadServers() {
+    new HatoholConnector({
+      url: "/server",
+      request: "GET",
+      data: {},
+      replyCallback: function(serversData, parser) {
+        if (self.loadError)
+          return;
+        if (!serversData.numberOfServers) {
+          self.setMessage(gettext("No data."));
+          return;
+        }
+        self.serversData = serversData;
+        self.updateServersTable();
+        loadAccessInfo();
+      },
+      parseErrorCallback: function(reply, parser) {
+        if (self.loadError)
+          return;
+        self.setMessage(parser.getMessage());
+        self.loadError = true;
+      },
+      connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
+        var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
+          XMLHttpRequest.statusText;
+        self.setMessage(errorMsg);
+        self.erorr = true;
+      }
+    });
+  }
+
+  function loadAccessInfo() {
+    new HatoholConnector({
+      url: "/user/" + self.userId + "/access-info",
+      request: "GET",
+      data: {},
+      replyCallback: function(reply, parser) {
+        if (self.loadError)
+          return;
+        self.allowedServers = reply.allowedServers;
+        self.updateAllowCheckboxes();
+      },
+      parseErrorCallback: function(reply, parser) {
+        self.setMessage(parser.getMessage());
+        self.loadError = true;
+      },
+      connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
+        var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
+          XMLHttpRequest.statusText;
+        self.setMessage(errorMsg);
+        self.erorr = true;
+      }
+    });
+  }
 };
 
 HatoholPrivilegeEditDialog.prototype.updateServersTable = function() {
