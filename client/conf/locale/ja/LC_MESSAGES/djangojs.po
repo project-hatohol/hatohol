@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-02-12 03:22-0600\n"
-"PO-Revision-Date: 2014-02-12 18:25+0900\n"
+"POT-Creation-Date: 2014-02-13 00:26-0600\n"
+"PO-Revision-Date: 2014-02-13 15:43+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -194,7 +194,7 @@ msgstr "選択"
 #: static/js/hatohol_user_edit_dialog.js:104
 #: static/js/hatohol_user_roles_editor.js:325
 msgid "Successfully created."
-msgstr "正常に作成されました"
+msgstr "正常に作成されました。"
 
 #: static/js/hatohol_add_action_dialog.js:298
 msgid "Command is empty!"
@@ -266,6 +266,148 @@ msgstr "テンプレートスクリプトが不正な値を返しました。"
 msgid "Failed to login. "
 msgstr "ログインに失敗しました。"
 
+#: static/js/hatohol_def.js:158 static/js/hatohol_reply_parser.js:106
+msgid "OK."
+msgstr "OK。"
+
+#: static/js/hatohol_def.js:159
+msgid "Uninitialized (This is probably a bug)."
+msgstr "初期化されていません（これはおそらくバグです。）"
+
+#: static/js/hatohol_def.js:160
+msgid "Unknown reason."
+msgstr "不明な理由です。"
+
+#: static/js/hatohol_def.js:161
+msgid "Not implemented."
+msgstr "実装されていません。"
+
+#: static/js/hatohol_def.js:162
+msgid "Got exception."
+msgstr "例外が発生しました。"
+
+#: static/js/hatohol_def.js:163
+msgid "Invalid user."
+msgstr "不正なユーザです"
+
+#: static/js/hatohol_def.js:164
+msgid "Invalid monitoring system type."
+msgstr "不正な監視システムタイプです。"
+
+#: static/js/hatohol_def.js:165
+msgid "Invalid port number."
+msgstr "不正なポート番号です。"
+
+#: static/js/hatohol_def.js:166
+msgid "Invalid IP address."
+msgstr "不正なIPアドレスです。"
+
+#: static/js/hatohol_def.js:167
+msgid "Invalid host name."
+msgstr "不正なホスト名です"
+
+#: static/js/hatohol_def.js:168
+msgid "No IP address and host name."
+msgstr "IPアドレスとホスト名が入力されていません。"
+
+#: static/js/hatohol_def.js:169
+msgid "Not found server ID."
+msgstr "サーバIDが見つかりません"
+
+#: static/js/hatohol_def.js:170
+msgid "Empty user name."
+msgstr "ユーザ名が入力されていません。"
+
+#: static/js/hatohol_def.js:171
+msgid "Too long user name."
+msgstr "ユーザ名が長すぎます。"
+
+#: static/js/hatohol_def.js:172
+msgid "Invalid character."
+msgstr "不正な文字が含まれています。"
+
+#: static/js/hatohol_def.js:173
+msgid "Password is empty."
+msgstr "パスワードが入力されていません。"
+
+#: static/js/hatohol_def.js:174
+msgid "Too long password."
+msgstr "パスワードが長すぎます。"
+
+#: static/js/hatohol_def.js:175
+msgid "The same user name already exists."
+msgstr "同じユーザ名が既に存在します"
+
+#: static/js/hatohol_def.js:176
+msgid "No privilege."
+msgstr "権限がありません。"
+
+#: static/js/hatohol_def.js:177
+msgid "Invalid privilege flags."
+msgstr "不正な権限です。"
+
+#: static/js/hatohol_def.js:178
+msgid "Not found user ID."
+msgstr "ユーザIDが見つかりません。"
+
+#: static/js/hatohol_def.js:179
+msgid "Empty user role name."
+msgstr "ユーザ種別名が入力されていません。"
+
+#: static/js/hatohol_def.js:180
+msgid "Too long User role name."
+msgstr "ユーザ種別名が長すぎます。"
+
+#: static/js/hatohol_def.js:181
+msgid ""
+"The same user role name or a user role with the same privilege already "
+"exists."
+msgstr "同じユーザ種別名か同じ権限のユーザが既に存在します。"
+
+#: static/js/hatohol_def.js:182
+msgid "Not found user role ID."
+msgstr "ユーザ種別IDが見つかりません。"
+
+#: static/js/hatohol_def.js:183
+msgid "Not found sort order."
+msgstr "ソート順が指定されていません。"
+
+#: static/js/hatohol_def.js:184
+msgid "The delete operation was incomplete."
+msgstr "削除操作が不完全です。"
+
+#: static/js/hatohol_def.js:185
+msgid "Unsupported format."
+msgstr "対応していない形式です。"
+
+#: static/js/hatohol_def.js:186
+msgid "Not found session ID."
+msgstr "セッションIDが見つかりません。"
+
+#: static/js/hatohol_def.js:187
+msgid "Not found ID in the URL."
+msgstr "URLにIDが含まれていません。"
+
+#: static/js/hatohol_def.js:188
+msgid "Not found parameter."
+msgstr "パラメータが見つかりません。"
+
+#: static/js/hatohol_def.js:189
+msgid "Invalid parameter."
+msgstr "不正なパラメータです。"
+
+#: static/js/hatohol_def.js:190
+msgid "Authentication failed."
+msgstr "認証に失敗しました。"
+
+#: static/js/hatohol_def.js:191
+msgid "Not test mode."
+msgstr "テストモードではありません。"
+
+#: static/js/hatohol_def.js:192 test/browser/test_hatohol_message_box.js:176
+msgid "Error test."
+msgstr "エラーテストです。"
+
 #: static/js/hatohol_host_selector.js:26
 msgid "Host selecion"
 msgstr "ホスト選択"
@@ -335,7 +477,7 @@ msgstr "問い合わせ"
 
 #: static/js/hatohol_message_box.js:192 static/js/library.js:150
 msgid "Failed to parse the received packet."
-msgstr "受信パケットの解析に失敗しました."
+msgstr "受信パケットの解析に失敗しました。"
 
 #: static/js/hatohol_navi.js:24 test/browser/test_hatohol_navi.js:40
 #: test/browser/test_hatohol_navi.js:62
@@ -405,7 +547,7 @@ msgstr "パスワードを変更しています..."
 
 #: static/js/hatohol_password_changer.js:73
 msgid "Successfully changed."
-msgstr "正常に変更されました"
+msgstr "正常に変更されました。"
 
 #: static/js/hatohol_password_changer.js:81
 #: static/js/hatohol_server_edit_dialog.js:138
@@ -437,7 +579,7 @@ msgstr "情報を取得しています.."
 #: static/js/hatohol_privilege_edit_dialog.js:82
 #: static/js/hatohol_selector_dialog.js:106
 msgid "No data."
-msgstr "データがありません"
+msgstr "データがありません。"
 
 #: static/js/hatohol_privilege_edit_dialog.js:144
 msgid "Allow"
@@ -470,32 +612,35 @@ msgstr "適用に成功しました。"
 msgid "Invalid user name or password."
 msgstr "ユーザ名あるいはパスワードが正しくありません。"
 
-#: static/js/hatohol_reply_parser.js:88
-#: test/browser/test_hatohol_message_box.js:175
+#: static/js/hatohol_reply_parser.js:95
+msgid "Error: "
+msgstr "エラー："
+
+#: static/js/hatohol_reply_parser.js:97
 msgid "Unknown error: "
 msgstr "不明なエラー： "
 
-#: static/js/hatohol_reply_parser.js:94
-msgid "OK."
-msgstr "OK"
-
-#: static/js/hatohol_reply_parser.js:96
+#: static/js/hatohol_reply_parser.js:109
 msgid "Null or undefined."
 msgstr "nullあるいはundefined"
 
-#: static/js/hatohol_reply_parser.js:98
+#: static/js/hatohol_reply_parser.js:112
 #: test/browser/test_hatohol_reply_parser.js:33
 msgid "Not found errorCode."
-msgstr "errorCodeが見つかりません"
+msgstr "errorCodeが見つかりません。"
 
-#: static/js/hatohol_reply_parser.js:103
+#: static/js/hatohol_reply_parser.js:119
 msgid "Not found sessionId."
-msgstr "sessionIdが見つかりません"
+msgstr "sessionIdが見つかりません。"
 
-#: static/js/hatohol_reply_parser.js:105
+#: static/js/hatohol_reply_parser.js:122
 #: test/browser/test_hatohol_message_box.js:161
 msgid "Unknown status: "
 msgstr "不明なステータス： "
+
+#: static/js/hatohol_reply_parser.js:127
+msgid ": "
+msgstr "： "
 
 #: static/js/hatohol_server_edit_dialog.js:27
 msgid "EDIT SERVER"
@@ -608,7 +753,7 @@ msgstr "ユーザを作成しています..."
 #: static/js/hatohol_user_edit_dialog.js:102
 #: static/js/hatohol_user_roles_editor.js:323
 msgid "Successfully updated."
-msgstr "正常に更新されました"
+msgstr "正常に更新されました。"
 
 #: static/js/hatohol_user_edit_dialog.js:114
 msgid "User name is empty!"
@@ -699,7 +844,7 @@ msgstr "ユーザ種別名が入力されていません！"
 
 #: static/js/hatohol_user_roles_editor.js:358
 msgid "The user role name is already used!"
-msgstr "このユーザ種別名は既に仕様されています！"
+msgstr "このユーザ種別名は既に使用されています！"
 
 #: static/js/hatohol_user_roles_editor.js:362
 msgid "Same privilege is already defined as: "
