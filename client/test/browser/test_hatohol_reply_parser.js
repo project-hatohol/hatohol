@@ -100,7 +100,7 @@ describe("HatoholReplyParser", function() {
       "apiVersion":hatohol.FACE_REST_API_VERSION,
       "errorCode":hatohol.HTERR_ERROR_TEST,
       "errorMessage":"server's error message",
-      "optionMessage":"option message",
+      "optionMessages":"option message",
     };
     var parser = new HatoholReplyParser(reply);
     var message = parser.getMessage();

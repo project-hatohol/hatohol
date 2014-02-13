@@ -34,7 +34,7 @@ var REPLY_STATUS = {
 var HatoholReplyParser = function(reply) {
 
   this.stat = REPLY_STATUS.OK;
-  this.optionMessage = "";
+  this.optionMessages = "";
 
   if (!reply) {
     this.stat = REPLY_STATUS.NULL_OR_UNDEFINED;
@@ -58,8 +58,8 @@ var HatoholReplyParser = function(reply) {
   }
   this.errorCode = reply.errorCode;
   this.errorMessage = reply.errorMessage;
-  if ("optionMessage" in reply)
-    this.optionMessage = reply.optionMessage;
+  if ("optionMessages" in reply)
+    this.optionMessages = reply.optionMessages;
   if (reply.errorCode != hatohol.HTERR_OK) {
     this.stat = REPLY_STATUS.ERROR_CODE_IS_NOT_OK;
     return;
@@ -123,8 +123,8 @@ HatoholReplyParser.prototype.getMessage = function() {
     break;
   }
 
-  if (this.optionMessage)
-    message += gettext(": ") + this.optionMessage;
+  if (this.optionMessages)
+    message += gettext(": ") + this.optionMessages;
 
   return message;
 };
