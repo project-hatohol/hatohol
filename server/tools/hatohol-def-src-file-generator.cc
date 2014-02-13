@@ -220,12 +220,6 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 	DEF_LINE(s, langType, ENV_NAME_SESSION_ID,
 	         string, ActionManager::ENV_NAME_SESSION_ID);
 	APPEND(s, "\n");
-
-	//
-	// Other
-	//
-	ADD_LINE(s, langType, HTERR_ERROR_TEST);
-	APPEND(s, "\n");
 }
 
 static string makeNodeModuleExport(void)
