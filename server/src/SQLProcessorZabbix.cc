@@ -128,7 +128,7 @@ void SQLProcessorZabbix::init(void)
 	             TABLE_ID_CONFIG, "event_history",
 	             SQL_COLUMN_TYPE_INT, 11,
 	             false, SQL_KEY_NONE, "0");
-	defineColumn(staticInfo, ITEM_ID_ZBX_CONFIG_REFRESH_UNSUPORTED,
+	defineColumn(staticInfo, ITEM_ID_ZBX_CONFIG_REFRESH_UNSUPPORTED,
 	             TABLE_ID_CONFIG, "refresh_unsupoorted",
 	             SQL_COLUMN_TYPE_INT, 11,
 	             false, SQL_KEY_NONE, "0");
