@@ -21,6 +21,7 @@
 #define HatoholError_h
 
 #include <string>
+#include <map>
 
 enum HatoholErrorCode
 {
@@ -84,10 +85,13 @@ public:
 	static void defineError(const HatoholErrorCode errorCode,
 				const std::string &errorCodeName,
 				const std::string &errorMessage);
+	static const std::map<HatoholErrorCode, std::string>
+	  getCodeNames(void);
 	HatoholError(const HatoholErrorCode &code = HTERR_UNINITIALIZED,
 	             const std::string &optMessage = "");
 	virtual ~HatoholError(void);
 	const HatoholErrorCode &getCode(void) const;
+	const std::string &getCodeName(void) const;
 	const std::string &getMessage(void) const;
 	const std::string &getOptionMessage(void) const;
 

@@ -120,6 +120,11 @@ void HatoholError::defineError(const HatoholErrorCode errorCode,
 	errorMessages[errorCode] = errorMessage;
 }
 
+const std::map<HatoholErrorCode, std::string> HatoholError::getCodeNames(void)
+{
+	return errorCodeNames;
+}
+
 HatoholError::HatoholError(const HatoholErrorCode &code,
                            const string &optMessage)
 : m_code(code)
@@ -137,6 +142,14 @@ HatoholError::~HatoholError(void)
 const HatoholErrorCode &HatoholError::getCode(void) const
 {
 	return m_code;
+}
+
+const std::string &HatoholError::getCodeName(void) const
+{
+	static const string emptyName;
+	if (errorCodeNames.find(m_code) != errorCodeNames.end())
+		return errorCodeNames[m_code];
+	return emptyName;
 }
 
 const std::string &HatoholError::getMessage(void) const
