@@ -150,53 +150,14 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 	//
 	// HaotholError
 	//
-	ADD_LINE(s, langType, HTERR_OK);
-	ADD_LINE(s, langType, HTERR_UNINITIALIZED);
-	ADD_LINE(s, langType, HTERR_UNKNOWN_REASON);
-	ADD_LINE(s, langType, HTERR_NOT_IMPLEMENTED);
-	ADD_LINE(s, langType, HTERR_GOT_EXCEPTION);
-	ADD_LINE(s, langType, HTERR_INVALID_USER);
-	APPEND(s, "\n");
-
-	// DBClientConfig
-	ADD_LINE(s, langType, HTERR_INVALID_MONITORING_SYSTEM_TYPE);
-	ADD_LINE(s, langType, HTERR_INVALID_PORT_NUMBER);
-	ADD_LINE(s, langType, HTERR_INVALID_IP_ADDRESS);
-	ADD_LINE(s, langType, HTERR_INVALID_HOST_NAME);
-	ADD_LINE(s, langType, HTERR_NO_IP_ADDRESS_AND_HOST_NAME);
-	ADD_LINE(s, langType, HTERR_NOT_FOUND_SERVER_ID);
-
-	// DBClientUser
-	ADD_LINE(s, langType, HTERR_EMPTY_USER_NAME);
-	ADD_LINE(s, langType, HTERR_TOO_LONG_USER_NAME);
-	ADD_LINE(s, langType, HTERR_INVALID_CHAR);
-	ADD_LINE(s, langType, HTERR_EMPTY_PASSWORD);
-	ADD_LINE(s, langType, HTERR_TOO_LONG_PASSWORD);
-	ADD_LINE(s, langType, HTERR_USER_NAME_EXIST);
-	ADD_LINE(s, langType, HTERR_NO_PRIVILEGE);
-	ADD_LINE(s, langType, HTERR_INVALID_USER_FLAGS);
-	ADD_LINE(s, langType, HTERR_NOT_FOUND_USER_ID);
-	ADD_LINE(s, langType, HTERR_EMPTY_USER_ROLE_NAME);
-	ADD_LINE(s, langType, HTERR_TOO_LONG_USER_ROLE_NAME);
-	ADD_LINE(s, langType, HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST);
-	ADD_LINE(s, langType, HTERR_NOT_FOUND_USER_ROLE_ID);
-	APPEND(s, "\n");
-
-	// DBClientHatohol
-	ADD_LINE(s, langType, HTERR_NOT_FOUND_SORT_ORDER);
-	APPEND(s, "\n");
-
-	// DBClientAction
-	ADD_LINE(s, langType, HTERR_DELETE_INCOMPLETE);
-	APPEND(s, "\n");
-
-	// FaceRest
-	ADD_LINE(s, langType, HTERR_UNSUPORTED_FORMAT);
-	ADD_LINE(s, langType, HTERR_NOT_FOUND_SESSION_ID);
-	ADD_LINE(s, langType, HTERR_NOT_FOUND_ID_IN_URL);
-	ADD_LINE(s, langType, HTERR_NOT_FOUND_PARAMETER);
-	ADD_LINE(s, langType, HTERR_INVALID_PARAMETER);
-	ADD_LINE(s, langType, HTERR_AUTH_FAILED);
+	map<HatoholErrorCode, string> errorNames;
+	map<HatoholErrorCode, string>::iterator it;
+	errorNames = HatoholError::getCodeNames();
+	for (it = errorNames.begin(); it != errorNames.end(); it++) {
+		HatoholErrorCode code = it->first;
+		const string &name = it->second;
+		s += makeLine(langType, name, toString(code));
+	}
 	APPEND(s, "\n");
 
 	//
