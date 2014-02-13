@@ -2206,7 +2206,7 @@ void test_addUserRoleWithInvalidFlags(void)
 	params["name"] = "maintainer";
 	params["flags"] = StringUtils::sprintf(
 	  "%"FMT_OPPRVLG, ALL_PRIVILEGES + 1);
-	assertAddUserRoleWithSetup(params, HTERR_INVALID_USER_FLAGS);
+	assertAddUserRoleWithSetup(params, HTERR_INVALID_PRIVILEGE_FLAGS);
 
 	assertUserRolesInDB();
 }
