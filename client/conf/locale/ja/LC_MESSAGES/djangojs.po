@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-02-13 07:10-0600\n"
-"PO-Revision-Date: 2014-02-13 22:11+0900\n"
+"PO-Revision-Date: 2014-02-14 00:05+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -308,7 +308,7 @@ msgstr "不正なIPアドレスです。"
 
 #: static/js/hatohol_def.js:166
 msgid "Invalid host name."
-msgstr "不正なホスト名です"
+msgstr "不正なホスト名です。"
 
 #: static/js/hatohol_def.js:167
 msgid "No IP address and host name."
@@ -336,7 +336,7 @@ msgstr "パスワードが長すぎます。"
 
 #: static/js/hatohol_def.js:173
 msgid "The same user name already exists."
-msgstr "同じユーザ名が既に存在します"
+msgstr "同じユーザ名が既に存在します。"
 
 #: static/js/hatohol_def.js:174
 msgid "No privilege."
