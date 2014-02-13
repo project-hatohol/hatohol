@@ -1502,12 +1502,15 @@ void FaceRest::handlerPostServer(RestJob *job)
 	OperationPrivilege privilege(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	err = dataStore->addTargetServer(svInfo, privilege);
+	if (err != HTERR_OK) {
+		replyError(job, err);
+		return;
+	}
 
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, err);
-	if (err == HTERR_OK)
-		agent.add("id", svInfo.id);
+	agent.add("id", svInfo.id);
 	agent.endObject();
 	replyJsonData(agent, job);
 }
@@ -1548,13 +1551,16 @@ void FaceRest::handlerPutServer(RestJob *job)
 
 	// try to update
 	err = dataStore->updateTargetServer(serverInfo, option);
+	if (err != HTERR_OK) {
+		replyError(job, err);
+		return;
+	}
 
 	// make a response
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, err);
-	if (err == HTERR_OK)
-		agent.add("id", serverInfo.id);
+	agent.add("id", serverInfo.id);
 	agent.endObject();
 	replyJsonData(agent, job);
 }
@@ -1571,12 +1577,15 @@ void FaceRest::handlerDeleteServer(RestJob *job)
 	OperationPrivilege privilege(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HatoholError err = dataStore->deleteTargetServer(serverId, privilege);
+	if (err != HTERR_OK) {
+		replyError(job, err);
+		return;
+	}
 
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, err);
-	if (err == HTERR_OK)
-		agent.add("id", serverId);
+	agent.add("id", serverId);
 	agent.endObject();
 
 	replyJsonData(agent, job);
@@ -2003,13 +2012,16 @@ void FaceRest::handlerPostAction(RestJob *job)
 	// save the obtained action
 	OperationPrivilege privilege(job->userId);
 	HatoholError err = dataStore->addAction(actionDef, privilege);
+	if (err != HTERR_OK) {
+		replyError(job, err);
+		return;
+	}
 
 	// make a response
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, err);
-	if (err == HTERR_OK)
-		agent.add("id", actionDef.id);
+	agent.add("id", actionDef.id);
 	agent.endObject();
 	replyJsonData(agent, job);
 }
@@ -2028,13 +2040,16 @@ void FaceRest::handlerDeleteAction(RestJob *job)
 	actionIdList.push_back(actionId);
 	OperationPrivilege privilege(job->userId);
 	HatoholError err = dataStore->deleteActionList(actionIdList, privilege);
+	if (err != HTERR_OK) {
+		replyError(job, err);
+		return;
+	}
 
 	// replay
 	JsonBuilderAgent agent;
 	agent.startObject();
-	addHatoholError(agent, HatoholError(HTERR_OK));
-	if (err == HTERR_OK)
-		agent.add("id", actionId);
+	addHatoholError(agent, err);
+	agent.add("id", actionId);
 	agent.endObject();
 	replyJsonData(agent, job);
 }
@@ -2134,13 +2149,16 @@ void FaceRest::handlerPostUser(RestJob *job)
 	OperationPrivilege privilege(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	err = dataStore->addUser(userInfo, privilege);
+	if (err != HTERR_OK) {
+		replyError(job, err);
+		return;
+	}
 
 	// make a response
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, err);
-	if (err == HTERR_OK)
-		agent.add("id", userInfo.id);
+	agent.add("id", userInfo.id);
 	agent.endObject();
 	replyJsonData(agent, job);
 }
@@ -2174,13 +2192,16 @@ void FaceRest::handlerPutUser(RestJob *job)
 	OperationPrivilege privilege(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	err = dataStore->updateUser(userInfo, privilege);
+	if (err != HTERR_OK) {
+		replyError(job, err);
+		return;
+	}
 
 	// make a response
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, err);
-	if (err == HTERR_OK)
-		agent.add("id", userInfo.id);
+	agent.add("id", userInfo.id);
 	agent.endObject();
 	replyJsonData(agent, job);
 }
@@ -2197,13 +2218,16 @@ void FaceRest::handlerDeleteUser(RestJob *job)
 	OperationPrivilege privilege(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HatoholError err = dataStore->deleteUser(userId, privilege);
+	if (err != HTERR_OK) {
+		replyError(job, err);
+		return;
+	}
 
 	// replay
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, err);
-	if (err == HTERR_OK)
-		agent.add("id", userId);
+	agent.add("id", userId);
 	agent.endObject();
 	replyJsonData(agent, job);
 }
@@ -2315,13 +2339,16 @@ void FaceRest::handlerPostAccessInfo(RestJob *job)
 	OperationPrivilege privilege(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HatoholError err = dataStore->addAccessInfo(accessInfo, privilege);
+	if (err != HTERR_OK) {
+		replyError(job, err);
+		return;
+	}
 
 	// make a response
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, err);
-	if (err == HTERR_OK)
-		agent.add("id", accessInfo.id);
+	agent.add("id", accessInfo.id);
 	agent.endObject();
 	replyJsonData(agent, job);
 }
@@ -2339,13 +2366,16 @@ void FaceRest::handlerDeleteAccessInfo(RestJob *job)
 	OperationPrivilege privilege(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HatoholError err = dataStore->deleteAccessInfo(id, privilege);
+	if (err != HTERR_OK) {
+		replyError(job, err);
+		return;
+	}
 
 	// replay
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, err);
-	if (err == HTERR_OK)
-		agent.add("id", id);
+	agent.add("id", id);
 	agent.endObject();
 	replyJsonData(agent, job);
 }
@@ -2455,13 +2485,16 @@ void FaceRest::handlerPutUserRole(RestJob *job)
 	// try to update
 	OperationPrivilege privilege(job->userId);
 	err = dataStore->updateUserRole(userRoleInfo, privilege);
+	if (err != HTERR_OK) {
+		replyError(job, err);
+		return;
+	}
 
 	// make a response
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, err);
-	if (err == HTERR_OK)
-		agent.add("id", userRoleInfo.id);
+	agent.add("id", userRoleInfo.id);
 	agent.endObject();
 	replyJsonData(agent, job);
 }
@@ -2507,13 +2540,16 @@ void FaceRest::handlerPostUserRole(RestJob *job)
 	OperationPrivilege privilege(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	err = dataStore->addUserRole(userRoleInfo, privilege);
+	if (err != HTERR_OK) {
+		replyError(job, err);
+		return;
+	}
 
 	// make a response
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, err);
-	if (err == HTERR_OK)
-		agent.add("id", userRoleInfo.id);
+	agent.add("id", userRoleInfo.id);
 	agent.endObject();
 	replyJsonData(agent, job);
 }
@@ -2531,13 +2567,16 @@ void FaceRest::handlerDeleteUserRole(RestJob *job)
 	OperationPrivilege privilege(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HatoholError err = dataStore->deleteUserRole(userRoleId, privilege);
+	if (err != HTERR_OK) {
+		replyError(job, err);
+		return;
+	}
 
 	// replay
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, err);
-	if (err == HTERR_OK)
-		agent.add("id", userRoleId);
+	agent.add("id", userRoleId);
 	agent.endObject();
 	replyJsonData(agent, job);
 }
