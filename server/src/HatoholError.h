@@ -75,9 +75,15 @@ enum HatoholErrorCode
 	NUM_HATOHOL_ERROR_CODE,
 };
 
+#define DEFINE_ERR(SUFFIX, MESSAGE) \
+defineError(HTERR_##SUFFIX, "HTERR_"#SUFFIX, MESSAGE);
+
 class HatoholError {
 public:
 	static void init(void);
+	static void defineError(const HatoholErrorCode errorCode,
+				const std::string &errorCodeName,
+				const std::string &errorMessage);
 	HatoholError(const HatoholErrorCode &code = HTERR_UNINITIALIZED,
 	             const std::string &optMessage = "");
 	virtual ~HatoholError(void);
