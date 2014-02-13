@@ -241,11 +241,12 @@ static void makeJsDefSourceErrorMessages(string &s)
 	for (it = errorNames.begin(); it != errorNames.end(); it++) {
 		HatoholErrorCode code = it->first;
 		HatoholError error(code);
-		string message = StringUtils::sprintf(
-		  "gettext('%s')",
-		  error.getMessage().c_str());
+		string escapedMessage = 
+		  StringUtils::replace(error.getMessage(), "'", "\\'");
+		string sourceCode = StringUtils::sprintf(
+		  "gettext('%s')", escapedMessage.c_str());
 		s += "  ";
-		s += makeLine(JAVASCRIPT, toString(code), message);
+		s += makeLine(JAVASCRIPT, toString(code), sourceCode);
 	}
 	s += "  },\n";
 }
