@@ -52,6 +52,7 @@ static bool initDone = false;
 static void init(const CommandLineArg &arg)
 {
 	Utils::init();
+	HatoholError::init();
 	HatoholException::init();
 
 	DBAgentSQLite3::init();
