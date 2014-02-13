@@ -231,6 +231,25 @@ static string makeNodeModuleExport(void)
 	return s;
 }
 
+static void makeJsDefSourceErrorMessages(string &s)
+{
+	map<HatoholErrorCode, string> errorNames;
+	map<HatoholErrorCode, string>::iterator it;
+	errorNames = HatoholError::getCodeNames();
+
+	s += "  errorMessages: {\n";
+	for (it = errorNames.begin(); it != errorNames.end(); it++) {
+		HatoholErrorCode code = it->first;
+		HatoholError error(code);
+		string message = StringUtils::sprintf(
+		  "gettext('%s')",
+		  error.getMessage().c_str());
+		s += "  ";
+		s += makeLine(JAVASCRIPT, toString(code), message);
+	}
+	s += "  },\n";
+}
+
 static string makeDefSource(LanguageType langType)
 {
 	string s;
@@ -240,6 +259,7 @@ static string makeDefSource(LanguageType langType)
 		APPEND(s, "\n");
 		APPEND(s, "var hatohol = {\n");
 		makeDefSourceValues(s, langType);
+		makeJsDefSourceErrorMessages(s);
 		APPEND(s, "};\n");
 		APPEND(s, "\n");
 		s += makeNodeModuleExport();
