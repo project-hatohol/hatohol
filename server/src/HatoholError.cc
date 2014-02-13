@@ -79,7 +79,8 @@ void HatoholError::init(void)
 	DEFINE_ERR(TOO_LONG_USER_ROLE_NAME,
 		   "Too long User role name.");
 	DEFINE_ERR(USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST,
-		   "The same user role name or a user role with the same privilege already exists.");
+		   "The same user role name or a user role with the same "
+		   "privilege already exists.");
 	DEFINE_ERR(NOT_FOUND_USER_ROLE_ID,
 		   "Not found user role ID.");
 
