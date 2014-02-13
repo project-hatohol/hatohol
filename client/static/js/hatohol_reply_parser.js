@@ -75,17 +75,23 @@ HatoholReplyParser.prototype.getErrorCode = function() {
 };
 
 HatoholReplyParser.prototype.getErrorMessage = function() {
-  // Ensure to translate well known errors
+  // Build a more friendly message than a server's message if it's needed.
   switch (this.errorCode) {
   case hatohol.HTERR_AUTH_FAILED:
     return gettext("Invalid user name or password.");
   }
 
-  // Return raw errorMessage or errorCode
-  var errorCodeName;
-  if (this.errorMessage) {
+  // Return a pre-defined & translated error message.
+  if (hatohol.errorMessages[this.errorCode])
+    return hatohol.errorMessages[this.errorCode];
+
+  // Return an error message which is sent from the server.
+  if (this.errorMessage)
     return this.errorMessage;
-  } else if ((errorCodeName = this.getErrorCodeName())) {
+
+  // No error message is found. Return the raw error code.
+  var errorCodeName;
+  if ((errorCodeName = this.getErrorCodeName())) {
     return gettext("Error: ") + this.errorCode + ", " + errorCodeName;
   } else {
     return gettext("Unknown error: ") + this.errorCode;

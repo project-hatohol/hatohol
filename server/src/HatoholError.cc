@@ -111,6 +111,8 @@ void HatoholError::init(void)
 	// OTHER
 	DEFINE_ERR(ERROR_TEST,
 		   "Error test.");
+	DEFINE_ERR(ERROR_TEST_WITHOUT_MESSAGE,
+		   "");
 }
 
 void HatoholError::defineError(const HatoholErrorCode errorCode,

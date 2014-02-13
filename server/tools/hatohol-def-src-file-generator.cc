@@ -156,7 +156,8 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 	for (it = errorNames.begin(); it != errorNames.end(); it++) {
 		HatoholErrorCode code = it->first;
 		const string &name = it->second;
-		s += makeLine(langType, name, toString(code));
+		if (!name.empty())
+			s += makeLine(langType, name, toString(code));
 	}
 	APPEND(s, "\n");
 
@@ -241,8 +242,11 @@ static void makeJsDefSourceErrorMessages(string &s)
 	for (it = errorNames.begin(); it != errorNames.end(); it++) {
 		HatoholErrorCode code = it->first;
 		HatoholError error(code);
+		const string &message = error.getMessage();
+		if (message.empty())
+			continue;
 		string escapedMessage = 
-		  StringUtils::replace(error.getMessage(), "'", "\\'");
+		  StringUtils::replace(message, "'", "\\'");
 		string sourceCode = StringUtils::sprintf(
 		  "gettext('%s')", escapedMessage.c_str());
 		s += "  ";
