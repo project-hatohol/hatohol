@@ -1333,7 +1333,8 @@ void FaceRest::handlerLogin(RestJob *job)
 	DBClientUser dbUser;
 	UserIdType userId = dbUser.getUserId(user, password);
 	if (userId == INVALID_USER_ID) {
-		MLPL_INFO("Failed to authenticate: %s.\n", user);
+		MLPL_INFO("Failed to authenticate: Client: %s, User: %s.\n",
+			  soup_client_context_get_host(job->client), user);
 		replyError(job, HTERR_AUTH_FAILED);
 		return;
 	}
