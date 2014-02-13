@@ -21,6 +21,7 @@
 #define HatoholError_h
 
 #include <string>
+#include <map>
 
 enum HatoholErrorCode
 {
@@ -47,11 +48,11 @@ enum HatoholErrorCode
 	HTERR_TOO_LONG_PASSWORD,
 	HTERR_USER_NAME_EXIST,
 	HTERR_NO_PRIVILEGE,
-	HTERR_INVALID_USER_FLAGS,
+	HTERR_INVALID_PRIVILEGE_FLAGS,
 	HTERR_NOT_FOUND_USER_ID,
 	HTERR_EMPTY_USER_ROLE_NAME,
 	HTERR_TOO_LONG_USER_ROLE_NAME,
-	HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST,
+	HTERR_USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST,
 	HTERR_NOT_FOUND_USER_ROLE_ID,
 
 	// DBClientHatohol
@@ -61,7 +62,7 @@ enum HatoholErrorCode
 	HTERR_DELETE_INCOMPLETE,
 
 	// FaceRest
-	HTERR_UNSUPORTED_FORMAT,
+	HTERR_UNSUPPORTED_FORMAT,
 	HTERR_NOT_FOUND_SESSION_ID,
 	HTERR_NOT_FOUND_ID_IN_URL,
 	HTERR_NOT_FOUND_PARAMETER,
@@ -71,17 +72,27 @@ enum HatoholErrorCode
 
 	// OTHER
 	HTERR_ERROR_TEST,
+	HTERR_ERROR_TEST_WITHOUT_MESSAGE,
 
 	NUM_HATOHOL_ERROR_CODE,
 };
 
+#define DEFINE_ERR(SUFFIX, MESSAGE) \
+defineError(HTERR_##SUFFIX, "HTERR_"#SUFFIX, MESSAGE);
+
 class HatoholError {
 public:
 	static void init(void);
+	static void defineError(const HatoholErrorCode errorCode,
+				const std::string &errorCodeName,
+				const std::string &errorMessage);
+	static const std::map<HatoholErrorCode, std::string>
+	  &getCodeNames(void);
 	HatoholError(const HatoholErrorCode &code = HTERR_UNINITIALIZED,
 	             const std::string &optMessage = "");
 	virtual ~HatoholError(void);
 	const HatoholErrorCode &getCode(void) const;
+	const std::string &getCodeName(void) const;
 	const std::string &getMessage(void) const;
 	const std::string &getOptionMessage(void) const;
 

@@ -393,7 +393,7 @@ void test_addUserWithInvalidFlags(void)
 	UserInfo userInfo = testUserInfo[1];
 	userInfo.name = "Crasher";
 	userInfo.flags = ALL_PRIVILEGES + 1;
-	assertHatoholError(HTERR_INVALID_USER_FLAGS,
+	assertHatoholError(HTERR_INVALID_PRIVILEGE_FLAGS,
 	                   dbUser.addUserInfo(userInfo, privilege));
 	assertUsersInDB();
 }
@@ -927,7 +927,7 @@ void test_isValidFlagsExceededBit(void)
 {
 	OperationPrivilegeFlag flags =
 	  OperationPrivilege::makeFlag(NUM_OPPRVLG);
-	assertHatoholError(HTERR_INVALID_USER_FLAGS,
+	assertHatoholError(HTERR_INVALID_PRIVILEGE_FLAGS,
 	                   DBClientUser::isValidFlags(flags));
 }
 
@@ -986,7 +986,7 @@ void test_addUserRoleWithDuplicatedName(void)
 	UserRoleInfo userRoleInfo = testUserRoleInfo[1];
 	userRoleInfo.flags
 	  = OperationPrivilege::makeFlag(OPPRVLG_DELETE_ACTION);
-	assertHatoholError(HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST,
+	assertHatoholError(HTERR_USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST,
 	                   dbUser.addUserRoleInfo(userRoleInfo, privilege));
 	assertUserRolesInDB();
 }
@@ -998,7 +998,7 @@ void test_addUserRoleWithDuplicatedFlags(void)
 	DBClientUser dbUser;
 	UserRoleInfo userRoleInfo = testUserRoleInfo[1];
 	userRoleInfo.name = "Unique name kea#osemrnscs+";
-	assertHatoholError(HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST,
+	assertHatoholError(HTERR_USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST,
 	                   dbUser.addUserRoleInfo(userRoleInfo, privilege));
 	assertUserRolesInDB();
 }
@@ -1011,7 +1011,7 @@ void test_addUserRoleWithAllPrivilegeFlags(void)
 	UserRoleInfo userRoleInfo = testUserRoleInfo[1];
 	userRoleInfo.name = "Unique name kea#osemrnscs+";
 	userRoleInfo.flags = ALL_PRIVILEGES;
-	assertHatoholError(HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST,
+	assertHatoholError(HTERR_USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST,
 	                   dbUser.addUserRoleInfo(userRoleInfo, privilege));
 	assertUserRolesInDB();
 }
@@ -1024,7 +1024,7 @@ void test_addUserRoleWithNonePrivilegeFlags(void)
 	UserRoleInfo userRoleInfo = testUserRoleInfo[1];
 	userRoleInfo.name = "Unique name kea#osemrnscs+";
 	userRoleInfo.flags = NONE_PRIVILEGE;
-	assertHatoholError(HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST,
+	assertHatoholError(HTERR_USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST,
 	                   dbUser.addUserRoleInfo(userRoleInfo, privilege));
 	assertUserRolesInDB();
 }
@@ -1052,7 +1052,7 @@ void test_addUserRoleWithInvalidFlags(void)
 	userRoleInfo.id = 0;
 	userRoleInfo.name = "Crasher";
 	userRoleInfo.flags = ALL_PRIVILEGES + 1;
-	assertHatoholError(HTERR_INVALID_USER_FLAGS,
+	assertHatoholError(HTERR_INVALID_PRIVILEGE_FLAGS,
 	                   dbUser.addUserRoleInfo(userRoleInfo, privilege));
 	assertUserRolesInDB();
 }
@@ -1151,7 +1151,7 @@ void test_updateUserRoleWithExistingName(void)
 	OperationPrivilege privilege(
 	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_ALL_USER_ROLE));
 	HatoholError err = dbUser.updateUserRoleInfo(userRoleInfo, privilege);
-	assertHatoholError(HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST, err);
+	assertHatoholError(HTERR_USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST, err);
 
 	assertUserRolesInDB();
 }
@@ -1165,7 +1165,7 @@ void test_updateUserRoleWithExistingFlags(void)
 	OperationPrivilege privilege(
 	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_ALL_USER_ROLE));
 	HatoholError err = dbUser.updateUserRoleInfo(userRoleInfo, privilege);
-	assertHatoholError(HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST, err);
+	assertHatoholError(HTERR_USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST, err);
 
 	assertUserRolesInDB();
 }
@@ -1179,7 +1179,7 @@ void test_updateUserRoleWithAllPrivilegeFlags(void)
 	OperationPrivilege privilege(
 	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_ALL_USER_ROLE));
 	HatoholError err = dbUser.updateUserRoleInfo(userRoleInfo, privilege);
-	assertHatoholError(HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST, err);
+	assertHatoholError(HTERR_USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST, err);
 
 	assertUserRolesInDB();
 }
@@ -1193,7 +1193,7 @@ void test_updateUserRoleWithNonePrivilegeFlags(void)
 	OperationPrivilege privilege(
 	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_ALL_USER_ROLE));
 	HatoholError err = dbUser.updateUserRoleInfo(userRoleInfo, privilege);
-	assertHatoholError(HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST, err);
+	assertHatoholError(HTERR_USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST, err);
 
 	assertUserRolesInDB();
 }
@@ -1221,7 +1221,7 @@ void test_updateUserRoleWithInvalidFlags(void)
 	OperationPrivilege privilege(
 	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_ALL_USER_ROLE));
 	HatoholError err = dbUser.updateUserRoleInfo(userRoleInfo, privilege);
-	assertHatoholError(HTERR_INVALID_USER_FLAGS, err);
+	assertHatoholError(HTERR_INVALID_PRIVILEGE_FLAGS, err);
 
 	assertUserRolesInDB();
 }

@@ -574,15 +574,16 @@ void FaceRest::replyError(RestJob *job,
                           const HatoholError &hatoholError)
 {
 	string message = StringUtils::sprintf("%d", hatoholError.getCode());
+	const string &codeName = hatoholError.getCodeName();
+	const string &optionMessage = hatoholError.getOptionMessage();
 
-	if (!hatoholError.getMessage().empty()) {
-		message += " (";
-		message += hatoholError.getMessage();
-		message += ")";
-	}
-	if (!hatoholError.getOptionMessage().empty()) {
+	if (!codeName.empty()) {
 		message += ", ";
-		message += hatoholError.getOptionMessage();
+		message += codeName;
+	}
+	if (!optionMessage.empty()) {
+		message += ": ";
+		message += optionMessage;
 	}
 	MLPL_INFO("reply error: %s\n", message.c_str());
 
@@ -797,7 +798,7 @@ bool FaceRest::RestJob::prepare(void)
 
 	// a format type
 	if (!parseFormatType()) {
-		REPLY_ERROR(this, HTERR_UNSUPORTED_FORMAT,
+		REPLY_ERROR(this, HTERR_UNSUPPORTED_FORMAT,
 		            "%s", formatString.c_str());
 		return false;
 	}

@@ -21,6 +21,7 @@
 #include <map>
 
 using namespace std;
+static map<HatoholErrorCode, string> errorCodeNames;
 static map<HatoholErrorCode, string> errorMessages;
 
 // ---------------------------------------------------------------------------
@@ -28,59 +29,105 @@ static map<HatoholErrorCode, string> errorMessages;
 // ---------------------------------------------------------------------------
 void HatoholError::init(void)
 {
-	errorMessages[HTERR_OK] = "OK.";
-	errorMessages[HTERR_UNINITIALIZED] =
-	  "Uninitialized (This is probably a bug).";
-	errorMessages[HTERR_UNKNOWN_REASON]  = "Unknown reason.";
-	errorMessages[HTERR_NOT_IMPLEMENTED] = "Not implemented.";
-	errorMessages[HTERR_GOT_EXCEPTION]   = "Got exception.";
-	errorMessages[HTERR_INVALID_USER]    = "Invalid user.";
+	DEFINE_ERR(OK, "OK.");
+	DEFINE_ERR(UNINITIALIZED,
+		   "Uninitialized (This is probably a bug).");
+	DEFINE_ERR(UNKNOWN_REASON,
+		   "Unknown reason.");
+	DEFINE_ERR(NOT_IMPLEMENTED,
+		   "Not implemented.");
+	DEFINE_ERR(GOT_EXCEPTION,
+		   "Got exception.");
+	DEFINE_ERR(INVALID_USER,
+		   "Invalid user.");
 
 	// DBClientConfig
-	errorMessages[HTERR_INVALID_MONITORING_SYSTEM_TYPE] =
-	  "Invalid monitoring system type.";
-	errorMessages[HTERR_INVALID_PORT_NUMBER] = "Invalid port number.";
-	errorMessages[HTERR_INVALID_IP_ADDRESS]  = "Invalid IP address.";
-	errorMessages[HTERR_INVALID_HOST_NAME]   = "Invalid host name.";
-	errorMessages[HTERR_NO_IP_ADDRESS_AND_HOST_NAME] =
-	  "No IP address and host name.";
-	errorMessages[HTERR_NOT_FOUND_SERVER_ID] = "Not found server ID.";
+	DEFINE_ERR(INVALID_MONITORING_SYSTEM_TYPE,
+		   "Invalid monitoring system type.");
+	DEFINE_ERR(INVALID_PORT_NUMBER,
+		   "Invalid port number.");
+	DEFINE_ERR(INVALID_IP_ADDRESS,
+		   "Invalid IP address.");
+	DEFINE_ERR(INVALID_HOST_NAME,
+		   "Invalid host name.");
+	DEFINE_ERR(NO_IP_ADDRESS_AND_HOST_NAME,
+		   "No IP address and host name.");
+	DEFINE_ERR(NOT_FOUND_SERVER_ID,
+		   "Not found server ID.");
 
 	// DBClientUser
-	errorMessages[HTERR_EMPTY_USER_NAME]      = "Empty user name.";
-	errorMessages[HTERR_TOO_LONG_USER_NAME]   = "Too long user name.";
-	errorMessages[HTERR_INVALID_CHAR]         = "Invalid character.";
-	errorMessages[HTERR_EMPTY_PASSWORD]       = "Password is empty.";
-	errorMessages[HTERR_TOO_LONG_PASSWORD]    = "Too long password.";
-	errorMessages[HTERR_USER_NAME_EXIST]      = "The user name exists.";
-	errorMessages[HTERR_NO_PRIVILEGE]         = "No privilege.";
-	errorMessages[HTERR_INVALID_USER_FLAGS]   = "Invalid user flags.";
-	errorMessages[HTERR_NOT_FOUND_USER_ID]    = "Not found user ID.";
-	errorMessages[HTERR_EMPTY_USER_ROLE_NAME] = "Empty user role name.";
-	errorMessages[HTERR_TOO_LONG_USER_ROLE_NAME] =
-	  "Too long User role name.";
-	errorMessages[HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST] =
-	  "The user role name or the flags exists.";
-	errorMessages[HTERR_NOT_FOUND_USER_ROLE_ID] =
-	  "Not found user role ID.";
+	DEFINE_ERR(EMPTY_USER_NAME,
+		   "Empty user name.");
+	DEFINE_ERR(TOO_LONG_USER_NAME,
+		   "Too long user name.");
+	DEFINE_ERR(INVALID_CHAR,
+		   "Invalid character.");
+	DEFINE_ERR(EMPTY_PASSWORD,
+		   "Password is empty.");
+	DEFINE_ERR(TOO_LONG_PASSWORD,
+		   "Too long password.");
+	DEFINE_ERR(USER_NAME_EXIST,
+		   "The same user name already exists.");
+	DEFINE_ERR(NO_PRIVILEGE,
+		   "No privilege.");
+	DEFINE_ERR(INVALID_PRIVILEGE_FLAGS,
+		   "Invalid privilege flags.");
+	DEFINE_ERR(NOT_FOUND_USER_ID,
+		   "Not found user ID.");
+	DEFINE_ERR(EMPTY_USER_ROLE_NAME,
+		   "Empty user role name.");
+	DEFINE_ERR(TOO_LONG_USER_ROLE_NAME,
+		   "Too long User role name.");
+	DEFINE_ERR(USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST,
+		   "The same user role name or a user role with the same "
+		   "privilege already exists.");
+	DEFINE_ERR(NOT_FOUND_USER_ROLE_ID,
+		   "Not found user role ID.");
 
 	// DBClientHatohol
-	errorMessages[HTERR_NOT_FOUND_SORT_ORDER] = "Not found sort order.";
+	DEFINE_ERR(NOT_FOUND_SORT_ORDER,
+		   "Not found sort order.");
 
 	// DBClientAction
-	errorMessages[HTERR_DELETE_INCOMPLETE] = "Deletion incomplete.";
+	DEFINE_ERR(DELETE_INCOMPLETE,
+		   "The delete operation was incomplete.");
 
 	// FaceRest
-	errorMessages[HTERR_UNSUPORTED_FORMAT]    = "Unsupported format.";
-	errorMessages[HTERR_NOT_FOUND_SESSION_ID] = "Not found session ID.";
-	errorMessages[HTERR_NOT_FOUND_ID_IN_URL]  = "Not found ID in the URL.";
-	errorMessages[HTERR_NOT_FOUND_PARAMETER]  = "Not found parametr.";
-	errorMessages[HTERR_INVALID_PARAMETER]    = "Invalid parameter.";
-	errorMessages[HTERR_AUTH_FAILED]          = "Authentication failed.";
-	errorMessages[HTERR_NOT_TEST_MODE]        = "Not test mode.";
+	DEFINE_ERR(UNSUPPORTED_FORMAT,
+		   "Unsupported format.");
+	DEFINE_ERR(NOT_FOUND_SESSION_ID,
+		   "Not found session ID.");
+	DEFINE_ERR(NOT_FOUND_ID_IN_URL,
+		   "Not found ID in the URL.");
+	DEFINE_ERR(NOT_FOUND_PARAMETER,
+		   "Not found parameter.");
+	DEFINE_ERR(INVALID_PARAMETER,
+		   "Invalid parameter.");
+	DEFINE_ERR(AUTH_FAILED,
+		   "Authentication failed.");
+	DEFINE_ERR(NOT_TEST_MODE,
+		   "Not test mode.");
 
 	// OTHER
-	errorMessages[HTERR_ERROR_TEST] = "Error test.";
+	DEFINE_ERR(ERROR_TEST,
+		   "Error test.");
+	DEFINE_ERR(ERROR_TEST_WITHOUT_MESSAGE,
+		   "");
+}
+
+void HatoholError::defineError(const HatoholErrorCode errorCode,
+			       const string &errorCodeName,
+			       const string &errorMessage)
+{
+	errorCodeNames[errorCode] = errorCodeName;
+	errorMessages[errorCode] = errorMessage;
+}
+
+const std::map<HatoholErrorCode, std::string> &HatoholError::getCodeNames(void)
+{
+	if (errorCodeNames.empty())
+		init();
+	return errorCodeNames;
 }
 
 HatoholError::HatoholError(const HatoholErrorCode &code,
@@ -100,6 +147,14 @@ HatoholError::~HatoholError(void)
 const HatoholErrorCode &HatoholError::getCode(void) const
 {
 	return m_code;
+}
+
+const std::string &HatoholError::getCodeName(void) const
+{
+	static const string emptyName;
+	if (errorCodeNames.find(m_code) != errorCodeNames.end())
+		return errorCodeNames[m_code];
+	return emptyName;
 }
 
 const std::string &HatoholError::getMessage(void) const

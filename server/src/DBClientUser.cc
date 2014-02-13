@@ -841,7 +841,7 @@ HatoholError DBClientUser::addUserRoleInfo(UserRoleInfo &userRoleInfo,
 		return err;
 	if (userRoleInfo.flags == ALL_PRIVILEGES ||
 	    userRoleInfo.flags == NONE_PRIVILEGE) {
-		return HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST;
+		return HTERR_USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST;
 	}
 
 	DBAgent::InsertArg arg(tableProfileUserRoles);
@@ -858,7 +858,7 @@ HatoholError DBClientUser::addUserRoleInfo(UserRoleInfo &userRoleInfo,
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		if (isRecordExisting(TABLE_NAME_USER_ROLES, dupCheckCond)) {
-			err = HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST;
+			err = HTERR_USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST;
 		} else {
 			insert(arg);
 			userRoleInfo.id = getLastInsertId();
@@ -882,7 +882,7 @@ HatoholError DBClientUser::updateUserRoleInfo(
 		return err;
 	if (userRoleInfo.flags == ALL_PRIVILEGES ||
 	    userRoleInfo.flags == NONE_PRIVILEGE) {
-		return HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST;
+		return HTERR_USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST;
 	}
 
 	DBAgent::UpdateArg arg(tableProfileUserRoles);
@@ -907,7 +907,7 @@ HatoholError DBClientUser::updateUserRoleInfo(
 		if (!isRecordExisting(tableName, arg.condition)) {
 			err = HTERR_NOT_FOUND_USER_ROLE_ID;
 		} else if (isRecordExisting(tableName, dupCheckCond)) {
-			err = HTERR_USER_ROLE_NAME_OR_FLAGS_EXIST;
+			err = HTERR_USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST;
 		} else {
 			update(arg);
 			err = HTERR_OK;
@@ -983,7 +983,7 @@ HatoholError DBClientUser::isValidPassword(const string &password)
 HatoholError DBClientUser::isValidFlags(const OperationPrivilegeFlag flags)
 {
 	if (flags >= OperationPrivilege::makeFlag(NUM_OPPRVLG))
-		return HTERR_INVALID_USER_FLAGS;
+		return HTERR_INVALID_PRIVILEGE_FLAGS;
 	return HTERR_OK;
 }
 
