@@ -213,13 +213,13 @@
         s += "<td>" + o["id"] + "</td>";
         s += "<td>" + getServerTypeFromFlags(o["type"]) + "</td>";
         if (serverURL) {
-          s += "<td><a href='" + serverURL + "'>" + o["hostName"]  + "</a></td>";
+          s += "<td><a href='" + serverURL + "'>" + escapeHTML(o["hostName"])  + "</a></td>";
           s += "<td><a href='" + serverURL + "'>" + ip + "</a></td>";
         } else {
-          s += "<td>" + o["hostName"]  + "</td>";
+          s += "<td>" + escapeHTML(o["hostName"])  + "</td>";
           s += "<td>" + ip + "</td>";
         }
-        s += "<td>" + o["nickname"]  + "</td>";
+        s += "<td>" + escapeHTML(o["nickname"])  + "</td>";
         if (mapsURL) {
           s += "<td><a href='" + mapsURL + "'>" + "{% trans 'Show Maps' %}" + "</a></td>";
         } else {

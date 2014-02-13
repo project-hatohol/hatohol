@@ -184,7 +184,7 @@
         return gettext("Guest");
       default:
         if (rolesMap && rolesMap[flags])
-          return rolesMap[flags].name;
+          return escapeHTML(rolesMap[flags].name);
         break;
       }
       return gettext("Unknown");

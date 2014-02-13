@@ -201,7 +201,7 @@ HatoholUserRolesEditor.prototype.generateTableRows = function(data) {
     '  <input type="checkbox" class="userRoleSelectCheckbox" ' +
     '         userRoleId="' + role.userRoleId + '"></td>' +
     '<td>' + role.userRoleId + '</td>' +
-    '<td>' + role.name + '</td>' +
+    '<td>' + escapeHTML(role.name) + '</td>' +
     '<td>' +
     '<form class="form-inline" style="margin: 0">' +
     '  <input id="editUserRole' + role["userRoleId"] + '"' +

@@ -273,3 +273,7 @@ function hasFlags(user, flags) {
     return false;
   return user.flags & flags;
 };
+
+var escapeHTML = function(html) {
+  return $('<div/>').text(html).html();
+};
