@@ -119,7 +119,7 @@ Hatohol Client用のDBの準備を行います。
 
 以下のコマンドを実行してください。
 
-    # /usr/libexec/hatohol/client/managy.py syncdb
+    # /usr/libexec/hatohol/client/manage.py syncdb
 
 ### Hatohol Serverの開始
 
