@@ -86,7 +86,7 @@ public:
 				const std::string &errorCodeName,
 				const std::string &errorMessage);
 	static const std::map<HatoholErrorCode, std::string>
-	  getCodeNames(void);
+	  &getCodeNames(void);
 	HatoholError(const HatoholErrorCode &code = HTERR_UNINITIALIZED,
 	             const std::string &optMessage = "");
 	virtual ~HatoholError(void);

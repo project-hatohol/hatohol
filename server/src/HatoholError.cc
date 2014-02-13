@@ -120,7 +120,7 @@ void HatoholError::defineError(const HatoholErrorCode errorCode,
 	errorMessages[errorCode] = errorMessage;
 }
 
-const std::map<HatoholErrorCode, std::string> HatoholError::getCodeNames(void)
+const std::map<HatoholErrorCode, std::string> &HatoholError::getCodeNames(void)
 {
 	if (errorCodeNames.empty())
 		init();
