@@ -99,20 +99,34 @@ HatoholReplyParser.prototype.getErrorMessage = function() {
 };
 
 HatoholReplyParser.prototype.getMessage = function() {
+  var message;
+
   switch (this.stat) {
   case REPLY_STATUS.OK:
-    return gettext("OK.");
+    message = gettext("OK.");
+    break;
   case REPLY_STATUS.NULL_OR_UNDEFINED:
-    return gettext("Null or undefined.");
+    message = gettext("Null or undefined.");
+    break;
   case REPLY_STATUS.NOT_FOUND_ERROR_CODE:
-    return gettext("Not found errorCode.");
+    message = gettext("Not found errorCode.");
+    break;
   case REPLY_STATUS.ERROR_CODE_IS_NOT_OK:
   case REPLY_STATUS.NOT_FOUND_ERROR_MESSAGE:
-    return this.getErrorMessage();
+    message = this.getErrorMessage();
+    break;
   case REPLY_STATUS.NOT_FOUND_SESSION_ID:
-    return gettext("Not found sessionId.");
+    message = gettext("Not found sessionId.");
+    break;
+  default:
+    message = gettext("Unknown status: ") + this.stat;
+    break;
   }
-  return gettext("Unknown status: ") + this.stat;
+
+  if (this.optionMessage)
+    message += gettext(": ") + this.optionMessage;
+
+  return message;
 };
 
 HatoholReplyParser.prototype.getErrorCodeName = function() {

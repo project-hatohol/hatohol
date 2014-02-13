@@ -65,7 +65,7 @@ describe("HatoholReplyParser", function() {
     var reply = {
       "apiVersion":hatohol.FACE_REST_API_VERSION,
       "errorCode":hatohol.HTERR_ERROR_TEST,
-      "errorMessge":"server's error message"
+      "errorMessage":"server's error message"
     };
     var parser = new HatoholReplyParser(reply);
     var message = parser.getMessage();
@@ -93,6 +93,18 @@ describe("HatoholReplyParser", function() {
     var expected = "Error: " + hatohol.HTERR_ERROR_TEST_WITHOUT_MESSAGE +
       ", " + "HTERR_ERROR_TEST_WITHOUT_MESSAGE";
     expect(message).to.be(expected);
+  });
+
+  it("use a option message", function() {
+    var reply = {
+      "apiVersion":hatohol.FACE_REST_API_VERSION,
+      "errorCode":hatohol.HTERR_ERROR_TEST,
+      "errorMessage":"server's error message",
+      "optionMessage":"option message",
+    };
+    var parser = new HatoholReplyParser(reply);
+    var message = parser.getMessage();
+    expect(message).to.be("Error test.: option message");
   });
 });
 
