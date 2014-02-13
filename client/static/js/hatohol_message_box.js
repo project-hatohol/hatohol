@@ -50,8 +50,9 @@ var HatoholMessageBox = function(msg, param) {
   self.msgDivId = "#" + id;
   var msgDiv = $(self.msgDivId)[0];
   if (!msgDiv) {
-    var div = "<div id='" + id + "'>" + msg + "</div>";
+    var div = "<div id='" + id + "'></div>";
     $("body").append(div);
+    $(self.msgDivId).text(msg);
   } else  {
     $(msgDiv).text(msg);
   }
