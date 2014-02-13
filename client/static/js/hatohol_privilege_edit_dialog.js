@@ -97,7 +97,7 @@ HatoholPrivilegeEditDialog.prototype.start = function() {
       },
       connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
         var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
-          XMLHttpRequest.statusText;
+                       XMLHttpRequest.statusText;
         self.setMessage(errorMsg);
         self.erorr = true;
       }
@@ -121,7 +121,7 @@ HatoholPrivilegeEditDialog.prototype.start = function() {
       },
       connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
         var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
-          XMLHttpRequest.statusText;
+                       XMLHttpRequest.statusText;
         self.setMessage(errorMsg);
         self.erorr = true;
       }
