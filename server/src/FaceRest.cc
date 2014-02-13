@@ -1527,7 +1527,7 @@ void FaceRest::handlerPutServer(RestJob *job)
 	ServerQueryOption option(job->userId);
 	dataStore->getTargetServers(serversList, option);
 	if (serversList.empty()) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_SERVER_ID,
+		REPLY_ERROR(job, HTERR_NOT_FOUND_TARGET_RECORD,
 		            "id: %"PRIu64, serverId);
 		return;
 	}
@@ -2157,7 +2157,7 @@ void FaceRest::handlerPutUser(RestJob *job)
 	DBClientUser dbUser;
 	bool exist = dbUser.getUserInfo(userInfo, userInfo.id);
 	if (!exist) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_USER_ID,
+		REPLY_ERROR(job, HTERR_NOT_FOUND_TARGET_RECORD,
 		            "id: %"FMT_USER_ID, userInfo.id);
 		return;
 	}
@@ -2437,7 +2437,7 @@ void FaceRest::handlerPutUserRole(RestJob *job)
 	option.setTargetUserRoleId(userRoleInfo.id);
 	dataStore->getUserRoleList(userRoleList, option);
 	if (userRoleList.empty()) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_USER_ROLE_ID,
+		REPLY_ERROR(job, HTERR_NOT_FOUND_TARGET_RECORD,
 		            "id: %"FMT_USER_ID, userRoleInfo.id);
 		return;
 	}

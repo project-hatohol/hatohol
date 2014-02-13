@@ -706,7 +706,7 @@ HatoholError DBClientConfig::updateTargetServer(
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		if (!isRecordExisting(TABLE_NAME_SERVERS, arg.condition)) {
-			err = HTERR_NOT_FOUND_SERVER_ID;
+			err = HTERR_NOT_FOUND_TARGET_RECORD;
 		} else {
 			update(arg);
 			err = HTERR_OK;

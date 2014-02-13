@@ -582,7 +582,7 @@ HatoholError DBClientUser::updateUserInfo(
 	DBCLIENT_TRANSACTION_BEGIN() {
 		const char *tableName = arg.tableProfile.name;
 		if (!isRecordExisting(tableName, arg.condition)) {
-			err = HTERR_NOT_FOUND_USER_ID;
+			err = HTERR_NOT_FOUND_TARGET_RECORD;
 		} else if (isRecordExisting(tableName, dupCheckCond)) {
 			err = HTERR_USER_NAME_EXIST;
 		} else {
@@ -905,7 +905,7 @@ HatoholError DBClientUser::updateUserRoleInfo(
 	DBCLIENT_TRANSACTION_BEGIN() {
 		const char *tableName = arg.tableProfile.name;
 		if (!isRecordExisting(tableName, arg.condition)) {
-			err = HTERR_NOT_FOUND_USER_ROLE_ID;
+			err = HTERR_NOT_FOUND_TARGET_RECORD;
 		} else if (isRecordExisting(tableName, dupCheckCond)) {
 			err = HTERR_USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST;
 		} else {
