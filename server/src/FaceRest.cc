@@ -798,7 +798,7 @@ bool FaceRest::RestJob::prepare(void)
 
 	// a format type
 	if (!parseFormatType()) {
-		REPLY_ERROR(this, HTERR_UNSUPORTED_FORMAT,
+		REPLY_ERROR(this, HTERR_UNSUPPORTED_FORMAT,
 		            "%s", formatString.c_str());
 		return false;
 	}

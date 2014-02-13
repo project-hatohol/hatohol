@@ -67,19 +67,19 @@ void HatoholError::init(void)
 	DEFINE_ERR(TOO_LONG_PASSWORD,
 		   "Too long password.");
 	DEFINE_ERR(USER_NAME_EXIST,
-		   "The user name exists.");
+		   "The same user name already exists.");
 	DEFINE_ERR(NO_PRIVILEGE,
 		   "No privilege.");
-	DEFINE_ERR(INVALID_USER_FLAGS,
-		   "Invalid user flags.");
+	DEFINE_ERR(INVALID_PRIVILEGE_FLAGS,
+		   "Invalid privilege flags.");
 	DEFINE_ERR(NOT_FOUND_USER_ID,
 		   "Not found user ID.");
 	DEFINE_ERR(EMPTY_USER_ROLE_NAME,
 		   "Empty user role name.");
 	DEFINE_ERR(TOO_LONG_USER_ROLE_NAME,
 		   "Too long User role name.");
-	DEFINE_ERR(USER_ROLE_NAME_OR_FLAGS_EXIST,
-		   "The user role name or the flags exists.");
+	DEFINE_ERR(USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST,
+		   "The same user role name or a user role with the same privilege already exists.");
 	DEFINE_ERR(NOT_FOUND_USER_ROLE_ID,
 		   "Not found user role ID.");
 
@@ -89,17 +89,17 @@ void HatoholError::init(void)
 
 	// DBClientAction
 	DEFINE_ERR(DELETE_INCOMPLETE,
-		   "Deletion incomplete.");
+		   "The delete operation was incomplete.");
 
 	// FaceRest
-	DEFINE_ERR(UNSUPORTED_FORMAT,
+	DEFINE_ERR(UNSUPPORTED_FORMAT,
 		   "Unsupported format.");
 	DEFINE_ERR(NOT_FOUND_SESSION_ID,
 		   "Not found session ID.");
 	DEFINE_ERR(NOT_FOUND_ID_IN_URL,
 		   "Not found ID in the URL.");
 	DEFINE_ERR(NOT_FOUND_PARAMETER,
-		   "Not found parametr.");
+		   "Not found parameter.");
 	DEFINE_ERR(INVALID_PARAMETER,
 		   "Invalid parameter.");
 	DEFINE_ERR(AUTH_FAILED,
