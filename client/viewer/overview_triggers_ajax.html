@@ -174,13 +174,13 @@
           continue;
 
         hostNames = parsedData.hosts[serverName];
-        serversRow += "<th style='text-align: center' colspan='" + hostNames.length + "'>" + serverName + "</th>";
+        serversRow += "<th style='text-align: center' colspan='" + hostNames.length + "'>" + escapeHTML(serverName) + "</th>";
         for (x = 0; x < hostNames.length; ++x) {
           hostName  = hostNames[x];
           if (targetHostName && hostName != targetHostName)
             continue;
 
-          hostsRow += "<th>" + hostName + "</th>";
+          hostsRow += "<th>" + escapeHTML(hostName) + "</th>";
         }
       }
       serversRow += "</tr>";
@@ -199,7 +199,7 @@
       for (y = 0; y < parsedData.triggers.length; ++y) {
         triggerName = parsedData.triggers[y];
         html += "<tr>";
-        html += "<th>" + triggerName + "</th>";
+        html += "<th>" + escapeHTML(triggerName) + "</th>";
         for (serverName in parsedData.hosts) {
           if (targetServerName && serverName != targetServerName)
             continue;
@@ -214,7 +214,7 @@
             if (trigger) {
               switch (trigger["status"]) {
                 case 1:
-                  html += "<td class='severity" + trigger["severity"] + "'>&nbsp;</td>";
+                  html += "<td class='severity" + escapeHTML(trigger["severity"]) + "'>&nbsp;</td>";
                   break;
                 case 0:
                   html += "<td class='healthy'>&nbsp;</td>";
