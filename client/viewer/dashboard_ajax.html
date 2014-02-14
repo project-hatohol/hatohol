@@ -164,14 +164,14 @@
         serverStatus = goods[x];
         serverId = serverStatus["serverId"];
         html += "<tr>";
-        html += "<td rowspan='5'>" + serverStatus["serverNickname"] + "</td>";
+        html += "<td rowspan='5'>" + escapeHTML(serverStatus["serverNickname"]) + "</td>";
         html += "<td>{% trans "Number of hosts [with problem]" %}</td>";
         html += buildRatioColumns(parsedData[serverId]["badHosts"],
                                   serverStatus["numberOfHosts"]);
         html += "</tr>";
         html += "<tr>";
         html += "<td>{% trans "Number of items" %}</td>";
-        html += "<td>" + serverStatus["numberOfItems"] + "</td>";
+        html += "<td>" + escapeHTML(serverStatus["numberOfItems"]) + "</td>";
         html += "<td></td>";
         html += "</tr>";
         html += "<tr>";
@@ -186,7 +186,7 @@
         html += "</tr>";
         html += "<tr>";
         html += "<td>{% trans "New values per second" %}</td>";
-        html += "<td>" + serverStatus["numberOfMonitoredItemsPerSecond"] + "</td>";
+        html += "<td>" + escapeHTML(serverStatus["numberOfMonitoredItemsPerSecond"]) + "</td>";
         html += "<td></td>";
         html += "</tr>";
       }
@@ -205,18 +205,18 @@
         y = 0;
         for (groupId in replyData["serverStatus"][x]["hostGroups"]) {
           if (y == 0) {
-            html += "<td rowspan='" + parsedData[serverId]["numberOfHostGroups"] + "'>";
-            html += replyData["serverStatus"][x]["serverNickname"];
+            html += "<td rowspan='" + escapeHTML(parsedData[serverId]["numberOfHostGroups"]) + "'>";
+            html += escapeHTML(replyData["serverStatus"][x]["serverNickname"]);
             html += "</td>";
           }
           html += "<td>";
-          html += replyData["serverStatus"][x]["hostGroups"][groupId]["name"];
+          html += escapeHTML(replyData["serverStatus"][x]["hostGroups"][groupId]["name"]);
           html += "</td>";
           for (severity = 5; severity >= 0; --severity) {
             numberOfTriggers = parsedData[serverId][groupId][severity];
             if (isNaN(numberOfTriggers))
               numberOfTriggers = 0;
-            html += "<td>" + numberOfTriggers + "</td>";
+            html += "<td>" + escapeHTML(numberOfTriggers) + "</td>";
           }
           ++y;
         }
@@ -239,20 +239,20 @@
           hostStatus = hostStatuses[y];
           if (y == 0) {
             html += "<td rowspan='" + hostStatuses.length + "'>";
-            html += replyData["serverStatus"][x]["serverNickname"];
+            html += escapeHTML(replyData["serverStatus"][x]["serverNickname"]);
             html += "</td>";
           }
           html += "<td>";
-          html += serverStatus["hostGroups"][hostStatus["hostGroupId"]]["name"];
+          html += escapeHTML(serverStatus["hostGroups"][hostStatus["hostGroupId"]]["name"]);
           html += "</td>";
           html += "<td>";
-          html += hostStatus["numberOfGoodHosts"];
+          html += escapeHTML(hostStatus["numberOfGoodHosts"]);
           html += "</td>";
           html += "<td>";
-          html += hostStatus["numberOfBadHosts"];
+          html += escapeHTML(hostStatus["numberOfBadHosts"]);
           html += "</td>";
           html += "<td>";
-          html += hostStatus["numberOfGoodHosts"] + hostStatus["numberOfBadHosts"];
+          html += escapeHTML(hostStatus["numberOfGoodHosts"] + hostStatus["numberOfBadHosts"]);
           html += "</td>";
         }
         html += "</tr>";
