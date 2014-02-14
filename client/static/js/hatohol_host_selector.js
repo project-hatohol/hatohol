@@ -61,9 +61,9 @@ HatoholHostSelector.prototype.generateTableRows = function(reply) {
   for (var i = 0; i < reply.hosts.length; i++) {
     host = reply.hosts[i];
     s += '<tr>';
-    s += '<td>' + host.id + '</td>';
-    s += '<td>' + host.serverId + '</td>';
-    s += '<td>' + host.hostName + '</td>';
+    s += '<td>' + escapeHTML(host.id) + '</td>';
+    s += '<td>' + escapeHTML(host.serverId) + '</td>';
+    s += '<td>' + escapeHTML(host.hostName) + '</td>';
     s += '</tr>';
   }
   return s;
