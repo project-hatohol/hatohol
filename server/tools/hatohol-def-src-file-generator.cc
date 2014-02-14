@@ -21,6 +21,7 @@
 #include <cstdlib>
 #include <string>
 #include <sstream>
+#include "Hatohol.h"
 #include "DBClientHatohol.h"
 #include "DBClientConfig.h"
 #include "ActionManager.h"
@@ -332,6 +333,11 @@ static void printUsage(void)
 
 int main(int argc, char *argv[])
 {
+#ifndef GLIB_VERSION_2_36
+	g_type_init();
+#endif // GLIB_VERSION_2_36
+	hatoholInit();
+
 	if (argc < 2) {
 		printUsage();
 		return EXIT_FAILURE;
