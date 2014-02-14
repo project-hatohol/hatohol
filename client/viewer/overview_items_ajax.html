@@ -158,13 +158,13 @@
           continue;
 
         hostNames = parsedData.hosts[serverName];
-        serversRow += "<th style='text-align: center' colspan='" + hostNames.length + "'>" + serverName + "</th>";
+        serversRow += "<th style='text-align: center' colspan='" + hostNames.length + "'>" + escapeHTML(serverName) + "</th>";
         for (x = 0; x < hostNames.length; ++x) {
           hostName = hostNames[x];
           if (targetHostName && hostName != targetHostName)
             continue;
 
-          hostsRow += "<th>" + hostName + "</th>";
+          hostsRow += "<th>" + escapeHTML(hostName) + "</th>";
         }
       }
       hostsRow += "</tr>";
@@ -183,7 +183,7 @@
       for (y = 0; y < parsedData.items.length; ++y) {
         itemName = parsedData.items[y];
         html += "<tr>";
-        html += "<th>" + itemName + "</th>";
+        html += "<th>" + escapeHTML(itemName) + "</th>";
         for (serverName in parsedData.hosts) {
           if (targetServerName && serverName != targetServerName)
             continue;
@@ -196,7 +196,7 @@
 
             item = parsedData.values[serverName][hostName][itemName];
             if (item && item["lastValue"] != undefined) {
-              html += "<td>" + item["lastValue"] + "</td>";
+              html += "<td>" + escapeHTML(item["lastValue"]) + "</td>";
             } else {
               html += "<td>&nbsp;</td>";
             }

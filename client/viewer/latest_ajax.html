@@ -170,16 +170,16 @@
         if (targetAppName && appName != targetAppName)
           continue;
 
-        html += "<tr><td>" + serverName + "</td>";
-        html += "<td>" + hostName + "</td>";
-        html += "<td>" + appName + "</td>";
+        html += "<tr><td>" + escapeHTML(serverName) + "</td>";
+        html += "<td>" + escapeHTML(hostName) + "</td>";
+        html += "<td>" + escapeHTML(appName) + "</td>";
         if (url)
-          html += "<td><a href='" + url + "'>" + item["brief"]  + "</a></td>";
+          html += "<td><a href='" + url + "'>" + escapeHTML(item["brief"])  + "</a></td>";
         else
-          html += "<td>" + item["brief"]  + "</td>";
-        html += "<td data-sort-value='" + clock + "'>" + formatDate(clock) + "</td>";
-        html += "<td>" + item["lastValue"] + "</td>";
-        html += "<td>" + item["prevValue"] + "</td>";
+          html += "<td>" + escapeHTML(item["brief"])  + "</td>";
+        html += "<td data-sort-value='" + escapeHTML(clock) + "'>" + formatDate(clock) + "</td>";
+        html += "<td>" + escapeHTML(item["lastValue"]) + "</td>";
+        html += "<td>" + escapeHTML(item["prevValue"]) + "</td>";
         html += "</tr>";
       }
 
