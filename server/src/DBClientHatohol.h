@@ -169,6 +169,8 @@ public:
 	virtual std::string getTableNameForServerId(void) const;
 	virtual void setTableNameForServerId(const std::string &name);
 
+	virtual void enableTableVariable(const bool &enable = true) const;
+
 protected:
 	void setServerIdColumnName(const std::string &name) const;
 	std::string getServerIdColumnName(void) const;
@@ -176,6 +178,8 @@ protected:
 	std::string getHostGroupIdColumnName(void) const;
 	void setHostIdColumnName(const std::string &name) const;
 	std::string getHostIdColumnName(void) const;
+	void setTableVariableName(const std::string &name) const;
+	std::string getTableVariableName(void) const;
 	static void appendCondition(std::string &cond,
 	                            const std::string &newCond);
 	static std::string makeCondition(

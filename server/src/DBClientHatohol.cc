@@ -694,9 +694,11 @@ struct HostResourceQueryOption::PrivateContext {
 	string serverIdColumnName;
 	string hostGroupIdColumnName;
 	string hostIdColumnName;
+	string tableVariableName;
 	ServerIdType targetServerId;
 	uint64_t targetHostId;
 	uint64_t targetHostgroupId;
+	bool useTableVariable;
 
 	PrivateContext()
 	: serverIdColumnName("server_id"),
@@ -704,7 +706,8 @@ struct HostResourceQueryOption::PrivateContext {
 	  hostIdColumnName("host_id"),
 	  targetServerId(ALL_SERVERS),
 	  targetHostId(ALL_HOSTS),
-	  targetHostgroupId(ALL_HOST_GROUPS)
+	  targetHostgroupId(ALL_HOST_GROUPS),
+	  useTableVariable(false)
 	{
 	}
 };
@@ -737,6 +740,10 @@ string HostResourceQueryOption::getServerIdColumnName(void) const
 {
 	if (m_ctx->tableNameForServerId.empty())
 		return m_ctx->serverIdColumnName;
+	if (m_ctx->useTableVariable)
+		return StringUtils::sprintf("%s.%s",
+		                            m_ctx->tableVariableName.c_str(),
+		                            m_ctx->serverIdColumnName.c_str());
 
 	return StringUtils::sprintf("%s.%s",
 				    m_ctx->tableNameForServerId.c_str(),
@@ -751,7 +758,13 @@ void HostResourceQueryOption::setHostGroupIdColumnName(
 
 string HostResourceQueryOption::getHostGroupIdColumnName(void) const
 {
-	return m_ctx->hostGroupIdColumnName;
+	if (m_ctx->useTableVariable) {
+		return StringUtils::sprintf("%s.%s",
+		                           m_ctx->tableVariableName.c_str(),
+		                           m_ctx->hostGroupIdColumnName.c_str());
+	} else {
+		return m_ctx->hostGroupIdColumnName;
+	}
 }
 
 void HostResourceQueryOption::setHostIdColumnName(
@@ -762,7 +775,23 @@ void HostResourceQueryOption::setHostIdColumnName(
 
 string HostResourceQueryOption::getHostIdColumnName(void) const
 {
-	return m_ctx->hostIdColumnName;
+	if (m_ctx->useTableVariable) {
+		return StringUtils::sprintf("%s.%s",
+		                           m_ctx->tableVariableName.c_str(),
+		                           m_ctx->hostIdColumnName.c_str());
+	} else {
+		return m_ctx->hostIdColumnName;
+	}
+}
+
+void HostResourceQueryOption::setTableVariableName(const string &name) const
+{
+	m_ctx->tableVariableName = name;
+}
+
+string HostResourceQueryOption::getTableVariableName(void) const
+{
+	return m_ctx->tableVariableName;
 }
 
 void HostResourceQueryOption::appendCondition(string &cond, const string &newCond)
@@ -879,24 +908,12 @@ string HostResourceQueryOption::getCondition(const string &varName) const
 {
 	string condition;
 	UserIdType userId = getUserId();
-	string serverIdColumnName;
-	string hostIdColumnName;
-	string hostgroupIdColumnName;
-	if (varName.empty()) {
-		serverIdColumnName = getServerIdColumnName();
-		hostIdColumnName = getServerIdColumnName();
-		hostgroupIdColumnName = getHostGroupIdColumnName();
-	} else {
-		serverIdColumnName = varName + "." +  getServerIdColumnName();
-		hostIdColumnName = varName + "." + getServerIdColumnName();
-		hostgroupIdColumnName = varName + "." + getHostGroupIdColumnName();
-	}
 
 	if (userId == USER_ID_SYSTEM || has(OPPRVLG_GET_ALL_SERVER)) {
 		if (m_ctx->targetServerId != ALL_SERVERS) {
 			condition = StringUtils::sprintf(
 				"%s=%"FMT_SERVER_ID,
-				serverIdColumnName.c_str(),
+				getServerIdColumnName().c_str(),
 				m_ctx->targetServerId);
 		}
 		if (m_ctx->targetHostId != ALL_HOSTS) {
@@ -904,7 +921,7 @@ string HostResourceQueryOption::getCondition(const string &varName) const
 				condition += " AND ";
 			condition += StringUtils::sprintf(
 				"%s=%"PRIu64,
-				hostIdColumnName.c_str(),
+				getHostIdColumnName().c_str(),
 				m_ctx->targetHostId);
 		}
 		if (m_ctx->targetHostgroupId != ALL_HOST_GROUPS) {
@@ -912,7 +929,7 @@ string HostResourceQueryOption::getCondition(const string &varName) const
 				condition += " AND ";
 			condition += StringUtils::sprintf(
 				"%s=%"FMT_HOST_GROUP_ID,
-				hostgroupIdColumnName.c_str(),
+				getHostGroupIdColumnName().c_str(),
 				m_ctx->targetHostgroupId);
 		}
 		return condition;
@@ -928,9 +945,9 @@ string HostResourceQueryOption::getCondition(const string &varName) const
 	ServerHostGrpSetMap srvHostGrpSetMap;
 	dbUser->getServerHostGrpSetMap(srvHostGrpSetMap, userId);
 	condition = makeCondition(srvHostGrpSetMap,
-	                          serverIdColumnName,
-	                          hostIdColumnName,
-	                          hostgroupIdColumnName,
+	                          getServerIdColumnName().c_str(),
+	                          getHostIdColumnName().c_str(),
+	                          getHostGroupIdColumnName().c_str(),
 	                          m_ctx->targetServerId,
 	                          m_ctx->targetHostId,
 	                          m_ctx->targetHostgroupId);
@@ -977,6 +994,11 @@ void HostResourceQueryOption::setTableNameForServerId(const std::string &name)
 	m_ctx->tableNameForServerId = name;
 }
 
+void HostResourceQueryOption::enableTableVariable(const bool &enable) const
+{
+	m_ctx->useTableVariable = enable;
+}
+
 EventsQueryOption::EventsQueryOption(UserIdType userId)
 : HostResourceQueryOption(userId)
 {
@@ -993,6 +1015,7 @@ TriggersQueryOption::TriggersQueryOption(UserIdType userId)
 	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName);
 	setHostIdColumnName(
 	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName);
+	setTableVariableName(VAR_TRIGGERS);
 }
 
 ItemsQueryOption::ItemsQueryOption(UserIdType userId)
@@ -1031,6 +1054,7 @@ HostgroupElementQueryOption::HostgroupElementQueryOption(UserIdType userId)
 	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID].columnName);
 	setHostGroupIdColumnName(
 	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID].columnName);
+	setTableVariableName(VAR_MAP_HOSTS_GROUPS);
 }
 
 // ---------------------------------------------------------------------------
@@ -1136,6 +1160,7 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 					 const TriggersQueryOption &option,
 					 uint64_t targetTriggerId)
 {
+	option.enableTableVariable();
 	string optCond = option.getCondition(VAR_TRIGGERS);
 	if (isAlwaysFalseCondition(optCond))
 		return;
