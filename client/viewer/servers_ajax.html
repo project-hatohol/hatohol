@@ -208,16 +208,16 @@
         mapsURL = getMapsLocation(o);
         s += "<tr>";
         s += "<td class='delete-selector' style='display:none;'>";
-        s += "<input type='checkbox' class='selectcheckbox' serverId='" + o["id"] + "'>";
+        s += "<input type='checkbox' class='selectcheckbox' serverId='" + escapeHTML(o["id"]) + "'>";
         s += "</td>";
-        s += "<td>" + o["id"] + "</td>";
+        s += "<td>" + escapeHTML(o["id"]) + "</td>";
         s += "<td>" + getServerTypeFromFlags(o["type"]) + "</td>";
         if (serverURL) {
           s += "<td><a href='" + serverURL + "'>" + escapeHTML(o["hostName"])  + "</a></td>";
-          s += "<td><a href='" + serverURL + "'>" + ip + "</a></td>";
+          s += "<td><a href='" + serverURL + "'>" + escapeHTML(ip) + "</a></td>";
         } else {
           s += "<td>" + escapeHTML(o["hostName"])  + "</td>";
-          s += "<td>" + ip + "</td>";
+          s += "<td>" + escapeHTML(ip) + "</td>";
         }
         s += "<td>" + escapeHTML(o["nickname"])  + "</td>";
         if (mapsURL) {
@@ -226,9 +226,9 @@
           s += "<td></td>";
         }
         s += "<td class='edit-server-column' style='display:none;'>"
-        s += "<input id='edit-server" + o["id"] + "'";
+        s += "<input id='edit-server" + escapeHTML(o["id"]) + "'";
         s += "  type='button' class='btn btn-primary'";
-        s += "  serverId='" + o["id"] + "'";
+        s += "  serverId='" + escapeHTML(o["id"]) + "'";
         s += "  value='{% trans "EDIT" %}' />";
         s += "</td>";
         s += "</tr>";

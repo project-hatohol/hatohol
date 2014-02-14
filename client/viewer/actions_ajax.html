@@ -324,31 +324,30 @@
       var s = "";
       for (x = 0; x < actionsPkt["actions"].length; ++x) {
         var actionDef = actionsPkt["actions"][x];
-        klass = serverName + " " + hostName;
-        s += "<tr class='" + klass + "'>";
+        s += "<tr>"
         s += "<td><input type='checkbox' class='selectcheckbox' " +
-             "actionId='" + actionDef.actionId + "'></td>";
-        s += "<td>" + actionDef.actionId + "</td>";
+             "actionId='" + escapeHTML(actionDef.actionId) + "'></td>";
+        s += "<td>" + escapeHTML(actionDef.actionId) + "</td>";
 
         var serverName = getServerName(actionsPkt, actionDef);
         if (!serverName)
           serverName = "ANY";
-        s += "<td>" + serverName + "</td>";
+        s += "<td>" + escapeHTML(serverName) + "</td>";
 
         var hostName = getHostName(actionsPkt, actionDef);
         if (!hostName)
           hostName = "ANY";
-        s += "<td>" + hostName   + "</td>";
+        s += "<td>" + escapeHTML(hostName)   + "</td>";
 
         /* Not supported
         var hostGroupName = "unsupported";
-        s += "<td>" + hostGroupName + "</td>";
+        s += "<td>" + escapeHTML(hostGroupName) + "</td>";
         */
 
         var triggerBrief = getTriggerBrief(actionsPkt, actionDef);
         if (!triggerBrief)
           triggerBrief = "ANY";
-        s += "<td>" + triggerBrief + "</td>";
+        s += "<td>" + escapeHTML(triggerBrief) + "</td>";
 
         var triggerStatus = actionDef.triggerStatus;
         var triggerStatusLabel = "ANY";
@@ -375,15 +374,15 @@
         var workingDir = actionDef.workingDirectory;
         if (!workingDir)
             workingDir = "N/A";
-        s += "<td>" + workingDir + "</td>";
+        s += "<td>" + escapeHTML(workingDir) + "</td>";
 
         var command = actionDef.command;
-        s += "<td>" + command + "</td>";
+        s += "<td>" + escapeHTML(command) + "</td>";
 
         var timeout = actionDef.timeout;
         if (timeout == 0)
           timeout = "{% trans "No limit" %}";
-        s += "<td>" + timeout + "</td>";
+        s += "<td>" + escapeHTML(timeout) + "</td>";
 
         s += "</tr>";
       }

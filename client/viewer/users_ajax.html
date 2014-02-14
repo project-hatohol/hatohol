@@ -203,15 +203,15 @@
         user = reply["users"][i];
         html += "<tr>";
         html += "<td class='delete-selector' style='display:none;'>";
-        html += "<input type='checkbox' class='selectcheckbox' userId='" + user["userId"] + "'>";
+        html += "<input type='checkbox' class='selectcheckbox' userId='" + escapeHTML(user["userId"]) + "'>";
         html += "</td>";
-        html += "<td>" + user["userId"] + "</td>";
+        html += "<td>" + escapeHTML(user["userId"]) + "</td>";
         html += "<td>";
         if (hasFlag(userProfile.user, hatohol.OPPRVLG_UPDATE_USER)) {
-          html += "<a href='javascript:void(0);' id='edit-user" + user["userId"];
-          html += "' userId='"+ user["userId"] + "'>" + user["name"]   + "</a></td>";
+          html += "<a href='javascript:void(0);' id='edit-user" + escapeHTML(user["userId"]);
+          html += "' userId='"+ escapeHTML(user["userId"]) + "'>" + escapeHTML(user["name"])   + "</a></td>";
         } else {
-          html += user["name"];
+          html += escapeHTML(user["name"]);
         }
         html += "<td>" + getUserTypeFromFlags(user["flags"], reply)  + "</td>";
         if (user["flags"] == hatohol.ALL_PRIVILEGES) {
@@ -220,9 +220,9 @@
         } else {
           html += "<td class='privilege-column' style='display:none;'>";
           html += "<form class='form-inline' style='margin: 0'>";
-          html += "  <input id='edit-user" + user["userId"] + "-privileges'";
+          html += "  <input id='edit-user" + escapeHTML(user["userId"]) + "-privileges'";
           html += "    type='button' class='btn btn-primary'";
-          html += "    userId='" + user["userId"] + "'";
+          html += "    userId='" + escapeHTML(user["userId"]) + "'";
           html += "    value='{% trans "Show / Edit" %}' />";
           html += "</form>"
           html += "</td>";
