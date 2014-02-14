@@ -199,14 +199,14 @@ HatoholUserRolesEditor.prototype.generateTableRows = function(data) {
     '<tr>' +
     '<td class="deleteUserRole">' +
     '  <input type="checkbox" class="userRoleSelectCheckbox" ' +
-    '         userRoleId="' + role.userRoleId + '"></td>' +
-    '<td>' + role.userRoleId + '</td>' +
+    '         userRoleId="' + escapeHTML(role.userRoleId) + '"></td>' +
+    '<td>' + escapeHTML(role.userRoleId) + '</td>' +
     '<td>' + escapeHTML(role.name) + '</td>' +
     '<td>' +
     '<form class="form-inline" style="margin: 0">' +
-    '  <input id="editUserRole' + role["userRoleId"] + '"' +
+    '  <input id="editUserRole' + escapeHTML(role["userRoleId"]) + '"' +
     '    type="button" class="btn editUserRole"' +
-    '    userRoleId="' + role["userRoleId"] + '"' +
+    '    userRoleId="' + escapeHTML(role["userRoleId"]) + '"' +
     '    value="' + gettext("Show / Edit") + '" />' +
     '</form>' +
     '</td>' +
@@ -480,7 +480,7 @@ HatoholUserRoleEditor.prototype.createMainElement = function() {
   html +=
   '<label for="editUserRoleName">' + gettext("User role name") + '</label>' +
   '<br>' +
-  '<input id="editUserRoleName" type="text" value="' + name + '"' +
+  '<input id="editUserRoleName" type="text" value="' + escapeHTML(name) + '"' +
   '       class="input-xlarge editUserRoleProp">' +
   '<br>';
 
