@@ -193,7 +193,7 @@ function hatoholNoYesMsgBox(msg, yesCallback) {
   new HatoholMessageBox(msg, param);
 };
 
-function hatoholMsgBoxForParser(reply, parser, title) {
+function hatoholMsgBoxForParser(reply, parser) {
   var msg = parser.getMessage();
   if (!msg)
     msg = gettext("Failed to parse the received packet.");
@@ -201,5 +201,5 @@ function hatoholMsgBoxForParser(reply, parser, title) {
 };
 
 function hatoholErrorMsgBoxForParser(reply, parser) {
-  hatoholMsgBoxForParser(reply, parser, gettext("Error"));
+  hatoholMsgBoxForParser(reply, parser);
 };
