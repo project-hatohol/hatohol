@@ -169,11 +169,11 @@ HatoholPrivilegeEditDialog.prototype.generateTableRows = function() {
     s += '<tr>';
     s += '<td><input type="checkbox" class="serverSelectCheckbox" ' +
                'serverId="' + sv['id'] + '"></td>';
-    s += '<td>' + sv.id + '</td>';
+    s += '<td>' + escapeHTML(sv.id) + '</td>';
     s += '<td>' + makeMonitoringSystemTypeLabel(sv.type) + '</td>';
-    s += '<td>' + sv.hostName + '</td>';
-    s += '<td>' + sv.ipAddress + '</td>';
-    s += '<td>' + sv.nickname  + '</td>';
+    s += '<td>' + escapeHTML(sv.hostName) + '</td>';
+    s += '<td>' + escapeHTML(sv.ipAddress) + '</td>';
+    s += '<td>' + escapeHTML(sv.nickname)  + '</td>';
     s += '</tr>';
   }
   return s;
