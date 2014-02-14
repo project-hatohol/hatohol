@@ -60,8 +60,8 @@ HatoholTriggerSelector.prototype.generateTableRows = function(reply) {
   for (var i = 0; i < reply.triggers.length; i++) {
     trigger = reply.triggers[i];
     s += '<tr>';
-    s += '<td>' + trigger.id + '</td>';
-    s += '<td>' + trigger.brief + '</td>';
+    s += '<td>' + escapeHTML(trigger.id) + '</td>';
+    s += '<td>' + escapeHTML(trigger.brief) + '</td>';
     s += '</tr>';
   }
   return s;
