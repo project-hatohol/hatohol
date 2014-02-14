@@ -137,7 +137,7 @@ var HatoholAddActionDialog = function(addSucceededCb) {
       jQObjSelectId.children('option:last-child').remove();
     }
     setSelectedId(selectedIdIndex, response.id, fixupSelectBoxFunc);
-    jQObjSelectId.append($("<option>").html(label).val(response.id));
+    jQObjSelectId.append($("<option>").text(label).val(response.id));
     jQObjSelectId.val(response.id);
   }
 
