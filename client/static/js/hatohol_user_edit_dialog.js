@@ -214,8 +214,8 @@ HatoholUserEditDialog.prototype.updateUserRolesSelector = function() {
 
   for (i = 0; i < userRoles.length; i++) {
     html +=
-    '<option value="' + userRoles[i].flags + '">' +
-    userRoles[i].name +
+    '<option value="' + escapeHTML(userRoles[i].flags) + '">' +
+    escapeHTML(userRoles[i].name) +
     '</option>';
   }
 
