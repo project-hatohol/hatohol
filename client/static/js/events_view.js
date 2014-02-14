@@ -328,12 +328,12 @@ var EventsView = function(baseElem) {
       if (targetHostName && hostName != targetHostName)
         continue;
 
-      html += "<tr><td>" + serverName + "</td>";
-      html += "<td data-sort-value='" + clock + "'>" + formatDate(clock) + "</td>";
-      html += "<td>" + hostName + "</td>";
-      html += "<td>" + event["brief"] + "</td>";
-      html += "<td class='status" + status + "' data-sort-value='" + status + "'>" + status_choices[Number(status)] + "</td>";
-      html += "<td class='severity" + severity + "' data-sort-value='" + severity + "'>" + severity_choices[Number(severity)] + "</td>";
+      html += "<tr><td>" + escapeHTML(serverName) + "</td>";
+      html += "<td data-sort-value='" + escapeHTML(clock) + "'>" + formatDate(clock) + "</td>";
+      html += "<td>" + escapeHTML(hostName) + "</td>";
+      html += "<td>" + escapeHTML(event["brief"]) + "</td>";
+      html += "<td class='status" + escapeHTML(status) + "' data-sort-value='" + escapeHTML(status) + "'>" + status_choices[Number(status)] + "</td>";
+      html += "<td class='severity" + escapeHTML(severity) + "' data-sort-value='" + escapeHTML(severity) + "'>" + severity_choices[Number(severity)] + "</td>";
       html += "<td data-sort-value='" + duration + "'>" + formatSecond(duration) + "</td>";
       /*
       html += "<td>" + "unsupported" + "</td>";
