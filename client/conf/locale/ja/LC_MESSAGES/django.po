@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-02-13 22:45-0600\n"
-"PO-Revision-Date: 2014-02-06 16:50+0900\n"
+"POT-Creation-Date: 2014-02-14 05:24-0600\n"
+"PO-Revision-Date: 2014-02-14 20:25+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -103,6 +103,10 @@ msgstr "Hatohol"
 #: viewer/base_ajax.html:57
 msgid "PREPARE"
 msgstr "準備中"
+
+#: viewer/base_ajax.html:63
+msgid "Not logged in"
+msgstr "未ログイン"
 
 #: viewer/base_ajax.html:68
 msgid "Logout"
