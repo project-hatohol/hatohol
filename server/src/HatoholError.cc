@@ -123,8 +123,6 @@ void HatoholError::defineError(const HatoholErrorCode errorCode,
 
 const std::map<HatoholErrorCode, std::string> &HatoholError::getCodeNames(void)
 {
-	if (errorCodeNames.empty())
-		init();
 	return errorCodeNames;
 }
 
@@ -132,8 +130,6 @@ HatoholError::HatoholError(const HatoholErrorCode &code,
                            const string &optMessage)
 : m_code(code)
 {
-	if (errorMessages.empty())
-		init();
 	if (!optMessage.empty())
 		m_optMessage = optMessage;
 }
