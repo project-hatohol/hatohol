@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-02-13 00:26-0600\n"
+"POT-Creation-Date: 2014-02-13 22:45-0600\n"
 "PO-Revision-Date: 2014-02-06 16:50+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -92,7 +92,7 @@ msgstr "コマンド"
 msgid "RESIDENT"
 msgstr "常駐"
 
-#: viewer/actions_ajax.html:385
+#: viewer/actions_ajax.html:384
 msgid "No limit"
 msgstr "制限なし"
 

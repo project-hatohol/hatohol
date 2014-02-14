@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-02-13 07:10-0600\n"
-"PO-Revision-Date: 2014-02-14 00:05+0900\n"
+"POT-Creation-Date: 2014-02-13 22:45-0600\n"
+"PO-Revision-Date: 2014-02-14 13:47+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -16,12 +16,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: static/js/events_view.js:28 static/js/events_view.js.c:99
-#: static/js/hatohol_add_action_dialog.js:348 static/js/library.js:166
+#: static/js/hatohol_add_action_dialog.js:348 static/js/library.js:169
 msgid "OK"
 msgstr "正常"
 
 #: static/js/events_view.js:28 static/js/events_view.js.c:100
-#: static/js/hatohol_add_action_dialog.js:349 static/js/library.js:168
+#: static/js/hatohol_add_action_dialog.js:349 static/js/library.js:171
 msgid "Problem"
 msgstr "障害"
 
@@ -29,36 +29,36 @@ msgstr "障害"
 msgid "Unknown"
 msgstr "不明"
 
-#: static/js/events_view.js:30 static/js/library.js:177
+#: static/js/events_view.js:30 static/js/library.js:180
 msgid "Not classified"
 msgstr "未分類"
 
 #: static/js/events_view.js:30 static/js/hatohol_add_action_dialog.js:355
-#: static/js/hatohol_message_box.js:168 static/js/library.js:179
+#: static/js/hatohol_message_box.js:175 static/js/library.js:182
 msgid "Information"
 msgstr "情報"
 
 #: static/js/events_view.js:30 static/js/hatohol_add_action_dialog.js:356
-#: static/js/hatohol_message_box.js:173 static/js/library.js:181
+#: static/js/hatohol_message_box.js:182 static/js/library.js:184
 msgid "Warning"
 msgstr "警告"
 
 #: static/js/events_view.js:31 static/js/hatohol_add_action_dialog.js:357
-#: static/js/library.js:183
+#: static/js/library.js:186
 msgid "Average"
 msgstr "軽度の障害"
 
 #: static/js/events_view.js:31 static/js/hatohol_add_action_dialog.js:358
-#: static/js/library.js:185
+#: static/js/library.js:188
 msgid "High"
 msgstr "重度の障害"
 
 #: static/js/events_view.js:31 static/js/hatohol_add_action_dialog.js:359
-#: static/js/library.js:187
+#: static/js/library.js:190
 msgid "Disaster"
 msgstr "致命的な障害"
 
-#: static/js/events_view.js:44 static/js/library.js:155
+#: static/js/events_view.js:44 static/js/library.js:158
 msgid "ERROR"
 msgstr "エラー"
 
@@ -439,35 +439,35 @@ msgstr "ユーザ名"
 msgid "Password"
 msgstr "パスワード"
 
-#: static/js/hatohol_message_box.js:118
+#: static/js/hatohol_message_box.js:125
 #: static/js/hatohol_user_roles_editor.js:23
 #: test/browser/test_hatohol_user_roles_editor.js:20
 msgid "CLOSE"
 msgstr "閉じる"
 
-#: static/js/hatohol_message_box.js:123
+#: static/js/hatohol_message_box.js:130
 msgid "MessageBox"
 msgstr "メッセージボックス"
 
-#: static/js/hatohol_message_box.js:149
+#: static/js/hatohol_message_box.js:156
 #: test/browser/test_hatohol_message_box.js:38
 msgid "NO"
 msgstr "いいえ"
 
-#: static/js/hatohol_message_box.js:154
+#: static/js/hatohol_message_box.js:161
 #: test/browser/test_hatohol_message_box.js:39
 msgid "YES"
 msgstr "はい"
 
-#: static/js/hatohol_message_box.js:178 static/js/hatohol_message_box.js:197
+#: static/js/hatohol_message_box.js:189
 msgid "Error"
 msgstr "エラー"
 
-#: static/js/hatohol_message_box.js:185
+#: static/js/hatohol_message_box.js:198
 msgid "Question"
 msgstr "問い合わせ"
 
-#: static/js/hatohol_message_box.js:192 static/js/library.js:150
+#: static/js/hatohol_message_box.js:205 static/js/library.js:153
 msgid "Failed to parse the received packet."
 msgstr "受信パケットの解析に失敗しました。"
 
@@ -629,10 +629,6 @@ msgstr "sessionIdが見つかりません。"
 #: test/browser/test_hatohol_message_box.js:161
 msgid "Unknown status: "
 msgstr "不明なステータス： "
-
-#: static/js/hatohol_reply_parser.js:127
-msgid ": "
-msgstr "： "
 
 #: static/js/hatohol_server_edit_dialog.js:27
 msgid "EDIT SERVER"
@@ -932,23 +928,23 @@ msgstr "ユーザ種別名"
 msgid "Privileges"
 msgstr "権限"
 
-#: static/js/library.js:121
+#: static/js/library.js:124
 msgid "DRAW"
 msgstr "描画"
 
-#: static/js/library.js:122
+#: static/js/library.js:125
 msgid "Drawing"
 msgstr "描画中"
 
-#: static/js/library.js:129
+#: static/js/library.js:132
 msgid "DONE"
 msgstr "完了"
 
-#: static/js/library.js:137
+#: static/js/library.js:140
 msgid "LOAD"
 msgstr "ロード"
 
-#: static/js/library.js:138
+#: static/js/library.js:141
 msgid "Communicating with backend"
 msgstr "バックエンドと通信中"
 
