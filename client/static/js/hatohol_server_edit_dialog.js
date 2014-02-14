@@ -52,7 +52,10 @@ var HatoholServerEditDialog = function(params) {
   function addButtonClickedCb() {
     if (validateParameters()) {
       makeQueryData();
-      hatoholInfoMsgBox(gettext("Now adding a server..."));
+      if (self.server)
+        hatoholInfoMsgBox(gettext("Now updating the server ..."));
+      else
+        hatoholInfoMsgBox(gettext("Now adding a server..."));
       postAddServer();
     }
   }
@@ -91,7 +94,10 @@ var HatoholServerEditDialog = function(params) {
   
   function replyCallback(reply, parser) {
     self.closeDialog();
-    hatoholInfoMsgBox(gettext("Successfully created."));
+    if (self.server)
+      hatoholInfoMsgBox(gettext("Successfully updated."));
+    else
+      hatoholInfoMsgBox(gettext("Successfully created."));
 
     if (self.succeededCallback)
       self.succeededCallback();
