@@ -100,9 +100,9 @@ HatoholPasswordChanger.prototype.createMainElement = function() {
   function makeMainDivHTML() {
     var s = "";
     s += '<div id="change-password-div">';
-    s += '<label for="changePassword">' + gettext("New password") + '</label>';
-    s += '<input id="changePassword" type="password" value="" class="input-xlarge">';
-    s += '<label for="confirmPassword">' + gettext("New password (Confirm)") + '</label>';
+    s += '<label for="changePassword">' + gettext("New password") + '</label><br>';
+    s += '<input id="changePassword" type="password" value="" class="input-xlarge"><br>';
+    s += '<label for="confirmPassword">' + gettext("New password (Confirm)") + '</label><br>';
     s += '<input id="confirmPassword" type="password" value="" class="input-xlarge">';
     s += '</div">';
     return s;
