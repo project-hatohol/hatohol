@@ -19,8 +19,10 @@
 
 #include "HatoholError.h"
 #include <map>
+#include <StringUtils.h>
 
 using namespace std;
+using namespace mlpl;
 static map<HatoholErrorCode, string> errorCodeNames;
 static map<HatoholErrorCode, string> errorMessages;
 
@@ -145,18 +147,16 @@ const HatoholErrorCode &HatoholError::getCode(void) const
 
 const std::string &HatoholError::getCodeName(void) const
 {
-	static const string emptyName;
 	if (errorCodeNames.find(m_code) != errorCodeNames.end())
 		return errorCodeNames[m_code];
-	return emptyName;
+	return StringUtils::EMPTY_STRING;
 }
 
 const std::string &HatoholError::getMessage(void) const
 {
-	static const string emptyMessage;
 	if (errorMessages.find(m_code) != errorMessages.end())
 		return errorMessages[m_code];
-	return emptyMessage;
+	return StringUtils::EMPTY_STRING;
 }
 
 const string &HatoholError::getOptionMessage(void) const
