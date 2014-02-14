@@ -165,18 +165,24 @@ HatoholMessageBox.prototype.destroy = function() {
   $(this.msgDivId).remove();
 };
 
-function hatoholInfoMsgBox(msg) {
-  var param = {title: gettext("Information")};
+function hatoholInfoMsgBox(msg, userParam) {
+  param = {title: gettext("Information")};
+  if (userParam)
+    $.extend(param, userParam);
   new HatoholMessageBox(msg, param);
 };
 
-function hatoholWarnMsgBox(msg) {
-  var param = {title: gettext("Warning")};
+function hatoholWarnMsgBox(msg, userParam) {
+  param = {title: gettext("Warning")};
+  if (userParam)
+    $.extend(param, userParam);
   new HatoholMessageBox(msg, param);
 };
 
-function hatoholErrorMsgBox(msg) {
-  var param = {title: gettext("Error")};
+function hatoholErrorMsgBox(msg, userParam) {
+  param = {title: gettext("Error")};
+  if (userParam)
+    $.extend(param, userParam);
   new HatoholMessageBox(msg, param);
 };
 
