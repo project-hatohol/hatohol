@@ -104,7 +104,8 @@ describe("HatoholReplyParser", function() {
     };
     var parser = new HatoholReplyParser(reply);
     var message = parser.getMessage();
-    expect(message).to.be("Error test.: option message");
+    expect(message).to.be("Error test.");
+    expect(parser.optionMessages).to.be(reply.optionMessages);
   });
 });
 

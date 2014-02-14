@@ -52,9 +52,15 @@ var HatoholMessageBox = function(msg, param) {
   if (!msgDiv) {
     var div = "<div id='" + id + "'></div>";
     $("body").append(div);
-    $(self.msgDivId).text(msg);
-  } else  {
-    $(msgDiv).text(msg);
+    msgDiv = $(self.msgDivId);
+  }
+  $(msgDiv).text(msg);
+
+  if (param && param.optionMessages) {
+    var optionMessageHTML = "<ul><li>";
+    optionMessageHTML += escapeHTML(param.optionMessages);
+    optionMessageHTML += "</li></ul>";
+    $(msgDiv).append($(optionMessageHTML));
   }
 
   self.title = getTitle();
@@ -197,7 +203,7 @@ function hatoholMsgBoxForParser(reply, parser) {
   var msg = parser.getMessage();
   if (!msg)
     msg = gettext("Failed to parse the received packet.");
-  hatoholErrorMsgBox(msg);
+  hatoholErrorMsgBox(msg, {optionMessages: parser.optionMessages});
 };
 
 function hatoholErrorMsgBoxForParser(reply, parser) {

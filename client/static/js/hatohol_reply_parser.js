@@ -123,9 +123,6 @@ HatoholReplyParser.prototype.getMessage = function() {
     break;
   }
 
-  if (this.optionMessages)
-    message += gettext(": ") + this.optionMessages;
-
   return message;
 };
 
