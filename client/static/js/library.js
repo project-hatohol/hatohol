@@ -46,15 +46,18 @@ function setCandidate(target, list) {
   var x;
   var html = "<option>---------</option>";
 
+  target.empty().append(html);
+
   if (list) {
     target.removeAttr("disabled");
-    for (x = 0; list && x < list.length; ++x)
-      html += "<option>" + list[x] + "</option>";
+    for (x = 0; list && x < list.length; ++x) {
+      var option = $("<option/>");
+      option.text(list[x]);
+      target.append(option);
+    }
   } else {
     target.attr("disabled", "disabled");
   }
-
-  target.empty().append(html);
 }
 
 function buildChooser() {
