@@ -205,7 +205,7 @@ HatoholUserRolesEditor.prototype.generateTableRows = function(data) {
     '<td>' +
     '<form class="form-inline" style="margin: 0">' +
     '  <input id="editUserRole' + escapeHTML(role["userRoleId"]) + '"' +
-    '    type="button" class="btn editUserRole"' +
+    '    type="button" class="btn btn-primary editUserRole"' +
     '    userRoleId="' + escapeHTML(role["userRoleId"]) + '"' +
     '    value="' + gettext("Show / Edit") + '" />' +
     '</form>' +
