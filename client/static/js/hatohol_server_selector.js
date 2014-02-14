@@ -59,11 +59,11 @@ HatoholServerSelector.prototype.generateTableRows = function(reply) {
   for (var i = 0; i < reply.servers.length; i++) {
     sv = reply.servers[i];
     s += '<tr>';
-    s += '<td>' + sv.id + '</td>';
+    s += '<td>' + escapeHTML(sv.id) + '</td>';
     s += '<td>' + makeMonitoringSystemTypeLabel(sv.type) + '</td>';
-    s += '<td>' + sv.hostName + '</td>';
-    s += '<td>' + sv.ipAddress + '</td>';
-    s += '<td>' + sv.nickname  + '</td>';
+    s += '<td>' + escapeHTML(sv.hostName) + '</td>';
+    s += '<td>' + escapeHTML(sv.ipAddress) + '</td>';
+    s += '<td>' + escapeHTML(sv.nickname)  + '</td>';
     s += '</tr>';
   }
   return s;
