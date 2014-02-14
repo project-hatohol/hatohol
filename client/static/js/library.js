@@ -254,8 +254,8 @@ function getMapsLocation(server) {
 
 function getServerName(server, serverId) {
   if (!server)
-    return serverName = "Unknown:" + serverId;
-  return serverName = server["name"];
+    return "Unknown:" + serverId;
+  return server["name"];
 }
 
 function getHostName(server, hostId) {
