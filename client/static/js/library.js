@@ -60,37 +60,6 @@ function setCandidate(target, list) {
   }
 }
 
-function buildChooser() {
-  var targets = [
-    "#select-server",
-    "#select-group",
-    "#select-host",
-    "#select-application",
-  ];
-
-  var klass = "";
-  var x;
-  var s;
-
-  for (x = 0; x < targets.length; ++x) {
-    s = $(targets[x]).val();
-    if ( "undefined" != typeof s && "---------" != s ) {
-      klass = klass + "." + s;
-    }
-  }
-
-  return klass;
-}
-
-function chooseRow() {
-  var klass = buildChooser();
-
-  $("#table tbody tr").css("display", "");
-  if ( "" != klass ) {
-    $("#table tbody tr:not(" + klass + ")").css("display", "none");
-  }
-}
-
 function setStatus(value) {
   var elem;
   var x;
