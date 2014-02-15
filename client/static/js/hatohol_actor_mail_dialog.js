@@ -33,7 +33,8 @@ var HatoholActorMailDialog = function(applyCallback, currCommand) {
   // call the constructor of the super class
   var id = "hatohol_actor_mail_dialog";
   var title = gettext("Execution parameter maker");
-  HatoholDialog.apply(this, [id, title, dialogButtons]);
+  var dialogAttrs = { width: "auto" };
+  HatoholDialog.apply(this, [id, title, dialogButtons, dialogAttrs]);
 
   if ($("#inputTo").val())
     self.setApplyButtonState(true);
@@ -74,9 +75,9 @@ HatoholActorMailDialog.prototype.createMainElement = function() {
   function makeMainDivHTML(initParams) {
     var s = "";
     s += '<form class="form-inline">';
-    s += '  <label for="inputTo">' + gettext("TO: ") + '</label>';
+    s += '  <label for="inputTo">' + gettext("TO: ") + '</label><br>';
     s += '  <input id="inputTo" type="text" value="' + initParams.toAddr +
-         '" class="input-xxlarge">';
+         '" class="input-xxlarge" style="width:100%;" >';
     s += '</form>';
     s += '<form class="form-inline">';
     s += '  <label for="inputSmtpServer">' + gettext("SMTP server ") + '</label>';
@@ -84,7 +85,7 @@ HatoholActorMailDialog.prototype.createMainElement = function() {
     s += '  <br>';
     s += '  <input id="inputSmtpServer" type="text" value="' +
          initParams.smtpServer +
-         '" class="input-xxlarge">';
+         '" class="input-xxlarge" style="width:100%;" >';
     s += '</form>';
     return s;
   }
