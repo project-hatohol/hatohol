@@ -182,8 +182,8 @@
       hatoholInfoMsgBox("{% trans "Deleting..." %}");
     }
 
-    function getServerTypeFromFlags(flags) {
-      switch(flags) {
+    function getServerTypeLabel(type) {
+      switch(type) {
       case hatohol.MONITORING_SYSTEM_ZABBIX:
         return gettext("Zabbix");
       case hatohol.MONITORING_SYSTEM_NAGIOS:
@@ -211,7 +211,7 @@
         s += "<input type='checkbox' class='selectcheckbox' serverId='" + escapeHTML(o["id"]) + "'>";
         s += "</td>";
         s += "<td>" + escapeHTML(o["id"]) + "</td>";
-        s += "<td>" + getServerTypeFromFlags(o["type"]) + "</td>";
+        s += "<td>" + getServerTypeLabel(o["type"]) + "</td>";
         if (serverURL) {
           s += "<td><a href='" + serverURL + "'>" + escapeHTML(o["hostName"])  + "</a></td>";
           s += "<td><a href='" + serverURL + "'>" + escapeHTML(ip) + "</a></td>";
