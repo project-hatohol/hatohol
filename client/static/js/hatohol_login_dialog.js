@@ -30,8 +30,7 @@ var HatoholLoginDialog = function(readyCallback) {
   // call the constructor of the super class
   var id = "hatohol_login_dialog";
   var title = gettext("Login");
-  dialogAttr = {};
-  dialogAttr.width = "auto";
+  var dialogAttr = { width: "auto" };
   HatoholDialog.apply(this, [id, title, dialogButtons, dialogAttr]);
 
   self.setButtonState(self.buttonName, false);

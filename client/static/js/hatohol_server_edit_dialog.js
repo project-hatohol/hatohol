@@ -36,7 +36,7 @@ var HatoholServerEditDialog = function(params) {
   }];
 
   // call the constructor of the super class
-  dialogAttrs = { width: "auto" };
+  var dialogAttrs = { width: "auto" };
   HatoholDialog.apply(
       this, ["server-edit-dialog", self.windowTitle,
              dialogButtons, dialogAttrs]);

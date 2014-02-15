@@ -30,7 +30,7 @@ var HatoholUserRolesEditor = function(params) {
   self.changed = false;
 
   // call the constructor of the super class
-  dialogAttrs = { width: "600" };
+  var dialogAttrs = { width: "600" };
   HatoholDialog.apply(
     this, ["user-roles-editor", gettext("EDIT USER ROLES"),
            dialogButtons, dialogAttrs]);

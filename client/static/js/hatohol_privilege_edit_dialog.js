@@ -35,7 +35,7 @@ var HatoholPrivilegeEditDialog = function(userId, applyCallback) {
   }];
 
   // call the constructor of the super class
-  dialogAttrs = { width: "600" };
+  var dialogAttrs = { width: "600" };
   HatoholDialog.apply(
     this, ["privilege-edit-dialog", gettext("Edit privileges"),
            dialogButtons, dialogAttrs]);
