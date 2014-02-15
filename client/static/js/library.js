@@ -143,7 +143,7 @@ function makeTriggerStatusLabel(status) {
   }
 }
 
-function makeServerityLabel(severity) {
+function makeSeverityLabel(severity) {
   switch(severity) {
   case TRIGGER_SEVERITY_UNKNOWN:
     return gettext("Not classified");
