@@ -82,7 +82,7 @@ var ActionsView = function() {
       return false;
     }
     if (!data.result) {
-      msg = "Failed:\n" + data.message
+      msg = "Failed:\n" + data.message;
       hatoholErrorMsgBox(msg);
       return false;
     }
@@ -182,9 +182,9 @@ var ActionsView = function() {
 
   function makeTypeLabel(type) {
     switch(type) {
-     case ACTION_COMMAND:
+    case ACTION_COMMAND:
       return gettext("COMMAND");
-     case ACTION_RESIDENT:
+    case ACTION_RESIDENT:
       return gettext("RESIDENT");
     default:
       return "INVALID: " + type;
@@ -193,9 +193,9 @@ var ActionsView = function() {
 
   function makeSeverityCompTypeLabel(compType) {
     switch(compType) {
-     case CMP_EQ:
+    case CMP_EQ:
       return "=";
-     case CMP_EQ_GT:
+    case CMP_EQ_GT:
       return ">=";
     default:
       return "INVALID: " + compType;
@@ -209,7 +209,7 @@ var ActionsView = function() {
     var serverId = actionDef["serverId"];
     if (!serverId)
       return null;
-      var server = actionsPkt["servers"][serverId];
+    var server = actionsPkt["servers"][serverId];
     if (!server)
       return makeNamelessServerLabel(serverId);
     var serverName = actionsPkt["servers"][serverId]["name"];
@@ -219,46 +219,46 @@ var ActionsView = function() {
   }
 
   function getHostName(actionsPkt, actionDef) {
-    var hostId = actionDef["hostId"]
+    var hostId = actionDef["hostId"];
     if (!hostId)
       return null;
     var serverId = actionDef["serverId"];
     if (!serverId)
       return makeNamelessHostLabel(serverId, hostId);
-      var server = actionsPkt["servers"][serverId];
+    var server = actionsPkt["servers"][serverId];
     if (!server)
       return null;
-    var hostArray = server["hosts"]
+    var hostArray = server["hosts"];
     if (!hostArray)
       return makeNamelessHostLabel(serverId, hostId);
     var host = hostArray[hostId];
     if (!host)
       return makeNamelessHostLabel(serverId, hostId);
     var hostName = host["name"];
-      if (!hostName)
-        return makeNamelessHostLabel(serverId, hostId);
+    if (!hostName)
+      return makeNamelessHostLabel(serverId, hostId);
     return hostName;
   }
 
   function getTriggerBrief(actionsPkt, actionDef) {
-    var triggerId = actionDef["triggerId"]
+    var triggerId = actionDef["triggerId"];
     if (!triggerId)
       return null;
     var serverId = actionDef["serverId"];
     if (!serverId)
       return makeNamelessTriggerLabel(triggerId);
     var server = actionsPkt["servers"][serverId];
-      if (!server)
-        return null;
-    var triggerArray = server["triggers"]
+    if (!server)
+      return null;
+    var triggerArray = server["triggers"];
     if (!triggerArray)
       return makeNamelessTriggerLabel(triggerId);
     var trigger = triggerArray[triggerId];
     if (!trigger)
-        return makeNamelessTriggerLabel(triggerId);
+      return makeNamelessTriggerLabel(triggerId);
     var triggerBrief = trigger["brief"];
     if (!triggerBrief)
-        return makeNamelessTriggerLabel(triggerId);
+      return makeNamelessTriggerLabel(triggerId);
     return triggerBrief;
   }
 
@@ -272,7 +272,7 @@ var ActionsView = function() {
     var s = "";
     for (x = 0; x < actionsPkt["actions"].length; ++x) {
       var actionDef = actionsPkt["actions"][x];
-      s += "<tr>"
+      s += "<tr>";
       s += "<td><input type='checkbox' class='selectcheckbox' " +
         "actionId='" + escapeHTML(actionDef.actionId) + "'></td>";
       s += "<td>" + escapeHTML(actionDef.actionId) + "</td>";

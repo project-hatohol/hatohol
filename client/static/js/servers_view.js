@@ -49,7 +49,7 @@ var ServersView = function() {
       check = $(this).is(":checked");
       var prevNumSelected = numSelected;
       if (check)
-          numSelected += 1;
+        numSelected += 1;
       else
         numSelected -= 1;
       if (prevNumSelected == 0 && numSelected == 1)
@@ -125,7 +125,7 @@ var ServersView = function() {
     for (var i = 0; i < checkbox.length; i++) {
       if (!checkbox[i].checked)
         continue;
-        serverId = checkbox[i].getAttribute("serverId");
+      serverId = checkbox[i].getAttribute("serverId");
       delId.push(serverId);
     }
     new HatoholItemRemover({
@@ -140,9 +140,9 @@ var ServersView = function() {
 
   function getServerTypeLabel(type) {
     switch(type) {
-     case hatohol.MONITORING_SYSTEM_ZABBIX:
+    case hatohol.MONITORING_SYSTEM_ZABBIX:
       return gettext("Zabbix");
-     case hatohol.MONITORING_SYSTEM_NAGIOS:
+    case hatohol.MONITORING_SYSTEM_NAGIOS:
       return gettext("Nagios");
     default:
       break;

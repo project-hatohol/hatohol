@@ -59,8 +59,8 @@ var UsersView = function() {
       var prevNumSelected = numSelected;
       if (check)
         numSelected += 1;
-        else
-          numSelected -= 1;
+      else
+        numSelected -= 1;
       if (prevNumSelected == 0 && numSelected == 1)
         $("#delete-user-button").attr("disabled", false);
       else if (prevNumSelected == 1 && numSelected == 0)
@@ -77,7 +77,7 @@ var UsersView = function() {
     var i, id, users = reply["users"], usersMap = {}, userId;
     for (i = 0; i < users.length; ++i) {
       usersMap[users[i]["userId"]] = users[i];
-      }
+    }
 
     for (i = 0; i < users.length; ++i) {
       id = "#edit-user" + users[i]["userId"];
@@ -119,8 +119,8 @@ var UsersView = function() {
     $(this).dialog("close");
     for (var i = 0; i < checkbox.length; i++) {
       if (!checkbox[i].checked)
-          continue;
-        userId = checkbox[i].getAttribute("userId");
+        continue;
+      userId = checkbox[i].getAttribute("userId");
       delId.push(userId);
     }
     new HatoholItemRemover({
@@ -136,9 +136,9 @@ var UsersView = function() {
   function getUserTypeFromFlags(flags, reply) {
     rolesMap = reply.userRoles;
     switch(flags) {
-     case hatohol.ALL_PRIVILEGES:
+    case hatohol.ALL_PRIVILEGES:
       return gettext("Admin");
-     case hatohol.NONE_PRIVILEGE:
+    case hatohol.NONE_PRIVILEGE:
       return gettext("Guest");
     default:
       if (rolesMap && rolesMap[flags])

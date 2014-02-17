@@ -45,9 +45,9 @@ var OverviewTriggers = function() {
     var serverName, hostName, triggerName;
     var serverNames, triggerNames, hostNames;
     var server, trigger;
-      var x;
+    var x;
     var targetSeverity = $("#select-severity").val();
-      var targetStatus = $("#select-status").val();
+    var targetStatus = $("#select-status").val();
 
     parsedData.hosts  = {};
     parsedData.values = {};
@@ -114,22 +114,22 @@ var OverviewTriggers = function() {
     var targetServerName = getTargetServerName();
     var targetHostName = getTargetHostName();
 
-      serversRow = "<tr><th></th>";
-      hostsRow = "<tr><th></th>";
-      for (serverName in parsedData.hosts) {
-          if (targetServerName && serverName != targetServerName)
-            continue;
+    serversRow = "<tr><th></th>";
+    hostsRow = "<tr><th></th>";
+    for (serverName in parsedData.hosts) {
+      if (targetServerName && serverName != targetServerName)
+        continue;
 
-        hostNames = parsedData.hosts[serverName];
-        serversRow += "<th style='text-align: center' colspan='" + hostNames.length + "'>" + escapeHTML(serverName) + "</th>";
-        for (x = 0; x < hostNames.length; ++x) {
-          hostName  = hostNames[x];
-          if (targetHostName && hostName != targetHostName)
-            continue;
+      hostNames = parsedData.hosts[serverName];
+      serversRow += "<th style='text-align: center' colspan='" + hostNames.length + "'>" + escapeHTML(serverName) + "</th>";
+      for (x = 0; x < hostNames.length; ++x) {
+        hostName  = hostNames[x];
+        if (targetHostName && hostName != targetHostName)
+          continue;
 
-          hostsRow += "<th>" + escapeHTML(hostName) + "</th>";
-        }
+        hostsRow += "<th>" + escapeHTML(hostName) + "</th>";
       }
+    }
     serversRow += "</tr>";
     hostsRow += "</tr>";
 
@@ -142,41 +142,41 @@ var OverviewTriggers = function() {
     var targetServerName = getTargetServerName();
     var targetHostName = getTargetHostName();
 
-      html = "";
-      for (y = 0; y < parsedData.triggers.length; ++y) {
-          triggerName = parsedData.triggers[y];
-        html += "<tr>";
-        html += "<th>" + escapeHTML(triggerName) + "</th>";
-        for (serverName in parsedData.hosts) {
-          if (targetServerName && serverName != targetServerName)
+    html = "";
+    for (y = 0; y < parsedData.triggers.length; ++y) {
+      triggerName = parsedData.triggers[y];
+      html += "<tr>";
+      html += "<th>" + escapeHTML(triggerName) + "</th>";
+      for (serverName in parsedData.hosts) {
+        if (targetServerName && serverName != targetServerName)
+          continue;
+
+        hostNames = parsedData.hosts[serverName];
+        for (x = 0; x < hostNames.length; ++x) {
+          hostName  = hostNames[x];
+          if (targetHostName && hostName != targetHostName)
             continue;
 
-          hostNames = parsedData.hosts[serverName];
-          for (x = 0; x < hostNames.length; ++x) {
-            hostName  = hostNames[x];
-            if (targetHostName && hostName != targetHostName)
-              continue;
-
-            trigger = parsedData.values[serverName][hostName][triggerName];
-            if (trigger) {
-              switch (trigger["status"]) {
-               case 1:
-                html += "<td class='severity" + escapeHTML(trigger["severity"]) + "'>&nbsp;</td>";
-                break;
-               case 0:
-                html += "<td class='healthy'>&nbsp;</td>";
-                break;
-              default:
-                html += "<td class='unknown'>&nbsp;</td>";
-                break;
-              }
-            } else {
-              html += "<td>&nbsp;</td>";
+          trigger = parsedData.values[serverName][hostName][triggerName];
+          if (trigger) {
+            switch (trigger["status"]) {
+            case 1:
+              html += "<td class='severity" + escapeHTML(trigger["severity"]) + "'>&nbsp;</td>";
+              break;
+            case 0:
+              html += "<td class='healthy'>&nbsp;</td>";
+              break;
+            default:
+              html += "<td class='unknown'>&nbsp;</td>";
+              break;
             }
+          } else {
+            html += "<td>&nbsp;</td>";
           }
         }
-        html += "</tr>";
       }
+      html += "</tr>";
+    }
 
     return html;
   }

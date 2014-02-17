@@ -53,7 +53,7 @@ var OverviewItems = function() {
 
     for (x = 0; x < replyData["items"].length; ++x) {
       item = replyData["items"][x];
-      server = replyData["servers"][item["serverId"]]
+      server = replyData["servers"][item["serverId"]];
       serverName = getServerName(server, item["serverId"]);
       hostName   = getHostName(server, item["hostId"]);
       itemName   = item["brief"];
