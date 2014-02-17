@@ -17,7 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var LatestView = function() {
+var LatestView = function(userProfile) {
   var rawData, parsedData;
 
   $("#table").stupidtable();

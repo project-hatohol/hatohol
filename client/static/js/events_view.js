@@ -17,7 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var EventsView = function(baseElem) {
+var EventsView = function(userProfile, baseElem) {
   var self = this;
   self.baseElem = baseElem;
   self.minUnifiedId = null;

@@ -70,7 +70,7 @@
   <script src="{{ STATIC_URL }}js/latest_view.js"></script>
   <script type="text/javascript">
     userProfile.addOnLoadCb(function() {
-      var view = LatestView();
+      var view = LatestView(userProfile);
     });
   </script>
 {% endblock %}

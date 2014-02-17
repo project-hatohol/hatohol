@@ -17,7 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var UsersView = function() {
+var UsersView = function(userProfile) {
   //
   // Variables
   //

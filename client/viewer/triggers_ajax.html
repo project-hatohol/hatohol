@@ -85,7 +85,7 @@
   <script src="{{ STATIC_URL }}js/triggers_view.js"></script>
   <script type="text/javascript">
     userProfile.addOnLoadCb(function() {
-      var view = new TriggersView();
+      var view = new TriggersView(userProfile);
     });
   </script>
 {% endblock %}

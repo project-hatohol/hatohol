@@ -62,7 +62,7 @@
   <script src="{{ STATIC_URL }}js/users_view.js"></script>
   <script type="text/javascript"> 
     userProfile.addOnLoadCb(function(user) {
-      var view = new UsersView();
+      var view = new UsersView(userProfile);
     });
   </script>
 {% endblock %}

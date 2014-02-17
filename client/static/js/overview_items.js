@@ -17,7 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var OverviewItems = function() {
+var OverviewItems = function(userProfile) {
   var rawData, parsedData;
 
   $("#select-server").change(function() {

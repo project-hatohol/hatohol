@@ -37,7 +37,7 @@
   <script src="{{ STATIC_URL }}js/events_view.js"></script>
   <script type="text/javascript">
     userProfile.addOnLoadCb(function() {
-      var view = new EventsView($("#main"));
+      var view = new EventsView(userProfile, $("#main"));
     });
   </script>
 {% endblock %}

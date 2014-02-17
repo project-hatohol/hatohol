@@ -69,7 +69,7 @@
   <script src="{{ STATIC_URL }}js/overview_items.js"></script>
   <script type="text/javascript">
     userProfile.addOnLoadCb(function() {
-      var view = new OverviewItems();
+      var view = new OverviewItems(userProfile);
     });
   </script>
 {% endblock %}

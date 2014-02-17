@@ -73,7 +73,7 @@
   <script src="{{ STATIC_URL }}js/overview_triggers.js"></script>
   <script type="text/javascript">
     userProfile.addOnLoadCb(function() {
-      var view = new OverviewTriggers();
+      var view = new OverviewTriggers(userProfile);
     });
   </script>
 {% endblock %}

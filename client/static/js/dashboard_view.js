@@ -17,7 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var DashboardView = function() {
+var DashboardView = function(userProfile) {
   function parseData(replyData) {
     var parsedData = {};
     var serverStatus, hostStatus, systemStatus;

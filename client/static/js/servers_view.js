@@ -17,7 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var ServersView = function() {
+var ServersView = function(userProfile) {
   var numSelected = 0;
 
   $("#table").stupidtable();

@@ -86,7 +86,7 @@
   <script src="{{ STATIC_URL }}js/dashboard_view.js"></script>
  <script type="text/javascript">
     userProfile.addOnLoadCb(function() {
-      var view = new DashboardView();
+      var view = new DashboardView(userProfile);
     });
   </script>
 {% endblock %}
