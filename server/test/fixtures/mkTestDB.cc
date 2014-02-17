@@ -32,6 +32,24 @@ static void makeDBHatohol(const string &dbName)
 		ItemInfo *itemInfo = &testItemInfo[i];
 		dbHatohol.addItemInfo(itemInfo);
 	} 
+
+	// Hosts
+	for (size_t i = 0; i < NumTestHostInfo; i++) {
+		HostInfo *hostInfo = &testHostInfo[i];
+		dbHatohol.addHostInfo(hostInfo);
+	}
+
+	// Hostgroups
+	for (size_t i = 0; i < NumTestHostgroupInfo; i++) {
+		HostgroupInfo *hostgroupInfo = &testHostgroupInfo[i];
+		dbHatohol.addHostgroupInfo(hostgroupInfo);
+	}
+
+	// HostgroupElements
+	for (size_t i = 0; i < NumTestHostgroupElement; i++) {
+		HostgroupElement *hostgroupElement = &testHostgroupElement[i];
+		dbHatohol.addHostgroupElement(hostgroupElement);
+	}
 }
 
 int main(int argc, char *argv[])
