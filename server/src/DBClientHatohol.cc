@@ -738,12 +738,13 @@ void HostResourceQueryOption::setServerIdColumnName(
 
 string HostResourceQueryOption::getServerIdColumnName(void) const
 {
-	if (m_ctx->tableNameForServerId.empty())
-		return m_ctx->serverIdColumnName;
-	if (m_ctx->useTableVariable)
+	if (m_ctx->useTableVariable) {
 		return StringUtils::sprintf("%s.%s",
 		                            m_ctx->tableVariableName.c_str(),
 		                            m_ctx->serverIdColumnName.c_str());
+	} else if (m_ctx->tableNameForServerId.empty()) {
+		return m_ctx->serverIdColumnName;
+	}
 
 	return StringUtils::sprintf("%s.%s",
 				    m_ctx->tableNameForServerId.c_str(),
