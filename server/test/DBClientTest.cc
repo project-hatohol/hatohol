@@ -420,33 +420,23 @@ HostgroupElement testHostgroupElement[] = {
 {
 	AUTO_INCREMENT_VALUE,  // id
 	1,                     // serverId
-	1,                     // hostId
+	235012,                // hostId
 	1,                     // groupId
 }, {
 	AUTO_INCREMENT_VALUE,  // id
 	1,                     // serverId
-	1,                     // hostId
+	235013,                // hostId
 	2,                     // groupId
 }, {
 	AUTO_INCREMENT_VALUE,  // id
-	1,                     // serverId
-	2,                     // hostId
+	3,                     // serverId
+	1001,                  // hostId
 	2,                     // groupId
 }, {
 	AUTO_INCREMENT_VALUE,  // id
-	2,                     // serverId
-	1,                     // hostId
+	3,                     // serverId
+	1002,                  // hostId
 	1,                     // groupId
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	2,                     // serverId
-	1,                     // hostId
-	2,                     // groupId
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	2,                     // serverId
-	2,                     // hostId
-	2,                     // groupId
 }
 };
 const size_t NumTestHostgroupElement = sizeof(testHostgroupElement) / sizeof(HostgroupElement);
