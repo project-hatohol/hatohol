@@ -58,7 +58,7 @@ var ServersView = function(userProfile) {
         $("#delete-server-button").attr("disabled", true);
     });
 
-    if (hasFlag(userProfile.user, hatohol.OPPRVLG_DELETE_SERVER)) {
+    if (userProfile.hasFlag(hatohol.OPPRVLG_DELETE_SERVER)) {
       $(".delete-selector").show();
     }
   }
@@ -82,8 +82,8 @@ var ServersView = function(userProfile) {
       });
     }
 
-    if (hasFlag(userProfile.user, hatohol.OPPRVLG_UPDATE_SERVER) ||
-        hasFlag(userProfile.user, hatohol.OPPRVLG_UPDATE_ALL_SERVER))
+    if (userProfile.hasFlag(hatohol.OPPRVLG_UPDATE_SERVER) ||
+        userProfile.hasFlag(hatohol.OPPRVLG_UPDATE_ALL_SERVER))
     {
       $(".edit-server-column").show();
     }
@@ -201,9 +201,9 @@ var ServersView = function(userProfile) {
     numSelected = 0;
   }
 
-  if (hasFlag(userProfile.user, hatohol.OPPRVLG_CREATE_SERVER))
+  if (userProfile.hasFlag(hatohol.OPPRVLG_CREATE_SERVER))
     $("#add-server-button").show();
-  if (hasFlag(userProfile.user, hatohol.OPPRVLG_DELETE_SERVER))
+  if (userProfile.hasFlag(hatohol.OPPRVLG_DELETE_SERVER))
     $("#delete-server-button").show();
   startConnection('server', updateCore);
 };

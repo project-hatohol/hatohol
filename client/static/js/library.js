@@ -236,16 +236,6 @@ function getHostName(server, hostId) {
   return server["hosts"][hostId]["name"];
 }
 
-function hasFlag(user, flag) {
-  return hasFlags(user, (1 << flag));
-}
-
-function hasFlags(user, flags) {
-  if (!user)
-    return false;
-  return user.flags & flags;
-};
-
 var escapeHTML = function(html) {
   return $('<div/>').text(html).html();
 };

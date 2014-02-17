@@ -17,7 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var HatoholNavi = function(user, currentPage) {
+var HatoholNavi = function(userProfile, currentPage) {
   var i, title, klass;
   var menuItems = [
     {
@@ -76,7 +76,7 @@ var HatoholNavi = function(user, currentPage) {
 
   for (i = 0; i < menuItems.length; ++i) {
     if (menuItems[i].flags != undefined &&
-        !hasFlags(user, menuItems[i].flags))
+        !userProfile.hasFlags(menuItems[i].flags))
     {
       continue;
     }

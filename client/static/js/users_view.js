@@ -36,7 +36,7 @@ var UsersView = function(userProfile) {
 
   $("#add-user-button").click(function() {
     new HatoholUserEditDialog({
-      operator: userProfile.user,
+      operatorProfile: userProfile,
       succeededCallback: addOrEditSucceededCb
     });
   });
@@ -67,7 +67,7 @@ var UsersView = function(userProfile) {
         $("#delete-user-button").attr("disabled", true);
     });
 
-    if (hasFlag(userProfile.user, hatohol.OPPRVLG_DELETE_USER)) {
+    if (userProfile.hasFlag(hatohol.OPPRVLG_DELETE_USER)) {
       $(".delete-selector").show();
     }
   }
@@ -84,7 +84,7 @@ var UsersView = function(userProfile) {
       $(id).click(function() {
         var userId = this.getAttribute("userId");
         new HatoholUserEditDialog({
-          operator: userProfile.user,
+          operatorProfile: userProfile,
           succeededCallback: addOrEditSucceededCb,
           targetUser: usersMap[userId]
         });
@@ -97,7 +97,7 @@ var UsersView = function(userProfile) {
       });
     }
 
-    if (hasFlag(userProfile.user, hatohol.OPPRVLG_UPDATE_USER)) {
+    if (userProfile.hasFlag(hatohol.OPPRVLG_UPDATE_USER)) {
       $(".privilege-column").show();
     }
   }
@@ -165,7 +165,7 @@ var UsersView = function(userProfile) {
       html += "</td>";
       html += "<td>" + escapeHTML(user["userId"]) + "</td>";
       html += "<td>";
-      if (hasFlag(userProfile.user, hatohol.OPPRVLG_UPDATE_USER)) {
+      if (userProfile.hasFlag(hatohol.OPPRVLG_UPDATE_USER)) {
         html += "<a href='javascript:void(0);' id='edit-user" + escapeHTML(user["userId"]);
         html += "' userId='"+ escapeHTML(user["userId"]) + "'>" + escapeHTML(user["name"])   + "</a></td>";
       } else {
@@ -202,9 +202,9 @@ var UsersView = function(userProfile) {
   //
   // main code
   //
-  if (hasFlag(userProfile.user, hatohol.OPPRVLG_CREATE_USER))
+  if (userProfile.hasFlag(hatohol.OPPRVLG_CREATE_USER))
     $("#add-user-button").show();
-  if (hasFlag(userProfile.user, hatohol.OPPRVLG_DELETE_USER))
+  if (userProfile.hasFlag(hatohol.OPPRVLG_DELETE_USER))
     $("#delete-user-button").show();
   startConnection('user', updateCore);
 };
