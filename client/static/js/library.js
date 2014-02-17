@@ -25,7 +25,7 @@ Array.prototype.uniq = function() {
 };
 
 function padDigit(val, len) {
-  s = "00000000" + val;
+  var s = "00000000" + val;
   return s.substr(-len);
 }
 
