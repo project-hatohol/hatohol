@@ -79,10 +79,10 @@
 
 {% block option %}
   <script src="{{ STATIC_URL }}js.external/stupidtable.js"></script>
-  <script src="{{ STATIC_URL }}js/triggers_view.js"></script>
 {% endblock %}
 
 {% block logic %}
+  <script src="{{ STATIC_URL }}js/triggers_view.js"></script>
   <script type="text/javascript">
     userProfile.addOnLoadCb(function() {
       var view = new TriggersView();

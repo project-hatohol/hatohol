@@ -31,10 +31,10 @@
 
 {% block option %}
   <script src="{{ STATIC_URL }}js.external/stupidtable.js"></script>
-  <script src="{{ STATIC_URL }}js/events_view.js"></script>
 {% endblock %}
 
 {% block logic %}
+  <script src="{{ STATIC_URL }}js/events_view.js"></script>
   <script type="text/javascript">
     userProfile.addOnLoadCb(function() {
       var view = new EventsView($("#main"));
