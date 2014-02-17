@@ -183,7 +183,7 @@ function getServerLocation(server) {
   case hatohol.MONITORING_SYSTEM_ZABBIX:
     ipAddress = server["ipAddress"];
     port = server["port"];
-    url = "http://" + ipAddress
+    url = "http://" + ipAddress;
     if (!isNaN(port) && port != "80")
       url += ":" + port;
     url += "/zabbix/";
