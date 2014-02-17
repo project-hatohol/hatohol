@@ -65,17 +65,17 @@ function setStatus(value) {
   var x;
   var s;
 
-  if ( "class" in value ) {
+  if ("class" in value) {
     $("#sts button").attr("class", "navbar-btn btn btn-" + value["class"]);
   }
 
-  if ( "label" in value ) {
+  if ("label" in value) {
     elem = $("#sts button span:first");
     elem.empty();
     elem.append(value["label"]);
   }
 
-  if ( "lines" in value ) {
+  if (value.lines && value.lines.length > 0) {
     s = "";
     for (x = 0; x < value["lines"].length; ++x) {
       s += "<li>" + value["lines"][x] + "</li>";
@@ -84,6 +84,9 @@ function setStatus(value) {
     elem = $("#sts ul");
     elem.empty();
     elem.append(s);
+    $("#sts button").attr("data-toggle", "dropdown");
+  } else {
+    $("#sts button").removeAttr("data-toggle");
   }
 }
 
