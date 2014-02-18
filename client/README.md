@@ -1,7 +1,7 @@
 Hatohol Client
 ==============
 
-Hatohol Clinet is a frontend part of Hatohol and provides a web UI based
+Hatohol Client is a frontend part of Hatohol and provides a web UI based
 on Django.
 
 Required software and settings
