@@ -649,6 +649,7 @@ void test_addTriggerInfo(void)
 void test_getTriggerInfo(void)
 {
 	setupTestTriggerDB();
+	setupTestHostgroupElementDB();
 	int targetIdx = 2;
 	TriggerInfo &targetTriggerInfo = testTriggerInfo[targetIdx];
 	TriggerInfo triggerInfo;
