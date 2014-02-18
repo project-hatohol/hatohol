@@ -73,7 +73,6 @@ TriggerInfo testTriggerInfo[] =
 	235012,                   // hostId,
 	"hostX1",                 // hostName,
 	"TEST Trigger 1",         // brief,
-	1,
 },{
 	1,                        // serverId
 	2,                        // id
@@ -83,7 +82,6 @@ TriggerInfo testTriggerInfo[] =
 	235012,                   // hostId,
 	"hostX1",                 // hostName,
 	"TEST Trigger 1a",        // brief,
-	2,
 },{
 	1,                        // serverId
 	3,                        // id
@@ -93,7 +91,6 @@ TriggerInfo testTriggerInfo[] =
 	235013,                   // hostId,
 	"hostX2",                 // hostName,
 	"TEST Trigger 1b",        // brief,
-	3,
 },{
 	3,                        // serverId
 	2,                        // id
@@ -103,7 +100,6 @@ TriggerInfo testTriggerInfo[] =
 	10001,                    // hostId,
 	"hostZ1",                 // hostName,
 	"TEST Trigger 2",         // brief,
-	4,
 },{
 	3,                        // serverId
 	3,                        // id
@@ -113,7 +109,6 @@ TriggerInfo testTriggerInfo[] =
 	10002,                    // hostId,
 	"hostZ2",                 // hostName,
 	"TEST Trigger 3",         // brief,
-	5,
 }};
 size_t NumTestTriggerInfo = sizeof(testTriggerInfo) / sizeof(TriggerInfo);
 
@@ -430,12 +425,12 @@ HostgroupElement testHostgroupElement[] = {
 }, {
 	AUTO_INCREMENT_VALUE,  // id
 	3,                     // serverId
-	1001,                  // hostId
+	10001,                  // hostId
 	2,                     // groupId
 }, {
 	AUTO_INCREMENT_VALUE,  // id
 	3,                     // serverId
-	1002,                  // hostId
+	10002,                  // hostId
 	1,                     // groupId
 }
 };
