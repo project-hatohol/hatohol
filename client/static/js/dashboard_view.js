@@ -21,7 +21,7 @@ var DashboardView = function(userProfile) {
   var self = this;
 
   // call the constructor of the super class
-  HatoholResourceView.apply(userProfile);
+  HatoholMonitoringView.apply(userProfile);
 
   self.startConnection('overview', updateCore);
 
@@ -214,5 +214,5 @@ var DashboardView = function(userProfile) {
   }
 };
 
-DashboardView.prototype = Object.create(HatoholResourceView.prototype);
+DashboardView.prototype = Object.create(HatoholMonitoringView.prototype);
 DashboardView.prototype.constructor = DashboardView;

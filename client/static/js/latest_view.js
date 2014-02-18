@@ -22,7 +22,7 @@ var LatestView = function(userProfile) {
   var rawData, parsedData;
 
   // call the constructor of the super class
-  HatoholResourceView.apply(userProfile);
+  HatoholMonitoringView.apply(userProfile);
 
   self.startConnection('item', updateCore);
 
@@ -159,5 +159,5 @@ var LatestView = function(userProfile) {
   }
 };
 
-LatestView.prototype = Object.create(HatoholResourceView.prototype);
+LatestView.prototype = Object.create(HatoholMonitoringView.prototype);
 LatestView.prototype.constructor = LatestView;

@@ -22,7 +22,7 @@ var ServersView = function(userProfile) {
   var numSelected = 0;
 
   // call the constructor of the super class
-  HatoholResourceView.apply(userProfile);
+  HatoholMonitoringView.apply(userProfile);
 
   if (userProfile.hasFlag(hatohol.OPPRVLG_CREATE_SERVER))
     $("#add-server-button").show();
@@ -212,5 +212,5 @@ var ServersView = function(userProfile) {
   }
 };
 
-ServersView.prototype = Object.create(HatoholResourceView.prototype);
+ServersView.prototype = Object.create(HatoholMonitoringView.prototype);
 ServersView.prototype.constructor = ServersView;

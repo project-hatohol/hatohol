@@ -19,17 +19,17 @@
 
 window.onerror = function(errorMsg, fileName, lineNumber) {
   var place = "[" + fileName + ":" + lineNumber + "]";
-  HatoholResourceView.prototype.setStatus({
+  HatoholMonitoringView.prototype.setStatus({
     "class": "Danger",
     "label": gettext("Error"),
     "lines": [place, errorMsg],
   });
 };
 
-var HatoholResourceView = function(userProfile) {
+var HatoholMonitoringView = function(userProfile) {
 };
 
-HatoholResourceView.prototype.setCandidate = function(target, list) {
+HatoholMonitoringView.prototype.setCandidate = function(target, list) {
   var x;
   var html = "<option>---------</option>";
 
@@ -47,7 +47,7 @@ HatoholResourceView.prototype.setCandidate = function(target, list) {
   }
 };
 
-HatoholResourceView.prototype.setStatus = function (value) {
+HatoholMonitoringView.prototype.setStatus = function (value) {
   var elem;
   var x;
   var s;
@@ -77,7 +77,7 @@ HatoholResourceView.prototype.setStatus = function (value) {
   }
 };
 
-HatoholResourceView.prototype.updateScreen =
+HatoholMonitoringView.prototype.updateScreen =
   function (reply, completionCallback, callbackParam)
 {
   this.setStatus({
@@ -95,7 +95,7 @@ HatoholResourceView.prototype.updateScreen =
   });
 };
 
-HatoholResourceView.prototype.startConnection =
+HatoholMonitoringView.prototype.startConnection =
   function (tableName, completionCallback, callbackParam)
 {
   var self = this;

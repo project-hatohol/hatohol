@@ -22,7 +22,7 @@ var OverviewItems = function(userProfile) {
   var rawData, parsedData;
 
   // call the constructor of the super class
-  HatoholResourceView.apply(userProfile);
+  HatoholMonitoringView.apply(userProfile);
 
   self.startConnection('item', updateCore);
 
@@ -181,5 +181,5 @@ var OverviewItems = function(userProfile) {
   }
 };
 
-OverviewItems.prototype = Object.create(HatoholResourceView.prototype);
+OverviewItems.prototype = Object.create(HatoholMonitoringView.prototype);
 OverviewItems.prototype.constructor = OverviewItems;

@@ -46,7 +46,7 @@ var EventsView = function(userProfile, baseElem) {
   };
 
   // call the constructor of the super class
-  HatoholResourceView.apply(userProfile);
+  HatoholMonitoringView.apply(userProfile);
 
   self.userConfig = new HatoholUserConfig(); 
   start();
@@ -363,5 +363,5 @@ var EventsView = function(userProfile, baseElem) {
   }
 };
 
-EventsView.prototype = Object.create(HatoholResourceView.prototype);
+EventsView.prototype = Object.create(HatoholMonitoringView.prototype);
 EventsView.prototype.constructor = EventsView;

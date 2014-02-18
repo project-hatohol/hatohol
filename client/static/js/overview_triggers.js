@@ -22,7 +22,7 @@ var OverviewTriggers = function(userProfile) {
   var rawData, parsedData;
 
   // call the constructor of the super class
-  HatoholResourceView.apply(userProfile);
+  HatoholMonitoringView.apply(userProfile);
 
   self.startConnection('trigger', updateCore, 0);
 
@@ -203,5 +203,5 @@ var OverviewTriggers = function(userProfile) {
   }
 };
 
-OverviewTriggers.prototype = Object.create(HatoholResourceView.prototype);
+OverviewTriggers.prototype = Object.create(HatoholMonitoringView.prototype);
 OverviewTriggers.prototype.constructor = OverviewTriggers;

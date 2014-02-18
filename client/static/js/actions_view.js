@@ -25,7 +25,7 @@ var ActionsView = function(userProfile) {
   var numSelected = 0;
 
   // call the constructor of the super class
-  HatoholResourceView.apply(userProfile);
+  HatoholMonitoringView.apply(userProfile);
 
   //
   // main code
@@ -366,5 +366,5 @@ var ActionsView = function(userProfile) {
   }
 };
 
-ActionsView.prototype = Object.create(HatoholResourceView.prototype);
+ActionsView.prototype = Object.create(HatoholMonitoringView.prototype);
 ActionsView.prototype.constructor = ActionsView;
