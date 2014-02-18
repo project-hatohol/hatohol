@@ -29,7 +29,7 @@
 
   <form class="form-inline">
     <label>{% trans "Minimum Severity:" %}</label>
-    <select id="select-severity">
+    <select id="select-severity" class="form-control">
       <option>0</option>
       <option>1</option>
       <option>2</option>
@@ -37,13 +37,13 @@
       <option>4</option>
     </select>
     <label>{% trans "Status:" %}</label>
-    <select id="select-status" style="width:5em;">
+    <select id="select-status" class="form-control">
       <option value="-1">---------</option>
       <option value="0">{% trans "OK" %}</option>
       <option value="1">{% trans "Problem" %}</option>
     </select>
     <label>{% trans "Server:" %}</label>
-    <select id="select-server">
+    <select id="select-server" class="form-control">
       <option>---------</option>
     </select>
     <!--
@@ -53,7 +53,7 @@
     </select>
     -->
     <label>{% trans "Host:" %}</label>
-    <select id="select-host">
+    <select id="select-host" class="form-control">
       <option>---------</option>
     </select>
   </form>

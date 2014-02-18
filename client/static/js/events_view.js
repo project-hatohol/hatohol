@@ -87,7 +87,7 @@ var EventsView = function(userProfile, baseElem) {
 
     s += '<form class="form-inline">';
     s += '  <label>' + gettext('Minimum Severity:') + '</label>';
-    s += '  <select id="select-severity">';
+    s += '  <select id="select-severity" class="form-control">';
     s += '    <option>0</option>';
     s += '    <option>1</option>';
     s += '    <option>2</option>';
@@ -95,22 +95,22 @@ var EventsView = function(userProfile, baseElem) {
     s += '    <option>4</option>';
     s += '  </select>';
     s += '  <label>' + gettext('Status:') + '</label>';
-    s += '  <select id="select-status">';
+    s += '  <select id="select-status" class="form-control">';
     s += '    <option value="-1">---------</option>';
     s += '    <option value="0">' + gettext('OK') + '</option>';
     s += '    <option value="1">' + gettext('Problem') + '</option>';
     s += '    <option value="2">' + gettext('Unknown') + '</option>';
     s += '  </select>';
     s += '  <label>' + gettext('Server:') + '</label>';
-    s += '  <select id="select-server">';
+    s += '  <select id="select-server" class="form-control">';
     s += '    <option>---------</option>';
     s += '  </select>';
     s += '  <label>' + gettext('Host:') + '</label>';
-    s += '  <select id="select-host">';
+    s += '  <select id="select-host" class="form-control">';
     s += '    <option>---------</option>';
     s += '  </select>';
     s += '  <label for="num-events-per-page">' + gettext("# of events per page") + '</label>';
-    s += '  <input type="text" class="input-mini" id="num-events-per-page" style="width:4em;">';
+    s += '  <input type="text" id="num-events-per-page" class="form-control" style="width:4em;">';
     s += '</form>';
 
     s += '<table class="table table-condensed table-hover" id="table">';
