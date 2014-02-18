@@ -367,7 +367,7 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
     s += '<h3>' + gettext("Execution parameters") + '</h3>'
     s += '<form class="form-inline">'
     s += '  <label>' + gettext("Templates ") + '</label>'
-    s += '  <input id="actor-mail-dialog-button" type="button" class="btn" value=' + gettext("e-mail") + ' />'
+    s += '  <input id="actor-mail-dialog-button" type="button" value=' + gettext("e-mail") + ' />'
     s += '</form>'
 
     s += '<form class="form-inline">'

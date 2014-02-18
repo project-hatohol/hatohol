@@ -167,7 +167,7 @@ HatoholUserEditDialog.prototype.createMainElement = function() {
     '</select>';
     if (canEditUserRoles()) {
       html +=
-      '<input id="editUserRoles" type="button" class="btn" ' +
+      '<input id="editUserRoles" type="button" style="margin-left: 2px;" ' +
       '  value="' + gettext('EDIT') + '" />';
     }
     html += '</div">';
