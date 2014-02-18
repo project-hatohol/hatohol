@@ -856,8 +856,9 @@ string HostResourceQueryOption::makeCondition(
   const string &serverIdColumnName,
   const string &hostGroupIdColumnName,
   const string &hostIdColumnName,
-  ServerIdType targetServerId, uint64_t targetHostId,
-  uint64_t targetHostgroupId)
+  ServerIdType targetServerId,
+  uint64_t targetHostgroupId,
+  uint64_t targetHostId)
 {
 	string condition;
 
@@ -950,8 +951,8 @@ string HostResourceQueryOption::getCondition(const string &varName) const
 	                          getHostGroupIdColumnName().c_str(),
 	                          getHostIdColumnName().c_str(),
 	                          m_ctx->targetServerId,
-	                          m_ctx->targetHostId,
-	                          m_ctx->targetHostgroupId);
+	                          m_ctx->targetHostgroupId,
+	                          m_ctx->targetHostId);
 	return condition;
 }
 

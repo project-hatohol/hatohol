@@ -43,13 +43,16 @@ public:
 				 const string &hostGroupIdColumnName,
 				 const string &hostIdColumnName,
 				 uint32_t targetServerId = ALL_SERVERS,
+				 uint64_t targetHostgroupId = ALL_HOST_GROUPS,
 				 uint64_t targetHostId = ALL_HOSTS)
 	{
 		return makeCondition(srvHostGrpSetMap,
 				     serverIdColumnName,
 				     hostGroupIdColumnName,
 				     hostIdColumnName,
-				     targetServerId, targetHostId);
+				     targetServerId,
+				     targetHostgroupId,
+				     targetHostId);
 	}
 };
 
@@ -518,17 +521,21 @@ void _assertTriggerInfo(const TriggerInfo &expect, const TriggerInfo &actual)
 }
 #define assertTriggerInfo(E,A) cut_trace(_assertTriggerInfo(E,A))
 
+// FIXME: Change order of parameter.
 static void _assertMakeCondition(const ServerHostGrpSetMap &srvHostGrpSetMap,
 				 const string &expect,
 				 uint32_t targetServerId = ALL_SERVERS,
-				 uint64_t targetHostId = ALL_HOSTS)
+				 uint64_t targetHostId = ALL_HOSTS,
+				 uint64_t targetHostgroupId = ALL_HOST_GROUPS)
 {
 	string cond = TestHostResourceQueryOption::callMakeCondition(
 			srvHostGrpSetMap,
 			serverIdColumnName,
 			hostGroupIdColumnName,
 			hostIdColumnName,
-			targetServerId, targetHostId);
+			targetServerId,
+			targetHostgroupId,
+			targetHostId);
 	cppcut_assert_equal(expect, cond);
 }
 #define assertMakeCondition(M, ...) \
