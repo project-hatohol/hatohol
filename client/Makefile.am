@@ -30,13 +30,34 @@ nobase_dist_hatohol_client_DATA = \
 	static/css.external/themes/ui-lightness/images/ui-bg_diagonals-thick_20_666666_40x40.png \
 	static/css.external/themes/ui-lightness/images/ui-bg_glass_65_ffffff_1x400.png \
 	static/css.external/themes/ui-lightness/images/ui-icons_ef8c08_256x240.png \
+	static/css.external/bootstrap.css \
+	static/css.external/bootstrap.css.map \
+	static/css.external/bootstrap.min.css \
+	static/css.external/bootstrap-theme.css \
+	static/css.external/bootstrap-theme.css.map \
+	static/css.external/bootstrap-theme.min.css \
+	static/fonts/glyphicons-halflings-regular.eot \
+	static/fonts/glyphicons-halflings-regular.svg \
+	static/fonts/glyphicons-halflings-regular.ttf \
+	static/fonts/glyphicons-halflings-regular.woff \
 	static/js.external/jquery.js \
 	static/js.external/jquery.min.js \
 	static/js.external/stupidtable.min.js \
 	static/js.external/stupidtable.js \
 	static/js.external/jquery-ui.min.js \
+	static/js.external/bootstrap.js \
+	static/js.external/bootstrap.min.js \
 	static/js/library.js \
+	static/js/hatohol_resource_view.js \
+	static/js/dashboard_view.js \
+	static/js/overview_triggers.js \
+	static/js/overview_items.js \
+	static/js/latest_view.js \
+	static/js/triggers_view.js \
 	static/js/events_view.js \
+	static/js/servers_view.js \
+	static/js/actions_view.js \
+	static/js/users_view.js \
 	static/js/hatohol_def.js \
 	static/js/hatohol_connector.js \
 	static/js/hatohol_session_manager.js \
@@ -48,6 +69,7 @@ nobase_dist_hatohol_client_DATA = \
 	static/js/hatohol_password_changer.js \
 	static/js/hatohol_add_action_dialog.js \
 	static/js/hatohol_user_edit_dialog.js \
+	static/js/hatohol_user_roles_editor.js \
 	static/js/hatohol_server_edit_dialog.js \
 	static/js/hatohol_dialog.js \
 	static/js/hatohol_item_remover.js \
