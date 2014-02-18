@@ -1,12 +1,12 @@
 function hatohol_base_js_load(mainFunction) {
 
   var exjs = [
+    "bootstrap.js",
     "jquery.js",
     "jquery-ui.min.js"
   ];
 
   var js = [
-    "bootstrap.js",
     "utils.js",
     "hatohol_def.js",
     "hatohol_session_manager.js",
@@ -18,11 +18,11 @@ function hatohol_base_js_load(mainFunction) {
   ];
 
   var excss = [
+    "bootstrap.css",
     "themes/ui-lightness/jquery-ui.css", 
   ];
 
   var css = [
-    "bootstrap.css",
     "hatohol.css",
     "zabbix.css"
   ];
