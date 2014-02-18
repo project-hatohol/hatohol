@@ -83,6 +83,11 @@ function makeMonitoringSystemTypeLabel(type) {
   }
 }
 
+function isIPv4(ipAddress) {
+  var ipv4Regexp = /^([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$/;
+  return ipAddress.match(ipv4Regexp);
+}
+
 function getServerLocation(server) {
   var ipAddress, port, url;
 
@@ -93,7 +98,10 @@ function getServerLocation(server) {
   case hatohol.MONITORING_SYSTEM_ZABBIX:
     ipAddress = server["ipAddress"];
     port = server["port"];
-    url = "http://" + ipAddress;
+    if (isIPv4(ipAddress))
+      url = "http://" + ipAddress;
+    else // maybe IPv6
+      url = "http://[" + ipAddress + "]";
     if (!isNaN(port) && port != "80")
       url += ":" + port;
     url += "/zabbix/";
