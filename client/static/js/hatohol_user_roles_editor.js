@@ -164,9 +164,9 @@ HatoholUserRolesEditor.prototype.generateMainTable = function() {
   var html =
   '<form class="form-inline">' +
   '  <input id="addUserRoleButton" type="button" ' +
-  '    class="btn addUserRole"    value="' + gettext("ADD") + '" />' +
+  '    class="addUserRole form-control" value="' + gettext("ADD") + '" />' +
   '  <input id="deleteUserRolesButton" type="button" disabled ' +
-  '    class="btn deleteUserRole" value="' + gettext("DELETE") + '" />' +
+  '    class="deleteUserRole form-control" value="' + gettext("DELETE") + '" />' +
   '</form>' +
   '<div class="ui-widget-content" style="overflow-y: auto; height: 200px">' +
   '<table class="table table-condensed table-striped table-hover" id=' +
@@ -205,7 +205,7 @@ HatoholUserRolesEditor.prototype.generateTableRows = function(data) {
     '<td>' +
     '<form class="form-inline" style="margin: 0">' +
     '  <input id="editUserRole' + escapeHTML(role["userRoleId"]) + '"' +
-    '    type="button" class="btn btn-primary editUserRole"' +
+    '    type="button" class="btn btn-default editUserRole"' +
     '    userRoleId="' + escapeHTML(role["userRoleId"]) + '"' +
     '    value="' + gettext("Show / Edit") + '" />' +
     '</form>' +
