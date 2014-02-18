@@ -23,6 +23,17 @@ describe('getServerLocation', function() {
     expect(getServerLocation(server)).to.be(expected);
   });
 
+  it('ipv6 zabbix server', function() {
+    var server = {
+      "type": 0,
+      "ipAddress": "::1",
+      "name": "localhost",
+      "port": 8080
+    };
+    var expected = "http://[::1]:8080/zabbix/";
+    expect(getServerLocation(server)).to.be(expected);
+  });
+
   it('with valid nagios server', function() {
     var server = {
       "type": 1,
