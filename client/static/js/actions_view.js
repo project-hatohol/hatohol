@@ -30,6 +30,12 @@ var ActionsView = function(userProfile) {
   //
   // main code
   //
+  if (userProfile.hasFlag(hatohol.OPPRVLG_CREATE_ACTION))
+    $("#add-action-button").show();
+  if (userProfile.hasFlag(hatohol.OPPRVLG_DELETE_ACTION) ||
+      userProfile.hasFlag(hatohol.OPPRVLG_DELETE_ALL_ACTION)) {
+    $("#delete-action-button").show();
+  }
   self.startConnection('action', updateCore);
 
   //
@@ -72,6 +78,10 @@ var ActionsView = function(userProfile) {
       else if (prevNumSelected == 1 && numSelected == 0)
         $("#delete-action-button").attr("disabled", true);
     });
+
+    if (userProfile.hasFlag(hatohol.OPPRVLG_DELETE_USER)) {
+      $(".delete-selector").show();
+    }
   }
 
   //
@@ -282,7 +292,8 @@ var ActionsView = function(userProfile) {
     for (x = 0; x < actionsPkt["actions"].length; ++x) {
       var actionDef = actionsPkt["actions"][x];
       s += "<tr>";
-      s += "<td><input type='checkbox' class='selectcheckbox' " +
+      s += "<td class='delete-selector' style='display:none;'>";
+      s += "<input type='checkbox' class='selectcheckbox' " +
         "actionId='" + escapeHTML(actionDef.actionId) + "'></td>";
       s += "<td>" + escapeHTML(actionDef.actionId) + "</td>";
 

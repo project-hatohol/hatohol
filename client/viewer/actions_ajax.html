@@ -24,9 +24,9 @@
   <h2>{% trans "Actions" %}</h2>
 
   <form class="form-inline">
-    <input id="add-action-button" type="button" class="btn" value="{% trans "ADD ACTION" %}" />
+    <input id="add-action-button" type="button" class="btn" value="{% trans "ADD ACTION" %}" style="display: none;" />
     <input id="delete-action-button" type="button" class="btn" disabled
-     value="{% trans "DELETE ACTIONS" %}" />
+     value="{% trans "DELETE ACTIONS" %}" style="display: none;" />
   </form>
   <div id="msgbox" title="Message Box">
     <p id="msgbox-text"></p>
@@ -38,7 +38,7 @@
   <table class="table table-condensed table-hover" id="table">
     <thead>
       <tr>
-        <th>  </th>
+        <th class="delete-selector" style="display:none;">  </th>
         <th data-sort="int"> ID </th>
         <th data-sort="string"> {% trans "Server" %} </th>
         <th data-sort="string"> {% trans "Host" %} </th>
