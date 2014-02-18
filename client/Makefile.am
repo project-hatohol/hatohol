@@ -80,7 +80,6 @@ nobase_dist_hatohol_client_DATA = \
 	static/js/hatohol_selector_dialog.js \
 	static/js/hatohol_trigger_selector.js \
 	static/js/hatohol_actor_mail_dialog.js \
-	static/js/hatohol_user_roles_editor.js \
 	viewer/urls.py \
 	viewer/__init__.py \
 	viewer/models.py \
