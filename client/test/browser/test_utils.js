@@ -1,4 +1,4 @@
-describe('library.js', function() {
+describe('Utils', function() {
 
 describe('getServerLocation', function() {
   it('with valid zabbix server', function() {

@@ -47,7 +47,7 @@ nobase_dist_hatohol_client_DATA = \
 	static/js.external/jquery-ui.min.js \
 	static/js.external/bootstrap.js \
 	static/js.external/bootstrap.min.js \
-	static/js/library.js \
+	static/js/utils.js \
 	static/js/hatohol_resource_view.js \
 	static/js/dashboard_view.js \
 	static/js/overview_triggers.js \

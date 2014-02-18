@@ -7,7 +7,7 @@ function hatohol_base_js_load(mainFunction) {
 
   var js = [
     "bootstrap.js",
-    "library.js",
+    "utils.js",
     "hatohol_def.js",
     "hatohol_session_manager.js",
     "hatohol_connector.js",
