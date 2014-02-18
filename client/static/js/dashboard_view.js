@@ -18,6 +18,13 @@
  */
 
 var DashboardView = function(userProfile) {
+  var self = this;
+
+  // call the constructor of the super class
+  HatoholResourceView.apply(userProfile);
+
+  self.startConnection('overview', updateCore);
+
   function parseData(replyData) {
     var parsedData = {};
     var serverStatus, hostStatus, systemStatus;
@@ -205,6 +212,7 @@ var DashboardView = function(userProfile) {
     $("#tblHost tbody").empty();
     $("#tblHost tbody").append(drawHostBody(rawData, parsedData));
   }
-
-  startConnection('overview', updateCore);
 };
+
+DashboardView.prototype = Object.create(HatoholResourceView.prototype);
+DashboardView.prototype.constructor = DashboardView;

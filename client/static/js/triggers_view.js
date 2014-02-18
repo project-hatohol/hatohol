@@ -18,7 +18,13 @@
  */
 
 var TriggersView = function(userProfile) {
+  var self = this;
   var rawData, parsedData;
+
+  // call the constructor of the super class
+  HatoholResourceView.apply(userProfile);
+
+  self.startConnection('trigger', updateCore);
 
   $("#table").stupidtable();
   $("#table").bind('aftertablesort', function(event, data) {
@@ -44,7 +50,7 @@ var TriggersView = function(userProfile) {
 
   $("#select-server").change(function() {
     var serverName = $("#select-server").val();
-    setCandidate($("#select-host"), parsedData.hosts[serverName]);
+    self.setCandidate($("#select-host"), parsedData.hosts[serverName]);
     drawTableContents(rawData);
   });
   $("#select-host").change(function() {
@@ -156,11 +162,12 @@ var TriggersView = function(userProfile) {
     rawData = reply;
     parsedData = parseData(rawData);
 
-    setCandidate($("#select-server"), parsedData.servers);
-    setCandidate($("#select-host"));
+    self.setCandidate($("#select-server"), parsedData.servers);
+    self.setCandidate($("#select-host"));
 
     drawTableContents(rawData);
   }
-
-  startConnection('trigger', updateCore);
 };
+
+TriggersView.prototype = Object.create(HatoholResourceView.prototype);
+TriggersView.prototype.constructor = TriggersView;

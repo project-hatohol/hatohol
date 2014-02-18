@@ -18,7 +18,17 @@
  */
 
 var ServersView = function(userProfile) {
+  var self = this;
   var numSelected = 0;
+
+  // call the constructor of the super class
+  HatoholResourceView.apply(userProfile);
+
+  if (userProfile.hasFlag(hatohol.OPPRVLG_CREATE_SERVER))
+    $("#add-server-button").show();
+  if (userProfile.hasFlag(hatohol.OPPRVLG_DELETE_SERVER))
+    $("#delete-server-button").show();
+  self.startConnection('server', updateCore);
 
   $("#table").stupidtable();
   $("#table").bind('aftertablesort', function(event, data) {
@@ -41,7 +51,7 @@ var ServersView = function(userProfile) {
   });
 
   function addOrUpdateSucceededCb() {
-    startConnection('server', updateCore);
+    self.startConnection('server', updateCore);
   };
 
   function setupCheckboxHandler() {
@@ -132,7 +142,7 @@ var ServersView = function(userProfile) {
       id: delId,
       type: "server",
       completionCallback: function() {
-        startConnection("server", updateCore);
+        self.startConnection("server", updateCore);
       },
     });
     hatoholInfoMsgBox("Deleting...");
@@ -200,10 +210,7 @@ var ServersView = function(userProfile) {
     setupEditButtons(reply);
     numSelected = 0;
   }
-
-  if (userProfile.hasFlag(hatohol.OPPRVLG_CREATE_SERVER))
-    $("#add-server-button").show();
-  if (userProfile.hasFlag(hatohol.OPPRVLG_DELETE_SERVER))
-    $("#delete-server-button").show();
-  startConnection('server', updateCore);
 };
+
+ServersView.prototype = Object.create(HatoholResourceView.prototype);
+ServersView.prototype.constructor = ServersView;

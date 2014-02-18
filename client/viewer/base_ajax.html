@@ -34,14 +34,6 @@
 {% endblock %}
     </title>
     <script type="text/javascript">
-      window.onerror = function(errorMsg, fileName, lineNumber) {
-        var place = "[" + fileName + ":" + lineNumber + "]";
-        setStatus({
-          "class": "Danger",
-          "label": gettext("Error"),
-          "lines": [place, errorMsg],
-        });
-      }
     </script>
   </head>
 
@@ -96,6 +88,7 @@
     <script src="{{ STATIC_URL }}js/hatohol_navi.js"></script>
     <script src="{{ STATIC_URL }}js/hatohol_password_changer.js"></script>
     <script src="{{ STATIC_URL }}js/hatohol_item_remover.js"></script>
+    <script src="{{ STATIC_URL }}js/hatohol_resource_view.js"></script>
     <script src="{{ STATIC_URL }}js/library.js"></script>
     <script type="text/javascript">
       var userProfile = new HatoholUserProfile();

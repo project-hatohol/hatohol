@@ -21,7 +21,17 @@ var UsersView = function(userProfile) {
   //
   // Variables
   //
+  var self = this;
   var numSelected = 0;
+
+  //
+  // main code
+  //
+  if (userProfile.hasFlag(hatohol.OPPRVLG_CREATE_USER))
+    $("#add-user-button").show();
+  if (userProfile.hasFlag(hatohol.OPPRVLG_DELETE_USER))
+    $("#delete-user-button").show();
+  self.startConnection('user', updateCore);
 
   //
   // Main view
@@ -47,7 +57,7 @@ var UsersView = function(userProfile) {
   });
 
   function addOrEditSucceededCb() {
-    startConnection('user', updateCore);
+    self.startConnection('user', updateCore);
   }
 
   //
@@ -103,7 +113,7 @@ var UsersView = function(userProfile) {
   }
 
   function applyPrivilegesCb() {
-    startConnection('user', updateCore);
+    self.startConnection('user', updateCore);
   }
 
   //
@@ -127,7 +137,7 @@ var UsersView = function(userProfile) {
       id: delId,
       type: "user",
       completionCallback: function() {
-        startConnection("user", updateCore);
+        self.startConnection("user", updateCore);
       },
     });
     hatoholInfoMsgBox(gettext("Deleting..."));
@@ -198,13 +208,7 @@ var UsersView = function(userProfile) {
     setupEditLinksAndButtons(reply);
     numSelected = 0;
   }
-
-  //
-  // main code
-  //
-  if (userProfile.hasFlag(hatohol.OPPRVLG_CREATE_USER))
-    $("#add-user-button").show();
-  if (userProfile.hasFlag(hatohol.OPPRVLG_DELETE_USER))
-    $("#delete-user-button").show();
-  startConnection('user', updateCore);
 };
+
+UsersView.prototype = Object.create(HatoholResourceView.prototype);
+UsersView.prototype.constructor = UsersView;

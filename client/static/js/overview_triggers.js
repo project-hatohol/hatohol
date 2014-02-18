@@ -18,11 +18,17 @@
  */
 
 var OverviewTriggers = function(userProfile) {
+  var self = this;
   var rawData, parsedData;
+
+  // call the constructor of the super class
+  HatoholResourceView.apply(userProfile);
+
+  self.startConnection('trigger', updateCore, 0);
 
   $("#select-server").change(function() {
     var serverName = $("#select-server").val();
-    setCandidate($("#select-host"), parsedData.hosts[serverName]);
+    self.setCandidate($("#select-host"), parsedData.hosts[serverName]);
     drawTableContents(parsedData);
   });
   $("#select-group").change(function() {
@@ -33,11 +39,11 @@ var OverviewTriggers = function(userProfile) {
   });
   $("#select-severity").change(function() {
     var s = $("#select-severity").val();
-    updateScreen(rawData, updateCore, s);
+    self.updateScreen(rawData, updateCore, s);
   });
   $("#select-status").change(function() {
     var s = $("#select-severity").val();
-    updateScreen(rawData, updateCore, s);
+    self.updateScreen(rawData, updateCore, s);
   });
 
   function parseData(replyData, minimum) {
@@ -191,10 +197,11 @@ var OverviewTriggers = function(userProfile) {
   function updateCore(reply, param) {
     rawData = reply;
     parsedData = parseData(rawData, param);
-    setCandidate($("#select-server"), parsedData.servers);
-    setCandidate($("#select-host"));
+    self.setCandidate($("#select-server"), parsedData.servers);
+    self.setCandidate($("#select-host"));
     drawTableContents(parsedData);
   }
-
-  startConnection('trigger', updateCore, 0);
 };
+
+OverviewTriggers.prototype = Object.create(HatoholResourceView.prototype);
+OverviewTriggers.prototype.constructor = OverviewTriggers;

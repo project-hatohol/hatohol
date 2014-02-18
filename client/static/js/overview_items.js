@@ -18,11 +18,17 @@
  */
 
 var OverviewItems = function(userProfile) {
+  var self = this;
   var rawData, parsedData;
+
+  // call the constructor of the super class
+  HatoholResourceView.apply(userProfile);
+
+  self.startConnection('item', updateCore);
 
   $("#select-server").change(function() {
     var serverName = $("#select-server").val();
-    setCandidate($("#select-host"), parsedData.hosts[serverName]);
+    self.setCandidate($("#select-host"), parsedData.hosts[serverName]);
     drawTableContents(parsedData);
   });
   $("#select-group").change(function() {
@@ -34,7 +40,7 @@ var OverviewItems = function(userProfile) {
 
   $("#select-severity").change(function() {
     var s = $("#select-severity").val();
-    updateScreen(rawData, updateCore, s);
+    self.updateScreen(rawData, updateCore, s);
   });
 
   function parseData(replyData) {
@@ -169,10 +175,11 @@ var OverviewItems = function(userProfile) {
   function updateCore(reply) {
     rawData = reply;
     parsedData = parseData(reply);
-    setCandidate($("#select-server"), parsedData.servers);
-    setCandidate($("#select-host"));
+    self.setCandidate($("#select-server"), parsedData.servers);
+    self.setCandidate($("#select-host"));
     drawTableContents(parsedData);
   }
-
-  startConnection('item', updateCore);
 };
+
+OverviewItems.prototype = Object.create(HatoholResourceView.prototype);
+OverviewItems.prototype.constructor = OverviewItems;

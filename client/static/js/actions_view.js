@@ -21,7 +21,16 @@ var ActionsView = function(userProfile) {
   //
   // Variables
   //
+  var self = this;
   var numSelected = 0;
+
+  // call the constructor of the super class
+  HatoholResourceView.apply(userProfile);
+
+  //
+  // main code
+  //
+  self.startConnection('action', updateCore);
 
   //
   // Main view
@@ -44,7 +53,7 @@ var ActionsView = function(userProfile) {
   });
 
   function addSucceededCb() {
-    startConnection('action', updateCore);
+    self.startConnection('action', updateCore);
   }
 
   //
@@ -162,7 +171,7 @@ var ActionsView = function(userProfile) {
                       deletedIdArray.errors + ")");
 
     // update the main view
-    startConnection('action', updateCore);
+    self.startConnection('action', updateCore);
   }
 
   //
@@ -344,9 +353,7 @@ var ActionsView = function(userProfile) {
     setupCheckboxHandler();
     numSelected = 0;
   }
-
-  //
-  // main code
-  //
-  startConnection('action', updateCore);
 };
+
+ActionsView.prototype = Object.create(HatoholResourceView.prototype);
+ActionsView.prototype.constructor = ActionsView;

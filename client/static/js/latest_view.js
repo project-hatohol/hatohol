@@ -18,7 +18,13 @@
  */
 
 var LatestView = function(userProfile) {
+  var self = this;
   var rawData, parsedData;
+
+  // call the constructor of the super class
+  HatoholResourceView.apply(userProfile);
+
+  self.startConnection('item', updateCore);
 
   $("#table").stupidtable();
   $("#table").bind('aftertablesort', function(event, data) {
@@ -30,7 +36,7 @@ var LatestView = function(userProfile) {
 
   $("#select-server").change(function() {
     var serverName = $("#select-server").val();
-    setCandidate($("#select-host"), parsedData.hosts[serverName]);
+    self.setCandidate($("#select-host"), parsedData.hosts[serverName]);
     drawTableContents(rawData);
   });
   $("#select-host").change(function() {
@@ -145,12 +151,13 @@ var LatestView = function(userProfile) {
     rawData = reply;
     parsedData = parseData(rawData);
 
-    setCandidate($("#select-server"), parsedData.servers);
-    setCandidate($("#select-host"));
-    setCandidate($("#select-application"), parsedData.applications);
+    self.setCandidate($("#select-server"), parsedData.servers);
+    self.setCandidate($("#select-host"));
+    self.setCandidate($("#select-application"), parsedData.applications);
 
     drawTableContents(rawData);
   }
-
-  startConnection('item', updateCore);
 };
+
+LatestView.prototype = Object.create(HatoholResourceView.prototype);
+LatestView.prototype.constructor = LatestView;
