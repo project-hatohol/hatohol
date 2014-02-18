@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-02-14 05:24-0600\n"
-"PO-Revision-Date: 2014-02-14 13:47+0900\n"
+"POT-Creation-Date: 2014-02-17 23:26-0600\n"
+"PO-Revision-Date: 2014-02-18 14:29+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -15,121 +15,179 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: static/js/events_view.js:28 static/js/events_view.js.c:99
-#: static/js/hatohol_add_action_dialog.js:348 static/js/library.js:138
+#: static/js/actions_view.js:57 static/js/servers_view.js:49
+#: static/js/users_view.js:55
+msgid "Do you delete the selected items ?"
+msgstr "選択項目を削除してもよろしいですか？"
+
+#: static/js/actions_view.js:135 static/js/actions_view.js.c:174
+#: static/js/hatohol_item_remover.js:67
+#: static/js/hatohol_user_roles_editor.js:65 static/js/users_view.js:143
+msgid "Deleting..."
+msgstr "削除中..."
+
+#: static/js/actions_view.js:180 static/js/hatohol_item_remover.js:73
+msgid "Completed. (Number of errors: "
+msgstr "完了 (エラー数: "
+
+#: static/js/actions_view.js:205 static/js/hatohol_add_action_dialog.js:376
+msgid "COMMAND"
+msgstr "コマンド"
+
+#: static/js/actions_view.js:207 static/js/hatohol_add_action_dialog.js:377
+msgid "RESIDENT"
+msgstr "常駐"
+
+#: static/js/actions_view.js:352 static/js/hatohol_add_action_dialog.js:382
+msgid "No limit"
+msgstr "制限なし"
+
+#: static/js/dashboard_view.js:99
+msgid "Number of servers [With problem]"
+msgstr "サーバ数 [障害あり]"
+
+#: static/js/dashboard_view.js:108
+msgid "Number of hosts [with problem]"
+msgstr "ホスト数 [障害あり]"
+
+#: static/js/dashboard_view.js:113
+msgid "Number of items"
+msgstr "アイテム数"
+
+#: static/js/dashboard_view.js:118
+msgid "Number of triggers [with problem]"
+msgstr "トリガー数 [障害あり]"
+
+#: static/js/dashboard_view.js:123
+msgid "Number of users [Online]"
+msgstr "ユーザ数 [オンライン]"
+
+#: static/js/dashboard_view.js:128
+msgid "New values per second"
+msgstr "１秒あたりの監視項目数"
+
+#: static/js/events_view.js:28 static/js/events_view.js.c:100
+#: static/js/hatohol_add_action_dialog.js:348 static/js/library.js:48
+#: static/js/triggers_view.js:38
 msgid "OK"
 msgstr "正常"
 
-#: static/js/events_view.js:28 static/js/events_view.js.c:100
-#: static/js/hatohol_add_action_dialog.js:349 static/js/library.js:140
+#: static/js/events_view.js:28 static/js/events_view.js.c:101
+#: static/js/hatohol_add_action_dialog.js:349 static/js/library.js:50
+#: static/js/triggers_view.js:39
 msgid "Problem"
 msgstr "障害"
 
-#: static/js/events_view.js:28 static/js/events_view.js.c:101
+#: static/js/events_view.js:28 static/js/events_view.js.c:102
+#: static/js/servers_view.js:160 static/js/triggers_view.js:40
+#: static/js/users_view.js:158
 msgid "Unknown"
 msgstr "不明"
 
-#: static/js/events_view.js:30 static/js/library.js:149
+#: static/js/events_view.js:30 static/js/library.js:59
+#: static/js/triggers_view.js:43
 msgid "Not classified"
 msgstr "未分類"
 
 #: static/js/events_view.js:30 static/js/hatohol_add_action_dialog.js:355
-#: static/js/hatohol_message_box.js:175 static/js/library.js:151
+#: static/js/hatohol_message_box.js:175 static/js/library.js:61
+#: static/js/triggers_view.js:44
 msgid "Information"
 msgstr "情報"
 
 #: static/js/events_view.js:30 static/js/hatohol_add_action_dialog.js:356
-#: static/js/hatohol_message_box.js:182 static/js/library.js:153
+#: static/js/hatohol_message_box.js:182 static/js/library.js:63
+#: static/js/triggers_view.js:45
 msgid "Warning"
 msgstr "警告"
 
 #: static/js/events_view.js:31 static/js/hatohol_add_action_dialog.js:357
-#: static/js/library.js:155
+#: static/js/library.js:65 static/js/triggers_view.js:46
 msgid "Average"
 msgstr "軽度の障害"
 
 #: static/js/events_view.js:31 static/js/hatohol_add_action_dialog.js:358
-#: static/js/library.js:157
+#: static/js/library.js:67 static/js/triggers_view.js:47
 msgid "High"
 msgstr "重度の障害"
 
 #: static/js/events_view.js:31 static/js/hatohol_add_action_dialog.js:359
-#: static/js/library.js:159
+#: static/js/library.js:69 static/js/triggers_view.js:48
 msgid "Disaster"
 msgstr "致命的な障害"
 
-#: static/js/events_view.js:44 static/js/library.js:127
+#: static/js/events_view.js:42 static/js/hatohol_resource_view.js:123
 msgid "ERROR"
 msgstr "エラー"
 
-#: static/js/events_view.js:85 static/js/hatohol_navi.js:43
-#: test/browser/test_events_view.js:62 test/browser/test_hatohol_navi.js:50
-#: test/browser/test_hatohol_navi.js:72
+#: static/js/events_view.js:86 static/js/hatohol_navi.js:43
+#: test/browser/test_events_view.js:62 test/browser/test_hatohol_navi.js:51
+#: test/browser/test_hatohol_navi.js:73
 msgid "Events"
 msgstr "イベント"
 
-#: static/js/events_view.js:88
+#: static/js/events_view.js:89
 msgid "Minimum Severity:"
 msgstr "最小の深刻度:"
 
-#: static/js/events_view.js:96
+#: static/js/events_view.js:97
 msgid "Status:"
 msgstr "ステータス:"
 
-#: static/js/events_view.js:103
+#: static/js/events_view.js:104
 msgid "Server:"
 msgstr "サーバ:"
 
-#: static/js/events_view.js:107
+#: static/js/events_view.js:108
 msgid "Host:"
 msgstr "ホスト:"
 
-#: static/js/events_view.js:111
+#: static/js/events_view.js:112
 msgid "# of events per page"
 msgstr ""
 
-#: static/js/events_view.js:118 static/js/hatohol_add_action_dialog.js:317
+#: static/js/events_view.js:119 static/js/hatohol_add_action_dialog.js:317
 msgid "Server"
 msgstr "サーバ"
 
-#: static/js/events_view.js:119
+#: static/js/events_view.js:120
 msgid "Time"
 msgstr "時間"
 
-#: static/js/events_view.js:120 static/js/hatohol_add_action_dialog.js:332
+#: static/js/events_view.js:121 static/js/hatohol_add_action_dialog.js:332
 msgid "Host"
 msgstr "ホスト名"
 
-#: static/js/events_view.js:121 static/js/hatohol_trigger_selector.js:49
+#: static/js/events_view.js:122 static/js/hatohol_trigger_selector.js:49
 msgid "Brief"
 msgstr "概要"
 
-#: static/js/events_view.js:122 static/js/hatohol_add_action_dialog.js:345
+#: static/js/events_view.js:123 static/js/hatohol_add_action_dialog.js:345
 msgid "Status"
 msgstr "ステータス"
 
-#: static/js/events_view.js:123 static/js/hatohol_add_action_dialog.js:352
+#: static/js/events_view.js:124 static/js/hatohol_add_action_dialog.js:352
 msgid "Severity"
 msgstr "深刻度"
 
-#: static/js/events_view.js:124
+#: static/js/events_view.js:125
 msgid "Duration"
 msgstr "継続時間"
 
-#: static/js/events_view.js:137
+#: static/js/events_view.js:138
 msgid "Latest events"
 msgstr "最新イベント"
 
-#: static/js/events_view.js:138
+#: static/js/events_view.js:139
 msgid "To next"
 msgstr "次へ"
 
 #: static/js/hatohol_actor_mail_dialog.js:26
-#: static/js/hatohol_actor_mail_dialog.js:117
+#: static/js/hatohol_actor_mail_dialog.js:118
 #: static/js/hatohol_privilege_edit_dialog.js:30
 #: static/js/hatohol_server_edit_dialog.js:28
 #: static/js/hatohol_user_edit_dialog.js:28
-#: static/js/hatohol_user_roles_editor.js:255
+#: static/js/hatohol_user_roles_editor.js:261
 #: test/browser/test_hatohol_server_edit_dialog.js:67
 #: test/browser/test_hatohol_user_edit_dialog.js:49
 msgid "APPLY"
@@ -142,7 +200,7 @@ msgstr "適用"
 #: static/js/hatohol_selector_dialog.js:30
 #: static/js/hatohol_server_edit_dialog.js:34
 #: static/js/hatohol_user_edit_dialog.js:34
-#: static/js/hatohol_user_roles_editor.js:261
+#: static/js/hatohol_user_roles_editor.js:267
 msgid "CANCEL"
 msgstr "キャンセル"
 
@@ -150,15 +208,15 @@ msgstr "キャンセル"
 msgid "Execution parameter maker"
 msgstr "実行パラメータ"
 
-#: static/js/hatohol_actor_mail_dialog.js:77
+#: static/js/hatohol_actor_mail_dialog.js:78
 msgid "TO: "
 msgstr "TO:"
 
-#: static/js/hatohol_actor_mail_dialog.js:82
+#: static/js/hatohol_actor_mail_dialog.js:83
 msgid "SMTP server "
 msgstr "SMTPサーバ"
 
-#: static/js/hatohol_actor_mail_dialog.js:83
+#: static/js/hatohol_actor_mail_dialog.js:84
 msgid "(If empty, localhost is used)"
 msgstr "(空白の場合、localhostが使用されます)"
 
@@ -167,7 +225,7 @@ msgstr "(空白の場合、localhostが使用されます)"
 #: static/js/hatohol_server_edit_dialog.js:28
 #: static/js/hatohol_user_edit_dialog.js:28
 #: static/js/hatohol_user_roles_editor.js:167
-#: static/js/hatohol_user_roles_editor.js:255
+#: static/js/hatohol_user_roles_editor.js:261
 #: test/browser/test_hatohol_server_edit_dialog.js:23
 #: test/browser/test_hatohol_user_edit_dialog.js:31
 msgid "ADD"
@@ -192,7 +250,7 @@ msgstr "選択"
 #: static/js/hatohol_add_action_dialog.js:290
 #: static/js/hatohol_server_edit_dialog.js:100
 #: static/js/hatohol_user_edit_dialog.js:104
-#: static/js/hatohol_user_roles_editor.js:325
+#: static/js/hatohol_user_roles_editor.js:331
 msgid "Successfully created."
 msgstr "正常に作成されました。"
 
@@ -234,21 +292,9 @@ msgstr "Eメール"
 msgid "Type"
 msgstr "タイプ"
 
-#: static/js/hatohol_add_action_dialog.js:376
-msgid "COMMAND"
-msgstr "コマンド"
-
-#: static/js/hatohol_add_action_dialog.js:377
-msgid "RESIDENT"
-msgstr "常駐"
-
 #: static/js/hatohol_add_action_dialog.js:380
 msgid "Time-out (sec)"
 msgstr "タイムアウト (秒)"
-
-#: static/js/hatohol_add_action_dialog.js:382
-msgid "No limit"
-msgstr "制限なし"
 
 #: static/js/hatohol_add_action_dialog.js:386
 msgid "Command parameter"
@@ -414,28 +460,19 @@ msgstr "サーバID"
 msgid "Hostname"
 msgstr "ホスト名"
 
-#: static/js/hatohol_item_remover.js:67
-#: static/js/hatohol_user_roles_editor.js:65
-msgid "Deleting..."
-msgstr "削除中..."
-
-#: static/js/hatohol_item_remover.js:73
-msgid "Completed. (Number of errors: "
-msgstr "完了 (エラー数: "
-
 #: static/js/hatohol_login_dialog.js:23 static/js/hatohol_login_dialog.js:32
 msgid "Login"
 msgstr "ログイン"
 
-#: static/js/hatohol_login_dialog.js:58
+#: static/js/hatohol_login_dialog.js:57
 #: static/js/hatohol_server_edit_dialog.js:193
-#: static/js/hatohol_user_edit_dialog.js:151
+#: static/js/hatohol_user_edit_dialog.js:157
 msgid "User name"
 msgstr "ユーザ名"
 
-#: static/js/hatohol_login_dialog.js:60
+#: static/js/hatohol_login_dialog.js:59
 #: static/js/hatohol_server_edit_dialog.js:195
-#: static/js/hatohol_user_edit_dialog.js:153
+#: static/js/hatohol_user_edit_dialog.js:159
 msgid "Password"
 msgstr "パスワード"
 
@@ -459,7 +496,7 @@ msgstr "いいえ"
 msgid "YES"
 msgstr "はい"
 
-#: static/js/hatohol_message_box.js:189
+#: static/js/hatohol_message_box.js:189 static/js/hatohol_resource_view.js:24
 msgid "Error"
 msgstr "エラー"
 
@@ -467,59 +504,59 @@ msgstr "エラー"
 msgid "Question"
 msgstr "問い合わせ"
 
-#: static/js/hatohol_message_box.js:205 static/js/library.js:122
+#: static/js/hatohol_message_box.js:205 static/js/hatohol_resource_view.js:118
 msgid "Failed to parse the received packet."
 msgstr "受信パケットの解析に失敗しました。"
 
-#: static/js/hatohol_navi.js:24 test/browser/test_hatohol_navi.js:40
-#: test/browser/test_hatohol_navi.js:62
+#: static/js/hatohol_navi.js:24 test/browser/test_hatohol_navi.js:41
+#: test/browser/test_hatohol_navi.js:63
 msgid "Dashboard"
 msgstr "ダッシュボード"
 
-#: static/js/hatohol_navi.js:28 test/browser/test_hatohol_navi.js:42
-#: test/browser/test_hatohol_navi.js:64
+#: static/js/hatohol_navi.js:28 test/browser/test_hatohol_navi.js:43
+#: test/browser/test_hatohol_navi.js:65
 msgid "Overview : Triggers"
 msgstr "概要:トリガー"
 
-#: static/js/hatohol_navi.js:32 test/browser/test_hatohol_navi.js:44
-#: test/browser/test_hatohol_navi.js:66
+#: static/js/hatohol_navi.js:32 test/browser/test_hatohol_navi.js:45
+#: test/browser/test_hatohol_navi.js:67
 msgid "Overview : Items"
 msgstr "概要:アイテム"
 
-#: static/js/hatohol_navi.js:36 test/browser/test_hatohol_navi.js:46
-#: test/browser/test_hatohol_navi.js:68
+#: static/js/hatohol_navi.js:36 test/browser/test_hatohol_navi.js:47
+#: test/browser/test_hatohol_navi.js:69
 msgid "Latest data"
 msgstr "最新データ"
 
-#: static/js/hatohol_navi.js:40 test/browser/test_hatohol_navi.js:48
-#: test/browser/test_hatohol_navi.js:70
+#: static/js/hatohol_navi.js:40 test/browser/test_hatohol_navi.js:49
+#: test/browser/test_hatohol_navi.js:71
 msgid "Triggers"
 msgstr "トリガー"
 
-#: static/js/hatohol_navi.js:47 static/js/hatohol_user_roles_editor.js:399
-#: static/js/hatohol_user_roles_editor.js:404
-#: static/js/hatohol_user_roles_editor.js:409
-#: static/js/hatohol_user_roles_editor.js:414
-#: static/js/hatohol_user_roles_editor.js:419
-#: static/js/hatohol_user_roles_editor.js:424
-#: test/browser/test_hatohol_navi.js:52 test/browser/test_hatohol_navi.js:74
+#: static/js/hatohol_navi.js:47 static/js/hatohol_user_roles_editor.js:405
+#: static/js/hatohol_user_roles_editor.js:410
+#: static/js/hatohol_user_roles_editor.js:415
+#: static/js/hatohol_user_roles_editor.js:420
+#: static/js/hatohol_user_roles_editor.js:425
+#: static/js/hatohol_user_roles_editor.js:430
+#: test/browser/test_hatohol_navi.js:53 test/browser/test_hatohol_navi.js:75
 msgid "Servers"
 msgstr "サーバ"
 
-#: static/js/hatohol_navi.js:51 static/js/hatohol_user_roles_editor.js:429
-#: static/js/hatohol_user_roles_editor.js:434
-#: static/js/hatohol_user_roles_editor.js:439
-#: static/js/hatohol_user_roles_editor.js:444
-#: static/js/hatohol_user_roles_editor.js:449
-#: static/js/hatohol_user_roles_editor.js:454
-#: test/browser/test_hatohol_navi.js:54 test/browser/test_hatohol_navi.js:76
+#: static/js/hatohol_navi.js:51 static/js/hatohol_user_roles_editor.js:435
+#: static/js/hatohol_user_roles_editor.js:440
+#: static/js/hatohol_user_roles_editor.js:445
+#: static/js/hatohol_user_roles_editor.js:450
+#: static/js/hatohol_user_roles_editor.js:455
+#: static/js/hatohol_user_roles_editor.js:460
+#: test/browser/test_hatohol_navi.js:55 test/browser/test_hatohol_navi.js:77
 msgid "Actions"
 msgstr "アクション"
 
-#: static/js/hatohol_navi.js:55 static/js/hatohol_user_roles_editor.js:379
-#: static/js/hatohol_user_roles_editor.js:384
-#: static/js/hatohol_user_roles_editor.js:389
-#: static/js/hatohol_user_roles_editor.js:394
+#: static/js/hatohol_navi.js:55 static/js/hatohol_user_roles_editor.js:385
+#: static/js/hatohol_user_roles_editor.js:390
+#: static/js/hatohol_user_roles_editor.js:395
+#: static/js/hatohol_user_roles_editor.js:400
 #: test/browser/test_hatohol_navi.js:27
 msgid "Users"
 msgstr "ユーザ"
@@ -630,6 +667,26 @@ msgstr "sessionIdが見つかりません。"
 msgid "Unknown status: "
 msgstr "不明なステータス： "
 
+#: static/js/hatohol_resource_view.js:85
+msgid "DRAW"
+msgstr "描画"
+
+#: static/js/hatohol_resource_view.js:86
+msgid "Drawing"
+msgstr "描画中"
+
+#: static/js/hatohol_resource_view.js:93
+msgid "DONE"
+msgstr "完了"
+
+#: static/js/hatohol_resource_view.js:105
+msgid "LOAD"
+msgstr "ロード"
+
+#: static/js/hatohol_resource_view.js:106
+msgid "Communicating with backend"
+msgstr "バックエンドと通信中"
+
 #: static/js/hatohol_server_edit_dialog.js:27
 msgid "EDIT SERVER"
 msgstr "サーバ編集"
@@ -639,9 +696,8 @@ msgid "ADD SERVER"
 msgstr "サーバ追加"
 
 #: static/js/hatohol_server_edit_dialog.js:56
-#, fuzzy
 msgid "Now updating the server ..."
-msgstr "ユーザを更新しています..."
+msgstr "サーバを更新しています..."
 
 #: static/js/hatohol_server_edit_dialog.js:58
 msgid "Now adding a server..."
@@ -649,7 +705,7 @@ msgstr "サーバを追加しています..."
 
 #: static/js/hatohol_server_edit_dialog.js:98
 #: static/js/hatohol_user_edit_dialog.js:102
-#: static/js/hatohol_user_roles_editor.js:323
+#: static/js/hatohol_user_roles_editor.js:329
 msgid "Successfully updated."
 msgstr "正常に更新されました。"
 
@@ -693,11 +749,11 @@ msgstr "データベース名が入力されていません！"
 msgid "Server type"
 msgstr "サーバ種類"
 
-#: static/js/hatohol_server_edit_dialog.js:171
+#: static/js/hatohol_server_edit_dialog.js:171 static/js/servers_view.js:154
 msgid "Zabbix"
 msgstr "Zabbix"
 
-#: static/js/hatohol_server_edit_dialog.js:173
+#: static/js/hatohol_server_edit_dialog.js:173 static/js/servers_view.js:156
 msgid "Nagios"
 msgstr "Nagios"
 
@@ -757,25 +813,25 @@ msgstr "ユーザ名が入力されていません！"
 msgid "Invalid user role!"
 msgstr "ユーザ種別が正しくありません！"
 
-#: static/js/hatohol_user_edit_dialog.js:155
+#: static/js/hatohol_user_edit_dialog.js:161
 msgid "User role"
 msgstr "ユーザ種別"
 
-#: static/js/hatohol_user_edit_dialog.js:158
-#: static/js/hatohol_user_edit_dialog.js:211
+#: static/js/hatohol_user_edit_dialog.js:164
+#: static/js/hatohol_user_edit_dialog.js:217
 #: static/js/hatohol_user_roles_editor.js:192
-#: static/js/hatohol_user_roles_editor.js:337
+#: static/js/hatohol_user_roles_editor.js:343 static/js/users_view.js:152
 msgid "Guest"
 msgstr "ゲスト"
 
-#: static/js/hatohol_user_edit_dialog.js:160
-#: static/js/hatohol_user_edit_dialog.js:213
+#: static/js/hatohol_user_edit_dialog.js:166
+#: static/js/hatohol_user_edit_dialog.js:219
 #: static/js/hatohol_user_roles_editor.js:194
-#: static/js/hatohol_user_roles_editor.js:341
+#: static/js/hatohol_user_roles_editor.js:347 static/js/users_view.js:150
 msgid "Admin"
 msgstr "管理者"
 
-#: static/js/hatohol_user_edit_dialog.js:165
+#: static/js/hatohol_user_edit_dialog.js:171 static/js/servers_view.js:198
 msgid "EDIT"
 msgstr "編集"
 
@@ -803,156 +859,140 @@ msgstr "権限"
 msgid "None"
 msgstr "無し"
 
-#: static/js/hatohol_user_roles_editor.js:194
+#: static/js/hatohol_user_roles_editor.js:194 static/js/users_view.js:187
 msgid "All"
 msgstr "全て"
 
 #: static/js/hatohol_user_roles_editor.js:210
-#: static/js/hatohol_user_roles_editor.js:236
+#: static/js/hatohol_user_roles_editor.js:242 static/js/users_view.js:194
 msgid "Show / Edit"
 msgstr "表示 / 編集"
 
-#: static/js/hatohol_user_roles_editor.js:238
+#: static/js/hatohol_user_roles_editor.js:244
 msgid "Show"
 msgstr "表示"
 
-#: static/js/hatohol_user_roles_editor.js:254
+#: static/js/hatohol_user_roles_editor.js:260
 msgid "EDIT USER ROLE"
 msgstr "ユーザ種別編集"
 
-#: static/js/hatohol_user_roles_editor.js:254
+#: static/js/hatohol_user_roles_editor.js:260
 msgid "ADD USER ROLE"
 msgstr "ユーザ種別追加"
 
-#: static/js/hatohol_user_roles_editor.js:278
+#: static/js/hatohol_user_roles_editor.js:284
 msgid "Now updating the user role ..."
 msgstr "ユーザ種別を更新しています..."
 
-#: static/js/hatohol_user_roles_editor.js:280
+#: static/js/hatohol_user_roles_editor.js:286
 msgid "Now creating a user role ..."
 msgstr "ユーザ種別を作成しています..."
 
-#: static/js/hatohol_user_roles_editor.js:349
+#: static/js/hatohol_user_roles_editor.js:355
 msgid "User role name is empty!"
 msgstr "ユーザ種別名が入力されていません！"
 
-#: static/js/hatohol_user_roles_editor.js:358
+#: static/js/hatohol_user_roles_editor.js:364
 msgid "The user role name is already used!"
 msgstr "このユーザ種別名は既に使用されています！"
 
-#: static/js/hatohol_user_roles_editor.js:362
+#: static/js/hatohol_user_roles_editor.js:368
 msgid "Same privilege is already defined as: "
 msgstr "同一の権限が既に他のユーザ種別で定義されています："
 
-#: static/js/hatohol_user_roles_editor.js:378
+#: static/js/hatohol_user_roles_editor.js:384
 msgid "Create a user"
 msgstr "ユーザの作成"
 
-#: static/js/hatohol_user_roles_editor.js:383
+#: static/js/hatohol_user_roles_editor.js:389
 msgid "Update users"
 msgstr "ユーザの更新"
 
-#: static/js/hatohol_user_roles_editor.js:388
+#: static/js/hatohol_user_roles_editor.js:394
 msgid "Delete users"
 msgstr "ユーザの削除"
 
-#: static/js/hatohol_user_roles_editor.js:393
+#: static/js/hatohol_user_roles_editor.js:399
 msgid "Get all users"
 msgstr "全てのユーザの取得"
 
-#: static/js/hatohol_user_roles_editor.js:398
+#: static/js/hatohol_user_roles_editor.js:404
 msgid "Create a server"
 msgstr "サーバの作成"
 
-#: static/js/hatohol_user_roles_editor.js:403
+#: static/js/hatohol_user_roles_editor.js:409
 msgid "Update allowed servers"
 msgstr "許可されたサーバの更新"
 
-#: static/js/hatohol_user_roles_editor.js:408
+#: static/js/hatohol_user_roles_editor.js:414
 msgid "Update all servers"
 msgstr "全てのサーバの更新"
 
-#: static/js/hatohol_user_roles_editor.js:413
+#: static/js/hatohol_user_roles_editor.js:419
 msgid "Delete allowed servers"
 msgstr "許可されたサーバの削除"
 
-#: static/js/hatohol_user_roles_editor.js:418
+#: static/js/hatohol_user_roles_editor.js:424
 msgid "Delete all servers"
 msgstr "全てのサーバの削除"
 
-#: static/js/hatohol_user_roles_editor.js:423
+#: static/js/hatohol_user_roles_editor.js:429
 msgid "Get all servers"
 msgstr "全てのサーバの取得"
 
-#: static/js/hatohol_user_roles_editor.js:428
+#: static/js/hatohol_user_roles_editor.js:434
 msgid "Create a action"
 msgstr "アクションの作成"
 
-#: static/js/hatohol_user_roles_editor.js:433
+#: static/js/hatohol_user_roles_editor.js:439
 msgid "Update own actions"
 msgstr "自身のアクションの更新"
 
-#: static/js/hatohol_user_roles_editor.js:438
+#: static/js/hatohol_user_roles_editor.js:444
 msgid "Update all actions"
 msgstr "全てのアクションの更新"
 
-#: static/js/hatohol_user_roles_editor.js:443
+#: static/js/hatohol_user_roles_editor.js:449
 msgid "Delete own actions"
 msgstr "自身のアクションの削除"
 
-#: static/js/hatohol_user_roles_editor.js:448
+#: static/js/hatohol_user_roles_editor.js:454
 msgid "Delete all actions"
 msgstr "全てのアクションの削除"
 
-#: static/js/hatohol_user_roles_editor.js:453
+#: static/js/hatohol_user_roles_editor.js:459
 msgid "Get all actions"
 msgstr "全てのアクションの取得"
 
-#: static/js/hatohol_user_roles_editor.js:458
+#: static/js/hatohol_user_roles_editor.js:464
 msgid "Create a user role"
 msgstr "ユーザ種別の作成"
 
-#: static/js/hatohol_user_roles_editor.js:459
-#: static/js/hatohol_user_roles_editor.js:464
-#: static/js/hatohol_user_roles_editor.js:469
+#: static/js/hatohol_user_roles_editor.js:465
+#: static/js/hatohol_user_roles_editor.js:470
+#: static/js/hatohol_user_roles_editor.js:475
 msgid "User roles"
 msgstr "ユーザ種別"
 
-#: static/js/hatohol_user_roles_editor.js:463
+#: static/js/hatohol_user_roles_editor.js:469
 msgid "Update all user roles"
 msgstr "全てのユーザ種別の更新"
 
-#: static/js/hatohol_user_roles_editor.js:468
+#: static/js/hatohol_user_roles_editor.js:474
 msgid "Delete all user roles"
 msgstr "全てのユーザ種別の削除"
 
-#: static/js/hatohol_user_roles_editor.js:481
+#: static/js/hatohol_user_roles_editor.js:487
 msgid "User role name"
 msgstr "ユーザ種別名"
 
-#: static/js/hatohol_user_roles_editor.js:489
+#: static/js/hatohol_user_roles_editor.js:495
 msgid "Privileges"
 msgstr "権限"
 
-#: static/js/library.js:93
-msgid "DRAW"
-msgstr "描画"
-
-#: static/js/library.js:94
-msgid "Drawing"
-msgstr "描画中"
-
-#: static/js/library.js:101
-msgid "DONE"
-msgstr "完了"
-
-#: static/js/library.js:109
-msgid "LOAD"
-msgstr "ロード"
-
-#: static/js/library.js:110
-msgid "Communicating with backend"
-msgstr "バックエンドと通信中"
+#: static/js/servers_view.js:190
+msgid "Show Maps"
+msgstr "マップを表示"
 
 #~ msgid "Not found server ID."
 #~ msgstr "サーバIDが見つかりません"

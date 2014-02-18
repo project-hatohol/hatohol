@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-02-14 05:24-0600\n"
+"POT-Creation-Date: 2014-02-17 23:26-0600\n"
 "PO-Revision-Date: 2014-02-14 20:25+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -29,12 +29,12 @@ msgstr "アクション削除"
 
 #: viewer/actions_ajax.html:43 viewer/dashboard_ajax.html:52
 #: viewer/dashboard_ajax.html.py:72 viewer/latest_ajax.html:51
-#: viewer/triggers_ajax.html:60
+#: viewer/triggers_ajax.html:64
 msgid "Server"
 msgstr "サーバ"
 
 #: viewer/actions_ajax.html:44 viewer/latest_ajax.html:52
-#: viewer/triggers_ajax.html:68
+#: viewer/triggers_ajax.html:72
 msgid "Host"
 msgstr "ホスト"
 
@@ -46,11 +46,11 @@ msgstr "ホストグループ"
 msgid "Trigger"
 msgstr "トリガー"
 
-#: viewer/actions_ajax.html:49 viewer/triggers_ajax.html:62
+#: viewer/actions_ajax.html:49 viewer/triggers_ajax.html:66
 msgid "Status"
 msgstr "ステータス"
 
-#: viewer/actions_ajax.html:50 viewer/triggers_ajax.html:61
+#: viewer/actions_ajax.html:50 viewer/triggers_ajax.html:65
 msgid "Severity"
 msgstr "深刻度"
 
@@ -70,49 +70,23 @@ msgstr "コマンド"
 msgid "Time-out (sec)"
 msgstr "タイムアウト (秒)"
 
-#: viewer/actions_ajax.html:94 viewer/servers_ajax.html:83
-#: viewer/users_ajax.html:87
-msgid "Do you delete the selected items ?"
-msgstr "選択項目を削除しますか？"
-
-#: viewer/actions_ajax.html:168 viewer/actions_ajax.html.py:207
-#: viewer/servers_ajax.html:182 viewer/users_ajax.html:175
-msgid "Deleting..."
-msgstr "削除中..."
-
-#: viewer/actions_ajax.html:213
-msgid "Completed. (Number of errors: "
-msgstr "完了 (エラー数: "
-
-#: viewer/actions_ajax.html:238
-msgid "COMMAND"
-msgstr "コマンド"
-
-#: viewer/actions_ajax.html:240
-msgid "RESIDENT"
-msgstr "常駐"
-
-#: viewer/actions_ajax.html:384
-msgid "No limit"
-msgstr "制限なし"
-
-#: viewer/base_ajax.html:51
+#: viewer/base_ajax.html:41
 msgid "Hatohol"
 msgstr "Hatohol"
 
-#: viewer/base_ajax.html:57
+#: viewer/base_ajax.html:47
 msgid "PREPARE"
 msgstr "準備中"
 
-#: viewer/base_ajax.html:63
+#: viewer/base_ajax.html:55
 msgid "Not logged in"
 msgstr "未ログイン"
 
-#: viewer/base_ajax.html:68
+#: viewer/base_ajax.html:60
 msgid "Logout"
 msgstr "ログアウト"
 
-#: viewer/base_ajax.html:72
+#: viewer/base_ajax.html:64
 msgid "Change password"
 msgstr "パスワード変更"
 
@@ -132,27 +106,27 @@ msgstr "値"
 msgid "Group"
 msgstr "グループ"
 
-#: viewer/dashboard_ajax.html:54 viewer/triggers_ajax.html:107
+#: viewer/dashboard_ajax.html:54
 msgid "Disaster"
 msgstr "致命的な障害"
 
-#: viewer/dashboard_ajax.html:55 viewer/triggers_ajax.html:106
+#: viewer/dashboard_ajax.html:55
 msgid "High"
 msgstr "重度の障害"
 
-#: viewer/dashboard_ajax.html:56 viewer/triggers_ajax.html:105
+#: viewer/dashboard_ajax.html:56
 msgid "Average"
 msgstr "軽度の障害"
 
-#: viewer/dashboard_ajax.html:57 viewer/triggers_ajax.html:104
+#: viewer/dashboard_ajax.html:57
 msgid "Warning"
 msgstr "警告"
 
-#: viewer/dashboard_ajax.html:58 viewer/triggers_ajax.html:103
+#: viewer/dashboard_ajax.html:58
 msgid "Information"
 msgstr "情報"
 
-#: viewer/dashboard_ajax.html:59 viewer/triggers_ajax.html:102
+#: viewer/dashboard_ajax.html:59
 msgid "Not classified"
 msgstr "未分類"
 
@@ -168,41 +142,17 @@ msgstr "障害あり"
 msgid "Total"
 msgstr "合計"
 
-#: viewer/dashboard_ajax.html:159
-msgid "Number of servers [With problem]"
-msgstr "サーバ数 [障害あり]"
-
-#: viewer/dashboard_ajax.html:168
-msgid "Number of hosts [with problem]"
-msgstr "ホスト数 [障害あり]"
-
-#: viewer/dashboard_ajax.html:173
-msgid "Number of items"
-msgstr "アイテム数"
-
-#: viewer/dashboard_ajax.html:178
-msgid "Number of triggers [with problem]"
-msgstr "トリガー数 [障害あり]"
-
-#: viewer/dashboard_ajax.html:183
-msgid "Number of users [Online]"
-msgstr "ユーザ数 [オンライン]"
-
-#: viewer/dashboard_ajax.html:188
-msgid "New values per second"
-msgstr "１秒あたりの監視項目数"
-
 #: viewer/latest_ajax.html:28
 msgid "Latest data"
 msgstr "最新データ"
 
 #: viewer/latest_ajax.html:31 viewer/overview_items_ajax.html:41
-#: viewer/overview_triggers_ajax.html:45 viewer/triggers_ajax.html:41
+#: viewer/overview_triggers_ajax.html:45 viewer/triggers_ajax.html:45
 msgid "Server:"
 msgstr "サーバ:"
 
 #: viewer/latest_ajax.html:36 viewer/overview_items_ajax.html:54
-#: viewer/overview_triggers_ajax.html:58 viewer/triggers_ajax.html:51
+#: viewer/overview_triggers_ajax.html:58 viewer/triggers_ajax.html:55
 msgid "Host:"
 msgstr "ホスト:"
 
@@ -214,7 +164,7 @@ msgstr "アプリケーション:"
 msgid "Application"
 msgstr "アプリケーション"
 
-#: viewer/latest_ajax.html:54 viewer/triggers_ajax.html:69
+#: viewer/latest_ajax.html:54 viewer/triggers_ajax.html:73
 msgid "Name"
 msgstr "名前"
 
@@ -235,12 +185,12 @@ msgid "Overview : Items"
 msgstr "概要:アイテム"
 
 #: viewer/overview_items_ajax.html:32 viewer/overview_triggers_ajax.html:31
-#: viewer/triggers_ajax.html:27
+#: viewer/triggers_ajax.html:31
 msgid "Minimum Severity:"
 msgstr "最小の深刻度:"
 
 #: viewer/overview_items_ajax.html:46 viewer/overview_triggers_ajax.html:50
-#: viewer/triggers_ajax.html:46
+#: viewer/triggers_ajax.html:50
 msgid "Group:"
 msgstr "グループ:"
 
@@ -248,17 +198,15 @@ msgstr "グループ:"
 msgid "Overview : Triggers"
 msgstr "概要:トリガー"
 
-#: viewer/overview_triggers_ajax.html:39 viewer/triggers_ajax.html:35
+#: viewer/overview_triggers_ajax.html:39 viewer/triggers_ajax.html:39
 msgid "Status:"
 msgstr "ステータス:"
 
-#: viewer/overview_triggers_ajax.html:42 viewer/triggers_ajax.html:38
-#: viewer/triggers_ajax.html.py:97
+#: viewer/overview_triggers_ajax.html:42 viewer/triggers_ajax.html:42
 msgid "OK"
 msgstr "正常"
 
-#: viewer/overview_triggers_ajax.html:43 viewer/triggers_ajax.html:39
-#: viewer/triggers_ajax.html.py:98
+#: viewer/overview_triggers_ajax.html:43 viewer/triggers_ajax.html:43
 msgid "Problem"
 msgstr "障害"
 
@@ -294,37 +242,25 @@ msgstr "ニックネーム"
 msgid "Maps"
 msgstr "マップ"
 
-#: viewer/servers_ajax.html:224
-msgid "Show Maps"
-msgstr "マップを表示"
-
-#: viewer/servers_ajax.html:232
-msgid "EDIT"
-msgstr "編集"
-
-#: viewer/triggers_ajax.html:24
+#: viewer/triggers_ajax.html:28
 msgid "Triggers"
 msgstr "トリガー"
 
-#: viewer/triggers_ajax.html:63
+#: viewer/triggers_ajax.html:67
 msgid "Last change"
 msgstr "最新の変更"
 
-#: viewer/triggers_ajax.html:65
+#: viewer/triggers_ajax.html:69
 msgid "Duration"
 msgstr "継続時間"
 
-#: viewer/triggers_ajax.html:66
+#: viewer/triggers_ajax.html:70
 msgid "Acknowledged"
 msgstr "障害対応済"
 
-#: viewer/triggers_ajax.html:71
+#: viewer/triggers_ajax.html:75
 msgid "Comment"
 msgstr "コメント"
-
-#: viewer/triggers_ajax.html:99
-msgid "Unknown"
-msgstr "不明"
 
 #: viewer/users_ajax.html:24
 msgid "Users"
@@ -350,13 +286,56 @@ msgstr "ユーザ種別"
 msgid "Privileges"
 msgstr "権限"
 
-#: viewer/users_ajax.html:219
-msgid "All"
-msgstr "全て"
+#~ msgid "Do you delete the selected items ?"
+#~ msgstr "選択項目を削除しますか？"
 
-#: viewer/users_ajax.html:226
-msgid "Show / Edit"
-msgstr "表示 / 編集"
+#~ msgid "Deleting..."
+#~ msgstr "削除中..."
+
+#~ msgid "Completed. (Number of errors: "
+#~ msgstr "完了 (エラー数: "
+
+#~ msgid "COMMAND"
+#~ msgstr "コマンド"
+
+#~ msgid "RESIDENT"
+#~ msgstr "常駐"
+
+#~ msgid "No limit"
+#~ msgstr "制限なし"
+
+#~ msgid "Number of servers [With problem]"
+#~ msgstr "サーバ数 [障害あり]"
+
+#~ msgid "Number of hosts [with problem]"
+#~ msgstr "ホスト数 [障害あり]"
+
+#~ msgid "Number of items"
+#~ msgstr "アイテム数"
+
+#~ msgid "Number of triggers [with problem]"
+#~ msgstr "トリガー数 [障害あり]"
+
+#~ msgid "Number of users [Online]"
+#~ msgstr "ユーザ数 [オンライン]"
+
+#~ msgid "New values per second"
+#~ msgstr "１秒あたりの監視項目数"
+
+#~ msgid "Show Maps"
+#~ msgstr "マップを表示"
+
+#~ msgid "EDIT"
+#~ msgstr "編集"
+
+#~ msgid "Unknown"
+#~ msgstr "不明"
+
+#~ msgid "All"
+#~ msgstr "全て"
+
+#~ msgid "Show / Edit"
+#~ msgstr "表示 / 編集"
 
 #~ msgid "Events"
 #~ msgstr "イベント"
