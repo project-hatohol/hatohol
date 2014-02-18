@@ -29,3 +29,10 @@ div#main {
   margin-left: 5px;
   margin-right: 5px;
 }
+
+.hatohol-filter-toolbar select,
+.hatohol-filter-toolbar input
+{
+  padding: 2px;
+  height: 1.8em;
+}

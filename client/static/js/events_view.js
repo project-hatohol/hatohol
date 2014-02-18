@@ -85,7 +85,7 @@ var EventsView = function(userProfile, baseElem) {
     var s = '';
     s += '<h2>' + gettext('Events') + '</h2>';
 
-    s += '<form class="form-inline">';
+    s += '<form class="form-inline hatohol-filter-toolbar">';
     s += '  <label>' + gettext('Minimum Severity:') + '</label>';
     s += '  <select id="select-severity" class="form-control">';
     s += '    <option>0</option>';
