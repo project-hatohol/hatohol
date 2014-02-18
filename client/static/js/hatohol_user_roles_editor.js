@@ -221,18 +221,24 @@ HatoholUserRolesEditor.prototype.createMainElement = function() {
   return element;
 };
 
+HatoholUserRolesEditor.prototype.hasPrivilege = function (privilege) {
+  if (!this.operatorProfile)
+    return false;
+  return this.operatorProfile.hasFlag(privilege);
+};
+
 HatoholUserRolesEditor.prototype.setupWidgetsState = function () {
-  if (this.operatorProfile.hasFlag(hatohol.OPPRVLG_CREATE_USER_ROLE))
+  if (this.hasPrivilege(hatohol.OPPRVLG_CREATE_USER_ROLE))
     $(".addUserRole").show();
   else
     $(".addUserRole").hide();
 
-  if (this.operatorProfile.hasFlag(hatohol.OPPRVLG_DELETE_ALL_USER_ROLE))
+  if (this.hasPrivilege(hatohol.OPPRVLG_DELETE_ALL_USER_ROLE))
     $(".deleteUserRole").show();
   else
     $(".deleteUserRole").hide();
 
-  if (this.operatorProfile.hasFlag(hatohol.OPPRVLG_EDIT_ALL_USER_ROLE))
+  if (this.hasPrivilege(hatohol.OPPRVLG_EDIT_ALL_USER_ROLE))
     $(".editUserRole").val(gettext("Show / Edit"));
   else
     $(".editUserRole").val(gettext("Show"));
@@ -507,6 +513,6 @@ HatoholUserRoleEditor.prototype.createMainElement = function() {
 
 HatoholUserRoleEditor.prototype.onAppendMainElement = function () {
   var widgets = $(".editUserRoleProp");
-  if (!this.operatorProfile.hasFlag(hatohol.OPPRVLG_EDIT_ALL_USER_ROLE))
+  if (!this.hasPrivilege(hatohol.OPPRVLG_EDIT_ALL_USER_ROLE))
     widgets.attr("disabled", "disabled");
 };
