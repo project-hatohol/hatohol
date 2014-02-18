@@ -81,6 +81,14 @@ static string makeTriggerOutput(const TriggerInfo &triggerInfo)
 	return expectedOut;
 }
 
+static void addHostgroupElement(HostgroupElement *hostgroupElement)
+{
+	DBClientHatohol dbHatohol;
+	dbHatohol.addHostgroupElement(hostgroupElement);
+}
+#define assertAddHostgroupElementToDB(X) \
+cut_trace(_assertAddToDB<HostgroupElement>(X, addHostgroupElement))
+
 template<class TResourceType, class TQueryOption>
 struct AssertGetHostResourceArg {
 	list<TResourceType> actualRecordList;
@@ -251,9 +259,17 @@ static void _setupTestTriggerDB(void)
 }
 #define setupTestTriggerDB() cut_trace(_setupTestTriggerDB())
 
+static void _setupTestHostgroupElementDB(void)
+{
+	for (size_t i = 0; i < NumTestHostgroupElement; i++)
+		assertAddHostgroupElementToDB(&testHostgroupElement[i]);
+}
+#define setupTestHostgroupElementDB() cut_trace(_setupTestHostgroupElementDB())
+
 static void _assertGetTriggerInfoList(uint32_t serverId, uint64_t hostId = ALL_HOSTS)
 {
 	setupTestTriggerDB();
+	setupTestHostgroupElementDB();
 	AssertGetTriggersArg arg;
 	arg.targetServerId = serverId;
 	arg.targetHostId = hostId;
@@ -681,6 +697,11 @@ void test_setTriggerInfoList(void)
 	uint32_t serverId = testTriggerInfo[0].serverId;
 	dbHatohol.setTriggerInfoList(triggerInfoList, serverId);
 
+	HostgroupElementList hostgroupElementList;
+	for (size_t i = 0; i < NumTestHostgroupElement; i++)
+		hostgroupElementList.push_back(testHostgroupElement[i]);
+	dbHatohol.addHostgroupElementList(hostgroupElementList);
+
 	AssertGetTriggersArg arg;
 	assertGetTriggers(arg);
 }
@@ -702,6 +723,12 @@ void test_addTriggerInfoList(void)
 	for (; i < NumTestTriggerInfo; i++)
 		triggerInfoList1.push_back(testTriggerInfo[i]);
 	dbHatohol.addTriggerInfoList(triggerInfoList1);
+
+	// Add HostgroupElement
+	HostgroupElementList hostgroupElementList;
+	for (size_t j = 0; j < NumTestHostgroupElement; j++)
+		hostgroupElementList.push_back(testHostgroupElement[j]);
+	dbHatohol.addHostgroupElementList(hostgroupElementList);
 
 	// Check
 	AssertGetTriggersArg arg;
