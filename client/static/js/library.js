@@ -42,99 +42,6 @@ function formatSecond(sec) {
   return t;
 }
 
-function setCandidate(target, list) {
-  var x;
-  var html = "<option>---------</option>";
-
-  target.empty().append(html);
-
-  if (list) {
-    target.removeAttr("disabled");
-    for (x = 0; list && x < list.length; ++x) {
-      var option = $("<option/>");
-      option.text(list[x]);
-      target.append(option);
-    }
-  } else {
-    target.attr("disabled", "disabled");
-  }
-}
-
-function setStatus(value) {
-  var elem;
-  var x;
-  var s;
-
-  if ("class" in value) {
-    $("#sts button").attr("class", "navbar-btn btn btn-" + value["class"]);
-  }
-
-  if ("label" in value) {
-    elem = $("#sts button span:first");
-    elem.empty();
-    elem.append(value["label"]);
-  }
-
-  if (value.lines && value.lines.length > 0) {
-    s = "";
-    for (x = 0; x < value["lines"].length; ++x) {
-      s += "<li>" + value["lines"][x] + "</li>";
-    }
-
-    elem = $("#sts ul");
-    elem.empty();
-    elem.append(s);
-    $("#sts button").attr("data-toggle", "dropdown");
-  } else {
-    $("#sts button").removeAttr("data-toggle");
-  }
-}
-
-function updateScreen(reply, completionCallback, callbackParam) {
-  setStatus({
-    "class" : "warning",
-    "label" : gettext("DRAW"),
-    "lines" : [ gettext("Drawing") ],
-  });
-
-  completionCallback(reply, callbackParam);
-
-  setStatus({
-    "class" : "success",
-    "label" : gettext("DONE"),
-    "lines" : [],
-  });
-}
-
-function startConnection(tableName, completionCallback, callbackParam) {
-  setStatus({
-    "class" : "warning",
-    "label" : gettext("LOAD"),
-    "lines" : [ gettext("Communicating with backend") ],
-  });
-
-  var connParam =  {
-    url: '/' + tableName,
-    replyCallback: function(reply, parser) {
-      updateScreen(reply, completionCallback, callbackParam);
-    },
-    parseErrorCallback: function(reply, parser) {
-      // We assume the parser is HatoholReplyParser.
-      var msg = parser.getMessage();
-      if (!msg)
-        msg = gettext("Failed to parse the received packet.");
-      hatoholErrorMsgBox(msg);
-
-      setStatus({
-        "class" : "danger",
-        "label" : gettext("ERROR"),
-        "lines" : [ msg ],
-      });
-    }
-  };
-  new HatoholConnector(connParam);
-}
-
 function makeTriggerStatusLabel(status) {
   switch(status) {
   case TRIGGER_STATUS_OK:
@@ -238,16 +145,6 @@ function getHostName(server, hostId) {
     return "Unknown:" + hostId;
   return server["hosts"][hostId]["name"];
 }
-
-function hasFlag(user, flag) {
-  return hasFlags(user, (1 << flag));
-}
-
-function hasFlags(user, flags) {
-  if (!user)
-    return false;
-  return user.flags & flags;
-};
 
 var escapeHTML = function(html) {
   return $('<div/>').text(html).html();

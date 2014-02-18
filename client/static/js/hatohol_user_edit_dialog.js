@@ -20,7 +20,7 @@
 var HatoholUserEditDialog = function(params) {
   var self = this;
 
-  self.operator = params.operator;
+  self.operatorProfile = params.operatorProfile;
   self.user = params.targetUser;
   self.succeededCallback = params.succeededCallback;
   self.userRolesData = null;
@@ -66,7 +66,7 @@ var HatoholUserEditDialog = function(params) {
 
   $("#editUserRoles").click(function() {
     new HatoholUserRolesEditor({
-      operator: self.operator,
+      operatorProfile: self.operatorProfile,
       changedCallback: function() {
         self.loadUserRoles();
       }
@@ -134,15 +134,21 @@ var HatoholUserEditDialog = function(params) {
 HatoholUserEditDialog.prototype = Object.create(HatoholDialog.prototype);
 HatoholUserEditDialog.prototype.constructor = HatoholUserEditDialog;
 
+HatoholUserEditDialog.prototype.hasPrivilege = function (privilege) {
+  if (!this.operatorProfile)
+    return false;
+  return this.operatorProfile.hasFlag(privilege);
+};
+
 HatoholUserEditDialog.prototype.createMainElement = function() {
   var self = this;
   var div = $(makeMainDivHTML());
   return div;
 
   function canEditUserRoles() {
-    return hasFlag(self.operator, hatohol.OPPRVLG_CREATE_USER_ROLE) ||
-      hasFlag(self.operator, hatohol.OPPRVLG_UPDATE_ALL_USER_ROLE) ||
-      hasFlag(self.operator, hatohol.OPPRVLG_DELETE_ALL_USER_ROLE);
+    return self.hasPrivilege(hatohol.OPPRVLG_CREATE_USER_ROLE) ||
+      self.hasPrivilege(hatohol.OPPRVLG_UPDATE_ALL_USER_ROLE) ||
+      self.hasPrivilege(hatohol.OPPRVLG_DELETE_ALL_USER_ROLE);
   };
 
   function makeMainDivHTML() {

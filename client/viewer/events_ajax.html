@@ -2,7 +2,7 @@
 {% load i18n %}
 
 {% comment %}
-  Copyright (C) 2013 Project Hatohol
+  Copyright (C) 2013-2014 Project Hatohol
 
   This file is part of Hatohol.
 
@@ -31,13 +31,13 @@
 
 {% block option %}
   <script src="{{ STATIC_URL }}js.external/stupidtable.js"></script>
-  <script src="{{ STATIC_URL }}js/events_view.js"></script>
 {% endblock %}
 
 {% block logic %}
+  <script src="{{ STATIC_URL }}js/events_view.js"></script>
   <script type="text/javascript">
     userProfile.addOnLoadCb(function() {
-      var view = new EventsView($("#main"));
+      var view = new EventsView(userProfile, $("#main"));
     });
   </script>
 {% endblock %}

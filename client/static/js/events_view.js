@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -17,7 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var EventsView = function(baseElem) {
+var EventsView = function(userProfile, baseElem) {
   var self = this;
   self.baseElem = baseElem;
   self.minUnifiedId = null;
@@ -32,20 +32,21 @@ var EventsView = function(baseElem) {
 
   var connParam =  {
     replyCallback: function(reply, parser) {
-      // TODO: don't use global function updateScreen().
-      updateScreen(reply, updateCore);
+      self.updateScreen(reply, updateCore);
     },
     parseErrorCallback: function(reply, parser) {
       hatoholErrorMsgBoxForParser(reply, parser);
 
-      // TODO: don't use global function updateScreen().
-      setStatus({
+      self.setStatus({
         "class" : "danger",
         "label" : gettext("ERROR"),
         "lines" : [ msg ],
       });
     }
   };
+
+  // call the constructor of the super class
+  HatoholResourceView.apply(userProfile);
 
   self.userConfig = new HatoholUserConfig(); 
   start();
@@ -153,11 +154,11 @@ var EventsView = function(baseElem) {
     });
 
     $("#select-severity").change(function() {
-      updateScreen(rawData, updateCore);
+      self.updateScreen(rawData, updateCore);
     });
     $("#select-server").change(function() {
       var serverName = $("#select-server").val();
-      setCandidate($("#select-host"), parsedData.hostNames[serverName]);
+      self.setCandidate($("#select-host"), parsedData.hostNames[serverName]);
       drawTableContents(rawData, parsedData);
     });
     $("#select-host").change(function() {
@@ -355,9 +356,12 @@ var EventsView = function(baseElem) {
     rawData = reply;
     parsedData = parseData(rawData);
 
-    setCandidate($('#select-server'), parsedData.serverNames);
-    setCandidate($("#select-host"));
+    self.setCandidate($('#select-server'), parsedData.serverNames);
+    self.setCandidate($("#select-host"));
 
     drawTableContents(rawData, parsedData);
   }
 };
+
+EventsView.prototype = Object.create(HatoholResourceView.prototype);
+EventsView.prototype.constructor = EventsView;

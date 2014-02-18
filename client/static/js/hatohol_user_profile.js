@@ -17,26 +17,34 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var HatoholUserProfile = function() {
+var HatoholUserProfile = function(user) {
   var self = this;
 
   this.user = null;
   this.onLoadCb = [];
-  this.connector = new HatoholConnector({
-    url: '/user/me',
-    data: {},
-    replyCallback: function(reply, parser) {
-      var user = reply.users[0];
-      var i;
+  this.connector = null;
+  if (user)
+    this.user = user;
+  else
+    this.connector = load();
 
-      setUserProfile(user);
-      for (i = 0; i < self.onLoadCb.length; ++i)
-        self.onLoadCb[i](user);
-    },
-    parseErrorCallback: hatoholErrorMsgBoxForParser,
-    connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
-    }
-  });
+  function load() {
+    return new HatoholConnector({
+      url: '/user/me',
+      data: {},
+      replyCallback: function(reply, parser) {
+        var user = reply.users[0];
+        var i;
+
+        setUserProfile(user);
+        for (i = 0; i < self.onLoadCb.length; ++i)
+          self.onLoadCb[i](user);
+      },
+      parseErrorCallback: hatoholErrorMsgBoxForParser,
+      connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
+      }
+    });
+  }
 
   function setUserProfile(user) {
     self.user = user;
@@ -64,4 +72,18 @@ HatoholUserProfile.prototype.addOnLoadCb = function(onLoadCb) {
   } else {
     this.onLoadCb.push(onLoadCb);
   };
+};
+
+HatoholUserProfile.prototype.hasFlag = function(flag, user) {
+  if (!user)
+    user = this.user;
+  return this.hasFlags((1 << flag), user);
+};
+
+HatoholUserProfile.prototype.hasFlags = function(flags, user) {
+  if (!user)
+    user = this.user;
+  if (!user)
+    return false;
+  return this.user.flags & flags;
 };
