@@ -53,7 +53,7 @@ describe('getItemGraphLocation', function() {
     };
     var itemId = 1129;
     var expected =
-      "http://127.0.0.1/zabbix/history.php?action=showgraph&amp;itemid=1129"
+      "http://127.0.0.1/zabbix/history.php?action=showgraph&amp;itemid=1129";
     expect(getItemGraphLocation(server, itemId)).to.be(expected);
   });
 
@@ -75,7 +75,7 @@ describe('getMapsLocation', function() {
       "ipAddress": "192.168.23.119",
       "name": "localhost"
     };
-    var expected = "http://192.168.23.119/zabbix/maps.php"
+    var expected = "http://192.168.23.119/zabbix/maps.php";
     expect(getMapsLocation(server)).to.be(expected);
   });
 
