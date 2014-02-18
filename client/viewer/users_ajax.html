@@ -24,10 +24,12 @@
   <h2>{% trans "Users" %}</h2>
 
   <form class="form-inline">
-    <input id="add-user-button" type="button" class="btn"
-     value="{% trans "ADD USER" %}" style="display: none;" />
-    <input id="delete-user-button" type="button" class="btn" disabled
-     value="{% trans "DELETE USER" %}" style="display: none;" />
+    <div class="btn-toolbar" role="toolbar">
+      <input id="add-user-button" type="button" class="btn btn-default"
+       value="{% trans "ADD USER" %}" style="display: none;" />
+      <input id="delete-user-button" type="button" class="btn btn-default"
+       value="{% trans "DELETE USER" %}" style="display: none;" disabled />
+    </div>
   </form>
 
   <div id="msgbox" title="Message Box">

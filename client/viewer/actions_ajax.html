@@ -24,9 +24,12 @@
   <h2>{% trans "Actions" %}</h2>
 
   <form class="form-inline">
-    <input id="add-action-button" type="button" class="btn" value="{% trans "ADD ACTION" %}" style="display: none;" />
-    <input id="delete-action-button" type="button" class="btn" disabled
-     value="{% trans "DELETE ACTIONS" %}" style="display: none;" />
+    <div class="btn-toolbar" role="toolbar">
+      <input id="add-action-button" type="button" class="btn btn-default"
+       value="{% trans "ADD ACTION" %}" style="display: none;" />
+      <input id="delete-action-button" type="button" class="btn btn-default"
+       value="{% trans "DELETE ACTIONS" %}" style="display: none;" disabled />
+    </div>
   </form>
   <div id="msgbox" title="Message Box">
     <p id="msgbox-text"></p>

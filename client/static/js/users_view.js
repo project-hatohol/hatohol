@@ -189,7 +189,7 @@ var UsersView = function(userProfile) {
         html += "<td class='privilege-column' style='display:none;'>";
         html += "<form class='form-inline' style='margin: 0'>";
         html += "  <input id='edit-user" + escapeHTML(user["userId"]) + "-privileges'";
-        html += "    type='button' class='btn btn-primary'";
+        html += "    type='button' class='btn btn-default'";
         html += "    userId='" + escapeHTML(user["userId"]) + "'";
         html += "    value='" + gettext("Show / Edit") +  "' />";
         html += "</form>";

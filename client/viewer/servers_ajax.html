@@ -24,10 +24,12 @@
   <h2>{% trans "Servers" %}</h2>
 
   <form class="form-inline">
-    <input id="add-server-button" type="button" class="btn"
-     value="{% trans "ADD SERVER" %}" style="display: none;" />
-    <input id="delete-server-button" type="button" class="btn" disabled
-     value="{% trans "DELETE SERVER" %}" style="display: none;" />
+    <div class="btn-toolbar" role="toolbar">
+      <input id="add-server-button" type="button" class="btn btn-default"
+       value="{% trans "ADD SERVER" %}" style="display: none;" />
+      <input id="delete-server-button" type="button" class="btn btn-default" disabled
+       value="{% trans "DELETE SERVER" %}" style="display: none;" />
+    </div>
   </form>
 
   <div id="msgbox" title="Message Box">

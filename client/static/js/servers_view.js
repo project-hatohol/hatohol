@@ -193,7 +193,7 @@ var ServersView = function(userProfile) {
       }
       s += "<td class='edit-server-column' style='display:none;'>";
       s += "<input id='edit-server" + escapeHTML(o["id"]) + "'";
-      s += "  type='button' class='btn btn-primary'";
+      s += "  type='button' class='btn btn-default'";
       s += "  serverId='" + escapeHTML(o["id"]) + "'";
       s += "  value='" + gettext("EDIT") + "' />";
       s += "</td>";
