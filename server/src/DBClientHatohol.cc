@@ -1872,6 +1872,8 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 		itemGroupStream >> trigInfo.hostId;
 		itemGroupStream >> trigInfo.hostName;
 		itemGroupStream >> trigInfo.brief;
+
+		itemGroupStream >> trigInfo.hostgroupId;
 	}
 }
 
