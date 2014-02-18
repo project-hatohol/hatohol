@@ -511,6 +511,12 @@ HatoholUserRoleEditor.prototype.createMainElement = function() {
   return $(html);
 };
 
+HatoholUserRoleEditor.prototype.hasPrivilege = function (privilege) {
+  if (!this.operatorProfile)
+    return false;
+  return this.operatorProfile.hasFlag(privilege);
+};
+
 HatoholUserRoleEditor.prototype.onAppendMainElement = function () {
   var widgets = $(".editUserRoleProp");
   if (!this.hasPrivilege(hatohol.OPPRVLG_EDIT_ALL_USER_ROLE))
