@@ -19,10 +19,14 @@
 
 #include <cstdio>
 #include "DataQueryOption.h"
+#include "Logger.h"
+
+using namespace mlpl;
 
 struct DataQueryOption::PrivateContext {
 	size_t maxNumber;
 	SortDirection sortDirection;
+	SortOrderList sortOrderList;
 	uint64_t startId;
 
 	// constuctor
@@ -92,6 +96,46 @@ void DataQueryOption::setSortDirection(SortDirection direction)
 DataQueryOption::SortDirection DataQueryOption::getSortDirection(void) const
 {
 	return m_ctx->sortDirection;
+}
+
+void DataQueryOption::setSortOrderList(const SortOrderList &sortOrderList)
+{
+	m_ctx->sortOrderList = sortOrderList;
+}
+
+void DataQueryOption::setSortOrder(const SortOrder &sortOrder)
+{
+	m_ctx->sortOrderList.clear();
+	m_ctx->sortOrderList.push_back(sortOrder);
+}
+
+const DataQueryOption::SortOrderList &DataQueryOption::getSortOrderList(void)
+  const
+{
+	return m_ctx->sortOrderList;
+}
+
+std::string DataQueryOption::getOrderBy()
+{
+	SortOrderListIterator it = m_ctx->sortOrderList.begin();
+	std::string orderBy;
+	for (; it != m_ctx->sortOrderList.end(); it++) {
+		if (it->columnName.empty()) {
+			MLPL_ERR("Empty sort column name\n");
+			continue;
+		}
+		if (it != m_ctx->sortOrderList.begin())
+			orderBy += ", ";
+		if (it->direction == DataQueryOption::SORT_ASCENDING) {
+			orderBy += it->columnName + " ASC";
+		} else if (it->direction == DataQueryOption::SORT_DESCENDING) {
+			orderBy += it->columnName + " DESC";
+		} else {
+			MLPL_ERR("Unknown sort direction: %d\n",
+				 it->direction);
+		}
+	}
+	return orderBy;
 }
 
 void DataQueryOption::setStartId(uint64_t id)

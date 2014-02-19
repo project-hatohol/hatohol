@@ -21,6 +21,7 @@
 #define DataQueryOption_h
 
 #include <string>
+#include <list>
 #include "Params.h"
 #include "OperationPrivilege.h"
 
@@ -32,6 +33,12 @@ public:
 		SORT_ASCENDING,
 		SORT_DESCENDING,
 	};
+	struct SortOrder {
+		std::string columnName;
+		SortDirection direction;
+	};
+	typedef std::list<SortOrder> SortOrderList;
+	typedef std::list<SortOrder>::iterator SortOrderListIterator;
 
 	DataQueryOption(UserIdType userId = INVALID_USER_ID);
 	DataQueryOption(const DataQueryOption &src);
@@ -69,6 +76,29 @@ public:
 	SortDirection getSortDirection(void) const;
 
 	/**
+	 * Set a list of SortOrder to build "ORDER BY" statement.
+	 *
+	 * @param sortOrderList A list of SortOrder.
+	 */
+	void setSortOrderList(const SortOrderList &sortOrderList);
+
+	/**
+	 * Set a SortOrder to build "ORDER BY" statement.
+	 * The list of SortOrder which is currently set to this object will be
+	 * cleared.
+	 *
+	 * @param sortOrder A SortOrder.
+	 */
+	void setSortOrder(const SortOrder &sortOrder);
+
+	/**
+	 * Get the list of SortOrder.
+	 *
+	 * @return The list of SortOrder which is currently set to this object.
+	 */
+	const SortOrderList &getSortOrderList(void) const;
+
+	/**
 	 * Set a start ID.
 	 *
 	 * @param id A start ID.
@@ -88,6 +118,13 @@ public:
 	 * @return a string for 'where' in an SQL statment.
 	 */
 	virtual std::string getCondition(void) const;
+
+	/**
+	 * Get a string for 'order by' section of an SQL statement.
+	 *
+	 * @return a string for 'order by' in an SQL statment.
+	 */
+	virtual std::string getOrderBy();
 
 private:
 	struct PrivateContext;
