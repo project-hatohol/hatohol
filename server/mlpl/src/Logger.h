@@ -57,20 +57,20 @@ private:
 	static bool syslogConnected;
 };
 
+} // namespace mlpl
+
 #define MLPL_P(LOG_LV, FMT, ...) \
 do { \
-  if (Logger::shouldLog(LOG_LV)) \
-    Logger::log(LOG_LV, __FILE__, __LINE__, FMT, ##__VA_ARGS__); \
+  if (mlpl::Logger::shouldLog(LOG_LV)) \
+    mlpl::Logger::log(LOG_LV, __FILE__, __LINE__, FMT, ##__VA_ARGS__); \
 } while (0)
 
-#define MLPL_DBG(FMT,  ...) MLPL_P(MLPL_LOG_DBG,  FMT, ##__VA_ARGS__)
-#define MLPL_INFO(FMT, ...) MLPL_P(MLPL_LOG_INFO, FMT, ##__VA_ARGS__)
-#define MLPL_WARN(FMT, ...) MLPL_P(MLPL_LOG_WARN, FMT, ##__VA_ARGS__)
-#define MLPL_ERR(FMT,  ...) MLPL_P(MLPL_LOG_ERR,  FMT, ##__VA_ARGS__)
-#define MLPL_CRIT(FMT, ...) MLPL_P(MLPL_LOG_CRIT, FMT, ##__VA_ARGS__)
-#define MLPL_BUG(FMT,  ...) MLPL_P(MLPL_LOG_BUG,  FMT, ##__VA_ARGS__)
-
-} // namespace mlpl
+#define MLPL_DBG(FMT,  ...) MLPL_P(mlpl::MLPL_LOG_DBG,  FMT, ##__VA_ARGS__)
+#define MLPL_INFO(FMT, ...) MLPL_P(mlpl::MLPL_LOG_INFO, FMT, ##__VA_ARGS__)
+#define MLPL_WARN(FMT, ...) MLPL_P(mlpl::MLPL_LOG_WARN, FMT, ##__VA_ARGS__)
+#define MLPL_ERR(FMT,  ...) MLPL_P(mlpl::MLPL_LOG_ERR,  FMT, ##__VA_ARGS__)
+#define MLPL_CRIT(FMT, ...) MLPL_P(mlpl::MLPL_LOG_CRIT, FMT, ##__VA_ARGS__)
+#define MLPL_BUG(FMT,  ...) MLPL_P(mlpl::MLPL_LOG_BUG,  FMT, ##__VA_ARGS__)
 
 #endif // Logger_h
 
