@@ -147,6 +147,7 @@ var OverviewTriggers = function(userProfile) {
     var x, y;
     var targetServerName = getTargetServerName();
     var targetHostName = getTargetHostName();
+    var severityLabel;
 
     html = "";
     for (y = 0; y < parsedData.triggers.length; ++y) {
@@ -165,15 +166,16 @@ var OverviewTriggers = function(userProfile) {
 
           trigger = parsedData.values[serverName][hostName][triggerName];
           if (trigger) {
+            severityLabel = makeSeverityLabel(trigger["severity"]);
             switch (trigger["status"]) {
             case 1:
-              html += "<td class='severity" + escapeHTML(trigger["severity"]) + "'>&nbsp;</td>";
+              html += "<td class='severity" + escapeHTML(trigger["severity"]) + "'>" + escapeHTML(severityLabel) + "</td>";
               break;
             case 0:
-              html += "<td class='healthy'>&nbsp;</td>";
+              html += "<td class='healthy'>" + escapeHTML(severityLabel) + "</td>";
               break;
             default:
-              html += "<td class='unknown'>&nbsp;</td>";
+              html += "<td class='unknown'>" + escapeHTML(severityLabel) + "</td>";
               break;
             }
           } else {
