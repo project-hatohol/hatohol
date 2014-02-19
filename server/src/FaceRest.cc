@@ -49,13 +49,16 @@ typedef void (*RestHandler) (FaceRest::RestJob *job);
 typedef uint64_t ServerID;
 typedef uint64_t HostID;
 typedef uint64_t TriggerID;
+typedef uint64_t HostgroupID;
+
 typedef map<HostID, string> HostNameMap;
 typedef map<ServerID, HostNameMap> HostNameMaps;
 
 typedef map<TriggerID, string> TriggerBriefMap;
 typedef map<ServerID, TriggerBriefMap> TriggerBriefMaps;
 
-typedef map<ServerID, HostID> HostIdMap;
+typedef list<HostgroupID> HostgroupIdList;
+typedef map<ServerID, HostgroupIdList> HostgroupIdListMap;
 
 static const guint DEFAULT_PORT = 33194;
 
@@ -1538,7 +1541,7 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 	agent.startArray("triggers");
 	TriggerInfoListIterator it = triggerList.begin();
 	HostNameMaps hostMaps;
-	HostIdMap hostIdMap;
+	HostgroupIdListMap hostgroupIdListMap;
 	for (; it != triggerList.end(); ++it) {
 		TriggerInfo &triggerInfo = *it;
 		agent.startObject();
@@ -1553,6 +1556,8 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 
 		hostMaps[triggerInfo.serverId][triggerInfo.hostId]
 		  = triggerInfo.hostName;
+		hostgroupIdListMap[triggerInfo.serverId].push_back(
+		  triggerInfo.hostgroupId);
 	}
 	agent.endArray();
 	addServersMap(job, agent, &hostMaps);
