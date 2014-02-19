@@ -41,6 +41,12 @@ const size_t DataQueryOption::NO_LIMIT = 0;
 // ---------------------------------------------------------------------------
 // Public static methods
 // ---------------------------------------------------------------------------
+DataQueryOption::SortOrder::SortOrder(
+  const std::string aColumnName, SortDirection aDirection)
+: columnName(aColumnName), direction(aDirection)
+{
+}
+
 DataQueryOption::DataQueryOption(UserIdType userId)
 : m_ctx(NULL)
 {

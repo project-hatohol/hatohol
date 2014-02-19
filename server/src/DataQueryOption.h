@@ -36,6 +36,8 @@ public:
 	struct SortOrder {
 		std::string columnName;
 		SortDirection direction;
+		SortOrder(const std::string columnName,
+			  SortDirection direction);
 	};
 	typedef std::list<SortOrder> SortOrderList;
 	typedef std::list<SortOrder>::iterator SortOrderListIterator;

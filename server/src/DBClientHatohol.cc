@@ -976,24 +976,21 @@ void EventsQueryOption::setSortType(SortType type, SortDirection direction)
 	switch (type) {
 	case SORT_UNIFIED_ID:
 	{
-		SortOrder order = {
-			COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID].columnName,
-			direction,
-		};
+		SortOrder order(
+		  COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID].columnName,
+		  direction);
 		setSortOrder(order);
 		break;
 	}
 	case SORT_TIME:
 	{
 		SortOrderList sortOrderList;
-		SortOrder order1 = {
-			COLUMN_DEF_EVENTS[IDX_EVENTS_TIME_SEC].columnName,
-			direction,
-		};
-		SortOrder order2 = {
-			COLUMN_DEF_EVENTS[IDX_EVENTS_TIME_NS].columnName,
-			direction,
-		};
+		SortOrder order1(
+		  COLUMN_DEF_EVENTS[IDX_EVENTS_TIME_SEC].columnName,
+		  direction);
+		SortOrder order2(
+		  COLUMN_DEF_EVENTS[IDX_EVENTS_TIME_NS].columnName,
+		  direction);
 		sortOrderList.push_back(order1);
 		sortOrderList.push_back(order2);
 		setSortOrderList(sortOrderList);
@@ -1006,10 +1003,8 @@ void EventsQueryOption::setSortType(SortType type, SortDirection direction)
 
 void EventsQueryOption::setSortDirection(SortDirection direction)
 {
-	SortOrder order = {
-		COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID].columnName,
-		direction,
-	};
+	SortOrder order(COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID].columnName,
+			direction);
 	setSortOrder(order);
 }
 
