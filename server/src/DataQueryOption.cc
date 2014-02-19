@@ -60,11 +60,23 @@ DataQueryOption::~DataQueryOption()
 		delete m_ctx;
 }
 
+static inline bool operator ==(
+  const DataQueryOption::SortOrder &lhs, const DataQueryOption::SortOrder &rhs)
+{
+	if (lhs.columnName != rhs.columnName)
+		return false;
+	if (lhs.direction != rhs.direction)
+		return false;
+	return true;
+}
+
 bool DataQueryOption::operator==(const DataQueryOption &rhs)
 {
 	if (m_ctx->maxNumber != rhs.m_ctx->maxNumber)
 		return false;
 	if (m_ctx->startId != rhs.m_ctx->startId)
+		return false;
+	if (m_ctx->sortOrderList != rhs.m_ctx->sortOrderList)
 		return false;
 	return true;
 }

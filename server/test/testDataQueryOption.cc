@@ -42,6 +42,18 @@ public:
 	}
 };
 
+static void getTestSortOrderList(DataQueryOption::SortOrderList &sortOrderList)
+{
+	DataQueryOption::SortOrder order[] = {
+		{ "column1", DataQueryOption::SORT_DESCENDING },
+		{ "column3", DataQueryOption::SORT_ASCENDING },
+		{ "column2", DataQueryOption::SORT_DESCENDING },
+	};
+	size_t numOrders = sizeof(order) / sizeof(DataQueryOption::SortOrder);
+	for (size_t i = 0; i < numOrders; i++)
+		sortOrderList.push_back(order[i]);
+}
+
 void cut_setup(void)
 {
 	hatoholInit();
@@ -75,10 +87,14 @@ void test_operatorEqInitailObject(void)
 
 void test_operatorEq(void)
 {
+	DataQueryOption::SortOrderList sortOrderList;
+	getTestSortOrderList(sortOrderList);
 	DataQueryOption lhs;
 	DataQueryOption rhs;
 	lhs.setMaximumNumber(2);
 	rhs.setMaximumNumber(2);
+	lhs.setSortOrderList(sortOrderList);
+	rhs.setSortOrderList(sortOrderList);
 	cppcut_assert_equal(true, lhs == rhs);
 }
 
@@ -87,6 +103,16 @@ void test_operatorEqFail(void)
 	DataQueryOption lhs;
 	DataQueryOption rhs;
 	rhs.setMaximumNumber(2);
+	cppcut_assert_equal(false, lhs == rhs);
+}
+
+void test_operatorEqWithDifferentSortOrder(void)
+{
+	DataQueryOption::SortOrderList sortOrderList;
+	getTestSortOrderList(sortOrderList);
+	DataQueryOption lhs;
+	DataQueryOption rhs;
+	lhs.setSortOrderList(sortOrderList);
 	cppcut_assert_equal(false, lhs == rhs);
 }
 
@@ -162,14 +188,7 @@ void test_getOrderByWithMultipleColumns(void)
 {
 	DataQueryOption option;
 	DataQueryOption::SortOrderList sortOrderList;
-	DataQueryOption::SortOrder order[] = {
-		{ "column1", DataQueryOption::SORT_DESCENDING },
-		{ "column3", DataQueryOption::SORT_ASCENDING },
-		{ "column2", DataQueryOption::SORT_DESCENDING },
-	};
-	size_t numOrders = sizeof(order) / sizeof(DataQueryOption::SortOrder);
-	for (size_t i = 0; i < numOrders; i++)
-		sortOrderList.push_back(order[i]);
+	getTestSortOrderList(sortOrderList);
 	option.setSortOrderList(sortOrderList);
 	cppcut_assert_equal("column1 DESC, column3 ASC, column2 DESC",
 			    option.getOrderBy().c_str());
