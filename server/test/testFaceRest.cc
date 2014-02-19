@@ -1114,6 +1114,7 @@ static void _assertOverviewInParser(JsonParserAgent *parser)
 {
 	assertValueInParser(parser, "numberOfServers", NumTestServerInfo);
 	parser->startObject("serverStatus");
+	size_t numGoodServers = 0, numBadServers = 0;
 	for (size_t i = 0; i < NumTestServerInfo; i++) {
 		parser->startElement(i);
 		MonitoringServerInfo &svInfo = testServerInfo[i];
@@ -1134,8 +1135,16 @@ static void _assertOverviewInParser(JsonParserAgent *parser)
 		assertSystemStatusInParser(parser, svInfo.id);
 		assertHostStatusInParser(parser, svInfo.id);
 		parser->endElement();
+		size_t badHosts = getNumberOfTestHostsWithStatus(
+			svInfo.id, ALL_HOST_GROUPS, false);
+		if (badHosts > 0)
+			numBadServers++;
+		else
+			numGoodServers++;
 	}
 	parser->endObject();
+	assertValueInParser(parser, "numberOfGoodServers", numGoodServers);
+	assertValueInParser(parser, "numberOfBadServers", numBadServers);
 
 	// TODO: check badServers
 }

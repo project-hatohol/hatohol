@@ -961,7 +961,8 @@ void FaceRest::handlerHelloPage(RestJob *job)
 
 static void addOverviewEachServer(FaceRest::RestJob *job,
 				  JsonBuilderAgent &agent,
-                                  MonitoringServerInfo &svInfo)
+                                  MonitoringServerInfo &svInfo,
+				  bool &serverIsGoodStatus)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	agent.add("serverId", svInfo.id);
@@ -1033,6 +1034,7 @@ static void addOverviewEachServer(FaceRest::RestJob *job,
 	agent.endArray();
 
 	// HostStatus
+	serverIsGoodStatus = true;
 	agent.startArray("hostStatus");
 	for (size_t i = 0; i < numHostGroup; i++) {
 		uint64_t hostGroupId = hostGroupIds[i];
@@ -1040,13 +1042,15 @@ static void addOverviewEachServer(FaceRest::RestJob *job,
 		option.setTargetServerId(svInfo.id);
 		//TODO: Host group isn't supported yet
 		//option.setTargetHostGroupId(hostGroupId);
+		size_t numBadHosts = dataStore->getNumberOfBadHosts(option);
 		agent.startObject();
 		agent.add("hostGroupId", hostGroupId);
 		agent.add("numberOfGoodHosts",
 		          dataStore->getNumberOfGoodHosts(option));
-		agent.add("numberOfBadHosts",
-		          dataStore->getNumberOfBadHosts(option));
+		agent.add("numberOfBadHosts", numBadHosts);
 		agent.endObject();
+		if (numBadHosts > 0)
+			serverIsGoodStatus =false;
 	}
 	agent.endArray();
 }
@@ -1060,16 +1064,21 @@ static void addOverview(FaceRest::RestJob *job, JsonBuilderAgent &agent)
 	MonitoringServerInfoListIterator it = monitoringServers.begin();
 	agent.add("numberOfServers", monitoringServers.size());
 	agent.startArray("serverStatus");
+	size_t numGoodServers = 0, numBadServers = 0;
 	for (; it != monitoringServers.end(); ++it) {
+		bool serverIsGoodStatus = false;
 		agent.startObject();
-		addOverviewEachServer(job, agent, *it);
+		addOverviewEachServer(job, agent, *it, serverIsGoodStatus);
 		agent.endObject();
+		if (serverIsGoodStatus)
+			numGoodServers++;
+		else
+			numBadServers++;
 	}
 	agent.endArray();
 
-	agent.startArray("badServers");
-	// TODO: implemented
-	agent.endArray();
+	agent.add("numberOfGoodServers", numGoodServers);
+	agent.add("numberOfBadServers", numBadServers);
 }
 
 static bool canUpdateServer(
