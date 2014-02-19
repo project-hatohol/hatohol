@@ -42,6 +42,18 @@ public:
 	}
 };
 
+static void getTestSortOrderList(DataQueryOption::SortOrderList &sortOrderList)
+{
+	DataQueryOption::SortOrder order[] = {
+		{ "column1", DataQueryOption::SORT_DESCENDING },
+		{ "column3", DataQueryOption::SORT_ASCENDING },
+		{ "column2", DataQueryOption::SORT_DESCENDING },
+	};
+	size_t numOrders = sizeof(order) / sizeof(DataQueryOption::SortOrder);
+	for (size_t i = 0; i < numOrders; i++)
+		sortOrderList.push_back(order[i]);
+}
+
 void cut_setup(void)
 {
 	hatoholInit();
@@ -75,10 +87,14 @@ void test_operatorEqInitailObject(void)
 
 void test_operatorEq(void)
 {
+	DataQueryOption::SortOrderList sortOrderList;
+	getTestSortOrderList(sortOrderList);
 	DataQueryOption lhs;
 	DataQueryOption rhs;
 	lhs.setMaximumNumber(2);
 	rhs.setMaximumNumber(2);
+	lhs.setSortOrderList(sortOrderList);
+	rhs.setSortOrderList(sortOrderList);
 	cppcut_assert_equal(true, lhs == rhs);
 }
 
@@ -90,10 +106,19 @@ void test_operatorEqFail(void)
 	cppcut_assert_equal(false, lhs == rhs);
 }
 
+void test_operatorEqWithDifferentSortOrder(void)
+{
+	DataQueryOption::SortOrderList sortOrderList;
+	getTestSortOrderList(sortOrderList);
+	DataQueryOption lhs;
+	DataQueryOption rhs;
+	lhs.setSortOrderList(sortOrderList);
+	cppcut_assert_equal(false, lhs == rhs);
+}
+
 void test_copyConstructor(void)
 {
 	DataQueryOption opt;
-	opt.setSortOrder(DataQueryOption::SORT_ASCENDING);
 	opt.setMaximumNumber(1234);
 	DataQueryOption copied(opt);
 	cppcut_assert_equal(true, opt == copied);
@@ -125,21 +150,6 @@ void test_getDefaultMaximumNumber(void)
 	                    option.getMaximumNumber());
 }
 
-void test_setGetSortOrder(void)
-{
-	DataQueryOption option;
-	DataQueryOption::SortOrder order = DataQueryOption::SORT_ASCENDING;
-	option.setSortOrder(order);
-	cppcut_assert_equal(order, option.getSortOrder());
-}
-
-void test_getDefaultSortOrder(void)
-{
-	DataQueryOption option;
-	cppcut_assert_equal(DataQueryOption::SORT_DONT_CARE,
-	                    option.getSortOrder());
-}
-
 void test_setGetStartId(void)
 {
 	uint64_t startId = 8;
@@ -152,6 +162,36 @@ void test_getDefaultStartId(void)
 {
 	DataQueryOption option;
 	cppcut_assert_equal((uint64_t)0, option.getStartId());
+}
+
+void test_getOrderByWithColumn(void)
+{
+	DataQueryOption option;
+	DataQueryOption::SortOrder order1 = {
+		"column1", DataQueryOption::SORT_ASCENDING
+	};
+	option.setSortOrder(order1);
+	cppcut_assert_equal(string("column1 ASC"), option.getOrderBy());
+}
+
+void test_getOrderByWithColumnDesc(void)
+{
+	DataQueryOption option;
+	DataQueryOption::SortOrder order1 = {
+		"column1", DataQueryOption::SORT_DESCENDING
+	};
+	option.setSortOrder(order1);
+	cppcut_assert_equal("column1 DESC", option.getOrderBy().c_str());
+}
+
+void test_getOrderByWithMultipleColumns(void)
+{
+	DataQueryOption option;
+	DataQueryOption::SortOrderList sortOrderList;
+	getTestSortOrderList(sortOrderList);
+	option.setSortOrderList(sortOrderList);
+	cppcut_assert_equal("column1 DESC, column3 ASC, column2 DESC",
+			    option.getOrderBy().c_str());
 }
 
 } // namespace testDataQueryOption

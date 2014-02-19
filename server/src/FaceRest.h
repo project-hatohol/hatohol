@@ -190,7 +190,7 @@ protected:
 	                                    UserQueryOption &option);
 
 	static HatoholError parseSortOrderFromQuery(
-	  DataQueryOption::SortOrder &sortOrder, GHashTable *query);
+	  DataQueryOption::SortDirection &sortOrder, GHashTable *query);
 	static HatoholError parseEventParameter(EventsQueryOption &option,
 						GHashTable *query);
 private:

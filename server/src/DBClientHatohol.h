@@ -201,6 +201,9 @@ private:
 class EventsQueryOption : public HostResourceQueryOption {
 public:
 	EventsQueryOption(UserIdType userId = INVALID_USER_ID);
+
+	void setSortDirection(SortDirection direction);
+	SortDirection getSortDirection(void) const;
 };
 
 class TriggersQueryOption : public HostResourceQueryOption {

@@ -2427,7 +2427,7 @@ public:
 template<typename PARAM_TYPE>
 void _assertParseEventParameterTempl(
   const PARAM_TYPE &expectValue, const string &fmt, const string &paramName,
-  PARAM_TYPE (HostResourceQueryOption::*valueGetter)(void) const,
+  PARAM_TYPE (EventsQueryOption::*valueGetter)(void) const,
   const HatoholErrorCode &expectCode = HTERR_OK,
   const string &forceValueStr = "")
 {
@@ -2453,12 +2453,12 @@ void _assertParseEventParameterTempl(
 cut_trace(_assertParseEventParameterTempl<T>(E, FM, PN, GT, ##__VA_ARGS__))
 
 void _assertParseEventParameterSortOrderDontCare(
-  const DataQueryOption::SortOrder &sortOrder,
+  const DataQueryOption::SortDirection &sortDirection,
   const HatoholErrorCode &expectCode = HTERR_OK)
 {
 	assertParseEventParameterTempl(
-	  DataQueryOption::SortOrder, sortOrder, "%d", "sortOrder",
-	  &HostResourceQueryOption::getSortOrder, expectCode);
+	  DataQueryOption::SortDirection, sortDirection, "%d", "sortOrder",
+	  &EventsQueryOption::getSortDirection, expectCode);
 }
 #define assertParseEventParameterSortOrderDontCare(O, ...) \
 cut_trace(_assertParseEventParameterSortOrderDontCare(O, ##__VA_ARGS__))
@@ -2516,7 +2516,7 @@ void test_parseEventParameterSortOrderNotFound(void)
 	assertHatoholError(
 	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
 	cppcut_assert_equal(DataQueryOption::SORT_DONT_CARE,
-	                    option.getSortOrder());
+	                    option.getSortDirection());
 }
 
 void test_parseEventParameterSortOrderDontCare(void)
@@ -2540,7 +2540,7 @@ void test_parseEventParameterSortOrderDescending(void)
 void test_parseEventParameterSortInvalidValue(void)
 {
 	assertParseEventParameterSortOrderDontCare(
-	  (DataQueryOption::SortOrder)-1, HTERR_INVALID_PARAMETER);
+	  (DataQueryOption::SortDirection)-1, HTERR_INVALID_PARAMETER);
 }
 
 void test_parseEventParameterMaximumNumberNotFound(void)

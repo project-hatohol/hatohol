@@ -21,17 +21,25 @@
 #define DataQueryOption_h
 
 #include <string>
+#include <list>
 #include "Params.h"
 #include "OperationPrivilege.h"
 
 class DataQueryOption : public OperationPrivilege {
 public:
 	static const size_t NO_LIMIT;
-	enum SortOrder {
+	enum SortDirection {
 		SORT_DONT_CARE,
 		SORT_ASCENDING,
 		SORT_DESCENDING,
 	};
+	struct SortOrder {
+		std::string columnName;
+		SortDirection direction;
+	};
+	typedef std::list<SortOrder> SortOrderList;
+	typedef std::list<SortOrder>::iterator SortOrderListIterator;
+	typedef std::list<SortOrder>::const_iterator SortOrderListConstIterator;
 
 	DataQueryOption(UserIdType userId = INVALID_USER_ID);
 	DataQueryOption(const DataQueryOption &src);
@@ -55,18 +63,27 @@ public:
 	size_t getMaximumNumber(void) const;
 
 	/**
-	 * Set the sort order of returned elements.
+	 * Set a list of SortOrder to build "ORDER BY" statement.
 	 *
-	 * @param order A sort order.
+	 * @param sortOrderList A list of SortOrder.
 	 */
-	void setSortOrder(SortOrder order);
+	void setSortOrderList(const SortOrderList &sortOrderList);
 
 	/**
-	 * Get the sort order of returned elements.
+	 * Set a SortOrder to build "ORDER BY" statement.
+	 * The list of SortOrder which is currently set to this object will be
+	 * cleared.
 	 *
-	 * @return A sort order.
+	 * @param sortOrder A SortOrder.
 	 */
-	SortOrder getSortOrder(void) const;
+	void setSortOrder(const SortOrder &sortOrder);
+
+	/**
+	 * Get the list of SortOrder.
+	 *
+	 * @return The list of SortOrder which is currently set to this object.
+	 */
+	const SortOrderList &getSortOrderList(void) const;
 
 	/**
 	 * Set a start ID.
@@ -88,6 +105,13 @@ public:
 	 * @return a string for 'where' in an SQL statment.
 	 */
 	virtual std::string getCondition(void) const;
+
+	/**
+	 * Get a string for 'order by' section of an SQL statement.
+	 *
+	 * @return a string for 'order by' in an SQL statment.
+	 */
+	virtual std::string getOrderBy();
 
 private:
 	struct PrivateContext;
