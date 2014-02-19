@@ -1205,38 +1205,11 @@ static void addTriggersIdBriefHash(
 	agent.endObject();
 }
 
-static void buildHostgroup(
-  const UserIdType &userId, JsonBuilderAgent &outputJson,
-  HostIdMap &hostIdMap, MonitoringServerInfo &serverInfo)
-{
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-
-	HostIdMap::iterator hostIdIt = hostIdMap.find(serverInfo.id);
-	ServerID serverId = hostIdIt->first;
-	HostID hostId = hostIdIt->second;
-	HostgroupInfoList hostgroupInfoList;
-	HostgroupsQueryOption option(userId);
-	option.setTargetServerId(serverId);
-	option.setTargetHostId(hostId);
-	dataStore->getHostgroupInfoList(hostgroupInfoList, option);
-
-	outputJson.startObject("hostgroups");
-	HostgroupInfoListIterator it = hostgroupInfoList.begin();
-	for (; it != hostgroupInfoList.end(); ++it) {
-		HostgroupInfo &hostgroupInfo = *it;
-		outputJson.startObject(StringUtils::toString(hostgroupInfo.groupId));
-		outputJson.add("groupName", hostgroupInfo.groupName.c_str());
-		outputJson.endObject();
-	}
-	outputJson.endObject();
-}
-
 static void addServersMap(
   FaceRest::RestJob *job,
   JsonBuilderAgent &agent,
   HostNameMaps *hostMaps = NULL, bool lookupHostName = false,
-  TriggerBriefMaps *triggerMaps = NULL, bool lookupTriggerBrief = false,
-  HostIdMap *hostIdMap = NULL)
+  TriggerBriefMaps *triggerMaps = NULL, bool lookupTriggerBrief = false)
 {
 	ConfigManager *configManager = ConfigManager::getInstance();
 	MonitoringServerInfoList monitoringServers;
@@ -1259,10 +1232,6 @@ static void addServersMap(
 			addTriggersIdBriefHash(job, agent, serverInfo,
 					       *triggerMaps,
 			                       lookupTriggerBrief);
-		}
-		if (hostIdMap) {
-			buildHostgroup(job->userId, agent,
-			               *hostIdMap, serverInfo);
 		}
 		agent.endObject();
 	}
@@ -1584,11 +1553,9 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 
 		hostMaps[triggerInfo.serverId][triggerInfo.hostId]
 		  = triggerInfo.hostName;
-		hostIdMap[triggerInfo.serverId] = triggerInfo.hostId;
 	}
 	agent.endArray();
-	addServersMap(job, agent, &hostMaps,
-	              false, NULL, false, &hostIdMap);
+	addServersMap(job, agent, &hostMaps);
 	agent.endObject();
 
 	replyJsonData(agent, job);
