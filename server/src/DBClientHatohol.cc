@@ -974,7 +974,8 @@ EventsQueryOption::EventsQueryOption(UserIdType userId)
 void EventsQueryOption::setSortType(SortType type, SortDirection direction)
 {
 	switch (type) {
-	case SORT_UNIFIED_ID: {
+	case SORT_UNIFIED_ID:
+	{
 		SortOrder order = {
 			COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID].columnName,
 			direction,
@@ -982,7 +983,8 @@ void EventsQueryOption::setSortType(SortType type, SortDirection direction)
 		setSortOrder(order);
 		break;
 	}
-	case SORT_TIME: {
+	case SORT_TIME:
+	{
 		SortOrderList sortOrderList;
 		SortOrder order1 = {
 			COLUMN_DEF_EVENTS[IDX_EVENTS_TIME_SEC].columnName,
@@ -997,9 +999,8 @@ void EventsQueryOption::setSortType(SortType type, SortDirection direction)
 		setSortOrderList(sortOrderList);
 		break;
 	}
-	default: {
+	default:
 		break;
-	}
 	}
 }
 
