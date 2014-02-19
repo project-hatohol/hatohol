@@ -1295,7 +1295,7 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	}
 
 	// Order By
-	arg.orderBy += option.getOrderBy();
+	arg.orderBy = option.getOrderBy();
 
 	// Limit and Offset
 	arg.limit = option.getMaximumNumber();
