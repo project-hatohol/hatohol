@@ -155,4 +155,41 @@ void test_getDefaultStartId(void)
 	cppcut_assert_equal((uint64_t)0, option.getStartId());
 }
 
+void test_getOrderByWithColumn(void)
+{
+	DataQueryOption option;
+	DataQueryOption::SortOrder order1 = {
+		"column1", DataQueryOption::SORT_ASCENDING
+	};
+	option.setSortOrder(order1);
+	cppcut_assert_equal(string("column1 ASC"), option.getOrderBy());
+}
+
+void test_getOrderByWithColumnDesc(void)
+{
+	DataQueryOption option;
+	DataQueryOption::SortOrder order1 = {
+		"column1", DataQueryOption::SORT_DESCENDING
+	};
+	option.setSortOrder(order1);
+	cppcut_assert_equal("column1 DESC", option.getOrderBy().c_str());
+}
+
+void test_getOrderByWithMultipleColumns(void)
+{
+	DataQueryOption option;
+	DataQueryOption::SortOrderList sortOrderList;
+	DataQueryOption::SortOrder order[] = {
+		{ "column1", DataQueryOption::SORT_DESCENDING },
+		{ "column3", DataQueryOption::SORT_ASCENDING },
+		{ "column2", DataQueryOption::SORT_DESCENDING },
+	};
+	size_t numOrders = sizeof(order) / sizeof(DataQueryOption::SortOrder);
+	for (size_t i = 0; i < numOrders; i++)
+		sortOrderList.push_back(order[i]);
+	option.setSortOrderList(sortOrderList);
+	cppcut_assert_equal("column1 DESC, column3 ASC, column2 DESC",
+			    option.getOrderBy().c_str());
+}
+
 } // namespace testDataQueryOption
