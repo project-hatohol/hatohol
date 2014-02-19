@@ -88,7 +88,7 @@ struct AssertGetHostResourceArg {
 	UserIdType userId;
 	ServerIdType targetServerId;
 	uint64_t targetHostId;
-	DataQueryOption::SortOrder sortOrder;
+	DataQueryOption::SortDirection sortDirection;
 	size_t maxNumber;
 	uint64_t startId;
 	HatoholErrorCode expectedErrorCode;
@@ -102,7 +102,7 @@ struct AssertGetHostResourceArg {
 	: userId(USER_ID_SYSTEM),
 	  targetServerId(ALL_SERVERS),
 	  targetHostId(ALL_HOSTS),
-	  sortOrder(DataQueryOption::SORT_DONT_CARE),
+	  sortDirection(DataQueryOption::SORT_DONT_CARE),
 	  maxNumber(0),
 	  startId(0),
 	  expectedErrorCode(HTERR_OK),
@@ -166,7 +166,7 @@ struct AssertGetHostResourceArg {
 	{
 		if (startId)
 			idx += (startId - 1);
-		if (sortOrder == DataQueryOption::SORT_DESCENDING)
+		if (sortDirection == DataQueryOption::SORT_DESCENDING)
 			idx = (expectedRecords.size() - 1) - idx;
 		cut_assert_true(idx < expectedRecords.size());
 		return *expectedRecords[idx];
@@ -236,7 +236,7 @@ static void _assertGetTriggersWithFilter(AssertGetTriggersArg &arg)
 
 	if (arg.maxNumber)
 		arg.option.setMaximumNumber(arg.maxNumber);
-	arg.option.setSortOrder(arg.sortOrder);
+	arg.option.setSortDirection(arg.sortDirection);
 	if (arg.startId)
 		arg.option.setStartId(arg.startId);
 	assertGetTriggers(arg);
@@ -319,7 +319,7 @@ static void _assertGetEventsWithFilter(AssertGetEventsArg &arg)
 
 	if (arg.maxNumber)
 		arg.option.setMaximumNumber(arg.maxNumber);
-	arg.option.setSortOrder(arg.sortOrder);
+	arg.option.setSortDirection(arg.sortDirection);
 	if (arg.startId)
 		arg.option.setStartId(arg.startId);
 	assertGetEvents(arg);
@@ -380,7 +380,7 @@ static void _assertGetItemsWithFilter(AssertGetItemsArg &arg)
 
 	if (arg.maxNumber)
 		arg.option.setMaximumNumber(arg.maxNumber);
-	arg.option.setSortOrder(arg.sortOrder);
+	arg.option.setSortDirection(arg.sortDirection);
 	if (arg.startId)
 		arg.option.setStartId(arg.startId);
 	assertGetItems(arg);
@@ -1145,14 +1145,14 @@ void test_makeSelectCondition(void)
 void test_getEventSortAscending(void)
 {
 	AssertGetEventsArg arg;
-	arg.sortOrder = DataQueryOption::SORT_ASCENDING;
+	arg.sortDirection = DataQueryOption::SORT_ASCENDING;
 	assertGetEventsWithFilter(arg);
 }
 
 void test_getEventSortDescending(void)
 {
 	AssertGetEventsArg arg;
-	arg.sortOrder = DataQueryOption::SORT_DESCENDING;
+	arg.sortDirection = DataQueryOption::SORT_DESCENDING;
 	assertGetEventsWithFilter(arg);
 }
 
@@ -1167,7 +1167,7 @@ void test_getEventWithMaximumNumberDescending(void)
 {
 	AssertGetEventsArg arg;
 	arg.maxNumber = 2;
-	arg.sortOrder = DataQueryOption::SORT_DESCENDING;
+	arg.sortDirection = DataQueryOption::SORT_DESCENDING;
 	assertGetEventsWithFilter(arg);
 }
 
@@ -1175,7 +1175,7 @@ void test_getEventWithMaximumNumberAscendingStartId(void)
 {
 	AssertGetEventsArg arg;
 	arg.maxNumber = 2;
-	arg.sortOrder = DataQueryOption::SORT_ASCENDING;
+	arg.sortDirection = DataQueryOption::SORT_ASCENDING;
 	arg.startId = 2;
 	assertGetEventsWithFilter(arg);
 }
@@ -1184,7 +1184,7 @@ void test_getEventWithMaximumNumberDescendingStartId(void)
 {
 	AssertGetEventsArg arg;
 	arg.maxNumber = 2;
-	arg.sortOrder = DataQueryOption::SORT_DESCENDING;
+	arg.sortDirection = DataQueryOption::SORT_DESCENDING;
 	arg.startId = NumTestEventInfo - 1;
 	assertGetEventsWithFilter(arg);
 }

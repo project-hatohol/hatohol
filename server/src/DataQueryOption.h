@@ -27,7 +27,7 @@
 class DataQueryOption : public OperationPrivilege {
 public:
 	static const size_t NO_LIMIT;
-	enum SortOrder {
+	enum SortDirection {
 		SORT_DONT_CARE,
 		SORT_ASCENDING,
 		SORT_DESCENDING,
@@ -55,18 +55,18 @@ public:
 	size_t getMaximumNumber(void) const;
 
 	/**
-	 * Set the sort order of returned elements.
+	 * Set the sort direction of returned elements.
 	 *
-	 * @param order A sort order.
+	 * @param direction A sort direction.
 	 */
-	void setSortOrder(SortOrder order);
+	void setSortDirection(SortDirection direction);
 
 	/**
-	 * Get the sort order of returned elements.
+	 * Get the sort direction of returned elements.
 	 *
-	 * @return A sort order.
+	 * @return A sort direction.
 	 */
-	SortOrder getSortOrder(void) const;
+	SortDirection getSortDirection(void) const;
 
 	/**
 	 * Set a start ID.

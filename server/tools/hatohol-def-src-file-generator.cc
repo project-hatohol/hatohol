@@ -175,11 +175,14 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 	// DataQueryOption
 	//
 	DEF_LINE(s, langType, DATA_QUERY_OPTION_SORT_DONT_CARE,
-	         DataQueryOption::SortOrder, DataQueryOption::SORT_DONT_CARE);
+	         DataQueryOption::SortDirection,
+		 DataQueryOption::SORT_DONT_CARE);
 	DEF_LINE(s, langType, DATA_QUERY_OPTION_SORT_ASCENDING,
-	         DataQueryOption::SortOrder, DataQueryOption::SORT_ASCENDING);
+	         DataQueryOption::SortDirection,
+		 DataQueryOption::SORT_ASCENDING);
 	DEF_LINE(s, langType, DATA_QUERY_OPTION_SORT_DESCENDING,
-	         DataQueryOption::SortOrder, DataQueryOption::SORT_DESCENDING);
+	         DataQueryOption::SortDirection,
+		 DataQueryOption::SORT_DESCENDING);
 	APPEND(s, "\n");
 
 	//

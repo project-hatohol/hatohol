@@ -2665,18 +2665,18 @@ HatoholError FaceRest::updateOrAddUser(GHashTable *query,
 }
 
 HatoholError FaceRest::parseSortOrderFromQuery(
-  DataQueryOption::SortOrder &sortOrder, GHashTable *query)
+  DataQueryOption::SortDirection &sortDirection, GHashTable *query)
 {
 	HatoholError err =
-	   getParam<DataQueryOption::SortOrder>(query, "sortOrder", "%d",
-	                                        sortOrder);
+	   getParam<DataQueryOption::SortDirection>(query, "sortOrder", "%d",
+						    sortDirection);
 	if (err != HTERR_OK)
 		return err;
-	if (sortOrder != DataQueryOption::SORT_DONT_CARE &&
-	    sortOrder != DataQueryOption::SORT_ASCENDING &&
-	    sortOrder != DataQueryOption::SORT_DESCENDING) {
+	if (sortDirection != DataQueryOption::SORT_DONT_CARE &&
+	    sortDirection != DataQueryOption::SORT_ASCENDING &&
+	    sortDirection != DataQueryOption::SORT_DESCENDING) {
 		return HatoholError(HTERR_INVALID_PARAMETER,
-		                    StringUtils::sprintf("%d", sortOrder));
+		                    StringUtils::sprintf("%d", sortDirection));
 	}
 	return HatoholError(HTERR_OK);
 }
@@ -2690,10 +2690,10 @@ HatoholError FaceRest::parseEventParameter(EventsQueryOption &option,
 	HatoholError err;
 
 	// sort order
-	DataQueryOption::SortOrder sortOrder;
-	err = parseSortOrderFromQuery(sortOrder, query);
+	DataQueryOption::SortDirection sortDirection;
+	err = parseSortOrderFromQuery(sortDirection, query);
 	if (err == HTERR_OK)
-		option.setSortOrder(sortOrder);
+		option.setSortDirection(sortDirection);
 	else if (err != HTERR_NOT_FOUND_PARAMETER)
 		return err;
 

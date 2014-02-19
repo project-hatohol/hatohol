@@ -22,13 +22,13 @@
 
 struct DataQueryOption::PrivateContext {
 	size_t maxNumber;
-	SortOrder sortOrder;
+	SortDirection sortDirection;
 	uint64_t startId;
 
 	// constuctor
 	PrivateContext(void)
 	: maxNumber(NO_LIMIT),
-	  sortOrder(SORT_DONT_CARE),
+	  sortDirection(SORT_DONT_CARE),
 	  startId(0)
 	{
 	}
@@ -62,7 +62,7 @@ bool DataQueryOption::operator==(const DataQueryOption &rhs)
 {
 	if (m_ctx->maxNumber != rhs.m_ctx->maxNumber)
 		return false;
-	if (m_ctx->sortOrder != rhs.m_ctx->sortOrder)
+	if (m_ctx->sortDirection != rhs.m_ctx->sortDirection)
 		return false;
 	if (m_ctx->startId != rhs.m_ctx->startId)
 		return false;
@@ -84,14 +84,14 @@ size_t DataQueryOption::getMaximumNumber(void) const
 	return m_ctx->maxNumber;
 }
 
-void DataQueryOption::setSortOrder(SortOrder order)
+void DataQueryOption::setSortDirection(SortDirection direction)
 {
-	m_ctx->sortOrder = order;
+	m_ctx->sortDirection = direction;
 }
 
-DataQueryOption::SortOrder DataQueryOption::getSortOrder(void) const
+DataQueryOption::SortDirection DataQueryOption::getSortDirection(void) const
 {
-	return m_ctx->sortOrder;
+	return m_ctx->sortDirection;
 }
 
 void DataQueryOption::setStartId(uint64_t id)

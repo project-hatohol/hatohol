@@ -1245,21 +1245,22 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	arg.add(IDX_TRIGGERS_BRIEF);
 
 	// Condition
-	DataQueryOption::SortOrder sortOrder = option.getSortOrder();
+	DataQueryOption::SortDirection sortDirection =
+	  option.getSortDirection();
 	arg.condition = StringUtils::sprintf(
 	  "%s=%s", 
 	  arg.getFullName(TBLIDX_EVENTS, IDX_EVENTS_SERVER_ID).c_str(),
 	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_SERVER_ID).c_str());
 	uint64_t startId = option.getStartId();
 	if (startId) {
-		if (sortOrder != DataQueryOption::SORT_ASCENDING &&
-		    sortOrder != DataQueryOption::SORT_DESCENDING) {
+		if (sortDirection != DataQueryOption::SORT_ASCENDING &&
+		    sortDirection != DataQueryOption::SORT_DESCENDING) {
 			return HatoholError(HTERR_NOT_FOUND_SORT_ORDER);
 		}
 		arg.condition += StringUtils::sprintf(
 		  " AND %s%s%"PRIu64,
 		  arg.getFullName(TBLIDX_EVENTS, IDX_EVENTS_UNIFIED_ID).c_str(),
-		  sortOrder == DataQueryOption::SORT_ASCENDING ? ">=" : "<=",
+		  sortDirection == DataQueryOption::SORT_ASCENDING ? ">=" : "<=",
 		  startId);
 	}
 
@@ -1272,16 +1273,16 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	}
 
 	// Order By
-	if (sortOrder != DataQueryOption::SORT_DONT_CARE) {
+	if (sortDirection != DataQueryOption::SORT_DONT_CARE) {
 		arg.orderBy +=
 		  COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID].columnName;
-		if (sortOrder == DataQueryOption::SORT_ASCENDING) {
+		if (sortDirection == DataQueryOption::SORT_ASCENDING) {
 			arg.orderBy += " ASC";
-		} else if (sortOrder == DataQueryOption::SORT_DESCENDING) {
+		} else if (sortDirection == DataQueryOption::SORT_DESCENDING) {
 			arg.orderBy += " DESC";
 		} else {
-			HATOHOL_ASSERT(false, "Unknown sort order: %d\n",
-			               sortOrder);
+			HATOHOL_ASSERT(false, "Unknown sort direction: %d\n",
+			               sortDirection);
 		}
 	}
 
