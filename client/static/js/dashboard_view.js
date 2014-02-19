@@ -88,20 +88,20 @@ var DashboardView = function(userProfile) {
   function drawServerBody(replyData, parsedData) {
     var html = "";
     var serverStatus;
+    var serverStatuses;
     var x;
-    var goods, bads;
     var serverId;
 
-    goods = replyData["serverStatus"];
-    bads  = replyData["badServers"];
+    serverStatuses = replyData["serverStatus"];
 
     html += "<tr>";
     html += "<td colspan='2'>" + gettext("Number of servers [With problem]") + "</td>";
-    html += buildRatioColumns(bads.length, replyData["numberOfServers"]);
+    html += buildRatioColumns(replyData["numberOfBadServers"],
+                              replyData["numberOfServers"]);
     html += "</tr>";
 
-    for (x = 0; x < goods.length; ++x) {
-      serverStatus = goods[x];
+    for (x = 0; x < serverStatuses.length; ++x) {
+      serverStatus = serverStatuses[x];
       serverId = serverStatus["serverId"];
       html += "<tr>";
       html += "<td rowspan='5'>" + escapeHTML(serverStatus["serverNickname"]) + "</td>";
