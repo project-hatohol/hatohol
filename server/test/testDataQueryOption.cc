@@ -93,7 +93,6 @@ void test_operatorEqFail(void)
 void test_copyConstructor(void)
 {
 	DataQueryOption opt;
-	opt.setSortDirection(DataQueryOption::SORT_ASCENDING);
 	opt.setMaximumNumber(1234);
 	DataQueryOption copied(opt);
 	cppcut_assert_equal(true, opt == copied);
@@ -123,22 +122,6 @@ void test_getDefaultMaximumNumber(void)
 	DataQueryOption option;
 	cppcut_assert_equal(DataQueryOption::NO_LIMIT,
 	                    option.getMaximumNumber());
-}
-
-void test_setGetSortDirection(void)
-{
-	DataQueryOption option;
-	DataQueryOption::SortDirection direction =
-	  DataQueryOption::SORT_ASCENDING;
-	option.setSortDirection(direction);
-	cppcut_assert_equal(direction, option.getSortDirection());
-}
-
-void test_getDefaultSortDirection(void)
-{
-	DataQueryOption option;
-	cppcut_assert_equal(DataQueryOption::SORT_DONT_CARE,
-	                    option.getSortDirection());
 }
 
 void test_setGetStartId(void)

@@ -233,12 +233,6 @@ static void _assertGetTriggersWithFilter(AssertGetTriggersArg &arg)
 	// setup trigger data
 	void test_addTriggerInfoList(void);
 	test_addTriggerInfoList();
-
-	if (arg.maxNumber)
-		arg.option.setMaximumNumber(arg.maxNumber);
-	arg.option.setSortDirection(arg.sortDirection);
-	if (arg.startId)
-		arg.option.setStartId(arg.startId);
 	assertGetTriggers(arg);
 }
 #define assertGetTriggersWithFilter(ARG) \
@@ -377,12 +371,6 @@ static void _assertGetItemsWithFilter(AssertGetItemsArg &arg)
 	// setup item data
 	void test_addItemInfoList(void);
 	test_addItemInfoList();
-
-	if (arg.maxNumber)
-		arg.option.setMaximumNumber(arg.maxNumber);
-	arg.option.setSortDirection(arg.sortDirection);
-	if (arg.startId)
-		arg.option.setStartId(arg.startId);
 	assertGetItems(arg);
 }
 #define assertGetItemsWithFilter(ARG) \

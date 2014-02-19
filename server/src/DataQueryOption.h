@@ -39,6 +39,7 @@ public:
 	};
 	typedef std::list<SortOrder> SortOrderList;
 	typedef std::list<SortOrder>::iterator SortOrderListIterator;
+	typedef std::list<SortOrder>::const_iterator SortOrderListConstIterator;
 
 	DataQueryOption(UserIdType userId = INVALID_USER_ID);
 	DataQueryOption(const DataQueryOption &src);
@@ -60,20 +61,6 @@ public:
 	 * @return A maximum number of returned elements.
 	 */
 	size_t getMaximumNumber(void) const;
-
-	/**
-	 * Set the sort direction of returned elements.
-	 *
-	 * @param direction A sort direction.
-	 */
-	void setSortDirection(SortDirection direction);
-
-	/**
-	 * Get the sort direction of returned elements.
-	 *
-	 * @return A sort direction.
-	 */
-	SortDirection getSortDirection(void) const;
 
 	/**
 	 * Set a list of SortOrder to build "ORDER BY" statement.

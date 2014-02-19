@@ -2427,7 +2427,7 @@ public:
 template<typename PARAM_TYPE>
 void _assertParseEventParameterTempl(
   const PARAM_TYPE &expectValue, const string &fmt, const string &paramName,
-  PARAM_TYPE (HostResourceQueryOption::*valueGetter)(void) const,
+  PARAM_TYPE (EventsQueryOption::*valueGetter)(void) const,
   const HatoholErrorCode &expectCode = HTERR_OK,
   const string &forceValueStr = "")
 {
@@ -2458,7 +2458,7 @@ void _assertParseEventParameterSortOrderDontCare(
 {
 	assertParseEventParameterTempl(
 	  DataQueryOption::SortDirection, sortDirection, "%d", "sortOrder",
-	  &HostResourceQueryOption::getSortDirection, expectCode);
+	  &EventsQueryOption::getSortDirection, expectCode);
 }
 #define assertParseEventParameterSortOrderDontCare(O, ...) \
 cut_trace(_assertParseEventParameterSortOrderDontCare(O, ##__VA_ARGS__))

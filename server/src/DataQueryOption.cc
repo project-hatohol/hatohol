@@ -25,14 +25,12 @@ using namespace mlpl;
 
 struct DataQueryOption::PrivateContext {
 	size_t maxNumber;
-	SortDirection sortDirection;
 	SortOrderList sortOrderList;
 	uint64_t startId;
 
 	// constuctor
 	PrivateContext(void)
 	: maxNumber(NO_LIMIT),
-	  sortDirection(SORT_DONT_CARE),
 	  startId(0)
 	{
 	}
@@ -66,8 +64,6 @@ bool DataQueryOption::operator==(const DataQueryOption &rhs)
 {
 	if (m_ctx->maxNumber != rhs.m_ctx->maxNumber)
 		return false;
-	if (m_ctx->sortDirection != rhs.m_ctx->sortDirection)
-		return false;
 	if (m_ctx->startId != rhs.m_ctx->startId)
 		return false;
 	return true;
@@ -86,16 +82,6 @@ void DataQueryOption::setMaximumNumber(size_t maximum)
 size_t DataQueryOption::getMaximumNumber(void) const
 {
 	return m_ctx->maxNumber;
-}
-
-void DataQueryOption::setSortDirection(SortDirection direction)
-{
-	m_ctx->sortDirection = direction;
-}
-
-DataQueryOption::SortDirection DataQueryOption::getSortDirection(void) const
-{
-	return m_ctx->sortDirection;
 }
 
 void DataQueryOption::setSortOrderList(const SortOrderList &sortOrderList)

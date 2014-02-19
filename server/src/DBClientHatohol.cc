@@ -971,6 +971,28 @@ EventsQueryOption::EventsQueryOption(UserIdType userId)
 	  COLUMN_DEF_EVENTS[IDX_EVENTS_HOST_ID].columnName);
 }
 
+void EventsQueryOption::setSortDirection(SortDirection direction)
+{
+	SortOrder order = {
+		COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID].columnName,
+		direction,
+	};
+	setSortOrder(order);
+}
+
+DataQueryOption::SortDirection EventsQueryOption::getSortDirection(void) const
+{
+	const SortOrderList &sortOrderList = getSortOrderList();
+	SortOrderListConstIterator it = sortOrderList.begin();
+	string sortColumn =
+	  COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID].columnName;
+	for (; it != sortOrderList.end(); it++) {
+		if (it->columnName == sortColumn)
+			return it->direction;
+	}
+	return SORT_DONT_CARE;
+}
+
 TriggersQueryOption::TriggersQueryOption(UserIdType userId)
 : HostResourceQueryOption(userId)
 {
