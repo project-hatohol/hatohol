@@ -588,6 +588,7 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
 	assertValueInParser(g_parser, "numberOfEvents", NumTestEventInfo);
+	assertValueInParser(g_parser, "lastUnifiedEventId", NumTestEventInfo);
 	g_parser->startObject("events");
 	for (size_t i = 0; i < NumTestEventInfo; i++) {
 		g_parser->startElement(i);
