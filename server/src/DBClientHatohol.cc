@@ -971,6 +971,38 @@ EventsQueryOption::EventsQueryOption(UserIdType userId)
 	  COLUMN_DEF_EVENTS[IDX_EVENTS_HOST_ID].columnName);
 }
 
+void EventsQueryOption::setSortType(SortType type, SortDirection direction)
+{
+	switch (type) {
+	case SORT_UNIFIED_ID: {
+		SortOrder order = {
+			COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID].columnName,
+			direction,
+		};
+		setSortOrder(order);
+		break;
+	}
+	case SORT_TIME: {
+		SortOrderList sortOrderList;
+		SortOrder order1 = {
+			COLUMN_DEF_EVENTS[IDX_EVENTS_TIME_SEC].columnName,
+			direction,
+		};
+		SortOrder order2 = {
+			COLUMN_DEF_EVENTS[IDX_EVENTS_TIME_NS].columnName,
+			direction,
+		};
+		sortOrderList.push_back(order1);
+		sortOrderList.push_back(order2);
+		setSortOrderList(sortOrderList);
+		break;
+	}
+	default: {
+		break;
+	}
+	}
+}
+
 void EventsQueryOption::setSortDirection(SortDirection direction)
 {
 	SortOrder order = {

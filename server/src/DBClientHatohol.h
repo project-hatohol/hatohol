@@ -200,8 +200,17 @@ private:
 
 class EventsQueryOption : public HostResourceQueryOption {
 public:
+	enum SortType {
+		SORT_UNIFIED_ID,
+		SORT_TIME,
+		NUM_SORT_TYPES
+	};
+
 	EventsQueryOption(UserIdType userId = INVALID_USER_ID);
 
+	void setSortType(SortType type, SortDirection direction);
+
+	// Will be removed
 	void setSortDirection(SortDirection direction);
 	SortDirection getSortDirection(void) const;
 };

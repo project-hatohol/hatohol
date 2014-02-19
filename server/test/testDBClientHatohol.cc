@@ -1130,6 +1130,31 @@ void test_makeSelectCondition(void)
 	}
 }
 
+void test_eventQueryOptionWithNoSortType(void)
+{
+	EventsQueryOption option;
+	const string expected = "";
+	cppcut_assert_equal(expected, option.getOrderBy());
+}
+
+void test_eventQueryOptionWithSortTypeId(void)
+{
+	EventsQueryOption option;
+	option.setSortType(EventsQueryOption::SORT_UNIFIED_ID,
+			   DataQueryOption::SORT_DESCENDING);
+	const string expected = "unified_id DESC";
+	cppcut_assert_equal(expected, option.getOrderBy());
+}
+
+void test_eventQueryOptionWithSortTypeTime(void)
+{
+	EventsQueryOption option;
+	option.setSortType(EventsQueryOption::SORT_TIME,
+			   DataQueryOption::SORT_ASCENDING);
+	const string expected =  "time_sec ASC, time_ns ASC";
+	cppcut_assert_equal(expected, option.getOrderBy());
+}
+
 void test_getEventSortAscending(void)
 {
 	AssertGetEventsArg arg;
