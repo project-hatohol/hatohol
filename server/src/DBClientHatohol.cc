@@ -1295,18 +1295,7 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	}
 
 	// Order By
-	if (sortDirection != DataQueryOption::SORT_DONT_CARE) {
-		arg.orderBy +=
-		  COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID].columnName;
-		if (sortDirection == DataQueryOption::SORT_ASCENDING) {
-			arg.orderBy += " ASC";
-		} else if (sortDirection == DataQueryOption::SORT_DESCENDING) {
-			arg.orderBy += " DESC";
-		} else {
-			HATOHOL_ASSERT(false, "Unknown sort direction: %d\n",
-			               sortDirection);
-		}
-	}
+	arg.orderBy += option.getOrderBy();
 
 	// Limit and Offset
 	arg.limit = option.getMaximumNumber();
