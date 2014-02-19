@@ -64,6 +64,8 @@ public:
 	virtual bool fetchItemsAsync(
 	  ClosureBase *closure,
 	  const ServerIdType &targetServerId = ALL_SERVERS);
+	virtual void getHostgroupList(HostgroupInfoList &hostgroupInfoList,
+	                              const HostgroupsQueryOption &option);
 	virtual void getHostList(HostInfoList &hostInfoList,
 				 const HostsQueryOption &option);
 	virtual HatoholError getActionList(ActionDefList &actionList,
