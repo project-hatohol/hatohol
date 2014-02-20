@@ -35,7 +35,7 @@ class UserCreator:
 
   @classmethod
   def setup_arguments(cls, parser):
-    parser.add_argument("user")
+    parser.add_argument("name")
     parser.add_argument("password")
     parser.add_argument("flags")
 
@@ -47,7 +47,7 @@ class UserCreator:
 
   def add(self, args):
     query = {}
-    query["user"] = args.user;
+    query["name"] = args.name;
     query["password"] = args.password;
     query["flags"] = args.flags;
     self._encoded_query = urllib.urlencode(query)
