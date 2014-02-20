@@ -1208,11 +1208,56 @@ static void addTriggersIdBriefHash(
 	agent.endObject();
 }
 
+static string getHostgroupName(const UserIdType &userId,
+                               const ServerID &serverId,
+                               const HostgroupID &hostgroupId)
+{
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	string hostgroupName;
+	HostgroupInfoList hostgroupInfoList;
+	HostgroupsQueryOption option(userId);
+	option.setTargetServerId(serverId);
+	option.setTargetHostgroupId(hostgroupId);
+	dataStore->getHostgroupList(hostgroupInfoList, option);
+
+	if (hostgroupInfoList.empty()) {
+		MLPL_WARN("Failed to get HostgroupInfo: "
+		          "%"PRIu64", %"PRIu64"\n",
+		          serverId, hostgroupId);
+	} else {
+		HostgroupInfo &hostgroupInfo = *hostgroupInfoList.begin();
+		hostgroupName = hostgroupInfo.groupName;
+	}
+	return hostgroupName;
+}
+
+static void addHostgroupsMap(UserIdType userId, JsonBuilderAgent &outputJson,
+                            MonitoringServerInfo &serverInfo,
+                            HostgroupIdListMap &hostgroupListMap)
+{
+	HostgroupIdListMap::iterator serverIt = hostgroupListMap.find(serverInfo.id);
+	outputJson.startObject("groups");
+	ServerID serverId = serverIt->first;
+	HostgroupIdList hostgroupIdList = serverIt->second;
+	HostgroupIdList::iterator it = hostgroupIdList.begin();
+	for (; serverIt != hostgroupListMap.end() &&
+	       it != hostgroupIdList.end(); ++it) {
+		HostgroupID hostgroupId = *it;
+		outputJson.startObject(StringUtils::toString(hostgroupId));
+		string hostgroupName = getHostgroupName(userId, serverId,
+		                                        hostgroupId);
+		outputJson.add("name", hostgroupName);
+		outputJson.endObject();
+	}
+	outputJson.endObject();
+}
+
 static void addServersMap(
   FaceRest::RestJob *job,
   JsonBuilderAgent &agent,
   HostNameMaps *hostMaps = NULL, bool lookupHostName = false,
-  TriggerBriefMaps *triggerMaps = NULL, bool lookupTriggerBrief = false)
+  TriggerBriefMaps *triggerMaps = NULL, bool lookupTriggerBrief = false,
+  HostgroupIdListMap *hostgroupListMap = NULL)
 {
 	ConfigManager *configManager = ConfigManager::getInstance();
 	MonitoringServerInfoList monitoringServers;
@@ -1235,6 +1280,10 @@ static void addServersMap(
 			addTriggersIdBriefHash(job, agent, serverInfo,
 					       *triggerMaps,
 			                       lookupTriggerBrief);
+		}
+		if (hostgroupListMap) {
+			addHostgroupsMap(job->userId, agent, serverInfo,
+			                 *hostgroupListMap);
 		}
 		agent.endObject();
 	}
@@ -1560,7 +1609,7 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 		  triggerInfo.hostgroupId);
 	}
 	agent.endArray();
-	addServersMap(job, agent, &hostMaps);
+	addServersMap(job, agent, &hostMaps, false, NULL, false, &hostgroupIdListMap);
 	agent.endObject();
 
 	replyJsonData(agent, job);
