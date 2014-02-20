@@ -1237,6 +1237,11 @@ static void addHostgroupsMap(UserIdType userId, JsonBuilderAgent &outputJson,
 {
 	HostgroupIdListMap::iterator serverIt = hostgroupListMap.find(serverInfo.id);
 	outputJson.startObject("groups");
+	if (serverIt == hostgroupListMap.end()) {
+		outputJson.endObject();
+		return;
+	}
+
 	ServerID serverId = serverIt->first;
 	HostgroupIdList hostgroupIdList = serverIt->second;
 	HostgroupIdList::iterator it = hostgroupIdList.begin();
