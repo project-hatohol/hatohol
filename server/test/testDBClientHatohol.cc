@@ -84,6 +84,14 @@ static string makeTriggerOutput(const TriggerInfo &triggerInfo)
 	return expectedOut;
 }
 
+static void addHostgroupInfo(HostgroupInfo *hostgroupInfo)
+{
+	DBClientHatohol dbHatohol;
+	dbHatohol.addHostgroupInfo(hostgroupInfo);
+}
+#define assertAddHostgroupInfoToDB(X) \
+cut_trace(_assertAddToDB<HostgroupInfo>(X, addHostgroupInfo))
+
 static void addHostgroupElement(HostgroupElement *hostgroupElement)
 {
 	DBClientHatohol dbHatohol;
@@ -262,6 +270,13 @@ static void _setupTestTriggerDB(void)
 }
 #define setupTestTriggerDB() cut_trace(_setupTestTriggerDB())
 
+static void _setupTestHostgroupInfoDB(void)
+{
+	for (size_t i = 0; i < NumTestHostgroupInfo; i++)
+		assertAddHostgroupInfoToDB(&testHostgroupInfo[i]);
+}
+#define setupTestHostgroupInfoDB() cut_trace(_setupTestHostgroupInfoDB())
+
 static void _setupTestHostgroupElementDB(void)
 {
 	for (size_t i = 0; i < NumTestHostgroupElement; i++)
@@ -273,6 +288,7 @@ static void _assertGetTriggerInfoList(uint32_t serverId, uint64_t hostId = ALL_H
 {
 	setupTestTriggerDB();
 	setupTestHostgroupElementDB();
+	setupTestHostgroupInfoDB();
 	AssertGetTriggersArg arg;
 	arg.targetServerId = serverId;
 	arg.targetHostId = hostId;
@@ -657,6 +673,7 @@ void test_getTriggerInfo(void)
 {
 	setupTestTriggerDB();
 	setupTestHostgroupElementDB();
+	setupTestHostgroupInfoDB();
 	int targetIdx = 2;
 	TriggerInfo &targetTriggerInfo = testTriggerInfo[targetIdx];
 	TriggerInfo triggerInfo;
@@ -710,6 +727,11 @@ void test_setTriggerInfoList(void)
 		hostgroupElementList.push_back(testHostgroupElement[i]);
 	dbHatohol.addHostgroupElementList(hostgroupElementList);
 
+	HostgroupInfoList hostgroupInfoList;
+	for (size_t i = 0; i < NumTestHostgroupInfo; i++)
+		hostgroupInfoList.push_back(testHostgroupInfo[i]);
+	dbHatohol.addHostgroupInfoList(hostgroupInfoList);
+
 	AssertGetTriggersArg arg;
 	assertGetTriggers(arg);
 }
@@ -737,6 +759,12 @@ void test_addTriggerInfoList(void)
 	for (size_t j = 0; j < NumTestHostgroupElement; j++)
 		hostgroupElementList.push_back(testHostgroupElement[j]);
 	dbHatohol.addHostgroupElementList(hostgroupElementList);
+
+	// Add HostgroupInfo
+	HostgroupInfoList hostgroupInfoList;
+	for (size_t j = 0; j < NumTestHostgroupInfo; j++)
+		hostgroupInfoList.push_back(testHostgroupInfo[j]);
+	dbHatohol.addHostgroupInfoList(hostgroupInfoList);
 
 	// Check
 	AssertGetTriggersArg arg;
