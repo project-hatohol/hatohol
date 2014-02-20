@@ -378,12 +378,12 @@ HostgroupInfo testHostgroupInfo[] = {
 	"Monitored Servers"    // groupName
 }, {
 	AUTO_INCREMENT_VALUE,  // id
-	2,                     // serverId
+	3,                     // serverId
 	1,                     // groupId
 	"Checking Servers"     // groupName
 }, {
 	AUTO_INCREMENT_VALUE,  // id
-	2,                     // serverId
+	3,                     // serverId
 	2,                     // groupId
 	"Checked Servers"      // groupName
 }
