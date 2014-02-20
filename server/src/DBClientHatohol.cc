@@ -690,15 +690,12 @@ void initEventInfo(EventInfo &eventInfo)
 // HostResourceQueryOption
 // ---------------------------------------------------------------------------
 struct HostResourceQueryOption::PrivateContext {
-	string tableNameForServerId;
 	string serverIdColumnName;
 	string hostGroupIdColumnName;
 	string hostIdColumnName;
-	string tableVariableName;
 	ServerIdType targetServerId;
 	uint64_t targetHostId;
 	uint64_t targetHostgroupId;
-	bool useTableVariable;
 
 	PrivateContext()
 	: serverIdColumnName("server_id"),
@@ -706,8 +703,7 @@ struct HostResourceQueryOption::PrivateContext {
 	  hostIdColumnName("host_id"),
 	  targetServerId(ALL_SERVERS),
 	  targetHostId(ALL_HOSTS),
-	  targetHostgroupId(ALL_HOST_GROUPS),
-	  useTableVariable(false)
+	  targetHostgroupId(ALL_HOST_GROUPS)
 	{
 	}
 };
@@ -736,18 +732,14 @@ void HostResourceQueryOption::setServerIdColumnName(
 	m_ctx->serverIdColumnName = name;
 }
 
-string HostResourceQueryOption::getServerIdColumnName(void) const
+string HostResourceQueryOption::getServerIdColumnName(
+  const std::string &tableAlias) const
 {
-	if (m_ctx->useTableVariable) {
-		return StringUtils::sprintf("%s.%s",
-		                            m_ctx->tableVariableName.c_str(),
-		                            m_ctx->serverIdColumnName.c_str());
-	} else if (m_ctx->tableNameForServerId.empty()) {
+	if (tableAlias.empty())
 		return m_ctx->serverIdColumnName;
-	}
 
 	return StringUtils::sprintf("%s.%s",
-				    m_ctx->tableNameForServerId.c_str(),
+				    tableAlias.c_str(),
 				    m_ctx->serverIdColumnName.c_str());
 }
 
@@ -757,15 +749,15 @@ void HostResourceQueryOption::setHostGroupIdColumnName(
 	m_ctx->hostGroupIdColumnName = name;
 }
 
-string HostResourceQueryOption::getHostGroupIdColumnName(void) const
+string HostResourceQueryOption::getHostGroupIdColumnName(
+  const std::string &tableAlias) const
 {
-	if (m_ctx->useTableVariable) {
-		return StringUtils::sprintf("%s.%s",
-		                           m_ctx->tableVariableName.c_str(),
-		                           m_ctx->hostGroupIdColumnName.c_str());
-	} else {
+	if (tableAlias.empty())
 		return m_ctx->hostGroupIdColumnName;
-	}
+
+	return StringUtils::sprintf("%s.%s",
+				    tableAlias.c_str(),
+				    m_ctx->hostGroupIdColumnName.c_str());
 }
 
 void HostResourceQueryOption::setHostIdColumnName(
@@ -774,25 +766,15 @@ void HostResourceQueryOption::setHostIdColumnName(
 	m_ctx->hostIdColumnName = name;
 }
 
-string HostResourceQueryOption::getHostIdColumnName(void) const
+string HostResourceQueryOption::getHostIdColumnName(
+  const std::string &tableAlias) const
 {
-	if (m_ctx->useTableVariable) {
-		return StringUtils::sprintf("%s.%s",
-		                           m_ctx->tableVariableName.c_str(),
-		                           m_ctx->hostIdColumnName.c_str());
-	} else {
+	if (tableAlias.empty())
 		return m_ctx->hostIdColumnName;
-	}
-}
 
-void HostResourceQueryOption::setTableVariableName(const string &name) const
-{
-	m_ctx->tableVariableName = name;
-}
-
-string HostResourceQueryOption::getTableVariableName(void) const
-{
-	return m_ctx->tableVariableName;
+	return StringUtils::sprintf("%s.%s",
+				    tableAlias.c_str(),
+				    m_ctx->hostIdColumnName.c_str());
 }
 
 void HostResourceQueryOption::appendCondition(string &cond, const string &newCond)
@@ -906,7 +888,7 @@ string HostResourceQueryOption::makeCondition(
 	return StringUtils::sprintf("(%s)", condition.c_str());
 }
 
-string HostResourceQueryOption::getCondition(const string &varName) const
+string HostResourceQueryOption::getCondition(const string &tableAlias) const
 {
 	string condition;
 	UserIdType userId = getUserId();
@@ -915,7 +897,7 @@ string HostResourceQueryOption::getCondition(const string &varName) const
 		if (m_ctx->targetServerId != ALL_SERVERS) {
 			condition = StringUtils::sprintf(
 				"%s=%"FMT_SERVER_ID,
-				getServerIdColumnName().c_str(),
+				getServerIdColumnName(tableAlias).c_str(),
 				m_ctx->targetServerId);
 		}
 		if (m_ctx->targetHostId != ALL_HOSTS) {
@@ -923,7 +905,7 @@ string HostResourceQueryOption::getCondition(const string &varName) const
 				condition += " AND ";
 			condition += StringUtils::sprintf(
 				"%s=%"PRIu64,
-				getHostIdColumnName().c_str(),
+				getHostIdColumnName(tableAlias).c_str(),
 				m_ctx->targetHostId);
 		}
 		if (m_ctx->targetHostgroupId != ALL_HOST_GROUPS) {
@@ -931,7 +913,7 @@ string HostResourceQueryOption::getCondition(const string &varName) const
 				condition += " AND ";
 			condition += StringUtils::sprintf(
 				"%s=%"FMT_HOST_GROUP_ID,
-				getHostGroupIdColumnName().c_str(),
+				getHostGroupIdColumnName(tableAlias).c_str(),
 				m_ctx->targetHostgroupId);
 		}
 		return condition;
@@ -947,9 +929,9 @@ string HostResourceQueryOption::getCondition(const string &varName) const
 	ServerHostGrpSetMap srvHostGrpSetMap;
 	dbUser->getServerHostGrpSetMap(srvHostGrpSetMap, userId);
 	condition = makeCondition(srvHostGrpSetMap,
-	                          getServerIdColumnName().c_str(),
-	                          getHostGroupIdColumnName().c_str(),
-	                          getHostIdColumnName().c_str(),
+	                          getServerIdColumnName(tableAlias).c_str(),
+	                          getHostGroupIdColumnName(tableAlias).c_str(),
+	                          getHostIdColumnName(tableAlias).c_str(),
 	                          m_ctx->targetServerId,
 	                          m_ctx->targetHostgroupId,
 	                          m_ctx->targetHostId);
@@ -986,21 +968,6 @@ void HostResourceQueryOption::setTargetHostgroupId(uint64_t targetHostgroupId)
 	m_ctx->targetHostgroupId = targetHostgroupId;
 }
 
-string HostResourceQueryOption::getTableNameForServerId(void) const
-{
-	return m_ctx->tableNameForServerId;
-}
-
-void HostResourceQueryOption::setTableNameForServerId(const std::string &name)
-{
-	m_ctx->tableNameForServerId = name;
-}
-
-void HostResourceQueryOption::enableTableVariable(const bool &enable) const
-{
-	m_ctx->useTableVariable = enable;
-}
-
 EventsQueryOption::EventsQueryOption(UserIdType userId)
 : HostResourceQueryOption(userId)
 {
@@ -1017,7 +984,6 @@ TriggersQueryOption::TriggersQueryOption(UserIdType userId)
 	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName);
 	setHostIdColumnName(
 	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName);
-	setTableVariableName(VAR_TRIGGERS);
 }
 
 ItemsQueryOption::ItemsQueryOption(UserIdType userId)
@@ -1056,7 +1022,6 @@ HostgroupElementQueryOption::HostgroupElementQueryOption(UserIdType userId)
 	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID].columnName);
 	setHostGroupIdColumnName(
 	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID].columnName);
-	setTableVariableName(VAR_MAP_HOSTS_GROUPS);
 }
 
 // ---------------------------------------------------------------------------
@@ -1162,7 +1127,6 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 					 const TriggersQueryOption &option,
 					 uint64_t targetTriggerId)
 {
-	option.enableTableVariable();
 	string optCond = option.getCondition(VAR_TRIGGERS);
 	if (isAlwaysFalseCondition(optCond))
 		return;
@@ -1247,7 +1211,7 @@ void DBClientHatohol::addEventInfoList(const EventInfoList &eventInfoList)
 }
 
 HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
-                                               EventsQueryOption &option)
+                                               const EventsQueryOption &option)
 {
 	const static char *VAR_EVENTS = "e";
 	const static char *VAR_TRIGGERS = "t";
@@ -1264,7 +1228,6 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	DBAgent::SelectMultiTableArg arg(namedTables, numNamedTables);
 
 	// Tables
-	option.setTableNameForServerId(VAR_EVENTS);
 	arg.tableField = StringUtils::sprintf(
 	  " %s %s inner join %s %s on %s=%s",
 	  TABLE_NAME_EVENTS, VAR_EVENTS,
@@ -1308,7 +1271,7 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 		  startId);
 	}
 
-	string optCond = option.getCondition();
+	string optCond = option.getCondition(VAR_EVENTS);
 	if (isAlwaysFalseCondition(optCond))
 		return HatoholError(HTERR_OK);
 	if (!optCond.empty()) {
