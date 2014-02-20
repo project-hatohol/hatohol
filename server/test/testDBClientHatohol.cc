@@ -32,9 +32,9 @@ namespace testDBClientHatohol {
 
 class TestHostResourceQueryOption : public HostResourceQueryOption {
 public:
-	string callGetServerIdColumnName(void) const
+	string callGetServerIdColumnName(const string &tableAlias = "") const
 	{
-		return getServerIdColumnName();
+		return getServerIdColumnName(tableAlias);
 	}
 
 	static
@@ -1106,29 +1106,23 @@ void test_conditionForAdminWithTargetServerAndHost(void)
 	cppcut_assert_equal(expect, option.getCondition());
 }
 
-void test_eventQueryOptionDefaultTableName(void)
-{
-	HostResourceQueryOption option;
-	cppcut_assert_equal(string(""), option.getTableNameForServerId());
-}
-
-void test_eventQueryOptionSetTableName(void)
-{
-	HostResourceQueryOption option;
-	const string tableName = "test_event";
-	option.setTableNameForServerId(tableName);
-	cppcut_assert_equal(tableName, option.getTableNameForServerId());
-}
-
 void test_eventQueryOptionGetServerIdColumnName(void)
 {
-	TestHostResourceQueryOption option;
-	const string tableName = "test_event";
-	const string expectedServerIdColumnName
-	  = tableName + "." + serverIdColumnName;
-	option.setTableNameForServerId(tableName);
-	cppcut_assert_equal(expectedServerIdColumnName,
-			    option.callGetServerIdColumnName());
+	HostResourceQueryOption option(USER_ID_SYSTEM);
+	const string tableAlias = "test_event_table_alias";
+	option.setTargetServerId(26);
+	option.setTargetHostgroupId(48);
+	option.setTargetHostId(32);
+	string expect = StringUtils::sprintf(
+	                  "%s.%s=26 AND %s.%s=32 AND %s.%s=48",
+			  tableAlias.c_str(),
+			  serverIdColumnName.c_str(),
+			  tableAlias.c_str(),
+			  hostIdColumnName.c_str(),
+			  tableAlias.c_str(),
+			  hostGroupIdColumnName.c_str());
+	cppcut_assert_equal(expect, option.getCondition(tableAlias));
+
 }
 
 void test_makeConditionComplicated(void)
