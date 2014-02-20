@@ -1662,7 +1662,7 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 	replyJsonData(agent, job);
 }
 
-static uint64_t getLastUnifiedIdOfEvent(FaceRest::RestJob *job)
+static uint64_t getLastUnifiedEventId(FaceRest::RestJob *job)
 {
 	EventsQueryOption option(job->userId);
 	option.setMaximumNumber(1);
@@ -1702,7 +1702,7 @@ void FaceRest::handlerGetEvent(RestJob *job)
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
 	agent.add("numberOfEvents", eventList.size());
-	agent.add("lastUnifiedEventId", getLastUnifiedIdOfEvent(job));
+	agent.add("lastUnifiedEventId", getLastUnifiedEventId(job));
 	agent.startArray("events");
 	EventInfoListIterator it = eventList.begin();
 	HostNameMaps hostMaps;
