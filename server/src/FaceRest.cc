@@ -57,8 +57,8 @@ typedef map<ServerID, HostNameMap> HostNameMaps;
 typedef map<TriggerID, string> TriggerBriefMap;
 typedef map<ServerID, TriggerBriefMap> TriggerBriefMaps;
 
-typedef list<HostgroupID> HostgroupIdList;
-typedef map<ServerID, HostgroupIdList> HostgroupIdListMap;
+typedef map<HostgroupID, string> HostgroupNameMap;
+typedef map<ServerID, HostgroupNameMap> HostgroupNameMaps;
 
 static const guint DEFAULT_PORT = 33194;
 
@@ -1208,44 +1208,18 @@ static void addTriggersIdBriefHash(
 	agent.endObject();
 }
 
-static string getHostgroupName(const UserIdType &userId,
-                               const ServerID &serverId,
-                               const HostgroupID &hostgroupId)
-{
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	string hostgroupName;
-	HostgroupInfoList hostgroupInfoList;
-	HostgroupsQueryOption option(userId);
-	option.setTargetServerId(serverId);
-	option.setTargetHostgroupId(hostgroupId);
-	dataStore->getHostgroupList(hostgroupInfoList, option);
-
-	if (hostgroupInfoList.empty()) {
-		MLPL_WARN("Failed to get HostgroupInfo: "
-		          "%"PRIu64", %"PRIu64"\n",
-		          serverId, hostgroupId);
-	} else {
-		HostgroupInfo &hostgroupInfo = *hostgroupInfoList.begin();
-		hostgroupName = hostgroupInfo.groupName;
-	}
-	return hostgroupName;
-}
-
 static void addHostgroupsMap(UserIdType userId, JsonBuilderAgent &outputJson,
-                            MonitoringServerInfo &serverInfo,
-                            HostgroupIdListMap &hostgroupListMap)
+                             MonitoringServerInfo &serverInfo,
+                             HostgroupNameMaps &hostgroupMap)
 {
-	HostgroupIdListMap::iterator serverIt = hostgroupListMap.find(serverInfo.id);
+	HostgroupNameMaps::iterator serverIt = hostgroupMap.find(serverInfo.id);
 	outputJson.startObject("groups");
-	ServerID serverId = serverIt->first;
-	HostgroupIdList hostgroupIdList = serverIt->second;
-	HostgroupIdList::iterator it = hostgroupIdList.begin();
-	for (; serverIt != hostgroupListMap.end() &&
-	       it != hostgroupIdList.end(); ++it) {
-		HostgroupID hostgroupId = *it;
+	HostgroupNameMap &hostgroups = serverIt->second;
+	HostgroupNameMap::iterator it = hostgroups.begin();
+	for (; serverIt != hostgroupMap.end() && it != hostgroups.end(); ++it) {
+		HostgroupID hostgroupId = it->first;
+		string &hostgroupName = it->second;
 		outputJson.startObject(StringUtils::toString(hostgroupId));
-		string hostgroupName = getHostgroupName(userId, serverId,
-		                                        hostgroupId);
 		outputJson.add("name", hostgroupName);
 		outputJson.endObject();
 	}
@@ -1257,7 +1231,7 @@ static void addServersMap(
   JsonBuilderAgent &agent,
   HostNameMaps *hostMaps = NULL, bool lookupHostName = false,
   TriggerBriefMaps *triggerMaps = NULL, bool lookupTriggerBrief = false,
-  HostgroupIdListMap *hostgroupListMap = NULL)
+  HostgroupNameMaps *hostgroupNameMaps = NULL)
 {
 	ConfigManager *configManager = ConfigManager::getInstance();
 	MonitoringServerInfoList monitoringServers;
@@ -1281,9 +1255,9 @@ static void addServersMap(
 					       *triggerMaps,
 			                       lookupTriggerBrief);
 		}
-		if (hostgroupListMap) {
+		if (hostgroupNameMaps) {
 			addHostgroupsMap(job->userId, agent, serverInfo,
-			                 *hostgroupListMap);
+			                 *hostgroupNameMaps);
 		}
 		agent.endObject();
 	}
@@ -1590,7 +1564,7 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 	agent.startArray("triggers");
 	TriggerInfoListIterator it = triggerList.begin();
 	HostNameMaps hostMaps;
-	HostgroupIdListMap hostgroupIdListMap;
+	HostgroupNameMaps hostgroupNameMaps;
 	for (; it != triggerList.end(); ++it) {
 		TriggerInfo &triggerInfo = *it;
 		agent.startObject();
@@ -1601,15 +1575,16 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 		agent.add("serverId", triggerInfo.serverId);
 		agent.add("hostId",   triggerInfo.hostId);
 		agent.add("brief",    triggerInfo.brief);
+		agent.add("hostgroupId",    triggerInfo.hostgroupId);
 		agent.endObject();
 
 		hostMaps[triggerInfo.serverId][triggerInfo.hostId]
 		  = triggerInfo.hostName;
-		hostgroupIdListMap[triggerInfo.serverId].push_back(
-		  triggerInfo.hostgroupId);
+		hostgroupNameMaps[triggerInfo.serverId][triggerInfo.hostgroupId]
+		  = triggerInfo.hostgroupName;
 	}
 	agent.endArray();
-	addServersMap(job, agent, &hostMaps, false, NULL, false, &hostgroupIdListMap);
+	addServersMap(job, agent, &hostMaps, false, NULL, false, &hostgroupNameMaps);
 	agent.endObject();
 
 	replyJsonData(agent, job);
