@@ -74,14 +74,21 @@ var EventsView = function(userProfile, baseElem) {
     });
   }
 
+  function getEventsURL(loadNextPage) {
+    var query = {
+      maximumNumber: self.numEventsPerPage,
+      sortOrder:     self.sortOrder,
+      startId:       (self.minUnifiedId - 1)
+    };
+    if (!loadNextPage)
+      delete query.startId;
+    return '/events?' + $.param(query);
+  };
+
   function createPage() {
     createUI(self.baseElem);
     setupEvents();
-    var query = {
-      maximumNumber: self.numEventsPerPage,
-      sortOrder:     self.sortOrder
-    };
-    connParam.url = '/event?' + $.param(query);
+    connParam.url = getEventsURL();
     self.connector = new HatoholConnector(connParam);
   }
 
@@ -191,19 +198,14 @@ var EventsView = function(userProfile, baseElem) {
     });
 
     $('#next-events-button').click(function() {
-      var query = {
-        maximumNumber: self.numEventsPerPage,
-        sortOrder:     self.sortOrder,
-        startId:       (self.minUnifiedId - 1)
-      };
-      connParam.url = '/event?' + $.param(query);
+      var loadNextPage = true;
+      connParam.url = getEventsURL(loadNextPage);
       self.connector.start(connParam);
       $(self.baseElem).scrollTop(0);
     });
 
     $('#latest-events-button').click(function() {
-      connParam.url = '/event?maximumNumber=' + self.numEventsPerPage
-                      + '&sortOrder=' + self.sortOrder;
+      connParam.url = getEventsURL();
       self.connector.start(connParam);
       $(self.baseElem).scrollTop(0);
     });
