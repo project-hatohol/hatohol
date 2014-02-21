@@ -73,6 +73,10 @@ struct TriggerInfo {
 	uint64_t            hostId;
 	std::string         hostName;
 	std::string         brief;
+
+	// 'hostgroupId' variable is used when retrieve data from DB.
+	uint64_t            hostgroupId;
+	std::string         hostgroupName;
 };
 
 typedef std::list<TriggerInfo>          TriggerInfoList;
@@ -154,7 +158,7 @@ public:
 	virtual ~HostResourceQueryOption();
 
 	// Overriding of virtual methods
-	virtual std::string getCondition(void) const;
+	virtual std::string getCondition(const std::string &tableAlias = "") const;
 
 	virtual ServerIdType getTargetServerId(void) const;
 	virtual void setTargetServerId(const ServerIdType &targetServerId);
@@ -163,16 +167,16 @@ public:
 	virtual uint64_t getTargetHostgroupId(void) const;
 	virtual void setTargetHostgroupId(uint64_t targetHostGroupId);
 
-	virtual std::string getTableNameForServerId(void) const;
-	virtual void setTableNameForServerId(const std::string &name);
-
 protected:
 	void setServerIdColumnName(const std::string &name) const;
-	std::string getServerIdColumnName(void) const;
+	std::string getServerIdColumnName(
+	  const std::string &tableAlias = "") const;
 	void setHostGroupIdColumnName(const std::string &name) const;
-	std::string getHostGroupIdColumnName(void) const;
+	std::string getHostGroupIdColumnName(
+	  const std::string &tableAlias = "") const;
 	void setHostIdColumnName(const std::string &name) const;
-	std::string getHostIdColumnName(void) const;
+	std::string getHostIdColumnName(
+	  const std::string &tableAlias = "") const;
 	static void appendCondition(std::string &cond,
 	                            const std::string &newCond);
 	static std::string makeCondition(
@@ -181,8 +185,8 @@ protected:
 	  const std::string &hostGroupIdColumnName,
 	  const std::string &hostIdColumnName,
 	  ServerIdType targetServerId = ALL_SERVERS,
-	  uint64_t targetHostId = ALL_HOSTS,
-	  uint64_t targetHostgroup = ALL_HOST_GROUPS);
+	  uint64_t targetHostgroup = ALL_HOST_GROUPS,
+	  uint64_t targetHostId = ALL_HOSTS);
 	static std::string makeConditionServer(
 	  const ServerIdType &serverId,
 	  const HostGroupSet &hostGroupSet,
@@ -280,7 +284,7 @@ public:
 	void addEventInfo(EventInfo *eventInfo);
 	void addEventInfoList(const EventInfoList &eventInfoList);
 	HatoholError getEventInfoList(EventInfoList &eventInfoList,
-	                              EventsQueryOption &option);
+	                              const EventsQueryOption &option);
 	void setEventInfoList(const EventInfoList &eventInfoList,
 	                      const ServerIdType &serverId);
 

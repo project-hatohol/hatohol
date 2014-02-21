@@ -80,6 +80,7 @@ nobase_dist_hatohol_client_DATA = \
 	static/js/hatohol_selector_dialog.js \
 	static/js/hatohol_trigger_selector.js \
 	static/js/hatohol_actor_mail_dialog.js \
+	static/js/hatohol_hostgroup_dialog.js \
 	viewer/urls.py \
 	viewer/__init__.py \
 	viewer/models.py \
@@ -95,6 +96,7 @@ nobase_dist_hatohol_client_DATA = \
 	viewer/actions_ajax.html \
 	viewer/users_ajax.html \
 	viewer/userconfig.py \
+	viewer/hosts_ajax.html \
 	viewer/tests.py
 
 MO_FILES = \

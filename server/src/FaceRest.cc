@@ -49,11 +49,16 @@ typedef void (*RestHandler) (FaceRest::RestJob *job);
 typedef uint64_t ServerID;
 typedef uint64_t HostID;
 typedef uint64_t TriggerID;
+typedef uint64_t HostgroupID;
+
 typedef map<HostID, string> HostNameMap;
 typedef map<ServerID, HostNameMap> HostNameMaps;
 
 typedef map<TriggerID, string> TriggerBriefMap;
 typedef map<ServerID, TriggerBriefMap> TriggerBriefMaps;
+
+typedef map<HostgroupID, string> HostgroupNameMap;
+typedef map<ServerID, HostgroupNameMap> HostgroupNameMaps;
 
 static const guint DEFAULT_PORT = 33194;
 
@@ -1242,11 +1247,34 @@ static void addTriggersIdBriefHash(
 	agent.endObject();
 }
 
+static void addHostgroupsMap(UserIdType userId, JsonBuilderAgent &outputJson,
+                             MonitoringServerInfo &serverInfo,
+                             HostgroupNameMaps &hostgroupMap)
+{
+	HostgroupNameMaps::iterator serverIt = hostgroupMap.find(serverInfo.id);
+	outputJson.startObject("groups");
+	if (serverIt == hostgroupMap.end()) {
+		outputJson.endObject();
+		return;
+	}
+	HostgroupNameMap &hostgroups = serverIt->second;
+	HostgroupNameMap::iterator it = hostgroups.begin();
+	for (; serverIt != hostgroupMap.end() && it != hostgroups.end(); ++it) {
+		HostgroupID hostgroupId = it->first;
+		string &hostgroupName = it->second;
+		outputJson.startObject(StringUtils::toString(hostgroupId));
+		outputJson.add("name", hostgroupName);
+		outputJson.endObject();
+	}
+	outputJson.endObject();
+}
+
 static void addServersMap(
   FaceRest::RestJob *job,
   JsonBuilderAgent &agent,
   HostNameMaps *hostMaps = NULL, bool lookupHostName = false,
-  TriggerBriefMaps *triggerMaps = NULL, bool lookupTriggerBrief = false)
+  TriggerBriefMaps *triggerMaps = NULL, bool lookupTriggerBrief = false,
+  HostgroupNameMaps *hostgroupNameMaps = NULL)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	MonitoringServerInfoList monitoringServers;
@@ -1269,6 +1297,10 @@ static void addServersMap(
 			addTriggersIdBriefHash(job, agent, serverInfo,
 					       *triggerMaps,
 			                       lookupTriggerBrief);
+		}
+		if (hostgroupNameMaps) {
+			addHostgroupsMap(job->userId, agent, serverInfo,
+			                 *hostgroupNameMaps);
 		}
 		agent.endObject();
 	}
@@ -1640,6 +1672,7 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 	agent.startArray("triggers");
 	TriggerInfoListIterator it = triggerList.begin();
 	HostNameMaps hostMaps;
+	HostgroupNameMaps hostgroupNameMaps;
 	for (; it != triggerList.end(); ++it) {
 		TriggerInfo &triggerInfo = *it;
 		agent.startObject();
@@ -1650,13 +1683,16 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 		agent.add("serverId", triggerInfo.serverId);
 		agent.add("hostId",   triggerInfo.hostId);
 		agent.add("brief",    triggerInfo.brief);
+		agent.add("hostgroupId",    triggerInfo.hostgroupId);
 		agent.endObject();
 
 		hostMaps[triggerInfo.serverId][triggerInfo.hostId]
 		  = triggerInfo.hostName;
+		hostgroupNameMaps[triggerInfo.serverId][triggerInfo.hostgroupId]
+		  = triggerInfo.hostgroupName;
 	}
 	agent.endArray();
-	addServersMap(job, agent, &hostMaps);
+	addServersMap(job, agent, &hostMaps, false, NULL, false, &hostgroupNameMaps);
 	agent.endObject();
 
 	replyJsonData(agent, job);
@@ -2393,8 +2429,11 @@ void FaceRest::handlerGetHostgroup(RestJob *job)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
+	ServerIdType serverId;
+	parseQueryServerId(job->query, serverId);
 	HostgroupInfoList hostgroupInfoList;
 	HostgroupsQueryOption option(job->userId);
+	option.setTargetServerId(serverId);
 	HatoholError err =
 	        dataStore->getHostgroupInfoList(hostgroupInfoList, option);
 

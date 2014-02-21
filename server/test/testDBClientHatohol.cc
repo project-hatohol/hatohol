@@ -32,9 +32,9 @@ namespace testDBClientHatohol {
 
 class TestHostResourceQueryOption : public HostResourceQueryOption {
 public:
-	string callGetServerIdColumnName(void) const
+	string callGetServerIdColumnName(const string &tableAlias = "") const
 	{
-		return getServerIdColumnName();
+		return getServerIdColumnName(tableAlias);
 	}
 
 	static
@@ -43,13 +43,16 @@ public:
 				 const string &hostGroupIdColumnName,
 				 const string &hostIdColumnName,
 				 uint32_t targetServerId = ALL_SERVERS,
+				 uint64_t targetHostgroupId = ALL_HOST_GROUPS,
 				 uint64_t targetHostId = ALL_HOSTS)
 	{
 		return makeCondition(srvHostGrpSetMap,
 				     serverIdColumnName,
 				     hostGroupIdColumnName,
 				     hostIdColumnName,
-				     targetServerId, targetHostId);
+				     targetServerId,
+				     targetHostgroupId,
+				     targetHostId);
 	}
 };
 
@@ -80,6 +83,22 @@ static string makeTriggerOutput(const TriggerInfo &triggerInfo)
 	    triggerInfo.brief.c_str());
 	return expectedOut;
 }
+
+static void addHostgroupInfo(HostgroupInfo *hostgroupInfo)
+{
+	DBClientHatohol dbHatohol;
+	dbHatohol.addHostgroupInfo(hostgroupInfo);
+}
+#define assertAddHostgroupInfoToDB(X) \
+cut_trace(_assertAddToDB<HostgroupInfo>(X, addHostgroupInfo))
+
+static void addHostgroupElement(HostgroupElement *hostgroupElement)
+{
+	DBClientHatohol dbHatohol;
+	dbHatohol.addHostgroupElement(hostgroupElement);
+}
+#define assertAddHostgroupElementToDB(X) \
+cut_trace(_assertAddToDB<HostgroupElement>(X, addHostgroupElement))
 
 template<class TResourceType, class TQueryOption>
 struct AssertGetHostResourceArg {
@@ -245,9 +264,25 @@ static void _setupTestTriggerDB(void)
 }
 #define setupTestTriggerDB() cut_trace(_setupTestTriggerDB())
 
+static void _setupTestHostgroupInfoDB(void)
+{
+	for (size_t i = 0; i < NumTestHostgroupInfo; i++)
+		assertAddHostgroupInfoToDB(&testHostgroupInfo[i]);
+}
+#define setupTestHostgroupInfoDB() cut_trace(_setupTestHostgroupInfoDB())
+
+static void _setupTestHostgroupElementDB(void)
+{
+	for (size_t i = 0; i < NumTestHostgroupElement; i++)
+		assertAddHostgroupElementToDB(&testHostgroupElement[i]);
+}
+#define setupTestHostgroupElementDB() cut_trace(_setupTestHostgroupElementDB())
+
 static void _assertGetTriggerInfoList(uint32_t serverId, uint64_t hostId = ALL_HOSTS)
 {
 	setupTestTriggerDB();
+	setupTestHostgroupElementDB();
+	setupTestHostgroupInfoDB();
 	AssertGetTriggersArg arg;
 	arg.targetServerId = serverId;
 	arg.targetHostId = hostId;
@@ -490,17 +525,21 @@ void _assertTriggerInfo(const TriggerInfo &expect, const TriggerInfo &actual)
 }
 #define assertTriggerInfo(E,A) cut_trace(_assertTriggerInfo(E,A))
 
+// FIXME: Change order of parameter.
 static void _assertMakeCondition(const ServerHostGrpSetMap &srvHostGrpSetMap,
 				 const string &expect,
 				 uint32_t targetServerId = ALL_SERVERS,
-				 uint64_t targetHostId = ALL_HOSTS)
+				 uint64_t targetHostId = ALL_HOSTS,
+				 uint64_t targetHostgroupId = ALL_HOST_GROUPS)
 {
 	string cond = TestHostResourceQueryOption::callMakeCondition(
 			srvHostGrpSetMap,
 			serverIdColumnName,
 			hostGroupIdColumnName,
 			hostIdColumnName,
-			targetServerId, targetHostId);
+			targetServerId,
+			targetHostgroupId,
+			targetHostId);
 	cppcut_assert_equal(expect, cond);
 }
 #define assertMakeCondition(M, ...) \
@@ -627,6 +666,8 @@ void test_addTriggerInfo(void)
 void test_getTriggerInfo(void)
 {
 	setupTestTriggerDB();
+	setupTestHostgroupElementDB();
+	setupTestHostgroupInfoDB();
 	int targetIdx = 2;
 	TriggerInfo &targetTriggerInfo = testTriggerInfo[targetIdx];
 	TriggerInfo triggerInfo;
@@ -675,6 +716,16 @@ void test_setTriggerInfoList(void)
 	uint32_t serverId = testTriggerInfo[0].serverId;
 	dbHatohol.setTriggerInfoList(triggerInfoList, serverId);
 
+	HostgroupElementList hostgroupElementList;
+	for (size_t i = 0; i < NumTestHostgroupElement; i++)
+		hostgroupElementList.push_back(testHostgroupElement[i]);
+	dbHatohol.addHostgroupElementList(hostgroupElementList);
+
+	HostgroupInfoList hostgroupInfoList;
+	for (size_t i = 0; i < NumTestHostgroupInfo; i++)
+		hostgroupInfoList.push_back(testHostgroupInfo[i]);
+	dbHatohol.addHostgroupInfoList(hostgroupInfoList);
+
 	AssertGetTriggersArg arg;
 	assertGetTriggers(arg);
 }
@@ -696,6 +747,18 @@ void test_addTriggerInfoList(void)
 	for (; i < NumTestTriggerInfo; i++)
 		triggerInfoList1.push_back(testTriggerInfo[i]);
 	dbHatohol.addTriggerInfoList(triggerInfoList1);
+
+	// Add HostgroupElement
+	HostgroupElementList hostgroupElementList;
+	for (size_t j = 0; j < NumTestHostgroupElement; j++)
+		hostgroupElementList.push_back(testHostgroupElement[j]);
+	dbHatohol.addHostgroupElementList(hostgroupElementList);
+
+	// Add HostgroupInfo
+	HostgroupInfoList hostgroupInfoList;
+	for (size_t j = 0; j < NumTestHostgroupInfo; j++)
+		hostgroupInfoList.push_back(testHostgroupInfo[j]);
+	dbHatohol.addHostgroupInfoList(hostgroupInfoList);
 
 	// Check
 	AssertGetTriggersArg arg;
@@ -1037,29 +1100,23 @@ void test_conditionForAdminWithTargetServerAndHost(void)
 	cppcut_assert_equal(expect, option.getCondition());
 }
 
-void test_eventQueryOptionDefaultTableName(void)
-{
-	HostResourceQueryOption option;
-	cppcut_assert_equal(string(""), option.getTableNameForServerId());
-}
-
-void test_eventQueryOptionSetTableName(void)
-{
-	HostResourceQueryOption option;
-	const string tableName = "test_event";
-	option.setTableNameForServerId(tableName);
-	cppcut_assert_equal(tableName, option.getTableNameForServerId());
-}
-
 void test_eventQueryOptionGetServerIdColumnName(void)
 {
-	TestHostResourceQueryOption option;
-	const string tableName = "test_event";
-	const string expectedServerIdColumnName
-	  = tableName + "." + serverIdColumnName;
-	option.setTableNameForServerId(tableName);
-	cppcut_assert_equal(expectedServerIdColumnName,
-			    option.callGetServerIdColumnName());
+	HostResourceQueryOption option(USER_ID_SYSTEM);
+	const string tableAlias = "test_event_table_alias";
+	option.setTargetServerId(26);
+	option.setTargetHostgroupId(48);
+	option.setTargetHostId(32);
+	string expect = StringUtils::sprintf(
+	                  "%s.%s=26 AND %s.%s=32 AND %s.%s=48",
+			  tableAlias.c_str(),
+			  serverIdColumnName.c_str(),
+			  tableAlias.c_str(),
+			  hostIdColumnName.c_str(),
+			  tableAlias.c_str(),
+			  hostGroupIdColumnName.c_str());
+	cppcut_assert_equal(expect, option.getCondition(tableAlias));
+
 }
 
 void test_makeConditionComplicated(void)

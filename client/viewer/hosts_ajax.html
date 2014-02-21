@@ -1,0 +1,170 @@
+{% extends "viewer/base_ajax.html" %}
+{% load i18n %}
+
+{% comment %}
+  Copyright (C) 2013 Project Hatohol
+
+  This file is part of Hatohol.
+
+  Hatohol is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 2 of the License, or
+  (at your option) any later version.
+
+  Hatohol is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+{% endcomment %}
+
+{% block main %}
+  <h2>{% trans "Hosts" %}</h2>
+
+  <form class="form-inline">
+    <input id="show-host-group" type="button" class="btn"
+     value="{% trans "SHOW GROUP" %}" />
+  </form>
+
+  <div id="msgbox" title="Message Box">
+    <p id="msgbox-text"></p>
+  </div>
+
+  <table class="table table-condensed table-striped table-hover" id="table">
+    <thead>
+      <tr>
+        <th class="show-selector"> </th>
+        <th>{% trans "ID" %}</th>
+        <th>{% trans "Type" %}</th>
+        <th>{% trans "Hostname" %}</th>
+        <th>{% trans "IP Address" %}</th>
+        <th>{% trans "Nickname" %}</th>
+        <th>{% trans "Maps" %}</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+{% endblock %}
+
+{% block option %}
+  <script src="{{ STATIC_URL }}js/hatohol_selector_dialog.js"></script>
+  <script src="{{ STATIC_URL }}js/hatohol_hostgroup_dialog.js"></script>
+{% endblock %}
+
+{% block logic %}
+  <script type="text/javascript">
+
+    var numSelected = 0;
+
+    $("#show-host-group").click(function() {
+      var targetServerId = getSelectedServerId();
+      new HatoholHostgroupDialog(targetServerId, addSucceededCb);
+    });
+
+    function addSucceededCb() {
+      startConnection('server', updateCore);
+    };
+
+    function getSelectedServerId() {
+      var selectedId;
+      var radiobox = $(".selectradiobox");
+      for (var i = 0; i < radiobox.length; i++) {
+        if (!radiobox[i].checked)
+          continue;
+        selectedId = radiobox[i].getAttribute("serverId");
+      }
+      return selectedId;
+    };
+
+    function parseResult(data) {
+      var msg;
+      var malformed =false;
+      if (data.result == undefined)
+        malformed = true;
+      if (!malformed && !data.result && data.message == undefined)
+        malformed = true;
+      if (malformed) {
+        msg = "The returned content is malformed: " +
+              "Not found 'result' or 'message'.\n" +
+              JSON.stringify(data);
+        hatoholErrorMsgBox(msg);
+        return false;
+      }
+      if (!data.result) {
+        msg = "Failed:\n" + data.message;
+        hatoholErrorMsgBox(msg);
+        return false;
+      }
+      if (data.id == undefined) {
+        msg = "The returned content is malformed: " +
+              "'result' is true, however, 'id' missing.\n" +
+              JSON.stringfy(data);
+        hatoholErrorMsgBox(msg);
+        return false;
+      }
+      return true;
+    }
+
+    function getServerTypeFromFlags(flags) {
+      switch(flags) {
+      case hatohol.MONITORING_SYSTEM_ZABBIX:
+        return gettext("Zabbix");
+      case hatohol.MONITORING_SYSTEM_NAGIOS:
+        return gettext("Nagios");
+      default:
+        break;
+      }
+      return gettext("Unknown");
+    }
+
+    function drawTableBody(rd) {
+      var x;
+      var s;
+      var o;
+      var ip, serverURL, mapsURL;
+
+      s = "";
+      for (x = 0; x < rd["servers"].length; ++x) {
+        o = rd["servers"][x]; ip = o["ipAddress"];
+        serverURL = getServerLocation(o);
+        mapsURL = getMapsLocation(o);
+        s += "<tr>";
+        s += "<td class='show-selector'>";
+        s += "<input type='radio' class='selectradiobox' serverId='" + o["id"] + "'>";
+        s += "</td>";
+        s += "<td>" + o["id"] + "</td>";
+        s += "<td>" + getServerTypeFromFlags(o["type"]) + "</td>";
+        if (serverURL) {
+          s += "<td><a href='" + serverURL + "'>" + o["hostName"]  + "</a></td>";
+          s += "<td><a href='" + serverURL + "'>" + ip + "</a></td>";
+        } else {
+          s += "<td>" + o["hostName"]  + "</td>";
+          s += "<td>" + ip + "</td>";
+        }
+        s += "<td>" + o["nickname"]  + "</td>";
+        if (mapsURL) {
+          s += "<td><a href='" + mapsURL + "'>" + "{% trans 'Maps' %}" + "</a></td>";
+        } else {
+          s += "<td></td>";
+        }
+        s += "</tr>";
+      }
+
+      return s;
+    }
+
+    function updateCore(reply) {
+      $("#table tbody").empty();
+      $("#table tbody").append(drawTableBody(reply));
+      numSelected = 0;
+    }
+
+    userProfile.addOnLoadCb(function(user) {
+      startConnection('server', updateCore);
+    });
+  </script>
+{% endblock %}
+

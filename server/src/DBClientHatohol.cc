@@ -35,6 +35,10 @@ static const char *TABLE_NAME_HOSTS                = "hosts";
 static const char *TABLE_NAME_HOSTGROUPS           = "hostgroups";
 static const char *TABLE_NAME_MAP_HOSTS_HOSTGROUPS = "map_hosts_hostgroups";
 
+static const char *VAR_TRIGGERS = "t";
+static const char *VAR_MAP_HOSTS_GROUPS = "m";
+static const char *VAR_HOSTGROUPS = "g";
+
 uint64_t DBClientHatohol::EVENT_NOT_FOUND = -1;
 int DBClientHatohol::HATOHOL_DB_VERSION = 4;
 
@@ -687,7 +691,6 @@ void initEventInfo(EventInfo &eventInfo)
 // HostResourceQueryOption
 // ---------------------------------------------------------------------------
 struct HostResourceQueryOption::PrivateContext {
-	string tableNameForServerId;
 	string serverIdColumnName;
 	string hostGroupIdColumnName;
 	string hostIdColumnName;
@@ -730,13 +733,14 @@ void HostResourceQueryOption::setServerIdColumnName(
 	m_ctx->serverIdColumnName = name;
 }
 
-string HostResourceQueryOption::getServerIdColumnName(void) const
+string HostResourceQueryOption::getServerIdColumnName(
+  const std::string &tableAlias) const
 {
-	if (m_ctx->tableNameForServerId.empty())
+	if (tableAlias.empty())
 		return m_ctx->serverIdColumnName;
 
 	return StringUtils::sprintf("%s.%s",
-				    m_ctx->tableNameForServerId.c_str(),
+				    tableAlias.c_str(),
 				    m_ctx->serverIdColumnName.c_str());
 }
 
@@ -746,9 +750,15 @@ void HostResourceQueryOption::setHostGroupIdColumnName(
 	m_ctx->hostGroupIdColumnName = name;
 }
 
-string HostResourceQueryOption::getHostGroupIdColumnName(void) const
+string HostResourceQueryOption::getHostGroupIdColumnName(
+  const std::string &tableAlias) const
 {
-	return m_ctx->hostGroupIdColumnName;
+	if (tableAlias.empty())
+		return m_ctx->hostGroupIdColumnName;
+
+	return StringUtils::sprintf("%s.%s",
+				    tableAlias.c_str(),
+				    m_ctx->hostGroupIdColumnName.c_str());
 }
 
 void HostResourceQueryOption::setHostIdColumnName(
@@ -757,9 +767,15 @@ void HostResourceQueryOption::setHostIdColumnName(
 	m_ctx->hostIdColumnName = name;
 }
 
-string HostResourceQueryOption::getHostIdColumnName(void) const
+string HostResourceQueryOption::getHostIdColumnName(
+  const std::string &tableAlias) const
 {
-	return m_ctx->hostIdColumnName;
+	if (tableAlias.empty())
+		return m_ctx->hostIdColumnName;
+
+	return StringUtils::sprintf("%s.%s",
+				    tableAlias.c_str(),
+				    m_ctx->hostIdColumnName.c_str());
 }
 
 void HostResourceQueryOption::appendCondition(string &cond, const string &newCond)
@@ -823,8 +839,9 @@ string HostResourceQueryOption::makeCondition(
   const string &serverIdColumnName,
   const string &hostGroupIdColumnName,
   const string &hostIdColumnName,
-  ServerIdType targetServerId, uint64_t targetHostId,
-  uint64_t targetHostgroupId)
+  ServerIdType targetServerId,
+  uint64_t targetHostgroupId,
+  uint64_t targetHostId)
 {
 	string condition;
 
@@ -872,7 +889,7 @@ string HostResourceQueryOption::makeCondition(
 	return StringUtils::sprintf("(%s)", condition.c_str());
 }
 
-string HostResourceQueryOption::getCondition(void) const
+string HostResourceQueryOption::getCondition(const string &tableAlias) const
 {
 	string condition;
 	UserIdType userId = getUserId();
@@ -881,7 +898,7 @@ string HostResourceQueryOption::getCondition(void) const
 		if (m_ctx->targetServerId != ALL_SERVERS) {
 			condition = StringUtils::sprintf(
 				"%s=%"FMT_SERVER_ID,
-				getServerIdColumnName().c_str(),
+				getServerIdColumnName(tableAlias).c_str(),
 				m_ctx->targetServerId);
 		}
 		if (m_ctx->targetHostId != ALL_HOSTS) {
@@ -889,7 +906,7 @@ string HostResourceQueryOption::getCondition(void) const
 				condition += " AND ";
 			condition += StringUtils::sprintf(
 				"%s=%"PRIu64,
-				getHostIdColumnName().c_str(),
+				getHostIdColumnName(tableAlias).c_str(),
 				m_ctx->targetHostId);
 		}
 		if (m_ctx->targetHostgroupId != ALL_HOST_GROUPS) {
@@ -897,7 +914,7 @@ string HostResourceQueryOption::getCondition(void) const
 				condition += " AND ";
 			condition += StringUtils::sprintf(
 				"%s=%"FMT_HOST_GROUP_ID,
-				getHostGroupIdColumnName().c_str(),
+				getHostGroupIdColumnName(tableAlias).c_str(),
 				m_ctx->targetHostgroupId);
 		}
 		return condition;
@@ -913,12 +930,12 @@ string HostResourceQueryOption::getCondition(void) const
 	ServerHostGrpSetMap srvHostGrpSetMap;
 	dbUser->getServerHostGrpSetMap(srvHostGrpSetMap, userId);
 	condition = makeCondition(srvHostGrpSetMap,
-	                          getServerIdColumnName(),
-	                          getHostGroupIdColumnName(),
-	                          getHostIdColumnName(),
+	                          getServerIdColumnName(tableAlias).c_str(),
+	                          getHostGroupIdColumnName(tableAlias).c_str(),
+	                          getHostIdColumnName(tableAlias).c_str(),
 	                          m_ctx->targetServerId,
-	                          m_ctx->targetHostId,
-	                          m_ctx->targetHostgroupId);
+	                          m_ctx->targetHostgroupId,
+	                          m_ctx->targetHostId);
 	return condition;
 }
 
@@ -950,16 +967,6 @@ uint64_t HostResourceQueryOption::getTargetHostgroupId(void) const
 void HostResourceQueryOption::setTargetHostgroupId(uint64_t targetHostgroupId)
 {
 	m_ctx->targetHostgroupId = targetHostgroupId;
-}
-
-string HostResourceQueryOption::getTableNameForServerId(void) const
-{
-	return m_ctx->tableNameForServerId;
-}
-
-void HostResourceQueryOption::setTableNameForServerId(const std::string &name)
-{
-	m_ctx->tableNameForServerId = name;
 }
 
 EventsQueryOption::EventsQueryOption(UserIdType userId)
@@ -1121,8 +1128,10 @@ bool DBClientHatohol::getTriggerInfo(TriggerInfo &triggerInfo,
 	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName;
 	const char *colNameId = 
 	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID].columnName;
-	condition = StringUtils::sprintf("%s=%"FMT_SERVER_ID" and %s=%"PRIu64,
+	condition = StringUtils::sprintf("%s.%s=%"FMT_SERVER_ID
+	                                 " and %s.%s=%"PRIu64, VAR_TRIGGERS,
 	                                  colNameServerId, serverId,
+	                                  VAR_TRIGGERS,
 	                                  colNameId, triggerId);
 
 	TriggerInfoList triggerInfoList;
@@ -1141,7 +1150,7 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 					 const TriggersQueryOption &option,
 					 uint64_t targetTriggerId)
 {
-	string optCond = option.getCondition();
+	string optCond = option.getCondition(VAR_TRIGGERS);
 	if (isAlwaysFalseCondition(optCond))
 		return;
 
@@ -1149,7 +1158,8 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	if (targetTriggerId != ALL_TRIGGERS) {
 		const char *colName = 
 		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID].columnName;
-		condition += StringUtils::sprintf("%s=%"PRIu64, colName,
+		condition += StringUtils::sprintf("%s.%s=%"PRIu64,
+		                                  VAR_TRIGGERS, colName,
 		                                  targetTriggerId);
 	}
 
@@ -1224,7 +1234,7 @@ void DBClientHatohol::addEventInfoList(const EventInfoList &eventInfoList)
 }
 
 HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
-                                               EventsQueryOption &option)
+                                               const EventsQueryOption &option)
 {
 	const static char *VAR_EVENTS = "e";
 	const static char *VAR_TRIGGERS = "t";
@@ -1241,7 +1251,6 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	DBAgent::SelectMultiTableArg arg(namedTables, numNamedTables);
 
 	// Tables
-	option.setTableNameForServerId(VAR_EVENTS);
 	arg.tableField = StringUtils::sprintf(
 	  " %s %s inner join %s %s on %s=%s",
 	  TABLE_NAME_EVENTS, VAR_EVENTS,
@@ -1286,7 +1295,7 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 		  startId);
 	}
 
-	string optCond = option.getCondition();
+	string optCond = option.getCondition(VAR_EVENTS);
 	if (isAlwaysFalseCondition(optCond))
 		return HatoholError(HTERR_OK);
 	if (!optCond.empty()) {
@@ -1781,7 +1790,35 @@ void DBClientHatohol::addHostInfoWithoutTransaction(const HostInfo &hostInfo)
 void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
                                          const string &condition)
 {
-	DBAgent::SelectExArg arg(tableProfileTriggers);
+	static const DBAgent::NamedTable namedTables[] = {
+	  {&tableProfileTriggers, VAR_TRIGGERS},
+	  {&tableProfileMapHostsHostgroups, VAR_MAP_HOSTS_GROUPS},
+	  {&tableProfileHostgroups, VAR_HOSTGROUPS},
+	};
+	enum {
+		TBLIDX_TRIGGERS,
+		TBLIDX_MAP_HOSTS_HOSTGROUPS,
+		TBLIDX_HOSTGROUPS,
+	};
+	static const size_t numNamedTables =
+	  sizeof(namedTables) / sizeof(DBAgent::NamedTable);
+	DBAgent::SelectMultiTableArg arg(namedTables, numNamedTables);
+
+	arg.tableField = StringUtils::sprintf(
+	  " %s %s inner join %s %s on %s=%s "
+	  "inner join %s %s on ((%s=%s) and (%s=%s))",
+	  TABLE_NAME_TRIGGERS, VAR_TRIGGERS,
+	  TABLE_NAME_MAP_HOSTS_HOSTGROUPS, VAR_MAP_HOSTS_GROUPS,
+	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_HOST_ID).c_str(),
+	  arg.getFullName(
+	    TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID).c_str(),
+	  TABLE_NAME_HOSTGROUPS, VAR_HOSTGROUPS,
+	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_SERVER_ID).c_str(),
+	  arg.getFullName(TBLIDX_HOSTGROUPS, IDX_HOSTGROUPS_SERVER_ID).c_str(),
+	  arg.getFullName(TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID).c_str(),
+	  arg.getFullName(TBLIDX_HOSTGROUPS, IDX_HOSTGROUPS_GROUP_ID).c_str());
+
+	arg.setTable(TBLIDX_TRIGGERS);
 	arg.add(IDX_TRIGGERS_SERVER_ID);
 	arg.add(IDX_TRIGGERS_ID);
 	arg.add(IDX_TRIGGERS_STATUS);
@@ -1791,6 +1828,12 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	arg.add(IDX_TRIGGERS_HOST_ID);
 	arg.add(IDX_TRIGGERS_HOSTNAME);
 	arg.add(IDX_TRIGGERS_BRIEF);
+
+	arg.setTable(TBLIDX_MAP_HOSTS_HOSTGROUPS);
+	arg.add(IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
+
+	arg.setTable(TBLIDX_HOSTGROUPS);
+	arg.add(IDX_HOSTGROUPS_GROUP_NAME);
 
 	// condition
 	arg.condition = condition;
@@ -1816,6 +1859,8 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 		itemGroupStream >> trigInfo.hostId;
 		itemGroupStream >> trigInfo.hostName;
 		itemGroupStream >> trigInfo.brief;
+		itemGroupStream >> trigInfo.hostgroupId;
+		itemGroupStream >> trigInfo.hostgroupName;
 	}
 }
 
