@@ -930,9 +930,9 @@ string HostResourceQueryOption::getCondition(const string &tableAlias) const
 	ServerHostGrpSetMap srvHostGrpSetMap;
 	dbUser->getServerHostGrpSetMap(srvHostGrpSetMap, userId);
 	condition = makeCondition(srvHostGrpSetMap,
-	                          getServerIdColumnName(tableAlias).c_str(),
-	                          getHostGroupIdColumnName(tableAlias).c_str(),
-	                          getHostIdColumnName(tableAlias).c_str(),
+	                          getServerIdColumnName(tableAlias),
+	                          getHostGroupIdColumnName(tableAlias),
+	                          getHostIdColumnName(tableAlias),
 	                          m_ctx->targetServerId,
 	                          m_ctx->targetHostgroupId,
 	                          m_ctx->targetHostId);
