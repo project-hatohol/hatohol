@@ -91,7 +91,6 @@ struct AssertGetHostResourceArg {
 	DataQueryOption::SortDirection sortDirection;
 	size_t maxNumber;
 	size_t offset;
-	uint64_t lastUnifiedId;
 	HatoholErrorCode expectedErrorCode;
 	vector<TResourceType*> authorizedRecords;
 	vector<TResourceType*> expectedRecords;
@@ -106,7 +105,6 @@ struct AssertGetHostResourceArg {
 	  sortDirection(DataQueryOption::SORT_DONT_CARE),
 	  maxNumber(0),
 	  offset(0),
-	  lastUnifiedId(0),
 	  expectedErrorCode(HTERR_OK),
 	  fixtures(NULL),
 	  numberOfFixtures(0)
@@ -276,7 +274,10 @@ static string makeEventOutput(const EventInfo &eventInfo)
 struct AssertGetEventsArg
   : public AssertGetHostResourceArg<EventInfo, EventsQueryOption>
 {
+	uint64_t lastUnifiedId;
+
 	AssertGetEventsArg(void)
+	: lastUnifiedId(0)
 	{
 		fixtures = testEventInfo;
 		numberOfFixtures = NumTestEventInfo;
