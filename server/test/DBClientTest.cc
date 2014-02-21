@@ -391,6 +391,16 @@ HostgroupInfo testHostgroupInfo[] = {
 	3,                     // serverId
 	2,                     // groupId
 	"Checked Servers"      // groupName
+}, {
+	AUTO_INCREMENT_VALUE,  // id
+	4,                     // serverId
+	1,                     // groupId
+	"Watching Servers"     // groupName
+}, {
+	AUTO_INCREMENT_VALUE,  // id
+	4,                     // serverId
+	2,                     // groupId
+	"Watched Servers"      // groupName
 }
 };
 const size_t NumTestHostgroupInfo = sizeof(testHostgroupInfo) / sizeof(HostgroupInfo);
@@ -429,6 +439,11 @@ HostgroupElement testHostgroupElement[] = {
 	2,                     // groupId
 }, {
 	AUTO_INCREMENT_VALUE,  // id
+	1,                     // serverId
+	1129,                  // hostId
+	1,                     // groupId
+}, {
+	AUTO_INCREMENT_VALUE,  // id
 	3,                     // serverId
 	10001,                  // hostId
 	2,                     // groupId
@@ -436,6 +451,21 @@ HostgroupElement testHostgroupElement[] = {
 	AUTO_INCREMENT_VALUE,  // id
 	3,                     // serverId
 	10002,                  // hostId
+	1,                     // groupId
+}, {
+	AUTO_INCREMENT_VALUE,  // id
+	3,                     // serverId
+	5,                     // hostId
+	1,                     // groupId
+}, {
+	AUTO_INCREMENT_VALUE,  // id
+	3,                     // serverId
+	100,                   // hostId
+	2,                     // groupId
+}, {
+	AUTO_INCREMENT_VALUE,  // id
+	4,                     // serverId
+	100,                   // hostId
 	1,                     // groupId
 }
 };
