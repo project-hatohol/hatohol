@@ -1723,6 +1723,7 @@ void FaceRest::handlerGetEvent(RestJob *job)
 	agent.startArray("events");
 	EventInfoListIterator it = eventList.begin();
 	HostNameMaps hostMaps;
+	ServerIDHostgroupIDNameMap hostgroupNameMaps;
 	for (; it != eventList.end(); ++it) {
 		EventInfo &eventInfo = *it;
 		agent.startObject();
@@ -1739,9 +1740,11 @@ void FaceRest::handlerGetEvent(RestJob *job)
 
 		hostMaps[eventInfo.serverId][eventInfo.hostId]
 		  = eventInfo.hostName;
+		hostgroupNameMaps[eventInfo.serverId][eventInfo.hostgroupId]
+		  = eventInfo.hostgroupName;
 	}
 	agent.endArray();
-	addServersMap(job, agent, &hostMaps);
+	addServersMap(job, agent, &hostMaps, false, NULL, false, &hostgroupNameMaps);
 	agent.endObject();
 
 	replyJsonData(agent, job);
