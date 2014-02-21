@@ -107,6 +107,8 @@ struct EventInfo {
 	uint64_t            hostId;
 	std::string         hostName;
 	std::string         brief;
+	uint64_t            hostgroupId;
+	std::string         hostgroupName;
 };
 void initEventInfo(EventInfo &eventInfo);
 

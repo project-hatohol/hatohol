@@ -38,6 +38,7 @@ static const char *TABLE_NAME_MAP_HOSTS_HOSTGROUPS = "map_hosts_hostgroups";
 static const char *VAR_TRIGGERS = "t";
 static const char *VAR_MAP_HOSTS_GROUPS = "m";
 static const char *VAR_HOSTGROUPS = "g";
+static const char *VAR_EVENTS = "e";
 
 uint64_t DBClientHatohol::EVENT_NOT_FOUND = -1;
 int DBClientHatohol::HATOHOL_DB_VERSION = 4;
@@ -1236,15 +1237,17 @@ void DBClientHatohol::addEventInfoList(const EventInfoList &eventInfoList)
 HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
                                                const EventsQueryOption &option)
 {
-	const static char *VAR_EVENTS = "e";
-	const static char *VAR_TRIGGERS = "t";
 	static const DBAgent::NamedTable namedTables[] = {
 	  {&tableProfileEvents, VAR_EVENTS},
 	  {&tableProfileTriggers, VAR_TRIGGERS},
+	  {&tableProfileMapHostsHostgroups, VAR_MAP_HOSTS_GROUPS},
+	  {&tableProfileHostgroups, VAR_HOSTGROUPS},
 	};
 	enum {
 		TBLIDX_EVENTS,
 		TBLIDX_TRIGGERS,
+		TBLIDX_MAP_HOSTS_HOSTGROUPS,
+		TBLIDX_HOSTGROUPS,
 	};
 	static const size_t numNamedTables =
 	  sizeof(namedTables) / sizeof(DBAgent::NamedTable);
@@ -1252,11 +1255,22 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 
 	// Tables
 	arg.tableField = StringUtils::sprintf(
-	  " %s %s inner join %s %s on %s=%s",
+	  " %s %s inner join %s %s on %s=%s"
+	  " inner join %s %s on %s=%s"
+	  " inner join %s %s on ((%s=%s) and (%s=%s))",
 	  TABLE_NAME_EVENTS, VAR_EVENTS,
 	  TABLE_NAME_TRIGGERS, VAR_TRIGGERS,
 	  arg.getFullName(TBLIDX_EVENTS, IDX_EVENTS_TRIGGER_ID).c_str(),
-	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_ID).c_str());
+	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_ID).c_str(),
+	  TABLE_NAME_MAP_HOSTS_HOSTGROUPS, VAR_MAP_HOSTS_GROUPS,
+	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_HOST_ID).c_str(),
+	  arg.getFullName(
+	    TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID).c_str(),
+	  TABLE_NAME_HOSTGROUPS, VAR_HOSTGROUPS,
+	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_SERVER_ID).c_str(),
+	  arg.getFullName(TBLIDX_HOSTGROUPS, IDX_HOSTGROUPS_SERVER_ID).c_str(),
+	  arg.getFullName(TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID).c_str(),
+	  arg.getFullName(TBLIDX_HOSTGROUPS, IDX_HOSTGROUPS_GROUP_ID).c_str());
 
 	// Columns
 	arg.setTable(TBLIDX_EVENTS);
@@ -1274,6 +1288,12 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	arg.add(IDX_TRIGGERS_HOST_ID);
 	arg.add(IDX_TRIGGERS_HOSTNAME);
 	arg.add(IDX_TRIGGERS_BRIEF);
+
+	arg.setTable(TBLIDX_MAP_HOSTS_HOSTGROUPS);
+	arg.add(IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
+
+	arg.setTable(TBLIDX_HOSTGROUPS);
+	arg.add(IDX_HOSTGROUPS_GROUP_NAME);
 
 	// Condition
 	DataQueryOption::SortDirection sortDirection =
@@ -1333,6 +1353,8 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 		itemGroupStream >> eventInfo.hostId;
 		itemGroupStream >> eventInfo.hostName;
 		itemGroupStream >> eventInfo.brief;
+		itemGroupStream >> eventInfo.hostgroupId;
+		itemGroupStream >> eventInfo.hostgroupName;
 	}
 	return HatoholError(HTERR_OK);
 }
