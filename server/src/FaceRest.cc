@@ -57,8 +57,8 @@ typedef map<ServerID, HostNameMap> HostNameMaps;
 typedef map<TriggerID, string> TriggerBriefMap;
 typedef map<ServerID, TriggerBriefMap> TriggerBriefMaps;
 
-typedef map<HostgroupID, string> HostgroupNameMap;
-typedef map<ServerID, HostgroupNameMap> HostgroupNameMaps;
+typedef map<HostgroupID, string> HostgroupIDNameMap;
+typedef map<ServerID, HostgroupIDNameMap> ServerIDHostgroupIDNameMap;
 
 static const guint DEFAULT_PORT = 33194;
 
@@ -1249,16 +1249,17 @@ static void addTriggersIdBriefHash(
 
 static void addHostgroupsMap(UserIdType userId, JsonBuilderAgent &outputJson,
                              MonitoringServerInfo &serverInfo,
-                             HostgroupNameMaps &hostgroupMap)
+                             ServerIDHostgroupIDNameMap &hostgroupMap)
 {
-	HostgroupNameMaps::iterator serverIt = hostgroupMap.find(serverInfo.id);
+	ServerIDHostgroupIDNameMap::iterator serverIt =
+	  hostgroupMap.find(serverInfo.id);
 	outputJson.startObject("groups");
 	if (serverIt == hostgroupMap.end()) {
 		outputJson.endObject();
 		return;
 	}
-	HostgroupNameMap &hostgroups = serverIt->second;
-	HostgroupNameMap::iterator it = hostgroups.begin();
+	HostgroupIDNameMap &hostgroups = serverIt->second;
+	HostgroupIDNameMap::iterator it = hostgroups.begin();
 	for (; serverIt != hostgroupMap.end() && it != hostgroups.end(); ++it) {
 		HostgroupID hostgroupId = it->first;
 		string &hostgroupName = it->second;
@@ -1274,7 +1275,7 @@ static void addServersMap(
   JsonBuilderAgent &agent,
   HostNameMaps *hostMaps = NULL, bool lookupHostName = false,
   TriggerBriefMaps *triggerMaps = NULL, bool lookupTriggerBrief = false,
-  HostgroupNameMaps *hostgroupNameMaps = NULL)
+  ServerIDHostgroupIDNameMap *hostgroupNameMaps = NULL)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	MonitoringServerInfoList monitoringServers;
@@ -1672,7 +1673,7 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 	agent.startArray("triggers");
 	TriggerInfoListIterator it = triggerList.begin();
 	HostNameMaps hostMaps;
-	HostgroupNameMaps hostgroupNameMaps;
+	ServerIDHostgroupIDNameMap hostgroupNameMaps;
 	for (; it != triggerList.end(); ++it) {
 		TriggerInfo &triggerInfo = *it;
 		agent.startObject();
