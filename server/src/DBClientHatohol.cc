@@ -1326,23 +1326,16 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	arg.add(IDX_TRIGGERS_BRIEF);
 
 	// Condition
-	DataQueryOption::SortDirection sortDirection =
-	  option.getSortDirection();
 	arg.condition = StringUtils::sprintf(
 	  "%s=%s", 
 	  arg.getFullName(TBLIDX_EVENTS, IDX_EVENTS_SERVER_ID).c_str(),
 	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_SERVER_ID).c_str());
-	uint64_t startId = option.getStartId();
-	if (startId) {
-		if (sortDirection != DataQueryOption::SORT_ASCENDING &&
-		    sortDirection != DataQueryOption::SORT_DESCENDING) {
-			return HatoholError(HTERR_NOT_FOUND_SORT_ORDER);
-		}
+	uint64_t lastUnifiedId = option.getLastUnifiedId();
+	if (lastUnifiedId) {
+		string columnName
+		  = arg.getFullName(TBLIDX_EVENTS, IDX_EVENTS_UNIFIED_ID);
 		arg.condition += StringUtils::sprintf(
-		  " AND %s%s%"PRIu64,
-		  arg.getFullName(TBLIDX_EVENTS, IDX_EVENTS_UNIFIED_ID).c_str(),
-		  sortDirection == DataQueryOption::SORT_ASCENDING ? ">=" : "<=",
-		  startId);
+		  " AND %s<=%"PRIu64, columnName.c_str(), lastUnifiedId);
 	}
 
 	string optCond = option.getCondition();
@@ -1358,6 +1351,7 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 
 	// Limit and Offset
 	arg.limit = option.getMaximumNumber();
+	arg.offset = option.getOffset();
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);

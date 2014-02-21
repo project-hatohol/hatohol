@@ -1444,20 +1444,6 @@ void test_eventsJsonp(void)
 	assertEvents("/event", "foo");
 }
 
-void test_eventsStartIdWithoutSortOrder(void)
-{
-	setupUserDB();
-	startFaceRest();
-	StringMap parameters;
-	parameters["startId"] = "5";
-	RequestArg arg("/event", "hoge");
-	// Any user can be applied (we just have to pass any session ID)
-	arg.userId = findUserWithout(OPPRVLG_GET_ALL_SERVER);
-	arg.parameters = parameters;
-	JsonParserAgent *g_parser = getResponseAsJsonParser(arg);
-	assertErrorCode(g_parser, HTERR_NOT_FOUND_SORT_ORDER);
-}
-
 void test_items(void)
 {
 	assertItems("/item");

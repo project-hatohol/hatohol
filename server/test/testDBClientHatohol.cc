@@ -90,7 +90,8 @@ struct AssertGetHostResourceArg {
 	uint64_t targetHostId;
 	DataQueryOption::SortDirection sortDirection;
 	size_t maxNumber;
-	uint64_t startId;
+	size_t offset;
+	uint64_t lastUnifiedId;
 	HatoholErrorCode expectedErrorCode;
 	vector<TResourceType*> authorizedRecords;
 	vector<TResourceType*> expectedRecords;
@@ -104,7 +105,8 @@ struct AssertGetHostResourceArg {
 	  targetHostId(ALL_HOSTS),
 	  sortDirection(DataQueryOption::SORT_DONT_CARE),
 	  maxNumber(0),
-	  startId(0),
+	  offset(0),
+	  lastUnifiedId(0),
 	  expectedErrorCode(HTERR_OK),
 	  fixtures(NULL),
 	  numberOfFixtures(0)
@@ -164,8 +166,7 @@ struct AssertGetHostResourceArg {
 
 	virtual TResourceType &getExpectedRecord(size_t idx)
 	{
-		if (startId)
-			idx += (startId - 1);
+		idx += offset;
 		if (sortDirection == DataQueryOption::SORT_DESCENDING)
 			idx = (expectedRecords.size() - 1) - idx;
 		cut_assert_true(idx < expectedRecords.size());
@@ -314,8 +315,10 @@ static void _assertGetEventsWithFilter(AssertGetEventsArg &arg)
 	if (arg.maxNumber)
 		arg.option.setMaximumNumber(arg.maxNumber);
 	arg.option.setSortDirection(arg.sortDirection);
-	if (arg.startId)
-		arg.option.setStartId(arg.startId);
+	if (arg.offset)
+		arg.option.setOffset(arg.offset);
+	if (arg.lastUnifiedId)
+		arg.option.setLastUnifiedId(arg.lastUnifiedId);
 	assertGetEvents(arg);
 }
 #define assertGetEventsWithFilter(ARG) \
@@ -1188,25 +1191,17 @@ void test_getEventWithMaximumNumberAscendingStartId(void)
 {
 	AssertGetEventsArg arg;
 	arg.maxNumber = 2;
+	arg.offset = 1;
 	arg.sortDirection = DataQueryOption::SORT_ASCENDING;
-	arg.startId = 2;
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventWithMaximumNumberDescendingStartId(void)
+void test_getEventWithMaximumNumberAndOffsetDescending(void)
 {
 	AssertGetEventsArg arg;
 	arg.maxNumber = 2;
+	arg.offset = 1;
 	arg.sortDirection = DataQueryOption::SORT_DESCENDING;
-	arg.startId = NumTestEventInfo - 1;
-	assertGetEventsWithFilter(arg);
-}
-
-void test_getEventWithStartIdWithoutSortOrder(void)
-{
-	AssertGetEventsArg arg;
-	arg.startId = 2;
-	arg.expectedErrorCode = HTERR_NOT_FOUND_SORT_ORDER;
 	assertGetEventsWithFilter(arg);
 }
 
