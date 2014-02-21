@@ -17,7 +17,7 @@ browser/mocha.css:
 	ln -s ../node_modules/mocha/mocha.css $@
 
 browser/expect.js:
-	ln -s ../node_modules/expect.js/expect.js $@
+	ln -s ../node_modules/expect.js/index.js $@
 
 browser/sinon.js:
 	ln -s ../node_modules/sinon/pkg/sinon.js $@
