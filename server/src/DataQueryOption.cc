@@ -129,6 +129,8 @@ std::string DataQueryOption::getOrderBy()
 			MLPL_ERR("Empty sort column name\n");
 			continue;
 		}
+		if (it->direction == DataQueryOption::SORT_DONT_CARE)
+			continue;
 		if (it != m_ctx->sortOrderList.begin())
 			orderBy += ", ";
 		if (it->direction == DataQueryOption::SORT_ASCENDING) {

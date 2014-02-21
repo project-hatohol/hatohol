@@ -1175,6 +1175,15 @@ void test_eventQueryOptionWithSortTypeId(void)
 	cppcut_assert_equal(expected, option.getOrderBy());
 }
 
+void test_eventQueryOptionWithSortDontCare(void)
+{
+	EventsQueryOption option;
+	option.setSortType(EventsQueryOption::SORT_UNIFIED_ID,
+			   DataQueryOption::SORT_DONT_CARE);
+	const string expected = "";
+	cppcut_assert_equal(expected, option.getOrderBy());
+}
+
 void test_eventQueryOptionWithSortTypeTime(void)
 {
 	EventsQueryOption option;
