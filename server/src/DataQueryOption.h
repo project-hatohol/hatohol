@@ -102,6 +102,20 @@ public:
 	uint64_t getStartId(void) const;
 
 	/**
+	 * Set the offset of the returned elements.
+	 *
+	 * @param offset A offset number of returned elements.
+	 */
+	void setOffset(size_t offset);
+
+	/**
+	 * Get the offset number of returned elements.
+	 *
+	 * @return A offset number of returned elements.
+	 */
+	size_t getOffset(void) const;
+
+	/**
 	 * Get a string for 'where section' of an SQL statement.
 	 *
 	 * @return a string for 'where' in an SQL statment.

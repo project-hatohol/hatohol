@@ -25,13 +25,14 @@ using namespace mlpl;
 
 struct DataQueryOption::PrivateContext {
 	size_t maxNumber;
+	size_t offset;
 	SortOrderList sortOrderList;
 	uint64_t startId;
 
 	// constuctor
 	PrivateContext(void)
 	: maxNumber(NO_LIMIT),
-	  startId(0)
+	  offset(0), startId(0)
 	{
 	}
 };
@@ -150,4 +151,14 @@ void DataQueryOption::setStartId(uint64_t id)
 uint64_t DataQueryOption::getStartId(void) const
 {
 	return m_ctx->startId;
+}
+
+void DataQueryOption::setOffset(size_t offset)
+{
+	m_ctx->offset = offset;
+}
+
+size_t DataQueryOption::getOffset(void) const
+{
+	return m_ctx->offset;
 }
