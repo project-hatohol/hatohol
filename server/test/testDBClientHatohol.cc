@@ -1213,7 +1213,7 @@ void test_getEventWithMaximumNumberDescending(void)
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventWithMaximumNumberAscendingStartId(void)
+void test_getEventWithMaximumNumberAndOffsetAscending(void)
 {
 	AssertGetEventsArg arg;
 	arg.maxNumber = 2;
