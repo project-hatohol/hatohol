@@ -113,7 +113,7 @@ const DataQueryOption::SortOrderList &DataQueryOption::getSortOrderList(void)
 	return m_ctx->sortOrderList;
 }
 
-std::string DataQueryOption::getOrderBy()
+std::string DataQueryOption::getOrderBy(void) const
 {
 	SortOrderListIterator it = m_ctx->sortOrderList.begin();
 	std::string orderBy;
