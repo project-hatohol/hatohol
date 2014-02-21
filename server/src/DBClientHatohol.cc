@@ -39,6 +39,7 @@ static const char *VAR_TRIGGERS = "t";
 static const char *VAR_MAP_HOSTS_GROUPS = "m";
 static const char *VAR_HOSTGROUPS = "g";
 static const char *VAR_EVENTS = "e";
+static const char *VAR_ITEMS = "i";
 
 uint64_t DBClientHatohol::EVENT_NOT_FOUND = -1;
 int DBClientHatohol::HATOHOL_DB_VERSION = 4;
@@ -1492,7 +1493,37 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
                                       const string &condition)
 {
-	DBAgent::SelectExArg arg(tableProfileItems);
+	static const DBAgent::NamedTable namedTables[] = {
+	  {&tableProfileItems, VAR_ITEMS},
+	  {&tableProfileMapHostsHostgroups, VAR_MAP_HOSTS_GROUPS},
+	  {&tableProfileHostgroups, VAR_HOSTGROUPS},
+	};
+	enum {
+		TBLIDX_ITEMS,
+		TBLIDX_MAP_HOSTS_HOSTGROUPS,
+		TBLIDX_HOSTGROUPS,
+	};
+	static const size_t numNamedTables =
+	  sizeof(namedTables) / sizeof(DBAgent::NamedTable);
+	DBAgent::SelectMultiTableArg arg(namedTables, numNamedTables);
+
+	arg.tableField = StringUtils::sprintf(
+	  " %s %s inner join %s %s on %s=%s "
+	  "inner join %s %s on ((%s=%s) and (%s=%s))",
+	  TABLE_NAME_ITEMS, VAR_ITEMS,
+	  TABLE_NAME_MAP_HOSTS_HOSTGROUPS, VAR_MAP_HOSTS_GROUPS,
+	  arg.getFullName(TBLIDX_ITEMS, IDX_ITEMS_HOST_ID).c_str(),
+	  arg.getFullName(
+	    TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID).c_str(),
+	  TABLE_NAME_HOSTGROUPS, VAR_HOSTGROUPS,
+	  arg.getFullName(TBLIDX_ITEMS, IDX_ITEMS_SERVER_ID).c_str(),
+	  arg.getFullName(TBLIDX_HOSTGROUPS, IDX_HOSTS_SERVER_ID).c_str(),
+	  arg.getFullName(
+	    TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID).c_str(),
+	  arg.getFullName(TBLIDX_HOSTGROUPS, IDX_HOSTGROUPS_GROUP_ID).c_str());
+
+
+	arg.setTable(TBLIDX_ITEMS);
 	arg.add(IDX_ITEMS_SERVER_ID);
 	arg.add(IDX_ITEMS_ID);
 	arg.add(IDX_ITEMS_HOST_ID);
@@ -1502,6 +1533,12 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 	arg.add(IDX_ITEMS_LAST_VALUE);
 	arg.add(IDX_ITEMS_PREV_VALUE);
 	arg.add(IDX_ITEMS_ITEM_GROUP_NAME);
+
+	arg.setTable(TBLIDX_MAP_HOSTS_HOSTGROUPS);
+	arg.add(IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
+
+	arg.setTable(TBLIDX_HOSTGROUPS);
+	arg.add(IDX_HOSTGROUPS_GROUP_NAME);
 
 	// condition
 	arg.condition = condition;
@@ -1527,6 +1564,8 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 		itemGroupStream >> itemInfo.lastValue;
 		itemGroupStream >> itemInfo.prevValue;
 		itemGroupStream >> itemInfo.itemGroupName;
+		itemGroupStream >> itemInfo.hostgroupId;
+		itemGroupStream >> itemInfo.hostgroupName;
 	}
 }
 

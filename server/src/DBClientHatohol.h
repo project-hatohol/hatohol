@@ -125,6 +125,9 @@ struct ItemInfo {
 	std::string         lastValue;
 	std::string         prevValue;
 	std::string         itemGroupName;
+
+	uint64_t            hostgroupId;
+	std::string         hostgroupName;
 };
 
 typedef std::list<ItemInfo>          ItemInfoList;
