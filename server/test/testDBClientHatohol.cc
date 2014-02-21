@@ -419,6 +419,16 @@ void _assertItemInfoList(uint32_t serverId)
 		itemInfoList.push_back(testItemInfo[i]);
 	dbHatohol.addItemInfoList(itemInfoList);
 
+	HostgroupElementList hostgroupElementList;
+	for (size_t i = 0; i < NumTestHostgroupElement; i++)
+		hostgroupElementList.push_back(testHostgroupElement[i]);
+	dbHatohol.addHostgroupElementList(hostgroupElementList);
+
+	HostgroupInfoList hostgroupInfoList;
+	for (size_t i = 0; i < NumTestHostgroupInfo; i++)
+		hostgroupInfoList.push_back(testHostgroupInfo[i]);
+	dbHatohol.addHostgroupInfoList(hostgroupInfoList);
+
 	AssertGetItemsArg arg;
 	arg.targetServerId = serverId;
 	assertGetItems(arg);
@@ -807,6 +817,16 @@ void test_addItemInfoList(void)
 	for (size_t i = 0; i < NumTestItemInfo; i++)
 		itemInfoList.push_back(testItemInfo[i]);
 	dbHatohol.addItemInfoList(itemInfoList);
+
+	HostgroupElementList hostgroupElementList;
+	for (size_t i = 0; i < NumTestHostgroupElement; i++)
+		hostgroupElementList.push_back(testHostgroupElement[i]);
+	dbHatohol.addHostgroupElementList(hostgroupElementList);
+
+	HostgroupInfoList hostgroupInfoList;
+	for (size_t i = 0; i < NumTestHostgroupInfo; i++)
+		hostgroupInfoList.push_back(testHostgroupInfo[i]);
+	dbHatohol.addHostgroupInfoList(hostgroupInfoList);
 
 	AssertGetItemsArg arg;
 	assertGetItems(arg);
