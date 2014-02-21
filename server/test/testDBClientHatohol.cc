@@ -144,10 +144,17 @@ struct AssertGetHostResourceArg {
 		}
 	}
 
+	virtual bool filterOutExpectedRecord(TResourceType *info)
+	{
+		return false;
+	}
+
 	virtual void fixupExpectedRecords(void)
 	{
 		for (size_t i = 0; i < authorizedRecords.size(); i++) {
 			TResourceType *record = authorizedRecords[i];
+			if (filterOutExpectedRecord(record))
+				continue;
 			if (targetServerId != ALL_SERVERS) {
 				if (record->serverId != targetServerId)
 					continue;
@@ -173,9 +180,13 @@ struct AssertGetHostResourceArg {
 
 	virtual void assertNumberOfRecords(void)
 	{
-		size_t expectedNum
-		  = maxNumber && maxNumber < expectedRecords.size() ?
-		    maxNumber : expectedRecords.size();
+		size_t expectedNum = expectedRecords.size();
+		if (expectedNum > offset)
+			expectedNum -= offset;
+		else
+			expectedNum = 0;
+		if (maxNumber && maxNumber < expectedNum)
+			expectedNum = maxNumber;
 		cppcut_assert_equal(expectedNum, actualRecordList.size());
 	}
 
@@ -275,12 +286,26 @@ struct AssertGetEventsArg
   : public AssertGetHostResourceArg<EventInfo, EventsQueryOption>
 {
 	uint64_t lastUnifiedId;
+	map<const EventInfo *, uint64_t> idMap;
 
 	AssertGetEventsArg(void)
 	: lastUnifiedId(0)
 	{
 		fixtures = testEventInfo;
 		numberOfFixtures = NumTestEventInfo;
+		fixupIdMap();
+	}
+
+	virtual void fixupIdMap(void) {
+		for (size_t i = 0; i < numberOfFixtures; i++)
+			idMap[&fixtures[i]] = i + 1;
+	}
+
+	virtual bool filterOutExpectedRecord(EventInfo *info)
+	{
+		if (lastUnifiedId && idMap[info] > lastUnifiedId)
+			return true;
+		return false;
 	}
 
 	virtual uint64_t getHostId(EventInfo &info)
@@ -1202,6 +1227,24 @@ void test_getEventWithMaximumNumberAndOffsetDescending(void)
 	AssertGetEventsArg arg;
 	arg.maxNumber = 2;
 	arg.offset = 1;
+	arg.sortDirection = DataQueryOption::SORT_DESCENDING;
+	assertGetEventsWithFilter(arg);
+}
+
+void test_getEventWithLastUnifiedIdAscending(void)
+{
+	AssertGetEventsArg arg;
+	arg.lastUnifiedId = 2;
+	arg.sortDirection = DataQueryOption::SORT_ASCENDING;
+	assertGetEventsWithFilter(arg);
+}
+
+void test_getEventWithMaxNumAndOffsetAndLastUnifiedIdDescending(void)
+{
+	AssertGetEventsArg arg;
+	arg.maxNumber = 2;
+	arg.offset = 1;
+	arg.lastUnifiedId = 2;
 	arg.sortDirection = DataQueryOption::SORT_DESCENDING;
 	assertGetEventsWithFilter(arg);
 }
