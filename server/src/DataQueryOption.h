@@ -111,7 +111,7 @@ public:
 	 *
 	 * @return a string for 'order by' in an SQL statment.
 	 */
-	virtual std::string getOrderBy();
+	virtual std::string getOrderBy(void) const;
 
 private:
 	struct PrivateContext;
