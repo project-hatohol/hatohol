@@ -1469,7 +1469,7 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 				      const ItemsQueryOption &option,
 				      uint64_t targetItemId)
 {
-	string optCond = option.getCondition();
+	string optCond = option.getCondition(VAR_ITEMS);
 	if (isAlwaysFalseCondition(optCond))
 		return;
 
@@ -1477,14 +1477,15 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 	if (targetItemId != ALL_ITEMS) {
 		const char *colName = 
 		  COLUMN_DEF_ITEMS[IDX_ITEMS_ID].columnName;
-		condition += StringUtils::sprintf("%s=%"PRIu64, colName,
-		                                  targetItemId);
+		condition += StringUtils::sprintf("%s.%s=%"PRIu64, colName,
+		                                  VAR_ITEMS, targetItemId);
 	}
 
 	if (!optCond.empty()) {
 		if (!condition.empty())
 			condition += " AND ";
-		condition += StringUtils::sprintf("(%s)", optCond.c_str());
+		condition += StringUtils::sprintf("(%s.%s)", VAR_ITEMS,
+		                                  optCond.c_str());
 	}
 
 	getItemInfoList(itemInfoList, condition);
