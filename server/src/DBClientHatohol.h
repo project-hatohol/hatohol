@@ -207,12 +207,21 @@ public:
 	};
 
 	EventsQueryOption(UserIdType userId = INVALID_USER_ID);
+	EventsQueryOption(const EventsQueryOption &src);
+	~EventsQueryOption();
+
+	void setLastUnifiedId(uint64_t lastUnifiedId);
+	uint64_t getLastUnifiedId(void);
 
 	void setSortType(SortType type, SortDirection direction);
 
 	// Will be removed
 	void setSortDirection(SortDirection direction);
 	SortDirection getSortDirection(void) const;
+
+private:
+	struct PrivateContext;
+	PrivateContext *m_ctx;
 };
 
 class TriggersQueryOption : public HostResourceQueryOption {

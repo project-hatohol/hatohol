@@ -962,13 +962,44 @@ void HostResourceQueryOption::setTableNameForServerId(const std::string &name)
 	m_ctx->tableNameForServerId = name;
 }
 
+struct EventsQueryOption::PrivateContext {
+	uint64_t lastUnifiedId;
+
+	PrivateContext()
+	: lastUnifiedId(NO_LIMIT)
+	{
+	}
+};
+
 EventsQueryOption::EventsQueryOption(UserIdType userId)
 : HostResourceQueryOption(userId)
 {
+	m_ctx = new PrivateContext();
 	setServerIdColumnName(
 	  COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName);
 	setHostIdColumnName(
 	  COLUMN_DEF_EVENTS[IDX_EVENTS_HOST_ID].columnName);
+}
+
+EventsQueryOption::~EventsQueryOption()
+{
+	delete m_ctx;
+}
+
+EventsQueryOption::EventsQueryOption(const EventsQueryOption &src)
+{
+	m_ctx = new PrivateContext();
+	*m_ctx = *src.m_ctx;
+}
+
+void EventsQueryOption::setLastUnifiedId(uint64_t lastUnifiedId)
+{
+	m_ctx->lastUnifiedId = lastUnifiedId;
+}
+
+uint64_t EventsQueryOption::getLastUnifiedId(void)
+{
+	return m_ctx->lastUnifiedId;
 }
 
 void EventsQueryOption::setSortType(SortType type, SortDirection direction)
