@@ -1736,6 +1736,7 @@ void FaceRest::handlerGetEvent(RestJob *job)
 		agent.add("severity",  eventInfo.severity);
 		agent.add("hostId",    eventInfo.hostId);
 		agent.add("brief",     eventInfo.brief);
+		agent.add("hostgroupId", eventInfo.hostgroupId);
 		agent.endObject();
 
 		hostMaps[eventInfo.serverId][eventInfo.hostId]
