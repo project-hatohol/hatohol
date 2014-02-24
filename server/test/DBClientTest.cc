@@ -155,6 +155,15 @@ size_t NumTestEventInfo = sizeof(testEventInfo) / sizeof(EventInfo);
 
 ItemInfo testItemInfo[] = {
 {
+	1,                        // serverId
+	2,                        // id
+	1129,                     // hostId
+	"Rome wasn't built in a day",// brief
+	{1362951129,0},           // lastValueTime
+	"Fukuoka",                // lastValue
+	"Sapporo",                // prevValue
+	"City",                   // itemGroupName,
+}, {
 	3,                        // serverId
 	1,                        // id
 	5,                        // hostId
@@ -171,15 +180,6 @@ ItemInfo testItemInfo[] = {
 	{1362951000,0},           // lastValueTime
 	"Osaka",                  // lastValue
 	"Ichikawa",               // prevValue
-	"City",                   // itemGroupName,
-}, {
-	1,                        // serverId
-	2,                        // id
-	1129,                     // hostId
-	"Rome wasn't built in a day",// brief
-	{1362951129,0},           // lastValueTime
-	"Fukuoka",                // lastValue
-	"Sapporo",                // prevValue
 	"City",                   // itemGroupName,
 }, {
 	4,                        // serverId
