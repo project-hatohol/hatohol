@@ -1257,7 +1257,7 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	// Tables
 	arg.tableField = StringUtils::sprintf(
 	  " %s %s inner join %s %s on %s=%s"
-	  " inner join %s %s on %s=%s"
+	  " inner join %s %s on ((%s=%s) and (%s=%s)) "
 	  " inner join %s %s on ((%s=%s) and (%s=%s))",
 	  TABLE_NAME_EVENTS, VAR_EVENTS,
 	  TABLE_NAME_TRIGGERS, VAR_TRIGGERS,
@@ -1267,6 +1267,9 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_HOST_ID).c_str(),
 	  arg.getFullName(
 	    TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID).c_str(),
+	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_SERVER_ID).c_str(),
+	  arg.getFullName(
+	    TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID).c_str(),
 	  TABLE_NAME_HOSTGROUPS, VAR_HOSTGROUPS,
 	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_SERVER_ID).c_str(),
 	  arg.getFullName(TBLIDX_HOSTGROUPS, IDX_HOSTGROUPS_SERVER_ID).c_str(),
@@ -1509,13 +1512,16 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 	DBAgent::SelectMultiTableArg arg(namedTables, numNamedTables);
 
 	arg.tableField = StringUtils::sprintf(
-	  " %s %s inner join %s %s on %s=%s "
+	  " %s %s inner join %s %s on ((%s=%s) and (%s=%s)) "
 	  "inner join %s %s on ((%s=%s) and (%s=%s))",
 	  TABLE_NAME_ITEMS, VAR_ITEMS,
 	  TABLE_NAME_MAP_HOSTS_HOSTGROUPS, VAR_MAP_HOSTS_GROUPS,
 	  arg.getFullName(TBLIDX_ITEMS, IDX_ITEMS_HOST_ID).c_str(),
 	  arg.getFullName(
 	    TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID).c_str(),
+	  arg.getFullName(TBLIDX_ITEMS, IDX_ITEMS_SERVER_ID).c_str(),
+	  arg.getFullName(
+	    TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID).c_str(),
 	  TABLE_NAME_HOSTGROUPS, VAR_HOSTGROUPS,
 	  arg.getFullName(TBLIDX_ITEMS, IDX_ITEMS_SERVER_ID).c_str(),
 	  arg.getFullName(TBLIDX_HOSTGROUPS, IDX_HOSTS_SERVER_ID).c_str(),
@@ -1867,13 +1873,16 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	DBAgent::SelectMultiTableArg arg(namedTables, numNamedTables);
 
 	arg.tableField = StringUtils::sprintf(
-	  " %s %s inner join %s %s on %s=%s "
+	  " %s %s inner join %s %s on ((%s=%s) and (%s=%s)) "
 	  "inner join %s %s on ((%s=%s) and (%s=%s))",
 	  TABLE_NAME_TRIGGERS, VAR_TRIGGERS,
 	  TABLE_NAME_MAP_HOSTS_HOSTGROUPS, VAR_MAP_HOSTS_GROUPS,
 	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_HOST_ID).c_str(),
 	  arg.getFullName(
 	    TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID).c_str(),
+	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_SERVER_ID).c_str(),
+	  arg.getFullName(
+	    TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID).c_str(),
 	  TABLE_NAME_HOSTGROUPS, VAR_HOSTGROUPS,
 	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_SERVER_ID).c_str(),
 	  arg.getFullName(TBLIDX_HOSTGROUPS, IDX_HOSTGROUPS_SERVER_ID).c_str(),
