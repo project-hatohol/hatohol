@@ -1038,7 +1038,7 @@ void ArmZabbixAPI::updateHosts(void)
 	// getHosts() tries to get all hosts when an empty vector is passed.
 	static const vector<uint64_t> hostIdVector;
 	ItemTablePtr tablePtr = getHosts(hostIdVector);
-	m_ctx->dbClientZabbix->addHostsRaw2_0(tablePtr);
+	addHostsDataToDB(tablePtr);
 }
 
 void ArmZabbixAPI::updateHosts(const ItemTable *triggers)
