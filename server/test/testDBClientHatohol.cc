@@ -370,7 +370,6 @@ static void _assertGetEventsWithFilter(AssertGetEventsArg &arg)
 
 	if (arg.maxNumber)
 		arg.option.setMaximumNumber(arg.maxNumber);
-	//arg.option.setSortDirection(arg.sortDirection);
 	arg.option.setSortType(arg.sortType, arg.sortDirection);
 	if (arg.offset)
 		arg.option.setOffset(arg.offset);
