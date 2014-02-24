@@ -1295,6 +1295,14 @@ void test_getEventWithSortTimeDescending(void)
 	assertGetEventsWithFilter(arg);
 }
 
+void test_getEventWithOffsetWithoutLimit(void)
+{
+	AssertGetEventsArg arg;
+	arg.offset = 2;
+	arg.expectedErrorCode = HTERR_OFFSET_WITHOUT_LIMIT;
+	assertGetEventsWithFilter(arg);
+}
+
 void test_getEventWithMaxNumAndOffsetAndLastUnifiedIdDescending(void)
 {
 	AssertGetEventsArg arg;

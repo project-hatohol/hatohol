@@ -1366,6 +1366,9 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	arg.limit = option.getMaximumNumber();
 	arg.offset = option.getOffset();
 
+	if (!arg.limit && arg.offset)
+		return HTERR_OFFSET_WITHOUT_LIMIT;
+
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
 	} DBCLIENT_TRANSACTION_END();
