@@ -964,9 +964,11 @@ void HostResourceQueryOption::setTableNameForServerId(const std::string &name)
 
 struct EventsQueryOption::PrivateContext {
 	uint64_t lastUnifiedId;
+	SortType sortType;
 
 	PrivateContext()
-	: lastUnifiedId(NO_LIMIT)
+	: lastUnifiedId(NO_LIMIT),
+	  sortType(SORT_UNIFIED_ID)
 	{
 	}
 };
@@ -1004,6 +1006,8 @@ uint64_t EventsQueryOption::getLastUnifiedId(void)
 
 void EventsQueryOption::setSortType(SortType type, SortDirection direction)
 {
+	m_ctx->sortType = type;
+
 	switch (type) {
 	case SORT_UNIFIED_ID:
 	{
@@ -1022,14 +1026,23 @@ void EventsQueryOption::setSortType(SortType type, SortDirection direction)
 		SortOrder order2(
 		  COLUMN_DEF_EVENTS[IDX_EVENTS_TIME_NS].columnName,
 		  direction);
+		SortOrder order3(
+		  COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID].columnName,
+		  direction);
 		sortOrderList.push_back(order1);
 		sortOrderList.push_back(order2);
+		sortOrderList.push_back(order3);
 		setSortOrderList(sortOrderList);
 		break;
 	}
 	default:
 		break;
 	}
+}
+
+EventsQueryOption::SortType EventsQueryOption::getSortType(void) const
+{
+	return m_ctx->sortType;
 }
 
 void EventsQueryOption::setSortDirection(SortDirection direction)

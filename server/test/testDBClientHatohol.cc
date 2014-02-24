@@ -25,6 +25,7 @@
 #include "DBClientTest.h"
 #include "Params.h"
 #include "CacheServiceDBClient.h"
+#include <algorithm>
 using namespace std;
 using namespace mlpl;
 
@@ -286,10 +287,11 @@ struct AssertGetEventsArg
   : public AssertGetHostResourceArg<EventInfo, EventsQueryOption>
 {
 	uint64_t lastUnifiedId;
+	EventsQueryOption::SortType sortType;
 	map<const EventInfo *, uint64_t> idMap;
 
 	AssertGetEventsArg(void)
-	: lastUnifiedId(0)
+	: lastUnifiedId(0), sortType(EventsQueryOption::SORT_UNIFIED_ID)
 	{
 		fixtures = testEventInfo;
 		numberOfFixtures = NumTestEventInfo;
@@ -306,6 +308,34 @@ struct AssertGetEventsArg
 		if (lastUnifiedId && idMap[info] > lastUnifiedId)
 			return true;
 		return false;
+	}
+
+	class lessTime
+	{
+	public:
+		bool operator()(const EventInfo *lhs,
+				const EventInfo *rhs)
+		{
+			if (lhs->time.tv_sec == rhs->time.tv_sec &&
+			    lhs->time.tv_nsec == rhs->time.tv_nsec) {
+				return lhs->unifiedId < rhs->unifiedId;
+			} else if (lhs->time.tv_sec == rhs->time.tv_sec) {
+				return lhs->time.tv_nsec < rhs->time.tv_nsec;
+			} else {
+				return lhs->time.tv_sec < rhs->time.tv_sec;
+			}
+		}
+	};
+
+	virtual void fixupExpectedRecords(void)
+	{
+		AssertGetHostResourceArg<EventInfo, EventsQueryOption>::
+			fixupExpectedRecords();
+		
+		if (sortType == EventsQueryOption::SORT_TIME)
+			std::sort(expectedRecords.begin(),
+				  expectedRecords.end(),
+				  lessTime());
 	}
 
 	virtual uint64_t getHostId(EventInfo &info)
@@ -340,7 +370,8 @@ static void _assertGetEventsWithFilter(AssertGetEventsArg &arg)
 
 	if (arg.maxNumber)
 		arg.option.setMaximumNumber(arg.maxNumber);
-	arg.option.setSortDirection(arg.sortDirection);
+	//arg.option.setSortDirection(arg.sortDirection);
+	arg.option.setSortType(arg.sortType, arg.sortDirection);
 	if (arg.offset)
 		arg.option.setOffset(arg.offset);
 	if (arg.lastUnifiedId)
@@ -1189,7 +1220,7 @@ void test_eventQueryOptionWithSortTypeTime(void)
 	EventsQueryOption option;
 	option.setSortType(EventsQueryOption::SORT_TIME,
 			   DataQueryOption::SORT_ASCENDING);
-	const string expected =  "time_sec ASC, time_ns ASC";
+	const string expected =  "time_sec ASC, time_ns ASC, unified_id ASC";
 	cppcut_assert_equal(expected, option.getOrderBy());
 }
 
@@ -1245,6 +1276,22 @@ void test_getEventWithLastUnifiedIdAscending(void)
 	AssertGetEventsArg arg;
 	arg.lastUnifiedId = 2;
 	arg.sortDirection = DataQueryOption::SORT_ASCENDING;
+	assertGetEventsWithFilter(arg);
+}
+
+void test_getEventWithSortTimeAscending(void)
+{
+	AssertGetEventsArg arg;
+	arg.sortType = EventsQueryOption::SORT_TIME;
+	arg.sortDirection = DataQueryOption::SORT_ASCENDING;
+	assertGetEventsWithFilter(arg);
+}
+
+void test_getEventWithSortTimeDescending(void)
+{
+	AssertGetEventsArg arg;
+	arg.sortType = EventsQueryOption::SORT_TIME;
+	arg.sortDirection = DataQueryOption::SORT_DESCENDING;
 	assertGetEventsWithFilter(arg);
 }
 

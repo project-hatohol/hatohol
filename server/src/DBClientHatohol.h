@@ -214,6 +214,7 @@ public:
 	uint64_t getLastUnifiedId(void);
 
 	void setSortType(SortType type, SortDirection direction);
+	SortType getSortType(void) const;
 
 	// Will be removed
 	void setSortDirection(SortDirection direction);
