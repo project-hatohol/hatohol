@@ -105,24 +105,13 @@ public:
 		                    arg.dataTable->getNumberOfRows());
 	}
 
-	void assertSelectExArgAdd(void)
+	void assertSelectExArgAdd(const bool &useFullName = false)
 	{
 		SelectExArg arg(tableProfileTest);
-		vector<string> expectStmts;
-		for (size_t i = 0; i < tableProfileTest.numColumns; i++) {
-			string v;
-			string expect;
-			if (i % 2) {
-				v = StringUtils::sprintf("%c", 'a' + (int)i);
-				arg.add(i, v);
-				expect = v;
-				expect += ".";
-			} else {
-				arg.add(i);
-			}
-			expect += tableProfileTest.columnDefs[i].columnName;
-			expectStmts.push_back(expect);
-		}
+		if (useFullName)
+			arg.useFullName = true;
+		for (size_t i = 0; i < tableProfileTest.numColumns; i++)
+			arg.add(i);
 
 		// check
 		cppcut_assert_equal(tableProfileTest.numColumns,
@@ -130,12 +119,19 @@ public:
 		cppcut_assert_equal(tableProfileTest.numColumns,
 		                    arg.columnTypes.size());
 		for (size_t i = 0; i < tableProfileTest.numColumns; i++) {
+			string expectStmt;
+			const ColumnDef &columnDef =
+			  tableProfileTest.columnDefs[i];
 			const string &actualStmt = arg.statements[i];
-			cppcut_assert_equal(expectStmts[i], actualStmt);
+			if (useFullName) {
+				expectStmt = columnDef.tableName;
+				expectStmt += ".";
+			}
+			expectStmt += columnDef.columnName;
+			cppcut_assert_equal(expectStmt, actualStmt);
 
 			const SQLColumnType &actualType = arg.columnTypes[i];
-			const SQLColumnType &expectType =
-			  tableProfileTest.columnDefs[i].type;
+			const SQLColumnType &expectType = columnDef.type;
 			cppcut_assert_equal(expectType, actualType);
 		}
 	}
@@ -199,7 +195,8 @@ public:
 
 		const ColumnDef *def = &tableProfileTest.columnDefs[columnIdx];
 		cppcut_assert_equal(
-		  StringUtils::sprintf("t.%s", def->columnName),
+		  StringUtils::sprintf("%s.%s",
+		                       def->tableName, def->columnName),
 		  arg.statements[0]);
 		cppcut_assert_equal(def->type, arg.columnTypes[0]);
 
@@ -213,7 +210,8 @@ public:
 
 		def = &tableProfileTestAutoInc.columnDefs[columnIdx];
 		cppcut_assert_equal(
-		  StringUtils::sprintf("inc.%s", def->columnName),
+		  StringUtils::sprintf("%s.%s",
+		                       def->tableName, def->columnName),
 		  arg.statements[1]);
 		cppcut_assert_equal(def->type, arg.columnTypes[1]);
 	}
@@ -232,7 +230,8 @@ public:
 
 		const ColumnDef *def = &tableProfileTest.columnDefs[columnIdx];
 		cppcut_assert_equal(
-		  StringUtils::sprintf("t.%s", def->columnName),
+		  StringUtils::sprintf("%s.%s",
+		                       tableProfileTest.name, def->columnName),
 		  actualName);
 	}
 
@@ -388,6 +387,12 @@ void test_selectExArgAdd(void)
 {
 	TestDBAgent dbAgent;
 	dbAgent.assertSelectExArgAdd();
+}
+
+void test_selectExArgAddFullName(void)
+{
+	TestDBAgent dbAgent;
+	dbAgent.assertSelectExArgAdd(true);
 }
 
 void test_selectExArgAddDirectStatement(void)

@@ -1566,6 +1566,7 @@ static const DBAgent::TableProfile tableProfileHostsGroupsRaw_2_0(
   sizeof(COLUMN_DEF_HOSTS_GROUPS_RAW_2_0), NUM_IDX_HOSTS_GROUPS_RAW_2_0);
 
 
+// TODO: These two variable and namedTables should be removed.
 static const char *VAR_TRIGGERS  = "t";
 static const char *VAR_HOSTS     = "h";
 
@@ -2234,9 +2235,9 @@ void DBClientZabbix::makeSelectExArgForTriggerAsHatoholFormat(void)
 	  m_ctx->selectExArgForTriggerAsHatoholFormat;
 
 	arg.tableField = StringUtils::sprintf(
-	   "%s %s left join %s %s on %s=%s",
-	   TABLE_NAME_TRIGGERS_RAW_2_0, VAR_TRIGGERS,
-	   TABLE_NAME_HOSTS_RAW_2_0, VAR_HOSTS,
+	   "%s left join %s on %s=%s",
+	   TABLE_NAME_TRIGGERS_RAW_2_0,
+	   TABLE_NAME_HOSTS_RAW_2_0,
 	   arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_RAW_2_0_HOSTID).c_str(),
 	   arg.getFullName(TBLIDX_HOSTS, IDX_HOSTS_RAW_2_0_HOSTID).c_str());
 

@@ -311,6 +311,7 @@ static const DBAgent::TableProfile tableProfileStateHistory(
 // ---------------------------------------------------------------------------
 // Private context
 // ---------------------------------------------------------------------------
+// TODO: remove the following variables
 static const char *VAR_SERVICES     = "sv";
 static const char *VAR_STATUS       = "st";
 static const char *VAR_HOSTS        = "h";
@@ -423,16 +424,16 @@ void ArmNagiosNDOUtils::makeSelectTriggerArg(void)
 	DBAgent::SelectMultiTableArg &arg = m_ctx->selectTriggerArg;
 	arg.tableField = 
 	  StringUtils::sprintf(
-	    "%s %s "
-	    "inner join %s %s on %s=%s "
-	    "inner join %s %s on %s=%s",
-	    TABLE_NAME_SERVICES,      VAR_SERVICES,
-	    TABLE_NAME_SERVICESTATUS, VAR_STATUS,
+	    "%s "
+	    "inner join %s on %s=%s "
+	    "inner join %s on %s=%s",
+	    TABLE_NAME_SERVICES,
+	    TABLE_NAME_SERVICESTATUS,
 	    arg.getFullName(TBLIDX_SERVICES,
                             IDX_SERVICES_SERVICE_OBJECT_ID).c_str(),
 	    arg.getFullName(TBLIDX_STATUS,
                             IDX_SERVICESTATUS_SERVICE_OBJECT_ID).c_str(),
-	    TABLE_NAME_HOSTS,         VAR_HOSTS,
+	    TABLE_NAME_HOSTS,
 	    arg.getFullName(TBLIDX_SERVICES,
                             IDX_SERVICES_SERVICE_OBJECT_ID).c_str(),
 	    arg.getFullName(TBLIDX_HOSTS,
@@ -470,15 +471,15 @@ void ArmNagiosNDOUtils::makeSelectEventArg(void)
 	DBAgent::SelectMultiTableArg &arg = m_ctx->selectEventArg;
 	arg.tableField = 
 	  StringUtils::sprintf(
-	    "%s %s "
-	    "inner join %s %s on %s=%s "
-	    "inner join %s %s on %s=%s",
-	    TABLE_NAME_STATEHISTORY,  VAR_STATEHISTORY,
-	    TABLE_NAME_SERVICES,      VAR_SERVICES,
+	    "%s "
+	    "inner join %s on %s=%s "
+	    "inner join %s on %s=%s",
+	    TABLE_NAME_STATEHISTORY,
+	    TABLE_NAME_SERVICES,
 	    arg.getFullName(TBLIDX_HISTORY, IDX_STATEHISTORY_OBJECT_ID).c_str(),
 	    arg.getFullName(TBLIDX_SERVICES,
 	                    IDX_SERVICES_SERVICE_OBJECT_ID).c_str(),
-	    TABLE_NAME_HOSTS,         VAR_HOSTS,
+	    TABLE_NAME_HOSTS,
 	    arg.getFullName(TBLIDX_SERVICES,
 	                    IDX_SERVICES_SERVICE_OBJECT_ID).c_str(),
 	    arg.getFullName(TBLIDX_HOSTS, IDX_HOSTS_HOST_OBJECT_ID).c_str());
@@ -517,9 +518,9 @@ void ArmNagiosNDOUtils::makeSelectItemArg(void)
 	DBAgent::SelectMultiTableArg &arg = m_ctx->selectItemArg;
 	arg.tableField =
 	  StringUtils::sprintf(
-	    "%s %s inner join %s %s on %s=%s",
-	    TABLE_NAME_SERVICES,      VAR_SERVICES,
-	    TABLE_NAME_SERVICESTATUS, VAR_STATUS,
+	    "%s inner join %s on %s=%s",
+	    TABLE_NAME_SERVICES,
+	    TABLE_NAME_SERVICESTATUS,
 	    arg.getFullName(TBLIDX_SERVICES,
 	                    IDX_SERVICES_SERVICE_OBJECT_ID).c_str(),
 	    arg.getFullName(TBLIDX_STATUS,

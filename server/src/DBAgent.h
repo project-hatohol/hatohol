@@ -122,10 +122,12 @@ public:
 		size_t                     limit;
 		size_t                     offset;
 		std::string                tableField;
+		bool                       useFullName;
 		// output
 		mutable ItemTablePtr        dataTable;
 
 		SelectExArg(const TableProfile &tableProfile);
+		// TODO: TODO: 2nd parameter should be removed
 		void add(const size_t &columnIndex,
 		         const std::string &varName = "");
 		void add(const std::string &statement,

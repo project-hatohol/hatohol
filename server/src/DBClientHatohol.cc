@@ -23,6 +23,7 @@
 #include "DBClientHatohol.h"
 #include "DBClientUser.h"
 #include "CacheServiceDBClient.h"
+#include "SQLUtils.h"
 #include "Params.h"
 #include "ItemGroupStream.h"
 using namespace std;
@@ -35,6 +36,7 @@ static const char *TABLE_NAME_HOSTS                = "hosts";
 static const char *TABLE_NAME_HOSTGROUPS           = "hostgroups";
 static const char *TABLE_NAME_MAP_HOSTS_HOSTGROUPS = "map_hosts_hostgroups";
 
+// TODO: remove the following variables
 static const char *VAR_TRIGGERS = "t";
 static const char *VAR_MAP_HOSTS_GROUPS = "m";
 static const char *VAR_HOSTGROUPS = "g";
@@ -1124,15 +1126,13 @@ bool DBClientHatohol::getTriggerInfo(TriggerInfo &triggerInfo,
                                      uint64_t triggerId)
 {
 	string condition;
-	const char *colNameServerId = 
-	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName;
-	const char *colNameId = 
-	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID].columnName;
-	condition = StringUtils::sprintf("%s.%s=%"FMT_SERVER_ID
-	                                 " and %s.%s=%"PRIu64, VAR_TRIGGERS,
-	                                  colNameServerId, serverId,
-	                                  VAR_TRIGGERS,
-	                                  colNameId, triggerId);
+	condition = StringUtils::sprintf(
+	  "%s=%"FMT_SERVER_ID" and %s=%"PRIu64,
+	  SQLUtils::getFullName(
+	    COLUMN_DEF_TRIGGERS, IDX_TRIGGERS_SERVER_ID).c_str(),
+	  serverId,
+	  SQLUtils::getFullName(COLUMN_DEF_TRIGGERS, IDX_TRIGGERS_ID).c_str(),
+	  triggerId);
 
 	TriggerInfoList triggerInfoList;
 	getTriggerInfoList(triggerInfoList, condition);
@@ -1150,17 +1150,16 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 					 const TriggersQueryOption &option,
 					 uint64_t targetTriggerId)
 {
-	string optCond = option.getCondition(VAR_TRIGGERS);
+	string optCond = option.getCondition(TABLE_NAME_TRIGGERS);
 	if (isAlwaysFalseCondition(optCond))
 		return;
 
 	string condition;
 	if (targetTriggerId != ALL_TRIGGERS) {
-		const char *colName = 
-		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID].columnName;
-		condition += StringUtils::sprintf("%s.%s=%"PRIu64,
-		                                  VAR_TRIGGERS, colName,
-		                                  targetTriggerId);
+		const string colFullName =
+		  SQLUtils::getFullName(COLUMN_DEF_TRIGGERS, IDX_TRIGGERS_ID);
+		condition += StringUtils::sprintf(
+		  "%s=%"PRIu64, colFullName.c_str(), targetTriggerId);
 	}
 
 	if (!optCond.empty()) {
@@ -1236,6 +1235,7 @@ void DBClientHatohol::addEventInfoList(const EventInfoList &eventInfoList)
 HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
                                                const EventsQueryOption &option)
 {
+	// TODO: remove the following variables
 	const static char *VAR_EVENTS = "e";
 	const static char *VAR_TRIGGERS = "t";
 	static const DBAgent::NamedTable namedTables[] = {
@@ -1252,9 +1252,8 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 
 	// Tables
 	arg.tableField = StringUtils::sprintf(
-	  " %s %s inner join %s %s on %s=%s",
-	  TABLE_NAME_EVENTS, VAR_EVENTS,
-	  TABLE_NAME_TRIGGERS, VAR_TRIGGERS,
+	  " %s inner join %s on %s=%s",
+	  TABLE_NAME_EVENTS, TABLE_NAME_TRIGGERS,
 	  arg.getFullName(TBLIDX_EVENTS, IDX_EVENTS_TRIGGER_ID).c_str(),
 	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_ID).c_str());
 
@@ -1295,7 +1294,7 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 		  startId);
 	}
 
-	string optCond = option.getCondition(VAR_EVENTS);
+	string optCond = option.getCondition(TABLE_NAME_EVENTS);
 	if (isAlwaysFalseCondition(optCond))
 		return HatoholError(HTERR_OK);
 	if (!optCond.empty()) {
@@ -1805,14 +1804,14 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	DBAgent::SelectMultiTableArg arg(namedTables, numNamedTables);
 
 	arg.tableField = StringUtils::sprintf(
-	  " %s %s inner join %s %s on %s=%s "
-	  "inner join %s %s on ((%s=%s) and (%s=%s))",
-	  TABLE_NAME_TRIGGERS, VAR_TRIGGERS,
-	  TABLE_NAME_MAP_HOSTS_HOSTGROUPS, VAR_MAP_HOSTS_GROUPS,
+	  " %s inner join %s on %s=%s "
+	  "inner join %s on ((%s=%s) and (%s=%s))",
+	  TABLE_NAME_TRIGGERS,
+	  TABLE_NAME_MAP_HOSTS_HOSTGROUPS,
 	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_HOST_ID).c_str(),
 	  arg.getFullName(
 	    TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID).c_str(),
-	  TABLE_NAME_HOSTGROUPS, VAR_HOSTGROUPS,
+	  TABLE_NAME_HOSTGROUPS,
 	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_SERVER_ID).c_str(),
 	  arg.getFullName(TBLIDX_HOSTGROUPS, IDX_HOSTGROUPS_SERVER_ID).c_str(),
 	  arg.getFullName(TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID).c_str(),

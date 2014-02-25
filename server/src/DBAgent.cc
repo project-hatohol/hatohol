@@ -18,6 +18,7 @@
  */
 
 #include <MutexLock.h>
+#include "SQLUtils.h"
 #include "DBAgent.h"
 #include "HatoholException.h"
 using namespace std;
@@ -216,7 +217,8 @@ DBAgent::SelectArg::SelectArg(const TableProfile &profile)
 DBAgent::SelectExArg::SelectExArg(const TableProfile &profile)
 : tableProfile(&profile),
   limit(0),
-  offset(0)
+  offset(0),
+  useFullName(false)
 {
 }
 
@@ -224,12 +226,13 @@ void DBAgent::SelectExArg::add(const size_t &columnIndex,
                                const std::string &varName)
 {
 	string statement;
-	if (!varName.empty()) {
-		statement = varName;
-		statement += ".";
-	}
 	const ColumnDef &columnDef = tableProfile->columnDefs[columnIndex];
-	statement += columnDef.columnName;
+	if (useFullName) {
+		statement = SQLUtils::getFullName(tableProfile->columnDefs,
+		                                  columnIndex);
+	} else {
+		statement = columnDef.columnName;
+	}
 	statements.push_back(statement);
 	columnTypes.push_back(columnDef.type);
 }
@@ -251,6 +254,7 @@ DBAgent::SelectMultiTableArg::SelectMultiTableArg(
   numTables(_numTables),
   currTable(_namedTables) // point the first element
 {
+	SelectExArg::useFullName = true;
 }
 
 void DBAgent::SelectMultiTableArg::setTable(const size_t &index)
@@ -273,10 +277,9 @@ string DBAgent::SelectMultiTableArg::getFullName(const size_t &tableIndex,
 	               "tableIndex (%zd) >= numTables (%zd)",
 	               tableIndex, numTables);
 	const NamedTable &namedTable = namedTables[tableIndex];
+	const TableProfile &profile = *namedTable.profile;
 	return StringUtils::sprintf(
-	  "%s.%s",
-	  namedTable.varName,
-	  namedTable.profile->columnDefs[columnIndex].columnName);
+	  "%s.%s", profile.name, profile.columnDefs[columnIndex].columnName);
 }
 
 // ---------------------------------------------------------------------------
