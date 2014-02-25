@@ -20,8 +20,6 @@
 var EventsView = function(userProfile, baseElem) {
   var self = this;
   self.baseElem = baseElem;
-  self.minUnifiedId = null;
-  self.maxUnifiedId = null;
   self.currentPage = 0;
   self.limiOfUnifiedId = 0;
 
@@ -95,11 +93,8 @@ var EventsView = function(userProfile, baseElem) {
       maximumNumber: self.numEventsPerPage,
       offset:        self.numEventsPerPage * self.currentPage,
       sortType:      self.sortType,
-      sortOrder:     self.sortOrder,
-      startId:       (self.minUnifiedId - 1)
+      sortOrder:     self.sortOrder
     };
-    if (!loadNextPage)
-      delete query.startId;
     return '/events?' + $.param(query);
   };
 
@@ -298,19 +293,6 @@ var EventsView = function(userProfile, baseElem) {
     return parsedData;
   }
 
-  function fixupUnifiedIdInfo(eventObj) {
-    var unifiedId = eventObj.unifiedId;
-    if (!self.minUnifiedId)
-      self.minUnifiedId = unifiedId;
-    else if (unifiedId < self.minUnifiedId)
-      self.minUnifiedId = unifiedId;
-
-    if (!self.maxUnifiedId)
-      self.maxUnifiedId = unifiedId;
-    else if (unifiedId > self.maxUnifiedId)
-      self.maxUnifiedId = unifiedId;
-  }
-
   function getTargetServerName() {
     var name = $("#select-server").val();
     if (name == "---------")
@@ -368,7 +350,6 @@ var EventsView = function(userProfile, baseElem) {
       html += "<td>" + "unsupported" + "</td>";
       */
       html += "</tr>";
-      fixupUnifiedIdInfo(event);
     }
 
     return html;
