@@ -423,8 +423,12 @@ void ZabbixAPIEmulator::APIHandlerItemGet(APIHandlerArg &arg)
 
 void ZabbixAPIEmulator::APIHandlerHostGet(APIHandlerArg &arg)
 {
-	static const char *DATA_FILE = "zabbix-api-res-hosts-001.json";
-	APIHandlerGetWithFile(arg, DATA_FILE);
+	const char *dataFileName;
+	if (hasParameter(arg, "selectGroups", "refer"))
+		dataFileName = "zabbix-api-res-hosts-002.json";
+	else
+		dataFileName = "zabbix-api-res-hosts-001.json";
+	APIHandlerGetWithFile(arg, dataFileName);
 }
 
 void ZabbixAPIEmulator::APIHandlerHostgroupGet(APIHandlerArg &arg)
