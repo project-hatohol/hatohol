@@ -999,7 +999,7 @@ void EventsQueryOption::setLimitOfUnifiedId(uint64_t unifiedId)
 	m_ctx->limitOfUnifiedId = unifiedId;
 }
 
-uint64_t EventsQueryOption::getLimitOfUnifiedId(void)
+uint64_t EventsQueryOption::getLimitOfUnifiedId(void) const
 {
 	return m_ctx->limitOfUnifiedId;
 }

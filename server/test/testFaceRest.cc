@@ -2474,16 +2474,16 @@ void _assertParseEventParameterMaximumNumber(
 #define assertParseEventParameterMaximumNumber(E, ...) \
 cut_trace(_assertParseEventParameterMaximumNumber(E, ##__VA_ARGS__))
 
-void _assertParseEventParameterStartId(
+void _assertParseEventParameterLimitOfUnifiedId(
   const size_t &expectValue, const string &forceValueStr = "",
   const HatoholErrorCode &expectCode = HTERR_OK)
 {
 	assertParseEventParameterTempl(
-	  uint64_t, expectValue, "%"PRIu64, "startId",
-	  &HostResourceQueryOption::getStartId, expectCode, forceValueStr);
+	  uint64_t, expectValue, "%"PRIu64, "limitOfUnifiedId",
+	  &EventsQueryOption::getLimitOfUnifiedId, expectCode, forceValueStr);
 }
-#define assertParseEventParameterStartId(E, ...) \
-cut_trace(_assertParseEventParameterStartId(E, ##__VA_ARGS__))
+#define assertParseEventParameterLimitOfUnifiedId(E, ...) \
+cut_trace(_assertParseEventParameterLimitOfUnifiedId(E, ##__VA_ARGS__))
 
 GHashTable *g_query = NULL;
 
@@ -2509,13 +2509,13 @@ void test_parseEventParameterWithNullQueryParameter(void)
 	cppcut_assert_equal(true, option == orig);
 }
 
-void test_parseEventParameterSortOrderNotFound(void)
+void test_parseEventParameterDefaultSortOrder(void)
 {
 	EventsQueryOption option;
 	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
 	assertHatoholError(
 	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
-	cppcut_assert_equal(DataQueryOption::SORT_DONT_CARE,
+	cppcut_assert_equal(DataQueryOption::SORT_DESCENDING,
 	                    option.getSortDirection());
 }
 
@@ -2563,23 +2563,24 @@ void test_parseEventParameterMaximumNumberInvalidInput(void)
 	                                       HTERR_INVALID_PARAMETER);
 }
 
-void test_parseEventParameterStartIdNotFound(void)
+void test_parseEventParameterNoLimitOfUnifiedId(void)
 {
 	EventsQueryOption option;
 	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
 	assertHatoholError(
 	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
-	cppcut_assert_equal((uint64_t)0, option.getStartId());
+	cppcut_assert_equal((uint64_t)0, option.getLimitOfUnifiedId());
 }
 
 void test_parseEventParameterStartId(void)
 {
-	assertParseEventParameterStartId(345678);
+	assertParseEventParameterLimitOfUnifiedId(345678);
 }
 
-void test_parseEventParameterStartIdInvalidInput(void)
+void test_parseEventParameterLimitOfUnifiedIdInvalidInput(void)
 {
-	assertParseEventParameterStartId(0, "orca", HTERR_INVALID_PARAMETER);
+	assertParseEventParameterLimitOfUnifiedId(
+	  0, "orca", HTERR_INVALID_PARAMETER);
 }
 
 } // namespace testFaceRestNoInit

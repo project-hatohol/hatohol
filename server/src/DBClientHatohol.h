@@ -211,7 +211,7 @@ public:
 	~EventsQueryOption();
 
 	void setLimitOfUnifiedId(uint64_t unifiedId);
-	uint64_t getLimitOfUnifiedId(void);
+	uint64_t getLimitOfUnifiedId(void) const;
 
 	void setSortType(SortType type, SortDirection direction);
 	SortType getSortType(void) const;
