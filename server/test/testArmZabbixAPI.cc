@@ -218,8 +218,7 @@ public:
 		return ItemTablePtr(tablePtr);
 	}
 
-	void testMakeGroupsItemTable(ItemTablePtr &groupsTablePtr,
-	                             ItemTablePtr &hostsGroupsTablePtr)
+	void testMakeGroupsItemTable(ItemTablePtr &groupsTablePtr)
 	{
 		ifstream ifs("fixtures/zabbix-api-res-hostgroup-002-refer.json");
 		cppcut_assert_equal(false, ifs.fail());
@@ -231,7 +230,6 @@ public:
 		startObject(parser, "result");
 
 		VariableItemTablePtr variableGroupsTablePtr;
-		VariableItemTablePtr variableHostsGroupsTablePtr;
 		int numData = parser.countElements();
 		if (numData < 1)
 			cut_fail("Value of the elements is empty.");
@@ -239,12 +237,32 @@ public:
 			ArmZabbixAPI::parseAndPushGroupsData(parser,
 			                                     variableGroupsTablePtr,
 			                                     i);
+		}
+
+		groupsTablePtr = ItemTablePtr(variableGroupsTablePtr);
+	}
+
+	void testMakeMapHostsHostgroupsItemTable(ItemTablePtr &hostsGroupsTablePtr)
+	{
+		ifstream ifs("fixtures/zabbix-api-res-hosts-002.json");
+		cppcut_assert_equal(false, ifs.fail());
+
+		string fixtureData;
+		getline(ifs, fixtureData);
+		JsonParserAgent parser(fixtureData);
+		cppcut_assert_equal(false, parser.hasError());
+		startObject(parser, "result");
+
+		VariableItemTablePtr variableHostsGroupsTablePtr;
+		int numData = parser.countElements();
+		if (numData < 1)
+			cut_fail("Value of the elements is empty.");
+		for (int i = 0; i < numData; i++) {
 			ArmZabbixAPI::parseAndPushHostsGroupsData(parser,
 			                                          variableHostsGroupsTablePtr,
 			                                          i);
 		}
 
-		groupsTablePtr = ItemTablePtr(variableGroupsTablePtr);
 		hostsGroupsTablePtr = ItemTablePtr(variableHostsGroupsTablePtr);
 	}
 
@@ -792,8 +810,9 @@ void test_verifyGroupsAndHostsGroups(void)
 	ItemTablePtr actualHostsGroupsTablePtr;
 	ItemTablePtr dummyHostsTablePtr;
 
-	armZbxApiTestee.testMakeGroupsItemTable(expectGroupsTablePtr,
-	                                        expectHostsGroupsTablePtr);
+	armZbxApiTestee.testMakeGroupsItemTable(expectGroupsTablePtr);
+	armZbxApiTestee.testMakeMapHostsHostgroupsItemTable
+	                  (expectHostsGroupsTablePtr);
 	armZbxApiTestee.getGroups(actualGroupsTablePtr);
 	armZbxApiTestee.getHosts(dummyHostsTablePtr, actualHostsGroupsTablePtr);
 
