@@ -286,12 +286,12 @@ static string makeEventOutput(const EventInfo &eventInfo)
 struct AssertGetEventsArg
   : public AssertGetHostResourceArg<EventInfo, EventsQueryOption>
 {
-	uint64_t lastUnifiedId;
+	uint64_t limitOfUnifiedId;
 	EventsQueryOption::SortType sortType;
 	map<const EventInfo *, uint64_t> idMap;
 
 	AssertGetEventsArg(void)
-	: lastUnifiedId(0), sortType(EventsQueryOption::SORT_UNIFIED_ID)
+	: limitOfUnifiedId(0), sortType(EventsQueryOption::SORT_UNIFIED_ID)
 	{
 		fixtures = testEventInfo;
 		numberOfFixtures = NumTestEventInfo;
@@ -305,7 +305,7 @@ struct AssertGetEventsArg
 
 	virtual bool filterOutExpectedRecord(EventInfo *info)
 	{
-		if (lastUnifiedId && idMap[info] > lastUnifiedId)
+		if (limitOfUnifiedId && idMap[info] > limitOfUnifiedId)
 			return true;
 		return false;
 	}
@@ -373,8 +373,8 @@ static void _assertGetEventsWithFilter(AssertGetEventsArg &arg)
 	arg.option.setSortType(arg.sortType, arg.sortDirection);
 	if (arg.offset)
 		arg.option.setOffset(arg.offset);
-	if (arg.lastUnifiedId)
-		arg.option.setLastUnifiedId(arg.lastUnifiedId);
+	if (arg.limitOfUnifiedId)
+		arg.option.setLimitOfUnifiedId(arg.limitOfUnifiedId);
 	assertGetEvents(arg);
 }
 #define assertGetEventsWithFilter(ARG) \
@@ -1270,10 +1270,10 @@ void test_getEventWithMaximumNumberAndOffsetDescending(void)
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventWithLastUnifiedIdAscending(void)
+void test_getEventWithLimitOfUnifiedIdAscending(void)
 {
 	AssertGetEventsArg arg;
-	arg.lastUnifiedId = 2;
+	arg.limitOfUnifiedId = 2;
 	arg.sortDirection = DataQueryOption::SORT_ASCENDING;
 	assertGetEventsWithFilter(arg);
 }
@@ -1302,12 +1302,12 @@ void test_getEventWithOffsetWithoutLimit(void)
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventWithMaxNumAndOffsetAndLastUnifiedIdDescending(void)
+void test_getEventWithMaxNumAndOffsetAndLimitOfUnifiedIdDescending(void)
 {
 	AssertGetEventsArg arg;
 	arg.maxNumber = 2;
 	arg.offset = 1;
-	arg.lastUnifiedId = 2;
+	arg.limitOfUnifiedId = 2;
 	arg.sortDirection = DataQueryOption::SORT_DESCENDING;
 	assertGetEventsWithFilter(arg);
 }

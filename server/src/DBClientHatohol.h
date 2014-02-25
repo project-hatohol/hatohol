@@ -210,8 +210,8 @@ public:
 	EventsQueryOption(const EventsQueryOption &src);
 	~EventsQueryOption();
 
-	void setLastUnifiedId(uint64_t lastUnifiedId);
-	uint64_t getLastUnifiedId(void);
+	void setLimitOfUnifiedId(uint64_t unifiedId);
+	uint64_t getLimitOfUnifiedId(void);
 
 	void setSortType(SortType type, SortDirection direction);
 	SortType getSortType(void) const;

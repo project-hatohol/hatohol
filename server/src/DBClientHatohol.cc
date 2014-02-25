@@ -963,11 +963,11 @@ void HostResourceQueryOption::setTableNameForServerId(const std::string &name)
 }
 
 struct EventsQueryOption::PrivateContext {
-	uint64_t lastUnifiedId;
+	uint64_t limitOfUnifiedId;
 	SortType sortType;
 
 	PrivateContext()
-	: lastUnifiedId(NO_LIMIT),
+	: limitOfUnifiedId(NO_LIMIT),
 	  sortType(SORT_UNIFIED_ID)
 	{
 	}
@@ -994,14 +994,14 @@ EventsQueryOption::EventsQueryOption(const EventsQueryOption &src)
 	*m_ctx = *src.m_ctx;
 }
 
-void EventsQueryOption::setLastUnifiedId(uint64_t lastUnifiedId)
+void EventsQueryOption::setLimitOfUnifiedId(uint64_t unifiedId)
 {
-	m_ctx->lastUnifiedId = lastUnifiedId;
+	m_ctx->limitOfUnifiedId = unifiedId;
 }
 
-uint64_t EventsQueryOption::getLastUnifiedId(void)
+uint64_t EventsQueryOption::getLimitOfUnifiedId(void)
 {
-	return m_ctx->lastUnifiedId;
+	return m_ctx->limitOfUnifiedId;
 }
 
 void EventsQueryOption::setSortType(SortType type, SortDirection direction)
@@ -1343,12 +1343,12 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	  "%s=%s", 
 	  arg.getFullName(TBLIDX_EVENTS, IDX_EVENTS_SERVER_ID).c_str(),
 	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_SERVER_ID).c_str());
-	uint64_t lastUnifiedId = option.getLastUnifiedId();
-	if (lastUnifiedId) {
+	uint64_t limitOfUnifiedId = option.getLimitOfUnifiedId();
+	if (limitOfUnifiedId) {
 		string columnName
 		  = arg.getFullName(TBLIDX_EVENTS, IDX_EVENTS_UNIFIED_ID);
 		arg.condition += StringUtils::sprintf(
-		  " AND %s<=%"PRIu64, columnName.c_str(), lastUnifiedId);
+		  " AND %s<=%"PRIu64, columnName.c_str(), limitOfUnifiedId);
 	}
 
 	string optCond = option.getCondition();
