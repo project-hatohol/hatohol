@@ -41,6 +41,14 @@ Others
 NOTE: If a function returns a reference, this convention is not applied.
       E.g. 'const string &func()' is OK
 
+- Add 'override' at the end of the function prototype as a comment when
+  an override method is declared.
+
+    virtual overriddenMetho(void) // override
+
+This is a practice to specify that clearly.
+Note: When we use C++11, we just remove '//'.
+
 - Basically use Pimpl idiom
 Many existing code have private members in the structure named PrivateContext,
 which is defined in the source (.cc) file.
