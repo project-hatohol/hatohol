@@ -184,9 +184,9 @@ ItemTablePtr ArmZabbixAPI::getItems(void)
 	return ItemTablePtr(tablePtr);
 }
 
-ItemTablePtr ArmZabbixAPI::getHosts(const vector<uint64_t> &hostIdVector)
+ItemTablePtr ArmZabbixAPI::getHosts(void)
 {
-	SoupMessage *msg = queryHost(hostIdVector);
+	SoupMessage *msg = queryHost();
 	if (!msg)
 		THROW_DATA_STORE_EXCEPTION("Failed to query hosts.");
 
@@ -458,7 +458,7 @@ SoupMessage *ArmZabbixAPI::queryItem(void)
 	return queryCommon(agent);
 }
 
-SoupMessage *ArmZabbixAPI::queryHost(const vector<uint64_t> &hostIdVector)
+SoupMessage *ArmZabbixAPI::queryHost(void)
 {
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -468,13 +468,6 @@ SoupMessage *ArmZabbixAPI::queryHost(const vector<uint64_t> &hostIdVector)
 	agent.startObject("params");
 	agent.add("output", "extend");
 	agent.add("selectGroups", "refer");
-	if (!hostIdVector.empty()) {
-		agent.startArray("hostids");
-		vector<uint64_t>::const_iterator it = hostIdVector.begin();
-		for (; it != hostIdVector.end(); ++it)
-			agent.add(*it);
-		agent.endArray();
-	}
 	agent.endObject(); // params
 
 	agent.add("auth", m_ctx->authToken);
@@ -1037,20 +1030,8 @@ ItemTablePtr ArmZabbixAPI::updateItems(void)
 void ArmZabbixAPI::updateHosts(void)
 {
 	// getHosts() tries to get all hosts when an empty vector is passed.
-	static const vector<uint64_t> hostIdVector;
 	ItemTablePtr tablePtr = getHosts(hostIdVector);
 	addHostsDataToDB(tablePtr);
-}
-
-void ArmZabbixAPI::updateHosts(const ItemTable *triggers)
-{
-	updateOnlyNeededItem<uint64_t>(
-	  triggers,
-	  ITEM_ID_ZBX_TRIGGERS_HOSTID,
-	  ITEM_ID_ZBX_HOSTS_HOSTID,
-	  &ArmZabbixAPI::getHosts,
-	  &DBClientZabbix::pickupAbsentHostIds,
-	  &ArmZabbixAPI::addHostsDataToDB);
 }
 
 void ArmZabbixAPI::updateEvents(void)

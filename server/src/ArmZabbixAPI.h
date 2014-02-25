@@ -56,7 +56,7 @@ public:
 	 * @return
 	 * An ItemTablePtr instance that has hosts data.
 	 */
-	ItemTablePtr getHosts(const std::vector<uint64_t> &hostIdVector);
+	ItemTablePtr getHosts(void);
 
 	ItemTablePtr getApplications(const std::vector<uint64_t> &appIdVector);
 	ItemTablePtr getEvents(uint64_t eventIdOffset, uint64_t eventIdTill);
@@ -86,7 +86,7 @@ protected:
 	SoupMessage *queryCommon(JsonBuilderAgent &agent);
 	SoupMessage *queryTrigger(int requestSince = 0);
 	SoupMessage *queryItem(void);
-	SoupMessage *queryHost(const std::vector<uint64_t> &hostIdVector);
+	SoupMessage *queryHost(void);
 	SoupMessage *queryApplication(const std::vector<uint64_t> &appIdVector);
 	SoupMessage *queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill);
 	SoupMessage *queryGetLastEventId(void);
@@ -143,13 +143,6 @@ protected:
 	 * get all hosts in the ZABBIX server and save them in the replica DB.
 	 */
 	void updateHosts(void);
-
-	/**
-	 * get hosts that have one of the IDs specified by hostIdVector
-	 * and save them in the replica DB.
-	 * @param hostIdVector A vector of host ID.
-	 */
-	void updateHosts(const ItemTable *triggers);
 
 	void updateEvents(void);
 
