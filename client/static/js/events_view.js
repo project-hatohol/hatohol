@@ -248,7 +248,7 @@ var EventsView = function(userProfile, baseElem) {
         durations = {};
         for (x = 0; x < times.length; ++x) {
           if (x == times.length - 1) {
-            now = (new Date()).getTime() / 1000;
+            now = parseInt((new Date()).getTime() / 1000);
             durations[times[x]] = now - Number(times[x]);
           } else {
             durations[times[x]] = Number(times[x + 1]) - Number(times[x]);
