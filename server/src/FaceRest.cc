@@ -2684,6 +2684,25 @@ HatoholError FaceRest::updateOrAddUser(GHashTable *query,
 	return HatoholError(HTERR_OK);
 }
 
+static HatoholError parseSortTypeFromQuery(
+  EventsQueryOption::SortType &sortType, GHashTable *query)
+{
+	const char *key = "sortType";
+	char *value = (char *)g_hash_table_lookup(query, key);
+	if (!value)
+		return HTERR_NOT_FOUND_PARAMETER;
+	if (!strcasecmp(value, "time")) {
+		sortType = EventsQueryOption::SORT_TIME;
+	} else if (!strcasecmp(value, "unifiedId")) {
+		sortType = EventsQueryOption::SORT_UNIFIED_ID;
+	} else {
+		string optionMessage
+		  = StringUtils::sprintf("%s: %s", key, value);
+		return HatoholError(HTERR_INVALID_PARAMETER, optionMessage);
+	}
+	return HatoholError(HTERR_OK);
+}
+
 HatoholError FaceRest::parseSortOrderFromQuery(
   DataQueryOption::SortDirection &sortDirection, GHashTable *query)
 {
@@ -2709,13 +2728,28 @@ HatoholError FaceRest::parseEventParameter(EventsQueryOption &option,
 
 	HatoholError err;
 
-	// sort order
-	DataQueryOption::SortDirection sortDirection;
-	err = parseSortOrderFromQuery(sortDirection, query);
-	if (err == HTERR_OK)
-		option.setSortDirection(sortDirection);
-	else if (err != HTERR_NOT_FOUND_PARAMETER)
+	// sort type
+	EventsQueryOption::SortType sortType = EventsQueryOption::SORT_TIME;
+	err = parseSortTypeFromQuery(sortType, query);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
 		return err;
+
+	// sort order
+	DataQueryOption::SortDirection sortDirection
+	  = DataQueryOption::SORT_DESCENDING;
+	err = parseSortOrderFromQuery(sortDirection, query);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+
+	option.setSortType(sortType, sortDirection);
+
+	// limit of unifiedId
+	uint64_t limitOfUnifiedId = 0;
+	err = getParam<uint64_t>(query, "limitOfUnifiedId", "%"PRIu64,
+				 limitOfUnifiedId);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+	option.setLimitOfUnifiedId(limitOfUnifiedId);
 
 	// maximum number
 	size_t maximumNumber = 0;
@@ -2724,12 +2758,12 @@ HatoholError FaceRest::parseEventParameter(EventsQueryOption &option,
 		return err;
 	option.setMaximumNumber(maximumNumber);
 
-	// start ID
-	uint64_t startId = 0;
-	err = getParam<uint64_t>(query, "startId", "%"PRIu64, startId);
+	// offset
+	uint64_t offset = 0;
+	err = getParam<uint64_t>(query, "offset", "%"PRIu64, offset);
 	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
 		return err;
-	option.setStartId(startId);
+	option.setOffset(offset);
 
 	return HatoholError(HTERR_OK);
 }

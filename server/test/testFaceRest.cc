@@ -30,6 +30,7 @@
 #include "UnifiedDataStore.h"
 #include "ZabbixAPIEmulator.h"
 #include "SessionManager.h"
+#include "testDBClientHatohol.h"
 using namespace std;
 using namespace mlpl;
 
@@ -583,6 +584,15 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 {
 	setupUserDB();
 	startFaceRest();
+
+	// build expected data
+	AssertGetEventsArg eventsArg;
+	eventsArg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	eventsArg.sortType = EventsQueryOption::SORT_TIME;
+	eventsArg.sortDirection = EventsQueryOption::SORT_DESCENDING;
+	eventsArg.fixup();
+
+	// check json data
 	RequestArg arg(path, callbackName);
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
 	g_parser = getResponseAsJsonParser(arg);
@@ -590,10 +600,13 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 	assertValueInParser(g_parser, "numberOfEvents", NumTestEventInfo);
 	assertValueInParser(g_parser, "lastUnifiedEventId", NumTestEventInfo);
 	g_parser->startObject("events");
-	for (size_t i = 0; i < NumTestEventInfo; i++) {
+	vector<EventInfo*>::reverse_iterator it
+	  = eventsArg.expectedRecords.rbegin();
+	for (size_t i = 0; it != eventsArg.expectedRecords.rend(); i++, it++) {
+		EventInfo &eventInfo = *(*it);
+		uint64_t unifiedId = eventsArg.idMap[*it];
 		g_parser->startElement(i);
-		EventInfo &eventInfo = testEventInfo[i];
-		assertValueInParser(g_parser, "unifiedId", i + 1);
+		assertValueInParser(g_parser, "unifiedId", unifiedId);
 		assertValueInParser(g_parser, "serverId", eventInfo.serverId);
 		assertValueInParser(g_parser, "time", eventInfo.time);
 		assertValueInParser(g_parser, "type", eventInfo.type);

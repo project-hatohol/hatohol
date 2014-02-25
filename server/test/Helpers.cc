@@ -368,6 +368,20 @@ std::string makeUserRoleInfoOutput(const UserRoleInfo &userRoleInfo)
 		 userRoleInfo.flags);
 }
 
+string makeEventOutput(const EventInfo &eventInfo)
+{
+	string output =
+	  mlpl::StringUtils::sprintf(
+	    "%"PRIu32"|%"PRIu64"|%ld|%ld|%d|%u|%"PRIu64"|%s|%s\n",
+	    eventInfo.serverId, eventInfo.id,
+	    eventInfo.time.tv_sec, eventInfo.time.tv_nsec,
+	    eventInfo.status, eventInfo.severity,
+	    eventInfo.hostId,
+	    eventInfo.hostName.c_str(),
+	    eventInfo.brief.c_str());
+	return output;
+}
+
 static void assertDBContentForComponets(const string &expect,
                                         const string &actual,
                                         DBAgent *dbAgent)

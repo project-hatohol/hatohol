@@ -96,6 +96,7 @@ std::string execMySQL(const std::string &dbName, const std::string &statement,
 
 std::string makeServerInfoOutput(const MonitoringServerInfo &serverInfo);
 std::string makeUserRoleInfoOutput(const UserRoleInfo &userRoleInfo);
+std::string makeEventOutput(const EventInfo &eventInfo);
 
 void _assertDatetime(int expectedClock, int actualClock);
 #define assertDatetime(E,A) cut_trace(_assertDatetime(E,A))
