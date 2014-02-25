@@ -88,20 +88,6 @@ public:
 	const SortOrderList &getSortOrderList(void) const;
 
 	/**
-	 * Set a start ID.
-	 *
-	 * @param id A start ID.
-	 */
-	void setStartId(uint64_t id);
-
-	/**
-	 * Get the start ID.
-	 *
-	 * @return A start ID.
-	 */
-	uint64_t getStartId(void) const;
-
-	/**
 	 * Set the offset of the returned elements.
 	 *
 	 * @param offset A offset number of returned elements.

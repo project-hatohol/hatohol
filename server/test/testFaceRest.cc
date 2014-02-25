@@ -2548,6 +2548,24 @@ void test_parseEventParameterSortOrderDontCare(void)
 	  DataQueryOption::SORT_DONT_CARE);
 }
 
+void test_parseEventParameterSortOrderAscending(void)
+{
+	assertParseEventParameterSortOrderDontCare(
+	  DataQueryOption::SORT_ASCENDING);
+}
+
+void test_parseEventParameterSortOrderDescending(void)
+{
+	assertParseEventParameterSortOrderDontCare(
+	  DataQueryOption::SORT_DESCENDING);
+}
+
+void test_parseEventParameterSortInvalidValue(void)
+{
+	assertParseEventParameterSortOrderDontCare(
+	  (DataQueryOption::SortDirection)-1, HTERR_INVALID_PARAMETER);
+}
+
 void test_parseEventParameterNoSortType(void)
 {
 	EventsQueryOption option;
@@ -2568,24 +2586,6 @@ void test_parseEventParameterSortTypeInvalidInput(void)
 	assertParseEventParameterSortType(
 	  EventsQueryOption::SORT_TIME, "event_value",
 	  HTERR_INVALID_PARAMETER);
-}
-
-void test_parseEventParameterSortOrderAscending(void)
-{
-	assertParseEventParameterSortOrderDontCare(
-	  DataQueryOption::SORT_ASCENDING);
-}
-
-void test_parseEventParameterSortOrderDescending(void)
-{
-	assertParseEventParameterSortOrderDontCare(
-	  DataQueryOption::SORT_DESCENDING);
-}
-
-void test_parseEventParameterSortInvalidValue(void)
-{
-	assertParseEventParameterSortOrderDontCare(
-	  (DataQueryOption::SortDirection)-1, HTERR_INVALID_PARAMETER);
 }
 
 void test_parseEventParameterMaximumNumberNotFound(void)
@@ -2637,7 +2637,7 @@ void test_parseEventParameterNoLimitOfUnifiedId(void)
 	cppcut_assert_equal((uint64_t)0, option.getLimitOfUnifiedId());
 }
 
-void test_parseEventParameterStartId(void)
+void test_parseEventParameterLimitOfUnifiedId(void)
 {
 	assertParseEventParameterLimitOfUnifiedId(345678);
 }

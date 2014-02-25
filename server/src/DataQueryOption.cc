@@ -27,12 +27,11 @@ struct DataQueryOption::PrivateContext {
 	size_t maxNumber;
 	size_t offset;
 	SortOrderList sortOrderList;
-	uint64_t startId;
 
 	// constuctor
 	PrivateContext(void)
 	: maxNumber(NO_LIMIT),
-	  offset(0), startId(0)
+	  offset(0)
 	{
 	}
 };
@@ -80,8 +79,6 @@ static inline bool operator ==(
 bool DataQueryOption::operator==(const DataQueryOption &rhs)
 {
 	if (m_ctx->maxNumber != rhs.m_ctx->maxNumber)
-		return false;
-	if (m_ctx->startId != rhs.m_ctx->startId)
 		return false;
 	if (m_ctx->sortOrderList != rhs.m_ctx->sortOrderList)
 		return false;
@@ -143,16 +140,6 @@ std::string DataQueryOption::getOrderBy()
 		}
 	}
 	return orderBy;
-}
-
-void DataQueryOption::setStartId(uint64_t id)
-{
-	m_ctx->startId = id;
-}
-
-uint64_t DataQueryOption::getStartId(void) const
-{
-	return m_ctx->startId;
 }
 
 void DataQueryOption::setOffset(size_t offset)

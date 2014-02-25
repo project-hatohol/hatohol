@@ -215,9 +215,6 @@ public:
 
 	void setSortType(SortType type, SortDirection direction);
 	SortType getSortType(void) const;
-
-	// Will be removed
-	void setSortDirection(SortDirection direction);
 	SortDirection getSortDirection(void) const;
 
 private:

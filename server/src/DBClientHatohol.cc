@@ -965,10 +965,12 @@ void HostResourceQueryOption::setTableNameForServerId(const std::string &name)
 struct EventsQueryOption::PrivateContext {
 	uint64_t limitOfUnifiedId;
 	SortType sortType;
+	SortDirection sortDirection;
 
 	PrivateContext()
 	: limitOfUnifiedId(NO_LIMIT),
-	  sortType(SORT_UNIFIED_ID)
+	  sortType(SORT_UNIFIED_ID),
+	  sortDirection(SORT_DONT_CARE)
 	{
 	}
 };
@@ -1007,6 +1009,7 @@ uint64_t EventsQueryOption::getLimitOfUnifiedId(void) const
 void EventsQueryOption::setSortType(SortType type, SortDirection direction)
 {
 	m_ctx->sortType = type;
+	m_ctx->sortDirection = direction;
 
 	switch (type) {
 	case SORT_UNIFIED_ID:
@@ -1045,24 +1048,9 @@ EventsQueryOption::SortType EventsQueryOption::getSortType(void) const
 	return m_ctx->sortType;
 }
 
-void EventsQueryOption::setSortDirection(SortDirection direction)
-{
-	SortOrder order(COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID].columnName,
-			direction);
-	setSortOrder(order);
-}
-
 DataQueryOption::SortDirection EventsQueryOption::getSortDirection(void) const
 {
-	const SortOrderList &sortOrderList = getSortOrderList();
-	SortOrderListConstIterator it = sortOrderList.begin();
-	string sortColumn =
-	  COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID].columnName;
-	for (; it != sortOrderList.end(); it++) {
-		if (it->columnName == sortColumn)
-			return it->direction;
-	}
-	return SORT_DONT_CARE;
+	return m_ctx->sortDirection;
 }
 
 TriggersQueryOption::TriggersQueryOption(UserIdType userId)

@@ -148,20 +148,6 @@ void test_getDefaultMaximumNumber(void)
 	                    option.getMaximumNumber());
 }
 
-void test_setGetStartId(void)
-{
-	uint64_t startId = 8;
-	DataQueryOption option;
-	option.setStartId(startId);
-	cppcut_assert_equal(startId, option.getStartId());
-}
-
-void test_getDefaultStartId(void)
-{
-	DataQueryOption option;
-	cppcut_assert_equal((uint64_t)0, option.getStartId());
-}
-
 void test_getOrderByWithColumn(void)
 {
 	DataQueryOption option;
