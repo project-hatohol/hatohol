@@ -87,7 +87,7 @@ class connectionException : public HatoholException {};
 // Public methods
 // ---------------------------------------------------------------------------
 ArmZabbixAPI::ArmZabbixAPI(const MonitoringServerInfo &serverInfo)
-: ArmBase(serverInfo),
+: ArmBase("ArmZabbixAPI", serverInfo),
   m_ctx(NULL)
 {
 	bool forURI = true;

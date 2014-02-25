@@ -378,7 +378,7 @@ struct ArmNagiosNDOUtils::PrivateContext
 // Public methods
 // ---------------------------------------------------------------------------
 ArmNagiosNDOUtils::ArmNagiosNDOUtils(const MonitoringServerInfo &serverInfo)
-: ArmBase(serverInfo),
+: ArmBase("ArmNagiosNDOUtils", serverInfo),
   m_ctx(NULL)
 {
 	m_ctx = new PrivateContext(serverInfo);

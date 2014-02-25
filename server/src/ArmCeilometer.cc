@@ -33,7 +33,7 @@ struct ArmCeilometer::PrivateContext
 // Public methods
 // ---------------------------------------------------------------------------
 ArmCeilometer::ArmCeilometer(const MonitoringServerInfo &serverInfo)
-: ArmBase(serverInfo),
+: ArmBase("ArmCeilometer", serverInfo),
   m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();

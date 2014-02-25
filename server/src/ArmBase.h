@@ -20,6 +20,7 @@
 #ifndef ArmBase_h
 #define ArmBase_h
 
+#include <string>
 #include "HatoholThreadBase.h"
 #include "DBClientConfig.h"
 #include "Closure.h"
@@ -33,7 +34,8 @@ public:
 	} UpdateType;
 
 public:
-	ArmBase(const MonitoringServerInfo &serverInfo);
+	ArmBase(const std::string &name,
+	        const MonitoringServerInfo &serverInfo);
 	virtual ~ArmBase();
 
 	const MonitoringServerInfo &getServerInfo(void) const;
@@ -46,6 +48,8 @@ public:
 
 	bool getCopyOnDemandEnabled(void) const;
 	void setCopyOnDemandEnabled(bool enable);
+
+	const std::string &getName(void) const;
 
 protected:
 	bool hasExitRequest(void) const;

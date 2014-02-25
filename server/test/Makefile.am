@@ -54,6 +54,7 @@ testHatohol_la_SOURCES = \
 	testFormulaOperator.cc \
 	testJsonParserAgent.cc testJsonBuilderAgent.cc testUtils.cc \
 	testNamedPipe.cc \
+	testArmBase.cc \
 	testArmZabbixAPI.cc testArmNagiosNDOUtils.cc \
 	testUsedCountable.cc \
 	testUnifiedDataStore.cc testMain.cc

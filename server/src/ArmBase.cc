@@ -25,10 +25,12 @@
 #include "ArmBase.h"
 #include "HatoholException.h"
 
+using namespace std;
 using namespace mlpl;
 
 struct ArmBase::PrivateContext
 {
+	string               name;
 	MonitoringServerInfo serverInfo; // we have the copy.
 	timespec             lastPollingTime;
 	sem_t                sleepSemaphore;
@@ -37,8 +39,10 @@ struct ArmBase::PrivateContext
 	bool                 isCopyOnDemandEnabled;
 	ReadWriteLock        rwlock;
 
-	PrivateContext(const MonitoringServerInfo &_serverInfo)
-	: serverInfo(_serverInfo),
+	PrivateContext(const string &_name,
+	               const MonitoringServerInfo &_serverInfo)
+	: name(_name),
+	  serverInfo(_serverInfo),
 	  exitRequest(false),
 	  updateType(UPDATE_POLLING),
 	  isCopyOnDemandEnabled(false)
@@ -114,10 +118,11 @@ struct ArmBase::PrivateContext
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-ArmBase::ArmBase(const MonitoringServerInfo &serverInfo)
+ArmBase::ArmBase(
+  const string &name, const MonitoringServerInfo &serverInfo)
 : m_ctx(NULL)
 {
-	m_ctx = new PrivateContext(serverInfo);
+	m_ctx = new PrivateContext(name, serverInfo);
 }
 
 ArmBase::~ArmBase()
@@ -147,6 +152,11 @@ int ArmBase::getPollingInterval(void) const
 int ArmBase::getRetryInterval(void) const
 {
 	return m_ctx->serverInfo.retryIntervalSec;
+}
+
+const string &ArmBase::getName(void) const
+{
+	return m_ctx->name;
 }
 
 // ---------------------------------------------------------------------------
