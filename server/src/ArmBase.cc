@@ -170,7 +170,6 @@ const MonitoringServerInfo &ArmBase::getServerInfo(void) const
 	return m_ctx->serverInfo;
 }
 
-
 void ArmBase::sleepInterruptible(int sleepTime)
 {
 	// sleep with timeout
