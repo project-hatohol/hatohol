@@ -18,6 +18,7 @@
  */
 
 #include <MutexLock.h>
+#include "SQLUtils.h"
 #include "DBAgent.h"
 #include "HatoholException.h"
 using namespace std;
@@ -216,20 +217,21 @@ DBAgent::SelectArg::SelectArg(const TableProfile &profile)
 DBAgent::SelectExArg::SelectExArg(const TableProfile &profile)
 : tableProfile(&profile),
   limit(0),
-  offset(0)
+  offset(0),
+  useFullName(false)
 {
 }
 
-void DBAgent::SelectExArg::add(const size_t &columnIndex,
-                               const std::string &varName)
+void DBAgent::SelectExArg::add(const size_t &columnIndex)
 {
 	string statement;
-	if (!varName.empty()) {
-		statement = varName;
-		statement += ".";
-	}
 	const ColumnDef &columnDef = tableProfile->columnDefs[columnIndex];
-	statement += columnDef.columnName;
+	if (useFullName) {
+		statement = SQLUtils::getFullName(tableProfile->columnDefs,
+		                                  columnIndex);
+	} else {
+		statement = columnDef.columnName;
+	}
 	statements.push_back(statement);
 	columnTypes.push_back(columnDef.type);
 }
@@ -245,25 +247,24 @@ void DBAgent::SelectExArg::add(
 // DBAgent::SelectMultiTableArg
 // ---------------------------------------------------------------------------
 DBAgent::SelectMultiTableArg::SelectMultiTableArg(
-  const NamedTable *_namedTables, const size_t &_numTables)
-: SelectExArg(*_namedTables[0].profile),
-  namedTables(_namedTables),
-  numTables(_numTables),
-  currTable(_namedTables) // point the first element
+  const TableProfile **_profiles, const size_t &_numTables)
+: SelectExArg(*_profiles[0]),
+  profiles(_profiles),
+  numTables(_numTables)
 {
+	SelectExArg::useFullName = true;
 }
 
 void DBAgent::SelectMultiTableArg::setTable(const size_t &index)
 {
 	HATOHOL_ASSERT(index < numTables, "index (%zd) >= numTables (%zd)",
 	               index, numTables);
-	currTable = namedTables + index;
-	SelectExArg::tableProfile = currTable->profile;
+	SelectExArg::tableProfile = profiles[index];
 }
 
 void DBAgent::SelectMultiTableArg::add(const size_t &columnIndex)
 {
-	SelectExArg::add(columnIndex, currTable->varName);
+	SelectExArg::add(columnIndex);
 }
 
 string DBAgent::SelectMultiTableArg::getFullName(const size_t &tableIndex,
@@ -272,11 +273,8 @@ string DBAgent::SelectMultiTableArg::getFullName(const size_t &tableIndex,
 	HATOHOL_ASSERT(tableIndex < numTables,
 	               "tableIndex (%zd) >= numTables (%zd)",
 	               tableIndex, numTables);
-	const NamedTable &namedTable = namedTables[tableIndex];
-	return StringUtils::sprintf(
-	  "%s.%s",
-	  namedTable.varName,
-	  namedTable.profile->columnDefs[columnIndex].columnName);
+	const TableProfile *profile = profiles[tableIndex];
+	return SQLUtils::getFullName(profile->columnDefs, columnIndex);
 }
 
 // ---------------------------------------------------------------------------

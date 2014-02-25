@@ -122,27 +122,30 @@ public:
 		size_t                     limit;
 		size_t                     offset;
 		std::string                tableField;
+		bool                       useFullName;
 		// output
 		mutable ItemTablePtr        dataTable;
 
 		SelectExArg(const TableProfile &tableProfile);
-		void add(const size_t &columnIndex,
-		         const std::string &varName = "");
+		void add(const size_t &columnIndex);
 		void add(const std::string &statement,
 		         const SQLColumnType &columnType);
 	};
 
-	struct NamedTable {
-		const TableProfile *profile;
-		const char         *varName;
-	};
-
 	struct SelectMultiTableArg : public SelectExArg {
-		const NamedTable *namedTables;
-		const size_t      numTables;
-		const NamedTable *currTable;
+		const TableProfile **profiles;
+		const size_t         numTables;
 
-		SelectMultiTableArg(const NamedTable *namedTables,
+		/**
+		 *
+		 * @param profiles
+		 * An array of a pointer of TableProfile. It shall be valid
+		 * while this object is used.
+		 *
+		 * @param numTable
+		 * A size of the above array.
+		 */
+		SelectMultiTableArg(const TableProfile **profiles,
 		                    const size_t &numTables);
 		void setTable(const size_t &index);
 		void add(const size_t &columnIndex);

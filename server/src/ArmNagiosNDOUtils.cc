@@ -238,7 +238,7 @@ static const ColumnDef COLUMN_DEF_STATEHISTORY[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NAGIOS_STATEHISTORY_STATE_TIME, // itemId
-	TABLE_NAME_HOSTS,                  // tableName
+	TABLE_NAME_STATEHISTORY,           // tableName
 	"state_time",                      // columnName
 	SQL_COLUMN_TYPE_DATETIME,          // type
 	0,                                 // columnLength
@@ -249,7 +249,7 @@ static const ColumnDef COLUMN_DEF_STATEHISTORY[] = {
 	"0",                               // defaultValue
 }, {
 	ITEM_ID_NAGIOS_STATEHISTORY_OBJECT_ID, // itemId
-	TABLE_NAME_HOSTS,                  // tableName
+	TABLE_NAME_STATEHISTORY,           // tableName
 	"object_id",                       // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -260,7 +260,7 @@ static const ColumnDef COLUMN_DEF_STATEHISTORY[] = {
 	"0",                               // defaultValue
 }, {
 	ITEM_ID_NAGIOS_STATEHISTORY_STATE, // itemId
-	TABLE_NAME_HOSTS,                  // tableName
+	TABLE_NAME_STATEHISTORY,           // tableName
 	"state",                           // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -271,7 +271,7 @@ static const ColumnDef COLUMN_DEF_STATEHISTORY[] = {
 	"0",                               // defaultValue
 }, {
 	ITEM_ID_NAGIOS_STATEHISTORY_STATE_TYPE, // itemId
-	TABLE_NAME_HOSTS,                  // tableName
+	TABLE_NAME_STATEHISTORY,           // tableName
 	"state_type",                      // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -282,7 +282,7 @@ static const ColumnDef COLUMN_DEF_STATEHISTORY[] = {
 	"0",                               // defaultValue
 }, {
 	ITEM_ID_NAGIOS_STATEHISTORY_OUTPUT, // itemId
-	TABLE_NAME_HOSTS,                  // tableName
+	TABLE_NAME_STATEHISTORY,           // tableName
 	"output",                          // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -311,33 +311,28 @@ static const DBAgent::TableProfile tableProfileStateHistory(
 // ---------------------------------------------------------------------------
 // Private context
 // ---------------------------------------------------------------------------
-static const char *VAR_SERVICES     = "sv";
-static const char *VAR_STATUS       = "st";
-static const char *VAR_HOSTS        = "h";
-static const char *VAR_STATEHISTORY = "sh";
-
-static const DBAgent::NamedTable namedTablesTrig[] = {
-  {&tableProfileServices,      VAR_SERVICES}, 
-  {&tableProfileServiceStatus, VAR_STATUS}, 
-  {&tableProfileHosts,         VAR_HOSTS}, 
+static const DBAgent::TableProfile *tableProfilesTrig[] = {
+  &tableProfileServices,
+  &tableProfileServiceStatus,
+  &tableProfileHosts,
 };
-static const size_t numNamedTablesTrig =
-  sizeof(namedTablesTrig) / sizeof(DBAgent::NamedTable);
+static const size_t numTableProfilesTrig =
+  sizeof(tableProfilesTrig) / sizeof(DBAgent::TableProfile *);
 
-static const DBAgent::NamedTable namedTablesEvent[] = {
-  {&tableProfileStateHistory, VAR_STATEHISTORY},
-  {&tableProfileServices,     VAR_SERVICES},
-  {&tableProfileHosts,        VAR_HOSTS}, 
+static const DBAgent::TableProfile *tableProfilesEvent[] = {
+  &tableProfileStateHistory,
+  &tableProfileServices,
+  &tableProfileHosts,
 };
-static const size_t numNamedTablesEvent =
-  sizeof(namedTablesEvent) / sizeof(DBAgent::NamedTable);
+static const size_t numTableProfilesEvent =
+  sizeof(tableProfilesEvent) / sizeof(DBAgent::TableProfile *);
 
-static const DBAgent::NamedTable namedTablesItem[] = {
-  {&tableProfileServices,      VAR_SERVICES},
-  {&tableProfileServiceStatus, VAR_STATUS}, 
+static const DBAgent::TableProfile *tableProfilesItem[] = {
+  &tableProfileServices,
+  &tableProfileServiceStatus,
 };
-static const size_t numNamedTablesItem =
-  sizeof(namedTablesItem) / sizeof(DBAgent::NamedTable);
+static const size_t numTableProfilesItem =
+  sizeof(tableProfilesItem) / sizeof(DBAgent::TableProfile *);
 
 struct ArmNagiosNDOUtils::PrivateContext
 {
@@ -354,9 +349,9 @@ struct ArmNagiosNDOUtils::PrivateContext
 	// methods
 	PrivateContext(const MonitoringServerInfo &_serverInfo)
 	: dbAgent(NULL),
-	  selectTriggerArg(namedTablesTrig, numNamedTablesTrig),
-	  selectEventArg(namedTablesEvent, numNamedTablesEvent),
-	  selectItemArg(namedTablesItem, numNamedTablesItem),
+	  selectTriggerArg(tableProfilesTrig, numTableProfilesTrig),
+	  selectEventArg(tableProfilesEvent, numTableProfilesEvent),
+	  selectItemArg(tableProfilesItem, numTableProfilesItem),
 	  dataStore(NULL),
 	  serverInfo(_serverInfo)
 	{
@@ -423,16 +418,16 @@ void ArmNagiosNDOUtils::makeSelectTriggerArg(void)
 	DBAgent::SelectMultiTableArg &arg = m_ctx->selectTriggerArg;
 	arg.tableField = 
 	  StringUtils::sprintf(
-	    "%s %s "
-	    "inner join %s %s on %s=%s "
-	    "inner join %s %s on %s=%s",
-	    TABLE_NAME_SERVICES,      VAR_SERVICES,
-	    TABLE_NAME_SERVICESTATUS, VAR_STATUS,
+	    "%s "
+	    "inner join %s on %s=%s "
+	    "inner join %s on %s=%s",
+	    TABLE_NAME_SERVICES,
+	    TABLE_NAME_SERVICESTATUS,
 	    arg.getFullName(TBLIDX_SERVICES,
                             IDX_SERVICES_SERVICE_OBJECT_ID).c_str(),
 	    arg.getFullName(TBLIDX_STATUS,
                             IDX_SERVICESTATUS_SERVICE_OBJECT_ID).c_str(),
-	    TABLE_NAME_HOSTS,         VAR_HOSTS,
+	    TABLE_NAME_HOSTS,
 	    arg.getFullName(TBLIDX_SERVICES,
                             IDX_SERVICES_SERVICE_OBJECT_ID).c_str(),
 	    arg.getFullName(TBLIDX_HOSTS,
@@ -470,15 +465,15 @@ void ArmNagiosNDOUtils::makeSelectEventArg(void)
 	DBAgent::SelectMultiTableArg &arg = m_ctx->selectEventArg;
 	arg.tableField = 
 	  StringUtils::sprintf(
-	    "%s %s "
-	    "inner join %s %s on %s=%s "
-	    "inner join %s %s on %s=%s",
-	    TABLE_NAME_STATEHISTORY,  VAR_STATEHISTORY,
-	    TABLE_NAME_SERVICES,      VAR_SERVICES,
+	    "%s "
+	    "inner join %s on %s=%s "
+	    "inner join %s on %s=%s",
+	    TABLE_NAME_STATEHISTORY,
+	    TABLE_NAME_SERVICES,
 	    arg.getFullName(TBLIDX_HISTORY, IDX_STATEHISTORY_OBJECT_ID).c_str(),
 	    arg.getFullName(TBLIDX_SERVICES,
 	                    IDX_SERVICES_SERVICE_OBJECT_ID).c_str(),
-	    TABLE_NAME_HOSTS,         VAR_HOSTS,
+	    TABLE_NAME_HOSTS,
 	    arg.getFullName(TBLIDX_SERVICES,
 	                    IDX_SERVICES_SERVICE_OBJECT_ID).c_str(),
 	    arg.getFullName(TBLIDX_HOSTS, IDX_HOSTS_HOST_OBJECT_ID).c_str());
@@ -517,9 +512,9 @@ void ArmNagiosNDOUtils::makeSelectItemArg(void)
 	DBAgent::SelectMultiTableArg &arg = m_ctx->selectItemArg;
 	arg.tableField =
 	  StringUtils::sprintf(
-	    "%s %s inner join %s %s on %s=%s",
-	    TABLE_NAME_SERVICES,      VAR_SERVICES,
-	    TABLE_NAME_SERVICESTATUS, VAR_STATUS,
+	    "%s inner join %s on %s=%s",
+	    TABLE_NAME_SERVICES,
+	    TABLE_NAME_SERVICESTATUS,
 	    arg.getFullName(TBLIDX_SERVICES,
 	                    IDX_SERVICES_SERVICE_OBJECT_ID).c_str(),
 	    arg.getFullName(TBLIDX_STATUS,

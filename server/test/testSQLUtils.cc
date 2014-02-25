@@ -20,6 +20,7 @@
 #include <sstream>
 #include <cppcutter.h>
 #include <time.h>
+#include "DBAgentTest.h"
 #include "SQLUtils.h"
 using namespace std;
 using namespace mlpl;
@@ -71,6 +72,17 @@ cut_trace((_assertCreateItemData<VT,IDT>(DEF, V)))
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
+void test_getFullName(void)
+{
+	const size_t index = 1;
+	string actual = SQLUtils::getFullName(COLUMN_DEF_TEST, index);
+
+	const ColumnDef &def = COLUMN_DEF_TEST[index];
+	string expect =
+	  StringUtils::sprintf("%s.%s", def.tableName, def.columnName);
+	cppcut_assert_equal(expect, actual);
+}
+
 void test_itemInt(void)
 {
 	int data = 10;

@@ -105,24 +105,13 @@ public:
 		                    arg.dataTable->getNumberOfRows());
 	}
 
-	void assertSelectExArgAdd(void)
+	void assertSelectExArgAdd(const bool &useFullName = false)
 	{
 		SelectExArg arg(tableProfileTest);
-		vector<string> expectStmts;
-		for (size_t i = 0; i < tableProfileTest.numColumns; i++) {
-			string v;
-			string expect;
-			if (i % 2) {
-				v = StringUtils::sprintf("%c", 'a' + (int)i);
-				arg.add(i, v);
-				expect = v;
-				expect += ".";
-			} else {
-				arg.add(i);
-			}
-			expect += tableProfileTest.columnDefs[i].columnName;
-			expectStmts.push_back(expect);
-		}
+		if (useFullName)
+			arg.useFullName = true;
+		for (size_t i = 0; i < tableProfileTest.numColumns; i++)
+			arg.add(i);
 
 		// check
 		cppcut_assert_equal(tableProfileTest.numColumns,
@@ -130,12 +119,19 @@ public:
 		cppcut_assert_equal(tableProfileTest.numColumns,
 		                    arg.columnTypes.size());
 		for (size_t i = 0; i < tableProfileTest.numColumns; i++) {
+			string expectStmt;
+			const ColumnDef &columnDef =
+			  tableProfileTest.columnDefs[i];
 			const string &actualStmt = arg.statements[i];
-			cppcut_assert_equal(expectStmts[i], actualStmt);
+			if (useFullName) {
+				expectStmt = columnDef.tableName;
+				expectStmt += ".";
+			}
+			expectStmt += columnDef.columnName;
+			cppcut_assert_equal(expectStmt, actualStmt);
 
 			const SQLColumnType &actualType = arg.columnTypes[i];
-			const SQLColumnType &expectType =
-			  tableProfileTest.columnDefs[i].type;
+			const SQLColumnType &expectType = columnDef.type;
 			cppcut_assert_equal(expectType, actualType);
 		}
 	}
@@ -157,38 +153,37 @@ public:
 
 	void assertCreateSelectMultiTableArg(void)
 	{
-		const NamedTable namedTables[] = {
-		  {&tableProfileTest, "t"}, {&tableProfileTestAutoInc, "inc"}
+		const TableProfile *tableProfiles[] = {
+		  &tableProfileTest, &tableProfileTestAutoInc,
 		};
-		const size_t numNamedTables =
-		  sizeof(namedTables) / sizeof(NamedTable);
-		SelectMultiTableArg arg(namedTables, numNamedTables);
-		cppcut_assert_equal(namedTables, arg.namedTables);
-		cppcut_assert_equal(numNamedTables, arg.numTables);
-		cppcut_assert_equal(namedTables, arg.currTable);
+		const size_t numTableProfiles =
+		  sizeof(tableProfiles) / sizeof(TableProfile *);
+		SelectMultiTableArg arg(tableProfiles, numTableProfiles);
+		cppcut_assert_equal(tableProfiles, arg.profiles);
+		cppcut_assert_equal(numTableProfiles, arg.numTables);
 	}
 
 	void assertSelectMultiTableArgSetProfile(void)
 	{
-		const NamedTable namedTables[] = {
-		  {&tableProfileTest, "t"}, {&tableProfileTestAutoInc, "inc"}
+		const TableProfile *tableProfiles[] = {
+		  &tableProfileTest, &tableProfileTestAutoInc,
 		};
-		const size_t numNamedTables =
-		  sizeof(namedTables) / sizeof(NamedTable);
-		SelectMultiTableArg arg(namedTables, numNamedTables);
+		const size_t numTableProfiles =
+		  sizeof(tableProfiles) / sizeof(TableProfile *);
+		SelectMultiTableArg arg(tableProfiles, numTableProfiles);
 		arg.setTable(1);
-		cppcut_assert_equal(&namedTables[1], arg.currTable);
+		cppcut_assert_equal(tableProfiles[1], arg.tableProfile);
 		cppcut_assert_equal(&tableProfileTestAutoInc, arg.tableProfile);
 	}
 
 	void assertSelectMultiTableArgAdd(void)
 	{
-		const NamedTable namedTables[] = {
-		  {&tableProfileTest, "t"}, {&tableProfileTestAutoInc, "inc"}
+		const TableProfile *tableProfiles[] = {
+		  &tableProfileTest, &tableProfileTestAutoInc,
 		};
-		const size_t numNamedTables =
-		  sizeof(namedTables) / sizeof(NamedTable);
-		SelectMultiTableArg arg(namedTables, numNamedTables);
+		const size_t numTableProfiles =
+		  sizeof(tableProfiles) / sizeof(TableProfile *);
+		SelectMultiTableArg arg(tableProfiles, numTableProfiles);
 
 		// 1st add()
 		size_t columnIdx = 2;
@@ -199,7 +194,8 @@ public:
 
 		const ColumnDef *def = &tableProfileTest.columnDefs[columnIdx];
 		cppcut_assert_equal(
-		  StringUtils::sprintf("t.%s", def->columnName),
+		  StringUtils::sprintf("%s.%s",
+		                       def->tableName, def->columnName),
 		  arg.statements[0]);
 		cppcut_assert_equal(def->type, arg.columnTypes[0]);
 
@@ -213,26 +209,28 @@ public:
 
 		def = &tableProfileTestAutoInc.columnDefs[columnIdx];
 		cppcut_assert_equal(
-		  StringUtils::sprintf("inc.%s", def->columnName),
+		  StringUtils::sprintf("%s.%s",
+		                       def->tableName, def->columnName),
 		  arg.statements[1]);
 		cppcut_assert_equal(def->type, arg.columnTypes[1]);
 	}
 
 	void assertSelectMultiTableArgGetFullName(void)
 	{
-		const NamedTable namedTables[] = {
-		  {&tableProfileTest, "t"}, {&tableProfileTestAutoInc, "inc"}
+		const TableProfile *tableProfiles[] = {
+		  &tableProfileTest, &tableProfileTestAutoInc,
 		};
-		const size_t numNamedTables =
-		  sizeof(namedTables) / sizeof(NamedTable);
-		SelectMultiTableArg arg(namedTables, numNamedTables);
+		const size_t numTableProfiles =
+		  sizeof(tableProfiles) / sizeof(TableProfile *);
+		SelectMultiTableArg arg(tableProfiles, numTableProfiles);
 
 		const size_t columnIdx = 3;
 		const string actualName = arg.getFullName(0, columnIdx);
 
 		const ColumnDef *def = &tableProfileTest.columnDefs[columnIdx];
 		cppcut_assert_equal(
-		  StringUtils::sprintf("t.%s", def->columnName),
+		  StringUtils::sprintf("%s.%s",
+		                       tableProfileTest.name, def->columnName),
 		  actualName);
 	}
 
@@ -388,6 +386,12 @@ void test_selectExArgAdd(void)
 {
 	TestDBAgent dbAgent;
 	dbAgent.assertSelectExArgAdd();
+}
+
+void test_selectExArgAddFullName(void)
+{
+	TestDBAgent dbAgent;
+	dbAgent.assertSelectExArgAdd(true);
 }
 
 void test_selectExArgAddDirectStatement(void)

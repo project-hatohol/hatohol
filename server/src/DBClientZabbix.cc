@@ -1565,16 +1565,12 @@ static const DBAgent::TableProfile tableProfileHostsGroupsRaw_2_0(
   TABLE_NAME_HOSTS_GROUPS_RAW_2_0, COLUMN_DEF_HOSTS_GROUPS_RAW_2_0,
   sizeof(COLUMN_DEF_HOSTS_GROUPS_RAW_2_0), NUM_IDX_HOSTS_GROUPS_RAW_2_0);
 
-
-static const char *VAR_TRIGGERS  = "t";
-static const char *VAR_HOSTS     = "h";
-
-static const DBAgent::NamedTable namedTables[] = {
-  {&tableProfileTriggersRaw_2_0, VAR_TRIGGERS},
-  {&tableProfileHostsRaw_2_0, VAR_HOSTS},
+static const DBAgent::TableProfile *tableProfiles[] = {
+  &tableProfileTriggersRaw_2_0,
+  &tableProfileHostsRaw_2_0,
 };
-static const size_t numNamedTables =
-   sizeof(namedTables) / sizeof(DBAgent::NamedTable);
+static const size_t numTableProfiles =
+   sizeof(tableProfiles) / sizeof(DBAgent::TableProfile *);
 
 struct DBClientZabbix::PrivateContext
 {
@@ -1584,7 +1580,7 @@ struct DBClientZabbix::PrivateContext
 	// methods
 	PrivateContext(size_t _serverId)
 	: serverId(_serverId),
-	  selectExArgForTriggerAsHatoholFormat(namedTables, numNamedTables)
+	  selectExArgForTriggerAsHatoholFormat(tableProfiles, numTableProfiles)
 	{
 	}
 };
@@ -2234,9 +2230,9 @@ void DBClientZabbix::makeSelectExArgForTriggerAsHatoholFormat(void)
 	  m_ctx->selectExArgForTriggerAsHatoholFormat;
 
 	arg.tableField = StringUtils::sprintf(
-	   "%s %s left join %s %s on %s=%s",
-	   TABLE_NAME_TRIGGERS_RAW_2_0, VAR_TRIGGERS,
-	   TABLE_NAME_HOSTS_RAW_2_0, VAR_HOSTS,
+	   "%s left join %s on %s=%s",
+	   TABLE_NAME_TRIGGERS_RAW_2_0,
+	   TABLE_NAME_HOSTS_RAW_2_0,
 	   arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_RAW_2_0_HOSTID).c_str(),
 	   arg.getFullName(TBLIDX_HOSTS, IDX_HOSTS_RAW_2_0_HOSTID).c_str());
 
