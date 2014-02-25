@@ -467,6 +467,7 @@ SoupMessage *ArmZabbixAPI::queryHost(const vector<uint64_t> &hostIdVector)
 
 	agent.startObject("params");
 	agent.add("output", "extend");
+	agent.add("selectGroups", "refer");
 	if (!hostIdVector.empty()) {
 		agent.startArray("hostids");
 		vector<uint64_t>::const_iterator it = hostIdVector.begin();
@@ -1236,10 +1237,11 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 		}
 
 		// get triggers
-		ItemTablePtr triggers = updateTriggers();
+		updateTriggers();
 
-		// update needed hosts
-		updateHosts(triggers);
+		// TODO: Change retrieve interval.
+		//       Or, Hatohol gets in the event-driven.
+		updateHosts();
 
 		updateGroups();
 		// Currently functions are no longer updated, because ZABBIX
