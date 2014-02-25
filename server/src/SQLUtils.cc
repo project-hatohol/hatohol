@@ -53,6 +53,15 @@ void SQLUtils::init(void)
 	}
 }
 
+string SQLUtils::getFullName(const ColumnDef *columnDefs, const size_t &index)
+{
+	const ColumnDef &def = columnDefs[index];
+	string fullName = def.tableName;
+	fullName += ".";
+	fullName += def.columnName;
+	return fullName;
+}
+
 const ColumnAccessInfo &
 SQLUtils::getColumnAccessInfo(const string &columnName,
                               const SQLTableStaticInfo *tableStaticInfo)
