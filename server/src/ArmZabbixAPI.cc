@@ -184,7 +184,8 @@ ItemTablePtr ArmZabbixAPI::getItems(void)
 	return ItemTablePtr(tablePtr);
 }
 
-ItemTablePtr ArmZabbixAPI::getHosts(void)
+void ArmZabbixAPI::getHosts
+(ItemTablePtr &hostsTablePtr, ItemTablePtr &hostsGroupsTablePtr)
 {
 	SoupMessage *msg = queryHost();
 	if (!msg)
@@ -198,15 +199,19 @@ ItemTablePtr ArmZabbixAPI::getHosts(void)
 	}
 	startObject(parser, "result");
 
-	VariableItemTablePtr tablePtr;
+	VariableItemTablePtr variableHostsTablePtr, variableHostsGroupsTablePtr;
 	int numData = parser.countElements();
 	MLPL_DBG("The number of hosts: %d\n", numData);
 	if (numData < 1)
-		return ItemTablePtr(tablePtr);
+		return;
 
-	for (int i = 0; i < numData; i++)
-		parseAndPushHostsData(parser, tablePtr, i);
-	return ItemTablePtr(tablePtr);
+	for (int i = 0; i < numData; i++) {
+		parseAndPushHostsData(parser, variableHostsTablePtr, i);
+		parseAndPushHostsGroupsData(parser,
+		                            variableHostsGroupsTablePtr, i);
+	}
+	hostsTablePtr = ItemTablePtr(variableHostsTablePtr);
+	hostsGroupsTablePtr = ItemTablePtr(variableHostsGroupsTablePtr);
 }
 
 ItemTablePtr ArmZabbixAPI::getApplications(const vector<uint64_t> &appIdVector)
@@ -293,7 +298,7 @@ void ArmZabbixAPI::onGotNewEvents(const ItemTablePtr &itemPtr)
 	// This function is used on a test class.
 }
 
-void ArmZabbixAPI::getGroups(ItemTablePtr &groupsTablePtr, ItemTablePtr &hostsGroupsTablePtr)
+void ArmZabbixAPI::getGroups(ItemTablePtr &groupsTablePtr)
 {
 	SoupMessage *msg = queryGroup();
 	if (!msg)
@@ -308,17 +313,13 @@ void ArmZabbixAPI::getGroups(ItemTablePtr &groupsTablePtr, ItemTablePtr &hostsGr
 	startObject(parser, "result");
 
 	VariableItemTablePtr variableGroupsTablePtr;
-	VariableItemTablePtr variableHostsGroupsTablePtr;
 	int numData = parser.countElements();
 	MLPL_DBG("The number of groups: %d\n", numData);
 
-	for (int i = 0; i < numData; i++) {
+	for (int i = 0; i < numData; i++)
 		parseAndPushGroupsData(parser, variableGroupsTablePtr, i);
-		parseAndPushHostsGroupsData(parser, variableHostsGroupsTablePtr, i);
-	}
 
 	groupsTablePtr = ItemTablePtr(variableGroupsTablePtr);
-	hostsGroupsTablePtr = ItemTablePtr(variableHostsGroupsTablePtr);
 }
 
 // ---------------------------------------------------------------------------
@@ -941,29 +942,26 @@ void ArmZabbixAPI::parseAndPushHostsGroupsData
   (JsonParserAgent &parser, VariableItemTablePtr &tablePtr, int index)
 {
 	startElement(parser, index);
-	startObject(parser, "hosts");
-	int numElem = parser.countElements();
-	for (int i = 0; i < numElem; i++) {
-		VariableItemGroupPtr grp;
-		startElement(parser, i);
+	startObject(parser, "groups");
+	int numElement = parser.countElements();
+	parser.endObject(); // Get number of element first.
 
-		const uint64_t hostgroupid = 0;
-		grp->addNewItem(hostgroupid);
+	for (int i = 0; i < numElement; i++) {
+		VariableItemGroupPtr grp;
+		const uint64_t hostgroupId = 0;
+		grp->addNewItem(hostgroupId);
 
 		pushUint64(parser, grp, "hostid",
 		           ITEM_ID_ZBX_HOSTS_GROUPS_HOSTID);
-
 		startObject(parser, "groups");
-		startElement(parser, 0);
+		startElement(parser, i);
 		pushUint64(parser, grp, "groupid",
 		           ITEM_ID_ZBX_HOSTS_GROUPS_GROUPID);
 		parser.endElement();
 		parser.endObject();
-
-		parser.endElement();
 		tablePtr->add(grp);
 	}
-	parser.endObject();
+
 	parser.endElement();
 }
 
@@ -1029,9 +1027,11 @@ ItemTablePtr ArmZabbixAPI::updateItems(void)
 
 void ArmZabbixAPI::updateHosts(void)
 {
-	// getHosts() tries to get all hosts when an empty vector is passed.
-	ItemTablePtr tablePtr = getHosts(hostIdVector);
-	addHostsDataToDB(tablePtr);
+	ItemTablePtr hostTablePtr, hostsGroupsTablePtr;
+	getHosts(hostTablePtr, hostsGroupsTablePtr);
+	addHostsDataToDB(hostTablePtr);
+	m_ctx->dbClientZabbix->addHostsGroupsRaw2_0(hostsGroupsTablePtr);
+	makeHatoholMapHostsHostgroups(hostsGroupsTablePtr);
 }
 
 void ArmZabbixAPI::updateEvents(void)
@@ -1077,12 +1077,10 @@ void ArmZabbixAPI::updateApplications(const ItemTable *items)
 
 void ArmZabbixAPI::updateGroups(void)
 {
-	ItemTablePtr groupsTablePtr, hostsGroupsTablePtr;
-	getGroups(groupsTablePtr, hostsGroupsTablePtr);
+	ItemTablePtr groupsTablePtr;
+	getGroups(groupsTablePtr);
 	m_ctx->dbClientZabbix->addGroupsRaw2_0(groupsTablePtr);
-	m_ctx->dbClientZabbix->addHostsGroupsRaw2_0(hostsGroupsTablePtr);
 	makeHatoholHostgroups(groupsTablePtr);
-	makeHatoholMapHostsHostgroups(hostsGroupsTablePtr);
 }
 
 void ArmZabbixAPI::addApplicationsDataToDB(ItemTablePtr &applications)

@@ -49,20 +49,16 @@ public:
 	/**
 	 * get the hosts database with Zabbix API server
 	 *
-	 * @param hostIdVector
-	 * When this vector is empty, all hosts are requested. Otherwise,
-	 * only the hosts with the IDs are requested.
-	 *
-	 * @return
-	 * An ItemTablePtr instance that has hosts data.
+	 * TODO: Write parameters and return value here.
 	 */
-	ItemTablePtr getHosts(void);
+	void getHosts(ItemTablePtr &hostsTablePtr,
+	              ItemTablePtr &hostsGroupsTablePtr);
 
 	ItemTablePtr getApplications(const std::vector<uint64_t> &appIdVector);
 	ItemTablePtr getEvents(uint64_t eventIdOffset, uint64_t eventIdTill);
 	uint64_t getLastEventId(void);
 	virtual void onGotNewEvents(const ItemTablePtr &itemPtr);
-	void getGroups(ItemTablePtr &groupsTablePtr, ItemTablePtr &hostsGroupsTablePtr);
+	void getGroups(ItemTablePtr &groupsTablePtr);
 
 protected:
 	SoupSession *getSession(void);

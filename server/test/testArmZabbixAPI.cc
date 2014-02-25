@@ -790,10 +790,12 @@ void test_verifyGroupsAndHostsGroups(void)
 	ItemTablePtr expectHostsGroupsTablePtr;
 	ItemTablePtr actualGroupsTablePtr;
 	ItemTablePtr actualHostsGroupsTablePtr;
+	ItemTablePtr dummyHostsTablePtr;
+
 	armZbxApiTestee.testMakeGroupsItemTable(expectGroupsTablePtr,
 	                                        expectHostsGroupsTablePtr);
-	armZbxApiTestee.getGroups(actualGroupsTablePtr,
-	                          actualHostsGroupsTablePtr);
+	armZbxApiTestee.getGroups(actualGroupsTablePtr);
+	armZbxApiTestee.getHosts(dummyHostsTablePtr, actualHostsGroupsTablePtr);
 
 	armZbxApiTestee.assertItemTable(expectGroupsTablePtr,
 	                                actualGroupsTablePtr);
