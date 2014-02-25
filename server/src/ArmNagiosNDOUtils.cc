@@ -311,34 +311,28 @@ static const DBAgent::TableProfile tableProfileStateHistory(
 // ---------------------------------------------------------------------------
 // Private context
 // ---------------------------------------------------------------------------
-// TODO: remove the following variables
-static const char *VAR_SERVICES     = "sv";
-static const char *VAR_STATUS       = "st";
-static const char *VAR_HOSTS        = "h";
-static const char *VAR_STATEHISTORY = "sh";
-
-static const DBAgent::NamedTable namedTablesTrig[] = {
-  {&tableProfileServices,      VAR_SERVICES}, 
-  {&tableProfileServiceStatus, VAR_STATUS}, 
-  {&tableProfileHosts,         VAR_HOSTS}, 
+static const DBAgent::TableProfile *tableProfilesTrig[] = {
+  &tableProfileServices,
+  &tableProfileServiceStatus,
+  &tableProfileHosts,
 };
-static const size_t numNamedTablesTrig =
-  sizeof(namedTablesTrig) / sizeof(DBAgent::NamedTable);
+static const size_t numTableProfilesTrig =
+  sizeof(tableProfilesTrig) / sizeof(DBAgent::TableProfile *);
 
-static const DBAgent::NamedTable namedTablesEvent[] = {
-  {&tableProfileStateHistory, VAR_STATEHISTORY},
-  {&tableProfileServices,     VAR_SERVICES},
-  {&tableProfileHosts,        VAR_HOSTS}, 
+static const DBAgent::TableProfile *tableProfilesEvent[] = {
+  &tableProfileStateHistory,
+  &tableProfileServices,
+  &tableProfileHosts,
 };
-static const size_t numNamedTablesEvent =
-  sizeof(namedTablesEvent) / sizeof(DBAgent::NamedTable);
+static const size_t numTableProfilesEvent =
+  sizeof(tableProfilesEvent) / sizeof(DBAgent::TableProfile *);
 
-static const DBAgent::NamedTable namedTablesItem[] = {
-  {&tableProfileServices,      VAR_SERVICES},
-  {&tableProfileServiceStatus, VAR_STATUS}, 
+static const DBAgent::TableProfile *tableProfilesItem[] = {
+  &tableProfileServices,
+  &tableProfileServiceStatus,
 };
-static const size_t numNamedTablesItem =
-  sizeof(namedTablesItem) / sizeof(DBAgent::NamedTable);
+static const size_t numTableProfilesItem =
+  sizeof(tableProfilesItem) / sizeof(DBAgent::TableProfile *);
 
 struct ArmNagiosNDOUtils::PrivateContext
 {
@@ -355,9 +349,9 @@ struct ArmNagiosNDOUtils::PrivateContext
 	// methods
 	PrivateContext(const MonitoringServerInfo &_serverInfo)
 	: dbAgent(NULL),
-	  selectTriggerArg(namedTablesTrig, numNamedTablesTrig),
-	  selectEventArg(namedTablesEvent, numNamedTablesEvent),
-	  selectItemArg(namedTablesItem, numNamedTablesItem),
+	  selectTriggerArg(tableProfilesTrig, numTableProfilesTrig),
+	  selectEventArg(tableProfilesEvent, numTableProfilesEvent),
+	  selectItemArg(tableProfilesItem, numTableProfilesItem),
 	  dataStore(NULL),
 	  serverInfo(_serverInfo)
 	{

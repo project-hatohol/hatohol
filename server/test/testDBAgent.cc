@@ -153,38 +153,37 @@ public:
 
 	void assertCreateSelectMultiTableArg(void)
 	{
-		const NamedTable namedTables[] = {
-		  {&tableProfileTest, "t"}, {&tableProfileTestAutoInc, "inc"}
+		const TableProfile *tableProfiles[] = {
+		  &tableProfileTest, &tableProfileTestAutoInc,
 		};
-		const size_t numNamedTables =
-		  sizeof(namedTables) / sizeof(NamedTable);
-		SelectMultiTableArg arg(namedTables, numNamedTables);
-		cppcut_assert_equal(namedTables, arg.namedTables);
-		cppcut_assert_equal(numNamedTables, arg.numTables);
-		cppcut_assert_equal(namedTables, arg.currTable);
+		const size_t numTableProfiles =
+		  sizeof(tableProfiles) / sizeof(TableProfile *);
+		SelectMultiTableArg arg(tableProfiles, numTableProfiles);
+		cppcut_assert_equal(tableProfiles, arg.profiles);
+		cppcut_assert_equal(numTableProfiles, arg.numTables);
 	}
 
 	void assertSelectMultiTableArgSetProfile(void)
 	{
-		const NamedTable namedTables[] = {
-		  {&tableProfileTest, "t"}, {&tableProfileTestAutoInc, "inc"}
+		const TableProfile *tableProfiles[] = {
+		  &tableProfileTest, &tableProfileTestAutoInc,
 		};
-		const size_t numNamedTables =
-		  sizeof(namedTables) / sizeof(NamedTable);
-		SelectMultiTableArg arg(namedTables, numNamedTables);
+		const size_t numTableProfiles =
+		  sizeof(tableProfiles) / sizeof(TableProfile *);
+		SelectMultiTableArg arg(tableProfiles, numTableProfiles);
 		arg.setTable(1);
-		cppcut_assert_equal(&namedTables[1], arg.currTable);
+		cppcut_assert_equal(tableProfiles[1], arg.tableProfile);
 		cppcut_assert_equal(&tableProfileTestAutoInc, arg.tableProfile);
 	}
 
 	void assertSelectMultiTableArgAdd(void)
 	{
-		const NamedTable namedTables[] = {
-		  {&tableProfileTest, "t"}, {&tableProfileTestAutoInc, "inc"}
+		const TableProfile *tableProfiles[] = {
+		  &tableProfileTest, &tableProfileTestAutoInc,
 		};
-		const size_t numNamedTables =
-		  sizeof(namedTables) / sizeof(NamedTable);
-		SelectMultiTableArg arg(namedTables, numNamedTables);
+		const size_t numTableProfiles =
+		  sizeof(tableProfiles) / sizeof(TableProfile *);
+		SelectMultiTableArg arg(tableProfiles, numTableProfiles);
 
 		// 1st add()
 		size_t columnIdx = 2;
@@ -218,12 +217,12 @@ public:
 
 	void assertSelectMultiTableArgGetFullName(void)
 	{
-		const NamedTable namedTables[] = {
-		  {&tableProfileTest, "t"}, {&tableProfileTestAutoInc, "inc"}
+		const TableProfile *tableProfiles[] = {
+		  &tableProfileTest, &tableProfileTestAutoInc,
 		};
-		const size_t numNamedTables =
-		  sizeof(namedTables) / sizeof(NamedTable);
-		SelectMultiTableArg arg(namedTables, numNamedTables);
+		const size_t numTableProfiles =
+		  sizeof(tableProfiles) / sizeof(TableProfile *);
+		SelectMultiTableArg arg(tableProfiles, numTableProfiles);
 
 		const size_t columnIdx = 3;
 		const string actualName = arg.getFullName(0, columnIdx);

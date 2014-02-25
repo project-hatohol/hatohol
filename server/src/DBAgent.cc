@@ -247,11 +247,10 @@ void DBAgent::SelectExArg::add(
 // DBAgent::SelectMultiTableArg
 // ---------------------------------------------------------------------------
 DBAgent::SelectMultiTableArg::SelectMultiTableArg(
-  const NamedTable *_namedTables, const size_t &_numTables)
-: SelectExArg(*_namedTables[0].profile),
-  namedTables(_namedTables),
-  numTables(_numTables),
-  currTable(_namedTables) // point the first element
+  const TableProfile **_profiles, const size_t &_numTables)
+: SelectExArg(*_profiles[0]),
+  profiles(_profiles),
+  numTables(_numTables)
 {
 	SelectExArg::useFullName = true;
 }
@@ -260,8 +259,7 @@ void DBAgent::SelectMultiTableArg::setTable(const size_t &index)
 {
 	HATOHOL_ASSERT(index < numTables, "index (%zd) >= numTables (%zd)",
 	               index, numTables);
-	currTable = namedTables + index;
-	SelectExArg::tableProfile = currTable->profile;
+	SelectExArg::tableProfile = profiles[index];
 }
 
 void DBAgent::SelectMultiTableArg::add(const size_t &columnIndex)
@@ -275,10 +273,8 @@ string DBAgent::SelectMultiTableArg::getFullName(const size_t &tableIndex,
 	HATOHOL_ASSERT(tableIndex < numTables,
 	               "tableIndex (%zd) >= numTables (%zd)",
 	               tableIndex, numTables);
-	const NamedTable &namedTable = namedTables[tableIndex];
-	const TableProfile &profile = *namedTable.profile;
-	return StringUtils::sprintf(
-	  "%s.%s", profile.name, profile.columnDefs[columnIndex].columnName);
+	const TableProfile *profile = profiles[tableIndex];
+	return SQLUtils::getFullName(profile->columnDefs, columnIndex);
 }
 
 // ---------------------------------------------------------------------------

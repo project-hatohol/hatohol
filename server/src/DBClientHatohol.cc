@@ -36,11 +36,6 @@ static const char *TABLE_NAME_HOSTS                = "hosts";
 static const char *TABLE_NAME_HOSTGROUPS           = "hostgroups";
 static const char *TABLE_NAME_MAP_HOSTS_HOSTGROUPS = "map_hosts_hostgroups";
 
-// TODO: remove the following variables
-static const char *VAR_TRIGGERS = "t";
-static const char *VAR_MAP_HOSTS_GROUPS = "m";
-static const char *VAR_HOSTGROUPS = "g";
-
 uint64_t DBClientHatohol::EVENT_NOT_FOUND = -1;
 int DBClientHatohol::HATOHOL_DB_VERSION = 4;
 
@@ -1235,20 +1230,17 @@ void DBClientHatohol::addEventInfoList(const EventInfoList &eventInfoList)
 HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
                                                const EventsQueryOption &option)
 {
-	// TODO: remove the following variables
-	const static char *VAR_EVENTS = "e";
-	const static char *VAR_TRIGGERS = "t";
-	static const DBAgent::NamedTable namedTables[] = {
-	  {&tableProfileEvents, VAR_EVENTS},
-	  {&tableProfileTriggers, VAR_TRIGGERS},
+	static const DBAgent::TableProfile *tableProfiles[] = {
+	  &tableProfileEvents,
+	  &tableProfileTriggers,
 	};
 	enum {
 		TBLIDX_EVENTS,
 		TBLIDX_TRIGGERS,
 	};
-	static const size_t numNamedTables =
-	  sizeof(namedTables) / sizeof(DBAgent::NamedTable);
-	DBAgent::SelectMultiTableArg arg(namedTables, numNamedTables);
+	static const size_t numTableProfiles =
+	  sizeof(tableProfiles) / sizeof(DBAgent::TableProfile *);
+	DBAgent::SelectMultiTableArg arg(tableProfiles, numTableProfiles);
 
 	// Tables
 	arg.tableField = StringUtils::sprintf(
@@ -1789,19 +1781,19 @@ void DBClientHatohol::addHostInfoWithoutTransaction(const HostInfo &hostInfo)
 void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
                                          const string &condition)
 {
-	static const DBAgent::NamedTable namedTables[] = {
-	  {&tableProfileTriggers, VAR_TRIGGERS},
-	  {&tableProfileMapHostsHostgroups, VAR_MAP_HOSTS_GROUPS},
-	  {&tableProfileHostgroups, VAR_HOSTGROUPS},
+	static const DBAgent::TableProfile *tableProfiles[] = {
+	  &tableProfileTriggers,
+	  &tableProfileMapHostsHostgroups,
+	  &tableProfileHostgroups,
 	};
 	enum {
 		TBLIDX_TRIGGERS,
 		TBLIDX_MAP_HOSTS_HOSTGROUPS,
 		TBLIDX_HOSTGROUPS,
 	};
-	static const size_t numNamedTables =
-	  sizeof(namedTables) / sizeof(DBAgent::NamedTable);
-	DBAgent::SelectMultiTableArg arg(namedTables, numNamedTables);
+	static const size_t numTableProfiles =
+	  sizeof(tableProfiles) / sizeof(DBAgent::TableProfile *);
+	DBAgent::SelectMultiTableArg arg(tableProfiles, numTableProfiles);
 
 	arg.tableField = StringUtils::sprintf(
 	  " %s inner join %s on %s=%s "
