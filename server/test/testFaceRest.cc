@@ -2474,6 +2474,17 @@ void _assertParseEventParameterMaximumNumber(
 #define assertParseEventParameterMaximumNumber(E, ...) \
 cut_trace(_assertParseEventParameterMaximumNumber(E, ##__VA_ARGS__))
 
+void _assertParseEventParameterOffset(
+  const size_t &expectValue, const string &forceValueStr = "",
+  const HatoholErrorCode &expectCode = HTERR_OK)
+{
+	assertParseEventParameterTempl(
+	  size_t, expectValue, "%zd", "offset",
+	  &HostResourceQueryOption::getOffset, expectCode, forceValueStr);
+}
+#define assertParseEventParameterOffset(E, ...) \
+cut_trace(_assertParseEventParameterOffset(E, ##__VA_ARGS__))
+
 void _assertParseEventParameterLimitOfUnifiedId(
   const size_t &expectValue, const string &forceValueStr = "",
   const HatoholErrorCode &expectCode = HTERR_OK)
@@ -2561,6 +2572,26 @@ void test_parseEventParameterMaximumNumberInvalidInput(void)
 {
 	assertParseEventParameterMaximumNumber(0, "lion",
 	                                       HTERR_INVALID_PARAMETER);
+}
+
+void test_parseEventParameterNoOffset(void)
+{
+	EventsQueryOption option;
+	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
+	assertHatoholError(
+	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
+	cppcut_assert_equal((size_t)0, option.getOffset());
+}
+
+void test_parseEventParameterOffset(void)
+{
+	assertParseEventParameterOffset(150);
+}
+
+void test_parseEventParameterOffsetInvalidInput(void)
+{
+	assertParseEventParameterOffset(0, "cat",
+					HTERR_INVALID_PARAMETER);
 }
 
 void test_parseEventParameterNoLimitOfUnifiedId(void)
