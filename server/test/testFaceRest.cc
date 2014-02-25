@@ -2496,6 +2496,18 @@ void _assertParseEventParameterLimitOfUnifiedId(
 #define assertParseEventParameterLimitOfUnifiedId(E, ...) \
 cut_trace(_assertParseEventParameterLimitOfUnifiedId(E, ##__VA_ARGS__))
 
+void _assertParseEventParameterSortType(
+  const EventsQueryOption::SortType &expectedSortType,
+  const string &sortTypeString,
+  const HatoholErrorCode &expectCode = HTERR_OK)
+{
+	assertParseEventParameterTempl(
+	  EventsQueryOption::SortType, expectedSortType, "%d", "sortType",
+	  &EventsQueryOption::getSortType, expectCode, sortTypeString);
+}
+#define assertParseEventParameterSortType(O, ...) \
+cut_trace(_assertParseEventParameterSortType(O, ##__VA_ARGS__))
+
 GHashTable *g_query = NULL;
 
 void cut_teardown(void)
@@ -2534,6 +2546,28 @@ void test_parseEventParameterSortOrderDontCare(void)
 {
 	assertParseEventParameterSortOrderDontCare(
 	  DataQueryOption::SORT_DONT_CARE);
+}
+
+void test_parseEventParameterNoSortType(void)
+{
+	EventsQueryOption option;
+	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
+	assertHatoholError(
+	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
+	cppcut_assert_equal(EventsQueryOption::SORT_TIME, option.getSortType());
+}
+
+void test_parseEventParameterSortType(void)
+{
+	assertParseEventParameterSortType(
+	  EventsQueryOption::SORT_UNIFIED_ID, "unifiedId");
+}
+
+void test_parseEventParameterSortTypeInvalidInput(void)
+{
+	assertParseEventParameterSortType(
+	  EventsQueryOption::SORT_TIME, "event_value",
+	  HTERR_INVALID_PARAMETER);
 }
 
 void test_parseEventParameterSortOrderAscending(void)
