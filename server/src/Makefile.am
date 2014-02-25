@@ -11,6 +11,7 @@ libhatohol_la_SOURCES = \
 	ArmNagiosNDOUtils.cc ArmNagiosNDOUtils.h \
 	ArmZabbixAPI-template.h \
 	ArmZabbixAPI.cc ArmZabbixAPI.h \
+	ArmCeilometer.cc ArmCeilometer.h \
 	Closure.cc Closure.h \
 	CacheServiceDBClient.cc CacheServiceDBClient.h \
 	ConfigManager.cc ConfigManager.h \
