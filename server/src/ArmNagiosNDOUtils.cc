@@ -238,7 +238,7 @@ static const ColumnDef COLUMN_DEF_STATEHISTORY[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NAGIOS_STATEHISTORY_STATE_TIME, // itemId
-	TABLE_NAME_HOSTS,                  // tableName
+	TABLE_NAME_STATEHISTORY,           // tableName
 	"state_time",                      // columnName
 	SQL_COLUMN_TYPE_DATETIME,          // type
 	0,                                 // columnLength
@@ -249,7 +249,7 @@ static const ColumnDef COLUMN_DEF_STATEHISTORY[] = {
 	"0",                               // defaultValue
 }, {
 	ITEM_ID_NAGIOS_STATEHISTORY_OBJECT_ID, // itemId
-	TABLE_NAME_HOSTS,                  // tableName
+	TABLE_NAME_STATEHISTORY,           // tableName
 	"object_id",                       // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -260,7 +260,7 @@ static const ColumnDef COLUMN_DEF_STATEHISTORY[] = {
 	"0",                               // defaultValue
 }, {
 	ITEM_ID_NAGIOS_STATEHISTORY_STATE, // itemId
-	TABLE_NAME_HOSTS,                  // tableName
+	TABLE_NAME_STATEHISTORY,           // tableName
 	"state",                           // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -271,7 +271,7 @@ static const ColumnDef COLUMN_DEF_STATEHISTORY[] = {
 	"0",                               // defaultValue
 }, {
 	ITEM_ID_NAGIOS_STATEHISTORY_STATE_TYPE, // itemId
-	TABLE_NAME_HOSTS,                  // tableName
+	TABLE_NAME_STATEHISTORY,           // tableName
 	"state_type",                      // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -282,7 +282,7 @@ static const ColumnDef COLUMN_DEF_STATEHISTORY[] = {
 	"0",                               // defaultValue
 }, {
 	ITEM_ID_NAGIOS_STATEHISTORY_OUTPUT, // itemId
-	TABLE_NAME_HOSTS,                  // tableName
+	TABLE_NAME_STATEHISTORY,           // tableName
 	"output",                          // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
