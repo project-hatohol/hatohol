@@ -127,9 +127,7 @@ public:
 		mutable ItemTablePtr        dataTable;
 
 		SelectExArg(const TableProfile &tableProfile);
-		// TODO: TODO: 2nd parameter should be removed
-		void add(const size_t &columnIndex,
-		         const std::string &varName = "");
+		void add(const size_t &columnIndex);
 		void add(const std::string &statement,
 		         const SQLColumnType &columnType);
 	};
@@ -142,7 +140,7 @@ public:
 	struct SelectMultiTableArg : public SelectExArg {
 		const NamedTable *namedTables;
 		const size_t      numTables;
-		const NamedTable *currTable;
+		const NamedTable *currTable; // TODO: consider if we can remove this variable.
 
 		SelectMultiTableArg(const NamedTable *namedTables,
 		                    const size_t &numTables);

@@ -222,8 +222,7 @@ DBAgent::SelectExArg::SelectExArg(const TableProfile &profile)
 {
 }
 
-void DBAgent::SelectExArg::add(const size_t &columnIndex,
-                               const std::string &varName)
+void DBAgent::SelectExArg::add(const size_t &columnIndex)
 {
 	string statement;
 	const ColumnDef &columnDef = tableProfile->columnDefs[columnIndex];
@@ -267,7 +266,7 @@ void DBAgent::SelectMultiTableArg::setTable(const size_t &index)
 
 void DBAgent::SelectMultiTableArg::add(const size_t &columnIndex)
 {
-	SelectExArg::add(columnIndex, currTable->varName);
+	SelectExArg::add(columnIndex);
 }
 
 string DBAgent::SelectMultiTableArg::getFullName(const size_t &tableIndex,
