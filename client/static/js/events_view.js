@@ -226,6 +226,19 @@ var EventsView = function(userProfile, baseElem) {
   }
 
   function parseData(replyData) {
+    // The structur of durations:
+    // {
+    //   serverId1: {
+    //     triggerId1: {
+    //       clock1: duration1,
+    //       clock2: duration2,
+    //       ...
+    //     },
+    //     triggerId2: ...
+    //   },
+    //   serverId2: ...
+    // }
+
     var durations = {}, durationsForTrigger;
     var serverId, triggerId;
     var x, event, server;
