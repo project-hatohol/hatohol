@@ -451,13 +451,7 @@ void _assertGetTargetServers(UserIdType userId)
 {
 	ServerHostGrpSetMap authMap;
 	MonitoringServerInfoList expected;
-	makeServerHostGrpSetMap(authMap, userId);
-	for (size_t i = 0; i < NumTestServerInfo; i++)
-		if (isAuthorized(authMap, userId, testServerInfo[i].id))
-			expected.push_back(testServerInfo[i]);
-
-	for (size_t i = 0; i < NumTestServerInfo; i++)
-		assertAddServerToDB(&testServerInfo[i]);
+	prepareGetServer(userId, authMap, expected);
 
 	MonitoringServerInfoList actual;
 	ServerQueryOption option(userId);
@@ -503,18 +497,7 @@ static void _assertGetServerIdSet(const UserIdType &userId)
 
 void data_getTargetServers(void)
 {
-	gcut_add_datum("By Admin",
-		       "userId", G_TYPE_INT, USER_ID_SYSTEM,
-		       NULL);
-	gcut_add_datum("With no allowed servers",
-		       "userId", G_TYPE_INT, 4,
-		       NULL);
-	gcut_add_datum("With a few allowed servers",
-		       "userId", G_TYPE_INT, 3,
-		       NULL);
-	gcut_add_datum("With one allowed servers",
-		       "userId", G_TYPE_INT, 5,
-		       NULL);
+	getTargetServersData();
 }
 
 void test_getTargetServers(gconstpointer data)
