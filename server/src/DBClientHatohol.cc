@@ -808,7 +808,7 @@ string HostResourceQueryOption::makeConditionServer(
   const ServerIdSet &serverIdSet, const std::string &serverIdColumnName)
 {
 	string condition = StringUtils::sprintf(
-	  "%s (", serverIdColumnName.c_str());
+	  "%s IN(", serverIdColumnName.c_str());
 
 	ServerIdSetConstIterator serverId = serverIdSet.begin();
 	bool first = true;
