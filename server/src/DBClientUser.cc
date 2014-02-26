@@ -1009,7 +1009,7 @@ bool DBClientUser::isAccessible(const ServerIdType &serverId,
 	string condition = StringUtils::sprintf(
 	  "%s=%"FMT_USER_ID" AND "
 	  "(%s=%"FMT_SERVER_ID" OR %s=%"FMT_SERVER_ID") AND "
-	  "%s=%"PRIu64,
+	  "%s=%"FMT_HOST_GROUP_ID,
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID].columnName,
 	  userId,
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_SERVER_ID].columnName,

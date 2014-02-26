@@ -692,8 +692,8 @@ struct HostResourceQueryOption::PrivateContext {
 	string hostGroupIdColumnName;
 	string hostIdColumnName;
 	ServerIdType targetServerId;
-	uint64_t targetHostId;
-	uint64_t targetHostgroupId;
+	HostIdType targetHostId;
+	HostGroupIdType targetHostgroupId;
 
 	PrivateContext()
 	: serverIdColumnName("server_id"),
@@ -794,7 +794,7 @@ string HostResourceQueryOption::makeConditionHostGroup(
 string HostResourceQueryOption::makeConditionServer(
   const ServerIdType &serverId, const HostGroupSet &hostGroupSet,
   const string &serverIdColumnName, const string &hostGroupIdColumnName,
-  const uint64_t &hostgroupId)
+  const HostGroupIdType &hostgroupId)
 {
 	string condition;
 	condition = StringUtils::sprintf(
@@ -823,8 +823,8 @@ string HostResourceQueryOption::makeCondition(
   const string &serverIdColumnName,
   const string &hostGroupIdColumnName,
   const string &hostIdColumnName,
-  ServerIdType targetServerId, uint64_t targetHostId,
-  uint64_t targetHostgroupId)
+  ServerIdType targetServerId, HostIdType targetHostId,
+  HostGroupIdType targetHostgroupId)
 {
 	string condition;
 
@@ -861,7 +861,7 @@ string HostResourceQueryOption::makeCondition(
 	}
 
 	if (targetHostId != ALL_HOSTS) {
-		return StringUtils::sprintf("((%s) AND %s=%"PRIu64")",
+		return StringUtils::sprintf("((%s) AND %s=%"FMT_HOST_ID")",
 					    condition.c_str(),
 					    hostIdColumnName.c_str(),
 					    targetHostId);
@@ -888,7 +888,7 @@ string HostResourceQueryOption::getCondition(void) const
 			if (!condition.empty())
 				condition += " AND ";
 			condition += StringUtils::sprintf(
-				"%s=%"PRIu64,
+				"%s=%"FMT_HOST_ID,
 				getHostIdColumnName().c_str(),
 				m_ctx->targetHostId);
 		}
@@ -932,22 +932,23 @@ void HostResourceQueryOption::setTargetServerId(const ServerIdType &targetServer
 	m_ctx->targetServerId = targetServerId;
 }
 
-uint64_t HostResourceQueryOption::getTargetHostId(void) const
+HostIdType HostResourceQueryOption::getTargetHostId(void) const
 {
 	return m_ctx->targetHostId;
 }
 
-void HostResourceQueryOption::setTargetHostId(uint64_t targetHostId)
+void HostResourceQueryOption::setTargetHostId(HostIdType targetHostId)
 {
 	m_ctx->targetHostId = targetHostId;
 }
 
-uint64_t HostResourceQueryOption::getTargetHostgroupId(void) const
+HostGroupIdType HostResourceQueryOption::getTargetHostgroupId(void) const
 {
 	return m_ctx->targetHostgroupId;
 }
 
-void HostResourceQueryOption::setTargetHostgroupId(uint64_t targetHostgroupId)
+void HostResourceQueryOption::setTargetHostgroupId(
+  HostGroupIdType targetHostgroupId)
 {
 	m_ctx->targetHostgroupId = targetHostgroupId;
 }

@@ -43,10 +43,10 @@ enum TriggerSeverityType {
 };
 
 static const ServerIdType ALL_SERVERS = -1;
-static const uint64_t ALL_HOSTS   = -1;
+static const HostIdType ALL_HOSTS   = -1;
 static const uint64_t ALL_TRIGGERS = -1;
 static const uint64_t ALL_ITEMS    = -1;
-static const uint64_t ALL_HOST_GROUPS = -1;
+static const HostGroupIdType ALL_HOST_GROUPS = -1;
 
 struct HostInfo {
 	ServerIdType        serverId;
@@ -128,7 +128,7 @@ typedef ItemInfoList::const_iterator ItemInfoListConstIterator;
 struct HostgroupInfo {
 	int                 id;
 	ServerIdType        serverId;
-	uint64_t            groupId;
+	HostGroupIdType     groupId;
 	std::string         groupName;
 };
 
@@ -158,10 +158,10 @@ public:
 
 	virtual ServerIdType getTargetServerId(void) const;
 	virtual void setTargetServerId(const ServerIdType &targetServerId);
-	virtual uint64_t getTargetHostId(void) const;
-	virtual void setTargetHostId(uint64_t targetHostId);
-	virtual uint64_t getTargetHostgroupId(void) const;
-	virtual void setTargetHostgroupId(uint64_t targetHostGroupId);
+	virtual HostIdType getTargetHostId(void) const;
+	virtual void setTargetHostId(HostIdType targetHostId);
+	virtual HostGroupIdType getTargetHostgroupId(void) const;
+	virtual void setTargetHostgroupId(HostGroupIdType targetHostGroupId);
 
 	virtual std::string getTableNameForServerId(void) const;
 	virtual void setTableNameForServerId(const std::string &name);
@@ -181,14 +181,14 @@ protected:
 	  const std::string &hostGroupIdColumnName,
 	  const std::string &hostIdColumnName,
 	  ServerIdType targetServerId = ALL_SERVERS,
-	  uint64_t targetHostId = ALL_HOSTS,
-	  uint64_t targetHostgroup = ALL_HOST_GROUPS);
+	  HostIdType targetHostId = ALL_HOSTS,
+	  HostGroupIdType targetHostgroup = ALL_HOST_GROUPS);
 	static std::string makeConditionServer(
 	  const ServerIdType &serverId,
 	  const HostGroupSet &hostGroupSet,
 	  const std::string &serverIdColumnName,
 	  const std::string &hostGroupIdColumnName,
-	  const uint64_t &hostgroupId = ALL_HOST_GROUPS);
+	  const HostGroupIdType &hostgroupId = ALL_HOST_GROUPS);
 	static std::string makeConditionHostGroup(
 	  const HostGroupSet &hostGroupSet,
 	  const std::string &hostGroupIdColumnName);
