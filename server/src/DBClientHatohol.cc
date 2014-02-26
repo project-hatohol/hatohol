@@ -706,7 +706,7 @@ struct HostResourceQueryOption::PrivateContext {
 	}
 };
 
-HostResourceQueryOption::HostResourceQueryOption(UserIdType userId)
+HostResourceQueryOption::HostResourceQueryOption(const UserIdType &userId)
 : DataQueryOption(userId)
 {
 	m_ctx = new PrivateContext();
