@@ -180,8 +180,8 @@ var EventsView = function(userProfile, baseElem) {
       self.updateScreen(self.rawData, updateCore);
     });
     $("#select-server").change(function() {
-      var serverName = $("#select-server").val();
-      setHostFilterCandidates();
+      var serverId = $("#select-server").val();
+      self.setHostFilterCandidates(self.rawData["servers"], serverId);
       drawTableContents();
     });
     $("#select-host").change(function() {
@@ -275,78 +275,12 @@ var EventsView = function(userProfile, baseElem) {
     return durations;
   }
 
-  function getTargetServerId() {
-    var id = $("#select-server").val();
-    if (id == "---------")
-      id = null;
-    return id;
-  }
-
-  function getTargetHostId() {
-    var id = $("#select-host").val();
-    if (id == "---------")
-      id = null;
-    return id;
-  }
-
-  function compareFilterLabel(a, b) {
-    if (a.label < b.label)
-      return -1;
-    if (a.label > b.label)
-      return 1;
-    if (a.id < b.id)
-      return -1;
-    if (a.id > b.id)
-      return 1;
-    return 0;
-  }
-
-  function setServerFilterCandidates(selector) {
-    var servers = self.rawData["servers"], serverLabels = [];
-    if (!selector)
-      selector = $('#select-server');
-    for (id in servers) {
-      serverLabels.push({
-        label: getServerName(servers[id], id),
-        value: id
-      });
-    }
-    serverLabels.sort(compareFilterLabel);
-    self.setFilterCandidates(selector, serverLabels);
-  }
-
-  function setHostFilterCandidates(serverId, selector) {
-    var servers, server, hosts, hostLabels = [];
-
-    if (!serverId)
-      serverId = getTargetServerId();
-    if (!selector)
-      selector = $('#select-host');
-
-    self.setFilterCandidates(selector);
-
-    servers = self.rawData["servers"];
-    if (!servers || !servers[serverId])
-      return;
-
-    server = servers[serverId];
-    hosts = server.hosts;
-    for (id in hosts) {
-      hostLabels.push({
-        label: getHostName(server, id),
-        value: id
-      });
-    }
-    hostLabels.sort(compareFilterLabel);
-    self.setFilterCandidates(selector, hostLabels);
-  }
-
   function drawTableBody() {
     var serverName, hostName, clock, status, severity, duration;
     var server, event, html = "";
     var x;
-    var targetServerId = getTargetServerId();
-    var targetHostId = getTargetHostId();
+    var targetServerId = self.getTargetServerId();
+    var targetHostId = self.getTargetHostId();
     var minimumSeverity = $("#select-severity").val();
     var targetStatus = $("#select-status").val();
 
@@ -398,8 +332,8 @@ var EventsView = function(userProfile, baseElem) {
     self.rawData = reply;
     self.durations = parseData(self.rawData);
 
-    setServerFilterCandidates();
-    setHostFilterCandidates();
+    self.setServerFilterCandidates(self.rawData["servers"]);
+    self.setHostFilterCandidates(self.rawData["servers"]);
     drawTableContents();
   }
 };
