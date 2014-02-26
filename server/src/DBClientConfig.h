@@ -31,7 +31,7 @@ enum MonitoringSystemType {
 };
 
 struct MonitoringServerInfo {
-	int                  id;
+	ServerIdType         id;
 	MonitoringSystemType type;
 	std::string          hostName;
 	std::string          ipAddress;
