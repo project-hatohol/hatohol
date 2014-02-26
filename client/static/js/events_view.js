@@ -79,7 +79,6 @@ var EventsView = function(userProfile, baseElem) {
   }
 
   function getEventsURL(loadNextPage) {
-
     if (loadNextPage) {
       self.currentPage += 1;
       if (!self.limitOfUnifiedId)
