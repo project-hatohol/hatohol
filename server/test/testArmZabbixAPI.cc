@@ -645,11 +645,13 @@ void test_oneProcWithoutFetchItems()
 	ItemInfoList itemInfoList;
 	HostgroupInfoList hostgroupInfoList;
 	HostgroupElementList hostgroupElementList;
+
 	EventsQueryOption eventsQueryOption(USER_ID_SYSTEM);
 	TriggersQueryOption triggersQueryOption(USER_ID_SYSTEM);
 	ItemsQueryOption itemsQueryOption(USER_ID_SYSTEM);
 	HostgroupsQueryOption hostgroupsQueryOption(USER_ID_SYSTEM);
 	HostgroupElementQueryOption hostgroupElementQueryOption(USER_ID_SYSTEM);
+
 	db.getEventInfoList(eventInfoList, eventsQueryOption);
 	db.getTriggerInfoList(triggerInfoList, triggersQueryOption);
 	db.getItemInfoList(itemInfoList, itemsQueryOption);
@@ -678,11 +680,13 @@ void test_oneProcWithCopyOnDemandEnabled()
 	ItemInfoList itemInfoList;
 	HostgroupInfoList hostgroupInfoList;
 	HostgroupElementList hostgroupElementList;
+
 	EventsQueryOption eventsQueryOption(USER_ID_SYSTEM);
 	TriggersQueryOption triggersQueryOption(USER_ID_SYSTEM);
 	ItemsQueryOption itemsQueryOption(USER_ID_SYSTEM);
 	HostgroupsQueryOption hostgroupsQueryOption(USER_ID_SYSTEM);
 	HostgroupElementQueryOption hostgroupElementQueryOption(USER_ID_SYSTEM);
+
 	db.getEventInfoList(eventInfoList, eventsQueryOption);
 	db.getTriggerInfoList(triggerInfoList, triggersQueryOption);
 	db.getItemInfoList(itemInfoList, itemsQueryOption);
@@ -715,11 +719,13 @@ void test_oneProcWithFetchItems()
 	ItemInfoList itemInfoList;
 	HostgroupInfoList hostgroupInfoList;
 	HostgroupElementList hostgroupElementList;
+
 	EventsQueryOption eventsQueryOption(USER_ID_SYSTEM);
 	TriggersQueryOption triggersQueryOption(USER_ID_SYSTEM);
 	ItemsQueryOption itemsQueryOption(USER_ID_SYSTEM);
 	HostgroupsQueryOption hostgroupsQueryOption(USER_ID_SYSTEM);
 	HostgroupElementQueryOption hostgroupElementQueryOption(USER_ID_SYSTEM);
+
 	db.getEventInfoList(eventInfoList, eventsQueryOption);
 	db.getTriggerInfoList(triggerInfoList, triggersQueryOption);
 	db.getItemInfoList(itemInfoList, itemsQueryOption);
