@@ -187,6 +187,12 @@ public:
 		ArmZabbixAPI::updateEvents();
 	}
 
+	void callUpdateGroupInformation(void)
+	{
+		ArmZabbixAPI::updateHosts();
+		ArmZabbixAPI::updateGroups();
+	}
+
 	void onGotNewEvents(const ItemTablePtr &itemPtr)
 	{
 		const ItemGroupList &itemList = itemPtr->getItemGroupList();
@@ -678,6 +684,10 @@ void test_oneProcWithFetchItems()
 	ArmZabbixAPITestee armZbxApiTestee(setupServer());
 	armZbxApiTestee.fetchItems();
 	armZbxApiTestee.testMainThreadOneProc();
+
+	// DBClientHatoholl::getItemInfoList() function
+	// needs information about hostgroup.
+	armZbxApiTestee.callUpdateGroupInformation();
 
 	DBClientHatohol db;
 	EventInfoList eventInfoList;
