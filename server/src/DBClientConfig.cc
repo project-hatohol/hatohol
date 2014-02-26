@@ -775,6 +775,26 @@ void DBClientConfig::getTargetServers
 	}
 }
 
+void DBClientConfig::getServerIdSet(ServerIdSet &serverIdSet,
+                                    const ServerQueryOption &option)
+{
+	DBAgent::SelectExArg arg(tableProfileServers);
+	arg.add(IDX_SERVERS_ID);
+	arg.condition = option.getCondition();
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	// check the result and copy
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ServerIdType id = *(*itemGrpItr)->getItemPtrAt(0);
+		serverIdSet.insert(id);
+	}
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

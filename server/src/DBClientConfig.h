@@ -125,6 +125,16 @@ public:
 	void getTargetServers(MonitoringServerInfoList &monitoringServers,
 	                      ServerQueryOption &option);
 
+	/**
+	 * Get the ID set of accessible servers.
+	 *
+	 * @param serverIdSet
+	 * The obtained IDs are inserted to this object.
+	 * @param option A ServerQueryOption instance.
+	 */
+	void getServerIdSet(ServerIdSet &serverIdSet,
+	                    const ServerQueryOption &option);
+
 protected:
 	static bool parseCommandLineArgument(const CommandLineArg &cmdArg);
 	static void tableInitializerSystem(DBAgent *dbAgent, void *data);

@@ -62,6 +62,22 @@ static void addTargetServer(MonitoringServerInfo *serverInfo)
 #define assertAddServerToDB(X) \
 cut_trace(_assertAddToDB<MonitoringServerInfo>(X, addTargetServer))
 
+static void getTargetServersData(void)
+{
+	gcut_add_datum("By Admin",
+		       "userId", G_TYPE_INT, USER_ID_SYSTEM,
+		       NULL);
+	gcut_add_datum("With no allowed servers",
+		       "userId", G_TYPE_INT, 4,
+		       NULL);
+	gcut_add_datum("With a few allowed servers",
+		       "userId", G_TYPE_INT, 3,
+		       NULL);
+	gcut_add_datum("With one allowed servers",
+		       "userId", G_TYPE_INT, 5,
+		       NULL);
+}
+
 static const char *TEST_DB_USER = "hatohol_test_user";
 static const char *TEST_DB_PASSWORD = ""; // empty: No password is used
 void cut_setup(void)
@@ -418,6 +434,19 @@ void test_deleteTargetServerWithoutPrivilege(void)
 	assertServersInDB(serverIdSet);
 }
 
+static void prepareGetServer(
+  const UserIdType &userId, ServerHostGrpSetMap &authMap,
+  MonitoringServerInfoList &expected)
+{
+	makeServerHostGrpSetMap(authMap, userId);
+	for (size_t i = 0; i < NumTestServerInfo; i++)
+		if (isAuthorized(authMap, userId, testServerInfo[i].id))
+			expected.push_back(testServerInfo[i]);
+
+	for (size_t i = 0; i < NumTestServerInfo; i++)
+		assertAddServerToDB(&testServerInfo[i]);
+}
+
 void _assertGetTargetServers(UserIdType userId)
 {
 	ServerHostGrpSetMap authMap;
@@ -449,6 +478,29 @@ void _assertGetTargetServers(UserIdType userId)
 #define assertGetTargetServers(U) \
   cut_trace(_assertGetTargetServers(U))
 
+static void _assertGetServerIdSet(const UserIdType &userId)
+{
+	ServerHostGrpSetMap authMap;
+	ServerIdSet expectIdSet;
+	MonitoringServerInfoList svInfoList;
+	prepareGetServer(userId, authMap, svInfoList);
+	MonitoringServerInfoListIterator serverInfo = svInfoList.begin();
+	for (; serverInfo != svInfoList.end(); ++serverInfo)
+		expectIdSet.insert(serverInfo->id);
+
+	ServerIdSet actualIdSet;
+	ServerQueryOption option(userId);
+	DBClientConfig dbConfig;
+	dbConfig.getServerIdSet(actualIdSet, option);
+	cppcut_assert_equal(expectIdSet.size(), actualIdSet.size());
+
+	ServerIdSetIterator expectId = expectIdSet.begin();
+	ServerIdSetIterator actualId = actualIdSet.begin();
+	for (; expectId != expectIdSet.end(); ++expectId, ++actualId)
+		cppcut_assert_equal(*expectId, *actualId);
+}
+#define assertGetServerIdSet(U) cut_trace(_assertGetServerIdSet(U))
+
 void data_getTargetServers(void)
 {
 	gcut_add_datum("By Admin",
@@ -476,6 +528,18 @@ void test_getTargetServersByInvalidUser(void)
 {
 	UserIdType userId = INVALID_USER_ID;
 	assertGetTargetServers(userId);
+}
+
+void data_getServerIdSet(void)
+{
+	getTargetServersData();
+}
+
+void test_getServerIdSet(gconstpointer data)
+{
+	const UserIdType userId = gcut_data_get_int(data, "userId");
+	setupTestDBUser(true, true);
+	assertGetServerIdSet(userId);
 }
 
 void test_setGetDatabaseDir(void)
