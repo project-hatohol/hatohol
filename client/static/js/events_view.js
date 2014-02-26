@@ -227,32 +227,31 @@ var EventsView = function(userProfile, baseElem) {
 
   function parseData(replyData) {
     var durations = {}, durationsForTrigger;
-    var triggerId;
+    var serverId, triggerId;
     var x, event, server;
-    var allTimes, serverName, hostName;
+    var allTimes;
     var times, now;
 
     // extract times from raw data
     allTimes = {};
     for (x = 0; x < replyData["events"].length; ++x) {
       event = replyData["events"][x];
-      var serverId = event["serverId"];
+      serverId = event["serverId"];
       server = replyData["servers"][serverId];
-      serverName = getServerName(server, serverId);
       triggerId = event["triggerId"];
 
-      if (!allTimes[serverName])
-        allTimes[serverName] = {};
-      if (!allTimes[serverName][triggerId])
-        allTimes[serverName][triggerId] = [];
+      if (!allTimes[serverId])
+        allTimes[serverId] = {};
+      if (!allTimes[serverId][triggerId])
+        allTimes[serverId][triggerId] = [];
       
-      allTimes[serverName][triggerId].push(event["time"]);
+      allTimes[serverId][triggerId].push(event["time"]);
     }
 
     // create durations map
-    for (serverName in allTimes) {
-      for (triggerId in allTimes[serverName]) {
-        times = allTimes[serverName][triggerId].uniq().sort();
+    for (serverId in allTimes) {
+      for (triggerId in allTimes[serverId]) {
+        times = allTimes[serverId][triggerId].uniq().sort();
         durationsForTrigger = {};
         for (x = 0; x < times.length; ++x) {
           if (x == times.length - 1) {
@@ -262,9 +261,9 @@ var EventsView = function(userProfile, baseElem) {
             durationsForTrigger[times[x]] = Number(times[x + 1]) - Number(times[x]);
           }
         }
-        allTimes[serverName][triggerId] = durationsForTrigger;
+        allTimes[serverId][triggerId] = durationsForTrigger;
       }
-      durations[serverName] = allTimes[serverName];
+      durations[serverId] = allTimes[serverId];
     }
 
     return durations;
@@ -360,7 +359,7 @@ var EventsView = function(userProfile, baseElem) {
       clock      = event["time"];
       status     = event["type"];
       severity   = event["severity"];
-      duration   = self.durations[serverName][event["triggerId"]][clock];
+      duration   = self.durations[serverId][event["triggerId"]][clock];
 
       if (targetServerId && serverId != targetServerId)
         continue;
