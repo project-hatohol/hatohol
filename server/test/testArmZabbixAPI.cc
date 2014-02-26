@@ -643,14 +643,24 @@ void test_oneProcWithoutFetchItems()
 	EventInfoList eventInfoList;
 	TriggerInfoList triggerInfoList;
 	ItemInfoList itemInfoList;
+	HostgroupInfoList hostgroupInfoList;
+	HostgroupElementList hostgroupElementList;
 	EventsQueryOption eventsQueryOption(USER_ID_SYSTEM);
 	TriggersQueryOption triggersQueryOption(USER_ID_SYSTEM);
 	ItemsQueryOption itemsQueryOption(USER_ID_SYSTEM);
+	HostgroupsQueryOption hostgroupsQueryOption(USER_ID_SYSTEM);
+	HostgroupElementQueryOption hostgroupElementQueryOption(USER_ID_SYSTEM);
 	db.getEventInfoList(eventInfoList, eventsQueryOption);
 	db.getTriggerInfoList(triggerInfoList, triggersQueryOption);
 	db.getItemInfoList(itemInfoList, itemsQueryOption);
+	db.getHostgroupInfoList(hostgroupInfoList, hostgroupsQueryOption);
+	db.getHostgroupElementList(hostgroupElementList,
+	                           hostgroupElementQueryOption);
 
 	// FIXME: should check contents
+	cppcut_assert_equal(false, hostgroupInfoList.empty());
+	cppcut_assert_equal(false, hostgroupElementList.empty());
+
 	cppcut_assert_equal(false, eventInfoList.empty());
 	cppcut_assert_equal(false, triggerInfoList.empty());
 	cppcut_assert_equal(false, itemInfoList.empty());
@@ -666,14 +676,24 @@ void test_oneProcWithCopyOnDemandEnabled()
 	EventInfoList eventInfoList;
 	TriggerInfoList triggerInfoList;
 	ItemInfoList itemInfoList;
+	HostgroupInfoList hostgroupInfoList;
+	HostgroupElementList hostgroupElementList;
 	EventsQueryOption eventsQueryOption(USER_ID_SYSTEM);
 	TriggersQueryOption triggersQueryOption(USER_ID_SYSTEM);
 	ItemsQueryOption itemsQueryOption(USER_ID_SYSTEM);
+	HostgroupsQueryOption hostgroupsQueryOption(USER_ID_SYSTEM);
+	HostgroupElementQueryOption hostgroupElementQueryOption(USER_ID_SYSTEM);
 	db.getEventInfoList(eventInfoList, eventsQueryOption);
 	db.getTriggerInfoList(triggerInfoList, triggersQueryOption);
 	db.getItemInfoList(itemInfoList, itemsQueryOption);
+	db.getHostgroupInfoList(hostgroupInfoList, hostgroupsQueryOption);
+	db.getHostgroupElementList(hostgroupElementList,
+	                           hostgroupElementQueryOption);
 
 	// FIXME: should check contents
+	cppcut_assert_equal(false, hostgroupInfoList.empty());
+	cppcut_assert_equal(false, hostgroupElementList.empty());
+
 	cppcut_assert_equal(false, eventInfoList.empty());
 	cppcut_assert_equal(false, triggerInfoList.empty());
 	cppcut_assert_equal(true, itemInfoList.empty());
@@ -693,14 +713,24 @@ void test_oneProcWithFetchItems()
 	EventInfoList eventInfoList;
 	TriggerInfoList triggerInfoList;
 	ItemInfoList itemInfoList;
+	HostgroupInfoList hostgroupInfoList;
+	HostgroupElementList hostgroupElementList;
 	EventsQueryOption eventsQueryOption(USER_ID_SYSTEM);
 	TriggersQueryOption triggersQueryOption(USER_ID_SYSTEM);
 	ItemsQueryOption itemsQueryOption(USER_ID_SYSTEM);
+	HostgroupsQueryOption hostgroupsQueryOption(USER_ID_SYSTEM);
+	HostgroupElementQueryOption hostgroupElementQueryOption(USER_ID_SYSTEM);
 	db.getEventInfoList(eventInfoList, eventsQueryOption);
 	db.getTriggerInfoList(triggerInfoList, triggersQueryOption);
 	db.getItemInfoList(itemInfoList, itemsQueryOption);
+	db.getHostgroupInfoList(hostgroupInfoList, hostgroupsQueryOption);
+	db.getHostgroupElementList(hostgroupElementList,
+	                           hostgroupElementQueryOption);
 
 	// FIXME: should check contents
+	cppcut_assert_equal(false, hostgroupInfoList.empty());
+	cppcut_assert_equal(false, hostgroupElementList.empty());
+
 	cppcut_assert_equal(true, eventInfoList.empty());
 	cppcut_assert_equal(true, triggerInfoList.empty());
 	cppcut_assert_equal(false, itemInfoList.empty());
