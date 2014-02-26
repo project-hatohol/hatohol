@@ -325,7 +325,7 @@ var EventsView = function(userProfile, baseElem) {
       selector = $('#select-server');
     for (id in servers) {
       serverLabels.push({
-        label: servers[id].name,
+        label: getServerName(servers[id], id),
         value: id
       });
     }
@@ -334,7 +334,7 @@ var EventsView = function(userProfile, baseElem) {
   }
 
   function setHostFilterCandidates(serverId, selector) {
-    var servers, hosts, hostLabels = [];
+    var servers, server, hosts, hostLabels = [];
 
     if (!serverId)
       serverId = getTargetServerId();
@@ -347,10 +347,11 @@ var EventsView = function(userProfile, baseElem) {
     if (!servers || !servers[serverId])
       return;
 
-    hosts = servers[serverId].hosts;
+    server = servers[serverId];
+    hosts = server.hosts;
     for (id in hosts) {
       hostLabels.push({
-        label: hosts[id].name,
+        label: getHostName(server, id),
         value: id
       });
     }
