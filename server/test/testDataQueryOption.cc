@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -44,14 +44,12 @@ public:
 
 static void getTestSortOrderList(DataQueryOption::SortOrderList &sortOrderList)
 {
-	DataQueryOption::SortOrder order[] = {
-		{ "column1", DataQueryOption::SORT_DESCENDING },
-		{ "column3", DataQueryOption::SORT_ASCENDING },
-		{ "column2", DataQueryOption::SORT_DESCENDING },
-	};
-	size_t numOrders = sizeof(order) / sizeof(DataQueryOption::SortOrder);
-	for (size_t i = 0; i < numOrders; i++)
-		sortOrderList.push_back(order[i]);
+	sortOrderList.push_back(DataQueryOption::SortOrder(
+	  "column1", DataQueryOption::SORT_DESCENDING));
+	sortOrderList.push_back(DataQueryOption::SortOrder(
+	  "column3", DataQueryOption::SORT_ASCENDING));
+	sortOrderList.push_back(DataQueryOption::SortOrder(
+	  "column2", DataQueryOption::SORT_DESCENDING));
 }
 
 void cut_setup(void)
@@ -150,26 +148,11 @@ void test_getDefaultMaximumNumber(void)
 	                    option.getMaximumNumber());
 }
 
-void test_setGetStartId(void)
-{
-	uint64_t startId = 8;
-	DataQueryOption option;
-	option.setStartId(startId);
-	cppcut_assert_equal(startId, option.getStartId());
-}
-
-void test_getDefaultStartId(void)
-{
-	DataQueryOption option;
-	cppcut_assert_equal((uint64_t)0, option.getStartId());
-}
-
 void test_getOrderByWithColumn(void)
 {
 	DataQueryOption option;
-	DataQueryOption::SortOrder order1 = {
-		"column1", DataQueryOption::SORT_ASCENDING
-	};
+	DataQueryOption::SortOrder order1(
+	  "column1", DataQueryOption::SORT_ASCENDING);
 	option.setSortOrder(order1);
 	cppcut_assert_equal(string("column1 ASC"), option.getOrderBy());
 }
@@ -177,9 +160,8 @@ void test_getOrderByWithColumn(void)
 void test_getOrderByWithColumnDesc(void)
 {
 	DataQueryOption option;
-	DataQueryOption::SortOrder order1 = {
-		"column1", DataQueryOption::SORT_DESCENDING
-	};
+	DataQueryOption::SortOrder order1(
+	  "column1", DataQueryOption::SORT_DESCENDING);
 	option.setSortOrder(order1);
 	cppcut_assert_equal("column1 DESC", option.getOrderBy().c_str());
 }

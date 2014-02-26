@@ -141,6 +141,18 @@ EventInfo testEventInfo[] = {
 	AUTO_INCREMENT_VALUE,     // unifiedId
 	1,                        // serverId
 	1,                        // id
+	{1362957198,0},           // time
+	EVENT_TYPE_GOOD,          // type
+	2,                        // triggerId
+	TRIGGER_STATUS_PROBLEM,   // status
+	TRIGGER_SEVERITY_INFO,    // severity
+	235012,                   // hostId,
+	"hostX1",                 // hostName,
+	"TEST Trigger 1a",        // brief,
+}, {
+	AUTO_INCREMENT_VALUE,     // unifiedId
+	1,                        // serverId
+	2,                        // id
 	{1362951000,0},           // time
 	EVENT_TYPE_GOOD,          // type
 	1,                        // triggerId
@@ -149,6 +161,18 @@ EventInfo testEventInfo[] = {
 	235012,                   // hostId,
 	"hostX1",                 // hostName,
 	"TEST Trigger 1",         // brief,
+}, {
+	AUTO_INCREMENT_VALUE,     // unifiedId
+	1,                        // serverId
+	3,                        // id
+	{1362957117,0},           // time
+	EVENT_TYPE_GOOD,          // type
+	3,                        // triggerId
+	TRIGGER_STATUS_PROBLEM,   // status
+	TRIGGER_SEVERITY_INFO,    // severity
+	235013,                   // hostId,
+	"hostX2",                 // hostName,
+	"TEST Trigger 1b",        // brief,
 },
 };
 size_t NumTestEventInfo = sizeof(testEventInfo) / sizeof(EventInfo);

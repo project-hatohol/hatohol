@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -43,10 +43,10 @@ enum TriggerSeverityType {
 };
 
 static const ServerIdType ALL_SERVERS = -1;
-static const uint64_t ALL_HOSTS   = -1;
+static const HostIdType ALL_HOSTS   = -1;
 static const uint64_t ALL_TRIGGERS = -1;
 static const uint64_t ALL_ITEMS    = -1;
-static const uint64_t ALL_HOST_GROUPS = -1;
+static const HostGroupIdType ALL_HOST_GROUPS = -1;
 
 struct HostInfo {
 	ServerIdType        serverId;
@@ -132,7 +132,7 @@ typedef ItemInfoList::const_iterator ItemInfoListConstIterator;
 struct HostgroupInfo {
 	int                 id;
 	ServerIdType        serverId;
-	uint64_t            groupId;
+	HostGroupIdType     groupId;
 	std::string         groupName;
 };
 
@@ -162,10 +162,10 @@ public:
 
 	virtual ServerIdType getTargetServerId(void) const;
 	virtual void setTargetServerId(const ServerIdType &targetServerId);
-	virtual uint64_t getTargetHostId(void) const;
-	virtual void setTargetHostId(uint64_t targetHostId);
-	virtual uint64_t getTargetHostgroupId(void) const;
-	virtual void setTargetHostgroupId(uint64_t targetHostGroupId);
+	virtual HostIdType getTargetHostId(void) const;
+	virtual void setTargetHostId(HostIdType targetHostId);
+	virtual HostGroupIdType getTargetHostgroupId(void) const;
+	virtual void setTargetHostgroupId(HostGroupIdType targetHostGroupId);
 
 protected:
 	void setServerIdColumnName(const std::string &name) const;
@@ -185,14 +185,14 @@ protected:
 	  const std::string &hostGroupIdColumnName,
 	  const std::string &hostIdColumnName,
 	  ServerIdType targetServerId = ALL_SERVERS,
-	  uint64_t targetHostgroup = ALL_HOST_GROUPS,
-	  uint64_t targetHostId = ALL_HOSTS);
+	  HostGroupIdType targetHostgroup = ALL_HOST_GROUPS,
+	  HostIdType targetHostId = ALL_HOSTS);
 	static std::string makeConditionServer(
 	  const ServerIdType &serverId,
 	  const HostGroupSet &hostGroupSet,
 	  const std::string &serverIdColumnName,
 	  const std::string &hostGroupIdColumnName,
-	  const uint64_t &hostgroupId = ALL_HOST_GROUPS);
+	  const HostGroupIdType &hostgroupId = ALL_HOST_GROUPS);
 	static std::string makeConditionHostGroup(
 	  const HostGroupSet &hostGroupSet,
 	  const std::string &hostGroupIdColumnName);
@@ -204,10 +204,26 @@ private:
 
 class EventsQueryOption : public HostResourceQueryOption {
 public:
-	EventsQueryOption(UserIdType userId = INVALID_USER_ID);
+	enum SortType {
+		SORT_UNIFIED_ID,
+		SORT_TIME,
+		NUM_SORT_TYPES
+	};
 
-	void setSortDirection(SortDirection direction);
+	EventsQueryOption(UserIdType userId = INVALID_USER_ID);
+	EventsQueryOption(const EventsQueryOption &src);
+	~EventsQueryOption();
+
+	void setLimitOfUnifiedId(uint64_t unifiedId);
+	uint64_t getLimitOfUnifiedId(void) const;
+
+	void setSortType(SortType type, SortDirection direction);
+	SortType getSortType(void) const;
 	SortDirection getSortDirection(void) const;
+
+private:
+	struct PrivateContext;
+	PrivateContext *m_ctx;
 };
 
 class TriggersQueryOption : public HostResourceQueryOption {

@@ -30,6 +30,7 @@
 #include "UnifiedDataStore.h"
 #include "ZabbixAPIEmulator.h"
 #include "SessionManager.h"
+#include "testDBClientHatohol.h"
 using namespace std;
 using namespace mlpl;
 
@@ -583,16 +584,29 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 {
 	setupUserDB();
 	startFaceRest();
+
+	// build expected data
+	AssertGetEventsArg eventsArg;
+	eventsArg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	eventsArg.sortType = EventsQueryOption::SORT_TIME;
+	eventsArg.sortDirection = EventsQueryOption::SORT_DESCENDING;
+	eventsArg.fixup();
+
+	// check json data
 	RequestArg arg(path, callbackName);
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
 	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
 	assertValueInParser(g_parser, "numberOfEvents", NumTestEventInfo);
+	assertValueInParser(g_parser, "lastUnifiedEventId", NumTestEventInfo);
 	g_parser->startObject("events");
-	for (size_t i = 0; i < NumTestEventInfo; i++) {
+	vector<EventInfo*>::reverse_iterator it
+	  = eventsArg.expectedRecords.rbegin();
+	for (size_t i = 0; it != eventsArg.expectedRecords.rend(); i++, it++) {
+		EventInfo &eventInfo = *(*it);
+		uint64_t unifiedId = eventsArg.idMap[*it];
 		g_parser->startElement(i);
-		EventInfo &eventInfo = testEventInfo[i];
-		assertValueInParser(g_parser, "unifiedId", i + 1);
+		assertValueInParser(g_parser, "unifiedId", unifiedId);
 		assertValueInParser(g_parser, "serverId", eventInfo.serverId);
 		assertValueInParser(g_parser, "time", eventInfo.time);
 		assertValueInParser(g_parser, "type", eventInfo.type);
@@ -1441,20 +1455,6 @@ void test_events(void)
 void test_eventsJsonp(void)
 {
 	assertEvents("/event", "foo");
-}
-
-void test_eventsStartIdWithoutSortOrder(void)
-{
-	setupUserDB();
-	startFaceRest();
-	StringMap parameters;
-	parameters["startId"] = "5";
-	RequestArg arg("/event", "hoge");
-	// Any user can be applied (we just have to pass any session ID)
-	arg.userId = findUserWithout(OPPRVLG_GET_ALL_SERVER);
-	arg.parameters = parameters;
-	JsonParserAgent *g_parser = getResponseAsJsonParser(arg);
-	assertErrorCode(g_parser, HTERR_NOT_FOUND_SORT_ORDER);
 }
 
 void test_items(void)
@@ -2452,6 +2452,40 @@ void _assertParseEventParameterTempl(
 #define assertParseEventParameterTempl(T, E, FM, PN, GT, ...) \
 cut_trace(_assertParseEventParameterTempl<T>(E, FM, PN, GT, ##__VA_ARGS__))
 
+void _assertParseEventParameterTargetServerId(
+  const size_t &expectValue, const string &forceValueStr = "",
+  const HatoholErrorCode &expectCode = HTERR_OK)
+{
+	assertParseEventParameterTempl(
+	  ServerIdType, expectValue, "%"FMT_SERVER_ID, "targetServerId",
+	  &EventsQueryOption::getTargetServerId, expectCode, forceValueStr);
+}
+#define assertParseEventParameterTargetServerId(E, ...) \
+cut_trace(_assertParseEventParameterTargetServerId(E, ##__VA_ARGS__))
+
+void _assertParseEventParameterTargetHostGroupId(
+  const size_t &expectValue, const string &forceValueStr = "",
+  const HatoholErrorCode &expectCode = HTERR_OK)
+{
+	assertParseEventParameterTempl(
+	  HostGroupIdType, expectValue, "%"FMT_HOST_GROUP_ID,
+	  "targetHostGroupId", &EventsQueryOption::getTargetHostgroupId,
+	  expectCode, forceValueStr);
+}
+#define assertParseEventParameterTargetHostGroupId(E, ...) \
+cut_trace(_assertParseEventParameterTargetHostGroupId(E, ##__VA_ARGS__))
+
+void _assertParseEventParameterTargetHostId(
+  const size_t &expectValue, const string &forceValueStr = "",
+  const HatoholErrorCode &expectCode = HTERR_OK)
+{
+	assertParseEventParameterTempl(
+	  HostIdType, expectValue, "%"FMT_HOST_ID, "targetHostId",
+	  &EventsQueryOption::getTargetHostId, expectCode, forceValueStr);
+}
+#define assertParseEventParameterTargetHostId(E, ...) \
+cut_trace(_assertParseEventParameterTargetHostId(E, ##__VA_ARGS__))
+
 void _assertParseEventParameterSortOrderDontCare(
   const DataQueryOption::SortDirection &sortDirection,
   const HatoholErrorCode &expectCode = HTERR_OK)
@@ -2474,16 +2508,39 @@ void _assertParseEventParameterMaximumNumber(
 #define assertParseEventParameterMaximumNumber(E, ...) \
 cut_trace(_assertParseEventParameterMaximumNumber(E, ##__VA_ARGS__))
 
-void _assertParseEventParameterStartId(
+void _assertParseEventParameterOffset(
   const size_t &expectValue, const string &forceValueStr = "",
   const HatoholErrorCode &expectCode = HTERR_OK)
 {
 	assertParseEventParameterTempl(
-	  uint64_t, expectValue, "%"PRIu64, "startId",
-	  &HostResourceQueryOption::getStartId, expectCode, forceValueStr);
+	  size_t, expectValue, "%zd", "offset",
+	  &HostResourceQueryOption::getOffset, expectCode, forceValueStr);
 }
-#define assertParseEventParameterStartId(E, ...) \
-cut_trace(_assertParseEventParameterStartId(E, ##__VA_ARGS__))
+#define assertParseEventParameterOffset(E, ...) \
+cut_trace(_assertParseEventParameterOffset(E, ##__VA_ARGS__))
+
+void _assertParseEventParameterLimitOfUnifiedId(
+  const size_t &expectValue, const string &forceValueStr = "",
+  const HatoholErrorCode &expectCode = HTERR_OK)
+{
+	assertParseEventParameterTempl(
+	  uint64_t, expectValue, "%"PRIu64, "limitOfUnifiedId",
+	  &EventsQueryOption::getLimitOfUnifiedId, expectCode, forceValueStr);
+}
+#define assertParseEventParameterLimitOfUnifiedId(E, ...) \
+cut_trace(_assertParseEventParameterLimitOfUnifiedId(E, ##__VA_ARGS__))
+
+void _assertParseEventParameterSortType(
+  const EventsQueryOption::SortType &expectedSortType,
+  const string &sortTypeString,
+  const HatoholErrorCode &expectCode = HTERR_OK)
+{
+	assertParseEventParameterTempl(
+	  EventsQueryOption::SortType, expectedSortType, "%d", "sortType",
+	  &EventsQueryOption::getSortType, expectCode, sortTypeString);
+}
+#define assertParseEventParameterSortType(O, ...) \
+cut_trace(_assertParseEventParameterSortType(O, ##__VA_ARGS__))
 
 GHashTable *g_query = NULL;
 
@@ -2509,13 +2566,13 @@ void test_parseEventParameterWithNullQueryParameter(void)
 	cppcut_assert_equal(true, option == orig);
 }
 
-void test_parseEventParameterSortOrderNotFound(void)
+void test_parseEventParameterDefaultSortOrder(void)
 {
 	EventsQueryOption option;
 	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
 	assertHatoholError(
 	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
-	cppcut_assert_equal(DataQueryOption::SORT_DONT_CARE,
+	cppcut_assert_equal(DataQueryOption::SORT_DESCENDING,
 	                    option.getSortDirection());
 }
 
@@ -2543,6 +2600,28 @@ void test_parseEventParameterSortInvalidValue(void)
 	  (DataQueryOption::SortDirection)-1, HTERR_INVALID_PARAMETER);
 }
 
+void test_parseEventParameterNoSortType(void)
+{
+	EventsQueryOption option;
+	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
+	assertHatoholError(
+	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
+	cppcut_assert_equal(EventsQueryOption::SORT_TIME, option.getSortType());
+}
+
+void test_parseEventParameterSortType(void)
+{
+	assertParseEventParameterSortType(
+	  EventsQueryOption::SORT_UNIFIED_ID, "unifiedId");
+}
+
+void test_parseEventParameterSortTypeInvalidInput(void)
+{
+	assertParseEventParameterSortType(
+	  EventsQueryOption::SORT_TIME, "event_value",
+	  HTERR_INVALID_PARAMETER);
+}
+
 void test_parseEventParameterMaximumNumberNotFound(void)
 {
 	EventsQueryOption option;
@@ -2563,23 +2642,104 @@ void test_parseEventParameterMaximumNumberInvalidInput(void)
 	                                       HTERR_INVALID_PARAMETER);
 }
 
-void test_parseEventParameterStartIdNotFound(void)
+void test_parseEventParameterNoOffset(void)
 {
 	EventsQueryOption option;
 	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
 	assertHatoholError(
 	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
-	cppcut_assert_equal((uint64_t)0, option.getStartId());
+	cppcut_assert_equal((size_t)0, option.getOffset());
 }
 
-void test_parseEventParameterStartId(void)
+void test_parseEventParameterOffset(void)
 {
-	assertParseEventParameterStartId(345678);
+	assertParseEventParameterOffset(150);
 }
 
-void test_parseEventParameterStartIdInvalidInput(void)
+void test_parseEventParameterOffsetInvalidInput(void)
 {
-	assertParseEventParameterStartId(0, "orca", HTERR_INVALID_PARAMETER);
+	assertParseEventParameterOffset(0, "cat",
+					HTERR_INVALID_PARAMETER);
+}
+
+void test_parseEventParameterNoLimitOfUnifiedId(void)
+{
+	EventsQueryOption option;
+	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
+	assertHatoholError(
+	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
+	cppcut_assert_equal((uint64_t)0, option.getLimitOfUnifiedId());
+}
+
+void test_parseEventParameterLimitOfUnifiedId(void)
+{
+	assertParseEventParameterLimitOfUnifiedId(345678);
+}
+
+void test_parseEventParameterLimitOfUnifiedIdInvalidInput(void)
+{
+	assertParseEventParameterLimitOfUnifiedId(
+	  0, "orca", HTERR_INVALID_PARAMETER);
+}
+
+void test_parseEventParameterNoTargetServerId(void)
+{
+	EventsQueryOption option;
+	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
+	assertHatoholError(
+	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
+	cppcut_assert_equal(ALL_SERVERS, option.getTargetServerId());
+}
+
+void test_parseEventParameterTargetServerId(void)
+{
+	assertParseEventParameterTargetServerId(123);
+}
+
+void test_parseEventParameterInvalidTargetServerId(void)
+{
+	assertParseEventParameterTargetServerId(
+	  0, "serverid", HTERR_INVALID_PARAMETER);
+}
+
+void test_parseEventParameterNoTargetHostId(void)
+{
+	EventsQueryOption option;
+	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
+	assertHatoholError(
+	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
+	cppcut_assert_equal(ALL_HOSTS, option.getTargetHostId());
+}
+
+void test_parseEventParameterTargetHostId(void)
+{
+	assertParseEventParameterTargetHostId(456);
+}
+
+void test_parseEventParameterInvalidTargetHostId(void)
+{
+	assertParseEventParameterTargetHostId(
+	  0, "hostid", HTERR_INVALID_PARAMETER);
+}
+
+void test_parseEventParameterNoTargetHostGroupId(void)
+{
+	EventsQueryOption option;
+	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
+	assertHatoholError(
+	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
+	cppcut_assert_equal(ALL_HOST_GROUPS, option.getTargetHostgroupId());
+}
+
+void test_parseEventParameterTargetHostGroupId(void)
+{
+	assertParseEventParameterTargetHostGroupId(456);
+}
+
+void test_parseEventParameterInvalidTargetHostGroupId(void)
+{
+	assertParseEventParameterTargetHostGroupId(
+	  0, "hostgroupid", HTERR_INVALID_PARAMETER);
 }
 
 } // namespace testFaceRestNoInit

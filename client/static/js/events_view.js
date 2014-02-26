@@ -20,8 +20,8 @@
 var EventsView = function(userProfile, baseElem) {
   var self = this;
   self.baseElem = baseElem;
-  self.minUnifiedId = null;
-  self.maxUnifiedId = null;
+  self.currentPage = 0;
+  self.limiOfUnifiedId = 0;
 
   var rawData, parsedData;
 
@@ -56,6 +56,7 @@ var EventsView = function(userProfile, baseElem) {
   //
   function start() {
     var DEFAULT_NUM_EVENTS_PER_PAGE = 50;
+    var DEFAULT_SORT_TYPE = "time";
     var DEFAULT_SORT_ORDER = hatohol.DATA_QUERY_OPTION_SORT_DESCENDING;
     self.userConfig.get({
       itemNames:['num-events-per-page', 'event-sort-order'],
@@ -63,6 +64,9 @@ var EventsView = function(userProfile, baseElem) {
         self.numEventsPerPage =
           self.userConfig.findOrDefault(conf, 'num-events-per-page',
                                         DEFAULT_NUM_EVENTS_PER_PAGE);
+        self.sortType = 
+          self.userConfig.findOrDefault(conf, 'event-sort-type',
+                                        DEFAULT_SORT_TYPE);
         self.sortOrder = 
           self.userConfig.findOrDefault(conf, 'event-sort-order',
                                         DEFAULT_SORT_ORDER);
@@ -74,10 +78,30 @@ var EventsView = function(userProfile, baseElem) {
     });
   }
 
+  function getEventsURL(loadNextPage) {
+
+    if (loadNextPage) {
+      self.currentPage += 1;
+      if (!self.limitOfUnifiedId)
+        self.limitOfUnifiedId = rawData.lastUnifiedEventId;
+    } else {
+      self.currentPage = 0;
+      self.limitOfUnifiedId = 0;
+    }
+
+    var query = {
+      maximumNumber: self.numEventsPerPage,
+      offset:        self.numEventsPerPage * self.currentPage,
+      sortType:      self.sortType,
+      sortOrder:     self.sortOrder
+    };
+    return '/events?' + $.param(query);
+  };
+
   function createPage() {
     createUI(self.baseElem);
     setupEvents();
-    connParam.url = '/event?maximumNumber=' + self.numEventsPerPage + '&sortOrder=' + self.sortOrder;
+    connParam.url = getEventsURL();
     self.connector = new HatoholConnector(connParam);
   }
 
@@ -187,16 +211,14 @@ var EventsView = function(userProfile, baseElem) {
     });
 
     $('#next-events-button').click(function() {
-      connParam.url = '/event?maximumNumber=' + self.numEventsPerPage
-                      + '&sortOrder=' + self.sortOrder
-                      + '&startId=' + (self.minUnifiedId - 1);
+      var loadNextPage = true;
+      connParam.url = getEventsURL(loadNextPage);
       self.connector.start(connParam);
       $(self.baseElem).scrollTop(0);
     });
 
     $('#latest-events-button').click(function() {
-      connParam.url = '/event?maximumNumber=' + self.numEventsPerPage
-                      + '&sortOrder=' + self.sortOrder;
+      connParam.url = getEventsURL();
       self.connector.start(connParam);
       $(self.baseElem).scrollTop(0);
     });
@@ -271,19 +293,6 @@ var EventsView = function(userProfile, baseElem) {
     return parsedData;
   }
 
-  function fixupUnifiedIdInfo(eventObj) {
-    var unifiedId = eventObj.unifiedId;
-    if (!self.minUnifiedId)
-      self.minUnifiedId = unifiedId;
-    else if (unifiedId < self.minUnifiedId)
-      self.minUnifiedId = unifiedId;
-
-    if (!self.maxUnifiedId)
-      self.maxUnifiedId = unifiedId;
-    else if (unifiedId > self.maxUnifiedId)
-      self.maxUnifiedId = unifiedId;
-  }
-
   function getTargetServerName() {
     var name = $("#select-server").val();
     if (name == "---------")
@@ -341,7 +350,6 @@ var EventsView = function(userProfile, baseElem) {
       html += "<td>" + "unsupported" + "</td>";
       */
       html += "</tr>";
-      fixupUnifiedIdInfo(event);
     }
 
     return html;

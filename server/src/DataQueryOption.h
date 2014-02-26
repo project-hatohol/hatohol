@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -36,6 +36,8 @@ public:
 	struct SortOrder {
 		std::string columnName;
 		SortDirection direction;
+		SortOrder(const std::string &columnName,
+			  const SortDirection &direction);
 	};
 	typedef std::list<SortOrder> SortOrderList;
 	typedef std::list<SortOrder>::iterator SortOrderListIterator;
@@ -86,18 +88,18 @@ public:
 	const SortOrderList &getSortOrderList(void) const;
 
 	/**
-	 * Set a start ID.
+	 * Set the offset of the returned elements.
 	 *
-	 * @param id A start ID.
+	 * @param offset A offset number of returned elements.
 	 */
-	void setStartId(uint64_t id);
+	void setOffset(size_t offset);
 
 	/**
-	 * Get the start ID.
+	 * Get the offset number of returned elements.
 	 *
-	 * @return A start ID.
+	 * @return A offset number of returned elements.
 	 */
-	uint64_t getStartId(void) const;
+	size_t getOffset(void) const;
 
 	/**
 	 * Get a string for 'where section' of an SQL statement.

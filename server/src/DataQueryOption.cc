@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -25,13 +25,13 @@ using namespace mlpl;
 
 struct DataQueryOption::PrivateContext {
 	size_t maxNumber;
+	size_t offset;
 	SortOrderList sortOrderList;
-	uint64_t startId;
 
 	// constuctor
 	PrivateContext(void)
 	: maxNumber(NO_LIMIT),
-	  startId(0)
+	  offset(0)
 	{
 	}
 };
@@ -41,6 +41,12 @@ const size_t DataQueryOption::NO_LIMIT = 0;
 // ---------------------------------------------------------------------------
 // Public static methods
 // ---------------------------------------------------------------------------
+DataQueryOption::SortOrder::SortOrder(
+  const std::string &aColumnName, const SortDirection &aDirection)
+: columnName(aColumnName), direction(aDirection)
+{
+}
+
 DataQueryOption::DataQueryOption(UserIdType userId)
 : m_ctx(NULL)
 {
@@ -73,8 +79,6 @@ static inline bool operator ==(
 bool DataQueryOption::operator==(const DataQueryOption &rhs)
 {
 	if (m_ctx->maxNumber != rhs.m_ctx->maxNumber)
-		return false;
-	if (m_ctx->startId != rhs.m_ctx->startId)
 		return false;
 	if (m_ctx->sortOrderList != rhs.m_ctx->sortOrderList)
 		return false;
@@ -122,6 +126,8 @@ std::string DataQueryOption::getOrderBy(void) const
 			MLPL_ERR("Empty sort column name\n");
 			continue;
 		}
+		if (it->direction == DataQueryOption::SORT_DONT_CARE)
+			continue;
 		if (it != m_ctx->sortOrderList.begin())
 			orderBy += ", ";
 		if (it->direction == DataQueryOption::SORT_ASCENDING) {
@@ -136,12 +142,12 @@ std::string DataQueryOption::getOrderBy(void) const
 	return orderBy;
 }
 
-void DataQueryOption::setStartId(uint64_t id)
+void DataQueryOption::setOffset(size_t offset)
 {
-	m_ctx->startId = id;
+	m_ctx->offset = offset;
 }
 
-uint64_t DataQueryOption::getStartId(void) const
+size_t DataQueryOption::getOffset(void) const
 {
-	return m_ctx->startId;
+	return m_ctx->offset;
 }

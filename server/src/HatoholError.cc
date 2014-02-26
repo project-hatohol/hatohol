@@ -85,6 +85,9 @@ void HatoholError::init(void)
 		   "privilege already exists.");
 
 	// DBClientHatohol
+	DEFINE_ERR(OFFSET_WITHOUT_LIMIT,
+		   "An offset value is specified "
+		   "but no limit value is specified.");
 	DEFINE_ERR(NOT_FOUND_SORT_ORDER,
 		   "Not found sort order.");
 

@@ -692,8 +692,8 @@ struct HostResourceQueryOption::PrivateContext {
 	string hostGroupIdColumnName;
 	string hostIdColumnName;
 	ServerIdType targetServerId;
-	uint64_t targetHostId;
-	uint64_t targetHostgroupId;
+	HostIdType targetHostId;
+	HostGroupIdType targetHostgroupId;
 
 	PrivateContext()
 	: serverIdColumnName("server_id"),
@@ -807,7 +807,7 @@ string HostResourceQueryOption::makeConditionHostGroup(
 string HostResourceQueryOption::makeConditionServer(
   const ServerIdType &serverId, const HostGroupSet &hostGroupSet,
   const string &serverIdColumnName, const string &hostGroupIdColumnName,
-  const uint64_t &hostgroupId)
+  const HostGroupIdType &hostgroupId)
 {
 	string condition;
 	condition = StringUtils::sprintf(
@@ -837,8 +837,8 @@ string HostResourceQueryOption::makeCondition(
   const string &hostGroupIdColumnName,
   const string &hostIdColumnName,
   ServerIdType targetServerId,
-  uint64_t targetHostgroupId,
-  uint64_t targetHostId)
+  HostGroupIdType targetHostgroupId,
+  HostIdType targetHostId)
 {
 	string condition;
 
@@ -875,7 +875,7 @@ string HostResourceQueryOption::makeCondition(
 	}
 
 	if (targetHostId != ALL_HOSTS) {
-		return StringUtils::sprintf("((%s) AND %s=%"PRIu64")",
+		return StringUtils::sprintf("((%s) AND %s=%"FMT_HOST_ID")",
 					    condition.c_str(),
 					    hostIdColumnName.c_str(),
 					    targetHostId);
@@ -902,7 +902,7 @@ string HostResourceQueryOption::getCondition(const string &tableAlias) const
 			if (!condition.empty())
 				condition += " AND ";
 			condition += StringUtils::sprintf(
-				"%s=%"PRIu64,
+				"%s=%"FMT_HOST_ID,
 				getHostIdColumnName(tableAlias).c_str(),
 				m_ctx->targetHostId);
 		}
@@ -946,55 +946,116 @@ void HostResourceQueryOption::setTargetServerId(const ServerIdType &targetServer
 	m_ctx->targetServerId = targetServerId;
 }
 
-uint64_t HostResourceQueryOption::getTargetHostId(void) const
+HostIdType HostResourceQueryOption::getTargetHostId(void) const
 {
 	return m_ctx->targetHostId;
 }
 
-void HostResourceQueryOption::setTargetHostId(uint64_t targetHostId)
+void HostResourceQueryOption::setTargetHostId(HostIdType targetHostId)
 {
 	m_ctx->targetHostId = targetHostId;
 }
 
-uint64_t HostResourceQueryOption::getTargetHostgroupId(void) const
+HostGroupIdType HostResourceQueryOption::getTargetHostgroupId(void) const
 {
 	return m_ctx->targetHostgroupId;
 }
 
-void HostResourceQueryOption::setTargetHostgroupId(uint64_t targetHostgroupId)
+void HostResourceQueryOption::setTargetHostgroupId(
+  HostGroupIdType targetHostgroupId)
 {
 	m_ctx->targetHostgroupId = targetHostgroupId;
 }
 
+struct EventsQueryOption::PrivateContext {
+	uint64_t limitOfUnifiedId;
+	SortType sortType;
+	SortDirection sortDirection;
+
+	PrivateContext()
+	: limitOfUnifiedId(NO_LIMIT),
+	  sortType(SORT_UNIFIED_ID),
+	  sortDirection(SORT_DONT_CARE)
+	{
+	}
+};
+
 EventsQueryOption::EventsQueryOption(UserIdType userId)
 : HostResourceQueryOption(userId)
 {
+	m_ctx = new PrivateContext();
 	setServerIdColumnName(
 	  COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName);
 	setHostIdColumnName(
 	  COLUMN_DEF_EVENTS[IDX_EVENTS_HOST_ID].columnName);
 }
 
-void EventsQueryOption::setSortDirection(SortDirection direction)
+EventsQueryOption::~EventsQueryOption()
 {
-	SortOrder order = {
-		COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID].columnName,
-		direction,
-	};
-	setSortOrder(order);
+	delete m_ctx;
+}
+
+EventsQueryOption::EventsQueryOption(const EventsQueryOption &src)
+{
+	m_ctx = new PrivateContext();
+	*m_ctx = *src.m_ctx;
+}
+
+void EventsQueryOption::setLimitOfUnifiedId(uint64_t unifiedId)
+{
+	m_ctx->limitOfUnifiedId = unifiedId;
+}
+
+uint64_t EventsQueryOption::getLimitOfUnifiedId(void) const
+{
+	return m_ctx->limitOfUnifiedId;
+}
+
+void EventsQueryOption::setSortType(SortType type, SortDirection direction)
+{
+	m_ctx->sortType = type;
+	m_ctx->sortDirection = direction;
+
+	switch (type) {
+	case SORT_UNIFIED_ID:
+	{
+		SortOrder order(
+		  COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID].columnName,
+		  direction);
+		setSortOrder(order);
+		break;
+	}
+	case SORT_TIME:
+	{
+		SortOrderList sortOrderList;
+		SortOrder order1(
+		  COLUMN_DEF_EVENTS[IDX_EVENTS_TIME_SEC].columnName,
+		  direction);
+		SortOrder order2(
+		  COLUMN_DEF_EVENTS[IDX_EVENTS_TIME_NS].columnName,
+		  direction);
+		SortOrder order3(
+		  COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID].columnName,
+		  direction);
+		sortOrderList.push_back(order1);
+		sortOrderList.push_back(order2);
+		sortOrderList.push_back(order3);
+		setSortOrderList(sortOrderList);
+		break;
+	}
+	default:
+		break;
+	}
+}
+
+EventsQueryOption::SortType EventsQueryOption::getSortType(void) const
+{
+	return m_ctx->sortType;
 }
 
 DataQueryOption::SortDirection EventsQueryOption::getSortDirection(void) const
 {
-	const SortOrderList &sortOrderList = getSortOrderList();
-	SortOrderListConstIterator it = sortOrderList.begin();
-	string sortColumn =
-	  COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID].columnName;
-	for (; it != sortOrderList.end(); it++) {
-		if (it->columnName == sortColumn)
-			return it->direction;
-	}
-	return SORT_DONT_CARE;
+	return m_ctx->sortDirection;
 }
 
 TriggersQueryOption::TriggersQueryOption(UserIdType userId)
@@ -1267,23 +1328,16 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	arg.add(IDX_TRIGGERS_BRIEF);
 
 	// Condition
-	DataQueryOption::SortDirection sortDirection =
-	  option.getSortDirection();
 	arg.condition = StringUtils::sprintf(
 	  "%s=%s", 
 	  arg.getFullName(TBLIDX_EVENTS, IDX_EVENTS_SERVER_ID).c_str(),
 	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_SERVER_ID).c_str());
-	uint64_t startId = option.getStartId();
-	if (startId) {
-		if (sortDirection != DataQueryOption::SORT_ASCENDING &&
-		    sortDirection != DataQueryOption::SORT_DESCENDING) {
-			return HatoholError(HTERR_NOT_FOUND_SORT_ORDER);
-		}
+	uint64_t limitOfUnifiedId = option.getLimitOfUnifiedId();
+	if (limitOfUnifiedId) {
+		string columnName
+		  = arg.getFullName(TBLIDX_EVENTS, IDX_EVENTS_UNIFIED_ID);
 		arg.condition += StringUtils::sprintf(
-		  " AND %s%s%"PRIu64,
-		  arg.getFullName(TBLIDX_EVENTS, IDX_EVENTS_UNIFIED_ID).c_str(),
-		  sortDirection == DataQueryOption::SORT_ASCENDING ? ">=" : "<=",
-		  startId);
+		  " AND %s<=%"PRIu64, columnName.c_str(), limitOfUnifiedId);
 	}
 
 	string optCond = option.getCondition(TABLE_NAME_EVENTS);
@@ -1299,6 +1353,10 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 
 	// Limit and Offset
 	arg.limit = option.getMaximumNumber();
+	arg.offset = option.getOffset();
+
+	if (!arg.limit && arg.offset)
+		return HTERR_OFFSET_WITHOUT_LIMIT;
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);

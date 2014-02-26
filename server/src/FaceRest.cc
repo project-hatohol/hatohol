@@ -1699,6 +1699,25 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 	replyJsonData(agent, job);
 }
 
+static uint64_t getLastUnifiedEventId(FaceRest::RestJob *job)
+{
+	EventsQueryOption option(job->userId);
+	option.setMaximumNumber(1);
+	option.setSortType(EventsQueryOption::SORT_UNIFIED_ID,
+			   DataQueryOption::SORT_DESCENDING);
+
+	EventInfoList eventList;
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	dataStore->getEventList(eventList, option);
+
+	uint64_t lastUnifiedId = 0;
+	if (!eventList.empty()) {
+		lastUnifiedId = eventList.begin()->unifiedId;
+		eventList.clear();
+	}
+	return lastUnifiedId;
+}
+
 void FaceRest::handlerGetEvent(RestJob *job)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
@@ -1720,6 +1739,7 @@ void FaceRest::handlerGetEvent(RestJob *job)
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
 	agent.add("numberOfEvents", eventList.size());
+	agent.add("lastUnifiedEventId", getLastUnifiedEventId(job));
 	agent.startArray("events");
 	EventInfoListIterator it = eventList.begin();
 	HostNameMaps hostMaps;
@@ -2704,6 +2724,25 @@ HatoholError FaceRest::updateOrAddUser(GHashTable *query,
 	return HatoholError(HTERR_OK);
 }
 
+static HatoholError parseSortTypeFromQuery(
+  EventsQueryOption::SortType &sortType, GHashTable *query)
+{
+	const char *key = "sortType";
+	char *value = (char *)g_hash_table_lookup(query, key);
+	if (!value)
+		return HTERR_NOT_FOUND_PARAMETER;
+	if (!strcasecmp(value, "time")) {
+		sortType = EventsQueryOption::SORT_TIME;
+	} else if (!strcasecmp(value, "unifiedId")) {
+		sortType = EventsQueryOption::SORT_UNIFIED_ID;
+	} else {
+		string optionMessage
+		  = StringUtils::sprintf("%s: %s", key, value);
+		return HatoholError(HTERR_INVALID_PARAMETER, optionMessage);
+	}
+	return HatoholError(HTERR_OK);
+}
+
 HatoholError FaceRest::parseSortOrderFromQuery(
   DataQueryOption::SortDirection &sortDirection, GHashTable *query)
 {
@@ -2729,13 +2768,55 @@ HatoholError FaceRest::parseEventParameter(EventsQueryOption &option,
 
 	HatoholError err;
 
-	// sort order
-	DataQueryOption::SortDirection sortDirection;
-	err = parseSortOrderFromQuery(sortDirection, query);
-	if (err == HTERR_OK)
-		option.setSortDirection(sortDirection);
-	else if (err != HTERR_NOT_FOUND_PARAMETER)
+	// target server id
+	ServerIdType targetServerId = ALL_SERVERS;
+	err = getParam<ServerIdType>(query, "targetServerId",
+				     "%"FMT_SERVER_ID,
+				     targetServerId);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
 		return err;
+	option.setTargetServerId(targetServerId);
+
+	// target host group id
+	HostIdType targetHostGroupId = ALL_HOST_GROUPS;
+	err = getParam<HostGroupIdType>(query, "targetHostGroupId",
+					"%"FMT_HOST_GROUP_ID,
+					targetHostGroupId);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+	option.setTargetHostgroupId(targetHostGroupId);
+
+	// target host id
+	HostIdType targetHostId = ALL_HOSTS;
+	err = getParam<HostIdType>(query, "targetHostId",
+				   "%"FMT_HOST_ID,
+				   targetHostId);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+	option.setTargetHostId(targetHostId);
+
+	// sort type
+	EventsQueryOption::SortType sortType = EventsQueryOption::SORT_TIME;
+	err = parseSortTypeFromQuery(sortType, query);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+
+	// sort order
+	DataQueryOption::SortDirection sortDirection
+	  = DataQueryOption::SORT_DESCENDING;
+	err = parseSortOrderFromQuery(sortDirection, query);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+
+	option.setSortType(sortType, sortDirection);
+
+	// limit of unifiedId
+	uint64_t limitOfUnifiedId = 0;
+	err = getParam<uint64_t>(query, "limitOfUnifiedId", "%"PRIu64,
+				 limitOfUnifiedId);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+	option.setLimitOfUnifiedId(limitOfUnifiedId);
 
 	// maximum number
 	size_t maximumNumber = 0;
@@ -2744,12 +2825,12 @@ HatoholError FaceRest::parseEventParameter(EventsQueryOption &option,
 		return err;
 	option.setMaximumNumber(maximumNumber);
 
-	// start ID
-	uint64_t startId = 0;
-	err = getParam<uint64_t>(query, "startId", "%"PRIu64, startId);
+	// offset
+	uint64_t offset = 0;
+	err = getParam<uint64_t>(query, "offset", "%"PRIu64, offset);
 	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
 		return err;
-	option.setStartId(startId);
+	option.setOffset(offset);
 
 	return HatoholError(HTERR_OK);
 }

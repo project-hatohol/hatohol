@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -25,6 +25,8 @@
 #include "DBClientTest.h"
 #include "Params.h"
 #include "CacheServiceDBClient.h"
+#include "testDBClientHatohol.h"
+#include <algorithm>
 using namespace std;
 using namespace mlpl;
 
@@ -100,124 +102,6 @@ static void addHostgroupElement(HostgroupElement *hostgroupElement)
 #define assertAddHostgroupElementToDB(X) \
 cut_trace(_assertAddToDB<HostgroupElement>(X, addHostgroupElement))
 
-template<class TResourceType, class TQueryOption>
-struct AssertGetHostResourceArg {
-	list<TResourceType> actualRecordList;
-	TQueryOption option;
-	UserIdType userId;
-	ServerIdType targetServerId;
-	uint64_t targetHostId;
-	DataQueryOption::SortDirection sortDirection;
-	size_t maxNumber;
-	uint64_t startId;
-	HatoholErrorCode expectedErrorCode;
-	vector<TResourceType*> authorizedRecords;
-	vector<TResourceType*> expectedRecords;
-	ServerHostGrpSetMap authMap;
-	TResourceType *fixtures;
-	size_t numberOfFixtures;
-
-	AssertGetHostResourceArg(void)
-	: userId(USER_ID_SYSTEM),
-	  targetServerId(ALL_SERVERS),
-	  targetHostId(ALL_HOSTS),
-	  sortDirection(DataQueryOption::SORT_DONT_CARE),
-	  maxNumber(0),
-	  startId(0),
-	  expectedErrorCode(HTERR_OK),
-	  fixtures(NULL),
-	  numberOfFixtures(0)
-	{
-	}
-
-	virtual void fixupOption(void)
-	{
-		option.setUserId(userId);
-		option.setTargetServerId(targetServerId);
-		option.setTargetHostId(targetHostId);
-	}
-
-	virtual void fixup(void)
-	{
-		fixupOption();
-		fixupAuthorizedMap();
-		fixupAuthorizedRecords();
-		fixupExpectedRecords();
-	}
-
-	virtual void fixupAuthorizedMap(void)
-	{
-		makeServerHostGrpSetMap(authMap, userId);
-	}
-
-	virtual bool isAuthorized(const TResourceType &record)
-	{
-		return ::isAuthorized(authMap, userId, record.serverId);
-	}
-
-	virtual void fixupAuthorizedRecords(void)
-	{
-		for (size_t i = 0; i < numberOfFixtures; i++) {
-			if (isAuthorized(fixtures[i]))
-				authorizedRecords.push_back(&fixtures[i]);
-		}
-	}
-
-	virtual void fixupExpectedRecords(void)
-	{
-		for (size_t i = 0; i < authorizedRecords.size(); i++) {
-			TResourceType *record = authorizedRecords[i];
-			if (targetServerId != ALL_SERVERS) {
-				if (record->serverId != targetServerId)
-					continue;
-			}
-			if (targetHostId != ALL_HOSTS) {
-				if (getHostId(*record) != targetHostId)
-					continue;
-			}
-			expectedRecords.push_back(record);
-		}
-	}
-
-	virtual uint64_t getHostId(TResourceType &record) = 0;
-
-	virtual TResourceType &getExpectedRecord(size_t idx)
-	{
-		if (startId)
-			idx += (startId - 1);
-		if (sortDirection == DataQueryOption::SORT_DESCENDING)
-			idx = (expectedRecords.size() - 1) - idx;
-		cut_assert_true(idx < expectedRecords.size());
-		return *expectedRecords[idx];
-	}
-
-	virtual void assertNumberOfRecords(void)
-	{
-		size_t expectedNum
-		  = maxNumber && maxNumber < expectedRecords.size() ?
-		    maxNumber : expectedRecords.size();
-		cppcut_assert_equal(expectedNum, actualRecordList.size());
-	}
-
-	virtual string makeOutputText(const TResourceType &record) = 0;
-
-	virtual void assert(void)
-	{
-		assertNumberOfRecords();
-
-		string expectedText;
-		string actualText;
-		typename list<TResourceType>::iterator it
-		  = actualRecordList.begin();
-		for (size_t i = 0; it != actualRecordList.end(); i++, ++it) {
-			TResourceType &expectedRecord = getExpectedRecord(i);
-			expectedText += makeOutputText(expectedRecord);
-			actualText += makeOutputText(*it);
-		}
-		cppcut_assert_equal(expectedText, actualText);
-	}
-};
-
 struct AssertGetTriggersArg
   : public AssertGetHostResourceArg<TriggerInfo, TriggersQueryOption>
 {
@@ -291,42 +175,6 @@ static void _assertGetTriggerInfoList(uint32_t serverId, uint64_t hostId = ALL_H
 #define assertGetTriggerInfoList(SERVER_ID, ...) \
 cut_trace(_assertGetTriggerInfoList(SERVER_ID, ##__VA_ARGS__))
 
-
-static string makeEventOutput(const EventInfo &eventInfo)
-{
-	string output =
-	  StringUtils::sprintf(
-	    "%"PRIu32"|%"PRIu64"|%ld|%ld|%d|%u|%"PRIu64"|%s|%s\n",
-	    eventInfo.serverId, eventInfo.id,
-	    eventInfo.time.tv_sec, eventInfo.time.tv_nsec,
-	    eventInfo.status, eventInfo.severity,
-	    eventInfo.hostId,
-	    eventInfo.hostName.c_str(),
-	    eventInfo.brief.c_str());
-	return output;
-}
-
-
-struct AssertGetEventsArg
-  : public AssertGetHostResourceArg<EventInfo, EventsQueryOption>
-{
-	AssertGetEventsArg(void)
-	{
-		fixtures = testEventInfo;
-		numberOfFixtures = NumTestEventInfo;
-	}
-
-	virtual uint64_t getHostId(EventInfo &info)
-	{
-		return info.hostId;
-	}
-
-	virtual string makeOutputText(const EventInfo &eventInfo)
-	{
-		return makeEventOutput(eventInfo);
-	}
-};
-
 static void _assertGetEvents(AssertGetEventsArg &arg)
 {
 	DBClientHatohol dbHatohol;
@@ -348,9 +196,11 @@ static void _assertGetEventsWithFilter(AssertGetEventsArg &arg)
 
 	if (arg.maxNumber)
 		arg.option.setMaximumNumber(arg.maxNumber);
-	arg.option.setSortDirection(arg.sortDirection);
-	if (arg.startId)
-		arg.option.setStartId(arg.startId);
+	arg.option.setSortType(arg.sortType, arg.sortDirection);
+	if (arg.offset)
+		arg.option.setOffset(arg.offset);
+	if (arg.limitOfUnifiedId)
+		arg.option.setLimitOfUnifiedId(arg.limitOfUnifiedId);
 	assertGetEvents(arg);
 }
 #define assertGetEventsWithFilter(ARG) \
@@ -1187,6 +1037,40 @@ void test_makeSelectCondition(void)
 	}
 }
 
+void test_eventQueryOptionWithNoSortType(void)
+{
+	EventsQueryOption option;
+	const string expected = "";
+	cppcut_assert_equal(expected, option.getOrderBy());
+}
+
+void test_eventQueryOptionWithSortTypeId(void)
+{
+	EventsQueryOption option;
+	option.setSortType(EventsQueryOption::SORT_UNIFIED_ID,
+			   DataQueryOption::SORT_DESCENDING);
+	const string expected = "unified_id DESC";
+	cppcut_assert_equal(expected, option.getOrderBy());
+}
+
+void test_eventQueryOptionWithSortDontCare(void)
+{
+	EventsQueryOption option;
+	option.setSortType(EventsQueryOption::SORT_UNIFIED_ID,
+			   DataQueryOption::SORT_DONT_CARE);
+	const string expected = "";
+	cppcut_assert_equal(expected, option.getOrderBy());
+}
+
+void test_eventQueryOptionWithSortTypeTime(void)
+{
+	EventsQueryOption option;
+	option.setSortType(EventsQueryOption::SORT_TIME,
+			   DataQueryOption::SORT_ASCENDING);
+	const string expected =  "time_sec ASC, time_ns ASC, unified_id ASC";
+	cppcut_assert_equal(expected, option.getOrderBy());
+}
+
 void test_getEventSortAscending(void)
 {
 	AssertGetEventsArg arg;
@@ -1216,29 +1100,63 @@ void test_getEventWithMaximumNumberDescending(void)
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventWithMaximumNumberAscendingStartId(void)
+void test_getEventWithMaximumNumberAndOffsetAscending(void)
 {
 	AssertGetEventsArg arg;
 	arg.maxNumber = 2;
+	arg.offset = 1;
 	arg.sortDirection = DataQueryOption::SORT_ASCENDING;
-	arg.startId = 2;
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventWithMaximumNumberDescendingStartId(void)
+void test_getEventWithMaximumNumberAndOffsetDescending(void)
 {
 	AssertGetEventsArg arg;
 	arg.maxNumber = 2;
+	arg.offset = 1;
 	arg.sortDirection = DataQueryOption::SORT_DESCENDING;
-	arg.startId = NumTestEventInfo - 1;
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventWithStartIdWithoutSortOrder(void)
+void test_getEventWithLimitOfUnifiedIdAscending(void)
 {
 	AssertGetEventsArg arg;
-	arg.startId = 2;
-	arg.expectedErrorCode = HTERR_NOT_FOUND_SORT_ORDER;
+	arg.limitOfUnifiedId = 2;
+	arg.sortDirection = DataQueryOption::SORT_ASCENDING;
+	assertGetEventsWithFilter(arg);
+}
+
+void test_getEventWithSortTimeAscending(void)
+{
+	AssertGetEventsArg arg;
+	arg.sortType = EventsQueryOption::SORT_TIME;
+	arg.sortDirection = DataQueryOption::SORT_ASCENDING;
+	assertGetEventsWithFilter(arg);
+}
+
+void test_getEventWithSortTimeDescending(void)
+{
+	AssertGetEventsArg arg;
+	arg.sortType = EventsQueryOption::SORT_TIME;
+	arg.sortDirection = DataQueryOption::SORT_DESCENDING;
+	assertGetEventsWithFilter(arg);
+}
+
+void test_getEventWithOffsetWithoutLimit(void)
+{
+	AssertGetEventsArg arg;
+	arg.offset = 2;
+	arg.expectedErrorCode = HTERR_OFFSET_WITHOUT_LIMIT;
+	assertGetEventsWithFilter(arg);
+}
+
+void test_getEventWithMaxNumAndOffsetAndLimitOfUnifiedIdDescending(void)
+{
+	AssertGetEventsArg arg;
+	arg.maxNumber = 2;
+	arg.offset = 1;
+	arg.limitOfUnifiedId = 2;
+	arg.sortDirection = DataQueryOption::SORT_DESCENDING;
 	assertGetEventsWithFilter(arg);
 }
 
