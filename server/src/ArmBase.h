@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -52,6 +52,16 @@ public:
 	const std::string &getName(void) const;
 
 protected:
+	/**
+	 * Request to exit of the thread and wait for the complition.
+	 *
+	 * This function is supposed to be used from a destructor of
+	 * subclasses of ArmBase. The deletion of a instance of the subclasses
+	 * (i.e calling a destructor) is typically done by other thread.
+	 * Note that this function may block the caller thread.
+	 */
+	void synchronizeThreadExit(void);
+
 	bool hasExitRequest(void) const;
 	void requestExit(void);
 	void sleepInterruptible(int sleepTime);

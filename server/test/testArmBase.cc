@@ -18,6 +18,8 @@
  */
 
 #include <cppcutter.h>
+#include <AtomicValue.h>
+#include <MutexLock.h>
 #include "ArmBase.h"
 using namespace std;
 using namespace mlpl;
@@ -25,15 +27,34 @@ using namespace mlpl;
 namespace testArmBase {
 
 class TestArmBase : public ArmBase {
+	typedef void (*OneProcHook)(void *);
+	
+	OneProcHook m_oneProcHook;
+	void       *m_oneProcHookData;
 public:
 	TestArmBase(const string name, const MonitoringServerInfo &serverInfo)
-	: ArmBase(name, serverInfo)
+	: ArmBase(name, serverInfo),
+	  m_oneProcHook(NULL),
+	  m_oneProcHookData(NULL)
 	{
 	}
 
-protected:
-	bool mainThreadOneProc(void)
+	void callSynchronizeThreadExit(void)
 	{
+		synchronizeThreadExit();
+	}
+
+	void setOneProcHook(OneProcHook hook, void *data)
+	{
+		m_oneProcHook = hook;
+		m_oneProcHookData = data;
+	}
+
+protected:
+	virtual bool mainThreadOneProc(void) // override
+	{
+		if (m_oneProcHook)
+			(*m_oneProcHook)(m_oneProcHookData);
 		return true;
 	}
 };
@@ -47,6 +68,59 @@ void test_getName(void)
 	MonitoringServerInfo serverInfo;
 	TestArmBase armBase(name, serverInfo);
 	cppcut_assert_equal(name, armBase.getName());
+}
+
+void test_synchronizeThreadExit(void)
+{
+	struct Ctx {
+		AtomicValue<bool> called;
+		MutexLock         startLock;
+		AtomicValue<bool> startLockUnlocked;
+
+		Ctx(void)
+		: called(false),
+		  startLockUnlocked(false)
+		{
+			startLock.lock();
+		}
+
+		static void exitCb(void *data)
+		{
+			Ctx *obj = static_cast<Ctx *>(data);
+			obj->called.set(true);
+		}
+
+		static void oneProcHook(void *data)
+		{
+			Ctx *obj = static_cast<Ctx *>(data);
+			if (obj->startLockUnlocked.get())
+				return;
+			obj->startLock.unlock();
+			obj->startLockUnlocked.set(true);
+		}
+
+		void waitForFirstProc(void)
+		{
+			const size_t timeout = 5000; // ms
+			MutexLock::Status stat = startLock.timedlock(timeout);
+			cppcut_assert_equal(MutexLock::STAT_OK, stat);
+		}
+	} ctx;
+
+	MonitoringServerInfo serverInfo;
+	serverInfo.id = 12345;
+	serverInfo.pollingIntervalSec = 1;
+
+	TestArmBase armBase(__func__, serverInfo);
+	armBase.setOneProcHook(ctx.oneProcHook, &ctx);
+	armBase.addExitCallback(ctx.exitCb, &ctx);
+	cppcut_assert_equal(false, ctx.called.get());
+
+	armBase.start();
+	ctx.waitForFirstProc();
+
+	armBase.callSynchronizeThreadExit();
+	cppcut_assert_equal(true, ctx.called.get());
 }
 
 } // namespace testArmBase

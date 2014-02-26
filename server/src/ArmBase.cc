@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -162,6 +162,18 @@ const string &ArmBase::getName(void) const
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+void ArmBase::synchronizeThreadExit(void)
+{
+	const MonitoringServerInfo &svInfo = getServerInfo();
+	
+	MLPL_INFO("%s [%d:%s]: requested to exit.\n",
+	          getName().c_str(), svInfo.id, svInfo.hostName.c_str());
+
+	// wait for the finish of the thread
+	requestExit();
+	stop();
+}
+
 bool ArmBase::hasExitRequest(void) const
 {
 	return m_ctx->exitRequest.get();
