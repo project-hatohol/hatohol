@@ -389,19 +389,9 @@ ArmNagiosNDOUtils::ArmNagiosNDOUtils(const MonitoringServerInfo &serverInfo)
 
 ArmNagiosNDOUtils::~ArmNagiosNDOUtils()
 {
-	const MonitoringServerInfo &svInfo = getServerInfo();
-
-	MLPL_INFO("ArmNagiosNDOUtils [%d:%s]: exit process started.\n",
-	          svInfo.id, svInfo.hostName.c_str());
-
-	// wait for the finish of the thread
-	requestExit();
-	stop();
-
+	synchronizeThreadExit();
 	if (m_ctx)
 		delete m_ctx;
-	MLPL_INFO("ArmNagiosNDOUtils [%d:%s]: exit process completed.\n",
-	          svInfo.id, svInfo.hostName.c_str());
 }
 
 // ---------------------------------------------------------------------------
