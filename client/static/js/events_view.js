@@ -177,7 +177,7 @@ var EventsView = function(userProfile, baseElem) {
     });
 
     $("#select-severity").change(function() {
-      self.updateScreen(rawData, updateCore);
+      self.updateScreen(self.rawData, updateCore);
     });
     $("#select-server").change(function() {
       var serverName = $("#select-server").val();
