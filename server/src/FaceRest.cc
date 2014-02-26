@@ -2728,6 +2728,33 @@ HatoholError FaceRest::parseEventParameter(EventsQueryOption &option,
 
 	HatoholError err;
 
+	// target server id
+	ServerIdType targetServerId = ALL_SERVERS;
+	err = getParam<ServerIdType>(query, "targetServerId",
+				     "%"FMT_SERVER_ID,
+				     targetServerId);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+	option.setTargetServerId(targetServerId);
+
+	// target host group id
+	HostIdType targetHostGroupId = ALL_HOST_GROUPS;
+	err = getParam<HostGroupIdType>(query, "targetHostGroupId",
+					"%"FMT_HOST_GROUP_ID,
+					targetHostGroupId);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+	option.setTargetHostgroupId(targetHostGroupId);
+
+	// target host id
+	HostIdType targetHostId = ALL_HOSTS;
+	err = getParam<HostIdType>(query, "targetHostId",
+				   "%"FMT_HOST_ID,
+				   targetHostId);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+	option.setTargetHostId(targetHostId);
+
 	// sort type
 	EventsQueryOption::SortType sortType = EventsQueryOption::SORT_TIME;
 	err = parseSortTypeFromQuery(sortType, query);
