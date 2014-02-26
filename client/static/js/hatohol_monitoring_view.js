@@ -59,8 +59,12 @@ HatoholMonitoringView.prototype.setFilterCandidates =
     target.removeAttr("disabled");
     for (x = 0; candidates && x < candidates.length; ++x) {
       var option = $("<option/>");
-      option.text(candidates[x].label);
-      option.attr("value", candidates[x].value);
+      if (typeof candidates[x] == "string") {
+        option.text(candidates[x]);
+      } else if (typeof candidates[x] == "object") {
+        option.text(candidates[x].label);
+        option.attr("value", candidates[x].value);
+      }
       target.append(option);
     }
   } else {
