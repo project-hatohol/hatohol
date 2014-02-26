@@ -22,8 +22,9 @@ var EventsView = function(userProfile, baseElem) {
   self.baseElem = baseElem;
   self.currentPage = 0;
   self.limiOfUnifiedId = 0;
+  self.durations = {};
 
-  var rawData, parsedData;
+  var rawData;
 
   var status_choices = [gettext('OK'), gettext('Problem'), gettext('Unknown')];
   var severity_choices = [
@@ -183,13 +184,13 @@ var EventsView = function(userProfile, baseElem) {
     $("#select-server").change(function() {
       var serverName = $("#select-server").val();
       setHostFilterCandidates();
-      drawTableContents(rawData, parsedData);
+      drawTableContents(rawData);
     });
     $("#select-host").change(function() {
-      drawTableContents(rawData, parsedData);
+      drawTableContents(rawData);
     });
     $("#select-status").change(function() {
-      drawTableContents(rawData, parsedData);
+      drawTableContents(rawData);
     });
 
     $('#num-events-per-page').val(self.numEventsPerPage);
@@ -225,13 +226,11 @@ var EventsView = function(userProfile, baseElem) {
   }
 
   function parseData(replyData) {
-    var parsedData = new Object();
+    var durations = {}, durationsForTrigger;
     var triggerId;
     var x, event, server;
     var allTimes, serverName, hostName;
-    var times, durations, now;
-
-    parsedData.durations = {};
+    var times, now;
 
     // extract times from raw data
     allTimes = {};
@@ -254,21 +253,21 @@ var EventsView = function(userProfile, baseElem) {
     for (serverName in allTimes) {
       for (triggerId in allTimes[serverName]) {
         times = allTimes[serverName][triggerId].uniq().sort();
-        durations = {};
+        durationsForTrigger = {};
         for (x = 0; x < times.length; ++x) {
           if (x == times.length - 1) {
             now = parseInt((new Date()).getTime() / 1000);
-            durations[times[x]] = now - Number(times[x]);
+            durationsForTrigger[times[x]] = now - Number(times[x]);
           } else {
-            durations[times[x]] = Number(times[x + 1]) - Number(times[x]);
+            durationsForTrigger[times[x]] = Number(times[x + 1]) - Number(times[x]);
           }
         }
-        allTimes[serverName][triggerId] = durations;
+        allTimes[serverName][triggerId] = durationsForTrigger;
       }
-      parsedData.durations[serverName] = allTimes[serverName];
+      durations[serverName] = allTimes[serverName];
     }
 
-    return parsedData;
+    return durations;
   }
 
   function getTargetServerId() {
@@ -337,7 +336,7 @@ var EventsView = function(userProfile, baseElem) {
     self.setFilterCandidates(selector, hostLabels);
   }
 
-  function drawTableBody(rd, pd) {
+  function drawTableBody(rd) {
     var serverName, hostName, clock, status, severity, duration;
     var server, event, html = "";
     var x;
@@ -347,7 +346,7 @@ var EventsView = function(userProfile, baseElem) {
     var targetStatus = $("#select-status").val();
 
     for (x = 0; x < rd["events"].length; ++x) {
-      event      = rd["events"][x];
+      event = rd["events"][x];
       if (event["severity"] < minimumSeverity)
         continue;
       if (targetStatus >= 0 && event["type"] != targetStatus)
@@ -361,7 +360,7 @@ var EventsView = function(userProfile, baseElem) {
       clock      = event["time"];
       status     = event["type"];
       severity   = event["severity"];
-      duration   = pd.durations[serverName][event["triggerId"]][clock];
+      duration   = self.durations[serverName][event["triggerId"]][clock];
 
       if (targetServerId && serverId != targetServerId)
         continue;
@@ -385,18 +384,18 @@ var EventsView = function(userProfile, baseElem) {
     return html;
   }
 
-  function drawTableContents(rawData, parsedData) {
+  function drawTableContents(rawData) {
     $("#table tbody").empty();
-    $("#table tbody").append(drawTableBody(rawData, parsedData));
+    $("#table tbody").append(drawTableBody(rawData));
   }
 
   function updateCore(reply) {
     rawData = reply;
-    parsedData = parseData(rawData);
+    self.durations = parseData(rawData);
 
     setServerFilterCandidates();
     setHostFilterCandidates();
-    drawTableContents(rawData, parsedData);
+    drawTableContents(rawData);
   }
 };
 
