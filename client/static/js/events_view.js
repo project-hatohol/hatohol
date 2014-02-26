@@ -22,9 +22,8 @@ var EventsView = function(userProfile, baseElem) {
   self.baseElem = baseElem;
   self.currentPage = 0;
   self.limiOfUnifiedId = 0;
+  self.rawData = {};
   self.durations = {};
-
-  var rawData;
 
   var status_choices = [gettext('OK'), gettext('Problem'), gettext('Unknown')];
   var severity_choices = [
@@ -84,7 +83,7 @@ var EventsView = function(userProfile, baseElem) {
     if (loadNextPage) {
       self.currentPage += 1;
       if (!self.limitOfUnifiedId)
-        self.limitOfUnifiedId = rawData.lastUnifiedEventId;
+        self.limitOfUnifiedId = self.rawData.lastUnifiedEventId;
     } else {
       self.currentPage = 0;
       self.limitOfUnifiedId = 0;
@@ -184,13 +183,13 @@ var EventsView = function(userProfile, baseElem) {
     $("#select-server").change(function() {
       var serverName = $("#select-server").val();
       setHostFilterCandidates();
-      drawTableContents(rawData);
+      drawTableContents();
     });
     $("#select-host").change(function() {
-      drawTableContents(rawData);
+      drawTableContents();
     });
     $("#select-status").change(function() {
-      drawTableContents(rawData);
+      drawTableContents();
     });
 
     $('#num-events-per-page').val(self.numEventsPerPage);
@@ -304,7 +303,7 @@ var EventsView = function(userProfile, baseElem) {
   }
 
   function setServerFilterCandidates(selector) {
-    var servers = rawData["servers"], serverLabels = [];
+    var servers = self.rawData["servers"], serverLabels = [];
     if (!selector)
       selector = $('#select-server');
     for (id in servers) {
@@ -327,7 +326,7 @@ var EventsView = function(userProfile, baseElem) {
 
     self.setFilterCandidates(selector);
 
-    servers = rawData["servers"];
+    servers = self.rawData["servers"];
     if (!servers || !servers[serverId])
       return;
 
@@ -343,7 +342,7 @@ var EventsView = function(userProfile, baseElem) {
     self.setFilterCandidates(selector, hostLabels);
   }
 
-  function drawTableBody(rd) {
+  function drawTableBody() {
     var serverName, hostName, clock, status, severity, duration;
     var server, event, html = "";
     var x;
@@ -352,8 +351,8 @@ var EventsView = function(userProfile, baseElem) {
     var minimumSeverity = $("#select-severity").val();
     var targetStatus = $("#select-status").val();
 
-    for (x = 0; x < rd["events"].length; ++x) {
-      event = rd["events"][x];
+    for (x = 0; x < self.rawData["events"].length; ++x) {
+      event = self.rawData["events"][x];
       if (event["severity"] < minimumSeverity)
         continue;
       if (targetStatus >= 0 && event["type"] != targetStatus)
@@ -361,7 +360,7 @@ var EventsView = function(userProfile, baseElem) {
 
       var serverId = event["serverId"];
       var hostId = event["hostId"];
-      server     = rd["servers"][serverId];
+      server     = self.rawData["servers"][serverId];
       serverName = getServerName(server, serverId);
       hostName   = getHostName(server, hostId);
       clock      = event["time"];
@@ -391,18 +390,18 @@ var EventsView = function(userProfile, baseElem) {
     return html;
   }
 
-  function drawTableContents(rawData) {
+  function drawTableContents() {
     $("#table tbody").empty();
-    $("#table tbody").append(drawTableBody(rawData));
+    $("#table tbody").append(drawTableBody());
   }
 
   function updateCore(reply) {
-    rawData = reply;
-    self.durations = parseData(rawData);
+    self.rawData = reply;
+    self.durations = parseData(self.rawData);
 
     setServerFilterCandidates();
     setHostFilterCandidates();
-    drawTableContents(rawData);
+    drawTableContents();
   }
 };
 
