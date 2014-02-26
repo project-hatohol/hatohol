@@ -188,6 +188,9 @@ protected:
 	  HostGroupIdType targetHostgroup = ALL_HOST_GROUPS,
 	  HostIdType targetHostId = ALL_HOSTS);
 	static std::string makeConditionServer(
+	  const ServerIdSet &serverIdSet,
+	  const std::string &serverIdColumnName);
+	static std::string makeConditionServer(
 	  const ServerIdType &serverId,
 	  const HostGroupSet &hostGroupSet,
 	  const std::string &serverIdColumnName,

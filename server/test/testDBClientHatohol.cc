@@ -39,6 +39,12 @@ public:
 		return getServerIdColumnName(tableAlias);
 	}
 
+	static string callMakeConditionServer(const ServerIdSet &serverIdSet,
+	                                const string &serverIdColumnName)
+	{
+		return makeConditionServer(serverIdSet, serverIdColumnName);
+	}
+
 	static
 	string callMakeCondition(const ServerHostGrpSetMap &srvHostGrpSetMap,
 				 const string &serverIdColumnName,
@@ -1232,4 +1238,44 @@ void test_addHostInfo(void)
 	dbClientHatohol.addHostInfoList(hostInfoList);
 	assertDBContent(dbAgent, statement, expect);
 }
+
+//
+// Tests for HostResourceQueryOption
+//
+void test_makeConditionServer(void)
+{
+	const string serverIdColumnName = "cat";
+	const ServerIdType serverIds[] = {5, 15, 105, 1080};
+	const size_t numServerIds = sizeof(serverIds) / sizeof(ServerIdType);
+
+	ServerIdSet svIdSet;
+	for (size_t i = 0; i < numServerIds; i++)
+		svIdSet.insert(serverIds[i]);
+
+	string actual = TestHostResourceQueryOption::callMakeConditionServer(
+	                  svIdSet, serverIdColumnName);
+
+	// check
+	string expectHead = serverIdColumnName;
+	expectHead += " (";
+	string actualHead(actual, 0, expectHead.size());
+	cppcut_assert_equal(expectHead, actualHead);
+
+	string expectTail = ")";
+	string actualTail(actual, actual.size()-1, expectTail.size());
+	cppcut_assert_equal(expectTail, actualTail);
+
+	StringVector actualIds;
+	size_t len = actual.size() -  expectHead.size() - 1;
+	string actualBody(actual, expectHead.size(), len);
+	StringUtils::split(actualIds, actualBody, ',');
+	cppcut_assert_equal(numServerIds, actualIds.size());
+	ServerIdSetIterator expectId = svIdSet.begin(); 
+	for (int i = 0; expectId != svIdSet.end(); ++expectId, i++) {
+		string expect =
+		  StringUtils::sprintf("%"FMT_SERVER_ID, *expectId);
+		cppcut_assert_equal(expect, actualIds[i]);
+	}
+}
+
 } // namespace testDBClientHatohol

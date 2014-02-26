@@ -805,6 +805,25 @@ string HostResourceQueryOption::makeConditionHostGroup(
 }
 
 string HostResourceQueryOption::makeConditionServer(
+  const ServerIdSet &serverIdSet, const std::string &serverIdColumnName)
+{
+	string condition = StringUtils::sprintf(
+	  "%s (", serverIdColumnName.c_str());
+
+	ServerIdSetConstIterator serverId = serverIdSet.begin();
+	bool first = true;
+	for (; serverId != serverIdSet.end(); ++serverId) {
+		if (first)
+			first = false;
+		else
+			condition += ",";
+		condition += StringUtils::sprintf("%"FMT_SERVER_ID, *serverId);
+	}
+	condition += ")";
+	return condition;
+}
+
+string HostResourceQueryOption::makeConditionServer(
   const ServerIdType &serverId, const HostGroupSet &hostGroupSet,
   const string &serverIdColumnName, const string &hostGroupIdColumnName,
   const HostGroupIdType &hostgroupId)
