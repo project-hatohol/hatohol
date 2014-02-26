@@ -29,24 +29,6 @@ window.onerror = function(errorMsg, fileName, lineNumber) {
 var HatoholMonitoringView = function(userProfile) {
 };
 
-HatoholMonitoringView.prototype.setCandidate = function(target, list) {
-  var x;
-  var html = "<option>---------</option>";
-
-  target.empty().append(html);
-
-  if (list) {
-    target.removeAttr("disabled");
-    for (x = 0; list && x < list.length; ++x) {
-      var option = $("<option/>");
-      option.text(list[x]);
-      target.append(option);
-    }
-  } else {
-    target.attr("disabled", "disabled");
-  }
-};
-
 HatoholMonitoringView.prototype.setFilterCandidates =
   function(target, candidates)
 {

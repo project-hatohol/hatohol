@@ -182,7 +182,8 @@ var EventsView = function(userProfile, baseElem) {
     });
     $("#select-server").change(function() {
       var serverName = $("#select-server").val();
-      self.setCandidate($("#select-host"), parsedData.hostNames[serverName]);
+      self.setFilterCandidates($("#select-host"),
+                               parsedData.hostNames[serverName]);
       drawTableContents(rawData, parsedData);
     });
     $("#select-host").change(function() {
@@ -364,8 +365,8 @@ var EventsView = function(userProfile, baseElem) {
     rawData = reply;
     parsedData = parseData(rawData);
 
-    self.setCandidate($('#select-server'), parsedData.serverNames);
-    self.setCandidate($("#select-host"));
+    self.setFilterCandidates($('#select-server'), parsedData.serverNames);
+    self.setFilterCandidates($("#select-host"));
 
     drawTableContents(rawData, parsedData);
   }
