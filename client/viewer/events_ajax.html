@@ -26,6 +26,63 @@
 
 {% block main %}
 <div id="main">
+  <h2>{% trans "Events" %}</h2>
+
+  <form class="form-inline hatohol-filter-toolbar">
+    <label>{% trans "Minimum Severity:" %}</label>
+    <select id="select-severity" class="form-control">
+      <option>0</option>
+      <option>1</option>
+      <option>2</option>
+      <option>3</option>
+      <option>4</option>
+    </select>
+    <label>{% trans "Status:" %}</label>
+    <select id="select-status" class="form-control">
+      <option value="-1">---------</option>
+      <option value="0">{% trans "OK" %}</option>
+      <option value="1">{% trans "Problem" %}</option>
+      <option value="2">{% trans "Unknown" %}</option>
+    </select>
+    <label>{% trans "Server:" %}</label>
+    <select id="select-server" class="form-control">
+      <option>---------</option>
+    </select>
+    <label>{% trans "Host:" %}</label>
+    <select id="select-host" class="form-control">
+      <option>---------</option>
+    </select>
+    <label for="num-events-per-page">{% trans "# of events per page" %}</label>
+    <input type="text" id="num-events-per-page" class="form-control" style="width:4em;">
+  </form>
+
+  <table class="table table-condensed table-hover" id="table">
+    <thead>
+      <tr>
+        <th data-sort="string">{% trans "Server" %}</th>
+        <th data-sort="int">{% trans "Time" %}</th>
+        <th data-sort="string">{% trans "Host" %}</th>
+        <th data-sort="string">{% trans "Brief" %}</th>
+        <th data-sort="int">{% trans "Status" %}</th>
+        <th data-sort="int">{% trans "Severity" %}</th>
+        <th data-sort="int">{% trans "Duration" %}</th>
+        <!-- Not supported yet
+        <th data-sort="int">' + gettext('Comment') + '</th>
+        <th data-sort="int">' + gettext('Action') + '</th>
+        -->
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+
+  <center>
+    <form class="form-inline">
+      <input id="latest-events-button" type="button" class="btn btn-info" value="{% trans "Latest events" %}" />
+      <input id="next-events-button" type="button" class="btn btn-primary" value="{% trans "To next" %}" />
+    </form>
+  </center>
+  <br>
 </div>
 {% endblock %}
 

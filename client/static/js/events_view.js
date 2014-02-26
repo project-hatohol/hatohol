@@ -98,73 +98,9 @@ var EventsView = function(userProfile, baseElem) {
   };
 
   function createPage() {
-    createUI(self.baseElem);
     setupEvents();
     connParam.url = getEventsURL();
     self.connector = new HatoholConnector(connParam);
-  }
-
-  function createUI(elem) {
-    var s = '';
-    s += '<h2>' + gettext('Events') + '</h2>';
-
-    s += '<form class="form-inline hatohol-filter-toolbar">';
-    s += '  <label>' + gettext('Minimum Severity:') + '</label>';
-    s += '  <select id="select-severity" class="form-control">';
-    s += '    <option>0</option>';
-    s += '    <option>1</option>';
-    s += '    <option>2</option>';
-    s += '    <option>3</option>';
-    s += '    <option>4</option>';
-    s += '  </select>';
-    s += '  <label>' + gettext('Status:') + '</label>';
-    s += '  <select id="select-status" class="form-control">';
-    s += '    <option value="-1">---------</option>';
-    s += '    <option value="0">' + gettext('OK') + '</option>';
-    s += '    <option value="1">' + gettext('Problem') + '</option>';
-    s += '    <option value="2">' + gettext('Unknown') + '</option>';
-    s += '  </select>';
-    s += '  <label>' + gettext('Server:') + '</label>';
-    s += '  <select id="select-server" class="form-control">';
-    s += '    <option>---------</option>';
-    s += '  </select>';
-    s += '  <label>' + gettext('Host:') + '</label>';
-    s += '  <select id="select-host" class="form-control">';
-    s += '    <option>---------</option>';
-    s += '  </select>';
-    s += '  <label for="num-events-per-page">' + gettext("# of events per page") + '</label>';
-    s += '  <input type="text" id="num-events-per-page" class="form-control" style="width:4em;">';
-    s += '</form>';
-
-    s += '<table class="table table-condensed table-hover" id="table">';
-    s += '  <thead>';
-    s += '    <tr>';
-    s += '      <th data-sort="string">' + gettext('Server') + '</th>';
-    s += '      <th data-sort="int">' + gettext('Time') + '</th>';
-    s += '      <th data-sort="string">' + gettext('Host') + '</th>';
-    s += '      <th data-sort="string">' + gettext('Brief') + '</th>';
-    s += '      <th data-sort="int">' + gettext('Status') + '</th>';
-    s += '      <th data-sort="int">' + gettext('Severity') + '</th>';
-    s += '      <th data-sort="int">' + gettext('Duration') + '</th>';
-    /* Not supported yet
-    s += '      <th data-sort="int">' + gettext('Comment') + '</th>';
-    s += '      <th data-sort="int">' + gettext('Action') + '</th>';
-    */
-    s += '    </tr>';
-    s += '  </thead>';
-    s += '  <tbody>';
-    s += '  </tbody>';
-    s += '</table>';
-
-    s += '<center>';
-    s += '<form class="form-inline">';
-    s += '  <input id="latest-events-button" type="button" class="btn btn-info" value="' + gettext('Latest events') + '" />';
-    s += '  <input id="next-events-button" type="button" class="btn btn-primary" value="' + gettext('To next') + '" />';
-    s += '</form>';
-    s += '</center>';
-    s += '<br>';
-
-    $(elem).append(s);
   }
 
   function setupEvents() {
