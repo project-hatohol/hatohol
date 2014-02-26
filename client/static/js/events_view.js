@@ -239,32 +239,28 @@ var EventsView = function(userProfile, baseElem) {
     //   serverId2: ...
     // }
 
-    var durations = {}, durationsForTrigger;
+    var durations = {};
     var serverId, triggerId;
-    var x, event, server;
-    var allTimes;
-    var times, now;
+    var x, event, now, times, durationsForTrigger;
 
     // extract times from raw data
-    allTimes = {};
     for (x = 0; x < replyData["events"].length; ++x) {
       event = replyData["events"][x];
       serverId = event["serverId"];
-      server = replyData["servers"][serverId];
       triggerId = event["triggerId"];
 
-      if (!allTimes[serverId])
-        allTimes[serverId] = {};
-      if (!allTimes[serverId][triggerId])
-        allTimes[serverId][triggerId] = [];
+      if (!durations[serverId])
+        durations[serverId] = {};
+      if (!durations[serverId][triggerId])
+        durations[serverId][triggerId] = [];
       
-      allTimes[serverId][triggerId].push(event["time"]);
+      durations[serverId][triggerId].push(event["time"]);
     }
 
-    // create durations map
-    for (serverId in allTimes) {
-      for (triggerId in allTimes[serverId]) {
-        times = allTimes[serverId][triggerId].uniq().sort();
+    // create durations maps and replace times arrays with them
+    for (serverId in durations) {
+      for (triggerId in durations[serverId]) {
+        times = durations[serverId][triggerId].uniq().sort();
         durationsForTrigger = {};
         for (x = 0; x < times.length; ++x) {
           if (x == times.length - 1) {
@@ -274,9 +270,8 @@ var EventsView = function(userProfile, baseElem) {
             durationsForTrigger[times[x]] = Number(times[x + 1]) - Number(times[x]);
           }
         }
-        allTimes[serverId][triggerId] = durationsForTrigger;
+        durations[serverId][triggerId] = durationsForTrigger;
       }
-      durations[serverId] = allTimes[serverId];
     }
 
     return durations;
