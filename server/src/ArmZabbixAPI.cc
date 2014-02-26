@@ -103,21 +103,9 @@ ArmZabbixAPI::ArmZabbixAPI(const MonitoringServerInfo &serverInfo)
 
 ArmZabbixAPI::~ArmZabbixAPI()
 {
-	// The body of serverInfo in ArmBase. So it can be used
-	// anywhere in this function.
-	const MonitoringServerInfo &svInfo = getServerInfo();
-	
-	MLPL_INFO("ArmZabbixAPI [%d:%s]: exit process started.\n",
-	          svInfo.id, svInfo.hostName.c_str());
-
-	// wait for the finish of the thread
-	requestExit();
-	stop();
-
+	synchronizeThreadExit();
 	if (m_ctx)
 		delete m_ctx;
-	MLPL_INFO("ArmZabbixAPI [%d:%s]: exit process completed.\n",
-	          svInfo.id, svInfo.hostName.c_str());
 }
 
 ItemTablePtr ArmZabbixAPI::getTrigger(int requestSince)
