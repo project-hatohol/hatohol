@@ -59,6 +59,12 @@ protected:
 	}
 };
 
+static void initServerInfo(MonitoringServerInfo &serverInfo)
+{
+	serverInfo.id = 12345;
+	serverInfo.pollingIntervalSec = 1;
+}
+
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
@@ -66,6 +72,8 @@ void test_getName(void)
 {
 	const string name = "Bizan";
 	MonitoringServerInfo serverInfo;
+	initServerInfo(serverInfo);
+
 	TestArmBase armBase(name, serverInfo);
 	cppcut_assert_equal(name, armBase.getName());
 }
@@ -108,8 +116,7 @@ void test_synchronizeThreadExit(void)
 	} ctx;
 
 	MonitoringServerInfo serverInfo;
-	serverInfo.id = 12345;
-	serverInfo.pollingIntervalSec = 1;
+	initServerInfo(serverInfo);
 
 	TestArmBase armBase(__func__, serverInfo);
 	armBase.setOneProcHook(ctx.oneProcHook, &ctx);
