@@ -648,6 +648,7 @@ void test_serverQueryOptionForGuestUserWithTarget(void)
 
 void test_serverQueryOptionConstructorTakingOperationPrivilege(void)
 {
+	setupTestDBUser(true, true);
 	const UserIdType &userId = 5;
 	OperationPrivilege privilege(userId);
 	ServerQueryOption option(privilege);
