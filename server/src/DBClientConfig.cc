@@ -309,7 +309,7 @@ struct ServerQueryOption::PrivateContext {
 	}
 };
 
-ServerQueryOption::ServerQueryOption(UserIdType userId)
+ServerQueryOption::ServerQueryOption(const UserIdType &userId)
 : DataQueryOption(userId), m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
