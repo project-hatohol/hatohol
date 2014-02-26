@@ -75,7 +75,7 @@ void test_synchronizeThreadExit(void)
 	struct Ctx {
 		AtomicValue<bool> called;
 		MutexLock         startLock;
-		AtomicValue<bool> startLockUnlocked;
+		bool              startLockUnlocked;
 
 		Ctx(void)
 		: called(false),
@@ -93,10 +93,10 @@ void test_synchronizeThreadExit(void)
 		static void oneProcHook(void *data)
 		{
 			Ctx *obj = static_cast<Ctx *>(data);
-			if (obj->startLockUnlocked.get())
+			if (obj->startLockUnlocked)
 				return;
 			obj->startLock.unlock();
-			obj->startLockUnlocked.set(true);
+			obj->startLockUnlocked = true;
 		}
 
 		void waitForFirstProc(void)
