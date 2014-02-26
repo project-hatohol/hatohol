@@ -315,6 +315,14 @@ ServerQueryOption::ServerQueryOption(const UserIdType &userId)
 	m_ctx = new PrivateContext();
 }
 
+ServerQueryOption::ServerQueryOption(const OperationPrivilege &privilege)
+: DataQueryOption(privilege.getUserId()),
+  m_ctx(NULL)
+{
+	m_ctx = new PrivateContext();
+}
+
+
 ServerQueryOption::~ServerQueryOption()
 {
 	if (m_ctx)

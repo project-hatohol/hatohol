@@ -645,6 +645,15 @@ void test_serverQueryOptionForGuestUserWithTarget(void)
 			    option.getCondition());
 }
 
+
+void test_serverQueryOptionConstructorTakingOperationPrivilege(void)
+{
+	const UserIdType &userId = 5;
+	OperationPrivilege privilege(userId);
+	ServerQueryOption option(privilege);
+	cppcut_assert_equal(userId, option.getUserId());
+}
+
 } // namespace testDBClientConfig
 
 namespace testDBClientConfigDefault {

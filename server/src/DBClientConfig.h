@@ -78,6 +78,7 @@ typedef MonitoringServerInfoList::iterator MonitoringServerInfoListIterator;
 class ServerQueryOption : public DataQueryOption {
 public:
 	ServerQueryOption(const UserIdType &userId = INVALID_USER_ID);
+	ServerQueryOption(const OperationPrivilege &privilege);
 	virtual ~ServerQueryOption();
 
 	void setTargetServerId(const ServerIdType &serverId);
