@@ -17,7 +17,7 @@ describe('HatoholMonitoringView', function() {
     expect(target.html()).to.be(expected);
   });
 
-  it('set filter candidates', function() {
+  it('set filter candidates with a string array', function() {
     var candidates = [ 'apple', 'orange', 'lemon' ];
     var target = $('<select>');
     var setCandidates = HatoholMonitoringView.prototype.setFilterCandidates;
