@@ -28,7 +28,7 @@ var OverviewItems = function(userProfile) {
 
   $("#select-server").change(function() {
     var serverName = $("#select-server").val();
-    self.setCandidate($("#select-host"), parsedData.hosts[serverName]);
+    self.setFilterCandidates($("#select-host"), parsedData.hosts[serverName]);
     drawTableContents(parsedData);
   });
   $("#select-group").change(function() {
@@ -175,8 +175,8 @@ var OverviewItems = function(userProfile) {
   function updateCore(reply) {
     rawData = reply;
     parsedData = parseData(reply);
-    self.setCandidate($("#select-server"), parsedData.servers);
-    self.setCandidate($("#select-host"));
+    self.setFilterCandidates($("#select-server"), parsedData.servers);
+    self.setFilterCandidates($("#select-host"));
     drawTableContents(parsedData);
   }
 };

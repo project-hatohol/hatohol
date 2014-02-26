@@ -32,13 +32,22 @@ function padDigit(val, len) {
 function formatDate(str) {
   var val = new Date();
   val.setTime(Number(str) * 1000);
-  var d = val.getFullYear() + "/" + padDigit(val.getMonth() + 1, 2) + "/" + padDigit(val.getDate(), 2);
-  var t = padDigit(val.getHours(), 2) + ":" + padDigit(val.getMinutes(), 2) + ":" + padDigit(val.getSeconds(), 2);
+  var d =
+    val.getFullYear() + "/" +
+    padDigit(val.getMonth() + 1, 2) + "/" +
+    padDigit(val.getDate(), 2);
+  var t =
+    padDigit(val.getHours(), 2) + ":" +
+    padDigit(val.getMinutes(), 2) + ":" +
+    padDigit(val.getSeconds(), 2);
   return d + " " + t;
 }
 
 function formatSecond(sec) {
-  var t = padDigit(parseInt(sec / 3600), 2) + ":" + padDigit(parseInt(sec / 60) % 60, 2) + ":" + padDigit(sec % 60, 2);
+  var t =
+    padDigit(parseInt(sec / 3600), 2) + ":" +
+    padDigit(parseInt(sec / 60) % 60, 2) + ":" +
+    padDigit(sec % 60, 2);
   return t;
 }
 

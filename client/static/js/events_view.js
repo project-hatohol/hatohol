@@ -22,8 +22,8 @@ var EventsView = function(userProfile, baseElem) {
   self.baseElem = baseElem;
   self.currentPage = 0;
   self.limiOfUnifiedId = 0;
-
-  var rawData, parsedData;
+  self.rawData = {};
+  self.durations = {};
 
   var status_choices = [gettext('OK'), gettext('Problem'), gettext('Unknown')];
   var severity_choices = [
@@ -79,11 +79,10 @@ var EventsView = function(userProfile, baseElem) {
   }
 
   function getEventsURL(loadNextPage) {
-
     if (loadNextPage) {
       self.currentPage += 1;
       if (!self.limitOfUnifiedId)
-        self.limitOfUnifiedId = rawData.lastUnifiedEventId;
+        self.limitOfUnifiedId = self.rawData.lastUnifiedEventId;
     } else {
       self.currentPage = 0;
       self.limitOfUnifiedId = 0;
@@ -182,14 +181,14 @@ var EventsView = function(userProfile, baseElem) {
     });
     $("#select-server").change(function() {
       var serverName = $("#select-server").val();
-      self.setCandidate($("#select-host"), parsedData.hostNames[serverName]);
-      drawTableContents(rawData, parsedData);
+      setHostFilterCandidates();
+      drawTableContents();
     });
     $("#select-host").change(function() {
-      drawTableContents(rawData, parsedData);
+      drawTableContents();
     });
     $("#select-status").change(function() {
-      drawTableContents(rawData, parsedData);
+      drawTableContents();
     });
 
     $('#num-events-per-page').val(self.numEventsPerPage);
@@ -225,99 +224,134 @@ var EventsView = function(userProfile, baseElem) {
   }
 
   function parseData(replyData) {
-    var parsedData = new Object();
-    var triggerId;
-    var x, event, server;
-    var allTimes, serverNames, hostNames, serverName, hostName;
-    var times, durations, now;
+    // The structur of durations:
+    // {
+    //   serverId1: {
+    //     triggerId1: {
+    //       clock1: duration1,
+    //       clock2: duration2,
+    //       ...
+    //     },
+    //     triggerId2: ...
+    //   },
+    //   serverId2: ...
+    // }
 
-    parsedData.durations = {};
+    var durations = {};
+    var serverId, triggerId;
+    var x, event, now, times, durationsForTrigger;
 
-    // extract server names & times from raw data
-    allTimes = {};
-    hostNames = {};
+    // extract times from raw data
     for (x = 0; x < replyData["events"].length; ++x) {
       event = replyData["events"][x];
-      var serverId = event["serverId"];
-      server = replyData["servers"][serverId];
-      serverName = getServerName(server, serverId);
+      serverId = event["serverId"];
       triggerId = event["triggerId"];
 
-      if (!allTimes[serverName])
-        allTimes[serverName] = {};
-      if (!allTimes[serverName][triggerId])
-        allTimes[serverName][triggerId] = [];
+      if (!durations[serverId])
+        durations[serverId] = {};
+      if (!durations[serverId][triggerId])
+        durations[serverId][triggerId] = [];
       
-      allTimes[serverName][triggerId].push(event["time"]);
-
-      if (!hostNames[serverName])
-        hostNames[serverName] = {};
-      var hostId = event["hostId"];
-      hostName = getHostName(server, hostId);
-      if (!hostNames[serverName][hostName])
-        hostNames[serverName][hostName] = true;
+      durations[serverId][triggerId].push(event["time"]);
     }
 
-    // create server names array & durations map
-    serverNames = [];
-    for (serverName in allTimes) {
-      // store the unique server name
-      serverNames.push(serverName);
-
-      // calculate durations
-      for (triggerId in allTimes[serverName]) {
-        times = allTimes[serverName][triggerId].uniq().sort();
-        durations = {};
+    // create durations maps and replace times arrays with them
+    for (serverId in durations) {
+      for (triggerId in durations[serverId]) {
+        times = durations[serverId][triggerId].uniq().sort();
+        durationsForTrigger = {};
         for (x = 0; x < times.length; ++x) {
           if (x == times.length - 1) {
             now = parseInt((new Date()).getTime() / 1000);
-            durations[times[x]] = now - Number(times[x]);
+            durationsForTrigger[times[x]] = now - Number(times[x]);
           } else {
-            durations[times[x]] = Number(times[x + 1]) - Number(times[x]);
+            durationsForTrigger[times[x]] = Number(times[x + 1]) - Number(times[x]);
           }
         }
-        allTimes[serverName][triggerId] = durations;
+        durations[serverId][triggerId] = durationsForTrigger;
       }
-      parsedData.durations[serverName] = allTimes[serverName];
-    }
-    parsedData.serverNames = serverNames.sort();
-    parsedData.hostNames = {};
-    for (serverName in hostNames) {
-      if (!parsedData.hostNames[serverName])
-        parsedData.hostNames[serverName] = [];
-      for (hostName in hostNames[serverName])
-        parsedData.hostNames[serverName].push(hostName);
-      parsedData.hostNames[serverName] = parsedData.hostNames[serverName].sort();
     }
 
-    return parsedData;
+    return durations;
   }
 
-  function getTargetServerName() {
-    var name = $("#select-server").val();
-    if (name == "---------")
-      name = null;
-    return name;
+  function getTargetServerId() {
+    var id = $("#select-server").val();
+    if (id == "---------")
+      id = null;
+    return id;
   }
 
-  function getTargetHostName() {
-    var name = $("#select-host").val();
-    if (name == "---------")
-      name = null;
-    return name;
+  function getTargetHostId() {
+    var id = $("#select-host").val();
+    if (id == "---------")
+      id = null;
+    return id;
   }
 
-  function drawTableBody(rd, pd) {
+  function compareFilterLabel(a, b) {
+    if (a.label < b.label)
+      return -1;
+    if (a.label > b.label)
+      return 1;
+    if (a.id < b.id)
+      return -1;
+    if (a.id > b.id)
+      return 1;
+    return 0;
+  }
+
+  function setServerFilterCandidates(selector) {
+    var servers = self.rawData["servers"], serverLabels = [];
+    if (!selector)
+      selector = $('#select-server');
+    for (id in servers) {
+      serverLabels.push({
+        label: getServerName(servers[id], id),
+        value: id
+      });
+    }
+    serverLabels.sort(compareFilterLabel);
+    self.setFilterCandidates(selector, serverLabels);
+  }
+
+  function setHostFilterCandidates(serverId, selector) {
+    var servers, server, hosts, hostLabels = [];
+
+    if (!serverId)
+      serverId = getTargetServerId();
+    if (!selector)
+      selector = $('#select-host');
+
+    self.setFilterCandidates(selector);
+
+    servers = self.rawData["servers"];
+    if (!servers || !servers[serverId])
+      return;
+
+    server = servers[serverId];
+    hosts = server.hosts;
+    for (id in hosts) {
+      hostLabels.push({
+        label: getHostName(server, id),
+        value: id
+      });
+    }
+    hostLabels.sort(compareFilterLabel);
+    self.setFilterCandidates(selector, hostLabels);
+  }
+
+  function drawTableBody() {
     var serverName, hostName, clock, status, severity, duration;
     var server, event, html = "";
     var x;
-    var targetServerName = getTargetServerName();
-    var targetHostName= getTargetHostName();
+    var targetServerId = getTargetServerId();
+    var targetHostId = getTargetHostId();
     var minimumSeverity = $("#select-severity").val();
     var targetStatus = $("#select-status").val();
 
-    for (x = 0; x < rd["events"].length; ++x) {
-      event      = rd["events"][x];
+    for (x = 0; x < self.rawData["events"].length; ++x) {
+      event = self.rawData["events"][x];
       if (event["severity"] < minimumSeverity)
         continue;
       if (targetStatus >= 0 && event["type"] != targetStatus)
@@ -325,17 +359,17 @@ var EventsView = function(userProfile, baseElem) {
 
       var serverId = event["serverId"];
       var hostId = event["hostId"];
-      server     = rd["servers"][serverId];
+      server     = self.rawData["servers"][serverId];
       serverName = getServerName(server, serverId);
       hostName   = getHostName(server, hostId);
       clock      = event["time"];
       status     = event["type"];
       severity   = event["severity"];
-      duration   = pd.durations[serverName][event["triggerId"]][clock];
+      duration   = self.durations[serverId][event["triggerId"]][clock];
 
-      if (targetServerName && serverName != targetServerName)
+      if (targetServerId && serverId != targetServerId)
         continue;
-      if (targetHostName && hostName != targetHostName)
+      if (targetHostId && hostId != targetHostId)
         continue;
 
       html += "<tr><td>" + escapeHTML(serverName) + "</td>";
@@ -355,19 +389,18 @@ var EventsView = function(userProfile, baseElem) {
     return html;
   }
 
-  function drawTableContents(rawData, parsedData) {
+  function drawTableContents() {
     $("#table tbody").empty();
-    $("#table tbody").append(drawTableBody(rawData, parsedData));
+    $("#table tbody").append(drawTableBody());
   }
 
   function updateCore(reply) {
-    rawData = reply;
-    parsedData = parseData(rawData);
+    self.rawData = reply;
+    self.durations = parseData(self.rawData);
 
-    self.setCandidate($('#select-server'), parsedData.serverNames);
-    self.setCandidate($("#select-host"));
-
-    drawTableContents(rawData, parsedData);
+    setServerFilterCandidates();
+    setHostFilterCandidates();
+    drawTableContents();
   }
 };
 

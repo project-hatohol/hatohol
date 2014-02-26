@@ -36,7 +36,7 @@ var LatestView = function(userProfile) {
 
   $("#select-server").change(function() {
     var serverName = $("#select-server").val();
-    self.setCandidate($("#select-host"), parsedData.hosts[serverName]);
+    self.setFilterCandidates($("#select-host"), parsedData.hosts[serverName]);
     drawTableContents(rawData);
   });
   $("#select-host").change(function() {
@@ -151,9 +151,9 @@ var LatestView = function(userProfile) {
     rawData = reply;
     parsedData = parseData(rawData);
 
-    self.setCandidate($("#select-server"), parsedData.servers);
-    self.setCandidate($("#select-host"));
-    self.setCandidate($("#select-application"), parsedData.applications);
+    self.setFilterCandidates($("#select-server"), parsedData.servers);
+    self.setFilterCandidates($("#select-host"));
+    self.setFilterCandidates($("#select-application"), parsedData.applications);
 
     drawTableContents(rawData);
   }
