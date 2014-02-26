@@ -47,6 +47,27 @@ HatoholMonitoringView.prototype.setCandidate = function(target, list) {
   }
 };
 
+HatoholMonitoringView.prototype.setFilterCandidates =
+  function(target, candidates)
+{
+  var x;
+  var html = "<option>---------</option>";
+
+  target.empty().append(html);
+
+  if (candidates) {
+    target.removeAttr("disabled");
+    for (x = 0; candidates && x < candidates.length; ++x) {
+      var option = $("<option/>");
+      option.text(candidates[x].label);
+      option.attr("value", candidates[x].value);
+      target.append(option);
+    }
+  } else {
+    target.attr("disabled", "disabled");
+  }
+};
+
 HatoholMonitoringView.prototype.setStatus = function (value) {
   var elem;
   var x;
