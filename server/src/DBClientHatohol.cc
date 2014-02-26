@@ -1340,7 +1340,11 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 		  " AND %s<=%"PRIu64, columnName.c_str(), limitOfUnifiedId);
 	}
 
-	string optCond = option.getCondition(TABLE_NAME_EVENTS);
+	// Use TABLE_NAME_TRIGGERS instead of TABLE_NAME_EVENTS because events
+	// table doesn't store valid host_id although it has host_id column.
+	// On the other hand triggers table has all necessary columns & data.
+	string optCond = option.getCondition(TABLE_NAME_TRIGGERS);
+
 	if (isAlwaysFalseCondition(optCond))
 		return HatoholError(HTERR_OK);
 	if (!optCond.empty()) {
