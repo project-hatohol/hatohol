@@ -228,14 +228,13 @@ var EventsView = function(userProfile, baseElem) {
     var parsedData = new Object();
     var triggerId;
     var x, event, server;
-    var allTimes, serverNames, hostNames, serverName, hostName;
+    var allTimes, serverName, hostName;
     var times, durations, now;
 
     parsedData.durations = {};
 
-    // extract server names & times from raw data
+    // extract times from raw data
     allTimes = {};
-    hostNames = {};
     for (x = 0; x < replyData["events"].length; ++x) {
       event = replyData["events"][x];
       var serverId = event["serverId"];
@@ -249,22 +248,10 @@ var EventsView = function(userProfile, baseElem) {
         allTimes[serverName][triggerId] = [];
       
       allTimes[serverName][triggerId].push(event["time"]);
-
-      if (!hostNames[serverName])
-        hostNames[serverName] = {};
-      var hostId = event["hostId"];
-      hostName = getHostName(server, hostId);
-      if (!hostNames[serverName][hostName])
-        hostNames[serverName][hostName] = true;
     }
 
-    // create server names array & durations map
-    serverNames = [];
+    // create durations map
     for (serverName in allTimes) {
-      // store the unique server name
-      serverNames.push(serverName);
-
-      // calculate durations
       for (triggerId in allTimes[serverName]) {
         times = allTimes[serverName][triggerId].uniq().sort();
         durations = {};
@@ -279,15 +266,6 @@ var EventsView = function(userProfile, baseElem) {
         allTimes[serverName][triggerId] = durations;
       }
       parsedData.durations[serverName] = allTimes[serverName];
-    }
-    parsedData.serverNames = serverNames.sort();
-    parsedData.hostNames = {};
-    for (serverName in hostNames) {
-      if (!parsedData.hostNames[serverName])
-        parsedData.hostNames[serverName] = [];
-      for (hostName in hostNames[serverName])
-        parsedData.hostNames[serverName].push(hostName);
-      parsedData.hostNames[serverName] = parsedData.hostNames[serverName].sort();
     }
 
     return parsedData;
