@@ -1257,7 +1257,7 @@ void test_makeConditionServer(void)
 
 	// check
 	string expectHead = serverIdColumnName;
-	expectHead += " IN(";
+	expectHead += " IN (";
 	string actualHead(actual, 0, expectHead.size());
 	cppcut_assert_equal(expectHead, actualHead);
 
