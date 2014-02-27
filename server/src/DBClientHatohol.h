@@ -27,6 +27,7 @@
 #include "ItemGroupStream.h"
 
 enum TriggerStatusType {
+	TRIGGER_STATUS_ALL = -1,
 	TRIGGER_STATUS_OK,
 	TRIGGER_STATUS_PROBLEM,
 	TRIGGER_STATUS_UNKNOWN,
@@ -214,12 +215,20 @@ public:
 	EventsQueryOption(const EventsQueryOption &src);
 	~EventsQueryOption();
 
+	virtual std::string getCondition(
+	  const std::string &tableAlias = "") const; // override
+
 	void setLimitOfUnifiedId(const uint64_t &unifiedId);
 	uint64_t getLimitOfUnifiedId(void) const;
 
 	void setSortType(const SortType &type, const SortDirection &direction);
 	SortType getSortType(void) const;
 	SortDirection getSortDirection(void) const;
+
+	void setMinimumSeverity(const TriggerSeverityType &severity);
+	TriggerSeverityType getMinimumSeverity(void) const;
+	void setTriggerStatus(const TriggerStatusType &status);
+	TriggerStatusType getTriggerStatus(void) const;
 
 private:
 	struct PrivateContext;

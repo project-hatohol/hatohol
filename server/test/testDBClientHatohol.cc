@@ -1071,6 +1071,44 @@ void test_eventQueryOptionWithSortTypeTime(void)
 	cppcut_assert_equal(expected, option.getOrderBy());
 }
 
+void test_eventQueryOptionDefaultMinimumSeveirty(void)
+{
+	EventsQueryOption option;
+	const string expected =  "0";
+	cppcut_assert_equal(TRIGGER_SEVERITY_UNKNOWN,
+			    option.getMinimumSeverity());
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
+void test_eventQueryOptionWithMinimumSeveirty(void)
+{
+	EventsQueryOption option;
+	option.setMinimumSeverity(TRIGGER_SEVERITY_CRITICAL);
+	const string expected =  "0 AND triggers.severity>=4";
+	cppcut_assert_equal(TRIGGER_SEVERITY_CRITICAL,
+			    option.getMinimumSeverity());
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
+void test_eventQueryOptionDefaultTriggerStatus(void)
+{
+	EventsQueryOption option;
+	const string expected =  "0";
+	cppcut_assert_equal(TRIGGER_STATUS_ALL,
+			    option.getTriggerStatus());
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
+void test_eventQueryOptionWithTriggerStatus(void)
+{
+	EventsQueryOption option;
+	option.setTriggerStatus(TRIGGER_STATUS_PROBLEM);
+	const string expected =  "0 AND triggers.status=1";
+	cppcut_assert_equal(TRIGGER_STATUS_PROBLEM,
+			    option.getTriggerStatus());
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
 void test_getEventSortAscending(void)
 {
 	AssertGetEventsArg arg;
