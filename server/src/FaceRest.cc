@@ -1713,6 +1713,9 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 	option.setTargetServerId(serverId);
 	option.setTargetHostId(hostId);
 	dataStore->getTriggerList(triggerList, option, triggerId);
+	HostgroupJsonArray<TriggerInfoList, TriggerInfo, TriggerIdType>
+	  hostgroupJson;
+	hostgroupJson.addHostgroupIdToListMap(triggerList);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -1732,7 +1735,8 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 		agent.add("serverId", triggerInfo.serverId);
 		agent.add("hostId",   triggerInfo.hostId);
 		agent.add("brief",    triggerInfo.brief);
-		agent.add("hostgroupId",    triggerInfo.hostgroupId);
+		hostgroupJson.includeHostgroupIdArray
+		  (agent, triggerInfo.serverId, triggerInfo.id);
 		agent.endObject();
 
 		hostMaps[triggerInfo.serverId][triggerInfo.hostId]
