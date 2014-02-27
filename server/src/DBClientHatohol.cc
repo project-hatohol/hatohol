@@ -1006,6 +1006,8 @@ string EventsQueryOption::getCondition(const std::string &tableAlias) const
 	if (m_ctx->minSeverity != TRIGGER_SEVERITY_UNKNOWN) {
 		if (!condition.empty())
 			condition += " AND ";
+		// Use triggers table because events tables doesn't contain
+		// correct severity.
 		condition += StringUtils::sprintf(
 			"%s.%s>=%d",
 			TABLE_NAME_TRIGGERS,
@@ -1016,9 +1018,11 @@ string EventsQueryOption::getCondition(const std::string &tableAlias) const
 	if (m_ctx->triggerStatus != TRIGGER_STATUS_ALL) {
 		if (!condition.empty())
 			condition += " AND ";
+		// Use events table because triggers table doesn't contain past
+		// status.
 		condition += StringUtils::sprintf(
 			"%s.%s=%d",
-			TABLE_NAME_TRIGGERS,
+			TABLE_NAME_EVENTS,
 			COLUMN_DEF_EVENTS[IDX_EVENTS_STATUS].columnName,
 			m_ctx->triggerStatus);
 	}
