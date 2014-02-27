@@ -98,7 +98,7 @@ std::string DataQueryOption::getCondition(void) const
 	return "";
 }
 
-DataQueryContext &DataQueryOption::getDataQueryContext(void)
+DataQueryContext &DataQueryOption::getDataQueryContext(void) const
 {
 	return *m_ctx->dataQueryCtxPtr;
 }

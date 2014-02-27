@@ -1032,9 +1032,9 @@ void test_makeSelectConditionNoneUser(void)
 void test_makeSelectCondition(void)
 {
 	setupTestDBUser(true, true);
-	HostResourceQueryOption option;
 	for (size_t i = 0; i < NumTestUserInfo; i++) {
 		UserIdType userId = i + 1;
+		HostResourceQueryOption option;
 		option.setUserId(userId);
 		string actual = option.getCondition();
 		string expect = makeExpectedConditionForUser(

@@ -941,10 +941,8 @@ string HostResourceQueryOption::getCondition(const string &tableAlias) const
 		return DBClientHatohol::getAlwaysFalseCondition();
 	}
 
-	CacheServiceDBClient cache;
-	DBClientUser *dbUser = cache.getUser();
-	ServerHostGrpSetMap srvHostGrpSetMap;
-	dbUser->getServerHostGrpSetMap(srvHostGrpSetMap, userId);
+	const ServerHostGrpSetMap &srvHostGrpSetMap =
+	  getDataQueryContext().getServerHostGrpSetMap();
 	condition = makeCondition(srvHostGrpSetMap,
 	                          getServerIdColumnName(tableAlias),
 	                          getHostGroupIdColumnName(tableAlias),

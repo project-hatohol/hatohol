@@ -50,7 +50,7 @@ public:
 
 	bool operator==(const DataQueryOption &rhs);
 
-	DataQueryContext &getDataQueryContext(void);
+	DataQueryContext &getDataQueryContext(void) const;
 
 	/**
 	 * Set the maximum number of the returned elements.
