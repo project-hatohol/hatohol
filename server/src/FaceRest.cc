@@ -2795,6 +2795,22 @@ HatoholError FaceRest::parseEventParameter(EventsQueryOption &option,
 		return err;
 	option.setTargetHostId(targetHostId);
 
+	// minimum severity
+	TriggerSeverityType severity = TRIGGER_SEVERITY_UNKNOWN;
+	err = getParam<TriggerSeverityType>(query, "minimumSeverity",
+					    "%d", severity);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+	option.setMinimumSeverity(severity);
+
+	// trigger status
+	TriggerStatusType status = TRIGGER_STATUS_ALL;
+	err = getParam<TriggerStatusType>(query, "status",
+					  "%d", status);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+	option.setTriggerStatus(status);
+
 	// sort type
 	EventsQueryOption::SortType sortType = EventsQueryOption::SORT_TIME;
 	err = parseSortTypeFromQuery(sortType, query);

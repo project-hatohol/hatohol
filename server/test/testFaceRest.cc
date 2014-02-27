@@ -2542,6 +2542,28 @@ void _assertParseEventParameterSortType(
 #define assertParseEventParameterSortType(O, ...) \
 cut_trace(_assertParseEventParameterSortType(O, ##__VA_ARGS__))
 
+void _assertParseEventParameterMinimumSeverity(
+  const TriggerSeverityType &expectedValue, const string &forceValueStr = "",
+  const HatoholErrorCode &expectCode = HTERR_OK)
+{
+	assertParseEventParameterTempl(
+	  TriggerSeverityType, expectedValue, "%d", "minimumSeverity",
+	  &EventsQueryOption::getMinimumSeverity, expectCode, forceValueStr);
+}
+#define assertParseEventParameterMinimumSeverity(O, ...) \
+cut_trace(_assertParseEventParameterMinimumSeverity(O, ##__VA_ARGS__))
+
+void _assertParseEventParameterTriggerStatus(
+  const TriggerStatusType &expectedValue, const string &forceValueStr = "",
+  const HatoholErrorCode &expectCode = HTERR_OK)
+{
+	assertParseEventParameterTempl(
+	  TriggerStatusType, expectedValue, "%d", "status",
+	  &EventsQueryOption::getTriggerStatus, expectCode, forceValueStr);
+}
+#define assertParseEventParameterTriggerStatus(O, ...) \
+cut_trace(_assertParseEventParameterTriggerStatus(O, ##__VA_ARGS__))
+
 GHashTable *g_query = NULL;
 
 void cut_teardown(void)
@@ -2740,6 +2762,48 @@ void test_parseEventParameterInvalidTargetHostGroupId(void)
 {
 	assertParseEventParameterTargetHostGroupId(
 	  0, "hostgroupid", HTERR_INVALID_PARAMETER);
+}
+
+void test_parseEventParameterNoMinimumSeverity(void)
+{
+	EventsQueryOption option;
+	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
+	assertHatoholError(
+	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
+	cppcut_assert_equal(TRIGGER_SEVERITY_UNKNOWN, option.getMinimumSeverity());
+}
+
+void test_parseEventParameterMinimumSeverity(void)
+{
+	assertParseEventParameterMinimumSeverity(TRIGGER_SEVERITY_WARNING);
+}
+
+void test_parseEventParameterInvalidMinimumSeverity(void)
+{
+	assertParseEventParameterMinimumSeverity(
+	  TRIGGER_SEVERITY_UNKNOWN, "warning",
+	  HTERR_INVALID_PARAMETER);
+}
+
+void test_parseEventParameterNoTriggerStatus(void)
+{
+	EventsQueryOption option;
+	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
+	assertHatoholError(
+	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
+	cppcut_assert_equal(TRIGGER_STATUS_ALL, option.getTriggerStatus());
+}
+
+void test_parseEventParameterTriggerStatus(void)
+{
+	assertParseEventParameterTriggerStatus(TRIGGER_STATUS_PROBLEM);
+}
+
+void test_parseEventParameterInvalidTriggerStatus(void)
+{
+	assertParseEventParameterTriggerStatus(
+	  TRIGGER_STATUS_OK, "problem",
+	  HTERR_INVALID_PARAMETER);
 }
 
 } // namespace testFaceRestNoInit
