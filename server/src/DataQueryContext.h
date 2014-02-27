@@ -21,6 +21,8 @@
 #define DataQueryContext_h
 
 #include "UsedCountable.h"
+#include "OperationPrivilege.h"
+#include "DBClientUser.h"
 
 /**
  * This class provides a function to share information for data query
@@ -28,12 +30,19 @@
  */
 class DataQueryContext : public UsedCountable {
 public:
-	DataQueryContext(void);
+	DataQueryContext(const OperationPrivilege &privilege);
+
+	const ServerHostGrpSetMap &getServerHostGrpSetMap(void);
+
+protected:
+	// To avoid an instance from being crated on a stack.
 	virtual ~DataQueryContext();
 
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
 };
+
+typedef UsedCountablePtr<DataQueryContext> DataQueryContextPtr;
 
 #endif // DataQueryContext_h

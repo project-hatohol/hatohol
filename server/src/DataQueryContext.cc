@@ -19,21 +19,48 @@
 
 #include <cstdio>
 #include "DataQueryContext.h"
+#include "CacheServiceDBClient.h"
 
 struct DataQueryContext::PrivateContext {
+	const OperationPrivilege &privilege;
+	ServerHostGrpSetMap      *srvHostGrpSetMap;
+
+	PrivateContext(const OperationPrivilege &_privilege)
+	: privilege(_privilege),
+	  srvHostGrpSetMap(NULL)
+	{
+	}
+
+	virtual ~PrivateContext()
+	{
+		if (srvHostGrpSetMap)
+			delete srvHostGrpSetMap;
+	}
 };
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-DataQueryContext::DataQueryContext(void)
+DataQueryContext::DataQueryContext(const OperationPrivilege &privilege)
 : m_ctx(NULL)
 {
-	m_ctx = new PrivateContext();
+	m_ctx = new PrivateContext(privilege);
 }
 
 DataQueryContext::~DataQueryContext()
 {
 	if (m_ctx)
 		delete m_ctx;
+}
+
+const ServerHostGrpSetMap &DataQueryContext::getServerHostGrpSetMap(void)
+{
+	if (!m_ctx->srvHostGrpSetMap) {
+		m_ctx->srvHostGrpSetMap = new ServerHostGrpSetMap();
+		CacheServiceDBClient cache;
+		DBClientUser *dbUser = cache.getUser();
+		dbUser->getServerHostGrpSetMap(*m_ctx->srvHostGrpSetMap,
+		                               m_ctx->privilege.getUserId());
+	}
+	return *m_ctx->srvHostGrpSetMap;
 }

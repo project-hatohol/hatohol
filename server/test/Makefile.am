@@ -28,7 +28,7 @@ testHatohol_la_SOURCES = \
 	testActionExecArgMaker.cc testActionManager.cc \
 	testCacheServiceDBClient.cc \
 	testConfigManager.cc \
-	testDataQueryOption.cc \
+	testDataQueryContext.cc testDataQueryOption.cc \
 	testDataStoreManager.cc \
 	testHatoholError.cc \
 	testHatoholException.cc testSQLProcessorException.cc \
