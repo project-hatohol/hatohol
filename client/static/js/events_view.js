@@ -183,14 +183,14 @@ var EventsView = function(userProfile, baseElem) {
       $("#latest-events-button").attr("disabled", "disabled");
       $("#next-events-button").attr("disabled", "disabled");
     } else {
-      $("#select-severity").removeAttr("disabled", "disabled");
-      $("#select-status").removeAttr("disabled", "disabled");
+      $("#select-severity").removeAttr("disabled");
+      $("#select-status").removeAttr("disabled");
       $("#select-server").removeAttr("disabled");
       if ($("#select-host option").length > 1)
-        $("#select-host").removeAttr("disabled", "disabled");
-      $("#num-events-per-page").removeAttr("disabled", "disabled");
-      $("#latest-events-button").removeAttr("disabled", "disabled");
-      $("#next-events-button").removeAttr("disabled", "disabled");
+        $("#select-host").removeAttr("disabled");
+      $("#num-events-per-page").removeAttr("disabled");
+      $("#latest-events-button").removeAttr("disabled");
+      $("#next-events-button").removeAttr("disabled");
     }
   }
 
