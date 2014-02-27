@@ -56,7 +56,7 @@ DataQueryOption::SortOrder::SortOrder(
 {
 }
 
-DataQueryOption::DataQueryOption(UserIdType userId)
+DataQueryOption::DataQueryOption(const UserIdType &userId)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext(*this);
