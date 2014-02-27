@@ -646,12 +646,12 @@ void test_serverQueryOptionForGuestUserWithTarget(void)
 }
 
 
-void test_serverQueryOptionConstructorTakingOperationPrivilege(void)
+void test_serverQueryOptionConstructorTakingDataQueryOption(void)
 {
 	setupTestDBUser(true, true);
 	const UserIdType &userId = 5;
-	OperationPrivilege privilege(userId);
-	ServerQueryOption option(privilege);
+	DataQueryOption dqo(userId);
+	ServerQueryOption option(dqo);
 	cppcut_assert_equal(userId, option.getUserId());
 }
 
