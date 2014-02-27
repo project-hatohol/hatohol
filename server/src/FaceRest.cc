@@ -46,15 +46,13 @@ const int FaceRest::DEFAULT_NUM_WORKERS = 4;
 
 typedef void (*RestHandler) (FaceRest::RestJob *job);
 
-typedef uint64_t HostgroupID;
-
 typedef map<HostIdType, string> HostNameMap;
 typedef map<ServerIdType, HostNameMap> HostNameMaps;
 
 typedef map<TriggerIdType, string> TriggerBriefMap;
 typedef map<ServerIdType, TriggerBriefMap> TriggerBriefMaps;
 
-typedef map<HostgroupID, string> HostgroupIDNameMap;
+typedef map<HostGroupIdType, string> HostgroupIDNameMap;
 typedef map<ServerIdType, HostgroupIDNameMap> ServerIDHostgroupIDNameMap;
 
 static const guint DEFAULT_PORT = 33194;
@@ -1258,7 +1256,7 @@ static void addHostgroupsMap(UserIdType userId, JsonBuilderAgent &outputJson,
 	HostgroupIDNameMap &hostgroups = serverIt->second;
 	HostgroupIDNameMap::iterator it = hostgroups.begin();
 	for (; serverIt != hostgroupMap.end() && it != hostgroups.end(); ++it) {
-		HostgroupID hostgroupId = it->first;
+		HostGroupIdType hostgroupId = it->first;
 		string &hostgroupName = it->second;
 		outputJson.startObject(StringUtils::toString(hostgroupId));
 		outputJson.add("name", hostgroupName);
