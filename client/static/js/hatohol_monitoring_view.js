@@ -89,9 +89,10 @@ HatoholMonitoringView.prototype.compareFilterLabel = function(a, b) {
 HatoholMonitoringView.prototype.setServerFilterCandidates =
   function(servers, selectorId)
 {
-  var id, serverLabels = [];
+  var id, serverLabels = [], current;
   if (!selectorId)
     selectorId = '#select-server';
+  current = $(selectorId).val();
   for (id in servers) {
     serverLabels.push({
       label: getServerName(servers[id], id),
@@ -100,15 +101,17 @@ HatoholMonitoringView.prototype.setServerFilterCandidates =
   }
   serverLabels.sort(this.compareFilterLabel);
   this.setFilterCandidates($(selectorId), serverLabels);
+  $(selectorId).val(current);
 };
 
 HatoholMonitoringView.prototype.setHostFilterCandidates =
   function(servers, serverId, selectorId)
 {
-  var id, server, hosts, hostLabels = [];
+  var id, server, hosts, hostLabels = [], current;
 
   if (!selectorId)
     selectorId = '#select-host';
+  current = $(selectorId).val();
   if (!serverId)
     serverId = this.getTargetServerId(selectorId);
 
@@ -127,6 +130,7 @@ HatoholMonitoringView.prototype.setHostFilterCandidates =
   }
   hostLabels.sort(this.compareFilterLabel);
   this.setFilterCandidates($(selectorId), hostLabels);
+  $(selectorId).val(current);
 };
 
 HatoholMonitoringView.prototype.setStatus = function (value) {

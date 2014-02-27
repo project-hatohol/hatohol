@@ -88,19 +88,37 @@ var EventsView = function(userProfile, baseElem) {
       self.limitOfUnifiedId = 0;
     }
 
+    var serverId = self.getTargetServerId();
+    var hostId = self.getTargetHostId();
     var query = {
-      maximumNumber: self.numEventsPerPage,
-      offset:        self.numEventsPerPage * self.currentPage,
-      sortType:      self.sortType,
-      sortOrder:     self.sortOrder
+      minimumSeverity: $("#select-severity").val(),
+      status:          $("#select-status").val(),
+      maximumNumber:   self.numEventsPerPage,
+      offset:          self.numEventsPerPage * self.currentPage,
+      sortType:        self.sortType,
+      sortOrder:       self.sortOrder
     };
+    if (serverId)
+      query.targetServerId = serverId;
+    if (hostId)
+      query.targetHostId = hostId;
+
     return '/events?' + $.param(query);
   };
 
   function createPage() {
     setupEvents();
-    connParam.url = getEventsURL();
-    self.connector = new HatoholConnector(connParam);
+    load();
+  }
+
+  function load(loadNextPage) {
+    connParam.url = getEventsURL(loadNextPage);
+    if (self.connector)
+      self.connector.start(connParam);
+    else
+      self.connector = new HatoholConnector(connParam);
+    $(self.baseElem).scrollTop(0);
+    setLoading(true);
   }
 
   function setupEvents() {
@@ -113,18 +131,18 @@ var EventsView = function(userProfile, baseElem) {
     });
 
     $("#select-severity").change(function() {
-      self.updateScreen(self.rawData, updateCore);
+      load();
     });
     $("#select-server").change(function() {
       var serverId = $("#select-server").val();
       self.setHostFilterCandidates(self.rawData["servers"], serverId);
-      drawTableContents();
+      load();
     });
     $("#select-host").change(function() {
-      drawTableContents();
+      load();
     });
     $("#select-status").change(function() {
-      drawTableContents();
+      load();
     });
 
     $('#num-events-per-page').val(self.numEventsPerPage);
@@ -147,16 +165,31 @@ var EventsView = function(userProfile, baseElem) {
 
     $('#next-events-button').click(function() {
       var loadNextPage = true;
-      connParam.url = getEventsURL(loadNextPage);
-      self.connector.start(connParam);
-      $(self.baseElem).scrollTop(0);
+      load(loadNextPage);
     });
 
     $('#latest-events-button').click(function() {
-      connParam.url = getEventsURL();
-      self.connector.start(connParam);
-      $(self.baseElem).scrollTop(0);
+      load();
     });
+  }
+
+  function setLoading(loading) {
+    if (loading) {
+      $("#select-severity").attr("disabled", "disabled");
+      $("#select-status").attr("disabled", "disabled");
+      $("#select-server").attr("disabled", "disabled");
+      $("#select-host").attr("disabled", "disabled");
+      $("#latest-events-button").attr("disabled", "disabled");
+      $("#next-events-button").attr("disabled", "disabled");
+    } else {
+      $("#select-severity").removeAttr("disabled", "disabled");
+      $("#select-status").removeAttr("disabled", "disabled");
+      $("#select-server").removeAttr("disabled");
+      if ($("#select-host option").length > 1)
+        $("#select-host").removeAttr("disabled", "disabled");
+      $("#latest-events-button").removeAttr("disabled", "disabled");
+      $("#next-events-button").removeAttr("disabled", "disabled");
+    }
   }
 
   function parseData(replyData) {
@@ -269,8 +302,10 @@ var EventsView = function(userProfile, baseElem) {
     self.durations = parseData(self.rawData);
 
     self.setServerFilterCandidates(self.rawData["servers"]);
-    self.setHostFilterCandidates(self.rawData["servers"]);
+    self.setHostFilterCandidates(self.rawData["servers"],
+                                 self.getTargetServerId());
     drawTableContents();
+    setLoading(false);
   }
 };
 
