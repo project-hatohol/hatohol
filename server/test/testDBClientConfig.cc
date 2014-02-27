@@ -646,12 +646,12 @@ void test_serverQueryOptionForGuestUserWithTarget(void)
 }
 
 
-void test_serverQueryOptionConstructorTakingDataQueryOption(void)
+void test_serverQueryOptionConstructorTakingDataQueryContext(void)
 {
 	setupTestDBUser(true, true);
 	const UserIdType &userId = 5;
-	DataQueryOption dqo(userId);
-	ServerQueryOption option(dqo);
+	DataQueryContextPtr dqCtxPtr(new DataQueryContext(userId), false);
+	ServerQueryOption option(dqCtxPtr);
 	cppcut_assert_equal(userId, option.getUserId());
 }
 

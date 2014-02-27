@@ -315,13 +315,12 @@ ServerQueryOption::ServerQueryOption(const UserIdType &userId)
 	m_ctx = new PrivateContext();
 }
 
-ServerQueryOption::ServerQueryOption(const DataQueryOption &dataQueryOption)
-: DataQueryOption(dataQueryOption),
+ServerQueryOption::ServerQueryOption(DataQueryContext *dataQueryContext)
+: DataQueryOption(dataQueryContext),
   m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 }
-
 
 ServerQueryOption::~ServerQueryOption()
 {
