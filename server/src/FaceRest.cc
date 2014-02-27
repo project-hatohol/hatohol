@@ -52,10 +52,10 @@ typedef map<ServerIdType, HostNameMap> HostNameMaps;
 typedef map<TriggerIdType, string> TriggerBriefMap;
 typedef map<ServerIdType, TriggerBriefMap> TriggerBriefMaps;
 
-typedef map<HostGroupIdType, string> HostgroupIDNameMap;
-typedef map<ServerIdType, HostgroupIDNameMap> ServerIDHostgroupIDNameMap;
+typedef map<HostGroupIdType, string> HostgroupIdNameMap;
+typedef map<ServerIdType, HostgroupIdNameMap> ServerIdHostgroupIdNameMap;
 
-typedef list<HostGroupIdType> HostgroupIDList;
+typedef list<HostGroupIdType> HostgroupIdList;
 
 static const guint DEFAULT_PORT = 33194;
 
@@ -287,14 +287,14 @@ private:
 template<typename InfoListT, typename InfoT, typename TargetIdT>
 class FaceRest::HostgroupJsonArray {
 public:
-	typedef map<TargetIdT, HostgroupIDList> DataIDHostgroupIDListMap;
-	typedef map<ServerIdType, DataIDHostgroupIDListMap>
-	  ServerIDDataIDHostgroupIDListMap;
-	typedef typename ServerIDDataIDHostgroupIDListMap::iterator
+	typedef map<TargetIdT, HostgroupIdList> DataIdHostgroupIdListMap;
+	typedef map<ServerIdType, DataIdHostgroupIdListMap>
+	  ServerIdDataIdHostgroupIdListMap;
+	typedef typename ServerIdDataIdHostgroupIdListMap::iterator
 	  ServerMapIterator;
-	typedef typename DataIDHostgroupIDListMap::iterator DataMapIterator;
+	typedef typename DataIdHostgroupIdListMap::iterator DataMapIterator;
 	typedef typename InfoListT::const_iterator InfoListIterator;
-	ServerIDDataIDHostgroupIDListMap serverDataHostgroupIdListMap;
+	ServerIdDataIdHostgroupIdListMap serverDataHostgroupIdListMap;
 
 	void addHostgroupIdToListMap(const InfoListT &infoList)
 	{
@@ -316,16 +316,16 @@ public:
 		if (serverIt == serverDataHostgroupIdListMap.end())
 			return;
 
-		DataIDHostgroupIDListMap dataHostgroupIdListMap
+		DataIdHostgroupIdListMap dataHostgroupIdListMap
 		  = serverIt->second;
 		DataMapIterator dataIt
 		  = dataHostgroupIdListMap.find(targetId);
 		if (dataIt == dataHostgroupIdListMap.end())
 			return;
 
-		HostgroupIDList hostgroupIdList
+		HostgroupIdList hostgroupIdList
 		  = dataIt->second;
-		HostgroupIDList::iterator groupIt = hostgroupIdList.begin();
+		HostgroupIdList::iterator groupIt = hostgroupIdList.begin();
 		outputJson.startArray("hostgroupId");
 		for (; groupIt != hostgroupIdList.end(); ++groupIt) {
 			HostGroupIdType hostgroupId = *groupIt;
@@ -1297,17 +1297,17 @@ static void addTriggersIdBriefHash(
 
 static void addHostgroupsMap(UserIdType userId, JsonBuilderAgent &outputJson,
                              MonitoringServerInfo &serverInfo,
-                             ServerIDHostgroupIDNameMap &hostgroupMap)
+                             ServerIdHostgroupIdNameMap &hostgroupMap)
 {
-	ServerIDHostgroupIDNameMap::iterator serverIt =
+	ServerIdHostgroupIdNameMap::iterator serverIt =
 	  hostgroupMap.find(serverInfo.id);
 	outputJson.startObject("groups");
 	if (serverIt == hostgroupMap.end()) {
 		outputJson.endObject();
 		return;
 	}
-	HostgroupIDNameMap &hostgroups = serverIt->second;
-	HostgroupIDNameMap::iterator it = hostgroups.begin();
+	HostgroupIdNameMap &hostgroups = serverIt->second;
+	HostgroupIdNameMap::iterator it = hostgroups.begin();
 	for (; serverIt != hostgroupMap.end() && it != hostgroups.end(); ++it) {
 		HostGroupIdType hostgroupId = it->first;
 		string &hostgroupName = it->second;
@@ -1323,7 +1323,7 @@ static void addServersMap(
   JsonBuilderAgent &agent,
   HostNameMaps *hostMaps = NULL, bool lookupHostName = false,
   TriggerBriefMaps *triggerMaps = NULL, bool lookupTriggerBrief = false,
-  ServerIDHostgroupIDNameMap *hostgroupNameMaps = NULL)
+  ServerIdHostgroupIdNameMap *hostgroupNameMaps = NULL)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	MonitoringServerInfoList monitoringServers;
@@ -1721,7 +1721,7 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 	agent.startArray("triggers");
 	TriggerInfoListIterator it = triggerList.begin();
 	HostNameMaps hostMaps;
-	ServerIDHostgroupIDNameMap hostgroupNameMaps;
+	ServerIdHostgroupIdNameMap hostgroupNameMaps;
 	for (; it != triggerList.end(); ++it) {
 		TriggerInfo &triggerInfo = *it;
 		agent.startObject();
@@ -1771,7 +1771,7 @@ void FaceRest::handlerGetEvent(RestJob *job)
 	agent.startArray("events");
 	EventInfoListIterator it = eventList.begin();
 	HostNameMaps hostMaps;
-	ServerIDHostgroupIDNameMap hostgroupNameMaps;
+	ServerIdHostgroupIdNameMap hostgroupNameMaps;
 	for (; it != eventList.end(); ++it) {
 		EventInfo &eventInfo = *it;
 		agent.startObject();
@@ -1830,7 +1830,7 @@ void FaceRest::replyGetItem(RestJob *job)
 	agent.startArray("items");
 	ItemInfoListIterator it = itemList.begin();
 	HostNameMaps hostMaps;
-	ServerIDHostgroupIDNameMap hostgroupNameMaps;
+	ServerIdHostgroupIdNameMap hostgroupNameMaps;
 	for (; it != itemList.end(); ++it) {
 		ItemInfo &itemInfo = *it;
 		agent.startObject();
