@@ -33,6 +33,7 @@ class DataQueryContext : public UsedCountable {
 public:
 	DataQueryContext(const OperationPrivilege &privilege);
 
+	void notifyChangeUserId(void);
 	const ServerHostGrpSetMap &getServerHostGrpSetMap(void);
 
 protected:

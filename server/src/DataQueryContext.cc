@@ -53,6 +53,15 @@ DataQueryContext::~DataQueryContext()
 		delete m_ctx;
 }
 
+void DataQueryContext::notifyChangeUserId(void)
+{
+	if (!m_ctx->srvHostGrpSetMap)
+		return;
+	delete m_ctx->srvHostGrpSetMap;
+	m_ctx->srvHostGrpSetMap = NULL;
+	MLPL_INFO("Deleted srvHostGrpSetMap.\n");
+}
+
 const ServerHostGrpSetMap &DataQueryContext::getServerHostGrpSetMap(void)
 {
 	if (!m_ctx->srvHostGrpSetMap) {

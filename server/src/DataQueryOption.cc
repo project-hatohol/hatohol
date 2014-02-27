@@ -103,6 +103,12 @@ DataQueryContext &DataQueryOption::getDataQueryContext(void) const
 	return *m_ctx->dataQueryCtxPtr;
 }
 
+void DataQueryOption::setUserId(const UserIdType &userId)
+{
+	OperationPrivilege::setUserId(userId);
+	getDataQueryContext().notifyChangeUserId();
+}
+
 void DataQueryOption::setMaximumNumber(size_t maximum)
 {
 	m_ctx->maxNumber = maximum;

@@ -53,6 +53,13 @@ public:
 	DataQueryContext &getDataQueryContext(void) const;
 
 	/**
+	 * Set a user ID.
+	 *
+	 * @param userId A user ID.
+	 */
+	virtual void setUserId(const UserIdType &userId); // override
+
+	/**
 	 * Set the maximum number of the returned elements.
 	 *
 	 * @param maximum A maximum number. If NO_LIMIT is given, all data
