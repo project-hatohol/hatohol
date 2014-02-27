@@ -210,14 +210,14 @@ public:
 		NUM_SORT_TYPES
 	};
 
-	EventsQueryOption(UserIdType userId = INVALID_USER_ID);
+	EventsQueryOption(const UserIdType &userId = INVALID_USER_ID);
 	EventsQueryOption(const EventsQueryOption &src);
 	~EventsQueryOption();
 
-	void setLimitOfUnifiedId(uint64_t unifiedId);
+	void setLimitOfUnifiedId(const uint64_t &unifiedId);
 	uint64_t getLimitOfUnifiedId(void) const;
 
-	void setSortType(SortType type, SortDirection direction);
+	void setSortType(const SortType &type, const SortDirection &direction);
 	SortType getSortType(void) const;
 	SortDirection getSortDirection(void) const;
 

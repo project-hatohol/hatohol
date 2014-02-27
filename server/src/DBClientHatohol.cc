@@ -980,7 +980,7 @@ struct EventsQueryOption::PrivateContext {
 	}
 };
 
-EventsQueryOption::EventsQueryOption(UserIdType userId)
+EventsQueryOption::EventsQueryOption(const UserIdType &userId)
 : HostResourceQueryOption(userId)
 {
 	m_ctx = new PrivateContext();
@@ -1001,7 +1001,7 @@ EventsQueryOption::EventsQueryOption(const EventsQueryOption &src)
 	*m_ctx = *src.m_ctx;
 }
 
-void EventsQueryOption::setLimitOfUnifiedId(uint64_t unifiedId)
+void EventsQueryOption::setLimitOfUnifiedId(const uint64_t &unifiedId)
 {
 	m_ctx->limitOfUnifiedId = unifiedId;
 }
@@ -1011,7 +1011,8 @@ uint64_t EventsQueryOption::getLimitOfUnifiedId(void) const
 	return m_ctx->limitOfUnifiedId;
 }
 
-void EventsQueryOption::setSortType(SortType type, SortDirection direction)
+void EventsQueryOption::setSortType(
+  const SortType &type, const SortDirection &direction)
 {
 	m_ctx->sortType = type;
 	m_ctx->sortDirection = direction;
