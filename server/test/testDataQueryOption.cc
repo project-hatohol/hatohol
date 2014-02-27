@@ -185,7 +185,7 @@ void test_getDataQueryContextOfDefaultConstructor(void)
 
 void test_getDataQueryContextOfConstructorWithDataQueryCtx(void)
 {
-	const UserIdType userId = 5;
+	const UserIdType userId = USER_ID_SYSTEM; // To avoid accessing User DB
 	DataQueryContextPtr dqCtxPtr(new DataQueryContext(userId), false);
 	{
 		DataQueryOption opt(dqCtxPtr);
