@@ -36,8 +36,8 @@ void cut_setup(void)
 void test_getServerHostGrpSetMap(void)
 {
 	setupTestDBUser();
-	OperationPrivilege privilege;
-	DataQueryContextPtr dqctx(new DataQueryContext(privilege), false);
+	const UserIdType userId = 1;
+	DataQueryContextPtr dqctx(new DataQueryContext(userId), false);
 	const ServerHostGrpSetMap &setMap = dqctx->getServerHostGrpSetMap();
 
 	// We only confirm the returned value has a valid address.

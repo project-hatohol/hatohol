@@ -31,9 +31,11 @@
  */
 class DataQueryContext : public UsedCountable {
 public:
-	DataQueryContext(const OperationPrivilege &privilege);
+	DataQueryContext(const UserIdType &UserId);
 
-	void notifyChangeUserId(void);
+	void setUserId(const UserIdType &userId);
+	void setFlags(const OperationPrivilegeFlag &flags);
+	const OperationPrivilege &getOperationPrivilege(void) const;
 	const ServerHostGrpSetMap &getServerHostGrpSetMap(void);
 
 protected:

@@ -23,10 +23,9 @@
 #include <string>
 #include <list>
 #include "Params.h"
-#include "OperationPrivilege.h"
 #include "DataQueryContext.h"
 
-class DataQueryOption : public OperationPrivilege {
+class DataQueryOption {
 public:
 	static const size_t NO_LIMIT;
 	enum SortDirection {
@@ -57,7 +56,12 @@ public:
 	 *
 	 * @param userId A user ID.
 	 */
-	virtual void setUserId(const UserIdType &userId); // override
+	void setUserId(const UserIdType &userId);
+	void setFlags(const OperationPrivilegeFlag &flags);
+
+	UserIdType getUserId(void) const;
+	bool has(const OperationPrivilegeType &type) const;
+	operator const OperationPrivilege &() const;
 
 	/**
 	 * Set the maximum number of the returned elements.

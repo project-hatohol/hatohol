@@ -31,18 +31,19 @@ struct DataQueryOption::PrivateContext {
 	DataQueryContextPtr dataQueryCtxPtr; // The body is shared
 
 	// constuctor
-	PrivateContext(const DataQueryOption &masterOption)
+	PrivateContext(const UserIdType &userId)
 	: maxNumber(NO_LIMIT),
-	  offset(0)
+	  offset(0),
+	  dataQueryCtxPtr(new DataQueryContext(userId), false)
 	{
-		if (!masterOption.m_ctx) {
-			dataQueryCtxPtr = new DataQueryContext(masterOption);
-			dataQueryCtxPtr->unref();
-		} else {
-			// copy the member
-			*this = *masterOption.m_ctx;
-		}
 	}
+
+	PrivateContext(const DataQueryOption &masterOption)
+	{
+		*this = *masterOption.m_ctx;
+	}
+
+
 };
 
 const size_t DataQueryOption::NO_LIMIT = 0;
@@ -59,8 +60,7 @@ DataQueryOption::SortOrder::SortOrder(
 DataQueryOption::DataQueryOption(const UserIdType &userId)
 : m_ctx(NULL)
 {
-	m_ctx = new PrivateContext(*this);
-	setUserId(userId);
+	m_ctx = new PrivateContext(userId);
 }
 
 DataQueryOption::DataQueryOption(const DataQueryOption &src)
@@ -105,8 +105,27 @@ DataQueryContext &DataQueryOption::getDataQueryContext(void) const
 
 void DataQueryOption::setUserId(const UserIdType &userId)
 {
-	OperationPrivilege::setUserId(userId);
-	getDataQueryContext().notifyChangeUserId();
+	getDataQueryContext().setUserId(userId);
+}
+
+void DataQueryOption::setFlags(const OperationPrivilegeFlag &flags)
+{
+	getDataQueryContext().setFlags(flags);
+}
+
+UserIdType DataQueryOption::getUserId(void) const
+{
+	return getDataQueryContext().getOperationPrivilege().getUserId();
+}
+
+bool DataQueryOption::has(const OperationPrivilegeType &type) const
+{
+	return getDataQueryContext().getOperationPrivilege().has(type);
+}
+
+DataQueryOption::operator const OperationPrivilege &() const
+{
+	return getDataQueryContext().getOperationPrivilege();
 }
 
 void DataQueryOption::setMaximumNumber(size_t maximum)

@@ -22,29 +22,36 @@
 #include "CacheServiceDBClient.h"
 
 struct DataQueryContext::PrivateContext {
-	const OperationPrivilege &privilege;
-	ServerHostGrpSetMap      *srvHostGrpSetMap;
+	OperationPrivilege   privilege;
+	ServerHostGrpSetMap *srvHostGrpSetMap;
 
-	PrivateContext(const OperationPrivilege &_privilege)
-	: privilege(_privilege),
+	PrivateContext(const UserIdType &userId)
+	: privilege(userId),
 	  srvHostGrpSetMap(NULL)
 	{
 	}
 
 	virtual ~PrivateContext()
 	{
-		if (srvHostGrpSetMap)
+		clear();
+	}
+
+	void clear(void)
+	{
+		if (srvHostGrpSetMap) {
 			delete srvHostGrpSetMap;
+			srvHostGrpSetMap = NULL;
+		}
 	}
 };
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-DataQueryContext::DataQueryContext(const OperationPrivilege &privilege)
+DataQueryContext::DataQueryContext(const UserIdType &userId)
 : m_ctx(NULL)
 {
-	m_ctx = new PrivateContext(privilege);
+	m_ctx = new PrivateContext(userId);
 }
 
 DataQueryContext::~DataQueryContext()
@@ -53,13 +60,21 @@ DataQueryContext::~DataQueryContext()
 		delete m_ctx;
 }
 
-void DataQueryContext::notifyChangeUserId(void)
+void DataQueryContext::setUserId(const UserIdType &userId)
 {
-	if (!m_ctx->srvHostGrpSetMap)
-		return;
-	delete m_ctx->srvHostGrpSetMap;
-	m_ctx->srvHostGrpSetMap = NULL;
-	MLPL_INFO("Deleted srvHostGrpSetMap.\n");
+	m_ctx->privilege.setUserId(userId);
+	m_ctx->clear();
+}
+
+void DataQueryContext::setFlags(const OperationPrivilegeFlag &flags)
+{
+	m_ctx->privilege.setFlags(flags);
+	m_ctx->clear();
+}
+
+const OperationPrivilege &DataQueryContext::getOperationPrivilege(void) const
+{
+	return m_ctx->privilege;
 }
 
 const ServerHostGrpSetMap &DataQueryContext::getServerHostGrpSetMap(void)
