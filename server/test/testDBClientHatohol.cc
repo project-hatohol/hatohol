@@ -539,8 +539,8 @@ void test_getTriggerInfo(void)
 void test_getTriggerInfoNotFound(void)
 {
 	setupTestTriggerDB();
-	uint32_t invalidSvId = -1;
-	uint32_t invalidTrigId = -1;
+	const UserIdType invalidSvId = -1;
+	const uint64_t   invalidTrigId = -1;
 	TriggerInfo triggerInfo;
 	DBClientHatohol dbHatohol;
 	TriggersQueryOption option(invalidSvId);
