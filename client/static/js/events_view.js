@@ -112,11 +112,20 @@ var EventsView = function(userProfile, baseElem) {
   }
 
   function load(loadNextPage) {
+    // TODO: Should integrate with HatoholMonitoringView.startConnection()
+
+    self.setStatus({
+      "class" : "warning",
+      "label" : gettext("LOAD"),
+      "lines" : [ gettext("Communicating with backend") ],
+    });
+
     connParam.url = getEventsURL(loadNextPage);
     if (self.connector)
       self.connector.start(connParam);
     else
       self.connector = new HatoholConnector(connParam);
+
     $(document.body).scrollTop(0);
     setLoading(true);
   }
