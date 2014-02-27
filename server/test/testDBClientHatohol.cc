@@ -1095,7 +1095,7 @@ void test_eventQueryOptionWithTriggerStatus(void)
 {
 	EventsQueryOption option;
 	option.setTriggerStatus(TRIGGER_STATUS_PROBLEM);
-	const string expected =  "0 AND triggers.status=1";
+	const string expected =  "0 AND events.status=1";
 	cppcut_assert_equal(TRIGGER_STATUS_PROBLEM,
 			    option.getTriggerStatus());
 	cppcut_assert_equal(expected, option.getCondition());
