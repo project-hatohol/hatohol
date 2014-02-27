@@ -193,14 +193,6 @@ static void _assertGetEventsWithFilter(AssertGetEventsArg &arg)
 	// setup event data
 	void test_addEventInfoList(void);
 	test_addEventInfoList();
-
-	if (arg.maxNumber)
-		arg.option.setMaximumNumber(arg.maxNumber);
-	arg.option.setSortType(arg.sortType, arg.sortDirection);
-	if (arg.offset)
-		arg.option.setOffset(arg.offset);
-	if (arg.limitOfUnifiedId)
-		arg.option.setLimitOfUnifiedId(arg.limitOfUnifiedId);
 	assertGetEvents(arg);
 }
 #define assertGetEventsWithFilter(ARG) \
@@ -1219,6 +1211,20 @@ void test_getEventWithInvalidUserId(void)
 	setupTestDBUser(true, true);
 	AssertGetEventsArg arg;
 	arg.userId = INVALID_USER_ID;
+	assertGetEventsWithFilter(arg);
+}
+
+void test_getEventWithMinSeverity(void)
+{
+	AssertGetEventsArg arg;
+	arg.minSeverity = TRIGGER_SEVERITY_WARNING;
+	assertGetEventsWithFilter(arg);
+}
+
+void test_getEventWithTriggerStatus(void)
+{
+	AssertGetEventsArg arg;
+	arg.triggerStatus = TRIGGER_STATUS_PROBLEM;
 	assertGetEventsWithFilter(arg);
 }
 
