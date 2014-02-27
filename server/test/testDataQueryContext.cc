@@ -35,6 +35,7 @@ void cut_setup(void)
 // ---------------------------------------------------------------------------
 void test_getServerHostGrpSetMap(void)
 {
+	setupTestDBUser();
 	OperationPrivilege privilege;
 	DataQueryContextPtr dqctx(new DataQueryContext(privilege), false);
 	const ServerHostGrpSetMap &setMap = dqctx->getServerHostGrpSetMap();
