@@ -50,7 +50,7 @@ static const uint64_t ALL_HOST_GROUPS = -1;
 
 struct HostInfo {
 	ServerIdType        serverId;
-	uint64_t            id;
+	HostIdType          id;
 	std::string         hostName;
 
 	// The follwong members are currently not used.
@@ -66,16 +66,16 @@ typedef HostInfoList::const_iterator HostInfoListConstIterator;
 
 struct TriggerInfo {
 	ServerIdType        serverId;
-	uint64_t            id;
+	TriggerIdType       id;
 	TriggerStatusType   status;
 	TriggerSeverityType severity;
 	timespec            lastChangeTime;
-	uint64_t            hostId;
+	HostIdType            hostId;
 	std::string         hostName;
 	std::string         brief;
 
 	// 'hostgroupId' variable is used when retrieve data from DB.
-	uint64_t            hostgroupId;
+	HostGroupIdType     hostgroupId;
 	std::string         hostgroupName;
 };
 
@@ -104,10 +104,10 @@ struct EventInfo {
 	// so they should be unified.
 	TriggerStatusType   status;
 	TriggerSeverityType severity;
-	uint64_t            hostId;
+	HostIdType          hostId;
 	std::string         hostName;
 	std::string         brief;
-	uint64_t            hostgroupId;
+	HostGroupIdType     hostgroupId;
 	std::string         hostgroupName;
 };
 void initEventInfo(EventInfo &eventInfo);
@@ -119,14 +119,14 @@ typedef EventInfoList::const_iterator EventInfoListConstIterator;
 struct ItemInfo {
 	ServerIdType        serverId;
 	ItemIdType          id;
-	uint64_t            hostId;
+	HostIdType            hostId;
 	std::string         brief;
 	timespec            lastValueTime;
 	std::string         lastValue;
 	std::string         prevValue;
 	std::string         itemGroupName;
 
-	uint64_t            hostgroupId;
+	HostGroupIdType     hostgroupId;
 	std::string         hostgroupName;
 };
 
@@ -137,7 +137,7 @@ typedef ItemInfoList::const_iterator ItemInfoListConstIterator;
 struct HostgroupInfo {
 	int                 id;
 	ServerIdType        serverId;
-	uint64_t            groupId;
+	HostGroupIdType     groupId;
 	std::string         groupName;
 };
 
@@ -148,8 +148,8 @@ typedef HostgroupInfoList::const_iterator HostgroupInfoListConstIterator;
 struct HostgroupElement {
 	int                 id;
 	ServerIdType        serverId;
-	uint64_t            hostId;
-	uint64_t            groupId;
+	HostIdType          hostId;
+	HostGroupIdType     groupId;
 };
 
 typedef std::list<HostgroupElement> HostgroupElementList;
