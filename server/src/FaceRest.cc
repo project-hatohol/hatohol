@@ -46,19 +46,18 @@ const int FaceRest::DEFAULT_NUM_WORKERS = 4;
 
 typedef void (*RestHandler) (FaceRest::RestJob *job);
 
-typedef uint64_t ServerID;
 typedef uint64_t HostID;
 typedef uint64_t TriggerID;
 typedef uint64_t HostgroupID;
 
 typedef map<HostID, string> HostNameMap;
-typedef map<ServerID, HostNameMap> HostNameMaps;
+typedef map<ServerIdType, HostNameMap> HostNameMaps;
 
 typedef map<TriggerID, string> TriggerBriefMap;
-typedef map<ServerID, TriggerBriefMap> TriggerBriefMaps;
+typedef map<ServerIdType, TriggerBriefMap> TriggerBriefMaps;
 
 typedef map<HostgroupID, string> HostgroupIDNameMap;
-typedef map<ServerID, HostgroupIDNameMap> ServerIDHostgroupIDNameMap;
+typedef map<ServerIdType, HostgroupIDNameMap> ServerIDHostgroupIDNameMap;
 
 static const guint DEFAULT_PORT = 33194;
 
@@ -1158,7 +1157,7 @@ static void addHosts(FaceRest::RestJob *job, JsonBuilderAgent &agent,
 }
 
 static string getHostName(const UserIdType userId,
-			  const ServerID serverId, const HostID hostId)
+			  const ServerIdType serverId, const HostID hostId)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	string hostName;
@@ -1169,7 +1168,7 @@ static string getHostName(const UserIdType userId,
 	dataStore->getHostList(hostInfoList, option);
 	if (hostInfoList.empty()) {
 		MLPL_WARN("Failed to get HostInfo: "
-		          "%"PRIu64", %"PRIu64"\n",
+		          "%"FMT_SERVER_ID", %"PRIu64"\n",
 		          serverId, hostId);
 	} else {
 		HostInfo &hostInfo = *hostInfoList.begin();
@@ -1185,7 +1184,7 @@ static void addHostsMap(
 {
 	HostNameMaps::iterator server_it = hostMaps.find(serverInfo.id);
 	agent.startObject("hosts");
-	ServerID serverId = server_it->first;
+	ServerIdType serverId = server_it->first;
 	HostNameMap &hosts = server_it->second;
 	HostNameMap::iterator it = hosts.begin();
 	for (; server_it != hostMaps.end() && it != hosts.end(); it++) {
@@ -1201,7 +1200,7 @@ static void addHostsMap(
 }
 
 static string getTriggerBrief(
-  FaceRest::RestJob *job, const ServerID serverId, const TriggerID triggerId)
+  FaceRest::RestJob *job, const ServerIdType serverId, const TriggerID triggerId)
 {
 	string triggerBrief;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
@@ -1213,7 +1212,7 @@ static string getTriggerBrief(
 
 	if (triggerInfoList.size() != 1) {
 		MLPL_WARN("Failed to get TriggerInfo: "
-		          "%"PRIu64", %"PRIu64"\n",
+		          "%"FMT_SERVER_ID", %"PRIu64"\n",
 		          serverId, triggerId);
 	} else {
 		TriggerInfoListIterator it = triggerInfoList.begin();
@@ -1230,7 +1229,7 @@ static void addTriggersIdBriefHash(
 {
 	TriggerBriefMaps::iterator server_it = triggerMaps.find(serverInfo.id);
 	agent.startObject("triggers");
-	ServerID serverId = server_it->first;
+	ServerIdType serverId = server_it->first;
 	TriggerBriefMap &triggers = server_it->second;
 	TriggerBriefMap::iterator it = triggers.begin();
 	for (; server_it != triggerMaps.end() && it != triggers.end(); it++) {
