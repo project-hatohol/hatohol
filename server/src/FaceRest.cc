@@ -2760,8 +2760,8 @@ HatoholError FaceRest::parseSortOrderFromQuery(
 	return HatoholError(HTERR_OK);
 }
 
-HatoholError FaceRest::parseEventParameter(EventsQueryOption &option,
-					   GHashTable *query)
+HatoholError FaceRest::parseHostResourceQueryParameter(
+  HostResourceQueryOption &option, GHashTable *query)
 {
 	if (!query)
 		return HatoholError(HTERR_OK);
@@ -2794,6 +2794,36 @@ HatoholError FaceRest::parseEventParameter(EventsQueryOption &option,
 	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
 		return err;
 	option.setTargetHostId(targetHostId);
+
+	// maximum number
+	size_t maximumNumber = 0;
+	err = getParam<size_t>(query, "maximumNumber", "%zd", maximumNumber);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+	option.setMaximumNumber(maximumNumber);
+
+	// offset
+	uint64_t offset = 0;
+	err = getParam<uint64_t>(query, "offset", "%"PRIu64, offset);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+	option.setOffset(offset);
+
+	return HatoholError(HTERR_OK);
+}
+
+HatoholError FaceRest::parseEventParameter(EventsQueryOption &option,
+					   GHashTable *query)
+{
+	if (!query)
+		return HatoholError(HTERR_OK);
+
+	HatoholError err;
+
+	// query parameters for HostResourceQueryOption
+	err = parseHostResourceQueryParameter(option, query);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
 
 	// minimum severity
 	TriggerSeverityType severity = TRIGGER_SEVERITY_UNKNOWN;
@@ -2833,20 +2863,6 @@ HatoholError FaceRest::parseEventParameter(EventsQueryOption &option,
 	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
 		return err;
 	option.setLimitOfUnifiedId(limitOfUnifiedId);
-
-	// maximum number
-	size_t maximumNumber = 0;
-	err = getParam<size_t>(query, "maximumNumber", "%zd", maximumNumber);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-	option.setMaximumNumber(maximumNumber);
-
-	// offset
-	uint64_t offset = 0;
-	err = getParam<uint64_t>(query, "offset", "%"PRIu64, offset);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-	option.setOffset(offset);
 
 	return HatoholError(HTERR_OK);
 }
