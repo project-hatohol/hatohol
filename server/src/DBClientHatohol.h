@@ -118,7 +118,7 @@ typedef EventInfoList::const_iterator EventInfoListConstIterator;
 
 struct ItemInfo {
 	ServerIdType        serverId;
-	uint64_t            id;
+	ItemIdType          id;
 	uint64_t            hostId;
 	std::string         brief;
 	timespec            lastValueTime;

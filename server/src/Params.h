@@ -54,6 +54,9 @@ typedef int UserRoleIdType;
 typedef uint64_t EventIdType;
 #define FMT_EVENT_ID PRIu64
 
+typedef uint64_t ItemIdType;
+#define FMT_ITEM_ID PRIu64
+
 typedef uint64_t TriggerIdType;
 #define FMT_TRIGGER_ID PRIu64
 
