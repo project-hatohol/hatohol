@@ -20,6 +20,8 @@
 var EventsView = function(userProfile, baseElem) {
   var self = this;
   self.baseElem = baseElem;
+  self.reloadTimeId = null;
+  self.reloadIntervalSeconds = 60;
   self.currentPage = 0;
   self.limiOfUnifiedId = 0;
   self.rawData = {};
@@ -114,6 +116,8 @@ var EventsView = function(userProfile, baseElem) {
   function load(loadNextPage) {
     // TODO: Should integrate with HatoholMonitoringView.startConnection()
 
+    clearTimeout(self.reloadTimerId);
+
     self.setStatus({
       "class" : "warning",
       "label" : gettext("LOAD"),
@@ -128,6 +132,7 @@ var EventsView = function(userProfile, baseElem) {
 
     $(document.body).scrollTop(0);
     setLoading(true);
+    self.reloadTimerId = setTimeout(load, self.reloadIntervalSeconds * 1000);
   }
 
   function setupEvents() {
