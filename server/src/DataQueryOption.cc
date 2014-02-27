@@ -38,6 +38,13 @@ struct DataQueryOption::PrivateContext {
 	{
 	}
 
+	PrivateContext(DataQueryContext *dataQueryContext)
+	: maxNumber(NO_LIMIT),
+	  offset(0),
+	  dataQueryCtxPtr(dataQueryContext)
+	{
+	}
+
 	PrivateContext(const DataQueryOption &masterOption)
 	{
 		*this = *masterOption.m_ctx;
@@ -61,6 +68,12 @@ DataQueryOption::DataQueryOption(const UserIdType &userId)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext(userId);
+}
+
+DataQueryOption::DataQueryOption(DataQueryContext *dataQueryContext)
+: m_ctx(NULL)
+{
+	m_ctx = new PrivateContext(dataQueryContext);
 }
 
 DataQueryOption::DataQueryOption(const DataQueryOption &src)

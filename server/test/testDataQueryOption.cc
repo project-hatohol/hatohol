@@ -183,6 +183,21 @@ void test_getDataQueryContextOfDefaultConstructor(void)
 	cppcut_assert_equal(1, dataQueryCtx.getUsedCount());
 }
 
+void test_getDataQueryContextOfConstructorWithDataQueryCtx(void)
+{
+	const UserIdType userId = 5;
+	DataQueryContextPtr dqCtxPtr(new DataQueryContext(userId), false);
+	{
+		DataQueryOption opt(dqCtxPtr);
+		DataQueryContext &dataQueryCtxOpt = opt.getDataQueryContext();
+		cppcut_assert_equal((DataQueryContext *)dqCtxPtr,
+		                    &dataQueryCtxOpt);
+		cppcut_assert_equal(userId, opt.getUserId());
+		cppcut_assert_equal(2, dqCtxPtr->getUsedCount());
+	}
+	cppcut_assert_equal(1, dqCtxPtr->getUsedCount());
+}
+
 void test_getDataQueryContextOfCopyConstructor(void)
 {
 	TestQueryOption opt0;

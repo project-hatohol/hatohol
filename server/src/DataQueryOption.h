@@ -44,6 +44,7 @@ public:
 	typedef std::list<SortOrder>::const_iterator SortOrderListConstIterator;
 
 	DataQueryOption(const UserIdType &userId = INVALID_USER_ID);
+	DataQueryOption(DataQueryContext *dataQueryContext);
 	DataQueryOption(const DataQueryOption &src);
 	virtual ~DataQueryOption();
 
