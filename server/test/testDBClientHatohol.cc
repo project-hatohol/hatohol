@@ -193,14 +193,6 @@ static void _assertGetEventsWithFilter(AssertGetEventsArg &arg)
 	// setup event data
 	void test_addEventInfoList(void);
 	test_addEventInfoList();
-
-	if (arg.maxNumber)
-		arg.option.setMaximumNumber(arg.maxNumber);
-	arg.option.setSortType(arg.sortType, arg.sortDirection);
-	if (arg.offset)
-		arg.option.setOffset(arg.offset);
-	if (arg.limitOfUnifiedId)
-		arg.option.setLimitOfUnifiedId(arg.limitOfUnifiedId);
 	assertGetEvents(arg);
 }
 #define assertGetEventsWithFilter(ARG) \
@@ -1071,6 +1063,44 @@ void test_eventQueryOptionWithSortTypeTime(void)
 	cppcut_assert_equal(expected, option.getOrderBy());
 }
 
+void test_eventQueryOptionDefaultMinimumSeveirty(void)
+{
+	EventsQueryOption option;
+	const string expected =  "0";
+	cppcut_assert_equal(TRIGGER_SEVERITY_UNKNOWN,
+			    option.getMinimumSeverity());
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
+void test_eventQueryOptionWithMinimumSeveirty(void)
+{
+	EventsQueryOption option;
+	option.setMinimumSeverity(TRIGGER_SEVERITY_CRITICAL);
+	const string expected =  "0 AND triggers.severity>=4";
+	cppcut_assert_equal(TRIGGER_SEVERITY_CRITICAL,
+			    option.getMinimumSeverity());
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
+void test_eventQueryOptionDefaultTriggerStatus(void)
+{
+	EventsQueryOption option;
+	const string expected =  "0";
+	cppcut_assert_equal(TRIGGER_STATUS_ALL,
+			    option.getTriggerStatus());
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
+void test_eventQueryOptionWithTriggerStatus(void)
+{
+	EventsQueryOption option;
+	option.setTriggerStatus(TRIGGER_STATUS_PROBLEM);
+	const string expected =  "0 AND events.status=1";
+	cppcut_assert_equal(TRIGGER_STATUS_PROBLEM,
+			    option.getTriggerStatus());
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
 void test_getEventSortAscending(void)
 {
 	AssertGetEventsArg arg;
@@ -1181,6 +1211,20 @@ void test_getEventWithInvalidUserId(void)
 	setupTestDBUser(true, true);
 	AssertGetEventsArg arg;
 	arg.userId = INVALID_USER_ID;
+	assertGetEventsWithFilter(arg);
+}
+
+void test_getEventWithMinSeverity(void)
+{
+	AssertGetEventsArg arg;
+	arg.minSeverity = TRIGGER_SEVERITY_WARNING;
+	assertGetEventsWithFilter(arg);
+}
+
+void test_getEventWithTriggerStatus(void)
+{
+	AssertGetEventsArg arg;
+	arg.triggerStatus = TRIGGER_STATUS_PROBLEM;
 	assertGetEventsWithFilter(arg);
 }
 

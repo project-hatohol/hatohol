@@ -157,25 +157,56 @@ struct AssertGetEventsArg
 {
 	uint64_t limitOfUnifiedId;
 	EventsQueryOption::SortType sortType;
+	TriggerSeverityType minSeverity;
+	TriggerStatusType triggerStatus;
 	std::map<const EventInfo *, uint64_t> idMap;
 
 	AssertGetEventsArg(void)
-	: limitOfUnifiedId(0), sortType(EventsQueryOption::SORT_UNIFIED_ID)
+	: limitOfUnifiedId(0), sortType(EventsQueryOption::SORT_UNIFIED_ID),
+	  minSeverity(TRIGGER_SEVERITY_UNKNOWN),
+	  triggerStatus(TRIGGER_STATUS_ALL)
 	{
 		fixtures = testEventInfo;
 		numberOfFixtures = NumTestEventInfo;
 		fixupIdMap();
 	}
 
-	virtual void fixupIdMap(void) {
+	virtual void fixupIdMap(void)
+	{
 		for (size_t i = 0; i < numberOfFixtures; i++)
 			idMap[&fixtures[i]] = i + 1;
 	}
 
-	virtual bool filterOutExpectedRecord(EventInfo *info)
+	virtual void fixupOption(void) // override
+	{
+		AssertGetHostResourceArg<EventInfo, EventsQueryOption>::
+			fixupOption();
+		if (maxNumber)
+			option.setMaximumNumber(maxNumber);
+		if (offset)
+			option.setOffset(offset);
+		if (limitOfUnifiedId)
+			option.setLimitOfUnifiedId(limitOfUnifiedId);
+		option.setSortType(sortType, sortDirection);
+		option.setMinimumSeverity(minSeverity);
+		option.setTriggerStatus(triggerStatus);
+	}
+
+	virtual bool filterOutExpectedRecord(EventInfo *info) // override
 	{
 		if (limitOfUnifiedId && idMap[info] > limitOfUnifiedId)
 			return true;
+
+		// TODO: Use TriggerInfo instead of EventInfo because actual
+		//       EventInfo doesn't store correct severity.
+		if (info->severity < minSeverity)
+			return true;
+
+		if (triggerStatus != TRIGGER_STATUS_ALL &&
+		    info->status != triggerStatus) {
+			return true;
+		}
+
 		return false;
 	}
 
@@ -196,7 +227,7 @@ struct AssertGetEventsArg
 		}
 	};
 
-	virtual void fixupExpectedRecords(void)
+	virtual void fixupExpectedRecords(void) // override
 	{
 		AssertGetHostResourceArg<EventInfo, EventsQueryOption>::
 			fixupExpectedRecords();

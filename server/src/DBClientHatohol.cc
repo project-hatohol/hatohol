@@ -971,16 +971,20 @@ struct EventsQueryOption::PrivateContext {
 	uint64_t limitOfUnifiedId;
 	SortType sortType;
 	SortDirection sortDirection;
+	TriggerSeverityType minSeverity;
+	TriggerStatusType triggerStatus;
 
 	PrivateContext()
 	: limitOfUnifiedId(NO_LIMIT),
 	  sortType(SORT_UNIFIED_ID),
-	  sortDirection(SORT_DONT_CARE)
+	  sortDirection(SORT_DONT_CARE),
+	  minSeverity(TRIGGER_SEVERITY_UNKNOWN),
+	  triggerStatus(TRIGGER_STATUS_ALL)
 	{
 	}
 };
 
-EventsQueryOption::EventsQueryOption(UserIdType userId)
+EventsQueryOption::EventsQueryOption(const UserIdType &userId)
 : HostResourceQueryOption(userId)
 {
 	m_ctx = new PrivateContext();
@@ -995,13 +999,44 @@ EventsQueryOption::~EventsQueryOption()
 	delete m_ctx;
 }
 
+string EventsQueryOption::getCondition(const std::string &tableAlias) const
+{
+	string condition = HostResourceQueryOption::getCondition(tableAlias);
+
+	if (m_ctx->minSeverity != TRIGGER_SEVERITY_UNKNOWN) {
+		if (!condition.empty())
+			condition += " AND ";
+		// Use triggers table because events tables doesn't contain
+		// correct severity.
+		condition += StringUtils::sprintf(
+			"%s.%s>=%d",
+			TABLE_NAME_TRIGGERS,
+			COLUMN_DEF_EVENTS[IDX_EVENTS_SEVERITY].columnName,
+			m_ctx->minSeverity);
+	}
+
+	if (m_ctx->triggerStatus != TRIGGER_STATUS_ALL) {
+		if (!condition.empty())
+			condition += " AND ";
+		// Use events table because triggers table doesn't contain past
+		// status.
+		condition += StringUtils::sprintf(
+			"%s.%s=%d",
+			TABLE_NAME_EVENTS,
+			COLUMN_DEF_EVENTS[IDX_EVENTS_STATUS].columnName,
+			m_ctx->triggerStatus);
+	}
+
+	return condition;
+}
+
 EventsQueryOption::EventsQueryOption(const EventsQueryOption &src)
 {
 	m_ctx = new PrivateContext();
 	*m_ctx = *src.m_ctx;
 }
 
-void EventsQueryOption::setLimitOfUnifiedId(uint64_t unifiedId)
+void EventsQueryOption::setLimitOfUnifiedId(const uint64_t &unifiedId)
 {
 	m_ctx->limitOfUnifiedId = unifiedId;
 }
@@ -1011,7 +1046,8 @@ uint64_t EventsQueryOption::getLimitOfUnifiedId(void) const
 	return m_ctx->limitOfUnifiedId;
 }
 
-void EventsQueryOption::setSortType(SortType type, SortDirection direction)
+void EventsQueryOption::setSortType(
+  const SortType &type, const SortDirection &direction)
 {
 	m_ctx->sortType = type;
 	m_ctx->sortDirection = direction;
@@ -1056,6 +1092,26 @@ EventsQueryOption::SortType EventsQueryOption::getSortType(void) const
 DataQueryOption::SortDirection EventsQueryOption::getSortDirection(void) const
 {
 	return m_ctx->sortDirection;
+}
+
+void EventsQueryOption::setMinimumSeverity(const TriggerSeverityType &severity)
+{
+	m_ctx->minSeverity = severity;
+}
+
+TriggerSeverityType EventsQueryOption::getMinimumSeverity(void) const
+{
+	return m_ctx->minSeverity;
+}
+
+void EventsQueryOption::setTriggerStatus(const TriggerStatusType &status)
+{
+	m_ctx->triggerStatus = status;
+}
+
+TriggerStatusType EventsQueryOption::getTriggerStatus(void) const
+{
+	return m_ctx->triggerStatus;
 }
 
 TriggersQueryOption::TriggersQueryOption(UserIdType userId)

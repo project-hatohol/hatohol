@@ -88,83 +88,37 @@ var EventsView = function(userProfile, baseElem) {
       self.limitOfUnifiedId = 0;
     }
 
+    var serverId = self.getTargetServerId();
+    var hostId = self.getTargetHostId();
     var query = {
-      maximumNumber: self.numEventsPerPage,
-      offset:        self.numEventsPerPage * self.currentPage,
-      sortType:      self.sortType,
-      sortOrder:     self.sortOrder
+      minimumSeverity: $("#select-severity").val(),
+      status:          $("#select-status").val(),
+      maximumNumber:   self.numEventsPerPage,
+      offset:          self.numEventsPerPage * self.currentPage,
+      sortType:        self.sortType,
+      sortOrder:       self.sortOrder
     };
+    if (serverId)
+      query.targetServerId = serverId;
+    if (hostId)
+      query.targetHostId = hostId;
+
     return '/events?' + $.param(query);
   };
 
   function createPage() {
-    createUI(self.baseElem);
     setupEvents();
-    connParam.url = getEventsURL();
-    self.connector = new HatoholConnector(connParam);
+    load();
   }
 
-  function createUI(elem) {
-    var s = '';
-    s += '<h2>' + gettext('Events') + '</h2>';
-
-    s += '<form class="form-inline hatohol-filter-toolbar">';
-    s += '  <label>' + gettext('Minimum Severity:') + '</label>';
-    s += '  <select id="select-severity" class="form-control">';
-    s += '    <option>0</option>';
-    s += '    <option>1</option>';
-    s += '    <option>2</option>';
-    s += '    <option>3</option>';
-    s += '    <option>4</option>';
-    s += '  </select>';
-    s += '  <label>' + gettext('Status:') + '</label>';
-    s += '  <select id="select-status" class="form-control">';
-    s += '    <option value="-1">---------</option>';
-    s += '    <option value="0">' + gettext('OK') + '</option>';
-    s += '    <option value="1">' + gettext('Problem') + '</option>';
-    s += '    <option value="2">' + gettext('Unknown') + '</option>';
-    s += '  </select>';
-    s += '  <label>' + gettext('Server:') + '</label>';
-    s += '  <select id="select-server" class="form-control">';
-    s += '    <option>---------</option>';
-    s += '  </select>';
-    s += '  <label>' + gettext('Host:') + '</label>';
-    s += '  <select id="select-host" class="form-control">';
-    s += '    <option>---------</option>';
-    s += '  </select>';
-    s += '  <label for="num-events-per-page">' + gettext("# of events per page") + '</label>';
-    s += '  <input type="text" id="num-events-per-page" class="form-control" style="width:4em;">';
-    s += '</form>';
-
-    s += '<table class="table table-condensed table-hover" id="table">';
-    s += '  <thead>';
-    s += '    <tr>';
-    s += '      <th data-sort="string">' + gettext('Server') + '</th>';
-    s += '      <th data-sort="int">' + gettext('Time') + '</th>';
-    s += '      <th data-sort="string">' + gettext('Host') + '</th>';
-    s += '      <th data-sort="string">' + gettext('Brief') + '</th>';
-    s += '      <th data-sort="int">' + gettext('Status') + '</th>';
-    s += '      <th data-sort="int">' + gettext('Severity') + '</th>';
-    s += '      <th data-sort="int">' + gettext('Duration') + '</th>';
-    /* Not supported yet
-    s += '      <th data-sort="int">' + gettext('Comment') + '</th>';
-    s += '      <th data-sort="int">' + gettext('Action') + '</th>';
-    */
-    s += '    </tr>';
-    s += '  </thead>';
-    s += '  <tbody>';
-    s += '  </tbody>';
-    s += '</table>';
-
-    s += '<center>';
-    s += '<form class="form-inline">';
-    s += '  <input id="latest-events-button" type="button" class="btn btn-info" value="' + gettext('Latest events') + '" />';
-    s += '  <input id="next-events-button" type="button" class="btn btn-primary" value="' + gettext('To next') + '" />';
-    s += '</form>';
-    s += '</center>';
-    s += '<br>';
-
-    $(elem).append(s);
+  function load(loadNextPage) {
+    connParam.url = getEventsURL(loadNextPage);
+    if (self.connector)
+      self.connector.start(connParam);
+    else
+      self.connector = new HatoholConnector(connParam);
+    $(document.body).scrollTop(0);
+    setLoading(true);
   }
 
   function setupEvents() {
@@ -177,18 +131,18 @@ var EventsView = function(userProfile, baseElem) {
     });
 
     $("#select-severity").change(function() {
-      self.updateScreen(self.rawData, updateCore);
+      load();
     });
     $("#select-server").change(function() {
-      var serverName = $("#select-server").val();
-      setHostFilterCandidates();
-      drawTableContents();
+      var serverId = $("#select-server").val();
+      self.setHostFilterCandidates(self.rawData["servers"], serverId);
+      load();
     });
     $("#select-host").change(function() {
-      drawTableContents();
+      load();
     });
     $("#select-status").change(function() {
-      drawTableContents();
+      load();
     });
 
     $('#num-events-per-page').val(self.numEventsPerPage);
@@ -211,16 +165,33 @@ var EventsView = function(userProfile, baseElem) {
 
     $('#next-events-button').click(function() {
       var loadNextPage = true;
-      connParam.url = getEventsURL(loadNextPage);
-      self.connector.start(connParam);
-      $(self.baseElem).scrollTop(0);
+      load(loadNextPage);
     });
 
     $('#latest-events-button').click(function() {
-      connParam.url = getEventsURL();
-      self.connector.start(connParam);
-      $(self.baseElem).scrollTop(0);
+      load();
     });
+  }
+
+  function setLoading(loading) {
+    if (loading) {
+      $("#select-severity").attr("disabled", "disabled");
+      $("#select-status").attr("disabled", "disabled");
+      $("#select-server").attr("disabled", "disabled");
+      $("#select-host").attr("disabled", "disabled");
+      $("#num-events-per-page").attr("disabled", "disabled");
+      $("#latest-events-button").attr("disabled", "disabled");
+      $("#next-events-button").attr("disabled", "disabled");
+    } else {
+      $("#select-severity").removeAttr("disabled");
+      $("#select-status").removeAttr("disabled");
+      $("#select-server").removeAttr("disabled");
+      if ($("#select-host option").length > 1)
+        $("#select-host").removeAttr("disabled");
+      $("#num-events-per-page").removeAttr("disabled");
+      $("#latest-events-button").removeAttr("disabled");
+      $("#next-events-button").removeAttr("disabled");
+    }
   }
 
   function parseData(replyData) {
@@ -275,78 +246,12 @@ var EventsView = function(userProfile, baseElem) {
     return durations;
   }
 
-  function getTargetServerId() {
-    var id = $("#select-server").val();
-    if (id == "---------")
-      id = null;
-    return id;
-  }
-
-  function getTargetHostId() {
-    var id = $("#select-host").val();
-    if (id == "---------")
-      id = null;
-    return id;
-  }
-
-  function compareFilterLabel(a, b) {
-    if (a.label < b.label)
-      return -1;
-    if (a.label > b.label)
-      return 1;
-    if (a.id < b.id)
-      return -1;
-    if (a.id > b.id)
-      return 1;
-    return 0;
-  }
-
-  function setServerFilterCandidates(selector) {
-    var servers = self.rawData["servers"], serverLabels = [];
-    if (!selector)
-      selector = $('#select-server');
-    for (id in servers) {
-      serverLabels.push({
-        label: getServerName(servers[id], id),
-        value: id
-      });
-    }
-    serverLabels.sort(compareFilterLabel);
-    self.setFilterCandidates(selector, serverLabels);
-  }
-
-  function setHostFilterCandidates(serverId, selector) {
-    var servers, server, hosts, hostLabels = [];
-
-    if (!serverId)
-      serverId = getTargetServerId();
-    if (!selector)
-      selector = $('#select-host');
-
-    self.setFilterCandidates(selector);
-
-    servers = self.rawData["servers"];
-    if (!servers || !servers[serverId])
-      return;
-
-    server = servers[serverId];
-    hosts = server.hosts;
-    for (id in hosts) {
-      hostLabels.push({
-        label: getHostName(server, id),
-        value: id
-      });
-    }
-    hostLabels.sort(compareFilterLabel);
-    self.setFilterCandidates(selector, hostLabels);
-  }
-
   function drawTableBody() {
     var serverName, hostName, clock, status, severity, duration;
     var server, event, html = "";
     var x;
-    var targetServerId = getTargetServerId();
-    var targetHostId = getTargetHostId();
+    var targetServerId = self.getTargetServerId();
+    var targetHostId = self.getTargetHostId();
     var minimumSeverity = $("#select-severity").val();
     var targetStatus = $("#select-status").val();
 
@@ -398,9 +303,11 @@ var EventsView = function(userProfile, baseElem) {
     self.rawData = reply;
     self.durations = parseData(self.rawData);
 
-    setServerFilterCandidates();
-    setHostFilterCandidates();
+    self.setServerFilterCandidates(self.rawData["servers"]);
+    self.setHostFilterCandidates(self.rawData["servers"],
+                                 self.getTargetServerId());
     drawTableContents();
+    setLoading(false);
   }
 };
 
