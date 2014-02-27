@@ -284,7 +284,7 @@ private:
 	FaceRest *m_faceRest;
 };
 
-template<typename InfoListT, typename TargetIdT>
+template<typename InfoListT, typename InfoT, typename TargetIdT>
 class FaceRest::HostgroupJsonArray {
 public:
 	typedef map<TargetIdT, HostgroupIDList> DataIDHostgroupIDListMap;
@@ -300,9 +300,10 @@ public:
 	{
 		InfoListIterator it = infoList.begin();
 		for (; it != infoList.end(); ++it){
+			InfoT info = *it;
 			serverDataHostgroupIdListMap
-			  [infoList.serverId][infoList.id].push_back(
-			    infoList.hostgroupId);
+			  [info.serverId][info.id].push_back(
+			    info.hostgroupId);
 		}
 	}
 
