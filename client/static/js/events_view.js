@@ -117,7 +117,7 @@ var EventsView = function(userProfile, baseElem) {
       self.connector.start(connParam);
     else
       self.connector = new HatoholConnector(connParam);
-    $(self.baseElem).scrollTop(0);
+    $(document.body).scrollTop(0);
     setLoading(true);
   }
 
