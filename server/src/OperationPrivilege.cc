@@ -78,7 +78,7 @@ OperationPrivilege::makeFlag(OperationPrivilegeType type)
 	return (1 << type);
 }
 
-const bool OperationPrivilege::has(OperationPrivilegeType type) const
+bool OperationPrivilege::has(OperationPrivilegeType type) const
 {
 	const OperationPrivilegeFlag flag = makeFlag(type);
 	return (m_ctx->flags & flag);
