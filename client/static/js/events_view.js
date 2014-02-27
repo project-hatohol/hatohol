@@ -179,6 +179,7 @@ var EventsView = function(userProfile, baseElem) {
       $("#select-status").attr("disabled", "disabled");
       $("#select-server").attr("disabled", "disabled");
       $("#select-host").attr("disabled", "disabled");
+      $("#num-events-per-page").attr("disabled", "disabled");
       $("#latest-events-button").attr("disabled", "disabled");
       $("#next-events-button").attr("disabled", "disabled");
     } else {
@@ -187,6 +188,7 @@ var EventsView = function(userProfile, baseElem) {
       $("#select-server").removeAttr("disabled");
       if ($("#select-host option").length > 1)
         $("#select-host").removeAttr("disabled", "disabled");
+      $("#num-events-per-page").removeAttr("disabled", "disabled");
       $("#latest-events-button").removeAttr("disabled", "disabled");
       $("#next-events-button").removeAttr("disabled", "disabled");
     }
