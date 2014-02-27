@@ -324,7 +324,7 @@ public:
 			return;
 
 		HostgroupIDList hostgroupIdList
-		  = dataHostgroupIdListMap->second;
+		  = dataIt->second;
 		HostgroupIDList::iterator groupIt = hostgroupIdList.begin();
 		outputJson.startArray("hostgroupId");
 		for (; groupIt != hostgroupIdList.end(); ++groupIt) {
