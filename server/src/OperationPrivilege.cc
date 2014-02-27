@@ -36,14 +36,14 @@ struct OperationPrivilege::PrivateContext {
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-OperationPrivilege::OperationPrivilege(const UserIdType userId)
+OperationPrivilege::OperationPrivilege(const UserIdType &userId)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 	setUserId(userId);
 }
 
-OperationPrivilege::OperationPrivilege(const OperationPrivilegeFlag flags)
+OperationPrivilege::OperationPrivilege(const OperationPrivilegeFlag &flags)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
