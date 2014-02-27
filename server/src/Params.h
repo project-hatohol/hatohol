@@ -51,6 +51,12 @@ typedef int AccessInfoIdType;
 typedef int UserRoleIdType;
 #define FMT_USER_ROLE_ID "d"
 
+typedef uint64_t HostGroupIdType;
+#define FMT_HOST_GROUP_ID PRIu64
+
+typedef uint64_t HostIdType;
+#define FMT_HOST_ID PRIu64
+
 static const UserIdType INVALID_USER_ID = -1;
 static const UserIdType USER_ID_ANY     = -2;
 
@@ -84,10 +90,4 @@ enum SyncType {
 	SYNC,
 	ASYNC,
 };
-
-typedef uint32_t HostGroupIdType;
-#define FMT_HOST_GROUP_ID PRIu64
-
-typedef uint32_t HostIdType;
-#define FMT_HOST_ID PRIu64
 #endif // Params_h
