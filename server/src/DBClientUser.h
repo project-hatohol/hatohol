@@ -66,14 +66,6 @@ struct ServerAccessInfoMap : std::map<ServerIdType, HostGrpAccessInfoMap *> {
 typedef ServerAccessInfoMap::iterator         ServerAccessInfoMapIterator;
 typedef ServerAccessInfoMap::const_iterator   ServerAccessInfoMapConstIterator;
 
-typedef std::set<uint64_t>                  HostGroupSet;
-typedef HostGroupSet::iterator              HostGroupSetIterator;
-typedef HostGroupSet::const_iterator        HostGroupSetConstIterator;
-
-typedef std::map<ServerIdType, HostGroupSet>    ServerHostGrpSetMap;
-typedef ServerHostGrpSetMap::iterator       ServerHostGrpSetMapIterator;
-typedef ServerHostGrpSetMap::const_iterator ServerHostGrpSetMapConstIterator;
-
 struct UserRoleInfo {
 	UserRoleIdType id;
 	std::string name;

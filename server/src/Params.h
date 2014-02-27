@@ -23,6 +23,7 @@
 #include <cstdio>
 #include <stdint.h>
 #include <set>
+#include <map>
 
 typedef int DBDomainId;
 
@@ -85,6 +86,14 @@ typedef std::set<ServerIdType>      ServerIdSet;
 typedef ServerIdSet::iterator       ServerIdSetIterator;
 typedef ServerIdSet::const_iterator ServerIdSetConstIterator;
 extern const ServerIdSet EMPTY_SERVER_ID_SET;
+
+typedef std::set<uint64_t>                  HostGroupSet;
+typedef HostGroupSet::iterator              HostGroupSetIterator;
+typedef HostGroupSet::const_iterator        HostGroupSetConstIterator;
+
+typedef std::map<ServerIdType, HostGroupSet>    ServerHostGrpSetMap;
+typedef ServerHostGrpSetMap::iterator       ServerHostGrpSetMapIterator;
+typedef ServerHostGrpSetMap::const_iterator ServerHostGrpSetMapConstIterator;
 
 enum SyncType {
 	SYNC,

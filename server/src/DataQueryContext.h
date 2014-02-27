@@ -20,9 +20,10 @@
 #ifndef DataQueryContext_h
 #define DataQueryContext_h
 
+#include "Params.h"
 #include "UsedCountable.h"
+#include "UsedCountablePtr.h"
 #include "OperationPrivilege.h"
-#include "DBClientUser.h"
 
 /**
  * This class provides a function to share information for data query
