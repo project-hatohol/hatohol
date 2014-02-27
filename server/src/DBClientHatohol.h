@@ -95,7 +95,7 @@ struct EventInfo {
 	// the event ID of a monitroing system such as ZABBIX and Nagios.
 	uint64_t            unifiedId;
 	ServerIdType        serverId;
-	uint64_t            id;
+	EventIdType         id;
 	timespec            time;
 	EventType           type;
 	uint64_t            triggerId;
