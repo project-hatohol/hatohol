@@ -93,7 +93,7 @@ bool OperationPrivilege::operator==(const OperationPrivilege &rhs)
 	return true;
 }
 
-void OperationPrivilege::setUserId(UserIdType userId)
+void OperationPrivilege::setUserId(const UserIdType &userId)
 {
 	m_ctx->userId = userId;
 	m_ctx->flags = 0;

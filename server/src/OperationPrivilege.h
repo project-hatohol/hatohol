@@ -80,7 +80,7 @@ public:
 
 	bool operator==(const OperationPrivilege &rhs);
 
-	void setUserId(UserIdType userId);
+	void setUserId(const UserIdType &userId);
 	UserIdType getUserId(void) const;
 
 private:
