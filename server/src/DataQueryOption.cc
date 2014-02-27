@@ -64,6 +64,7 @@ DataQueryOption::DataQueryOption(const UserIdType &userId)
 }
 
 DataQueryOption::DataQueryOption(const DataQueryOption &src)
+: m_ctx(NULL)
 {
 	m_ctx = new PrivateContext(src);
 }
