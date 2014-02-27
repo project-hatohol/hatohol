@@ -46,11 +46,10 @@ const int FaceRest::DEFAULT_NUM_WORKERS = 4;
 
 typedef void (*RestHandler) (FaceRest::RestJob *job);
 
-typedef uint64_t HostID;
 typedef uint64_t TriggerID;
 typedef uint64_t HostgroupID;
 
-typedef map<HostID, string> HostNameMap;
+typedef map<HostIdType, string> HostNameMap;
 typedef map<ServerIdType, HostNameMap> HostNameMaps;
 
 typedef map<TriggerID, string> TriggerBriefMap;
@@ -1157,7 +1156,7 @@ static void addHosts(FaceRest::RestJob *job, JsonBuilderAgent &agent,
 }
 
 static string getHostName(const UserIdType userId,
-			  const ServerIdType serverId, const HostID hostId)
+			  const ServerIdType serverId, const HostIdType hostId)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	string hostName;
@@ -1188,7 +1187,7 @@ static void addHostsMap(
 	HostNameMap &hosts = server_it->second;
 	HostNameMap::iterator it = hosts.begin();
 	for (; server_it != hostMaps.end() && it != hosts.end(); it++) {
-		HostID hostId = it->first;
+		HostIdType hostId = it->first;
 		string &hostName = it->second;
 		if (lookupHostName)
 			hostName = getHostName(job->userId, serverId, hostId);
