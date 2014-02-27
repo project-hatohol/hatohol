@@ -24,10 +24,12 @@
 struct DataQueryContext::PrivateContext {
 	OperationPrivilege   privilege;
 	ServerHostGrpSetMap *srvHostGrpSetMap;
+	ServerIdSet         *serverIdSet;
 
 	PrivateContext(const UserIdType &userId)
 	: privilege(userId),
-	  srvHostGrpSetMap(NULL)
+	  srvHostGrpSetMap(NULL),
+	  serverIdSet(NULL)
 	{
 	}
 
@@ -41,6 +43,11 @@ struct DataQueryContext::PrivateContext {
 		if (srvHostGrpSetMap) {
 			delete srvHostGrpSetMap;
 			srvHostGrpSetMap = NULL;
+		}
+
+		if (serverIdSet) {
+			delete serverIdSet;
+			serverIdSet = NULL;
 		}
 	}
 };
@@ -88,3 +95,15 @@ const ServerHostGrpSetMap &DataQueryContext::getServerHostGrpSetMap(void)
 	}
 	return *m_ctx->srvHostGrpSetMap;
 }
+
+bool DataQueryContext::isValidServer(const ServerIdType &serverId)
+{
+	if (!m_ctx->serverIdSet) {
+		m_ctx->serverIdSet = new ServerIdSet();
+		CacheServiceDBClient cache;
+		DBClientConfig *dbConfig = cache.getConfig();
+		dbConfig->getServerIdSet(*m_ctx->serverIdSet, this);
+	}
+	return m_ctx->serverIdSet->find(serverId) != m_ctx->serverIdSet->end();
+}
+

@@ -117,6 +117,11 @@ DataQueryContext &DataQueryOption::getDataQueryContext(void) const
 	return *m_ctx->dataQueryCtxPtr;
 }
 
+bool DataQueryOption::isValidServer(const ServerIdType &serverId) const
+{
+	return getDataQueryContext().isValidServer(serverId);
+}
+
 void DataQueryOption::setUserId(const UserIdType &userId)
 {
 	getDataQueryContext().setUserId(userId);

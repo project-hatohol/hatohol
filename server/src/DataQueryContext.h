@@ -37,6 +37,7 @@ public:
 	void setFlags(const OperationPrivilegeFlag &flags);
 	const OperationPrivilege &getOperationPrivilege(void) const;
 	const ServerHostGrpSetMap &getServerHostGrpSetMap(void);
+	bool isValidServer(const ServerIdType &serverId);
 
 protected:
 	// To avoid an instance from being crated on a stack.

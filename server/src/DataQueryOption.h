@@ -53,6 +53,20 @@ public:
 	DataQueryContext &getDataQueryContext(void) const;
 
 	/**
+	 * Check if the server is registered.
+	 *
+	 * Hatohol doesn't delete data immediately after the monitoring server
+	 * is removed. So this method helps some routines check if the server
+	 * of data is being registered or not.
+	 *
+	 * @param serverId A server ID.
+	 * @return
+	 * true when the given ID is registered in the Config DB.
+	 * Otherwise false is returned.
+	 */
+	bool isValidServer(const ServerIdType &serverId) const;
+
+	/**
 	 * Set a user ID.
 	 *
 	 * @param userId A user ID.
