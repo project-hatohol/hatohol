@@ -528,9 +528,11 @@ void test_getTriggerInfo(void)
 	TriggerInfo &targetTriggerInfo = testTriggerInfo[targetIdx];
 	TriggerInfo triggerInfo;
 	DBClientHatohol dbHatohol;
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(targetTriggerInfo.serverId);
 	cppcut_assert_equal(true,
 	   dbHatohol.getTriggerInfo(
-	      triggerInfo, targetTriggerInfo.serverId, targetTriggerInfo.id));
+	      triggerInfo, option, targetTriggerInfo.id));
 	assertTriggerInfo(targetTriggerInfo, triggerInfo);
 }
 
@@ -541,8 +543,9 @@ void test_getTriggerInfoNotFound(void)
 	uint32_t invalidTrigId = -1;
 	TriggerInfo triggerInfo;
 	DBClientHatohol dbHatohol;
+	TriggersQueryOption option(invalidSvId);
 	cppcut_assert_equal(false,
-	   dbHatohol.getTriggerInfo(triggerInfo, invalidSvId, invalidTrigId));
+	   dbHatohol.getTriggerInfo(triggerInfo, option, invalidTrigId));
 }
 
 void test_getTriggerInfoList(void)

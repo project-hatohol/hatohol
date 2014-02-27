@@ -284,7 +284,8 @@ public:
 	 *
 	 */
 	bool getTriggerInfo(TriggerInfo &triggerInfo,
-	                    const ServerIdType &serverId, uint64_t triggerId);
+	                    const TriggersQueryOption &option,
+	                    uint64_t triggerId);
 	void getTriggerInfoList(TriggerInfoList &triggerInfoList,
 				const TriggersQueryOption &option,
 	                        uint64_t targetTriggerId = ALL_TRIGGERS);

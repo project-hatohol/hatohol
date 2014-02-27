@@ -1195,20 +1195,11 @@ void DBClientHatohol::addTriggerInfoList(const TriggerInfoList &triggerInfoList)
 }
 
 bool DBClientHatohol::getTriggerInfo(TriggerInfo &triggerInfo,
-                                     const ServerIdType &serverId,
+                                     const TriggersQueryOption &option,
                                      uint64_t triggerId)
 {
-	string condition;
-	condition = StringUtils::sprintf(
-	  "%s=%"FMT_SERVER_ID" and %s=%"PRIu64,
-	  SQLUtils::getFullName(
-	    COLUMN_DEF_TRIGGERS, IDX_TRIGGERS_SERVER_ID).c_str(),
-	  serverId,
-	  SQLUtils::getFullName(COLUMN_DEF_TRIGGERS, IDX_TRIGGERS_ID).c_str(),
-	  triggerId);
-
 	TriggerInfoList triggerInfoList;
-	getTriggerInfoList(triggerInfoList, condition);
+	getTriggerInfoList(triggerInfoList, option, triggerId);
 	size_t numTriggers = triggerInfoList.size();
 	HATOHOL_ASSERT(numTriggers <= 1,
 	               "Number of triggers: %zd", numTriggers);
@@ -1223,6 +1214,7 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 					 const TriggersQueryOption &option,
 					 uint64_t targetTriggerId)
 {
+	// build a condition
 	string optCond = option.getCondition(TABLE_NAME_TRIGGERS);
 	if (isAlwaysFalseCondition(optCond))
 		return;
@@ -1241,7 +1233,80 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 		condition += StringUtils::sprintf("(%s)", optCond.c_str());
 	}
 
-	getTriggerInfoList(triggerInfoList, condition);
+	// select data
+	static const DBAgent::TableProfile *tableProfiles[] = {
+	  &tableProfileTriggers,
+	  &tableProfileMapHostsHostgroups,
+	  &tableProfileHostgroups,
+	};
+	enum {
+		TBLIDX_TRIGGERS,
+		TBLIDX_MAP_HOSTS_HOSTGROUPS,
+		TBLIDX_HOSTGROUPS,
+	};
+	static const size_t numTableProfiles =
+	  sizeof(tableProfiles) / sizeof(DBAgent::TableProfile *);
+	DBAgent::SelectMultiTableArg arg(tableProfiles, numTableProfiles);
+
+	arg.tableField = StringUtils::sprintf(
+	  " %s inner join %s on %s=%s "
+	  "inner join %s on ((%s=%s) and (%s=%s))",
+	  TABLE_NAME_TRIGGERS,
+	  TABLE_NAME_MAP_HOSTS_HOSTGROUPS,
+	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_HOST_ID).c_str(),
+	  arg.getFullName(
+	    TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID).c_str(),
+	  TABLE_NAME_HOSTGROUPS,
+	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_SERVER_ID).c_str(),
+	  arg.getFullName(TBLIDX_HOSTGROUPS, IDX_HOSTGROUPS_SERVER_ID).c_str(),
+	  arg.getFullName(TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID).c_str(),
+	  arg.getFullName(TBLIDX_HOSTGROUPS, IDX_HOSTGROUPS_GROUP_ID).c_str());
+
+	arg.setTable(TBLIDX_TRIGGERS);
+	arg.add(IDX_TRIGGERS_SERVER_ID);
+	arg.add(IDX_TRIGGERS_ID);
+	arg.add(IDX_TRIGGERS_STATUS);
+	arg.add(IDX_TRIGGERS_SEVERITY);
+	arg.add(IDX_TRIGGERS_LAST_CHANGE_TIME_SEC);
+	arg.add(IDX_TRIGGERS_LAST_CHANGE_TIME_NS);
+	arg.add(IDX_TRIGGERS_HOST_ID);
+	arg.add(IDX_TRIGGERS_HOSTNAME);
+	arg.add(IDX_TRIGGERS_BRIEF);
+
+	arg.setTable(TBLIDX_MAP_HOSTS_HOSTGROUPS);
+	arg.add(IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
+
+	arg.setTable(TBLIDX_HOSTGROUPS);
+	arg.add(IDX_HOSTGROUPS_GROUP_NAME);
+
+	// condition
+	arg.condition = condition;
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	// check the result and copy
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
+		TriggerInfo trigInfo;
+
+		itemGroupStream >> trigInfo.serverId;
+		itemGroupStream >> trigInfo.id;
+		itemGroupStream >> trigInfo.status;
+		itemGroupStream >> trigInfo.severity;
+		itemGroupStream >> trigInfo.lastChangeTime.tv_sec;
+		itemGroupStream >> trigInfo.lastChangeTime.tv_nsec;
+		itemGroupStream >> trigInfo.hostId;
+		itemGroupStream >> trigInfo.hostName;
+		itemGroupStream >> trigInfo.brief;
+		itemGroupStream >> trigInfo.hostgroupId;
+		itemGroupStream >> trigInfo.hostgroupName;
+
+		triggerInfoList.push_back(trigInfo);
+	}
 }
 
 void DBClientHatohol::setTriggerInfoList(const TriggerInfoList &triggerInfoList,
@@ -1850,83 +1915,6 @@ void DBClientHatohol::addHostInfoWithoutTransaction(const HostInfo &hostInfo)
 		arg.add(IDX_HOSTS_HOST_NAME, hostInfo.hostName);
 		arg.condition = condition;
 		update(arg);
-	}
-}
-
-void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
-                                         const string &condition)
-{
-	static const DBAgent::TableProfile *tableProfiles[] = {
-	  &tableProfileTriggers,
-	  &tableProfileMapHostsHostgroups,
-	  &tableProfileHostgroups,
-	};
-	enum {
-		TBLIDX_TRIGGERS,
-		TBLIDX_MAP_HOSTS_HOSTGROUPS,
-		TBLIDX_HOSTGROUPS,
-	};
-	static const size_t numTableProfiles =
-	  sizeof(tableProfiles) / sizeof(DBAgent::TableProfile *);
-	DBAgent::SelectMultiTableArg arg(tableProfiles, numTableProfiles);
-
-	arg.tableField = StringUtils::sprintf(
-	  " %s inner join %s on %s=%s "
-	  "inner join %s on ((%s=%s) and (%s=%s))",
-	  TABLE_NAME_TRIGGERS,
-	  TABLE_NAME_MAP_HOSTS_HOSTGROUPS,
-	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_HOST_ID).c_str(),
-	  arg.getFullName(
-	    TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID).c_str(),
-	  TABLE_NAME_HOSTGROUPS,
-	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_SERVER_ID).c_str(),
-	  arg.getFullName(TBLIDX_HOSTGROUPS, IDX_HOSTGROUPS_SERVER_ID).c_str(),
-	  arg.getFullName(TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID).c_str(),
-	  arg.getFullName(TBLIDX_HOSTGROUPS, IDX_HOSTGROUPS_GROUP_ID).c_str());
-
-	arg.setTable(TBLIDX_TRIGGERS);
-	arg.add(IDX_TRIGGERS_SERVER_ID);
-	arg.add(IDX_TRIGGERS_ID);
-	arg.add(IDX_TRIGGERS_STATUS);
-	arg.add(IDX_TRIGGERS_SEVERITY);
-	arg.add(IDX_TRIGGERS_LAST_CHANGE_TIME_SEC);
-	arg.add(IDX_TRIGGERS_LAST_CHANGE_TIME_NS);
-	arg.add(IDX_TRIGGERS_HOST_ID);
-	arg.add(IDX_TRIGGERS_HOSTNAME);
-	arg.add(IDX_TRIGGERS_BRIEF);
-
-	arg.setTable(TBLIDX_MAP_HOSTS_HOSTGROUPS);
-	arg.add(IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
-
-	arg.setTable(TBLIDX_HOSTGROUPS);
-	arg.add(IDX_HOSTGROUPS_GROUP_NAME);
-
-	// condition
-	arg.condition = condition;
-
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
-
-	// check the result and copy
-	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator itemGrpItr = grpList.begin();
-	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
-		ItemGroupStream itemGroupStream(*itemGrpItr);
-		triggerInfoList.push_back(TriggerInfo());
-		TriggerInfo &trigInfo = triggerInfoList.back();
-
-		itemGroupStream >> trigInfo.serverId;
-		itemGroupStream >> trigInfo.id;
-		itemGroupStream >> trigInfo.status;
-		itemGroupStream >> trigInfo.severity;
-		itemGroupStream >> trigInfo.lastChangeTime.tv_sec;
-		itemGroupStream >> trigInfo.lastChangeTime.tv_nsec;
-		itemGroupStream >> trigInfo.hostId;
-		itemGroupStream >> trigInfo.hostName;
-		itemGroupStream >> trigInfo.brief;
-		itemGroupStream >> trigInfo.hostgroupId;
-		itemGroupStream >> trigInfo.hostgroupName;
 	}
 }
 
