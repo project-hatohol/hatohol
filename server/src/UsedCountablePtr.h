@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -17,31 +17,31 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ItemPtr_h
-#define ItemPtr_h
+#ifndef UsedCountablePtr_h
+#define UsedCountablePtr_h
 
 #include <cstdio>
 #include "Utils.h"
 
 template<class T>
-class ItemPtr {
+class UsedCountablePtr {
 public:
-	ItemPtr(void) : m_data(NULL) {
+	UsedCountablePtr(void) : m_data(NULL) {
 	}
 
-	ItemPtr(const ItemPtr<T> &itemPtr)
+	UsedCountablePtr(const UsedCountablePtr<T> &itemPtr)
 	: m_data(itemPtr.m_data) {
 		if (m_data)
 			m_data->ref();
 	}
 
-	ItemPtr(T *data, bool doRef = true)
+	UsedCountablePtr(T *data, bool doRef = true)
 	: m_data(data) {
 		if (doRef && m_data)
 			m_data->ref();
 	}
 
-	virtual ~ItemPtr() {
+	virtual ~UsedCountablePtr() {
 		if (m_data) {
 			const_cast<T *>(m_data)->unref();
 		}
@@ -60,11 +60,11 @@ public:
 		return m_data;
 	}
 
-	ItemPtr<T> &operator=(T *data) {
+	UsedCountablePtr<T> &operator=(T *data) {
 		return substitute(data);
 	}
 
-	ItemPtr<T> &operator=(ItemPtr<T> &ptr) {
+	UsedCountablePtr<T> &operator=(UsedCountablePtr<T> &ptr) {
 		return substitute(ptr.m_data);
 	}
 
@@ -77,7 +77,7 @@ protected:
 private:
 	T *m_data;
 
-	ItemPtr<T> &substitute(T *data) {
+	UsedCountablePtr<T> &substitute(T *data) {
 		if (m_data == data)
 			return *this;
 		if (m_data)
@@ -89,4 +89,4 @@ private:
 	}
 };
 
-#endif // #define ItemPtr_h
+#endif // #define UsedCountablePtr_h

@@ -21,13 +21,13 @@
 #define ItemGroupPtr_h
 
 #include "ItemGroup.h"
-#include "ItemPtr.h"
+#include "UsedCountablePtr.h"
 
-typedef ItemPtr<ItemGroup>       VariableItemGroupPtr;
-typedef ItemPtr<const ItemGroup> ItemGroupPtr;
+typedef UsedCountablePtr<ItemGroup>       VariableItemGroupPtr;
+typedef UsedCountablePtr<const ItemGroup> ItemGroupPtr;
 
 template<>
-ItemPtr<ItemGroup>::ItemPtr(void);
+UsedCountablePtr<ItemGroup>::UsedCountablePtr(void);
 
 #endif // #define ItemGroupPtr_h
 
