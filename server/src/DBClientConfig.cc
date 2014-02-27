@@ -783,8 +783,10 @@ void DBClientConfig::getTargetServers
 }
 
 void DBClientConfig::getServerIdSet(ServerIdSet &serverIdSet,
-                                    const ServerQueryOption &option)
+                                    DataQueryContext *dataQueryContext)
 {
+	ServerQueryOption option(dataQueryContext);
+
 	DBAgent::SelectExArg arg(tableProfileServers);
 	arg.add(IDX_SERVERS_ID);
 	arg.condition = option.getCondition();

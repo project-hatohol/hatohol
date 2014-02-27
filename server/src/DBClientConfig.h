@@ -131,10 +131,10 @@ public:
 	 *
 	 * @param serverIdSet
 	 * The obtained IDs are inserted to this object.
-	 * @param option A ServerQueryOption instance.
+	 * @param dataQueryContext A DataQueryContext instance.
 	 */
 	void getServerIdSet(ServerIdSet &serverIdSet,
-	                    const ServerQueryOption &option);
+	                    DataQueryContext *dataQueryContext);
 
 protected:
 	static bool parseCommandLineArgument(const CommandLineArg &cmdArg);

@@ -483,9 +483,9 @@ static void _assertGetServerIdSet(const UserIdType &userId)
 		expectIdSet.insert(serverInfo->id);
 
 	ServerIdSet actualIdSet;
-	ServerQueryOption option(userId);
+	DataQueryContextPtr dqCtxPtr(new DataQueryContext(userId), false);
 	DBClientConfig dbConfig;
-	dbConfig.getServerIdSet(actualIdSet, option);
+	dbConfig.getServerIdSet(actualIdSet, dqCtxPtr);
 	cppcut_assert_equal(expectIdSet.size(), actualIdSet.size());
 
 	ServerIdSetIterator expectId = expectIdSet.begin();
