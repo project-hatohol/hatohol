@@ -73,10 +73,10 @@ public:
 	virtual ~OperationPrivilege();
 
 	const OperationPrivilegeFlag &getFlags(void) const;
-	void setFlags(const OperationPrivilegeFlag flags);
-	static const OperationPrivilegeFlag 
-	  makeFlag(OperationPrivilegeType type);
-	bool has(OperationPrivilegeType type) const;
+	void setFlags(const OperationPrivilegeFlag &flags);
+	static OperationPrivilegeFlag makeFlag(
+	  const OperationPrivilegeType &type);
+	bool has(const OperationPrivilegeType &type) const;
 
 	bool operator==(const OperationPrivilege &rhs);
 
