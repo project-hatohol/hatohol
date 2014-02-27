@@ -19,6 +19,7 @@
 
 #include <cstdio>
 #include "DataQueryOption.h"
+#include "DataQueryContext.h"
 #include "Logger.h"
 
 using namespace mlpl;
@@ -27,12 +28,20 @@ struct DataQueryOption::PrivateContext {
 	size_t maxNumber;
 	size_t offset;
 	SortOrderList sortOrderList;
+	DataQueryContextPtr dataQueryCtxPtr; // The body is shared
 
 	// constuctor
-	PrivateContext(void)
+	PrivateContext(const DataQueryOption &masterOption)
 	: maxNumber(NO_LIMIT),
 	  offset(0)
 	{
+		if (!masterOption.m_ctx) {
+			dataQueryCtxPtr = new DataQueryContext(masterOption);
+			dataQueryCtxPtr->unref();
+		} else {
+			// copy the member
+			*this = *masterOption.m_ctx;
+		}
 	}
 };
 
@@ -50,14 +59,13 @@ DataQueryOption::SortOrder::SortOrder(
 DataQueryOption::DataQueryOption(UserIdType userId)
 : m_ctx(NULL)
 {
-	m_ctx = new PrivateContext();
+	m_ctx = new PrivateContext(*this);
 	setUserId(userId);
 }
 
 DataQueryOption::DataQueryOption(const DataQueryOption &src)
 {
-	m_ctx = new PrivateContext();
-	*m_ctx = *src.m_ctx;
+	m_ctx = new PrivateContext(src);
 }
 
 DataQueryOption::~DataQueryOption()
@@ -88,6 +96,11 @@ bool DataQueryOption::operator==(const DataQueryOption &rhs)
 std::string DataQueryOption::getCondition(void) const
 {
 	return "";
+}
+
+DataQueryContext &DataQueryOption::getDataQueryContext(void)
+{
+	return *m_ctx->dataQueryCtxPtr;
 }
 
 void DataQueryOption::setMaximumNumber(size_t maximum)

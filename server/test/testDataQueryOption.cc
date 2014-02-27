@@ -176,4 +176,25 @@ void test_getOrderByWithMultipleColumns(void)
 			    option.getOrderBy().c_str());
 }
 
+void test_getDataQueryContextOfDefaultConstructor(void)
+{
+	TestQueryOption opt;
+	DataQueryContext &dataQueryCtx = opt.getDataQueryContext();
+	cppcut_assert_equal(1, dataQueryCtx.getUsedCount());
+}
+
+void test_getDataQueryContextOfCopyConstructor(void)
+{
+	TestQueryOption opt0;
+	DataQueryContext &dataQueryCtx0 = opt0.getDataQueryContext();
+	{
+		TestQueryOption opt1(opt0);
+		DataQueryContext &dataQueryCtx1 = opt1.getDataQueryContext();
+		cppcut_assert_equal(&dataQueryCtx0, &dataQueryCtx1);
+		cppcut_assert_equal(opt0.getUserId(), opt1.getUserId());
+		cppcut_assert_equal(2, dataQueryCtx0.getUsedCount());
+	}
+	cppcut_assert_equal(1, dataQueryCtx0.getUsedCount());
+}
+
 } // namespace testDataQueryOption

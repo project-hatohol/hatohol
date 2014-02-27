@@ -24,6 +24,7 @@
 #include <list>
 #include "Params.h"
 #include "OperationPrivilege.h"
+#include "DataQueryContext.h"
 
 class DataQueryOption : public OperationPrivilege {
 public:
@@ -48,6 +49,8 @@ public:
 	virtual ~DataQueryOption();
 
 	bool operator==(const DataQueryOption &rhs);
+
+	DataQueryContext &getDataQueryContext(void);
 
 	/**
 	 * Set the maximum number of the returned elements.
