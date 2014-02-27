@@ -55,6 +55,8 @@ typedef map<ServerIdType, TriggerBriefMap> TriggerBriefMaps;
 typedef map<HostGroupIdType, string> HostgroupIDNameMap;
 typedef map<ServerIdType, HostgroupIDNameMap> ServerIDHostgroupIDNameMap;
 
+typedef list<HostGroupIdType> HostgroupIDList;
+
 static const guint DEFAULT_PORT = 33194;
 
 const char *FaceRest::pathForTest        = "/test";
@@ -280,6 +282,56 @@ private:
 	}
 
 	FaceRest *m_faceRest;
+};
+
+template<typename InfoListT, typename TargetIdT>
+class FaceRest::HostgroupJsonArray {
+public:
+	typedef map<TargetIdT, HostgroupIDList> DataIDHostgroupIDListMap;
+	typedef map<ServerIdType, DataIDHostgroupIDListMap>
+	  ServerIDDataIDHostgroupIDListMap;
+	typedef typename ServerIDDataIDHostgroupIDListMap::iterator
+	  ServerMapIterator;
+	typedef typename DataIDHostgroupIDListMap::iterator DataMapIterator;
+	typedef typename InfoListT::iterator InfoListIterator;
+	ServerIDDataIDHostgroupIDListMap serverDataHostgroupIdListMap;
+
+	void addHostgroupIdToListMap(InfoListT infoList)
+	{
+		InfoListIterator it = infoList.begin();
+		for (; it != infoList.end(); ++it){
+			serverDataHostgroupIdListMap
+			  [infoList.serverId][infoList.id].push_back(
+			    infoList.hostgroupId);
+		}
+	}
+
+	void includeHostgroupIdArray
+	  (JsonBuilderAgent &outputJson, ServerIdType &serverId,
+	   TargetIdT &targetId)
+	{
+		ServerMapIterator serverIt
+		  = serverDataHostgroupIdListMap.find(serverId);
+		if (serverIt == serverDataHostgroupIdListMap.end())
+			return;
+
+		DataIDHostgroupIDListMap dataHostgroupIdListMap
+		  = serverIt->second;
+		DataMapIterator dataIt
+		  = dataHostgroupIdListMap.find(targetId);
+		if (dataIt == dataHostgroupIdListMap.end())
+			return;
+
+		HostgroupIDList hostgroupIdList
+		  = dataHostgroupIdListMap->second;
+		HostgroupIDList::iterator groupIt = hostgroupIdList.begin();
+		outputJson.startArray("hostgroupId");
+		for (; groupIt != hostgroupIdList.end(); ++groupIt) {
+			HostGroupIdType hostgroupId = *groupIt;
+			outputJson.add(hostgroupId);
+		}
+		outputJson.endArray();
+	}
 };
 
 // ---------------------------------------------------------------------------
