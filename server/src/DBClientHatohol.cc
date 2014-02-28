@@ -1202,7 +1202,8 @@ bool DBClientHatohol::getTriggerInfo(TriggerInfo &triggerInfo,
 	getTriggerInfoList(triggerInfoList, option, triggerId);
 	size_t numTriggers = triggerInfoList.size();
 	HATOHOL_ASSERT(numTriggers <= 1,
-	               "Number of triggers: %zd", numTriggers);
+	               "Number of triggers: %zd, condition: %s",
+	               numTriggers, option.getCondition().c_str());
 	if (numTriggers == 0)
 		return false;
 
