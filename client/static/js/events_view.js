@@ -72,7 +72,7 @@ var EventsView = function(userProfile, baseElem) {
         self.sortOrder = 
           self.userConfig.findOrDefault(conf, 'event-sort-order',
                                         DEFAULT_SORT_ORDER);
-        setupEvents();
+        setupCallbacks();
         load();
       },
       connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -131,7 +131,7 @@ var EventsView = function(userProfile, baseElem) {
     self.reloadTimerId = setTimeout(load, self.reloadIntervalSeconds * 1000);
   }
 
-  function setupEvents() {
+  function setupCallbacks() {
     $("#table").stupidtable();
     $("#table").bind('aftertablesort', function(event, data) {
       var th = $(this).find("th");
