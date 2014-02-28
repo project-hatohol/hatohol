@@ -95,15 +95,10 @@ var EventsView = function(userProfile, baseElem) {
   };
 
   function load(loadNextPage) {
-    // TODO: The auto reload feature should be integrated with
-    // startConnection() of HatoholMonitoringView
-    clearTimeout(self.reloadTimerId);
-
     self.startConnection(getEventsQuery(loadNextPage), updateCore);
 
     $(document.body).scrollTop(0);
     setLoading(true);
-    self.reloadTimerId = setTimeout(load, self.reloadIntervalSeconds * 1000);
   }
 
   function setupCallbacks() {
@@ -179,6 +174,14 @@ var EventsView = function(userProfile, baseElem) {
     }
   }
 
+  function resetAutoReloadTimer() {
+    var interval = self.reloadIntervalSeconds * 1000;
+    if (self.reloadTimerId)
+      clearTimeout(self.reloadTimerId);
+    if (self.reloadIntervalSeconds)
+      self.reloadTimerId = setTimeout(load, interval);
+  }
+  
   function parseData(replyData) {
     // The structur of durations:
     // {
@@ -285,6 +288,7 @@ var EventsView = function(userProfile, baseElem) {
                                  self.getTargetServerId());
     drawTableContents();
     setLoading(false);
+    resetAutoReloadTimer();
   }
 };
 
