@@ -27,6 +27,7 @@ window.onerror = function(errorMsg, fileName, lineNumber) {
 };
 
 var HatoholMonitoringView = function(userProfile) {
+  self.connector = null;
 };
 
 HatoholMonitoringView.prototype.getTargetServerId = function(selectorId) {
@@ -182,7 +183,7 @@ HatoholMonitoringView.prototype.updateScreen =
 };
 
 HatoholMonitoringView.prototype.startConnection =
-  function (tableName, completionCallback, callbackParam)
+  function (query, completionCallback, callbackParam)
 {
   var self = this;
   
@@ -193,7 +194,7 @@ HatoholMonitoringView.prototype.startConnection =
   });
 
   var connParam =  {
-    url: '/' + tableName,
+    url: '/' + query,
     replyCallback: function(reply, parser) {
       self.updateScreen(reply, completionCallback, callbackParam);
     },
@@ -211,5 +212,9 @@ HatoholMonitoringView.prototype.startConnection =
       });
     }
   };
-  new HatoholConnector(connParam);
+
+  if (self.connector)
+    self.connector.start(connParam);
+  else
+    self.connector = new HatoholConnector(connParam);
 };

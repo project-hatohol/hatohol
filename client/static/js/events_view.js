@@ -32,21 +32,6 @@ var EventsView = function(userProfile, baseElem) {
     gettext('Not classified'), gettext('Information'), gettext('Warning'),
     gettext('Average'), gettext('High'), gettext('Disaster')];
 
-  var connParam =  {
-    replyCallback: function(reply, parser) {
-      self.updateScreen(reply, updateCore);
-    },
-    parseErrorCallback: function(reply, parser) {
-      hatoholErrorMsgBoxForParser(reply, parser);
-
-      self.setStatus({
-        "class" : "danger",
-        "label" : gettext("ERROR"),
-        "lines" : [ msg ],
-      });
-    }
-  };
-
   // call the constructor of the super class
   HatoholMonitoringView.apply(userProfile);
 
@@ -81,7 +66,7 @@ var EventsView = function(userProfile, baseElem) {
     });
   }
 
-  function getEventsURL(loadNextPage) {
+  function getEventsQuery(loadNextPage) {
     if (loadNextPage) {
       self.currentPage += 1;
       if (!self.limitOfUnifiedId)
@@ -106,25 +91,15 @@ var EventsView = function(userProfile, baseElem) {
     if (hostId)
       query.targetHostId = hostId;
 
-    return '/events?' + $.param(query);
+    return 'events?' + $.param(query);
   };
 
   function load(loadNextPage) {
-    // TODO: Should integrate with HatoholMonitoringView.startConnection()
-
+    // TODO: The auto reload feature should be integrated with
+    // startConnection() of HatoholMonitoringView
     clearTimeout(self.reloadTimerId);
 
-    self.setStatus({
-      "class" : "warning",
-      "label" : gettext("LOAD"),
-      "lines" : [ gettext("Communicating with backend") ],
-    });
-
-    connParam.url = getEventsURL(loadNextPage);
-    if (self.connector)
-      self.connector.start(connParam);
-    else
-      self.connector = new HatoholConnector(connParam);
+    self.startConnection(getEventsQuery(loadNextPage), updateCore);
 
     $(document.body).scrollTop(0);
     setLoading(true);
