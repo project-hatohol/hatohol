@@ -1776,22 +1776,29 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 	ServerIdHostgroupIdNameMap hostgroupNameMaps;
 	for (; it != triggerList.end(); ++it) {
 		TriggerInfo &triggerInfo = *it;
-		agent.startObject();
-		agent.add("id",       triggerInfo.id);
-		agent.add("status",   triggerInfo.status);
-		agent.add("severity", triggerInfo.severity);
-		agent.add("lastChangeTime", triggerInfo.lastChangeTime.tv_sec);
-		agent.add("serverId", triggerInfo.serverId);
-		agent.add("hostId",   triggerInfo.hostId);
-		agent.add("brief",    triggerInfo.brief);
-		helper.includeHostgroupIdArray(agent, triggerInfo.serverId,
-		                               triggerInfo.id);
-		agent.endObject();
+		if (!helper.isAlreadyAddedJsonData(
+		       triggerInfo.serverId, triggerInfo.id)) {
+			agent.startObject();
+			agent.add("id",       triggerInfo.id);
+			agent.add("status",   triggerInfo.status);
+			agent.add("severity", triggerInfo.severity);
+			agent.add("lastChangeTime",
+			          triggerInfo.lastChangeTime.tv_sec);
+			agent.add("serverId", triggerInfo.serverId);
+			agent.add("hostId",   triggerInfo.hostId);
+			agent.add("brief",    triggerInfo.brief);
+			helper.includeHostgroupIdArray(agent,
+			                               triggerInfo.serverId,
+			                               triggerInfo.id);
+			agent.endObject();
 
-		hostMaps[triggerInfo.serverId][triggerInfo.hostId]
-		  = triggerInfo.hostName;
-		hostgroupNameMaps[triggerInfo.serverId][triggerInfo.hostgroupId]
-		  = triggerInfo.hostgroupName;
+			helper.addAlreadyAddedJsonData(triggerInfo.serverId,
+			                               triggerInfo.id);
+			hostMaps[triggerInfo.serverId][triggerInfo.hostId]
+				= triggerInfo.hostName;
+			hostgroupNameMaps[triggerInfo.serverId]
+			  [triggerInfo.hostgroupId] = triggerInfo.hostgroupName;
+		}
 	}
 	agent.endArray();
 	addServersMap(job, agent, &hostMaps, false, NULL, false, &hostgroupNameMaps);
