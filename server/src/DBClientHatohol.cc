@@ -1581,7 +1581,7 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 				      const ItemsQueryOption &option,
 				      uint64_t targetItemId)
 {
-	string optCond = option.getCondition();
+	string optCond = option.getCondition(TABLE_NAME_ITEMS);
 	if (isAlwaysFalseCondition(optCond))
 		return;
 
