@@ -27,6 +27,9 @@ window.onerror = function(errorMsg, fileName, lineNumber) {
 };
 
 var HatoholMonitoringView = function(userProfile) {
+  var self = this;
+  self.connector = null;
+  self.reloadTimerId = null;
 };
 
 HatoholMonitoringView.prototype.getTargetServerId = function(selectorId) {
@@ -113,7 +116,7 @@ HatoholMonitoringView.prototype.setHostFilterCandidates =
     selectorId = '#select-host';
   current = $(selectorId).val();
   if (!serverId)
-    serverId = this.getTargetServerId(selectorId);
+    serverId = this.getTargetServerId();
 
   this.setFilterCandidates($(selectorId));
 
@@ -182,7 +185,7 @@ HatoholMonitoringView.prototype.updateScreen =
 };
 
 HatoholMonitoringView.prototype.startConnection =
-  function (tableName, completionCallback, callbackParam)
+  function (query, completionCallback, callbackParam)
 {
   var self = this;
   
@@ -193,7 +196,7 @@ HatoholMonitoringView.prototype.startConnection =
   });
 
   var connParam =  {
-    url: '/' + tableName,
+    url: '/' + query,
     replyCallback: function(reply, parser) {
       self.updateScreen(reply, completionCallback, callbackParam);
     },
@@ -211,5 +214,18 @@ HatoholMonitoringView.prototype.startConnection =
       });
     }
   };
-  new HatoholConnector(connParam);
+
+  if (self.connector)
+    self.connector.start(connParam);
+  else
+    self.connector = new HatoholConnector(connParam);
+};
+
+HatoholMonitoringView.prototype.setAutoReload =
+  function(reloadFunc, intervalSeconds)
+{
+  if (this.reloadTimerId)
+    clearTimeout(this.reloadTimerId);
+  if (intervalSeconds)
+    this.reloadTimerId = setTimeout(reloadFunc, intervalSeconds * 1000);
 };

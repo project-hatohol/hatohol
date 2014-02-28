@@ -21,14 +21,15 @@ var OverviewItems = function(userProfile) {
   var self = this;
   var rawData, parsedData;
 
+  self.reloadIntervalSeconds = 60;
+
   // call the constructor of the super class
   HatoholMonitoringView.apply(userProfile);
 
-  self.startConnection('item', updateCore);
+  load();
 
   $("#select-server").change(function() {
-    var serverName = $("#select-server").val();
-    self.setFilterCandidates($("#select-host"), parsedData.hosts[serverName]);
+    self.setHostFilterCandidates(rawData["servers"]);
     drawTableContents(parsedData);
   });
   $("#select-group").change(function() {
@@ -105,8 +106,16 @@ var OverviewItems = function(userProfile) {
     var serverName, hostNames, hostName;
     var x;
     var serversRow, hostsRow;
-    var targetServerName = getTargetServerName();
-    var targetHostName = getTargetHostName();
+    var targetServerId = self.getTargetServerId();
+    var targetHostId = self.getTargetHostId();
+    var targetServerName, targetHostName;
+
+    if (targetServerId)
+      targetServerName = getServerName(rawData["servers"][targetServerId],
+                                       targetServerId);
+    if (targetHostId)
+      targetHostName = getHostName(rawData["servers"][targetServerId],
+                                   targetHostId);
 
     serversRow = "<tr><th></th>";
     hostsRow = "<tr><th></th>";
@@ -133,8 +142,16 @@ var OverviewItems = function(userProfile) {
   function drawTableBody(parsedData) {
     var serverName, hostNames, hostName, itemName, item, html;
     var x, y;
-    var targetServerName = getTargetServerName();
-    var targetHostName = getTargetHostName();
+    var targetServerId = self.getTargetServerId();
+    var targetHostId = self.getTargetHostId();
+    var targetServerName, targetHostName;
+
+    if (targetServerId)
+      targetServerName = getServerName(rawData["servers"][targetServerId],
+                                       targetServerId);
+    if (targetHostId)
+      targetHostName = getHostName(rawData["servers"][targetServerId],
+                                   targetHostId);
 
     html = "";
     for (y = 0; y < parsedData.items.length; ++y) {
@@ -175,9 +192,14 @@ var OverviewItems = function(userProfile) {
   function updateCore(reply) {
     rawData = reply;
     parsedData = parseData(reply);
-    self.setFilterCandidates($("#select-server"), parsedData.servers);
-    self.setFilterCandidates($("#select-host"));
+    self.setServerFilterCandidates(rawData["servers"]);
+    self.setHostFilterCandidates(rawData["servers"]);
     drawTableContents(parsedData);
+    self.setAutoReload(load, self.reloadIntervalSeconds);
+  }
+
+  function load() {
+    self.startConnection('item', updateCore);
   }
 };
 

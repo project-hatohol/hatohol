@@ -19,12 +19,14 @@
 
 var TriggersView = function(userProfile) {
   var self = this;
-  var rawData, parsedData;
+  var rawData;
+
+  self.reloadIntervalSeconds = 60;
 
   // call the constructor of the super class
   HatoholMonitoringView.apply(userProfile);
 
-  self.startConnection('trigger', updateCore);
+  load();
 
   $("#table").stupidtable();
   $("#table").bind('aftertablesort', function(event, data) {
@@ -49,8 +51,7 @@ var TriggersView = function(userProfile) {
   ];
 
   $("#select-server").change(function() {
-    var serverName = $("#select-server").val();
-    self.setFilterCandidates($("#select-host"), parsedData.hosts[serverName]);
+    self.setHostFilterCandidates(rawData["servers"]);
     drawTableContents(rawData);
   });
   $("#select-host").change(function() {
@@ -63,59 +64,18 @@ var TriggersView = function(userProfile) {
     drawTableContents(rawData);
   });
 
-  function parseData(replyData) {
-    var parsedData = {};
-    var serverNames, serverName, hostNames;
-    var x, server, trigger;
-
-    serverNames = [];
-    hostNames   = {};
-    for (x = 0; x < replyData["triggers"].length; ++x) {
-      trigger = replyData["triggers"][x];
-      server = replyData["servers"][trigger["serverId"]];
-      var serverId = trigger["serverId"];
-      var hostId = trigger["hostId"];
-      serverName = getServerName(server, serverId);
-      if (!hostNames[serverName])
-        hostNames[serverName] = [];
-      hostName = getHostName(server, hostId);
-      hostNames[serverName].push(hostName);
-      serverNames.push(serverName);
-    }
-    parsedData.servers = serverNames.uniq().sort();
-    parsedData.hosts   = {};
-    for (serverName in hostNames)
-      parsedData.hosts[serverName] = hostNames[serverName].uniq().sort();
-
-    return parsedData;
-  }
-
-  function getTargetServerName() {
-    var name = $("#select-server").val();
-    if (name == "---------")
-      name = null;
-    return name;
-  }
-
-  function getTargetHostName() {
-    var name = $("#select-host").val();
-    if (name == "---------")
-      name = null;
-    return name;
-  }
-
   function drawTableBody(replyData) {
     var serverName, hostName, clock, status, severity;
     var html, server, trigger;
     var x;
-    var targetServerName = getTargetServerName();
-    var targetHostName= getTargetHostName();
+    var targetServerId = self.getTargetServerId();
+    var targetHostId = self.getTargetHostId();
     var minimumSeverity = $("#select-severity").val();
     var targetStatus = $("#select-status").val();
 
     html = "";
     for (x = 0; x < replyData["triggers"].length; ++x) {
-      trigger    = replyData["triggers"][x];
+      trigger = replyData["triggers"][x];
       if (trigger["severity"] < minimumSeverity)
         continue;
       if (targetStatus >= 0 && trigger["status"] != targetStatus)
@@ -130,15 +90,20 @@ var TriggersView = function(userProfile) {
       status     = trigger["status"];
       severity   = trigger["severity"];
 
-      if (targetServerName && serverName != targetServerName)
+      if (targetServerId && serverId != targetServerId)
         continue;
-      if (targetHostName && hostName != targetHostName)
+      if (targetHostId && hostId != targetHostId)
         continue;
 
       html += "<tr><td>" + escapeHTML(serverName) + "</td>";
-      html += "<td class='severity" + escapeHTML(severity) + "' data-sort-value='" + escapeHTML(severity) + "'>" + severity_choices[Number(severity)] + "</td>";
-      html += "<td class='status" + escapeHTML(status) + "' data-sort-value='" + escapeHTML(status) + "'>" + status_choices[Number(status)] + "</td>";
-      html += "<td data-sort-value='" + escapeHTML(clock) + "'>" + formatDate(clock) + "</td>";
+      html += "<td class='severity" + escapeHTML(severity) +
+        "' data-sort-value='" + escapeHTML(severity) + "'>" +
+        severity_choices[Number(severity)] + "</td>";
+      html += "<td class='status" + escapeHTML(status) +
+        "' data-sort-value='" + escapeHTML(status) + "'>" +
+        status_choices[Number(status)] + "</td>";
+      html += "<td data-sort-value='" + escapeHTML(clock) + "'>" +
+        formatDate(clock) + "</td>";
       /* Not supported yet
       html += "<td>" + "unsupported" + "</td>";
       html += "<td>" + "unsupported" + "</td>";
@@ -160,12 +125,16 @@ var TriggersView = function(userProfile) {
 
   function updateCore(reply) {
     rawData = reply;
-    parsedData = parseData(rawData);
 
-    self.setFilterCandidates($("#select-server"), parsedData.servers);
-    self.setFilterCandidates($("#select-host"));
+    self.setServerFilterCandidates(rawData["servers"]);
+    self.setHostFilterCandidates(rawData["servers"]);
 
     drawTableContents(rawData);
+    self.setAutoReload(load, self.reloadIntervalSeconds);
+  }
+
+  function load() {
+    self.startConnection('trigger', updateCore);
   }
 };
 

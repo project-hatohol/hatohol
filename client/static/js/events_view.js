@@ -20,7 +20,6 @@
 var EventsView = function(userProfile, baseElem) {
   var self = this;
   self.baseElem = baseElem;
-  self.reloadTimeId = null;
   self.reloadIntervalSeconds = 60;
   self.currentPage = 0;
   self.limiOfUnifiedId = 0;
@@ -31,21 +30,6 @@ var EventsView = function(userProfile, baseElem) {
   var severity_choices = [
     gettext('Not classified'), gettext('Information'), gettext('Warning'),
     gettext('Average'), gettext('High'), gettext('Disaster')];
-
-  var connParam =  {
-    replyCallback: function(reply, parser) {
-      self.updateScreen(reply, updateCore);
-    },
-    parseErrorCallback: function(reply, parser) {
-      hatoholErrorMsgBoxForParser(reply, parser);
-
-      self.setStatus({
-        "class" : "danger",
-        "label" : gettext("ERROR"),
-        "lines" : [ msg ],
-      });
-    }
-  };
 
   // call the constructor of the super class
   HatoholMonitoringView.apply(userProfile);
@@ -72,7 +56,8 @@ var EventsView = function(userProfile, baseElem) {
         self.sortOrder = 
           self.userConfig.findOrDefault(conf, 'event-sort-order',
                                         DEFAULT_SORT_ORDER);
-        createPage();
+        setupCallbacks();
+        load();
       },
       connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
         // TODO: implement
@@ -80,7 +65,7 @@ var EventsView = function(userProfile, baseElem) {
     });
   }
 
-  function getEventsURL(loadNextPage) {
+  function getEventsQuery(loadNextPage) {
     if (loadNextPage) {
       self.currentPage += 1;
       if (!self.limitOfUnifiedId)
@@ -105,37 +90,16 @@ var EventsView = function(userProfile, baseElem) {
     if (hostId)
       query.targetHostId = hostId;
 
-    return '/events?' + $.param(query);
+    return 'events?' + $.param(query);
   };
 
-  function createPage() {
-    setupEvents();
-    load();
-  }
-
   function load(loadNextPage) {
-    // TODO: Should integrate with HatoholMonitoringView.startConnection()
-
-    clearTimeout(self.reloadTimerId);
-
-    self.setStatus({
-      "class" : "warning",
-      "label" : gettext("LOAD"),
-      "lines" : [ gettext("Communicating with backend") ],
-    });
-
-    connParam.url = getEventsURL(loadNextPage);
-    if (self.connector)
-      self.connector.start(connParam);
-    else
-      self.connector = new HatoholConnector(connParam);
-
+    self.startConnection(getEventsQuery(loadNextPage), updateCore);
     $(document.body).scrollTop(0);
     setLoading(true);
-    self.reloadTimerId = setTimeout(load, self.reloadIntervalSeconds * 1000);
   }
 
-  function setupEvents() {
+  function setupCallbacks() {
     $("#table").stupidtable();
     $("#table").bind('aftertablesort', function(event, data) {
       var th = $(this).find("th");
@@ -148,8 +112,7 @@ var EventsView = function(userProfile, baseElem) {
       load();
     });
     $("#select-server").change(function() {
-      var serverId = $("#select-server").val();
-      self.setHostFilterCandidates(self.rawData["servers"], serverId);
+      self.setHostFilterCandidates(self.rawData["servers"]);
       load();
     });
     $("#select-host").change(function() {
@@ -207,7 +170,7 @@ var EventsView = function(userProfile, baseElem) {
       $("#next-events-button").removeAttr("disabled");
     }
   }
-
+  
   function parseData(replyData) {
     // The structur of durations:
     // {
@@ -262,22 +225,13 @@ var EventsView = function(userProfile, baseElem) {
 
   function drawTableBody() {
     var serverName, hostName, clock, status, severity, duration;
-    var server, event, html = "";
+    var server, event, serverId, hostId, html = "";
     var x;
-    var targetServerId = self.getTargetServerId();
-    var targetHostId = self.getTargetHostId();
-    var minimumSeverity = $("#select-severity").val();
-    var targetStatus = $("#select-status").val();
 
     for (x = 0; x < self.rawData["events"].length; ++x) {
-      event = self.rawData["events"][x];
-      if (event["severity"] < minimumSeverity)
-        continue;
-      if (targetStatus >= 0 && event["type"] != targetStatus)
-        continue;
-
-      var serverId = event["serverId"];
-      var hostId = event["hostId"];
+      event      = self.rawData["events"][x];
+      serverId   = event["serverId"];
+      hostId     = event["hostId"];
       server     = self.rawData["servers"][serverId];
       serverName = getServerName(server, serverId);
       hostName   = getHostName(server, hostId);
@@ -286,18 +240,19 @@ var EventsView = function(userProfile, baseElem) {
       severity   = event["severity"];
       duration   = self.durations[serverId][event["triggerId"]][clock];
 
-      if (targetServerId && serverId != targetServerId)
-        continue;
-      if (targetHostId && hostId != targetHostId)
-        continue;
-
       html += "<tr><td>" + escapeHTML(serverName) + "</td>";
-      html += "<td data-sort-value='" + escapeHTML(clock) + "'>" + formatDate(clock) + "</td>";
+      html += "<td data-sort-value='" + escapeHTML(clock) + "'>" +
+        formatDate(clock) + "</td>";
       html += "<td>" + escapeHTML(hostName) + "</td>";
       html += "<td>" + escapeHTML(event["brief"]) + "</td>";
-      html += "<td class='status" + escapeHTML(status) + "' data-sort-value='" + escapeHTML(status) + "'>" + status_choices[Number(status)] + "</td>";
-      html += "<td class='severity" + escapeHTML(severity) + "' data-sort-value='" + escapeHTML(severity) + "'>" + severity_choices[Number(severity)] + "</td>";
-      html += "<td data-sort-value='" + duration + "'>" + formatSecond(duration) + "</td>";
+      html += "<td class='status" + escapeHTML(status) +
+        "' data-sort-value='" + escapeHTML(status) + "'>" +
+        status_choices[Number(status)] + "</td>";
+      html += "<td class='severity" + escapeHTML(severity) +
+        "' data-sort-value='" + escapeHTML(severity) + "'>" +
+        severity_choices[Number(severity)] + "</td>";
+      html += "<td data-sort-value='" + duration + "'>" +
+        formatSecond(duration) + "</td>";
       /*
       html += "<td>" + "unsupported" + "</td>";
       html += "<td>" + "unsupported" + "</td>";
@@ -318,10 +273,10 @@ var EventsView = function(userProfile, baseElem) {
     self.durations = parseData(self.rawData);
 
     self.setServerFilterCandidates(self.rawData["servers"]);
-    self.setHostFilterCandidates(self.rawData["servers"],
-                                 self.getTargetServerId());
+    self.setHostFilterCandidates(self.rawData["servers"]);
     drawTableContents();
     setLoading(false);
+    self.setAutoReload(load, self.reloadIntervalSeconds);
   }
 };
 
