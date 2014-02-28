@@ -43,9 +43,7 @@ static DataQueryContextPtr setupAndCreateDataQueryContext(void)
 // ---------------------------------------------------------------------------
 void test_getServerHostGrpSetMap(void)
 {
-	setupTestDBUser();
-	const UserIdType userId = 1;
-	DataQueryContextPtr dqctx(new DataQueryContext(userId), false);
+	DataQueryContextPtr dqctx = setupAndCreateDataQueryContext();
 	const ServerHostGrpSetMap &setMap = dqctx->getServerHostGrpSetMap();
 
 	// We only confirm the returned value has a valid address.
