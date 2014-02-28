@@ -264,17 +264,9 @@ var EventsView = function(userProfile, baseElem) {
     var serverName, hostName, clock, status, severity, duration;
     var server, event, html = "";
     var x;
-    var targetServerId = self.getTargetServerId();
-    var targetHostId = self.getTargetHostId();
-    var minimumSeverity = $("#select-severity").val();
-    var targetStatus = $("#select-status").val();
 
     for (x = 0; x < self.rawData["events"].length; ++x) {
       event = self.rawData["events"][x];
-      if (event["severity"] < minimumSeverity)
-        continue;
-      if (targetStatus >= 0 && event["type"] != targetStatus)
-        continue;
 
       var serverId = event["serverId"];
       var hostId = event["hostId"];
@@ -285,11 +277,6 @@ var EventsView = function(userProfile, baseElem) {
       status     = event["type"];
       severity   = event["severity"];
       duration   = self.durations[serverId][event["triggerId"]][clock];
-
-      if (targetServerId && serverId != targetServerId)
-        continue;
-      if (targetHostId && hostId != targetHostId)
-        continue;
 
       html += "<tr><td>" + escapeHTML(serverName) + "</td>";
       html += "<td data-sort-value='" + escapeHTML(clock) + "'>" + formatDate(clock) + "</td>";
