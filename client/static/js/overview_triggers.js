@@ -29,8 +29,7 @@ var OverviewTriggers = function(userProfile) {
   load();
 
   $("#select-server").change(function() {
-    var serverName = $("#select-server").val();
-    self.setFilterCandidates($("#select-host"), parsedData.hosts[serverName]);
+    self.setHostFilterCandidates(rawData["servers"]);
     drawTableContents(parsedData);
   });
   $("#select-group").change(function() {
@@ -119,8 +118,16 @@ var OverviewTriggers = function(userProfile) {
     var serverName, hostNames, hostName;
     var x;
     var serversRow, hostsRow;
-    var targetServerName = getTargetServerName();
-    var targetHostName = getTargetHostName();
+    var targetServerId = self.getTargetServerId();
+    var targetHostId = self.getTargetHostId();
+    var targetServerName, targetHostName;
+
+    if (targetServerId)
+      targetServerName = getServerName(rawData["servers"][targetServerId],
+                                       targetServerId);
+    if (targetHostId)
+      targetHostName = getHostName(rawData["servers"][targetServerId],
+                                   targetHostId);
 
     serversRow = "<tr><th></th>";
     hostsRow = "<tr><th></th>";
@@ -147,8 +154,16 @@ var OverviewTriggers = function(userProfile) {
   function drawTableBody(parsedData) {
     var triggerName, serverName, hostNames, hostName, trigger, html;
     var x, y;
-    var targetServerName = getTargetServerName();
-    var targetHostName = getTargetHostName();
+    var targetServerId = self.getTargetServerId();
+    var targetHostId = self.getTargetHostId();
+    var targetServerName, targetHostName;
+
+    if (targetServerId)
+      targetServerName = getServerName(rawData["servers"][targetServerId],
+                                       targetServerId);
+    if (targetHostId)
+      targetHostName = getHostName(rawData["servers"][targetServerId],
+                                   targetHostId);
 
     html = "";
     for (y = 0; y < parsedData.triggers.length; ++y) {
@@ -199,8 +214,8 @@ var OverviewTriggers = function(userProfile) {
   function updateCore(reply, param) {
     rawData = reply;
     parsedData = parseData(rawData, param);
-    self.setFilterCandidates($("#select-server"), parsedData.servers);
-    self.setFilterCandidates($("#select-host"));
+    self.setServerFilterCandidates(rawData["servers"]);
+    self.setHostFilterCandidates(rawData["servers"]);
     drawTableContents(parsedData);
     self.setAutoReload(load, self.reloadIntervalSeconds);
   }
