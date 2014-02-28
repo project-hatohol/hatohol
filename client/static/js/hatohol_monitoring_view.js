@@ -116,7 +116,7 @@ HatoholMonitoringView.prototype.setHostFilterCandidates =
     selectorId = '#select-host';
   current = $(selectorId).val();
   if (!serverId)
-    serverId = this.getTargetServerId(selectorId);
+    serverId = this.getTargetServerId();
 
   this.setFilterCandidates($(selectorId));
 
