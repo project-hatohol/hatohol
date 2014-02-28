@@ -45,7 +45,6 @@ public:
 		return makeConditionServer(serverIdSet, serverIdColumnName);
 	}
 
-	static
 	string callMakeCondition(const ServerHostGrpSetMap &srvHostGrpSetMap,
 				 const string &serverIdColumnName,
 				 const string &hostGroupIdColumnName,
@@ -388,7 +387,8 @@ static void _assertMakeCondition(const ServerHostGrpSetMap &srvHostGrpSetMap,
 				 uint64_t targetHostId = ALL_HOSTS,
 				 uint64_t targetHostgroupId = ALL_HOST_GROUPS)
 {
-	string cond = TestHostResourceQueryOption::callMakeCondition(
+	TestHostResourceQueryOption opt;
+	string cond = opt.callMakeCondition(
 			srvHostGrpSetMap,
 			serverIdColumnName,
 			hostGroupIdColumnName,
@@ -423,7 +423,8 @@ static string makeExpectedConditionForUser(
 		const AccessInfo &accInfo = testAccessInfo[*jt];
 		srvHostGrpSetMap[accInfo.serverId].insert(accInfo.hostGroupId);
 	}
-	exp = TestHostResourceQueryOption::callMakeCondition(
+	TestHostResourceQueryOption opt;
+	exp = opt.callMakeCondition(
 		srvHostGrpSetMap,
 		serverIdColumnName,
 		hostGroupIdColumnName,

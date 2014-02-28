@@ -179,14 +179,14 @@ protected:
 	  const std::string &tableAlias = "") const;
 	static void appendCondition(std::string &cond,
 	                            const std::string &newCond);
-	static std::string makeCondition(
+	std::string makeCondition(
 	  const ServerHostGrpSetMap &srvHostGrpSetMap,
 	  const std::string &serverIdColumnName,
 	  const std::string &hostGroupIdColumnName,
 	  const std::string &hostIdColumnName,
 	  ServerIdType targetServerId = ALL_SERVERS,
 	  HostGroupIdType targetHostgroup = ALL_HOST_GROUPS,
-	  HostIdType targetHostId = ALL_HOSTS);
+	  HostIdType targetHostId = ALL_HOSTS) const;
 	static std::string makeConditionServer(
 	  const ServerIdSet &serverIdSet,
 	  const std::string &serverIdColumnName);
