@@ -98,12 +98,18 @@ const ServerHostGrpSetMap &DataQueryContext::getServerHostGrpSetMap(void)
 
 bool DataQueryContext::isValidServer(const ServerIdType &serverId)
 {
+	const ServerIdSet &svIdSet = getValidServerIdSet();
+	return svIdSet.find(serverId) != m_ctx->serverIdSet->end();
+}
+
+const ServerIdSet &DataQueryContext::getValidServerIdSet(void)
+{
 	if (!m_ctx->serverIdSet) {
 		m_ctx->serverIdSet = new ServerIdSet();
 		CacheServiceDBClient cache;
 		DBClientConfig *dbConfig = cache.getConfig();
 		dbConfig->getServerIdSet(*m_ctx->serverIdSet, this);
 	}
-	return m_ctx->serverIdSet->find(serverId) != m_ctx->serverIdSet->end();
+	return *m_ctx->serverIdSet;
 }
 

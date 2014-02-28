@@ -30,6 +30,14 @@ void cut_setup(void)
 	hatoholInit();
 }
 
+static DataQueryContextPtr setupAndCreateDataQueryContext(void)
+{
+	setupTestDBUser(true, true);
+	const UserIdType userId = 1;
+	DataQueryContextPtr dqctx(new DataQueryContext(userId), false);
+	return dqctx;
+}
+
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
@@ -43,6 +51,16 @@ void test_getServerHostGrpSetMap(void)
 	// We only confirm the returned value has a valid address.
 	// The sanity of the content shall be checked in testDBClientUser.
 	cppcut_assert_not_null(&setMap);
+}
+
+void test_getValidServerIdSet(void)
+{
+	DataQueryContextPtr dqctx = setupAndCreateDataQueryContext();
+	const ServerIdSet &svIdSet = dqctx->getValidServerIdSet();
+
+	// We only confirm the returned value has a valid address.
+	// The sanity of the content shall be checked in testDBClientConfig.
+	cppcut_assert_not_null(&svIdSet);
 }
 
 } // namespace testDataQueryContext

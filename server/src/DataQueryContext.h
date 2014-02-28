@@ -38,6 +38,7 @@ public:
 	const OperationPrivilege &getOperationPrivilege(void) const;
 	const ServerHostGrpSetMap &getServerHostGrpSetMap(void);
 	bool isValidServer(const ServerIdType &serverId);
+	const ServerIdSet &getValidServerIdSet(void);
 
 protected:
 	// To avoid an instance from being crated on a stack.
