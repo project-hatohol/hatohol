@@ -1269,44 +1269,21 @@ static void addHosts(FaceRest::RestJob *job, JsonBuilderAgent &agent,
 	agent.endArray();
 }
 
-static string getHostName(const UserIdType userId,
-			  const ServerIdType serverId, const HostIdType hostId)
-{
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	string hostName;
-	HostInfoList hostInfoList;
-	HostsQueryOption option(userId);
-	option.setTargetServerId(serverId);
-	option.setTargetHostId(hostId);
-	dataStore->getHostList(hostInfoList, option);
-	if (hostInfoList.empty()) {
-		MLPL_WARN("Failed to get HostInfo: "
-		          "%"FMT_SERVER_ID", %"FMT_TRIGGER_ID"\n",
-		          serverId, hostId);
-	} else {
-		HostInfo &hostInfo = *hostInfoList.begin();
-		hostName = hostInfo.hostName;
-	}
-	return hostName;
-}
-
 static void addHostsMap(
-  FaceRest::RestJob *job,
-  JsonBuilderAgent &agent, MonitoringServerInfo &serverInfo,
-  HostNameMaps &hostMaps, bool lookupHostName = false)
+  FaceRest::RestJob *job, JsonBuilderAgent &agent,
+  MonitoringServerInfo &serverInfo)
 {
-	HostNameMaps::iterator server_it = hostMaps.find(serverInfo.id);
+	HostInfoList hostList;
+	HostsQueryOption option(job->userId);
+	option.setTargetServerId(serverInfo.id);
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	dataStore->getHostList(hostList, option);
+	HostInfoListIterator it = hostList.begin();
 	agent.startObject("hosts");
-	ServerIdType serverId = server_it->first;
-	HostNameMap &hosts = server_it->second;
-	HostNameMap::iterator it = hosts.begin();
-	for (; server_it != hostMaps.end() && it != hosts.end(); it++) {
-		HostIdType hostId = it->first;
-		string &hostName = it->second;
-		if (lookupHostName)
-			hostName = getHostName(job->userId, serverId, hostId);
-		agent.startObject(StringUtils::toString(hostId));
-		agent.add("name", hostName);
+	for (; it != hostList.end(); it++) {
+		HostInfo &host = *it;
+		agent.startObject(StringUtils::toString(host.id));
+		agent.add("name", host.hostName);
 		agent.endObject();
 	}
 	agent.endObject();
@@ -1385,7 +1362,6 @@ static void addHostgroupsMap(UserIdType userId, JsonBuilderAgent &outputJson,
 static void addServersMap(
   FaceRest::RestJob *job,
   JsonBuilderAgent &agent,
-  HostNameMaps *hostMaps = NULL, bool lookupHostName = false,
   TriggerBriefMaps *triggerMaps = NULL, bool lookupTriggerBrief = false,
   ServerIdHostgroupIdNameMap *hostgroupNameMaps = NULL)
 {
@@ -1402,10 +1378,7 @@ static void addServersMap(
 		agent.add("name", serverInfo.hostName);
 		agent.add("type", serverInfo.type);
 		agent.add("ipAddress", serverInfo.ipAddress);
-		if (hostMaps) {
-			addHostsMap(job, agent, serverInfo,
-				    *hostMaps, lookupHostName);
-		}
+		addHostsMap(job, agent, serverInfo);
 		if (triggerMaps) {
 			addTriggersIdBriefHash(job, agent, serverInfo,
 					       *triggerMaps,
@@ -1785,7 +1758,6 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 	addHatoholError(agent, HatoholError(HTERR_OK));
 	agent.startArray("triggers");
 	TriggerInfoListIterator it = triggerList.begin();
-	HostNameMaps hostMaps;
 	for (; it != triggerList.end(); ++it) {
 		TriggerInfo &triggerInfo = *it;
 		if (!helper.isAlreadyAddedJsonData(
@@ -1806,15 +1778,13 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 
 			helper.addAlreadyAddedJsonData(triggerInfo.serverId,
 			                               triggerInfo.id);
-			hostMaps[triggerInfo.serverId][triggerInfo.hostId]
-				= triggerInfo.hostName;
 		}
 	}
 	agent.endArray();
 	agent.add("numberOfTriggers", helper.getNumberOfData());
 	ServerIdHostgroupIdNameMap hostgroupNameMaps
 	  = helper.getServerIdHostgroupIdNameMap();
-	addServersMap(job, agent, &hostMaps, false, NULL, false, &hostgroupNameMaps);
+	addServersMap(job, agent, NULL, false, &hostgroupNameMaps);
 	agent.endObject();
 
 	replyJsonData(agent, job);
@@ -1864,7 +1834,6 @@ void FaceRest::handlerGetEvent(RestJob *job)
 	agent.add("lastUnifiedEventId", getLastUnifiedEventId(job));
 	agent.startArray("events");
 	EventInfoListIterator it = eventList.begin();
-	HostNameMaps hostMaps;
 	for (; it != eventList.end(); ++it) {
 		EventInfo &eventInfo = *it;
 		if (!helper.isAlreadyAddedJsonData(
@@ -1886,15 +1855,13 @@ void FaceRest::handlerGetEvent(RestJob *job)
 
 			helper.addAlreadyAddedJsonData(eventInfo.serverId,
 					eventInfo.id);
-			hostMaps[eventInfo.serverId][eventInfo.hostId]
-				= eventInfo.hostName;
 		}
 	}
 	agent.endArray();
 	agent.add("numberOfEvents", helper.getNumberOfData());
 	ServerIdHostgroupIdNameMap hostgroupNameMaps
 	  = helper.getServerIdHostgroupIdNameMap();
-	addServersMap(job, agent, &hostMaps, false, NULL, false, &hostgroupNameMaps);
+	addServersMap(job, agent, NULL, false, &hostgroupNameMaps);
 	agent.endObject();
 
 	replyJsonData(agent, job);
@@ -1931,7 +1898,6 @@ void FaceRest::replyGetItem(RestJob *job)
 	addHatoholError(agent, HatoholError(HTERR_OK));
 	agent.startArray("items");
 	ItemInfoListIterator it = itemList.begin();
-	HostNameMaps hostMaps;
 	for (; it != itemList.end(); ++it) {
 		ItemInfo &itemInfo = *it;
 		if (!helper.isAlreadyAddedJsonData(
@@ -1953,18 +1919,13 @@ void FaceRest::replyGetItem(RestJob *job)
 
 			helper.addAlreadyAddedJsonData(itemInfo.serverId,
 			                               itemInfo.id);
-			// We don't know the host name at this point.
-			// We'll get it later.
-			hostMaps[itemInfo.serverId][itemInfo.hostId] = "";
 		}
 	}
 	agent.endArray();
 	agent.add("numberOfItems", helper.getNumberOfData());
 	ServerIdHostgroupIdNameMap hostgroupNameMaps
 	  = helper.getServerIdHostgroupIdNameMap();
-	const bool lookupHostName = true;
-	addServersMap(job, agent, &hostMaps, lookupHostName,
-	              NULL, false, &hostgroupNameMaps);
+	addServersMap(job, agent, NULL, false, &hostgroupNameMaps);
 	agent.endObject();
 
 	replyJsonData(agent, job);
@@ -2042,7 +2003,6 @@ void FaceRest::handlerGetAction(RestJob *job)
 	}
 	agent.add("numberOfActions", actionList.size());
 	agent.startArray("actions");
-	HostNameMaps hostMaps;
 	TriggerBriefMaps triggerMaps;
 	ActionDefListIterator it = actionList.begin();
 	for (; it != actionList.end(); ++it) {
@@ -2075,18 +2035,12 @@ void FaceRest::handlerGetAction(RestJob *job)
 		agent.add("timeout", actionDef.timeout);
 		agent.add("ownerUserId", actionDef.ownerUserId);
 		agent.endObject();
-		// We don't know the host name at this point.
-		// We'll get it later.
-		if (cond.isEnable(ACTCOND_HOST_ID))
-			hostMaps[cond.serverId][cond.hostId] = "";
 		if (cond.isEnable(ACTCOND_TRIGGER_ID))
 			triggerMaps[cond.serverId][cond.triggerId] = "";
 	}
 	agent.endArray();
-	const bool lookupHostName = true;
 	const bool lookupTriggerBrief = true;
-	addServersMap(job, agent, &hostMaps, lookupHostName,
-		      &triggerMaps, lookupTriggerBrief);
+	addServersMap(job, agent, &triggerMaps, lookupTriggerBrief);
 	agent.endObject();
 
 	replyJsonData(agent, job);
