@@ -49,33 +49,17 @@ var LatestView = function(userProfile) {
 
   function parseData(replyData) {
     var parsedData = {};
-    var serverNames, appNames, item;
-    var x;
-
-    serverNames = [];
-    hostNames   = {};
-    appNames    = [];
+    var appNames = [];
+    var x, item;
 
     for (x = 0; x < replyData["items"].length; ++x) {
       item = replyData["items"][x];
-      server = replyData["servers"][item["serverId"]];
-      serverName = getServerName(server, item["serverId"]);
-      serverNames.push(serverName);
 
       if (item["itemGroupName"].length == 0)
         item["itemGroupName"] = "_non_";
       else
         appNames.push(item["itemGroupName"]);
-
-      if (!hostNames[serverName])
-        hostNames[serverName] = [];
-      hostNames[serverName].push(getHostName(server, item["hostId"]));
     }
-
-    parsedData.servers = serverNames.uniq().sort();
-    parsedData.hosts = {};
-    for (serverName in hostNames)
-      parsedData.hosts[serverName] = hostNames[serverName].uniq().sort();
     parsedData.applications = appNames.uniq().sort();
 
     return parsedData;
