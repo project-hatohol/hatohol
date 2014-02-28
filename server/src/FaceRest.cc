@@ -293,14 +293,13 @@ public:
 	  ServerMapIterator;
 	typedef typename DataIdHostgroupIdVectorMap::iterator DataMapIterator;
 	typedef typename InfoListT::const_iterator InfoListConstIterator;
-	ServerIdDataIdHostgroupIdVectorMap serverDataHostgroupIdVectorMap;
 
 	void addHostgroupIdToListMap(const InfoListT &infoList)
 	{
 		InfoListConstIterator it = infoList.begin();
 		for (; it != infoList.end(); ++it){
 			InfoT info = *it;
-			serverDataHostgroupIdVectorMap
+			m_serverDataHostgroupIdVectorMap
 			  [info.serverId][info.id].push_back(
 			    info.hostgroupId);
 		}
@@ -311,8 +310,8 @@ public:
 	   TargetIdT &targetId)
 	{
 		ServerMapIterator serverIt
-		  = serverDataHostgroupIdVectorMap.find(serverId);
-		if (serverIt == serverDataHostgroupIdVectorMap.end())
+		  = m_serverDataHostgroupIdVectorMap.find(serverId);
+		if (serverIt == m_serverDataHostgroupIdVectorMap.end())
 			return;
 
 		DataIdHostgroupIdVectorMap dataHostgroupIdVectorMap
@@ -332,6 +331,8 @@ public:
 		}
 		outputJson.endArray();
 	}
+private:
+	ServerIdDataIdHostgroupIdVectorMap m_serverDataHostgroupIdVectorMap;
 };
 
 // ---------------------------------------------------------------------------
