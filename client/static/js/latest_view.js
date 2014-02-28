@@ -37,8 +37,7 @@ var LatestView = function(userProfile) {
   });
 
   $("#select-server").change(function() {
-    var serverName = $("#select-server").val();
-    self.setFilterCandidates($("#select-host"), parsedData.hosts[serverName]);
+    self.setHostFilterCandidates(rawData["servers"]);
     drawTableContents(rawData);
   });
   $("#select-host").change(function() {
@@ -82,20 +81,6 @@ var LatestView = function(userProfile) {
     return parsedData;
   }
 
-  function getTargetServerName() {
-    var name = $("#select-server").val();
-    if (name == "---------")
-      name = null;
-    return name;
-  }
-
-  function getTargetHostName() {
-    var name = $("#select-host").val();
-    if (name == "---------")
-      name = null;
-    return name;
-  }
-
   function getTargetAppName() {
     var name = $("#select-application").val();
     if (name == "---------")
@@ -107,8 +92,8 @@ var LatestView = function(userProfile) {
     var serverName, hostName, clock, appName;
     var html, url, server, item;
     var x;
-    var targetServerName = getTargetServerName();
-    var targetHostName= getTargetHostName();
+    var targetServerId = self.getTargetServerId();
+    var targetHostId = self.getTargetHostId();
     var targetAppName = getTargetAppName();
 
     html = "";
@@ -121,9 +106,9 @@ var LatestView = function(userProfile) {
       clock      = item["lastValueTime"];
       appName    = item["itemGroupName"];
 
-      if (targetServerName && serverName != targetServerName)
+      if (targetServerId && item["serverId"] != targetServerId)
         continue;
-      if (targetHostName && hostName != targetHostName)
+      if (targetHostId && item["hostId"] != targetHostId)
         continue;
       if (targetAppName && appName != targetAppName)
         continue;
@@ -153,8 +138,8 @@ var LatestView = function(userProfile) {
     rawData = reply;
     parsedData = parseData(rawData);
 
-    self.setFilterCandidates($("#select-server"), parsedData.servers);
-    self.setFilterCandidates($("#select-host"));
+    self.setServerFilterCandidates(rawData["servers"]);
+    self.setHostFilterCandidates(rawData["servers"]);
     self.setFilterCandidates($("#select-application"), parsedData.applications);
 
     drawTableContents(rawData);
