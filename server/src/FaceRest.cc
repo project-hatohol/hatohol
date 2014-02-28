@@ -311,7 +311,7 @@ public:
 			delete m_ctx;
 	}
 
-	void addHostgroupIdToListMap(const InfoListT &infoList)
+	void addHostgroupIdToVectorMap(const InfoListT &infoList)
 	{
 		InfoListConstIterator it = infoList.begin();
 		for (; it != infoList.end(); ++it){
@@ -386,6 +386,7 @@ private:
 	struct PrivateContext {
 		ServerIdDataIdHostgroupIdVectorMap serverDataHostgroupIdVectorMap;
 		ServerIdDataIdVectorMap serverIdDataIdVectorMap;
+		HostgroupIdNameMap hostgroupIdNameMap;
 		size_t numberOfData;
 	};
 	PrivateContext *m_ctx;
@@ -1770,7 +1771,7 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 	option.setTargetHostId(hostId);
 	dataStore->getTriggerList(triggerList, option, triggerId);
 	HandlerGetHelper<TriggerInfoList, TriggerInfo, TriggerIdType> helper;
-	helper.addHostgroupIdToListMap(triggerList);
+	helper.addHostgroupIdToVectorMap(triggerList);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -1830,7 +1831,7 @@ void FaceRest::handlerGetEvent(RestJob *job)
 		return;
 	}
 	HandlerGetHelper<EventInfoList, EventInfo, EventIdType> helper;
-	helper.addHostgroupIdToListMap(eventList);
+	helper.addHostgroupIdToVectorMap(eventList);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -1898,7 +1899,7 @@ void FaceRest::replyGetItem(RestJob *job)
 	ItemsQueryOption option(job->userId);
 	dataStore->getItemList(itemList, option);
 	HandlerGetHelper<ItemInfoList, ItemInfo, ItemIdType> helper;
-	helper.addHostgroupIdToListMap(itemList);
+	helper.addHostgroupIdToVectorMap(itemList);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
