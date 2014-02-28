@@ -279,12 +279,18 @@ var EventsView = function(userProfile, baseElem) {
       duration   = self.durations[serverId][event["triggerId"]][clock];
 
       html += "<tr><td>" + escapeHTML(serverName) + "</td>";
-      html += "<td data-sort-value='" + escapeHTML(clock) + "'>" + formatDate(clock) + "</td>";
+      html += "<td data-sort-value='" + escapeHTML(clock) + "'>" +
+        formatDate(clock) + "</td>";
       html += "<td>" + escapeHTML(hostName) + "</td>";
       html += "<td>" + escapeHTML(event["brief"]) + "</td>";
-      html += "<td class='status" + escapeHTML(status) + "' data-sort-value='" + escapeHTML(status) + "'>" + status_choices[Number(status)] + "</td>";
-      html += "<td class='severity" + escapeHTML(severity) + "' data-sort-value='" + escapeHTML(severity) + "'>" + severity_choices[Number(severity)] + "</td>";
-      html += "<td data-sort-value='" + duration + "'>" + formatSecond(duration) + "</td>";
+      html += "<td class='status" + escapeHTML(status) +
+        "' data-sort-value='" + escapeHTML(status) + "'>" +
+        status_choices[Number(status)] + "</td>";
+      html += "<td class='severity" + escapeHTML(severity) +
+        "' data-sort-value='" + escapeHTML(severity) + "'>" +
+        severity_choices[Number(severity)] + "</td>";
+      html += "<td data-sort-value='" + duration + "'>" +
+        formatSecond(duration) + "</td>";
       /*
       html += "<td>" + "unsupported" + "</td>";
       html += "<td>" + "unsupported" + "</td>";
