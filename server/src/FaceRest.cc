@@ -1829,36 +1829,45 @@ void FaceRest::handlerGetEvent(RestJob *job)
 		replyError(job, err);
 		return;
 	}
+	HandlerGetHelper<EventInfoList, EventInfo, EventIdType> helper;
+	helper.addHostgroupIdToListMap(eventList);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
-	agent.add("numberOfEvents", eventList.size());
 	agent.startArray("events");
 	EventInfoListIterator it = eventList.begin();
 	HostNameMaps hostMaps;
 	ServerIdHostgroupIdNameMap hostgroupNameMaps;
 	for (; it != eventList.end(); ++it) {
 		EventInfo &eventInfo = *it;
-		agent.startObject();
-		agent.add("unifiedId", eventInfo.unifiedId);
-		agent.add("serverId",  eventInfo.serverId);
-		agent.add("time",      eventInfo.time.tv_sec);
-		agent.add("type",      eventInfo.type);
-		agent.add("triggerId", eventInfo.triggerId);
-		agent.add("status",    eventInfo.status);
-		agent.add("severity",  eventInfo.severity);
-		agent.add("hostId",    eventInfo.hostId);
-		agent.add("brief",     eventInfo.brief);
-		agent.add("hostgroupId", eventInfo.hostgroupId);
-		agent.endObject();
+		if (!helper.isAlreadyAddedJsonData(
+		       eventInfo.serverId, eventInfo.id)) {
+			agent.startObject();
+			agent.add("unifiedId", eventInfo.unifiedId);
+			agent.add("serverId",  eventInfo.serverId);
+			agent.add("time",      eventInfo.time.tv_sec);
+			agent.add("type",      eventInfo.type);
+			agent.add("triggerId", eventInfo.triggerId);
+			agent.add("status",    eventInfo.status);
+			agent.add("severity",  eventInfo.severity);
+			agent.add("hostId",    eventInfo.hostId);
+			agent.add("brief",     eventInfo.brief);
+			helper.includeHostgroupIdArray(agent,
+			                               eventInfo.serverId,
+			                               eventInfo.id);
+			agent.endObject();
 
-		hostMaps[eventInfo.serverId][eventInfo.hostId]
-		  = eventInfo.hostName;
-		hostgroupNameMaps[eventInfo.serverId][eventInfo.hostgroupId]
-		  = eventInfo.hostgroupName;
+			helper.addAlreadyAddedJsonData(eventInfo.serverId,
+					eventInfo.id);
+			hostMaps[eventInfo.serverId][eventInfo.hostId]
+				= eventInfo.hostName;
+			hostgroupNameMaps[eventInfo.serverId][eventInfo.hostgroupId]
+				= eventInfo.hostgroupName;
+		}
 	}
 	agent.endArray();
+	agent.add("numberOfEvents", helper.getNumberOfData());
 	addServersMap(job, agent, &hostMaps, false, NULL, false, &hostgroupNameMaps);
 	agent.endObject();
 
