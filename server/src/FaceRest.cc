@@ -1897,36 +1897,46 @@ void FaceRest::replyGetItem(RestJob *job)
 	ItemInfoList itemList;
 	ItemsQueryOption option(job->userId);
 	dataStore->getItemList(itemList, option);
+	HandlerGetHelper<ItemInfoList, ItemInfo, ItemIdType> helper;
+	helper.addHostgroupIdToListMap(itemList);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
-	agent.add("numberOfItems", itemList.size());
 	agent.startArray("items");
 	ItemInfoListIterator it = itemList.begin();
 	HostNameMaps hostMaps;
 	ServerIdHostgroupIdNameMap hostgroupNameMaps;
 	for (; it != itemList.end(); ++it) {
 		ItemInfo &itemInfo = *it;
-		agent.startObject();
-		agent.add("id",        itemInfo.id);
-		agent.add("serverId",  itemInfo.serverId);
-		agent.add("hostId",    itemInfo.hostId);
-		agent.add("brief",     itemInfo.brief.c_str());
-		agent.add("lastValueTime", itemInfo.lastValueTime.tv_sec);
-		agent.add("lastValue", itemInfo.lastValue);
-		agent.add("prevValue", itemInfo.prevValue);
-		agent.add("itemGroupName", itemInfo.itemGroupName);
-		agent.add("hostgroupId", itemInfo.hostgroupId);
-		agent.endObject();
+		if (!helper.isAlreadyAddedJsonData(
+		       itemInfo.serverId, itemInfo.id)) {
+			agent.startObject();
+			agent.add("id",        itemInfo.id);
+			agent.add("serverId",  itemInfo.serverId);
+			agent.add("hostId",    itemInfo.hostId);
+			agent.add("brief",     itemInfo.brief.c_str());
+			agent.add("lastValueTime",
+			          itemInfo.lastValueTime.tv_sec);
+			agent.add("lastValue", itemInfo.lastValue);
+			agent.add("prevValue", itemInfo.prevValue);
+			agent.add("itemGroupName", itemInfo.itemGroupName);
+			helper.includeHostgroupIdArray(agent,
+					itemInfo.serverId,
+					itemInfo.id);
+			agent.endObject();
 
-		// We don't know the host name at this point.
-		// We'll get it later.
-		hostMaps[itemInfo.serverId][itemInfo.hostId] = "";
-		hostgroupNameMaps[itemInfo.serverId][itemInfo.hostgroupId]
-		  = itemInfo.hostgroupName;
+			helper.addAlreadyAddedJsonData(itemInfo.serverId,
+			                               itemInfo.id);
+			// We don't know the host name at this point.
+			// We'll get it later.
+			hostMaps[itemInfo.serverId][itemInfo.hostId] = "";
+			hostgroupNameMaps[itemInfo.serverId]
+			  [itemInfo.hostgroupId] = itemInfo.hostgroupName;
+		}
 	}
 	agent.endArray();
+	agent.add("numberOfItems", helper.getNumberOfData());
 	const bool lookupHostName = true;
 	addServersMap(job, agent, &hostMaps, lookupHostName,
 	              NULL, false, &hostgroupNameMaps);
