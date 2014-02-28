@@ -857,7 +857,7 @@ string HostResourceQueryOption::makeCondition(
   const string &hostIdColumnName,
   ServerIdType targetServerId,
   HostGroupIdType targetHostgroupId,
-  HostIdType targetHostId) const
+  HostIdType targetHostId)
 {
 	string condition;
 
