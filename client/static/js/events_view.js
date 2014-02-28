@@ -96,7 +96,6 @@ var EventsView = function(userProfile, baseElem) {
 
   function load(loadNextPage) {
     self.startConnection(getEventsQuery(loadNextPage), updateCore);
-
     $(document.body).scrollTop(0);
     setLoading(true);
   }
