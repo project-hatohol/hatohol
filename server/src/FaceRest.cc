@@ -353,6 +353,7 @@ public:
 	  (const ServerIdType &serverId, const TargetIdT &targetId)
 	{
 		m_ctx->serverIdDataIdVectorMap[serverId].push_back(targetId);
+		m_ctx->numberOfData++;
 	}
 
 	bool isAlreadyAddedJsonData
@@ -377,10 +378,15 @@ public:
 		return false;
 	}
 
+	size_t getNumberOfData(void) {
+		return m_ctx->numberOfData;
+	}
+
 private:
 	struct PrivateContext {
 		ServerIdDataIdHostgroupIdVectorMap serverDataHostgroupIdVectorMap;
 		ServerIdDataIdVectorMap serverIdDataIdVectorMap;
+		size_t numberOfData;
 	};
 	PrivateContext *m_ctx;
 };
@@ -1769,7 +1775,6 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
-	agent.add("numberOfTriggers", triggerList.size());
 	agent.startArray("triggers");
 	TriggerInfoListIterator it = triggerList.begin();
 	HostNameMaps hostMaps;
@@ -1801,6 +1806,7 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 		}
 	}
 	agent.endArray();
+	agent.add("numberOfTriggers", helper.getNumberOfData());
 	addServersMap(job, agent, &hostMaps, false, NULL, false, &hostgroupNameMaps);
 	agent.endObject();
 
