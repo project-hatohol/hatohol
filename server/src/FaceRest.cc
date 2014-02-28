@@ -55,8 +55,6 @@ typedef map<ServerIdType, TriggerBriefMap> TriggerBriefMaps;
 typedef map<HostGroupIdType, string> HostgroupIdNameMap;
 typedef map<ServerIdType, HostgroupIdNameMap> ServerIdHostgroupIdNameMap;
 
-typedef list<HostGroupIdType> HostgroupIdList;
-
 static const guint DEFAULT_PORT = 33194;
 
 const char *FaceRest::pathForTest        = "/test";
@@ -287,21 +285,22 @@ private:
 template<typename InfoListT, typename InfoT, typename TargetIdT>
 class FaceRest::HostgroupJsonArray {
 public:
-	typedef map<TargetIdT, HostgroupIdList> DataIdHostgroupIdListMap;
-	typedef map<ServerIdType, DataIdHostgroupIdListMap>
-	  ServerIdDataIdHostgroupIdListMap;
-	typedef typename ServerIdDataIdHostgroupIdListMap::iterator
+	typedef vector<HostGroupIdType> HostgroupIdVector;
+	typedef map<TargetIdT, HostgroupIdVector> DataIdHostgroupIdVectorMap;
+	typedef map<ServerIdType, DataIdHostgroupIdVectorMap>
+	  ServerIdDataIdHostgroupIdVectorMap;
+	typedef typename ServerIdDataIdHostgroupIdVectorMap::iterator
 	  ServerMapIterator;
-	typedef typename DataIdHostgroupIdListMap::iterator DataMapIterator;
+	typedef typename DataIdHostgroupIdVectorMap::iterator DataMapIterator;
 	typedef typename InfoListT::const_iterator InfoListConstIterator;
-	ServerIdDataIdHostgroupIdListMap serverDataHostgroupIdListMap;
+	ServerIdDataIdHostgroupIdVectorMap serverDataHostgroupIdVectorMap;
 
 	void addHostgroupIdToListMap(const InfoListT &infoList)
 	{
 		InfoListConstIterator it = infoList.begin();
 		for (; it != infoList.end(); ++it){
 			InfoT info = *it;
-			serverDataHostgroupIdListMap
+			serverDataHostgroupIdVectorMap
 			  [info.serverId][info.id].push_back(
 			    info.hostgroupId);
 		}
@@ -312,22 +311,22 @@ public:
 	   TargetIdT &targetId)
 	{
 		ServerMapIterator serverIt
-		  = serverDataHostgroupIdListMap.find(serverId);
-		if (serverIt == serverDataHostgroupIdListMap.end())
+		  = serverDataHostgroupIdVectorMap.find(serverId);
+		if (serverIt == serverDataHostgroupIdVectorMap.end())
 			return;
 
-		DataIdHostgroupIdListMap dataHostgroupIdListMap
+		DataIdHostgroupIdVectorMap dataHostgroupIdVectorMap
 		  = serverIt->second;
 		DataMapIterator dataIt
-		  = dataHostgroupIdListMap.find(targetId);
-		if (dataIt == dataHostgroupIdListMap.end())
+		  = dataHostgroupIdVectorMap.find(targetId);
+		if (dataIt == dataHostgroupIdVectorMap.end())
 			return;
 
-		HostgroupIdList hostgroupIdList
+		HostgroupIdVector hostgroupIdVector
 		  = dataIt->second;
-		HostgroupIdList::iterator groupIt = hostgroupIdList.begin();
+		HostgroupIdVector::iterator groupIt = hostgroupIdVector.begin();
 		outputJson.startArray("hostgroupId");
-		for (; groupIt != hostgroupIdList.end(); ++groupIt) {
+		for (; groupIt != hostgroupIdVector.end(); ++groupIt) {
 			HostGroupIdType hostgroupId = *groupIt;
 			outputJson.add(hostgroupId);
 		}
