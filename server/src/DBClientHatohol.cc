@@ -1350,6 +1350,8 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	static const DBAgent::TableProfile *tableProfiles[] = {
 	  &tableProfileEvents,
 	  &tableProfileTriggers,
+	  &tableProfileMapHostsHostgroups,
+	  &tableProfileHostgroups,
 	};
 	enum {
 		TBLIDX_EVENTS,
