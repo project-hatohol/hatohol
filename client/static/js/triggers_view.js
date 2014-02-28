@@ -96,9 +96,14 @@ var TriggersView = function(userProfile) {
         continue;
 
       html += "<tr><td>" + escapeHTML(serverName) + "</td>";
-      html += "<td class='severity" + escapeHTML(severity) + "' data-sort-value='" + escapeHTML(severity) + "'>" + severity_choices[Number(severity)] + "</td>";
-      html += "<td class='status" + escapeHTML(status) + "' data-sort-value='" + escapeHTML(status) + "'>" + status_choices[Number(status)] + "</td>";
-      html += "<td data-sort-value='" + escapeHTML(clock) + "'>" + formatDate(clock) + "</td>";
+      html += "<td class='severity" + escapeHTML(severity) +
+        "' data-sort-value='" + escapeHTML(severity) + "'>" +
+        severity_choices[Number(severity)] + "</td>";
+      html += "<td class='status" + escapeHTML(status) +
+        "' data-sort-value='" + escapeHTML(status) + "'>" +
+        status_choices[Number(status)] + "</td>";
+      html += "<td data-sort-value='" + escapeHTML(clock) + "'>" +
+        formatDate(clock) + "</td>";
       /* Not supported yet
       html += "<td>" + "unsupported" + "</td>";
       html += "<td>" + "unsupported" + "</td>";
