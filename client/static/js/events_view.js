@@ -112,8 +112,7 @@ var EventsView = function(userProfile, baseElem) {
       load();
     });
     $("#select-server").change(function() {
-      var serverId = $("#select-server").val();
-      self.setHostFilterCandidates(self.rawData["servers"], serverId);
+      self.setHostFilterCandidates(self.rawData["servers"]);
       load();
     });
     $("#select-host").change(function() {
