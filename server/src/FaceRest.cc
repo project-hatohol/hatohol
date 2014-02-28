@@ -355,6 +355,28 @@ public:
 		m_ctx->serverIdDataIdVectorMap[serverId].push_back(targetId);
 	}
 
+	bool isAlreadyAddedJsonData
+	  (const ServerIdType &serverId, const TargetIdT &targetId)
+	{
+		ServerIdDataIdVectorMapConstIterator serverIt
+		  = m_ctx->serverIdDataIdVectorMap.find(serverId);
+		if (serverIt == m_ctx->serverIdDataIdVectorMap.end())
+			return false;
+
+		DataIdVector dataIdVector = serverIt->second;
+		DataIdVectorConstIterator dataIt = dataIdVector.begin();
+		if (dataIt == dataIdVector.end())
+			return false;
+
+		for (; dataIt != dataIdVector.end(); ++dataIt) {
+			TargetIdT data = *dataIt;
+			if (data == targetId)
+				return true;
+		}
+
+		return false;
+	}
+
 private:
 	struct PrivateContext {
 		ServerIdDataIdHostgroupIdVectorMap serverDataHostgroupIdVectorMap;
