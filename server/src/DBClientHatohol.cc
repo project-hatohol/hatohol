@@ -1003,6 +1003,16 @@ string EventsQueryOption::getCondition(const std::string &tableAlias) const
 {
 	string condition = HostResourceQueryOption::getCondition(tableAlias);
 
+	if (m_ctx->limitOfUnifiedId) {
+		if (!condition.empty())
+			condition += " AND ";
+		condition += StringUtils::sprintf(
+			"%s.%s<=%"PRIu64,
+			TABLE_NAME_EVENTS,
+			COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID].columnName,
+			m_ctx->limitOfUnifiedId);
+	}
+
 	if (m_ctx->minSeverity != TRIGGER_SEVERITY_UNKNOWN) {
 		if (!condition.empty())
 			condition += " AND ";
@@ -1412,13 +1422,6 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	  "%s=%s", 
 	  arg.getFullName(TBLIDX_EVENTS, IDX_EVENTS_SERVER_ID).c_str(),
 	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_SERVER_ID).c_str());
-	uint64_t limitOfUnifiedId = option.getLimitOfUnifiedId();
-	if (limitOfUnifiedId) {
-		string columnName
-		  = arg.getFullName(TBLIDX_EVENTS, IDX_EVENTS_UNIFIED_ID);
-		arg.condition += StringUtils::sprintf(
-		  " AND %s<=%"PRIu64, columnName.c_str(), limitOfUnifiedId);
-	}
 
 	// Use TABLE_NAME_TRIGGERS instead of TABLE_NAME_EVENTS because events
 	// table doesn't store valid host_id although it has host_id column.
