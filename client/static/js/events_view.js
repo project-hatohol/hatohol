@@ -262,14 +262,13 @@ var EventsView = function(userProfile, baseElem) {
 
   function drawTableBody() {
     var serverName, hostName, clock, status, severity, duration;
-    var server, event, html = "";
+    var server, event, serverId, hostId, html = "";
     var x;
 
     for (x = 0; x < self.rawData["events"].length; ++x) {
-      event = self.rawData["events"][x];
-
-      var serverId = event["serverId"];
-      var hostId = event["hostId"];
+      event      = self.rawData["events"][x];
+      serverId   = event["serverId"];
+      hostId     = event["hostId"];
       server     = self.rawData["servers"][serverId];
       serverName = getServerName(server, serverId);
       hostName   = getHostName(server, hostId);
