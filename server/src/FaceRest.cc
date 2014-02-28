@@ -348,6 +348,13 @@ public:
 		}
 		outputJson.endArray();
 	}
+
+	void addAlreadyAddedJsonData
+	  (const ServerIdType &serverId, const TargetIdT &targetId)
+	{
+		m_ctx->serverIdDataIdVectorMap[serverId].push_back(targetId);
+	}
+
 private:
 	struct PrivateContext {
 		ServerIdDataIdHostgroupIdVectorMap serverDataHostgroupIdVectorMap;
