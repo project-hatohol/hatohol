@@ -27,7 +27,9 @@ window.onerror = function(errorMsg, fileName, lineNumber) {
 };
 
 var HatoholMonitoringView = function(userProfile) {
+  var self = this;
   self.connector = null;
+  self.reloadTimerId = null;
 };
 
 HatoholMonitoringView.prototype.getTargetServerId = function(selectorId) {
@@ -217,4 +219,13 @@ HatoholMonitoringView.prototype.startConnection =
     self.connector.start(connParam);
   else
     self.connector = new HatoholConnector(connParam);
+};
+
+HatoholMonitoringView.prototype.setAutoReload =
+  function(reloadFunc, intervalSeconds)
+{
+  if (this.reloadTimerId)
+    clearTimeout(this.reloadTimerId);
+  if (intervalSeconds)
+    this.reloadTimerId = setTimeout(reloadFunc, intervalSeconds * 1000);
 };

@@ -20,7 +20,6 @@
 var EventsView = function(userProfile, baseElem) {
   var self = this;
   self.baseElem = baseElem;
-  self.reloadTimerId = null;
   self.reloadIntervalSeconds = 60;
   self.currentPage = 0;
   self.limiOfUnifiedId = 0;
@@ -172,14 +171,6 @@ var EventsView = function(userProfile, baseElem) {
       $("#next-events-button").removeAttr("disabled");
     }
   }
-
-  function resetAutoReloadTimer() {
-    var interval = self.reloadIntervalSeconds * 1000;
-    if (self.reloadTimerId)
-      clearTimeout(self.reloadTimerId);
-    if (self.reloadIntervalSeconds)
-      self.reloadTimerId = setTimeout(load, interval);
-  }
   
   function parseData(replyData) {
     // The structur of durations:
@@ -287,7 +278,7 @@ var EventsView = function(userProfile, baseElem) {
                                  self.getTargetServerId());
     drawTableContents();
     setLoading(false);
-    resetAutoReloadTimer();
+    self.setAutoReload(load, self.reloadIntervalSeconds);
   }
 };
 
