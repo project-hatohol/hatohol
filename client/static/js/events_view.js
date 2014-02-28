@@ -72,7 +72,8 @@ var EventsView = function(userProfile, baseElem) {
         self.sortOrder = 
           self.userConfig.findOrDefault(conf, 'event-sort-order',
                                         DEFAULT_SORT_ORDER);
-        createPage();
+        setupEvents();
+        load();
       },
       connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
         // TODO: implement
@@ -107,11 +108,6 @@ var EventsView = function(userProfile, baseElem) {
 
     return '/events?' + $.param(query);
   };
-
-  function createPage() {
-    setupEvents();
-    load();
-  }
 
   function load(loadNextPage) {
     // TODO: Should integrate with HatoholMonitoringView.startConnection()
