@@ -21,10 +21,12 @@ var TriggersView = function(userProfile) {
   var self = this;
   var rawData, parsedData;
 
+  self.reloadIntervalSeconds = 60;
+
   // call the constructor of the super class
   HatoholMonitoringView.apply(userProfile);
 
-  self.startConnection('trigger', updateCore);
+  load();
 
   $("#table").stupidtable();
   $("#table").bind('aftertablesort', function(event, data) {
@@ -166,6 +168,11 @@ var TriggersView = function(userProfile) {
     self.setFilterCandidates($("#select-host"));
 
     drawTableContents(rawData);
+    self.setAutoReload(load, self.reloadIntervalSeconds);
+  }
+
+  function load() {
+    self.startConnection('trigger', updateCore);
   }
 };
 

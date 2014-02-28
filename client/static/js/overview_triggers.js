@@ -21,10 +21,12 @@ var OverviewTriggers = function(userProfile) {
   var self = this;
   var rawData, parsedData;
 
+  self.reloadIntervalSeconds = 60;
+
   // call the constructor of the super class
   HatoholMonitoringView.apply(userProfile);
 
-  self.startConnection('trigger', updateCore, 0);
+  load();
 
   $("#select-server").change(function() {
     var serverName = $("#select-server").val();
@@ -200,6 +202,11 @@ var OverviewTriggers = function(userProfile) {
     self.setFilterCandidates($("#select-server"), parsedData.servers);
     self.setFilterCandidates($("#select-host"));
     drawTableContents(parsedData);
+    self.setAutoReload(load, self.reloadIntervalSeconds);
+  }
+
+  function load() {
+    self.startConnection('trigger', updateCore);
   }
 };
 

@@ -20,10 +20,12 @@
 var DashboardView = function(userProfile) {
   var self = this;
 
+  self.reloadIntervalSeconds = 60;
+
   // call the constructor of the super class
   HatoholMonitoringView.apply(userProfile);
 
-  self.startConnection('overview', updateCore);
+  load();
 
   function parseData(replyData) {
     var parsedData = {};
@@ -211,6 +213,12 @@ var DashboardView = function(userProfile) {
     $("#tblTrigger tbody").append(drawTriggerBody(rawData, parsedData));
     $("#tblHost tbody").empty();
     $("#tblHost tbody").append(drawHostBody(rawData, parsedData));
+
+    self.setAutoReload(load, self.reloadIntervalSeconds);
+  }
+
+  function load() {
+    self.startConnection('overview', updateCore);
   }
 };
 
