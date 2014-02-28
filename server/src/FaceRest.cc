@@ -319,6 +319,8 @@ public:
 			m_ctx->serverDataHostgroupIdVectorMap
 			  [info.serverId][info.id].push_back(
 			    info.hostgroupId);
+			m_ctx->hostgroupNameMaps[info.serverId]
+			  [info.hostgroupId] = info.hostgroupName;
 		}
 	}
 
@@ -382,11 +384,16 @@ public:
 		return m_ctx->numberOfData;
 	}
 
+	ServerIdHostgroupIdNameMap getServerIdHostgroupIdNameMap(void)
+	{
+		return m_ctx->hostgroupNameMaps;
+	}
+
 private:
 	struct PrivateContext {
 		ServerIdDataIdHostgroupIdVectorMap serverDataHostgroupIdVectorMap;
 		ServerIdDataIdVectorMap serverIdDataIdVectorMap;
-		HostgroupIdNameMap hostgroupIdNameMap;
+		ServerIdHostgroupIdNameMap hostgroupNameMaps;
 		size_t numberOfData;
 	};
 	PrivateContext *m_ctx;
@@ -1779,7 +1786,6 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 	agent.startArray("triggers");
 	TriggerInfoListIterator it = triggerList.begin();
 	HostNameMaps hostMaps;
-	ServerIdHostgroupIdNameMap hostgroupNameMaps;
 	for (; it != triggerList.end(); ++it) {
 		TriggerInfo &triggerInfo = *it;
 		if (!helper.isAlreadyAddedJsonData(
@@ -1802,12 +1808,12 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 			                               triggerInfo.id);
 			hostMaps[triggerInfo.serverId][triggerInfo.hostId]
 				= triggerInfo.hostName;
-			hostgroupNameMaps[triggerInfo.serverId]
-			  [triggerInfo.hostgroupId] = triggerInfo.hostgroupName;
 		}
 	}
 	agent.endArray();
 	agent.add("numberOfTriggers", helper.getNumberOfData());
+	ServerIdHostgroupIdNameMap hostgroupNameMaps
+	  = helper.getServerIdHostgroupIdNameMap();
 	addServersMap(job, agent, &hostMaps, false, NULL, false, &hostgroupNameMaps);
 	agent.endObject();
 
