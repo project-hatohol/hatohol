@@ -289,17 +289,34 @@ public:
 	typedef map<TargetIdT, HostgroupIdVector> DataIdHostgroupIdVectorMap;
 	typedef map<ServerIdType, DataIdHostgroupIdVectorMap>
 	  ServerIdDataIdHostgroupIdVectorMap;
+	typedef vector<TargetIdT> DataIdVector;
+	typedef map<ServerIdType, DataIdVector> ServerIdDataIdVectorMap;
+	typedef typename DataIdVector::const_iterator DataIdVectorConstIterator;
+	typedef typename ServerIdDataIdVectorMap::const_iterator
+	  ServerIdDataIdVectorMapConstIterator;
 	typedef typename ServerIdDataIdHostgroupIdVectorMap::iterator
 	  ServerMapIterator;
 	typedef typename DataIdHostgroupIdVectorMap::iterator DataMapIterator;
 	typedef typename InfoListT::const_iterator InfoListConstIterator;
+
+	HandlerGetHelper()
+	: m_ctx(NULL)
+	{
+		m_ctx = new PrivateContext();
+	}
+
+	~HandlerGetHelper()
+	{
+		if (m_ctx)
+			delete m_ctx;
+	}
 
 	void addHostgroupIdToListMap(const InfoListT &infoList)
 	{
 		InfoListConstIterator it = infoList.begin();
 		for (; it != infoList.end(); ++it){
 			InfoT info = *it;
-			m_serverDataHostgroupIdVectorMap
+			m_ctx->serverDataHostgroupIdVectorMap
 			  [info.serverId][info.id].push_back(
 			    info.hostgroupId);
 		}
@@ -310,8 +327,8 @@ public:
 	   TargetIdT &targetId)
 	{
 		ServerMapIterator serverIt
-		  = m_serverDataHostgroupIdVectorMap.find(serverId);
-		if (serverIt == m_serverDataHostgroupIdVectorMap.end())
+		  = m_ctx->serverDataHostgroupIdVectorMap.find(serverId);
+		if (serverIt == m_ctx->serverDataHostgroupIdVectorMap.end())
 			return;
 
 		DataIdHostgroupIdVectorMap dataHostgroupIdVectorMap
@@ -332,7 +349,11 @@ public:
 		outputJson.endArray();
 	}
 private:
-	ServerIdDataIdHostgroupIdVectorMap m_serverDataHostgroupIdVectorMap;
+	struct PrivateContext {
+		ServerIdDataIdHostgroupIdVectorMap serverDataHostgroupIdVectorMap;
+		ServerIdDataIdVectorMap serverIdDataIdVectorMap;
+	};
+	PrivateContext *m_ctx;
 };
 
 // ---------------------------------------------------------------------------
