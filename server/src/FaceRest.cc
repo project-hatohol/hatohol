@@ -293,12 +293,12 @@ public:
 	typedef typename ServerIdDataIdHostgroupIdListMap::iterator
 	  ServerMapIterator;
 	typedef typename DataIdHostgroupIdListMap::iterator DataMapIterator;
-	typedef typename InfoListT::const_iterator InfoListIterator;
+	typedef typename InfoListT::const_iterator InfoListConstIterator;
 	ServerIdDataIdHostgroupIdListMap serverDataHostgroupIdListMap;
 
 	void addHostgroupIdToListMap(const InfoListT &infoList)
 	{
-		InfoListIterator it = infoList.begin();
+		InfoListConstIterator it = infoList.begin();
 		for (; it != infoList.end(); ++it){
 			InfoT info = *it;
 			serverDataHostgroupIdListMap
