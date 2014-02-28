@@ -1870,6 +1870,9 @@ bool DBClientZabbix::transformItemItemGroupToItemInfo
 	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_PREVVALUE);
 	itemGroupStream >> itemInfo.prevValue;
 
+	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_DELAY);
+	itemGroupStream >> itemInfo.delay;
+
 	uint64_t applicationId;
 	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_APPLICATIONID);
 	itemGroupStream >> applicationId;
@@ -1879,18 +1882,25 @@ bool DBClientZabbix::transformItemItemGroupToItemInfo
 }
 
 void DBClientZabbix::transformItemsToHatoholFormat(
- ItemInfoList &itemInfoList, const ItemTablePtr items,
- const ServerIdType &serverId)
+  ItemInfoList &itemInfoList, MonitoringServerStatus &serverStatus,
+  const ItemTablePtr items)
 {
-	DBClientZabbix dbZabbix(serverId);
+	DBClientZabbix dbZabbix(serverStatus.serverId);
 	const ItemGroupList &itemGroupList = items->getItemGroupList();
 	ItemGroupListConstIterator it = itemGroupList.begin();
 	for (; it != itemGroupList.end(); ++it) {
 		ItemInfo itemInfo;
-		itemInfo.serverId = serverId;
+		itemInfo.serverId = serverStatus.serverId;
 		if (!transformItemItemGroupToItemInfo(itemInfo, *it, dbZabbix))
 			continue;
 		itemInfoList.push_back(itemInfo);
+	}
+
+	ItemInfoListConstIterator item_it = itemInfoList.begin();
+	serverStatus.nvps = 0.0;
+	for (; item_it != itemInfoList.end(); ++item_it) {
+		if ((*item_it).delay != 0)
+			serverStatus.nvps += 1.0/(*item_it).delay;
 	}
 }
 

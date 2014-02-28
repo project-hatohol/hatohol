@@ -954,7 +954,7 @@ addHostgroupsMap(FaceRest::RestJob *job, JsonBuilderAgent &outputJson,
 
 static void addOverviewEachServer(FaceRest::RestJob *job,
 				  JsonBuilderAgent &agent,
-                                  MonitoringServerInfo &svInfo,
+				  MonitoringServerInfo &svInfo,
 				  bool &serverIsGoodStatus)
 {
 	HatoholError err;
@@ -990,7 +990,13 @@ static void addOverviewEachServer(FaceRest::RestJob *job,
 	// after the funtion concerned is added
 	agent.add("numberOfUsers", 0);
 	agent.add("numberOfOnlineUsers", 0);
-	agent.add("numberOfMonitoredItemsPerSecond", 0);
+	DataQueryOption dataQueryOption(job->userId);
+	MonitoringServerStatus serverStatus;
+	serverStatus.serverId = svInfo.id;
+	dataStore->getNumberOfMonitoredItemsPerSecond(dataQueryOption,
+						      serverStatus);
+	string nvps = StringUtils::sprintf("%.2f", serverStatus.nvps);
+	agent.add("numberOfMonitoredItemsPerSecond", nvps);
 
 	// HostGroups
 	// TODO: We temtatively returns 'No group'. We should fix it
@@ -1404,6 +1410,7 @@ void FaceRest::handlerLogout(RestJob *job)
 void FaceRest::handlerGetOverview(RestJob *job)
 {
 	JsonBuilderAgent agent;
+	HatoholError err;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
 	addOverview(job, agent);

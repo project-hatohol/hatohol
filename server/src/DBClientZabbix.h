@@ -42,8 +42,8 @@ public:
 	static bool transformEventItemGroupToEventInfo(EventInfo &eventInfo,
 	                                               const ItemGroup *event);
 	static void transformItemsToHatoholFormat(ItemInfoList &eventInfoList,
-	                                          const ItemTablePtr events,
-	                                          const ServerIdType &serverId);
+	                                          MonitoringServerStatus &serverStatus,
+	                                          const ItemTablePtr events);
 	static bool transformItemItemGroupToItemInfo(ItemInfo &itemInfo,
 	                                             const ItemGroup *item,
 	                                             DBClientZabbix &dbZabbix);

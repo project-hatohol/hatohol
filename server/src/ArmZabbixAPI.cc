@@ -1113,9 +1113,13 @@ void ArmZabbixAPI::makeHatoholEvents(ItemTablePtr events)
 void ArmZabbixAPI::makeHatoholItems(ItemTablePtr items)
 {
 	ItemInfoList itemInfoList;
-	DBClientZabbix::transformItemsToHatoholFormat(itemInfoList, items,
-	                                              m_ctx->zabbixServerId);
+	MonitoringServerStatus serverStatus;
+	serverStatus.serverId = m_ctx->zabbixServerId;
+	DBClientZabbix::transformItemsToHatoholFormat(itemInfoList,
+	                                              serverStatus,
+	                                              items);
 	m_ctx->dbClientHatohol.addItemInfoList(itemInfoList);
+	m_ctx->dbClientHatohol.addMonitoringServerStatus(&serverStatus);
 }
 
 void ArmZabbixAPI::makeHatoholHostgroups(ItemTablePtr groups)
