@@ -19,7 +19,7 @@
 
 var TriggersView = function(userProfile) {
   var self = this;
-  var rawData, parsedData;
+  var rawData;
 
   self.reloadIntervalSeconds = 60;
 
@@ -63,33 +63,6 @@ var TriggersView = function(userProfile) {
   $("#select-status").change(function() {
     drawTableContents(rawData);
   });
-
-  function parseData(replyData) {
-    var parsedData = {};
-    var serverNames, serverName, hostNames;
-    var x, server, trigger;
-
-    serverNames = [];
-    hostNames   = {};
-    for (x = 0; x < replyData["triggers"].length; ++x) {
-      trigger = replyData["triggers"][x];
-      server = replyData["servers"][trigger["serverId"]];
-      var serverId = trigger["serverId"];
-      var hostId = trigger["hostId"];
-      serverName = getServerName(server, serverId);
-      if (!hostNames[serverName])
-        hostNames[serverName] = [];
-      hostName = getHostName(server, hostId);
-      hostNames[serverName].push(hostName);
-      serverNames.push(serverName);
-    }
-    parsedData.servers = serverNames.uniq().sort();
-    parsedData.hosts   = {};
-    for (serverName in hostNames)
-      parsedData.hosts[serverName] = hostNames[serverName].uniq().sort();
-
-    return parsedData;
-  }
 
   function drawTableBody(replyData) {
     var serverName, hostName, clock, status, severity;
@@ -147,7 +120,6 @@ var TriggersView = function(userProfile) {
 
   function updateCore(reply) {
     rawData = reply;
-    parsedData = parseData(rawData);
 
     self.setServerFilterCandidates(rawData["servers"]);
     self.setHostFilterCandidates(rawData["servers"]);
