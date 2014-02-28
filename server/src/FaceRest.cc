@@ -46,19 +46,14 @@ const int FaceRest::DEFAULT_NUM_WORKERS = 4;
 
 typedef void (*RestHandler) (FaceRest::RestJob *job);
 
-typedef uint64_t ServerID;
-typedef uint64_t HostID;
-typedef uint64_t TriggerID;
-typedef uint64_t HostgroupID;
+typedef map<HostIdType, string> HostNameMap;
+typedef map<ServerIdType, HostNameMap> HostNameMaps;
 
-typedef map<HostID, string> HostNameMap;
-typedef map<ServerID, HostNameMap> HostNameMaps;
+typedef map<TriggerIdType, string> TriggerBriefMap;
+typedef map<ServerIdType, TriggerBriefMap> TriggerBriefMaps;
 
-typedef map<TriggerID, string> TriggerBriefMap;
-typedef map<ServerID, TriggerBriefMap> TriggerBriefMaps;
-
-typedef map<HostgroupID, string> HostgroupIDNameMap;
-typedef map<ServerID, HostgroupIDNameMap> ServerIDHostgroupIDNameMap;
+typedef map<HostGroupIdType, string> HostgroupIdNameMap;
+typedef map<ServerIdType, HostgroupIdNameMap> ServerIdHostgroupIdNameMap;
 
 static const guint DEFAULT_PORT = 33194;
 
@@ -285,6 +280,123 @@ private:
 	}
 
 	FaceRest *m_faceRest;
+};
+
+template<typename InfoListT, typename InfoT, typename TargetIdT>
+class FaceRest::HandlerGetHelper {
+public:
+	typedef vector<HostGroupIdType> HostgroupIdVector;
+	typedef map<TargetIdT, HostgroupIdVector> DataIdHostgroupIdVectorMap;
+	typedef map<ServerIdType, DataIdHostgroupIdVectorMap>
+	  ServerIdDataIdHostgroupIdVectorMap;
+	typedef vector<TargetIdT> DataIdVector;
+	typedef map<ServerIdType, DataIdVector> ServerIdDataIdVectorMap;
+	typedef typename DataIdVector::const_iterator DataIdVectorConstIterator;
+	typedef typename ServerIdDataIdVectorMap::const_iterator
+	  ServerIdDataIdVectorMapConstIterator;
+	typedef typename ServerIdDataIdHostgroupIdVectorMap::iterator
+	  ServerMapIterator;
+	typedef typename DataIdHostgroupIdVectorMap::iterator DataMapIterator;
+	typedef typename InfoListT::const_iterator InfoListConstIterator;
+
+	HandlerGetHelper()
+	: m_ctx(NULL)
+	{
+		m_ctx = new PrivateContext();
+	}
+
+	~HandlerGetHelper()
+	{
+		if (m_ctx)
+			delete m_ctx;
+	}
+
+	void addHostgroupIdToVectorMap(const InfoListT &infoList)
+	{
+		InfoListConstIterator it = infoList.begin();
+		for (; it != infoList.end(); ++it){
+			InfoT info = *it;
+			m_ctx->serverDataHostgroupIdVectorMap
+			  [info.serverId][info.id].push_back(
+			    info.hostgroupId);
+			m_ctx->hostgroupNameMaps[info.serverId]
+			  [info.hostgroupId] = info.hostgroupName;
+		}
+	}
+
+	void includeHostgroupIdArray
+	  (JsonBuilderAgent &outputJson, ServerIdType &serverId,
+	   TargetIdT &targetId)
+	{
+		ServerMapIterator serverIt
+		  = m_ctx->serverDataHostgroupIdVectorMap.find(serverId);
+		if (serverIt == m_ctx->serverDataHostgroupIdVectorMap.end())
+			return;
+
+		DataIdHostgroupIdVectorMap dataHostgroupIdVectorMap
+		  = serverIt->second;
+		DataMapIterator dataIt
+		  = dataHostgroupIdVectorMap.find(targetId);
+		if (dataIt == dataHostgroupIdVectorMap.end())
+			return;
+
+		HostgroupIdVector hostgroupIdVector
+		  = dataIt->second;
+		HostgroupIdVector::iterator groupIt = hostgroupIdVector.begin();
+		outputJson.startArray("hostgroupId");
+		for (; groupIt != hostgroupIdVector.end(); ++groupIt) {
+			HostGroupIdType hostgroupId = *groupIt;
+			outputJson.add(hostgroupId);
+		}
+		outputJson.endArray();
+	}
+
+	void addAlreadyAddedJsonData
+	  (const ServerIdType &serverId, const TargetIdT &targetId)
+	{
+		m_ctx->serverIdDataIdVectorMap[serverId].push_back(targetId);
+		m_ctx->numberOfData++;
+	}
+
+	bool isAlreadyAddedJsonData
+	  (const ServerIdType &serverId, const TargetIdT &targetId)
+	{
+		ServerIdDataIdVectorMapConstIterator serverIt
+		  = m_ctx->serverIdDataIdVectorMap.find(serverId);
+		if (serverIt == m_ctx->serverIdDataIdVectorMap.end())
+			return false;
+
+		DataIdVector dataIdVector = serverIt->second;
+		DataIdVectorConstIterator dataIt = dataIdVector.begin();
+		if (dataIt == dataIdVector.end())
+			return false;
+
+		for (; dataIt != dataIdVector.end(); ++dataIt) {
+			TargetIdT data = *dataIt;
+			if (data == targetId)
+				return true;
+		}
+
+		return false;
+	}
+
+	size_t getNumberOfData(void) {
+		return m_ctx->numberOfData;
+	}
+
+	ServerIdHostgroupIdNameMap getServerIdHostgroupIdNameMap(void)
+	{
+		return m_ctx->hostgroupNameMaps;
+	}
+
+private:
+	struct PrivateContext {
+		ServerIdDataIdHostgroupIdVectorMap serverDataHostgroupIdVectorMap;
+		ServerIdDataIdVectorMap serverIdDataIdVectorMap;
+		ServerIdHostgroupIdNameMap hostgroupNameMaps;
+		size_t numberOfData;
+	};
+	PrivateContext *m_ctx;
 };
 
 // ---------------------------------------------------------------------------
@@ -1158,7 +1270,7 @@ static void addHosts(FaceRest::RestJob *job, JsonBuilderAgent &agent,
 }
 
 static string getHostName(const UserIdType userId,
-			  const ServerID serverId, const HostID hostId)
+			  const ServerIdType serverId, const HostIdType hostId)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	string hostName;
@@ -1169,7 +1281,7 @@ static string getHostName(const UserIdType userId,
 	dataStore->getHostList(hostInfoList, option);
 	if (hostInfoList.empty()) {
 		MLPL_WARN("Failed to get HostInfo: "
-		          "%"PRIu64", %"PRIu64"\n",
+		          "%"FMT_SERVER_ID", %"FMT_TRIGGER_ID"\n",
 		          serverId, hostId);
 	} else {
 		HostInfo &hostInfo = *hostInfoList.begin();
@@ -1185,11 +1297,11 @@ static void addHostsMap(
 {
 	HostNameMaps::iterator server_it = hostMaps.find(serverInfo.id);
 	agent.startObject("hosts");
-	ServerID serverId = server_it->first;
+	ServerIdType serverId = server_it->first;
 	HostNameMap &hosts = server_it->second;
 	HostNameMap::iterator it = hosts.begin();
 	for (; server_it != hostMaps.end() && it != hosts.end(); it++) {
-		HostID hostId = it->first;
+		HostIdType hostId = it->first;
 		string &hostName = it->second;
 		if (lookupHostName)
 			hostName = getHostName(job->userId, serverId, hostId);
@@ -1201,7 +1313,7 @@ static void addHostsMap(
 }
 
 static string getTriggerBrief(
-  FaceRest::RestJob *job, const ServerID serverId, const TriggerID triggerId)
+  FaceRest::RestJob *job, const ServerIdType serverId, const TriggerIdType triggerId)
 {
 	string triggerBrief;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
@@ -1213,7 +1325,7 @@ static string getTriggerBrief(
 
 	if (triggerInfoList.size() != 1) {
 		MLPL_WARN("Failed to get TriggerInfo: "
-		          "%"PRIu64", %"PRIu64"\n",
+		          "%"FMT_SERVER_ID", %"FMT_TRIGGER_ID"\n",
 		          serverId, triggerId);
 	} else {
 		TriggerInfoListIterator it = triggerInfoList.begin();
@@ -1230,11 +1342,11 @@ static void addTriggersIdBriefHash(
 {
 	TriggerBriefMaps::iterator server_it = triggerMaps.find(serverInfo.id);
 	agent.startObject("triggers");
-	ServerID serverId = server_it->first;
+	ServerIdType serverId = server_it->first;
 	TriggerBriefMap &triggers = server_it->second;
 	TriggerBriefMap::iterator it = triggers.begin();
 	for (; server_it != triggerMaps.end() && it != triggers.end(); it++) {
-		TriggerID triggerId = it->first;
+		TriggerIdType triggerId = it->first;
 		string &triggerBrief = it->second;
 		if (lookupTriggerBrief)
 			triggerBrief = getTriggerBrief(job,
@@ -1249,19 +1361,19 @@ static void addTriggersIdBriefHash(
 
 static void addHostgroupsMap(UserIdType userId, JsonBuilderAgent &outputJson,
                              MonitoringServerInfo &serverInfo,
-                             ServerIDHostgroupIDNameMap &hostgroupMap)
+                             ServerIdHostgroupIdNameMap &hostgroupMap)
 {
-	ServerIDHostgroupIDNameMap::iterator serverIt =
+	ServerIdHostgroupIdNameMap::iterator serverIt =
 	  hostgroupMap.find(serverInfo.id);
 	outputJson.startObject("groups");
 	if (serverIt == hostgroupMap.end()) {
 		outputJson.endObject();
 		return;
 	}
-	HostgroupIDNameMap &hostgroups = serverIt->second;
-	HostgroupIDNameMap::iterator it = hostgroups.begin();
+	HostgroupIdNameMap &hostgroups = serverIt->second;
+	HostgroupIdNameMap::iterator it = hostgroups.begin();
 	for (; serverIt != hostgroupMap.end() && it != hostgroups.end(); ++it) {
-		HostgroupID hostgroupId = it->first;
+		HostGroupIdType hostgroupId = it->first;
 		string &hostgroupName = it->second;
 		outputJson.startObject(StringUtils::toString(hostgroupId));
 		outputJson.add("name", hostgroupName);
@@ -1275,7 +1387,7 @@ static void addServersMap(
   JsonBuilderAgent &agent,
   HostNameMaps *hostMaps = NULL, bool lookupHostName = false,
   TriggerBriefMaps *triggerMaps = NULL, bool lookupTriggerBrief = false,
-  ServerIDHostgroupIDNameMap *hostgroupNameMaps = NULL)
+  ServerIdHostgroupIdNameMap *hostgroupNameMaps = NULL)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	MonitoringServerInfoList monitoringServers;
@@ -1665,34 +1777,43 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 	option.setTargetServerId(serverId);
 	option.setTargetHostId(hostId);
 	dataStore->getTriggerList(triggerList, option, triggerId);
+	HandlerGetHelper<TriggerInfoList, TriggerInfo, TriggerIdType> helper;
+	helper.addHostgroupIdToVectorMap(triggerList);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
-	agent.add("numberOfTriggers", triggerList.size());
 	agent.startArray("triggers");
 	TriggerInfoListIterator it = triggerList.begin();
 	HostNameMaps hostMaps;
-	ServerIDHostgroupIDNameMap hostgroupNameMaps;
 	for (; it != triggerList.end(); ++it) {
 		TriggerInfo &triggerInfo = *it;
-		agent.startObject();
-		agent.add("id",       triggerInfo.id);
-		agent.add("status",   triggerInfo.status);
-		agent.add("severity", triggerInfo.severity);
-		agent.add("lastChangeTime", triggerInfo.lastChangeTime.tv_sec);
-		agent.add("serverId", triggerInfo.serverId);
-		agent.add("hostId",   triggerInfo.hostId);
-		agent.add("brief",    triggerInfo.brief);
-		agent.add("hostgroupId",    triggerInfo.hostgroupId);
-		agent.endObject();
+		if (!helper.isAlreadyAddedJsonData(
+		       triggerInfo.serverId, triggerInfo.id)) {
+			agent.startObject();
+			agent.add("id",       triggerInfo.id);
+			agent.add("status",   triggerInfo.status);
+			agent.add("severity", triggerInfo.severity);
+			agent.add("lastChangeTime",
+			          triggerInfo.lastChangeTime.tv_sec);
+			agent.add("serverId", triggerInfo.serverId);
+			agent.add("hostId",   triggerInfo.hostId);
+			agent.add("brief",    triggerInfo.brief);
+			helper.includeHostgroupIdArray(agent,
+			                               triggerInfo.serverId,
+			                               triggerInfo.id);
+			agent.endObject();
 
-		hostMaps[triggerInfo.serverId][triggerInfo.hostId]
-		  = triggerInfo.hostName;
-		hostgroupNameMaps[triggerInfo.serverId][triggerInfo.hostgroupId]
-		  = triggerInfo.hostgroupName;
+			helper.addAlreadyAddedJsonData(triggerInfo.serverId,
+			                               triggerInfo.id);
+			hostMaps[triggerInfo.serverId][triggerInfo.hostId]
+				= triggerInfo.hostName;
+		}
 	}
 	agent.endArray();
+	agent.add("numberOfTriggers", helper.getNumberOfData());
+	ServerIdHostgroupIdNameMap hostgroupNameMaps
+	  = helper.getServerIdHostgroupIdNameMap();
 	addServersMap(job, agent, &hostMaps, false, NULL, false, &hostgroupNameMaps);
 	agent.endObject();
 
@@ -1734,34 +1855,46 @@ void FaceRest::handlerGetEvent(RestJob *job)
 		replyError(job, err);
 		return;
 	}
+	HandlerGetHelper<EventInfoList, EventInfo, EventIdType> helper;
+	helper.addHostgroupIdToVectorMap(eventList);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
-	agent.add("numberOfEvents", eventList.size());
 	agent.add("lastUnifiedEventId", getLastUnifiedEventId(job));
 	agent.startArray("events");
 	EventInfoListIterator it = eventList.begin();
 	HostNameMaps hostMaps;
 	for (; it != eventList.end(); ++it) {
 		EventInfo &eventInfo = *it;
-		agent.startObject();
-		agent.add("unifiedId", eventInfo.unifiedId);
-		agent.add("serverId",  eventInfo.serverId);
-		agent.add("time",      eventInfo.time.tv_sec);
-		agent.add("type",      eventInfo.type);
-		agent.add("triggerId", eventInfo.triggerId);
-		agent.add("status",    eventInfo.status);
-		agent.add("severity",  eventInfo.severity);
-		agent.add("hostId",    eventInfo.hostId);
-		agent.add("brief",     eventInfo.brief);
-		agent.endObject();
+		if (!helper.isAlreadyAddedJsonData(
+		       eventInfo.serverId, eventInfo.id)) {
+			agent.startObject();
+			agent.add("unifiedId", eventInfo.unifiedId);
+			agent.add("serverId",  eventInfo.serverId);
+			agent.add("time",      eventInfo.time.tv_sec);
+			agent.add("type",      eventInfo.type);
+			agent.add("triggerId", eventInfo.triggerId);
+			agent.add("status",    eventInfo.status);
+			agent.add("severity",  eventInfo.severity);
+			agent.add("hostId",    eventInfo.hostId);
+			agent.add("brief",     eventInfo.brief);
+			helper.includeHostgroupIdArray(agent,
+			                               eventInfo.serverId,
+			                               eventInfo.id);
+			agent.endObject();
 
-		hostMaps[eventInfo.serverId][eventInfo.hostId]
-		  = eventInfo.hostName;
+			helper.addAlreadyAddedJsonData(eventInfo.serverId,
+					eventInfo.id);
+			hostMaps[eventInfo.serverId][eventInfo.hostId]
+				= eventInfo.hostName;
+		}
 	}
 	agent.endArray();
-	addServersMap(job, agent, &hostMaps);
+	agent.add("numberOfEvents", helper.getNumberOfData());
+	ServerIdHostgroupIdNameMap hostgroupNameMaps
+	  = helper.getServerIdHostgroupIdNameMap();
+	addServersMap(job, agent, &hostMaps, false, NULL, false, &hostgroupNameMaps);
 	agent.endObject();
 
 	replyJsonData(agent, job);
@@ -1790,34 +1923,48 @@ void FaceRest::replyGetItem(RestJob *job)
 	ItemInfoList itemList;
 	ItemsQueryOption option(job->userId);
 	dataStore->getItemList(itemList, option);
+	HandlerGetHelper<ItemInfoList, ItemInfo, ItemIdType> helper;
+	helper.addHostgroupIdToVectorMap(itemList);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
-	agent.add("numberOfItems", itemList.size());
 	agent.startArray("items");
 	ItemInfoListIterator it = itemList.begin();
 	HostNameMaps hostMaps;
 	for (; it != itemList.end(); ++it) {
 		ItemInfo &itemInfo = *it;
-		agent.startObject();
-		agent.add("id",        itemInfo.id);
-		agent.add("serverId",  itemInfo.serverId);
-		agent.add("hostId",    itemInfo.hostId);
-		agent.add("brief",     itemInfo.brief.c_str());
-		agent.add("lastValueTime", itemInfo.lastValueTime.tv_sec);
-		agent.add("lastValue", itemInfo.lastValue);
-		agent.add("prevValue", itemInfo.prevValue);
-		agent.add("itemGroupName", itemInfo.itemGroupName);
-		agent.endObject();
+		if (!helper.isAlreadyAddedJsonData(
+		       itemInfo.serverId, itemInfo.id)) {
+			agent.startObject();
+			agent.add("id",        itemInfo.id);
+			agent.add("serverId",  itemInfo.serverId);
+			agent.add("hostId",    itemInfo.hostId);
+			agent.add("brief",     itemInfo.brief.c_str());
+			agent.add("lastValueTime",
+			          itemInfo.lastValueTime.tv_sec);
+			agent.add("lastValue", itemInfo.lastValue);
+			agent.add("prevValue", itemInfo.prevValue);
+			agent.add("itemGroupName", itemInfo.itemGroupName);
+			helper.includeHostgroupIdArray(agent,
+					itemInfo.serverId,
+					itemInfo.id);
+			agent.endObject();
 
-		// We don't know the host name at this point.
-		// We'll get it later.
-		hostMaps[itemInfo.serverId][itemInfo.hostId] = "";
+			helper.addAlreadyAddedJsonData(itemInfo.serverId,
+			                               itemInfo.id);
+			// We don't know the host name at this point.
+			// We'll get it later.
+			hostMaps[itemInfo.serverId][itemInfo.hostId] = "";
+		}
 	}
 	agent.endArray();
+	agent.add("numberOfItems", helper.getNumberOfData());
+	ServerIdHostgroupIdNameMap hostgroupNameMaps
+	  = helper.getServerIdHostgroupIdNameMap();
 	const bool lookupHostName = true;
-	addServersMap(job, agent, &hostMaps, lookupHostName);
+	addServersMap(job, agent, &hostMaps, lookupHostName,
+	              NULL, false, &hostgroupNameMaps);
 	agent.endObject();
 
 	replyJsonData(agent, job);

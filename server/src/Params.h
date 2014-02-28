@@ -57,6 +57,21 @@ typedef int AccessInfoIdType;
 typedef int UserRoleIdType;
 #define FMT_USER_ROLE_ID "d"
 
+typedef uint64_t EventIdType;
+#define FMT_EVENT_ID PRIu64
+
+typedef uint64_t ItemIdType;
+#define FMT_ITEM_ID PRIu64
+
+typedef uint64_t TriggerIdType;
+#define FMT_TRIGGER_ID PRIu64
+
+typedef uint64_t HostGroupIdType;
+#define FMT_HOST_GROUP_ID PRIu64
+
+typedef uint64_t HostIdType;
+#define FMT_HOST_ID PRIu64
+
 static const UserIdType INVALID_USER_ID = -1;
 static const UserIdType USER_ID_ANY     = -2;
 

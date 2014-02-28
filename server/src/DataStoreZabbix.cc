@@ -56,8 +56,9 @@ ItemTablePtr DataStoreZabbix::getItems(void)
 
 ItemTablePtr DataStoreZabbix::getHosts(void)
 {
-	vector<uint64_t> hostIdVector;
-	return m_armApi.getHosts(hostIdVector);
+	ItemTablePtr hostsTablePtr, hostsGroupsTablePtr;
+	m_armApi.getHosts(hostsTablePtr, hostsGroupsTablePtr);
+	return hostsTablePtr;
 }
 
 void DataStoreZabbix::setCopyOnDemandEnable(bool enable)

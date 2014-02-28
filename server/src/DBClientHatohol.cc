@@ -500,8 +500,8 @@ static const ColumnDef COLUMN_DEF_HOSTS[] = {
 },
 };
 enum {
-	IDX_HOSTS_SERVER_ID,
 	IDX_HOSTS_ID,
+	IDX_HOSTS_SERVER_ID,
 	IDX_HOSTS_HOST_ID,
 	IDX_HOSTS_HOST_NAME,
 	NUM_IDX_HOSTS,
@@ -1354,6 +1354,8 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	enum {
 		TBLIDX_EVENTS,
 		TBLIDX_TRIGGERS,
+		TBLIDX_MAP_HOSTS_HOSTGROUPS,
+		TBLIDX_HOSTGROUPS,
 	};
 	static const size_t numTableProfiles =
 	  sizeof(tableProfiles) / sizeof(DBAgent::TableProfile *);
@@ -1361,10 +1363,24 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 
 	// Tables
 	arg.tableField = StringUtils::sprintf(
-	  " %s inner join %s on %s=%s",
+	  " %s inner join %s on %s=%s"
+	  " inner join %s on ((%s=%s) and (%s=%s)) "
+	  " inner join %s on ((%s=%s) and (%s=%s))",
 	  TABLE_NAME_EVENTS, TABLE_NAME_TRIGGERS,
 	  arg.getFullName(TBLIDX_EVENTS, IDX_EVENTS_TRIGGER_ID).c_str(),
-	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_ID).c_str());
+	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_ID).c_str(),
+	  TABLE_NAME_MAP_HOSTS_HOSTGROUPS,
+	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_HOST_ID).c_str(),
+	  arg.getFullName(
+	    TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID).c_str(),
+	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_SERVER_ID).c_str(),
+	  arg.getFullName(
+	    TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID).c_str(),
+	  TABLE_NAME_HOSTGROUPS,
+	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_SERVER_ID).c_str(),
+	  arg.getFullName(TBLIDX_HOSTGROUPS, IDX_HOSTGROUPS_SERVER_ID).c_str(),
+	  arg.getFullName(TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID).c_str(),
+	  arg.getFullName(TBLIDX_HOSTGROUPS, IDX_HOSTGROUPS_GROUP_ID).c_str());
 
 	// Columns
 	arg.setTable(TBLIDX_EVENTS);
@@ -1382,6 +1398,12 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	arg.add(IDX_TRIGGERS_HOST_ID);
 	arg.add(IDX_TRIGGERS_HOSTNAME);
 	arg.add(IDX_TRIGGERS_BRIEF);
+
+	arg.setTable(TBLIDX_MAP_HOSTS_HOSTGROUPS);
+	arg.add(IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
+
+	arg.setTable(TBLIDX_HOSTGROUPS);
+	arg.add(IDX_HOSTGROUPS_GROUP_NAME);
 
 	// Condition
 	arg.condition = StringUtils::sprintf(
@@ -1442,6 +1464,8 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 		itemGroupStream >> eventInfo.hostId;
 		itemGroupStream >> eventInfo.hostName;
 		itemGroupStream >> eventInfo.brief;
+		itemGroupStream >> eventInfo.hostgroupId;
+		itemGroupStream >> eventInfo.hostgroupName;
 	}
 	return HatoholError(HTERR_OK);
 }
@@ -1561,9 +1585,9 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 
 	string condition;
 	if (targetItemId != ALL_ITEMS) {
-		const char *colName = 
-		  COLUMN_DEF_ITEMS[IDX_ITEMS_ID].columnName;
-		condition += StringUtils::sprintf("%s=%"PRIu64, colName,
+		const string colName = 
+		  SQLUtils::getFullName(COLUMN_DEF_ITEMS, IDX_ITEMS_ID);
+		condition += StringUtils::sprintf("%s=%"PRIu64, colName.c_str(),
 		                                  targetItemId);
 	}
 
@@ -1579,7 +1603,40 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
                                       const string &condition)
 {
-	DBAgent::SelectExArg arg(tableProfileItems);
+	static const DBAgent::TableProfile *tableProfiles[] = {
+	  &tableProfileItems,
+	  &tableProfileMapHostsHostgroups,
+	  &tableProfileHostgroups,
+	};
+	enum {
+		TBLIDX_ITEMS,
+		TBLIDX_MAP_HOSTS_HOSTGROUPS,
+		TBLIDX_HOSTGROUPS,
+	};
+	static const size_t numTableProfiles =
+	  sizeof(tableProfiles) / sizeof(DBAgent::TableProfile *);
+	DBAgent::SelectMultiTableArg arg(tableProfiles, numTableProfiles);
+
+	arg.tableField = StringUtils::sprintf(
+	  " %s inner join %s on ((%s=%s) and (%s=%s)) "
+	  "inner join %s on ((%s=%s) and (%s=%s))",
+	  TABLE_NAME_ITEMS,
+	  TABLE_NAME_MAP_HOSTS_HOSTGROUPS,
+	  arg.getFullName(TBLIDX_ITEMS, IDX_ITEMS_HOST_ID).c_str(),
+	  arg.getFullName(
+	    TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID).c_str(),
+	  arg.getFullName(TBLIDX_ITEMS, IDX_ITEMS_SERVER_ID).c_str(),
+	  arg.getFullName(
+	    TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID).c_str(),
+	  TABLE_NAME_HOSTGROUPS,
+	  arg.getFullName(TBLIDX_ITEMS, IDX_ITEMS_SERVER_ID).c_str(),
+	  arg.getFullName(TBLIDX_HOSTGROUPS, IDX_HOSTGROUPS_SERVER_ID).c_str(),
+	  arg.getFullName(
+	    TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID).c_str(),
+	  arg.getFullName(TBLIDX_HOSTGROUPS, IDX_HOSTGROUPS_GROUP_ID).c_str());
+
+
+	arg.setTable(TBLIDX_ITEMS);
 	arg.add(IDX_ITEMS_SERVER_ID);
 	arg.add(IDX_ITEMS_ID);
 	arg.add(IDX_ITEMS_HOST_ID);
@@ -1589,6 +1646,12 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 	arg.add(IDX_ITEMS_LAST_VALUE);
 	arg.add(IDX_ITEMS_PREV_VALUE);
 	arg.add(IDX_ITEMS_ITEM_GROUP_NAME);
+
+	arg.setTable(TBLIDX_MAP_HOSTS_HOSTGROUPS);
+	arg.add(IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
+
+	arg.setTable(TBLIDX_HOSTGROUPS);
+	arg.add(IDX_HOSTGROUPS_GROUP_NAME);
 
 	// condition
 	arg.condition = condition;
@@ -1614,6 +1677,8 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 		itemGroupStream >> itemInfo.lastValue;
 		itemGroupStream >> itemInfo.prevValue;
 		itemGroupStream >> itemInfo.itemGroupName;
+		itemGroupStream >> itemInfo.hostgroupId;
+		itemGroupStream >> itemInfo.hostgroupName;
 	}
 }
 
@@ -1914,13 +1979,16 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	DBAgent::SelectMultiTableArg arg(tableProfiles, numTableProfiles);
 
 	arg.tableField = StringUtils::sprintf(
-	  " %s inner join %s on %s=%s "
+	  " %s inner join %s on ((%s=%s) and (%s=%s)) "
 	  "inner join %s on ((%s=%s) and (%s=%s))",
 	  TABLE_NAME_TRIGGERS,
 	  TABLE_NAME_MAP_HOSTS_HOSTGROUPS,
 	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_HOST_ID).c_str(),
 	  arg.getFullName(
 	    TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID).c_str(),
+	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_SERVER_ID).c_str(),
+	  arg.getFullName(
+	    TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID).c_str(),
 	  TABLE_NAME_HOSTGROUPS,
 	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_SERVER_ID).c_str(),
 	  arg.getFullName(TBLIDX_HOSTGROUPS, IDX_HOSTGROUPS_SERVER_ID).c_str(),

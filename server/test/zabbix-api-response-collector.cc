@@ -143,8 +143,7 @@ bool ZabbixAPIResponseCollector::commandFuncHost(CommandContext &ctx)
 	if (!commandFuncOpenSilent(ctx))
 		return false;
 
-	vector<uint64_t> hostIds; // empty means all hosts.
-	SoupMessage *msg = queryHost(hostIds);
+	SoupMessage *msg = queryHost();
 	if (!msg)
 		return false;
 	printf("%s\n", msg->response_body->data);
