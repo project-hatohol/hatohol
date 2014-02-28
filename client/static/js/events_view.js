@@ -20,7 +20,7 @@
 var EventsView = function(userProfile, baseElem) {
   var self = this;
   self.baseElem = baseElem;
-  self.reloadTimeId = null;
+  self.reloadTimerId = null;
   self.reloadIntervalSeconds = 60;
   self.currentPage = 0;
   self.limiOfUnifiedId = 0;
