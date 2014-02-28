@@ -57,7 +57,7 @@ public:
 	class Worker;
 	struct RestJob;
 	template<typename InfoListT, typename InfoT, typename TargetIdT>
-	class HostgroupJsonArray;
+	class HandlerGetHelper;
 
 protected:
 	// virtual methods

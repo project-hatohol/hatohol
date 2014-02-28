@@ -283,7 +283,7 @@ private:
 };
 
 template<typename InfoListT, typename InfoT, typename TargetIdT>
-class FaceRest::HostgroupJsonArray {
+class FaceRest::HandlerGetHelper {
 public:
 	typedef vector<HostGroupIdType> HostgroupIdVector;
 	typedef map<TargetIdT, HostgroupIdVector> DataIdHostgroupIdVectorMap;
@@ -1712,9 +1712,8 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 	option.setTargetServerId(serverId);
 	option.setTargetHostId(hostId);
 	dataStore->getTriggerList(triggerList, option, triggerId);
-	HostgroupJsonArray<TriggerInfoList, TriggerInfo, TriggerIdType>
-	  hostgroupJson;
-	hostgroupJson.addHostgroupIdToListMap(triggerList);
+	HandlerGetHelper<TriggerInfoList, TriggerInfo, TriggerIdType> helper;
+	helper.addHostgroupIdToListMap(triggerList);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -1734,8 +1733,8 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 		agent.add("serverId", triggerInfo.serverId);
 		agent.add("hostId",   triggerInfo.hostId);
 		agent.add("brief",    triggerInfo.brief);
-		hostgroupJson.includeHostgroupIdArray
-		  (agent, triggerInfo.serverId, triggerInfo.id);
+		helper.includeHostgroupIdArray(agent, triggerInfo.serverId,
+		                               triggerInfo.id);
 		agent.endObject();
 
 		hostMaps[triggerInfo.serverId][triggerInfo.hostId]
