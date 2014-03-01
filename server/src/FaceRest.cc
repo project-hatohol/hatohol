@@ -761,54 +761,6 @@ void FaceRest::parseQueryServerId(GHashTable *query,
 		MLPL_INFO("Invalid requested ID: %s\n", value);
 }
 
-void FaceRest::parseQueryHostId(GHashTable *query, uint64_t &hostId)
-{
-	hostId = ALL_HOSTS;
-	if (!query)
-		return;
-	gchar *value = (gchar *)g_hash_table_lookup(query, "hostId");
-	if (!value)
-		return;
-
-	uint64_t id;
-	if (sscanf(value, "%"PRIu64, &id) == 1)
-		hostId = id;
-	else
-		MLPL_INFO("Invalid requested ID: %s\n", value);
-}
-
-void FaceRest::parseQueryTriggerId(GHashTable *query, uint64_t &triggerId)
-{
-	triggerId = ALL_TRIGGERS;
-	if (!query)
-		return;
-	gchar *value = (gchar *)g_hash_table_lookup(query, "triggerId");
-	if (!value)
-		return;
-
-	uint64_t id;
-	if (sscanf(value, "%"PRIu64, &id) == 1)
-		triggerId = id;
-	else
-		MLPL_INFO("Invalid requested ID: %s\n", value);
-}
-
-void FaceRest::parseQueryHostgroupId(GHashTable *query, uint64_t &hostgroupId)
-{
-	hostgroupId = ALL_HOST_GROUPS;
-	if (!query)
-		return;
-	gchar *value = (gchar *)g_hash_table_lookup(query, "hostgroupId");
-	if (!value)
-		return;
-
-	uint64_t id;
-	if (sscanf(value, "%"PRIu64, &id) == 1)
-		hostgroupId = id;
-	else
-		MLPL_INFO("Invalid requested ID: %s\n", value);
-}
-
 // handlers
 void FaceRest::handlerDefault(SoupServer *server, SoupMessage *msg,
                               const char *path, GHashTable *query,
@@ -1720,15 +1672,19 @@ void FaceRest::handlerDeleteServer(RestJob *job)
 
 void FaceRest::handlerGetHost(RestJob *job)
 {
-	ServerIdType targetServerId;
-	parseQueryServerId(job->query, targetServerId);
-	uint64_t targetHostId;
-	parseQueryHostId(job->query, targetHostId);
+	HostResourceQueryOption option(job->userId);
+	HatoholError err = parseHostResourceQueryParameter(option, job->query);
+	if (err != HTERR_OK) {
+		replyError(job, err);
+		return;
+	}
 
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
-	addHosts(job, agent, targetServerId, targetHostId);
+	addHosts(job, agent,
+		 option.getTargetServerId(),
+		 option.getTargetHostId());
 	agent.endObject();
 
 	replyJsonData(agent, job);
@@ -2557,15 +2513,16 @@ void FaceRest::handlerDeleteAccessInfo(RestJob *job)
 
 void FaceRest::handlerGetHostgroup(RestJob *job)
 {
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-
-	ServerIdType serverId;
-	parseQueryServerId(job->query, serverId);
-	HostgroupInfoList hostgroupInfoList;
 	HostgroupsQueryOption option(job->userId);
-	option.setTargetServerId(serverId);
-	HatoholError err =
-	        dataStore->getHostgroupInfoList(hostgroupInfoList, option);
+	HatoholError err = parseHostResourceQueryParameter(option, job->query);
+	if (err != HTERR_OK) {
+		replyError(job, err);
+		return;
+	}
+
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	HostgroupInfoList hostgroupInfoList;
+	err = dataStore->getHostgroupInfoList(hostgroupInfoList, option);
 
 	JsonBuilderAgent agent;
 	agent.startObject();

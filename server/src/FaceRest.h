@@ -100,20 +100,6 @@ protected:
 	static void parseQueryServerId(GHashTable *query,
 	                               ServerIdType &serverId);
 
-	/**
-	 * Parse 'hostId' query parameter if it exists.
-	 *
-	 * @param query
-	 * A hash table of query parameters.
-	 *
-	 * @param hostId.
-	 * If 'hostId' query parameter is found, the value is set to
-	 * this variable. Otherwise, ALL_HOSTS is set.
-	 */
-	static void parseQueryHostId(GHashTable *query, uint64_t &hostId);
-	static void parseQueryTriggerId(GHashTable *query, uint64_t &triggerId);
-	static void parseQueryHostgroupId(GHashTable *query, uint64_t &hostgroupId);
-
 	// handlers
 	static void
 	  handlerDefault(SoupServer *server, SoupMessage *msg,
