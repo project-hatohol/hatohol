@@ -540,11 +540,12 @@ static void _assertTriggers(const string &path, const string &callbackName = "",
 	// request
 	StringMap queryMap;
 	if (serverId != ALL_SERVERS) {
-		queryMap["serverId"] =
-		   StringUtils::sprintf("%"PRIu32, serverId); 
+		queryMap["targetServerId"] =
+		  StringUtils::sprintf("%"PRIu32, serverId);
 	}
 	if (hostId != ALL_HOSTS)
-		queryMap["hostId"] = StringUtils::sprintf("%"PRIu64, hostId); 
+		queryMap["targetHostId"] =
+		  StringUtils::sprintf("%"PRIu64, hostId);
 	RequestArg arg(path, callbackName);
 	arg.parameters = queryMap;
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);

@@ -195,8 +195,12 @@ protected:
 	  DataQueryOption::SortDirection &sortOrder, GHashTable *query);
 	static HatoholError parseHostResourceQueryParameter(
 	  HostResourceQueryOption &option, GHashTable *query);
+	static HatoholError parseTriggerParameter(TriggersQueryOption &option,
+						  GHashTable *query);
 	static HatoholError parseEventParameter(EventsQueryOption &option,
 						GHashTable *query);
+	static HatoholError parseItemParameter(ItemsQueryOption &option,
+					       GHashTable *query);
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;

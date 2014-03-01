@@ -1736,20 +1736,15 @@ void FaceRest::handlerGetHost(RestJob *job)
 
 void FaceRest::handlerGetTrigger(RestJob *job)
 {
-
-	ServerIdType serverId;
-	parseQueryServerId(job->query, serverId);
-	uint64_t hostId;
-	parseQueryHostId(job->query, hostId);
-	uint64_t triggerId;
-	parseQueryTriggerId(job->query, triggerId);
-
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	TriggerInfoList triggerList;
 	TriggersQueryOption option(job->userId);
-	option.setTargetServerId(serverId);
-	option.setTargetHostId(hostId);
-	option.setTargetId(triggerId);
+	HatoholError err = parseTriggerParameter(option, job->query);
+	if (err != HTERR_OK) {
+		replyError(job, err);
+		return;
+	}
+
+	TriggerInfoList triggerList;
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	dataStore->getTriggerList(triggerList, option);
 	HandlerGetHelper<TriggerInfoList, TriggerInfo, TriggerIdType> helper;
 	helper.addHostgroupIdToVectorMap(triggerList);
@@ -1886,10 +1881,15 @@ struct GetItemClosure : Closure<FaceRest>
 
 void FaceRest::replyGetItem(RestJob *job)
 {
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	ItemsQueryOption option(job->userId);
+	HatoholError err = parseItemParameter(option, job->query);
+	if (err != HTERR_OK) {
+		replyError(job, err);
+		return;
+	}
 
 	ItemInfoList itemList;
-	ItemsQueryOption option(job->userId);
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	dataStore->getItemList(itemList, option);
 	HandlerGetHelper<ItemInfoList, ItemInfo, ItemIdType> helper;
 	helper.addHostgroupIdToVectorMap(itemList);
@@ -1942,13 +1942,20 @@ void FaceRest::itemFetchedCallback(ClosureBase *closure)
 
 void FaceRest::handlerGetItem(RestJob *job)
 {
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	FaceRest *face = job->faceRest;
+	ItemsQueryOption option(job->userId);
+	HatoholError err = parseItemParameter(option, job->query);
+	if (err != HTERR_OK) {
+		replyError(job, err);
+		return;
+	}
 
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	ServerIdType serverId = option.getTargetServerId();
+	FaceRest *face = job->faceRest;
 	GetItemClosure *closure =
 	  new GetItemClosure(face, &FaceRest::itemFetchedCallback, job);
 
-	bool handled = dataStore->fetchItemsAsync(closure);
+	bool handled = dataStore->fetchItemsAsync(closure, serverId);
 	if (!handled) {
 		face->replyGetItem(job);
 		// avoid freeing m_restJob because m_restJob will be freed at
@@ -2914,6 +2921,38 @@ HatoholError FaceRest::parseHostResourceQueryParameter(
 	return HatoholError(HTERR_OK);
 }
 
+HatoholError FaceRest::parseTriggerParameter(TriggersQueryOption &option,
+					     GHashTable *query)
+{
+	if (!query)
+		return HatoholError(HTERR_OK);
+
+	HatoholError err;
+
+	// query parameters for HostResourceQueryOption
+	err = parseHostResourceQueryParameter(option, query);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+
+	// minimum severity
+	TriggerSeverityType severity = TRIGGER_SEVERITY_UNKNOWN;
+	err = getParam<TriggerSeverityType>(query, "minimumSeverity",
+					    "%d", severity);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+	option.setMinimumSeverity(severity);
+
+	// trigger status
+	TriggerStatusType status = TRIGGER_STATUS_ALL;
+	err = getParam<TriggerStatusType>(query, "status",
+					  "%d", status);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+	option.setTriggerStatus(status);
+
+	return HatoholError(HTERR_OK);
+}
+
 HatoholError FaceRest::parseEventParameter(EventsQueryOption &option,
 					   GHashTable *query)
 {
@@ -2965,6 +3004,22 @@ HatoholError FaceRest::parseEventParameter(EventsQueryOption &option,
 	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
 		return err;
 	option.setLimitOfUnifiedId(limitOfUnifiedId);
+
+	return HatoholError(HTERR_OK);
+}
+
+HatoholError FaceRest::parseItemParameter(ItemsQueryOption &option,
+					  GHashTable *query)
+{
+	if (!query)
+		return HatoholError(HTERR_OK);
+
+	HatoholError err;
+
+	// query parameters for HostResourceQueryOption
+	err = parseHostResourceQueryParameter(option, query);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
 
 	return HatoholError(HTERR_OK);
 }
