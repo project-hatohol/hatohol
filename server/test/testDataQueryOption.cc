@@ -75,6 +75,16 @@ public:
 		addCondition(cond, added, ADD_TYPE_AND, false);
 		cppcut_assert_equal(expect, cond);
 	}
+
+	static void assertAddConditionOr(void)
+	{
+		string cond = "S=5";
+		string added = "A=1";
+		string expect = cond + " OR " + added;
+		addCondition(cond, added, ADD_TYPE_OR);
+		cppcut_assert_equal(expect, cond);
+	}
+
 };
 
 static void getTestSortOrderList(DataQueryOption::SortOrderList &sortOrderList)
@@ -265,6 +275,11 @@ void test_addConditionAndWithParenthesis(void)
 void test_addConditionAndWithoutParenthesis(void)
 {
 	cut_trace(TestQueryOption::assertAddConditionAndWithoutParenthesis());
+}
+
+void test_addConditionOr(void)
+{
+	cut_trace(TestQueryOption::assertAddConditionOr());
 }
 
 } // namespace testDataQueryOption
