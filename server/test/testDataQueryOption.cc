@@ -41,6 +41,15 @@ public:
 		return "";
 	}
 
+	static void assertAddCondition(void)
+	{
+		string cond = "S=5";
+		string added = "A=1";
+		string expect = cond + " AND " + added;
+		addCondition(cond, added);
+		cppcut_assert_equal(expect, cond);
+	}
+
 	static void assertAddConditionAddCurrEmpty(void)
 	{
 		string cond;
@@ -255,6 +264,11 @@ void test_getDataQueryContextOfCopyConstructor(void)
 		cppcut_assert_equal(2, dataQueryCtx0.getUsedCount());
 	}
 	cppcut_assert_equal(1, dataQueryCtx0.getUsedCount());
+}
+
+void test_addCondition(void)
+{
+	cut_trace(TestQueryOption::assertAddCondition());
 }
 
 void test_addConditionAddCurrEmpty(void)
