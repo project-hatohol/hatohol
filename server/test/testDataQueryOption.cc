@@ -48,6 +48,15 @@ public:
 		addCondition(cond, added, ADD_TYPE_AND);
 		cppcut_assert_equal(added, cond);
 	}
+
+	static void assertAddConditionAnd(void)
+	{
+		string cond = "S=5";
+		string added = "A=1";
+		string expect = cond + " AND " + added;
+		addCondition(cond, added, ADD_TYPE_AND);
+		cppcut_assert_equal(expect, cond);
+	}
 };
 
 static void getTestSortOrderList(DataQueryOption::SortOrderList &sortOrderList)
@@ -223,6 +232,11 @@ void test_getDataQueryContextOfCopyConstructor(void)
 void test_addConditionCurrEmpty(void)
 {
 	cut_trace(TestQueryOption::assertAddConditionCurrEmpty());
+}
+
+void test_addConditionAnd(void)
+{
+	cut_trace(TestQueryOption::assertAddConditionAnd());
 }
 
 } // namespace testDataQueryOption
