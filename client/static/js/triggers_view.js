@@ -82,33 +82,19 @@ var TriggersView = function(userProfile) {
   function drawTableBody(replyData) {
     var serverName, hostName, clock, status, severity;
     var html, server, trigger;
-    var x;
-    var targetServerId = self.getTargetServerId();
-    var targetHostId = self.getTargetHostId();
-    var minimumSeverity = $("#select-severity").val();
-    var targetStatus = $("#select-status").val();
+    var x, serverId, hostId;
 
     html = "";
     for (x = 0; x < replyData["triggers"].length; ++x) {
-      trigger = replyData["triggers"][x];
-      if (trigger["severity"] < minimumSeverity)
-        continue;
-      if (targetStatus >= 0 && trigger["status"] != targetStatus)
-        continue;
-
-      var serverId = trigger["serverId"];
-      var hostId = trigger["hostId"];
+      trigger    = replyData["triggers"][x];
+      serverId   = trigger["serverId"];
+      hostId     = trigger["hostId"];
       server     = replyData["servers"][serverId];
       serverName = getServerName(server, serverId);
       hostName   = getHostName(server, hostId);
       clock      = trigger["lastChangeTime"];
       status     = trigger["status"];
       severity   = trigger["severity"];
-
-      if (targetServerId && serverId != targetServerId)
-        continue;
-      if (targetHostId && hostId != targetHostId)
-        continue;
 
       html += "<tr><td>" + escapeHTML(serverName) + "</td>";
       html += "<td class='severity" + escapeHTML(severity) +
