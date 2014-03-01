@@ -52,17 +52,32 @@ var TriggersView = function(userProfile) {
 
   $("#select-server").change(function() {
     self.setHostFilterCandidates(rawData["servers"]);
-    drawTableContents(rawData);
+    load();
   });
   $("#select-host").change(function() {
-    drawTableContents(rawData);
+    load();
   });
   $("#select-severity").change(function() {
-    drawTableContents(rawData);
+    load();
   });
   $("#select-status").change(function() {
-    drawTableContents(rawData);
+    load();
   });
+
+  function setLoading(loading) {
+    if (loading) {
+      $("#select-severity").attr("disabled", "disabled");
+      $("#select-status").attr("disabled", "disabled");
+      $("#select-server").attr("disabled", "disabled");
+      $("#select-host").attr("disabled", "disabled");
+    } else {
+      $("#select-severity").removeAttr("disabled");
+      $("#select-status").removeAttr("disabled");
+      $("#select-server").removeAttr("disabled");
+      if ($("#select-host option").length > 1)
+        $("#select-host").removeAttr("disabled");
+    }
+  }
 
   function drawTableBody(replyData) {
     var serverName, hostName, clock, status, severity;
@@ -130,11 +145,29 @@ var TriggersView = function(userProfile) {
     self.setHostFilterCandidates(rawData["servers"]);
 
     drawTableContents(rawData);
+    setLoading(false);
     self.setAutoReload(load, self.reloadIntervalSeconds);
   }
 
+  function getQuery() {
+    var serverId = self.getTargetServerId();
+    var hostId = self.getTargetHostId();
+    var query = {
+      minimumSeverity: $("#select-severity").val(),
+      status:          $("#select-status").val(),
+      maximumNumber:   0,
+      offset:          0
+    };
+    if (serverId)
+      query.serverId = serverId;
+    if (hostId)
+      query.hostId = hostId;
+    return 'trigger?' + $.param(query);
+  };
+
   function load() {
-    self.startConnection('trigger', updateCore);
+    self.startConnection(getQuery(), updateCore);
+    setLoading(true);
   }
 };
 
