@@ -2978,6 +2978,12 @@ HatoholError FaceRest::parseItemParameter(ItemsQueryOption &option,
 	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
 		return err;
 
+	// itemGroupName
+	const gchar *value = static_cast<const gchar*>(
+	  g_hash_table_lookup(query, "itemGroupName"));
+	if (value && *value)
+		option.setTargetItemGroupName(value);
+
 	return HatoholError(HTERR_OK);
 }
 
