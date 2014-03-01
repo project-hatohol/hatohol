@@ -1706,6 +1706,8 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 
 	// condition
 	arg.condition = option.getCondition(TABLE_NAME_ITEMS);
+	if (isAlwaysFalseCondition(arg.condition))
+		return;
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
