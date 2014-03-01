@@ -994,6 +994,12 @@ EventsQueryOption::EventsQueryOption(const UserIdType &userId)
 	  COLUMN_DEF_EVENTS[IDX_EVENTS_HOST_ID].columnName);
 }
 
+EventsQueryOption::EventsQueryOption(const EventsQueryOption &src)
+{
+	m_ctx = new PrivateContext();
+	*m_ctx = *src.m_ctx;
+}
+
 EventsQueryOption::~EventsQueryOption()
 {
 	delete m_ctx;
@@ -1038,12 +1044,6 @@ string EventsQueryOption::getCondition(const std::string &tableAlias) const
 	}
 
 	return condition;
-}
-
-EventsQueryOption::EventsQueryOption(const EventsQueryOption &src)
-{
-	m_ctx = new PrivateContext();
-	*m_ctx = *src.m_ctx;
 }
 
 void EventsQueryOption::setLimitOfUnifiedId(const uint64_t &unifiedId)
