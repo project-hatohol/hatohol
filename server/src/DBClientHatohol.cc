@@ -1712,6 +1712,15 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 	if (isAlwaysFalseCondition(arg.condition))
 		return;
 
+	// Order By
+	arg.orderBy = option.getOrderBy();
+
+	// Limit and Offset
+	arg.limit = option.getMaximumNumber();
+	arg.offset = option.getOffset();
+	if (!arg.limit && arg.offset)
+		return;
+
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
 	} DBCLIENT_TRANSACTION_END();
@@ -2071,6 +2080,15 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	// condition
 	arg.condition = option.getCondition(TABLE_NAME_TRIGGERS);
 	if (isAlwaysFalseCondition(arg.condition))
+		return;
+
+	// Order By
+	arg.orderBy = option.getOrderBy();
+
+	// Limit and Offset
+	arg.limit = option.getMaximumNumber();
+	arg.offset = option.getOffset();
+	if (!arg.limit && arg.offset)
 		return;
 
 	DBCLIENT_TRANSACTION_BEGIN() {
