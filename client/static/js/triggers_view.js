@@ -52,6 +52,10 @@ var TriggersView = function(userProfile) {
 
   $("#select-server").change(function() {
     self.setHostFilterCandidates(rawData["servers"]);
+    self.setHostGroupFilterCandidates(rawData["servers"]);
+    load();
+  });
+  $("#select-host-group").change(function() {
     load();
   });
   $("#select-host").change(function() {
@@ -69,11 +73,14 @@ var TriggersView = function(userProfile) {
       $("#select-severity").attr("disabled", "disabled");
       $("#select-status").attr("disabled", "disabled");
       $("#select-server").attr("disabled", "disabled");
+      $("#select-host-group").attr("disabled", "disabled");
       $("#select-host").attr("disabled", "disabled");
     } else {
       $("#select-severity").removeAttr("disabled");
       $("#select-status").removeAttr("disabled");
       $("#select-server").removeAttr("disabled");
+      if ($("#select-host-group option").length > 1)
+        $("#select-host-group").removeAttr("disabled");
       if ($("#select-host option").length > 1)
         $("#select-host").removeAttr("disabled");
     }
@@ -137,6 +144,7 @@ var TriggersView = function(userProfile) {
 
   function getQuery() {
     var serverId = self.getTargetServerId();
+    var hostGroupId = self.getTargetHostGroupId();
     var hostId = self.getTargetHostId();
     var query = {
       minimumSeverity: $("#select-severity").val(),
@@ -146,6 +154,10 @@ var TriggersView = function(userProfile) {
     };
     if (serverId)
       query.serverId = serverId;
+    /*
+    if (hostGroupId)
+      query.hostGroupId = hostGroupId;
+    */
     if (hostId)
       query.hostId = hostId;
     return 'trigger?' + $.param(query);
