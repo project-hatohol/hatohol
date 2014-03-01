@@ -775,16 +775,6 @@ string HostResourceQueryOption::getHostIdColumnName(
 				    m_ctx->hostIdColumnName.c_str());
 }
 
-void HostResourceQueryOption::appendCondition(string &cond, const string &newCond)
-{
-	if (cond.empty()) {
-		cond = newCond;
-		return;
-	}
-	cond += " OR ";
-	cond += newCond;
-}
-
 string HostResourceQueryOption::makeConditionHostGroup(
   const HostGroupSet &hostGroupSet, const string &hostGroupIdColumnName)
 {
@@ -889,7 +879,7 @@ string HostResourceQueryOption::makeCondition(
 					   serverIdColumnName,
 					   hostGroupIdColumnName,
 					   targetHostgroupId);
-		appendCondition(condition, conditionServer);
+		addCondition(condition, conditionServer, ADD_TYPE_OR);
 		++numServers;
 	}
 

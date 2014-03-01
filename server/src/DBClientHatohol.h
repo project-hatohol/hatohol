@@ -177,8 +177,6 @@ protected:
 	void setHostIdColumnName(const std::string &name) const;
 	std::string getHostIdColumnName(
 	  const std::string &tableAlias = "") const;
-	static void appendCondition(std::string &cond,
-	                            const std::string &newCond);
 	static std::string makeCondition(
 	  const ServerHostGrpSetMap &srvHostGrpSetMap,
 	  const std::string &serverIdColumnName,
