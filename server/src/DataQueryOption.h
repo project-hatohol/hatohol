@@ -144,6 +144,33 @@ public:
 	 */
 	virtual std::string getOrderBy(void) const;
 
+protected:
+	enum AddConditionType {
+		ADD_TYPE_AND,
+		ADD_TYPE_OR,
+	};
+
+	/**
+	 * Append a condtion string.
+	 *
+	 * @param currCondition
+	 * A current condition string or an empty string.
+	 *
+	 * @param addedCondition
+	 * An added conditioin sting. This string is added at tail. 
+	 *
+	 * @param type
+	 * An AddedConditioinType.
+	 *
+	 * @param useParenthesis
+	 * If this option is true, the added condition string is wrapped
+	 * by parenthesis.
+	 */
+	static void addCondition(std::string &currCondition,
+	                         const std::string &addedCondition,
+	                         const AddConditionType &type = ADD_TYPE_AND,
+	                         const bool &useParenthesis = false);
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;

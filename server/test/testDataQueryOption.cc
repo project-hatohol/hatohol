@@ -40,6 +40,14 @@ public:
 	{
 		return "";
 	}
+
+	static void assertAddConditionCurrEmpty(void)
+	{
+		string cond;
+		string added = "A=1";
+		addCondition(cond, added, ADD_TYPE_AND);
+		cppcut_assert_equal(added, cond);
+	}
 };
 
 static void getTestSortOrderList(DataQueryOption::SortOrderList &sortOrderList)
@@ -210,6 +218,11 @@ void test_getDataQueryContextOfCopyConstructor(void)
 		cppcut_assert_equal(2, dataQueryCtx0.getUsedCount());
 	}
 	cppcut_assert_equal(1, dataQueryCtx0.getUsedCount());
+}
+
+void test_addConditionCurrEmpty(void)
+{
+	cut_trace(TestQueryOption::assertAddConditionCurrEmpty());
 }
 
 } // namespace testDataQueryOption

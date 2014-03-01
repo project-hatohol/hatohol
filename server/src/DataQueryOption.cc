@@ -18,10 +18,13 @@
  */
 
 #include <cstdio>
+#include <string>
 #include "DataQueryOption.h"
 #include "DataQueryContext.h"
 #include "Logger.h"
+#include "HatoholException.h"
 
+using namespace std;
 using namespace mlpl;
 
 struct DataQueryOption::PrivateContext {
@@ -207,4 +210,34 @@ void DataQueryOption::setOffset(size_t offset)
 size_t DataQueryOption::getOffset(void) const
 {
 	return m_ctx->offset;
+}
+
+// ---------------------------------------------------------------------------
+// Protected methods
+// ---------------------------------------------------------------------------
+void DataQueryOption::addCondition(
+  string &currCondition, const string &addedCondition,
+  const AddConditionType &type, const bool &useParenthesis)
+{
+	if (currCondition.empty()) {
+		currCondition = addedCondition;
+		return;
+	}
+
+	switch (type) {
+	case ADD_TYPE_AND:
+		currCondition += " AND ";
+		break;
+	case ADD_TYPE_OR:
+		currCondition += " OR ";
+		break;
+	default:
+		HATOHOL_ASSERT(false, "Unknown condition: %d\n", type);
+	}
+
+	if (useParenthesis)
+		currCondition += "(";
+	currCondition += addedCondition;
+	if (useParenthesis)
+		currCondition += ")";
 }
