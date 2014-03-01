@@ -902,26 +902,25 @@ string HostResourceQueryOption::getCondition(const string &tableAlias) const
 
 	if (userId == USER_ID_SYSTEM || has(OPPRVLG_GET_ALL_SERVER)) {
 		if (m_ctx->targetServerId != ALL_SERVERS) {
-			condition = StringUtils::sprintf(
+			addCondition(condition,
+			  StringUtils::sprintf(
 				"%s=%"FMT_SERVER_ID,
 				getServerIdColumnName(tableAlias).c_str(),
-				m_ctx->targetServerId);
+				m_ctx->targetServerId));
 		}
 		if (m_ctx->targetHostId != ALL_HOSTS) {
-			if (!condition.empty())
-				condition += " AND ";
-			condition += StringUtils::sprintf(
+			addCondition(condition,
+			  StringUtils::sprintf(
 				"%s=%"FMT_HOST_ID,
 				getHostIdColumnName(tableAlias).c_str(),
-				m_ctx->targetHostId);
+				m_ctx->targetHostId));
 		}
 		if (m_ctx->targetHostgroupId != ALL_HOST_GROUPS) {
-			if (!condition.empty())
-				condition += " AND ";
-			condition += StringUtils::sprintf(
+			addCondition(condition,
+			  StringUtils::sprintf(
 				"%s=%"FMT_HOST_GROUP_ID,
 				getHostGroupIdColumnName(tableAlias).c_str(),
-				m_ctx->targetHostgroupId);
+				m_ctx->targetHostgroupId));
 		}
 		return condition;
 	}
