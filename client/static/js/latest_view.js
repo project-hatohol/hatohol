@@ -38,12 +38,13 @@ var LatestView = function(userProfile) {
 
   $("#select-server").change(function() {
     self.setHostFilterCandidates(rawData["servers"]);
-    drawTableContents(rawData);
+    load();
   });
   $("#select-host").change(function() {
-    drawTableContents(rawData);
+    load();
   });
   $("#select-application").change(function() {
+    // will be migrated to server side
     drawTableContents(rawData);
   });
 
@@ -70,6 +71,19 @@ var LatestView = function(userProfile) {
     if (name == "---------")
       name = null;
     return name;
+  }
+
+  function setLoading(loading) {
+    if (loading) {
+      $("#select-server").attr("disabled", "disabled");
+      $("#select-host").attr("disabled", "disabled");
+      $("#select-application").attr("disabled", "disabled");
+    } else {
+      $("#select-server").removeAttr("disabled");
+      if ($("#select-host option").length > 1)
+        $("#select-host").removeAttr("disabled");
+    }
+    $("#select-application").removeAttr("disabled");
   }
 
   function drawTableBody(replyData) {
@@ -127,11 +141,27 @@ var LatestView = function(userProfile) {
     self.setFilterCandidates($("#select-application"), parsedData.applications);
 
     drawTableContents(rawData);
+    setLoading(false);
     self.setAutoReload(load, self.reloadIntervalSeconds);
   }
 
+  function getQuery() {
+    var serverId = self.getTargetServerId();
+    var hostId = self.getTargetHostId();
+    var query = {
+      maximumNumber: 0,
+      offset:        0
+    };
+    if (serverId)
+      query.serverId = serverId;
+    if (hostId)
+      query.hostId = hostId;
+    return 'item?' + $.param(query);
+  };
+
   function load() {
-    self.startConnection('item', updateCore);
+    self.startConnection(getQuery(), updateCore);
+    setLoading(true);
   }
 };
 
