@@ -246,6 +246,9 @@ public:
 	TriggersQueryOption(const TriggersQueryOption &src);
 	~TriggersQueryOption();
 
+	void setTargetId(const TriggerIdType &id);
+	TriggerIdType getTargetId(void) const;
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
@@ -256,6 +259,9 @@ public:
 	ItemsQueryOption(UserIdType userId = INVALID_USER_ID);
 	ItemsQueryOption(const ItemsQueryOption &src);
 	~ItemsQueryOption();
+
+	void setTargetId(const ItemIdType &id);
+	ItemIdType getTargetId(void) const;
 
 private:
 	struct PrivateContext;

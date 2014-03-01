@@ -1125,10 +1125,10 @@ TriggerStatusType EventsQueryOption::getTriggerStatus(void) const
 }
 
 struct TriggersQueryOption::PrivateContext {
-	TriggerIdType targetTriggerId;
+	TriggerIdType targetId;
 
 	PrivateContext()
-	: targetTriggerId(ALL_TRIGGERS)
+	: targetId(ALL_TRIGGERS)
 	{
 	}
 };
@@ -1154,11 +1154,21 @@ TriggersQueryOption::~TriggersQueryOption()
 	delete m_ctx;
 }
 
+void TriggersQueryOption::setTargetId(const TriggerIdType &id)
+{
+	m_ctx->targetId = id;
+}
+
+TriggerIdType TriggersQueryOption::getTargetId(void) const
+{
+	return m_ctx->targetId;
+}
+
 struct ItemsQueryOption::PrivateContext {
-	ItemIdType targetItemId;
+	ItemIdType targetId;
 
 	PrivateContext()
-	: targetItemId(ALL_ITEMS)
+	: targetId(ALL_ITEMS)
 	{
 	}
 };
@@ -1182,6 +1192,16 @@ ItemsQueryOption::ItemsQueryOption(const ItemsQueryOption &src)
 ItemsQueryOption::~ItemsQueryOption()
 {
 	delete m_ctx;
+}
+
+void ItemsQueryOption::setTargetId(const ItemIdType &id)
+{
+	m_ctx->targetId = id;
+}
+
+ItemIdType ItemsQueryOption::getTargetId(void) const
+{
+	return m_ctx->targetId;
 }
 
 HostsQueryOption::HostsQueryOption(UserIdType userId)
