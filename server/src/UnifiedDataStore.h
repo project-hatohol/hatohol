@@ -59,7 +59,6 @@ public:
 	                                  EventsQueryOption &option);
 	virtual void getItemList(ItemInfoList &itemList,
 	                         const ItemsQueryOption &option,
-	                         uint64_t targetItemId = ALL_ITEMS,
 				 bool fetchItemsSynchronously = false);
 	virtual bool fetchItemsAsync(
 	  ClosureBase *closure,

@@ -370,10 +370,7 @@ public:
 	void addItemInfo(ItemInfo *itemInfo);
 	void addItemInfoList(const ItemInfoList &itemInfoList);
 	void getItemInfoList(ItemInfoList &itemInfoList,
-			     const ItemsQueryOption &option,
-			     uint64_t targetItemId = ALL_ITEMS);
-	void getItemInfoList(ItemInfoList &itemInfoList,
-			     const std::string &condition);
+			     const ItemsQueryOption &option);
 
 	/**
 	 * get the number of triggers with the given server ID, host group ID,

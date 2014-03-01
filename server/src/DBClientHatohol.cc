@@ -1683,32 +1683,7 @@ void DBClientHatohol::addItemInfoList(const ItemInfoList &itemInfoList)
 }
 
 void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
-				      const ItemsQueryOption &option,
-				      uint64_t targetItemId)
-{
-	string optCond = option.getCondition(TABLE_NAME_ITEMS);
-	if (isAlwaysFalseCondition(optCond))
-		return;
-
-	string condition;
-	if (targetItemId != ALL_ITEMS) {
-		const string colName = 
-		  SQLUtils::getFullName(COLUMN_DEF_ITEMS, IDX_ITEMS_ID);
-		condition += StringUtils::sprintf("%s=%"PRIu64, colName.c_str(),
-		                                  targetItemId);
-	}
-
-	if (!optCond.empty()) {
-		if (!condition.empty())
-			condition += " AND ";
-		condition += StringUtils::sprintf("(%s)", optCond.c_str());
-	}
-
-	getItemInfoList(itemInfoList, condition);
-}
-
-void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
-                                      const string &condition)
+				      const ItemsQueryOption &option)
 {
 	static const DBAgent::TableProfile *tableProfiles[] = {
 	  &tableProfileItems,
@@ -1761,7 +1736,7 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 	arg.add(IDX_HOSTGROUPS_GROUP_NAME);
 
 	// condition
-	arg.condition = condition;
+	arg.condition = option.getCondition(TABLE_NAME_ITEMS);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);

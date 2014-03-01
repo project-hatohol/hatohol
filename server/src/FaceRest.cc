@@ -1100,7 +1100,7 @@ static void addOverviewEachServer(FaceRest::RestJob *job,
 	bool fetchItemsSynchronously = true;
 	itemsQueryOption.setTargetServerId(svInfo.id);
 	dataStore->getItemList(itemInfoList, itemsQueryOption,
-			       ALL_ITEMS, fetchItemsSynchronously);
+			       fetchItemsSynchronously);
 	agent.add("numberOfItems", itemInfoList.size());
 
 	TriggerInfoList triggerInfoList;
