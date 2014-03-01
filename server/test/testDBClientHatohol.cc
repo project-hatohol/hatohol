@@ -1085,8 +1085,8 @@ void test_eventQueryOptionWithSortTypeTime(void)
 
 void test_eventQueryOptionDefaultMinimumSeveirty(void)
 {
-	EventsQueryOption option;
-	const string expected =  "0";
+	EventsQueryOption option(USER_ID_SYSTEM);
+	const string expected =  "";
 	cppcut_assert_equal(TRIGGER_SEVERITY_UNKNOWN,
 			    option.getMinimumSeverity());
 	cppcut_assert_equal(expected, option.getCondition());
@@ -1094,9 +1094,9 @@ void test_eventQueryOptionDefaultMinimumSeveirty(void)
 
 void test_eventQueryOptionWithMinimumSeveirty(void)
 {
-	EventsQueryOption option;
+	EventsQueryOption option(USER_ID_SYSTEM);
 	option.setMinimumSeverity(TRIGGER_SEVERITY_CRITICAL);
-	const string expected =  "0 AND triggers.severity>=4";
+	const string expected =  "triggers.severity>=4";
 	cppcut_assert_equal(TRIGGER_SEVERITY_CRITICAL,
 			    option.getMinimumSeverity());
 	cppcut_assert_equal(expected, option.getCondition());
@@ -1104,8 +1104,8 @@ void test_eventQueryOptionWithMinimumSeveirty(void)
 
 void test_eventQueryOptionDefaultTriggerStatus(void)
 {
-	EventsQueryOption option;
-	const string expected =  "0";
+	EventsQueryOption option(USER_ID_SYSTEM);
+	const string expected =  "";
 	cppcut_assert_equal(TRIGGER_STATUS_ALL,
 			    option.getTriggerStatus());
 	cppcut_assert_equal(expected, option.getCondition());
@@ -1113,9 +1113,9 @@ void test_eventQueryOptionDefaultTriggerStatus(void)
 
 void test_eventQueryOptionWithTriggerStatus(void)
 {
-	EventsQueryOption option;
+	EventsQueryOption option(USER_ID_SYSTEM);
 	option.setTriggerStatus(TRIGGER_STATUS_PROBLEM);
-	const string expected =  "0 AND events.status=1";
+	const string expected =  "events.status=1";
 	cppcut_assert_equal(TRIGGER_STATUS_PROBLEM,
 			    option.getTriggerStatus());
 	cppcut_assert_equal(expected, option.getCondition());

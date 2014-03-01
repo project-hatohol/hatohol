@@ -1009,6 +1009,9 @@ string EventsQueryOption::getCondition(const std::string &tableAlias) const
 {
 	string condition = HostResourceQueryOption::getCondition(tableAlias);
 
+	if (DBClient::isAlwaysFalseCondition(condition))
+		return condition;
+
 	if (m_ctx->limitOfUnifiedId) {
 		if (!condition.empty())
 			condition += " AND ";
