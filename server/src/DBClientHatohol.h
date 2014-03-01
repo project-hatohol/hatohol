@@ -251,6 +251,10 @@ public:
 
 	void setTargetId(const TriggerIdType &id);
 	TriggerIdType getTargetId(void) const;
+	void setMinimumSeverity(const TriggerSeverityType &severity);
+	TriggerSeverityType getMinimumSeverity(void) const;
+	void setTriggerStatus(const TriggerStatusType &status);
+	TriggerStatusType getTriggerStatus(void) const;
 
 private:
 	struct PrivateContext;

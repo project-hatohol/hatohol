@@ -1132,6 +1132,44 @@ void test_triggersQueryOptionWithTargetId(void)
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
+void test_triggersQueryOptionDefaultMinimumSeveirty(void)
+{
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	const string expected =  "";
+	cppcut_assert_equal(TRIGGER_SEVERITY_UNKNOWN,
+			    option.getMinimumSeverity());
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
+void test_triggersQueryOptionWithMinimumSeveirty(void)
+{
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	option.setMinimumSeverity(TRIGGER_SEVERITY_CRITICAL);
+	const string expected =  "triggers.severity>=4";
+	cppcut_assert_equal(TRIGGER_SEVERITY_CRITICAL,
+			    option.getMinimumSeverity());
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
+void test_triggersQueryOptionDefaultStatus(void)
+{
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	const string expected =  "";
+	cppcut_assert_equal(TRIGGER_STATUS_ALL,
+			    option.getTriggerStatus());
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
+void test_triggersQueryOptionWithStatus(void)
+{
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	option.setTriggerStatus(TRIGGER_STATUS_PROBLEM);
+	const string expected =  "triggers.status=1";
+	cppcut_assert_equal(TRIGGER_STATUS_PROBLEM,
+			    option.getTriggerStatus());
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
 void test_itemsQueryOptionWithTargetId(void)
 {
 	ItemsQueryOption option(USER_ID_SYSTEM);

@@ -1129,9 +1129,13 @@ TriggerStatusType EventsQueryOption::getTriggerStatus(void) const
 
 struct TriggersQueryOption::PrivateContext {
 	TriggerIdType targetId;
+	TriggerSeverityType minSeverity;
+	TriggerStatusType triggerStatus;
 
 	PrivateContext()
-	: targetId(ALL_TRIGGERS)
+	: targetId(ALL_TRIGGERS),
+	  minSeverity(TRIGGER_SEVERITY_UNKNOWN),
+	  triggerStatus(TRIGGER_STATUS_ALL)
 	{
 	}
 };
@@ -1174,6 +1178,26 @@ string TriggersQueryOption::getCondition(const std::string &tableAlias) const
 			m_ctx->targetId);
 	}
 
+	if (m_ctx->minSeverity != TRIGGER_SEVERITY_UNKNOWN) {
+		if (!condition.empty())
+			condition += " AND ";
+		condition += StringUtils::sprintf(
+			"%s.%s>=%d",
+			TABLE_NAME_TRIGGERS,
+			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SEVERITY].columnName,
+			m_ctx->minSeverity);
+	}
+
+	if (m_ctx->triggerStatus != TRIGGER_STATUS_ALL) {
+		if (!condition.empty())
+			condition += " AND ";
+		condition += StringUtils::sprintf(
+			"%s.%s=%d",
+			TABLE_NAME_TRIGGERS,
+			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_STATUS].columnName,
+			m_ctx->triggerStatus);
+	}
+
 	return condition;
 }
 
@@ -1185,6 +1209,26 @@ void TriggersQueryOption::setTargetId(const TriggerIdType &id)
 TriggerIdType TriggersQueryOption::getTargetId(void) const
 {
 	return m_ctx->targetId;
+}
+
+void TriggersQueryOption::setMinimumSeverity(const TriggerSeverityType &severity)
+{
+	m_ctx->minSeverity = severity;
+}
+
+TriggerSeverityType TriggersQueryOption::getMinimumSeverity(void) const
+{
+	return m_ctx->minSeverity;
+}
+
+void TriggersQueryOption::setTriggerStatus(const TriggerStatusType &status)
+{
+	m_ctx->triggerStatus = status;
+}
+
+TriggerStatusType TriggersQueryOption::getTriggerStatus(void) const
+{
+	return m_ctx->triggerStatus;
 }
 
 struct ItemsQueryOption::PrivateContext {
