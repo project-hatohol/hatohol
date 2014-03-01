@@ -540,11 +540,11 @@ static void _assertTriggers(const string &path, const string &callbackName = "",
 	// request
 	StringMap queryMap;
 	if (serverId != ALL_SERVERS) {
-		queryMap["targetServerId"] =
+		queryMap["serverId"] =
 		  StringUtils::sprintf("%"PRIu32, serverId);
 	}
 	if (hostId != ALL_HOSTS)
-		queryMap["targetHostId"] =
+		queryMap["hostId"] =
 		  StringUtils::sprintf("%"PRIu64, hostId);
 	RequestArg arg(path, callbackName);
 	arg.parameters = queryMap;
@@ -2458,7 +2458,7 @@ void _assertParseEventParameterTargetServerId(
   const HatoholErrorCode &expectCode = HTERR_OK)
 {
 	assertParseEventParameterTempl(
-	  ServerIdType, expectValue, "%"FMT_SERVER_ID, "targetServerId",
+	  ServerIdType, expectValue, "%"FMT_SERVER_ID, "serverId",
 	  &EventsQueryOption::getTargetServerId, expectCode, forceValueStr);
 }
 #define assertParseEventParameterTargetServerId(E, ...) \
@@ -2470,7 +2470,7 @@ void _assertParseEventParameterTargetHostGroupId(
 {
 	assertParseEventParameterTempl(
 	  HostGroupIdType, expectValue, "%"FMT_HOST_GROUP_ID,
-	  "targetHostGroupId", &EventsQueryOption::getTargetHostgroupId,
+	  "hostGroupId", &EventsQueryOption::getTargetHostgroupId,
 	  expectCode, forceValueStr);
 }
 #define assertParseEventParameterTargetHostGroupId(E, ...) \
@@ -2481,7 +2481,7 @@ void _assertParseEventParameterTargetHostId(
   const HatoholErrorCode &expectCode = HTERR_OK)
 {
 	assertParseEventParameterTempl(
-	  HostIdType, expectValue, "%"FMT_HOST_ID, "targetHostId",
+	  HostIdType, expectValue, "%"FMT_HOST_ID, "hostId",
 	  &EventsQueryOption::getTargetHostId, expectCode, forceValueStr);
 }
 #define assertParseEventParameterTargetHostId(E, ...) \

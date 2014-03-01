@@ -2879,7 +2879,7 @@ HatoholError FaceRest::parseHostResourceQueryParameter(
 
 	// target server id
 	ServerIdType targetServerId = ALL_SERVERS;
-	err = getParam<ServerIdType>(query, "targetServerId",
+	err = getParam<ServerIdType>(query, "serverId",
 				     "%"FMT_SERVER_ID,
 				     targetServerId);
 	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
@@ -2888,7 +2888,7 @@ HatoholError FaceRest::parseHostResourceQueryParameter(
 
 	// target host group id
 	HostIdType targetHostGroupId = ALL_HOST_GROUPS;
-	err = getParam<HostGroupIdType>(query, "targetHostGroupId",
+	err = getParam<HostGroupIdType>(query, "hostGroupId",
 					"%"FMT_HOST_GROUP_ID,
 					targetHostGroupId);
 	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
@@ -2897,7 +2897,7 @@ HatoholError FaceRest::parseHostResourceQueryParameter(
 
 	// target host id
 	HostIdType targetHostId = ALL_HOSTS;
-	err = getParam<HostIdType>(query, "targetHostId",
+	err = getParam<HostIdType>(query, "hostId",
 				   "%"FMT_HOST_ID,
 				   targetHostId);
 	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)

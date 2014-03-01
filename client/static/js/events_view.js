@@ -86,9 +86,9 @@ var EventsView = function(userProfile, baseElem) {
       sortOrder:       self.sortOrder
     };
     if (serverId)
-      query.targetServerId = serverId;
+      query.serverId = serverId;
     if (hostId)
-      query.targetHostId = hostId;
+      query.hostId = hostId;
 
     return 'events?' + $.param(query);
   };
