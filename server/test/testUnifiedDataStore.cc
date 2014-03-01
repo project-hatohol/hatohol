@@ -65,6 +65,7 @@ static string dumpTriggerInfo(const TriggerInfo &info)
 
 void test_getTriggerList(void)
 {
+	setupTestDBConfig(true, true);
 	string expected, actual;
 	for (size_t i = 0; i < NumTestTriggerInfo; i++)
 		expected += dumpTriggerInfo(testTriggerInfo[i]);

@@ -465,6 +465,7 @@ void cut_setup(void)
 {
 	hatoholInit();
 	deleteDBClientHatoholDB();
+	setupTestDBConfig(true, true);
 }
 
 // ---------------------------------------------------------------------------

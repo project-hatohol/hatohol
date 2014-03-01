@@ -482,6 +482,7 @@ void cut_setup(void)
 		g_apiEmulator.setOperationMode(OPE_MODE_NORMAL);
 
 	deleteDBClientHatoholDB();
+	setupTestDBConfig(true, true);
 	setupTestDBAction();
 }
 
@@ -602,7 +603,7 @@ void test_setCopyOnDemandEnabled()
 
 MonitoringServerInfo setupServer(void)
 {
-	int svId = 0;
+	int svId = 1; // We should use one of testServerInfo
 	deleteDBClientZabbixDB(svId);
 	MonitoringServerInfo serverInfo = g_defaultServerInfo;
 	serverInfo.id = svId;
