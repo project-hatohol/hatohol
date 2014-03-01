@@ -41,7 +41,7 @@ public:
 		return "";
 	}
 
-	static void assertAddConditionCurrEmpty(void)
+	static void assertAddConditionAddCurrEmpty(void)
 	{
 		string cond;
 		string added = "A=1";
@@ -229,9 +229,9 @@ void test_getDataQueryContextOfCopyConstructor(void)
 	cppcut_assert_equal(1, dataQueryCtx0.getUsedCount());
 }
 
-void test_addConditionCurrEmpty(void)
+void test_addConditionAddCurrEmpty(void)
 {
-	cut_trace(TestQueryOption::assertAddConditionCurrEmpty());
+	cut_trace(TestQueryOption::assertAddConditionAddCurrEmpty());
 }
 
 void test_addConditionAnd(void)
