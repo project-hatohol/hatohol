@@ -65,7 +65,7 @@ var EventsView = function(userProfile, baseElem) {
     });
   }
 
-  function getEventsQuery(loadNextPage) {
+  function getQuery(loadNextPage) {
     if (loadNextPage) {
       self.currentPage += 1;
       if (!self.limitOfUnifiedId)
@@ -94,7 +94,7 @@ var EventsView = function(userProfile, baseElem) {
   };
 
   function load(loadNextPage) {
-    self.startConnection(getEventsQuery(loadNextPage), updateCore);
+    self.startConnection(getQuery(loadNextPage), updateCore);
     $(document.body).scrollTop(0);
     setLoading(true);
   }
