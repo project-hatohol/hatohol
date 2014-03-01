@@ -98,20 +98,6 @@ var OverviewTriggers = function(userProfile) {
     return parsedData;
   }
 
-  function getTargetServerName() {
-    var name = $("#select-server").val();
-    if (name == "---------")
-      name = null;
-    return name;
-  }
-
-  function getTargetHostName() {
-    var name = $("#select-host").val();
-    if (name == "---------")
-      name = null;
-    return name;
-  }
-
   function setLoading(loading) {
     if (loading) {
       $("#select-severity").attr("disabled", "disabled");
@@ -129,32 +115,15 @@ var OverviewTriggers = function(userProfile) {
 
   function drawTableHeader(parsedData) {
     var serverName, hostNames, hostName;
-    var x;
-    var serversRow, hostsRow;
-    var targetServerId = self.getTargetServerId();
-    var targetHostId = self.getTargetHostId();
-    var targetServerName, targetHostName;
-
-    if (targetServerId)
-      targetServerName = getServerName(rawData["servers"][targetServerId],
-                                       targetServerId);
-    if (targetHostId)
-      targetHostName = getHostName(rawData["servers"][targetServerId],
-                                   targetHostId);
+    var x, serversRow, hostsRow;
 
     serversRow = "<tr><th></th>";
     hostsRow = "<tr><th></th>";
     for (serverName in parsedData.hosts) {
-      if (targetServerName && serverName != targetServerName)
-        continue;
-
       hostNames = parsedData.hosts[serverName];
       serversRow += "<th style='text-align: center' colspan='" + hostNames.length + "'>" + escapeHTML(serverName) + "</th>";
       for (x = 0; x < hostNames.length; ++x) {
         hostName  = hostNames[x];
-        if (targetHostName && hostName != targetHostName)
-          continue;
-
         hostsRow += "<th>" + escapeHTML(hostName) + "</th>";
       }
     }
@@ -167,16 +136,6 @@ var OverviewTriggers = function(userProfile) {
   function drawTableBody(parsedData) {
     var triggerName, serverName, hostNames, hostName, trigger, html;
     var x, y;
-    var targetServerId = self.getTargetServerId();
-    var targetHostId = self.getTargetHostId();
-    var targetServerName, targetHostName;
-
-    if (targetServerId)
-      targetServerName = getServerName(rawData["servers"][targetServerId],
-                                       targetServerId);
-    if (targetHostId)
-      targetHostName = getHostName(rawData["servers"][targetServerId],
-                                   targetHostId);
 
     html = "";
     for (y = 0; y < parsedData.triggers.length; ++y) {
@@ -184,15 +143,9 @@ var OverviewTriggers = function(userProfile) {
       html += "<tr>";
       html += "<th>" + escapeHTML(triggerName) + "</th>";
       for (serverName in parsedData.hosts) {
-        if (targetServerName && serverName != targetServerName)
-          continue;
-
         hostNames = parsedData.hosts[serverName];
         for (x = 0; x < hostNames.length; ++x) {
           hostName  = hostNames[x];
-          if (targetHostName && hostName != targetHostName)
-            continue;
-
           trigger = parsedData.values[serverName][hostName][triggerName];
           if (trigger) {
             switch (trigger["status"]) {
