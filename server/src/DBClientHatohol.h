@@ -243,11 +243,23 @@ private:
 class TriggersQueryOption : public HostResourceQueryOption {
 public:
 	TriggersQueryOption(UserIdType userId = INVALID_USER_ID);
+	TriggersQueryOption(const TriggersQueryOption &src);
+	~TriggersQueryOption();
+
+private:
+	struct PrivateContext;
+	PrivateContext *m_ctx;
 };
 
 class ItemsQueryOption : public HostResourceQueryOption {
 public:
 	ItemsQueryOption(UserIdType userId = INVALID_USER_ID);
+	ItemsQueryOption(const ItemsQueryOption &src);
+	~ItemsQueryOption();
+
+private:
+	struct PrivateContext;
+	PrivateContext *m_ctx;
 };
 
 class HostsQueryOption : public HostResourceQueryOption {

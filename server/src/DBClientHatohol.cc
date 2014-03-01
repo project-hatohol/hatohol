@@ -1124,22 +1124,64 @@ TriggerStatusType EventsQueryOption::getTriggerStatus(void) const
 	return m_ctx->triggerStatus;
 }
 
+struct TriggersQueryOption::PrivateContext {
+	TriggerIdType targetTriggerId;
+
+	PrivateContext()
+	: targetTriggerId(ALL_TRIGGERS)
+	{
+	}
+};
+
 TriggersQueryOption::TriggersQueryOption(UserIdType userId)
 : HostResourceQueryOption(userId)
 {
+	m_ctx = new PrivateContext();
 	setServerIdColumnName(
 	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName);
 	setHostIdColumnName(
 	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName);
 }
 
+TriggersQueryOption::TriggersQueryOption(const TriggersQueryOption &src)
+{
+	m_ctx = new PrivateContext();
+	*m_ctx = *src.m_ctx;
+}
+
+TriggersQueryOption::~TriggersQueryOption()
+{
+	delete m_ctx;
+}
+
+struct ItemsQueryOption::PrivateContext {
+	ItemIdType targetItemId;
+
+	PrivateContext()
+	: targetItemId(ALL_ITEMS)
+	{
+	}
+};
+
 ItemsQueryOption::ItemsQueryOption(UserIdType userId)
 : HostResourceQueryOption(userId)
 {
+	m_ctx = new PrivateContext();
 	setServerIdColumnName(
 	  COLUMN_DEF_ITEMS[IDX_ITEMS_SERVER_ID].columnName);
 	setHostIdColumnName(
 	  COLUMN_DEF_ITEMS[IDX_ITEMS_HOST_ID].columnName);
+}
+
+ItemsQueryOption::ItemsQueryOption(const ItemsQueryOption &src)
+{
+	m_ctx = new PrivateContext();
+	*m_ctx = *src.m_ctx;
+}
+
+ItemsQueryOption::~ItemsQueryOption()
+{
+	delete m_ctx;
 }
 
 HostsQueryOption::HostsQueryOption(UserIdType userId)
