@@ -1154,6 +1154,26 @@ TriggersQueryOption::~TriggersQueryOption()
 	delete m_ctx;
 }
 
+string TriggersQueryOption::getCondition(const std::string &tableAlias) const
+{
+	string condition = HostResourceQueryOption::getCondition(tableAlias);
+
+	if (DBClient::isAlwaysFalseCondition(condition))
+		return condition;
+
+	if (m_ctx->targetId != ALL_TRIGGERS) {
+		if (!condition.empty())
+			condition += " AND ";
+		condition += StringUtils::sprintf(
+			"%s.%s=%"FMT_TRIGGER_ID,
+			TABLE_NAME_TRIGGERS,
+			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID].columnName,
+			m_ctx->targetId);
+	}
+
+	return condition;
+}
+
 void TriggersQueryOption::setTargetId(const TriggerIdType &id)
 {
 	m_ctx->targetId = id;
@@ -1192,6 +1212,26 @@ ItemsQueryOption::ItemsQueryOption(const ItemsQueryOption &src)
 ItemsQueryOption::~ItemsQueryOption()
 {
 	delete m_ctx;
+}
+
+string ItemsQueryOption::getCondition(const std::string &tableAlias) const
+{
+	string condition = HostResourceQueryOption::getCondition(tableAlias);
+
+	if (DBClient::isAlwaysFalseCondition(condition))
+		return condition;
+
+	if (m_ctx->targetId != ALL_ITEMS) {
+		if (!condition.empty())
+			condition += " AND ";
+		condition += StringUtils::sprintf(
+			"%s.%s=%"FMT_ITEM_ID,
+			TABLE_NAME_ITEMS,
+			COLUMN_DEF_ITEMS[IDX_ITEMS_ID].columnName,
+			m_ctx->targetId);
+	}
+
+	return condition;
 }
 
 void ItemsQueryOption::setTargetId(const ItemIdType &id)

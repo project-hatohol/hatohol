@@ -163,8 +163,8 @@ public:
 	HostResourceQueryOption(const HostResourceQueryOption &src);
 	virtual ~HostResourceQueryOption();
 
-	// Overriding of virtual methods
-	virtual std::string getCondition(const std::string &tableAlias = "") const;
+	virtual std::string getCondition(
+	  const std::string &tableAlias = "") const; // override
 
 	virtual ServerIdType getTargetServerId(void) const;
 	virtual void setTargetServerId(const ServerIdType &targetServerId);
@@ -246,6 +246,9 @@ public:
 	TriggersQueryOption(const TriggersQueryOption &src);
 	~TriggersQueryOption();
 
+	virtual std::string getCondition(
+	  const std::string &tableAlias = "") const; // override
+
 	void setTargetId(const TriggerIdType &id);
 	TriggerIdType getTargetId(void) const;
 
@@ -259,6 +262,9 @@ public:
 	ItemsQueryOption(UserIdType userId = INVALID_USER_ID);
 	ItemsQueryOption(const ItemsQueryOption &src);
 	~ItemsQueryOption();
+
+	virtual std::string getCondition(
+	  const std::string &tableAlias = "") const; // override
 
 	void setTargetId(const ItemIdType &id);
 	ItemIdType getTargetId(void) const;

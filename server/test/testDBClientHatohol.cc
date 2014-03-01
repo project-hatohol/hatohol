@@ -1121,6 +1121,28 @@ void test_eventQueryOptionWithTriggerStatus(void)
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
+void test_triggersQueryOptionWithTargetId(void)
+{
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	TriggerIdType expectedId = 634;
+	option.setTargetId(expectedId);
+	const string expected = StringUtils::sprintf(
+		"triggers.id=%"FMT_TRIGGER_ID, expectedId);
+	cppcut_assert_equal(expectedId, option.getTargetId());
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
+void test_itemsQueryOptionWithTargetId(void)
+{
+	ItemsQueryOption option(USER_ID_SYSTEM);
+	ItemIdType expectedId = 436;
+	option.setTargetId(expectedId);
+	const string expected = StringUtils::sprintf(
+		"items.id=%"FMT_ITEM_ID, expectedId);
+	cppcut_assert_equal(expectedId, option.getTargetId());
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
 void test_getEventSortAscending(void)
 {
 	AssertGetEventsArg arg;
