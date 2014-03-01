@@ -30,21 +30,19 @@ var OverviewTriggers = function(userProfile) {
 
   $("#select-server").change(function() {
     self.setHostFilterCandidates(rawData["servers"]);
-    drawTableContents(parsedData);
+    load();
   });
   $("#select-group").change(function() {
-    drawTableContents(parsedData);
+    load();
   });
   $("#select-host").change(function() {
-    drawTableContents(parsedData);
+    load();
   });
   $("#select-severity").change(function() {
-    var s = $("#select-severity").val();
-    self.updateScreen(rawData, updateCore, s);
+    load();
   });
   $("#select-status").change(function() {
-    var s = $("#select-severity").val();
-    self.updateScreen(rawData, updateCore, s);
+    load();
   });
 
   function parseData(replyData, minimum) {
@@ -112,6 +110,21 @@ var OverviewTriggers = function(userProfile) {
     if (name == "---------")
       name = null;
     return name;
+  }
+
+  function setLoading(loading) {
+    if (loading) {
+      $("#select-severity").attr("disabled", "disabled");
+      $("#select-status").attr("disabled", "disabled");
+      $("#select-server").attr("disabled", "disabled");
+      $("#select-host").attr("disabled", "disabled");
+    } else {
+      $("#select-severity").removeAttr("disabled");
+      $("#select-status").removeAttr("disabled");
+      $("#select-server").removeAttr("disabled");
+      if ($("#select-host option").length > 1)
+        $("#select-host").removeAttr("disabled");
+    }
   }
 
   function drawTableHeader(parsedData) {
@@ -217,11 +230,29 @@ var OverviewTriggers = function(userProfile) {
     self.setServerFilterCandidates(rawData["servers"]);
     self.setHostFilterCandidates(rawData["servers"]);
     drawTableContents(parsedData);
+    setLoading(false);
     self.setAutoReload(load, self.reloadIntervalSeconds);
   }
 
+  function getQuery() {
+    var serverId = self.getTargetServerId();
+    var hostId = self.getTargetHostId();
+    var query = {
+      minimumSeverity: $("#select-severity").val(),
+      status:          $("#select-status").val(),
+      maximumNumber:   0,
+      offset:          0
+    };
+    if (serverId)
+      query.serverId = serverId;
+    if (hostId)
+      query.hostId = hostId;
+    return 'trigger?' + $.param(query);
+  };
+
   function load() {
-    self.startConnection('trigger', updateCore);
+    self.startConnection(getQuery(), updateCore);
+    setLoading(true);
   }
 };
 
