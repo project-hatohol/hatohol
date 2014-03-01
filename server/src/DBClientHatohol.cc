@@ -797,6 +797,9 @@ string HostResourceQueryOption::makeConditionHostGroup(
 string HostResourceQueryOption::makeConditionServer(
   const ServerIdSet &serverIdSet, const std::string &serverIdColumnName)
 {
+	if (serverIdSet.empty())
+		return "";
+
 	string condition = StringUtils::sprintf(
 	  "%s IN (", serverIdColumnName.c_str());
 

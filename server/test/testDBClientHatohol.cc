@@ -1282,4 +1282,12 @@ void test_makeConditionServer(void)
 	}
 }
 
+void test_makeConditionServerWithEmptyIdSet(void)
+{
+	ServerIdSet svIdSet;
+	string actual = TestHostResourceQueryOption::callMakeConditionServer(
+	                  svIdSet, "meet");
+	cppcut_assert_equal(true, actual.empty());
+}
+
 } // namespace testDBClientHatohol
