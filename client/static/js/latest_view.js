@@ -88,10 +88,7 @@ var LatestView = function(userProfile) {
 
   function drawTableBody(replyData) {
     var serverName, hostName, clock, appName;
-    var html, url, server, item;
-    var x;
-    var targetServerId = self.getTargetServerId();
-    var targetHostId = self.getTargetHostId();
+    var html = "", url, server, item, x;
     var targetAppName = getTargetAppName();
 
     html = "";
@@ -104,10 +101,6 @@ var LatestView = function(userProfile) {
       clock      = item["lastValueTime"];
       appName    = item["itemGroupName"];
 
-      if (targetServerId && item["serverId"] != targetServerId)
-        continue;
-      if (targetHostId && item["hostId"] != targetHostId)
-        continue;
       if (targetAppName && appName != targetAppName)
         continue;
 
