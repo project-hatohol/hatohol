@@ -1297,8 +1297,8 @@ static string getTriggerBrief(
 	TriggerInfoList triggerInfoList;
 	TriggersQueryOption triggersQueryOption(job->userId);
 	triggersQueryOption.setTargetServerId(serverId);
-	dataStore->getTriggerList(triggerInfoList, triggersQueryOption,
-				  triggerId);
+	triggersQueryOption.setTargetId(triggerId);
+	dataStore->getTriggerList(triggerInfoList, triggersQueryOption);
 
 	if (triggerInfoList.size() != 1) {
 		MLPL_WARN("Failed to get TriggerInfo: "
@@ -1749,7 +1749,8 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 	TriggersQueryOption option(job->userId);
 	option.setTargetServerId(serverId);
 	option.setTargetHostId(hostId);
-	dataStore->getTriggerList(triggerList, option, triggerId);
+	option.setTargetId(triggerId);
+	dataStore->getTriggerList(triggerList, option);
 	HandlerGetHelper<TriggerInfoList, TriggerInfo, TriggerIdType> helper;
 	helper.addHostgroupIdToVectorMap(triggerList);
 

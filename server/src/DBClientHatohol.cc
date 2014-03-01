@@ -1349,17 +1349,11 @@ bool DBClientHatohol::getTriggerInfo(TriggerInfo &triggerInfo,
                                      const ServerIdType &serverId,
                                      uint64_t triggerId)
 {
-	string condition;
-	condition = StringUtils::sprintf(
-	  "%s=%"FMT_SERVER_ID" and %s=%"PRIu64,
-	  SQLUtils::getFullName(
-	    COLUMN_DEF_TRIGGERS, IDX_TRIGGERS_SERVER_ID).c_str(),
-	  serverId,
-	  SQLUtils::getFullName(COLUMN_DEF_TRIGGERS, IDX_TRIGGERS_ID).c_str(),
-	  triggerId);
-
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(serverId);
+	option.setTargetId(triggerId);
 	TriggerInfoList triggerInfoList;
-	getTriggerInfoList(triggerInfoList, condition);
+	getTriggerInfoList(triggerInfoList, option);
 	size_t numTriggers = triggerInfoList.size();
 	HATOHOL_ASSERT(numTriggers <= 1,
 	               "Number of triggers: %zd", numTriggers);
@@ -1368,31 +1362,6 @@ bool DBClientHatohol::getTriggerInfo(TriggerInfo &triggerInfo,
 
 	triggerInfo = *triggerInfoList.begin();
 	return true;
-}
-
-void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
-					 const TriggersQueryOption &option,
-					 uint64_t targetTriggerId)
-{
-	string optCond = option.getCondition(TABLE_NAME_TRIGGERS);
-	if (isAlwaysFalseCondition(optCond))
-		return;
-
-	string condition;
-	if (targetTriggerId != ALL_TRIGGERS) {
-		const string colFullName =
-		  SQLUtils::getFullName(COLUMN_DEF_TRIGGERS, IDX_TRIGGERS_ID);
-		condition += StringUtils::sprintf(
-		  "%s=%"PRIu64, colFullName.c_str(), targetTriggerId);
-	}
-
-	if (!optCond.empty()) {
-		if (!condition.empty())
-			condition += " AND ";
-		condition += StringUtils::sprintf("(%s)", optCond.c_str());
-	}
-
-	getTriggerInfoList(triggerInfoList, condition);
 }
 
 void DBClientHatohol::setTriggerInfoList(const TriggerInfoList &triggerInfoList,
@@ -2044,7 +2013,7 @@ void DBClientHatohol::addHostInfoWithoutTransaction(const HostInfo &hostInfo)
 }
 
 void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
-                                         const string &condition)
+					 const TriggersQueryOption &option)
 {
 	static const DBAgent::TableProfile *tableProfiles[] = {
 	  &tableProfileTriggers,
@@ -2095,7 +2064,9 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	arg.add(IDX_HOSTGROUPS_GROUP_NAME);
 
 	// condition
-	arg.condition = condition;
+	arg.condition = option.getCondition(TABLE_NAME_TRIGGERS);
+	if (isAlwaysFalseCondition(arg.condition))
+		return;
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);

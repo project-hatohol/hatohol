@@ -343,12 +343,10 @@ void UnifiedDataStore::fetchItems(const ServerIdType &targetServerId)
 }
 
 void UnifiedDataStore::getTriggerList(TriggerInfoList &triggerList,
-				      const TriggersQueryOption &option,
-                                      uint64_t targetTriggerId)
+				      const TriggersQueryOption &option)
 {
 	DBClientHatohol dbHatohol;
-	dbHatohol.getTriggerInfoList(triggerList, option,
-				     targetTriggerId);
+	dbHatohol.getTriggerInfoList(triggerList, option);
 }
 
 HatoholError UnifiedDataStore::getEventList(EventInfoList &eventList,

@@ -321,8 +321,7 @@ public:
 	bool getTriggerInfo(TriggerInfo &triggerInfo,
 	                    const ServerIdType &serverId, uint64_t triggerId);
 	void getTriggerInfoList(TriggerInfoList &triggerInfoList,
-				const TriggersQueryOption &option,
-	                        uint64_t targetTriggerId = ALL_TRIGGERS);
+				const TriggersQueryOption &option);
 	void setTriggerInfoList(const TriggerInfoList &triggerInfoList,
 	                        const ServerIdType &serverId);
 	/**
@@ -405,9 +404,6 @@ protected:
 	void addHostgroupElementWithoutTransaction(
 	  const HostgroupElement &hostgroupElement);
 	void addHostInfoWithoutTransaction(const HostInfo &hostInfo);
-
-	void getTriggerInfoList(TriggerInfoList &triggerInfoList,
-	                        const std::string &condition);
 
 private:
 	struct PrivateContext;

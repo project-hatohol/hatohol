@@ -53,8 +53,7 @@ public:
 	 */
 
 	virtual void getTriggerList(TriggerInfoList &triggerList,
-				    const TriggersQueryOption &option,
-	                            uint64_t targetTriggerId = ALL_TRIGGERS);
+				    const TriggersQueryOption &option);
 	virtual HatoholError getEventList(EventInfoList &eventList,
 	                                  EventsQueryOption &option);
 	virtual void getItemList(ItemInfoList &itemList,
