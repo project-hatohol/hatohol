@@ -1233,6 +1233,7 @@ TriggerStatusType TriggersQueryOption::getTriggerStatus(void) const
 
 struct ItemsQueryOption::PrivateContext {
 	ItemIdType targetId;
+	string itemGroupName;
 
 	PrivateContext()
 	: targetId(ALL_ITEMS)
@@ -1278,6 +1279,18 @@ string ItemsQueryOption::getCondition(const std::string &tableAlias) const
 			m_ctx->targetId);
 	}
 
+	if (!m_ctx->itemGroupName.empty()) {
+		if (!condition.empty())
+			condition += " AND ";
+		string escaped = StringUtils::replace(m_ctx->itemGroupName,
+						      "'", "''");
+		condition += StringUtils::sprintf(
+			"%s.%s='%s'",
+			TABLE_NAME_ITEMS,
+			COLUMN_DEF_ITEMS[IDX_ITEMS_ITEM_GROUP_NAME].columnName,
+			escaped.c_str());
+	}
+
 	return condition;
 }
 
@@ -1289,6 +1302,16 @@ void ItemsQueryOption::setTargetId(const ItemIdType &id)
 ItemIdType ItemsQueryOption::getTargetId(void) const
 {
 	return m_ctx->targetId;
+}
+
+void ItemsQueryOption::setTargetItemGroupName(const string &itemGroupName)
+{
+	m_ctx->itemGroupName = itemGroupName;
+}
+
+const string &ItemsQueryOption::getTargetItemGroupName(void)
+{
+	return m_ctx->itemGroupName;
 }
 
 HostsQueryOption::HostsQueryOption(UserIdType userId)

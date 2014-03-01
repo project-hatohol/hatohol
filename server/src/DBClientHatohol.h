@@ -272,6 +272,8 @@ public:
 
 	void setTargetId(const ItemIdType &id);
 	ItemIdType getTargetId(void) const;
+	void setTargetItemGroupName(const std::string &itemGroupName);
+	const std::string &getTargetItemGroupName(void);
 
 private:
 	struct PrivateContext;

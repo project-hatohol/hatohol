@@ -217,18 +217,36 @@ static string makeItemOutput(const ItemInfo &itemInfo)
 struct AssertGetItemsArg
   : public AssertGetHostResourceArg<ItemInfo, ItemsQueryOption>
 {
+	string itemGroupName;
+
 	AssertGetItemsArg(void)
 	{
 		fixtures = testItemInfo;
 		numberOfFixtures = NumTestItemInfo;
 	}
 
-	virtual uint64_t getHostId(ItemInfo &info)
+	virtual void fixupOption(void) // override
+	{
+		AssertGetHostResourceArg<ItemInfo, ItemsQueryOption>::
+			fixupOption();
+		option.setTargetItemGroupName(itemGroupName);
+	}
+
+	virtual bool filterOutExpectedRecord(ItemInfo *info) // override
+	{
+		if (!itemGroupName.empty() &&
+		    info->itemGroupName != itemGroupName) {
+			return true;
+		}
+		return false;
+	}
+
+	virtual uint64_t getHostId(ItemInfo &info) // override
 	{
 		return info.hostId;
 	}
 
-	virtual string makeOutputText(const ItemInfo &itemInfo)
+	virtual string makeOutputText(const ItemInfo &itemInfo) // override
 	{
 		return makeItemOutput(itemInfo);
 	}
@@ -695,6 +713,14 @@ void test_getItemWithInvalidUserId(void)
 	setupTestDBUser(true, true);
 	AssertGetItemsArg arg;
 	arg.userId = INVALID_USER_ID;
+	assertGetItemsWithFilter(arg);
+}
+
+void test_getItemWithItemGroupName(void)
+{
+	setupTestDBUser(true, true);
+	AssertGetItemsArg arg;
+	arg.itemGroupName = "City";
 	assertGetItemsWithFilter(arg);
 }
 
@@ -1178,6 +1204,16 @@ void test_itemsQueryOptionWithTargetId(void)
 	const string expected = StringUtils::sprintf(
 		"items.id=%"FMT_ITEM_ID, expectedId);
 	cppcut_assert_equal(expectedId, option.getTargetId());
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
+void test_itemsQueryOptionWithItemGroupName(void)
+{
+	ItemsQueryOption option(USER_ID_SYSTEM);
+	string itemGroupName = "It's test items";
+	option.setTargetItemGroupName(itemGroupName);
+	const string expected =  "items.item_group_name='It''s test items'";
+	cppcut_assert_equal(itemGroupName, option.getTargetItemGroupName());
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
