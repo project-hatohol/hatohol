@@ -121,7 +121,8 @@ var OverviewTriggers = function(userProfile) {
     hostsRow = "<tr><th></th>";
     for (serverName in parsedData.hosts) {
       hostNames = parsedData.hosts[serverName];
-      serversRow += "<th style='text-align: center' colspan='" + hostNames.length + "'>" + escapeHTML(serverName) + "</th>";
+      serversRow += "<th style='text-align: center' colspan='" +
+        hostNames.length + "'>" + escapeHTML(serverName) + "</th>";
       for (x = 0; x < hostNames.length; ++x) {
         hostName  = hostNames[x];
         hostsRow += "<th>" + escapeHTML(hostName) + "</th>";
@@ -150,7 +151,8 @@ var OverviewTriggers = function(userProfile) {
           if (trigger) {
             switch (trigger["status"]) {
             case 1:
-              html += "<td class='severity" + escapeHTML(trigger["severity"]) + "'>&nbsp;</td>";
+              html += "<td class='severity" +
+                escapeHTML(trigger["severity"]) + "'>&nbsp;</td>";
               break;
             case 0:
               html += "<td class='healthy'>&nbsp;</td>";
