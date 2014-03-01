@@ -219,6 +219,9 @@ void DataQueryOption::addCondition(
   string &currCondition, const string &addedCondition,
   const AddConditionType &type, const bool &useParenthesis)
 {
+	if (addedCondition.empty())
+		return;
+
 	if (currCondition.empty()) {
 		currCondition = addedCondition;
 		return;

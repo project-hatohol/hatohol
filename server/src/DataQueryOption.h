@@ -157,7 +157,8 @@ protected:
 	 * A current condition string or an empty string.
 	 *
 	 * @param addedCondition
-	 * An added conditioin sting. This string is added at tail. 
+	 * An added conditioin sting. This string is added at tail. If this
+	 * string is empty, currCondition is not changed.
 	 *
 	 * @param type
 	 * An AddedConditioinType.

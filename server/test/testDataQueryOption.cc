@@ -85,6 +85,14 @@ public:
 		cppcut_assert_equal(expect, cond);
 	}
 
+	static void assertAddConditionAndWithEmptyAddedString()
+	{
+		string cond = "S=5";
+		string expect = cond;
+		addCondition(cond, "");
+		cppcut_assert_equal(expect, cond);
+	}
+
 	static void assertAddConditionOr(void)
 	{
 		string cond = "S=5";
@@ -289,6 +297,11 @@ void test_addConditionAndWithParenthesis(void)
 void test_addConditionAndWithoutParenthesis(void)
 {
 	cut_trace(TestQueryOption::assertAddConditionAndWithoutParenthesis());
+}
+
+void test_addConditionAndWithEmptyAddedString(void)
+{
+	cut_trace(TestQueryOption::assertAddConditionAndWithEmptyAddedString());
 }
 
 void test_addConditionOr(void)
