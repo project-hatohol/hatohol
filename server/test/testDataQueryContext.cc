@@ -32,6 +32,7 @@ void cut_setup(void)
 
 static DataQueryContextPtr setupAndCreateDataQueryContext(void)
 {
+	setupTestDBConfig(true, true);
 	setupTestDBUser(true, true);
 	const UserIdType userId = 1;
 	DataQueryContextPtr dqctx(new DataQueryContext(userId), false);
