@@ -30,18 +30,18 @@ var OverviewItems = function(userProfile) {
 
   $("#select-server").change(function() {
     self.setHostFilterCandidates(rawData["servers"]);
-    drawTableContents(parsedData);
+    load();
   });
   $("#select-group").change(function() {
-    drawTableContents(parsedData);
+    load();
   });
   $("#select-host").change(function() {
-    drawTableContents(parsedData);
+    load();
   });
 
   $("#select-severity").change(function() {
-    var s = $("#select-severity").val();
-    self.updateScreen(rawData, updateCore, s);
+    // not implemented yet
+    load();
   });
 
   function parseData(replyData) {
@@ -100,6 +100,17 @@ var OverviewItems = function(userProfile) {
     if (name == "---------")
       name = null;
     return name;
+  }
+
+  function setLoading(loading) {
+    if (loading) {
+      $("#select-server").attr("disabled", "disabled");
+      $("#select-host").attr("disabled", "disabled");
+    } else {
+      $("#select-server").removeAttr("disabled");
+      if ($("#select-host option").length > 1)
+        $("#select-host").removeAttr("disabled");
+    }
   }
 
   function drawTableHeader(parsedData) {
@@ -195,11 +206,27 @@ var OverviewItems = function(userProfile) {
     self.setServerFilterCandidates(rawData["servers"]);
     self.setHostFilterCandidates(rawData["servers"]);
     drawTableContents(parsedData);
+    setLoading(false);
     self.setAutoReload(load, self.reloadIntervalSeconds);
   }
 
+  function getQuery() {
+    var serverId = self.getTargetServerId();
+    var hostId = self.getTargetHostId();
+    var query = {
+      maximumNumber: 0,
+      offset:        0
+    };
+    if (serverId)
+      query.serverId = serverId;
+    if (hostId)
+      query.hostId = hostId;
+    return 'item?' + $.param(query);
+  };
+
   function load() {
-    self.startConnection('item', updateCore);
+    self.startConnection(getQuery(), updateCore);
+    setLoading(true);
   }
 };
 
