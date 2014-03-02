@@ -131,7 +131,7 @@ void test_getTriggerList(void)
 	cppcut_assert_equal(expected, actual);
 }
 
-void test_getEventList(void)
+void data_getEventList(void)
 {
 	prepareTestDataForFilterForDataOfDefunctServers();
 }
@@ -140,8 +140,6 @@ void test_getEventList(gconstpointer data)
 {
 	const bool filterForDataOfDefunctSv =
 	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
-	if (filterForDataOfDefunctSv)
-		cut_pend("To be implemented");
 
 	string expected, actual;
 	for (size_t i = 0; i < NumTestEventInfo; i++)
