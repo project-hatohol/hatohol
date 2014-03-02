@@ -800,7 +800,7 @@ void prepareTestDataForFilterForDataOfDefunctServers(void)
 	gcut_add_datum("Not filter data of defunct servers",
 		       "filterDataOfDefunctServers", G_TYPE_BOOLEAN, FALSE,
 		       NULL);
-	gcut_add_datum("Not filter data of defunct servers.",
+	gcut_add_datum("Filter data of defunct servers.",
 		       "filterDataOfDefunctServers", G_TYPE_BOOLEAN, TRUE,
 		       NULL);
 }
