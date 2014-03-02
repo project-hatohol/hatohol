@@ -805,6 +805,37 @@ void prepareTestDataForFilterForDataOfDefunctServers(void)
 		       NULL);
 }
 
+void insertValidServerCond(
+  string &condition, const HostResourceQueryOption &opt)
+{
+	struct MyOption : public HostResourceQueryOption {
+	public:
+		MyOption(const HostResourceQueryOption &opt)
+		: HostResourceQueryOption(opt)
+		{
+		}
+
+		string makeServerCond(void)
+		{
+			const ServerIdSet &serverIdSet =
+			  getDataQueryContext().getValidServerIdSet();
+			string cond = makeConditionServer(
+			                serverIdSet, getServerIdColumnName());
+			return cond;
+		}
+
+		void insertCond(string &svCond, const string &condition)
+		{
+			addCondition(svCond, condition);
+		}
+	};
+
+	MyOption myOpt(opt);
+	string svCond = myOpt.makeServerCond();
+	myOpt.insertCond(svCond, condition);
+	condition = svCond;
+}
+
 string makeDoubleFloatFormat(const ColumnDef &columnDef)
 {
 	return StringUtils::sprintf("%%.%zdlf", columnDef.decFracLength);

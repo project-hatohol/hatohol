@@ -947,13 +947,14 @@ string HostResourceQueryOption::getCondition(const string &tableAlias) const
 
 	const ServerHostGrpSetMap &srvHostGrpSetMap =
 	  getDataQueryContext().getServerHostGrpSetMap();
-	condition = makeCondition(srvHostGrpSetMap,
-	                          getServerIdColumnName(tableAlias),
-	                          getHostGroupIdColumnName(tableAlias),
-	                          getHostIdColumnName(tableAlias),
-	                          m_ctx->targetServerId,
-	                          m_ctx->targetHostgroupId,
-	                          m_ctx->targetHostId);
+	addCondition(condition,
+	             makeCondition(srvHostGrpSetMap,
+	                           getServerIdColumnName(tableAlias),
+	                           getHostGroupIdColumnName(tableAlias),
+	                           getHostIdColumnName(tableAlias),
+	                           m_ctx->targetServerId,
+	                           m_ctx->targetHostgroupId,
+	                           m_ctx->targetHostId));
 	return condition;
 }
 

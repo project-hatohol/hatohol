@@ -1135,8 +1135,6 @@ void test_makeSelectCondition(gconstpointer data)
 {
 	const bool filterForDataOfDefunctSv =
 	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
-	if (filterForDataOfDefunctSv)
-		cut_pend("To be implemented");
 	setupTestDBUser(true, true);
 	HostResourceQueryOption option;
 	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
@@ -1146,6 +1144,8 @@ void test_makeSelectCondition(gconstpointer data)
 		string actual = option.getCondition();
 		string expect = makeExpectedConditionForUser(
 		                  userId, testUserInfo[i].flags);
+		if (filterForDataOfDefunctSv)
+			insertValidServerCond(expect, option);
 		cppcut_assert_equal(expect, actual);
 	}
 }
