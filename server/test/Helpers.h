@@ -225,4 +225,15 @@ public:
 	bool start(const size_t &timeout, const size_t &interval = 0);
 };
 
+class LinesComparator {
+public:
+	LinesComparator(void);
+	virtual ~LinesComparator();
+	void add(const std::string &line0, const std::string &line1);
+	void assert(const bool &strictOrder = true);
+private:
+	struct PrivateContext;
+	PrivateContext *m_ctx;
+};
+
 #endif // Helpers_h

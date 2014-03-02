@@ -257,6 +257,19 @@ struct AssertGetItemsArg
 	{
 		return makeItemOutput(itemInfo);
 	}
+
+	virtual bool filterOutExpectedRecord(ItemInfo *info) // override
+	{
+		bool ret =
+		  AssertGetHostResourceArg<ItemInfo, ItemsQueryOption>::
+	            filterOutExpectedRecord(info);
+		if (ret)
+			return true;
+
+		if (!filterForDataOfDefunctSv)
+			return false;
+		return !option.isValidServer(info->serverId);
+	}
 };
 
 static void _assertGetItems(AssertGetItemsArg &arg)

@@ -990,3 +990,64 @@ bool Watcher::watch(void)
 {
 	return false;
 }
+
+// ---------------------------------------------------------------------------
+// LinesComparator
+// ---------------------------------------------------------------------------
+struct LinesComparator::PrivateContext
+{
+	multiset<string> set0;
+	multiset<string> set1;
+
+	string str0;
+	string str1;
+
+	void assertWithoutOrder(void)
+	{
+		multiset<string>::iterator line0Itr;
+		multiset<string>::iterator line1Itr;
+		while (!set0.empty()) {
+			line0Itr = set0.begin();
+			line1Itr = set1.find(*line0Itr);
+			if (line1Itr == set1.end()) {
+				cut_fail("Not found line: %s\n"
+				         "<<set0>>\n%s\n"
+				         "<<set1>>\n%s\n",
+				         line0Itr->c_str(),
+				         str0.c_str(), str1.c_str());
+			}
+			set0.erase(line0Itr);
+			set1.erase(line1Itr);
+		}
+	}
+};
+
+LinesComparator::LinesComparator(void)
+: m_ctx(NULL)
+{
+	m_ctx = new PrivateContext();
+}
+
+LinesComparator::~LinesComparator()
+{
+	if (m_ctx)
+		delete m_ctx;
+}
+
+void LinesComparator::add(
+  const std::string &line0, const std::string &line1)
+{
+	m_ctx->str0 += line0;
+	m_ctx->str1 += line1;
+
+	m_ctx->set0.insert(line0);
+	m_ctx->set1.insert(line1);
+}
+
+void LinesComparator::assert(const bool &strictOrder)
+{
+	if (strictOrder)
+		cppcut_assert_equal(m_ctx->str0, m_ctx->str1);
+	else
+		m_ctx->assertWithoutOrder();
+}

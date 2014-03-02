@@ -143,12 +143,15 @@ struct AssertGetHostResourceArg {
 		std::string actualText;
 		typename std::list<TResourceType>::iterator it
 		  = actualRecordList.begin();
+		LinesComparator linesComparator;
 		for (size_t i = 0; it != actualRecordList.end(); i++, ++it) {
 			TResourceType &expectedRecord = getExpectedRecord(i);
-			expectedText += makeOutputText(expectedRecord);
-			actualText += makeOutputText(*it);
+			linesComparator.add(makeOutputText(expectedRecord),
+			                    makeOutputText(*it));
 		}
-		cppcut_assert_equal(expectedText, actualText);
+		const bool strictOrder = 
+		 (sortDirection != DataQueryOption::SORT_DONT_CARE);
+		linesComparator.assert(strictOrder);
 	}
 };
 
