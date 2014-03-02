@@ -19,6 +19,7 @@
 
 #include <cppcutter.h>
 #include <cutter.h>
+#include <gcutter.h>
 #include "Hatohol.h"
 #include "DBClientHatohol.h"
 #include "Helpers.h"
@@ -1294,6 +1295,22 @@ void test_defaultValueOfFilterForDataOfDefunctServers(void)
 {
 	HostResourceQueryOption opt;
 	cppcut_assert_equal(true, opt.getFilterForDataOfDefunctServers());
+}
+
+void data_setGetOfFilterForDataOfDefunctServers(void)
+{
+	gcut_add_datum("Disable filtering",
+		       "enable", G_TYPE_BOOLEAN, FALSE, NULL);
+	gcut_add_datum("Eanble filtering",
+		       "enable", G_TYPE_BOOLEAN, TRUE, NULL);
+}
+
+void test_setGetOfFilterForDataOfDefunctServers(gconstpointer data)
+{
+	HostResourceQueryOption opt;
+	bool enable = gcut_data_get_boolean(data, "enable");
+	opt.setFilterForDataOfDefunctServers(enable);
+	cppcut_assert_equal(enable, opt.getFilterForDataOfDefunctServers());
 }
 
 } // namespace testDBClientHatohol
