@@ -233,12 +233,19 @@ struct AssertGetItemsArg
   : public AssertGetHostResourceArg<ItemInfo, ItemsQueryOption>
 {
 	gconstpointer data;
+	bool filterForDataOfDefunctSv;
 
 	AssertGetItemsArg(gconstpointer _data)
-	: data(_data)
+	: data(_data),
+	  filterForDataOfDefunctSv(false)
 	{
 		fixtures = testItemInfo;
 		numberOfFixtures = NumTestItemInfo;
+		filterForDataOfDefunctSv =
+		  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
+		if (filterForDataOfDefunctSv)
+			cut_pend("To be implemented");
+		option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	}
 
 	virtual uint64_t getHostId(ItemInfo &info)
@@ -254,14 +261,8 @@ struct AssertGetItemsArg
 
 static void _assertGetItems(AssertGetItemsArg &arg)
 {
-	const bool filterForDataOfDefunctSv =
-	  gcut_data_get_boolean(arg.data, "filterDataOfDefunctServers");
-	if (filterForDataOfDefunctSv)
-		cut_pend("To be implemented");
-
 	DBClientHatohol dbHatohol;
 	arg.fixup();
-	arg.option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	dbHatohol.getItemInfoList(arg.actualRecordList, arg.option);
 	arg.assert();
 }
@@ -269,12 +270,6 @@ static void _assertGetItems(AssertGetItemsArg &arg)
 
 static void _assertGetItemsWithFilter(AssertGetItemsArg &arg)
 {
-	const bool filterForDataOfDefunctSv =
-	  gcut_data_get_boolean(arg.data, "filterDataOfDefunctServers");
-	if (filterForDataOfDefunctSv)
-		cut_pend("To be implemented");
-	arg.option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
-
 	// setup item data
 	void test_addItemInfoList(gconstpointer data);
 	test_addItemInfoList(arg.data);
@@ -285,11 +280,6 @@ cut_trace(_assertGetItemsWithFilter(ARG))
 
 void _assertItemInfoList(gconstpointer data, uint32_t serverId)
 {
-	const bool filterForDataOfDefunctSv =
-	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
-	if (filterForDataOfDefunctSv)
-		cut_pend("To be implemented");
-
 	DBClientHatohol dbHatohol;
 	ItemInfoList itemInfoList;
 	for (size_t i = 0; i < NumTestItemInfo; i++)
@@ -298,7 +288,6 @@ void _assertItemInfoList(gconstpointer data, uint32_t serverId)
 
 	AssertGetItemsArg arg(data);
 	arg.targetServerId = serverId;
-	arg.option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	assertGetItems(arg);
 }
 #define assertItemInfoList(DATA, SERVER_ID) \
