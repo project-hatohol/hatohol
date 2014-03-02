@@ -66,7 +66,6 @@ static string dumpTriggerInfo(const TriggerInfo &info)
 
 void test_getTriggerList(void)
 {
-	setupTestDBConfig(true, true);
 	string expected, actual;
 	for (size_t i = 0; i < NumTestTriggerInfo; i++)
 		expected += dumpTriggerInfo(testTriggerInfo[i]);
@@ -126,6 +125,7 @@ void cut_setup(void)
 	                                     "testDatabase-hatohol.db",
 	                                     NULL);
  	defineDBPath(DB_DOMAIN_ID_HATOHOL, dbPath);
+	setupTestDBConfig(true, true);
 }
 
 // ---------------------------------------------------------------------------
@@ -168,23 +168,30 @@ void test_getItemList(gconstpointer data)
 {
 	const bool filterForDataOfDefunctSv =
 	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
-	if (filterForDataOfDefunctSv)
-		cut_pend("To be implemented");
-
-	string expected, actual;
-	for (size_t i = 0; i < NumTestItemInfo; i++)
-		expected += dumpItemInfo(testItemInfo[i]);
+	ItemsQueryOption option(USER_ID_SYSTEM);
+	vector<string> expectedStrVec;
+	for (size_t i = 0; i < NumTestItemInfo; i++) {
+		const ItemInfo &itemInfo = testItemInfo[i];
+		if (filterForDataOfDefunctSv) {
+			if (!option.isValidServer(itemInfo.serverId))
+				continue;
+		}
+		expectedStrVec.push_back(dumpItemInfo(itemInfo));
+	}
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	ItemInfoList list;
-	ItemsQueryOption option(USER_ID_SYSTEM);
 	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	dataStore->getItemList(list, option);
 
+	cppcut_assert_equal(expectedStrVec.size(), list.size());
+	LinesComparator linesComparator;
 	ItemInfoListIterator it;
-	for (it = list.begin(); it != list.end(); it++)
-		actual += dumpItemInfo(*it);
-	cppcut_assert_equal(expected, actual);
+	vector<string>::iterator expectedStrItr = expectedStrVec.begin();
+	for (it = list.begin(); it != list.end(); ++it, ++expectedStrItr)
+		linesComparator.add(*expectedStrItr, dumpItemInfo(*it));
+	const bool strictOrder = false;
+	linesComparator.assert(strictOrder);
 }
 
 } // testUnifiedDataStore
