@@ -1031,8 +1031,6 @@ void test_eventQueryOptionGetServerIdColumnName(gconstpointer data)
 {
 	const bool filterForDataOfDefunctSv =
 	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
-	if (filterForDataOfDefunctSv)
-		cut_pend("To be implemented");
 	HostResourceQueryOption option(USER_ID_SYSTEM);
 	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	const string tableAlias = "test_event_table_alias";
@@ -1047,6 +1045,8 @@ void test_eventQueryOptionGetServerIdColumnName(gconstpointer data)
 			  hostIdColumnName.c_str(),
 			  tableAlias.c_str(),
 			  hostGroupIdColumnName.c_str());
+	if (filterForDataOfDefunctSv)
+		insertValidServerCond(expect, option, tableAlias);
 	cppcut_assert_equal(expect, option.getCondition(tableAlias));
 
 }
