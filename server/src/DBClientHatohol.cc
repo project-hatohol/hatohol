@@ -715,6 +715,7 @@ HostResourceQueryOption::HostResourceQueryOption(const UserIdType &userId)
 }
 
 HostResourceQueryOption::HostResourceQueryOption(const HostResourceQueryOption &src)
+: DataQueryOption(src)
 {
 	m_ctx = new PrivateContext();
 	*m_ctx = *src.m_ctx;

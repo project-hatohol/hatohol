@@ -1349,6 +1349,14 @@ void test_addHostInfo(void)
 //
 // Tests for HostResourceQueryOption
 //
+void test_copyConstructor(void)
+{
+	HostResourceQueryOption opt0;
+	HostResourceQueryOption opt1(opt0);
+	cppcut_assert_equal(&opt0.getDataQueryContext(),
+	                    &opt1.getDataQueryContext());
+}
+
 void test_makeConditionServer(void)
 {
 	const string serverIdColumnName = "cat";
