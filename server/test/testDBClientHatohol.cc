@@ -1390,7 +1390,7 @@ void test_makeConditionServerWithEmptyIdSet(void)
 	ServerIdSet svIdSet;
 	string actual = TestHostResourceQueryOption::callMakeConditionServer(
 	                  svIdSet, "meet");
-	cppcut_assert_equal(true, actual.empty());
+	cppcut_assert_equal(DBClientHatohol::getAlwaysFalseCondition(), actual);
 }
 
 void test_defaultValueOfFilterForDataOfDefunctServers(void)

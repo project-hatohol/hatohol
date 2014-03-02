@@ -800,7 +800,7 @@ string HostResourceQueryOption::makeConditionServer(
   const ServerIdSet &serverIdSet, const std::string &serverIdColumnName)
 {
 	if (serverIdSet.empty())
-		return "";
+		return DBClientHatohol::getAlwaysFalseCondition();
 
 	string condition = StringUtils::sprintf(
 	  "%s IN (", serverIdColumnName.c_str());
