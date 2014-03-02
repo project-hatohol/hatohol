@@ -806,7 +806,8 @@ void prepareTestDataForFilterForDataOfDefunctServers(void)
 }
 
 void insertValidServerCond(
-  string &condition, const HostResourceQueryOption &opt)
+  string &condition, const HostResourceQueryOption &opt,
+  const string &tableName)
 {
 	struct MyOption : public HostResourceQueryOption {
 	public:
@@ -815,12 +816,13 @@ void insertValidServerCond(
 		{
 		}
 
-		string makeServerCond(void)
+		string makeServerCond(const string &tableName)
 		{
 			const ServerIdSet &serverIdSet =
 			  getDataQueryContext().getValidServerIdSet();
 			string cond = makeConditionServer(
-			                serverIdSet, getServerIdColumnName());
+			                serverIdSet,
+			                getServerIdColumnName(tableName));
 			return cond;
 		}
 
@@ -831,7 +833,7 @@ void insertValidServerCond(
 	};
 
 	MyOption myOpt(opt);
-	string svCond = myOpt.makeServerCond();
+	string svCond = myOpt.makeServerCond(tableName);
 	myOpt.insertCond(svCond, condition);
 	condition = svCond;
 }
