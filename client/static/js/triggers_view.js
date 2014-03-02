@@ -51,8 +51,6 @@ var TriggersView = function(userProfile) {
   ];
 
   $("#select-server").change(function() {
-    self.setHostFilterCandidates(rawData["servers"]);
-    self.setHostGroupFilterCandidates(rawData["servers"]);
     load();
   });
   $("#select-host-group").change(function() {

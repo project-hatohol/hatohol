@@ -37,7 +37,6 @@ var LatestView = function(userProfile) {
   });
 
   $("#select-server").change(function() {
-    self.setHostFilterCandidates(rawData["servers"]);
     load();
   });
   $("#select-host").change(function() {

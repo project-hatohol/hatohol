@@ -107,7 +107,6 @@ var EventsView = function(userProfile, baseElem) {
       load();
     });
     $("#select-server").change(function() {
-      self.setHostFilterCandidates(self.rawData["servers"]);
       load();
     });
     $("#select-host").change(function() {

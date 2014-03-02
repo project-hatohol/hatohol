@@ -29,7 +29,6 @@ var OverviewTriggers = function(userProfile) {
   load();
 
   $("#select-server").change(function() {
-    self.setHostFilterCandidates(rawData["servers"]);
     load();
   });
   $("#select-group").change(function() {
