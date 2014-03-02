@@ -243,8 +243,6 @@ struct AssertGetItemsArg
 		numberOfFixtures = NumTestItemInfo;
 		filterForDataOfDefunctSv =
 		  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
-		if (filterForDataOfDefunctSv)
-			cut_pend("To be implemented");
 		option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	}
 
