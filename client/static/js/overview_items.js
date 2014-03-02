@@ -164,16 +164,11 @@ var OverviewItems = function(userProfile) {
   }
 
   function getQuery() {
-    var serverId = self.getTargetServerId();
-    var hostId = self.getTargetHostId();
     var query = {
       maximumNumber: 0,
       offset:        0
     };
-    if (serverId)
-      query.serverId = serverId;
-    if (hostId)
-      query.hostId = hostId;
+    self.addHostQuery(query);
     return 'item?' + $.param(query);
   };
 

@@ -143,23 +143,13 @@ var TriggersView = function(userProfile) {
   }
 
   function getQuery() {
-    var serverId = self.getTargetServerId();
-    var hostGroupId = self.getTargetHostGroupId();
-    var hostId = self.getTargetHostId();
     var query = {
       minimumSeverity: $("#select-severity").val(),
       status:          $("#select-status").val(),
       maximumNumber:   0,
       offset:          0
     };
-    if (serverId)
-      query.serverId = serverId;
-    /*
-    if (hostGroupId)
-      query.hostGroupId = hostGroupId;
-    */
-    if (hostId)
-      query.hostId = hostId;
+    self.addHostQuery(query);
     return 'trigger?' + $.param(query);
   };
 

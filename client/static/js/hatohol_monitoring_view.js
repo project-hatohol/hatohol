@@ -175,6 +175,18 @@ HatoholMonitoringView.prototype.setHostFilterCandidates =
   $(selectorId).val(current);
 };
 
+HatoholMonitoringView.prototype.addHostQuery = function(query) {
+    var serverId = this.getTargetServerId();
+    var hostGroupId = this.getTargetHostGroupId();
+    var hostId = this.getTargetHostId();
+    if (serverId)
+      query.serverId = serverId;
+    if (hostGroupId)
+      query.hostGroupId = hostGroupId;
+    if (hostId)
+      query.hostId = hostId;
+};
+
 HatoholMonitoringView.prototype.setStatus = function (value) {
   var elem;
   var x;

@@ -75,8 +75,6 @@ var EventsView = function(userProfile, baseElem) {
       self.limitOfUnifiedId = 0;
     }
 
-    var serverId = self.getTargetServerId();
-    var hostId = self.getTargetHostId();
     var query = {
       minimumSeverity: $("#select-severity").val(),
       status:          $("#select-status").val(),
@@ -85,10 +83,7 @@ var EventsView = function(userProfile, baseElem) {
       sortType:        self.sortType,
       sortOrder:       self.sortOrder
     };
-    if (serverId)
-      query.serverId = serverId;
-    if (hostId)
-      query.hostId = hostId;
+    self.addHostQuery(query);
 
     return 'events?' + $.param(query);
   };

@@ -190,18 +190,13 @@ var OverviewTriggers = function(userProfile) {
   }
 
   function getQuery() {
-    var serverId = self.getTargetServerId();
-    var hostId = self.getTargetHostId();
     var query = {
       minimumSeverity: $("#select-severity").val(),
       status:          $("#select-status").val(),
       maximumNumber:   0,
       offset:          0
     };
-    if (serverId)
-      query.serverId = serverId;
-    if (hostId)
-      query.hostId = hostId;
+    self.addHostQuery(query);
     return 'trigger?' + $.param(query);
   };
 
