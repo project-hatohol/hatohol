@@ -165,6 +165,7 @@ std::string joinStringVector(const mlpl::StringVector &strVect,
                              bool isPaddingTail = true);
 
 void crash(void);
+void prepareTestDataForFilterForDataOfDefunctServers(void);
 
 /**
  * Make a format string for a double float value that can be used for

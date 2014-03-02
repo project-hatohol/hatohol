@@ -19,6 +19,7 @@
 
 #include <cppcutter.h>
 #include <cutter.h>
+#include <gcutter.h>
 #include <unistd.h>
 #include "Hatohol.h"
 #include "Params.h"
@@ -132,6 +133,14 @@ void cut_setup(void)
 // ---------------------------------------------------------------------------
 void test_getEventList(void)
 {
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getEventList(gconstpointer data)
+{
+	const bool filterForDataOfDefunctSv =
+	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
+
 	string expected, actual;
 	for (size_t i = 0; i < NumTestEventInfo; i++)
 		expected += dumpEventInfo(testEventInfo[i]);
@@ -139,6 +148,7 @@ void test_getEventList(void)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	EventInfoList list;
 	EventsQueryOption option(USER_ID_SYSTEM);
+	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	dataStore->getEventList(list, option);
 
 	EventInfoListIterator it;
@@ -147,8 +157,16 @@ void test_getEventList(void)
 	cppcut_assert_equal(expected, actual);
 }
 
-void test_getItemList(void)
+void data_getItemList(void)
 {
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getItemList(gconstpointer data)
+{
+	const bool filterForDataOfDefunctSv =
+	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
+
 	string expected, actual;
 	for (size_t i = 0; i < NumTestItemInfo; i++)
 		expected += dumpItemInfo(testItemInfo[i]);
@@ -156,6 +174,7 @@ void test_getItemList(void)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	ItemInfoList list;
 	ItemsQueryOption option(USER_ID_SYSTEM);
+	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	dataStore->getItemList(list, option);
 
 	ItemInfoListIterator it;

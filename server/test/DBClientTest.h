@@ -92,6 +92,21 @@ size_t getNumberOfTestTriggers(
   const ServerIdType &serverId, uint64_t hostGroupId = ALL_HOST_GROUPS,
   TriggerSeverityType severity = NUM_TRIGGER_SEVERITY);
 
+typedef std::map<uint64_t, size_t>         ItemInfoIdIndexMap;
+typedef ItemInfoIdIndexMap::iterator       ItemInfoIdIndexMapIterator;
+typedef ItemInfoIdIndexMap::const_iterator ItemInfoIdIndexMapConstIterator;
+
+typedef std::map<ServerIdType, ItemInfoIdIndexMap>
+  ServerIdItemInfoIdIndexMapMap;
+typedef ServerIdItemInfoIdIndexMapMap::iterator
+  ServerIdItemInfoIdIndexMapMapIterator;
+typedef ServerIdItemInfoIdIndexMapMap::const_iterator
+  ServerIdItemInfoIdIndexMapMapConstIterator;
+
+void getTestItemsIndexes(ServerIdItemInfoIdIndexMapMap &indexMap);
+ItemInfo *findTestItem(
+  const ServerIdItemInfoIdIndexMapMap &indexMap,
+  const ServerIdType &serverId, const uint64_t itemId);
 size_t getNumberOfTestItems(const ServerIdType &serverId);
 
 void getTestHostInfoList(HostInfoList &hostInfoList,

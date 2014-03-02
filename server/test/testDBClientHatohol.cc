@@ -232,7 +232,10 @@ static string makeItemOutput(const ItemInfo &itemInfo)
 struct AssertGetItemsArg
   : public AssertGetHostResourceArg<ItemInfo, ItemsQueryOption>
 {
-	AssertGetItemsArg(void)
+	gconstpointer data;
+
+	AssertGetItemsArg(gconstpointer _data)
+	: data(_data)
 	{
 		fixtures = testItemInfo;
 		numberOfFixtures = NumTestItemInfo;
@@ -251,8 +254,12 @@ struct AssertGetItemsArg
 
 static void _assertGetItems(AssertGetItemsArg &arg)
 {
+	const bool filterForDataOfDefunctSv =
+	  gcut_data_get_boolean(arg.data, "filterDataOfDefunctServers");
+
 	DBClientHatohol dbHatohol;
 	arg.fixup();
+	arg.option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	dbHatohol.getItemInfoList(arg.actualRecordList, arg.option);
 	arg.assert();
 }
@@ -260,27 +267,36 @@ static void _assertGetItems(AssertGetItemsArg &arg)
 
 static void _assertGetItemsWithFilter(AssertGetItemsArg &arg)
 {
+	const bool filterForDataOfDefunctSv =
+	  gcut_data_get_boolean(arg.data, "filterDataOfDefunctServers");
+	arg.option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
+
 	// setup item data
-	void test_addItemInfoList(void);
-	test_addItemInfoList();
+	void test_addItemInfoList(gconstpointer data);
+	test_addItemInfoList(arg.data);
 	assertGetItems(arg);
 }
 #define assertGetItemsWithFilter(ARG) \
 cut_trace(_assertGetItemsWithFilter(ARG))
 
-void _assertItemInfoList(uint32_t serverId)
+void _assertItemInfoList(gconstpointer data, uint32_t serverId)
 {
+	const bool filterForDataOfDefunctSv =
+	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
+
 	DBClientHatohol dbHatohol;
 	ItemInfoList itemInfoList;
 	for (size_t i = 0; i < NumTestItemInfo; i++)
 		itemInfoList.push_back(testItemInfo[i]);
 	dbHatohol.addItemInfoList(itemInfoList);
 
-	AssertGetItemsArg arg;
+	AssertGetItemsArg arg(data);
 	arg.targetServerId = serverId;
+	arg.option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	assertGetItems(arg);
 }
-#define assertItemInfoList(SERVER_ID) cut_trace(_assertItemInfoList(SERVER_ID))
+#define assertItemInfoList(DATA, SERVER_ID) \
+cut_trace(_assertItemInfoList(DATA, SERVER_ID))
 
 static string makeHostOutput(const HostInfo &hostInfo)
 {
@@ -650,18 +666,33 @@ void test_getTriggerWithInvalidUserId(void)
 	assertGetTriggersWithFilter(arg);
 }
 
-void test_itemInfoList(void)
+void data_itemInfoList(void)
 {
-	assertItemInfoList(ALL_SERVERS);
+	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
-void test_itemInfoListForOneServer(void)
+void test_itemInfoList(gconstpointer data)
+{
+	assertItemInfoList(data, ALL_SERVERS);
+}
+
+void data_itemInfoListForOneServer(gconstpointer data)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_itemInfoListForOneServer(gconstpointer data)
 {
 	uint32_t targetServerId = testItemInfo[0].serverId;
-	assertItemInfoList(targetServerId);
+	assertItemInfoList(data, targetServerId);
 }
 
-void test_addItemInfoList(void)
+void data_addItemInfoList(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_addItemInfoList(gconstpointer data)
 {
 	DBClientHatohol dbHatohol;
 	ItemInfoList itemInfoList;
@@ -669,30 +700,45 @@ void test_addItemInfoList(void)
 		itemInfoList.push_back(testItemInfo[i]);
 	dbHatohol.addItemInfoList(itemInfoList);
 
-	AssertGetItemsArg arg;
+	AssertGetItemsArg arg(data);
 	assertGetItems(arg);
 }
 
-void test_getItemsWithOneAuthorizedServer(void)
+void data_getItemsWithOneAuthorizedServer(gconstpointer data)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getItemsWithOneAuthorizedServer(gconstpointer data)
 {
 	setupTestDBUser(true, true);
-	AssertGetItemsArg arg;
+	AssertGetItemsArg arg(data);
 	arg.userId = 5;
 	assertGetItemsWithFilter(arg);
 }
 
-void test_getItemWithNoAuthorizedServer(void)
+void data_getItemWithNoAuthorizedServer(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getItemWithNoAuthorizedServer(gconstpointer data)
 {
 	setupTestDBUser(true, true);
-	AssertGetItemsArg arg;
+	AssertGetItemsArg arg(data);
 	arg.userId = 4;
 	assertGetItemsWithFilter(arg);
 }
 
-void test_getItemWithInvalidUserId(void)
+void data_getItemWithInvalidUserId(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getItemWithInvalidUserId(gconstpointer data)
 {
 	setupTestDBUser(true, true);
-	AssertGetItemsArg arg;
+	AssertGetItemsArg arg(data);
 	arg.userId = INVALID_USER_ID;
 	assertGetItemsWithFilter(arg);
 }
@@ -950,9 +996,16 @@ void test_makeConditionWithTargetServerAndHost(void)
 	assertMakeCondition(srvHostGrpSetMap, expect, 14, 21);
 }
 
-void test_conditionForAdminWithTargetServerAndHost(void)
+void data_conditionForAdminWithTargetServerAndHost(void)
 {
+}
+
+void test_conditionForAdminWithTargetServerAndHost(gconstpointer data)
+{
+	const bool filterForDataOfDefunctSv =
+	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
 	HostResourceQueryOption option(USER_ID_SYSTEM);
+	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	option.setTargetServerId(26);
 	option.setTargetHostId(32);
 	string expect = StringUtils::sprintf("%s=26 AND %s=32",
@@ -961,9 +1014,17 @@ void test_conditionForAdminWithTargetServerAndHost(void)
 	cppcut_assert_equal(expect, option.getCondition());
 }
 
-void test_eventQueryOptionGetServerIdColumnName(void)
+void data_eventQueryOptionGetServerIdColumnName(void)
 {
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_eventQueryOptionGetServerIdColumnName(gconstpointer data)
+{
+	const bool filterForDataOfDefunctSv =
+	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
 	HostResourceQueryOption option(USER_ID_SYSTEM);
+	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	const string tableAlias = "test_event_table_alias";
 	option.setTargetServerId(26);
 	option.setTargetHostgroupId(48);
@@ -1008,17 +1069,34 @@ void test_makeConditionComplicated(void)
 	assertMakeCondition(srvHostGrpSetMap, expect);
 }
 
-void test_makeSelectConditionUserAdmin(void)
+void data_makeSelectConditionUserAdmin(void)
 {
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_makeSelectConditionUserAdmin(gconstpointer data)
+{
+	const bool filterForDataOfDefunctSv =
+	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
 	HostResourceQueryOption option(USER_ID_SYSTEM);
+	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	string actual = option.getCondition();
 	string expect = "";
 	cppcut_assert_equal(actual, expect);
 }
 
-void test_makeSelectConditionAllEvents(void)
+
+void data_makeSelectConditionAllEvents(void)
 {
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_makeSelectConditionAllEvents(gconstpointer data)
+{
+	const bool filterForDataOfDefunctSv =
+	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
 	HostResourceQueryOption option;
+	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	option.setFlags(OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_SERVER));
 	string actual = option.getCondition();
 	string expect = "";
@@ -1034,10 +1112,18 @@ void test_makeSelectConditionNoneUser(void)
 	cppcut_assert_equal(actual, expect);
 }
 
-void test_makeSelectCondition(void)
+void data_makeSelectCondition(void)
 {
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_makeSelectCondition(gconstpointer data)
+{
+	const bool filterForDataOfDefunctSv =
+	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
 	setupTestDBUser(true, true);
 	HostResourceQueryOption option;
+	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	for (size_t i = 0; i < NumTestUserInfo; i++) {
 		UserIdType userId = i + 1;
 		option.setUserId(userId);
@@ -1300,9 +1386,9 @@ void test_defaultValueOfFilterForDataOfDefunctServers(void)
 void data_setGetOfFilterForDataOfDefunctServers(void)
 {
 	gcut_add_datum("Disable filtering",
-		       "enable", G_TYPE_BOOLEAN, FALSE, NULL);
+	               "enable", G_TYPE_BOOLEAN, FALSE, NULL);
 	gcut_add_datum("Eanble filtering",
-		       "enable", G_TYPE_BOOLEAN, TRUE, NULL);
+	               "enable", G_TYPE_BOOLEAN, TRUE, NULL);
 }
 
 void test_setGetOfFilterForDataOfDefunctServers(gconstpointer data)

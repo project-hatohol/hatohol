@@ -185,7 +185,7 @@ public:
 	 * false is returned.
 	 *
 	 */
-	const bool &getFilterForDataOfDefunctServers(void);
+	const bool &getFilterForDataOfDefunctServers(void) const;
 
 protected:
 	void setServerIdColumnName(const std::string &name) const;

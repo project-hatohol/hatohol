@@ -556,6 +556,27 @@ void getTestTriggersIndexes(
 	}
 }
 
+void getTestItemsIndexes(ServerIdItemInfoIdIndexMapMap &indexMap)
+{
+	for (size_t i = 0; i < NumTestItemInfo; i++) {
+		const ItemInfo &itemInfo = testItemInfo[i];
+		indexMap[itemInfo.serverId][itemInfo.id] = i;
+	}
+}
+
+ItemInfo *findTestItem(
+  const ServerIdItemInfoIdIndexMapMap &indexMap,
+  const ServerIdType &serverId, const uint64_t itemId)
+{
+	ServerIdItemInfoIdIndexMapMapConstIterator it = indexMap.find(serverId);
+	if (it == indexMap.end())
+		return NULL;
+	ItemInfoIdIndexMapConstIterator indexIt = it->second.find(itemId);
+	if (indexIt == it->second.end())
+		return NULL;
+	return &testItemInfo[indexIt->second];
+}
+
 size_t getNumberOfTestItems(const ServerIdType &serverId)
 {
 	if (serverId == ALL_SERVERS)

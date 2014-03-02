@@ -903,6 +903,15 @@ string HostResourceQueryOption::makeCondition(
 string HostResourceQueryOption::getCondition(const string &tableAlias) const
 {
 	string condition;
+	if (getFilterForDataOfDefunctServers()) {
+		addCondition(
+		  condition,
+		  makeConditionServer(
+		    getDataQueryContext().getValidServerIdSet(),
+		    getServerIdColumnName(tableAlias))
+		);
+	}
+
 	UserIdType userId = getUserId();
 
 	if (userId == USER_ID_SYSTEM || has(OPPRVLG_GET_ALL_SERVER)) {
@@ -984,7 +993,7 @@ void HostResourceQueryOption::setFilterForDataOfDefunctServers(
 	m_ctx->filterDataOfDefunctServers = enable;
 }
 
-const bool &HostResourceQueryOption::getFilterForDataOfDefunctServers(void)
+const bool &HostResourceQueryOption::getFilterForDataOfDefunctServers(void) const
 {
 	return m_ctx->filterDataOfDefunctServers;
 }

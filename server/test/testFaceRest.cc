@@ -630,13 +630,45 @@ static void _assertItems(const string &path, const string &callbackName = "")
 	startFaceRest();
 	RequestArg arg(path, callbackName);
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	DataQueryContextPtr dqCtxPtr(new DataQueryContext(arg.userId), false);
 	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
-	assertValueInParser(g_parser, "numberOfItems", NumTestItemInfo);
-	g_parser->startObject("items");
+
+	// NOTE: Items that belong to the servers that registered in the config
+	// DB are returned. I.e. all elements of testItemInfo shall not be
+	// in 'g_parser'.
+
+	// Check the size of ItemInfo
+	size_t numExpectedItems = 0;
 	for (size_t i = 0; i < NumTestItemInfo; i++) {
+		if (dqCtxPtr->isValidServer(testItemInfo[i].serverId))
+			numExpectedItems++;
+	}
+	// If 'numExpectedItems' is 0, the test matarial is bad.
+	cppcut_assert_not_equal((size_t)0, numExpectedItems);
+
+	int64_t _numItems = 0;
+	cppcut_assert_equal(true, g_parser->read("numberOfItems", _numItems));
+	size_t numItems = static_cast<size_t>(_numItems);
+	cppcut_assert_equal(numExpectedItems, numItems);
+
+	// Check each ItemInfo
+	ServerIdItemInfoIdIndexMapMap indexMap;
+	getTestItemsIndexes(indexMap);
+	g_parser->startObject("items");
+	set<ItemInfo *> itemInfoPtrSet;
+	for (size_t i = 0; i < numItems; i++) {
+		int64_t serverId = 0;
+		int64_t itemInfoId = 0;
+
 		g_parser->startElement(i);
-		ItemInfo &itemInfo = testItemInfo[i];
+		cppcut_assert_equal(true, g_parser->read("serverId", serverId));
+		cppcut_assert_equal(true, g_parser->read("id", itemInfoId));
+		ItemInfo *itemInfoPtr =
+		  findTestItem(indexMap, serverId, itemInfoId);
+		cppcut_assert_not_null(itemInfoPtr);
+		const ItemInfo &itemInfo = *itemInfoPtr;
+
 		assertValueInParser(g_parser, "serverId", itemInfo.serverId);
 		assertValueInParser(g_parser, "hostId", itemInfo.hostId);
 		assertValueInParser(g_parser, "brief", itemInfo.brief);
@@ -645,6 +677,11 @@ static void _assertItems(const string &path, const string &callbackName = "")
 		assertValueInParser(g_parser, "lastValue", itemInfo.lastValue);
 		assertValueInParser(g_parser, "prevValue", itemInfo.prevValue);
 		g_parser->endElement();
+
+		// Check duplication
+		pair<set<ItemInfo *>::iterator, bool> result = 
+		  itemInfoPtrSet.insert(itemInfoPtr);
+		cppcut_assert_equal(true, result.second);
 	}
 	g_parser->endObject();
 	assertServersIdNameHashInParser(g_parser);
