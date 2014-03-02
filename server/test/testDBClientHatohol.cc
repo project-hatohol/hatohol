@@ -1097,7 +1097,6 @@ void test_makeSelectConditionUserAdmin(gconstpointer data)
 	cppcut_assert_equal(actual, expect);
 }
 
-
 void data_makeSelectConditionAllEvents(void)
 {
 	prepareTestDataForFilterForDataOfDefunctServers();
