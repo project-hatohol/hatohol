@@ -28,13 +28,7 @@ var OverviewItems = function(userProfile) {
 
   load();
 
-  $("#select-server").change(function() {
-    load();
-  });
-  $("#select-group").change(function() {
-    load();
-  });
-  $("#select-host").change(function() {
+  $("#select-server, #select-group, #select-host").change(function() {
     load();
   });
 

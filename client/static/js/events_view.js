@@ -103,16 +103,10 @@ var EventsView = function(userProfile, baseElem) {
       th.eq(data.column).append("<i class='sort glyphicon glyphicon-arrow-" + icon +"'></i>");
     });
 
-    $("#select-severity").change(function() {
+    $("#select-severity, #select-status").change(function() {
       load();
     });
-    $("#select-server").change(function() {
-      load();
-    });
-    $("#select-host").change(function() {
-      load();
-    });
-    $("#select-status").change(function() {
+    $("#select-server, #select-group, #select-host").change(function() {
       load();
     });
 
