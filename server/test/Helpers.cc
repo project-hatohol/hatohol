@@ -800,12 +800,9 @@ void prepareTestDataForFilterForDataOfDefunctServers(void)
 	gcut_add_datum("Not filter data of defunct servers",
 		       "filterDataOfDefunctServers", G_TYPE_BOOLEAN, FALSE,
 		       NULL);
-	// TODO: Do test with the following data
-	/*
 	gcut_add_datum("Not filter data of defunct servers.",
 		       "filterDataOfDefunctServers", G_TYPE_BOOLEAN, TRUE,
 		       NULL);
-	*/
 }
 
 string makeDoubleFloatFormat(const ColumnDef &columnDef)

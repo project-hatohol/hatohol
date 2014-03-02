@@ -140,6 +140,8 @@ void test_getEventList(gconstpointer data)
 {
 	const bool filterForDataOfDefunctSv =
 	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
+	if (filterForDataOfDefunctSv)
+		cut_pend("To be implemented");
 
 	string expected, actual;
 	for (size_t i = 0; i < NumTestEventInfo; i++)
@@ -166,6 +168,8 @@ void test_getItemList(gconstpointer data)
 {
 	const bool filterForDataOfDefunctSv =
 	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
+	if (filterForDataOfDefunctSv)
+		cut_pend("To be implemented");
 
 	string expected, actual;
 	for (size_t i = 0; i < NumTestItemInfo; i++)
