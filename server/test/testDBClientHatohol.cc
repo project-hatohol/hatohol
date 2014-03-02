@@ -1290,4 +1290,10 @@ void test_makeConditionServerWithEmptyIdSet(void)
 	cppcut_assert_equal(true, actual.empty());
 }
 
+void test_defaultValueOfFilterForDataOfDefunctServers(void)
+{
+	HostResourceQueryOption opt;
+	cppcut_assert_equal(true, opt.getFilterForDataOfDefunctServers());
+}
+
 } // namespace testDBClientHatohol

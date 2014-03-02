@@ -167,6 +167,26 @@ public:
 	virtual HostGroupIdType getTargetHostgroupId(void) const;
 	virtual void setTargetHostgroupId(HostGroupIdType targetHostGroupId);
 
+	/**
+	 * Enable or disable the filter for the data of defunct servers.
+	 *
+	 * @param enable
+	 * If the parameter is true, the filter is enabled. Otherwise,
+	 * it is disabled.
+	 *
+	 */
+	void setFilterForDataOfDefunctServers(const bool &enable = true);
+
+	/**
+	 * Get the filter status for the data of defunct servers.
+	 *
+	 * @return
+	 * If the filter is enabled, true is returned, Otherwise,
+	 * false is returned.
+	 *
+	 */
+	const bool &getFilterForDataOfDefunctServers(void);
+
 protected:
 	void setServerIdColumnName(const std::string &name) const;
 	std::string getServerIdColumnName(

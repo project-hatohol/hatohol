@@ -694,6 +694,7 @@ struct HostResourceQueryOption::PrivateContext {
 	ServerIdType targetServerId;
 	HostIdType targetHostId;
 	HostGroupIdType targetHostgroupId;
+	bool filterDataOfDefunctServers;
 
 	PrivateContext()
 	: serverIdColumnName("server_id"),
@@ -701,7 +702,8 @@ struct HostResourceQueryOption::PrivateContext {
 	  hostIdColumnName("host_id"),
 	  targetServerId(ALL_SERVERS),
 	  targetHostId(ALL_HOSTS),
-	  targetHostgroupId(ALL_HOST_GROUPS)
+	  targetHostgroupId(ALL_HOST_GROUPS),
+	  filterDataOfDefunctServers(true)
 	{
 	}
 };
@@ -974,6 +976,17 @@ void HostResourceQueryOption::setTargetHostgroupId(
   HostGroupIdType targetHostgroupId)
 {
 	m_ctx->targetHostgroupId = targetHostgroupId;
+}
+
+void HostResourceQueryOption::setFilterForDataOfDefunctServers(
+  const bool &enable)
+{
+	m_ctx->filterDataOfDefunctServers = enable;
+}
+
+const bool &HostResourceQueryOption::getFilterForDataOfDefunctServers(void)
+{
+	return m_ctx->filterDataOfDefunctServers;
 }
 
 struct EventsQueryOption::PrivateContext {
