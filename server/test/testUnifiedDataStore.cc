@@ -32,13 +32,6 @@ using namespace mlpl;
 
 namespace testUnifiedDataStore {
 
-void test_singleton(void) {
-	UnifiedDataStore *dataStore1 = UnifiedDataStore::getInstance();
-	UnifiedDataStore *dataStore2 = UnifiedDataStore::getInstance();
-	cut_assert_not_null(dataStore1);
-	cppcut_assert_equal(dataStore1, dataStore2);
-}
-
 static const string triggerStatusToString(TriggerStatusType type)
 {
 	return LabelUtils::getTriggerStatusLabel(type);
@@ -62,23 +55,6 @@ static string dumpTriggerInfo(const TriggerInfo &info)
 		info.hostId,
 		info.hostName.c_str(),
 		info.brief.c_str());
-}
-
-void test_getTriggerList(void)
-{
-	string expected, actual;
-	for (size_t i = 0; i < NumTestTriggerInfo; i++)
-		expected += dumpTriggerInfo(testTriggerInfo[i]);
-
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	TriggerInfoList list;
-	TriggersQueryOption option(USER_ID_SYSTEM);
-	dataStore->getTriggerList(list, option);
-
-	TriggerInfoListIterator it;
-	for (it = list.begin(); it != list.end(); it++)
-		actual += dumpTriggerInfo(*it);
-	cppcut_assert_equal(expected, actual);
 }
 
 static string eventTypeToString(EventType type)
@@ -131,6 +107,30 @@ void cut_setup(void)
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
+void test_singleton(void) {
+	UnifiedDataStore *dataStore1 = UnifiedDataStore::getInstance();
+	UnifiedDataStore *dataStore2 = UnifiedDataStore::getInstance();
+	cut_assert_not_null(dataStore1);
+	cppcut_assert_equal(dataStore1, dataStore2);
+}
+
+void test_getTriggerList(void)
+{
+	string expected, actual;
+	for (size_t i = 0; i < NumTestTriggerInfo; i++)
+		expected += dumpTriggerInfo(testTriggerInfo[i]);
+
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	TriggerInfoList list;
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	dataStore->getTriggerList(list, option);
+
+	TriggerInfoListIterator it;
+	for (it = list.begin(); it != list.end(); it++)
+		actual += dumpTriggerInfo(*it);
+	cppcut_assert_equal(expected, actual);
+}
+
 void test_getEventList(void)
 {
 	prepareTestDataForFilterForDataOfDefunctServers();
