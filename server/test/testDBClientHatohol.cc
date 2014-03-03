@@ -501,6 +501,16 @@ static string makeHostsOutput(const HostInfo &hostInfo, size_t id)
 	return expectedOut;
 }
 
+static void fixupExpectedWithServerFiltering(
+  gconstpointer data, string &expected, HostResourceQueryOption &option)
+{
+	const bool filterForDataOfDefunctSv =
+	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
+	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
+	if (filterForDataOfDefunctSv)
+		insertValidServerCond(expected, option);
+}
+
 void prepareTestDataForFilterForDataOfDefunctServersTmp(void)
 {
 	gcut_add_datum("Not filter data of defunct servers",
@@ -1304,16 +1314,14 @@ void test_eventQueryOptionWithSortTypeTime(void)
 
 void data_eventQueryOptionDefaultMinimumSeverity(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServersTmp();
+	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
 void test_eventQueryOptionDefaultMinimumSeverity(gconstpointer data)
 {
-	const bool filterForDataOfDefunctSv =
-	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
 	EventsQueryOption option(USER_ID_SYSTEM);
-	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
-	const string expected =  "";
+	string expected = "";
+	fixupExpectedWithServerFiltering(data, expected, option);
 	cppcut_assert_equal(TRIGGER_SEVERITY_UNKNOWN,
 			    option.getMinimumSeverity());
 	cppcut_assert_equal(expected, option.getCondition());
