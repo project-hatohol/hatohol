@@ -10,6 +10,7 @@ AM_CXXFLAGS = -g3 -Wall -I .. -I ../../src $(GLIB_CFLAGS) $(MLPL_CFLAGS)
 LIBS = ../../src/libhatohol.la ../libTest.la
 
 mkTestDB_SOURCES = mkTestDB.cc
+mkTestDB_LDADD = $(LIBS)
 
 $(TEST_DBS): mkTestDB ../../src/libhatohol.la ../libTest.la
 testDatabase-hatohol.db:
