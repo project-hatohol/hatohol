@@ -1487,15 +1487,11 @@ void data_itemsQueryOptionWithItemGroupName(void)
 
 void test_itemsQueryOptionWithItemGroupName(gconstpointer data)
 {
-	const bool filterForDataOfDefunctSv =
-	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
 	ItemsQueryOption option(USER_ID_SYSTEM);
-	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	string itemGroupName = "It's test items";
 	option.setTargetItemGroupName(itemGroupName);
 	string expected = "items.item_group_name='It''s test items'";
-	if (filterForDataOfDefunctSv)
-		insertValidServerCond(expected, option);
+	fixupForFilteringDefunctServer(data, expected, option);
 	cppcut_assert_equal(itemGroupName, option.getTargetItemGroupName());
 	cppcut_assert_equal(expected, option.getCondition());
 }
