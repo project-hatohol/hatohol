@@ -1421,7 +1421,7 @@ void test_getEventWithOneAuthorizedServer(gconstpointer data)
 
 void data_getEventWithNoAuthorizedServer(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
 void test_getEventWithNoAuthorizedServer(gconstpointer data)
