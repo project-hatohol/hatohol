@@ -106,7 +106,7 @@ var EventsView = function(userProfile, baseElem) {
     $("#select-severity, #select-status").change(function() {
       load();
     });
-    $("#select-server, #select-group, #select-host").change(function() {
+    $("#select-server, #select-host-group, #select-host").change(function() {
       load();
     });
 

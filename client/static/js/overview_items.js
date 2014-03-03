@@ -28,7 +28,7 @@ var OverviewItems = function(userProfile) {
 
   load();
 
-  $("#select-server, #select-group, #select-host").change(function() {
+  $("#select-server, #select-host-group, #select-host").change(function() {
     load();
   });
 

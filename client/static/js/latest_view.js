@@ -36,7 +36,7 @@ var LatestView = function(userProfile) {
     th.eq(data.column).append("<i class='sort glyphicon glyphicon-arrow-" + icon +"'></i>");
   });
 
-  $("#select-server, #select-group, #select-host").change(function() {
+  $("#select-server, #select-host-group, #select-host").change(function() {
     load();
   });
   $("#select-application").change(function() {
