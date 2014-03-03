@@ -859,7 +859,7 @@ void test_getHostInfoListForOneServer(gconstpointer data)
 
 void data_getHostInfoListWithNoAuthorizedServer(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
 void test_getHostInfoListWithNoAuthorizedServer(gconstpointer data)
