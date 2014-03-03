@@ -1294,7 +1294,7 @@ void test_eventQueryOptionWithSortTypeTime(void)
 	cppcut_assert_equal(expected, option.getOrderBy());
 }
 
-void test_eventQueryOptionDefaultMinimumSeveirty(void)
+void test_eventQueryOptionDefaultMinimumSeverity(void)
 {
 	EventsQueryOption option(USER_ID_SYSTEM);
 	const string expected =  "";
@@ -1303,7 +1303,7 @@ void test_eventQueryOptionDefaultMinimumSeveirty(void)
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
-void test_eventQueryOptionWithMinimumSeveirty(void)
+void test_eventQueryOptionWithMinimumSeverity(void)
 {
 	EventsQueryOption option(USER_ID_SYSTEM);
 	option.setMinimumSeverity(TRIGGER_SEVERITY_CRITICAL);
@@ -1343,7 +1343,7 @@ void test_triggersQueryOptionWithTargetId(void)
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
-void test_triggersQueryOptionDefaultMinimumSeveirty(void)
+void test_triggersQueryOptionDefaultMinimumSeverity(void)
 {
 	TriggersQueryOption option(USER_ID_SYSTEM);
 	const string expected =  "";
@@ -1352,7 +1352,7 @@ void test_triggersQueryOptionDefaultMinimumSeveirty(void)
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
-void test_triggersQueryOptionWithMinimumSeveirty(void)
+void test_triggersQueryOptionWithMinimumSeverity(void)
 {
 	TriggersQueryOption option(USER_ID_SYSTEM);
 	option.setMinimumSeverity(TRIGGER_SEVERITY_CRITICAL);
