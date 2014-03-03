@@ -1365,19 +1365,17 @@ void test_eventQueryOptionWithTriggerStatus(gconstpointer data)
 
 void data_triggersQueryOptionWithTargetId(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServersTmp();
+	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
 void test_triggersQueryOptionWithTargetId(gconstpointer data)
 {
-	const bool filterForDataOfDefunctSv =
-	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
 	TriggersQueryOption option(USER_ID_SYSTEM);
-	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	TriggerIdType expectedId = 634;
 	option.setTargetId(expectedId);
-	const string expected = StringUtils::sprintf(
+	string expected = StringUtils::sprintf(
 		"triggers.id=%"FMT_TRIGGER_ID, expectedId);
+	fixupForFilteringDefunctServer(data, expected, option);
 	cppcut_assert_equal(expectedId, option.getTargetId());
 	cppcut_assert_equal(expected, option.getCondition());
 }
