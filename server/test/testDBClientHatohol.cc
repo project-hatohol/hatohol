@@ -1408,7 +1408,7 @@ void test_getEventWithMaxNumAndOffsetAndLimitOfUnifiedIdDescending(
 
 void data_getEventWithOneAuthorizedServer(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
 void test_getEventWithOneAuthorizedServer(gconstpointer data)
