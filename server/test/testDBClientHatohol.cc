@@ -709,7 +709,7 @@ void test_getTriggerWithNoAuthorizedServer(gconstpointer data)
 
 void data_getTriggerWithInvalidUserId(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
 void test_getTriggerWithInvalidUserId(gconstpointer data)
@@ -822,7 +822,7 @@ void test_addEventInfoList(gconstpointer data)
 
 void data_getLastEventId(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
 void test_getLastEventId(gconstpointer data)
