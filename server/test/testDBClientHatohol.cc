@@ -601,7 +601,7 @@ void test_getTriggerInfoListForOneServer(gconstpointer data)
 
 void data_getTriggerInfoListForOneServerOneHost(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
 void test_getTriggerInfoListForOneServerOneHost(gconstpointer data)
