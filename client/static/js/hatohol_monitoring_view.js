@@ -45,8 +45,8 @@ HatoholMonitoringView.prototype.getTargetServerId = function(selectorId) {
 HatoholMonitoringView.prototype.getTargetHostGroupId = function(selectorId) {
   var id;
   if (!selectorId)
-    selectorId = "#select-host-group";
-  id = $("#select-host-group").val();
+    selectorId = "#select-hostgroup";
+  id = $("#select-hostgroup").val();
   if (id == "---------")
     id = null;
   return id;
@@ -123,7 +123,7 @@ HatoholMonitoringView.prototype.setHostGroupFilterCandidates =
   var id, server, groups, groupLabels = [], current;
 
   if (!selectorId)
-    selectorId = '#select-host-group';
+    selectorId = '#select-hostgroup';
   current = $(selectorId).val();
   if (!serverId)
     serverId = this.getTargetServerId();
