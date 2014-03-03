@@ -501,7 +501,7 @@ static string makeHostsOutput(const HostInfo &hostInfo, size_t id)
 	return expectedOut;
 }
 
-static void fixupExpectedWithServerFiltering(
+static void fixupForFilteringDefunctServer(
   gconstpointer data, string &expected, HostResourceQueryOption &option)
 {
 	const bool filterForDataOfDefunctSv =
@@ -1321,7 +1321,7 @@ void test_eventQueryOptionDefaultMinimumSeverity(gconstpointer data)
 {
 	EventsQueryOption option(USER_ID_SYSTEM);
 	string expected = "";
-	fixupExpectedWithServerFiltering(data, expected, option);
+	fixupForFilteringDefunctServer(data, expected, option);
 	cppcut_assert_equal(TRIGGER_SEVERITY_UNKNOWN,
 			    option.getMinimumSeverity());
 	cppcut_assert_equal(expected, option.getCondition());
