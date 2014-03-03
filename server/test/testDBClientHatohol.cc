@@ -501,6 +501,14 @@ static string makeHostsOutput(const HostInfo &hostInfo, size_t id)
 	return expectedOut;
 }
 
+void prepareTestDataForFilterForDataOfDefunctServersTmp(void)
+{
+	gcut_add_datum("Not filter data of defunct servers",
+		       "filterDataOfDefunctServers", G_TYPE_BOOLEAN, FALSE,
+		       NULL);
+	MLPL_BUG("This function must be replaced !!!\n");
+}
+
 void cut_setup(void)
 {
 	hatoholInit();
@@ -1294,18 +1302,34 @@ void test_eventQueryOptionWithSortTypeTime(void)
 	cppcut_assert_equal(expected, option.getOrderBy());
 }
 
-void test_eventQueryOptionDefaultMinimumSeverity(void)
+void data_eventQueryOptionDefaultMinimumSeverity(void)
 {
+	prepareTestDataForFilterForDataOfDefunctServersTmp();
+}
+
+void test_eventQueryOptionDefaultMinimumSeverity(gconstpointer data)
+{
+	const bool filterForDataOfDefunctSv =
+	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
 	EventsQueryOption option(USER_ID_SYSTEM);
+	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	const string expected =  "";
 	cppcut_assert_equal(TRIGGER_SEVERITY_UNKNOWN,
 			    option.getMinimumSeverity());
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
-void test_eventQueryOptionWithMinimumSeverity(void)
+void data_eventQueryOptionWithMinimumSeverity(void)
 {
+	prepareTestDataForFilterForDataOfDefunctServersTmp();
+}
+
+void test_eventQueryOptionWithMinimumSeverity(gconstpointer data)
+{
+	const bool filterForDataOfDefunctSv =
+	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
 	EventsQueryOption option(USER_ID_SYSTEM);
+	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	option.setMinimumSeverity(TRIGGER_SEVERITY_CRITICAL);
 	const string expected =  "triggers.severity>=4";
 	cppcut_assert_equal(TRIGGER_SEVERITY_CRITICAL,
@@ -1313,18 +1337,34 @@ void test_eventQueryOptionWithMinimumSeverity(void)
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
-void test_eventQueryOptionDefaultTriggerStatus(void)
+void data_eventQueryOptionDefaultTriggerStatus(void)
 {
+	prepareTestDataForFilterForDataOfDefunctServersTmp();
+}
+
+void test_eventQueryOptionDefaultTriggerStatus(gconstpointer data)
+{
+	const bool filterForDataOfDefunctSv =
+	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
 	EventsQueryOption option(USER_ID_SYSTEM);
+	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	const string expected =  "";
 	cppcut_assert_equal(TRIGGER_STATUS_ALL,
 			    option.getTriggerStatus());
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
-void test_eventQueryOptionWithTriggerStatus(void)
+void data_eventQueryOptionWithTriggerStatus(void)
 {
+	prepareTestDataForFilterForDataOfDefunctServersTmp();
+}
+
+void test_eventQueryOptionWithTriggerStatus(gconstpointer data)
+{
+	const bool filterForDataOfDefunctSv =
+	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
 	EventsQueryOption option(USER_ID_SYSTEM);
+	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	option.setTriggerStatus(TRIGGER_STATUS_PROBLEM);
 	const string expected =  "events.status=1";
 	cppcut_assert_equal(TRIGGER_STATUS_PROBLEM,
@@ -1332,9 +1372,17 @@ void test_eventQueryOptionWithTriggerStatus(void)
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
-void test_triggersQueryOptionWithTargetId(void)
+void data_triggersQueryOptionWithTargetId(void)
 {
+	prepareTestDataForFilterForDataOfDefunctServersTmp();
+}
+
+void test_triggersQueryOptionWithTargetId(gconstpointer data)
+{
+	const bool filterForDataOfDefunctSv =
+	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
 	TriggersQueryOption option(USER_ID_SYSTEM);
+	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	TriggerIdType expectedId = 634;
 	option.setTargetId(expectedId);
 	const string expected = StringUtils::sprintf(
@@ -1343,18 +1391,34 @@ void test_triggersQueryOptionWithTargetId(void)
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
-void test_triggersQueryOptionDefaultMinimumSeverity(void)
+void data_triggersQueryOptionDefaultMinimumSeverity(void)
 {
+	prepareTestDataForFilterForDataOfDefunctServersTmp();
+}
+
+void test_triggersQueryOptionDefaultMinimumSeverity(gconstpointer data)
+{
+	const bool filterForDataOfDefunctSv =
+	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
 	TriggersQueryOption option(USER_ID_SYSTEM);
+	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	const string expected =  "";
 	cppcut_assert_equal(TRIGGER_SEVERITY_UNKNOWN,
 			    option.getMinimumSeverity());
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
-void test_triggersQueryOptionWithMinimumSeverity(void)
+void data_triggersQueryOptionWithMinimumSeverity(void)
 {
+	prepareTestDataForFilterForDataOfDefunctServersTmp();
+}
+
+void test_triggersQueryOptionWithMinimumSeverity(gconstpointer data)
+{
+	const bool filterForDataOfDefunctSv =
+	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
 	TriggersQueryOption option(USER_ID_SYSTEM);
+	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	option.setMinimumSeverity(TRIGGER_SEVERITY_CRITICAL);
 	const string expected =  "triggers.severity>=4";
 	cppcut_assert_equal(TRIGGER_SEVERITY_CRITICAL,
@@ -1362,18 +1426,34 @@ void test_triggersQueryOptionWithMinimumSeverity(void)
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
-void test_triggersQueryOptionDefaultStatus(void)
+void data_triggersQueryOptionDefaultStatus(void)
 {
+	prepareTestDataForFilterForDataOfDefunctServersTmp();
+}
+
+void test_triggersQueryOptionDefaultStatus(gconstpointer data)
+{
+	const bool filterForDataOfDefunctSv =
+	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
 	TriggersQueryOption option(USER_ID_SYSTEM);
+	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	const string expected =  "";
 	cppcut_assert_equal(TRIGGER_STATUS_ALL,
 			    option.getTriggerStatus());
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
-void test_triggersQueryOptionWithStatus(void)
+void data_triggersQueryOptionWithStatus(void)
 {
+	prepareTestDataForFilterForDataOfDefunctServersTmp();
+}
+
+void test_triggersQueryOptionWithStatus(gconstpointer data)
+{
+	const bool filterForDataOfDefunctSv =
+	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
 	TriggersQueryOption option(USER_ID_SYSTEM);
+	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	option.setTriggerStatus(TRIGGER_STATUS_PROBLEM);
 	const string expected =  "triggers.status=1";
 	cppcut_assert_equal(TRIGGER_STATUS_PROBLEM,
@@ -1381,9 +1461,17 @@ void test_triggersQueryOptionWithStatus(void)
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
-void test_itemsQueryOptionWithTargetId(void)
+void data_itemsQueryOptionWithTargetId(void)
 {
+	prepareTestDataForFilterForDataOfDefunctServersTmp();
+}
+
+void test_itemsQueryOptionWithTargetId(gconstpointer data)
+{
+	const bool filterForDataOfDefunctSv =
+	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
 	ItemsQueryOption option(USER_ID_SYSTEM);
+	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	ItemIdType expectedId = 436;
 	option.setTargetId(expectedId);
 	const string expected = StringUtils::sprintf(
@@ -1392,9 +1480,17 @@ void test_itemsQueryOptionWithTargetId(void)
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
-void test_itemsQueryOptionWithItemGroupName(void)
+void data_itemsQueryOptionWithItemGroupName(void)
 {
+	prepareTestDataForFilterForDataOfDefunctServersTmp();
+}
+
+void test_itemsQueryOptionWithItemGroupName(gconstpointer data)
+{
+	const bool filterForDataOfDefunctSv =
+	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
 	ItemsQueryOption option(USER_ID_SYSTEM);
+	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	string itemGroupName = "It's test items";
 	option.setTargetItemGroupName(itemGroupName);
 	const string expected =  "items.item_group_name='It''s test items'";
