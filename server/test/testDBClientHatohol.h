@@ -21,6 +21,7 @@
 #include <list>
 #include <map>
 #include <algorithm>
+#include <gcutter.h>
 #include "StringUtils.h"
 #include "Helpers.h"
 
@@ -40,6 +41,8 @@ struct AssertGetHostResourceArg {
 	ServerHostGrpSetMap authMap;
 	TResourceType *fixtures;
 	size_t numberOfFixtures;
+	gconstpointer ddtParam;
+	bool filterForDataOfDefunctSv;
 
 	AssertGetHostResourceArg(void)
 	: userId(USER_ID_SYSTEM),
@@ -50,7 +53,9 @@ struct AssertGetHostResourceArg {
 	  offset(0),
 	  expectedErrorCode(HTERR_OK),
 	  fixtures(NULL),
-	  numberOfFixtures(0)
+	  numberOfFixtures(0),
+	  ddtParam(NULL),
+	  filterForDataOfDefunctSv(false)
 	{
 	}
 
@@ -152,6 +157,15 @@ struct AssertGetHostResourceArg {
 		const bool strictOrder = 
 		 (sortDirection != DataQueryOption::SORT_DONT_CARE);
 		linesComparator.assert(strictOrder);
+	}
+
+	void setDataDrivenTestParam(gconstpointer _ddtParam)
+	{
+		ddtParam = _ddtParam;
+		filterForDataOfDefunctSv =
+		  gcut_data_get_boolean(ddtParam,
+		                        "filterDataOfDefunctServers");
+		option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	}
 };
 

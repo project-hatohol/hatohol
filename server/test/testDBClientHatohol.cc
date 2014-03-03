@@ -232,18 +232,11 @@ static string makeItemOutput(const ItemInfo &itemInfo)
 struct AssertGetItemsArg
   : public AssertGetHostResourceArg<ItemInfo, ItemsQueryOption>
 {
-	gconstpointer data;
-	bool filterForDataOfDefunctSv;
-
-	AssertGetItemsArg(gconstpointer _data)
-	: data(_data),
-	  filterForDataOfDefunctSv(false)
+	AssertGetItemsArg(gconstpointer ddtParam)
 	{
 		fixtures = testItemInfo;
 		numberOfFixtures = NumTestItemInfo;
-		filterForDataOfDefunctSv =
-		  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
-		option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
+		setDataDrivenTestParam(ddtParam);
 	}
 
 	virtual uint64_t getHostId(ItemInfo &info)
@@ -283,7 +276,7 @@ static void _assertGetItemsWithFilter(AssertGetItemsArg &arg)
 {
 	// setup item data
 	void test_addItemInfoList(gconstpointer data);
-	test_addItemInfoList(arg.data);
+	test_addItemInfoList(arg.ddtParam);
 	assertGetItems(arg);
 }
 #define assertGetItemsWithFilter(ARG) \
