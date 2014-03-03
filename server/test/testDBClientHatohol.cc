@@ -203,13 +203,6 @@ static void _assertGetEventsWithFilter(AssertGetEventsArg &arg)
 	void test_addEventInfoList(gconstpointer data);
 	test_addEventInfoList(arg.ddtParam);
 
-	if (arg.maxNumber)
-		arg.option.setMaximumNumber(arg.maxNumber);
-	arg.option.setSortType(arg.sortType, arg.sortDirection);
-	if (arg.offset)
-		arg.option.setOffset(arg.offset);
-	if (arg.limitOfUnifiedId)
-		arg.option.setLimitOfUnifiedId(arg.limitOfUnifiedId);
 	assertGetEvents(arg);
 }
 #define assertGetEventsWithFilter(ARG) \
@@ -234,6 +227,8 @@ static string makeItemOutput(const ItemInfo &itemInfo)
 struct AssertGetItemsArg
   : public AssertGetHostResourceArg<ItemInfo, ItemsQueryOption>
 {
+	string itemGroupName;
+
 	AssertGetItemsArg(gconstpointer ddtParam)
 	{
 		fixtures = testItemInfo;
@@ -241,14 +236,11 @@ struct AssertGetItemsArg
 		setDataDrivenTestParam(ddtParam);
 	}
 
-	virtual uint64_t getHostId(ItemInfo &info)
+	virtual void fixupOption(void) // override
 	{
-		return info.hostId;
-	}
-
-	virtual string makeOutputText(const ItemInfo &itemInfo)
-	{
-		return makeItemOutput(itemInfo);
+		AssertGetHostResourceArg<ItemInfo, ItemsQueryOption>::
+			fixupOption();
+		option.setTargetItemGroupName(itemGroupName);
 	}
 
 	virtual bool filterOutExpectedRecord(ItemInfo *info) // override
@@ -258,9 +250,27 @@ struct AssertGetItemsArg
 			return true;
 		}
 
-		if (!filterForDataOfDefunctSv)
-			return false;
-		return !option.isValidServer(info->serverId);
+		if (!itemGroupName.empty() &&
+		    info->itemGroupName != itemGroupName) {
+			return true;
+		}
+
+		if (filterForDataOfDefunctSv) {
+			if (!option.isValidServer(info->serverId))
+				return true;
+		}
+
+		return false;
+	}
+
+	virtual uint64_t getHostId(ItemInfo &info) // override
+	{
+		return info.hostId;
+	}
+
+	virtual string makeOutputText(const ItemInfo &itemInfo) // override
+	{
+		return makeItemOutput(itemInfo);
 	}
 };
 
@@ -290,6 +300,16 @@ void _assertItemInfoList(gconstpointer data, uint32_t serverId)
 	for (size_t i = 0; i < NumTestItemInfo; i++)
 		itemInfoList.push_back(testItemInfo[i]);
 	dbHatohol.addItemInfoList(itemInfoList);
+
+	HostgroupElementList hostgroupElementList;
+	for (size_t i = 0; i < NumTestHostgroupElement; i++)
+		hostgroupElementList.push_back(testHostgroupElement[i]);
+	dbHatohol.addHostgroupElementList(hostgroupElementList);
+
+	HostgroupInfoList hostgroupInfoList;
+	for (size_t i = 0; i < NumTestHostgroupInfo; i++)
+		hostgroupInfoList.push_back(testHostgroupInfo[i]);
+	dbHatohol.addHostgroupInfoList(hostgroupInfoList);
 
 	AssertGetItemsArg arg(data);
 	arg.targetServerId = serverId;
@@ -551,9 +571,9 @@ void test_getTriggerInfo(void)
 	DBClientHatohol dbHatohol;
 	TriggersQueryOption option(USER_ID_SYSTEM);
 	option.setTargetServerId(targetTriggerInfo.serverId);
+	option.setTargetId(targetTriggerInfo.id);
 	cppcut_assert_equal(true,
-	   dbHatohol.getTriggerInfo(
-	      triggerInfo, option, targetTriggerInfo.id));
+	   dbHatohol.getTriggerInfo(triggerInfo, option));
 	assertTriggerInfo(targetTriggerInfo, triggerInfo);
 }
 
@@ -565,8 +585,9 @@ void test_getTriggerInfoNotFound(void)
 	TriggerInfo triggerInfo;
 	DBClientHatohol dbHatohol;
 	TriggersQueryOption option(invalidSvId);
+	option.setTargetId(invalidTrigId);
 	cppcut_assert_equal(false,
-	   dbHatohol.getTriggerInfo(triggerInfo, option, invalidTrigId));
+	                    dbHatohol.getTriggerInfo(triggerInfo, option));
 }
 
 void data_getTriggerInfoList(void)
@@ -743,6 +764,16 @@ void test_addItemInfoList(gconstpointer data)
 		itemInfoList.push_back(testItemInfo[i]);
 	dbHatohol.addItemInfoList(itemInfoList);
 
+	HostgroupElementList hostgroupElementList;
+	for (size_t i = 0; i < NumTestHostgroupElement; i++)
+		hostgroupElementList.push_back(testHostgroupElement[i]);
+	dbHatohol.addHostgroupElementList(hostgroupElementList);
+
+	HostgroupInfoList hostgroupInfoList;
+	for (size_t i = 0; i < NumTestHostgroupInfo; i++)
+		hostgroupInfoList.push_back(testHostgroupInfo[i]);
+	dbHatohol.addHostgroupInfoList(hostgroupInfoList);
+
 	AssertGetItemsArg arg(data);
 	assertGetItems(arg);
 }
@@ -783,6 +814,19 @@ void test_getItemWithInvalidUserId(gconstpointer data)
 	setupTestDBUser(true, true);
 	AssertGetItemsArg arg(data);
 	arg.userId = INVALID_USER_ID;
+	assertGetItemsWithFilter(arg);
+}
+
+void data_getItemWithItemGroupName(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getItemWithItemGroupName(gconstpointer data)
+{
+	setupTestDBUser(true, true);
+	AssertGetItemsArg arg(data);
+	arg.itemGroupName = "City";
 	assertGetItemsWithFilter(arg);
 }
 
@@ -1250,7 +1294,115 @@ void test_eventQueryOptionWithSortTypeTime(void)
 	cppcut_assert_equal(expected, option.getOrderBy());
 }
 
-void data_getEventSortAscending(void)
+void test_eventQueryOptionDefaultMinimumSeveirty(void)
+{
+	EventsQueryOption option(USER_ID_SYSTEM);
+	const string expected =  "";
+	cppcut_assert_equal(TRIGGER_SEVERITY_UNKNOWN,
+			    option.getMinimumSeverity());
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
+void test_eventQueryOptionWithMinimumSeveirty(void)
+{
+	EventsQueryOption option(USER_ID_SYSTEM);
+	option.setMinimumSeverity(TRIGGER_SEVERITY_CRITICAL);
+	const string expected =  "triggers.severity>=4";
+	cppcut_assert_equal(TRIGGER_SEVERITY_CRITICAL,
+			    option.getMinimumSeverity());
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
+void test_eventQueryOptionDefaultTriggerStatus(void)
+{
+	EventsQueryOption option(USER_ID_SYSTEM);
+	const string expected =  "";
+	cppcut_assert_equal(TRIGGER_STATUS_ALL,
+			    option.getTriggerStatus());
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
+void test_eventQueryOptionWithTriggerStatus(void)
+{
+	EventsQueryOption option(USER_ID_SYSTEM);
+	option.setTriggerStatus(TRIGGER_STATUS_PROBLEM);
+	const string expected =  "events.status=1";
+	cppcut_assert_equal(TRIGGER_STATUS_PROBLEM,
+			    option.getTriggerStatus());
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
+void test_triggersQueryOptionWithTargetId(void)
+{
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	TriggerIdType expectedId = 634;
+	option.setTargetId(expectedId);
+	const string expected = StringUtils::sprintf(
+		"triggers.id=%"FMT_TRIGGER_ID, expectedId);
+	cppcut_assert_equal(expectedId, option.getTargetId());
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
+void test_triggersQueryOptionDefaultMinimumSeveirty(void)
+{
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	const string expected =  "";
+	cppcut_assert_equal(TRIGGER_SEVERITY_UNKNOWN,
+			    option.getMinimumSeverity());
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
+void test_triggersQueryOptionWithMinimumSeveirty(void)
+{
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	option.setMinimumSeverity(TRIGGER_SEVERITY_CRITICAL);
+	const string expected =  "triggers.severity>=4";
+	cppcut_assert_equal(TRIGGER_SEVERITY_CRITICAL,
+			    option.getMinimumSeverity());
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
+void test_triggersQueryOptionDefaultStatus(void)
+{
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	const string expected =  "";
+	cppcut_assert_equal(TRIGGER_STATUS_ALL,
+			    option.getTriggerStatus());
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
+void test_triggersQueryOptionWithStatus(void)
+{
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	option.setTriggerStatus(TRIGGER_STATUS_PROBLEM);
+	const string expected =  "triggers.status=1";
+	cppcut_assert_equal(TRIGGER_STATUS_PROBLEM,
+			    option.getTriggerStatus());
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
+void test_itemsQueryOptionWithTargetId(void)
+{
+	ItemsQueryOption option(USER_ID_SYSTEM);
+	ItemIdType expectedId = 436;
+	option.setTargetId(expectedId);
+	const string expected = StringUtils::sprintf(
+		"items.id=%"FMT_ITEM_ID, expectedId);
+	cppcut_assert_equal(expectedId, option.getTargetId());
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
+void test_itemsQueryOptionWithItemGroupName(void)
+{
+	ItemsQueryOption option(USER_ID_SYSTEM);
+	string itemGroupName = "It's test items";
+	option.setTargetItemGroupName(itemGroupName);
+	const string expected =  "items.item_group_name='It''s test items'";
+	cppcut_assert_equal(itemGroupName, option.getTargetItemGroupName());
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
+void test_getEventSortAscending(void)
 {
 	prepareTestDataForFilterForDataOfDefunctServers();
 }
@@ -1431,6 +1583,30 @@ void test_getEventWithInvalidUserId(gconstpointer data)
 	setupTestDBUser(true, true);
 	AssertGetEventsArg arg(data);
 	arg.userId = INVALID_USER_ID;
+	assertGetEventsWithFilter(arg);
+}
+
+void data_getEventWithMinSeverity(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getEventWithMinSeverity(gconstpointer data)
+{
+	AssertGetEventsArg arg(data);
+	arg.minSeverity = TRIGGER_SEVERITY_WARNING;
+	assertGetEventsWithFilter(arg);
+}
+
+void data_getEventWithTriggerStatus(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getEventWithTriggerStatus(gconstpointer data)
+{
+	AssertGetEventsArg arg(data);
+	arg.triggerStatus = TRIGGER_STATUS_PROBLEM;
 	assertGetEventsWithFilter(arg);
 }
 

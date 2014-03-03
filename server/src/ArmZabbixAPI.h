@@ -49,20 +49,16 @@ public:
 	/**
 	 * get the hosts database with Zabbix API server
 	 *
-	 * @param hostIdVector
-	 * When this vector is empty, all hosts are requested. Otherwise,
-	 * only the hosts with the IDs are requested.
-	 *
-	 * @return
-	 * An ItemTablePtr instance that has hosts data.
+	 * TODO: Write parameters and return value here.
 	 */
-	ItemTablePtr getHosts(const std::vector<uint64_t> &hostIdVector);
+	void getHosts(ItemTablePtr &hostsTablePtr,
+	              ItemTablePtr &hostsGroupsTablePtr);
 
 	ItemTablePtr getApplications(const std::vector<uint64_t> &appIdVector);
 	ItemTablePtr getEvents(uint64_t eventIdOffset, uint64_t eventIdTill);
 	uint64_t getLastEventId(void);
 	virtual void onGotNewEvents(const ItemTablePtr &itemPtr);
-	void getGroups(ItemTablePtr &groupsTablePtr, ItemTablePtr &hostsGroupsTablePtr);
+	void getGroups(ItemTablePtr &groupsTablePtr);
 
 protected:
 	SoupSession *getSession(void);
@@ -86,7 +82,7 @@ protected:
 	SoupMessage *queryCommon(JsonBuilderAgent &agent);
 	SoupMessage *queryTrigger(int requestSince = 0);
 	SoupMessage *queryItem(void);
-	SoupMessage *queryHost(const std::vector<uint64_t> &hostIdVector);
+	SoupMessage *queryHost(void);
 	SoupMessage *queryApplication(const std::vector<uint64_t> &appIdVector);
 	SoupMessage *queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill);
 	SoupMessage *queryGetLastEventId(void);
@@ -143,13 +139,6 @@ protected:
 	 * get all hosts in the ZABBIX server and save them in the replica DB.
 	 */
 	void updateHosts(void);
-
-	/**
-	 * get hosts that have one of the IDs specified by hostIdVector
-	 * and save them in the replica DB.
-	 * @param hostIdVector A vector of host ID.
-	 */
-	void updateHosts(const ItemTable *triggers);
 
 	void updateEvents(void);
 

@@ -20,30 +20,16 @@
 var EventsView = function(userProfile, baseElem) {
   var self = this;
   self.baseElem = baseElem;
+  self.reloadIntervalSeconds = 60;
   self.currentPage = 0;
   self.limiOfUnifiedId = 0;
-
-  var rawData, parsedData;
+  self.rawData = {};
+  self.durations = {};
 
   var status_choices = [gettext('OK'), gettext('Problem'), gettext('Unknown')];
   var severity_choices = [
     gettext('Not classified'), gettext('Information'), gettext('Warning'),
     gettext('Average'), gettext('High'), gettext('Disaster')];
-
-  var connParam =  {
-    replyCallback: function(reply, parser) {
-      self.updateScreen(reply, updateCore);
-    },
-    parseErrorCallback: function(reply, parser) {
-      hatoholErrorMsgBoxForParser(reply, parser);
-
-      self.setStatus({
-        "class" : "danger",
-        "label" : gettext("ERROR"),
-        "lines" : [ msg ],
-      });
-    }
-  };
 
   // call the constructor of the super class
   HatoholMonitoringView.apply(userProfile);
@@ -70,7 +56,8 @@ var EventsView = function(userProfile, baseElem) {
         self.sortOrder = 
           self.userConfig.findOrDefault(conf, 'event-sort-order',
                                         DEFAULT_SORT_ORDER);
-        createPage();
+        setupCallbacks();
+        load();
       },
       connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
         // TODO: implement
@@ -78,97 +65,36 @@ var EventsView = function(userProfile, baseElem) {
     });
   }
 
-  function getEventsURL(loadNextPage) {
-
+  function getQuery(loadNextPage) {
     if (loadNextPage) {
       self.currentPage += 1;
       if (!self.limitOfUnifiedId)
-        self.limitOfUnifiedId = rawData.lastUnifiedEventId;
+        self.limitOfUnifiedId = self.rawData.lastUnifiedEventId;
     } else {
       self.currentPage = 0;
       self.limitOfUnifiedId = 0;
     }
 
     var query = {
-      maximumNumber: self.numEventsPerPage,
-      offset:        self.numEventsPerPage * self.currentPage,
-      sortType:      self.sortType,
-      sortOrder:     self.sortOrder
+      minimumSeverity: $("#select-severity").val(),
+      status:          $("#select-status").val(),
+      maximumNumber:   self.numEventsPerPage,
+      offset:          self.numEventsPerPage * self.currentPage,
+      sortType:        self.sortType,
+      sortOrder:       self.sortOrder
     };
-    return '/events?' + $.param(query);
+    self.addHostQuery(query);
+
+    return 'events?' + $.param(query);
   };
 
-  function createPage() {
-    createUI(self.baseElem);
-    setupEvents();
-    connParam.url = getEventsURL();
-    self.connector = new HatoholConnector(connParam);
+  function load(loadNextPage) {
+    self.startConnection(getQuery(loadNextPage), updateCore);
+    $(document.body).scrollTop(0);
+    setLoading(true);
   }
 
-  function createUI(elem) {
-    var s = '';
-    s += '<h2>' + gettext('Events') + '</h2>';
-
-    s += '<form class="form-inline hatohol-filter-toolbar">';
-    s += '  <label>' + gettext('Minimum Severity:') + '</label>';
-    s += '  <select id="select-severity" class="form-control">';
-    s += '    <option>0</option>';
-    s += '    <option>1</option>';
-    s += '    <option>2</option>';
-    s += '    <option>3</option>';
-    s += '    <option>4</option>';
-    s += '  </select>';
-    s += '  <label>' + gettext('Status:') + '</label>';
-    s += '  <select id="select-status" class="form-control">';
-    s += '    <option value="-1">---------</option>';
-    s += '    <option value="0">' + gettext('OK') + '</option>';
-    s += '    <option value="1">' + gettext('Problem') + '</option>';
-    s += '    <option value="2">' + gettext('Unknown') + '</option>';
-    s += '  </select>';
-    s += '  <label>' + gettext('Server:') + '</label>';
-    s += '  <select id="select-server" class="form-control">';
-    s += '    <option>---------</option>';
-    s += '  </select>';
-    s += '  <label>' + gettext('Host:') + '</label>';
-    s += '  <select id="select-host" class="form-control">';
-    s += '    <option>---------</option>';
-    s += '  </select>';
-    s += '  <label for="num-events-per-page">' + gettext("# of events per page") + '</label>';
-    s += '  <input type="text" id="num-events-per-page" class="form-control" style="width:4em;">';
-    s += '</form>';
-
-    s += '<table class="table table-condensed table-hover" id="table">';
-    s += '  <thead>';
-    s += '    <tr>';
-    s += '      <th data-sort="string">' + gettext('Server') + '</th>';
-    s += '      <th data-sort="int">' + gettext('Time') + '</th>';
-    s += '      <th data-sort="string">' + gettext('Host') + '</th>';
-    s += '      <th data-sort="string">' + gettext('Brief') + '</th>';
-    s += '      <th data-sort="int">' + gettext('Status') + '</th>';
-    s += '      <th data-sort="int">' + gettext('Severity') + '</th>';
-    s += '      <th data-sort="int">' + gettext('Duration') + '</th>';
-    /* Not supported yet
-    s += '      <th data-sort="int">' + gettext('Comment') + '</th>';
-    s += '      <th data-sort="int">' + gettext('Action') + '</th>';
-    */
-    s += '    </tr>';
-    s += '  </thead>';
-    s += '  <tbody>';
-    s += '  </tbody>';
-    s += '</table>';
-
-    s += '<center>';
-    s += '<form class="form-inline">';
-    s += '  <input id="latest-events-button" type="button" class="btn btn-info" value="' + gettext('Latest events') + '" />';
-    s += '  <input id="next-events-button" type="button" class="btn btn-primary" value="' + gettext('To next') + '" />';
-    s += '</form>';
-    s += '</center>';
-    s += '<br>';
-
-    $(elem).append(s);
-  }
-
-  function setupEvents() {
+  function setupCallbacks() {
     $("#table").stupidtable();
     $("#table").bind('aftertablesort', function(event, data) {
       var th = $(this).find("th");
@@ -177,19 +103,11 @@ var EventsView = function(userProfile, baseElem) {
       th.eq(data.column).append("<i class='sort glyphicon glyphicon-arrow-" + icon +"'></i>");
     });
 
-    $("#select-severity").change(function() {
-      self.updateScreen(rawData, updateCore);
+    $("#select-severity, #select-status").change(function() {
+      load();
     });
-    $("#select-server").change(function() {
-      var serverName = $("#select-server").val();
-      self.setCandidate($("#select-host"), parsedData.hostNames[serverName]);
-      drawTableContents(rawData, parsedData);
-    });
-    $("#select-host").change(function() {
-      drawTableContents(rawData, parsedData);
-    });
-    $("#select-status").change(function() {
-      drawTableContents(rawData, parsedData);
+    $("#select-server, #select-host-group, #select-host").change(function() {
+      load();
     });
 
     $('#num-events-per-page').val(self.numEventsPerPage);
@@ -212,139 +130,117 @@ var EventsView = function(userProfile, baseElem) {
 
     $('#next-events-button').click(function() {
       var loadNextPage = true;
-      connParam.url = getEventsURL(loadNextPage);
-      self.connector.start(connParam);
-      $(self.baseElem).scrollTop(0);
+      load(loadNextPage);
     });
 
     $('#latest-events-button').click(function() {
-      connParam.url = getEventsURL();
-      self.connector.start(connParam);
-      $(self.baseElem).scrollTop(0);
+      load();
     });
   }
 
+  function setLoading(loading) {
+    if (loading) {
+      $("#select-severity").attr("disabled", "disabled");
+      $("#select-status").attr("disabled", "disabled");
+      $("#select-server").attr("disabled", "disabled");
+      $("#select-host").attr("disabled", "disabled");
+      $("#num-events-per-page").attr("disabled", "disabled");
+      $("#latest-events-button").attr("disabled", "disabled");
+      $("#next-events-button").attr("disabled", "disabled");
+    } else {
+      $("#select-severity").removeAttr("disabled");
+      $("#select-status").removeAttr("disabled");
+      $("#select-server").removeAttr("disabled");
+      if ($("#select-host option").length > 1)
+        $("#select-host").removeAttr("disabled");
+      $("#num-events-per-page").removeAttr("disabled");
+      $("#latest-events-button").removeAttr("disabled");
+      $("#next-events-button").removeAttr("disabled");
+    }
+  }
+  
   function parseData(replyData) {
-    var parsedData = new Object();
-    var triggerId;
-    var x, event, server;
-    var allTimes, serverNames, hostNames, serverName, hostName;
-    var times, durations, now;
+    // The structur of durations:
+    // {
+    //   serverId1: {
+    //     triggerId1: {
+    //       clock1: duration1,
+    //       clock2: duration2,
+    //       ...
+    //     },
+    //     triggerId2: ...
+    //   },
+    //   serverId2: ...
+    // }
 
-    parsedData.durations = {};
+    var durations = {};
+    var serverId, triggerId;
+    var x, event, now, times, durationsForTrigger;
 
-    // extract server names & times from raw data
-    allTimes = {};
-    hostNames = {};
+    // extract times from raw data
     for (x = 0; x < replyData["events"].length; ++x) {
       event = replyData["events"][x];
-      var serverId = event["serverId"];
-      server = replyData["servers"][serverId];
-      serverName = getServerName(server, serverId);
+      serverId = event["serverId"];
       triggerId = event["triggerId"];
 
-      if (!allTimes[serverName])
-        allTimes[serverName] = {};
-      if (!allTimes[serverName][triggerId])
-        allTimes[serverName][triggerId] = [];
+      if (!durations[serverId])
+        durations[serverId] = {};
+      if (!durations[serverId][triggerId])
+        durations[serverId][triggerId] = [];
       
-      allTimes[serverName][triggerId].push(event["time"]);
-
-      if (!hostNames[serverName])
-        hostNames[serverName] = {};
-      var hostId = event["hostId"];
-      hostName = getHostName(server, hostId);
-      if (!hostNames[serverName][hostName])
-        hostNames[serverName][hostName] = true;
+      durations[serverId][triggerId].push(event["time"]);
     }
 
-    // create server names array & durations map
-    serverNames = [];
-    for (serverName in allTimes) {
-      // store the unique server name
-      serverNames.push(serverName);
-
-      // calculate durations
-      for (triggerId in allTimes[serverName]) {
-        times = allTimes[serverName][triggerId].uniq().sort();
-        durations = {};
+    // create durations maps and replace times arrays with them
+    for (serverId in durations) {
+      for (triggerId in durations[serverId]) {
+        times = durations[serverId][triggerId].uniq().sort();
+        durationsForTrigger = {};
         for (x = 0; x < times.length; ++x) {
           if (x == times.length - 1) {
             now = parseInt((new Date()).getTime() / 1000);
-            durations[times[x]] = now - Number(times[x]);
+            durationsForTrigger[times[x]] = now - Number(times[x]);
           } else {
-            durations[times[x]] = Number(times[x + 1]) - Number(times[x]);
+            durationsForTrigger[times[x]] = Number(times[x + 1]) - Number(times[x]);
           }
         }
-        allTimes[serverName][triggerId] = durations;
+        durations[serverId][triggerId] = durationsForTrigger;
       }
-      parsedData.durations[serverName] = allTimes[serverName];
-    }
-    parsedData.serverNames = serverNames.sort();
-    parsedData.hostNames = {};
-    for (serverName in hostNames) {
-      if (!parsedData.hostNames[serverName])
-        parsedData.hostNames[serverName] = [];
-      for (hostName in hostNames[serverName])
-        parsedData.hostNames[serverName].push(hostName);
-      parsedData.hostNames[serverName] = parsedData.hostNames[serverName].sort();
     }
 
-    return parsedData;
+    return durations;
   }
 
-  function getTargetServerName() {
-    var name = $("#select-server").val();
-    if (name == "---------")
-      name = null;
-    return name;
-  }
-
-  function getTargetHostName() {
-    var name = $("#select-host").val();
-    if (name == "---------")
-      name = null;
-    return name;
-  }
-
-  function drawTableBody(rd, pd) {
+  function drawTableBody() {
     var serverName, hostName, clock, status, severity, duration;
-    var server, event, html = "";
+    var server, event, serverId, hostId, html = "";
     var x;
-    var targetServerName = getTargetServerName();
-    var targetHostName= getTargetHostName();
-    var minimumSeverity = $("#select-severity").val();
-    var targetStatus = $("#select-status").val();
 
-    for (x = 0; x < rd["events"].length; ++x) {
-      event      = rd["events"][x];
-      if (event["severity"] < minimumSeverity)
-        continue;
-      if (targetStatus >= 0 && event["type"] != targetStatus)
-        continue;
-
-      var serverId = event["serverId"];
-      var hostId = event["hostId"];
-      server     = rd["servers"][serverId];
+    for (x = 0; x < self.rawData["events"].length; ++x) {
+      event      = self.rawData["events"][x];
+      serverId   = event["serverId"];
+      hostId     = event["hostId"];
+      server     = self.rawData["servers"][serverId];
       serverName = getServerName(server, serverId);
       hostName   = getHostName(server, hostId);
       clock      = event["time"];
       status     = event["type"];
       severity   = event["severity"];
-      duration   = pd.durations[serverName][event["triggerId"]][clock];
-
-      if (targetServerName && serverName != targetServerName)
-        continue;
-      if (targetHostName && hostName != targetHostName)
-        continue;
+      duration   = self.durations[serverId][event["triggerId"]][clock];
 
       html += "<tr><td>" + escapeHTML(serverName) + "</td>";
-      html += "<td data-sort-value='" + escapeHTML(clock) + "'>" + formatDate(clock) + "</td>";
+      html += "<td data-sort-value='" + escapeHTML(clock) + "'>" +
+        formatDate(clock) + "</td>";
       html += "<td>" + escapeHTML(hostName) + "</td>";
       html += "<td>" + escapeHTML(event["brief"]) + "</td>";
-      html += "<td class='status" + escapeHTML(status) + "' data-sort-value='" + escapeHTML(status) + "'>" + status_choices[Number(status)] + "</td>";
-      html += "<td class='severity" + escapeHTML(severity) + "' data-sort-value='" + escapeHTML(severity) + "'>" + severity_choices[Number(severity)] + "</td>";
-      html += "<td data-sort-value='" + duration + "'>" + formatSecond(duration) + "</td>";
+      html += "<td class='status" + escapeHTML(status) +
+        "' data-sort-value='" + escapeHTML(status) + "'>" +
+        status_choices[Number(status)] + "</td>";
+      html += "<td class='severity" + escapeHTML(severity) +
+        "' data-sort-value='" + escapeHTML(severity) + "'>" +
+        severity_choices[Number(severity)] + "</td>";
+      html += "<td data-sort-value='" + duration + "'>" +
+        formatSecond(duration) + "</td>";
       /*
       html += "<td>" + "unsupported" + "</td>";
       html += "<td>" + "unsupported" + "</td>";
@@ -355,19 +251,20 @@ var EventsView = function(userProfile, baseElem) {
     return html;
   }
 
-  function drawTableContents(rawData, parsedData) {
+  function drawTableContents() {
     $("#table tbody").empty();
-    $("#table tbody").append(drawTableBody(rawData, parsedData));
+    $("#table tbody").append(drawTableBody());
   }
 
   function updateCore(reply) {
-    rawData = reply;
-    parsedData = parseData(rawData);
+    self.rawData = reply;
+    self.durations = parseData(self.rawData);
 
-    self.setCandidate($('#select-server'), parsedData.serverNames);
-    self.setCandidate($("#select-host"));
-
-    drawTableContents(rawData, parsedData);
+    self.setServerFilterCandidates(self.rawData["servers"]);
+    self.setHostFilterCandidates(self.rawData["servers"]);
+    drawTableContents();
+    setLoading(false);
+    self.setAutoReload(load, self.reloadIntervalSeconds);
   }
 };
 

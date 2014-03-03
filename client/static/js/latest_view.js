@@ -21,10 +21,12 @@ var LatestView = function(userProfile) {
   var self = this;
   var rawData, parsedData;
 
+  self.reloadIntervalSeconds = 60;
+
   // call the constructor of the super class
   HatoholMonitoringView.apply(userProfile);
 
-  self.startConnection('item', updateCore);
+  load();
 
   $("#table").stupidtable();
   $("#table").bind('aftertablesort', function(event, data) {
@@ -34,64 +36,30 @@ var LatestView = function(userProfile) {
     th.eq(data.column).append("<i class='sort glyphicon glyphicon-arrow-" + icon +"'></i>");
   });
 
-  $("#select-server").change(function() {
-    var serverName = $("#select-server").val();
-    self.setCandidate($("#select-host"), parsedData.hosts[serverName]);
-    drawTableContents(rawData);
-  });
-  $("#select-host").change(function() {
-    drawTableContents(rawData);
+  $("#select-server, #select-host-group, #select-host").change(function() {
+    load();
   });
   $("#select-application").change(function() {
+    // will be migrated to server side
     drawTableContents(rawData);
   });
 
   function parseData(replyData) {
     var parsedData = {};
-    var serverNames, appNames, item;
-    var x;
-
-    serverNames = [];
-    hostNames   = {};
-    appNames    = [];
+    var appNames = [];
+    var x, item;
 
     for (x = 0; x < replyData["items"].length; ++x) {
       item = replyData["items"][x];
-      server = replyData["servers"][item["serverId"]];
-      serverName = getServerName(server, item["serverId"]);
-      serverNames.push(serverName);
 
       if (item["itemGroupName"].length == 0)
         item["itemGroupName"] = "_non_";
       else
         appNames.push(item["itemGroupName"]);
-
-      if (!hostNames[serverName])
-        hostNames[serverName] = [];
-      hostNames[serverName].push(getHostName(server, item["hostId"]));
     }
-
-    parsedData.servers = serverNames.uniq().sort();
-    parsedData.hosts = {};
-    for (serverName in hostNames)
-      parsedData.hosts[serverName] = hostNames[serverName].uniq().sort();
     parsedData.applications = appNames.uniq().sort();
 
     return parsedData;
-  }
-
-  function getTargetServerName() {
-    var name = $("#select-server").val();
-    if (name == "---------")
-      name = null;
-    return name;
-  }
-
-  function getTargetHostName() {
-    var name = $("#select-host").val();
-    if (name == "---------")
-      name = null;
-    return name;
   }
 
   function getTargetAppName() {
@@ -101,12 +69,22 @@ var LatestView = function(userProfile) {
     return name;
   }
 
+  function setLoading(loading) {
+    if (loading) {
+      $("#select-server").attr("disabled", "disabled");
+      $("#select-host").attr("disabled", "disabled");
+      $("#select-application").attr("disabled", "disabled");
+    } else {
+      $("#select-server").removeAttr("disabled");
+      if ($("#select-host option").length > 1)
+        $("#select-host").removeAttr("disabled");
+    }
+    $("#select-application").removeAttr("disabled");
+  }
+
   function drawTableBody(replyData) {
     var serverName, hostName, clock, appName;
-    var html, url, server, item;
-    var x;
-    var targetServerName = getTargetServerName();
-    var targetHostName= getTargetHostName();
+    var html = "", url, server, item, x;
     var targetAppName = getTargetAppName();
 
     html = "";
@@ -119,10 +97,6 @@ var LatestView = function(userProfile) {
       clock      = item["lastValueTime"];
       appName    = item["itemGroupName"];
 
-      if (targetServerName && serverName != targetServerName)
-        continue;
-      if (targetHostName && hostName != targetHostName)
-        continue;
       if (targetAppName && appName != targetAppName)
         continue;
 
@@ -151,11 +125,27 @@ var LatestView = function(userProfile) {
     rawData = reply;
     parsedData = parseData(rawData);
 
-    self.setCandidate($("#select-server"), parsedData.servers);
-    self.setCandidate($("#select-host"));
-    self.setCandidate($("#select-application"), parsedData.applications);
+    self.setServerFilterCandidates(rawData["servers"]);
+    self.setHostFilterCandidates(rawData["servers"]);
+    self.setFilterCandidates($("#select-application"), parsedData.applications);
 
     drawTableContents(rawData);
+    setLoading(false);
+    self.setAutoReload(load, self.reloadIntervalSeconds);
+  }
+
+  function getQuery() {
+    var query = {
+      maximumNumber: 0,
+      offset:        0
+    };
+    self.addHostQuery(query);
+    return 'item?' + $.param(query);
+  };
+
+  function load() {
+    self.startConnection(getQuery(), updateCore);
+    setLoading(true);
   }
 };
 

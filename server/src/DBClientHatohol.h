@@ -27,6 +27,7 @@
 #include "ItemGroupStream.h"
 
 enum TriggerStatusType {
+	TRIGGER_STATUS_ALL = -1,
 	TRIGGER_STATUS_OK,
 	TRIGGER_STATUS_PROBLEM,
 	TRIGGER_STATUS_UNKNOWN,
@@ -50,7 +51,7 @@ static const HostGroupIdType ALL_HOST_GROUPS = -1;
 
 struct HostInfo {
 	ServerIdType        serverId;
-	uint64_t            id;
+	HostIdType          id;
 	std::string         hostName;
 
 	// The follwong members are currently not used.
@@ -66,16 +67,16 @@ typedef HostInfoList::const_iterator HostInfoListConstIterator;
 
 struct TriggerInfo {
 	ServerIdType        serverId;
-	uint64_t            id;
+	TriggerIdType       id;
 	TriggerStatusType   status;
 	TriggerSeverityType severity;
 	timespec            lastChangeTime;
-	uint64_t            hostId;
+	HostIdType            hostId;
 	std::string         hostName;
 	std::string         brief;
 
 	// 'hostgroupId' variable is used when retrieve data from DB.
-	uint64_t            hostgroupId;
+	HostGroupIdType     hostgroupId;
 	std::string         hostgroupName;
 };
 
@@ -95,7 +96,7 @@ struct EventInfo {
 	// the event ID of a monitroing system such as ZABBIX and Nagios.
 	uint64_t            unifiedId;
 	ServerIdType        serverId;
-	uint64_t            id;
+	EventIdType         id;
 	timespec            time;
 	EventType           type;
 	uint64_t            triggerId;
@@ -104,9 +105,11 @@ struct EventInfo {
 	// so they should be unified.
 	TriggerStatusType   status;
 	TriggerSeverityType severity;
-	uint64_t            hostId;
+	HostIdType          hostId;
 	std::string         hostName;
 	std::string         brief;
+	HostGroupIdType     hostgroupId;
+	std::string         hostgroupName;
 };
 void initEventInfo(EventInfo &eventInfo);
 
@@ -116,13 +119,16 @@ typedef EventInfoList::const_iterator EventInfoListConstIterator;
 
 struct ItemInfo {
 	ServerIdType        serverId;
-	uint64_t            id;
-	uint64_t            hostId;
+	ItemIdType          id;
+	HostIdType            hostId;
 	std::string         brief;
 	timespec            lastValueTime;
 	std::string         lastValue;
 	std::string         prevValue;
 	std::string         itemGroupName;
+
+	HostGroupIdType     hostgroupId;
+	std::string         hostgroupName;
 };
 
 typedef std::list<ItemInfo>          ItemInfoList;
@@ -143,8 +149,8 @@ typedef HostgroupInfoList::const_iterator HostgroupInfoListConstIterator;
 struct HostgroupElement {
 	int                 id;
 	ServerIdType        serverId;
-	uint64_t            hostId;
-	uint64_t            groupId;
+	HostIdType          hostId;
+	HostGroupIdType     groupId;
 };
 
 typedef std::list<HostgroupElement> HostgroupElementList;
@@ -157,8 +163,8 @@ public:
 	HostResourceQueryOption(const HostResourceQueryOption &src);
 	virtual ~HostResourceQueryOption();
 
-	// Overriding of virtual methods
-	virtual std::string getCondition(const std::string &tableAlias = "") const;
+	virtual std::string getCondition(
+	  const std::string &tableAlias = "") const; // override
 
 	virtual ServerIdType getTargetServerId(void) const;
 	virtual void setTargetServerId(const ServerIdType &targetServerId);
@@ -231,16 +237,24 @@ public:
 		NUM_SORT_TYPES
 	};
 
-	EventsQueryOption(UserIdType userId = INVALID_USER_ID);
+	EventsQueryOption(const UserIdType &userId = INVALID_USER_ID);
 	EventsQueryOption(const EventsQueryOption &src);
 	~EventsQueryOption();
 
-	void setLimitOfUnifiedId(uint64_t unifiedId);
+	virtual std::string getCondition(
+	  const std::string &tableAlias = "") const; // override
+
+	void setLimitOfUnifiedId(const uint64_t &unifiedId);
 	uint64_t getLimitOfUnifiedId(void) const;
 
-	void setSortType(SortType type, SortDirection direction);
+	void setSortType(const SortType &type, const SortDirection &direction);
 	SortType getSortType(void) const;
 	SortDirection getSortDirection(void) const;
+
+	void setMinimumSeverity(const TriggerSeverityType &severity);
+	TriggerSeverityType getMinimumSeverity(void) const;
+	void setTriggerStatus(const TriggerStatusType &status);
+	TriggerStatusType getTriggerStatus(void) const;
 
 private:
 	struct PrivateContext;
@@ -250,11 +264,41 @@ private:
 class TriggersQueryOption : public HostResourceQueryOption {
 public:
 	TriggersQueryOption(UserIdType userId = INVALID_USER_ID);
+	TriggersQueryOption(const TriggersQueryOption &src);
+	~TriggersQueryOption();
+
+	virtual std::string getCondition(
+	  const std::string &tableAlias = "") const; // override
+
+	void setTargetId(const TriggerIdType &id);
+	TriggerIdType getTargetId(void) const;
+	void setMinimumSeverity(const TriggerSeverityType &severity);
+	TriggerSeverityType getMinimumSeverity(void) const;
+	void setTriggerStatus(const TriggerStatusType &status);
+	TriggerStatusType getTriggerStatus(void) const;
+
+private:
+	struct PrivateContext;
+	PrivateContext *m_ctx;
 };
 
 class ItemsQueryOption : public HostResourceQueryOption {
 public:
 	ItemsQueryOption(UserIdType userId = INVALID_USER_ID);
+	ItemsQueryOption(const ItemsQueryOption &src);
+	~ItemsQueryOption();
+
+	virtual std::string getCondition(
+	  const std::string &tableAlias = "") const; // override
+
+	void setTargetId(const ItemIdType &id);
+	ItemIdType getTargetId(void) const;
+	void setTargetItemGroupName(const std::string &itemGroupName);
+	const std::string &getTargetItemGroupName(void);
+
+private:
+	struct PrivateContext;
+	PrivateContext *m_ctx;
 };
 
 class HostsQueryOption : public HostResourceQueryOption {
@@ -302,11 +346,9 @@ public:
 	 *
 	 */
 	bool getTriggerInfo(TriggerInfo &triggerInfo,
-	                    const TriggersQueryOption &option,
-	                    uint64_t triggerId);
+	                    const TriggersQueryOption &option);
 	void getTriggerInfoList(TriggerInfoList &triggerInfoList,
-				const TriggersQueryOption &option,
-	                        uint64_t targetTriggerId = ALL_TRIGGERS);
+				const TriggersQueryOption &option);
 	void setTriggerInfoList(const TriggerInfoList &triggerInfoList,
 	                        const ServerIdType &serverId);
 	/**
@@ -354,10 +396,7 @@ public:
 	void addItemInfo(ItemInfo *itemInfo);
 	void addItemInfoList(const ItemInfoList &itemInfoList);
 	void getItemInfoList(ItemInfoList &itemInfoList,
-			     const ItemsQueryOption &option,
-			     uint64_t targetItemId = ALL_ITEMS);
-	void getItemInfoList(ItemInfoList &itemInfoList,
-			     const std::string &condition);
+			     const ItemsQueryOption &option);
 
 	/**
 	 * get the number of triggers with the given server ID, host group ID,
@@ -392,9 +431,6 @@ protected:
 	void addHostgroupElementWithoutTransaction(
 	  const HostgroupElement &hostgroupElement);
 	void addHostInfoWithoutTransaction(const HostInfo &hostInfo);
-
-	void getTriggerInfoList(TriggerInfoList &triggerInfoList,
-	                        const std::string &condition);
 
 private:
 	struct PrivateContext;

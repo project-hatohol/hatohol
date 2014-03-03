@@ -1422,8 +1422,8 @@ void ActionManager::fillTriggerInfoInEventInfo(EventInfo &eventInfo)
 	TriggerInfo triggerInfo;
 	TriggersQueryOption option(USER_ID_SYSTEM);
 	option.setTargetServerId(eventInfo.serverId);
-	bool succedded = dbHatohol.getTriggerInfo(triggerInfo, option,
-	                                          eventInfo.triggerId);
+	option.setTargetId(eventInfo.triggerId);
+	bool succedded = dbHatohol.getTriggerInfo(triggerInfo, option);
 	if (succedded) {
 		eventInfo.severity = triggerInfo.severity;
 		eventInfo.hostId   = triggerInfo.hostId;

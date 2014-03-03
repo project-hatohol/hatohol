@@ -500,8 +500,8 @@ static const ColumnDef COLUMN_DEF_HOSTS[] = {
 },
 };
 enum {
-	IDX_HOSTS_SERVER_ID,
 	IDX_HOSTS_ID,
+	IDX_HOSTS_SERVER_ID,
 	IDX_HOSTS_HOST_ID,
 	IDX_HOSTS_HOST_NAME,
 	NUM_IDX_HOSTS,
@@ -1004,16 +1004,20 @@ struct EventsQueryOption::PrivateContext {
 	uint64_t limitOfUnifiedId;
 	SortType sortType;
 	SortDirection sortDirection;
+	TriggerSeverityType minSeverity;
+	TriggerStatusType triggerStatus;
 
 	PrivateContext()
 	: limitOfUnifiedId(NO_LIMIT),
 	  sortType(SORT_UNIFIED_ID),
-	  sortDirection(SORT_DONT_CARE)
+	  sortDirection(SORT_DONT_CARE),
+	  minSeverity(TRIGGER_SEVERITY_UNKNOWN),
+	  triggerStatus(TRIGGER_STATUS_ALL)
 	{
 	}
 };
 
-EventsQueryOption::EventsQueryOption(UserIdType userId)
+EventsQueryOption::EventsQueryOption(const UserIdType &userId)
 : HostResourceQueryOption(userId)
 {
 	m_ctx = new PrivateContext();
@@ -1023,18 +1027,62 @@ EventsQueryOption::EventsQueryOption(UserIdType userId)
 	  COLUMN_DEF_EVENTS[IDX_EVENTS_HOST_ID].columnName);
 }
 
-EventsQueryOption::~EventsQueryOption()
-{
-	delete m_ctx;
-}
-
 EventsQueryOption::EventsQueryOption(const EventsQueryOption &src)
 {
 	m_ctx = new PrivateContext();
 	*m_ctx = *src.m_ctx;
 }
 
-void EventsQueryOption::setLimitOfUnifiedId(uint64_t unifiedId)
+EventsQueryOption::~EventsQueryOption()
+{
+	delete m_ctx;
+}
+
+string EventsQueryOption::getCondition(const std::string &tableAlias) const
+{
+	string condition = HostResourceQueryOption::getCondition(tableAlias);
+
+	if (DBClient::isAlwaysFalseCondition(condition))
+		return condition;
+
+	if (m_ctx->limitOfUnifiedId) {
+		if (!condition.empty())
+			condition += " AND ";
+		condition += StringUtils::sprintf(
+			"%s.%s<=%"PRIu64,
+			TABLE_NAME_EVENTS,
+			COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID].columnName,
+			m_ctx->limitOfUnifiedId);
+	}
+
+	if (m_ctx->minSeverity != TRIGGER_SEVERITY_UNKNOWN) {
+		if (!condition.empty())
+			condition += " AND ";
+		// Use triggers table because events tables doesn't contain
+		// correct severity.
+		condition += StringUtils::sprintf(
+			"%s.%s>=%d",
+			TABLE_NAME_TRIGGERS,
+			COLUMN_DEF_EVENTS[IDX_EVENTS_SEVERITY].columnName,
+			m_ctx->minSeverity);
+	}
+
+	if (m_ctx->triggerStatus != TRIGGER_STATUS_ALL) {
+		if (!condition.empty())
+			condition += " AND ";
+		// Use events table because triggers table doesn't contain past
+		// status.
+		condition += StringUtils::sprintf(
+			"%s.%s=%d",
+			TABLE_NAME_EVENTS,
+			COLUMN_DEF_EVENTS[IDX_EVENTS_STATUS].columnName,
+			m_ctx->triggerStatus);
+	}
+
+	return condition;
+}
+
+void EventsQueryOption::setLimitOfUnifiedId(const uint64_t &unifiedId)
 {
 	m_ctx->limitOfUnifiedId = unifiedId;
 }
@@ -1044,7 +1092,8 @@ uint64_t EventsQueryOption::getLimitOfUnifiedId(void) const
 	return m_ctx->limitOfUnifiedId;
 }
 
-void EventsQueryOption::setSortType(SortType type, SortDirection direction)
+void EventsQueryOption::setSortType(
+  const SortType &type, const SortDirection &direction)
 {
 	m_ctx->sortType = type;
 	m_ctx->sortDirection = direction;
@@ -1091,22 +1140,211 @@ DataQueryOption::SortDirection EventsQueryOption::getSortDirection(void) const
 	return m_ctx->sortDirection;
 }
 
+void EventsQueryOption::setMinimumSeverity(const TriggerSeverityType &severity)
+{
+	m_ctx->minSeverity = severity;
+}
+
+TriggerSeverityType EventsQueryOption::getMinimumSeverity(void) const
+{
+	return m_ctx->minSeverity;
+}
+
+void EventsQueryOption::setTriggerStatus(const TriggerStatusType &status)
+{
+	m_ctx->triggerStatus = status;
+}
+
+TriggerStatusType EventsQueryOption::getTriggerStatus(void) const
+{
+	return m_ctx->triggerStatus;
+}
+
+struct TriggersQueryOption::PrivateContext {
+	TriggerIdType targetId;
+	TriggerSeverityType minSeverity;
+	TriggerStatusType triggerStatus;
+
+	PrivateContext()
+	: targetId(ALL_TRIGGERS),
+	  minSeverity(TRIGGER_SEVERITY_UNKNOWN),
+	  triggerStatus(TRIGGER_STATUS_ALL)
+	{
+	}
+};
+
 TriggersQueryOption::TriggersQueryOption(UserIdType userId)
 : HostResourceQueryOption(userId)
 {
+	m_ctx = new PrivateContext();
 	setServerIdColumnName(
 	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName);
 	setHostIdColumnName(
 	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName);
 }
 
+TriggersQueryOption::TriggersQueryOption(const TriggersQueryOption &src)
+{
+	m_ctx = new PrivateContext();
+	*m_ctx = *src.m_ctx;
+}
+
+TriggersQueryOption::~TriggersQueryOption()
+{
+	delete m_ctx;
+}
+
+string TriggersQueryOption::getCondition(const std::string &tableAlias) const
+{
+	string condition = HostResourceQueryOption::getCondition(tableAlias);
+
+	if (DBClient::isAlwaysFalseCondition(condition))
+		return condition;
+
+	if (m_ctx->targetId != ALL_TRIGGERS) {
+		if (!condition.empty())
+			condition += " AND ";
+		condition += StringUtils::sprintf(
+			"%s.%s=%"FMT_TRIGGER_ID,
+			TABLE_NAME_TRIGGERS,
+			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID].columnName,
+			m_ctx->targetId);
+	}
+
+	if (m_ctx->minSeverity != TRIGGER_SEVERITY_UNKNOWN) {
+		if (!condition.empty())
+			condition += " AND ";
+		condition += StringUtils::sprintf(
+			"%s.%s>=%d",
+			TABLE_NAME_TRIGGERS,
+			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SEVERITY].columnName,
+			m_ctx->minSeverity);
+	}
+
+	if (m_ctx->triggerStatus != TRIGGER_STATUS_ALL) {
+		if (!condition.empty())
+			condition += " AND ";
+		condition += StringUtils::sprintf(
+			"%s.%s=%d",
+			TABLE_NAME_TRIGGERS,
+			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_STATUS].columnName,
+			m_ctx->triggerStatus);
+	}
+
+	return condition;
+}
+
+void TriggersQueryOption::setTargetId(const TriggerIdType &id)
+{
+	m_ctx->targetId = id;
+}
+
+TriggerIdType TriggersQueryOption::getTargetId(void) const
+{
+	return m_ctx->targetId;
+}
+
+void TriggersQueryOption::setMinimumSeverity(const TriggerSeverityType &severity)
+{
+	m_ctx->minSeverity = severity;
+}
+
+TriggerSeverityType TriggersQueryOption::getMinimumSeverity(void) const
+{
+	return m_ctx->minSeverity;
+}
+
+void TriggersQueryOption::setTriggerStatus(const TriggerStatusType &status)
+{
+	m_ctx->triggerStatus = status;
+}
+
+TriggerStatusType TriggersQueryOption::getTriggerStatus(void) const
+{
+	return m_ctx->triggerStatus;
+}
+
+struct ItemsQueryOption::PrivateContext {
+	ItemIdType targetId;
+	string itemGroupName;
+
+	PrivateContext()
+	: targetId(ALL_ITEMS)
+	{
+	}
+};
+
 ItemsQueryOption::ItemsQueryOption(UserIdType userId)
 : HostResourceQueryOption(userId)
 {
+	m_ctx = new PrivateContext();
 	setServerIdColumnName(
 	  COLUMN_DEF_ITEMS[IDX_ITEMS_SERVER_ID].columnName);
 	setHostIdColumnName(
 	  COLUMN_DEF_ITEMS[IDX_ITEMS_HOST_ID].columnName);
+}
+
+ItemsQueryOption::ItemsQueryOption(const ItemsQueryOption &src)
+{
+	m_ctx = new PrivateContext();
+	*m_ctx = *src.m_ctx;
+}
+
+ItemsQueryOption::~ItemsQueryOption()
+{
+	delete m_ctx;
+}
+
+string ItemsQueryOption::getCondition(const std::string &tableAlias) const
+{
+	string condition = HostResourceQueryOption::getCondition(tableAlias);
+
+	if (DBClient::isAlwaysFalseCondition(condition))
+		return condition;
+
+	if (m_ctx->targetId != ALL_ITEMS) {
+		if (!condition.empty())
+			condition += " AND ";
+		condition += StringUtils::sprintf(
+			"%s.%s=%"FMT_ITEM_ID,
+			TABLE_NAME_ITEMS,
+			COLUMN_DEF_ITEMS[IDX_ITEMS_ID].columnName,
+			m_ctx->targetId);
+	}
+
+	if (!m_ctx->itemGroupName.empty()) {
+		if (!condition.empty())
+			condition += " AND ";
+		string escaped = StringUtils::replace(m_ctx->itemGroupName,
+						      "'", "''");
+		condition += StringUtils::sprintf(
+			"%s.%s='%s'",
+			TABLE_NAME_ITEMS,
+			COLUMN_DEF_ITEMS[IDX_ITEMS_ITEM_GROUP_NAME].columnName,
+			escaped.c_str());
+	}
+
+	return condition;
+}
+
+void ItemsQueryOption::setTargetId(const ItemIdType &id)
+{
+	m_ctx->targetId = id;
+}
+
+ItemIdType ItemsQueryOption::getTargetId(void) const
+{
+	return m_ctx->targetId;
+}
+
+void ItemsQueryOption::setTargetItemGroupName(const string &itemGroupName)
+{
+	m_ctx->itemGroupName = itemGroupName;
+}
+
+const string &ItemsQueryOption::getTargetItemGroupName(void)
+{
+	return m_ctx->itemGroupName;
 }
 
 HostsQueryOption::HostsQueryOption(UserIdType userId)
@@ -1211,11 +1449,10 @@ void DBClientHatohol::addTriggerInfoList(const TriggerInfoList &triggerInfoList)
 }
 
 bool DBClientHatohol::getTriggerInfo(TriggerInfo &triggerInfo,
-                                     const TriggersQueryOption &option,
-                                     uint64_t triggerId)
+                                     const TriggersQueryOption &option)
 {
 	TriggerInfoList triggerInfoList;
-	getTriggerInfoList(triggerInfoList, option, triggerId);
+	getTriggerInfoList(triggerInfoList, option);
 	size_t numTriggers = triggerInfoList.size();
 	HATOHOL_ASSERT(numTriggers <= 1,
 	               "Number of triggers: %zd, condition: %s",
@@ -1228,27 +1465,12 @@ bool DBClientHatohol::getTriggerInfo(TriggerInfo &triggerInfo,
 }
 
 void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
-					 const TriggersQueryOption &option,
-					 uint64_t targetTriggerId)
+					 const TriggersQueryOption &option)
 {
 	// build a condition
-	string optCond = option.getCondition(TABLE_NAME_TRIGGERS);
-	if (isAlwaysFalseCondition(optCond))
+	string condition = option.getCondition(TABLE_NAME_TRIGGERS);
+	if (isAlwaysFalseCondition(condition))
 		return;
-
-	string condition;
-	if (targetTriggerId != ALL_TRIGGERS) {
-		const string colFullName =
-		  SQLUtils::getFullName(COLUMN_DEF_TRIGGERS, IDX_TRIGGERS_ID);
-		condition += StringUtils::sprintf(
-		  "%s=%"PRIu64, colFullName.c_str(), targetTriggerId);
-	}
-
-	if (!optCond.empty()) {
-		if (!condition.empty())
-			condition += " AND ";
-		condition += StringUtils::sprintf("(%s)", optCond.c_str());
-	}
 
 	// select data
 	static const DBAgent::TableProfile *tableProfiles[] = {
@@ -1301,6 +1523,15 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 
 	// condition
 	arg.condition = condition;
+
+	// Order By
+	arg.orderBy = option.getOrderBy();
+
+	// Limit and Offset
+	arg.limit = option.getMaximumNumber();
+	arg.offset = option.getOffset();
+	if (!arg.limit && arg.offset)
+		return;
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -1396,10 +1627,14 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	static const DBAgent::TableProfile *tableProfiles[] = {
 	  &tableProfileEvents,
 	  &tableProfileTriggers,
+	  &tableProfileMapHostsHostgroups,
+	  &tableProfileHostgroups,
 	};
 	enum {
 		TBLIDX_EVENTS,
 		TBLIDX_TRIGGERS,
+		TBLIDX_MAP_HOSTS_HOSTGROUPS,
+		TBLIDX_HOSTGROUPS,
 	};
 	static const size_t numTableProfiles =
 	  sizeof(tableProfiles) / sizeof(DBAgent::TableProfile *);
@@ -1407,10 +1642,24 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 
 	// Tables
 	arg.tableField = StringUtils::sprintf(
-	  " %s inner join %s on %s=%s",
+	  " %s inner join %s on %s=%s"
+	  " inner join %s on ((%s=%s) and (%s=%s)) "
+	  " inner join %s on ((%s=%s) and (%s=%s))",
 	  TABLE_NAME_EVENTS, TABLE_NAME_TRIGGERS,
 	  arg.getFullName(TBLIDX_EVENTS, IDX_EVENTS_TRIGGER_ID).c_str(),
-	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_ID).c_str());
+	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_ID).c_str(),
+	  TABLE_NAME_MAP_HOSTS_HOSTGROUPS,
+	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_HOST_ID).c_str(),
+	  arg.getFullName(
+	    TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID).c_str(),
+	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_SERVER_ID).c_str(),
+	  arg.getFullName(
+	    TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID).c_str(),
+	  TABLE_NAME_HOSTGROUPS,
+	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_SERVER_ID).c_str(),
+	  arg.getFullName(TBLIDX_HOSTGROUPS, IDX_HOSTGROUPS_SERVER_ID).c_str(),
+	  arg.getFullName(TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID).c_str(),
+	  arg.getFullName(TBLIDX_HOSTGROUPS, IDX_HOSTGROUPS_GROUP_ID).c_str());
 
 	// Columns
 	arg.setTable(TBLIDX_EVENTS);
@@ -1429,20 +1678,23 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	arg.add(IDX_TRIGGERS_HOSTNAME);
 	arg.add(IDX_TRIGGERS_BRIEF);
 
+	arg.setTable(TBLIDX_MAP_HOSTS_HOSTGROUPS);
+	arg.add(IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
+
+	arg.setTable(TBLIDX_HOSTGROUPS);
+	arg.add(IDX_HOSTGROUPS_GROUP_NAME);
+
 	// Condition
 	arg.condition = StringUtils::sprintf(
 	  "%s=%s", 
 	  arg.getFullName(TBLIDX_EVENTS, IDX_EVENTS_SERVER_ID).c_str(),
 	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_SERVER_ID).c_str());
-	uint64_t limitOfUnifiedId = option.getLimitOfUnifiedId();
-	if (limitOfUnifiedId) {
-		string columnName
-		  = arg.getFullName(TBLIDX_EVENTS, IDX_EVENTS_UNIFIED_ID);
-		arg.condition += StringUtils::sprintf(
-		  " AND %s<=%"PRIu64, columnName.c_str(), limitOfUnifiedId);
-	}
 
-	string optCond = option.getCondition(TABLE_NAME_EVENTS);
+	// Use TABLE_NAME_TRIGGERS instead of TABLE_NAME_EVENTS because events
+	// table doesn't store valid host_id although it has host_id column.
+	// On the other hand triggers table has all necessary columns & data.
+	string optCond = option.getCondition(TABLE_NAME_TRIGGERS);
+
 	if (isAlwaysFalseCondition(optCond))
 		return HatoholError(HTERR_OK);
 	if (!optCond.empty()) {
@@ -1484,6 +1736,8 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 		itemGroupStream >> eventInfo.hostId;
 		itemGroupStream >> eventInfo.hostName;
 		itemGroupStream >> eventInfo.brief;
+		itemGroupStream >> eventInfo.hostgroupId;
+		itemGroupStream >> eventInfo.hostgroupName;
 	}
 	return HatoholError(HTERR_OK);
 }
@@ -1594,34 +1848,42 @@ void DBClientHatohol::addItemInfoList(const ItemInfoList &itemInfoList)
 }
 
 void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
-				      const ItemsQueryOption &option,
-				      uint64_t targetItemId)
+				      const ItemsQueryOption &option)
 {
-	string optCond = option.getCondition();
-	if (isAlwaysFalseCondition(optCond))
-		return;
+	static const DBAgent::TableProfile *tableProfiles[] = {
+	  &tableProfileItems,
+	  &tableProfileMapHostsHostgroups,
+	  &tableProfileHostgroups,
+	};
+	enum {
+		TBLIDX_ITEMS,
+		TBLIDX_MAP_HOSTS_HOSTGROUPS,
+		TBLIDX_HOSTGROUPS,
+	};
+	static const size_t numTableProfiles =
+	  sizeof(tableProfiles) / sizeof(DBAgent::TableProfile *);
+	DBAgent::SelectMultiTableArg arg(tableProfiles, numTableProfiles);
 
-	string condition;
-	if (targetItemId != ALL_ITEMS) {
-		const char *colName = 
-		  COLUMN_DEF_ITEMS[IDX_ITEMS_ID].columnName;
-		condition += StringUtils::sprintf("%s=%"PRIu64, colName,
-		                                  targetItemId);
-	}
+	arg.tableField = StringUtils::sprintf(
+	  " %s inner join %s on ((%s=%s) and (%s=%s)) "
+	  "inner join %s on ((%s=%s) and (%s=%s))",
+	  TABLE_NAME_ITEMS,
+	  TABLE_NAME_MAP_HOSTS_HOSTGROUPS,
+	  arg.getFullName(TBLIDX_ITEMS, IDX_ITEMS_HOST_ID).c_str(),
+	  arg.getFullName(
+	    TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID).c_str(),
+	  arg.getFullName(TBLIDX_ITEMS, IDX_ITEMS_SERVER_ID).c_str(),
+	  arg.getFullName(
+	    TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID).c_str(),
+	  TABLE_NAME_HOSTGROUPS,
+	  arg.getFullName(TBLIDX_ITEMS, IDX_ITEMS_SERVER_ID).c_str(),
+	  arg.getFullName(TBLIDX_HOSTGROUPS, IDX_HOSTGROUPS_SERVER_ID).c_str(),
+	  arg.getFullName(
+	    TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID).c_str(),
+	  arg.getFullName(TBLIDX_HOSTGROUPS, IDX_HOSTGROUPS_GROUP_ID).c_str());
 
-	if (!optCond.empty()) {
-		if (!condition.empty())
-			condition += " AND ";
-		condition += StringUtils::sprintf("(%s)", optCond.c_str());
-	}
 
-	getItemInfoList(itemInfoList, condition);
-}
-
-void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
-                                      const string &condition)
-{
-	DBAgent::SelectExArg arg(tableProfileItems);
+	arg.setTable(TBLIDX_ITEMS);
 	arg.add(IDX_ITEMS_SERVER_ID);
 	arg.add(IDX_ITEMS_ID);
 	arg.add(IDX_ITEMS_HOST_ID);
@@ -1632,8 +1894,25 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 	arg.add(IDX_ITEMS_PREV_VALUE);
 	arg.add(IDX_ITEMS_ITEM_GROUP_NAME);
 
+	arg.setTable(TBLIDX_MAP_HOSTS_HOSTGROUPS);
+	arg.add(IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
+
+	arg.setTable(TBLIDX_HOSTGROUPS);
+	arg.add(IDX_HOSTGROUPS_GROUP_NAME);
+
 	// condition
-	arg.condition = condition;
+	arg.condition = option.getCondition(TABLE_NAME_ITEMS);
+	if (isAlwaysFalseCondition(arg.condition))
+		return;
+
+	// Order By
+	arg.orderBy = option.getOrderBy();
+
+	// Limit and Offset
+	arg.limit = option.getMaximumNumber();
+	arg.offset = option.getOffset();
+	if (!arg.limit && arg.offset)
+		return;
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -1656,6 +1935,8 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 		itemGroupStream >> itemInfo.lastValue;
 		itemGroupStream >> itemInfo.prevValue;
 		itemGroupStream >> itemInfo.itemGroupName;
+		itemGroupStream >> itemInfo.hostgroupId;
+		itemGroupStream >> itemInfo.hostgroupName;
 	}
 }
 

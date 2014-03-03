@@ -27,24 +27,164 @@ window.onerror = function(errorMsg, fileName, lineNumber) {
 };
 
 var HatoholMonitoringView = function(userProfile) {
+  var self = this;
+  self.connector = null;
+  self.reloadTimerId = null;
 };
 
-HatoholMonitoringView.prototype.setCandidate = function(target, list) {
+HatoholMonitoringView.prototype.getTargetServerId = function(selectorId) {
+  var id;
+  if (!selectorId)
+    selectorId = "#select-server";
+  id = $(selectorId).val();
+  if (id == "---------")
+    id = null;
+  return id;
+};
+
+HatoholMonitoringView.prototype.getTargetHostGroupId = function(selectorId) {
+  var id;
+  if (!selectorId)
+    selectorId = "#select-host-group";
+  id = $("#select-host-group").val();
+  if (id == "---------")
+    id = null;
+  return id;
+};
+
+HatoholMonitoringView.prototype.getTargetHostId = function(selectorId) {
+  var id;
+  if (!selectorId)
+    selectorId = "#select-host";
+  id = $("#select-host").val();
+  if (id == "---------")
+    id = null;
+  return id;
+};
+
+HatoholMonitoringView.prototype.setFilterCandidates =
+  function(target, candidates)
+{
   var x;
   var html = "<option>---------</option>";
 
   target.empty().append(html);
 
-  if (list) {
+  if (candidates) {
     target.removeAttr("disabled");
-    for (x = 0; list && x < list.length; ++x) {
+    for (x = 0; candidates && x < candidates.length; ++x) {
       var option = $("<option/>");
-      option.text(list[x]);
+      if (typeof candidates[x] == "string") {
+        option.text(candidates[x]);
+      } else if (typeof candidates[x] == "object") {
+        option.text(candidates[x].label);
+        option.attr("value", candidates[x].value);
+      }
       target.append(option);
     }
   } else {
     target.attr("disabled", "disabled");
   }
+};
+
+HatoholMonitoringView.prototype.compareFilterLabel = function(a, b) {
+  if (a.label < b.label)
+    return -1;
+  if (a.label > b.label)
+    return 1;
+  if (a.id < b.id)
+    return -1;
+  if (a.id > b.id)
+    return 1;
+  return 0;
+};
+
+HatoholMonitoringView.prototype.setServerFilterCandidates =
+  function(servers, selectorId)
+{
+  var id, serverLabels = [], current;
+  if (!selectorId)
+    selectorId = '#select-server';
+  current = $(selectorId).val();
+  for (id in servers) {
+    serverLabels.push({
+      label: getServerName(servers[id], id),
+      value: id
+    });
+  }
+  serverLabels.sort(this.compareFilterLabel);
+  this.setFilterCandidates($(selectorId), serverLabels);
+  $(selectorId).val(current);
+};
+
+HatoholMonitoringView.prototype.setHostGroupFilterCandidates =
+  function(servers, serverId, selectorId)
+{
+  var id, server, groups, groupLabels = [], current;
+
+  if (!selectorId)
+    selectorId = '#select-host-group';
+  current = $(selectorId).val();
+  if (!serverId)
+    serverId = this.getTargetServerId();
+
+  this.setFilterCandidates($(selectorId));
+
+  if (!servers || !servers[serverId])
+    return;
+
+  server = servers[serverId];
+  groups = server.groups;
+  for (id in groups) {
+    groupLabels.push({
+      label: groups[id].name,
+      value: id
+    });
+  }
+  groupLabels.sort(this.compareFilterLabel);
+  this.setFilterCandidates($(selectorId), groupLabels);
+  $(selectorId).val(current);
+};
+
+HatoholMonitoringView.prototype.setHostFilterCandidates =
+  function(servers, serverId, selectorId)
+{
+  var id, server, hosts, hostLabels = [], current;
+
+  if (!selectorId)
+    selectorId = '#select-host';
+  current = $(selectorId).val();
+  if (!serverId)
+    serverId = this.getTargetServerId();
+
+  this.setFilterCandidates($(selectorId));
+
+  if (!servers || !servers[serverId])
+    return;
+
+  server = servers[serverId];
+  hosts = server.hosts;
+  for (id in hosts) {
+    hostLabels.push({
+      label: getHostName(server, id),
+      value: id
+    });
+  }
+  hostLabels.sort(this.compareFilterLabel);
+  this.setFilterCandidates($(selectorId), hostLabels);
+  $(selectorId).val(current);
+};
+
+HatoholMonitoringView.prototype.addHostQuery = function(query) {
+    var serverId = this.getTargetServerId();
+    var hostGroupId = this.getTargetHostGroupId();
+    var hostId = this.getTargetHostId();
+    if (serverId)
+      query.serverId = serverId;
+    if (hostGroupId)
+      query.hostGroupId = hostGroupId;
+    if (hostId)
+      query.hostId = hostId;
 };
 
 HatoholMonitoringView.prototype.setStatus = function (value) {
@@ -96,7 +236,7 @@ HatoholMonitoringView.prototype.updateScreen =
 };
 
 HatoholMonitoringView.prototype.startConnection =
-  function (tableName, completionCallback, callbackParam)
+  function (query, completionCallback, callbackParam)
 {
   var self = this;
   
@@ -107,7 +247,7 @@ HatoholMonitoringView.prototype.startConnection =
   });
 
   var connParam =  {
-    url: '/' + tableName,
+    url: '/' + query,
     replyCallback: function(reply, parser) {
       self.updateScreen(reply, completionCallback, callbackParam);
     },
@@ -125,5 +265,18 @@ HatoholMonitoringView.prototype.startConnection =
       });
     }
   };
-  new HatoholConnector(connParam);
+
+  if (self.connector)
+    self.connector.start(connParam);
+  else
+    self.connector = new HatoholConnector(connParam);
+};
+
+HatoholMonitoringView.prototype.setAutoReload =
+  function(reloadFunc, intervalSeconds)
+{
+  if (this.reloadTimerId)
+    clearTimeout(this.reloadTimerId);
+  if (intervalSeconds)
+    this.reloadTimerId = setTimeout(reloadFunc, intervalSeconds * 1000);
 };

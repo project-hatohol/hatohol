@@ -56,6 +56,8 @@ public:
 
 	class Worker;
 	struct RestJob;
+	template<typename InfoListT, typename InfoT, typename TargetIdT>
+	class HandlerGetHelper;
 
 protected:
 	// virtual methods
@@ -97,20 +99,6 @@ protected:
 	 */
 	static void parseQueryServerId(GHashTable *query,
 	                               ServerIdType &serverId);
-
-	/**
-	 * Parse 'hostId' query parameter if it exists.
-	 *
-	 * @param query
-	 * A hash table of query parameters.
-	 *
-	 * @param hostId.
-	 * If 'hostId' query parameter is found, the value is set to
-	 * this variable. Otherwise, ALL_HOSTS is set.
-	 */
-	static void parseQueryHostId(GHashTable *query, uint64_t &hostId);
-	static void parseQueryTriggerId(GHashTable *query, uint64_t &triggerId);
-	static void parseQueryHostgroupId(GHashTable *query, uint64_t &hostgroupId);
 
 	// handlers
 	static void
@@ -191,8 +179,14 @@ protected:
 
 	static HatoholError parseSortOrderFromQuery(
 	  DataQueryOption::SortDirection &sortOrder, GHashTable *query);
+	static HatoholError parseHostResourceQueryParameter(
+	  HostResourceQueryOption &option, GHashTable *query);
+	static HatoholError parseTriggerParameter(TriggersQueryOption &option,
+						  GHashTable *query);
 	static HatoholError parseEventParameter(EventsQueryOption &option,
 						GHashTable *query);
+	static HatoholError parseItemParameter(ItemsQueryOption &option,
+					       GHashTable *query);
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;

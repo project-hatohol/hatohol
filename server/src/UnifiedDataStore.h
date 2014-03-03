@@ -53,13 +53,11 @@ public:
 	 */
 
 	virtual void getTriggerList(TriggerInfoList &triggerList,
-				    const TriggersQueryOption &option,
-	                            uint64_t targetTriggerId = ALL_TRIGGERS);
+				    const TriggersQueryOption &option);
 	virtual HatoholError getEventList(EventInfoList &eventList,
 	                                  EventsQueryOption &option);
 	virtual void getItemList(ItemInfoList &itemList,
 	                         const ItemsQueryOption &option,
-	                         uint64_t targetItemId = ALL_ITEMS,
 				 bool fetchItemsSynchronously = false);
 	virtual bool fetchItemsAsync(
 	  ClosureBase *closure,

@@ -20,10 +20,12 @@
 var DashboardView = function(userProfile) {
   var self = this;
 
+  self.reloadIntervalSeconds = 60;
+
   // call the constructor of the super class
   HatoholMonitoringView.apply(userProfile);
 
-  self.startConnection('overview', updateCore);
+  load();
 
   function parseData(replyData) {
     var parsedData = {};
@@ -104,7 +106,7 @@ var DashboardView = function(userProfile) {
       serverStatus = serverStatuses[x];
       serverId = serverStatus["serverId"];
       html += "<tr>";
-      html += "<td rowspan='5'>" + escapeHTML(serverStatus["serverNickname"]) + "</td>";
+      html += "<td rowspan='4'>" + escapeHTML(serverStatus["serverNickname"]) + "</td>";
       html += "<td>" + gettext("Number of hosts [with problem]") + "</td>";
       html += buildRatioColumns(parsedData[serverId]["badHosts"],
                                 serverStatus["numberOfHosts"]);
@@ -119,11 +121,13 @@ var DashboardView = function(userProfile) {
       html += buildRatioColumns(parsedData[serverId]["problem"],
                                 serverStatus["numberOfTriggers"]);
       html += "</tr>";
+      /* Not implemeneted yet
       html += "<tr>";
       html += "<td>" + gettext("Number of users [Online]") + "</td>";
       html += buildRatioColumns(serverStatus["numberOfOnlineUsers"],
                                 serverStatus["numberOfUsers"]);
       html += "</tr>";
+      */
       html += "<tr>";
       html += "<td>" + gettext("New values per second") + "</td>";
       html += "<td>" + escapeHTML(serverStatus["numberOfMonitoredItemsPerSecond"]) + "</td>";
@@ -211,6 +215,12 @@ var DashboardView = function(userProfile) {
     $("#tblTrigger tbody").append(drawTriggerBody(rawData, parsedData));
     $("#tblHost tbody").empty();
     $("#tblHost tbody").append(drawHostBody(rawData, parsedData));
+
+    self.setAutoReload(load, self.reloadIntervalSeconds);
+  }
+
+  function load() {
+    self.startConnection('overview', updateCore);
   }
 };
 

@@ -21,29 +21,18 @@ var OverviewTriggers = function(userProfile) {
   var self = this;
   var rawData, parsedData;
 
+  self.reloadIntervalSeconds = 60;
+
   // call the constructor of the super class
   HatoholMonitoringView.apply(userProfile);
 
-  self.startConnection('trigger', updateCore, 0);
+  load();
 
-  $("#select-server").change(function() {
-    var serverName = $("#select-server").val();
-    self.setCandidate($("#select-host"), parsedData.hosts[serverName]);
-    drawTableContents(parsedData);
+  $("#select-server, #select-host-group, #select-host").change(function() {
+    load();
   });
-  $("#select-group").change(function() {
-    drawTableContents(parsedData);
-  });
-  $("#select-host").change(function() {
-    drawTableContents(parsedData);
-  });
-  $("#select-severity").change(function() {
-    var s = $("#select-severity").val();
-    self.updateScreen(rawData, updateCore, s);
-  });
-  $("#select-status").change(function() {
-    var s = $("#select-severity").val();
-    self.updateScreen(rawData, updateCore, s);
+  $("#select-severity, #select-status").change(function() {
+    load();
   });
 
   function parseData(replyData, minimum) {
@@ -99,40 +88,33 @@ var OverviewTriggers = function(userProfile) {
     return parsedData;
   }
 
-  function getTargetServerName() {
-    var name = $("#select-server").val();
-    if (name == "---------")
-      name = null;
-    return name;
-  }
-
-  function getTargetHostName() {
-    var name = $("#select-host").val();
-    if (name == "---------")
-      name = null;
-    return name;
+  function setLoading(loading) {
+    if (loading) {
+      $("#select-severity").attr("disabled", "disabled");
+      $("#select-status").attr("disabled", "disabled");
+      $("#select-server").attr("disabled", "disabled");
+      $("#select-host").attr("disabled", "disabled");
+    } else {
+      $("#select-severity").removeAttr("disabled");
+      $("#select-status").removeAttr("disabled");
+      $("#select-server").removeAttr("disabled");
+      if ($("#select-host option").length > 1)
+        $("#select-host").removeAttr("disabled");
+    }
   }
 
   function drawTableHeader(parsedData) {
     var serverName, hostNames, hostName;
-    var x;
-    var serversRow, hostsRow;
-    var targetServerName = getTargetServerName();
-    var targetHostName = getTargetHostName();
+    var x, serversRow, hostsRow;
 
     serversRow = "<tr><th></th>";
     hostsRow = "<tr><th></th>";
     for (serverName in parsedData.hosts) {
-      if (targetServerName && serverName != targetServerName)
-        continue;
-
       hostNames = parsedData.hosts[serverName];
-      serversRow += "<th style='text-align: center' colspan='" + hostNames.length + "'>" + escapeHTML(serverName) + "</th>";
+      serversRow += "<th style='text-align: center' colspan='" +
+        hostNames.length + "'>" + escapeHTML(serverName) + "</th>";
       for (x = 0; x < hostNames.length; ++x) {
         hostName  = hostNames[x];
-        if (targetHostName && hostName != targetHostName)
-          continue;
-
         hostsRow += "<th>" + escapeHTML(hostName) + "</th>";
       }
     }
@@ -145,8 +127,6 @@ var OverviewTriggers = function(userProfile) {
   function drawTableBody(parsedData) {
     var triggerName, serverName, hostNames, hostName, trigger, html;
     var x, y;
-    var targetServerName = getTargetServerName();
-    var targetHostName = getTargetHostName();
 
     html = "";
     for (y = 0; y < parsedData.triggers.length; ++y) {
@@ -154,20 +134,15 @@ var OverviewTriggers = function(userProfile) {
       html += "<tr>";
       html += "<th>" + escapeHTML(triggerName) + "</th>";
       for (serverName in parsedData.hosts) {
-        if (targetServerName && serverName != targetServerName)
-          continue;
-
         hostNames = parsedData.hosts[serverName];
         for (x = 0; x < hostNames.length; ++x) {
           hostName  = hostNames[x];
-          if (targetHostName && hostName != targetHostName)
-            continue;
-
           trigger = parsedData.values[serverName][hostName][triggerName];
           if (trigger) {
             switch (trigger["status"]) {
             case 1:
-              html += "<td class='severity" + escapeHTML(trigger["severity"]) + "'>&nbsp;</td>";
+              html += "<td class='severity" +
+                escapeHTML(trigger["severity"]) + "'>&nbsp;</td>";
               break;
             case 0:
               html += "<td class='healthy'>&nbsp;</td>";
@@ -197,9 +172,27 @@ var OverviewTriggers = function(userProfile) {
   function updateCore(reply, param) {
     rawData = reply;
     parsedData = parseData(rawData, param);
-    self.setCandidate($("#select-server"), parsedData.servers);
-    self.setCandidate($("#select-host"));
+    self.setServerFilterCandidates(rawData["servers"]);
+    self.setHostFilterCandidates(rawData["servers"]);
     drawTableContents(parsedData);
+    setLoading(false);
+    self.setAutoReload(load, self.reloadIntervalSeconds);
+  }
+
+  function getQuery() {
+    var query = {
+      minimumSeverity: $("#select-severity").val(),
+      status:          $("#select-status").val(),
+      maximumNumber:   0,
+      offset:          0
+    };
+    self.addHostQuery(query);
+    return 'trigger?' + $.param(query);
+  };
+
+  function load() {
+    self.startConnection(getQuery(), updateCore);
+    setLoading(true);
   }
 };
 

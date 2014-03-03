@@ -20,10 +20,6 @@
   along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
 {% endcomment %}
 
-{% block refresh %}
-    <meta http-equiv="refresh" content="60">
-{% endblock %}
-
 {% block main %}
 <div id="main">
   <h2>{% trans "Overview : Triggers" %}</h2>
@@ -31,11 +27,12 @@
   <form class="form-inline hatohol-filter-toolbar">
     <label>{% trans "Minimum Severity:" %}</label>
     <select id="select-severity" class="form-control">
-      <option>0</option>
-      <option>1</option>
-      <option>2</option>
-      <option>3</option>
-      <option>4</option>
+      <option value="0">0</option>
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
     </select>
     <label>{% trans "Status:" %}</label>
     <select id="select-status" class="form-control">

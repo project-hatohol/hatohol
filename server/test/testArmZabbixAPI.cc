@@ -187,6 +187,12 @@ public:
 		ArmZabbixAPI::updateEvents();
 	}
 
+	void callUpdateGroupInformation(void)
+	{
+		ArmZabbixAPI::updateHosts();
+		ArmZabbixAPI::updateGroups();
+	}
+
 	void onGotNewEvents(const ItemTablePtr &itemPtr)
 	{
 		const ItemGroupList &itemList = itemPtr->getItemGroupList();
@@ -218,8 +224,7 @@ public:
 		return ItemTablePtr(tablePtr);
 	}
 
-	void testMakeGroupsItemTable(ItemTablePtr &groupsTablePtr,
-	                             ItemTablePtr &hostsGroupsTablePtr)
+	void testMakeGroupsItemTable(ItemTablePtr &groupsTablePtr)
 	{
 		ifstream ifs("fixtures/zabbix-api-res-hostgroup-002-refer.json");
 		cppcut_assert_equal(false, ifs.fail());
@@ -231,7 +236,6 @@ public:
 		startObject(parser, "result");
 
 		VariableItemTablePtr variableGroupsTablePtr;
-		VariableItemTablePtr variableHostsGroupsTablePtr;
 		int numData = parser.countElements();
 		if (numData < 1)
 			cut_fail("Value of the elements is empty.");
@@ -239,12 +243,32 @@ public:
 			ArmZabbixAPI::parseAndPushGroupsData(parser,
 			                                     variableGroupsTablePtr,
 			                                     i);
+		}
+
+		groupsTablePtr = ItemTablePtr(variableGroupsTablePtr);
+	}
+
+	void testMakeMapHostsHostgroupsItemTable(ItemTablePtr &hostsGroupsTablePtr)
+	{
+		ifstream ifs("fixtures/zabbix-api-res-hosts-002.json");
+		cppcut_assert_equal(false, ifs.fail());
+
+		string fixtureData;
+		getline(ifs, fixtureData);
+		JsonParserAgent parser(fixtureData);
+		cppcut_assert_equal(false, parser.hasError());
+		startObject(parser, "result");
+
+		VariableItemTablePtr variableHostsGroupsTablePtr;
+		int numData = parser.countElements();
+		if (numData < 1)
+			cut_fail("Value of the elements is empty.");
+		for (int i = 0; i < numData; i++) {
 			ArmZabbixAPI::parseAndPushHostsGroupsData(parser,
 			                                          variableHostsGroupsTablePtr,
 			                                          i);
 		}
 
-		groupsTablePtr = ItemTablePtr(variableGroupsTablePtr);
 		hostsGroupsTablePtr = ItemTablePtr(variableHostsGroupsTablePtr);
 	}
 
@@ -620,14 +644,26 @@ void test_oneProcWithoutFetchItems()
 	EventInfoList eventInfoList;
 	TriggerInfoList triggerInfoList;
 	ItemInfoList itemInfoList;
+	HostgroupInfoList hostgroupInfoList;
+	HostgroupElementList hostgroupElementList;
+
 	EventsQueryOption eventsQueryOption(USER_ID_SYSTEM);
 	TriggersQueryOption triggersQueryOption(USER_ID_SYSTEM);
 	ItemsQueryOption itemsQueryOption(USER_ID_SYSTEM);
+	HostgroupsQueryOption hostgroupsQueryOption(USER_ID_SYSTEM);
+	HostgroupElementQueryOption hostgroupElementQueryOption(USER_ID_SYSTEM);
+
 	db.getEventInfoList(eventInfoList, eventsQueryOption);
 	db.getTriggerInfoList(triggerInfoList, triggersQueryOption);
 	db.getItemInfoList(itemInfoList, itemsQueryOption);
+	db.getHostgroupInfoList(hostgroupInfoList, hostgroupsQueryOption);
+	db.getHostgroupElementList(hostgroupElementList,
+	                           hostgroupElementQueryOption);
 
 	// FIXME: should check contents
+	cppcut_assert_equal(false, hostgroupInfoList.empty());
+	cppcut_assert_equal(false, hostgroupElementList.empty());
+
 	cppcut_assert_equal(false, eventInfoList.empty());
 	cppcut_assert_equal(false, triggerInfoList.empty());
 	cppcut_assert_equal(false, itemInfoList.empty());
@@ -643,14 +679,26 @@ void test_oneProcWithCopyOnDemandEnabled()
 	EventInfoList eventInfoList;
 	TriggerInfoList triggerInfoList;
 	ItemInfoList itemInfoList;
+	HostgroupInfoList hostgroupInfoList;
+	HostgroupElementList hostgroupElementList;
+
 	EventsQueryOption eventsQueryOption(USER_ID_SYSTEM);
 	TriggersQueryOption triggersQueryOption(USER_ID_SYSTEM);
 	ItemsQueryOption itemsQueryOption(USER_ID_SYSTEM);
+	HostgroupsQueryOption hostgroupsQueryOption(USER_ID_SYSTEM);
+	HostgroupElementQueryOption hostgroupElementQueryOption(USER_ID_SYSTEM);
+
 	db.getEventInfoList(eventInfoList, eventsQueryOption);
 	db.getTriggerInfoList(triggerInfoList, triggersQueryOption);
 	db.getItemInfoList(itemInfoList, itemsQueryOption);
+	db.getHostgroupInfoList(hostgroupInfoList, hostgroupsQueryOption);
+	db.getHostgroupElementList(hostgroupElementList,
+	                           hostgroupElementQueryOption);
 
 	// FIXME: should check contents
+	cppcut_assert_equal(false, hostgroupInfoList.empty());
+	cppcut_assert_equal(false, hostgroupElementList.empty());
+
 	cppcut_assert_equal(false, eventInfoList.empty());
 	cppcut_assert_equal(false, triggerInfoList.empty());
 	cppcut_assert_equal(true, itemInfoList.empty());
@@ -662,18 +710,34 @@ void test_oneProcWithFetchItems()
 	armZbxApiTestee.fetchItems();
 	armZbxApiTestee.testMainThreadOneProc();
 
+	// DBClientHatoholl::getItemInfoList() function
+	// needs information about hostgroup.
+	armZbxApiTestee.callUpdateGroupInformation();
+
 	DBClientHatohol db;
 	EventInfoList eventInfoList;
 	TriggerInfoList triggerInfoList;
 	ItemInfoList itemInfoList;
+	HostgroupInfoList hostgroupInfoList;
+	HostgroupElementList hostgroupElementList;
+
 	EventsQueryOption eventsQueryOption(USER_ID_SYSTEM);
 	TriggersQueryOption triggersQueryOption(USER_ID_SYSTEM);
 	ItemsQueryOption itemsQueryOption(USER_ID_SYSTEM);
+	HostgroupsQueryOption hostgroupsQueryOption(USER_ID_SYSTEM);
+	HostgroupElementQueryOption hostgroupElementQueryOption(USER_ID_SYSTEM);
+
 	db.getEventInfoList(eventInfoList, eventsQueryOption);
 	db.getTriggerInfoList(triggerInfoList, triggersQueryOption);
 	db.getItemInfoList(itemInfoList, itemsQueryOption);
+	db.getHostgroupInfoList(hostgroupInfoList, hostgroupsQueryOption);
+	db.getHostgroupElementList(hostgroupElementList,
+	                           hostgroupElementQueryOption);
 
 	// FIXME: should check contents
+	cppcut_assert_equal(false, hostgroupInfoList.empty());
+	cppcut_assert_equal(false, hostgroupElementList.empty());
+
 	cppcut_assert_equal(true, eventInfoList.empty());
 	cppcut_assert_equal(true, triggerInfoList.empty());
 	cppcut_assert_equal(false, itemInfoList.empty());
@@ -761,7 +825,7 @@ void test_getLastEventId(void)
 {
 	ArmZabbixAPITestee armZbxApiTestee(setupServer());
 	armZbxApiTestee.testOpenSession();
-	cppcut_assert_equal((uint64_t)26485, armZbxApiTestee.getLastEventId());
+	cppcut_assert_equal((uint64_t)8697, armZbxApiTestee.getLastEventId());
 }
 
 void test_verifyEventsObtanedBySplitWay(void)
@@ -791,10 +855,13 @@ void test_verifyGroupsAndHostsGroups(void)
 	ItemTablePtr expectHostsGroupsTablePtr;
 	ItemTablePtr actualGroupsTablePtr;
 	ItemTablePtr actualHostsGroupsTablePtr;
-	armZbxApiTestee.testMakeGroupsItemTable(expectGroupsTablePtr,
-	                                        expectHostsGroupsTablePtr);
-	armZbxApiTestee.getGroups(actualGroupsTablePtr,
-	                          actualHostsGroupsTablePtr);
+	ItemTablePtr dummyHostsTablePtr;
+
+	armZbxApiTestee.testMakeGroupsItemTable(expectGroupsTablePtr);
+	armZbxApiTestee.testMakeMapHostsHostgroupsItemTable
+	                  (expectHostsGroupsTablePtr);
+	armZbxApiTestee.getGroups(actualGroupsTablePtr);
+	armZbxApiTestee.getHosts(dummyHostsTablePtr, actualHostsGroupsTablePtr);
 
 	armZbxApiTestee.assertItemTable(expectGroupsTablePtr,
 	                                actualGroupsTablePtr);

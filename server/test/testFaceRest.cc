@@ -563,7 +563,7 @@ static void _assertTriggers(const string &path, const string &callbackName = "",
 	StringMap queryMap;
 	if (serverId != ALL_SERVERS) {
 		queryMap["serverId"] =
-		   StringUtils::sprintf("%"PRIu32, serverId); 
+		  StringUtils::sprintf("%"PRIu32, serverId);
 	}
 	if (hostId != ALL_HOSTS)
 		queryMap["hostId"] = StringUtils::sprintf("%"PRIu64, hostId); 
@@ -2516,7 +2516,7 @@ void _assertParseEventParameterTargetServerId(
   const HatoholErrorCode &expectCode = HTERR_OK)
 {
 	assertParseEventParameterTempl(
-	  ServerIdType, expectValue, "%"FMT_SERVER_ID, "targetServerId",
+	  ServerIdType, expectValue, "%"FMT_SERVER_ID, "serverId",
 	  &EventsQueryOption::getTargetServerId, expectCode, forceValueStr);
 }
 #define assertParseEventParameterTargetServerId(E, ...) \
@@ -2528,7 +2528,7 @@ void _assertParseEventParameterTargetHostGroupId(
 {
 	assertParseEventParameterTempl(
 	  HostGroupIdType, expectValue, "%"FMT_HOST_GROUP_ID,
-	  "targetHostGroupId", &EventsQueryOption::getTargetHostgroupId,
+	  "hostGroupId", &EventsQueryOption::getTargetHostgroupId,
 	  expectCode, forceValueStr);
 }
 #define assertParseEventParameterTargetHostGroupId(E, ...) \
@@ -2539,7 +2539,7 @@ void _assertParseEventParameterTargetHostId(
   const HatoholErrorCode &expectCode = HTERR_OK)
 {
 	assertParseEventParameterTempl(
-	  HostIdType, expectValue, "%"FMT_HOST_ID, "targetHostId",
+	  HostIdType, expectValue, "%"FMT_HOST_ID, "hostId",
 	  &EventsQueryOption::getTargetHostId, expectCode, forceValueStr);
 }
 #define assertParseEventParameterTargetHostId(E, ...) \
@@ -2600,6 +2600,28 @@ void _assertParseEventParameterSortType(
 }
 #define assertParseEventParameterSortType(O, ...) \
 cut_trace(_assertParseEventParameterSortType(O, ##__VA_ARGS__))
+
+void _assertParseEventParameterMinimumSeverity(
+  const TriggerSeverityType &expectedValue, const string &forceValueStr = "",
+  const HatoholErrorCode &expectCode = HTERR_OK)
+{
+	assertParseEventParameterTempl(
+	  TriggerSeverityType, expectedValue, "%d", "minimumSeverity",
+	  &EventsQueryOption::getMinimumSeverity, expectCode, forceValueStr);
+}
+#define assertParseEventParameterMinimumSeverity(O, ...) \
+cut_trace(_assertParseEventParameterMinimumSeverity(O, ##__VA_ARGS__))
+
+void _assertParseEventParameterTriggerStatus(
+  const TriggerStatusType &expectedValue, const string &forceValueStr = "",
+  const HatoholErrorCode &expectCode = HTERR_OK)
+{
+	assertParseEventParameterTempl(
+	  TriggerStatusType, expectedValue, "%d", "status",
+	  &EventsQueryOption::getTriggerStatus, expectCode, forceValueStr);
+}
+#define assertParseEventParameterTriggerStatus(O, ...) \
+cut_trace(_assertParseEventParameterTriggerStatus(O, ##__VA_ARGS__))
 
 GHashTable *g_query = NULL;
 
@@ -2799,6 +2821,48 @@ void test_parseEventParameterInvalidTargetHostGroupId(void)
 {
 	assertParseEventParameterTargetHostGroupId(
 	  0, "hostgroupid", HTERR_INVALID_PARAMETER);
+}
+
+void test_parseEventParameterNoMinimumSeverity(void)
+{
+	EventsQueryOption option;
+	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
+	assertHatoholError(
+	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
+	cppcut_assert_equal(TRIGGER_SEVERITY_UNKNOWN, option.getMinimumSeverity());
+}
+
+void test_parseEventParameterMinimumSeverity(void)
+{
+	assertParseEventParameterMinimumSeverity(TRIGGER_SEVERITY_WARNING);
+}
+
+void test_parseEventParameterInvalidMinimumSeverity(void)
+{
+	assertParseEventParameterMinimumSeverity(
+	  TRIGGER_SEVERITY_UNKNOWN, "warning",
+	  HTERR_INVALID_PARAMETER);
+}
+
+void test_parseEventParameterNoTriggerStatus(void)
+{
+	EventsQueryOption option;
+	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
+	assertHatoholError(
+	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
+	cppcut_assert_equal(TRIGGER_STATUS_ALL, option.getTriggerStatus());
+}
+
+void test_parseEventParameterTriggerStatus(void)
+{
+	assertParseEventParameterTriggerStatus(TRIGGER_STATUS_PROBLEM);
+}
+
+void test_parseEventParameterInvalidTriggerStatus(void)
+{
+	assertParseEventParameterTriggerStatus(
+	  TRIGGER_STATUS_OK, "problem",
+	  HTERR_INVALID_PARAMETER);
 }
 
 } // namespace testFaceRestNoInit

@@ -208,6 +208,15 @@ size_t NumTestEventInfo = sizeof(testEventInfo) / sizeof(EventInfo);
 
 ItemInfo testItemInfo[] = {
 {
+	1,                        // serverId
+	2,                        // id
+	1129,                     // hostId
+	"Rome wasn't built in a day",// brief
+	{1362951129,0},           // lastValueTime
+	"Fukuoka",                // lastValue
+	"Sapporo",                // prevValue
+	"City",                   // itemGroupName,
+}, {
 	3,                        // serverId
 	1,                        // id
 	5,                        // hostId
@@ -224,15 +233,6 @@ ItemInfo testItemInfo[] = {
 	{1362951000,0},           // lastValueTime
 	"Osaka",                  // lastValue
 	"Ichikawa",               // prevValue
-	"City",                   // itemGroupName,
-}, {
-	1,                        // serverId
-	2,                        // id
-	1129,                     // hostId
-	"Rome wasn't built in a day",// brief
-	{1362951129,0},           // lastValueTime
-	"Fukuoka",                // lastValue
-	"Sapporo",                // prevValue
 	"City",                   // itemGroupName,
 }, {
 	4,                        // serverId
@@ -445,6 +445,16 @@ HostgroupInfo testHostgroupInfo[] = {
 	2,                     // groupId
 	"Checked Servers"      // groupName
 }, {
+	AUTO_INCREMENT_VALUE,  // id
+	4,                     // serverId
+	1,                     // groupId
+	"Watching Servers"     // groupName
+}, {
+	AUTO_INCREMENT_VALUE,  // id
+	4,                     // serverId
+	2,                     // groupId
+	"Watched Servers"      // groupName
+}, {
 	// This entry is for tests with a defunct server
 	AUTO_INCREMENT_VALUE,  // id
 	trigInfoDefunctSv1.serverId, // serverId
@@ -493,6 +503,11 @@ HostgroupElement testHostgroupElement[] = {
 	2,                     // groupId
 }, {
 	AUTO_INCREMENT_VALUE,  // id
+	1,                     // serverId
+	1129,                  // hostId
+	1,                     // groupId
+}, {
+	AUTO_INCREMENT_VALUE,  // id
 	3,                     // serverId
 	10001,                  // hostId
 	2,                     // groupId
@@ -500,6 +515,21 @@ HostgroupElement testHostgroupElement[] = {
 	AUTO_INCREMENT_VALUE,  // id
 	3,                     // serverId
 	10002,                  // hostId
+	1,                     // groupId
+}, {
+	AUTO_INCREMENT_VALUE,  // id
+	3,                     // serverId
+	5,                     // hostId
+	1,                     // groupId
+}, {
+	AUTO_INCREMENT_VALUE,  // id
+	3,                     // serverId
+	100,                   // hostId
+	2,                     // groupId
+}, {
+	AUTO_INCREMENT_VALUE,  // id
+	4,                     // serverId
+	100,                   // hostId
 	1,                     // groupId
 }, {
 	// This entry is for tests with a defunct server
