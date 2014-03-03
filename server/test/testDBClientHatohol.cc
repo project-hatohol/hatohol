@@ -1215,14 +1215,10 @@ void data_makeSelectConditionUserAdmin(void)
 
 void test_makeSelectConditionUserAdmin(gconstpointer data)
 {
-	const bool filterForDataOfDefunctSv =
-	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
 	HostResourceQueryOption option(USER_ID_SYSTEM);
-	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
-	string actual = option.getCondition();
 	string expect = "";
-	if (filterForDataOfDefunctSv)
-		insertValidServerCond(expect, option);
+	fixupForFilteringDefunctServer(data, expect, option);
+	string actual = option.getCondition();
 	cppcut_assert_equal(actual, expect);
 }
 
