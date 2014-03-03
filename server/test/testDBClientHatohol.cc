@@ -1444,19 +1444,17 @@ void test_triggersQueryOptionWithStatus(gconstpointer data)
 
 void data_itemsQueryOptionWithTargetId(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServersTmp();
+	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
 void test_itemsQueryOptionWithTargetId(gconstpointer data)
 {
-	const bool filterForDataOfDefunctSv =
-	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
 	ItemsQueryOption option(USER_ID_SYSTEM);
-	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	ItemIdType expectedId = 436;
 	option.setTargetId(expectedId);
-	const string expected = StringUtils::sprintf(
+	string expected = StringUtils::sprintf(
 		"items.id=%"FMT_ITEM_ID, expectedId);
+	fixupForFilteringDefunctServer(data, expected, option);
 	cppcut_assert_equal(expectedId, option.getTargetId());
 	cppcut_assert_equal(expected, option.getCondition());
 }
