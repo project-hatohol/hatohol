@@ -797,7 +797,7 @@ void test_getItemWithInvalidUserId(gconstpointer data)
 
 void data_addEventInfoList(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
 void test_addEventInfoList(gconstpointer data)
