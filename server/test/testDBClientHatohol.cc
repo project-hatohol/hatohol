@@ -1351,7 +1351,7 @@ void test_getEventWithLimitOfUnifiedIdAscending(gconstpointer data)
 
 void data_getEventWithSortTimeAscending(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
 void test_getEventWithSortTimeAscending(gconstpointer data)
