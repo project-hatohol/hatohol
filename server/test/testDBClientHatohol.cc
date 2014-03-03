@@ -845,7 +845,7 @@ void test_getHostInfoList(gconstpointer data)
 
 void data_getHostInfoListForOneServer(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
 void test_getHostInfoListForOneServer(gconstpointer data)
