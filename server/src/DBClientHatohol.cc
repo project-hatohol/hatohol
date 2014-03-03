@@ -911,7 +911,8 @@ string HostResourceQueryOption::getCondition(const string &tableAlias) const
 				condition += " AND ";
 			condition += StringUtils::sprintf(
 				"%s=%"FMT_HOST_GROUP_ID,
-				getHostGroupIdColumnName(tableAlias).c_str(),
+				getHostGroupIdColumnName(
+				  TABLE_NAME_MAP_HOSTS_HOSTGROUPS).c_str(),
 				m_ctx->targetHostgroupId);
 		}
 		return condition;
@@ -928,7 +929,8 @@ string HostResourceQueryOption::getCondition(const string &tableAlias) const
 	dbUser->getServerHostGrpSetMap(srvHostGrpSetMap, userId);
 	condition = makeCondition(srvHostGrpSetMap,
 	                          getServerIdColumnName(tableAlias),
-	                          getHostGroupIdColumnName(tableAlias),
+	                          getHostGroupIdColumnName(
+	                            TABLE_NAME_MAP_HOSTS_HOSTGROUPS),
 	                          getHostIdColumnName(tableAlias),
 	                          m_ctx->targetServerId,
 	                          m_ctx->targetHostgroupId,
