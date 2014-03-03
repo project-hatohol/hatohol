@@ -1229,15 +1229,11 @@ void data_makeSelectConditionAllEvents(void)
 
 void test_makeSelectConditionAllEvents(gconstpointer data)
 {
-	const bool filterForDataOfDefunctSv =
-	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
 	HostResourceQueryOption option;
-	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	option.setFlags(OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_SERVER));
-	string actual = option.getCondition();
 	string expect = "";
-	if (filterForDataOfDefunctSv)
-		insertValidServerCond(expect, option);
+	fixupForFilteringDefunctServer(data, expect, option);
+	string actual = option.getCondition();
 	cppcut_assert_equal(actual, expect);
 }
 
