@@ -1273,7 +1273,7 @@ void test_getEventSortAscending(gconstpointer data)
 
 void data_getEventSortDescending(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
 void test_getEventSortDescending(gconstpointer data)
