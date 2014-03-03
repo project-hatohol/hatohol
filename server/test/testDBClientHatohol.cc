@@ -580,7 +580,7 @@ void test_getTriggerInfoNotFound(void)
 
 void data_getTriggerInfoList(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
 void test_getTriggerInfoList(gconstpointer data)
