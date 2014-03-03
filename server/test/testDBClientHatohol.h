@@ -94,6 +94,10 @@ struct AssertGetHostResourceArg {
 
 	virtual bool filterOutExpectedRecord(TResourceType *info)
 	{
+		if (filterForDataOfDefunctSv) {
+			if (!option.isValidServer(info->serverId))
+				return true;
+		}
 		return false;
 	}
 

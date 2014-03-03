@@ -1339,7 +1339,7 @@ void test_getEventWithMaximumNumberAndOffsetDescending(gconstpointer data)
 
 void data_getEventWithLimitOfUnifiedIdAscending(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
 void test_getEventWithLimitOfUnifiedIdAscending(gconstpointer data)
