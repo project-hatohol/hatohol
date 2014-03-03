@@ -683,7 +683,7 @@ void test_addTriggerInfoList(gconstpointer data)
 
 void data_getTriggerWithOneAuthorizedServer(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
 void test_getTriggerWithOneAuthorizedServer(gconstpointer data)
