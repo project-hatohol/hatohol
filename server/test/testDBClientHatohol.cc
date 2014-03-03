@@ -112,10 +112,11 @@ cut_trace(_assertAddToDB<HostgroupElement>(X, addHostgroupElement))
 struct AssertGetTriggersArg
   : public AssertGetHostResourceArg<TriggerInfo, TriggersQueryOption>
 {
-	AssertGetTriggersArg(void)
+	AssertGetTriggersArg(gconstpointer ddtParam)
 	{
 		fixtures = testTriggerInfo;
 		numberOfFixtures = NumTestTriggerInfo;
+		setDataDrivenTestParam(ddtParam);
 	}
 
 	virtual uint64_t getHostId(TriggerInfo &info)
@@ -141,8 +142,8 @@ static void _assertGetTriggers(AssertGetTriggersArg &arg)
 static void _assertGetTriggersWithFilter(AssertGetTriggersArg &arg)
 {
 	// setup trigger data
-	void test_addTriggerInfoList(void);
-	test_addTriggerInfoList();
+	void test_addTriggerInfoList(gconstpointer data);
+	test_addTriggerInfoList(arg.ddtParam);
 	assertGetTriggers(arg);
 }
 #define assertGetTriggersWithFilter(ARG) \
@@ -169,18 +170,19 @@ static void _setupTestHostgroupElementDB(void)
 }
 #define setupTestHostgroupElementDB() cut_trace(_setupTestHostgroupElementDB())
 
-static void _assertGetTriggerInfoList(uint32_t serverId, uint64_t hostId = ALL_HOSTS)
+static void _assertGetTriggerInfoList(
+  gconstpointer ddtParam, uint32_t serverId, uint64_t hostId = ALL_HOSTS)
 {
 	setupTestTriggerDB();
 	setupTestHostgroupElementDB();
 	setupTestHostgroupInfoDB();
-	AssertGetTriggersArg arg;
+	AssertGetTriggersArg arg(ddtParam);
 	arg.targetServerId = serverId;
 	arg.targetHostId = hostId;
 	assertGetTriggers(arg);
 }
-#define assertGetTriggerInfoList(SERVER_ID, ...) \
-cut_trace(_assertGetTriggerInfoList(SERVER_ID, ##__VA_ARGS__))
+#define assertGetTriggerInfoList(DDT_PARAM, SERVER_ID, ...) \
+cut_trace(_assertGetTriggerInfoList(DDT_PARAM, SERVER_ID, ##__VA_ARGS__))
 
 static void _assertGetEvents(AssertGetEventsArg &arg)
 {
@@ -198,8 +200,8 @@ static void _assertGetEvents(AssertGetEventsArg &arg)
 static void _assertGetEventsWithFilter(AssertGetEventsArg &arg)
 {
 	// setup event data
-	void test_addEventInfoList(void);
-	test_addEventInfoList();
+	void test_addEventInfoList(gconstpointer data);
+	test_addEventInfoList(arg.ddtParam);
 
 	if (arg.maxNumber)
 		arg.option.setMaximumNumber(arg.maxNumber);
@@ -311,8 +313,9 @@ struct AssertGetHostsArg
 {
 	HostInfoList expectedHostList;
 
-	AssertGetHostsArg(void)
+	AssertGetHostsArg(gconstpointer ddtParam)
 	{
+		setDataDrivenTestParam(ddtParam);
 	}
 
 	virtual void fixupExpectedRecords(void)
@@ -477,6 +480,17 @@ static string makeHostsOutput(const HostInfo &hostInfo, size_t id)
 	return expectedOut;
 }
 
+static void prepareTestDataForFilterForDataOfDefunctServersFalseOnly(void)
+{
+	// This is temporary method to avoid the failure of tests.
+	// This function should be replaced with
+	// prepareTestDataForFilterForDataOfDefunctServers()
+	gcut_add_datum("Not filter data of defunct servers",
+		       "filterDataOfDefunctServers", G_TYPE_BOOLEAN, FALSE,
+		       NULL);
+	MLPL_BUG("This function is a temporary workaround and should be replaced.\n");
+}
+
 void cut_setup(void)
 {
 	hatoholInit();
@@ -565,25 +579,45 @@ void test_getTriggerInfoNotFound(void)
 	   dbHatohol.getTriggerInfo(triggerInfo, option, invalidTrigId));
 }
 
-void test_getTriggerInfoList(void)
+void data_getTriggerInfoList(void)
 {
-	assertGetTriggerInfoList(ALL_SERVERS);
+	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+}
+
+void test_getTriggerInfoList(gconstpointer data)
+{
+	assertGetTriggerInfoList(data, ALL_SERVERS);
 }
 
 void test_getTriggerInfoListForOneServer(void)
 {
-	uint32_t targetServerId = testTriggerInfo[0].serverId;
-	assertGetTriggerInfoList(targetServerId);
+	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
 }
 
-void test_getTriggerInfoListForOneServerOneHost(void)
+void test_getTriggerInfoListForOneServer(gconstpointer data)
+{
+	uint32_t targetServerId = testTriggerInfo[0].serverId;
+	assertGetTriggerInfoList(data, targetServerId);
+}
+
+void data_getTriggerInfoListForOneServerOneHost(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+}
+
+void test_getTriggerInfoListForOneServerOneHost(gconstpointer data)
 {
 	uint32_t targetServerId = testTriggerInfo[1].serverId;
 	uint64_t targetHostId = testTriggerInfo[1].hostId;
-	assertGetTriggerInfoList(targetServerId, targetHostId);
+	assertGetTriggerInfoList(data, targetServerId, targetHostId);
 }
 
 void test_setTriggerInfoList(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+}
+
+void test_setTriggerInfoList(gconstpointer data)
 {
 	DBClientHatohol dbHatohol;
 	TriggerInfoList triggerInfoList;
@@ -602,11 +636,16 @@ void test_setTriggerInfoList(void)
 		hostgroupInfoList.push_back(testHostgroupInfo[i]);
 	dbHatohol.addHostgroupInfoList(hostgroupInfoList);
 
-	AssertGetTriggersArg arg;
+	AssertGetTriggersArg arg(data);
 	assertGetTriggers(arg);
 }
 
-void test_addTriggerInfoList(void)
+void data_addTriggerInfoList(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+}
+
+void test_addTriggerInfoList(gconstpointer data)
 {
 	size_t i;
 	DBClientHatohol dbHatohol;
@@ -637,30 +676,45 @@ void test_addTriggerInfoList(void)
 	dbHatohol.addHostgroupInfoList(hostgroupInfoList);
 
 	// Check
-	AssertGetTriggersArg arg;
+	AssertGetTriggersArg arg(data);
 	assertGetTriggers(arg);
 }
 
-void test_getTriggerWithOneAuthorizedServer(void)
+void data_getTriggerWithOneAuthorizedServer(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+}
+
+void test_getTriggerWithOneAuthorizedServer(gconstpointer data)
 {
 	setupTestDBUser(true, true);
-	AssertGetTriggersArg arg;
+	AssertGetTriggersArg arg(data);
 	arg.userId = 5;
 	assertGetTriggersWithFilter(arg);
 }
 
-void test_getTriggerWithNoAuthorizedServer(void)
+void data_getTriggerWithNoAuthorizedServer(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+}
+
+void test_getTriggerWithNoAuthorizedServer(gconstpointer data)
 {
 	setupTestDBUser(true, true);
-	AssertGetTriggersArg arg;
+	AssertGetTriggersArg arg(data);
 	arg.userId = 4;
 	assertGetTriggersWithFilter(arg);
 }
 
-void test_getTriggerWithInvalidUserId(void)
+void data_getTriggerWithInvalidUserId(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+}
+
+void test_getTriggerWithInvalidUserId(gconstpointer data)
 {
 	setupTestDBUser(true, true);
-	AssertGetTriggersArg arg;
+	AssertGetTriggersArg arg(data);
 	arg.userId = INVALID_USER_ID;
 	assertGetTriggersWithFilter(arg);
 }
@@ -742,13 +796,18 @@ void test_getItemWithInvalidUserId(gconstpointer data)
 	assertGetItemsWithFilter(arg);
 }
 
-void test_addEventInfoList(void)
+void data_addEventInfoList(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+}
+
+void test_addEventInfoList(gconstpointer data)
 {
 	// DBClientHatohol internally joins the trigger table and the event table.
 	// So we also have to add trigger data.
 	// When the internal join is removed, the following line will not be
 	// needed.
-	test_setTriggerInfoList();
+	test_setTriggerInfoList(data);
 
 	DBClientHatohol dbHatohol;
 	EventInfoList eventInfoList;
@@ -756,44 +815,69 @@ void test_addEventInfoList(void)
 		eventInfoList.push_back(testEventInfo[i]);
 	dbHatohol.addEventInfoList(eventInfoList);
 
-	AssertGetEventsArg arg;
+	AssertGetEventsArg arg(data);
 	assertGetEvents(arg);
 }
 
-void test_getLastEventId(void)
+void data_getLastEventId(void)
 {
-	test_addEventInfoList();
+	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+}
+
+void test_getLastEventId(gconstpointer data)
+{
+	test_addEventInfoList(data);
 	DBClientHatohol dbHatohol;
 	const int serverid = 3;
 	cppcut_assert_equal(findLastEventId(serverid),
 	                    dbHatohol.getLastEventId(serverid));
 }
 
-void test_getHostInfoList(void)
+void data_getHostInfoList(void)
 {
-	AssertGetHostsArg arg;
+	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+}
+
+void test_getHostInfoList(gconstpointer data)
+{
+	AssertGetHostsArg arg(data);
 	assertGetHosts(arg);
 }
 
-void test_getHostInfoListForOneServer(void)
+void data_getHostInfoListForOneServer(void)
 {
-	AssertGetHostsArg arg;
+	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+}
+
+void test_getHostInfoListForOneServer(gconstpointer data)
+{
+	AssertGetHostsArg arg(data);
 	arg.targetServerId = testTriggerInfo[0].serverId;
 	assertGetHosts(arg);
 }
 
-void test_getHostInfoListWithNoAuthorizedServer(void)
+void data_getHostInfoListWithNoAuthorizedServer(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+}
+
+void test_getHostInfoListWithNoAuthorizedServer(gconstpointer data)
 {
 	setupTestDBUser(true, true);
-	AssertGetHostsArg arg;
+	AssertGetHostsArg arg(data);
 	arg.userId = 4;
 	assertGetHosts(arg);
 }
 
-void test_getHostInfoListWithOneAuthorizedServer(void)
+void data_getHostInfoListWithOneAuthorizedServer(gconstpointer data)
+{
+	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+}
+
+void test_getHostInfoListWithOneAuthorizedServer(gconstpointer data)
 {
 	setupTestDBUser(true, true);
-	AssertGetHostsArg arg;
+	AssertGetHostsArg arg(data);
 	arg.userId = 5;
 	assertGetHosts(arg);
 }
@@ -1176,88 +1260,144 @@ void test_eventQueryOptionWithSortTypeTime(void)
 	cppcut_assert_equal(expected, option.getOrderBy());
 }
 
-void test_getEventSortAscending(void)
+void data_getEventSortAscending(void)
 {
-	AssertGetEventsArg arg;
+	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+}
+
+void test_getEventSortAscending(gconstpointer data)
+{
+	AssertGetEventsArg arg(data);
 	arg.sortDirection = DataQueryOption::SORT_ASCENDING;
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventSortDescending(void)
+void data_getEventSortDescending(void)
 {
-	AssertGetEventsArg arg;
+	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+}
+
+void test_getEventSortDescending(gconstpointer data)
+{
+	AssertGetEventsArg arg(data);
 	arg.sortDirection = DataQueryOption::SORT_DESCENDING;
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventWithMaximumNumber(void)
+void data_getEventWithMaximumNumber(void)
 {
-	AssertGetEventsArg arg;
+	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+}
+
+void test_getEventWithMaximumNumber(gconstpointer data)
+{
+	AssertGetEventsArg arg(data);
 	arg.maxNumber = 2;
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventWithMaximumNumberDescending(void)
+void data_getEventWithMaximumNumberDescending(void)
 {
-	AssertGetEventsArg arg;
+	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+}
+
+void test_getEventWithMaximumNumberDescending(gconstpointer data)
+{
+	AssertGetEventsArg arg(data);
 	arg.maxNumber = 2;
 	arg.sortDirection = DataQueryOption::SORT_DESCENDING;
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventWithMaximumNumberAndOffsetAscending(void)
+void data_getEventWithMaximumNumberAndOffsetAscending(void)
 {
-	AssertGetEventsArg arg;
+	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+}
+
+void test_getEventWithMaximumNumberAndOffsetAscending(gconstpointer data)
+{
+	AssertGetEventsArg arg(data);
 	arg.maxNumber = 2;
 	arg.offset = 1;
 	arg.sortDirection = DataQueryOption::SORT_ASCENDING;
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventWithMaximumNumberAndOffsetDescending(void)
+void data_getEventWithMaximumNumberAndOffsetDescending(void)
 {
-	AssertGetEventsArg arg;
+	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+}
+
+void test_getEventWithMaximumNumberAndOffsetDescending(gconstpointer data)
+{
+	AssertGetEventsArg arg(data);
 	arg.maxNumber = 2;
 	arg.offset = 1;
 	arg.sortDirection = DataQueryOption::SORT_DESCENDING;
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventWithLimitOfUnifiedIdAscending(void)
+void data_getEventWithLimitOfUnifiedIdAscending(void)
 {
-	AssertGetEventsArg arg;
+	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+}
+
+void test_getEventWithLimitOfUnifiedIdAscending(gconstpointer data)
+{
+	AssertGetEventsArg arg(data);
 	arg.limitOfUnifiedId = 2;
 	arg.sortDirection = DataQueryOption::SORT_ASCENDING;
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventWithSortTimeAscending(void)
+void data_getEventWithSortTimeAscending(void)
 {
-	AssertGetEventsArg arg;
+	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+}
+
+void test_getEventWithSortTimeAscending(gconstpointer data)
+{
+	AssertGetEventsArg arg(data);
 	arg.sortType = EventsQueryOption::SORT_TIME;
 	arg.sortDirection = DataQueryOption::SORT_ASCENDING;
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventWithSortTimeDescending(void)
+void data_getEventWithSortTimeDescending(void)
 {
-	AssertGetEventsArg arg;
+	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+}
+
+void test_getEventWithSortTimeDescending(gconstpointer data)
+{
+	AssertGetEventsArg arg(data);
 	arg.sortType = EventsQueryOption::SORT_TIME;
 	arg.sortDirection = DataQueryOption::SORT_DESCENDING;
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventWithOffsetWithoutLimit(void)
+void data_getEventWithOffsetWithoutLimit(void)
 {
-	AssertGetEventsArg arg;
+	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+}
+
+void test_getEventWithOffsetWithoutLimit(gconstpointer data)
+{
+	AssertGetEventsArg arg(data);
 	arg.offset = 2;
 	arg.expectedErrorCode = HTERR_OFFSET_WITHOUT_LIMIT;
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventWithMaxNumAndOffsetAndLimitOfUnifiedIdDescending(void)
+void data_getEventWithMaxNumAndOffsetAndLimitOfUnifiedIdDescending(void)
 {
-	AssertGetEventsArg arg;
+	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+}
+
+void test_getEventWithMaxNumAndOffsetAndLimitOfUnifiedIdDescending(
+  gconstpointer data)
+{
+	AssertGetEventsArg arg(data);
 	arg.maxNumber = 2;
 	arg.offset = 1;
 	arg.limitOfUnifiedId = 2;
@@ -1265,26 +1405,41 @@ void test_getEventWithMaxNumAndOffsetAndLimitOfUnifiedIdDescending(void)
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventWithOneAuthorizedServer(void)
+void data_getEventWithOneAuthorizedServer(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+}
+
+void test_getEventWithOneAuthorizedServer(gconstpointer data)
 {
 	setupTestDBUser(true, true);
-	AssertGetEventsArg arg;
+	AssertGetEventsArg arg(data);
 	arg.userId = 5;
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventWithNoAuthorizedServer(void)
+void data_getEventWithNoAuthorizedServer(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+}
+
+void test_getEventWithNoAuthorizedServer(gconstpointer data)
 {
 	setupTestDBUser(true, true);
-	AssertGetEventsArg arg;
+	AssertGetEventsArg arg(data);
 	arg.userId = 4;
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventWithInvalidUserId(void)
+void data_getEventWithInvalidUserId(gconstpointer data)
+{
+	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+}
+
+void test_getEventWithInvalidUserId(gconstpointer data)
 {
 	setupTestDBUser(true, true);
-	AssertGetEventsArg arg;
+	AssertGetEventsArg arg(data);
 	arg.userId = INVALID_USER_ID;
 	assertGetEventsWithFilter(arg);
 }

@@ -176,12 +176,14 @@ struct AssertGetEventsArg
 	EventsQueryOption::SortType sortType;
 	std::map<const EventInfo *, uint64_t> idMap;
 
-	AssertGetEventsArg(void)
+	AssertGetEventsArg(gconstpointer ddtParam)
 	: limitOfUnifiedId(0), sortType(EventsQueryOption::SORT_UNIFIED_ID)
 	{
 		fixtures = testEventInfo;
 		numberOfFixtures = NumTestEventInfo;
 		fixupIdMap();
+		if (ddtParam)
+			setDataDrivenTestParam(ddtParam);
 	}
 
 	virtual void fixupIdMap(void) {
@@ -191,6 +193,10 @@ struct AssertGetEventsArg
 
 	virtual bool filterOutExpectedRecord(EventInfo *info)
 	{
+		if (filterForDataOfDefunctSv) {
+			if (!option.isValidServer(info->serverId))
+				return true;
+		}
 		if (limitOfUnifiedId && idMap[info] > limitOfUnifiedId)
 			return true;
 		return false;

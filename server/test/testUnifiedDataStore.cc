@@ -127,6 +127,17 @@ static void assertLines(
 	linesComparator.assert(strictOrder);
 }
 
+static void prepareTestDataForFilterForDataOfDefunctServersFalseOnly(void)
+{
+	// This is temporary method to avoid the failure of tests.
+	// This function should be replaced with
+	// prepareTestDataForFilterForDataOfDefunctServers()
+	gcut_add_datum("Not filter data of defunct servers",
+		       "filterDataOfDefunctServers", G_TYPE_BOOLEAN, FALSE,
+		       NULL);
+	MLPL_BUG("This function is a temporary workaround and should be replaced.\n");
+}
+
 void cut_setup(void)
 {
 	hatoholInit();
@@ -148,15 +159,24 @@ void test_singleton(void) {
 	cppcut_assert_equal(dataStore1, dataStore2);
 }
 
-void test_getTriggerList(void)
+void data_getTriggerList(void)
 {
+	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+}
+
+void test_getTriggerList(gconstpointer data)
+{
+	const bool filterForDataOfDefunctSv =
+	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	
 	string expected, actual;
 	for (size_t i = 0; i < NumTestTriggerInfo; i++)
 		expected += dumpTriggerInfo(testTriggerInfo[i]);
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	TriggerInfoList list;
-	TriggersQueryOption option(USER_ID_SYSTEM);
+	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	dataStore->getTriggerList(list, option);
 
 	TriggerInfoListIterator it;
@@ -174,21 +194,18 @@ void test_getEventList(gconstpointer data)
 {
 	const bool filterForDataOfDefunctSv =
 	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
-
-	string expected, actual;
-	for (size_t i = 0; i < NumTestEventInfo; i++)
-		expected += dumpEventInfo(testEventInfo[i]);
+	vector<string> expectedStrVec;
+	EventsQueryOption option(USER_ID_SYSTEM);
+	collectValidResourceInfoString<EventInfo>(
+	  expectedStrVec, NumTestEventInfo, testEventInfo,
+	  filterForDataOfDefunctSv, option, dumpEventInfo);
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	EventInfoList list;
-	EventsQueryOption option(USER_ID_SYSTEM);
 	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	dataStore->getEventList(list, option);
 
-	EventInfoListIterator it;
-	for (it = list.begin(); it != list.end(); it++)
-		actual += dumpEventInfo(*it);
-	cppcut_assert_equal(expected, actual);
+	assertLines<EventInfo>(expectedStrVec, list, dumpEventInfo);
 }
 
 void data_getItemList(void)
