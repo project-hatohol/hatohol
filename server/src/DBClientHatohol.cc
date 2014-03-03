@@ -1266,10 +1266,13 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	DBAgent::SelectMultiTableArg arg(tableProfiles, numTableProfiles);
 
 	arg.tableField = StringUtils::sprintf(
-	  " %s inner join %s on %s=%s "
+	  " %s inner join %s on ((%s=%s) and (%s=%s)) "
 	  "inner join %s on ((%s=%s) and (%s=%s))",
 	  TABLE_NAME_TRIGGERS,
 	  TABLE_NAME_MAP_HOSTS_HOSTGROUPS,
+	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_SERVER_ID).c_str(),
+	  arg.getFullName(
+	    TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID).c_str(),
 	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_HOST_ID).c_str(),
 	  arg.getFullName(
 	    TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID).c_str(),
