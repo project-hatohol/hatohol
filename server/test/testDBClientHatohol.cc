@@ -481,17 +481,6 @@ static string makeHostsOutput(const HostInfo &hostInfo, size_t id)
 	return expectedOut;
 }
 
-static void prepareTestDataForFilterForDataOfDefunctServersFalseOnly(void)
-{
-	// This is temporary method to avoid the failure of tests.
-	// This function should be replaced with
-	// prepareTestDataForFilterForDataOfDefunctServers()
-	gcut_add_datum("Not filter data of defunct servers",
-		       "filterDataOfDefunctServers", G_TYPE_BOOLEAN, FALSE,
-		       NULL);
-	MLPL_BUG("This function is a temporary workaround and should be replaced.\n");
-}
-
 void cut_setup(void)
 {
 	hatoholInit();
@@ -590,9 +579,9 @@ void test_getTriggerInfoList(gconstpointer data)
 	assertGetTriggerInfoList(data, ALL_SERVERS);
 }
 
-void test_getTriggerInfoListForOneServer(void)
+void data_getTriggerInfoListForOneServer(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
 void test_getTriggerInfoListForOneServer(gconstpointer data)
@@ -613,9 +602,9 @@ void test_getTriggerInfoListForOneServerOneHost(gconstpointer data)
 	assertGetTriggerInfoList(data, targetServerId, targetHostId);
 }
 
-void test_setTriggerInfoList(void)
+void data_setTriggerInfoList(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
 void test_setTriggerInfoList(gconstpointer data)
@@ -872,7 +861,7 @@ void test_getHostInfoListWithNoAuthorizedServer(gconstpointer data)
 
 void data_getHostInfoListWithOneAuthorizedServer(gconstpointer data)
 {
-	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
 void test_getHostInfoListWithOneAuthorizedServer(gconstpointer data)
@@ -1434,7 +1423,7 @@ void test_getEventWithNoAuthorizedServer(gconstpointer data)
 
 void data_getEventWithInvalidUserId(gconstpointer data)
 {
-	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
 void test_getEventWithInvalidUserId(gconstpointer data)
