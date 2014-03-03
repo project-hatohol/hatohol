@@ -602,7 +602,7 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 	g_parser->startObject("events");
 	vector<EventInfo*>::reverse_iterator it
 	  = eventsArg.expectedRecords.rbegin();
-	for (size_t i = 0; it != eventsArg.expectedRecords.rend(); i++, it++) {
+	for (size_t i = 0; it != eventsArg.expectedRecords.rend(); i++, ++it) {
 		EventInfo &eventInfo = *(*it);
 		uint64_t unifiedId = eventsArg.idMap[*it];
 		g_parser->startElement(i);
