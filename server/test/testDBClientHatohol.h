@@ -195,11 +195,11 @@ struct AssertGetEventsArg
 			idMap[&fixtures[i]] = i + 1;
 	}
 
-	virtual bool filterOutExpectedRecord(EventInfo *info)
+	virtual bool filterOutExpectedRecord(EventInfo *info) // override
 	{
-		if (filterForDataOfDefunctSv) {
-			if (!option.isValidServer(info->serverId))
-				return true;
+  		if (AssertGetHostResourceArg <EventInfo, EventsQueryOption>
+		      ::filterOutExpectedRecord(info)) {
+			return true;
 		}
 		if (limitOfUnifiedId && idMap[info] > limitOfUnifiedId)
 			return true;

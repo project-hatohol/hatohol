@@ -253,11 +253,10 @@ struct AssertGetItemsArg
 
 	virtual bool filterOutExpectedRecord(ItemInfo *info) // override
 	{
-		bool ret =
-		  AssertGetHostResourceArg<ItemInfo, ItemsQueryOption>::
-	            filterOutExpectedRecord(info);
-		if (ret)
+		if (AssertGetHostResourceArg<ItemInfo, ItemsQueryOption>
+		      ::filterOutExpectedRecord(info)) {
 			return true;
+		}
 
 		if (!filterForDataOfDefunctSv)
 			return false;
