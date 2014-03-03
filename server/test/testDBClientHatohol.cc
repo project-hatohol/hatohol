@@ -1413,16 +1413,14 @@ void test_triggersQueryOptionWithMinimumSeverity(gconstpointer data)
 
 void data_triggersQueryOptionDefaultStatus(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServersTmp();
+	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
 void test_triggersQueryOptionDefaultStatus(gconstpointer data)
 {
-	const bool filterForDataOfDefunctSv =
-	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
 	TriggersQueryOption option(USER_ID_SYSTEM);
-	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
-	const string expected =  "";
+	string expected =  "";
+	fixupForFilteringDefunctServer(data, expected, option);
 	cppcut_assert_equal(TRIGGER_STATUS_ALL,
 			    option.getTriggerStatus());
 	cppcut_assert_equal(expected, option.getCondition());
