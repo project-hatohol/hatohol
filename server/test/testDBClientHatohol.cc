@@ -1312,7 +1312,7 @@ void test_getEventWithMaximumNumberDescending(gconstpointer data)
 
 void data_getEventWithMaximumNumberAndOffsetAscending(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
 void test_getEventWithMaximumNumberAndOffsetAscending(gconstpointer data)
