@@ -124,6 +124,7 @@ var TriggersView = function(userProfile) {
     rawData = reply;
 
     self.setServerFilterCandidates(rawData["servers"]);
+    self.setHostGroupFilterCandidates(rawData["servers"]);
     self.setHostFilterCandidates(rawData["servers"]);
 
     drawTableContents(rawData);
