@@ -317,12 +317,14 @@ struct AssertGetHostsArg
 		setDataDrivenTestParam(ddtParam);
 	}
 
-	virtual void fixupExpectedRecords(void)
+	virtual void fixupExpectedRecords(void) // override
 	{
 		getTestHostInfoList(expectedHostList, targetServerId, NULL);
 		HostInfoListIterator it = expectedHostList.begin();
 		for (; it != expectedHostList.end(); ++it) {	
 			HostInfo &record = *it;
+			if (filterOutExpectedRecord(&record))
+				continue;
 			if (isAuthorized(record))
 				expectedRecords.push_back(&record);
 		}
@@ -834,7 +836,7 @@ void test_getLastEventId(gconstpointer data)
 
 void data_getHostInfoList(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
 void test_getHostInfoList(gconstpointer data)
