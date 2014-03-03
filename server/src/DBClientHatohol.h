@@ -178,7 +178,7 @@ protected:
 	std::string getServerIdColumnName(
 	  const std::string &tableAlias = "") const;
 	void setHostGroupIdColumnName(const std::string &name) const;
-	std::string getHostGroupIdColumnName(
+	std::string getHostgroupIdColumnName(
 	  const std::string &tableAlias = "") const;
 	void setHostIdColumnName(const std::string &name) const;
 	std::string getHostIdColumnName(
