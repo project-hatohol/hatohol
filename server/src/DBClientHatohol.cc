@@ -1311,8 +1311,6 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 		TriggerInfo trigInfo;
 
 		itemGroupStream >> trigInfo.serverId;
-		if (!option.isValidServer(trigInfo.serverId))
-			continue;
 		itemGroupStream >> trigInfo.id;
 		itemGroupStream >> trigInfo.status;
 		itemGroupStream >> trigInfo.severity;
