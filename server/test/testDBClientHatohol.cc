@@ -1334,16 +1334,14 @@ void test_eventQueryOptionWithMinimumSeverity(gconstpointer data)
 
 void data_eventQueryOptionDefaultTriggerStatus(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServersTmp();
+	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
 void test_eventQueryOptionDefaultTriggerStatus(gconstpointer data)
 {
-	const bool filterForDataOfDefunctSv =
-	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
 	EventsQueryOption option(USER_ID_SYSTEM);
-	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
-	const string expected =  "";
+	string expected =  "";
+	fixupForFilteringDefunctServer(data, expected, option);
 	cppcut_assert_equal(TRIGGER_STATUS_ALL,
 			    option.getTriggerStatus());
 	cppcut_assert_equal(expected, option.getCondition());
