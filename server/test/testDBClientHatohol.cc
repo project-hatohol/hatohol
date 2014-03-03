@@ -1482,7 +1482,7 @@ void test_itemsQueryOptionWithTargetId(gconstpointer data)
 
 void data_itemsQueryOptionWithItemGroupName(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServersTmp();
+	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
 void test_itemsQueryOptionWithItemGroupName(gconstpointer data)
@@ -1493,7 +1493,9 @@ void test_itemsQueryOptionWithItemGroupName(gconstpointer data)
 	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	string itemGroupName = "It's test items";
 	option.setTargetItemGroupName(itemGroupName);
-	const string expected =  "items.item_group_name='It''s test items'";
+	string expected = "items.item_group_name='It''s test items'";
+	if (filterForDataOfDefunctSv)
+		insertValidServerCond(expected, option);
 	cppcut_assert_equal(itemGroupName, option.getTargetItemGroupName());
 	cppcut_assert_equal(expected, option.getCondition());
 }
