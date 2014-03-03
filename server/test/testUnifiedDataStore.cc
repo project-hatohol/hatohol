@@ -93,6 +93,23 @@ static string dumpItemInfo(const ItemInfo &info)
 		info.itemGroupName.c_str());
 }
 
+template<class T>
+static void collectValidResourceInfoString(
+  vector<string> &outStringVect,
+  const size_t &numTestResourceData, const T *testResourceData,
+  const bool &filterForDataOfDefunctSv, const DataQueryOption &option,
+  string (*dumpResourceFunc)(const T &)) 
+{
+	for (size_t i = 0; i < numTestResourceData; i++) {
+		const T &testResource = testResourceData[i];
+		if (filterForDataOfDefunctSv) {
+			if (!option.isValidServer(testResource.serverId))
+				continue;
+		}
+		outStringVect.push_back((*dumpResourceFunc)(testResource));
+	}
+}
+
 void cut_setup(void)
 {
 	hatoholInit();
@@ -168,14 +185,9 @@ void test_getItemList(gconstpointer data)
 	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
 	ItemsQueryOption option(USER_ID_SYSTEM);
 	vector<string> expectedStrVec;
-	for (size_t i = 0; i < NumTestItemInfo; i++) {
-		const ItemInfo &itemInfo = testItemInfo[i];
-		if (filterForDataOfDefunctSv) {
-			if (!option.isValidServer(itemInfo.serverId))
-				continue;
-		}
-		expectedStrVec.push_back(dumpItemInfo(itemInfo));
-	}
+	collectValidResourceInfoString<ItemInfo>(
+	  expectedStrVec, NumTestItemInfo, testItemInfo,
+	  filterForDataOfDefunctSv, option, dumpItemInfo);
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	ItemInfoList list;
