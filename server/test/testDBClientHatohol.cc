@@ -1263,7 +1263,7 @@ void test_eventQueryOptionWithSortTypeTime(void)
 
 void data_getEventSortAscending(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
 void test_getEventSortAscending(gconstpointer data)
