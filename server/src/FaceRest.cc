@@ -2844,13 +2844,13 @@ HatoholError FaceRest::parseHostResourceQueryParameter(
 	option.setTargetServerId(targetServerId);
 
 	// target host group id
-	HostIdType targetHostGroupId = ALL_HOST_GROUPS;
+	HostIdType targetHostgroupId = ALL_HOST_GROUPS;
 	err = getParam<HostGroupIdType>(query, "hostGroupId",
 					"%"FMT_HOST_GROUP_ID,
-					targetHostGroupId);
+					targetHostgroupId);
 	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
 		return err;
-	option.setTargetHostgroupId(targetHostGroupId);
+	option.setTargetHostgroupId(targetHostgroupId);
 
 	// target host id
 	HostIdType targetHostId = ALL_HOSTS;
