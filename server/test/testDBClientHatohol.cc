@@ -1349,17 +1349,15 @@ void test_eventQueryOptionDefaultTriggerStatus(gconstpointer data)
 
 void data_eventQueryOptionWithTriggerStatus(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServersTmp();
+	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
 void test_eventQueryOptionWithTriggerStatus(gconstpointer data)
 {
-	const bool filterForDataOfDefunctSv =
-	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
 	EventsQueryOption option(USER_ID_SYSTEM);
-	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	option.setTriggerStatus(TRIGGER_STATUS_PROBLEM);
-	const string expected =  "events.status=1";
+	string expected = "events.status=1";
+	fixupForFilteringDefunctServer(data, expected, option);
 	cppcut_assert_equal(TRIGGER_STATUS_PROBLEM,
 			    option.getTriggerStatus());
 	cppcut_assert_equal(expected, option.getCondition());
