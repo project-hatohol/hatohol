@@ -643,7 +643,7 @@ void test_setTriggerInfoList(gconstpointer data)
 
 void data_addTriggerInfoList(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
 void test_addTriggerInfoList(gconstpointer data)
