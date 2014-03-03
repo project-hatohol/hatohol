@@ -1379,7 +1379,7 @@ void test_getEventWithSortTimeDescending(gconstpointer data)
 
 void data_getEventWithOffsetWithoutLimit(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
 void test_getEventWithOffsetWithoutLimit(gconstpointer data)
