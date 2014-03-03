@@ -1364,7 +1364,7 @@ void test_getEventWithSortTimeAscending(gconstpointer data)
 
 void data_getEventWithSortTimeDescending(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServersFalseOnly();
+	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
 void test_getEventWithSortTimeDescending(gconstpointer data)
