@@ -512,14 +512,6 @@ static void fixupForFilteringDefunctServer(
 		insertValidServerCond(expected, option, tableName);
 }
 
-void prepareTestDataForFilterForDataOfDefunctServersTmp(void)
-{
-	gcut_add_datum("Not filter data of defunct servers",
-		       "filterDataOfDefunctServers", G_TYPE_BOOLEAN, FALSE,
-		       NULL);
-	MLPL_BUG("This function must be replaced !!!\n");
-}
-
 void cut_setup(void)
 {
 	hatoholInit();
