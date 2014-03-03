@@ -110,6 +110,23 @@ static void collectValidResourceInfoString(
 	}
 }
 
+template<class T>
+static void assertLines(
+  const vector<string> &expectedStrVec, const list<T> &actualList,
+  string (*dumpResourceFunc)(const T &)) 
+{
+	cppcut_assert_equal(expectedStrVec.size(), actualList.size());
+	LinesComparator linesComparator;
+	vector<string>::const_iterator expectedStrItr = expectedStrVec.begin();
+	typename list<T>::const_iterator actualItr = actualList.begin();
+	for (; actualItr != actualList.end(); ++actualItr, ++expectedStrItr) {
+		linesComparator.add(*expectedStrItr,
+		                    (*dumpResourceFunc)(*actualItr));
+	}
+	const bool strictOrder = false;
+	linesComparator.assert(strictOrder);
+}
+
 void cut_setup(void)
 {
 	hatoholInit();
@@ -194,14 +211,7 @@ void test_getItemList(gconstpointer data)
 	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	dataStore->getItemList(list, option);
 
-	cppcut_assert_equal(expectedStrVec.size(), list.size());
-	LinesComparator linesComparator;
-	ItemInfoListIterator it;
-	vector<string>::iterator expectedStrItr = expectedStrVec.begin();
-	for (it = list.begin(); it != list.end(); ++it, ++expectedStrItr)
-		linesComparator.add(*expectedStrItr, dumpItemInfo(*it));
-	const bool strictOrder = false;
-	linesComparator.assert(strictOrder);
+	assertLines<ItemInfo>(expectedStrVec, list, dumpItemInfo);
 }
 
 } // testUnifiedDataStore
