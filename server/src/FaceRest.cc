@@ -340,12 +340,13 @@ public:
 		if (dataIt == dataHostgroupIdVectorMap.end())
 			return;
 
-		HostgroupIdVector &hostgroupIdVector = dataIt->second;
-		HostgroupIdVector::iterator groupIt = hostgroupIdVector.begin();
+		const HostgroupIdVector &hostgroupIdVector = dataIt->second;
 		outputJson.startArray("hostgroupId");
-		for (; groupIt != hostgroupIdVector.end(); ++groupIt) {
-			const HostGroupIdType &hostgroupId = *groupIt;
-			outputJson.add(hostgroupId);
+		HostgroupIdVector::const_iterator hostgroupIdItr;
+		hostgroupIdItr = hostgroupIdVector.begin();
+		while (hostgroupIdItr != hostgroupIdVector.end()) {
+			outputJson.add(*hostgroupIdItr);
+			++hostgroupIdItr;
 		}
 		outputJson.endArray();
 	}
