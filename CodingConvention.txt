@@ -53,8 +53,8 @@ Note: When we use C++11, we just remove '//'.
 - Basically use Pimpl idiom
 Many existing code have private members in the structure named PrivateContext,
 which is defined in the source (.cc) file.
-However, for classes that needs performance, definition of private members
-in the heder file is allowed.
+However, for classes that need performance, it is allowed to define private
+members in the heder file.
 
 Python
 ======
