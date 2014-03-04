@@ -366,7 +366,7 @@ public:
 		if (serverIt == m_ctx->serverIdDataIdVectorMap.end())
 			return false;
 
-		DataIdVector dataIdVector = serverIt->second;
+		const DataIdVector &dataIdVector = serverIt->second;
 		DataIdVectorConstIterator dataIt = dataIdVector.begin();
 		if (dataIt == dataIdVector.end())
 			return false;
