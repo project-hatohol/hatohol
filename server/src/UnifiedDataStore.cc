@@ -76,7 +76,8 @@ struct UnifiedDataStore::PrivateContext
 	Signal        itemFetchedSignal;
 
 	PrivateContext()
-	: isCopyOnDemandEnabled(false), remainingArmsCount(0)
+	: isCopyOnDemandEnabled(false),
+	  remainingArmsCount(0)
 	{
 		sem_init(&updatedSemaphore, 0, 0);
 		lastUpdateTime.tv_sec  = 0;
