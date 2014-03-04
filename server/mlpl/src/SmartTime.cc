@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -23,6 +23,7 @@
 #include "SmartTime.h"
 #include "Logger.h"
 
+using namespace std;
 using namespace mlpl;
 
 struct SmartTime::PrivateContext {
@@ -35,6 +36,15 @@ struct SmartTime::PrivateContext {
 		time.tv_nsec = 0;
 	}
 };
+
+ostream &operator<<(std::ostream &os, const SmartTime &stime)
+{
+	const timespec &ts = stime.getAsTimespec();
+	os << ts.tv_sec;
+	os << ".";
+	os << ts.tv_nsec;
+	return os;
+}
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -145,3 +155,4 @@ bool SmartTime::operator==(const SmartTime &rhs)
 		return false;
 	return true;
 }
+

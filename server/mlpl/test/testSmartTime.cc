@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -23,6 +23,7 @@
 #include <cmath>
 #include "SmartTime.h"
 
+using namespace std;
 using namespace mlpl;
 
 namespace testSmartTime {
@@ -250,6 +251,16 @@ void test_operatorEqualDiffSec(void)
 	SmartTime stime0(ts0);
 	SmartTime stime1(ts1);
 	cppcut_assert_equal(false, stime0 == stime1);
+}
+
+void test_operatorOStream(void)
+{
+	timespec ts = {1234567890, 123456789};
+	SmartTime stime0(ts);
+	SmartTime stime1(ts);
+	ostringstream ss; 
+	ss << stime0;
+	cppcut_assert_equal(string("1234567890.123456789"), ss.str());
 }
 
 } // namespace testSmartTime
