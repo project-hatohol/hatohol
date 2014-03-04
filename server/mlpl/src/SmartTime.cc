@@ -147,7 +147,7 @@ SmartTime &SmartTime::operator=(const SmartTime &rhs)
 	return *this;
 }
 
-bool SmartTime::operator==(const SmartTime &rhs)
+bool SmartTime::operator==(const SmartTime &rhs) const
 {
 	if (m_ctx->time.tv_sec != rhs.m_ctx->time.tv_sec)
 		return false;
