@@ -366,6 +366,7 @@ public:
 		if (serverIt == m_ctx->serverIdDataIdVectorMap.end())
 			return false;
 
+		// TODO: Should we use 'set' ?
 		const DataIdVector &dataIdVector = serverIt->second;
 		DataIdVectorConstIterator dataIdItr = dataIdVector.begin();
 		for (; dataIdItr != dataIdVector.end(); ++dataIdItr) {
