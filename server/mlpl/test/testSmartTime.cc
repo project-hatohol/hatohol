@@ -255,11 +255,11 @@ void test_operatorEqualDiffSec(void)
 
 void test_operatorOStream(void)
 {
-	timespec ts = {1234567890, 123456789};
+	timespec ts = {1234567890, 12345678};
 	const SmartTime stime(ts);
 	ostringstream ss; 
 	ss << stime;
-	cppcut_assert_equal(string("1234567890.123456789"), ss.str());
+	cppcut_assert_equal(string("1234567890.012345678"), ss.str());
 }
 
 void test_operatorCastToString(void)

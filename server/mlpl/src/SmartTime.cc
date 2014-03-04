@@ -40,10 +40,7 @@ struct SmartTime::PrivateContext {
 
 ostream &operator<<(std::ostream &os, const SmartTime &stime)
 {
-	const timespec &ts = stime.getAsTimespec();
-	os << ts.tv_sec;
-	os << ".";
-	os << ts.tv_nsec;
+	os << static_cast<string>(stime);
 	return os;
 }
 
