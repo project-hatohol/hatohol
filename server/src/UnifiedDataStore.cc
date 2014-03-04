@@ -197,9 +197,9 @@ struct UnifiedDataStore::PrivateContext
 		remainingArmsCount = arms.size();
 		for (size_t i = 0; i < collector.allDataStores.size(); i++) {
 			DataStore *dataStore = collector.allDataStores[i];
-			ArmBase &arm = dataStore->getArmBase();
 
 			if (targetServerId != ALL_SERVERS) {
+				ArmBase &arm = dataStore->getArmBase();
 				if (targetServerId != arm.getServerInfo().id) {
 					remainingArmsCount--;
 					dataStore->unref();
