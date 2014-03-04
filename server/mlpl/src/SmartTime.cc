@@ -20,6 +20,7 @@
 #include <cmath>
 #include <sys/time.h>
 #include <errno.h>
+#include "StringUtils.h"
 #include "SmartTime.h"
 #include "Logger.h"
 
@@ -156,3 +157,8 @@ bool SmartTime::operator==(const SmartTime &rhs) const
 	return true;
 }
 
+SmartTime::operator std::string () const
+{
+	return StringUtils::sprintf("%ld.%09ld",
+	                            m_ctx->time.tv_sec, m_ctx->time.tv_nsec);
+}

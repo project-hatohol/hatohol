@@ -262,4 +262,12 @@ void test_operatorOStream(void)
 	cppcut_assert_equal(string("1234567890.123456789"), ss.str());
 }
 
+void test_operatorCastToString(void)
+{
+	timespec ts = {1234567890, 1234567};
+	const SmartTime stime(ts);
+	cppcut_assert_equal(string("1234567890.001234567"),
+	                    static_cast<string>(stime));
+}
+
 } // namespace testSmartTime

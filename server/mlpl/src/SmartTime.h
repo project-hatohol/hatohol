@@ -49,6 +49,7 @@ public:
 	SmartTime &operator-=(const SmartTime &rhs);
 	SmartTime &operator=(const SmartTime &rhs);
 	bool operator==(const SmartTime &rhs) const;
+	operator std::string () const;
 
 private:
 	struct PrivateContext;
