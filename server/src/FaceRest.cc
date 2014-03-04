@@ -333,19 +333,18 @@ public:
 		if (serverIt == m_ctx->serverDataHostgroupIdVectorMap.end())
 			return;
 
-		DataIdHostgroupIdVectorMap dataHostgroupIdVectorMap
+		DataIdHostgroupIdVectorMap &dataHostgroupIdVectorMap
 		  = serverIt->second;
 		DataMapIterator dataIt
 		  = dataHostgroupIdVectorMap.find(targetId);
 		if (dataIt == dataHostgroupIdVectorMap.end())
 			return;
 
-		HostgroupIdVector hostgroupIdVector
-		  = dataIt->second;
+		HostgroupIdVector &hostgroupIdVector = dataIt->second;
 		HostgroupIdVector::iterator groupIt = hostgroupIdVector.begin();
 		outputJson.startArray("hostgroupId");
 		for (; groupIt != hostgroupIdVector.end(); ++groupIt) {
-			HostGroupIdType hostgroupId = *groupIt;
+			const HostGroupIdType &hostgroupId = *groupIt;
 			outputJson.add(hostgroupId);
 		}
 		outputJson.endArray();
