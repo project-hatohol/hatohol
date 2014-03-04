@@ -48,10 +48,10 @@ struct ArmZabbixAPI::PrivateContext
 	string         uri;
 	string         username;
 	string         password;
-	int            zabbixServerId;
+	const ServerIdType zabbixServerId;
 	SoupSession   *session;
 	bool           gotTriggers;
-	uint64_t       triggerid;
+	TriggerIdType  triggerid;
 	VariableItemTablePtr functionsTablePtr;
 	DBClientZabbix  *dbClientZabbix;
 	DBClientHatohol  dbClientHatohol;
