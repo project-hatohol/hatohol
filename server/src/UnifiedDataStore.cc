@@ -200,9 +200,7 @@ struct UnifiedDataStore::PrivateContext
 			ArmBase &arm = dataStore->getArmBase();
 
 			if (targetServerId != ALL_SERVERS) {
-				const MonitoringServerInfo &info
-					= arm.getServerInfo();
-				if (static_cast<int>(targetServerId) != info.id) {
+				if (targetServerId != arm.getServerInfo().id) {
 					remainingArmsCount--;
 					dataStore->unref();
 					continue;
