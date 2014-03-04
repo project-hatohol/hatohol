@@ -44,5 +44,5 @@ void test_getArmBase(void)
 	cppcut_assert_equal(typeid(ArmZabbixAPI), typeid(armBase));
 }
 
-} // namespace testDataStoreManager
+} // namespace testDataStoreZabbix
 
