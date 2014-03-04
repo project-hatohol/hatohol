@@ -58,6 +58,7 @@ testHatohol_la_SOURCES = \
 	testNamedPipe.cc \
 	testArmBase.cc \
 	testArmZabbixAPI.cc testArmNagiosNDOUtils.cc \
+	testArmStatus.cc \
 	testUsedCountable.cc \
 	testUnifiedDataStore.cc testMain.cc
 testHatohol_la_LDFLAGS = $(AM_LDFLAGS) $(LIBS)

@@ -20,10 +20,43 @@
 #ifndef ArmStatus_h
 #define ArmStatus_h
 
+#include <string>
+#include <SmartTime.h>
+
+enum ArmWorkingStatus {
+	ARM_WORK_STAT_INIT,
+	ARM_WORK_STAT_OK,
+	ARM_WORK_STAT_FAILURE,
+};
+
+struct ArmInfo
+{
+	ArmWorkingStatus stat;
+	mlpl::SmartTime  statUpdateTime;
+	std::string      failureComment;
+
+	mlpl::SmartTime  lastSuccessTime;
+	mlpl::SmartTime  lastFailureTime;
+
+	size_t           numTryToGet;
+	size_t           numFailure;
+	
+	// Constructor
+	ArmInfo(void);
+};
+
 class ArmStatus {
 public:
 	ArmStatus(void);
 	virtual ~ArmStatus();
+
+	/**
+	 * Get Information about Arm, which is a component to get monitoring
+	 * data from a monitoring system such as Zabbix and Nagios.
+	 *
+	 * @return An instance of ArmInfo.
+	 */
+	ArmInfo getArmInfo(void) const;
 
 protected:
 
