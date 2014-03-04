@@ -123,7 +123,7 @@ HatoholMonitoringView.prototype.setHostGroupFilterCandidates =
   var id, server, groups, groupLabels = [], current;
 
   if (!selectorId)
-    selectorId = '#select-hostgroup';
+    selectorId = '#select-host-group';
   current = $(selectorId).val();
   if (!serverId)
     serverId = this.getTargetServerId();
