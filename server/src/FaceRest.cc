@@ -319,6 +319,10 @@ public:
 			m_ctx->serverDataHostgroupIdVectorMap
 			  [info.serverId][info.id].push_back(
 			    info.hostgroupId);
+			// TODO: consider a design:
+			// Hosgroup name is every time updated (probably
+			// a copy of string is craeted), even if
+			// it's unncessary.
 			m_ctx->hostgroupNameMaps[info.serverId]
 			  [info.hostgroupId] = info.hostgroupName;
 		}
