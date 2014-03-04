@@ -325,8 +325,8 @@ public:
 	}
 
 	void includeHostgroupIdArray
-	  (JsonBuilderAgent &outputJson, ServerIdType &serverId,
-	   TargetIdT &targetId)
+	  (JsonBuilderAgent &outputJson, const ServerIdType &serverId,
+	   const TargetIdT &targetId)
 	{
 		ServerMapIterator serverIt
 		  = m_ctx->serverDataHostgroupIdVectorMap.find(serverId);
