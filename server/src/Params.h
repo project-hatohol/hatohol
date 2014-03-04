@@ -40,9 +40,6 @@ static const DBDomainId DB_DOMAIN_ID_NONE    = -1;
 typedef int ServerIdType;
 #define FMT_SERVER_ID "d"
 
-typedef uint64_t HostGroupIdType;
-#define FMT_HOST_GROUP_ID PRIu64
-
 typedef uint64_t HostIdType;
 #define FMT_HOST_ID PRIu64
 
