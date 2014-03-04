@@ -234,4 +234,13 @@ void test_operatorEqual(void)
 	cppcut_assert_equal(true, stime0 == stime1);
 }
 
+void test_operatorEqualDiffNSec(void)
+{
+	timespec ts0 = {1393897643, 987654321};
+	timespec ts1 = {1393897643, 123456789};
+	SmartTime stime0(ts0);
+	SmartTime stime1(ts1);
+	cppcut_assert_equal(false, stime0 == stime1);
+}
+
 } // namespace testSmartTime
