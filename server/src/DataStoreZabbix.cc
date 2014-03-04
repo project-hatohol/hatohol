@@ -36,9 +36,9 @@ DataStoreZabbix::~DataStoreZabbix(void)
 {
 }
 
-ArmBase *DataStoreZabbix::getArmBase(void)
+ArmBase &DataStoreZabbix::getArmBase(void)
 {
-	return &m_armApi;
+	return m_armApi;
 }
 
 void DataStoreZabbix::collectArms(ArmBaseVector &arms)

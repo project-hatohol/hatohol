@@ -49,9 +49,9 @@ DataStoreNagios::~DataStoreNagios()
 		delete m_ctx;
 }
 
-ArmBase *DataStoreNagios::getArmBase(void)
+ArmBase &DataStoreNagios::getArmBase(void)
 {
-	return &m_ctx->armNDO;
+	return m_ctx->armNDO;
 }
 
 void DataStoreNagios::collectArms(ArmBaseVector &arms)

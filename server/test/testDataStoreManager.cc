@@ -18,16 +18,33 @@
  */
 
 #include <cppcutter.h>
+#include "ArmBase.h"
 #include "DataStoreManager.h"
 
 namespace testDataStoreManager {
 
 DataStore *g_dataStore = NULL;
 
-class TestDataStore : public DataStore {
-	ArmBase *getArmBase(void)
+static MonitoringServerInfo testMonitoringServerInfo;
+
+class TestArmBase : public ArmBase {
+public:
+	TestArmBase(void)
+	: ArmBase("TestArmBase", testMonitoringServerInfo)
 	{
-		return NULL;
+	}
+
+	virtual bool mainThreadOneProc(void) // override
+	{
+		return true;
+	}
+};
+
+class TestDataStore : public DataStore {
+	TestArmBase armBase;
+	ArmBase &getArmBase(void)
+	{
+		return armBase;
 	}
 };
 
@@ -39,6 +56,15 @@ static void deleteDataStore(DataStore *dataStore)
 		if (usedCnt == 1)
 			break;
 	}
+}
+
+void cut_startup(void)
+{
+	testMonitoringServerInfo.id = 100;
+	testMonitoringServerInfo.type = NUM_MONITORING_SYSTEMS;
+	testMonitoringServerInfo.port = 0;
+	testMonitoringServerInfo.pollingIntervalSec = 30;
+	testMonitoringServerInfo.retryIntervalSec = 30;
 }
 
 void cut_teardown(void)

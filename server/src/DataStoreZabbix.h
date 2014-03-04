@@ -29,7 +29,7 @@ public:
 	                const bool &autoStart = true);
 	virtual ~DataStoreZabbix();
 
-	virtual ArmBase *getArmBase(void);
+	virtual ArmBase &getArmBase(void);
 	virtual void collectArms(ArmBaseVector &arms);
 	ItemTablePtr getTriggers(void);
 	ItemTablePtr getFunctions(void);

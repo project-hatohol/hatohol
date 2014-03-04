@@ -40,9 +40,8 @@ void test_getArmBase(void)
 	serverInfo.id = 5;
 	UsedCountablePtr<DataStoreZabbix>
 	  dataStoreZabbixPtr(new DataStoreZabbix(serverInfo, false), false);
-	ArmBase *armBase = dataStoreZabbixPtr->getArmBase();
-	cppcut_assert_not_null(armBase);
-	cppcut_assert_equal(typeid(ArmZabbixAPI), typeid(*armBase));
+	ArmBase &armBase = dataStoreZabbixPtr->getArmBase();
+	cppcut_assert_equal(typeid(ArmZabbixAPI), typeid(armBase));
 }
 
 } // namespace testDataStoreManager

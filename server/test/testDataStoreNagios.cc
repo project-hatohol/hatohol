@@ -40,9 +40,8 @@ void test_getArmBase(void)
 	serverInfo.id = 5;
 	UsedCountablePtr<DataStoreNagios>
 	  dataStoreNagiosPtr(new DataStoreNagios(serverInfo, false), false);
-	ArmBase *armBase = dataStoreNagiosPtr->getArmBase();
-	cppcut_assert_not_null(armBase);
-	cppcut_assert_equal(typeid(ArmNagiosNDOUtils), typeid(*armBase));
+	ArmBase &armBase = dataStoreNagiosPtr->getArmBase();
+	cppcut_assert_equal(typeid(ArmNagiosNDOUtils), typeid(armBase));
 }
 
 } // namespace testDataStoreManager
