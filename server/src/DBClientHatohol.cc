@@ -889,6 +889,9 @@ string HostResourceQueryOption::makeCondition(
 string HostResourceQueryOption::getCondition(const string &tableAlias) const
 {
 	string condition;
+	string hostgroupTableAlias;
+	if (!tableAlias.empty())
+		hostgroupTableAlias = TABLE_NAME_MAP_HOSTS_HOSTGROUPS;
 	UserIdType userId = getUserId();
 
 	if (userId == USER_ID_SYSTEM || has(OPPRVLG_GET_ALL_SERVER)) {
@@ -912,7 +915,7 @@ string HostResourceQueryOption::getCondition(const string &tableAlias) const
 			condition += StringUtils::sprintf(
 				"%s=%"FMT_HOST_GROUP_ID,
 				getHostgroupIdColumnName(
-				  TABLE_NAME_MAP_HOSTS_HOSTGROUPS).c_str(),
+				  hostgroupTableAlias).c_str(),
 				m_ctx->targetHostgroupId);
 		}
 		return condition;
@@ -930,7 +933,7 @@ string HostResourceQueryOption::getCondition(const string &tableAlias) const
 	condition = makeCondition(srvHostGrpSetMap,
 	                          getServerIdColumnName(tableAlias),
 	                          getHostgroupIdColumnName(
-	                            TABLE_NAME_MAP_HOSTS_HOSTGROUPS),
+	                            hostgroupTableAlias),
 	                          getHostIdColumnName(tableAlias),
 	                          m_ctx->targetServerId,
 	                          m_ctx->targetHostgroupId,

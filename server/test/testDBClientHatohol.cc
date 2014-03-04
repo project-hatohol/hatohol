@@ -992,6 +992,7 @@ void test_eventQueryOptionGetServerIdColumnName(void)
 {
 	HostResourceQueryOption option(USER_ID_SYSTEM);
 	const string tableAlias = "test_event_table_alias";
+	const string hostgroupTableAlias = "map_hosts_hostgroups";
 	option.setTargetServerId(26);
 	option.setTargetHostgroupId(48);
 	option.setTargetHostId(32);
@@ -1001,7 +1002,7 @@ void test_eventQueryOptionGetServerIdColumnName(void)
 			  serverIdColumnName.c_str(),
 			  tableAlias.c_str(),
 			  hostIdColumnName.c_str(),
-			  tableAlias.c_str(),
+			  hostgroupTableAlias.c_str(),
 			  hostGroupIdColumnName.c_str());
 	cppcut_assert_equal(expect, option.getCondition(tableAlias));
 
