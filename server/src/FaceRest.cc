@@ -52,9 +52,6 @@ typedef map<ServerIdType, HostNameMap> HostNameMaps;
 typedef map<TriggerIdType, string> TriggerBriefMap;
 typedef map<ServerIdType, TriggerBriefMap> TriggerBriefMaps;
 
-typedef map<HostGroupIdType, string> HostgroupIdNameMap;
-typedef map<ServerIdType, HostgroupIdNameMap> ServerIdHostgroupIdNameMap;
-
 static const guint DEFAULT_PORT = 33194;
 
 const char *FaceRest::pathForTest        = "/test";
@@ -319,12 +316,6 @@ public:
 			m_ctx->serverDataHostgroupIdVectorMap
 			  [info.serverId][info.id].push_back(
 			    info.hostgroupId);
-			// TODO: consider a design:
-			// Hosgroup name is every time updated (probably
-			// a copy of string is craeted), even if
-			// it's unncessary.
-			m_ctx->hostgroupNameMaps[info.serverId]
-			  [info.hostgroupId] = info.hostgroupName;
 		}
 	}
 
@@ -386,16 +377,10 @@ public:
 		return m_ctx->numberOfData;
 	}
 
-	ServerIdHostgroupIdNameMap getServerIdHostgroupIdNameMap(void)
-	{
-		return m_ctx->hostgroupNameMaps;
-	}
-
 private:
 	struct PrivateContext {
 		ServerIdDataIdHostgroupIdVectorMap serverDataHostgroupIdVectorMap;
 		ServerIdDataIdVectorMap serverIdDataIdVectorMap;
-		ServerIdHostgroupIdNameMap hostgroupNameMaps;
 		size_t numberOfData;
 	};
 	PrivateContext *m_ctx;
@@ -1291,23 +1276,21 @@ static void addTriggersIdBriefHash(
 }
 
 static void addHostgroupsMap(UserIdType userId, JsonBuilderAgent &outputJson,
-                             MonitoringServerInfo &serverInfo,
-                             ServerIdHostgroupIdNameMap &hostgroupMap)
+                             MonitoringServerInfo &serverInfo)
 {
-	ServerIdHostgroupIdNameMap::iterator serverIt =
-	  hostgroupMap.find(serverInfo.id);
+	HostgroupInfoList hostgroupList;
+	HostgroupsQueryOption option(userId);
+	option.setTargetServerId(serverInfo.id);
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	dataStore->getHostgroupList(hostgroupList, option);
+
+	HostgroupInfoListIterator it = hostgroupList.begin();
 	outputJson.startObject("groups");
-	if (serverIt == hostgroupMap.end()) {
-		outputJson.endObject();
-		return;
-	}
-	HostgroupIdNameMap &hostgroups = serverIt->second;
-	HostgroupIdNameMap::iterator it = hostgroups.begin();
-	for (; serverIt != hostgroupMap.end() && it != hostgroups.end(); ++it) {
-		HostGroupIdType hostgroupId = it->first;
-		string &hostgroupName = it->second;
-		outputJson.startObject(StringUtils::toString(hostgroupId));
-		outputJson.add("name", hostgroupName);
+	for (; it != hostgroupList.end(); ++it) {
+		const HostgroupInfo &hostgroupInfo = *it;
+		outputJson.startObject(
+		  StringUtils::toString(hostgroupInfo.groupId));
+		outputJson.add("name", hostgroupInfo.groupName);
 		outputJson.endObject();
 	}
 	outputJson.endObject();
@@ -1316,8 +1299,7 @@ static void addHostgroupsMap(UserIdType userId, JsonBuilderAgent &outputJson,
 static void addServersMap(
   FaceRest::RestJob *job,
   JsonBuilderAgent &agent,
-  TriggerBriefMaps *triggerMaps = NULL, bool lookupTriggerBrief = false,
-  ServerIdHostgroupIdNameMap *hostgroupNameMaps = NULL)
+  TriggerBriefMaps *triggerMaps = NULL, bool lookupTriggerBrief = false)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	MonitoringServerInfoList monitoringServers;
@@ -1338,10 +1320,7 @@ static void addServersMap(
 					       *triggerMaps,
 			                       lookupTriggerBrief);
 		}
-		if (hostgroupNameMaps) {
-			addHostgroupsMap(job->userId, agent, serverInfo,
-			                 *hostgroupNameMaps);
-		}
+		addHostgroupsMap(job->userId, agent, serverInfo);
 		agent.endObject();
 	}
 	agent.endObject();
@@ -1736,9 +1715,7 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 	}
 	agent.endArray();
 	agent.add("numberOfTriggers", helper.getNumberOfData());
-	ServerIdHostgroupIdNameMap hostgroupNameMaps
-	  = helper.getServerIdHostgroupIdNameMap();
-	addServersMap(job, agent, NULL, false, &hostgroupNameMaps);
+	addServersMap(job, agent, NULL, false);
 	agent.endObject();
 
 	replyJsonData(agent, job);
@@ -1813,9 +1790,7 @@ void FaceRest::handlerGetEvent(RestJob *job)
 	}
 	agent.endArray();
 	agent.add("numberOfEvents", helper.getNumberOfData());
-	ServerIdHostgroupIdNameMap hostgroupNameMaps
-	  = helper.getServerIdHostgroupIdNameMap();
-	addServersMap(job, agent, NULL, false, &hostgroupNameMaps);
+	addServersMap(job, agent, NULL, false);
 	agent.endObject();
 
 	replyJsonData(agent, job);
@@ -1882,9 +1857,7 @@ void FaceRest::replyGetItem(RestJob *job)
 	}
 	agent.endArray();
 	agent.add("numberOfItems", helper.getNumberOfData());
-	ServerIdHostgroupIdNameMap hostgroupNameMaps
-	  = helper.getServerIdHostgroupIdNameMap();
-	addServersMap(job, agent, NULL, false, &hostgroupNameMaps);
+	addServersMap(job, agent, NULL, false);
 	agent.endObject();
 
 	replyJsonData(agent, job);
