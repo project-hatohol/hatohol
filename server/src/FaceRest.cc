@@ -377,7 +377,8 @@ public:
 		return false;
 	}
 
-	size_t getNumberOfData(void) {
+	size_t getNumberOfData(void)
+	{
 		return m_ctx->numberOfData;
 	}
 
