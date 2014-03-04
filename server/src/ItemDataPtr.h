@@ -21,9 +21,9 @@
 #define ItemDataPtr_h
 
 #include "ItemData.h"
-#include "ItemPtr.h"
+#include "UsedCountablePtr.h"
 
-typedef ItemPtr<ItemData>       VariableItemDataPtr;
-typedef ItemPtr<const ItemData> ItemDataPtr;
+typedef UsedCountablePtr<ItemData>       VariableItemDataPtr;
+typedef UsedCountablePtr<const ItemData> ItemDataPtr;
 
 #endif // #define ItemDataPtr_h

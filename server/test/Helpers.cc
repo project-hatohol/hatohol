@@ -795,6 +795,49 @@ void crash(void)
 #endif
 }
 
+void prepareTestDataForFilterForDataOfDefunctServers(void)
+{
+	gcut_add_datum("Not filter data of defunct servers",
+		       "filterDataOfDefunctServers", G_TYPE_BOOLEAN, FALSE,
+		       NULL);
+	gcut_add_datum("Filter data of defunct servers.",
+		       "filterDataOfDefunctServers", G_TYPE_BOOLEAN, TRUE,
+		       NULL);
+}
+
+void insertValidServerCond(
+  string &condition, const HostResourceQueryOption &opt,
+  const string &tableName)
+{
+	struct MyOption : public HostResourceQueryOption {
+	public:
+		MyOption(const HostResourceQueryOption &opt)
+		: HostResourceQueryOption(opt)
+		{
+		}
+
+		string makeServerCond(const string &tableName)
+		{
+			const ServerIdSet &serverIdSet =
+			  getDataQueryContext().getValidServerIdSet();
+			string cond = makeConditionServer(
+			                serverIdSet,
+			                getServerIdColumnName(tableName));
+			return cond;
+		}
+
+		void insertCond(string &svCond, const string &condition)
+		{
+			addCondition(svCond, condition);
+		}
+	};
+
+	MyOption myOpt(opt);
+	string svCond = myOpt.makeServerCond(tableName);
+	myOpt.insertCond(svCond, condition);
+	condition = svCond;
+}
+
 string makeDoubleFloatFormat(const ColumnDef &columnDef)
 {
 	return StringUtils::sprintf("%%.%zdlf", columnDef.decFracLength);
@@ -948,4 +991,65 @@ bool Watcher::start(const size_t &timeout, const size_t &interval)
 bool Watcher::watch(void)
 {
 	return false;
+}
+
+// ---------------------------------------------------------------------------
+// LinesComparator
+// ---------------------------------------------------------------------------
+struct LinesComparator::PrivateContext
+{
+	multiset<string> set0;
+	multiset<string> set1;
+
+	string str0;
+	string str1;
+
+	void assertWithoutOrder(void)
+	{
+		multiset<string>::iterator line0Itr;
+		multiset<string>::iterator line1Itr;
+		while (!set0.empty()) {
+			line0Itr = set0.begin();
+			line1Itr = set1.find(*line0Itr);
+			if (line1Itr == set1.end()) {
+				cut_fail("Not found line: %s\n"
+				         "<<set0>>\n%s\n"
+				         "<<set1>>\n%s\n",
+				         line0Itr->c_str(),
+				         str0.c_str(), str1.c_str());
+			}
+			set0.erase(line0Itr);
+			set1.erase(line1Itr);
+		}
+	}
+};
+
+LinesComparator::LinesComparator(void)
+: m_ctx(NULL)
+{
+	m_ctx = new PrivateContext();
+}
+
+LinesComparator::~LinesComparator()
+{
+	if (m_ctx)
+		delete m_ctx;
+}
+
+void LinesComparator::add(
+  const std::string &line0, const std::string &line1)
+{
+	m_ctx->str0 += line0;
+	m_ctx->str1 += line1;
+
+	m_ctx->set0.insert(line0);
+	m_ctx->set1.insert(line1);
+}
+
+void LinesComparator::assert(const bool &strictOrder)
+{
+	if (strictOrder)
+		cppcut_assert_equal(m_ctx->str0, m_ctx->str1);
+	else
+		m_ctx->assertWithoutOrder();
 }

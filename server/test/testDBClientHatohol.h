@@ -21,6 +21,7 @@
 #include <list>
 #include <map>
 #include <algorithm>
+#include <gcutter.h>
 #include "StringUtils.h"
 #include "Helpers.h"
 
@@ -40,6 +41,8 @@ struct AssertGetHostResourceArg {
 	ServerHostGrpSetMap authMap;
 	TResourceType *fixtures;
 	size_t numberOfFixtures;
+	gconstpointer ddtParam;
+	bool filterForDataOfDefunctSv;
 
 	AssertGetHostResourceArg(void)
 	: userId(USER_ID_SYSTEM),
@@ -50,7 +53,9 @@ struct AssertGetHostResourceArg {
 	  offset(0),
 	  expectedErrorCode(HTERR_OK),
 	  fixtures(NULL),
-	  numberOfFixtures(0)
+	  numberOfFixtures(0),
+	  ddtParam(NULL),
+	  filterForDataOfDefunctSv(false)
 	{
 	}
 
@@ -89,6 +94,10 @@ struct AssertGetHostResourceArg {
 
 	virtual bool filterOutExpectedRecord(TResourceType *info)
 	{
+		if (filterForDataOfDefunctSv) {
+			if (!option.isValidServer(info->serverId))
+				return true;
+		}
 		return false;
 	}
 
@@ -143,12 +152,24 @@ struct AssertGetHostResourceArg {
 		std::string actualText;
 		typename std::list<TResourceType>::iterator it
 		  = actualRecordList.begin();
+		LinesComparator linesComparator;
 		for (size_t i = 0; it != actualRecordList.end(); i++, ++it) {
 			TResourceType &expectedRecord = getExpectedRecord(i);
-			expectedText += makeOutputText(expectedRecord);
-			actualText += makeOutputText(*it);
+			linesComparator.add(makeOutputText(expectedRecord),
+			                    makeOutputText(*it));
 		}
-		cppcut_assert_equal(expectedText, actualText);
+		const bool strictOrder = 
+		 (sortDirection != DataQueryOption::SORT_DONT_CARE);
+		linesComparator.assert(strictOrder);
+	}
+
+	void setDataDrivenTestParam(gconstpointer _ddtParam)
+	{
+		ddtParam = _ddtParam;
+		filterForDataOfDefunctSv =
+		  gcut_data_get_boolean(ddtParam,
+		                        "filterDataOfDefunctServers");
+		option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	}
 };
 
@@ -161,7 +182,7 @@ struct AssertGetEventsArg
 	TriggerStatusType triggerStatus;
 	std::map<const EventInfo *, uint64_t> idMap;
 
-	AssertGetEventsArg(void)
+	AssertGetEventsArg(gconstpointer ddtParam)
 	: limitOfUnifiedId(0), sortType(EventsQueryOption::SORT_UNIFIED_ID),
 	  minSeverity(TRIGGER_SEVERITY_UNKNOWN),
 	  triggerStatus(TRIGGER_STATUS_ALL)
@@ -169,6 +190,8 @@ struct AssertGetEventsArg
 		fixtures = testEventInfo;
 		numberOfFixtures = NumTestEventInfo;
 		fixupIdMap();
+		if (ddtParam)
+			setDataDrivenTestParam(ddtParam);
 	}
 
 	virtual void fixupIdMap(void)
@@ -194,6 +217,10 @@ struct AssertGetEventsArg
 
 	virtual bool filterOutExpectedRecord(EventInfo *info) // override
 	{
+  		if (AssertGetHostResourceArg <EventInfo, EventsQueryOption>
+		      ::filterOutExpectedRecord(info)) {
+			return true;
+		}
 		if (limitOfUnifiedId && idMap[info] > limitOfUnifiedId)
 			return true;
 

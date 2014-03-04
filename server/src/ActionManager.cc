@@ -498,6 +498,7 @@ ActionManager::~ActionManager()
 void ActionManager::checkEvents(const EventInfoList &eventList)
 {
 	DBClientAction dbAction;
+	OperationPrivilege privilege(USER_ID_SYSTEM);
 	EventInfoListConstIterator it = eventList.begin();
 	for (; it != eventList.end(); ++it) {
 		ActionDefList actionDefList;
@@ -506,8 +507,7 @@ void ActionManager::checkEvents(const EventInfoList &eventList)
 			continue;
 		if (shouldSkipByLog(eventInfo, dbAction))
 			continue;
-		DataQueryOption option(USER_ID_SYSTEM);
-		dbAction.getActionList(actionDefList, option, &eventInfo);
+		dbAction.getActionList(actionDefList, privilege, &eventInfo);
 		ActionDefListIterator actIt = actionDefList.begin();
 		for (; actIt != actionDefList.end(); ++actIt)
 			runAction(*actIt, eventInfo, dbAction);
@@ -1420,9 +1420,10 @@ void ActionManager::fillTriggerInfoInEventInfo(EventInfo &eventInfo)
 {
 	DBClientHatohol dbHatohol;
 	TriggerInfo triggerInfo;
-	bool succedded =
-	   dbHatohol.getTriggerInfo(triggerInfo,
-	                            eventInfo.serverId, eventInfo.triggerId);
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(eventInfo.serverId);
+	option.setTargetId(eventInfo.triggerId);
+	bool succedded = dbHatohol.getTriggerInfo(triggerInfo, option);
 	if (succedded) {
 		eventInfo.severity = triggerInfo.severity;
 		eventInfo.hostId   = triggerInfo.hostId;

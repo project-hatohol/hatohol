@@ -18,22 +18,42 @@
  */
 
 #include <cstdio>
+#include <string>
 #include "DataQueryOption.h"
+#include "DataQueryContext.h"
 #include "Logger.h"
+#include "HatoholException.h"
 
+using namespace std;
 using namespace mlpl;
 
 struct DataQueryOption::PrivateContext {
 	size_t maxNumber;
 	size_t offset;
 	SortOrderList sortOrderList;
+	DataQueryContextPtr dataQueryCtxPtr; // The body is shared
 
 	// constuctor
-	PrivateContext(void)
+	PrivateContext(const UserIdType &userId)
 	: maxNumber(NO_LIMIT),
-	  offset(0)
+	  offset(0),
+	  dataQueryCtxPtr(new DataQueryContext(userId), false)
 	{
 	}
+
+	PrivateContext(DataQueryContext *dataQueryContext)
+	: maxNumber(NO_LIMIT),
+	  offset(0),
+	  dataQueryCtxPtr(dataQueryContext)
+	{
+	}
+
+	PrivateContext(const DataQueryOption &masterOption)
+	{
+		*this = *masterOption.m_ctx;
+	}
+
+
 };
 
 const size_t DataQueryOption::NO_LIMIT = 0;
@@ -47,17 +67,22 @@ DataQueryOption::SortOrder::SortOrder(
 {
 }
 
-DataQueryOption::DataQueryOption(UserIdType userId)
+DataQueryOption::DataQueryOption(const UserIdType &userId)
 : m_ctx(NULL)
 {
-	m_ctx = new PrivateContext();
-	setUserId(userId);
+	m_ctx = new PrivateContext(userId);
+}
+
+DataQueryOption::DataQueryOption(DataQueryContext *dataQueryContext)
+: m_ctx(NULL)
+{
+	m_ctx = new PrivateContext(dataQueryContext);
 }
 
 DataQueryOption::DataQueryOption(const DataQueryOption &src)
+: m_ctx(NULL)
 {
-	m_ctx = new PrivateContext();
-	*m_ctx = *src.m_ctx;
+	m_ctx = new PrivateContext(src);
 }
 
 DataQueryOption::~DataQueryOption()
@@ -88,6 +113,41 @@ bool DataQueryOption::operator==(const DataQueryOption &rhs)
 std::string DataQueryOption::getCondition(void) const
 {
 	return "";
+}
+
+DataQueryContext &DataQueryOption::getDataQueryContext(void) const
+{
+	return *m_ctx->dataQueryCtxPtr;
+}
+
+bool DataQueryOption::isValidServer(const ServerIdType &serverId) const
+{
+	return getDataQueryContext().isValidServer(serverId);
+}
+
+void DataQueryOption::setUserId(const UserIdType &userId)
+{
+	getDataQueryContext().setUserId(userId);
+}
+
+void DataQueryOption::setFlags(const OperationPrivilegeFlag &flags)
+{
+	getDataQueryContext().setFlags(flags);
+}
+
+UserIdType DataQueryOption::getUserId(void) const
+{
+	return getDataQueryContext().getOperationPrivilege().getUserId();
+}
+
+bool DataQueryOption::has(const OperationPrivilegeType &type) const
+{
+	return getDataQueryContext().getOperationPrivilege().has(type);
+}
+
+DataQueryOption::operator const OperationPrivilege &() const
+{
+	return getDataQueryContext().getOperationPrivilege();
 }
 
 void DataQueryOption::setMaximumNumber(size_t maximum)
@@ -150,4 +210,37 @@ void DataQueryOption::setOffset(size_t offset)
 size_t DataQueryOption::getOffset(void) const
 {
 	return m_ctx->offset;
+}
+
+// ---------------------------------------------------------------------------
+// Protected methods
+// ---------------------------------------------------------------------------
+void DataQueryOption::addCondition(
+  string &currCondition, const string &addedCondition,
+  const AddConditionType &type, const bool &useParenthesis)
+{
+	if (addedCondition.empty())
+		return;
+
+	if (currCondition.empty()) {
+		currCondition = addedCondition;
+		return;
+	}
+
+	switch (type) {
+	case ADD_TYPE_AND:
+		currCondition += " AND ";
+		break;
+	case ADD_TYPE_OR:
+		currCondition += " OR ";
+		break;
+	default:
+		HATOHOL_ASSERT(false, "Unknown condition: %d\n", type);
+	}
+
+	if (useParenthesis)
+		currCondition += "(";
+	currCondition += addedCondition;
+	if (useParenthesis)
+		currCondition += ")";
 }

@@ -24,7 +24,7 @@
 #include <map>
 #include "Params.h"
 #include "SmartTime.h"
-#include "ItemPtr.h"
+#include "UsedCountablePtr.h"
 #include "UsedCountable.h"
 
 class SessionManager;
@@ -50,7 +50,7 @@ typedef std::map<std::string, Session *>::iterator SessionIdMapIterator;
 typedef std::map<std::string, Session *>::const_iterator
    SessionIdMapConstIterator;
 
-typedef ItemPtr<Session> SessionPtr;
+typedef UsedCountablePtr<Session> SessionPtr;
 
 class SessionManager {
 public:

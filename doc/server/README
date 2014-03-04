@@ -1,0 +1,4 @@
+* How to create a document of the source code with Doxygen
+
+    $ mkdir -p doc  (When a directory: 'doc' doesn't exist)
+    $ doxygen doxygen.conf

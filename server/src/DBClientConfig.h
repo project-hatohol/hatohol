@@ -77,7 +77,8 @@ typedef MonitoringServerInfoList::iterator MonitoringServerInfoListIterator;
 
 class ServerQueryOption : public DataQueryOption {
 public:
-	ServerQueryOption(UserIdType userId = INVALID_USER_ID);
+	ServerQueryOption(const UserIdType &userId = INVALID_USER_ID);
+	ServerQueryOption(DataQueryContext *dataQueryContext);
 	virtual ~ServerQueryOption();
 
 	void setTargetServerId(const ServerIdType &serverId);
@@ -124,6 +125,16 @@ public:
 	                                const OperationPrivilege &privilege);
 	void getTargetServers(MonitoringServerInfoList &monitoringServers,
 	                      ServerQueryOption &option);
+
+	/**
+	 * Get the ID set of accessible servers.
+	 *
+	 * @param serverIdSet
+	 * The obtained IDs are inserted to this object.
+	 * @param dataQueryContext A DataQueryContext instance.
+	 */
+	void getServerIdSet(ServerIdSet &serverIdSet,
+	                    DataQueryContext *dataQueryContext);
 
 protected:
 	static bool parseCommandLineArgument(const CommandLineArg &cmdArg);

@@ -19,6 +19,7 @@
 
 #include <cppcutter.h>
 #include <cutter.h>
+#include <gcutter.h>
 #include "Hatohol.h"
 #include "DBClientHatohol.h"
 #include "Helpers.h"
@@ -37,6 +38,12 @@ public:
 	string callGetServerIdColumnName(const string &tableAlias = "") const
 	{
 		return getServerIdColumnName(tableAlias);
+	}
+
+	static string callMakeConditionServer(const ServerIdSet &serverIdSet,
+	                                const string &serverIdColumnName)
+	{
+		return makeConditionServer(serverIdSet, serverIdColumnName);
 	}
 
 	static
@@ -105,10 +112,11 @@ cut_trace(_assertAddToDB<HostgroupElement>(X, addHostgroupElement))
 struct AssertGetTriggersArg
   : public AssertGetHostResourceArg<TriggerInfo, TriggersQueryOption>
 {
-	AssertGetTriggersArg(void)
+	AssertGetTriggersArg(gconstpointer ddtParam)
 	{
 		fixtures = testTriggerInfo;
 		numberOfFixtures = NumTestTriggerInfo;
+		setDataDrivenTestParam(ddtParam);
 	}
 
 	virtual uint64_t getHostId(TriggerInfo &info)
@@ -134,8 +142,8 @@ static void _assertGetTriggers(AssertGetTriggersArg &arg)
 static void _assertGetTriggersWithFilter(AssertGetTriggersArg &arg)
 {
 	// setup trigger data
-	void test_addTriggerInfoList(void);
-	test_addTriggerInfoList();
+	void test_addTriggerInfoList(gconstpointer data);
+	test_addTriggerInfoList(arg.ddtParam);
 	assertGetTriggers(arg);
 }
 #define assertGetTriggersWithFilter(ARG) \
@@ -162,18 +170,19 @@ static void _setupTestHostgroupElementDB(void)
 }
 #define setupTestHostgroupElementDB() cut_trace(_setupTestHostgroupElementDB())
 
-static void _assertGetTriggerInfoList(uint32_t serverId, uint64_t hostId = ALL_HOSTS)
+static void _assertGetTriggerInfoList(
+  gconstpointer ddtParam, uint32_t serverId, uint64_t hostId = ALL_HOSTS)
 {
 	setupTestTriggerDB();
 	setupTestHostgroupElementDB();
 	setupTestHostgroupInfoDB();
-	AssertGetTriggersArg arg;
+	AssertGetTriggersArg arg(ddtParam);
 	arg.targetServerId = serverId;
 	arg.targetHostId = hostId;
 	assertGetTriggers(arg);
 }
-#define assertGetTriggerInfoList(SERVER_ID, ...) \
-cut_trace(_assertGetTriggerInfoList(SERVER_ID, ##__VA_ARGS__))
+#define assertGetTriggerInfoList(DDT_PARAM, SERVER_ID, ...) \
+cut_trace(_assertGetTriggerInfoList(DDT_PARAM, SERVER_ID, ##__VA_ARGS__))
 
 static void _assertGetEvents(AssertGetEventsArg &arg)
 {
@@ -191,8 +200,9 @@ static void _assertGetEvents(AssertGetEventsArg &arg)
 static void _assertGetEventsWithFilter(AssertGetEventsArg &arg)
 {
 	// setup event data
-	void test_addEventInfoList(void);
-	test_addEventInfoList();
+	void test_addEventInfoList(gconstpointer data);
+	test_addEventInfoList(arg.ddtParam);
+
 	assertGetEvents(arg);
 }
 #define assertGetEventsWithFilter(ARG) \
@@ -219,10 +229,11 @@ struct AssertGetItemsArg
 {
 	string itemGroupName;
 
-	AssertGetItemsArg(void)
+	AssertGetItemsArg(gconstpointer ddtParam)
 	{
 		fixtures = testItemInfo;
 		numberOfFixtures = NumTestItemInfo;
+		setDataDrivenTestParam(ddtParam);
 	}
 
 	virtual void fixupOption(void) // override
@@ -234,10 +245,21 @@ struct AssertGetItemsArg
 
 	virtual bool filterOutExpectedRecord(ItemInfo *info) // override
 	{
+		if (AssertGetHostResourceArg<ItemInfo, ItemsQueryOption>
+		      ::filterOutExpectedRecord(info)) {
+			return true;
+		}
+
 		if (!itemGroupName.empty() &&
 		    info->itemGroupName != itemGroupName) {
 			return true;
 		}
+
+		if (filterForDataOfDefunctSv) {
+			if (!option.isValidServer(info->serverId))
+				return true;
+		}
+
 		return false;
 	}
 
@@ -264,14 +286,14 @@ static void _assertGetItems(AssertGetItemsArg &arg)
 static void _assertGetItemsWithFilter(AssertGetItemsArg &arg)
 {
 	// setup item data
-	void test_addItemInfoList(void);
-	test_addItemInfoList();
+	void test_addItemInfoList(gconstpointer data);
+	test_addItemInfoList(arg.ddtParam);
 	assertGetItems(arg);
 }
 #define assertGetItemsWithFilter(ARG) \
 cut_trace(_assertGetItemsWithFilter(ARG))
 
-void _assertItemInfoList(uint32_t serverId)
+void _assertItemInfoList(gconstpointer data, uint32_t serverId)
 {
 	DBClientHatohol dbHatohol;
 	ItemInfoList itemInfoList;
@@ -289,11 +311,12 @@ void _assertItemInfoList(uint32_t serverId)
 		hostgroupInfoList.push_back(testHostgroupInfo[i]);
 	dbHatohol.addHostgroupInfoList(hostgroupInfoList);
 
-	AssertGetItemsArg arg;
+	AssertGetItemsArg arg(data);
 	arg.targetServerId = serverId;
 	assertGetItems(arg);
 }
-#define assertItemInfoList(SERVER_ID) cut_trace(_assertItemInfoList(SERVER_ID))
+#define assertItemInfoList(DATA, SERVER_ID) \
+cut_trace(_assertItemInfoList(DATA, SERVER_ID))
 
 static string makeHostOutput(const HostInfo &hostInfo)
 {
@@ -309,16 +332,19 @@ struct AssertGetHostsArg
 {
 	HostInfoList expectedHostList;
 
-	AssertGetHostsArg(void)
+	AssertGetHostsArg(gconstpointer ddtParam)
 	{
+		setDataDrivenTestParam(ddtParam);
 	}
 
-	virtual void fixupExpectedRecords(void)
+	virtual void fixupExpectedRecords(void) // override
 	{
 		getTestHostInfoList(expectedHostList, targetServerId, NULL);
 		HostInfoListIterator it = expectedHostList.begin();
 		for (; it != expectedHostList.end(); ++it) {	
 			HostInfo &record = *it;
+			if (filterOutExpectedRecord(&record))
+				continue;
 			if (isAuthorized(record))
 				expectedRecords.push_back(&record);
 		}
@@ -475,10 +501,22 @@ static string makeHostsOutput(const HostInfo &hostInfo, size_t id)
 	return expectedOut;
 }
 
+static void fixupForFilteringDefunctServer(
+  gconstpointer data, string &expected, HostResourceQueryOption &option,
+  const string &tableName = "")
+{
+	const bool filterForDataOfDefunctSv =
+	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
+	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
+	if (filterForDataOfDefunctSv)
+		insertValidServerCond(expected, option, tableName);
+}
+
 void cut_setup(void)
 {
 	hatoholInit();
 	deleteDBClientHatoholDB();
+	setupTestDBConfig(true, true);
 }
 
 // ---------------------------------------------------------------------------
@@ -542,42 +580,66 @@ void test_getTriggerInfo(void)
 	TriggerInfo &targetTriggerInfo = testTriggerInfo[targetIdx];
 	TriggerInfo triggerInfo;
 	DBClientHatohol dbHatohol;
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(targetTriggerInfo.serverId);
+	option.setTargetId(targetTriggerInfo.id);
 	cppcut_assert_equal(true,
-	   dbHatohol.getTriggerInfo(
-	      triggerInfo, targetTriggerInfo.serverId, targetTriggerInfo.id));
+	   dbHatohol.getTriggerInfo(triggerInfo, option));
 	assertTriggerInfo(targetTriggerInfo, triggerInfo);
 }
 
 void test_getTriggerInfoNotFound(void)
 {
 	setupTestTriggerDB();
-	uint32_t invalidSvId = -1;
-	uint32_t invalidTrigId = -1;
+	const UserIdType invalidSvId = -1;
+	const uint64_t   invalidTrigId = -1;
 	TriggerInfo triggerInfo;
 	DBClientHatohol dbHatohol;
+	TriggersQueryOption option(invalidSvId);
+	option.setTargetId(invalidTrigId);
 	cppcut_assert_equal(false,
-	   dbHatohol.getTriggerInfo(triggerInfo, invalidSvId, invalidTrigId));
+	                    dbHatohol.getTriggerInfo(triggerInfo, option));
 }
 
-void test_getTriggerInfoList(void)
+void data_getTriggerInfoList(void)
 {
-	assertGetTriggerInfoList(ALL_SERVERS);
+	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
-void test_getTriggerInfoListForOneServer(void)
+void test_getTriggerInfoList(gconstpointer data)
+{
+	assertGetTriggerInfoList(data, ALL_SERVERS);
+}
+
+void data_getTriggerInfoListForOneServer(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getTriggerInfoListForOneServer(gconstpointer data)
 {
 	uint32_t targetServerId = testTriggerInfo[0].serverId;
-	assertGetTriggerInfoList(targetServerId);
+	assertGetTriggerInfoList(data, targetServerId);
 }
 
-void test_getTriggerInfoListForOneServerOneHost(void)
+void data_getTriggerInfoListForOneServerOneHost(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getTriggerInfoListForOneServerOneHost(gconstpointer data)
 {
 	uint32_t targetServerId = testTriggerInfo[1].serverId;
 	uint64_t targetHostId = testTriggerInfo[1].hostId;
-	assertGetTriggerInfoList(targetServerId, targetHostId);
+	assertGetTriggerInfoList(data, targetServerId, targetHostId);
 }
 
-void test_setTriggerInfoList(void)
+void data_setTriggerInfoList(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_setTriggerInfoList(gconstpointer data)
 {
 	DBClientHatohol dbHatohol;
 	TriggerInfoList triggerInfoList;
@@ -596,11 +658,16 @@ void test_setTriggerInfoList(void)
 		hostgroupInfoList.push_back(testHostgroupInfo[i]);
 	dbHatohol.addHostgroupInfoList(hostgroupInfoList);
 
-	AssertGetTriggersArg arg;
+	AssertGetTriggersArg arg(data);
 	assertGetTriggers(arg);
 }
 
-void test_addTriggerInfoList(void)
+void data_addTriggerInfoList(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_addTriggerInfoList(gconstpointer data)
 {
 	size_t i;
 	DBClientHatohol dbHatohol;
@@ -631,46 +698,76 @@ void test_addTriggerInfoList(void)
 	dbHatohol.addHostgroupInfoList(hostgroupInfoList);
 
 	// Check
-	AssertGetTriggersArg arg;
+	AssertGetTriggersArg arg(data);
 	assertGetTriggers(arg);
 }
 
-void test_getTriggerWithOneAuthorizedServer(void)
+void data_getTriggerWithOneAuthorizedServer(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getTriggerWithOneAuthorizedServer(gconstpointer data)
 {
 	setupTestDBUser(true, true);
-	AssertGetTriggersArg arg;
+	AssertGetTriggersArg arg(data);
 	arg.userId = 5;
 	assertGetTriggersWithFilter(arg);
 }
 
-void test_getTriggerWithNoAuthorizedServer(void)
+void data_getTriggerWithNoAuthorizedServer(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getTriggerWithNoAuthorizedServer(gconstpointer data)
 {
 	setupTestDBUser(true, true);
-	AssertGetTriggersArg arg;
+	AssertGetTriggersArg arg(data);
 	arg.userId = 4;
 	assertGetTriggersWithFilter(arg);
 }
 
-void test_getTriggerWithInvalidUserId(void)
+void data_getTriggerWithInvalidUserId(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getTriggerWithInvalidUserId(gconstpointer data)
 {
 	setupTestDBUser(true, true);
-	AssertGetTriggersArg arg;
+	AssertGetTriggersArg arg(data);
 	arg.userId = INVALID_USER_ID;
 	assertGetTriggersWithFilter(arg);
 }
 
-void test_itemInfoList(void)
+void data_itemInfoList(void)
 {
-	assertItemInfoList(ALL_SERVERS);
+	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
-void test_itemInfoListForOneServer(void)
+void test_itemInfoList(gconstpointer data)
+{
+	assertItemInfoList(data, ALL_SERVERS);
+}
+
+void data_itemInfoListForOneServer(gconstpointer data)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_itemInfoListForOneServer(gconstpointer data)
 {
 	uint32_t targetServerId = testItemInfo[0].serverId;
-	assertItemInfoList(targetServerId);
+	assertItemInfoList(data, targetServerId);
 }
 
-void test_addItemInfoList(void)
+void data_addItemInfoList(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_addItemInfoList(gconstpointer data)
 {
 	DBClientHatohol dbHatohol;
 	ItemInfoList itemInfoList;
@@ -688,49 +785,74 @@ void test_addItemInfoList(void)
 		hostgroupInfoList.push_back(testHostgroupInfo[i]);
 	dbHatohol.addHostgroupInfoList(hostgroupInfoList);
 
-	AssertGetItemsArg arg;
+	AssertGetItemsArg arg(data);
 	assertGetItems(arg);
 }
 
-void test_getItemsWithOneAuthorizedServer(void)
+void data_getItemsWithOneAuthorizedServer(gconstpointer data)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getItemsWithOneAuthorizedServer(gconstpointer data)
 {
 	setupTestDBUser(true, true);
-	AssertGetItemsArg arg;
+	AssertGetItemsArg arg(data);
 	arg.userId = 5;
 	assertGetItemsWithFilter(arg);
 }
 
-void test_getItemWithNoAuthorizedServer(void)
+void data_getItemWithNoAuthorizedServer(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getItemWithNoAuthorizedServer(gconstpointer data)
 {
 	setupTestDBUser(true, true);
-	AssertGetItemsArg arg;
+	AssertGetItemsArg arg(data);
 	arg.userId = 4;
 	assertGetItemsWithFilter(arg);
 }
 
-void test_getItemWithInvalidUserId(void)
+void data_getItemWithInvalidUserId(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getItemWithInvalidUserId(gconstpointer data)
 {
 	setupTestDBUser(true, true);
-	AssertGetItemsArg arg;
+	AssertGetItemsArg arg(data);
 	arg.userId = INVALID_USER_ID;
 	assertGetItemsWithFilter(arg);
 }
 
-void test_getItemWithItemGroupName(void)
+void data_getItemWithItemGroupName(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getItemWithItemGroupName(gconstpointer data)
 {
 	setupTestDBUser(true, true);
-	AssertGetItemsArg arg;
+	AssertGetItemsArg arg(data);
 	arg.itemGroupName = "City";
 	assertGetItemsWithFilter(arg);
 }
 
-void test_addEventInfoList(void)
+void data_addEventInfoList(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_addEventInfoList(gconstpointer data)
 {
 	// DBClientHatohol internally joins the trigger table and the event table.
 	// So we also have to add trigger data.
 	// When the internal join is removed, the following line will not be
 	// needed.
-	test_setTriggerInfoList();
+	test_setTriggerInfoList(data);
 
 	DBClientHatohol dbHatohol;
 	EventInfoList eventInfoList;
@@ -738,44 +860,69 @@ void test_addEventInfoList(void)
 		eventInfoList.push_back(testEventInfo[i]);
 	dbHatohol.addEventInfoList(eventInfoList);
 
-	AssertGetEventsArg arg;
+	AssertGetEventsArg arg(data);
 	assertGetEvents(arg);
 }
 
-void test_getLastEventId(void)
+void data_getLastEventId(void)
 {
-	test_addEventInfoList();
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getLastEventId(gconstpointer data)
+{
+	test_addEventInfoList(data);
 	DBClientHatohol dbHatohol;
 	const int serverid = 3;
 	cppcut_assert_equal(findLastEventId(serverid),
 	                    dbHatohol.getLastEventId(serverid));
 }
 
-void test_getHostInfoList(void)
+void data_getHostInfoList(void)
 {
-	AssertGetHostsArg arg;
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getHostInfoList(gconstpointer data)
+{
+	AssertGetHostsArg arg(data);
 	assertGetHosts(arg);
 }
 
-void test_getHostInfoListForOneServer(void)
+void data_getHostInfoListForOneServer(void)
 {
-	AssertGetHostsArg arg;
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getHostInfoListForOneServer(gconstpointer data)
+{
+	AssertGetHostsArg arg(data);
 	arg.targetServerId = testTriggerInfo[0].serverId;
 	assertGetHosts(arg);
 }
 
-void test_getHostInfoListWithNoAuthorizedServer(void)
+void data_getHostInfoListWithNoAuthorizedServer(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getHostInfoListWithNoAuthorizedServer(gconstpointer data)
 {
 	setupTestDBUser(true, true);
-	AssertGetHostsArg arg;
+	AssertGetHostsArg arg(data);
 	arg.userId = 4;
 	assertGetHosts(arg);
 }
 
-void test_getHostInfoListWithOneAuthorizedServer(void)
+void data_getHostInfoListWithOneAuthorizedServer(gconstpointer data)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getHostInfoListWithOneAuthorizedServer(gconstpointer data)
 {
 	setupTestDBUser(true, true);
-	AssertGetHostsArg arg;
+	AssertGetHostsArg arg(data);
 	arg.userId = 5;
 	assertGetHosts(arg);
 }
@@ -977,9 +1124,18 @@ void test_makeConditionWithTargetServerAndHost(void)
 	assertMakeCondition(srvHostGrpSetMap, expect, 14, 21);
 }
 
-void test_conditionForAdminWithTargetServerAndHost(void)
+void data_conditionForAdminWithTargetServerAndHost(void)
 {
+}
+
+void test_conditionForAdminWithTargetServerAndHost(gconstpointer data)
+{
+	const bool filterForDataOfDefunctSv =
+	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
+	if (filterForDataOfDefunctSv)
+		cut_pend("To be implemented");
 	HostResourceQueryOption option(USER_ID_SYSTEM);
+	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	option.setTargetServerId(26);
 	option.setTargetHostId(32);
 	string expect = StringUtils::sprintf("%s=26 AND %s=32",
@@ -988,7 +1144,12 @@ void test_conditionForAdminWithTargetServerAndHost(void)
 	cppcut_assert_equal(expect, option.getCondition());
 }
 
-void test_eventQueryOptionGetServerIdColumnName(void)
+void data_eventQueryOptionGetServerIdColumnName(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_eventQueryOptionGetServerIdColumnName(gconstpointer data)
 {
 	HostResourceQueryOption option(USER_ID_SYSTEM);
 	const string tableAlias = "test_event_table_alias";
@@ -1004,6 +1165,7 @@ void test_eventQueryOptionGetServerIdColumnName(void)
 			  hostIdColumnName.c_str(),
 			  hostgroupTableAlias.c_str(),
 			  hostGroupIdColumnName.c_str());
+	fixupForFilteringDefunctServer(data, expect, option, tableAlias);
 	cppcut_assert_equal(expect, option.getCondition(tableAlias));
 
 }
@@ -1036,20 +1198,32 @@ void test_makeConditionComplicated(void)
 	assertMakeCondition(srvHostGrpSetMap, expect);
 }
 
-void test_makeSelectConditionUserAdmin(void)
+void data_makeSelectConditionUserAdmin(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_makeSelectConditionUserAdmin(gconstpointer data)
 {
 	HostResourceQueryOption option(USER_ID_SYSTEM);
-	string actual = option.getCondition();
 	string expect = "";
+	fixupForFilteringDefunctServer(data, expect, option);
+	string actual = option.getCondition();
 	cppcut_assert_equal(actual, expect);
 }
 
-void test_makeSelectConditionAllEvents(void)
+void data_makeSelectConditionAllEvents(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_makeSelectConditionAllEvents(gconstpointer data)
 {
 	HostResourceQueryOption option;
 	option.setFlags(OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_SERVER));
-	string actual = option.getCondition();
 	string expect = "";
+	fixupForFilteringDefunctServer(data, expect, option);
+	string actual = option.getCondition();
 	cppcut_assert_equal(actual, expect);
 }
 
@@ -1062,16 +1236,26 @@ void test_makeSelectConditionNoneUser(void)
 	cppcut_assert_equal(actual, expect);
 }
 
-void test_makeSelectCondition(void)
+void data_makeSelectCondition(void)
 {
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_makeSelectCondition(gconstpointer data)
+{
+	const bool filterForDataOfDefunctSv =
+	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
 	setupTestDBUser(true, true);
 	HostResourceQueryOption option;
+	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	for (size_t i = 0; i < NumTestUserInfo; i++) {
 		UserIdType userId = i + 1;
 		option.setUserId(userId);
 		string actual = option.getCondition();
 		string expect = makeExpectedConditionForUser(
 		                  userId, testUserInfo[i].flags);
+		if (filterForDataOfDefunctSv)
+			insertValidServerCond(expect, option);
 		cppcut_assert_equal(expect, actual);
 	}
 }
@@ -1110,196 +1294,318 @@ void test_eventQueryOptionWithSortTypeTime(void)
 	cppcut_assert_equal(expected, option.getOrderBy());
 }
 
-void test_eventQueryOptionDefaultMinimumSeveirty(void)
+void data_eventQueryOptionDefaultMinimumSeverity(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_eventQueryOptionDefaultMinimumSeverity(gconstpointer data)
 {
 	EventsQueryOption option(USER_ID_SYSTEM);
-	const string expected =  "";
+	string expected = "";
+	fixupForFilteringDefunctServer(data, expected, option);
 	cppcut_assert_equal(TRIGGER_SEVERITY_UNKNOWN,
 			    option.getMinimumSeverity());
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
-void test_eventQueryOptionWithMinimumSeveirty(void)
+void data_eventQueryOptionWithMinimumSeverity(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_eventQueryOptionWithMinimumSeverity(gconstpointer data)
 {
 	EventsQueryOption option(USER_ID_SYSTEM);
 	option.setMinimumSeverity(TRIGGER_SEVERITY_CRITICAL);
-	const string expected =  "triggers.severity>=4";
+	string expected =  "triggers.severity>=4";
+	fixupForFilteringDefunctServer(data, expected, option);
 	cppcut_assert_equal(TRIGGER_SEVERITY_CRITICAL,
 			    option.getMinimumSeverity());
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
-void test_eventQueryOptionDefaultTriggerStatus(void)
+void data_eventQueryOptionDefaultTriggerStatus(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_eventQueryOptionDefaultTriggerStatus(gconstpointer data)
 {
 	EventsQueryOption option(USER_ID_SYSTEM);
-	const string expected =  "";
+	string expected =  "";
+	fixupForFilteringDefunctServer(data, expected, option);
 	cppcut_assert_equal(TRIGGER_STATUS_ALL,
 			    option.getTriggerStatus());
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
-void test_eventQueryOptionWithTriggerStatus(void)
+void data_eventQueryOptionWithTriggerStatus(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_eventQueryOptionWithTriggerStatus(gconstpointer data)
 {
 	EventsQueryOption option(USER_ID_SYSTEM);
 	option.setTriggerStatus(TRIGGER_STATUS_PROBLEM);
-	const string expected =  "events.status=1";
+	string expected = "events.status=1";
+	fixupForFilteringDefunctServer(data, expected, option);
 	cppcut_assert_equal(TRIGGER_STATUS_PROBLEM,
 			    option.getTriggerStatus());
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
-void test_triggersQueryOptionWithTargetId(void)
+void data_triggersQueryOptionWithTargetId(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_triggersQueryOptionWithTargetId(gconstpointer data)
 {
 	TriggersQueryOption option(USER_ID_SYSTEM);
 	TriggerIdType expectedId = 634;
 	option.setTargetId(expectedId);
-	const string expected = StringUtils::sprintf(
+	string expected = StringUtils::sprintf(
 		"triggers.id=%"FMT_TRIGGER_ID, expectedId);
+	fixupForFilteringDefunctServer(data, expected, option);
 	cppcut_assert_equal(expectedId, option.getTargetId());
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
-void test_triggersQueryOptionDefaultMinimumSeveirty(void)
+void data_triggersQueryOptionDefaultMinimumSeverity(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_triggersQueryOptionDefaultMinimumSeverity(gconstpointer data)
 {
 	TriggersQueryOption option(USER_ID_SYSTEM);
-	const string expected =  "";
+	string expected =  "";
+	fixupForFilteringDefunctServer(data, expected, option);
 	cppcut_assert_equal(TRIGGER_SEVERITY_UNKNOWN,
 			    option.getMinimumSeverity());
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
-void test_triggersQueryOptionWithMinimumSeveirty(void)
+void data_triggersQueryOptionWithMinimumSeverity(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_triggersQueryOptionWithMinimumSeverity(gconstpointer data)
 {
 	TriggersQueryOption option(USER_ID_SYSTEM);
 	option.setMinimumSeverity(TRIGGER_SEVERITY_CRITICAL);
-	const string expected =  "triggers.severity>=4";
+	string expected =  "triggers.severity>=4";
+	fixupForFilteringDefunctServer(data, expected, option);
 	cppcut_assert_equal(TRIGGER_SEVERITY_CRITICAL,
 			    option.getMinimumSeverity());
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
-void test_triggersQueryOptionDefaultStatus(void)
+void data_triggersQueryOptionDefaultStatus(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_triggersQueryOptionDefaultStatus(gconstpointer data)
 {
 	TriggersQueryOption option(USER_ID_SYSTEM);
-	const string expected =  "";
+	string expected =  "";
+	fixupForFilteringDefunctServer(data, expected, option);
 	cppcut_assert_equal(TRIGGER_STATUS_ALL,
 			    option.getTriggerStatus());
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
-void test_triggersQueryOptionWithStatus(void)
+void data_triggersQueryOptionWithStatus(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_triggersQueryOptionWithStatus(gconstpointer data)
 {
 	TriggersQueryOption option(USER_ID_SYSTEM);
 	option.setTriggerStatus(TRIGGER_STATUS_PROBLEM);
-	const string expected =  "triggers.status=1";
+	string expected =  "triggers.status=1";
+	fixupForFilteringDefunctServer(data, expected, option);
 	cppcut_assert_equal(TRIGGER_STATUS_PROBLEM,
 			    option.getTriggerStatus());
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
-void test_itemsQueryOptionWithTargetId(void)
+void data_itemsQueryOptionWithTargetId(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_itemsQueryOptionWithTargetId(gconstpointer data)
 {
 	ItemsQueryOption option(USER_ID_SYSTEM);
 	ItemIdType expectedId = 436;
 	option.setTargetId(expectedId);
-	const string expected = StringUtils::sprintf(
+	string expected = StringUtils::sprintf(
 		"items.id=%"FMT_ITEM_ID, expectedId);
+	fixupForFilteringDefunctServer(data, expected, option);
 	cppcut_assert_equal(expectedId, option.getTargetId());
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
-void test_itemsQueryOptionWithItemGroupName(void)
+void data_itemsQueryOptionWithItemGroupName(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_itemsQueryOptionWithItemGroupName(gconstpointer data)
 {
 	ItemsQueryOption option(USER_ID_SYSTEM);
 	string itemGroupName = "It's test items";
 	option.setTargetItemGroupName(itemGroupName);
-	const string expected =  "items.item_group_name='It''s test items'";
+	string expected = "items.item_group_name='It''s test items'";
+	fixupForFilteringDefunctServer(data, expected, option);
 	cppcut_assert_equal(itemGroupName, option.getTargetItemGroupName());
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
 void test_getEventSortAscending(void)
 {
-	AssertGetEventsArg arg;
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getEventSortAscending(gconstpointer data)
+{
+	AssertGetEventsArg arg(data);
 	arg.sortDirection = DataQueryOption::SORT_ASCENDING;
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventSortDescending(void)
+void data_getEventSortDescending(void)
 {
-	AssertGetEventsArg arg;
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getEventSortDescending(gconstpointer data)
+{
+	AssertGetEventsArg arg(data);
 	arg.sortDirection = DataQueryOption::SORT_DESCENDING;
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventWithMaximumNumber(void)
+void data_getEventWithMaximumNumber(void)
 {
-	AssertGetEventsArg arg;
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getEventWithMaximumNumber(gconstpointer data)
+{
+	AssertGetEventsArg arg(data);
 	arg.maxNumber = 2;
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventWithMaximumNumberDescending(void)
+void data_getEventWithMaximumNumberDescending(void)
 {
-	AssertGetEventsArg arg;
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getEventWithMaximumNumberDescending(gconstpointer data)
+{
+	AssertGetEventsArg arg(data);
 	arg.maxNumber = 2;
 	arg.sortDirection = DataQueryOption::SORT_DESCENDING;
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventWithMaximumNumberAndOffsetAscending(void)
+void data_getEventWithMaximumNumberAndOffsetAscending(void)
 {
-	AssertGetEventsArg arg;
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getEventWithMaximumNumberAndOffsetAscending(gconstpointer data)
+{
+	AssertGetEventsArg arg(data);
 	arg.maxNumber = 2;
 	arg.offset = 1;
 	arg.sortDirection = DataQueryOption::SORT_ASCENDING;
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventWithMaximumNumberAndOffsetDescending(void)
+void data_getEventWithMaximumNumberAndOffsetDescending(void)
 {
-	AssertGetEventsArg arg;
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getEventWithMaximumNumberAndOffsetDescending(gconstpointer data)
+{
+	AssertGetEventsArg arg(data);
 	arg.maxNumber = 2;
 	arg.offset = 1;
 	arg.sortDirection = DataQueryOption::SORT_DESCENDING;
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventWithLimitOfUnifiedIdAscending(void)
+void data_getEventWithLimitOfUnifiedIdAscending(void)
 {
-	AssertGetEventsArg arg;
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getEventWithLimitOfUnifiedIdAscending(gconstpointer data)
+{
+	AssertGetEventsArg arg(data);
 	arg.limitOfUnifiedId = 2;
 	arg.sortDirection = DataQueryOption::SORT_ASCENDING;
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventWithSortTimeAscending(void)
+void data_getEventWithSortTimeAscending(void)
 {
-	AssertGetEventsArg arg;
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getEventWithSortTimeAscending(gconstpointer data)
+{
+	AssertGetEventsArg arg(data);
 	arg.sortType = EventsQueryOption::SORT_TIME;
 	arg.sortDirection = DataQueryOption::SORT_ASCENDING;
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventWithSortTimeDescending(void)
+void data_getEventWithSortTimeDescending(void)
 {
-	AssertGetEventsArg arg;
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getEventWithSortTimeDescending(gconstpointer data)
+{
+	AssertGetEventsArg arg(data);
 	arg.sortType = EventsQueryOption::SORT_TIME;
 	arg.sortDirection = DataQueryOption::SORT_DESCENDING;
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventWithOffsetWithoutLimit(void)
+void data_getEventWithOffsetWithoutLimit(void)
 {
-	AssertGetEventsArg arg;
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getEventWithOffsetWithoutLimit(gconstpointer data)
+{
+	AssertGetEventsArg arg(data);
 	arg.offset = 2;
 	arg.expectedErrorCode = HTERR_OFFSET_WITHOUT_LIMIT;
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventWithMaxNumAndOffsetAndLimitOfUnifiedIdDescending(void)
+void data_getEventWithMaxNumAndOffsetAndLimitOfUnifiedIdDescending(void)
 {
-	AssertGetEventsArg arg;
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getEventWithMaxNumAndOffsetAndLimitOfUnifiedIdDescending(
+  gconstpointer data)
+{
+	AssertGetEventsArg arg(data);
 	arg.maxNumber = 2;
 	arg.offset = 1;
 	arg.limitOfUnifiedId = 2;
@@ -1307,40 +1613,65 @@ void test_getEventWithMaxNumAndOffsetAndLimitOfUnifiedIdDescending(void)
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventWithOneAuthorizedServer(void)
+void data_getEventWithOneAuthorizedServer(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getEventWithOneAuthorizedServer(gconstpointer data)
 {
 	setupTestDBUser(true, true);
-	AssertGetEventsArg arg;
+	AssertGetEventsArg arg(data);
 	arg.userId = 5;
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventWithNoAuthorizedServer(void)
+void data_getEventWithNoAuthorizedServer(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getEventWithNoAuthorizedServer(gconstpointer data)
 {
 	setupTestDBUser(true, true);
-	AssertGetEventsArg arg;
+	AssertGetEventsArg arg(data);
 	arg.userId = 4;
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventWithInvalidUserId(void)
+void data_getEventWithInvalidUserId(gconstpointer data)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getEventWithInvalidUserId(gconstpointer data)
 {
 	setupTestDBUser(true, true);
-	AssertGetEventsArg arg;
+	AssertGetEventsArg arg(data);
 	arg.userId = INVALID_USER_ID;
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventWithMinSeverity(void)
+void data_getEventWithMinSeverity(void)
 {
-	AssertGetEventsArg arg;
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getEventWithMinSeverity(gconstpointer data)
+{
+	AssertGetEventsArg arg(data);
 	arg.minSeverity = TRIGGER_SEVERITY_WARNING;
 	assertGetEventsWithFilter(arg);
 }
 
-void test_getEventWithTriggerStatus(void)
+void data_getEventWithTriggerStatus(void)
 {
-	AssertGetEventsArg arg;
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getEventWithTriggerStatus(gconstpointer data)
+{
+	AssertGetEventsArg arg(data);
 	arg.triggerStatus = TRIGGER_STATUS_PROBLEM;
 	assertGetEventsWithFilter(arg);
 }
@@ -1393,4 +1724,82 @@ void test_addHostInfo(void)
 	dbClientHatohol.addHostInfoList(hostInfoList);
 	assertDBContent(dbAgent, statement, expect);
 }
+
+//
+// Tests for HostResourceQueryOption
+//
+void test_copyConstructor(void)
+{
+	HostResourceQueryOption opt0;
+	HostResourceQueryOption opt1(opt0);
+	cppcut_assert_equal(&opt0.getDataQueryContext(),
+	                    &opt1.getDataQueryContext());
+}
+
+void test_makeConditionServer(void)
+{
+	const string serverIdColumnName = "cat";
+	const ServerIdType serverIds[] = {5, 15, 105, 1080};
+	const size_t numServerIds = sizeof(serverIds) / sizeof(ServerIdType);
+
+	ServerIdSet svIdSet;
+	for (size_t i = 0; i < numServerIds; i++)
+		svIdSet.insert(serverIds[i]);
+
+	string actual = TestHostResourceQueryOption::callMakeConditionServer(
+	                  svIdSet, serverIdColumnName);
+
+	// check
+	string expectHead = serverIdColumnName;
+	expectHead += " IN (";
+	string actualHead(actual, 0, expectHead.size());
+	cppcut_assert_equal(expectHead, actualHead);
+
+	string expectTail = ")";
+	string actualTail(actual, actual.size()-1, expectTail.size());
+	cppcut_assert_equal(expectTail, actualTail);
+
+	StringVector actualIds;
+	size_t len = actual.size() -  expectHead.size() - 1;
+	string actualBody(actual, expectHead.size(), len);
+	StringUtils::split(actualIds, actualBody, ',');
+	cppcut_assert_equal(numServerIds, actualIds.size());
+	ServerIdSetIterator expectId = svIdSet.begin(); 
+	for (int i = 0; expectId != svIdSet.end(); ++expectId, i++) {
+		string expect =
+		  StringUtils::sprintf("%"FMT_SERVER_ID, *expectId);
+		cppcut_assert_equal(expect, actualIds[i]);
+	}
+}
+
+void test_makeConditionServerWithEmptyIdSet(void)
+{
+	ServerIdSet svIdSet;
+	string actual = TestHostResourceQueryOption::callMakeConditionServer(
+	                  svIdSet, "meet");
+	cppcut_assert_equal(DBClientHatohol::getAlwaysFalseCondition(), actual);
+}
+
+void test_defaultValueOfFilterForDataOfDefunctServers(void)
+{
+	HostResourceQueryOption opt;
+	cppcut_assert_equal(true, opt.getFilterForDataOfDefunctServers());
+}
+
+void data_setGetOfFilterForDataOfDefunctServers(void)
+{
+	gcut_add_datum("Disable filtering",
+	               "enable", G_TYPE_BOOLEAN, FALSE, NULL);
+	gcut_add_datum("Eanble filtering",
+	               "enable", G_TYPE_BOOLEAN, TRUE, NULL);
+}
+
+void test_setGetOfFilterForDataOfDefunctServers(gconstpointer data)
+{
+	HostResourceQueryOption opt;
+	bool enable = gcut_data_get_boolean(data, "enable");
+	opt.setFilterForDataOfDefunctServers(enable);
+	cppcut_assert_equal(enable, opt.getFilterForDataOfDefunctServers());
+}
+
 } // namespace testDBClientHatohol

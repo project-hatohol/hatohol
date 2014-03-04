@@ -315,38 +315,42 @@ public:
 	{
 		InfoListConstIterator it = infoList.begin();
 		for (; it != infoList.end(); ++it){
-			InfoT info = *it;
+			const InfoT &info = *it;
 			m_ctx->serverDataHostgroupIdVectorMap
 			  [info.serverId][info.id].push_back(
 			    info.hostgroupId);
+			// TODO: consider a design:
+			// Hosgroup name is every time updated (probably
+			// a copy of string is craeted), even if
+			// it's unncessary.
 			m_ctx->hostgroupNameMaps[info.serverId]
 			  [info.hostgroupId] = info.hostgroupName;
 		}
 	}
 
 	void includeHostgroupIdArray
-	  (JsonBuilderAgent &outputJson, ServerIdType &serverId,
-	   TargetIdT &targetId)
+	  (JsonBuilderAgent &outputJson, const ServerIdType &serverId,
+	   const TargetIdT &targetId)
 	{
 		ServerMapIterator serverIt
 		  = m_ctx->serverDataHostgroupIdVectorMap.find(serverId);
 		if (serverIt == m_ctx->serverDataHostgroupIdVectorMap.end())
 			return;
 
-		DataIdHostgroupIdVectorMap dataHostgroupIdVectorMap
+		DataIdHostgroupIdVectorMap &dataHostgroupIdVectorMap
 		  = serverIt->second;
 		DataMapIterator dataIt
 		  = dataHostgroupIdVectorMap.find(targetId);
 		if (dataIt == dataHostgroupIdVectorMap.end())
 			return;
 
-		HostgroupIdVector hostgroupIdVector
-		  = dataIt->second;
-		HostgroupIdVector::iterator groupIt = hostgroupIdVector.begin();
+		const HostgroupIdVector &hostgroupIdVector = dataIt->second;
 		outputJson.startArray("hostgroupId");
-		for (; groupIt != hostgroupIdVector.end(); ++groupIt) {
-			HostGroupIdType hostgroupId = *groupIt;
-			outputJson.add(hostgroupId);
+		HostgroupIdVector::const_iterator hostgroupIdItr;
+		hostgroupIdItr = hostgroupIdVector.begin();
+		while (hostgroupIdItr != hostgroupIdVector.end()) {
+			outputJson.add(*hostgroupIdItr);
+			++hostgroupIdItr;
 		}
 		outputJson.endArray();
 	}
@@ -366,21 +370,19 @@ public:
 		if (serverIt == m_ctx->serverIdDataIdVectorMap.end())
 			return false;
 
-		DataIdVector dataIdVector = serverIt->second;
-		DataIdVectorConstIterator dataIt = dataIdVector.begin();
-		if (dataIt == dataIdVector.end())
-			return false;
-
-		for (; dataIt != dataIdVector.end(); ++dataIt) {
-			TargetIdT data = *dataIt;
-			if (data == targetId)
+		// TODO: Should we use 'set' ?
+		const DataIdVector &dataIdVector = serverIt->second;
+		DataIdVectorConstIterator dataIdItr = dataIdVector.begin();
+		for (; dataIdItr != dataIdVector.end(); ++dataIdItr) {
+			if (*dataIdItr == targetId)
 				return true;
 		}
 
 		return false;
 	}
 
-	size_t getNumberOfData(void) {
+	size_t getNumberOfData(void)
+	{
 		return m_ctx->numberOfData;
 	}
 

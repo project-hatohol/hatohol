@@ -40,6 +40,68 @@ public:
 	{
 		return "";
 	}
+
+	static void assertAddCondition(void)
+	{
+		string cond = "S=5";
+		string added = "A=1";
+		string expect = cond + " AND " + added;
+		addCondition(cond, added);
+		cppcut_assert_equal(expect, cond);
+	}
+
+	static void assertAddConditionAddCurrEmpty(void)
+	{
+		string cond;
+		string added = "A=1";
+		addCondition(cond, added, ADD_TYPE_AND);
+		cppcut_assert_equal(added, cond);
+	}
+
+	static void assertAddConditionAnd(void)
+	{
+		string cond = "S=5";
+		string added = "A=1";
+		string expect = cond + " AND " + added;
+		addCondition(cond, added, ADD_TYPE_AND);
+		cppcut_assert_equal(expect, cond);
+	}
+
+	static void assertAddConditionAndWithParenthesis(void)
+	{
+		string cond = "S=5";
+		string added = "A=1";
+		string expect = cond + " AND (" + added + ")";
+		addCondition(cond, added, ADD_TYPE_AND, true);
+		cppcut_assert_equal(expect, cond);
+	}
+
+	static void assertAddConditionAndWithoutParenthesis(void)
+	{
+		string cond = "S=5";
+		string added = "A=1";
+		string expect = cond + " AND " + added;
+		addCondition(cond, added, ADD_TYPE_AND, false);
+		cppcut_assert_equal(expect, cond);
+	}
+
+	static void assertAddConditionAndWithEmptyAddedString()
+	{
+		string cond = "S=5";
+		string expect = cond;
+		addCondition(cond, "");
+		cppcut_assert_equal(expect, cond);
+	}
+
+	static void assertAddConditionOr(void)
+	{
+		string cond = "S=5";
+		string added = "A=1";
+		string expect = cond + " OR " + added;
+		addCondition(cond, added, ADD_TYPE_OR);
+		cppcut_assert_equal(expect, cond);
+	}
+
 };
 
 static void getTestSortOrderList(DataQueryOption::SortOrderList &sortOrderList)
@@ -174,6 +236,77 @@ void test_getOrderByWithMultipleColumns(void)
 	option.setSortOrderList(sortOrderList);
 	cppcut_assert_equal("column1 DESC, column3 ASC, column2 DESC",
 			    option.getOrderBy().c_str());
+}
+
+void test_getDataQueryContextOfDefaultConstructor(void)
+{
+	TestQueryOption opt;
+	DataQueryContext &dataQueryCtx = opt.getDataQueryContext();
+	cppcut_assert_equal(1, dataQueryCtx.getUsedCount());
+}
+
+void test_getDataQueryContextOfConstructorWithDataQueryCtx(void)
+{
+	const UserIdType userId = USER_ID_SYSTEM; // To avoid accessing User DB
+	DataQueryContextPtr dqCtxPtr(new DataQueryContext(userId), false);
+	{
+		DataQueryOption opt(dqCtxPtr);
+		DataQueryContext &dataQueryCtxOpt = opt.getDataQueryContext();
+		cppcut_assert_equal((DataQueryContext *)dqCtxPtr,
+		                    &dataQueryCtxOpt);
+		cppcut_assert_equal(userId, opt.getUserId());
+		cppcut_assert_equal(2, dqCtxPtr->getUsedCount());
+	}
+	cppcut_assert_equal(1, dqCtxPtr->getUsedCount());
+}
+
+void test_getDataQueryContextOfCopyConstructor(void)
+{
+	TestQueryOption opt0;
+	DataQueryContext &dataQueryCtx0 = opt0.getDataQueryContext();
+	{
+		TestQueryOption opt1(opt0);
+		DataQueryContext &dataQueryCtx1 = opt1.getDataQueryContext();
+		cppcut_assert_equal(&dataQueryCtx0, &dataQueryCtx1);
+		cppcut_assert_equal(opt0.getUserId(), opt1.getUserId());
+		cppcut_assert_equal(2, dataQueryCtx0.getUsedCount());
+	}
+	cppcut_assert_equal(1, dataQueryCtx0.getUsedCount());
+}
+
+void test_addCondition(void)
+{
+	cut_trace(TestQueryOption::assertAddCondition());
+}
+
+void test_addConditionAddCurrEmpty(void)
+{
+	cut_trace(TestQueryOption::assertAddConditionAddCurrEmpty());
+}
+
+void test_addConditionAnd(void)
+{
+	cut_trace(TestQueryOption::assertAddConditionAnd());
+}
+
+void test_addConditionAndWithParenthesis(void)
+{
+	cut_trace(TestQueryOption::assertAddConditionAndWithParenthesis());
+}
+
+void test_addConditionAndWithoutParenthesis(void)
+{
+	cut_trace(TestQueryOption::assertAddConditionAndWithoutParenthesis());
+}
+
+void test_addConditionAndWithEmptyAddedString(void)
+{
+	cut_trace(TestQueryOption::assertAddConditionAndWithEmptyAddedString());
+}
+
+void test_addConditionOr(void)
+{
+	cut_trace(TestQueryOption::assertAddConditionOr());
 }
 
 } // namespace testDataQueryOption

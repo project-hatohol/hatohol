@@ -22,11 +22,11 @@
 
 #include <list>
 #include <map>
-#include "ItemPtr.h"
+#include "UsedCountablePtr.h"
 #include "ItemTable.h"
 
-typedef ItemPtr<ItemTable>       VariableItemTablePtr;
-typedef ItemPtr<const ItemTable> ItemTablePtr;
+typedef UsedCountablePtr<ItemTable>       VariableItemTablePtr;
+typedef UsedCountablePtr<const ItemTable> ItemTablePtr;
 
 typedef std::list<ItemTablePtr>                 ItemTablePtrList;
 typedef std::list<ItemTablePtr>::iterator       ItemTablePtrListIterator;
@@ -48,8 +48,8 @@ fullOuterJoin (const ItemTablePtr &tablePtr0, const ItemTablePtr &tablePtr1);
 ItemTablePtr
 crossJoin     (const ItemTablePtr &tablePtr0, const ItemTablePtr &tablePtr1);
 
-template<> VariableItemTablePtr::ItemPtr(void);
-template<> ItemTablePtr::ItemPtr(void);
+template<> VariableItemTablePtr::UsedCountablePtr(void);
+template<> ItemTablePtr::UsedCountablePtr(void);
 
 typedef std::map<ItemGroupPtr, VariableItemTablePtr, ItemGroupPtrComparator>
   ItemGroupTableMap;

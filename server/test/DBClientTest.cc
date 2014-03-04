@@ -23,6 +23,8 @@
 using namespace std;
 using namespace mlpl;
 
+static const ServerIdType defunctServerId1 = 0x7fff0001;
+
 MonitoringServerInfo testServerInfo[] = 
 {{
 	1,                        // id
@@ -109,8 +111,22 @@ TriggerInfo testTriggerInfo[] =
 	10002,                    // hostId,
 	"hostZ2",                 // hostName,
 	"TEST Trigger 3",         // brief,
-}};
+},{
+	// This entry is for tests with a defunct server
+	defunctServerId1,         // serverId
+	3,                        // id
+	TRIGGER_STATUS_PROBLEM,   // status
+	TRIGGER_SEVERITY_INFO,    // severity
+	{1362957117,0},           // lastChangeTime
+	10002,                    // hostId,
+	"defunctSv1Host1",        // hostName,
+	"defunctSv1Host1 material", // brief,
+},
+};
 size_t NumTestTriggerInfo = sizeof(testTriggerInfo) / sizeof(TriggerInfo);
+
+static const TriggerInfo &trigInfoDefunctSv1 =
+  testTriggerInfo[NumTestTriggerInfo-1];
 
 EventInfo testEventInfo[] = {
 {
@@ -173,6 +189,19 @@ EventInfo testEventInfo[] = {
 	235013,                   // hostId,
 	"hostX2",                 // hostName,
 	"TEST Trigger 1b",        // brief,
+}, {
+	// This entry is for tests with a defunct server
+	AUTO_INCREMENT_VALUE,     // unifiedId
+	trigInfoDefunctSv1.serverId, // serverId
+	1,                        // id
+	trigInfoDefunctSv1.lastChangeTime, // time
+	EVENT_TYPE_BAD,           // type
+	3,                        // triggerId
+	trigInfoDefunctSv1.status,   // status
+	trigInfoDefunctSv1.severity, // severity
+	trigInfoDefunctSv1.hostId,   // hostId,
+	trigInfoDefunctSv1.hostName, // hostName,
+	trigInfoDefunctSv1.brief,    // brief,
 },
 };
 size_t NumTestEventInfo = sizeof(testEventInfo) / sizeof(EventInfo);
@@ -425,6 +454,12 @@ HostgroupInfo testHostgroupInfo[] = {
 	4,                     // serverId
 	2,                     // groupId
 	"Watched Servers"      // groupName
+}, {
+	// This entry is for tests with a defunct server
+	AUTO_INCREMENT_VALUE,  // id
+	trigInfoDefunctSv1.serverId, // serverId
+	1,                     // groupId
+	"Hostgroup on a defunct servers" // groupName
 }
 };
 const size_t NumTestHostgroupInfo = sizeof(testHostgroupInfo) / sizeof(HostgroupInfo);
@@ -446,6 +481,11 @@ HostInfo testHostInfo[] = {
 	2,                     // serverId
 	2,                     // id(hostId)
 	"robot"                // hostName
+}, {
+	// This entry is for tests with a defunct server
+	trigInfoDefunctSv1.serverId, // serverId
+	trigInfoDefunctSv1.hostId,   // hostId,
+	trigInfoDefunctSv1.hostName, // hostName,
 }
 };
 const size_t NumTestHostInfo = sizeof(testHostInfo) / sizeof(HostInfo);
@@ -491,6 +531,12 @@ HostgroupElement testHostgroupElement[] = {
 	4,                     // serverId
 	100,                   // hostId
 	1,                     // groupId
+}, {
+	// This entry is for tests with a defunct server
+	AUTO_INCREMENT_VALUE,        // id
+	trigInfoDefunctSv1.serverId, // serverId
+	trigInfoDefunctSv1.hostId,   // hostId,
+	1,                           // groupId
 }
 };
 const size_t NumTestHostgroupElement = sizeof(testHostgroupElement) / sizeof(HostgroupElement);
@@ -584,6 +630,27 @@ void getTestTriggersIndexes(
 		  (size_t)0, indexMap[trigInfo.serverId].count(trigInfo.id));
 		indexMap[trigInfo.serverId][trigInfo.id] = i;
 	}
+}
+
+void getTestItemsIndexes(ServerIdItemInfoIdIndexMapMap &indexMap)
+{
+	for (size_t i = 0; i < NumTestItemInfo; i++) {
+		const ItemInfo &itemInfo = testItemInfo[i];
+		indexMap[itemInfo.serverId][itemInfo.id] = i;
+	}
+}
+
+ItemInfo *findTestItem(
+  const ServerIdItemInfoIdIndexMapMap &indexMap,
+  const ServerIdType &serverId, const uint64_t itemId)
+{
+	ServerIdItemInfoIdIndexMapMapConstIterator it = indexMap.find(serverId);
+	if (it == indexMap.end())
+		return NULL;
+	ItemInfoIdIndexMapConstIterator indexIt = it->second.find(itemId);
+	if (indexIt == it->second.end())
+		return NULL;
+	return &testItemInfo[indexIt->second];
 }
 
 size_t getNumberOfTestItems(const ServerIdType &serverId)

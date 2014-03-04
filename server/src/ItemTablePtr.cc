@@ -19,13 +19,13 @@
 
 #include "ItemTablePtr.h"
 
-template<> VariableItemTablePtr::ItemPtr(void)
+template<> VariableItemTablePtr::UsedCountablePtr(void)
 : m_data(NULL)
 {
 	m_data = new ItemTable();
 }
 
-template<> ItemTablePtr::ItemPtr(void)
+template<> ItemTablePtr::UsedCountablePtr(void)
 : m_data(NULL)
 {
 	m_data = new ItemTable();

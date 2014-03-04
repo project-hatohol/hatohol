@@ -165,6 +165,10 @@ std::string joinStringVector(const mlpl::StringVector &strVect,
                              bool isPaddingTail = true);
 
 void crash(void);
+void prepareTestDataForFilterForDataOfDefunctServers(void);
+void insertValidServerCond(
+  std::string &condition, const HostResourceQueryOption &opt,
+  const std::string &tableName = "");
 
 /**
  * Make a format string for a double float value that can be used for
@@ -220,6 +224,17 @@ public:
 	 * Othewise false is returned after the timeout.
 	 */
 	bool start(const size_t &timeout, const size_t &interval = 0);
+};
+
+class LinesComparator {
+public:
+	LinesComparator(void);
+	virtual ~LinesComparator();
+	void add(const std::string &line0, const std::string &line1);
+	void assert(const bool &strictOrder = true);
+private:
+	struct PrivateContext;
+	PrivateContext *m_ctx;
 };
 
 #endif // Helpers_h

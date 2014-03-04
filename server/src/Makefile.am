@@ -15,6 +15,7 @@ libhatohol_la_SOURCES = \
 	Closure.cc Closure.h \
 	CacheServiceDBClient.cc CacheServiceDBClient.h \
 	ConfigManager.cc ConfigManager.h \
+	DataQueryContext.cc DataQueryContext.h \
 	DataQueryOption.cc DataQueryOption.h \
 	DBAgent.cc DBAgent.h \
 	DBAgentFactory.cc DBAgentFactory.h \
@@ -51,7 +52,6 @@ libhatohol_la_SOURCES = \
 	ItemGroupEnum.h \
 	ItemGroupPtr.cc ItemGroupPtr.h \
 	ItemGroupType.cc ItemGroupType.h \
-	ItemPtr.cc ItemPtr.h \
 	ItemTable.cc ItemTable.h \
 	ItemTablePtr.cc ItemTablePtr.h \
 	ItemTableUtils.h \
@@ -82,6 +82,7 @@ libhatohol_la_SOURCES = \
 	SQLWhereParser.cc SQLWhereParser.h \
 	UnifiedDataStore.cc UnifiedDataStore.h \
 	UsedCountable.cc UsedCountable.h \
+	UsedCountablePtr.cc UsedCountablePtr.h \
 	Utils.cc Utils.h \
 	VirtualDataStore.cc VirtualDataStore.h \
 	VirtualDataStoreNagios.cc VirtualDataStoreNagios.h \

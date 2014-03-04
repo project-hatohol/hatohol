@@ -475,8 +475,9 @@ void DBAgentMySQL::connect(void)
 	                                   db, m_ctx->port,
 	                                   unixSocket, clientFlag);
 	if (!result) {
-		MLPL_ERR("Failed to connect to MySQL: %s: (%u) %s\n",
-		         db, mysql_errno(&m_ctx->mysql),
+		MLPL_ERR("Failed to connect to MySQL: %s: (error: %u, "
+		         "Domain ID: 0x%x) %s\n",
+		         db, mysql_errno(&m_ctx->mysql), getDBDomainId(),
 		         mysql_error(&m_ctx->mysql));
 	}
 	m_ctx->connected = result;

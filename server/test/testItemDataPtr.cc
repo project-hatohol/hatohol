@@ -30,7 +30,7 @@ using namespace mlpl;
 #include <cppcutter.h>
 #include "ItemDataPtr.h"
 
-namespace testItemPtr {
+namespace testItemDataPtr {
 static const int DEFAULT_ITEM_ID = 100;
 static const int DEFAULT_INT_VALUE = 3;
 
@@ -190,4 +190,4 @@ void test_operatorSubstWithSameBody(void)
 	cppcut_assert_equal(3, dataPtr2->getUsedCount());
 }
 
-} // namespace testItemPtr
+} // namespace testItemDataPtr

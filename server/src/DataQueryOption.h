@@ -23,9 +23,9 @@
 #include <string>
 #include <list>
 #include "Params.h"
-#include "OperationPrivilege.h"
+#include "DataQueryContext.h"
 
-class DataQueryOption : public OperationPrivilege {
+class DataQueryOption {
 public:
 	static const size_t NO_LIMIT;
 	enum SortDirection {
@@ -43,11 +43,40 @@ public:
 	typedef std::list<SortOrder>::iterator SortOrderListIterator;
 	typedef std::list<SortOrder>::const_iterator SortOrderListConstIterator;
 
-	DataQueryOption(UserIdType userId = INVALID_USER_ID);
+	DataQueryOption(const UserIdType &userId = INVALID_USER_ID);
+	DataQueryOption(DataQueryContext *dataQueryContext);
 	DataQueryOption(const DataQueryOption &src);
 	virtual ~DataQueryOption();
 
 	bool operator==(const DataQueryOption &rhs);
+
+	DataQueryContext &getDataQueryContext(void) const;
+
+	/**
+	 * Check if the server is registered.
+	 *
+	 * Hatohol doesn't delete data immediately after the monitoring server
+	 * is removed. So this method helps some routines check if the server
+	 * of data is being registered or not.
+	 *
+	 * @param serverId A server ID.
+	 * @return
+	 * true when the given ID is registered in the Config DB.
+	 * Otherwise false is returned.
+	 */
+	bool isValidServer(const ServerIdType &serverId) const;
+
+	/**
+	 * Set a user ID.
+	 *
+	 * @param userId A user ID.
+	 */
+	void setUserId(const UserIdType &userId);
+	void setFlags(const OperationPrivilegeFlag &flags);
+
+	UserIdType getUserId(void) const;
+	bool has(const OperationPrivilegeType &type) const;
+	operator const OperationPrivilege &() const;
 
 	/**
 	 * Set the maximum number of the returned elements.
@@ -114,6 +143,34 @@ public:
 	 * @return a string for 'order by' in an SQL statment.
 	 */
 	virtual std::string getOrderBy(void) const;
+
+protected:
+	enum AddConditionType {
+		ADD_TYPE_AND,
+		ADD_TYPE_OR,
+	};
+
+	/**
+	 * Append a condtion string.
+	 *
+	 * @param currCondition
+	 * A current condition string or an empty string.
+	 *
+	 * @param addedCondition
+	 * An added conditioin sting. This string is added at tail. If this
+	 * string is empty, currCondition is not changed.
+	 *
+	 * @param type
+	 * An AddedConditioinType.
+	 *
+	 * @param useParenthesis
+	 * If this option is true, the added condition string is wrapped
+	 * by parenthesis.
+	 */
+	static void addCondition(std::string &currCondition,
+	                         const std::string &addedCondition,
+	                         const AddConditionType &type = ADD_TYPE_AND,
+	                         const bool &useParenthesis = false);
 
 private:
 	struct PrivateContext;

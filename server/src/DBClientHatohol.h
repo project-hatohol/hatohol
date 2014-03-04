@@ -159,7 +159,7 @@ typedef HostgroupElementList::const_iterator HostgroupElementListConstIterator;
 
 class HostResourceQueryOption : public DataQueryOption {
 public:
-	HostResourceQueryOption(UserIdType userId = INVALID_USER_ID);
+	HostResourceQueryOption(const UserIdType &userId = INVALID_USER_ID);
 	HostResourceQueryOption(const HostResourceQueryOption &src);
 	virtual ~HostResourceQueryOption();
 
@@ -173,6 +173,26 @@ public:
 	virtual HostGroupIdType getTargetHostgroupId(void) const;
 	virtual void setTargetHostgroupId(HostGroupIdType targetHostGroupId);
 
+	/**
+	 * Enable or disable the filter for the data of defunct servers.
+	 *
+	 * @param enable
+	 * If the parameter is true, the filter is enabled. Otherwise,
+	 * it is disabled.
+	 *
+	 */
+	void setFilterForDataOfDefunctServers(const bool &enable = true);
+
+	/**
+	 * Get the filter status for the data of defunct servers.
+	 *
+	 * @return
+	 * If the filter is enabled, true is returned, Otherwise,
+	 * false is returned.
+	 *
+	 */
+	const bool &getFilterForDataOfDefunctServers(void) const;
+
 protected:
 	void setServerIdColumnName(const std::string &name) const;
 	std::string getServerIdColumnName(
@@ -183,8 +203,6 @@ protected:
 	void setHostIdColumnName(const std::string &name) const;
 	std::string getHostIdColumnName(
 	  const std::string &tableAlias = "") const;
-	static void appendCondition(std::string &cond,
-	                            const std::string &newCond);
 	static std::string makeCondition(
 	  const ServerHostGrpSetMap &srvHostGrpSetMap,
 	  const std::string &serverIdColumnName,
@@ -193,6 +211,9 @@ protected:
 	  ServerIdType targetServerId = ALL_SERVERS,
 	  HostGroupIdType targetHostgroup = ALL_HOST_GROUPS,
 	  HostIdType targetHostId = ALL_HOSTS);
+	static std::string makeConditionServer(
+	  const ServerIdSet &serverIdSet,
+	  const std::string &serverIdColumnName);
 	static std::string makeConditionServer(
 	  const ServerIdType &serverId,
 	  const HostGroupSet &hostGroupSet,
@@ -325,7 +346,7 @@ public:
 	 *
 	 */
 	bool getTriggerInfo(TriggerInfo &triggerInfo,
-	                    const ServerIdType &serverId, uint64_t triggerId);
+	                    const TriggersQueryOption &option);
 	void getTriggerInfoList(TriggerInfoList &triggerInfoList,
 				const TriggersQueryOption &option);
 	void setTriggerInfoList(const TriggerInfoList &triggerInfoList,

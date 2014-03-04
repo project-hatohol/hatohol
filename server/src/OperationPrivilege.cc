@@ -36,14 +36,14 @@ struct OperationPrivilege::PrivateContext {
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-OperationPrivilege::OperationPrivilege(const UserIdType userId)
+OperationPrivilege::OperationPrivilege(const UserIdType &userId)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 	setUserId(userId);
 }
 
-OperationPrivilege::OperationPrivilege(const OperationPrivilegeFlag flags)
+OperationPrivilege::OperationPrivilege(const OperationPrivilegeFlag &flags)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
@@ -67,18 +67,18 @@ const OperationPrivilegeFlag &OperationPrivilege::getFlags(void) const
 	return m_ctx->flags;
 }
 
-void OperationPrivilege::setFlags(const OperationPrivilegeFlag flags)
+void OperationPrivilege::setFlags(const OperationPrivilegeFlag &flags)
 {
 	m_ctx->flags = flags;
 }
 
-const OperationPrivilegeFlag
-OperationPrivilege::makeFlag(OperationPrivilegeType type)
+OperationPrivilegeFlag OperationPrivilege::makeFlag(
+  const OperationPrivilegeType &type)
 {
 	return (1 << type);
 }
 
-const bool OperationPrivilege::has(OperationPrivilegeType type) const
+bool OperationPrivilege::has(const OperationPrivilegeType &type) const
 {
 	const OperationPrivilegeFlag flag = makeFlag(type);
 	return (m_ctx->flags & flag);
@@ -93,7 +93,7 @@ bool OperationPrivilege::operator==(const OperationPrivilege &rhs)
 	return true;
 }
 
-void OperationPrivilege::setUserId(UserIdType userId)
+void OperationPrivilege::setUserId(const UserIdType &userId)
 {
 	m_ctx->userId = userId;
 	m_ctx->flags = 0;

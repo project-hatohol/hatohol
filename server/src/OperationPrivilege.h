@@ -67,20 +67,20 @@ const static OperationPrivilegeFlag NONE_PRIVILEGE = 0;
 
 class OperationPrivilege {
 public:
-	OperationPrivilege(const UserIdType userId);
-	OperationPrivilege(const OperationPrivilegeFlag flags = 0);
+	OperationPrivilege(const UserIdType &userId);
+	OperationPrivilege(const OperationPrivilegeFlag &flags = 0);
 	OperationPrivilege(const OperationPrivilege &src);
 	virtual ~OperationPrivilege();
 
 	const OperationPrivilegeFlag &getFlags(void) const;
-	void setFlags(const OperationPrivilegeFlag flags);
-	static const OperationPrivilegeFlag 
-	  makeFlag(OperationPrivilegeType type);
-	const bool has(OperationPrivilegeType type) const;
+	void setFlags(const OperationPrivilegeFlag &flags);
+	static OperationPrivilegeFlag makeFlag(
+	  const OperationPrivilegeType &type);
+	bool has(const OperationPrivilegeType &type) const;
 
 	bool operator==(const OperationPrivilege &rhs);
 
-	void setUserId(UserIdType userId);
+	void setUserId(const UserIdType &userId);
 	UserIdType getUserId(void) const;
 
 private:

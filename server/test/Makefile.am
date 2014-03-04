@@ -28,7 +28,7 @@ testHatohol_la_SOURCES = \
 	testActionExecArgMaker.cc testActionManager.cc \
 	testCacheServiceDBClient.cc \
 	testConfigManager.cc \
-	testDataQueryOption.cc \
+	testDataQueryContext.cc testDataQueryOption.cc \
 	testDataStoreManager.cc \
 	testHatoholError.cc \
 	testHatoholException.cc testSQLProcessorException.cc \
@@ -50,7 +50,7 @@ testHatohol_la_SOURCES = \
 	testMySQLWorkerZabbix.cc testFaceRest.cc \
 	testSessionManager.cc \
 	testItemData.cc testItemGroup.cc testItemGroupStream.cc \
-	testItemPtr.cc testItemGroupType.cc testItemTable.cc \
+	testItemDataPtr.cc testItemGroupType.cc testItemTable.cc \
 	testItemTablePtr.cc \
 	testItemDataUtils.cc \
 	testFormulaOperator.cc \

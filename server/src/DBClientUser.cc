@@ -810,7 +810,7 @@ void DBClientUser::getServerHostGrpSetMap(
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
 		ServerIdType serverId;
-		uint64_t hostGroupId;
+		HostGroupIdType hostGroupId;
 		ItemGroupStream itemGroupStream(*itemGrpItr);
 		itemGroupStream >> serverId;
 		itemGroupStream >> hostGroupId;
@@ -820,7 +820,7 @@ void DBClientUser::getServerHostGrpSetMap(
 		  srvHostGrpSetMap[serverId].insert(hostGroupId);
 		if (!result.second) {
 			MLPL_WARN("Found duplicated serverId and hostGroupId: "
-			          "%"FMT_SERVER_ID", %"PRIu64"\n",
+			          "%"FMT_SERVER_ID", %"FMT_HOST_GROUP_ID"\n",
 			          serverId, hostGroupId);
 			continue;
 		}

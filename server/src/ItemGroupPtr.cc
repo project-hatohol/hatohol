@@ -20,7 +20,7 @@
 #include "ItemGroupPtr.h"
 
 template<>
-ItemPtr<ItemGroup>::ItemPtr(void)
+UsedCountablePtr<ItemGroup>::UsedCountablePtr(void)
 : m_data(NULL)
 {
 	m_data = new ItemGroup();

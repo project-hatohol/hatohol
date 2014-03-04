@@ -309,8 +309,15 @@ struct ServerQueryOption::PrivateContext {
 	}
 };
 
-ServerQueryOption::ServerQueryOption(UserIdType userId)
+ServerQueryOption::ServerQueryOption(const UserIdType &userId)
 : DataQueryOption(userId), m_ctx(NULL)
+{
+	m_ctx = new PrivateContext();
+}
+
+ServerQueryOption::ServerQueryOption(DataQueryContext *dataQueryContext)
+: DataQueryOption(dataQueryContext),
+  m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 }
@@ -772,6 +779,28 @@ void DBClientConfig::getTargetServers
 		itemGroupStream >> svInfo.userName;
 		itemGroupStream >> svInfo.password;
 		itemGroupStream >> svInfo.dbName;
+	}
+}
+
+void DBClientConfig::getServerIdSet(ServerIdSet &serverIdSet,
+                                    DataQueryContext *dataQueryContext)
+{
+	ServerQueryOption option(dataQueryContext);
+
+	DBAgent::SelectExArg arg(tableProfileServers);
+	arg.add(IDX_SERVERS_ID);
+	arg.condition = option.getCondition();
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	// check the result and copy
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ServerIdType id = *(*itemGrpItr)->getItemPtrAt(0);
+		serverIdSet.insert(id);
 	}
 }
 
