@@ -2527,7 +2527,7 @@ void _assertParseEventParameterTargetHostGroupId(
   const HatoholErrorCode &expectCode = HTERR_OK)
 {
 	assertParseEventParameterTempl(
-	  HostGroupIdType, expectValue, "%"FMT_HOST_GROUP_ID,
+	  HostgroupIdType, expectValue, "%"FMT_HOST_GROUP_ID,
 	  "hostGroupId", &EventsQueryOption::getTargetHostgroupId,
 	  expectCode, forceValueStr);
 }

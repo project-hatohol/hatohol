@@ -64,7 +64,7 @@ typedef uint64_t ItemIdType;
 typedef uint64_t TriggerIdType;
 #define FMT_TRIGGER_ID PRIu64
 
-typedef uint64_t HostGroupIdType;
+typedef uint64_t HostgroupIdType;
 #define FMT_HOST_GROUP_ID PRIu64
 
 typedef uint64_t HostIdType;

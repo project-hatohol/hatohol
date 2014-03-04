@@ -47,7 +47,7 @@ static const ServerIdType ALL_SERVERS = -1;
 static const HostIdType ALL_HOSTS   = -1;
 static const uint64_t ALL_TRIGGERS = -1;
 static const uint64_t ALL_ITEMS    = -1;
-static const HostGroupIdType ALL_HOST_GROUPS = -1;
+static const HostgroupIdType ALL_HOST_GROUPS = -1;
 
 struct HostInfo {
 	ServerIdType        serverId;
@@ -76,7 +76,7 @@ struct TriggerInfo {
 	std::string         brief;
 
 	// 'hostgroupId' variable is used when retrieve data from DB.
-	HostGroupIdType     hostgroupId;
+	HostgroupIdType     hostgroupId;
 };
 
 typedef std::list<TriggerInfo>          TriggerInfoList;
@@ -107,7 +107,7 @@ struct EventInfo {
 	HostIdType          hostId;
 	std::string         hostName;
 	std::string         brief;
-	HostGroupIdType     hostgroupId;
+	HostgroupIdType     hostgroupId;
 };
 void initEventInfo(EventInfo &eventInfo);
 
@@ -125,7 +125,7 @@ struct ItemInfo {
 	std::string         prevValue;
 	std::string         itemGroupName;
 
-	HostGroupIdType     hostgroupId;
+	HostgroupIdType     hostgroupId;
 };
 
 typedef std::list<ItemInfo>          ItemInfoList;
@@ -135,7 +135,7 @@ typedef ItemInfoList::const_iterator ItemInfoListConstIterator;
 struct HostgroupInfo {
 	int                 id;
 	ServerIdType        serverId;
-	HostGroupIdType     groupId;
+	HostgroupIdType     groupId;
 	std::string         groupName;
 };
 
@@ -147,7 +147,7 @@ struct HostgroupElement {
 	int                 id;
 	ServerIdType        serverId;
 	HostIdType          hostId;
-	HostGroupIdType     groupId;
+	HostgroupIdType     groupId;
 };
 
 typedef std::list<HostgroupElement> HostgroupElementList;
@@ -167,8 +167,8 @@ public:
 	virtual void setTargetServerId(const ServerIdType &targetServerId);
 	virtual HostIdType getTargetHostId(void) const;
 	virtual void setTargetHostId(HostIdType targetHostId);
-	virtual HostGroupIdType getTargetHostgroupId(void) const;
-	virtual void setTargetHostgroupId(HostGroupIdType targetHostGroupId);
+	virtual HostgroupIdType getTargetHostgroupId(void) const;
+	virtual void setTargetHostgroupId(HostgroupIdType targetHostGroupId);
 
 	/**
 	 * Enable or disable the filter for the data of defunct servers.
@@ -206,7 +206,7 @@ protected:
 	  const std::string &hostGroupIdColumnName,
 	  const std::string &hostIdColumnName,
 	  ServerIdType targetServerId = ALL_SERVERS,
-	  HostGroupIdType targetHostgroup = ALL_HOST_GROUPS,
+	  HostgroupIdType targetHostgroup = ALL_HOST_GROUPS,
 	  HostIdType targetHostId = ALL_HOSTS);
 	static std::string makeConditionServer(
 	  const ServerIdSet &serverIdSet,
@@ -216,7 +216,7 @@ protected:
 	  const HostGroupSet &hostGroupSet,
 	  const std::string &serverIdColumnName,
 	  const std::string &hostGroupIdColumnName,
-	  const HostGroupIdType &hostgroupId = ALL_HOST_GROUPS);
+	  const HostgroupIdType &hostgroupId = ALL_HOST_GROUPS);
 	static std::string makeConditionHostGroup(
 	  const HostGroupSet &hostGroupSet,
 	  const std::string &hostGroupIdColumnName);

@@ -693,7 +693,7 @@ struct HostResourceQueryOption::PrivateContext {
 	string hostIdColumnName;
 	ServerIdType targetServerId;
 	HostIdType targetHostId;
-	HostGroupIdType targetHostgroupId;
+	HostgroupIdType targetHostgroupId;
 	bool filterDataOfDefunctServers;
 
 	PrivateContext()
@@ -822,7 +822,7 @@ string HostResourceQueryOption::makeConditionServer(
 string HostResourceQueryOption::makeConditionServer(
   const ServerIdType &serverId, const HostGroupSet &hostGroupSet,
   const string &serverIdColumnName, const string &hostGroupIdColumnName,
-  const HostGroupIdType &hostgroupId)
+  const HostgroupIdType &hostgroupId)
 {
 	string condition;
 	condition = StringUtils::sprintf(
@@ -852,7 +852,7 @@ string HostResourceQueryOption::makeCondition(
   const string &hostGroupIdColumnName,
   const string &hostIdColumnName,
   ServerIdType targetServerId,
-  HostGroupIdType targetHostgroupId,
+  HostgroupIdType targetHostgroupId,
   HostIdType targetHostId)
 {
 	string condition;
@@ -983,13 +983,13 @@ void HostResourceQueryOption::setTargetHostId(HostIdType targetHostId)
 	m_ctx->targetHostId = targetHostId;
 }
 
-HostGroupIdType HostResourceQueryOption::getTargetHostgroupId(void) const
+HostgroupIdType HostResourceQueryOption::getTargetHostgroupId(void) const
 {
 	return m_ctx->targetHostgroupId;
 }
 
 void HostResourceQueryOption::setTargetHostgroupId(
-  HostGroupIdType targetHostgroupId)
+  HostgroupIdType targetHostgroupId)
 {
 	m_ctx->targetHostgroupId = targetHostgroupId;
 }

@@ -810,7 +810,7 @@ void DBClientUser::getServerHostGrpSetMap(
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
 		ServerIdType serverId;
-		HostGroupIdType hostGroupId;
+		HostgroupIdType hostGroupId;
 		ItemGroupStream itemGroupStream(*itemGrpItr);
 		itemGroupStream >> serverId;
 		itemGroupStream >> hostGroupId;

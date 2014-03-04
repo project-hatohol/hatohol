@@ -282,7 +282,7 @@ private:
 template<typename InfoListT, typename InfoT, typename TargetIdT>
 class FaceRest::HandlerGetHelper {
 public:
-	typedef vector<HostGroupIdType> HostgroupIdVector;
+	typedef vector<HostgroupIdType> HostgroupIdVector;
 	typedef map<TargetIdT, HostgroupIdVector> DataIdHostgroupIdVectorMap;
 	typedef map<ServerIdType, DataIdHostgroupIdVectorMap>
 	  ServerIdDataIdHostgroupIdVectorMap;
@@ -2820,7 +2820,7 @@ HatoholError FaceRest::parseHostResourceQueryParameter(
 
 	// target host group id
 	HostIdType targetHostgroupId = ALL_HOST_GROUPS;
-	err = getParam<HostGroupIdType>(query, "hostGroupId",
+	err = getParam<HostgroupIdType>(query, "hostGroupId",
 					"%"FMT_HOST_GROUP_ID,
 					targetHostgroupId);
 	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
