@@ -367,13 +367,9 @@ public:
 			return false;
 
 		const DataIdVector &dataIdVector = serverIt->second;
-		DataIdVectorConstIterator dataIt = dataIdVector.begin();
-		if (dataIt == dataIdVector.end())
-			return false;
-
-		for (; dataIt != dataIdVector.end(); ++dataIt) {
-			TargetIdT data = *dataIt;
-			if (data == targetId)
+		DataIdVectorConstIterator dataIdItr = dataIdVector.begin();
+		for (; dataIdItr != dataIdVector.end(); ++dataIdItr) {
+			if (*dataIdItr == targetId)
 				return true;
 		}
 
