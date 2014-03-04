@@ -207,11 +207,10 @@ struct UnifiedDataStore::PrivateContext
 				}
 			}
 
-			if (i < PrivateContext::maxRunningArms) {
+			if (i < PrivateContext::maxRunningArms)
 				wakeArm(dataStore);
-			} else {
+			else
 				updateArmsQueue.push_back(dataStore);
-			}
 		}
 
 		bool started = remainingArmsCount > 0;
