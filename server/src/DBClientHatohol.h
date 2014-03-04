@@ -77,7 +77,6 @@ struct TriggerInfo {
 
 	// 'hostgroupId' variable is used when retrieve data from DB.
 	HostGroupIdType     hostgroupId;
-	std::string         hostgroupName;
 };
 
 typedef std::list<TriggerInfo>          TriggerInfoList;
@@ -109,7 +108,6 @@ struct EventInfo {
 	std::string         hostName;
 	std::string         brief;
 	HostGroupIdType     hostgroupId;
-	std::string         hostgroupName;
 };
 void initEventInfo(EventInfo &eventInfo);
 
@@ -128,7 +126,6 @@ struct ItemInfo {
 	std::string         itemGroupName;
 
 	HostGroupIdType     hostgroupId;
-	std::string         hostgroupName;
 };
 
 typedef std::list<ItemInfo>          ItemInfoList;
