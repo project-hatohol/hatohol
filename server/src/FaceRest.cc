@@ -315,7 +315,7 @@ public:
 	{
 		InfoListConstIterator it = infoList.begin();
 		for (; it != infoList.end(); ++it){
-			InfoT info = *it;
+			const InfoT &info = *it;
 			m_ctx->serverDataHostgroupIdVectorMap
 			  [info.serverId][info.id].push_back(
 			    info.hostgroupId);
