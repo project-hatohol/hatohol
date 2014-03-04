@@ -226,4 +226,12 @@ void test_operatorMinusSubstBorrowResultMinus(void)
 	assertOperatorMinusSubst(false, false);
 }
 
+void test_operatorEqual(void)
+{
+	timespec ts = {1393897643, 987654321};
+	SmartTime stime0(ts);
+	SmartTime stime1(ts);
+	cppcut_assert_equal(true, stime0 == stime1);
+}
+
 } // namespace testSmartTime

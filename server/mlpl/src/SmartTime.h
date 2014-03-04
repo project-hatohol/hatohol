@@ -47,6 +47,7 @@ public:
 	SmartTime &operator+=(const timespec &rhs);
 	SmartTime &operator-=(const SmartTime &rhs);
 	SmartTime &operator=(const SmartTime &rhs);
+	bool operator==(const SmartTime &rhs);
 
 private:
 	struct PrivateContext;

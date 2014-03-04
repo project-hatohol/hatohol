@@ -136,3 +136,12 @@ SmartTime &SmartTime::operator=(const SmartTime &rhs)
 	m_ctx->time.tv_nsec = rhs.m_ctx->time.tv_nsec;
 	return *this;
 }
+
+bool SmartTime::operator==(const SmartTime &rhs)
+{
+	if (m_ctx->time.tv_sec != rhs.m_ctx->time.tv_sec)
+		return false;
+	if (m_ctx->time.tv_nsec != rhs.m_ctx->time.tv_nsec)
+		return false;
+	return true;
+}
