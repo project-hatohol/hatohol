@@ -44,6 +44,6 @@ void test_getArmBase(void)
 	cppcut_assert_equal(typeid(ArmNagiosNDOUtils), typeid(armBase));
 }
 
-} // namespace testDataStoreManager
+} // namespace testDataStoreNagios
 
 
