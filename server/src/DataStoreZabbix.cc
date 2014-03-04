@@ -41,11 +41,6 @@ ArmBase &DataStoreZabbix::getArmBase(void)
 	return m_armApi;
 }
 
-void DataStoreZabbix::collectArms(ArmBaseVector &arms)
-{
-	arms.push_back(&m_armApi);
-}
-
 ItemTablePtr DataStoreZabbix::getTriggers(void)
 {
 	return m_armApi.getTrigger();

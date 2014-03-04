@@ -30,7 +30,6 @@ public:
 	virtual ~DataStoreNagios();
 
 	virtual ArmBase &getArmBase(void);
-	virtual void collectArms(ArmBaseVector &arms);
 	virtual void setCopyOnDemandEnable(bool enable);
 private:
 	struct PrivateContext;

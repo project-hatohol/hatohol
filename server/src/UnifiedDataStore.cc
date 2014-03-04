@@ -88,17 +88,6 @@ struct UnifiedDataStore::PrivateContext
 		sem_destroy(&updatedSemaphore);
 	};
 
-	static ArmBase *getArmBase(DataStore *dataStore)
-	{
-		// TODO: Make the design smart.
-		// We assume each DataStore has one arm.
-		ArmBaseVector arms;
-		dataStore->collectArms(arms);
-		HATOHOL_ASSERT(arms.size() == 1,
-		               "arms.size(): %zd", arms.size());
-		return arms.front();
-	}
-
 	void wakeArm(DataStore *dataStore)
 	{
 		struct ClosureWithDataStore : public Closure<PrivateContext>
@@ -118,8 +107,8 @@ struct UnifiedDataStore::PrivateContext
 			}
 		};
 
-		ArmBase *arm = getArmBase(dataStore);
-		arm->fetchItems(new ClosureWithDataStore(this, dataStore));
+		ArmBase &arm = dataStore->getArmBase();
+		arm.fetchItems(new ClosureWithDataStore(this, dataStore));
 	}
 
 	bool updateIsNeeded(void)
@@ -187,7 +176,7 @@ struct UnifiedDataStore::PrivateContext
 				for (size_t i = 0; i < stores.size(); i++) {
 					DataStore *dataStore = stores[i];
 					allDataStores.push_back(dataStore);
-					arms.push_back(getArmBase(dataStore));
+					arms.push_back(&dataStore->getArmBase());
 				}
 				return false;
 			}
@@ -207,11 +196,11 @@ struct UnifiedDataStore::PrivateContext
 		remainingArmsCount = arms.size();
 		for (size_t i = 0; i < collector.allDataStores.size(); i++) {
 			DataStore *dataStore = collector.allDataStores[i];
-			ArmBase *arm = getArmBase(dataStore);
+			ArmBase &arm = dataStore->getArmBase();
 
 			if (targetServerId != ALL_SERVERS) {
 				const MonitoringServerInfo &info
-					= arm->getServerInfo();
+					= arm.getServerInfo();
 				if (static_cast<int>(targetServerId) != info.id) {
 					remainingArmsCount--;
 					dataStore->unref();

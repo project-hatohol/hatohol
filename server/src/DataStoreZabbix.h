@@ -30,7 +30,6 @@ public:
 	virtual ~DataStoreZabbix();
 
 	virtual ArmBase &getArmBase(void);
-	virtual void collectArms(ArmBaseVector &arms);
 	ItemTablePtr getTriggers(void);
 	ItemTablePtr getFunctions(void);
 	ItemTablePtr getItems(void);

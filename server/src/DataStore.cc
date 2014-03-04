@@ -26,10 +26,6 @@ DataStore::DataStore(void)
 {
 }
 
-void DataStore::collectArms(ArmBaseVector &arms)
-{
-}
-
 void DataStore::setCopyOnDemandEnable(bool enable)
 {
 }
