@@ -24,6 +24,13 @@ namespace testDataStoreManager {
 
 DataStore *g_dataStore = NULL;
 
+class TestDataStore : public DataStore {
+	ArmBase *getArmBase(void)
+	{
+		return NULL;
+	}
+};
+
 static void deleteDataStore(DataStore *dataStore)
 {
 	while (true) {
@@ -49,7 +56,7 @@ void test_addAndRemove(void)
 {
 	const uint32_t storeId = 50;
 
-	g_dataStore = new DataStore();
+	g_dataStore = new TestDataStore();
 	cppcut_assert_equal(1, g_dataStore->getUsedCount());
 	DataStoreManager mgr;
 	mgr.add(storeId, g_dataStore);
@@ -62,7 +69,7 @@ void test_hasDataStore(void)
 {
 	const uint32_t storeId = 50;
 
-	g_dataStore = new DataStore();
+	g_dataStore = new TestDataStore();
 	DataStoreManager mgr;
 	cppcut_assert_equal(false, mgr.hasDataStore(storeId));
 	mgr.add(storeId, g_dataStore);

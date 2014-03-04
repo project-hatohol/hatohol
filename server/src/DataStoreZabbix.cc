@@ -24,14 +24,21 @@ using namespace std;
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-DataStoreZabbix::DataStoreZabbix(const MonitoringServerInfo &serverInfo)
+DataStoreZabbix::DataStoreZabbix(
+  const MonitoringServerInfo &serverInfo, const bool &autoStart)
 : m_armApi(serverInfo)
 {
-	m_armApi.start();
+	if (autoStart)
+		m_armApi.start();
 }
 
 DataStoreZabbix::~DataStoreZabbix(void)
 {
+}
+
+ArmBase *DataStoreZabbix::getArmBase(void)
+{
+	return &m_armApi;
 }
 
 void DataStoreZabbix::collectArms(ArmBaseVector &arms)

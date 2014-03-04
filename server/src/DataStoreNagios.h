@@ -25,8 +25,11 @@
 
 class DataStoreNagios : public DataStore {
 public:
-	DataStoreNagios(const MonitoringServerInfo &serverInfo);
+	DataStoreNagios(const MonitoringServerInfo &serverInfo,
+	                const bool &autoStart = true);
 	virtual ~DataStoreNagios();
+
+	virtual ArmBase *getArmBase(void);
 	virtual void collectArms(ArmBaseVector &arms);
 	virtual void setCopyOnDemandEnable(bool enable);
 private:

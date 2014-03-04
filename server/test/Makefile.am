@@ -30,6 +30,7 @@ testHatohol_la_SOURCES = \
 	testConfigManager.cc \
 	testDataQueryContext.cc testDataQueryOption.cc \
 	testDataStoreManager.cc \
+	testDataStoreZabbix.cc testDataStoreNagios.cc \
 	testHatoholError.cc \
 	testHatoholException.cc testSQLProcessorException.cc \
 	testHatoholThreadBase.cc \

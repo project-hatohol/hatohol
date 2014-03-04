@@ -34,17 +34,24 @@ struct DataStoreNagios::PrivateContext
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-DataStoreNagios::DataStoreNagios(const MonitoringServerInfo &serverInfo)
+DataStoreNagios::DataStoreNagios(
+  const MonitoringServerInfo &serverInfo, const bool &autoStart)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext(serverInfo);
-	m_ctx->armNDO.start();
+	if (autoStart)
+		m_ctx->armNDO.start();
 }
 
 DataStoreNagios::~DataStoreNagios()
 {
 	if (m_ctx)
 		delete m_ctx;
+}
+
+ArmBase *DataStoreNagios::getArmBase(void)
+{
+	return &m_ctx->armNDO;
 }
 
 void DataStoreNagios::collectArms(ArmBaseVector &arms)
