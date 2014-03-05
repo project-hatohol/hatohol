@@ -52,6 +52,19 @@ VirtualDataStoreFake *VirtualDataStoreFake::getInstance(void)
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
+VirtualDataStoreFake::VirtualDataStoreFake(void)
+: VirtualDataStore(MONITORING_SYSTEM_FAKE),
+  m_ctx(NULL)
+{
+	m_ctx = new PrivateContext();
+}
+
+VirtualDataStoreFake::~VirtualDataStoreFake()
+{
+	if (m_ctx)
+		delete m_ctx;
+}
+
 void VirtualDataStoreFake::start(const bool &autoRun)
 {
 	VirtualDataStore::start<DataStoreFake>(MONITORING_SYSTEM_FAKE, autoRun);
@@ -67,15 +80,3 @@ HatoholError VirtualDataStoreFake::start(const MonitoringServerInfo &svInfo,
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-VirtualDataStoreFake::VirtualDataStoreFake(void)
-: VirtualDataStore(MONITORING_SYSTEM_FAKE),
-  m_ctx(NULL)
-{
-	m_ctx = new PrivateContext();
-}
-
-VirtualDataStoreFake::~VirtualDataStoreFake()
-{
-	if (m_ctx)
-		delete m_ctx;
-}
