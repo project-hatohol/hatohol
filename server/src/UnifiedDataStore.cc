@@ -30,6 +30,9 @@
 using namespace std;
 using namespace mlpl;
 
+typedef map<MonitoringSystemType, VirtualDataStore *> VirtualDataStoreMap;
+typedef VirtualDataStoreMap::iterator                 VirtualDataStoreMapIterator;
+
 // ---------------------------------------------------------------------------
 // UnifiedDataStoreEventProc
 // ---------------------------------------------------------------------------
@@ -66,11 +69,17 @@ struct UnifiedDataStore::PrivateContext
 
 	PrivateContext()
 	: isCopyOnDemandEnabled(false)
-	{
-		virtualDataStoreList.push_back(
-		  VirtualDataStoreZabbix::getInstance());
-		virtualDataStoreList.push_back(
-		  VirtualDataStoreNagios::getInstance());
+	{ 
+		virtualDataStoreMap[MONITORING_SYSTEM_ZABBIX] =
+		  VirtualDataStoreZabbix::getInstance();
+
+		virtualDataStoreMap[MONITORING_SYSTEM_NAGIOS] =
+		  VirtualDataStoreNagios::getInstance();
+
+		// make a list
+		VirtualDataStoreMapIterator it = virtualDataStoreMap.begin();
+		for (; it != virtualDataStoreMap.end(); ++it)
+			virtualDataStoreList.push_back(it->second);
 	};
 
 	void virtualDataStoreForeach(VirtualDataStoreForeachProc *vdsProc)
@@ -90,6 +99,7 @@ private:
 	// the constructor. This is a limitation to realize a lock-free
 	// structure.
 	VirtualDataStoreList virtualDataStoreList;
+	VirtualDataStoreMap  virtualDataStoreMap;
 };
 
 UnifiedDataStore *UnifiedDataStore::PrivateContext::instance = NULL;
