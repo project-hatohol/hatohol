@@ -35,10 +35,10 @@ void VirtualDataStore::start(void)
 {
 }
 
-bool VirtualDataStore::start(const MonitoringServerInfo &svInfo,
-                             const bool &autoRun)
+HatoholError VirtualDataStore::start(const MonitoringServerInfo &svInfo,
+                                     const bool &autoRun)
 {
-	return false;
+	return HTERR_NOT_IMPLEMENTED;
 }
 
 void VirtualDataStore::stop(void)
@@ -47,12 +47,12 @@ void VirtualDataStore::stop(void)
 	closeAllStores();
 }
 
-bool VirtualDataStore::stop(const ServerIdType &serverId)
+HatoholError VirtualDataStore::stop(const ServerIdType &serverId)
 {
 	uint32_t storeId = serverId;
 	if (!hasDataStore(storeId))
-		return false;
+		return HTERR_NOT_FOUND_PARAMETER;
 	remove(storeId);
-	return true;
+	return HTERR_OK;
 }
 

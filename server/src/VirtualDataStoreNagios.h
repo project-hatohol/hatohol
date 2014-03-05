@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -28,8 +28,8 @@ public:
 	static VirtualDataStoreNagios *getInstance(void);
 
 	virtual void start(bool const &autoRun = true);
-	virtual bool start(const MonitoringServerInfo &svInfo,
-	                   bool const &autoRun = true);
+	virtual HatoholError start(const MonitoringServerInfo &svInfo,
+	                           bool const &autoRun = true);
 
 protected:
 	VirtualDataStoreNagios(void);

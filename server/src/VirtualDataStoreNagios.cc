@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -58,8 +58,8 @@ void VirtualDataStoreNagios::start(const bool &autoRun)
 	                                         autoRun);
 }
 
-bool VirtualDataStoreNagios::start(const MonitoringServerInfo &svInfo,
-                                   const bool &autoRun)
+HatoholError VirtualDataStoreNagios::start(const MonitoringServerInfo &svInfo,
+                                           const bool &autoRun)
 {
 	return VirtualDataStore::start<DataStoreNagios>
 	         (MONITORING_SYSTEM_NAGIOS, svInfo, autoRun);

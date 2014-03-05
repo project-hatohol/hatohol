@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -77,8 +77,8 @@ void VirtualDataStoreZabbix::start(const bool &autoRun)
 	                                         autoRun);
 }
 
-bool VirtualDataStoreZabbix::start(const MonitoringServerInfo &svInfo,
-                                   const bool &autoRun)
+HatoholError VirtualDataStoreZabbix::start(const MonitoringServerInfo &svInfo,
+                                           const bool &autoRun)
 {
 	return VirtualDataStore::start<DataStoreZabbix>
 	         (MONITORING_SYSTEM_ZABBIX, svInfo, autoRun);

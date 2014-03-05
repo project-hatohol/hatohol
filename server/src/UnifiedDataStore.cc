@@ -480,10 +480,10 @@ HatoholError UnifiedDataStore::addTargetServer(
 	struct : public VirtualDataStoreForeachProc {
 		bool autoRun;
 		MonitoringServerInfo *svInfo;
+		HatoholError err;
 		virtual bool operator()(VirtualDataStore *virtDataStore) {
-			bool started = virtDataStore->start(*svInfo, autoRun);
-			bool breakFlag = started;
-			return breakFlag;
+			err = virtDataStore->start(*svInfo, autoRun);
+			return err == HTERR_OK;
 		}
 	} starter;
 	starter.svInfo = &svInfo;
@@ -504,12 +504,11 @@ HatoholError UnifiedDataStore::updateTargetServer(
 	struct : public VirtualDataStoreForeachProc {
 		MonitoringServerInfo *svInfo;
 		virtual bool operator()(VirtualDataStore *virtDataStore) {
-			bool stopped = virtDataStore->stop(svInfo->id);
-			if (!stopped)
+			HatoholError err = virtDataStore->stop(svInfo->id);
+			if (err != HTERR_OK)
 				return false;
-			bool started = virtDataStore->start(*svInfo);
-			bool breakFlag = started;
-			return breakFlag;
+			err = virtDataStore->start(*svInfo);
+			return err == HTERR_OK;
 		}
 	} restarter;
 	restarter.svInfo = &svInfo;
@@ -529,9 +528,8 @@ HatoholError UnifiedDataStore::deleteTargetServer(
 	struct : public VirtualDataStoreForeachProc {
 		ServerIdType serverId;
 		virtual bool operator()(VirtualDataStore *virtDataStore) {
-			bool stopped = virtDataStore->stop(serverId);
-			bool breakFlag = stopped;
-			return breakFlag;
+			HatoholError err = virtDataStore->stop(serverId);
+			return err == HTERR_OK;
 		}
 	} stopper;
 	stopper.serverId = serverId;

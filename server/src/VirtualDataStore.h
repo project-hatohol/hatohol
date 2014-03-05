@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -42,15 +42,13 @@ public:
 	 * @param autoStart
 	 * A flag to run an Arm instance soon after the store is started.
 	 *
-	 * @return
-	 * true if an monitoring instance is started. Otherwise (typicall,
-	 * server type is not matched), false is returned.
+	 * @return An HatoholError instance.
 	 */
-	virtual bool start(const MonitoringServerInfo &svInfo,
-	                   const bool &autoRun = true);
+	virtual HatoholError start(const MonitoringServerInfo &svInfo,
+	                           const bool &autoRun = true);
 
 	virtual void stop(void);
-	virtual bool stop(const ServerIdType &serverId);
+	virtual HatoholError stop(const ServerIdType &serverId);
 
 protected:
 	template<class T>
@@ -69,18 +67,18 @@ protected:
 	}
 
 	template<class T>
-	bool start(MonitoringSystemType systemType,
-	           const MonitoringServerInfo &svInfo,
-	           const bool &autoRun)
+	HatoholError start(MonitoringSystemType systemType,
+	                   const MonitoringServerInfo &svInfo,
+	                   const bool &autoRun)
 	{
 		if (svInfo.type != systemType)
-			return false;
+			return HTERR_INVALID_MONITORING_SYSTEM_TYPE;
 		DataStore *dataStore = new T(svInfo, autoRun);
-		if (add(svInfo.id, dataStore)) {
+		if (!add(svInfo.id, dataStore)) {
 			dataStore->unref();
-			return true;
+			return HTERR_FAILED_TO_REGIST_DATA_STORE;
 		}
-		return false;
+		return HTERR_OK;
 	}
 };
 

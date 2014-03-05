@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -37,8 +37,8 @@ public:
 	ItemTablePtr getItemTable(ItemGroupId groupId);
 
 	virtual void start(const bool &autoRun = true);
-	virtual bool start(const MonitoringServerInfo &svInfo,
-	                   const bool &autoRun = true);
+	virtual HatoholError start(const MonitoringServerInfo &svInfo,
+	                           const bool &autoRun = true);
 
 protected:
 	ItemTable *createStaticItemTable(ItemGroupId groupId);
