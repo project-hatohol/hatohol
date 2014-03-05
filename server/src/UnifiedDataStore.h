@@ -123,6 +123,19 @@ public:
 
 	void virtualDataStoreForeach(VirtualDataStoreForeachProc *vdsProc);
 
+	/**
+	 * Get the data store with the specified Server ID.
+	 * 
+	 * The used counte of the returned DataStore instance is incremented.
+	 * A caller must call unref() when it is no longer needed.
+	 * 
+	 * @param serverId A server ID.
+	 * @retrun
+	 * A pointer of the DataStore instance if found. Otherwise NULL is
+	 * returned.
+	 */
+	DataStore *getDataStore(const ServerIdType &serverId);
+
 protected:
 	virtual void fetchItems(
 	  const ServerIdType &targetServerId = ALL_SERVERS);

@@ -33,37 +33,47 @@ using namespace mlpl;
 typedef map<MonitoringSystemType, VirtualDataStore *> VirtualDataStoreMap;
 typedef VirtualDataStoreMap::iterator                 VirtualDataStoreMapIterator;
 
-// ---------------------------------------------------------------------------
-// UnifiedDataStoreEventProc
-// ---------------------------------------------------------------------------
-struct UnifiedDataStoreEventProc : public DataStoreEventProc
-{
-	bool enableCopyOnDemand;
-
-	UnifiedDataStoreEventProc(bool copyOnDemand)
-	: enableCopyOnDemand(copyOnDemand)
-	{
-	}
-
-	virtual ~UnifiedDataStoreEventProc()
-	{
-	}
-
-	virtual void onAdded(DataStore *dataStore)
-	{
-		dataStore->setCopyOnDemandEnable(enableCopyOnDemand);
-	}
-};
-
+typedef map<ServerIdType, DataStore *> ServerIdDataStoreMap;
+typedef ServerIdDataStoreMap::iterator ServerIdDataStoreMapIterator;
 
 // ---------------------------------------------------------------------------
 // UnifiedDataStore
 // ---------------------------------------------------------------------------
 struct UnifiedDataStore::PrivateContext
 {
+	struct UnifiedDataStoreEventProc : public DataStoreEventProc
+	{
+		PrivateContext *ctx;
+		bool enableCopyOnDemand;
+
+		UnifiedDataStoreEventProc(PrivateContext *_ctx,
+		                          bool copyOnDemand)
+		: ctx(_ctx),
+		  enableCopyOnDemand(copyOnDemand)
+		{
+		}
+
+		virtual ~UnifiedDataStoreEventProc()
+		{
+		}
+
+		virtual void onAdded(DataStore *dataStore) // override
+		{
+			dataStore->setCopyOnDemandEnable(enableCopyOnDemand);
+			ctx->addToDataStoreMap(dataStore);
+		}
+
+		virtual void onRemoved(DataStore *dataStore) // override
+		{
+			ctx->removeFromDataStoreMap(dataStore);
+		}
+	};
+
 	static UnifiedDataStore *instance;
 	static MutexLock         mutex;
 
+	ReadWriteLock            serverIdDataStoreMapLock;
+	ServerIdDataStoreMap     serverIdDataStoreMap;
 	bool                     isCopyOnDemandEnabled;
 	ItemFetchWorker          itemFetchWorker;
 
@@ -92,6 +102,53 @@ struct UnifiedDataStore::PrivateContext
 			if (breakFlag)
 				break;
 		}
+	}
+
+	void addToDataStoreMap(DataStore *dataStore)
+	{
+		const ServerIdType serverId =
+		  dataStore->getArmBase().getServerInfo().id;
+		pair<ServerIdDataStoreMapIterator, bool> result;
+		serverIdDataStoreMapLock.writeLock();
+		result = serverIdDataStoreMap.insert(
+		  pair<ServerIdType, DataStore *>(serverId, dataStore));
+		serverIdDataStoreMapLock.unlock();
+		HATOHOL_ASSERT(
+		  result.second,
+		  "Failed to insert: ServerID: %"FMT_SERVER_ID", DataStore: %p",
+		  serverId, dataStore);
+	}
+
+	void removeFromDataStoreMap(DataStore *dataStore)
+	{
+		const ServerIdType serverId =
+		  dataStore->getArmBase().getServerInfo().id;
+		serverIdDataStoreMapLock.writeLock();
+		ServerIdDataStoreMapIterator it =
+		  serverIdDataStoreMap.find(serverId);
+		bool found = (it != serverIdDataStoreMap.end());
+		if (found)
+			serverIdDataStoreMap.erase(it);
+		serverIdDataStoreMapLock.unlock();
+		HATOHOL_ASSERT(
+		  found,
+		  "Failed to found: ServerID: %"FMT_SERVER_ID", DataStore: %p",
+		  serverId, dataStore);
+	}
+
+	DataStore *getDataStore(const ServerIdType &serverId)
+	{
+		DataStore *dataStore = NULL;
+		serverIdDataStoreMapLock.readLock();
+		ServerIdDataStoreMapIterator it =
+		  serverIdDataStoreMap.find(serverId);
+		const bool found = (it != serverIdDataStoreMap.end());
+		if (found) {
+			dataStore = it->second;
+			dataStore->ref();
+		}
+		serverIdDataStoreMapLock.unlock();
+		return dataStore;
 	}
 
 private:
@@ -148,7 +205,7 @@ void UnifiedDataStore::start(void)
 {
 	struct : public VirtualDataStoreForeachProc
 	{
-		UnifiedDataStoreEventProc *evtProc;
+		PrivateContext::UnifiedDataStoreEventProc *evtProc;
 		virtual bool operator()(VirtualDataStore *virtDataStore)
 		{
 			virtDataStore->registEventProc(evtProc);
@@ -158,7 +215,8 @@ void UnifiedDataStore::start(void)
 	} starter;
 
 	starter.evtProc =
-	   new UnifiedDataStoreEventProc(m_ctx->isCopyOnDemandEnabled);
+	  new PrivateContext::UnifiedDataStoreEventProc(
+	    m_ctx, m_ctx->isCopyOnDemandEnabled);
 	m_ctx->virtualDataStoreForeach(&starter);
 }
 
@@ -485,6 +543,11 @@ void UnifiedDataStore::virtualDataStoreForeach(
   VirtualDataStoreForeachProc *vdsProc)
 {
 	m_ctx->virtualDataStoreForeach(vdsProc);
+}
+
+DataStore *UnifiedDataStore::getDataStore(const ServerIdType &serverId)
+{
+	return m_ctx->getDataStore(serverId);
 }
 
 // ---------------------------------------------------------------------------
