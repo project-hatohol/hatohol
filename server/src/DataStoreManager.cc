@@ -77,7 +77,9 @@ void DataStoreManager::passCommandLineArg(const CommandLineArg &cmdArg)
 
 void DataStoreManager::registEventProc(DataStoreEventProc *eventProc)
 {
+	m_ctx->mutex.lock();
 	m_ctx->eventProcList.push_back(eventProc);
+	m_ctx->mutex.unlock();
 }
 
 bool DataStoreManager::hasDataStore(uint32_t storeId)
