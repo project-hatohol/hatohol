@@ -223,11 +223,6 @@ struct UnifiedDataStore::PrivateContext
 		return started;
 	}
 
-	struct VirtualDataStoreForeachProc
-	{
-		virtual bool operator()(VirtualDataStore *virtDataStore) = 0;
-	};
-
 	void virtualDataStoreForeach(VirtualDataStoreForeachProc *vdsProc)
 	{
 		// We assume that virtualDataStoreList is not changed
@@ -291,7 +286,7 @@ UnifiedDataStore *UnifiedDataStore::getInstance(void)
 
 void UnifiedDataStore::start(void)
 {
-	struct : public PrivateContext::VirtualDataStoreForeachProc
+	struct : public VirtualDataStoreForeachProc
 	{
 		UnifiedDataStoreEventProc *evtProc;
 		virtual bool operator()(VirtualDataStore *virtDataStore)
@@ -309,7 +304,7 @@ void UnifiedDataStore::start(void)
 
 void UnifiedDataStore::stop(void)
 {
-	struct : public PrivateContext::VirtualDataStoreForeachProc
+	struct : public VirtualDataStoreForeachProc
 	{
 		virtual bool operator()(VirtualDataStore *virtDataStore)
 		{
@@ -564,7 +559,7 @@ HatoholError UnifiedDataStore::addTargetServer(
 	if (err != HTERR_OK)
 		return err;
 
-	struct : public PrivateContext::VirtualDataStoreForeachProc {
+	struct : public VirtualDataStoreForeachProc {
 		MonitoringServerInfo *svInfo;
 		virtual bool operator()(VirtualDataStore *virtDataStore) {
 			bool started = virtDataStore->start(*svInfo);
@@ -586,7 +581,7 @@ HatoholError UnifiedDataStore::updateTargetServer(
 	if (err != HTERR_OK)
 		return err;
 
-	struct : public PrivateContext::VirtualDataStoreForeachProc {
+	struct : public VirtualDataStoreForeachProc {
 		MonitoringServerInfo *svInfo;
 		virtual bool operator()(VirtualDataStore *virtDataStore) {
 			bool stopped = virtDataStore->stop(svInfo->id);
@@ -611,7 +606,7 @@ HatoholError UnifiedDataStore::deleteTargetServer(
 	if (err != HTERR_OK)
 		return err;
 
-	struct : public PrivateContext::VirtualDataStoreForeachProc {
+	struct : public VirtualDataStoreForeachProc {
 		ServerIdType serverId;
 		virtual bool operator()(VirtualDataStore *virtDataStore) {
 			bool stopped = virtDataStore->stop(serverId);
