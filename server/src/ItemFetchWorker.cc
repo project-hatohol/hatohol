@@ -96,7 +96,7 @@ bool ItemFetchWorker::start(
 
 	m_ctx->rwlock.writeLock();
 	if (closure)
-	m_ctx->itemFetchedSignal.connect(closure);
+		m_ctx->itemFetchedSignal.connect(closure);
 	m_ctx->remainingArmsCount = collector.allDataStores.size();
 	for (size_t i = 0; i < collector.allDataStores.size(); i++) {
 		DataStore *dataStore = collector.allDataStores[i];
