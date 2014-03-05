@@ -111,6 +111,12 @@ void HatoholError::init(void)
 	DEFINE_ERR(NOT_TEST_MODE,
 		   "Not test mode.");
 
+	// VirtualDataStore
+	DEFINE_ERR(FAILED_TO_REGIST_DATA_STORE,
+		   "Failed to regist a DataStore object.");
+	DEFINE_ERR(FAILED_TO_STOP_DATA_STORE,
+		   "Failed to stop a DataStore object.");
+
 	// OTHER
 	DEFINE_ERR(ERROR_TEST,
 		   "Error test.");
