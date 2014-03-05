@@ -1406,16 +1406,11 @@ DBClientHatohol::~DBClientHatohol()
 void DBClientHatohol::getHostInfoList(HostInfoList &hostInfoList,
 				      const HostsQueryOption &option)
 {
-	// Now we don't have a DB table for hosts. So we get a host list from
-	// the trigger table. In the future, we will add the table for hosts
-	// and fix the following implementation to use it.
-	DBAgent::SelectExArg arg(tableProfileTriggers);
+	DBAgent::SelectExArg arg(tableProfileHosts);
 
-	string stmt = StringUtils::sprintf("distinct %s", 
-	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName);
-	arg.add(stmt, COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].type);
-	arg.add(IDX_TRIGGERS_HOST_ID);
-	arg.add(IDX_TRIGGERS_HOSTNAME);
+	arg.add(IDX_HOSTS_SERVER_ID);
+	arg.add(IDX_HOSTS_HOST_ID);
+	arg.add(IDX_HOSTS_HOST_NAME);
 
 	// condition
 	arg.condition = option.getCondition();
