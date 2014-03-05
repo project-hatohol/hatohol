@@ -26,6 +26,7 @@
 #include "DBClientConfig.h"
 #include "Utils.h"
 #include "Closure.h"
+#include "VirtualDataStore.h"
 
 class UnifiedDataStore
 {
@@ -118,6 +119,8 @@ public:
 	  MonitoringServerInfo &svInfo, const OperationPrivilege &privilege);
 	virtual HatoholError deleteTargetServer(
 	  const ServerIdType &serverId, const OperationPrivilege &privilege);
+
+	void virtualDataStoreForeach(VirtualDataStoreForeachProc *vdsProc);
 
 protected:
 	virtual void fetchItems(

@@ -619,6 +619,12 @@ HatoholError UnifiedDataStore::deleteTargetServer(
 	return err;
 }
 
+void UnifiedDataStore::virtualDataStoreForeach(
+  VirtualDataStoreForeachProc *vdsProc)
+{
+	m_ctx->virtualDataStoreForeach(vdsProc);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
