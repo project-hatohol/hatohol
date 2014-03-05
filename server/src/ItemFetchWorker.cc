@@ -73,7 +73,6 @@ bool ItemFetchWorker::start(
 {
 	struct : public VirtualDataStoreForeachProc
 	{
-		ArmBaseVector arms;
 		DataStoreVector allDataStores;
 		virtual bool operator()(VirtualDataStore *virtDataStore)
 		{
@@ -82,7 +81,6 @@ bool ItemFetchWorker::start(
 			for (size_t i = 0; i < stores.size(); i++) {
 				DataStore *dataStore = stores[i];
 				allDataStores.push_back(dataStore);
-				arms.push_back(&dataStore->getArmBase());
 			}
 			return false;
 		}
@@ -93,14 +91,13 @@ bool ItemFetchWorker::start(
 	uds->virtualDataStoreForeach(&collector);
 	m_ctx->rwlock.unlock();
 
-	ArmBaseVector &arms = collector.arms;
-	if (arms.empty())
+	if (collector.allDataStores.empty())
 		return false;
 
 	m_ctx->rwlock.writeLock();
 	if (closure)
 	m_ctx->itemFetchedSignal.connect(closure);
-	m_ctx->remainingArmsCount = arms.size();
+	m_ctx->remainingArmsCount = collector.allDataStores.size();
 	for (size_t i = 0; i < collector.allDataStores.size(); i++) {
 		DataStore *dataStore = collector.allDataStores[i];
 
