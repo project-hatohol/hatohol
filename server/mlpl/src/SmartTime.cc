@@ -154,6 +154,15 @@ bool SmartTime::operator==(const SmartTime &rhs) const
 	return true;
 }
 
+bool SmartTime::operator>=(const SmartTime &rhs) const
+{
+	if (m_ctx->time.tv_sec > rhs.m_ctx->time.tv_sec)
+		return true;
+	if (m_ctx->time.tv_sec < rhs.m_ctx->time.tv_sec)
+		return false;
+	return m_ctx->time.tv_nsec >= rhs.m_ctx->time.tv_nsec;
+}
+
 SmartTime::operator std::string () const
 {
 	return StringUtils::sprintf("%ld.%09ld",
