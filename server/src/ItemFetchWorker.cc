@@ -37,7 +37,7 @@ struct ItemFetchWorker::PrivateContext
 	ReadWriteLock   rwlock;
 	DataStoreVector updateArmsQueue;
 	size_t          remainingArmsCount;
-	SmartTime       lastUpdateTime;
+	SmartTime       nextAllowedUpdateTime;
 	sem_t           updatedSemaphore;
 	Signal          itemFetchedSignal;
 
@@ -133,10 +133,7 @@ bool ItemFetchWorker::updateIsNeeded(void)
 		return false;
 
 	SmartTime currTime(SmartTime::INIT_CURR_TIME);
-	SmartTime banLiftTime(m_ctx->lastUpdateTime);
-	banLiftTime += m_ctx->minUpdateInterval;
-
-	return currTime >= banLiftTime;
+	return currTime >= m_ctx->nextAllowedUpdateTime;
 }
 
 void ItemFetchWorker::waitCompletion(void)
@@ -162,7 +159,8 @@ void ItemFetchWorker::updatedCallback(ClosureBase *closure)
 	if (m_ctx->remainingArmsCount == 0) {
 		if (sem_post(&m_ctx->updatedSemaphore) == -1)
 			MLPL_ERR("Failed to call sem_post: %d\n", errno);
-		m_ctx->lastUpdateTime.setCurrTime();
+		m_ctx->nextAllowedUpdateTime.setCurrTime();
+		m_ctx->nextAllowedUpdateTime += m_ctx->minUpdateInterval;
 		m_ctx->itemFetchedSignal();
 		m_ctx->itemFetchedSignal.clear();
 	}
