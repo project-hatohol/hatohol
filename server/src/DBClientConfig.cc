@@ -252,20 +252,6 @@ static const DBAgent::TableProfile tableProfileServers(
 static bool validIPv4Address(const string &ipAddress);
 static bool validIPv6Address(const string &ipAddress);
 
-string MonitoringServerInfo::getHostAddress(bool forURI) const
-{
-	if (ipAddress.empty())
-		return hostName;
-
-	if (!forURI)
-		return ipAddress;
-
-	if (!validIPv4Address(ipAddress) && validIPv6Address(ipAddress))
-		return StringUtils::sprintf("[%s]", ipAddress.c_str());
-	else
-		return ipAddress;
-}
-
 struct DBClientConfig::PrivateContext
 {
 	static DBConnectInfo connInfo;
@@ -300,6 +286,20 @@ static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
 // ---------------------------------------------------------------------------
 // MonitoringServerInfo
 // ---------------------------------------------------------------------------
+string MonitoringServerInfo::getHostAddress(bool forURI) const
+{
+	if (ipAddress.empty())
+		return hostName;
+
+	if (!forURI)
+		return ipAddress;
+
+	if (!validIPv4Address(ipAddress) && validIPv6Address(ipAddress))
+		return StringUtils::sprintf("[%s]", ipAddress.c_str());
+	else
+		return ipAddress;
+}
+
 void MonitoringServerInfo::initialize(MonitoringServerInfo &monSvInfo)
 {
 	monSvInfo.id = 0;
