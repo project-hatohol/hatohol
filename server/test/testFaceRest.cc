@@ -1487,7 +1487,7 @@ void test_hostsJsonp(void)
 
 void test_hostsForOneServer(void)
 {
-	assertHosts("/host", "foo", testTriggerInfo[0].serverId);
+	assertHosts("/host", "foo", 1);
 }
 
 void test_triggers(void)
