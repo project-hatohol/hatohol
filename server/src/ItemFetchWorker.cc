@@ -20,6 +20,7 @@
 #include <errno.h>
 #include <semaphore.h>
 #include <ReadWriteLock.h>
+#include <Reaper.h>
 #include "ItemFetchWorker.h"
 #include "UnifiedDataStore.h"
 #include "VirtualDataStore.h"
@@ -124,26 +125,21 @@ bool ItemFetchWorker::start(
 
 bool ItemFetchWorker::updateIsNeeded(void)
 {
-	bool shouldUpdate = true;
-
 	m_ctx->rwlock.readLock();
+	Reaper<ReadWriteLock> lockReaper(&m_ctx->rwlock, ReadWriteLock::unlock);
 
-	if (m_ctx->remainingArmsCount > 0) {
-		shouldUpdate = false;
-	} else {
-		timespec ts;
-		const time_t banLiftTime =
-		   m_ctx->lastUpdateTime.tv_sec + m_ctx->minUpdateInterval;
-		if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
-			MLPL_ERR("Failed to call clock_gettime: %d\n", errno);
-		} else if (ts.tv_sec < banLiftTime) {
-			shouldUpdate = false;
-		}
+	if (m_ctx->remainingArmsCount > 0)
+		return false;
+
+	timespec ts;
+	const time_t banLiftTime =
+	   m_ctx->lastUpdateTime.tv_sec + m_ctx->minUpdateInterval;
+	if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
+		MLPL_ERR("Failed to call clock_gettime: %d\n", errno);
+		return true;
 	}
 
-	m_ctx->rwlock.unlock();
-
-	return shouldUpdate;
+	return ts.tv_sec >= banLiftTime;
 }
 
 void ItemFetchWorker::waitCompletion(void)
