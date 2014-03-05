@@ -31,9 +31,6 @@
 using namespace std;
 using namespace mlpl;
 
-typedef map<MonitoringSystemType, VirtualDataStore *> VirtualDataStoreMap;
-typedef VirtualDataStoreMap::iterator                 VirtualDataStoreMapIterator;
-
 typedef map<ServerIdType, DataStore *> ServerIdDataStoreMap;
 typedef ServerIdDataStoreMap::iterator ServerIdDataStoreMapIterator;
 

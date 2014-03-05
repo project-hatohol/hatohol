@@ -68,6 +68,9 @@ private:
 typedef std::list<VirtualDataStore *>  VirtualDataStoreList;
 typedef VirtualDataStoreList::iterator VirtualDataStoreListIterator;
 
+typedef std::map<MonitoringSystemType, VirtualDataStore *> VirtualDataStoreMap;
+typedef VirtualDataStoreMap::iterator  VirtualDataStoreMapIterator;
+
 struct VirtualDataStoreForeachProc
 {
 	virtual bool operator()(VirtualDataStore *virtDataStore) = 0;
