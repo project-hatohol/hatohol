@@ -508,6 +508,7 @@ HatoholError UnifiedDataStore::updateTargetServer(
 	if (err != HTERR_OK)
 		return err;
 
+	// TODO: Use a direct way with the map
 	struct : public VirtualDataStoreForeachProc {
 		MonitoringServerInfo *svInfo;
 		virtual bool operator()(VirtualDataStore *virtDataStore) {
@@ -532,6 +533,7 @@ HatoholError UnifiedDataStore::deleteTargetServer(
 	if (err != HTERR_OK)
 		return err;
 
+	// TODO: Use a direct way with the map
 	struct : public VirtualDataStoreForeachProc {
 		ServerIdType serverId;
 		virtual bool operator()(VirtualDataStore *virtDataStore) {
