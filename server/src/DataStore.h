@@ -29,7 +29,7 @@ class DataStore : public UsedCountable {
 public:
 	DataStore(void);
 
-	virtual void collectArms(ArmBaseVector &arms);
+	virtual ArmBase &getArmBase(void) = 0;
 	virtual void setCopyOnDemandEnable(bool enable);
 protected:
 	virtual ~DataStore();

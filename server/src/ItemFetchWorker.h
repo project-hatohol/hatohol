@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -17,23 +17,31 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DataStoreNagios_h
-#define DataStoreNagios_h
+#ifndef ItemFetchWorker_h
+#define ItemFetchWorker_h
 
-#include "ArmNagiosNDOUtils.h"
+#include "Params.h"
+#include "Closure.h"
 #include "DataStore.h"
 
-class DataStoreNagios : public DataStore {
+class ItemFetchWorker
+{
 public:
-	DataStoreNagios(const MonitoringServerInfo &serverInfo,
-	                const bool &autoStart = true);
-	virtual ~DataStoreNagios();
+	ItemFetchWorker(void);
+	virtual ~ItemFetchWorker();
 
-	virtual ArmBase &getArmBase(void);
-	virtual void setCopyOnDemandEnable(bool enable);
+	bool start(const ServerIdType &targetServerId = ALL_SERVERS,
+	           ClosureBase *closure = NULL);
+	bool updateIsNeeded(void);
+	void waitCompletion(void);
+
+protected:
+	void updatedCallback(ClosureBase *closure);
+	void wakeArm(DataStore *dataStore);
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
 };
 
-#endif // DataStoreNagios_h
+#endif // ItemFetchWorker_h

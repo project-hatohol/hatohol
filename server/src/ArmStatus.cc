@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -17,46 +17,53 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DataStoreNagios.h"
-
 #include <cstdio>
+#include <ReadWriteLock.h>
+#include "ArmStatus.h"
 
-struct DataStoreNagios::PrivateContext
+using namespace mlpl;
+
+// ---------------------------------------------------------------------------
+// ArmInfo
+// ---------------------------------------------------------------------------
+ArmInfo::ArmInfo(void)
+: stat(ARM_WORK_STAT_INIT),
+  numTryToGet(0),
+  numFailure(0)
 {
-	ArmNagiosNDOUtils  armNDO;
+}
 
-	PrivateContext(const MonitoringServerInfo &serverInfo)
-	: armNDO(serverInfo)
-	{
-	}
+// ---------------------------------------------------------------------------
+// Private context
+// ---------------------------------------------------------------------------
+struct ArmStatus::PrivateContext {
+	ReadWriteLock rwlock;
+	ArmInfo       armInfo;
 };
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-DataStoreNagios::DataStoreNagios(
-  const MonitoringServerInfo &serverInfo, const bool &autoStart)
+ArmStatus::ArmStatus(void)
 : m_ctx(NULL)
 {
-	m_ctx = new PrivateContext(serverInfo);
-	if (autoStart)
-		m_ctx->armNDO.start();
+	m_ctx = new PrivateContext();
 }
 
-DataStoreNagios::~DataStoreNagios()
+ArmStatus::~ArmStatus()
 {
 	if (m_ctx)
 		delete m_ctx;
 }
 
-ArmBase &DataStoreNagios::getArmBase(void)
+ArmInfo ArmStatus::getArmInfo(void) const
 {
-	return m_ctx->armNDO;
-}
-
-void DataStoreNagios::setCopyOnDemandEnable(bool enable)
-{
-	m_ctx->armNDO.setCopyOnDemandEnabled(enable);
+	// This method returns a copy for MT-safe.
+	ArmInfo armInfo;
+	m_ctx->rwlock.readLock();
+	armInfo = m_ctx->armInfo;
+	m_ctx->rwlock.unlock();
+	return armInfo;
 }
 
 // ---------------------------------------------------------------------------

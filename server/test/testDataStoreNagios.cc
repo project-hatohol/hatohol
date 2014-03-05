@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -17,22 +17,33 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DataStore.h"
+#include <cppcutter.h>
+#include "DataStoreNagios.h"
+#include "Hatohol.h"
+#include "ArmNagiosNDOUtils.h"
 
-// ---------------------------------------------------------------------------
-// Public methods
-// ---------------------------------------------------------------------------
-DataStore::DataStore(void)
+using namespace mlpl;
+
+namespace testDataStoreNagios {
+
+void cut_setup(void)
 {
+	hatoholInit();
 }
 
-void DataStore::setCopyOnDemandEnable(bool enable)
+// ---------------------------------------------------------------------------
+// Test cases
+// ---------------------------------------------------------------------------
+void test_getArmBase(void)
 {
+	MonitoringServerInfo serverInfo;
+	serverInfo.id = 5;
+	UsedCountablePtr<DataStoreNagios>
+	  dataStoreNagiosPtr(new DataStoreNagios(serverInfo, false), false);
+	ArmBase &armBase = dataStoreNagiosPtr->getArmBase();
+	cppcut_assert_equal(typeid(ArmNagiosNDOUtils), typeid(armBase));
 }
 
-// ---------------------------------------------------------------------------
-// Protected methods
-// ---------------------------------------------------------------------------
-DataStore::~DataStore()
-{
-}
+} // namespace testDataStoreNagios
+
+

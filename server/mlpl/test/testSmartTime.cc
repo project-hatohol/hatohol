@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -21,8 +21,10 @@
 #include <sys/time.h>
 #include <errno.h>
 #include <cmath>
+#include <gcutter.h>
 #include "SmartTime.h"
 
+using namespace std;
 using namespace mlpl;
 
 namespace testSmartTime {
@@ -224,6 +226,90 @@ void test_operatorMinusSubstResultMinus(void)
 void test_operatorMinusSubstBorrowResultMinus(void)
 {
 	assertOperatorMinusSubst(false, false);
+}
+
+void test_operatorEqual(void)
+{
+	timespec ts = {1393897643, 987654321};
+	SmartTime stime0(ts);
+	SmartTime stime1(ts);
+	cppcut_assert_equal(true, stime0 == stime1);
+}
+
+void test_operatorEqualDiffNSec(void)
+{
+	timespec ts0 = {1393897643, 987654321};
+	timespec ts1 = {1393897643, 123456789};
+	SmartTime stime0(ts0);
+	SmartTime stime1(ts1);
+	cppcut_assert_equal(false, stime0 == stime1);
+}
+
+void test_operatorEqualDiffSec(void)
+{
+	timespec ts0 = {1393897643, 987654321};
+	timespec ts1 = {1393897000, 987654321};
+	SmartTime stime0(ts0);
+	SmartTime stime1(ts1);
+	cppcut_assert_equal(false, stime0 == stime1);
+}
+
+void data_operatorGreaterOrEqual(void)
+{
+	gcut_add_datum("Second of LHS is greater",
+	               "secLhs", G_TYPE_INT, 1393897001, "nsLhs",  G_TYPE_INT,  987654321,
+	               "secRhs", G_TYPE_INT, 1393897000, "nsRhs",  G_TYPE_INT,  987654321,
+	               "expect", G_TYPE_BOOLEAN, TRUE,
+	               NULL);
+	gcut_add_datum("Nanosecond of LHS is greater",
+	               "secLhs", G_TYPE_INT, 1393897000, "nsLhs",  G_TYPE_INT,  987654322,
+	               "secRhs", G_TYPE_INT, 1393897000, "nsRhs",  G_TYPE_INT,  987654321,
+	               "expect", G_TYPE_BOOLEAN, TRUE,
+	               NULL);
+	gcut_add_datum("Equal",
+	               "secLhs", G_TYPE_INT, 1393897000, "nsLhs",  G_TYPE_INT,  987654321,
+	               "secRhs", G_TYPE_INT, 1393897000, "nsRhs",  G_TYPE_INT,  987654321,
+	               "expect", G_TYPE_BOOLEAN, TRUE,
+	               NULL);
+	gcut_add_datum("Second of LHS is smaller",
+	               "secLhs", G_TYPE_INT, 1393897000, "nsLhs",  G_TYPE_INT,  987654321,
+	               "secRhs", G_TYPE_INT, 1393897001, "nsRhs",  G_TYPE_INT,  987654321,
+	               "expect", G_TYPE_BOOLEAN, FALSE,
+	               NULL);
+	gcut_add_datum("Nanosecond of LHS is smaller",
+	               "secLhs", G_TYPE_INT, 1393897000, "nsLhs",  G_TYPE_INT,  987654320,
+	               "secRhs", G_TYPE_INT, 1393897000, "nsRhs",  G_TYPE_INT,  987654321,
+	               "expect", G_TYPE_BOOLEAN, FALSE,
+	               NULL);
+}
+
+void test_operatorGreaterOrEqual(gconstpointer data)
+{
+	timespec ts0 = {gcut_data_get_int(data, "secLhs"),
+	                gcut_data_get_int(data, "nsLhs")};
+	timespec ts1 = {gcut_data_get_int(data, "secRhs"),
+	                gcut_data_get_int(data, "nsRhs")};
+	const bool expect = gcut_data_get_boolean(data, "expect");
+	SmartTime stime0(ts0);
+	SmartTime stime1(ts1);
+	cppcut_assert_equal(expect, stime0 >= stime1);
+}
+
+void test_operatorOStream(void)
+{
+	timespec ts = {1234567890, 12345678};
+	const SmartTime stime(ts);
+	ostringstream ss; 
+	ss << stime;
+	cppcut_assert_equal(string("1234567890.012345678"), ss.str());
+}
+
+void test_operatorCastToString(void)
+{
+	timespec ts = {1234567890, 1234567};
+	const SmartTime stime(ts);
+	cppcut_assert_equal(string("1234567890.001234567"),
+	                    static_cast<string>(stime));
 }
 
 } // namespace testSmartTime

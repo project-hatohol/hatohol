@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -20,9 +20,11 @@
 #include <cmath>
 #include <sys/time.h>
 #include <errno.h>
+#include "StringUtils.h"
 #include "SmartTime.h"
 #include "Logger.h"
 
+using namespace std;
 using namespace mlpl;
 
 struct SmartTime::PrivateContext {
@@ -35,6 +37,12 @@ struct SmartTime::PrivateContext {
 		time.tv_nsec = 0;
 	}
 };
+
+ostream &operator<<(std::ostream &os, const SmartTime &stime)
+{
+	os << static_cast<string>(stime);
+	return os;
+}
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -135,4 +143,28 @@ SmartTime &SmartTime::operator=(const SmartTime &rhs)
 	m_ctx->time.tv_sec  = rhs.m_ctx->time.tv_sec;
 	m_ctx->time.tv_nsec = rhs.m_ctx->time.tv_nsec;
 	return *this;
+}
+
+bool SmartTime::operator==(const SmartTime &rhs) const
+{
+	if (m_ctx->time.tv_sec != rhs.m_ctx->time.tv_sec)
+		return false;
+	if (m_ctx->time.tv_nsec != rhs.m_ctx->time.tv_nsec)
+		return false;
+	return true;
+}
+
+bool SmartTime::operator>=(const SmartTime &rhs) const
+{
+	if (m_ctx->time.tv_sec > rhs.m_ctx->time.tv_sec)
+		return true;
+	if (m_ctx->time.tv_sec < rhs.m_ctx->time.tv_sec)
+		return false;
+	return m_ctx->time.tv_nsec >= rhs.m_ctx->time.tv_nsec;
+}
+
+SmartTime::operator std::string () const
+{
+	return StringUtils::sprintf("%ld.%09ld",
+	                            m_ctx->time.tv_sec, m_ctx->time.tv_nsec);
 }

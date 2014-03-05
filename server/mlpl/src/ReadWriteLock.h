@@ -32,6 +32,8 @@ public:
 	void writeLock(void);
 	void unlock(void);
 
+	static void unlock(ReadWriteLock *rwlock);
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;

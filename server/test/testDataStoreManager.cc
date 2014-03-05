@@ -18,11 +18,35 @@
  */
 
 #include <cppcutter.h>
+#include "ArmBase.h"
 #include "DataStoreManager.h"
 
 namespace testDataStoreManager {
 
 DataStore *g_dataStore = NULL;
+
+static MonitoringServerInfo testMonitoringServerInfo;
+
+class TestArmBase : public ArmBase {
+public:
+	TestArmBase(void)
+	: ArmBase("TestArmBase", testMonitoringServerInfo)
+	{
+	}
+
+	virtual bool mainThreadOneProc(void) // override
+	{
+		return true;
+	}
+};
+
+class TestDataStore : public DataStore {
+	TestArmBase armBase;
+	ArmBase &getArmBase(void)
+	{
+		return armBase;
+	}
+};
 
 static void deleteDataStore(DataStore *dataStore)
 {
@@ -32,6 +56,15 @@ static void deleteDataStore(DataStore *dataStore)
 		if (usedCnt == 1)
 			break;
 	}
+}
+
+void cut_startup(void)
+{
+	testMonitoringServerInfo.id = 100;
+	testMonitoringServerInfo.type = NUM_MONITORING_SYSTEMS;
+	testMonitoringServerInfo.port = 0;
+	testMonitoringServerInfo.pollingIntervalSec = 30;
+	testMonitoringServerInfo.retryIntervalSec = 30;
 }
 
 void cut_teardown(void)
@@ -49,7 +82,7 @@ void test_addAndRemove(void)
 {
 	const uint32_t storeId = 50;
 
-	g_dataStore = new DataStore();
+	g_dataStore = new TestDataStore();
 	cppcut_assert_equal(1, g_dataStore->getUsedCount());
 	DataStoreManager mgr;
 	mgr.add(storeId, g_dataStore);
@@ -62,7 +95,7 @@ void test_hasDataStore(void)
 {
 	const uint32_t storeId = 50;
 
-	g_dataStore = new DataStore();
+	g_dataStore = new TestDataStore();
 	DataStoreManager mgr;
 	cppcut_assert_equal(false, mgr.hasDataStore(storeId));
 	mgr.add(storeId, g_dataStore);

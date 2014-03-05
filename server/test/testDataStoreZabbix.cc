@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -17,22 +17,32 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DataStore.h"
+#include <cppcutter.h>
+#include "DataStoreZabbix.h"
+#include "Hatohol.h"
+#include "ArmZabbixAPI.h"
 
-// ---------------------------------------------------------------------------
-// Public methods
-// ---------------------------------------------------------------------------
-DataStore::DataStore(void)
+using namespace mlpl;
+
+namespace testDataStoreZabbix {
+
+void cut_setup(void)
 {
+	hatoholInit();
 }
 
-void DataStore::setCopyOnDemandEnable(bool enable)
+// ---------------------------------------------------------------------------
+// Test cases
+// ---------------------------------------------------------------------------
+void test_getArmBase(void)
 {
+	MonitoringServerInfo serverInfo;
+	serverInfo.id = 5;
+	UsedCountablePtr<DataStoreZabbix>
+	  dataStoreZabbixPtr(new DataStoreZabbix(serverInfo, false), false);
+	ArmBase &armBase = dataStoreZabbixPtr->getArmBase();
+	cppcut_assert_equal(typeid(ArmZabbixAPI), typeid(armBase));
 }
 
-// ---------------------------------------------------------------------------
-// Protected methods
-// ---------------------------------------------------------------------------
-DataStore::~DataStore()
-{
-}
+} // namespace testDataStoreZabbix
+

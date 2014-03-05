@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -21,6 +21,7 @@
 #define SmartTime_h
 
 #include <time.h>
+#include <ostream>
 
 namespace mlpl {
 
@@ -47,6 +48,9 @@ public:
 	SmartTime &operator+=(const timespec &rhs);
 	SmartTime &operator-=(const SmartTime &rhs);
 	SmartTime &operator=(const SmartTime &rhs);
+	bool operator==(const SmartTime &rhs) const;
+	bool operator>=(const SmartTime &rhs) const;
+	operator std::string () const;
 
 private:
 	struct PrivateContext;
@@ -54,5 +58,7 @@ private:
 };
 
 } // namespace mlpl
+
+std::ostream &operator<<(std::ostream &os, const mlpl::SmartTime &stime);
 
 #endif // SmartTime_h

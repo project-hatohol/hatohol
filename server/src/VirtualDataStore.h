@@ -83,4 +83,9 @@ protected:
 typedef std::list<VirtualDataStore *>  VirtualDataStoreList;
 typedef VirtualDataStoreList::iterator VirtualDataStoreListIterator;
 
+struct VirtualDataStoreForeachProc
+{
+	virtual bool operator()(VirtualDataStore *virtDataStore) = 0;
+};
+
 #endif // VirtualDataStore_h

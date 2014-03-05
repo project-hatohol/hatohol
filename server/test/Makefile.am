@@ -30,6 +30,7 @@ testHatohol_la_SOURCES = \
 	testConfigManager.cc \
 	testDataQueryContext.cc testDataQueryOption.cc \
 	testDataStoreManager.cc \
+	testDataStoreZabbix.cc testDataStoreNagios.cc \
 	testHatoholError.cc \
 	testHatoholException.cc testSQLProcessorException.cc \
 	testHatoholThreadBase.cc \
@@ -58,6 +59,7 @@ testHatohol_la_SOURCES = \
 	testNamedPipe.cc \
 	testArmBase.cc \
 	testArmZabbixAPI.cc testArmNagiosNDOUtils.cc \
+	testArmStatus.cc \
 	testUsedCountable.cc \
 	testUnifiedDataStore.cc testMain.cc
 testHatohol_la_LDFLAGS = $(AM_LDFLAGS) $(LIBS)

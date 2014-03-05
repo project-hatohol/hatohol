@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -17,22 +17,29 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DataStore.h"
+#include <cppcutter.h>
+#include <SmartTime.h>
+#include "ArmStatus.h"
+
+using namespace mlpl;
+
+namespace testArmStatus {
 
 // ---------------------------------------------------------------------------
-// Public methods
+// Test cases
 // ---------------------------------------------------------------------------
-DataStore::DataStore(void)
+void test_getArmInfoInitial(void)
 {
+	ArmStatus armStatus;
+	const ArmInfo armInfo = armStatus.getArmInfo();
+	const SmartTime initTime;
+	cppcut_assert_equal(ARM_WORK_STAT_INIT, armInfo.stat);
+	cppcut_assert_equal(true, armInfo.failureComment.empty());
+	cppcut_assert_equal(initTime, armInfo.statUpdateTime);
+	cppcut_assert_equal(initTime, armInfo.lastSuccessTime);
+	cppcut_assert_equal(initTime, armInfo.lastFailureTime);
+	cppcut_assert_equal((size_t)0, armInfo.numTryToGet);
+	cppcut_assert_equal((size_t)0, armInfo.numFailure);
 }
 
-void DataStore::setCopyOnDemandEnable(bool enable)
-{
-}
-
-// ---------------------------------------------------------------------------
-// Protected methods
-// ---------------------------------------------------------------------------
-DataStore::~DataStore()
-{
-}
+} // namespace testArmStatus

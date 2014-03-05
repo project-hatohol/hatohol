@@ -17,8 +17,6 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <semaphore.h>
-#include <errno.h>
 #include <stdexcept>
 #include <MutexLock.h>
 #include "UnifiedDataStore.h"
@@ -28,6 +26,7 @@
 #include "DBClientConfig.h"
 #include "ActionManager.h"
 #include "CacheServiceDBClient.h"
+#include "ItemFetchWorker.h"
 using namespace std;
 using namespace mlpl;
 
@@ -59,187 +58,25 @@ struct UnifiedDataStoreEventProc : public DataStoreEventProc
 // ---------------------------------------------------------------------------
 struct UnifiedDataStore::PrivateContext
 {
-	const static size_t      maxRunningArms    = 8;
-	const static time_t      minUpdateInterval = 10;
 	static UnifiedDataStore *instance;
 	static MutexLock         mutex;
 
-	VirtualDataStoreList virtualDataStoreList;
-
-	bool          isCopyOnDemandEnabled;
-	sem_t         updatedSemaphore;
-	ReadWriteLock rwlock;
-	timespec      lastUpdateTime;
-	size_t        remainingArmsCount;
-	DataStoreVector updateArmsQueue;
-
-	Signal        itemFetchedSignal;
+	bool                     isCopyOnDemandEnabled;
+	ItemFetchWorker          itemFetchWorker;
 
 	PrivateContext()
-	: isCopyOnDemandEnabled(false), remainingArmsCount(0)
+	: isCopyOnDemandEnabled(false)
 	{
-		sem_init(&updatedSemaphore, 0, 0);
-		lastUpdateTime.tv_sec  = 0;
-		lastUpdateTime.tv_nsec = 0;
-	};
-
-	virtual ~PrivateContext()
-	{
-		sem_destroy(&updatedSemaphore);
-	};
-
-	static ArmBase *getArmBase(DataStore *dataStore)
-	{
-		// TODO: Make the design smart.
-		// We assume each DataStore has one arm.
-		ArmBaseVector arms;
-		dataStore->collectArms(arms);
-		HATOHOL_ASSERT(arms.size() == 1,
-		               "arms.size(): %zd", arms.size());
-		return arms.front();
-	}
-
-	void wakeArm(DataStore *dataStore)
-	{
-		struct ClosureWithDataStore : public Closure<PrivateContext>
-		{
-			DataStore *dataStore;
-
-			ClosureWithDataStore(PrivateContext *ctx, DataStore *ds)
-			: Closure<PrivateContext>(
-			    ctx, &PrivateContext::updatedCallback),
-			  dataStore(ds)
-			{
-			}
-
-			~ClosureWithDataStore()
-			{
-				dataStore->unref();
-			}
-		};
-
-		ArmBase *arm = getArmBase(dataStore);
-		arm->fetchItems(new ClosureWithDataStore(this, dataStore));
-	}
-
-	bool updateIsNeeded(void)
-	{
-		bool shouldUpdate = true;
-
-		rwlock.readLock();
-
-		if (remainingArmsCount > 0) {
-			shouldUpdate = false;
-		} else {
-			timespec ts;
-			time_t banLiftTime
-			  = lastUpdateTime.tv_sec + minUpdateInterval;
-			if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
-				MLPL_ERR("Failed to call clock_gettime: %d\n",
-					 errno);
-			} else if (ts.tv_sec < banLiftTime) {
-				shouldUpdate = false;
-			}
-		}
-
-		rwlock.unlock();
-
-		return shouldUpdate;
-	}
-
-	void updatedCallback(ClosureBase *closure)
-	{
-		rwlock.writeLock();
-
-		if (!updateArmsQueue.empty()) {
-			wakeArm(updateArmsQueue.front());
-			updateArmsQueue.erase(updateArmsQueue.begin());
-		}
-
-		remainingArmsCount--;
-		if (remainingArmsCount == 0) {
-			if (sem_post(&updatedSemaphore) == -1)
-				MLPL_ERR("Failed to call sem_post: %d\n",
-					 errno);
-			if (clock_gettime(CLOCK_REALTIME, &lastUpdateTime) == -1)
-				MLPL_ERR("Failed to call clock_gettime: %d\n",
-					 errno);
-			itemFetchedSignal();
-			itemFetchedSignal.clear();
-		}
-
-		rwlock.unlock();
-	}
-
-	bool startFetchingItems(
-	  const ServerIdType &targetServerId = ALL_SERVERS,
-	  ClosureBase *closure = NULL)
-	{
-		// TODO: Make the design smart
-		struct : public VirtualDataStoreForeachProc
-		{
-			ArmBaseVector arms;
-			DataStoreVector allDataStores;
-			virtual bool operator()(VirtualDataStore *virtDataStore)
-			{
-				DataStoreVector stores =
-				  virtDataStore->getDataStoreVector();
-				for (size_t i = 0; i < stores.size(); i++) {
-					DataStore *dataStore = stores[i];
-					allDataStores.push_back(dataStore);
-					arms.push_back(getArmBase(dataStore));
-				}
-				return false;
-			}
-		} collector;
-
-		rwlock.readLock();
-		virtualDataStoreForeach(&collector);
-		rwlock.unlock();
-
-		ArmBaseVector &arms = collector.arms;
-		if (arms.empty())
-			return false;
-
-		rwlock.writeLock();
-		if (closure)
-			itemFetchedSignal.connect(closure);
-		remainingArmsCount = arms.size();
-		for (size_t i = 0; i < collector.allDataStores.size(); i++) {
-			DataStore *dataStore = collector.allDataStores[i];
-			ArmBase *arm = getArmBase(dataStore);
-
-			if (targetServerId != ALL_SERVERS) {
-				const MonitoringServerInfo &info
-					= arm->getServerInfo();
-				if (static_cast<int>(targetServerId) != info.id) {
-					remainingArmsCount--;
-					dataStore->unref();
-					continue;
-				}
-			}
-
-			if (i < PrivateContext::maxRunningArms) {
-				wakeArm(dataStore);
-			} else {
-				updateArmsQueue.push_back(dataStore);
-			}
-		}
-
-		bool started = remainingArmsCount > 0;
-
-		rwlock.unlock();
-
-		return started;
-	}
-
-	struct VirtualDataStoreForeachProc
-	{
-		virtual bool operator()(VirtualDataStore *virtDataStore) = 0;
+		virtualDataStoreList.push_back(
+		  VirtualDataStoreZabbix::getInstance());
+		virtualDataStoreList.push_back(
+		  VirtualDataStoreNagios::getInstance());
 	};
 
 	void virtualDataStoreForeach(VirtualDataStoreForeachProc *vdsProc)
 	{
+		// We assume that virtualDataStoreList is not changed
+		// after the initialization. So we don't need to take a lock.
 		VirtualDataStoreListIterator it = virtualDataStoreList.begin();
 		for (; it != virtualDataStoreList.end(); ++it) {
 			bool breakFlag = (*vdsProc)(*it);
@@ -247,6 +84,12 @@ struct UnifiedDataStore::PrivateContext
 				break;
 		}
 	}
+
+private:
+	// We assume that the following list is initialized once at
+	// the constructor. This is a limitation to realize a lock-free
+	// structure.
+	VirtualDataStoreList virtualDataStoreList;
 };
 
 UnifiedDataStore *UnifiedDataStore::PrivateContext::instance = NULL;
@@ -259,10 +102,6 @@ UnifiedDataStore::UnifiedDataStore(void)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
-	m_ctx->virtualDataStoreList.push_back(
-	  VirtualDataStoreZabbix::getInstance());
-	m_ctx->virtualDataStoreList.push_back(
-	  VirtualDataStoreNagios::getInstance());
 }
 
 UnifiedDataStore::~UnifiedDataStore()
@@ -297,7 +136,7 @@ UnifiedDataStore *UnifiedDataStore::getInstance(void)
 
 void UnifiedDataStore::start(void)
 {
-	struct : public PrivateContext::VirtualDataStoreForeachProc
+	struct : public VirtualDataStoreForeachProc
 	{
 		UnifiedDataStoreEventProc *evtProc;
 		virtual bool operator()(VirtualDataStore *virtDataStore)
@@ -315,7 +154,7 @@ void UnifiedDataStore::start(void)
 
 void UnifiedDataStore::stop(void)
 {
-	struct : public PrivateContext::VirtualDataStoreForeachProc
+	struct : public VirtualDataStoreForeachProc
 	{
 		virtual bool operator()(VirtualDataStore *virtDataStore)
 		{
@@ -331,15 +170,14 @@ void UnifiedDataStore::fetchItems(const ServerIdType &targetServerId)
 {
 	if (!getCopyOnDemandEnabled())
 		return;
-	if (!m_ctx->updateIsNeeded())
+	if (!m_ctx->itemFetchWorker.updateIsNeeded())
 		return;
 
-	bool started = m_ctx->startFetchingItems(targetServerId, NULL);
+	bool started = m_ctx->itemFetchWorker.start(targetServerId, NULL);
 	if (!started)
 		return;
 
-	if (sem_wait(&m_ctx->updatedSemaphore) == -1)
-		MLPL_ERR("Failed to call sem_wait: %d\n", errno);
+	m_ctx->itemFetchWorker.waitCompletion();
 }
 
 void UnifiedDataStore::getTriggerList(TriggerInfoList &triggerList,
@@ -371,10 +209,10 @@ bool UnifiedDataStore::fetchItemsAsync(ClosureBase *closure,
 {
 	if (!getCopyOnDemandEnabled())
 		return false;
-	if (!m_ctx->updateIsNeeded())
+	if (!m_ctx->itemFetchWorker.updateIsNeeded())
 		return false;
 
-	return m_ctx->startFetchingItems(targetServerId, closure);
+	return m_ctx->itemFetchWorker.start(targetServerId, closure);
 }
 
 void UnifiedDataStore::getHostgroupList(HostgroupInfoList &hostgroupInfoList,
@@ -570,7 +408,7 @@ HatoholError UnifiedDataStore::addTargetServer(
 	if (err != HTERR_OK)
 		return err;
 
-	struct : public PrivateContext::VirtualDataStoreForeachProc {
+	struct : public VirtualDataStoreForeachProc {
 		MonitoringServerInfo *svInfo;
 		virtual bool operator()(VirtualDataStore *virtDataStore) {
 			bool started = virtDataStore->start(*svInfo);
@@ -592,7 +430,7 @@ HatoholError UnifiedDataStore::updateTargetServer(
 	if (err != HTERR_OK)
 		return err;
 
-	struct : public PrivateContext::VirtualDataStoreForeachProc {
+	struct : public VirtualDataStoreForeachProc {
 		MonitoringServerInfo *svInfo;
 		virtual bool operator()(VirtualDataStore *virtDataStore) {
 			bool stopped = virtDataStore->stop(svInfo->id);
@@ -617,7 +455,7 @@ HatoholError UnifiedDataStore::deleteTargetServer(
 	if (err != HTERR_OK)
 		return err;
 
-	struct : public PrivateContext::VirtualDataStoreForeachProc {
+	struct : public VirtualDataStoreForeachProc {
 		ServerIdType serverId;
 		virtual bool operator()(VirtualDataStore *virtDataStore) {
 			bool stopped = virtDataStore->stop(serverId);
@@ -628,6 +466,12 @@ HatoholError UnifiedDataStore::deleteTargetServer(
 	stopper.serverId = serverId;
 	m_ctx->virtualDataStoreForeach(&stopper);
 	return err;
+}
+
+void UnifiedDataStore::virtualDataStoreForeach(
+  VirtualDataStoreForeachProc *vdsProc)
+{
+	m_ctx->virtualDataStoreForeach(vdsProc);
 }
 
 // ---------------------------------------------------------------------------

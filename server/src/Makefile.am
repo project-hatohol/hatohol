@@ -12,6 +12,7 @@ libhatohol_la_SOURCES = \
 	ArmZabbixAPI-template.h \
 	ArmZabbixAPI.cc ArmZabbixAPI.h \
 	ArmCeilometer.cc ArmCeilometer.h \
+	ArmStatus.cc ArmStatus.h \
 	Closure.cc Closure.h \
 	CacheServiceDBClient.cc CacheServiceDBClient.h \
 	ConfigManager.cc ConfigManager.h \
@@ -47,6 +48,7 @@ libhatohol_la_SOURCES = \
 	ItemDataPtr.h \
 	ItemDataUtils.cc ItemDataUtils.h \
 	ItemEnum.h \
+	ItemFetchWorker.cc ItemFetchWorker.h \
 	ItemGroup.cc ItemGroup.h \
 	ItemGroupStream.cc ItemGroupStream.h \
 	ItemGroupEnum.h \
