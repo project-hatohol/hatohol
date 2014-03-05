@@ -25,6 +25,7 @@
 #include "DBClientHatohol.h"
 
 enum MonitoringSystemType {
+	MONITORING_SYSTEM_UNKNOWN = -1,
 	MONITORING_SYSTEM_ZABBIX,
 	MONITORING_SYSTEM_NAGIOS,
 	NUM_MONITORING_SYSTEMS,
@@ -70,6 +71,8 @@ struct MonitoringServerInfo {
 	 * it is returned.
 	 */
 	std::string getHostAddress(bool forURI = false) const;
+
+	static void initialize(MonitoringServerInfo &monitroingServerInfo);
 };
 
 typedef std::list<MonitoringServerInfo>    MonitoringServerInfoList;

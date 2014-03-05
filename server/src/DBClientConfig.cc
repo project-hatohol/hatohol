@@ -298,6 +298,18 @@ static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
 }
 
 // ---------------------------------------------------------------------------
+// MonitoringServerInfo
+// ---------------------------------------------------------------------------
+void MonitoringServerInfo::initialize(MonitoringServerInfo &monSvInfo)
+{
+	monSvInfo.id = 0;
+	monSvInfo.type = MONITORING_SYSTEM_UNKNOWN;
+	monSvInfo.port               = 0;
+	monSvInfo.pollingIntervalSec = 0;
+	monSvInfo.retryIntervalSec   = 0;
+}
+
+// ---------------------------------------------------------------------------
 // ServerQueryOption
 // ---------------------------------------------------------------------------
 struct ServerQueryOption::PrivateContext {
