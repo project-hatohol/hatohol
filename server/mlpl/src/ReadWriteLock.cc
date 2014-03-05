@@ -64,3 +64,8 @@ void ReadWriteLock::unlock(void)
 {
 	pthread_rwlock_unlock(&m_ctx->rwlock);
 }
+
+void ReadWriteLock::unlock(ReadWriteLock *rwlock)
+{
+	rwlock->unlock();
+}

@@ -119,4 +119,11 @@ void test_readFromMultipleThreadWithWriteLock(void)
 	}
 }
 
+void test_staticUnlock(void)
+{
+	ReadWriteLock lock;
+	lock.readLock();
+	ReadWriteLock::unlock(&lock);
+}
+
 } // namespace testReadWriteLock
