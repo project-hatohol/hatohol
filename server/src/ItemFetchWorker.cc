@@ -148,6 +148,7 @@ void ItemFetchWorker::waitCompletion(void)
 void ItemFetchWorker::updatedCallback(ClosureBase *closure)
 {
 	m_ctx->rwlock.writeLock();
+	Reaper<ReadWriteLock> lockReaper(&m_ctx->rwlock, ReadWriteLock::unlock);
 
 	DataStoreVector &updateArmsQueue = m_ctx->updateArmsQueue;
 	if (!updateArmsQueue.empty()) {
@@ -156,16 +157,15 @@ void ItemFetchWorker::updatedCallback(ClosureBase *closure)
 	}
 
 	m_ctx->remainingArmsCount--;
-	if (m_ctx->remainingArmsCount == 0) {
-		if (sem_post(&m_ctx->updatedSemaphore) == -1)
-			MLPL_ERR("Failed to call sem_post: %d\n", errno);
-		m_ctx->nextAllowedUpdateTime.setCurrTime();
-		m_ctx->nextAllowedUpdateTime += m_ctx->minUpdateInterval;
-		m_ctx->itemFetchedSignal();
-		m_ctx->itemFetchedSignal.clear();
-	}
+	if (m_ctx->remainingArmsCount > 0)
+		return;
 
-	m_ctx->rwlock.unlock();
+	if (sem_post(&m_ctx->updatedSemaphore) == -1)
+		MLPL_ERR("Failed to call sem_post: %d\n", errno);
+	m_ctx->nextAllowedUpdateTime.setCurrTime();
+	m_ctx->nextAllowedUpdateTime += m_ctx->minUpdateInterval;
+	m_ctx->itemFetchedSignal();
+	m_ctx->itemFetchedSignal.clear();
 }
 
 void ItemFetchWorker::wakeArm(DataStore *dataStore)
