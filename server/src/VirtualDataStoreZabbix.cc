@@ -180,6 +180,7 @@ ItemTablePtr VirtualDataStoreZabbix::getHosts(void)
 // Private methods
 // ---------------------------------------------------------------------------
 VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
+: VirtualDataStore(MONITORING_SYSTEM_ZABBIX)
 {
 	ItemTable *table;
 	VariableItemGroupPtr grp;

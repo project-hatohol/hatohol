@@ -20,15 +20,24 @@
 #include "VirtualDataStore.h"
 using namespace mlpl;
 
+struct VirtualDataStore::PrivateContext {
+	MonitoringSystemType monitoringSystemType;
+};
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-VirtualDataStore::VirtualDataStore(void)
+VirtualDataStore::VirtualDataStore(const MonitoringSystemType &monSysType)
+: m_ctx(NULL)
 {
+	m_ctx = new PrivateContext();
+	m_ctx->monitoringSystemType = monSysType;
 }
 
 VirtualDataStore::~VirtualDataStore(void)
 {
+	if (m_ctx)
+		delete m_ctx;
 }
 
 void VirtualDataStore::start(const bool &autoRun)

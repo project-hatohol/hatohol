@@ -69,7 +69,8 @@ HatoholError VirtualDataStoreNagios::start(const MonitoringServerInfo &svInfo,
 // Protected methods
 // ---------------------------------------------------------------------------
 VirtualDataStoreNagios::VirtualDataStoreNagios(void)
-: m_ctx(NULL)
+: VirtualDataStore(MONITORING_SYSTEM_NAGIOS),
+  m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 }

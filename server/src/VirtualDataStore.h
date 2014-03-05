@@ -30,7 +30,7 @@
 class VirtualDataStore : public DataStoreManager
 {
 public:
-	VirtualDataStore(void);
+	VirtualDataStore(const MonitoringSystemType &monSysType);
 	virtual ~VirtualDataStore(void);
 
 	/**
@@ -86,6 +86,10 @@ protected:
 		}
 		return HTERR_OK;
 	}
+
+private:
+	struct PrivateContext;
+	PrivateContext *m_ctx;;
 };
 
 typedef std::list<VirtualDataStore *>  VirtualDataStoreList;
