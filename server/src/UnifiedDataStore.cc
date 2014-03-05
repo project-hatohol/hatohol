@@ -64,8 +64,6 @@ struct UnifiedDataStore::PrivateContext
 	static UnifiedDataStore *instance;
 	static MutexLock         mutex;
 
-	VirtualDataStoreList virtualDataStoreList;
-
 	bool          isCopyOnDemandEnabled;
 	sem_t         updatedSemaphore;
 	ReadWriteLock rwlock;
@@ -82,6 +80,11 @@ struct UnifiedDataStore::PrivateContext
 		sem_init(&updatedSemaphore, 0, 0);
 		lastUpdateTime.tv_sec  = 0;
 		lastUpdateTime.tv_nsec = 0;
+
+		virtualDataStoreList.push_back(
+		  VirtualDataStoreZabbix::getInstance());
+		virtualDataStoreList.push_back(
+		  VirtualDataStoreNagios::getInstance());
 	};
 
 	virtual ~PrivateContext()
@@ -227,6 +230,8 @@ struct UnifiedDataStore::PrivateContext
 
 	void virtualDataStoreForeach(VirtualDataStoreForeachProc *vdsProc)
 	{
+		// We assume that virtualDataStoreList is not changed
+		// after the initialization. So we don't need to take a lock.
 		VirtualDataStoreListIterator it = virtualDataStoreList.begin();
 		for (; it != virtualDataStoreList.end(); ++it) {
 			bool breakFlag = (*vdsProc)(*it);
@@ -234,6 +239,12 @@ struct UnifiedDataStore::PrivateContext
 				break;
 		}
 	}
+
+private:
+	// We assume that the following list is initialized once at
+	// the constructor. This is a limitation to realize a lock-free
+	// structure.
+	VirtualDataStoreList virtualDataStoreList;
 };
 
 UnifiedDataStore *UnifiedDataStore::PrivateContext::instance = NULL;
@@ -246,10 +257,6 @@ UnifiedDataStore::UnifiedDataStore(void)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
-	m_ctx->virtualDataStoreList.push_back(
-	  VirtualDataStoreZabbix::getInstance());
-	m_ctx->virtualDataStoreList.push_back(
-	  VirtualDataStoreNagios::getInstance());
 }
 
 UnifiedDataStore::~UnifiedDataStore()
