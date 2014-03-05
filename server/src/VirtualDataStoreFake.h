@@ -25,15 +25,14 @@
 class VirtualDataStoreFake : public VirtualDataStore
 {
 public:
-	void start(const bool &autoRun);
 	static VirtualDataStoreFake *getInstance(void);
-
-	virtual HatoholError start(const MonitoringServerInfo &svInfo,
-	                           bool const &autoRun = true); // override
 
 protected:
 	VirtualDataStoreFake(void);
-	~VirtualDataStoreFake();
+	virtual ~VirtualDataStoreFake();
+	virtual DataStore *createDataStore(
+	  const MonitoringServerInfo &svInfo,
+	  const bool &autoRun = true); // override
 
 private:
 	struct PrivateContext;

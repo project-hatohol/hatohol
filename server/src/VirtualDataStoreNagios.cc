@@ -50,22 +50,6 @@ VirtualDataStoreNagios *VirtualDataStoreNagios::getInstance(void)
 }
 
 // ---------------------------------------------------------------------------
-// Public methods
-// ---------------------------------------------------------------------------
-void VirtualDataStoreNagios::start(const bool &autoRun)
-{
-	VirtualDataStore::start<DataStoreNagios>(MONITORING_SYSTEM_NAGIOS,
-	                                         autoRun);
-}
-
-HatoholError VirtualDataStoreNagios::start(const MonitoringServerInfo &svInfo,
-                                           const bool &autoRun)
-{
-	return VirtualDataStore::start<DataStoreNagios>
-	         (MONITORING_SYSTEM_NAGIOS, svInfo, autoRun);
-}
-
-// ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
 VirtualDataStoreNagios::VirtualDataStoreNagios(void)
@@ -79,4 +63,10 @@ VirtualDataStoreNagios::~VirtualDataStoreNagios()
 {
 	if (m_ctx)
 		delete m_ctx;
+}
+
+DataStore *VirtualDataStoreNagios::createDataStore(
+  const MonitoringServerInfo &svInfo, const bool &autoRun)
+{
+	return new DataStoreNagios(svInfo, autoRun);
 }

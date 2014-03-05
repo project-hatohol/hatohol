@@ -50,7 +50,7 @@ VirtualDataStoreFake *VirtualDataStoreFake::getInstance(void)
 }
 
 // ---------------------------------------------------------------------------
-// Public methods
+// Protected methods
 // ---------------------------------------------------------------------------
 VirtualDataStoreFake::VirtualDataStoreFake(void)
 : VirtualDataStore(MONITORING_SYSTEM_FAKE),
@@ -65,18 +65,9 @@ VirtualDataStoreFake::~VirtualDataStoreFake()
 		delete m_ctx;
 }
 
-void VirtualDataStoreFake::start(const bool &autoRun)
+DataStore *VirtualDataStoreFake::createDataStore(
+  const MonitoringServerInfo &svInfo, const bool &autoRun)
 {
-	VirtualDataStore::start<DataStoreFake>(MONITORING_SYSTEM_FAKE, autoRun);
+	return new DataStoreFake(svInfo, autoRun);
 }
 
-HatoholError VirtualDataStoreFake::start(const MonitoringServerInfo &svInfo,
-                                         const bool &autoRun)
-{
-	return VirtualDataStore::start<DataStoreFake>
-	         (MONITORING_SYSTEM_FAKE, svInfo, autoRun);
-}
-
-// ---------------------------------------------------------------------------
-// Protected methods
-// ---------------------------------------------------------------------------

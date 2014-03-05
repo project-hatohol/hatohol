@@ -36,11 +36,11 @@ public:
 	// TODO: a consider const qualifier should be added again
 	ItemTablePtr getItemTable(ItemGroupId groupId);
 
-	virtual void start(const bool &autoRun = true); // override
-	virtual HatoholError start(const MonitoringServerInfo &svInfo,
-	                           const bool &autoRun = true); // override
-
 protected:
+	virtual DataStore *createDataStore(
+	  const MonitoringServerInfo &svInfo,
+	  const bool &autoRun = true); // override
+
 	ItemTable *createStaticItemTable(ItemGroupId groupId);
 	ItemTablePtr getTriggers(void);
 	ItemTablePtr getFunctions(void);

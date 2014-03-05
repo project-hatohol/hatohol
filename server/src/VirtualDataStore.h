@@ -57,35 +57,8 @@ public:
 	virtual HatoholError stop(const ServerIdType &serverId);
 
 protected:
-	template<class T>
-	void start(MonitoringSystemType systemType, const bool &autoRun)
-	{
-		DBClientConfig dbConfig;
-		MonitoringServerInfoList monitoringServers;
-		ServerQueryOption option(USER_ID_SYSTEM);
-		dbConfig.getTargetServers(monitoringServers, option);
-
-		MonitoringServerInfoListIterator it = monitoringServers.begin();
-		for (; it != monitoringServers.end(); ++it) {
-			MonitoringServerInfo &svInfo = *it;
-			start<T>(systemType, svInfo, autoRun);
-		}
-	}
-
-	template<class T>
-	HatoholError start(MonitoringSystemType systemType,
-	                   const MonitoringServerInfo &svInfo,
-	                   const bool &autoRun)
-	{
-		if (svInfo.type != systemType)
-			return HTERR_INVALID_MONITORING_SYSTEM_TYPE;
-		DataStore *dataStore = new T(svInfo, autoRun);
-		if (!add(svInfo.id, dataStore)) {
-			dataStore->unref();
-			return HTERR_FAILED_TO_REGIST_DATA_STORE;
-		}
-		return HTERR_OK;
-	}
+	virtual DataStore *createDataStore(const MonitoringServerInfo &svInfo,
+	                                   const bool &autoRun = true) = 0;
 
 private:
 	struct PrivateContext;

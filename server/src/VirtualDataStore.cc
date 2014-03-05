@@ -18,6 +18,7 @@
  */
 
 #include "VirtualDataStore.h"
+#include "CacheServiceDBClient.h"
 using namespace mlpl;
 
 struct VirtualDataStore::PrivateContext {
@@ -42,12 +43,32 @@ VirtualDataStore::~VirtualDataStore(void)
 
 void VirtualDataStore::start(const bool &autoRun)
 {
+	CacheServiceDBClient cache;
+	DBClientConfig *dbConfig = cache.getConfig();
+	MonitoringServerInfoList monitoringServers;
+	ServerQueryOption option(USER_ID_SYSTEM);
+	dbConfig->getTargetServers(monitoringServers, option);
+
+	MonitoringServerInfoListIterator it = monitoringServers.begin();
+	for (; it != monitoringServers.end(); ++it) {
+		MonitoringServerInfo &svInfo = *it;
+		start(svInfo, autoRun);
+	}
 }
 
 HatoholError VirtualDataStore::start(const MonitoringServerInfo &svInfo,
                                      const bool &autoRun)
 {
-	return HTERR_NOT_IMPLEMENTED;
+	if (svInfo.type != m_ctx->monitoringSystemType)
+		return HTERR_INVALID_MONITORING_SYSTEM_TYPE;
+	DataStore *dataStore = createDataStore(svInfo, autoRun);
+	if (!dataStore)
+		return HTERR_FAILED_TO_CREATE_DATA_STORE;
+	if (!add(svInfo.id, dataStore)) {
+		dataStore->unref();
+		return HTERR_FAILED_TO_REGIST_DATA_STORE;
+	}
+	return HTERR_OK;
 }
 
 void VirtualDataStore::stop(void)

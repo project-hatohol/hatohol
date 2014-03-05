@@ -71,22 +71,15 @@ ItemTablePtr VirtualDataStoreZabbix::getItemTable(ItemGroupId groupId)
 	return ItemTablePtr(table);
 }
 
-void VirtualDataStoreZabbix::start(const bool &autoRun)
-{
-	VirtualDataStore::start<DataStoreZabbix>(MONITORING_SYSTEM_ZABBIX,
-	                                         autoRun);
-}
-
-HatoholError VirtualDataStoreZabbix::start(const MonitoringServerInfo &svInfo,
-                                           const bool &autoRun)
-{
-	return VirtualDataStore::start<DataStoreZabbix>
-	         (MONITORING_SYSTEM_ZABBIX, svInfo, autoRun);
-}
-
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+DataStore *VirtualDataStoreZabbix::createDataStore(
+  const MonitoringServerInfo &svInfo, const bool &autoRun)
+{
+	return new DataStoreZabbix(svInfo, autoRun);
+}
+
 ItemTable *VirtualDataStoreZabbix::createStaticItemTable(ItemGroupId groupId)
 {
 	pair<ItemGroupIdTableMapIterator, bool> result;
