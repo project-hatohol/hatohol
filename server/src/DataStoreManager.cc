@@ -19,6 +19,7 @@
 
 #include "DataStoreManager.h"
 #include <MutexLock.h>
+#include <Reaper.h>
 using namespace std;
 using namespace mlpl;
 
@@ -87,22 +88,20 @@ bool DataStoreManager::hasDataStore(uint32_t storeId)
 bool DataStoreManager::add(uint32_t storeId, DataStore *dataStore)
 {
 	m_ctx->mutex.lock();
+	Reaper<MutexLock> lockReaper(&m_ctx->mutex, MutexLock::unlock);
 	pair<DataStoreMapIterator, bool> result =
 	  m_ctx->dataStoreMap.insert
 	    (pair<uint32_t, DataStore *>(storeId, dataStore));
 
-	bool successed = result.second;
-	if (!successed) {
-		m_ctx->mutex.unlock();
+	const bool successed = result.second;
+	if (!successed)
 		return false;
-	}
 	dataStore->ref();
 
 	DataStoreEventProcListIterator evtProc = m_ctx->eventProcList.begin();
 	for (; evtProc != m_ctx->eventProcList.end(); ++evtProc)
 		(*evtProc)->onAdded(dataStore);
 
-	m_ctx->mutex.unlock();
 	return true;
 }
 
