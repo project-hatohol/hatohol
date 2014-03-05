@@ -101,4 +101,11 @@ void test_timedlockWithNormalLock(void)
 	cppcut_assert_equal(MutexLock::STAT_TIMEDOUT, lock.timedlock(1));
 }
 
+void test_staticUnlock(void)
+{
+	MutexLock lock;
+	lock.lock();
+	MutexLock::unlock(&lock);
+}
+
 } // namespace testMutexLock

@@ -87,3 +87,9 @@ bool MutexLock::trylock(void)
 {
 	return pthread_mutex_trylock(&m_ctx->lock) != EBUSY;
 }
+
+void MutexLock::unlock(MutexLock *lock)
+{
+	pthread_mutex_unlock(&lock->m_ctx->lock);
+}
+

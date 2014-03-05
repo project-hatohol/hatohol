@@ -45,6 +45,8 @@ public:
 	 */
 	bool trylock(void);
 
+	static void unlock(MutexLock *lock);
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
