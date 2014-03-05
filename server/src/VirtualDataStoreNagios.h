@@ -27,8 +27,9 @@ class VirtualDataStoreNagios : public VirtualDataStore
 public:
 	static VirtualDataStoreNagios *getInstance(void);
 
-	virtual void start(void);
-	virtual bool start(const MonitoringServerInfo &svInfo);
+	virtual void start(bool const &autoRun = true);
+	virtual bool start(const MonitoringServerInfo &svInfo,
+	                   bool const &autoRun = true);
 
 protected:
 	VirtualDataStoreNagios(void);

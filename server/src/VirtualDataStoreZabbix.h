@@ -36,8 +36,9 @@ public:
 	// TODO: a consider const qualifier should be added again
 	ItemTablePtr getItemTable(ItemGroupId groupId);
 
-	virtual void start(void);
-	virtual bool start(const MonitoringServerInfo &svInfo);
+	virtual void start(const bool &autoRun = true);
+	virtual bool start(const MonitoringServerInfo &svInfo,
+	                   const bool &autoRun = true);
 
 protected:
 	ItemTable *createStaticItemTable(ItemGroupId groupId);

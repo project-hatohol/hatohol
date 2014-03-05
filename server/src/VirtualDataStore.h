@@ -39,19 +39,22 @@ public:
 	 * start an MonitoringServer instance.
 	 *
 	 * @param svInfo A MonitoringServerInfo instance to be started.
+	 * @param autoStart
+	 * A flag to run an Arm instance soon after the store is started.
 	 *
 	 * @return
 	 * true if an monitoring instance is started. Otherwise (typicall,
 	 * server type is not matched), false is returned.
 	 */
-	virtual bool start(const MonitoringServerInfo &svInfo);
+	virtual bool start(const MonitoringServerInfo &svInfo,
+	                   const bool &autoRun = true);
 
 	virtual void stop(void);
 	virtual bool stop(const ServerIdType &serverId);
 
 protected:
 	template<class T>
-	void start(MonitoringSystemType systemType)
+	void start(MonitoringSystemType systemType, const bool &autoRun)
 	{
 		DBClientConfig dbConfig;
 		MonitoringServerInfoList monitoringServers;
@@ -61,17 +64,18 @@ protected:
 		MonitoringServerInfoListIterator it = monitoringServers.begin();
 		for (; it != monitoringServers.end(); ++it) {
 			MonitoringServerInfo &svInfo = *it;
-			start<T>(systemType, svInfo);
+			start<T>(systemType, svInfo, autoRun);
 		}
 	}
 
 	template<class T>
 	bool start(MonitoringSystemType systemType,
-	           const MonitoringServerInfo &svInfo)
+	           const MonitoringServerInfo &svInfo,
+	           const bool &autoRun)
 	{
 		if (svInfo.type != systemType)
 			return false;
-		DataStore *dataStore = new T(svInfo);
+		DataStore *dataStore = new T(svInfo, autoRun);
 		if (add(svInfo.id, dataStore)) {
 			dataStore->unref();
 			return true;

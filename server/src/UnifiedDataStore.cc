@@ -400,7 +400,8 @@ void UnifiedDataStore::getTargetServers(
 }
 
 HatoholError UnifiedDataStore::addTargetServer(
-  MonitoringServerInfo &svInfo, const OperationPrivilege &privilege)
+  MonitoringServerInfo &svInfo, const OperationPrivilege &privilege,
+  const bool &autoRun)
 {
 	CacheServiceDBClient cache;
 	DBClientConfig *dbConfig = cache.getConfig();
@@ -409,14 +410,16 @@ HatoholError UnifiedDataStore::addTargetServer(
 		return err;
 
 	struct : public VirtualDataStoreForeachProc {
+		bool autoRun;
 		MonitoringServerInfo *svInfo;
 		virtual bool operator()(VirtualDataStore *virtDataStore) {
-			bool started = virtDataStore->start(*svInfo);
+			bool started = virtDataStore->start(*svInfo, autoRun);
 			bool breakFlag = started;
 			return breakFlag;
 		}
 	} starter;
 	starter.svInfo = &svInfo;
+	starter.autoRun = autoRun;
 	m_ctx->virtualDataStoreForeach(&starter);
 	return err;
 }

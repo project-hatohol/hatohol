@@ -35,7 +35,8 @@ void VirtualDataStore::start(void)
 {
 }
 
-bool VirtualDataStore::start(const MonitoringServerInfo &svInfo)
+bool VirtualDataStore::start(const MonitoringServerInfo &svInfo,
+                             const bool &autoRun)
 {
 	return false;
 }

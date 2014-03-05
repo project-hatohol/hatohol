@@ -52,15 +52,17 @@ VirtualDataStoreNagios *VirtualDataStoreNagios::getInstance(void)
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-void VirtualDataStoreNagios::start(void)
+void VirtualDataStoreNagios::start(const bool &autoRun)
 {
-	VirtualDataStore::start<DataStoreNagios>(MONITORING_SYSTEM_NAGIOS);
+	VirtualDataStore::start<DataStoreNagios>(MONITORING_SYSTEM_NAGIOS,
+	                                         autoRun);
 }
 
-bool VirtualDataStoreNagios::start(const MonitoringServerInfo &svInfo)
+bool VirtualDataStoreNagios::start(const MonitoringServerInfo &svInfo,
+                                   const bool &autoRun)
 {
 	return VirtualDataStore::start<DataStoreNagios>
-	         (MONITORING_SYSTEM_NAGIOS, svInfo);
+	         (MONITORING_SYSTEM_NAGIOS, svInfo, autoRun);
 }
 
 // ---------------------------------------------------------------------------
