@@ -151,6 +151,25 @@ struct UnifiedDataStore::PrivateContext
 		return dataStore;
 	}
 
+	VirtualDataStore *
+	  findVirtualDataStore(const MonitoringSystemType &type)
+	{
+		VirtualDataStoreMapIterator it = virtualDataStoreMap.find(type);
+		if (it == virtualDataStoreMap.end())
+			return NULL;
+		return it->second;
+	}
+
+	HatoholError startDataStore(const MonitoringServerInfo &svInfo,
+	                            const bool &autoRun)
+	{
+		VirtualDataStore *virtDataStore =
+		  findVirtualDataStore(svInfo.type);
+		if (!virtDataStore)
+			return HTERR_INVALID_MONITORING_SYSTEM_TYPE;
+		return virtDataStore->start(svInfo);
+	}
+
 private:
 	// We assume that the following list is initialized once at
 	// the constructor. This is a limitation to realize a lock-free
@@ -477,19 +496,7 @@ HatoholError UnifiedDataStore::addTargetServer(
 	if (err != HTERR_OK)
 		return err;
 
-	struct : public VirtualDataStoreForeachProc {
-		bool autoRun;
-		MonitoringServerInfo *svInfo;
-		HatoholError err;
-		virtual bool operator()(VirtualDataStore *virtDataStore) {
-			err = virtDataStore->start(*svInfo, autoRun);
-			return err == HTERR_OK;
-		}
-	} starter;
-	starter.svInfo = &svInfo;
-	starter.autoRun = autoRun;
-	m_ctx->virtualDataStoreForeach(&starter);
-	return err;
+	return m_ctx->startDataStore(svInfo, autoRun);
 }
 
 HatoholError UnifiedDataStore::updateTargetServer(
