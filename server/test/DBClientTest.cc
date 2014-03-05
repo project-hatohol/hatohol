@@ -467,20 +467,32 @@ const size_t NumTestHostgroupInfo = sizeof(testHostgroupInfo) / sizeof(Hostgroup
 HostInfo testHostInfo[] = {
 {
 	1,                     // serverId
-	1,                     // id(hostId)
+	235012,                // id(hostId)
 	"penguin"              // hostName
 }, {
 	1,                     // serverId
-	2,                     // id(hostId)
+	235013,                // id(hostId)
 	"platypus"             // hostName
 } ,{
-	2,                     // serverId
-	1,                     // id(hostId)
+	3,                     // serverId
+	10001,                 // id(hostId)
 	"chick"                // hostName
 }, {
-	2,                     // serverId
-	2,                     // id(hostId)
+	3,                     // serverId
+	10002,                 // id(hostId)
 	"robot"                // hostName
+}, {
+	3,                     // serverId
+	5,                     // id(hostId)
+	"frog"                 // hostName
+} ,{
+	3,                     // serverId
+	100,                   // id(hostId)
+	"dolphin"              // hostName
+}, {
+	4,                     // serverId
+	100,                   // id(hostId)
+	"squirrel"             // hostName
 }, {
 	// This entry is for tests with a defunct server
 	trigInfoDefunctSv1.serverId, // serverId
