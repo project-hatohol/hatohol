@@ -104,5 +104,43 @@ void test_hasDataStore(void)
 	cppcut_assert_equal(false, mgr.hasDataStore(storeId));
 }
 
+void test_dataStoreEventProc(void)
+{
+	struct TestDataEventProc : public DataStoreEventProc {
+		DataStore *added;
+		DataStore *removed;
+
+		TestDataEventProc(void)
+		: added(NULL),
+		  removed(NULL)
+		{
+		}
+
+		virtual void onAdded(DataStore *dataStore) // override
+		{
+			added = dataStore;
+		}
+
+		virtual void onRemoved(DataStore *dataStore) // override
+		{
+			removed = dataStore;
+		}
+	} testProc;
+
+	const uint32_t storeId = 100;
+	g_dataStore = new TestDataStore();
+
+	DataStoreManager mgr;
+	mgr.registEventProc(&testProc);
+
+	cppcut_assert_null(testProc.added);
+	mgr.add(storeId, g_dataStore);
+	cppcut_assert_equal(g_dataStore, testProc.added);
+
+	cppcut_assert_null(testProc.removed);
+	mgr.remove(storeId);
+	cppcut_assert_equal(g_dataStore, testProc.removed);
+}
+
 } // namespace testDataStoreManager
 

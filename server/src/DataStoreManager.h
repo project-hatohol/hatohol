@@ -29,6 +29,7 @@ public:
 	DataStoreEventProc(void);
 	virtual ~DataStoreEventProc();
 	virtual void onAdded(DataStore *dataStore);
+	virtual void onRemoved(DataStore *dataStore);
 };
 
 typedef std::list<DataStoreEventProc *>  DataStoreEventProcList;

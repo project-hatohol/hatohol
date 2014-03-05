@@ -41,6 +41,10 @@ void DataStoreEventProc::onAdded(DataStore *dataStore)
 {
 }
 
+void DataStoreEventProc::onRemoved(DataStore *dataStore)
+{
+}
+
 // ---------------------------------------------------------------------------
 // DataStoreManager
 // ---------------------------------------------------------------------------
@@ -117,10 +121,15 @@ void DataStoreManager::remove(uint32_t storeId)
 	}
 	m_ctx->mutex.unlock();
 
-	if (dataStore)
-		dataStore->unref();
-	else
+	if (!dataStore) {
 		MLPL_WARN("Not found: storeId: %"PRIu32"\n", storeId);
+		return;
+	}
+
+	DataStoreEventProcListIterator evtProc = m_ctx->eventProcList.begin();
+	for (; evtProc != m_ctx->eventProcList.end(); ++evtProc)
+		(*evtProc)->onRemoved(dataStore);
+	dataStore->unref();
 }
 
 
