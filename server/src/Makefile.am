@@ -32,6 +32,7 @@ libhatohol_la_SOURCES = \
 	DataStore.cc DataStore.h \
 	DataStoreException.cc DataStoreException.h \
 	DataStoreManager.cc DataStoreManager.h \
+	DataStoreFake.cc DataStoreFake.h \
 	DataStoreNagios.cc DataStoreNagios.h \
 	DataStoreZabbix.cc DataStoreZabbix.h \
 	FaceBase.cc FaceBase.h \
@@ -88,6 +89,7 @@ libhatohol_la_SOURCES = \
 	UsedCountablePtr.cc UsedCountablePtr.h \
 	Utils.cc Utils.h \
 	VirtualDataStore.cc VirtualDataStore.h \
+	VirtualDataStoreFake.cc VirtualDataStoreFake.h \
 	VirtualDataStoreNagios.cc VirtualDataStoreNagios.h \
 	VirtualDataStoreZabbix.cc VirtualDataStoreZabbix.h \
 	VirtualDataStoreZabbixProfiles.cc VirtualDataStoreZabbixMacro.h

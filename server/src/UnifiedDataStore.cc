@@ -22,6 +22,7 @@
 #include "UnifiedDataStore.h"
 #include "VirtualDataStoreZabbix.h"
 #include "VirtualDataStoreNagios.h"
+#include "VirtualDataStoreFake.h"
 #include "DBClientAction.h"
 #include "DBClientConfig.h"
 #include "ActionManager.h"
@@ -80,6 +81,9 @@ struct UnifiedDataStore::PrivateContext
 	PrivateContext()
 	: isCopyOnDemandEnabled(false)
 	{ 
+		virtualDataStoreMap[MONITORING_SYSTEM_FAKE] =
+		  VirtualDataStoreFake::getInstance();
+
 		virtualDataStoreMap[MONITORING_SYSTEM_ZABBIX] =
 		  VirtualDataStoreZabbix::getInstance();
 
