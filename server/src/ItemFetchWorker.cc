@@ -21,6 +21,7 @@
 #include <semaphore.h>
 #include <ReadWriteLock.h>
 #include <Reaper.h>
+#include <SmartTime.h>
 #include "ItemFetchWorker.h"
 #include "UnifiedDataStore.h"
 #include "VirtualDataStore.h"
@@ -31,20 +32,18 @@ using namespace mlpl;
 struct ItemFetchWorker::PrivateContext
 {
 	const static size_t      maxRunningArms    = 8;
-	const static time_t      minUpdateInterval = 10;
+	const static timespec    minUpdateInterval;
 
 	ReadWriteLock   rwlock;
 	DataStoreVector updateArmsQueue;
 	size_t          remainingArmsCount;
-	timespec        lastUpdateTime;
+	SmartTime       lastUpdateTime;
 	sem_t           updatedSemaphore;
 	Signal          itemFetchedSignal;
 
 	PrivateContext(void)
 	: remainingArmsCount(0)
 	{
-		lastUpdateTime.tv_sec  = 0;
-		lastUpdateTime.tv_nsec = 0;
 		sem_init(&updatedSemaphore, 0, 0);
 	}
 
@@ -53,6 +52,8 @@ struct ItemFetchWorker::PrivateContext
 		sem_destroy(&updatedSemaphore);
 	};
 };
+
+const timespec ItemFetchWorker::PrivateContext::minUpdateInterval = {10, 0};
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -131,15 +132,11 @@ bool ItemFetchWorker::updateIsNeeded(void)
 	if (m_ctx->remainingArmsCount > 0)
 		return false;
 
-	timespec ts;
-	const time_t banLiftTime =
-	   m_ctx->lastUpdateTime.tv_sec + m_ctx->minUpdateInterval;
-	if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
-		MLPL_ERR("Failed to call clock_gettime: %d\n", errno);
-		return true;
-	}
+	SmartTime currTime(SmartTime::INIT_CURR_TIME);
+	SmartTime banLiftTime(m_ctx->lastUpdateTime);
+	banLiftTime += m_ctx->minUpdateInterval;
 
-	return ts.tv_sec >= banLiftTime;
+	return currTime >= banLiftTime;
 }
 
 void ItemFetchWorker::waitCompletion(void)
@@ -165,8 +162,7 @@ void ItemFetchWorker::updatedCallback(ClosureBase *closure)
 	if (m_ctx->remainingArmsCount == 0) {
 		if (sem_post(&m_ctx->updatedSemaphore) == -1)
 			MLPL_ERR("Failed to call sem_post: %d\n", errno);
-		if (clock_gettime(CLOCK_REALTIME, &m_ctx->lastUpdateTime) == -1)
-			MLPL_ERR("Failed to call clock_gettime: %d\n", errno);
+		m_ctx->lastUpdateTime.setCurrTime();
 		m_ctx->itemFetchedSignal();
 		m_ctx->itemFetchedSignal.clear();
 	}
