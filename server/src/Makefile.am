@@ -8,6 +8,7 @@ libhatohol_la_SOURCES = \
 	ActionManager.cc ActionManager.h \
 	ActorCollector.cc ActorCollector.h \
 	ArmBase.cc ArmBase.h \
+	ArmFake.cc ArmFake.h \
 	ArmNagiosNDOUtils.cc ArmNagiosNDOUtils.h \
 	ArmZabbixAPI-template.h \
 	ArmZabbixAPI.cc ArmZabbixAPI.h \
