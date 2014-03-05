@@ -27,9 +27,9 @@ class VirtualDataStoreNagios : public VirtualDataStore
 public:
 	static VirtualDataStoreNagios *getInstance(void);
 
-	virtual void start(bool const &autoRun = true);
+	virtual void start(bool const &autoRun = true); // override
 	virtual HatoholError start(const MonitoringServerInfo &svInfo,
-	                           bool const &autoRun = true);
+	                           bool const &autoRun = true); // override
 
 protected:
 	VirtualDataStoreNagios(void);

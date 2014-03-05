@@ -33,7 +33,13 @@ public:
 	VirtualDataStore(void);
 	virtual ~VirtualDataStore(void);
 
-	virtual void start(void);
+	/**
+	 * start all MonitoringServer instances.
+	 *
+	 * @param autoStart
+	 * A flag to run an Arm instance soon after the store is started.
+	 */
+	virtual void start(const bool &autoRun = true);
 
 	/**
 	 * start an MonitoringServer instance.

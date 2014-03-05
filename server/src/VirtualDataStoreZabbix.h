@@ -36,9 +36,9 @@ public:
 	// TODO: a consider const qualifier should be added again
 	ItemTablePtr getItemTable(ItemGroupId groupId);
 
-	virtual void start(const bool &autoRun = true);
+	virtual void start(const bool &autoRun = true); // override
 	virtual HatoholError start(const MonitoringServerInfo &svInfo,
-	                           const bool &autoRun = true);
+	                           const bool &autoRun = true); // override
 
 protected:
 	ItemTable *createStaticItemTable(ItemGroupId groupId);

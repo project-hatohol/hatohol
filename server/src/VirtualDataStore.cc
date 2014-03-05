@@ -31,7 +31,7 @@ VirtualDataStore::~VirtualDataStore(void)
 {
 }
 
-void VirtualDataStore::start(void)
+void VirtualDataStore::start(const bool &autoRun)
 {
 }
 
