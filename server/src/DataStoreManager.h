@@ -92,6 +92,8 @@ public:
 
 protected:
 	void closeAllStores(void);
+	void callAddedHandlers(DataStore *dataStore);
+	void callRemovedHandlers(DataStore *dataStore);
 
 private:
 	struct PrivateContext;

@@ -105,11 +105,7 @@ bool DataStoreManager::add(uint32_t storeId, DataStore *dataStore)
 		return false;
 	dataStore->ref();
 
-	m_ctx->eventProcListLock.readLock();
-	DataStoreEventProcListIterator evtProc = m_ctx->eventProcList.begin();
-	for (; evtProc != m_ctx->eventProcList.end(); ++evtProc)
-		(*evtProc)->onAdded(dataStore);
-	m_ctx->eventProcListLock.unlock();
+	callAddedHandlers(dataStore);
 
 	return true;
 }
@@ -131,12 +127,8 @@ void DataStoreManager::remove(uint32_t storeId)
 		return;
 	}
 
-	m_ctx->eventProcListLock.readLock();
-	DataStoreEventProcListIterator evtProc = m_ctx->eventProcList.begin();
-	for (; evtProc != m_ctx->eventProcList.end(); ++evtProc)
-		(*evtProc)->onRemoved(dataStore);
+	callRemovedHandlers(dataStore);
 	dataStore->unref();
-	m_ctx->eventProcListLock.unlock();
 }
 
 
@@ -168,4 +160,24 @@ void DataStoreManager::closeAllStores(void)
 	}
 	m_ctx->dataStoreMap.clear();
 	m_ctx->mutex.unlock();
+}
+
+void DataStoreManager::callAddedHandlers(DataStore *dataStore)
+{
+	m_ctx->eventProcListLock.readLock();
+	Reaper<ReadWriteLock> unlocker(&m_ctx->eventProcListLock,
+	                               ReadWriteLock::unlock);
+	DataStoreEventProcListIterator evtProc = m_ctx->eventProcList.begin();
+	for (; evtProc != m_ctx->eventProcList.end(); ++evtProc)
+		(*evtProc)->onAdded(dataStore);
+}
+
+void DataStoreManager::callRemovedHandlers(DataStore *dataStore)
+{
+	m_ctx->eventProcListLock.readLock();
+	Reaper<ReadWriteLock> unlocker(&m_ctx->eventProcListLock,
+	                               ReadWriteLock::unlock);
+	DataStoreEventProcListIterator evtProc = m_ctx->eventProcList.begin();
+	for (; evtProc != m_ctx->eventProcList.end(); ++evtProc)
+		(*evtProc)->onRemoved(dataStore);
 }
