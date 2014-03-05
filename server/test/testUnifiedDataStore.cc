@@ -221,8 +221,8 @@ void test_serverIdDataStoreMap(void)
 {
 	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
 	MonitoringServerInfo svInfo;
-	svInfo.type = MONITORING_SYSTEM_FAKE;
 	MonitoringServerInfo::initialize(svInfo);
+	svInfo.type = MONITORING_SYSTEM_FAKE;
 	cut_omit("Now target code is being implemented.");
 	assertHatoholError(HTERR_OK,
 	                   uds->addTargetServer(svInfo, USER_ID_SYSTEM, false));

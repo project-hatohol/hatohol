@@ -307,6 +307,8 @@ void MonitoringServerInfo::initialize(MonitoringServerInfo &monSvInfo)
 	monSvInfo.port               = 0;
 	monSvInfo.pollingIntervalSec = 0;
 	monSvInfo.retryIntervalSec   = 0;
+	monSvInfo.hostName  = "localhost";
+	monSvInfo.ipAddress = "127.0.0.1";
 }
 
 // ---------------------------------------------------------------------------
@@ -647,7 +649,8 @@ bool validHostName(const string &hostName)
 
 HatoholError validServerInfo(const MonitoringServerInfo &serverInfo)
 {
-	if (serverInfo.type < 0 || serverInfo.type >= NUM_MONITORING_SYSTEMS)
+	if (serverInfo.type <= MONITORING_SYSTEM_UNKNOWN
+	    || serverInfo.type >= NUM_MONITORING_SYSTEMS)
 		return HTERR_INVALID_MONITORING_SYSTEM_TYPE;
 	if (serverInfo.port < 0 || serverInfo.port > 65535)
 		return HTERR_INVALID_PORT_NUMBER;

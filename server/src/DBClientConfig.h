@@ -25,8 +25,8 @@
 #include "DBClientHatohol.h"
 
 enum MonitoringSystemType {
-	MONITORING_SYSTEM_FAKE    = -2, // mainly for test
-	MONITORING_SYSTEM_UNKNOWN = -1,
+	MONITORING_SYSTEM_UNKNOWN = -2,
+	MONITORING_SYSTEM_FAKE    = -1, // mainly for test
 	MONITORING_SYSTEM_ZABBIX,
 	MONITORING_SYSTEM_NAGIOS,
 	NUM_MONITORING_SYSTEMS,
