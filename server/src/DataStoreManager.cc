@@ -54,6 +54,7 @@ struct DataStoreManager::PrivateContext {
 	DataStoreMap    dataStoreMap;
 	MutexLock mutex;
 	DataStoreEventProcList eventProcList;
+	ReadWriteLock          eventProcListLock;
 };
 
 // ---------------------------------------------------------------------------
@@ -77,9 +78,9 @@ void DataStoreManager::passCommandLineArg(const CommandLineArg &cmdArg)
 
 void DataStoreManager::registEventProc(DataStoreEventProc *eventProc)
 {
-	m_ctx->mutex.lock();
+	m_ctx->eventProcListLock.writeLock();
 	m_ctx->eventProcList.push_back(eventProc);
-	m_ctx->mutex.unlock();
+	m_ctx->eventProcListLock.unlock();
 }
 
 bool DataStoreManager::hasDataStore(uint32_t storeId)
@@ -104,9 +105,11 @@ bool DataStoreManager::add(uint32_t storeId, DataStore *dataStore)
 		return false;
 	dataStore->ref();
 
+	m_ctx->eventProcListLock.readLock();
 	DataStoreEventProcListIterator evtProc = m_ctx->eventProcList.begin();
 	for (; evtProc != m_ctx->eventProcList.end(); ++evtProc)
 		(*evtProc)->onAdded(dataStore);
+	m_ctx->eventProcListLock.unlock();
 
 	return true;
 }
@@ -128,10 +131,12 @@ void DataStoreManager::remove(uint32_t storeId)
 		return;
 	}
 
+	m_ctx->eventProcListLock.readLock();
 	DataStoreEventProcListIterator evtProc = m_ctx->eventProcList.begin();
 	for (; evtProc != m_ctx->eventProcList.end(); ++evtProc)
 		(*evtProc)->onRemoved(dataStore);
 	dataStore->unref();
+	m_ctx->eventProcListLock.unlock();
 }
 
 
