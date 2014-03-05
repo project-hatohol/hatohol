@@ -17,8 +17,6 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <semaphore.h>
-#include <errno.h>
 #include <stdexcept>
 #include <MutexLock.h>
 #include "UnifiedDataStore.h"
@@ -28,6 +26,7 @@
 #include "DBClientConfig.h"
 #include "ActionManager.h"
 #include "CacheServiceDBClient.h"
+#include "ItemFetchWorker.h"
 using namespace std;
 using namespace mlpl;
 
@@ -59,169 +58,20 @@ struct UnifiedDataStoreEventProc : public DataStoreEventProc
 // ---------------------------------------------------------------------------
 struct UnifiedDataStore::PrivateContext
 {
-	const static size_t      maxRunningArms    = 8;
-	const static time_t      minUpdateInterval = 10;
 	static UnifiedDataStore *instance;
 	static MutexLock         mutex;
 
-	bool          isCopyOnDemandEnabled;
-	sem_t         updatedSemaphore;
-	ReadWriteLock rwlock;
-	timespec      lastUpdateTime;
-	size_t        remainingArmsCount;
-	DataStoreVector updateArmsQueue;
-
-	Signal        itemFetchedSignal;
+	bool                     isCopyOnDemandEnabled;
+	ItemFetchWorker          itemFetchWorker;
 
 	PrivateContext()
-	: isCopyOnDemandEnabled(false),
-	  remainingArmsCount(0)
+	: isCopyOnDemandEnabled(false)
 	{
-		sem_init(&updatedSemaphore, 0, 0);
-		lastUpdateTime.tv_sec  = 0;
-		lastUpdateTime.tv_nsec = 0;
-
 		virtualDataStoreList.push_back(
 		  VirtualDataStoreZabbix::getInstance());
 		virtualDataStoreList.push_back(
 		  VirtualDataStoreNagios::getInstance());
 	};
-
-	virtual ~PrivateContext()
-	{
-		sem_destroy(&updatedSemaphore);
-	};
-
-	void wakeArm(DataStore *dataStore)
-	{
-		struct ClosureWithDataStore : public Closure<PrivateContext>
-		{
-			DataStore *dataStore;
-
-			ClosureWithDataStore(PrivateContext *ctx, DataStore *ds)
-			: Closure<PrivateContext>(
-			    ctx, &PrivateContext::updatedCallback),
-			  dataStore(ds)
-			{
-			}
-
-			~ClosureWithDataStore()
-			{
-				dataStore->unref();
-			}
-		};
-
-		ArmBase &arm = dataStore->getArmBase();
-		arm.fetchItems(new ClosureWithDataStore(this, dataStore));
-	}
-
-	bool updateIsNeeded(void)
-	{
-		bool shouldUpdate = true;
-
-		rwlock.readLock();
-
-		if (remainingArmsCount > 0) {
-			shouldUpdate = false;
-		} else {
-			timespec ts;
-			time_t banLiftTime
-			  = lastUpdateTime.tv_sec + minUpdateInterval;
-			if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
-				MLPL_ERR("Failed to call clock_gettime: %d\n",
-					 errno);
-			} else if (ts.tv_sec < banLiftTime) {
-				shouldUpdate = false;
-			}
-		}
-
-		rwlock.unlock();
-
-		return shouldUpdate;
-	}
-
-	void updatedCallback(ClosureBase *closure)
-	{
-		rwlock.writeLock();
-
-		if (!updateArmsQueue.empty()) {
-			wakeArm(updateArmsQueue.front());
-			updateArmsQueue.erase(updateArmsQueue.begin());
-		}
-
-		remainingArmsCount--;
-		if (remainingArmsCount == 0) {
-			if (sem_post(&updatedSemaphore) == -1)
-				MLPL_ERR("Failed to call sem_post: %d\n",
-					 errno);
-			if (clock_gettime(CLOCK_REALTIME, &lastUpdateTime) == -1)
-				MLPL_ERR("Failed to call clock_gettime: %d\n",
-					 errno);
-			itemFetchedSignal();
-			itemFetchedSignal.clear();
-		}
-
-		rwlock.unlock();
-	}
-
-	bool startFetchingItems(
-	  const ServerIdType &targetServerId = ALL_SERVERS,
-	  ClosureBase *closure = NULL)
-	{
-		// TODO: Make the design smart
-		struct : public VirtualDataStoreForeachProc
-		{
-			ArmBaseVector arms;
-			DataStoreVector allDataStores;
-			virtual bool operator()(VirtualDataStore *virtDataStore)
-			{
-				DataStoreVector stores =
-				  virtDataStore->getDataStoreVector();
-				for (size_t i = 0; i < stores.size(); i++) {
-					DataStore *dataStore = stores[i];
-					allDataStores.push_back(dataStore);
-					arms.push_back(&dataStore->getArmBase());
-				}
-				return false;
-			}
-		} collector;
-
-		rwlock.readLock();
-		virtualDataStoreForeach(&collector);
-		rwlock.unlock();
-
-		ArmBaseVector &arms = collector.arms;
-		if (arms.empty())
-			return false;
-
-		rwlock.writeLock();
-		if (closure)
-			itemFetchedSignal.connect(closure);
-		remainingArmsCount = arms.size();
-		for (size_t i = 0; i < collector.allDataStores.size(); i++) {
-			DataStore *dataStore = collector.allDataStores[i];
-
-			if (targetServerId != ALL_SERVERS) {
-				ArmBase &arm = dataStore->getArmBase();
-				if (targetServerId != arm.getServerInfo().id) {
-					remainingArmsCount--;
-					dataStore->unref();
-					continue;
-				}
-			}
-
-			if (i < PrivateContext::maxRunningArms)
-				wakeArm(dataStore);
-			else
-				updateArmsQueue.push_back(dataStore);
-		}
-
-		bool started = remainingArmsCount > 0;
-
-		rwlock.unlock();
-
-		return started;
-	}
 
 	void virtualDataStoreForeach(VirtualDataStoreForeachProc *vdsProc)
 	{
@@ -320,15 +170,14 @@ void UnifiedDataStore::fetchItems(const ServerIdType &targetServerId)
 {
 	if (!getCopyOnDemandEnabled())
 		return;
-	if (!m_ctx->updateIsNeeded())
+	if (!m_ctx->itemFetchWorker.updateIsNeeded())
 		return;
 
-	bool started = m_ctx->startFetchingItems(targetServerId, NULL);
+	bool started = m_ctx->itemFetchWorker.start(targetServerId, NULL);
 	if (!started)
 		return;
 
-	if (sem_wait(&m_ctx->updatedSemaphore) == -1)
-		MLPL_ERR("Failed to call sem_wait: %d\n", errno);
+	m_ctx->itemFetchWorker.waitCompletion();
 }
 
 void UnifiedDataStore::getTriggerList(TriggerInfoList &triggerList,
@@ -360,10 +209,10 @@ bool UnifiedDataStore::fetchItemsAsync(ClosureBase *closure,
 {
 	if (!getCopyOnDemandEnabled())
 		return false;
-	if (!m_ctx->updateIsNeeded())
+	if (!m_ctx->itemFetchWorker.updateIsNeeded())
 		return false;
 
-	return m_ctx->startFetchingItems(targetServerId, closure);
+	return m_ctx->itemFetchWorker.start(targetServerId, closure);
 }
 
 void UnifiedDataStore::getHostgroupList(HostgroupInfoList &hostgroupInfoList,
