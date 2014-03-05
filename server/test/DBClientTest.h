@@ -109,10 +109,6 @@ ItemInfo *findTestItem(
   const ServerIdType &serverId, const uint64_t itemId);
 size_t getNumberOfTestItems(const ServerIdType &serverId);
 
-void getTestHostInfoList(HostInfoList &hostInfoList,
-                         const ServerIdType &targetServerId,
-                         ServerIdHostIdMap *serverIdHostIdMap = NULL);
-
 size_t getNumberOfTestHosts(const ServerIdType &serverId,
                             uint64_t hostGroupId = ALL_HOST_GROUPS);
 size_t getNumberOfTestHostsWithStatus(const ServerIdType &serverId,

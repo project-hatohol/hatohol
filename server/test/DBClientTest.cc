@@ -678,59 +678,6 @@ size_t getNumberOfTestItems(const ServerIdType &serverId)
 	return count;
 }
 
-void getTestHostInfoList(HostInfoList &hostInfoList,
-                         const ServerIdType &targetServerId,
-                         ServerIdHostIdMap *serverIdHostIdMap)
-{
-	size_t numHostInfo0 =  hostInfoList.size();
-	ServerIdHostIdMap *svIdHostIdMap;
-	if (serverIdHostIdMap)
-		svIdHostIdMap = serverIdHostIdMap; // use given data
-	else
-		svIdHostIdMap = new ServerIdHostIdMap();
-
-	ServerIdHostIdMapIterator svIdIt;
-	HostIdSetIterator         hostIdIt;
-	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
-		TriggerInfo &trigInfo = testTriggerInfo[i];
-		if (targetServerId != ALL_SERVERS) {
-			if (trigInfo.serverId != targetServerId)
-				continue;
-		}
-
-		svIdIt = svIdHostIdMap->find(trigInfo.serverId);
-		if (svIdIt == svIdHostIdMap->end()) {
-			addHostInfoToList(hostInfoList, trigInfo);
-			HostIdSet newHostIdSet;
-			newHostIdSet.insert(trigInfo.hostId);
-			(*svIdHostIdMap)[trigInfo.serverId] = newHostIdSet;
-			continue;
-		}
-
-		HostIdSet &hostIdSet = svIdIt->second;
-		hostIdIt = hostIdSet.find(trigInfo.hostId);
-		if (hostIdIt == hostIdSet.end()) {
-			addHostInfoToList(hostInfoList, trigInfo);
-			hostIdSet.insert(trigInfo.hostId);
-		}
-	}
-
-	// consistency check:
-	// The number of hostInfoList elements we added and that of
-	// svIdHostIdMap shall be the same.
-	size_t numHostInfo = hostInfoList.size() - numHostInfo0;
-	size_t numTotalHostInfoSet = 0;
-	svIdIt = svIdHostIdMap->begin();
-	for (; svIdIt != svIdHostIdMap->end(); ++svIdIt) {
-		HostIdSet &hostIdSet = svIdIt->second;
-		numTotalHostInfoSet += hostIdSet.size();
-	}
-	cppcut_assert_equal(numHostInfo, numTotalHostInfoSet);
-
-	if (!serverIdHostIdMap)
-		delete svIdHostIdMap;
-}
-
 size_t getNumberOfTestTriggers(const ServerIdType &serverId,
                                uint64_t hostGroupId, 
                                TriggerSeverityType severity)
