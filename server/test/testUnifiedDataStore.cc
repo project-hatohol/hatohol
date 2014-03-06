@@ -221,7 +221,6 @@ void test_getItemList(gconstpointer data)
 void test_serverIdDataStoreMap(void)
 {
 	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
-	uds->start();
 	MonitoringServerInfo svInfo;
 	MonitoringServerInfo::initialize(svInfo);
 	svInfo.type = MONITORING_SYSTEM_FAKE;
