@@ -468,19 +468,19 @@ HostInfo testHostInfo[] = {
 {
 	1,                     // serverId
 	235012,                // id(hostId)
-	"penguin"              // hostName
+	"hostX1"               // hostName
 }, {
 	1,                     // serverId
 	235013,                // id(hostId)
-	"platypus"             // hostName
+	"hostX2"               // hostName
 } ,{
 	3,                     // serverId
 	10001,                 // id(hostId)
-	"chick"                // hostName
+	"hostZ1"               // hostName
 }, {
 	3,                     // serverId
 	10002,                 // id(hostId)
-	"robot"                // hostName
+	"hostZ2"               // hostName
 }, {
 	3,                     // serverId
 	5,                     // id(hostId)
