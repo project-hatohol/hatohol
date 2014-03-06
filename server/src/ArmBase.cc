@@ -185,10 +185,11 @@ bool ArmBase::hasExitRequest(void) const
 
 void ArmBase::requestExit(void)
 {
+	m_ctx->exitRequest.set(true);
+
 	// to return immediately from the waiting.
 	if (sem_post(&m_ctx->sleepSemaphore) == -1)
 		MLPL_ERR("Failed to call sem_post: %d\n", errno);
-	m_ctx->exitRequest.set(true);
 }
 
 const MonitoringServerInfo &ArmBase::getServerInfo(void) const
