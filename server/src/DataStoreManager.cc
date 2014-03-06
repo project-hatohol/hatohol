@@ -156,6 +156,7 @@ void DataStoreManager::closeAllStores(void)
 	DataStoreMapIterator it = m_ctx->dataStoreMap.begin();
 	for (; it != m_ctx->dataStoreMap.end(); ++it) {
 		DataStore *dataStore = it->second;
+		callRemovedHandlers(dataStore);
 		dataStore->unref();
 	}
 	m_ctx->dataStoreMap.clear();
