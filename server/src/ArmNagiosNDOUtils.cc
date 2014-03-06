@@ -389,7 +389,7 @@ ArmNagiosNDOUtils::ArmNagiosNDOUtils(const MonitoringServerInfo &serverInfo)
 
 ArmNagiosNDOUtils::~ArmNagiosNDOUtils()
 {
-	synchronizeThreadExit();
+	requestExitAndWait();
 	if (m_ctx)
 		delete m_ctx;
 }

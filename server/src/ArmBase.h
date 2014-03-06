@@ -66,7 +66,7 @@ protected:
 	 * (i.e calling a destructor) is typically done by other thread.
 	 * Note that this function may block the caller thread.
 	 */
-	void synchronizeThreadExit(void);
+	void requestExitAndWait(void);
 
 	bool hasExitRequest(void) const;
 	void requestExit(void);

@@ -178,7 +178,7 @@ const string &ArmBase::getName(void) const
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void ArmBase::synchronizeThreadExit(void)
+void ArmBase::requestExitAndWait(void)
 {
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	

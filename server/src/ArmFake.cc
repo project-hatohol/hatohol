@@ -29,7 +29,7 @@ ArmFake::ArmFake(const MonitoringServerInfo &serverInfo)
 
 ArmFake::~ArmFake()
 {
-	synchronizeThreadExit();
+	requestExitAndWait();
 }
 
 // ---------------------------------------------------------------------------

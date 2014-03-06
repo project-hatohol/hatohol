@@ -39,9 +39,9 @@ public:
 	{
 	}
 
-	void callSynchronizeThreadExit(void)
+	void callRequestExitAndWait(void)
 	{
-		synchronizeThreadExit();
+		requestExitAndWait();
 	}
 
 	void setOneProcHook(OneProcHook hook, void *data)
@@ -132,7 +132,7 @@ void test_synchronizeThreadExit(void)
 	armBase.start();
 	ctx.waitForFirstProc();
 
-	armBase.callSynchronizeThreadExit();
+	armBase.callRequestExitAndWait();
 	cppcut_assert_equal(true, ctx.called.get());
 }
 

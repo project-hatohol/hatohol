@@ -103,7 +103,7 @@ ArmZabbixAPI::ArmZabbixAPI(const MonitoringServerInfo &serverInfo)
 
 ArmZabbixAPI::~ArmZabbixAPI()
 {
-	synchronizeThreadExit();
+	requestExitAndWait();
 	if (m_ctx)
 		delete m_ctx;
 }
