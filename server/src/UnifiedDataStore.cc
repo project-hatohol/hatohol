@@ -197,6 +197,11 @@ UnifiedDataStore::~UnifiedDataStore()
 		delete m_ctx;
 }
 
+void UnifiedDataStore::reset(void)
+{
+	stop();
+}
+
 void UnifiedDataStore::parseCommandLineArgument(CommandLineArg &cmdArg)
 {
 	for (size_t i = 0; i < cmdArg.size(); i++) {

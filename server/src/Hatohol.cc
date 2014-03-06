@@ -45,6 +45,7 @@ using namespace mlpl;
 #include "DBClientUser.h"
 #include "CacheServiceDBClient.h"
 #include "SessionManager.h"
+#include "UnifiedDataStore.h"
 
 static MutexLock mutex;
 static bool initDone = false; 
@@ -95,6 +96,7 @@ static void reset(const CommandLineArg &arg)
 	ActionManager::reset();
 	CacheServiceDBClient::reset();
 
+	UnifiedDataStore::getInstance()->reset();
 	FaceRest::reset(arg);
 }
 

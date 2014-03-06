@@ -33,6 +33,7 @@ class UnifiedDataStore
 public:
 	UnifiedDataStore(void);
 	virtual ~UnifiedDataStore(void);
+	void reset(void);
 
 	static UnifiedDataStore *getInstance(void);
 	virtual void parseCommandLineArgument(CommandLineArg &cmdArg);
