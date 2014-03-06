@@ -59,8 +59,7 @@ struct UnifiedDataStore::PrivateContext
 
 		virtual void onAdded(DataStore *dataStore) // override
 		{
-			const bool enable = enableCopyOnDemand.get();
-			dataStore->setCopyOnDemandEnable(enable);
+			dataStore->setCopyOnDemandEnable(enableCopyOnDemand);
 			ctx->addToDataStoreMap(dataStore);
 		}
 
@@ -408,12 +407,12 @@ size_t UnifiedDataStore::getNumberOfBadHosts(const HostsQueryOption &option)
 
 bool UnifiedDataStore::getCopyOnDemandEnabled(void) const
 {
-	return m_ctx->isCopyOnDemandEnabled.get();
+	return m_ctx->isCopyOnDemandEnabled;
 }
 
 void UnifiedDataStore::setCopyOnDemandEnabled(bool enable)
 {
-	m_ctx->isCopyOnDemandEnabled.set(enable);
+	m_ctx->isCopyOnDemandEnabled = enable;
 }
 
 HatoholError UnifiedDataStore::addAction(ActionDef &actionDef,
