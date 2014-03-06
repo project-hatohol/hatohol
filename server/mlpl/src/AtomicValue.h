@@ -34,9 +34,9 @@ public:
 	{
 	}
 
-	T get(void)
+	T get(void) const
 	{
-		return __sync_fetch_and_add(&m_value, 0);
+		return __sync_fetch_and_add(const_cast<T *>(&m_value), 0);
 	}
 
 	void set(const T &newVal)
