@@ -180,12 +180,12 @@ void ArmBase::synchronizeThreadExit(void)
 
 bool ArmBase::hasExitRequest(void) const
 {
-	return m_ctx->exitRequest.get();
+	return m_ctx->exitRequest;
 }
 
 void ArmBase::requestExit(void)
 {
-	m_ctx->exitRequest.set(true);
+	m_ctx->exitRequest = true;
 
 	// to return immediately from the waiting.
 	if (sem_post(&m_ctx->sleepSemaphore) == -1)
