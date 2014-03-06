@@ -24,6 +24,7 @@
 #include "Hatohol.h"
 #include "Params.h"
 #include "UnifiedDataStore.h"
+#include "Reaper.h"
 #include "DBClientTest.h"
 #include "LabelUtils.h"
 #include "Helpers.h"
@@ -220,12 +221,27 @@ void test_getItemList(gconstpointer data)
 void test_serverIdDataStoreMap(void)
 {
 	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+	uds->start();
 	MonitoringServerInfo svInfo;
 	MonitoringServerInfo::initialize(svInfo);
 	svInfo.type = MONITORING_SYSTEM_FAKE;
-	cut_omit("Now target code is being implemented.");
+	svInfo.id   = 100;
+
+	// Before a DataStore is created.
+	cppcut_assert_null(uds->getDataStore(svInfo.id));
+
+	// Create a DataStore instance.
 	assertHatoholError(HTERR_OK,
 	                   uds->addTargetServer(svInfo, USER_ID_SYSTEM, false));
+
+	DataStore *dataStore0 = uds->getDataStore(svInfo.id);
+	Reaper<UsedCountable> dsReaper0(dataStore0, UsedCountable::unref);
+	cppcut_assert_not_null(dataStore0);
+
+	// The obtained DataStore instance should be the same as the previous.
+	DataStore *dataStore1 = uds->getDataStore(svInfo.id);
+	Reaper<UsedCountable> dsReaper1(dataStore1, UsedCountable::unref);
+	cppcut_assert_equal(dataStore0, dataStore1);
 }
 
 } // testUnifiedDataStore
