@@ -724,8 +724,14 @@ static void removeHostIdIfNeeded(ServerIdHostGroupHostIdMap &svIdHostGrpIdMap,
 
 size_t getNumberOfTestHosts(const ServerIdType &serverId, uint64_t hostGroupId)
 {
-	return getNumberOfTestHostsWithStatus(serverId, hostGroupId, false) +
-	       getNumberOfTestHostsWithStatus(serverId, hostGroupId, true);
+	size_t numberOfTestHosts = 0;
+	for (size_t i = 0; i < NumTestHostInfo; i++) {
+		HostInfo hostInfo = testHostInfo[i];
+		ServerIdType hostInfoServerId = hostInfo.serverId;
+		if (hostInfoServerId == serverId)
+			numberOfTestHosts++;
+	}
+	return numberOfTestHosts;
 }
 
 size_t getNumberOfTestHostsWithStatus(const ServerIdType &serverId,
