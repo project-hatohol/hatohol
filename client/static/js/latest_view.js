@@ -126,6 +126,7 @@ var LatestView = function(userProfile) {
     parsedData = parseData(rawData);
 
     self.setServerFilterCandidates(rawData["servers"]);
+    self.setHostgroupFilterCandidates(rawData["servers"]);
     self.setHostFilterCandidates(rawData["servers"]);
     self.setFilterCandidates($("#select-application"), parsedData.applications);
 

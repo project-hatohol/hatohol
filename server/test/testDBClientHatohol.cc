@@ -109,6 +109,14 @@ static void addHostgroupElement(HostgroupElement *hostgroupElement)
 #define assertAddHostgroupElementToDB(X) \
 cut_trace(_assertAddToDB<HostgroupElement>(X, addHostgroupElement))
 
+static void addHostInfoList(HostInfo *hostInfo)
+{
+	DBClientHatohol dbHatohol;
+	dbHatohol.addHostInfo(hostInfo);
+}
+#define assertAddHostInfoToDB(X) \
+cut_trace(_assertAddToDB<HostInfo>(X, addHostInfoList))
+
 struct AssertGetTriggersArg
   : public AssertGetHostResourceArg<TriggerInfo, TriggersQueryOption>
 {
@@ -169,6 +177,13 @@ static void _setupTestHostgroupElementDB(void)
 		assertAddHostgroupElementToDB(&testHostgroupElement[i]);
 }
 #define setupTestHostgroupElementDB() cut_trace(_setupTestHostgroupElementDB())
+
+static void _setupTestHostInfoDB(void)
+{
+	for (size_t i = 0; i < NumTestHostInfo; i++)
+		assertAddHostInfoToDB(&testHostInfo[i]);
+}
+#define setupTestHostInfoDB() cut_trace(_setupTestHostInfoDB())
 
 static void _assertGetTriggerInfoList(
   gconstpointer ddtParam, uint32_t serverId, uint64_t hostId = ALL_HOSTS)
@@ -334,20 +349,9 @@ struct AssertGetHostsArg
 
 	AssertGetHostsArg(gconstpointer ddtParam)
 	{
+		fixtures = testHostInfo;
+		numberOfFixtures = NumTestHostInfo;
 		setDataDrivenTestParam(ddtParam);
-	}
-
-	virtual void fixupExpectedRecords(void) // override
-	{
-		getTestHostInfoList(expectedHostList, targetServerId, NULL);
-		HostInfoListIterator it = expectedHostList.begin();
-		for (; it != expectedHostList.end(); ++it) {	
-			HostInfo &record = *it;
-			if (filterOutExpectedRecord(&record))
-				continue;
-			if (isAuthorized(record))
-				expectedRecords.push_back(&record);
-		}
 	}
 
 	virtual uint64_t getHostId(HostInfo &info)
@@ -363,12 +367,8 @@ struct AssertGetHostsArg
 
 static void _assertGetHosts(AssertGetHostsArg &arg)
 {
-	// We have to insert test trigger data in DB first. Because current
-	// implementation of DBClientHatohol creates hostInfoList from trigger
-	// table.
-	// TODO: The implementation will be fixed in the future. The DB table
-	//       for host will be added. After that, we will fix this setup.
-	setupTestTriggerDB();
+	setupTestHostInfoDB();
+	setupTestHostgroupElementDB();
 
 	DBClientHatohol dbHatohol;
 	arg.fixup();
@@ -897,7 +897,7 @@ void data_getHostInfoListForOneServer(void)
 void test_getHostInfoListForOneServer(gconstpointer data)
 {
 	AssertGetHostsArg arg(data);
-	arg.targetServerId = testTriggerInfo[0].serverId;
+	arg.targetServerId = 1;
 	assertGetHosts(arg);
 }
 
@@ -1153,6 +1153,7 @@ void test_eventQueryOptionGetServerIdColumnName(gconstpointer data)
 {
 	HostResourceQueryOption option(USER_ID_SYSTEM);
 	const string tableAlias = "test_event_table_alias";
+	const string hostgroupTableAlias = "map_hosts_hostgroups";
 	option.setTargetServerId(26);
 	option.setTargetHostgroupId(48);
 	option.setTargetHostId(32);
@@ -1162,7 +1163,7 @@ void test_eventQueryOptionGetServerIdColumnName(gconstpointer data)
 			  serverIdColumnName.c_str(),
 			  tableAlias.c_str(),
 			  hostIdColumnName.c_str(),
-			  tableAlias.c_str(),
+			  hostgroupTableAlias.c_str(),
 			  hostGroupIdColumnName.c_str());
 	fixupForFilteringDefunctServer(data, expect, option, tableAlias);
 	cppcut_assert_equal(expect, option.getCondition(tableAlias));

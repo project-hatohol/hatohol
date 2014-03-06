@@ -261,6 +261,7 @@ var EventsView = function(userProfile, baseElem) {
     self.durations = parseData(self.rawData);
 
     self.setServerFilterCandidates(self.rawData["servers"]);
+    self.setHostgroupFilterCandidates(self.rawData["servers"]);
     self.setHostFilterCandidates(self.rawData["servers"]);
     drawTableContents();
     setLoading(false);
