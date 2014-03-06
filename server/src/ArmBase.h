@@ -23,6 +23,7 @@
 #include <string>
 #include "HatoholThreadBase.h"
 #include "DBClientConfig.h"
+#include "ArmStatus.h"
 #include "Closure.h"
 
 class ArmBase : public HatoholThreadBase
@@ -39,6 +40,7 @@ public:
 	virtual ~ArmBase();
 
 	const MonitoringServerInfo &getServerInfo(void) const;
+	const ArmStatus &getArmStatus(void) const;
 
 	virtual void fetchItems(ClosureBase *closure = NULL);
 
@@ -50,6 +52,7 @@ public:
 	void setCopyOnDemandEnabled(bool enable);
 
 	const std::string &getName(void) const;
+
 
 protected:
 	/**

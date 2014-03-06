@@ -38,6 +38,7 @@ struct ArmBase::PrivateContext
 	ArmBase::UpdateType  updateType;
 	bool                 isCopyOnDemandEnabled;
 	ReadWriteLock        rwlock;
+	ArmStatus            armStatus;
 
 	PrivateContext(const string &_name,
 	               const MonitoringServerInfo &_serverInfo)
@@ -193,6 +194,11 @@ void ArmBase::requestExit(void)
 const MonitoringServerInfo &ArmBase::getServerInfo(void) const
 {
 	return m_ctx->serverInfo;
+}
+
+const ArmStatus &ArmBase::getArmStatus(void) const
+{
+	return m_ctx->armStatus;
 }
 
 void ArmBase::sleepInterruptible(int sleepTime)
