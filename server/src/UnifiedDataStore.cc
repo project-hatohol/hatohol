@@ -201,7 +201,7 @@ struct UnifiedDataStore::PrivateContext
 
 		if (isRunning) {
 			ArmInfo armInfo = armBase.getArmStatus().getArmInfo();
-			*isRunning = false;
+			*isRunning = armInfo.running;
 		}
 
 		VirtualDataStore *virtDataStore =
