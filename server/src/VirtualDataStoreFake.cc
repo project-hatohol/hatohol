@@ -26,31 +26,10 @@ using namespace mlpl;
 
 struct VirtualDataStoreFake::PrivateContext
 {
-	static VirtualDataStoreFake *instance;
-	static MutexLock             mutex;
 };
 
-VirtualDataStoreFake *VirtualDataStoreFake::PrivateContext::instance = NULL;
-MutexLock VirtualDataStoreFake::PrivateContext::mutex;
-
 // ---------------------------------------------------------------------------
-// Public static methods
-// ---------------------------------------------------------------------------
-VirtualDataStoreFake *VirtualDataStoreFake::getInstance(void)
-{
-	if (PrivateContext::instance)
-		return PrivateContext::instance;
-
-	PrivateContext::mutex.lock();
-	if (!PrivateContext::instance)
-		PrivateContext::instance = new VirtualDataStoreFake();
-	PrivateContext::mutex.unlock();
-
-	return PrivateContext::instance;
-}
-
-// ---------------------------------------------------------------------------
-// Protected methods
+// Public methods
 // ---------------------------------------------------------------------------
 VirtualDataStoreFake::VirtualDataStoreFake(void)
 : VirtualDataStore(MONITORING_SYSTEM_FAKE),
@@ -65,6 +44,9 @@ VirtualDataStoreFake::~VirtualDataStoreFake()
 		delete m_ctx;
 }
 
+// ---------------------------------------------------------------------------
+// Protected methods
+// ---------------------------------------------------------------------------
 DataStore *VirtualDataStoreFake::createDataStore(
   const MonitoringServerInfo &svInfo, const bool &autoRun)
 {

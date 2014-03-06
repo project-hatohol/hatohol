@@ -1704,7 +1704,6 @@ const char *SQLProcessorZabbix::getDBName(void)
 SQLProcessorZabbix::SQLProcessorZabbix(void)
 : SQLProcessor(getDBName(), m_tableNameStaticInfoMap)
 {
-	m_VDSZabbix = VirtualDataStoreZabbix::getInstance();
 	MLPL_INFO("created: %s\n", __func__);
 }
 
@@ -1720,7 +1719,8 @@ ItemTablePtr SQLProcessorZabbix::tableGetFuncTemplate(void)
 {
 	const ItemGroupId itemGroupId = GROUP_ID;
 	VirtualDataStoreZabbix *dataStore =
-	  VirtualDataStoreZabbix::getInstance();
+	  dynamic_cast<VirtualDataStoreZabbix *>(
+	    VirtualDataStore::getInstance(MONITORING_SYSTEM_ZABBIX));
 	const ItemTable *_itemTable = dataStore->getItemTable(itemGroupId);
 	// TODO: consider if the following 'cosnt_cast' is safe when
 	//       the ItemTable objects from the DataStore are used concurrently.

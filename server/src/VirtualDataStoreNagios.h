@@ -25,11 +25,10 @@
 class VirtualDataStoreNagios : public VirtualDataStore
 {
 public:
-	static VirtualDataStoreNagios *getInstance(void);
-
-protected:
 	VirtualDataStoreNagios(void);
 	virtual ~VirtualDataStoreNagios();
+
+protected:
 	virtual DataStore *createDataStore(
 	  const MonitoringServerInfo &svInfo,
 	  const bool &autoRun = true); // override

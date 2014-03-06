@@ -32,7 +32,9 @@
 class VirtualDataStoreZabbix : public VirtualDataStore
 {
 public:
-	static VirtualDataStoreZabbix *getInstance(void);
+	VirtualDataStoreZabbix(void);
+	virtual ~VirtualDataStoreZabbix();
+
 	// TODO: a consider const qualifier should be added again
 	ItemTablePtr getItemTable(ItemGroupId groupId);
 
@@ -52,15 +54,11 @@ private:
 	typedef std::map<ItemGroupId, DataGenerator> DataGeneratorMap;
 	typedef DataGeneratorMap::iterator           DataGeneratorMapIterator;
 
-	static mlpl::MutexLock         m_mutex;
-	static VirtualDataStoreZabbix *m_instance;
 	ItemGroupIdTableMap m_staticItemTableMap;
 	mlpl::ReadWriteLock m_staticItemTableMapLock;
 
 	DataGeneratorMap    m_dataGeneratorMap;
 
-	VirtualDataStoreZabbix(void);
-	virtual ~VirtualDataStoreZabbix();
 	void registerProfiles(ItemTable *table);
 };
 

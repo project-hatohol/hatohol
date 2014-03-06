@@ -89,6 +89,7 @@ libhatohol_la_SOURCES = \
 	UsedCountablePtr.cc UsedCountablePtr.h \
 	Utils.cc Utils.h \
 	VirtualDataStore.cc VirtualDataStore.h \
+	VirtualDataStoreFactory.cc VirtualDataStoreFactory.h \
 	VirtualDataStoreFake.cc VirtualDataStoreFake.h \
 	VirtualDataStoreNagios.cc VirtualDataStoreNagios.h \
 	VirtualDataStoreZabbix.cc VirtualDataStoreZabbix.h \

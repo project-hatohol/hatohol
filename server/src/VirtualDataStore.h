@@ -30,6 +30,9 @@
 class VirtualDataStore : public DataStoreManager
 {
 public:
+	static VirtualDataStore *getInstance(
+	  const MonitoringSystemType &monSysType);
+
 	VirtualDataStore(const MonitoringSystemType &monSysType);
 	virtual ~VirtualDataStore(void);
 

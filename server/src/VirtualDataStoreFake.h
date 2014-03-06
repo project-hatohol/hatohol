@@ -25,11 +25,10 @@
 class VirtualDataStoreFake : public VirtualDataStore
 {
 public:
-	static VirtualDataStoreFake *getInstance(void);
-
-protected:
 	VirtualDataStoreFake(void);
 	virtual ~VirtualDataStoreFake();
+
+protected:
 	virtual DataStore *createDataStore(
 	  const MonitoringServerInfo &svInfo,
 	  const bool &autoRun = true); // override

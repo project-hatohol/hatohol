@@ -28,149 +28,8 @@
 using namespace std;
 using namespace mlpl;
 
-MutexLock    VirtualDataStoreZabbix::m_mutex;
-VirtualDataStoreZabbix *VirtualDataStoreZabbix::m_instance = NULL;
-
-// ---------------------------------------------------------------------------
-// Public static methods
-// ---------------------------------------------------------------------------
-VirtualDataStoreZabbix *VirtualDataStoreZabbix::getInstance(void)
-{
-	if (m_instance)
-		return m_instance;
-
-	m_mutex.lock();
-	if (!m_instance)
-		m_instance = new VirtualDataStoreZabbix();
-	m_mutex.unlock();
-
-	return m_instance;
-}
-
 // ---------------------------------------------------------------------------
 // Public methods
-// ---------------------------------------------------------------------------
-ItemTablePtr VirtualDataStoreZabbix::getItemTable(ItemGroupId groupId)
-{
-	// search from DataGenerators
-	DataGeneratorMapIterator generatorIt = 
-	  m_dataGeneratorMap.find(groupId);
-	if (generatorIt != m_dataGeneratorMap.end()) {
-		DataGenerator generator = generatorIt->second;
-		return (this->*generator)();
-	}
-
-	// search from built-in on memory database
-	ItemGroupIdTableMapConstIterator it;
-	ItemTable *table = NULL;
-	m_staticItemTableMapLock.readLock();
-	it = m_staticItemTableMap.find(groupId);
-	if (it != m_staticItemTableMap.end())
-		table = it->second;
-	m_staticItemTableMapLock.unlock();
-	return ItemTablePtr(table);
-}
-
-// ---------------------------------------------------------------------------
-// Protected methods
-// ---------------------------------------------------------------------------
-DataStore *VirtualDataStoreZabbix::createDataStore(
-  const MonitoringServerInfo &svInfo, const bool &autoRun)
-{
-	return new DataStoreZabbix(svInfo, autoRun);
-}
-
-ItemTable *VirtualDataStoreZabbix::createStaticItemTable(ItemGroupId groupId)
-{
-	pair<ItemGroupIdTableMapIterator, bool> result;
-	ItemTable *table = new ItemTable();
-	m_staticItemTableMapLock.writeLock();
-	result = m_staticItemTableMap.insert
-	         (pair<ItemGroupId, ItemTable *>(groupId, table));
-	m_staticItemTableMapLock.unlock();
-	if (!result.second) {
-		string msg;
-		TRMSG(msg, "Failed: insert: groupId: %"PRIx_ITEM_GROUP". "
-		           "The element with the same ID may exisit.",
-		      groupId);
-		throw invalid_argument(msg);
-	}
-	return table;
-}
-
-ItemTablePtr VirtualDataStoreZabbix::getTriggers(void)
-{
-	HATOHOL_ASSERT(false, "Not implemented: %s", __PRETTY_FUNCTION__);
-#if 0
-	// TODO: merge data of all stores. Now just call a stub function.
-	DataStoreVector &dataStoreVect = getDataStoreVector();
-	for (size_t i = 0; i < dataStoreVect.size(); i++) {
-		DataStore *dataStore = dataStoreVect[i];
-		DataStoreZabbix *dataStoreZabbix = 
-		  dynamic_cast<DataStoreZabbix *>(dataStore);
-		// return on the first time (here is an experimental)
-		return dataStoreZabbix->getTriggers();
-	}
-#endif
-	return ItemTablePtr();
-}
-
-ItemTablePtr VirtualDataStoreZabbix::getFunctions(void)
-{
-	HATOHOL_ASSERT(false, "Not implemented: %s", __PRETTY_FUNCTION__);
-#if 0
-	// TODO: merge data of all stores. Now just call a stub function.
-	DataStoreVector &dataStoreVect = getDataStoreVector();
-	for (size_t i = 0; i < dataStoreVect.size(); i++) {
-		DataStore *dataStore = dataStoreVect[i];
-		DataStoreZabbix *dataStoreZabbix = 
-		  dynamic_cast<DataStoreZabbix *>(dataStore);
-		// return on the first time (here is an experimental)
-		return dataStoreZabbix->getFunctions();
-	}
-	THROW_HATOHOL_EXCEPTION("Not implemented: %s\n", __PRETTY_FUNCTION__);
-#endif
-	return ItemTablePtr();
-}
-
-ItemTablePtr VirtualDataStoreZabbix::getItems(void)
-{
-	HATOHOL_ASSERT(false, "Not implemented: %s", __PRETTY_FUNCTION__);
-#if 0
-	// TODO: merge data of all stores. Now just call a stub function.
-	DataStoreVector &dataStoreVect = getDataStoreVector();
-	for (size_t i = 0; i < dataStoreVect.size(); i++) {
-		DataStore *dataStore = dataStoreVect[i];
-		DataStoreZabbix *dataStoreZabbix = 
-		  dynamic_cast<DataStoreZabbix *>(dataStore);
-		// return on the first time (here is an experimental)
-		return dataStoreZabbix->getItems();
-	}
-	THROW_HATOHOL_EXCEPTION("Not implemented: %s\n", __PRETTY_FUNCTION__);
-#endif
-	return ItemTablePtr();
-}
-
-ItemTablePtr VirtualDataStoreZabbix::getHosts(void)
-{
-	HATOHOL_ASSERT(false, "Not implemented: %s", __PRETTY_FUNCTION__);
-#if 0
-	// TODO: merge data of all stores. Now just call a stub function.
-	DataStoreVector &dataStoreVect = getDataStoreVector();
-	for (size_t i = 0; i < dataStoreVect.size(); i++) {
-		DataStore *dataStore = dataStoreVect[i];
-		DataStoreZabbix *dataStoreZabbix = 
-		  dynamic_cast<DataStoreZabbix *>(dataStore);
-		// return on the first time (here is an experimental)
-		return dataStoreZabbix->getHosts();
-	}
-	THROW_HATOHOL_EXCEPTION("Not implemented: %s\n", __PRETTY_FUNCTION__);
-#endif
-	return ItemTablePtr();
-}
-
-// ---------------------------------------------------------------------------
-// Private methods
 // ---------------------------------------------------------------------------
 VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 : VirtualDataStore(MONITORING_SYSTEM_ZABBIX)
@@ -640,3 +499,125 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 VirtualDataStoreZabbix::~VirtualDataStoreZabbix()
 {
 }
+ItemTablePtr VirtualDataStoreZabbix::getItemTable(ItemGroupId groupId)
+{
+	// search from DataGenerators
+	DataGeneratorMapIterator generatorIt = 
+	  m_dataGeneratorMap.find(groupId);
+	if (generatorIt != m_dataGeneratorMap.end()) {
+		DataGenerator generator = generatorIt->second;
+		return (this->*generator)();
+	}
+
+	// search from built-in on memory database
+	ItemGroupIdTableMapConstIterator it;
+	ItemTable *table = NULL;
+	m_staticItemTableMapLock.readLock();
+	it = m_staticItemTableMap.find(groupId);
+	if (it != m_staticItemTableMap.end())
+		table = it->second;
+	m_staticItemTableMapLock.unlock();
+	return ItemTablePtr(table);
+}
+
+// ---------------------------------------------------------------------------
+// Protected methods
+// ---------------------------------------------------------------------------
+DataStore *VirtualDataStoreZabbix::createDataStore(
+  const MonitoringServerInfo &svInfo, const bool &autoRun)
+{
+	return new DataStoreZabbix(svInfo, autoRun);
+}
+
+ItemTable *VirtualDataStoreZabbix::createStaticItemTable(ItemGroupId groupId)
+{
+	pair<ItemGroupIdTableMapIterator, bool> result;
+	ItemTable *table = new ItemTable();
+	m_staticItemTableMapLock.writeLock();
+	result = m_staticItemTableMap.insert
+	         (pair<ItemGroupId, ItemTable *>(groupId, table));
+	m_staticItemTableMapLock.unlock();
+	if (!result.second) {
+		string msg;
+		TRMSG(msg, "Failed: insert: groupId: %"PRIx_ITEM_GROUP". "
+		           "The element with the same ID may exisit.",
+		      groupId);
+		throw invalid_argument(msg);
+	}
+	return table;
+}
+
+ItemTablePtr VirtualDataStoreZabbix::getTriggers(void)
+{
+	HATOHOL_ASSERT(false, "Not implemented: %s", __PRETTY_FUNCTION__);
+#if 0
+	// TODO: merge data of all stores. Now just call a stub function.
+	DataStoreVector &dataStoreVect = getDataStoreVector();
+	for (size_t i = 0; i < dataStoreVect.size(); i++) {
+		DataStore *dataStore = dataStoreVect[i];
+		DataStoreZabbix *dataStoreZabbix = 
+		  dynamic_cast<DataStoreZabbix *>(dataStore);
+		// return on the first time (here is an experimental)
+		return dataStoreZabbix->getTriggers();
+	}
+#endif
+	return ItemTablePtr();
+}
+
+ItemTablePtr VirtualDataStoreZabbix::getFunctions(void)
+{
+	HATOHOL_ASSERT(false, "Not implemented: %s", __PRETTY_FUNCTION__);
+#if 0
+	// TODO: merge data of all stores. Now just call a stub function.
+	DataStoreVector &dataStoreVect = getDataStoreVector();
+	for (size_t i = 0; i < dataStoreVect.size(); i++) {
+		DataStore *dataStore = dataStoreVect[i];
+		DataStoreZabbix *dataStoreZabbix = 
+		  dynamic_cast<DataStoreZabbix *>(dataStore);
+		// return on the first time (here is an experimental)
+		return dataStoreZabbix->getFunctions();
+	}
+	THROW_HATOHOL_EXCEPTION("Not implemented: %s\n", __PRETTY_FUNCTION__);
+#endif
+	return ItemTablePtr();
+}
+
+ItemTablePtr VirtualDataStoreZabbix::getItems(void)
+{
+	HATOHOL_ASSERT(false, "Not implemented: %s", __PRETTY_FUNCTION__);
+#if 0
+	// TODO: merge data of all stores. Now just call a stub function.
+	DataStoreVector &dataStoreVect = getDataStoreVector();
+	for (size_t i = 0; i < dataStoreVect.size(); i++) {
+		DataStore *dataStore = dataStoreVect[i];
+		DataStoreZabbix *dataStoreZabbix = 
+		  dynamic_cast<DataStoreZabbix *>(dataStore);
+		// return on the first time (here is an experimental)
+		return dataStoreZabbix->getItems();
+	}
+	THROW_HATOHOL_EXCEPTION("Not implemented: %s\n", __PRETTY_FUNCTION__);
+#endif
+	return ItemTablePtr();
+}
+
+ItemTablePtr VirtualDataStoreZabbix::getHosts(void)
+{
+	HATOHOL_ASSERT(false, "Not implemented: %s", __PRETTY_FUNCTION__);
+#if 0
+	// TODO: merge data of all stores. Now just call a stub function.
+	DataStoreVector &dataStoreVect = getDataStoreVector();
+	for (size_t i = 0; i < dataStoreVect.size(); i++) {
+		DataStore *dataStore = dataStoreVect[i];
+		DataStoreZabbix *dataStoreZabbix = 
+		  dynamic_cast<DataStoreZabbix *>(dataStore);
+		// return on the first time (here is an experimental)
+		return dataStoreZabbix->getHosts();
+	}
+	THROW_HATOHOL_EXCEPTION("Not implemented: %s\n", __PRETTY_FUNCTION__);
+#endif
+	return ItemTablePtr();
+}
+
+// ---------------------------------------------------------------------------
+// Private methods
+// ---------------------------------------------------------------------------

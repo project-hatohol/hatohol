@@ -79,13 +79,13 @@ struct UnifiedDataStore::PrivateContext
 	: isCopyOnDemandEnabled(false)
 	{ 
 		virtualDataStoreMap[MONITORING_SYSTEM_FAKE] =
-		  VirtualDataStoreFake::getInstance();
+		  VirtualDataStore::getInstance(MONITORING_SYSTEM_FAKE);
 
 		virtualDataStoreMap[MONITORING_SYSTEM_ZABBIX] =
-		  VirtualDataStoreZabbix::getInstance();
+		  VirtualDataStore::getInstance(MONITORING_SYSTEM_ZABBIX);
 
 		virtualDataStoreMap[MONITORING_SYSTEM_NAGIOS] =
-		  VirtualDataStoreNagios::getInstance();
+		  VirtualDataStore::getInstance(MONITORING_SYSTEM_NAGIOS);
 
 		// make a list
 		VirtualDataStoreMapIterator it = virtualDataStoreMap.begin();

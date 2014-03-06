@@ -26,31 +26,10 @@ using namespace mlpl;
 
 struct VirtualDataStoreNagios::PrivateContext
 {
-	static VirtualDataStoreNagios *instance;
-	static MutexLock               mutex;
 };
 
-VirtualDataStoreNagios *VirtualDataStoreNagios::PrivateContext::instance = NULL;
-MutexLock VirtualDataStoreNagios::PrivateContext::mutex;
-
 // ---------------------------------------------------------------------------
-// Public static methods
-// ---------------------------------------------------------------------------
-VirtualDataStoreNagios *VirtualDataStoreNagios::getInstance(void)
-{
-	if (PrivateContext::instance)
-		return PrivateContext::instance;
-
-	PrivateContext::mutex.lock();
-	if (!PrivateContext::instance)
-		PrivateContext::instance = new VirtualDataStoreNagios();
-	PrivateContext::mutex.unlock();
-
-	return PrivateContext::instance;
-}
-
-// ---------------------------------------------------------------------------
-// Protected methods
+// Public methods
 // ---------------------------------------------------------------------------
 VirtualDataStoreNagios::VirtualDataStoreNagios(void)
 : VirtualDataStore(MONITORING_SYSTEM_NAGIOS),
@@ -65,6 +44,9 @@ VirtualDataStoreNagios::~VirtualDataStoreNagios()
 		delete m_ctx;
 }
 
+// ---------------------------------------------------------------------------
+// Protected methods
+// ---------------------------------------------------------------------------
 DataStore *VirtualDataStoreNagios::createDataStore(
   const MonitoringServerInfo &svInfo, const bool &autoRun)
 {
