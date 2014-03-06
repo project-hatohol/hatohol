@@ -133,7 +133,7 @@ void test_isStarted(void)
 	cppcut_assert_equal(true, threadTestee.isStarted());
 	priv.mutexWaitRun.lock();
 	priv.mutexThreadExit.unlock();
-	threadTestee.stop();
+	threadTestee.waitExit();
 	cppcut_assert_equal(false, threadTestee.isStarted());
 }
 

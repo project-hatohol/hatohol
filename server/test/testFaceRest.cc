@@ -1256,7 +1256,7 @@ void cut_teardown(void)
 {
 	if (g_faceRest) {
 		try {
-			g_faceRest->stop();
+			g_faceRest->waitExit();
 		} catch (const HatoholException &e) {
 			printf("Got exception: %s\n",
 			       e.getFancyMessage().c_str());

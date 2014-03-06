@@ -53,7 +53,7 @@ public:
 	void requestExitAndSync(void)
 	{
 		requestExit();
-		stop();
+		waitExit();
 	}
 
 protected:

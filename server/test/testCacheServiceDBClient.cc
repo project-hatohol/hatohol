@@ -70,7 +70,7 @@ public:
 	{
 		m_exitRequest = true;
 		postSem(&m_requestSem);
-		HatoholThreadBase::stop();
+		HatoholThreadBase::waitExit();
 	}
 
 protected:

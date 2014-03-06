@@ -101,7 +101,7 @@ HatoholThreadBase::HatoholThreadBase(void)
 
 HatoholThreadBase::~HatoholThreadBase()
 {
-	stop();
+	waitExit();
 	if (m_ctx)
 		delete m_ctx;
 }
@@ -127,7 +127,7 @@ void HatoholThreadBase::start(bool autoDeleteObject, void *userData)
 	m_ctx->waitThreadStarted();
 }
 
-void HatoholThreadBase::stop(void)
+void HatoholThreadBase::waitExit(void)
 {
 	m_ctx->mutexForThreadExit.lock();
 	m_ctx->mutexForThreadExit.unlock();

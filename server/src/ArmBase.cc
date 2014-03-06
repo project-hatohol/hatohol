@@ -141,9 +141,9 @@ void ArmBase::start(void)
 	m_ctx->armStatus.setRunningStatus(true);
 }
 
-void ArmBase::stop(void)
+void ArmBase::waitExit(void)
 {
-	HatoholThreadBase::stop();
+	HatoholThreadBase::waitExit();
 	m_ctx->armStatus.setRunningStatus(false);
 }
 
@@ -187,7 +187,7 @@ void ArmBase::synchronizeThreadExit(void)
 
 	// wait for the finish of the thread
 	requestExit();
-	stop();
+	waitExit();
 }
 
 bool ArmBase::hasExitRequest(void) const

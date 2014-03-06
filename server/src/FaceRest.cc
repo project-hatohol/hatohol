@@ -245,11 +245,11 @@ public:
 	{
 	}
 
-	virtual void stop(void)
+	virtual void waitExit(void) // override
 	{
 		if (!isStarted())
 			return;
-		HatoholThreadBase::stop();
+		HatoholThreadBase::waitExit();
 	}
 
 protected:
@@ -438,8 +438,7 @@ FaceRest::FaceRest(CommandLineArg &cmdArg, FaceRestParam *param)
 
 FaceRest::~FaceRest()
 {
-	// wait for the finish of the thread
-	stop();
+	waitExit();
 
 	MLPL_INFO("FaceRest: stop process: started.\n");
 	if (m_ctx->soupServer) {
@@ -453,7 +452,7 @@ FaceRest::~FaceRest()
 		delete m_ctx;
 }
 
-void FaceRest::stop(void)
+void FaceRest::waitExit(void)
 {
 	if (isStarted()) {
 		m_ctx->quitRequest.set(true);
@@ -467,7 +466,7 @@ void FaceRest::stop(void)
 		Utils::setGLibIdleEvent(IterAlarm::task, NULL, m_ctx->gMainCtx);
 	}
 
-	HatoholThreadBase::stop();
+	HatoholThreadBase::waitExit();
 }
 
 void FaceRest::setNumberOfPreLoadWorkers(size_t num)

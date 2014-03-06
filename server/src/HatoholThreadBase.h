@@ -61,10 +61,9 @@ public:
 	bool isStarted(void) const;
 
 	/**
-	 * Send a stop request. This function blocks until
-	 * the thread is stopped.
+	 * Wait for the exit of the thread.
 	 */
-	virtual void stop(void);
+	virtual void waitExit(void);
 
 protected:
 	void doExceptionCallback(const std::exception &e);
