@@ -807,23 +807,12 @@ size_t getNumberOfTestHostsWithStatus(const ServerIdType &serverId,
 void getDBCTestHostInfo(HostInfoList &hostInfoList,
                         const ServerIdType &targetServerId)
 {
-	map<uint32_t, set<uint64_t> > svIdHostIdsMap;
-	map<uint32_t, set<uint64_t> >::iterator it;
-	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
-		const TriggerInfo &trigInfo = testTriggerInfo[i];
-		const ServerIdType &svId = trigInfo.serverId;
-		const uint64_t hostId = trigInfo.hostId;
-		if (targetServerId != ALL_SERVERS && svId != targetServerId)
+	for (size_t i = 0; i < NumTestHostInfo; i++) {
+		const HostInfo hostInfo = testHostInfo[i];
+		const ServerIdType &serverId = hostInfo.serverId;
+		if (targetServerId != ALL_SERVERS && serverId != targetServerId)
 			continue;
-		if (svIdHostIdsMap[svId].count(hostId))
-			continue;
-
-		HostInfo hostInfo;
-		hostInfo.serverId = svId;
-		hostInfo.id       = hostId;
-		hostInfo.hostName = trigInfo.hostName;
 		hostInfoList.push_back(hostInfo);
-		svIdHostIdsMap[svId].insert(hostId);
 	}
 }
 
