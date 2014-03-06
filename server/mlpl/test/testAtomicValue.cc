@@ -67,4 +67,13 @@ void test_sub(void)
 	cppcut_assert_equal(initValue - subValue, val.sub(subValue));
 }
 
+void test_operatorEq(void)
+{
+	AtomicValue<int> val0(0);
+	AtomicValue<int> val1(0);
+	val0 = val1 = 3;
+	cppcut_assert_equal(3, val0.get());
+	cppcut_assert_equal(3, val1.get());
+}
+
 } // namespace testAtomicValue

@@ -54,6 +54,12 @@ public:
 		return __sync_sub_and_fetch(&m_value, val);
 	}
 
+	const T &operator=(const T &rhs)
+	{
+		set(rhs);
+		return rhs;
+	}
+
 private:
 	volatile T m_value;
 };
