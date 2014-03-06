@@ -182,10 +182,14 @@ struct UnifiedDataStore::PrivateContext
 	HatoholError stopDataStore(const ServerIdType &serverId,
 	                           bool *isRunning = NULL)
 	{
+		serverIdDataStoreMapLock.readLock();
 		ServerIdDataStoreMapIterator it =
 		  serverIdDataStoreMap.find(serverId);
-		if (it == serverIdDataStoreMap.end())
+		const bool found = (it != serverIdDataStoreMap.end());
+		serverIdDataStoreMapLock.unlock();
+		if (!found)
 			return HTERR_INVALID_PARAMETER;
+
 		const MonitoringServerInfo &svInfo =
 		  it->second->getArmBase().getServerInfo();
 		HATOHOL_ASSERT(
