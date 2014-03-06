@@ -1212,9 +1212,15 @@ static void addHostsMap(
   FaceRest::RestJob *job, JsonBuilderAgent &agent,
   MonitoringServerInfo &serverInfo)
 {
+	HostgroupIdType targetHostgroupId = ALL_HOST_GROUPS;
+	char *value = (char *)g_hash_table_lookup(job->query, "hostGroupId");
+	if (value)
+		sscanf(value, "%"FMT_HOST_GROUP_ID, &targetHostgroupId);
+
 	HostInfoList hostList;
 	HostsQueryOption option(job->userId);
 	option.setTargetServerId(serverInfo.id);
+	option.setTargetHostgroupId(targetHostgroupId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	dataStore->getHostList(hostList, option);
 	HostInfoListIterator it = hostList.begin();
