@@ -1397,17 +1397,9 @@ static void serverInfo2StringMap(
 void test_addServer(void)
 {
 	MonitoringServerInfo expected;
+	MonitoringServerInfo::initialize(expected);
 	expected.id = NumTestServerInfo + 1;
-	expected.type = static_cast<MonitoringSystemType>(0);
-	expected.hostName = "zabbix";
-	expected.ipAddress = "10.1.1.1";
-	expected.nickname = "TestZabbixServer";
-	expected.port = 80;
-	expected.pollingIntervalSec = 30;
-	expected.retryIntervalSec = 10;
-	expected.userName = "w(^_^)d";
-	expected.password = "y@ru0";
-	expected.dbName = "";
+	expected.type = MONITORING_SYSTEM_FAKE;
 
 	StringMap params;
 	serverInfo2StringMap(expected, params);
