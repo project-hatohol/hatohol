@@ -42,10 +42,10 @@ struct UnifiedDataStore::PrivateContext
 	struct UnifiedDataStoreEventProc : public DataStoreEventProc
 	{
 		PrivateContext *ctx;
-		bool enableCopyOnDemand;
+		const bool &enableCopyOnDemand;
 
 		UnifiedDataStoreEventProc(PrivateContext *_ctx,
-		                          bool copyOnDemand)
+		                          const bool &copyOnDemand)
 		: ctx(_ctx),
 		  enableCopyOnDemand(copyOnDemand)
 		{
@@ -87,10 +87,18 @@ struct UnifiedDataStore::PrivateContext
 		virtualDataStoreMap[MONITORING_SYSTEM_NAGIOS] =
 		  VirtualDataStore::getInstance(MONITORING_SYSTEM_NAGIOS);
 
+		// TODO: When should the object be freed ?
+		UnifiedDataStoreEventProc *evtProc =
+		  new PrivateContext::UnifiedDataStoreEventProc(
+		    this, isCopyOnDemandEnabled);
+
 		// make a list
 		VirtualDataStoreMapIterator it = virtualDataStoreMap.begin();
-		for (; it != virtualDataStoreMap.end(); ++it)
-			virtualDataStoreList.push_back(it->second);
+		for (; it != virtualDataStoreMap.end(); ++it) {
+			VirtualDataStore *virtDataStore = it->second;
+			virtDataStore->registEventProc(evtProc);
+			virtualDataStoreList.push_back(virtDataStore);
+		}
 	};
 
 	void virtualDataStoreForeach(VirtualDataStoreForeachProc *vdsProc)
@@ -230,18 +238,12 @@ void UnifiedDataStore::start(void)
 {
 	struct : public VirtualDataStoreForeachProc
 	{
-		PrivateContext::UnifiedDataStoreEventProc *evtProc;
 		virtual bool operator()(VirtualDataStore *virtDataStore)
 		{
-			virtDataStore->registEventProc(evtProc);
 			virtDataStore->start();
 			return false;
 		}
 	} starter;
-
-	starter.evtProc =
-	  new PrivateContext::UnifiedDataStoreEventProc(
-	    m_ctx, m_ctx->isCopyOnDemandEnabled);
 	m_ctx->virtualDataStoreForeach(&starter);
 }
 
