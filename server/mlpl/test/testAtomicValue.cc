@@ -76,4 +76,11 @@ void test_operatorEq(void)
 	cppcut_assert_equal(3, val1.get());
 }
 
+void test_operatorCast(void)
+{
+	AtomicValue<int> val(7);
+	int i = val;
+	cppcut_assert_equal(7, i);
+}
+
 } // namespace testAtomicValue

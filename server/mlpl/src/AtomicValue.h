@@ -60,6 +60,11 @@ public:
 		return rhs;
 	}
 
+	operator T()
+	{
+		return get();
+	}
+
 private:
 	volatile T m_value;
 };
