@@ -1450,8 +1450,18 @@ void test_deleteServer(void)
 	bool dbRecreate = true;
 	bool loadTestData = true;
 	setupTestDBUser(dbRecreate, loadTestData);
+	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
 
-	const ServerIdType targetServerId = 1;
+	// a copy is necessary not to change the source.
+	MonitoringServerInfo targetSvInfo = testServerInfo[0];
+
+	assertHatoholError(
+	  HTERR_OK,
+	  uds->addTargetServer(targetSvInfo,
+	                       OperationPrivilege(USER_ID_SYSTEM), false)
+	);
+
+	const ServerIdType targetServerId = targetSvInfo.id;
 	const UserIdType userId = findUserWith(OPPRVLG_DELETE_SERVER);
 	string url = StringUtils::sprintf("/server/%"FMT_SERVER_ID,
 					  targetServerId);

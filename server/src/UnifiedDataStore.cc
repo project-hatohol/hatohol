@@ -176,7 +176,27 @@ struct UnifiedDataStore::PrivateContext
 		  findVirtualDataStore(svInfo.type);
 		if (!virtDataStore)
 			return HTERR_INVALID_MONITORING_SYSTEM_TYPE;
-		return virtDataStore->start(svInfo);
+		return virtDataStore->start(svInfo, autoRun);
+	}
+
+	HatoholError stopDataStore(const ServerIdType &serverId)
+	{
+		ServerIdDataStoreMapIterator it =
+		  serverIdDataStoreMap.find(serverId);
+		if (it == serverIdDataStoreMap.end())
+			return HTERR_INVALID_PARAMETER;
+		const MonitoringServerInfo &svInfo =
+		  it->second->getArmBase().getServerInfo();
+		HATOHOL_ASSERT(
+		  svInfo.id == serverId,
+		  "svInfo.id: %"FMT_SERVER_ID", serverId: %"FMT_SERVER_ID, 
+		  svInfo.id, serverId);
+
+		VirtualDataStore *virtDataStore =
+		  findVirtualDataStore(svInfo.type);
+		if (!virtDataStore)
+			return HTERR_INVALID_MONITORING_SYSTEM_TYPE;
+		return virtDataStore->stop(serverId);
 	}
 
 private:
@@ -541,17 +561,7 @@ HatoholError UnifiedDataStore::deleteTargetServer(
 	if (err != HTERR_OK)
 		return err;
 
-	// TODO: Use a direct way with the map
-	struct : public VirtualDataStoreForeachProc {
-		ServerIdType serverId;
-		virtual bool operator()(VirtualDataStore *virtDataStore) {
-			HatoholError err = virtDataStore->stop(serverId);
-			return err == HTERR_OK;
-		}
-	} stopper;
-	stopper.serverId = serverId;
-	m_ctx->virtualDataStoreForeach(&stopper);
-	return err;
+	return m_ctx->stopDataStore(serverId);
 }
 
 void UnifiedDataStore::virtualDataStoreForeach(
