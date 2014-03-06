@@ -19,6 +19,7 @@
 
 #include <stdexcept>
 #include <MutexLock.h>
+#include <AtomicValue.h>
 #include "UnifiedDataStore.h"
 #include "VirtualDataStoreZabbix.h"
 #include "VirtualDataStoreNagios.h"
@@ -42,10 +43,11 @@ struct UnifiedDataStore::PrivateContext
 	struct UnifiedDataStoreEventProc : public DataStoreEventProc
 	{
 		PrivateContext *ctx;
-		const bool &enableCopyOnDemand;
+		const AtomicValue<bool> &enableCopyOnDemand;
 
-		UnifiedDataStoreEventProc(PrivateContext *_ctx,
-		                          const bool &copyOnDemand)
+		UnifiedDataStoreEventProc(
+		  PrivateContext *_ctx,
+		  const AtomicValue<bool> &copyOnDemand)
 		: ctx(_ctx),
 		  enableCopyOnDemand(copyOnDemand)
 		{
@@ -57,7 +59,8 @@ struct UnifiedDataStore::PrivateContext
 
 		virtual void onAdded(DataStore *dataStore) // override
 		{
-			dataStore->setCopyOnDemandEnable(enableCopyOnDemand);
+			const bool enable = enableCopyOnDemand.get();
+			dataStore->setCopyOnDemandEnable(enable);
 			ctx->addToDataStoreMap(dataStore);
 		}
 
@@ -72,7 +75,7 @@ struct UnifiedDataStore::PrivateContext
 
 	ReadWriteLock            serverIdDataStoreMapLock;
 	ServerIdDataStoreMap     serverIdDataStoreMap;
-	bool                     isCopyOnDemandEnabled;
+	AtomicValue<bool>        isCopyOnDemandEnabled;
 	ItemFetchWorker          itemFetchWorker;
 
 	PrivateContext()
@@ -405,12 +408,12 @@ size_t UnifiedDataStore::getNumberOfBadHosts(const HostsQueryOption &option)
 
 bool UnifiedDataStore::getCopyOnDemandEnabled(void) const
 {
-	return m_ctx->isCopyOnDemandEnabled;
+	return m_ctx->isCopyOnDemandEnabled.get();
 }
 
 void UnifiedDataStore::setCopyOnDemandEnabled(bool enable)
 {
-	m_ctx->isCopyOnDemandEnabled = enable;
+	m_ctx->isCopyOnDemandEnabled.set(enable);
 }
 
 HatoholError UnifiedDataStore::addAction(ActionDef &actionDef,
