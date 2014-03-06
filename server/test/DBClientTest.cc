@@ -613,16 +613,6 @@ uint64_t findLastEventId(const ServerIdType &serverId)
 	return maxId;
 }
 
-static void addHostInfoToList(HostInfoList &hostInfoList,
-                              const TriggerInfo &trigInfo)
-{
-	hostInfoList.push_back(HostInfo());
-	HostInfo &hostInfo = hostInfoList.back();
-	hostInfo.serverId = trigInfo.serverId;
-	hostInfo.id       = trigInfo.hostId;
-	hostInfo.hostName = trigInfo.hostName;
-}
-
 void getTestTriggersIndexes(
   map<ServerIdType, map<uint64_t, size_t> > &indexMap,
   const ServerIdType &serverId, uint64_t hostId)
