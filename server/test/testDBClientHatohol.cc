@@ -368,6 +368,7 @@ struct AssertGetHostsArg
 static void _assertGetHosts(AssertGetHostsArg &arg)
 {
 	setupTestHostInfoDB();
+	setupTestHostgroupElementDB();
 
 	DBClientHatohol dbHatohol;
 	arg.fixup();
