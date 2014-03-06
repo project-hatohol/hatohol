@@ -33,6 +33,7 @@ void test_getArmInfoInitial(void)
 	ArmStatus armStatus;
 	const ArmInfo armInfo = armStatus.getArmInfo();
 	const SmartTime initTime;
+	cppcut_assert_equal(false, armInfo.running);
 	cppcut_assert_equal(ARM_WORK_STAT_INIT, armInfo.stat);
 	cppcut_assert_equal(true, armInfo.failureComment.empty());
 	cppcut_assert_equal(initTime, armInfo.statUpdateTime);

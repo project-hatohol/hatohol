@@ -27,7 +27,8 @@ using namespace mlpl;
 // ArmInfo
 // ---------------------------------------------------------------------------
 ArmInfo::ArmInfo(void)
-: stat(ARM_WORK_STAT_INIT),
+: running(false),
+  stat(ARM_WORK_STAT_INIT),
   numTryToGet(0),
   numFailure(0)
 {

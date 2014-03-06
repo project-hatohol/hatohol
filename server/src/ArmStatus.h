@@ -31,6 +31,8 @@ enum ArmWorkingStatus {
 
 struct ArmInfo
 {
+	bool             running;
+
 	ArmWorkingStatus stat;
 	mlpl::SmartTime  statUpdateTime;
 	std::string      failureComment;
