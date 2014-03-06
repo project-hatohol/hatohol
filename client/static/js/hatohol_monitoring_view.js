@@ -117,7 +117,7 @@ HatoholMonitoringView.prototype.setServerFilterCandidates =
   $(selectorId).val(current);
 };
 
-HatoholMonitoringView.prototype.setHostGroupFilterCandidates =
+HatoholMonitoringView.prototype.setHostgroupFilterCandidates =
   function(servers, serverId, selectorId)
 {
   var id, server, groups, groupLabels = [], current;
