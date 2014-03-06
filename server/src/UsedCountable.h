@@ -28,6 +28,8 @@ public:
 	void unref(void) const;
 	int getUsedCount(void) const;
 
+	static void unref(UsedCountable *countable);
+
 protected:
 	UsedCountable(const int &initialUsedCount = 1);
 	virtual ~UsedCountable();

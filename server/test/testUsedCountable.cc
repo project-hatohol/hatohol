@@ -78,4 +78,13 @@ void test_refUnref(void)
 	cppcut_assert_equal(1, g_countable->getUsedCount());
 }
 
+void test_staticUnref(void)
+{
+	g_countable = new TestUsedCountable();
+	g_countable->ref();
+	cppcut_assert_equal(2, g_countable->getUsedCount());
+	UsedCountable::unref(g_countable);
+	cppcut_assert_equal(1, g_countable->getUsedCount());
+}
+
 } // namespace testUsedCountable

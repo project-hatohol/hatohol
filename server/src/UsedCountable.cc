@@ -40,6 +40,11 @@ int UsedCountable::getUsedCount(void) const
 	return m_usedCount.get();
 }
 
+void UsedCountable::unref(UsedCountable *countable)
+{
+	countable->unref();
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
