@@ -1417,9 +1417,12 @@ void DBClientHatohol::getHostInfoList(HostInfoList &hostInfoList,
 	DBAgent::SelectMultiTableArg arg(tableProfiles, numTableProfiles);
 
 	arg.tableField = StringUtils::sprintf(
-	  " %s inner join %s on %s=%s",
+	  " %s inner join %s on ((%s=%s) and (%s=%s))",
 	  TABLE_NAME_HOSTS,
 	  TABLE_NAME_MAP_HOSTS_HOSTGROUPS,
+	  arg.getFullName(TBLIDX_HOSTS, IDX_HOSTS_SERVER_ID).c_str(),
+	  arg.getFullName(TBLIDX_MAP_HOSTS_HOSTGROUPS,
+	                  IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID).c_str(),
 	  arg.getFullName(TBLIDX_HOSTS, IDX_HOSTS_HOST_ID).c_str(),
 	  arg.getFullName(TBLIDX_MAP_HOSTS_HOSTGROUPS,
 	                  IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID).c_str());
