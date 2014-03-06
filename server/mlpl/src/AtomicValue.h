@@ -60,7 +60,7 @@ public:
 		return rhs;
 	}
 
-	operator T()
+	operator T() const
 	{
 		return get();
 	}
