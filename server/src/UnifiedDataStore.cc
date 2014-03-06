@@ -190,15 +190,16 @@ struct UnifiedDataStore::PrivateContext
 		if (!found)
 			return HTERR_INVALID_PARAMETER;
 
-		const MonitoringServerInfo &svInfo =
-		  it->second->getArmBase().getServerInfo();
+		ArmBase &armBase = it->second->getArmBase();
+		const MonitoringServerInfo &svInfo = armBase.getServerInfo();
 		HATOHOL_ASSERT(
 		  svInfo.id == serverId,
 		  "svInfo.id: %"FMT_SERVER_ID", serverId: %"FMT_SERVER_ID, 
 		  svInfo.id, serverId);
+
 		if (isRunning) {
-			MLPL_BUG("Shoud get the running status\n");
-			*isRunning = false; // temporary
+			ArmInfo armInfo = armBase.getArmStatus().getArmInfo();
+			*isRunning = false;
 		}
 
 		VirtualDataStore *virtDataStore =
