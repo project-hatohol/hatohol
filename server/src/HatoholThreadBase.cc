@@ -37,12 +37,14 @@ struct HatoholThreadBase::PrivateContext {
 	ReadWriteLock rwlock;
 	ExceptionCallbackInfoList exceptionCbList;
 	ExitCallbackInfoList      exitCbList;
+	MutexLock                 mutexForThreadStart;
 	MutexLock                 mutexForThreadExit;
 
 	// methods
 	PrivateContext(void)
 	: thread(NULL)
 	{
+		mutexForThreadStart.lock();
 	}
 
 	virtual ~PrivateContext()
@@ -74,6 +76,17 @@ struct HatoholThreadBase::PrivateContext {
 	void write_unlock(void)
 	{
 		rwlock.unlock();
+	}
+
+	void waitThreadStarted(void)
+	{
+		mutexForThreadStart.lock();
+	}
+
+	void notifyThreadStarted(void)
+	{
+		mutexForThreadExit.lock();
+		mutexForThreadStart.unlock();
 	}
 };
 
@@ -111,6 +124,7 @@ void HatoholThreadBase::start(bool autoDeleteObject, void *userData)
 		         error->message);
 		g_error_free(error);
 	}
+	m_ctx->waitThreadStarted();
 }
 
 void HatoholThreadBase::stop(void)
@@ -195,7 +209,7 @@ gpointer HatoholThreadBase::threadStarter(gpointer data)
 	// even if it is due to an exception.
 	Reaper<HatoholThreadArg> threadCleaner(arg, threadCleanup);
 
-	arg->obj->m_ctx->mutexForThreadExit.lock();
+	arg->obj->m_ctx->notifyThreadStarted();
 	try {
 		ret = arg->obj->mainThread(arg);
 	} catch (const HatoholException &e) {
