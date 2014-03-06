@@ -259,15 +259,23 @@ void test_executeOnGlibEventLoopFromSameContextForFunctor(void)
 
 void test_executeOnGlibEventLoopAsync(void)
 {
+	struct {
+		static gboolean expired(gpointer data)
+		{
+			cut_fail("Timer expired.");
+			return G_SOURCE_REMOVE;
+		}
+	} proc;
+
 	acquireDefaultContext();
 
 	TestExecEvtLoop thread;
 	thread.start();
 	thread.syncType = ASYNC;
 	const size_t timeoutInMSec = 5000;
-	cppcut_assert_equal(MutexLock::STAT_OK,
-	                    thread.mutex.timedlock(timeoutInMSec));
+	guint timer_tag = g_timeout_add(timeoutInMSec, proc.expired, NULL);
 	g_main_loop_run(thread.loop);
+	g_source_remove(timer_tag);
 
 	cppcut_assert_equal(Utils::getThreadId(), thread.eventLoopThreadId);
 	cppcut_assert_not_equal(0, thread.eventLoopThreadId);
