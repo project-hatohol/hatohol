@@ -147,6 +147,14 @@ DataStoreVector DataStoreManager::getDataStoreVector(void)
 	return dataStoreVector;
 }
 
+size_t DataStoreManager::getNumberOfDataStores(void) const
+{
+	m_ctx->mutex.lock();
+	size_t num = m_ctx->dataStoreMap.size();
+	m_ctx->mutex.unlock();
+	return num;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

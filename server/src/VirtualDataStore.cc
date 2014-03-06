@@ -122,6 +122,8 @@ HatoholError VirtualDataStore::start(const MonitoringServerInfo &svInfo,
 
 void VirtualDataStore::stop(void)
 {
+	if (getNumberOfDataStores() == 0)
+		return;
 	MLPL_INFO("VirtualDataStore: stop process: started.\n");
 	closeAllStores();
 }

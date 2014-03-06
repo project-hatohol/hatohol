@@ -90,6 +90,13 @@ public:
 	 */
 	DataStoreVector getDataStoreVector(void);
 
+	/**
+	 * Get the number of DataStore instances.
+	 *
+	 * @return * A number of DataStore instance.
+	 */
+	size_t getNumberOfDataStores(void) const;
+
 protected:
 	void closeAllStores(void);
 	void callAddedHandlers(DataStore *dataStore);
