@@ -179,7 +179,8 @@ struct UnifiedDataStore::PrivateContext
 		return virtDataStore->start(svInfo, autoRun);
 	}
 
-	HatoholError stopDataStore(const ServerIdType &serverId)
+	HatoholError stopDataStore(const ServerIdType &serverId,
+	                           bool *isRunning = NULL)
 	{
 		ServerIdDataStoreMapIterator it =
 		  serverIdDataStoreMap.find(serverId);
@@ -191,6 +192,10 @@ struct UnifiedDataStore::PrivateContext
 		  svInfo.id == serverId,
 		  "svInfo.id: %"FMT_SERVER_ID", serverId: %"FMT_SERVER_ID, 
 		  svInfo.id, serverId);
+		if (isRunning) {
+			MLPL_BUG("Shoud get the running status\n");
+			*isRunning = false; // temporary
+		}
 
 		VirtualDataStore *virtDataStore =
 		  findVirtualDataStore(svInfo.type);
@@ -536,20 +541,11 @@ HatoholError UnifiedDataStore::updateTargetServer(
 	if (err != HTERR_OK)
 		return err;
 
-	// TODO: Use a direct way with the map
-	struct : public VirtualDataStoreForeachProc {
-		MonitoringServerInfo *svInfo;
-		virtual bool operator()(VirtualDataStore *virtDataStore) {
-			HatoholError err = virtDataStore->stop(svInfo->id);
-			if (err != HTERR_OK)
-				return false;
-			err = virtDataStore->start(*svInfo);
-			return err == HTERR_OK;
-		}
-	} restarter;
-	restarter.svInfo = &svInfo;
-	m_ctx->virtualDataStoreForeach(&restarter);
-	return err;
+	bool isRunning = false;
+	err = m_ctx->stopDataStore(svInfo.id, &isRunning);
+	if (err != HTERR_OK)
+		return err;
+	return m_ctx->startDataStore(svInfo, isRunning);
 }
 
 HatoholError UnifiedDataStore::deleteTargetServer(

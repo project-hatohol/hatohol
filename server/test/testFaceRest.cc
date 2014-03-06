@@ -946,22 +946,6 @@ void _assertAddServerWithSetup(const StringMap &params,
 }
 #define assertAddServerWithSetup(P,C) cut_trace(_assertAddServerWithSetup(P,C))
 
-#define assertUpdateServer(P, ...) \
-cut_trace(_assertUpdateRecord(P, "/server", ##__VA_ARGS__))
-
-void _assertUpdateServerWithSetup(const StringMap &params,
-				  uint32_t targetServerId,
-				  const HatoholErrorCode &expectCode)
-{
-	const bool dbRecreate = true;
-	const bool loadTestDat = true;
-	setupTestDBUser(dbRecreate, loadTestDat);
-	const UserIdType userId = findUserWith(OPPRVLG_UPDATE_ALL_SERVER);
-	assertUpdateServer(params, targetServerId, userId, expectCode);
-}
-#define assertUpdateServerWithSetup(P,U,C) \
-cut_trace(_assertUpdateServerWithSetup(P,U,C))
-
 static void setupTestMode(void)
 {
 	CommandLineArg arg;
@@ -1427,20 +1411,43 @@ void test_addServerWithoutNickname(void)
 
 void test_updateServer(void)
 {
-	int targetId = 2;
-	MonitoringServerInfo expected = testServerInfo[0];
-	expected.id = targetId;
+	startFaceRest();
+	bool dbRecreate = true;
+	bool loadTestData = true;
+	setupTestDBUser(dbRecreate, loadTestData);
 
+	// a copy is necessary not to change the source.
+	MonitoringServerInfo srcSvInfo = testServerInfo[0];
+	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+	assertHatoholError(
+	  HTERR_OK,
+	  uds->addTargetServer(srcSvInfo,
+	                       OperationPrivilege(USER_ID_SYSTEM), false)
+	);
+
+	MonitoringServerInfo updateSvInfo = testServerInfo[1]; // make a copy;
+	const UserIdType userId = findUserWith(OPPRVLG_UPDATE_ALL_SERVER);
+	string url = StringUtils::sprintf("/server/%"FMT_SERVER_ID, srcSvInfo.id);
 	StringMap params;
-	serverInfo2StringMap(expected, params);
-	assertUpdateServerWithSetup(params, targetId, HTERR_OK);
+	serverInfo2StringMap(updateSvInfo, params);
+
+	// send a request
+	RequestArg arg(url);
+	arg.parameters = params;
+	arg.request = "PUT";
+	arg.userId = userId;
+	g_parser = getResponseAsJsonParser(arg);
+	assertErrorCode(g_parser);
+	assertValueInParser(g_parser, "id", srcSvInfo.id);
 
 	// check the content in the DB
 	DBClientConfig dbConfig;
 	string statement = StringUtils::sprintf(
-	                     "select * from servers where id=%d",
-			     targetId);
-	string expectedOutput = makeServerInfoOutput(expected);
+	                     "select * from servers where id=%d", srcSvInfo.id);
+	updateSvInfo.id = srcSvInfo.id;
+ 	// TODO: serverInfo2StringMap() doesn't set dbName. Is this OK ?
+	updateSvInfo.dbName = srcSvInfo.dbName;
+	string expectedOutput = makeServerInfoOutput(updateSvInfo);
 	assertDBContent(dbConfig.getDBAgent(), statement, expectedOutput);
 }
 
