@@ -1404,14 +1404,36 @@ DBClientHatohol::~DBClientHatohol()
 void DBClientHatohol::getHostInfoList(HostInfoList &hostInfoList,
 				      const HostsQueryOption &option)
 {
-	DBAgent::SelectExArg arg(tableProfileHosts);
+	static const DBAgent::TableProfile *tableProfiles[] = {
+	  &tableProfileHosts,
+	  &tableProfileMapHostsHostgroups,
+	};
+	enum {
+		TBLIDX_HOSTS,
+		TBLIDX_MAP_HOSTS_HOSTGROUPS,
+	};
+	static const size_t numTableProfiles =
+	  sizeof(tableProfiles) / sizeof(DBAgent::TableProfile *);
+	DBAgent::SelectMultiTableArg arg(tableProfiles, numTableProfiles);
 
+	arg.tableField = StringUtils::sprintf(
+	  " %s inner join %s on %s=%s",
+	  TABLE_NAME_HOSTS,
+	  TABLE_NAME_MAP_HOSTS_HOSTGROUPS,
+	  arg.getFullName(TBLIDX_HOSTS, IDX_HOSTS_HOST_ID).c_str(),
+	  arg.getFullName(TBLIDX_MAP_HOSTS_HOSTGROUPS,
+	                  IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID).c_str());
+
+	arg.setTable(TBLIDX_HOSTS);
 	arg.add(IDX_HOSTS_SERVER_ID);
 	arg.add(IDX_HOSTS_HOST_ID);
 	arg.add(IDX_HOSTS_HOST_NAME);
 
+	arg.setTable(TBLIDX_MAP_HOSTS_HOSTGROUPS);
+	arg.add(IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
+
 	// condition
-	arg.condition = option.getCondition();
+	arg.condition = option.getCondition(TABLE_NAME_HOSTS);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -1427,6 +1449,7 @@ void DBClientHatohol::getHostInfoList(HostInfoList &hostInfoList,
 		itemGroupStream >> hostInfo.serverId;
 		itemGroupStream >> hostInfo.id;
 		itemGroupStream >> hostInfo.hostName;
+		itemGroupStream >> hostInfo.hostgroupId;
 	}
 }
 

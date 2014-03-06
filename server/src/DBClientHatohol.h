@@ -53,6 +53,7 @@ struct HostInfo {
 	ServerIdType        serverId;
 	HostIdType          id;
 	std::string         hostName;
+	HostgroupIdType     hostgroupId;
 
 	// The follwong members are currently not used.
 	std::string         ipAddr;
