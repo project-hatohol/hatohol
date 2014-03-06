@@ -150,6 +150,7 @@ var OverviewItems = function(userProfile) {
     rawData = reply;
     parsedData = parseData(reply);
     self.setServerFilterCandidates(rawData["servers"]);
+    self.setHostgroupFilterCandidates(rawData["servers"]);
     self.setHostFilterCandidates(rawData["servers"]);
     drawTableContents(parsedData);
     setLoading(false);
