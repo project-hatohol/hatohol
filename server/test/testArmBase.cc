@@ -50,12 +50,6 @@ public:
 		m_oneProcHookData = data;
 	}
 
-	void requestExitAndSync(void)
-	{
-		requestExit();
-		waitExit();
-	}
-
 protected:
 	virtual bool mainThreadOneProc(void) // override
 	{
@@ -145,7 +139,7 @@ void test_startStop(void)
 	cppcut_assert_equal(false, armStatus.getArmInfo().running);
 	armBase.start();
 	cppcut_assert_equal(true, armStatus.getArmInfo().running);
-	armBase.requestExitAndSync();
+	armBase.callRequestExitAndWait();
 	cppcut_assert_equal(false, armStatus.getArmInfo().running);
 }
 
