@@ -39,6 +39,9 @@ public:
 	        const MonitoringServerInfo &serverInfo);
 	virtual ~ArmBase();
 
+	void start(void);
+	void stop(void);
+
 	const MonitoringServerInfo &getServerInfo(void) const;
 	const ArmStatus &getArmStatus(void) const;
 

@@ -135,6 +135,18 @@ ArmBase::~ArmBase()
 		delete m_ctx;
 }
 
+void ArmBase::start(void)
+{
+	HatoholThreadBase::start();
+	m_ctx->armStatus.setRunningStatus(true);
+}
+
+void ArmBase::stop(void)
+{
+	HatoholThreadBase::stop();
+	m_ctx->armStatus.setRunningStatus(false);
+}
+
 void ArmBase::fetchItems(ClosureBase *closure)
 {
 	setUpdateType(UPDATE_ITEM_REQUEST);

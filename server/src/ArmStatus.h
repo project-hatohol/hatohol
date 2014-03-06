@@ -60,6 +60,8 @@ public:
 	 */
 	ArmInfo getArmInfo(void) const;
 
+	void setRunningStatus(const bool &running);
+
 protected:
 
 private:

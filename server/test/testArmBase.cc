@@ -50,6 +50,12 @@ public:
 		m_oneProcHookData = data;
 	}
 
+	void requestExitAndSync(void)
+	{
+		requestExit();
+		stop();
+	}
+
 protected:
 	virtual bool mainThreadOneProc(void) // override
 	{
@@ -128,6 +134,19 @@ void test_synchronizeThreadExit(void)
 
 	armBase.callSynchronizeThreadExit();
 	cppcut_assert_equal(true, ctx.called.get());
+}
+
+void test_startStop(void)
+{
+	MonitoringServerInfo serverInfo;
+	initServerInfo(serverInfo);
+	TestArmBase armBase(__func__, serverInfo);
+	const ArmStatus &armStatus = armBase.getArmStatus();
+	cppcut_assert_equal(false, armStatus.getArmInfo().running);
+	armBase.start();
+	cppcut_assert_equal(true, armStatus.getArmInfo().running);
+	armBase.requestExitAndSync();
+	cppcut_assert_equal(false, armStatus.getArmInfo().running);
 }
 
 } // namespace testArmBase

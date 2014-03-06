@@ -67,6 +67,13 @@ ArmInfo ArmStatus::getArmInfo(void) const
 	return armInfo;
 }
 
+void ArmStatus::setRunningStatus(const bool &running)
+{
+	m_ctx->rwlock.readLock();
+	m_ctx->armInfo.running = running;
+	m_ctx->rwlock.unlock();
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
