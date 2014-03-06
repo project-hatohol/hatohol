@@ -113,10 +113,10 @@ HatoholError VirtualDataStore::start(const MonitoringServerInfo &svInfo,
 	DataStore *dataStore = createDataStore(svInfo, autoRun);
 	if (!dataStore)
 		return HTERR_FAILED_TO_CREATE_DATA_STORE;
-	if (!add(svInfo.id, dataStore)) {
-		dataStore->unref();
+	bool successed = add(svInfo.id, dataStore);
+	dataStore->unref(); // incremented in the above add() if successed
+	if (!successed)
 		return HTERR_FAILED_TO_REGIST_DATA_STORE;
-	}
 	return HTERR_OK;
 }
 
