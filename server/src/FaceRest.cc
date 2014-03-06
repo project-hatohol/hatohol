@@ -52,9 +52,6 @@ typedef map<ServerIdType, HostNameMap> HostNameMaps;
 typedef map<TriggerIdType, string> TriggerBriefMap;
 typedef map<ServerIdType, TriggerBriefMap> TriggerBriefMaps;
 
-typedef map<HostGroupIdType, string> HostgroupIdNameMap;
-typedef map<ServerIdType, HostgroupIdNameMap> ServerIdHostgroupIdNameMap;
-
 static const guint DEFAULT_PORT = 33194;
 
 const char *FaceRest::pathForTest        = "/test";
@@ -285,7 +282,7 @@ private:
 template<typename InfoListT, typename InfoT, typename TargetIdT>
 class FaceRest::HandlerGetHelper {
 public:
-	typedef vector<HostGroupIdType> HostgroupIdVector;
+	typedef vector<HostgroupIdType> HostgroupIdVector;
 	typedef map<TargetIdT, HostgroupIdVector> DataIdHostgroupIdVectorMap;
 	typedef map<ServerIdType, DataIdHostgroupIdVectorMap>
 	  ServerIdDataIdHostgroupIdVectorMap;
@@ -319,12 +316,6 @@ public:
 			m_ctx->serverDataHostgroupIdVectorMap
 			  [info.serverId][info.id].push_back(
 			    info.hostgroupId);
-			// TODO: consider a design:
-			// Hosgroup name is every time updated (probably
-			// a copy of string is craeted), even if
-			// it's unncessary.
-			m_ctx->hostgroupNameMaps[info.serverId]
-			  [info.hostgroupId] = info.hostgroupName;
 		}
 	}
 
@@ -386,16 +377,10 @@ public:
 		return m_ctx->numberOfData;
 	}
 
-	ServerIdHostgroupIdNameMap getServerIdHostgroupIdNameMap(void)
-	{
-		return m_ctx->hostgroupNameMaps;
-	}
-
 private:
 	struct PrivateContext {
 		ServerIdDataIdHostgroupIdVectorMap serverDataHostgroupIdVectorMap;
 		ServerIdDataIdVectorMap serverIdDataIdVectorMap;
-		ServerIdHostgroupIdNameMap hostgroupNameMaps;
 		size_t numberOfData;
 	};
 	PrivateContext *m_ctx;
@@ -1227,9 +1212,15 @@ static void addHostsMap(
   FaceRest::RestJob *job, JsonBuilderAgent &agent,
   MonitoringServerInfo &serverInfo)
 {
+	HostgroupIdType targetHostgroupId = ALL_HOST_GROUPS;
+	char *value = (char *)g_hash_table_lookup(job->query, "hostGroupId");
+	if (value)
+		sscanf(value, "%"FMT_HOST_GROUP_ID, &targetHostgroupId);
+
 	HostInfoList hostList;
 	HostsQueryOption option(job->userId);
 	option.setTargetServerId(serverInfo.id);
+	option.setTargetHostgroupId(targetHostgroupId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	dataStore->getHostList(hostList, option);
 	HostInfoListIterator it = hostList.begin();
@@ -1291,23 +1282,21 @@ static void addTriggersIdBriefHash(
 }
 
 static void addHostgroupsMap(UserIdType userId, JsonBuilderAgent &outputJson,
-                             MonitoringServerInfo &serverInfo,
-                             ServerIdHostgroupIdNameMap &hostgroupMap)
+                             MonitoringServerInfo &serverInfo)
 {
-	ServerIdHostgroupIdNameMap::iterator serverIt =
-	  hostgroupMap.find(serverInfo.id);
+	HostgroupInfoList hostgroupList;
+	HostgroupsQueryOption option(userId);
+	option.setTargetServerId(serverInfo.id);
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	dataStore->getHostgroupList(hostgroupList, option);
+
+	HostgroupInfoListIterator it = hostgroupList.begin();
 	outputJson.startObject("groups");
-	if (serverIt == hostgroupMap.end()) {
-		outputJson.endObject();
-		return;
-	}
-	HostgroupIdNameMap &hostgroups = serverIt->second;
-	HostgroupIdNameMap::iterator it = hostgroups.begin();
-	for (; serverIt != hostgroupMap.end() && it != hostgroups.end(); ++it) {
-		HostGroupIdType hostgroupId = it->first;
-		string &hostgroupName = it->second;
-		outputJson.startObject(StringUtils::toString(hostgroupId));
-		outputJson.add("name", hostgroupName);
+	for (; it != hostgroupList.end(); ++it) {
+		const HostgroupInfo &hostgroupInfo = *it;
+		outputJson.startObject(
+		  StringUtils::toString(hostgroupInfo.groupId));
+		outputJson.add("name", hostgroupInfo.groupName);
 		outputJson.endObject();
 	}
 	outputJson.endObject();
@@ -1316,8 +1305,7 @@ static void addHostgroupsMap(UserIdType userId, JsonBuilderAgent &outputJson,
 static void addServersMap(
   FaceRest::RestJob *job,
   JsonBuilderAgent &agent,
-  TriggerBriefMaps *triggerMaps = NULL, bool lookupTriggerBrief = false,
-  ServerIdHostgroupIdNameMap *hostgroupNameMaps = NULL)
+  TriggerBriefMaps *triggerMaps = NULL, bool lookupTriggerBrief = false)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	MonitoringServerInfoList monitoringServers;
@@ -1338,10 +1326,7 @@ static void addServersMap(
 					       *triggerMaps,
 			                       lookupTriggerBrief);
 		}
-		if (hostgroupNameMaps) {
-			addHostgroupsMap(job->userId, agent, serverInfo,
-			                 *hostgroupNameMaps);
-		}
+		addHostgroupsMap(job->userId, agent, serverInfo);
 		agent.endObject();
 	}
 	agent.endObject();
@@ -1736,9 +1721,7 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 	}
 	agent.endArray();
 	agent.add("numberOfTriggers", helper.getNumberOfData());
-	ServerIdHostgroupIdNameMap hostgroupNameMaps
-	  = helper.getServerIdHostgroupIdNameMap();
-	addServersMap(job, agent, NULL, false, &hostgroupNameMaps);
+	addServersMap(job, agent, NULL, false);
 	agent.endObject();
 
 	replyJsonData(agent, job);
@@ -1813,9 +1796,7 @@ void FaceRest::handlerGetEvent(RestJob *job)
 	}
 	agent.endArray();
 	agent.add("numberOfEvents", helper.getNumberOfData());
-	ServerIdHostgroupIdNameMap hostgroupNameMaps
-	  = helper.getServerIdHostgroupIdNameMap();
-	addServersMap(job, agent, NULL, false, &hostgroupNameMaps);
+	addServersMap(job, agent, NULL, false);
 	agent.endObject();
 
 	replyJsonData(agent, job);
@@ -1882,9 +1863,7 @@ void FaceRest::replyGetItem(RestJob *job)
 	}
 	agent.endArray();
 	agent.add("numberOfItems", helper.getNumberOfData());
-	ServerIdHostgroupIdNameMap hostgroupNameMaps
-	  = helper.getServerIdHostgroupIdNameMap();
-	addServersMap(job, agent, NULL, false, &hostgroupNameMaps);
+	addServersMap(job, agent, NULL, false);
 	agent.endObject();
 
 	replyJsonData(agent, job);
@@ -2846,13 +2825,13 @@ HatoholError FaceRest::parseHostResourceQueryParameter(
 	option.setTargetServerId(targetServerId);
 
 	// target host group id
-	HostIdType targetHostGroupId = ALL_HOST_GROUPS;
-	err = getParam<HostGroupIdType>(query, "hostGroupId",
+	HostIdType targetHostgroupId = ALL_HOST_GROUPS;
+	err = getParam<HostgroupIdType>(query, "hostGroupId",
 					"%"FMT_HOST_GROUP_ID,
-					targetHostGroupId);
+					targetHostgroupId);
 	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
 		return err;
-	option.setTargetHostgroupId(targetHostGroupId);
+	option.setTargetHostgroupId(targetHostgroupId);
 
 	// target host id
 	HostIdType targetHostId = ALL_HOSTS;

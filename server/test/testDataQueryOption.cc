@@ -36,7 +36,7 @@ public:
 		return "";
 	}
 
-	const string getHostGroupIdColumnName(void)
+	const string getHostgroupIdColumnName(void)
 	{
 		return "";
 	}

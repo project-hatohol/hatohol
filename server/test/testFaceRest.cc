@@ -1487,7 +1487,7 @@ void test_hostsJsonp(void)
 
 void test_hostsForOneServer(void)
 {
-	assertHosts("/host", "foo", testTriggerInfo[0].serverId);
+	assertHosts("/host", "foo", 1);
 }
 
 void test_triggers(void)
@@ -2527,7 +2527,7 @@ void _assertParseEventParameterTargetHostGroupId(
   const HatoholErrorCode &expectCode = HTERR_OK)
 {
 	assertParseEventParameterTempl(
-	  HostGroupIdType, expectValue, "%"FMT_HOST_GROUP_ID,
+	  HostgroupIdType, expectValue, "%"FMT_HOST_GROUP_ID,
 	  "hostGroupId", &EventsQueryOption::getTargetHostgroupId,
 	  expectCode, forceValueStr);
 }

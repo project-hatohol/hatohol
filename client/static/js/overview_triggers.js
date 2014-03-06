@@ -173,6 +173,7 @@ var OverviewTriggers = function(userProfile) {
     rawData = reply;
     parsedData = parseData(rawData, param);
     self.setServerFilterCandidates(rawData["servers"]);
+    self.setHostgroupFilterCandidates(rawData["servers"]);
     self.setHostFilterCandidates(rawData["servers"]);
     drawTableContents(parsedData);
     setLoading(false);
