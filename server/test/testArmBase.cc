@@ -205,6 +205,7 @@ void test_statusLog(gconstpointer data)
 	} ctx;
 
 	ctx.result = gcut_data_get_boolean(data, "result");
+	ctx.setComment = false;
 	if (!ctx.result)
 		ctx.setComment = gcut_data_get_boolean(data, "comment");
 	if (ctx.setComment)
