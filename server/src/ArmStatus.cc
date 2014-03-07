@@ -19,8 +19,10 @@
 
 #include <cstdio>
 #include <ReadWriteLock.h>
+#include <Logger.h>
 #include "ArmStatus.h"
 
+using namespace std;
 using namespace mlpl;
 
 // ---------------------------------------------------------------------------
@@ -72,6 +74,17 @@ void ArmStatus::setRunningStatus(const bool &running)
 	m_ctx->rwlock.readLock();
 	m_ctx->armInfo.running = running;
 	m_ctx->rwlock.unlock();
+}
+
+void ArmStatus::logSuccess(void)
+{
+	MLPL_BUG("Not implemented yet: %s\n", __PRETTY_FUNCTION__);
+}
+
+void ArmStatus::logFailure(const string &comment,
+                           const ArmWorkingStatus &status)
+{
+	MLPL_BUG("Not implemented yet: %s\n", __PRETTY_FUNCTION__);
 }
 
 // ---------------------------------------------------------------------------

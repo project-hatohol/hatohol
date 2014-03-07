@@ -62,6 +62,10 @@ public:
 
 	void setRunningStatus(const bool &running);
 
+	void logSuccess(void);
+	void logFailure(const std::string &comment = "",
+	                const ArmWorkingStatus &status = ARM_WORK_STAT_FAILURE);
+
 protected:
 
 private:
