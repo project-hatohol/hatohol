@@ -341,6 +341,7 @@ struct ArmNagiosNDOUtils::PrivateContext
 	DBAgent::SelectMultiTableArg selectTriggerArg;
 	DBAgent::SelectMultiTableArg selectEventArg;
 	DBAgent::SelectMultiTableArg selectItemArg;
+	DBAgent::SelectExArg         selectHostArg;
 	string               selectTriggerBaseCondition;
 	string               selectEventBaseCondition;
 	UnifiedDataStore    *dataStore;
@@ -352,6 +353,7 @@ struct ArmNagiosNDOUtils::PrivateContext
 	  selectTriggerArg(tableProfilesTrig, numTableProfilesTrig),
 	  selectEventArg(tableProfilesEvent, numTableProfilesEvent),
 	  selectItemArg(tableProfilesItem, numTableProfilesItem),
+	  selectHostArg(tableProfileHosts),
 	  dataStore(NULL),
 	  serverInfo(_serverInfo)
 	{
@@ -518,6 +520,13 @@ void ArmNagiosNDOUtils::makeSelectItemArg(void)
 	arg.add(IDX_SERVICESTATUS_CHECK_COMMAND);
 	arg.add(IDX_SERVICESTATUS_STATUS_UPDATE_TIME);
 	arg.add(IDX_SERVICESTATUS_OUTPUT);
+}
+
+void ArmNagiosNDOUtils::makeSelectHostArg(void)
+{
+	DBAgent::SelectExArg &arg = m_ctx->selectItemArg;
+	arg.add(IDX_HOSTS_HOST_ID);
+	arg.add(IDX_HOSTS_DISPLAY_NAME);
 }
 
 void ArmNagiosNDOUtils::addConditionForTriggerQuery(void)

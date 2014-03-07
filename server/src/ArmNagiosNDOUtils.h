@@ -38,6 +38,7 @@ protected:
 	void makeSelectTriggerArg(void);
 	void makeSelectEventArg(void);
 	void makeSelectItemArg(void);
+	void makeSelectHostArg(void);
 	void addConditionForTriggerQuery(void);
 	void addConditionForEventQuery(void);
 	void getTrigger(void);
