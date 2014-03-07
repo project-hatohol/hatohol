@@ -40,7 +40,7 @@ struct ArmInfo
 	mlpl::SmartTime  lastSuccessTime;
 	mlpl::SmartTime  lastFailureTime;
 
-	size_t           numTryToGet;
+	size_t           numUpdated;
 	size_t           numFailure;
 	
 	// Constructor

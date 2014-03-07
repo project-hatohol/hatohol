@@ -31,7 +31,7 @@ using namespace mlpl;
 ArmInfo::ArmInfo(void)
 : running(false),
   stat(ARM_WORK_STAT_INIT),
-  numTryToGet(0),
+  numUpdated(0),
   numFailure(0)
 {
 }
@@ -82,7 +82,7 @@ void ArmStatus::logSuccess(void)
 	m_ctx->armInfo.stat = ARM_WORK_STAT_OK;
 	m_ctx->armInfo.statUpdateTime.setCurrTime();
 	m_ctx->armInfo.lastSuccessTime = m_ctx->armInfo.statUpdateTime;
-	m_ctx->armInfo.numTryToGet++;
+	m_ctx->armInfo.numUpdated++;
 	m_ctx->rwlock.unlock();
 }
 
@@ -94,7 +94,7 @@ void ArmStatus::logFailure(const string &comment,
 	m_ctx->armInfo.statUpdateTime.setCurrTime();
 	m_ctx->armInfo.lastFailureTime = m_ctx->armInfo.statUpdateTime;
 	m_ctx->armInfo.failureComment = comment;
-	m_ctx->armInfo.numTryToGet++;
+	m_ctx->armInfo.numUpdated++;
 	m_ctx->armInfo.numFailure++;
 	m_ctx->rwlock.unlock();
 }
