@@ -30,6 +30,7 @@ static const char *TABLE_NAME_SERVICES      = "nagios_services";
 static const char *TABLE_NAME_SERVICESTATUS = "nagios_servicestatus";
 static const char *TABLE_NAME_HOSTS         = "nagios_hosts";
 static const char *TABLE_NAME_STATEHISTORY  = "nagios_statehistory";
+static const char *TABLE_NAME_HOSTGROUPS    = "nagios_hostgroups";
 
 enum
 {
@@ -223,6 +224,43 @@ static const DBAgent::TableProfile tableProfileHosts(
   TABLE_NAME_HOSTS, COLUMN_DEF_HOSTS,
   sizeof(COLUMN_DEF_HOSTS), NUM_IDX_HOSTS);
 
+// Definitions: nagios_hostgroups
+static const ColumnDef COLUMN_DEF_HOSTGROUPS[] = {
+{
+	ITEM_ID_NAGIOS_HOSTGROUPS_HOSTGROUP_ID, // itemId
+	TABLE_NAME_HOSTGROUPS,                  // tableName
+	"hostgroup_id",                         // columnName
+	SQL_COLUMN_TYPE_INT,                    // type
+	11,                                     // columnLength
+	0,                                      // decFracLength
+	false,                                  // canBeNull
+	SQL_KEY_PRI,                            // keyType
+	0,                                      // flags
+	NULL,                                   // defaultValue
+}, {
+	ITEM_ID_NAGIOS_HOSTGROUPS_ALIAS,        // itemId
+	TABLE_NAME_HOSTGROUPS,                  // tableName
+	"alias",                                // columnName
+	SQL_COLUMN_TYPE_VARCHAR,                // type
+	255,                                    // columnLength
+	0,                                      // decFracLength
+	false,                                  // canBeNull
+	SQL_KEY_NONE,                           // keyType
+	0,                                      // flags
+	NULL,                                   // defaultValue
+},
+};
+
+enum {
+	IDX_HOSTGROUPS_HOSTGROUP_ID,
+	IDX_HOSTGROUPS_ALIAS,
+	NUM_IDX_HOSTGROUPS,
+};
+
+static const DBAgent::TableProfile tableProfileHostgroups(
+  TABLE_NAME_HOSTGROUPS, COLUMN_DEF_HOSTGROUPS,
+  sizeof(COLUMN_DEF_HOSTGROUPS), NUM_IDX_HOSTGROUPS);
+
 // Definitions: nagios_statehistory
 static const ColumnDef COLUMN_DEF_STATEHISTORY[] = {
 {
@@ -342,6 +380,7 @@ struct ArmNagiosNDOUtils::PrivateContext
 	DBAgent::SelectMultiTableArg selectEventArg;
 	DBAgent::SelectMultiTableArg selectItemArg;
 	DBAgent::SelectExArg         selectHostArg;
+	DBAgent::SelectExArg         selectHostgroupArg;
 	string               selectTriggerBaseCondition;
 	string               selectEventBaseCondition;
 	UnifiedDataStore    *dataStore;
@@ -354,6 +393,7 @@ struct ArmNagiosNDOUtils::PrivateContext
 	  selectEventArg(tableProfilesEvent, numTableProfilesEvent),
 	  selectItemArg(tableProfilesItem, numTableProfilesItem),
 	  selectHostArg(tableProfileHosts),
+	  selectHostgroupArg(tableProfileHostgroups),
 	  dataStore(NULL),
 	  serverInfo(_serverInfo)
 	{
@@ -528,6 +568,13 @@ void ArmNagiosNDOUtils::makeSelectHostArg(void)
 	DBAgent::SelectExArg &arg = m_ctx->selectHostArg;
 	arg.add(IDX_HOSTS_HOST_OBJECT_ID);
 	arg.add(IDX_HOSTS_DISPLAY_NAME);
+}
+
+void ArmNagiosNDOUtils::makeSelectHostgroupArg(void)
+{
+	DBAgent::SelectExArg &arg = m_ctx->selectHostgroupArg;
+	arg.add(IDX_HOSTGROUPS_HOSTGROUP_ID);
+	arg.add(IDX_HOSTGROUPS_ALIAS);
 }
 
 void ArmNagiosNDOUtils::addConditionForTriggerQuery(void)
