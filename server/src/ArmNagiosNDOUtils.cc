@@ -780,6 +780,7 @@ void ArmNagiosNDOUtils::getHostgroup(void)
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
 		ItemGroupStream itemGroupStream(*itemGrpItr);
 		HostgroupInfo hostgroupInfo;
+		hostgroupInfo.id = AUTO_INCREMENT_VALUE;
 		hostgroupInfo.serverId = svInfo.id;
 		itemGroupStream >> hostgroupInfo.groupId;
 		itemGroupStream >> hostgroupInfo.groupName;
