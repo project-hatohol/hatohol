@@ -469,6 +469,7 @@ ArmNagiosNDOUtils::ArmNagiosNDOUtils(const MonitoringServerInfo &serverInfo)
 	makeSelectItemArg();
 	makeSelectHostArg();
 	makeSelectHostgroupArg();
+	makeSelectHostgroupMembersArg();
 }
 
 ArmNagiosNDOUtils::~ArmNagiosNDOUtils()
@@ -886,6 +887,7 @@ bool ArmNagiosNDOUtils::mainThreadOneProc(void)
 			getEvent();
 			getHost();
 			getHostgroup();
+			getHostgroupMembers();
 			if (!getCopyOnDemandEnabled())
 				getItem();
 		}
