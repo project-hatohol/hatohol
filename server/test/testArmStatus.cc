@@ -57,7 +57,7 @@ void test_logSuccess(void)
 	cppcut_assert_equal(armInfo.statUpdateTime, armInfo.lastSuccessTime);
 	cppcut_assert_equal((size_t)1, armInfo.numTryToGet);
 
-	// The remaining member should be unchanged.
+	// The remaining members should be unchanged.
 	const SmartTime initTime;
 	cppcut_assert_equal(false, armInfo.running);
 	cppcut_assert_equal(true, armInfo.failureComment.empty());
