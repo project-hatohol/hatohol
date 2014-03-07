@@ -44,9 +44,9 @@ public:
 		requestExitAndWait();
 	}
 
-	ArmStatus &callGetNonConstArmStatus(void)
+	void callGetArmStatus(ArmStatus *&armStatus)
 	{
-		return getNonConstArmStatus();
+		return getArmStatus(armStatus);
 	}
 
 	void setOneProcHook(OneProcHook hook, void *data)
@@ -148,14 +148,15 @@ void test_startStop(void)
 	cppcut_assert_equal(false, armStatus.getArmInfo().running);
 }
 
-void test_getNonConstArmBase(void)
+void test_getArmBasePtr(void)
 {
 	MonitoringServerInfo serverInfo;
 	initServerInfo(serverInfo);
 	TestArmBase armBase(__func__, serverInfo);
-	ArmStatus &armNonConstStatus = armBase.callGetNonConstArmStatus();
+	ArmStatus *armNonConstStatus;
+	armBase.callGetArmStatus(armNonConstStatus);
 	const ArmStatus &armStatus = armBase.getArmStatus();
-	cppcut_assert_equal(&armStatus, &armNonConstStatus);
+	cppcut_assert_equal(&armStatus, armNonConstStatus);
 }
 
 } // namespace testArmBase

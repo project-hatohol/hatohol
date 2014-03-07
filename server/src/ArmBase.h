@@ -81,7 +81,7 @@ protected:
 	UpdateType getUpdateType(void) const;
 	void       setUpdateType(UpdateType updateType);
 
-	ArmStatus &getNonConstArmStatus(void);
+	void getArmStatus(ArmStatus *&armStatus);
 
 private:
 	struct PrivateContext;

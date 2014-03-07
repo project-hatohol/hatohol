@@ -276,7 +276,7 @@ gpointer ArmBase::mainThread(HatoholThreadArg *arg)
 	return NULL;
 }
 
-ArmStatus &ArmBase::getNonConstArmStatus(void)
+void ArmBase::getArmStatus(ArmStatus *&armStatus)
 {
-	return m_ctx->armStatus;
+	armStatus = &m_ctx->armStatus;
 }
