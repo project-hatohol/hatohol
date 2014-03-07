@@ -38,11 +38,17 @@ protected:
 	void makeSelectTriggerArg(void);
 	void makeSelectEventArg(void);
 	void makeSelectItemArg(void);
+	void makeSelectHostArg(void);
+	void makeSelectHostgroupArg(void);
+	void makeSelectHostgroupMembersArg(void);
 	void addConditionForTriggerQuery(void);
 	void addConditionForEventQuery(void);
 	void getTrigger(void);
 	void getEvent(void);
 	void getItem(void);
+	void getHost(void);
+	void getHostgroup(void);
+	void getHostgroupMembers(void);
 	void connect(void);
 
 	// virtual methods
