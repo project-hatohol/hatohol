@@ -83,7 +83,7 @@ void test_getName(void)
 	cppcut_assert_equal(name, armBase.getName());
 }
 
-void test_synchronizeThreadExit(void)
+void test_requestExitAndWait(void)
 {
 	struct Ctx {
 		AtomicValue<bool> called;
