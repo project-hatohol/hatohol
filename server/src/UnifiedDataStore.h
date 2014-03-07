@@ -28,6 +28,15 @@
 #include "Closure.h"
 #include "VirtualDataStore.h"
 
+struct ServerConnStatus {
+	ServerIdType serverId;
+	ArmInfo      armInfo;
+};
+
+typedef std::vector<ServerConnStatus>          ServerConnStatusVector;
+typedef ServerConnStatusVector::iterator       ServerConnStatusVectorIterator;
+typedef ServerConnStatusVector::const_iterator ServerConnStatusVectorConstIterator;
+
 class UnifiedDataStore
 {
 public:
@@ -128,6 +137,9 @@ public:
 	                                const OperationPrivilege &privilege);
 	HatoholError deleteTargetServer(const ServerIdType &serverId,
 	                                const OperationPrivilege &privilege);
+
+	void getServerConnStatusVector(ServerConnStatusVector &svConnStatVec,
+	                               DataQueryContext *dataQueryContext);
 
 	void virtualDataStoreForeach(VirtualDataStoreForeachProc *vdsProc);
 

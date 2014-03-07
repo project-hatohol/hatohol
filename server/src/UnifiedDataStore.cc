@@ -567,6 +567,28 @@ HatoholError UnifiedDataStore::deleteTargetServer(
 	return m_ctx->stopDataStore(serverId);
 }
 
+void UnifiedDataStore::getServerConnStatusVector(
+  ServerConnStatusVector &svConnStatVec, DataQueryContext *dataQueryContext)
+{
+	CacheServiceDBClient cache;
+	DBClientConfig *dbConfig = cache.getConfig();
+	ServerIdSet serverIdSet;
+	dbConfig->getServerIdSet(serverIdSet, dataQueryContext);
+	svConnStatVec.reserve(serverIdSet.size());
+
+	ServerIdSetIterator serverIdItr = serverIdSet.begin();
+	for (; serverIdItr != serverIdSet.end(); ++serverIdItr) {
+		DataStorePtr dataStorePtr = getDataStore(*serverIdItr);
+		if (!dataStorePtr.hasData())
+			continue;
+		ServerConnStatus svConnStat;
+		svConnStat.serverId = *serverIdItr;
+		svConnStat.armInfo =
+		   dataStorePtr->getArmBase().getArmStatus().getArmInfo();
+		svConnStatVec.push_back(svConnStat);
+	}
+}
+
 void UnifiedDataStore::virtualDataStoreForeach(
   VirtualDataStoreForeachProc *vdsProc)
 {
