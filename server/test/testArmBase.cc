@@ -27,7 +27,7 @@ using namespace mlpl;
 namespace testArmBase {
 
 class TestArmBase : public ArmBase {
-	typedef void (*OneProcHook)(void *);
+	typedef bool (*OneProcHook)(void *);
 	
 	OneProcHook m_oneProcHook;
 	void       *m_oneProcHookData;
@@ -59,7 +59,7 @@ protected:
 	virtual bool mainThreadOneProc(void) // override
 	{
 		if (m_oneProcHook)
-			(*m_oneProcHook)(m_oneProcHookData);
+			return (*m_oneProcHook)(m_oneProcHookData);
 		return true;
 	}
 };
@@ -103,13 +103,14 @@ void test_requestExitAndWait(void)
 			obj->called.set(true);
 		}
 
-		static void oneProcHook(void *data)
+		static bool oneProcHook(void *data)
 		{
 			Ctx *obj = static_cast<Ctx *>(data);
 			if (obj->startLockUnlocked)
-				return;
+				return true;
 			obj->startLock.unlock();
 			obj->startLockUnlocked = true;
+			return true;
 		}
 
 		void waitForFirstProc(void)
