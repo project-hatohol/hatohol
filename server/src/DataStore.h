@@ -24,6 +24,7 @@
 #include <vector>
 #include <ArmBase.h>
 #include "UsedCountable.h"
+#include "UsedCountablePtr.h"
 
 class DataStore : public UsedCountable {
 public:
@@ -38,5 +39,7 @@ protected:
 typedef std::vector<DataStore *>        DataStoreVector;
 typedef DataStoreVector::iterator       DataStoreVectorIterator;
 typedef DataStoreVector::const_iterator DataStoreVectorConstIterator;
+
+typedef UsedCountablePtr<DataStore>     DataStorePtr;
 
 #endif // DataStore_h

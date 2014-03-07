@@ -573,9 +573,9 @@ void UnifiedDataStore::virtualDataStoreForeach(
 	m_ctx->virtualDataStoreForeach(vdsProc);
 }
 
-DataStore *UnifiedDataStore::getDataStore(const ServerIdType &serverId)
+DataStorePtr UnifiedDataStore::getDataStore(const ServerIdType &serverId)
 {
-	return m_ctx->getDataStore(serverId);
+	return DataStorePtr(m_ctx->getDataStore(serverId), false);
 }
 
 // ---------------------------------------------------------------------------

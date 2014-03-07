@@ -134,15 +134,12 @@ public:
 	/**
 	 * Get the data store with the specified Server ID.
 	 * 
-	 * The used counte of the returned DataStore instance is incremented.
-	 * A caller must call unref() when it is no longer needed.
-	 * 
 	 * @param serverId A server ID.
 	 * @retrun
-	 * A pointer of the DataStore instance if found. Otherwise NULL is
-	 * returned.
+	 * A CoutablePtr of the DataStore instance. If not found, hasData()
+	 * returns false.
 	 */
-	DataStore *getDataStore(const ServerIdType &serverId);
+	DataStorePtr getDataStore(const ServerIdType &serverId);
 
 protected:
 	void fetchItems(const ServerIdType &targetServerId = ALL_SERVERS);

@@ -227,20 +227,19 @@ void test_serverIdDataStoreMap(void)
 	svInfo.id   = 100;
 
 	// Before a DataStore is created.
-	cppcut_assert_null(uds->getDataStore(svInfo.id));
+	cppcut_assert_equal(false, uds->getDataStore(svInfo.id).hasData());
 
 	// Create a DataStore instance.
 	assertHatoholError(HTERR_OK,
 	                   uds->addTargetServer(svInfo, USER_ID_SYSTEM, false));
 
-	DataStore *dataStore0 = uds->getDataStore(svInfo.id);
-	Reaper<UsedCountable> dsReaper0(dataStore0, UsedCountable::unref);
-	cppcut_assert_not_null(dataStore0);
+	DataStorePtr dataStore0 = uds->getDataStore(svInfo.id);
+	cppcut_assert_equal(true, dataStore0.hasData());
 
 	// The obtained DataStore instance should be the same as the previous.
-	DataStore *dataStore1 = uds->getDataStore(svInfo.id);
-	Reaper<UsedCountable> dsReaper1(dataStore1, UsedCountable::unref);
-	cppcut_assert_equal(dataStore0, dataStore1);
+	DataStorePtr dataStore1 = uds->getDataStore(svInfo.id);
+	cppcut_assert_equal((DataStore *)dataStore0,
+	                    (DataStore *)dataStore1);
 }
 
 } // testUnifiedDataStore
