@@ -39,6 +39,8 @@ struct ArmBase::PrivateContext
 	bool                 isCopyOnDemandEnabled;
 	ReadWriteLock        rwlock;
 	ArmStatus            armStatus;
+	string               lastFailureComment;
+	ArmWorkingStatus     lastFailureStatus;
 
 	PrivateContext(const string &_name,
 	               const MonitoringServerInfo &_serverInfo)
@@ -46,7 +48,8 @@ struct ArmBase::PrivateContext
 	  serverInfo(_serverInfo),
 	  exitRequest(false),
 	  updateType(UPDATE_POLLING),
-	  isCopyOnDemandEnabled(false)
+	  isCopyOnDemandEnabled(false),
+	  lastFailureStatus(ARM_WORK_STAT_FAILURE)
 	{
 		static const int PSHARED = 1;
 		HATOHOL_ASSERT(sem_init(&sleepSemaphore, PSHARED, 0) == 0,
@@ -261,8 +264,15 @@ gpointer ArmBase::mainThread(HatoholThreadArg *arg)
 {
 	while (!hasExitRequest()) {
 		int sleepTime = m_ctx->getSecondsToNextPolling();
-		if (!mainThreadOneProc())
+		if (mainThreadOneProc()) {
+			m_ctx->armStatus.logSuccess();
+		} else {
 			sleepTime = getRetryInterval();
+			m_ctx->armStatus.logFailure(m_ctx->lastFailureComment,
+			                            m_ctx->lastFailureStatus);
+			m_ctx->lastFailureComment.clear();
+			m_ctx->lastFailureStatus = ARM_WORK_STAT_FAILURE;
+		}
 
 		m_ctx->stampLastPollingTime();
 		m_ctx->setUpdateType(UPDATE_POLLING);
@@ -279,4 +289,11 @@ gpointer ArmBase::mainThread(HatoholThreadArg *arg)
 void ArmBase::getArmStatus(ArmStatus *&armStatus)
 {
 	armStatus = &m_ctx->armStatus;
+}
+
+void ArmBase::setFailureInfo(const std::string &comment,
+                             const ArmWorkingStatus &status)
+{
+	m_ctx->lastFailureComment = comment;
+	m_ctx->lastFailureStatus = status;
 }

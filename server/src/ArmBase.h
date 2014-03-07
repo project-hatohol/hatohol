@@ -82,6 +82,9 @@ protected:
 	void       setUpdateType(UpdateType updateType);
 
 	void getArmStatus(ArmStatus *&armStatus);
+	void setFailureInfo(
+	  const std::string &comment,
+	  const ArmWorkingStatus &status = ARM_WORK_STAT_FAILURE);
 
 private:
 	struct PrivateContext;

@@ -39,6 +39,11 @@ public:
 	{
 	}
 
+	void callRequestExit(void)
+	{
+		requestExit();
+	}
+
 	void callRequestExitAndWait(void)
 	{
 		requestExitAndWait();
@@ -158,6 +163,33 @@ void test_getArmBasePtr(void)
 	armBase.callGetArmStatus(armNonConstStatus);
 	const ArmStatus &armStatus = armBase.getArmStatus();
 	cppcut_assert_equal(&armStatus, armNonConstStatus);
+}
+
+void test_statusLogSuccess(void)
+{
+	struct Ctx {
+		TestArmBase *armBase;
+
+		static bool oneProcHook(void *data)
+		{
+			Ctx *obj = static_cast<Ctx *>(data);
+			obj->armBase->callRequestExit();
+			return true;
+		}
+
+	} ctx;
+
+	MonitoringServerInfo serverInfo;
+	initServerInfo(serverInfo);
+	TestArmBase armBase(__func__, serverInfo);
+	ctx.armBase = &armBase;
+	armBase.setOneProcHook(ctx.oneProcHook, &ctx);
+	armBase.start();
+	armBase.waitExit(); // TODO: May blocks forever
+
+	ArmInfo armInfo = armBase.getArmStatus().getArmInfo();
+	cppcut_assert_equal(ARM_WORK_STAT_OK, armInfo.stat);
+	cppcut_assert_equal((size_t)1, armInfo.numUpdated);
 }
 
 } // namespace testArmBase
