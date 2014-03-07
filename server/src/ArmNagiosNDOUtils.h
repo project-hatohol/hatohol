@@ -40,6 +40,7 @@ protected:
 	void makeSelectItemArg(void);
 	void makeSelectHostArg(void);
 	void makeSelectHostgroupArg(void);
+	void makeSelectHostgroupMemberArg(void);
 	void addConditionForTriggerQuery(void);
 	void addConditionForEventQuery(void);
 	void getTrigger(void);

@@ -31,6 +31,7 @@ static const char *TABLE_NAME_SERVICESTATUS = "nagios_servicestatus";
 static const char *TABLE_NAME_HOSTS         = "nagios_hosts";
 static const char *TABLE_NAME_STATEHISTORY  = "nagios_statehistory";
 static const char *TABLE_NAME_HOSTGROUPS    = "nagios_hostgroups";
+static const char *TABLE_NAME_HOSTGROUP_MEMBERS = "nagios_hostgroup_members";
 
 enum
 {
@@ -261,6 +262,43 @@ static const DBAgent::TableProfile tableProfileHostgroups(
   TABLE_NAME_HOSTGROUPS, COLUMN_DEF_HOSTGROUPS,
   sizeof(COLUMN_DEF_HOSTGROUPS), NUM_IDX_HOSTGROUPS);
 
+// Definitions: nagios_hostgroup_members
+static const ColumnDef COLUMN_DEF_HOSTGROUP_MEMBERS[] = {
+{
+	ITEM_ID_NAGIOS_HOSTGROUP_MEMBERS_HOST_OBJECT_ID, // itemId
+	TABLE_NAME_HOSTGROUP_MEMBERS,                    // tableName
+	"host_id",                                       // columnName
+	SQL_COLUMN_TYPE_INT,                             // type
+	11,                                              // columnLength
+	0,                                               // decFracLength
+	false,                                           // canBeNull
+	SQL_KEY_NONE,                                    // keyType
+	0,                                               // flags
+	NULL,                                            // defaultValue
+}, {
+	ITEM_ID_NAGIOS_HOSTGROUP_MEMBERS_HOSTGROUP_ID,   // itemId
+	TABLE_NAME_HOSTGROUP_MEMBERS,                    // tableName
+	"hostgroup_id",                                  // columnName
+	SQL_COLUMN_TYPE_INT,                             // type
+	11,                                              // columnLength
+	0,                                               // decFracLength
+	false,                                           // canBeNull
+	SQL_KEY_NONE,                                    // keyType
+	0,                                               // flags
+	NULL,                                            // defaultValue
+},
+};
+
+enum {
+	IDX_HOSTGROUP_MEMBERS_HOST_ID,
+	IDX_HOSTGROUP_MEMBERS_HOSTGROUP_ID,
+	NUM_IDX_HOSTGROUP_MEMBERS,
+};
+
+static const DBAgent::TableProfile tableProfileHostgroupMembers(
+  TABLE_NAME_HOSTGROUP_MEMBERS, COLUMN_DEF_HOSTGROUP_MEMBERS,
+  sizeof(COLUMN_DEF_HOSTGROUP_MEMBERS), NUM_IDX_HOSTGROUP_MEMBERS);
+
 // Definitions: nagios_statehistory
 static const ColumnDef COLUMN_DEF_STATEHISTORY[] = {
 {
@@ -381,6 +419,7 @@ struct ArmNagiosNDOUtils::PrivateContext
 	DBAgent::SelectMultiTableArg selectItemArg;
 	DBAgent::SelectExArg         selectHostArg;
 	DBAgent::SelectExArg         selectHostgroupArg;
+	DBAgent::SelectExArg         selectHostgroupMembersArg;
 	string               selectTriggerBaseCondition;
 	string               selectEventBaseCondition;
 	UnifiedDataStore    *dataStore;
@@ -394,6 +433,7 @@ struct ArmNagiosNDOUtils::PrivateContext
 	  selectItemArg(tableProfilesItem, numTableProfilesItem),
 	  selectHostArg(tableProfileHosts),
 	  selectHostgroupArg(tableProfileHostgroups),
+	  selectHostgroupMembersArg(tableProfileHostgroupMembers),
 	  dataStore(NULL),
 	  serverInfo(_serverInfo)
 	{
@@ -576,6 +616,13 @@ void ArmNagiosNDOUtils::makeSelectHostgroupArg(void)
 	DBAgent::SelectExArg &arg = m_ctx->selectHostgroupArg;
 	arg.add(IDX_HOSTGROUPS_HOSTGROUP_ID);
 	arg.add(IDX_HOSTGROUPS_ALIAS);
+}
+
+void ArmNagiosNDOUtils::makeSelectHostgroupMembersArg(void)
+{
+	DBAgent::SelectExArg &arg = m_ctx->selectHostgroupMembersArg;
+	arg.add(IDX_HOSTGROUP_MEMBERS_HOSTGROUP_ID);
+	arg.add(IDX_HOSTGROUP_MEMBERS_HOST_ID);
 }
 
 void ArmNagiosNDOUtils::addConditionForTriggerQuery(void)
