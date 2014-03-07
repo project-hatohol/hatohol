@@ -59,7 +59,7 @@ public:
 
 protected:
 	/**
-	 * Request to exit of the thread and wait for the complition.
+	 * Request to exit the thread and wait for the complition.
 	 *
 	 * This function is supposed to be used from a destructor of
 	 * subclasses of ArmBase. The deletion of a instance of the subclasses
