@@ -43,4 +43,26 @@ void test_getArmInfoInitial(void)
 	cppcut_assert_equal((size_t)0, armInfo.numFailure);
 }
 
+void test_logSuccess(void)
+{
+	ArmStatus armStatus;
+	const SmartTime time0(SmartTime::INIT_CURR_TIME);
+	armStatus.logSuccess();
+	ArmInfo armInfo = armStatus.getArmInfo();
+	const SmartTime time1(SmartTime::INIT_CURR_TIME);
+
+	cppcut_assert_equal(ARM_WORK_STAT_OK, armInfo.stat);
+	cppcut_assert_equal(true, armInfo.statUpdateTime >= time0);
+	cppcut_assert_equal(true, time1 >= armInfo.statUpdateTime);
+	cppcut_assert_equal(armInfo.statUpdateTime, armInfo.lastSuccessTime);
+	cppcut_assert_equal((size_t)1, armInfo.numTryToGet);
+
+	// The remaining member should be unchanged.
+	const SmartTime initTime;
+	cppcut_assert_equal(false, armInfo.running);
+	cppcut_assert_equal(true, armInfo.failureComment.empty());
+	cppcut_assert_equal(initTime, armInfo.lastFailureTime);
+	cppcut_assert_equal((size_t)0, armInfo.numFailure);
+}
+
 } // namespace testArmStatus
