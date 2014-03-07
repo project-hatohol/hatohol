@@ -25,6 +25,7 @@
 #include <Reaper.h>
 #include <exception>
 #include <stdexcept>
+#include <AtomicValue.h>
 #include "Utils.h"
 #include "HatoholThreadBase.h"
 #include "HatoholException.h"
@@ -33,7 +34,7 @@ using namespace std;
 using namespace mlpl;
 
 struct HatoholThreadBase::PrivateContext {
-	GThread *thread;
+	AtomicValue<GThread *>    thread;
 	ReadWriteLock rwlock;
 	ExceptionCallbackInfoList exceptionCbList;
 	ExitCallbackInfoList      exitCbList;
@@ -193,7 +194,7 @@ void HatoholThreadBase::threadCleanup(HatoholThreadArg *arg)
 {
 	arg->obj->doExitCallback();
 	CacheServiceDBClient::cleanup();
-	arg->obj->m_ctx->thread = NULL; // TODO: Use an atomic way.
+	arg->obj->m_ctx->thread = NULL;
 	arg->obj->m_ctx->mutexForThreadExit.unlock();
 	if (arg->autoDeleteObject)
 		delete arg->obj;
