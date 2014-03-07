@@ -81,6 +81,8 @@ protected:
 	UpdateType getUpdateType(void) const;
 	void       setUpdateType(UpdateType updateType);
 
+	ArmStatus &getNonConstArmStatus(void);
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;

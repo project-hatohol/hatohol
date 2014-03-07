@@ -44,6 +44,11 @@ public:
 		requestExitAndWait();
 	}
 
+	ArmStatus &callGetNonConstArmStatus(void)
+	{
+		return getNonConstArmStatus();
+	}
+
 	void setOneProcHook(OneProcHook hook, void *data)
 	{
 		m_oneProcHook = hook;
@@ -141,6 +146,16 @@ void test_startStop(void)
 	cppcut_assert_equal(true, armStatus.getArmInfo().running);
 	armBase.callRequestExitAndWait();
 	cppcut_assert_equal(false, armStatus.getArmInfo().running);
+}
+
+void test_getNonConstArmBase(void)
+{
+	MonitoringServerInfo serverInfo;
+	initServerInfo(serverInfo);
+	TestArmBase armBase(__func__, serverInfo);
+	ArmStatus &armNonConstStatus = armBase.callGetNonConstArmStatus();
+	const ArmStatus &armStatus = armBase.getArmStatus();
+	cppcut_assert_equal(&armStatus, &armNonConstStatus);
 }
 
 } // namespace testArmBase
