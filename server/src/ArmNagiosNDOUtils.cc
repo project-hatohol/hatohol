@@ -516,7 +516,7 @@ void ArmNagiosNDOUtils::makeSelectTriggerArg(void)
 	arg.add(IDX_SERVICESTATUS_STATUS_UPDATE_TIME);
 
 	arg.setTable(TBLIDX_HOSTS);
-	arg.add(IDX_HOSTS_HOST_ID);
+	arg.add(IDX_HOSTS_HOST_OBJECT_ID);
 	arg.add(IDX_HOSTS_DISPLAY_NAME);
 
 	arg.setTable(TBLIDX_STATUS);
