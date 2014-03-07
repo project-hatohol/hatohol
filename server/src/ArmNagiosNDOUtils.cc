@@ -764,6 +764,30 @@ void ArmNagiosNDOUtils::getHost(void)
 	m_ctx->dbHatohol.addHostInfoList(hostInfoList);
 }
 
+void ArmNagiosNDOUtils::getHostgroup(void)
+{
+	// TODO: should use transaction
+	m_ctx->dbAgent->select(m_ctx->selectHostgroupArg);
+	size_t numHostgroups =
+	  m_ctx->selectHostgroupArg.dataTable->getNumberOfRows();
+	MLPL_DBG("The number of hostgroups: %zd\n", numHostgroups);
+
+	const MonitoringServerInfo &svInfo = getServerInfo();
+	HostgroupInfoList hostgroupInfoList;
+	const ItemGroupList &grpList =
+	  m_ctx->selectHostgroupArg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
+		HostgroupInfo hostgroupInfo;
+		hostgroupInfo.serverId = svInfo.id;
+		itemGroupStream >> hostgroupInfo.groupId;
+		itemGroupStream >> hostgroupInfo.groupName;
+		hostgroupInfoList.push_back(hostgroupInfo);
+	}
+	m_ctx->dbHatohol.addHostgroupInfoList(hostgroupInfoList);
+}
+
 void ArmNagiosNDOUtils::connect(void)
 {
 	m_ctx->connect();
