@@ -21,6 +21,7 @@
 #include <SmartTime.h>
 #include "ArmStatus.h"
 
+using namespace std;
 using namespace mlpl;
 
 namespace testArmStatus {
@@ -63,6 +64,29 @@ void test_logSuccess(void)
 	cppcut_assert_equal(true, armInfo.failureComment.empty());
 	cppcut_assert_equal(initTime, armInfo.lastFailureTime);
 	cppcut_assert_equal((size_t)0, armInfo.numFailure);
+}
+
+void test_logFailure(void)
+{
+	ArmStatus armStatus;
+	const SmartTime time0(SmartTime::INIT_CURR_TIME);
+	const string comment = "Test failure comment (;_;)";
+	armStatus.logFailure(comment);
+	ArmInfo armInfo = armStatus.getArmInfo();
+	const SmartTime time1(SmartTime::INIT_CURR_TIME);
+
+	cppcut_assert_equal(ARM_WORK_STAT_FAILURE, armInfo.stat);
+	cppcut_assert_equal(true, armInfo.statUpdateTime >= time0);
+	cppcut_assert_equal(true, time1 >= armInfo.statUpdateTime);
+	cppcut_assert_equal(armInfo.statUpdateTime, armInfo.lastFailureTime);
+	cppcut_assert_equal(comment, armInfo.failureComment);
+	cppcut_assert_equal((size_t)1, armInfo.numTryToGet);
+	cppcut_assert_equal((size_t)1, armInfo.numFailure);
+
+	// The remaining members should be unchanged.
+	const SmartTime initTime;
+	cppcut_assert_equal(false, armInfo.running);
+	cppcut_assert_equal(initTime, armInfo.lastSuccessTime);
 }
 
 } // namespace testArmStatus

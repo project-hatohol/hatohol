@@ -89,7 +89,14 @@ void ArmStatus::logSuccess(void)
 void ArmStatus::logFailure(const string &comment,
                            const ArmWorkingStatus &status)
 {
-	MLPL_BUG("Not implemented yet: %s\n", __PRETTY_FUNCTION__);
+	m_ctx->rwlock.writeLock();
+	m_ctx->armInfo.stat = status;
+	m_ctx->armInfo.statUpdateTime.setCurrTime();
+	m_ctx->armInfo.lastFailureTime = m_ctx->armInfo.statUpdateTime;
+	m_ctx->armInfo.failureComment = comment;
+	m_ctx->armInfo.numTryToGet++;
+	m_ctx->armInfo.numFailure++;
+	m_ctx->rwlock.unlock();
 }
 
 // ---------------------------------------------------------------------------
