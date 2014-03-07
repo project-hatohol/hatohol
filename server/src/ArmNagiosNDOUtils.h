@@ -48,6 +48,7 @@ protected:
 	void getItem(void);
 	void getHost(void);
 	void getHostgroup(void);
+	void getHostgroupMembers(void);
 	void connect(void);
 
 	// virtual methods
