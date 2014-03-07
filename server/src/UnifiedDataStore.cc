@@ -20,6 +20,7 @@
 #include <stdexcept>
 #include <MutexLock.h>
 #include <AtomicValue.h>
+#include <Reaper.h>
 #include "UnifiedDataStore.h"
 #include "VirtualDataStoreZabbix.h"
 #include "VirtualDataStoreNagios.h"
@@ -147,19 +148,18 @@ struct UnifiedDataStore::PrivateContext
 		  serverId, dataStore);
 	}
 
-	DataStore *getDataStore(const ServerIdType &serverId)
+	DataStorePtr getDataStore(const ServerIdType &serverId)
 	{
 		DataStore *dataStore = NULL;
 		serverIdDataStoreMapLock.readLock();
+		Reaper<ReadWriteLock> unlocker(&serverIdDataStoreMapLock,
+		                               ReadWriteLock::unlock);
 		ServerIdDataStoreMapIterator it =
 		  serverIdDataStoreMap.find(serverId);
 		const bool found = (it != serverIdDataStoreMap.end());
-		if (found) {
+		if (found)
 			dataStore = it->second;
-			dataStore->ref();
-		}
-		serverIdDataStoreMapLock.unlock();
-		return dataStore;
+		return dataStore; // ref() is called in DataStorePtr's C'tor
 	}
 
 	VirtualDataStore *
@@ -575,7 +575,7 @@ void UnifiedDataStore::virtualDataStoreForeach(
 
 DataStorePtr UnifiedDataStore::getDataStore(const ServerIdType &serverId)
 {
-	return DataStorePtr(m_ctx->getDataStore(serverId), false);
+	return m_ctx->getDataStore(serverId);
 }
 
 // ---------------------------------------------------------------------------
