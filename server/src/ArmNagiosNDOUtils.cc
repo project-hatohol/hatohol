@@ -504,7 +504,7 @@ void ArmNagiosNDOUtils::makeSelectTriggerArg(void)
                             IDX_SERVICESTATUS_SERVICE_OBJECT_ID).c_str(),
 	    TABLE_NAME_HOSTS,
 	    arg.getFullName(TBLIDX_SERVICES,
-                            IDX_SERVICES_SERVICE_OBJECT_ID).c_str(),
+                            IDX_SERVICES_HOST_OBJECT_ID).c_str(),
 	    arg.getFullName(TBLIDX_HOSTS,
                             IDX_HOSTS_HOST_OBJECT_ID).c_str());
 
@@ -550,7 +550,7 @@ void ArmNagiosNDOUtils::makeSelectEventArg(void)
 	                    IDX_SERVICES_SERVICE_OBJECT_ID).c_str(),
 	    TABLE_NAME_HOSTS,
 	    arg.getFullName(TBLIDX_SERVICES,
-	                    IDX_SERVICES_SERVICE_OBJECT_ID).c_str(),
+	                    IDX_SERVICES_HOST_OBJECT_ID).c_str(),
 	    arg.getFullName(TBLIDX_HOSTS, IDX_HOSTS_HOST_OBJECT_ID).c_str());
 
 	arg.setTable(TBLIDX_HISTORY);
