@@ -267,7 +267,7 @@ static const ColumnDef COLUMN_DEF_HOSTGROUP_MEMBERS[] = {
 {
 	ITEM_ID_NAGIOS_HOSTGROUP_MEMBERS_HOST_OBJECT_ID, // itemId
 	TABLE_NAME_HOSTGROUP_MEMBERS,                    // tableName
-	"host_id",                                       // columnName
+	"host_object_id",                                // columnName
 	SQL_COLUMN_TYPE_INT,                             // type
 	11,                                              // columnLength
 	0,                                               // decFracLength
@@ -290,7 +290,7 @@ static const ColumnDef COLUMN_DEF_HOSTGROUP_MEMBERS[] = {
 };
 
 enum {
-	IDX_HOSTGROUP_MEMBERS_HOST_ID,
+	IDX_HOSTGROUP_MEMBERS_HOST_OBJECT_ID,
 	IDX_HOSTGROUP_MEMBERS_HOSTGROUP_ID,
 	NUM_IDX_HOSTGROUP_MEMBERS,
 };
@@ -623,7 +623,7 @@ void ArmNagiosNDOUtils::makeSelectHostgroupMembersArg(void)
 {
 	DBAgent::SelectExArg &arg = m_ctx->selectHostgroupMembersArg;
 	arg.add(IDX_HOSTGROUP_MEMBERS_HOSTGROUP_ID);
-	arg.add(IDX_HOSTGROUP_MEMBERS_HOST_ID);
+	arg.add(IDX_HOSTGROUP_MEMBERS_HOST_OBJECT_ID);
 }
 
 void ArmNagiosNDOUtils::addConditionForTriggerQuery(void)
