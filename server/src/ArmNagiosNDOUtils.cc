@@ -562,8 +562,8 @@ void ArmNagiosNDOUtils::makeSelectEventArg(void)
 	arg.add(IDX_SERVICES_SERVICE_ID);
 
 	arg.setTable(TBLIDX_HOSTS);
-	arg.setTable(IDX_HOSTS_HOST_ID);
-	arg.setTable(IDX_HOSTS_DISPLAY_NAME);
+	arg.add(IDX_HOSTS_HOST_OBJECT_ID);
+	arg.add(IDX_HOSTS_DISPLAY_NAME);
 
 	arg.setTable(TBLIDX_HISTORY);
 	arg.add(IDX_STATEHISTORY_OUTPUT);
