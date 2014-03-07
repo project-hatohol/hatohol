@@ -44,6 +44,7 @@ protected:
 	void getTrigger(void);
 	void getEvent(void);
 	void getItem(void);
+	void getHost(void);
 	void connect(void);
 
 	// virtual methods
