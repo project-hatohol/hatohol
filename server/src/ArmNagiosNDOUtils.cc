@@ -526,7 +526,7 @@ void ArmNagiosNDOUtils::makeSelectItemArg(void)
 void ArmNagiosNDOUtils::makeSelectHostArg(void)
 {
 	DBAgent::SelectExArg &arg = m_ctx->selectHostArg;
-	arg.add(IDX_HOSTS_HOST_ID);
+	arg.add(IDX_HOSTS_HOST_OBJECT_ID);
 	arg.add(IDX_HOSTS_DISPLAY_NAME);
 }
 
