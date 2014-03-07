@@ -387,6 +387,7 @@ ArmNagiosNDOUtils::ArmNagiosNDOUtils(const MonitoringServerInfo &serverInfo)
 	makeSelectTriggerArg();
 	makeSelectEventArg();
 	makeSelectItemArg();
+	makeSelectHostArg();
 }
 
 ArmNagiosNDOUtils::~ArmNagiosNDOUtils()
@@ -738,6 +739,7 @@ bool ArmNagiosNDOUtils::mainThreadOneProc(void)
 		} else {
 			getTrigger();
 			getEvent();
+			getHost();
 			if (!getCopyOnDemandEnabled())
 				getItem();
 		}
