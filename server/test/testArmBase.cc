@@ -17,6 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <gcutter.h>
 #include <cppcutter.h>
 #include <AtomicValue.h>
 #include <MutexLock.h>
@@ -52,6 +53,11 @@ public:
 	void callGetArmStatus(ArmStatus *&armStatus)
 	{
 		return getArmStatus(armStatus);
+	}
+
+	void callSetFailureInfo(const string &comment)
+	{
+		setFailureInfo(comment);
 	}
 
 	void setOneProcHook(OneProcHook hook, void *data)
@@ -165,20 +171,44 @@ void test_getArmBasePtr(void)
 	cppcut_assert_equal(&armStatus, armNonConstStatus);
 }
 
-void test_statusLogSuccess(void)
+void data_statusLog(void)
+{
+	gcut_add_datum("Success", "result", G_TYPE_BOOLEAN, TRUE, NULL);
+	gcut_add_datum("Failure", "result", G_TYPE_BOOLEAN, FALSE,
+	               "comment", G_TYPE_BOOLEAN, FALSE, NULL);
+	gcut_add_datum("Failure (comment)", "result", G_TYPE_BOOLEAN, FALSE,
+	               "comment", G_TYPE_BOOLEAN, TRUE, NULL);
+}
+
+void test_statusLog(gconstpointer data)
 {
 	struct Ctx {
+		string comment;
 		TestArmBase *armBase;
+		bool result;
+		bool setComment;
+
+		bool oneProcHook(void)
+		{
+			if (!result && setComment)
+				armBase->callSetFailureInfo(comment);
+			armBase->callRequestExit();
+			return result;
+		}
 
 		static bool oneProcHook(void *data)
 		{
 			Ctx *obj = static_cast<Ctx *>(data);
-			obj->armBase->callRequestExit();
-			return true;
+			return obj->oneProcHook();
 		}
 
 	} ctx;
 
+	ctx.result = gcut_data_get_boolean(data, "result");
+	if (!ctx.result)
+		ctx.setComment = gcut_data_get_boolean(data, "comment");
+	if (ctx.setComment)
+ 		ctx.comment = "She sells sea shells by the seashore.";
 	MonitoringServerInfo serverInfo;
 	initServerInfo(serverInfo);
 	TestArmBase armBase(__func__, serverInfo);
@@ -188,8 +218,16 @@ void test_statusLogSuccess(void)
 	armBase.waitExit(); // TODO: May blocks forever
 
 	ArmInfo armInfo = armBase.getArmStatus().getArmInfo();
-	cppcut_assert_equal(ARM_WORK_STAT_OK, armInfo.stat);
 	cppcut_assert_equal((size_t)1, armInfo.numUpdated);
+	if (ctx.result) {
+		cppcut_assert_equal(ARM_WORK_STAT_OK, armInfo.stat);
+		cppcut_assert_equal((size_t)0, armInfo.numFailure);
+	} else {
+		cppcut_assert_equal(ARM_WORK_STAT_FAILURE, armInfo.stat);
+		cppcut_assert_equal((size_t)1, armInfo.numFailure);
+	}
+	if (ctx.setComment)
+		cppcut_assert_equal(ctx.comment, armInfo.failureComment);
 }
 
 } // namespace testArmBase
