@@ -59,6 +59,7 @@ const char *FaceRest::pathForLogin       = "/login";
 const char *FaceRest::pathForLogout      = "/logout";
 const char *FaceRest::pathForGetOverview = "/overview";
 const char *FaceRest::pathForServer      = "/server";
+const char *FaceRest::pathForServerConnStat = "/server-conn-stat";
 const char *FaceRest::pathForGetHost     = "/host";
 const char *FaceRest::pathForGetTrigger  = "/trigger";
 const char *FaceRest::pathForGetEvent    = "/event";
@@ -584,6 +585,10 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	soup_server_add_handler(m_ctx->soupServer, pathForServer,
 	                        queueRestJob,
 	                        new HandlerClosure(this, handlerServer),
+	                        deleteHandlerClosure);
+	soup_server_add_handler(m_ctx->soupServer, pathForServerConnStat,
+	                        queueRestJob,
+	                        new HandlerClosure(this, handlerServerConnStat),
 	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetHost,
 	                        queueRestJob,
@@ -1651,6 +1656,37 @@ void FaceRest::handlerDeleteServer(RestJob *job)
 	agent.startObject();
 	addHatoholError(agent, err);
 	agent.add("id", serverId);
+	agent.endObject();
+
+	replyJsonData(agent, job);
+}
+
+void FaceRest::handlerServerConnStat(RestJob *job)
+{
+	DataQueryContextPtr dqCtx(new DataQueryContext(job->userId), false);
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	ServerConnStatusVector serverConnStatVec;
+	dataStore->getServerConnStatusVector(serverConnStatVec, dqCtx);
+
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, HatoholError(HTERR_OK));
+	agent.startObject("serverConnStat");
+	for (size_t idx = 0; idx < serverConnStatVec.size(); idx++) {
+		const ServerConnStatus &svConnStat = serverConnStatVec[idx];
+		const ArmInfo &armInfo = svConnStat.armInfo;
+		agent.startObject(StringUtils::toString(svConnStat.serverId));
+		agent.add("running",         armInfo.running);
+		agent.add("status",          armInfo.stat);
+		agent.add("statUpdateTime",  armInfo.statUpdateTime);
+		agent.add("lastSuccessTime", armInfo.lastSuccessTime);
+		agent.add("lastFailureTime", armInfo.lastFailureTime);
+		agent.add("failureComment",  armInfo.failureComment);
+		agent.add("numUpdate",       armInfo.numUpdate);
+		agent.add("numFailure",      armInfo.numFailure);
+		agent.endObject(); // serverId
+	} 
+	agent.endObject(); // serverConnStat
 	agent.endObject();
 
 	replyJsonData(agent, job);
