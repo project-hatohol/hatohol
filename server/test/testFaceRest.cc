@@ -1227,9 +1227,8 @@ static void _assertServerConnStat(JsonParserAgent *parser)
 
 	// Check
 	const string initTimeStr = (string)SmartTime();
-	assertStartObject(parser, "serverConnStat");
 	ServerIdSetIterator serverIdItr;
-	parser->startObject("serverConnStatus");
+	assertStartObject(parser, "serverConnStat");
 	while (!expectIdSet.empty()) {
 		serverIdItr = expectIdSet.begin();
 		const string serverIdStr = StringUtils::toString(*serverIdItr);
