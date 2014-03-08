@@ -46,7 +46,15 @@ public:
 
 	static UnifiedDataStore *getInstance(void);
 	void parseCommandLineArgument(CommandLineArg &cmdArg);
-	void start(void);
+
+	/**
+	 * Start all virtual data stores.
+	 * 
+	 * @param autoRun 
+	 * A flag to run an Arm instance soon after the store is started.
+	 */
+	void start(const bool &autoRun = true);
+
 	void stop(void);
 	bool getCopyOnDemandEnabled(void) const;
 	void setCopyOnDemandEnabled(bool enable);

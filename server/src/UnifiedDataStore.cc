@@ -266,16 +266,18 @@ UnifiedDataStore *UnifiedDataStore::getInstance(void)
 	return PrivateContext::instance;
 }
 
-void UnifiedDataStore::start(void)
+void UnifiedDataStore::start(const bool &autoRun)
 {
 	struct : public VirtualDataStoreForeachProc
 	{
+		bool autoRun;
 		virtual bool operator()(VirtualDataStore *virtDataStore)
 		{
-			virtDataStore->start();
+			virtDataStore->start(autoRun);
 			return false;
 		}
 	} starter;
+	starter.autoRun = autoRun;
 	m_ctx->virtualDataStoreForeach(&starter);
 }
 
