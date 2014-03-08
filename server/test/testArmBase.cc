@@ -219,7 +219,7 @@ void test_statusLog(gconstpointer data)
 	armBase.waitExit(); // TODO: May blocks forever
 
 	ArmInfo armInfo = armBase.getArmStatus().getArmInfo();
-	cppcut_assert_equal((size_t)1, armInfo.numUpdated);
+	cppcut_assert_equal((size_t)1, armInfo.numUpdate);
 	if (ctx.result) {
 		cppcut_assert_equal(ARM_WORK_STAT_OK, armInfo.stat);
 		cppcut_assert_equal((size_t)0, armInfo.numFailure);
