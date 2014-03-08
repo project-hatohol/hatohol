@@ -246,18 +246,11 @@ void test_getServerConnStatusVector(void)
 {
 	// setup
 	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+	uds->start(false);
 
 	MonitoringServerInfo svInfo;
 	MonitoringServerInfo::initialize(svInfo);
 	svInfo.type = MONITORING_SYSTEM_FAKE;
-	const size_t numRegist = 3;
-	
-	for (size_t i = 0; i < numRegist; i++) {
-		svInfo.id = AUTO_INCREMENT_VALUE;
-		assertHatoholError(
-		  HTERR_OK,
-		  uds->addTargetServer(svInfo, USER_ID_SYSTEM, false));
-	}
 
 	// Call the target method
 	ServerConnStatusVector svConnStatVect;
@@ -265,13 +258,13 @@ void test_getServerConnStatusVector(void)
 	uds->getServerConnStatusVector(svConnStatVect, dqCtxP);
 
 	// Check
-	cppcut_assert_equal(numRegist, svConnStatVect.size());
+	cppcut_assert_equal(NumTestServerInfo, svConnStatVect.size());
 	ServerIdSet expectIdSet;
-	for (size_t i = 0; i < numRegist; i++) {
-		const ServerIdType expectId = NumTestServerInfo + i + 1;
+	for (size_t i = 0; i < NumTestServerInfo; i++) {
+		const ServerIdType expectId = i + 1;
 		expectIdSet.insert(expectId);
 	}
-	for (size_t i = 0; i < numRegist; i++) {
+	for (size_t i = 0; i < NumTestServerInfo; i++) {
 		const ServerIdType svId = svConnStatVect[i].serverId;
 		ServerIdSetIterator it = expectIdSet.find(svId);
 		cppcut_assert_equal(true, it != expectIdSet.end());
