@@ -176,7 +176,7 @@ Then, the following command reloads the iptables setting.
 For example, if the Hatohol client runs on computer: 192.168.1.1,
 Open the following URL from your Browser.
 
-- http://192.168.1.1:8000/viewer/
+- http://192.168.1.1/viewer/
 
 > ** Note **
 > Currently the above pages have been checked with Google Chrome and Firefox.
