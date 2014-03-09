@@ -129,4 +129,6 @@ Hatohol serverが正常に開始した場合、/var/log/messagesに下記のよ�
 - http://192.168.1.1/viewer/
 
 > ** メモ **
-> 現在、上記ページは、Google Chromeを使ってチェックされています。
+> 現在、上記ページは、Google ChromeおよびFirefoxを使ってチェックされています。
+> Internet Explorerを使用する場合は、ご使用のバージョンによっては、
+> 表示レイアウトが崩れる場合があります。（IE11では正常に表示されることを確認しています）
