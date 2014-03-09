@@ -318,6 +318,13 @@ static void _assertValueInParser(JsonParserAgent *parser,
 
 #define assertValueInParser(P,M,E) cut_trace(_assertValueInParser(P,M,E));
 
+static void _assertStartObject(JsonParserAgent *parser, const string &keyName)
+{
+	cppcut_assert_equal(true, parser->startObject(keyName),
+	                    cut_message("Key: '%s'", keyName.c_str()));
+}
+#define assertStartObject(P,K) cut_trace(_assertStartObject(P,K))
+
 static void _assertNoValueInParser(
   JsonParserAgent *parser, const string &member)
 {
@@ -359,7 +366,7 @@ static void assertServersInParser(
   JsonParserAgent *parser, bool shouldHaveAccountInfo = true)
 {
 	assertValueInParser(parser, "numberOfServers", NumTestServerInfo);
-	parser->startObject("servers");
+	assertStartObject(parser, "servers");
 	for (size_t i = 0; i < NumTestServerInfo; i++) {
 		parser->startElement(i);
 		MonitoringServerInfo &svInfo = testServerInfo[i];
@@ -419,7 +426,7 @@ static void assertHostsInParser(JsonParserAgent *parser,
 		hostInfoMap[hostInfo.serverId][hostInfo.id] = &hostInfo;
 	}
 
-	parser->startObject("hosts");
+	assertStartObject(parser, "hosts");
 	for (size_t i = 0; i < hostInfoList.size(); i++) {
 		int64_t var64;
 		parser->startElement(i);
@@ -444,12 +451,12 @@ static void assertHostsIdNameHashInParser(TriggerInfo *triggers,
                                           size_t numberOfTriggers,
                                           JsonParserAgent *parser)
 {
-	parser->startObject("servers");
+	assertStartObject(parser, "servers");
 	for (size_t i = 0; i < numberOfTriggers; i++) {
 		TriggerInfo &triggerInfo = triggers[i];
-		parser->startObject(StringUtils::toString(triggerInfo.serverId));
-		parser->startObject("hosts");
-		parser->startObject(StringUtils::toString(triggerInfo.hostId));
+		assertStartObject(parser, StringUtils::toString(triggerInfo.serverId));
+		assertStartObject(parser, "hosts");
+		assertStartObject(parser, StringUtils::toString(triggerInfo.hostId));
 		assertValueInParser(parser, "name", triggerInfo.hostName);
 		parser->endObject();
 		parser->endObject();
@@ -461,12 +468,12 @@ static void assertHostsIdNameHashInParser(TriggerInfo *triggers,
 static void assertHostsIdNameHashInParser(
   const vector<EventInfo *> &expectedRecords, JsonParserAgent *parser)
 {
-	parser->startObject("servers");
+	assertStartObject(parser, "servers");
 	for (size_t i = 0; i < expectedRecords.size(); i++) {
 		const EventInfo &eventInfo = *expectedRecords[i];
-		parser->startObject(StringUtils::toString(eventInfo.serverId));
-		parser->startObject("hosts");
-		parser->startObject(StringUtils::toString(eventInfo.hostId));
+		assertStartObject(parser, StringUtils::toString(eventInfo.serverId));
+		assertStartObject(parser, "hosts");
+		assertStartObject(parser, StringUtils::toString(eventInfo.hostId));
 		assertValueInParser(parser, "name", eventInfo.hostName);
 		parser->endObject();
 		parser->endObject();
@@ -477,10 +484,10 @@ static void assertHostsIdNameHashInParser(
 
 static void assertServersIdNameHashInParser(JsonParserAgent *parser)
 {
-	parser->startObject("servers");
+	assertStartObject(parser, "servers");
 	for (size_t i = 0; i < NumTestServerInfo; i++) {
 		MonitoringServerInfo &svInfo = testServerInfo[i];
-		parser->startObject(StringUtils::toString(svInfo.id));
+		assertStartObject(parser, StringUtils::toString(svInfo.id));
 		assertValueInParser(parser, "name", svInfo.hostName);
 		parser->endObject();
 	}
@@ -573,7 +580,7 @@ static void _assertTriggers(const string &path, const string &callbackName = "",
 	// Check the reply
 	assertErrorCode(g_parser);
 	assertValueInParser(g_parser, "numberOfTriggers", expectedNumTrig);
-	g_parser->startObject("triggers");
+	assertStartObject(g_parser, "triggers");
 	for (size_t i = 0; i < expectedNumTrig; i++) {
 		g_parser->startElement(i);
 		int64_t var64;
@@ -622,7 +629,7 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 	                    eventsArg.expectedRecords.size());
 	assertValueInParser(g_parser, "lastUnifiedEventId",
 	                    eventsArg.expectedRecords.size());
-	g_parser->startObject("events");
+	assertStartObject(g_parser, "events");
 	vector<EventInfo*>::reverse_iterator it
 	  = eventsArg.expectedRecords.rbegin();
 	for (size_t i = 0; it != eventsArg.expectedRecords.rend(); i++, ++it) {
@@ -677,7 +684,7 @@ static void _assertItems(const string &path, const string &callbackName = "")
 	// Check each ItemInfo
 	ServerIdItemInfoIdIndexMapMap indexMap;
 	getTestItemsIndexes(indexMap);
-	g_parser->startObject("items");
+	assertStartObject(g_parser, "items");
 	set<ItemInfo *> itemInfoPtrSet;
 	for (size_t i = 0; i < numItems; i++) {
 		int64_t serverId = 0;
@@ -733,7 +740,7 @@ static void _assertActions(const string &path, const string &callbackName = "")
 	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
 	assertValueInParser(g_parser, "numberOfActions", NumTestActionDef);
-	g_parser->startObject("actions");
+	assertStartObject(g_parser, "actions");
 	for (size_t i = 0; i < NumTestActionDef; i++) {
 		g_parser->startElement(i);
 		const ActionDef &actionDef = testActionDef[i];
@@ -858,23 +865,23 @@ static void _assertUser(JsonParserAgent *parser, const UserInfo &userInfo,
 
 static void assertUserRolesMapInParser(JsonParserAgent *parser)
 {
-	cut_assert_true(parser->startObject("userRoles"));
+	assertStartObject(parser, "userRoles");
 
 	string flagsStr =
 	  StringUtils::sprintf("%"FMT_OPPRVLG, NONE_PRIVILEGE);
-	cut_assert_true(parser->startObject(flagsStr));
+	assertStartObject(parser, flagsStr);
 	assertValueInParser(parser, "name", string("Guest"));
 	parser->endObject();
 
 	flagsStr = StringUtils::sprintf("%"FMT_OPPRVLG, ALL_PRIVILEGES);
-	cut_assert_true(parser->startObject(flagsStr));
+	assertStartObject(parser, flagsStr);
 	assertValueInParser(parser, "name", string("Admin"));
 	parser->endObject();
 
 	for (size_t i = 0; i < NumTestUserRoleInfo; i++) {
 		UserRoleInfo &userRoleInfo = testUserRoleInfo[i];
 		flagsStr = StringUtils::toString(userRoleInfo.flags);
-		cut_assert_true(parser->startObject(flagsStr));
+		assertStartObject(parser, flagsStr);
 		assertValueInParser(parser, "name", userRoleInfo.name);
 		parser->endObject();
 	}
@@ -890,7 +897,7 @@ static void _assertUsers(const string &path, const UserIdType &userId,
 	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
 	assertValueInParser(g_parser, "numberOfUsers", NumTestUserInfo);
-	g_parser->startObject("users");
+	assertStartObject(g_parser, "users");
 	for (size_t i = 0; i < NumTestUserInfo; i++) {
 		g_parser->startElement(i);
 		const UserInfo &userInfo = testUserInfo[i];
@@ -1003,7 +1010,7 @@ static void _assertUpdateOrAddUser(const string &name)
 
 static void _assertServerAccessInfo(JsonParserAgent *parser, HostGrpAccessInfoMap &expected)
 {
-	cut_assert_true(parser->startObject("allowedHostGroups"));
+	assertStartObject(parser, "allowedHostGroups");
 	HostGrpAccessInfoMapIterator it = expected.begin();
 	for (size_t i = 0; i < expected.size(); i++) {
 		uint64_t hostGroupId = it->first;
@@ -1012,7 +1019,7 @@ static void _assertServerAccessInfo(JsonParserAgent *parser, HostGrpAccessInfoMa
 			idStr = "-1";
 		else
 			idStr = StringUtils::sprintf("%"PRIu64, hostGroupId);
-		parser->startObject(idStr);
+		assertStartObject(parser, idStr);
 		AccessInfo *info = it->second;
 		assertValueInParser(parser, "accessInfoId",
 				    static_cast<uint64_t>(info->id));
@@ -1032,7 +1039,7 @@ static void _assertAllowedServers(const string &path, const UserIdType &userId,
 	assertErrorCode(g_parser);
 	ServerAccessInfoMap srvAccessInfoMap;
 	makeServerAccessInfoMap(srvAccessInfoMap, userId);
-	g_parser->startObject("allowedServers");
+	assertStartObject(g_parser, "allowedServers");
 	ServerAccessInfoMapIterator it = srvAccessInfoMap.begin();
 	for (; it != srvAccessInfoMap.end(); ++it) {
 		const ServerIdType &serverId = it->first;
@@ -1041,7 +1048,7 @@ static void _assertAllowedServers(const string &path, const UserIdType &userId,
 			idStr = "-1";
 		else
 			idStr = StringUtils::toString(serverId);
-		cut_assert_true(g_parser->startObject(idStr));
+		assertStartObject(g_parser, idStr);
 		HostGrpAccessInfoMap *hostGrpAccessInfoMap = it->second;
 		assertServerAccessInfo(g_parser, *hostGrpAccessInfoMap);
 		g_parser->endObject();
@@ -1107,7 +1114,7 @@ static void _assertUserRoles(const string &path,
 	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
 	assertValueInParser(g_parser, "numberOfUserRoles", NumTestUserRoleInfo);
-	g_parser->startObject("userRoles");
+	assertStartObject(g_parser, "userRoles");
 	for (size_t i = 0; i < NumTestUserRoleInfo; i++) {
 		g_parser->startElement(i);
 		const UserRoleInfo &userRoleInfo = testUserRoleInfo[i];
@@ -1123,8 +1130,8 @@ static void assertHostGroupsInParser(JsonParserAgent *parser,
                                      const ServerIdType &serverId)
 {
 	// TODO: currently only one hostGroup "No group" exists in the object
-	cut_assert_true(parser->startObject("hostGroups"));
-	cut_assert_true(parser->startObject("0"));
+	assertStartObject(parser, "hostGroups");
+	assertStartObject(parser, "0");
 	assertValueInParser(parser, string("name"), string("No group"));
 	parser->endObject();
 	parser->endObject();
@@ -1133,7 +1140,7 @@ static void assertHostGroupsInParser(JsonParserAgent *parser,
 static void assertHostStatusInParser(JsonParserAgent *parser,
                                      const ServerIdType &serverId)
 {
-	parser->startObject("hostStatus");
+	assertStartObject(parser, "hostStatus");
 	// TODO: currently only one hostGroup "No group" exists in the array
 	parser->startElement(0);
 	assertValueInParser(parser, "hostGroupId",  0);
@@ -1150,7 +1157,7 @@ static void assertHostStatusInParser(JsonParserAgent *parser,
 static void assertSystemStatusInParser(JsonParserAgent *parser,
                                        const ServerIdType &serverId)
 {
-	parser->startObject("systemStatus");
+	assertStartObject(parser, "systemStatus");
 	// TODO: currently only one hostGroup "No group" exists in the array
 	uint64_t hostGroupId = 0;
 	for (int severity = 0; severity < NUM_TRIGGER_SEVERITY; ++severity) {
@@ -1170,7 +1177,7 @@ static void assertSystemStatusInParser(JsonParserAgent *parser,
 static void _assertOverviewInParser(JsonParserAgent *parser)
 {
 	assertValueInParser(parser, "numberOfServers", NumTestServerInfo);
-	parser->startObject("serverStatus");
+	assertStartObject(parser, "serverStatus");
 	size_t numGoodServers = 0, numBadServers = 0;
 	for (size_t i = 0; i < NumTestServerInfo; i++) {
 		parser->startElement(i);
@@ -1206,6 +1213,40 @@ static void _assertOverviewInParser(JsonParserAgent *parser)
 	// TODO: check badServers
 }
 #define assertOverviewInParser(P) cut_trace(_assertOverviewInParser(P))
+
+static void _assertServerConnStat(JsonParserAgent *parser)
+{
+	// Make expected data
+	CacheServiceDBClient cache;
+	DBClientConfig *dbConfig = cache.getConfig();
+	ServerIdSet expectIdSet;
+	DataQueryContextPtr dqCtxPtr(new DataQueryContext(USER_ID_SYSTEM),
+	                             false);
+	dbConfig->getServerIdSet(expectIdSet, dqCtxPtr);
+	cppcut_assert_equal(true, expectIdSet.size() > 1);
+
+	// Check
+	const string initTimeStr = (string)SmartTime();
+	ServerIdSetIterator serverIdItr;
+	assertStartObject(parser, "serverConnStat");
+	while (!expectIdSet.empty()) {
+		serverIdItr = expectIdSet.begin();
+		const string serverIdStr = StringUtils::toString(*serverIdItr);
+		assertStartObject(parser, serverIdStr);
+		assertValueInParser(parser, "running", false);
+		assertValueInParser(parser, "status", ARM_WORK_STAT_INIT);
+		assertValueInParser(parser, "statUpdateTime",  initTimeStr);
+		assertValueInParser(parser, "lastSuccessTime", initTimeStr);
+		assertValueInParser(parser, "lastFailureTime", initTimeStr);
+		assertValueInParser(parser, "failureComment", string(""));
+		assertValueInParser(parser, "numUpdate",      0);
+		assertValueInParser(parser, "numFailure",     0);
+		parser->endObject(); // serverId
+		expectIdSet.erase(serverIdItr);
+	}
+	parser->endObject(); // serverConnStat
+}
+#define assertServerConnStat(P) cut_trace(_assertServerConnStat(P))
 
 static void setupPostAction(void)
 {
@@ -1322,7 +1363,7 @@ void test_testPost(void)
 	arg.parameters = parameters;
 	arg.request = "POST";
 	g_parser = getResponseAsJsonParser(arg);
-	cppcut_assert_equal(true, g_parser->startObject("queryData"));
+	assertStartObject(g_parser, "queryData");
 	StringMapIterator it = parameters.begin();
 	for (; it != parameters.end(); ++it)
 		assertValueInParser(g_parser, it->first, it->second);
@@ -1848,7 +1889,7 @@ void test_getUserMe(void)
 	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
 	assertValueInParser(g_parser, "numberOfUsers", 1);
-	g_parser->startObject("users");
+	assertStartObject(g_parser, "users");
 	g_parser->startElement(0);
 	assertUser(g_parser, user);
 }
@@ -2470,6 +2511,20 @@ void test_overview(void)
 	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
 	assertOverviewInParser(g_parser);
+}
+
+void test_getServerConnStat(void)
+{
+	startFaceRest();
+
+	setupUserDB();
+	UnifiedDataStore::getInstance()->start(false);
+
+	RequestArg arg("/server-conn-stat");
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	g_parser = getResponseAsJsonParser(arg);
+	assertErrorCode(g_parser);
+	assertServerConnStat(g_parser);
 }
 
 } // namespace testFaceRest

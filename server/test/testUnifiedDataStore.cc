@@ -242,4 +242,34 @@ void test_serverIdDataStoreMap(void)
 	                    (DataStore *)dataStore1);
 }
 
+void test_getServerConnStatusVector(void)
+{
+	// setup
+	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+	uds->start(false);
+
+	MonitoringServerInfo svInfo;
+	MonitoringServerInfo::initialize(svInfo);
+	svInfo.type = MONITORING_SYSTEM_FAKE;
+
+	// Call the target method
+	ServerConnStatusVector svConnStatVect;
+	DataQueryContextPtr dqCtxP(new DataQueryContext(USER_ID_SYSTEM), false);
+	uds->getServerConnStatusVector(svConnStatVect, dqCtxP);
+
+	// Check
+	cppcut_assert_equal(NumTestServerInfo, svConnStatVect.size());
+	ServerIdSet expectIdSet;
+	for (size_t i = 0; i < NumTestServerInfo; i++) {
+		const ServerIdType expectId = i + 1;
+		expectIdSet.insert(expectId);
+	}
+	for (size_t i = 0; i < NumTestServerInfo; i++) {
+		const ServerIdType svId = svConnStatVect[i].serverId;
+		ServerIdSetIterator it = expectIdSet.find(svId);
+		cppcut_assert_equal(true, it != expectIdSet.end());
+		expectIdSet.erase(it);
+	}
+}
+
 } // testUnifiedDataStore

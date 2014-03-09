@@ -20,6 +20,7 @@
 #include <stdexcept>
 #include <MutexLock.h>
 #include <AtomicValue.h>
+#include <Reaper.h>
 #include "UnifiedDataStore.h"
 #include "VirtualDataStoreZabbix.h"
 #include "VirtualDataStoreNagios.h"
@@ -147,19 +148,18 @@ struct UnifiedDataStore::PrivateContext
 		  serverId, dataStore);
 	}
 
-	DataStore *getDataStore(const ServerIdType &serverId)
+	DataStorePtr getDataStore(const ServerIdType &serverId)
 	{
 		DataStore *dataStore = NULL;
 		serverIdDataStoreMapLock.readLock();
+		Reaper<ReadWriteLock> unlocker(&serverIdDataStoreMapLock,
+		                               ReadWriteLock::unlock);
 		ServerIdDataStoreMapIterator it =
 		  serverIdDataStoreMap.find(serverId);
 		const bool found = (it != serverIdDataStoreMap.end());
-		if (found) {
+		if (found)
 			dataStore = it->second;
-			dataStore->ref();
-		}
-		serverIdDataStoreMapLock.unlock();
-		return dataStore;
+		return dataStore; // ref() is called in DataStorePtr's C'tor
 	}
 
 	VirtualDataStore *
@@ -266,16 +266,18 @@ UnifiedDataStore *UnifiedDataStore::getInstance(void)
 	return PrivateContext::instance;
 }
 
-void UnifiedDataStore::start(void)
+void UnifiedDataStore::start(const bool &autoRun)
 {
 	struct : public VirtualDataStoreForeachProc
 	{
+		bool autoRun;
 		virtual bool operator()(VirtualDataStore *virtDataStore)
 		{
-			virtDataStore->start();
+			virtDataStore->start(autoRun);
 			return false;
 		}
 	} starter;
+	starter.autoRun = autoRun;
 	m_ctx->virtualDataStoreForeach(&starter);
 }
 
@@ -567,6 +569,28 @@ HatoholError UnifiedDataStore::deleteTargetServer(
 	return m_ctx->stopDataStore(serverId);
 }
 
+void UnifiedDataStore::getServerConnStatusVector(
+  ServerConnStatusVector &svConnStatVec, DataQueryContext *dataQueryContext)
+{
+	CacheServiceDBClient cache;
+	DBClientConfig *dbConfig = cache.getConfig();
+	ServerIdSet serverIdSet;
+	dbConfig->getServerIdSet(serverIdSet, dataQueryContext);
+	svConnStatVec.reserve(serverIdSet.size());
+
+	ServerIdSetIterator serverIdItr = serverIdSet.begin();
+	for (; serverIdItr != serverIdSet.end(); ++serverIdItr) {
+		DataStorePtr dataStorePtr = getDataStore(*serverIdItr);
+		if (!dataStorePtr.hasData())
+			continue;
+		ServerConnStatus svConnStat;
+		svConnStat.serverId = *serverIdItr;
+		svConnStat.armInfo =
+		   dataStorePtr->getArmBase().getArmStatus().getArmInfo();
+		svConnStatVec.push_back(svConnStat);
+	}
+}
+
 void UnifiedDataStore::virtualDataStoreForeach(
   VirtualDataStoreForeachProc *vdsProc)
 {
@@ -575,7 +599,7 @@ void UnifiedDataStore::virtualDataStoreForeach(
 
 DataStorePtr UnifiedDataStore::getDataStore(const ServerIdType &serverId)
 {
-	return DataStorePtr(m_ctx->getDataStore(serverId), false);
+	return m_ctx->getDataStore(serverId);
 }
 
 // ---------------------------------------------------------------------------

@@ -40,7 +40,7 @@ void test_getArmInfoInitial(void)
 	cppcut_assert_equal(initTime, armInfo.statUpdateTime);
 	cppcut_assert_equal(initTime, armInfo.lastSuccessTime);
 	cppcut_assert_equal(initTime, armInfo.lastFailureTime);
-	cppcut_assert_equal((size_t)0, armInfo.numUpdated);
+	cppcut_assert_equal((size_t)0, armInfo.numUpdate);
 	cppcut_assert_equal((size_t)0, armInfo.numFailure);
 }
 
@@ -56,7 +56,7 @@ void test_logSuccess(void)
 	cppcut_assert_equal(true, armInfo.statUpdateTime >= time0);
 	cppcut_assert_equal(true, time1 >= armInfo.statUpdateTime);
 	cppcut_assert_equal(armInfo.statUpdateTime, armInfo.lastSuccessTime);
-	cppcut_assert_equal((size_t)1, armInfo.numUpdated);
+	cppcut_assert_equal((size_t)1, armInfo.numUpdate);
 
 	// The remaining members should be unchanged.
 	const SmartTime initTime;
@@ -80,7 +80,7 @@ void test_logFailure(void)
 	cppcut_assert_equal(true, time1 >= armInfo.statUpdateTime);
 	cppcut_assert_equal(armInfo.statUpdateTime, armInfo.lastFailureTime);
 	cppcut_assert_equal(comment, armInfo.failureComment);
-	cppcut_assert_equal((size_t)1, armInfo.numUpdated);
+	cppcut_assert_equal((size_t)1, armInfo.numUpdate);
 	cppcut_assert_equal((size_t)1, armInfo.numFailure);
 
 	// The remaining members should be unchanged.
