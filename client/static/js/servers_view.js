@@ -20,6 +20,7 @@
 var ServersView = function(userProfile) {
   var self = this;
   var numSelected = 0;
+  var serverIds = new Array();
 
   // call the constructor of the super class
   HatoholMonitoringView.apply(userProfile);
@@ -170,13 +171,17 @@ var ServersView = function(userProfile) {
     for (x = 0; x < rd["servers"].length; ++x) {
       o = rd["servers"][x];
       ip = o["ipAddress"];
+
+      var serverId = o["id"];
+      serverIds.push(serverId);
+      var idConnStat = "connStat-" + serverId;
       serverURL = getServerLocation(o);
       mapsURL = getMapsLocation(o);
       s += "<tr>";
       s += "<td class='delete-selector' style='display:none;'>";
       s += "<input type='checkbox' class='selectcheckbox' serverId='" + escapeHTML(o["id"]) + "'>";
       s += "</td>";
-      s += "<td>" + escapeHTML(o["id"]) + "</td>";
+      s += "<td id='"+ idConnStat + "'>" + escapeHTML(gettext("Checking")) + "</td>";
       s += "<td>" + getServerTypeLabel(o["type"]) + "</td>";
       if (serverURL) {
         s += "<td><a href='" + serverURL + "'>" + escapeHTML(o["hostName"])  + "</a></td>";
@@ -209,8 +214,89 @@ var ServersView = function(userProfile) {
     setupCheckboxHandler();
     setupEditButtons(reply);
     numSelected = 0;
+    self.startConnection("server-conn-stat", updateServerConnStat);
+  }
+
+  function setStatusFailure(serverId)
+  {
+    console.log("TODO: implement: " + serverId + "\n");
+  }
+
+  function setStatusFailureAll()
+  {
+    console.log("TODO: implement\n");
+  }
+
+  function updateServerConnStat(reply) {
+    var connStatParser = new ServerConnStatParser(reply);
+    if (connStatParser.isBadPacket()) {
+        setStatusFailureAll();
+        return;
+    }
+    for (var i = 0; i < serverIds.length; i++) {
+      var serverId = serverIds[i];
+      if (!connStatParser.setServerId(serverId)) {
+        setStatusFail(serverId);
+        continue;
+      }
+      var label = connStatParser.getStatusLabel();
+      var idConnStat = "connStat-" + serverId;
+      $("#" + idConnStat).html(label);
+      // TODO: add hover hint.
+    }
   }
 };
 
 ServersView.prototype = Object.create(HatoholMonitoringView.prototype);
 ServersView.prototype.constructor = ServersView;
+
+var ServerConnStatParser = function(reply) {
+  var self = this;
+  self.badPacket = false;
+  self.connStat = reply.serverConnStat;
+  self.currServerId = null;
+  self.currConnStat = null;
+
+  if (!self.connStat) {
+    self.badPacket = true;
+    return;
+  }
+}
+
+ServerConnStatParser.prototype.isBadPacket = function() {
+    return this.badPacket;
+}
+
+ServerConnStatParser.prototype.setServerId = function(serverId) {
+  var self = this;
+  var key = serverId.toString();
+  var connStat = self.connStat[key];
+  if (!connStat)
+    return false;
+  self.currServerId = serverId;
+  self.currConnStat = connStat;
+  return true; 
+}
+
+ServerConnStatParser.prototype.getStatusLabel = function() {
+  var self = this;
+  if (self.currConnStat == undefined)
+    throw new Error("Called before a valid server ID is set.");
+  var currStatNum = self.currConnStat.status;
+  if (currStatNum == undefined)
+    return gettext("N/A");
+
+  // TODO: Use a constant export from the server code.
+  switch(currStatNum) {
+  case 0:
+    return gettext("Inital State");
+  case 1:
+    return gettext("OK");
+  case 2:
+    return gettext("Error");
+  default:
+    return gettext("Unknown:") + currStatNum;
+  }
+  throw new Error("This line must no be executed.");
+}
+
