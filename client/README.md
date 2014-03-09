@@ -21,7 +21,7 @@ maintained by [joequery]
 
 How to setup
 ----------------------------------------
-> See also [this page](../doc/install/hatohol0.1-centos6.4.md)
+> See also [this page](../doc/install/hatohol13.12-centos6.4.md)
 > to setup Hatohol for CentOS with the binary packages.
 
 ### Install Hatohol Client

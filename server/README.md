@@ -8,6 +8,7 @@ the specific monitoring software in various way.
 Supported monitoring software
 -----------------------------
 - ZABBIX 2.0
+- Nagios3 (with NDOUtils)
 
 Supported output method
 ------------------------
@@ -32,6 +33,9 @@ Required libraries
 - uuid-dev
 
 ### Example to install required libraries on CentOS 6.4
+> See also [this page](../doc/install/hatohol13.12-centos6.4.md)
+> to setup Hatohol for CentOS with the binary packages.
+
 First, you need to install development tools to build Hatohol and some required
 packages
 
