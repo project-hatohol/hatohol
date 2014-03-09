@@ -246,5 +246,9 @@ class TestHatoholVoyager(unittest.TestCase):
     arg_list = ["del-user", "25"]
     self._assert_url(arg_list, "http://localhost:33194/user/25", "DELETE")
 
+  def test_server_conn_stat(self):
+    arg_list = ["server-conn-stat"]
+    self._assert_url(arg_list, "http://localhost:33194/server-conn-stat")
+
 if __name__ == '__main__':
     unittest.main()

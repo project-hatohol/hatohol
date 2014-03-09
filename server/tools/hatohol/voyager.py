@@ -186,6 +186,10 @@ def del_user(url, args):
   req.get_method = lambda: 'DELETE'
   return {"url":req, "postproc":open_url_and_show_response}
 
+def server_conn_stat(url, args):
+  url = url + "/server-conn-stat"
+  return {"url":url, "postproc":open_url_and_show_response}
+
 command_map = {
   "test":do_test,
   "login":login,
@@ -201,6 +205,7 @@ command_map = {
   "show-user":show_user,
   "add-user":add_user,
   "del-user":del_user,
+  "server-conn-stat":server_conn_stat,
 }
 
 def main(arg_list=None, exec_postproc=True):
@@ -266,6 +271,9 @@ def main(arg_list=None, exec_postproc=True):
   # user (delete)
   sub_user = subparsers.add_parser("del-user")
   sub_user.add_argument("user_id")
+
+  # server-conn-stat
+  sub_svconnstat = subparsers.add_parser("server-conn-stat")
 
   args = parser.parse_args(arg_list)
   cmd_ctx = command_map[args.sub_command](args.server_url, args)
