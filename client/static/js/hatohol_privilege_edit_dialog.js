@@ -35,7 +35,7 @@ var HatoholPrivilegeEditDialog = function(userId, applyCallback) {
   }];
 
   // call the constructor of the super class
-  var dialogAttrs = { width: "600" };
+  var dialogAttrs = { width: "800" };
   HatoholDialog.apply(
     this, ["privilege-edit-dialog", gettext("Edit privileges"),
            dialogButtons, dialogAttrs]);
@@ -154,6 +154,7 @@ HatoholPrivilegeEditDialog.prototype.generateMainTable = function() {
   '      <th>' + gettext("Hostname") + '</th>' +
   '      <th>' + gettext("IP Address") + '</th>' +
   '      <th>' + gettext("Nickname") + '</th>' +
+  '      <th>' + gettext("Hostgroup") + '</th>' +
   '    </tr>' +
   '  </thead>' +
   '  <tbody></tbody>' +
@@ -174,6 +175,10 @@ HatoholPrivilegeEditDialog.prototype.generateTableRows = function() {
     s += '<td>' + escapeHTML(sv.hostName) + '</td>';
     s += '<td>' + escapeHTML(sv.ipAddress) + '</td>';
     s += '<td>' + escapeHTML(sv.nickname)  + '</td>';
+    s += '<td><input id="edit-server" type="button"' +
+              'serverId="' + escapeHTML(sv.id) + '"' +
+              'value="' + gettext("Show / Edit") + '" />';
+    s += '</td>';
     s += '</tr>';
   }
   return s;
