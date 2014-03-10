@@ -174,7 +174,7 @@ var ServersView = function(userProfile) {
 
       var serverId = o["id"];
       serverIds.push(serverId);
-      var idConnStat = "connStat-" + serverId;
+      var idConnStat = getIdConnStat(serverId);
       serverURL = getServerLocation(o);
       mapsURL = getMapsLocation(o);
       s += "<tr>";
@@ -222,14 +222,20 @@ var ServersView = function(userProfile) {
     self.startConnection("server-conn-stat", updateServerConnStat);
   }
 
-  function setStatusFailure(serverId)
-  {
-    console.log("TODO: implement: " + serverId + "\n");
+  function getIdConnStat(serverId) {
+    var idConnStat = "connStat-" + serverId;
+    return idConnStat;
   }
 
-  function setStatusFailureAll()
-  {
-    console.log("TODO: implement\n");
+  function setStatusFailure(serverId) {
+    var idConnStat = getIdConnStat(serverId);
+    var label = gettext("Failed to get");
+    $("#" + idConnStat).html(label);
+  }
+
+  function setStatusFailureAll() {
+    for (var i = 0; i < serverIds.length; i++)
+      setStatusFailure(serverIds[i]);
   }
 
   function updateServerConnStat(reply) {
@@ -241,11 +247,11 @@ var ServersView = function(userProfile) {
     for (var i = 0; i < serverIds.length; i++) {
       var serverId = serverIds[i];
       if (!connStatParser.setServerId(serverId)) {
-        setStatusFail(serverId);
+        setStatusFailure(serverId);
         continue;
       }
       var label = connStatParser.getStatusLabel();
-      var idConnStat = "connStat-" + serverId;
+      var idConnStat = getIdConnStat(serverId);
       $("#" + idConnStat).html(label);
       options = {content: connStatParser.getInfoHTML()};
       $("#" + idConnStat).popover(options);
