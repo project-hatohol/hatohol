@@ -307,7 +307,7 @@ ServerConnStatParser.prototype.getStatusLabel = function() {
 
   switch(currStatNum) {
   case hatohol.ARM_WORK_STAT_INIT:
-    return {msg:gettext("Inital State"), msgClass:"text-warning"};
+    return {msg:gettext("Initial State"), msgClass:"text-warning"};
   case hatohol.ARM_WORK_STAT_OK:
     return {msg:gettext("OK"), msgClass:"text-success"};
   case hatohol.ARM_WORK_STAT_FAILURE:
