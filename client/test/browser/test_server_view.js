@@ -73,4 +73,18 @@ describe('ServerView', function() {
     checkGetStatusLabel(12345, "Unknown:12345", "text-error");
   });
 
+  it('get info HTML before calling setServerId', function() {
+    var pkt = {serverConnStat:{'5':{}}};
+    var parser = new ServerConnStatParser(pkt);
+    var thrown = false;
+    try {
+      parser.getInfoHTML();
+    } catch (e) {
+      thrown = true;
+      expect(e).to.be.a(Error);
+    } finally {
+      expect(thrown).to.be(true);
+    }
+  });
+
 });
