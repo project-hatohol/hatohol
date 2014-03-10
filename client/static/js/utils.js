@@ -30,6 +30,8 @@ function padDigit(val, len) {
 }
 
 function formatDate(str) {
+  if (!str)
+    return "-";
   var val = new Date();
   val.setTime(Number(str) * 1000);
   var d =
