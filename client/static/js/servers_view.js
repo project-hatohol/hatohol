@@ -388,8 +388,30 @@ ServerConnStatParser.prototype.getInfoHTML = function() {
     if (unixTime == 0)
       return "-";
     var date = new Date(unixTime * 1000);
-    return date.toLocaleString();
+    var year  = date.getYear();
+    var month = date.getMonth() + 1;
+    var day   = date.getDate();
+    if (year < 2000)
+      year += 1900;
+    if (month < 10)
+      month = "0" + month;
+    if (day < 10)
+      day = "0" + day;
+    var hour = date.getHours();
+    var min  = date.getMinutes();
+    var sec  = date.getSeconds();
+    if (hour < 10)
+      hour = "0" + hour;
+    if (min < 10)
+      min = "0" + min;
+    if (sec < 10)
+      sec = "0" + sec;
+
+    var showString = year + "-" + month + "-" + day + " " +
+                     hour + ":" + min + ":" + sec;
+    return showString;
   }
 
   return s;
 }
+

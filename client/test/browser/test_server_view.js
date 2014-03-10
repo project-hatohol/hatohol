@@ -87,4 +87,35 @@ describe('ServerView', function() {
     }
   });
 
+  it('get info HTML', function() {
+    var pkt = {serverConnStat:
+      {
+        '5':{
+          status: hatohol.ARM_WORK_STAT_OK,
+          running: 1,
+          statUpdateTime: "1394444393.469501123",
+          lastSuccessTime: "1394444393.469501123",
+          lastFailureTime: "0.000000000",
+          numUpdate: 100,
+          numFailure: 5,
+          failureComment: "Bouno",
+        },
+      }
+    };
+    var parser = new ServerConnStatParser(pkt);
+    expect(parser.setServerId(5)).to.be(true); 
+    var html = parser.getInfoHTML();
+    var expectStr =
+      gettext("Running") + ": " + gettext("Yes") + "<br>" +
+      gettext("Status update time") + ": " +
+        gettext("2014-03-10 18:39:53") + "<br>" +
+      gettext("Last success time") + ": " +
+        gettext("2014-03-10 18:39:53") + "<br>" + 
+      gettext("Last failure time") + ": " + gettext("-") + "<br>" +
+      gettext("Number of communication") + ": 100" + "<br>" +
+      gettext("Number of failure") + ": 5" + "<br>" +
+      gettext("Comment for the failure") + ": Bouno";
+    expect(html).to.be(expectStr);
+  });
+
 });
