@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-09 22:28-0500\n"
+"POT-Creation-Date: 2014-03-10 01:13-0500\n"
 "PO-Revision-Date: 2014-02-18 14:29+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -63,7 +63,7 @@ msgid "New values per second"
 msgstr "１秒あたりの監視項目数"
 
 #: static/js/events_view.js:29 static/js/hatohol_add_action_dialog.js:348
-#: static/js/servers_view.js:300 static/js/triggers_view.js:40
+#: static/js/servers_view.js:308 static/js/triggers_view.js:40
 #: static/js/utils.js:57
 msgid "OK"
 msgstr "正常"
@@ -459,7 +459,7 @@ msgid "YES"
 msgstr "はい"
 
 #: static/js/hatohol_message_box.js:189
-#: static/js/hatohol_monitoring_view.js:24 static/js/servers_view.js:302
+#: static/js/hatohol_monitoring_view.js:24 static/js/servers_view.js:310
 msgid "Error"
 msgstr "エラー"
 
@@ -975,51 +975,56 @@ msgstr ""
 msgid "Show Maps"
 msgstr "マップを表示"
 
-#: static/js/servers_view.js:293
+#: static/js/servers_view.js:232
+#, fuzzy
+msgid "Failed to get"
+msgstr "ログインに失敗しました。"
+
+#: static/js/servers_view.js:302
 msgid "N/A"
 msgstr ""
 
-#: static/js/servers_view.js:298
+#: static/js/servers_view.js:306
 msgid "Inital State"
-msgstr ""
+msgstr "初期状態"
 
-#: static/js/servers_view.js:304
+#: static/js/servers_view.js:312
 msgid "Unknown:"
 msgstr "不明"
 
-#: static/js/servers_view.js:317
+#: static/js/servers_view.js:325
 msgid "Running"
 msgstr "稼働"
 
-#: static/js/servers_view.js:320
+#: static/js/servers_view.js:328
 msgid "No"
 msgstr "いいえ"
 
-#: static/js/servers_view.js:323
+#: static/js/servers_view.js:331
 msgid "Yes"
 msgstr "はい"
 
-#: static/js/servers_view.js:333
+#: static/js/servers_view.js:341
 msgid "Status update time"
 msgstr "状態更新時刻"
 
-#: static/js/servers_view.js:338
+#: static/js/servers_view.js:346
 msgid "Last success time"
 msgstr "最終成功時刻"
 
-#: static/js/servers_view.js:343
+#: static/js/servers_view.js:351
 msgid "Last failure time"
 msgstr "最終失敗時刻"
 
-#: static/js/servers_view.js:351
+#: static/js/servers_view.js:359
 msgid "Number of communication"
 msgstr "通信回数"
 
-#: static/js/servers_view.js:359
+#: static/js/servers_view.js:367
 msgid "Number of failure"
 msgstr "失敗回数"
 
-#: static/js/servers_view.js:363
+#: static/js/servers_view.js:371
 msgid "Comment for the failure"
 msgstr "失敗備考"
 
