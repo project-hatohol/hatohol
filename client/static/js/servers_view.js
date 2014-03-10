@@ -251,8 +251,11 @@ var ServersView = function(userProfile) {
         continue;
       }
       var label = connStatParser.getStatusLabel();
+      var msgClass = connStatParser.getStatusLabel();
+      var html = "<span class='" + label.msgClass + "'>" + label.msg + "</span>"
+
       var idConnStat = getIdConnStat(serverId);
-      $("#" + idConnStat).html(label);
+      $("#" + idConnStat).html(html);
       options = {content: connStatParser.getInfoHTML()};
       $("#" + idConnStat).popover(options);
     }
@@ -300,13 +303,13 @@ ServerConnStatParser.prototype.getStatusLabel = function() {
 
   switch(currStatNum) {
   case hatohol.ARM_WORK_STAT_INIT:
-    return gettext("Inital State");
+    return {msg:gettext("Inital State"), msgClass:"text-warning"};
   case hatohol.ARM_WORK_STAT_OK:
-    return gettext("OK");
+    return {msg:gettext("OK"), msgClass:"text-success"};
   case hatohol.ARM_WORK_STAT_FAILURE:
-    return gettext("Error");
+    return {msg:gettext("Error"), msgClass:"text-error"};
   default:
-    return gettext("Unknown:") + currStatNum;
+    return {msg:gettext("Unknown:") + currStatNum, msgClass:"text-error"};
   }
   throw new Error("This line must no be executed.");
 }
