@@ -28,6 +28,7 @@
 #include "HatoholError.h"
 #include "FaceRest.h"
 #include "SessionManager.h"
+#include "ArmStatus.h"
 using namespace std;
 using namespace mlpl;
 
@@ -224,6 +225,12 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 
 	DEF_LINE(s, langType, ENV_NAME_SESSION_ID,
 	         string, ActionManager::ENV_NAME_SESSION_ID);
+	APPEND(s, "\n");
+
+	// ArmStatus
+	ADD_LINE(s, langType, ARM_WORK_STAT_INIT);
+	ADD_LINE(s, langType, ARM_WORK_STAT_OK);
+	ADD_LINE(s, langType, ARM_WORK_STAT_FAILURE);
 	APPEND(s, "\n");
 }
 
