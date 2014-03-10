@@ -4,4 +4,10 @@ describe('ServerView', function() {
     var parser = new ServerConnStatParser();
     expect(parser.isBadPacket()).to.be(true); 
   });
+
+  it('pass an undefined serverConnStat', function() {
+    var pkt = {};
+    var parser = new ServerConnStatParser(pkt);
+    expect(parser.isBadPacket()).to.be(true); 
+  });
 });
