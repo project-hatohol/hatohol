@@ -294,11 +294,11 @@ ServerConnStatParser.prototype.getStatusLabel = function() {
 
   // TODO: Use a constant export from the server code.
   switch(currStatNum) {
-  case 0:
+  case hatohol.ARM_WORK_STAT_INIT:
     return gettext("Inital State");
-  case 1:
+  case hatohol.ARM_WORK_STAT_OK:
     return gettext("OK");
-  case 2:
+  case hatohol.ARM_WORK_STAT_FAILURE:
     return gettext("Error");
   default:
     return gettext("Unknown:") + currStatNum;
