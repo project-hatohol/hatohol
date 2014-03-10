@@ -23,4 +23,18 @@ describe('ServerView', function() {
     expect(parser.setServerId(5)).to.be(true); 
   });
 
+  it('get status label before calling setServerId()', function() {
+    var pkt = {serverConnStat:{'5':{}}};
+    var parser = new ServerConnStatParser(pkt);
+    var thrown = false;
+    try {
+      parser.getStatusLabel();
+    } catch (e) {
+      thrown = true;
+      expect(e).to.be.a(Error);
+    } finally {
+      expect(thrown).to.be(true);
+    }
+  });
+
 });
