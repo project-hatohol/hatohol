@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-10 04:16-0500\n"
+"POT-Creation-Date: 2014-03-10 05:26-0500\n"
 "PO-Revision-Date: 2014-02-27 17:47+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -57,7 +57,7 @@ msgid "Severity"
 msgstr "深刻度"
 
 #: viewer/actions_ajax.html:55 viewer/hosts_ajax.html:40
-#: viewer/servers_ajax.html:48
+#: viewer/servers_ajax.html:49
 msgid "Type"
 msgstr "タイプ"
 
@@ -227,20 +227,20 @@ msgstr "グループを表示"
 msgid "ID"
 msgstr "ID"
 
-#: viewer/hosts_ajax.html:41 viewer/servers_ajax.html:49
+#: viewer/hosts_ajax.html:41 viewer/servers_ajax.html:50
 msgid "Hostname"
 msgstr "ホスト名"
 
-#: viewer/hosts_ajax.html:42 viewer/servers_ajax.html:50
+#: viewer/hosts_ajax.html:42 viewer/servers_ajax.html:51
 msgid "IP Address"
 msgstr "IPアドレス"
 
-#: viewer/hosts_ajax.html:43 viewer/servers_ajax.html:51
+#: viewer/hosts_ajax.html:43 viewer/servers_ajax.html:52
 msgid "Nickname"
 msgstr "ニックネーム"
 
 #: viewer/hosts_ajax.html:44 viewer/hosts_ajax.html.py:149
-#: viewer/servers_ajax.html:52
+#: viewer/servers_ajax.html:53
 msgid "Maps"
 msgstr "マップ"
 
@@ -292,7 +292,13 @@ msgstr "サーバ追加"
 msgid "DELETE SERVER"
 msgstr "サーバ削除"
 
-#: viewer/servers_ajax.html:47
+#: viewer/servers_ajax.html:43
+msgid ""
+"Please use a browser's reload function when you update servers information "
+"including 'Connection status'."
+msgstr "'通信状態'を含むサーバ情報を更新するには、ブラウザのリロード機能をご使用ください."
+
+#: viewer/servers_ajax.html:48
 msgid "Connection status"
 msgstr "通信状態"
 

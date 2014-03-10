@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-10 04:16-0500\n"
+"POT-Creation-Date: 2014-03-10 05:26-0500\n"
 "PO-Revision-Date: 2014-02-18 14:29+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -991,7 +991,7 @@ msgstr "初期状態"
 msgid "Unknown:"
 msgstr "不明"
 
-#: static/js/servers_view.js:329
+#: static/js/servers_view.js:329 test/browser/test_server_view.js:109
 msgid "Running"
 msgstr "稼働"
 
@@ -999,33 +999,41 @@ msgstr "稼働"
 msgid "No"
 msgstr "いいえ"
 
-#: static/js/servers_view.js:335
+#: static/js/servers_view.js:335 test/browser/test_server_view.js:109
 msgid "Yes"
 msgstr "はい"
 
-#: static/js/servers_view.js:345
+#: static/js/servers_view.js:345 test/browser/test_server_view.js:110
 msgid "Status update time"
 msgstr "状態更新時刻"
 
-#: static/js/servers_view.js:350
+#: static/js/servers_view.js:350 test/browser/test_server_view.js:112
 msgid "Last success time"
 msgstr "最終成功時刻"
 
-#: static/js/servers_view.js:355
+#: static/js/servers_view.js:355 test/browser/test_server_view.js:114
 msgid "Last failure time"
 msgstr "最終失敗時刻"
 
-#: static/js/servers_view.js:363
+#: static/js/servers_view.js:363 test/browser/test_server_view.js:115
 msgid "Number of communication"
 msgstr "通信回数"
 
-#: static/js/servers_view.js:371
+#: static/js/servers_view.js:371 test/browser/test_server_view.js:116
 msgid "Number of failure"
 msgstr "失敗回数"
 
-#: static/js/servers_view.js:375
+#: static/js/servers_view.js:375 test/browser/test_server_view.js:117
 msgid "Comment for the failure"
 msgstr "失敗備考"
+
+#: test/browser/test_server_view.js:111 test/browser/test_server_view.js:113
+msgid "2014-03-10 18:39:53"
+msgstr ""
+
+#: test/browser/test_server_view.js:114
+msgid "-"
+msgstr ""
 
 #~ msgid "Number of users [Online]"
 #~ msgstr "ユーザ数 [オンライン]"
