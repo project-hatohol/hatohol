@@ -280,7 +280,7 @@ var ServerConnStatParser = function(reply) {
     self.badPacket = true;
     return;
   }
-}
+};
 
 ServerConnStatParser.prototype.isBadPacket = function() {
     return this.badPacket;
