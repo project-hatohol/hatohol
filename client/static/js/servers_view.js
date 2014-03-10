@@ -268,6 +268,10 @@ ServersView.prototype.constructor = ServersView;
 var ServerConnStatParser = function(reply) {
   var self = this;
   self.badPacket = false;
+  if (!reply) {
+    self.badPacket = true;
+    return;
+  }
   self.connStat = reply.serverConnStat;
   self.currServerId = null;
   self.currConnStat = null;
