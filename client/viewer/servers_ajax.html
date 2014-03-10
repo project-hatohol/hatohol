@@ -26,10 +26,14 @@
 
   <form class="form-inline">
     <div class="btn-toolbar" role="toolbar">
-      <input id="add-server-button" type="button" class="btn btn-default"
-       value="{% trans "ADD SERVER" %}" style="display: none;" />
-      <input id="delete-server-button" type="button" class="btn btn-default" disabled
-       value="{% trans "DELETE SERVER" %}" style="display: none;" />
+      <button id="add-server-button" type="button" class="btn btn-default" style="display: none;">
+        <span class="glyphicon glyphicon-plus"></span>
+        {% trans "ADD SERVER" %}
+      </button>
+      <button id="delete-server-button" type="button" class="btn btn-default" disabled style="display: none;">
+        <span class="glyphicon glyphicon-remove"></span>
+        {% trans "DELETE SERVER" %}
+      </button>
     </div>
   </form>
 
