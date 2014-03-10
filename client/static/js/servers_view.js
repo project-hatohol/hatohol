@@ -298,7 +298,6 @@ ServerConnStatParser.prototype.getStatusLabel = function() {
   if (currStatNum == undefined)
     return gettext("N/A");
 
-  // TODO: Use a constant export from the server code.
   switch(currStatNum) {
   case hatohol.ARM_WORK_STAT_INIT:
     return gettext("Inital State");
