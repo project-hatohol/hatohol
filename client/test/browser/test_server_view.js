@@ -69,4 +69,8 @@ describe('ServerView', function() {
     checkGetStatusLabel(hatohol.ARM_WORK_STAT_FAILURE, "Error", "text-error");
   });
 
+  it('get status label at unknown state', function() {
+    checkGetStatusLabel(12345, "Unknown:12345", "text-error");
+  });
+
 });
