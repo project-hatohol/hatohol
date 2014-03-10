@@ -67,6 +67,18 @@ HatoholPrivilegeEditDialog.prototype.setMessage = function(msg) {
   $("#privilegeEditDialogMsgArea").text(msg);
 };
 
+HatoholPrivilegeEditDialog.prototype.setupSelectHostgroupDialog = function() {
+  var servers = this.serversData.servers;
+  var id;
+  for (var i = 0; i < servers.length; i++) {
+    id = "#edit-server" + servers[i]["id"];
+    $(id).click(function() {
+      var serverId = this.getAttribute("serverId");
+      // TODO: Call the selectHostgroupDialog.
+    });
+  }
+}
+
 HatoholPrivilegeEditDialog.prototype.start = function() {
   var self = this;
   self.loadError = false;
@@ -87,6 +99,7 @@ HatoholPrivilegeEditDialog.prototype.start = function() {
         }
         self.serversData = serversData;
         self.updateServersTable();
+        self.setupSelectHostgroupDialog();
         loadAccessInfo();
       },
       parseErrorCallback: function(reply, parser) {
@@ -175,7 +188,7 @@ HatoholPrivilegeEditDialog.prototype.generateTableRows = function() {
     s += '<td>' + escapeHTML(sv.hostName) + '</td>';
     s += '<td>' + escapeHTML(sv.ipAddress) + '</td>';
     s += '<td>' + escapeHTML(sv.nickname)  + '</td>';
-    s += '<td><input id="edit-server" type="button"' +
+    s += '<td><input id="edit-server' + sv['id'] + '" type="button"' +
               'serverId="' + escapeHTML(sv.id) + '"' +
               'value="' + gettext("Show / Edit") + '" />';
     s += '</td>';
