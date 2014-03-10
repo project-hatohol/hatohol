@@ -358,6 +358,17 @@ ServerConnStatParser.prototype.getInfoHTML = function() {
   else
     s += gettext("Number of failure") + ": " + numFailure;
 
+  // last failure comment
+  s += "<br>";
+  s += gettext("Comment for the failure") + ": ";
+  var failureComment = self.currConnStat.failureComment;
+  if (failureComment == undefined)
+    s += "N/A";
+  else if (failureComment == "")
+    s += "-";
+  else
+    s += failureComment;
+
   function unixTimeToVisible(unixTimeString) {
     if (unixTimeString == undefined)
       return "N/A";
