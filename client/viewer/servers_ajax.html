@@ -40,6 +40,7 @@
   <form id="add-server-form", method="POST"> {% csrf_token %}
   </form>
 
+  <p>{% trans "Please use a browser's reload function when you update servers information including 'Connection status'." %}</p>
   <table class="table table-condensed table-striped table-hover" id="table">
     <thead>
       <tr>
