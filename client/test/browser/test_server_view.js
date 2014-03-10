@@ -61,4 +61,9 @@ describe('ServerView', function() {
                         "Initial State", "text-warning");
   });
 
+  it('get status label at OK state', function() {
+    checkGetStatusLabel(hatohol.ARM_WORK_STAT_OK,
+                        "OK", "text-success");
+  });
+
 });
