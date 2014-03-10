@@ -26,10 +26,14 @@
 
   <form class="form-inline">
     <div class="btn-toolbar" role="toolbar">
-      <input id="add-action-button" type="button" class="btn btn-default"
-       value="{% trans "ADD ACTION" %}" style="display: none;" />
-      <input id="delete-action-button" type="button" class="btn btn-default"
-       value="{% trans "DELETE ACTIONS" %}" style="display: none;" disabled />
+      <button id="add-action-button" type="button" class="btn btn-default" style="display: none;">
+        <span class="glyphicon glyphicon-plus"></span>
+        {% trans "ADD ACTION" %}
+      </button>
+      <button id="delete-action-button" type="button" class="btn btn-default" style="display: none;" disabled>
+        <span class="glyphicon glyphicon-remove"></span>
+        {% trans "DELETE ACTIONS" %}
+      </button>
     </div>
   </form>
   <div id="msgbox" title="Message Box">
