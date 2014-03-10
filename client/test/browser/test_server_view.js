@@ -17,4 +17,10 @@ describe('ServerView', function() {
     expect(parser.setServerId(5)).to.be(false); 
   });
 
+  it('set existing server id', function() {
+    var pkt = {serverConnStat:{'5':{}}};
+    var parser = new ServerConnStatParser(pkt);
+    expect(parser.setServerId(5)).to.be(true); 
+  });
+
 });
