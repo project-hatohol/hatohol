@@ -62,8 +62,11 @@ describe('ServerView', function() {
   });
 
   it('get status label at OK state', function() {
-    checkGetStatusLabel(hatohol.ARM_WORK_STAT_OK,
-                        "OK", "text-success");
+    checkGetStatusLabel(hatohol.ARM_WORK_STAT_OK, "OK", "text-success");
+  });
+
+  it('get status label at Error state', function() {
+    checkGetStatusLabel(hatohol.ARM_WORK_STAT_FAILURE, "Error", "text-error");
   });
 
 });
