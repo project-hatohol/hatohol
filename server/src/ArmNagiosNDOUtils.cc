@@ -490,6 +490,7 @@ void ArmNagiosNDOUtils::makeSelectTriggerArg(void)
 		TBLIDX_HOSTS,
 	};
 
+	// TODO: Confirm what may be use using host_object_id.
 	DBAgent::SelectMultiTableArg &arg = m_ctx->selectTriggerArg;
 	arg.tableField = 
 	  StringUtils::sprintf(
@@ -537,6 +538,7 @@ void ArmNagiosNDOUtils::makeSelectEventArg(void)
 		TBLIDX_HOSTS,
 	};
 
+	// TODO: Confirm what may be use using host_object_id.
 	DBAgent::SelectMultiTableArg &arg = m_ctx->selectEventArg;
 	arg.tableField = 
 	  StringUtils::sprintf(
@@ -584,6 +586,7 @@ void ArmNagiosNDOUtils::makeSelectItemArg(void)
 		TBLIDX_STATUS,
 	};
 
+	// TODO: Confirm what may be use using host_object_id.
 	DBAgent::SelectMultiTableArg &arg = m_ctx->selectItemArg;
 	arg.tableField =
 	  StringUtils::sprintf(
