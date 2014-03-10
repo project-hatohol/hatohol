@@ -181,7 +181,12 @@ var ServersView = function(userProfile) {
       s += "<td class='delete-selector' style='display:none;'>";
       s += "<input type='checkbox' class='selectcheckbox' serverId='" + escapeHTML(o["id"]) + "'>";
       s += "</td>";
-      s += "<td id='"+ idConnStat + "'>" + escapeHTML(gettext("Checking")) + "</td>";
+      s += "<td id='"+ idConnStat + "' " +
+             "data-title='" + gettext("Server ID") + ": " + serverId + "'" +
+             "data-html=true " +
+             "data-trigger='hover' " +
+             "data-container='body' " +
+           ">" + escapeHTML(gettext("Checking")) + "</td>";
       s += "<td>" + getServerTypeLabel(o["type"]) + "</td>";
       if (serverURL) {
         s += "<td><a href='" + serverURL + "'>" + escapeHTML(o["hostName"])  + "</a></td>";
@@ -242,7 +247,8 @@ var ServersView = function(userProfile) {
       var label = connStatParser.getStatusLabel();
       var idConnStat = "connStat-" + serverId;
       $("#" + idConnStat).html(label);
-      // TODO: add hover hint.
+      options = {content: connStatParser.getInfoHTML()};
+      $("#" + idConnStat).popover(options);
     }
   }
 };
@@ -300,3 +306,67 @@ ServerConnStatParser.prototype.getStatusLabel = function() {
   throw new Error("This line must no be executed.");
 }
 
+ServerConnStatParser.prototype.getInfoHTML = function() {
+  var self = this;
+  if (self.currConnStat == undefined)
+    throw new Error("Called before a valid server ID is set.");
+  var s = "";
+
+  // running
+  var running = self.currConnStat.running;
+  s += gettext("Running") + ": " 
+  switch (running) {
+  case 0:
+    s += gettext("No");
+    break;
+  case 1:
+    s += gettext("Yes");
+    break;
+  default:
+    s += "Unknown: " + running;
+    break;
+  }
+
+  // status update time
+  s += "<br>";
+  var statUpdateTime = unixTimeToVisible(self.currConnStat.statUpdateTime);
+  s += gettext("Last status update time") + ": " + statUpdateTime;
+
+  // last success time
+  s += "<br>";
+  var lastSuccessTime = unixTimeToVisible(self.currConnStat.lastSuccessTime);
+  s += gettext("Last success time") + ": " + lastSuccessTime;
+
+  // last failure time
+  s += "<br>";
+  var lastFailureTime = unixTimeToVisible(self.currConnStat.lastFailureTime);
+  s += gettext("Last failure time") + ": " + lastFailureTime;
+
+  // number of updates
+  s += "<br>";
+  var numUpdate = self.currConnStat.numUpdate;
+  if (numUpdate == undefined)
+    s += "N/A";
+  else
+    s += gettext("Number of communication") + ": " + numUpdate;
+
+  // number of failures
+  s += "<br>";
+  var numFailure = self.currConnStat.numFailure;
+  if (numFailure == undefined)
+    s += "N/A";
+  else
+    s += gettext("Number of failure") + ": " + numFailure;
+
+  function unixTimeToVisible(unixTimeString) {
+    if (unixTimeString == undefined)
+      return "N/A";
+    var unixTime = Number(unixTimeString);
+    if (unixTime == 0)
+      return "-";
+    var date = new Date(unixTime * 1000);
+    return date.toLocaleString();
+  }
+
+  return s;
+}
