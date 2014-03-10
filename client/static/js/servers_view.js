@@ -330,7 +330,7 @@ ServerConnStatParser.prototype.getInfoHTML = function() {
   // status update time
   s += "<br>";
   var statUpdateTime = unixTimeToVisible(self.currConnStat.statUpdateTime);
-  s += gettext("Last status update time") + ": " + statUpdateTime;
+  s += gettext("Status update time") + ": " + statUpdateTime;
 
   // last success time
   s += "<br>";
