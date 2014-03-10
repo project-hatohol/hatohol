@@ -117,7 +117,7 @@ Hatohol13.12では、Hatohol Client用のDBの準備を行う必要がありま�
 Hatohol serverが正常に開始した場合、/var/log/messagesに下記のようなメッセージが記録されます。
 
     Oct  8 09:46:58 localhost hatohol[3038]: [INFO] <DBClientConfig.cc:336> Configuration DB Server: localhost, port: (default), DB: hatohol, User: hatohol, use password: yes
-    Oct  8 09:46:58 localhost hatohol[3038]: [INFO] <main.cc:165> started hatohol server: ver. 0.1
+    Oct  8 09:46:58 localhost hatohol[3038]: [INFO] <main.cc:165> started hatohol server: ver. 13.12
     Oct  8 09:46:58 localhost hatohol[3038]: [INFO] <FaceRest.cc:121> started face-rest, port: 33194
     Oct  8 09:46:59 localhost hatohol[3038]: [INFO] <ArmZabbixAPI.cc:925> started: ArmZabbixAPI (server: testZbxSv1)
     Oct  8 09:47:01 localhost hatohol[3038]: [INFO] <ArmZabbixAPI.cc:925> started: ArmZabbixAPI (server: testZbxSv2)
@@ -129,4 +129,6 @@ Hatohol serverが正常に開始した場合、/var/log/messagesに下記のよ�
 - http://192.168.1.1/viewer/
 
 > ** メモ **
-> 現在、上記ページは、Google Chromeを使ってチェックされています。
+> 現在、上記ページは、Google ChromeおよびFirefoxを使ってチェックされています。
+> Internet Explorerを使用する場合は、ご使用のバージョンによっては、
+> 表示レイアウトが崩れる場合があります。（IE11では正常に表示されることを確認しています）
