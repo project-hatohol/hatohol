@@ -37,4 +37,11 @@ describe('ServerView', function() {
     }
   });
 
+  it('get status label with no status member', function() {
+    var pkt = {serverConnStat:{'5':{}}};
+    var parser = new ServerConnStatParser(pkt);
+    expect(parser.setServerId(5)).to.be(true); 
+    expect(parser.getStatusLabel()).to.be("N/A");
+  });
+
 });
