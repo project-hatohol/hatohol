@@ -105,12 +105,11 @@ describe('ServerView', function() {
     var parser = new ServerConnStatParser(pkt);
     expect(parser.setServerId(5)).to.be(true); 
     var html = parser.getInfoHTML();
+    var expectDate = parser.unixTimeToVisible("1394444393.469501123");
     var expectStr =
       gettext("Running") + ": " + gettext("Yes") + "<br>" +
-      gettext("Status update time") + ": " +
-        gettext("2014-03-10 18:39:53") + "<br>" +
-      gettext("Last success time") + ": " +
-        gettext("2014-03-10 18:39:53") + "<br>" + 
+      gettext("Status update time") + ": " + expectDate + "<br>" +
+      gettext("Last success time") + ": " + expectDate + "<br>" + 
       gettext("Last failure time") + ": " + gettext("-") + "<br>" +
       gettext("Number of communication") + ": 100" + "<br>" +
       gettext("Number of failure") + ": 5" + "<br>" +

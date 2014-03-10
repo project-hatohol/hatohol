@@ -341,17 +341,17 @@ ServerConnStatParser.prototype.getInfoHTML = function() {
 
   // status update time
   s += "<br>";
-  var statUpdateTime = unixTimeToVisible(self.currConnStat.statUpdateTime);
+  var statUpdateTime = self.unixTimeToVisible(self.currConnStat.statUpdateTime);
   s += gettext("Status update time") + ": " + statUpdateTime;
 
   // last success time
   s += "<br>";
-  var lastSuccessTime = unixTimeToVisible(self.currConnStat.lastSuccessTime);
+  var lastSuccessTime = self.unixTimeToVisible(self.currConnStat.lastSuccessTime);
   s += gettext("Last success time") + ": " + lastSuccessTime;
 
   // last failure time
   s += "<br>";
-  var lastFailureTime = unixTimeToVisible(self.currConnStat.lastFailureTime);
+  var lastFailureTime = self.unixTimeToVisible(self.currConnStat.lastFailureTime);
   s += gettext("Last failure time") + ": " + lastFailureTime;
 
   // number of updates
@@ -381,37 +381,37 @@ ServerConnStatParser.prototype.getInfoHTML = function() {
   else
     s += failureComment;
 
-  function unixTimeToVisible(unixTimeString) {
-    if (unixTimeString == undefined)
-      return "N/A";
-    var unixTime = Number(unixTimeString);
-    if (unixTime == 0)
-      return "-";
-    var date = new Date(unixTime * 1000);
-    var year  = date.getYear();
-    var month = date.getMonth() + 1;
-    var day   = date.getDate();
-    if (year < 2000)
-      year += 1900;
-    if (month < 10)
-      month = "0" + month;
-    if (day < 10)
-      day = "0" + day;
-    var hour = date.getHours();
-    var min  = date.getMinutes();
-    var sec  = date.getSeconds();
-    if (hour < 10)
-      hour = "0" + hour;
-    if (min < 10)
-      min = "0" + min;
-    if (sec < 10)
-      sec = "0" + sec;
-
-    var showString = year + "-" + month + "-" + day + " " +
-                     hour + ":" + min + ":" + sec;
-    return showString;
-  }
-
   return s;
+}
+
+ServerConnStatParser.prototype.unixTimeToVisible = function(unixTimeString) {
+  if (unixTimeString == undefined)
+    return "N/A";
+  var unixTime = Number(unixTimeString);
+  if (unixTime == 0)
+    return "-";
+  var date = new Date(unixTime * 1000);
+  var year  = date.getYear();
+  var month = date.getMonth() + 1;
+  var day   = date.getDate();
+  if (year < 2000)
+    year += 1900;
+  if (month < 10)
+    month = "0" + month;
+  if (day < 10)
+    day = "0" + day;
+  var hour = date.getHours();
+  var min  = date.getMinutes();
+  var sec  = date.getSeconds();
+  if (hour < 10)
+    hour = "0" + hour;
+  if (min < 10)
+    min = "0" + min;
+  if (sec < 10)
+    sec = "0" + sec;
+
+  var showString = year + "-" + month + "-" + day + " " +
+                   hour + ":" + min + ":" + sec;
+  return showString;
 }
 
