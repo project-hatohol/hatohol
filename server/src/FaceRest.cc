@@ -2551,7 +2551,7 @@ void FaceRest::handlerDeleteAccessInfo(RestJob *job)
 
 void FaceRest::handlerGetHostgroup(RestJob *job)
 {
-	HostgroupsQueryOption option(job->userId);
+	HostgroupsQueryOption option(job->dataQueryContextPtr);
 	HatoholError err = parseHostResourceQueryParameter(option, job->query);
 	if (err != HTERR_OK) {
 		replyError(job, err);
