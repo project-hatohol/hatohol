@@ -1162,7 +1162,7 @@ static void addServers(FaceRest::RestJob *job, JsonBuilderAgent &agent,
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	MonitoringServerInfoList monitoringServers;
-	ServerQueryOption option(job->userId);
+	ServerQueryOption option(job->dataQueryContextPtr);
 	option.setTargetServerId(targetServerId);
 	dataStore->getTargetServers(monitoringServers, option);
 
@@ -1317,7 +1317,7 @@ static void addServersMap(
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	MonitoringServerInfoList monitoringServers;
-	ServerQueryOption option(job->userId);
+	ServerQueryOption option(job->dataQueryContextPtr);
 	dataStore->getTargetServers(monitoringServers, option);
 
 	agent.startObject("servers");
@@ -1602,7 +1602,7 @@ void FaceRest::handlerPutServer(RestJob *job)
 	// check the existing record
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	MonitoringServerInfoList serversList;
-	ServerQueryOption option(job->userId);
+	ServerQueryOption option(job->dataQueryContextPtr);
 	dataStore->getTargetServers(serversList, option);
 	if (serversList.empty()) {
 		REPLY_ERROR(job, HTERR_NOT_FOUND_TARGET_RECORD,
