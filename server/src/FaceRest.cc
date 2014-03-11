@@ -207,6 +207,7 @@ struct FaceRest::RestJob
 	string      sessionId;
 	UserIdType  userId;
 	bool        replyIsPrepared;
+	DataQueryContextPtr dqCtxPtr;
 
 	RestJob(FaceRest *_faceRest, RestHandler _handler,
 		SoupMessage *_msg, const char *_path,
@@ -767,6 +768,7 @@ FaceRest::RestJob::RestJob
    const char *_path, GHashTable *_query, SoupClientContext *_client)
 : message(_msg), path(_path ? _path : ""), query(_query), client(_client),
   faceRest(_faceRest), handler(_handler), mimeType(NULL),
+  userId(INVALID_USER_ID),
   replyIsPrepared(false)
 {
 	if (query)
@@ -848,6 +850,7 @@ bool FaceRest::RestJob::prepare(void)
 		replyError(this, HTERR_NOT_FOUND_SESSION_ID);
 		return false;
 	}
+	dqCtxPtr = DataQueryContextPtr(new DataQueryContext(userId), false);
 
 	// We expect URIs  whose style are the following.
 	//
