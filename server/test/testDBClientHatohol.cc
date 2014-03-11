@@ -1746,9 +1746,15 @@ void test_constructorDataQueryContext(void)
 void test_copyConstructor(void)
 {
 	HostResourceQueryOption opt0;
-	HostResourceQueryOption opt1(opt0);
-	cppcut_assert_equal(&opt0.getDataQueryContext(),
-	                    &opt1.getDataQueryContext());
+	cppcut_assert_equal(1, opt0.getDataQueryContext().getUsedCount());
+	{
+		HostResourceQueryOption opt1(opt0);
+		cppcut_assert_equal(&opt0.getDataQueryContext(),
+		                    &opt1.getDataQueryContext());
+		cppcut_assert_equal(2,
+			            opt0.getDataQueryContext().getUsedCount());
+	}
+	cppcut_assert_equal(1, opt0.getDataQueryContext().getUsedCount());
 }
 
 void test_makeConditionServer(void)
