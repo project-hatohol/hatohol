@@ -2251,7 +2251,7 @@ static void addUserRolesMap(
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	UserRoleInfoList userRoleList;
-	UserRoleQueryOption option(job->userId);
+	UserRoleQueryOption option(job->dataQueryContextPtr);
 	dataStore->getUserRoleList(userRoleList, option);
 
 	agent.startObject("userRoles");
@@ -2637,7 +2637,7 @@ void FaceRest::handlerPutUserRole(RestJob *job)
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	UserRoleInfoList userRoleList;
-	UserRoleQueryOption option(job->userId);
+	UserRoleQueryOption option(job->dataQueryContextPtr);
 	option.setTargetUserRoleId(userRoleInfo.id);
 	dataStore->getUserRoleList(userRoleList, option);
 	if (userRoleList.empty()) {
@@ -2677,7 +2677,7 @@ void FaceRest::handlerGetUserRole(RestJob *job)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	UserRoleInfoList userRoleList;
-	UserRoleQueryOption option(job->userId);
+	UserRoleQueryOption option(job->dataQueryContextPtr);
 	dataStore->getUserRoleList(userRoleList, option);
 
 	JsonBuilderAgent agent;
