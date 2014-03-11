@@ -312,6 +312,7 @@ public:
 class HostgroupsQueryOption : public HostResourceQueryOption {
 public:
 	HostgroupsQueryOption(UserIdType userId = INVALID_USER_ID);
+	HostgroupsQueryOption(DataQueryContext *dataQueryContext);
 };
 
 class HostgroupElementQueryOption: public HostResourceQueryOption {
