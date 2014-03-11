@@ -2276,7 +2276,7 @@ void FaceRest::handlerGetUser(RestJob *job)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	UserInfoList userList;
-	UserQueryOption option(job->userId);
+	UserQueryOption option(job->dataQueryContextPtr);
 	if (job->path == PrivateContext::pathForUserMe)
 		option.queryOnlyMyself();
 	dataStore->getUserList(userList, option);
