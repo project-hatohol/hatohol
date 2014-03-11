@@ -344,13 +344,6 @@ bool UnifiedDataStore::fetchItemsAsync(ClosureBase *closure,
 	return m_ctx->itemFetchWorker.start(targetServerId, closure);
 }
 
-void UnifiedDataStore::getHostgroupList(HostgroupInfoList &hostgroupInfoList,
-                                        const HostgroupsQueryOption &option)
-{
-	DBClientHatohol dbHatohol;
-	dbHatohol.getHostgroupInfoList(hostgroupInfoList, option);
-}
-
 void UnifiedDataStore::getHostList(HostInfoList &hostInfoList,
 				   const HostsQueryOption &option)
 {

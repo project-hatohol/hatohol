@@ -84,8 +84,6 @@ public:
 	// Host and Hostgroup
 	void getHostList(HostInfoList &hostInfoList,
 	                 const HostsQueryOption &option);
-	void getHostgroupList(HostgroupInfoList &hostgroupInfoList,
-	                      const HostgroupsQueryOption &option);
 	HatoholError getHostgroupInfoList(
 	  HostgroupInfoList &hostgroupInfoList,
 	  const HostgroupsQueryOption &option);
