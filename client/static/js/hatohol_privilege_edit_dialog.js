@@ -85,11 +85,18 @@ HatoholPrivilegeEditDialog.prototype.start = function() {
 
   loadServers();
 
+  function makeQueryData() {
+    var queryData = {};
+    queryData.showHostgroup = 1;
+    queryData.targetUser = self.userId;
+    return queryData;
+  }
+
   function loadServers() {
     new HatoholConnector({
       url: "/server",
       request: "GET",
-      data: {},
+      data: makeQueryData(),
       replyCallback: function(serversData, parser) {
         if (self.loadError)
           return;
@@ -162,6 +169,7 @@ HatoholPrivilegeEditDialog.prototype.generateMainTable = function() {
   '  <thead>' +
   '    <tr>' +
   '      <th>' + gettext("Allow") + '</th>' +
+  '      <th>' + gettext("Allowed Hostgroups") + '</th>' +
   '      <th>ID</th>' +
   '      <th>' + gettext("Type") + '</th>' +
   '      <th>' + gettext("Hostname") + '</th>' +
@@ -183,6 +191,8 @@ HatoholPrivilegeEditDialog.prototype.generateTableRows = function() {
     s += '<tr>';
     s += '<td><input type="checkbox" class="serverSelectCheckbox" ' +
                'serverId="' + sv['id'] + '"></td>';
+    s += '<td>' + escapeHTML(sv.numberOfAllowedHostgroups) + '/';
+    s +=          escapeHTML(sv.numberOfHostgroups) + '</td>';
     s += '<td>' + escapeHTML(sv.id) + '</td>';
     s += '<td>' + makeMonitoringSystemTypeLabel(sv.type) + '</td>';
     s += '<td>' + escapeHTML(sv.hostName) + '</td>';
