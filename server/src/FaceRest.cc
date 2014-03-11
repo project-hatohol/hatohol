@@ -1768,7 +1768,7 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 
 static uint64_t getLastUnifiedEventId(FaceRest::RestJob *job)
 {
-	EventsQueryOption option(job->userId);
+	EventsQueryOption option(job->dataQueryContextPtr);
 	option.setMaximumNumber(1);
 	option.setSortType(EventsQueryOption::SORT_UNIFIED_ID,
 			   DataQueryOption::SORT_DESCENDING);
@@ -1790,7 +1790,7 @@ void FaceRest::handlerGetEvent(RestJob *job)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	EventInfoList eventList;
-	EventsQueryOption option(job->userId);
+	EventsQueryOption option(job->dataQueryContextPtr);
 	HatoholError err = parseEventParameter(option, job->query);
 	if (err != HTERR_OK) {
 		replyError(job, err);
