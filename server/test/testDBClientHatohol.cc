@@ -1732,10 +1732,15 @@ void test_constructorDataQueryContext(void)
 {
 	const UserIdType userId = 2;
 	DataQueryContextPtr dqCtxPtr =
-	  DataQueryContextPtr(new DataQueryContext(userId));
-	HostResourceQueryOption opt(dqCtxPtr);
-	cppcut_assert_equal((DataQueryContext *)dqCtxPtr,
-	                    &opt.getDataQueryContext());
+	  DataQueryContextPtr(new DataQueryContext(userId), false);
+	cppcut_assert_equal(1, dqCtxPtr->getUsedCount());
+	{
+		HostResourceQueryOption opt(dqCtxPtr);
+		cppcut_assert_equal((DataQueryContext *)dqCtxPtr,
+		                    &opt.getDataQueryContext());
+		cppcut_assert_equal(2, dqCtxPtr->getUsedCount());
+	}
+	cppcut_assert_equal(1, dqCtxPtr->getUsedCount());
 }
 
 void test_copyConstructor(void)
