@@ -1051,7 +1051,7 @@ static void addOverviewEachServer(FaceRest::RestJob *job,
 	agent.add("numberOfItems", itemInfoList.size());
 
 	TriggerInfoList triggerInfoList;
-	TriggersQueryOption triggersQueryOption(job->userId);
+	TriggersQueryOption triggersQueryOption(job->dataQueryContextPtr);
 	triggersQueryOption.setTargetServerId(svInfo.id);
 	dataStore->getTriggerList(triggerInfoList, triggersQueryOption);
 	agent.add("numberOfTriggers", triggerInfoList.size());
@@ -1081,7 +1081,7 @@ static void addOverviewEachServer(FaceRest::RestJob *job,
 		uint64_t hostGroupId = hostGroupIds[i];
 		for (int severity = 0;
 		     severity < NUM_TRIGGER_SEVERITY; severity++) {
-			TriggersQueryOption option(job->userId);
+			TriggersQueryOption option(job->dataQueryContextPtr);
 			option.setTargetServerId(svInfo.id);
 			//TODO: Currently host group isn't supported yet
 			//option.setTargetHostGroupId(hostGroupId);
@@ -1248,7 +1248,7 @@ static string getTriggerBrief(
 	string triggerBrief;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	TriggerInfoList triggerInfoList;
-	TriggersQueryOption triggersQueryOption(job->userId);
+	TriggersQueryOption triggersQueryOption(job->dataQueryContextPtr);
 	triggersQueryOption.setTargetServerId(serverId);
 	triggersQueryOption.setTargetId(triggerId);
 	dataStore->getTriggerList(triggerInfoList, triggersQueryOption);
@@ -1718,7 +1718,7 @@ void FaceRest::handlerGetHost(RestJob *job)
 
 void FaceRest::handlerGetTrigger(RestJob *job)
 {
-	TriggersQueryOption option(job->userId);
+	TriggersQueryOption option(job->dataQueryContextPtr);
 	HatoholError err = parseTriggerParameter(option, job->query);
 	if (err != HTERR_OK) {
 		replyError(job, err);
