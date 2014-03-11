@@ -1402,7 +1402,6 @@ void data_triggersQueryOptionFromDataQueryOption(void)
 
 void test_triggersQueryOptionFromDataQueryOption(gconstpointer data)
 {
-	const TriggerIdType expectedId = 634;
 	DataQueryContextPtr dqCtxPtr =
 	  DataQueryContextPtr(new DataQueryContext(USER_ID_SYSTEM), false);
 	cppcut_assert_equal(1, dqCtxPtr->getUsedCount());
@@ -1411,11 +1410,10 @@ void test_triggersQueryOptionFromDataQueryOption(gconstpointer data)
 		cppcut_assert_equal((DataQueryContext *)dqCtxPtr,
 		                    &option.getDataQueryContext());
 		cppcut_assert_equal(2, dqCtxPtr->getUsedCount());
-		option.setTargetId(expectedId);
-		string expected = StringUtils::sprintf(
-		  "triggers.id=%"FMT_TRIGGER_ID, expectedId);
+		option.setTargetServerId(2);
+		option.setTargetHostId(4);
+		string expected = "server_id=2 AND host_id=4";
 		fixupForFilteringDefunctServer(data, expected, option);
-		cppcut_assert_equal(expectedId, option.getTargetId());
 		cppcut_assert_equal(expected, option.getCondition());
 	}
 	cppcut_assert_equal(1, dqCtxPtr->getUsedCount());
