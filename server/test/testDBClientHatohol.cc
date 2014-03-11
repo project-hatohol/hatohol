@@ -1756,7 +1756,7 @@ void test_addHostInfo(void)
 //
 void test_constructorDataQueryContext(void)
 {
-	const UserIdType userId = 2;
+	const UserIdType userId = USER_ID_SYSTEM;
 	DataQueryContextPtr dqCtxPtr =
 	  DataQueryContextPtr(new DataQueryContext(userId), false);
 	cppcut_assert_equal(1, dqCtxPtr->getUsedCount());
