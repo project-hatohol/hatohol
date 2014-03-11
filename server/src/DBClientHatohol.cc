@@ -1039,6 +1039,16 @@ EventsQueryOption::EventsQueryOption(const UserIdType &userId)
 	  COLUMN_DEF_EVENTS[IDX_EVENTS_HOST_ID].columnName);
 }
 
+EventsQueryOption::EventsQueryOption(DataQueryContext *dataQueryContext)
+: HostResourceQueryOption(dataQueryContext)
+{
+	m_ctx = new PrivateContext();
+	setServerIdColumnName(
+	  COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName);
+	setHostIdColumnName(
+	  COLUMN_DEF_EVENTS[IDX_EVENTS_HOST_ID].columnName);
+}
+
 EventsQueryOption::EventsQueryOption(const EventsQueryOption &src)
 {
 	m_ctx = new PrivateContext();

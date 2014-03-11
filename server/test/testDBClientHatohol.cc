@@ -1294,6 +1294,28 @@ void test_eventQueryOptionWithSortTypeTime(void)
 	cppcut_assert_equal(expected, option.getOrderBy());
 }
 
+void data_eventQueryOptionFromDataQueryContext(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_eventQueryOptionFromDataQueryContext(gconstpointer data)
+{
+	DataQueryContextPtr dqCtxPtr =
+	  DataQueryContextPtr(new DataQueryContext(USER_ID_SYSTEM), false);
+	cppcut_assert_equal(1, dqCtxPtr->getUsedCount());
+	{
+		EventsQueryOption option(dqCtxPtr);
+		cppcut_assert_equal(2, dqCtxPtr->getUsedCount());
+		option.setTargetServerId(2);
+		option.setTargetHostId(4);
+		string expected = "server_id=2 AND host_id=4";
+		fixupForFilteringDefunctServer(data, expected, option);
+		cppcut_assert_equal(expected, option.getCondition());
+	}
+	cppcut_assert_equal(1, dqCtxPtr->getUsedCount());
+}
+
 void data_eventQueryOptionDefaultMinimumSeverity(void)
 {
 	prepareTestDataForFilterForDataOfDefunctServers();

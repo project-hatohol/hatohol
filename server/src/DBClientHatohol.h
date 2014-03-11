@@ -237,6 +237,7 @@ public:
 	};
 
 	EventsQueryOption(const UserIdType &userId = INVALID_USER_ID);
+	EventsQueryOption(DataQueryContext *dataQueryContext);
 	EventsQueryOption(const EventsQueryOption &src);
 	~EventsQueryOption();
 
