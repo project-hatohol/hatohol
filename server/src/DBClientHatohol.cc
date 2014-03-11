@@ -1316,6 +1316,16 @@ ItemsQueryOption::ItemsQueryOption(UserIdType userId)
 	  COLUMN_DEF_ITEMS[IDX_ITEMS_HOST_ID].columnName);
 }
 
+ItemsQueryOption::ItemsQueryOption(DataQueryContext *dataQueryContext)
+: HostResourceQueryOption(dataQueryContext)
+{
+	m_ctx = new PrivateContext();
+	setServerIdColumnName(
+	  COLUMN_DEF_ITEMS[IDX_ITEMS_SERVER_ID].columnName);
+	setHostIdColumnName(
+	  COLUMN_DEF_ITEMS[IDX_ITEMS_HOST_ID].columnName);
+}
+
 ItemsQueryOption::ItemsQueryOption(const ItemsQueryOption &src)
 {
 	m_ctx = new PrivateContext();

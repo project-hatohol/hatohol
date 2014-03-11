@@ -286,6 +286,7 @@ private:
 class ItemsQueryOption : public HostResourceQueryOption {
 public:
 	ItemsQueryOption(UserIdType userId = INVALID_USER_ID);
+	ItemsQueryOption(DataQueryContext *dataQueryContext);
 	ItemsQueryOption(const ItemsQueryOption &src);
 	~ItemsQueryOption();
 
