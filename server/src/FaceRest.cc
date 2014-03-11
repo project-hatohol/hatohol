@@ -2543,6 +2543,7 @@ void FaceRest::handlerGetHostgroup(RestJob *job)
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, err);
+	agent.add("numberOfHostgroups", hostgroupInfoList.size());
 	agent.startArray("hostgroups");
 	HostgroupInfoListIterator it = hostgroupInfoList.begin();
 	for (; it != hostgroupInfoList.end(); ++it) {
