@@ -207,7 +207,7 @@ struct FaceRest::RestJob
 	string      sessionId;
 	UserIdType  userId;
 	bool        replyIsPrepared;
-	DataQueryContextPtr dqCtxPtr;
+	DataQueryContextPtr dataQueryContextPtr;
 
 	RestJob(FaceRest *_faceRest, RestHandler _handler,
 		SoupMessage *_msg, const char *_path,
@@ -850,7 +850,8 @@ bool FaceRest::RestJob::prepare(void)
 		replyError(this, HTERR_NOT_FOUND_SESSION_ID);
 		return false;
 	}
-	dqCtxPtr = DataQueryContextPtr(new DataQueryContext(userId), false);
+	dataQueryContextPtr =
+	  DataQueryContextPtr(new DataQueryContext(userId), false);
 
 	// We expect URIs  whose style are the following.
 	//
@@ -1122,7 +1123,7 @@ static void addOverview(FaceRest::RestJob *job, JsonBuilderAgent &agent)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	MonitoringServerInfoList monitoringServers;
-	ServerQueryOption option(job->dqCtxPtr);
+	ServerQueryOption option(job->dataQueryContextPtr);
 	dataStore->getTargetServers(monitoringServers, option);
 	MonitoringServerInfoListIterator it = monitoringServers.begin();
 	agent.add("numberOfServers", monitoringServers.size());
