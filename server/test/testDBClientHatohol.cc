@@ -512,6 +512,28 @@ static void fixupForFilteringDefunctServer(
 		insertValidServerCond(expected, option, tableName);
 }
 
+template <class T>
+static void _assertQueryOptionFromDataQueryContext(gconstpointer data)
+{
+	DataQueryContextPtr dqCtxPtr =
+	  DataQueryContextPtr(new DataQueryContext(USER_ID_SYSTEM), false);
+	cppcut_assert_equal(1, dqCtxPtr->getUsedCount());
+	{
+		T option(dqCtxPtr);
+		cppcut_assert_equal((DataQueryContext *)dqCtxPtr,
+		                    &option.getDataQueryContext());
+		cppcut_assert_equal(2, dqCtxPtr->getUsedCount());
+		option.setTargetServerId(2);
+		option.setTargetHostId(4);
+		string expected = "server_id=2 AND host_id=4";
+		fixupForFilteringDefunctServer(data, expected, option);
+		cppcut_assert_equal(expected, option.getCondition());
+	}
+	cppcut_assert_equal(1, dqCtxPtr->getUsedCount());
+}
+#define assertQueryOptionFromDataQueryContext(T, D) \
+cut_trace(_assertQueryOptionFromDataQueryContext<T>(D))
+
 void cut_setup(void)
 {
 	hatoholInit();
@@ -1301,19 +1323,7 @@ void data_eventQueryOptionFromDataQueryContext(void)
 
 void test_eventQueryOptionFromDataQueryContext(gconstpointer data)
 {
-	DataQueryContextPtr dqCtxPtr =
-	  DataQueryContextPtr(new DataQueryContext(USER_ID_SYSTEM), false);
-	cppcut_assert_equal(1, dqCtxPtr->getUsedCount());
-	{
-		EventsQueryOption option(dqCtxPtr);
-		cppcut_assert_equal(2, dqCtxPtr->getUsedCount());
-		option.setTargetServerId(2);
-		option.setTargetHostId(4);
-		string expected = "server_id=2 AND host_id=4";
-		fixupForFilteringDefunctServer(data, expected, option);
-		cppcut_assert_equal(expected, option.getCondition());
-	}
-	cppcut_assert_equal(1, dqCtxPtr->getUsedCount());
+	assertQueryOptionFromDataQueryContext(EventsQueryOption, data);
 }
 
 void data_eventQueryOptionDefaultMinimumSeverity(void)
@@ -1395,28 +1405,14 @@ void test_triggersQueryOptionWithTargetId(gconstpointer data)
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
-void data_triggersQueryOptionFromDataQueryOption(void)
+void data_triggersQueryOptionFromDataQueryContext(void)
 {
 	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
-void test_triggersQueryOptionFromDataQueryOption(gconstpointer data)
+void test_triggersQueryOptionFromDataQueryContext(gconstpointer data)
 {
-	DataQueryContextPtr dqCtxPtr =
-	  DataQueryContextPtr(new DataQueryContext(USER_ID_SYSTEM), false);
-	cppcut_assert_equal(1, dqCtxPtr->getUsedCount());
-	{
-		TriggersQueryOption option(dqCtxPtr);
-		cppcut_assert_equal((DataQueryContext *)dqCtxPtr,
-		                    &option.getDataQueryContext());
-		cppcut_assert_equal(2, dqCtxPtr->getUsedCount());
-		option.setTargetServerId(2);
-		option.setTargetHostId(4);
-		string expected = "server_id=2 AND host_id=4";
-		fixupForFilteringDefunctServer(data, expected, option);
-		cppcut_assert_equal(expected, option.getCondition());
-	}
-	cppcut_assert_equal(1, dqCtxPtr->getUsedCount());
+	assertQueryOptionFromDataQueryContext(TriggersQueryOption, data);
 }
 
 void data_triggersQueryOptionDefaultMinimumSeverity(void)
@@ -1488,21 +1484,7 @@ void data_itemsQueryOptionFromDataQueryContext(void)
 
 void test_itemsQueryOptionFromDataQueryContext(gconstpointer data)
 {
-	DataQueryContextPtr dqCtxPtr =
-	  DataQueryContextPtr(new DataQueryContext(USER_ID_SYSTEM), false);
-	cppcut_assert_equal(1, dqCtxPtr->getUsedCount());
-	{
-		ItemsQueryOption option(dqCtxPtr);
-		cppcut_assert_equal((DataQueryContext *)dqCtxPtr,
-		                    &option.getDataQueryContext());
-		cppcut_assert_equal(2, dqCtxPtr->getUsedCount());
-		option.setTargetServerId(2);
-		option.setTargetHostId(4);
-		string expected = "server_id=2 AND host_id=4";
-		fixupForFilteringDefunctServer(data, expected, option);
-		cppcut_assert_equal(expected, option.getCondition());
-	}
-	cppcut_assert_equal(1, dqCtxPtr->getUsedCount());
+	assertQueryOptionFromDataQueryContext(ItemsQueryOption, data);
 }
 
 void data_itemsQueryOptionWithTargetId(void)
@@ -1802,21 +1784,7 @@ void data_hostsQueryOptionFromDataQueryContext(void)
 
 void test_hostsQueryOptionFromDataQueryContext(gconstpointer data)
 {
-	DataQueryContextPtr dqCtxPtr =
-	  DataQueryContextPtr(new DataQueryContext(USER_ID_SYSTEM), false);
-	cppcut_assert_equal(1, dqCtxPtr->getUsedCount());
-	{
-		HostsQueryOption option(dqCtxPtr);
-		cppcut_assert_equal((DataQueryContext *)dqCtxPtr,
-		                    &option.getDataQueryContext());
-		cppcut_assert_equal(2, dqCtxPtr->getUsedCount());
-		option.setTargetServerId(2);
-		option.setTargetHostId(4);
-		string expected = "server_id=2 AND host_id=4";
-		fixupForFilteringDefunctServer(data, expected, option);
-		cppcut_assert_equal(expected, option.getCondition());
-	}
-	cppcut_assert_equal(1, dqCtxPtr->getUsedCount());
+	assertQueryOptionFromDataQueryContext(HostsQueryOption, data);
 }
 
 //
