@@ -1037,7 +1037,7 @@ static void addOverviewEachServer(FaceRest::RestJob *job,
 	// TODO: This implementeation is not effective.
 	//       We should add a function only to get the number of list.
 	HostInfoList hostInfoList;
-	HostsQueryOption option(job->userId);
+	HostsQueryOption option(job->dataQueryContextPtr);
 	option.setTargetServerId(svInfo.id);
 	dataStore->getHostList(hostInfoList, option);
 	agent.add("numberOfHosts", hostInfoList.size());
@@ -1102,7 +1102,7 @@ static void addOverviewEachServer(FaceRest::RestJob *job,
 	agent.startArray("hostStatus");
 	for (size_t i = 0; i < numHostGroup; i++) {
 		uint64_t hostGroupId = hostGroupIds[i];
-		HostsQueryOption option(job->userId);
+		HostsQueryOption option(job->dataQueryContextPtr);
 		option.setTargetServerId(svInfo.id);
 		//TODO: Host group isn't supported yet
 		//option.setTargetHostGroupId(hostGroupId);
@@ -1197,7 +1197,7 @@ static void addHosts(FaceRest::RestJob *job, JsonBuilderAgent &agent,
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HostInfoList hostInfoList;
-	HostsQueryOption option(job->userId);
+	HostsQueryOption option(job->dataQueryContextPtr);
 	option.setTargetServerId(targetServerId);
 	option.setTargetHostId(targetHostId);
 	dataStore->getHostList(hostInfoList, option);
@@ -1226,7 +1226,7 @@ static void addHostsMap(
 		sscanf(value, "%"FMT_HOST_GROUP_ID, &targetHostgroupId);
 
 	HostInfoList hostList;
-	HostsQueryOption option(job->userId);
+	HostsQueryOption option(job->dataQueryContextPtr);
 	option.setTargetServerId(serverInfo.id);
 	option.setTargetHostgroupId(targetHostgroupId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
