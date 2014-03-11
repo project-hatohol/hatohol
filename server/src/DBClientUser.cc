@@ -400,6 +400,13 @@ UserRoleQueryOption::UserRoleQueryOption(UserIdType userId)
 	m_ctx = new PrivateContext();
 }
 
+UserRoleQueryOption::UserRoleQueryOption(DataQueryContext *dataQueryContext)
+: DataQueryOption(dataQueryContext),
+  m_ctx(NULL)
+{
+	m_ctx = new PrivateContext();
+}
+
 UserRoleQueryOption::~UserRoleQueryOption()
 {
 	if (m_ctx)

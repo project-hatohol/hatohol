@@ -111,6 +111,7 @@ private:
 class UserRoleQueryOption : public DataQueryOption {
 public:
 	UserRoleQueryOption(UserIdType userId = INVALID_USER_ID);
+	UserRoleQueryOption(DataQueryContext *dataQueryContext);
 	virtual ~UserRoleQueryOption();
 
 	void setTargetUserRoleId(UserRoleIdType userRoleId);

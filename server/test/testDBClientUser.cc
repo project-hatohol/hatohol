@@ -319,6 +319,22 @@ static void setupWithUserIdIndexMap(UserIdIndexMap &userIdIndexMap)
 	makeTestUserIdIndexMap(userIdIndexMap);
 }
 
+template <class T> static void _assertQueryOptionFromDataQueryContext(void)
+{
+	DataQueryContextPtr dqCtxPtr =
+	  DataQueryContextPtr(new DataQueryContext(USER_ID_SYSTEM), false);
+	cppcut_assert_equal(1, dqCtxPtr->getUsedCount());
+	{
+		T option(dqCtxPtr);
+		cppcut_assert_equal((DataQueryContext *)dqCtxPtr,
+		                    &option.getDataQueryContext());
+		cppcut_assert_equal(2, dqCtxPtr->getUsedCount());
+	}
+	cppcut_assert_equal(1, dqCtxPtr->getUsedCount());
+}
+#define assertQueryOptionFromDataQueryContext(T) \
+cut_trace(_assertQueryOptionFromDataQueryContext<T>())
+
 void cut_setup(void)
 {
 	hatoholInit();
@@ -969,6 +985,11 @@ void test_isAccessibleFalse(void)
 	OperationPrivilege privilege;
 	privilege.setUserId(userId);
 	cppcut_assert_equal(false, dbUser->isAccessible(serverId, privilege));
+}
+
+void test_constructorOfUserRoleQueryOptionFromDataQueryContext(void)
+{
+	assertQueryOptionFromDataQueryContext(UserRoleQueryOption);
 }
 
 void test_addUserRole(void)
