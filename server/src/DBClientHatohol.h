@@ -158,6 +158,7 @@ typedef HostgroupElementList::const_iterator HostgroupElementListConstIterator;
 class HostResourceQueryOption : public DataQueryOption {
 public:
 	HostResourceQueryOption(const UserIdType &userId = INVALID_USER_ID);
+	HostResourceQueryOption(DataQueryContext *dataQueryContext);
 	HostResourceQueryOption(const HostResourceQueryOption &src);
 	virtual ~HostResourceQueryOption();
 

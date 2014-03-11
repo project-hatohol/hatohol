@@ -1728,6 +1728,16 @@ void test_addHostInfo(void)
 //
 // Tests for HostResourceQueryOption
 //
+void test_constructorDataQueryContext(void)
+{
+	const UserIdType userId = 2;
+	DataQueryContextPtr dqCtxPtr =
+	  DataQueryContextPtr(new DataQueryContext(userId));
+	HostResourceQueryOption opt(dqCtxPtr);
+	cppcut_assert_equal((DataQueryContext *)dqCtxPtr,
+	                    &opt.getDataQueryContext());
+}
+
 void test_copyConstructor(void)
 {
 	HostResourceQueryOption opt0;
