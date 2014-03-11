@@ -306,6 +306,7 @@ private:
 class HostsQueryOption : public HostResourceQueryOption {
 public:
 	HostsQueryOption(UserIdType userId = INVALID_USER_ID);
+	HostsQueryOption(DataQueryContext *dataQueryContext);
 };
 
 class HostgroupsQueryOption : public HostResourceQueryOption {

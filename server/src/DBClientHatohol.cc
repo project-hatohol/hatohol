@@ -1398,6 +1398,15 @@ HostsQueryOption::HostsQueryOption(UserIdType userId)
 	  COLUMN_DEF_HOSTS[IDX_HOSTS_HOST_ID].columnName);
 }
 
+HostsQueryOption::HostsQueryOption(DataQueryContext *dataQueryContext)
+: HostResourceQueryOption(dataQueryContext)
+{
+	setServerIdColumnName(
+	  COLUMN_DEF_HOSTS[IDX_HOSTS_SERVER_ID].columnName);
+	setHostIdColumnName(
+	  COLUMN_DEF_HOSTS[IDX_HOSTS_HOST_ID].columnName);
+}
+
 HostgroupsQueryOption::HostgroupsQueryOption(UserIdType userId)
 : HostResourceQueryOption(userId)
 {
