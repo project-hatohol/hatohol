@@ -1043,7 +1043,7 @@ static void addOverviewEachServer(FaceRest::RestJob *job,
 	agent.add("numberOfHosts", hostInfoList.size());
 
 	ItemInfoList itemInfoList;
-	ItemsQueryOption itemsQueryOption(job->userId);
+	ItemsQueryOption itemsQueryOption(job->dataQueryContextPtr);
 	bool fetchItemsSynchronously = true;
 	itemsQueryOption.setTargetServerId(svInfo.id);
 	dataStore->getItemList(itemInfoList, itemsQueryOption,
@@ -1859,7 +1859,7 @@ struct GetItemClosure : Closure<FaceRest>
 
 void FaceRest::replyGetItem(RestJob *job)
 {
-	ItemsQueryOption option(job->userId);
+	ItemsQueryOption option(job->dataQueryContextPtr);
 	HatoholError err = parseItemParameter(option, job->query);
 	if (err != HTERR_OK) {
 		replyError(job, err);
@@ -1918,7 +1918,7 @@ void FaceRest::itemFetchedCallback(ClosureBase *closure)
 
 void FaceRest::handlerGetItem(RestJob *job)
 {
-	ItemsQueryOption option(job->userId);
+	ItemsQueryOption option(job->dataQueryContextPtr);
 	HatoholError err = parseItemParameter(option, job->query);
 	if (err != HTERR_OK) {
 		replyError(job, err);
