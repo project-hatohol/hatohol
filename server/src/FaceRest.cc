@@ -1153,8 +1153,36 @@ static bool canUpdateServer(
         return dbUser->isAccessible(serverInfo.id, privilege);
 }
 
+static void addNumberOfAllowedHostgroups(UnifiedDataStore *dataStore,
+                                         const UserIdType &userId,
+                                         const UserIdType &targetUser,
+                                         const ServerIdType &targetServer,
+                                         JsonBuilderAgent &outputJson)
+{
+	HostgroupsQueryOption hostgroupOption(userId);
+	AccessInfoQueryOption allowedHostgroupOption(userId);
+	hostgroupOption.setTargetServerId(targetServer);
+	allowedHostgroupOption.setTargetUserId(targetUser);
+	HostgroupInfoList hostgroupInfoList;
+	ServerAccessInfoMap serversMap;
+	dataStore->getHostgroupInfoList(hostgroupInfoList, hostgroupOption);
+	dataStore->getAccessInfoMap(serversMap, allowedHostgroupOption);
+
+	size_t numberOfAllowedHostgroups = 0;
+	ServerAccessInfoMapIterator serverIt = serversMap.find(targetServer);
+	if (serverIt != serversMap.end()) {
+		HostGrpAccessInfoMap *hostgroupsMap = serverIt->second;
+		numberOfAllowedHostgroups = hostgroupsMap->size();
+	}
+
+	outputJson.add("numberOfHostgroups", hostgroupInfoList.size());
+	outputJson.add("numberOfAllowedHostgroups", numberOfAllowedHostgroups);
+}
+
 static void addServers(FaceRest::RestJob *job, JsonBuilderAgent &agent,
-                       const ServerIdType &targetServerId)
+                       const ServerIdType &targetServerId,
+                       const bool &showHostgroupInfo,
+                       const UserIdType &targetUserId)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	MonitoringServerInfoList monitoringServers;
@@ -1183,10 +1211,16 @@ static void addServers(FaceRest::RestJob *job, JsonBuilderAgent &agent,
 			agent.add("password", serverInfo.password);
 			agent.add("dbName", serverInfo.dbName);
 		}
+		if (showHostgroupInfo) {
+			addNumberOfAllowedHostgroups(dataStore, job->userId,
+			                             targetUserId, serverInfo.id,
+			                             agent);
+		}
 		agent.endObject();
 	}
 	agent.endArray();
 }
+
 
 static void addHosts(FaceRest::RestJob *job, JsonBuilderAgent &agent,
                      const ServerIdType &targetServerId, uint64_t targetHostId)
@@ -1466,15 +1500,39 @@ void FaceRest::handlerServer(RestJob *job)
 	}
 }
 
+static bool parseQueryShowHostgroupInfo(GHashTable *query, UserIdType &targetUserId)
+{
+	if (!query)
+		return false;
+
+	char *charUserId = (char *)g_hash_table_lookup(query, "targetUser");
+	if (!charUserId)
+		return false;
+	sscanf(charUserId, "%"FMT_USER_ID, &targetUserId);
+
+	int showHostgroup;
+	char *value = (char *)g_hash_table_lookup(query, "showHostgroup");
+	if (!value)
+		return false;
+	sscanf(value, "%d", &showHostgroup);
+	if (showHostgroup == 1)
+		return true;
+	else
+		return false;
+}
+
 void FaceRest::handlerGetServer(RestJob *job)
 {
 	ServerIdType targetServerId;
+	UserIdType targetUserId = 0;
+	bool showHostgroupInfo = parseQueryShowHostgroupInfo(job->query,
+	                                                     targetUserId);
 	parseQueryServerId(job->query, targetServerId);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
-	addServers(job, agent, targetServerId);
+	addServers(job, agent, targetServerId, showHostgroupInfo, targetUserId);
 	agent.endObject();
 
 	replyJsonData(agent, job);
