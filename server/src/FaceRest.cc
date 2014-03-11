@@ -1573,9 +1573,9 @@ void FaceRest::handlerPostServer(RestJob *job)
 		return;
 	}
 
-	OperationPrivilege privilege(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	err = dataStore->addTargetServer(svInfo, privilege);
+	err = dataStore->addTargetServer(
+	  svInfo, job->dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
 		replyError(job, err);
 		return;
@@ -1648,9 +1648,10 @@ void FaceRest::handlerDeleteServer(RestJob *job)
 		return;
 	}
 
-	OperationPrivilege privilege(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HatoholError err = dataStore->deleteTargetServer(serverId, privilege);
+	HatoholError err =
+	  dataStore->deleteTargetServer(
+	    serverId, job->dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
 		replyError(job, err);
 		return;
@@ -1667,10 +1668,10 @@ void FaceRest::handlerDeleteServer(RestJob *job)
 
 void FaceRest::handlerServerConnStat(RestJob *job)
 {
-	DataQueryContextPtr dqCtx(new DataQueryContext(job->userId), false);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	ServerConnStatusVector serverConnStatVec;
-	dataStore->getServerConnStatusVector(serverConnStatVec, dqCtx);
+	dataStore->getServerConnStatusVector(serverConnStatVec,
+	                                     job->dataQueryContextPtr);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -1698,7 +1699,7 @@ void FaceRest::handlerServerConnStat(RestJob *job)
 
 void FaceRest::handlerGetHost(RestJob *job)
 {
-	HostResourceQueryOption option(job->userId);
+	HostResourceQueryOption option(job->dataQueryContextPtr);
 	HatoholError err = parseHostResourceQueryParameter(option, job->query);
 	if (err != HTERR_OK) {
 		replyError(job, err);
@@ -1974,8 +1975,9 @@ void FaceRest::handlerGetAction(RestJob *job)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	ActionDefList actionList;
-	OperationPrivilege privilege(job->userId);
-	HatoholError err = dataStore->getActionList(actionList, privilege);
+	HatoholError err =
+	  dataStore->getActionList(
+	    actionList, job->dataQueryContextPtr->getOperationPrivilege());
 
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -2161,8 +2163,9 @@ void FaceRest::handlerPostAction(RestJob *job)
 	}
 
 	// save the obtained action
-	OperationPrivilege privilege(job->userId);
-	HatoholError err = dataStore->addAction(actionDef, privilege);
+	HatoholError err =
+	  dataStore->addAction(
+	    actionDef, job->dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
 		replyError(job, err);
 		return;
@@ -2189,8 +2192,9 @@ void FaceRest::handlerDeleteAction(RestJob *job)
 	}
 	ActionIdList actionIdList;
 	actionIdList.push_back(actionId);
-	OperationPrivilege privilege(job->userId);
-	HatoholError err = dataStore->deleteActionList(actionIdList, privilege);
+	HatoholError err =
+	  dataStore->deleteActionList(
+	    actionIdList, job->dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
 		replyError(job, err);
 		return;
@@ -2297,9 +2301,9 @@ void FaceRest::handlerPostUser(RestJob *job)
 	}
 
 	// try to add
-	OperationPrivilege privilege(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	err = dataStore->addUser(userInfo, privilege);
+	err = dataStore->addUser(
+	  userInfo, job->dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
 		replyError(job, err);
 		return;
@@ -2340,9 +2344,9 @@ void FaceRest::handlerPutUser(RestJob *job)
 	}
 
 	// try to update
-	OperationPrivilege privilege(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	err = dataStore->updateUser(userInfo, privilege);
+	err = dataStore->updateUser(
+	  userInfo, job->dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
 		replyError(job, err);
 		return;
@@ -2366,9 +2370,10 @@ void FaceRest::handlerDeleteUser(RestJob *job)
 		return;
 	}
 
-	OperationPrivilege privilege(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HatoholError err = dataStore->deleteUser(userId, privilege);
+	HatoholError err =
+	  dataStore->deleteUser(
+	    userId, job->dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
 		replyError(job, err);
 		return;
@@ -2487,9 +2492,10 @@ void FaceRest::handlerPostAccessInfo(RestJob *job)
 	}
 
 	// try to add
-	OperationPrivilege privilege(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HatoholError err = dataStore->addAccessInfo(accessInfo, privilege);
+	HatoholError err =
+	  dataStore->addAccessInfo(
+	    accessInfo, job->dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
 		replyError(job, err);
 		return;
@@ -2514,9 +2520,10 @@ void FaceRest::handlerDeleteAccessInfo(RestJob *job)
 		return;
 	}
 
-	OperationPrivilege privilege(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HatoholError err = dataStore->deleteAccessInfo(id, privilege);
+	HatoholError err =
+	  dataStore->deleteAccessInfo(
+	    id, job->dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
 		replyError(job, err);
 		return;
@@ -2638,8 +2645,8 @@ void FaceRest::handlerPutUserRole(RestJob *job)
 	}
 
 	// try to update
-	OperationPrivilege privilege(job->userId);
-	err = dataStore->updateUserRole(userRoleInfo, privilege);
+	err = dataStore->updateUserRole(
+	  userRoleInfo, job->dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
 		replyError(job, err);
 		return;
@@ -2692,9 +2699,9 @@ void FaceRest::handlerPostUserRole(RestJob *job)
 	}
 
 	// try to add
-	OperationPrivilege privilege(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	err = dataStore->addUserRole(userRoleInfo, privilege);
+	err = dataStore->addUserRole(
+	  userRoleInfo, job->dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
 		replyError(job, err);
 		return;
@@ -2719,9 +2726,10 @@ void FaceRest::handlerDeleteUserRole(RestJob *job)
 	}
 	UserRoleIdType userRoleId = id;
 
-	OperationPrivilege privilege(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HatoholError err = dataStore->deleteUserRole(userRoleId, privilege);
+	HatoholError err =
+	  dataStore->deleteUserRole(
+	    userRoleId, job->dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
 		replyError(job, err);
 		return;
