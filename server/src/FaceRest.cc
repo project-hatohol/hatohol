@@ -1122,7 +1122,7 @@ static void addOverview(FaceRest::RestJob *job, JsonBuilderAgent &agent)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	MonitoringServerInfoList monitoringServers;
-	ServerQueryOption option(job->userId);
+	ServerQueryOption option(job->dqCtxPtr);
 	dataStore->getTargetServers(monitoringServers, option);
 	MonitoringServerInfoListIterator it = monitoringServers.begin();
 	agent.add("numberOfServers", monitoringServers.size());
