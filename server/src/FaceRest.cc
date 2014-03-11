@@ -1168,14 +1168,22 @@ static void addNumberOfAllowedHostgroups(UnifiedDataStore *dataStore,
 	dataStore->getHostgroupInfoList(hostgroupInfoList, hostgroupOption);
 	dataStore->getAccessInfoMap(serversMap, allowedHostgroupOption);
 
+	size_t numberOfHostgroups = hostgroupInfoList.size();
 	size_t numberOfAllowedHostgroups = 0;
 	ServerAccessInfoMapIterator serverIt = serversMap.find(targetServer);
 	if (serverIt != serversMap.end()) {
 		HostGrpAccessInfoMap *hostgroupsMap = serverIt->second;
 		numberOfAllowedHostgroups = hostgroupsMap->size();
+		if (numberOfAllowedHostgroups == 1) {
+			HostGrpAccessInfoMapIterator hostgroupIt
+			  = hostgroupsMap->begin();
+			HostgroupIdType hostgroupId = hostgroupIt->first;
+			if (hostgroupId == ALL_HOST_GROUPS)
+				numberOfAllowedHostgroups = numberOfHostgroups;
+		}
 	}
 
-	outputJson.add("numberOfHostgroups", hostgroupInfoList.size());
+	outputJson.add("numberOfHostgroups", numberOfHostgroups);
 	outputJson.add("numberOfAllowedHostgroups", numberOfAllowedHostgroups);
 }
 
