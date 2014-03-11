@@ -79,6 +79,7 @@ typedef UserRoleInfoList::const_iterator UserRoleInfoListConstIterator;
 class UserQueryOption : public DataQueryOption {
 public:
 	UserQueryOption(UserIdType userId = INVALID_USER_ID);
+	UserQueryOption(DataQueryContext *dataQueryContext);
 	virtual ~UserQueryOption();
 
 	HatoholError setTargetName(const std::string &name);

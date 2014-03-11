@@ -281,6 +281,13 @@ UserQueryOption::UserQueryOption(UserIdType userId)
 	m_ctx = new PrivateContext();
 }
 
+UserQueryOption::UserQueryOption(DataQueryContext *dataQueryContext)
+: DataQueryOption(dataQueryContext),
+  m_ctx(NULL)
+{
+	m_ctx = new PrivateContext();
+}
+
 UserQueryOption::~UserQueryOption()
 {
 	if (m_ctx)

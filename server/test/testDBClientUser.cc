@@ -987,6 +987,11 @@ void test_isAccessibleFalse(void)
 	cppcut_assert_equal(false, dbUser->isAccessible(serverId, privilege));
 }
 
+void test_constructorOfUserQueryOptionFromDataQueryContext(void)
+{
+	assertQueryOptionFromDataQueryContext(UserQueryOption);
+}
+
 void test_constructorOfUserRoleQueryOptionFromDataQueryContext(void)
 {
 	assertQueryOptionFromDataQueryContext(UserRoleQueryOption);
