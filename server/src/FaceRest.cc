@@ -1289,14 +1289,18 @@ static void addTriggersIdBriefHash(
 	agent.endObject();
 }
 
-static void addHostgroupsMap(UserIdType userId, JsonBuilderAgent &outputJson,
-                             const MonitoringServerInfo &serverInfo)
+static HatoholError
+addHostgroupsMap(UserIdType userId, JsonBuilderAgent &outputJson,
+                 const MonitoringServerInfo &serverInfo)
 {
 	HostgroupInfoList hostgroupList;
 	HostgroupsQueryOption option(userId);
 	option.setTargetServerId(serverInfo.id);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	dataStore->getHostgroupList(hostgroupList, option);
+	HatoholError err = dataStore->getHostgroupInfoList(hostgroupList,
+	                                                   option);
+	if (err != HTERR_OK)
+		return err;
 
 	HostgroupInfoListIterator it = hostgroupList.begin();
 	outputJson.startObject("groups");
@@ -1308,6 +1312,7 @@ static void addHostgroupsMap(UserIdType userId, JsonBuilderAgent &outputJson,
 		outputJson.endObject();
 	}
 	outputJson.endObject();
+	return HTERR_OK;
 }
 
 static void addServersMap(
@@ -1320,6 +1325,7 @@ static void addServersMap(
 	ServerQueryOption option(job->dataQueryContextPtr);
 	dataStore->getTargetServers(monitoringServers, option);
 
+	HatoholError err;
 	agent.startObject("servers");
 	MonitoringServerInfoListIterator it = monitoringServers.begin();
 	for (; it != monitoringServers.end(); ++it) {
@@ -1334,7 +1340,12 @@ static void addServersMap(
 					       *triggerMaps,
 			                       lookupTriggerBrief);
 		}
-		addHostgroupsMap(job->userId, agent, serverInfo);
+		err = addHostgroupsMap(job->userId, agent, serverInfo);
+		if (err != HTERR_OK) {
+			MLPL_ERR("Error: %d, user ID: %"FMT_USER_ID", sv ID: "
+			         "%"FMT_SERVER_ID"\n",
+			         err.getCode(), job->userId, serverInfo.id);
+		}
 		agent.endObject();
 	}
 	agent.endObject();
