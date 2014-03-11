@@ -1218,7 +1218,7 @@ static void addHosts(FaceRest::RestJob *job, JsonBuilderAgent &agent,
 
 static void addHostsMap(
   FaceRest::RestJob *job, JsonBuilderAgent &agent,
-  MonitoringServerInfo &serverInfo)
+  const MonitoringServerInfo &serverInfo)
 {
 	HostgroupIdType targetHostgroupId = ALL_HOST_GROUPS;
 	char *value = (char *)g_hash_table_lookup(job->query, "hostGroupId");
@@ -1267,7 +1267,7 @@ static string getTriggerBrief(
 
 static void addTriggersIdBriefHash(
   FaceRest::RestJob *job,
-  JsonBuilderAgent &agent, MonitoringServerInfo &serverInfo,
+  JsonBuilderAgent &agent, const MonitoringServerInfo &serverInfo,
   TriggerBriefMaps &triggerMaps, bool lookupTriggerBrief = false)
 {
 	TriggerBriefMaps::iterator server_it = triggerMaps.find(serverInfo.id);
@@ -1290,7 +1290,7 @@ static void addTriggersIdBriefHash(
 }
 
 static void addHostgroupsMap(UserIdType userId, JsonBuilderAgent &outputJson,
-                             MonitoringServerInfo &serverInfo)
+                             const MonitoringServerInfo &serverInfo)
 {
 	HostgroupInfoList hostgroupList;
 	HostgroupsQueryOption option(userId);
@@ -1323,7 +1323,7 @@ static void addServersMap(
 	agent.startObject("servers");
 	MonitoringServerInfoListIterator it = monitoringServers.begin();
 	for (; it != monitoringServers.end(); ++it) {
-		MonitoringServerInfo &serverInfo = *it;
+		const MonitoringServerInfo &serverInfo = *it;
 		agent.startObject(StringUtils::toString(serverInfo.id));
 		agent.add("name", serverInfo.hostName);
 		agent.add("type", serverInfo.type);
