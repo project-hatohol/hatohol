@@ -26,10 +26,14 @@
 
   <form class="form-inline">
     <div class="btn-toolbar" role="toolbar">
-      <input id="add-user-button" type="button" class="btn btn-default"
-       value="{% trans "ADD USER" %}" style="display: none;" />
-      <input id="delete-user-button" type="button" class="btn btn-default"
-       value="{% trans "DELETE USER" %}" style="display: none;" disabled />
+      <button id="add-user-button" type="button" class="btn btn-default" style="display: none;">
+        <span class="glyphicon glyphicon-plus"></span>
+        {% trans "ADD USER" %}
+      </button>
+      <button id="delete-user-button" type="button" class="btn btn-default" style="display: none;" disabled>
+        <span class="glyphicon glyphicon-remove"></span>
+        {% trans "DELETE USER" %}
+      </button>
     </div>
   </form>
 
