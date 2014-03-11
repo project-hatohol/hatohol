@@ -1290,11 +1290,11 @@ static void addTriggersIdBriefHash(
 }
 
 static HatoholError
-addHostgroupsMap(UserIdType userId, JsonBuilderAgent &outputJson,
+addHostgroupsMap(FaceRest::RestJob *job, JsonBuilderAgent &outputJson,
                  const MonitoringServerInfo &serverInfo)
 {
 	HostgroupInfoList hostgroupList;
-	HostgroupsQueryOption option(userId);
+	HostgroupsQueryOption option(job->dataQueryContextPtr);
 	option.setTargetServerId(serverInfo.id);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HatoholError err = dataStore->getHostgroupInfoList(hostgroupList,
@@ -1340,7 +1340,7 @@ static void addServersMap(
 					       *triggerMaps,
 			                       lookupTriggerBrief);
 		}
-		err = addHostgroupsMap(job->userId, agent, serverInfo);
+		err = addHostgroupsMap(job, agent, serverInfo);
 		if (err != HTERR_OK) {
 			MLPL_ERR("Error: %d, user ID: %"FMT_USER_ID", sv ID: "
 			         "%"FMT_SERVER_ID"\n",
