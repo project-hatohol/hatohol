@@ -74,7 +74,7 @@ HatoholPrivilegeEditDialog.prototype.setupSelectHostgroupDialog = function() {
     id = "#edit-server" + servers[i]["id"];
     $(id).click(function() {
       var serverId = this.getAttribute("serverId");
-      // TODO: Call the selectHostgroupDialog.
+      new HatoholHostgroupPrivilegeEditDialog(this.userId, serverId);
     });
   }
 }
