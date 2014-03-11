@@ -1373,6 +1373,32 @@ void test_triggersQueryOptionWithTargetId(gconstpointer data)
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
+void data_triggersQueryOptionFromDataQueryOption(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_triggersQueryOptionFromDataQueryOption(gconstpointer data)
+{
+	const TriggerIdType expectedId = 634;
+	DataQueryContextPtr dqCtxPtr =
+	  DataQueryContextPtr(new DataQueryContext(USER_ID_SYSTEM), false);
+	cppcut_assert_equal(1, dqCtxPtr->getUsedCount());
+	{
+		TriggersQueryOption option(dqCtxPtr);
+		cppcut_assert_equal((DataQueryContext *)dqCtxPtr,
+		                    &option.getDataQueryContext());
+		cppcut_assert_equal(2, dqCtxPtr->getUsedCount());
+		option.setTargetId(expectedId);
+		string expected = StringUtils::sprintf(
+		  "triggers.id=%"FMT_TRIGGER_ID, expectedId);
+		fixupForFilteringDefunctServer(data, expected, option);
+		cppcut_assert_equal(expectedId, option.getTargetId());
+		cppcut_assert_equal(expected, option.getCondition());
+	}
+	cppcut_assert_equal(1, dqCtxPtr->getUsedCount());
+}
+
 void data_triggersQueryOptionDefaultMinimumSeverity(void)
 {
 	prepareTestDataForFilterForDataOfDefunctServers();
@@ -1822,5 +1848,9 @@ void test_setGetOfFilterForDataOfDefunctServers(gconstpointer data)
 	opt.setFilterForDataOfDefunctServers(enable);
 	cppcut_assert_equal(enable, opt.getFilterForDataOfDefunctServers());
 }
+
+//
+// Tests for HostResourceQueryOption
+//
 
 } // namespace testDBClientHatohol

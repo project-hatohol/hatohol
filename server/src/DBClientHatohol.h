@@ -263,6 +263,7 @@ private:
 class TriggersQueryOption : public HostResourceQueryOption {
 public:
 	TriggersQueryOption(UserIdType userId = INVALID_USER_ID);
+	TriggersQueryOption(DataQueryContext *dataQueryContext);
 	TriggersQueryOption(const TriggersQueryOption &src);
 	~TriggersQueryOption();
 

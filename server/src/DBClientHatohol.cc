@@ -1195,6 +1195,16 @@ TriggersQueryOption::TriggersQueryOption(UserIdType userId)
 	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName);
 }
 
+TriggersQueryOption::TriggersQueryOption(DataQueryContext *dataQueryContext)
+: HostResourceQueryOption(dataQueryContext)
+{
+	m_ctx = new PrivateContext();
+	setServerIdColumnName(
+	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName);
+	setHostIdColumnName(
+	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName);
+}
+
 TriggersQueryOption::TriggersQueryOption(const TriggersQueryOption &src)
 {
 	m_ctx = new PrivateContext();
