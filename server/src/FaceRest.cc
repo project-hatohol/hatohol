@@ -2417,7 +2417,7 @@ void FaceRest::handlerAccessInfo(RestJob *job)
 
 void FaceRest::handlerGetAccessInfo(RestJob *job)
 {
-	AccessInfoQueryOption option(job->userId);
+	AccessInfoQueryOption option(job->dataQueryContextPtr);
 	option.setTargetUserId(job->getResourceId());
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
