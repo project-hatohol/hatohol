@@ -357,6 +357,13 @@ AccessInfoQueryOption::AccessInfoQueryOption(UserIdType userId)
 	m_ctx = new PrivateContext();
 }
 
+AccessInfoQueryOption::AccessInfoQueryOption(DataQueryContext *dataQueryContext)
+: DataQueryOption(dataQueryContext),
+  m_ctx(NULL)
+{
+	m_ctx = new PrivateContext();
+}
+
 AccessInfoQueryOption::~AccessInfoQueryOption()
 {
 	if (m_ctx)

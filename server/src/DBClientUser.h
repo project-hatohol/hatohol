@@ -96,6 +96,7 @@ private:
 class AccessInfoQueryOption : public DataQueryOption {
 public:
 	AccessInfoQueryOption(UserIdType userId = INVALID_USER_ID);
+	AccessInfoQueryOption(DataQueryContext *dataQueryContext);
 	virtual ~AccessInfoQueryOption();
 
 	// Overriding of virtual methods

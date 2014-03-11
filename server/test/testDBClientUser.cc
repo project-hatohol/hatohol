@@ -992,6 +992,11 @@ void test_constructorOfUserQueryOptionFromDataQueryContext(void)
 	assertQueryOptionFromDataQueryContext(UserQueryOption);
 }
 
+void test_constructorOfAccessInfoQueryOptionFromDataQueryContext(void)
+{
+	assertQueryOptionFromDataQueryContext(AccessInfoQueryOption);
+}
+
 void test_constructorOfUserRoleQueryOptionFromDataQueryContext(void)
 {
 	assertQueryOptionFromDataQueryContext(UserRoleQueryOption);
