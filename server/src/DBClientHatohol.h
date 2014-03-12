@@ -72,7 +72,7 @@ struct TriggerInfo {
 	TriggerStatusType   status;
 	TriggerSeverityType severity;
 	timespec            lastChangeTime;
-	HostIdType            hostId;
+	HostIdType          hostId;
 	std::string         hostName;
 	std::string         brief;
 
