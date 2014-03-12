@@ -1023,6 +1023,42 @@ void FaceRest::handlerHelloPage(RestJob *job)
 	job->replyIsPrepared = true;
 }
 
+static HatoholError
+addHostgroupsMap(FaceRest::RestJob *job, JsonBuilderAgent &outputJson,
+                 const MonitoringServerInfo &serverInfo,
+                 HostgroupInfoList &hostgroupList)
+{
+	HostgroupsQueryOption option(job->dataQueryContextPtr);
+	option.setTargetServerId(serverInfo.id);
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	HatoholError err = dataStore->getHostgroupInfoList(hostgroupList,
+	                                                   option);
+	if (err != HTERR_OK) {
+		MLPL_ERR("Error: %d, user ID: %"FMT_USER_ID", "
+		         "sv ID: %"FMT_SERVER_ID"\n",
+		         err.getCode(), job->userId, serverInfo.id);
+		return err;
+	}
+
+	HostgroupInfoListIterator it = hostgroupList.begin();
+	for (; it != hostgroupList.end(); ++it) {
+		const HostgroupInfo &hostgroupInfo = *it;
+		outputJson.startObject(
+		  StringUtils::toString(hostgroupInfo.groupId));
+		outputJson.add("name", hostgroupInfo.groupName);
+		outputJson.endObject();
+	}
+	return HTERR_OK;
+}
+
+static HatoholError
+addHostgroupsMap(FaceRest::RestJob *job, JsonBuilderAgent &outputJson,
+                 const MonitoringServerInfo &serverInfo)
+{
+	HostgroupInfoList hostgroupList;
+	return addHostgroupsMap(job, outputJson, serverInfo, hostgroupList);
+}
+
 static void addOverviewEachServer(FaceRest::RestJob *job,
 				  JsonBuilderAgent &agent,
                                   MonitoringServerInfo &svInfo,
@@ -1289,32 +1325,6 @@ static void addTriggersIdBriefHash(
 	agent.endObject();
 }
 
-static HatoholError
-addHostgroupsMap(FaceRest::RestJob *job, JsonBuilderAgent &outputJson,
-                 const MonitoringServerInfo &serverInfo)
-{
-	HostgroupInfoList hostgroupList;
-	HostgroupsQueryOption option(job->dataQueryContextPtr);
-	option.setTargetServerId(serverInfo.id);
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HatoholError err = dataStore->getHostgroupInfoList(hostgroupList,
-	                                                   option);
-	if (err != HTERR_OK)
-		return err;
-
-	HostgroupInfoListIterator it = hostgroupList.begin();
-	outputJson.startObject("groups");
-	for (; it != hostgroupList.end(); ++it) {
-		const HostgroupInfo &hostgroupInfo = *it;
-		outputJson.startObject(
-		  StringUtils::toString(hostgroupInfo.groupId));
-		outputJson.add("name", hostgroupInfo.groupName);
-		outputJson.endObject();
-	}
-	outputJson.endObject();
-	return HTERR_OK;
-}
-
 static void addServersMap(
   FaceRest::RestJob *job,
   JsonBuilderAgent &agent,
@@ -1340,13 +1350,13 @@ static void addServersMap(
 					       *triggerMaps,
 			                       lookupTriggerBrief);
 		}
-		err = addHostgroupsMap(job, agent, serverInfo);
-		if (err != HTERR_OK) {
-			MLPL_ERR("Error: %d, user ID: %"FMT_USER_ID", sv ID: "
-			         "%"FMT_SERVER_ID"\n",
-			         err.getCode(), job->userId, serverInfo.id);
-		}
-		agent.endObject();
+		agent.startObject("groups");
+		// Even if the following function retrun an error,
+		// We cannot do anything. The receiver (client) should handle
+		// the returned empty or unperfect group information.
+		addHostgroupsMap(job, agent, serverInfo);
+		agent.endObject(); // "gropus"
+		agent.endObject(); // toString(serverInfo.id)
 	}
 	agent.endObject();
 }
