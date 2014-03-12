@@ -99,7 +99,7 @@ typedef ServerIdSet::iterator       ServerIdSetIterator;
 typedef ServerIdSet::const_iterator ServerIdSetConstIterator;
 extern const ServerIdSet EMPTY_SERVER_ID_SET;
 
-typedef std::set<uint64_t>                  HostGroupSet;
+typedef std::set<HostgroupIdType>           HostGroupSet;
 typedef HostGroupSet::iterator              HostGroupSetIterator;
 typedef HostGroupSet::const_iterator        HostGroupSetConstIterator;
 
