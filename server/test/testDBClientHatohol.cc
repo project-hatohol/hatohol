@@ -1816,21 +1816,7 @@ void data_hostgroupsQueryOptionFromDataQueryContext(void)
 
 void test_hostgroupsQueryOptionFromDataQueryContext(gconstpointer data)
 {
-	DataQueryContextPtr dqCtxPtr =
-	  DataQueryContextPtr(new DataQueryContext(USER_ID_SYSTEM), false);
-	cppcut_assert_equal(1, dqCtxPtr->getUsedCount());
-	{
-		HostgroupsQueryOption option(dqCtxPtr);
-		cppcut_assert_equal((DataQueryContext *)dqCtxPtr,
-		                    &option.getDataQueryContext());
-		cppcut_assert_equal(2, dqCtxPtr->getUsedCount());
-		option.setTargetServerId(2);
-		option.setTargetHostgroupId(8);
-		string expected = "server_id=2 AND host_group_id=8";
-		fixupForFilteringDefunctServer(data, expected, option);
-		cppcut_assert_equal(expected, option.getCondition());
-	}
-	cppcut_assert_equal(1, dqCtxPtr->getUsedCount());
+	assertQueryOptionFromDataQueryContext(HostgroupsQueryOption, data);
 }
 
 void data_hostgroupElementQueryOptionFromDataQueryContext(void)
