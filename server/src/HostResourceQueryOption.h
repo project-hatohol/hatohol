@@ -97,6 +97,9 @@ protected:
 	  const HostGroupSet &hostGroupSet,
 	  const std::string &hostGroupIdColumnName);
 
+	virtual std::string getFromSectionForOneTable(void);
+	virtual std::string getFromSectionWithHostgroup(void);
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;

@@ -17,6 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Params.h"
 #include "HostResourceQueryOption.h"
 #include "DBClientHatohol.h"
 using namespace std;
@@ -77,7 +78,10 @@ HostResourceQueryOption::~HostResourceQueryOption()
 
 string HostResourceQueryOption::generateFromSection(void)
 {
-	return "";
+	if (m_ctx->targetHostgroupId == ALL_HOST_GROUPS)
+		return getFromSectionForOneTable();
+	else
+		return getFromSectionWithHostgroup();
 }
 
 void HostResourceQueryOption::setServerIdColumnName(
@@ -356,5 +360,17 @@ void HostResourceQueryOption::setFilterForDataOfDefunctServers(
 const bool &HostResourceQueryOption::getFilterForDataOfDefunctServers(void) const
 {
 	return m_ctx->filterDataOfDefunctServers;
+}
+
+string HostResourceQueryOption::getFromSectionForOneTable(void)
+{
+	MLPL_BUG("Not implemented yet: %s\n", __PRETTY_FUNCTION__);
+	return "";
+}
+
+string HostResourceQueryOption::getFromSectionWithHostgroup(void)
+{
+	MLPL_BUG("Not implemented yet: %s\n", __PRETTY_FUNCTION__);
+	return "";
 }
 
