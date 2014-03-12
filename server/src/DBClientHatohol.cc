@@ -37,9 +37,8 @@ static const char *TABLE_NAME_HOSTGROUPS           = "hostgroups";
 static const char *TABLE_NAME_MAP_HOSTS_HOSTGROUPS = "map_hosts_hostgroups";
 
 const EventIdType DBClientHatohol::EVENT_NOT_FOUND = -1;
-int DBClientHatohol::HATOHOL_DB_VERSION = 4;
-
-const char *DBClientHatohol::DEFAULT_DB_NAME = "hatohol";
+int               DBClientHatohol::HATOHOL_DB_VERSION = 4;
+const char       *DBClientHatohol::DEFAULT_DB_NAME = "hatohol";
 
 void operator>>(ItemGroupStream &itemGroupStream, TriggerStatusType &rhs)
 {
