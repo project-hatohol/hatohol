@@ -172,7 +172,7 @@ HatoholHostgroupPrivilegeEditDialog.prototype.generateTableRows = function() {
     hstgrp = hostgroup[i];
     s += '<tr>';
     s += '<td><input type="checkbox" class="hostgroupSelectCheckbox" ' +
-               'hostgroupId="' + hstgrp['id'] + '"></td>';
+               'hostgroupId="' + escapeHTML(hstgrp.groupId) + '"></td>';
     s += '<td>' + escapeHTML(hstgrp.groupId) + '</td>';
     s += '<td>' + escapeHTML(hstgrp.groupName)  + '</td>';
     s += '</tr>';
@@ -180,23 +180,23 @@ HatoholHostgroupPrivilegeEditDialog.prototype.generateTableRows = function() {
   return s;
 };
 
-// TODO: After POST hostgroup privilege, decide this function.
 HatoholHostgroupPrivilegeEditDialog.prototype.updateAllowCheckboxes = function() {
-  if (!this.serversData || !this.allowedServers)
+  if (!this.hostgroupData || !this.allowedServers)
     return;
 
-  var i, serverId, checkboxes = $(".hostgroupSelectCheckbox");
-  var allHostGroupIsEnabled = function(server) {
-    var ALL_HOST_GROUPS = -1, hostGroup;
-    if (!server || !server["allowedHostGroups"])
-      return false;
-    hostGroup = server["allowedHostGroups"][ALL_HOST_GROUPS];
-    return hostGroup && hostGroup["accessInfoId"];
-  };
+  var i, checkboxes = $(".hostgroupSelectCheckbox");
+  var allowedHostgroup = this.allowedServers[1]["allowedHostGroups"];
+  var isAllowedHostgroup = function (accessInfo, hostgroupId) {
+    for (var i = 0; i < allowedHostgroup.numberOfAllowedHostgroups; i++) {
+      if (allowedHostgroup[i] == hostgroupId)
+        return true;
+    }
+    return false;
+  }
 
   for (i = 0; i < checkboxes.length; i++) {
-    serverId = checkboxes[i].getAttribute("hostgroupId");
-    if (allHostGroupIsEnabled(this.allowedServers[serverId]))
+    hostgroupId = checkboxes[i].getAttribute("hostgroupId");
+    if (isAllowedHostgroup(allowedHostgroup, hostgroupId))
       checkboxes[i].checked = true;
   }
 };
