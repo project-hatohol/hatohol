@@ -477,7 +477,7 @@ static const ColumnDef COLUMN_DEF_HOSTS[] = {
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_HOSTS,                  // tableName
-	"host_id",                          // columnName
+	"host_id",                         // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	11,                                // columnLength
 	0,                                 // decFracLength
@@ -488,7 +488,7 @@ static const ColumnDef COLUMN_DEF_HOSTS[] = {
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_HOSTS,                  // tableName
-	"host_name",                        // columnName
+	"host_name",                       // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
 	0,                                 // decFracLength
@@ -596,7 +596,7 @@ static const ColumnDef COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[] = {
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_MAP_HOSTS_HOSTGROUPS,   // tableName
-	"host_id",                          // columnName
+	"host_id",                         // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	11,                                // columnLength
 	0,                                 // decFracLength
