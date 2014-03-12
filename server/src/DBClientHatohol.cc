@@ -726,6 +726,7 @@ EventsQueryOption::EventsQueryOption(DataQueryContext *dataQueryContext)
 }
 
 EventsQueryOption::EventsQueryOption(const EventsQueryOption &src)
+: HostResourceQueryOption(src)
 {
 	m_ctx = new PrivateContext();
 	*m_ctx = *src.m_ctx;
