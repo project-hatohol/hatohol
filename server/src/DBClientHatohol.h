@@ -25,6 +25,7 @@
 #include "DataQueryOption.h"
 #include "DBClientUser.h"
 #include "ItemGroupStream.h"
+#include "HostResourceQueryOption.h"
 
 enum TriggerStatusType {
 	TRIGGER_STATUS_ALL = -1,
@@ -43,11 +44,8 @@ enum TriggerSeverityType {
 	NUM_TRIGGER_SEVERITY,
 };
 
-static const ServerIdType ALL_SERVERS = -1;
-static const HostIdType ALL_HOSTS   = -1;
 static const uint64_t ALL_TRIGGERS = -1;
 static const uint64_t ALL_ITEMS    = -1;
-static const HostgroupIdType ALL_HOST_GROUPS = -1;
 
 struct HostInfo {
 	ServerIdType        serverId;
@@ -154,79 +152,6 @@ struct HostgroupElement {
 typedef std::list<HostgroupElement> HostgroupElementList;
 typedef HostgroupElementList::iterator HostgroupElementListIterator;
 typedef HostgroupElementList::const_iterator HostgroupElementListConstIterator;
-
-class HostResourceQueryOption : public DataQueryOption {
-public:
-	HostResourceQueryOption(const UserIdType &userId = INVALID_USER_ID);
-	HostResourceQueryOption(DataQueryContext *dataQueryContext);
-	HostResourceQueryOption(const HostResourceQueryOption &src);
-	virtual ~HostResourceQueryOption();
-
-	virtual std::string getCondition(
-	  const std::string &tableAlias = "") const; // override
-
-	virtual ServerIdType getTargetServerId(void) const;
-	virtual void setTargetServerId(const ServerIdType &targetServerId);
-	virtual HostIdType getTargetHostId(void) const;
-	virtual void setTargetHostId(HostIdType targetHostId);
-	virtual HostgroupIdType getTargetHostgroupId(void) const;
-	virtual void setTargetHostgroupId(HostgroupIdType targetHostGroupId);
-
-	/**
-	 * Enable or disable the filter for the data of defunct servers.
-	 *
-	 * @param enable
-	 * If the parameter is true, the filter is enabled. Otherwise,
-	 * it is disabled.
-	 *
-	 */
-	void setFilterForDataOfDefunctServers(const bool &enable = true);
-
-	/**
-	 * Get the filter status for the data of defunct servers.
-	 *
-	 * @return
-	 * If the filter is enabled, true is returned, Otherwise,
-	 * false is returned.
-	 *
-	 */
-	const bool &getFilterForDataOfDefunctServers(void) const;
-
-protected:
-	void setServerIdColumnName(const std::string &name) const;
-	std::string getServerIdColumnName(
-	  const std::string &tableAlias = "") const;
-	void setHostGroupIdColumnName(const std::string &name) const;
-	std::string getHostgroupIdColumnName(
-	  const std::string &tableAlias = "") const;
-	void setHostIdColumnName(const std::string &name) const;
-	std::string getHostIdColumnName(
-	  const std::string &tableAlias = "") const;
-	static std::string makeCondition(
-	  const ServerHostGrpSetMap &srvHostGrpSetMap,
-	  const std::string &serverIdColumnName,
-	  const std::string &hostGroupIdColumnName,
-	  const std::string &hostIdColumnName,
-	  ServerIdType targetServerId = ALL_SERVERS,
-	  HostgroupIdType targetHostgroup = ALL_HOST_GROUPS,
-	  HostIdType targetHostId = ALL_HOSTS);
-	static std::string makeConditionServer(
-	  const ServerIdSet &serverIdSet,
-	  const std::string &serverIdColumnName);
-	static std::string makeConditionServer(
-	  const ServerIdType &serverId,
-	  const HostGroupSet &hostGroupSet,
-	  const std::string &serverIdColumnName,
-	  const std::string &hostGroupIdColumnName,
-	  const HostgroupIdType &hostgroupId = ALL_HOST_GROUPS);
-	static std::string makeConditionHostGroup(
-	  const HostGroupSet &hostGroupSet,
-	  const std::string &hostGroupIdColumnName);
-
-private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
-};
 
 class EventsQueryOption : public HostResourceQueryOption {
 public:
