@@ -127,7 +127,7 @@ void makeTestUserIdIndexMap(UserIdIndexMap &userIdIndexMap);
 void makeServerAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
 			     UserIdType userId);
 void makeServerHostGrpSetMap(ServerHostGrpSetMap &map,
-			     UserIdType userId);
+                             const UserIdType &userId);
 bool isAuthorized(ServerHostGrpSetMap &authMap,
 		  UserIdType userId,
 		  uint32_t serverId,

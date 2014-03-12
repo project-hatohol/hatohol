@@ -854,7 +854,7 @@ void makeServerAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
 	}
 }
 
-void makeServerHostGrpSetMap(ServerHostGrpSetMap &map, UserIdType userId)
+void makeServerHostGrpSetMap(ServerHostGrpSetMap &map, const UserIdType &userId)
 {
 	for (size_t i = 0; i < NumTestAccessInfo; i++) {
 		if (testAccessInfo[i].userId != userId)
