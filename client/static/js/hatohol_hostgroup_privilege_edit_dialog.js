@@ -267,7 +267,7 @@ HatoholHostgroupPrivilegeEditDialog.prototype.checkApplyResult = function(access
 HatoholHostgroupPrivilegeEditDialog.prototype.applyPrivileges = function() {
   var self = this;
   var i, serverId, accessInfoId;
-  var checkboxes = $(".serverSelectCheckbox");
+  var checkboxes = $(".hostgroupSelectCheckbox");
   var getAccessInfoId = function(serverId) {
     var id, allowedHostGroups, allowedHostGroup;
     var ALL_HOST_GROUPS = -1;
