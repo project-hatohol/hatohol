@@ -76,6 +76,69 @@ HostResourceQueryOption::~HostResourceQueryOption()
 		delete m_ctx;
 }
 
+string HostResourceQueryOption::getCondition(const string &tableAlias) const
+{
+	string condition;
+	string hostgroupTableAlias;
+	if (!tableAlias.empty())
+		hostgroupTableAlias = DBClientHatohol::TABLE_NAME_MAP_HOSTS_HOSTGROUPS;
+	if (getFilterForDataOfDefunctServers()) {
+		addCondition(
+		  condition,
+		  makeConditionServer(
+		    getDataQueryContext().getValidServerIdSet(),
+		    getServerIdColumnName(tableAlias))
+		);
+	}
+
+	UserIdType userId = getUserId();
+
+	if (userId == USER_ID_SYSTEM || has(OPPRVLG_GET_ALL_SERVER)) {
+		if (m_ctx->targetServerId != ALL_SERVERS) {
+			addCondition(condition,
+			  StringUtils::sprintf(
+				"%s=%"FMT_SERVER_ID,
+				getServerIdColumnName(tableAlias).c_str(),
+				m_ctx->targetServerId));
+		}
+		if (m_ctx->targetHostId != ALL_HOSTS) {
+			addCondition(condition,
+			  StringUtils::sprintf(
+				"%s=%"FMT_HOST_ID,
+				getHostIdColumnName(tableAlias).c_str(),
+				m_ctx->targetHostId));
+		}
+		if (m_ctx->targetHostgroupId != ALL_HOST_GROUPS) {
+			addCondition(condition,
+			  StringUtils::sprintf(
+				"%s=%"FMT_HOST_GROUP_ID,
+				getHostgroupIdColumnName(
+				  hostgroupTableAlias).c_str(),
+				m_ctx->targetHostgroupId));
+		}
+		return condition;
+	}
+
+	if (userId == INVALID_USER_ID) {
+		MLPL_DBG("INVALID_USER_ID\n");
+		return DBClientHatohol::getAlwaysFalseCondition();
+	}
+
+	const ServerHostGrpSetMap &srvHostGrpSetMap =
+	  getDataQueryContext().getServerHostGrpSetMap();
+	addCondition(condition,
+	             makeCondition(srvHostGrpSetMap,
+	                           getServerIdColumnName(tableAlias),
+	                           getHostgroupIdColumnName(
+	                             hostgroupTableAlias),
+	                           getHostIdColumnName(tableAlias),
+	                           m_ctx->targetServerId,
+	                           m_ctx->targetHostgroupId,
+	                           m_ctx->targetHostId));
+	return condition;
+}
+
+
 string HostResourceQueryOption::generateFromSection(void)
 {
 	if (m_ctx->targetHostgroupId == ALL_HOST_GROUPS)
@@ -84,6 +147,51 @@ string HostResourceQueryOption::generateFromSection(void)
 		return getFromSectionWithHostgroup();
 }
 
+ServerIdType HostResourceQueryOption::getTargetServerId(void) const
+{
+	return m_ctx->targetServerId;
+}
+
+void HostResourceQueryOption::setTargetServerId(const ServerIdType &targetServerId)
+{
+	m_ctx->targetServerId = targetServerId;
+}
+
+HostIdType HostResourceQueryOption::getTargetHostId(void) const
+{
+	return m_ctx->targetHostId;
+}
+
+void HostResourceQueryOption::setTargetHostId(HostIdType targetHostId)
+{
+	m_ctx->targetHostId = targetHostId;
+}
+
+HostgroupIdType HostResourceQueryOption::getTargetHostgroupId(void) const
+{
+	return m_ctx->targetHostgroupId;
+}
+
+void HostResourceQueryOption::setTargetHostgroupId(
+  HostgroupIdType targetHostgroupId)
+{
+	m_ctx->targetHostgroupId = targetHostgroupId;
+}
+
+void HostResourceQueryOption::setFilterForDataOfDefunctServers(
+  const bool &enable)
+{
+	m_ctx->filterDataOfDefunctServers = enable;
+}
+
+const bool &HostResourceQueryOption::getFilterForDataOfDefunctServers(void) const
+{
+	return m_ctx->filterDataOfDefunctServers;
+}
+
+// ---------------------------------------------------------------------------
+// Protected methods
+// ---------------------------------------------------------------------------
 void HostResourceQueryOption::setServerIdColumnName(
   const std::string &name) const
 {
@@ -256,110 +364,6 @@ string HostResourceQueryOption::makeCondition(
 	if (numServers == 1)
 		return condition;
 	return StringUtils::sprintf("(%s)", condition.c_str());
-}
-
-string HostResourceQueryOption::getCondition(const string &tableAlias) const
-{
-	string condition;
-	string hostgroupTableAlias;
-	if (!tableAlias.empty())
-		hostgroupTableAlias = DBClientHatohol::TABLE_NAME_MAP_HOSTS_HOSTGROUPS;
-	if (getFilterForDataOfDefunctServers()) {
-		addCondition(
-		  condition,
-		  makeConditionServer(
-		    getDataQueryContext().getValidServerIdSet(),
-		    getServerIdColumnName(tableAlias))
-		);
-	}
-
-	UserIdType userId = getUserId();
-
-	if (userId == USER_ID_SYSTEM || has(OPPRVLG_GET_ALL_SERVER)) {
-		if (m_ctx->targetServerId != ALL_SERVERS) {
-			addCondition(condition,
-			  StringUtils::sprintf(
-				"%s=%"FMT_SERVER_ID,
-				getServerIdColumnName(tableAlias).c_str(),
-				m_ctx->targetServerId));
-		}
-		if (m_ctx->targetHostId != ALL_HOSTS) {
-			addCondition(condition,
-			  StringUtils::sprintf(
-				"%s=%"FMT_HOST_ID,
-				getHostIdColumnName(tableAlias).c_str(),
-				m_ctx->targetHostId));
-		}
-		if (m_ctx->targetHostgroupId != ALL_HOST_GROUPS) {
-			addCondition(condition,
-			  StringUtils::sprintf(
-				"%s=%"FMT_HOST_GROUP_ID,
-				getHostgroupIdColumnName(
-				  hostgroupTableAlias).c_str(),
-				m_ctx->targetHostgroupId));
-		}
-		return condition;
-	}
-
-	if (userId == INVALID_USER_ID) {
-		MLPL_DBG("INVALID_USER_ID\n");
-		return DBClientHatohol::getAlwaysFalseCondition();
-	}
-
-	const ServerHostGrpSetMap &srvHostGrpSetMap =
-	  getDataQueryContext().getServerHostGrpSetMap();
-	addCondition(condition,
-	             makeCondition(srvHostGrpSetMap,
-	                           getServerIdColumnName(tableAlias),
-	                           getHostgroupIdColumnName(
-	                             hostgroupTableAlias),
-	                           getHostIdColumnName(tableAlias),
-	                           m_ctx->targetServerId,
-	                           m_ctx->targetHostgroupId,
-	                           m_ctx->targetHostId));
-	return condition;
-}
-
-ServerIdType HostResourceQueryOption::getTargetServerId(void) const
-{
-	return m_ctx->targetServerId;
-}
-
-void HostResourceQueryOption::setTargetServerId(const ServerIdType &targetServerId)
-{
-	m_ctx->targetServerId = targetServerId;
-}
-
-HostIdType HostResourceQueryOption::getTargetHostId(void) const
-{
-	return m_ctx->targetHostId;
-}
-
-void HostResourceQueryOption::setTargetHostId(HostIdType targetHostId)
-{
-	m_ctx->targetHostId = targetHostId;
-}
-
-HostgroupIdType HostResourceQueryOption::getTargetHostgroupId(void) const
-{
-	return m_ctx->targetHostgroupId;
-}
-
-void HostResourceQueryOption::setTargetHostgroupId(
-  HostgroupIdType targetHostgroupId)
-{
-	m_ctx->targetHostgroupId = targetHostgroupId;
-}
-
-void HostResourceQueryOption::setFilterForDataOfDefunctServers(
-  const bool &enable)
-{
-	m_ctx->filterDataOfDefunctServers = enable;
-}
-
-const bool &HostResourceQueryOption::getFilterForDataOfDefunctServers(void) const
-{
-	return m_ctx->filterDataOfDefunctServers;
 }
 
 string HostResourceQueryOption::getFromSectionForOneTable(void)
