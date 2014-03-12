@@ -29,12 +29,13 @@
 using namespace std;
 using namespace mlpl;
 
-static const char *TABLE_NAME_TRIGGERS             = "triggers";
-static const char *TABLE_NAME_EVENTS               = "events";
-static const char *TABLE_NAME_ITEMS                = "items";
-static const char *TABLE_NAME_HOSTS                = "hosts";
-static const char *TABLE_NAME_HOSTGROUPS           = "hostgroups";
-static const char *TABLE_NAME_MAP_HOSTS_HOSTGROUPS = "map_hosts_hostgroups";
+const char *DBClientHatohol::TABLE_NAME_TRIGGERS   = "triggers";
+const char *DBClientHatohol::TABLE_NAME_EVENTS     = "events";
+const char *DBClientHatohol::TABLE_NAME_ITEMS      = "items";
+const char *DBClientHatohol::TABLE_NAME_HOSTS      = "hosts";
+const char *DBClientHatohol::TABLE_NAME_HOSTGROUPS = "hostgroups";
+const char *DBClientHatohol::TABLE_NAME_MAP_HOSTS_HOSTGROUPS
+  = "map_hosts_hostgroups";
 
 const EventIdType DBClientHatohol::EVENT_NOT_FOUND = -1;
 const int         DBClientHatohol::HATOHOL_DB_VERSION = 4;
@@ -58,7 +59,7 @@ void operator>>(ItemGroupStream &itemGroupStream, EventType &rhs)
 static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_TRIGGERS,               // tableName
+	DBClientHatohol::TABLE_NAME_TRIGGERS, // tableName
 	"server_id",                       // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -69,7 +70,7 @@ static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_TRIGGERS,               // tableName
+	DBClientHatohol::TABLE_NAME_TRIGGERS, // tableName
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -80,7 +81,7 @@ static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_TRIGGERS,               // tableName
+	DBClientHatohol::TABLE_NAME_TRIGGERS, // tableName
 	"status",                          // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -91,7 +92,7 @@ static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_TRIGGERS,               // tableName
+	DBClientHatohol::TABLE_NAME_TRIGGERS, // tableName
 	"severity",                        // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -102,7 +103,7 @@ static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_TRIGGERS,               // tableName
+	DBClientHatohol::TABLE_NAME_TRIGGERS, // tableName
 	"last_change_time_sec",            // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -113,7 +114,7 @@ static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_TRIGGERS,               // tableName
+	DBClientHatohol::TABLE_NAME_TRIGGERS, // tableName
 	"last_change_time_ns",             // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -124,7 +125,7 @@ static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_TRIGGERS,               // tableName
+	DBClientHatohol::TABLE_NAME_TRIGGERS, // tableName
 	"host_id",                         // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -135,7 +136,7 @@ static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_TRIGGERS,               // tableName
+	DBClientHatohol::TABLE_NAME_TRIGGERS, // tableName
 	"hostname",                        // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -146,7 +147,7 @@ static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_TRIGGERS,               // tableName
+	DBClientHatohol::TABLE_NAME_TRIGGERS, // tableName
 	"brief",                           // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -172,13 +173,13 @@ enum {
 };
 
 static const DBAgent::TableProfile tableProfileTriggers(
-  TABLE_NAME_TRIGGERS, COLUMN_DEF_TRIGGERS,
+  DBClientHatohol::TABLE_NAME_TRIGGERS, COLUMN_DEF_TRIGGERS,
   sizeof(COLUMN_DEF_TRIGGERS), NUM_IDX_TRIGGERS);
 
 static const ColumnDef COLUMN_DEF_EVENTS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_EVENTS,                 // tableName
+	DBClientHatohol::TABLE_NAME_EVENTS,// tableName
 	"unified_id",                      // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -189,7 +190,7 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_EVENTS,                 // tableName
+	DBClientHatohol::TABLE_NAME_EVENTS,// tableName
 	"server_id",                       // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -200,7 +201,7 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_EVENTS,                 // tableName
+	DBClientHatohol::TABLE_NAME_EVENTS,// tableName
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -211,7 +212,7 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_EVENTS,                 // tableName
+	DBClientHatohol::TABLE_NAME_EVENTS,// tableName
 	"time_sec",                        // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -222,7 +223,7 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_EVENTS,                 // tableName
+	DBClientHatohol::TABLE_NAME_EVENTS,// tableName
 	"time_ns",                         // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -233,7 +234,7 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_EVENTS,                 // tableName
+	DBClientHatohol::TABLE_NAME_EVENTS,// tableName
 	"event_value",                     // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -244,7 +245,7 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_EVENTS,                 // tableName
+	DBClientHatohol::TABLE_NAME_EVENTS,// tableName
 	"trigger_id",                      // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -255,7 +256,7 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_EVENTS,                 // tableName
+	DBClientHatohol::TABLE_NAME_EVENTS,// tableName
 	"status",                          // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -266,7 +267,7 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_EVENTS,                 // tableName
+	DBClientHatohol::TABLE_NAME_EVENTS,// tableName
 	"severity",                        // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -277,7 +278,7 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_TRIGGERS,               // tableName
+	DBClientHatohol::TABLE_NAME_TRIGGERS, // tableName
 	"host_id",                         // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -288,7 +289,7 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_TRIGGERS,               // tableName
+	DBClientHatohol::TABLE_NAME_TRIGGERS, // tableName
 	"hostname",                        // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -299,7 +300,7 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_TRIGGERS,               // tableName
+	DBClientHatohol::TABLE_NAME_TRIGGERS, // tableName
 	"brief",                           // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -328,13 +329,13 @@ enum {
 };
 
 static const DBAgent::TableProfile tableProfileEvents(
-  TABLE_NAME_EVENTS, COLUMN_DEF_EVENTS,
+  DBClientHatohol::TABLE_NAME_EVENTS, COLUMN_DEF_EVENTS,
   sizeof(COLUMN_DEF_EVENTS), NUM_IDX_EVENTS);
 
 static const ColumnDef COLUMN_DEF_ITEMS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ITEMS,                  // tableName
+	DBClientHatohol::TABLE_NAME_ITEMS, // tableName
 	"server_id",                       // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -345,7 +346,7 @@ static const ColumnDef COLUMN_DEF_ITEMS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ITEMS,                  // tableName
+	DBClientHatohol::TABLE_NAME_ITEMS, // tableName
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -356,7 +357,7 @@ static const ColumnDef COLUMN_DEF_ITEMS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ITEMS,                  // tableName
+	DBClientHatohol::TABLE_NAME_ITEMS, // tableName
 	"host_id",                         // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	11,                                // columnLength
@@ -367,7 +368,7 @@ static const ColumnDef COLUMN_DEF_ITEMS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ITEMS,                  // tableName
+	DBClientHatohol::TABLE_NAME_ITEMS, // tableName
 	"brief",                           // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -378,7 +379,7 @@ static const ColumnDef COLUMN_DEF_ITEMS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ITEMS,                  // tableName
+	DBClientHatohol::TABLE_NAME_ITEMS, // tableName
 	"last_value_time_sec",             // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -389,7 +390,7 @@ static const ColumnDef COLUMN_DEF_ITEMS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ITEMS,                  // tableName
+	DBClientHatohol::TABLE_NAME_ITEMS, // tableName
 	"last_value_time_ns",              // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -400,7 +401,7 @@ static const ColumnDef COLUMN_DEF_ITEMS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ITEMS,                  // tableName
+	DBClientHatohol::TABLE_NAME_ITEMS, // tableName
 	"last_value",                      // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -411,7 +412,7 @@ static const ColumnDef COLUMN_DEF_ITEMS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ITEMS,                  // tableName
+	DBClientHatohol::TABLE_NAME_ITEMS, // tableName
 	"prev_value",                      // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -422,7 +423,7 @@ static const ColumnDef COLUMN_DEF_ITEMS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ITEMS,                  // tableName
+	DBClientHatohol::TABLE_NAME_ITEMS, // tableName
 	"item_group_name",                 // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -448,13 +449,13 @@ enum {
 };
 
 static const DBAgent::TableProfile tableProfileItems(
-  TABLE_NAME_ITEMS, COLUMN_DEF_ITEMS,
+  DBClientHatohol::TABLE_NAME_ITEMS, COLUMN_DEF_ITEMS,
   sizeof(COLUMN_DEF_ITEMS), NUM_IDX_ITEMS);
 
 static const ColumnDef COLUMN_DEF_HOSTS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_HOSTS,                  // tableName
+	DBClientHatohol::TABLE_NAME_HOSTS, // tableName
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -465,7 +466,7 @@ static const ColumnDef COLUMN_DEF_HOSTS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_HOSTS,                  // tableName
+	DBClientHatohol::TABLE_NAME_HOSTS, // tableName
 	"server_id",                       // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -476,7 +477,7 @@ static const ColumnDef COLUMN_DEF_HOSTS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_HOSTS,                  // tableName
+	DBClientHatohol::TABLE_NAME_HOSTS, // tableName
 	"host_id",                         // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	11,                                // columnLength
@@ -487,7 +488,7 @@ static const ColumnDef COLUMN_DEF_HOSTS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_HOSTS,                  // tableName
+	DBClientHatohol::TABLE_NAME_HOSTS, // tableName
 	"host_name",                       // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -507,13 +508,13 @@ enum {
 };
 
 static const DBAgent::TableProfile tableProfileHosts(
-  TABLE_NAME_HOSTS, COLUMN_DEF_HOSTS,
+  DBClientHatohol::TABLE_NAME_HOSTS, COLUMN_DEF_HOSTS,
   sizeof(COLUMN_DEF_HOSTS), NUM_IDX_HOSTS);
 
 static const ColumnDef COLUMN_DEF_HOSTGROUPS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_HOSTGROUPS,             // tableName
+	DBClientHatohol::TABLE_NAME_HOSTGROUPS, // tableName
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -524,7 +525,7 @@ static const ColumnDef COLUMN_DEF_HOSTGROUPS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_HOSTGROUPS,             // tableName
+	DBClientHatohol::TABLE_NAME_HOSTGROUPS, // tableName
 	"server_id",                       // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -535,7 +536,7 @@ static const ColumnDef COLUMN_DEF_HOSTGROUPS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_HOSTGROUPS,             // tableName
+	DBClientHatohol::TABLE_NAME_HOSTGROUPS, // tableName
 	"host_group_id",                   // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	11,                                // columnLength
@@ -546,7 +547,7 @@ static const ColumnDef COLUMN_DEF_HOSTGROUPS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_HOSTGROUPS,             // tableName
+	DBClientHatohol::TABLE_NAME_HOSTGROUPS, // tableName
 	"group_name",                      // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -567,13 +568,13 @@ enum {
 };
 
 static const DBAgent::TableProfile tableProfileHostgroups(
-  TABLE_NAME_HOSTGROUPS, COLUMN_DEF_HOSTGROUPS,
+  DBClientHatohol::TABLE_NAME_HOSTGROUPS, COLUMN_DEF_HOSTGROUPS,
   sizeof(COLUMN_DEF_HOSTGROUPS), NUM_IDX_HOSTGROUPS);
 
 static const ColumnDef COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_MAP_HOSTS_HOSTGROUPS,   // tableName
+	DBClientHatohol::TABLE_NAME_MAP_HOSTS_HOSTGROUPS, // tableName
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -584,7 +585,7 @@ static const ColumnDef COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_MAP_HOSTS_HOSTGROUPS,   // tableName
+	DBClientHatohol::TABLE_NAME_MAP_HOSTS_HOSTGROUPS, // tableName
 	"server_id",                       // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -595,7 +596,7 @@ static const ColumnDef COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_MAP_HOSTS_HOSTGROUPS,   // tableName
+	DBClientHatohol::TABLE_NAME_MAP_HOSTS_HOSTGROUPS, // tableName
 	"host_id",                         // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	11,                                // columnLength
@@ -606,7 +607,7 @@ static const ColumnDef COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_MAP_HOSTS_HOSTGROUPS,   // tableName
+	DBClientHatohol::TABLE_NAME_MAP_HOSTS_HOSTGROUPS, // tableName
 	"host_group_id",                   // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	11,                                // columnLength
@@ -627,7 +628,8 @@ enum {
 };
 
 static const DBAgent::TableProfile tableProfileMapHostsHostgroups(
-  TABLE_NAME_MAP_HOSTS_HOSTGROUPS, COLUMN_DEF_MAP_HOSTS_HOSTGROUPS,
+  DBClientHatohol::TABLE_NAME_MAP_HOSTS_HOSTGROUPS,
+  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS,
   sizeof(COLUMN_DEF_MAP_HOSTS_HOSTGROUPS), NUM_IDX_MAP_HOSTS_HOSTGROUPS);
 
 static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
@@ -912,7 +914,7 @@ string HostResourceQueryOption::getCondition(const string &tableAlias) const
 	string condition;
 	string hostgroupTableAlias;
 	if (!tableAlias.empty())
-		hostgroupTableAlias = TABLE_NAME_MAP_HOSTS_HOSTGROUPS;
+		hostgroupTableAlias = DBClientHatohol::TABLE_NAME_MAP_HOSTS_HOSTGROUPS;
 	if (getFilterForDataOfDefunctServers()) {
 		addCondition(
 		  condition,
@@ -1071,7 +1073,7 @@ string EventsQueryOption::getCondition(const std::string &tableAlias) const
 			condition += " AND ";
 		condition += StringUtils::sprintf(
 			"%s.%s<=%"PRIu64,
-			TABLE_NAME_EVENTS,
+			DBClientHatohol::TABLE_NAME_EVENTS,
 			COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID].columnName,
 			m_ctx->limitOfUnifiedId);
 	}
@@ -1083,7 +1085,7 @@ string EventsQueryOption::getCondition(const std::string &tableAlias) const
 		// correct severity.
 		condition += StringUtils::sprintf(
 			"%s.%s>=%d",
-			TABLE_NAME_TRIGGERS,
+			DBClientHatohol::TABLE_NAME_TRIGGERS,
 			COLUMN_DEF_EVENTS[IDX_EVENTS_SEVERITY].columnName,
 			m_ctx->minSeverity);
 	}
@@ -1095,7 +1097,7 @@ string EventsQueryOption::getCondition(const std::string &tableAlias) const
 		// status.
 		condition += StringUtils::sprintf(
 			"%s.%s=%d",
-			TABLE_NAME_EVENTS,
+			DBClientHatohol::TABLE_NAME_EVENTS,
 			COLUMN_DEF_EVENTS[IDX_EVENTS_STATUS].columnName,
 			m_ctx->triggerStatus);
 	}
@@ -1237,7 +1239,7 @@ string TriggersQueryOption::getCondition(const std::string &tableAlias) const
 			condition += " AND ";
 		condition += StringUtils::sprintf(
 			"%s.%s=%"FMT_TRIGGER_ID,
-			TABLE_NAME_TRIGGERS,
+			DBClientHatohol::TABLE_NAME_TRIGGERS,
 			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID].columnName,
 			m_ctx->targetId);
 	}
@@ -1247,7 +1249,7 @@ string TriggersQueryOption::getCondition(const std::string &tableAlias) const
 			condition += " AND ";
 		condition += StringUtils::sprintf(
 			"%s.%s>=%d",
-			TABLE_NAME_TRIGGERS,
+			DBClientHatohol::TABLE_NAME_TRIGGERS,
 			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SEVERITY].columnName,
 			m_ctx->minSeverity);
 	}
@@ -1257,7 +1259,7 @@ string TriggersQueryOption::getCondition(const std::string &tableAlias) const
 			condition += " AND ";
 		condition += StringUtils::sprintf(
 			"%s.%s=%d",
-			TABLE_NAME_TRIGGERS,
+			DBClientHatohol::TABLE_NAME_TRIGGERS,
 			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_STATUS].columnName,
 			m_ctx->triggerStatus);
 	}
@@ -1348,7 +1350,7 @@ string ItemsQueryOption::getCondition(const std::string &tableAlias) const
 			condition += " AND ";
 		condition += StringUtils::sprintf(
 			"%s.%s=%"FMT_ITEM_ID,
-			TABLE_NAME_ITEMS,
+			DBClientHatohol::TABLE_NAME_ITEMS,
 			COLUMN_DEF_ITEMS[IDX_ITEMS_ID].columnName,
 			m_ctx->targetId);
 	}
@@ -1360,7 +1362,7 @@ string ItemsQueryOption::getCondition(const std::string &tableAlias) const
 						      "'", "''");
 		condition += StringUtils::sprintf(
 			"%s.%s='%s'",
-			TABLE_NAME_ITEMS,
+			DBClientHatohol::TABLE_NAME_ITEMS,
 			COLUMN_DEF_ITEMS[IDX_ITEMS_ITEM_GROUP_NAME].columnName,
 			escaped.c_str());
 	}

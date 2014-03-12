@@ -328,6 +328,13 @@ public:
 	static const char       *DEFAULT_DB_NAME;
 	static void init(void);
 
+	static const char *TABLE_NAME_TRIGGERS;
+	static const char *TABLE_NAME_EVENTS;
+	static const char *TABLE_NAME_ITEMS;
+	static const char *TABLE_NAME_HOSTS;
+	static const char *TABLE_NAME_HOSTGROUPS;
+	static const char *TABLE_NAME_MAP_HOSTS_HOSTGROUPS;
+
 	DBClientHatohol(void);
 	virtual ~DBClientHatohol();
 
