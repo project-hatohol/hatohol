@@ -2592,7 +2592,7 @@ void FaceRest::addHostsIsMemberOfGroup(
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	HostgroupElementList hostgroupElementList;
-	HostgroupElementQueryOption option(job->userId);
+	HostgroupElementQueryOption option(job->dataQueryContextPtr);
 	option.setTargetServerId(targetServerId);
 	option.setTargetHostgroupId(targetGroupId);
 	dataStore->getHostgroupElementList(hostgroupElementList, option);
