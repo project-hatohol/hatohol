@@ -1064,6 +1064,7 @@ static void addOverviewEachServer(FaceRest::RestJob *job,
                                   MonitoringServerInfo &svInfo,
 				  bool &serverIsGoodStatus)
 {
+	HatoholError err;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	agent.add("serverId", svInfo.id);
 	agent.add("serverHostName", svInfo.hostName);
@@ -1102,25 +1103,30 @@ static void addOverviewEachServer(FaceRest::RestJob *job,
 	// TODO: We temtatively returns 'No group'. We should fix it
 	//       after host group is supported in Hatohol server.
 	agent.startObject("hostGroups");
-	size_t numHostGroup = 1;
-	uint64_t hostGroupIds[1] = {0};
-	for (size_t i = 0; i < numHostGroup; i++) {
-		agent.startObject(StringUtils::toString(hostGroupIds[i]));
-		agent.add("name", "No group");
-		agent.endObject();
+	HostgroupInfoList hostgroupInfoList;
+	err = addHostgroupsMap(job, agent, svInfo, hostgroupInfoList);
+	if (err != HTERR_OK) {
+		HostgroupInfo hgrpInfo;
+		hgrpInfo.id = 0;
+		hgrpInfo.serverId = svInfo.id;
+		hgrpInfo.groupId = ALL_HOST_GROUPS;
+		hgrpInfo.groupName = "All host groups";
+		hostgroupInfoList.push_back(hgrpInfo);
 	}
 	agent.endObject();
 
 	// SystemStatus
 	agent.startArray("systemStatus");
-	for (size_t i = 0; i < numHostGroup; i++) {
-		uint64_t hostGroupId = hostGroupIds[i];
+	HostgroupInfoListConstIterator hostgrpItr = hostgroupInfoList.begin();
+	for (; hostgrpItr != hostgroupInfoList.end(); ++ hostgrpItr) {
+		const HostgroupIdType hostGroupId = hostgrpItr->groupId;
 		for (int severity = 0;
 		     severity < NUM_TRIGGER_SEVERITY; severity++) {
 			TriggersQueryOption option(job->dataQueryContextPtr);
 			option.setTargetServerId(svInfo.id);
-			//TODO: Currently host group isn't supported yet
-			//option.setTargetHostGroupId(hostGroupId);
+			//FIXME: If the following line is uncommented,
+			//       an exception happens.
+			//option.setTargetHostgroupId(hostGroupId);
 			agent.startObject();
 			agent.add("hostGroupId", hostGroupId);
 			agent.add("severity", severity);
@@ -1136,12 +1142,14 @@ static void addOverviewEachServer(FaceRest::RestJob *job,
 	// HostStatus
 	serverIsGoodStatus = true;
 	agent.startArray("hostStatus");
-	for (size_t i = 0; i < numHostGroup; i++) {
-		uint64_t hostGroupId = hostGroupIds[i];
+	hostgrpItr = hostgroupInfoList.begin();
+	for (; hostgrpItr != hostgroupInfoList.end(); ++ hostgrpItr) {
+		const HostgroupIdType hostGroupId = hostgrpItr->groupId;
 		HostsQueryOption option(job->dataQueryContextPtr);
 		option.setTargetServerId(svInfo.id);
-		//TODO: Host group isn't supported yet
-		//option.setTargetHostGroupId(hostGroupId);
+		//FIXME: If the following line is uncommented,
+		//       an exception happens.
+		//option.setTargetHostgroupId(hostGroupId);
 		size_t numBadHosts = dataStore->getNumberOfBadHosts(option);
 		agent.startObject();
 		agent.add("hostGroupId", hostGroupId);

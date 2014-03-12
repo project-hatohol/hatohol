@@ -1127,49 +1127,75 @@ static void _assertUserRoles(const string &path,
   cut_trace(_assertUserRoles(P, U, ##__VA_ARGS__))
 
 static void assertHostGroupsInParser(JsonParserAgent *parser,
-                                     const ServerIdType &serverId)
+                                     const ServerIdType &serverId,
+                                     HostGroupSet &hostGroupIdSet)
 {
-	// TODO: currently only one hostGroup "No group" exists in the object
 	assertStartObject(parser, "hostGroups");
-	assertStartObject(parser, "0");
-	assertValueInParser(parser, string("name"), string("No group"));
-	parser->endObject();
+	for (size_t i = 0; i < NumTestHostgroupInfo; i++) {
+		const HostgroupInfo &hgrpInfo = testHostgroupInfo[i];
+		// TODO: fix this inefficient algorithm
+		if (hgrpInfo.serverId != serverId)
+			continue;
+		const HostgroupIdType hostgroupId = hgrpInfo.groupId;
+		const string expectKey =
+		  StringUtils::sprintf("%"FMT_HOST_GROUP_ID, hostgroupId);
+		assertStartObject(parser, expectKey);
+		assertValueInParser(parser, string("name"), hgrpInfo.groupName);
+		parser->endObject();
+		hostGroupIdSet.insert(hostgroupId);
+	}
 	parser->endObject();
 }
 
 static void assertHostStatusInParser(JsonParserAgent *parser,
-                                     const ServerIdType &serverId)
+                                     const ServerIdType &serverId,
+                                     const HostGroupSet &hostgroupIdSet)
 {
 	assertStartObject(parser, "hostStatus");
-	// TODO: currently only one hostGroup "No group" exists in the array
-	parser->startElement(0);
-	assertValueInParser(parser, "hostGroupId",  0);
-	size_t expected_good_hosts = getNumberOfTestHostsWithStatus(
-	  serverId, ALL_HOST_GROUPS, true);
-	size_t expected_bad_hosts = getNumberOfTestHostsWithStatus(
-	  serverId, ALL_HOST_GROUPS, false);
-	assertValueInParser(parser, "numberOfGoodHosts", expected_good_hosts);
-	assertValueInParser(parser, "numberOfBadHosts", expected_bad_hosts);
-	parser->endElement();
+	cppcut_assert_equal(hostgroupIdSet.size(),
+	                    (size_t)parser->countElements());
+	HostGroupSetConstIterator hostgrpIdItr = hostgroupIdSet.begin();
+	size_t idx = 0;
+	for (; hostgrpIdItr != hostgroupIdSet.end(); ++hostgrpIdItr, ++idx) {
+		parser->startElement(idx);
+		assertValueInParser(parser, "hostGroupId",  *hostgrpIdItr);
+		size_t expected_good_hosts = getNumberOfTestHostsWithStatus(
+		  serverId, ALL_HOST_GROUPS, true);
+		size_t expected_bad_hosts = getNumberOfTestHostsWithStatus(
+		  serverId, ALL_HOST_GROUPS, false);
+		assertValueInParser(parser, "numberOfGoodHosts",
+		                    expected_good_hosts);
+		assertValueInParser(parser, "numberOfBadHosts",
+		                    expected_bad_hosts);
+		parser->endElement();
+	}
 	parser->endObject();
 }
 
 static void assertSystemStatusInParser(JsonParserAgent *parser,
-                                       const ServerIdType &serverId)
+                                       const ServerIdType &serverId,
+                                       const HostGroupSet &hostgroupIdSet)
 {
 	assertStartObject(parser, "systemStatus");
-	// TODO: currently only one hostGroup "No group" exists in the array
-	uint64_t hostGroupId = 0;
-	for (int severity = 0; severity < NUM_TRIGGER_SEVERITY; ++severity) {
-		size_t expected_triggers =
-		  getNumberOfTestTriggers(
-		    serverId, hostGroupId,
-		    static_cast<TriggerSeverityType>(severity));
-		parser->startElement(severity);
-		assertValueInParser(parser, "hostGroupId", 0);
-		assertValueInParser(parser, "severity", severity);
-		assertValueInParser(parser, "numberOfTriggers", expected_triggers);
-		parser->endElement();
+	HostGroupSetConstIterator hostgrpIdItr = hostgroupIdSet.begin();
+	cppcut_assert_equal(hostgroupIdSet.size() * NUM_TRIGGER_SEVERITY,
+	                    (size_t)parser->countElements());
+	size_t arrayIdx = 0;
+	for (; hostgrpIdItr != hostgroupIdSet.end(); ++hostgrpIdItr) {
+		for (int severity = 0; severity < NUM_TRIGGER_SEVERITY;
+		     ++severity, ++arrayIdx) {
+			size_t expected_triggers =
+			  getNumberOfTestTriggers(
+			    serverId, *hostgrpIdItr,
+			    static_cast<TriggerSeverityType>(severity));
+			parser->startElement(arrayIdx);
+			assertValueInParser(parser, "hostGroupId",
+			                    *hostgrpIdItr);
+			assertValueInParser(parser, "severity", severity);
+			assertValueInParser(parser, "numberOfTriggers",
+			                    expected_triggers);
+			parser->endElement();
+		}
 	}
 	parser->endObject();
 }
@@ -1179,7 +1205,9 @@ static void _assertOverviewInParser(JsonParserAgent *parser)
 	assertValueInParser(parser, "numberOfServers", NumTestServerInfo);
 	assertStartObject(parser, "serverStatus");
 	size_t numGoodServers = 0, numBadServers = 0;
+	// We assume that the caller can access all serers and hosts.
 	for (size_t i = 0; i < NumTestServerInfo; i++) {
+		HostGroupSet hostgroupIdSet;
 		parser->startElement(i);
 		MonitoringServerInfo &svInfo = testServerInfo[i];
 		assertValueInParser(parser, "serverId", svInfo.id);
@@ -1195,9 +1223,9 @@ static void _assertOverviewInParser(JsonParserAgent *parser)
 		assertValueInParser(parser, "numberOfUsers", 0);
 		assertValueInParser(parser, "numberOfOnlineUsers", 0);
 		assertValueInParser(parser, "numberOfMonitoredItemsPerSecond", 0);
-		assertHostGroupsInParser(parser, svInfo.id);
-		assertSystemStatusInParser(parser, svInfo.id);
-		assertHostStatusInParser(parser, svInfo.id);
+		assertHostGroupsInParser(parser, svInfo.id, hostgroupIdSet);
+		assertSystemStatusInParser(parser, svInfo.id, hostgroupIdSet);
+		assertHostStatusInParser(parser, svInfo.id, hostgroupIdSet);
 		parser->endElement();
 		size_t badHosts = getNumberOfTestHostsWithStatus(
 			svInfo.id, ALL_HOST_GROUPS, false);
@@ -2507,6 +2535,7 @@ void test_overview(void)
 	setupUserDB();
 	startFaceRest();
 	RequestArg arg("/overview");
+	// It's supposed to be a user with ID:2, who can access all hosts.
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
 	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
