@@ -534,6 +534,28 @@ static void _assertQueryOptionFromDataQueryContext(gconstpointer data)
 #define assertQueryOptionFromDataQueryContext(T, D) \
 cut_trace(_assertQueryOptionFromDataQueryContext<T>(D))
 
+template <class T>
+static void _assertHGrpQueryOptionFromDataQueryContext(gconstpointer data)
+{
+	DataQueryContextPtr dqCtxPtr =
+	  DataQueryContextPtr(new DataQueryContext(USER_ID_SYSTEM), false);
+	cppcut_assert_equal(1, dqCtxPtr->getUsedCount());
+	{
+		T option(dqCtxPtr);
+		cppcut_assert_equal((DataQueryContext *)dqCtxPtr,
+		                    &option.getDataQueryContext());
+		cppcut_assert_equal(2, dqCtxPtr->getUsedCount());
+		option.setTargetServerId(2);
+		option.setTargetHostgroupId(8);
+		string expected = "server_id=2 AND host_group_id=8";
+		fixupForFilteringDefunctServer(data, expected, option);
+		cppcut_assert_equal(expected, option.getCondition());
+	}
+	cppcut_assert_equal(1, dqCtxPtr->getUsedCount());
+}
+#define assertHGrpQueryOptionFromDataQueryContext(T, D) \
+cut_trace(_assertHGrpQueryOptionFromDataQueryContext<T>(D))
+
 void cut_setup(void)
 {
 	hatoholInit();
@@ -1809,6 +1831,16 @@ void test_hostgroupsQueryOptionFromDataQueryContext(gconstpointer data)
 		cppcut_assert_equal(expected, option.getCondition());
 	}
 	cppcut_assert_equal(1, dqCtxPtr->getUsedCount());
+}
+
+void data_hostgroupElementQueryOptionFromDataQueryContext(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_hostgroupElementQueryOptionFromDataQueryContext(gconstpointer data)
+{
+	assertQueryOptionFromDataQueryContext(HostgroupElementQueryOption, data);
 }
 
 //

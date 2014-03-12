@@ -1434,6 +1434,17 @@ HostgroupElementQueryOption::HostgroupElementQueryOption(UserIdType userId)
 	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID].columnName);
 }
 
+HostgroupElementQueryOption::HostgroupElementQueryOption(
+  DataQueryContext *dataQueryContext)
+: HostResourceQueryOption(dataQueryContext)
+{
+	setServerIdColumnName(
+	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID].columnName);
+	setHostGroupIdColumnName(
+	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID].columnName);
+}
+
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------

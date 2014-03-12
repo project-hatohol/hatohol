@@ -318,6 +318,7 @@ public:
 class HostgroupElementQueryOption: public HostResourceQueryOption {
 public:
 	HostgroupElementQueryOption(UserIdType userId = INVALID_USER_ID);
+	HostgroupElementQueryOption(DataQueryContext *dataQueryContext);
 };
 
 class DBClientHatohol : public DBClient {
