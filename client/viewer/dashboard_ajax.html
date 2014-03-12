@@ -26,6 +26,9 @@
 
   {# Total servers count #}
   {# Good server status #}
+  <div class="panel panel-info">
+  <div class="panel-heading">
+    <span class="glyphicon glyphicon-globe"></span> <b>Global status</b></div>
   <table class="table table-condensed table-striped table-hover" id="tblServer">
     <thead>
       <tr>
@@ -37,12 +40,16 @@
     <tbody>
     </tbody>
   </table>
+  </div>
 
   {# Bad server reason #}
 
   <hr />
 
   {# System status #}
+  <div class="panel panel-info">
+  <div class="panel-heading">
+    <span class="glyphicon glyphicon-list"></span> <b>System status</b></div>
   <table class="table table-condensed table-striped table-hover" id="tblTrigger">
     <thead>
       <tr>
@@ -59,10 +66,14 @@
     <tbody>
     </tbody>
   </table>
+  </div>
 
   <hr />
 
   {# Host status #}
+  <div class="panel panel-info">
+  <div class="panel-heading">
+    <span class="glyphicon glyphicon-th"></span> <b>Host status</b></div>
   <table class="table table-condensed table-striped table-hover" id="tblHost">
     <thead>
       <tr>
@@ -76,6 +87,7 @@
     <tbody>
     </tbody>
   </table>
+  </div>
 </div>
 {% endblock %}
 
