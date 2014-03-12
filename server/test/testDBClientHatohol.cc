@@ -1816,7 +1816,7 @@ void data_hostgroupsQueryOptionFromDataQueryContext(void)
 
 void test_hostgroupsQueryOptionFromDataQueryContext(gconstpointer data)
 {
-	assertQueryOptionFromDataQueryContext(HostgroupsQueryOption, data);
+	assertHGrpQueryOptionFromDataQueryContext(HostgroupsQueryOption, data);
 }
 
 void data_hostgroupElementQueryOptionFromDataQueryContext(void)
@@ -1826,7 +1826,8 @@ void data_hostgroupElementQueryOptionFromDataQueryContext(void)
 
 void test_hostgroupElementQueryOptionFromDataQueryContext(gconstpointer data)
 {
-	assertQueryOptionFromDataQueryContext(HostgroupElementQueryOption, data);
+	assertHGrpQueryOptionFromDataQueryContext(HostgroupElementQueryOption,
+	                                          data);
 }
 
 //
