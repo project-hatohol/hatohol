@@ -286,12 +286,12 @@ HatoholHostgroupPrivilegeEditDialog.prototype.applyPrivileges = function() {
     numFailed:    0
   };
   for (i = 0; i < checkboxes.length; i++) {
-    serverId = checkboxes[i].getAttribute("serverId");
+    hostgroupId = checkboxes[i].getAttribute("hostgroupId");
     accessInfoId = getAccessInfoId(serverId);
 
     if (checkboxes[i].checked) {
       if (!accessInfoId)
-        this.addAccessInfo({ serverId: serverId, hostGroupId: -1 });
+        this.addAccessInfo({ serverId: this.serverId, hostGroupId: hostgroupId });
       else
         self.applyResult.numSucceeded += 1;
     } else {
