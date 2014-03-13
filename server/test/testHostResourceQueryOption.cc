@@ -426,4 +426,11 @@ void test_makeSelectCondition(gconstpointer data)
 	}
 }
 
+void test_getFromSectionWithAllHostGroup(void)
+{
+	HostResourceQueryOption option(TEST_PRIMARY_TABLE_NAME);
+	cppcut_assert_equal(string(TEST_PRIMARY_TABLE_NAME),
+	                    option.getFromSection());
+}
+
 } // namespace testHostResourceQueryOption

@@ -376,8 +376,7 @@ string HostResourceQueryOption::makeCondition(
 
 string HostResourceQueryOption::getFromSectionForOneTable(void)
 {
-	MLPL_BUG("Not implemented yet: %s\n", __PRETTY_FUNCTION__);
-	return "";
+	return m_ctx->primaryTableName;
 }
 
 string HostResourceQueryOption::getFromSectionWithHostgroup(void)
