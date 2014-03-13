@@ -102,8 +102,8 @@ public:
 
 	size_t getNumberOfTriggers(const TriggersQueryOption &option,
 	                           TriggerSeverityType severity);
-	size_t getNumberOfGoodHosts(const HostsQueryOption &option);
-	size_t getNumberOfBadHosts(const HostsQueryOption &option);
+	size_t getNumberOfGoodHosts(const TriggersQueryOption &option);
+	size_t getNumberOfBadHosts(const TriggersQueryOption &option);
 
 	// User
 	void getUserList(UserInfoList &userList,

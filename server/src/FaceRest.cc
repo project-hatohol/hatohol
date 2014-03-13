@@ -1145,7 +1145,7 @@ static void addOverviewEachServer(FaceRest::RestJob *job,
 	hostgrpItr = hostgroupInfoList.begin();
 	for (; hostgrpItr != hostgroupInfoList.end(); ++ hostgrpItr) {
 		const HostgroupIdType hostGroupId = hostgrpItr->groupId;
-		HostsQueryOption option(job->dataQueryContextPtr);
+		TriggersQueryOption option(job->dataQueryContextPtr);
 		option.setTargetServerId(svInfo.id);
 		//FIXME: If the following line is uncommented,
 		//       an exception happens.

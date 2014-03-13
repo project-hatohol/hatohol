@@ -1756,14 +1756,16 @@ size_t DBClientHatohol::getNumberOfTriggers(const TriggersQueryOption &option,
 	return itemGroupStream.read<int>();
 }
 
-size_t DBClientHatohol::getNumberOfHosts(const HostsQueryOption &option)
+size_t DBClientHatohol::getNumberOfHosts(const TriggersQueryOption &option)
 {
-	// TODO: use hostGroupId after Hatohol supports it. 
 	DBAgent::SelectExArg arg(tableProfileTriggers);
 	string stmt =
 	  StringUtils::sprintf("count(distinct %s)",
-	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName);
+	    option.getColumnName(IDX_TRIGGERS_HOST_ID).c_str());
 	arg.add(stmt, SQL_COLUMN_TYPE_INT);
+
+	// from
+	arg.tableField = option.getFromSection();
 
 	// condition
 	arg.condition = option.getCondition();
@@ -1777,7 +1779,7 @@ size_t DBClientHatohol::getNumberOfHosts(const HostsQueryOption &option)
 	return itemGroupStream.read<int>();
 }
 
-size_t DBClientHatohol::getNumberOfGoodHosts(const HostsQueryOption &option)
+size_t DBClientHatohol::getNumberOfGoodHosts(const TriggersQueryOption &option)
 {
 	size_t numTotalHost = getNumberOfHosts(option);
 	size_t numBadHosts = getNumberOfBadHosts(option);
@@ -1787,14 +1789,16 @@ size_t DBClientHatohol::getNumberOfGoodHosts(const HostsQueryOption &option)
 	return numTotalHost - numBadHosts;
 }
 
-size_t DBClientHatohol::getNumberOfBadHosts(const HostsQueryOption &option)
+size_t DBClientHatohol::getNumberOfBadHosts(const TriggersQueryOption &option)
 {
-	// TODO: use hostGroupId after Hatohol supports it. 
 	DBAgent::SelectExArg arg(tableProfileTriggers);
 	string stmt =
 	  StringUtils::sprintf("count(distinct %s)",
-	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName);
+	    option.getColumnName(IDX_TRIGGERS_HOST_ID).c_str());
 	arg.add(stmt, SQL_COLUMN_TYPE_INT);
+
+	// from
+	arg.tableField = option.getFromSection();
 
 	// condition
 	arg.condition = option.getCondition();
@@ -1803,7 +1807,7 @@ size_t DBClientHatohol::getNumberOfBadHosts(const HostsQueryOption &option)
 
 	arg.condition +=
 	  StringUtils::sprintf("%s=%d",
-	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_STATUS].columnName,
+	    option.getColumnName(IDX_TRIGGERS_STATUS).c_str(),
 	    TRIGGER_STATUS_PROBLEM);
 
 	DBCLIENT_TRANSACTION_BEGIN() {

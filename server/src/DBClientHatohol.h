@@ -353,9 +353,9 @@ public:
 	 */
 	size_t getNumberOfTriggers(const TriggersQueryOption &option,
 	                           TriggerSeverityType severity);
-	size_t getNumberOfHosts(const HostsQueryOption &option);
-	size_t getNumberOfGoodHosts(const HostsQueryOption &option);
-	size_t getNumberOfBadHosts(const HostsQueryOption &option);
+	size_t getNumberOfHosts(const TriggersQueryOption &option);
+	size_t getNumberOfGoodHosts(const TriggersQueryOption &option);
+	size_t getNumberOfBadHosts(const TriggersQueryOption &option);
 
 	void pickupAbsentHostIds(std::vector<uint64_t> &absentHostIdVector,
 	                         const std::vector<uint64_t> &hostIdVector);

@@ -360,7 +360,7 @@ static void _assertGetNumberOfHostsWithUserAndStatus(UserIdType userId, bool sta
 	int expected = getNumberOfTestHostsWithStatus(serverId, hostGroupId,
 	                                              status, userId);
 	int actual;
-	HostsQueryOption option(userId);
+	TriggersQueryOption option(userId);
 	option.setTargetServerId(serverId);
 	//TODO: hostGroupId isn't supported yet
 	//option.setTargetHostGroupId(hostGroupId);
