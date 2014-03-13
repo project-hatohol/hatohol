@@ -692,6 +692,13 @@ void initEventInfo(EventInfo &eventInfo)
 //
 // EventQueryOption
 //
+static const HostResourceQueryOption::Bind bindEventsQueryOption(
+  tableProfileEvents,
+  IDX_EVENTS_UNIFIED_ID, IDX_EVENTS_SERVER_ID, IDX_EVENTS_HOST_ID,
+  tableProfileMapHostsHostgroups,
+  IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
+  IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
+
 struct EventsQueryOption::PrivateContext {
 	uint64_t limitOfUnifiedId;
 	SortType sortType;
@@ -710,7 +717,7 @@ struct EventsQueryOption::PrivateContext {
 };
 
 EventsQueryOption::EventsQueryOption(const UserIdType &userId)
-: HostResourceQueryOption(DBClientHatohol::TABLE_NAME_EVENTS, userId)
+: HostResourceQueryOption(bindEventsQueryOption, userId)
 {
 	m_ctx = new PrivateContext();
 	setServerIdColumnName(
@@ -720,7 +727,7 @@ EventsQueryOption::EventsQueryOption(const UserIdType &userId)
 }
 
 EventsQueryOption::EventsQueryOption(DataQueryContext *dataQueryContext)
-: HostResourceQueryOption(DBClientHatohol::TABLE_NAME_EVENTS, dataQueryContext)
+: HostResourceQueryOption(bindEventsQueryOption, dataQueryContext)
 {
 	m_ctx = new PrivateContext();
 	setServerIdColumnName(
@@ -866,6 +873,13 @@ TriggerStatusType EventsQueryOption::getTriggerStatus(void) const
 //
 // TriggersQueryOption
 //
+static const HostResourceQueryOption::Bind bindTriggersQueryOption(
+  tableProfileTriggers,
+  IDX_TRIGGERS_ID, IDX_TRIGGERS_SERVER_ID, IDX_TRIGGERS_HOST_ID,
+  tableProfileMapHostsHostgroups,
+  IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
+  IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
+
 struct TriggersQueryOption::PrivateContext {
 	TriggerIdType targetId;
 	TriggerSeverityType minSeverity;
@@ -880,7 +894,7 @@ struct TriggersQueryOption::PrivateContext {
 };
 
 TriggersQueryOption::TriggersQueryOption(UserIdType userId)
-: HostResourceQueryOption(DBClientHatohol::TABLE_NAME_TRIGGERS, userId)
+: HostResourceQueryOption(bindTriggersQueryOption, userId)
 {
 	m_ctx = new PrivateContext();
 	setServerIdColumnName(
@@ -890,8 +904,7 @@ TriggersQueryOption::TriggersQueryOption(UserIdType userId)
 }
 
 TriggersQueryOption::TriggersQueryOption(DataQueryContext *dataQueryContext)
-: HostResourceQueryOption(DBClientHatohol::TABLE_NAME_TRIGGERS,
-                          dataQueryContext)
+: HostResourceQueryOption(bindTriggersQueryOption, dataQueryContext)
 {
 	m_ctx = new PrivateContext();
 	setServerIdColumnName(
@@ -985,6 +998,12 @@ TriggerStatusType TriggersQueryOption::getTriggerStatus(void) const
 //
 // ItemsQueryOption
 //
+static const HostResourceQueryOption::Bind bindItemsQueryOption(
+  tableProfileItems, IDX_ITEMS_ID, IDX_ITEMS_SERVER_ID, IDX_ITEMS_HOST_ID,
+  tableProfileMapHostsHostgroups,
+  IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
+  IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
+
 struct ItemsQueryOption::PrivateContext {
 	ItemIdType targetId;
 	string itemGroupName;
@@ -996,7 +1015,7 @@ struct ItemsQueryOption::PrivateContext {
 };
 
 ItemsQueryOption::ItemsQueryOption(UserIdType userId)
-: HostResourceQueryOption(DBClientHatohol::TABLE_NAME_ITEMS, userId)
+: HostResourceQueryOption(bindItemsQueryOption, userId)
 {
 	m_ctx = new PrivateContext();
 	setServerIdColumnName(
@@ -1006,7 +1025,7 @@ ItemsQueryOption::ItemsQueryOption(UserIdType userId)
 }
 
 ItemsQueryOption::ItemsQueryOption(DataQueryContext *dataQueryContext)
-: HostResourceQueryOption(DBClientHatohol::TABLE_NAME_ITEMS, dataQueryContext)
+: HostResourceQueryOption(bindItemsQueryOption, dataQueryContext)
 {
 	m_ctx = new PrivateContext();
 	setServerIdColumnName(
@@ -1082,8 +1101,14 @@ const string &ItemsQueryOption::getTargetItemGroupName(void)
 //
 // HostsQueryOption
 //
+static const HostResourceQueryOption::Bind bindHostsQueryOption(
+  tableProfileHosts, IDX_HOSTS_ID, IDX_HOSTS_SERVER_ID, IDX_HOSTS_ID,
+  tableProfileMapHostsHostgroups,
+  IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
+  IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
+
 HostsQueryOption::HostsQueryOption(UserIdType userId)
-: HostResourceQueryOption(DBClientHatohol::TABLE_NAME_HOSTS, userId)
+: HostResourceQueryOption(bindHostsQueryOption, userId)
 {
 	setServerIdColumnName(
 	  COLUMN_DEF_HOSTS[IDX_HOSTS_SERVER_ID].columnName);
@@ -1092,7 +1117,7 @@ HostsQueryOption::HostsQueryOption(UserIdType userId)
 }
 
 HostsQueryOption::HostsQueryOption(DataQueryContext *dataQueryContext)
-: HostResourceQueryOption(DBClientHatohol::TABLE_NAME_HOSTS, dataQueryContext)
+: HostResourceQueryOption(bindHostsQueryOption, dataQueryContext)
 {
 	setServerIdColumnName(
 	  COLUMN_DEF_HOSTS[IDX_HOSTS_SERVER_ID].columnName);
@@ -1103,8 +1128,15 @@ HostsQueryOption::HostsQueryOption(DataQueryContext *dataQueryContext)
 //
 // HostgroupsQueryOption
 //
+static const HostResourceQueryOption::Bind bindHostgroupsQueryOption(
+  tableProfileHostgroups,
+  IDX_HOSTGROUPS_GROUP_ID, IDX_HOSTGROUPS_SERVER_ID, INVALID_COLUMN_IDX,
+  tableProfileMapHostsHostgroups,
+  IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
+  IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
+
 HostgroupsQueryOption::HostgroupsQueryOption(UserIdType userId)
-: HostResourceQueryOption(DBClientHatohol::TABLE_NAME_HOSTGROUPS, userId)
+: HostResourceQueryOption(bindHostgroupsQueryOption, userId)
 {
 	setServerIdColumnName(
 	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_SERVER_ID].columnName);
@@ -1113,8 +1145,7 @@ HostgroupsQueryOption::HostgroupsQueryOption(UserIdType userId)
 }
 
 HostgroupsQueryOption::HostgroupsQueryOption(DataQueryContext *dataQueryContext)
-: HostResourceQueryOption(DBClientHatohol::TABLE_NAME_HOSTGROUPS,
-                          dataQueryContext)
+: HostResourceQueryOption(bindHostgroupsQueryOption, dataQueryContext)
 {
 	setServerIdColumnName(
 	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_SERVER_ID].columnName);
@@ -1125,9 +1156,16 @@ HostgroupsQueryOption::HostgroupsQueryOption(DataQueryContext *dataQueryContext)
 //
 // HostgroupElementQueryOption
 //
+static const HostResourceQueryOption::Bind bindHostgroupElementQueryOption(
+  tableProfileMapHostsHostgroups,
+  IDX_MAP_HOSTS_HOSTGROUPS_ID, IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID,
+  IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
+  tableProfileMapHostsHostgroups,
+  IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
+  IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
+
 HostgroupElementQueryOption::HostgroupElementQueryOption(UserIdType userId)
-: HostResourceQueryOption(DBClientHatohol::TABLE_NAME_MAP_HOSTS_HOSTGROUPS,
-                          userId)
+: HostResourceQueryOption(bindHostgroupElementQueryOption, userId)
 {
 	setServerIdColumnName(
 	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID].columnName);
@@ -1137,8 +1175,7 @@ HostgroupElementQueryOption::HostgroupElementQueryOption(UserIdType userId)
 
 HostgroupElementQueryOption::HostgroupElementQueryOption(
   DataQueryContext *dataQueryContext)
-: HostResourceQueryOption(DBClientHatohol::TABLE_NAME_MAP_HOSTS_HOSTGROUPS,
-                          dataQueryContext)
+: HostResourceQueryOption(bindHostgroupElementQueryOption, dataQueryContext)
 {
 	setServerIdColumnName(
 	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID].columnName);

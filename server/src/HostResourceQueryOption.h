@@ -22,13 +22,35 @@
 
 #include <string>
 #include "Params.h"
+#include "DBAgent.h"
 #include "DataQueryOption.h"
 
 class HostResourceQueryOption : public DataQueryOption {
 public:
-	HostResourceQueryOption(const char *primaryTableName,
+	struct Bind {
+		const DBAgent::TableProfile &tableProfile;
+		const size_t                 selfIdColumnIdx;
+		const size_t                 serverIdColumnIdx;
+		const size_t                 hostIdColumnIdx;
+
+		const DBAgent::TableProfile &hostgroupMapTableProfile;
+		const size_t                 hostgroupMapServerIdColumnIdx;
+		const size_t                 hostgroupMapHostIdColumnIdx;
+		const size_t                 hostgroupMapGroupIdColumnIdx;
+		
+		Bind(const DBAgent::TableProfile &tableProfile,
+		     const size_t &selfIdColumnIdx,
+		     const size_t &serverIdColumnIdx,
+		     const size_t &hostIdColumnIdx,
+		     const DBAgent::TableProfile &hostgroupMapTableProfile,
+		     const size_t &hostgroupMapServerIdColumnIdx,
+		     const size_t &hostgroupMapHostIdColumnIdx,
+		     const size_t &hostgroupMapGroupIdColumnIdx);
+	};
+
+	HostResourceQueryOption(const Bind &bind,
 	                        const UserIdType &userId = INVALID_USER_ID);
-	HostResourceQueryOption(const char *primaryTableName,
+	HostResourceQueryOption(const Bind &bind,
 	                        DataQueryContext *dataQueryContext);
 	HostResourceQueryOption(const HostResourceQueryOption &src);
 	virtual ~HostResourceQueryOption();

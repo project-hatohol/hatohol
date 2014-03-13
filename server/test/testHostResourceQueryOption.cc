@@ -33,6 +33,126 @@ using namespace mlpl;
 namespace testHostResourceQueryOption {
 
 static const char *TEST_PRIMARY_TABLE_NAME = "test_table_name";
+static const ColumnDef COLUMN_DEF_TEST[] = {
+{
+	ITEM_ID_NOT_SET,                   // itemId
+	TEST_PRIMARY_TABLE_NAME,           // tableName
+	"id",                              // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+},{
+	ITEM_ID_NOT_SET,                   // itemId
+	TEST_PRIMARY_TABLE_NAME,           // tableName
+	"server_id",                       // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+},{
+	ITEM_ID_NOT_SET,                   // itemId
+	TEST_PRIMARY_TABLE_NAME,           // tableName
+	"host_id",                         // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}
+};
+
+enum {
+	IDX_TEST_TABLE_ID,
+	IDX_TEST_TABLE_SERVER_ID,
+	IDX_TEST_TABLE_HOST_ID,
+	NUM_IDX_TEST_TABLE,
+};
+
+const size_t NUM_COLUMNS_TEST = sizeof(COLUMN_DEF_TEST) / sizeof(ColumnDef);
+const DBAgent::TableProfile tableProfileTest(
+  TEST_PRIMARY_TABLE_NAME, COLUMN_DEF_TEST,
+  sizeof(COLUMN_DEF_TEST), NUM_IDX_TEST_TABLE
+);
+
+static const char *TEST_HGRP_TABLE_NAME = "test_hgrp_table_name";
+static const ColumnDef COLUMN_DEF_TEST_HGRP[] = {
+{
+	ITEM_ID_NOT_SET,                   // itemId
+	TEST_HGRP_TABLE_NAME,              // tableName
+	"id",                              // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+},{
+	ITEM_ID_NOT_SET,                   // itemId
+	TEST_HGRP_TABLE_NAME,              // tableName
+	"server_id",                       // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+},{
+	ITEM_ID_NOT_SET,                   // itemId
+	TEST_HGRP_TABLE_NAME,              // tableName
+	"host_id",                         // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+},{
+	ITEM_ID_NOT_SET,                   // itemId
+	TEST_HGRP_TABLE_NAME,              // tableName
+	"host_group_id",                   // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}
+};
+
+enum {
+	IDX_TEST_HGRP_TABLE_ID,
+	IDX_TEST_HGRP_TABLE_SERVER_ID,
+	IDX_TEST_HGRP_TABLE_HOST_ID,
+	IDX_TEST_HGRP_TABLE_HOST_GROUP_ID,
+	NUM_IDX_TEST_HGRP_TABLE,
+};
+
+const size_t NUM_COLUMNS_HGRP_TEST =
+  sizeof(COLUMN_DEF_TEST_HGRP) / sizeof(ColumnDef);
+const DBAgent::TableProfile tableProfileTestHGrp(
+  TEST_HGRP_TABLE_NAME, COLUMN_DEF_TEST_HGRP,
+  sizeof(COLUMN_DEF_TEST_HGRP), NUM_IDX_TEST_HGRP_TABLE
+);
+
+static const HostResourceQueryOption::Bind TEST_BIND(
+  tableProfileTest,
+  IDX_TEST_TABLE_ID, IDX_TEST_TABLE_SERVER_ID, IDX_TEST_TABLE_HOST_ID,
+  tableProfileTestHGrp,
+  IDX_TEST_HGRP_TABLE_SERVER_ID, IDX_TEST_HGRP_TABLE_HOST_ID,
+  IDX_TEST_HGRP_TABLE_HOST_GROUP_ID);
 
 // TODO: I want to remove these, which are too denpendent on the implementation
 // NOTE: The same definitions are in testDBClientHatohol.cc
@@ -105,7 +225,7 @@ void test_constructorDataQueryContext(void)
 	  DataQueryContextPtr(new DataQueryContext(userId), false);
 	cppcut_assert_equal(1, dqCtxPtr->getUsedCount());
 	{
-		HostResourceQueryOption opt(TEST_PRIMARY_TABLE_NAME, dqCtxPtr);
+		HostResourceQueryOption opt(TEST_BIND, dqCtxPtr);
 		cppcut_assert_equal((DataQueryContext *)dqCtxPtr,
 		                    &opt.getDataQueryContext());
 		cppcut_assert_equal(2, dqCtxPtr->getUsedCount());
@@ -115,7 +235,7 @@ void test_constructorDataQueryContext(void)
 
 void test_copyConstructor(void)
 {
-	HostResourceQueryOption opt0(TEST_PRIMARY_TABLE_NAME);
+	HostResourceQueryOption opt0(TEST_BIND);
 	cppcut_assert_equal(1, opt0.getDataQueryContext().getUsedCount());
 	{
 		HostResourceQueryOption opt1(opt0);
@@ -129,7 +249,7 @@ void test_copyConstructor(void)
 
 void test_getPrimaryTableName(void)
 {
-	HostResourceQueryOption option(TEST_PRIMARY_TABLE_NAME);
+	HostResourceQueryOption option(TEST_BIND);
 	cppcut_assert_equal(TEST_PRIMARY_TABLE_NAME,
 	                    option.getPrimaryTableName());
 }
@@ -180,7 +300,7 @@ void test_makeConditionServerWithEmptyIdSet(void)
 
 void test_defaultValueOfFilterForDataOfDefunctServers(void)
 {
-	HostResourceQueryOption opt(TEST_PRIMARY_TABLE_NAME);
+	HostResourceQueryOption opt(TEST_BIND);
 	cppcut_assert_equal(true, opt.getFilterForDataOfDefunctServers());
 }
 
@@ -194,7 +314,7 @@ void data_setGetOfFilterForDataOfDefunctServers(void)
 
 void test_setGetOfFilterForDataOfDefunctServers(gconstpointer data)
 {
-	HostResourceQueryOption opt(TEST_PRIMARY_TABLE_NAME);
+	HostResourceQueryOption opt(TEST_BIND);
 	bool enable = gcut_data_get_boolean(data, "enable");
 	opt.setFilterForDataOfDefunctServers(enable);
 	cppcut_assert_equal(enable, opt.getFilterForDataOfDefunctServers());
@@ -322,7 +442,7 @@ void test_conditionForAdminWithTargetServerAndHost(gconstpointer data)
 	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
 	if (filterForDataOfDefunctSv)
 		cut_pend("To be implemented");
-	HostResourceQueryOption option(TEST_PRIMARY_TABLE_NAME, USER_ID_SYSTEM);
+	HostResourceQueryOption option(TEST_BIND, USER_ID_SYSTEM);
 	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	option.setTargetServerId(26);
 	option.setTargetHostId(32);
@@ -368,7 +488,7 @@ void data_makeSelectConditionUserAdmin(void)
 void test_makeSelectConditionUserAdmin(gconstpointer data)
 {
 	setupTestDBConfig(true, true);
-	HostResourceQueryOption option(TEST_PRIMARY_TABLE_NAME, USER_ID_SYSTEM);
+	HostResourceQueryOption option(TEST_BIND, USER_ID_SYSTEM);
 	string expect = "";
 	fixupForFilteringDefunctServer(data, expect, option);
 	string actual = option.getCondition();
@@ -383,7 +503,7 @@ void data_makeSelectConditionAllEvents(void)
 void test_makeSelectConditionAllEvents(gconstpointer data)
 {
 	setupTestDBConfig(true, true);
-	HostResourceQueryOption option(TEST_PRIMARY_TABLE_NAME);
+	HostResourceQueryOption option(TEST_BIND);
 	option.setFlags(OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_SERVER));
 	string expect = "";
 	fixupForFilteringDefunctServer(data, expect, option);
@@ -395,7 +515,7 @@ void test_makeSelectConditionNoneUser(void)
 {
 	setupTestDBConfig(true, true);
 	setupTestDBUser(true, true);
-	HostResourceQueryOption option(TEST_PRIMARY_TABLE_NAME);
+	HostResourceQueryOption option(TEST_BIND);
 	string actual = option.getCondition();
 	string expect = DBClientHatohol::getAlwaysFalseCondition();
 	cppcut_assert_equal(actual, expect);
@@ -412,7 +532,7 @@ void test_makeSelectCondition(gconstpointer data)
 	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
 	setupTestDBConfig(true, true);
 	setupTestDBUser(true, true);
-	HostResourceQueryOption option(TEST_PRIMARY_TABLE_NAME);
+	HostResourceQueryOption option(TEST_BIND);
 	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	for (size_t i = 0; i < NumTestUserInfo; i++) {
 		UserIdType userId = i + 1;
@@ -428,7 +548,7 @@ void test_makeSelectCondition(gconstpointer data)
 
 void test_getFromSectionWithAllHostGroup(void)
 {
-	HostResourceQueryOption option(TEST_PRIMARY_TABLE_NAME);
+	HostResourceQueryOption option(TEST_BIND);
 	cppcut_assert_equal(string(TEST_PRIMARY_TABLE_NAME),
 	                    option.getFromSection());
 }

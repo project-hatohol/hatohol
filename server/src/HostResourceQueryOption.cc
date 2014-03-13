@@ -24,10 +24,33 @@ using namespace std;
 using namespace mlpl;
 
 // ---------------------------------------------------------------------------
+// Bind
+// ---------------------------------------------------------------------------
+HostResourceQueryOption::Bind::Bind(
+  const DBAgent::TableProfile &_tableProfile,
+  const size_t &_selfIdColumnIdx,
+  const size_t &_serverIdColumnIdx,
+  const size_t &_hostIdColumnIdx,
+  const DBAgent::TableProfile &_hostgroupMapTableProfile,
+  const size_t &_hostgroupMapServerIdColumnIdx,
+  const size_t &_hostgroupMapHostIdColumnIdx,
+  const size_t &_hostgroupMapGroupIdColumnIdx)
+: tableProfile(_tableProfile),
+  selfIdColumnIdx(_selfIdColumnIdx),
+  serverIdColumnIdx(_serverIdColumnIdx),
+  hostIdColumnIdx(_hostIdColumnIdx),
+  hostgroupMapTableProfile(_hostgroupMapTableProfile),
+  hostgroupMapServerIdColumnIdx(_hostgroupMapServerIdColumnIdx),
+  hostgroupMapHostIdColumnIdx(_hostgroupMapHostIdColumnIdx),
+  hostgroupMapGroupIdColumnIdx(_hostgroupMapGroupIdColumnIdx)
+{
+}
+
+// ---------------------------------------------------------------------------
 // PrivateContext
 // ---------------------------------------------------------------------------
 struct HostResourceQueryOption::PrivateContext {
-	const char     *primaryTableName;
+	const Bind     &bind;
 	string          serverIdColumnName;
 	string          hostGroupIdColumnName;
 	string          hostIdColumnName;
@@ -36,8 +59,8 @@ struct HostResourceQueryOption::PrivateContext {
 	HostgroupIdType targetHostgroupId;
 	bool            filterDataOfDefunctServers;
 
-	PrivateContext(const char *_primaryTableName)
-	: primaryTableName(_primaryTableName),
+	PrivateContext(const Bind &_bind)
+	: bind(_bind),
 	  serverIdColumnName("server_id"),
 	  hostGroupIdColumnName("host_group_id"),
 	  hostIdColumnName("host_id"),
@@ -50,7 +73,6 @@ struct HostResourceQueryOption::PrivateContext {
 
 	PrivateContext &operator=(const PrivateContext &rhs)
 	{
-		primaryTableName           = rhs.primaryTableName;
 		serverIdColumnName         = rhs.serverIdColumnName;
 		hostGroupIdColumnName      = rhs.hostGroupIdColumnName;
 		hostIdColumnName           = rhs.hostIdColumnName;
@@ -66,24 +88,24 @@ struct HostResourceQueryOption::PrivateContext {
 // Public methods
 // ---------------------------------------------------------------------------
 HostResourceQueryOption::HostResourceQueryOption(
-  const char *primaryTableName, const UserIdType &userId)
+  const Bind &bind, const UserIdType &userId)
 : DataQueryOption(userId)
 {
-	m_ctx = new PrivateContext(primaryTableName);
+	m_ctx = new PrivateContext(bind);
 }
 
 HostResourceQueryOption::HostResourceQueryOption(
-  const char *primaryTableName, DataQueryContext *dataQueryContext)
+  const Bind &bind, DataQueryContext *dataQueryContext)
 : DataQueryOption(dataQueryContext)
 {
-	m_ctx = new PrivateContext(primaryTableName);
+	m_ctx = new PrivateContext(bind);
 }
 
 HostResourceQueryOption::HostResourceQueryOption(
   const HostResourceQueryOption &src)
 : DataQueryOption(src)
 {
-	m_ctx = new PrivateContext(src.m_ctx->primaryTableName);
+	m_ctx = new PrivateContext(src.m_ctx->bind);
 	*m_ctx = *src.m_ctx;
 }
 
@@ -95,7 +117,7 @@ HostResourceQueryOption::~HostResourceQueryOption()
 
 const char *HostResourceQueryOption::getPrimaryTableName(void) const
 {
-	return m_ctx->primaryTableName;
+	return m_ctx->bind.tableProfile.name;
 }
 
 string HostResourceQueryOption::getCondition(const string &tableAlias) const
@@ -389,7 +411,7 @@ string HostResourceQueryOption::makeCondition(
 
 string HostResourceQueryOption::getFromSectionForOneTable(void)
 {
-	return m_ctx->primaryTableName;
+	return getPrimaryTableName();
 }
 
 string HostResourceQueryOption::getFromSectionWithHostgroup(void)
