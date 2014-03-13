@@ -900,6 +900,7 @@ TriggersQueryOption::TriggersQueryOption(DataQueryContext *dataQueryContext)
 }
 
 TriggersQueryOption::TriggersQueryOption(const TriggersQueryOption &src)
+: HostResourceQueryOption(src)
 {
 	m_ctx = new PrivateContext();
 	*m_ctx = *src.m_ctx;

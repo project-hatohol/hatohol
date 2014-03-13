@@ -134,6 +134,11 @@ void test_triggersQueryOptionFromDataQueryContext(gconstpointer data)
 	assertQueryOptionFromDataQueryContext(TriggersQueryOption, data);
 }
 
+void test_triggersQueryOptionCopyConstructor(void)
+{
+	assertQueryOptionCopyConstructor(TriggersQueryOption);
+}
+
 void data_triggersQueryOptionWithTargetId(void)
 {
 	prepareTestDataForFilterForDataOfDefunctServers();
