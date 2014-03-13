@@ -588,4 +588,15 @@ void test_getColumnName(void)
 	                           option.getColumnName(idx));
 }
 
+void test_getColumnNameFull(void)
+{
+	const size_t idx = IDX_TEST_TABLE_HOST_ID;
+	HostResourceQueryOption option(TEST_BIND);
+	option.setTargetHostgroupId(5);
+	string expect = TEST_PRIMARY_TABLE_NAME;
+	expect += ".";
+	expect += COLUMN_DEF_TEST[idx].columnName;
+	cppcut_assert_equal(expect, option.getColumnName(idx));
+}
+
 } // namespace testHostResourceQueryOption
