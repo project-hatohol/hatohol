@@ -443,12 +443,12 @@ msgstr "データがありません。"
 #: static/js/hatohol_hostgroup_privilege_edit_dialog.js:169
 #: static/js/hatohol_privilege_edit_dialog.js:183
 msgid "All check"
-msgstr ""
+msgstr "全てチェック"
 
 #: static/js/hatohol_hostgroup_privilege_edit_dialog.js:171
 #: static/js/hatohol_privilege_edit_dialog.js:185
 msgid "All uncheck"
-msgstr ""
+msgstr "全てのチェックを外す"
 
 #: static/js/hatohol_hostgroup_privilege_edit_dialog.js:176
 msgid "Allow"
@@ -654,7 +654,7 @@ msgstr "全許可"
 
 #: static/js/hatohol_privilege_edit_dialog.js:191
 msgid "Allowed Hostgroups"
-msgstr "許可されたホストグループ"
+msgstr "許可されたホストグループ数"
 
 #: static/js/hatohol_privilege_edit_dialog.js:195
 #: static/js/hatohol_server_selector.js:47
