@@ -1015,6 +1015,7 @@ ItemsQueryOption::ItemsQueryOption(DataQueryContext *dataQueryContext)
 }
 
 ItemsQueryOption::ItemsQueryOption(const ItemsQueryOption &src)
+: HostResourceQueryOption(src)
 {
 	m_ctx = new PrivateContext();
 	*m_ctx = *src.m_ctx;
