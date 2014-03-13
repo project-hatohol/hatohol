@@ -57,6 +57,27 @@ static void initParamCheckerHGrp(
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
+void _assertPrimaryTableName(const HostResourceQueryOption &option)
+{
+	const type_info &typeinfo = typeid(option);
+	string expectedTableName;
+	if (typeinfo == typeid(EventsQueryOption))
+		expectedTableName = DBClientHatohol::TABLE_NAME_EVENTS;
+	else if (typeinfo == typeid(TriggersQueryOption))
+		expectedTableName = DBClientHatohol::TABLE_NAME_TRIGGERS;
+	else if (typeinfo == typeid(ItemsQueryOption))
+		expectedTableName = DBClientHatohol::TABLE_NAME_ITEMS;
+	else if (typeinfo == typeid(HostsQueryOption))
+		expectedTableName = DBClientHatohol::TABLE_NAME_HOSTS;
+	else if (typeinfo == typeid(HostgroupsQueryOption))
+		expectedTableName = DBClientHatohol::TABLE_NAME_HOSTGROUPS;
+	else if (typeinfo == typeid(HostgroupElementQueryOption))
+		expectedTableName = DBClientHatohol::TABLE_NAME_MAP_HOSTS_HOSTGROUPS;
+	else
+		cut_fail("Unknown type name: %s\n", typeinfo.name());
+}
+#define assertPrimaryTableName(TI) cut_trace(_assertPrimaryTableName(TI))
+
 //
 // For the constructor with a User ID.
 //
@@ -66,6 +87,7 @@ static void _basicQueryOptionConstructorWithUserId(
   void (*checkFunc)(gconstpointer, HostResourceQueryOption &))
 {
 	T option(USER_ID_SYSTEM);
+	assertPrimaryTableName(option);
 	cppcut_assert_equal(1, option.getDataQueryContext().getUsedCount());
 	(*checkFunc)(data, option);
 }
@@ -102,6 +124,7 @@ static void _basicQueryOptionFromDataQueryContext(
 	cppcut_assert_equal(1, dqCtxPtr->getUsedCount());
 	{
 		T option(dqCtxPtr);
+		assertPrimaryTableName(option);
 		cppcut_assert_equal((DataQueryContext *)dqCtxPtr,
 		                    &option.getDataQueryContext());
 		cppcut_assert_equal(2, dqCtxPtr->getUsedCount());
@@ -139,6 +162,7 @@ static void _assertQueryOptionCopyConstructor(gconstpointer data)
 	cppcut_assert_equal(1, srcOpt.getDataQueryContext().getUsedCount());
 	{
 		T option(srcOpt);
+		assertPrimaryTableName(option);
 		cppcut_assert_equal(srcDqCtx, &option.getDataQueryContext());
 		cppcut_assert_equal(2, srcDqCtx->getUsedCount());
 		initParamChecker(data, option);
