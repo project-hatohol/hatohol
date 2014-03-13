@@ -1174,12 +1174,12 @@ static void addNumberOfAllowedHostgroups(UnifiedDataStore *dataStore,
 	if (serverIt != serversMap.end()) {
 		HostGrpAccessInfoMap *hostgroupsMap = serverIt->second;
 		numberOfAllowedHostgroups = hostgroupsMap->size();
-		if (numberOfAllowedHostgroups == 1) {
-			HostGrpAccessInfoMapIterator hostgroupIt
-			  = hostgroupsMap->begin();
+		HostGrpAccessInfoMapIterator hostgroupIt
+		  = hostgroupsMap->begin();
+		for (; hostgroupIt != hostgroupsMap->end(); ++hostgroupIt) {
 			HostgroupIdType hostgroupId = hostgroupIt->first;
 			if (hostgroupId == ALL_HOST_GROUPS)
-				numberOfAllowedHostgroups = numberOfHostgroups;
+				numberOfAllowedHostgroups--;
 		}
 	}
 
