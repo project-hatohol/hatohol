@@ -6,9 +6,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-10 05:26-0500\n"
-"PO-Revision-Date: 2014-02-18 14:29+0900\n"
-"Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
+"POT-Creation-Date: 2014-03-13 18:54+0900\n"
+"PO-Revision-Date: 2014-03-13 18:54+0900\n"
+"Last-Translator: Noriki Nakamura <noriki.nakamura@miraclelinux.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
@@ -64,12 +64,12 @@ msgstr "１秒あたりの監視項目数"
 
 #: static/js/events_view.js:29 static/js/hatohol_add_action_dialog.js:348
 #: static/js/servers_view.js:312 static/js/triggers_view.js:40
-#: static/js/utils.js:57
+#: static/js/utils.js:59
 msgid "OK"
 msgstr "正常"
 
 #: static/js/events_view.js:29 static/js/hatohol_add_action_dialog.js:349
-#: static/js/triggers_view.js:41 static/js/utils.js:59
+#: static/js/triggers_view.js:41 static/js/utils.js:61
 msgid "Problem"
 msgstr "障害"
 
@@ -79,39 +79,40 @@ msgid "Unknown"
 msgstr "不明"
 
 #: static/js/events_view.js:31 static/js/triggers_view.js:45
-#: static/js/utils.js:68
+#: static/js/utils.js:70
 msgid "Not classified"
 msgstr "未分類"
 
 #: static/js/events_view.js:31 static/js/hatohol_add_action_dialog.js:355
 #: static/js/hatohol_message_box.js:175 static/js/triggers_view.js:46
-#: static/js/utils.js:70
+#: static/js/utils.js:72
 msgid "Information"
 msgstr "情報"
 
 #: static/js/events_view.js:31 static/js/hatohol_add_action_dialog.js:356
 #: static/js/hatohol_message_box.js:182 static/js/triggers_view.js:47
-#: static/js/utils.js:72
+#: static/js/utils.js:74
 msgid "Warning"
 msgstr "警告"
 
 #: static/js/events_view.js:32 static/js/hatohol_add_action_dialog.js:357
-#: static/js/triggers_view.js:48 static/js/utils.js:74
+#: static/js/triggers_view.js:48 static/js/utils.js:76
 msgid "Average"
 msgstr "軽度の障害"
 
 #: static/js/events_view.js:32 static/js/hatohol_add_action_dialog.js:358
-#: static/js/triggers_view.js:49 static/js/utils.js:76
+#: static/js/triggers_view.js:49 static/js/utils.js:78
 msgid "High"
 msgstr "重度の障害"
 
 #: static/js/events_view.js:32 static/js/hatohol_add_action_dialog.js:359
-#: static/js/triggers_view.js:50 static/js/utils.js:78
+#: static/js/triggers_view.js:50 static/js/utils.js:80
 msgid "Disaster"
 msgstr "致命的な障害"
 
 #: static/js/hatohol_actor_mail_dialog.js:26
 #: static/js/hatohol_actor_mail_dialog.js:118
+#: static/js/hatohol_hostgroup_privilege_edit_dialog.js:31
 #: static/js/hatohol_privilege_edit_dialog.js:30
 #: static/js/hatohol_server_edit_dialog.js:28
 #: static/js/hatohol_user_edit_dialog.js:28
@@ -123,6 +124,7 @@ msgstr "適用"
 
 #: static/js/hatohol_actor_mail_dialog.js:29
 #: static/js/hatohol_add_action_dialog.js:35
+#: static/js/hatohol_hostgroup_privilege_edit_dialog.js:34
 #: static/js/hatohol_password_changer.js:29
 #: static/js/hatohol_privilege_edit_dialog.js:33
 #: static/js/hatohol_selector_dialog.js:30
@@ -231,7 +233,7 @@ msgid "e-mail"
 msgstr "Eメール"
 
 #: static/js/hatohol_add_action_dialog.js:374
-#: static/js/hatohol_privilege_edit_dialog.js:153
+#: static/js/hatohol_privilege_edit_dialog.js:193
 #: static/js/hatohol_server_selector.js:45
 msgid "Type"
 msgstr "タイプ"
@@ -417,10 +419,63 @@ msgid "Server ID"
 msgstr "サーバID"
 
 #: static/js/hatohol_host_selector.js:50
-#: static/js/hatohol_privilege_edit_dialog.js:154
+#: static/js/hatohol_privilege_edit_dialog.js:194
 #: static/js/hatohol_server_selector.js:46
 msgid "Hostname"
 msgstr "ホスト名"
+
+#: static/js/hatohol_hostgroup_privilege_edit_dialog.js:41
+msgid "Edit Hostgroup privilege"
+msgstr "ホストグループの権限を編集"
+
+#: static/js/hatohol_hostgroup_privilege_edit_dialog.js:53
+#: static/js/hatohol_privilege_edit_dialog.js:52
+#: static/js/hatohol_selector_dialog.js:46
+msgid "Now getting information..."
+msgstr "情報を取得しています.."
+
+#: static/js/hatohol_hostgroup_privilege_edit_dialog.js:92
+#: static/js/hatohol_privilege_edit_dialog.js:105
+#: static/js/hatohol_selector_dialog.js:106
+msgid "No data."
+msgstr "データがありません。"
+
+#: static/js/hatohol_hostgroup_privilege_edit_dialog.js:169
+#: static/js/hatohol_privilege_edit_dialog.js:183
+msgid "All check"
+msgstr ""
+
+#: static/js/hatohol_hostgroup_privilege_edit_dialog.js:171
+#: static/js/hatohol_privilege_edit_dialog.js:185
+msgid "All uncheck"
+msgstr ""
+
+#: static/js/hatohol_hostgroup_privilege_edit_dialog.js:176
+msgid "Allow"
+msgstr "許可"
+
+#: static/js/hatohol_hostgroup_privilege_edit_dialog.js:177
+msgid "Hostgroup ID"
+msgstr "ホストグループID"
+
+#: static/js/hatohol_hostgroup_privilege_edit_dialog.js:178
+msgid "Hostgroup Name"
+msgstr "ホストグループ名"
+
+#: static/js/hatohol_hostgroup_privilege_edit_dialog.js:264
+#: static/js/hatohol_privilege_edit_dialog.js:296
+msgid "Aplpying..."
+msgstr "適用中..."
+
+#: static/js/hatohol_hostgroup_privilege_edit_dialog.js:272
+#: static/js/hatohol_privilege_edit_dialog.js:304
+msgid "Failed to apply."
+msgstr "適用に失敗しました。"
+
+#: static/js/hatohol_hostgroup_privilege_edit_dialog.js:274
+#: static/js/hatohol_privilege_edit_dialog.js:306
+msgid "Succeeded to apply."
+msgstr "適用に成功しました。"
 
 #: static/js/hatohol_login_dialog.js:23 static/js/hatohol_login_dialog.js:32
 msgid "Login"
@@ -593,42 +648,34 @@ msgstr "新しいパスワード（確認）"
 msgid "Edit privileges"
 msgstr "権限を編集"
 
-#: static/js/hatohol_privilege_edit_dialog.js:52
-#: static/js/hatohol_selector_dialog.js:46
-msgid "Now getting information..."
-msgstr "情報を取得しています.."
+#: static/js/hatohol_privilege_edit_dialog.js:190
+msgid "All Allow"
+msgstr "全許可"
 
-#: static/js/hatohol_privilege_edit_dialog.js:85
-#: static/js/hatohol_selector_dialog.js:106
-msgid "No data."
-msgstr "データがありません。"
+#: static/js/hatohol_privilege_edit_dialog.js:191
+msgid "Allowed Hostgroups"
+msgstr "許可されたホストグループ"
 
-#: static/js/hatohol_privilege_edit_dialog.js:151
-msgid "Allow"
-msgstr "許可"
-
-#: static/js/hatohol_privilege_edit_dialog.js:155
+#: static/js/hatohol_privilege_edit_dialog.js:195
 #: static/js/hatohol_server_selector.js:47
 msgid "IP Address"
 msgstr "IPアドレス"
 
-#: static/js/hatohol_privilege_edit_dialog.js:156
+#: static/js/hatohol_privilege_edit_dialog.js:196
 #: static/js/hatohol_server_edit_dialog.js:177
 #: static/js/hatohol_server_selector.js:48
 msgid "Nickname"
 msgstr "ニックネーム"
 
-#: static/js/hatohol_privilege_edit_dialog.js:249
-msgid "Aplpying..."
-msgstr "適用中..."
+#: static/js/hatohol_privilege_edit_dialog.js:197
+msgid "Hostgroup"
+msgstr "ホストグループ"
 
-#: static/js/hatohol_privilege_edit_dialog.js:257
-msgid "Failed to apply."
-msgstr "適用に失敗しました。"
-
-#: static/js/hatohol_privilege_edit_dialog.js:259
-msgid "Succeeded to apply."
-msgstr "適用に成功しました。"
+#: static/js/hatohol_privilege_edit_dialog.js:222
+#: static/js/hatohol_user_roles_editor.js:210
+#: static/js/hatohol_user_roles_editor.js:242 static/js/users_view.js:197
+msgid "Show / Edit"
+msgstr "表示 / 編集"
 
 #: static/js/hatohol_reply_parser.js:81
 msgid "Invalid user name or password."
@@ -840,11 +887,6 @@ msgstr "無し"
 msgid "All"
 msgstr "全て"
 
-#: static/js/hatohol_user_roles_editor.js:210
-#: static/js/hatohol_user_roles_editor.js:242 static/js/users_view.js:197
-msgid "Show / Edit"
-msgstr "表示 / 編集"
-
 #: static/js/hatohol_user_roles_editor.js:244
 msgid "Show"
 msgstr "表示"
@@ -991,7 +1033,7 @@ msgstr "初期状態"
 msgid "Unknown:"
 msgstr "不明"
 
-#: static/js/servers_view.js:329 test/browser/test_server_view.js:109
+#: static/js/servers_view.js:329 test/browser/test_server_view.js:110
 msgid "Running"
 msgstr "稼働"
 
@@ -999,11 +1041,11 @@ msgstr "稼働"
 msgid "No"
 msgstr "いいえ"
 
-#: static/js/servers_view.js:335 test/browser/test_server_view.js:109
+#: static/js/servers_view.js:335 test/browser/test_server_view.js:110
 msgid "Yes"
 msgstr "はい"
 
-#: static/js/servers_view.js:345 test/browser/test_server_view.js:110
+#: static/js/servers_view.js:345 test/browser/test_server_view.js:111
 msgid "Status update time"
 msgstr "状態更新時刻"
 
@@ -1011,27 +1053,23 @@ msgstr "状態更新時刻"
 msgid "Last success time"
 msgstr "最終成功時刻"
 
-#: static/js/servers_view.js:355 test/browser/test_server_view.js:114
+#: static/js/servers_view.js:355 test/browser/test_server_view.js:113
 msgid "Last failure time"
 msgstr "最終失敗時刻"
 
-#: static/js/servers_view.js:363 test/browser/test_server_view.js:115
+#: static/js/servers_view.js:363 test/browser/test_server_view.js:114
 msgid "Number of communication"
 msgstr "通信回数"
 
-#: static/js/servers_view.js:371 test/browser/test_server_view.js:116
+#: static/js/servers_view.js:371 test/browser/test_server_view.js:115
 msgid "Number of failure"
 msgstr "失敗回数"
 
-#: static/js/servers_view.js:375 test/browser/test_server_view.js:117
+#: static/js/servers_view.js:375 test/browser/test_server_view.js:116
 msgid "Comment for the failure"
 msgstr "失敗備考"
 
-#: test/browser/test_server_view.js:111 test/browser/test_server_view.js:113
-msgid "2014-03-10 18:39:53"
-msgstr ""
-
-#: test/browser/test_server_view.js:114
+#: test/browser/test_server_view.js:113
 msgid "-"
 msgstr ""
 
@@ -1094,6 +1132,3 @@ msgstr ""
 
 #~ msgid "Action"
 #~ msgstr "アクション"
-
-#~ msgid "Host Group"
-#~ msgstr "ホストグループ"
