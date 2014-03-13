@@ -86,7 +86,7 @@ AC_SUBST(MLPL_LIBS)
 dnl **************************************************************
 dnl Checks for Cutter
 dnl **************************************************************
-CUTTER_REQUIRED=1.2.2
+CUTTER_REQUIRED=1.2.3
 have_cutter=no
 
 m4_ifdef([AC_CHECK_GCUTTER], [
