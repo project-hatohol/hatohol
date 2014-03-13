@@ -805,6 +805,17 @@ void prepareTestDataForFilterForDataOfDefunctServers(void)
 		       NULL);
 }
 
+void fixupForFilteringDefunctServer(
+  gconstpointer data, string &expected, HostResourceQueryOption &option,
+  const string &tableName)
+{
+	const bool filterForDataOfDefunctSv =
+	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
+	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
+	if (filterForDataOfDefunctSv)
+		insertValidServerCond(expected, option, tableName);
+}
+
 void insertValidServerCond(
   string &condition, const HostResourceQueryOption &opt,
   const string &tableName)

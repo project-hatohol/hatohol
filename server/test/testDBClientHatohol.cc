@@ -471,17 +471,6 @@ static string makeHostsOutput(const HostInfo &hostInfo, size_t id)
 	return expectedOut;
 }
 
-static void fixupForFilteringDefunctServer(
-  gconstpointer data, string &expected, HostResourceQueryOption &option,
-  const string &tableName = "")
-{
-	const bool filterForDataOfDefunctSv =
-	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
-	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
-	if (filterForDataOfDefunctSv)
-		insertValidServerCond(expected, option, tableName);
-}
-
 template <class T>
 static void _basicQueryOptionFromDataQueryContext(
   gconstpointer data,

@@ -166,6 +166,9 @@ std::string joinStringVector(const mlpl::StringVector &strVect,
 
 void crash(void);
 void prepareTestDataForFilterForDataOfDefunctServers(void);
+void fixupForFilteringDefunctServer(
+  gconstpointer data, std::string &expected, HostResourceQueryOption &option,
+  const std::string &tableName = "");
 void insertValidServerCond(
   std::string &condition, const HostResourceQueryOption &opt,
   const std::string &tableName = "");
