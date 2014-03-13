@@ -72,6 +72,13 @@ public:
 	 */
 	virtual std::string getFromSection(void) const;
 
+	/**
+	 * Get information if a join operation is needed.
+	 *
+	 * @return true if a join is needed. Otherwiser, false.
+	 */
+	virtual bool isJoinNeeded(void) const;
+
 	virtual ServerIdType getTargetServerId(void) const;
 	virtual void setTargetServerId(const ServerIdType &targetServerId);
 	virtual HostIdType getTargetHostId(void) const;

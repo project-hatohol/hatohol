@@ -564,4 +564,21 @@ void test_getFromSectionWithSpecificHostGroup(void)
 	cppcut_assert_equal(expect, option.getFromSection());
 }
 
+void data_isJoinNeeded(void)
+{
+	gcut_add_datum("Not need a join", "joinIsNeeded",G_TYPE_BOOLEAN, FALSE,
+		       NULL);
+	gcut_add_datum("Need a join", "joinIsNeeded", G_TYPE_BOOLEAN, TRUE,
+		       NULL);
+}
+
+void test_isJoinNeeded(gconstpointer data)
+{
+	const bool joinIsNeeded = gcut_data_get_boolean(data, "joinIsNeeded");
+	HostResourceQueryOption option(TEST_BIND);
+	if (joinIsNeeded)
+		option.setTargetHostgroupId(5);
+	cppcut_assert_equal(joinIsNeeded, option.isJoinNeeded());
+}
+
 } // namespace testHostResourceQueryOption
