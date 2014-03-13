@@ -673,7 +673,7 @@ size_t getNumberOfTestTriggers(const ServerIdType &serverId,
                                const TriggerSeverityType &severity)
 {
 	// TODO: use hostGroupId after Hatohol support it.
-	int count = 0;
+	size_t count = 0;
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
 		TriggerInfo &trigInfo = testTriggerInfo[i];
 		if (serverId != ALL_SERVERS && trigInfo.serverId != serverId)
