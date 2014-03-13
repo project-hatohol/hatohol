@@ -93,21 +93,22 @@ static void _assertHGrpQueryOptionFromDataQueryContext(gconstpointer data)
 #define assertHGrpQueryOptionFromDataQueryContext(T, D) \
 cut_trace(_assertHGrpQueryOptionFromDataQueryContext<T>(D))
 
-template <class T> static void _assertQueryOptionCopyConstructor(void)
+template <class T>
+static void _assertQueryOptionCopyConstructor(gconstpointer data)
 {
-	T srcOpt;
+	T srcOpt(USER_ID_SYSTEM);
 	DataQueryContext *srcDqCtx = &srcOpt.getDataQueryContext();
 	cppcut_assert_equal(1, srcOpt.getDataQueryContext().getUsedCount());
 	{
 		T option(srcOpt);
 		cppcut_assert_equal(srcDqCtx, &option.getDataQueryContext());
 		cppcut_assert_equal(2, srcDqCtx->getUsedCount());
-		// TODO: should check members in the PrivateContext.
+		initParamChecker(data, option);
 	}
 	cppcut_assert_equal(1, srcDqCtx->getUsedCount());
 }
-#define assertQueryOptionCopyConstructor(T) \
-cut_trace(_assertQueryOptionCopyConstructor<T>())
+#define assertQueryOptionCopyConstructor(T,D) \
+cut_trace(_assertQueryOptionCopyConstructor<T>(D))
 
 void cut_setup(void)
 {
@@ -132,9 +133,14 @@ void test_triggersQueryOptionFromDataQueryContext(gconstpointer data)
 	assertQueryOptionFromDataQueryContext(TriggersQueryOption, data);
 }
 
-void test_triggersQueryOptionCopyConstructor(void)
+void data_triggersQueryOptionCopyConstructor(void)
 {
-	assertQueryOptionCopyConstructor(TriggersQueryOption);
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_triggersQueryOptionCopyConstructor(gconstpointer data)
+{
+	assertQueryOptionCopyConstructor(TriggersQueryOption, data);
 }
 
 void data_triggersQueryOptionWithTargetId(void)
@@ -229,9 +235,14 @@ void test_eventQueryOptionFromDataQueryContext(gconstpointer data)
 	assertQueryOptionFromDataQueryContext(EventsQueryOption, data);
 }
 
-void test_eventQueryOptionCopyConstructor(void)
+void data_eventQueryOptionCopyConstructor(void)
 {
-	assertQueryOptionCopyConstructor(EventsQueryOption);
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_eventQueryOptionCopyConstructor(gconstpointer data)
+{
+	assertQueryOptionCopyConstructor(EventsQueryOption, data);
 }
 
 void data_eventQueryOptionDefaultMinimumSeverity(void)
@@ -368,9 +379,14 @@ void test_itemsQueryOptionFromDataQueryContext(gconstpointer data)
 	assertQueryOptionFromDataQueryContext(ItemsQueryOption, data);
 }
 
-void test_itemsQueryOptionCopyConstructor(void)
+void data_itemsQueryOptionCopyConstructor(void)
 {
-	assertQueryOptionCopyConstructor(ItemsQueryOption);
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_itemsQueryOptionCopyConstructor(gconstpointer data)
+{
+	assertQueryOptionCopyConstructor(ItemsQueryOption, data);
 }
 
 void data_itemsQueryOptionWithTargetId(void)
