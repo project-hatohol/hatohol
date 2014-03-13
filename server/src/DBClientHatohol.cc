@@ -688,6 +688,10 @@ void initEventInfo(EventInfo &eventInfo)
 // ---------------------------------------------------------------------------
 // HostResourceQueryOption's subclasses
 // ---------------------------------------------------------------------------
+
+//
+// EventQueryOption
+//
 struct EventsQueryOption::PrivateContext {
 	uint64_t limitOfUnifiedId;
 	SortType sortType;
@@ -859,6 +863,9 @@ TriggerStatusType EventsQueryOption::getTriggerStatus(void) const
 	return m_ctx->triggerStatus;
 }
 
+//
+// TriggersQueryOption
+//
 struct TriggersQueryOption::PrivateContext {
 	TriggerIdType targetId;
 	TriggerSeverityType minSeverity;
@@ -973,6 +980,9 @@ TriggerStatusType TriggersQueryOption::getTriggerStatus(void) const
 	return m_ctx->triggerStatus;
 }
 
+//
+// ItemsQueryOption
+//
 struct ItemsQueryOption::PrivateContext {
 	ItemIdType targetId;
 	string itemGroupName;
@@ -1066,6 +1076,9 @@ const string &ItemsQueryOption::getTargetItemGroupName(void)
 	return m_ctx->itemGroupName;
 }
 
+//
+// HostsQueryOption
+//
 HostsQueryOption::HostsQueryOption(UserIdType userId)
 : HostResourceQueryOption(userId)
 {
@@ -1084,6 +1097,9 @@ HostsQueryOption::HostsQueryOption(DataQueryContext *dataQueryContext)
 	  COLUMN_DEF_HOSTS[IDX_HOSTS_HOST_ID].columnName);
 }
 
+//
+// HostgroupsQueryOption
+//
 HostgroupsQueryOption::HostgroupsQueryOption(UserIdType userId)
 : HostResourceQueryOption(userId)
 {
@@ -1102,6 +1118,9 @@ HostgroupsQueryOption::HostgroupsQueryOption(DataQueryContext *dataQueryContext)
 	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_GROUP_ID].columnName);
 }
 
+//
+// HostgroupElementQueryOption
+//
 HostgroupElementQueryOption::HostgroupElementQueryOption(UserIdType userId)
 : HostResourceQueryOption(userId)
 {
@@ -1120,7 +1139,6 @@ HostgroupElementQueryOption::HostgroupElementQueryOption(
 	setHostGroupIdColumnName(
 	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID].columnName);
 }
-
 
 // ---------------------------------------------------------------------------
 // Public methods
