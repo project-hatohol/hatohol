@@ -127,6 +127,13 @@ void test_copyConstructor(void)
 	cppcut_assert_equal(1, opt0.getDataQueryContext().getUsedCount());
 }
 
+void test_getPrimaryTableName(void)
+{
+	HostResourceQueryOption option(TEST_PRIMARY_TABLE_NAME);
+	cppcut_assert_equal(TEST_PRIMARY_TABLE_NAME,
+	                    option.getPrimaryTableName());
+}
+
 void test_makeConditionServer(void)
 {
 	const string serverIdColumnName = "cat";

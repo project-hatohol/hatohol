@@ -80,6 +80,11 @@ HostResourceQueryOption::~HostResourceQueryOption()
 		delete m_ctx;
 }
 
+const char *HostResourceQueryOption::getPrimaryTableName(void) const
+{
+	return m_ctx->primaryTableName;
+}
+
 string HostResourceQueryOption::getCondition(const string &tableAlias) const
 {
 	string condition;

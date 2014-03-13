@@ -33,6 +33,13 @@ public:
 	HostResourceQueryOption(const HostResourceQueryOption &src);
 	virtual ~HostResourceQueryOption();
 
+	/**
+	 * Get the primary table name.
+	 *
+	 * @return The primary table name.
+	 */
+	const char *getPrimaryTableName(void) const;
+
 	virtual std::string getCondition(
 	  const std::string &tableAlias = "") const; // override
 
