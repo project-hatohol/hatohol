@@ -243,9 +243,9 @@ HatoholHostgroupPrivilegeEditDialog.prototype.checkApplyResult = function(access
   var numCompleted = result.numSucceeded + result.numFailed;
 
   hatoholInfoMsgBox(gettext("Aplpying...") + " " +
-                    numCompleted + " / " + result.numServers);
+                    numCompleted + " / " + result.numHostgroups);
 
-  if (numCompleted < result.numServers)
+  if (numCompleted < result.numHostgroups)
     return;
 
   // completed
@@ -275,7 +275,7 @@ HatoholHostgroupPrivilegeEditDialog.prototype.applyPrivileges = function() {
   };
 
   self.applyResult = {
-    numServers:   checkboxes.length,
+    numHostgroups:   checkboxes.length,
     numSucceeded: 0,
     numFailed:    0
   };
