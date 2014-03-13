@@ -351,7 +351,7 @@ static void _assertGetNumberOfHostsWithUserAndStatus(UserIdType userId, bool sta
 {
 	setupTestTriggerDB();
 
-	uint32_t serverId = testTriggerInfo[0].serverId;
+	const ServerIdType serverId = testTriggerInfo[0].serverId;
 	// TODO: should give the appropriate host group ID after
 	//       Hatohol support it.
 	uint64_t hostGroupId = 0;
@@ -501,7 +501,7 @@ void test_getTriggerInfoNotFound(void)
 {
 	setupTestTriggerDB();
 	const UserIdType invalidSvId = -1;
-	const uint64_t   invalidTrigId = -1;
+	const TriggerIdType invalidTrigId = -1;
 	TriggerInfo triggerInfo;
 	DBClientHatohol dbHatohol;
 	TriggersQueryOption option(invalidSvId);
@@ -527,7 +527,7 @@ void data_getTriggerInfoListForOneServer(void)
 
 void test_getTriggerInfoListForOneServer(gconstpointer data)
 {
-	uint32_t targetServerId = testTriggerInfo[0].serverId;
+	const ServerIdType targetServerId = testTriggerInfo[0].serverId;
 	assertGetTriggerInfoList(data, targetServerId);
 }
 
@@ -538,8 +538,8 @@ void data_getTriggerInfoListForOneServerOneHost(void)
 
 void test_getTriggerInfoListForOneServerOneHost(gconstpointer data)
 {
-	uint32_t targetServerId = testTriggerInfo[1].serverId;
-	uint64_t targetHostId = testTriggerInfo[1].hostId;
+	const ServerIdType targetServerId = testTriggerInfo[1].serverId;
+	const HostIdType targetHostId = testTriggerInfo[1].hostId;
 	assertGetTriggerInfoList(data, targetServerId, targetHostId);
 }
 
@@ -554,7 +554,7 @@ void test_setTriggerInfoList(gconstpointer data)
 	TriggerInfoList triggerInfoList;
 	for (size_t i = 0; i < NumTestTriggerInfo; i++)
 		triggerInfoList.push_back(testTriggerInfo[i]);
-	uint32_t serverId = testTriggerInfo[0].serverId;
+	const ServerIdType serverId = testTriggerInfo[0].serverId;
 	dbHatohol.setTriggerInfoList(triggerInfoList, serverId);
 
 	HostgroupElementList hostgroupElementList;
@@ -667,7 +667,7 @@ void data_itemInfoListForOneServer(gconstpointer data)
 
 void test_itemInfoListForOneServer(gconstpointer data)
 {
-	uint32_t targetServerId = testItemInfo[0].serverId;
+	const ServerIdType targetServerId = testItemInfo[0].serverId;
 	assertItemInfoList(data, targetServerId);
 }
 
@@ -782,7 +782,7 @@ void test_getLastEventId(gconstpointer data)
 {
 	test_addEventInfoList(data);
 	DBClientHatohol dbHatohol;
-	const int serverid = 3;
+	const ServerIdType serverid = 3;
 	cppcut_assert_equal(findLastEventId(serverid),
 	                    dbHatohol.getLastEventId(serverid));
 }
@@ -840,10 +840,10 @@ void test_getNumberOfTriggersBySeverity(void)
 {
 	setupTestTriggerDB();
 
-	uint32_t targetServerId = testTriggerInfo[0].serverId;
+	const ServerIdType targetServerId = testTriggerInfo[0].serverId;
 	// TODO: should give the appropriate host group ID after
 	//       Hatohol support it.
-	uint64_t hostGroupId = 0;
+	const HostgroupIdType hostGroupId = 0;
 
 	DBClientHatohol dbHatohol;
 	for (int i = 0; i < NUM_TRIGGER_SEVERITY; i++) {
@@ -864,7 +864,7 @@ void test_getNumberOfTriggersBySeverityWithoutPriviledge(void)
 {
 	setupTestTriggerDB();
 
-	uint32_t targetServerId = testTriggerInfo[0].serverId;
+	const ServerIdType targetServerId = testTriggerInfo[0].serverId;
 	// TODO: should give the appropriate host group ID after
 	//       Hatohol support it.
 	//uint64_t hostGroupId = 0;
