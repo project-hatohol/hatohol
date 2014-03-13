@@ -1728,7 +1728,7 @@ void FaceRest::handlerServerConnStat(RestJob *job)
 
 void FaceRest::handlerGetHost(RestJob *job)
 {
-	HostResourceQueryOption option(job->dataQueryContextPtr);
+	HostsQueryOption option(job->dataQueryContextPtr);
 	HatoholError err = parseHostResourceQueryParameter(option, job->query);
 	if (err != HTERR_OK) {
 		replyError(job, err);
