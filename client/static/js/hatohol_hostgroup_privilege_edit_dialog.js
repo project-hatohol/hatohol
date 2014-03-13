@@ -186,17 +186,10 @@ HatoholHostgroupPrivilegeEditDialog.prototype.updateAllowCheckboxes = function()
 
   var i, checkboxes = $(".hostgroupSelectCheckbox");
   var allowedHostgroup = this.allowedServers[1]["allowedHostGroups"];
-  var isAllowedHostgroup = function (accessInfo, hostgroupId) {
-    for (var i = 0; i < allowedHostgroup.numberOfAllowedHostgroups; i++) {
-      if (allowedHostgroup[i] == hostgroupId)
-        return true;
-    }
-    return false;
-  }
 
   for (i = 0; i < checkboxes.length; i++) {
     hostgroupId = checkboxes[i].getAttribute("hostgroupId");
-    if (isAllowedHostgroup(allowedHostgroup, hostgroupId))
+    if (hostgroupId in allowedHostgroup)
       checkboxes[i].checked = true;
   }
 };
