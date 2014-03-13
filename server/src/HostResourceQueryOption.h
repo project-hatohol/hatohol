@@ -68,7 +68,7 @@ public:
 	/**
 	 * Generate a part of an SQL statement for a FROM section.
 	 */
-	virtual std::string getFromSection(void);
+	virtual std::string getFromSection(void) const;
 
 	virtual ServerIdType getTargetServerId(void) const;
 	virtual void setTargetServerId(const ServerIdType &targetServerId);
@@ -128,8 +128,8 @@ protected:
 	  const HostGroupSet &hostGroupSet,
 	  const std::string &hostGroupIdColumnName);
 
-	virtual std::string getFromSectionForOneTable(void);
-	virtual std::string getFromSectionWithHostgroup(void);
+	virtual std::string getFromSectionForOneTable(void) const;
+	virtual std::string getFromSectionWithHostgroup(void) const;
 
 private:
 	struct PrivateContext;

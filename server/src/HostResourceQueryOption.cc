@@ -182,7 +182,7 @@ string HostResourceQueryOption::getCondition(const string &tableAlias) const
 	return condition;
 }
 
-string HostResourceQueryOption::getFromSection(void)
+string HostResourceQueryOption::getFromSection(void) const
 {
 	if (m_ctx->targetHostgroupId == ALL_HOST_GROUPS)
 		return getFromSectionForOneTable();
@@ -409,12 +409,12 @@ string HostResourceQueryOption::makeCondition(
 	return StringUtils::sprintf("(%s)", condition.c_str());
 }
 
-string HostResourceQueryOption::getFromSectionForOneTable(void)
+string HostResourceQueryOption::getFromSectionForOneTable(void) const
 {
 	return getPrimaryTableName();
 }
 
-string HostResourceQueryOption::getFromSectionWithHostgroup(void)
+string HostResourceQueryOption::getFromSectionWithHostgroup(void) const
 {
 	const Bind &bind = m_ctx->bind;
 	const ColumnDef *columnDefs = bind.tableProfile.columnDefs;
