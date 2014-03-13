@@ -77,22 +77,6 @@ static void _basicQueryOptionFromDataQueryContext(
 #define basicQueryOptionFromDataQueryContext(T, D, O) \
 cut_trace(_basicQueryOptionFromDataQueryContext<T>(D, O))
 
-template <class T> static void _assertQueryOptionCopyConstructor(void)
-{
-	T srcOpt;
-	DataQueryContext *srcDqCtx = &srcOpt.getDataQueryContext();
-	cppcut_assert_equal(1, srcOpt.getDataQueryContext().getUsedCount());
-	{
-		T option(srcOpt);
-		cppcut_assert_equal(srcDqCtx, &option.getDataQueryContext());
-		cppcut_assert_equal(2, srcDqCtx->getUsedCount());
-		// TODO: should check members in the PrivateContext.
-	}
-	cppcut_assert_equal(1, srcDqCtx->getUsedCount());
-}
-#define assertQueryOptionCopyConstructor(T) \
-cut_trace(_assertQueryOptionCopyConstructor<T>())
-
 template <class T>
 static void _assertQueryOptionFromDataQueryContext(gconstpointer data)
 {
@@ -108,6 +92,22 @@ static void _assertHGrpQueryOptionFromDataQueryContext(gconstpointer data)
 }
 #define assertHGrpQueryOptionFromDataQueryContext(T, D) \
 cut_trace(_assertHGrpQueryOptionFromDataQueryContext<T>(D))
+
+template <class T> static void _assertQueryOptionCopyConstructor(void)
+{
+	T srcOpt;
+	DataQueryContext *srcDqCtx = &srcOpt.getDataQueryContext();
+	cppcut_assert_equal(1, srcOpt.getDataQueryContext().getUsedCount());
+	{
+		T option(srcOpt);
+		cppcut_assert_equal(srcDqCtx, &option.getDataQueryContext());
+		cppcut_assert_equal(2, srcDqCtx->getUsedCount());
+		// TODO: should check members in the PrivateContext.
+	}
+	cppcut_assert_equal(1, srcDqCtx->getUsedCount());
+}
+#define assertQueryOptionCopyConstructor(T) \
+cut_trace(_assertQueryOptionCopyConstructor<T>())
 
 void cut_setup(void)
 {
