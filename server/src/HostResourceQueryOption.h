@@ -80,6 +80,15 @@ public:
 	 */
 	virtual bool isOnlyOneTableUsed(void) const;
 
+	/**
+	 * Get a column name at the specified index.
+	 * If it's a stuation that will do a join,
+	 * the style: tableName.colunName is returned.
+	 *
+	 * @return A column name.
+	 */
+	virtual std::string getColumnName(const size_t &idx) const;
+
 	virtual ServerIdType getTargetServerId(void) const;
 	virtual void setTargetServerId(const ServerIdType &targetServerId);
 	virtual HostIdType getTargetHostId(void) const;

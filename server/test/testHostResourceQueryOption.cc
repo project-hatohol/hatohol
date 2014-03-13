@@ -580,4 +580,12 @@ void test_isOnlyOneTableUsed(gconstpointer data)
 	cppcut_assert_equal(oneTable, option.isOnlyOneTableUsed());
 }
 
+void test_getColumnName(void)
+{
+	const size_t idx = IDX_TEST_TABLE_HOST_ID;
+	HostResourceQueryOption option(TEST_BIND);
+	cppcut_assert_equal(string(COLUMN_DEF_TEST[idx].columnName),
+	                           option.getColumnName(idx));
+}
+
 } // namespace testHostResourceQueryOption

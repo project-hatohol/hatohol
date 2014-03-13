@@ -195,6 +195,22 @@ bool HostResourceQueryOption::isOnlyOneTableUsed(void) const
 	return m_ctx->targetHostgroupId == ALL_HOST_GROUPS;
 }
 
+string HostResourceQueryOption::getColumnName(const size_t &idx) const
+{
+	const Bind &bind = m_ctx->bind;
+	const ColumnDef *columnDefs = bind.tableProfile.columnDefs;
+	HATOHOL_ASSERT(idx < bind.tableProfile.numColumns,
+	               "idx: %zd, numColumns: %zd",
+	               idx, bind.tableProfile.numColumns);
+	string name;
+	if (!isOnlyOneTableUsed()) {
+		name += bind.tableProfile.name;
+		name += ".";
+	}
+	name += columnDefs[idx].columnName;
+	return name;
+}
+
 ServerIdType HostResourceQueryOption::getTargetServerId(void) const
 {
 	return m_ctx->targetServerId;
