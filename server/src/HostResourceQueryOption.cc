@@ -147,7 +147,7 @@ string HostResourceQueryOption::getCondition(const string &tableAlias) const
 	return condition;
 }
 
-string HostResourceQueryOption::generateFromSection(void)
+string HostResourceQueryOption::getFromSection(void)
 {
 	if (m_ctx->targetHostgroupId == ALL_HOST_GROUPS)
 		return getFromSectionForOneTable();

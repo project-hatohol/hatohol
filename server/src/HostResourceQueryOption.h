@@ -46,7 +46,7 @@ public:
 	/**
 	 * Generate a part of an SQL statement for a FROM section.
 	 */
-	virtual std::string generateFromSection(void);
+	virtual std::string getFromSection(void);
 
 	virtual ServerIdType getTargetServerId(void) const;
 	virtual void setTargetServerId(const ServerIdType &targetServerId);
