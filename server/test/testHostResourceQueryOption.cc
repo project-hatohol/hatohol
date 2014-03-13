@@ -32,6 +32,8 @@ using namespace mlpl;
 
 namespace testHostResourceQueryOption {
 
+static const char *TEST_PRIMARY_TABLE_NAME = "test_table_name";
+
 // TODO: I want to remove these, which are too denpendent on the implementation
 // NOTE: The same definitions are in testDBClientHatohol.cc
 static const string serverIdColumnName = "server_id";
@@ -103,7 +105,7 @@ void test_constructorDataQueryContext(void)
 	  DataQueryContextPtr(new DataQueryContext(userId), false);
 	cppcut_assert_equal(1, dqCtxPtr->getUsedCount());
 	{
-		HostResourceQueryOption opt(dqCtxPtr);
+		HostResourceQueryOption opt(TEST_PRIMARY_TABLE_NAME, dqCtxPtr);
 		cppcut_assert_equal((DataQueryContext *)dqCtxPtr,
 		                    &opt.getDataQueryContext());
 		cppcut_assert_equal(2, dqCtxPtr->getUsedCount());
@@ -113,7 +115,7 @@ void test_constructorDataQueryContext(void)
 
 void test_copyConstructor(void)
 {
-	HostResourceQueryOption opt0;
+	HostResourceQueryOption opt0(TEST_PRIMARY_TABLE_NAME);
 	cppcut_assert_equal(1, opt0.getDataQueryContext().getUsedCount());
 	{
 		HostResourceQueryOption opt1(opt0);
@@ -171,7 +173,7 @@ void test_makeConditionServerWithEmptyIdSet(void)
 
 void test_defaultValueOfFilterForDataOfDefunctServers(void)
 {
-	HostResourceQueryOption opt;
+	HostResourceQueryOption opt(TEST_PRIMARY_TABLE_NAME);
 	cppcut_assert_equal(true, opt.getFilterForDataOfDefunctServers());
 }
 
@@ -185,7 +187,7 @@ void data_setGetOfFilterForDataOfDefunctServers(void)
 
 void test_setGetOfFilterForDataOfDefunctServers(gconstpointer data)
 {
-	HostResourceQueryOption opt;
+	HostResourceQueryOption opt(TEST_PRIMARY_TABLE_NAME);
 	bool enable = gcut_data_get_boolean(data, "enable");
 	opt.setFilterForDataOfDefunctServers(enable);
 	cppcut_assert_equal(enable, opt.getFilterForDataOfDefunctServers());
@@ -313,7 +315,7 @@ void test_conditionForAdminWithTargetServerAndHost(gconstpointer data)
 	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
 	if (filterForDataOfDefunctSv)
 		cut_pend("To be implemented");
-	HostResourceQueryOption option(USER_ID_SYSTEM);
+	HostResourceQueryOption option(TEST_PRIMARY_TABLE_NAME, USER_ID_SYSTEM);
 	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	option.setTargetServerId(26);
 	option.setTargetHostId(32);
@@ -359,7 +361,7 @@ void data_makeSelectConditionUserAdmin(void)
 void test_makeSelectConditionUserAdmin(gconstpointer data)
 {
 	setupTestDBConfig(true, true);
-	HostResourceQueryOption option(USER_ID_SYSTEM);
+	HostResourceQueryOption option(TEST_PRIMARY_TABLE_NAME, USER_ID_SYSTEM);
 	string expect = "";
 	fixupForFilteringDefunctServer(data, expect, option);
 	string actual = option.getCondition();
@@ -374,7 +376,7 @@ void data_makeSelectConditionAllEvents(void)
 void test_makeSelectConditionAllEvents(gconstpointer data)
 {
 	setupTestDBConfig(true, true);
-	HostResourceQueryOption option;
+	HostResourceQueryOption option(TEST_PRIMARY_TABLE_NAME);
 	option.setFlags(OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_SERVER));
 	string expect = "";
 	fixupForFilteringDefunctServer(data, expect, option);
@@ -386,7 +388,7 @@ void test_makeSelectConditionNoneUser(void)
 {
 	setupTestDBConfig(true, true);
 	setupTestDBUser(true, true);
-	HostResourceQueryOption option;
+	HostResourceQueryOption option(TEST_PRIMARY_TABLE_NAME);
 	string actual = option.getCondition();
 	string expect = DBClientHatohol::getAlwaysFalseCondition();
 	cppcut_assert_equal(actual, expect);
@@ -403,7 +405,7 @@ void test_makeSelectCondition(gconstpointer data)
 	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
 	setupTestDBConfig(true, true);
 	setupTestDBUser(true, true);
-	HostResourceQueryOption option;
+	HostResourceQueryOption option(TEST_PRIMARY_TABLE_NAME);
 	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	for (size_t i = 0; i < NumTestUserInfo; i++) {
 		UserIdType userId = i + 1;

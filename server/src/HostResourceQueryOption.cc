@@ -27,6 +27,7 @@ using namespace mlpl;
 // PrivateContext
 // ---------------------------------------------------------------------------
 struct HostResourceQueryOption::PrivateContext {
+	const char     *primaryTableName;
 	string          serverIdColumnName;
 	string          hostGroupIdColumnName;
 	string          hostIdColumnName;
@@ -35,8 +36,9 @@ struct HostResourceQueryOption::PrivateContext {
 	HostgroupIdType targetHostgroupId;
 	bool            filterDataOfDefunctServers;
 
-	PrivateContext()
-	: serverIdColumnName("server_id"),
+	PrivateContext(const char *_primaryTableName)
+	: primaryTableName(_primaryTableName),
+	  serverIdColumnName("server_id"),
 	  hostGroupIdColumnName("host_group_id"),
 	  hostIdColumnName("host_id"),
 	  targetServerId(ALL_SERVERS),
@@ -50,23 +52,25 @@ struct HostResourceQueryOption::PrivateContext {
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-HostResourceQueryOption::HostResourceQueryOption(const UserIdType &userId)
+HostResourceQueryOption::HostResourceQueryOption(
+  const char *primaryTableName, const UserIdType &userId)
 : DataQueryOption(userId)
 {
-	m_ctx = new PrivateContext();
+	m_ctx = new PrivateContext(primaryTableName);
 }
 
 HostResourceQueryOption::HostResourceQueryOption(
-  DataQueryContext *dataQueryContext)
+  const char *primaryTableName, DataQueryContext *dataQueryContext)
 : DataQueryOption(dataQueryContext)
 {
-	m_ctx = new PrivateContext();
+	m_ctx = new PrivateContext(primaryTableName);
 }
 
-HostResourceQueryOption::HostResourceQueryOption(const HostResourceQueryOption &src)
+HostResourceQueryOption::HostResourceQueryOption(
+  const HostResourceQueryOption &src)
 : DataQueryOption(src)
 {
-	m_ctx = new PrivateContext();
+	m_ctx = new PrivateContext(src.m_ctx->primaryTableName);
 	*m_ctx = *src.m_ctx;
 }
 

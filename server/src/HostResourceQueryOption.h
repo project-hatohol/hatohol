@@ -26,8 +26,10 @@
 
 class HostResourceQueryOption : public DataQueryOption {
 public:
-	HostResourceQueryOption(const UserIdType &userId = INVALID_USER_ID);
-	HostResourceQueryOption(DataQueryContext *dataQueryContext);
+	HostResourceQueryOption(const char *primaryTableName,
+	                        const UserIdType &userId = INVALID_USER_ID);
+	HostResourceQueryOption(const char *primaryTableName,
+	                        DataQueryContext *dataQueryContext);
 	HostResourceQueryOption(const HostResourceQueryOption &src);
 	virtual ~HostResourceQueryOption();
 

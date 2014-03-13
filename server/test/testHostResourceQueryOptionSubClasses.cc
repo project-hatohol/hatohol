@@ -406,7 +406,7 @@ void data_eventQueryOptionGetServerIdColumnName(void)
 
 void test_eventQueryOptionGetServerIdColumnName(gconstpointer data)
 {
-	HostResourceQueryOption option(USER_ID_SYSTEM);
+	EventsQueryOption option(USER_ID_SYSTEM);
 	const string tableAlias = "test_event_table_alias";
 	const string hostgroupTableAlias = "map_hosts_hostgroups";
 	option.setTargetServerId(26);
