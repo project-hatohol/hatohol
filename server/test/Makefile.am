@@ -35,6 +35,7 @@ testHatohol_la_SOURCES = \
 	testHatoholException.cc testSQLProcessorException.cc \
 	testHatoholThreadBase.cc \
 	testHostResourceQueryOption.cc \
+	testHostResourceQueryOptionSubClasses.cc \
 	testDBAgent.cc \
 	testDBAgentSQLite3.cc testDBAgentMySQL.cc \
 	testDBClient.cc \
