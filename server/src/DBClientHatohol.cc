@@ -131,7 +131,7 @@ static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_NONE,                      // keyType
+	SQL_KEY_MUL,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -284,7 +284,7 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_NONE,                      // keyType
+	SQL_KEY_MUL,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -360,10 +360,10 @@ static const ColumnDef COLUMN_DEF_ITEMS[] = {
 	DBClientHatohol::TABLE_NAME_ITEMS, // tableName
 	"host_id",                         // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
-	11,                                // columnLength
+	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_NONE,                      // keyType
+	SQL_KEY_MUL,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -480,7 +480,7 @@ static const ColumnDef COLUMN_DEF_HOSTS[] = {
 	DBClientHatohol::TABLE_NAME_HOSTS, // tableName
 	"host_id",                         // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
-	11,                                // columnLength
+	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_MUL,                       // keyType
@@ -539,7 +539,7 @@ static const ColumnDef COLUMN_DEF_HOSTGROUPS[] = {
 	DBClientHatohol::TABLE_NAME_HOSTGROUPS, // tableName
 	"host_group_id",                   // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
-	11,                                // columnLength
+	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_MUL,                       // keyType
@@ -599,7 +599,7 @@ static const ColumnDef COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[] = {
 	DBClientHatohol::TABLE_NAME_MAP_HOSTS_HOSTGROUPS, // tableName
 	"host_id",                         // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
-	11,                                // columnLength
+	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_MUL,                       // keyType
@@ -610,7 +610,7 @@ static const ColumnDef COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[] = {
 	DBClientHatohol::TABLE_NAME_MAP_HOSTS_HOSTGROUPS, // tableName
 	"host_group_id",                   // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
-	11,                                // columnLength
+	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_MUL,                       // keyType
