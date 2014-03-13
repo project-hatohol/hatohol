@@ -89,8 +89,9 @@ void getTestTriggersIndexes(
   std::map<ServerIdType, std::map<uint64_t, size_t> > &indexMap,
   const ServerIdType &serverId, uint64_t hostId);
 size_t getNumberOfTestTriggers(
-  const ServerIdType &serverId, uint64_t hostGroupId = ALL_HOST_GROUPS,
-  TriggerSeverityType severity = NUM_TRIGGER_SEVERITY);
+  const ServerIdType &serverId,
+  const HostgroupIdType &hostgroupId = ALL_HOST_GROUPS,
+  const TriggerSeverityType &severity = NUM_TRIGGER_SEVERITY);
 
 typedef std::map<uint64_t, size_t>         ItemInfoIdIndexMap;
 typedef ItemInfoIdIndexMap::iterator       ItemInfoIdIndexMapIterator;

@@ -669,8 +669,8 @@ size_t getNumberOfTestItems(const ServerIdType &serverId)
 }
 
 size_t getNumberOfTestTriggers(const ServerIdType &serverId,
-                               uint64_t hostGroupId, 
-                               TriggerSeverityType severity)
+                               const HostgroupIdType &hostGroupId, 
+                               const TriggerSeverityType &severity)
 {
 	// TODO: use hostGroupId after Hatohol support it.
 	int count = 0;
