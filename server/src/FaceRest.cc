@@ -2490,7 +2490,6 @@ void FaceRest::handlerGetAccessInfo(RestJob *job)
 		agent.startObject(serverIdString);
 		agent.startObject("allowedHostGroups");
 		HostGrpAccessInfoMapIterator it2 = hostGroupsMap->begin();
-		size_t numberOfAllowedHostgroups = 0;
 		for (; it2 != hostGroupsMap->end(); it2++) {
 			AccessInfo *info = it2->second;
 			uint64_t hostGroupId = it2->first;
@@ -2501,13 +2500,11 @@ void FaceRest::handlerGetAccessInfo(RestJob *job)
 				hostGroupIdString
 				  = StringUtils::sprintf("%"PRIu64,
 				                         hostGroupId);
-				numberOfAllowedHostgroups++;
 			}
 			agent.startObject(hostGroupIdString);
 			agent.add("accessInfoId", info->id);
 			agent.endObject();
 		}
-		agent.add("numberOfAllowedHostgroups", numberOfAllowedHostgroups);
 		agent.endObject();
 		agent.endObject();
 	}
