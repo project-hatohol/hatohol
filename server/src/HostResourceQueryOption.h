@@ -66,7 +66,9 @@ public:
 	  const std::string &tableAlias = "") const; // override
 
 	/**
-	 * Generate a part of an SQL statement for a FROM section.
+	 * Get a part of an SQL statement for a FROM section.
+	 *
+	 * @return A string for a FROM section.
 	 */
 	virtual std::string getFromSection(void) const;
 
