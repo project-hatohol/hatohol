@@ -566,19 +566,18 @@ void test_getFromSectionWithSpecificHostGroup(void)
 
 void data_isJoinNeeded(void)
 {
-	gcut_add_datum("Not need a join", "joinIsNeeded",G_TYPE_BOOLEAN, FALSE,
-		       NULL);
-	gcut_add_datum("Need a join", "joinIsNeeded", G_TYPE_BOOLEAN, TRUE,
+	gcut_add_datum("One table", "oneTable",G_TYPE_BOOLEAN, TRUE, NULL);
+	gcut_add_datum("More than one table", "oneTable", G_TYPE_BOOLEAN, FALSE,
 		       NULL);
 }
 
-void test_isJoinNeeded(gconstpointer data)
+void test_isOnlyOneTableUsed(gconstpointer data)
 {
-	const bool joinIsNeeded = gcut_data_get_boolean(data, "joinIsNeeded");
+	const bool oneTable = gcut_data_get_boolean(data, "oneTable");
 	HostResourceQueryOption option(TEST_BIND);
-	if (joinIsNeeded)
+	if (!oneTable)
 		option.setTargetHostgroupId(5);
-	cppcut_assert_equal(joinIsNeeded, option.isJoinNeeded());
+	cppcut_assert_equal(oneTable, option.isOnlyOneTableUsed());
 }
 
 } // namespace testHostResourceQueryOption

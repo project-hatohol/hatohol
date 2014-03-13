@@ -190,9 +190,9 @@ string HostResourceQueryOption::getFromSection(void) const
 		return getFromSectionWithHostgroup();
 }
 
-bool HostResourceQueryOption::isJoinNeeded(void) const
+bool HostResourceQueryOption::isOnlyOneTableUsed(void) const
 {
-	return m_ctx->targetHostgroupId != ALL_HOST_GROUPS;
+	return m_ctx->targetHostgroupId == ALL_HOST_GROUPS;
 }
 
 ServerIdType HostResourceQueryOption::getTargetServerId(void) const

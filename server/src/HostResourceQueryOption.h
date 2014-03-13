@@ -73,11 +73,12 @@ public:
 	virtual std::string getFromSection(void) const;
 
 	/**
-	 * Get information if a join operation is needed.
+	 * Get information if one table is only used.
+	 * For example, If a join should be used, this method return false.
 	 *
-	 * @return true if a join is needed. Otherwiser, false.
+	 * @return true if one table is only used. Otherwiser, false.
 	 */
-	virtual bool isJoinNeeded(void) const;
+	virtual bool isOnlyOneTableUsed(void) const;
 
 	virtual ServerIdType getTargetServerId(void) const;
 	virtual void setTargetServerId(const ServerIdType &targetServerId);
