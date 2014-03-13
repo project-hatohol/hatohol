@@ -553,4 +553,15 @@ void test_getFromSectionWithAllHostGroup(void)
 	                    option.getFromSection());
 }
 
+void test_getFromSectionWithSpecificHostGroup(void)
+{
+	HostResourceQueryOption option(TEST_BIND);
+	option.setTargetHostgroupId(5);
+	const string expect = 
+	  "test_table_name INNER JOIN test_hgrp_table_name ON "
+	  "((test_table_name.server_id=test_hgrp_table_name.server_id) AND "
+	  "(test_table_name.host_id=test_hgrp_table_name.host_id))";
+	cppcut_assert_equal(expect, option.getFromSection());
+}
+
 } // namespace testHostResourceQueryOption

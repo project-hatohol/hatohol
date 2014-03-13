@@ -416,7 +416,24 @@ string HostResourceQueryOption::getFromSectionForOneTable(void)
 
 string HostResourceQueryOption::getFromSectionWithHostgroup(void)
 {
-	MLPL_BUG("Not implemented yet: %s\n", __PRETTY_FUNCTION__);
-	return "";
+	const Bind &bind = m_ctx->bind;
+	const ColumnDef *columnDefs = bind.tableProfile.columnDefs;
+	const ColumnDef *hgrpColumnDefs =
+	  bind.hostgroupMapTableProfile.columnDefs;
+
+	return StringUtils::sprintf(
+	  "%s INNER JOIN %s ON ((%s.%s=%s.%s) AND (%s.%s=%s.%s))",
+	  bind.tableProfile.name,
+	  bind.hostgroupMapTableProfile.name,
+
+	  bind.tableProfile.name,
+	  columnDefs[bind.serverIdColumnIdx].columnName,
+	  bind.hostgroupMapTableProfile.name,
+	  hgrpColumnDefs[bind.hostgroupMapServerIdColumnIdx].columnName,
+
+	  bind.tableProfile.name,
+	  columnDefs[bind.hostIdColumnIdx].columnName,
+	  bind.hostgroupMapTableProfile.name,
+	  hgrpColumnDefs[bind.hostgroupMapHostIdColumnIdx].columnName);
 }
 
