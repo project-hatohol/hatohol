@@ -154,6 +154,14 @@ static const HostResourceQueryOption::Bind TEST_BIND(
   IDX_TEST_HGRP_TABLE_SERVER_ID, IDX_TEST_HGRP_TABLE_HOST_ID,
   IDX_TEST_HGRP_TABLE_HOST_GROUP_ID);
 
+static const HostResourceQueryOption::Bind TEST_BIND_HGRP(
+  tableProfileTestHGrp,
+  IDX_TEST_HGRP_TABLE_ID, IDX_TEST_HGRP_TABLE_SERVER_ID,
+  IDX_TEST_HGRP_TABLE_HOST_ID,
+  tableProfileTestHGrp,
+  IDX_TEST_HGRP_TABLE_SERVER_ID, IDX_TEST_HGRP_TABLE_HOST_ID,
+  IDX_TEST_HGRP_TABLE_HOST_GROUP_ID);
+
 // TODO: I want to remove these, which are too denpendent on the implementation
 // NOTE: The same definitions are in testDBClientHatohol.cc
 static const string serverIdColumnName = "server_id";
@@ -578,6 +586,14 @@ void test_isOnlyOneTableUsed(gconstpointer data)
 	if (!oneTable)
 		option.setTargetHostgroupId(5);
 	cppcut_assert_equal(oneTable, option.isOnlyOneTableUsed());
+}
+
+void test_isOnlyOneTableUsedForHostgroupTable(void)
+{
+	HostResourceQueryOption option(TEST_BIND_HGRP);
+	option.setTargetHostgroupId(5);
+	// It shall always be one table.
+	cppcut_assert_equal(true, option.isOnlyOneTableUsed());
 }
 
 void test_getColumnName(void)

@@ -120,8 +120,19 @@ const char *HostResourceQueryOption::getPrimaryTableName(void) const
 	return m_ctx->bind.tableProfile.name;
 }
 
-string HostResourceQueryOption::getCondition(const string &tableAlias) const
+string HostResourceQueryOption::getCondition(const string &_tableAlias) const
 {
+	// TEMPORARY IMPLEMENT *****************************************
+	// TODO: clean up; Remove an evil paramter: tableAlias
+	string tableAlias;
+	if (_tableAlias.empty()) {
+		if (!isOnlyOneTableUsed())
+			tableAlias = getPrimaryTableName();
+	} else {
+		tableAlias = _tableAlias;
+	}
+	// *************************************************************
+
 	string condition;
 	string hostgroupTableAlias;
 	if (!tableAlias.empty())
@@ -184,7 +195,7 @@ string HostResourceQueryOption::getCondition(const string &tableAlias) const
 
 string HostResourceQueryOption::getFromSection(void) const
 {
-	if (m_ctx->targetHostgroupId == ALL_HOST_GROUPS)
+	if (isOnlyOneTableUsed())
 		return getFromSectionForOneTable();
 	else
 		return getFromSectionWithHostgroup();
@@ -192,6 +203,9 @@ string HostResourceQueryOption::getFromSection(void) const
 
 bool HostResourceQueryOption::isOnlyOneTableUsed(void) const
 {
+	const Bind &bind = m_ctx->bind;
+	if (&bind.tableProfile == &bind.hostgroupMapTableProfile)
+		return true;
 	return m_ctx->targetHostgroupId == ALL_HOST_GROUPS;
 }
 

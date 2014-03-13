@@ -43,16 +43,7 @@ static void initParamChecker(
 	option.setTargetServerId(2);
 	option.setTargetHostId(4);
 	string expected = "server_id=2 AND host_id=4";
-	fixupForFilteringDefunctServer(data, expected, option);
-	cppcut_assert_equal(expected, option.getCondition());
-}
-
-static void initParamCheckerHGrp(
-  gconstpointer data, HostResourceQueryOption &option)
-{
-	option.setTargetServerId(2);
-	option.setTargetHostgroupId(8);
-	string expected = "server_id=2 AND host_group_id=8";
+	// TODO: call setHostGroupId()
 	fixupForFilteringDefunctServer(data, expected, option);
 	cppcut_assert_equal(expected, option.getCondition());
 }
@@ -103,14 +94,6 @@ static void _assertQueryOptionConstructorWithUserId(gconstpointer data)
 #define assertQueryOptionConstructorWithUserId(T, D) \
 cut_trace(_assertQueryOptionConstructorWithUserId<T>(D))
 
-template <class T>
-static void _assertHGrpQueryOptionConstructorWithUserId(gconstpointer data)
-{
-	basicQueryOptionConstructorWithUserId(T, data, initParamCheckerHGrp);
-}
-#define assertHGrpQueryOptionConstructorWithUserId(T, D) \
-cut_trace(_assertHGrpQueryOptionConstructorWithUserId<T>(D))
-
 //
 // For the constructor with a DataQueryContext pointer
 //
@@ -142,14 +125,6 @@ static void _assertQueryOptionFromDataQueryContext(gconstpointer data)
 }
 #define assertQueryOptionFromDataQueryContext(T, D) \
 cut_trace(_assertQueryOptionFromDataQueryContext<T>(D))
-
-template <class T>
-static void _assertHGrpQueryOptionFromDataQueryContext(gconstpointer data)
-{
-	basicQueryOptionFromDataQueryContext(T, data, initParamCheckerHGrp);
-}
-#define assertHGrpQueryOptionFromDataQueryContext(T, D) \
-cut_trace(_assertHGrpQueryOptionFromDataQueryContext<T>(D))
 
 //
 // For the copy constructor
@@ -547,7 +522,7 @@ void data_hostgroupsQueryOptionConstructorWithUserId(void)
 
 void test_hostgroupsQueryOptionConstructorWithUserId(gconstpointer data)
 {
-	assertHGrpQueryOptionConstructorWithUserId(HostgroupsQueryOption, data);
+	assertQueryOptionConstructorWithUserId(HostgroupsQueryOption, data);
 }
 
 void data_hostgroupsQueryOptionFromDataQueryContext(void)
@@ -557,7 +532,7 @@ void data_hostgroupsQueryOptionFromDataQueryContext(void)
 
 void test_hostgroupsQueryOptionFromDataQueryContext(gconstpointer data)
 {
-	assertHGrpQueryOptionFromDataQueryContext(HostgroupsQueryOption, data);
+	assertQueryOptionFromDataQueryContext(HostgroupsQueryOption, data);
 }
 
 //
@@ -570,8 +545,8 @@ void data_hostgroupElementQueryOptionConstructorWithUserId(void)
 
 void test_hostgroupElementQueryOptionConstructorWithUserId(gconstpointer data)
 {
-	assertHGrpQueryOptionConstructorWithUserId(HostgroupElementQueryOption,
-	                                          data);
+	assertQueryOptionConstructorWithUserId(HostgroupElementQueryOption,
+	                                       data);
 }
 
 void data_hostgroupElementQueryOptionFromDataQueryContext(void)
@@ -581,8 +556,8 @@ void data_hostgroupElementQueryOptionFromDataQueryContext(void)
 
 void test_hostgroupElementQueryOptionFromDataQueryContext(gconstpointer data)
 {
-	assertHGrpQueryOptionFromDataQueryContext(HostgroupElementQueryOption,
-	                                          data);
+	assertQueryOptionFromDataQueryContext(HostgroupElementQueryOption,
+	                                      data);
 }
 
 } // namespace testHostResourceQueryOptionSubClasses
