@@ -160,11 +160,29 @@ HatoholPrivilegeEditDialog.prototype.updateServersTable = function() {
   var rows = this.generateTableRows(this.serversData);
   this.replaceMainElement(table);
   $("#" + this.mainTableId + " tbody").append(rows);
+  this.setupAllCheckButton();
   this.updateAllowCheckboxes();
 };
 
+HatoholPrivilegeEditDialog.prototype.setupAllCheckButton = function() {
+  var checkboxes = $(".serverSelectCheckbox");
+  $("#all-check").click(function() {
+    for (var i = 0; i < checkboxes.length; i++)
+      checkboxes[i].checked = true;
+  });
+
+  $("#all-uncheck").click(function() {
+    for (var i = 0; i < checkboxes.length; i++)
+      checkboxes[i].checked = false;
+  });
+}
+
 HatoholPrivilegeEditDialog.prototype.generateMainTable = function() {
   var html =
+  '<input type="button" id="all-check" value="' +
+  gettext("All check") + '" /> ' +
+  '<input type="button" id="all-uncheck" value="' +
+  gettext("All uncheck") + '" />' +
   '<table class="table table-condensed table-striped table-hover" id=' +
   this.mainTableId + '>' +
   '  <thead>' +
