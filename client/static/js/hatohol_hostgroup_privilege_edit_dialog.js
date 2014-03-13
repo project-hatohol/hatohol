@@ -18,12 +18,13 @@
  */
 
 
-var HatoholPrivilegeEditDialog = function(userId, applyCallback) {
+var HatoholHostgroupPrivilegeEditDialog = function(userId, serverId, applyCallback) {
   var self = this;
-  self.mainTableId = "privilegeEditDialogMainTable";
+  self.mainTableId = "HostgroupPrivilegeEditDialogMainTable";
   self.userId = userId;
+  self.serverId = serverId;
   self.applyCallback = applyCallback;
-  self.serversData = null;
+  self.hostgroupData = null;
   self.loadError = false;
 
   var dialogButtons = [{
@@ -35,79 +36,64 @@ var HatoholPrivilegeEditDialog = function(userId, applyCallback) {
   }];
 
   // call the constructor of the super class
-  var dialogAttrs = { width: "800" };
+  var dialogAttrs = { width: "600" };
   HatoholDialog.apply(
-    this, ["privilege-edit-dialog", gettext("Edit privileges"),
+    this, ["hostgroup-privilege-edit-dialog", gettext("Edit Hostgroup privilege"),
            dialogButtons, dialogAttrs]);
   self.start();
 };
 
-HatoholPrivilegeEditDialog.prototype =
+HatoholHostgroupPrivilegeEditDialog.prototype =
   Object.create(HatoholDialog.prototype);
-HatoholPrivilegeEditDialog.prototype.constructor = HatoholPrivilegeEditDialog;
+HatoholHostgroupPrivilegeEditDialog.prototype.constructor = HatoholHostgroupPrivilegeEditDialog;
 
-HatoholPrivilegeEditDialog.prototype.createMainElement = function() {
+HatoholHostgroupPrivilegeEditDialog.prototype.createMainElement = function() {
   var ptag = $("<p/>");
-  ptag.attr("id", "privilegeEditDialogMsgArea");
+  ptag.attr("id", "hostgroupPrivilegeEditDialogMsgArea");
   ptag.text(gettext("Now getting information..."));
   return ptag;
 };
 
-HatoholPrivilegeEditDialog.prototype.applyButtonClicked = function() {
+HatoholHostgroupPrivilegeEditDialog.prototype.applyButtonClicked = function() {
   this.applyPrivileges();
   if (this.applyCallback)
     this.applyCallback();
 };
 
-HatoholPrivilegeEditDialog.prototype.cancelButtonClicked = function() {
+HatoholHostgroupPrivilegeEditDialog.prototype.cancelButtonClicked = function() {
   this.closeDialog();
 };
 
-HatoholPrivilegeEditDialog.prototype.setMessage = function(msg) {
-  $("#privilegeEditDialogMsgArea").text(msg);
+HatoholHostgroupPrivilegeEditDialog.prototype.setMessage = function(msg) {
+  $("#hostgroupPrivilegeEditDialogMsgArea").text(msg);
 };
 
-HatoholPrivilegeEditDialog.prototype.setupSelectHostgroupDialog = function() {
-  var servers = this.serversData.servers;
-  var userId = this.userId;
-  var id;
-  for (var i = 0; i < servers.length; i++) {
-    id = "#edit-server" + servers[i]["id"];
-    $(id).click(function() {
-      var serverId = this.getAttribute("serverId");
-      new HatoholHostgroupPrivilegeEditDialog(userId, serverId);
-    });
-  }
-}
-
-HatoholPrivilegeEditDialog.prototype.start = function() {
+HatoholHostgroupPrivilegeEditDialog.prototype.start = function() {
   var self = this;
   self.loadError = false;
 
-  loadServers();
+  loadHostgroups();
 
   function makeQueryData() {
     var queryData = {};
-    queryData.showHostgroup = 1;
-    queryData.targetUser = self.userId;
+    queryData.serverId = self.serverId;
     return queryData;
   }
 
-  function loadServers() {
+  function loadHostgroups() {
     new HatoholConnector({
-      url: "/server",
+      url: "/hostgroup",
       request: "GET",
       data: makeQueryData(),
-      replyCallback: function(serversData, parser) {
+      replyCallback: function(hostgroupData, parser) {
         if (self.loadError)
           return;
-        if (!serversData.numberOfServers) {
+        if (!hostgroupData.numberOfHostgroups) {
           self.setMessage(gettext("No data."));
           return;
         }
-        self.serversData = serversData;
-        self.updateServersTable();
-        self.setupSelectHostgroupDialog();
+        self.hostgroupData = hostgroupData;
+        self.updateHostgroupTable();
         loadAccessInfo();
       },
       parseErrorCallback: function(reply, parser) {
@@ -150,10 +136,10 @@ HatoholPrivilegeEditDialog.prototype.start = function() {
   }
 };
 
-HatoholPrivilegeEditDialog.prototype.updateServersTable = function() {
+HatoholHostgroupPrivilegeEditDialog.prototype.updateHostgroupTable = function() {
   if (this.loadError)
         return;
-  if (!this.serversData)
+  if (!this.hostgroupData)
     return;
 
   var table = this.generateMainTable();
@@ -164,8 +150,8 @@ HatoholPrivilegeEditDialog.prototype.updateServersTable = function() {
   this.updateAllowCheckboxes();
 };
 
-HatoholPrivilegeEditDialog.prototype.setupAllCheckButton = function() {
-  var checkboxes = $(".serverSelectCheckbox");
+HatoholHostgroupPrivilegeEditDialog.prototype.setupAllCheckButton = function() {
+  var checkboxes = $(".hostgroupSelectCheckbox");
   $("#all-check").click(function() {
     for (var i = 0; i < checkboxes.length; i++)
       checkboxes[i].checked = true;
@@ -177,7 +163,7 @@ HatoholPrivilegeEditDialog.prototype.setupAllCheckButton = function() {
   });
 }
 
-HatoholPrivilegeEditDialog.prototype.generateMainTable = function() {
+HatoholHostgroupPrivilegeEditDialog.prototype.generateMainTable = function() {
   var html =
   '<input type="button" id="all-check" value="' +
   gettext("All check") + '" /> ' +
@@ -187,14 +173,9 @@ HatoholPrivilegeEditDialog.prototype.generateMainTable = function() {
   this.mainTableId + '>' +
   '  <thead>' +
   '    <tr>' +
-  '      <th>' + gettext("All Allow") + '</th>' +
-  '      <th>' + gettext("Allowed Hostgroups") + '</th>' +
-  '      <th>ID</th>' +
-  '      <th>' + gettext("Type") + '</th>' +
-  '      <th>' + gettext("Hostname") + '</th>' +
-  '      <th>' + gettext("IP Address") + '</th>' +
-  '      <th>' + gettext("Nickname") + '</th>' +
-  '      <th>' + gettext("Hostgroup") + '</th>' +
+  '      <th>' + gettext("Allow") + '</th>' +
+  '      <th>' + gettext("Hostgroup ID") + '</th>' +
+  '      <th>' + gettext("Hostgroup Name") + '</th>' +
   '    </tr>' +
   '  </thead>' +
   '  <tbody></tbody>' +
@@ -202,51 +183,38 @@ HatoholPrivilegeEditDialog.prototype.generateMainTable = function() {
   return html;
 };
 
-HatoholPrivilegeEditDialog.prototype.generateTableRows = function() {
+HatoholHostgroupPrivilegeEditDialog.prototype.generateTableRows = function() {
   var s = '';
-  var servers = this.serversData.servers;
-  for (var i = 0; i < servers.length; i++) {
-    sv = servers[i];
+  var hostgroup = this.hostgroupData.hostgroups;
+  for (var i = 0; i < hostgroup.length; i++) {
+    hstgrp = hostgroup[i];
     s += '<tr>';
-    s += '<td><input type="checkbox" class="serverSelectCheckbox" ' +
-               'serverId="' + sv['id'] + '"></td>';
-    s += '<td>' + escapeHTML(sv.numberOfAllowedHostgroups) + '/';
-    s +=          escapeHTML(sv.numberOfHostgroups) + '</td>';
-    s += '<td>' + escapeHTML(sv.id) + '</td>';
-    s += '<td>' + makeMonitoringSystemTypeLabel(sv.type) + '</td>';
-    s += '<td>' + escapeHTML(sv.hostName) + '</td>';
-    s += '<td>' + escapeHTML(sv.ipAddress) + '</td>';
-    s += '<td>' + escapeHTML(sv.nickname)  + '</td>';
-    s += '<td><input id="edit-server' + sv['id'] + '" type="button"' +
-              'serverId="' + escapeHTML(sv.id) + '"' +
-              'value="' + gettext("Show / Edit") + '" />';
-    s += '</td>';
+    s += '<td><input type="checkbox" class="hostgroupSelectCheckbox" ' +
+               'hostgroupId="' + escapeHTML(hstgrp.groupId) + '"></td>';
+    s += '<td>' + escapeHTML(hstgrp.groupId) + '</td>';
+    s += '<td>' + escapeHTML(hstgrp.groupName)  + '</td>';
     s += '</tr>';
   }
   return s;
 };
 
-HatoholPrivilegeEditDialog.prototype.updateAllowCheckboxes = function() {
-  if (!this.serversData || !this.allowedServers)
+HatoholHostgroupPrivilegeEditDialog.prototype.updateAllowCheckboxes = function() {
+  if (!this.hostgroupData || !this.allowedServers)
     return;
 
-  var i, serverId, checkboxes = $(".serverSelectCheckbox");
-  var allHostGroupIsEnabled = function(server) {
-    var ALL_HOST_GROUPS = -1, hostGroup;
-    if (!server || !server["allowedHostGroups"])
-      return false;
-    hostGroup = server["allowedHostGroups"][ALL_HOST_GROUPS];
-    return hostGroup && hostGroup["accessInfoId"];
-  };
+  var i, checkboxes = $(".hostgroupSelectCheckbox");
+  var allowedHostgroup = {};
+  if (this.serverId in this.allowedServers)
+    allowedHostgroup = this.allowedServers[this.serverId]["allowedHostGroups"];
 
   for (i = 0; i < checkboxes.length; i++) {
-    serverId = checkboxes[i].getAttribute("serverId");
-    if (allHostGroupIsEnabled(this.allowedServers[serverId]))
+    hostgroupId = checkboxes[i].getAttribute("hostgroupId");
+    if (hostgroupId in allowedHostgroup)
       checkboxes[i].checked = true;
   }
 };
 
-HatoholPrivilegeEditDialog.prototype.addAccessInfo = function(accessInfo) {
+HatoholHostgroupPrivilegeEditDialog.prototype.addAccessInfo = function(accessInfo) {
   var self = this;
   var userId = this.userId;
   new HatoholConnector({
@@ -268,7 +236,7 @@ HatoholPrivilegeEditDialog.prototype.addAccessInfo = function(accessInfo) {
   });
 };
 
-HatoholPrivilegeEditDialog.prototype.deleteAccessInfo = function(accessInfoId) {
+HatoholHostgroupPrivilegeEditDialog.prototype.deleteAccessInfo = function(accessInfoId) {
   var self = this;
   var userId = this.userId;
   new HatoholConnector({
@@ -289,14 +257,14 @@ HatoholPrivilegeEditDialog.prototype.deleteAccessInfo = function(accessInfoId) {
   });
 };
 
-HatoholPrivilegeEditDialog.prototype.checkApplyResult = function(accessInfo) {
+HatoholHostgroupPrivilegeEditDialog.prototype.checkApplyResult = function(accessInfo) {
   var result = this.applyResult;
   var numCompleted = result.numSucceeded + result.numFailed;
 
   hatoholInfoMsgBox(gettext("Aplpying...") + " " +
-                    numCompleted + " / " + result.numServers);
+                    numCompleted + " / " + result.numHostgroups);
 
-  if (numCompleted < result.numServers)
+  if (numCompleted < result.numHostgroups)
     return;
 
   // completed
@@ -308,34 +276,39 @@ HatoholPrivilegeEditDialog.prototype.checkApplyResult = function(accessInfo) {
   }
 };
 
-HatoholPrivilegeEditDialog.prototype.applyPrivileges = function() {
+HatoholHostgroupPrivilegeEditDialog.prototype.applyPrivileges = function() {
   var self = this;
-  var i, serverId, accessInfoId;
-  var checkboxes = $(".serverSelectCheckbox");
-  var getAccessInfoId = function(serverId) {
-    var id, allowedHostGroups, allowedHostGroup;
-    var ALL_HOST_GROUPS = -1;
-    if (self.allowedServers && self.allowedServers[serverId])
-      allowedHostGroups = self.allowedServers[serverId]["allowedHostGroups"];
-    if (allowedHostGroups)
-      allowedHostGroup = allowedHostGroups[ALL_HOST_GROUPS];
-    if (allowedHostGroup)
-      id = allowedHostGroup["accessInfoId"];
+  var i,hostgroupId, accessInfoId;
+  var checkboxes = $(".hostgroupSelectCheckbox");
+  var getAccessInfoId = function(hostgroupId) {
+    var id, allowedHostgroups, allowedHostgroup;
+
+    if (self.serverId in self.allowedServers)
+      allowedHostgroups = self.allowedServers[self.serverId]["allowedHostGroups"];
+    else
+      return 0;
+
+    if (hostgroupId in allowedHostgroups) {
+      allowedHostgroup = allowedHostgroups[hostgroupId];
+      id = allowedHostgroup["accessInfoId"];
+    } else {
+      id = 0;
+    }
     return id;
   };
 
   self.applyResult = {
-    numServers:   checkboxes.length,
+    numHostgroups:   checkboxes.length,
     numSucceeded: 0,
     numFailed:    0
   };
   for (i = 0; i < checkboxes.length; i++) {
-    serverId = checkboxes[i].getAttribute("serverId");
-    accessInfoId = getAccessInfoId(serverId);
+    hostgroupId = checkboxes[i].getAttribute("hostgroupId");
+    accessInfoId = getAccessInfoId(hostgroupId);
 
     if (checkboxes[i].checked) {
       if (!accessInfoId)
-        this.addAccessInfo({ serverId: serverId, hostGroupId: -1 });
+        this.addAccessInfo({ serverId: this.serverId, hostGroupId: hostgroupId });
       else
         self.applyResult.numSucceeded += 1;
     } else {

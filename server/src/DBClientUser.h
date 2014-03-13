@@ -56,7 +56,7 @@ typedef std::list<AccessInfo>          AccessInfoList;
 typedef AccessInfoList::iterator       AccessInfoIterator;
 typedef AccessInfoList::const_iterator AccessInfoConstIterator;
 
-typedef std::map<uint64_t, AccessInfo *>      HostGrpAccessInfoMap;
+typedef std::map<HostgroupIdType, AccessInfo *>      HostGrpAccessInfoMap;
 typedef HostGrpAccessInfoMap::iterator        HostGrpAccessInfoMapIterator;
 typedef HostGrpAccessInfoMap::const_iterator  HostGrpAccessInfoMapConstIterator;
 
