@@ -114,8 +114,7 @@ cut_trace(_assertHGrpQueryOptionFromDataQueryContext<T>(D))
 void cut_setup(void)
 {
 	hatoholInit();
-	//deleteDBClientHatoholDB();
-	//setupTestDBConfig(true, true);
+	setupTestDBConfig(true, true);
 }
 
 // ---------------------------------------------------------------------------

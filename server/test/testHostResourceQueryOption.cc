@@ -20,6 +20,7 @@
 #include <cppcutter.h>
 #include <gcutter.h>
 #include <StringUtils.h>
+#include "Hatohol.h"
 #include "HostResourceQueryOption.h"
 #include "TestHostResourceQueryOption.h"
 #include "DBClientHatohol.h"
@@ -87,6 +88,10 @@ static string makeExpectedConditionForUser(
 	return exp;
 }
 
+void cut_setup(void)
+{
+	hatoholInit();
+}
 
 // ---------------------------------------------------------------------------
 // Test cases
@@ -353,6 +358,7 @@ void data_makeSelectConditionUserAdmin(void)
 
 void test_makeSelectConditionUserAdmin(gconstpointer data)
 {
+	setupTestDBConfig(true, true);
 	HostResourceQueryOption option(USER_ID_SYSTEM);
 	string expect = "";
 	fixupForFilteringDefunctServer(data, expect, option);
@@ -367,6 +373,7 @@ void data_makeSelectConditionAllEvents(void)
 
 void test_makeSelectConditionAllEvents(gconstpointer data)
 {
+	setupTestDBConfig(true, true);
 	HostResourceQueryOption option;
 	option.setFlags(OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_SERVER));
 	string expect = "";
@@ -377,6 +384,7 @@ void test_makeSelectConditionAllEvents(gconstpointer data)
 
 void test_makeSelectConditionNoneUser(void)
 {
+	setupTestDBConfig(true, true);
 	setupTestDBUser(true, true);
 	HostResourceQueryOption option;
 	string actual = option.getCondition();
@@ -393,6 +401,7 @@ void test_makeSelectCondition(gconstpointer data)
 {
 	const bool filterForDataOfDefunctSv =
 	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
+	setupTestDBConfig(true, true);
 	setupTestDBUser(true, true);
 	HostResourceQueryOption option;
 	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
