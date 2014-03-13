@@ -37,6 +37,26 @@ static const string serverIdColumnName = "server_id";
 static const string hostGroupIdColumnName = "host_group_id";
 static const string hostIdColumnName = "host_id";
 
+static void initParamChecker(
+  gconstpointer data, HostResourceQueryOption &option)
+{
+	option.setTargetServerId(2);
+	option.setTargetHostId(4);
+	string expected = "server_id=2 AND host_id=4";
+	fixupForFilteringDefunctServer(data, expected, option);
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
+static void initParamCheckerHGrp(
+  gconstpointer data, HostResourceQueryOption &option)
+{
+	option.setTargetServerId(2);
+	option.setTargetHostgroupId(8);
+	string expected = "server_id=2 AND host_group_id=8";
+	fixupForFilteringDefunctServer(data, expected, option);
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
 template <class T>
 static void _basicQueryOptionFromDataQueryContext(
   gconstpointer data,
@@ -76,18 +96,7 @@ cut_trace(_assertQueryOptionCopyConstructor<T>())
 template <class T>
 static void _assertQueryOptionFromDataQueryContext(gconstpointer data)
 {
-	struct {
-		static void func(gconstpointer data,
-		                 HostResourceQueryOption &option)
-		{
-			option.setTargetServerId(2);
-			option.setTargetHostId(4);
-			string expected = "server_id=2 AND host_id=4";
-			fixupForFilteringDefunctServer(data, expected, option);
-			cppcut_assert_equal(expected, option.getCondition());
-		}
-	} check;
-	basicQueryOptionFromDataQueryContext(T, data, check.func);
+	basicQueryOptionFromDataQueryContext(T, data, initParamChecker);
 }
 #define assertQueryOptionFromDataQueryContext(T, D) \
 cut_trace(_assertQueryOptionFromDataQueryContext<T>(D))
@@ -95,18 +104,7 @@ cut_trace(_assertQueryOptionFromDataQueryContext<T>(D))
 template <class T>
 static void _assertHGrpQueryOptionFromDataQueryContext(gconstpointer data)
 {
-	struct {
-		static void func(gconstpointer data,
-		                 HostResourceQueryOption &option)
-		{
-			option.setTargetServerId(2);
-			option.setTargetHostgroupId(8);
-			string expected = "server_id=2 AND host_group_id=8";
-			fixupForFilteringDefunctServer(data, expected, option);
-			cppcut_assert_equal(expected, option.getCondition());
-		}
-	} check;
-	basicQueryOptionFromDataQueryContext(T, data, check.func);
+	basicQueryOptionFromDataQueryContext(T, data, initParamCheckerHGrp);
 }
 #define assertHGrpQueryOptionFromDataQueryContext(T, D) \
 cut_trace(_assertHGrpQueryOptionFromDataQueryContext<T>(D))
