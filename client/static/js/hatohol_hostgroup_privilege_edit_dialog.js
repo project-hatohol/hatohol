@@ -196,7 +196,6 @@ HatoholHostgroupPrivilegeEditDialog.prototype.updateAllowCheckboxes = function()
   }
 };
 
-// TODO: Should this dialog post access-info ?
 HatoholHostgroupPrivilegeEditDialog.prototype.addAccessInfo = function(accessInfo) {
   var self = this;
   var userId = this.userId;
