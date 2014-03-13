@@ -47,6 +47,19 @@ struct HostResourceQueryOption::PrivateContext {
 	  filterDataOfDefunctServers(true)
 	{
 	}
+
+	PrivateContext &operator=(const PrivateContext &rhs)
+	{
+		primaryTableName           = rhs.primaryTableName;
+		serverIdColumnName         = rhs.serverIdColumnName;
+		hostGroupIdColumnName      = rhs.hostGroupIdColumnName;
+		hostIdColumnName           = rhs.hostIdColumnName;
+		targetServerId             = rhs.targetServerId;
+		targetHostId               = rhs.targetHostId;
+		targetHostgroupId          = rhs.targetHostgroupId;
+		filterDataOfDefunctServers = rhs.filterDataOfDefunctServers;
+		return *this;
+	}
 };
 
 // ---------------------------------------------------------------------------
