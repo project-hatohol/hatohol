@@ -267,7 +267,7 @@ HatoholHostgroupPrivilegeEditDialog.prototype.applyPrivileges = function() {
     var id, allowedHostgroups, allowedHostgroup;
 
     if (self.serverId in self.allowedServers)
-      allowedHostgroups = self.allowedServers[this.serverId]["allowedHostGroups"];
+      allowedHostgroups = self.allowedServers[self.serverId]["allowedHostGroups"];
     else
       return 0;
 
