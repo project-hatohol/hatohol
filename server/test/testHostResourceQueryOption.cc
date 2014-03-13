@@ -38,11 +38,11 @@ static const string hostGroupIdColumnName = "host_group_id";
 static const string hostIdColumnName = "host_id";
 
 // FIXME: Change order of parameter.
-static void _assertMakeCondition(const ServerHostGrpSetMap &srvHostGrpSetMap,
-				 const string &expect,
-				 uint32_t targetServerId = ALL_SERVERS,
-				 uint64_t targetHostId = ALL_HOSTS,
-				 uint64_t targetHostgroupId = ALL_HOST_GROUPS)
+static void _assertMakeCondition(
+  const ServerHostGrpSetMap &srvHostGrpSetMap, const string &expect,
+  const ServerIdType targetServerId = ALL_SERVERS,
+  const HostIdType targetHostId = ALL_HOSTS,
+  const HostgroupIdType targetHostgroupId = ALL_HOST_GROUPS)
 {
 	string cond = TestHostResourceQueryOption::callMakeCondition(
 			srvHostGrpSetMap,
