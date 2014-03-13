@@ -57,6 +57,41 @@ static void initParamCheckerHGrp(
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
+//
+// For the constructor with a User ID.
+//
+template <class T>
+static void _basicQueryOptionConstructorWithUserId(
+  gconstpointer data,
+  void (*checkFunc)(gconstpointer, HostResourceQueryOption &))
+{
+	T option(USER_ID_SYSTEM);
+	cppcut_assert_equal(1, option.getDataQueryContext().getUsedCount());
+	(*checkFunc)(data, option);
+}
+
+#define basicQueryOptionConstructorWithUserId(T, D, O) \
+cut_trace(_basicQueryOptionConstructorWithUserId<T>(D, O))
+
+template <class T>
+static void _assertQueryOptionConstructorWithUserId(gconstpointer data)
+{
+	basicQueryOptionConstructorWithUserId(T, data, initParamChecker);
+}
+#define assertQueryOptionConstructorWithUserId(T, D) \
+cut_trace(_assertQueryOptionConstructorWithUserId<T>(D))
+
+template <class T>
+static void _assertHGrpQueryOptionConstructorWithUserId(gconstpointer data)
+{
+	basicQueryOptionConstructorWithUserId(T, data, initParamCheckerHGrp);
+}
+#define assertHGrpQueryOptionConstructorWithUserId(T, D) \
+cut_trace(_assertHGrpQueryOptionConstructorWithUserId<T>(D))
+
+//
+// For the constructor with a DataQueryContext pointer
+//
 template <class T>
 static void _basicQueryOptionFromDataQueryContext(
   gconstpointer data,
@@ -93,6 +128,9 @@ static void _assertHGrpQueryOptionFromDataQueryContext(gconstpointer data)
 #define assertHGrpQueryOptionFromDataQueryContext(T, D) \
 cut_trace(_assertHGrpQueryOptionFromDataQueryContext<T>(D))
 
+//
+// For the copy constructor
+//
 template <class T>
 static void _assertQueryOptionCopyConstructor(gconstpointer data)
 {
@@ -123,6 +161,16 @@ void cut_setup(void)
 //
 // TriggersQueryOption
 //
+void data_triggersQueryOptionConstructorWithUserId(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_triggersQueryOptionConstructorWithUserId(gconstpointer data)
+{
+	assertQueryOptionConstructorWithUserId(TriggersQueryOption, data);
+}
+
 void data_triggersQueryOptionFromDataQueryContext(void)
 {
 	prepareTestDataForFilterForDataOfDefunctServers();
@@ -225,6 +273,16 @@ void test_triggersQueryOptionWithStatus(gconstpointer data)
 //
 // EventQueryOption
 //
+void data_eventQueryOptionConstructorWithUserId(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_eventQueryOptionConstructorWithUserId(gconstpointer data)
+{
+	assertQueryOptionConstructorWithUserId(EventsQueryOption, data);
+}
+
 void data_eventQueryOptionFromDataQueryContext(void)
 {
 	prepareTestDataForFilterForDataOfDefunctServers();
@@ -369,6 +427,16 @@ void test_eventQueryOptionGetServerIdColumnName(gconstpointer data)
 //
 // ItemsQueryOption
 //
+void data_itemsQueryOptionConstructorWithUserId(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_itemsQueryOptionConstructorWithUserId(gconstpointer data)
+{
+	assertQueryOptionConstructorWithUserId(ItemsQueryOption, data);
+}
+
 void data_itemsQueryOptionFromDataQueryContext(void)
 {
 	prepareTestDataForFilterForDataOfDefunctServers();
@@ -425,6 +493,16 @@ void test_itemsQueryOptionWithItemGroupName(gconstpointer data)
 //
 // HostsQueryOption
 //
+void data_hostsQueryOptionConstructorWithUserId(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_hostsQueryOptionConstructorWithUserId(gconstpointer data)
+{
+	assertQueryOptionConstructorWithUserId(HostsQueryOption, data);
+}
+
 void data_hostsQueryOptionFromDataQueryContext(void)
 {
 	prepareTestDataForFilterForDataOfDefunctServers();
@@ -438,6 +516,16 @@ void test_hostsQueryOptionFromDataQueryContext(gconstpointer data)
 //
 // HostgroupsQueryOption
 //
+void data_hostgroupsQueryOptionConstructorWithUserId(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_hostgroupsQueryOptionConstructorWithUserId(gconstpointer data)
+{
+	assertHGrpQueryOptionConstructorWithUserId(HostgroupsQueryOption, data);
+}
+
 void data_hostgroupsQueryOptionFromDataQueryContext(void)
 {
 	prepareTestDataForFilterForDataOfDefunctServers();
@@ -451,6 +539,17 @@ void test_hostgroupsQueryOptionFromDataQueryContext(gconstpointer data)
 //
 // HostgroupElementQueryOption
 //
+void data_hostgroupElementQueryOptionConstructorWithUserId(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_hostgroupElementQueryOptionConstructorWithUserId(gconstpointer data)
+{
+	assertHGrpQueryOptionConstructorWithUserId(HostgroupElementQueryOption,
+	                                          data);
+}
+
 void data_hostgroupElementQueryOptionFromDataQueryContext(void)
 {
 	prepareTestDataForFilterForDataOfDefunctServers();
