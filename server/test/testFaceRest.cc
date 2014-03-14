@@ -1159,17 +1159,30 @@ static void assertHostStatusInParser(JsonParserAgent *parser,
 	for (; hostgrpIdItr != hostgroupIdSet.end(); ++hostgrpIdItr, ++idx) {
 		parser->startElement(idx);
 		assertValueInParser(parser, "hostGroupId",  *hostgrpIdItr);
-		size_t expected_good_hosts = getNumberOfTestHostsWithStatus(
+		const size_t expectedGoodHosts = getNumberOfTestHostsWithStatus(
 		  serverId, ALL_HOST_GROUPS, true);
-		size_t expected_bad_hosts = getNumberOfTestHostsWithStatus(
+		const size_t expectedBadHosts = getNumberOfTestHostsWithStatus(
 		  serverId, ALL_HOST_GROUPS, false);
 		assertValueInParser(parser, "numberOfGoodHosts",
-		                    expected_good_hosts);
+		                    expectedGoodHosts);
 		assertValueInParser(parser, "numberOfBadHosts",
-		                    expected_bad_hosts);
+		                    expectedBadHosts);
 		parser->endElement();
 	}
 	parser->endObject();
+}
+
+static void assertSystemStatusInParserEach(
+  JsonParserAgent *parser, const int &severityNum,
+  const ServerIdType &serverId, const HostgroupIdType &hostgroupId)
+{
+	const TriggerSeverityType severity = 
+	  static_cast<TriggerSeverityType>(severityNum);
+	const size_t expectedTriggers =
+	  getNumberOfTestTriggers(serverId, hostgroupId, severity);
+	assertValueInParser(parser, "hostGroupId", hostgroupId);
+	assertValueInParser(parser, "severity", severity);
+	assertValueInParser(parser, "numberOfTriggers", expectedTriggers);
 }
 
 static void assertSystemStatusInParser(JsonParserAgent *parser,
@@ -1182,18 +1195,10 @@ static void assertSystemStatusInParser(JsonParserAgent *parser,
 	                    (size_t)parser->countElements());
 	size_t arrayIdx = 0;
 	for (; hostgrpIdItr != hostgroupIdSet.end(); ++hostgrpIdItr) {
-		for (int severity = 0; severity < NUM_TRIGGER_SEVERITY;
-		     ++severity, ++arrayIdx) {
-			size_t expected_triggers =
-			  getNumberOfTestTriggers(
-			    serverId, *hostgrpIdItr,
-			    static_cast<TriggerSeverityType>(severity));
+		for (int i = 0; i < NUM_TRIGGER_SEVERITY; ++i, ++arrayIdx) {
 			parser->startElement(arrayIdx);
-			assertValueInParser(parser, "hostGroupId",
-			                    *hostgrpIdItr);
-			assertValueInParser(parser, "severity", severity);
-			assertValueInParser(parser, "numberOfTriggers",
-			                    expected_triggers);
+			assertSystemStatusInParserEach(parser, i, serverId,
+			                               *hostgrpIdItr);
 			parser->endElement();
 		}
 	}

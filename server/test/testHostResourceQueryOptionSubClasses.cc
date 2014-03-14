@@ -43,19 +43,31 @@ static void initParamChecker(
 	option.setTargetServerId(2);
 	option.setTargetHostId(4);
 	string expected = "server_id=2 AND host_id=4";
+	// TODO: call setHostGroupId()
 	fixupForFilteringDefunctServer(data, expected, option);
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
-static void initParamCheckerHGrp(
-  gconstpointer data, HostResourceQueryOption &option)
+void _assertPrimaryTableName(const HostResourceQueryOption &option)
 {
-	option.setTargetServerId(2);
-	option.setTargetHostgroupId(8);
-	string expected = "server_id=2 AND host_group_id=8";
-	fixupForFilteringDefunctServer(data, expected, option);
-	cppcut_assert_equal(expected, option.getCondition());
+	const type_info &typeinfo = typeid(option);
+	string expectedTableName;
+	if (typeinfo == typeid(EventsQueryOption))
+		expectedTableName = DBClientHatohol::TABLE_NAME_EVENTS;
+	else if (typeinfo == typeid(TriggersQueryOption))
+		expectedTableName = DBClientHatohol::TABLE_NAME_TRIGGERS;
+	else if (typeinfo == typeid(ItemsQueryOption))
+		expectedTableName = DBClientHatohol::TABLE_NAME_ITEMS;
+	else if (typeinfo == typeid(HostsQueryOption))
+		expectedTableName = DBClientHatohol::TABLE_NAME_HOSTS;
+	else if (typeinfo == typeid(HostgroupsQueryOption))
+		expectedTableName = DBClientHatohol::TABLE_NAME_HOSTGROUPS;
+	else if (typeinfo == typeid(HostgroupElementQueryOption))
+		expectedTableName = DBClientHatohol::TABLE_NAME_MAP_HOSTS_HOSTGROUPS;
+	else
+		cut_fail("Unknown type name: %s\n", typeinfo.name());
 }
+#define assertPrimaryTableName(TI) cut_trace(_assertPrimaryTableName(TI))
 
 //
 // For the constructor with a User ID.
@@ -66,6 +78,7 @@ static void _basicQueryOptionConstructorWithUserId(
   void (*checkFunc)(gconstpointer, HostResourceQueryOption &))
 {
 	T option(USER_ID_SYSTEM);
+	assertPrimaryTableName(option);
 	cppcut_assert_equal(1, option.getDataQueryContext().getUsedCount());
 	(*checkFunc)(data, option);
 }
@@ -81,14 +94,6 @@ static void _assertQueryOptionConstructorWithUserId(gconstpointer data)
 #define assertQueryOptionConstructorWithUserId(T, D) \
 cut_trace(_assertQueryOptionConstructorWithUserId<T>(D))
 
-template <class T>
-static void _assertHGrpQueryOptionConstructorWithUserId(gconstpointer data)
-{
-	basicQueryOptionConstructorWithUserId(T, data, initParamCheckerHGrp);
-}
-#define assertHGrpQueryOptionConstructorWithUserId(T, D) \
-cut_trace(_assertHGrpQueryOptionConstructorWithUserId<T>(D))
-
 //
 // For the constructor with a DataQueryContext pointer
 //
@@ -102,6 +107,7 @@ static void _basicQueryOptionFromDataQueryContext(
 	cppcut_assert_equal(1, dqCtxPtr->getUsedCount());
 	{
 		T option(dqCtxPtr);
+		assertPrimaryTableName(option);
 		cppcut_assert_equal((DataQueryContext *)dqCtxPtr,
 		                    &option.getDataQueryContext());
 		cppcut_assert_equal(2, dqCtxPtr->getUsedCount());
@@ -120,14 +126,6 @@ static void _assertQueryOptionFromDataQueryContext(gconstpointer data)
 #define assertQueryOptionFromDataQueryContext(T, D) \
 cut_trace(_assertQueryOptionFromDataQueryContext<T>(D))
 
-template <class T>
-static void _assertHGrpQueryOptionFromDataQueryContext(gconstpointer data)
-{
-	basicQueryOptionFromDataQueryContext(T, data, initParamCheckerHGrp);
-}
-#define assertHGrpQueryOptionFromDataQueryContext(T, D) \
-cut_trace(_assertHGrpQueryOptionFromDataQueryContext<T>(D))
-
 //
 // For the copy constructor
 //
@@ -139,6 +137,7 @@ static void _assertQueryOptionCopyConstructor(gconstpointer data)
 	cppcut_assert_equal(1, srcOpt.getDataQueryContext().getUsedCount());
 	{
 		T option(srcOpt);
+		assertPrimaryTableName(option);
 		cppcut_assert_equal(srcDqCtx, &option.getDataQueryContext());
 		cppcut_assert_equal(2, srcDqCtx->getUsedCount());
 		initParamChecker(data, option);
@@ -523,7 +522,7 @@ void data_hostgroupsQueryOptionConstructorWithUserId(void)
 
 void test_hostgroupsQueryOptionConstructorWithUserId(gconstpointer data)
 {
-	assertHGrpQueryOptionConstructorWithUserId(HostgroupsQueryOption, data);
+	assertQueryOptionConstructorWithUserId(HostgroupsQueryOption, data);
 }
 
 void data_hostgroupsQueryOptionFromDataQueryContext(void)
@@ -533,7 +532,7 @@ void data_hostgroupsQueryOptionFromDataQueryContext(void)
 
 void test_hostgroupsQueryOptionFromDataQueryContext(gconstpointer data)
 {
-	assertHGrpQueryOptionFromDataQueryContext(HostgroupsQueryOption, data);
+	assertQueryOptionFromDataQueryContext(HostgroupsQueryOption, data);
 }
 
 //
@@ -546,8 +545,8 @@ void data_hostgroupElementQueryOptionConstructorWithUserId(void)
 
 void test_hostgroupElementQueryOptionConstructorWithUserId(gconstpointer data)
 {
-	assertHGrpQueryOptionConstructorWithUserId(HostgroupElementQueryOption,
-	                                          data);
+	assertQueryOptionConstructorWithUserId(HostgroupElementQueryOption,
+	                                       data);
 }
 
 void data_hostgroupElementQueryOptionFromDataQueryContext(void)
@@ -557,8 +556,8 @@ void data_hostgroupElementQueryOptionFromDataQueryContext(void)
 
 void test_hostgroupElementQueryOptionFromDataQueryContext(gconstpointer data)
 {
-	assertHGrpQueryOptionFromDataQueryContext(HostgroupElementQueryOption,
-	                                          data);
+	assertQueryOptionFromDataQueryContext(HostgroupElementQueryOption,
+	                                      data);
 }
 
 } // namespace testHostResourceQueryOptionSubClasses

@@ -24,10 +24,33 @@ using namespace std;
 using namespace mlpl;
 
 // ---------------------------------------------------------------------------
+// Synapse
+// ---------------------------------------------------------------------------
+HostResourceQueryOption::Synapse::Synapse(
+  const DBAgent::TableProfile &_tableProfile,
+  const size_t &_selfIdColumnIdx,
+  const size_t &_serverIdColumnIdx,
+  const size_t &_hostIdColumnIdx,
+  const DBAgent::TableProfile &_hostgroupMapTableProfile,
+  const size_t &_hostgroupMapServerIdColumnIdx,
+  const size_t &_hostgroupMapHostIdColumnIdx,
+  const size_t &_hostgroupMapGroupIdColumnIdx)
+: tableProfile(_tableProfile),
+  selfIdColumnIdx(_selfIdColumnIdx),
+  serverIdColumnIdx(_serverIdColumnIdx),
+  hostIdColumnIdx(_hostIdColumnIdx),
+  hostgroupMapTableProfile(_hostgroupMapTableProfile),
+  hostgroupMapServerIdColumnIdx(_hostgroupMapServerIdColumnIdx),
+  hostgroupMapHostIdColumnIdx(_hostgroupMapHostIdColumnIdx),
+  hostgroupMapGroupIdColumnIdx(_hostgroupMapGroupIdColumnIdx)
+{
+}
+
+// ---------------------------------------------------------------------------
 // PrivateContext
 // ---------------------------------------------------------------------------
 struct HostResourceQueryOption::PrivateContext {
-	const char     *primaryTableName;
+	const Synapse  &synapse;
 	string          serverIdColumnName;
 	string          hostGroupIdColumnName;
 	string          hostIdColumnName;
@@ -36,8 +59,8 @@ struct HostResourceQueryOption::PrivateContext {
 	HostgroupIdType targetHostgroupId;
 	bool            filterDataOfDefunctServers;
 
-	PrivateContext(const char *_primaryTableName)
-	: primaryTableName(_primaryTableName),
+	PrivateContext(const Synapse &_synapse)
+	: synapse(_synapse),
 	  serverIdColumnName("server_id"),
 	  hostGroupIdColumnName("host_group_id"),
 	  hostIdColumnName("host_id"),
@@ -47,30 +70,42 @@ struct HostResourceQueryOption::PrivateContext {
 	  filterDataOfDefunctServers(true)
 	{
 	}
+
+	PrivateContext &operator=(const PrivateContext &rhs)
+	{
+		serverIdColumnName         = rhs.serverIdColumnName;
+		hostGroupIdColumnName      = rhs.hostGroupIdColumnName;
+		hostIdColumnName           = rhs.hostIdColumnName;
+		targetServerId             = rhs.targetServerId;
+		targetHostId               = rhs.targetHostId;
+		targetHostgroupId          = rhs.targetHostgroupId;
+		filterDataOfDefunctServers = rhs.filterDataOfDefunctServers;
+		return *this;
+	}
 };
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 HostResourceQueryOption::HostResourceQueryOption(
-  const char *primaryTableName, const UserIdType &userId)
+  const Synapse &synapse, const UserIdType &userId)
 : DataQueryOption(userId)
 {
-	m_ctx = new PrivateContext(primaryTableName);
+	m_ctx = new PrivateContext(synapse);
 }
 
 HostResourceQueryOption::HostResourceQueryOption(
-  const char *primaryTableName, DataQueryContext *dataQueryContext)
+  const Synapse &synapse, DataQueryContext *dataQueryContext)
 : DataQueryOption(dataQueryContext)
 {
-	m_ctx = new PrivateContext(primaryTableName);
+	m_ctx = new PrivateContext(synapse);
 }
 
 HostResourceQueryOption::HostResourceQueryOption(
   const HostResourceQueryOption &src)
 : DataQueryOption(src)
 {
-	m_ctx = new PrivateContext(src.m_ctx->primaryTableName);
+	m_ctx = new PrivateContext(src.m_ctx->synapse);
 	*m_ctx = *src.m_ctx;
 }
 
@@ -82,11 +117,22 @@ HostResourceQueryOption::~HostResourceQueryOption()
 
 const char *HostResourceQueryOption::getPrimaryTableName(void) const
 {
-	return m_ctx->primaryTableName;
+	return m_ctx->synapse.tableProfile.name;
 }
 
-string HostResourceQueryOption::getCondition(const string &tableAlias) const
+string HostResourceQueryOption::getCondition(const string &_tableAlias) const
 {
+	// TEMPORARY IMPLEMENT *****************************************
+	// TODO: clean up; Remove an evil paramter: tableAlias
+	string tableAlias;
+	if (_tableAlias.empty()) {
+		if (!isOnlyOneTableUsed())
+			tableAlias = getPrimaryTableName();
+	} else {
+		tableAlias = _tableAlias;
+	}
+	// *************************************************************
+
 	string condition;
 	string hostgroupTableAlias;
 	if (!tableAlias.empty())
@@ -147,12 +193,36 @@ string HostResourceQueryOption::getCondition(const string &tableAlias) const
 	return condition;
 }
 
-string HostResourceQueryOption::generateFromSection(void)
+string HostResourceQueryOption::getFromSection(void) const
 {
-	if (m_ctx->targetHostgroupId == ALL_HOST_GROUPS)
+	if (isOnlyOneTableUsed())
 		return getFromSectionForOneTable();
 	else
 		return getFromSectionWithHostgroup();
+}
+
+bool HostResourceQueryOption::isOnlyOneTableUsed(void) const
+{
+	const Synapse &synapse = m_ctx->synapse;
+	if (&synapse.tableProfile == &synapse.hostgroupMapTableProfile)
+		return true;
+	return m_ctx->targetHostgroupId == ALL_HOST_GROUPS;
+}
+
+string HostResourceQueryOption::getColumnName(const size_t &idx) const
+{
+	const Synapse &synapse = m_ctx->synapse;
+	const ColumnDef *columnDefs = synapse.tableProfile.columnDefs;
+	HATOHOL_ASSERT(idx < synapse.tableProfile.numColumns,
+	               "idx: %zd, numColumns: %zd",
+	               idx, synapse.tableProfile.numColumns);
+	string name;
+	if (!isOnlyOneTableUsed()) {
+		name += synapse.tableProfile.name;
+		name += ".";
+	}
+	name += columnDefs[idx].columnName;
+	return name;
 }
 
 ServerIdType HostResourceQueryOption::getTargetServerId(void) const
@@ -374,15 +444,31 @@ string HostResourceQueryOption::makeCondition(
 	return StringUtils::sprintf("(%s)", condition.c_str());
 }
 
-string HostResourceQueryOption::getFromSectionForOneTable(void)
+string HostResourceQueryOption::getFromSectionForOneTable(void) const
 {
-	MLPL_BUG("Not implemented yet: %s\n", __PRETTY_FUNCTION__);
-	return "";
+	return getPrimaryTableName();
 }
 
-string HostResourceQueryOption::getFromSectionWithHostgroup(void)
+string HostResourceQueryOption::getFromSectionWithHostgroup(void) const
 {
-	MLPL_BUG("Not implemented yet: %s\n", __PRETTY_FUNCTION__);
-	return "";
+	const Synapse &synapse = m_ctx->synapse;
+	const ColumnDef *columnDefs = synapse.tableProfile.columnDefs;
+	const ColumnDef *hgrpColumnDefs =
+	  synapse.hostgroupMapTableProfile.columnDefs;
+
+	return StringUtils::sprintf(
+	  "%s INNER JOIN %s ON ((%s.%s=%s.%s) AND (%s.%s=%s.%s))",
+	  synapse.tableProfile.name,
+	  synapse.hostgroupMapTableProfile.name,
+
+	  synapse.tableProfile.name,
+	  columnDefs[synapse.serverIdColumnIdx].columnName,
+	  synapse.hostgroupMapTableProfile.name,
+	  hgrpColumnDefs[synapse.hostgroupMapServerIdColumnIdx].columnName,
+
+	  synapse.tableProfile.name,
+	  columnDefs[synapse.hostIdColumnIdx].columnName,
+	  synapse.hostgroupMapTableProfile.name,
+	  hgrpColumnDefs[synapse.hostgroupMapHostIdColumnIdx].columnName);
 }
 

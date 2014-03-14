@@ -22,13 +22,35 @@
 
 #include <string>
 #include "Params.h"
+#include "DBAgent.h"
 #include "DataQueryOption.h"
 
 class HostResourceQueryOption : public DataQueryOption {
 public:
-	HostResourceQueryOption(const char *primaryTableName,
+	struct Synapse {
+		const DBAgent::TableProfile &tableProfile;
+		const size_t                 selfIdColumnIdx;
+		const size_t                 serverIdColumnIdx;
+		const size_t                 hostIdColumnIdx;
+
+		const DBAgent::TableProfile &hostgroupMapTableProfile;
+		const size_t                 hostgroupMapServerIdColumnIdx;
+		const size_t                 hostgroupMapHostIdColumnIdx;
+		const size_t                 hostgroupMapGroupIdColumnIdx;
+		
+		Synapse(const DBAgent::TableProfile &tableProfile,
+		     const size_t &selfIdColumnIdx,
+		     const size_t &serverIdColumnIdx,
+		     const size_t &hostIdColumnIdx,
+		     const DBAgent::TableProfile &hostgroupMapTableProfile,
+		     const size_t &hostgroupMapServerIdColumnIdx,
+		     const size_t &hostgroupMapHostIdColumnIdx,
+		     const size_t &hostgroupMapGroupIdColumnIdx);
+	};
+
+	HostResourceQueryOption(const Synapse &bind,
 	                        const UserIdType &userId = INVALID_USER_ID);
-	HostResourceQueryOption(const char *primaryTableName,
+	HostResourceQueryOption(const Synapse &bind,
 	                        DataQueryContext *dataQueryContext);
 	HostResourceQueryOption(const HostResourceQueryOption &src);
 	virtual ~HostResourceQueryOption();
@@ -44,9 +66,28 @@ public:
 	  const std::string &tableAlias = "") const; // override
 
 	/**
-	 * Generate a part of an SQL statement for a FROM section.
+	 * Get a part of an SQL statement for a FROM section.
+	 *
+	 * @return A string for a FROM section.
 	 */
-	virtual std::string generateFromSection(void);
+	virtual std::string getFromSection(void) const;
+
+	/**
+	 * Get information if one table is only used.
+	 * For example, If a join should be used, this method return false.
+	 *
+	 * @return true if one table is only used. Otherwiser, false.
+	 */
+	virtual bool isOnlyOneTableUsed(void) const;
+
+	/**
+	 * Get a column name at the specified index.
+	 * If it's a stuation that will do a join,
+	 * the style: tableName.colunName is returned.
+	 *
+	 * @return A column name.
+	 */
+	virtual std::string getColumnName(const size_t &idx) const;
 
 	virtual ServerIdType getTargetServerId(void) const;
 	virtual void setTargetServerId(const ServerIdType &targetServerId);
@@ -106,8 +147,8 @@ protected:
 	  const HostGroupSet &hostGroupSet,
 	  const std::string &hostGroupIdColumnName);
 
-	virtual std::string getFromSectionForOneTable(void);
-	virtual std::string getFromSectionWithHostgroup(void);
+	virtual std::string getFromSectionForOneTable(void) const;
+	virtual std::string getFromSectionWithHostgroup(void) const;
 
 private:
 	struct PrivateContext;

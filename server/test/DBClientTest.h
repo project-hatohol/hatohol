@@ -89,8 +89,9 @@ void getTestTriggersIndexes(
   std::map<ServerIdType, std::map<uint64_t, size_t> > &indexMap,
   const ServerIdType &serverId, uint64_t hostId);
 size_t getNumberOfTestTriggers(
-  const ServerIdType &serverId, uint64_t hostGroupId = ALL_HOST_GROUPS,
-  TriggerSeverityType severity = NUM_TRIGGER_SEVERITY);
+  const ServerIdType &serverId,
+  const HostgroupIdType &hostgroupId = ALL_HOST_GROUPS,
+  const TriggerSeverityType &severity = NUM_TRIGGER_SEVERITY);
 
 typedef std::map<uint64_t, size_t>         ItemInfoIdIndexMap;
 typedef ItemInfoIdIndexMap::iterator       ItemInfoIdIndexMapIterator;
@@ -109,12 +110,12 @@ ItemInfo *findTestItem(
   const ServerIdType &serverId, const uint64_t itemId);
 size_t getNumberOfTestItems(const ServerIdType &serverId);
 
-size_t getNumberOfTestHosts(const ServerIdType &serverId,
-                            uint64_t hostGroupId = ALL_HOST_GROUPS);
-size_t getNumberOfTestHostsWithStatus(const ServerIdType &serverId,
-                                      uint64_t hostGroupId,
-                                      bool status,
-                                      UserIdType userId = USER_ID_SYSTEM);
+size_t getNumberOfTestHosts(
+  const ServerIdType &serverId,
+  const HostgroupIdType &hostgroupId = ALL_HOST_GROUPS);
+size_t getNumberOfTestHostsWithStatus(
+  const ServerIdType &serverId, const HostgroupIdType &hostGroupId,
+  const bool &status, const UserIdType &userId = USER_ID_SYSTEM);
 
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo);
 
