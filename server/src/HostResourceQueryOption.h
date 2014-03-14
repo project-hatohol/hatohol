@@ -139,12 +139,12 @@ protected:
 	  const std::string &serverIdColumnName);
 	static std::string makeConditionServer(
 	  const ServerIdType &serverId,
-	  const HostGroupSet &hostGroupSet,
+	  const HostGroupIdSet &hostGroupIdSet,
 	  const std::string &serverIdColumnName,
 	  const std::string &hostGroupIdColumnName,
 	  const HostgroupIdType &hostgroupId = ALL_HOST_GROUPS);
 	static std::string makeConditionHostGroup(
-	  const HostGroupSet &hostGroupSet,
+	  const HostGroupIdSet &hostGroupIdSet,
 	  const std::string &hostGroupIdColumnName);
 
 	virtual std::string getFromSectionForOneTable(void) const;

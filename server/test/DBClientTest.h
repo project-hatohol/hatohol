@@ -136,5 +136,10 @@ bool isAuthorized(ServerHostGrpSetMap &authMap,
 
 size_t findIndexFromTestActionDef(const UserIdType &userId);
 
+/**
+ * Get a set of Hostgroup ID for the test material.
+ */
+const HostGroupIdSet &getTestHostgroupIdSet(void);
+
 #endif // DBClientTest_h
 

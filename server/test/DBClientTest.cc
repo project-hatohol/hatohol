@@ -553,6 +553,9 @@ HostgroupElement testHostgroupElement[] = {
 };
 const size_t NumTestHostgroupElement = sizeof(testHostgroupElement) / sizeof(HostgroupElement);
 
+static set<string> hostgroupElementPackSet;
+static set<HostgroupIdType> testHostgroupIdSet;
+
 UserRoleInfo testUserRoleInfo[] = {
 {
 	0,                            // id
@@ -668,14 +671,53 @@ size_t getNumberOfTestItems(const ServerIdType &serverId)
 	return count;
 }
 
+static string makeHostgroupElementPack(
+  const ServerIdType &serverId,
+  const HostIdType &hostId, const HostgroupIdType &hostgroupId)
+{
+	string s;
+	s.append((char *)&serverId,    sizeof(serverId));
+	s.append((char *)&hostId,      sizeof(hostId));
+	s.append((char *)&hostgroupId, sizeof(hostgroupId));
+	return s;
+}
+
+static void makeHostgroupElementPackSet(void)
+{
+	for (size_t i = 0; i < NumTestHostgroupElement; i++) {
+		const HostgroupElement &hgrpElem = testHostgroupElement[i];
+		const string mash =
+		  makeHostgroupElementPack(
+		    hgrpElem.serverId, hgrpElem.hostId, hgrpElem.groupId);
+		pair<set<string>::iterator, bool> result = 
+		  hostgroupElementPackSet.insert(mash);
+		cppcut_assert_equal(true, result.second);
+	}
+}
+
+static bool isInHostgroup(const TriggerInfo &trigInfo,
+                          const HostgroupIdType &hostgroupId)
+{
+	if (hostgroupId == ALL_HOST_GROUPS)
+		return true;
+
+	if (hostgroupElementPackSet.empty())
+		makeHostgroupElementPackSet();
+
+	const string pack =
+	  makeHostgroupElementPack(trigInfo.serverId,
+	                           trigInfo.hostId, hostgroupId);
+	set<string>::const_iterator it = hostgroupElementPackSet.find(pack);
+	return it != hostgroupElementPackSet.end();
+}
+
 size_t getNumberOfTestTriggers(const ServerIdType &serverId,
                                const HostgroupIdType &hostGroupId, 
                                const TriggerSeverityType &severity)
 {
-	// TODO: use hostGroupId after Hatohol support it.
 	size_t count = 0;
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
-		TriggerInfo &trigInfo = testTriggerInfo[i];
+		const TriggerInfo &trigInfo = testTriggerInfo[i];
 		if (serverId != ALL_SERVERS && trigInfo.serverId != serverId)
 			continue;
 		if (severity != NUM_TRIGGER_SEVERITY) {
@@ -684,6 +726,8 @@ size_t getNumberOfTestTriggers(const ServerIdType &serverId,
 			if (trigInfo.status == TRIGGER_STATUS_OK)
 				continue;
 		}
+		if (!isInHostgroup(trigInfo, hostGroupId))
+			continue;
 		count++;
 	}
 	return count;
@@ -737,13 +781,12 @@ size_t getNumberOfTestHostsWithStatus(
 	makeServerHostGrpSetMap(authMap, userId);
 
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
-		TriggerInfo &trigInfo = testTriggerInfo[i];
-		// TODO: use the correct hostgroupId after Hatohol support it.
-		uint64_t hostGrpIdForTrig = hostgroupId;
-
+		const TriggerInfo &trigInfo = testTriggerInfo[i];
 		if (serverId != ALL_SERVERS && trigInfo.serverId != serverId)
 			continue;
 		if (!isAuthorized(authMap, userId, serverId, hostgroupId))
+			continue;
+		if (!isInHostgroup(trigInfo, hostgroupId))
 			continue;
 		if (isGoodStatus(trigInfo) != status) {
 			if (status) {
@@ -751,8 +794,7 @@ size_t getNumberOfTestHostsWithStatus(
 				// When a host has at least one bad triggeer,
 				// the host is not good.
 				removeHostIdIfNeeded(svIdHostGrpIdMap,
-				                     hostGrpIdForTrig,
-				                     trigInfo);
+				                     hostgroupId, trigInfo);
 			}
 			continue;
 		}
@@ -764,19 +806,19 @@ size_t getNumberOfTestHostsWithStatus(
 			HostIdSet hostIdSet;
 			hostIdSet.insert(trigInfo.hostId);
 			HostGroupHostIdMap hostMap;
-			hostMap[hostGrpIdForTrig] = hostIdSet;
+			hostMap[hostgroupId] = hostIdSet;
 			svIdHostGrpIdMap[trigInfo.serverId] = hostMap;
 			continue;
 		}
 
 		HostGroupHostIdMap &hostGrpIdMap = svIt->second;
-		hostIt = hostGrpIdMap.find(hostGrpIdForTrig);
+		hostIt = hostGrpIdMap.find(hostgroupId);
 		if (hostIt == hostGrpIdMap.end()) {
 			// svIdHostGrpMap doesn't have value pair
 			// for this host group
 			HostIdSet hostIdSet;
 			hostIdSet.insert(trigInfo.hostId);
-			hostGrpIdMap[hostGrpIdForTrig] = hostIdSet;
+			hostGrpIdMap[hostgroupId] = hostIdSet;
 			continue;
 		}
 
@@ -882,8 +924,8 @@ bool isAuthorized(ServerHostGrpSetMap &authMap, UserIdType userId,
 	if (serverIt == authMap.end())
 		return false;
 
-	HostGroupSet &hostGroups = serverIt->second;
-	if (hostGroups.find(ALL_HOST_GROUPS) != hostGroups.end())
+	HostGroupIdSet &hostgroupIds = serverIt->second;
+	if (hostgroupIds.find(ALL_HOST_GROUPS) != hostgroupIds.end())
 		return true;
 
 	if (hostGroupId == ALL_HOST_GROUPS)
@@ -909,3 +951,12 @@ size_t findIndexFromTestActionDef(const UserIdType &userId)
 	return idx;
 }
 
+const HostGroupIdSet &getTestHostgroupIdSet(void)
+{
+	if (!testHostgroupIdSet.empty()) 
+		return testHostgroupIdSet;
+
+	for (size_t i = 0; i < NumTestHostgroupElement; i++)
+		testHostgroupIdSet.insert(testHostgroupElement[i].groupId);
+	return testHostgroupIdSet;
+}

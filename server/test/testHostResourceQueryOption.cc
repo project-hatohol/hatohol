@@ -147,14 +147,14 @@ const DBAgent::TableProfile tableProfileTestHGrp(
   sizeof(COLUMN_DEF_TEST_HGRP), NUM_IDX_TEST_HGRP_TABLE
 );
 
-static const HostResourceQueryOption::Synapse TEST_BIND(
+static const HostResourceQueryOption::Synapse TEST_SYNAPSE(
   tableProfileTest,
   IDX_TEST_TABLE_ID, IDX_TEST_TABLE_SERVER_ID, IDX_TEST_TABLE_HOST_ID,
   tableProfileTestHGrp,
   IDX_TEST_HGRP_TABLE_SERVER_ID, IDX_TEST_HGRP_TABLE_HOST_ID,
   IDX_TEST_HGRP_TABLE_HOST_GROUP_ID);
 
-static const HostResourceQueryOption::Synapse TEST_BIND_HGRP(
+static const HostResourceQueryOption::Synapse TEST_SYNAPSE_HGRP(
   tableProfileTestHGrp,
   IDX_TEST_HGRP_TABLE_ID, IDX_TEST_HGRP_TABLE_SERVER_ID,
   IDX_TEST_HGRP_TABLE_HOST_ID,
@@ -233,7 +233,7 @@ void test_constructorDataQueryContext(void)
 	  DataQueryContextPtr(new DataQueryContext(userId), false);
 	cppcut_assert_equal(1, dqCtxPtr->getUsedCount());
 	{
-		HostResourceQueryOption opt(TEST_BIND, dqCtxPtr);
+		HostResourceQueryOption opt(TEST_SYNAPSE, dqCtxPtr);
 		cppcut_assert_equal((DataQueryContext *)dqCtxPtr,
 		                    &opt.getDataQueryContext());
 		cppcut_assert_equal(2, dqCtxPtr->getUsedCount());
@@ -243,7 +243,7 @@ void test_constructorDataQueryContext(void)
 
 void test_copyConstructor(void)
 {
-	HostResourceQueryOption opt0(TEST_BIND);
+	HostResourceQueryOption opt0(TEST_SYNAPSE);
 	cppcut_assert_equal(1, opt0.getDataQueryContext().getUsedCount());
 	{
 		HostResourceQueryOption opt1(opt0);
@@ -257,7 +257,7 @@ void test_copyConstructor(void)
 
 void test_getPrimaryTableName(void)
 {
-	HostResourceQueryOption option(TEST_BIND);
+	HostResourceQueryOption option(TEST_SYNAPSE);
 	cppcut_assert_equal(TEST_PRIMARY_TABLE_NAME,
 	                    option.getPrimaryTableName());
 }
@@ -308,7 +308,7 @@ void test_makeConditionServerWithEmptyIdSet(void)
 
 void test_defaultValueOfFilterForDataOfDefunctServers(void)
 {
-	HostResourceQueryOption opt(TEST_BIND);
+	HostResourceQueryOption opt(TEST_SYNAPSE);
 	cppcut_assert_equal(true, opt.getFilterForDataOfDefunctServers());
 }
 
@@ -322,7 +322,7 @@ void data_setGetOfFilterForDataOfDefunctServers(void)
 
 void test_setGetOfFilterForDataOfDefunctServers(gconstpointer data)
 {
-	HostResourceQueryOption opt(TEST_BIND);
+	HostResourceQueryOption opt(TEST_SYNAPSE);
 	bool enable = gcut_data_get_boolean(data, "enable");
 	opt.setFilterForDataOfDefunctServers(enable);
 	cppcut_assert_equal(enable, opt.getFilterForDataOfDefunctServers());
@@ -450,7 +450,7 @@ void test_conditionForAdminWithTargetServerAndHost(gconstpointer data)
 	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
 	if (filterForDataOfDefunctSv)
 		cut_pend("To be implemented");
-	HostResourceQueryOption option(TEST_BIND, USER_ID_SYSTEM);
+	HostResourceQueryOption option(TEST_SYNAPSE, USER_ID_SYSTEM);
 	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	option.setTargetServerId(26);
 	option.setTargetHostId(32);
@@ -496,7 +496,7 @@ void data_makeSelectConditionUserAdmin(void)
 void test_makeSelectConditionUserAdmin(gconstpointer data)
 {
 	setupTestDBConfig(true, true);
-	HostResourceQueryOption option(TEST_BIND, USER_ID_SYSTEM);
+	HostResourceQueryOption option(TEST_SYNAPSE, USER_ID_SYSTEM);
 	string expect = "";
 	fixupForFilteringDefunctServer(data, expect, option);
 	string actual = option.getCondition();
@@ -511,7 +511,7 @@ void data_makeSelectConditionAllEvents(void)
 void test_makeSelectConditionAllEvents(gconstpointer data)
 {
 	setupTestDBConfig(true, true);
-	HostResourceQueryOption option(TEST_BIND);
+	HostResourceQueryOption option(TEST_SYNAPSE);
 	option.setFlags(OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_SERVER));
 	string expect = "";
 	fixupForFilteringDefunctServer(data, expect, option);
@@ -523,7 +523,7 @@ void test_makeSelectConditionNoneUser(void)
 {
 	setupTestDBConfig(true, true);
 	setupTestDBUser(true, true);
-	HostResourceQueryOption option(TEST_BIND);
+	HostResourceQueryOption option(TEST_SYNAPSE);
 	string actual = option.getCondition();
 	string expect = DBClientHatohol::getAlwaysFalseCondition();
 	cppcut_assert_equal(actual, expect);
@@ -540,7 +540,7 @@ void test_makeSelectCondition(gconstpointer data)
 	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
 	setupTestDBConfig(true, true);
 	setupTestDBUser(true, true);
-	HostResourceQueryOption option(TEST_BIND);
+	HostResourceQueryOption option(TEST_SYNAPSE);
 	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	for (size_t i = 0; i < NumTestUserInfo; i++) {
 		UserIdType userId = i + 1;
@@ -556,14 +556,14 @@ void test_makeSelectCondition(gconstpointer data)
 
 void test_getFromSectionWithAllHostGroup(void)
 {
-	HostResourceQueryOption option(TEST_BIND);
+	HostResourceQueryOption option(TEST_SYNAPSE);
 	cppcut_assert_equal(string(TEST_PRIMARY_TABLE_NAME),
 	                    option.getFromSection());
 }
 
 void test_getFromSectionWithSpecificHostGroup(void)
 {
-	HostResourceQueryOption option(TEST_BIND);
+	HostResourceQueryOption option(TEST_SYNAPSE);
 	option.setTargetHostgroupId(5);
 	const string expect = 
 	  "test_table_name INNER JOIN test_hgrp_table_name ON "
@@ -582,7 +582,7 @@ void data_isJoinNeeded(void)
 void test_isOnlyOneTableUsed(gconstpointer data)
 {
 	const bool oneTable = gcut_data_get_boolean(data, "oneTable");
-	HostResourceQueryOption option(TEST_BIND);
+	HostResourceQueryOption option(TEST_SYNAPSE);
 	if (!oneTable)
 		option.setTargetHostgroupId(5);
 	cppcut_assert_equal(oneTable, option.isOnlyOneTableUsed());
@@ -590,7 +590,7 @@ void test_isOnlyOneTableUsed(gconstpointer data)
 
 void test_isOnlyOneTableUsedForHostgroupTable(void)
 {
-	HostResourceQueryOption option(TEST_BIND_HGRP);
+	HostResourceQueryOption option(TEST_SYNAPSE_HGRP);
 	option.setTargetHostgroupId(5);
 	// It shall always be one table.
 	cppcut_assert_equal(true, option.isOnlyOneTableUsed());
@@ -599,7 +599,7 @@ void test_isOnlyOneTableUsedForHostgroupTable(void)
 void test_getColumnName(void)
 {
 	const size_t idx = IDX_TEST_TABLE_HOST_ID;
-	HostResourceQueryOption option(TEST_BIND);
+	HostResourceQueryOption option(TEST_SYNAPSE);
 	cppcut_assert_equal(string(COLUMN_DEF_TEST[idx].columnName),
 	                           option.getColumnName(idx));
 }
@@ -607,7 +607,7 @@ void test_getColumnName(void)
 void test_getColumnNameFull(void)
 {
 	const size_t idx = IDX_TEST_TABLE_HOST_ID;
-	HostResourceQueryOption option(TEST_BIND);
+	HostResourceQueryOption option(TEST_SYNAPSE);
 	option.setTargetHostgroupId(5);
 	string expect = TEST_PRIMARY_TABLE_NAME;
 	expect += ".";

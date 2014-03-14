@@ -1124,9 +1124,7 @@ static void addOverviewEachServer(FaceRest::RestJob *job,
 		     severity < NUM_TRIGGER_SEVERITY; severity++) {
 			TriggersQueryOption option(job->dataQueryContextPtr);
 			option.setTargetServerId(svInfo.id);
-			//FIXME: If the following line is uncommented,
-			//       an exception happens.
-			//option.setTargetHostgroupId(hostGroupId);
+			option.setTargetHostgroupId(hostGroupId);
 			agent.startObject();
 			agent.add("hostGroupId", hostGroupId);
 			agent.add("severity", severity);
@@ -1147,9 +1145,7 @@ static void addOverviewEachServer(FaceRest::RestJob *job,
 		const HostgroupIdType hostGroupId = hostgrpItr->groupId;
 		TriggersQueryOption option(job->dataQueryContextPtr);
 		option.setTargetServerId(svInfo.id);
-		//FIXME: If the following line is uncommented,
-		//       an exception happens.
-		//option.setTargetHostgroupId(hostGroupId);
+		option.setTargetHostgroupId(hostGroupId);
 		size_t numBadHosts = dataStore->getNumberOfBadHosts(option);
 		agent.startObject();
 		agent.add("hostGroupId", hostGroupId);

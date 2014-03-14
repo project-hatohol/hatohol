@@ -837,7 +837,7 @@ void DBClientUser::getServerHostGrpSetMap(
 		itemGroupStream >> hostGroupId;
 
 		// insert data
-		pair<HostGroupSetIterator, bool> result =
+		pair<HostGroupIdSetIterator, bool> result =
 		  srvHostGrpSetMap[serverId].insert(hostGroupId);
 		if (!result.second) {
 			MLPL_WARN("Found duplicated serverId and hostGroupId: "
