@@ -1313,16 +1313,7 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	  sizeof(tableProfiles) / sizeof(DBAgent::TableProfile *);
 	DBAgent::SelectMultiTableArg arg(tableProfiles, numTableProfiles);
 
-	arg.tableField = StringUtils::sprintf(
-	  " %s inner join %s on ((%s=%s) and (%s=%s))",
-	  TABLE_NAME_TRIGGERS,
-	  TABLE_NAME_MAP_HOSTS_HOSTGROUPS,
-	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_SERVER_ID).c_str(),
-	  arg.getFullName(
-	    TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID).c_str(),
-	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_HOST_ID).c_str(),
-	  arg.getFullName(
-	    TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID).c_str());
+	arg.tableField = option.getFromSection();
 
 	arg.setTable(TBLIDX_TRIGGERS);
 	arg.add(IDX_TRIGGERS_SERVER_ID);
@@ -1335,8 +1326,10 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	arg.add(IDX_TRIGGERS_HOSTNAME);
 	arg.add(IDX_TRIGGERS_BRIEF);
 
-	arg.setTable(TBLIDX_MAP_HOSTS_HOSTGROUPS);
-	arg.add(IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
+	if (!option.isOnlyOneTableUsed()) {
+		arg.setTable(TBLIDX_MAP_HOSTS_HOSTGROUPS);
+		arg.add(IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
+	}
 
 	// condition
 	arg.condition = condition;
@@ -1369,8 +1362,11 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 		itemGroupStream >> trigInfo.lastChangeTime.tv_nsec;
 		itemGroupStream >> trigInfo.hostId;
 		itemGroupStream >> trigInfo.hostName;
-		itemGroupStream >> trigInfo.brief;
-		itemGroupStream >> trigInfo.hostgroupId;
+			itemGroupStream >> trigInfo.brief;
+		if (!option.isOnlyOneTableUsed())
+			itemGroupStream >> trigInfo.hostgroupId;
+		else
+			trigInfo.hostgroupId = ALL_HOST_GROUPS;
 
 		triggerInfoList.push_back(trigInfo);
 	}
