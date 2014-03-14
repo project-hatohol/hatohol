@@ -1128,7 +1128,7 @@ static void _assertUserRoles(const string &path,
 
 static void assertHostGroupsInParser(JsonParserAgent *parser,
                                      const ServerIdType &serverId,
-                                     HostGroupSet &hostGroupIdSet)
+                                     HostGroupIdSet &hostGroupIdSet)
 {
 	assertStartObject(parser, "hostGroups");
 	for (size_t i = 0; i < NumTestHostgroupInfo; i++) {
@@ -1149,12 +1149,12 @@ static void assertHostGroupsInParser(JsonParserAgent *parser,
 
 static void assertHostStatusInParser(JsonParserAgent *parser,
                                      const ServerIdType &serverId,
-                                     const HostGroupSet &hostgroupIdSet)
+                                     const HostGroupIdSet &hostgroupIdSet)
 {
 	assertStartObject(parser, "hostStatus");
 	cppcut_assert_equal(hostgroupIdSet.size(),
 	                    (size_t)parser->countElements());
-	HostGroupSetConstIterator hostgrpIdItr = hostgroupIdSet.begin();
+	HostGroupIdSetConstIterator hostgrpIdItr = hostgroupIdSet.begin();
 	size_t idx = 0;
 	for (; hostgrpIdItr != hostgroupIdSet.end(); ++hostgrpIdItr, ++idx) {
 		parser->startElement(idx);
@@ -1187,10 +1187,10 @@ static void assertSystemStatusInParserEach(
 
 static void assertSystemStatusInParser(JsonParserAgent *parser,
                                        const ServerIdType &serverId,
-                                       const HostGroupSet &hostgroupIdSet)
+                                       const HostGroupIdSet &hostgroupIdSet)
 {
 	assertStartObject(parser, "systemStatus");
-	HostGroupSetConstIterator hostgrpIdItr = hostgroupIdSet.begin();
+	HostGroupIdSetConstIterator hostgrpIdItr = hostgroupIdSet.begin();
 	cppcut_assert_equal(hostgroupIdSet.size() * NUM_TRIGGER_SEVERITY,
 	                    (size_t)parser->countElements());
 	size_t arrayIdx = 0;
@@ -1212,7 +1212,7 @@ static void _assertOverviewInParser(JsonParserAgent *parser)
 	size_t numGoodServers = 0, numBadServers = 0;
 	// We assume that the caller can access all serers and hosts.
 	for (size_t i = 0; i < NumTestServerInfo; i++) {
-		HostGroupSet hostgroupIdSet;
+		HostGroupIdSet hostgroupIdSet;
 		parser->startElement(i);
 		MonitoringServerInfo &svInfo = testServerInfo[i];
 		assertValueInParser(parser, "serverId", svInfo.id);

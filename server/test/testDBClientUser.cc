@@ -76,8 +76,8 @@ static size_t countServerHostGrpSetMapElements(
 	size_t num = 0;
 	ServerHostGrpSetMapConstIterator it = srvHostGrpSetMap.begin();
 	for (; it != srvHostGrpSetMap.end(); ++it) {
-		const HostGroupSet &hostGroupSet = it->second;
-		num += hostGroupSet.size();
+		const HostGroupIdSet &hostGroupIdSet = it->second;
+		num += hostGroupIdSet.size();
 	}
 	return num;
 }
@@ -135,10 +135,10 @@ static void _assertServerHostGrpSetMap(
 		cppcut_assert_equal(true, jt != srvHostGrpSetMap.end(),
 		                    cut_message("Failed to lookup: %"PRIu32,
 		                                expectAccessInfo.serverId));
-		const HostGroupSet &hostGroupSet = jt->second;
-		HostGroupSetConstIterator kt =
-		   hostGroupSet.find(expectAccessInfo.hostGroupId);
-		cppcut_assert_equal(true, kt != hostGroupSet.end(),
+		const HostGroupIdSet &hostGroupIdSet = jt->second;
+		HostGroupIdSetConstIterator kt =
+		   hostGroupIdSet.find(expectAccessInfo.hostGroupId);
+		cppcut_assert_equal(true, kt != hostGroupIdSet.end(),
 		                    cut_message("Failed to lookup: %"PRIu64,
 		                                expectAccessInfo.hostGroupId));
 	}

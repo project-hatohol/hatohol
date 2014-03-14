@@ -322,12 +322,12 @@ string HostResourceQueryOption::getHostIdColumnName(
 }
 
 string HostResourceQueryOption::makeConditionHostGroup(
-  const HostGroupSet &hostGroupSet, const string &hostGroupIdColumnName)
+  const HostGroupIdSet &hostGroupIdSet, const string &hostGroupIdColumnName)
 {
 	string hostGrps;
-	HostGroupSetConstIterator it = hostGroupSet.begin();
-	size_t commaCnt = hostGroupSet.size() - 1;
-	for (; it != hostGroupSet.end(); ++it, commaCnt--) {
+	HostGroupIdSetConstIterator it = hostGroupIdSet.begin();
+	size_t commaCnt = hostGroupIdSet.size() - 1;
+	for (; it != hostGroupIdSet.end(); ++it, commaCnt--) {
 		const uint64_t hostGroupId = *it;
 		if (hostGroupId == ALL_HOST_GROUPS)
 			return "";
@@ -363,7 +363,7 @@ string HostResourceQueryOption::makeConditionServer(
 }
 
 string HostResourceQueryOption::makeConditionServer(
-  const ServerIdType &serverId, const HostGroupSet &hostGroupSet,
+  const ServerIdType &serverId, const HostGroupIdSet &hostGroupIdSet,
   const string &serverIdColumnName, const string &hostGroupIdColumnName,
   const HostgroupIdType &hostgroupId)
 {
@@ -374,7 +374,7 @@ string HostResourceQueryOption::makeConditionServer(
 	string conditionHostGroup;
 	if (hostgroupId == ALL_HOST_GROUPS) {
 		conditionHostGroup =
-		  makeConditionHostGroup(hostGroupSet, hostGroupIdColumnName);
+		  makeConditionHostGroup(hostGroupIdSet, hostGroupIdColumnName);
 	} else {
 		conditionHostGroup = StringUtils::sprintf(
 		  "%s=%"FMT_HOST_GROUP_ID, hostGroupIdColumnName.c_str(),

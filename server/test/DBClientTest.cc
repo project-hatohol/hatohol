@@ -882,8 +882,8 @@ bool isAuthorized(ServerHostGrpSetMap &authMap, UserIdType userId,
 	if (serverIt == authMap.end())
 		return false;
 
-	HostGroupSet &hostGroups = serverIt->second;
-	if (hostGroups.find(ALL_HOST_GROUPS) != hostGroups.end())
+	HostGroupIdSet &hostgroupIds = serverIt->second;
+	if (hostgroupIds.find(ALL_HOST_GROUPS) != hostgroupIds.end())
 		return true;
 
 	if (hostGroupId == ALL_HOST_GROUPS)
