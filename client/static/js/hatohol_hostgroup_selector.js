@@ -62,7 +62,7 @@ HatoholHostgroupSelector.prototype.generateTableRows = function(reply) {
     hostgroup = reply.hostgroups[i];
     s += '<tr>';
     s += '<td>' + hostgroup.serverId + '</td>';
-    s += '<td>' + hostgroup.id + '</td>';
+    s += '<td>' + hostgroup.groupId + '</td>';
     s += '<td>' + hostgroup.groupName + '</td>';
     s += '</tr>';
   }
