@@ -27,7 +27,7 @@
 
 class HostResourceQueryOption : public DataQueryOption {
 public:
-	struct Bind {
+	struct Synapse {
 		const DBAgent::TableProfile &tableProfile;
 		const size_t                 selfIdColumnIdx;
 		const size_t                 serverIdColumnIdx;
@@ -38,7 +38,7 @@ public:
 		const size_t                 hostgroupMapHostIdColumnIdx;
 		const size_t                 hostgroupMapGroupIdColumnIdx;
 		
-		Bind(const DBAgent::TableProfile &tableProfile,
+		Synapse(const DBAgent::TableProfile &tableProfile,
 		     const size_t &selfIdColumnIdx,
 		     const size_t &serverIdColumnIdx,
 		     const size_t &hostIdColumnIdx,
@@ -48,9 +48,9 @@ public:
 		     const size_t &hostgroupMapGroupIdColumnIdx);
 	};
 
-	HostResourceQueryOption(const Bind &bind,
+	HostResourceQueryOption(const Synapse &bind,
 	                        const UserIdType &userId = INVALID_USER_ID);
-	HostResourceQueryOption(const Bind &bind,
+	HostResourceQueryOption(const Synapse &bind,
 	                        DataQueryContext *dataQueryContext);
 	HostResourceQueryOption(const HostResourceQueryOption &src);
 	virtual ~HostResourceQueryOption();

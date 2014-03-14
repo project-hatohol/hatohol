@@ -147,14 +147,14 @@ const DBAgent::TableProfile tableProfileTestHGrp(
   sizeof(COLUMN_DEF_TEST_HGRP), NUM_IDX_TEST_HGRP_TABLE
 );
 
-static const HostResourceQueryOption::Bind TEST_BIND(
+static const HostResourceQueryOption::Synapse TEST_BIND(
   tableProfileTest,
   IDX_TEST_TABLE_ID, IDX_TEST_TABLE_SERVER_ID, IDX_TEST_TABLE_HOST_ID,
   tableProfileTestHGrp,
   IDX_TEST_HGRP_TABLE_SERVER_ID, IDX_TEST_HGRP_TABLE_HOST_ID,
   IDX_TEST_HGRP_TABLE_HOST_GROUP_ID);
 
-static const HostResourceQueryOption::Bind TEST_BIND_HGRP(
+static const HostResourceQueryOption::Synapse TEST_BIND_HGRP(
   tableProfileTestHGrp,
   IDX_TEST_HGRP_TABLE_ID, IDX_TEST_HGRP_TABLE_SERVER_ID,
   IDX_TEST_HGRP_TABLE_HOST_ID,

@@ -692,7 +692,7 @@ void initEventInfo(EventInfo &eventInfo)
 //
 // EventQueryOption
 //
-static const HostResourceQueryOption::Bind bindEventsQueryOption(
+static const HostResourceQueryOption::Synapse synapseEventsQueryOption(
   tableProfileEvents,
   IDX_EVENTS_UNIFIED_ID, IDX_EVENTS_SERVER_ID, IDX_EVENTS_HOST_ID,
   tableProfileMapHostsHostgroups,
@@ -717,7 +717,7 @@ struct EventsQueryOption::PrivateContext {
 };
 
 EventsQueryOption::EventsQueryOption(const UserIdType &userId)
-: HostResourceQueryOption(bindEventsQueryOption, userId)
+: HostResourceQueryOption(synapseEventsQueryOption, userId)
 {
 	m_ctx = new PrivateContext();
 	setServerIdColumnName(
@@ -727,7 +727,7 @@ EventsQueryOption::EventsQueryOption(const UserIdType &userId)
 }
 
 EventsQueryOption::EventsQueryOption(DataQueryContext *dataQueryContext)
-: HostResourceQueryOption(bindEventsQueryOption, dataQueryContext)
+: HostResourceQueryOption(synapseEventsQueryOption, dataQueryContext)
 {
 	m_ctx = new PrivateContext();
 	setServerIdColumnName(
@@ -873,7 +873,7 @@ TriggerStatusType EventsQueryOption::getTriggerStatus(void) const
 //
 // TriggersQueryOption
 //
-static const HostResourceQueryOption::Bind bindTriggersQueryOption(
+static const HostResourceQueryOption::Synapse synapseTriggersQueryOption(
   tableProfileTriggers,
   IDX_TRIGGERS_ID, IDX_TRIGGERS_SERVER_ID, IDX_TRIGGERS_HOST_ID,
   tableProfileMapHostsHostgroups,
@@ -894,7 +894,7 @@ struct TriggersQueryOption::PrivateContext {
 };
 
 TriggersQueryOption::TriggersQueryOption(UserIdType userId)
-: HostResourceQueryOption(bindTriggersQueryOption, userId)
+: HostResourceQueryOption(synapseTriggersQueryOption, userId)
 {
 	m_ctx = new PrivateContext();
 	setServerIdColumnName(
@@ -904,7 +904,7 @@ TriggersQueryOption::TriggersQueryOption(UserIdType userId)
 }
 
 TriggersQueryOption::TriggersQueryOption(DataQueryContext *dataQueryContext)
-: HostResourceQueryOption(bindTriggersQueryOption, dataQueryContext)
+: HostResourceQueryOption(synapseTriggersQueryOption, dataQueryContext)
 {
 	m_ctx = new PrivateContext();
 	setServerIdColumnName(
@@ -998,7 +998,7 @@ TriggerStatusType TriggersQueryOption::getTriggerStatus(void) const
 //
 // ItemsQueryOption
 //
-static const HostResourceQueryOption::Bind bindItemsQueryOption(
+static const HostResourceQueryOption::Synapse synapseItemsQueryOption(
   tableProfileItems, IDX_ITEMS_ID, IDX_ITEMS_SERVER_ID, IDX_ITEMS_HOST_ID,
   tableProfileMapHostsHostgroups,
   IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
@@ -1015,7 +1015,7 @@ struct ItemsQueryOption::PrivateContext {
 };
 
 ItemsQueryOption::ItemsQueryOption(UserIdType userId)
-: HostResourceQueryOption(bindItemsQueryOption, userId)
+: HostResourceQueryOption(synapseItemsQueryOption, userId)
 {
 	m_ctx = new PrivateContext();
 	setServerIdColumnName(
@@ -1025,7 +1025,7 @@ ItemsQueryOption::ItemsQueryOption(UserIdType userId)
 }
 
 ItemsQueryOption::ItemsQueryOption(DataQueryContext *dataQueryContext)
-: HostResourceQueryOption(bindItemsQueryOption, dataQueryContext)
+: HostResourceQueryOption(synapseItemsQueryOption, dataQueryContext)
 {
 	m_ctx = new PrivateContext();
 	setServerIdColumnName(
@@ -1101,14 +1101,14 @@ const string &ItemsQueryOption::getTargetItemGroupName(void)
 //
 // HostsQueryOption
 //
-static const HostResourceQueryOption::Bind bindHostsQueryOption(
+static const HostResourceQueryOption::Synapse synapseHostsQueryOption(
   tableProfileHosts, IDX_HOSTS_ID, IDX_HOSTS_SERVER_ID, IDX_HOSTS_ID,
   tableProfileMapHostsHostgroups,
   IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
   IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
 
 HostsQueryOption::HostsQueryOption(UserIdType userId)
-: HostResourceQueryOption(bindHostsQueryOption, userId)
+: HostResourceQueryOption(synapseHostsQueryOption, userId)
 {
 	setServerIdColumnName(
 	  COLUMN_DEF_HOSTS[IDX_HOSTS_SERVER_ID].columnName);
@@ -1117,7 +1117,7 @@ HostsQueryOption::HostsQueryOption(UserIdType userId)
 }
 
 HostsQueryOption::HostsQueryOption(DataQueryContext *dataQueryContext)
-: HostResourceQueryOption(bindHostsQueryOption, dataQueryContext)
+: HostResourceQueryOption(synapseHostsQueryOption, dataQueryContext)
 {
 	setServerIdColumnName(
 	  COLUMN_DEF_HOSTS[IDX_HOSTS_SERVER_ID].columnName);
@@ -1128,7 +1128,7 @@ HostsQueryOption::HostsQueryOption(DataQueryContext *dataQueryContext)
 //
 // HostgroupsQueryOption
 //
-static const HostResourceQueryOption::Bind bindHostgroupsQueryOption(
+static const HostResourceQueryOption::Synapse synapseHostgroupsQueryOption(
   tableProfileHostgroups,
   IDX_HOSTGROUPS_GROUP_ID, IDX_HOSTGROUPS_SERVER_ID, INVALID_COLUMN_IDX,
   tableProfileMapHostsHostgroups,
@@ -1136,7 +1136,7 @@ static const HostResourceQueryOption::Bind bindHostgroupsQueryOption(
   IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
 
 HostgroupsQueryOption::HostgroupsQueryOption(UserIdType userId)
-: HostResourceQueryOption(bindHostgroupsQueryOption, userId)
+: HostResourceQueryOption(synapseHostgroupsQueryOption, userId)
 {
 	setServerIdColumnName(
 	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_SERVER_ID].columnName);
@@ -1145,7 +1145,7 @@ HostgroupsQueryOption::HostgroupsQueryOption(UserIdType userId)
 }
 
 HostgroupsQueryOption::HostgroupsQueryOption(DataQueryContext *dataQueryContext)
-: HostResourceQueryOption(bindHostgroupsQueryOption, dataQueryContext)
+: HostResourceQueryOption(synapseHostgroupsQueryOption, dataQueryContext)
 {
 	setServerIdColumnName(
 	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_SERVER_ID].columnName);
@@ -1156,7 +1156,7 @@ HostgroupsQueryOption::HostgroupsQueryOption(DataQueryContext *dataQueryContext)
 //
 // HostgroupElementQueryOption
 //
-static const HostResourceQueryOption::Bind bindHostgroupElementQueryOption(
+static const HostResourceQueryOption::Synapse synapseHostgroupElementQueryOption(
   tableProfileMapHostsHostgroups,
   IDX_MAP_HOSTS_HOSTGROUPS_ID, IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID,
   IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
@@ -1165,7 +1165,7 @@ static const HostResourceQueryOption::Bind bindHostgroupElementQueryOption(
   IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
 
 HostgroupElementQueryOption::HostgroupElementQueryOption(UserIdType userId)
-: HostResourceQueryOption(bindHostgroupElementQueryOption, userId)
+: HostResourceQueryOption(synapseHostgroupElementQueryOption, userId)
 {
 	setServerIdColumnName(
 	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID].columnName);
@@ -1175,7 +1175,7 @@ HostgroupElementQueryOption::HostgroupElementQueryOption(UserIdType userId)
 
 HostgroupElementQueryOption::HostgroupElementQueryOption(
   DataQueryContext *dataQueryContext)
-: HostResourceQueryOption(bindHostgroupElementQueryOption, dataQueryContext)
+: HostResourceQueryOption(synapseHostgroupElementQueryOption, dataQueryContext)
 {
 	setServerIdColumnName(
 	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID].columnName);

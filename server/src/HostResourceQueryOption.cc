@@ -24,9 +24,9 @@ using namespace std;
 using namespace mlpl;
 
 // ---------------------------------------------------------------------------
-// Bind
+// Synapse
 // ---------------------------------------------------------------------------
-HostResourceQueryOption::Bind::Bind(
+HostResourceQueryOption::Synapse::Synapse(
   const DBAgent::TableProfile &_tableProfile,
   const size_t &_selfIdColumnIdx,
   const size_t &_serverIdColumnIdx,
@@ -50,7 +50,7 @@ HostResourceQueryOption::Bind::Bind(
 // PrivateContext
 // ---------------------------------------------------------------------------
 struct HostResourceQueryOption::PrivateContext {
-	const Bind     &bind;
+	const Synapse  &synapse;
 	string          serverIdColumnName;
 	string          hostGroupIdColumnName;
 	string          hostIdColumnName;
@@ -59,8 +59,8 @@ struct HostResourceQueryOption::PrivateContext {
 	HostgroupIdType targetHostgroupId;
 	bool            filterDataOfDefunctServers;
 
-	PrivateContext(const Bind &_bind)
-	: bind(_bind),
+	PrivateContext(const Synapse &_synapse)
+	: synapse(_synapse),
 	  serverIdColumnName("server_id"),
 	  hostGroupIdColumnName("host_group_id"),
 	  hostIdColumnName("host_id"),
@@ -88,24 +88,24 @@ struct HostResourceQueryOption::PrivateContext {
 // Public methods
 // ---------------------------------------------------------------------------
 HostResourceQueryOption::HostResourceQueryOption(
-  const Bind &bind, const UserIdType &userId)
+  const Synapse &synapse, const UserIdType &userId)
 : DataQueryOption(userId)
 {
-	m_ctx = new PrivateContext(bind);
+	m_ctx = new PrivateContext(synapse);
 }
 
 HostResourceQueryOption::HostResourceQueryOption(
-  const Bind &bind, DataQueryContext *dataQueryContext)
+  const Synapse &synapse, DataQueryContext *dataQueryContext)
 : DataQueryOption(dataQueryContext)
 {
-	m_ctx = new PrivateContext(bind);
+	m_ctx = new PrivateContext(synapse);
 }
 
 HostResourceQueryOption::HostResourceQueryOption(
   const HostResourceQueryOption &src)
 : DataQueryOption(src)
 {
-	m_ctx = new PrivateContext(src.m_ctx->bind);
+	m_ctx = new PrivateContext(src.m_ctx->synapse);
 	*m_ctx = *src.m_ctx;
 }
 
@@ -117,7 +117,7 @@ HostResourceQueryOption::~HostResourceQueryOption()
 
 const char *HostResourceQueryOption::getPrimaryTableName(void) const
 {
-	return m_ctx->bind.tableProfile.name;
+	return m_ctx->synapse.tableProfile.name;
 }
 
 string HostResourceQueryOption::getCondition(const string &_tableAlias) const
@@ -203,22 +203,22 @@ string HostResourceQueryOption::getFromSection(void) const
 
 bool HostResourceQueryOption::isOnlyOneTableUsed(void) const
 {
-	const Bind &bind = m_ctx->bind;
-	if (&bind.tableProfile == &bind.hostgroupMapTableProfile)
+	const Synapse &synapse = m_ctx->synapse;
+	if (&synapse.tableProfile == &synapse.hostgroupMapTableProfile)
 		return true;
 	return m_ctx->targetHostgroupId == ALL_HOST_GROUPS;
 }
 
 string HostResourceQueryOption::getColumnName(const size_t &idx) const
 {
-	const Bind &bind = m_ctx->bind;
-	const ColumnDef *columnDefs = bind.tableProfile.columnDefs;
-	HATOHOL_ASSERT(idx < bind.tableProfile.numColumns,
+	const Synapse &synapse = m_ctx->synapse;
+	const ColumnDef *columnDefs = synapse.tableProfile.columnDefs;
+	HATOHOL_ASSERT(idx < synapse.tableProfile.numColumns,
 	               "idx: %zd, numColumns: %zd",
-	               idx, bind.tableProfile.numColumns);
+	               idx, synapse.tableProfile.numColumns);
 	string name;
 	if (!isOnlyOneTableUsed()) {
-		name += bind.tableProfile.name;
+		name += synapse.tableProfile.name;
 		name += ".";
 	}
 	name += columnDefs[idx].columnName;
@@ -451,24 +451,24 @@ string HostResourceQueryOption::getFromSectionForOneTable(void) const
 
 string HostResourceQueryOption::getFromSectionWithHostgroup(void) const
 {
-	const Bind &bind = m_ctx->bind;
-	const ColumnDef *columnDefs = bind.tableProfile.columnDefs;
+	const Synapse &synapse = m_ctx->synapse;
+	const ColumnDef *columnDefs = synapse.tableProfile.columnDefs;
 	const ColumnDef *hgrpColumnDefs =
-	  bind.hostgroupMapTableProfile.columnDefs;
+	  synapse.hostgroupMapTableProfile.columnDefs;
 
 	return StringUtils::sprintf(
 	  "%s INNER JOIN %s ON ((%s.%s=%s.%s) AND (%s.%s=%s.%s))",
-	  bind.tableProfile.name,
-	  bind.hostgroupMapTableProfile.name,
+	  synapse.tableProfile.name,
+	  synapse.hostgroupMapTableProfile.name,
 
-	  bind.tableProfile.name,
-	  columnDefs[bind.serverIdColumnIdx].columnName,
-	  bind.hostgroupMapTableProfile.name,
-	  hgrpColumnDefs[bind.hostgroupMapServerIdColumnIdx].columnName,
+	  synapse.tableProfile.name,
+	  columnDefs[synapse.serverIdColumnIdx].columnName,
+	  synapse.hostgroupMapTableProfile.name,
+	  hgrpColumnDefs[synapse.hostgroupMapServerIdColumnIdx].columnName,
 
-	  bind.tableProfile.name,
-	  columnDefs[bind.hostIdColumnIdx].columnName,
-	  bind.hostgroupMapTableProfile.name,
-	  hgrpColumnDefs[bind.hostgroupMapHostIdColumnIdx].columnName);
+	  synapse.tableProfile.name,
+	  columnDefs[synapse.hostIdColumnIdx].columnName,
+	  synapse.hostgroupMapTableProfile.name,
+	  hgrpColumnDefs[synapse.hostgroupMapHostIdColumnIdx].columnName);
 }
 
