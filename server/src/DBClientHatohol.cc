@@ -1662,17 +1662,7 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 	  sizeof(tableProfiles) / sizeof(DBAgent::TableProfile *);
 	DBAgent::SelectMultiTableArg arg(tableProfiles, numTableProfiles);
 
-	arg.tableField = StringUtils::sprintf(
-	  " %s inner join %s on ((%s=%s) and (%s=%s))",
-	  TABLE_NAME_ITEMS,
-	  TABLE_NAME_MAP_HOSTS_HOSTGROUPS,
-	  arg.getFullName(TBLIDX_ITEMS, IDX_ITEMS_HOST_ID).c_str(),
-	  arg.getFullName(
-	    TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID).c_str(),
-	  arg.getFullName(TBLIDX_ITEMS, IDX_ITEMS_SERVER_ID).c_str(),
-	  arg.getFullName(
-	    TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID).c_str());
-
+	arg.tableField = option.getFromSection();
 
 	arg.setTable(TBLIDX_ITEMS);
 	arg.add(IDX_ITEMS_SERVER_ID);
@@ -1685,8 +1675,10 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 	arg.add(IDX_ITEMS_PREV_VALUE);
 	arg.add(IDX_ITEMS_ITEM_GROUP_NAME);
 
-	arg.setTable(TBLIDX_MAP_HOSTS_HOSTGROUPS);
-	arg.add(IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
+	if (!option.isOnlyOneTableUsed()) {
+		arg.setTable(TBLIDX_MAP_HOSTS_HOSTGROUPS);
+		arg.add(IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
+	}
 
 	// condition
 	arg.condition = option.getCondition(TABLE_NAME_ITEMS);
@@ -1723,7 +1715,10 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 		itemGroupStream >> itemInfo.lastValue;
 		itemGroupStream >> itemInfo.prevValue;
 		itemGroupStream >> itemInfo.itemGroupName;
-		itemGroupStream >> itemInfo.hostgroupId;
+		if (!option.isOnlyOneTableUsed())
+			itemGroupStream >> itemInfo.hostgroupId;
+		else
+			itemInfo.hostgroupId = ALL_HOST_GROUPS;
 	}
 }
 
