@@ -1343,8 +1343,18 @@ static string getTriggerBrief(
 	dataStore->getTriggerList(triggerInfoList, triggersQueryOption);
 
 	TriggerInfoListIterator it = triggerInfoList.begin();
-	TriggerInfo &triggerInfo = *it;
-	triggerBrief = triggerInfo.brief;
+	TriggerInfo &firstTriggerInfo = *it;
+	TriggerIdType firstId = firstTriggerInfo.id;
+	for (; it != triggerInfoList.end(); ++it) {
+		TriggerInfo &triggerInfo = *it;
+		if (firstId == triggerInfo.id) {
+			triggerBrief = triggerInfo.brief;
+		} else {
+			MLPL_WARN("Failed to getTriggerInfo: "
+			          "%"FMT_SERVER_ID", %"FMT_TRIGGER_ID"\n",
+			          serverId, triggerId);
+		}
+	}
 
 	return triggerBrief;
 }
