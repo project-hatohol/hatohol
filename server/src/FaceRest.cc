@@ -1275,12 +1275,15 @@ static void addServers(FaceRest::RestJob *job, JsonBuilderAgent &agent,
 
 
 static void addHosts(FaceRest::RestJob *job, JsonBuilderAgent &agent,
-                     const ServerIdType &targetServerId, uint64_t targetHostId)
+                     const ServerIdType &targetServerId,
+                     const HostgroupIdType &targetHostgroupId,
+                     const HostIdType &targetHostId)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HostInfoList hostInfoList;
 	HostsQueryOption option(job->dataQueryContextPtr);
 	option.setTargetServerId(targetServerId);
+	option.setTargetHostgroupId(targetHostgroupId);
 	option.setTargetHostId(targetHostId);
 	dataStore->getHostList(hostInfoList, option);
 
@@ -1335,15 +1338,20 @@ static string getTriggerBrief(
 	triggersQueryOption.setTargetId(triggerId);
 	dataStore->getTriggerList(triggerInfoList, triggersQueryOption);
 
-	if (triggerInfoList.size() != 1) {
-		MLPL_WARN("Failed to get TriggerInfo: "
-		          "%"FMT_SERVER_ID", %"FMT_TRIGGER_ID"\n",
-		          serverId, triggerId);
-	} else {
-		TriggerInfoListIterator it = triggerInfoList.begin();
+	TriggerInfoListIterator it = triggerInfoList.begin();
+	TriggerInfo &firstTriggerInfo = *it;
+	TriggerIdType firstId = firstTriggerInfo.id;
+	for (; it != triggerInfoList.end(); ++it) {
 		TriggerInfo &triggerInfo = *it;
-		triggerBrief = triggerInfo.brief;
+		if (firstId == triggerInfo.id) {
+			triggerBrief = triggerInfo.brief;
+		} else {
+			MLPL_WARN("Failed to getTriggerInfo: "
+			          "%"FMT_SERVER_ID", %"FMT_TRIGGER_ID"\n",
+			          serverId, triggerId);
+		}
 	}
+
 	return triggerBrief;
 }
 
@@ -1802,6 +1810,7 @@ void FaceRest::handlerGetHost(RestJob *job)
 	addHatoholError(agent, HatoholError(HTERR_OK));
 	addHosts(job, agent,
 		 option.getTargetServerId(),
+		 option.getTargetHostgroupId(),
 		 option.getTargetHostId());
 	agent.endObject();
 

@@ -413,16 +413,13 @@ string DBClientAction::PrivateContext::makeActionDefConditionTemplate(void)
 	  colDefHostId.columnName, colDefHostId.columnName);
 	cond += " and ";
 
-#if 0   // TODO: we will enable this condition
-	//       after host group feagure is supported.
 	// host_group_id;
 	const ColumnDef &colDefHostGrpId =
 	   COLUMN_DEF_ACTIONS[IDX_ACTIONS_HOST_GROUP_ID];
 	cond += StringUtils::sprintf(
 	  "((%s is NULL) or (%s=%%"PRIu64"))",
 	  colDefHostGrpId.columnName, colDefHostGrpId.columnName);
-	cond += " and "
-#endif
+	cond += " and ";
 
 	// trigger_id
 	const ColumnDef &colDefTrigId =

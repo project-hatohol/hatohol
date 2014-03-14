@@ -191,6 +191,10 @@ var ActionsView = function(userProfile) {
     return "(ID:" + serverId + ")";
   }
 
+  function makeNamelessHostgroupLabel(serverId, hostgroupId) {
+    return "(S" + serverId + "-G" + hostgroupId + ")";
+  }
+
   function makeNamelessHostLabel(serverId, hostId) {
     return "(S" + serverId + "-H" + hostId + ")";
   }
@@ -235,6 +239,28 @@ var ActionsView = function(userProfile) {
     if (!serverName)
       return makeNamelessServerLabel(serverId);
     return serverName;
+  }
+
+  function getHostgroupName(actionsPkt, actionDef) {
+    var hostgroupId = actionDef["hostGroupId"];
+    if (!hostgroupId)
+      return null;
+    var serverId = actionDef["serverId"];
+    if (!serverId)
+      return makeNamelessHostgroupLabel(serverId, hostgroupId);
+    var server = actionsPkt["servers"][serverId];
+    if (!server)
+      return null;
+    var hostgroupArray = server["groups"];
+    if (!hostgroupArray)
+      return makeNamelessHostgroupLabel(serverId, hostgroupId);
+    var hostgroup = hostgroupArray[hostgroupId];
+    if (!hostgroup)
+      return makeNamelessHostgroupLabel(serverId, hostgroupId);
+    var hostgroupName = hostgroup["name"];
+    if (!hostgroupName)
+      return makeNamelessHostgroupLabel(serverId, hostgroupId);
+    return hostgroupName;
   }
 
   function getHostName(actionsPkt, actionDef) {
@@ -307,10 +333,10 @@ var ActionsView = function(userProfile) {
         hostName = "ANY";
       s += "<td>" + escapeHTML(hostName)   + "</td>";
 
-      /* Not supported
-      var hostGroupName = "unsupported";
-      s += "<td>" + escapeHTML(hostGroupName) + "</td>";
-      */
+      var hostgroupName = getHostgroupName(actionsPkt, actionDef);
+      if (!hostgroupName)
+        hostgroupName = "ANY";
+      s += "<td>" + escapeHTML(hostgroupName) + "</td>";
 
       var triggerBrief = getTriggerBrief(actionsPkt, actionDef);
       if (!triggerBrief)
