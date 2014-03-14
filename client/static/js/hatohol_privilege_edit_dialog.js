@@ -68,8 +68,9 @@ HatoholPrivilegeEditDialog.prototype.setMessage = function(msg) {
 };
 
 HatoholPrivilegeEditDialog.prototype.setupSelectHostgroupDialog = function() {
-  var servers = this.serversData.servers;
-  var userId = this.userId;
+  var self = this;
+  var servers = self.serversData.servers;
+  var userId = self.userId;
   var id;
   for (var i = 0; i < servers.length; i++) {
     id = "#edit-server" + servers[i]["id"];
