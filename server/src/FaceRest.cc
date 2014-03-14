@@ -1279,12 +1279,15 @@ static void addServers(FaceRest::RestJob *job, JsonBuilderAgent &agent,
 
 
 static void addHosts(FaceRest::RestJob *job, JsonBuilderAgent &agent,
-                     const ServerIdType &targetServerId, const HostIdType &targetHostId)
+                     const ServerIdType &targetServerId,
+                     const HostgroupIdType &targetHostgroupId,
+                     const HostIdType &targetHostId)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HostInfoList hostInfoList;
 	HostsQueryOption option(job->dataQueryContextPtr);
 	option.setTargetServerId(targetServerId);
+	option.setTargetHostgroupId(targetHostgroupId);
 	option.setTargetHostId(targetHostId);
 	dataStore->getHostList(hostInfoList, option);
 
@@ -1806,6 +1809,7 @@ void FaceRest::handlerGetHost(RestJob *job)
 	addHatoholError(agent, HatoholError(HTERR_OK));
 	addHosts(job, agent,
 		 option.getTargetServerId(),
+		 option.getTargetHostgroupId(),
 		 option.getTargetHostId());
 	agent.endObject();
 
