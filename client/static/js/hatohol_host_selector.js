@@ -17,9 +17,10 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var HatoholHostSelector = function(serverId, selectedCb) {
+var HatoholHostSelector = function(serverId, hostgroupId, selectedCb) {
   var self = this;
-  self.queryData = {"serverId": serverId};
+  self.queryData = {"serverId": serverId,
+                    "hostGroupId": hostgroupId};
 
   // call the constructor of the super class
   HatoholSelectorDialog.apply(
