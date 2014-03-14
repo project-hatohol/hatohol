@@ -248,7 +248,7 @@ var ActionsView = function(userProfile) {
     var serverId = actionDef["serverId"];
     if (!serverId)
       return makeNamelessHostgroupLabel(serverId, hostgroupId);
-    var server = actionsPkt["servers"][serversId];
+    var server = actionsPkt["servers"][serverId];
     if (!server)
       return null;
     var hostgroupArray = server["groups"];
