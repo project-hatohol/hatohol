@@ -46,8 +46,8 @@ HatoholHostgroupSelector.prototype.generateMainTable = function(tableId) {
   '  <thead>' +
   '    <tr>' +
   '      <th>' + gettext("Server ID") + '</th>' +
-  '      <th>GroupID</th>' +
-  '      <th>HostgroupName</th>' +
+  '      <th>' + gettext("Hostgroup ID") + '</th>' +
+  '      <th>' + gettext("Hostgroup Name") + '</th>' +
   '    </tr>' +
   '  </thead>' +
   '  <tbody></tbody>' +
