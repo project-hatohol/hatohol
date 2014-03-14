@@ -1731,6 +1731,7 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 	}
 }
 
+// TODO: Should we name it getNumberOfBadGriggers ?
 size_t DBClientHatohol::getNumberOfTriggers(const TriggersQueryOption &option,
                                             TriggerSeverityType severity)
 {
@@ -1761,6 +1762,7 @@ size_t DBClientHatohol::getNumberOfTriggers(const TriggersQueryOption &option,
 
 size_t DBClientHatohol::getNumberOfHosts(const TriggersQueryOption &option)
 {
+	// TODO: consider if we can use hosts table.
 	DBAgent::SelectExArg arg(tableProfileTriggers);
 	string stmt =
 	  StringUtils::sprintf("count(distinct %s)",
