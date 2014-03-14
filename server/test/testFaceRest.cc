@@ -1159,14 +1159,14 @@ static void assertHostStatusInParser(JsonParserAgent *parser,
 	for (; hostgrpIdItr != hostgroupIdSet.end(); ++hostgrpIdItr, ++idx) {
 		parser->startElement(idx);
 		assertValueInParser(parser, "hostGroupId",  *hostgrpIdItr);
-		size_t expected_good_hosts = getNumberOfTestHostsWithStatus(
+		const size_t expectedGoodHosts = getNumberOfTestHostsWithStatus(
 		  serverId, ALL_HOST_GROUPS, true);
-		size_t expected_bad_hosts = getNumberOfTestHostsWithStatus(
+		const size_t expectedBadHosts = getNumberOfTestHostsWithStatus(
 		  serverId, ALL_HOST_GROUPS, false);
 		assertValueInParser(parser, "numberOfGoodHosts",
-		                    expected_good_hosts);
+		                    expectedGoodHosts);
 		assertValueInParser(parser, "numberOfBadHosts",
-		                    expected_bad_hosts);
+		                    expectedBadHosts);
 		parser->endElement();
 	}
 	parser->endObject();
