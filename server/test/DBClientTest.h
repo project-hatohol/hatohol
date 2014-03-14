@@ -110,12 +110,12 @@ ItemInfo *findTestItem(
   const ServerIdType &serverId, const uint64_t itemId);
 size_t getNumberOfTestItems(const ServerIdType &serverId);
 
-size_t getNumberOfTestHosts(const ServerIdType &serverId,
-                            uint64_t hostGroupId = ALL_HOST_GROUPS);
-size_t getNumberOfTestHostsWithStatus(const ServerIdType &serverId,
-                                      uint64_t hostGroupId,
-                                      bool status,
-                                      UserIdType userId = USER_ID_SYSTEM);
+size_t getNumberOfTestHosts(
+  const ServerIdType &serverId,
+  const HostgroupIdType &hostgroupId = ALL_HOST_GROUPS);
+size_t getNumberOfTestHostsWithStatus(
+  const ServerIdType &serverId, const HostgroupIdType &hostGroupId,
+  const bool &status, const UserIdType &userId = USER_ID_SYSTEM);
 
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo);
 

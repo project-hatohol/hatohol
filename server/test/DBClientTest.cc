@@ -712,7 +712,8 @@ static void removeHostIdIfNeeded(ServerIdHostGroupHostIdMap &svIdHostGrpIdMap,
 	hostIdSet.erase(trigInfo.hostId);
 }
 
-size_t getNumberOfTestHosts(const ServerIdType &serverId, uint64_t hostGroupId)
+size_t getNumberOfTestHosts(
+  const ServerIdType &serverId, const HostgroupIdType &hostgroupId)
 {
 	size_t numberOfTestHosts = 0;
 	for (size_t i = 0; i < NumTestHostInfo; i++) {
@@ -724,9 +725,9 @@ size_t getNumberOfTestHosts(const ServerIdType &serverId, uint64_t hostGroupId)
 	return numberOfTestHosts;
 }
 
-size_t getNumberOfTestHostsWithStatus(const ServerIdType &serverId,
-                                      uint64_t hostGroupId,
-                                      bool status, UserIdType userId)
+size_t getNumberOfTestHostsWithStatus(
+  const ServerIdType &serverId, const HostgroupIdType &hostgroupId,
+  const bool &status, const UserIdType &userId)
 {
 	ServerIdHostGroupHostIdMap svIdHostGrpIdMap;
 	ServerIdHostGroupHostIdMapIterator svIt;
@@ -737,12 +738,12 @@ size_t getNumberOfTestHostsWithStatus(const ServerIdType &serverId,
 
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
 		TriggerInfo &trigInfo = testTriggerInfo[i];
-		// TODO: use the correct hostGroupId after Hatohol support it.
-		uint64_t hostGrpIdForTrig = hostGroupId;
+		// TODO: use the correct hostgroupId after Hatohol support it.
+		uint64_t hostGrpIdForTrig = hostgroupId;
 
 		if (serverId != ALL_SERVERS && trigInfo.serverId != serverId)
 			continue;
-		if (!isAuthorized(authMap, userId, serverId, hostGroupId))
+		if (!isAuthorized(authMap, userId, serverId, hostgroupId))
 			continue;
 		if (isGoodStatus(trigInfo) != status) {
 			if (status) {
@@ -793,7 +794,7 @@ size_t getNumberOfTestHostsWithStatus(const ServerIdType &serverId,
 	if (svIt == svIdHostGrpIdMap.end())
 		return 0;
 	HostGroupHostIdMap &hostGrpIdMap = svIt->second;
-	hostIt = hostGrpIdMap.find(hostGroupId);
+	hostIt = hostGrpIdMap.find(hostgroupId);
 	if (hostIt == hostGrpIdMap.end())
 		return 0;
 	HostIdSet &hostIdSet = hostIt->second;
