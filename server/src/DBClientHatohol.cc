@@ -1362,7 +1362,7 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 		itemGroupStream >> trigInfo.lastChangeTime.tv_nsec;
 		itemGroupStream >> trigInfo.hostId;
 		itemGroupStream >> trigInfo.hostName;
-			itemGroupStream >> trigInfo.brief;
+		itemGroupStream >> trigInfo.brief;
 		if (!option.isOnlyOneTableUsed())
 			itemGroupStream >> trigInfo.hostgroupId;
 		else
