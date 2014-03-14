@@ -1279,7 +1279,7 @@ static void addServers(FaceRest::RestJob *job, JsonBuilderAgent &agent,
 
 
 static void addHosts(FaceRest::RestJob *job, JsonBuilderAgent &agent,
-                     const ServerIdType &targetServerId, uint64_t targetHostId)
+                     const ServerIdType &targetServerId, const HostIdType &targetHostId)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HostInfoList hostInfoList;
