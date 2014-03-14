@@ -544,6 +544,7 @@ SoupMessage *ArmZabbixAPI::queryGroup(void)
 	agent.add("method", "hostgroup.get");
 
 	agent.startObject("params");
+	agent.add("real_hosts", true);
 	agent.add("output", "extend");
 	agent.add("selectHosts", "refer");
 	agent.endObject(); //params
