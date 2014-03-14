@@ -1160,9 +1160,9 @@ static void assertHostStatusInParser(JsonParserAgent *parser,
 		parser->startElement(idx);
 		assertValueInParser(parser, "hostGroupId",  *hostgrpIdItr);
 		const size_t expectedGoodHosts = getNumberOfTestHostsWithStatus(
-		  serverId, ALL_HOST_GROUPS, true);
+		  serverId, *hostgrpIdItr, true);
 		const size_t expectedBadHosts = getNumberOfTestHostsWithStatus(
-		  serverId, ALL_HOST_GROUPS, false);
+		  serverId, *hostgrpIdItr, false);
 		assertValueInParser(parser, "numberOfGoodHosts",
 		                    expectedGoodHosts);
 		assertValueInParser(parser, "numberOfBadHosts",

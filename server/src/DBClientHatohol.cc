@@ -1737,14 +1737,17 @@ size_t DBClientHatohol::getNumberOfTriggers(const TriggersQueryOption &option,
 	DBAgent::SelectExArg arg(tableProfileTriggers);
 	arg.add("count (*)", SQL_COLUMN_TYPE_INT);
 
+	// from
+	arg.tableField = option.getFromSection();
+
 	// condition
 	arg.condition = option.getCondition();
 	if (!arg.condition.empty())
 		arg.condition += " and ";
 	arg.condition +=
 	  StringUtils::sprintf("%s=%d and %s=%d",
-	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SEVERITY].columnName, severity,
-	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_STATUS].columnName,
+	    option.getColumnName(IDX_TRIGGERS_SEVERITY).c_str(), severity,
+	    option.getColumnName(IDX_TRIGGERS_STATUS).c_str(), 
 	    TRIGGER_STATUS_PROBLEM);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
