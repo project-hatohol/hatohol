@@ -1342,15 +1342,10 @@ static string getTriggerBrief(
 	triggersQueryOption.setTargetId(triggerId);
 	dataStore->getTriggerList(triggerInfoList, triggersQueryOption);
 
-	if (triggerInfoList.size() != 1) {
-		MLPL_WARN("Failed to get TriggerInfo: "
-		          "%"FMT_SERVER_ID", %"FMT_TRIGGER_ID"\n",
-		          serverId, triggerId);
-	} else {
-		TriggerInfoListIterator it = triggerInfoList.begin();
-		TriggerInfo &triggerInfo = *it;
-		triggerBrief = triggerInfo.brief;
-	}
+	TriggerInfoListIterator it = triggerInfoList.begin();
+	TriggerInfo &triggerInfo = *it;
+	triggerBrief = triggerInfo.brief;
+
 	return triggerBrief;
 }
 
