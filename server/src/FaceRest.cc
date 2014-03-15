@@ -1882,8 +1882,6 @@ void FaceRest::handlerGetEvent(RestJob *job)
 		replyError(job, err);
 		return;
 	}
-	HandlerGetHelper<EventInfoList, EventInfo, EventIdType> helper;
-	helper.addHostgroupIdToVectorMap(eventList);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -1893,29 +1891,20 @@ void FaceRest::handlerGetEvent(RestJob *job)
 	EventInfoListIterator it = eventList.begin();
 	for (; it != eventList.end(); ++it) {
 		EventInfo &eventInfo = *it;
-		if (!helper.isAlreadyAddedJsonData(
-		       eventInfo.serverId, eventInfo.id)) {
-			agent.startObject();
-			agent.add("unifiedId", eventInfo.unifiedId);
-			agent.add("serverId",  eventInfo.serverId);
-			agent.add("time",      eventInfo.time.tv_sec);
-			agent.add("type",      eventInfo.type);
-			agent.add("triggerId", eventInfo.triggerId);
-			agent.add("status",    eventInfo.status);
-			agent.add("severity",  eventInfo.severity);
-			agent.add("hostId",    eventInfo.hostId);
-			agent.add("brief",     eventInfo.brief);
-			helper.includeHostgroupIdArray(agent,
-			                               eventInfo.serverId,
-			                               eventInfo.id);
-			agent.endObject();
-
-			helper.addAlreadyAddedJsonData(eventInfo.serverId,
-					eventInfo.id);
-		}
+		agent.startObject();
+		agent.add("unifiedId", eventInfo.unifiedId);
+		agent.add("serverId",  eventInfo.serverId);
+		agent.add("time",      eventInfo.time.tv_sec);
+		agent.add("type",      eventInfo.type);
+		agent.add("triggerId", eventInfo.triggerId);
+		agent.add("status",    eventInfo.status);
+		agent.add("severity",  eventInfo.severity);
+		agent.add("hostId",    eventInfo.hostId);
+		agent.add("brief",     eventInfo.brief);
+		agent.endObject();
 	}
 	agent.endArray();
-	agent.add("numberOfEvents", helper.getNumberOfData());
+	agent.add("numberOfEvents", eventList.size());
 	addServersMap(job, agent, NULL, false);
 	agent.endObject();
 
