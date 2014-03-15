@@ -1939,8 +1939,6 @@ void FaceRest::replyGetItem(RestJob *job)
 	ItemInfoList itemList;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	dataStore->getItemList(itemList, option);
-	HandlerGetHelper<ItemInfoList, ItemInfo, ItemIdType> helper;
-	helper.addHostgroupIdToVectorMap(itemList);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -1949,29 +1947,20 @@ void FaceRest::replyGetItem(RestJob *job)
 	ItemInfoListIterator it = itemList.begin();
 	for (; it != itemList.end(); ++it) {
 		ItemInfo &itemInfo = *it;
-		if (!helper.isAlreadyAddedJsonData(
-		       itemInfo.serverId, itemInfo.id)) {
-			agent.startObject();
-			agent.add("id",        itemInfo.id);
-			agent.add("serverId",  itemInfo.serverId);
-			agent.add("hostId",    itemInfo.hostId);
-			agent.add("brief",     itemInfo.brief.c_str());
-			agent.add("lastValueTime",
-			          itemInfo.lastValueTime.tv_sec);
-			agent.add("lastValue", itemInfo.lastValue);
-			agent.add("prevValue", itemInfo.prevValue);
-			agent.add("itemGroupName", itemInfo.itemGroupName);
-			helper.includeHostgroupIdArray(agent,
-					itemInfo.serverId,
-					itemInfo.id);
-			agent.endObject();
-
-			helper.addAlreadyAddedJsonData(itemInfo.serverId,
-			                               itemInfo.id);
-		}
+		agent.startObject();
+		agent.add("id",        itemInfo.id);
+		agent.add("serverId",  itemInfo.serverId);
+		agent.add("hostId",    itemInfo.hostId);
+		agent.add("brief",     itemInfo.brief.c_str());
+		agent.add("lastValueTime",
+		          itemInfo.lastValueTime.tv_sec);
+		agent.add("lastValue", itemInfo.lastValue);
+		agent.add("prevValue", itemInfo.prevValue);
+		agent.add("itemGroupName", itemInfo.itemGroupName);
+		agent.endObject();
 	}
 	agent.endArray();
-	agent.add("numberOfItems", helper.getNumberOfData());
+	agent.add("numberOfItems", itemList.size());
 	addServersMap(job, agent, NULL, false);
 	agent.endObject();
 
