@@ -452,22 +452,19 @@ string HostResourceQueryOption::getFromSectionForOneTable(void) const
 string HostResourceQueryOption::getFromSectionWithHostgroup(void) const
 {
 	const Synapse &synapse = m_ctx->synapse;
-	const ColumnDef *columnDefs = synapse.tableProfile.columnDefs;
 	const ColumnDef *hgrpColumnDefs =
 	  synapse.hostgroupMapTableProfile.columnDefs;
 
 	return StringUtils::sprintf(
-	  "%s INNER JOIN %s ON ((%s.%s=%s.%s) AND (%s.%s=%s.%s))",
+	  "%s INNER JOIN %s ON ((%s=%s.%s) AND (%s=%s.%s))",
 	  synapse.tableProfile.name,
 	  synapse.hostgroupMapTableProfile.name,
 
-	  synapse.tableProfile.name,
-	  columnDefs[synapse.serverIdColumnIdx].columnName,
+	  getColumnName(synapse.serverIdColumnIdx).c_str(),
 	  synapse.hostgroupMapTableProfile.name,
 	  hgrpColumnDefs[synapse.hostgroupMapServerIdColumnIdx].columnName,
 
-	  synapse.tableProfile.name,
-	  columnDefs[synapse.hostIdColumnIdx].columnName,
+	  getColumnName(synapse.hostIdColumnIdx).c_str(),
 	  synapse.hostgroupMapTableProfile.name,
 	  hgrpColumnDefs[synapse.hostgroupMapHostIdColumnIdx].columnName);
 }
