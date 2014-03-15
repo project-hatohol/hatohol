@@ -218,7 +218,7 @@ string HostResourceQueryOption::getColumnName(const size_t &idx) const
 	               idx, synapse.tableProfile.numColumns);
 	string name;
 	if (!isOnlyOneTableUsed()) {
-		name += synapse.tableProfile.name;
+		name += columnDefs[idx].tableName;
 		name += ".";
 	}
 	name += columnDefs[idx].columnName;

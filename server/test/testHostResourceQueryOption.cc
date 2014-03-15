@@ -33,6 +33,7 @@ using namespace mlpl;
 namespace testHostResourceQueryOption {
 
 static const char *TEST_PRIMARY_TABLE_NAME = "test_table_name";
+static const char *TEST_ALT_TABLE_NAME     = "test_alt_table";
 static const ColumnDef COLUMN_DEF_TEST[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
@@ -67,6 +68,17 @@ static const ColumnDef COLUMN_DEF_TEST[] = {
 	SQL_KEY_MUL,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+},{
+	ITEM_ID_NOT_SET,                   // itemId
+	TEST_ALT_TABLE_NAME,               // tableName
+	"flower",                          // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 }
 };
 
@@ -74,6 +86,7 @@ enum {
 	IDX_TEST_TABLE_ID,
 	IDX_TEST_TABLE_SERVER_ID,
 	IDX_TEST_TABLE_HOST_ID,
+	IDX_TEST_TABLE_FLOWER,
 	NUM_IDX_TEST_TABLE,
 };
 
@@ -602,6 +615,25 @@ void test_getColumnName(void)
 	HostResourceQueryOption option(TEST_SYNAPSE);
 	cppcut_assert_equal(string(COLUMN_DEF_TEST[idx].columnName),
 	                           option.getColumnName(idx));
+}
+
+void data_getColumnNameWithTableName(void)
+{
+	gcut_add_datum("The same table name", "idx", G_TYPE_INT,
+	               IDX_TEST_TABLE_HOST_ID, NULL);
+	gcut_add_datum("Different table name", "idx", G_TYPE_INT,
+	               IDX_TEST_TABLE_FLOWER, NULL);
+}
+
+void test_getColumnNameWithTableName(gconstpointer data)
+{
+	const size_t idx = gcut_data_get_boolean(data, "idx");
+	HostResourceQueryOption option(TEST_SYNAPSE);
+	option.setTargetHostgroupId(5);
+	string expect = COLUMN_DEF_TEST[idx].tableName;
+	expect += ".";
+	expect += COLUMN_DEF_TEST[idx].columnName;
+	cppcut_assert_equal(expect, option.getColumnName(idx));
 }
 
 void test_getColumnNameFull(void)
