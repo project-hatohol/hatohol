@@ -1820,8 +1820,6 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 	TriggerInfoList triggerList;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	dataStore->getTriggerList(triggerList, option);
-	HandlerGetHelper<TriggerInfoList, TriggerInfo, TriggerIdType> helper;
-	helper.addHostgroupIdToVectorMap(triggerList);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -1830,28 +1828,19 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 	TriggerInfoListIterator it = triggerList.begin();
 	for (; it != triggerList.end(); ++it) {
 		TriggerInfo &triggerInfo = *it;
-		if (!helper.isAlreadyAddedJsonData(
-		       triggerInfo.serverId, triggerInfo.id)) {
-			agent.startObject();
-			agent.add("id",       triggerInfo.id);
-			agent.add("status",   triggerInfo.status);
-			agent.add("severity", triggerInfo.severity);
-			agent.add("lastChangeTime",
-			          triggerInfo.lastChangeTime.tv_sec);
-			agent.add("serverId", triggerInfo.serverId);
-			agent.add("hostId",   triggerInfo.hostId);
-			agent.add("brief",    triggerInfo.brief);
-			helper.includeHostgroupIdArray(agent,
-			                               triggerInfo.serverId,
-			                               triggerInfo.id);
-			agent.endObject();
-
-			helper.addAlreadyAddedJsonData(triggerInfo.serverId,
-			                               triggerInfo.id);
-		}
+		agent.startObject();
+		agent.add("id",       triggerInfo.id);
+		agent.add("status",   triggerInfo.status);
+		agent.add("severity", triggerInfo.severity);
+		agent.add("lastChangeTime",
+		          triggerInfo.lastChangeTime.tv_sec);
+		agent.add("serverId", triggerInfo.serverId);
+		agent.add("hostId",   triggerInfo.hostId);
+		agent.add("brief",    triggerInfo.brief);
+		agent.endObject();
 	}
 	agent.endArray();
-	agent.add("numberOfTriggers", helper.getNumberOfData());
+	agent.add("numberOfTriggers", triggerList.size());
 	addServersMap(job, agent, NULL, false);
 	agent.endObject();
 
