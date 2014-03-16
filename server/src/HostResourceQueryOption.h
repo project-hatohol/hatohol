@@ -48,9 +48,9 @@ public:
 		     const size_t &hostgroupMapGroupIdColumnIdx);
 	};
 
-	HostResourceQueryOption(const Synapse &bind,
+	HostResourceQueryOption(const Synapse &synapse,
 	                        const UserIdType &userId = INVALID_USER_ID);
-	HostResourceQueryOption(const Synapse &bind,
+	HostResourceQueryOption(const Synapse &synapse,
 	                        DataQueryContext *dataQueryContext);
 	HostResourceQueryOption(const HostResourceQueryOption &src);
 	virtual ~HostResourceQueryOption();
