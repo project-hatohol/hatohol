@@ -73,12 +73,11 @@ public:
 	virtual std::string getFromSection(void) const;
 
 	/**
-	 * Get information if one table is only used.
-	 * For example, If a join should be used, this method return false.
+	 * Get information if the host group should be used.
 	 *
-	 * @return true if one table is only used. Otherwiser, false.
+	 * @return true if the host group should used. Otherwiser, false.
 	 */
-	virtual bool isOnlyOneTableUsed(void) const;
+	virtual bool isHostgroupUsed(void) const;
 
 	/**
 	 * Get a column name at the specified index.

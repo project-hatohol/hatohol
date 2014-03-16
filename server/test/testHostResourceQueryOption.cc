@@ -587,26 +587,27 @@ void test_getFromSectionWithSpecificHostGroup(void)
 
 void data_isJoinNeeded(void)
 {
-	gcut_add_datum("One table", "oneTable",G_TYPE_BOOLEAN, TRUE, NULL);
-	gcut_add_datum("More than one table", "oneTable", G_TYPE_BOOLEAN, FALSE,
-		       NULL);
+	gcut_add_datum("Not use hostgroup", "useHostgroup",
+	               G_TYPE_BOOLEAN, FALSE, NULL);
+	gcut_add_datum("Use hostgroup", "useHostgroup",
+	               G_TYPE_BOOLEAN, TRUE, NULL);
 }
 
-void test_isOnlyOneTableUsed(gconstpointer data)
+void test_isHostgroupUsed(gconstpointer data)
 {
-	const bool oneTable = gcut_data_get_boolean(data, "oneTable");
+	const bool useHostgroup = gcut_data_get_boolean(data, "useHostgroup");
 	HostResourceQueryOption option(TEST_SYNAPSE);
-	if (!oneTable)
+	if (useHostgroup)
 		option.setTargetHostgroupId(5);
-	cppcut_assert_equal(oneTable, option.isOnlyOneTableUsed());
+	cppcut_assert_equal(useHostgroup, option.isHostgroupUsed());
 }
 
-void test_isOnlyOneTableUsedForHostgroupTable(void)
+void test_isHostgroupUsedForHostgroupTable(void)
 {
 	HostResourceQueryOption option(TEST_SYNAPSE_HGRP);
 	option.setTargetHostgroupId(5);
-	// It shall always be one table.
-	cppcut_assert_equal(true, option.isOnlyOneTableUsed());
+	// It shall always be false.
+	cppcut_assert_equal(false, option.isHostgroupUsed());
 }
 
 void test_getColumnName(void)

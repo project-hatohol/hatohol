@@ -1227,7 +1227,7 @@ void DBClientHatohol::getHostInfoList(HostInfoList &hostInfoList,
 	arg.add(IDX_HOSTS_HOST_ID);
 	arg.add(IDX_HOSTS_HOST_NAME);
 
-	if (!option.isOnlyOneTableUsed()) {
+	if (option.isHostgroupUsed()) {
 		arg.setTable(TBLIDX_MAP_HOSTS_HOSTGROUPS);
 		arg.add(IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
 	}
@@ -1249,7 +1249,7 @@ void DBClientHatohol::getHostInfoList(HostInfoList &hostInfoList,
 		itemGroupStream >> hostInfo.serverId;
 		itemGroupStream >> hostInfo.id;
 		itemGroupStream >> hostInfo.hostName;
-		if (!option.isOnlyOneTableUsed())
+		if (option.isHostgroupUsed())
 			itemGroupStream >> hostInfo.hostgroupId;
 		else
 			hostInfo.hostgroupId = ALL_HOST_GROUPS;;
@@ -1322,7 +1322,7 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	arg.add(IDX_TRIGGERS_HOSTNAME);
 	arg.add(IDX_TRIGGERS_BRIEF);
 
-	if (!option.isOnlyOneTableUsed()) {
+	if (option.isHostgroupUsed()) {
 		arg.setTable(TBLIDX_MAP_HOSTS_HOSTGROUPS);
 		arg.add(IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
 	}
@@ -1359,7 +1359,7 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 		itemGroupStream >> trigInfo.hostId;
 		itemGroupStream >> trigInfo.hostName;
 		itemGroupStream >> trigInfo.brief;
-		if (!option.isOnlyOneTableUsed())
+		if (option.isHostgroupUsed())
 			itemGroupStream >> trigInfo.hostgroupId;
 		else
 			trigInfo.hostgroupId = ALL_HOST_GROUPS;
@@ -1671,7 +1671,7 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 	arg.add(IDX_ITEMS_PREV_VALUE);
 	arg.add(IDX_ITEMS_ITEM_GROUP_NAME);
 
-	if (!option.isOnlyOneTableUsed()) {
+	if (option.isHostgroupUsed()) {
 		arg.setTable(TBLIDX_MAP_HOSTS_HOSTGROUPS);
 		arg.add(IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
 	}
@@ -1711,7 +1711,7 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 		itemGroupStream >> itemInfo.lastValue;
 		itemGroupStream >> itemInfo.prevValue;
 		itemGroupStream >> itemInfo.itemGroupName;
-		if (!option.isOnlyOneTableUsed())
+		if (option.isHostgroupUsed())
 			itemGroupStream >> itemInfo.hostgroupId;
 		else
 			itemInfo.hostgroupId = ALL_HOST_GROUPS;

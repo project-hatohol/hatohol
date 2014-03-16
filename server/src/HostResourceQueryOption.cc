@@ -126,7 +126,7 @@ string HostResourceQueryOption::getCondition(const string &_tableAlias) const
 	// TODO: clean up; Remove an evil paramter: tableAlias
 	string tableAlias;
 	if (_tableAlias.empty()) {
-		if (!isOnlyOneTableUsed())
+		if (isHostgroupUsed())
 			tableAlias = getPrimaryTableName();
 	} else {
 		tableAlias = _tableAlias;
@@ -195,18 +195,18 @@ string HostResourceQueryOption::getCondition(const string &_tableAlias) const
 
 string HostResourceQueryOption::getFromSection(void) const
 {
-	if (isOnlyOneTableUsed())
-		return getFromSectionForOneTable();
-	else
+	if (isHostgroupUsed())
 		return getFromSectionWithHostgroup();
+	else
+		return getFromSectionForOneTable();
 }
 
-bool HostResourceQueryOption::isOnlyOneTableUsed(void) const
+bool HostResourceQueryOption::isHostgroupUsed(void) const
 {
 	const Synapse &synapse = m_ctx->synapse;
 	if (&synapse.tableProfile == &synapse.hostgroupMapTableProfile)
-		return true;
-	return m_ctx->targetHostgroupId == ALL_HOST_GROUPS;
+		return false;
+	return m_ctx->targetHostgroupId != ALL_HOST_GROUPS;
 }
 
 string HostResourceQueryOption::getColumnName(const size_t &idx) const
@@ -217,7 +217,7 @@ string HostResourceQueryOption::getColumnName(const size_t &idx) const
 	               "idx: %zd, numColumns: %zd",
 	               idx, synapse.tableProfile.numColumns);
 	string name;
-	if (!isOnlyOneTableUsed()) {
+	if (isHostgroupUsed()) {
 		name += columnDefs[idx].tableName;
 		name += ".";
 	}
