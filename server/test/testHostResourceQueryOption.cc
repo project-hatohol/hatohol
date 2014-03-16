@@ -648,4 +648,28 @@ void test_getColumnNameFull(void)
 	cppcut_assert_equal(expect, option.getColumnName(idx));
 }
 
+void data_getHostgroupColumnNameWithTableName(void)
+{
+	gcut_add_datum("Not use hostgroup", "useHostgroup",
+	               G_TYPE_BOOLEAN, FALSE, NULL);
+	gcut_add_datum("Use hostgroup", "useHostgroup",
+	               G_TYPE_BOOLEAN, TRUE, NULL);
+}
+
+void test_getHostgroupColumnNameWithTableName(gconstpointer data)
+{
+	const bool useHostgroup = gcut_data_get_boolean(data, "useHostgroup");
+	const size_t idx = IDX_TEST_HGRP_TABLE_SERVER_ID;
+	HostResourceQueryOption option(TEST_SYNAPSE);
+	if (useHostgroup)
+		option.setTargetHostgroupId(5);
+	string expect;
+	if (useHostgroup) {
+		expect = COLUMN_DEF_TEST_HGRP[idx].tableName;
+		expect += ".";
+	}
+	expect += COLUMN_DEF_TEST_HGRP[idx].columnName;
+	cppcut_assert_equal(expect, option.getHostgroupColumnName(idx));
+}
+
 } // namespace testHostResourceQueryOption

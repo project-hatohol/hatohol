@@ -92,6 +92,16 @@ public:
 	 */
 	virtual std::string getColumnName(const size_t &idx) const;
 
+	/**
+	 * Get a hostgroup column name of the specified index.
+	 * If it's a stuation that will do a join,
+	 * the style: tableName.colunName is returned.
+	 *
+	 * @return A column name.
+	 */
+	virtual std::string getHostgroupColumnName(const size_t &idx) const;
+
+
 	virtual ServerIdType getTargetServerId(void) const;
 	virtual void setTargetServerId(const ServerIdType &targetServerId);
 	virtual HostIdType getTargetHostId(void) const;
@@ -151,6 +161,9 @@ protected:
 
 	virtual std::string getFromSectionForOneTable(void) const;
 	virtual std::string getFromSectionWithHostgroup(void) const;
+
+	std::string getColumnNameCommon(
+	  const DBAgent::TableProfile &tableProfile, const size_t &idx) const;
 
 private:
 	struct PrivateContext;

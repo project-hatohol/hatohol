@@ -225,6 +225,12 @@ string HostResourceQueryOption::getColumnName(const size_t &idx) const
 	return name;
 }
 
+string HostResourceQueryOption::getHostgroupColumnName(const size_t &idx) const
+{
+	return getColumnNameCommon(m_ctx->synapse.hostgroupMapTableProfile,
+	                           idx);
+}
+
 ServerIdType HostResourceQueryOption::getTargetServerId(void) const
 {
 	return m_ctx->targetServerId;
@@ -463,3 +469,18 @@ string HostResourceQueryOption::getFromSectionWithHostgroup(void) const
 	  hgrpColumnDefs[synapse.hostgroupMapHostIdColumnIdx].columnName);
 }
 
+string HostResourceQueryOption::getColumnNameCommon(
+  const DBAgent::TableProfile &tableProfile, const size_t &idx) const
+{
+	const ColumnDef *columnDefs = tableProfile.columnDefs;
+	HATOHOL_ASSERT(idx < tableProfile.numColumns,
+	               "idx: %zd, numColumns: %zd",
+	               idx, tableProfile.numColumns);
+	string name;
+	if (isHostgroupUsed()) {
+		name += columnDefs[idx].tableName;
+		name += ".";
+	}
+	name += columnDefs[idx].columnName;
+	return name;
+}
