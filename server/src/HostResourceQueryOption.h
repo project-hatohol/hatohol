@@ -75,6 +75,10 @@ public:
 	/**
 	 * Get information if the host group should be used.
 	 *
+	 * If synapse.tableProfile in the contructor is identical to
+	 * synapse.hostgroupMapTableProfile, this method returns false even
+	 * if the target host group is being specified.
+	 *
 	 * @return true if the host group should used. Otherwiser, false.
 	 */
 	virtual bool isHostgroupUsed(void) const;
