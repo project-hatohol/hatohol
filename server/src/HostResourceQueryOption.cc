@@ -142,7 +142,7 @@ string HostResourceQueryOption::getCondition(const string &_tableAlias) const
 		  condition,
 		  makeConditionServer(
 		    getDataQueryContext().getValidServerIdSet(),
-		    getServerIdColumnName(tableAlias))
+		    getServerIdColumnName())
 		);
 	}
 
@@ -153,7 +153,7 @@ string HostResourceQueryOption::getCondition(const string &_tableAlias) const
 			addCondition(condition,
 			  StringUtils::sprintf(
 				"%s=%"FMT_SERVER_ID,
-				getServerIdColumnName(tableAlias).c_str(),
+				getServerIdColumnName().c_str(),
 				m_ctx->targetServerId));
 		}
 		if (m_ctx->targetHostId != ALL_HOSTS) {
@@ -183,7 +183,7 @@ string HostResourceQueryOption::getCondition(const string &_tableAlias) const
 	  getDataQueryContext().getServerHostGrpSetMap();
 	addCondition(condition,
 	             makeCondition(srvHostGrpSetMap,
-	                           getServerIdColumnName(tableAlias),
+	                           getServerIdColumnName(),
 	                           getHostgroupIdColumnName(
 	                             hostgroupTableAlias),
 	                           getHostIdColumnName(tableAlias),
@@ -276,15 +276,9 @@ void HostResourceQueryOption::setServerIdColumnName(
 	m_ctx->serverIdColumnName = name;
 }
 
-string HostResourceQueryOption::getServerIdColumnName(
-  const std::string &tableAlias) const
+string HostResourceQueryOption::getServerIdColumnName(void) const
 {
-	if (tableAlias.empty())
-		return m_ctx->serverIdColumnName;
-
-	return StringUtils::sprintf("%s.%s",
-				    tableAlias.c_str(),
-				    m_ctx->serverIdColumnName.c_str());
+	return getColumnName(m_ctx->synapse.serverIdColumnIdx);
 }
 
 void HostResourceQueryOption::setHostGroupIdColumnName(

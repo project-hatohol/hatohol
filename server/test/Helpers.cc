@@ -832,8 +832,7 @@ void insertValidServerCond(
 			const ServerIdSet &serverIdSet =
 			  getDataQueryContext().getValidServerIdSet();
 			string cond = makeConditionServer(
-			                serverIdSet,
-			                getServerIdColumnName(tableName));
+			                serverIdSet, getServerIdColumnName());
 			return cond;
 		}
 

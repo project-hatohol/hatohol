@@ -24,10 +24,9 @@
 
 class TestHostResourceQueryOption : public HostResourceQueryOption {
 public:
-	std::string callGetServerIdColumnName(
-	  const std::string &tableAlias = "") const
+	std::string callGetServerIdColumnName(void) const
 	{
-		return getServerIdColumnName(tableAlias);
+		return getServerIdColumnName();
 	}
 
 	static std::string callMakeConditionServer(

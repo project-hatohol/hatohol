@@ -121,8 +121,7 @@ public:
 
 protected:
 	void setServerIdColumnName(const std::string &name) const;
-	std::string getServerIdColumnName(
-	  const std::string &tableAlias = "") const;
+	std::string getServerIdColumnName(void) const;
 	void setHostGroupIdColumnName(const std::string &name) const;
 	std::string getHostgroupIdColumnName(
 	  const std::string &tableAlias = "") const;
