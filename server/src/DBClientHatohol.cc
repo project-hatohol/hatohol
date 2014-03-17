@@ -764,7 +764,7 @@ string EventsQueryOption::getCondition(void) const
 		condition += StringUtils::sprintf(
 			"%s.%s>=%d",
 			DBClientHatohol::TABLE_NAME_TRIGGERS,
-			COLUMN_DEF_EVENTS[IDX_EVENTS_SEVERITY].columnName,
+			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SEVERITY].columnName,
 			m_ctx->minSeverity);
 	}
 
