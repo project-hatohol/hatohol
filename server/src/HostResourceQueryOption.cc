@@ -58,6 +58,7 @@ struct HostResourceQueryOption::PrivateContext {
 	HostIdType      targetHostId;
 	HostgroupIdType targetHostgroupId;
 	bool            filterDataOfDefunctServers;
+	bool            useTableNameAlways;
 
 	PrivateContext(const Synapse &_synapse)
 	: synapse(_synapse),
@@ -67,7 +68,8 @@ struct HostResourceQueryOption::PrivateContext {
 	  targetServerId(ALL_SERVERS),
 	  targetHostId(ALL_HOSTS),
 	  targetHostgroupId(ALL_HOST_GROUPS),
-	  filterDataOfDefunctServers(true)
+	  filterDataOfDefunctServers(true),
+	  useTableNameAlways(false)
 	{
 	}
 
@@ -209,6 +211,11 @@ bool HostResourceQueryOption::isHostgroupUsed(void) const
 	return m_ctx->targetHostgroupId != ALL_HOST_GROUPS;
 }
 
+void HostResourceQueryOption::useTableNameAlways(const bool &enable)
+{
+	m_ctx->useTableNameAlways = enable;
+}
+
 string HostResourceQueryOption::getColumnName(const size_t &idx) const
 {
 	const Synapse &synapse = m_ctx->synapse;
@@ -217,7 +224,7 @@ string HostResourceQueryOption::getColumnName(const size_t &idx) const
 	               "idx: %zd, numColumns: %zd",
 	               idx, synapse.tableProfile.numColumns);
 	string name;
-	if (isHostgroupUsed()) {
+	if (m_ctx->useTableNameAlways || isHostgroupUsed()) {
 		name += columnDefs[idx].tableName;
 		name += ".";
 	}

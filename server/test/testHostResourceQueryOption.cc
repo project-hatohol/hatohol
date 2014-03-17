@@ -648,6 +648,17 @@ void test_getColumnNameFull(void)
 	cppcut_assert_equal(expect, option.getColumnName(idx));
 }
 
+void test_getColumnNameWithUseTableNameAlways(void)
+{
+	const size_t idx = IDX_TEST_TABLE_HOST_ID;
+	HostResourceQueryOption option(TEST_SYNAPSE);
+	option.useTableNameAlways();
+	string expect = TEST_PRIMARY_TABLE_NAME;
+	expect += ".";
+	expect += COLUMN_DEF_TEST[idx].columnName;
+	cppcut_assert_equal(expect, option.getColumnName(idx));
+}
+
 void data_getHostgroupColumnNameWithTableName(void)
 {
 	gcut_add_datum("Not use hostgroup", "useHostgroup",

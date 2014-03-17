@@ -84,9 +84,17 @@ public:
 	virtual bool isHostgroupUsed(void) const;
 
 	/**
+	 * Set the flag always to use the table name for getFromSection(),
+	 * getColumName(), and getHostgroupColumnName().
+	 *
+	 * @param enable A flag to enable the feature.
+	 */
+	virtual void useTableNameAlways(const bool &enable = true);
+
+	/**
 	 * Get a column name at the specified index.
-	 * If it's a stuation that will do a join,
-	 * the style: tableName.colunName is returned.
+	 * If a target host group is specified or useTableNameAlways(),
+	 * the returned form has the table name suc as tableName.colunName.
 	 *
 	 * @return A column name.
 	 */
@@ -94,8 +102,8 @@ public:
 
 	/**
 	 * Get a hostgroup column name of the specified index.
-	 * If it's a stuation that will do a join,
-	 * the style: tableName.colunName is returned.
+	 * If a target host group is specified or useTableNameAlways(),
+	 * the returned form has the table name suc as tableName.colunName.
 	 *
 	 * @return A column name.
 	 */
