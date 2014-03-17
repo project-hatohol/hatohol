@@ -740,9 +740,9 @@ EventsQueryOption::~EventsQueryOption()
 	delete m_ctx;
 }
 
-string EventsQueryOption::getCondition(const std::string &tableAlias) const
+string EventsQueryOption::getCondition(void) const
 {
-	string condition = HostResourceQueryOption::getCondition(tableAlias);
+	string condition = HostResourceQueryOption::getCondition();
 
 	if (DBClient::isAlwaysFalseCondition(condition))
 		return condition;
@@ -909,9 +909,9 @@ TriggersQueryOption::~TriggersQueryOption()
 	delete m_ctx;
 }
 
-string TriggersQueryOption::getCondition(const std::string &tableAlias) const
+string TriggersQueryOption::getCondition(void) const
 {
-	string condition = HostResourceQueryOption::getCondition(tableAlias);
+	string condition = HostResourceQueryOption::getCondition();
 
 	if (DBClient::isAlwaysFalseCondition(condition))
 		return condition;
@@ -1022,9 +1022,9 @@ ItemsQueryOption::~ItemsQueryOption()
 	delete m_ctx;
 }
 
-string ItemsQueryOption::getCondition(const std::string &tableAlias) const
+string ItemsQueryOption::getCondition(void) const
 {
-	string condition = HostResourceQueryOption::getCondition(tableAlias);
+	string condition = HostResourceQueryOption::getCondition();
 
 	if (DBClient::isAlwaysFalseCondition(condition))
 		return condition;
@@ -1185,7 +1185,7 @@ void DBClientHatohol::getHostInfoList(HostInfoList &hostInfoList,
 	}
 
 	// condition
-	arg.condition = option.getCondition(TABLE_NAME_HOSTS);
+	arg.condition = option.getCondition();
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -1244,7 +1244,7 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 					 const TriggersQueryOption &option)
 {
 	// build a condition
-	string condition = option.getCondition(TABLE_NAME_TRIGGERS);
+	string condition = option.getCondition();
 	if (isAlwaysFalseCondition(condition))
 		return;
 
@@ -1441,10 +1441,7 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	  arg.getFullName(TBLIDX_EVENTS, IDX_EVENTS_SERVER_ID).c_str(),
 	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_SERVER_ID).c_str());
 
-	// Use TABLE_NAME_TRIGGERS instead of TABLE_NAME_EVENTS because events
-	// table doesn't store valid host_id although it has host_id column.
-	// On the other hand triggers table has all necessary columns & data.
-	string optCond = option.getCondition(TABLE_NAME_TRIGGERS);
+	string optCond = option.getCondition();
 
 	if (isAlwaysFalseCondition(optCond))
 		return HatoholError(HTERR_OK);
@@ -1631,7 +1628,7 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 	}
 
 	// condition
-	arg.condition = option.getCondition(TABLE_NAME_ITEMS);
+	arg.condition = option.getCondition();
 	if (isAlwaysFalseCondition(arg.condition))
 		return;
 

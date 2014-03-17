@@ -122,19 +122,8 @@ const char *HostResourceQueryOption::getPrimaryTableName(void) const
 	return m_ctx->synapse.tableProfile.name;
 }
 
-string HostResourceQueryOption::getCondition(const string &_tableAlias) const
+string HostResourceQueryOption::getCondition(void) const
 {
-	// TEMPORARY IMPLEMENT *****************************************
-	// TODO: clean up; Remove an evil paramter: tableAlias
-	string tableAlias;
-	if (_tableAlias.empty()) {
-		if (isHostgroupUsed())
-			tableAlias = getPrimaryTableName();
-	} else {
-		tableAlias = _tableAlias;
-	}
-	// *************************************************************
-
 	string condition;
 	if (getFilterForDataOfDefunctServers()) {
 		addCondition(

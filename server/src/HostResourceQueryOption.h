@@ -62,8 +62,7 @@ public:
 	 */
 	const char *getPrimaryTableName(void) const;
 
-	virtual std::string getCondition(
-	  const std::string &tableAlias = "") const; // override
+	virtual std::string getCondition(void) const; // override
 
 	/**
 	 * Get a part of an SQL statement for a FROM section.
