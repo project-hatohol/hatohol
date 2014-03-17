@@ -1446,6 +1446,8 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	  sizeof(tableProfiles) / sizeof(DBAgent::TableProfile *);
 	DBAgent::SelectMultiTableArg arg(tableProfiles, numTableProfiles);
 
+	option.useTableNameAlways();
+
 	// Tables
 	arg.tableField = StringUtils::sprintf(
 	  " %s inner join %s on %s=%s"
