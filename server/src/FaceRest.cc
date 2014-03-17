@@ -952,10 +952,10 @@ addHostgroupsMap(FaceRest::RestJob *job, JsonBuilderAgent &outputJson,
 	return addHostgroupsMap(job, outputJson, serverInfo, hostgroupList);
 }
 
-static void addOverviewEachServer(FaceRest::RestJob *job,
-				  JsonBuilderAgent &agent,
-				  MonitoringServerInfo &svInfo,
-				  bool &serverIsGoodStatus)
+static HatoholError addOverviewEachServer(FaceRest::RestJob *job,
+					  JsonBuilderAgent &agent,
+					  MonitoringServerInfo &svInfo,
+					  bool &serverIsGoodStatus)
 {
 	HatoholError err;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
@@ -993,8 +993,10 @@ static void addOverviewEachServer(FaceRest::RestJob *job,
 	DataQueryOption dataQueryOption(job->userId);
 	MonitoringServerStatus serverStatus;
 	serverStatus.serverId = svInfo.id;
-	dataStore->getNumberOfMonitoredItemsPerSecond(dataQueryOption,
-						      serverStatus);
+	err = dataStore->getNumberOfMonitoredItemsPerSecond(
+	  dataQueryOption, serverStatus);
+	if (err != HTERR_OK)
+		return err;
 	string nvps = StringUtils::sprintf("%.2f", serverStatus.nvps);
 	agent.add("numberOfMonitoredItemsPerSecond", nvps);
 
@@ -1056,9 +1058,11 @@ static void addOverviewEachServer(FaceRest::RestJob *job,
 			serverIsGoodStatus =false;
 	}
 	agent.endArray();
+
+	return HTERR_OK;
 }
 
-static void addOverview(FaceRest::RestJob *job, JsonBuilderAgent &agent)
+static HatoholError addOverview(FaceRest::RestJob *job, JsonBuilderAgent &agent)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	MonitoringServerInfoList monitoringServers;
@@ -1071,7 +1075,9 @@ static void addOverview(FaceRest::RestJob *job, JsonBuilderAgent &agent)
 	for (; it != monitoringServers.end(); ++it) {
 		bool serverIsGoodStatus = false;
 		agent.startObject();
-		addOverviewEachServer(job, agent, *it, serverIsGoodStatus);
+		HatoholError err = addOverviewEachServer(job, agent, *it, serverIsGoodStatus);
+		if (err != HTERR_OK)
+			return err;
 		agent.endObject();
 		if (serverIsGoodStatus)
 			numGoodServers++;
@@ -1082,6 +1088,8 @@ static void addOverview(FaceRest::RestJob *job, JsonBuilderAgent &agent)
 
 	agent.add("numberOfGoodServers", numGoodServers);
 	agent.add("numberOfBadServers", numBadServers);
+
+	return HTERR_OK;
 }
 
 static bool canUpdateServer(
@@ -1413,7 +1421,11 @@ void FaceRest::handlerGetOverview(RestJob *job)
 	HatoholError err;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
-	addOverview(job, agent);
+	err = addOverview(job, agent);
+	if (err != HTERR_OK) {
+		replyError(job, err);
+		return;
+	}
 	agent.endObject();
 
 	replyJsonData(agent, job);
