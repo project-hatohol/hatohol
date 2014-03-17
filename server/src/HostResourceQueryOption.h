@@ -139,7 +139,6 @@ public:
 
 protected:
 	std::string getServerIdColumnName(void) const;
-	void setHostGroupIdColumnName(const std::string &name) const;
 	std::string getHostgroupIdColumnName(void) const;
 	void setHostIdColumnName(const std::string &name) const;
 	std::string getHostIdColumnName(void) const;

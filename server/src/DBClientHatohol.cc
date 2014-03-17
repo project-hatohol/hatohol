@@ -1122,15 +1122,11 @@ static const HostResourceQueryOption::Synapse synapseHostgroupsQueryOption(
 HostgroupsQueryOption::HostgroupsQueryOption(UserIdType userId)
 : HostResourceQueryOption(synapseHostgroupsQueryOption, userId)
 {
-	setHostGroupIdColumnName(
-	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_GROUP_ID].columnName);
 }
 
 HostgroupsQueryOption::HostgroupsQueryOption(DataQueryContext *dataQueryContext)
 : HostResourceQueryOption(synapseHostgroupsQueryOption, dataQueryContext)
 {
-	setHostGroupIdColumnName(
-	  COLUMN_DEF_HOSTGROUPS[IDX_HOSTGROUPS_GROUP_ID].columnName);
 }
 
 //
@@ -1147,16 +1143,12 @@ static const HostResourceQueryOption::Synapse synapseHostgroupElementQueryOption
 HostgroupElementQueryOption::HostgroupElementQueryOption(UserIdType userId)
 : HostResourceQueryOption(synapseHostgroupElementQueryOption, userId)
 {
-	setHostGroupIdColumnName(
-	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID].columnName);
 }
 
 HostgroupElementQueryOption::HostgroupElementQueryOption(
   DataQueryContext *dataQueryContext)
 : HostResourceQueryOption(synapseHostgroupElementQueryOption, dataQueryContext)
 {
-	setHostGroupIdColumnName(
-	  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID].columnName);
 }
 
 // ---------------------------------------------------------------------------
