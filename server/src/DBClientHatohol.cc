@@ -751,9 +751,8 @@ string EventsQueryOption::getCondition(void) const
 		if (!condition.empty())
 			condition += " AND ";
 		condition += StringUtils::sprintf(
-			"%s.%s<=%"PRIu64,
-			DBClientHatohol::TABLE_NAME_EVENTS,
-			COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID].columnName,
+			"%s<=%"PRIu64,
+			getColumnName(IDX_EVENTS_UNIFIED_ID).c_str(),
 			m_ctx->limitOfUnifiedId);
 	}
 
@@ -775,9 +774,8 @@ string EventsQueryOption::getCondition(void) const
 		// Use events table because triggers table doesn't contain past
 		// status.
 		condition += StringUtils::sprintf(
-			"%s.%s=%d",
-			DBClientHatohol::TABLE_NAME_EVENTS,
-			COLUMN_DEF_EVENTS[IDX_EVENTS_STATUS].columnName,
+			"%s=%d",
+			getColumnName(IDX_EVENTS_STATUS).c_str(),
 			m_ctx->triggerStatus);
 	}
 

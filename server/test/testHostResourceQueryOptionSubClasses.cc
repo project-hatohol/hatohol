@@ -394,7 +394,7 @@ void test_eventQueryOptionWithTriggerStatus(gconstpointer data)
 {
 	EventsQueryOption option(USER_ID_SYSTEM);
 	option.setTriggerStatus(TRIGGER_STATUS_PROBLEM);
-	string expected = "events.status=1";
+	string expected = "status=1";
 	fixupForFilteringDefunctServer(data, expected, option);
 	cppcut_assert_equal(TRIGGER_STATUS_PROBLEM,
 			    option.getTriggerStatus());
