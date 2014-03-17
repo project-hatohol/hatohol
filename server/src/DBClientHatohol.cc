@@ -553,7 +553,7 @@ static const ColumnDef COLUMN_DEF_HOSTGROUPS[] = {
 	255,                               // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_NONE,                      // keyType
+	SQL_KEY_MUL,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 },
