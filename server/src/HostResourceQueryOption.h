@@ -65,9 +65,9 @@ public:
 	virtual std::string getCondition(void) const; // override
 
 	/**
-	 * Get a part of an SQL statement for a FROM section.
+	 * Get a part of an SQL statement for a FROM clause.
 	 *
-	 * @return A string for a FROM section.
+	 * @return A string for a FROM clause.
 	 */
 	virtual std::string getFromSection(void) const;
 
