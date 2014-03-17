@@ -136,9 +136,6 @@ string HostResourceQueryOption::getCondition(const string &_tableAlias) const
 	// *************************************************************
 
 	string condition;
-	string hostgroupTableAlias;
-	if (!tableAlias.empty())
-		hostgroupTableAlias = DBClientHatohol::TABLE_NAME_MAP_HOSTS_HOSTGROUPS;
 	if (getFilterForDataOfDefunctServers()) {
 		addCondition(
 		  condition,
@@ -169,8 +166,7 @@ string HostResourceQueryOption::getCondition(const string &_tableAlias) const
 			addCondition(condition,
 			  StringUtils::sprintf(
 				"%s=%"FMT_HOST_GROUP_ID,
-				getHostgroupIdColumnName(
-				  hostgroupTableAlias).c_str(),
+				getHostgroupIdColumnName().c_str(),
 				m_ctx->targetHostgroupId));
 		}
 		return condition;
@@ -186,8 +182,7 @@ string HostResourceQueryOption::getCondition(const string &_tableAlias) const
 	addCondition(condition,
 	             makeCondition(srvHostGrpSetMap,
 	                           getServerIdColumnName(),
-	                           getHostgroupIdColumnName(
-	                             hostgroupTableAlias),
+	                           getHostgroupIdColumnName(),
 	                           getHostIdColumnName(tableAlias),
 	                           m_ctx->targetServerId,
 	                           m_ctx->targetHostgroupId,
@@ -300,15 +295,10 @@ void HostResourceQueryOption::setHostGroupIdColumnName(
 	m_ctx->hostGroupIdColumnName = name;
 }
 
-string HostResourceQueryOption::getHostgroupIdColumnName(
-  const std::string &tableAlias) const
+string HostResourceQueryOption::getHostgroupIdColumnName(void) const
 {
-	if (tableAlias.empty())
-		return m_ctx->hostGroupIdColumnName;
-
-	return StringUtils::sprintf("%s.%s",
-				    tableAlias.c_str(),
-				    m_ctx->hostGroupIdColumnName.c_str());
+	const size_t &idx = m_ctx->synapse.hostgroupMapGroupIdColumnIdx;
+	return getHostgroupColumnName(idx);
 }
 
 void HostResourceQueryOption::setHostIdColumnName(
