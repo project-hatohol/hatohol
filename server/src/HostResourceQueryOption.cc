@@ -460,8 +460,8 @@ string HostResourceQueryOption::getColumnNameCommon(
 {
 	const ColumnDef *columnDefs = tableProfile.columnDefs;
 	HATOHOL_ASSERT(idx < tableProfile.numColumns,
-	               "idx: %zd, numColumns: %zd",
-	               idx, tableProfile.numColumns);
+	               "idx: %zd, numColumns: %zd, table: %s",
+	               idx, tableProfile.numColumns, tableProfile.name);
 	string name;
 	if (m_ctx->useTableNameAlways || isHostgroupUsed()) {
 		name += columnDefs[idx].tableName;
