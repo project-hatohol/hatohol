@@ -720,16 +720,12 @@ EventsQueryOption::EventsQueryOption(const UserIdType &userId)
 : HostResourceQueryOption(synapseEventsQueryOption, userId)
 {
 	m_ctx = new PrivateContext();
-	setHostIdColumnName(
-	  COLUMN_DEF_EVENTS[IDX_EVENTS_HOST_ID].columnName);
 }
 
 EventsQueryOption::EventsQueryOption(DataQueryContext *dataQueryContext)
 : HostResourceQueryOption(synapseEventsQueryOption, dataQueryContext)
 {
 	m_ctx = new PrivateContext();
-	setHostIdColumnName(
-	  COLUMN_DEF_EVENTS[IDX_EVENTS_HOST_ID].columnName);
 }
 
 EventsQueryOption::EventsQueryOption(const EventsQueryOption &src)
@@ -893,16 +889,12 @@ TriggersQueryOption::TriggersQueryOption(UserIdType userId)
 : HostResourceQueryOption(synapseTriggersQueryOption, userId)
 {
 	m_ctx = new PrivateContext();
-	setHostIdColumnName(
-	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName);
 }
 
 TriggersQueryOption::TriggersQueryOption(DataQueryContext *dataQueryContext)
 : HostResourceQueryOption(synapseTriggersQueryOption, dataQueryContext)
 {
 	m_ctx = new PrivateContext();
-	setHostIdColumnName(
-	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName);
 }
 
 TriggersQueryOption::TriggersQueryOption(const TriggersQueryOption &src)
@@ -1010,16 +1002,12 @@ ItemsQueryOption::ItemsQueryOption(UserIdType userId)
 : HostResourceQueryOption(synapseItemsQueryOption, userId)
 {
 	m_ctx = new PrivateContext();
-	setHostIdColumnName(
-	  COLUMN_DEF_ITEMS[IDX_ITEMS_HOST_ID].columnName);
 }
 
 ItemsQueryOption::ItemsQueryOption(DataQueryContext *dataQueryContext)
 : HostResourceQueryOption(synapseItemsQueryOption, dataQueryContext)
 {
 	m_ctx = new PrivateContext();
-	setHostIdColumnName(
-	  COLUMN_DEF_ITEMS[IDX_ITEMS_HOST_ID].columnName);
 }
 
 ItemsQueryOption::ItemsQueryOption(const ItemsQueryOption &src)
@@ -1098,15 +1086,11 @@ static const HostResourceQueryOption::Synapse synapseHostsQueryOption(
 HostsQueryOption::HostsQueryOption(UserIdType userId)
 : HostResourceQueryOption(synapseHostsQueryOption, userId)
 {
-	setHostIdColumnName(
-	  COLUMN_DEF_HOSTS[IDX_HOSTS_HOST_ID].columnName);
 }
 
 HostsQueryOption::HostsQueryOption(DataQueryContext *dataQueryContext)
 : HostResourceQueryOption(synapseHostsQueryOption, dataQueryContext)
 {
-	setHostIdColumnName(
-	  COLUMN_DEF_HOSTS[IDX_HOSTS_HOST_ID].columnName);
 }
 
 //

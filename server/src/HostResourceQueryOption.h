@@ -140,7 +140,6 @@ public:
 protected:
 	std::string getServerIdColumnName(void) const;
 	std::string getHostgroupIdColumnName(void) const;
-	void setHostIdColumnName(const std::string &name) const;
 	std::string getHostIdColumnName(void) const;
 
 	static std::string makeCondition(

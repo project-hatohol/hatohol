@@ -278,12 +278,6 @@ string HostResourceQueryOption::getHostgroupIdColumnName(void) const
 	return getHostgroupColumnName(idx);
 }
 
-void HostResourceQueryOption::setHostIdColumnName(
-  const std::string &name) const
-{
-	m_ctx->hostIdColumnName = name;
-}
-
 string HostResourceQueryOption::getHostIdColumnName(void) const
 {
 	return getColumnName(m_ctx->synapse.hostIdColumnIdx);
