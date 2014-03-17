@@ -138,7 +138,6 @@ public:
 	const bool &getFilterForDataOfDefunctServers(void) const;
 
 protected:
-	void setServerIdColumnName(const std::string &name) const;
 	std::string getServerIdColumnName(void) const;
 	void setHostGroupIdColumnName(const std::string &name) const;
 	std::string getHostgroupIdColumnName(void) const;

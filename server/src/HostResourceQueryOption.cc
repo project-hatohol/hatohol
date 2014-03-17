@@ -267,12 +267,6 @@ const bool &HostResourceQueryOption::getFilterForDataOfDefunctServers(void) cons
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void HostResourceQueryOption::setServerIdColumnName(
-  const std::string &name) const
-{
-	m_ctx->serverIdColumnName = name;
-}
-
 string HostResourceQueryOption::getServerIdColumnName(void) const
 {
 	return getColumnName(m_ctx->synapse.serverIdColumnIdx);
