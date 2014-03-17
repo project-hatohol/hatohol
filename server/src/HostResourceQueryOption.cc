@@ -211,7 +211,7 @@ bool HostResourceQueryOption::isHostgroupUsed(void) const
 	return m_ctx->targetHostgroupId != ALL_HOST_GROUPS;
 }
 
-void HostResourceQueryOption::useTableNameAlways(const bool &enable)
+void HostResourceQueryOption::useTableNameAlways(const bool &enable) const
 {
 	m_ctx->useTableNameAlways = enable;
 }

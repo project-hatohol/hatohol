@@ -89,7 +89,7 @@ public:
 	 *
 	 * @param enable A flag to enable the feature.
 	 */
-	virtual void useTableNameAlways(const bool &enable = true);
+	virtual void useTableNameAlways(const bool &enable = true) const;
 
 	/**
 	 * Get a column name at the specified index.
