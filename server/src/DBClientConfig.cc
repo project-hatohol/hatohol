@@ -800,6 +800,8 @@ void DBClientConfig::getTargetServers
 void DBClientConfig::getServerIdSet(ServerIdSet &serverIdSet,
                                     DataQueryContext *dataQueryContext)
 {
+	// TODO: We'd better use the access_list table with a query like
+	// select distinct server_id from access_list where user_id=12
 	ServerQueryOption option(dataQueryContext);
 
 	DBAgent::SelectExArg arg(tableProfileServers);
