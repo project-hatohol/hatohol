@@ -51,7 +51,6 @@ struct HostInfo {
 	ServerIdType        serverId;
 	HostIdType          id;
 	std::string         hostName;
-	HostgroupIdType     hostgroupId;
 
 	// The follwong members are currently not used.
 	std::string         ipAddr;
@@ -73,9 +72,6 @@ struct TriggerInfo {
 	HostIdType          hostId;
 	std::string         hostName;
 	std::string         brief;
-
-	// 'hostgroupId' variable is used when retrieve data from DB.
-	HostgroupIdType     hostgroupId;
 };
 
 typedef std::list<TriggerInfo>          TriggerInfoList;
@@ -106,7 +102,6 @@ struct EventInfo {
 	HostIdType          hostId;
 	std::string         hostName;
 	std::string         brief;
-	HostgroupIdType     hostgroupId;
 };
 void initEventInfo(EventInfo &eventInfo);
 
@@ -123,8 +118,6 @@ struct ItemInfo {
 	std::string         lastValue;
 	std::string         prevValue;
 	std::string         itemGroupName;
-
-	HostgroupIdType     hostgroupId;
 };
 
 typedef std::list<ItemInfo>          ItemInfoList;

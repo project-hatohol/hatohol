@@ -1177,11 +1177,6 @@ void DBClientHatohol::getHostInfoList(HostInfoList &hostInfoList,
 	arg.add(IDX_HOSTS_HOST_ID);
 	arg.add(IDX_HOSTS_HOST_NAME);
 
-	if (option.isHostgroupUsed()) {
-		arg.setTable(TBLIDX_MAP_HOSTS_HOSTGROUPS);
-		arg.add(IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
-	}
-
 	// condition
 	arg.condition = option.getCondition();
 
@@ -1199,10 +1194,6 @@ void DBClientHatohol::getHostInfoList(HostInfoList &hostInfoList,
 		itemGroupStream >> hostInfo.serverId;
 		itemGroupStream >> hostInfo.id;
 		itemGroupStream >> hostInfo.hostName;
-		if (option.isHostgroupUsed())
-			itemGroupStream >> hostInfo.hostgroupId;
-		else
-			hostInfo.hostgroupId = ALL_HOST_GROUPS;;
 	}
 }
 
@@ -1272,11 +1263,6 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	arg.add(IDX_TRIGGERS_HOSTNAME);
 	arg.add(IDX_TRIGGERS_BRIEF);
 
-	if (option.isHostgroupUsed()) {
-		arg.setTable(TBLIDX_MAP_HOSTS_HOSTGROUPS);
-		arg.add(IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
-	}
-
 	// condition
 	arg.condition = condition;
 
@@ -1309,10 +1295,6 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 		itemGroupStream >> trigInfo.hostId;
 		itemGroupStream >> trigInfo.hostName;
 		itemGroupStream >> trigInfo.brief;
-		if (option.isHostgroupUsed())
-			itemGroupStream >> trigInfo.hostgroupId;
-		else
-			trigInfo.hostgroupId = ALL_HOST_GROUPS;
 
 		triggerInfoList.push_back(trigInfo);
 	}
@@ -1385,12 +1367,10 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	static const DBAgent::TableProfile *tableProfiles[] = {
 	  &tableProfileEvents,
 	  &tableProfileTriggers,
-	  &tableProfileMapHostsHostgroups,
 	};
 	enum {
 		TBLIDX_EVENTS,
 		TBLIDX_TRIGGERS,
-		TBLIDX_MAP_HOSTS_HOSTGROUPS,
 	};
 	static const size_t numTableProfiles =
 	  sizeof(tableProfiles) / sizeof(DBAgent::TableProfile *);
@@ -1426,11 +1406,6 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	arg.add(IDX_TRIGGERS_HOST_ID);
 	arg.add(IDX_TRIGGERS_HOSTNAME);
 	arg.add(IDX_TRIGGERS_BRIEF);
-
-	if (option.isHostgroupUsed()) {
-		arg.setTable(TBLIDX_MAP_HOSTS_HOSTGROUPS);
-		arg.add(IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
-	}
 
 	// Condition
 	arg.condition = StringUtils::sprintf(
@@ -1481,10 +1456,6 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 		itemGroupStream >> eventInfo.hostId;
 		itemGroupStream >> eventInfo.hostName;
 		itemGroupStream >> eventInfo.brief;
-		if (option.isHostgroupUsed())
-			itemGroupStream >> eventInfo.hostgroupId;
-		else
-			eventInfo.hostgroupId = ALL_HOST_GROUPS;;
 	}
 	return HatoholError(HTERR_OK);
 }
@@ -1622,11 +1593,6 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 	arg.add(IDX_ITEMS_PREV_VALUE);
 	arg.add(IDX_ITEMS_ITEM_GROUP_NAME);
 
-	if (option.isHostgroupUsed()) {
-		arg.setTable(TBLIDX_MAP_HOSTS_HOSTGROUPS);
-		arg.add(IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
-	}
-
 	// condition
 	arg.condition = option.getCondition();
 	if (isAlwaysFalseCondition(arg.condition))
@@ -1662,10 +1628,6 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 		itemGroupStream >> itemInfo.lastValue;
 		itemGroupStream >> itemInfo.prevValue;
 		itemGroupStream >> itemInfo.itemGroupName;
-		if (option.isHostgroupUsed())
-			itemGroupStream >> itemInfo.hostgroupId;
-		else
-			itemInfo.hostgroupId = ALL_HOST_GROUPS;
 	}
 }
 
