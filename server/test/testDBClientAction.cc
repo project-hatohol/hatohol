@@ -549,7 +549,6 @@ void test_getTriggerActionListWithAllCondition(void)
 	eventInfo.status    = (TriggerStatusType) condTarget.triggerStatus;
 	eventInfo.severity  = (TriggerSeverityType) condTarget.triggerSeverity;
 	eventInfo.hostId    = condTarget.hostId;
-	eventInfo.hostgroupId = condTarget.hostGroupId;
 	eventInfo.hostName  = "foo";
 	eventInfo.brief     = "foo foo foo";
 

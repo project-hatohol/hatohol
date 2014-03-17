@@ -812,7 +812,7 @@ string DBClientAction::makeActionDefCondition(const EventInfo &eventInfo)
 	  StringUtils::sprintf(m_ctx->actionDefConditionTemplate.c_str(),
 	                       eventInfo.serverId,
 	                       eventInfo.hostId,
-	                       eventInfo.hostgroupId,
+	                       // TODO: hostGroupId
 	                       eventInfo.triggerId,
 	                       eventInfo.status,
 	                       eventInfo.severity,
