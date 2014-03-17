@@ -41,8 +41,11 @@ static void initParamChecker(
   gconstpointer data, HostResourceQueryOption &option)
 {
 	option.setTargetServerId(2);
-	option.setTargetHostId(4);
-	string expected = "server_id=2 AND host_id=4";
+	string expected = "server_id=2";
+	if (typeid(option) != typeid(HostgroupsQueryOption)) {
+		option.setTargetHostId(4);
+		expected += " AND host_id=4";
+	}
 	// TODO: call setHostGroupId()
 	fixupForFilteringDefunctServer(data, expected, option);
 	cppcut_assert_equal(expected, option.getCondition());
@@ -414,7 +417,7 @@ void test_eventQueryOptionGetServerIdColumnName(gconstpointer data)
 	                  "%s.%s=26 AND %s.%s=32 AND %s.%s=48",
 			  DBClientHatohol::TABLE_NAME_EVENTS,
 			  serverIdColumnName.c_str(),
-			  DBClientHatohol::TABLE_NAME_EVENTS,
+			  DBClientHatohol::TABLE_NAME_TRIGGERS,
 			  hostIdColumnName.c_str(),
 			  hostgroupTableAlias.c_str(),
 			  hostGroupIdColumnName.c_str());

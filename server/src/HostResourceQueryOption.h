@@ -143,8 +143,8 @@ protected:
 	void setHostGroupIdColumnName(const std::string &name) const;
 	std::string getHostgroupIdColumnName(void) const;
 	void setHostIdColumnName(const std::string &name) const;
-	std::string getHostIdColumnName(
-	  const std::string &tableAlias = "") const;
+	std::string getHostIdColumnName(void) const;
+
 	static std::string makeCondition(
 	  const ServerHostGrpSetMap &srvHostGrpSetMap,
 	  const std::string &serverIdColumnName,
