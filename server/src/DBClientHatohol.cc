@@ -1170,7 +1170,7 @@ void DBClientHatohol::getHostInfoList(HostInfoList &hostInfoList,
 	  sizeof(tableProfiles) / sizeof(DBAgent::TableProfile *);
 	DBAgent::SelectMultiTableArg arg(tableProfiles, numTableProfiles);
 
-	arg.tableField = option.getFromSection();
+	arg.tableField = option.getFromClause();
 
 	arg.setTable(TBLIDX_HOSTS);
 	arg.add(IDX_HOSTS_SERVER_ID);
@@ -1250,7 +1250,7 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	  sizeof(tableProfiles) / sizeof(DBAgent::TableProfile *);
 	DBAgent::SelectMultiTableArg arg(tableProfiles, numTableProfiles);
 
-	arg.tableField = option.getFromSection();
+	arg.tableField = option.getFromClause();
 
 	arg.setTable(TBLIDX_TRIGGERS);
 	arg.add(IDX_TRIGGERS_SERVER_ID);
@@ -1379,7 +1379,7 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	option.useTableNameAlways();
 
 	// Tables
-	arg.tableField = option.getFromSection();
+	arg.tableField = option.getFromClause();
 	arg.tableField += StringUtils::sprintf(
 	  " INNER JOIN %s ON (%s=%s AND %s=%s)",
 	  TABLE_NAME_TRIGGERS,
@@ -1580,7 +1580,7 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 	  sizeof(tableProfiles) / sizeof(DBAgent::TableProfile *);
 	DBAgent::SelectMultiTableArg arg(tableProfiles, numTableProfiles);
 
-	arg.tableField = option.getFromSection();
+	arg.tableField = option.getFromClause();
 
 	arg.setTable(TBLIDX_ITEMS);
 	arg.add(IDX_ITEMS_SERVER_ID);
@@ -1639,7 +1639,7 @@ size_t DBClientHatohol::getNumberOfTriggers(const TriggersQueryOption &option,
 	arg.add("count (*)", SQL_COLUMN_TYPE_INT);
 
 	// from
-	arg.tableField = option.getFromSection();
+	arg.tableField = option.getFromClause();
 
 	// condition
 	arg.condition = option.getCondition();
@@ -1670,7 +1670,7 @@ size_t DBClientHatohol::getNumberOfHosts(const TriggersQueryOption &option)
 	arg.add(stmt, SQL_COLUMN_TYPE_INT);
 
 	// from
-	arg.tableField = option.getFromSection();
+	arg.tableField = option.getFromClause();
 
 	// condition
 	arg.condition = option.getCondition();
@@ -1703,7 +1703,7 @@ size_t DBClientHatohol::getNumberOfBadHosts(const TriggersQueryOption &option)
 	arg.add(stmt, SQL_COLUMN_TYPE_INT);
 
 	// from
-	arg.tableField = option.getFromSection();
+	arg.tableField = option.getFromClause();
 
 	// condition
 	arg.condition = option.getCondition();

@@ -567,14 +567,14 @@ void test_makeSelectCondition(gconstpointer data)
 	}
 }
 
-void test_getFromSectionWithAllHostGroup(void)
+void test_getFromClauseWithAllHostGroup(void)
 {
 	HostResourceQueryOption option(TEST_SYNAPSE);
 	cppcut_assert_equal(string(TEST_PRIMARY_TABLE_NAME),
-	                    option.getFromSection());
+	                    option.getFromClause());
 }
 
-void test_getFromSectionWithSpecificHostGroup(void)
+void test_getFromClauseWithSpecificHostGroup(void)
 {
 	HostResourceQueryOption option(TEST_SYNAPSE);
 	option.setTargetHostgroupId(5);
@@ -582,7 +582,7 @@ void test_getFromSectionWithSpecificHostGroup(void)
 	  "test_table_name INNER JOIN test_hgrp_table_name ON "
 	  "((test_table_name.server_id=test_hgrp_table_name.server_id) AND "
 	  "(test_table_name.host_id=test_hgrp_table_name.host_id))";
-	cppcut_assert_equal(expect, option.getFromSection());
+	cppcut_assert_equal(expect, option.getFromClause());
 }
 
 void data_isJoinNeeded(void)
