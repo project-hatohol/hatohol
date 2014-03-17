@@ -1399,19 +1399,16 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	option.useTableNameAlways();
 
 	// Tables
-	arg.tableField = StringUtils::sprintf(
-	  " %s inner join %s on %s=%s"
-	  " inner join %s on ((%s=%s) and (%s=%s))",
-	  TABLE_NAME_EVENTS, TABLE_NAME_TRIGGERS,
-	  arg.getFullName(TBLIDX_EVENTS, IDX_EVENTS_TRIGGER_ID).c_str(),
-	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_ID).c_str(),
-	  TABLE_NAME_MAP_HOSTS_HOSTGROUPS,
-	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_HOST_ID).c_str(),
-	  arg.getFullName(
-	    TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID).c_str(),
+	arg.tableField = option.getFromSection();
+	arg.tableField += StringUtils::sprintf(
+	  " INNER JOIN %s ON (%s=%s AND %s=%s)",
+	  TABLE_NAME_TRIGGERS,
+
+	  option.getColumnName(IDX_EVENTS_SERVER_ID).c_str(),
 	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_SERVER_ID).c_str(),
-	  arg.getFullName(
-	    TBLIDX_MAP_HOSTS_HOSTGROUPS, IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID).c_str());
+
+	  option.getColumnName(IDX_EVENTS_TRIGGER_ID).c_str(),
+	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_ID).c_str()),
 
 	// Columns
 	arg.setTable(TBLIDX_EVENTS);
@@ -1430,8 +1427,10 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	arg.add(IDX_TRIGGERS_HOSTNAME);
 	arg.add(IDX_TRIGGERS_BRIEF);
 
-	arg.setTable(TBLIDX_MAP_HOSTS_HOSTGROUPS);
-	arg.add(IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
+	if (option.isHostgroupUsed()) {
+		arg.setTable(TBLIDX_MAP_HOSTS_HOSTGROUPS);
+		arg.add(IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
+	}
 
 	// Condition
 	arg.condition = StringUtils::sprintf(
@@ -1482,7 +1481,10 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 		itemGroupStream >> eventInfo.hostId;
 		itemGroupStream >> eventInfo.hostName;
 		itemGroupStream >> eventInfo.brief;
-		itemGroupStream >> eventInfo.hostgroupId;
+		if (option.isHostgroupUsed())
+			itemGroupStream >> eventInfo.hostgroupId;
+		else
+			eventInfo.hostgroupId = ALL_HOST_GROUPS;;
 	}
 	return HatoholError(HTERR_OK);
 }
