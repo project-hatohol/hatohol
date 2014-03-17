@@ -213,18 +213,7 @@ void HostResourceQueryOption::useTableNameAlways(const bool &enable) const
 
 string HostResourceQueryOption::getColumnName(const size_t &idx) const
 {
-	const Synapse &synapse = m_ctx->synapse;
-	const ColumnDef *columnDefs = synapse.tableProfile.columnDefs;
-	HATOHOL_ASSERT(idx < synapse.tableProfile.numColumns,
-	               "idx: %zd, numColumns: %zd",
-	               idx, synapse.tableProfile.numColumns);
-	string name;
-	if (m_ctx->useTableNameAlways || isHostgroupUsed()) {
-		name += columnDefs[idx].tableName;
-		name += ".";
-	}
-	name += columnDefs[idx].columnName;
-	return name;
+	return getColumnNameCommon(m_ctx->synapse.tableProfile, idx);
 }
 
 string HostResourceQueryOption::getHostgroupColumnName(const size_t &idx) const
@@ -474,7 +463,7 @@ string HostResourceQueryOption::getColumnNameCommon(
 	               "idx: %zd, numColumns: %zd",
 	               idx, tableProfile.numColumns);
 	string name;
-	if (isHostgroupUsed()) {
+	if (m_ctx->useTableNameAlways || isHostgroupUsed()) {
 		name += columnDefs[idx].tableName;
 		name += ".";
 	}
