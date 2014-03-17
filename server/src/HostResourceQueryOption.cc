@@ -58,6 +58,7 @@ struct HostResourceQueryOption::PrivateContext {
 	HostIdType      targetHostId;
 	HostgroupIdType targetHostgroupId;
 	bool            filterDataOfDefunctServers;
+	bool            useTableNameAlways;
 
 	PrivateContext(const Synapse &_synapse)
 	: synapse(_synapse),
@@ -67,7 +68,8 @@ struct HostResourceQueryOption::PrivateContext {
 	  targetServerId(ALL_SERVERS),
 	  targetHostId(ALL_HOSTS),
 	  targetHostgroupId(ALL_HOST_GROUPS),
-	  filterDataOfDefunctServers(true)
+	  filterDataOfDefunctServers(true),
+	  useTableNameAlways(false)
 	{
 	}
 
@@ -120,29 +122,15 @@ const char *HostResourceQueryOption::getPrimaryTableName(void) const
 	return m_ctx->synapse.tableProfile.name;
 }
 
-string HostResourceQueryOption::getCondition(const string &_tableAlias) const
+string HostResourceQueryOption::getCondition(void) const
 {
-	// TEMPORARY IMPLEMENT *****************************************
-	// TODO: clean up; Remove an evil paramter: tableAlias
-	string tableAlias;
-	if (_tableAlias.empty()) {
-		if (!isOnlyOneTableUsed())
-			tableAlias = getPrimaryTableName();
-	} else {
-		tableAlias = _tableAlias;
-	}
-	// *************************************************************
-
 	string condition;
-	string hostgroupTableAlias;
-	if (!tableAlias.empty())
-		hostgroupTableAlias = DBClientHatohol::TABLE_NAME_MAP_HOSTS_HOSTGROUPS;
 	if (getFilterForDataOfDefunctServers()) {
 		addCondition(
 		  condition,
 		  makeConditionServer(
 		    getDataQueryContext().getValidServerIdSet(),
-		    getServerIdColumnName(tableAlias))
+		    getServerIdColumnName())
 		);
 	}
 
@@ -153,22 +141,21 @@ string HostResourceQueryOption::getCondition(const string &_tableAlias) const
 			addCondition(condition,
 			  StringUtils::sprintf(
 				"%s=%"FMT_SERVER_ID,
-				getServerIdColumnName(tableAlias).c_str(),
+				getServerIdColumnName().c_str(),
 				m_ctx->targetServerId));
 		}
 		if (m_ctx->targetHostId != ALL_HOSTS) {
 			addCondition(condition,
 			  StringUtils::sprintf(
 				"%s=%"FMT_HOST_ID,
-				getHostIdColumnName(tableAlias).c_str(),
+				getHostIdColumnName().c_str(),
 				m_ctx->targetHostId));
 		}
 		if (m_ctx->targetHostgroupId != ALL_HOST_GROUPS) {
 			addCondition(condition,
 			  StringUtils::sprintf(
 				"%s=%"FMT_HOST_GROUP_ID,
-				getHostgroupIdColumnName(
-				  hostgroupTableAlias).c_str(),
+				getHostgroupIdColumnName().c_str(),
 				m_ctx->targetHostgroupId));
 		}
 		return condition;
@@ -183,10 +170,9 @@ string HostResourceQueryOption::getCondition(const string &_tableAlias) const
 	  getDataQueryContext().getServerHostGrpSetMap();
 	addCondition(condition,
 	             makeCondition(srvHostGrpSetMap,
-	                           getServerIdColumnName(tableAlias),
-	                           getHostgroupIdColumnName(
-	                             hostgroupTableAlias),
-	                           getHostIdColumnName(tableAlias),
+	                           getServerIdColumnName(),
+	                           getHostgroupIdColumnName(),
+	                           getHostIdColumnName(),
 	                           m_ctx->targetServerId,
 	                           m_ctx->targetHostgroupId,
 	                           m_ctx->targetHostId));
@@ -195,34 +181,34 @@ string HostResourceQueryOption::getCondition(const string &_tableAlias) const
 
 string HostResourceQueryOption::getFromSection(void) const
 {
-	if (isOnlyOneTableUsed())
-		return getFromSectionForOneTable();
-	else
+	if (isHostgroupUsed())
 		return getFromSectionWithHostgroup();
+	else
+		return getFromSectionForOneTable();
 }
 
-bool HostResourceQueryOption::isOnlyOneTableUsed(void) const
+bool HostResourceQueryOption::isHostgroupUsed(void) const
 {
 	const Synapse &synapse = m_ctx->synapse;
 	if (&synapse.tableProfile == &synapse.hostgroupMapTableProfile)
-		return true;
-	return m_ctx->targetHostgroupId == ALL_HOST_GROUPS;
+		return false;
+	return m_ctx->targetHostgroupId != ALL_HOST_GROUPS;
+}
+
+void HostResourceQueryOption::useTableNameAlways(const bool &enable) const
+{
+	m_ctx->useTableNameAlways = enable;
 }
 
 string HostResourceQueryOption::getColumnName(const size_t &idx) const
 {
-	const Synapse &synapse = m_ctx->synapse;
-	const ColumnDef *columnDefs = synapse.tableProfile.columnDefs;
-	HATOHOL_ASSERT(idx < synapse.tableProfile.numColumns,
-	               "idx: %zd, numColumns: %zd",
-	               idx, synapse.tableProfile.numColumns);
-	string name;
-	if (!isOnlyOneTableUsed()) {
-		name += synapse.tableProfile.name;
-		name += ".";
-	}
-	name += columnDefs[idx].columnName;
-	return name;
+	return getColumnNameCommon(m_ctx->synapse.tableProfile, idx);
+}
+
+string HostResourceQueryOption::getHostgroupColumnName(const size_t &idx) const
+{
+	return getColumnNameCommon(m_ctx->synapse.hostgroupMapTableProfile,
+	                           idx);
 }
 
 ServerIdType HostResourceQueryOption::getTargetServerId(void) const
@@ -270,64 +256,29 @@ const bool &HostResourceQueryOption::getFilterForDataOfDefunctServers(void) cons
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void HostResourceQueryOption::setServerIdColumnName(
-  const std::string &name) const
+string HostResourceQueryOption::getServerIdColumnName(void) const
 {
-	m_ctx->serverIdColumnName = name;
+	return getColumnName(m_ctx->synapse.serverIdColumnIdx);
 }
 
-string HostResourceQueryOption::getServerIdColumnName(
-  const std::string &tableAlias) const
+string HostResourceQueryOption::getHostgroupIdColumnName(void) const
 {
-	if (tableAlias.empty())
-		return m_ctx->serverIdColumnName;
-
-	return StringUtils::sprintf("%s.%s",
-				    tableAlias.c_str(),
-				    m_ctx->serverIdColumnName.c_str());
+	const size_t &idx = m_ctx->synapse.hostgroupMapGroupIdColumnIdx;
+	return getHostgroupColumnName(idx);
 }
 
-void HostResourceQueryOption::setHostGroupIdColumnName(
-  const std::string &name) const
+string HostResourceQueryOption::getHostIdColumnName(void) const
 {
-	m_ctx->hostGroupIdColumnName = name;
-}
-
-string HostResourceQueryOption::getHostgroupIdColumnName(
-  const std::string &tableAlias) const
-{
-	if (tableAlias.empty())
-		return m_ctx->hostGroupIdColumnName;
-
-	return StringUtils::sprintf("%s.%s",
-				    tableAlias.c_str(),
-				    m_ctx->hostGroupIdColumnName.c_str());
-}
-
-void HostResourceQueryOption::setHostIdColumnName(
-  const std::string &name) const
-{
-	m_ctx->hostIdColumnName = name;
-}
-
-string HostResourceQueryOption::getHostIdColumnName(
-  const std::string &tableAlias) const
-{
-	if (tableAlias.empty())
-		return m_ctx->hostIdColumnName;
-
-	return StringUtils::sprintf("%s.%s",
-				    tableAlias.c_str(),
-				    m_ctx->hostIdColumnName.c_str());
+	return getColumnName(m_ctx->synapse.hostIdColumnIdx);
 }
 
 string HostResourceQueryOption::makeConditionHostGroup(
-  const HostGroupSet &hostGroupSet, const string &hostGroupIdColumnName)
+  const HostGroupIdSet &hostGroupIdSet, const string &hostGroupIdColumnName)
 {
 	string hostGrps;
-	HostGroupSetConstIterator it = hostGroupSet.begin();
-	size_t commaCnt = hostGroupSet.size() - 1;
-	for (; it != hostGroupSet.end(); ++it, commaCnt--) {
+	HostGroupIdSetConstIterator it = hostGroupIdSet.begin();
+	size_t commaCnt = hostGroupIdSet.size() - 1;
+	for (; it != hostGroupIdSet.end(); ++it, commaCnt--) {
 		const uint64_t hostGroupId = *it;
 		if (hostGroupId == ALL_HOST_GROUPS)
 			return "";
@@ -363,7 +314,7 @@ string HostResourceQueryOption::makeConditionServer(
 }
 
 string HostResourceQueryOption::makeConditionServer(
-  const ServerIdType &serverId, const HostGroupSet &hostGroupSet,
+  const ServerIdType &serverId, const HostGroupIdSet &hostGroupIdSet,
   const string &serverIdColumnName, const string &hostGroupIdColumnName,
   const HostgroupIdType &hostgroupId)
 {
@@ -374,7 +325,7 @@ string HostResourceQueryOption::makeConditionServer(
 	string conditionHostGroup;
 	if (hostgroupId == ALL_HOST_GROUPS) {
 		conditionHostGroup =
-		  makeConditionHostGroup(hostGroupSet, hostGroupIdColumnName);
+		  makeConditionHostGroup(hostGroupIdSet, hostGroupIdColumnName);
 	} else {
 		conditionHostGroup = StringUtils::sprintf(
 		  "%s=%"FMT_HOST_GROUP_ID, hostGroupIdColumnName.c_str(),
@@ -452,23 +403,35 @@ string HostResourceQueryOption::getFromSectionForOneTable(void) const
 string HostResourceQueryOption::getFromSectionWithHostgroup(void) const
 {
 	const Synapse &synapse = m_ctx->synapse;
-	const ColumnDef *columnDefs = synapse.tableProfile.columnDefs;
 	const ColumnDef *hgrpColumnDefs =
 	  synapse.hostgroupMapTableProfile.columnDefs;
 
 	return StringUtils::sprintf(
-	  "%s INNER JOIN %s ON ((%s.%s=%s.%s) AND (%s.%s=%s.%s))",
+	  "%s INNER JOIN %s ON ((%s=%s.%s) AND (%s=%s.%s))",
 	  synapse.tableProfile.name,
 	  synapse.hostgroupMapTableProfile.name,
 
-	  synapse.tableProfile.name,
-	  columnDefs[synapse.serverIdColumnIdx].columnName,
+	  getColumnName(synapse.serverIdColumnIdx).c_str(),
 	  synapse.hostgroupMapTableProfile.name,
 	  hgrpColumnDefs[synapse.hostgroupMapServerIdColumnIdx].columnName,
 
-	  synapse.tableProfile.name,
-	  columnDefs[synapse.hostIdColumnIdx].columnName,
+	  getColumnName(synapse.hostIdColumnIdx).c_str(),
 	  synapse.hostgroupMapTableProfile.name,
 	  hgrpColumnDefs[synapse.hostgroupMapHostIdColumnIdx].columnName);
 }
 
+string HostResourceQueryOption::getColumnNameCommon(
+  const DBAgent::TableProfile &tableProfile, const size_t &idx) const
+{
+	const ColumnDef *columnDefs = tableProfile.columnDefs;
+	HATOHOL_ASSERT(idx < tableProfile.numColumns,
+	               "idx: %zd, numColumns: %zd, table: %s",
+	               idx, tableProfile.numColumns, tableProfile.name);
+	string name;
+	if (m_ctx->useTableNameAlways || isHostgroupUsed()) {
+		name += columnDefs[idx].tableName;
+		name += ".";
+	}
+	name += columnDefs[idx].columnName;
+	return name;
+}

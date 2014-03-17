@@ -41,8 +41,11 @@ static void initParamChecker(
   gconstpointer data, HostResourceQueryOption &option)
 {
 	option.setTargetServerId(2);
-	option.setTargetHostId(4);
-	string expected = "server_id=2 AND host_id=4";
+	string expected = "server_id=2";
+	if (typeid(option) != typeid(HostgroupsQueryOption)) {
+		option.setTargetHostId(4);
+		expected += " AND host_id=4";
+	}
 	// TODO: call setHostGroupId()
 	fixupForFilteringDefunctServer(data, expected, option);
 	cppcut_assert_equal(expected, option.getCondition());
@@ -391,7 +394,7 @@ void test_eventQueryOptionWithTriggerStatus(gconstpointer data)
 {
 	EventsQueryOption option(USER_ID_SYSTEM);
 	option.setTriggerStatus(TRIGGER_STATUS_PROBLEM);
-	string expected = "events.status=1";
+	string expected = "status=1";
 	fixupForFilteringDefunctServer(data, expected, option);
 	cppcut_assert_equal(TRIGGER_STATUS_PROBLEM,
 			    option.getTriggerStatus());
@@ -406,21 +409,20 @@ void data_eventQueryOptionGetServerIdColumnName(void)
 void test_eventQueryOptionGetServerIdColumnName(gconstpointer data)
 {
 	EventsQueryOption option(USER_ID_SYSTEM);
-	const string tableAlias = "test_event_table_alias";
 	const string hostgroupTableAlias = "map_hosts_hostgroups";
 	option.setTargetServerId(26);
 	option.setTargetHostgroupId(48);
 	option.setTargetHostId(32);
 	string expect = StringUtils::sprintf(
 	                  "%s.%s=26 AND %s.%s=32 AND %s.%s=48",
-			  tableAlias.c_str(),
+			  DBClientHatohol::TABLE_NAME_EVENTS,
 			  serverIdColumnName.c_str(),
-			  tableAlias.c_str(),
+			  DBClientHatohol::TABLE_NAME_TRIGGERS,
 			  hostIdColumnName.c_str(),
 			  hostgroupTableAlias.c_str(),
 			  hostGroupIdColumnName.c_str());
-	fixupForFilteringDefunctServer(data, expect, option, tableAlias);
-	cppcut_assert_equal(expect, option.getCondition(tableAlias));
+	fixupForFilteringDefunctServer(data, expect, option);
+	cppcut_assert_equal(expect, option.getCondition());
 }
 
 //

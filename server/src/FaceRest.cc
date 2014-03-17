@@ -281,113 +281,6 @@ private:
 	FaceRest *m_faceRest;
 };
 
-template<typename InfoListT, typename InfoT, typename TargetIdT>
-class FaceRest::HandlerGetHelper {
-public:
-	typedef vector<HostgroupIdType> HostgroupIdVector;
-	typedef map<TargetIdT, HostgroupIdVector> DataIdHostgroupIdVectorMap;
-	typedef map<ServerIdType, DataIdHostgroupIdVectorMap>
-	  ServerIdDataIdHostgroupIdVectorMap;
-	typedef vector<TargetIdT> DataIdVector;
-	typedef map<ServerIdType, DataIdVector> ServerIdDataIdVectorMap;
-	typedef typename DataIdVector::const_iterator DataIdVectorConstIterator;
-	typedef typename ServerIdDataIdVectorMap::const_iterator
-	  ServerIdDataIdVectorMapConstIterator;
-	typedef typename ServerIdDataIdHostgroupIdVectorMap::iterator
-	  ServerMapIterator;
-	typedef typename DataIdHostgroupIdVectorMap::iterator DataMapIterator;
-	typedef typename InfoListT::const_iterator InfoListConstIterator;
-
-	HandlerGetHelper()
-	: m_ctx(NULL)
-	{
-		m_ctx = new PrivateContext();
-	}
-
-	~HandlerGetHelper()
-	{
-		if (m_ctx)
-			delete m_ctx;
-	}
-
-	void addHostgroupIdToVectorMap(const InfoListT &infoList)
-	{
-		InfoListConstIterator it = infoList.begin();
-		for (; it != infoList.end(); ++it){
-			const InfoT &info = *it;
-			m_ctx->serverDataHostgroupIdVectorMap
-			  [info.serverId][info.id].push_back(
-			    info.hostgroupId);
-		}
-	}
-
-	void includeHostgroupIdArray
-	  (JsonBuilderAgent &outputJson, const ServerIdType &serverId,
-	   const TargetIdT &targetId)
-	{
-		ServerMapIterator serverIt
-		  = m_ctx->serverDataHostgroupIdVectorMap.find(serverId);
-		if (serverIt == m_ctx->serverDataHostgroupIdVectorMap.end())
-			return;
-
-		DataIdHostgroupIdVectorMap &dataHostgroupIdVectorMap
-		  = serverIt->second;
-		DataMapIterator dataIt
-		  = dataHostgroupIdVectorMap.find(targetId);
-		if (dataIt == dataHostgroupIdVectorMap.end())
-			return;
-
-		const HostgroupIdVector &hostgroupIdVector = dataIt->second;
-		outputJson.startArray("hostgroupId");
-		HostgroupIdVector::const_iterator hostgroupIdItr;
-		hostgroupIdItr = hostgroupIdVector.begin();
-		while (hostgroupIdItr != hostgroupIdVector.end()) {
-			outputJson.add(*hostgroupIdItr);
-			++hostgroupIdItr;
-		}
-		outputJson.endArray();
-	}
-
-	void addAlreadyAddedJsonData
-	  (const ServerIdType &serverId, const TargetIdT &targetId)
-	{
-		m_ctx->serverIdDataIdVectorMap[serverId].push_back(targetId);
-		m_ctx->numberOfData++;
-	}
-
-	bool isAlreadyAddedJsonData
-	  (const ServerIdType &serverId, const TargetIdT &targetId)
-	{
-		ServerIdDataIdVectorMapConstIterator serverIt
-		  = m_ctx->serverIdDataIdVectorMap.find(serverId);
-		if (serverIt == m_ctx->serverIdDataIdVectorMap.end())
-			return false;
-
-		// TODO: Should we use 'set' ?
-		const DataIdVector &dataIdVector = serverIt->second;
-		DataIdVectorConstIterator dataIdItr = dataIdVector.begin();
-		for (; dataIdItr != dataIdVector.end(); ++dataIdItr) {
-			if (*dataIdItr == targetId)
-				return true;
-		}
-
-		return false;
-	}
-
-	size_t getNumberOfData(void)
-	{
-		return m_ctx->numberOfData;
-	}
-
-private:
-	struct PrivateContext {
-		ServerIdDataIdHostgroupIdVectorMap serverDataHostgroupIdVectorMap;
-		ServerIdDataIdVectorMap serverIdDataIdVectorMap;
-		size_t numberOfData;
-	};
-	PrivateContext *m_ctx;
-};
-
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
@@ -1124,9 +1017,7 @@ static void addOverviewEachServer(FaceRest::RestJob *job,
 		     severity < NUM_TRIGGER_SEVERITY; severity++) {
 			TriggersQueryOption option(job->dataQueryContextPtr);
 			option.setTargetServerId(svInfo.id);
-			//FIXME: If the following line is uncommented,
-			//       an exception happens.
-			//option.setTargetHostgroupId(hostGroupId);
+			option.setTargetHostgroupId(hostGroupId);
 			agent.startObject();
 			agent.add("hostGroupId", hostGroupId);
 			agent.add("severity", severity);
@@ -1147,9 +1038,7 @@ static void addOverviewEachServer(FaceRest::RestJob *job,
 		const HostgroupIdType hostGroupId = hostgrpItr->groupId;
 		TriggersQueryOption option(job->dataQueryContextPtr);
 		option.setTargetServerId(svInfo.id);
-		//FIXME: If the following line is uncommented,
-		//       an exception happens.
-		//option.setTargetHostgroupId(hostGroupId);
+		option.setTargetHostgroupId(hostGroupId);
 		size_t numBadHosts = dataStore->getNumberOfBadHosts(option);
 		agent.startObject();
 		agent.add("hostGroupId", hostGroupId);
@@ -1833,8 +1722,6 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 	TriggerInfoList triggerList;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	dataStore->getTriggerList(triggerList, option);
-	HandlerGetHelper<TriggerInfoList, TriggerInfo, TriggerIdType> helper;
-	helper.addHostgroupIdToVectorMap(triggerList);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -1843,28 +1730,19 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 	TriggerInfoListIterator it = triggerList.begin();
 	for (; it != triggerList.end(); ++it) {
 		TriggerInfo &triggerInfo = *it;
-		if (!helper.isAlreadyAddedJsonData(
-		       triggerInfo.serverId, triggerInfo.id)) {
-			agent.startObject();
-			agent.add("id",       triggerInfo.id);
-			agent.add("status",   triggerInfo.status);
-			agent.add("severity", triggerInfo.severity);
-			agent.add("lastChangeTime",
-			          triggerInfo.lastChangeTime.tv_sec);
-			agent.add("serverId", triggerInfo.serverId);
-			agent.add("hostId",   triggerInfo.hostId);
-			agent.add("brief",    triggerInfo.brief);
-			helper.includeHostgroupIdArray(agent,
-			                               triggerInfo.serverId,
-			                               triggerInfo.id);
-			agent.endObject();
-
-			helper.addAlreadyAddedJsonData(triggerInfo.serverId,
-			                               triggerInfo.id);
-		}
+		agent.startObject();
+		agent.add("id",       triggerInfo.id);
+		agent.add("status",   triggerInfo.status);
+		agent.add("severity", triggerInfo.severity);
+		agent.add("lastChangeTime",
+		          triggerInfo.lastChangeTime.tv_sec);
+		agent.add("serverId", triggerInfo.serverId);
+		agent.add("hostId",   triggerInfo.hostId);
+		agent.add("brief",    triggerInfo.brief);
+		agent.endObject();
 	}
 	agent.endArray();
-	agent.add("numberOfTriggers", helper.getNumberOfData());
+	agent.add("numberOfTriggers", triggerList.size());
 	addServersMap(job, agent, NULL, false);
 	agent.endObject();
 
@@ -1906,8 +1784,6 @@ void FaceRest::handlerGetEvent(RestJob *job)
 		replyError(job, err);
 		return;
 	}
-	HandlerGetHelper<EventInfoList, EventInfo, EventIdType> helper;
-	helper.addHostgroupIdToVectorMap(eventList);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -1917,29 +1793,20 @@ void FaceRest::handlerGetEvent(RestJob *job)
 	EventInfoListIterator it = eventList.begin();
 	for (; it != eventList.end(); ++it) {
 		EventInfo &eventInfo = *it;
-		if (!helper.isAlreadyAddedJsonData(
-		       eventInfo.serverId, eventInfo.id)) {
-			agent.startObject();
-			agent.add("unifiedId", eventInfo.unifiedId);
-			agent.add("serverId",  eventInfo.serverId);
-			agent.add("time",      eventInfo.time.tv_sec);
-			agent.add("type",      eventInfo.type);
-			agent.add("triggerId", eventInfo.triggerId);
-			agent.add("status",    eventInfo.status);
-			agent.add("severity",  eventInfo.severity);
-			agent.add("hostId",    eventInfo.hostId);
-			agent.add("brief",     eventInfo.brief);
-			helper.includeHostgroupIdArray(agent,
-			                               eventInfo.serverId,
-			                               eventInfo.id);
-			agent.endObject();
-
-			helper.addAlreadyAddedJsonData(eventInfo.serverId,
-					eventInfo.id);
-		}
+		agent.startObject();
+		agent.add("unifiedId", eventInfo.unifiedId);
+		agent.add("serverId",  eventInfo.serverId);
+		agent.add("time",      eventInfo.time.tv_sec);
+		agent.add("type",      eventInfo.type);
+		agent.add("triggerId", eventInfo.triggerId);
+		agent.add("status",    eventInfo.status);
+		agent.add("severity",  eventInfo.severity);
+		agent.add("hostId",    eventInfo.hostId);
+		agent.add("brief",     eventInfo.brief);
+		agent.endObject();
 	}
 	agent.endArray();
-	agent.add("numberOfEvents", helper.getNumberOfData());
+	agent.add("numberOfEvents", eventList.size());
 	addServersMap(job, agent, NULL, false);
 	agent.endObject();
 
@@ -1974,8 +1841,6 @@ void FaceRest::replyGetItem(RestJob *job)
 	ItemInfoList itemList;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	dataStore->getItemList(itemList, option);
-	HandlerGetHelper<ItemInfoList, ItemInfo, ItemIdType> helper;
-	helper.addHostgroupIdToVectorMap(itemList);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -1984,29 +1849,20 @@ void FaceRest::replyGetItem(RestJob *job)
 	ItemInfoListIterator it = itemList.begin();
 	for (; it != itemList.end(); ++it) {
 		ItemInfo &itemInfo = *it;
-		if (!helper.isAlreadyAddedJsonData(
-		       itemInfo.serverId, itemInfo.id)) {
-			agent.startObject();
-			agent.add("id",        itemInfo.id);
-			agent.add("serverId",  itemInfo.serverId);
-			agent.add("hostId",    itemInfo.hostId);
-			agent.add("brief",     itemInfo.brief.c_str());
-			agent.add("lastValueTime",
-			          itemInfo.lastValueTime.tv_sec);
-			agent.add("lastValue", itemInfo.lastValue);
-			agent.add("prevValue", itemInfo.prevValue);
-			agent.add("itemGroupName", itemInfo.itemGroupName);
-			helper.includeHostgroupIdArray(agent,
-					itemInfo.serverId,
-					itemInfo.id);
-			agent.endObject();
-
-			helper.addAlreadyAddedJsonData(itemInfo.serverId,
-			                               itemInfo.id);
-		}
+		agent.startObject();
+		agent.add("id",        itemInfo.id);
+		agent.add("serverId",  itemInfo.serverId);
+		agent.add("hostId",    itemInfo.hostId);
+		agent.add("brief",     itemInfo.brief.c_str());
+		agent.add("lastValueTime",
+		          itemInfo.lastValueTime.tv_sec);
+		agent.add("lastValue", itemInfo.lastValue);
+		agent.add("prevValue", itemInfo.prevValue);
+		agent.add("itemGroupName", itemInfo.itemGroupName);
+		agent.endObject();
 	}
 	agent.endArray();
-	agent.add("numberOfItems", helper.getNumberOfData());
+	agent.add("numberOfItems", itemList.size());
 	addServersMap(job, agent, NULL, false);
 	agent.endObject();
 

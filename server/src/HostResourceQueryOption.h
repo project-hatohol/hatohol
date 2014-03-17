@@ -48,9 +48,9 @@ public:
 		     const size_t &hostgroupMapGroupIdColumnIdx);
 	};
 
-	HostResourceQueryOption(const Synapse &bind,
+	HostResourceQueryOption(const Synapse &synapse,
 	                        const UserIdType &userId = INVALID_USER_ID);
-	HostResourceQueryOption(const Synapse &bind,
+	HostResourceQueryOption(const Synapse &synapse,
 	                        DataQueryContext *dataQueryContext);
 	HostResourceQueryOption(const HostResourceQueryOption &src);
 	virtual ~HostResourceQueryOption();
@@ -62,8 +62,7 @@ public:
 	 */
 	const char *getPrimaryTableName(void) const;
 
-	virtual std::string getCondition(
-	  const std::string &tableAlias = "") const; // override
+	virtual std::string getCondition(void) const; // override
 
 	/**
 	 * Get a part of an SQL statement for a FROM section.
@@ -73,21 +72,42 @@ public:
 	virtual std::string getFromSection(void) const;
 
 	/**
-	 * Get information if one table is only used.
-	 * For example, If a join should be used, this method return false.
+	 * Get information if the host group should be used.
 	 *
-	 * @return true if one table is only used. Otherwiser, false.
+	 * If synapse.tableProfile in the contructor is identical to
+	 * synapse.hostgroupMapTableProfile, this method returns false even
+	 * if the target host group is being specified.
+	 *
+	 * @return true if the host group should used. Otherwiser, false.
 	 */
-	virtual bool isOnlyOneTableUsed(void) const;
+	virtual bool isHostgroupUsed(void) const;
+
+	/**
+	 * Set the flag always to use the table name for getFromSection(),
+	 * getColumName(), and getHostgroupColumnName().
+	 *
+	 * @param enable A flag to enable the feature.
+	 */
+	virtual void useTableNameAlways(const bool &enable = true) const;
 
 	/**
 	 * Get a column name at the specified index.
-	 * If it's a stuation that will do a join,
-	 * the style: tableName.colunName is returned.
+	 * If a target host group is specified or useTableNameAlways(),
+	 * the returned form has the table name suc as tableName.colunName.
 	 *
 	 * @return A column name.
 	 */
 	virtual std::string getColumnName(const size_t &idx) const;
+
+	/**
+	 * Get a hostgroup column name of the specified index.
+	 * If a target host group is specified or useTableNameAlways(),
+	 * the returned form has the table name suc as tableName.colunName.
+	 *
+	 * @return A column name.
+	 */
+	virtual std::string getHostgroupColumnName(const size_t &idx) const;
+
 
 	virtual ServerIdType getTargetServerId(void) const;
 	virtual void setTargetServerId(const ServerIdType &targetServerId);
@@ -117,15 +137,10 @@ public:
 	const bool &getFilterForDataOfDefunctServers(void) const;
 
 protected:
-	void setServerIdColumnName(const std::string &name) const;
-	std::string getServerIdColumnName(
-	  const std::string &tableAlias = "") const;
-	void setHostGroupIdColumnName(const std::string &name) const;
-	std::string getHostgroupIdColumnName(
-	  const std::string &tableAlias = "") const;
-	void setHostIdColumnName(const std::string &name) const;
-	std::string getHostIdColumnName(
-	  const std::string &tableAlias = "") const;
+	std::string getServerIdColumnName(void) const;
+	std::string getHostgroupIdColumnName(void) const;
+	std::string getHostIdColumnName(void) const;
+
 	static std::string makeCondition(
 	  const ServerHostGrpSetMap &srvHostGrpSetMap,
 	  const std::string &serverIdColumnName,
@@ -139,16 +154,19 @@ protected:
 	  const std::string &serverIdColumnName);
 	static std::string makeConditionServer(
 	  const ServerIdType &serverId,
-	  const HostGroupSet &hostGroupSet,
+	  const HostGroupIdSet &hostGroupIdSet,
 	  const std::string &serverIdColumnName,
 	  const std::string &hostGroupIdColumnName,
 	  const HostgroupIdType &hostgroupId = ALL_HOST_GROUPS);
 	static std::string makeConditionHostGroup(
-	  const HostGroupSet &hostGroupSet,
+	  const HostGroupIdSet &hostGroupIdSet,
 	  const std::string &hostGroupIdColumnName);
 
 	virtual std::string getFromSectionForOneTable(void) const;
 	virtual std::string getFromSectionWithHostgroup(void) const;
+
+	std::string getColumnNameCommon(
+	  const DBAgent::TableProfile &tableProfile, const size_t &idx) const;
 
 private:
 	struct PrivateContext;

@@ -354,7 +354,7 @@ static void _assertGetNumberOfHostsWithUserAndStatus(UserIdType userId, bool sta
 	const ServerIdType serverId = testTriggerInfo[0].serverId;
 	// TODO: should give the appropriate host group ID after
 	//       Hatohol support it.
-	uint64_t hostGroupId = 0;
+	const HostgroupIdType hostGroupId = ALL_HOST_GROUPS;
 
 	DBClientHatohol dbHatohol;
 	int expected = getNumberOfTestHostsWithStatus(serverId, hostGroupId,
@@ -362,8 +362,7 @@ static void _assertGetNumberOfHostsWithUserAndStatus(UserIdType userId, bool sta
 	int actual;
 	TriggersQueryOption option(userId);
 	option.setTargetServerId(serverId);
-	//TODO: hostGroupId isn't supported yet
-	//option.setTargetHostGroupId(hostGroupId);
+	option.setTargetHostgroupId(hostGroupId);
 
 	if (status)
 		actual  = dbHatohol.getNumberOfGoodHosts(option);
@@ -419,6 +418,19 @@ static string makeHostsOutput(const HostInfo &hostInfo, size_t id)
 	  id + 1, hostInfo.serverId, hostInfo.id, hostInfo.hostName.c_str());
 
 	return expectedOut;
+}
+
+static void prepareDataForAllHostgroupIds(void)
+{
+	const set<HostgroupIdType> &hostgroupIdSet = getTestHostgroupIdSet();
+	set<HostgroupIdType>::const_iterator hostgrpIdItr =
+	  hostgroupIdSet.begin();
+	for (; hostgrpIdItr != hostgroupIdSet.end(); ++hostgrpIdItr) {
+		gcut_add_datum(
+		  StringUtils::sprintf("Hostgroup ID: %"FMT_HOST_GROUP_ID,
+		                       *hostgrpIdItr).c_str(),
+		  "hostgroupId", G_TYPE_INT, *hostgrpIdItr, NULL);
+	}
 }
 
 void cut_setup(void)
@@ -836,27 +848,35 @@ void test_getHostInfoListWithOneAuthorizedServer(gconstpointer data)
 	assertGetHosts(arg);
 }
 
-void test_getNumberOfTriggersBySeverity(void)
+void data_getNumberOfTriggersBySeverity(void)
+{
+	prepareDataForAllHostgroupIds();
+}
+
+void test_getNumberOfTriggersBySeverity(gconstpointer data)
 {
 	setupTestTriggerDB();
+	setupTestHostgroupElementDB();
 
 	const ServerIdType targetServerId = testTriggerInfo[0].serverId;
-	// TODO: should give the appropriate host group ID after
-	//       Hatohol support it.
-	const HostgroupIdType hostGroupId = 0;
+	const HostgroupIdType hostgroupId =
+	  gcut_data_get_int(data, "hostgroupId");
 
 	DBClientHatohol dbHatohol;
 	for (int i = 0; i < NUM_TRIGGER_SEVERITY; i++) {
 		TriggersQueryOption option(USER_ID_SYSTEM);
 		option.setTargetServerId(targetServerId);
-		//TODO: uncomment it after Hatohol supports host group
-		//option.setTargetHostGroupId(hostGroupId);
+		option.setTargetHostgroupId(hostgroupId);
 		TriggerSeverityType severity = (TriggerSeverityType)i;
-		size_t actual = dbHatohol.getNumberOfTriggers(option, severity);
-		size_t expected = getNumberOfTestTriggers
-		                    (targetServerId, hostGroupId, severity);
-		cppcut_assert_equal(expected, actual,
-		                    cut_message("severity: %d", i));
+		const size_t actual =
+		  dbHatohol.getNumberOfTriggers(option, severity);
+		const size_t expect = getNumberOfTestTriggers(
+		  targetServerId, hostgroupId, severity);
+		cppcut_assert_equal(
+		  expect, actual,
+		  cut_message(
+		    "sv: %"FMT_SERVER_ID", hostgroup: %"FMT_HOST_GROUP_ID", "
+		    "severity: %d", targetServerId, hostgroupId, i));
 	}
 }
 
