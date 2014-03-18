@@ -804,7 +804,7 @@ ItemDataNullFlagType DBClientAction::getNullFlag
 		return ITEM_DATA_NULL;
 }
 
-void takeTriggerInfo(TriggerInfo &triggerInfo,
+static void takeTriggerInfo(TriggerInfo &triggerInfo,
   const ServerIdType &serverId, const TriggerIdType &triggerId)
 {
 	DBClientHatohol dbClientHatohol;
@@ -814,7 +814,7 @@ void takeTriggerInfo(TriggerInfo &triggerInfo,
 	dbClientHatohol.getTriggerInfo(triggerInfo, option);
 }
 
-void getHostgroupIdStringList(string &stringHostgroupId,
+static void getHostgroupIdStringList(string &stringHostgroupId,
   const ServerIdType &serverId, const HostIdType &hostId)
 {
 	DBClientHatohol dbClientHatohol;
@@ -838,9 +838,11 @@ string DBClientAction::makeActionDefCondition(const EventInfo &eventInfo)
 	HATOHOL_ASSERT(!m_ctx->actionDefConditionTemplate.empty(),
 	               "ActionDef condition template is empty.");
 	TriggerInfo triggerInfo;
-	takeTriggerInfo(triggerInfo, eventInfo.serverId, eventInfo.triggerId);
+	takeTriggerInfo(triggerInfo,
+	  eventInfo.serverId, eventInfo.triggerId);
 	string hostgroupIdList;
-	getHostgroupIdStringList(hostgroupIdList, triggerInfo.serverId, triggerInfo.hostId);
+	getHostgroupIdStringList(hostgroupIdList,
+	  triggerInfo.serverId, triggerInfo.hostId);
 	string cond = 
 	  StringUtils::sprintf(m_ctx->actionDefConditionTemplate.c_str(),
 	                       eventInfo.serverId,
