@@ -201,6 +201,20 @@ static void setupHelperForTestDBUser(void)
 	g_existTestDB = true;
 }
 
+static void setupTestTriggerInfo(void)
+{
+	DBClientHatohol dbClientHatohol;
+	for (size_t i = 0; i < NumTestTriggerInfo; i++)
+		dbClientHatohol.addTriggerInfo(&testTriggerInfo[i]);
+}
+
+static void setupTestHostgroupElement(void)
+{
+	DBClientHatohol dbClientHatohol;
+	for (size_t i = 0; i < NumTestHostgroupElement; i++)
+		dbClientHatohol.addHostgroupElement(&testHostgroupElement[i]);
+}
+
 void test_addAction(void);
 
 static void setupTestDBUserAndDBAction(void)
@@ -272,6 +286,9 @@ void test_dbDomainId(void)
 
 void test_addAction(void)
 {
+	setupTestTriggerInfo();
+	setupTestHostgroupElement();
+
 	DBClientAction dbAction;
 	string expect;
 	OperationPrivilege privilege(USER_ID_SYSTEM);
