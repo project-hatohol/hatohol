@@ -757,6 +757,14 @@ HatoholError DBClientConfig::deleteTargetServer(
 void DBClientConfig::getTargetServers
   (MonitoringServerInfoList &monitoringServers, ServerQueryOption &option)
 {
+	// TODO: We'd better consider if we should use a query like,
+	//
+	// select servers.id,servers.type,... from servers inner join
+	// access_list on servers.id=access_list.server_id where user_id=5
+	// 
+	// The current query statement uses a little complicated where clause,
+	// for which the indexing mechanism may not be effective.
+
 	DBAgent::SelectExArg arg(tableProfileServers);
 	arg.add(IDX_SERVERS_ID);
 	arg.add(IDX_SERVERS_TYPE);
