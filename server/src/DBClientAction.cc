@@ -417,7 +417,7 @@ string DBClientAction::PrivateContext::makeActionDefConditionTemplate(void)
 	const ColumnDef &colDefHostGrpId =
 	   COLUMN_DEF_ACTIONS[IDX_ACTIONS_HOST_GROUP_ID];
 	cond += StringUtils::sprintf(
-	  "((%s is NULL) or (%s=%%"PRIu64"))",
+	  "((%s is NULL) or %s IN (%%s))",
 	  colDefHostGrpId.columnName, colDefHostGrpId.columnName);
 	cond += " and ";
 
@@ -804,19 +804,31 @@ ItemDataNullFlagType DBClientAction::getNullFlag
 		return ITEM_DATA_NULL;
 }
 
+void takeTriggerInfo(TriggerInfo &triggerInfo,
+  const ServerIdType &serverId, const TriggerIdType &triggerId)
+{
+	DBClientHatohol dbClientHatohol;
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(serverId);
+	option.setTargetId(triggerId);
+	dbClientHatohol.getTriggerInfo(triggerInfo, option);
+}
+
 string DBClientAction::makeActionDefCondition(const EventInfo &eventInfo)
 {
 	HATOHOL_ASSERT(!m_ctx->actionDefConditionTemplate.empty(),
 	               "ActionDef condition template is empty.");
+	TriggerInfo triggerInfo;
+	takeTriggerInfo(triggerInfo, eventInfo.serverId, eventInfo.triggerId);
 	string cond = 
 	  StringUtils::sprintf(m_ctx->actionDefConditionTemplate.c_str(),
 	                       eventInfo.serverId,
-	                       eventInfo.hostId,
 	                       // TODO: hostGroupId
+	                       triggerInfo.hostId,
 	                       eventInfo.triggerId,
 	                       eventInfo.status,
-	                       eventInfo.severity,
-	                       eventInfo.severity);
+	                       triggerInfo.severity,
+	                       triggerInfo.severity);
 	return cond;
 }
 
