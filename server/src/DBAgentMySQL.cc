@@ -222,8 +222,10 @@ static string getColumnDefinitionQuery(const ColumnDef &columnDef)
 	switch (columnDef.keyType) {
 	case SQL_KEY_PRI:
 		query += " PRIMARY KEY";
+		break;
 	case SQL_KEY_UNI:
 		query += " UNIQUE";
+		break;
 	case SQL_KEY_IDX: // TODO: implemente
 	case SQL_KEY_MUL:
 	case SQL_KEY_NONE:
