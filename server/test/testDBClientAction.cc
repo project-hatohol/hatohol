@@ -244,7 +244,7 @@ static void _assertDeleteActions(const bool &deleteMyActions,
 }
 #define assertDeleteActions(D,T) cut_trace(_assertDeleteActions(D,T))
 
-void setup(void)
+void cut_setup(void)
 {
 	hatoholInit();
 	setupTestDBAction();
