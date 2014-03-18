@@ -814,17 +814,38 @@ void takeTriggerInfo(TriggerInfo &triggerInfo,
 	dbClientHatohol.getTriggerInfo(triggerInfo, option);
 }
 
+void getHostgroupIdStringList(string &stringHostgroupId,
+  const ServerIdType &serverId, const HostIdType &hostId)
+{
+	DBClientHatohol dbClientHatohol;
+	HostgroupElementList hostgroupElementList;
+	HostgroupElementQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(serverId);
+	option.setTargetHostId(hostId);
+	dbClientHatohol.getHostgroupElementList(hostgroupElementList,option);
+
+	HostgroupElementListIterator it = hostgroupElementList.begin();
+	for(; it != hostgroupElementList.end(); ++it) {
+		HostgroupElement hostgroupElement = *it;
+		stringHostgroupId += StringUtils::sprintf(
+		  "%"FMT_HOST_GROUP_ID",", hostgroupElement.groupId);
+	}
+	stringHostgroupId.erase(--stringHostgroupId.end());
+}
+
 string DBClientAction::makeActionDefCondition(const EventInfo &eventInfo)
 {
 	HATOHOL_ASSERT(!m_ctx->actionDefConditionTemplate.empty(),
 	               "ActionDef condition template is empty.");
 	TriggerInfo triggerInfo;
 	takeTriggerInfo(triggerInfo, eventInfo.serverId, eventInfo.triggerId);
+	string hostgroupIdList;
+	getHostgroupIdStringList(hostgroupIdList, triggerInfo.serverId, triggerInfo.hostId);
 	string cond = 
 	  StringUtils::sprintf(m_ctx->actionDefConditionTemplate.c_str(),
 	                       eventInfo.serverId,
-	                       // TODO: hostGroupId
 	                       triggerInfo.hostId,
+	                       hostgroupIdList.c_str(),
 	                       eventInfo.triggerId,
 	                       eventInfo.status,
 	                       triggerInfo.severity,
