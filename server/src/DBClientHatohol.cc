@@ -1949,6 +1949,9 @@ HatoholError DBClientHatohol::getHostgroupInfoList
 	return HTERR_OK;
 }
 
+// TODO: In this implementation, behavior of this function is inefficient.
+//       Because this function returns unnecessary informations.
+//       Add a new function which returns only hostgroupId.
 HatoholError DBClientHatohol::getHostgroupElementList
   (HostgroupElementList &hostgroupElementList,
    const HostgroupElementQueryOption &option)
