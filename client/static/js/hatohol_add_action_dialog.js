@@ -113,7 +113,7 @@ var HatoholAddActionDialog = function(addSucceededCb) {
     if (serverInfo)
       label = serverInfo.id + ": " + serverInfo.hostName;
     selectedCallback($("#selectServerId"), serverInfo,
-                     IDX_SELECTED_SERVER, label, fixupSelectHostgroupBox);
+                     IDX_SELECTED_SERVER, label, fixupSelectHostgroupAndHostBox);
   }
 
   function hostgroupSelectedCb(hostgroupInfo) {
@@ -198,7 +198,12 @@ var HatoholAddActionDialog = function(addSucceededCb) {
   }
 
   function setSelectedServerId(value) {
-    setSelectedId(IDX_SELECTED_SERVER, value, fixupSelectHostgroupBox);
+    setSelectedId(IDX_SELECTED_SERVER, value, fixupSelectHostgroupAndHostBox);
+  }
+
+  function fixupSelectHostgroupAndHostBox(newServerId) {
+    fixupSelectHostgroupBox(newServerId);
+    fixupSelectHostBox(newServerId);
   }
 
   function fixupSelectHostgroupBox(newServerId) {
