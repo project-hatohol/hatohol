@@ -40,6 +40,9 @@ typedef ServerIdHostGroupHostIdMap::iterator ServerIdHostGroupHostIdMapIterator;
 extern MonitoringServerInfo testServerInfo[];
 extern size_t NumTestServerInfo;
 
+extern MonitoringServerStatus testServerStatus[];
+extern size_t NumTestServerStatus;
+
 extern TriggerInfo testTriggerInfo[];
 extern size_t NumTestTriggerInfo;
 
