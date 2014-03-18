@@ -224,6 +224,7 @@ static string getColumnDefinitionQuery(const ColumnDef &columnDef)
 		query += " PRIMARY KEY";
 	case SQL_KEY_UNI:
 		query += " UNIQUE";
+	case SQL_KEY_IDX: // TODO: implemente
 	case SQL_KEY_MUL:
 	case SQL_KEY_NONE:
 		break;

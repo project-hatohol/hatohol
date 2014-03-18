@@ -405,10 +405,16 @@ bool DBAgentSQLite3::isTableExisting(sqlite3 *db,
 	return count > 0;
 }
 
+struct KeyColumnInfo {
+	bool   isUnique;
+	size_t columnIndex;
+};
+
 void DBAgentSQLite3::createTable(sqlite3 *db, const TableProfile &tableProfile)
 {
 	vector<size_t> multipleKeyColumnIndexVector;
-	vector<size_t> uniqueKeyColumnIndexVector;
+
+	vector<KeyColumnInfo> keyColumnInfoVector;
 
 	// make a SQL statement
 	string sql = "CREATE TABLE ";
@@ -450,7 +456,11 @@ void DBAgentSQLite3::createTable(sqlite3 *db, const TableProfile &tableProfile)
 			multipleKeyColumnIndexVector.push_back(i);
 			break;
 		case SQL_KEY_UNI:
-			uniqueKeyColumnIndexVector.push_back(i);
+		case SQL_KEY_IDX:
+			KeyColumnInfo keyInfo;
+			keyInfo.isUnique = (columnDef.keyType == SQL_KEY_UNI);
+			keyInfo.columnIndex = i;
+			keyColumnInfoVector.push_back(keyInfo);
 			break;
 		case SQL_KEY_NONE:
 			break;
@@ -474,21 +484,26 @@ void DBAgentSQLite3::createTable(sqlite3 *db, const TableProfile &tableProfile)
 		                      result, err.c_str(), sql.c_str());
 	}
 
-	// add indexes
+	// for single-column indexes
+	for (size_t i = 0; i < keyColumnInfoVector.size(); i++) {
+		const KeyColumnInfo &keyInfo = keyColumnInfoVector[i];
+		const ColumnDef &columnDef =
+		  tableProfile.columnDefs[keyInfo.columnIndex];
+		string indexName = StringUtils::sprintf(
+		  "index_%s_%s", tableProfile.name, columnDef.columnName);
+		vector<size_t> columnIndexVector;
+		columnIndexVector.push_back(keyInfo.columnIndex);
+		createIndex(db, tableProfile, indexName,
+		            columnIndexVector, keyInfo.isUnique);
+	}
+
+	// for multi-column indexes
 	if (!multipleKeyColumnIndexVector.empty()) {
 		bool isUniqueKey = false;
 		string indexName = StringUtils::sprintf("mul_index_%s",
 		                                        tableProfile.name);
 		createIndex(db, tableProfile, indexName,
 		            multipleKeyColumnIndexVector, isUniqueKey);
-	}
-
-	if (!uniqueKeyColumnIndexVector.empty()) {
-		bool isUniqueKey = true;
-		string indexName = StringUtils::sprintf("uni_index_%s",
-		                                        tableProfile.name);
-		createIndex(db, tableProfile, indexName,
-		            uniqueKeyColumnIndexVector, isUniqueKey);
 	}
 }
 
@@ -731,7 +746,8 @@ void DBAgentSQLite3::createIndex(sqlite3 *db, const TableProfile &tableProfile,
 	sql += tableProfile.name;
 	sql += "(";
 	for (size_t i = 0; i < targetIndexes.size(); i++) {
-		const ColumnDef &columnDef = tableProfile.columnDefs[i];
+		const size_t targetIdx = targetIndexes[i];
+		const ColumnDef &columnDef = tableProfile.columnDefs[targetIdx];
 		sql += columnDef.columnName;
 		if (i < targetIndexes.size() - 1)
 			sql += ",";

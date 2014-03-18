@@ -49,6 +49,7 @@ enum SQLKeyType {
 	SQL_KEY_PRI,
 	SQL_KEY_MUL,
 	SQL_KEY_UNI,
+	SQL_KEY_IDX, // an index only for the column
 };
 
 enum SQLSubQueryMode {

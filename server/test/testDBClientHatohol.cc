@@ -974,6 +974,9 @@ void test_getEventWithMaximumNumber(gconstpointer data)
 {
 	AssertGetEventsArg arg(data);
 	arg.maxNumber = 2;
+	// In this test, we only specify the maximum number. So the output
+	// rows cannot be expected.
+	arg.assertContent = false;
 	assertGetEventsWithFilter(arg);
 }
 

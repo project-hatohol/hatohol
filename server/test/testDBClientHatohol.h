@@ -43,6 +43,7 @@ struct AssertGetHostResourceArg {
 	size_t numberOfFixtures;
 	gconstpointer ddtParam;
 	bool filterForDataOfDefunctSv;
+	bool assertContent;
 
 	AssertGetHostResourceArg(void)
 	: userId(USER_ID_SYSTEM),
@@ -55,7 +56,8 @@ struct AssertGetHostResourceArg {
 	  fixtures(NULL),
 	  numberOfFixtures(0),
 	  ddtParam(NULL),
-	  filterForDataOfDefunctSv(false)
+	  filterForDataOfDefunctSv(false),
+	  assertContent(true)
 	{
 	}
 
@@ -147,6 +149,8 @@ struct AssertGetHostResourceArg {
 	virtual void assert(void)
 	{
 		assertNumberOfRecords();
+		if (!assertContent)
+			return;
 
 		std::string expectedText;
 		std::string actualText;

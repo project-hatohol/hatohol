@@ -128,6 +128,7 @@ public:
 				expected = "MUL";
 				break;
 			case SQL_KEY_NONE:
+			case SQL_KEY_IDX: // TODO: implement
 				expected = "";
 				break;
 			default:
@@ -183,6 +184,12 @@ public:
 		                             numColumns, columnDefs,
 		                             lines[linesIdx++], '\t',
 		                             nullIndexes, "NULL");
+	}
+
+	virtual void
+	assertTableIndex(const DBAgent::TableProfile &tableProfile) // override
+	{
+		cut_omit("TO BE IMPLEMENTED");
 	}
 
 	virtual void getIDStringVector(const ColumnDef &columnDefId,

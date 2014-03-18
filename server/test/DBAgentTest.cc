@@ -52,7 +52,7 @@ const ColumnDef COLUMN_DEF_TEST[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	true,                              // canBeNull
-	SQL_KEY_NONE,                      // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 },{
@@ -63,7 +63,7 @@ const ColumnDef COLUMN_DEF_TEST[] = {
 	255,                               // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_NONE,                      // keyType
+	SQL_KEY_UNI,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 },{
@@ -193,6 +193,12 @@ void dbAgentTestCreateTable(DBAgent &dbAgent, DBAgentChecker &checker)
 {
 	dbAgent.createTable(tableProfileTest);
 	checker.assertTable(tableProfileTest);
+}
+
+void dbAgentTestCreateTableIndex(DBAgent &dbAgent, DBAgentChecker &checker)
+{
+	dbAgent.createTable(tableProfileTest);
+	checker.assertTableIndex(tableProfileTest);
 }
 
 void dbAgentTestInsert(DBAgent &dbAgent, DBAgentChecker &checker)
@@ -617,10 +623,11 @@ void dbAgentUpdateIfExistEleseInsert(DBAgent &dbAgent, DBAgentChecker &checker)
 			continue;
 		}
 
+		string name = StringUtils::sprintf("FOO-%zd", i);
 		bool updated = 
 		  dbAgentUpdateIfExistEleseInsertOneRecord(
 		    dbAgent, i, expectedLine, targetIndex, fmt,
-		    i, AGE[i]/2, "FOO", HEIGHT[i]/2, TIME[i]);
+		    i, AGE[i]/2, name.c_str(), HEIGHT[i]/2, TIME[i]);
 		cppcut_assert_equal(true, updated);
 		expectLines += expectedLine;
 	}

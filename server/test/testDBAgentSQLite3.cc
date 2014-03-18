@@ -50,7 +50,7 @@ public:
 		//
 		cmd = StringUtils::sprintf(
 		  "sqlite3 %s \"select * from sqlite_master "
-		  "where tbl_name='%s'\"",
+		  "where type='table' and tbl_name='%s'\"",
 		  g_dbPath.c_str(), tableProfile.name);
 		output = executeCommand(cmd);
 		StringVector outVec;
@@ -114,7 +114,73 @@ public:
 		}
 		expected += ")\n";
 		cppcut_assert_equal(expected, outVec[idx++]);
+	}
 
+	virtual void
+	assertTableIndex(const DBAgent::TableProfile &tableProfile) // override
+	{
+		set<string> expectLines;
+		for (size_t i = 0; i < tableProfile.numColumns; i++) {
+			const ColumnDef &columnDef = tableProfile.columnDefs[i];
+			bool isUnique = false;
+			switch (columnDef.keyType) {
+			case SQL_KEY_UNI:
+				isUnique = true;
+				break;
+			case SQL_KEY_IDX:
+				break;
+			default:
+				continue;
+			}
+
+			string expectName = "index_";
+			expectName += tableProfile.name;
+			expectName += "_";
+			expectName += columnDef.columnName;
+
+			string line = expectName;
+			line += "|";
+			line += tableProfile.name;
+			line += "|CREATE ";
+			if (isUnique)
+				line += "UNIQUE ";
+			line += "INDEX ";
+			line += expectName;
+			line += " ON ";
+			line += tableProfile.name;
+			line += "(";
+			line += columnDef.columnName;
+			line += ")";
+
+			expectLines.insert(line);
+		}
+
+		// check if the table has been created successfully
+		cut_assert_exist_path(g_dbPath.c_str());
+		string cmd = StringUtils::sprintf("sqlite3 %s \".table\"",
+		                                  g_dbPath.c_str());
+		string output = executeCommand(cmd);
+		assertExist(tableProfile.name, output);
+
+		//
+		// check table definition
+		//
+		cmd = StringUtils::sprintf(
+		  "sqlite3 %s \"select name,tbl_name,sql from "
+		  "sqlite_master where type='index' and tbl_name='%s'\"",
+		  g_dbPath.c_str(), tableProfile.name);
+		output = executeCommand(cmd);
+		StringVector outLines;
+		StringUtils::split(outLines, output, '\n');
+
+		cppcut_assert_equal(expectLines.size(), outLines.size());
+		for (size_t i = 0; i < outLines.size(); i++) {
+			set<string>::iterator it =
+			  expectLines.find(outLines[i]);
+			cppcut_assert_equal(true, it != expectLines.end(),
+			  cut_message("Not found: %s", outLines[i].c_str()));
+			expectLines.erase(it);
+		}
 	}
 
 	virtual void assertExistingRecord(uint64_t id, int age,
@@ -248,6 +314,12 @@ void test_createTable(void)
 {
 	DBAgentSQLite3 dbAgent;
 	dbAgentTestCreateTable(dbAgent, dbAgentChecker);
+}
+
+void test_createTableIndex(void)
+{
+	DBAgentSQLite3 dbAgent;
+	dbAgentTestCreateTableIndex(dbAgent, dbAgentChecker);
 }
 
 void test_insert(void)
