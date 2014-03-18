@@ -60,6 +60,12 @@ public:
 		             const size_t &numIndexes);
 	};
 
+	struct IndexesDef {
+		const char *name;
+		const int  *indexes;
+	};
+	static const int    INDEX_DEF_END = -1;
+
 	struct RowElement {
 		size_t      columnIndex;
 		ItemDataPtr dataPtr;

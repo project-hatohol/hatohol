@@ -31,6 +31,7 @@ public:
 		const DBAgent::TableProfile *profile;
 		CreateTableInitializer       initializer;
 		void                        *initializerData;
+		const DBAgent::IndexesDef   *indexesDefArray;
 	};
 
 	struct DBSetupFuncArg {
