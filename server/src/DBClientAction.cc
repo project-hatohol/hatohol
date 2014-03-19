@@ -830,7 +830,8 @@ static void getHostgroupIdStringList(string &stringHostgroupId,
 		stringHostgroupId += StringUtils::sprintf(
 		  "%"FMT_HOST_GROUP_ID",", hostgroupElement.groupId);
 	}
-	stringHostgroupId.erase(--stringHostgroupId.end());
+	if (!stringHostgroupId.empty())
+		stringHostgroupId.erase(--stringHostgroupId.end());
 }
 
 string DBClientAction::makeActionDefCondition(const EventInfo &eventInfo)
