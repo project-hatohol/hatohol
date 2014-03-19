@@ -832,6 +832,8 @@ static void getHostgroupIdStringList(string &stringHostgroupId,
 	}
 	if (!stringHostgroupId.empty())
 		stringHostgroupId.erase(--stringHostgroupId.end());
+	else
+		stringHostgroupId = "0";
 }
 
 string DBClientAction::makeActionDefCondition(const EventInfo &eventInfo)
