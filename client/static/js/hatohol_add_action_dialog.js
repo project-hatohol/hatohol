@@ -113,7 +113,8 @@ var HatoholAddActionDialog = function(addSucceededCb) {
     if (serverInfo)
       label = serverInfo.id + ": " + serverInfo.hostName;
     selectedCallback($("#selectServerId"), serverInfo,
-                     IDX_SELECTED_SERVER, label, fixupSelectHostgroupAndHostBox);
+                     IDX_SELECTED_SERVER, label,
+                     fixupSelectHostgroupAndHostBox);
   }
 
   function hostgroupSelectedCb(hostgroupInfo) {
