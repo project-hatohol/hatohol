@@ -112,6 +112,15 @@ TriggerInfo testTriggerInfo[] =
 	"hostZ2",                 // hostName,
 	"TEST Trigger 3",         // brief,
 },{
+	2,                        // serverId
+	0xfedcba987654321,        // id
+	TRIGGER_STATUS_OK,        // status
+	TRIGGER_SEVERITY_WARNING, // severity
+	{1362951000,0},           // lastChangeTime
+	0x89abcdeffffffff,       // hostId,
+	"hostQ1",                 // hostName,
+	"TEST Trigger Action",    // brief,
+},{
 	// This entry is for tests with a defunct server
 	defunctServerId1,         // serverId
 	3,                        // id
@@ -308,9 +317,9 @@ ActionDef testActionDef[] = {
 	  ACTCOND_TRIGGER_ID | ACTCOND_TRIGGER_STATUS |
 	   ACTCOND_TRIGGER_SEVERITY,   // enableBits
 	  2,                        // serverId
-	  0x89abcdefffffffff,       // hostId
-	  0x8000000000000000,       // hostGroupId
-	  0xfedcba9876543210,       // triggerId
+	  0x89abcdeffffffff,       // hostId
+	  0x800000000000000,       // hostGroupId
+	  0xfedcba987654321,       // triggerId
 	  TRIGGER_STATUS_OK,        // triggerStatus
 	  TRIGGER_SEVERITY_WARNING, // triggerSeverity
 	  CMP_EQ_GT                 // triggerSeverityCompType;
@@ -543,6 +552,11 @@ HostgroupElement testHostgroupElement[] = {
 	4,                     // serverId
 	100,                   // hostId
 	1,                     // groupId
+}, {
+	AUTO_INCREMENT_VALUE,  // id
+	2,                     // serverId
+	0x89abcdeffffffff,     // hostId
+	0x800000000000000,     // groupId
 }, {
 	// This entry is for tests with a defunct server
 	AUTO_INCREMENT_VALUE,        // id
