@@ -19,8 +19,12 @@
 
 var HatoholHostSelector = function(serverId, hostgroupId, selectedCb) {
   var self = this;
-  self.queryData = {"serverId": serverId,
-                    "hostGroupId": hostgroupId};
+  if (hostgroupId) {
+    self.queryData = {"serverId": serverId,
+                      "hostGroupId": hostgroupId};
+  } else {
+    self.queryData = {"serverId": serverId};
+  }
 
   // call the constructor of the super class
   HatoholSelectorDialog.apply(
