@@ -503,6 +503,10 @@ HostInfo testHostInfo[] = {
 	100,                   // id(hostId)
 	"squirrel"             // hostName
 }, {
+	2,                     // serverId
+	0x89abcdeffffffff,     // id(hostId)
+	"hostQ1"               // hostName
+}, {
 	// This entry is for tests with a defunct server
 	trigInfoDefunctSv1.serverId, // serverId
 	trigInfoDefunctSv1.hostId,   // hostId,
