@@ -1050,7 +1050,9 @@ void LinesComparator::add(
   const std::string &line0, const std::string &line1)
 {
 	m_ctx->str0 += line0;
+	m_ctx->str0 += "\n";
 	m_ctx->str1 += line1;
+	m_ctx->str1 += "\n";
 
 	m_ctx->set0.insert(line0);
 	m_ctx->set1.insert(line1);
