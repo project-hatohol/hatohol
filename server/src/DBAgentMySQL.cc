@@ -256,7 +256,7 @@ static string getColumnDefinitionQuery(const ColumnDef &columnDef)
 	case SQL_KEY_UNI:
 		query += " UNIQUE";
 		break;
-	case SQL_KEY_IDX: // TODO: implemente
+	case SQL_KEY_IDX: // To be created in createIndexIfNotExists()
 	case SQL_KEY_MUL:
 	case SQL_KEY_NONE:
 		break;
@@ -290,6 +290,8 @@ void DBAgentMySQL::createTable(const TableProfile &tableProfile)
 		query += m_ctx->engineStr;
 
 	execSql(query);
+
+	createIndexesIfNotExists(tableProfile);
 }
 
 void DBAgentMySQL::insert(const DBAgent::InsertArg &insertArg)
@@ -578,4 +580,34 @@ void DBAgentMySQL::execSql(const string &statement)
 {
 	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
 	queryWithRetry(statement);
+}
+
+void DBAgentMySQL::createIndexesIfNotExists(const TableProfile &tableProfile)
+{
+	vector<IndexStruct> indexStructVect;
+	getIndexes(indexStructVect, tableProfile.name);
+	set<string> keyNameSet;
+	for (size_t i = 0; i < indexStructVect.size(); i++) {
+		const IndexStruct &idxStruct = indexStructVect[i];
+		keyNameSet.insert(idxStruct.keyName);
+	}
+
+	for (size_t i = 0; i < tableProfile.numColumns; i++) {
+		const ColumnDef &columnDef = tableProfile.columnDefs[i];
+		if (columnDef.keyType == SQL_KEY_IDX)
+			createIndexIfNotExistsEach(columnDef, keyNameSet);
+	}
+}
+
+void DBAgentMySQL::createIndexIfNotExistsEach(const ColumnDef &columnDef,
+                                              const set<string> &keyNameSet)
+{
+	string keyName = StringUtils::sprintf("%s", columnDef.columnName);
+	if (keyNameSet.find(keyName) != keyNameSet.end())
+		return;
+
+	string sql = StringUtils::sprintf("CREATE INDEX %s ON %s (%s)",
+	                                  keyName.c_str(), columnDef.tableName,
+	                                  columnDef.columnName);
+	execSql(sql);
 }

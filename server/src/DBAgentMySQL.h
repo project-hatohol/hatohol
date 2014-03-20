@@ -72,6 +72,10 @@ protected:
 	void queryWithRetry(const std::string &statement);
 	void execSql(const std::string &statement);
 
+	void createIndexesIfNotExists(const TableProfile &tableProfile);
+	void createIndexIfNotExistsEach(
+	  const ColumnDef &columnDef, const std::set<std::string> &keyNameSet);
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
