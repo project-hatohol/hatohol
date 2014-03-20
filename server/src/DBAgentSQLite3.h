@@ -91,10 +91,10 @@ protected:
 	static uint64_t getNumberOfAffectedRows(sqlite3 *db);
 	static ItemDataPtr getValue(sqlite3_stmt *stmt, size_t index,
 	                            SQLColumnType columnType);
-	static void createIndex(sqlite3 *db, const TableProfile &tableProfile,
-	                        const std::string &indexName,
-	                        const std::vector<size_t> &targetIndexes,
-	                        bool isUniqueKey);
+	static void createIndexIfNotExistsEach(
+	  sqlite3 *db, const TableProfile &tableProfile,
+	  const std::string &indexName,
+	  const std::vector<size_t> &targetIndexes, const bool &isUniqueKey);
 
 	void openDatabase(void);
 	void execSql(const char *fmt, ...);

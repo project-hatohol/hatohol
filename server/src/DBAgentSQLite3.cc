@@ -493,8 +493,9 @@ void DBAgentSQLite3::createTable(sqlite3 *db, const TableProfile &tableProfile)
 		  "index_%s_%s", tableProfile.name, columnDef.columnName);
 		vector<size_t> columnIndexVector;
 		columnIndexVector.push_back(keyInfo.columnIndex);
-		createIndex(db, tableProfile, indexName,
-		            columnIndexVector, keyInfo.isUnique);
+		createIndexIfNotExistsEach(
+		  db, tableProfile, indexName,
+		  columnIndexVector, keyInfo.isUnique);
 	}
 
 	// for multi-column indexes
@@ -502,8 +503,9 @@ void DBAgentSQLite3::createTable(sqlite3 *db, const TableProfile &tableProfile)
 		bool isUniqueKey = false;
 		string indexName = StringUtils::sprintf("mul_index_%s",
 		                                        tableProfile.name);
-		createIndex(db, tableProfile, indexName,
-		            multipleKeyColumnIndexVector, isUniqueKey);
+		createIndexIfNotExistsEach(
+		  db, tableProfile, indexName,
+		  multipleKeyColumnIndexVector, isUniqueKey);
 	}
 }
 
@@ -729,10 +731,9 @@ ItemDataPtr DBAgentSQLite3::getValue(sqlite3_stmt *stmt,
 	return ItemDataPtr(itemData, false);
 }
 
-void DBAgentSQLite3::createIndex(sqlite3 *db, const TableProfile &tableProfile,
-                                 const string &indexName,
-                                 const vector<size_t> &targetIndexes,
-                                 bool isUniqueKey)
+void DBAgentSQLite3::createIndexIfNotExistsEach(
+  sqlite3 *db, const TableProfile &tableProfile, const string &indexName,
+  const vector<size_t> &targetIndexes, const bool &isUniqueKey)
 {
 	HATOHOL_ASSERT(!targetIndexes.empty(), "target indexes vector is empty.");
 
@@ -740,7 +741,7 @@ void DBAgentSQLite3::createIndex(sqlite3 *db, const TableProfile &tableProfile,
 	string sql = "CREATE ";
 	if (isUniqueKey)
 		sql += "UNIQUE ";
-	sql += "INDEX ";
+	sql += "INDEX IF NOT EXISTS ";
 	sql += indexName;
 	sql += " ON ";
 	sql += tableProfile.name;
