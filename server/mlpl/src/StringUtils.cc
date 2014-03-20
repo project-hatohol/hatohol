@@ -27,6 +27,7 @@ using namespace std;
 #include <cstdio>
 #include <cstring>
 #include <stdarg.h>
+#include <stdint.h>
 
 // ---------------------------------------------------------------------------
 // Private Methods
@@ -173,6 +174,11 @@ bool StringUtils::isNumber(const string &str, bool *isFloat)
 string StringUtils::toString(int number)
 {
 	return sprintf("%d", number);
+}
+
+string StringUtils::toString(uint64_t number)
+{
+	return sprintf("%lu", number);
 }
 
 string StringUtils::toLower(string str)
