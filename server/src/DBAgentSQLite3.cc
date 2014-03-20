@@ -687,6 +687,12 @@ uint64_t DBAgentSQLite3::getNumberOfAffectedRows(sqlite3 *db)
 	return sqlite3_changes(db);
 }
 
+void DBAgentSQLite3::fixupIndexes(
+  const TableProfile &tableProfile, const IndexesDef *indexesDefArray)
+{
+	MLPL_BUG("Not implemented yet: %s\n", __PRETTY_FUNCTION__);
+}
+
 ItemDataPtr DBAgentSQLite3::getValue(sqlite3_stmt *stmt,
                                      size_t index, SQLColumnType columnType)
 {

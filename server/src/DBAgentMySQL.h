@@ -64,6 +64,9 @@ public:
 	virtual void addColumns(const AddColumnsArg &addColumnsArg);
 	virtual uint64_t getLastInsertId(void);
 	virtual uint64_t getNumberOfAffectedRows(void);
+	virtual void fixupIndexes(
+	  const TableProfile &tableProfile,
+	  const IndexesDef *indexesDefArray); // override
 
 protected:
 	static const char *getCStringOrNullIfEmpty(const std::string &str);

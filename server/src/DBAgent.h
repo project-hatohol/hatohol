@@ -202,6 +202,19 @@ public:
 	virtual uint64_t getNumberOfAffectedRows(void) = 0;
 
 	/**
+	 * Create and drop indexes if needed.
+	 *
+	 * @param tableProfile
+	 * A TableProfile structure concerned with the indexes to be created.
+	 *
+	 * @param indexesDefArray
+	 * An array of IndexDef. A member: 'name' of the final element shall
+	 * be NULL for a mark of the termination.
+	 */
+	virtual void fixupIndexes(const TableProfile &tableProfile,
+	                          const IndexesDef *indexesDefArray) = 0;
+
+	/**
 	 * Update a record if there is the record with the same value in the
 	 * specified column. Or this function executes an insert operation.
 	 * NOTE: the value that belongs to the column with PRIMARY KEY is not

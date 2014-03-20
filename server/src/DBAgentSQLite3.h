@@ -67,6 +67,10 @@ public:
 	virtual void addColumns(const AddColumnsArg &addColumnsArg); // override
 	virtual uint64_t getLastInsertId(void);
 	virtual uint64_t getNumberOfAffectedRows(void);
+	virtual void fixupIndexes(
+	  const TableProfile &tableProfile,
+	  const IndexesDef *indexesDefArray); // override
+
 	std::string getDBPath(void) const;
 
 protected:

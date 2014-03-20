@@ -358,12 +358,31 @@ void DBClient::dbSetupFunc(DBDomainId domainId, void *data)
 	else
 		updateDBIfNeeded(domainId, rawDBAgent.get(), setupFuncArg);
 
+	// Create tables
+	vector<const DBSetupTableInfo *> createdTableInfoVect;
 	for (size_t i = 0; i < setupFuncArg->numTableInfo; i++) {
-		const DBSetupTableInfo &tableInfo
-		  = setupFuncArg->tableInfoArray[i];
+		const DBSetupTableInfo &tableInfo =
+		  setupFuncArg->tableInfoArray[i];
+
 		if (rawDBAgent->isTableExisting(tableInfo.profile->name))
 			continue;
 		createTable(rawDBAgent.get(), *tableInfo.profile);
+		createdTableInfoVect.push_back(&tableInfo);
+	}
+
+	// Create and drop indexes if needed
+	for (size_t i = 0; i < setupFuncArg->numTableInfo; i++) {
+		const DBSetupTableInfo &tableInfo =
+		  setupFuncArg->tableInfoArray[i];
+		if (!tableInfo.indexesDefArray)
+			continue;
+		rawDBAgent->fixupIndexes(*tableInfo.profile,
+		                         tableInfo.indexesDefArray);
+	}
+
+	// Call extra initalizers only for the created tables
+	for (size_t i = 0; i < createdTableInfoVect.size(); i++) {
+		const DBSetupTableInfo &tableInfo = *createdTableInfoVect[i];
 		if (!tableInfo.initializer)
 			continue;
 		(*tableInfo.initializer)(rawDBAgent.get(),

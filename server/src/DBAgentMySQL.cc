@@ -472,6 +472,12 @@ uint64_t DBAgentMySQL::getNumberOfAffectedRows(void)
 	return num;
 }
 
+void DBAgentMySQL::fixupIndexes(
+  const TableProfile &tableProfile, const IndexesDef *indexesDefArray)
+{
+	MLPL_BUG("Not implemented yet: %s\n", __PRETTY_FUNCTION__);
+}
+
 void DBAgentMySQL::addColumns(const AddColumnsArg &addColumnsArg)
 {
 	string query = "ALTER TABLE ";

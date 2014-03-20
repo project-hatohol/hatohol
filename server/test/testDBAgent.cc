@@ -339,6 +339,11 @@ private:
 	{
 		return 0;
 	}
+
+	virtual void fixupIndexes(const TableProfile &tableProfile,
+	                          const IndexesDef *indexesDefArray) // override
+	{
+	}
 };
 
 const size_t TestDBAgent::m_numTestColumns;
