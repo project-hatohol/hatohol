@@ -55,7 +55,6 @@ public:
 	static bool isNumber(const std::string &str, bool *isFloat = NULL);
 	static std::string toString(int number);
 	static std::string toString(uint64_t number);
-	static std::string toString(size_t number);
 	static std::string toLower(std::string str);
 	static std::string stripBothEndsSpaces(const std::string &str);
 

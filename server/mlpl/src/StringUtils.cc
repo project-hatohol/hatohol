@@ -181,11 +181,6 @@ string StringUtils::toString(uint64_t number)
 	return sprintf("%lu", number);
 }
 
-string StringUtils::toString(size_t number)
-{
-	return sprintf("%zd", number);
-}
-
 string StringUtils::toLower(string str)
 {
 	transform(str.begin(), str.end(), str.begin(), ::tolower);
