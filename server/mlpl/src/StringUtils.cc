@@ -28,6 +28,7 @@ using namespace std;
 #include <cstring>
 #include <stdarg.h>
 #include <stdint.h>
+#include <inttypes.h>
 
 // ---------------------------------------------------------------------------
 // Private Methods
@@ -178,7 +179,7 @@ string StringUtils::toString(int number)
 
 string StringUtils::toString(uint64_t number)
 {
-	return sprintf("%lu", number);
+	return sprintf("%"PRIu64, number);
 }
 
 string StringUtils::toLower(string str)
