@@ -237,17 +237,17 @@ HatoholPrivilegeEditDialog.prototype.updateAllowCheckboxes = function() {
     return;
 
   var i, serverId, checkboxes = $(".serverSelectCheckbox");
-  var allHostGroupIsEnabled = function(server) {
-    var ALL_HOST_GROUPS = -1, hostGroup;
-    if (!server || !server["allowedHostGroups"])
+  var allHostgroupIsEnabled = function(server) {
+    var ALL_HOST_GROUPS = -1, hostgroup;
+    if (!server || !server["allowedHostgroups"])
       return false;
-    hostGroup = server["allowedHostGroups"][ALL_HOST_GROUPS];
-    return hostGroup && hostGroup["accessInfoId"];
+    hostgroup = server["allowedHostgroups"][ALL_HOST_GROUPS];
+    return hostgroup && hostgroup["accessInfoId"];
   };
 
   for (i = 0; i < checkboxes.length; i++) {
     serverId = checkboxes[i].getAttribute("serverId");
-    if (allHostGroupIsEnabled(this.allowedServers[serverId]))
+    if (allHostgroupIsEnabled(this.allowedServers[serverId]))
       checkboxes[i].checked = true;
   }
 };
@@ -319,14 +319,14 @@ HatoholPrivilegeEditDialog.prototype.applyPrivileges = function() {
   var i, serverId, accessInfoId;
   var checkboxes = $(".serverSelectCheckbox");
   var getAccessInfoId = function(serverId) {
-    var id, allowedHostGroups, allowedHostGroup;
+    var id, allowedHostgroups, allowedHostgroup;
     var ALL_HOST_GROUPS = -1;
     if (self.allowedServers && self.allowedServers[serverId])
-      allowedHostGroups = self.allowedServers[serverId]["allowedHostGroups"];
-    if (allowedHostGroups)
-      allowedHostGroup = allowedHostGroups[ALL_HOST_GROUPS];
-    if (allowedHostGroup)
-      id = allowedHostGroup["accessInfoId"];
+      allowedHostgroups = self.allowedServers[serverId]["allowedHostgroups"];
+    if (allowedHostgroups)
+      allowedHostgroup = allowedHostgroups[ALL_HOST_GROUPS];
+    if (allowedHostgroup)
+      id = allowedHostgroup["accessInfoId"];
     return id;
   };
 
@@ -341,7 +341,7 @@ HatoholPrivilegeEditDialog.prototype.applyPrivileges = function() {
 
     if (checkboxes[i].checked) {
       if (!accessInfoId)
-        this.addAccessInfo({ serverId: serverId, hostGroupId: -1 });
+        this.addAccessInfo({ serverId: serverId, hostgroupId: -1 });
       else
         self.applyResult.numSucceeded += 1;
     } else {

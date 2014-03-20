@@ -242,7 +242,7 @@ var ActionsView = function(userProfile) {
   }
 
   function getHostgroupName(actionsPkt, actionDef) {
-    var hostgroupId = actionDef["hostGroupId"];
+    var hostgroupId = actionDef["hostgroupId"];
     if (!hostgroupId)
       return null;
     var serverId = actionDef["serverId"];

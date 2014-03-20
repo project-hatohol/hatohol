@@ -21,7 +21,7 @@ var HatoholHostSelector = function(serverId, hostgroupId, selectedCb) {
   var self = this;
   if (hostgroupId) {
     self.queryData = {"serverId": serverId,
-                      "hostGroupId": hostgroupId};
+                      "hostgroupId": hostgroupId};
   } else {
     self.queryData = {"serverId": serverId};
   }
