@@ -26,6 +26,12 @@
 
 class DBAgentSQLite3 : public DBAgent {
 public:
+	struct IndexStruct {
+		std::string name;
+		std::string tableName;
+		std::string sql;
+	};
+
 	static void init(void);
 	static void reset(void);
 
@@ -50,6 +56,9 @@ public:
 	               DBDomainId domainId = DEFAULT_DB_DOMAIN_ID,
 	               bool skipSetup = false);
 	virtual ~DBAgentSQLite3();
+
+	void getIndexes(std::vector<IndexStruct> &indexStructVect,
+	                const std::string &tableName);
 
 	// virtual methods
 	virtual bool isTableExisting(const std::string &tableName);

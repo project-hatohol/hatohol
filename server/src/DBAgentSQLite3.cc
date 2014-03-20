@@ -181,6 +181,39 @@ DBAgentSQLite3::~DBAgentSQLite3()
 	delete m_ctx;
 }
 
+void DBAgentSQLite3::getIndexes(vector<IndexStruct> &indexStructVect,
+                                const string &tableName)
+{
+	string query = StringUtils::sprintf(
+	  "SELECT name,tbl_name,sql FROM sqlite_master "
+	  "WHERE type='index' and tbl_name='%s';",
+	  tableName.c_str());
+
+	sqlite3_stmt *stmt;
+	int result;
+	result = sqlite3_prepare(m_ctx->db, query.c_str(), query.size(),
+	                         &stmt, NULL);
+	if (result != SQLITE_OK) {
+		sqlite3_finalize(stmt);
+		THROW_HATOHOL_EXCEPTION(
+		  "Failed to call sqlite3_prepare(): %d: %s",
+		  result, query.c_str());
+	}
+	sqlite3_reset(stmt);
+	while ((result = sqlite3_step(stmt)) == SQLITE_ROW) {
+		size_t idx = 0;
+		IndexStruct idxStruct;
+		idxStruct.name =
+		  (const char *)sqlite3_column_text(stmt, idx++);
+		idxStruct.tableName =
+		  (const char *)sqlite3_column_text(stmt, idx++);
+		idxStruct.sql =
+		  (const char *)sqlite3_column_text(stmt, idx++);
+		indexStructVect.push_back(idxStruct);
+	}
+	sqlite3_finalize(stmt);
+}
+
 bool DBAgentSQLite3::isTableExisting(const string &tableName)
 {
 	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");

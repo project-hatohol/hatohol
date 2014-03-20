@@ -227,6 +227,15 @@ public:
 
 static DBAgentCheckerSQLite3 dbAgentChecker;
 
+class TestDBAgentSQLite3 : public DBAgentSQLite3 {
+public:
+	void callExecSql(const string &statement)
+	{
+		execSql("%s", statement.c_str());
+	}
+};
+
+
 static void deleteDB(void)
 {
 	unlink(g_dbPath.c_str());
@@ -277,6 +286,41 @@ void test_createdWithSpecifiedDbPath(void)
 	  "%s/%s.db", dbDirectory.c_str(), dbName.c_str());
 	DBAgentSQLite3 sqlite3alt(dbName.c_str(), domainId);
 	cut_assert_not_exist_path(expectPath.c_str());
+}
+
+void test_getIndexes(void)
+{
+	const string tableName = "footable";
+	TestDBAgentSQLite3 dbAgent;
+	string stmt = "CREATE TABLE ";
+	stmt += tableName;
+	stmt += " (id INTEGER PRIMARY KEY, a INTEGER, b INTEGER, c INTEGER)";
+	dbAgent.callExecSql(stmt);
+
+	string stmtA = StringUtils::sprintf("CREATE INDEX i_a ON %s (a)",
+	                                    tableName.c_str());
+	dbAgent.callExecSql(stmtA);
+
+	string stmtBC = StringUtils::sprintf("CREATE INDEX i_bc ON %s (b,c)",
+	                                     tableName.c_str());
+	dbAgent.callExecSql(stmtBC);
+
+	vector<DBAgentSQLite3::IndexStruct> indexStructVect;
+	dbAgent.getIndexes(indexStructVect, tableName);
+
+	cppcut_assert_equal((size_t)2, indexStructVect.size());
+
+	// i_a
+	DBAgentSQLite3::IndexStruct *idxStruct = &indexStructVect[0];
+	cppcut_assert_equal(string("i_a"), idxStruct->name);
+	cppcut_assert_equal(tableName,     idxStruct->tableName);
+	cppcut_assert_equal(stmtA,         idxStruct->sql);
+
+	// i_bc
+	idxStruct = &indexStructVect[1];
+	cppcut_assert_equal(string("i_bc"), idxStruct->name);
+	cppcut_assert_equal(tableName,      idxStruct->tableName);
+	cppcut_assert_equal(stmtBC,         idxStruct->sql);
 }
 
 void test_testIsTableExisting(void)
