@@ -207,6 +207,19 @@ public:
 
 static DBAgentCheckerMySQL dbAgentChecker;
 
+class TestDBAgentMySQL : public DBAgentMySQL {
+public:
+	TestDBAgentMySQL(void)
+	: DBAgentMySQL(TEST_DB_NAME)
+	{
+	}
+
+	void callExecSql(const string &statement)
+	{
+		return execSql(statement);
+	}
+};
+
 static void _createGlobalDBAgent(void)
 {
 	try {
@@ -270,6 +283,37 @@ void test_isRecordExistingNotIncluded(void)
 {
 	bool skipInsert = true;
 	assertIsRecordExisting(skipInsert);
+}
+
+void test_getIndexes(void)
+{
+	const string tableName = "footable";
+	TestDBAgentMySQL dbAgent;
+	string stmt = "CREATE TABLE ";
+	stmt += tableName;
+	stmt += " (id INT (11) PRIMARY KEY, a INT (11) UNIQUE, "
+	        "b INT (11), c INT (11))";
+	dbAgent.callExecSql(stmt);
+	vector<DBAgentMySQL::IndexStruct> indexStructVect;
+	dbAgent.getIndexes(indexStructVect, tableName);
+
+	cppcut_assert_equal((size_t)2, indexStructVect.size());
+	
+	// id
+	DBAgentMySQL::IndexStruct *idxStruct = &indexStructVect[0];
+	cppcut_assert_equal(tableName,         idxStruct->table);
+	cppcut_assert_equal(false,             idxStruct->nonUnique);
+	cppcut_assert_equal(string("PRIMARY"), idxStruct->keyName);
+	cppcut_assert_equal((size_t)1,         idxStruct->seqInIndex);
+	cppcut_assert_equal(string("id"),      idxStruct->columnName);
+
+	// a
+	idxStruct = &indexStructVect[1];
+	cppcut_assert_equal(tableName,         idxStruct->table);
+	cppcut_assert_equal(false,             idxStruct->nonUnique);
+	cppcut_assert_equal(string("a"),       idxStruct->keyName);
+	cppcut_assert_equal((size_t)1,         idxStruct->seqInIndex);
+	cppcut_assert_equal(string("a"),       idxStruct->columnName);
 }
 
 //

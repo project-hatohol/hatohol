@@ -25,6 +25,14 @@
 
 class DBAgentMySQL : public DBAgent {
 public:
+	struct IndexStruct {
+		std::string table;
+		bool        nonUnique;
+		std::string keyName;
+		size_t      seqInIndex;
+		std::string columnName;
+	};
+
 	static void init(void);
 
 	// constructor and destructor
@@ -37,6 +45,8 @@ public:
 	             bool skipSetup = false);
 	virtual ~DBAgentMySQL();
 	std::string getDBName(void) const;
+	void getIndexes(std::vector<IndexStruct> &indexStructVect,
+	                const std::string &tableName);
 
 	// virtual methods
 	virtual bool isTableExisting(const std::string &tableName);

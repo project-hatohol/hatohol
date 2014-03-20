@@ -104,6 +104,36 @@ string DBAgentMySQL::getDBName(void) const
 	return m_ctx->dbName;
 }
 
+void DBAgentMySQL::getIndexes(std::vector<IndexStruct> &indexStructVect,
+                              const std::string &tableName)
+{
+	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
+	string query =
+	  StringUtils::sprintf("SHOW INDEX FROM %s", tableName.c_str());
+	execSql(query);
+
+	MYSQL_RES *result = mysql_store_result(&m_ctx->mysql);
+	if (!result) {
+		THROW_HATOHOL_EXCEPTION(
+		  "Failed to call mysql_store_result: %s\n",
+		  mysql_error(&m_ctx->mysql));
+	}
+
+	indexStructVect.reserve(mysql_num_rows(result));
+	MYSQL_ROW row;
+	while ((row = mysql_fetch_row(result))) {
+		int col = 0;
+		IndexStruct idxStruct;
+		idxStruct.table      = row[col++];
+		idxStruct.nonUnique  = atoi(row[col++]);
+		idxStruct.keyName    = row[col++];
+		idxStruct.seqInIndex = atoi(row[col++]);
+		idxStruct.columnName = row[col++];
+		indexStructVect.push_back(idxStruct);
+	}
+	mysql_free_result(result);
+}
+
 bool DBAgentMySQL::isTableExisting(const string &tableName)
 {
 	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
