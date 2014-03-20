@@ -36,6 +36,7 @@ const char *DBClientHatohol::TABLE_NAME_HOSTS      = "hosts";
 const char *DBClientHatohol::TABLE_NAME_HOSTGROUPS = "hostgroups";
 const char *DBClientHatohol::TABLE_NAME_MAP_HOSTS_HOSTGROUPS
                                                    = "map_hosts_hostgroups";
+static const char *TABLE_NAME_SERVERS              = "servers";
 
 const EventIdType DBClientHatohol::EVENT_NOT_FOUND = -1;
 const int         DBClientHatohol::HATOHOL_DB_VERSION = 4;
@@ -632,6 +633,42 @@ static const DBAgent::TableProfile tableProfileMapHostsHostgroups(
   COLUMN_DEF_MAP_HOSTS_HOSTGROUPS,
   sizeof(COLUMN_DEF_MAP_HOSTS_HOSTGROUPS), NUM_IDX_MAP_HOSTS_HOSTGROUPS);
 
+static const ColumnDef COLUMN_DEF_SERVERS[] = {
+{
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_SERVERS,                // tableName
+	"id",                              // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_SERVERS,                // tableName
+	"nvps",                            // columnName
+	SQL_COLUMN_TYPE_DOUBLE,            // type
+	15,                                // columnLength
+	2,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+},
+};
+
+enum {
+	IDX_SERVERS_ID,
+	IDX_SERVERS_NVPS,
+	NUM_IDX_SERVERS,
+};
+
+static const DBAgent::TableProfile tableProfileServers(
+  TABLE_NAME_SERVERS, COLUMN_DEF_SERVERS,
+  sizeof(COLUMN_DEF_SERVERS), NUM_IDX_SERVERS);
+
 static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
 {
 	&tableProfileTriggers,
@@ -645,6 +682,8 @@ static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
 	&tableProfileHostgroups,
 }, {
 	&tableProfileMapHostsHostgroups,
+}, {
+	&tableProfileServers,
 }
 };
 
@@ -1631,6 +1670,14 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 	}
 }
 
+void DBClientHatohol::addMonitoringServerStatus(
+  MonitoringServerStatus *serverStatus)
+{
+	DBCLIENT_TRANSACTION_BEGIN() {
+		addMonitoringServerStatusWithoutTransaction(*serverStatus);
+	} DBCLIENT_TRANSACTION_END();
+}
+
 // TODO: Should we name it getNumberOfBadGriggers ?
 size_t DBClientHatohol::getNumberOfTriggers(const TriggersQueryOption &option,
                                             TriggerSeverityType severity)
@@ -1722,6 +1769,36 @@ size_t DBClientHatohol::getNumberOfBadHosts(const TriggersQueryOption &option)
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupStream itemGroupStream(*grpList.begin());
 	return itemGroupStream.read<int>();
+}
+
+HatoholError DBClientHatohol::getNumberOfMonitoredItemsPerSecond
+  (const DataQueryOption &option, MonitoringServerStatus &serverStatus)
+{
+	serverStatus.nvps = 0.0;
+	if (!option.isValidServer(serverStatus.serverId))
+		return HatoholError(HTERR_NO_PRIVILEGE);
+
+	DBAgent::SelectExArg arg(tableProfileServers);
+	string stmt = COLUMN_DEF_SERVERS[IDX_SERVERS_NVPS].columnName;
+	arg.add(stmt, SQL_COLUMN_TYPE_DOUBLE);
+
+	arg.condition =
+	  StringUtils::sprintf("%s=%d",
+	    COLUMN_DEF_SERVERS[IDX_SERVERS_ID].columnName,
+	    serverStatus.serverId);
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	if (arg.dataTable->getNumberOfRows() == 0)
+		return HatoholError(HTERR_NOT_FOUND_TARGET_RECORD);
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	serverStatus.nvps = itemGroupStream.read<double>();
+
+	return HatoholError(HTERR_OK);
 }
 
 void DBClientHatohol::pickupAbsentHostIds(vector<uint64_t> &absentHostIdVector,
@@ -1914,6 +1991,25 @@ void DBClientHatohol::addHostInfoWithoutTransaction(const HostInfo &hostInfo)
 		arg.add(IDX_HOSTS_SERVER_ID, hostInfo.serverId);
 		arg.add(IDX_HOSTS_HOST_ID,   hostInfo.id);
 		arg.add(IDX_HOSTS_HOST_NAME, hostInfo.hostName);
+		arg.condition = condition;
+		update(arg);
+	}
+}
+
+void DBClientHatohol::addMonitoringServerStatusWithoutTransaction(
+  const MonitoringServerStatus &serverStatus)
+{
+	string condition = StringUtils::sprintf(
+	  "id=%"FMT_SERVER_ID, serverStatus.serverId);
+	if (!isRecordExisting(TABLE_NAME_SERVERS, condition)) {
+		DBAgent::InsertArg arg(tableProfileServers);
+		arg.add(serverStatus.serverId);
+		arg.add(serverStatus.nvps);
+		insert(arg);
+	} else {
+		DBAgent::UpdateArg arg(tableProfileServers);
+		arg.add(IDX_SERVERS_ID,   serverStatus.serverId);
+		arg.add(IDX_SERVERS_NVPS, serverStatus.nvps);
 		arg.condition = condition;
 		update(arg);
 	}

@@ -104,6 +104,8 @@ public:
 	                           TriggerSeverityType severity);
 	size_t getNumberOfGoodHosts(const TriggersQueryOption &option);
 	size_t getNumberOfBadHosts(const TriggersQueryOption &option);
+	HatoholError getNumberOfMonitoredItemsPerSecond(const DataQueryOption &option,
+	                                                MonitoringServerStatus &serverStatus);
 
 	// User
 	void getUserList(UserInfoList &userList,
