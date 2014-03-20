@@ -527,7 +527,7 @@ HatoholError DBClientAction::addAction(ActionDef &actionDef,
 	        getNullFlag(actionDef, ACTCOND_SERVER_ID));
 	arg.add(actionDef.condition.hostId,
 	        getNullFlag(actionDef, ACTCOND_HOST_ID));
-	arg.add(actionDef.condition.hostGroupId,
+	arg.add(actionDef.condition.hostgroupId,
 	        getNullFlag(actionDef, ACTCOND_HOST_GROUP_ID));
 	arg.add(actionDef.condition.triggerId,
 	        getNullFlag(actionDef, ACTCOND_TRIGGER_ID));
@@ -606,7 +606,7 @@ HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
 
 		if (!itemGroupStream.getItem()->isNull())
 			actionDef.condition.enable(ACTCOND_HOST_GROUP_ID);
-		itemGroupStream >> actionDef.condition.hostGroupId;
+		itemGroupStream >> actionDef.condition.hostgroupId;
 
 		if (!itemGroupStream.getItem()->isNull())
 			actionDef.condition.enable(ACTCOND_TRIGGER_ID);

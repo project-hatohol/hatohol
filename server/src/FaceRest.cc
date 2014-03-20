@@ -992,10 +992,10 @@ static void addOverviewEachServer(FaceRest::RestJob *job,
 	agent.add("numberOfOnlineUsers", 0);
 	agent.add("numberOfMonitoredItemsPerSecond", 0);
 
-	// HostGroups
+	// Hostgroups
 	// TODO: We temtatively returns 'No group'. We should fix it
 	//       after host group is supported in Hatohol server.
-	agent.startObject("hostGroups");
+	agent.startObject("hostgroups");
 	HostgroupInfoList hostgroupInfoList;
 	err = addHostgroupsMap(job, agent, svInfo, hostgroupInfoList);
 	if (err != HTERR_OK) {
@@ -1012,14 +1012,14 @@ static void addOverviewEachServer(FaceRest::RestJob *job,
 	agent.startArray("systemStatus");
 	HostgroupInfoListConstIterator hostgrpItr = hostgroupInfoList.begin();
 	for (; hostgrpItr != hostgroupInfoList.end(); ++ hostgrpItr) {
-		const HostgroupIdType hostGroupId = hostgrpItr->groupId;
+		const HostgroupIdType hostgroupId = hostgrpItr->groupId;
 		for (int severity = 0;
 		     severity < NUM_TRIGGER_SEVERITY; severity++) {
 			TriggersQueryOption option(job->dataQueryContextPtr);
 			option.setTargetServerId(svInfo.id);
-			option.setTargetHostgroupId(hostGroupId);
+			option.setTargetHostgroupId(hostgroupId);
 			agent.startObject();
-			agent.add("hostGroupId", hostGroupId);
+			agent.add("hostgroupId", hostgroupId);
 			agent.add("severity", severity);
 			agent.add(
 			  "numberOfTriggers",
@@ -1035,13 +1035,13 @@ static void addOverviewEachServer(FaceRest::RestJob *job,
 	agent.startArray("hostStatus");
 	hostgrpItr = hostgroupInfoList.begin();
 	for (; hostgrpItr != hostgroupInfoList.end(); ++ hostgrpItr) {
-		const HostgroupIdType hostGroupId = hostgrpItr->groupId;
+		const HostgroupIdType hostgroupId = hostgrpItr->groupId;
 		TriggersQueryOption option(job->dataQueryContextPtr);
 		option.setTargetServerId(svInfo.id);
-		option.setTargetHostgroupId(hostGroupId);
+		option.setTargetHostgroupId(hostgroupId);
 		size_t numBadHosts = dataStore->getNumberOfBadHosts(option);
 		agent.startObject();
-		agent.add("hostGroupId", hostGroupId);
+		agent.add("hostgroupId", hostgroupId);
 		agent.add("numberOfGoodHosts",
 		          dataStore->getNumberOfGoodHosts(option));
 		agent.add("numberOfBadHosts", numBadHosts);
@@ -1199,7 +1199,7 @@ static void addHostsMap(
   const MonitoringServerInfo &serverInfo)
 {
 	HostgroupIdType targetHostgroupId = ALL_HOST_GROUPS;
-	char *value = (char *)g_hash_table_lookup(job->query, "hostGroupId");
+	char *value = (char *)g_hash_table_lookup(job->query, "hostgroupId");
 	if (value)
 		sscanf(value, "%"FMT_HOST_GROUP_ID, &targetHostgroupId);
 
@@ -1962,8 +1962,8 @@ void FaceRest::handlerGetAction(RestJob *job)
 		setActionCondition<uint64_t>(
 		  agent, cond, "hostId", ACTCOND_HOST_ID, cond.hostId);
 		setActionCondition<uint64_t>(
-		  agent, cond, "hostGroupId", ACTCOND_HOST_GROUP_ID,
-		   cond.hostGroupId);
+		  agent, cond, "hostgroupId", ACTCOND_HOST_GROUP_ID,
+		   cond.hostgroupId);
 		setActionCondition<uint64_t>(
 		  agent, cond, "triggerId", ACTCOND_TRIGGER_ID, cond.triggerId);
 		setActionCondition<uint32_t>(
@@ -2071,9 +2071,9 @@ void FaceRest::handlerPostAction(RestJob *job)
 	if (exist)
 		cond.enable(ACTCOND_HOST_ID);
 
-	// hostGroupId
+	// hostgroupId
 	succeeded = getParamWithErrorReply<uint64_t>(
-	              job, "hostGroupId", "%"PRIu64, cond.hostGroupId, &exist);
+	              job, "hostgroupId", "%"PRIu64, cond.hostgroupId, &exist);
 	if (!succeeded)
 		return;
 	if (exist)
@@ -2385,26 +2385,26 @@ void FaceRest::handlerGetAccessInfo(RestJob *job)
 	for (; it != serversMap.end(); it++) {
 		const ServerIdType &serverId = it->first;
 		string serverIdString;
-		HostGrpAccessInfoMap *hostGroupsMap = it->second;
+		HostGrpAccessInfoMap *hostgroupsMap = it->second;
 		if (serverId == ALL_SERVERS)
 			serverIdString = StringUtils::toString(-1);
 		else
 			serverIdString = StringUtils::toString(serverId);
 		agent.startObject(serverIdString);
-		agent.startObject("allowedHostGroups");
-		HostGrpAccessInfoMapIterator it2 = hostGroupsMap->begin();
-		for (; it2 != hostGroupsMap->end(); it2++) {
+		agent.startObject("allowedHostgroups");
+		HostGrpAccessInfoMapIterator it2 = hostgroupsMap->begin();
+		for (; it2 != hostgroupsMap->end(); it2++) {
 			AccessInfo *info = it2->second;
-			uint64_t hostGroupId = it2->first;
-			string hostGroupIdString;
-			if (hostGroupId == ALL_HOST_GROUPS) {
-				hostGroupIdString = StringUtils::toString(-1);
+			uint64_t hostgroupId = it2->first;
+			string hostgroupIdString;
+			if (hostgroupId == ALL_HOST_GROUPS) {
+				hostgroupIdString = StringUtils::toString(-1);
 			} else {
-				hostGroupIdString
+				hostgroupIdString
 				  = StringUtils::sprintf("%"PRIu64,
-				                         hostGroupId);
+				                         hostgroupId);
 			}
-			agent.startObject(hostGroupIdString);
+			agent.startObject(hostgroupIdString);
 			agent.add("accessInfoId", info->id);
 			agent.endObject();
 		}
@@ -2441,13 +2441,13 @@ void FaceRest::handlerPostAccessInfo(RestJob *job)
 		return;
 	}
 
-	// hostGroupId
+	// hostgroupId
 	succeeded = getParamWithErrorReply<uint64_t>(
-	              job, "hostGroupId", "%"PRIu64, accessInfo.hostGroupId, &exist);
+	              job, "hostgroupId", "%"PRIu64, accessInfo.hostgroupId, &exist);
 	if (!succeeded)
 		return;
 	if (!exist) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "hostGroupId");
+		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "hostgroupId");
 		return;
 	}
 
@@ -2834,7 +2834,7 @@ HatoholError FaceRest::parseHostResourceQueryParameter(
 
 	// target host group id
 	HostIdType targetHostgroupId = ALL_HOST_GROUPS;
-	err = getParam<HostgroupIdType>(query, "hostGroupId",
+	err = getParam<HostgroupIdType>(query, "hostgroupId",
 					"%"FMT_HOST_GROUP_ID,
 					targetHostgroupId);
 	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)

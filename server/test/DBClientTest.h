@@ -32,10 +32,10 @@ typedef HostIdSet::iterator HostIdSetIterator;
 typedef std::map<uint32_t, HostIdSet> ServerIdHostIdMap;
 typedef ServerIdHostIdMap::iterator   ServerIdHostIdMapIterator;
 
-typedef std::map<uint64_t, HostIdSet> HostGroupHostIdMap;
-typedef HostGroupHostIdMap::iterator  HostGroupHostIdMapIterator;
-typedef std::map<uint32_t, HostGroupHostIdMap> ServerIdHostGroupHostIdMap;
-typedef ServerIdHostGroupHostIdMap::iterator ServerIdHostGroupHostIdMapIterator;
+typedef std::map<uint64_t, HostIdSet> HostgroupHostIdMap;
+typedef HostgroupHostIdMap::iterator  HostgroupHostIdMapIterator;
+typedef std::map<uint32_t, HostgroupHostIdMap> ServerIdHostgroupHostIdMap;
+typedef ServerIdHostgroupHostIdMap::iterator ServerIdHostgroupHostIdMapIterator;
 
 extern MonitoringServerInfo testServerInfo[];
 extern size_t NumTestServerInfo;
@@ -114,7 +114,7 @@ size_t getNumberOfTestHosts(
   const ServerIdType &serverId,
   const HostgroupIdType &hostgroupId = ALL_HOST_GROUPS);
 size_t getNumberOfTestHostsWithStatus(
-  const ServerIdType &serverId, const HostgroupIdType &hostGroupId,
+  const ServerIdType &serverId, const HostgroupIdType &hostgroupId,
   const bool &status, const UserIdType &userId = USER_ID_SYSTEM);
 
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo);
@@ -132,14 +132,14 @@ void makeServerHostGrpSetMap(ServerHostGrpSetMap &map,
 bool isAuthorized(ServerHostGrpSetMap &authMap,
 		  UserIdType userId,
 		  uint32_t serverId,
-		  uint64_t hostGroupId = ALL_HOST_GROUPS);
+		  uint64_t hostgroupId = ALL_HOST_GROUPS);
 
 size_t findIndexFromTestActionDef(const UserIdType &userId);
 
 /**
  * Get a set of Hostgroup ID for the test material.
  */
-const HostGroupIdSet &getTestHostgroupIdSet(void);
+const HostgroupIdSet &getTestHostgroupIdSet(void);
 
 #endif // DBClientTest_h
 

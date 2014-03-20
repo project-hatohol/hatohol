@@ -517,7 +517,7 @@ void _assertAccessInfoInDB(const AccessInfoIdSet &excludeAccessInfoIdSet)
 		const AccessInfo &accessInfo = testAccessInfo[i];
 		expect += StringUtils::sprintf(
 		  "%"FMT_ACCESS_INFO_ID"|%"FMT_USER_ID"|%d|%"PRIu64"\n",
-		  id, accessInfo.userId, accessInfo.serverId, accessInfo.hostGroupId);
+		  id, accessInfo.userId, accessInfo.serverId, accessInfo.hostgroupId);
 	}
 	CacheServiceDBClient cache;
 	assertDBContent(cache.getUser()->getDBAgent(), statement, expect);

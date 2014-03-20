@@ -755,8 +755,8 @@ static void _assertActions(const string &path, const string &callbackName = "")
 		  g_parser, cond, "hostId", ACTCOND_HOST_ID,
 		  uint64_t, cond.hostId);
 		asssertActionCondition(
-		  g_parser, cond, "hostGroupId", ACTCOND_HOST_GROUP_ID,
-		  uint64_t, cond.hostGroupId);
+		  g_parser, cond, "hostgroupId", ACTCOND_HOST_GROUP_ID,
+		  uint64_t, cond.hostgroupId);
 		asssertActionCondition(
 		  g_parser, cond, "triggerId", ACTCOND_TRIGGER_ID,
 		  uint64_t, cond.triggerId);
@@ -1010,15 +1010,15 @@ static void _assertUpdateOrAddUser(const string &name)
 
 static void _assertServerAccessInfo(JsonParserAgent *parser, HostGrpAccessInfoMap &expected)
 {
-	assertStartObject(parser, "allowedHostGroups");
+	assertStartObject(parser, "allowedHostgroups");
 	HostGrpAccessInfoMapIterator it = expected.begin();
 	for (size_t i = 0; i < expected.size(); i++) {
-		uint64_t hostGroupId = it->first;
+		uint64_t hostgroupId = it->first;
 		string idStr;
-		if (hostGroupId == ALL_HOST_GROUPS)
+		if (hostgroupId == ALL_HOST_GROUPS)
 			idStr = "-1";
 		else
-			idStr = StringUtils::sprintf("%"PRIu64, hostGroupId);
+			idStr = StringUtils::sprintf("%"PRIu64, hostgroupId);
 		assertStartObject(parser, idStr);
 		AccessInfo *info = it->second;
 		assertValueInParser(parser, "accessInfoId",
@@ -1062,8 +1062,8 @@ static void _assertAllowedServers(const string &path, const UserIdType &userId,
 cut_trace(_assertAddRecord(P, U, USER_ID, ##__VA_ARGS__))
 
 void _assertAddAccessInfoWithCond(
-  const string &serverId, const string &hostGroupId,
-  string expectHostGroupId = "")
+  const string &serverId, const string &hostgroupId,
+  string expectHostgroupId = "")
 {
 	setupUserDB();
 
@@ -1074,7 +1074,7 @@ void _assertAddAccessInfoWithCond(
 	  "/user/%"FMT_USER_ID"/access-info", targetUserId);
 	StringMap params;
 	params["serverId"] = serverId;
-	params["hostGroupId"] = hostGroupId;
+	params["hostgroupId"] = hostgroupId;
 	assertAddAccessInfo(url, params, userId, HTERR_OK);
 
 	// check the content in the DB
@@ -1082,12 +1082,12 @@ void _assertAddAccessInfoWithCond(
 	string statement = "select * from ";
 	statement += DBClientUser::TABLE_NAME_ACCESS_LIST;
 	int expectedId = 1;
-	if (expectHostGroupId.empty())
-		expectHostGroupId = hostGroupId;
+	if (expectHostgroupId.empty())
+		expectHostgroupId = hostgroupId;
 	string expect = StringUtils::sprintf(
 	  "%"FMT_ACCESS_INFO_ID"|%"FMT_USER_ID"|%s|%s\n",
 	  expectedId, targetUserId, serverId.c_str(),
-	  expectHostGroupId.c_str());
+	  expectHostgroupId.c_str());
 	assertDBContent(dbUser.getDBAgent(), statement, expect);
 }
 #define assertAddAccessInfoWithCond(SVID, HGRP_ID, ...) \
@@ -1126,11 +1126,11 @@ static void _assertUserRoles(const string &path,
 #define assertUserRoles(P, U, ...) \
   cut_trace(_assertUserRoles(P, U, ##__VA_ARGS__))
 
-static void assertHostGroupsInParser(JsonParserAgent *parser,
+static void assertHostgroupsInParser(JsonParserAgent *parser,
                                      const ServerIdType &serverId,
-                                     HostGroupIdSet &hostGroupIdSet)
+                                     HostgroupIdSet &hostgroupIdSet)
 {
-	assertStartObject(parser, "hostGroups");
+	assertStartObject(parser, "hostgroups");
 	for (size_t i = 0; i < NumTestHostgroupInfo; i++) {
 		const HostgroupInfo &hgrpInfo = testHostgroupInfo[i];
 		// TODO: fix this inefficient algorithm
@@ -1142,23 +1142,23 @@ static void assertHostGroupsInParser(JsonParserAgent *parser,
 		assertStartObject(parser, expectKey);
 		assertValueInParser(parser, string("name"), hgrpInfo.groupName);
 		parser->endObject();
-		hostGroupIdSet.insert(hostgroupId);
+		hostgroupIdSet.insert(hostgroupId);
 	}
 	parser->endObject();
 }
 
 static void assertHostStatusInParser(JsonParserAgent *parser,
                                      const ServerIdType &serverId,
-                                     const HostGroupIdSet &hostgroupIdSet)
+                                     const HostgroupIdSet &hostgroupIdSet)
 {
 	assertStartObject(parser, "hostStatus");
 	cppcut_assert_equal(hostgroupIdSet.size(),
 	                    (size_t)parser->countElements());
-	HostGroupIdSetConstIterator hostgrpIdItr = hostgroupIdSet.begin();
+	HostgroupIdSetConstIterator hostgrpIdItr = hostgroupIdSet.begin();
 	size_t idx = 0;
 	for (; hostgrpIdItr != hostgroupIdSet.end(); ++hostgrpIdItr, ++idx) {
 		parser->startElement(idx);
-		assertValueInParser(parser, "hostGroupId",  *hostgrpIdItr);
+		assertValueInParser(parser, "hostgroupId",  *hostgrpIdItr);
 		const size_t expectedGoodHosts = getNumberOfTestHostsWithStatus(
 		  serverId, *hostgrpIdItr, true);
 		const size_t expectedBadHosts = getNumberOfTestHostsWithStatus(
@@ -1180,17 +1180,17 @@ static void assertSystemStatusInParserEach(
 	  static_cast<TriggerSeverityType>(severityNum);
 	const size_t expectedTriggers =
 	  getNumberOfTestTriggers(serverId, hostgroupId, severity);
-	assertValueInParser(parser, "hostGroupId", hostgroupId);
+	assertValueInParser(parser, "hostgroupId", hostgroupId);
 	assertValueInParser(parser, "severity", severity);
 	assertValueInParser(parser, "numberOfTriggers", expectedTriggers);
 }
 
 static void assertSystemStatusInParser(JsonParserAgent *parser,
                                        const ServerIdType &serverId,
-                                       const HostGroupIdSet &hostgroupIdSet)
+                                       const HostgroupIdSet &hostgroupIdSet)
 {
 	assertStartObject(parser, "systemStatus");
-	HostGroupIdSetConstIterator hostgrpIdItr = hostgroupIdSet.begin();
+	HostgroupIdSetConstIterator hostgrpIdItr = hostgroupIdSet.begin();
 	cppcut_assert_equal(hostgroupIdSet.size() * NUM_TRIGGER_SEVERITY,
 	                    (size_t)parser->countElements());
 	size_t arrayIdx = 0;
@@ -1212,7 +1212,7 @@ static void _assertOverviewInParser(JsonParserAgent *parser)
 	size_t numGoodServers = 0, numBadServers = 0;
 	// We assume that the caller can access all serers and hosts.
 	for (size_t i = 0; i < NumTestServerInfo; i++) {
-		HostGroupIdSet hostgroupIdSet;
+		HostgroupIdSet hostgroupIdSet;
 		parser->startElement(i);
 		MonitoringServerInfo &svInfo = testServerInfo[i];
 		assertValueInParser(parser, "serverId", svInfo.id);
@@ -1228,7 +1228,7 @@ static void _assertOverviewInParser(JsonParserAgent *parser)
 		assertValueInParser(parser, "numberOfUsers", 0);
 		assertValueInParser(parser, "numberOfOnlineUsers", 0);
 		assertValueInParser(parser, "numberOfMonitoredItemsPerSecond", 0);
-		assertHostGroupsInParser(parser, svInfo.id, hostgroupIdSet);
+		assertHostgroupsInParser(parser, svInfo.id, hostgroupIdSet);
 		assertSystemStatusInParser(parser, svInfo.id, hostgroupIdSet);
 		assertHostStatusInParser(parser, svInfo.id, hostgroupIdSet);
 		parser->endElement();
@@ -1675,7 +1675,7 @@ void test_addActionParameterFull(void)
 	int timeout = 300;
 	int serverId= 50;
 	uint64_t hostId = 50;
-	uint64_t hostGroupId = 1000;
+	uint64_t hostgroupId = 1000;
 	uint64_t triggerId = 333;
 	int triggerStatus = TRIGGER_STATUS_PROBLEM;
 	int triggerSeverity = TRIGGER_SEVERITY_CRITICAL;
@@ -1688,7 +1688,7 @@ void test_addActionParameterFull(void)
 	params["timeout"]     = StringUtils::sprintf("%d", timeout);
 	params["serverId"]    = StringUtils::sprintf("%d", serverId);
 	params["hostId"]      = StringUtils::sprintf("%"PRIu64, hostId);
-	params["hostGroupId"] = StringUtils::sprintf("%"PRIu64, hostGroupId);
+	params["hostgroupId"] = StringUtils::sprintf("%"PRIu64, hostgroupId);
 	params["triggerId"]   = StringUtils::sprintf("%"PRIu64, triggerId);
 	params["triggerStatus"]   = StringUtils::sprintf("%d", triggerStatus);
 	params["triggerSeverity"] = StringUtils::sprintf("%d", triggerSeverity);
@@ -1705,7 +1705,7 @@ void test_addActionParameterFull(void)
 	int expectedId = 1;
 	expect += StringUtils::sprintf("%d|%d|", expectedId, serverId);
 	expect += StringUtils::sprintf("%"PRIu64"|%"PRIu64"|%"PRIu64"|",
-	  hostId, hostGroupId, triggerId);
+	  hostId, hostgroupId, triggerId);
 	expect += StringUtils::sprintf(
 	  "%d|%d|%d|", triggerStatus, triggerSeverity, triggerSeverityCompType);
 	expect += StringUtils::sprintf("%d|", type);
@@ -1724,14 +1724,14 @@ void test_addActionParameterOver32bit(void)
 
 	const string command = "/usr/bin/pochi";
 	uint64_t hostId = 0x89abcdef01234567;
-	uint64_t hostGroupId = 0xabcdef0123456789;
+	uint64_t hostgroupId = 0xabcdef0123456789;
 	uint64_t triggerId = 0x56789abcdef01234;
 
 	StringMap params;
 	params["type"]        = StringUtils::sprintf("%d", ACTION_RESIDENT);
 	params["command"]     = command;
 	params["hostId"]      = StringUtils::sprintf("%"PRIu64, hostId);
-	params["hostGroupId"] = StringUtils::sprintf("%"PRIu64, hostGroupId);
+	params["hostgroupId"] = StringUtils::sprintf("%"PRIu64, hostgroupId);
 	params["triggerId"]   = StringUtils::sprintf("%"PRIu64, triggerId);
 	const UserIdType userId = findUserWith(OPPRVLG_CREATE_ACTION);
 	assertAddAction(params, userId);
@@ -1742,7 +1742,7 @@ void test_addActionParameterOver32bit(void)
 	statement += DBClientAction::getTableNameActions();
 	string expect;
 	expect += StringUtils::sprintf("%"PRIu64"|%"PRIu64"|%"PRIu64"",
-	  hostId, hostGroupId, triggerId);
+	  hostId, hostgroupId, triggerId);
 	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }
 
@@ -2196,8 +2196,8 @@ void test_getAccessInfoWithUserId3(void)
 void test_addAccessInfo(void)
 {
 	const string serverId = "2";
-	const string hostGroupId = "3";
-	assertAddAccessInfoWithCond(serverId, hostGroupId);
+	const string hostgroupId = "3";
+	assertAddAccessInfoWithCond(serverId, hostgroupId);
 }
 
 void test_updateAccessInfo(void)
@@ -2210,7 +2210,7 @@ void test_updateAccessInfo(void)
 	  "/user/%"FMT_USER_ID"/access-info/2", targetUserId);
 	StringMap params;
 	params["serverId"] = "2";
-	params["hostGroupId"] = "-1";
+	params["hostgroupId"] = "-1";
 
 	startFaceRest();
 
@@ -2224,21 +2224,21 @@ void test_updateAccessInfo(void)
 	  arg.httpStatusCode);
 }
 
-void test_addAccessInfoWithAllHostGroups(void)
+void test_addAccessInfoWithAllHostgroups(void)
 {
 	const string serverId = "2";
-	const string hostGroupId =
+	const string hostgroupId =
 	  StringUtils::sprintf("%"PRIu64, ALL_HOST_GROUPS);
-	assertAddAccessInfoWithCond(serverId, hostGroupId);
+	assertAddAccessInfoWithCond(serverId, hostgroupId);
 }
 
-void test_addAccessInfoWithAllHostGroupsNegativeValue(void)
+void test_addAccessInfoWithAllHostgroupsNegativeValue(void)
 {
 	const string serverId = "2";
-	const string hostGroupId = "-1";
-	const string expectHostGroup =
+	const string hostgroupId = "-1";
+	const string expectHostgroup =
 	  StringUtils::sprintf("%"PRIu64, ALL_HOST_GROUPS);
-	assertAddAccessInfoWithCond(serverId, hostGroupId, expectHostGroup);
+	assertAddAccessInfoWithCond(serverId, hostgroupId, expectHostgroup);
 }
 
 void test_addAccessInfoWithExistingData(void)
@@ -2250,12 +2250,12 @@ void test_addAccessInfoWithExistingData(void)
 	const UserIdType userId = findUserWith(OPPRVLG_CREATE_USER);
 	const UserIdType targetUserId = 1;
 	const string serverId = "1";
-	const string hostGroupId = "1";
+	const string hostgroupId = "1";
 
 	StringMap params;
 	params["userId"] = StringUtils::sprintf("%"FMT_USER_ID, userId);
 	params["serverId"] = serverId;
-	params["hostGroupId"] = hostGroupId;
+	params["hostgroupId"] = hostgroupId;
 
 	const string url = StringUtils::sprintf(
 	  "/user/%"FMT_USER_ID"/access-info", targetUserId);
@@ -2620,17 +2620,17 @@ void _assertParseEventParameterTargetServerId(
 #define assertParseEventParameterTargetServerId(E, ...) \
 cut_trace(_assertParseEventParameterTargetServerId(E, ##__VA_ARGS__))
 
-void _assertParseEventParameterTargetHostGroupId(
+void _assertParseEventParameterTargetHostgroupId(
   const size_t &expectValue, const string &forceValueStr = "",
   const HatoholErrorCode &expectCode = HTERR_OK)
 {
 	assertParseEventParameterTempl(
 	  HostgroupIdType, expectValue, "%"FMT_HOST_GROUP_ID,
-	  "hostGroupId", &EventsQueryOption::getTargetHostgroupId,
+	  "hostgroupId", &EventsQueryOption::getTargetHostgroupId,
 	  expectCode, forceValueStr);
 }
-#define assertParseEventParameterTargetHostGroupId(E, ...) \
-cut_trace(_assertParseEventParameterTargetHostGroupId(E, ##__VA_ARGS__))
+#define assertParseEventParameterTargetHostgroupId(E, ...) \
+cut_trace(_assertParseEventParameterTargetHostgroupId(E, ##__VA_ARGS__))
 
 void _assertParseEventParameterTargetHostId(
   const size_t &expectValue, const string &forceValueStr = "",
@@ -2901,7 +2901,7 @@ void test_parseEventParameterInvalidTargetHostId(void)
 	  0, "hostid", HTERR_INVALID_PARAMETER);
 }
 
-void test_parseEventParameterNoTargetHostGroupId(void)
+void test_parseEventParameterNoTargetHostgroupId(void)
 {
 	EventsQueryOption option;
 	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
@@ -2910,14 +2910,14 @@ void test_parseEventParameterNoTargetHostGroupId(void)
 	cppcut_assert_equal(ALL_HOST_GROUPS, option.getTargetHostgroupId());
 }
 
-void test_parseEventParameterTargetHostGroupId(void)
+void test_parseEventParameterTargetHostgroupId(void)
 {
-	assertParseEventParameterTargetHostGroupId(456);
+	assertParseEventParameterTargetHostgroupId(456);
 }
 
-void test_parseEventParameterInvalidTargetHostGroupId(void)
+void test_parseEventParameterInvalidTargetHostgroupId(void)
 {
-	assertParseEventParameterTargetHostGroupId(
+	assertParseEventParameterTargetHostgroupId(
 	  0, "hostgroupid", HTERR_INVALID_PARAMETER);
 }
 

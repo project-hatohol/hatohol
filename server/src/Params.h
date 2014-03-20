@@ -105,11 +105,11 @@ typedef ServerIdSet::iterator       ServerIdSetIterator;
 typedef ServerIdSet::const_iterator ServerIdSetConstIterator;
 extern const ServerIdSet EMPTY_SERVER_ID_SET;
 
-typedef std::set<HostgroupIdType>           HostGroupIdSet;
-typedef HostGroupIdSet::iterator            HostGroupIdSetIterator;
-typedef HostGroupIdSet::const_iterator      HostGroupIdSetConstIterator;
+typedef std::set<HostgroupIdType>           HostgroupIdSet;
+typedef HostgroupIdSet::iterator            HostgroupIdSetIterator;
+typedef HostgroupIdSet::const_iterator      HostgroupIdSetConstIterator;
 
-typedef std::map<ServerIdType, HostGroupIdSet> ServerHostGrpSetMap;
+typedef std::map<ServerIdType, HostgroupIdSet> ServerHostGrpSetMap;
 typedef ServerHostGrpSetMap::iterator       ServerHostGrpSetMapIterator;
 typedef ServerHostGrpSetMap::const_iterator ServerHostGrpSetMapConstIterator;
 

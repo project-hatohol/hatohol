@@ -76,8 +76,8 @@ static size_t countServerHostGrpSetMapElements(
 	size_t num = 0;
 	ServerHostGrpSetMapConstIterator it = srvHostGrpSetMap.begin();
 	for (; it != srvHostGrpSetMap.end(); ++it) {
-		const HostGroupIdSet &hostGroupIdSet = it->second;
-		num += hostGroupIdSet.size();
+		const HostgroupIdSet &hostgroupIdSet = it->second;
+		num += hostgroupIdSet.size();
 	}
 	return num;
 }
@@ -87,7 +87,7 @@ static void _assertAccessInfo(const AccessInfo &expect,
 {
 	cppcut_assert_equal(expect.userId, actual.userId);
 	cppcut_assert_equal(expect.serverId, actual.serverId);
-	cppcut_assert_equal(expect.hostGroupId, actual.hostGroupId);
+	cppcut_assert_equal(expect.hostgroupId, actual.hostgroupId);
 }
 #define assertAccessInfo(E,A) cut_trace(_assertAccessInfo(E,A))
 
@@ -109,10 +109,10 @@ static void _assertServerAccessInfoMap(
 		                                expectAccessInfo.serverId));
 		const HostGrpAccessInfoMap *hostGrpAccessInfoMap = jt->second;
 		HostGrpAccessInfoMapConstIterator kt =
-		   hostGrpAccessInfoMap->find(expectAccessInfo.hostGroupId);
+		   hostGrpAccessInfoMap->find(expectAccessInfo.hostgroupId);
 		cppcut_assert_equal(true, kt != hostGrpAccessInfoMap->end(),
 		                    cut_message("Failed to lookup: %"PRIu64,
-		                                expectAccessInfo.hostGroupId));
+		                                expectAccessInfo.hostgroupId));
 		const AccessInfo *actualAccessInfo = kt->second;
 		assertAccessInfo(expectAccessInfo, *actualAccessInfo);
 	}
@@ -135,12 +135,12 @@ static void _assertServerHostGrpSetMap(
 		cppcut_assert_equal(true, jt != srvHostGrpSetMap.end(),
 		                    cut_message("Failed to lookup: %"PRIu32,
 		                                expectAccessInfo.serverId));
-		const HostGroupIdSet &hostGroupIdSet = jt->second;
-		HostGroupIdSetConstIterator kt =
-		   hostGroupIdSet.find(expectAccessInfo.hostGroupId);
-		cppcut_assert_equal(true, kt != hostGroupIdSet.end(),
+		const HostgroupIdSet &hostgroupIdSet = jt->second;
+		HostgroupIdSetConstIterator kt =
+		   hostgroupIdSet.find(expectAccessInfo.hostgroupId);
+		cppcut_assert_equal(true, kt != hostgroupIdSet.end(),
 		                    cut_message("Failed to lookup: %"PRIu64,
-		                                expectAccessInfo.hostGroupId));
+		                                expectAccessInfo.hostgroupId));
 	}
 }
 #define assertServerHostGrpSetMap(E,A) \
@@ -231,7 +231,7 @@ void _assertIsAccessible(const bool useAllServers = false)
 	UserIdType userId = INVALID_USER_ID;
 	for (size_t i = 0; i < NumTestAccessInfo; i++) {
 		AccessInfo &accessInfo = testAccessInfo[i];
-		if (accessInfo.hostGroupId != ALL_HOST_GROUPS)
+		if (accessInfo.hostgroupId != ALL_HOST_GROUPS)
 			continue;
 
 		if (useAllServers) {

@@ -52,7 +52,7 @@ HostResourceQueryOption::Synapse::Synapse(
 struct HostResourceQueryOption::PrivateContext {
 	const Synapse  &synapse;
 	string          serverIdColumnName;
-	string          hostGroupIdColumnName;
+	string          hostgroupIdColumnName;
 	string          hostIdColumnName;
 	ServerIdType    targetServerId;
 	HostIdType      targetHostId;
@@ -63,7 +63,7 @@ struct HostResourceQueryOption::PrivateContext {
 	PrivateContext(const Synapse &_synapse)
 	: synapse(_synapse),
 	  serverIdColumnName("server_id"),
-	  hostGroupIdColumnName("host_group_id"),
+	  hostgroupIdColumnName("host_group_id"),
 	  hostIdColumnName("host_id"),
 	  targetServerId(ALL_SERVERS),
 	  targetHostId(ALL_HOSTS),
@@ -76,7 +76,7 @@ struct HostResourceQueryOption::PrivateContext {
 	PrivateContext &operator=(const PrivateContext &rhs)
 	{
 		serverIdColumnName         = rhs.serverIdColumnName;
-		hostGroupIdColumnName      = rhs.hostGroupIdColumnName;
+		hostgroupIdColumnName      = rhs.hostgroupIdColumnName;
 		hostIdColumnName           = rhs.hostIdColumnName;
 		targetServerId             = rhs.targetServerId;
 		targetHostId               = rhs.targetHostId;
@@ -272,22 +272,22 @@ string HostResourceQueryOption::getHostIdColumnName(void) const
 	return getColumnName(m_ctx->synapse.hostIdColumnIdx);
 }
 
-string HostResourceQueryOption::makeConditionHostGroup(
-  const HostGroupIdSet &hostGroupIdSet, const string &hostGroupIdColumnName)
+string HostResourceQueryOption::makeConditionHostgroup(
+  const HostgroupIdSet &hostgroupIdSet, const string &hostgroupIdColumnName)
 {
 	string hostGrps;
-	HostGroupIdSetConstIterator it = hostGroupIdSet.begin();
-	size_t commaCnt = hostGroupIdSet.size() - 1;
-	for (; it != hostGroupIdSet.end(); ++it, commaCnt--) {
-		const uint64_t hostGroupId = *it;
-		if (hostGroupId == ALL_HOST_GROUPS)
+	HostgroupIdSetConstIterator it = hostgroupIdSet.begin();
+	size_t commaCnt = hostgroupIdSet.size() - 1;
+	for (; it != hostgroupIdSet.end(); ++it, commaCnt--) {
+		const uint64_t hostgroupId = *it;
+		if (hostgroupId == ALL_HOST_GROUPS)
 			return "";
-		hostGrps += StringUtils::sprintf("%"PRIu64, hostGroupId);
+		hostGrps += StringUtils::sprintf("%"PRIu64, hostgroupId);
 		if (commaCnt)
 			hostGrps += ",";
 	}
 	string cond = StringUtils::sprintf(
-	  "%s IN (%s)", hostGroupIdColumnName.c_str(), hostGrps.c_str());
+	  "%s IN (%s)", hostgroupIdColumnName.c_str(), hostGrps.c_str());
 	return cond;
 }
 
@@ -314,27 +314,27 @@ string HostResourceQueryOption::makeConditionServer(
 }
 
 string HostResourceQueryOption::makeConditionServer(
-  const ServerIdType &serverId, const HostGroupIdSet &hostGroupIdSet,
-  const string &serverIdColumnName, const string &hostGroupIdColumnName,
+  const ServerIdType &serverId, const HostgroupIdSet &hostgroupIdSet,
+  const string &serverIdColumnName, const string &hostgroupIdColumnName,
   const HostgroupIdType &hostgroupId)
 {
 	string condition;
 	condition = StringUtils::sprintf(
 	  "%s=%"FMT_SERVER_ID, serverIdColumnName.c_str(), serverId);
 
-	string conditionHostGroup;
+	string conditionHostgroup;
 	if (hostgroupId == ALL_HOST_GROUPS) {
-		conditionHostGroup =
-		  makeConditionHostGroup(hostGroupIdSet, hostGroupIdColumnName);
+		conditionHostgroup =
+		  makeConditionHostgroup(hostgroupIdSet, hostgroupIdColumnName);
 	} else {
-		conditionHostGroup = StringUtils::sprintf(
-		  "%s=%"FMT_HOST_GROUP_ID, hostGroupIdColumnName.c_str(),
+		conditionHostgroup = StringUtils::sprintf(
+		  "%s=%"FMT_HOST_GROUP_ID, hostgroupIdColumnName.c_str(),
 		  hostgroupId);
 	}
-	if (!conditionHostGroup.empty()) {
+	if (!conditionHostgroup.empty()) {
 		return StringUtils::sprintf("(%s AND %s)",
 					    condition.c_str(),
-					    conditionHostGroup.c_str());
+					    conditionHostgroup.c_str());
 	} else {
 		return condition;
 	}
@@ -343,7 +343,7 @@ string HostResourceQueryOption::makeConditionServer(
 string HostResourceQueryOption::makeCondition(
   const ServerHostGrpSetMap &srvHostGrpSetMap,
   const string &serverIdColumnName,
-  const string &hostGroupIdColumnName,
+  const string &hostgroupIdColumnName,
   const string &hostIdColumnName,
   ServerIdType targetServerId,
   HostgroupIdType targetHostgroupId,
@@ -377,7 +377,7 @@ string HostResourceQueryOption::makeCondition(
 		string conditionServer = makeConditionServer(
 					   serverId, it->second,
 					   serverIdColumnName,
-					   hostGroupIdColumnName,
+					   hostgroupIdColumnName,
 					   targetHostgroupId);
 		addCondition(condition, conditionServer, ADD_TYPE_OR);
 		++numServers;

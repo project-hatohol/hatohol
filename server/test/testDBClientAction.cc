@@ -47,7 +47,7 @@ static string makeExpectedString(const ActionDef &actDef, int expectedId)
 	            StringUtils::sprintf("%"PRIu64"|", cond.hostId) :
 	            DBCONTENT_MAGIC_NULL "|";
 	expect += cond.isEnable(ACTCOND_HOST_GROUP_ID) ?
-	            StringUtils::sprintf("%"PRIu64"|", cond.hostGroupId) :
+	            StringUtils::sprintf("%"PRIu64"|", cond.hostgroupId) :
 	            DBCONTENT_MAGIC_NULL "|";
 	expect += cond.isEnable(ACTCOND_TRIGGER_ID) ?
 	             StringUtils::sprintf("%"PRIu64"|", cond.triggerId) :
@@ -125,8 +125,8 @@ void _assertEqual(const ActionDef &expect, const ActionDef &actual)
 		                    actual.condition.hostId);
 	}
 	if (expect.condition.enableBits & ACTCOND_HOST_GROUP_ID) {
-		cppcut_assert_equal(expect.condition.hostGroupId,
-		                    actual.condition.hostGroupId);
+		cppcut_assert_equal(expect.condition.hostgroupId,
+		                    actual.condition.hostgroupId);
 	}
 	if (expect.condition.enableBits & ACTCOND_TRIGGER_ID) {
 		cppcut_assert_equal(expect.condition.triggerId,
