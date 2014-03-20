@@ -62,7 +62,11 @@ public:
 
 	struct IndexesDef {
 		const char *name;
+
+ 		// An array that terminates with INDEX_DEF_END.
 		const int  *indexes;
+
+		const bool  isUnique;
 	};
 	static const int    INDEX_DEF_END = -1;
 
