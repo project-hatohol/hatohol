@@ -29,9 +29,9 @@ public:
 
 	struct DBSetupTableInfo {
 		const DBAgent::TableProfile *profile;
+		const DBAgent::IndexesDef   *indexesDefArray;
 		CreateTableInitializer       initializer;
 		void                        *initializerData;
-		const DBAgent::IndexesDef   *indexesDefArray;
 	};
 
 	struct DBSetupFuncArg {

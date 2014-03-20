@@ -428,6 +428,7 @@ void DBClientConfig::init(const CommandLineArg &cmdArg)
 	static const DBSetupTableInfo DB_TABLE_INFO[] = {
 	{
 		&tableProfileSystem,
+		NULL,
 		tableInitializerSystem,
 	}, {
 		&tableProfileServers,
