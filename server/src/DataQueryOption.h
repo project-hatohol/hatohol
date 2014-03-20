@@ -131,14 +131,14 @@ public:
 	size_t getOffset(void) const;
 
 	/**
-	 * Get a string for 'where section' of an SQL statement.
+	 * Get a string for 'where clause' of an SQL statement.
 	 *
 	 * @return a string for 'where' in an SQL statment.
 	 */
 	virtual std::string getCondition(void) const;
 
 	/**
-	 * Get a string for 'order by' section of an SQL statement.
+	 * Get a string for 'order by' clause of an SQL statement.
 	 *
 	 * @return a string for 'order by' in an SQL statment.
 	 */

@@ -324,7 +324,7 @@ protected:
 	 * @param actionLog
 	 * The returned values are filled in this instance.
 	 * @param condition
-	 * The condtion that are used a string in where section
+	 * The condtion that are used a string in where clause
 	 * in a SQL statement.
 	 *
 	 * @return true if the log is found. Otherwise false.

@@ -179,12 +179,12 @@ string HostResourceQueryOption::getCondition(void) const
 	return condition;
 }
 
-string HostResourceQueryOption::getFromSection(void) const
+string HostResourceQueryOption::getFromClause(void) const
 {
 	if (isHostgroupUsed())
-		return getFromSectionWithHostgroup();
+		return getFromClauseWithHostgroup();
 	else
-		return getFromSectionForOneTable();
+		return getFromClauseForOneTable();
 }
 
 bool HostResourceQueryOption::isHostgroupUsed(void) const
@@ -395,12 +395,12 @@ string HostResourceQueryOption::makeCondition(
 	return StringUtils::sprintf("(%s)", condition.c_str());
 }
 
-string HostResourceQueryOption::getFromSectionForOneTable(void) const
+string HostResourceQueryOption::getFromClauseForOneTable(void) const
 {
 	return getPrimaryTableName();
 }
 
-string HostResourceQueryOption::getFromSectionWithHostgroup(void) const
+string HostResourceQueryOption::getFromClauseWithHostgroup(void) const
 {
 	const Synapse &synapse = m_ctx->synapse;
 	const ColumnDef *hgrpColumnDefs =

@@ -65,11 +65,11 @@ public:
 	virtual std::string getCondition(void) const; // override
 
 	/**
-	 * Get a part of an SQL statement for a FROM section.
+	 * Get a part of an SQL statement for a FROM clause.
 	 *
-	 * @return A string for a FROM section.
+	 * @return A string for a FROM clause.
 	 */
-	virtual std::string getFromSection(void) const;
+	virtual std::string getFromClause(void) const;
 
 	/**
 	 * Get information if the host group should be used.
@@ -83,7 +83,7 @@ public:
 	virtual bool isHostgroupUsed(void) const;
 
 	/**
-	 * Set the flag always to use the table name for getFromSection(),
+	 * Set the flag always to use the table name for getFromClause(),
 	 * getColumName(), and getHostgroupColumnName().
 	 *
 	 * @param enable A flag to enable the feature.
@@ -162,8 +162,8 @@ protected:
 	  const HostGroupIdSet &hostGroupIdSet,
 	  const std::string &hostGroupIdColumnName);
 
-	virtual std::string getFromSectionForOneTable(void) const;
-	virtual std::string getFromSectionWithHostgroup(void) const;
+	virtual std::string getFromClauseForOneTable(void) const;
+	virtual std::string getFromClauseWithHostgroup(void) const;
 
 	std::string getColumnNameCommon(
 	  const DBAgent::TableProfile &tableProfile, const size_t &idx) const;
