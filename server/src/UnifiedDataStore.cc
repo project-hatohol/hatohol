@@ -400,6 +400,13 @@ size_t UnifiedDataStore::getNumberOfBadHosts(const TriggersQueryOption &option)
 	return dbHatohol.getNumberOfBadHosts(option);
 }
 
+HatoholError UnifiedDataStore::getNumberOfMonitoredItemsPerSecond(
+  const DataQueryOption &option, MonitoringServerStatus &serverStatus)
+{
+	DBClientHatohol dbHatohol;
+	return dbHatohol.getNumberOfMonitoredItemsPerSecond(option, serverStatus);
+}
+
 bool UnifiedDataStore::getCopyOnDemandEnabled(void) const
 {
 	return m_ctx->isCopyOnDemandEnabled;

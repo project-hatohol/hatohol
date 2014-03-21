@@ -65,6 +65,19 @@ MonitoringServerInfo testServerInfo[] =
 }};
 size_t NumTestServerInfo = sizeof(testServerInfo) / sizeof(MonitoringServerInfo);
 
+MonitoringServerStatus testServerStatus[] =
+{{
+	1,                        // id
+	1.1,                      // nvps
+},{
+	2,                        // id
+	1.2,                      // nvps
+},{
+	3,                        // id
+	1.3,                      // nvps
+}};
+size_t NumTestServerStatus = sizeof(testServerStatus) / sizeof(MonitoringServerStatus);
+
 TriggerInfo testTriggerInfo[] = 
 {{
 	1,                        // serverId

@@ -1227,7 +1227,9 @@ static void _assertOverviewInParser(JsonParserAgent *parser)
 				    getNumberOfTestTriggers(svInfo.id));
 		assertValueInParser(parser, "numberOfUsers", 0);
 		assertValueInParser(parser, "numberOfOnlineUsers", 0);
-		assertValueInParser(parser, "numberOfMonitoredItemsPerSecond", 0);
+		MonitoringServerStatus &serverStatus = testServerStatus[i];
+		string nvps = StringUtils::sprintf("%.2f", serverStatus.nvps);
+		assertValueInParser(parser, "numberOfMonitoredItemsPerSecond", nvps);
 		assertHostgroupsInParser(parser, svInfo.id, hostgroupIdSet);
 		assertSystemStatusInParser(parser, svInfo.id, hostgroupIdSet);
 		assertHostStatusInParser(parser, svInfo.id, hostgroupIdSet);
