@@ -60,11 +60,11 @@ public:
 		             const size_t &numIndexes);
 	};
 
-	struct IndexesDef {
+	struct IndexDef {
 		const char *name;
 
  		// An array that terminates with INDEX_DEF_END.
-		const int  *indexes;
+		const int  *columnIdexes;
 
 		const bool  isUnique;
 	};
@@ -212,7 +212,7 @@ public:
 	 * be NULL for a mark of the termination.
 	 */
 	virtual void fixupIndexes(const TableProfile &tableProfile,
-	                          const IndexesDef *indexesDefArray) = 0;
+	                          const IndexDef *indexDefArray) = 0;
 
 	/**
 	 * Update a record if there is the record with the same value in the

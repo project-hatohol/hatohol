@@ -66,7 +66,7 @@ public:
 	virtual uint64_t getNumberOfAffectedRows(void);
 	virtual void fixupIndexes(
 	  const TableProfile &tableProfile,
-	  const IndexesDef *indexesDefArray); // override
+	  const IndexDef *indexDefArray); // override
 
 protected:
 	static const char *getCStringOrNullIfEmpty(const std::string &str);

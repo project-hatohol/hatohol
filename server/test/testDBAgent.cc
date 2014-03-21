@@ -341,7 +341,7 @@ private:
 	}
 
 	virtual void fixupIndexes(const TableProfile &tableProfile,
-	                          const IndexesDef *indexesDefArray) // override
+	                          const IndexDef *indexDefArray) // override
 	{
 	}
 };

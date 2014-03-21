@@ -721,7 +721,7 @@ uint64_t DBAgentSQLite3::getNumberOfAffectedRows(sqlite3 *db)
 }
 
 void DBAgentSQLite3::fixupIndexes(
-  const TableProfile &tableProfile, const IndexesDef *indexesDefArray)
+  const TableProfile &tableProfile, const IndexDef *indexDefArray)
 {
 	MLPL_BUG("Not implemented yet: %s\n", __PRETTY_FUNCTION__);
 }

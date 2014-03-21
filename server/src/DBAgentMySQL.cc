@@ -473,7 +473,7 @@ uint64_t DBAgentMySQL::getNumberOfAffectedRows(void)
 }
 
 void DBAgentMySQL::fixupIndexes(
-  const TableProfile &tableProfile, const IndexesDef *indexesDefArray)
+  const TableProfile &tableProfile, const IndexDef *indexDefArray)
 {
 	MLPL_BUG("Not implemented yet: %s\n", __PRETTY_FUNCTION__);
 }

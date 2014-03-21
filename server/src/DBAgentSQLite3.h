@@ -78,7 +78,7 @@ public:
 	virtual uint64_t getNumberOfAffectedRows(void);
 	virtual void fixupIndexes(
 	  const TableProfile &tableProfile,
-	  const IndexesDef *indexesDefArray); // override
+	  const IndexDef *indexDefArray); // override
 
 	std::string getDBPath(void) const;
 
