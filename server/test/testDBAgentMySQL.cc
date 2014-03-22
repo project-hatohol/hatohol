@@ -280,7 +280,11 @@ public:
 	virtual void assertMakeDropIndexStatement(
 	  const std::string sql, const DBAgent::IndexDef &indexDef) // override
 	{
-		MLPL_BUG("NOT IMPLEMENTED: %s\n", __PRETTY_FUNCTION__);
+		string expect = "DROP INDEX ";
+		expect += indexDef.name;
+		expect += " ON ";
+		expect += indexDef.tableProfile.name;
+		cppcut_assert_equal(expect, sql);
 	}
 
 	virtual void getIDStringVector(const ColumnDef &columnDefId,
@@ -426,6 +430,12 @@ void test_createTableIndex(void)
 {
 	createGlobalDBAgent();
 	dbAgentTestCreateTableIndex(*g_dbAgent, dbAgentChecker);
+}
+
+void test_makeDropIndexStatement(void)
+{
+	createGlobalDBAgent();
+	dbAgentTestMakeDropIndexStatement(*g_dbAgent, dbAgentChecker);
 }
 
 void test_insert(void)

@@ -627,7 +627,7 @@ string DBAgentMySQL::makeCreateIndexStatement(const IndexDef &indexDef)
 
 std::string DBAgentMySQL::makeDropIndexStatement(const IndexDef &indexDef)
 {
-	MLPL_BUG("NOT IMPLEMENTED: %s\n", __PRETTY_FUNCTION__);
-	string sql;
-	return sql;
+	const char *tableName = indexDef.tableProfile.name;
+	return StringUtils::sprintf("DROP INDEX %s ON %s",
+	                            indexDef.name, tableName);
 }
