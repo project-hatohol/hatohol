@@ -84,7 +84,8 @@ protected:
 	makeCreateIndexStatement(const IndexDef &indexDef); // override
 
 	virtual std::string
-	makeDropIndexStatement(const IndexDef &indexDef); // override
+	makeDropIndexStatement(const std::string &name,
+	                       const std::string &tableName); // override
 
 private:
 	struct PrivateContext;

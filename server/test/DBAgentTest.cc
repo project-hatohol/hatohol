@@ -38,9 +38,10 @@ public:
 	}
 
 	virtual string
-	makeDropIndexStatement(const IndexDef &indexDef) // orvierride
+	makeDropIndexStatement(const string &name,
+	                       const string &tableName) // orvierride
 	{
-		return DBAgent::makeDropIndexStatement(indexDef);
+		return DBAgent::makeDropIndexStatement(name, tableName);
 	}
 };
 
@@ -246,11 +247,11 @@ void dbAgentTestMakeCreateIndexStatement(
 void dbAgentTestMakeDropIndexStatement(
   DBAgent &dbAgent, DBAgentChecker &checker)
 {
-	DBAgent::IndexDef indexDef = {
-	  "testIndex", tableProfileTest, (int *)NULL, false};
+	const string name = "testIndex";
+	const string tableName = "tableeeeeNameeeee";
 	TestDBAgent *testAgent = static_cast<TestDBAgent *>(&dbAgent);
-	string sql = testAgent->makeDropIndexStatement(indexDef);
-	checker.assertMakeDropIndexStatement(sql, indexDef);
+	string sql = testAgent->makeDropIndexStatement(name, tableName);
+	checker.assertMakeDropIndexStatement(sql, name, tableName);
 }
 
 void dbAgentTestInsert(DBAgent &dbAgent, DBAgentChecker &checker)

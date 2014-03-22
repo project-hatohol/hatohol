@@ -625,9 +625,9 @@ string DBAgentMySQL::makeCreateIndexStatement(const IndexDef &indexDef)
 	return sql;
 }
 
-std::string DBAgentMySQL::makeDropIndexStatement(const IndexDef &indexDef)
+std::string DBAgentMySQL::makeDropIndexStatement(
+  const std::string &name, const std::string &tableName)
 {
-	const char *tableName = indexDef.tableProfile.name;
 	return StringUtils::sprintf("DROP INDEX %s ON %s",
-	                            indexDef.name, tableName);
+	                            name.c_str(), tableName.c_str());
 }

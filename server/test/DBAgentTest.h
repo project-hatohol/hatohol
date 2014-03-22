@@ -60,7 +60,8 @@ public:
 	virtual void assertMakeCreateIndexStatement(
 	  const std::string sql, const DBAgent::IndexDef &indexDef) = 0;
 	virtual void assertMakeDropIndexStatement(
-	  const std::string sql, const DBAgent::IndexDef &indexDef) = 0;
+	  const std::string sql,
+	  const std::string &name, const std::string &tableName) = 0;
 
 	virtual void assertExistingRecord(
 	               uint64_t id, int age, const char *name, double height,

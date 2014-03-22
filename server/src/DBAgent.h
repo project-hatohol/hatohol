@@ -250,7 +250,8 @@ protected:
 	virtual void createIndex(const IndexDef &indexDef);
 
 	virtual std::string
-	makeDropIndexStatement(const IndexDef &indexDef) = 0;
+	makeDropIndexStatement(const std::string &name,
+	                       const std::string &tableName) = 0;
 
 private:
 	struct PrivateContext;

@@ -353,7 +353,8 @@ private:
 	}
 
 	virtual string
-	makeDropIndexStatement(const IndexDef &indexDef) // override
+	makeDropIndexStatement(const string &name,
+	                       const string &tableName) // override
 	{
 		return "";
 	}

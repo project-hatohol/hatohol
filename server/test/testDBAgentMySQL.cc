@@ -278,12 +278,13 @@ public:
 	}
 
 	virtual void assertMakeDropIndexStatement(
-	  const std::string sql, const DBAgent::IndexDef &indexDef) // override
+	  const std::string sql,
+	  const std::string &name, const std::string &tableName) // override
 	{
 		string expect = "DROP INDEX ";
-		expect += indexDef.name;
+		expect += name;
 		expect += " ON ";
-		expect += indexDef.tableProfile.name;
+		expect += tableName;
 		cppcut_assert_equal(expect, sql);
 	}
 

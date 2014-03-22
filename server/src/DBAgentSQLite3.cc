@@ -836,9 +836,10 @@ string DBAgentSQLite3::makeCreateIndexStatement(const IndexDef &indexDef)
 	return sql;
 }
 
-std::string DBAgentSQLite3::makeDropIndexStatement(const IndexDef &indexDef)
+std::string DBAgentSQLite3::makeDropIndexStatement(
+  const std::string &name, const std::string &tableName)
 {
-	return StringUtils::sprintf("DROP INDEX %s", indexDef.name);
+	return StringUtils::sprintf("DROP INDEX %s", name.c_str());
 }
 
 string DBAgentSQLite3::getDBPath(void) const
