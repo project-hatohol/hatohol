@@ -550,3 +550,8 @@ void DBAgent::createIndex(const IndexDef &indexDef)
 {
 	execSql(makeCreateIndexStatement(indexDef));
 }
+
+void DBAgent::dropIndex(const std::string &name, const std::string &tableName)
+{
+	execSql(makeDropIndexStatement(name, tableName));
+}

@@ -252,6 +252,8 @@ protected:
 	virtual std::string
 	makeDropIndexStatement(const std::string &name,
 	                       const std::string &tableName) = 0;
+	virtual void dropIndex(
+	  const std::string &name, const std::string &tableName);
 
 private:
 	struct PrivateContext;
