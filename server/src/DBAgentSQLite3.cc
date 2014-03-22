@@ -529,7 +529,7 @@ void DBAgentSQLite3::createTable(sqlite3 *db, const TableProfile &tableProfile)
 		const ColumnDef &columnDef =
 		  tableProfile.columnDefs[keyInfo.columnIndex];
 		string indexName = StringUtils::sprintf(
-		  "index_%s_%s", tableProfile.name, columnDef.columnName);
+		  "i_%s_%s", tableProfile.name, columnDef.columnName);
 		vector<size_t> columnIndexVector;
 		columnIndexVector.push_back(keyInfo.columnIndex);
 		createIndexIfNotExistsEach(
@@ -848,9 +848,10 @@ void DBAgentSQLite3::createIndexIfNotExistsEach(
 string DBAgentSQLite3::makeCreateIndexStatement(const IndexDef &indexDef)
 {
 	string sql = StringUtils::sprintf(
-	  "CREATE %sINDEX %s ON %s(",
+	  "CREATE %sINDEX i_%s_%s ON %s(",
 	  indexDef.isUnique ? "UNIQUE " : "",
-	  indexDef.name, indexDef.tableProfile.name);
+	  indexDef.tableProfile.name, indexDef.name,
+	  indexDef.tableProfile.name);
 
 	const int *columnIdxPtr = indexDef.columnIndexes;
 	while (true) {

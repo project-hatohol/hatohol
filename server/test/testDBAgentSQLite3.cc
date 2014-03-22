@@ -135,7 +135,7 @@ public:
 				continue;
 			}
 
-			string expectName = "index_";
+			string expectName = "i_";
 			expectName += tableProfile.name;
 			expectName += "_";
 			expectName += columnDef.columnName;
@@ -221,14 +221,10 @@ public:
 				continue;
 			}
 
-			const string expectName = StringUtils::sprintf(
-			  "index_%s_%s",
-			  tableProfile.name,
-			  columnDef.columnName);
 			const int columnIndexes[] = {
 			  (int)i, DBAgent::IndexDef::END};
 			const DBAgent::IndexDef indexDef = {
-			  expectName.c_str(), tableProfile, columnIndexes,
+			  columnDef.columnName, tableProfile, columnIndexes,
 			  isUnique};
 			string line = makeExpectedCreateIndexStatement(
 			                tableProfile, indexDef);
@@ -306,11 +302,13 @@ protected:
 	  const DBAgent::TableProfile &tableProfile,
 	  const DBAgent::IndexDef &indexDef)
 	{
+		string indexName = StringUtils::sprintf("i_%s_%s",
+		                     tableProfile.name, indexDef.name);
 		string expect = "CREATE ";
 		if (indexDef.isUnique)
 			expect += "UNIQUE ";
 		expect += "INDEX ";
-		expect += indexDef.name;
+		expect += indexName;
 		expect += " ON ";
 		expect += tableProfile.name;
 		expect += "(";
