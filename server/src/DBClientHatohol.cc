@@ -1376,6 +1376,8 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 void DBClientHatohol::setTriggerInfoList(const TriggerInfoList &triggerInfoList,
                                          const ServerIdType &serverId)
 {
+	// TODO: This way is too rough and inefficient.
+	//       We should update only the changed triggers.
 	DBAgent::DeleteArg deleteArg(tableProfileTriggers);
 	deleteArg.condition =
 	  StringUtils::sprintf("%s=%"FMT_SERVER_ID,
