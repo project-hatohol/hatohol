@@ -65,20 +65,12 @@ public:
 	virtual void addColumns(const AddColumnsArg &addColumnsArg);
 	virtual uint64_t getLastInsertId(void);
 	virtual uint64_t getNumberOfAffectedRows(void);
-	// TODO: remove and use one of DBAgent after getIndexes() is implemented
-	virtual void fixupIndexes(
-	  const TableProfile &tableProfile,
-	  const IndexDef *indexDefArray); // override
 
 protected:
 	static const char *getCStringOrNullIfEmpty(const std::string &str);
 	void connect(void);
 	void sleepAndReconnect(unsigned int sleepTimeSec);
 	void queryWithRetry(const std::string &statement);
-
-	void createIndexesIfNotExists(const TableProfile &tableProfile);
-	void createIndexIfNotExistsEach(
-	  const ColumnDef &columnDef, const std::set<std::string> &keyNameSet);
 
 	// virtual methods
 	virtual std::string

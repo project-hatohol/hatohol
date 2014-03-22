@@ -260,10 +260,8 @@ static string getColumnDefinitionQuery(const ColumnDef &columnDef)
 		query += " PRIMARY KEY";
 		break;
 	case SQL_KEY_UNI:
-		query += " UNIQUE";
-		break;
 	case SQL_KEY_IDX: // To be created in createIndexIfNotExists()
-	case SQL_KEY_MUL:
+	case SQL_KEY_MUL: // TODO: remove 
 	case SQL_KEY_NONE:
 		break;
 	default:
@@ -296,8 +294,6 @@ void DBAgentMySQL::createTable(const TableProfile &tableProfile)
 		query += m_ctx->engineStr;
 
 	execSql(query);
-
-	createIndexesIfNotExists(tableProfile);
 }
 
 void DBAgentMySQL::insert(const DBAgent::InsertArg &insertArg)
@@ -478,12 +474,6 @@ uint64_t DBAgentMySQL::getNumberOfAffectedRows(void)
 	return num;
 }
 
-void DBAgentMySQL::fixupIndexes(
-  const TableProfile &tableProfile, const IndexDef *indexDefArray)
-{
-	MLPL_BUG("Not implemented yet: %s\n", __PRETTY_FUNCTION__);
-}
-
 void DBAgentMySQL::addColumns(const AddColumnsArg &addColumnsArg)
 {
 	string query = "ALTER TABLE ";
@@ -588,36 +578,6 @@ void DBAgentMySQL::queryWithRetry(const string &statement)
 	                        mysql_error(&m_ctx->mysql));
 }
 
-void DBAgentMySQL::createIndexesIfNotExists(const TableProfile &tableProfile)
-{
-	vector<IndexStruct> indexStructVect;
-	getIndexes(indexStructVect, tableProfile.name);
-	set<string> keyNameSet;
-	for (size_t i = 0; i < indexStructVect.size(); i++) {
-		const IndexStruct &idxStruct = indexStructVect[i];
-		keyNameSet.insert(idxStruct.keyName);
-	}
-
-	for (size_t i = 0; i < tableProfile.numColumns; i++) {
-		const ColumnDef &columnDef = tableProfile.columnDefs[i];
-		if (columnDef.keyType == SQL_KEY_IDX)
-			createIndexIfNotExistsEach(columnDef, keyNameSet);
-	}
-}
-
-void DBAgentMySQL::createIndexIfNotExistsEach(const ColumnDef &columnDef,
-                                              const set<string> &keyNameSet)
-{
-	string keyName = StringUtils::sprintf("%s", columnDef.columnName);
-	if (keyNameSet.find(keyName) != keyNameSet.end())
-		return;
-
-	string sql = StringUtils::sprintf("CREATE INDEX %s ON %s (%s)",
-	                                  keyName.c_str(), columnDef.tableName,
-	                                  columnDef.columnName);
-	execSql(sql);
-}
-
 string DBAgentMySQL::makeCreateIndexStatement(const IndexDef &indexDef)
 {
 	string sql = StringUtils::sprintf(
@@ -653,6 +613,69 @@ std::string DBAgentMySQL::makeDropIndexStatement(
 void DBAgentMySQL::getIndexInfoVect(vector<IndexInfo> &indexInfoVect,
                                     const TableProfile &tableProfile)
 {
-	MLPL_BUG("Not implemented yet: %s\n", __PRETTY_FUNCTION__);
+	struct ColumnIndexDict {
+		map<string, int> dict;
+
+		ColumnIndexDict(const TableProfile &tableProfile)
+		{
+			for (size_t i = 0; i < tableProfile.numColumns; i++) {
+				const ColumnDef &columnDef = 
+				  tableProfile.columnDefs[i];
+				dict[columnDef.columnName] = i;
+			}
+		}
+
+		int find(const string &columnName)
+		{
+			map<string, int>::iterator it = dict.find(columnName);
+			HATOHOL_ASSERT(it != dict.end(),
+			               "Not found: %s", columnName.c_str());
+			return it->second;
+		}
+	} columnIdxDict(tableProfile);
+
+	typedef map<size_t, const IndexStruct *>  IndexStructSeqMap;
+	typedef IndexStructSeqMap::const_iterator IndexStructSeqMapConstIterator;
+	typedef map<string, IndexStructSeqMap>    IndexStructMap;
+	typedef IndexStructMap::iterator          IndexStructMapIterator;
+
+	vector<IndexStruct> indexStructVect;
+	getIndexes(indexStructVect, tableProfile.name);
+	
+	// Group the same index
+	IndexStructMap indexStructMap;
+	for (size_t i = 0; i < indexStructVect.size(); i++) {
+		const IndexStruct &idxStruct = indexStructVect[i];
+		if (idxStruct.keyName == "PRIMARY")
+			continue;
+		const size_t seq = idxStruct.seqInIndex;
+		indexStructMap[idxStruct.keyName][seq] = &idxStruct;
+	}
+
+	// Make an ouput vector
+	IndexStructMapIterator it = indexStructMap.begin();
+	for (; it != indexStructMap.end(); ++it) {
+		const IndexStructSeqMap seqMap = it->second;
+		IndexStructSeqMapConstIterator seqIt = seqMap.begin();
+		const IndexStruct &firstElem = *seqIt->second;
+		const bool isUnique = !firstElem.nonUnique;
+
+		int columnIndexes[seqMap.size() + 1];
+		columnIndexes[seqMap.size()] = IndexDef::END;
+		for (int cnt = 0; seqIt != seqMap.end(); ++seqIt, cnt++) {
+			const string &columnName = seqIt->second->columnName;
+			columnIndexes[cnt] = columnIdxDict.find(columnName);
+		}
+
+		IndexInfo idxInfo;
+		idxInfo.name      = firstElem.keyName;
+		idxInfo.tableName = firstElem.table;
+
+		const IndexDef indexDef = {
+		  idxInfo.name.c_str(), tableProfile, columnIndexes, isUnique
+		};
+		idxInfo.sql = makeCreateIndexStatement(indexDef);
+		indexInfoVect.push_back(idxInfo);
+	}
 }
 

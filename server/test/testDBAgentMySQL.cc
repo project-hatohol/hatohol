@@ -31,7 +31,6 @@ static const char *TEST_DB_NAME = "test_db_agent_mysql";
 
 DBAgentMySQL *g_dbAgent = NULL;
 
-/* Probably use some parts of this method implement assertFixupIndexes()
 static string getEngine(const string &dbName, const string &tableName)
 {
 	string sql =
@@ -43,7 +42,7 @@ static string getEngine(const string &dbName, const string &tableName)
 	StringUtils::split(words, output, '\n');
 	cppcut_assert_equal((size_t)1, words.size());
 	return words[0];
-}*/
+}
 
 class DBAgentCheckerMySQL : public DBAgentChecker {
 public:
@@ -136,12 +135,10 @@ public:
 				expected = "PRI";
 				break;
 			case SQL_KEY_UNI:
-				expected = "UNI";
-				break;
 			case SQL_KEY_IDX:
-			case SQL_KEY_MUL:
-				expected = "MUL";
-				break;
+				// These index is not crated until
+				// fixupIndexes() is called.
+			case SQL_KEY_MUL: // TODO: remove
 			case SQL_KEY_NONE:
 				expected = "";
 				break;
@@ -200,80 +197,6 @@ public:
 		                             nullIndexes, "NULL");
 	}
 
-	/* Probably use some parts of this method implement assertFixupIndexes()
-	virtual void
-	assertTableIndex(const DBAgent::TableProfile &tableProfile) // override
-	{
-		// get the index information with mysql command.
-		string sql = "SHOW INDEX FROM ";
-		sql += tableProfile.name;
-		string result = execMySQL(TEST_DB_NAME, sql, true);
-
-		// make expected lines
-		const string expectedHeader =
-		  "Table\tNon_unique\tKey_name\tSeq_in_index\t"
-		  "Column_name\tCollation\tCardinality\tSub_part\tPacked\t"
-		  "Null\tIndex_type\tComment\tIndex_comment";
-		vector<string> expectedLines;
-		expectedLines.push_back(expectedHeader);
-		const bool isMemoryEngine =
-		  (getEngine(TEST_DB_NAME, tableProfile.name) == "MEMORY");
-
-		for (size_t  i = 0; i < tableProfile.numColumns; i++) {
-			string s;
-			const ColumnDef &columnDef = tableProfile.columnDefs[i];
-			if (columnDef.keyType == SQL_KEY_NONE)
-				continue;
-			s += tableProfile.name;
-			s += "\t";
-
-			// nonUnique
-			if (columnDef.keyType == SQL_KEY_PRI ||
-			    columnDef.keyType == SQL_KEY_UNI)
-				s += "0\t";
-			else
-				s += "1\t";
-
-			// Key_name
-			if (columnDef.keyType == SQL_KEY_PRI)
-				s += "PRIMARY";
-			else
-				s += columnDef.columnName;
-			s += "\t";
-
- 			// Seq_in_index
-			s += "1\t";
-
-			// Column_name
-			s += columnDef.columnName;
-			s += "\t";
-
-			s += isMemoryEngine ? "NULL\t" : "A\t"; // Collation
-			s += "0\t";    // Cardinality
-			s += "NULL\t"; // Sub_part
-			s += "NULL\t"; // Packed
-			s += columnDef.canBeNull ? "YES\t" : "\t"; // Null
-			// Index_type
-			s += isMemoryEngine ? "HASH\t" : "BTREE\t";
-			s += "\t";      // Comment
-			// The following component is degenerated
-			// s += "\t";      // Index_comment
-
-			expectedLines.push_back(s);
-		}
-
-		// check the number of obtained lines
-		StringVector lines;
-		StringUtils::split(lines, result, '\n');
-		cppcut_assert_equal(expectedLines.size(), lines.size());
-
-		LinesComparator comp;
-		for (size_t i = 0; i < lines.size(); i++)
-			comp.add(expectedLines[i], lines[i]);
-		comp.assert(false);
-	}
-	*/
-
 	virtual void assertMakeCreateIndexStatement(
 	  const std::string sql, const DBAgent::IndexDef &indexDef) // override
 	{
@@ -297,7 +220,70 @@ public:
 	  const DBAgent::TableProfile &tableProfile,
 	  const DBAgent::IndexDef *indexDefArray) // override
 	{
-		MLPL_BUG("NOT IMPLEMENTED: %s\n", __PRETTY_FUNCTION__);
+		const bool isMemoryEngine =
+		  (getEngine(TEST_DB_NAME, tableProfile.name) == "MEMORY");
+		const string expectedHeader =
+		  "Table\tNon_unique\tKey_name\tSeq_in_index\t"
+		  "Column_name\tCollation\tCardinality\tSub_part\tPacked\t"
+		  "Null\tIndex_type\tComment\tIndex_comment";
+		vector<string> expectLines;
+		expectLines.push_back(expectedHeader);
+
+		// from ColumnDef
+		for (size_t i = 0; i < tableProfile.numColumns; i++) {
+			const ColumnDef &columnDef = tableProfile.columnDefs[i];
+			bool isUnique = false;
+			string keyName = columnDef.columnName;
+			switch (columnDef.keyType) {
+			case SQL_KEY_PRI:
+				keyName = "PRIMARY";
+			case SQL_KEY_UNI:
+				isUnique = true;
+			case SQL_KEY_IDX:
+				break;
+			default:
+				continue;
+			}
+
+			string line = makeExpectedIndexStruct(
+			  tableProfile.name, isUnique, keyName,
+			  columnDef.columnName, columnDef.canBeNull,
+			  isMemoryEngine);
+			expectLines.push_back(line);
+		}
+
+		// from IndexDefArray
+		const DBAgent::IndexDef *indexDef = indexDefArray;
+		for (; indexDef->name != NULL; indexDef++) {
+			const int *columnIdxPtr = indexDef->columnIndexes;
+			int seq = 1;
+			while (*columnIdxPtr != DBAgent::IndexDef::END) {
+				const ColumnDef &columnDef =
+				  tableProfile.columnDefs[*columnIdxPtr];
+
+				string line = makeExpectedIndexStruct(
+				  tableProfile.name, indexDef->isUnique,
+				  indexDef->name, columnDef.columnName,
+				  columnDef.canBeNull, isMemoryEngine, seq);
+				expectLines.push_back(line);
+
+				columnIdxPtr++;
+				seq++;
+			}
+		}
+
+		// check the index definitions
+		string sql = "SHOW INDEX FROM ";
+		sql += tableProfile.name;
+		string output = execMySQL(TEST_DB_NAME, sql, true);
+		StringVector outLines;
+		StringUtils::split(outLines, output, '\n');
+
+		cppcut_assert_equal(expectLines.size(), outLines.size());
+		LinesComparator comp;
+		for (size_t i = 0; i < expectLines.size(); i++)
+			comp.add(expectLines[i], outLines[i]);
+		comp.assert(false);
 	}
 
 	virtual void getIDStringVector(const ColumnDef &columnDefId,
@@ -336,6 +322,49 @@ protected:
 		expect += ")";
 		return expect;
 	}
+
+	string makeExpectedIndexStruct(
+	  const string &tableName, const bool &isUnique, const string &keyName,
+	  const string &columnName, const bool &canBeNull,
+	  const bool &isMemoryEngine, const size_t &seqInIndex = 1)
+	{
+		string s;
+
+		// Table
+		s += tableName;
+		s += "\t";
+
+		// nonUnique
+		if (isUnique)
+			s += "0\t";
+		else
+			s += "1\t";
+
+		// Key_name
+		s += keyName;
+		s += "\t";
+
+		// Seq_in_index
+		s += StringUtils::sprintf("%zd\t", seqInIndex);
+
+		// Column_name
+		s += columnName;
+		s += "\t";
+
+		s += isMemoryEngine ? "NULL\t" : "A\t"; // Collation
+		s += "0\t";    // Cardinality
+		s += "NULL\t"; // Sub_part
+		s += "NULL\t"; // Packed
+		s += canBeNull ? "YES\t" : "\t"; // Null
+		// Index_type
+		s += isMemoryEngine ? "HASH\t" : "BTREE\t";
+		s += "\t";      // Comment
+		// The following component is degenerated
+		// s += "\t";      // Index_comment
+
+		return s;
+	}
+
 };
 
 static DBAgentCheckerMySQL dbAgentChecker;
@@ -479,6 +508,12 @@ void test_makeDropIndexStatement(void)
 {
 	createGlobalDBAgent();
 	dbAgentTestMakeDropIndexStatement(*g_dbAgent, dbAgentChecker);
+}
+
+void test_fixupIndexes(void)
+{
+	createGlobalDBAgent();
+	dbAgentTestFixupIndexes(*g_dbAgent, dbAgentChecker);
 }
 
 void test_insert(void)
