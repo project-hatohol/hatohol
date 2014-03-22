@@ -1836,6 +1836,7 @@ void test_deleteAction(void)
 	}
 	string statement = "select action_id from ";
 	statement += DBClientAction::getTableNameActions();
+	statement += " order by action_id asc";
 	DBClientAction dbAction;
 	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }
