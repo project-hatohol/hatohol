@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -404,6 +404,12 @@ void test_getIndexes(void)
 //
 // The following tests are using DBAgentTest functions.
 //
+void test_execSql(void)
+{
+	createGlobalDBAgent();
+	dbAgentTestExecSql(*g_dbAgent, dbAgentChecker);
+}
+
 void test_createTable(void)
 {
 	createGlobalDBAgent();

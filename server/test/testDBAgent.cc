@@ -322,6 +322,7 @@ private:
 	virtual void begin(void) {}
 	virtual void commit(void) {}
 	virtual void rollback(void) {}
+	virtual void execSql(const string &sql) {}
 	virtual void createTable(const DBAgent::TableProfile &tableProfile) {}
 	virtual void insert(const InsertArg &insertArg) {}
 	virtual void update(const UpdateArg &updateArg) {}

@@ -268,6 +268,12 @@ void DBAgentSQLite3::rollback(void)
 	_execSql(m_ctx->db, "ROLLBACK");
 }
 
+void DBAgentSQLite3::execSql(const string &sql)
+{
+	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
+	_execSql(m_ctx->db, sql);
+}
+
 void DBAgentSQLite3::createTable(const TableProfile &tableProfile)
 {
 	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");

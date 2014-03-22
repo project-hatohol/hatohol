@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -82,6 +82,7 @@ protected:
 	               const char *U64fmt = "%"PRIu64);
 };
 
+void dbAgentTestExecSql(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestCreateTable(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestCreateTableIndex(DBAgent &dbAgent, DBAgentChecker &checker);
 

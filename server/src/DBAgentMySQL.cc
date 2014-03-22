@@ -207,6 +207,12 @@ void DBAgentMySQL::rollback(void)
 	m_ctx->inTransaction = false;
 }
 
+void DBAgentMySQL::execSql(const string &statement)
+{
+	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
+	queryWithRetry(statement);
+}
+
 static string getColumnTypeQuery(const ColumnDef &columnDef)
 {
 	switch (columnDef.type) {
@@ -580,12 +586,6 @@ void DBAgentMySQL::queryWithRetry(const string &statement)
 	THROW_HATOHOL_EXCEPTION("Failed to query: %s: (%u) %s\n",
 	                        statement.c_str(), errorNumber,
 	                        mysql_error(&m_ctx->mysql));
-}
-
-void DBAgentMySQL::execSql(const string &statement)
-{
-	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
-	queryWithRetry(statement);
 }
 
 void DBAgentMySQL::createIndexesIfNotExists(const TableProfile &tableProfile)

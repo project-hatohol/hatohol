@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -194,6 +194,12 @@ static void checkUpdate(DBAgent &dbAgent, DBAgentChecker &checker,
 
 	checker.assertExistingRecord(id, age, name, height, CURR_DATETIME,
 	                             NUM_COLUMNS_TEST, COLUMN_DEF_TEST);
+}
+
+void dbAgentTestExecSql(DBAgent &dbAgent, DBAgentChecker &checker)
+{
+	dbAgent.execSql("BEGIN");
+	dbAgent.execSql("ROLLBACK");
 }
 
 void dbAgentTestCreateTable(DBAgent &dbAgent, DBAgentChecker &checker)

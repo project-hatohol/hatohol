@@ -67,6 +67,7 @@ public:
 	virtual void begin(void);
 	virtual void commit(void);
 	virtual void rollback(void);
+	virtual void execSql(const std::string &sql); // override
 	virtual void createTable(const TableProfile &tableProfile); // override
 	virtual void insert(const InsertArg &insertArg); // override
 	virtual void update(const UpdateArg &updateArg); // override

@@ -190,6 +190,7 @@ public:
 	virtual void begin(void) = 0;
 	virtual void commit(void) = 0;
 	virtual void rollback(void) = 0;
+	virtual void execSql(const std::string &sql) = 0;
 	virtual void createTable(const TableProfile &tableProfile) = 0;
 	virtual void insert(const InsertArg &insertArg) = 0;
 	virtual void update(const UpdateArg &updateArg) = 0;

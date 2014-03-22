@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -380,6 +380,12 @@ void test_testIsRecordExistingNotIncluded(void)
 //
 // The following tests are using DBAgentTest functions.
 //
+void test_execSql(void)
+{
+	DBAgentSQLite3 dbAgent;
+	dbAgentTestExecSql(dbAgent, dbAgentChecker);
+}
+
 void test_createTable(void)
 {
 	DBAgentSQLite3 dbAgent;
