@@ -277,7 +277,9 @@ public:
 	virtual void assertMakeCreateIndexStatement(
 	  const std::string sql, const DBAgent::IndexDef &indexDef) // override
 	{
-		MLPL_BUG("NOT IMPLEMENTED: %s\n", __PRETTY_FUNCTION__);
+		const string expect = makeExpectedCreateIndexStatement(
+		  indexDef.tableProfile, indexDef);
+		cppcut_assert_equal(expect, sql);
 	}
 
 	virtual void assertMakeDropIndexStatement(
@@ -308,6 +310,31 @@ public:
 		    columnDefId.columnName);
 		string output = execMySQL(TEST_DB_NAME, sql, false);
 		StringUtils::split(actualIds, output, '\n');
+	}
+
+protected:
+	string makeExpectedCreateIndexStatement(
+	  const DBAgent::TableProfile &tableProfile,
+	  const DBAgent::IndexDef &indexDef)
+	{
+		string expect = "CREATE ";
+		if (indexDef.isUnique)
+			expect += "UNIQUE ";
+		expect += "INDEX ";
+		expect += indexDef.name;
+		expect += " ON ";
+		expect += tableProfile.name;
+		expect += " (";
+		for (size_t i = 0; true; i++) {
+			const int columnIdx = indexDef.columnIndexes[i];
+			if (columnIdx == DBAgent::IndexDef::END)
+				break;
+			if (i >= 1)
+				expect += ",";
+			expect += tableProfile.columnDefs[columnIdx].columnName;
+		}
+		expect += ")";
+		return expect;
 	}
 };
 
@@ -435,6 +462,17 @@ void test_createTable(void)
 {
 	createGlobalDBAgent();
 	dbAgentTestCreateTable(*g_dbAgent, dbAgentChecker);
+}
+
+void data_makeCreateIndexStatement(void)
+{
+	dbAgentDataMakeCreateIndexStatement();
+}
+
+void test_makeCreateIndexStatement(gconstpointer data)
+{
+	createGlobalDBAgent();
+	dbAgentTestMakeCreateIndexStatement(*g_dbAgent, dbAgentChecker, data);
 }
 
 void test_makeDropIndexStatement(void)

@@ -620,8 +620,26 @@ void DBAgentMySQL::createIndexIfNotExistsEach(const ColumnDef &columnDef,
 
 string DBAgentMySQL::makeCreateIndexStatement(const IndexDef &indexDef)
 {
-	MLPL_BUG("NOT IMPLEMENTED: %s\n", __PRETTY_FUNCTION__);
-	string sql;
+	string sql = StringUtils::sprintf(
+	  "CREATE %sINDEX %s ON %s (",
+	  indexDef.isUnique ? "UNIQUE " : "",
+	  indexDef.name, indexDef.tableProfile.name);
+
+	const int *columnIdxPtr = indexDef.columnIndexes;
+	while (true) {
+		const ColumnDef &columnDef =
+		  indexDef.tableProfile.columnDefs[*columnIdxPtr];
+		sql += columnDef.columnName;
+
+		// get the next column index and check if it's the end.
+		columnIdxPtr++;
+		if (*columnIdxPtr != IndexDef::END) {
+			sql += ",";
+		} else {
+			sql += ")";
+			break;
+		}
+	}
 	return sql;
 }
 
