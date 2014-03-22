@@ -99,7 +99,7 @@ static const ColumnDef COLUMN_DEF_TRIGGERS_RAW_2_0[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	"0",                               // defaultValue
 }, {
@@ -110,7 +110,7 @@ static const ColumnDef COLUMN_DEF_TRIGGERS_RAW_2_0[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	"0",                               // defaultValue
 }, {
@@ -132,7 +132,7 @@ static const ColumnDef COLUMN_DEF_TRIGGERS_RAW_2_0[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	"0",                               // defaultValue
 }, {
@@ -165,7 +165,7 @@ static const ColumnDef COLUMN_DEF_TRIGGERS_RAW_2_0[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -209,7 +209,7 @@ static const ColumnDef COLUMN_DEF_TRIGGERS_RAW_2_0[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_NONE,                      // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	"0",                               // defaultValue
 }
@@ -258,7 +258,7 @@ static const ColumnDef COLUMN_DEF_FUNCTIONS_RAW_2_0[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -269,7 +269,7 @@ static const ColumnDef COLUMN_DEF_FUNCTIONS_RAW_2_0[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -363,7 +363,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -462,7 +462,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -473,7 +473,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	"0",                               // defaultValue
 }, {
@@ -627,7 +627,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	true,                              // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -638,7 +638,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	true,                              // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -792,7 +792,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	true,                              // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	"",                                // defaultValue
 }, {
@@ -930,7 +930,7 @@ static const ColumnDef COLUMN_DEF_HOSTS_RAW_2_0[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	true,                              // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -941,7 +941,7 @@ static const ColumnDef COLUMN_DEF_HOSTS_RAW_2_0[] = {
 	64,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	"",                                // defaultValue
 }, {
@@ -952,7 +952,7 @@ static const ColumnDef COLUMN_DEF_HOSTS_RAW_2_0[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	"0",                               // defaultValue
 }, {
@@ -1106,7 +1106,7 @@ static const ColumnDef COLUMN_DEF_HOSTS_RAW_2_0[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	true,                              // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -1238,7 +1238,7 @@ static const ColumnDef COLUMN_DEF_HOSTS_RAW_2_0[] = {
 	64,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	"",                                // defaultValue
 }
@@ -1313,7 +1313,7 @@ static const ColumnDef COLUMN_DEF_EVENTS_RAW_2_0[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	0,                                 // defaultValue
 }, {
@@ -1335,7 +1335,7 @@ static const ColumnDef COLUMN_DEF_EVENTS_RAW_2_0[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -1429,7 +1429,7 @@ static const ColumnDef COLUMN_DEF_APPLICATIONS_RAW_2_0[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -1451,7 +1451,7 @@ static const ColumnDef COLUMN_DEF_APPLICATIONS_RAW_2_0[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	true,                              // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }
@@ -1489,7 +1489,7 @@ static const ColumnDef COLUMN_DEF_GROUPS_RAW_2_0[] = {
 	128,                               // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -1537,7 +1537,7 @@ static const ColumnDef COLUMN_DEF_HOSTS_GROUPS_RAW_2_0[] = {
 	20,                                   // columnLength
 	0,                                    // decFracLength
 	false,                                // canBeNull
-	SQL_KEY_MUL,                          // keyType
+	SQL_KEY_NONE,                         // keyType
 	0,                                    // flags
 	NULL,                                 // defaultValue
 }, {
@@ -1548,7 +1548,7 @@ static const ColumnDef COLUMN_DEF_HOSTS_GROUPS_RAW_2_0[] = {
 	20,                                   // columnLength
 	0,                                    // decFracLength
 	false,                                // canBeNull
-	SQL_KEY_MUL,                          // keyType
+	SQL_KEY_NONE,                         // keyType
 	0,                                    // flags
 	NULL,                                 // defaultValue
 }
