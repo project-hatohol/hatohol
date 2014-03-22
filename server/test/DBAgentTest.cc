@@ -230,7 +230,7 @@ void dbAgentTestMakeCreateIndexStatement(
 	  DBAgent::IndexDef::END
 	};
 	DBAgent::IndexDef indexDef = {
-	  "testIndex", tableProfileTest, columnIndexes, isUnique
+	  "testIndex", &tableProfileTest, columnIndexes, isUnique
 	};
 	TestDBAgent *testAgent = static_cast<TestDBAgent *>(&dbAgent);
 
@@ -264,10 +264,10 @@ void dbAgentTestFixupIndexes(DBAgent &dbAgent, DBAgentChecker &checker)
 	};
 
 	const DBAgent::IndexDef indexDefArray[] = {
-	  {"testIndex",        tableProfileTest, columnIndexes0, false},
-	  {"testUniqIndex",    tableProfileTest, columnIndexes1, true},
-	  {"testSingleColumn", tableProfileTest, columnIndexes2, false},
-	  {NULL, tableProfileTest, NULL, false},
+	  {"testIndex",        &tableProfileTest, columnIndexes0, false},
+	  {"testUniqIndex",    &tableProfileTest, columnIndexes1, true},
+	  {"testSingleColumn", &tableProfileTest, columnIndexes2, false},
+	  {NULL, &tableProfileTest, NULL, false},
 	};
 
 	dbAgent.createTable(tableProfileTest);
@@ -276,8 +276,8 @@ void dbAgentTestFixupIndexes(DBAgent &dbAgent, DBAgentChecker &checker)
 
 	// check the drop
 	const DBAgent::IndexDef indexDefArrayForDrop[] = {
-	  {"testUniqIndex",    tableProfileTest, columnIndexes1, true},
-	  {NULL, tableProfileTest, NULL, false},
+	  {"testUniqIndex",    &tableProfileTest, columnIndexes1, true},
+	  {NULL, &tableProfileTest, NULL, false},
 	};
 	dbAgent.fixupIndexes(tableProfileTest, indexDefArrayForDrop);
 	checker.assertFixupIndexes(tableProfileTest, indexDefArrayForDrop);

@@ -64,9 +64,9 @@ public:
 		static const int    END = -1;
 
 		const char         *name;
-		const TableProfile &tableProfile;
+		const TableProfile *tableProfile;
 		const int          *columnIndexes; // Last element must be END.
-		const bool          isUnique;
+		bool                isUnique;
 	};
 
 	struct IndexInfo {

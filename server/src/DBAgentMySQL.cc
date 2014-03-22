@@ -583,12 +583,12 @@ string DBAgentMySQL::makeCreateIndexStatement(const IndexDef &indexDef)
 	string sql = StringUtils::sprintf(
 	  "CREATE %sINDEX %s ON %s (",
 	  indexDef.isUnique ? "UNIQUE " : "",
-	  indexDef.name, indexDef.tableProfile.name);
+	  indexDef.name, indexDef.tableProfile->name);
 
 	const int *columnIdxPtr = indexDef.columnIndexes;
 	while (true) {
 		const ColumnDef &columnDef =
-		  indexDef.tableProfile.columnDefs[*columnIdxPtr];
+		  indexDef.tableProfile->columnDefs[*columnIdxPtr];
 		sql += columnDef.columnName;
 
 		// get the next column index and check if it's the end.
@@ -672,7 +672,7 @@ void DBAgentMySQL::getIndexInfoVect(vector<IndexInfo> &indexInfoVect,
 		idxInfo.tableName = firstElem.table;
 
 		const IndexDef indexDef = {
-		  idxInfo.name.c_str(), tableProfile, columnIndexes, isUnique
+		  idxInfo.name.c_str(), &tableProfile, columnIndexes, isUnique
 		};
 		idxInfo.sql = makeCreateIndexStatement(indexDef);
 		indexInfoVect.push_back(idxInfo);

@@ -777,13 +777,13 @@ string DBAgentSQLite3::makeCreateIndexStatement(const IndexDef &indexDef)
 	string sql = StringUtils::sprintf(
 	  "CREATE %sINDEX i_%s_%s ON %s(",
 	  indexDef.isUnique ? "UNIQUE " : "",
-	  indexDef.tableProfile.name, indexDef.name,
-	  indexDef.tableProfile.name);
+	  indexDef.tableProfile->name, indexDef.name,
+	  indexDef.tableProfile->name);
 
 	const int *columnIdxPtr = indexDef.columnIndexes;
 	while (true) {
 		const ColumnDef &columnDef =
-		  indexDef.tableProfile.columnDefs[*columnIdxPtr];
+		  indexDef.tableProfile->columnDefs[*columnIdxPtr];
 		sql += columnDef.columnName;
 
 		// get the next column index and check if it's the end.

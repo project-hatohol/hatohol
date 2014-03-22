@@ -393,7 +393,7 @@ void DBAgent::fixupIndexes(
 		}
 		const int columnIndexes[] = {(int)i, IndexDef::END};
 		const IndexDef indexDef = {
-		  columnDef.columnName, tableProfile, columnIndexes, isUnique
+		  columnDef.columnName, &tableProfile, columnIndexes, isUnique
 		};
 		ctx.proc(indexDef);
 	}
@@ -615,7 +615,8 @@ void DBAgent::createIndex(const IndexDef &indexDef)
 {
 	execSql(makeCreateIndexStatement(indexDef));
 	MLPL_INFO("Created index: %s (table: %s), DID: %d\n",
-	          indexDef.name, indexDef.tableProfile.name, m_ctx->dbDomainId);
+	          indexDef.name, indexDef.tableProfile->name,
+	          m_ctx->dbDomainId);
 }
 
 void DBAgent::dropIndex(const std::string &name, const std::string &tableName)
