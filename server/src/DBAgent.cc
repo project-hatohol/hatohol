@@ -549,9 +549,13 @@ bool DBAgent::updateIfExistElseInsert(
 void DBAgent::createIndex(const IndexDef &indexDef)
 {
 	execSql(makeCreateIndexStatement(indexDef));
+	MLPL_INFO("Created index: %s (table: %s), DID: %d\n",
+	          indexDef.name, indexDef.tableProfile.name, m_ctx->dbDomainId);
 }
 
 void DBAgent::dropIndex(const std::string &name, const std::string &tableName)
 {
 	execSql(makeDropIndexStatement(name, tableName));
+	MLPL_INFO("Deleted index: %s (table: %s), DID: %d\n",
+	          name.c_str(), tableName.c_str(), m_ctx->dbDomainId);
 }
