@@ -288,6 +288,13 @@ public:
 		cppcut_assert_equal(expect, sql);
 	}
 
+	virtual void assertFixupIndexes(
+	  const DBAgent::TableProfile &tableProfile,
+	  const DBAgent::IndexDef *indexDefArray) // override
+	{
+		MLPL_BUG("NOT IMPLEMENTED: %s\n", __PRETTY_FUNCTION__);
+	}
+
 	virtual void getIDStringVector(const ColumnDef &columnDefId,
 	                               vector<string> &actualIds)
 	{

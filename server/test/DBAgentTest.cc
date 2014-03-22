@@ -254,6 +254,33 @@ void dbAgentTestMakeDropIndexStatement(
 	checker.assertMakeDropIndexStatement(sql, name, tableName);
 }
 
+void dbAgentTestFixupIndexes(DBAgent &dbAgent, DBAgentChecker &checker)
+{
+	const int columnIndexes0[] = {
+	  IDX_TEST_TABLE_AGE, IDX_TEST_TABLE_NAME, IDX_TEST_TABLE_HEIGHT,
+	  DBAgent::IndexDef::END
+	};
+
+	const int columnIndexes1[] = {
+	  IDX_TEST_TABLE_NAME, IDX_TEST_TABLE_TIME, DBAgent::IndexDef::END
+	};
+
+	const int columnIndexes2[] = {
+	  IDX_TEST_TABLE_HEIGHT, DBAgent::IndexDef::END
+	};
+
+	DBAgent::IndexDef indexDefArray[] = {
+	  {"testIndex",        tableProfileTest, columnIndexes0, false},
+	  {"testUniqIndex",    tableProfileTest, columnIndexes1, true},
+	  {"testSingleColumn", tableProfileTest, columnIndexes2, false},
+	  {NULL, tableProfileTest, NULL, false},
+	};
+
+	dbAgent.createTable(tableProfileTest);
+	dbAgent.fixupIndexes(tableProfileTest, indexDefArray);
+	checker.assertFixupIndexes(tableProfileTest, indexDefArray);
+}
+
 void dbAgentTestInsert(DBAgent &dbAgent, DBAgentChecker &checker)
 {
 	// create table

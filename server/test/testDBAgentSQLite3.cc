@@ -116,6 +116,8 @@ public:
 		cppcut_assert_equal(expected, outVec[idx++]);
 	}
 
+	// TODO: This method should be removed after the creation of indexes
+	//       is consolidated in fixupIndexes().
 	virtual void
 	assertTableIndex(const DBAgent::TableProfile &tableProfile) // override
 	{
@@ -186,6 +188,7 @@ public:
 	virtual void assertMakeCreateIndexStatement(
 	  const std::string sql, const DBAgent::IndexDef &indexDef) // override
 	{
+		// TODO Use makeExpectedCreateIndexStatement()
 		const DBAgent::TableProfile &tableProfile =
 		  indexDef.tableProfile;
 		string expect = "CREATE ";
@@ -216,6 +219,64 @@ public:
 		string expect = "DROP INDEX ";
 		expect += name;
 		cppcut_assert_equal(expect, sql);
+	}
+
+	virtual void assertFixupIndexes(
+	  const DBAgent::TableProfile &tableProfile,
+	  const DBAgent::IndexDef *indexDefArray) // override
+	{
+		vector<string> expectLines;
+
+		// from ColumnDef
+		for (size_t i = 0; i < tableProfile.numColumns; i++) {
+			const ColumnDef &columnDef = tableProfile.columnDefs[i];
+			bool isUnique = false;
+			switch (columnDef.keyType) {
+			case SQL_KEY_UNI:
+				isUnique = true;
+			case SQL_KEY_IDX:
+				break;
+			default:
+				continue;
+			}
+
+			const string expectName = StringUtils::sprintf(
+			  "index_%s_%s",
+			  tableProfile.name,
+			  columnDef.columnName);
+			const int columnIndexes[] = {
+			  (int)i, DBAgent::IndexDef::END};
+			const DBAgent::IndexDef indexDef = {
+			  expectName.c_str(), tableProfile, columnIndexes,
+			  isUnique};
+			string line = makeExpectedCreateIndexStatement(
+			                tableProfile, indexDef);
+			expectLines.push_back(line);
+		}
+
+		// from IndexDefArray
+		const DBAgent::IndexDef *indexDef = indexDefArray;
+		for (; indexDef->name != NULL; indexDef++) {
+			string line = makeExpectedCreateIndexStatement(
+			                tableProfile, *indexDef);
+			expectLines.push_back(line);
+		}
+
+		// check the index definitions
+		cut_assert_exist_path(g_dbPath.c_str());
+		string cmd = StringUtils::sprintf(
+		  "sqlite3 %s \"select sql from "
+		  "sqlite_master where type='index' and tbl_name='%s'\"",
+		  g_dbPath.c_str(), tableProfile.name);
+		string output = executeCommand(cmd);
+		StringVector outLines;
+		StringUtils::split(outLines, output, '\n');
+
+		cppcut_assert_equal(expectLines.size(), outLines.size());
+		LinesComparator comp;
+		for (size_t i = 0; i < expectLines.size(); i++)
+			comp.add(expectLines[i], outLines[i]);
+		comp.assert(false);
 	}
 
 	virtual void assertExistingRecord(uint64_t id, int age,
@@ -257,6 +318,31 @@ public:
 		    TABLE_NAME_TEST, columnDefId.columnName);
 		string output = executeCommand(cmd);
 		StringUtils::split(actualIds, output, '\n');
+	}
+
+protected:
+	string makeExpectedCreateIndexStatement(
+	  const DBAgent::TableProfile &tableProfile,
+	  const DBAgent::IndexDef &indexDef)
+	{
+		string expect = "CREATE ";
+		if (indexDef.isUnique)
+			expect += "UNIQUE ";
+		expect += "INDEX ";
+		expect += indexDef.name;
+		expect += " ON ";
+		expect += tableProfile.name;
+		expect += "(";
+		for (size_t i = 0; true; i++) {
+			const int columnIdx = indexDef.columnIndexes[i];
+			if (columnIdx == DBAgent::IndexDef::END)
+				break;
+			if (i >= 1)
+				expect += ",";
+			expect += tableProfile.columnDefs[columnIdx].columnName;
+		}
+		expect += ")";
+		return expect;
 	}
 };
 
@@ -422,6 +508,12 @@ void test_makeDropIndexStatement(void)
 {
 	DBAgentSQLite3 dbAgent;
 	dbAgentTestMakeDropIndexStatement(dbAgent, dbAgentChecker);
+}
+
+void test_fixupIndexes(void)
+{
+	DBAgentSQLite3 dbAgent;
+	dbAgentTestFixupIndexes(dbAgent, dbAgentChecker);
 }
 
 void test_insert(void)

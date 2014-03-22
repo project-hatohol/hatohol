@@ -729,7 +729,41 @@ uint64_t DBAgentSQLite3::getNumberOfAffectedRows(sqlite3 *db)
 void DBAgentSQLite3::fixupIndexes(
   const TableProfile &tableProfile, const IndexDef *indexDefArray)
 {
-	MLPL_BUG("Not implemented yet: %s\n", __PRETTY_FUNCTION__);
+	typedef map<string, IndexStruct *>  IndexSqlStructMap;
+	typedef IndexSqlStructMap::iterator IndexSqlStructMapIterator;
+
+	// Gather existing indexes
+	vector<IndexStruct> indexStructVect;
+	getIndexes(indexStructVect, tableProfile.name);
+	IndexSqlStructMap indexSqlStructMap;
+	for (size_t i = 0; i < indexStructVect.size(); i++) {
+		IndexStruct &idxStruct = indexStructVect[i];
+		indexSqlStructMap[idxStruct.sql] = &idxStruct;
+	}
+
+	// Create needed indexes with ColumnDef
+	// TODO: move the needed code from createTable()
+
+	// Create needed indexes with IndexesDef
+	const IndexDef *indexDefPtr = indexDefArray;
+	for (; indexDefPtr->name; indexDefPtr++) {
+		const string sql = makeCreateIndexStatement(*indexDefPtr);
+		IndexSqlStructMapIterator it = indexSqlStructMap.find(sql);
+		if (it != indexSqlStructMap.end()) {
+			indexSqlStructMap.erase(it);
+			continue;
+		}
+		createIndex(*indexDefPtr);
+	}
+
+	// drop remaining (unnecessary) indexes
+	/* TODO: Comment out after the block to create indexes with ColumnDef.
+	while (!indexSqlStructMap.empty()) {
+		IndexSqlStructMapIterator firstElem = indexSqlStructMap.begin();
+		const IndexStruct &idxStruct = *firstElem->second;
+		dropIndex(idxStruct.name, idxStruct.tableName);
+		indexSqlStructMap.erase(firstElem);
+	}*/
 }
 
 ItemDataPtr DBAgentSQLite3::getValue(sqlite3_stmt *stmt,

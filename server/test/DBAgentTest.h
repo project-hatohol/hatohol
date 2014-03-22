@@ -62,6 +62,9 @@ public:
 	virtual void assertMakeDropIndexStatement(
 	  const std::string sql,
 	  const std::string &name, const std::string &tableName) = 0;
+	virtual void assertFixupIndexes(
+	  const DBAgent::TableProfile &tableProfile,
+	  const DBAgent::IndexDef *indexDefArray) = 0;
 
 	virtual void assertExistingRecord(
 	               uint64_t id, int age, const char *name, double height,
@@ -97,6 +100,7 @@ void dbAgentTestMakeCreateIndexStatement(
   DBAgent &dbAgent, DBAgentChecker &checker, gconstpointer data);
 void dbAgentTestMakeDropIndexStatement(
   DBAgent &dbAgent, DBAgentChecker &checker);
+void dbAgentTestFixupIndexes(DBAgent &dbAgent, DBAgentChecker &checker);
 
 void dbAgentTestInsert(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestInsertUint64
