@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -65,7 +65,7 @@ static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	true,                              // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -76,7 +76,7 @@ static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	true,                              // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -87,7 +87,7 @@ static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	true,                              // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -98,7 +98,7 @@ static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	true,                              // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -109,7 +109,7 @@ static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	true,                              // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -120,7 +120,7 @@ static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	true,                              // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -131,7 +131,7 @@ static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	true,                              // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -186,7 +186,7 @@ static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	USER_ID_SYSTEM,                     // defaultValue
 },
@@ -233,7 +233,7 @@ static const ColumnDef COLUMN_DEF_ACTION_LOGS[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -244,7 +244,7 @@ static const ColumnDef COLUMN_DEF_ACTION_LOGS[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_NONE,                      // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -277,7 +277,7 @@ static const ColumnDef COLUMN_DEF_ACTION_LOGS[] = {
 	0,                                 // columnLength
 	0,                                 // decFracLength
 	true,                              // canBeNull
-	SQL_KEY_NONE,                      // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -288,7 +288,7 @@ static const ColumnDef COLUMN_DEF_ACTION_LOGS[] = {
 	0,                                 // columnLength
 	0,                                 // decFracLength
 	true,                              // canBeNull
-	SQL_KEY_NONE,                      // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	"0",                               // defaultValue
 }, {
@@ -299,7 +299,7 @@ static const ColumnDef COLUMN_DEF_ACTION_LOGS[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	"0",                               // defaultValue
 }, {
@@ -310,7 +310,7 @@ static const ColumnDef COLUMN_DEF_ACTION_LOGS[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	true,                              // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -321,7 +321,7 @@ static const ColumnDef COLUMN_DEF_ACTION_LOGS[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -332,7 +332,7 @@ static const ColumnDef COLUMN_DEF_ACTION_LOGS[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 },
