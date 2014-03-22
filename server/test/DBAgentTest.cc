@@ -250,7 +250,7 @@ void dbAgentTestMakeDropIndexStatement(
 	  "testIndex", *((DBAgent::TableProfile *)NULL), (int *)NULL, false};
 	TestDBAgent *testAgent = static_cast<TestDBAgent *>(&dbAgent);
 	string sql = testAgent->makeDropIndexStatement(indexDef);
-	checker.assertMakeCreateIndexStatement(sql, indexDef);
+	checker.assertMakeDropIndexStatement(sql, indexDef);
 }
 
 void dbAgentTestInsert(DBAgent &dbAgent, DBAgentChecker &checker)
