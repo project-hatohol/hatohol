@@ -273,6 +273,14 @@ void dbAgentTestFixupIndexes(DBAgent &dbAgent, DBAgentChecker &checker)
 	dbAgent.createTable(tableProfileTest);
 	dbAgent.fixupIndexes(tableProfileTest, indexDefArray);
 	checker.assertFixupIndexes(tableProfileTest, indexDefArray);
+
+	// check the drop
+	const DBAgent::IndexDef indexDefArrayForDrop[] = {
+	  {"testUniqIndex",    tableProfileTest, columnIndexes1, true},
+	  {NULL, tableProfileTest, NULL, false},
+	};
+	dbAgent.fixupIndexes(tableProfileTest, indexDefArrayForDrop);
+	checker.assertFixupIndexes(tableProfileTest, indexDefArrayForDrop);
 }
 
 void dbAgentTestInsert(DBAgent &dbAgent, DBAgentChecker &checker)

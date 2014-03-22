@@ -750,14 +750,14 @@ void DBAgentSQLite3::fixupIndexes(
 	for (; indexDefPtr->name; indexDefPtr++)
 		ctx.proc(*indexDefPtr);
 
-	// drop remaining (unnecessary) indexes
-	/* TODO: Comment out after the block to create indexes with ColumnDef.
-	while (!indexSqlStructMap.empty()) {
-		IndexSqlStructMapIterator firstElem = indexSqlStructMap.begin();
+	// Drop remaining (unnecessary) indexes
+	while (!ctx.indexSqlStructMap.empty()) {
+		IndexSqlStructMapIterator firstElem =
+		  ctx.indexSqlStructMap.begin();
 		const IndexStruct &idxStruct = *firstElem->second;
 		dropIndex(idxStruct.name, idxStruct.tableName);
-		indexSqlStructMap.erase(firstElem);
-	}*/
+		ctx.indexSqlStructMap.erase(firstElem);
+	}
 }
 
 ItemDataPtr DBAgentSQLite3::getValue(sqlite3_stmt *stmt,
