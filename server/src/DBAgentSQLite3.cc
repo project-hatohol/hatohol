@@ -451,10 +451,6 @@ struct KeyColumnInfo {
 
 void DBAgentSQLite3::createTable(sqlite3 *db, const TableProfile &tableProfile)
 {
-	vector<size_t> multipleKeyColumnIndexVector;
-
-	vector<KeyColumnInfo> keyColumnInfoVector;
-
 	// make a SQL statement
 	string sql = "CREATE TABLE ";
 	sql += tableProfile.name;
@@ -491,17 +487,12 @@ void DBAgentSQLite3::createTable(sqlite3 *db, const TableProfile &tableProfile)
 			if (columnDef.flags & SQL_COLUMN_FLAG_AUTO_INC)
 				sql += " AUTOINCREMENT";
 			break;
-		case SQL_KEY_MUL:
-			multipleKeyColumnIndexVector.push_back(i);
-			break;
+		case SQL_KEY_MUL: // TODO: should remove the definition.
 		case SQL_KEY_UNI:
 		case SQL_KEY_IDX:
-			KeyColumnInfo keyInfo;
-			keyInfo.isUnique = (columnDef.keyType == SQL_KEY_UNI);
-			keyInfo.columnIndex = i;
-			keyColumnInfoVector.push_back(keyInfo);
-			break;
 		case SQL_KEY_NONE:
+			// The index is created in fixupIndexes() for columns
+			// with these flags.
 			break;
 		default:
 			HATOHOL_ASSERT(true, "Unknown column type: %d (%s)",
@@ -521,30 +512,6 @@ void DBAgentSQLite3::createTable(sqlite3 *db, const TableProfile &tableProfile)
 		sqlite3_free(errmsg);
 		THROW_HATOHOL_EXCEPTION("Failed to exec: %d, %s, %s",
 		                      result, err.c_str(), sql.c_str());
-	}
-
-	// for single-column indexes
-	for (size_t i = 0; i < keyColumnInfoVector.size(); i++) {
-		const KeyColumnInfo &keyInfo = keyColumnInfoVector[i];
-		const ColumnDef &columnDef =
-		  tableProfile.columnDefs[keyInfo.columnIndex];
-		string indexName = StringUtils::sprintf(
-		  "i_%s_%s", tableProfile.name, columnDef.columnName);
-		vector<size_t> columnIndexVector;
-		columnIndexVector.push_back(keyInfo.columnIndex);
-		createIndexIfNotExistsEach(
-		  db, tableProfile, indexName,
-		  columnIndexVector, keyInfo.isUnique);
-	}
-
-	// for multi-column indexes
-	if (!multipleKeyColumnIndexVector.empty()) {
-		bool isUniqueKey = false;
-		string indexName = StringUtils::sprintf("mul_index_%s",
-		                                        tableProfile.name);
-		createIndexIfNotExistsEach(
-		  db, tableProfile, indexName,
-		  multipleKeyColumnIndexVector, isUniqueKey);
 	}
 }
 
@@ -732,29 +699,56 @@ void DBAgentSQLite3::fixupIndexes(
 	typedef map<string, IndexStruct *>  IndexSqlStructMap;
 	typedef IndexSqlStructMap::iterator IndexSqlStructMapIterator;
 
+	struct {
+		DBAgentSQLite3   *obj;
+		IndexSqlStructMap indexSqlStructMap;
+
+		void proc(const IndexDef &indexDef)
+		{
+			const string sql =
+			  obj->makeCreateIndexStatement(indexDef);
+			IndexSqlStructMapIterator it =
+			  indexSqlStructMap.find(sql);
+			if (it != indexSqlStructMap.end()) {
+				indexSqlStructMap.erase(it);
+				return;
+			}
+			obj->createIndex(indexDef);
+		}
+	} ctx;
+	ctx.obj = this;
+
 	// Gather existing indexes
 	vector<IndexStruct> indexStructVect;
 	getIndexes(indexStructVect, tableProfile.name);
-	IndexSqlStructMap indexSqlStructMap;
 	for (size_t i = 0; i < indexStructVect.size(); i++) {
 		IndexStruct &idxStruct = indexStructVect[i];
-		indexSqlStructMap[idxStruct.sql] = &idxStruct;
+		ctx.indexSqlStructMap[idxStruct.sql] = &idxStruct;
 	}
 
 	// Create needed indexes with ColumnDef
-	// TODO: move the needed code from createTable()
+	for (size_t i = 0; i < tableProfile.numColumns; i++) {
+		const ColumnDef &columnDef = tableProfile.columnDefs[i];
+		bool isUnique = false;
+		switch (columnDef.keyType) {
+		case SQL_KEY_UNI:
+			isUnique = true;
+		case SQL_KEY_IDX:
+			break;
+		default:
+			continue;
+		}
+		const int columnIndexes[] = {(int)i, IndexDef::END};
+		const IndexDef indexDef = {
+		  columnDef.columnName, tableProfile, columnIndexes, isUnique
+		};
+		ctx.proc(indexDef);
+	}
 
 	// Create needed indexes with IndexesDef
 	const IndexDef *indexDefPtr = indexDefArray;
-	for (; indexDefPtr->name; indexDefPtr++) {
-		const string sql = makeCreateIndexStatement(*indexDefPtr);
-		IndexSqlStructMapIterator it = indexSqlStructMap.find(sql);
-		if (it != indexSqlStructMap.end()) {
-			indexSqlStructMap.erase(it);
-			continue;
-		}
-		createIndex(*indexDefPtr);
-	}
+	for (; indexDefPtr->name; indexDefPtr++)
+		ctx.proc(*indexDefPtr);
 
 	// drop remaining (unnecessary) indexes
 	/* TODO: Comment out after the block to create indexes with ColumnDef.

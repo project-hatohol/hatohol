@@ -215,12 +215,6 @@ void dbAgentTestCreateTable(DBAgent &dbAgent, DBAgentChecker &checker)
 	checker.assertTable(tableProfileTest);
 }
 
-void dbAgentTestCreateTableIndex(DBAgent &dbAgent, DBAgentChecker &checker)
-{
-	dbAgent.createTable(tableProfileTest);
-	checker.assertTableIndex(tableProfileTest);
-}
-
 void dbAgentDataMakeCreateIndexStatement(void)
 {
 	gcut_add_datum("Not unique", "isUnique", G_TYPE_BOOLEAN, TRUE, NULL);

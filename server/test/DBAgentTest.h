@@ -53,8 +53,6 @@ extern const int MAX_ALLOWD_CURR_TIME_ERROR;
 class DBAgentChecker {
 public:
 	virtual void assertTable(const DBAgent::TableProfile &tableProfile) = 0;
-	virtual void assertTableIndex(
-	  const DBAgent::TableProfile &tableProfile) = 0;
 
 	// create and drop of index
 	virtual void assertMakeCreateIndexStatement(
@@ -93,7 +91,6 @@ protected:
 
 void dbAgentTestExecSql(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestCreateTable(DBAgent &dbAgent, DBAgentChecker &checker);
-void dbAgentTestCreateTableIndex(DBAgent &dbAgent, DBAgentChecker &checker);
 
 void dbAgentDataMakeCreateIndexStatement(void);
 void dbAgentTestMakeCreateIndexStatement(

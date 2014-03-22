@@ -31,6 +31,7 @@ static const char *TEST_DB_NAME = "test_db_agent_mysql";
 
 DBAgentMySQL *g_dbAgent = NULL;
 
+/* Probably use some parts of this method implement assertFixupIndexes()
 static string getEngine(const string &dbName, const string &tableName)
 {
 	string sql =
@@ -42,7 +43,7 @@ static string getEngine(const string &dbName, const string &tableName)
 	StringUtils::split(words, output, '\n');
 	cppcut_assert_equal((size_t)1, words.size());
 	return words[0];
-}
+}*/
 
 class DBAgentCheckerMySQL : public DBAgentChecker {
 public:
@@ -199,6 +200,7 @@ public:
 		                             nullIndexes, "NULL");
 	}
 
+	/* Probably use some parts of this method implement assertFixupIndexes()
 	virtual void
 	assertTableIndex(const DBAgent::TableProfile &tableProfile) // override
 	{
@@ -270,6 +272,7 @@ public:
 			comp.add(expectedLines[i], lines[i]);
 		comp.assert(false);
 	}
+	*/
 
 	virtual void assertMakeCreateIndexStatement(
 	  const std::string sql, const DBAgent::IndexDef &indexDef) // override
@@ -432,12 +435,6 @@ void test_createTable(void)
 {
 	createGlobalDBAgent();
 	dbAgentTestCreateTable(*g_dbAgent, dbAgentChecker);
-}
-
-void test_createTableIndex(void)
-{
-	createGlobalDBAgent();
-	dbAgentTestCreateTableIndex(*g_dbAgent, dbAgentChecker);
 }
 
 void test_makeDropIndexStatement(void)
