@@ -347,11 +347,6 @@ DBDomainId DBAgent::getDBDomainId(void) const
 	return m_ctx->dbDomainId;
 }
 
-void DBAgent::createIndex(const IndexDef &indexDef)
-{
-	execSql(makeCreateIndexStatement(indexDef));
-}
-
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -549,4 +544,9 @@ bool DBAgent::updateIfExistElseInsert(
 		insert(arg);
 	}
 	return exist;
+}
+
+void DBAgent::createIndex(const IndexDef &indexDef)
+{
+	execSql(makeCreateIndexStatement(indexDef));
 }
