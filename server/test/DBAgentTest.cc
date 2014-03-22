@@ -243,7 +243,7 @@ void dbAgentTestMakeCreateIndexStatement(
 	checker.assertMakeCreateIndexStatement(sql, indexDef);
 }
 
-void dbAgentTestMakeDropCreateIndexStatement(
+void dbAgentTestMakeDropIndexStatement(
   DBAgent &dbAgent, DBAgentChecker &checker)
 {
 	DBAgent::IndexDef indexDef = {

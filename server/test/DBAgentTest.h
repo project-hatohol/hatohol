@@ -95,7 +95,7 @@ void dbAgentDataMakeCreateIndexStatement(void);
 void dbAgentTestMakeCreateIndexStatement(
   DBAgent &dbAgent, DBAgentChecker &checker, gconstpointer data);
 void dbAgentTestMakeDropIndexStatement(
-  DBAgent &dbAgent, DBAgentChecker &checker, gconstpointer data);
+  DBAgent &dbAgent, DBAgentChecker &checker);
 
 void dbAgentTestInsert(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestInsertUint64
