@@ -212,7 +212,9 @@ public:
 	virtual void assertMakeDropIndexStatement(
 	  const std::string sql, const DBAgent::IndexDef &indexDef) // override
 	{
-		MLPL_BUG("NOT IMPLEMENTED: %s\n", __PRETTY_FUNCTION__);
+		string expect = "DROP INDEX ";
+		expect += indexDef.name;
+		cppcut_assert_equal(expect, sql);
 	}
 
 	virtual void assertExistingRecord(uint64_t id, int age,
@@ -413,6 +415,12 @@ void test_makeCreateIndexStatement(gconstpointer data)
 {
 	DBAgentSQLite3 dbAgent;
 	dbAgentTestMakeCreateIndexStatement(dbAgent, dbAgentChecker, data);
+}
+
+void test_makeDropIndexStatement(void)
+{
+	DBAgentSQLite3 dbAgent;
+	dbAgentTestMakeDropIndexStatement(dbAgent, dbAgentChecker);
 }
 
 void test_insert(void)

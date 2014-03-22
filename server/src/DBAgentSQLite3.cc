@@ -838,9 +838,7 @@ string DBAgentSQLite3::makeCreateIndexStatement(const IndexDef &indexDef)
 
 std::string DBAgentSQLite3::makeDropIndexStatement(const IndexDef &indexDef)
 {
-	MLPL_BUG("NOT IMPLEMENTED: %s\n", __PRETTY_FUNCTION__);
-	string sql;
-	return sql;
+	return StringUtils::sprintf("DROP INDEX %s", indexDef.name);
 }
 
 string DBAgentSQLite3::getDBPath(void) const
