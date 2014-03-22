@@ -693,73 +693,6 @@ uint64_t DBAgentSQLite3::getNumberOfAffectedRows(sqlite3 *db)
 	return sqlite3_changes(db);
 }
 
-void DBAgentSQLite3::fixupIndexes(
-  const TableProfile &tableProfile, const IndexDef *indexDefArray)
-{
-	typedef map<string, IndexStruct *>  IndexSqlStructMap;
-	typedef IndexSqlStructMap::iterator IndexSqlStructMapIterator;
-
-	struct {
-		DBAgentSQLite3   *obj;
-		IndexSqlStructMap indexSqlStructMap;
-
-		void proc(const IndexDef &indexDef)
-		{
-			const string sql =
-			  obj->makeCreateIndexStatement(indexDef);
-			IndexSqlStructMapIterator it =
-			  indexSqlStructMap.find(sql);
-			if (it != indexSqlStructMap.end()) {
-				indexSqlStructMap.erase(it);
-				return;
-			}
-			obj->createIndex(indexDef);
-		}
-	} ctx;
-	ctx.obj = this;
-
-	// Gather existing indexes
-	vector<IndexStruct> indexStructVect;
-	getIndexes(indexStructVect, tableProfile.name);
-	for (size_t i = 0; i < indexStructVect.size(); i++) {
-		IndexStruct &idxStruct = indexStructVect[i];
-		ctx.indexSqlStructMap[idxStruct.sql] = &idxStruct;
-	}
-
-	// Create needed indexes with ColumnDef
-	for (size_t i = 0; i < tableProfile.numColumns; i++) {
-		const ColumnDef &columnDef = tableProfile.columnDefs[i];
-		bool isUnique = false;
-		switch (columnDef.keyType) {
-		case SQL_KEY_UNI:
-			isUnique = true;
-		case SQL_KEY_IDX:
-			break;
-		default:
-			continue;
-		}
-		const int columnIndexes[] = {(int)i, IndexDef::END};
-		const IndexDef indexDef = {
-		  columnDef.columnName, tableProfile, columnIndexes, isUnique
-		};
-		ctx.proc(indexDef);
-	}
-
-	// Create needed indexes with IndexesDef
-	const IndexDef *indexDefPtr = indexDefArray;
-	for (; indexDefPtr->name; indexDefPtr++)
-		ctx.proc(*indexDefPtr);
-
-	// Drop remaining (unnecessary) indexes
-	while (!ctx.indexSqlStructMap.empty()) {
-		IndexSqlStructMapIterator firstElem =
-		  ctx.indexSqlStructMap.begin();
-		const IndexStruct &idxStruct = *firstElem->second;
-		dropIndex(idxStruct.name, idxStruct.tableName);
-		ctx.indexSqlStructMap.erase(firstElem);
-	}
-}
-
 ItemDataPtr DBAgentSQLite3::getValue(sqlite3_stmt *stmt,
                                      size_t index, SQLColumnType columnType)
 {
@@ -869,6 +802,23 @@ std::string DBAgentSQLite3::makeDropIndexStatement(
   const std::string &name, const std::string &tableName)
 {
 	return StringUtils::sprintf("DROP INDEX %s", name.c_str());
+}
+
+void DBAgentSQLite3::getIndexInfoVect(
+  vector<IndexInfo> &indexInfoVect, const TableProfile &tableProfile)
+{
+	// TODO: Consider if we should merge this method with getIndexes().
+	vector<IndexStruct> indexStructVect;
+	getIndexes(indexStructVect, tableProfile.name);
+	indexInfoVect.reserve(indexStructVect.size());
+	for (size_t i = 0; i < indexStructVect.size(); i++) {
+		const IndexStruct idxStruct = indexStructVect[i];
+		IndexInfo idxInfo;
+		idxInfo.name      = idxStruct.name;
+		idxInfo.tableName = idxStruct.tableName;
+		idxInfo.sql       = idxStruct.sql;
+		indexInfoVect.push_back(idxInfo);
+	}
 }
 
 string DBAgentSQLite3::getDBPath(void) const

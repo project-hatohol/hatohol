@@ -347,6 +347,71 @@ DBDomainId DBAgent::getDBDomainId(void) const
 	return m_ctx->dbDomainId;
 }
 
+void DBAgent::fixupIndexes(
+  const TableProfile &tableProfile, const IndexDef *indexDefArray)
+{
+	typedef map<string, IndexInfo *>  IndexSqlInfoMap;
+	typedef IndexSqlInfoMap::iterator IndexSqlInfoMapIterator;
+
+	struct {
+		DBAgent        *obj;
+		IndexSqlInfoMap indexSqlInfoMap;
+
+		void proc(const IndexDef &indexDef)
+		{
+			const string sql =
+			  obj->makeCreateIndexStatement(indexDef);
+			IndexSqlInfoMapIterator it = indexSqlInfoMap.find(sql);
+			if (it != indexSqlInfoMap.end()) {
+				indexSqlInfoMap.erase(it);
+				return;
+			}
+			obj->createIndex(indexDef);
+		}
+	} ctx;
+	ctx.obj = this;
+
+	// Gather existing indexes
+	vector<IndexInfo> indexInfoVect;
+	getIndexInfoVect(indexInfoVect, tableProfile);
+	for (size_t i = 0; i < indexInfoVect.size(); i++) {
+		IndexInfo &idxInfo = indexInfoVect[i];
+		ctx.indexSqlInfoMap[idxInfo.sql] = &idxInfo;
+	}
+
+	// Create needed indexes with ColumnDef
+	for (size_t i = 0; i < tableProfile.numColumns; i++) {
+		const ColumnDef &columnDef = tableProfile.columnDefs[i];
+		bool isUnique = false;
+		switch (columnDef.keyType) {
+		case SQL_KEY_UNI:
+			isUnique = true;
+		case SQL_KEY_IDX:
+			break;
+		default:
+			continue;
+		}
+		const int columnIndexes[] = {(int)i, IndexDef::END};
+		const IndexDef indexDef = {
+		  columnDef.columnName, tableProfile, columnIndexes, isUnique
+		};
+		ctx.proc(indexDef);
+	}
+
+	// Create needed indexes with IndexesDef
+	const IndexDef *indexDefPtr = indexDefArray;
+	for (; indexDefPtr->name; indexDefPtr++)
+		ctx.proc(*indexDefPtr);
+
+	// Drop remaining (unnecessary) indexes
+	while (!ctx.indexSqlInfoMap.empty()) {
+		IndexSqlInfoMapIterator it = ctx.indexSqlInfoMap.begin();
+		const IndexInfo &indexInfo = *it->second;
+		dropIndex(indexInfo.name, indexInfo.tableName);
+		ctx.indexSqlInfoMap.erase(it);
+	}
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

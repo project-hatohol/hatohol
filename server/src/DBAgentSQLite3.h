@@ -77,9 +77,6 @@ public:
 	virtual void addColumns(const AddColumnsArg &addColumnsArg); // override
 	virtual uint64_t getLastInsertId(void);
 	virtual uint64_t getNumberOfAffectedRows(void);
-	virtual void fixupIndexes(
-	  const TableProfile &tableProfile,
-	  const IndexDef *indexDefArray); // override
 
 	std::string getDBPath(void) const;
 
@@ -120,6 +117,10 @@ protected:
 	virtual std::string
 	makeDropIndexStatement(const std::string &name,
 	                       const std::string &tableName); // override
+
+	virtual void getIndexInfoVect(
+	  std::vector<IndexInfo> &indexInfoVect,
+	  const TableProfile &tableProfile); // override
 
 private:
 	struct PrivateContext;

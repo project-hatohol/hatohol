@@ -65,6 +65,7 @@ public:
 	virtual void addColumns(const AddColumnsArg &addColumnsArg);
 	virtual uint64_t getLastInsertId(void);
 	virtual uint64_t getNumberOfAffectedRows(void);
+	// TODO: remove and use one of DBAgent after getIndexes() is implemented
 	virtual void fixupIndexes(
 	  const TableProfile &tableProfile,
 	  const IndexDef *indexDefArray); // override
@@ -86,6 +87,10 @@ protected:
 	virtual std::string
 	makeDropIndexStatement(const std::string &name,
 	                       const std::string &tableName); // override
+
+	virtual void getIndexInfoVect(
+	  std::vector<IndexInfo> &indexInfoVect,
+	  const TableProfile &tableProfile); // override
 
 private:
 	struct PrivateContext;

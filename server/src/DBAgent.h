@@ -69,6 +69,12 @@ public:
 		const bool          isUnique;
 	};
 
+	struct IndexInfo {
+		std::string name;
+		std::string tableName;
+		std::string sql;
+	};
+
 	struct RowElement {
 		size_t      columnIndex;
 		ItemDataPtr dataPtr;
@@ -212,7 +218,7 @@ public:
 	 * be NULL for a mark of the termination.
 	 */
 	virtual void fixupIndexes(const TableProfile &tableProfile,
-	                          const IndexDef *indexDefArray) = 0;
+	                          const IndexDef *indexDefArray);
 
 	/**
 	 * Update a record if there is the record with the same value in the
@@ -254,6 +260,10 @@ protected:
 	                       const std::string &tableName) = 0;
 	virtual void dropIndex(
 	  const std::string &name, const std::string &tableName);
+
+	virtual void getIndexInfoVect(
+	  std::vector<IndexInfo> &indexInfoVect,
+	  const TableProfile &tableProfile) = 0;
 
 private:
 	struct PrivateContext;

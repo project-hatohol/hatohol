@@ -358,6 +358,12 @@ private:
 	{
 		return "";
 	}
+
+	virtual void getIndexInfoVect(
+	  std::vector<IndexInfo> &indexInfoVect,
+	  const TableProfile &tableProfile) // override
+	{
+	}
 };
 
 const size_t TestDBAgent::m_numTestColumns;

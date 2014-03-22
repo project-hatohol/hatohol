@@ -649,3 +649,10 @@ std::string DBAgentMySQL::makeDropIndexStatement(
 	return StringUtils::sprintf("DROP INDEX %s ON %s",
 	                            name.c_str(), tableName.c_str());
 }
+
+void DBAgentMySQL::getIndexInfoVect(vector<IndexInfo> &indexInfoVect,
+                                    const TableProfile &tableProfile)
+{
+	MLPL_BUG("Not implemented yet: %s\n", __PRETTY_FUNCTION__);
+}
+
