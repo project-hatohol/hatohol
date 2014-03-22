@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -69,7 +69,7 @@ static const ColumnDef COLUMN_DEF_USERS[] = {
 	255,                               // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -91,7 +91,7 @@ static const ColumnDef COLUMN_DEF_USERS[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }
@@ -129,7 +129,7 @@ static const ColumnDef COLUMN_DEF_ACCESS_LIST[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -140,7 +140,7 @@ static const ColumnDef COLUMN_DEF_ACCESS_LIST[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -151,7 +151,7 @@ static const ColumnDef COLUMN_DEF_ACCESS_LIST[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }
@@ -189,7 +189,7 @@ static const ColumnDef COLUMN_DEF_USER_ROLES[] = {
 	255,                               // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -200,7 +200,7 @@ static const ColumnDef COLUMN_DEF_USER_ROLES[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }
