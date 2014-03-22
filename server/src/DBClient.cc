@@ -374,8 +374,6 @@ void DBClient::dbSetupFunc(DBDomainId domainId, void *data)
 	for (size_t i = 0; i < setupFuncArg->numTableInfo; i++) {
 		const DBSetupTableInfo &tableInfo =
 		  setupFuncArg->tableInfoArray[i];
-		if (!tableInfo.indexDefArray)
-			continue;
 		rawDBAgent->fixupIndexes(*tableInfo.profile,
 		                         tableInfo.indexDefArray);
 	}

@@ -400,7 +400,7 @@ void DBAgent::fixupIndexes(
 
 	// Create needed indexes with IndexesDef
 	const IndexDef *indexDefPtr = indexDefArray;
-	for (; indexDefPtr->name; indexDefPtr++)
+	for (; indexDefPtr && indexDefPtr->name; indexDefPtr++)
 		ctx.proc(*indexDefPtr);
 
 	// Drop remaining (unnecessary) indexes
