@@ -65,7 +65,7 @@ static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_NONE, // indexDefsTriggers // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -76,7 +76,7 @@ static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -87,7 +87,7 @@ static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -98,7 +98,7 @@ static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -131,7 +131,7 @@ static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -196,7 +196,7 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_NONE, // indexDefsEvents   // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -207,7 +207,7 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -218,7 +218,7 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_NONE,                      // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -251,7 +251,7 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -262,7 +262,7 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -273,7 +273,7 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -284,7 +284,7 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -341,7 +341,7 @@ static const ColumnDef COLUMN_DEF_ITEMS[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_NONE, // indexDefsItems    // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -352,7 +352,7 @@ static const ColumnDef COLUMN_DEF_ITEMS[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -363,7 +363,7 @@ static const ColumnDef COLUMN_DEF_ITEMS[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -472,7 +472,7 @@ static const ColumnDef COLUMN_DEF_HOSTS[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_NONE, // indexDefsHosts    // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -483,7 +483,7 @@ static const ColumnDef COLUMN_DEF_HOSTS[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -531,7 +531,7 @@ static const ColumnDef COLUMN_DEF_HOSTGROUPS[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_NONE, // indexDefsHostgroups // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -542,7 +542,7 @@ static const ColumnDef COLUMN_DEF_HOSTGROUPS[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -553,7 +553,7 @@ static const ColumnDef COLUMN_DEF_HOSTGROUPS[] = {
 	255,                               // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 },
@@ -591,7 +591,7 @@ static const ColumnDef COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_NONE, // indexDefsMapHostsHostgroups // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -602,7 +602,7 @@ static const ColumnDef COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -613,7 +613,7 @@ static const ColumnDef COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 },
@@ -632,19 +632,92 @@ static const DBAgent::TableProfile tableProfileMapHostsHostgroups(
   COLUMN_DEF_MAP_HOSTS_HOSTGROUPS,
   sizeof(COLUMN_DEF_MAP_HOSTS_HOSTGROUPS), NUM_IDX_MAP_HOSTS_HOSTGROUPS);
 
+// Trigger
+static const int columnIndexesTrigUniqId[] = {
+  IDX_TRIGGERS_SERVER_ID, IDX_TRIGGERS_ID, DBAgent::IndexDef::END,
+};
+
+static const DBAgent::IndexDef indexDefsTriggers[] = {
+  {"TrigUniqId", &tableProfileTriggers,
+   (const int *)columnIndexesTrigUniqId, true},
+  {NULL}
+};
+
+// Events
+static const int columnIndexesEventsUniqId[] = {
+  IDX_EVENTS_SERVER_ID, IDX_EVENTS_ID, DBAgent::IndexDef::END,
+};
+
+static const DBAgent::IndexDef indexDefsEvents[] = {
+  {"EventsUniqId", &tableProfileEvents,
+   (const int *)columnIndexesEventsUniqId, true},
+  {NULL}
+};
+
+// Items
+static const int columnIndexesItemsUniqId[] = {
+  IDX_ITEMS_SERVER_ID, IDX_ITEMS_ID, DBAgent::IndexDef::END,
+};
+
+static const DBAgent::IndexDef indexDefsItems[] = {
+  {"ItemsUniqId", &tableProfileItems,
+   (const int *)columnIndexesItemsUniqId, true},
+  {NULL}
+};
+
+// Hosts
+static const int columnIndexesHostsUniqId[] = {
+  IDX_HOSTS_SERVER_ID, IDX_HOSTS_ID, DBAgent::IndexDef::END,
+};
+
+static const DBAgent::IndexDef indexDefsHosts[] = {
+  {"HostsUniqId", &tableProfileHosts,
+   (const int *)columnIndexesHostsUniqId, true},
+  {NULL}
+};
+
+// Hostgroups
+static const int columnIndexesHostgroupsUniqId[] = {
+  IDX_HOSTGROUPS_SERVER_ID, IDX_HOSTGROUPS_ID, DBAgent::IndexDef::END,
+};
+
+static const DBAgent::IndexDef indexDefsHostgroups[] = {
+  {"HostgroupsUniqId", &tableProfileHostgroups,
+   (const int *)columnIndexesHostgroupsUniqId, true},
+  {NULL}
+};
+
+// MapHostsHostgroups
+static const int columnIndexesMapHostsHostgroupsUniqId[] = {
+  IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_ID,
+  DBAgent::IndexDef::END,
+};
+
+static const DBAgent::IndexDef indexDefsMapHostsHostgroups[] = {
+  {"MapHostsHostgroupsUniqId", &tableProfileMapHostsHostgroups,
+   (const int *)columnIndexesMapHostsHostgroupsUniqId, true},
+  {NULL}
+};
+
 static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
 {
 	&tableProfileTriggers,
+	(const DBAgent::IndexDef *)&indexDefsTriggers,
 }, {
 	&tableProfileEvents,
+	(const DBAgent::IndexDef *)&indexDefsEvents,
 }, {
 	&tableProfileItems,
+	(const DBAgent::IndexDef *)&indexDefsItems,
 }, {
 	&tableProfileHosts,
+	(const DBAgent::IndexDef *)&indexDefsHosts,
 }, {
 	&tableProfileHostgroups,
+	(const DBAgent::IndexDef *)&indexDefsHostgroups,
 }, {
 	&tableProfileMapHostsHostgroups,
+	(const DBAgent::IndexDef *)&indexDefsMapHostsHostgroups,
 }
 };
 
