@@ -38,7 +38,7 @@ public:
 	static std::string callMakeCondition(
 	  const ServerHostGrpSetMap &srvHostGrpSetMap,
 	  const std::string &serverIdColumnName,
-	  const std::string &hostGroupIdColumnName,
+	  const std::string &hostgroupIdColumnName,
 	  const std::string &hostIdColumnName,
 	  uint32_t targetServerId = ALL_SERVERS,
 	  uint64_t targetHostgroupId = ALL_HOST_GROUPS,
@@ -46,7 +46,7 @@ public:
 	{
 		return makeCondition(srvHostGrpSetMap,
 		                     serverIdColumnName,
-		                     hostGroupIdColumnName,
+		                     hostgroupIdColumnName,
 		                     hostIdColumnName,
 		                     targetServerId,
 		                     targetHostgroupId,

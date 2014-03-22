@@ -46,14 +46,14 @@ var DashboardView = function(userProfile) {
         parsedData[serverId]["badHosts"]  += hostStatus["numberOfBadHosts"];
       }
 
-      parsedData[serverId]["numberOfHostGroups"] = 0;
-      for (y in serverStatus["hostGroups"])
-        parsedData[serverId]["numberOfHostGroups"] += 1;
+      parsedData[serverId]["numberOfHostgroups"] = 0;
+      for (y in serverStatus["hostgroups"])
+        parsedData[serverId]["numberOfHostgroups"] += 1;
 
       parsedData[serverId]["problem"] = 0;
       for (y = 0; y < serverStatus["systemStatus"].length; ++y) {
         systemStatus = serverStatus["systemStatus"][y];
-        groupId = systemStatus["hostGroupId"];
+        groupId = systemStatus["hostgroupId"];
         if (!(groupId in parsedData[serverId]))
           parsedData[serverId][groupId] = {};
         severity = systemStatus["severity"];
@@ -147,15 +147,15 @@ var DashboardView = function(userProfile) {
       serverId = replyData["serverStatus"][x]["serverId"];
       html += "<tr>";
       y = 0;
-      for (groupId in replyData["serverStatus"][x]["hostGroups"]) {
+      for (groupId in replyData["serverStatus"][x]["hostgroups"]) {
         html += "<tr>"; // ==============  start of a row ================
         if (y == 0) {
-          html += "<td rowspan='" + escapeHTML(parsedData[serverId]["numberOfHostGroups"]) + "'>";
+          html += "<td rowspan='" + escapeHTML(parsedData[serverId]["numberOfHostgroups"]) + "'>";
           html += escapeHTML(replyData["serverStatus"][x]["serverNickname"]);
           html += "</td>";
         }
         html += "<td>";
-        html += escapeHTML(replyData["serverStatus"][x]["hostGroups"][groupId]["name"]);
+        html += escapeHTML(replyData["serverStatus"][x]["hostgroups"][groupId]["name"]);
         html += "</td>";
         for (severity = 5; severity >= 0; --severity) {
           numberOfTriggers = parsedData[serverId][groupId][severity];
@@ -190,7 +190,7 @@ var DashboardView = function(userProfile) {
           html += "</td>";
         }
         html += "<td>";
-        html += escapeHTML(serverStatus["hostGroups"][hostStatus["hostGroupId"]]["name"]);
+        html += escapeHTML(serverStatus["hostgroups"][hostStatus["hostgroupId"]]["name"]);
         html += "</td>";
         html += "<td>";
         html += escapeHTML(hostStatus["numberOfGoodHosts"]);

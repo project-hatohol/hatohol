@@ -368,7 +368,7 @@ void test_selectDistinctGroupIdName(void)
 	assertRecord(0, nsmap);
 }
 
-void test_selectGroupHostGroupHosts(void)
+void test_selectGroupHostgroupHosts(void)
 {
 	const char *cmd = "use zabbix;"
 	  "SELECT  DISTINCT  g.* FROM groups g,hosts_groups hg,hosts h "

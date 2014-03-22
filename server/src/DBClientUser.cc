@@ -682,7 +682,7 @@ HatoholError DBClientUser::addAccessInfo(AccessInfo &accessInfo,
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_SERVER_ID].columnName,
 	  accessInfo.serverId,
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_HOST_GROUP_ID].columnName,
-	  accessInfo.hostGroupId);
+	  accessInfo.hostgroupId);
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(selarg);
 	} DBCLIENT_TRANSACTION_END();
@@ -700,7 +700,7 @@ HatoholError DBClientUser::addAccessInfo(AccessInfo &accessInfo,
 	arg.add(AUTO_INCREMENT_VALUE);
 	arg.add(accessInfo.userId);
 	arg.add(accessInfo.serverId);
-	arg.add(accessInfo.hostGroupId);
+	arg.add(accessInfo.hostgroupId);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		insert(arg);
@@ -770,7 +770,7 @@ HatoholError DBClientUser::getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMa
 		itemGroupStream >> accessInfo->id;
 		itemGroupStream >> accessInfo->userId;
 		itemGroupStream >> accessInfo->serverId;
-		itemGroupStream >> accessInfo->hostGroupId;
+		itemGroupStream >> accessInfo->hostgroupId;
 
 		// insert data
 		HostGrpAccessInfoMap *hostGrpAccessInfoMap = NULL;
@@ -785,16 +785,16 @@ HatoholError DBClientUser::getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMa
 		}
 		
 		HostGrpAccessInfoMapIterator jt =
-		  hostGrpAccessInfoMap->find(accessInfo->hostGroupId);
+		  hostGrpAccessInfoMap->find(accessInfo->hostgroupId);
 		if (jt != hostGrpAccessInfoMap->end()) {
-			MLPL_WARN("Found duplicated serverId and hostGroupId: "
+			MLPL_WARN("Found duplicated serverId and hostgroupId: "
 			          "%"FMT_SERVER_ID", %"PRIu64"\n",
 			          accessInfo->serverId,
-			          accessInfo->hostGroupId);
+			          accessInfo->hostgroupId);
 			delete accessInfo;
 			continue;
 		}
-		(*hostGrpAccessInfoMap)[accessInfo->hostGroupId] = accessInfo;
+		(*hostGrpAccessInfoMap)[accessInfo->hostgroupId] = accessInfo;
 	}
 
 	return HTERR_OK;
@@ -831,18 +831,18 @@ void DBClientUser::getServerHostGrpSetMap(
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
 		ServerIdType serverId;
-		HostgroupIdType hostGroupId;
+		HostgroupIdType hostgroupId;
 		ItemGroupStream itemGroupStream(*itemGrpItr);
 		itemGroupStream >> serverId;
-		itemGroupStream >> hostGroupId;
+		itemGroupStream >> hostgroupId;
 
 		// insert data
-		pair<HostGroupIdSetIterator, bool> result =
-		  srvHostGrpSetMap[serverId].insert(hostGroupId);
+		pair<HostgroupIdSetIterator, bool> result =
+		  srvHostGrpSetMap[serverId].insert(hostgroupId);
 		if (!result.second) {
-			MLPL_WARN("Found duplicated serverId and hostGroupId: "
+			MLPL_WARN("Found duplicated serverId and hostgroupId: "
 			          "%"FMT_SERVER_ID", %"FMT_HOST_GROUP_ID"\n",
-			          serverId, hostGroupId);
+			          serverId, hostgroupId);
 			continue;
 		}
 	}

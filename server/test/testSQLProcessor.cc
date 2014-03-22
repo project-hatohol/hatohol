@@ -900,7 +900,7 @@ void test_selectCount(void)
 	// assertion
 	SQLOutputColumn &outCol = selectInfo.outputColumnVector[0];
 	cppcut_assert_equal(testFormula, outCol.column);
-	cppcut_assert_equal(StringUtils::toString(numTestData0),
+	cppcut_assert_equal(StringUtils::sprintf("%zd", numTestData0),
 	                    selectInfo.textRows[0][0]);
 }
 
@@ -920,7 +920,7 @@ void test_selectCountDistinct(void)
 	getDistinctValueInTestData0(distinctValues);
 	SQLOutputColumn &outCol = selectInfo.outputColumnVector[0];
 	cppcut_assert_equal(testFormula, outCol.column);
-	cppcut_assert_equal(StringUtils::toString(distinctValues.size()),
+	cppcut_assert_equal(StringUtils::sprintf("%zd", distinctValues.size()),
 	                    selectInfo.textRows[0][0]);
 }
 

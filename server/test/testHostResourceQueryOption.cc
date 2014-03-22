@@ -178,7 +178,7 @@ static const HostResourceQueryOption::Synapse TEST_SYNAPSE_HGRP(
 // TODO: I want to remove these, which are too denpendent on the implementation
 // NOTE: The same definitions are in testDBClientHatohol.cc
 static const string serverIdColumnName = "server_id";
-static const string hostGroupIdColumnName = "host_group_id";
+static const string hostgroupIdColumnName = "host_group_id";
 static const string hostIdColumnName = "host_id";
 
 // FIXME: Change order of parameter.
@@ -191,7 +191,7 @@ static void _assertMakeCondition(
 	string cond = TestHostResourceQueryOption::callMakeCondition(
 			srvHostGrpSetMap,
 			serverIdColumnName,
-			hostGroupIdColumnName,
+			hostgroupIdColumnName,
 			hostIdColumnName,
 			targetServerId,
 			targetHostgroupId,
@@ -221,12 +221,12 @@ static string makeExpectedConditionForUser(
 	set<int>::const_iterator jt = indexes.begin();
 	for (; jt != indexes.end(); ++jt) {
 		const AccessInfo &accInfo = testAccessInfo[*jt];
-		srvHostGrpSetMap[accInfo.serverId].insert(accInfo.hostGroupId);
+		srvHostGrpSetMap[accInfo.serverId].insert(accInfo.hostgroupId);
 	}
 	exp = TestHostResourceQueryOption::callMakeCondition(
 		srvHostGrpSetMap,
 		serverIdColumnName,
-		hostGroupIdColumnName,
+		hostgroupIdColumnName,
 		hostIdColumnName);
 	return exp;
 }
@@ -367,7 +367,7 @@ void test_makeConditionAllServersWithOthers(void)
 	assertMakeCondition(srvHostGrpSetMap, expect);
 }
 
-void test_makeConditionAllServersWithSpecifiedHostGroup(void)
+void test_makeConditionAllServersWithSpecifiedHostgroup(void)
 {
 	ServerHostGrpSetMap srvHostGrpSetMap;
 	srvHostGrpSetMap[ALL_SERVERS].insert(1);
@@ -384,18 +384,18 @@ void test_makeConditionOneServerAllHostGrp(void)
 	assertMakeCondition(srvHostGrpSetMap, expect);
 }
 
-void test_makeConditionOneServerAndOneHostGroup(void)
+void test_makeConditionOneServerAndOneHostgroup(void)
 {
 	ServerHostGrpSetMap srvHostGrpSetMap;
 	srvHostGrpSetMap[1].insert(3);
 	string expect =
 	  StringUtils::sprintf("(%s=1 AND %s IN (3))",
 	  serverIdColumnName.c_str(),
-	  hostGroupIdColumnName.c_str());
+	  hostgroupIdColumnName.c_str());
 	assertMakeCondition(srvHostGrpSetMap, expect);
 }
 
-void test_makeConditionOneServerAndHostGroups(void)
+void test_makeConditionOneServerAndHostgroups(void)
 {
 	ServerHostGrpSetMap srvHostGrpSetMap;
 	srvHostGrpSetMap[1].insert(3);
@@ -404,7 +404,7 @@ void test_makeConditionOneServerAndHostGroups(void)
 	string expect =
 	  StringUtils::sprintf("(%s=1 AND %s IN (3,1003,2048))",
 	  serverIdColumnName.c_str(),
-	  hostGroupIdColumnName.c_str());
+	  hostgroupIdColumnName.c_str());
 	assertMakeCondition(srvHostGrpSetMap, expect);
 }
 
@@ -492,12 +492,12 @@ void test_makeConditionComplicated(void)
 	  "%s=2000 OR "
 	  "%s=2001 OR "
 	  "(%s=8192 AND %s IN (4096)))",
-	  serverIdColumnName.c_str(), hostGroupIdColumnName.c_str(),
+	  serverIdColumnName.c_str(), hostgroupIdColumnName.c_str(),
 	  serverIdColumnName.c_str(),
-	  serverIdColumnName.c_str(), hostGroupIdColumnName.c_str(),
+	  serverIdColumnName.c_str(), hostgroupIdColumnName.c_str(),
 	  serverIdColumnName.c_str(),
 	  serverIdColumnName.c_str(),
-	  serverIdColumnName.c_str(), hostGroupIdColumnName.c_str());
+	  serverIdColumnName.c_str(), hostgroupIdColumnName.c_str());
 	assertMakeCondition(srvHostGrpSetMap, expect);
 }
 
@@ -567,14 +567,14 @@ void test_makeSelectCondition(gconstpointer data)
 	}
 }
 
-void test_getFromClauseWithAllHostGroup(void)
+void test_getFromClauseWithAllHostgroup(void)
 {
 	HostResourceQueryOption option(TEST_SYNAPSE);
 	cppcut_assert_equal(string(TEST_PRIMARY_TABLE_NAME),
 	                    option.getFromClause());
 }
 
-void test_getFromClauseWithSpecificHostGroup(void)
+void test_getFromClauseWithSpecificHostgroup(void)
 {
 	HostResourceQueryOption option(TEST_SYNAPSE);
 	option.setTargetHostgroupId(5);

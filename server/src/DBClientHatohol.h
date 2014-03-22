@@ -118,6 +118,7 @@ struct ItemInfo {
 	std::string         lastValue;
 	std::string         prevValue;
 	std::string         itemGroupName;
+	int                 delay;
 };
 
 typedef std::list<ItemInfo>          ItemInfoList;
@@ -145,6 +146,15 @@ struct HostgroupElement {
 typedef std::list<HostgroupElement> HostgroupElementList;
 typedef HostgroupElementList::iterator HostgroupElementListIterator;
 typedef HostgroupElementList::const_iterator HostgroupElementListConstIterator;
+
+struct MonitoringServerStatus {
+	ServerIdType serverId;
+	double       nvps;
+};
+
+typedef std::list<MonitoringServerStatus> MonitoringServerStatusList;
+typedef MonitoringServerStatusList::iterator MonitoringServerStatusListIterator;
+typedef MonitoringServerStatusList::const_iterator MonitoringServerStatusListConstIterator;
 
 class EventsQueryOption : public HostResourceQueryOption {
 public:
@@ -324,6 +334,7 @@ public:
 	void addItemInfoList(const ItemInfoList &itemInfoList);
 	void getItemInfoList(ItemInfoList &itemInfoList,
 			     const ItemsQueryOption &option);
+	void addMonitoringServerStatus(MonitoringServerStatus *serverStatus);
 
 	/**
 	 * get the number of triggers with the given server ID, host group ID,
@@ -346,6 +357,9 @@ public:
 	size_t getNumberOfHosts(const TriggersQueryOption &option);
 	size_t getNumberOfGoodHosts(const TriggersQueryOption &option);
 	size_t getNumberOfBadHosts(const TriggersQueryOption &option);
+	HatoholError getNumberOfMonitoredItemsPerSecond(
+	  const DataQueryOption &option,
+	  MonitoringServerStatus &serverStatus);
 
 	void pickupAbsentHostIds(std::vector<uint64_t> &absentHostIdVector,
 	                         const std::vector<uint64_t> &hostIdVector);
@@ -358,6 +372,9 @@ protected:
 	void addHostgroupElementWithoutTransaction(
 	  const HostgroupElement &hostgroupElement);
 	void addHostInfoWithoutTransaction(const HostInfo &hostInfo);
+	void addMonitoringServerStatusWithoutTransaction(
+	  const MonitoringServerStatus &serverStatus);
+
 
 private:
 	struct PrivateContext;

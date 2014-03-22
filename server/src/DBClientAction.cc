@@ -413,16 +413,13 @@ string DBClientAction::PrivateContext::makeActionDefConditionTemplate(void)
 	  colDefHostId.columnName, colDefHostId.columnName);
 	cond += " and ";
 
-#if 0   // TODO: we will enable this condition
-	//       after host group feagure is supported.
 	// host_group_id;
 	const ColumnDef &colDefHostGrpId =
 	   COLUMN_DEF_ACTIONS[IDX_ACTIONS_HOST_GROUP_ID];
 	cond += StringUtils::sprintf(
-	  "((%s is NULL) or (%s=%%"PRIu64"))",
+	  "((%s is NULL) or %s IN (%%s))",
 	  colDefHostGrpId.columnName, colDefHostGrpId.columnName);
-	cond += " and "
-#endif
+	cond += " and ";
 
 	// trigger_id
 	const ColumnDef &colDefTrigId =
@@ -530,7 +527,7 @@ HatoholError DBClientAction::addAction(ActionDef &actionDef,
 	        getNullFlag(actionDef, ACTCOND_SERVER_ID));
 	arg.add(actionDef.condition.hostId,
 	        getNullFlag(actionDef, ACTCOND_HOST_ID));
-	arg.add(actionDef.condition.hostGroupId,
+	arg.add(actionDef.condition.hostgroupId,
 	        getNullFlag(actionDef, ACTCOND_HOST_GROUP_ID));
 	arg.add(actionDef.condition.triggerId,
 	        getNullFlag(actionDef, ACTCOND_TRIGGER_ID));
@@ -609,7 +606,7 @@ HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
 
 		if (!itemGroupStream.getItem()->isNull())
 			actionDef.condition.enable(ACTCOND_HOST_GROUP_ID);
-		itemGroupStream >> actionDef.condition.hostGroupId;
+		itemGroupStream >> actionDef.condition.hostgroupId;
 
 		if (!itemGroupStream.getItem()->isNull())
 			actionDef.condition.enable(ACTCOND_TRIGGER_ID);
@@ -807,19 +804,62 @@ ItemDataNullFlagType DBClientAction::getNullFlag
 		return ITEM_DATA_NULL;
 }
 
+static void takeTriggerInfo(TriggerInfo &triggerInfo,
+  const ServerIdType &serverId, const TriggerIdType &triggerId)
+{
+	DBClientHatohol dbClientHatohol;
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(serverId);
+	option.setTargetId(triggerId);
+	dbClientHatohol.getTriggerInfo(triggerInfo, option);
+}
+
+static void getHostgroupIdStringList(string &stringHostgroupId,
+  const ServerIdType &serverId, const HostIdType &hostId)
+{
+	DBClientHatohol dbClientHatohol;
+	HostgroupElementList hostgroupElementList;
+	HostgroupElementQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(serverId);
+	option.setTargetHostId(hostId);
+	dbClientHatohol.getHostgroupElementList(hostgroupElementList,option);
+
+	HostgroupElementListIterator it = hostgroupElementList.begin();
+	for(; it != hostgroupElementList.end(); ++it) {
+		HostgroupElement hostgroupElement = *it;
+		stringHostgroupId += StringUtils::sprintf(
+		  "%"FMT_HOST_GROUP_ID",", hostgroupElement.groupId);
+	}
+	if (!stringHostgroupId.empty())
+		stringHostgroupId.erase(--stringHostgroupId.end());
+	else
+		stringHostgroupId = "0";
+}
+
 string DBClientAction::makeActionDefCondition(const EventInfo &eventInfo)
 {
 	HATOHOL_ASSERT(!m_ctx->actionDefConditionTemplate.empty(),
 	               "ActionDef condition template is empty.");
+	TriggerInfo triggerInfo;
+	if ((!eventInfo.hostId) && (!eventInfo.severity)) {
+		takeTriggerInfo(triggerInfo,
+		  eventInfo.serverId, eventInfo.triggerId);
+	} else {
+		triggerInfo.hostId = eventInfo.hostId;
+		triggerInfo.severity = eventInfo.severity;
+	}
+	string hostgroupIdList;
+	getHostgroupIdStringList(hostgroupIdList,
+	  triggerInfo.serverId, triggerInfo.hostId);
 	string cond = 
 	  StringUtils::sprintf(m_ctx->actionDefConditionTemplate.c_str(),
 	                       eventInfo.serverId,
-	                       eventInfo.hostId,
-	                       // TODO: hostGroupId
+	                       triggerInfo.hostId,
+	                       hostgroupIdList.c_str(),
 	                       eventInfo.triggerId,
 	                       eventInfo.status,
-	                       eventInfo.severity,
-	                       eventInfo.severity);
+	                       triggerInfo.severity,
+	                       triggerInfo.severity);
 	return cond;
 }
 

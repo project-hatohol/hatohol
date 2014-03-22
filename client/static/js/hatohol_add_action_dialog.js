@@ -21,10 +21,12 @@ var HatoholAddActionDialog = function(addSucceededCb) {
   var self = this;
 
   var IDX_SELECTED_SERVER  = 0;
-  var IDX_SELECTED_HOST    = 1;
-  var IDX_SELECTED_TRIGGER = 2;
+  var IDX_SELECTED_HOST_GROUP = 1
+  var IDX_SELECTED_HOST    = 2;
+  var IDX_SELECTED_TRIGGER = 3;
   self.selectedId = new Array();
   self.selectedId[IDX_SELECTED_SERVER]  = null;
+  self.selectedId[IDX_SELECTED_HOST_GROUP] = null;
   self.selectedId[IDX_SELECTED_HOST]    = null;
   self.selectedId[IDX_SELECTED_TRIGGER] = null;
 
@@ -76,10 +78,21 @@ var HatoholAddActionDialog = function(addSucceededCb) {
       setSelectedServerId(val);
   })
 
+  $("#selectHostgroupId").change(function() {
+    var val = $(this).val();
+    if (val == "SELECT") {
+      new HatoholHostgroupSelector(self.selectedId[IDX_SELECTED_SERVER],
+                                   hostgroupSelectedCb);
+    } else {
+      setSelectedHostgroupId(val);
+    }
+  })
+
   $("#selectHostId").change(function() {
     var val = $(this).val();
     if (val == "SELECT") {
       new HatoholHostSelector(self.selectedId[IDX_SELECTED_SERVER],
+                              self.selectedId[IDX_SELECTED_HOST_GROUP],
                               hostSelectedCb);
     } else
       setSelectedHostId(val);
@@ -100,7 +113,17 @@ var HatoholAddActionDialog = function(addSucceededCb) {
     if (serverInfo)
       label = serverInfo.id + ": " + serverInfo.hostName;
     selectedCallback($("#selectServerId"), serverInfo,
-                     IDX_SELECTED_SERVER, label, fixupSelectHostBox);
+                     IDX_SELECTED_SERVER, label,
+                     fixupSelectHostgroupAndHostBox);
+  }
+
+  function hostgroupSelectedCb(hostgroupInfo) {
+    var label = "";
+    if (hostgroupInfo)
+      label = hostgroupInfo.groupId + ": " + hostgroupInfo.groupName;
+    selectedCallback($("#selectHostgroupId"), hostgroupInfo,
+                     IDX_SELECTED_HOST_GROUP, label, fixupSelectHostBox,
+                     "groupId");
   }
 
   function hostSelectedCb(hostInfo) {
@@ -120,9 +143,10 @@ var HatoholAddActionDialog = function(addSucceededCb) {
   }
 
   function selectedCallback(jQObjSelectId, response, selectedIdIndex,
-                            label, fixupSelectBoxFunc) {
+                            label, fixupSelectBoxFunc, idName) {
     var numOptions = jQObjSelectId.children().length;
     var currSelectedId = self.selectedId[selectedIdIndex];
+    console.log(response);
     if (!response) {
       if (!currSelectedId)
         jQObjSelectId.val("ANY");
@@ -131,14 +155,19 @@ var HatoholAddActionDialog = function(addSucceededCb) {
       return;
     }
 
+    var responseId;
+    if (idName)
+      responseId = response[idName];
+    else
+      responseId = response.id;
     if (numOptions == 3) {
-      if (response.id == currSelectedId)
+      if (responseId == currSelectedId)
         return;
       jQObjSelectId.children('option:last-child').remove();
     }
-    setSelectedId(selectedIdIndex, response.id, fixupSelectBoxFunc);
-    jQObjSelectId.append($("<option>").text(label).val(response.id));
-    jQObjSelectId.val(response.id);
+    setSelectedId(selectedIdIndex, responseId, fixupSelectBoxFunc);
+    jQObjSelectId.append($("<option>").text(label).val(responseId));
+    jQObjSelectId.val(responseId);
   }
 
   function setSelectedId(selectedIdIndex, value, fixupSelectBoxFunc) {
@@ -170,7 +199,20 @@ var HatoholAddActionDialog = function(addSucceededCb) {
   }
 
   function setSelectedServerId(value) {
-    setSelectedId(IDX_SELECTED_SERVER, value, fixupSelectHostBox);
+    setSelectedId(IDX_SELECTED_SERVER, value, fixupSelectHostgroupAndHostBox);
+  }
+
+  function fixupSelectHostgroupAndHostBox(newServerId) {
+    fixupSelectHostgroupBox(newServerId);
+    fixupSelectHostBox(newServerId);
+  }
+
+  function fixupSelectHostgroupBox(newServerId) {
+    fixupSelectBox($("#selectHostgroupId"), newServerId, setSelectedHostgroupId);
+  }
+
+  function setSelectedHostgroupId(value) {
+    setSelectedId(IDX_SELECTED_HOST_GROUP, value, fixupSelectHostBox);
   }
 
   function fixupSelectHostBox(newServerId) {
@@ -259,6 +301,9 @@ var HatoholAddActionDialog = function(addSucceededCb) {
       var serverId = $("#selectServerId").val();
       if (serverId != "ANY")
         queryData.serverId = serverId;
+      var hostgroupId = $("#selectHostgroupId").val();
+      if (hostgroupId != "ANY")
+        queryData.hostgroupId = hostgroupId;
       var hostId = $("#selectHostId").val();
       if (hostId != "ANY")
         queryData.hostId = hostId;
@@ -320,15 +365,11 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
     s += '    <option value="SELECT">== ' + gettext("SELECT") + ' ==</option>'
     s += '  </select>'
 
-    /*
     s += '  <label>' + gettext("Host Group") + '</label>'
-    s += '  <select id="selectHostGroupId">'
+    s += '  <select id="selectHostgroupId">'
     s += '    <option value="ANY">ANY</option>'
-    s += '    <!-- Currently host group ID is not supported'
-    s += '    <option value="select">== ' + gettext("SELECT") + ' ==</option>'
-    s += '    -->'
-    */
     s += '  </select>'
+
     s += '  <label>' + gettext("Host") + '</label>'
     s += '  <select id="selectHostId">'
     s += '    <option value="ANY">ANY</option>'

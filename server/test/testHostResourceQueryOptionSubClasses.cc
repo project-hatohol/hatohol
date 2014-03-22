@@ -34,7 +34,7 @@ namespace testHostResourceQueryOptionSubClasses {
 // TODO: I want to remove these, which are too denpendent on the implementation
 // NOTE: The same definitions are in testDBClientHatohol.cc
 static const string serverIdColumnName = "server_id";
-static const string hostGroupIdColumnName = "host_group_id";
+static const string hostgroupIdColumnName = "host_group_id";
 static const string hostIdColumnName = "host_id";
 
 static void initParamChecker(
@@ -46,7 +46,7 @@ static void initParamChecker(
 		option.setTargetHostId(4);
 		expected += " AND host_id=4";
 	}
-	// TODO: call setHostGroupId()
+	// TODO: call setHostgroupId()
 	fixupForFilteringDefunctServer(data, expected, option);
 	cppcut_assert_equal(expected, option.getCondition());
 }
@@ -420,7 +420,7 @@ void test_eventQueryOptionGetServerIdColumnName(gconstpointer data)
 			  DBClientHatohol::TABLE_NAME_TRIGGERS,
 			  hostIdColumnName.c_str(),
 			  hostgroupTableAlias.c_str(),
-			  hostGroupIdColumnName.c_str());
+			  hostgroupIdColumnName.c_str());
 	fixupForFilteringDefunctServer(data, expect, option);
 	cppcut_assert_equal(expect, option.getCondition());
 }

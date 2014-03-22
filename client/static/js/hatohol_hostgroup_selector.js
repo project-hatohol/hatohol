@@ -17,37 +17,37 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var HatoholHostgroupDialog = function(serverId, selectedCb) {
+var HatoholHostgroupSelector = function(serverId, selectedCb) {
   var self = this;
   self.queryData = {"serverId": serverId};
 
   // call the constructor of the super class
   HatoholSelectorDialog.apply(
-    this, ["host-selector", gettext("Host selecion"), selectedCb]);
+    this, ["hostgroup-selector", gettext("Hostgroup selecion"), selectedCb]);
   self.start("/hostgroup", "GET");
 }
 
-HatoholHostgroupDialog.prototype =
+HatoholHostgroupSelector.prototype =
   Object.create(HatoholSelectorDialog.prototype);
-HatoholHostgroupDialog.prototype.constructor = HatoholHostgroupDialog;
+HatoholHostgroupSelector.prototype.constructor = HatoholHostgroupSelector;
 
-HatoholHostgroupDialog.prototype.makeQueryData = function() {
+HatoholHostgroupSelector.prototype.makeQueryData = function() {
     return this.queryData;
 }
 
-HatoholHostgroupDialog.prototype.getNumberOfObjects = function(reply) {
+HatoholHostgroupSelector.prototype.getNumberOfObjects = function(reply) {
   return reply.numberOfHosts;
 }
 
-HatoholHostgroupDialog.prototype.generateMainTable = function(tableId) {
+HatoholHostgroupSelector.prototype.generateMainTable = function(tableId) {
   var html =
   '<table class="table table-condensed table-striped table-hover" id=' +
   tableId + '>' +
   '  <thead>' +
   '    <tr>' +
   '      <th>' + gettext("Server ID") + '</th>' +
-  '      <th>GroupID</th>' +
-  '      <th>HostgroupName</th>' +
+  '      <th>' + gettext("Hostgroup ID") + '</th>' +
+  '      <th>' + gettext("Hostgroup Name") + '</th>' +
   '    </tr>' +
   '  </thead>' +
   '  <tbody></tbody>' +
@@ -55,14 +55,14 @@ HatoholHostgroupDialog.prototype.generateMainTable = function(tableId) {
   return html;
 }
 
-HatoholHostgroupDialog.prototype.generateTableRows = function(reply) {
+HatoholHostgroupSelector.prototype.generateTableRows = function(reply) {
   var s = "";
   this.setObjectArray(reply.hostgroups);
   for (var i = 0; i < reply.hostgroups.length; i++) {
     hostgroup = reply.hostgroups[i];
     s += '<tr>';
     s += '<td>' + hostgroup.serverId + '</td>';
-    s += '<td>' + hostgroup.id + '</td>';
+    s += '<td>' + hostgroup.groupId + '</td>';
     s += '<td>' + hostgroup.groupName + '</td>';
     s += '</tr>';
   }

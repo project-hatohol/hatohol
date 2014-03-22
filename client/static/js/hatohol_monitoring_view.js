@@ -42,7 +42,7 @@ HatoholMonitoringView.prototype.getTargetServerId = function(selectorId) {
   return id;
 };
 
-HatoholMonitoringView.prototype.getTargetHostGroupId = function(selectorId) {
+HatoholMonitoringView.prototype.getTargetHostgroupId = function(selectorId) {
   var id;
   if (!selectorId)
     selectorId = "#select-host-group";
@@ -177,12 +177,12 @@ HatoholMonitoringView.prototype.setHostFilterCandidates =
 
 HatoholMonitoringView.prototype.addHostQuery = function(query) {
     var serverId = this.getTargetServerId();
-    var hostGroupId = this.getTargetHostGroupId();
+    var hostgroupId = this.getTargetHostgroupId();
     var hostId = this.getTargetHostId();
     if (serverId)
       query.serverId = serverId;
-    if (hostGroupId)
-      query.hostGroupId = hostGroupId;
+    if (hostgroupId)
+      query.hostgroupId = hostgroupId;
     if (hostId)
       query.hostId = hostId;
 };

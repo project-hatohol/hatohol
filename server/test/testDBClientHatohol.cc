@@ -36,7 +36,7 @@ using namespace mlpl;
 namespace testDBClientHatohol {
 
 static const string serverIdColumnName = "server_id";
-static const string hostGroupIdColumnName = "host_group_id";
+static const string hostgroupIdColumnName = "host_group_id";
 static const string hostIdColumnName = "host_id";
 
 static void addTriggerInfo(TriggerInfo *triggerInfo)
@@ -354,15 +354,15 @@ static void _assertGetNumberOfHostsWithUserAndStatus(UserIdType userId, bool sta
 	const ServerIdType serverId = testTriggerInfo[0].serverId;
 	// TODO: should give the appropriate host group ID after
 	//       Hatohol support it.
-	const HostgroupIdType hostGroupId = ALL_HOST_GROUPS;
+	const HostgroupIdType hostgroupId = ALL_HOST_GROUPS;
 
 	DBClientHatohol dbHatohol;
-	int expected = getNumberOfTestHostsWithStatus(serverId, hostGroupId,
+	int expected = getNumberOfTestHostsWithStatus(serverId, hostgroupId,
 	                                              status, userId);
 	int actual;
 	TriggersQueryOption option(userId);
 	option.setTargetServerId(serverId);
-	option.setTargetHostgroupId(hostGroupId);
+	option.setTargetHostgroupId(hostgroupId);
 
 	if (status)
 		actual  = dbHatohol.getNumberOfGoodHosts(option);
@@ -887,14 +887,14 @@ void test_getNumberOfTriggersBySeverityWithoutPriviledge(void)
 	const ServerIdType targetServerId = testTriggerInfo[0].serverId;
 	// TODO: should give the appropriate host group ID after
 	//       Hatohol support it.
-	//uint64_t hostGroupId = 0;
+	//uint64_t hostgroupId = 0;
 
 	DBClientHatohol dbHatohol;
 	for (int i = 0; i < NUM_TRIGGER_SEVERITY; i++) {
 		TriggersQueryOption option;
 		option.setTargetServerId(targetServerId);
 		//TODO: uncomment it after Hatohol supports host group
-		//option.setTargetHostGroupId(hostGroupId);
+		//option.setTargetHostgroupId(hostgroupId);
 		TriggerSeverityType severity = (TriggerSeverityType)i;
 		size_t actual = dbHatohol.getNumberOfTriggers(option, severity);
 		size_t expected = 0;

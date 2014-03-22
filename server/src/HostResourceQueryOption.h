@@ -114,7 +114,7 @@ public:
 	virtual HostIdType getTargetHostId(void) const;
 	virtual void setTargetHostId(HostIdType targetHostId);
 	virtual HostgroupIdType getTargetHostgroupId(void) const;
-	virtual void setTargetHostgroupId(HostgroupIdType targetHostGroupId);
+	virtual void setTargetHostgroupId(HostgroupIdType targetHostgroupId);
 
 	/**
 	 * Enable or disable the filter for the data of defunct servers.
@@ -144,7 +144,7 @@ protected:
 	static std::string makeCondition(
 	  const ServerHostGrpSetMap &srvHostGrpSetMap,
 	  const std::string &serverIdColumnName,
-	  const std::string &hostGroupIdColumnName,
+	  const std::string &hostgroupIdColumnName,
 	  const std::string &hostIdColumnName,
 	  ServerIdType targetServerId = ALL_SERVERS,
 	  HostgroupIdType targetHostgroup = ALL_HOST_GROUPS,
@@ -154,13 +154,13 @@ protected:
 	  const std::string &serverIdColumnName);
 	static std::string makeConditionServer(
 	  const ServerIdType &serverId,
-	  const HostGroupIdSet &hostGroupIdSet,
+	  const HostgroupIdSet &hostgroupIdSet,
 	  const std::string &serverIdColumnName,
-	  const std::string &hostGroupIdColumnName,
+	  const std::string &hostgroupIdColumnName,
 	  const HostgroupIdType &hostgroupId = ALL_HOST_GROUPS);
-	static std::string makeConditionHostGroup(
-	  const HostGroupIdSet &hostGroupIdSet,
-	  const std::string &hostGroupIdColumnName);
+	static std::string makeConditionHostgroup(
+	  const HostgroupIdSet &hostgroupIdSet,
+	  const std::string &hostgroupIdColumnName);
 
 	virtual std::string getFromClauseForOneTable(void) const;
 	virtual std::string getFromClauseWithHostgroup(void) const;

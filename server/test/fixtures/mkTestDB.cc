@@ -50,6 +50,12 @@ static void makeDBHatohol(const string &dbName)
 		HostgroupElement *hostgroupElement = &testHostgroupElement[i];
 		dbHatohol.addHostgroupElement(hostgroupElement);
 	}
+
+	// MonitoringServerStatus
+	for (size_t i = 0; i < NumTestServerStatus; i++) {
+		MonitoringServerStatus *serverStatus = &testServerStatus[i];
+		dbHatohol.addMonitoringServerStatus(serverStatus);
+	}
 }
 
 int main(int argc, char *argv[])

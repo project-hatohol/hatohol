@@ -65,6 +65,19 @@ MonitoringServerInfo testServerInfo[] =
 }};
 size_t NumTestServerInfo = sizeof(testServerInfo) / sizeof(MonitoringServerInfo);
 
+MonitoringServerStatus testServerStatus[] =
+{{
+	1,                        // id
+	1.1,                      // nvps
+},{
+	2,                        // id
+	1.2,                      // nvps
+},{
+	3,                        // id
+	1.3,                      // nvps
+}};
+size_t NumTestServerStatus = sizeof(testServerStatus) / sizeof(MonitoringServerStatus);
+
 TriggerInfo testTriggerInfo[] = 
 {{
 	1,                        // serverId
@@ -111,6 +124,15 @@ TriggerInfo testTriggerInfo[] =
 	10002,                    // hostId,
 	"hostZ2",                 // hostName,
 	"TEST Trigger 3",         // brief,
+},{
+	2,                        // serverId
+	0xfedcba987654321,        // id
+	TRIGGER_STATUS_OK,        // status
+	TRIGGER_SEVERITY_WARNING, // severity
+	{1362951000,0},           // lastChangeTime
+	0x89abcdeffffffff,       // hostId,
+	"hostQ1",                 // hostName,
+	"TEST Trigger Action",    // brief,
 },{
 	// This entry is for tests with a defunct server
 	defunctServerId1,         // serverId
@@ -255,7 +277,7 @@ ActionDef testActionDef[] = {
 	  ACTCOND_TRIGGER_STATUS,   // enableBits
 	  1,                        // serverId
 	  10,                       // hostId
-	  5,                        // hostGroupId
+	  5,                        // hostgroupId
 	  3,                        // triggerId
 	  TRIGGER_STATUS_PROBLEM,   // triggerStatus
 	  TRIGGER_SEVERITY_INFO,    // triggerSeverity
@@ -272,7 +294,7 @@ ActionDef testActionDef[] = {
 	  ACTCOND_TRIGGER_STATUS,   // enableBits
 	  0,                        // serverId
 	  0,                        // hostId
-	  0,                        // hostGroupId
+	  0,                        // hostgroupId
 	  0x12345,                  // triggerId
 	  TRIGGER_STATUS_PROBLEM,   // triggerStatus
 	  TRIGGER_SEVERITY_INFO,    // triggerSeverity
@@ -290,7 +312,7 @@ ActionDef testActionDef[] = {
 	  ACTCOND_TRIGGER_ID | ACTCOND_TRIGGER_STATUS,   // enableBits
 	  100,                      // serverId
 	  0x7fffffffffffffff,       // hostId
-	  0x8000000000000000,       // hostGroupId
+	  0x8000000000000000,       // hostgroupId
 	  0xfedcba9876543210,       // triggerId
 	  TRIGGER_STATUS_PROBLEM,   // triggerStatus
 	  TRIGGER_SEVERITY_WARNING, // triggerSeverity
@@ -308,9 +330,9 @@ ActionDef testActionDef[] = {
 	  ACTCOND_TRIGGER_ID | ACTCOND_TRIGGER_STATUS |
 	   ACTCOND_TRIGGER_SEVERITY,   // enableBits
 	  2,                        // serverId
-	  0x89abcdefffffffff,       // hostId
-	  0x8000000000000000,       // hostGroupId
-	  0xfedcba9876543210,       // triggerId
+	  0x89abcdeffffffff,       // hostId
+	  0x800000000000000,       // hostgroupId
+	  0xfedcba987654321,       // triggerId
 	  TRIGGER_STATUS_OK,        // triggerStatus
 	  TRIGGER_SEVERITY_WARNING, // triggerSeverity
 	  CMP_EQ_GT                 // triggerSeverityCompType;
@@ -327,7 +349,7 @@ ActionDef testActionDef[] = {
 	  ACTCOND_TRIGGER_ID | ACTCOND_TRIGGER_STATUS,   // enableBits
 	  101,                      // serverId
 	  0x7fffffffffffffff,       // hostId
-	  0x8000000000000000,       // hostGroupId
+	  0x8000000000000000,       // hostgroupId
 	  0xfedcba9876543210,       // triggerId
 	  TRIGGER_STATUS_OK,        // triggerStatus
 	  TRIGGER_SEVERITY_CRITICAL,// triggerSeverity
@@ -383,42 +405,42 @@ AccessInfo testAccessInfo[] = {
 	0,                 // id
 	1,                 // userId
 	1,                 // serverId
-	0,                 // hostGroupId
+	0,                 // hostgroupId
 }, {
 	0,                 // id
 	1,                 // userId
 	1,                 // serverId
-	1,                 // hostGroupId
+	1,                 // hostgroupId
 }, {
 	0,                 // id
 	2,                 // userId
 	ALL_SERVERS,       // serverId
-	ALL_HOST_GROUPS,   // hostGroupId
+	ALL_HOST_GROUPS,   // hostgroupId
 }, {
 	0,                 // id
 	3,                 // userId
 	1,                 // serverId
-	ALL_HOST_GROUPS,   // hostGroupId
+	ALL_HOST_GROUPS,   // hostgroupId
 }, {
 	0,                 // id
 	3,                 // userId
 	2,                 // serverId
-	1,                 // hostGroupId
+	1,                 // hostgroupId
 }, {
 	0,                 // id
 	3,                 // userId
 	2,                 // serverId
-	2,                 // hostGroupId
+	2,                 // hostgroupId
 }, {
 	0,                 // id
 	3,                 // userId
 	4,                 // serverId
-	1,                 // hostGroupId
+	1,                 // hostgroupId
 }, {
 	0,                 // id
 	5,                 // userId
 	1,                 // serverId
-	ALL_HOST_GROUPS,   // hostGroupId
+	ALL_HOST_GROUPS,   // hostgroupId
 }
 };
 const size_t NumTestAccessInfo = sizeof(testAccessInfo) / sizeof(AccessInfo);
@@ -494,6 +516,10 @@ HostInfo testHostInfo[] = {
 	100,                   // id(hostId)
 	"squirrel"             // hostName
 }, {
+	2,                     // serverId
+	0x89abcdeffffffff,     // id(hostId)
+	"hostQ1"               // hostName
+}, {
 	// This entry is for tests with a defunct server
 	trigInfoDefunctSv1.serverId, // serverId
 	trigInfoDefunctSv1.hostId,   // hostId,
@@ -543,6 +569,11 @@ HostgroupElement testHostgroupElement[] = {
 	4,                     // serverId
 	100,                   // hostId
 	1,                     // groupId
+}, {
+	AUTO_INCREMENT_VALUE,  // id
+	2,                     // serverId
+	0x89abcdeffffffff,     // hostId
+	0x800000000000000,     // groupId
 }, {
 	// This entry is for tests with a defunct server
 	AUTO_INCREMENT_VALUE,        // id
@@ -712,7 +743,7 @@ static bool isInHostgroup(const TriggerInfo &trigInfo,
 }
 
 size_t getNumberOfTestTriggers(const ServerIdType &serverId,
-                               const HostgroupIdType &hostGroupId, 
+                               const HostgroupIdType &hostgroupId, 
                                const TriggerSeverityType &severity)
 {
 	size_t count = 0;
@@ -726,7 +757,7 @@ size_t getNumberOfTestTriggers(const ServerIdType &serverId,
 			if (trigInfo.status == TRIGGER_STATUS_OK)
 				continue;
 		}
-		if (!isInHostgroup(trigInfo, hostGroupId))
+		if (!isInHostgroup(trigInfo, hostgroupId))
 			continue;
 		count++;
 	}
@@ -738,17 +769,17 @@ static bool isGoodStatus(const TriggerInfo &triggerInfo)
 	return triggerInfo.status == TRIGGER_STATUS_OK;
 }
 
-static void removeHostIdIfNeeded(ServerIdHostGroupHostIdMap &svIdHostGrpIdMap,
+static void removeHostIdIfNeeded(ServerIdHostgroupHostIdMap &svIdHostGrpIdMap,
                                  uint64_t hostGrpIdForTrig,
                                  const TriggerInfo &trigInfo)
 {
-	ServerIdHostGroupHostIdMapIterator svIt;
-	HostGroupHostIdMapIterator         hostIt;
+	ServerIdHostgroupHostIdMapIterator svIt;
+	HostgroupHostIdMapIterator         hostIt;
 	HostIdSetIterator                  idIt;
 	svIt = svIdHostGrpIdMap.find(trigInfo.serverId);
 	if (svIt == svIdHostGrpIdMap.end())
 		return;
-	HostGroupHostIdMap &hostGrpIdMap = svIt->second;
+	HostgroupHostIdMap &hostGrpIdMap = svIt->second;
 	hostIt = hostGrpIdMap.find(hostGrpIdForTrig);
 	if (hostIt == hostGrpIdMap.end())
 		return;
@@ -773,9 +804,9 @@ size_t getNumberOfTestHostsWithStatus(
   const ServerIdType &serverId, const HostgroupIdType &hostgroupId,
   const bool &status, const UserIdType &userId)
 {
-	ServerIdHostGroupHostIdMap svIdHostGrpIdMap;
-	ServerIdHostGroupHostIdMapIterator svIt;
-	HostGroupHostIdMapIterator         hostIt;
+	ServerIdHostgroupHostIdMap svIdHostGrpIdMap;
+	ServerIdHostgroupHostIdMapIterator svIt;
+	HostgroupHostIdMapIterator         hostIt;
 	ServerHostGrpSetMap authMap;
 
 	makeServerHostGrpSetMap(authMap, userId);
@@ -805,13 +836,13 @@ size_t getNumberOfTestHostsWithStatus(
 			// for this server
 			HostIdSet hostIdSet;
 			hostIdSet.insert(trigInfo.hostId);
-			HostGroupHostIdMap hostMap;
+			HostgroupHostIdMap hostMap;
 			hostMap[hostgroupId] = hostIdSet;
 			svIdHostGrpIdMap[trigInfo.serverId] = hostMap;
 			continue;
 		}
 
-		HostGroupHostIdMap &hostGrpIdMap = svIt->second;
+		HostgroupHostIdMap &hostGrpIdMap = svIt->second;
 		hostIt = hostGrpIdMap.find(hostgroupId);
 		if (hostIt == hostGrpIdMap.end()) {
 			// svIdHostGrpMap doesn't have value pair
@@ -835,7 +866,7 @@ size_t getNumberOfTestHostsWithStatus(
 	svIt = svIdHostGrpIdMap.find(serverId);
 	if (svIt == svIdHostGrpIdMap.end())
 		return 0;
-	HostGroupHostIdMap &hostGrpIdMap = svIt->second;
+	HostgroupHostIdMap &hostGrpIdMap = svIt->second;
 	hostIt = hostGrpIdMap.find(hostgroupId);
 	if (hostIt == hostGrpIdMap.end())
 		return 0;
@@ -885,10 +916,10 @@ void makeServerAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
 
 		AccessInfo *destAccessInfo = NULL;
 		HostGrpAccessInfoMapIterator it2
-			= hostGrpAccessInfoMap->find(accessInfo->hostGroupId);
+			= hostGrpAccessInfoMap->find(accessInfo->hostgroupId);
 		if (it2 == hostGrpAccessInfoMap->end()) {
 			destAccessInfo = new AccessInfo();
-			(*hostGrpAccessInfoMap)[accessInfo->hostGroupId] =
+			(*hostGrpAccessInfoMap)[accessInfo->hostgroupId] =
 				destAccessInfo;
 		} else {
 			destAccessInfo = it2->second;
@@ -903,12 +934,12 @@ void makeServerHostGrpSetMap(ServerHostGrpSetMap &map, const UserIdType &userId)
 		if (testAccessInfo[i].userId != userId)
 			continue;
 		map[testAccessInfo[i].serverId].insert(
-		  testAccessInfo[i].hostGroupId);
+		  testAccessInfo[i].hostgroupId);
 	}
 }
 
 bool isAuthorized(ServerHostGrpSetMap &authMap, UserIdType userId,
-		  uint32_t serverId, uint64_t hostGroupId)
+		  uint32_t serverId, uint64_t hostgroupId)
 {
 	if (userId == USER_ID_SYSTEM)
 		return true;
@@ -924,11 +955,11 @@ bool isAuthorized(ServerHostGrpSetMap &authMap, UserIdType userId,
 	if (serverIt == authMap.end())
 		return false;
 
-	HostGroupIdSet &hostgroupIds = serverIt->second;
+	HostgroupIdSet &hostgroupIds = serverIt->second;
 	if (hostgroupIds.find(ALL_HOST_GROUPS) != hostgroupIds.end())
 		return true;
 
-	if (hostGroupId == ALL_HOST_GROUPS)
+	if (hostgroupId == ALL_HOST_GROUPS)
 		return true;
 
 	// FIXME: Host group isn't supported yet
@@ -951,7 +982,7 @@ size_t findIndexFromTestActionDef(const UserIdType &userId)
 	return idx;
 }
 
-const HostGroupIdSet &getTestHostgroupIdSet(void)
+const HostgroupIdSet &getTestHostgroupIdSet(void)
 {
 	if (!testHostgroupIdSet.empty()) 
 		return testHostgroupIdSet;

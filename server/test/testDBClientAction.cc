@@ -47,7 +47,7 @@ static string makeExpectedString(const ActionDef &actDef, int expectedId)
 	            StringUtils::sprintf("%"PRIu64"|", cond.hostId) :
 	            DBCONTENT_MAGIC_NULL "|";
 	expect += cond.isEnable(ACTCOND_HOST_GROUP_ID) ?
-	            StringUtils::sprintf("%"PRIu64"|", cond.hostGroupId) :
+	            StringUtils::sprintf("%"PRIu64"|", cond.hostgroupId) :
 	            DBCONTENT_MAGIC_NULL "|";
 	expect += cond.isEnable(ACTCOND_TRIGGER_ID) ?
 	             StringUtils::sprintf("%"PRIu64"|", cond.triggerId) :
@@ -125,8 +125,8 @@ void _assertEqual(const ActionDef &expect, const ActionDef &actual)
 		                    actual.condition.hostId);
 	}
 	if (expect.condition.enableBits & ACTCOND_HOST_GROUP_ID) {
-		cppcut_assert_equal(expect.condition.hostGroupId,
-		                    actual.condition.hostGroupId);
+		cppcut_assert_equal(expect.condition.hostgroupId,
+		                    actual.condition.hostgroupId);
 	}
 	if (expect.condition.enableBits & ACTCOND_TRIGGER_ID) {
 		cppcut_assert_equal(expect.condition.triggerId,
@@ -201,6 +201,20 @@ static void setupHelperForTestDBUser(void)
 	g_existTestDB = true;
 }
 
+static void setupTestTriggerInfo(void)
+{
+	DBClientHatohol dbClientHatohol;
+	for (size_t i = 0; i < NumTestTriggerInfo; i++)
+		dbClientHatohol.addTriggerInfo(&testTriggerInfo[i]);
+}
+
+static void setupTestHostgroupElement(void)
+{
+	DBClientHatohol dbClientHatohol;
+	for (size_t i = 0; i < NumTestHostgroupElement; i++)
+		dbClientHatohol.addHostgroupElement(&testHostgroupElement[i]);
+}
+
 void test_addAction(void);
 
 static void setupTestDBUserAndDBAction(void)
@@ -244,9 +258,10 @@ static void _assertDeleteActions(const bool &deleteMyActions,
 }
 #define assertDeleteActions(D,T) cut_trace(_assertDeleteActions(D,T))
 
-void setup(void)
+void cut_setup(void)
 {
 	hatoholInit();
+	deleteDBClientHatoholDB();
 	setupTestDBAction();
 }
 
@@ -272,6 +287,9 @@ void test_dbDomainId(void)
 
 void test_addAction(void)
 {
+	setupTestTriggerInfo();
+	setupTestHostgroupElement();
+
 	DBClientAction dbAction;
 	string expect;
 	OperationPrivilege privilege(USER_ID_SYSTEM);
@@ -548,8 +566,6 @@ void test_getTriggerActionListWithAllCondition(void)
 	eventInfo.type      = EVENT_TYPE_GOOD;
 	eventInfo.triggerId = condTarget.triggerId;
 	eventInfo.status    = (TriggerStatusType) condTarget.triggerStatus;
-	eventInfo.severity  = (TriggerSeverityType) condTarget.triggerSeverity;
-	eventInfo.hostId    = condTarget.hostId;
 	eventInfo.hostName  = "foo";
 	eventInfo.brief     = "foo foo foo";
 
