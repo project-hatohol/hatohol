@@ -83,6 +83,9 @@ protected:
 	virtual std::string
 	makeCreateIndexStatement(const IndexDef &indexDef); // override
 
+	virtual std::string
+	makeDropIndexStatement(const IndexDef &indexDef); // override
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;

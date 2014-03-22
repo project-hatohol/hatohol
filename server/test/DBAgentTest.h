@@ -55,8 +55,13 @@ public:
 	virtual void assertTable(const DBAgent::TableProfile &tableProfile) = 0;
 	virtual void assertTableIndex(
 	  const DBAgent::TableProfile &tableProfile) = 0;
+
+	// create and drop of index
 	virtual void assertMakeCreateIndexStatement(
 	  const std::string sql, const DBAgent::IndexDef &indexDef) = 0;
+	virtual void assertMakeDropIndexStatement(
+	  const std::string sql, const DBAgent::IndexDef &indexDef) = 0;
+
 	virtual void assertExistingRecord(
 	               uint64_t id, int age, const char *name, double height,
 	               int datetime, size_t numColumns,
@@ -88,6 +93,8 @@ void dbAgentTestCreateTableIndex(DBAgent &dbAgent, DBAgentChecker &checker);
 
 void dbAgentDataMakeCreateIndexStatement(void);
 void dbAgentTestMakeCreateIndexStatement(
+  DBAgent &dbAgent, DBAgentChecker &checker, gconstpointer data);
+void dbAgentTestMakeDropIndexStatement(
   DBAgent &dbAgent, DBAgentChecker &checker, gconstpointer data);
 
 void dbAgentTestInsert(DBAgent &dbAgent, DBAgentChecker &checker);

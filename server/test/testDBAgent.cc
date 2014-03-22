@@ -351,6 +351,12 @@ private:
 	{
 		return "";
 	}
+
+	virtual string
+	makeDropIndexStatement(const IndexDef &indexDef) // override
+	{
+		return "";
+	}
 };
 
 const size_t TestDBAgent::m_numTestColumns;

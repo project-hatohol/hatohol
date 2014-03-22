@@ -209,6 +209,12 @@ public:
 		cppcut_assert_equal(expect, sql);
 	}
 
+	virtual void assertMakeDropIndexStatement(
+	  const std::string sql, const DBAgent::IndexDef &indexDef) // override
+	{
+		MLPL_BUG("NOT IMPLEMENTED: %s\n", __PRETTY_FUNCTION__);
+	}
+
 	virtual void assertExistingRecord(uint64_t id, int age,
 	                                  const char *name, double height,
 	                                  int datetime,

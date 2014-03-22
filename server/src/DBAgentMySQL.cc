@@ -624,3 +624,10 @@ string DBAgentMySQL::makeCreateIndexStatement(const IndexDef &indexDef)
 	string sql;
 	return sql;
 }
+
+std::string DBAgentMySQL::makeDropIndexStatement(const IndexDef &indexDef)
+{
+	MLPL_BUG("NOT IMPLEMENTED: %s\n", __PRETTY_FUNCTION__);
+	string sql;
+	return sql;
+}

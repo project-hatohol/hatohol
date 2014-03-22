@@ -249,6 +249,9 @@ protected:
 	makeCreateIndexStatement(const IndexDef &indexDef) = 0;
 	virtual void createIndex(const IndexDef &indexDef);
 
+	virtual std::string
+	makeDropIndexStatement(const IndexDef &indexDef) = 0;
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;

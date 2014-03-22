@@ -36,6 +36,12 @@ public:
 	{
 		return DBAgent::makeCreateIndexStatement(indexDef);
 	}
+
+	virtual string
+	makeDropIndexStatement(const IndexDef &indexDef) // orvierride
+	{
+		return DBAgent::makeDropIndexStatement(indexDef);
+	}
 };
 
 const char *TABLE_NAME_TEST = "test_table";
@@ -234,6 +240,16 @@ void dbAgentTestMakeCreateIndexStatement(
 	TestDBAgent *testAgent = static_cast<TestDBAgent *>(&dbAgent);
 
 	string sql = testAgent->makeCreateIndexStatement(indexDef);
+	checker.assertMakeCreateIndexStatement(sql, indexDef);
+}
+
+void dbAgentTestMakeDropCreateIndexStatement(
+  DBAgent &dbAgent, DBAgentChecker &checker)
+{
+	DBAgent::IndexDef indexDef = {
+	  "testIndex", *((DBAgent::TableProfile *)NULL), (int *)NULL, false};
+	TestDBAgent *testAgent = static_cast<TestDBAgent *>(&dbAgent);
+	string sql = testAgent->makeDropIndexStatement(indexDef);
 	checker.assertMakeCreateIndexStatement(sql, indexDef);
 }
 

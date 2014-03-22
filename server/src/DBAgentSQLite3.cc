@@ -836,6 +836,13 @@ string DBAgentSQLite3::makeCreateIndexStatement(const IndexDef &indexDef)
 	return sql;
 }
 
+std::string DBAgentSQLite3::makeDropIndexStatement(const IndexDef &indexDef)
+{
+	MLPL_BUG("NOT IMPLEMENTED: %s\n", __PRETTY_FUNCTION__);
+	string sql;
+	return sql;
+}
+
 string DBAgentSQLite3::getDBPath(void) const
 {
 	return m_ctx->dbPath;
