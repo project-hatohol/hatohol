@@ -236,6 +236,8 @@ public:
 	  const ItemGroup *itemGroup, const TableProfile &tableProfile,
 	  size_t targetIndex);
 
+	virtual void createIndex(const IndexDef &indexDef);
+
 protected:
 	static std::string makeSelectStatement(const SelectArg &selectArg);
 	static std::string makeSelectStatement(const SelectExArg &selectExArg);
