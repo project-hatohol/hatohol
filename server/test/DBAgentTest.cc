@@ -263,7 +263,7 @@ void dbAgentTestFixupIndexes(DBAgent &dbAgent, DBAgentChecker &checker)
 	  IDX_TEST_TABLE_HEIGHT, DBAgent::IndexDef::END
 	};
 
-	DBAgent::IndexDef indexDefArray[] = {
+	const DBAgent::IndexDef indexDefArray[] = {
 	  {"testIndex",        tableProfileTest, columnIndexes0, false},
 	  {"testUniqIndex",    tableProfileTest, columnIndexes1, true},
 	  {"testSingleColumn", tableProfileTest, columnIndexes2, false},
