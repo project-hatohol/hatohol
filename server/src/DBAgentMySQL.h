@@ -79,6 +79,10 @@ protected:
 	void createIndexIfNotExistsEach(
 	  const ColumnDef &columnDef, const std::set<std::string> &keyNameSet);
 
+	// virtual methods
+	virtual std::string
+	makeCreateIndexStatement(const IndexDef &indexDef); // override
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;

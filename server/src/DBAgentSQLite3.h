@@ -112,6 +112,10 @@ protected:
 	void openDatabase(void);
 	void execSql(const char *fmt, ...);
 
+	// virtual methods
+	virtual std::string
+	makeCreateIndexStatement(const IndexDef &indexDef); // override
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;

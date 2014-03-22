@@ -183,6 +183,32 @@ public:
 		}
 	}
 
+	virtual void assertMakeCreateIndexStatement(
+	  const std::string sql, const DBAgent::IndexDef &indexDef) // override
+	{
+		const DBAgent::TableProfile &tableProfile =
+		  indexDef.tableProfile;
+		string expect = "CREATE ";
+		if (indexDef.isUnique)
+			expect += "UNIQUE ";
+		expect += "INDEX ";
+		expect += indexDef.name;
+		expect += " ON ";
+		expect += tableProfile.name;
+		expect += "(";
+		for (size_t i = 0; true; i++) {
+			const int columnIdx = indexDef.columnIndexes[i];
+			if (columnIdx == DBAgent::IndexDef::END)
+				break;
+			if (i >= 1)
+				expect += ",";
+			expect += tableProfile.columnDefs[columnIdx].columnName;
+		}
+		expect += ")";
+
+		cppcut_assert_equal(expect, sql);
+	}
+
 	virtual void assertExistingRecord(uint64_t id, int age,
 	                                  const char *name, double height,
 	                                  int datetime,
@@ -364,6 +390,12 @@ void test_createTableIndex(void)
 {
 	DBAgentSQLite3 dbAgent;
 	dbAgentTestCreateTableIndex(dbAgent, dbAgentChecker);
+}
+
+void test_makeCreateIndexStatement(void)
+{
+	DBAgentSQLite3 dbAgent;
+	dbAgentTestMakeCreateIndexStatement(dbAgent, dbAgentChecker);
 }
 
 void test_insert(void)

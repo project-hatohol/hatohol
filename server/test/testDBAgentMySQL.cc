@@ -271,6 +271,12 @@ public:
 		comp.assert(false);
 	}
 
+	virtual void assertMakeCreateIndexStatement(
+	  const std::string sql, const DBAgent::IndexDef &indexDef) // override
+	{
+		MLPL_BUG("NOT IMPLEMENTED: %s\n", __PRETTY_FUNCTION__);
+	}
+
 	virtual void getIDStringVector(const ColumnDef &columnDefId,
 	                               vector<string> &actualIds)
 	{

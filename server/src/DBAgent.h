@@ -61,14 +61,13 @@ public:
 	};
 
 	struct IndexDef {
-		const char *name;
+		static const int    END = -1;
 
- 		// An array that terminates with INDEX_DEF_END.
-		const int  *columnIdexes;
-
-		const bool  isUnique;
+		const char         *name;
+		const TableProfile &tableProfile;
+		const int          *columnIndexes; // Last element must be END.
+		const bool          isUnique;
 	};
-	static const int    INDEX_DEF_END = -1;
 
 	struct RowElement {
 		size_t      columnIndex;
@@ -244,6 +243,9 @@ protected:
 	static std::string makeUpdateStatement(const UpdateArg &updateArg);
 	static std::string makeDeleteStatement(const DeleteArg &deleteArg);
 	static std::string makeDatetimeString(int datetime);
+
+	virtual std::string
+	makeCreateIndexStatement(const IndexDef &indexDef) = 0;
 
 private:
 	struct PrivateContext;

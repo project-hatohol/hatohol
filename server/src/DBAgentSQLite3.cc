@@ -805,6 +805,31 @@ void DBAgentSQLite3::createIndexIfNotExistsEach(
 	}
 }
 
+string DBAgentSQLite3::makeCreateIndexStatement(const IndexDef &indexDef)
+{
+	string sql = StringUtils::sprintf(
+	  "CREATE %sINDEX %s ON %s(",
+	  indexDef.isUnique ? "UNIQUE " : "",
+	  indexDef.name, indexDef.tableProfile.name);
+
+	const int *columnIdxPtr = indexDef.columnIndexes;
+	while (true) {
+		const ColumnDef &columnDef =
+		  indexDef.tableProfile.columnDefs[*columnIdxPtr];
+		sql += columnDef.columnName;
+
+		// get the next column index and check if it's the end.
+		columnIdxPtr++;
+		if (*columnIdxPtr != IndexDef::END) {
+			sql += ",";
+		} else {
+			sql += ")";
+			break;
+		}
+	}
+	return sql;
+}
+
 string DBAgentSQLite3::getDBPath(void) const
 {
 	return m_ctx->dbPath;

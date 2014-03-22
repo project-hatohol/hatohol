@@ -344,6 +344,12 @@ private:
 	                          const IndexDef *indexDefArray) // override
 	{
 	}
+
+	virtual string
+	makeCreateIndexStatement(const IndexDef &indexDef) // override
+	{
+		return "";
+	}
 };
 
 const size_t TestDBAgent::m_numTestColumns;

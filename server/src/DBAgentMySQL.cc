@@ -617,3 +617,10 @@ void DBAgentMySQL::createIndexIfNotExistsEach(const ColumnDef &columnDef,
 	                                  columnDef.columnName);
 	execSql(sql);
 }
+
+string DBAgentMySQL::makeCreateIndexStatement(const IndexDef &indexDef)
+{
+	MLPL_BUG("NOT IMPLEMENTED: %s\n", __PRETTY_FUNCTION__);
+	string sql;
+	return sql;
+}
