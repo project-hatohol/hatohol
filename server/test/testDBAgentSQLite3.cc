@@ -392,10 +392,15 @@ void test_createTableIndex(void)
 	dbAgentTestCreateTableIndex(dbAgent, dbAgentChecker);
 }
 
-void test_makeCreateIndexStatement(void)
+void data_makeCreateIndexStatement(void)
+{
+	dbAgentDataMakeCreateIndexStatement();
+}
+
+void test_makeCreateIndexStatement(gconstpointer data)
 {
 	DBAgentSQLite3 dbAgent;
-	dbAgentTestMakeCreateIndexStatement(dbAgent, dbAgentChecker);
+	dbAgentTestMakeCreateIndexStatement(dbAgent, dbAgentChecker, data);
 }
 
 void test_insert(void)

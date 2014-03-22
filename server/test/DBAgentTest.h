@@ -84,8 +84,11 @@ protected:
 
 void dbAgentTestCreateTable(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestCreateTableIndex(DBAgent &dbAgent, DBAgentChecker &checker);
+
+void dbAgentDataMakeCreateIndexStatement(void);
 void dbAgentTestMakeCreateIndexStatement(
-  DBAgent &dbAgent, DBAgentChecker &checker);
+  DBAgent &dbAgent, DBAgentChecker &checker, gconstpointer data);
+
 void dbAgentTestInsert(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestInsertUint64
   (DBAgent &dbAgent, DBAgentChecker &checker, uint64_t id);

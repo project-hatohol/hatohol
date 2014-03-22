@@ -17,6 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <gcutter.h>
 #include "DBAgentTest.h"
 #include "SQLUtils.h"
 #include "Helpers.h"
@@ -207,18 +208,25 @@ void dbAgentTestCreateTableIndex(DBAgent &dbAgent, DBAgentChecker &checker)
 	checker.assertTableIndex(tableProfileTest);
 }
 
-void dbAgentTestMakeCreateIndexStatement(
-  DBAgent &dbAgent, DBAgentChecker &checker)
+void dbAgentDataMakeCreateIndexStatement(void)
 {
-	const bool isUnique = true;
+	gcut_add_datum("Not unique", "isUnique", G_TYPE_BOOLEAN, TRUE, NULL);
+	gcut_add_datum("Unique",     "isUnique", G_TYPE_BOOLEAN, FALSE, NULL);
+}
+
+void dbAgentTestMakeCreateIndexStatement(
+  DBAgent &dbAgent, DBAgentChecker &checker, gconstpointer data)
+{
+	const bool isUnique = gcut_data_get_boolean(data, "isUnique");
 	const int columnIndexes[] = {
 	  IDX_TEST_TABLE_AGE, IDX_TEST_TABLE_NAME, IDX_TEST_TABLE_HEIGHT,
 	  DBAgent::IndexDef::END
 	};
-	const DBAgent::IndexDef indexDef = {
+	DBAgent::IndexDef indexDef = {
 	  "testIndex", tableProfileTest, columnIndexes, isUnique
 	};
 	TestDBAgent *testAgent = static_cast<TestDBAgent *>(&dbAgent);
+
 	string sql = testAgent->makeCreateIndexStatement(indexDef);
 	checker.assertMakeCreateIndexStatement(sql, indexDef);
 }
