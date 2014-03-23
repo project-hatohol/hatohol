@@ -50,6 +50,7 @@ public:
 	static bool defineDBPath(DBDomainId domainId, const std::string &path,
 	                         bool allowOverwrite = true);
 	static std::string &getDBPath(DBDomainId domainId);
+	static const OptionTermGenerator *getOptionTermGeneratorStatic(void);
 
 	// constructor and destructor
 	DBAgentSQLite3(const std::string &dbName = "",

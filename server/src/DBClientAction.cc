@@ -841,11 +841,15 @@ string DBClientAction::makeActionDefCondition(const EventInfo &eventInfo)
 	HATOHOL_ASSERT(!m_ctx->actionDefConditionTemplate.empty(),
 	               "ActionDef condition template is empty.");
 	TriggerInfo triggerInfo;
-	if ((!eventInfo.hostId) && (!eventInfo.severity)) {
-		takeTriggerInfo(triggerInfo,
-		  eventInfo.serverId, eventInfo.triggerId);
+	// TODO: eventInfo should always be filled before this function
+	//       is called. (The conditional branch here is not good)
+	if ((!eventInfo.hostId) &&
+	   (eventInfo.severity == TRIGGER_SEVERITY_UNKNOWN)) {
+		takeTriggerInfo(
+		  triggerInfo, eventInfo.serverId, eventInfo.triggerId);
 	} else {
-		triggerInfo.hostId = eventInfo.hostId;
+		triggerInfo.serverId = eventInfo.serverId;
+		triggerInfo.hostId   = eventInfo.hostId;
 		triggerInfo.severity = eventInfo.severity;
 	}
 	string hostgroupIdList;

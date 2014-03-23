@@ -20,8 +20,11 @@
 #include "Params.h"
 #include "HostResourceQueryOption.h"
 #include "DBClientHatohol.h"
+#include "DBAgentSQLite3.h" // TODO: Shouldn't use explicitly
 using namespace std;
 using namespace mlpl;
+
+// *** TODO: use OptionTermGenrator to make SQL's clauses ****
 
 // ---------------------------------------------------------------------------
 // Synapse
@@ -94,6 +97,8 @@ HostResourceQueryOption::HostResourceQueryOption(
 : DataQueryOption(userId)
 {
 	m_ctx = new PrivateContext(synapse);
+	// TODO: Use a more smart way
+	setOptionTermGenerator(DBAgentSQLite3::getOptionTermGeneratorStatic());
 }
 
 HostResourceQueryOption::HostResourceQueryOption(
@@ -101,6 +106,8 @@ HostResourceQueryOption::HostResourceQueryOption(
 : DataQueryOption(dataQueryContext)
 {
 	m_ctx = new PrivateContext(synapse);
+	// TODO: Use a more smart way
+	setOptionTermGenerator(DBAgentSQLite3::getOptionTermGeneratorStatic());
 }
 
 HostResourceQueryOption::HostResourceQueryOption(
@@ -124,6 +131,7 @@ const char *HostResourceQueryOption::getPrimaryTableName(void) const
 
 string HostResourceQueryOption::getCondition(void) const
 {
+	const OptionTermGenerator *termGen = getOptionTermGenerator();
 	string condition;
 	if (getFilterForDataOfDefunctServers()) {
 		addCondition(
@@ -140,23 +148,26 @@ string HostResourceQueryOption::getCondition(void) const
 		if (m_ctx->targetServerId != ALL_SERVERS) {
 			addCondition(condition,
 			  StringUtils::sprintf(
-				"%s=%"FMT_SERVER_ID,
+				"%s=%s",
 				getServerIdColumnName().c_str(),
-				m_ctx->targetServerId));
+				termGen->get(m_ctx->targetServerId).c_str())
+			);
 		}
 		if (m_ctx->targetHostId != ALL_HOSTS) {
 			addCondition(condition,
 			  StringUtils::sprintf(
-				"%s=%"FMT_HOST_ID,
+				"%s=%s",
 				getHostIdColumnName().c_str(),
-				m_ctx->targetHostId));
+				termGen->get(m_ctx->targetHostId).c_str())
+			);
 		}
 		if (m_ctx->targetHostgroupId != ALL_HOST_GROUPS) {
 			addCondition(condition,
 			  StringUtils::sprintf(
-				"%s=%"FMT_HOST_GROUP_ID,
+				"%s=%s",
 				getHostgroupIdColumnName().c_str(),
-				m_ctx->targetHostgroupId));
+				termGen->get(m_ctx->targetHostgroupId).c_str())
+			);
 		}
 		return condition;
 	}

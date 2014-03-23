@@ -159,6 +159,11 @@ string &DBAgentSQLite3::getDBPath(DBDomainId domainId)
 	return it->second;
 }
 
+const OptionTermGenerator *DBAgentSQLite3::getOptionTermGeneratorStatic(void)
+{
+	return &PrivateContext::optionTermGenerator;
+}
+
 DBAgentSQLite3::DBAgentSQLite3(const string &dbName,
                                DBDomainId domainId, bool skipSetup)
 : DBAgent(domainId, skipSetup),

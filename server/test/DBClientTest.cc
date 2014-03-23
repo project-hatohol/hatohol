@@ -572,8 +572,8 @@ HostgroupElement testHostgroupElement[] = {
 }, {
 	AUTO_INCREMENT_VALUE,  // id
 	2,                     // serverId
-	0x89abcdeffffffff,     // hostId
-	0x800000000000000,     // groupId
+	0x89abcdefffffffff,    // hostId
+	0x8000000000000000,    // hostGroupId
 }, {
 	// This entry is for tests with a defunct server
 	AUTO_INCREMENT_VALUE,        // id

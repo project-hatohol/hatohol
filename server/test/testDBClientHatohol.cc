@@ -403,10 +403,14 @@ static string makeHostgroupsOutput(const HostgroupInfo &hostgroupInfo, size_t id
 static string makeMapHostsHostgroupsOutput
   (const HostgroupElement &hostgroupElement, size_t id)
 {
+	HostgroupElementQueryOption option;
+	const OptionTermGenerator *termGen = option.getOptionTermGenerator();
 	string expectedOut = StringUtils::sprintf(
-	  "%zd|%"FMT_SERVER_ID"|%"FMT_HOST_ID"|%"FMT_HOST_GROUP_ID"\n",
-	  id + 1, hostgroupElement.serverId,
-	  hostgroupElement.hostId, hostgroupElement.groupId);
+	  "%zd|%s|%s|%s\n",
+	  id + 1,
+	  termGen->get(hostgroupElement.serverId).c_str(),
+	  termGen->get(hostgroupElement.hostId).c_str(),
+	  termGen->get(hostgroupElement.groupId).c_str());
 
 	return expectedOut;
 }

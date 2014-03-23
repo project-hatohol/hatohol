@@ -554,7 +554,7 @@ void test_getTriggerActionList(void)
 
 void test_getTriggerActionListWithAllCondition(void)
 {
-	setupTestDBConfig();
+	setupTestDBConfig(true, true);
 	test_addAction(); // save test data into DB.
 
 	// make an EventInfo instance for the test
