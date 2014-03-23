@@ -1866,12 +1866,17 @@ HatoholError DBClientHatohol::getNumberOfMonitoredItemsPerSecond
 		select(arg);
 	} DBCLIENT_TRANSACTION_END();
 
-	if (arg.dataTable->getNumberOfRows() == 0)
-		return HatoholError(HTERR_NOT_FOUND_TARGET_RECORD);
-
-	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupStream itemGroupStream(*grpList.begin());
-	serverStatus.nvps = itemGroupStream.read<double>();
+	// TODO: currently the folowing return 0 for Nagios servers
+	// We just return 0 instead of an error.
+	if (arg.dataTable->getNumberOfRows() == 0) {
+		serverStatus.nvps = 0;
+		//return HatoholError(HTERR_NOT_FOUND_TARGET_RECORD);
+	} else {
+		const ItemGroupList &grpList =
+		  arg.dataTable->getItemGroupList();
+		ItemGroupStream itemGroupStream(*grpList.begin());
+		serverStatus.nvps = itemGroupStream.read<double>();
+	}
 
 	return HatoholError(HTERR_OK);
 }
