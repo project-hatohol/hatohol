@@ -25,8 +25,8 @@
 
 class OptionTermGenerator {
 public:
-	std::string get(const int &val) const;
-	std::string get(const uint64_t &val) const;
+	virtual std::string get(const int &val) const;
+	virtual std::string get(const uint64_t &val) const;
 };
 
 #endif // OptionTermGenerator_h

@@ -75,6 +75,9 @@ public:
 	virtual void select(const SelectExArg &selectExArg); // override
 	virtual void deleteRows(const DeleteArg &deleteArg); // override
 	virtual void addColumns(const AddColumnsArg &addColumnsArg); // override
+	virtual const
+	  OptionTermGenerator *getOptionTermGenerator(void) const; // override
+
 	virtual uint64_t getLastInsertId(void);
 	virtual uint64_t getNumberOfAffectedRows(void);
 

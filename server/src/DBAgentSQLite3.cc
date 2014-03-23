@@ -33,6 +33,13 @@ using namespace mlpl;
 
 const static int TRANSACTION_TIME_OUT_MSEC = 30 * 1000;
 
+class OptionTermGeneratorSQLite3 : public OptionTermGenerator {
+	virtual string get(const uint64_t &val) const // override
+	{
+		return StringUtils::sprintf("%"PRId64, val);
+	}
+};
+
 #define MAKE_SQL_STATEMENT_FROM_VAARG(LAST_ARG, STR_NAME) \
 string STR_NAME; \
 { \
@@ -50,6 +57,7 @@ typedef DBDomainIdPathMap::iterator DBDomainIdPathMapIterator;
 struct DBAgentSQLite3::PrivateContext {
 	static MutexLock         mutex;
 	static DBDomainIdPathMap domainIdPathMap;
+	static OptionTermGeneratorSQLite3 optionTermGenerator;
 
 	string        dbPath;
 	sqlite3      *db;
@@ -82,6 +90,7 @@ struct DBAgentSQLite3::PrivateContext {
 
 MutexLock         DBAgentSQLite3::PrivateContext::mutex;
 DBDomainIdPathMap DBAgentSQLite3::PrivateContext::domainIdPathMap;
+OptionTermGeneratorSQLite3 DBAgentSQLite3::PrivateContext::optionTermGenerator;
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -667,6 +676,11 @@ void DBAgentSQLite3::deleteRows(sqlite3 *db, const DeleteArg &deleteArg)
 void DBAgentSQLite3::addColumns(const AddColumnsArg &addColumnsArg)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
+const OptionTermGenerator *DBAgentSQLite3::getOptionTermGenerator(void) const
+{
+	return &m_ctx->optionTermGenerator;
 }
 
 void DBAgentSQLite3::selectGetValuesIteration(const SelectArg &selectArg,

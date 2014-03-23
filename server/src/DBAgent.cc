@@ -75,8 +75,9 @@ const char *DBConnectInfo::getPassword(void) const
 
 struct DBAgent::PrivateContext
 {
-	static MutexLock          mutex;
-	static DBSetupInfoMap     setupInfoMap;
+	static MutexLock           mutex;
+	static DBSetupInfoMap      setupInfoMap;
+	static OptionTermGenerator optionTermGenerator;
 	DBDomainId dbDomainId;
 
 	// methods
@@ -98,6 +99,7 @@ struct DBAgent::PrivateContext
 
 MutexLock      DBAgent::PrivateContext::mutex;
 DBSetupInfoMap DBAgent::PrivateContext::setupInfoMap;
+OptionTermGenerator DBAgent::PrivateContext::optionTermGenerator;
 
 // ---------------------------------------------------------------------------
 // DBAgent::TableProfile
@@ -609,6 +611,11 @@ bool DBAgent::updateIfExistElseInsert(
 		insert(arg);
 	}
 	return exist;
+}
+
+const OptionTermGenerator *DBAgent::getOptionTermGenerator(void) const
+{
+	return &m_ctx->optionTermGenerator;
 }
 
 void DBAgent::createIndex(const IndexDef &indexDef)
