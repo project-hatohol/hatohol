@@ -32,19 +32,22 @@ struct DataQueryOption::PrivateContext {
 	size_t offset;
 	SortOrderList sortOrderList;
 	DataQueryContextPtr dataQueryCtxPtr; // The body is shared
+	const OptionTermGenerator *optionTermGenerator;
 
 	// constuctor
 	PrivateContext(const UserIdType &userId)
 	: maxNumber(NO_LIMIT),
 	  offset(0),
-	  dataQueryCtxPtr(new DataQueryContext(userId), false)
+	  dataQueryCtxPtr(new DataQueryContext(userId), false),
+	  optionTermGenerator(NULL)
 	{
 	}
 
 	PrivateContext(DataQueryContext *dataQueryContext)
 	: maxNumber(NO_LIMIT),
 	  offset(0),
-	  dataQueryCtxPtr(dataQueryContext)
+	  dataQueryCtxPtr(dataQueryContext),
+	  optionTermGenerator(NULL)
 	{
 	}
 
@@ -118,6 +121,20 @@ std::string DataQueryOption::getCondition(void) const
 DataQueryContext &DataQueryOption::getDataQueryContext(void) const
 {
 	return *m_ctx->dataQueryCtxPtr;
+}
+
+void DataQueryOption::setOptionTermGenerator(
+  const OptionTermGenerator *optionTermGenerator)
+{
+	m_ctx->optionTermGenerator = optionTermGenerator;
+}
+
+const OptionTermGenerator *DataQueryOption::getOptionTermGenerator(void) const
+{
+	if (m_ctx->optionTermGenerator)
+		return m_ctx->optionTermGenerator;
+	static OptionTermGenerator optionTermGenerator;
+	return &optionTermGenerator;
 }
 
 bool DataQueryOption::isValidServer(const ServerIdType &serverId) const

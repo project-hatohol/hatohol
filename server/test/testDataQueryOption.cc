@@ -309,4 +309,18 @@ void test_addConditionOr(void)
 	cut_trace(TestQueryOption::assertAddConditionOr());
 }
 
+void test_getOptionTermGenerator(void)
+{
+	DataQueryOption option;
+	cppcut_assert_not_null(option.getOptionTermGenerator());
+}
+
+void test_setOptionTermGenerator(void)
+{
+	OptionTermGenerator optTermGen;
+	DataQueryOption option;
+	option.setOptionTermGenerator(&optTermGen);
+	cppcut_assert_equal(&optTermGen, option.getOptionTermGenerator());
+}
+
 } // namespace testDataQueryOption
