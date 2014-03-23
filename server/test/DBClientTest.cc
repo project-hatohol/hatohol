@@ -330,9 +330,9 @@ ActionDef testActionDef[] = {
 	  ACTCOND_TRIGGER_ID | ACTCOND_TRIGGER_STATUS |
 	   ACTCOND_TRIGGER_SEVERITY,   // enableBits
 	  2,                        // serverId
-	  0x89abcdeffffffff,       // hostId
-	  0x800000000000000,       // hostgroupId
-	  0xfedcba987654321,       // triggerId
+	  0x89abcdefffffffff,       // hostId
+	  0x8000000000000000,       // hostGroupId
+	  0xfedcba9876543210,       // triggerId
 	  TRIGGER_STATUS_OK,        // triggerStatus
 	  TRIGGER_SEVERITY_WARNING, // triggerSeverity
 	  CMP_EQ_GT                 // triggerSeverityCompType;
