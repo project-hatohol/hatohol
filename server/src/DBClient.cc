@@ -17,8 +17,8 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <memory>
 #include <MutexLock.h>
+#include <Reaper.h>
 #include "DBClient.h"
 #include "DBAgentFactory.h"
 using namespace std;
@@ -336,16 +336,27 @@ void DBClient::setDBVersion(DBAgent *dbAgent, int version)
 // non-static methods
 void DBClient::dbSetupFunc(DBDomainId domainId, void *data)
 {
+	struct {
+		static void destroy(DBAgent *dbAgent)
+		{
+			if (dbAgent) {
+				dbAgent->rollback();
+				delete dbAgent;
+			}
+		}
+	} funcs;
+
 	DBSetupContext *setupCtx = static_cast<DBSetupContext *>(data);
 	const DBSetupFuncArg *setupFuncArg = setupCtx->dbSetupFuncArg;
 	bool skipSetup = true;
 	const DBConnectInfo *connectInfo = &setupCtx->connectInfo;
-	auto_ptr<DBAgent> rawDBAgent(DBAgentFactory::create(domainId,
-	                                                    setupCtx->dbName,
-	                                                    skipSetup,
-	                                                    connectInfo));
+	DBAgent *rawDBAgent = DBAgentFactory::create(domainId, setupCtx->dbName,
+	                                             skipSetup, connectInfo);
+	rawDBAgent->begin();
+	Reaper<DBAgent> rollbacker(rawDBAgent, funcs.destroy);
+
 	if (!rawDBAgent->isTableExisting(TABLE_NAME_DBCLIENT_VERSION))
-		createTable(rawDBAgent.get(), tableProfileDBClientVersion);
+		createTable(rawDBAgent, tableProfileDBClientVersion);
 
 	// If the row that has the version of this DBClient doesn't exist,
 	// we insert it.
@@ -354,9 +365,9 @@ void DBClient::dbSetupFunc(DBDomainId domainId, void *data)
 	  domainId);
 	if (!rawDBAgent->isRecordExisting(TABLE_NAME_DBCLIENT_VERSION,
 	                                  condition))
-		insertDBClientVersion(rawDBAgent.get(), setupFuncArg);
+		insertDBClientVersion(rawDBAgent, setupFuncArg);
 	else
-		updateDBIfNeeded(domainId, rawDBAgent.get(), setupFuncArg);
+		updateDBIfNeeded(domainId, rawDBAgent, setupFuncArg);
 
 	// Create tables
 	vector<const DBSetupTableInfo *> createdTableInfoVect;
@@ -366,7 +377,7 @@ void DBClient::dbSetupFunc(DBDomainId domainId, void *data)
 
 		if (rawDBAgent->isTableExisting(tableInfo.profile->name))
 			continue;
-		createTable(rawDBAgent.get(), *tableInfo.profile);
+		createTable(rawDBAgent, *tableInfo.profile);
 		createdTableInfoVect.push_back(&tableInfo);
 	}
 
@@ -383,9 +394,12 @@ void DBClient::dbSetupFunc(DBDomainId domainId, void *data)
 		const DBSetupTableInfo &tableInfo = *createdTableInfoVect[i];
 		if (!tableInfo.initializer)
 			continue;
-		(*tableInfo.initializer)(rawDBAgent.get(),
-	                                 tableInfo.initializerData);
+		(*tableInfo.initializer)(rawDBAgent, tableInfo.initializerData);
 	}
+
+	rawDBAgent->commit();
+	delete rawDBAgent;
+	rollbacker.deactivate();
 }
 
 void DBClient::begin(void)
