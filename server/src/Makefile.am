@@ -60,6 +60,7 @@ libhatohol_la_SOURCES = \
 	ItemTable.cc ItemTable.h \
 	ItemTablePtr.cc ItemTablePtr.h \
 	ItemTableUtils.h \
+	OptionTermGenerator.h OptionTermGenerator.cc \
 	LabelUtils.cc LabelUtils.h \
 	NamedPipe.cc NamedPipe.h \
 	OperationPrivilege.cc OperationPrivilege.h \

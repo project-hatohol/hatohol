@@ -45,6 +45,7 @@ testHatohol_la_SOURCES = \
 	testDBClientZabbix.cc \
 	testDBClientAction.cc testDBClientUser.cc \
 	testOperationPrivilege.cc \
+	testOptionTermGenerator.cc \
 	testSQLUtils.cc testSQLProcessor.cc \
 	testSQLProcessorInsert.cc testSQLProcessorUpdate.cc \
 	testFormulaElement.cc \
