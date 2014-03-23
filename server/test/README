@@ -1,13 +1,53 @@
-* When you test MySQLWorker of hatohol that is running with port 8006.
-$ TEST_MYSQL_PORT=8006 ./run-test.sh -t /testMySQLWorkerZabbix/
+Speed-up technique of the test
+------------------------------
+(1) HATOHOL_DB_DIR=/dev/shm (path on tmpfs)
+The above setting changes the DB path for SQLite3.
+It has effect only for DBAgentSQLite3 and the related classes.
 
-* When you want to show the stack trace, set the environment variable like
-$ HATOHOL_EXCEPTION_STACK_TRACE=1 ./run-test.sh
+(2) HATOHOL_MYSQL_ENGINE_MEMORY=1
+The above setting request MySQL to use a heap (memory) storage engine.
+It has effect only for DBAgentMySQL and the related classes.
+This way is a little slower than the way (3). However, this is easier,
+because no other settings are needed.
 
-* Some database tests may be faster by setting the database dir to RAM Disk as
+(3) Put the DB of MySQL on tmpfs
+This way is fater than that of (2). However, it affects all
+application using MySQL. So you should use a virtual machine or
+environment such as LXC or KVM. Ccontainer based ways such as LXC are
+recommended because degradation of I/O performance of them is less than that
+of fully virtualization ways.
+
+3-1: Edit /etc/mysql/my.cnf like
+- datadir = /var/lib/mysql
++ datadir = /dev/shm/mysql
+
+3-2: Probably you need to execute the following command.
+$ mysql_install_db
+
+3-3: Install the DB for NDOUtils
+
+If you already ndoutilsB for NDOUtils, you can copy by the mysqldump command.
+mysqldump -u root ndoutils > ndoutils.sql (do before 3-1)
+mysqldump -u root ndoutils < ndoutils.sql (do after  3-2)
+
+### You can use any combination of the above ways. For example,
+
 $ HATOHOL_DB_DIR=/dev/shm HATOHOL_MYSQL_ENGINE_MEMORY=1 ./run-test.sh
 
-*** Hint ***
+How to show the stack trace on an HatoholException
+-------------------------------------------------
+Set the environment variable like
+
+$ HATOHOL_EXCEPTION_STACK_TRACE=1 ./run-test.sh
+
+Hint: generate a core file 
+--------------------------
 If the system uses apport (such as Ubuntu 13.10), some test, which makes a
 child process crash, fails. In that case, you should set
 /proc/sys/kernel/core_patter to 'core', or purge the apport package.
+
+How to use a specified port for MySQLWorker
+-------------------------------------------
+Ex.) port 8006
+$ TEST_MYSQL_PORT=8006 ./run-test.sh -t /testMySQLWorkerZabbix/
+
