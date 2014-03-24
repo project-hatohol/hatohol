@@ -537,6 +537,17 @@ void test_hostgroupsQueryOptionFromDataQueryContext(gconstpointer data)
 	assertQueryOptionFromDataQueryContext(HostgroupsQueryOption, data);
 }
 
+void test_hostgroupsQueryOptionCallGetConditionFromUserWithoutAllServers(void)
+{
+	setupTestDBUser(true, true);
+	const UserIdType userId = findUserWithout(OPPRVLG_GET_ALL_SERVER);
+	HostgroupsQueryOption option(userId);
+	option.setFilterForDataOfDefunctServers(false);
+	const string actual = option.getCondition();
+	const string expect = "(server_id=1 AND host_group_id IN (0,1))";
+	cppcut_assert_equal(expect, actual);
+}
+
 //
 // HostgroupElementQueryOption
 //

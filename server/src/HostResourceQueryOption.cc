@@ -177,13 +177,19 @@ string HostResourceQueryOption::getCondition(void) const
 		return DBClientHatohol::getAlwaysFalseCondition();
 	}
 
+	// If the subclass doesn't have a valid hostIdColumnIdx,
+	// getHostIdColumnName() throws an exception. In that case,
+	// targetHostId shall be ALL_HOSTS.
+	const string hostIdColumnName =
+	  (m_ctx->targetHostId != ALL_HOSTS) ?  getHostIdColumnName() : "";
+
 	const ServerHostGrpSetMap &srvHostGrpSetMap =
 	  getDataQueryContext().getServerHostGrpSetMap();
 	addCondition(condition,
 	             makeCondition(srvHostGrpSetMap,
 	                           getServerIdColumnName(),
 	                           getHostgroupIdColumnName(),
-	                           getHostIdColumnName(),
+	                           hostIdColumnName,
 	                           m_ctx->targetServerId,
 	                           m_ctx->targetHostgroupId,
 	                           m_ctx->targetHostId));
