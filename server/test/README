@@ -34,6 +34,16 @@ mysqldump -u root ndoutils < ndoutils.sql (do after  3-2)
 
 $ HATOHOL_DB_DIR=/dev/shm HATOHOL_MYSQL_ENGINE_MEMORY=1 ./run-test.sh
 
+[Ref.]
+In my evironment (Core i7 860 + Mem 12GB + SATA HDD),
+they drastically improve the test speed.
+
+1240 sec. ->
+1033 sec. (with HATOHOL_DB_DIR=/dev/shm)
+ 485 sec. (with HATOHOL_MYSQL_ENGINE_MEMORY=1)
+ 264 sec. (with HATOHOL_DB_DIR=/dev/shm && HATOHOL_MYSQL_ENGINE_MEMORY=1)
+  28 sec. (with all the above ways)
+
 How to show the stack trace on an HatoholException
 -------------------------------------------------
 Set the environment variable like
