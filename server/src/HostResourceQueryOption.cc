@@ -54,9 +54,6 @@ HostResourceQueryOption::Synapse::Synapse(
 // ---------------------------------------------------------------------------
 struct HostResourceQueryOption::PrivateContext {
 	const Synapse  &synapse;
-	string          serverIdColumnName;
-	string          hostgroupIdColumnName;
-	string          hostIdColumnName;
 	ServerIdType    targetServerId;
 	HostIdType      targetHostId;
 	HostgroupIdType targetHostgroupId;
@@ -65,9 +62,6 @@ struct HostResourceQueryOption::PrivateContext {
 
 	PrivateContext(const Synapse &_synapse)
 	: synapse(_synapse),
-	  serverIdColumnName("server_id"),
-	  hostgroupIdColumnName("host_group_id"),
-	  hostIdColumnName("host_id"),
 	  targetServerId(ALL_SERVERS),
 	  targetHostId(ALL_HOSTS),
 	  targetHostgroupId(ALL_HOST_GROUPS),
@@ -78,9 +72,6 @@ struct HostResourceQueryOption::PrivateContext {
 
 	PrivateContext &operator=(const PrivateContext &rhs)
 	{
-		serverIdColumnName         = rhs.serverIdColumnName;
-		hostgroupIdColumnName      = rhs.hostgroupIdColumnName;
-		hostIdColumnName           = rhs.hostIdColumnName;
 		targetServerId             = rhs.targetServerId;
 		targetHostId               = rhs.targetHostId;
 		targetHostgroupId          = rhs.targetHostgroupId;
