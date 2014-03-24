@@ -12,8 +12,8 @@ because no other settings are needed.
 
 (3) Put the DB of MySQL on tmpfs
 This way is fater than that of (2). However, it affects all
-application using MySQL. So you should use a virtual machine or
-environment such as LXC or KVM. Ccontainer based ways such as LXC are
+applications using MySQL. So you should use a virtual machine or
+environment such as LXC or KVM. Container based ways such as LXC are
 recommended because degradation of I/O performance of them is less than that
 of fully virtualization ways.
 
