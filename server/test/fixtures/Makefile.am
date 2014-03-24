@@ -13,9 +13,12 @@ mkTestDB_SOURCES = mkTestDB.cc
 mkTestDB_LDADD = $(LIBS)
 
 $(TEST_DBS): mkTestDB ../../src/libhatohol.la ../libTest.la
+
+# To make the creation time short, we create it on tmpfs.
 testDatabase-hatohol.db:
 	rm -f $@
-	./mkTestDB hatohol $@
+	./mkTestDB hatohol /dev/shm/$@
+	cp -f /dev/shm/$@ .
 
 FooTable.db: mkFooTable.sh
 	rm -f $@
