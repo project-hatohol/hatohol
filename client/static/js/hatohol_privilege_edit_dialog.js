@@ -194,13 +194,12 @@ HatoholPrivilegeEditDialog.prototype.generateMainTable = function() {
   '  <thead>' +
   '    <tr>' +
   '      <th>' + gettext("All Allow") + '</th>' +
-  '      <th>' + gettext("Allowed Hostgroups") + '</th>' +
+  '      <th colspan="2">' + gettext("Allowed Hostgroups") + '</th>' +
   '      <th>ID</th>' +
   '      <th>' + gettext("Type") + '</th>' +
   '      <th>' + gettext("Hostname") + '</th>' +
   '      <th>' + gettext("IP Address") + '</th>' +
   '      <th>' + gettext("Nickname") + '</th>' +
-  '      <th>' + gettext("Hostgroup") + '</th>' +
   '    </tr>' +
   '  </thead>' +
   '  <tbody></tbody>' +
@@ -218,14 +217,14 @@ HatoholPrivilegeEditDialog.prototype.generateTableRows = function() {
                'serverId="' + sv['id'] + '"></td>';
     s += '<td>' + escapeHTML(sv.numberOfAllowedHostgroups) + '/';
     s +=          escapeHTML(sv.numberOfHostgroups) + '</td>';
+    s += '<td><input id="edit-server' + sv['id'] + '" type="button"';
+    s +=        'serverId="' + escapeHTML(sv.id) + '"';
+    s +=        'value="' + gettext("Show / Edit") + '" /></td>';
     s += '<td>' + escapeHTML(sv.id) + '</td>';
     s += '<td>' + makeMonitoringSystemTypeLabel(sv.type) + '</td>';
     s += '<td>' + escapeHTML(sv.hostName) + '</td>';
     s += '<td>' + escapeHTML(sv.ipAddress) + '</td>';
     s += '<td>' + escapeHTML(sv.nickname)  + '</td>';
-    s += '<td><input id="edit-server' + sv['id'] + '" type="button"' +
-              'serverId="' + escapeHTML(sv.id) + '"' +
-              'value="' + gettext("Show / Edit") + '" />';
     s += '</td>';
     s += '</tr>';
   }
