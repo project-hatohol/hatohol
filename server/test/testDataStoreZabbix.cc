@@ -37,6 +37,7 @@ void cut_setup(void)
 void test_getArmBase(void)
 {
 	MonitoringServerInfo serverInfo;
+	MonitoringServerInfo::initialize(serverInfo);
 	serverInfo.id = 5;
 	UsedCountablePtr<DataStoreZabbix>
 	  dataStoreZabbixPtr(new DataStoreZabbix(serverInfo, false), false);
