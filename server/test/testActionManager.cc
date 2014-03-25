@@ -76,6 +76,13 @@ public:
 	{
 		setupPathForAction(path, ldLibraryPath);
 	}
+
+	HatoholError callRunAction(const ActionDef &actionDef,
+	                           const EventInfo &eventInfo,
+	                           DBClientAction &dbAction)
+	{
+		return runAction(actionDef, eventInfo, dbAction);
+	}
 };
 
 namespace testActionManager {
@@ -1297,5 +1304,28 @@ void test_checkExitWaitedCommandAction(void)
 	cppcut_assert_equal((size_t)0,
 	                    actMgr.callGetNumberOfOnstageCommandActors());
 }
+
+void test_runAction(void)
+{
+	setupTestDBUser(true, true);
+	setupTestDBConfig(true, true);
+
+	DBClientAction dbAction;
+	TestActionManager actMgr;
+	// make a copy to overwrite ownerUserId
+	ActionDef actDef = testActionDef[0];
+	const EventInfo &eventInfo = testEventInfo[0];
+
+	// normal case
+	HatoholError err = actMgr.callRunAction(actDef, eventInfo, dbAction);
+	assertHatoholError(HTERR_OK, err);
+
+	// with nonexisting user
+	const UserIdType nonExistingUserId = NumTestUserInfo + 5;
+	actDef.ownerUserId = nonExistingUserId;
+	err = actMgr.callRunAction(actDef, eventInfo, dbAction);
+	assertHatoholError(HTERR_INVALID_USER, err);
+}
+
 
 } // namespace testActionManager
