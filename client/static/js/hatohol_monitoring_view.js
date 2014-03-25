@@ -280,3 +280,27 @@ HatoholMonitoringView.prototype.setAutoReload =
   if (intervalSeconds)
     this.reloadTimerId = setTimeout(reloadFunc, intervalSeconds * 1000);
 };
+
+HatoholMonitoringView.prototype.setupCheckboxForDelete =
+  function(jQObjDeleteButton)
+{
+  var numSelected = 0;
+  $(".selectcheckbox").attr("checked", false);
+  jQObjDeleteButton.attr("disabled", true);
+  $(".selectcheckbox").change(function() {
+    check = $(this).is(":checked");
+    var prevNumSelected = numSelected;
+    if (check)
+      numSelected += 1;
+    else
+      numSelected -= 1;
+    if (prevNumSelected == 0 && numSelected == 1)
+      jQObjDeleteButton.attr("disabled", false);
+    else if (prevNumSelected == 1 && numSelected == 0)
+      jQObjDeleteButton.attr("disabled", true);
+  });
+  if (userProfile.hasFlag(hatohol.OPPRVLG_DELETE_SERVER)) {
+    $(".delete-selector").show();
+  }
+};
+
