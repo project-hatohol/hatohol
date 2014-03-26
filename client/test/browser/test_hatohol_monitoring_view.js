@@ -71,10 +71,8 @@ describe('HatoholMonitoringView', function() {
     $('#delete-test-button').attr("disabled", "");
     $('#checkbox1').val(true);
 
-    var user = {flags: 1 << hatohol.OPPRVLG_DELETE_SERVER};
-    var testObj = {userProfile: new HatoholUserProfile(user)};
     HatoholMonitoringView.prototype.setupCheckboxForDelete.apply(
-     testObj, [$('#delete-test-button')]);
+     makeTestObject(1<<hatohol.OPPRVLG_DELETE_SERVER), [$('#delete-test-button')]);
     expect($('#delete-test-button').attr("disabled")).to.be("disabled");
     expect($('#checkbox1').prop('checked')).to.be(false);
     expect($('#checkbox2').prop('checked')).to.be(false);
