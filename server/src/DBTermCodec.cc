@@ -23,12 +23,12 @@
 using namespace std;
 using namespace mlpl;
 
-string DBTermCodec::get(const int &val) const
+string DBTermCodec::enc(const int &val) const
 {
 	return StringUtils::sprintf("%d", val);
 }
 
-string DBTermCodec::get(const uint64_t &val) const
+string DBTermCodec::enc(const uint64_t &val) const
 {
 	return StringUtils::sprintf("%"PRIu64, val);
 }

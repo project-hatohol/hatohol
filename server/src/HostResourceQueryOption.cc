@@ -141,7 +141,7 @@ string HostResourceQueryOption::getCondition(void) const
 			  StringUtils::sprintf(
 				"%s=%s",
 				getServerIdColumnName().c_str(),
-				dbTermCodec->get(m_ctx->targetServerId).c_str())
+				dbTermCodec->enc(m_ctx->targetServerId).c_str())
 			);
 		}
 		if (m_ctx->targetHostId != ALL_HOSTS) {
@@ -149,7 +149,7 @@ string HostResourceQueryOption::getCondition(void) const
 			  StringUtils::sprintf(
 				"%s=%s",
 				getHostIdColumnName().c_str(),
-				dbTermCodec->get(m_ctx->targetHostId).c_str())
+				dbTermCodec->enc(m_ctx->targetHostId).c_str())
 			);
 		}
 		if (m_ctx->targetHostgroupId != ALL_HOST_GROUPS) {
@@ -157,7 +157,7 @@ string HostResourceQueryOption::getCondition(void) const
 			  StringUtils::sprintf(
 				"%s=%s",
 				getHostgroupIdColumnName().c_str(),
-				dbTermCodec->get(m_ctx->targetHostgroupId).c_str())
+				dbTermCodec->enc(m_ctx->targetHostgroupId).c_str())
 			);
 		}
 		return condition;

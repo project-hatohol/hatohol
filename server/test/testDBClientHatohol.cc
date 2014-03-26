@@ -408,9 +408,9 @@ static string makeMapHostsHostgroupsOutput
 	string expectedOut = StringUtils::sprintf(
 	  "%zd|%s|%s|%s\n",
 	  id + 1,
-	  dbTermCodec->get(hostgroupElement.serverId).c_str(),
-	  dbTermCodec->get(hostgroupElement.hostId).c_str(),
-	  dbTermCodec->get(hostgroupElement.groupId).c_str());
+	  dbTermCodec->enc(hostgroupElement.serverId).c_str(),
+	  dbTermCodec->enc(hostgroupElement.hostId).c_str(),
+	  dbTermCodec->enc(hostgroupElement.groupId).c_str());
 
 	return expectedOut;
 }

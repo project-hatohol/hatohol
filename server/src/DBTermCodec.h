@@ -25,8 +25,8 @@
 
 class DBTermCodec {
 public:
-	virtual std::string get(const int &val) const;
-	virtual std::string get(const uint64_t &val) const;
+	virtual std::string enc(const int &val) const;
+	virtual std::string enc(const uint64_t &val) const;
 };
 
 #endif // DBTermCodec_h
