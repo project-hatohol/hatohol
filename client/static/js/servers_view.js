@@ -22,7 +22,7 @@ var ServersView = function(userProfile) {
   var serverIds = new Array();
 
   // call the constructor of the super class
-  HatoholMonitoringView.apply(userProfile);
+  HatoholMonitoringView.apply(this, [userProfile]);
 
   if (userProfile.hasFlag(hatohol.OPPRVLG_CREATE_SERVER))
     $("#add-server-button").show();

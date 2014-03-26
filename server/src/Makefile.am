@@ -29,6 +29,7 @@ libhatohol_la_SOURCES = \
 	DBClientHatohol.cc DBClientHatohol.h \
 	DBClientUser.h DBClientUser.cc \
 	DBClientZabbix.cc DBClientZabbix.h \
+	DBTermCodec.h DBTermCodec.cc \
 	DataStore.cc DataStore.h \
 	DataStoreException.cc DataStoreException.h \
 	DataStoreManager.cc DataStoreManager.h \
@@ -60,7 +61,6 @@ libhatohol_la_SOURCES = \
 	ItemTable.cc ItemTable.h \
 	ItemTablePtr.cc ItemTablePtr.h \
 	ItemTableUtils.h \
-	OptionTermGenerator.h OptionTermGenerator.cc \
 	LabelUtils.cc LabelUtils.h \
 	NamedPipe.cc NamedPipe.h \
 	OperationPrivilege.cc OperationPrivilege.h \

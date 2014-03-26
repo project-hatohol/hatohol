@@ -50,7 +50,7 @@ public:
 	static bool defineDBPath(DBDomainId domainId, const std::string &path,
 	                         bool allowOverwrite = true);
 	static std::string &getDBPath(DBDomainId domainId);
-	static const OptionTermGenerator *getOptionTermGeneratorStatic(void);
+	static const DBTermCodec *getDBTermCodecStatic(void);
 
 	// constructor and destructor
 	DBAgentSQLite3(const std::string &dbName = "",
@@ -77,7 +77,7 @@ public:
 	virtual void deleteRows(const DeleteArg &deleteArg); // override
 	virtual void addColumns(const AddColumnsArg &addColumnsArg); // override
 	virtual const
-	  OptionTermGenerator *getOptionTermGenerator(void) const; // override
+	  DBTermCodec *getDBTermCodec(void) const; // override
 
 	virtual uint64_t getLastInsertId(void);
 	virtual uint64_t getNumberOfAffectedRows(void);

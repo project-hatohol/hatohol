@@ -53,6 +53,7 @@ HostResourceQueryOption::Synapse::Synapse(
 // PrivateContext
 // ---------------------------------------------------------------------------
 struct HostResourceQueryOption::PrivateContext {
+	static const DBTermCodec *dbTermCodec;
 	const Synapse  &synapse;
 	ServerIdType    targetServerId;
 	HostIdType      targetHostId;
@@ -80,6 +81,10 @@ struct HostResourceQueryOption::PrivateContext {
 	}
 };
 
+// TODO: Use a more smart way
+const DBTermCodec *HostResourceQueryOption::PrivateContext::dbTermCodec =
+  DBAgentSQLite3::getDBTermCodecStatic();
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
@@ -88,8 +93,6 @@ HostResourceQueryOption::HostResourceQueryOption(
 : DataQueryOption(userId)
 {
 	m_ctx = new PrivateContext(synapse);
-	// TODO: Use a more smart way
-	setOptionTermGenerator(DBAgentSQLite3::getOptionTermGeneratorStatic());
 }
 
 HostResourceQueryOption::HostResourceQueryOption(
@@ -97,8 +100,6 @@ HostResourceQueryOption::HostResourceQueryOption(
 : DataQueryOption(dataQueryContext)
 {
 	m_ctx = new PrivateContext(synapse);
-	// TODO: Use a more smart way
-	setOptionTermGenerator(DBAgentSQLite3::getOptionTermGeneratorStatic());
 }
 
 HostResourceQueryOption::HostResourceQueryOption(
@@ -122,7 +123,7 @@ const char *HostResourceQueryOption::getPrimaryTableName(void) const
 
 string HostResourceQueryOption::getCondition(void) const
 {
-	const OptionTermGenerator *termGen = getOptionTermGenerator();
+	const DBTermCodec *dbTermCodec = PrivateContext::dbTermCodec;
 	string condition;
 	if (getFilterForDataOfDefunctServers()) {
 		addCondition(
@@ -141,7 +142,7 @@ string HostResourceQueryOption::getCondition(void) const
 			  StringUtils::sprintf(
 				"%s=%s",
 				getServerIdColumnName().c_str(),
-				termGen->get(m_ctx->targetServerId).c_str())
+				dbTermCodec->enc(m_ctx->targetServerId).c_str())
 			);
 		}
 		if (m_ctx->targetHostId != ALL_HOSTS) {
@@ -149,7 +150,7 @@ string HostResourceQueryOption::getCondition(void) const
 			  StringUtils::sprintf(
 				"%s=%s",
 				getHostIdColumnName().c_str(),
-				termGen->get(m_ctx->targetHostId).c_str())
+				dbTermCodec->enc(m_ctx->targetHostId).c_str())
 			);
 		}
 		if (m_ctx->targetHostgroupId != ALL_HOST_GROUPS) {
@@ -157,7 +158,7 @@ string HostResourceQueryOption::getCondition(void) const
 			  StringUtils::sprintf(
 				"%s=%s",
 				getHostgroupIdColumnName().c_str(),
-				termGen->get(m_ctx->targetHostgroupId).c_str())
+				dbTermCodec->enc(m_ctx->targetHostgroupId).c_str())
 			);
 		}
 		return condition;
@@ -310,12 +311,14 @@ string HostResourceQueryOption::makeConditionServer(
 
 	ServerIdSetConstIterator serverId = serverIdSet.begin();
 	bool first = true;
+	const DBTermCodec *dbTermCodec = PrivateContext::dbTermCodec;
 	for (; serverId != serverIdSet.end(); ++serverId) {
 		if (first)
 			first = false;
 		else
 			condition += ",";
-		condition += StringUtils::sprintf("%"FMT_SERVER_ID, *serverId);
+		condition += StringUtils::sprintf(
+		  "%s", dbTermCodec->enc(*serverId).c_str());
 	}
 	condition += ")";
 	return condition;
@@ -326,9 +329,11 @@ string HostResourceQueryOption::makeConditionServer(
   const string &serverIdColumnName, const string &hostgroupIdColumnName,
   const HostgroupIdType &hostgroupId)
 {
+	const DBTermCodec *dbTermCodec = PrivateContext::dbTermCodec;
 	string condition;
 	condition = StringUtils::sprintf(
-	  "%s=%"FMT_SERVER_ID, serverIdColumnName.c_str(), serverId);
+	  "%s=%s", serverIdColumnName.c_str(),
+	  dbTermCodec->enc(serverId).c_str());
 
 	string conditionHostgroup;
 	if (hostgroupId == ALL_HOST_GROUPS) {
@@ -336,8 +341,8 @@ string HostResourceQueryOption::makeConditionServer(
 		  makeConditionHostgroup(hostgroupIdSet, hostgroupIdColumnName);
 	} else {
 		conditionHostgroup = StringUtils::sprintf(
-		  "%s=%"FMT_HOST_GROUP_ID, hostgroupIdColumnName.c_str(),
-		  hostgroupId);
+		  "%s=%s", hostgroupIdColumnName.c_str(),
+		  dbTermCodec->enc(hostgroupId).c_str());
 	}
 	if (!conditionHostgroup.empty()) {
 		return StringUtils::sprintf("(%s AND %s)",
@@ -392,10 +397,11 @@ string HostResourceQueryOption::makeCondition(
 	}
 
 	if (targetHostId != ALL_HOSTS) {
-		return StringUtils::sprintf("((%s) AND %s=%"FMT_HOST_ID")",
-					    condition.c_str(),
-					    hostIdColumnName.c_str(),
-					    targetHostId);
+		const DBTermCodec *dbTermCodec = PrivateContext::dbTermCodec;
+		return StringUtils::sprintf(
+		  "((%s) AND %s=%s)",
+		  condition.c_str(), hostIdColumnName.c_str(),
+		  dbTermCodec->enc(targetHostId).c_str());
 	}
 
 	if (numServers == 1)

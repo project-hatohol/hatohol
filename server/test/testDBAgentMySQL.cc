@@ -20,6 +20,7 @@
 #include <cppcutter.h>
 #include "DBAgentMySQL.h"
 #include "SQLUtils.h"
+#include "Hatohol.h"
 #include "DBAgentTest.h"
 #include "Helpers.h"
 using namespace std;
@@ -138,7 +139,6 @@ public:
 			case SQL_KEY_IDX:
 				// These index is not crated until
 				// fixupIndexes() is called.
-			case SQL_KEY_MUL: // TODO: remove
 			case SQL_KEY_NONE:
 				expected = "";
 				break;
@@ -259,15 +259,15 @@ public:
 			int seq = 1;
 			while (*columnIdxPtr != DBAgent::IndexDef::END) {
 				const ColumnDef &columnDef =
-				  tableProfile.columnDefs[*columnIdxPtr];
+				  tableProfile.columnDefs[*columnIdxPtr++];
 
 				string line = makeExpectedIndexStruct(
 				  tableProfile.name, indexDef->isUnique,
 				  indexDef->name, columnDef.columnName,
-				  columnDef.canBeNull, isMemoryEngine, seq);
+				  columnDef.canBeNull, isMemoryEngine, seq,
+				  *columnIdxPtr == DBAgent::IndexDef::END);
 				expectLines.push_back(line);
 
-				columnIdxPtr++;
 				seq++;
 			}
 		}
@@ -326,7 +326,8 @@ protected:
 	string makeExpectedIndexStruct(
 	  const string &tableName, const bool &isUnique, const string &keyName,
 	  const string &columnName, const bool &canBeNull,
-	  const bool &isMemoryEngine, const size_t &seqInIndex = 1)
+	  const bool &isMemoryEngine, const size_t &seqInIndex = 1,
+	  const bool &isLastColumn = false)
 	{
 		string s;
 
@@ -352,7 +353,14 @@ protected:
 		s += "\t";
 
 		s += isMemoryEngine ? "NULL\t" : "A\t"; // Collation
-		s += "0\t";    // Cardinality
+
+		// Cardinality
+		if (!isMemoryEngine || keyName == "PRIMARY" ||
+		    columnName == keyName || isLastColumn)
+			s += "0\t";
+		else
+			s += "NULL\t";
+
 		s += "NULL\t"; // Sub_part
 		s += "NULL\t"; // Packed
 		s += canBeNull ? "YES\t" : "\t"; // Null
@@ -416,6 +424,7 @@ void _assertIsRecordExisting(bool skipInsert)
 void cut_setup(void)
 {
 	bool recreate = true;
+	hatoholInit();
 	makeTestMySQLDBIfNeeded(TEST_DB_NAME, recreate);
 }
 
