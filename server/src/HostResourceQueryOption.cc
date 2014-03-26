@@ -53,6 +53,7 @@ HostResourceQueryOption::Synapse::Synapse(
 // PrivateContext
 // ---------------------------------------------------------------------------
 struct HostResourceQueryOption::PrivateContext {
+	static const DBTermCodec *dbTermCodec;
 	const Synapse  &synapse;
 	ServerIdType    targetServerId;
 	HostIdType      targetHostId;
@@ -80,6 +81,10 @@ struct HostResourceQueryOption::PrivateContext {
 	}
 };
 
+// TODO: Use a more smart way
+const DBTermCodec *HostResourceQueryOption::PrivateContext::dbTermCodec =
+  DBAgentSQLite3::getDBTermCodecStatic();
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
@@ -88,8 +93,6 @@ HostResourceQueryOption::HostResourceQueryOption(
 : DataQueryOption(userId)
 {
 	m_ctx = new PrivateContext(synapse);
-	// TODO: Use a more smart way
-	setDBTermCodec(DBAgentSQLite3::getDBTermCodecStatic());
 }
 
 HostResourceQueryOption::HostResourceQueryOption(
@@ -97,8 +100,6 @@ HostResourceQueryOption::HostResourceQueryOption(
 : DataQueryOption(dataQueryContext)
 {
 	m_ctx = new PrivateContext(synapse);
-	// TODO: Use a more smart way
-	setDBTermCodec(DBAgentSQLite3::getDBTermCodecStatic());
 }
 
 HostResourceQueryOption::HostResourceQueryOption(
@@ -122,7 +123,7 @@ const char *HostResourceQueryOption::getPrimaryTableName(void) const
 
 string HostResourceQueryOption::getCondition(void) const
 {
-	const DBTermCodec *dbTermCodec = getDBTermCodec();
+	const DBTermCodec *dbTermCodec = PrivateContext::dbTermCodec;
 	string condition;
 	if (getFilterForDataOfDefunctServers()) {
 		addCondition(
