@@ -136,6 +136,8 @@ public:
 	 */
 	const bool &getFilterForDataOfDefunctServers(void) const;
 
+	virtual const DBTermCodec *getDBTermCodec(void) const; // override
+
 protected:
 	std::string getServerIdColumnName(void) const;
 	std::string getHostgroupIdColumnName(void) const;

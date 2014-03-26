@@ -262,6 +262,11 @@ const bool &HostResourceQueryOption::getFilterForDataOfDefunctServers(void) cons
 	return m_ctx->filterDataOfDefunctServers;
 }
 
+const DBTermCodec *HostResourceQueryOption::getDBTermCodec(void) const
+{
+	return m_ctx->dbTermCodec;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

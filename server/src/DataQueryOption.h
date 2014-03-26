@@ -53,7 +53,7 @@ public:
 
 	DataQueryContext &getDataQueryContext(void) const;
 	void setDBTermCodec(const DBTermCodec *optionTermGenerator);
-	const DBTermCodec *getDBTermCodec(void) const;
+	virtual const DBTermCodec *getDBTermCodec(void) const;
 
 	/**
 	 * Check if the server is registered.

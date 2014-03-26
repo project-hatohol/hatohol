@@ -382,25 +382,6 @@ string makeEventOutput(const EventInfo &eventInfo)
 	return output;
 }
 
-static string decodeDBTerm(const string &term, DBAgent *dbAgent)
-{
-	// TODO: fix this temporary implementation
-	if (term.empty())
-		return term;
-	if (typeid(*dbAgent) != typeid(DBAgentSQLite3))
-		return term;
-	bool isFloat;
-	if (!StringUtils::isNumber(term, &isFloat))
-		return term;
-	if (isFloat)
-		return term;
-	if (term[0] != '-')
-		return term;
-	uint64_t val;
-	sscanf(term.c_str(), "%"PRIu64, &val);
-	return StringUtils::sprintf("%"PRIu64, val);
-}
-
 static void assertDBContentForComponets(const string &expect,
                                         const string &actual,
                                         DBAgent *dbAgent)
@@ -420,9 +401,7 @@ static void assertDBContentForComponets(const string &expect,
 			cppcut_assert_equal(getExpectedNullNotation(*dbAgent),
 			                    wordsActual[i]);
 		} else {
-			string actualWord = decodeDBTerm(wordsActual[i],
-			                                 dbAgent);
-			cppcut_assert_equal(wordsExpect[i], actualWord,
+			cppcut_assert_equal(wordsExpect[i], wordsActual[i],
 			  cut_message(
 			    "line no: %zd\n<<expect>>: %s\n<<actual>>: %s\n",
 	                    i, expect.c_str(), actual.c_str()));
