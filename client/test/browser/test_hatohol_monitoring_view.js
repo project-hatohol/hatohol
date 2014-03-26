@@ -1,4 +1,26 @@
 describe('HatoholMonitoringView', function() {
+
+  var testDivId = "testDiv";
+  afterEach(function(done) {
+    $("#" + testDivId).remove();
+    done();
+  });
+
+  function makeCheckBoxTestDiv() {
+    var s = '';
+    s += '<div id="' + testDivId + '">"';
+    s += '  <div class="delete-selector" id="checkbox-div" style="display:none;">';
+    s += '    <input type="checkbox" class="selectcheckbox" id="checkbox1">';
+    s += '    <input type="checkbox" class="selectcheckbox" id="checkbox2">';
+    s += '  </td>';
+    s += '  <button id="delete-test-button" type="button" disabled style="display: none;">';
+    s += '</div>';
+    $("body").append(s);
+  }
+
+  // ------------------------------------------------------------------------------------
+  // Test cases
+  // ------------------------------------------------------------------------------------
   it('set filter candidates', function() {
     var candidates = [
       { label: 'apple',  value: 1 },
@@ -35,5 +57,21 @@ describe('HatoholMonitoringView', function() {
     setCandidates(target);
     var expected = '<option>---------</option>';
     expect(target.html()).to.be(expected);
+  });
+
+  it ('soon after calling setupCheckboxForDelete', function() {
+
+    makeCheckBoxTestDiv();
+    $('#delete-test-button').attr("disabled", "");
+    $('#checkbox1').val(true);
+
+    var user = {flags: 1 << hatohol.OPPRVLG_DELETE_SERVER};
+    var testObj = {userProfile: new HatoholUserProfile(user)};
+    HatoholMonitoringView.prototype.setupCheckboxForDelete.apply(
+     testObj, [$('#delete-test-button')]);
+    expect($('#delete-test-button').attr("disabled")).to.be("disabled");
+    expect($('#checkbox1').prop('checked')).to.be(false);
+    expect($('#checkbox2').prop('checked')).to.be(false);
+    expect($('#checkbox-div').css('display')).to.be('block');
   });
 });
