@@ -17,18 +17,16 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <StringUtils.h>
-#include <inttypes.h>
-#include "OptionTermGenerator.h"
-using namespace std;
-using namespace mlpl;
+#ifndef DBTermCodec_h
+#define DBTermCodec_h
 
-string OptionTermGenerator::get(const int &val) const
-{
-	return StringUtils::sprintf("%d", val);
-}
+#include <string>
+#include <stdint.h>
 
-string OptionTermGenerator::get(const uint64_t &val) const
-{
-	return StringUtils::sprintf("%"PRIu64, val);
-}
+class DBTermCodec {
+public:
+	virtual std::string enc(const int &val) const;
+	virtual std::string enc(const uint64_t &val) const;
+};
+
+#endif // DBTermCodec_h

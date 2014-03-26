@@ -24,7 +24,7 @@ var OverviewItems = function(userProfile) {
   self.reloadIntervalSeconds = 60;
 
   // call the constructor of the super class
-  HatoholMonitoringView.apply(userProfile);
+  HatoholMonitoringView.apply(this, [userProfile]);
 
   load();
 

@@ -111,7 +111,7 @@ void SQLProcessorZabbix::init(void)
 	             false, SQL_KEY_NONE, "0");
 	defineColumn(staticInfo, ITEM_ID_ZBX_NODES_MASTERID,
 	             TABLE_ID_NODES, "masterid", SQL_COLUMN_TYPE_INT, 11,
-	             true, SQL_KEY_MUL, NULL);
+	             true, SQL_KEY_IDX, NULL);
 
 	staticInfo =
 	  defineTable(TABLE_ID_CONFIG, TABLE_NAME_CONFIG,
@@ -139,7 +139,7 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(staticInfo, ITEM_ID_ZBX_CONFIG_ALERT_USRGRPID,
 	             TABLE_ID_CONFIG, "alert_usrgrpid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
-	             true, SQL_KEY_MUL, NULL);
+	             true, SQL_KEY_IDX, NULL);
 	defineColumn(staticInfo, ITEM_ID_ZBX_CONFIG_EVENT_ACK_ENABLE,
 	             TABLE_ID_CONFIG, "event_ack_enable",
 	             SQL_COLUMN_TYPE_INT, 11,
@@ -195,7 +195,7 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(staticInfo, ITEM_ID_ZBX_CONFIG_DISCOVERY_GROUPID,
 	             TABLE_ID_CONFIG, "discovery_groupid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
-	             false, SQL_KEY_MUL, NULL);
+	             false, SQL_KEY_IDX, NULL);
 	defineColumn(staticInfo, ITEM_ID_ZBX_CONFIG_MAX_INTABLE,
 	             TABLE_ID_CONFIG, "max_in_table",
 	             SQL_COLUMN_TYPE_INT, 11,
@@ -311,7 +311,7 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(staticInfo, ITEM_ID_ZBX_USERS_ALIAS,
 	             TABLE_ID_USERS, "alias",
 	             SQL_COLUMN_TYPE_VARCHAR, 100,
-	             false, SQL_KEY_MUL, "");
+	             false, SQL_KEY_IDX, "");
 	defineColumn(staticInfo, ITEM_ID_ZBX_USERS_NAME,
 	             TABLE_ID_USERS, "name",
 	             SQL_COLUMN_TYPE_VARCHAR, 100,
@@ -379,7 +379,7 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(staticInfo, ITEM_ID_ZBX_USRGRP_NAME,
 	             TABLE_ID_USRGRP, "name",
 	             SQL_COLUMN_TYPE_VARCHAR, 64,
-	             false, SQL_KEY_MUL, "");
+	             false, SQL_KEY_IDX, "");
 	defineColumn(staticInfo, ITEM_ID_ZBX_USRGRP_GUI_ACCESS,
 	             TABLE_ID_USRGRP, "gui_access",
 	             SQL_COLUMN_TYPE_INT, 11,
@@ -403,11 +403,11 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(staticInfo, ITEM_ID_ZBX_USERS_GROUPS_USRGRPID,
 	             TABLE_ID_USERS_GROUPS, "usrgrpid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
-	             false, SQL_KEY_MUL, NULL);
+	             false, SQL_KEY_IDX, NULL);
 	defineColumn(staticInfo, ITEM_ID_ZBX_USERS_GROUPS_USERID,
 	             TABLE_ID_USERS_GROUPS, "userid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
-	             false, SQL_KEY_MUL, NULL);
+	             false, SQL_KEY_IDX, NULL);
 
 	staticInfo =
 	  defineTable(TABLE_ID_SESSIONS, TABLE_NAME_SESSIONS,
@@ -419,7 +419,7 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(staticInfo, ITEM_ID_ZBX_SESSIONS_USERID,
 	             TABLE_ID_SESSIONS, "userid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
-	             false, SQL_KEY_MUL, NULL); 
+	             false, SQL_KEY_IDX, NULL); 
 	defineColumn(staticInfo, ITEM_ID_ZBX_SESSIONS_LASTACCESS,
 	             TABLE_ID_SESSIONS, "lastaccess",
 	             SQL_COLUMN_TYPE_INT, 11,
@@ -439,7 +439,7 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(staticInfo, ITEM_ID_ZBX_PROFILES_USERID,
 	             TABLE_ID_PROFILES, "userid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
-	             false, SQL_KEY_MUL, NULL); 
+	             false, SQL_KEY_IDX, NULL); 
 	defineColumn(staticInfo, ITEM_ID_ZBX_PROFILES_IDX,
 	             TABLE_ID_PROFILES, "idx",
 	             SQL_COLUMN_TYPE_VARCHAR, 96,
@@ -479,7 +479,7 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(staticInfo, ITEM_ID_ZBX_USER_HISTORY_USERID,
 	             TABLE_ID_USER_HISTORY, "userid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
-	             false, SQL_KEY_MUL, NULL);
+	             false, SQL_KEY_IDX, NULL);
 	defineColumn(staticInfo, ITEM_ID_ZBX_USER_HISTORY_TITLE1,
 	             TABLE_ID_USER_HISTORY, "title1",
 	             SQL_COLUMN_TYPE_VARCHAR, 255,
@@ -543,11 +543,11 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(staticInfo, ITEM_ID_ZBX_TRIGGERS_STATUS,
 	             TABLE_ID_TRIGGERS, "status",
 	             SQL_COLUMN_TYPE_INT, 11,
-	             false, SQL_KEY_MUL, "0");
+	             false, SQL_KEY_IDX, "0");
 	defineColumn(staticInfo, ITEM_ID_ZBX_TRIGGERS_VALUE,
 	             TABLE_ID_TRIGGERS, "value",
 	             SQL_COLUMN_TYPE_INT, 11,
-	             false, SQL_KEY_MUL, "0");
+	             false, SQL_KEY_IDX, "0");
 	defineColumn(staticInfo, ITEM_ID_ZBX_TRIGGERS_PRIORITY,
 	             TABLE_ID_TRIGGERS, "priority",
 	             SQL_COLUMN_TYPE_INT, 11,
@@ -567,7 +567,7 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(staticInfo, ITEM_ID_ZBX_TRIGGERS_TEMPLATEID,
 	             TABLE_ID_TRIGGERS, "templateid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
-	             true, SQL_KEY_MUL, NULL);
+	             true, SQL_KEY_IDX, NULL);
 	defineColumn(staticInfo, ITEM_ID_ZBX_TRIGGERS_TYPE,
 	             TABLE_ID_TRIGGERS, "type",
 	             SQL_COLUMN_TYPE_INT, 11,
@@ -591,11 +591,11 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(staticInfo, ITEM_ID_ZBX_FUNCTIONS_ITEMID,
 	             TABLE_ID_FUNCTIONS, "itemid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
-	             false, SQL_KEY_MUL, NULL); 
+	             false, SQL_KEY_IDX, NULL); 
 	defineColumn(staticInfo, ITEM_ID_ZBX_FUNCTIONS_TRIGGERID,
 	             TABLE_ID_FUNCTIONS, "triggerid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
-	             false, SQL_KEY_MUL, NULL); 
+	             false, SQL_KEY_IDX, NULL); 
 	defineColumn(staticInfo, ITEM_ID_ZBX_FUNCTIONS_FUNCTION,
 	             TABLE_ID_FUNCTIONS, "function",
 	             SQL_COLUMN_TYPE_VARCHAR, 12,
@@ -627,7 +627,7 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_HOSTID,
 	             TABLE_ID_ITEMS, "hostid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
-	             false, SQL_KEY_MUL, NULL);
+	             false, SQL_KEY_IDX, NULL);
 	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_NAME,
 	             TABLE_ID_ITEMS, "name",
 	             SQL_COLUMN_TYPE_VARCHAR, 255,
@@ -663,7 +663,7 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_STATUS,
 	             TABLE_ID_ITEMS, "status",
 	             SQL_COLUMN_TYPE_INT, 11,
-	             false, SQL_KEY_MUL, NULL);
+	             false, SQL_KEY_IDX, NULL);
 	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_VALUE_TYPE,
 	             TABLE_ID_ITEMS, "value_type",
 	             SQL_COLUMN_TYPE_INT, 11,
@@ -723,11 +723,11 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_TEMPLATEID,
 	             TABLE_ID_ITEMS, "templateid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
-	             true, SQL_KEY_MUL, NULL);
+	             true, SQL_KEY_IDX, NULL);
 	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_VALUEMAPID,
 	             TABLE_ID_ITEMS, "valuemapid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
-	             true, SQL_KEY_MUL, NULL);
+	             true, SQL_KEY_IDX, NULL);
 	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_DELAY_FLEX,
 	             TABLE_ID_ITEMS, "delay_flex",
 	             SQL_COLUMN_TYPE_VARCHAR, 64,
@@ -783,7 +783,7 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_INTERFACEID,
 	             TABLE_ID_ITEMS, "interfaceid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
-	             true, SQL_KEY_MUL, NULL);
+	             true, SQL_KEY_IDX, NULL);
 	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_PORT,
 	             TABLE_ID_ITEMS, "port",
 	             SQL_COLUMN_TYPE_VARCHAR, 64,
@@ -811,15 +811,15 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_PROXY_HOSTID,
 	             TABLE_ID_HOSTS, "proxy_hostid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
-	             true, SQL_KEY_MUL, NULL);
+	             true, SQL_KEY_IDX, NULL);
 	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_HOST,
 	             TABLE_ID_HOSTS, "host",
 	             SQL_COLUMN_TYPE_VARCHAR, 64,
-	             false, SQL_KEY_MUL, "");
+	             false, SQL_KEY_IDX, "");
 	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_STATUS,
 	             TABLE_ID_HOSTS, "status",
 	             SQL_COLUMN_TYPE_INT, 11,
-	             false, SQL_KEY_MUL, "0");
+	             false, SQL_KEY_IDX, "0");
 	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_DISABLE_UNTIL,
 	             TABLE_ID_HOSTS, "disable_until",
 	             SQL_COLUMN_TYPE_INT, 11,
@@ -875,7 +875,7 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_MAINTENANCEID,
 	             TABLE_ID_HOSTS, "maintenanceid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
-	             true, SQL_KEY_MUL, NULL);
+	             true, SQL_KEY_IDX, NULL);
 	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_MAINTENANCE_STATUS,
 	             TABLE_ID_HOSTS, "maintenance_status",
 	             SQL_COLUMN_TYPE_INT, 11,
@@ -923,7 +923,7 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_NAME,
 	             TABLE_ID_HOSTS, "name",
 	             SQL_COLUMN_TYPE_VARCHAR, 64,
-	             false, SQL_KEY_MUL, "");
+	             false, SQL_KEY_IDX, "");
 
 	staticInfo =
 	  defineTable(TABLE_ID_GROUPS, TABLE_NAME_GROUPS,
@@ -935,7 +935,7 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(staticInfo, ITEM_ID_ZBX_GROUPS_NAME,
 	             TABLE_ID_GROUPS, "name",
 	             SQL_COLUMN_TYPE_VARCHAR, 64,
-	             false, SQL_KEY_MUL, NULL);
+	             false, SQL_KEY_IDX, NULL);
 	defineColumn(staticInfo, ITEM_ID_ZBX_GROUPS_INTERNAL,
 	             TABLE_ID_GROUPS, "internal",
 	             SQL_COLUMN_TYPE_INT, 11,
@@ -951,11 +951,11 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_GROUPS_HOSTID,
 	             TABLE_ID_HOSTS_GROUPS, "hostid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
-	             false, SQL_KEY_MUL, NULL);
+	             false, SQL_KEY_IDX, NULL);
 	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_GROUPS_GROUPID,
 	             TABLE_ID_HOSTS_GROUPS, "groupid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
-	             false, SQL_KEY_MUL, NULL);
+	             false, SQL_KEY_IDX, NULL);
 
 	staticInfo =
 	  defineTable(TABLE_ID_TRIGGER_DEPENDS, TABLE_NAME_TRIGGER_DEPENDS,
@@ -967,11 +967,11 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(staticInfo, ITEM_ID_ZBX_TRIGGER_DEPENDS_TRIGGERID_DOWN,
 	             TABLE_ID_TRIGGER_DEPENDS, "triggerid_down",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
-	             false, SQL_KEY_MUL, NULL);
+	             false, SQL_KEY_IDX, NULL);
 	defineColumn(staticInfo, ITEM_ID_ZBX_TRIGGER_DEPENDS_TRIGGERID_UP,
 	             TABLE_ID_GROUPS, "triggerid_up",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
-	             false, SQL_KEY_MUL, NULL);
+	             false, SQL_KEY_IDX, NULL);
 
 	staticInfo =
 	  defineTable(TABLE_ID_EVENTS, TABLE_NAME_EVENTS,
@@ -987,7 +987,7 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(staticInfo, ITEM_ID_ZBX_EVENTS_OBJECT,
 	             TABLE_ID_EVENTS, "object",
 	             SQL_COLUMN_TYPE_INT, 11,
-	             false, SQL_KEY_MUL, "0");
+	             false, SQL_KEY_IDX, "0");
 	defineColumn(staticInfo, ITEM_ID_ZBX_EVENTS_OBJECTID,
 	             TABLE_ID_EVENTS, "objectid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
@@ -995,7 +995,7 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(staticInfo, ITEM_ID_ZBX_EVENTS_CLOCK,
 	             TABLE_ID_EVENTS, "clock",
 	             SQL_COLUMN_TYPE_INT, 11,
-	             false, SQL_KEY_MUL, "0");
+	             false, SQL_KEY_IDX, "0");
 	defineColumn(staticInfo, ITEM_ID_ZBX_EVENTS_VALUE,
 	             TABLE_ID_EVENTS, "value",
 	             SQL_COLUMN_TYPE_INT, 11,
@@ -1035,11 +1035,11 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(staticInfo, ITEM_ID_ZBX_SCRIPTS_USRGRPID,
 	             TABLE_ID_SCRIPTS, "usrgrpid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
-	             true, SQL_KEY_MUL, NULL);
+	             true, SQL_KEY_IDX, NULL);
 	defineColumn(staticInfo, ITEM_ID_ZBX_SCRIPTS_GROUPID,
 	             TABLE_ID_SCRIPTS, "groupid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
-	             true, SQL_KEY_MUL, NULL);
+	             true, SQL_KEY_IDX, NULL);
 	defineColumn(staticInfo, ITEM_ID_ZBX_SCRIPTS_DESCRIPTION,
 	             TABLE_ID_SCRIPTS, "description",
 	             SQL_COLUMN_TYPE_TEXT, 0,
@@ -1359,7 +1359,7 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(staticInfo, ITEM_ID_ZBX_RIGHTS_GROUPID,
 	             TABLE_ID_RIGHTS, "groupid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
-	             false, SQL_KEY_MUL, NULL);
+	             false, SQL_KEY_IDX, NULL);
 	defineColumn(staticInfo, ITEM_ID_ZBX_RIGHTS_PERMISSION,
 	             TABLE_ID_RIGHTS, "permission",
 	             SQL_COLUMN_TYPE_INT, 11,
@@ -1367,7 +1367,7 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(staticInfo, ITEM_ID_ZBX_RIGHTS_ID,
 	             TABLE_ID_RIGHTS, "id",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
-	             false, SQL_KEY_MUL, NULL);
+	             false, SQL_KEY_IDX, NULL);
 
 	staticInfo =
 	  defineTable(TABLE_ID_SCREENS, TABLE_NAME_SCREENS,
@@ -1391,7 +1391,7 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(staticInfo, ITEM_ID_ZBX_SCREENS_TEMPLATEID,
 	             TABLE_ID_SCREENS, "templateid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
-	             true, SQL_KEY_MUL, NULL);
+	             true, SQL_KEY_IDX, NULL);
 
 	staticInfo =
 	  defineTable(TABLE_ID_GRAPHS, TABLE_NAME_GRAPHS,
@@ -1403,7 +1403,7 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_NAME,
 	             TABLE_ID_GRAPHS, "name",
 	             SQL_COLUMN_TYPE_VARCHAR, 128,
-	             false, SQL_KEY_MUL, "");
+	             false, SQL_KEY_IDX, "");
 	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_WIDTH,
 	             TABLE_ID_GRAPHS, "width",
 	             SQL_COLUMN_TYPE_INT, 11,
@@ -1423,7 +1423,7 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_TEMPLATEID,
 	             TABLE_ID_GRAPHS, "templateid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
-	             true, SQL_KEY_MUL, NULL);
+	             true, SQL_KEY_IDX, NULL);
 	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_SHOW_WORK_PERIOD,
 	             TABLE_ID_GRAPHS, "show_work_period",
 	             SQL_COLUMN_TYPE_INT, 11,
@@ -1463,11 +1463,11 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_YMIN_ITEMID,
 	             TABLE_ID_GRAPHS, "ymin_itemid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
-	             true, SQL_KEY_MUL, NULL);
+	             true, SQL_KEY_IDX, NULL);
 	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_YMAX_ITEMID,
 	             TABLE_ID_GRAPHS, "ymax_itemid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
-	             true, SQL_KEY_MUL, NULL);
+	             true, SQL_KEY_IDX, NULL);
 	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_FLAGS,
 	             TABLE_ID_GRAPHS, "flags",
 	             SQL_COLUMN_TYPE_INT, 11,
@@ -1483,11 +1483,11 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_ITEMS_GRAPHID,
 	             TABLE_ID_GRAPHS_ITEMS, "graphid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
-	             false, SQL_KEY_MUL, NULL);
+	             false, SQL_KEY_IDX, NULL);
 	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_ITEMS_ITEMID,
 	             TABLE_ID_GRAPHS_ITEMS, "itemid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
-	             false, SQL_KEY_MUL, NULL);
+	             false, SQL_KEY_IDX, NULL);
 	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_ITEMS_DRAWTYPE,
 	             TABLE_ID_GRAPHS_ITEMS, "drawtype",
 	             SQL_COLUMN_TYPE_INT, 11,
@@ -1523,7 +1523,7 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAPS_NAME,
 	             TABLE_ID_SYSMAPS, "name",
 	             SQL_COLUMN_TYPE_VARCHAR, 128,
-	             false, SQL_KEY_MUL, "");
+	             false, SQL_KEY_IDX, "");
 	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAPS_WIDTH,
 	             TABLE_ID_SYSMAPS, "width",
 	             SQL_COLUMN_TYPE_INT, 11,
@@ -1535,7 +1535,7 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAPS_BACKGROUNDID,
 	             TABLE_ID_SYSMAPS, "backgroundid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
-	             true, SQL_KEY_MUL, NULL);
+	             true, SQL_KEY_IDX, NULL);
 	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAPS_LABEL_TYPE,
 	             TABLE_ID_SYSMAPS, "label_type",
 	             SQL_COLUMN_TYPE_INT, 11,
@@ -1619,7 +1619,7 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAPS_ICONMAPID,
 	             TABLE_ID_SYSMAPS, "iconmapid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
-	             true, SQL_KEY_MUL, NULL);
+	             true, SQL_KEY_IDX, NULL);
 	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAPS_EXPAND_MACROS,
 	             TABLE_ID_SYSMAPS, "expand_macros",
 	             SQL_COLUMN_TYPE_INT, 11,
@@ -1635,7 +1635,7 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAP_URL_SYSMAPID,
 	             TABLE_ID_SYSMAP_URL, "sysmapid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
-	             false, SQL_KEY_MUL, NULL);
+	             false, SQL_KEY_IDX, NULL);
 	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAP_URL_NAME,
 	             TABLE_ID_SYSMAP_URL, "name",
 	             SQL_COLUMN_TYPE_VARCHAR, 255,
@@ -1659,7 +1659,7 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(staticInfo, ITEM_ID_ZBX_DRULES_PROXY_HOSTID,
 	             TABLE_ID_DRULES, "proxy_hostid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
-	             true, SQL_KEY_MUL, NULL);
+	             true, SQL_KEY_IDX, NULL);
 	defineColumn(staticInfo, ITEM_ID_ZBX_DRULES_NAME,
 	             TABLE_ID_DRULES, "name",
 	             SQL_COLUMN_TYPE_VARCHAR, 255,
@@ -1807,7 +1807,7 @@ void SQLProcessorZabbix::defineColumn(SQLTableStaticInfo *staticInfo,
 	ItemDataIndexType indexType = ITEM_DATA_INDEX_TYPE_NONE;
 	if (keyType == SQL_KEY_PRI)
 		indexType = ITEM_DATA_INDEX_TYPE_UNIQUE;
-	else if (keyType == SQL_KEY_MUL)
+	else if (keyType == SQL_KEY_IDX)
 		indexType = ITEM_DATA_INDEX_TYPE_MULTI;
 	staticInfo->indexTypeVector.push_back(indexType);
 }

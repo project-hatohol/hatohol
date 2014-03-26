@@ -25,7 +25,7 @@
 #include <stdint.h>
 #include "Params.h"
 #include "SQLProcessorTypes.h"
-#include "OptionTermGenerator.h"
+#include "DBTermCodec.h"
 
 static const int      AUTO_INCREMENT_VALUE = 0;
 static const uint64_t AUTO_INCREMENT_VALUE_U64 = 0;
@@ -243,8 +243,7 @@ public:
 	  const ItemGroup *itemGroup, const TableProfile &tableProfile,
 	  size_t targetIndex);
 
-	virtual const
-	  OptionTermGenerator *getOptionTermGenerator(void) const;
+	virtual const DBTermCodec *getDBTermCodec(void) const;
 
 protected:
 	static std::string makeSelectStatement(const SelectArg &selectArg);

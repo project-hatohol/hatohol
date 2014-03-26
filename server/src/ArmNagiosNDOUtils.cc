@@ -86,7 +86,7 @@ static const ColumnDef COLUMN_DEF_SERVICES[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	"0",                               // defaultValue
 },
@@ -124,7 +124,7 @@ static const ColumnDef COLUMN_DEF_SERVICESTATUS[] = {
 	0,                                 // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	"0",                               // defaultValue
 }, {
@@ -146,7 +146,7 @@ static const ColumnDef COLUMN_DEF_SERVICESTATUS[] = {
 	6,                                 // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	"0",                               // defaultValue
 }, {
@@ -197,7 +197,7 @@ static const ColumnDef COLUMN_DEF_HOSTS[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	"0",                               // defaultValue
 }, {

@@ -24,7 +24,7 @@
 #include <list>
 #include "Params.h"
 #include "DataQueryContext.h"
-#include "OptionTermGenerator.h"
+#include "DBTermCodec.h"
 
 class DataQueryOption {
 public:
@@ -52,9 +52,8 @@ public:
 	bool operator==(const DataQueryOption &rhs);
 
 	DataQueryContext &getDataQueryContext(void) const;
-	void setOptionTermGenerator(
-	  const OptionTermGenerator *optionTermGenerator);
-	const OptionTermGenerator *getOptionTermGenerator(void) const;
+	void setDBTermCodec(const DBTermCodec *optionTermGenerator);
+	const DBTermCodec *getDBTermCodec(void) const;
 
 	/**
 	 * Check if the server is registered.

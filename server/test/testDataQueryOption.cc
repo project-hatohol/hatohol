@@ -309,18 +309,18 @@ void test_addConditionOr(void)
 	cut_trace(TestQueryOption::assertAddConditionOr());
 }
 
-void test_getOptionTermGenerator(void)
+void test_getDBTermCodec(void)
 {
 	DataQueryOption option;
-	cppcut_assert_not_null(option.getOptionTermGenerator());
+	cppcut_assert_not_null(option.getDBTermCodec());
 }
 
-void test_setOptionTermGenerator(void)
+void test_setDBTermCodec(void)
 {
-	OptionTermGenerator optTermGen;
+	DBTermCodec dbTermCodec;
 	DataQueryOption option;
-	option.setOptionTermGenerator(&optTermGen);
-	cppcut_assert_equal(&optTermGen, option.getOptionTermGenerator());
+	option.setDBTermCodec(&dbTermCodec);
+	cppcut_assert_equal(&dbTermCodec, option.getDBTermCodec());
 }
 
 } // namespace testDataQueryOption

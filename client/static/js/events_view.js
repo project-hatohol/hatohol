@@ -32,7 +32,7 @@ var EventsView = function(userProfile, baseElem) {
     gettext('Average'), gettext('High'), gettext('Disaster')];
 
   // call the constructor of the super class
-  HatoholMonitoringView.apply(userProfile);
+  HatoholMonitoringView.apply(this, [userProfile]);
 
   self.userConfig = new HatoholUserConfig(); 
   start();
