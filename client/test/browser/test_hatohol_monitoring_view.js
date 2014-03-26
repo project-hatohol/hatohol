@@ -1,8 +1,8 @@
 describe('HatoholMonitoringView', function() {
 
-  var testDivId = "testDiv";
+  var testDivId = 'testDiv';
   afterEach(function(done) {
-    $("#" + testDivId).remove();
+    $('#' + testDivId).remove();
     done();
   });
 
@@ -15,7 +15,7 @@ describe('HatoholMonitoringView', function() {
     s += '  </td>';
     s += '  <button id="delete-test-button" type="button" disabled>test delete</button>';
     s += '</div>';
-    $("body").append(s);
+    $('body').append(s);
   }
 
   function makeTestObject(flags) {
@@ -39,7 +39,7 @@ describe('HatoholMonitoringView', function() {
     var i;
     for (i = 0; i < candidates.length; i++) {
       expected += '<option value="' + candidates[i].value + '">' +
-                  candidates[i].label + "</option>";
+                  candidates[i].label + '</option>';
     }
     setCandidates(target, candidates);
     expect(target.html()).to.be(expected);
@@ -52,7 +52,7 @@ describe('HatoholMonitoringView', function() {
     var expected = '<option>---------</option>';
     var i;
     for (i = 0; i < candidates.length; i++)
-      expected += '<option>' + candidates[i] + "</option>";
+      expected += '<option>' + candidates[i] + '</option>';
     setCandidates(target, candidates);
     expect(target.html()).to.be(expected);
   });
@@ -68,12 +68,12 @@ describe('HatoholMonitoringView', function() {
   it ('soon after calling setupCheckboxForDelete', function() {
 
     makeCheckBoxTestDiv();
-    $('#delete-test-button').attr("disabled", "");
+    $('#delete-test-button').attr('disabled', '');
     $('#checkbox1').val(true);
 
     HatoholMonitoringView.prototype.setupCheckboxForDelete.apply(
      makeTestObject(1<<hatohol.OPPRVLG_DELETE_SERVER), [$('#delete-test-button')]);
-    expect($('#delete-test-button').attr("disabled")).to.be("disabled");
+    expect($('#delete-test-button').attr('disabled')).to.be('disabled');
     expect($('#checkbox1').prop('checked')).to.be(false);
     expect($('#checkbox2').prop('checked')).to.be(false);
     expect($('#checkbox-div').css('display')).to.be('block');
@@ -82,7 +82,7 @@ describe('HatoholMonitoringView', function() {
   it ('not show check boxes if the user does not have the privilege', function() {
 
     makeCheckBoxTestDiv();
-    $('#delete-test-button').attr("disabled", "");
+    $('#delete-test-button').attr('disabled', '');
     HatoholMonitoringView.prototype.setupCheckboxForDelete.apply(
      makeTestObject(0), [$('#delete-test-button')]);
     expect($('#checkbox-div').css('display')).to.be('none');
@@ -93,12 +93,12 @@ describe('HatoholMonitoringView', function() {
     makeCheckBoxTestDiv();
     HatoholMonitoringView.prototype.setupCheckboxForDelete.apply(
      makeTestObject(1<<hatohol.OPPRVLG_DELETE_SERVER), [$('#delete-test-button')]);
-    expect($('#delete-test-button').attr("disabled")).to.be("disabled");
+    expect($('#delete-test-button').attr('disabled')).to.be('disabled');
 
     // setup the checker for the buttton status
     // FIXME: The polling way is uncool.
     var timerId = setInterval(function changeMonitor() {
-      var buttonDisabled = $('#delete-test-button').attr("disabled");
+      var buttonDisabled = $('#delete-test-button').attr('disabled');
       if (stage == 0) {
         if (buttonDisabled == 'disabled')
           return;
