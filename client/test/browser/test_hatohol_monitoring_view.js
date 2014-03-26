@@ -13,7 +13,7 @@ describe('HatoholMonitoringView', function() {
     s += '    <input type="checkbox" class="selectcheckbox" id="checkbox1">';
     s += '    <input type="checkbox" class="selectcheckbox" id="checkbox2">';
     s += '  </td>';
-    s += '  <button id="delete-test-button" type="button" disabled style="display: none;">';
+    s += '  <button id="delete-test-button" type="button" disabled>test delete</button>';
     s += '</div>';
     $("body").append(s);
   }
@@ -87,4 +87,33 @@ describe('HatoholMonitoringView', function() {
      makeTestObject(0), [$('#delete-test-button')]);
     expect($('#checkbox-div').css('display')).to.be('none');
   });
+
+  it ('activity of the delete button by check box status.', function(done) {
+    var stage = 0;
+    makeCheckBoxTestDiv();
+    HatoholMonitoringView.prototype.setupCheckboxForDelete.apply(
+     makeTestObject(1<<hatohol.OPPRVLG_DELETE_SERVER), [$('#delete-test-button')]);
+    expect($('#delete-test-button').attr("disabled")).to.be("disabled");
+
+    // setup the checker for the buttton status
+    var timerId = setInterval(function changeMonitor() {
+      var buttonDisabled = $('#delete-test-button').attr("disabled");
+      if (stage == 0) {
+        if (buttonDisabled == 'disabled')
+          return;
+        expect(buttonDisabled).to.be(undefined);
+        $('#checkbox1').prop('checked', false).trigger('change');
+        stage = 1;
+      } else {
+        if (buttonDisabled == '')
+          return;
+        expect(buttonDisabled).to.be('disabled');
+        clearInterval(timerId);
+        done();
+     }
+    }, 1);
+
+    $('#checkbox1').prop('checked', true).trigger('change');
+  });
+
 });
