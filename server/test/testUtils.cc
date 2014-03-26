@@ -276,6 +276,7 @@ void test_executeOnGlibEventLoopAsync(void)
 	guint timer_tag = g_timeout_add(timeoutInMSec, proc.expired, NULL);
 	g_main_loop_run(thread.loop);
 	g_source_remove(timer_tag);
+	thread.mutex.lock(); // wait for mainThread() to exit.
 
 	cppcut_assert_equal(Utils::getThreadId(), thread.eventLoopThreadId);
 	cppcut_assert_not_equal(0, thread.eventLoopThreadId);

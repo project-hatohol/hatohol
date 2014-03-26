@@ -22,7 +22,6 @@ var UsersView = function(userProfile) {
   // Variables
   //
   var self = this;
-  var numSelected = 0;
 
   // call the constructor of the super class
   HatoholMonitoringView.apply(userProfile);
@@ -66,25 +65,6 @@ var UsersView = function(userProfile) {
   //
   // Event handlers for forms in the main view
   //
-  function setupCheckboxHandler() {
-    $(".selectcheckbox").change(function() {
-      var check = $(this).is(":checked");
-      var prevNumSelected = numSelected;
-      if (check)
-        numSelected += 1;
-      else
-        numSelected -= 1;
-      if (prevNumSelected == 0 && numSelected == 1)
-        $("#delete-user-button").attr("disabled", false);
-      else if (prevNumSelected == 1 && numSelected == 0)
-        $("#delete-user-button").attr("disabled", true);
-    });
-
-    if (userProfile.hasFlag(hatohol.OPPRVLG_DELETE_USER)) {
-      $(".delete-selector").show();
-    }
-  }
-
   function setupEditLinksAndButtons(reply)
   {
     var i, id, users = reply["users"], usersMap = {}, userId;
@@ -207,9 +187,8 @@ var UsersView = function(userProfile) {
   function updateCore(reply) {
     $("#table tbody").empty();
     $("#table tbody").append(drawTableBody(reply));
-    setupCheckboxHandler();
+    self.setupCheckboxForDelete($("#delete-user-button"));
     setupEditLinksAndButtons(reply);
-    numSelected = 0;
   }
 };
 

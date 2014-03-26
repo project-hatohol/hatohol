@@ -104,8 +104,9 @@ protected:
 	bool shouldSkipByTime(const EventInfo &eventInfo);
 	bool shouldSkipByLog(const EventInfo &eventInfo,
 	                     DBClientAction &dbAction);
-	void runAction(const ActionDef &actionDef, const EventInfo &eventInfo,
-	               DBClientAction &dbAction);
+	HatoholError runAction(const ActionDef &actionDef,
+	                       const EventInfo &eventInfo,
+	                       DBClientAction &dbAction);
 
 	/**
 	 * Spawn an actor.

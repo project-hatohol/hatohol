@@ -8,19 +8,19 @@ noinst_DATA = $(TARGET_FILES)
 endif
 
 node_modules:
-	ln -s `npm root -g`
+	ln -sf `npm root -g`
 
 browser/mocha.js:
-	ln -s ../node_modules/mocha/mocha.js $@
+	ln -sf ../node_modules/mocha/mocha.js $@
 
 browser/mocha.css:
-	ln -s ../node_modules/mocha/mocha.css $@
+	ln -sf ../node_modules/mocha/mocha.css $@
 
 browser/expect.js:
-	ln -s ../node_modules/expect.js/index.js $@
+	ln -sf ../node_modules/expect.js/index.js $@
 
 browser/sinon.js:
-	ln -s ../node_modules/sinon/pkg/sinon.js $@
+	ln -sf ../node_modules/sinon/pkg/sinon.js $@
 
 clean-local:
 	-rm -fr $(TARGET_FILES)
