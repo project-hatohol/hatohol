@@ -96,6 +96,7 @@ describe('HatoholMonitoringView', function() {
     expect($('#delete-test-button').attr("disabled")).to.be("disabled");
 
     // setup the checker for the buttton status
+    // FIXME: The polling way is uncool.
     var timerId = setInterval(function changeMonitor() {
       var buttonDisabled = $('#delete-test-button').attr("disabled");
       if (stage == 0) {
