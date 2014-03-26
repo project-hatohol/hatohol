@@ -17,16 +17,16 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OptionTermGenerator_h
-#define OptionTermGenerator_h
+#ifndef DBTermCodec_h
+#define DBTermCodec_h
 
 #include <string>
 #include <stdint.h>
 
-class OptionTermGenerator {
+class DBTermCodec {
 public:
 	virtual std::string get(const int &val) const;
 	virtual std::string get(const uint64_t &val) const;
 };
 
-#endif // OptionTermGenerator_h
+#endif // DBTermCodec_h

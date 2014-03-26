@@ -32,14 +32,14 @@ struct DataQueryOption::PrivateContext {
 	size_t offset;
 	SortOrderList sortOrderList;
 	DataQueryContextPtr dataQueryCtxPtr; // The body is shared
-	const OptionTermGenerator *optionTermGenerator;
+	const DBTermCodec *dbTermCodec;
 
 	// constuctor
 	PrivateContext(const UserIdType &userId)
 	: maxNumber(NO_LIMIT),
 	  offset(0),
 	  dataQueryCtxPtr(new DataQueryContext(userId), false),
-	  optionTermGenerator(NULL)
+	  dbTermCodec(NULL)
 	{
 	}
 
@@ -47,7 +47,7 @@ struct DataQueryOption::PrivateContext {
 	: maxNumber(NO_LIMIT),
 	  offset(0),
 	  dataQueryCtxPtr(dataQueryContext),
-	  optionTermGenerator(NULL)
+	  dbTermCodec(NULL)
 	{
 	}
 
@@ -123,18 +123,18 @@ DataQueryContext &DataQueryOption::getDataQueryContext(void) const
 	return *m_ctx->dataQueryCtxPtr;
 }
 
-void DataQueryOption::setOptionTermGenerator(
-  const OptionTermGenerator *optionTermGenerator)
+void DataQueryOption::setDBTermCodec(
+  const DBTermCodec *dbTermCodec)
 {
-	m_ctx->optionTermGenerator = optionTermGenerator;
+	m_ctx->dbTermCodec = dbTermCodec;
 }
 
-const OptionTermGenerator *DataQueryOption::getOptionTermGenerator(void) const
+const DBTermCodec *DataQueryOption::getDBTermCodec(void) const
 {
-	if (m_ctx->optionTermGenerator)
-		return m_ctx->optionTermGenerator;
-	static OptionTermGenerator optionTermGenerator;
-	return &optionTermGenerator;
+	if (m_ctx->dbTermCodec)
+		return m_ctx->dbTermCodec;
+	static DBTermCodec dbTermCodec;
+	return &dbTermCodec;
 }
 
 bool DataQueryOption::isValidServer(const ServerIdType &serverId) const

@@ -19,16 +19,16 @@
 
 #include <StringUtils.h>
 #include <inttypes.h>
-#include "OptionTermGenerator.h"
+#include "DBTermCodec.h"
 using namespace std;
 using namespace mlpl;
 
-string OptionTermGenerator::get(const int &val) const
+string DBTermCodec::get(const int &val) const
 {
 	return StringUtils::sprintf("%d", val);
 }
 
-string OptionTermGenerator::get(const uint64_t &val) const
+string DBTermCodec::get(const uint64_t &val) const
 {
 	return StringUtils::sprintf("%"PRIu64, val);
 }

@@ -33,7 +33,7 @@ using namespace mlpl;
 
 const static int TRANSACTION_TIME_OUT_MSEC = 30 * 1000;
 
-class OptionTermGeneratorSQLite3 : public OptionTermGenerator {
+class DBTermCodecSQLite3 : public DBTermCodec {
 	virtual string get(const uint64_t &val) const // override
 	{
 		return StringUtils::sprintf("%"PRId64, val);
@@ -57,7 +57,7 @@ typedef DBDomainIdPathMap::iterator DBDomainIdPathMapIterator;
 struct DBAgentSQLite3::PrivateContext {
 	static MutexLock         mutex;
 	static DBDomainIdPathMap domainIdPathMap;
-	static OptionTermGeneratorSQLite3 optionTermGenerator;
+	static DBTermCodecSQLite3 dbTermCodec;
 
 	string        dbPath;
 	sqlite3      *db;
@@ -90,7 +90,7 @@ struct DBAgentSQLite3::PrivateContext {
 
 MutexLock         DBAgentSQLite3::PrivateContext::mutex;
 DBDomainIdPathMap DBAgentSQLite3::PrivateContext::domainIdPathMap;
-OptionTermGeneratorSQLite3 DBAgentSQLite3::PrivateContext::optionTermGenerator;
+DBTermCodecSQLite3 DBAgentSQLite3::PrivateContext::dbTermCodec;
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -159,9 +159,9 @@ string &DBAgentSQLite3::getDBPath(DBDomainId domainId)
 	return it->second;
 }
 
-const OptionTermGenerator *DBAgentSQLite3::getOptionTermGeneratorStatic(void)
+const DBTermCodec *DBAgentSQLite3::getDBTermCodecStatic(void)
 {
-	return &PrivateContext::optionTermGenerator;
+	return &PrivateContext::dbTermCodec;
 }
 
 DBAgentSQLite3::DBAgentSQLite3(const string &dbName,
@@ -682,9 +682,9 @@ void DBAgentSQLite3::addColumns(const AddColumnsArg &addColumnsArg)
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 }
 
-const OptionTermGenerator *DBAgentSQLite3::getOptionTermGenerator(void) const
+const DBTermCodec *DBAgentSQLite3::getDBTermCodec(void) const
 {
-	return &m_ctx->optionTermGenerator;
+	return &m_ctx->dbTermCodec;
 }
 
 void DBAgentSQLite3::selectGetValuesIteration(const SelectArg &selectArg,

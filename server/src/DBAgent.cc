@@ -77,7 +77,7 @@ struct DBAgent::PrivateContext
 {
 	static MutexLock           mutex;
 	static DBSetupInfoMap      setupInfoMap;
-	static OptionTermGenerator optionTermGenerator;
+	static DBTermCodec         dbTermCodec;
 	DBDomainId dbDomainId;
 
 	// methods
@@ -99,7 +99,7 @@ struct DBAgent::PrivateContext
 
 MutexLock      DBAgent::PrivateContext::mutex;
 DBSetupInfoMap DBAgent::PrivateContext::setupInfoMap;
-OptionTermGenerator DBAgent::PrivateContext::optionTermGenerator;
+DBTermCodec    DBAgent::PrivateContext::dbTermCodec;
 
 // ---------------------------------------------------------------------------
 // DBAgent::TableProfile
@@ -613,9 +613,9 @@ bool DBAgent::updateIfExistElseInsert(
 	return exist;
 }
 
-const OptionTermGenerator *DBAgent::getOptionTermGenerator(void) const
+const DBTermCodec *DBAgent::getDBTermCodec(void) const
 {
-	return &m_ctx->optionTermGenerator;
+	return &m_ctx->dbTermCodec;
 }
 
 void DBAgent::createIndex(const IndexDef &indexDef)

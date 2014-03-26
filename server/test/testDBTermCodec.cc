@@ -19,12 +19,12 @@
 
 #include <cppcutter.h>
 #include <gcutter.h>
-#include "OptionTermGenerator.h"
+#include "DBTermCodec.h"
 #include "DBAgentSQLite3.h"
 
 using namespace std;
 
-namespace testOptionTermGenerator {
+namespace testDBTermCodec {
 
 void data_getInt(void)
 {
@@ -52,7 +52,7 @@ void data_getInt(void)
 
 void test_getInt(gconstpointer data)
 {
-	OptionTermGenerator termGen;
+	DBTermCodec termGen;
 	string actual = termGen.get(gcut_data_get_int(data, "val"));
 	string expect = gcut_data_get_string(data, "expect");
 	cppcut_assert_equal(expect, actual);
@@ -92,15 +92,15 @@ void data_getUint64(void)
 
 void test_getUint64(gconstpointer data)
 {
-	OptionTermGenerator termGen;
+	DBTermCodec termGen;
 	string actual = termGen.get(gcut_data_get_uint64(data, "val"));
 	string expect = gcut_data_get_string(data, "expect");
 	cppcut_assert_equal(expect, actual);
 }
 
-} // testOptionTermGenerator
+} // testDBTermCodec
 
-namespace testOptionTermGeneratorSQLite3 {
+namespace testDBTermCodecSQLite3 {
 
 void data_getUint64(void)
 {
@@ -137,10 +137,10 @@ void data_getUint64(void)
 void test_getUint64(gconstpointer data)
 {
 	DBAgentSQLite3 dbAgent;
-	const OptionTermGenerator *termGen = dbAgent.getOptionTermGenerator();
+	const DBTermCodec *termGen = dbAgent.getDBTermCodec();
 	string actual = termGen->get(gcut_data_get_uint64(data, "val"));
 	string expect = gcut_data_get_string(data, "expect");
 	cppcut_assert_equal(expect, actual);
 }
 
-} // testOptionTermGeneratorSQLite3
+} // testDBTermCodecSQLite3

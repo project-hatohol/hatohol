@@ -404,13 +404,13 @@ static string makeMapHostsHostgroupsOutput
   (const HostgroupElement &hostgroupElement, size_t id)
 {
 	HostgroupElementQueryOption option;
-	const OptionTermGenerator *termGen = option.getOptionTermGenerator();
+	const DBTermCodec *dbTermCodec = option.getDBTermCodec();
 	string expectedOut = StringUtils::sprintf(
 	  "%zd|%s|%s|%s\n",
 	  id + 1,
-	  termGen->get(hostgroupElement.serverId).c_str(),
-	  termGen->get(hostgroupElement.hostId).c_str(),
-	  termGen->get(hostgroupElement.groupId).c_str());
+	  dbTermCodec->get(hostgroupElement.serverId).c_str(),
+	  dbTermCodec->get(hostgroupElement.hostId).c_str(),
+	  dbTermCodec->get(hostgroupElement.groupId).c_str());
 
 	return expectedOut;
 }
