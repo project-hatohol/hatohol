@@ -255,7 +255,7 @@ static void setIndexes(ItemTable *table, ColumnDef *columnDef, size_t numDef)
 			keyType = ITEM_DATA_INDEX_TYPE_NONE;
 		else if (columnDef[i].keyType == SQL_KEY_PRI)
 			keyType = ITEM_DATA_INDEX_TYPE_UNIQUE;
-		else if (columnDef[i].keyType == SQL_KEY_MUL)
+		else if (columnDef[i].keyType == SQL_KEY_IDX)
 			keyType = ITEM_DATA_INDEX_TYPE_MULTI;
 		else
 			cut_fail("Unknown key: %d\n", columnDef[i].keyType);
@@ -1109,14 +1109,14 @@ void test_innerJoin(void) {
 void test_innerJoinLeftHasIndex(void)
 {
 	int columnIndex = ITEM_ID_NUMBER - ITEM_ID_NUMBER;
-	COLUMN0_DEFS[columnIndex].keyType = SQL_KEY_MUL;
+	COLUMN0_DEFS[columnIndex].keyType = SQL_KEY_IDX;
 	cut_trace(test_innerJoin());
 }
 
 void test_innerJoinRightHasIndex(void)
 {
 	int columnIndex = ITEM_ID_AGE - ITEM_ID_AGE;
-	COLUMN1_DEFS[columnIndex].keyType = SQL_KEY_MUL;
+	COLUMN1_DEFS[columnIndex].keyType = SQL_KEY_IDX;
 	cut_trace(test_innerJoin());
 }
 
@@ -1124,9 +1124,9 @@ void test_innerJoinLeftRightIndex(void)
 {
 	int columnIndex;
 	columnIndex = ITEM_ID_NUMBER - ITEM_ID_NUMBER;
-	COLUMN0_DEFS[columnIndex].keyType = SQL_KEY_MUL;
+	COLUMN0_DEFS[columnIndex].keyType = SQL_KEY_IDX;
 	columnIndex = ITEM_ID_AGE - ITEM_ID_AGE;
-	COLUMN1_DEFS[columnIndex].keyType = SQL_KEY_MUL;
+	COLUMN1_DEFS[columnIndex].keyType = SQL_KEY_IDX;
 	cut_trace(test_innerJoin());
 }
 

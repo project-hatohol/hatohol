@@ -501,7 +501,6 @@ void DBAgentSQLite3::createTable(sqlite3 *db, const TableProfile &tableProfile)
 			if (columnDef.flags & SQL_COLUMN_FLAG_AUTO_INC)
 				sql += " AUTOINCREMENT";
 			break;
-		case SQL_KEY_MUL: // TODO: should remove the definition.
 		case SQL_KEY_UNI:
 		case SQL_KEY_IDX:
 		case SQL_KEY_NONE:

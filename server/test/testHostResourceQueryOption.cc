@@ -54,7 +54,7 @@ static const ColumnDef COLUMN_DEF_TEST[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 },{
@@ -65,7 +65,7 @@ static const ColumnDef COLUMN_DEF_TEST[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 },{
@@ -76,7 +76,7 @@ static const ColumnDef COLUMN_DEF_TEST[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }
@@ -117,7 +117,7 @@ static const ColumnDef COLUMN_DEF_TEST_HGRP[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 },{
@@ -128,7 +128,7 @@ static const ColumnDef COLUMN_DEF_TEST_HGRP[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 },{
@@ -139,7 +139,7 @@ static const ColumnDef COLUMN_DEF_TEST_HGRP[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }

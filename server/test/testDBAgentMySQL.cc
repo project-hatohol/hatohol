@@ -139,7 +139,6 @@ public:
 			case SQL_KEY_IDX:
 				// These index is not crated until
 				// fixupIndexes() is called.
-			case SQL_KEY_MUL: // TODO: remove
 			case SQL_KEY_NONE:
 				expected = "";
 				break;

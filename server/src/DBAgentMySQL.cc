@@ -261,7 +261,6 @@ static string getColumnDefinitionQuery(const ColumnDef &columnDef)
 		break;
 	case SQL_KEY_UNI:
 	case SQL_KEY_IDX: // To be created in createIndexIfNotExists()
-	case SQL_KEY_MUL: // TODO: remove 
 	case SQL_KEY_NONE:
 		break;
 	default:
