@@ -30,6 +30,9 @@ var HatoholMonitoringView = function(userProfile) {
   var self = this;
   self.connector = null;
   self.reloadTimerId = null;
+  if (!userProfile)
+    throw new Error("No userProfile");
+  self.userProfile = userProfile;
 };
 
 HatoholMonitoringView.prototype.getTargetServerId = function(selectorId) {
@@ -284,6 +287,7 @@ HatoholMonitoringView.prototype.setAutoReload =
 HatoholMonitoringView.prototype.setupCheckboxForDelete =
   function(jQObjDeleteButton)
 {
+  var self = this;
   var numSelected = 0;
   $(".selectcheckbox").attr("checked", false);
   jQObjDeleteButton.attr("disabled", true);
@@ -299,7 +303,7 @@ HatoholMonitoringView.prototype.setupCheckboxForDelete =
     else if (prevNumSelected == 1 && numSelected == 0)
       jQObjDeleteButton.attr("disabled", true);
   });
-  if (userProfile.hasFlag(hatohol.OPPRVLG_DELETE_SERVER)) {
+  if (self.userProfile.hasFlag(hatohol.OPPRVLG_DELETE_SERVER)) {
     $(".delete-selector").show();
   }
 };

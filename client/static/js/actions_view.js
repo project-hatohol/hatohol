@@ -24,7 +24,7 @@ var ActionsView = function(userProfile) {
   var self = this;
 
   // call the constructor of the super class
-  HatoholMonitoringView.apply(userProfile);
+  HatoholMonitoringView.apply(this, [userProfile]);
 
   //
   // main code
