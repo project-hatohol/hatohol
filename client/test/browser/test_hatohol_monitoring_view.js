@@ -18,6 +18,12 @@ describe('HatoholMonitoringView', function() {
     $("body").append(s);
   }
 
+  function makeTestObject(flags) {
+    var user = {flags: flags};
+    var testObj = {userProfile: new HatoholUserProfile(user)};
+    return testObj;
+  }
+
   // ------------------------------------------------------------------------------------
   // Test cases
   // ------------------------------------------------------------------------------------
@@ -73,5 +79,14 @@ describe('HatoholMonitoringView', function() {
     expect($('#checkbox1').prop('checked')).to.be(false);
     expect($('#checkbox2').prop('checked')).to.be(false);
     expect($('#checkbox-div').css('display')).to.be('block');
+  });
+
+  it ('not show check boxes if the user does not have the privilege', function() {
+
+    makeCheckBoxTestDiv();
+    $('#delete-test-button').attr("disabled", "");
+    HatoholMonitoringView.prototype.setupCheckboxForDelete.apply(
+     makeTestObject(0), [$('#delete-test-button')]);
+    expect($('#checkbox-div').css('display')).to.be('none');
   });
 });
