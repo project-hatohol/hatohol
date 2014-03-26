@@ -187,6 +187,18 @@ public:
 	HatoholError deleteAccessInfo(AccessInfoIdType id,
 	                              const OperationPrivilege &privilege);
 
+	/**
+	 * Get a UserInfo for the specified user ID.
+	 *
+	 * @param userInfo
+	 * A reference of a UserInfo structure to which obtained information
+	 * is returned.
+	 *
+	 * @param userId A user ID to be queried.
+	 *
+	 * @return true if the specified user is found and the UserInfo
+	 * structure is filled. Otherwise false is returned.
+	 */
 	bool getUserInfo(UserInfo &userInfo, const UserIdType userId);
 
 	/**

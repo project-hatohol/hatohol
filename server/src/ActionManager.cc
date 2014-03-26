@@ -23,6 +23,7 @@
 #include "ActionManager.h"
 #include "ActorCollector.h"
 #include "DBClientAction.h"
+#include "CacheServiceDBClient.h"
 #include "NamedPipe.h"
 #include "ResidentProtocol.h"
 #include "ResidentCommunicator.h"
@@ -555,14 +556,23 @@ bool ActionManager::shouldSkipByLog(const EventInfo &eventInfo,
 	return found;
 }
 
-void ActionManager::runAction(const ActionDef &actionDef,
-                              const EventInfo &_eventInfo,
-                              DBClientAction &dbAction)
+HatoholError ActionManager::runAction(const ActionDef &actionDef,
+                                      const EventInfo &_eventInfo,
+                                      DBClientAction &dbAction)
 {
 	EventInfo eventInfo(_eventInfo);
 	fillTriggerInfoInEventInfo(eventInfo);
 
-	// TODO: check the owner of action exists
+	// Confirm that the owner of the action exists
+	CacheServiceDBClient cache;
+	DBClientUser *dbUser = cache.getUser();
+	UserInfo userInfo;
+	if (!dbUser->getUserInfo(userInfo, actionDef.ownerUserId)) {
+		MLPL_INFO("Not found user: %"FMT_USER_ID", "
+		          "action: %"FMT_ACTION_ID"\n",
+		          actionDef.ownerUserId, actionDef.id);
+		return HTERR_INVALID_USER;
+	}
 
 	if (actionDef.type == ACTION_COMMAND) {
 		execCommandAction(actionDef, eventInfo, dbAction);
@@ -571,6 +581,7 @@ void ActionManager::runAction(const ActionDef &actionDef,
 	} else {
 		HATOHOL_ASSERT(true, "Unknown type: %d\n", actionDef.type);
 	}
+	return HTERR_OK;
 }
 
 /*

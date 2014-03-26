@@ -19,7 +19,6 @@
 
 var ServersView = function(userProfile) {
   var self = this;
-  var numSelected = 0;
   var serverIds = new Array();
 
   // call the constructor of the super class
@@ -55,23 +54,7 @@ var ServersView = function(userProfile) {
     self.startConnection('server', updateCore);
   };
 
-  function setupCheckboxHandler() {
-    $(".selectcheckbox").change(function() {
-      check = $(this).is(":checked");
-      var prevNumSelected = numSelected;
-      if (check)
-        numSelected += 1;
-      else
-        numSelected -= 1;
-      if (prevNumSelected == 0 && numSelected == 1)
-        $("#delete-server-button").attr("disabled", false);
-      else if (prevNumSelected == 1 && numSelected == 0)
-        $("#delete-server-button").attr("disabled", true);
-    });
-
-    if (userProfile.hasFlag(hatohol.OPPRVLG_DELETE_SERVER)) {
-      $(".delete-selector").show();
-    }
+  function setupCheckbox() {
   }
 
   function setupEditButtons(reply)
@@ -216,9 +199,8 @@ var ServersView = function(userProfile) {
   function updateCore(reply) {
     $("#table tbody").empty();
     $("#table tbody").append(drawTableBody(reply));
-    setupCheckboxHandler();
+    self.setupCheckboxForDelete($("#delete-server-button"));
     setupEditButtons(reply);
-    numSelected = 0;
     self.startConnection("server-conn-stat", updateServerConnStat);
   }
 

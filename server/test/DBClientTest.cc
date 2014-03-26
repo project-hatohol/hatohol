@@ -271,7 +271,7 @@ size_t NumTestItemInfo = sizeof(testItemInfo) / sizeof(ItemInfo);
 
 ActionDef testActionDef[] = {
 {
-	0,                 // id (this filed is ignored)
+	0,                 // id (this field is ignored)
 	ActionCondition(
 	  ACTCOND_SERVER_ID |
 	  ACTCOND_TRIGGER_STATUS,   // enableBits
@@ -289,7 +289,7 @@ ActionDef testActionDef[] = {
 	300,               // timeout
 	1,                 // ownerUserId
 }, {
-	0,                 // id (this filed is ignored)
+	0,                 // id (this field is ignored)
 	ActionCondition(
 	  ACTCOND_TRIGGER_STATUS,   // enableBits
 	  0,                        // serverId
@@ -306,7 +306,7 @@ ActionDef testActionDef[] = {
 	30,                // timeout
 	1,                 // ownerUserId
 }, {
-	0,                 // id (this filed is ignored)
+	0,                 // id (this field is ignored)
 	ActionCondition(
 	  ACTCOND_SERVER_ID | ACTCOND_HOST_ID | ACTCOND_HOST_GROUP_ID |
 	  ACTCOND_TRIGGER_ID | ACTCOND_TRIGGER_STATUS,   // enableBits
@@ -324,7 +324,7 @@ ActionDef testActionDef[] = {
 	60,                // timeout
 	2,                 // ownerUserId
 }, {
-	0,                 // id (this filed is ignored)
+	0,                 // id (this field is ignored)
 	ActionCondition(
 	  ACTCOND_SERVER_ID | ACTCOND_HOST_ID | ACTCOND_HOST_GROUP_ID |
 	  ACTCOND_TRIGGER_ID | ACTCOND_TRIGGER_STATUS |
@@ -343,7 +343,7 @@ ActionDef testActionDef[] = {
 	0,                 // timeout
 	4,                 // ownerUserId
 }, {
-	0,                 // id (this filed is ignored)
+	0,                 // id (this field is ignored)
 	ActionCondition(
 	  ACTCOND_SERVER_ID | ACTCOND_HOST_ID | ACTCOND_HOST_GROUP_ID |
 	  ACTCOND_TRIGGER_ID | ACTCOND_TRIGGER_STATUS,   // enableBits
