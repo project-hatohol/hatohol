@@ -712,6 +712,13 @@ static string makeHostgroupElementPack(
 	return s;
 }
 
+/**
+ * This functions return a kind of a perfect hash set that is made from
+ * a server Id, a host Id, and a host group ID. We call it
+ * 'HostGroupElementPack'.
+ *
+ * @return a set of HostGroupElementPack.
+ */
 static const set<string> &getHostgroupElementPackSet(void)
 {
 	static set<string> hostgroupElementPackSet;
