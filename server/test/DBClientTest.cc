@@ -584,7 +584,6 @@ HostgroupElement testHostgroupElement[] = {
 };
 const size_t NumTestHostgroupElement = sizeof(testHostgroupElement) / sizeof(HostgroupElement);
 
-static set<string> hostgroupElementPackSet;
 static set<HostgroupIdType> testHostgroupIdSet;
 
 UserRoleInfo testUserRoleInfo[] = {
@@ -713,8 +712,11 @@ static string makeHostgroupElementPack(
 	return s;
 }
 
-static void makeHostgroupElementPackSet(void)
+static const set<string> &getHostgroupElementPackSet(void)
 {
+	static set<string> hostgroupElementPackSet;
+	if (!hostgroupElementPackSet.empty())
+		return hostgroupElementPackSet;
 	for (size_t i = 0; i < NumTestHostgroupElement; i++) {
 		const HostgroupElement &hgrpElem = testHostgroupElement[i];
 		const string mash =
@@ -724,6 +726,7 @@ static void makeHostgroupElementPackSet(void)
 		  hostgroupElementPackSet.insert(mash);
 		cppcut_assert_equal(true, result.second);
 	}
+	return hostgroupElementPackSet;
 }
 
 static bool isInHostgroup(const TriggerInfo &trigInfo,
@@ -732,8 +735,8 @@ static bool isInHostgroup(const TriggerInfo &trigInfo,
 	if (hostgroupId == ALL_HOST_GROUPS)
 		return true;
 
-	if (hostgroupElementPackSet.empty())
-		makeHostgroupElementPackSet();
+	const set<string> &hostgroupElementPackSet = 
+	  getHostgroupElementPackSet();
 
 	const string pack =
 	  makeHostgroupElementPack(trigInfo.serverId,
@@ -963,14 +966,16 @@ bool isAuthorized(
 	if (hostgroupIds.find(ALL_HOST_GROUPS) != hostgroupIds.end())
 		return true;
 
-	// TODO: use more efficient way like isInHostgroup().
-	for (size_t i = 0; i < NumTestHostgroupElement; i++) {
-		const HostgroupElement &elem = testHostgroupElement[i];
-		if (elem.hostId != hostId)
-			continue;
-		if (hostgroupIds.find(elem.groupId) != hostgroupIds.end())
+	// check if the user is allowed to access to the host
+	const set<string> &hgrpElementPackSet = getHostgroupElementPackSet();
+	HostgroupIdSetConstIterator hostgroupIdItr = hostgroupIds.begin();
+	for (; hostgroupIdItr != hostgroupIds.end(); ++hostgroupIdItr) {
+		const string pack =
+		  makeHostgroupElementPack(serverId, hostId, *hostgroupIdItr);
+		if (hgrpElementPackSet.find(pack) != hgrpElementPackSet.end())
 			return true;
 	}
+
 	return false;
 }
 
