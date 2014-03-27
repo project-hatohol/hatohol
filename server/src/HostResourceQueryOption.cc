@@ -471,13 +471,9 @@ bool HostResourceQueryOption::isHostgroupEnumerationInCondition(void) const
 		const ServerIdType &serverId = it->first;
 		if (serverId == ALL_SERVERS)
 			continue;
-		const HostgroupIdSet &hostgroupIdSet = it->second;
-		HostgroupIdSetConstIterator hostgrpIdItr =
-		   hostgroupIdSet.begin();
-		for (; hostgrpIdItr != hostgroupIdSet.end(); ++hostgrpIdItr) {
-			if (*hostgrpIdItr != ALL_HOST_GROUPS)
-				return true;
-		}
+		const HostgroupIdSet &hostgrpIdSet = it->second;
+		if (hostgrpIdSet.find(ALL_HOST_GROUPS) == hostgrpIdSet.end())
+			return true;
 	}
 	return false;
 }
