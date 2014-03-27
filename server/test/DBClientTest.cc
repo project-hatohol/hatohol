@@ -1001,7 +1001,7 @@ size_t findIndexFromTestActionDef(const UserIdType &userId)
 
 const HostgroupIdSet &getTestHostgroupIdSet(void)
 {
-	static set<HostgroupIdType> testHostgroupIdSet;
+	static HostgroupIdSet testHostgroupIdSet;
 	if (!testHostgroupIdSet.empty()) 
 		return testHostgroupIdSet;
 
