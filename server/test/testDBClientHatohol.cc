@@ -516,6 +516,7 @@ void test_getTriggerInfo(void)
 void test_getTriggerInfoNotFound(void)
 {
 	setupTestTriggerDB();
+	setupTestDBUser(true, true);
 	const UserIdType invalidSvId = -1;
 	const TriggerIdType invalidTrigId = -1;
 	TriggerInfo triggerInfo;
@@ -900,6 +901,7 @@ void test_getNumberOfTriggersBySeverity(gconstpointer data)
 void test_getNumberOfTriggersBySeverityWithoutPriviledge(void)
 {
 	setupTestTriggerDB();
+	setupTestDBUser(true, true);
 
 	const ServerIdType targetServerId = testTriggerInfo[0].serverId;
 	// TODO: should give the appropriate host group ID after

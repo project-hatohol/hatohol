@@ -815,7 +815,7 @@ size_t getNumberOfTestHostsWithStatus(
 		const TriggerInfo &trigInfo = testTriggerInfo[i];
 		if (serverId != ALL_SERVERS && trigInfo.serverId != serverId)
 			continue;
-		if (!isAuthorized(authMap, userId, serverId, hostgroupId))
+		if (!isAuthorized(authMap, userId, serverId, trigInfo.hostId))
 			continue;
 		if (!isInHostgroup(trigInfo, hostgroupId))
 			continue;
@@ -940,7 +940,7 @@ void makeServerHostGrpSetMap(ServerHostGrpSetMap &map, const UserIdType &userId)
 
 bool isAuthorized(
   ServerHostGrpSetMap &authMap, const UserIdType &userId,
-  const ServerIdType &serverId, const HostgroupIdType &hostgroupId)
+  const ServerIdType &serverId, const HostIdType &hostId)
 {
 	if (userId == USER_ID_SYSTEM)
 		return true;
@@ -956,15 +956,21 @@ bool isAuthorized(
 	if (serverIt == authMap.end())
 		return false;
 
-	HostgroupIdSet &hostgroupIds = serverIt->second;
+	if (hostId == ALL_HOSTS)
+		return true;
+
+	const HostgroupIdSet &hostgroupIds = serverIt->second;
 	if (hostgroupIds.find(ALL_HOST_GROUPS) != hostgroupIds.end())
 		return true;
 
-	if (hostgroupId == ALL_HOST_GROUPS)
-		return true;
-
-	// FIXME: Host group isn't supported yet
-
+	// TODO: use more efficient way like isInHostgroup().
+	for (size_t i = 0; i < NumTestHostgroupElement; i++) {
+		const HostgroupElement &elem = testHostgroupElement[i];
+		if (elem.hostId != hostId)
+			continue;
+		if (hostgroupIds.find(elem.groupId) != hostgroupIds.end())
+			return true;
+	}
 	return false;
 }
 

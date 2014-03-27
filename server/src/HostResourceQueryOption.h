@@ -169,6 +169,7 @@ protected:
 
 	std::string getColumnNameCommon(
 	  const DBAgent::TableProfile &tableProfile, const size_t &idx) const;
+	bool isHostgroupEnumerationInCondition(void) const;
 
 private:
 	struct PrivateContext;

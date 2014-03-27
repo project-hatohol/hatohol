@@ -136,6 +136,7 @@ string HostResourceQueryOption::getCondition(void) const
 
 	UserIdType userId = getUserId();
 
+	// TODO: consider if we cau use isHostgroupEnumerationInCondition()
 	if (userId == USER_ID_SYSTEM || has(OPPRVLG_GET_ALL_SERVER)) {
 		if (m_ctx->targetServerId != ALL_SERVERS) {
 			addCondition(condition,
@@ -198,6 +199,8 @@ string HostResourceQueryOption::getFromClause(void) const
 
 bool HostResourceQueryOption::isHostgroupUsed(void) const
 {
+	if (isHostgroupEnumerationInCondition())
+		return true;
 	const Synapse &synapse = m_ctx->synapse;
 	if (&synapse.tableProfile == &synapse.hostgroupMapTableProfile)
 		return false;
@@ -367,6 +370,7 @@ string HostResourceQueryOption::makeCondition(
   HostgroupIdType targetHostgroupId,
   HostIdType targetHostId)
 {
+	// TODO: consider if we use isHostgroupEnumerationInCondition()
 	string condition;
 
 	size_t numServers = srvHostGrpSetMap.size();
@@ -453,4 +457,27 @@ string HostResourceQueryOption::getColumnNameCommon(
 	}
 	name += columnDefs[idx].columnName;
 	return name;
+}
+
+bool HostResourceQueryOption::isHostgroupEnumerationInCondition(void) const
+{
+	const UserIdType &userId = getUserId();
+	if (userId == USER_ID_SYSTEM || has(OPPRVLG_GET_ALL_SERVER))
+		return false;
+	const ServerHostGrpSetMap &srvHostGrpSetMap =
+	  getDataQueryContext().getServerHostGrpSetMap();
+	ServerHostGrpSetMapConstIterator it = srvHostGrpSetMap.begin();
+	for (; it != srvHostGrpSetMap.end(); ++it) {
+		const ServerIdType &serverId = it->first;
+		if (serverId == ALL_SERVERS)
+			continue;
+		const HostgroupIdSet &hostgroupIdSet = it->second;
+		HostgroupIdSetConstIterator hostgrpIdItr =
+		   hostgroupIdSet.begin();
+		for (; hostgrpIdItr != hostgroupIdSet.end(); ++hostgrpIdItr) {
+			if (*hostgrpIdItr != ALL_HOST_GROUPS)
+				return true;
+		}
+	}
+	return false;
 }

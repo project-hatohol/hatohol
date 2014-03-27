@@ -135,7 +135,7 @@ void makeServerHostGrpSetMap(ServerHostGrpSetMap &map,
 bool isAuthorized(ServerHostGrpSetMap &authMap,
                   const UserIdType &userId,
                   const ServerIdType &serverId,
-                  const HostgroupIdType &hostgroupId = ALL_HOST_GROUPS);
+                  const HostIdType &hostId = ALL_HOSTS);
 
 size_t findIndexFromTestActionDef(const UserIdType &userId);
 

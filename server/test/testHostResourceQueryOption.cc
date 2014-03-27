@@ -570,6 +570,7 @@ void test_makeSelectCondition(gconstpointer data)
 
 void test_getFromClauseWithAllHostgroup(void)
 {
+	setupTestDBUser(true, true);
 	HostResourceQueryOption option(TEST_SYNAPSE);
 	cppcut_assert_equal(string(TEST_PRIMARY_TABLE_NAME),
 	                    option.getFromClause());
@@ -577,6 +578,7 @@ void test_getFromClauseWithAllHostgroup(void)
 
 void test_getFromClauseWithSpecificHostgroup(void)
 {
+	setupTestDBUser(true, true);
 	HostResourceQueryOption option(TEST_SYNAPSE);
 	option.setTargetHostgroupId(5);
 	const string expect = 
@@ -605,6 +607,7 @@ void test_isHostgroupUsed(gconstpointer data)
 
 void test_isHostgroupUsedForHostgroupTable(void)
 {
+	setupTestDBUser(true, true);
 	HostResourceQueryOption option(TEST_SYNAPSE_HGRP);
 	option.setTargetHostgroupId(5);
 	// It shall always be false.
@@ -613,6 +616,7 @@ void test_isHostgroupUsedForHostgroupTable(void)
 
 void test_getColumnName(void)
 {
+	setupTestDBUser(true, true);
 	const size_t idx = IDX_TEST_TABLE_HOST_ID;
 	HostResourceQueryOption option(TEST_SYNAPSE);
 	cppcut_assert_equal(string(COLUMN_DEF_TEST[idx].columnName),
@@ -629,6 +633,7 @@ void data_getColumnNameWithTableName(void)
 
 void test_getColumnNameWithTableName(gconstpointer data)
 {
+	setupTestDBUser(true, true);
 	const size_t idx = gcut_data_get_boolean(data, "idx");
 	HostResourceQueryOption option(TEST_SYNAPSE);
 	option.setTargetHostgroupId(5);
@@ -640,6 +645,7 @@ void test_getColumnNameWithTableName(gconstpointer data)
 
 void test_getColumnNameFull(void)
 {
+	setupTestDBUser(true, true);
 	const size_t idx = IDX_TEST_TABLE_HOST_ID;
 	HostResourceQueryOption option(TEST_SYNAPSE);
 	option.setTargetHostgroupId(5);
@@ -670,6 +676,7 @@ void data_getHostgroupColumnNameWithTableName(void)
 
 void test_getHostgroupColumnNameWithTableName(gconstpointer data)
 {
+	setupTestDBUser(true, true);
 	const bool useHostgroup = gcut_data_get_boolean(data, "useHostgroup");
 	const size_t idx = IDX_TEST_HGRP_TABLE_SERVER_ID;
 	HostResourceQueryOption option(TEST_SYNAPSE);

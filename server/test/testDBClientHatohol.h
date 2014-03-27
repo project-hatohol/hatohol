@@ -83,7 +83,8 @@ struct AssertGetHostResourceArg {
 
 	virtual bool isAuthorized(const TResourceType &record)
 	{
-		return ::isAuthorized(authMap, userId, record.serverId);
+		return ::isAuthorized(authMap, userId,
+		                      record.serverId, getHostId(record));
 	}
 
 	virtual void fixupAuthorizedRecords(void)
