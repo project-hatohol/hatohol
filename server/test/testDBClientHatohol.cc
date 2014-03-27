@@ -852,6 +852,19 @@ void test_getHostInfoListWithOneAuthorizedServer(gconstpointer data)
 	assertGetHosts(arg);
 }
 
+void data_getHostInfoListWithUserWhoCanAccessSomeHostgroups(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getHostInfoListWithUserWhoCanAccessSomeHostgroups(gpointer data)
+{
+	setupTestDBUser(true, true);
+	AssertGetHostsArg arg(data);
+	arg.userId = 3;
+	assertGetHosts(arg);
+}
+
 void data_getNumberOfTriggersBySeverity(void)
 {
 	prepareDataForAllHostgroupIds();
