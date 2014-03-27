@@ -220,7 +220,8 @@ DBAgent::SelectExArg::SelectExArg(const TableProfile &profile)
 : tableProfile(&profile),
   limit(0),
   offset(0),
-  useFullName(false)
+  useFullName(false),
+  useDistinct(false)
 {
 }
 
@@ -444,6 +445,8 @@ string DBAgent::makeSelectStatement(const SelectExArg &selectExArg)
 	             numColumns, selectExArg.columnTypes.size());
 
 	string sql = "SELECT ";
+	if (selectExArg.useDistinct)
+		sql += "DISTINCT ";
 	for (size_t i = 0; i < numColumns; i++) {
 		sql += selectExArg.statements[i];
 		if (i < numColumns-1)

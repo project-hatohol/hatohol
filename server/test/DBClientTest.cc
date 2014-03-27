@@ -499,6 +499,10 @@ HostInfo testHostInfo[] = {
 	3,                     // serverId
 	10001,                 // id(hostId)
 	"hostZ1"               // hostName
+} ,{
+	2,                     // serverId
+	512,                   // id(hostId)
+	"multi-host group",    // hostName
 }, {
 	3,                     // serverId
 	10002,                 // id(hostId)
@@ -544,6 +548,16 @@ HostgroupElement testHostgroupElement[] = {
 	1,                     // serverId
 	1129,                  // hostId
 	1,                     // groupId
+}, {
+	AUTO_INCREMENT_VALUE,  // id
+	2,                     // serverId
+	512,                   // hostId
+	1,                     // groupId
+}, {
+	AUTO_INCREMENT_VALUE,  // id
+	2,                     // serverId
+	512,                   // hostId
+	2,                     // groupId
 }, {
 	AUTO_INCREMENT_VALUE,  // id
 	3,                     // serverId

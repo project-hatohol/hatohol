@@ -1290,6 +1290,7 @@ void DBClientHatohol::getHostInfoList(HostInfoList &hostInfoList,
 	DBAgent::SelectMultiTableArg arg(tableProfiles, numTableProfiles);
 
 	arg.tableField = option.getFromClause();
+	arg.useDistinct = option.isHostgroupUsed();
 
 	arg.setTable(TBLIDX_HOSTS);
 	arg.add(IDX_HOSTS_SERVER_ID);
