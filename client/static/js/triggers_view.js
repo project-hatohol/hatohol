@@ -50,9 +50,8 @@ var TriggersView = function(userProfile) {
     gettext("Disaster")
   ];
 
-  $("#select-server, #select-host-group, #select-host").change(function() {
-    load();
-  });
+  self.setupHostQuerySelectorCallback(
+    load, '#select-server', '#select-host-group', '#select-host');
   $("#select-severity, #select-status").change(function() {
     load();
   });

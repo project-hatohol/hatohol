@@ -36,9 +36,8 @@ var LatestView = function(userProfile) {
     th.eq(data.column).append("<i class='sort glyphicon glyphicon-arrow-" + icon +"'></i>");
   });
 
-  $("#select-server, #select-host-group, #select-host").change(function() {
-    load();
-  });
+  self.setupHostQuerySelectorCallback(
+    load, '#select-server', '#select-host-group', '#select-host');
   $("#select-application").change(function() {
     // will be migrated to server side
     drawTableContents(rawData);
