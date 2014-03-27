@@ -1027,13 +1027,14 @@ string TriggersQueryOption::getCondition(void) const
 		return condition;
 
 	if (m_ctx->targetId != ALL_TRIGGERS) {
+		const DBTermCodec *dbTermCodec = getDBTermCodec();
 		if (!condition.empty())
 			condition += " AND ";
 		condition += StringUtils::sprintf(
-			"%s.%s=%"FMT_TRIGGER_ID,
+			"%s.%s=%s",
 			DBClientHatohol::TABLE_NAME_TRIGGERS,
 			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID].columnName,
-			m_ctx->targetId);
+			dbTermCodec->enc(m_ctx->targetId).c_str());
 	}
 
 	if (m_ctx->minSeverity != TRIGGER_SEVERITY_UNKNOWN) {
@@ -1140,13 +1141,14 @@ string ItemsQueryOption::getCondition(void) const
 		return condition;
 
 	if (m_ctx->targetId != ALL_ITEMS) {
+		const DBTermCodec *dbTermCodec = getDBTermCodec();
 		if (!condition.empty())
 			condition += " AND ";
 		condition += StringUtils::sprintf(
-			"%s.%s=%"FMT_ITEM_ID,
+			"%s.%s=%s",
 			DBClientHatohol::TABLE_NAME_ITEMS,
 			COLUMN_DEF_ITEMS[IDX_ITEMS_ID].columnName,
-			m_ctx->targetId);
+			dbTermCodec->enc(m_ctx->targetId).c_str());
 	}
 
 	if (!m_ctx->itemGroupName.empty()) {
@@ -1417,10 +1419,12 @@ void DBClientHatohol::setTriggerInfoList(const TriggerInfoList &triggerInfoList,
 {
 	// TODO: This way is too rough and inefficient.
 	//       We should update only the changed triggers.
+	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
 	DBAgent::DeleteArg deleteArg(tableProfileTriggers);
 	deleteArg.condition =
-	  StringUtils::sprintf("%s=%"FMT_SERVER_ID,
-	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName, serverId);
+	  StringUtils::sprintf("%s=%s",
+	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName,
+	    dbTermCodec->enc(serverId).c_str());
 
 	TriggerInfoListConstIterator it = triggerInfoList.begin();
 	DBCLIENT_TRANSACTION_BEGIN() {
@@ -1432,13 +1436,14 @@ void DBClientHatohol::setTriggerInfoList(const TriggerInfoList &triggerInfoList,
 
 int DBClientHatohol::getLastChangeTimeOfTrigger(const ServerIdType &serverId)
 {
+	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
 	DBAgent::SelectExArg arg(tableProfileTriggers);
 	string stmt = StringUtils::sprintf("max(%s)", 
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC].columnName);
 	arg.add(stmt, COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].type);
-	arg.condition = StringUtils::sprintf("%s=%"FMT_SERVER_ID,
+	arg.condition = StringUtils::sprintf("%s=%s",
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName,
-	    serverId);
+	    dbTermCodec->enc(serverId).c_str());
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -1577,11 +1582,12 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 void DBClientHatohol::setEventInfoList(const EventInfoList &eventInfoList,
                                        const ServerIdType &serverId)
 {
+	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
 	DBAgent::DeleteArg deleteArg(tableProfileEvents);
 	deleteArg.condition =
-	  StringUtils::sprintf("%s=%"FMT_SERVER_ID,
+	  StringUtils::sprintf("%s=%s",
 	    COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName,
-	    serverId);
+	    dbTermCodec->enc(serverId).c_str());
 
 	EventInfoListConstIterator it = eventInfoList.begin();
 	DBCLIENT_TRANSACTION_BEGIN() {
@@ -1643,12 +1649,14 @@ void DBClientHatohol::addHostInfoList(const HostInfoList &hostInfoList)
 
 uint64_t DBClientHatohol::getLastEventId(const ServerIdType &serverId)
 {
+	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
 	DBAgent::SelectExArg arg(tableProfileEvents);
 	string stmt = StringUtils::sprintf("max(%s)", 
 	    COLUMN_DEF_EVENTS[IDX_EVENTS_ID].columnName);
 	arg.add(stmt, COLUMN_DEF_EVENTS[IDX_EVENTS_ID].type);
-	arg.condition = StringUtils::sprintf("%s=%"FMT_SERVER_ID,
-	    COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName, serverId);
+	arg.condition = StringUtils::sprintf("%s=%s",
+	    COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName, 
+	    dbTermCodec->enc(serverId).c_str());
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -1907,9 +1915,11 @@ void DBClientHatohol::pickupAbsentHostIds(vector<uint64_t> &absentHostIdVector,
 void DBClientHatohol::addTriggerInfoWithoutTransaction(
   const TriggerInfo &triggerInfo)
 {
+	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
 	string condition = StringUtils::sprintf(
-	  "server_id=%"FMT_SERVER_ID" and id=%"PRIu64,
-	  triggerInfo.serverId, triggerInfo.id);
+	  "server_id=%s AND id=%s",
+	    dbTermCodec->enc(triggerInfo.serverId).c_str(),
+	    dbTermCodec->enc(triggerInfo.id).c_str());
 	if (!isRecordExisting(TABLE_NAME_TRIGGERS, condition)) {
 		DBAgent::InsertArg arg(tableProfileTriggers);
 		arg.add(triggerInfo.serverId);
@@ -1941,9 +1951,11 @@ void DBClientHatohol::addTriggerInfoWithoutTransaction(
 
 void DBClientHatohol::addEventInfoWithoutTransaction(const EventInfo &eventInfo)
 {
+	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
 	string condition = StringUtils::sprintf(
-	  "server_id=%"FMT_SERVER_ID" and id=%"PRIu64,
-	   eventInfo.serverId, eventInfo.id);
+	  "server_id=%s AND id=%s",
+	  dbTermCodec->enc(eventInfo.serverId).c_str(),
+	  dbTermCodec->enc(eventInfo.id).c_str());
 	if (!isRecordExisting(TABLE_NAME_EVENTS, condition)) {
 		DBAgent::InsertArg arg(tableProfileEvents);
 		arg.add(AUTO_INCREMENT_VALUE_U64);
@@ -1978,9 +1990,11 @@ void DBClientHatohol::addEventInfoWithoutTransaction(const EventInfo &eventInfo)
 
 void DBClientHatohol::addItemInfoWithoutTransaction(const ItemInfo &itemInfo)
 {
+	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
 	string condition = StringUtils::sprintf(
-	  "server_id=%"FMT_SERVER_ID" and id=%"PRIu64,
-	  itemInfo.serverId, itemInfo.id);
+	  "server_id=%s AND id=%s",
+	  dbTermCodec->enc(itemInfo.serverId).c_str(),
+	  dbTermCodec->enc(itemInfo.id).c_str());
 	if (!isRecordExisting(TABLE_NAME_ITEMS, condition)) {
 		DBAgent::InsertArg arg(tableProfileItems);
 		arg.add(itemInfo.serverId);
@@ -2014,8 +2028,11 @@ void DBClientHatohol::addItemInfoWithoutTransaction(const ItemInfo &itemInfo)
 void DBClientHatohol::addHostgroupInfoWithoutTransaction(
   const HostgroupInfo &groupInfo)
 {
-	string condition = StringUtils::sprintf("server_id=%"FMT_SERVER_ID" and host_group_id=%"FMT_HOST_GROUP_ID,
-	                                        groupInfo.serverId, groupInfo.groupId);
+	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
+	string condition = StringUtils::sprintf(
+	  "server_id=%s AND host_group_id=%s",
+	  dbTermCodec->enc(groupInfo.serverId).c_str(),
+	  dbTermCodec->enc(groupInfo.groupId).c_str());
 	if (!isRecordExisting(TABLE_NAME_HOSTGROUPS, condition)) {
 		DBAgent::InsertArg arg(tableProfileHostgroups);
 		arg.add(groupInfo.id);
@@ -2036,12 +2053,12 @@ void DBClientHatohol::addHostgroupInfoWithoutTransaction(
 void DBClientHatohol::addHostgroupElementWithoutTransaction(
   const HostgroupElement &hostgroupElement)
 {
-	string condition = StringUtils::sprintf("server_id=%"FMT_SERVER_ID" "
-	                                        "and host_id=%"FMT_HOST_ID" "
-	                                        "and host_group_id=%"FMT_HOST_GROUP_ID,
-	                                        hostgroupElement.serverId,
-	                                        hostgroupElement.hostId,
-	                                        hostgroupElement.groupId);
+	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
+	string condition = StringUtils::sprintf(
+	  "server_id=%s AND host_id=%s AND host_group_id=%s",
+	  dbTermCodec->enc(hostgroupElement.serverId).c_str(),
+	  dbTermCodec->enc(hostgroupElement.hostId).c_str(),
+	  dbTermCodec->enc(hostgroupElement.groupId).c_str());
 
 	if (!isRecordExisting(TABLE_NAME_MAP_HOSTS_HOSTGROUPS, condition)) {
 		DBAgent::InsertArg arg(tableProfileMapHostsHostgroups);
@@ -2055,9 +2072,11 @@ void DBClientHatohol::addHostgroupElementWithoutTransaction(
 
 void DBClientHatohol::addHostInfoWithoutTransaction(const HostInfo &hostInfo)
 {
-	string condition = StringUtils::sprintf("server_id=%"FMT_SERVER_ID" "
-	                                        "and host_id=%"FMT_HOST_ID,
-	                                       hostInfo.serverId, hostInfo.id);
+	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
+	string condition = StringUtils::sprintf(
+	  "server_id=%s AND host_id=%s",
+	  dbTermCodec->enc(hostInfo.serverId).c_str(),
+	  dbTermCodec->enc(hostInfo.id).c_str());
 
 	if (!isRecordExisting(TABLE_NAME_HOSTS, condition)) {
 		DBAgent::InsertArg arg(tableProfileHosts);
@@ -2079,8 +2098,9 @@ void DBClientHatohol::addHostInfoWithoutTransaction(const HostInfo &hostInfo)
 void DBClientHatohol::addMonitoringServerStatusWithoutTransaction(
   const MonitoringServerStatus &serverStatus)
 {
+	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
 	string condition = StringUtils::sprintf(
-	  "id=%"FMT_SERVER_ID, serverStatus.serverId);
+	  "id=%s", dbTermCodec->enc(serverStatus.serverId).c_str());
 	if (!isRecordExisting(TABLE_NAME_SERVERS, condition)) {
 		DBAgent::InsertArg arg(tableProfileServers);
 		arg.add(serverStatus.serverId);

@@ -26,6 +26,7 @@
 #include "DBClientHatohol.h"
 #include "Helpers.h"
 #include "DBClientTest.h"
+#include "DBAgentSQLite3.h"
 
 using namespace std;
 using namespace mlpl;
@@ -681,6 +682,14 @@ void test_getHostgroupColumnNameWithTableName(gconstpointer data)
 	}
 	expect += COLUMN_DEF_TEST_HGRP[idx].columnName;
 	cppcut_assert_equal(expect, option.getHostgroupColumnName(idx));
+}
+
+void test_getDBTermCodec(void)
+{
+	HostResourceQueryOption option(TEST_SYNAPSE);
+	DBClientHatohol dbHatohol;
+	cppcut_assert_equal(typeid(*dbHatohol.getDBAgent()->getDBTermCodec()),
+	                    typeid(*option.getDBTermCodec()));
 }
 
 } // namespace testHostResourceQueryOption

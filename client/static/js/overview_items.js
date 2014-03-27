@@ -28,9 +28,8 @@ var OverviewItems = function(userProfile) {
 
   load();
 
-  $("#select-server, #select-host-group, #select-host").change(function() {
-    load();
-  });
+  self.setupHostQuerySelectorCallback(
+    load, '#select-server', '#select-host-group', '#select-host');
 
   $("#select-severity").change(function() {
     // not implemented yet
