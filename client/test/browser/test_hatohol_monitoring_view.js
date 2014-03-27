@@ -28,10 +28,17 @@ describe('HatoholMonitoringView', function() {
     $('body').append(s);
   }
 
-  function prepreForSetupHostQuerySelector(loadFunc) {
+  function prepreForSetupHostQuerySelector(param) {
     makeSelectorsTestDiv();
     HatoholMonitoringView.prototype.setupHostQuerySelectorCallback(
-      loadFunc, "#select-server", "#select-host-group", "#select-host");
+      function () {
+        expect($('#select-server').val()).to.be(param.server);
+        expect($('#select-host-group').val()).to.be(param.hostgroup);
+        expect($('#select-host').val()).to.be(param.host);
+        param.done();
+      },
+      '#select-server', '#select-host-group', '#select-host'
+    );
     $('#select-server').val('server1');
     $('#select-host-group').val('hostgroup2');
     $('#select-host').val('host1');
@@ -100,31 +107,31 @@ describe('HatoholMonitoringView', function() {
   });
 
   it('setupHostQuerySelector: select server', function(done) {
-    prepreForSetupHostQuerySelector(function() {
-      expect($('#select-server').val()).to.be('server2');
-      expect($('#select-host-group').val()).to.be('---------');
-      expect($('#select-host').val()).to.be('---------');
-      done();
+    prepreForSetupHostQuerySelector({
+      done: done,
+      server:    'server2',
+      hostgroup: '---------',
+      host:      '---------'
     });
     $('#select-server').val('server2').trigger('change');
   });
 
   it('setupHostQuerySelector: select host group', function(done) {
-    prepreForSetupHostQuerySelector(function() {
-      expect($('#select-server').val()).to.be('server1');
-      expect($('#select-host-group').val()).to.be('hostgroup1');
-      expect($('#select-host').val()).to.be('---------');
-      done();
+    prepreForSetupHostQuerySelector({
+      done: done,
+      server:    'server1',
+      hostgroup: 'hostgroup1',
+      host:      '---------'
     });
     $('#select-host-group').val('hostgroup1').trigger('change');
   });
 
   it('setupHostQuerySelector: select host', function(done) {
-    prepreForSetupHostQuerySelector(function() {
-      expect($('#select-server').val()).to.be('server1');
-      expect($('#select-host-group').val()).to.be('hostgroup2');
-      expect($('#select-host').val()).to.be('host2');
-      done();
+    prepreForSetupHostQuerySelector({
+      done: done,
+      server:    'server1',
+      hostgroup: 'hostgroup2',
+      host:      'host2',
     });
     $('#select-host').val('host2').trigger('change');
   });
