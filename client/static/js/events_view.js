@@ -106,9 +106,8 @@ var EventsView = function(userProfile, baseElem) {
     $("#select-severity, #select-status").change(function() {
       load();
     });
-    $("#select-server, #select-host-group, #select-host").change(function() {
-      load();
-    });
+    self.setupHostQuerySelectorCallback(
+      load, '#select-server', '#select-host-group', '#select-host');
 
     $('#num-events-per-page').val(self.numEventsPerPage);
     $('#num-events-per-page').change(function() {

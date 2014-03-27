@@ -190,6 +190,40 @@ HatoholMonitoringView.prototype.addHostQuery = function(query) {
       query.hostId = hostId;
 };
 
+HatoholMonitoringView.prototype.setupHostQuerySelectorCallback =
+  function(loadFunc, serverSelectorId, hostgroupSelectorId, hostSelectorId)
+{
+  // server
+  if (serverSelectorId) {
+    $(serverSelectorId).change(function() {
+      resetHostQuerySelector(hostgroupSelectorId);
+      resetHostQuerySelector(hostSelectorId);
+      loadFunc();
+    });
+  }
+
+  // hostgroup
+  if (hostgroupSelectorId) {
+    $(hostgroupSelectorId).change(function() {
+      resetHostQuerySelector(hostSelectorId);
+      loadFunc();
+    });
+  }
+  
+  // host
+  if (hostSelectorId) {
+    $(hostSelectorId).change(function() {
+      loadFunc();
+    });
+  }
+
+  function resetHostQuerySelector(selectorId) {
+    if (!selectorId)
+      return;
+    $(selectorId).val("---------");
+  }
+}
+
 HatoholMonitoringView.prototype.setStatus = function (value) {
   var elem;
   var x;
