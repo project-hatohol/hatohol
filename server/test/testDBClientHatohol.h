@@ -121,7 +121,7 @@ struct AssertGetHostResourceArg {
 		}
 	}
 
-	virtual uint64_t getHostId(TResourceType &record) = 0;
+	virtual HostIdType getHostId(const TResourceType &record) const = 0;
 
 	virtual TResourceType &getExpectedRecord(size_t idx)
 	{
@@ -269,7 +269,7 @@ struct AssertGetEventsArg
 				  lessTime());
 	}
 
-	virtual uint64_t getHostId(EventInfo &info)
+	virtual HostIdType getHostId(const EventInfo &info) const // override
 	{
 		return info.hostId;
 	}

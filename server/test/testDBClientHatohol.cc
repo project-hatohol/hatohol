@@ -97,7 +97,7 @@ struct AssertGetTriggersArg
 		setDataDrivenTestParam(ddtParam);
 	}
 
-	virtual uint64_t getHostId(TriggerInfo &info)
+	virtual HostIdType getHostId(const TriggerInfo &info) const // override
 	{
 		return info.hostId;
 	}
@@ -248,7 +248,7 @@ struct AssertGetItemsArg
 		return false;
 	}
 
-	virtual uint64_t getHostId(ItemInfo &info) // override
+	virtual HostIdType getHostId(const ItemInfo &info) const // override
 	{
 		return info.hostId;
 	}
@@ -324,7 +324,7 @@ struct AssertGetHostsArg
 		setDataDrivenTestParam(ddtParam);
 	}
 
-	virtual uint64_t getHostId(HostInfo &info)
+	virtual HostIdType getHostId(const HostInfo &info) const // override
 	{
 		return info.id;
 	}
