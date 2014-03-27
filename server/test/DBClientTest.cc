@@ -584,8 +584,6 @@ HostgroupElement testHostgroupElement[] = {
 };
 const size_t NumTestHostgroupElement = sizeof(testHostgroupElement) / sizeof(HostgroupElement);
 
-static set<HostgroupIdType> testHostgroupIdSet;
-
 UserRoleInfo testUserRoleInfo[] = {
 {
 	0,                            // id
@@ -1003,6 +1001,7 @@ size_t findIndexFromTestActionDef(const UserIdType &userId)
 
 const HostgroupIdSet &getTestHostgroupIdSet(void)
 {
+	static set<HostgroupIdType> testHostgroupIdSet;
 	if (!testHostgroupIdSet.empty()) 
 		return testHostgroupIdSet;
 
