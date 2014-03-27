@@ -205,7 +205,21 @@ static void _assertMakeCondition(
 static string makeExpectedConditionForUser(
   UserIdType userId, OperationPrivilegeFlag flags)
 {
-	string exp;
+	struct {
+		bool useFullColumnName;
+		string operator()(const string &tableName,
+		                  const string &columnName) {
+			string s;
+			if (useFullColumnName) {
+				s += tableName;
+				s += ".";
+			}
+			s += columnName;
+			return s;
+		}
+	} nameBuilder;
+	nameBuilder.useFullColumnName = false;
+
 	UserIdIndexMap userIdIndexMap;
 	makeTestUserIdIndexMap(userIdIndexMap);
 	UserIdIndexMapIterator it = userIdIndexMap.find(userId);
@@ -223,12 +237,20 @@ static string makeExpectedConditionForUser(
 	for (; jt != indexes.end(); ++jt) {
 		const AccessInfo &accInfo = testAccessInfo[*jt];
 		srvHostGrpSetMap[accInfo.serverId].insert(accInfo.hostgroupId);
+		if (accInfo.hostgroupId != ALL_HOST_GROUPS)
+			nameBuilder.useFullColumnName = true;
 	}
-	exp = TestHostResourceQueryOption::callMakeCondition(
-		srvHostGrpSetMap,
-		serverIdColumnName,
-		hostgroupIdColumnName,
-		hostIdColumnName);
+
+	string svIdColName =
+	  nameBuilder(TEST_PRIMARY_TABLE_NAME, serverIdColumnName);
+	string hgrpIdColName =
+	  nameBuilder(TEST_HGRP_TABLE_NAME, hostgroupIdColumnName);
+	string hostIdColName =
+	  nameBuilder(TEST_PRIMARY_TABLE_NAME, hostIdColumnName);
+	// TODO: consider that the following way (using a part of test
+	//       target method) is good.
+	const string exp = TestHostResourceQueryOption::callMakeCondition(
+	  srvHostGrpSetMap, svIdColName, hgrpIdColName, hostIdColName);
 	return exp;
 }
 
