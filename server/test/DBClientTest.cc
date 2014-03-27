@@ -547,12 +547,12 @@ HostgroupElement testHostgroupElement[] = {
 }, {
 	AUTO_INCREMENT_VALUE,  // id
 	3,                     // serverId
-	10001,                  // hostId
+	10001,                 // hostId
 	2,                     // groupId
 }, {
 	AUTO_INCREMENT_VALUE,  // id
 	3,                     // serverId
-	10002,                  // hostId
+	10002,                 // hostId
 	1,                     // groupId
 }, {
 	AUTO_INCREMENT_VALUE,  // id
