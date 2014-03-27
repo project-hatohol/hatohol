@@ -209,13 +209,8 @@ static string makeExpectedConditionForUser(
 		bool useFullColumnName;
 		string operator()(const string &tableName,
 		                  const string &columnName) {
-			string s;
-			if (useFullColumnName) {
-				s += tableName;
-				s += ".";
-			}
-			s += columnName;
-			return s;
+			return useFullColumnName ?
+			       tableName + "." + columnName : columnName;
 		}
 	} nameBuilder;
 	nameBuilder.useFullColumnName = false;
