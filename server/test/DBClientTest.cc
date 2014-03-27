@@ -938,8 +938,9 @@ void makeServerHostGrpSetMap(ServerHostGrpSetMap &map, const UserIdType &userId)
 	}
 }
 
-bool isAuthorized(ServerHostGrpSetMap &authMap, UserIdType userId,
-		  uint32_t serverId, uint64_t hostgroupId)
+bool isAuthorized(
+  ServerHostGrpSetMap &authMap, const UserIdType &userId,
+  const ServerIdType &serverId, const HostgroupIdType &hostgroupId)
 {
 	if (userId == USER_ID_SYSTEM)
 		return true;
