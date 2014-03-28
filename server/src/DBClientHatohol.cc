@@ -1371,6 +1371,7 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	DBAgent::SelectMultiTableArg arg(tableProfiles, numTableProfiles);
 
 	arg.tableField = option.getFromClause();
+	arg.useDistinct = option.isHostgroupUsed();
 
 	arg.setTable(TBLIDX_TRIGGERS);
 	arg.add(IDX_TRIGGERS_SERVER_ID);
@@ -1502,6 +1503,7 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	DBAgent::SelectMultiTableArg arg(tableProfiles, numTableProfiles);
 
 	option.useTableNameAlways();
+	arg.useDistinct = option.isHostgroupUsed();
 
 	// Tables
 	arg.tableField = option.getFromClause();
@@ -1709,6 +1711,7 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 	DBAgent::SelectMultiTableArg arg(tableProfiles, numTableProfiles);
 
 	arg.tableField = option.getFromClause();
+	arg.useDistinct = option.isHostgroupUsed();
 
 	arg.setTable(TBLIDX_ITEMS);
 	arg.add(IDX_ITEMS_SERVER_ID);
@@ -1772,7 +1775,10 @@ size_t DBClientHatohol::getNumberOfTriggers(const TriggersQueryOption &option,
                                             TriggerSeverityType severity)
 {
 	DBAgent::SelectExArg arg(tableProfileTriggers);
-	arg.add("count (*)", SQL_COLUMN_TYPE_INT);
+	string stmt =
+	  StringUtils::sprintf("count(distinct %s)",
+	    option.getColumnName(IDX_TRIGGERS_HOST_ID).c_str());
+	arg.add(stmt, SQL_COLUMN_TYPE_INT);
 
 	// from
 	arg.tableField = option.getFromClause();
