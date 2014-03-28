@@ -4,7 +4,7 @@ Group: Applications/System
 Version: @VERSION@
 License: GPLv2+
 URL: https://github.com/project-hatohol/hatohol
-Release: 3%{?dist}
+Release: 4%{?dist}
 Source0: %{name}-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -22,7 +22,6 @@ BuildRequires: json-glib-devel >= 0.12
 BuildRequires: sqlite-devel >= 3.6
 BuildRequires: mysql-devel >= 5.1
 BuildRequires: libuuid-devel >= 2.17
-
 %description
 Hatohol collects monitoring information from running monitoring systems
 and shows their integrated data on one screen. This feature enables
@@ -107,6 +106,37 @@ rm -rf %{buildroot}
 %{_libdir}/pkgconfig/*.pc
 
 %changelog
+* Fri Mar 28 2014 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.03-4
+- [Server][Client] Support Host group  (#27)
+- [Server] Add user role (#92)
+- [Client] We should consider the default list order of events, triggers, and items. (#7)
+- [Server] improve the efficiency to ignore lower level messages in mlpl::Logger (#35)
+- [Server] test_getEventWithMaximumNumberAscendingStartId() crashes rarely (#81)
+- [Server] Propagate access control feature to remaining APIs (#99)
+- [Client] Error messages of hatohol-server are unfriendly (#100)
+- [Server] Support a user privilege on action functions (#102)
+- [Client] Some piecies of information on "Dashboard" page seems incorrect (#104)
+- [Client] index.html and "viewer" prefix are verbose (#105)
+- [Client] Support pagination (#106)
+- [Server] SessionId should be expired (#108)
+- [Server][ActionManager] Check the existence of user before an action is excuted. (#109)
+- [Server] Enable to edit existing monitoring-server configuration (#117)
+- [Client] Wrong users are deleted on deleting users (#118)
+- [Client] "Add" button of HatholServerEditDialog doesn't become enabled in spite of filling all entries (#119)
+- [Client] Server edit dialog is too long vertically (#121)
+- [Client] Cannot register a multi-byte nickname for a monitoring-server (#122)
+- [Client] Links to zabbix pages are broken when the port of monitoring-server isn't 80 (#123)
+- [Client] Pull down menu of "Hosts" filter isn't cleared when clear server filter (#127)
+- [Server] Clean up of code to access DBs. (#129)
+- [Server] Can't start polling by adding a monitoring server from the client (#130)
+- [Server] Old events become invisible after a new server is added on WebUI. (#133)
+- [Client] 'Overview:Item' and 'Latest data' pages get an error after a server is deleted. (#134)
+- [Client] Connection status with servers should be shown on WebUI. (#137)
+- [Server][Client] Don't show data of deleted servers and hosts (#138)
+- [Client] Raise a priority of filter function (#146)
+- [Client] Trggers page isn't updated automatically (#152)
+- [Client] Delete button is still enabled after the deletion finishes. (#159)
+
 * Fri Dec 27 2013 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 13.12-1
 - [Client] Automatic update of content in web pages. (#8)
 - [Client] messages in multiple languages should be supported (#10)
