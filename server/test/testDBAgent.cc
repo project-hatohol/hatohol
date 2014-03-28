@@ -303,6 +303,20 @@ public:
 		assertUpdateArgAdd<T,T>(vals, numVals);
 	}
 
+	void assertMakeSelectStatementDistinct(const bool &distinct) 
+	{
+		SelectExArg arg(tableProfileTest);
+		const size_t cIdx = 0;
+		const ColumnDef &columnDef = tableProfileTest.columnDefs[cIdx];
+		arg.add(cIdx);
+		arg.useDistinct = distinct;
+		string expect = StringUtils::sprintf(
+		  "SELECT %s%s FROM %s",
+		  distinct ? "DISTINCT " : "",
+		  columnDef.columnName, tableProfileTest.name);
+		cppcut_assert_equal(expect, makeSelectStatement(arg));
+	}
+
 private:
 	static const size_t m_numTestColumns = 5;
 	ColumnDef m_testColumnDefs[m_numTestColumns];
@@ -533,6 +547,13 @@ void test_updateArgAddTime_t(void)
 	const time_t vals[] = {0, 0x7fffffff, 1391563132};
 	const size_t numVals = sizeof(vals) / sizeof(string);
 	dbAgent.assertUpdateArgAdd<time_t, int>(vals, numVals);
+}
+
+void test_makeSelectStatementDistinct(void)
+{
+	TestDBAgent dbAgent;
+	dbAgent.assertMakeSelectStatementDistinct(false);
+	dbAgent.assertMakeSelectStatementDistinct(true);
 }
 
 } // namespace testDBAgent
