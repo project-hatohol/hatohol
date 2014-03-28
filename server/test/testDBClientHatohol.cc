@@ -97,7 +97,7 @@ struct AssertGetTriggersArg
 		setDataDrivenTestParam(ddtParam);
 	}
 
-	virtual uint64_t getHostId(TriggerInfo &info)
+	virtual HostIdType getHostId(const TriggerInfo &info) const // override
 	{
 		return info.hostId;
 	}
@@ -248,7 +248,7 @@ struct AssertGetItemsArg
 		return false;
 	}
 
-	virtual uint64_t getHostId(ItemInfo &info) // override
+	virtual HostIdType getHostId(const ItemInfo &info) const // override
 	{
 		return info.hostId;
 	}
@@ -324,7 +324,7 @@ struct AssertGetHostsArg
 		setDataDrivenTestParam(ddtParam);
 	}
 
-	virtual uint64_t getHostId(HostInfo &info)
+	virtual HostIdType getHostId(const HostInfo &info) const // override
 	{
 		return info.id;
 	}
@@ -516,6 +516,7 @@ void test_getTriggerInfo(void)
 void test_getTriggerInfoNotFound(void)
 {
 	setupTestTriggerDB();
+	setupTestDBUser(true, true);
 	const UserIdType invalidSvId = -1;
 	const TriggerIdType invalidTrigId = -1;
 	TriggerInfo triggerInfo;
@@ -852,6 +853,19 @@ void test_getHostInfoListWithOneAuthorizedServer(gconstpointer data)
 	assertGetHosts(arg);
 }
 
+void data_getHostInfoListWithUserWhoCanAccessSomeHostgroups(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getHostInfoListWithUserWhoCanAccessSomeHostgroups(gpointer data)
+{
+	setupTestDBUser(true, true);
+	AssertGetHostsArg arg(data);
+	arg.userId = 3;
+	assertGetHosts(arg);
+}
+
 void data_getNumberOfTriggersBySeverity(void)
 {
 	prepareDataForAllHostgroupIds();
@@ -887,6 +901,7 @@ void test_getNumberOfTriggersBySeverity(gconstpointer data)
 void test_getNumberOfTriggersBySeverityWithoutPriviledge(void)
 {
 	setupTestTriggerDB();
+	setupTestDBUser(true, true);
 
 	const ServerIdType targetServerId = testTriggerInfo[0].serverId;
 	// TODO: should give the appropriate host group ID after

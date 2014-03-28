@@ -133,9 +133,9 @@ void makeServerAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
 void makeServerHostGrpSetMap(ServerHostGrpSetMap &map,
                              const UserIdType &userId);
 bool isAuthorized(ServerHostGrpSetMap &authMap,
-		  UserIdType userId,
-		  uint32_t serverId,
-		  uint64_t hostgroupId = ALL_HOST_GROUPS);
+                  const UserIdType &userId,
+                  const ServerIdType &serverId,
+                  const HostIdType &hostId = ALL_HOSTS);
 
 size_t findIndexFromTestActionDef(const UserIdType &userId);
 

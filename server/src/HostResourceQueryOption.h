@@ -32,6 +32,7 @@ public:
 		const size_t                 selfIdColumnIdx;
 		const size_t                 serverIdColumnIdx;
 		const size_t                 hostIdColumnIdx;
+		const size_t                 hostgroupIdColumnIdx;
 
 		const DBAgent::TableProfile &hostgroupMapTableProfile;
 		const size_t                 hostgroupMapServerIdColumnIdx;
@@ -42,6 +43,7 @@ public:
 		     const size_t &selfIdColumnIdx,
 		     const size_t &serverIdColumnIdx,
 		     const size_t &hostIdColumnIdx,
+		     const size_t &hostgroupIdColumnIdx,
 		     const DBAgent::TableProfile &hostgroupMapTableProfile,
 		     const size_t &hostgroupMapServerIdColumnIdx,
 		     const size_t &hostgroupMapHostIdColumnIdx,
@@ -169,6 +171,7 @@ protected:
 
 	std::string getColumnNameCommon(
 	  const DBAgent::TableProfile &tableProfile, const size_t &idx) const;
+	bool isHostgroupEnumerationInCondition(void) const;
 
 private:
 	struct PrivateContext;

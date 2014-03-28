@@ -139,6 +139,7 @@ public:
 		size_t                     offset;
 		std::string                tableField;
 		bool                       useFullName;
+		bool                       useDistinct;
 		// output
 		mutable ItemTablePtr        dataTable;
 

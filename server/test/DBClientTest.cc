@@ -499,6 +499,10 @@ HostInfo testHostInfo[] = {
 	3,                     // serverId
 	10001,                 // id(hostId)
 	"hostZ1"               // hostName
+} ,{
+	2,                     // serverId
+	512,                   // id(hostId)
+	"multi-host group",    // hostName
 }, {
 	3,                     // serverId
 	10002,                 // id(hostId)
@@ -546,13 +550,23 @@ HostgroupElement testHostgroupElement[] = {
 	1,                     // groupId
 }, {
 	AUTO_INCREMENT_VALUE,  // id
-	3,                     // serverId
-	10001,                  // hostId
+	2,                     // serverId
+	512,                   // hostId
+	1,                     // groupId
+}, {
+	AUTO_INCREMENT_VALUE,  // id
+	2,                     // serverId
+	512,                   // hostId
 	2,                     // groupId
 }, {
 	AUTO_INCREMENT_VALUE,  // id
 	3,                     // serverId
-	10002,                  // hostId
+	10001,                 // hostId
+	2,                     // groupId
+}, {
+	AUTO_INCREMENT_VALUE,  // id
+	3,                     // serverId
+	10002,                 // hostId
 	1,                     // groupId
 }, {
 	AUTO_INCREMENT_VALUE,  // id
@@ -583,9 +597,6 @@ HostgroupElement testHostgroupElement[] = {
 }
 };
 const size_t NumTestHostgroupElement = sizeof(testHostgroupElement) / sizeof(HostgroupElement);
-
-static set<string> hostgroupElementPackSet;
-static set<HostgroupIdType> testHostgroupIdSet;
 
 UserRoleInfo testUserRoleInfo[] = {
 {
@@ -713,8 +724,18 @@ static string makeHostgroupElementPack(
 	return s;
 }
 
-static void makeHostgroupElementPackSet(void)
+/**
+ * This functions return a kind of a perfect hash set that is made from
+ * a server Id, a host Id, and a host group ID. We call it
+ * 'HostGroupElementPack'.
+ *
+ * @return a set of HostGroupElementPack.
+ */
+static const set<string> &getHostgroupElementPackSet(void)
 {
+	static set<string> hostgroupElementPackSet;
+	if (!hostgroupElementPackSet.empty())
+		return hostgroupElementPackSet;
 	for (size_t i = 0; i < NumTestHostgroupElement; i++) {
 		const HostgroupElement &hgrpElem = testHostgroupElement[i];
 		const string mash =
@@ -724,6 +745,7 @@ static void makeHostgroupElementPackSet(void)
 		  hostgroupElementPackSet.insert(mash);
 		cppcut_assert_equal(true, result.second);
 	}
+	return hostgroupElementPackSet;
 }
 
 static bool isInHostgroup(const TriggerInfo &trigInfo,
@@ -732,8 +754,8 @@ static bool isInHostgroup(const TriggerInfo &trigInfo,
 	if (hostgroupId == ALL_HOST_GROUPS)
 		return true;
 
-	if (hostgroupElementPackSet.empty())
-		makeHostgroupElementPackSet();
+	const set<string> &hostgroupElementPackSet = 
+	  getHostgroupElementPackSet();
 
 	const string pack =
 	  makeHostgroupElementPack(trigInfo.serverId,
@@ -815,7 +837,7 @@ size_t getNumberOfTestHostsWithStatus(
 		const TriggerInfo &trigInfo = testTriggerInfo[i];
 		if (serverId != ALL_SERVERS && trigInfo.serverId != serverId)
 			continue;
-		if (!isAuthorized(authMap, userId, serverId, hostgroupId))
+		if (!isAuthorized(authMap, userId, serverId, trigInfo.hostId))
 			continue;
 		if (!isInHostgroup(trigInfo, hostgroupId))
 			continue;
@@ -938,8 +960,9 @@ void makeServerHostGrpSetMap(ServerHostGrpSetMap &map, const UserIdType &userId)
 	}
 }
 
-bool isAuthorized(ServerHostGrpSetMap &authMap, UserIdType userId,
-		  uint32_t serverId, uint64_t hostgroupId)
+bool isAuthorized(
+  ServerHostGrpSetMap &authMap, const UserIdType &userId,
+  const ServerIdType &serverId, const HostIdType &hostId)
 {
 	if (userId == USER_ID_SYSTEM)
 		return true;
@@ -955,14 +978,22 @@ bool isAuthorized(ServerHostGrpSetMap &authMap, UserIdType userId,
 	if (serverIt == authMap.end())
 		return false;
 
-	HostgroupIdSet &hostgroupIds = serverIt->second;
+	if (hostId == ALL_HOSTS)
+		return true;
+
+	const HostgroupIdSet &hostgroupIds = serverIt->second;
 	if (hostgroupIds.find(ALL_HOST_GROUPS) != hostgroupIds.end())
 		return true;
 
-	if (hostgroupId == ALL_HOST_GROUPS)
-		return true;
-
-	// FIXME: Host group isn't supported yet
+	// check if the user is allowed to access to the host
+	const set<string> &hgrpElementPackSet = getHostgroupElementPackSet();
+	HostgroupIdSetConstIterator hostgroupIdItr = hostgroupIds.begin();
+	for (; hostgroupIdItr != hostgroupIds.end(); ++hostgroupIdItr) {
+		const string pack =
+		  makeHostgroupElementPack(serverId, hostId, *hostgroupIdItr);
+		if (hgrpElementPackSet.find(pack) != hgrpElementPackSet.end())
+			return true;
+	}
 
 	return false;
 }
@@ -984,6 +1015,7 @@ size_t findIndexFromTestActionDef(const UserIdType &userId)
 
 const HostgroupIdSet &getTestHostgroupIdSet(void)
 {
+	static HostgroupIdSet testHostgroupIdSet;
 	if (!testHostgroupIdSet.empty()) 
 		return testHostgroupIdSet;
 

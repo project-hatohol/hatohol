@@ -164,6 +164,7 @@ const DBAgent::TableProfile tableProfileTestHGrp(
 static const HostResourceQueryOption::Synapse TEST_SYNAPSE(
   tableProfileTest,
   IDX_TEST_TABLE_ID, IDX_TEST_TABLE_SERVER_ID, IDX_TEST_TABLE_HOST_ID,
+  INVALID_COLUMN_IDX,
   tableProfileTestHGrp,
   IDX_TEST_HGRP_TABLE_SERVER_ID, IDX_TEST_HGRP_TABLE_HOST_ID,
   IDX_TEST_HGRP_TABLE_HOST_GROUP_ID);
@@ -171,7 +172,7 @@ static const HostResourceQueryOption::Synapse TEST_SYNAPSE(
 static const HostResourceQueryOption::Synapse TEST_SYNAPSE_HGRP(
   tableProfileTestHGrp,
   IDX_TEST_HGRP_TABLE_ID, IDX_TEST_HGRP_TABLE_SERVER_ID,
-  IDX_TEST_HGRP_TABLE_HOST_ID,
+  IDX_TEST_HGRP_TABLE_HOST_ID, IDX_TEST_HGRP_TABLE_HOST_GROUP_ID,
   tableProfileTestHGrp,
   IDX_TEST_HGRP_TABLE_SERVER_ID, IDX_TEST_HGRP_TABLE_HOST_ID,
   IDX_TEST_HGRP_TABLE_HOST_GROUP_ID);
@@ -205,7 +206,16 @@ static void _assertMakeCondition(
 static string makeExpectedConditionForUser(
   UserIdType userId, OperationPrivilegeFlag flags)
 {
-	string exp;
+	struct {
+		bool useFullColumnName;
+		string operator()(const string &tableName,
+		                  const string &columnName) {
+			return useFullColumnName ?
+			       tableName + "." + columnName : columnName;
+		}
+	} nameBuilder;
+	nameBuilder.useFullColumnName = false;
+
 	UserIdIndexMap userIdIndexMap;
 	makeTestUserIdIndexMap(userIdIndexMap);
 	UserIdIndexMapIterator it = userIdIndexMap.find(userId);
@@ -223,12 +233,20 @@ static string makeExpectedConditionForUser(
 	for (; jt != indexes.end(); ++jt) {
 		const AccessInfo &accInfo = testAccessInfo[*jt];
 		srvHostGrpSetMap[accInfo.serverId].insert(accInfo.hostgroupId);
+		if (accInfo.hostgroupId != ALL_HOST_GROUPS)
+			nameBuilder.useFullColumnName = true;
 	}
-	exp = TestHostResourceQueryOption::callMakeCondition(
-		srvHostGrpSetMap,
-		serverIdColumnName,
-		hostgroupIdColumnName,
-		hostIdColumnName);
+
+	string svIdColName =
+	  nameBuilder(TEST_PRIMARY_TABLE_NAME, serverIdColumnName);
+	string hgrpIdColName =
+	  nameBuilder(TEST_HGRP_TABLE_NAME, hostgroupIdColumnName);
+	string hostIdColName =
+	  nameBuilder(TEST_PRIMARY_TABLE_NAME, hostIdColumnName);
+	// TODO: consider that the following way (using a part of test
+	//       target method) is good.
+	const string exp = TestHostResourceQueryOption::callMakeCondition(
+	  srvHostGrpSetMap, svIdColName, hgrpIdColName, hostIdColName);
 	return exp;
 }
 
@@ -570,6 +588,7 @@ void test_makeSelectCondition(gconstpointer data)
 
 void test_getFromClauseWithAllHostgroup(void)
 {
+	setupTestDBUser(true, true);
 	HostResourceQueryOption option(TEST_SYNAPSE);
 	cppcut_assert_equal(string(TEST_PRIMARY_TABLE_NAME),
 	                    option.getFromClause());
@@ -577,6 +596,7 @@ void test_getFromClauseWithAllHostgroup(void)
 
 void test_getFromClauseWithSpecificHostgroup(void)
 {
+	setupTestDBUser(true, true);
 	HostResourceQueryOption option(TEST_SYNAPSE);
 	option.setTargetHostgroupId(5);
 	const string expect = 
@@ -605,6 +625,7 @@ void test_isHostgroupUsed(gconstpointer data)
 
 void test_isHostgroupUsedForHostgroupTable(void)
 {
+	setupTestDBUser(true, true);
 	HostResourceQueryOption option(TEST_SYNAPSE_HGRP);
 	option.setTargetHostgroupId(5);
 	// It shall always be false.
@@ -613,6 +634,7 @@ void test_isHostgroupUsedForHostgroupTable(void)
 
 void test_getColumnName(void)
 {
+	setupTestDBUser(true, true);
 	const size_t idx = IDX_TEST_TABLE_HOST_ID;
 	HostResourceQueryOption option(TEST_SYNAPSE);
 	cppcut_assert_equal(string(COLUMN_DEF_TEST[idx].columnName),
@@ -629,6 +651,7 @@ void data_getColumnNameWithTableName(void)
 
 void test_getColumnNameWithTableName(gconstpointer data)
 {
+	setupTestDBUser(true, true);
 	const size_t idx = gcut_data_get_boolean(data, "idx");
 	HostResourceQueryOption option(TEST_SYNAPSE);
 	option.setTargetHostgroupId(5);
@@ -640,6 +663,7 @@ void test_getColumnNameWithTableName(gconstpointer data)
 
 void test_getColumnNameFull(void)
 {
+	setupTestDBUser(true, true);
 	const size_t idx = IDX_TEST_TABLE_HOST_ID;
 	HostResourceQueryOption option(TEST_SYNAPSE);
 	option.setTargetHostgroupId(5);
@@ -670,6 +694,7 @@ void data_getHostgroupColumnNameWithTableName(void)
 
 void test_getHostgroupColumnNameWithTableName(gconstpointer data)
 {
+	setupTestDBUser(true, true);
 	const bool useHostgroup = gcut_data_get_boolean(data, "useHostgroup");
 	const size_t idx = IDX_TEST_HGRP_TABLE_SERVER_ID;
 	HostResourceQueryOption option(TEST_SYNAPSE);

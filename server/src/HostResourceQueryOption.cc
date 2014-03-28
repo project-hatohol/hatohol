@@ -34,6 +34,7 @@ HostResourceQueryOption::Synapse::Synapse(
   const size_t &_selfIdColumnIdx,
   const size_t &_serverIdColumnIdx,
   const size_t &_hostIdColumnIdx,
+  const size_t &_hostgroupIdColumnIdx,
   const DBAgent::TableProfile &_hostgroupMapTableProfile,
   const size_t &_hostgroupMapServerIdColumnIdx,
   const size_t &_hostgroupMapHostIdColumnIdx,
@@ -42,6 +43,7 @@ HostResourceQueryOption::Synapse::Synapse(
   selfIdColumnIdx(_selfIdColumnIdx),
   serverIdColumnIdx(_serverIdColumnIdx),
   hostIdColumnIdx(_hostIdColumnIdx),
+  hostgroupIdColumnIdx(_hostgroupIdColumnIdx),
   hostgroupMapTableProfile(_hostgroupMapTableProfile),
   hostgroupMapServerIdColumnIdx(_hostgroupMapServerIdColumnIdx),
   hostgroupMapHostIdColumnIdx(_hostgroupMapHostIdColumnIdx),
@@ -136,6 +138,7 @@ string HostResourceQueryOption::getCondition(void) const
 
 	UserIdType userId = getUserId();
 
+	// TODO: consider if we cau use isHostgroupEnumerationInCondition()
 	if (userId == USER_ID_SYSTEM || has(OPPRVLG_GET_ALL_SERVER)) {
 		if (m_ctx->targetServerId != ALL_SERVERS) {
 			addCondition(condition,
@@ -199,8 +202,10 @@ string HostResourceQueryOption::getFromClause(void) const
 bool HostResourceQueryOption::isHostgroupUsed(void) const
 {
 	const Synapse &synapse = m_ctx->synapse;
-	if (&synapse.tableProfile == &synapse.hostgroupMapTableProfile)
+	if (synapse.hostgroupIdColumnIdx != INVALID_COLUMN_IDX)
 		return false;
+	if (isHostgroupEnumerationInCondition())
+		return true;
 	return m_ctx->targetHostgroupId != ALL_HOST_GROUPS;
 }
 
@@ -367,6 +372,7 @@ string HostResourceQueryOption::makeCondition(
   HostgroupIdType targetHostgroupId,
   HostIdType targetHostId)
 {
+	// TODO: consider if we use isHostgroupEnumerationInCondition()
 	string condition;
 
 	size_t numServers = srvHostGrpSetMap.size();
@@ -453,4 +459,23 @@ string HostResourceQueryOption::getColumnNameCommon(
 	}
 	name += columnDefs[idx].columnName;
 	return name;
+}
+
+bool HostResourceQueryOption::isHostgroupEnumerationInCondition(void) const
+{
+	const UserIdType &userId = getUserId();
+	if (userId == USER_ID_SYSTEM || has(OPPRVLG_GET_ALL_SERVER))
+		return false;
+	const ServerHostGrpSetMap &srvHostGrpSetMap =
+	  getDataQueryContext().getServerHostGrpSetMap();
+	ServerHostGrpSetMapConstIterator it = srvHostGrpSetMap.begin();
+	for (; it != srvHostGrpSetMap.end(); ++it) {
+		const ServerIdType &serverId = it->first;
+		if (serverId == ALL_SERVERS)
+			continue;
+		const HostgroupIdSet &hostgrpIdSet = it->second;
+		if (hostgrpIdSet.find(ALL_HOST_GROUPS) == hostgrpIdSet.end())
+			return true;
+	}
+	return false;
 }
