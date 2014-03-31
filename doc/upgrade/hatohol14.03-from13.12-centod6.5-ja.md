@@ -49,6 +49,7 @@ Hatohol serverが正常に開始した場合、/var/log/messagesに下記のよ�
 > ** 情報 **
 > Hatohol14.03からはクライアントへアクセスするために、ホスト名のあとに"/client"を
 > つける必要がなくなりました。
+> 
 > ** メモ **
 > 現在、上記ページは、Google ChromeおよびFirefoxを使ってチェックされています。
 > Internet Explorerを使用する場合は、ご使用のバージョンによっては、
