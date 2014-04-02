@@ -1,3 +1,6 @@
+##This file is deprecated
+This file moved to [Hatohol's web site repository](https://github.com/project-hatohol/website/tree/master/contents/docs).
+
 How to install Hatohol on CentOS 6.4 (x86_64) with RPM files
 ============================================================
 

@@ -1,3 +1,6 @@
+##This file is deprecated
+This file moved to [Hatohol's web site repository](https://github.com/project-hatohol/website/tree/master/contents/docs).
+
 How to setup Naigos and NDOUtils on REHL6 or the compatible OSs with 3rd party RPMs
 -----------------------------------------------------------------------------------
 
