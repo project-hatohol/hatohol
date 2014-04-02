@@ -22,11 +22,11 @@
 
 #include "HatoholThreadBase.h"
 #include "DataStore.h"
+#include "UsedCountablePtr.h"
 
 class HatoholArmPluginGate : public DataStore, public HatoholThreadBase {
 public:
 	HatoholArmPluginGate(const MonitoringServerInfo &serverInfo);
-	virtual ~HatoholArmPluginGate();
 
 	// This is dummy and this virtual method should be removed
 	virtual ArmBase &getArmBase(void) // override
@@ -37,10 +37,16 @@ public:
 	// virtual methods
 	gpointer mainThread(HatoholThreadArg *arg); // override
 
+protected:
+	// To avoid an instance from being created on a stack.
+	virtual ~HatoholArmPluginGate();
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;;
 };
+
+typedef UsedCountablePtr<HatoholArmPluginGate> HatoholArmPluginGatePtr;
 
 #endif // HatoholArmPluginGate_h
 

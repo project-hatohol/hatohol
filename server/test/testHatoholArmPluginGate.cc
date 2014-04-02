@@ -30,7 +30,8 @@ void test_constructor(void)
 {
 	MonitoringServerInfo serverInfo;
 	initServerInfo(serverInfo);
-	HatoholArmPluginGate pluginGate(serverInfo);
+	HatoholArmPluginGatePtr pluginGate(
+	  new HatoholArmPluginGate(serverInfo), false);
 }
 
 } // namespace testHatoholArmPluginGate

@@ -36,13 +36,17 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 	m_ctx = new PrivateContext(serverInfo);
 }
 
+gpointer HatoholArmPluginGate::mainThread(HatoholThreadArg *arg)
+{
+	return NULL;
+}
+
+// ---------------------------------------------------------------------------
+// Protected methods
+// ---------------------------------------------------------------------------
 HatoholArmPluginGate::~HatoholArmPluginGate()
 {
 	if (m_ctx)
 		delete m_ctx;
 }
 
-gpointer HatoholArmPluginGate::mainThread(HatoholThreadArg *arg)
-{
-	return NULL;
-}
