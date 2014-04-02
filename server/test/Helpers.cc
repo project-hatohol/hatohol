@@ -853,6 +853,12 @@ string makeDoubleFloatFormat(const ColumnDef &columnDef)
 	return StringUtils::sprintf("%%.%zdlf", columnDef.decFracLength);
 }
 
+void initServerInfo(MonitoringServerInfo &serverInfo)
+{
+	serverInfo.id = 12345;
+	serverInfo.pollingIntervalSec = 1;
+}
+
 static GMainContext *g_acquiredContext = NULL;
 void _acquireDefaultContext(void)
 {

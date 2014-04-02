@@ -22,6 +22,7 @@
 #include <AtomicValue.h>
 #include <MutexLock.h>
 #include "ArmBase.h"
+#include "Helpers.h"
 using namespace std;
 using namespace mlpl;
 
@@ -74,12 +75,6 @@ protected:
 		return true;
 	}
 };
-
-static void initServerInfo(MonitoringServerInfo &serverInfo)
-{
-	serverInfo.id = 12345;
-	serverInfo.pollingIntervalSec = 1;
-}
 
 // ---------------------------------------------------------------------------
 // Test cases

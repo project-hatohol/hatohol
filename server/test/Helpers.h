@@ -172,6 +172,7 @@ void fixupForFilteringDefunctServer(
 void insertValidServerCond(
   std::string &condition, const HostResourceQueryOption &opt,
   const std::string &tableName = "");
+void initServerInfo(MonitoringServerInfo &serverInfo);
 
 /**
  * Make a format string for a double float value that can be used for
