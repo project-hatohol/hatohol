@@ -1,3 +1,6 @@
+##このファイルは[Hatohol Webサイトのリポジトリー](https://github.com/project-hatohol/website/tree/master/contents/docs)にマージされました。
+このファイルは将来的に削除される予定です。
+
 CentOS 6.5 (x86_64)でのRPMを用いたインストール方法
 ============================================================
 
