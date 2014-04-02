@@ -3,24 +3,18 @@ CentOS 6.5 (x86_64)でのRPMを用いたインストール方法
 
 必要なパッケージのインストール
 -------------------------------
-### json-glib
-次のコマンドでインストールしてください。
+### yumリポジトリを用いる場合
+Hatoholのyumリポジトリからインストールを行います。
+
+    # wget --output-document /etc/yum.repos.d/hatohol.repo http://project-hatohol.github.io/repo/hatohol.repo
+    # yum install hatohol hatohol-client
+
+### RPMを直接インストールする場合
+yumリポジトリを使用せずにRPMを直接インストールします。
 
     # yum localinstall https://github.com/project-hatohol/json-glib-for-distribution/raw/master/RPMS/x86_64/json-glib-0.12.6-1PH.x86_64.rpm
-
-### Django
-次のコマンドでインストールしてください。
-
     # yum localinstall https://github.com/project-hatohol/Django-for-distribution/raw/master/dist/Django-1.5.3-1.noarch.rpm
-
-### Hatohol Server
-次のコマンドでインストールしてください。
-
     # yum localinstall https://github.com/project-hatohol/hatohol-packages/raw/master/RPMS/14.03/hatohol-14.03-4.el6.x86_64.rpm
-
-### Hatohol Client
-次のコマンドでインストールしてください。
-
     # yum localinstall https://github.com/project-hatohol/hatohol-packages/raw/master/RPMS/14.03/hatohol-client-14.03-4.el6.x86_64.rpm
 
 > ** 情報 **
