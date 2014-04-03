@@ -34,4 +34,19 @@ void test_constructor(void)
 	  new HatoholArmPluginGate(serverInfo), false);
 }
 
+void test_startAndWaitExit(void)
+{
+	MonitoringServerInfo serverInfo;
+	initServerInfo(serverInfo);
+	HatoholArmPluginGatePtr pluginGate(
+	  new HatoholArmPluginGate(serverInfo), false);
+	const ArmStatus &armStatus = pluginGate->getArmStatus();
+	cppcut_assert_equal(false, armStatus.getArmInfo().running);
+	pluginGate->start();
+	cppcut_assert_equal(true, armStatus.getArmInfo().running);
+
+	pluginGate->waitExit();
+	cppcut_assert_equal(false, armStatus.getArmInfo().running);
+}
+
 } // namespace testHatoholArmPluginGate

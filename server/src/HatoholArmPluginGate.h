@@ -28,6 +28,21 @@ class HatoholArmPluginGate : public DataStore, public HatoholThreadBase {
 public:
 	HatoholArmPluginGate(const MonitoringServerInfo &serverInfo);
 
+	/**
+	 * Start an initiation. This typically launch a plugin process.
+	 */
+	virtual void start(void);
+
+	/**
+	 * Reutrn an ArmStatus instance.
+	 *
+	 * Note that the caller don't make a copy of the returned value on a
+	 * stack. It causes the double free.
+	 *
+	 * @return an ArmStatusInstance.
+	 */
+	const ArmStatus &getArmStatus(void) const;
+
 	// This is dummy and this virtual method should be removed
 	virtual ArmBase &getArmBase(void) // override
 	{
@@ -35,6 +50,12 @@ public:
 	}
 
 	// virtual methods
+
+	/**
+	 * Wait for a complete exit of the thread.
+	 */
+	virtual void waitExit(void); // override
+
 	gpointer mainThread(HatoholThreadArg *arg); // override
 
 protected:

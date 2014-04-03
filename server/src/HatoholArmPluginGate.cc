@@ -21,7 +21,11 @@
 
 struct HatoholArmPluginGate::PrivateContext
 {
-	PrivateContext(const MonitoringServerInfo &serverInfo)
+	MonitoringServerInfo serverInfo; // we have a copy.
+	ArmStatus            armStatus;
+
+	PrivateContext(const MonitoringServerInfo &_serverInfo)
+	: serverInfo(_serverInfo)
 	{
 	}
 };
@@ -36,9 +40,27 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 	m_ctx = new PrivateContext(serverInfo);
 }
 
+void HatoholArmPluginGate::start(void)
+{
+	HatoholThreadBase::start();
+	m_ctx->armStatus.setRunningStatus(true);
+}
+
+const ArmStatus &HatoholArmPluginGate::getArmStatus(void) const
+{
+	return m_ctx->armStatus;
+}
+
 gpointer HatoholArmPluginGate::mainThread(HatoholThreadArg *arg)
 {
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 	return NULL;
+}
+
+void HatoholArmPluginGate::waitExit(void)
+{
+	HatoholThreadBase::waitExit();
+	m_ctx->armStatus.setRunningStatus(false);
 }
 
 // ---------------------------------------------------------------------------
