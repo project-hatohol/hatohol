@@ -213,6 +213,11 @@ DBAgent::SelectArg::SelectArg(const TableProfile &profile)
 {
 }
 
+void DBAgent::SelectArg::add(const size_t &columnIndex)
+{
+	columnIndexes.push_back(columnIndex);
+}
+
 // ---------------------------------------------------------------------------
 // DBAgent::SelectExArg
 // ---------------------------------------------------------------------------

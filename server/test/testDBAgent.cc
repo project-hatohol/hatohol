@@ -87,6 +87,22 @@ public:
 		                    arg.dataTable->getNumberOfRows());
 	}
 
+	void assertSelectArgAdd(void)
+	{
+		TableProfile tblProf("name", m_testColumnDefs,
+		                     sizeof(m_testColumnDefs),
+		                     m_numTestColumns);
+		SelectArg arg(tblProf);
+		cppcut_assert_equal(true, arg.columnIndexes.empty());
+		arg.add(5);
+		arg.add(3);
+		arg.add(18);
+		cppcut_assert_equal((size_t)3, arg.columnIndexes.size());
+		cppcut_assert_equal((size_t)5, arg.columnIndexes[0]);
+		cppcut_assert_equal((size_t)3, arg.columnIndexes[1]);
+		cppcut_assert_equal((size_t)18, arg.columnIndexes[2]);
+	}
+
 	void assertCreateSelectExArg(void)
 	{
 		TableProfile tblProf("name", m_testColumnDefs,
@@ -413,6 +429,12 @@ void test_createSelectArg(void)
 {
 	TestDBAgent dbAgent;
 	dbAgent.assertCreateSelectArg();
+}
+
+void test_selectArgAdd(void)
+{
+	TestDBAgent dbAgent;
+	dbAgent.assertSelectArgAdd();
 }
 
 void test_createSelectExArg(void)
