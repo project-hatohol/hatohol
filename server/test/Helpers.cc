@@ -639,7 +639,7 @@ void loadTestDBServer(void)
 
 void setupTestDBConfig(bool dbRecreate, bool loadTestData)
 {
-	static const char *TEST_DB_NAME = "test_servers_in_helper";
+	static const char *TEST_DB_NAME = "test_config";
 	static const char *TEST_DB_USER = "hatohol_test_user";
 	static const char *TEST_DB_PASSWORD = ""; // empty: No password is used
 	DBClient::setDefaultDBParams(DB_DOMAIN_ID_CONFIG, TEST_DB_NAME,
@@ -851,6 +851,12 @@ void insertValidServerCond(
 string makeDoubleFloatFormat(const ColumnDef &columnDef)
 {
 	return StringUtils::sprintf("%%.%zdlf", columnDef.decFracLength);
+}
+
+void initServerInfo(MonitoringServerInfo &serverInfo)
+{
+	serverInfo.id = 12345;
+	serverInfo.pollingIntervalSec = 1;
 }
 
 static GMainContext *g_acquiredContext = NULL;

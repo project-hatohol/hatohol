@@ -127,6 +127,7 @@ public:
 		mutable ItemTablePtr dataTable;
 
 		SelectArg(const TableProfile &tableProfile);
+		void add(const size_t &columnIndex);
 	};
 
 	struct SelectExArg {
