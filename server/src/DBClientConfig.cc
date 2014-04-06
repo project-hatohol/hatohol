@@ -928,8 +928,7 @@ HatoholError DBClientConfig::saveArmPluginInfo(
 	DBCLIENT_TRANSACTION_BEGIN() {
 		if (isRecordExisting(TABLE_NAME_ARM_PLUGINS, condName)) {
 			err = HTERR_DUPLICATED_ARM_PLUGIN_NAME;
-		}
-		else if (isRecordExisting(TABLE_NAME_ARM_PLUGINS, condType)) {
+		} else if (isRecordExisting(TABLE_NAME_ARM_PLUGINS, condType)) {
 			MLPL_BUG("Update: Not implemented: %s\n", __PRETTY_FUNCTION__);
 		} else {
 			DBAgent::InsertArg arg(tableProfileArmPlugins);
