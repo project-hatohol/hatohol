@@ -916,13 +916,20 @@ HatoholError DBClientConfig::saveArmPluginInfo(
 		return HTERR_INVALID_ARM_PLUGIN_PATH;
 
 	// save
-	const string cond = StringUtils::sprintf(
+	const string condName = StringUtils::sprintf(
+	  "%s='%s'",
+	  COLUMN_DEF_ARM_PLUGINS[IDX_ARM_PLUGINS_NAME].columnName,
+	  armPluginInfo.name.c_str());
+	const string condType = StringUtils::sprintf(
 	  "%s=%d",
 	  COLUMN_DEF_ARM_PLUGINS[IDX_ARM_PLUGINS_TYPE].columnName,
 	  armPluginInfo.type);
+	HatoholError err(HTERR_OK);
 	DBCLIENT_TRANSACTION_BEGIN() {
-		// TODO: check the same name already exists 
-		if (isRecordExisting(TABLE_NAME_ARM_PLUGINS, cond)) {
+		if (isRecordExisting(TABLE_NAME_ARM_PLUGINS, condName)) {
+			err = HTERR_DUPLICATED_ARM_PLUGIN_NAME;
+		}
+		else if (isRecordExisting(TABLE_NAME_ARM_PLUGINS, condType)) {
 			MLPL_BUG("Update: Not implemented: %s\n", __PRETTY_FUNCTION__);
 		} else {
 			DBAgent::InsertArg arg(tableProfileArmPlugins);
@@ -932,7 +939,7 @@ HatoholError DBClientConfig::saveArmPluginInfo(
 			insert(arg);
 		}
 	} DBCLIENT_TRANSACTION_END();
-	return HTERR_OK;
+	return err;
 }
 
 // ---------------------------------------------------------------------------

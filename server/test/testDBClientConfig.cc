@@ -675,6 +675,22 @@ void test_getArmPluginInfo(void)
 	}
 }
 
+void test_saveArmPluginInfo(void)
+{
+	setupTestDBConfig();
+	loadTestDBArmPlugin();
+}
+
+void test_saveArmPluginInfoDuplicateName(void)
+{
+	setupTestDBConfig();
+	loadTestDBArmPlugin();
+
+	DBClientConfig dbConfig;
+	HatoholError err = dbConfig.saveArmPluginInfo(testArmPluginInfo[0]);
+	assertHatoholError(HTERR_DUPLICATED_ARM_PLUGIN_NAME, err);
+}
+
 } // namespace testDBClientConfig
 
 namespace testDBClientConfigDefault {
