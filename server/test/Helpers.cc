@@ -710,6 +710,16 @@ void setupTestDBUser(bool dbRecreate, bool loadTestData)
 	}
 }
 
+void loadTestDBArmPlugin(void)
+{
+	DBClientConfig dbConfig;
+	for (size_t i = 0; i < NumTestArmPluginInfo; i++) {
+		HatoholError err =
+		  dbConfig.saveArmPluginInfo(testArmPluginInfo[i]);
+		assertHatoholError(HTERR_OK, err);
+	}
+}
+
 void loadTestDBAction(void)
 {
 	DBClientAction dbAction;

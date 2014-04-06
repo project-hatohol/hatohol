@@ -655,6 +655,26 @@ void test_serverQueryOptionConstructorTakingDataQueryContext(void)
 	cppcut_assert_equal(userId, option.getUserId());
 }
 
+void test_getArmPluginInfo(void)
+{
+	setupTestDBConfig();
+	loadTestDBArmPlugin();
+	ArmPluginInfoVect armPluginInfoVect;
+	DBClientConfig dbConfig;
+	dbConfig.getArmPluginInfo(armPluginInfoVect);
+
+	// check
+	cppcut_assert_equal((size_t)NumTestArmPluginInfo,
+	                    armPluginInfoVect.size());
+	for (size_t i = 0; i < armPluginInfoVect.size(); i++) {
+		const ArmPluginInfo &expect = testArmPluginInfo[i];
+		const ArmPluginInfo &actual = armPluginInfoVect[i];
+		cppcut_assert_equal(expect.type, actual.type);
+		cppcut_assert_equal(expect.name, actual.name);
+		cppcut_assert_equal(expect.path, actual.path);
+	}
+}
+
 } // namespace testDBClientConfig
 
 namespace testDBClientConfigDefault {
