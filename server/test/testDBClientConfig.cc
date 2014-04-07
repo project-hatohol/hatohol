@@ -78,6 +78,16 @@ static void getTargetServersData(void)
 		       NULL);
 }
 
+static string makeExpectedDBOutLine(const ArmPluginInfo &armPluginInfo)
+{
+	string s = StringUtils::sprintf(
+	  "%d|%s|%s",
+	  armPluginInfo.type,
+	  armPluginInfo.name.c_str(),
+	  armPluginInfo.path.c_str());
+	return s;
+}
+
 static const char *TEST_DB_USER = "hatohol_test_user";
 static const char *TEST_DB_PASSWORD = ""; // empty: No password is used
 void cut_setup(void)
@@ -653,6 +663,101 @@ void test_serverQueryOptionConstructorTakingDataQueryContext(void)
 	DataQueryContextPtr dqCtxPtr(new DataQueryContext(userId), false);
 	ServerQueryOption option(dqCtxPtr);
 	cppcut_assert_equal(userId, option.getUserId());
+}
+
+void test_getArmPluginInfo(void)
+{
+	setupTestDBConfig();
+	loadTestDBArmPlugin();
+	ArmPluginInfoVect armPluginInfoVect;
+	DBClientConfig dbConfig;
+	dbConfig.getArmPluginInfo(armPluginInfoVect);
+
+	// check
+	cppcut_assert_equal((size_t)NumTestArmPluginInfo,
+	                    armPluginInfoVect.size());
+	for (size_t i = 0; i < armPluginInfoVect.size(); i++) {
+		const ArmPluginInfo &expect = testArmPluginInfo[i];
+		const ArmPluginInfo &actual = armPluginInfoVect[i];
+		cppcut_assert_equal(expect.type, actual.type);
+		cppcut_assert_equal(expect.name, actual.name);
+		cppcut_assert_equal(expect.path, actual.path);
+	}
+}
+
+void test_saveArmPluginInfo(void)
+{
+	setupTestDBConfig();
+	loadTestDBArmPlugin();
+}
+
+void test_saveArmPluginInfoWithInvalidType(void)
+{
+	setupTestDBConfig();
+	DBClientConfig dbConfig;
+	ArmPluginInfo armPluginInfo = testArmPluginInfo[0];
+	armPluginInfo.type = MONITORING_SYSTEM_NAGIOS;
+	assertHatoholError(HTERR_INVALID_ARM_PLUGIN_TYPE,
+	                   dbConfig.saveArmPluginInfo(armPluginInfo));
+	armPluginInfo.type = NUM_MONITORING_SYSTEMS;
+	assertHatoholError(HTERR_INVALID_ARM_PLUGIN_TYPE,
+	                   dbConfig.saveArmPluginInfo(armPluginInfo));
+}
+
+void test_saveArmPluginInfoWithNoName(void)
+{
+	setupTestDBConfig();
+	DBClientConfig dbConfig;
+	ArmPluginInfo armPluginInfo = testArmPluginInfo[0];
+	armPluginInfo.name = "";
+	assertHatoholError(HTERR_INVALID_ARM_PLUGIN_NAME,
+	                   dbConfig.saveArmPluginInfo(armPluginInfo));
+}
+
+void test_saveArmPluginInfoWithNoPath(void)
+{
+	setupTestDBConfig();
+	DBClientConfig dbConfig;
+	ArmPluginInfo armPluginInfo = testArmPluginInfo[0];
+	armPluginInfo.path = "";
+	assertHatoholError(HTERR_INVALID_ARM_PLUGIN_PATH,
+	                   dbConfig.saveArmPluginInfo(armPluginInfo));
+}
+
+void test_saveArmPluginInfoDuplicateName(void)
+{
+	setupTestDBConfig();
+	loadTestDBArmPlugin();
+
+	DBClientConfig dbConfig;
+	HatoholError err = dbConfig.saveArmPluginInfo(testArmPluginInfo[0]);
+	assertHatoholError(HTERR_DUPLICATED_ARM_PLUGIN_NAME, err);
+}
+
+void test_saveArmPluginInfoUpdate(void)
+{
+	setupTestDBConfig();
+	loadTestDBArmPlugin();
+
+	DBClientConfig dbConfig;
+	const size_t targetIdx = 1;
+	ArmPluginInfo armPluginInfo = testArmPluginInfo[targetIdx];
+	armPluginInfo.name = "Hachi Jr.";
+	armPluginInfo.path = "/usr/lib/dog";
+	assertHatoholError(HTERR_OK, dbConfig.saveArmPluginInfo(armPluginInfo));
+
+	// check
+	const string statement = "SELECT * FROM arm_plugins";
+	string expect;
+	for (size_t i = 0; i < NumTestArmPluginInfo; i++) {
+		if (i == targetIdx)
+			expect += makeExpectedDBOutLine(armPluginInfo);
+		else
+			expect += makeExpectedDBOutLine(testArmPluginInfo[i]);
+		if (i < NumTestArmPluginInfo - 1)
+			expect += "\n";
+	}
+	assertDBContent(dbConfig.getDBAgent(), statement, expect);
 }
 
 } // namespace testDBClientConfig

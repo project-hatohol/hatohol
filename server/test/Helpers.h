@@ -158,6 +158,7 @@ void loadTestDBAction(void);
 void loadTestDBUser(void);
 void loadTestDBAccessList(void);
 void loadTestDBUserRole(void);
+void loadTestDBArmPlugin(void);
 std::string execSQL(DBAgent *agent, const std::string &statement,
                     bool showHeader = false);
 std::string joinStringVector(const mlpl::StringVector &strVect,

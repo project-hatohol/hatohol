@@ -84,6 +84,13 @@ AC_SUBST(MLPL_CFLAGS)
 AC_SUBST(MLPL_LIBS)
 
 dnl **************************************************************
+dnl Check for Apache Qpid
+dnl **************************************************************
+dnl TODO: should we check the existence
+QPID_LIBS=-lqpidmessaging
+AC_SUBST(QPID_LIBS)
+
+dnl **************************************************************
 dnl Checks for Cutter
 dnl **************************************************************
 CUTTER_REQUIRED=1.2.3

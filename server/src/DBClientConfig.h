@@ -29,6 +29,8 @@ enum MonitoringSystemType {
 	MONITORING_SYSTEM_FAKE    = -1, // mainly for test
 	MONITORING_SYSTEM_ZABBIX,
 	MONITORING_SYSTEM_NAGIOS,
+	MONITORING_SYSTEM_HAPI_ZABBIX,
+	MONITORING_SYSTEM_HAPI_NAGIOS,
 	NUM_MONITORING_SYSTEMS,
 };
 
@@ -78,6 +80,18 @@ struct MonitoringServerInfo {
 
 typedef std::list<MonitoringServerInfo>    MonitoringServerInfoList;
 typedef MonitoringServerInfoList::iterator MonitoringServerInfoListIterator;
+
+struct ArmPluginInfo {
+	MonitoringSystemType type;
+	std::string name; // must be unique
+	std::string path;
+};
+
+typedef std::vector<ArmPluginInfo>        ArmPluginInfoVect;
+
+typedef std::map<MonitoringSystemType, ArmPluginInfo *> ArmPluginInfoMap;
+typedef ArmPluginInfoMap::iterator          ArmPluginInfoMapIterator;
+typedef ArmPluginInfoMap::const_iterator    ArmPluginInfoMapConstIterator;
 
 class ServerQueryOption : public DataQueryOption {
 public:
@@ -139,6 +153,24 @@ public:
 	 */
 	void getServerIdSet(ServerIdSet &serverIdSet,
 	                    DataQueryContext *dataQueryContext);
+
+	/**
+	 * Get all entries in the arm_plugins table.
+	 *
+	 * @param armPluginVect The obtained data is added to this variable.
+	 */
+	void getArmPluginInfo(ArmPluginInfoVect &armPluginVect);
+
+	/**
+	 * Save Arm plugin information.
+	 * If the entry with armPluginInfo.type exists, the record is updated.
+	 * Otherwise the new record is created.
+	 *
+	 * @param armPluginInfo A data to be saved.
+	 *
+	 * @rerurn A HatoholError insntace.
+	 */
+	HatoholError saveArmPluginInfo(const ArmPluginInfo &armPluginInfo);
 
 protected:
 	static bool parseCommandLineArgument(const CommandLineArg &cmdArg);
