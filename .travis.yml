@@ -27,7 +27,7 @@ before_script:
   - make -j`cat /proc/cpuinfo | grep ^processor| wc -l`
 script:
   - pushd .
-  - ./server/mlpl/test/run-test.sh
+  - MLPL_LOGGER_LEVEL=WARN ./server/mlpl/test/run-test.sh
   - cd server/test && ./run-test.sh
   - popd; pushd .
   - cd server/tools/test && ./run-test.sh
