@@ -78,6 +78,16 @@ static void getTargetServersData(void)
 		       NULL);
 }
 
+static string makeExpectedDBOutLine(const ArmPluginInfo &armPluginInfo)
+{
+	string s = StringUtils::sprintf(
+	  "%d|%s|%s",
+	  armPluginInfo.type,
+	  armPluginInfo.name.c_str(),
+	  armPluginInfo.path.c_str());
+	return s;
+}
+
 static const char *TEST_DB_USER = "hatohol_test_user";
 static const char *TEST_DB_PASSWORD = ""; // empty: No password is used
 void cut_setup(void)
@@ -722,6 +732,32 @@ void test_saveArmPluginInfoDuplicateName(void)
 	DBClientConfig dbConfig;
 	HatoholError err = dbConfig.saveArmPluginInfo(testArmPluginInfo[0]);
 	assertHatoholError(HTERR_DUPLICATED_ARM_PLUGIN_NAME, err);
+}
+
+void test_saveArmPluginInfoUpdate(void)
+{
+	setupTestDBConfig();
+	loadTestDBArmPlugin();
+
+	DBClientConfig dbConfig;
+	const size_t targetIdx = 1;
+	ArmPluginInfo armPluginInfo = testArmPluginInfo[targetIdx];
+	armPluginInfo.name = "Hachi Jr.";
+	armPluginInfo.path = "/usr/lib/dog";
+	assertHatoholError(HTERR_OK, dbConfig.saveArmPluginInfo(armPluginInfo));
+
+	// check
+	const string statement = "SELECT * FROM arm_plugins";
+	string expect;
+	for (size_t i = 0; i < NumTestArmPluginInfo; i++) {
+		if (i == targetIdx)
+			expect += makeExpectedDBOutLine(armPluginInfo);
+		else
+			expect += makeExpectedDBOutLine(testArmPluginInfo[i]);
+		if (i < NumTestArmPluginInfo - 1)
+			expect += "\n";
+	}
+	assertDBContent(dbConfig.getDBAgent(), statement, expect);
 }
 
 } // namespace testDBClientConfig
