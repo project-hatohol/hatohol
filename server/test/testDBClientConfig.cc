@@ -681,6 +681,19 @@ void test_saveArmPluginInfo(void)
 	loadTestDBArmPlugin();
 }
 
+void test_saveArmPluginInfoWithInvalidType(void)
+{
+	setupTestDBConfig();
+	DBClientConfig dbConfig;
+	ArmPluginInfo armPluginInfo = testArmPluginInfo[0];
+	armPluginInfo.type = MONITORING_SYSTEM_NAGIOS;
+	assertHatoholError(HTERR_INVALID_ARM_PLUGIN_TYPE,
+	                   dbConfig.saveArmPluginInfo(armPluginInfo));
+	armPluginInfo.type = NUM_MONITORING_SYSTEMS;
+	assertHatoholError(HTERR_INVALID_ARM_PLUGIN_TYPE,
+	                   dbConfig.saveArmPluginInfo(armPluginInfo));
+}
+
 void test_saveArmPluginInfoWithNoName(void)
 {
 	setupTestDBConfig();
