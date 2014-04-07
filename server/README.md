@@ -217,7 +217,8 @@ API Reference Manual for REST service
 -------------------------------------
 The API reference manual can be created as below.
 
-    $ cd ../doc/server/manual-sphinx
+    $ cd <Top directory of the Hatohol source repository>
+    $ cd doc/server/manual-sphinx
     $ make html
 
 Then you can see the manual at doc/manual-sphinx/_build/html/index.html
