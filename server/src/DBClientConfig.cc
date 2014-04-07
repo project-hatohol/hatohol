@@ -31,6 +31,7 @@ using namespace mlpl;
 
 static const char *TABLE_NAME_SYSTEM  = "system";
 static const char *TABLE_NAME_SERVERS = "servers";
+static const char *TABLE_NAME_ARM_PLUGINS = "arm_plugins";
 
 int DBClientConfig::CONFIG_DB_VERSION = 8;
 const char *DBClientConfig::DEFAULT_DB_NAME = "hatohol";
@@ -249,6 +250,54 @@ static const DBAgent::TableProfile tableProfileServers(
   TABLE_NAME_SERVERS, COLUMN_DEF_SERVERS,
   sizeof(COLUMN_DEF_SERVERS), NUM_IDX_SERVERS);
 
+static const ColumnDef COLUMN_DEF_ARM_PLUGINS[] = {
+{
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_ARM_PLUGINS,            // tableName
+	"type", // server.type             // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_ARM_PLUGINS,            // tableName
+	"name",                            // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_UNI,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_ARM_PLUGINS,            // tableName
+	"path",                            // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}
+};
+
+enum {
+	IDX_ARM_PLUGINS_TYPE,
+	IDX_ARM_PLUGINS_NAME,
+	IDX_ARM_PLUGINS_PATH,
+	NUM_IDX_ARM_PLUGINS,
+};
+
+static const DBAgent::TableProfile tableProfileArmPlugins(
+  TABLE_NAME_ARM_PLUGINS, COLUMN_DEF_ARM_PLUGINS,
+  sizeof(COLUMN_DEF_ARM_PLUGINS), NUM_IDX_ARM_PLUGINS);
+
 static bool validIPv4Address(const string &ipAddress);
 static bool validIPv6Address(const string &ipAddress);
 
@@ -432,6 +481,8 @@ void DBClientConfig::init(const CommandLineArg &cmdArg)
 		tableInitializerSystem,
 	}, {
 		&tableProfileServers,
+	}, {
+		&tableProfileArmPlugins,
 	}
 	};
 	static const size_t NUM_TABLE_INFO =
@@ -828,6 +879,75 @@ void DBClientConfig::getServerIdSet(ServerIdSet &serverIdSet,
 		ServerIdType id = *(*itemGrpItr)->getItemPtrAt(0);
 		serverIdSet.insert(id);
 	}
+}
+
+void DBClientConfig::getArmPluginInfo(ArmPluginInfoVect &armPluginVect)
+{
+	DBAgent::SelectExArg arg(tableProfileArmPlugins);
+	arg.add(IDX_ARM_PLUGINS_TYPE);
+	arg.add(IDX_ARM_PLUGINS_NAME);
+	arg.add(IDX_ARM_PLUGINS_PATH);
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	// check the result and copy
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	armPluginVect.reserve(grpList.size());
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
+		ArmPluginInfo armPluginInfo;
+		itemGroupStream >> armPluginInfo.type;
+		itemGroupStream >> armPluginInfo.name;
+		itemGroupStream >> armPluginInfo.path;
+		armPluginVect.push_back(armPluginInfo);
+	}
+}
+
+HatoholError DBClientConfig::saveArmPluginInfo(
+  const ArmPluginInfo &armPluginInfo)
+{
+	// validation
+	if (armPluginInfo.name.empty())
+		return HTERR_INVALID_ARM_PLUGIN_NAME;
+	if (armPluginInfo.path.empty())
+		return HTERR_INVALID_ARM_PLUGIN_PATH;
+	if (armPluginInfo.type < MONITORING_SYSTEM_HAPI_ZABBIX ||
+	    armPluginInfo.type >= NUM_MONITORING_SYSTEMS) {
+		MLPL_ERR("Invalid type: %d\n", armPluginInfo.type);
+		return HTERR_INVALID_ARM_PLUGIN_TYPE;
+	}
+
+	// save
+	const string condName = StringUtils::sprintf(
+	  "%s='%s'",
+	  COLUMN_DEF_ARM_PLUGINS[IDX_ARM_PLUGINS_NAME].columnName,
+	  armPluginInfo.name.c_str());
+	const string condType = StringUtils::sprintf(
+	  "%s=%d",
+	  COLUMN_DEF_ARM_PLUGINS[IDX_ARM_PLUGINS_TYPE].columnName,
+	  armPluginInfo.type);
+	HatoholError err(HTERR_OK);
+	DBCLIENT_TRANSACTION_BEGIN() {
+		if (isRecordExisting(TABLE_NAME_ARM_PLUGINS, condName)) {
+			err = HTERR_DUPLICATED_ARM_PLUGIN_NAME;
+		} else if (isRecordExisting(TABLE_NAME_ARM_PLUGINS, condType)) {
+			DBAgent::UpdateArg arg(tableProfileArmPlugins);
+			arg.add(IDX_ARM_PLUGINS_NAME, armPluginInfo.name);
+			arg.add(IDX_ARM_PLUGINS_PATH, armPluginInfo.path);
+			arg.condition = condType;
+			update(arg);
+		} else {
+			DBAgent::InsertArg arg(tableProfileArmPlugins);
+			arg.add(armPluginInfo.type);
+			arg.add(armPluginInfo.name);
+			arg.add(armPluginInfo.path);
+			insert(arg);
+		}
+	} DBCLIENT_TRANSACTION_END();
+	return err;
 }
 
 // ---------------------------------------------------------------------------

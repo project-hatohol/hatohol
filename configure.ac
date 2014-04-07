@@ -84,6 +84,15 @@ AC_SUBST(MLPL_CFLAGS)
 AC_SUBST(MLPL_LIBS)
 
 dnl **************************************************************
+dnl Check for Apache Qpid
+dnl **************************************************************
+dnl The Qpid's functions are C++ mangled (such as
+dnl _ZN4qpid9messaging10Connection4openEv) in the library. So enumeration of
+dnl them degrades portability. We just pass '_init' in the following macro.
+AC_CHECK_LIB(qpidmessaging, _init, [],
+             [AC_MSG_ERROR(libqpidmessage was not found.)])
+
+dnl **************************************************************
 dnl Checks for Cutter
 dnl **************************************************************
 CUTTER_REQUIRED=1.2.3

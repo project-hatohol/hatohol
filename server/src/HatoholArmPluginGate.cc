@@ -17,7 +17,17 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <qpid/messaging/Address.h>
+#include <qpid/messaging/Connection.h>
+#include <qpid/messaging/Message.h>
+#include <qpid/messaging/Receiver.h>
+#include <qpid/messaging/Sender.h>
+#include <qpid/messaging/Session.h>
+#include <string>
 #include "HatoholArmPluginGate.h"
+
+using namespace std;
+using namespace qpid::messaging;
 
 struct HatoholArmPluginGate::PrivateContext
 {
@@ -54,6 +64,22 @@ const ArmStatus &HatoholArmPluginGate::getArmStatus(void) const
 gpointer HatoholArmPluginGate::mainThread(HatoholThreadArg *arg)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+
+	// The following lines is for checking if a build succeeds
+	// and don't do a meaningful job.
+	const string broker = "localhost:5672";
+	const string address = "hapi";
+	const string connectionOptions;
+
+	Connection connection(broker, connectionOptions);
+	connection.open();
+	Session session = connection.createSession();
+
+	Receiver receiver = session.createReceiver(address);
+	Message message = receiver.fetch();
+	session.acknowledge();
+	connection.close();
+	
 	return NULL;
 }
 

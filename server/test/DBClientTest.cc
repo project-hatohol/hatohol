@@ -625,6 +625,19 @@ UserRoleInfo testUserRoleInfo[] = {
 };
 const size_t NumTestUserRoleInfo = sizeof(testUserRoleInfo) / sizeof(UserRoleInfo);
 
+ArmPluginInfo testArmPluginInfo[] = {
+{
+	MONITORING_SYSTEM_HAPI_ZABBIX,   // type
+	"Zabbix API",                    // name
+	"/usr/local/lib/hatohol/hapi/hapi-zabbix-api",       // path
+}, {
+	MONITORING_SYSTEM_HAPI_NAGIOS,   // type
+	"Nagios NDO",                    // name
+	"/usr/local/lib/hatohol/hapi/hapi-nagios-ndoutils",  // path
+}
+};
+const size_t NumTestArmPluginInfo = sizeof(testArmPluginInfo) / sizeof(ArmPluginInfo);
+
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 {
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
