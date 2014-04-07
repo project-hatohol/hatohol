@@ -691,6 +691,16 @@ void test_saveArmPluginInfoWithNoName(void)
 	                   dbConfig.saveArmPluginInfo(armPluginInfo));
 }
 
+void test_saveArmPluginInfoWithNoPath(void)
+{
+	setupTestDBConfig();
+	DBClientConfig dbConfig;
+	ArmPluginInfo armPluginInfo = testArmPluginInfo[0];
+	armPluginInfo.path = "";
+	assertHatoholError(HTERR_INVALID_ARM_PLUGIN_PATH,
+	                   dbConfig.saveArmPluginInfo(armPluginInfo));
+}
+
 void test_saveArmPluginInfoDuplicateName(void)
 {
 	setupTestDBConfig();
