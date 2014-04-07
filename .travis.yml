@@ -28,7 +28,7 @@ before_script:
 script:
   - pushd .
   - MLPL_LOGGER_LEVEL=WARN ./server/mlpl/test/run-test.sh
-  - cd server/test && ./run-test.sh
+  - cd server/test && MLPL_LOGGER_LEVEL=WARN ./run-test.sh
   - popd; pushd .
   - cd server/tools/test && MLPL_LOGGER_LEVEL=WARN ./run-test.sh
   - popd; pushd .
