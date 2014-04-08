@@ -206,7 +206,7 @@ Ex.)
 
 (6) start ndo2db and nagios3
 
-In ubuntsu 13.04, edit of ENABLE_NDOUTILS variable in /etc/default/ndoutils
+In ubuntu 13.04, edit of ENABLE_NDOUTILS variable in /etc/default/ndoutils
   is also needed.
 
     ENABLE_NDOUTILS=1
