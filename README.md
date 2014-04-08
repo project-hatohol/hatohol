@@ -1,6 +1,9 @@
 Hatohol
 =======
 
+日本語向けのHatoholウェブサイトを開設しました。以下のホームページをご覧ください。
+http://hatohol.sourceforge.jp/
+
 Overview
 --------
 Hatohol collects monitoring information from running monitoring systems
