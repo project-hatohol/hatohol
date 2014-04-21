@@ -1233,7 +1233,7 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 			updateApplications(items);
 		}
 	} catch (const DataStoreException &dse) {
-		MLPL_ERR("Error on update\n");
+		MLPL_ERR("Error on update: %s\n", dse.what());
 		m_ctx->authToken = "";
 		return false;
 	}
