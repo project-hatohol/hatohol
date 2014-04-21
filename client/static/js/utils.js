@@ -160,7 +160,7 @@ function getServerName(server, serverId) {
 }
 
 function getHostName(server, hostId) {
-  if (!server)
+  if (!server || !server["hosts"] || !(hostId in server["hosts"]))
     return "Unknown:" + hostId;
   return server["hosts"][hostId]["name"];
 }
