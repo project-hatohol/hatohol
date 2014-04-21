@@ -50,11 +50,44 @@ Set the environment variable like
 
 $ HATOHOL_EXCEPTION_STACK_TRACE=1 ./run-test.sh
 
-Hint: generate a core file 
---------------------------
-If the system uses apport (such as Ubuntu 13.10), some test, which makes a
-child process crash, fails. In that case, you should set
-/proc/sys/kernel/core_patter to 'core', or purge the apport package.
+Hint: fix an error: accessing to MySQL
+--------------------------------------
+On some distributions such as Ubuntu 14.04, unregistered users is not allowed
+to access MySQL's DBs even its names begins from test_*.
+The following command fixes the problem.
+
+    $ mysql -uroot
+    mysql> GRANT USAGE ON *.* TO ''@'localhost';
+    mysql> GRANT ALL PRIVILEGES ON `test_%`.* TO ''@'localhost';
+
+Hint: fix an error: accessing to ndoutils on MySQL
+--------------------------------------------------
+The DB for ndoutils is created when NDOUtils package is installed.
+However, there're some situations in which the installation of the package is
+not prefered. In this case, the following steps can be used to pass the test.
+
+    $ mysql -u root -e "CREATE DATABASE ndoutils;"
+    $ mysql -u root ndoutils < ../misc/ndoutils.mysql
+    $ mysql -u root -e "GRANT all on ndoutils.* TO ndoutils@localhost IDENTIFIED BY 'admin';"
+
+Hint: fix an error: expeted failure code is diffrent on some tests
+------------------------------------------------------------------
+Some tests for ActionManager fails due to the following reason.
+
+    Failure: testActionManager::test_execCommandActionCrashSoon
+    <failureCode == actionLog.failureCode>
+    expected: <13>
+      actual: <14>
+
+The reason may be due to the content of /proc/sys/kernel/core_patter.
+Some distribution (such as Ubuntu 13.10, 14.04) sets it to a command that
+calls 'apport' like,
+
+    $ cat /proc/sys/kernel/core_pattern
+    |/usr/share/apport/apport %p %s %c %P
+
+It can be fixed by setting a normal string such as 'core' or
+removing the apport package.
 
 How to use a specified port for MySQLWorker
 -------------------------------------------
