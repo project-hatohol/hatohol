@@ -62,6 +62,7 @@ public:
 
 protected:
 	const std::string &getAPIVersion(void);
+	bool checkAPIVersion(int major, int minor, int micro);
 	SoupSession *getSession(void);
 
 	/**

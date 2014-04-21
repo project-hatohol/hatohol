@@ -45,6 +45,9 @@ static const guint DEFAULT_IDLE_TIMEOUT = 60;
 struct ArmZabbixAPI::PrivateContext
 {
 	string         apiVersion;
+	int            apiVersionMajor;
+	int            apiVersionMinor;
+	int            apiVersionMicro;
 	string         authToken;
 	string         uri;
 	string         username;
@@ -60,7 +63,10 @@ struct ArmZabbixAPI::PrivateContext
 
 	// constructors
 	PrivateContext(const MonitoringServerInfo &serverInfo)
-	: zabbixServerId(serverInfo.id),
+	: apiVersionMajor(0),
+	  apiVersionMinor(0),
+	  apiVersionMicro(0),
+	  zabbixServerId(serverInfo.id),
 	  session(NULL),
 	  gotTriggers(false),
 	  triggerid(0),
@@ -427,9 +433,40 @@ const string &ArmZabbixAPI::getAPIVersion(void)
 		MLPL_ERR("Failed to read API version\n");
 	}
 
+	if (!m_ctx->apiVersion.empty()) {
+		StringList list;
+		StringUtils::split(list, m_ctx->apiVersion, '.');
+		StringListIterator it = list.begin();
+		for (size_t i = 0; it != list.end(); i++, it++) {
+			string &str = *it;
+			if (i == 0)
+				m_ctx->apiVersionMajor = atoi(str.c_str());
+			else if (i == 1)
+				m_ctx->apiVersionMinor = atoi(str.c_str());
+			else if (i == 2)
+				m_ctx->apiVersionMicro = atoi(str.c_str());
+			else
+				break;
+		}
+	}
+
 OUT:
 	g_object_unref(msg);
 	return m_ctx->apiVersion;
+}
+
+bool ArmZabbixAPI::checkAPIVersion(int major, int minor, int micro)
+{
+	if (major > m_ctx->apiVersionMajor)
+		return true;
+	if (major == m_ctx->apiVersionMajor &&
+	    minor >  m_ctx->apiVersionMinor)
+		return true;
+	if (major == m_ctx->apiVersionMajor &&
+	    minor == m_ctx->apiVersionMinor &&
+	    micro >= m_ctx->apiVersionMicro)
+		return true;
+	return false;
 }
 
 SoupMessage *ArmZabbixAPI::queryAPIVersion(void)
