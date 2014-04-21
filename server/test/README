@@ -60,11 +60,24 @@ The following command fixes the problem.
     mysql> GRANT USAGE ON *.* TO ''@'localhost';
     mysql> GRANT ALL PRIVILEGES ON `test_%`.* TO ''@'localhost';
 
-Hint: generate a core file 
---------------------------
-If the system uses apport (such as Ubuntu 13.10), some test, which makes a
-child process crash, fails. In that case, you should set
-/proc/sys/kernel/core_patter to 'core', or purge the apport package.
+Hint: fix an error: expeted failure code is diffrent on some tests
+------------------------------------------------------------------
+Some tests for ActionManager fails due to the following reason.
+
+    Failure: testActionManager::test_execCommandActionCrashSoon
+    <failureCode == actionLog.failureCode>
+    expected: <13>
+      actual: <14>
+
+The reason may be due to the content of /proc/sys/kernel/core_patter.
+Some distribution (such as Ubuntu 13.10, 14.04) sets it to a command that
+calls 'apport' like,
+
+    $ cat /proc/sys/kernel/core_pattern
+    |/usr/share/apport/apport %p %s %c %P
+
+It can be fixed by setting a normal string such as 'core' or
+removing the apport package.
 
 How to use a specified port for MySQLWorker
 -------------------------------------------
