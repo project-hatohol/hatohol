@@ -52,8 +52,9 @@ $ HATOHOL_EXCEPTION_STACK_TRACE=1 ./run-test.sh
 
 Hint: fix an error: accessing to MySQL
 --------------------------------------
-Some distributions such as Ubuntu 14.04 disables unregistered users to access the DB
-and to operate databases with the name: test_*.
+On some distributions such as Ubuntu 14.04, unregistered users is not allowed
+to access MySQL's DBs even its names begins from test_*.
+The following command fixes the problem.
 
     $ mysql -uroot
     mysql> GRANT USAGE ON *.* TO ''@'localhost';
