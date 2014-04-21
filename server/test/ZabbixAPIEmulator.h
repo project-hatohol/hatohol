@@ -71,6 +71,7 @@ protected:
 	void handlerAPIDispatch(APIHandlerArg &arg);
 	void APIHandlerGetWithFile(APIHandlerArg &arg,
 	                           const std::string &dataFile);
+	void APIHandlerAPIVersion(APIHandlerArg &arg);
 	void APIHandlerUserLogin(APIHandlerArg &arg);
 	void APIHandlerTriggerGet(APIHandlerArg &arg);
 	void APIHandlerItemGet(APIHandlerArg &arg);

@@ -44,6 +44,7 @@ static const guint DEFAULT_IDLE_TIMEOUT = 60;
 
 struct ArmZabbixAPI::PrivateContext
 {
+	string         apiVersion;
 	string         authToken;
 	string         uri;
 	string         username;
@@ -329,6 +330,10 @@ SoupSession *ArmZabbixAPI::getSession(void)
 
 bool ArmZabbixAPI::openSession(SoupMessage **msgPtr)
 {
+	const string &version = getAPIVersion();
+	if (version.empty())
+		return false;
+
 	SoupMessage *msg = soup_message_new(SOUP_METHOD_POST, m_ctx->uri.c_str());
 
 	soup_message_headers_set_content_type(msg->request_headers,
@@ -398,6 +403,49 @@ SoupMessage *ArmZabbixAPI::queryCommon(JsonBuilderAgent &agent)
 		return NULL;
 	}
 	return msg;
+}
+
+const string &ArmZabbixAPI::getAPIVersion(void)
+{
+	if (!m_ctx->apiVersion.empty())
+		return m_ctx->apiVersion;
+
+	SoupMessage *msg = queryAPIVersion();
+	if (!msg)
+		return m_ctx->apiVersion;
+
+	JsonParserAgent parser(msg->response_body->data);
+	if (parser.hasError()) {
+		MLPL_ERR("Failed to parser: %s\n", parser.getErrorMessage());
+		goto OUT;
+	}
+
+	if (parser.read("result", m_ctx->apiVersion)) {
+		MLPL_DBG("Zabbix API version: %s\n",
+			 m_ctx->apiVersion.c_str());
+	} else {
+		MLPL_ERR("Failed to read API version\n");
+	}
+
+OUT:
+	g_object_unref(msg);
+	return m_ctx->apiVersion;
+}
+
+SoupMessage *ArmZabbixAPI::queryAPIVersion(void)
+{
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.add("jsonrpc", "2.0");
+	agent.add("method", "apiinfo.version");
+
+	agent.startObject("params");
+	agent.endObject();
+
+	agent.add("id", 1);
+	agent.endObject();
+
+	return queryCommon(agent);
 }
 
 SoupMessage *ArmZabbixAPI::queryTrigger(int requestSince)

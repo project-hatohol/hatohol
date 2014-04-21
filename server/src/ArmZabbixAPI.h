@@ -61,6 +61,7 @@ public:
 	void getGroups(ItemTablePtr &groupsTablePtr);
 
 protected:
+	const std::string &getAPIVersion(void);
 	SoupSession *getSession(void);
 
 	/**
@@ -80,6 +81,7 @@ protected:
 	std::string getAuthToken(void);
 
 	SoupMessage *queryCommon(JsonBuilderAgent &agent);
+	SoupMessage *queryAPIVersion(void);
 	SoupMessage *queryTrigger(int requestSince = 0);
 	SoupMessage *queryItem(void);
 	SoupMessage *queryHost(void);

@@ -128,6 +128,8 @@ ZabbixAPIEmulator::ZabbixAPIEmulator(void)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
+	m_ctx->apiHandlerMap["apiinfo.version"] =
+	  &ZabbixAPIEmulator::APIHandlerAPIVersion;
 	m_ctx->apiHandlerMap["user.login"] = 
 	  &ZabbixAPIEmulator::APIHandlerUserLogin;
 	m_ctx->apiHandlerMap["trigger.get"] = 
@@ -321,11 +323,14 @@ void ZabbixAPIEmulator::handlerAPIDispatch(APIHandlerArg &arg)
 		THROW_HATOHOL_EXCEPTION("Not found: method");
 
 	// auth
-	bool isNull;
-	if (!parser.isNull("auth", isNull))
+	bool isNull = true;
+	bool needAuth = true;
+	if (method == "apiinfo.version")
+		needAuth = false;
+	if (!parser.isNull("auth", isNull) && needAuth)
 		THROW_HATOHOL_EXCEPTION("Not found: auth");
 	if (isNull) {
-		if (method != "user.login")
+		if (method != "user.login" && needAuth)
 			THROW_HATOHOL_EXCEPTION("auth: empty");
 	} else {
 		string auth;
@@ -358,6 +363,16 @@ void ZabbixAPIEmulator::APIHandlerGetWithFile
 		THROW_HATOHOL_EXCEPTION("Failed to read file: %s", path.c_str());
 	soup_message_body_append(arg.msg->response_body, SOUP_MEMORY_TAKE,
 	                         contents, length);
+	soup_message_set_status(arg.msg, SOUP_STATUS_OK);
+}
+
+void ZabbixAPIEmulator::APIHandlerAPIVersion(APIHandlerArg &arg)
+{
+	string response = StringUtils::sprintf(
+	  "{\"jsonrpc\":\"2.0\",\"result\":\"%s\",\"id\":%"PRId64"}",
+	  "2.0.3", arg.id);
+	soup_message_body_append(arg.msg->response_body, SOUP_MEMORY_COPY,
+	                         response.c_str(), response.size());
 	soup_message_set_status(arg.msg, SOUP_STATUS_OK);
 }
 
