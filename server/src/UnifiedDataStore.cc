@@ -161,16 +161,17 @@ struct UnifiedDataStore::PrivateContext
 			dataStore = it->second;
 		return dataStore; // ref() is called in DataStorePtr's C'tor
 	}
-
+private: // Remove after clean up
 	VirtualDataStore *
 	  findVirtualDataStore(const MonitoringSystemType &type)
+	  __attribute__ ((deprecated))
 	{
 		VirtualDataStoreMapIterator it = virtualDataStoreMap.find(type);
 		if (it == virtualDataStoreMap.end())
 			return NULL;
 		return it->second;
 	}
-
+public: // Remove after clean up
 	HatoholError startDataStore(const MonitoringServerInfo &svInfo,
 	                            const bool &autoRun)
 	{
