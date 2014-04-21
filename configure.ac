@@ -74,6 +74,12 @@ CFLAGS=$hatohol_save_CFLAGS
 AC_SUBST(MYSQL_CFLAGS)
 AC_SUBST(MYSQL_LIBS)
 
+
+dnl **************************************************************
+dnl Check libraries for C++
+dnl **************************************************************
+AC_LANG_PUSH([C++])
+
 dnl **************************************************************
 dnl Flag setting for MLPL
 dnl **************************************************************
@@ -91,6 +97,12 @@ dnl _ZN4qpid9messaging10Connection4openEv) in the library. So enumeration of
 dnl them degrades portability. We just pass '_init' in the following macro.
 AC_CHECK_LIB(qpidmessaging, _init, [],
              [AC_MSG_ERROR(libqpidmessage was not found.)])
+AC_CHECK_HEADERS(qpid/ImportExport.h,
+  [], [AC_MSG_ERROR([qpid/ImportExport.h was not found. The file is contained in libqpidcommon2-dev on Ubuntu.])])
+AC_CHECK_HEADERS(qpid/types/Exception.h,
+  [], [AC_MSG_ERROR([qpid/types/Exception.h was not found. The file is contained in libqpidtypes1-dev on Ubuntu.])])
+
+AC_LANG_POP([C++])
 
 dnl **************************************************************
 dnl Checks for Cutter
