@@ -50,6 +50,15 @@ Set the environment variable like
 
 $ HATOHOL_EXCEPTION_STACK_TRACE=1 ./run-test.sh
 
+Hint: fix an error: accessing to MySQL
+--------------------------------------
+Some distributions such as Ubuntu 14.04 disables unregistered users to access the DB
+and to operate databases with the name: test_*.
+
+    $ mysql -uroot
+    mysql> GRANT USAGE ON *.* TO ''@'localhost';
+    mysql> GRANT ALL PRIVILEGES ON `test_%`.* TO ''@'localhost';
+
 Hint: generate a core file 
 --------------------------
 If the system uses apport (such as Ubuntu 13.10), some test, which makes a
