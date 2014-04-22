@@ -73,8 +73,6 @@ struct UnifiedDataStore::PrivateContext
 	static UnifiedDataStore *instance;
 	static MutexLock         mutex;
 
-	ReadWriteLock            serverIdDataStoreMapLock;
-	ServerIdDataStoreMap     serverIdDataStoreMap;
 	AtomicValue<bool>        isCopyOnDemandEnabled;
 	ItemFetchWorker          itemFetchWorker;
 
@@ -218,6 +216,9 @@ private:
 	// structure.
 	VirtualDataStoreList virtualDataStoreList;
 	VirtualDataStoreMap  virtualDataStoreMap;
+
+	ReadWriteLock            serverIdDataStoreMapLock;
+	ServerIdDataStoreMap     serverIdDataStoreMap;
 };
 
 UnifiedDataStore *UnifiedDataStore::PrivateContext::instance = NULL;
