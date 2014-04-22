@@ -19,7 +19,6 @@
 
 #include "VirtualDataStoreFactory.h"
 #include "VirtualDataStoreZabbix.h"
-#include "VirtualDataStoreNagios.h"
 
 using namespace std;
 
@@ -35,7 +34,5 @@ VirtualDataStore *VirtualDataStoreFactory::create(
 {
 	if (monSysType == MONITORING_SYSTEM_ZABBIX)
 		return new VirtualDataStoreZabbix();
-	if (monSysType == MONITORING_SYSTEM_NAGIOS)
-		return new VirtualDataStoreNagios();
 	return NULL;
 }

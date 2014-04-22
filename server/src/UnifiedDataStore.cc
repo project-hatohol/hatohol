@@ -23,7 +23,6 @@
 #include <Reaper.h>
 #include "UnifiedDataStore.h"
 #include "VirtualDataStoreZabbix.h"
-#include "VirtualDataStoreNagios.h"
 #include "DBClientAction.h"
 #include "DBClientConfig.h"
 #include "ActionManager.h"
