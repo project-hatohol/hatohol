@@ -457,14 +457,14 @@ OUT:
 
 bool ArmZabbixAPI::checkAPIVersion(int major, int minor, int micro)
 {
-	if (major > m_ctx->apiVersionMajor)
+	if (m_ctx->apiVersionMajor > major)
 		return true;
-	if (major == m_ctx->apiVersionMajor &&
-	    minor >  m_ctx->apiVersionMinor)
+	if (m_ctx->apiVersionMajor == major &&
+	    m_ctx->apiVersionMinor >  minor)
 		return true;
-	if (major == m_ctx->apiVersionMajor &&
-	    minor == m_ctx->apiVersionMinor &&
-	    micro >= m_ctx->apiVersionMicro)
+	if (m_ctx->apiVersionMajor == minor &&
+	    m_ctx->apiVersionMinor == minor &&
+	    m_ctx->apiVersionMicro >= micro)
 		return true;
 	return false;
 }
