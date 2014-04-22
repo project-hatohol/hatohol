@@ -24,7 +24,6 @@
 #include <SmartTime.h>
 #include "ItemFetchWorker.h"
 #include "UnifiedDataStore.h"
-#include "VirtualDataStore.h"
 
 using namespace std;
 using namespace mlpl;

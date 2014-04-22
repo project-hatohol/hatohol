@@ -26,7 +26,7 @@
 #include "DBClientConfig.h"
 #include "Utils.h"
 #include "Closure.h"
-#include "VirtualDataStore.h"
+#include "DataStore.h"
 
 struct ServerConnStatus {
 	ServerIdType serverId;

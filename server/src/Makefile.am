@@ -91,9 +91,7 @@ libhatohol_la_SOURCES = \
 	UnifiedDataStore.cc UnifiedDataStore.h \
 	UsedCountable.cc UsedCountable.h \
 	UsedCountablePtr.cc UsedCountablePtr.h \
-	Utils.cc Utils.h \
-	VirtualDataStore.cc VirtualDataStore.h \
-	VirtualDataStoreFactory.cc VirtualDataStoreFactory.h
+	Utils.cc Utils.h
 
 AM_CXXFLAGS = -Wall -g3 \
 	-D__STDC_FORMAT_MACROS \

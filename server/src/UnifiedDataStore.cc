@@ -24,6 +24,7 @@
 #include "UnifiedDataStore.h"
 #include "DBClientAction.h"
 #include "DBClientConfig.h"
+#include "DataStoreManager.h"
 #include "ActionManager.h"
 #include "CacheServiceDBClient.h"
 #include "ItemFetchWorker.h"
