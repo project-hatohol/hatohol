@@ -63,6 +63,7 @@ typedef bool (ArmZabbixAPITestee::*ThreadOneProc)(void);
 
 public:
 	enum GetTestType {
+		GET_TEST_TYPE_API_VERSION,
 		GET_TEST_TYPE_TRIGGERS,
 		GET_TEST_TYPE_FUNCTIONS,
 		GET_TEST_TYPE_ITEMS,
@@ -108,7 +109,12 @@ public:
 	bool testGet(GetTestType type)
 	{
 		bool succeeded = false;
-		if (type == GET_TEST_TYPE_TRIGGERS) {
+		if (type == GET_TEST_TYPE_API_VERSION) {
+			succeeded =
+			  launch(&ArmZabbixAPITestee::threadOneProcTriggers,
+			         exitCbDefault, this);
+			cppcut_assert_equal(string("2.0.3"), getAPIVersion());
+		} else if (type == GET_TEST_TYPE_TRIGGERS) {
 			succeeded =
 			  launch(&ArmZabbixAPITestee::threadOneProcTriggers,
 			         exitCbDefault, this);
@@ -369,6 +375,12 @@ protected:
 		return false;
 	}
 
+	bool threadOneProcGetAPIVersion(void)
+	{
+		getAPIVersion();
+		return true;
+	}
+
 	bool threadOneProcOpenSession(void)
 	{
 		bool succeeded = openSession();
@@ -520,6 +532,11 @@ void cut_teardown(void)
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
+void test_getAPIVersion(void)
+{
+	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_API_VERSION);
+}
+
 void test_openSession(void)
 {
 	int svId = 0;
