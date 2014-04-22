@@ -437,7 +437,7 @@ const string &ArmZabbixAPI::getAPIVersion(void)
 		StringList list;
 		StringUtils::split(list, m_ctx->apiVersion, '.');
 		StringListIterator it = list.begin();
-		for (size_t i = 0; it != list.end(); i++, it++) {
+		for (size_t i = 0; it != list.end(); ++i, ++it) {
 			string &str = *it;
 			if (i == 0)
 				m_ctx->apiVersionMajor = atoi(str.c_str());
