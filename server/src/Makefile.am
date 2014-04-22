@@ -31,6 +31,7 @@ libhatohol_la_SOURCES = \
 	DBClientZabbix.cc DBClientZabbix.h \
 	DBTermCodec.h DBTermCodec.cc \
 	DataStore.cc DataStore.h \
+	DataStoreFactory.cc DataStoreFactory.h \
 	DataStoreException.cc DataStoreException.h \
 	DataStoreManager.cc DataStoreManager.h \
 	DataStoreFake.cc DataStoreFake.h \
