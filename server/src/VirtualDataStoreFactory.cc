@@ -18,7 +18,6 @@
  */
 
 #include "VirtualDataStoreFactory.h"
-#include "VirtualDataStoreFake.h"
 #include "VirtualDataStoreZabbix.h"
 #include "VirtualDataStoreNagios.h"
 
@@ -34,8 +33,6 @@ struct VirtualDataStoreFactory::PrivateContext
 VirtualDataStore *VirtualDataStoreFactory::create(
   const MonitoringSystemType &monSysType)
 {
-	if (monSysType == MONITORING_SYSTEM_FAKE)
-		return new VirtualDataStoreFake();
 	if (monSysType == MONITORING_SYSTEM_ZABBIX)
 		return new VirtualDataStoreZabbix();
 	if (monSysType == MONITORING_SYSTEM_NAGIOS)

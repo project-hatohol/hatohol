@@ -24,7 +24,6 @@
 #include "UnifiedDataStore.h"
 #include "VirtualDataStoreZabbix.h"
 #include "VirtualDataStoreNagios.h"
-#include "VirtualDataStoreFake.h"
 #include "DBClientAction.h"
 #include "DBClientConfig.h"
 #include "ActionManager.h"
