@@ -84,7 +84,6 @@ libhatohol_la_SOURCES = \
 	SQLProcessorSelect.cc SQLProcessorSelect.h \
 	SQLProcessorTypes.cc SQLProcessorTypes.h \
 	SQLProcessorUpdate.cc SQLProcessorUpdate.h \
-	SQLProcessorZabbix.cc SQLProcessorZabbix.h \
 	SQLTableFormula.cc SQLTableFormula.h \
 	SQLUtils.cc SQLUtils.h \
 	SQLWhereParser.cc SQLWhereParser.h \
