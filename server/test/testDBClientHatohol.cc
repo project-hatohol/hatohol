@@ -433,7 +433,7 @@ static void prepareDataForAllHostgroupIds(void)
 		gcut_add_datum(
 		  StringUtils::sprintf("Hostgroup ID: %"FMT_HOST_GROUP_ID,
 		                       *hostgrpIdItr).c_str(),
-		  "hostgroupId", G_TYPE_INT, *hostgrpIdItr, NULL);
+		  "hostgroupId", G_TYPE_UINT64, *hostgrpIdItr, NULL);
 	}
 }
 
