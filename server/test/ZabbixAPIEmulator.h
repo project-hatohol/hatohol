@@ -32,6 +32,13 @@ enum OperationMode {
 
 class ZabbixAPIEmulator {
 public:
+	enum APIVersion {
+		API_VERSION_1_3_0, // Zabbix 1.8
+		API_VERSION_1_4_0, // Zabbix 2.0.0 - 2.0.3
+		API_VERSION_2_0_4, // default
+		API_VERSION_2_2_0,
+	};
+
 	struct APIHandlerArg;
 	struct ParameterEventGet;
 	struct ZabbixAPIEvent;
@@ -51,6 +58,7 @@ public:
 	void start(guint port);
 	void stop(void);
 	void setOperationMode(OperationMode mode);
+	void setAPIVersion(APIVersion version);
 
 protected:
 	static gpointer _mainThread(gpointer data);

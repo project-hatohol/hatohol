@@ -78,6 +78,7 @@ struct ZabbixAPIEmulator::PrivateContext {
 	guint       port;
 	SoupServer *soupServer;
 	OperationMode operationMode;
+	APIVersion    apiVersion;
 	set<string>   authTokens;
 	APIHandlerMap apiHandlerMap;
 	size_t        numEventSlices;
@@ -93,6 +94,7 @@ struct ZabbixAPIEmulator::PrivateContext {
 	  port(0),
 	  soupServer(NULL),
 	  operationMode(OPE_MODE_NORMAL),
+	  apiVersion(API_VERSION_2_0_4),
 	  numEventSlices(0),
 	  currEventSliceIndex(0),
 	  gMainCtx(0)
@@ -205,6 +207,11 @@ void ZabbixAPIEmulator::stop(void)
 void ZabbixAPIEmulator::setOperationMode(OperationMode mode)
 {
 	m_ctx->operationMode = mode;
+}
+
+void ZabbixAPIEmulator::setAPIVersion(APIVersion version)
+{
+	m_ctx->apiVersion = version;
 }
 
 // ---------------------------------------------------------------------------
@@ -366,11 +373,26 @@ void ZabbixAPIEmulator::APIHandlerGetWithFile
 	soup_message_set_status(arg.msg, SOUP_STATUS_OK);
 }
 
+static string getAPIVersionString(ZabbixAPIEmulator::APIVersion version)
+{
+	switch(version) {
+	case ZabbixAPIEmulator::API_VERSION_1_3_0:
+		return "1.3";
+	case ZabbixAPIEmulator::API_VERSION_1_4_0:
+		return "1.4";
+	case ZabbixAPIEmulator::API_VERSION_2_2_0:
+		return "2.2.0";
+	case ZabbixAPIEmulator::API_VERSION_2_0_4:
+	default:
+		return "2.0.4";
+	}
+}
+
 void ZabbixAPIEmulator::APIHandlerAPIVersion(APIHandlerArg &arg)
 {
 	string response = StringUtils::sprintf(
 	  "{\"jsonrpc\":\"2.0\",\"result\":\"%s\",\"id\":%"PRId64"}",
-	  "2.0.4", arg.id);
+	  getAPIVersionString(m_ctx->apiVersion).c_str(), arg.id);
 	soup_message_body_append(arg.msg->response_body, SOUP_MEMORY_COPY,
 	                         response.c_str(), response.size());
 	soup_message_set_status(arg.msg, SOUP_STATUS_OK);
