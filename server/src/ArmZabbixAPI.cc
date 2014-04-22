@@ -475,10 +475,6 @@ SoupMessage *ArmZabbixAPI::queryAPIVersion(void)
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
 	agent.add("method", "apiinfo.version");
-
-	agent.startObject("params");
-	agent.endObject();
-
 	agent.add("id", 1);
 	agent.endObject();
 
