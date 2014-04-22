@@ -149,7 +149,16 @@ public:
 	void getServerConnStatusVector(ServerConnStatusVector &svConnStatVec,
 	                               DataQueryContext *dataQueryContext);
 
-	void virtualDataStoreForeach(VirtualDataStoreForeachProc *vdsProc);
+	/**
+	 * get a vector of pointers of DataStore instance.
+	 * This method is a wrapper of DataStoreManager::getDataStoreManager().
+	 *
+	 * @return
+	 * A DataStoreVector instance. A used counter of each DataStore
+	 * instance in it is increamented. So the caller must be call unref()
+	 * for each DataStore instance.
+	 */
+	DataStoreVector getDataStoreVector(void);
 
 	/**
 	 * Get the data store with the specified Server ID.

@@ -73,35 +73,18 @@ ItemFetchWorker::~ItemFetchWorker()
 bool ItemFetchWorker::start(
   const ServerIdType &targetServerId, ClosureBase *closure)
 {
-	struct : public VirtualDataStoreForeachProc
-	{
-		DataStoreVector allDataStores;
-		virtual bool operator()(VirtualDataStore *virtDataStore)
-		{
-			DataStoreVector stores =
-			  virtDataStore->getDataStoreVector();
-			for (size_t i = 0; i < stores.size(); i++) {
-				DataStore *dataStore = stores[i];
-				allDataStores.push_back(dataStore);
-			}
-			return false;
-		}
-	} collector;
+	DataStoreVector allDataStores =
+	  UnifiedDataStore::getInstance()->getDataStoreVector();
 
-	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
-	m_ctx->rwlock.readLock();
-	uds->virtualDataStoreForeach(&collector);
-	m_ctx->rwlock.unlock();
-
-	if (collector.allDataStores.empty())
+	if (allDataStores.empty())
 		return false;
 
 	m_ctx->rwlock.writeLock();
 	if (closure)
 		m_ctx->itemFetchedSignal.connect(closure);
-	m_ctx->remainingArmsCount = collector.allDataStores.size();
-	for (size_t i = 0; i < collector.allDataStores.size(); i++) {
-		DataStore *dataStore = collector.allDataStores[i];
+	m_ctx->remainingArmsCount = allDataStores.size();
+	for (size_t i = 0; i < allDataStores.size(); i++) {
+		DataStore *dataStore = allDataStores[i];
 
 		if (targetServerId != ALL_SERVERS) {
 			ArmBase &arm = dataStore->getArmBase();
