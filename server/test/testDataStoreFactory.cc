@@ -21,7 +21,12 @@
 #include <gcutter.h>
 #include "DBClientConfig.h"
 #include "DataStoreFactory.h"
+#include "DataStoreFake.h"
 #include "Helpers.h"
+#include "Reaper.h"
+
+using namespace std;
+using namespace mlpl;
 
 namespace testDataStoreFactory {
 
@@ -47,6 +52,28 @@ void test_createWithInvalidTypes(gconstpointer data)
 	svInfo.type =
 	  static_cast<MonitoringSystemType>(gcut_data_get_int(data, "type"));
 	cppcut_assert_null(DataStoreFactory::create(svInfo));
+}
+
+void data_create(void)
+{
+	gcut_add_datum("MONITORING_SYSTEM_FAKE",
+	               "type", G_TYPE_INT, MONITORING_SYSTEM_FAKE,
+	               "type-name", G_TYPE_STRING, typeid(DataStoreFake).name(),
+	               NULL);
+}
+
+void test_create(gconstpointer data)
+{
+	MonitoringServerInfo svInfo;
+	initServerInfo(svInfo);
+	svInfo.type =
+	  static_cast<MonitoringSystemType>(gcut_data_get_int(data, "type"));
+	string typeName = gcut_data_get_string(data, "type-name");
+	DataStore *dataStore = DataStoreFactory::create(svInfo);
+	// to free the instance automatically
+	Reaper<UsedCountable> reaper(dataStore, UsedCountable::unref);
+	cppcut_assert_not_null(dataStore);
+	cppcut_assert_equal(typeName, string(typeid(*dataStore).name()));
 }
 
 } // namespace testDataStoreFactory
