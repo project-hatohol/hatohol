@@ -51,7 +51,10 @@ void test_createWithInvalidTypes(gconstpointer data)
 	initServerInfo(svInfo);
 	svInfo.type =
 	  static_cast<MonitoringSystemType>(gcut_data_get_int(data, "type"));
-	cppcut_assert_null(DataStoreFactory::create(svInfo));
+	DataStore *dataStore = DataStoreFactory::create(svInfo);
+	// to free the instance automatically
+	Reaper<UsedCountable> reaper(dataStore, UsedCountable::unref);
+	cppcut_assert_null(dataStore);
 }
 
 void data_create(void)
