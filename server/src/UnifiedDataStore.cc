@@ -22,14 +22,14 @@
 #include <AtomicValue.h>
 #include <Reaper.h>
 #include "UnifiedDataStore.h"
-#include "VirtualDataStoreZabbix.h"
-#include "VirtualDataStoreNagios.h"
-#include "VirtualDataStoreFake.h"
 #include "DBClientAction.h"
 #include "DBClientConfig.h"
+#include "DataStoreManager.h"
 #include "ActionManager.h"
 #include "CacheServiceDBClient.h"
 #include "ItemFetchWorker.h"
+#include "DataStoreFactory.h"
+
 using namespace std;
 using namespace mlpl;
 
@@ -73,48 +73,18 @@ struct UnifiedDataStore::PrivateContext
 	static UnifiedDataStore *instance;
 	static MutexLock         mutex;
 
-	ReadWriteLock            serverIdDataStoreMapLock;
-	ServerIdDataStoreMap     serverIdDataStoreMap;
 	AtomicValue<bool>        isCopyOnDemandEnabled;
 	ItemFetchWorker          itemFetchWorker;
 
 	PrivateContext()
 	: isCopyOnDemandEnabled(false)
 	{ 
-		virtualDataStoreMap[MONITORING_SYSTEM_FAKE] =
-		  VirtualDataStore::getInstance(MONITORING_SYSTEM_FAKE);
-
-		virtualDataStoreMap[MONITORING_SYSTEM_ZABBIX] =
-		  VirtualDataStore::getInstance(MONITORING_SYSTEM_ZABBIX);
-
-		virtualDataStoreMap[MONITORING_SYSTEM_NAGIOS] =
-		  VirtualDataStore::getInstance(MONITORING_SYSTEM_NAGIOS);
-
 		// TODO: When should the object be freed ?
 		UnifiedDataStoreEventProc *evtProc =
 		  new PrivateContext::UnifiedDataStoreEventProc(
 		    this, isCopyOnDemandEnabled);
-
-		// make a list
-		VirtualDataStoreMapIterator it = virtualDataStoreMap.begin();
-		for (; it != virtualDataStoreMap.end(); ++it) {
-			VirtualDataStore *virtDataStore = it->second;
-			virtDataStore->registEventProc(evtProc);
-			virtualDataStoreList.push_back(virtDataStore);
-		}
+		dataStoreManager.registEventProc(evtProc);
 	};
-
-	void virtualDataStoreForeach(VirtualDataStoreForeachProc *vdsProc)
-	{
-		// We assume that virtualDataStoreList is not changed
-		// after the initialization. So we don't need to take a lock.
-		VirtualDataStoreListIterator it = virtualDataStoreList.begin();
-		for (; it != virtualDataStoreList.end(); ++it) {
-			bool breakFlag = (*vdsProc)(*it);
-			if (breakFlag)
-				break;
-		}
-	}
 
 	void addToDataStoreMap(DataStore *dataStore)
 	{
@@ -162,23 +132,19 @@ struct UnifiedDataStore::PrivateContext
 		return dataStore; // ref() is called in DataStorePtr's C'tor
 	}
 
-	VirtualDataStore *
-	  findVirtualDataStore(const MonitoringSystemType &type)
-	{
-		VirtualDataStoreMapIterator it = virtualDataStoreMap.find(type);
-		if (it == virtualDataStoreMap.end())
-			return NULL;
-		return it->second;
-	}
-
 	HatoholError startDataStore(const MonitoringServerInfo &svInfo,
 	                            const bool &autoRun)
 	{
-		VirtualDataStore *virtDataStore =
-		  findVirtualDataStore(svInfo.type);
-		if (!virtDataStore)
-			return HTERR_INVALID_MONITORING_SYSTEM_TYPE;
-		return virtDataStore->start(svInfo, autoRun);
+		DataStore *dataStore =
+		  DataStoreFactory::create(svInfo, autoRun);
+		if (!dataStore)
+			return HTERR_FAILED_TO_CREATE_DATA_STORE;
+		bool successed = dataStoreManager.add(svInfo.id, dataStore);
+		 // incremented in the above add() if successed
+		dataStore->unref();
+		if (!successed)
+			return HTERR_FAILED_TO_REGIST_DATA_STORE;
+		return HTERR_OK;
 	}
 
 	HatoholError stopDataStore(const ServerIdType &serverId,
@@ -203,20 +169,38 @@ struct UnifiedDataStore::PrivateContext
 			ArmInfo armInfo = armBase.getArmStatus().getArmInfo();
 			*isRunning = armInfo.running;
 		}
+		dataStoreManager.remove(serverId);
+		return HTERR_OK;
+	}
 
-		VirtualDataStore *virtDataStore =
-		  findVirtualDataStore(svInfo.type);
-		if (!virtDataStore)
-			return HTERR_INVALID_MONITORING_SYSTEM_TYPE;
-		return virtDataStore->stop(serverId);
+	void stopAllDataStores(void)
+	{
+		ServerIdDataStoreMapIterator it;
+		while (true) {
+			serverIdDataStoreMapLock.readLock();
+			it = serverIdDataStoreMap.begin();
+			bool found = (it != serverIdDataStoreMap.end());
+			// We must unlock before calling stopDataStore()
+			// to avoid a deadlock.
+			serverIdDataStoreMapLock.unlock();
+			if (!found)
+				break;
+			const ServerIdType serverId = it->first;
+			// TODO: serverId is checked again in stopDataStore()
+			// This is a little wasteful.
+			stopDataStore(serverId);
+		}
+	}
+
+	DataStoreVector getDataStoreVector(void)
+	{
+		return dataStoreManager.getDataStoreVector();
 	}
 
 private:
-	// We assume that the following list is initialized once at
-	// the constructor. This is a limitation to realize a lock-free
-	// structure.
-	VirtualDataStoreList virtualDataStoreList;
-	VirtualDataStoreMap  virtualDataStoreMap;
+	ReadWriteLock            serverIdDataStoreMapLock;
+	ServerIdDataStoreMap     serverIdDataStoreMap;
+	DataStoreManager         dataStoreManager;
 };
 
 UnifiedDataStore *UnifiedDataStore::PrivateContext::instance = NULL;
@@ -268,31 +252,21 @@ UnifiedDataStore *UnifiedDataStore::getInstance(void)
 
 void UnifiedDataStore::start(const bool &autoRun)
 {
-	struct : public VirtualDataStoreForeachProc
-	{
-		bool autoRun;
-		virtual bool operator()(VirtualDataStore *virtDataStore)
-		{
-			virtDataStore->start(autoRun);
-			return false;
-		}
-	} starter;
-	starter.autoRun = autoRun;
-	m_ctx->virtualDataStoreForeach(&starter);
+	CacheServiceDBClient cache;
+	DBClientConfig *dbConfig = cache.getConfig();
+	MonitoringServerInfoList monitoringServers;
+	ServerQueryOption option(USER_ID_SYSTEM);
+	dbConfig->getTargetServers(monitoringServers, option);
+
+	MonitoringServerInfoListConstIterator svInfoItr
+	  = monitoringServers.begin();
+	for (; svInfoItr != monitoringServers.end(); ++svInfoItr)
+		m_ctx->startDataStore(*svInfoItr, autoRun);
 }
 
 void UnifiedDataStore::stop(void)
 {
-	struct : public VirtualDataStoreForeachProc
-	{
-		virtual bool operator()(VirtualDataStore *virtDataStore)
-		{
-			virtDataStore->stop();
-			return false;
-		}
-	} stopper;
-
-	m_ctx->virtualDataStoreForeach(&stopper);
+	m_ctx->stopAllDataStores();
 }
 
 void UnifiedDataStore::fetchItems(const ServerIdType &targetServerId)
@@ -591,10 +565,9 @@ void UnifiedDataStore::getServerConnStatusVector(
 	}
 }
 
-void UnifiedDataStore::virtualDataStoreForeach(
-  VirtualDataStoreForeachProc *vdsProc)
+DataStoreVector UnifiedDataStore::getDataStoreVector(void)
 {
-	m_ctx->virtualDataStoreForeach(vdsProc);
+	return m_ctx->getDataStoreVector();
 }
 
 DataStorePtr UnifiedDataStore::getDataStore(const ServerIdType &serverId)

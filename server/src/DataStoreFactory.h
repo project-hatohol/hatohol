@@ -17,25 +17,16 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef VirtualDataStoreFake_h
-#define VirtualDataStoreFake_h
+#ifndef DataStoreFactory_h
+#define DataStoreFactory_h
 
-#include "VirtualDataStore.h"
+#include "DataStore.h"
 
-class VirtualDataStoreFake : public VirtualDataStore
-{
+class DataStoreFactory {
 public:
-	VirtualDataStoreFake(void);
-	virtual ~VirtualDataStoreFake();
-
-protected:
-	virtual DataStore *createDataStore(
-	  const MonitoringServerInfo &svInfo,
-	  const bool &autoRun = true); // override
-
-private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	static DataStore *create(const MonitoringServerInfo &svInfo,
+	                         const bool &autoStart = false);
 };
 
-#endif // VirtualDataStoreFake_h
+#endif // DataStoreFactory_h
+

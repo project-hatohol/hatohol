@@ -29,7 +29,7 @@ testHatohol_la_SOURCES = \
 	testCacheServiceDBClient.cc \
 	testConfigManager.cc \
 	testDataQueryContext.cc testDataQueryOption.cc \
-	testDataStoreManager.cc \
+	testDataStoreManager.cc testDataStoreFactory.cc \
 	testDataStoreZabbix.cc testDataStoreNagios.cc \
 	testHatoholArmPluginGate.cc \
 	testHatoholError.cc \

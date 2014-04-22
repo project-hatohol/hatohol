@@ -80,6 +80,7 @@ struct MonitoringServerInfo {
 
 typedef std::list<MonitoringServerInfo>    MonitoringServerInfoList;
 typedef MonitoringServerInfoList::iterator MonitoringServerInfoListIterator;
+typedef MonitoringServerInfoList::const_iterator MonitoringServerInfoListConstIterator;
 
 struct ArmPluginInfo {
 	MonitoringSystemType type;

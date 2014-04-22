@@ -18,7 +18,6 @@
  */
 
 #include "SQLProcessorFactory.h"
-#include "SQLProcessorZabbix.h"
 using namespace std;
 
 #ifdef GLIB_VERSION_2_32
@@ -73,8 +72,6 @@ map<string, SQLProcessorCreatorFunc> SQLProcessorFactory::m_factoryMap;
 // ---------------------------------------------------------------------------
 void SQLProcessorFactory::init(void)
 {
-	addFactory(SQLProcessorZabbix::getDBNameStatic(),
-	           SQLProcessorZabbix::createInstance);
 }
 
 SQLProcessor *SQLProcessorFactory::create(const string &DBName)

@@ -31,6 +31,7 @@ libhatohol_la_SOURCES = \
 	DBClientZabbix.cc DBClientZabbix.h \
 	DBTermCodec.h DBTermCodec.cc \
 	DataStore.cc DataStore.h \
+	DataStoreFactory.cc DataStoreFactory.h \
 	DataStoreException.cc DataStoreException.h \
 	DataStoreManager.cc DataStoreManager.h \
 	DataStoreFake.cc DataStoreFake.h \
@@ -83,20 +84,13 @@ libhatohol_la_SOURCES = \
 	SQLProcessorSelect.cc SQLProcessorSelect.h \
 	SQLProcessorTypes.cc SQLProcessorTypes.h \
 	SQLProcessorUpdate.cc SQLProcessorUpdate.h \
-	SQLProcessorZabbix.cc SQLProcessorZabbix.h \
 	SQLTableFormula.cc SQLTableFormula.h \
 	SQLUtils.cc SQLUtils.h \
 	SQLWhereParser.cc SQLWhereParser.h \
 	UnifiedDataStore.cc UnifiedDataStore.h \
 	UsedCountable.cc UsedCountable.h \
 	UsedCountablePtr.cc UsedCountablePtr.h \
-	Utils.cc Utils.h \
-	VirtualDataStore.cc VirtualDataStore.h \
-	VirtualDataStoreFactory.cc VirtualDataStoreFactory.h \
-	VirtualDataStoreFake.cc VirtualDataStoreFake.h \
-	VirtualDataStoreNagios.cc VirtualDataStoreNagios.h \
-	VirtualDataStoreZabbix.cc VirtualDataStoreZabbix.h \
-	VirtualDataStoreZabbixProfiles.cc VirtualDataStoreZabbixMacro.h
+	Utils.cc Utils.h
 
 AM_CXXFLAGS = -Wall -g3 \
 	-D__STDC_FORMAT_MACROS \

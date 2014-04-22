@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -17,25 +17,27 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef VirtualDataStoreNagios_h
-#define VirtualDataStoreNagios_h
+#include "DataStoreFactory.h"
+#include "DataStoreFake.h"
+#include "DataStoreZabbix.h"
+#include "DataStoreNagios.h"
 
-#include "VirtualDataStore.h"
-
-class VirtualDataStoreNagios : public VirtualDataStore
+DataStore *DataStoreFactory::create(const MonitoringServerInfo &svInfo,
+                                    const bool &autoStart)
 {
-public:
-	VirtualDataStoreNagios(void);
-	virtual ~VirtualDataStoreNagios();
+	switch (svInfo.type) {
+	case MONITORING_SYSTEM_FAKE:
+		return new DataStoreFake(svInfo, autoStart);
+	case MONITORING_SYSTEM_ZABBIX:
+		return new DataStoreZabbix(svInfo, autoStart);
+	case MONITORING_SYSTEM_NAGIOS:
+		return new DataStoreNagios(svInfo, autoStart);
+	default:
+		MLPL_BUG("Invalid monitoring system: %d\n", svInfo.type);
+	}
+	return NULL;
+}
 
-protected:
-	virtual DataStore *createDataStore(
-	  const MonitoringServerInfo &svInfo,
-	  const bool &autoRun = true); // override
 
-private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
-};
 
-#endif // VirtualDataStoreNagios_h
+

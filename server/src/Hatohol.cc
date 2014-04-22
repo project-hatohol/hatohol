@@ -26,7 +26,6 @@ using namespace mlpl;
 #include "Utils.h"
 #include "ConfigManager.h"
 #include "SQLUtils.h"
-#include "SQLProcessorZabbix.h"
 #include "SQLProcessorFactory.h"
 #include "SQLProcessorSelect.h"
 #include "SQLProcessorInsert.h"
@@ -74,7 +73,6 @@ static void init(const CommandLineArg &arg)
 	SQLProcessorSelect::init();
 	SQLProcessorInsert::init();
 	SQLProcessorUpdate::init();
-	SQLProcessorZabbix::init();
 	SQLProcessorFactory::init();
 
 	ActorCollector::init();
