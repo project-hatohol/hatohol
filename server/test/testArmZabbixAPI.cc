@@ -100,7 +100,7 @@ public:
 				 int major, int minor, int micro)
 	{
 		const string &version = getAPIVersion();
-		cppcut_assert_equal(string("2.0.3"), version);
+		cppcut_assert_equal(string("2.0.4"), version);
 		cppcut_assert_equal(expected,
 				    checkAPIVersion(major, minor, micro));
 	}
@@ -123,7 +123,7 @@ public:
 			succeeded =
 			  launch(&ArmZabbixAPITestee::threadOneProcTriggers,
 			         exitCbDefault, this);
-			cppcut_assert_equal(string("2.0.3"), getAPIVersion());
+			cppcut_assert_equal(string("2.0.4"), getAPIVersion());
 		} else if (type == GET_TEST_TYPE_TRIGGERS) {
 			succeeded =
 			  launch(&ArmZabbixAPITestee::threadOneProcTriggers,
@@ -567,37 +567,37 @@ void data_getAPIVersion(void)
 		       "expected", G_TYPE_BOOLEAN, TRUE,
 		       "major", G_TYPE_INT, "2",
 		       "minor", G_TYPE_INT, "0",
-		       "micro", G_TYPE_INT, "3",
+		       "micro", G_TYPE_INT, "4",
 		       NULL);
 	gcut_add_datum("Lower micro version",
 		       "expected", G_TYPE_BOOLEAN, TRUE,
 		       "major", G_TYPE_INT, "2",
 		       "minor", G_TYPE_INT, "0",
-		       "micro", G_TYPE_INT, "2",
+		       "micro", G_TYPE_INT, "3",
 		       NULL);
 	gcut_add_datum("Higher micro version",
 		       "expected", G_TYPE_BOOLEAN, FALSE,
 		       "major", G_TYPE_INT, "2",
 		       "minor", G_TYPE_INT, "0",
-		       "micro", G_TYPE_INT, "4",
+		       "micro", G_TYPE_INT, "5",
 		       NULL);
 	gcut_add_datum("Higher minor version",
 		       "expected", G_TYPE_BOOLEAN, FALSE,
 		       "major", G_TYPE_INT, "2",
 		       "minor", G_TYPE_INT, "1",
-		       "micro", G_TYPE_INT, "0",
+		       "micro", G_TYPE_INT, "4",
 		       NULL);
 	gcut_add_datum("Lower major version",
 		       "expected", G_TYPE_BOOLEAN, TRUE,
 		       "major", G_TYPE_INT, "1",
 		       "minor", G_TYPE_INT, "0",
-		       "micro", G_TYPE_INT, "3",
+		       "micro", G_TYPE_INT, "4",
 		       NULL);
 	gcut_add_datum("Higher major version",
 		       "expected", G_TYPE_BOOLEAN, FALSE,
 		       "major", G_TYPE_INT, "3",
 		       "minor", G_TYPE_INT, "0",
-		       "micro", G_TYPE_INT, "0",
+		       "micro", G_TYPE_INT, "4",
 		       NULL);
 }
 

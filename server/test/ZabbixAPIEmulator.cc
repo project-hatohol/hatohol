@@ -370,7 +370,7 @@ void ZabbixAPIEmulator::APIHandlerAPIVersion(APIHandlerArg &arg)
 {
 	string response = StringUtils::sprintf(
 	  "{\"jsonrpc\":\"2.0\",\"result\":\"%s\",\"id\":%"PRId64"}",
-	  "2.0.3", arg.id);
+	  "2.0.4", arg.id);
 	soup_message_body_append(arg.msg->response_body, SOUP_MEMORY_COPY,
 	                         response.c_str(), response.size());
 	soup_message_set_status(arg.msg, SOUP_STATUS_OK);
