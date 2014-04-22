@@ -18,7 +18,6 @@
  */
 
 #include "VirtualDataStoreFactory.h"
-#include "VirtualDataStoreZabbix.h"
 
 using namespace std;
 
@@ -32,7 +31,5 @@ struct VirtualDataStoreFactory::PrivateContext
 VirtualDataStore *VirtualDataStoreFactory::create(
   const MonitoringSystemType &monSysType)
 {
-	if (monSysType == MONITORING_SYSTEM_ZABBIX)
-		return new VirtualDataStoreZabbix();
 	return NULL;
 }

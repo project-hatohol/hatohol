@@ -22,7 +22,6 @@
 
 #include "ItemDataPtr.h"
 #include "SQLProcessor.h"
-#include "VirtualDataStoreZabbix.h"
 
 class SQLProcessorZabbix : public SQLProcessor
 {
@@ -59,7 +58,7 @@ private:
 	                         size_t columnLength, size_t decFracLength,
 	                         bool canBeNull, SQLKeyType keyType,
 	                         const char *defaultValue);
-	VirtualDataStoreZabbix *m_VDSZabbix;
+	//VirtualDataStoreZabbix *m_VDSZabbix;
 
 	template<ItemGroupId GROUP_ID>
 	static ItemTablePtr tableGetFuncTemplate(void);

@@ -93,9 +93,7 @@ libhatohol_la_SOURCES = \
 	UsedCountablePtr.cc UsedCountablePtr.h \
 	Utils.cc Utils.h \
 	VirtualDataStore.cc VirtualDataStore.h \
-	VirtualDataStoreFactory.cc VirtualDataStoreFactory.h \
-	VirtualDataStoreZabbix.cc VirtualDataStoreZabbix.h \
-	VirtualDataStoreZabbixProfiles.cc VirtualDataStoreZabbixMacro.h
+	VirtualDataStoreFactory.cc VirtualDataStoreFactory.h
 
 AM_CXXFLAGS = -Wall -g3 \
 	-D__STDC_FORMAT_MACROS \

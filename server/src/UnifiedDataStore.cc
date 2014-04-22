@@ -22,7 +22,6 @@
 #include <AtomicValue.h>
 #include <Reaper.h>
 #include "UnifiedDataStore.h"
-#include "VirtualDataStoreZabbix.h"
 #include "DBClientAction.h"
 #include "DBClientConfig.h"
 #include "ActionManager.h"

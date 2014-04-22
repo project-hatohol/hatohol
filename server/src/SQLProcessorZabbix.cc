@@ -1717,6 +1717,7 @@ SQLProcessorZabbix::~SQLProcessorZabbix()
 template<ItemGroupId GROUP_ID>
 ItemTablePtr SQLProcessorZabbix::tableGetFuncTemplate(void)
 {
+#if 0
 	const ItemGroupId itemGroupId = GROUP_ID;
 	VirtualDataStoreZabbix *dataStore =
 	  dynamic_cast<VirtualDataStoreZabbix *>(
@@ -1744,6 +1745,8 @@ ItemTablePtr SQLProcessorZabbix::tableGetFuncTemplate(void)
 	if (!staticInfo->indexTypeVector.empty())
 		tablePtr->defineIndex(staticInfo->indexTypeVector);
 	return ItemTablePtr(tablePtr);
+#endif
+	return ItemTablePtr();
 }
 
 // ---------------------------------------------------------------------------
