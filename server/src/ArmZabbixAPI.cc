@@ -864,7 +864,14 @@ void ArmZabbixAPI::parseAndPushItemsData
 	pushString(parser, grp, "units",        ITEM_ID_ZBX_ITEMS_UNITS);
 	pushInt   (parser, grp, "multiplier",   ITEM_ID_ZBX_ITEMS_MULTIPLIER);
 	pushInt   (parser, grp, "delta",        ITEM_ID_ZBX_ITEMS_DELTA);
-	pushString(parser, grp, "prevorgvalue", ITEM_ID_ZBX_ITEMS_PREVORGVALUE);
+	if (checkAPIVersion(2, 2, 0)) {
+		// Zabbix 2.2 doesn't have "prevorgvalue" property
+		grp->add(new ItemString(ITEM_ID_ZBX_ITEMS_PREVORGVALUE, ""),
+			 false);
+	} else {
+		pushString(parser, grp, "prevorgvalue",
+			   ITEM_ID_ZBX_ITEMS_PREVORGVALUE);
+	}
 	pushString(parser, grp, "snmpv3_securityname",
 	           ITEM_ID_ZBX_ITEMS_SNMPV3_SECURITYNAME);
 	pushInt   (parser, grp, "snmpv3_securitylevel",
@@ -994,8 +1001,14 @@ void ArmZabbixAPI::parseAndPushEventsData
 	pushInt   (parser, grp, "acknowledged",
 	           ITEM_ID_ZBX_EVENTS_ACKNOWLEDGED);
 	pushInt   (parser, grp, "ns",           ITEM_ID_ZBX_EVENTS_NS);
-	pushInt   (parser, grp, "value_changed",
-	           ITEM_ID_ZBX_EVENTS_VALUE_CHANGED);
+	if (checkAPIVersion(2, 2, 0)) {
+		// Zabbix 2.2 doesn't have "value_changed" property
+		grp->add(new ItemInt(ITEM_ID_ZBX_EVENTS_VALUE_CHANGED, 0),
+			 false);
+	} else {
+		pushInt(parser, grp, "value_changed",
+			ITEM_ID_ZBX_EVENTS_VALUE_CHANGED);
+	}
 	tablePtr->add(grp);
 	parser.endElement();
 }
