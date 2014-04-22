@@ -33,7 +33,7 @@ DataStore *DataStoreFactory::create(const MonitoringServerInfo &svInfo,
 	case MONITORING_SYSTEM_NAGIOS:
 		return new DataStoreNagios(svInfo, autoStart);
 	default:
-		MLPL_ERR("Unknown monitoring system: %d\n", svInfo.type);
+		MLPL_BUG("Invalid monitoring system: %d\n", svInfo.type);
 	}
 	return NULL;
 }
