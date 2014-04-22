@@ -19,9 +19,11 @@
 
 #include <cppcutter.h>
 #include <gcutter.h>
+#include "Hatohol.h"
 #include "DBClientConfig.h"
 #include "DataStoreFactory.h"
 #include "DataStoreFake.h"
+#include "DataStoreZabbix.h"
 #include "Helpers.h"
 #include "Reaper.h"
 
@@ -29,6 +31,11 @@ using namespace std;
 using namespace mlpl;
 
 namespace testDataStoreFactory {
+
+void cut_setup(void)
+{
+	hatoholInit();
+}
 
 // ---------------------------------------------------------------------------
 // Test cases
@@ -63,6 +70,10 @@ void data_create(void)
 	               "type", G_TYPE_INT, MONITORING_SYSTEM_FAKE,
 	               "type-name", G_TYPE_STRING, typeid(DataStoreFake).name(),
 	               NULL);
+	gcut_add_datum("MONITORING_SYSTEM_ZABBIX",
+	               "type", G_TYPE_INT, MONITORING_SYSTEM_ZABBIX,
+	               "type-name", G_TYPE_STRING,
+	                 typeid(DataStoreZabbix).name(), NULL);
 }
 
 void test_create(gconstpointer data)
