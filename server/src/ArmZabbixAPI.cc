@@ -981,8 +981,22 @@ void ArmZabbixAPI::parseAndPushApplicationsData(JsonParserAgent &parser,
 	           ITEM_ID_ZBX_APPLICATIONS_APPLICATIONID);
 	pushUint64(parser, grp, "hostid", ITEM_ID_ZBX_APPLICATIONS_HOSTID);
 	pushString(parser, grp, "name",   ITEM_ID_ZBX_APPLICATIONS_NAME);
-	pushUint64(parser, grp, "templateid",
-	           ITEM_ID_ZBX_APPLICATIONS_TEMPLATEID);
+	if (checkAPIVersion(2, 2, 0)) {
+		// TODO: Zabbix 2.2 returns array of templateid, but Hatohol
+		// stores only one templateid.
+		parser.startObject("templateids");
+		string value;
+		uint64_t valU64 = 0;
+		parser.read(0, value);
+		sscanf(value.c_str(), "%"PRIu64, &valU64);
+		grp->add(
+		  new ItemUint64(ITEM_ID_ZBX_APPLICATIONS_TEMPLATEID, valU64),
+		  false);
+		parser.endObject();
+	} else {
+		pushUint64(parser, grp, "templateid",
+			   ITEM_ID_ZBX_APPLICATIONS_TEMPLATEID);
+	}
 	tablePtr->add(grp);
 	parser.endElement();
 }
