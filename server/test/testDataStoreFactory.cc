@@ -32,6 +32,12 @@ void data_createWithInvalidTypes(void)
 {
 	gcut_add_datum("MONITORING_SYSTEM_UNKNOWN",
 	               "type", G_TYPE_INT, MONITORING_SYSTEM_UNKNOWN, NULL);
+	gcut_add_datum("MONITORING_SYSTEM_UNKNOWN-1",
+	               "type", G_TYPE_INT, MONITORING_SYSTEM_UNKNOWN-1, NULL);
+	gcut_add_datum("NUM_MONITORING_SYSTEMS",
+	               "type", G_TYPE_INT, NUM_MONITORING_SYSTEMS, NULL);
+	gcut_add_datum("NUM_MONITORING_SYSTEMS+1",
+	               "type", G_TYPE_INT, NUM_MONITORING_SYSTEMS+1, NULL);
 }
 
 void test_createWithInvalidTypes(gconstpointer data)
