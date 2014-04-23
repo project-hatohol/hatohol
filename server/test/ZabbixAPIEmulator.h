@@ -59,6 +59,9 @@ public:
 	void stop(void);
 	void setOperationMode(OperationMode mode);
 	void setAPIVersion(APIVersion version);
+	std::string getAPIVersionString(void);
+
+	static std::string getAPIVersionString(APIVersion version);
 
 protected:
 	static gpointer _mainThread(gpointer data);

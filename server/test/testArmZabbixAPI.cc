@@ -96,6 +96,14 @@ public:
 		return m_errorMessage;
 	}
 
+	void testGetAPIVersion(ZabbixAPIEmulator::APIVersion expected =
+			       ZabbixAPIEmulator::API_VERSION_2_0_4)
+	{
+		string version
+		  = ZabbixAPIEmulator::getAPIVersionString(expected);
+		cppcut_assert_equal(version, getAPIVersion());
+	}
+
 	void testCheckAPIVersion(bool expected,
 				 int major, int minor, int micro)
 	{
@@ -116,14 +124,16 @@ public:
 		return m_result;
 	}
 
-	bool testGet(GetTestType type)
+	bool testGet(GetTestType type,
+		     ZabbixAPIEmulator::APIVersion expectedVersion =
+		       ZabbixAPIEmulator::API_VERSION_2_0_4)
 	{
 		bool succeeded = false;
 		if (type == GET_TEST_TYPE_API_VERSION) {
 			succeeded =
 			  launch(&ArmZabbixAPITestee::threadOneProcTriggers,
 			         exitCbDefault, this);
-			cppcut_assert_equal(string("2.0.4"), getAPIVersion());
+			testGetAPIVersion(expectedVersion);
 		} else if (type == GET_TEST_TYPE_TRIGGERS) {
 			succeeded =
 			  launch(&ArmZabbixAPITestee::threadOneProcTriggers,
@@ -492,7 +502,9 @@ static guint getTestPort(void)
 }
 
 static void _assertReceiveData(ArmZabbixAPITestee::GetTestType testType,
-                               int svId)
+                               int svId,
+			       ZabbixAPIEmulator::APIVersion expectedVersion =
+			         ZabbixAPIEmulator::API_VERSION_2_0_4)
 {
 	MonitoringServerInfo serverInfo = g_defaultServerInfo;
 	serverInfo.id = svId;
@@ -504,17 +516,19 @@ static void _assertReceiveData(ArmZabbixAPITestee::GetTestType testType,
 	  (true, armZbxApiTestee.testGet(testType),
 	   cut_message("%s\n", armZbxApiTestee.errorMessage().c_str()));
 }
-#define assertReceiveData(TYPE, SERVER_ID) \
-cut_trace(_assertReceiveData(TYPE, SERVER_ID))
+#define assertReceiveData(TYPE, SERVER_ID, ...)	\
+cut_trace(_assertReceiveData(TYPE, SERVER_ID, ##__VA_ARGS__))
 
-static void _assertTestGet(ArmZabbixAPITestee::GetTestType testType)
+static void _assertTestGet(ArmZabbixAPITestee::GetTestType testType,
+			   ZabbixAPIEmulator::APIVersion expectedVersion =
+			     ZabbixAPIEmulator::API_VERSION_2_0_4)
 {
 	int svId = 0;
-	assertReceiveData(testType, svId);
+	assertReceiveData(testType, svId, expectedVersion);
 
 	// TODO: add the check of the database
 }
-#define assertTestGet(TYPE) cut_trace(_assertTestGet(TYPE))
+#define assertTestGet(TYPE, ...) cut_trace(_assertTestGet(TYPE, ##__VA_ARGS__))
 
 static void _assertCheckAPIVersion(
   bool expected, int major, int minor , int micro)
@@ -559,6 +573,12 @@ void cut_teardown(void)
 void test_getAPIVersion(void)
 {
 	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_API_VERSION);
+}
+
+void test_getAPIVersion_2_2_0(void)
+{
+	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_API_VERSION,
+		      ZabbixAPIEmulator::API_VERSION_2_2_0);
 }
 
 void data_getAPIVersion(void)

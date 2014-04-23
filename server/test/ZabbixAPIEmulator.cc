@@ -373,7 +373,7 @@ void ZabbixAPIEmulator::APIHandlerGetWithFile
 	soup_message_set_status(arg.msg, SOUP_STATUS_OK);
 }
 
-static string getAPIVersionString(ZabbixAPIEmulator::APIVersion version)
+string ZabbixAPIEmulator::getAPIVersionString(APIVersion version)
 {
 	switch(version) {
 	case ZabbixAPIEmulator::API_VERSION_1_3_0:
@@ -388,11 +388,16 @@ static string getAPIVersionString(ZabbixAPIEmulator::APIVersion version)
 	}
 }
 
+string ZabbixAPIEmulator::getAPIVersionString(void)
+{
+	return getAPIVersionString(m_ctx->apiVersion);
+}
+
 void ZabbixAPIEmulator::APIHandlerAPIVersion(APIHandlerArg &arg)
 {
 	string response = StringUtils::sprintf(
 	  "{\"jsonrpc\":\"2.0\",\"result\":\"%s\",\"id\":%"PRId64"}",
-	  getAPIVersionString(m_ctx->apiVersion).c_str(), arg.id);
+	  getAPIVersionString().c_str(), arg.id);
 	soup_message_body_append(arg.msg->response_body, SOUP_MEMORY_COPY,
 	                         response.c_str(), response.size());
 	soup_message_set_status(arg.msg, SOUP_STATUS_OK);
