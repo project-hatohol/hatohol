@@ -452,10 +452,15 @@ void ZabbixAPIEmulator::APIHandlerItemGet(APIHandlerArg &arg)
 
 	// make response
 	const char *dataFileName;
-	if (selectApplications)
-		dataFileName = "zabbix-api-res-items-003.json";
-	else
-		dataFileName = "zabbix-api-res-items-001.json";
+	if (m_ctx->apiVersion < API_VERSION_2_2_0) {
+		if (selectApplications)
+			dataFileName = "zabbix-api-res-items-003.json";
+		else
+			dataFileName = "zabbix-api-res-items-001.json";
+	} else {
+		// !selectApplications case isn't prepared yet.
+		dataFileName = "zabbix-api-2_2_0-res-items.json";
+	}
 	string path = getFixturesDir() + dataFileName;
 	gchar *contents;
 	gsize length;
@@ -600,8 +605,11 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 
 void ZabbixAPIEmulator::APIHandlerApplicationGet(APIHandlerArg &arg)
 {
-	static const char *DATA_FILE =
-	   "zabbix-api-res-applications-003.json";
+	static const char *DATA_FILE;
+	if (m_ctx->apiVersion < API_VERSION_2_2_0)
+	   DATA_FILE = "zabbix-api-res-applications-003.json";
+	else
+	   DATA_FILE = "zabbix-api-2_2_0-res-applications.json";
 	APIHandlerGetWithFile(arg, DATA_FILE);
 }
 

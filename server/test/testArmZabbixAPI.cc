@@ -658,6 +658,12 @@ void test_getItems(void)
 	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_ITEMS);
 }
 
+void test_getItems_2_2_0(void)
+{
+	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_ITEMS,
+		      ZabbixAPIEmulator::API_VERSION_2_2_0);
+}
+
 void test_getHosts(void)
 {
 	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_HOSTS);
@@ -681,6 +687,12 @@ void test_getEvents_2_2_0(void)
 void test_getApplications(void)
 {
 	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_APPLICATIONS);
+}
+
+void test_getApplications_2_2_0(void)
+{
+	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_APPLICATIONS,
+		      ZabbixAPIEmulator::API_VERSION_2_2_0);
 }
 
 void test_httpNotFound(void)
