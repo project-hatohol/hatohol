@@ -117,6 +117,7 @@ struct ZabbixAPIEmulator::PrivateContext {
 
 	void reset(void)
 	{
+		apiVersion = API_VERSION_2_0_4;
 		numEventSlices = 0;
 		currEventSliceIndex = 0;
 		slicedEventVector.clear();

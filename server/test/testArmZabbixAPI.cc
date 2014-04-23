@@ -512,8 +512,9 @@ static void _assertReceiveData(ArmZabbixAPITestee::GetTestType testType,
 
 	deleteDBClientZabbixDB(svId);
 	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
+	g_apiEmulator.setAPIVersion(expectedVersion);
 	cppcut_assert_equal
-	  (true, armZbxApiTestee.testGet(testType),
+	  (true, armZbxApiTestee.testGet(testType, expectedVersion),
 	   cut_message("%s\n", armZbxApiTestee.errorMessage().c_str()));
 }
 #define assertReceiveData(TYPE, SERVER_ID, ...)	\
