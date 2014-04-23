@@ -563,8 +563,10 @@ void ZabbixAPIEmulator::PrivateContext::makeEventsJsonDescend(string &contents)
 		    paramEvent.eventIdTill == 0) {
 			ZabbixAPIEventMapReverseIterator rjit
 			  = zbxEventMap.rbegin();
-			for (int64_t i = 0; i < paramEvent.limit ||
-				     rjit != zbxEventMap.rend(); ++rjit, i++) {
+			for (int64_t i = 0;
+			     i < paramEvent.limit || rjit != zbxEventMap.rend();
+			     ++rjit, i++)
+			{
 				const ZabbixAPIEvent &data = rjit->second;
 				contents += makeJsonString(data);
 			}
@@ -573,9 +575,12 @@ void ZabbixAPIEmulator::PrivateContext::makeEventsJsonDescend(string &contents)
 			  zbxEventMap.lower_bound(paramEvent.eventIdTill));
 			ZabbixAPIEventMapReverseIterator goalIterator(
 			  zbxEventMap.lower_bound(paramEvent.eventIdFrom));
-			for (int64_t i = 0; i < paramEvent.limit ||
-				     rjit != goalIterator||
-				     rjit != zbxEventMap.rend(); ++rjit, i++) {
+			for (int64_t i = 0;
+			     i < paramEvent.limit ||
+			       rjit != goalIterator ||
+			       rjit != zbxEventMap.rend();
+			     ++rjit, i++)
+			{
 				const ZabbixAPIEvent &data = rjit->second;
 				contents += makeJsonString(data);
 			}
