@@ -743,10 +743,8 @@ string ZabbixAPIEmulator::PrivateContext::makeJsonString(
 	  "{"
 	  "\"eventid\":\"%s\",\"source\":\"%s\",\"object\":\"%s\","
 	  "\"objectid\":\"%s\",\"clock\":\"%s\",\"value\":\"%s\","
-	  "\"acknowledged\":\"%s\",\"ns\":\"%s\","
-	  "\"value_changed\":\"%s\""
-	  "},";
-	return StringUtils::sprintf(
+	  "\"acknowledged\":\"%s\",\"ns\":\"%s\"";
+	string json = StringUtils::sprintf(
 			fmt,
 			data.eventid.c_str(),
 			data.source.c_str(),
@@ -755,8 +753,12 @@ string ZabbixAPIEmulator::PrivateContext::makeJsonString(
 			data.clock.c_str(),
 			data.value.c_str(),
 			data.acknowledged.c_str(),
-			data.ns.c_str(),
-			data.value_changed.c_str());
+			data.ns.c_str());
+	if (apiVersion < API_VERSION_2_2_0)
+		json += StringUtils::sprintf(",\"value_changed\":\"%s\"",
+					     data.value_changed.c_str());
+	json += "},";
+	return json;
 }
 
 void ZabbixAPIEmulator::loadTestEventsIfNeeded(APIHandlerArg &arg)
