@@ -25,6 +25,7 @@
 #include "DataStoreFake.h"
 #include "DataStoreZabbix.h"
 #include "DataStoreNagios.h"
+#include "HapgZabbixAPI.h"
 #include "Helpers.h"
 #include "Reaper.h"
 
@@ -79,6 +80,10 @@ void data_create(void)
 	               "type", G_TYPE_INT, MONITORING_SYSTEM_NAGIOS,
 	               "type-name", G_TYPE_STRING,
 	                 typeid(DataStoreNagios).name(), NULL);
+	gcut_add_datum("MONITORING_SYSTEM_HAPI_ZABBIX",
+	               "type", G_TYPE_INT, MONITORING_SYSTEM_HAPI_ZABBIX,
+	               "type-name", G_TYPE_STRING,
+	                 typeid(HapgZabbixAPI).name(), NULL);
 }
 
 void test_create(gconstpointer data)
