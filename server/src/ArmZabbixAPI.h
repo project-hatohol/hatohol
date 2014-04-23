@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -61,6 +61,8 @@ public:
 	void getGroups(ItemTablePtr &groupsTablePtr);
 
 protected:
+	const std::string &getAPIVersion(void);
+	bool checkAPIVersion(int major, int minor, int micro);
 	SoupSession *getSession(void);
 
 	/**
@@ -80,6 +82,7 @@ protected:
 	std::string getAuthToken(void);
 
 	SoupMessage *queryCommon(JsonBuilderAgent &agent);
+	SoupMessage *queryAPIVersion(void);
 	SoupMessage *queryTrigger(int requestSince = 0);
 	SoupMessage *queryItem(void);
 	SoupMessage *queryHost(void);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -18,6 +18,7 @@
  */
 
 #include <cppcutter.h>
+#include <gcutter.h>
 #include <sys/time.h>
 #include <errno.h>
 #include <fstream>
@@ -63,6 +64,7 @@ typedef bool (ArmZabbixAPITestee::*ThreadOneProc)(void);
 
 public:
 	enum GetTestType {
+		GET_TEST_TYPE_API_VERSION,
 		GET_TEST_TYPE_TRIGGERS,
 		GET_TEST_TYPE_FUNCTIONS,
 		GET_TEST_TYPE_ITEMS,
@@ -94,6 +96,23 @@ public:
 		return m_errorMessage;
 	}
 
+	void testGetAPIVersion(ZabbixAPIEmulator::APIVersion expected =
+			       ZabbixAPIEmulator::API_VERSION_2_0_4)
+	{
+		string version
+		  = ZabbixAPIEmulator::getAPIVersionString(expected);
+		cppcut_assert_equal(version, getAPIVersion());
+	}
+
+	void testCheckAPIVersion(bool expected,
+				 int major, int minor, int micro)
+	{
+		const string &version = getAPIVersion();
+		cppcut_assert_equal(string("2.0.4"), version);
+		cppcut_assert_equal(expected,
+				    checkAPIVersion(major, minor, micro));
+	}
+
 	bool testOpenSession(void)
 	{
 		g_sync.lock();
@@ -105,10 +124,17 @@ public:
 		return m_result;
 	}
 
-	bool testGet(GetTestType type)
+	bool testGet(GetTestType type,
+		     ZabbixAPIEmulator::APIVersion expectedVersion =
+		       ZabbixAPIEmulator::API_VERSION_2_0_4)
 	{
 		bool succeeded = false;
-		if (type == GET_TEST_TYPE_TRIGGERS) {
+		if (type == GET_TEST_TYPE_API_VERSION) {
+			succeeded =
+			  launch(&ArmZabbixAPITestee::threadOneProcTriggers,
+			         exitCbDefault, this);
+			testGetAPIVersion(expectedVersion);
+		} else if (type == GET_TEST_TYPE_TRIGGERS) {
 			succeeded =
 			  launch(&ArmZabbixAPITestee::threadOneProcTriggers,
 			         exitCbDefault, this);
@@ -369,6 +395,12 @@ protected:
 		return false;
 	}
 
+	bool threadOneProcGetAPIVersion(void)
+	{
+		getAPIVersion();
+		return true;
+	}
+
 	bool threadOneProcOpenSession(void)
 	{
 		bool succeeded = openSession();
@@ -470,7 +502,9 @@ static guint getTestPort(void)
 }
 
 static void _assertReceiveData(ArmZabbixAPITestee::GetTestType testType,
-                               int svId)
+                               int svId,
+			       ZabbixAPIEmulator::APIVersion expectedVersion =
+			         ZabbixAPIEmulator::API_VERSION_2_0_4)
 {
 	MonitoringServerInfo serverInfo = g_defaultServerInfo;
 	serverInfo.id = svId;
@@ -478,21 +512,38 @@ static void _assertReceiveData(ArmZabbixAPITestee::GetTestType testType,
 
 	deleteDBClientZabbixDB(svId);
 	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
+	g_apiEmulator.setAPIVersion(expectedVersion);
 	cppcut_assert_equal
-	  (true, armZbxApiTestee.testGet(testType),
+	  (true, armZbxApiTestee.testGet(testType, expectedVersion),
 	   cut_message("%s\n", armZbxApiTestee.errorMessage().c_str()));
 }
-#define assertReceiveData(TYPE, SERVER_ID) \
-cut_trace(_assertReceiveData(TYPE, SERVER_ID))
+#define assertReceiveData(TYPE, SERVER_ID, ...)	\
+cut_trace(_assertReceiveData(TYPE, SERVER_ID, ##__VA_ARGS__))
 
-static void _assertTestGet(ArmZabbixAPITestee::GetTestType testType)
+static void _assertTestGet(ArmZabbixAPITestee::GetTestType testType,
+			   ZabbixAPIEmulator::APIVersion expectedVersion =
+			     ZabbixAPIEmulator::API_VERSION_2_0_4)
 {
 	int svId = 0;
-	assertReceiveData(testType, svId);
+	assertReceiveData(testType, svId, expectedVersion);
 
 	// TODO: add the check of the database
 }
-#define assertTestGet(TYPE) cut_trace(_assertTestGet(TYPE))
+#define assertTestGet(TYPE, ...) cut_trace(_assertTestGet(TYPE, ##__VA_ARGS__))
+
+static void _assertCheckAPIVersion(
+  bool expected, int major, int minor , int micro)
+{
+	int svId = 0;
+	MonitoringServerInfo serverInfo = g_defaultServerInfo;
+	serverInfo.id = svId;
+	serverInfo.port = getTestPort();
+	deleteDBClientZabbixDB(svId);
+	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
+	armZbxApiTestee.testCheckAPIVersion(expected, major, minor, micro);
+}
+#define assertCheckAPIVersion(EXPECTED,MAJOR,MINOR,MICRO) \
+  cut_trace(_assertCheckAPIVersion(EXPECTED,MAJOR,MINOR,MICRO))
 
 void cut_setup(void)
 {
@@ -520,6 +571,65 @@ void cut_teardown(void)
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
+void test_getAPIVersion(void)
+{
+	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_API_VERSION);
+}
+
+void test_getAPIVersion_2_2_0(void)
+{
+	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_API_VERSION,
+		      ZabbixAPIEmulator::API_VERSION_2_2_0);
+}
+
+void data_getAPIVersion(void)
+{
+	gcut_add_datum("Equal",
+		       "expected", G_TYPE_BOOLEAN, TRUE,
+		       "major", G_TYPE_INT, "2",
+		       "minor", G_TYPE_INT, "0",
+		       "micro", G_TYPE_INT, "4",
+		       NULL);
+	gcut_add_datum("Lower micro version",
+		       "expected", G_TYPE_BOOLEAN, TRUE,
+		       "major", G_TYPE_INT, "2",
+		       "minor", G_TYPE_INT, "0",
+		       "micro", G_TYPE_INT, "3",
+		       NULL);
+	gcut_add_datum("Higher micro version",
+		       "expected", G_TYPE_BOOLEAN, FALSE,
+		       "major", G_TYPE_INT, "2",
+		       "minor", G_TYPE_INT, "0",
+		       "micro", G_TYPE_INT, "5",
+		       NULL);
+	gcut_add_datum("Higher minor version",
+		       "expected", G_TYPE_BOOLEAN, FALSE,
+		       "major", G_TYPE_INT, "2",
+		       "minor", G_TYPE_INT, "1",
+		       "micro", G_TYPE_INT, "4",
+		       NULL);
+	gcut_add_datum("Lower major version",
+		       "expected", G_TYPE_BOOLEAN, TRUE,
+		       "major", G_TYPE_INT, "1",
+		       "minor", G_TYPE_INT, "0",
+		       "micro", G_TYPE_INT, "4",
+		       NULL);
+	gcut_add_datum("Higher major version",
+		       "expected", G_TYPE_BOOLEAN, FALSE,
+		       "major", G_TYPE_INT, "3",
+		       "minor", G_TYPE_INT, "0",
+		       "micro", G_TYPE_INT, "4",
+		       NULL);
+}
+
+void test_checkAPIVersion(gconstpointer data)
+{
+	assertCheckAPIVersion(gcut_data_get_boolean(data, "expected"),
+			      gcut_data_get_int(data, "major"),
+			      gcut_data_get_int(data, "minor"),
+			      gcut_data_get_int(data, "micro"));
+}
+
 void test_openSession(void)
 {
 	int svId = 0;
@@ -548,6 +658,12 @@ void test_getItems(void)
 	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_ITEMS);
 }
 
+void test_getItems_2_2_0(void)
+{
+	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_ITEMS,
+		      ZabbixAPIEmulator::API_VERSION_2_2_0);
+}
+
 void test_getHosts(void)
 {
 	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_HOSTS);
@@ -560,9 +676,23 @@ void test_getEvents(void)
 	assertReceiveData(ArmZabbixAPITestee::GET_TEST_TYPE_EVENTS, 0);
 }
 
+void test_getEvents_2_2_0(void)
+{
+	// We expect empty data for the last two times.
+	g_apiEmulator.setNumberOfEventSlices(NUM_TEST_READ_TIMES-2);
+	assertReceiveData(ArmZabbixAPITestee::GET_TEST_TYPE_EVENTS, 0,
+			  ZabbixAPIEmulator::API_VERSION_2_2_0);
+}
+
 void test_getApplications(void)
 {
 	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_APPLICATIONS);
+}
+
+void test_getApplications_2_2_0(void)
+{
+	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_APPLICATIONS,
+		      ZabbixAPIEmulator::API_VERSION_2_2_0);
 }
 
 void test_httpNotFound(void)

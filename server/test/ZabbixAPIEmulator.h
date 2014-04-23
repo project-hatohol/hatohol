@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -32,6 +32,13 @@ enum OperationMode {
 
 class ZabbixAPIEmulator {
 public:
+	enum APIVersion {
+		API_VERSION_1_3_0, // Zabbix 1.8
+		API_VERSION_1_4_0, // Zabbix 2.0.0 - 2.0.3
+		API_VERSION_2_0_4, // default
+		API_VERSION_2_2_0,
+	};
+
 	struct APIHandlerArg;
 	struct ParameterEventGet;
 	struct ZabbixAPIEvent;
@@ -51,6 +58,10 @@ public:
 	void start(guint port);
 	void stop(void);
 	void setOperationMode(OperationMode mode);
+	void setAPIVersion(APIVersion version);
+	std::string getAPIVersionString(void);
+
+	static std::string getAPIVersionString(APIVersion version);
 
 protected:
 	static gpointer _mainThread(gpointer data);
@@ -71,6 +82,7 @@ protected:
 	void handlerAPIDispatch(APIHandlerArg &arg);
 	void APIHandlerGetWithFile(APIHandlerArg &arg,
 	                           const std::string &dataFile);
+	void APIHandlerAPIVersion(APIHandlerArg &arg);
 	void APIHandlerUserLogin(APIHandlerArg &arg);
 	void APIHandlerTriggerGet(APIHandlerArg &arg);
 	void APIHandlerItemGet(APIHandlerArg &arg);
@@ -82,7 +94,6 @@ protected:
 	std::string addJsonResponse(const std::string &slice,
 	                            APIHandlerArg &arg);
 	void parseEventGetParameter(APIHandlerArg &arg);
-	std::string makeJsonString(const ZabbixAPIEvent &data);
 	void loadTestEventsIfNeeded(APIHandlerArg &arg);
 private:
 	struct PrivateContext;

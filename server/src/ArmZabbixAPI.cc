@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -44,6 +44,10 @@ static const guint DEFAULT_IDLE_TIMEOUT = 60;
 
 struct ArmZabbixAPI::PrivateContext
 {
+	string         apiVersion;
+	int            apiVersionMajor;
+	int            apiVersionMinor;
+	int            apiVersionMicro;
 	string         authToken;
 	string         uri;
 	string         username;
@@ -59,7 +63,10 @@ struct ArmZabbixAPI::PrivateContext
 
 	// constructors
 	PrivateContext(const MonitoringServerInfo &serverInfo)
-	: zabbixServerId(serverInfo.id),
+	: apiVersionMajor(0),
+	  apiVersionMinor(0),
+	  apiVersionMicro(0),
+	  zabbixServerId(serverInfo.id),
 	  session(NULL),
 	  gotTriggers(false),
 	  triggerid(0),
@@ -329,6 +336,10 @@ SoupSession *ArmZabbixAPI::getSession(void)
 
 bool ArmZabbixAPI::openSession(SoupMessage **msgPtr)
 {
+	const string &version = getAPIVersion();
+	if (version.empty())
+		return false;
+
 	SoupMessage *msg = soup_message_new(SOUP_METHOD_POST, m_ctx->uri.c_str());
 
 	soup_message_headers_set_content_type(msg->request_headers,
@@ -398,6 +409,78 @@ SoupMessage *ArmZabbixAPI::queryCommon(JsonBuilderAgent &agent)
 		return NULL;
 	}
 	return msg;
+}
+
+const string &ArmZabbixAPI::getAPIVersion(void)
+{
+	if (!m_ctx->apiVersion.empty())
+		return m_ctx->apiVersion;
+
+	SoupMessage *msg = queryAPIVersion();
+	if (!msg)
+		return m_ctx->apiVersion;
+
+	JsonParserAgent parser(msg->response_body->data);
+	if (parser.hasError()) {
+		MLPL_ERR("Failed to parser: %s\n", parser.getErrorMessage());
+		goto OUT;
+	}
+
+	if (parser.read("result", m_ctx->apiVersion)) {
+		MLPL_DBG("Zabbix API version: %s\n",
+			 m_ctx->apiVersion.c_str());
+	} else {
+		MLPL_ERR("Failed to read API version\n");
+	}
+
+	if (!m_ctx->apiVersion.empty()) {
+		StringList list;
+		StringUtils::split(list, m_ctx->apiVersion, '.');
+		StringListIterator it = list.begin();
+		for (size_t i = 0; it != list.end(); ++i, ++it) {
+			string &str = *it;
+			if (i == 0)
+				m_ctx->apiVersionMajor = atoi(str.c_str());
+			else if (i == 1)
+				m_ctx->apiVersionMinor = atoi(str.c_str());
+			else if (i == 2)
+				m_ctx->apiVersionMicro = atoi(str.c_str());
+			else
+				break;
+		}
+	}
+
+OUT:
+	g_object_unref(msg);
+	return m_ctx->apiVersion;
+}
+
+bool ArmZabbixAPI::checkAPIVersion(int major, int minor, int micro)
+{
+	getAPIVersion();
+
+	if (m_ctx->apiVersionMajor > major)
+		return true;
+	if (m_ctx->apiVersionMajor == major &&
+	    m_ctx->apiVersionMinor >  minor)
+		return true;
+	if (m_ctx->apiVersionMajor == major &&
+	    m_ctx->apiVersionMinor == minor &&
+	    m_ctx->apiVersionMicro >= micro)
+		return true;
+	return false;
+}
+
+SoupMessage *ArmZabbixAPI::queryAPIVersion(void)
+{
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.add("jsonrpc", "2.0");
+	agent.add("method", "apiinfo.version");
+	agent.add("id", 1);
+	agent.endObject();
+
+	return queryCommon(agent);
 }
 
 SoupMessage *ArmZabbixAPI::queryTrigger(int requestSince)
@@ -779,7 +862,14 @@ void ArmZabbixAPI::parseAndPushItemsData
 	pushString(parser, grp, "units",        ITEM_ID_ZBX_ITEMS_UNITS);
 	pushInt   (parser, grp, "multiplier",   ITEM_ID_ZBX_ITEMS_MULTIPLIER);
 	pushInt   (parser, grp, "delta",        ITEM_ID_ZBX_ITEMS_DELTA);
-	pushString(parser, grp, "prevorgvalue", ITEM_ID_ZBX_ITEMS_PREVORGVALUE);
+	if (checkAPIVersion(2, 2, 0)) {
+		// Zabbix 2.2 doesn't have "prevorgvalue" property
+		grp->add(new ItemString(ITEM_ID_ZBX_ITEMS_PREVORGVALUE, ""),
+			 false);
+	} else {
+		pushString(parser, grp, "prevorgvalue",
+			   ITEM_ID_ZBX_ITEMS_PREVORGVALUE);
+	}
 	pushString(parser, grp, "snmpv3_securityname",
 	           ITEM_ID_ZBX_ITEMS_SNMPV3_SECURITYNAME);
 	pushInt   (parser, grp, "snmpv3_securitylevel",
@@ -889,8 +979,22 @@ void ArmZabbixAPI::parseAndPushApplicationsData(JsonParserAgent &parser,
 	           ITEM_ID_ZBX_APPLICATIONS_APPLICATIONID);
 	pushUint64(parser, grp, "hostid", ITEM_ID_ZBX_APPLICATIONS_HOSTID);
 	pushString(parser, grp, "name",   ITEM_ID_ZBX_APPLICATIONS_NAME);
-	pushUint64(parser, grp, "templateid",
-	           ITEM_ID_ZBX_APPLICATIONS_TEMPLATEID);
+	if (checkAPIVersion(2, 2, 0)) {
+		// TODO: Zabbix 2.2 returns array of templateid, but Hatohol
+		// stores only one templateid.
+		parser.startObject("templateids");
+		string value;
+		uint64_t valU64 = 0;
+		parser.read(0, value);
+		sscanf(value.c_str(), "%"PRIu64, &valU64);
+		grp->add(
+		  new ItemUint64(ITEM_ID_ZBX_APPLICATIONS_TEMPLATEID, valU64),
+		  false);
+		parser.endObject();
+	} else {
+		pushUint64(parser, grp, "templateid",
+			   ITEM_ID_ZBX_APPLICATIONS_TEMPLATEID);
+	}
 	tablePtr->add(grp);
 	parser.endElement();
 }
@@ -909,8 +1013,14 @@ void ArmZabbixAPI::parseAndPushEventsData
 	pushInt   (parser, grp, "acknowledged",
 	           ITEM_ID_ZBX_EVENTS_ACKNOWLEDGED);
 	pushInt   (parser, grp, "ns",           ITEM_ID_ZBX_EVENTS_NS);
-	pushInt   (parser, grp, "value_changed",
-	           ITEM_ID_ZBX_EVENTS_VALUE_CHANGED);
+	if (checkAPIVersion(2, 2, 0)) {
+		// Zabbix 2.2 doesn't have "value_changed" property
+		grp->add(new ItemInt(ITEM_ID_ZBX_EVENTS_VALUE_CHANGED, 0),
+			 false);
+	} else {
+		pushInt(parser, grp, "value_changed",
+			ITEM_ID_ZBX_EVENTS_VALUE_CHANGED);
+	}
 	tablePtr->add(grp);
 	parser.endElement();
 }
@@ -1233,7 +1343,7 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 			updateApplications(items);
 		}
 	} catch (const DataStoreException &dse) {
-		MLPL_ERR("Error on update\n");
+		MLPL_ERR("Error on update: %s\n", dse.what());
 		m_ctx->authToken = "";
 		return false;
 	}
