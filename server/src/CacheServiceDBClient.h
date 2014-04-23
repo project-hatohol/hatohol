@@ -43,9 +43,9 @@ public:
 
 private:
 	/**
-	 * An instance of this class is designed only to used
-	 * as a stack variable. The following method as a private is to
-	 * prevent the dynamic allocation with a 'new' operator.
+	 * An instance of this class is designed to be defined
+	 * only as a stack variable. The following as a private makes it
+	 * impossible to allocate an instance with a 'new' operator.
 	 */
 	static void *operator new(size_t) {return NULL;}
 
