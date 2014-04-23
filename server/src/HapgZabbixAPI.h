@@ -17,30 +17,23 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DataStoreFactory.h"
-#include "DataStoreFake.h"
-#include "DataStoreZabbix.h"
-#include "DataStoreNagios.h"
-#include "HapgZabbixAPI.h"
+#ifndef HapgZabbixAPI_h
+#define HapgZabbixAPI_h
 
-DataStore *DataStoreFactory::create(const MonitoringServerInfo &svInfo,
-                                    const bool &autoStart)
-{
-	switch (svInfo.type) {
-	case MONITORING_SYSTEM_FAKE:
-		return new DataStoreFake(svInfo, autoStart);
-	case MONITORING_SYSTEM_ZABBIX:
-		return new DataStoreZabbix(svInfo, autoStart);
-	case MONITORING_SYSTEM_NAGIOS:
-		return new DataStoreNagios(svInfo, autoStart);
-	case MONITORING_SYSTEM_HAPI_ZABBIX:
-		return new HapgZabbixAPI(svInfo, autoStart);
-	default:
-		MLPL_BUG("Invalid monitoring system: %d\n", svInfo.type);
-	}
-	return NULL;
-}
+#include "HatoholArmPluginGate.h"
 
+class HapgZabbixAPI : public HatoholArmPluginGate {
+public:
+	HapgZabbixAPI(const MonitoringServerInfo &svInfo,
+	              const bool &autoStart);
 
+protected:
+	virtual ~HapgZabbixAPI();
 
+private:
+	struct PrivateContext;
+	PrivateContext *m_ctx;;
+};
+
+#endif // HapgZabbixAPI_h
 
