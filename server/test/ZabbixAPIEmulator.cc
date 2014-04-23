@@ -122,6 +122,10 @@ struct ZabbixAPIEmulator::PrivateContext {
 		currEventSliceIndex = 0;
 		slicedEventVector.clear();
 	}
+
+	void makeEventsJsonAscend(string &contents);
+	void makeEventsJsonDescend(string &contents);
+	string makeJsonString(const ZabbixAPIEvent &data);
 };
 
 // ---------------------------------------------------------------------------
@@ -484,6 +488,96 @@ void ZabbixAPIEmulator::APIHandlerHostgroupGet(APIHandlerArg &arg)
 	APIHandlerGetWithFile(arg, dataFileName);
 }
 
+void ZabbixAPIEmulator::PrivateContext::makeEventsJsonAscend(string &contents)
+{
+	if (paramEvent.limit == 0) {	// no limit
+		if (paramEvent.eventIdFrom == 0 &&
+		    paramEvent.eventIdTill == 0) { // unlimit
+			ZabbixAPIEventMapIterator jit = zbxEventMap.begin();
+			for (; jit != zbxEventMap.end(); ++jit) {
+				const ZabbixAPIEvent &data = jit->second;
+				contents += makeJsonString(data);
+			}
+		} else {	// range specification
+			ZabbixAPIEventMapIterator jit
+			  = zbxEventMap.lower_bound(paramEvent.eventIdFrom);
+			ZabbixAPIEventMapIterator goalIterator
+			  = zbxEventMap.lower_bound(paramEvent.eventIdTill);
+			for (;jit != goalIterator; ++jit) {
+				const ZabbixAPIEvent &data = jit->second;
+				contents += makeJsonString(data);
+			}
+		}
+	} else {
+		if (paramEvent.eventIdFrom == 0 &&
+		    paramEvent.eventIdTill == 0) {	// no range specification
+			ZabbixAPIEventMapIterator jit = zbxEventMap.begin();
+			for (int64_t i = 0; i < paramEvent.limit ||
+				     jit != zbxEventMap.end(); ++jit, i++) {
+				const ZabbixAPIEvent &data = jit->second;
+				contents += makeJsonString(data);
+			}
+		} else {
+			ZabbixAPIEventMapIterator jit
+			  = zbxEventMap.lower_bound(paramEvent.eventIdFrom);
+			ZabbixAPIEventMapIterator goalIterator
+			  = zbxEventMap.lower_bound(paramEvent.eventIdTill);
+			for (int64_t i = 0; i < paramEvent.limit ||
+				     jit != goalIterator ||
+				     jit != zbxEventMap.end(); ++jit, i++) {
+				const ZabbixAPIEvent &data = jit->second;
+				contents += makeJsonString(data);
+			}
+		}
+	}
+}
+
+void ZabbixAPIEmulator::PrivateContext::makeEventsJsonDescend(string &contents)
+{
+	if (paramEvent.limit == 0) {	// no limit
+		if (paramEvent.eventIdFrom == 0 &&
+		    paramEvent.eventIdTill == 0) { // unlimit
+			ZabbixAPIEventMapReverseIterator rjit
+			  = zbxEventMap.rbegin();
+			for (; rjit != zbxEventMap.rend(); ++rjit) {
+				const ZabbixAPIEvent &data = rjit->second;
+				contents += makeJsonString(data);
+			}
+		} else {	// range specification
+			ZabbixAPIEventMapReverseIterator rjit(
+			  zbxEventMap.lower_bound(paramEvent.eventIdTill));
+			ZabbixAPIEventMapReverseIterator goalIterator(
+			  zbxEventMap.lower_bound(paramEvent.eventIdFrom));
+			for (; rjit != goalIterator; ++rjit) {
+				const ZabbixAPIEvent &data = rjit->second;
+				contents += makeJsonString(data);
+			}
+		}
+	} else {
+		if (paramEvent.eventIdFrom == 0 &&
+		    paramEvent.eventIdTill == 0) {
+			ZabbixAPIEventMapReverseIterator rjit
+			  = zbxEventMap.rbegin();
+			for (int64_t i = 0; i < paramEvent.limit ||
+				     rjit != zbxEventMap.rend(); ++rjit, i++) {
+				const ZabbixAPIEvent &data = rjit->second;
+				contents += makeJsonString(data);
+			}
+		} else {
+			ZabbixAPIEventMapReverseIterator rjit(
+			  zbxEventMap.lower_bound(paramEvent.eventIdTill));
+			ZabbixAPIEventMapReverseIterator goalIterator(
+			  zbxEventMap.lower_bound(paramEvent.eventIdFrom));
+			for (int64_t i = 0; i < paramEvent.limit ||
+				     rjit != goalIterator||
+				     rjit != zbxEventMap.rend(); ++rjit, i++) {
+				const ZabbixAPIEvent &data = rjit->second;
+				contents += makeJsonString(data);
+			}
+		}
+	}
+}
+
 void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 {
 	loadTestEventsIfNeeded(arg);
@@ -491,81 +585,14 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 	parseEventGetParameter(arg);
 
 	string contents;
-	gsize length;
 	if (m_ctx->paramEvent.sortOrder == "ASC") {
-		if (m_ctx->paramEvent.limit == 0) {	// no limit
-			if (m_ctx->paramEvent.eventIdFrom == 0 && m_ctx->paramEvent.eventIdTill == 0) { // unlimit
-				ZabbixAPIEventMapIterator jit = m_ctx->zbxEventMap.begin();
-				for (; jit != m_ctx->zbxEventMap.end(); ++jit) {
-					const ZabbixAPIEvent &data = jit->second;
-					contents += makeJsonString(data);
-				}
-			} else {	// range specification
-				ZabbixAPIEventMapIterator jit = m_ctx->zbxEventMap.lower_bound(m_ctx->paramEvent.eventIdFrom);
-				ZabbixAPIEventMapIterator goalIterator = m_ctx->zbxEventMap.lower_bound(m_ctx->paramEvent.eventIdTill);
-				for (;jit != goalIterator; ++jit) {
-					const ZabbixAPIEvent &data = jit->second;
-					contents += makeJsonString(data);
-				}
-			}
-		} else {
-			if (m_ctx->paramEvent.eventIdFrom == 0 && m_ctx->paramEvent.eventIdTill == 0) {	// no range specification
-				ZabbixAPIEventMapIterator jit = m_ctx->zbxEventMap.begin();
-				for (int64_t i = 0; i < m_ctx->paramEvent.limit ||
-						jit != m_ctx->zbxEventMap.end(); ++jit, i++) {
-					const ZabbixAPIEvent &data = jit->second;
-					contents += makeJsonString(data);
-				}
-			} else {
-				ZabbixAPIEventMapIterator jit = m_ctx->zbxEventMap.lower_bound(m_ctx->paramEvent.eventIdFrom);
-				ZabbixAPIEventMapIterator goalIterator = m_ctx->zbxEventMap.lower_bound(m_ctx->paramEvent.eventIdTill);
-				for (int64_t i = 0; i < m_ctx->paramEvent.limit ||
-						jit != goalIterator ||
-						jit != m_ctx->zbxEventMap.end(); ++jit, i++) {
-					const ZabbixAPIEvent &data = jit->second;
-					contents += makeJsonString(data);
-				}
-			}
-		}
+		m_ctx->makeEventsJsonAscend(contents);
 	} else if (m_ctx->paramEvent.sortOrder == "DESC") {
-		if (m_ctx->paramEvent.limit == 0) {	// no limit
-			if (m_ctx->paramEvent.eventIdFrom == 0 && m_ctx->paramEvent.eventIdTill == 0) { // unlimit
-				ZabbixAPIEventMapReverseIterator rjit = m_ctx->zbxEventMap.rbegin();
-				for (; rjit != m_ctx->zbxEventMap.rend(); ++rjit) {
-					const ZabbixAPIEvent &data = rjit->second;
-					contents += makeJsonString(data);
-				}
-			} else {	// range specification
-				ZabbixAPIEventMapReverseIterator rjit(m_ctx->zbxEventMap.lower_bound(m_ctx->paramEvent.eventIdTill));
-				ZabbixAPIEventMapReverseIterator goalIterator(m_ctx->zbxEventMap.lower_bound(m_ctx->paramEvent.eventIdFrom));
-				for (; rjit != goalIterator; ++rjit) {
-					const ZabbixAPIEvent &data = rjit->second;
-					contents += makeJsonString(data);
-				}
-			}
-		} else {
-			if (m_ctx->paramEvent.eventIdFrom == 0 && m_ctx->paramEvent.eventIdTill == 0) {
-				ZabbixAPIEventMapReverseIterator rjit = m_ctx->zbxEventMap.rbegin();
-				for (int64_t i = 0; i < m_ctx->paramEvent.limit ||
-						rjit != m_ctx->zbxEventMap.rend(); ++rjit, i++) {
-					const ZabbixAPIEvent &data = rjit->second;
-					contents += makeJsonString(data);
-				}
-			} else {
-				ZabbixAPIEventMapReverseIterator rjit(m_ctx->zbxEventMap.lower_bound(m_ctx->paramEvent.eventIdTill));
-				ZabbixAPIEventMapReverseIterator goalIterator(m_ctx->zbxEventMap.lower_bound(m_ctx->paramEvent.eventIdFrom));
-				for (int64_t i = 0; i < m_ctx->paramEvent.limit ||
-						rjit != goalIterator||
-						rjit != m_ctx->zbxEventMap.rend(); ++rjit, i++) {
-					const ZabbixAPIEvent &data = rjit->second;
-					contents += makeJsonString(data);
-				}
-			}
-		}
+		m_ctx->makeEventsJsonDescend(contents);
 	}
 	contents.erase(contents.end() - 1);
 	string sendData = addJsonResponse(contents, arg);
-	length = sendData.size();
+	gsize length = sendData.size();
 	soup_message_body_append(arg.msg->response_body, SOUP_MEMORY_COPY,
 	                         sendData.c_str(), length);
 	soup_message_set_status(arg.msg, SOUP_STATUS_OK);
@@ -642,9 +669,11 @@ void ZabbixAPIEmulator::parseEventGetParameter(APIHandlerArg &arg)
 
 	if (!parser.read("output", m_ctx->paramEvent.output)) {
 		THROW_HATOHOL_EXCEPTION("Not found: output");
-		if (m_ctx->paramEvent.output != "extend" && m_ctx->paramEvent.output != "shorten") {
-			THROW_HATOHOL_EXCEPTION("Invalid parameter: output: %s",
-					m_ctx->paramEvent.output.c_str());
+		if (m_ctx->paramEvent.output != "extend" &&
+		    m_ctx->paramEvent.output != "shorten") {
+			THROW_HATOHOL_EXCEPTION(
+			  "Invalid parameter: output: %s",
+			  m_ctx->paramEvent.output.c_str());
 		}
 	} else {
 		m_ctx->paramEvent.output = "extend";
@@ -652,17 +681,20 @@ void ZabbixAPIEmulator::parseEventGetParameter(APIHandlerArg &arg)
 
 	if (parser.read("sortfield", m_ctx->paramEvent.sortField)) {
 		if (m_ctx->paramEvent.sortField != "eventid") {
-			THROW_HATOHOL_EXCEPTION("Invalid parameter: sortfield: %s",
-					m_ctx->paramEvent.sortField.c_str());
+			THROW_HATOHOL_EXCEPTION(
+			  "Invalid parameter: sortfield: %s",
+			  m_ctx->paramEvent.sortField.c_str());
 		}
 	} else {
 		m_ctx->paramEvent.sortField = "";
 	}
 
 	if (parser.read("sortorder", m_ctx->paramEvent.sortOrder)) {
-		if (m_ctx->paramEvent.sortOrder != "ASC" && m_ctx->paramEvent.sortOrder != "DESC") {
-			THROW_HATOHOL_EXCEPTION("Invalid parameter: sortorder: %s",
-					m_ctx->paramEvent.sortOrder.c_str());
+		if (m_ctx->paramEvent.sortOrder != "ASC" &&
+		    m_ctx->paramEvent.sortOrder != "DESC") {
+			THROW_HATOHOL_EXCEPTION(
+			  "Invalid parameter: sortorder: %s",
+			  m_ctx->paramEvent.sortOrder.c_str());
 		}
 	} else {
 		m_ctx->paramEvent.sortOrder = "ASC";
@@ -672,34 +704,48 @@ void ZabbixAPIEmulator::parseEventGetParameter(APIHandlerArg &arg)
 	if (parser.read("limit", m_ctx->paramEvent.limit)) {
 		sscanf(rawLimit.c_str(), "%"PRIu64, &m_ctx->paramEvent.limit);
 		if (m_ctx->paramEvent.limit < 0)
-			THROW_HATOHOL_EXCEPTION("Invalid parameter: limit: %"PRId64"\n", m_ctx->paramEvent.limit);
+			THROW_HATOHOL_EXCEPTION(
+			  "Invalid parameter: limit: %"PRId64"\n",
+			  m_ctx->paramEvent.limit);
 	} else {
 		m_ctx->paramEvent.limit = 0;
 	}
 
 	string rawEventIdFrom;
 	if(parser.read("eventid_from", rawEventIdFrom)) {
-		sscanf(rawEventIdFrom.c_str(), "%"PRIu64, &m_ctx->paramEvent.eventIdFrom);
+		sscanf(rawEventIdFrom.c_str(), "%"PRIu64,
+		       &m_ctx->paramEvent.eventIdFrom);
 		if (m_ctx->paramEvent.eventIdFrom < 0)
-			THROW_HATOHOL_EXCEPTION("Invalid parameter: eventid_from: %"PRId64"\n", m_ctx->paramEvent.eventIdFrom);
+			THROW_HATOHOL_EXCEPTION(
+			  "Invalid parameter: eventid_from: %"PRId64"\n",
+			  m_ctx->paramEvent.eventIdFrom);
 	} else {
 		m_ctx->paramEvent.eventIdFrom = 0;
 	}
 
 	string rawEventIdTill;
 	if(parser.read("eventid_till", rawEventIdTill)) {
-		sscanf(rawEventIdTill.c_str(), "%"PRIu64, &m_ctx->paramEvent.eventIdTill);
+		sscanf(rawEventIdTill.c_str(), "%"PRIu64,
+		       &m_ctx->paramEvent.eventIdTill);
 		if (m_ctx->paramEvent.eventIdTill < 0)
-			THROW_HATOHOL_EXCEPTION("Invalid parameter: eventid_till: %"PRId64"\n", m_ctx->paramEvent.eventIdTill);
+			THROW_HATOHOL_EXCEPTION(
+			  "Invalid parameter: eventid_till: %"PRId64"\n",
+			  m_ctx->paramEvent.eventIdTill);
 	} else {
 		m_ctx->paramEvent.eventIdFrom = 0;
 	}
 }
 
-string ZabbixAPIEmulator::makeJsonString(const ZabbixAPIEvent &data)
+string ZabbixAPIEmulator::PrivateContext::makeJsonString(
+  const ZabbixAPIEvent &data)
 {
 	const char *fmt =
-	  "{\"eventid\":\"%s\",\"source\":\"%s\",\"object\":\"%s\",\"objectid\":\"%s\",\"clock\":\"%s\",\"value\":\"%s\",\"acknowledged\":\"%s\",\"ns\":\"%s\",\"value_changed\":\"%s\"},";
+	  "{"
+	  "\"eventid\":\"%s\",\"source\":\"%s\",\"object\":\"%s\","
+	  "\"objectid\":\"%s\",\"clock\":\"%s\",\"value\":\"%s\","
+	  "\"acknowledged\":\"%s\",\"ns\":\"%s\","
+	  "\"value_changed\":\"%s\""
+	  "},";
 	return StringUtils::sprintf(
 			fmt,
 			data.eventid.c_str(),

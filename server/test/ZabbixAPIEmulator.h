@@ -94,7 +94,6 @@ protected:
 	std::string addJsonResponse(const std::string &slice,
 	                            APIHandlerArg &arg);
 	void parseEventGetParameter(APIHandlerArg &arg);
-	std::string makeJsonString(const ZabbixAPIEvent &data);
 	void loadTestEventsIfNeeded(APIHandlerArg &arg);
 private:
 	struct PrivateContext;
