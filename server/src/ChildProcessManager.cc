@@ -18,20 +18,20 @@
  */
 
 #include <Logger.h>
-#include "ChildProcessWaiter.h"
+#include "ChildProcessManager.h"
 
 using namespace mlpl;
 
-struct ChildProcessWaiter::PrivateContext {
-	static ChildProcessWaiter *instance;
+struct ChildProcessManager::PrivateContext {
+	static ChildProcessManager *instance;
 };
 
-ChildProcessWaiter *ChildProcessWaiter::PrivateContext::instance = NULL;
+ChildProcessManager *ChildProcessManager::PrivateContext::instance = NULL;
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-gpointer ChildProcessWaiter::mainThread(HatoholThreadArg *arg)
+gpointer ChildProcessManager::mainThread(HatoholThreadArg *arg)
 {
 	MLPL_BUG("Not implemented yet: %s\n", __PRETTY_FUNCTION__);
 	return NULL;
@@ -40,13 +40,13 @@ gpointer ChildProcessWaiter::mainThread(HatoholThreadArg *arg)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-ChildProcessWaiter::ChildProcessWaiter(void)
+ChildProcessManager::ChildProcessManager(void)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 }
 
-ChildProcessWaiter::~ChildProcessWaiter()
+ChildProcessManager::~ChildProcessManager()
 {
 	if (m_ctx)
 		delete m_ctx;

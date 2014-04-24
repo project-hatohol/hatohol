@@ -17,25 +17,25 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ChildProcessWaiter_h
-#define ChildProcessWaiter_h
+#ifndef ChildProcessManager_h
+#define ChildProcessManager_h
 
 #include "HatoholThreadBase.h"
 
-class ChildProcessWaiter : public HatoholThreadBase {
+class ChildProcessManager : public HatoholThreadBase {
 public:
 	virtual gpointer mainThread(HatoholThreadArg *arg); // override
 
 protected:
 	// This class is sigleton. So the construtor should not be public.
-	ChildProcessWaiter(void);
-	virtual ~ChildProcessWaiter(); // override
+	ChildProcessManager(void);
+	virtual ~ChildProcessManager(); // override
 
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
 };
 
-#endif // ChildProcessWaiter_h
+#endif // ChildProcessManager_h
 
 
