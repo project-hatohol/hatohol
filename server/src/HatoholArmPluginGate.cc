@@ -25,6 +25,7 @@
 #include <qpid/messaging/Session.h>
 #include <string>
 #include "HatoholArmPluginGate.h"
+#include "CacheServiceDBClient.h"
 
 using namespace std;
 using namespace qpid::messaging;
@@ -33,9 +34,11 @@ struct HatoholArmPluginGate::PrivateContext
 {
 	MonitoringServerInfo serverInfo; // we have a copy.
 	ArmStatus            armStatus;
+	GPid                 pid;
 
 	PrivateContext(const MonitoringServerInfo &_serverInfo)
-	: serverInfo(_serverInfo)
+	: serverInfo(_serverInfo),
+	  pid(0)
 	{
 	}
 };
@@ -50,10 +53,50 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 	m_ctx = new PrivateContext(serverInfo);
 }
 
-void HatoholArmPluginGate::start(void)
+bool HatoholArmPluginGate::start(const MonitoringSystemType &type)
 {
 	HatoholThreadBase::start();
+	CacheServiceDBClient cache;
+	DBClientConfig *dbConfig = cache.getConfig();
+	ArmPluginInfo armPluginInfo;
+	if (!dbConfig->getArmPluginInfo(armPluginInfo, type)) {
+		MLPL_ERR("Failed to get ArmPluginInfo: type: %d\n", type);
+		return false;
+	}
+	if (armPluginInfo.path.empty()) {
+		MLPL_INFO("Started: passive plugin (%d) %s\n",
+		          armPluginInfo.type, armPluginInfo.path.c_str());
+		return true;
+	}
+
+	// launch a plugin process
+	const gchar *workingDirectory = NULL;
+	const gchar **envp = NULL;
+	const gchar *argv[] = {armPluginInfo.path.c_str(), NULL};
+	const GSpawnChildSetupFunc childSetup = NULL;
+	const gpointer userData = NULL;
+	GError *error = NULL;
+	const GSpawnFlags flags = (GSpawnFlags)(G_SPAWN_DO_NOT_REAP_CHILD);
+	gboolean succeeded =
+	  g_spawn_async(workingDirectory, (gchar **)argv, (gchar **)envp,
+	                flags, childSetup, userData, &m_ctx->pid, &error);
+	if (!succeeded) {
+		string reason = "<Unknown reason>";
+		if (error) {
+			reason = error->message;
+			g_error_free(error);
+		}
+		MLPL_ERR("Failed to start: plugin (%d:%s), %s\n",
+		         armPluginInfo.type, armPluginInfo.path.c_str(),
+		         reason.c_str());
+		return false;
+	}
+
+	// TODO: Setup to detect the terminate of the plugin.
+	MLPL_INFO("Started: plugin (%d) %s\n",
+	          armPluginInfo.type, armPluginInfo.path.c_str());
 	m_ctx->armStatus.setRunningStatus(true);
+	return true;
 }
 
 const ArmStatus &HatoholArmPluginGate::getArmStatus(void) const

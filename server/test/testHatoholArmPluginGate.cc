@@ -19,9 +19,16 @@
 
 #include <cppcutter.h>
 #include "HatoholArmPluginGate.h"
+#include "DBClientTest.h"
 #include "Helpers.h"
+#include "Hatohol.h"
 
 namespace testHatoholArmPluginGate {
+
+void cut_setup(void)
+{
+	hatoholInit();
+}
 
 // ---------------------------------------------------------------------------
 // Test cases
@@ -36,13 +43,16 @@ void test_constructor(void)
 
 void test_startAndWaitExit(void)
 {
+	setupTestDBConfig();
+	loadTestDBArmPlugin();
 	MonitoringServerInfo serverInfo;
 	initServerInfo(serverInfo);
 	HatoholArmPluginGatePtr pluginGate(
 	  new HatoholArmPluginGate(serverInfo), false);
 	const ArmStatus &armStatus = pluginGate->getArmStatus();
 	cppcut_assert_equal(false, armStatus.getArmInfo().running);
-	pluginGate->start();
+	cppcut_assert_equal(
+	  true, pluginGate->start(MONITORING_SYSTEM_HAPI_TEST));
 	cppcut_assert_equal(true, armStatus.getArmInfo().running);
 
 	pluginGate->waitExit();

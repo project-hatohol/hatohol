@@ -24,6 +24,8 @@ using namespace std;
 using namespace mlpl;
 
 static const ServerIdType defunctServerId1 = 0x7fff0001;
+const MonitoringSystemType MONITORING_SYSTEM_HAPI_TEST =
+  static_cast<MonitoringSystemType>(NUM_MONITORING_SYSTEMS + 100);
 
 MonitoringServerInfo testServerInfo[] = 
 {{
@@ -627,6 +629,10 @@ const size_t NumTestUserRoleInfo = sizeof(testUserRoleInfo) / sizeof(UserRoleInf
 
 ArmPluginInfo testArmPluginInfo[] = {
 {
+	MONITORING_SYSTEM_HAPI_TEST,     // type
+	"Test monitoring system",        // name
+	"hapi-test-plugin",              // path
+}, {
 	MONITORING_SYSTEM_HAPI_ZABBIX,   // type
 	"Zabbix API",                    // name
 	"/usr/local/lib/hatohol/hapi/hapi-zabbix-api",       // path

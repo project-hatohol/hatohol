@@ -7,7 +7,7 @@ TESTS = run-test.sh
 TESTS_ENVIRONMENT = NO_MAKE=yes CUTTER="$(CUTTER)"
 
 noinst_LTLIBRARIES = libTest.la testHatohol.la residentTest.la
-noinst_PROGRAMS = ActionTp zabbix-api-response-collector
+noinst_PROGRAMS = ActionTp zabbix-api-response-collector hapi-test-plugin
 endif
 
 # default
