@@ -107,7 +107,8 @@ bool JsonParserAgent::read(const string &member, string &dest)
 	if (!startObject(member))
 		return false;
 
-	dest = json_node_get_string(m_ctx->currentNode);
+	const gchar *str = json_node_get_string(m_ctx->currentNode);
+	dest = str ? str : "";
 	endObject();
 	return true;
 }
@@ -118,7 +119,8 @@ bool JsonParserAgent::read(int index, string &dest)
 	if (!startElement(index))
 		return false;
 
-	dest = json_node_get_string(m_ctx->currentNode);
+	const gchar *str = json_node_get_string(m_ctx->currentNode);
+	dest = str ? str : "";
 	endElement();
 	return true;
 }
