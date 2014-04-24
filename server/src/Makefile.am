@@ -14,6 +14,7 @@ libhatohol_la_SOURCES = \
 	ArmZabbixAPI.cc ArmZabbixAPI.h \
 	ArmCeilometer.cc ArmCeilometer.h \
 	ArmStatus.cc ArmStatus.h \
+	ChildProcessWaiter.cc ChildProcessWaiter.h \
 	Closure.cc Closure.h \
 	CacheServiceDBClient.cc CacheServiceDBClient.h \
 	ConfigManager.cc ConfigManager.h \
