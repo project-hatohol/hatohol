@@ -924,8 +924,7 @@ HatoholError DBClientConfig::saveArmPluginInfo(
 		return HTERR_INVALID_ARM_PLUGIN_NAME;
 	if (armPluginInfo.path.empty())
 		return HTERR_INVALID_ARM_PLUGIN_PATH;
-	if (armPluginInfo.type < MONITORING_SYSTEM_HAPI_ZABBIX ||
-	    armPluginInfo.type >= NUM_MONITORING_SYSTEMS) {
+	if (armPluginInfo.type < MONITORING_SYSTEM_HAPI_ZABBIX) {
 		MLPL_ERR("Invalid type: %d\n", armPluginInfo.type);
 		return HTERR_INVALID_ARM_PLUGIN_TYPE;
 	}
