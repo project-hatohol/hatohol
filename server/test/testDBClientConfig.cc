@@ -685,6 +685,20 @@ void test_getArmPluginInfo(void)
 	}
 }
 
+void test_getArmPluginInfoWithType(void)
+{
+	setupTestDBConfig();
+	loadTestDBArmPlugin();
+	DBClientConfig dbConfig;
+	const ArmPluginInfo &expect = testArmPluginInfo[1];
+	ArmPluginInfo armPluginInfo;
+	cppcut_assert_equal(true, dbConfig.getArmPluginInfo(armPluginInfo,
+	                                                    expect.type));
+	cppcut_assert_equal(expect.type, armPluginInfo.type);
+	cppcut_assert_equal(expect.name, armPluginInfo.name);
+	cppcut_assert_equal(expect.path, armPluginInfo.path);
+}
+
 void test_saveArmPluginInfo(void)
 {
 	setupTestDBConfig();

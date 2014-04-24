@@ -163,6 +163,18 @@ public:
 	void getArmPluginInfo(ArmPluginInfoVect &armPluginVect);
 
 	/**
+	 * Get ArmPluginInfo with the specified type.
+	 *
+	 * @param armPluginInfo The obtained data is filled to this variable.
+	 * @param type A monitoring system type to be obtained.
+	 *
+	 * @return
+	 * true if the ArmPluginInfo is got successfully. Otherwise false.
+	 */
+	bool getArmPluginInfo(ArmPluginInfo &armPluginInfo,
+	                      const MonitoringSystemType &type);
+
+	/**
 	 * Save Arm plugin information.
 	 * If the entry with armPluginInfo.type exists, the record is updated.
 	 * Otherwise the new record is created.
