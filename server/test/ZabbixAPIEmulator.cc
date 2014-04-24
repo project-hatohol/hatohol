@@ -387,6 +387,8 @@ string ZabbixAPIEmulator::getAPIVersionString(APIVersion version)
 		return "1.4";
 	case ZabbixAPIEmulator::API_VERSION_2_2_0:
 		return "2.2.0";
+	case ZabbixAPIEmulator::API_VERSION_2_3_0:
+		return "2.3.0";
 	case ZabbixAPIEmulator::API_VERSION_2_0_4:
 	default:
 		return "2.0.4";
@@ -423,10 +425,16 @@ void ZabbixAPIEmulator::APIHandlerUserLogin(APIHandlerArg &arg)
 void ZabbixAPIEmulator::APIHandlerTriggerGet(APIHandlerArg &arg)
 {
 	const char *dataFileName;
-	if (hasParameter(arg, "selectHosts", "refer"))
-		dataFileName = "zabbix-api-res-triggers-003-hosts.json";
-	else
-		dataFileName = "zabbix-api-res-triggers-001.json";
+	if (m_ctx->apiVersion < API_VERSION_2_3_0) {
+		if (hasParameter(arg, "selectHosts", "refer")) {
+			dataFileName = "zabbix-api-res-triggers-003-hosts.json";
+		} else {
+			// current implementation doesn't have this case
+			dataFileName = "zabbix-api-res-triggers-001.json";
+		}
+	} else {
+		dataFileName = "zabbix-api-2_3_0-res-triggers.json";
+	}
 	APIHandlerGetWithFile(arg, dataFileName);
 }
 
@@ -453,13 +461,16 @@ void ZabbixAPIEmulator::APIHandlerItemGet(APIHandlerArg &arg)
 	// make response
 	const char *dataFileName;
 	if (m_ctx->apiVersion < API_VERSION_2_2_0) {
-		if (selectApplications)
+		if (selectApplications) {
 			dataFileName = "zabbix-api-res-items-003.json";
-		else
+		} else {
+			// current implementation doesn't have this case
 			dataFileName = "zabbix-api-res-items-001.json";
-	} else {
-		// !selectApplications case isn't prepared yet.
+		}
+	} else if (m_ctx->apiVersion < API_VERSION_2_3_0) {
 		dataFileName = "zabbix-api-2_2_0-res-items.json";
+	} else {
+		dataFileName = "zabbix-api-2_3_0-res-items.json";
 	}
 	string path = getFixturesDir() + dataFileName;
 	gchar *contents;

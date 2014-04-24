@@ -648,6 +648,12 @@ void test_getTriggers(void)
 	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_TRIGGERS);
 }
 
+void test_getTriggers_2_3_0(void)
+{
+	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_TRIGGERS,
+		      ZabbixAPIEmulator::API_VERSION_2_3_0);
+}
+
 void test_getFunctions(void)
 {
 	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_FUNCTIONS);
@@ -662,6 +668,12 @@ void test_getItems_2_2_0(void)
 {
 	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_ITEMS,
 		      ZabbixAPIEmulator::API_VERSION_2_2_0);
+}
+
+void test_getItems_2_3_0(void)
+{
+	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_ITEMS,
+		      ZabbixAPIEmulator::API_VERSION_2_3_0);
 }
 
 void test_getHosts(void)
