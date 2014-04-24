@@ -699,6 +699,18 @@ void test_getArmPluginInfoWithType(void)
 	cppcut_assert_equal(expect.path, armPluginInfo.path);
 }
 
+void test_getArmPluginInfoWithTypeFail(void)
+{
+	setupTestDBConfig();
+	loadTestDBArmPlugin();
+	DBClientConfig dbConfig;
+	ArmPluginInfo armPluginInfo;
+	MonitoringSystemType invalidType =
+	  static_cast<MonitoringSystemType>(NUM_MONITORING_SYSTEMS + 3);
+	cppcut_assert_equal(
+	  false, dbConfig.getArmPluginInfo(armPluginInfo, invalidType));
+}
+
 void test_saveArmPluginInfo(void)
 {
 	setupTestDBConfig();
