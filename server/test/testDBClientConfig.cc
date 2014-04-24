@@ -770,7 +770,7 @@ void test_saveArmPluginInfoUpdate(void)
 	assertHatoholError(HTERR_OK, dbConfig.saveArmPluginInfo(armPluginInfo));
 
 	// check
-	const string statement = "SELECT * FROM arm_plugins";
+	const string statement = "SELECT * FROM arm_plugins ORDER BY type ASC";
 	string expect;
 	for (size_t i = 0; i < NumTestArmPluginInfo; i++) {
 		if (i == targetIdx)
