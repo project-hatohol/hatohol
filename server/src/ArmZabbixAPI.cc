@@ -770,7 +770,14 @@ void ArmZabbixAPI::parseAndPushTriggerData
 	pushString(parser, grp, "error",       ITEM_ID_ZBX_TRIGGERS_ERROR);
 	pushUint64(parser, grp, "templateid",  ITEM_ID_ZBX_TRIGGERS_TEMPLATEID);
 	pushInt   (parser, grp, "type",        ITEM_ID_ZBX_TRIGGERS_TYPE);
-	pushInt   (parser, grp, "value_flags", ITEM_ID_ZBX_TRIGGERS_VALUE_FLAGS);
+	if (checkAPIVersion(2, 3, 0)) {
+		// Zabbix 2.4 doesn't have "value_falgs" property
+		grp->add(new ItemInt(ITEM_ID_ZBX_TRIGGERS_VALUE_FLAGS, 0),
+			 false);
+	} else {
+		pushInt(parser, grp, "value_flags",
+			ITEM_ID_ZBX_TRIGGERS_VALUE_FLAGS);
+	}
 	pushInt   (parser, grp, "flags",       ITEM_ID_ZBX_TRIGGERS_FLAGS);
 
 	// get hostid
@@ -896,7 +903,13 @@ void ArmZabbixAPI::parseAndPushItemsData
 	pushInt   (parser, grp, "mtime",       ITEM_ID_ZBX_ITEMS_MTIME);
 	pushInt   (parser, grp, "lastns",      ITEM_ID_ZBX_ITEMS_LASTNS);
 	pushInt   (parser, grp, "flags",       ITEM_ID_ZBX_ITEMS_FLAGS);
-	pushString(parser, grp, "filter",      ITEM_ID_ZBX_ITEMS_FILTER);
+	if (checkAPIVersion(2, 3, 0)) {
+		// Zabbix 2.4 doesn't have "filter" property
+		grp->add(new ItemString(ITEM_ID_ZBX_ITEMS_FILTER, ""),
+			 false);
+	} else {
+		pushString(parser, grp, "filter", ITEM_ID_ZBX_ITEMS_FILTER);
+	}
 	pushUint64(parser, grp, "interfaceid", ITEM_ID_ZBX_ITEMS_INTERFACEID);
 	pushString(parser, grp, "port",        ITEM_ID_ZBX_ITEMS_PORT);
 	pushString(parser, grp, "description", ITEM_ID_ZBX_ITEMS_DESCRIPTION);
