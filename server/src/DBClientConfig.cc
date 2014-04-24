@@ -911,8 +911,7 @@ bool DBClientConfig::getArmPluginInfo(ArmPluginInfo &armPluginInfo,
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	if (grpList.empty())
 		return false;
-	ItemGroupListConstIterator itemGrpItr = grpList.begin();
-	ItemGroupStream itemGroupStream(*itemGrpItr);
+	ItemGroupStream itemGroupStream(*grpList.begin());
 	readArmPluginStream(itemGroupStream, armPluginInfo);
 	return true;
 }
