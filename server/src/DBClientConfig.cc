@@ -884,13 +884,7 @@ void DBClientConfig::getServerIdSet(ServerIdSet &serverIdSet,
 void DBClientConfig::getArmPluginInfo(ArmPluginInfoVect &armPluginVect)
 {
 	DBAgent::SelectExArg arg(tableProfileArmPlugins);
-	arg.add(IDX_ARM_PLUGINS_TYPE);
-	arg.add(IDX_ARM_PLUGINS_NAME);
-	arg.add(IDX_ARM_PLUGINS_PATH);
-
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	selectArmPluginInfo(arg);
 
 	// check the result and copy
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
@@ -899,9 +893,7 @@ void DBClientConfig::getArmPluginInfo(ArmPluginInfoVect &armPluginVect)
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
 		ItemGroupStream itemGroupStream(*itemGrpItr);
 		ArmPluginInfo armPluginInfo;
-		itemGroupStream >> armPluginInfo.type;
-		itemGroupStream >> armPluginInfo.name;
-		itemGroupStream >> armPluginInfo.path;
+		readArmPluginStream(itemGroupStream, armPluginInfo);
 		armPluginVect.push_back(armPluginInfo);
 	}
 }
@@ -909,18 +901,11 @@ void DBClientConfig::getArmPluginInfo(ArmPluginInfoVect &armPluginVect)
 bool DBClientConfig::getArmPluginInfo(ArmPluginInfo &armPluginInfo,
                                       const MonitoringSystemType &type)
 {
-	// TODO: Should share code with getArmPluginInof(ArmPluginInfOvect&)
 	DBAgent::SelectExArg arg(tableProfileArmPlugins);
-	arg.add(IDX_ARM_PLUGINS_TYPE);
-	arg.add(IDX_ARM_PLUGINS_NAME);
-	arg.add(IDX_ARM_PLUGINS_PATH);
 	arg.condition = StringUtils::sprintf(
 	  "%s=%d",
 	  COLUMN_DEF_ARM_PLUGINS[IDX_ARM_PLUGINS_TYPE].columnName, type);
-
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	selectArmPluginInfo(arg);
 
 	// check the result and copy
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
@@ -928,9 +913,7 @@ bool DBClientConfig::getArmPluginInfo(ArmPluginInfo &armPluginInfo,
 		return false;
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	ItemGroupStream itemGroupStream(*itemGrpItr);
-	itemGroupStream >> armPluginInfo.type;
-	itemGroupStream >> armPluginInfo.name;
-	itemGroupStream >> armPluginInfo.path;
+	readArmPluginStream(itemGroupStream, armPluginInfo);
 	return true;
 }
 
@@ -1071,3 +1054,21 @@ bool DBClientConfig::canDeleteTargetServer(
 	return dbUser->isAccessible(serverId, privilege);
 }
 
+void DBClientConfig::selectArmPluginInfo(DBAgent::SelectExArg &arg)
+{
+	arg.add(IDX_ARM_PLUGINS_TYPE);
+	arg.add(IDX_ARM_PLUGINS_NAME);
+	arg.add(IDX_ARM_PLUGINS_PATH);
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+}
+
+void DBClientConfig::readArmPluginStream(
+  ItemGroupStream &itemGroupStream, ArmPluginInfo &armPluginInfo)
+{
+	itemGroupStream >> armPluginInfo.type;
+	itemGroupStream >> armPluginInfo.name;
+	itemGroupStream >> armPluginInfo.path;
+}
