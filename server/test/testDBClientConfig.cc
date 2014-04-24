@@ -685,6 +685,32 @@ void test_getArmPluginInfo(void)
 	}
 }
 
+void test_getArmPluginInfoWithType(void)
+{
+	setupTestDBConfig();
+	loadTestDBArmPlugin();
+	DBClientConfig dbConfig;
+	const ArmPluginInfo &expect = testArmPluginInfo[1];
+	ArmPluginInfo armPluginInfo;
+	cppcut_assert_equal(true, dbConfig.getArmPluginInfo(armPluginInfo,
+	                                                    expect.type));
+	cppcut_assert_equal(expect.type, armPluginInfo.type);
+	cppcut_assert_equal(expect.name, armPluginInfo.name);
+	cppcut_assert_equal(expect.path, armPluginInfo.path);
+}
+
+void test_getArmPluginInfoWithTypeFail(void)
+{
+	setupTestDBConfig();
+	loadTestDBArmPlugin();
+	DBClientConfig dbConfig;
+	ArmPluginInfo armPluginInfo;
+	MonitoringSystemType invalidType =
+	  static_cast<MonitoringSystemType>(NUM_MONITORING_SYSTEMS + 3);
+	cppcut_assert_equal(
+	  false, dbConfig.getArmPluginInfo(armPluginInfo, invalidType));
+}
+
 void test_saveArmPluginInfo(void)
 {
 	setupTestDBConfig();

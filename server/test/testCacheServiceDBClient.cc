@@ -217,4 +217,16 @@ void test_getUser(void)
 	assertType(DBClientUser, cache.getUser());
 }
 
+#if 0
+// The following statement makes a build fail. The behavior is correct,
+// because the new operator is defined as a private to avoid it from being
+// used. To check the effect, replace the above '#if 0' with '#if 1'.
+// Or should we do a test that tries to compile the following function and
+// expects a failure ?
+void test_new(void)
+{
+	CacheServiceDBClient *cache = new CacheServiceDBClient();
+}
+#endif
+
 } // namespace testCacheServiceDBClient

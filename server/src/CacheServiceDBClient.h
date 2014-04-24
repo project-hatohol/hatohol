@@ -42,6 +42,13 @@ public:
 	DBClientConfig  *getConfig(void);
 
 private:
+	/**
+	 * An instance of this class is designed to be defined
+	 * only as a stack variable. The following as a private makes it
+	 * impossible to allocate an instance with a 'new' operator.
+	 */
+	static void *operator new(size_t) {return NULL;}
+
 	struct PrivateContext;
 
 	template <class T> T *get(DBDomainId domainId);
