@@ -29,7 +29,22 @@
 class ChildProcessManager : public HatoholThreadBase {
 public:
 	struct EventCallback {
+		/**
+		 * If this flag is true, this instance is automatically deleted
+		 * when it is no longer needed. (it is typically after a call
+		 * of onCollected())
+		 *
+		 * For example, you should set it to false when the instance
+		 * is created on a stack to avoid a double free.
+		 *
+		 * This value is set to true in the constructor.
+		 */
+		bool autoDelete;
+
 		virtual void onCollected(const siginfo_t *siginfo) {}
+
+		EventCallback(void);
+		virtual ~EventCallback();
 	};
 
 	struct CreateArg {

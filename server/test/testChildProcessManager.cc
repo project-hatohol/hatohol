@@ -67,6 +67,7 @@ void test_collectedCb(void)
 			mainLoop.quit();
 		}
 	} ctx;
+	ctx.autoDelete = false;
 
 	ChildProcessManager::CreateArg arg;
 	arg.eventCb = &ctx;

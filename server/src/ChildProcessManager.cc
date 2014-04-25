@@ -37,6 +37,12 @@ struct ChildInfo {
 	  eventCb(NULL)
 	{
 	}
+
+	virtual ~ChildInfo()
+	{
+		if (eventCb && eventCb->autoDelete)
+			delete eventCb;
+	}
 };
 
 typedef map<pid_t, ChildInfo *>  ChildMap;
@@ -96,6 +102,18 @@ struct ChildProcessManager::PrivateContext {
 
 ChildProcessManager *ChildProcessManager::PrivateContext::instance = NULL;
 ReadWriteLock        ChildProcessManager::PrivateContext::instanceLock;
+
+// ---------------------------------------------------------------------------
+// EventCallback
+// ---------------------------------------------------------------------------
+ChildProcessManager::EventCallback::EventCallback(void)
+: autoDelete(true)
+{
+}
+
+ChildProcessManager::EventCallback::~EventCallback()
+{
+}
 
 // ---------------------------------------------------------------------------
 // CreateArg
