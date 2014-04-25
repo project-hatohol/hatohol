@@ -20,10 +20,38 @@
 #ifndef ChildProcessManager_h
 #define ChildProcessManager_h
 
+#include <string>
 #include "HatoholThreadBase.h"
+#include "HatoholError.h"
 
 class ChildProcessManager : public HatoholThreadBase {
 public:
+	struct CreateArg {
+		mlpl::StringVector args;
+		std::string workingDirectory;
+		GSpawnFlags flags;
+
+		// Output paramters
+		pid_t       pid;
+		
+		// Methods
+		CreateArg(void);
+	};
+
+	/**
+	 * Get the instance.
+	 * Note: This class should be used as singleton.
+	 */
+	static ChildProcessManager *getInstance(void);
+
+	/**
+	 * Create a child process.
+	 *
+	 * @param arg Information about the child to be created.
+	 * @return HatoholError instance.
+	 */
+	HatoholError create(CreateArg &arg);
+
 	virtual gpointer mainThread(HatoholThreadArg *arg); // override
 
 protected:

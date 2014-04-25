@@ -66,6 +66,10 @@ enum HatoholErrorCode
 	// DBClientAction
 	HTERR_DELETE_INCOMPLETE,
 
+	// ChildProcessManager
+	HTERR_INVALID_ARGS,
+	HTERR_FAILED_TO_SPAWN,
+
 	// FaceRest
 	HTERR_UNSUPPORTED_FORMAT,
 	HTERR_NOT_FOUND_SESSION_ID,
