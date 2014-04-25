@@ -28,10 +28,15 @@
 
 class ChildProcessManager : public HatoholThreadBase {
 public:
+	struct EventCallback {
+		virtual void onCollected(const siginfo_t *siginfo) {}
+	};
+
 	struct CreateArg {
 		mlpl::StringVector args;
 		std::string workingDirectory;
 		GSpawnFlags flags;
+		EventCallback *eventCb;
 
 		// Output paramters
 		pid_t       pid;

@@ -24,6 +24,21 @@
 
 namespace testChildProcessManager {
 
+static gboolean failureDueToTimedOut(gpointer data)
+{
+	cut_fail("Timed out");
+	return G_SOURCE_REMOVE;
+}
+
+static void _assertCreate(ChildProcessManager::CreateArg &arg)
+{
+	arg.args.push_back("/bin/cat");
+	assertHatoholError(HTERR_OK,
+	                   ChildProcessManager::getInstance()->create(arg));
+	cppcut_assert_not_equal(0, arg.pid);
+}
+#define assertCreate(A) cut_trace(_assertCreate(A))
+
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
@@ -45,10 +60,44 @@ void test_createWithInvalidPath(void)
 void test_create(void)
 {
 	ChildProcessManager::CreateArg arg;
-	arg.args.push_back("/bin/cat");
-	assertHatoholError(HTERR_OK,
-	                   ChildProcessManager::getInstance()->create(arg));
-	cppcut_assert_not_equal(0, arg.pid);
+	assertCreate(arg);
+}
+
+void test_collectedCb(void)
+{
+	static const size_t timeout = 5000; // ms
+	struct Ctx : public ChildProcessManager::EventCallback {
+		guint tag;
+		GMainLoop *loop;
+
+		Ctx(void)
+		: tag(0),
+		  loop(NULL)
+		{
+		}
+
+
+		virtual ~Ctx()
+		{
+			if (loop)
+				g_main_loop_unref(loop);
+			if (tag)
+				g_source_remove(tag);
+		}
+
+		virtual void onCollected(const siginfo_t *siginfo) // override
+		{
+			g_main_loop_quit(loop);
+		}
+	} ctx;
+
+	ChildProcessManager::CreateArg arg;
+	arg.eventCb = &ctx;
+	assertCreate(arg);
+	cppcut_assert_equal(0, kill(arg.pid, SIGKILL));
+	ctx.tag = g_timeout_add(timeout, failureDueToTimedOut, NULL);
+	ctx.loop = g_main_loop_new(NULL, TRUE);
+	g_main_loop_run(ctx.loop);
 }
 
 } // namespace testChildProcessManager

@@ -30,9 +30,16 @@ using namespace mlpl;
 
 struct ChildInfo {
 	pid_t pid;
+	ChildProcessManager::EventCallback *eventCb;
+
+	ChildInfo(void)
+	: pid(0),
+	  eventCb(NULL)
+	{
+	}
 };
 
-typedef map<pid_t, ChildInfo>    ChildMap;
+typedef map<pid_t, ChildInfo *>  ChildMap;
 typedef ChildMap::iterator       ChildMapIterator;
 typedef ChildMap::const_iterator ChildMapConstIterator;
 
@@ -68,6 +75,7 @@ struct ChildProcessManager::PrivateContext {
 		while (!childrenMap.empty()) {
 			ChildMapIterator childInfoItr = childrenMap.begin();
 			const pid_t pid = childInfoItr->first;
+			ChildInfo *childInfo = childInfoItr->second;
 			childrenMap.erase(childInfoItr);
 			int ret = kill(pid, SIGKILL);
 			if (ret == -1 && errno == ESRCH) {
@@ -76,7 +84,8 @@ struct ChildProcessManager::PrivateContext {
 			}
 			HATOHOL_ASSERT(
 			  ret == 0, "Failed to send kill (%d): %d\n",
-			            pid, errno);
+			  pid, errno);
+			delete childInfo;
 		}
 		resetRequest = false;
 		HATOHOL_ASSERT(sem_init(&waitChildSem, 0, 0) == 0,
@@ -93,6 +102,7 @@ ReadWriteLock        ChildProcessManager::PrivateContext::instanceLock;
 // ---------------------------------------------------------------------------
 ChildProcessManager::CreateArg::CreateArg(void)
 : flags((GSpawnFlags)G_SPAWN_DO_NOT_REAP_CHILD),
+  eventCb(NULL),
   pid(0)
 {
 }
@@ -164,18 +174,23 @@ HatoholError ChildProcessManager::create(CreateArg &arg)
 		return HatoholError(HTERR_FAILED_TO_SPAWN, reason);
 	}
 
-	ChildInfo childInfo;
-	childInfo.pid = arg.pid;
+	ChildInfo *childInfo = new ChildInfo();
+	childInfo->pid = arg.pid;
+	childInfo->eventCb = arg.eventCb;
 
 	pair<ChildMapIterator, bool> result =
-	  m_ctx->childrenMap.insert(pair<pid_t, ChildInfo>(arg.pid, childInfo));
+	  m_ctx->childrenMap.insert(pair<
+	    pid_t, ChildInfo *>(arg.pid, childInfo));
 	m_ctx->childrenMapLock.unlock();
 	if (!result.second) {
 		// TODO: Recovery
 		HATOHOL_ASSERT(true,
 		  "The previous data might still remain: %d\n", arg.pid);
 	}
-	sem_post(&m_ctx->waitChildSem);
+	if (sem_post(&m_ctx->waitChildSem) == -1) {
+		HATOHOL_ASSERT(true,
+		  "Failed to post semaphore: %d\n", errno);
+	}
 
 	return HTERR_OK;
 }
@@ -230,5 +245,22 @@ gpointer ChildProcessManager::mainThread(HatoholThreadArg *arg)
 
 void ChildProcessManager::collected(const siginfo_t *siginfo)
 {
-	MLPL_BUG("Not implemented yet: %s\n", __PRETTY_FUNCTION__);
+	ChildInfo *childInfo = NULL;
+
+	m_ctx->childrenMapLock.writeLock();
+	ChildMapIterator it = m_ctx->childrenMap.find(siginfo->si_pid);
+	if (it != m_ctx->childrenMap.end()) {
+		childInfo = it->second;
+		m_ctx->childrenMap.erase(it);
+	}
+	m_ctx->childrenMapLock.unlock();
+
+	if (!childInfo) {
+		MLPL_INFO("Collected unwatched child: %d\n", siginfo->si_pid);
+		return;
+	}
+
+	if (childInfo->eventCb)
+		childInfo->eventCb->onCollected(siginfo);
+	delete childInfo;
 }
