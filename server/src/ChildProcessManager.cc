@@ -180,6 +180,8 @@ HatoholError ChildProcessManager::create(CreateArg &arg)
 	gboolean succeeded =
 	  g_spawn_async(workingDir, (gchar **)argv, (gchar **)envp,
 	                arg.flags, childSetup, userData, &arg.pid, &error);
+	if (arg.eventCb)
+		arg.eventCb->onExecuted(succeeded);
 	if (!succeeded) {
 		m_ctx->childrenMapLock.unlock();
 		string reason = "<Unknown reason>";

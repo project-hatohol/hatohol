@@ -41,6 +41,18 @@ public:
 		 */
 		bool autoDelete;
 
+		/*
+		 * Called soon after an execution of a child process is done
+		 * in ChildProcessManager::create().
+		 * This callback is called in the critical section. So other
+		 * callbacks such as onCollected() are never running at the
+		 * same time.
+		 *
+		 * @param succeeded
+		 * true if an exection has succeeded. Otherwise false.
+		 */
+		virtual void onExecuted(const bool &succeeded){}
+
 		virtual void onCollected(const siginfo_t *siginfo) {}
 
 		EventCallback(void);

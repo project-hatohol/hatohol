@@ -33,6 +33,11 @@ static void _assertCreate(ChildProcessManager::CreateArg &arg)
 }
 #define assertCreate(A) cut_trace(_assertCreate(A))
 
+void cut_teardown(void)
+{
+	ChildProcessManager::getInstance()->reset();
+}
+
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
@@ -55,6 +60,33 @@ void test_create(void)
 {
 	ChildProcessManager::CreateArg arg;
 	assertCreate(arg);
+}
+
+void test_executedCb(void)
+{
+	struct Ctx : public ChildProcessManager::EventCallback {
+		bool called;
+		bool succeeded;
+
+		Ctx(void)
+		: called(false),
+		  succeeded(false)
+		{
+		}
+
+		virtual void onExecuted(const bool &_succeeded) // override
+		{
+			called = true;
+			succeeded = _succeeded;
+		}
+	};
+
+	ChildProcessManager::CreateArg arg;
+	Ctx *ctx = new Ctx();
+	arg.eventCb = ctx;
+	assertCreate(arg);
+	cppcut_assert_equal(true, ctx->called);
+	cppcut_assert_equal(true, ctx->succeeded);
 }
 
 void test_collectedCb(void)
