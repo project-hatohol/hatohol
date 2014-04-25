@@ -34,4 +34,12 @@ void test_createWithEmptyParameter(void)
 	                   ChildProcessManager::getInstance()->create(arg));
 }
 
+void test_createWithInvalidPath(void)
+{
+	ChildProcessManager::CreateArg arg;
+	arg.args.push_back("non-exisiting-command");
+	assertHatoholError(HTERR_FAILED_TO_SPAWN,
+	                   ChildProcessManager::getInstance()->create(arg));
+}
+
 } // namespace testChildProcessManager
