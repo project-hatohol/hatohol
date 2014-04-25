@@ -125,7 +125,8 @@ HatoholError ChildProcessManager::create(CreateArg &arg)
 	m_ctx->childrenMapLock.unlock();
 	if (!result.second) {
 		// TODO: Recovery
-		MLPL_BUG("Not implemented yet: %s\n", __PRETTY_FUNCTION__);
+		HATOHOL_ASSERT(true,
+		  "The previous data might still remain: %d\n", arg.pid);
 	}
 
 	return HTERR_OK;
