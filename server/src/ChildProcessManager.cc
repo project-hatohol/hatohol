@@ -87,6 +87,8 @@ ChildProcessManager *ChildProcessManager::getInstance(void)
 
 HatoholError ChildProcessManager::create(CreateArg &arg)
 {
+	const gchar *workingDir =
+	  arg.workingDirectory.empty() ? NULL : arg.workingDirectory.c_str();
 	const gchar **envp = NULL;
 	const GSpawnChildSetupFunc childSetup = NULL;
 	const gpointer userData = NULL;
@@ -101,8 +103,7 @@ HatoholError ChildProcessManager::create(CreateArg &arg)
 	argv[numArgs] = NULL;
 
 	gboolean succeeded =
-	  g_spawn_async(arg.workingDirectory.c_str(),
-	                (gchar **)argv, (gchar **)envp,
+	  g_spawn_async(workingDir, (gchar **)argv, (gchar **)envp,
 	                arg.flags, childSetup, userData, &arg.pid, &error);
 	if (!succeeded) {
 		string reason = "<Unknown reason>";
