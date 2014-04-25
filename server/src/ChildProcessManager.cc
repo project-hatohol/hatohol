@@ -132,12 +132,6 @@ HatoholError ChildProcessManager::create(CreateArg &arg)
 	return HTERR_OK;
 }
 
-gpointer ChildProcessManager::mainThread(HatoholThreadArg *arg)
-{
-	MLPL_BUG("Not implemented yet: %s\n", __PRETTY_FUNCTION__);
-	return NULL;
-}
-
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -152,3 +146,10 @@ ChildProcessManager::~ChildProcessManager()
 	if (m_ctx)
 		delete m_ctx;
 }
+
+gpointer ChildProcessManager::mainThread(HatoholThreadArg *arg)
+{
+	MLPL_BUG("Not implemented yet: %s\n", __PRETTY_FUNCTION__);
+	return NULL;
+}
+

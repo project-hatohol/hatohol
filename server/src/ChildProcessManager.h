@@ -52,12 +52,11 @@ public:
 	 */
 	HatoholError create(CreateArg &arg);
 
-	virtual gpointer mainThread(HatoholThreadArg *arg); // override
-
 protected:
 	// This class is sigleton. So the construtor should not be public.
 	ChildProcessManager(void);
 	virtual ~ChildProcessManager(); // override
+	virtual gpointer mainThread(HatoholThreadArg *arg); // override
 
 private:
 	struct PrivateContext;
