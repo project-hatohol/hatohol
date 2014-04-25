@@ -21,6 +21,7 @@
 #include <semaphore.h>
 #include <errno.h>
 #include <Logger.h>
+#include <AtomicValue.h>
 #include "ChildProcessManager.h"
 #include "HatoholException.h"
 
@@ -39,12 +40,18 @@ struct ChildProcessManager::PrivateContext {
 	static ChildProcessManager *instance;
 	static ReadWriteLock        instanceLock;
 
+	AtomicValue<bool> resetRequest;
+	sem_t             resetSem;
+
 	sem_t         waitChildSem;
 	ReadWriteLock childrenMapLock;
 	ChildMap      childrenMap;
 
 	PrivateContext(void)
+	: resetRequest(false)
 	{
+		HATOHOL_ASSERT(sem_init(&resetSem, 0, 0) == 0,
+		               "Failed to call sem_init(): %d\n", errno);
 		HATOHOL_ASSERT(sem_init(&waitChildSem, 0, 0) == 0,
 		               "Failed to call sem_init(): %d\n", errno);
 	}
@@ -52,6 +59,29 @@ struct ChildProcessManager::PrivateContext {
 	virtual ~PrivateContext(void)
 	{
 		// TODO: wait all children
+	}
+
+	void resetOnCollectThread(void)
+	{
+		// We assume this function is called only from a test.
+		// So we don't use childrenMapLock.
+		while (!childrenMap.empty()) {
+			ChildMapIterator childInfoItr = childrenMap.begin();
+			const pid_t pid = childInfoItr->first;
+			childrenMap.erase(childInfoItr);
+			int ret = kill(pid, SIGKILL);
+			if (ret == -1 && errno == ESRCH) {
+				MLPL_INFO("No process w/ pid: %d\n", pid);
+				continue;
+			}
+			HATOHOL_ASSERT(
+			  ret == 0, "Failed to send kill (%d): %d\n",
+			            pid, errno);
+		}
+		resetRequest = false;
+		HATOHOL_ASSERT(sem_init(&waitChildSem, 0, 0) == 0,
+		               "Failed to call sem_init(): %d\n", errno);
+		sem_post(&resetSem);
 	}
 };
 
@@ -79,10 +109,26 @@ ChildProcessManager *ChildProcessManager::getInstance(void)
 		return PrivateContext::instance;
 
 	PrivateContext::instanceLock.writeLock();
-	if (!PrivateContext::instance)
+	if (!PrivateContext::instance) {
 		PrivateContext::instance = new ChildProcessManager();
+		PrivateContext::instance->start();
+	}
 	PrivateContext::instanceLock.unlock();
 	return PrivateContext::instance;
+}
+
+void ChildProcessManager::reset(void)
+{
+	m_ctx->resetRequest = true;
+	int ret = sem_post(&m_ctx->waitChildSem);
+	HATOHOL_ASSERT(ret == 0, "sem_post() failed: %d", errno);
+	while (true) {
+		if (sem_wait(&m_ctx->resetSem) == -1) {
+			if (errno == EINTR)
+				continue;
+		}
+		break;
+	}
 }
 
 HatoholError ChildProcessManager::create(CreateArg &arg)
@@ -102,10 +148,12 @@ HatoholError ChildProcessManager::create(CreateArg &arg)
 		argv[i] = arg.args[i].c_str();
 	argv[numArgs] = NULL;
 
+	m_ctx->childrenMapLock.writeLock();
 	gboolean succeeded =
 	  g_spawn_async(workingDir, (gchar **)argv, (gchar **)envp,
 	                arg.flags, childSetup, userData, &arg.pid, &error);
 	if (!succeeded) {
+		m_ctx->childrenMapLock.unlock();
 		string reason = "<Unknown reason>";
 		if (error) {
 			reason = error->message;
@@ -119,7 +167,6 @@ HatoholError ChildProcessManager::create(CreateArg &arg)
 	ChildInfo childInfo;
 	childInfo.pid = arg.pid;
 
-	m_ctx->childrenMapLock.writeLock();
 	pair<ChildMapIterator, bool> result =
 	  m_ctx->childrenMap.insert(pair<pid_t, ChildInfo>(arg.pid, childInfo));
 	m_ctx->childrenMapLock.unlock();
@@ -128,6 +175,7 @@ HatoholError ChildProcessManager::create(CreateArg &arg)
 		HATOHOL_ASSERT(true,
 		  "The previous data might still remain: %d\n", arg.pid);
 	}
+	sem_post(&m_ctx->waitChildSem);
 
 	return HTERR_OK;
 }
@@ -150,6 +198,37 @@ ChildProcessManager::~ChildProcessManager()
 gpointer ChildProcessManager::mainThread(HatoholThreadArg *arg)
 {
 	MLPL_BUG("Not implemented yet: %s\n", __PRETTY_FUNCTION__);
+	while (true) {
+		int ret = sem_wait(&m_ctx->waitChildSem);
+		if (ret == -1) {
+			if (errno == EINTR)
+				continue;
+			HATOHOL_ASSERT(
+			  true, "Failed to sem_wait(): %d\n", errno);
+		}
+		
+		if (m_ctx->resetRequest) {
+			m_ctx->resetOnCollectThread();
+			continue;
+		}
+
+		siginfo_t siginfo;
+		while (true) {
+			ret = waitid(P_ALL, 0, &siginfo, WEXITED);
+			if (ret == -1 && errno == EINTR)
+				continue;
+			break;
+		}
+		if (ret == -1) {
+			MLPL_ERR("Failed to call wait_id: %d\n", errno);
+			continue;
+		}
+		collected(&siginfo);
+	}
 	return NULL;
 }
 
+void ChildProcessManager::collected(const siginfo_t *siginfo)
+{
+	MLPL_BUG("Not implemented yet: %s\n", __PRETTY_FUNCTION__);
+}

@@ -21,6 +21,8 @@
 #define ChildProcessManager_h
 
 #include <string>
+#include <sys/types.h> 
+#include <sys/wait.h>
 #include "HatoholThreadBase.h"
 #include "HatoholError.h"
 
@@ -44,6 +46,8 @@ public:
 	 */
 	static ChildProcessManager *getInstance(void);
 
+	void reset(void);
+
 	/**
 	 * Create a child process.
 	 *
@@ -57,6 +61,8 @@ protected:
 	ChildProcessManager(void);
 	virtual ~ChildProcessManager(); // override
 	virtual gpointer mainThread(HatoholThreadArg *arg); // override
+
+	void collected(const siginfo_t *siginfo);
 
 private:
 	struct PrivateContext;
