@@ -42,4 +42,13 @@ void test_createWithInvalidPath(void)
 	                   ChildProcessManager::getInstance()->create(arg));
 }
 
+void test_create(void)
+{
+	ChildProcessManager::CreateArg arg;
+	arg.args.push_back("/bin/cat");
+	assertHatoholError(HTERR_OK,
+	                   ChildProcessManager::getInstance()->create(arg));
+	cppcut_assert_not_equal(0, arg.pid);
+}
+
 } // namespace testChildProcessManager
