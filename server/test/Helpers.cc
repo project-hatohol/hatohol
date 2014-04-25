@@ -1089,6 +1089,7 @@ GMainLoopWithTimeout::GMainLoopWithTimeout(void)
 : m_timerTag(0),
   m_loop(NULL)
 {
+	m_loop = g_main_loop_new(NULL, TRUE);
 }
 
 GMainLoopWithTimeout::~GMainLoopWithTimeout()
@@ -1103,13 +1104,11 @@ void GMainLoopWithTimeout::run(void)
 {
 	static const size_t timeout = 5000; // ms
 	m_timerTag = g_timeout_add(timeout, failureDueToTimedOut, NULL);
-	m_loop = g_main_loop_new(NULL, TRUE);
 	g_main_loop_run(m_loop);
 }
 
 void GMainLoopWithTimeout::quit(void)
 {
-	HATOHOL_ASSERT(m_loop, "m_loop is NULL.");
 	g_main_loop_quit(m_loop);
 }
 
