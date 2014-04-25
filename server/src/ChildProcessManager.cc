@@ -24,6 +24,7 @@
 #include <AtomicValue.h>
 #include "ChildProcessManager.h"
 #include "HatoholException.h"
+#include "Reaper.h"
 
 using namespace std;
 using namespace mlpl;
@@ -267,20 +268,25 @@ void ChildProcessManager::collected(const siginfo_t *siginfo)
 {
 	ChildInfo *childInfo = NULL;
 
+	// We use Reaper, because an exectpion might happen in onCollcted().
+	Reaper<ReadWriteLock> unlocker(
+	  &m_ctx->childrenMapLock, ReadWriteLock::unlock);
 	m_ctx->childrenMapLock.writeLock();
+
 	ChildMapIterator it = m_ctx->childrenMap.find(siginfo->si_pid);
 	if (it != m_ctx->childrenMap.end()) {
 		childInfo = it->second;
 		m_ctx->childrenMap.erase(it);
 	}
-	m_ctx->childrenMapLock.unlock();
 
 	if (!childInfo) {
+		unlocker.reap();
 		MLPL_INFO("Collected unwatched child: %d\n", siginfo->si_pid);
 		return;
 	}
 
 	if (childInfo->eventCb)
 		childInfo->eventCb->onCollected(siginfo);
+	unlocker.reap();
 	delete childInfo;
 }
