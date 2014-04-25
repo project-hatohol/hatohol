@@ -41,7 +41,7 @@ public:
 		 */
 		bool autoDelete;
 
-		/*
+		/**
 		 * Called soon after an execution of a child process is done
 		 * in ChildProcessManager::create().
 		 * This callback is called in the critical section. So other
