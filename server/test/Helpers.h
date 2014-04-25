@@ -242,4 +242,18 @@ private:
 	PrivateContext *m_ctx;
 };
 
+class GMainLoopWithTimeout {
+public:
+	GMainLoopWithTimeout(void);
+	virtual ~GMainLoopWithTimeout(void);
+	virtual void run(void);
+	virtual void quit(void);
+
+protected:
+	static gboolean failureDueToTimedOut(gpointer data);
+private:
+	guint      m_timerTag;
+	GMainLoop *m_loop;
+};
+
 #endif // Helpers_h

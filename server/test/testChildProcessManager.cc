@@ -24,12 +24,6 @@
 
 namespace testChildProcessManager {
 
-static gboolean failureDueToTimedOut(gpointer data)
-{
-	cut_fail("Timed out");
-	return G_SOURCE_REMOVE;
-}
-
 static void _assertCreate(ChildProcessManager::CreateArg &arg)
 {
 	arg.args.push_back("/bin/cat");
@@ -65,29 +59,12 @@ void test_create(void)
 
 void test_collectedCb(void)
 {
-	static const size_t timeout = 5000; // ms
 	struct Ctx : public ChildProcessManager::EventCallback {
-		guint tag;
-		GMainLoop *loop;
 
-		Ctx(void)
-		: tag(0),
-		  loop(NULL)
-		{
-		}
-
-
-		virtual ~Ctx()
-		{
-			if (loop)
-				g_main_loop_unref(loop);
-			if (tag)
-				g_source_remove(tag);
-		}
-
+		GMainLoopWithTimeout mainLoop;
 		virtual void onCollected(const siginfo_t *siginfo) // override
 		{
-			g_main_loop_quit(loop);
+			mainLoop.quit();
 		}
 	} ctx;
 
@@ -95,9 +72,7 @@ void test_collectedCb(void)
 	arg.eventCb = &ctx;
 	assertCreate(arg);
 	cppcut_assert_equal(0, kill(arg.pid, SIGKILL));
-	ctx.tag = g_timeout_add(timeout, failureDueToTimedOut, NULL);
-	ctx.loop = g_main_loop_new(NULL, TRUE);
-	g_main_loop_run(ctx.loop);
+	ctx.mainLoop.run();
 }
 
 } // namespace testChildProcessManager

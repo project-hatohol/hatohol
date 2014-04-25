@@ -1081,3 +1081,40 @@ void LinesComparator::assert(const bool &strictOrder)
 	else
 		m_ctx->assertWithoutOrder();
 }
+
+// ---------------------------------------------------------------------------
+// GMainLoopWithTimeout
+// ---------------------------------------------------------------------------
+GMainLoopWithTimeout::GMainLoopWithTimeout(void)
+: m_timerTag(0),
+  m_loop(NULL)
+{
+}
+
+GMainLoopWithTimeout::~GMainLoopWithTimeout()
+{
+	if (m_loop)
+		g_main_loop_unref(m_loop);
+	if (m_timerTag)
+		g_source_remove(m_timerTag);
+}
+
+void GMainLoopWithTimeout::run(void)
+{
+	static const size_t timeout = 5000; // ms
+	m_timerTag = g_timeout_add(timeout, failureDueToTimedOut, NULL);
+	m_loop = g_main_loop_new(NULL, TRUE);
+	g_main_loop_run(m_loop);
+}
+
+void GMainLoopWithTimeout::quit(void)
+{
+	HATOHOL_ASSERT(m_loop, "m_loop is NULL.");
+	g_main_loop_quit(m_loop);
+}
+
+gboolean GMainLoopWithTimeout::failureDueToTimedOut(gpointer data)
+{
+	cut_fail("Timed out");
+	return G_SOURCE_REMOVE;
+}
