@@ -272,7 +272,6 @@ ChildProcessManager::~ChildProcessManager()
 
 gpointer ChildProcessManager::mainThread(HatoholThreadArg *arg)
 {
-	MLPL_BUG("Not implemented yet: %s\n", __PRETTY_FUNCTION__);
 	while (true) {
 		int ret = sem_wait(&m_ctx->waitChildSem);
 		if (ret == -1) {
