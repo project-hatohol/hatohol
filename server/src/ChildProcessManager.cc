@@ -208,17 +208,18 @@ HatoholError ChildProcessManager::create(CreateArg &arg)
 	const gpointer userData = NULL;
 	GError *error = NULL;
 
+	// argv
 	const size_t numArgs = arg.args.size();
 	if (numArgs == 0)
 		return HTERR_INVALID_ARGS;
-	const gchar *argv[numArgs+1];
+	vector<const gchar *> argv;
 	for (size_t i = 0; i < numArgs; i++)
-		argv[i] = arg.args[i].c_str();
-	argv[numArgs] = NULL;
+		argv.push_back(arg.args[i].c_str());
+	argv.push_back(NULL);
 
 	m_ctx->childrenMapLock.writeLock();
 	gboolean succeeded =
-	  g_spawn_async(workingDir, (gchar **)argv, (gchar **)envp,
+	  g_spawn_async(workingDir, (gchar **)&argv[0], (gchar **)envp,
 	                arg.flags, childSetup, userData, &arg.pid, &error);
 	if (arg.eventCb)
 		arg.eventCb->onExecuted(succeeded);
