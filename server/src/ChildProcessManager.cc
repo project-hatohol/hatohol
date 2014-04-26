@@ -53,6 +53,18 @@ struct ChildInfo {
 		eventCb = _eventCb;
 		eventCb->ref();
 	}
+
+	void sendKill(void)
+	{
+		int ret = kill(pid, SIGKILL);
+		if (ret == -1 && errno == ESRCH) {
+			MLPL_INFO("No process w/ pid: %d\n", pid);
+			return;
+		}
+		HATOHOL_ASSERT(
+		  ret == 0, "Failed to send kill (%d): %d\n",
+		  pid, errno);
+	}
 };
 
 typedef map<pid_t, ChildInfo *>  ChildMap;
@@ -86,23 +98,17 @@ struct ChildProcessManager::PrivateContext {
 
 	void resetOnCollectThread(void)
 	{
-		// We assume this function is called only from a test.
-		// So we don't use childrenMapLock.
+		childrenMapLock.writeLock();
 		while (!childrenMap.empty()) {
 			ChildMapIterator childInfoItr = childrenMap.begin();
-			const pid_t pid = childInfoItr->first;
 			ChildInfo *childInfo = childInfoItr->second;
 			childrenMap.erase(childInfoItr);
-			int ret = kill(pid, SIGKILL);
-			if (ret == -1 && errno == ESRCH) {
-				MLPL_INFO("No process w/ pid: %d\n", pid);
-				continue;
-			}
-			HATOHOL_ASSERT(
-			  ret == 0, "Failed to send kill (%d): %d\n",
-			  pid, errno);
+			// We send SIGKILL again, because new children
+			// may be addded in the map after reset() is called.
+			childInfo->sendKill();
 			delete childInfo;
 		}
+		childrenMapLock.unlock();
 		resetRequest = false;
 		HATOHOL_ASSERT(sem_init(&waitChildSem, 0, 0) == 0,
 		               "Failed to call sem_init(): %d\n", errno);
@@ -173,6 +179,17 @@ void ChildProcessManager::reset(void)
 	m_ctx->resetRequest = true;
 	int ret = sem_post(&m_ctx->waitChildSem);
 	HATOHOL_ASSERT(ret == 0, "sem_post() failed: %d", errno);
+
+	// We send SIGKILL to unblock waitid().
+	m_ctx->childrenMapLock.readLock();
+	ChildMapIterator childInfoItr = m_ctx->childrenMap.begin();
+	for (; childInfoItr != m_ctx->childrenMap.end(); ++childInfoItr) {
+		ChildInfo *childInfo = childInfoItr->second;
+		childInfo->sendKill();
+	}
+	m_ctx->childrenMapLock.unlock();
+
+	// Wait for completion of reset.
 	while (true) {
 		if (sem_wait(&m_ctx->resetSem) == -1) {
 			if (errno == EINTR)
