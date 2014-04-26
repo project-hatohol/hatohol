@@ -57,6 +57,7 @@ public:
 
 	struct CreateArg {
 		mlpl::StringVector args;
+		mlpl::StringVector envs;
 		std::string workingDirectory;
 		GSpawnFlags flags;
 

@@ -23,6 +23,7 @@
 #include "Helpers.h"
 #include "Reaper.h"
 
+using namespace std;
 using namespace mlpl;
 
 namespace testChildProcessManager {
@@ -63,6 +64,21 @@ void test_create(void)
 {
 	ChildProcessManager::CreateArg arg;
 	assertCreate(arg);
+}
+
+void test_createWithEnv(void)
+{
+	ChildProcessManager::CreateArg arg;
+	arg.envs.push_back("A=123");
+	arg.envs.push_back("XYZ=^_^");
+	assertCreate(arg);
+	string path = StringUtils::sprintf("/proc/%d/environ", arg.pid);
+	string expect;
+	for (size_t i = 0; i < arg.envs.size(); i++) {
+		expect += arg.envs[i].c_str();
+		expect += '\0';
+	}
+	assertFileContent(expect, path);
 }
 
 void test_executedCb(void)

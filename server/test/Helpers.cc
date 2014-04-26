@@ -30,6 +30,7 @@
 #include "DBAgentMySQL.h"
 #include "CacheServiceDBClient.h"
 #include "SQLUtils.h"
+#include "Reaper.h"
 using namespace std;
 using namespace mlpl;
 
@@ -967,6 +968,18 @@ string getSyslogTail(size_t numLines)
 	const string cmd =
 	  StringUtils::sprintf("tail -%zd /var/log/syslog", numLines);
 	return executeCommand(cmd);
+}
+
+void _assertFileContent(const string &expect, const string &path)
+{
+	gchar *contents;
+	gsize length;
+	GError *error = NULL;
+	g_file_get_contents(path.c_str(), &contents, &length, &error);
+	gcut_assert_error(error);
+	Reaper<void> reaper(contents, g_free);
+	cut_assert_equal_memory(expect.c_str(), expect.size(),
+	                        contents, length);
 }
 
 // ---------------------------------------------------------------------------

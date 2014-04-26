@@ -198,6 +198,9 @@ UserIdType findUserWithout(const OperationPrivilegeType &type);
 void initActionDef(ActionDef &actionDef);
 std::string getSyslogTail(size_t numLines);
 
+void _assertFileContent(const std::string &expect, const std::string &path);
+#define assertFileContent(E,P) cut_trace(_assertFileContent(E,P))
+
 class Watcher {
 	bool expired;
 	guint timerId;
