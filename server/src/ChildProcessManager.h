@@ -25,21 +25,11 @@
 #include <sys/wait.h>
 #include "HatoholThreadBase.h"
 #include "HatoholError.h"
+#include "UsedCountable.h"
 
 class ChildProcessManager : public HatoholThreadBase {
 public:
-	struct EventCallback {
-		/**
-		 * If this flag is true, this instance is automatically deleted
-		 * when it is no longer needed. (it is typically after a call
-		 * of onCollected())
-		 *
-		 * For example, you should set it to false when the instance
-		 * is created on a stack to avoid a double free.
-		 *
-		 * This value is set to true in the constructor.
-		 */
-		bool autoDelete;
+	struct EventCallback : public UsedCountable {
 
 		/**
 		 * Called soon after an execution of a child process is done
@@ -55,7 +45,7 @@ public:
 
 		virtual void onCollected(const siginfo_t *siginfo) {}
 
-		EventCallback(void);
+	protected:
 		virtual ~EventCallback();
 	};
 
@@ -63,6 +53,11 @@ public:
 		mlpl::StringVector args;
 		std::string workingDirectory;
 		GSpawnFlags flags;
+
+		/**
+		 * If eventCb is not NULL, eventCb->unref() is called in
+		 * the destructor.
+		 */
 		EventCallback *eventCb;
 
 		// Output paramters
@@ -70,6 +65,7 @@ public:
 		
 		// Methods
 		CreateArg(void);
+		virtual ~CreateArg();
 	};
 
 	/**

@@ -21,6 +21,9 @@
 #include "ChildProcessManager.h"
 #include "HatoholError.h"
 #include "Helpers.h"
+#include "Reaper.h"
+
+using namespace mlpl;
 
 namespace testChildProcessManager {
 
@@ -98,14 +101,13 @@ void test_collectedCb(void)
 		{
 			mainLoop.quit();
 		}
-	} ctx;
-	ctx.autoDelete = false;
+	} *ctx = new Ctx();
 
 	ChildProcessManager::CreateArg arg;
-	arg.eventCb = &ctx;
+	arg.eventCb = ctx;
 	assertCreate(arg);
 	cppcut_assert_equal(0, kill(arg.pid, SIGKILL));
-	ctx.mainLoop.run();
+	ctx->mainLoop.run();
 }
 
 } // namespace testChildProcessManager

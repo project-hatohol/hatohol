@@ -41,8 +41,17 @@ struct ChildInfo {
 
 	virtual ~ChildInfo()
 	{
-		if (eventCb && eventCb->autoDelete)
-			delete eventCb;
+		if (eventCb)
+			eventCb->unref();
+	}
+
+	void setEventCallback(ChildProcessManager::EventCallback *_eventCb)
+	{
+		HATOHOL_ASSERT(!eventCb, "eventCb is not NULL");
+		if (!_eventCb)
+			return;
+		eventCb = _eventCb;
+		eventCb->ref();
 	}
 };
 
@@ -107,11 +116,6 @@ ReadWriteLock        ChildProcessManager::PrivateContext::instanceLock;
 // ---------------------------------------------------------------------------
 // EventCallback
 // ---------------------------------------------------------------------------
-ChildProcessManager::EventCallback::EventCallback(void)
-: autoDelete(true)
-{
-}
-
 ChildProcessManager::EventCallback::~EventCallback()
 {
 }
@@ -124,6 +128,12 @@ ChildProcessManager::CreateArg::CreateArg(void)
   eventCb(NULL),
   pid(0)
 {
+}
+
+ChildProcessManager::CreateArg::~CreateArg()
+{
+	if (eventCb)
+		eventCb->unref();
 }
 
 // ---------------------------------------------------------------------------
@@ -197,7 +207,7 @@ HatoholError ChildProcessManager::create(CreateArg &arg)
 
 	ChildInfo *childInfo = new ChildInfo();
 	childInfo->pid = arg.pid;
-	childInfo->eventCb = arg.eventCb;
+	childInfo->setEventCallback(arg.eventCb);
 
 	pair<ChildMapIterator, bool> result =
 	  m_ctx->childrenMap.insert(pair<
