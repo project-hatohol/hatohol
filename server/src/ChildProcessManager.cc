@@ -128,6 +128,10 @@ void ChildProcessManager::EventCallback::onCollected(const siginfo_t *siginfo)
 {
 }
 
+void ChildProcessManager::EventCallback::onFinalized(void)
+{
+}
+
 // ---------------------------------------------------------------------------
 // CreateArg
 // ---------------------------------------------------------------------------
@@ -306,5 +310,7 @@ void ChildProcessManager::collected(const siginfo_t *siginfo)
 	if (childInfo->eventCb)
 		childInfo->eventCb->onCollected(siginfo);
 	unlocker.reap();
+	if (childInfo->eventCb)
+		childInfo->eventCb->onFinalized();
 	delete childInfo;
 }

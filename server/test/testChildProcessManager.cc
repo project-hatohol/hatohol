@@ -110,4 +110,22 @@ void test_collectedCb(void)
 	ctx->mainLoop.run();
 }
 
+void test_finalizedCb(void)
+{
+	struct Ctx : public ChildProcessManager::EventCallback {
+
+		GMainLoopWithTimeout mainLoop;
+		virtual void onFinalized(void) // override
+		{
+			mainLoop.quit();
+		}
+	} *ctx = new Ctx();
+
+	ChildProcessManager::CreateArg arg;
+	arg.eventCb = ctx;
+	assertCreate(arg);
+	cppcut_assert_equal(0, kill(arg.pid, SIGKILL));
+	ctx->mainLoop.run();
+}
+
 } // namespace testChildProcessManager

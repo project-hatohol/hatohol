@@ -45,6 +45,12 @@ public:
 
 		virtual void onCollected(const siginfo_t *siginfo);
 
+		/**
+		 * Called at the end of process management for a child.
+		 * This is called outside of the critical section.
+		 */
+		virtual void onFinalized(void);
+
 	protected:
 		virtual ~EventCallback();
 	};
