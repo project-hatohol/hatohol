@@ -41,9 +41,9 @@ public:
 		 * @param succeeded
 		 * true if an exection has succeeded. Otherwise false.
 		 */
-		virtual void onExecuted(const bool &succeeded){}
+		virtual void onExecuted(const bool &succeeded);
 
-		virtual void onCollected(const siginfo_t *siginfo) {}
+		virtual void onCollected(const siginfo_t *siginfo);
 
 	protected:
 		virtual ~EventCallback();

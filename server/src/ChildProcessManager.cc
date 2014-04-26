@@ -120,6 +120,14 @@ ChildProcessManager::EventCallback::~EventCallback()
 {
 }
 
+void ChildProcessManager::EventCallback::onExecuted(const bool &succeeded)
+{
+}
+
+void ChildProcessManager::EventCallback::onCollected(const siginfo_t *siginfo)
+{
+}
+
 // ---------------------------------------------------------------------------
 // CreateArg
 // ---------------------------------------------------------------------------
