@@ -93,7 +93,7 @@ void test_executedCb(void)
 		{
 		}
 
-		virtual void onExecuted(const bool &_succeeded) // override
+		virtual void onExecuted(const bool &_succeeded, GError *gerror) // override
 		{
 			called = true;
 			succeeded = _succeeded;
@@ -106,6 +106,30 @@ void test_executedCb(void)
 	assertCreate(arg);
 	cppcut_assert_equal(true, ctx->called);
 	cppcut_assert_equal(true, ctx->succeeded);
+}
+
+void test_executedCbWithError(void)
+{
+	struct Ctx : public ChildProcessManager::EventCallback {
+		bool called;
+		virtual void onExecuted(const bool &succeeded, GError *gerror) // override
+		{
+			cppcut_assert_equal(false, succeeded);
+			cppcut_assert_not_null(gerror);
+			cppcut_assert_equal(G_SPAWN_ERROR, gerror->domain);
+			cppcut_assert_equal((gint)G_SPAWN_ERROR_NOENT,
+			                    gerror->code);
+			called = true;
+		}
+	} *ctx = new Ctx();
+	ctx->called = false;
+
+	ChildProcessManager::CreateArg arg;
+	arg.args.push_back("non-exisiting-command");
+	arg.eventCb = ctx;
+	assertHatoholError(HTERR_FAILED_TO_SPAWN,
+	                   ChildProcessManager::getInstance()->create(arg));
+	cppcut_assert_equal(true, ctx->called);
 }
 
 void test_collectedCb(void)

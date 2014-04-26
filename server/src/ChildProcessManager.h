@@ -40,8 +40,12 @@ public:
 		 *
 		 * @param succeeded
 		 * true if an exection has succeeded. Otherwise false.
+		 *
+		 * @param gerror
+		 * A GError object. It may be NULL.
 		 */
-		virtual void onExecuted(const bool &succeeded);
+		virtual void onExecuted(const bool &succeeded,
+		                        GError *gerror);
 
 		virtual void onCollected(const siginfo_t *siginfo);
 

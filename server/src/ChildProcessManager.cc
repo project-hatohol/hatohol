@@ -126,7 +126,8 @@ ChildProcessManager::EventCallback::~EventCallback()
 {
 }
 
-void ChildProcessManager::EventCallback::onExecuted(const bool &succeeded)
+void ChildProcessManager::EventCallback::onExecuted(const bool &succeeded,
+                                                    GError *gerror)
 {
 }
 
@@ -229,7 +230,7 @@ HatoholError ChildProcessManager::create(CreateArg &arg)
 	                arg.envs.empty() ? NULL : (gchar **)envp,
 	                arg.flags, childSetup, userData, &arg.pid, &error);
 	if (arg.eventCb)
-		arg.eventCb->onExecuted(succeeded);
+		arg.eventCb->onExecuted(succeeded, error);
 	if (!succeeded) {
 		m_ctx->childrenMapLock.unlock();
 		string reason = "<Unknown reason>";
