@@ -62,7 +62,7 @@ public:
 		/**
 		 * These callbacks are called in debut() synchronusly.
 		 */
-		virtual ActorInfo *successCb(void) = 0;
+		virtual ActorInfo *successCb(const pid_t &pid) = 0;
 		virtual void postSuccessCb(void) = 0;
 		virtual void errorCb(GError *error) = 0;
 	};

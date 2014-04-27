@@ -20,6 +20,7 @@
 #include <cppcutter.h>
 #include <gcutter.h>
 #include "ActorCollector.h"
+#include "Hatohol.h"
 #include "Helpers.h"
 
 using namespace std;
@@ -37,10 +38,12 @@ struct TestProfile : public ActorCollector::Profile {
 	{
 	}
 
-	virtual ActorInfo *successCb(void) // override
+	virtual ActorInfo *successCb(const pid_t &pid) // override
 	{
+		ActorInfo *actorInfo  = new ActorInfo();
+		actorInfo->pid = pid;
 		calledSuccessCb = true;
-		return NULL;
+		return actorInfo;
 	}
 
 	virtual void postSuccessCb(void) // override
@@ -55,6 +58,11 @@ struct TestProfile : public ActorCollector::Profile {
 	}
 };
 
+void cut_setup(void)
+{
+	hatoholInit();
+}
+
 void cut_teardown(void)
 {
 	ActorCollector::reset();
@@ -67,6 +75,14 @@ void test_debutWithEmptyArgs(void)
 {
  	TestProfile profile;
 	assertHatoholError(HTERR_INVALID_ARGS, ActorCollector::debut(profile));
+}
+
+void test_debut(void)
+{
+	TestProfile profile;
+	profile.args.push_back("/bin/cat");
+	assertHatoholError(HTERR_OK, ActorCollector::debut(profile));
+	cppcut_assert_equal(true, profile.calledPostSuccessCb);
 }
 
 } // namespace testActorCollector

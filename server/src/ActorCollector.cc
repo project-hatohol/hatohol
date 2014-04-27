@@ -209,9 +209,11 @@ HatoholError ActorCollector::debut(Profile &profile)
 {
 	struct EventCb : public ChildProcessManager::EventCallback {
 		Profile &profile;
+		ChildProcessManager::CreateArg &arg;
 
-		EventCb(Profile &_profile)
-		: profile(_profile)
+		EventCb(Profile &_profile, ChildProcessManager::CreateArg &_arg)
+		: profile(_profile),
+		  arg(_arg)
 		{
 		}
 
@@ -219,7 +221,7 @@ HatoholError ActorCollector::debut(Profile &profile)
 		  bool const &succeeded, GError *gerror) // override
 		{
 			if (succeeded) {
-				addActor(profile.successCb());
+				addActor(profile.successCb(arg.pid));
 				profile.postSuccessCb();
 			} else {
 				profile.errorCb(gerror);
@@ -241,7 +243,7 @@ HatoholError ActorCollector::debut(Profile &profile)
 	arg.args = profile.args;
 	arg.envs = profile.envs;
 	arg.workingDirectory = profile.workingDirectory;
-	arg.eventCb = new EventCb(profile);
+	arg.eventCb = new EventCb(profile, arg);
 	return ChildProcessManager::getInstance()->create(arg);
 }
 
