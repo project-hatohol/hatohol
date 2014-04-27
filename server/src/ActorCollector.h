@@ -21,6 +21,7 @@
 #define ActorCollector_h
 
 #include "HatoholThreadBase.h"
+#include "HatoholError.h"
 
 struct ActorInfo;
 typedef void (*ActorCollectedFunc)(const ActorInfo *actorInfo);
@@ -53,10 +54,31 @@ public:
 		virtual ~Locker();
 	};
 
+	struct Profile {
+		mlpl::StringVector args;
+		mlpl::StringVector envs;
+		std::string workingDirectory;
+
+		/**
+		 * These callbacks are called in debut() synchronusly.
+		 */
+		virtual ActorInfo *successCb(void) = 0;
+		virtual void postSuccessCb(void) = 0;
+		virtual void errorCb(GError *error) = 0;
+	};
+
 	static void init(void);
 	static void reset(void);
 	static void resetOnCollectorThread(void);
 	static void quit(void);
+
+	/**
+	 * Create a new actor.
+	 *
+	 * @param profile An actor's profile.
+	 * @return A HatoholError instance.
+	 */
+	static HatoholError debut(Profile &profile);
 
 	/**
 	 * lock() has to be called before this function is used.
@@ -86,7 +108,7 @@ protected:
 	// we redefine start() as protected so that HatoholThreadBase::start()
 	// cannot be called from other classes.
 	void start(void);
-	void notifyChildSiginfo(siginfo_t *info);
+	static void notifyChildSiginfo(const siginfo_t *info);
 
 	// overriden virtual methods
 	virtual gpointer mainThread(HatoholThreadArg *arg);

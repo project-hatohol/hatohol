@@ -29,6 +29,7 @@
 #include "MutexLock.h"
 #include "SessionManager.h"
 #include "Reaper.h"
+#include "ChildProcessManager.h"
 using namespace std;
 using namespace mlpl;
 
@@ -56,6 +57,10 @@ bool            ActorCollector::PrivateContext::collectorExitRequest = false;
 
 sem_t           ActorCollector::PrivateContext::resetCompletionSem;
 bool            ActorCollector::PrivateContext::inReset = false;
+
+// This is temporaliry used till the integration with ChildProcessManager
+// is completed.
+static bool dontStartFlag = false;
 
 // ---------------------------------------------------------------------------
 // ActorInfo
@@ -158,6 +163,7 @@ void ActorCollector::reset(void)
 		               "Failed to call sem_wait(): %d\n", errno);
 		break;
 	}
+	dontStartFlag = false;
 }
 
 void ActorCollector::resetOnCollectorThread(void)
@@ -197,6 +203,46 @@ void ActorCollector::quit(void)
 	PrivateContext::collectorExitRequest = true;;
 	unlock();
 	incWaitingActor(); 
+}
+
+HatoholError ActorCollector::debut(Profile &profile)
+{
+	struct EventCb : public ChildProcessManager::EventCallback {
+		Profile &profile;
+
+		EventCb(Profile &_profile)
+		: profile(_profile)
+		{
+		}
+
+		virtual void onExecuted(
+		  bool const &succeeded, GError *gerror) // override
+		{
+			if (succeeded) {
+				addActor(profile.successCb());
+				profile.postSuccessCb();
+			} else {
+				profile.errorCb(gerror);
+			}
+		}
+
+		virtual void onCollected(const siginfo_t *siginfo) // override
+		{
+			notifyChildSiginfo(siginfo);
+		}
+
+		virtual void onFinalized(void) // override
+		{
+		}
+	};
+
+	dontStartFlag = true;
+	ChildProcessManager::CreateArg arg;
+	arg.args = profile.args;
+	arg.envs = profile.envs;
+	arg.workingDirectory = profile.workingDirectory;
+	arg.eventCb = new EventCb(profile);
+	return ChildProcessManager::getInstance()->create(arg);
 }
 
 void ActorCollector::addActor(ActorInfo *actorInfo)
@@ -243,6 +289,9 @@ void ActorCollector::registerSIGCHLD(void)
 
 void ActorCollector::incWaitingActor(void)
 {
+	if (dontStartFlag)
+		return;
+
 	// Currently this functions calls from addActor() and
 	// notifyChildSiginfo(). In the former case, addActor() is called
 	// only from ActorManager::spawn() with the lock. So a race never
@@ -346,7 +395,7 @@ gpointer ActorCollector::mainThread(HatoholThreadArg *arg)
 	return NULL;
 }
 
-void ActorCollector::notifyChildSiginfo(siginfo_t *info)
+void ActorCollector::notifyChildSiginfo(const siginfo_t *info)
 {
 	ChildSigInfo childSigInfo;
 	childSigInfo.pid      = info->si_pid;

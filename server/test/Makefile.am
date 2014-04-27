@@ -26,6 +26,7 @@ LIBS = \
 # Test cases
 testHatohol_la_SOURCES = \
 	testActionExecArgMaker.cc testActionManager.cc \
+	testActorCollector.cc \
 	testCacheServiceDBClient.cc \
 	testChildProcessManager.cc \
 	testConfigManager.cc \
