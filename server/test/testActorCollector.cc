@@ -31,10 +31,12 @@ namespace testActorCollector {
 struct TestProfile : public ActorCollector::Profile {
 	bool calledSuccessCb;
 	bool calledPostSuccessCb;
+	gint expectError;
 
 	TestProfile(void)
 	: calledSuccessCb(false),
-	  calledPostSuccessCb(false)
+	  calledPostSuccessCb(false),
+	  expectError(0)
 	{
 	}
 
@@ -54,6 +56,10 @@ struct TestProfile : public ActorCollector::Profile {
 
 	virtual void errorCb(GError *error) // override
 	{
+		if (expectError) {
+			cppcut_assert_equal(expectError, error->code);
+			return;
+		}
 		cut_trace(gcut_assert_error(error));
 	}
 };
@@ -83,6 +89,15 @@ void test_debut(void)
 	profile.args.push_back("/bin/cat");
 	assertHatoholError(HTERR_OK, ActorCollector::debut(profile));
 	cppcut_assert_equal(true, profile.calledPostSuccessCb);
+}
+
+void test_debutWithInvalidPath(void)
+{
+	TestProfile profile;
+	profile.args.push_back("non-existing-path");
+	profile.expectError = (gint)G_SPAWN_ERROR_NOENT;
+	assertHatoholError(HTERR_FAILED_TO_SPAWN,
+	                   ActorCollector::debut(profile));
 }
 
 } // namespace testActorCollector
