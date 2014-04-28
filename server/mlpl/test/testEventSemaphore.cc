@@ -17,16 +17,12 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <string>
-#include <vector>
-using namespace std;
 
-#include <glib.h>
-#include <cutter.h>
 #include <cppcutter.h>
 #include <errno.h>
 
 #include "EventSemaphore.h"
+
 using namespace mlpl;
 
 namespace testEventSemaphore {
