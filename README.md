@@ -2,7 +2,7 @@ Hatohol
 =======
 
 日本語のHatoholウェブサイトを開設しました。以下のホームページをご覧ください。
-http://www.hatohol.org/
+http://hatohol.sourceforge.jp/
 
 Overview
 --------
