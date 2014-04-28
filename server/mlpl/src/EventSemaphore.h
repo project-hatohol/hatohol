@@ -26,8 +26,23 @@ class EventSemaphore {
 public:
 	EventSemaphore(const int &count = 1);
 	virtual ~EventSemaphore();
-	void post(void);
-	uint64_t wait(void);
+
+	/**
+	 * Post a semaphore.
+	 *
+	 * @return 0 on Succeess, or errno if an error occured.
+	 *
+	 */
+	int post(void);
+
+	/**
+	 * Wait a semaphore.
+	 *
+	 * @return 0 on Succeess, or errno if an error occured.
+	 *
+	 */
+	int wait(void);
+
 	int getEventFd(void) const;
 
 private:

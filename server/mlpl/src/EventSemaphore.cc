@@ -63,7 +63,7 @@ EventSemaphore::~EventSemaphore()
 		delete m_ctx;
 }
 
-void EventSemaphore::post(void)
+int EventSemaphore::post(void)
 {
 retry:
 	const uint64_t buf = 1;
@@ -71,11 +71,12 @@ retry:
 	if (ret == -1) {
 		if (errno == EINTR)
 			goto retry;
-		MLPL_CRIT("Failed to write: %d\n", errno);
+		return errno;
 	}
+	return 0;
 }
 
-uint64_t EventSemaphore::wait(void)
+int EventSemaphore::wait(void)
 {
 retry:
 	uint64_t buf = 0;
@@ -83,9 +84,9 @@ retry:
 	if (ret == -1) {
 		if (errno == EINTR)
 			goto retry;
-		MLPL_CRIT("Failed to write: %d\n", errno);
+		return errno;
 	}
-	return buf;
+	return 0;
 }
 
 int EventSemaphore::getEventFd(void) const

@@ -24,6 +24,7 @@ using namespace std;
 #include <glib.h>
 #include <cutter.h>
 #include <cppcutter.h>
+#include <errno.h>
 
 #include "EventSemaphore.h"
 using namespace mlpl;
@@ -36,6 +37,15 @@ namespace testEventSemaphore {
 void test_constructor(void)
 {
 	EventSemaphore(0);
+}
+
+void test_postAndWait(void)
+{
+	EventSemaphore sem(0);
+	cppcut_assert_equal(0, sem.post());
+	cppcut_assert_equal(0, sem.post());
+	cppcut_assert_equal(0, sem.wait());
+	cppcut_assert_equal(0, sem.wait());
 }
 
 } // namespace testEventSemaphore
