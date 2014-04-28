@@ -47,6 +47,10 @@ public:
 		virtual void onExecuted(const bool &succeeded,
 		                        GError *gerror);
 
+		/**
+		 * Called when SIGCHLD of the child process concerned with
+		 * this object is received.
+		 */
 		virtual void onCollected(const siginfo_t *siginfo);
 
 		/**
