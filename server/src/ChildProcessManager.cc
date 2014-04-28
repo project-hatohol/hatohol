@@ -323,21 +323,21 @@ void ChildProcessManager::collected(const siginfo_t *siginfo)
 	m_ctx->childrenMapLock.writeLock();
 
 	ChildMapIterator it = m_ctx->childrenMap.find(siginfo->si_pid);
-	if (it != m_ctx->childrenMap.end()) {
+	if (it != m_ctx->childrenMap.end())
 		childInfo = it->second;
-		m_ctx->childrenMap.erase(it);
-	}
-
 	if (!childInfo) {
 		unlocker.reap();
 		MLPL_INFO("Collected unwatched child: %d\n", siginfo->si_pid);
 		return;
 	}
+	if (childInfo->killed)
+		return; // cleanup will be in resetOnCollectThread()
+	m_ctx->childrenMap.erase(it);
 
-	if (childInfo->eventCb && !childInfo->killed)
+	if (childInfo->eventCb)
 		childInfo->eventCb->onCollected(siginfo);
 	unlocker.reap();
-	if (childInfo->eventCb && !childInfo->killed)
+	if (childInfo->eventCb)
 		childInfo->eventCb->onFinalized();
 	delete childInfo;
 }

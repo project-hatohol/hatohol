@@ -198,35 +198,16 @@ void test_reset(void)
 		{
 			calledReset = true;
 		}
-	};
+	} *ctx = new Ctx();
 
-	// We use two chilren. ChildProcessManager::mainThread() typically
-	// blocks in waitid(). If only one process is used,
-	// it may be collected. As a result, onReset is not called back.
-	const size_t numChildren = 2;
-	Ctx *ctx[numChildren];
-	ChildProcessManager::CreateArg arg[numChildren];
-
-	for (size_t i = 0; i < numChildren; i++) {
-		ctx[i] = new Ctx();
-		arg[i].eventCb = ctx[i];
-		assertCreate(arg[i]);
-	}
+	ChildProcessManager::CreateArg arg;
+	arg.eventCb = ctx;
+	assertCreate(arg);
 	ChildProcessManager::getInstance()->reset();
 
-	size_t resetIdx  = 0;
-	if (ctx[0]->calledReset) {
-		resetIdx  = 0;
-	} else if (ctx[1]->calledReset) {
-		resetIdx  = 1;
-	} else {
-		cut_fail("onReset is not called properly: %d/%d",
-		         ctx[0]->calledReset, ctx[1]->calledReset);
-	}
-
-	cppcut_assert_equal(false, ctx[resetIdx]->calledCollected);
-	cppcut_assert_equal(false, ctx[resetIdx]->calledFinalized);
-	cppcut_assert_equal(true,  ctx[resetIdx]->calledReset);
+	cppcut_assert_equal(false, ctx->calledCollected);
+	cppcut_assert_equal(false, ctx->calledFinalized);
+	cppcut_assert_equal(true,  ctx->calledReset);
 }
 
 } // namespace testChildProcessManager
