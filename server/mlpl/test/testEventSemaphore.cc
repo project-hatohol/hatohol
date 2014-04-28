@@ -32,7 +32,7 @@ namespace testEventSemaphore {
 // ---------------------------------------------------------------------------
 void test_constructor(void)
 {
-	EventSemaphore(0);
+	EventSemaphore sem(0);
 }
 
 void test_postAndWait(void)
