@@ -24,14 +24,19 @@ namespace mlpl {
 
 class EventSemaphore {
 public:
+	/**
+	 * A constructor of EventSemaphore.
+	 *
+	 * @param count An initial count of the semaphore.
+	 */
 	EventSemaphore(const int &count = 1);
+
 	virtual ~EventSemaphore();
 
 	/**
 	 * Post a semaphore.
 	 *
 	 * @return 0 on Succeess, or errno if an error occured.
-	 *
 	 */
 	int post(void);
 
@@ -39,10 +44,14 @@ public:
 	 * Wait a semaphore.
 	 *
 	 * @return 0 on Succeess, or errno if an error occured.
-	 *
 	 */
 	int wait(void);
 
+	/**
+	 * Get a file descriptor of a eventfd object.
+	 *
+	 * @return a file descripter.
+	 */
 	int getEventFd(void) const;
 
 private:
