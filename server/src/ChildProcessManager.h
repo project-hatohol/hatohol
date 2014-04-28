@@ -59,6 +59,14 @@ public:
 		 */
 		virtual void onFinalized(void);
 
+		/**
+		 * Called after ChildProcessManager::reset() sends a KILL
+		 * signal to the child process.
+		 * onCollected() and onFinalized() are no longer fired.
+		 * So cleanup should be done in this method.
+		 */
+		virtual void onReset(void);
+
 	protected:
 		virtual ~EventCallback();
 	};

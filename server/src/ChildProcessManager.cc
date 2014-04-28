@@ -32,10 +32,12 @@ using namespace mlpl;
 struct ChildInfo {
 	pid_t pid;
 	ChildProcessManager::EventCallback *eventCb;
+	AtomicValue<bool> killed;
 
 	ChildInfo(void)
 	: pid(0),
-	  eventCb(NULL)
+	  eventCb(NULL),
+	  killed(false)
 	{
 	}
 
@@ -56,6 +58,8 @@ struct ChildInfo {
 
 	void sendKill(void)
 	{
+		if (killed)
+			return;
 		int ret = kill(pid, SIGKILL);
 		if (ret == -1 && errno == ESRCH) {
 			MLPL_INFO("No process w/ pid: %d\n", pid);
@@ -64,6 +68,7 @@ struct ChildInfo {
 		HATOHOL_ASSERT(
 		  ret == 0, "Failed to send kill (%d): %d\n",
 		  pid, errno);
+		killed = true;
 	}
 };
 
@@ -106,6 +111,8 @@ struct ChildProcessManager::PrivateContext {
 			// We send SIGKILL again, because new children
 			// may be addded in the map after reset() is called.
 			childInfo->sendKill();
+			if (childInfo->eventCb)
+				childInfo->eventCb->onReset();
 			delete childInfo;
 		}
 		childrenMapLock.unlock();
@@ -136,6 +143,10 @@ void ChildProcessManager::EventCallback::onCollected(const siginfo_t *siginfo)
 }
 
 void ChildProcessManager::EventCallback::onFinalized(void)
+{
+}
+
+void ChildProcessManager::EventCallback::onReset(void)
 {
 }
 
@@ -332,10 +343,10 @@ void ChildProcessManager::collected(const siginfo_t *siginfo)
 		return;
 	}
 
-	if (childInfo->eventCb)
+	if (childInfo->eventCb && !childInfo->killed)
 		childInfo->eventCb->onCollected(siginfo);
 	unlocker.reap();
-	if (childInfo->eventCb)
+	if (childInfo->eventCb && !childInfo->killed)
 		childInfo->eventCb->onFinalized();
 	delete childInfo;
 }
