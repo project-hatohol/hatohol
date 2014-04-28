@@ -30,30 +30,23 @@ using namespace std;
 using namespace mlpl;
 
 struct ChildInfo {
-	pid_t pid;
-	ChildProcessManager::EventCallback *eventCb;
+	const pid_t pid;
+	ChildProcessManager::EventCallback * const eventCb;
 	AtomicValue<bool> killed;
 
-	ChildInfo(void)
-	: pid(0),
-	  eventCb(NULL),
+	ChildInfo(pid_t _pid, ChildProcessManager::EventCallback *_eventCb)
+	: pid(_pid),
+	  eventCb(_eventCb),
 	  killed(false)
 	{
+		if (eventCb)
+			eventCb->ref();
 	}
 
 	virtual ~ChildInfo()
 	{
 		if (eventCb)
 			eventCb->unref();
-	}
-
-	void setEventCallback(ChildProcessManager::EventCallback *_eventCb)
-	{
-		HATOHOL_ASSERT(!eventCb, "eventCb is not NULL");
-		if (!_eventCb)
-			return;
-		eventCb = _eventCb;
-		eventCb->ref();
 	}
 
 	void sendKill(void)
@@ -254,9 +247,7 @@ HatoholError ChildProcessManager::create(CreateArg &arg)
 		return HatoholError(HTERR_FAILED_TO_SPAWN, reason);
 	}
 
-	ChildInfo *childInfo = new ChildInfo();
-	childInfo->pid = arg.pid;
-	childInfo->setEventCallback(arg.eventCb);
+	ChildInfo *childInfo = new ChildInfo(arg.pid, arg.eventCb);
 
 	pair<ChildMapIterator, bool> result =
 	  m_ctx->childrenMap.insert(pair<
