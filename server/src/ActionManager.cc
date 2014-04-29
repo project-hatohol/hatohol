@@ -34,6 +34,7 @@
 #include "SmartTime.h"
 #include "SessionManager.h"
 #include "Reaper.h"
+#include "ChildProcessManager.h"
 
 using namespace std;
 using namespace mlpl;
@@ -592,52 +593,60 @@ HatoholError ActionManager::runAction(const ActionDef &actionDef,
  * - ActorCollector thread
  *     [from execCommandActionCore() from commandActorPostCollectedCb()]
  */
-bool ActionManager::spawn(
-  const ActionDef &actionDef, const EventInfo &eventInfo,
-  DBClientAction &dbAction, const gchar **argv,
-  SpawnPostproc postproc, void *postprocPriv)
-{
-	const gchar *workingDirectory = NULL;
-	if (!actionDef.workingDir.empty())
-		workingDirectory = actionDef.workingDir.c_str();
+struct ActionManager::ActorProfile : public ActorCollector::Profile {
 
-	GSpawnFlags flags = (GSpawnFlags)(G_SPAWN_DO_NOT_REAP_CHILD);
-	GSpawnChildSetupFunc childSetup = NULL;
-	gpointer userData = NULL;
-	GError *error = NULL;
+	const ActionDef &actionDef;
+	const EventInfo &eventInfo;
+	DBClientAction  &dbAction;
+	SpawnPostproc    postproc;
+	void            *postprocPriv;
+	WaitingCommandActionInfo *waitCmdInfo;
+	ActorInfo                *actorInfo;
 
-	// create an ActorInfo instance.
-	ActorInfo *actorInfo = new ActorInfo();
-
-	// make envp with HATOHOL_SESSION_ID
-	string sessionIdEnv = makeSessionIdEnv(actionDef, actorInfo->sessionId);
-	const gchar *envp[] = {
-	  PrivateContext::pathForAction.c_str(),
-	  PrivateContext::ldLibraryPathForAction.c_str(),
-	  sessionIdEnv.c_str(),
-	  NULL
-	};
-
-	WaitingCommandActionInfo *waitCmdInfo = NULL;
-	if (actionDef.type == ACTION_COMMAND) {
-		SpawnPostprocCommandActionCtx *postprocCtx =
-		  static_cast<SpawnPostprocCommandActionCtx *>(postprocPriv);
-		waitCmdInfo = postprocCtx->waitCmdInfo;
+	ActorProfile(const ActionDef &_actionDef, const EventInfo &_eventInfo,
+	             DBClientAction  &_dbAction,
+	             SpawnPostproc _postproc, void *_postprocPriv)
+	: actionDef(_actionDef),
+	  eventInfo(_eventInfo),
+	  dbAction(_dbAction),
+	  postproc(_postproc),
+	  postprocPriv(_postprocPriv),
+	  waitCmdInfo(NULL)
+	{
+		actorInfo = new ActorInfo();
 	}
 
-	// We take the lock here to avoid the child spanwed below from
-	// not being collected. If the child immediately exits
-	// before the following 'ActorCollector::addActor(&childPid)' is
-	// called, ActorCollector::notifyChildSiginfo() possibly ignores it,
-	// because the pid of the child isn't in the wait child set.
-	CppReaper<ActorCollector::Locker>
-	  actorCollectorLockReaper(new ActorCollector::Locker());
+	virtual ActorInfo *successCb(const pid_t &pid) // override
+	{
+		actorInfo->pid = pid;
+		ActionLogStatus initialStatus =
+		  (actionDef.type == ACTION_COMMAND) ?
+		    ACTLOG_STAT_STARTED : ACTLOG_STAT_LAUNCHING_RESIDENT;
 
-	gboolean succeeded =
-	  g_spawn_async(workingDirectory, (gchar **)argv, (gchar **)envp,
-	                flags, childSetup, userData, &actorInfo->pid, &error);
-	if (!succeeded) {
-		actorCollectorLockReaper.reap();
+		if (waitCmdInfo) {
+			// A waiting command action has the log ID.
+			// So we simply update the status.
+			dbAction.updateLogStatusToStart(waitCmdInfo->logId);
+			actorInfo->logId = waitCmdInfo->logId;
+		} else {
+			actorInfo->logId =
+			  dbAction.createActionLog(
+			    actionDef, eventInfo,
+			    ACTLOG_EXECFAIL_NONE, initialStatus);
+		}
+		return actorInfo;
+	}
+
+	virtual void postSuccessCb(void) // override
+	{
+		if (postproc) {
+			(*postproc)(actorInfo, actionDef,
+			            actorInfo->logId, postprocPriv);
+		}
+	}
+
+	virtual void errorCb(GError *error) // override
+	{
 		uint64_t logId;
 		bool logUpdateFlag = false;
 		if (waitCmdInfo) {
@@ -649,29 +658,36 @@ bool ActionManager::spawn(
 		delete actorInfo;
 		if (postproc)
 			(*postproc)(NULL, actionDef, logId, postprocPriv);
-		return false;
+	}
+};
+
+bool ActionManager::spawn(
+  const ActionDef &actionDef, const EventInfo &eventInfo,
+  DBClientAction &dbAction, const gchar **argv,
+  SpawnPostproc postproc, void *postprocPriv)
+{
+	ActorProfile actorProf(actionDef, eventInfo, dbAction,
+	                       postproc, postprocPriv);
+
+	for (; *argv; argv++)
+		actorProf.args.push_back(*argv);
+
+	// make envp with HATOHOL_SESSION_ID
+	actorProf.envs.push_back(PrivateContext::pathForAction);
+	actorProf.envs.push_back(PrivateContext::ldLibraryPathForAction);
+	actorProf.envs.push_back(
+	  makeSessionIdEnv(actionDef, actorProf.actorInfo->sessionId));
+
+	if (!actionDef.workingDir.empty())
+		actorProf.workingDirectory = actionDef.workingDir.c_str();
+
+	if (actionDef.type == ACTION_COMMAND) {
+		SpawnPostprocCommandActionCtx *postprocCtx =
+		  static_cast<SpawnPostprocCommandActionCtx *>(postprocPriv);
+		actorProf.waitCmdInfo = postprocCtx->waitCmdInfo;
 	}
 
-	ActionLogStatus initialStatus =
-	  (actionDef.type == ACTION_COMMAND) ?
-	    ACTLOG_STAT_STARTED : ACTLOG_STAT_LAUNCHING_RESIDENT;
-
-	if (waitCmdInfo) {
-		// A waiting command action has the log ID.
-		// So we simply update the status.
-		dbAction.updateLogStatusToStart(waitCmdInfo->logId);
-		actorInfo->logId = waitCmdInfo->logId;
-	} else {
-		actorInfo->logId =
-		  dbAction.createActionLog(actionDef, eventInfo,
-		                           ACTLOG_EXECFAIL_NONE, initialStatus);
-	}
-	ActorCollector::addActor(actorInfo);
-	if (postproc) {
-		(*postproc)(actorInfo, actionDef,
-		            actorInfo->logId, postprocPriv);
-	}
-	return true;
+	return ActorCollector::debut(actorProf) == HTERR_OK;
 }
 
 /*
@@ -1385,7 +1401,7 @@ void ActionManager::closeResident(ResidentNotifyInfo *notifyInfo,
 void ActionManager::postProcSpawnFailure(
   const ActionDef &actionDef, const EventInfo &eventInfo,
   DBClientAction &dbAction, ActorInfo *actorInfo,
-  uint64_t *logId, GError *error, bool logUpdateFlag)
+  uint64_t *logId, const GError *error, bool logUpdateFlag)
 {
 	// make an action log
 	ActionLogExecFailureCode failureCode =
@@ -1419,8 +1435,6 @@ void ActionManager::postProcSpawnFailure(
 	  LabelUtils::getTriggerStatusLabel(eventInfo.status).c_str(),
 	  LabelUtils::getTriggerSeverityLabel(eventInfo.severity).c_str(),
 	  eventInfo.hostId);
-
-	g_error_free(error);
 
 	// copy the log ID
 	if (logId)

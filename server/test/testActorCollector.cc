@@ -20,6 +20,7 @@
 #include <cppcutter.h>
 #include <gcutter.h>
 #include "ActorCollector.h"
+#include "ChildProcessManager.h"
 #include "Hatohol.h"
 #include "Helpers.h"
 
@@ -87,6 +88,7 @@ void test_debut(void)
 {
 	TestProfile profile;
 	profile.args.push_back("/bin/cat");
+	profile.args.push_back("/dev/stdout");
 	assertHatoholError(HTERR_OK, ActorCollector::debut(profile));
 	cppcut_assert_equal(true, profile.calledPostSuccessCb);
 }
