@@ -367,6 +367,7 @@ void ChildProcessManager::collected(const siginfo_t *siginfo)
 		childInfo = it->second;
 	if (!childInfo) {
 		unlocker.reap();
+		m_ctx->postWaitChildSem();
 		MLPL_INFO("Collected unwatched child: %d\n", siginfo->si_pid);
 		return;
 	}
