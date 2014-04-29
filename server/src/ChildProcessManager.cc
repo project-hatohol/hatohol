@@ -110,8 +110,6 @@ struct ChildProcessManager::PrivateContext {
 		}
 		childrenMapLock.unlock();
 		resetRequest = false;
-		HATOHOL_ASSERT(sem_init(&waitChildSem, 0, 0) == 0,
-		               "Failed to call sem_init(): %d\n", errno);
 		int err = resetSem.post();
 		HATOHOL_ASSERT(err == 0,
 		               "Failed to call resetSem.post(): %d\n", err);
