@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -59,6 +59,32 @@ public:
 
 	static guint setGLibIdleEvent(GSourceFunc func, gpointer data = NULL,
 	                              GMainContext *context = NULL);
+
+	/**
+	 * Watch a file descriptor in the GLIB event loop.
+	 *
+	 * @param fd
+	 * A file descriptor to be watched.
+	 *
+	 * @param events
+	 * A combination of GIOCondition.
+	 * It is typically G_IO_IN | G_IO_HUP | G_IO_ERR for reading, and
+	 * G_IO_OUT | G_IO_ERR for for writing.
+	 *
+	 * @param func
+	 * A function called when an event occurs.
+	 *
+	 * @param data
+	 * A private data passed to the callback function.
+	 *
+	 * @param context
+	 * A GLIB main loop context. If it's NULL, the default context is used.
+	 *
+	 * @return An event tag.
+	 */
+	static guint watchFdInGLibMainLoop(
+	  int fd, gushort events, GSourceFunc func, gpointer data = NULL,
+	  GMainContext *context = NULL);
 
 	/**
 	 * execute a function on the specified GLIB event loop.
