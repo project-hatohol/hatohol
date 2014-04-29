@@ -98,14 +98,6 @@ public:
 
 protected:
 	struct ActorContext;
-	struct Locker
-	{
-		Locker(void);
-		virtual ~Locker();
-	};
-
-	static void lock(void);
-	static void unlock(void);
 
 	static void notifyChildSiginfo(
 	  const siginfo_t *info, ActorContext &actorCtx);

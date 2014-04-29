@@ -40,6 +40,19 @@ typedef WaitChildSet::const_iterator WaitChildSetConstIterator;
 struct ActorCollector::PrivateContext {
 	static MutexLock lock;
 	static WaitChildSet waitChildSet;
+
+	struct Locker
+	{
+		Locker(void)
+		{
+			lock.lock();
+		}
+
+		virtual ~Locker()
+		{
+			lock.unlock();
+		}
+	};
 };
 
 MutexLock ActorCollector::PrivateContext::lock;
@@ -100,25 +113,12 @@ ActorInfo::~ActorInfo()
 }
 
 // ---------------------------------------------------------------------------
-// ActorCollector::Locker
-// ---------------------------------------------------------------------------
-ActorCollector::Locker::Locker(void)
-{
-	ActorCollector::lock();
-}
-
-ActorCollector::Locker::~Locker()
-{
-	ActorCollector::unlock();
-}
-
-// ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 void ActorCollector::reset(void)
 {
 	ChildProcessManager::getInstance()->reset();
-	Locker locker;
+	PrivateContext::Locker locker;
 	HATOHOL_ASSERT(PrivateContext::waitChildSet.empty(),
 	               "waitChildSet is not empty (%zd).",
 	               PrivateContext::waitChildSet.size());
@@ -177,7 +177,7 @@ HatoholError ActorCollector::debut(Profile &profile)
 
 void ActorCollector::addActor(ActorInfo *actorInfo)
 {
-	Locker locker;
+	PrivateContext::Locker locker;
 	pair<WaitChildSetIterator, bool> result =
 	  PrivateContext::waitChildSet.insert
 	    (pair<pid_t, ActorInfo *>(actorInfo->pid, actorInfo));
@@ -191,46 +191,36 @@ void ActorCollector::addActor(ActorInfo *actorInfo)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void ActorCollector::lock(void)
-{
-	PrivateContext::lock.lock();
-}
-
-void ActorCollector::unlock(void)
-{
-	PrivateContext::lock.unlock();
-}
-
 bool ActorCollector::isWatching(pid_t pid)
 {
 	bool found = false;
-	lock();
+	PrivateContext::lock.lock();
 	WaitChildSetIterator it = PrivateContext::waitChildSet.find(pid);
 	if (it != PrivateContext::waitChildSet.end())
 		found = true;
-	unlock();
+	PrivateContext::lock.unlock();
 	return found;
 }
 
 void ActorCollector::setDontLog(pid_t pid)
 {
 	bool found = false;
-	lock();
+	PrivateContext::lock.lock();
 	WaitChildSetIterator it = PrivateContext::waitChildSet.find(pid);
 	if (it != PrivateContext::waitChildSet.end()) {
 		it->second->dontLog = true;
 		found = true;
 	}
-	unlock();
+	PrivateContext::lock.unlock();
 	if (!found)
 		MLPL_WARN("Not found pid: %d for setDontLog().\n", pid);
 }
 
 size_t ActorCollector::getNumberOfWaitingActors(void)
 {
-	lock();
+	PrivateContext::lock.lock();
 	size_t num = PrivateContext::waitChildSet.size();
-	unlock();
+	PrivateContext::lock.unlock();
 	return num;
 }
 
@@ -292,7 +282,7 @@ void ActorCollector::postCollectedProc(ActorContext &actorCtx)
 void ActorCollector::cleanupChildInfo(const pid_t &pid)
 {
 	// Remove actorInfo from waitChildSet
-	Locker locker;
+	PrivateContext::Locker locker;
 	WaitChildSetIterator it =
 	  PrivateContext::waitChildSet.find(pid);
 	ActorInfo *actorInfo = it->second;
