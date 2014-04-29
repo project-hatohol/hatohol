@@ -77,7 +77,6 @@ struct ChildProcessManager::PrivateContext {
 	AtomicValue<bool> resetRequest;
 	EventSemaphore    resetSem;
 
-	sem_t         waitChildSem;
 	ReadWriteLock childrenMapLock;
 	ChildMap      childrenMap;
 
@@ -92,6 +91,28 @@ struct ChildProcessManager::PrivateContext {
 	virtual ~PrivateContext(void)
 	{
 		// TODO: wait all children
+	}
+
+	void postWaitChildSem(void)
+	{
+		while (true) {
+			if (sem_post(&waitChildSem) == 0)
+				break;
+			if (errno == EINTR)
+				continue;
+			HATOHOL_ASSERT(true, "sem_post() failed: %d", errno);
+		}
+	}
+
+	void waitWaitChildSem(void)
+	{
+		while (true) {
+			if (sem_wait(&waitChildSem) == 0)
+				break;
+			if (errno == EINTR)
+				continue;
+			HATOHOL_ASSERT(true, "sem_wait() failed: %d", errno);
+		}
 	}
 
 	void resetOnCollectThread(void)
@@ -114,6 +135,9 @@ struct ChildProcessManager::PrivateContext {
 		HATOHOL_ASSERT(err == 0,
 		               "Failed to call resetSem.post(): %d\n", err);
 	}
+
+private:
+	sem_t         waitChildSem;
 };
 
 ChildProcessManager *ChildProcessManager::PrivateContext::instance = NULL;
@@ -213,8 +237,7 @@ void ChildProcessManager::reset(void)
 	};
 
 	m_ctx->resetRequest = true;
-	int ret = sem_post(&m_ctx->waitChildSem);
-	HATOHOL_ASSERT(ret == 0, "sem_post() failed: %d", errno);
+	m_ctx->postWaitChildSem();
 
 	// We send SIGKILL to unblock waitid().
 	m_ctx->childrenMapLock.readLock();
@@ -284,10 +307,7 @@ HatoholError ChildProcessManager::create(CreateArg &arg)
 		HATOHOL_ASSERT(true,
 		  "The previous data might still remain: %d\n", arg.pid);
 	}
-	if (sem_post(&m_ctx->waitChildSem) == -1) {
-		HATOHOL_ASSERT(true,
-		  "Failed to post semaphore: %d\n", errno);
-	}
+	m_ctx->postWaitChildSem();
 
 	return HTERR_OK;
 }
@@ -310,20 +330,14 @@ ChildProcessManager::~ChildProcessManager()
 gpointer ChildProcessManager::mainThread(HatoholThreadArg *arg)
 {
 	while (true) {
-		int ret = sem_wait(&m_ctx->waitChildSem);
-		if (ret == -1) {
-			if (errno == EINTR)
-				continue;
-			HATOHOL_ASSERT(
-			  true, "Failed to sem_wait(): %d\n", errno);
-		}
-		
+		m_ctx->waitWaitChildSem();
 		if (m_ctx->resetRequest) {
 			m_ctx->resetOnCollectThread();
 			continue;
 		}
 
 		siginfo_t siginfo;
+		int ret = 0;
 		while (true) {
 			ret = waitid(P_ALL, 0, &siginfo, WEXITED);
 			if (ret == -1 && errno == EINTR)
