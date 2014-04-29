@@ -191,17 +191,6 @@ void ActorCollector::addActor(ActorInfo *actorInfo)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-// TODO: remove if this is not needed.
-void ActorCollector::registerSIGCHLD(void)
-{
-	struct sigaction sa;
-	memset(&sa, 0, sizeof(struct sigaction));
-	sa.sa_handler = SIG_DFL;
-	sa.sa_flags |= (SA_RESTART|SA_SIGINFO);
-	HATOHOL_ASSERT(sigaction(SIGCHLD, &sa, NULL ) == 0,
-	               "Failed to set SIGCHLD, errno: %d\n", errno);
-}
-
 void ActorCollector::lock(void)
 {
 	PrivateContext::lock.lock();

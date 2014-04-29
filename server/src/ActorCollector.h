@@ -104,7 +104,6 @@ protected:
 		virtual ~Locker();
 	};
 
-	static void registerSIGCHLD(void);
 	static void lock(void);
 	static void unlock(void);
 
