@@ -25,6 +25,7 @@
 #include "ChildProcessManager.h"
 #include "HatoholException.h"
 #include "Reaper.h"
+#include "EventSemaphore.h"
 
 using namespace std;
 using namespace mlpl;
@@ -74,17 +75,16 @@ struct ChildProcessManager::PrivateContext {
 	static ReadWriteLock        instanceLock;
 
 	AtomicValue<bool> resetRequest;
-	sem_t             resetSem;
+	EventSemaphore    resetSem;
 
 	sem_t         waitChildSem;
 	ReadWriteLock childrenMapLock;
 	ChildMap      childrenMap;
 
 	PrivateContext(void)
-	: resetRequest(false)
+	: resetRequest(false),
+	  resetSem(0)
 	{
-		HATOHOL_ASSERT(sem_init(&resetSem, 0, 0) == 0,
-		               "Failed to call sem_init(): %d\n", errno);
 		HATOHOL_ASSERT(sem_init(&waitChildSem, 0, 0) == 0,
 		               "Failed to call sem_init(): %d\n", errno);
 	}
@@ -112,7 +112,9 @@ struct ChildProcessManager::PrivateContext {
 		resetRequest = false;
 		HATOHOL_ASSERT(sem_init(&waitChildSem, 0, 0) == 0,
 		               "Failed to call sem_init(): %d\n", errno);
-		sem_post(&resetSem);
+		int err = resetSem.post();
+		HATOHOL_ASSERT(err == 0,
+		               "Failed to call resetSem.post(): %d\n", err);
 	}
 };
 
@@ -181,6 +183,37 @@ ChildProcessManager *ChildProcessManager::getInstance(void)
 
 void ChildProcessManager::reset(void)
 {
+	struct ResetContext {
+		EventSemaphore &sem;
+		GMainLoop *loop;
+
+		ResetContext (EventSemaphore &_sem)
+		: sem(_sem),
+		  loop(NULL)
+		{
+			loop = g_main_loop_new(NULL, TRUE);
+			Utils::watchFdInGLibMainLoop(
+			  sem.getEventFd(), G_IO_IN|G_IO_HUP|G_IO_ERR,
+			  onSemaphoreReady, this);
+		}
+
+		virtual ~ResetContext()
+		{
+			if (loop)
+				g_main_loop_unref(loop);
+		}
+
+		static gboolean onSemaphoreReady(gpointer data)
+		{
+			ResetContext *obj = static_cast<ResetContext *>(data);
+			g_main_loop_quit(obj->loop);
+			int err = obj->sem.wait();
+			HATOHOL_ASSERT(
+			  err == 0, "Failed to resetSem.wait(): %d", err);
+			return G_SOURCE_REMOVE;
+		}
+	};
+
 	m_ctx->resetRequest = true;
 	int ret = sem_post(&m_ctx->waitChildSem);
 	HATOHOL_ASSERT(ret == 0, "sem_post() failed: %d", errno);
@@ -195,13 +228,8 @@ void ChildProcessManager::reset(void)
 	m_ctx->childrenMapLock.unlock();
 
 	// Wait for completion of reset.
-	while (true) {
-		if (sem_wait(&m_ctx->resetSem) == -1) {
-			if (errno == EINTR)
-				continue;
-		}
-		break;
-	}
+	ResetContext resetCtx(m_ctx->resetSem);
+	g_main_loop_run(resetCtx.loop);
 }
 
 HatoholError ChildProcessManager::create(CreateArg &arg)
