@@ -26,6 +26,7 @@
 #include <string>
 #include "HatoholArmPluginGate.h"
 #include "CacheServiceDBClient.h"
+#include "ChildProcessManager.h"
 
 using namespace std;
 using namespace qpid::messaging;
@@ -55,7 +56,6 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 
 bool HatoholArmPluginGate::start(const MonitoringSystemType &type)
 {
-	HatoholThreadBase::start();
 	CacheServiceDBClient cache;
 	DBClientConfig *dbConfig = cache.getConfig();
 	ArmPluginInfo armPluginInfo;
@@ -70,32 +70,44 @@ bool HatoholArmPluginGate::start(const MonitoringSystemType &type)
 	}
 
 	// launch a plugin process
-	const gchar *workingDirectory = NULL;
-	const gchar **envp = NULL;
-	const gchar *argv[] = {armPluginInfo.path.c_str(), NULL};
-	const GSpawnChildSetupFunc childSetup = NULL;
-	const gpointer userData = NULL;
-	GError *error = NULL;
-	const GSpawnFlags flags = (GSpawnFlags)(G_SPAWN_DO_NOT_REAP_CHILD);
-	gboolean succeeded =
-	  g_spawn_async(workingDirectory, (gchar **)argv, (gchar **)envp,
-	                flags, childSetup, userData, &m_ctx->pid, &error);
-	if (!succeeded) {
-		string reason = "<Unknown reason>";
-		if (error) {
-			reason = error->message;
-			g_error_free(error);
+	struct EventCb : public ChildProcessManager::EventCallback {
+
+		bool succeededInCreation;
+
+		EventCb(void)
+		: succeededInCreation(false)
+		{
 		}
-		MLPL_ERR("Failed to start: plugin (%d:%s), %s\n",
-		         armPluginInfo.type, armPluginInfo.path.c_str(),
-		         reason.c_str());
+
+		virtual void onExecuted(const bool &succeeded,
+		                        GError *gerror) // override
+		{
+			succeededInCreation = succeeded;
+		}
+
+		virtual void onCollected(const siginfo_t *siginfo) // override
+		{
+			// TODO: Implemented
+			MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+		}
+	} *eventCb = new EventCb();
+
+	ChildProcessManager::CreateArg arg;
+	arg.args.push_back(armPluginInfo.path);
+	arg.eventCb = eventCb;
+	ChildProcessManager::getInstance()->create(arg);
+	if (!eventCb->succeededInCreation) {
+		MLPL_ERR("Failed to execute: (%d) %s",
+		         armPluginInfo.type, armPluginInfo.path.c_str());
 		return false;
 	}
 
-	// TODO: Setup to detect the terminate of the plugin.
 	MLPL_INFO("Started: plugin (%d) %s\n",
 	          armPluginInfo.type, armPluginInfo.path.c_str());
 	m_ctx->armStatus.setRunningStatus(true);
+
+	// start a thread
+	HatoholThreadBase::start();
 	return true;
 }
 
