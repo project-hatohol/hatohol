@@ -97,7 +97,7 @@ bool HatoholArmPluginGate::start(const MonitoringSystemType &type)
 	arg.eventCb = eventCb;
 	ChildProcessManager::getInstance()->create(arg);
 	if (!eventCb->succeededInCreation) {
-		MLPL_ERR("Failed to execute: (%d) %s",
+		MLPL_ERR("Failed to execute: (%d) %s\n",
 		         armPluginInfo.type, armPluginInfo.path.c_str());
 		return false;
 	}
