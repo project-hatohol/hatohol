@@ -109,6 +109,15 @@ TriggerInfo testTriggerInfo[] =
 	"hostX2",                 // hostName,
 	"TEST Trigger 1b",        // brief,
 },{
+	1,                        // serverId
+	4,                        // id
+	TRIGGER_STATUS_PROBLEM,   // status
+	TRIGGER_SEVERITY_INFO,    // severity
+	{1362957197,0},           // lastChangeTime
+	235012,                   // hostId,
+	"hostX1",                 // hostName,
+	"TEST Trigger 1c",        // brief,
+},{
 	3,                        // serverId
 	2,                        // id
 	TRIGGER_STATUS_PROBLEM,   // status

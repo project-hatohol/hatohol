@@ -1775,9 +1775,7 @@ size_t DBClientHatohol::getNumberOfTriggers(const TriggersQueryOption &option,
                                             TriggerSeverityType severity)
 {
 	DBAgent::SelectExArg arg(tableProfileTriggers);
-	string stmt =
-	  StringUtils::sprintf("count(distinct %s)",
-	    option.getColumnName(IDX_TRIGGERS_HOST_ID).c_str());
+	string stmt = "count(*)";
 	arg.add(stmt, SQL_COLUMN_TYPE_INT);
 
 	// from
