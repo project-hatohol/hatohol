@@ -54,7 +54,7 @@ public:
 		std::string workingDirectory;
 
 		/**
-		 * Called in debut() when it is succeeded synchronusly.
+		 * Called in debut() when it is succeeded synchronously.
 		 *
 		 * @parameter pid
 		 * A PID of a created process.
