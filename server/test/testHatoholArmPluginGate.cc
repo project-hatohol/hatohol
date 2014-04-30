@@ -25,6 +25,38 @@
 
 namespace testHatoholArmPluginGate {
 
+struct StartAndExitArg {
+	MonitoringSystemType monitoringSystemType;
+	bool                 expectedResultOfStart;
+
+	StartAndExitArg(void)
+	: monitoringSystemType(MONITORING_SYSTEM_HAPI_TEST),
+	  expectedResultOfStart(false)
+	{
+	}
+};
+
+static void _assertStartAndExit(StartAndExitArg &arg)
+{
+	setupTestDBConfig();
+	loadTestDBArmPlugin();
+	MonitoringServerInfo serverInfo;
+	initServerInfo(serverInfo);
+	HatoholArmPluginGatePtr pluginGate(
+	  new HatoholArmPluginGate(serverInfo), false);
+	const ArmStatus &armStatus = pluginGate->getArmStatus();
+	cppcut_assert_equal(false, armStatus.getArmInfo().running);
+	cppcut_assert_equal(
+	  arg.expectedResultOfStart,
+	  pluginGate->start(arg.monitoringSystemType));
+	cppcut_assert_equal(
+	  arg.expectedResultOfStart, armStatus.getArmInfo().running);
+
+	pluginGate->waitExit();
+	cppcut_assert_equal(false, armStatus.getArmInfo().running);
+}
+#define assertStartAndExit(A) cut_trace(_assertStartAndExit(A))
+
 void cut_setup(void)
 {
 	hatoholInit();
@@ -43,38 +75,18 @@ void test_constructor(void)
 
 void test_startAndWaitExit(void)
 {
-	setupTestDBConfig();
-	loadTestDBArmPlugin();
-	MonitoringServerInfo serverInfo;
-	initServerInfo(serverInfo);
-	HatoholArmPluginGatePtr pluginGate(
-	  new HatoholArmPluginGate(serverInfo), false);
-	const ArmStatus &armStatus = pluginGate->getArmStatus();
-	cppcut_assert_equal(false, armStatus.getArmInfo().running);
-	cppcut_assert_equal(
-	  true, pluginGate->start(MONITORING_SYSTEM_HAPI_TEST));
-	cppcut_assert_equal(true, armStatus.getArmInfo().running);
-
-	pluginGate->waitExit();
-	cppcut_assert_equal(false, armStatus.getArmInfo().running);
+	StartAndExitArg arg;
+	arg.monitoringSystemType = MONITORING_SYSTEM_HAPI_TEST;
+	arg.expectedResultOfStart = true;
+	assertStartAndExit(arg);
 }
 
 void test_startWithInvalidPath(void)
 {
-	setupTestDBConfig();
-	loadTestDBArmPlugin();
-	MonitoringServerInfo serverInfo;
-	initServerInfo(serverInfo);
-	HatoholArmPluginGatePtr pluginGate(
-	  new HatoholArmPluginGate(serverInfo), false);
-	const ArmStatus &armStatus = pluginGate->getArmStatus();
-	cppcut_assert_equal(false, armStatus.getArmInfo().running);
-	cppcut_assert_equal(
-	  false, pluginGate->start(MONITORING_SYSTEM_HAPI_TEST_NOT_EXIST));
-	cppcut_assert_equal(false, armStatus.getArmInfo().running);
-
-	pluginGate->waitExit();
-	cppcut_assert_equal(false, armStatus.getArmInfo().running);
+	StartAndExitArg arg;
+	arg.monitoringSystemType = MONITORING_SYSTEM_HAPI_TEST_NOT_EXIST;
+	arg.expectedResultOfStart = false;
+	assertStartAndExit(arg);
 }
 
 } // namespace testHatoholArmPluginGate
