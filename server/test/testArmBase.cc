@@ -131,7 +131,7 @@ void test_requestExitAndWait(void)
 	initServerInfo(serverInfo);
 
 	TestArmBase armBase(__func__, serverInfo);
-	armBase.setOneProcHook(ctx.oneProcHook, &ctx);
+	armBase.setOneProcHook(Ctx::oneProcHook, &ctx);
 	armBase.addExitCallback(ctx.exitCb, &ctx);
 	cppcut_assert_equal(false, ctx.called.get());
 
@@ -209,7 +209,7 @@ void test_statusLog(gconstpointer data)
 	initServerInfo(serverInfo);
 	TestArmBase armBase(__func__, serverInfo);
 	ctx.armBase = &armBase;
-	armBase.setOneProcHook(ctx.oneProcHook, &ctx);
+	armBase.setOneProcHook(Ctx::oneProcHook, &ctx);
 	armBase.start();
 	armBase.waitExit(); // TODO: May blocks forever
 
