@@ -37,6 +37,8 @@ public:
 		API_VERSION_1_4_0, // Zabbix 2.0.0 - 2.0.3
 		API_VERSION_2_0_4, // default
 		API_VERSION_2_2_0,
+		API_VERSION_2_3_0, // Should be renamed to 2_4_0 after
+		                   // Zabbix 2.4.0 is released
 	};
 
 	struct APIHandlerArg;
