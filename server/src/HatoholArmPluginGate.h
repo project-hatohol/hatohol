@@ -26,6 +26,8 @@
 
 class HatoholArmPluginGate : public DataStore, public HatoholThreadBase {
 public:
+	static const std::string PassivePluginQuasiPath;
+
 	HatoholArmPluginGate(const MonitoringServerInfo &serverInfo);
 
 	/**
@@ -65,6 +67,8 @@ public:
 protected:
 	// To avoid an instance from being created on a stack.
 	virtual ~HatoholArmPluginGate();
+
+	bool launchPluginProcess(const ArmPluginInfo &armPluginInfo);
 
 private:
 	struct PrivateContext;

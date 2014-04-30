@@ -44,6 +44,8 @@ struct HatoholArmPluginGate::PrivateContext
 	}
 };
 
+const string HatoholArmPluginGate::PassivePluginQuasiPath = "#PASSIVE_PLUGIN#";
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
@@ -63,50 +65,17 @@ bool HatoholArmPluginGate::start(const MonitoringSystemType &type)
 		MLPL_ERR("Failed to get ArmPluginInfo: type: %d\n", type);
 		return false;
 	}
-	if (armPluginInfo.path.empty()) {
+	if (armPluginInfo.path == PassivePluginQuasiPath) {
 		MLPL_INFO("Started: passive plugin (%d) %s\n",
 		          armPluginInfo.type, armPluginInfo.path.c_str());
-		return true;
+	} else {
+		// launch a plugin process
+		if (!launchPluginProcess(armPluginInfo))
+			return false;
 	}
-
-	// launch a plugin process
-	struct EventCb : public ChildProcessManager::EventCallback {
-
-		bool succeededInCreation;
-
-		EventCb(void)
-		: succeededInCreation(false)
-		{
-		}
-
-		virtual void onExecuted(const bool &succeeded,
-		                        GError *gerror) // override
-		{
-			succeededInCreation = succeeded;
-		}
-
-		virtual void onCollected(const siginfo_t *siginfo) // override
-		{
-			// TODO: Implemented
-			MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-		}
-	} *eventCb = new EventCb();
-
-	ChildProcessManager::CreateArg arg;
-	arg.args.push_back(armPluginInfo.path);
-	arg.eventCb = eventCb;
-	ChildProcessManager::getInstance()->create(arg);
-	if (!eventCb->succeededInCreation) {
-		MLPL_ERR("Failed to execute: (%d) %s\n",
-		         armPluginInfo.type, armPluginInfo.path.c_str());
-		return false;
-	}
-
-	MLPL_INFO("Started: plugin (%d) %s\n",
-	          armPluginInfo.type, armPluginInfo.path.c_str());
-	m_ctx->armStatus.setRunningStatus(true);
 
 	// start a thread
+	m_ctx->armStatus.setRunningStatus(true);
 	HatoholThreadBase::start();
 	return true;
 }
@@ -153,3 +122,42 @@ HatoholArmPluginGate::~HatoholArmPluginGate()
 		delete m_ctx;
 }
 
+bool HatoholArmPluginGate::launchPluginProcess(
+  const ArmPluginInfo &armPluginInfo)
+{
+	struct EventCb : public ChildProcessManager::EventCallback {
+
+		bool succeededInCreation;
+
+		EventCb(void)
+		: succeededInCreation(false)
+		{
+		}
+
+		virtual void onExecuted(const bool &succeeded,
+		                        GError *gerror) // override
+		{
+			succeededInCreation = succeeded;
+		}
+
+		virtual void onCollected(const siginfo_t *siginfo) // override
+		{
+			// TODO: Implemented
+			MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+		}
+	} *eventCb = new EventCb();
+
+	ChildProcessManager::CreateArg arg;
+	arg.args.push_back(armPluginInfo.path);
+	arg.eventCb = eventCb;
+	ChildProcessManager::getInstance()->create(arg);
+	if (!eventCb->succeededInCreation) {
+		MLPL_ERR("Failed to execute: (%d) %s\n",
+		         armPluginInfo.type, armPluginInfo.path.c_str());
+		return false;
+	}
+
+	MLPL_INFO("Started: plugin (%d) %s\n",
+	          armPluginInfo.type, armPluginInfo.path.c_str());
+	return true;
+}

@@ -89,4 +89,12 @@ void test_startWithInvalidPath(void)
 	assertStartAndExit(arg);
 }
 
+void test_startWithPassivePlugin(void)
+{
+	StartAndExitArg arg;
+	arg.monitoringSystemType = MONITORING_SYSTEM_HAPI_TEST_PASSIVE;
+	arg.expectedResultOfStart = true;
+	assertStartAndExit(arg);
+}
+
 } // namespace testHatoholArmPluginGate
