@@ -725,9 +725,6 @@ void test_saveArmPluginInfoWithInvalidType(void)
 	armPluginInfo.type = MONITORING_SYSTEM_NAGIOS;
 	assertHatoholError(HTERR_INVALID_ARM_PLUGIN_TYPE,
 	                   dbConfig.saveArmPluginInfo(armPluginInfo));
-	armPluginInfo.type = NUM_MONITORING_SYSTEMS;
-	assertHatoholError(HTERR_INVALID_ARM_PLUGIN_TYPE,
-	                   dbConfig.saveArmPluginInfo(armPluginInfo));
 }
 
 void test_saveArmPluginInfoWithNoName(void)
@@ -773,7 +770,7 @@ void test_saveArmPluginInfoUpdate(void)
 	assertHatoholError(HTERR_OK, dbConfig.saveArmPluginInfo(armPluginInfo));
 
 	// check
-	const string statement = "SELECT * FROM arm_plugins";
+	const string statement = "SELECT * FROM arm_plugins ORDER BY type ASC";
 	string expect;
 	for (size_t i = 0; i < NumTestArmPluginInfo; i++) {
 		if (i == targetIdx)

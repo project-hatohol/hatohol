@@ -21,6 +21,7 @@
 #define ActorCollector_h
 
 #include "HatoholThreadBase.h"
+#include "HatoholError.h"
 
 struct ActorInfo;
 typedef void (*ActorCollectedFunc)(const ActorInfo *actorInfo);
@@ -44,27 +45,45 @@ struct ActorInfo {
 	virtual ~ActorInfo();
 };
 
-class ActorCollector : public HatoholThreadBase
+class ActorCollector
 {
 public:
-	struct Locker
-	{
-		Locker(void);
-		virtual ~Locker();
+	struct Profile {
+		mlpl::StringVector args;
+		mlpl::StringVector envs;
+		std::string workingDirectory;
+
+		/**
+		 * Called in debut() when it is succeeded synchronusly.
+		 *
+		 * @parameter pid
+		 * A PID of a created process.
+		 *
+		 * @return
+		 * A pointer of an ActorInfo instance that is typically 
+		 * created in this callback. After this callback returns,
+		 * the owner of it is taken over by ActorCollector.
+		 */
+		virtual ActorInfo *successCb(const pid_t &pid) = 0;
+
+		virtual void postSuccessCb(void) = 0;
+		virtual void errorCb(GError *error) = 0;
 	};
 
-	static void init(void);
 	static void reset(void);
-	static void resetOnCollectorThread(void);
-	static void quit(void);
+
+	/**
+	 * Create a new actor.
+	 *
+	 * @param profile An actor's profile.
+	 * @return A HatoholError instance.
+	 */
+	static HatoholError debut(Profile &profile);
 
 	/**
 	 * lock() has to be called before this function is used.
 	 */
 	static void addActor(ActorInfo *actorInfo);
-
-	ActorCollector(void);
-	virtual ~ActorCollector();
 
 	/**
 	 * Check if ActorCollector is watching the process.
@@ -78,22 +97,15 @@ public:
 	static size_t getNumberOfWaitingActors(void);
 
 protected:
-	static void registerSIGCHLD(void);
-	static void incWaitingActor(void);
-	static void lock(void);
-	static void unlock(void);
+	struct ActorContext;
 
-	// we redefine start() as protected so that HatoholThreadBase::start()
-	// cannot be called from other classes.
-	void start(void);
-	void notifyChildSiginfo(siginfo_t *info);
-
-	// overriden virtual methods
-	virtual gpointer mainThread(HatoholThreadArg *arg);
+	static void notifyChildSiginfo(
+	  const siginfo_t *info, ActorContext &actorCtx);
+	static void postCollectedProc(ActorContext &actorCtx);
+	static void cleanupChildInfo(const pid_t &pid);
 
 private:
 	struct PrivateContext;
-	PrivateContext *m_ctx;
 };
 
 #endif // ActorCollector_h

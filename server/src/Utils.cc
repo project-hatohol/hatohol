@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -255,6 +255,63 @@ guint Utils::setGLibIdleEvent(GSourceFunc func, gpointer data,
 	return id;
 }
 
+guint Utils::watchFdInGLibMainLoop(int fd, gushort events,
+                                   GSourceFunc func, gpointer data,
+                                   GMainContext *context)
+{
+	struct WatchFdSource {
+		GSource gsource;
+		GPollFD gPollFd;
+	};
+
+	struct WatchFdFuncs {
+		static gboolean prepare(GSource *source, gint *timeout_)
+		{
+			return FALSE;
+		}
+
+		static gboolean check(GSource *source)
+		{
+			WatchFdSource *watchSrc =
+			  reinterpret_cast<WatchFdSource *>(source);
+			const GPollFD &gPollFd = watchSrc->gPollFd;
+			return gPollFd.revents & gPollFd.events;
+		}
+
+		static gboolean dispatch(GSource *source,
+		                         GSourceFunc callback,
+		                         gpointer user_data)
+		{
+			return (*callback)(user_data);
+		}
+
+		static void finalize(GSource *source)
+		{
+		}
+	};
+
+	static GSourceFuncs watchFdSourceFuncs = {
+		WatchFdFuncs::prepare,
+		WatchFdFuncs::check,
+		WatchFdFuncs::dispatch,
+		WatchFdFuncs::finalize,
+	};
+
+	if (!context)
+		context = g_main_context_default();
+	GSource *source = g_source_new(&watchFdSourceFuncs,
+	                               sizeof(WatchFdSource));
+	WatchFdSource *watchFdSrc = reinterpret_cast<WatchFdSource *>(source);
+	watchFdSrc->gPollFd.fd = fd;
+	watchFdSrc->gPollFd.events = events;
+	watchFdSrc->gPollFd.revents = 0;
+
+	g_source_add_poll(source, &watchFdSrc->gPollFd); 
+	g_source_set_callback(source, func, data, NULL);
+	guint id = g_source_attach(source, context);
+	g_source_unref(source);
+	return id;
+}
 
 void Utils::executeOnGLibEventLoop(
   void (*func)(gpointer), gpointer data, SyncType syncType,

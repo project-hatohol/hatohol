@@ -7,7 +7,7 @@ TESTS = run-test.sh
 TESTS_ENVIRONMENT = NO_MAKE=yes CUTTER="$(CUTTER)"
 
 noinst_LTLIBRARIES = libTest.la testHatohol.la residentTest.la
-noinst_PROGRAMS = ActionTp zabbix-api-response-collector
+noinst_PROGRAMS = ActionTp zabbix-api-response-collector hapi-test-plugin
 endif
 
 # default
@@ -26,7 +26,9 @@ LIBS = \
 # Test cases
 testHatohol_la_SOURCES = \
 	testActionExecArgMaker.cc testActionManager.cc \
+	testActorCollector.cc \
 	testCacheServiceDBClient.cc \
+	testChildProcessManager.cc \
 	testConfigManager.cc \
 	testDataQueryContext.cc testDataQueryOption.cc \
 	testDataStoreManager.cc testDataStoreFactory.cc \

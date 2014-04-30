@@ -24,6 +24,8 @@ using namespace std;
 using namespace mlpl;
 
 static const ServerIdType defunctServerId1 = 0x7fff0001;
+const MonitoringSystemType MONITORING_SYSTEM_HAPI_TEST =
+  static_cast<MonitoringSystemType>(NUM_MONITORING_SYSTEMS + 100);
 
 MonitoringServerInfo testServerInfo[] = 
 {{
@@ -634,6 +636,10 @@ ArmPluginInfo testArmPluginInfo[] = {
 	MONITORING_SYSTEM_HAPI_NAGIOS,   // type
 	"Nagios NDO",                    // name
 	"/usr/local/lib/hatohol/hapi/hapi-nagios-ndoutils",  // path
+}, {
+	MONITORING_SYSTEM_HAPI_TEST,     // type
+	"Test monitoring system",        // name
+	"hapi-test-plugin",              // path
 }
 };
 const size_t NumTestArmPluginInfo = sizeof(testArmPluginInfo) / sizeof(ArmPluginInfo);

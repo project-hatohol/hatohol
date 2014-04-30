@@ -30,8 +30,12 @@ public:
 
 	/**
 	 * Start an initiation. This typically launch a plugin process.
+	 *
+	 * @param type A monitoring system type.
+	 *
+	 * @return true if successfully started. Or false is returned.
 	 */
-	virtual void start(void);
+	bool start(const MonitoringSystemType &type);
 
 	/**
 	 * Reutrn an ArmStatus instance.

@@ -30,6 +30,7 @@
 #include "DBAgentMySQL.h"
 #include "CacheServiceDBClient.h"
 #include "SQLUtils.h"
+#include "Reaper.h"
 using namespace std;
 using namespace mlpl;
 
@@ -969,6 +970,18 @@ string getSyslogTail(size_t numLines)
 	return executeCommand(cmd);
 }
 
+void _assertFileContent(const string &expect, const string &path)
+{
+	gchar *contents;
+	gsize length;
+	GError *error = NULL;
+	g_file_get_contents(path.c_str(), &contents, &length, &error);
+	gcut_assert_error(error);
+	Reaper<void> reaper(contents, g_free);
+	cut_assert_equal_memory(expect.c_str(), expect.size(),
+	                        contents, length);
+}
+
 // ---------------------------------------------------------------------------
 // Watcher
 // ---------------------------------------------------------------------------
@@ -1080,4 +1093,40 @@ void LinesComparator::assert(const bool &strictOrder)
 		cppcut_assert_equal(m_ctx->str0, m_ctx->str1);
 	else
 		m_ctx->assertWithoutOrder();
+}
+
+// ---------------------------------------------------------------------------
+// GMainLoopWithTimeout
+// ---------------------------------------------------------------------------
+GMainLoopWithTimeout::GMainLoopWithTimeout(void)
+: m_timerTag(0),
+  m_loop(NULL)
+{
+	m_loop = g_main_loop_new(NULL, TRUE);
+}
+
+GMainLoopWithTimeout::~GMainLoopWithTimeout()
+{
+	if (m_loop)
+		g_main_loop_unref(m_loop);
+	if (m_timerTag)
+		g_source_remove(m_timerTag);
+}
+
+void GMainLoopWithTimeout::run(void)
+{
+	static const size_t timeout = 5000; // ms
+	m_timerTag = g_timeout_add(timeout, failureDueToTimedOut, NULL);
+	g_main_loop_run(m_loop);
+}
+
+void GMainLoopWithTimeout::quit(void)
+{
+	g_main_loop_quit(m_loop);
+}
+
+gboolean GMainLoopWithTimeout::failureDueToTimedOut(gpointer data)
+{
+	cut_fail("Timed out");
+	return G_SOURCE_REMOVE;
 }

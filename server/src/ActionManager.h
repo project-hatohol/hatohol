@@ -232,7 +232,7 @@ protected:
 	static void postProcSpawnFailure(
 	  const ActionDef &actionDef, const EventInfo &eventInfo,
 	  DBClientAction &dbAction, ActorInfo *actorInfo,
-	  uint64_t *logId, GError *error, bool logUpdateFlag);
+	  uint64_t *logId, const GError *error, bool logUpdateFlag);
 
 	void fillTriggerInfoInEventInfo(EventInfo &eventInfo);
 	static size_t getNumberOfOnstageCommandActors(void);
@@ -240,6 +240,7 @@ protected:
 	                                    std::string &sessionId);
 
 private:
+	struct ActorProfile;
 	PrivateContext *m_ctx;
 };
 

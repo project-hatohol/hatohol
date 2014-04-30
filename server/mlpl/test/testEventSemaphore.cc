@@ -17,46 +17,31 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #include <cppcutter.h>
-#include "HatoholArmPluginGate.h"
-#include "DBClientTest.h"
-#include "Helpers.h"
-#include "Hatohol.h"
+#include <errno.h>
 
-namespace testHatoholArmPluginGate {
+#include "EventSemaphore.h"
 
-void cut_setup(void)
-{
-	hatoholInit();
-}
+using namespace mlpl;
+
+namespace testEventSemaphore {
 
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
 void test_constructor(void)
 {
-	MonitoringServerInfo serverInfo;
-	initServerInfo(serverInfo);
-	HatoholArmPluginGatePtr pluginGate(
-	  new HatoholArmPluginGate(serverInfo), false);
+	EventSemaphore sem(0);
 }
 
-void test_startAndWaitExit(void)
+void test_postAndWait(void)
 {
-	setupTestDBConfig();
-	loadTestDBArmPlugin();
-	MonitoringServerInfo serverInfo;
-	initServerInfo(serverInfo);
-	HatoholArmPluginGatePtr pluginGate(
-	  new HatoholArmPluginGate(serverInfo), false);
-	const ArmStatus &armStatus = pluginGate->getArmStatus();
-	cppcut_assert_equal(false, armStatus.getArmInfo().running);
-	cppcut_assert_equal(
-	  true, pluginGate->start(MONITORING_SYSTEM_HAPI_TEST));
-	cppcut_assert_equal(true, armStatus.getArmInfo().running);
-
-	pluginGate->waitExit();
-	cppcut_assert_equal(false, armStatus.getArmInfo().running);
+	EventSemaphore sem(0);
+	cppcut_assert_equal(0, sem.post());
+	cppcut_assert_equal(0, sem.post());
+	cppcut_assert_equal(0, sem.wait());
+	cppcut_assert_equal(0, sem.wait());
 }
 
-} // namespace testHatoholArmPluginGate
+} // namespace testEventSemaphore

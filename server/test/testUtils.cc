@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -29,6 +29,7 @@
 #include "Utils.h"
 #include "Helpers.h"
 #include "HatoholThreadBase.h"
+#include "EventSemaphore.h"
 using namespace std;
 using namespace mlpl;
 
@@ -318,6 +319,70 @@ void test_removeGSourceWithInvalidTag(void)
 {
 	cppcut_assert_equal(true,
 	                    Utils::removeGSourceIfNeeded(INVALID_EVENT_ID));
+}
+
+void test_watchFdInGLibMainLoop(void)
+{
+	struct Ctx {
+		bool timedout;
+		bool posted;
+		bool called;
+		TestExecEvtLoop evtloop;
+		EventSemaphore sem;
+		guint idleTag;
+		guint timeoutTag;
+
+		Ctx(void)
+		: timedout(false),
+		  posted(false),
+		  called(false),
+		  sem(0),
+		  idleTag(INVALID_EVENT_ID),
+		  timeoutTag(INVALID_EVENT_ID)
+		{
+		}
+
+		static gboolean post(gpointer data)
+		{
+			Ctx *obj = static_cast<Ctx *>(data);
+			obj->sem.post();
+			obj->posted = true;
+			return G_SOURCE_REMOVE;
+		}
+
+		static gboolean expired(gpointer data)
+		{
+			Ctx *obj = static_cast<Ctx *>(data);
+			obj->timedout = true;
+			return G_SOURCE_REMOVE;
+		}
+
+		static gboolean fdEvent(gpointer data)
+		{
+			Ctx *obj = static_cast<Ctx *>(data);
+			obj->called = true;
+			g_main_loop_quit(obj->evtloop.loop);
+			return G_SOURCE_REMOVE;
+		}
+	} ctx;
+
+	Utils::watchFdInGLibMainLoop(
+	  ctx.sem.getEventFd(), G_IO_IN|G_IO_HUP|G_IO_ERR, ctx.fdEvent, &ctx);
+
+	// callback for post()
+	ctx.idleTag = g_idle_add(ctx.post, &ctx);
+
+	// timer for checking timeout.
+	const size_t timeoutInMSec = 5000;
+	ctx.timeoutTag = g_timeout_add(timeoutInMSec, ctx.expired, &ctx);
+
+	// run
+	g_main_loop_run(ctx.evtloop.loop);
+	cppcut_assert_equal(false, ctx.timedout);
+	g_source_remove(ctx.timeoutTag);
+	cppcut_assert_equal(true, ctx.posted);
+	cppcut_assert_equal(true, ctx.called);
+	cppcut_assert_equal(0, ctx.sem.wait());
 }
 
 } // namespace testUtils

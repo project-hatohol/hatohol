@@ -58,7 +58,7 @@ The following command fixes the problem.
 
     $ mysql -uroot
     mysql> GRANT USAGE ON *.* TO ''@'localhost';
-    mysql> GRANT ALL PRIVILEGES ON `test_%`.* TO ''@'localhost';
+    mysql> GRANT ALL PRIVILEGES ON `test\_%`.* TO ''@'localhost';
 
 Hint: fix an error: accessing to ndoutils on MySQL
 --------------------------------------------------

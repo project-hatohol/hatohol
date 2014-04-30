@@ -147,5 +147,7 @@ size_t findIndexFromTestActionDef(const UserIdType &userId);
  */
 const HostgroupIdSet &getTestHostgroupIdSet(void);
 
+extern const MonitoringSystemType MONITORING_SYSTEM_HAPI_TEST;
+
 #endif // DBClientTest_h
 

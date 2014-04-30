@@ -198,6 +198,11 @@ protected:
 	static bool canDeleteTargetServer(
 	  const ServerIdType &serverId, const OperationPrivilege &privilege);
 
+	void selectArmPluginInfo(DBAgent::SelectExArg &arg);
+
+	void readArmPluginStream(ItemGroupStream &itemGroupStream,
+	                         ArmPluginInfo &armPluginInfo);
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;

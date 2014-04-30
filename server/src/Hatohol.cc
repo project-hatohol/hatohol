@@ -45,6 +45,7 @@ using namespace mlpl;
 #include "CacheServiceDBClient.h"
 #include "SessionManager.h"
 #include "UnifiedDataStore.h"
+#include "ChildProcessManager.h"
 
 static MutexLock mutex;
 static bool initDone = false; 
@@ -75,12 +76,12 @@ static void init(const CommandLineArg &arg)
 	SQLProcessorUpdate::init();
 	SQLProcessorFactory::init();
 
-	ActorCollector::init();
 	FaceRest::init();
 }
 
 static void reset(const CommandLineArg &arg)
 {
+	ChildProcessManager::getInstance()->reset();
 	ActorCollector::reset();
 	SessionManager::reset();
 	ConfigManager::reset();

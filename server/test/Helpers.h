@@ -198,6 +198,9 @@ UserIdType findUserWithout(const OperationPrivilegeType &type);
 void initActionDef(ActionDef &actionDef);
 std::string getSyslogTail(size_t numLines);
 
+void _assertFileContent(const std::string &expect, const std::string &path);
+#define assertFileContent(E,P) cut_trace(_assertFileContent(E,P))
+
 class Watcher {
 	bool expired;
 	guint timerId;
@@ -240,6 +243,20 @@ public:
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
+};
+
+class GMainLoopWithTimeout {
+public:
+	GMainLoopWithTimeout(void);
+	virtual ~GMainLoopWithTimeout(void);
+	virtual void run(void);
+	virtual void quit(void);
+
+protected:
+	static gboolean failureDueToTimedOut(gpointer data);
+private:
+	guint      m_timerTag;
+	GMainLoop *m_loop;
 };
 
 #endif // Helpers_h
