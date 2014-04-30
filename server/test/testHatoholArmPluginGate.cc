@@ -59,4 +59,22 @@ void test_startAndWaitExit(void)
 	cppcut_assert_equal(false, armStatus.getArmInfo().running);
 }
 
+void test_startWithInvalidPath(void)
+{
+	setupTestDBConfig();
+	loadTestDBArmPlugin();
+	MonitoringServerInfo serverInfo;
+	initServerInfo(serverInfo);
+	HatoholArmPluginGatePtr pluginGate(
+	  new HatoholArmPluginGate(serverInfo), false);
+	const ArmStatus &armStatus = pluginGate->getArmStatus();
+	cppcut_assert_equal(false, armStatus.getArmInfo().running);
+	cppcut_assert_equal(
+	  false, pluginGate->start(MONITORING_SYSTEM_HAPI_TEST_NOT_EXIST));
+	cppcut_assert_equal(false, armStatus.getArmInfo().running);
+
+	pluginGate->waitExit();
+	cppcut_assert_equal(false, armStatus.getArmInfo().running);
+}
+
 } // namespace testHatoholArmPluginGate
