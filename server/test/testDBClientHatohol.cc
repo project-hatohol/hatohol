@@ -866,6 +866,31 @@ void test_getHostInfoListWithUserWhoCanAccessSomeHostgroups(gpointer data)
 	assertGetHosts(arg);
 }
 
+void data_getNumberOfTriggers(void)
+{
+	prepareDataForAllHostgroupIds();
+}
+
+void test_getNumberOfTriggers(gconstpointer data)
+{
+	setupTestTriggerDB();
+	setupTestHostgroupElementDB();
+
+	const ServerIdType targetServerId = testTriggerInfo[0].serverId;
+	const HostgroupIdType hostgroupId =
+	  gcut_data_get_int(data, "hostgroupId");
+
+	DBClientHatohol dbHatohol;
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(targetServerId);
+	option.setTargetHostgroupId(hostgroupId);
+	cppcut_assert_equal(
+	  dbHatohol.getNumberOfTriggers(option),
+	  getNumberOfTestTriggers(targetServerId, hostgroupId),
+	  cut_message("sv: %"FMT_SERVER_ID", hostgroup: %"FMT_HOST_GROUP_ID,
+		      targetServerId, hostgroupId));
+}
+
 void data_getNumberOfTriggersBySeverity(void)
 {
 	prepareDataForAllHostgroupIds();

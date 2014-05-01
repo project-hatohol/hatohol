@@ -362,6 +362,12 @@ size_t UnifiedDataStore::getNumberOfBadTriggers(
 	return dbHatohol.getNumberOfBadTriggers(option, severity);
 }
 
+size_t UnifiedDataStore::getNumberOfTriggers(const TriggersQueryOption &option)
+{
+	DBClientHatohol dbHatohol;
+	return dbHatohol.getNumberOfTriggers(option);
+}
+
 size_t UnifiedDataStore::getNumberOfGoodHosts(const TriggersQueryOption &option)
 {
 	DBClientHatohol dbHatohol;

@@ -354,6 +354,7 @@ public:
 	 */
 	size_t getNumberOfBadTriggers(const TriggersQueryOption &option,
 				      TriggerSeverityType severity);
+	size_t getNumberOfTriggers(const TriggersQueryOption &option);
 	size_t getNumberOfHosts(const TriggersQueryOption &option);
 	size_t getNumberOfGoodHosts(const TriggersQueryOption &option);
 	size_t getNumberOfBadHosts(const TriggersQueryOption &option);
@@ -374,6 +375,8 @@ protected:
 	void addHostInfoWithoutTransaction(const HostInfo &hostInfo);
 	void addMonitoringServerStatusWithoutTransaction(
 	  const MonitoringServerStatus &serverStatus);
+	size_t getNumberOfTriggers(const TriggersQueryOption &option,
+				   const std::string &additionalCondition);
 
 
 private:
