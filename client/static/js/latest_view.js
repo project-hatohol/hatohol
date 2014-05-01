@@ -22,6 +22,8 @@ var LatestView = function(userProfile) {
   var rawData, parsedData;
 
   self.reloadIntervalSeconds = 60;
+  self.numRecordsPerPage = 0;
+  self.currentPage = 0;
 
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
@@ -136,8 +138,8 @@ var LatestView = function(userProfile) {
 
   function getQuery() {
     var query = {
-      maximumNumber: 0,
-      offset:        0
+      maximumNumber:   self.numRecordsPerPage,
+      offset:          self.numRecordsPerPage * self.currentPage
     };
     self.addHostQuery(query);
     return 'item?' + $.param(query);

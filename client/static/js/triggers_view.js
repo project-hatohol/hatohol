@@ -22,6 +22,8 @@ var TriggersView = function(userProfile) {
   var rawData;
 
   self.reloadIntervalSeconds = 60;
+  self.numRecordsPerPage = 0;
+  self.currentPage = 0;
 
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
@@ -135,8 +137,8 @@ var TriggersView = function(userProfile) {
     var query = {
       minimumSeverity: $("#select-severity").val(),
       status:          $("#select-status").val(),
-      maximumNumber:   0,
-      offset:          0
+      maximumNumber:   self.numRecordsPerPage,
+      offset:          self.numRecordsPerPage * self.currentPage
     };
     self.addHostQuery(query);
     return 'trigger?' + $.param(query);
