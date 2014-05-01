@@ -1031,7 +1031,7 @@ static HatoholError addOverviewEachServer(FaceRest::RestJob *job,
 			agent.add("severity", severity);
 			agent.add(
 			  "numberOfTriggers",
-			  dataStore->getNumberOfTriggers
+			  dataStore->getNumberOfBadTriggers
 			    (option, (TriggerSeverityType)severity));
 			agent.endObject();
 		}

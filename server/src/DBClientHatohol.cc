@@ -1770,9 +1770,8 @@ void DBClientHatohol::addMonitoringServerStatus(
 	} DBCLIENT_TRANSACTION_END();
 }
 
-// TODO: Should we name it getNumberOfBadGriggers ?
-size_t DBClientHatohol::getNumberOfTriggers(const TriggersQueryOption &option,
-                                            TriggerSeverityType severity)
+size_t DBClientHatohol::getNumberOfBadTriggers(
+  const TriggersQueryOption &option, TriggerSeverityType severity)
 {
 	DBAgent::SelectExArg arg(tableProfileTriggers);
 	string stmt = "count(*)";

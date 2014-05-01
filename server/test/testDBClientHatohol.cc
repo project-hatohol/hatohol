@@ -887,7 +887,7 @@ void test_getNumberOfTriggersBySeverity(gconstpointer data)
 		option.setTargetHostgroupId(hostgroupId);
 		TriggerSeverityType severity = (TriggerSeverityType)i;
 		const size_t actual =
-		  dbHatohol.getNumberOfTriggers(option, severity);
+		  dbHatohol.getNumberOfBadTriggers(option, severity);
 		const size_t expect = getNumberOfTestTriggers(
 		  targetServerId, hostgroupId, severity);
 		cppcut_assert_equal(
@@ -915,7 +915,8 @@ void test_getNumberOfTriggersBySeverityWithoutPriviledge(void)
 		//TODO: uncomment it after Hatohol supports host group
 		//option.setTargetHostgroupId(hostgroupId);
 		TriggerSeverityType severity = (TriggerSeverityType)i;
-		size_t actual = dbHatohol.getNumberOfTriggers(option, severity);
+		size_t actual
+		  = dbHatohol.getNumberOfBadTriggers(option, severity);
 		size_t expected = 0;
 		cppcut_assert_equal(expected, actual,
 		                    cut_message("severity: %d", i));
