@@ -426,7 +426,8 @@ static string makeHostsOutput(const HostInfo &hostInfo, size_t id)
 
 static void prepareDataForAllHostgroupIds(void)
 {
-	const set<HostgroupIdType> &hostgroupIdSet = getTestHostgroupIdSet();
+	set<HostgroupIdType> hostgroupIdSet = getTestHostgroupIdSet();
+	hostgroupIdSet.insert(ALL_HOST_GROUPS);
 	set<HostgroupIdType>::const_iterator hostgrpIdItr =
 	  hostgroupIdSet.begin();
 	for (; hostgrpIdItr != hostgroupIdSet.end(); ++hostgrpIdItr) {
