@@ -1780,6 +1780,7 @@ size_t DBClientHatohol::getNumberOfTriggers(const TriggersQueryOption &option,
 
 	// from
 	arg.tableField = option.getFromClause();
+	arg.useDistinct = option.isHostgroupUsed();
 
 	// condition
 	arg.condition = option.getCondition();
