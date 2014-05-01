@@ -69,6 +69,8 @@ protected:
 	virtual ~HatoholArmPluginGate();
 
 	bool launchPluginProcess(const ArmPluginInfo &armPluginInfo);
+	static std::string generateBrokerAddress(
+	  const MonitoringServerInfo &serverInfo);
 
 private:
 	struct PrivateContext;

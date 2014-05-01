@@ -18,12 +18,24 @@
  */
 
 #include <cppcutter.h>
+#include <string>
 #include "HatoholArmPluginGate.h"
 #include "DBClientTest.h"
 #include "Helpers.h"
 #include "Hatohol.h"
 
+using namespace std;
+
 namespace testHatoholArmPluginGate {
+
+class TestHatoholArmPluginGate : public HatoholArmPluginGate {
+public:
+	static string callGenerateBrokerAddress(
+	  const MonitoringServerInfo &serverInfo)
+	{
+		return generateBrokerAddress(serverInfo);
+	}
+};
 
 struct StartAndExitArg {
 	MonitoringSystemType monitoringSystemType;
@@ -95,6 +107,16 @@ void test_startWithPassivePlugin(void)
 	arg.monitoringSystemType = MONITORING_SYSTEM_HAPI_TEST_PASSIVE;
 	arg.expectedResultOfStart = true;
 	assertStartAndExit(arg);
+}
+
+void test_generateBrokerAddress(void)
+{
+	MonitoringServerInfo serverInfo;
+	initServerInfo(serverInfo);
+	serverInfo.id = 530;
+	cppcut_assert_equal(
+	  string("hatohol-arm-plugin.530"),
+	  TestHatoholArmPluginGate::callGenerateBrokerAddress(serverInfo));
 }
 
 } // namespace testHatoholArmPluginGate

@@ -27,8 +27,10 @@
 #include "HatoholArmPluginGate.h"
 #include "CacheServiceDBClient.h"
 #include "ChildProcessManager.h"
+#include "StringUtils.h"
 
 using namespace std;
+using namespace mlpl;
 using namespace qpid::messaging;
 
 struct HatoholArmPluginGate::PrivateContext
@@ -160,4 +162,11 @@ bool HatoholArmPluginGate::launchPluginProcess(
 	MLPL_INFO("Started: plugin (%d) %s\n",
 	          armPluginInfo.type, armPluginInfo.path.c_str());
 	return true;
+}
+
+string HatoholArmPluginGate::generateBrokerAddress(
+  const MonitoringServerInfo &serverInfo)
+{
+	return StringUtils::sprintf("hatohol-arm-plugin.%"FMT_SERVER_ID,
+	                            serverInfo.id);
 }
