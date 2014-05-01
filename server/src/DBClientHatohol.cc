@@ -1770,28 +1770,24 @@ void DBClientHatohol::addMonitoringServerStatus(
 	} DBCLIENT_TRANSACTION_END();
 }
 
-// TODO: Should we name it getNumberOfBadGriggers ?
-size_t DBClientHatohol::getNumberOfTriggers(const TriggersQueryOption &option,
-                                            TriggerSeverityType severity)
+size_t DBClientHatohol::getNumberOfTriggers(
+  const TriggersQueryOption &option, const std::string &additionalCondition)
 {
 	DBAgent::SelectExArg arg(tableProfileTriggers);
-	string stmt =
-	  StringUtils::sprintf("count(distinct %s)",
-	    option.getColumnName(IDX_TRIGGERS_HOST_ID).c_str());
+	string stmt = "count(*)";
 	arg.add(stmt, SQL_COLUMN_TYPE_INT);
 
 	// from
 	arg.tableField = option.getFromClause();
+	arg.useDistinct = option.isHostgroupUsed();
 
 	// condition
 	arg.condition = option.getCondition();
-	if (!arg.condition.empty())
-		arg.condition += " and ";
-	arg.condition +=
-	  StringUtils::sprintf("%s=%d and %s=%d",
-	    option.getColumnName(IDX_TRIGGERS_SEVERITY).c_str(), severity,
-	    option.getColumnName(IDX_TRIGGERS_STATUS).c_str(), 
-	    TRIGGER_STATUS_PROBLEM);
+	if (!additionalCondition.empty()) {
+		if (!arg.condition.empty())
+			arg.condition += " and ";
+		arg.condition += additionalCondition;
+	}
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -1800,6 +1796,22 @@ size_t DBClientHatohol::getNumberOfTriggers(const TriggersQueryOption &option,
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupStream itemGroupStream(*grpList.begin());
 	return itemGroupStream.read<int>();
+}
+
+size_t DBClientHatohol::getNumberOfBadTriggers(
+  const TriggersQueryOption &option, TriggerSeverityType severity)
+{
+	string additionalCondition =
+	  StringUtils::sprintf("%s=%d and %s=%d",
+	    option.getColumnName(IDX_TRIGGERS_SEVERITY).c_str(), severity,
+	    option.getColumnName(IDX_TRIGGERS_STATUS).c_str(), 
+	    TRIGGER_STATUS_PROBLEM);
+	return getNumberOfTriggers(option, additionalCondition);
+}
+
+size_t DBClientHatohol::getNumberOfTriggers(const TriggersQueryOption &option)
+{
+	return getNumberOfTriggers(option, string());
 }
 
 size_t DBClientHatohol::getNumberOfHosts(const TriggersQueryOption &option)

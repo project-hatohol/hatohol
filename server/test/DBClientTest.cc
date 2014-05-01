@@ -109,6 +109,24 @@ TriggerInfo testTriggerInfo[] =
 	"hostX2",                 // hostName,
 	"TEST Trigger 1b",        // brief,
 },{
+	1,                        // serverId
+	4,                        // id
+	TRIGGER_STATUS_PROBLEM,   // status
+	TRIGGER_SEVERITY_INFO,    // severity
+	{1362957197,0},           // lastChangeTime
+	235012,                   // hostId,
+	"hostX1",                 // hostName,
+	"TEST Trigger 1c",        // brief,
+},{
+	1,                        // serverId
+	5,                        // id
+	TRIGGER_STATUS_PROBLEM,   // status
+	TRIGGER_SEVERITY_INFO,    // severity
+	{1362957198,0},           // lastChangeTime
+	1129,                     // hostId,
+	"hostX3",                 // hostName,
+	"TEST Trigger 1d",        // brief,
+},{
 	3,                        // serverId
 	2,                        // id
 	TRIGGER_STATUS_PROBLEM,   // status
@@ -497,6 +515,10 @@ HostInfo testHostInfo[] = {
 	1,                     // serverId
 	235013,                // id(hostId)
 	"hostX2"               // hostName
+}, {
+	1,                     // serverId
+	1129,                  // id(hostId)
+	"hostX3"               // hostName
 } ,{
 	3,                     // serverId
 	10001,                 // id(hostId)
@@ -540,6 +562,11 @@ HostgroupElement testHostgroupElement[] = {
 	1,                     // serverId
 	235012,                // hostId
 	1,                     // groupId
+}, {
+	AUTO_INCREMENT_VALUE,  // id
+	1,                     // serverId
+	235012,                // hostId
+	2,                     // groupId
 }, {
 	AUTO_INCREMENT_VALUE,  // id
 	1,                     // serverId
