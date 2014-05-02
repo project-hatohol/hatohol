@@ -19,7 +19,8 @@ install:
   - npm install -g mocha-phantomjs phantomjs
   - sudo pip install django==1.5.4
   - sudo pip install mysql-python
-  - sudo echo acl allow all all > /etc/qpid/qpidd.acl
+  - sudo sh -c "echo acl allow all all > /etc/qpid/qpidd.acl"
+  - sudo /etc/init.d/qpidd restart
 before_script:
   - ./autogen.sh
   - ./configure
