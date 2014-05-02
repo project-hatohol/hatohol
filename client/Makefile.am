@@ -64,6 +64,7 @@ nobase_dist_hatohol_client_DATA = \
 	static/js/hatohol_login_dialog.js \
 	static/js/hatohol_message_box.js \
 	static/js/hatohol_navi.js \
+	static/js/hatohol_pager.js \
 	static/js/hatohol_user_profile.js \
 	static/js/hatohol_userconfig.js \
 	static/js/hatohol_password_changer.js \
