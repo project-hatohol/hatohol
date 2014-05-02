@@ -154,9 +154,8 @@ var TriggersView = function(userProfile) {
   function load(page) {
     self.startConnection(getQuery(page), updateCore);
     setLoading(true);
-    if (isNaN(page)) {
+    if (isNaN(page))
       self.pager.update({ currentPage: 0 });
-    }
   }
 };
 

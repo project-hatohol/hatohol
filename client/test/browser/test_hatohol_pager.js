@@ -12,9 +12,8 @@ describe('HatoholPager', function() {
     var i, list = $('#' + fixtureId + ' li');
     expect(list.length).to.be(4);
     expect($(list[0]).text()).to.be($('<div/>').html("&laquo;").text());
-    for (i = 0; i < 2; i++) {
+    for (i = 0; i < 2; i++)
       expect($(list[i + 1]).text()).to.be("" + (i + 1));
-    }
     expect($(list[3]).text()).to.be($('<div/>').html("&raquo;").text());
   });
 
@@ -23,9 +22,8 @@ describe('HatoholPager', function() {
     var i, list = $('#' + fixtureId + ' li');
     expect(list.length).to.be(5);
     expect($(list[0]).text()).to.be($('<div/>').html("&laquo;").text());
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < 3; i++)
       expect($(list[i + 1]).text()).to.be("" + (i + 1));
-    }
     expect($(list[4]).text()).to.be($('<div/>').html("&raquo;").text());
   });
 });
