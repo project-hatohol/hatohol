@@ -22,6 +22,7 @@ var HatoholPager = function(params) {
   this.numRecordsPerPage = 50;
   this.currentPage = 0;
   this.numTotalRecords = 0;
+  this.switchPageCallback = null;
 
   if (params && params.parentElements)
     this.parentElements = params.parentElements;
@@ -31,6 +32,8 @@ var HatoholPager = function(params) {
     this.currentPage = params.currentPage;
   if (params && !isNaN(params.numTotalRecords))
     this.numTotalRecords = params.numTotalRecords;
+  if (params && params.switchPageCallback)
+    this.switchPageCallback = params.switchPageCallback;
 
   this.update();
 };
@@ -42,22 +45,43 @@ HatoholPager.prototype.getTotalNumberOfPages = function() {
 }
 
 HatoholPager.prototype.update = function() {
-  var anchor, klass;
+  var self = this;
   var parent = this.parentElements;
   var numPages = this.getTotalNumberOfPages();
+  var createItem = function(label, getPageFunc) {
+    var anchor = $("<a>", {
+      href: "#",
+      html: label,
+      click: function () {
+	var page;
+	if (getPageFunc)
+	  page = getPageFunc();
+	else
+	  page = parseInt($(this).text()) - 1;
+	if (page < 0 || (numPages >= 0 && page >= numPages))
+	  return;
+	if (self.switchPageCallback)
+	  self.switchPageCallback(page);
+	self.currentPage = page;
+	self.update();
+      }
+    });
+    return $("<li/>", {
+      class: (i == this.currentPage) ? "active" : "",
+    }).append(anchor);
+  }
 
   parent.empty();
 
-  for (i = 0; i < numPages; ++i) {
-    anchor = $("<a>", {
-      href: "#",
-      text: (i + 1),
-    });
-    klass = (i == this.currentPage) ? "active" : "";
-    $("<li/>", { class: klass, }).append(anchor).appendTo(parent);
-  }
+  for (i = 0; i < numPages; ++i)
+    parent.append(createItem("" + (i + 1)));
+
   if (numPages > 1 || numPages < 0) {
-    parent.prepend('<li><a href="#">&laquo;</a></li>');
-    parent.append('<li><a href="#">&raquo;</a></li>');
+    parent.prepend(createItem("&laquo;", function() {
+      return self.currentPage - 1;
+    }));
+    parent.append(createItem("&raquo;", function() {
+      return self.currentPage + 1;
+    }));
   }
 };
