@@ -33,14 +33,31 @@ using namespace qpid::messaging;
 
 namespace testHatoholArmPluginGate {
 
+struct StartAndExitArg {
+	MonitoringSystemType monitoringSystemType;
+	bool                 expectedResultOfStart;
+	bool                 checkMessage;
+	size_t               numRetry;
+
+	StartAndExitArg(void)
+	: monitoringSystemType(MONITORING_SYSTEM_HAPI_TEST),
+	  expectedResultOfStart(false),
+	  checkMessage(false),
+	  numRetry(0)
+	{
+	}
+};
+
 class TestHatoholArmPluginGate : public HatoholArmPluginGate {
 public:
 	static const size_t TIMEOUT_MSEC = 5000;
+	const StartAndExitArg &arg;
 	bool       timedOut;
 	guint      timerTag;
 	bool       abnormalChildTerm;
 	string     rcvMessage;
 	bool       gotUnexceptedException;
+	size_t     retryCount;
 
 	class Loop {
 	public:
@@ -69,12 +86,15 @@ public:
 		GMainLoop *m_loop;
 	} loop;
 
-	TestHatoholArmPluginGate(const MonitoringServerInfo &serverInfo)
+	TestHatoholArmPluginGate(const MonitoringServerInfo &serverInfo,
+	                         const StartAndExitArg &_arg)
 	: HatoholArmPluginGate(serverInfo),
+	  arg(_arg),
 	  timedOut(false),
 	  timerTag(INVALID_EVENT_ID),
 	  abnormalChildTerm(false),
-	  gotUnexceptedException(false)
+	  gotUnexceptedException(false),
+	  retryCount(0)
 	{
 	}
 	
@@ -93,6 +113,15 @@ public:
 	// We assume these virtual funcitons are called from
 	// the plugin's thread.
 	// I.e. we must not call cutter's assertions in them.
+	virtual void onSessionChanged(Session *session) // override
+	{
+		if (arg.numRetry && session) {
+			if (retryCount < arg.numRetry)
+				session->close();
+			retryCount++;
+		}
+	}
+
 	virtual void onReceived(Message &message) // override
 	{
 		rcvMessage = message.getContent();
@@ -114,6 +143,9 @@ public:
 	virtual int onCaughtException(const exception &e) // override
 	{
 		printf("onCaughtException: %s\n", e.what());
+		if (arg.numRetry)
+			return 1;
+
 		if (rcvMessage.empty())
 			gotUnexceptedException = true;
 		return HatoholArmPluginGate::NO_RETRY;
@@ -137,19 +169,6 @@ public:
 	}
 };
 
-struct StartAndExitArg {
-	MonitoringSystemType monitoringSystemType;
-	bool                 expectedResultOfStart;
-	bool                 checkMessage;
-
-	StartAndExitArg(void)
-	: monitoringSystemType(MONITORING_SYSTEM_HAPI_TEST),
-	  expectedResultOfStart(false),
-	  checkMessage(false)
-	{
-	}
-};
-
 static void _assertStartAndExit(StartAndExitArg &arg)
 {
 	setupTestDBConfig();
@@ -157,7 +176,7 @@ static void _assertStartAndExit(StartAndExitArg &arg)
 	MonitoringServerInfo serverInfo;
 	initServerInfo(serverInfo);
 	TestHatoholArmPluginGate *hapg =
-	  new TestHatoholArmPluginGate(serverInfo);
+	  new TestHatoholArmPluginGate(serverInfo, arg);
 	HatoholArmPluginGatePtr pluginGate(hapg, false);
 	const ArmStatus &armStatus = pluginGate->getArmStatus();
 	cppcut_assert_equal(false, armStatus.getArmInfo().running);
@@ -231,6 +250,16 @@ void test_generateBrokerAddress(void)
 	cppcut_assert_equal(
 	  string("hatohol-arm-plugin.530"),
 	  TestHatoholArmPluginGate::callGenerateBrokerAddress(serverInfo));
+}
+
+void test_retryToConnect(void)
+{
+	StartAndExitArg arg;
+	arg.monitoringSystemType = MONITORING_SYSTEM_HAPI_TEST;
+	arg.expectedResultOfStart = true;
+	arg.checkMessage = true;
+	arg.numRetry = 3;
+	assertStartAndExit(arg);
 }
 
 } // namespace testHatoholArmPluginGate

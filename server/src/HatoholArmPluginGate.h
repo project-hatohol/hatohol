@@ -21,6 +21,7 @@
 #define HatoholArmPluginGate_h
 
 #include <qpid/messaging/Message.h>
+#include <qpid/messaging/Session.h>
 #include "HatoholThreadBase.h"
 #include "DataStore.h"
 #include "UsedCountablePtr.h"
@@ -72,6 +73,7 @@ protected:
 	// To avoid an instance from being created on a stack.
 	virtual ~HatoholArmPluginGate();
 
+	virtual void onSessionChanged(qpid::messaging::Session *session);
 	virtual void onReceived(qpid::messaging::Message &message);
 	virtual void onTerminated(const siginfo_t *siginfo);
 

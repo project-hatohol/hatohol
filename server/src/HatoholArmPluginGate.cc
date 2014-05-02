@@ -77,6 +77,7 @@ private:
 
 struct HatoholArmPluginGate::PrivateContext
 {
+	HatoholArmPluginGate *hapg;
 	MonitoringServerInfo serverInfo;    // we have a copy.
 	ArmPluginInfo        armPluginInfo;
 	ArmStatus            armStatus;
@@ -86,8 +87,10 @@ struct HatoholArmPluginGate::PrivateContext
 	MutexLock            sessionLock;
 	MutexLock            retrySleeper;
 
-	PrivateContext(const MonitoringServerInfo &_serverInfo)
-	: serverInfo(_serverInfo),
+	PrivateContext(const MonitoringServerInfo &_serverInfo,
+	               HatoholArmPluginGate *_hapg)
+	: hapg(_hapg),
+	  serverInfo(_serverInfo),
 	  pid(0),
 	  exitRequest(false),
 	  sessionPtr(NULL)
@@ -99,6 +102,7 @@ struct HatoholArmPluginGate::PrivateContext
 	{
 		sessionLock.lock();
 		sessionPtr = NULL;
+		hapg->onSessionChanged(sessionPtr);
 		sessionLock.unlock();
 	}
 };
@@ -112,7 +116,7 @@ HatoholArmPluginGate::HatoholArmPluginGate(
   const MonitoringServerInfo &serverInfo)
 : m_ctx(NULL)
 {
-	m_ctx = new PrivateContext(serverInfo);
+	m_ctx = new PrivateContext(serverInfo, this);
 }
 
 bool HatoholArmPluginGate::start(const MonitoringSystemType &type)
@@ -165,6 +169,7 @@ begin:
 
 		Session session = connection.createSession();
 		m_ctx->sessionPtr = &session;
+		onSessionChanged(m_ctx->sessionPtr);
 		Receiver receiver = session.createReceiver(address);
 		sessionLocker.unlock();
 
@@ -221,6 +226,10 @@ HatoholArmPluginGate::~HatoholArmPluginGate()
 {
 	if (m_ctx)
 		delete m_ctx;
+}
+
+void HatoholArmPluginGate::onSessionChanged(Session *session)
+{
 }
 
 void HatoholArmPluginGate::onReceived(Message &message)
@@ -288,3 +297,4 @@ string HatoholArmPluginGate::generateBrokerAddress(
 	return StringUtils::sprintf("hatohol-arm-plugin.%"FMT_SERVER_ID,
 	                            serverInfo.id);
 }
+
