@@ -30,6 +30,10 @@ div#main {
   margin-right: 5px;
 }
 
+div.hatohol-pager {
+  text-align: center;
+}
+
 .hatohol-filter-toolbar select,
 .hatohol-filter-toolbar input
 {
