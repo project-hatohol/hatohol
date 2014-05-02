@@ -24,6 +24,9 @@
 #include <qpid/messaging/Sender.h>
 #include <qpid/messaging/Session.h>
 #include <string>
+#include <AtomicValue.h>
+#include <MutexLock.h>
+#include <Reaper.h>
 #include "HatoholArmPluginGate.h"
 #include "CacheServiceDBClient.h"
 #include "ChildProcessManager.h"
@@ -33,16 +36,66 @@ using namespace std;
 using namespace mlpl;
 using namespace qpid::messaging;
 
+const char *HatoholArmPluginGate::DEFAULT_BROKER_URL = "localhost:5672";
+const char *HatoholArmPluginGate::ENV_NAME_QUEUE_ADDR = "HAPI_QUEUE_ADDR";
+
+class Locker {
+public:
+	Locker(MutexLock &lock, const bool &lockNow = true)
+	: m_lock(lock),
+	  m_inUse(lockNow)
+	{
+		if (lockNow)
+			m_lock.lock();
+	}
+
+	virtual ~Locker()
+	{
+		if (m_inUse)
+			m_lock.unlock();
+	}
+
+	void lock(void)
+	{
+		m_lock.lock();
+		m_inUse = true;
+	}
+
+	void unlock(void)
+	{
+		m_lock.unlock();
+		m_inUse = false;
+	}
+
+private:
+	MutexLock &m_lock;
+	bool m_inUse;
+
+};
+
 struct HatoholArmPluginGate::PrivateContext
 {
-	MonitoringServerInfo serverInfo; // we have a copy.
+	MonitoringServerInfo serverInfo;    // we have a copy.
+	ArmPluginInfo        armPluginInfo;
 	ArmStatus            armStatus;
 	GPid                 pid;
+	AtomicValue<bool>    exitRequest;
+	Session             *sessionPtr;
+	MutexLock            sessionLock;
 
 	PrivateContext(const MonitoringServerInfo &_serverInfo)
 	: serverInfo(_serverInfo),
-	  pid(0)
+	  pid(0),
+	  exitRequest(false),
+	  sessionPtr(NULL)
 	{
+	}
+
+	void sessionPtrToNull(void)
+	{
+		sessionLock.lock();
+		sessionPtr = NULL;
+		sessionLock.unlock();
 	}
 };
 
@@ -62,17 +115,17 @@ bool HatoholArmPluginGate::start(const MonitoringSystemType &type)
 {
 	CacheServiceDBClient cache;
 	DBClientConfig *dbConfig = cache.getConfig();
-	ArmPluginInfo armPluginInfo;
-	if (!dbConfig->getArmPluginInfo(armPluginInfo, type)) {
+	if (!dbConfig->getArmPluginInfo(m_ctx->armPluginInfo, type)) {
 		MLPL_ERR("Failed to get ArmPluginInfo: type: %d\n", type);
 		return false;
 	}
-	if (armPluginInfo.path == PassivePluginQuasiPath) {
+	if (m_ctx->armPluginInfo.path == PassivePluginQuasiPath) {
 		MLPL_INFO("Started: passive plugin (%d) %s\n",
-		          armPluginInfo.type, armPluginInfo.path.c_str());
+		          m_ctx->armPluginInfo.type,
+		          m_ctx-> armPluginInfo.path.c_str());
 	} else {
 		// launch a plugin process
-		if (!launchPluginProcess(armPluginInfo))
+		if (!launchPluginProcess(m_ctx->armPluginInfo))
 			return false;
 	}
 
@@ -89,28 +142,64 @@ const ArmStatus &HatoholArmPluginGate::getArmStatus(void) const
 
 gpointer HatoholArmPluginGate::mainThread(HatoholThreadArg *arg)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	try {
+		string brokerUrl;
+		if (m_ctx->armPluginInfo.brokerUrl.empty())
+			brokerUrl = DEFAULT_BROKER_URL;
+		else
+			brokerUrl = m_ctx->armPluginInfo.brokerUrl;
+		string address = generateBrokerAddress(m_ctx->serverInfo);
+		address += "; {create: always}";
+		string connectionOptions;
 
-	// The following lines is for checking if a build succeeds
-	// and don't do a meaningful job.
-	const string broker = "localhost:5672";
-	const string address = "hapi";
-	const string connectionOptions;
+		Locker sessionLocker(m_ctx->sessionLock);
+		if (m_ctx->exitRequest) 
+			return NULL;
+		Connection connection(brokerUrl, connectionOptions);
+		connection.open();
 
-	Connection connection(broker, connectionOptions);
-	connection.open();
-	Session session = connection.createSession();
+		Session session = connection.createSession();
+		m_ctx->sessionPtr = &session;
+		Receiver receiver = session.createReceiver(address);
+		sessionLocker.unlock();
 
-	Receiver receiver = session.createReceiver(address);
-	Message message = receiver.fetch();
-	session.acknowledge();
-	connection.close();
-	
+		while (true) {
+			Message message;
+			receiver.fetch(message);
+			if (m_ctx->exitRequest)
+				break;
+			onReceived(message);
+
+			sessionLocker.lock();
+			if (m_ctx->exitRequest)
+				break;
+			session.acknowledge();
+			sessionLocker.unlock();
+		}
+
+		m_ctx->sessionPtrToNull();
+		connection.close();
+	} catch (const exception &e) {
+		m_ctx->sessionPtrToNull();
+		onCaughtException(e);
+		// TODO: recover
+	}
+
 	return NULL;
 }
 
 void HatoholArmPluginGate::waitExit(void)
 {
+	m_ctx->sessionLock.lock();
+	// Closing the receiver doesn't unblock fetch() due to a QPid's bug:
+	// http://qpid.2158936.n2.nabble.com/Forcibly-close-a-receiver-td7581255.html
+	// So we close the session here.
+	// Note: The bug was fixed at Qpid 0.26.
+	m_ctx->exitRequest = true;
+	if (m_ctx->sessionPtr)
+		m_ctx->sessionPtr->close();
+	m_ctx->sessionLock.unlock();
+
 	HatoholThreadBase::waitExit();
 	m_ctx->armStatus.setRunningStatus(false);
 }
@@ -124,15 +213,30 @@ HatoholArmPluginGate::~HatoholArmPluginGate()
 		delete m_ctx;
 }
 
+void HatoholArmPluginGate::onReceived(Message &message)
+{
+}
+
+void HatoholArmPluginGate::onTerminated(const siginfo_t *siginfo)
+{
+}
+
+void HatoholArmPluginGate::onCaughtException(const exception &e)
+{
+	MLPL_INFO("Caught an exception: %s\n", e.what());
+}
+
 bool HatoholArmPluginGate::launchPluginProcess(
   const ArmPluginInfo &armPluginInfo)
 {
 	struct EventCb : public ChildProcessManager::EventCallback {
 
+		HatoholArmPluginGate *hapg;
 		bool succeededInCreation;
 
-		EventCb(void)
-		: succeededInCreation(false)
+		EventCb(HatoholArmPluginGate *_hapg)
+		: hapg(_hapg),
+		  succeededInCreation(false)
 		{
 		}
 
@@ -144,14 +248,16 @@ bool HatoholArmPluginGate::launchPluginProcess(
 
 		virtual void onCollected(const siginfo_t *siginfo) // override
 		{
-			// TODO: Implemented
-			MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+			hapg->onTerminated(siginfo);
 		}
-	} *eventCb = new EventCb();
+	} *eventCb = new EventCb(this);
 
 	ChildProcessManager::CreateArg arg;
 	arg.args.push_back(armPluginInfo.path);
 	arg.eventCb = eventCb;
+	arg.envs.push_back(StringUtils::sprintf(
+	  "%s=%s", ENV_NAME_QUEUE_ADDR,
+	           generateBrokerAddress(m_ctx->serverInfo).c_str()));
 	ChildProcessManager::getInstance()->create(arg);
 	if (!eventCb->succeededInCreation) {
 		MLPL_ERR("Failed to execute: (%d) %s\n",

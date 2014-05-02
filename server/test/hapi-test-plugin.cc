@@ -17,7 +17,49 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cstdio>
+#include <cstdlib>
+#include <string>
+#include <unistd.h>
+#include <qpid/messaging/Address.h>
+#include <qpid/messaging/Connection.h>
+#include <qpid/messaging/Message.h>
+#include <qpid/messaging/Receiver.h>
+#include <qpid/messaging/Sender.h>
+#include <qpid/messaging/Session.h>
+#include "HatoholArmPluginGate.h"
+#include "hapi-test-plugin.h"
+
+using namespace std;
+using namespace qpid::messaging;
+
 int main(void)
 {
-	return 0;
+	const char *envQueueAddr =
+	  getenv(HatoholArmPluginGate::ENV_NAME_QUEUE_ADDR);
+	if (!envQueueAddr) {
+		printf("Not found environment variable: %s\n",
+		       HatoholArmPluginGate::ENV_NAME_QUEUE_ADDR);
+		abort();
+	}
+	const string queueAddr = envQueueAddr;
+
+	const string brokerUrl = HatoholArmPluginGate::DEFAULT_BROKER_URL;
+	const string connectionOptions;
+	Connection connection(brokerUrl, connectionOptions);
+	try {
+		connection.open();
+		Session session = connection.createSession();
+		Sender sender = session.createSender(queueAddr);
+		Message request;
+		request.setContent(testMessage);
+		sender.send(request);
+	} catch (const exception &error) {
+		printf("Got exception: %s\n", error.what());
+		abort();
+	}
+	connection.close();
+	sleep(3600);
+
+	return EXIT_SUCCESS;
 }

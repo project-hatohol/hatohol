@@ -20,6 +20,7 @@
 #ifndef HatoholArmPluginGate_h
 #define HatoholArmPluginGate_h
 
+#include <qpid/messaging/Message.h>
 #include "HatoholThreadBase.h"
 #include "DataStore.h"
 #include "UsedCountablePtr.h"
@@ -27,6 +28,8 @@
 class HatoholArmPluginGate : public DataStore, public HatoholThreadBase {
 public:
 	static const std::string PassivePluginQuasiPath;
+	static const char *DEFAULT_BROKER_URL;
+	static const char *ENV_NAME_QUEUE_ADDR;
 
 	HatoholArmPluginGate(const MonitoringServerInfo &serverInfo);
 
@@ -67,6 +70,10 @@ public:
 protected:
 	// To avoid an instance from being created on a stack.
 	virtual ~HatoholArmPluginGate();
+
+	virtual void onReceived(qpid::messaging::Message &message);
+	virtual void onTerminated(const siginfo_t *siginfo);
+	virtual void onCaughtException(const std::exception &e);
 
 	bool launchPluginProcess(const ArmPluginInfo &armPluginInfo);
 	static std::string generateBrokerAddress(
