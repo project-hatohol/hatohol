@@ -42,7 +42,8 @@ int main(void)
 		       HatoholArmPluginGate::ENV_NAME_QUEUE_ADDR);
 		abort();
 	}
-	const string queueAddr = envQueueAddr;
+	string queueAddr = envQueueAddr;
+	queueAddr += "; {create: always}";
 
 	const string brokerUrl = HatoholArmPluginGate::DEFAULT_BROKER_URL;
 	const string connectionOptions;

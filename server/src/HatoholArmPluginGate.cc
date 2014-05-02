@@ -85,12 +85,14 @@ struct HatoholArmPluginGate::PrivateContext
 	Session             *sessionPtr;
 	MutexLock            sessionLock;
 	MutexLock            retrySleeper;
+	Connection          *connection;
 
 	PrivateContext(const MonitoringServerInfo &_serverInfo)
 	: serverInfo(_serverInfo),
 	  pid(0),
 	  exitRequest(false),
 	  sessionPtr(NULL)
+	  connection(NULL)
 	{
 		retrySleeper.lock();
 	}
