@@ -9,7 +9,7 @@ describe('HatoholPager', function() {
 
   it('create with 100 records', function() {
     var pager = new HatoholPager({numTotalRecords: 100});
-    var list = $('#' + fixtureId + ' li');
+    var i, list = $('#' + fixtureId + ' li');
     expect(list.length).to.be(4);
     expect($(list[0]).text()).to.be($('<div/>').html("&laquo;").text());
     for (i = 0; i < 2; i++) {
@@ -20,7 +20,7 @@ describe('HatoholPager', function() {
 
   it('create with 101 records', function() {
     var pager = new HatoholPager({numTotalRecords: 101});
-    var list = $('#' + fixtureId + ' li');
+    var i, list = $('#' + fixtureId + ' li');
     expect(list.length).to.be(5);
     expect($(list[0]).text()).to.be($('<div/>').html("&laquo;").text());
     for (i = 0; i < 3; i++) {
