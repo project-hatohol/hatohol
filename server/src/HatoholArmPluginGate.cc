@@ -189,7 +189,7 @@ begin:
 		int sleepTime = onCaughtException(e);
 		if (sleepTime >= 0)
 			m_ctx->retrySleeper.timedlock(sleepTime);
-		if (m_ctx->exitRequest)
+		if (m_ctx->exitRequest || sleepTime < 0)
 			return NULL;
 		goto begin;
 	}
