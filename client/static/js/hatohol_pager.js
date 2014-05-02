@@ -24,6 +24,16 @@ var HatoholPager = function(params) {
   this.numTotalRecords = 0;
   this.switchPageCallback = null;
 
+  this.update(params);
+};
+
+HatoholPager.prototype.getTotalNumberOfPages = function() {
+  if (this.numTotalRecords < 1)
+    return -1;
+  return Math.ceil(this.numTotalRecords / this.numRecordsPerPage);
+}
+
+HatoholPager.prototype.applyParams = function(params) {
   if (params && params.parentElements)
     this.parentElements = params.parentElements;
   if (params && !isNaN(params.numRecordsPerPage))
@@ -34,17 +44,11 @@ var HatoholPager = function(params) {
     this.numTotalRecords = params.numTotalRecords;
   if (params && params.switchPageCallback)
     this.switchPageCallback = params.switchPageCallback;
-
-  this.update();
-};
-
-HatoholPager.prototype.getTotalNumberOfPages = function() {
-  if (this.numTotalRecords < 1)
-    return -1;
-  return Math.ceil(this.numTotalRecords / this.numRecordsPerPage);
 }
 
-HatoholPager.prototype.update = function() {
+HatoholPager.prototype.update = function(params) {
+  this.applyParams(params);
+
   var self = this;
   var parent = this.parentElements;
   var numPages = this.getTotalNumberOfPages();
