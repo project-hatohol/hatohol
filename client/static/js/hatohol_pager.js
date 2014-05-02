@@ -23,13 +23,13 @@ var HatoholPager = function(params) {
   this.currentPage = 0;
   this.numTotalRecords = 0;
 
-  if (params.parentElements)
+  if (params && params.parentElements)
     this.parentElements = params.parentElements;
-  if (!isNaN(params.numRecordsPerPage))
+  if (params && !isNaN(params.numRecordsPerPage))
     this.numRecordsPerPage = params.numRecordsPerPage;
-  if (!isNaN(params.currentPage))
+  if (params && !isNaN(params.currentPage))
     this.currentPage = params.currentPage;
-  if (!isNaN(params.numTotalRecords))
+  if (params && !isNaN(params.numTotalRecords))
     this.numTotalRecords = params.numTotalRecords;
 
   this.update();
@@ -42,19 +42,19 @@ HatoholPager.prototype.getTotalNumberOfPages = function() {
 }
 
 HatoholPager.prototype.update = function() {
-  var title, klass;
+  var anchor, klass;
   var parent = this.parentElements;
   var numPages = this.getTotalNumberOfPages();
 
   parent.empty();
 
   for (i = 0; i < numPages; ++i) {
-    title = '<a href="#">' + (i + 1) + '</a>';
+    anchor = $("<a>", {
+      href: "#",
+      text: (i + 1),
+    });
     klass = (i == this.currentPage) ? "active" : "";
-    $("<li/>", {
-      html: title,
-      class: klass,
-    }).appendTo(parent);
+    $("<li/>", { class: klass, }).append(anchor).appendTo(parent);
   }
   if (numPages > 1 || numPages < 0) {
     parent.prepend('<li><a href="#">&laquo;</a></li>');
