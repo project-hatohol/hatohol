@@ -66,15 +66,18 @@ HatoholPager.prototype.update = function() {
 	self.update();
       }
     });
-    return $("<li/>", {
-      class: (i == this.currentPage) ? "active" : "",
-    }).append(anchor);
+    return $("<li/>").append(anchor);
   }
+  var item;
 
   parent.empty();
 
-  for (i = 0; i < numPages; ++i)
-    parent.append(createItem("" + (i + 1)));
+  for (i = 0; i < numPages; ++i) {
+    item = createItem("" + (i + 1));
+    if (i == this.currentPage)
+      item.addClass("active");
+    parent.append(item);
+  }
 
   if (numPages > 1 || numPages < 0) {
     parent.prepend(createItem("&laquo;", function() {
