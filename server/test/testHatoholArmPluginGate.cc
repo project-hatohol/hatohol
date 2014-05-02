@@ -40,6 +40,7 @@ public:
 	guint      timerTag;
 	bool       abnormalChildTerm;
 	string     rcvMessage;
+	bool       gotUnexceptedException;
 
 	class Loop {
 	public:
@@ -72,7 +73,8 @@ public:
 	: HatoholArmPluginGate(serverInfo),
 	  timedOut(false),
 	  timerTag(INVALID_EVENT_ID),
-	  abnormalChildTerm(false)
+	  abnormalChildTerm(false),
+	  gotUnexceptedException(false)
 	{
 	}
 	
@@ -109,9 +111,12 @@ public:
 		         siginfo->si_signo, siginfo->si_code);
 	}
 
-	virtual void onCaughtException(const exception &e) // override
+	virtual int onCaughtException(const exception &e) // override
 	{
 		printf("onCaughtException: %s\n", e.what());
+		if (rcvMessage.empty())
+			gotUnexceptedException = true;
+		return HatoholArmPluginGate::NO_RETRY;
 	}
 
 	// We assume this funciton is called from the main test thread.
@@ -173,6 +178,7 @@ static void _assertStartAndExit(StartAndExitArg &arg)
 	cppcut_assert_equal(false, hapg->abnormalChildTerm);
 	if (arg.checkMessage)
 		cppcut_assert_equal(string(testMessage), hapg->rcvMessage);
+	cppcut_assert_equal(false, hapg->gotUnexceptedException);
 }
 #define assertStartAndExit(A) cut_trace(_assertStartAndExit(A))
 

@@ -38,6 +38,8 @@ using namespace qpid::messaging;
 
 const char *HatoholArmPluginGate::DEFAULT_BROKER_URL = "localhost:5672";
 const char *HatoholArmPluginGate::ENV_NAME_QUEUE_ADDR = "HAPI_QUEUE_ADDR";
+const int   HatoholArmPluginGate::NO_RETRY = -1;
+static const int DEFAULT_RETRY_INTERVAL = 10 * 1000; // ms
 
 class Locker {
 public:
@@ -82,6 +84,7 @@ struct HatoholArmPluginGate::PrivateContext
 	AtomicValue<bool>    exitRequest;
 	Session             *sessionPtr;
 	MutexLock            sessionLock;
+	MutexLock            retrySleeper;
 
 	PrivateContext(const MonitoringServerInfo &_serverInfo)
 	: serverInfo(_serverInfo),
@@ -89,6 +92,7 @@ struct HatoholArmPluginGate::PrivateContext
 	  exitRequest(false),
 	  sessionPtr(NULL)
 	{
+		retrySleeper.lock();
 	}
 
 	void sessionPtrToNull(void)
@@ -142,6 +146,7 @@ const ArmStatus &HatoholArmPluginGate::getArmStatus(void) const
 
 gpointer HatoholArmPluginGate::mainThread(HatoholThreadArg *arg)
 {
+begin:
 	try {
 		string brokerUrl;
 		if (m_ctx->armPluginInfo.brokerUrl.empty())
@@ -181,8 +186,12 @@ gpointer HatoholArmPluginGate::mainThread(HatoholThreadArg *arg)
 		connection.close();
 	} catch (const exception &e) {
 		m_ctx->sessionPtrToNull();
-		onCaughtException(e);
-		// TODO: recover
+		int sleepTime = onCaughtException(e);
+		if (sleepTime >= 0)
+			m_ctx->retrySleeper.timedlock(sleepTime);
+		if (m_ctx->exitRequest)
+			return NULL;
+		goto begin;
 	}
 
 	return NULL;
@@ -190,6 +199,7 @@ gpointer HatoholArmPluginGate::mainThread(HatoholThreadArg *arg)
 
 void HatoholArmPluginGate::waitExit(void)
 {
+	m_ctx->retrySleeper.unlock();
 	m_ctx->sessionLock.lock();
 	// Closing the receiver doesn't unblock fetch() due to a QPid's bug:
 	// http://qpid.2158936.n2.nabble.com/Forcibly-close-a-receiver-td7581255.html
@@ -221,9 +231,11 @@ void HatoholArmPluginGate::onTerminated(const siginfo_t *siginfo)
 {
 }
 
-void HatoholArmPluginGate::onCaughtException(const exception &e)
+int HatoholArmPluginGate::onCaughtException(const exception &e)
 {
-	MLPL_INFO("Caught an exception: %s\n", e.what());
+	MLPL_INFO("Caught an exception: %s. Retry afeter %d ms.\n",
+	          e.what(), DEFAULT_RETRY_INTERVAL);
+	return DEFAULT_RETRY_INTERVAL;
 }
 
 bool HatoholArmPluginGate::launchPluginProcess(
