@@ -39,13 +39,17 @@ struct StartAndExitArg {
 	bool                 runMainLoop;
 	bool                 checkMessage;
 	size_t               numRetry;
+	size_t               retrySleepTime; // msec.
+	bool                 cancelRetrySleep;
 
 	StartAndExitArg(void)
 	: monitoringSystemType(MONITORING_SYSTEM_HAPI_TEST),
 	  expectedResultOfStart(false),
 	  runMainLoop(false),
 	  checkMessage(false),
-	  numRetry(0)
+	  numRetry(0),
+	  retrySleepTime(1),
+	  cancelRetrySleep(false)
 	{
 	}
 };
@@ -60,6 +64,7 @@ public:
 	string     rcvMessage;
 	bool       gotUnexceptedException;
 	size_t     retryCount;
+	guint      cancelTimerTag;
 
 	class Loop {
 	public:
@@ -96,7 +101,8 @@ public:
 	  timerTag(INVALID_EVENT_ID),
 	  abnormalChildTerm(false),
 	  gotUnexceptedException(false),
-	  retryCount(0)
+	  retryCount(0),
+	  cancelTimerTag(INVALID_EVENT_ID)
 	{
 	}
 	
@@ -104,6 +110,8 @@ public:
 	{
 		if (timerTag != INVALID_EVENT_ID)
 			g_source_remove(timerTag);
+		if (cancelTimerTag != INVALID_EVENT_ID)
+			g_source_remove(cancelTimerTag);
 	}
 
 	static string callGenerateBrokerAddress(
@@ -145,8 +153,10 @@ public:
 	virtual int onCaughtException(const exception &e) // override
 	{
 		printf("onCaughtException: %s\n", e.what());
-		if (arg.numRetry)
-			return 1;
+		if (arg.numRetry) {
+			canncelRetrySleepIfNeeded();
+			return arg.retrySleepTime;
+		}
 
 		if (rcvMessage.empty())
 			gotUnexceptedException = true;
@@ -168,6 +178,21 @@ public:
 		obj->timedOut = true;
 		g_main_loop_quit(obj->loop.get());
 		return G_SOURCE_REMOVE;
+	}
+
+	void canncelRetrySleepIfNeeded(void)
+	{
+		struct TimerCtx {
+			static gboolean func(gpointer data)
+			{
+				TestHatoholArmPluginGate *obj =
+				  static_cast<TestHatoholArmPluginGate *>(data);
+				obj->cancelTimerTag = INVALID_EVENT_ID;
+				g_main_loop_quit(obj->loop.get());
+				return G_SOURCE_REMOVE;
+			}
+		};
+		cancelTimerTag = g_timeout_add(1, TimerCtx::func, this);
 	}
 };
 
@@ -263,6 +288,18 @@ void test_retryToConnect(void)
 	arg.runMainLoop = true;
 	arg.checkMessage = true;
 	arg.numRetry = 3;
+	assertStartAndExit(arg);
+}
+
+void test_abortRetryWait(void)
+{
+	StartAndExitArg arg;
+	arg.monitoringSystemType = MONITORING_SYSTEM_HAPI_TEST;
+	arg.expectedResultOfStart = true;
+	arg.checkMessage = false;
+	arg.numRetry = 1;
+	arg.retrySleepTime = 3600 * 1000; // any value OK if it's long enough
+	arg.cancelRetrySleep = true;
 	assertStartAndExit(arg);
 }
 
