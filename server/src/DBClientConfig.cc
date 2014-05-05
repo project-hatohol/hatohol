@@ -33,7 +33,7 @@ static const char *TABLE_NAME_SYSTEM  = "system";
 static const char *TABLE_NAME_SERVERS = "servers";
 static const char *TABLE_NAME_ARM_PLUGINS = "arm_plugins";
 
-int DBClientConfig::CONFIG_DB_VERSION = 8;
+int DBClientConfig::CONFIG_DB_VERSION = 9;
 const char *DBClientConfig::DEFAULT_DB_NAME = "hatohol";
 const char *DBClientConfig::DEFAULT_USER_NAME = "hatohol";
 const char *DBClientConfig::DEFAULT_PASSWORD  = "hatohol";
@@ -284,6 +284,28 @@ static const ColumnDef COLUMN_DEF_ARM_PLUGINS[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_ARM_PLUGINS,            // tableName
+	"broker_url",                      // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	4095,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"",                                // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_ARM_PLUGINS,            // tableName
+	"static_session_key",              // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"",                                // defaultValue
 }
 };
 
@@ -291,6 +313,8 @@ enum {
 	IDX_ARM_PLUGINS_TYPE,
 	IDX_ARM_PLUGINS_NAME,
 	IDX_ARM_PLUGINS_PATH,
+	IDX_ARM_PLUGINS_BROKER_URL,
+	IDX_ARM_PLUGINS_STATIC_SESSION_KEY,
 	NUM_IDX_ARM_PLUGINS,
 };
 
@@ -328,6 +352,15 @@ static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
 		DBAgent::UpdateArg arg(tableProfileSystem);
 		arg.add(IDX_SYSTEM_ENABLE_COPY_ON_DEMAND, 1);
 		dbAgent->update(arg);
+	}
+	if (oldVer <= 8) {
+		// Broker URL and Static Session Key
+		DBAgent::AddColumnsArg addColumnsArg(tableProfileArmPlugins);
+		addColumnsArg.columnIndexes.push_back(
+		  IDX_ARM_PLUGINS_BROKER_URL);
+		addColumnsArg.columnIndexes.push_back(
+		  IDX_ARM_PLUGINS_STATIC_SESSION_KEY);
+		dbAgent->addColumns(addColumnsArg);
 	}
 	return true;
 }
@@ -946,6 +979,10 @@ HatoholError DBClientConfig::saveArmPluginInfo(
 			DBAgent::UpdateArg arg(tableProfileArmPlugins);
 			arg.add(IDX_ARM_PLUGINS_NAME, armPluginInfo.name);
 			arg.add(IDX_ARM_PLUGINS_PATH, armPluginInfo.path);
+			arg.add(IDX_ARM_PLUGINS_BROKER_URL,
+			        armPluginInfo.brokerUrl);
+			arg.add(IDX_ARM_PLUGINS_STATIC_SESSION_KEY,
+			        armPluginInfo.staticSessionKey);
 			arg.condition = condType;
 			update(arg);
 		} else {
@@ -953,6 +990,8 @@ HatoholError DBClientConfig::saveArmPluginInfo(
 			arg.add(armPluginInfo.type);
 			arg.add(armPluginInfo.name);
 			arg.add(armPluginInfo.path);
+			arg.add(armPluginInfo.brokerUrl);
+			arg.add(armPluginInfo.staticSessionKey);
 			insert(arg);
 		}
 	} DBCLIENT_TRANSACTION_END();
@@ -1057,6 +1096,8 @@ void DBClientConfig::selectArmPluginInfo(DBAgent::SelectExArg &arg)
 	arg.add(IDX_ARM_PLUGINS_TYPE);
 	arg.add(IDX_ARM_PLUGINS_NAME);
 	arg.add(IDX_ARM_PLUGINS_PATH);
+	arg.add(IDX_ARM_PLUGINS_BROKER_URL);
+	arg.add(IDX_ARM_PLUGINS_STATIC_SESSION_KEY);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -1069,4 +1110,6 @@ void DBClientConfig::readArmPluginStream(
 	itemGroupStream >> armPluginInfo.type;
 	itemGroupStream >> armPluginInfo.name;
 	itemGroupStream >> armPluginInfo.path;
+	itemGroupStream >> armPluginInfo.brokerUrl;
+	itemGroupStream >> armPluginInfo.staticSessionKey;
 }

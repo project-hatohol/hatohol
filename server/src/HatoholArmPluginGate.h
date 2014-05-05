@@ -20,12 +20,19 @@
 #ifndef HatoholArmPluginGate_h
 #define HatoholArmPluginGate_h
 
+#include <qpid/messaging/Message.h>
+#include <qpid/messaging/Session.h>
 #include "HatoholThreadBase.h"
 #include "DataStore.h"
 #include "UsedCountablePtr.h"
 
 class HatoholArmPluginGate : public DataStore, public HatoholThreadBase {
 public:
+	static const std::string PassivePluginQuasiPath;
+	static const char *DEFAULT_BROKER_URL;
+	static const char *ENV_NAME_QUEUE_ADDR;
+	static const int   NO_RETRY;
+
 	HatoholArmPluginGate(const MonitoringServerInfo &serverInfo);
 
 	/**
@@ -65,6 +72,25 @@ public:
 protected:
 	// To avoid an instance from being created on a stack.
 	virtual ~HatoholArmPluginGate();
+
+	virtual void onSessionChanged(qpid::messaging::Session *session);
+	virtual void onReceived(qpid::messaging::Message &message);
+	virtual void onTerminated(const siginfo_t *siginfo);
+
+	/**
+	 * Called when an exception was caught.
+	 *
+	 * @param e An exception instance.
+	 *
+	 * @return
+	 * A sleep time until the next retry to connect with Qpidd in
+	 * millisecond. If the value is NO_RETRY, the retry won't be done.
+	 */
+	virtual int onCaughtException(const std::exception &e);
+
+	bool launchPluginProcess(const ArmPluginInfo &armPluginInfo);
+	static std::string generateBrokerAddress(
+	  const MonitoringServerInfo &serverInfo);
 
 private:
 	struct PrivateContext;

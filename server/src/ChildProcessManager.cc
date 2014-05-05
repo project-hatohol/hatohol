@@ -353,6 +353,17 @@ gpointer ChildProcessManager::mainThread(HatoholThreadArg *arg)
 	return NULL;
 }
 
+bool ChildProcessManager::isDead(const siginfo_t *siginfo)
+{
+	switch (siginfo->si_code) {
+	case CLD_EXITED:
+	case CLD_KILLED:
+	case CLD_DUMPED:
+		return true;
+	}
+	return false;
+}
+
 void ChildProcessManager::collected(const siginfo_t *siginfo)
 {
 	ChildInfo *childInfo = NULL;
@@ -373,10 +384,15 @@ void ChildProcessManager::collected(const siginfo_t *siginfo)
 	}
 	if (childInfo->killed)
 		return; // cleanup will be in resetOnCollectThread()
-	m_ctx->childrenMap.erase(it);
 
-	if (childInfo->eventCb)
+	if (childInfo->eventCb) {
+		if (!isDead(siginfo)) { // Ex. SIGSTOP
+			m_ctx->postWaitChildSem();
+			return;
+		}
 		childInfo->eventCb->onCollected(siginfo);
+	}
+	m_ctx->childrenMap.erase(it);
 	unlocker.reap();
 	if (childInfo->eventCb)
 		childInfo->eventCb->onFinalized();

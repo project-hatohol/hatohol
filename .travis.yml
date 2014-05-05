@@ -7,7 +7,7 @@ compiler:
   - clang
 install:
   - server/misc/setup-cutter.sh
-  - sudo apt-get install -qq -y autotools-dev libglib2.0-dev libjson-glib-dev libsoup2.4-dev libmysqlclient-dev sqlite3 ndoutils-nagios3-mysql uuid-dev npm python-pip expect python-dev libqpidmessaging2-dev libqpidtypes1-dev libqpidcommon2-dev
+  - sudo apt-get install -qq -y autotools-dev libglib2.0-dev libjson-glib-dev libsoup2.4-dev libmysqlclient-dev sqlite3 ndoutils-nagios3-mysql uuid-dev npm python-pip expect python-dev libqpidmessaging2-dev libqpidtypes1-dev libqpidcommon2-dev qpidd
   - mysql -u root -e "GRANT all on ndoutils.* TO ndoutils@localhost IDENTIFIED BY 'admin';"
   - mysql -u root -e "CREATE DATABASE hatohol_client;"
   - mysql -u root -e "GRANT ALL PRIVILEGES ON hatohol_client.* TO hatohol@localhost IDENTIFIED BY 'hatohol';"
@@ -19,6 +19,8 @@ install:
   - npm install -g mocha-phantomjs phantomjs
   - sudo pip install django==1.5.4
   - sudo pip install mysql-python
+  - sudo sh -c "echo acl allow all all > /etc/qpid/qpidd.acl"
+  - sudo /etc/init.d/qpidd restart
 before_script:
   - ./autogen.sh
   - ./configure
