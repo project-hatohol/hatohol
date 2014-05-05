@@ -63,6 +63,18 @@ public:
 	bool isStarted(void) const;
 
 	/**
+	 * Get the flag if exitSync() is called.
+	 *
+	 * @return true once exitSync() is called. Otherwise false.
+	 */
+	bool isExitRequested(void) const;
+
+	/**
+	 * Request to exit and wait for its completion synchronously.
+	 */
+	virtual void exitSync(void);
+
+	/**
 	 * Wait for the exit of the thread.
 	 */
 	virtual void waitExit(void);

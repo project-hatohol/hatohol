@@ -276,6 +276,15 @@ void test_cancelReexecSleep(void)
 	cppcut_assert_equal(1, thread.exceptionCount);
 }
 
+void test_isExitRequested(void)
+{
+	HatoholThreadTestImpl thread;
+	thread.start();
+	cppcut_assert_equal(false, thread.isExitRequested());
+	thread.exitSync();
+	cppcut_assert_equal(true, thread.isExitRequested());
+}
+
 } // namespace testHatoholThreadBase
 
 

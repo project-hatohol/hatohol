@@ -41,10 +41,12 @@ struct HatoholThreadBase::PrivateContext {
 	MutexLock                 mutexForThreadStart;
 	MutexLock                 mutexForThreadExit;
 	MutexLock                 mutexForReexecSleep;
+	AtomicValue<bool>         exitRequested;
 
 	// methods
 	PrivateContext(void)
-	: thread(NULL)
+	: thread(NULL),
+	  exitRequested(false)
 	{
 		mutexForThreadStart.lock();
 		mutexForReexecSleep.lock();
@@ -162,6 +164,18 @@ void HatoholThreadBase::addExitCallback(ExitCallbackFunc func, void *data)
 bool HatoholThreadBase::isStarted(void) const
 {
 	return m_ctx->thread;
+}
+
+bool HatoholThreadBase::isExitRequested(void) const
+{
+	return m_ctx->exitRequested;
+}
+
+void HatoholThreadBase::exitSync(void)
+{
+	m_ctx->exitRequested = true;
+	cancelReexecSleep();
+	waitExit();
 }
 
 // ---------------------------------------------------------------------------
