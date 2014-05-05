@@ -53,6 +53,8 @@ private:
 	typedef ExitCallbackInfoList::iterator ExitCallbackInfoListIterator;
 
 public:
+	static const int EXIT_THREAD = -1;
+
 	HatoholThreadBase(void);
 	virtual ~HatoholThreadBase();
 	void start(bool autoDeleteObject = false, void *userData = NULL);
@@ -71,6 +73,21 @@ protected:
 
 	// virtual methods
 	virtual gpointer mainThread(HatoholThreadArg *arg) = 0;
+
+	/**
+	 * Called when an exception is caught.
+	 *
+	 * @param e An exception instance.
+	 * @return
+	 * The sleep time in msec if the return value is positive. After the
+	 * sleep, mainThread() will be re-executed. If it's EXIT_THREAD,
+	 * the main thread exits. If you cancel the sleep, you can call
+	 * cancelReexecSleep().
+	 * The default implementation of the this method returns EXIT_THREAD.
+	 */
+	virtual int onCaughtException(const std::exception &e);
+
+	void cancelReexecSleep(void);
 
 private:
 	struct PrivateContext;
