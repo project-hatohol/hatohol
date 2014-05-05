@@ -36,12 +36,14 @@ namespace testHatoholArmPluginGate {
 struct StartAndExitArg {
 	MonitoringSystemType monitoringSystemType;
 	bool                 expectedResultOfStart;
+	bool                 runMainLoop;
 	bool                 checkMessage;
 	size_t               numRetry;
 
 	StartAndExitArg(void)
 	: monitoringSystemType(MONITORING_SYSTEM_HAPI_TEST),
 	  expectedResultOfStart(false),
+	  runMainLoop(false),
 	  checkMessage(false),
 	  numRetry(0)
 	{
@@ -186,7 +188,7 @@ static void _assertStartAndExit(StartAndExitArg &arg)
 	cppcut_assert_equal(
 	  arg.expectedResultOfStart, armStatus.getArmInfo().running);
 
-	if (arg.checkMessage)
+	if (arg.runMainLoop)
 		hapg->mainLoopRun();
 
 	pluginGate->waitExit();
@@ -222,6 +224,7 @@ void test_startAndWaitExit(void)
 	StartAndExitArg arg;
 	arg.monitoringSystemType = MONITORING_SYSTEM_HAPI_TEST;
 	arg.expectedResultOfStart = true;
+	arg.runMainLoop = true;
 	arg.checkMessage = true;
 	assertStartAndExit(arg);
 }
@@ -257,6 +260,7 @@ void test_retryToConnect(void)
 	StartAndExitArg arg;
 	arg.monitoringSystemType = MONITORING_SYSTEM_HAPI_TEST;
 	arg.expectedResultOfStart = true;
+	arg.runMainLoop = true;
 	arg.checkMessage = true;
 	arg.numRetry = 3;
 	assertStartAndExit(arg);
