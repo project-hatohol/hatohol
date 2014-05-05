@@ -48,6 +48,7 @@ void exitCallbackFunc(void *data)
 
 class HatoholThreadTestImpl : public HatoholThreadBase {
 public:
+	static const size_t TIMEOUT_MSEC = 5000;
 
 	struct MainLoop {
 		GMainLoop *loop;
@@ -105,7 +106,6 @@ public:
 
 	void loopRun(void)
 	{
-		const size_t TIMEOUT_MSEC = 5000;
 		m_loop.timerTag = g_timeout_add(TIMEOUT_MSEC, timeOutFunc, this);
 		g_main_loop_run(getMainLoop());
 	}
@@ -148,12 +148,22 @@ public:
 	int reexecSleepTime;
 	int exceptionCount;
 	int numReexec;
+	bool setupCancelSleep;
+	guint cancelTimerTag;
 
 	HatoholThreadTestReexec(void)
 	: reexecSleepTime(EXIT_THREAD),
 	  exceptionCount(0),
-	  numReexec(0)
+	  numReexec(0),
+	  setupCancelSleep(false),
+	  cancelTimerTag(INVALID_EVENT_ID)
 	{
+	}
+
+	virtual ~HatoholThreadTestReexec() // override
+	{
+		if (cancelTimerTag != INVALID_EVENT_ID)
+			g_source_remove(cancelTimerTag);
 	}
 
 protected:
@@ -170,7 +180,19 @@ protected:
 			g_main_loop_quit(getMainLoop());
 			return EXIT_THREAD;
 		}
+		if (setupCancelSleep)
+			cancelTimerTag = g_timeout_add(1, cancelTimer, this);
 		return reexecSleepTime;
+	}
+
+	static gboolean cancelTimer(gpointer data)
+	{
+		HatoholThreadTestReexec *obj =
+		  static_cast<HatoholThreadTestReexec *>(data);
+		obj->cancelTimerTag = INVALID_EVENT_ID;
+		g_main_loop_quit(obj->getMainLoop());
+		obj->cancelReexecSleep();
+		return G_SOURCE_REMOVE;
 	}
 };
 
@@ -239,6 +261,19 @@ void test_reexec(void)
 	thread.waitExit();
 	cppcut_assert_equal(false, thread.isTimedOut());
 	cppcut_assert_equal(thread.numReexec, thread.exceptionCount);
+}
+
+void test_cancelReexecSleep(void)
+{
+	HatoholThreadTestReexec thread;
+	thread.numReexec = 2;
+	thread.reexecSleepTime = thread.TIMEOUT_MSEC * 1.5;
+	thread.setupCancelSleep = true;
+	thread.start();
+	thread.loopRun();
+	thread.waitExit();
+	cppcut_assert_equal(false, thread.isTimedOut());
+	cppcut_assert_equal(1, thread.exceptionCount);
 }
 
 } // namespace testHatoholThreadBase
