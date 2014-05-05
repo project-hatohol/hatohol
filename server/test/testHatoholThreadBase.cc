@@ -191,7 +191,6 @@ protected:
 		  static_cast<HatoholThreadTestReexec *>(data);
 		obj->cancelTimerTag = INVALID_EVENT_ID;
 		g_main_loop_quit(obj->getMainLoop());
-		obj->cancelReexecSleep();
 		return G_SOURCE_REMOVE;
 	}
 };
@@ -271,7 +270,7 @@ void test_cancelReexecSleep(void)
 	thread.setupCancelSleep = true;
 	thread.start();
 	thread.loopRun();
-	thread.waitExit();
+	thread.exitSync();
 	cppcut_assert_equal(false, thread.isTimedOut());
 	cppcut_assert_equal(1, thread.exceptionCount);
 }
