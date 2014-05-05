@@ -36,7 +36,6 @@ using namespace mlpl;
 struct HatoholThreadBase::PrivateContext {
 	AtomicValue<GThread *>    thread;
 	ReadWriteLock rwlock;
-	ExceptionCallbackInfoList exceptionCbList;
 	ExitCallbackInfoList      exitCbList;
 	MutexLock                 mutexForThreadStart;
 	MutexLock                 mutexForThreadExit;
@@ -138,18 +137,6 @@ void HatoholThreadBase::waitExit(void)
 	m_ctx->mutexForThreadExit.unlock();
 }
 
-void HatoholThreadBase::addExceptionCallback(ExceptionCallbackFunc func,
-                                           void *data)
-{
-	ExceptionCallbackInfo exceptionInfo;
-	exceptionInfo.func = func;
-	exceptionInfo.data = data;
-
-	m_ctx->write_lock();
-	m_ctx->exceptionCbList.push_back(exceptionInfo);
-	m_ctx->write_unlock();
-}
-
 void HatoholThreadBase::addExitCallback(ExitCallbackFunc func, void *data)
 {
 	ExitCallbackInfo exitInfo;
@@ -181,17 +168,6 @@ void HatoholThreadBase::exitSync(void)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void HatoholThreadBase::doExceptionCallback(const exception &e)
-{
-	m_ctx->read_lock();
-	ExceptionCallbackInfoListIterator it = m_ctx->exceptionCbList.begin();
-	for (; it != m_ctx->exceptionCbList.end(); ++it) {
-		ExceptionCallbackInfo &exceptionInfo = *it;
-		(*exceptionInfo.func)(e, exceptionInfo.data);
-	}
-	m_ctx->read_unlock();
-}
-
 void HatoholThreadBase::doExitCallback(void)
 {
 	m_ctx->read_lock();
@@ -246,11 +222,9 @@ begin:
 	} catch (const HatoholException &e) {
 		MLPL_ERR("Got Hatohol Exception: %s\n",
 		         e.getFancyMessage().c_str());
-		obj->doExceptionCallback(e);
 		sleepTimeOrExit = obj->onCaughtException(e);
 	} catch (const exception &e) {
 		MLPL_ERR("Got Exception: %s\n", e.what());
-		obj->doExceptionCallback(e);
 		sleepTimeOrExit = obj->onCaughtException(e);
 	} catch (...) {
 		throw;

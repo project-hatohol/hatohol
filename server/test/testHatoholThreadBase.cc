@@ -30,12 +30,6 @@ namespace testHatoholThreadBase {
 typedef gpointer (*TestFunc)(void *data);
 static Synchronizer sync;
 
-static gpointer throwHatoholExceptionFunc(void *data)
-{
-	THROW_HATOHOL_EXCEPTION("Test Exception");
-	return NULL;
-}
-
 void exceptionCallbackFunc(const exception &e, void *data)
 {
 	sync.unlock();
@@ -205,14 +199,6 @@ void cut_setup(void)
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
-void test_exceptionCallback(void)
-{
-	HatoholThreadTestImpl threadTestee;
-	threadTestee.setTestFunc(throwHatoholExceptionFunc, NULL);
-	threadTestee.addExceptionCallback(exceptionCallbackFunc, NULL);
-	cppcut_assert_equal(true, threadTestee.doTest());
-}
-
 void test_exitCallback(void)
 {
 	HatoholThreadTestImpl threadTestee;

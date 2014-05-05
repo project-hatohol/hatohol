@@ -34,16 +34,6 @@ struct HatoholThreadArg {
 
 class HatoholThreadBase {
 private:
-	typedef void (*ExceptionCallbackFunc)(const std::exception &e,
-	                                      void *data);
-	struct ExceptionCallbackInfo {
-		ExceptionCallbackFunc func;
-		void                 *data;
-	};
-	typedef std::list<ExceptionCallbackInfo> ExceptionCallbackInfoList;
-	typedef ExceptionCallbackInfoList::iterator
-	        ExceptionCallbackInfoListIterator;
-
 	typedef void (*ExitCallbackFunc)(void *data);
 	struct ExitCallbackInfo {
 		ExitCallbackFunc func;
@@ -58,7 +48,6 @@ public:
 	HatoholThreadBase(void);
 	virtual ~HatoholThreadBase();
 	void start(bool autoDeleteObject = false, void *userData = NULL);
-	void addExceptionCallback(ExceptionCallbackFunc func, void *data);
 	void addExitCallback(ExitCallbackFunc func, void *data);
 	bool isStarted(void) const;
 
@@ -80,7 +69,6 @@ public:
 	virtual void waitExit(void);
 
 protected:
-	void doExceptionCallback(const std::exception &e);
 	void doExitCallback(void);
 
 	// virtual methods
