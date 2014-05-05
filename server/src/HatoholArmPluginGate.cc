@@ -204,13 +204,13 @@ begin:
 
 void HatoholArmPluginGate::waitExit(void)
 {
-	m_ctx->retrySleeper.unlock();
 	m_ctx->sessionLock.lock();
 	// Closing the receiver doesn't unblock fetch() due to a QPid's bug:
 	// http://qpid.2158936.n2.nabble.com/Forcibly-close-a-receiver-td7581255.html
 	// So we close the session here.
 	// Note: The bug was fixed at Qpid 0.26.
 	m_ctx->exitRequest = true;
+	m_ctx->retrySleeper.unlock();
 	if (m_ctx->sessionPtr)
 		m_ctx->sessionPtr->close();
 	m_ctx->sessionLock.unlock();
