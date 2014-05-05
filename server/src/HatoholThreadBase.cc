@@ -160,7 +160,7 @@ bool HatoholThreadBase::isExitRequested(void) const
 
 void HatoholThreadBase::exitSync(void)
 {
-	m_ctx->exitRequested = true;
+	requestExit();
 	cancelReexecSleep();
 	waitExit();
 }
@@ -182,6 +182,11 @@ void HatoholThreadBase::doExitCallback(void)
 int HatoholThreadBase::onCaughtException(const std::exception &e)
 {
 	return EXIT_THREAD;
+}
+
+void HatoholThreadBase::requestExit(void)
+{
+	m_ctx->exitRequested = true;
 }
 
 void HatoholThreadBase::cancelReexecSleep(void)

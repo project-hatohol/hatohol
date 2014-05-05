@@ -52,9 +52,10 @@ public:
 	bool isStarted(void) const;
 
 	/**
-	 * Get the flag if exitSync() is called.
+	 * Get the flag if exitSync() or requestExit() is called.
 	 *
-	 * @return true once exitSync() is called. Otherwise false.
+	 * @return
+	 * true once exitSync() or requestExit() is called. Otherwise false.
 	 */
 	bool isExitRequested(void) const;
 
@@ -86,6 +87,12 @@ protected:
 	 * The default implementation of the this method returns EXIT_THREAD.
 	 */
 	virtual int onCaughtException(const std::exception &e);
+
+	/**
+	 * Set the internal exit flag. After this method is called,
+	 * isExitRequested returns true.
+	 */
+	void requestExit(void);
 
 	void cancelReexecSleep(void);
 

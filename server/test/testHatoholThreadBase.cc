@@ -109,6 +109,11 @@ public:
 		return m_timedOut;
 	}
 
+	void callRequestExit(void)
+	{
+		requestExit();
+	}
+
 protected:
 	virtual gpointer mainThread(HatoholThreadArg *arg)
 	{
@@ -267,6 +272,14 @@ void test_isExitRequested(void)
 	thread.start();
 	cppcut_assert_equal(false, thread.isExitRequested());
 	thread.exitSync();
+	cppcut_assert_equal(true, thread.isExitRequested());
+}
+
+void test_requestExit(void)
+{
+	HatoholThreadTestImpl thread;
+	cppcut_assert_equal(false, thread.isExitRequested());
+	thread.callRequestExit();
 	cppcut_assert_equal(true, thread.isExitRequested());
 }
 
