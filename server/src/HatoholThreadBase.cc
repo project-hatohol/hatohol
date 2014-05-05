@@ -210,16 +210,17 @@ gpointer HatoholThreadBase::threadStarter(gpointer data)
 	// even if it is due to an exception.
 	Reaper<HatoholThreadArg> threadCleaner(arg, threadCleanup);
 
-	arg->obj->m_ctx->notifyThreadStarted();
+	HatoholThreadBase *obj = arg->obj;
+	obj->m_ctx->notifyThreadStarted();
 	try {
-		ret = arg->obj->mainThread(arg);
+		ret = obj->mainThread(arg);
 	} catch (const HatoholException &e) {
 		MLPL_ERR("Got Hatohol Exception: %s\n",
 		         e.getFancyMessage().c_str());
-		arg->obj->doExceptionCallback(e);
+		obj->doExceptionCallback(e);
 	} catch (const exception &e) {
 		MLPL_ERR("Got Exception: %s\n", e.what());
-		arg->obj->doExceptionCallback(e);
+		obj->doExceptionCallback(e);
 	} catch (...) {
 		throw;
 	}
