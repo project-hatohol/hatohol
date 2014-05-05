@@ -182,6 +182,9 @@ public:
 
 	void canncelRetrySleepIfNeeded(void)
 	{
+		if (!arg.cancelRetrySleep)
+			return;
+
 		struct TimerCtx {
 			static gboolean func(gpointer data)
 			{
