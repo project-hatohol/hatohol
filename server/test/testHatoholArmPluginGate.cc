@@ -219,8 +219,8 @@ static void _assertStartAndExit(StartAndExitArg &arg)
 	if (arg.runMainLoop)
 		hapg->mainLoopRun();
 
-	pluginGate->waitExit();
-	// These assertions must be after pluginGate->waitExit()
+	pluginGate->exitSync();
+	// These assertions must be after pluginGate->exitSync()
 	// to be sure to exit the thread.
 	cppcut_assert_equal(false, hapg->timedOut);
 	cppcut_assert_equal(false, armStatus.getArmInfo().running);

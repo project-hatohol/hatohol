@@ -69,6 +69,11 @@ public:
 		m_inUse = false;
 	}
 
+	bool isInUse(void) const
+	{
+		return m_inUse;
+	}
+
 private:
 	MutexLock &m_lock;
 	bool m_inUse;
@@ -82,20 +87,16 @@ struct HatoholArmPluginGate::PrivateContext
 	ArmPluginInfo        armPluginInfo;
 	ArmStatus            armStatus;
 	GPid                 pid;
-	AtomicValue<bool>    exitRequest;
 	Session             *sessionPtr;
 	MutexLock            sessionLock;
-	MutexLock            retrySleeper;
 
 	PrivateContext(const MonitoringServerInfo &_serverInfo,
 	               HatoholArmPluginGate *_hapg)
 	: hapg(_hapg),
 	  serverInfo(_serverInfo),
 	  pid(0),
-	  exitRequest(false),
 	  sessionPtr(NULL)
 	{
-		retrySleeper.lock();
 	}
 
 	void sessionPtrToNull(void)
@@ -150,72 +151,81 @@ const ArmStatus &HatoholArmPluginGate::getArmStatus(void) const
 
 gpointer HatoholArmPluginGate::mainThread(HatoholThreadArg *arg)
 {
-begin:
-	try {
-		string brokerUrl;
-		if (m_ctx->armPluginInfo.brokerUrl.empty())
-			brokerUrl = DEFAULT_BROKER_URL;
-		else
-			brokerUrl = m_ctx->armPluginInfo.brokerUrl;
-		string address = generateBrokerAddress(m_ctx->serverInfo);
-		address += "; {create: always}";
-		string connectionOptions;
+	struct Cleaner {
+		HatoholArmPluginGate *obj;
+		Locker                sessionLocker;
 
-		Locker sessionLocker(m_ctx->sessionLock);
-		if (m_ctx->exitRequest) 
-			return NULL;
-		Connection connection(brokerUrl, connectionOptions);
-		connection.open();
-
-		Session session = connection.createSession();
-		m_ctx->sessionPtr = &session;
-		onSessionChanged(m_ctx->sessionPtr);
-		Receiver receiver = session.createReceiver(address);
-		sessionLocker.unlock();
-
-		while (true) {
-			Message message;
-			receiver.fetch(message);
-			if (m_ctx->exitRequest)
-				break;
-			onReceived(message);
-
-			sessionLocker.lock();
-			if (m_ctx->exitRequest)
-				break;
-			session.acknowledge();
-			sessionLocker.unlock();
+		Cleaner(HatoholArmPluginGate *_obj, MutexLock &lock)
+		: obj(_obj),
+		  sessionLocker(lock)
+		{
 		}
 
-		m_ctx->sessionPtrToNull();
-		connection.close();
-	} catch (const exception &e) {
-		m_ctx->sessionPtrToNull();
-		int sleepTime = onCaughtException(e);
-		if (sleepTime >= 0)
-			m_ctx->retrySleeper.timedlock(sleepTime);
-		if (m_ctx->exitRequest || sleepTime < 0)
-			return NULL;
-		goto begin;
+		virtual ~Cleaner()
+		{
+			if (!sessionLocker.isInUse())
+				sessionLocker.lock();
+			obj->m_ctx->sessionPtr = NULL;
+			obj->onSessionChanged(NULL);
+		}
+	};
+
+	string brokerUrl;
+	if (m_ctx->armPluginInfo.brokerUrl.empty())
+		brokerUrl = DEFAULT_BROKER_URL;
+	else
+		brokerUrl = m_ctx->armPluginInfo.brokerUrl;
+	string address = generateBrokerAddress(m_ctx->serverInfo);
+	address += "; {create: always}";
+	string connectionOptions;
+
+	Cleaner cleaner(this, m_ctx->sessionLock);
+	Locker &sessionLocker = cleaner.sessionLocker;
+	if (isExitRequested()) 
+		return NULL;
+	Connection connection(brokerUrl, connectionOptions);
+	connection.open();
+
+	Session session = connection.createSession();
+	m_ctx->sessionPtr = &session;
+	onSessionChanged(m_ctx->sessionPtr);
+	Receiver receiver = session.createReceiver(address);
+	sessionLocker.unlock();
+
+	while (true) {
+		Message message;
+		receiver.fetch(message);
+		if (isExitRequested()) 
+			break;
+		onReceived(message);
+
+		sessionLocker.lock();
+		if (isExitRequested()) 
+			break;
+		session.acknowledge();
+		sessionLocker.unlock();
 	}
 
+	// Avoid session from being closed after connection is closed.
+	sessionLocker.lock();
+
+	connection.close();
 	return NULL;
 }
 
-void HatoholArmPluginGate::waitExit(void)
+void HatoholArmPluginGate::exitSync(void)
 {
 	m_ctx->sessionLock.lock();
 	// Closing the receiver doesn't unblock fetch() due to a QPid's bug:
 	// http://qpid.2158936.n2.nabble.com/Forcibly-close-a-receiver-td7581255.html
 	// So we close the session here.
 	// Note: The bug was fixed at Qpid 0.26.
-	m_ctx->exitRequest = true;
-	m_ctx->retrySleeper.unlock();
+	requestExit();
 	if (m_ctx->sessionPtr)
 		m_ctx->sessionPtr->close();
 	m_ctx->sessionLock.unlock();
 
-	HatoholThreadBase::waitExit();
+	HatoholThreadBase::exitSync();
 	m_ctx->armStatus.setRunningStatus(false);
 }
 

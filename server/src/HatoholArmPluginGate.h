@@ -65,7 +65,7 @@ public:
 	/**
 	 * Wait for a complete exit of the thread.
 	 */
-	virtual void waitExit(void); // override
+	virtual void exitSync(void); // override
 
 	gpointer mainThread(HatoholThreadArg *arg); // override
 
@@ -86,7 +86,7 @@ protected:
 	 * A sleep time until the next retry to connect with Qpidd in
 	 * millisecond. If the value is NO_RETRY, the retry won't be done.
 	 */
-	virtual int onCaughtException(const std::exception &e);
+	virtual int onCaughtException(const std::exception &e); // override
 
 	bool launchPluginProcess(const ArmPluginInfo &armPluginInfo);
 	static std::string generateBrokerAddress(
