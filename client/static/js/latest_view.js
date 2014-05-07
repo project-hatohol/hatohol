@@ -22,8 +22,12 @@ var LatestView = function(userProfile) {
   var rawData, parsedData;
 
   self.reloadIntervalSeconds = 60;
-  self.numRecordsPerPage = 0;
-  self.currentPage = 0;
+  self.pager = new HatoholPager({
+    numTotalRecords: -1,
+    clickPageCallback: function(page) {
+      load(page);
+    }
+  });
 
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
@@ -132,22 +136,27 @@ var LatestView = function(userProfile) {
     self.setFilterCandidates($("#select-application"), parsedData.applications);
 
     drawTableContents(rawData);
+    self.pager.update({ numTotalRecords: -1 });
     setLoading(false);
     self.setAutoReload(load, self.reloadIntervalSeconds);
   }
 
-  function getQuery() {
+  function getQuery(page) {
+    if (isNaN(page))
+      page = 0;
     var query = {
-      maximumNumber:   self.numRecordsPerPage,
-      offset:          self.numRecordsPerPage * self.currentPage
+      maximumNumber:   self.pager.numRecordsPerPage,
+      offset:          self.pager.numRecordsPerPage * page
     };
     self.addHostQuery(query);
     return 'item?' + $.param(query);
   };
 
-  function load() {
-    self.startConnection(getQuery(), updateCore);
+  function load(page) {
+    self.startConnection(getQuery(page), updateCore);
     setLoading(true);
+    if (isNaN(page))
+      self.pager.update({ currentPage: 0 });
   }
 };
 
