@@ -133,7 +133,7 @@ var TriggersView = function(userProfile) {
     self.setHostFilterCandidates(rawData["servers"]);
 
     drawTableContents(rawData);
-    self.pager.update({ numTotalRecords: -1 });
+    self.pager.update({ numTotalRecords: rawData["totalNumberOfTriggers"] });
     setLoading(false);
     self.setAutoReload(load, self.reloadIntervalSeconds);
   }

@@ -136,7 +136,7 @@ var LatestView = function(userProfile) {
     self.setFilterCandidates($("#select-application"), parsedData.applications);
 
     drawTableContents(rawData);
-    self.pager.update({ numTotalRecords: -1 });
+    self.pager.update({ numTotalRecords: rawData["totalNumberOfItems"] });
     setLoading(false);
     self.setAutoReload(load, self.reloadIntervalSeconds);
   }
