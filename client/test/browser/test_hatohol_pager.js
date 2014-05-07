@@ -43,7 +43,7 @@ describe('HatoholPager', function() {
     expect(pager.getPagesRange()).to.eql({
       firstPage: 0,
       lastPage: 9,
-    })
+    });
   });
 
   it('7 / 20 pages', function() {
@@ -51,7 +51,7 @@ describe('HatoholPager', function() {
     expect(pager.getPagesRange()).to.eql({
       firstPage: 1,
       lastPage: 10,
-    })
+    });
   });
 
   it('15 / 20 pages', function() {
@@ -60,7 +60,7 @@ describe('HatoholPager', function() {
     expect(pager.getPagesRange()).to.eql({
       firstPage: 9,
       lastPage: 18,
-    })
+    });
   });
 
   it('16 / 20 pages', function() {
@@ -69,7 +69,7 @@ describe('HatoholPager', function() {
     expect(pager.getPagesRange()).to.eql({
       firstPage: 10,
       lastPage: 19,
-    })
+    });
   });
 
   it('17 / 20 pages', function() {
@@ -78,7 +78,7 @@ describe('HatoholPager', function() {
     expect(pager.getPagesRange()).to.eql({
       firstPage: 10,
       lastPage: 19,
-    })
+    });
   });
 
   it('6 / 6 pages', function() {
@@ -90,6 +90,6 @@ describe('HatoholPager', function() {
     expect(pager.getPagesRange()).to.eql({
       firstPage: 0,
       lastPage: 5,
-    })
+    });
   });
 });

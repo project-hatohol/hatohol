@@ -66,7 +66,7 @@ HatoholPager.prototype.getPagesRange = function(params) {
   return {
     firstPage: firstPage,
     lastPage:  lastPage,
-  }
+  };
 }
 
 HatoholPager.prototype.update = function(params) {
