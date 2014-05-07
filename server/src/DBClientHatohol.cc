@@ -1804,7 +1804,7 @@ size_t DBClientHatohol::getNumberOfBadTriggers(
 	string additionalCondition =
 	  StringUtils::sprintf("%s=%d and %s=%d",
 	    option.getColumnName(IDX_TRIGGERS_SEVERITY).c_str(), severity,
-	    option.getColumnName(IDX_TRIGGERS_STATUS).c_str(), 
+	    option.getColumnName(IDX_TRIGGERS_STATUS).c_str(),
 	    TRIGGER_STATUS_PROBLEM);
 	return getNumberOfTriggers(option, additionalCondition);
 }
