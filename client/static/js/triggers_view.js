@@ -23,7 +23,7 @@ var TriggersView = function(userProfile) {
 
   self.reloadIntervalSeconds = 60;
   self.pager = new HatoholPager({
-    numTotalRecords: 0,
+    numTotalRecords: -1,
     switchPageCallback: function(page) {
       load(page);
     }
@@ -133,7 +133,7 @@ var TriggersView = function(userProfile) {
     self.setHostFilterCandidates(rawData["servers"]);
 
     drawTableContents(rawData);
-    self.pager.update({ numTotalRecords: 0 });
+    self.pager.update({ numTotalRecords: -1 });
     setLoading(false);
     self.setAutoReload(load, self.reloadIntervalSeconds);
   }

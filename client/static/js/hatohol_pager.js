@@ -21,7 +21,7 @@ var HatoholPager = function(params) {
   this.parentElements = $("ul.pagination");
   this.numRecordsPerPage = 50;
   this.currentPage = 0;
-  this.numTotalRecords = 0;
+  this.numTotalRecords = -1; // unknown
   this.maxPagesToShow = 10;
   this.switchPageCallback = null;
 
@@ -29,8 +29,8 @@ var HatoholPager = function(params) {
 };
 
 HatoholPager.prototype.getTotalNumberOfPages = function() {
-  if (this.numTotalRecords < 1)
-    return -1;
+  if (this.numTotalRecords < 0)
+    return -1; // unknown
   return Math.ceil(this.numTotalRecords / this.numRecordsPerPage);
 }
 
