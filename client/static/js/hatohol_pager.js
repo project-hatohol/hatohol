@@ -99,6 +99,8 @@ HatoholPager.prototype.update = function(params) {
   var item;
 
   parent.empty();
+  if (numPages == 0 || numPages == 1)
+    return;
 
   for (i = range.firstPage; i <= range.lastPage; ++i) {
     item = createItem("" + (i + 1));

@@ -18,6 +18,12 @@ describe('HatoholPager', function() {
     $('#' + fixtureId).remove();
   });
 
+  it('do not show', function() {
+    var pager = new HatoholPager({numTotalRecords: 50});
+    var i, list = $('#' + fixtureId + ' li');
+    expect(list.length).to.be(0);
+  });
+
   it('create with 100 records', function() {
     var pager = new HatoholPager({numTotalRecords: 100});
     var i, list = $('#' + fixtureId + ' li');
