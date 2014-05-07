@@ -355,11 +355,17 @@ HatoholError UnifiedDataStore::getHostgroupElementList(
 	                                               option);
 }
 
-size_t UnifiedDataStore::getNumberOfTriggers(const TriggersQueryOption &option,
-					     TriggerSeverityType severity)
+size_t UnifiedDataStore::getNumberOfBadTriggers(
+  const TriggersQueryOption &option, TriggerSeverityType severity)
 {
 	DBClientHatohol dbHatohol;
-	return dbHatohol.getNumberOfTriggers(option, severity);
+	return dbHatohol.getNumberOfBadTriggers(option, severity);
+}
+
+size_t UnifiedDataStore::getNumberOfTriggers(const TriggersQueryOption &option)
+{
+	DBClientHatohol dbHatohol;
+	return dbHatohol.getNumberOfTriggers(option);
 }
 
 size_t UnifiedDataStore::getNumberOfGoodHosts(const TriggersQueryOption &option)
