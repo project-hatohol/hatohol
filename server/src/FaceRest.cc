@@ -1762,6 +1762,7 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 	}
 	agent.endArray();
 	agent.add("numberOfTriggers", triggerList.size());
+	agent.add("totalNumberOfTriggers", -1);
 	addServersMap(job, agent, NULL, false);
 	agent.endObject();
 
@@ -1882,6 +1883,7 @@ void FaceRest::replyGetItem(RestJob *job)
 	}
 	agent.endArray();
 	agent.add("numberOfItems", itemList.size());
+	agent.add("totalNumberOfItems", -1);
 	addServersMap(job, agent, NULL, false);
 	agent.endObject();
 
