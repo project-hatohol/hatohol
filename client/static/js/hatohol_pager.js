@@ -22,6 +22,7 @@ var HatoholPager = function(params) {
   this.numRecordsPerPage = 50;
   this.currentPage = 0;
   this.numTotalRecords = 0;
+  this.maxPagesToShow = 10;
   this.switchPageCallback = null;
 
   this.update(params);
@@ -42,8 +43,30 @@ HatoholPager.prototype.applyParams = function(params) {
     this.currentPage = params.currentPage;
   if (params && !isNaN(params.numTotalRecords))
     this.numTotalRecords = params.numTotalRecords;
+  if (params && !isNaN(params.maxPagesToShow))
+    this.maxPagesToShow = params.maxPagesToShow;
   if (params && params.switchPageCallback)
     this.switchPageCallback = params.switchPageCallback;
+}
+
+HatoholPager.prototype.getPagesRange = function(params) {
+  var numPages = this.getTotalNumberOfPages();
+  var firstPage, lastPage;
+
+  firstPage = this.currentPage - (this.maxPagesToShow / 2);
+  if (firstPage + this.maxPagesToShow > numPages)
+    firstPage = numPages - this.maxPagesToShow;
+  if (firstPage < 0)
+    firstPage = 0;
+
+  lastPage = firstPage + this.maxPagesToShow - 1;
+  if (lastPage >= numPages)
+    lastPage = numPages - 1;
+
+  return {
+    firstPage: firstPage,
+    lastPage:  lastPage,
+  }
 }
 
 HatoholPager.prototype.update = function(params) {
@@ -51,6 +74,7 @@ HatoholPager.prototype.update = function(params) {
 
   var self = this;
   var parent = this.parentElements;
+  var range = this.getPagesRange();
   var numPages = this.getTotalNumberOfPages();
   var createItem = function(label, getPageFunc) {
     var anchor = $("<a>", {
@@ -76,7 +100,7 @@ HatoholPager.prototype.update = function(params) {
 
   parent.empty();
 
-  for (i = 0; i < numPages; ++i) {
+  for (i = range.firstPage; i <= range.lastPage; ++i) {
     item = createItem("" + (i + 1));
     if (i == this.currentPage)
       item.addClass("active");
