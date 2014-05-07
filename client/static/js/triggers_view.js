@@ -24,7 +24,7 @@ var TriggersView = function(userProfile) {
   self.reloadIntervalSeconds = 60;
   self.pager = new HatoholPager({
     numTotalRecords: -1,
-    switchPageCallback: function(page) {
+    clickPageCallback: function(page) {
       load(page);
     }
   });

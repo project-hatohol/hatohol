@@ -23,7 +23,7 @@ var HatoholPager = function(params) {
   this.currentPage = 0;
   this.numTotalRecords = -1; // unknown
   this.maxPagesToShow = 10;
-  this.switchPageCallback = null;
+  this.clickPageCallback = null;
 
   this.update(params);
 };
@@ -45,8 +45,8 @@ HatoholPager.prototype.applyParams = function(params) {
     this.numTotalRecords = params.numTotalRecords;
   if (params && !isNaN(params.maxPagesToShow))
     this.maxPagesToShow = params.maxPagesToShow;
-  if (params && params.switchPageCallback)
-    this.switchPageCallback = params.switchPageCallback;
+  if (params && params.clickPageCallback)
+    this.clickPageCallback = params.clickPageCallback;
 }
 
 HatoholPager.prototype.getPagesRange = function(params) {
@@ -88,8 +88,8 @@ HatoholPager.prototype.update = function(params) {
 	  page = parseInt($(this).text()) - 1;
 	if (page < 0 || (numPages >= 0 && page >= numPages))
 	  return;
-	if (self.switchPageCallback)
-	  self.switchPageCallback(page);
+	if (self.clickPageCallback)
+	  self.clickPageCallback(page);
 	self.currentPage = page;
 	self.update();
       }
