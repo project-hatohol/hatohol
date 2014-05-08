@@ -1775,11 +1775,25 @@ size_t DBClientHatohol::getNumberOfTriggers(
 {
 	DBAgent::SelectExArg arg(tableProfileTriggers);
 	string stmt = "count(*)";
+	if (option.isHostgroupUsed()) {
+		// Because a same trigger can be counted multiple times in
+		// this case, we should distinguish duplicated records. Althogh
+		// we have to use 2 columns (server ID and trigger ID) to do
+		// it, count() function doesn't accept multiple arguments.
+		// To avoid this issue we concat server ID and trigger ID.
+
+		// TODO: The statement is depends on SQL implementations.
+		// We should remove this code after we improve the hostgroups
+		// issue by using sub query (github issue #168).
+		stmt = StringUtils::sprintf(
+		  "count(distinct %s || ',' || %s)",
+		  option.getColumnName(IDX_TRIGGERS_SERVER_ID).c_str(),
+		  option.getColumnName(IDX_TRIGGERS_ID).c_str());
+	}
 	arg.add(stmt, SQL_COLUMN_TYPE_INT);
 
 	// from
 	arg.tableField = option.getFromClause();
-	arg.useDistinct = option.isHostgroupUsed();
 
 	// condition
 	arg.condition = option.getCondition();

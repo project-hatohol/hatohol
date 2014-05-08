@@ -892,6 +892,27 @@ void test_getNumberOfTriggers(gconstpointer data)
 		      targetServerId, hostgroupId));
 }
 
+void test_getNumberOfTriggersForMultipleAuthorizedHostgroups(void)
+{
+	setupTestDBUser(true, true);
+	setupTestTriggerDB();
+	setupTestHostgroupElementDB();
+
+	const ServerIdType targetServerId = testTriggerInfo[0].serverId;
+	const HostgroupIdType hostgroupId = ALL_HOST_GROUPS;
+
+	DBClientHatohol dbHatohol;
+	TriggersQueryOption option(userIdWithMultipleAuthorizedHostgroups);
+	option.setTargetServerId(targetServerId);
+	option.setTargetHostgroupId(hostgroupId);
+
+	cppcut_assert_equal(
+	  dbHatohol.getNumberOfTriggers(option),
+	  getNumberOfTestTriggers(targetServerId, hostgroupId),
+	  cut_message("sv: %"FMT_SERVER_ID", hostgroup: %"FMT_HOST_GROUP_ID,
+		      targetServerId, hostgroupId));
+}
+
 void data_getNumberOfTriggersBySeverity(void)
 {
 	prepareDataForAllHostgroupIds();

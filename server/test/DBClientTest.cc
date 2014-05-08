@@ -416,9 +416,15 @@ UserInfo testUserInfo[] = {
 	"cannotUpdateServer", // name
 	"qJN9DBkJRQSQo",      // password
 	OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_SERVER),
+}, {
+	0,                          // id
+	"multipleAuthorizedGroups", // name
+	"5XUkuWUlqQs1s",            // password
+	0,
 }
 };
 const size_t NumTestUserInfo = sizeof(testUserInfo) / sizeof(UserInfo);
+const UserIdType userIdWithMultipleAuthorizedHostgroups = 7;
 
 AccessInfo testAccessInfo[] = {
 {
@@ -461,6 +467,16 @@ AccessInfo testAccessInfo[] = {
 	5,                 // userId
 	1,                 // serverId
 	ALL_HOST_GROUPS,   // hostgroupId
+}, {
+	0,                 // id
+	7,                 // userId
+	1,                 // serverId
+	1,                 // hostgroupId
+}, {
+	0,                 // id
+	7,                 // userId
+	1,                 // serverId
+	2,                 // hostgroupId
 }
 };
 const size_t NumTestAccessInfo = sizeof(testAccessInfo) / sizeof(AccessInfo);
