@@ -18,14 +18,26 @@
  */
 
 var HatoholPager = function(params) {
-  this.parentElements = $("ul.pagination");
-  this.numRecordsPerPage = 50;
-  this.currentPage = 0;
-  this.numTotalRecords = -1; // unknown
-  this.maxPagesToShow = 10;
-  this.clickPageCallback = null;
+  self = this;
+  self.parentElements = $("ul.pagination");
+  self.numRecordsPerPageEntry = $("input.num-records-per-page");
+  self.numRecordsPerPage = 50;
+  self.currentPage = 0;
+  self.numTotalRecords = -1; // unknown
+  self.maxPagesToShow = 10;
+  self.clickPageCallback = null;
 
-  this.update(params);
+  self.update(params);
+
+  $(self.numRecordsPerPageEntry).change(function() {
+    var val = parseInt(self.numRecordsPerPageEntry.val());
+    if (!isFinite(val))
+      val = self.numRecordsPerPage;
+    self.numRecordsPerPageEntry.val(val);
+    self.numRecordsPerPage = val;
+    if (self.clickPageCallback)
+      self.clickPageCallback();
+  });
 };
 
 HatoholPager.prototype.getTotalNumberOfPages = function() {
@@ -37,6 +49,8 @@ HatoholPager.prototype.getTotalNumberOfPages = function() {
 HatoholPager.prototype.applyParams = function(params) {
   if (params && params.parentElements)
     this.parentElements = params.parentElements;
+  if (params && params.numRecordsPerPageEntry)
+    this.numRecordsPerPageEntry = params.numRecordsPerPageEntry;
   if (params && !isNaN(params.numRecordsPerPage))
     this.numRecordsPerPage = params.numRecordsPerPage;
   if (params && !isNaN(params.currentPage))
@@ -117,4 +131,6 @@ HatoholPager.prototype.update = function(params) {
       return self.currentPage + 1;
     }));
   }
+
+  $(self.numRecordsPerPageEntry).val(self.numRecordsPerPage);
 };
