@@ -580,6 +580,7 @@ static void _assertTriggers(const string &path, const string &callbackName = "",
 	// Check the reply
 	assertErrorCode(g_parser);
 	assertValueInParser(g_parser, "numberOfTriggers", expectedNumTrig);
+	assertValueInParser(g_parser, "totalNumberOfTriggers", expectedNumTrig);
 	assertStartObject(g_parser, "triggers");
 	for (size_t i = 0; i < expectedNumTrig; i++) {
 		g_parser->startElement(i);
