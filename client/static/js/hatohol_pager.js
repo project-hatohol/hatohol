@@ -126,12 +126,16 @@ HatoholPager.prototype.update = function(params) {
   }
 
   if (numPages > 1 || numPages < 0) {
-    parent.prepend(createItem("&laquo;", function() {
-      return self.currentPage - 1;
-    }));
-    parent.append(createItem("&raquo;", function() {
-      return self.currentPage + 1;
-    }));
+    if (this.currentPage > 0) {
+      parent.prepend(createItem("&laquo;", function() {
+	return self.currentPage - 1;
+      }));
+    }
+    if (this.currentPage != numPages - 1) {
+      parent.append(createItem("&raquo;", function() {
+	return self.currentPage + 1;
+      }));
+    }
   }
 
   $(self.numRecordsPerPageEntry).val(self.numRecordsPerPage);
