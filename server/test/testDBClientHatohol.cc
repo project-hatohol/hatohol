@@ -908,9 +908,7 @@ void test_getNumberOfTriggersForMultipleAuthorizedHostgroups(void)
 
 	cppcut_assert_equal(
 	  dbHatohol.getNumberOfTriggers(option),
-	  getNumberOfTestTriggers(targetServerId, hostgroupId),
-	  cut_message("sv: %"FMT_SERVER_ID", hostgroup: %"FMT_HOST_GROUP_ID,
-		      targetServerId, hostgroupId));
+	  getNumberOfTestTriggers(targetServerId, hostgroupId));
 }
 
 void data_getNumberOfTriggersBySeverity(void)
