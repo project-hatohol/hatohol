@@ -1782,7 +1782,7 @@ size_t DBClientHatohol::getNumberOfTriggers(
 		// it, count() function doesn't accept multiple arguments.
 		// To avoid this issue we concat server ID and trigger ID.
 
-		// TODO: The statement is depends on SQL implementations.
+		// TODO: The statement depends on SQL implementations.
 		// We should remove this code after we improve the hostgroups
 		// issue by using sub query (github issue #168).
 		stmt = StringUtils::sprintf(
