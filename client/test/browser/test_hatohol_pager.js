@@ -44,6 +44,30 @@ describe('HatoholPager', function() {
     expect($(list[4]).text()).to.be($('<div/>').html("&raquo;").text());
   });
 
+  it('0 records per page', function() {
+    var pager = new HatoholPager(getTestParams({
+      numRecordsPerPage: 0,
+      numTotalRecords: 10
+    }));
+    expect(pager.getTotalNumberOfPages()).to.eql(1);
+  });
+
+  it('0 records per page agaist 0 total records', function() {
+    var pager = new HatoholPager(getTestParams({
+      numRecordsPerPage: 0,
+      numTotalRecords: 0
+    }));
+    expect(pager.getTotalNumberOfPages()).to.eql(0);
+  });
+
+  it('negative value for number of records per page', function() {
+    var pager = new HatoholPager(getTestParams({
+      numRecordsPerPage: -1,
+      numTotalRecords: 10
+    }));
+    expect(pager.getTotalNumberOfPages()).to.eql(1);
+  });
+
   it('6 / 20 pages', function() {
     var pager = new HatoholPager(getTestParams({ currentPage: 5 }));
     expect(pager.getPagesRange()).to.eql({

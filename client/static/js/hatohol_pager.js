@@ -31,7 +31,7 @@ var HatoholPager = function(params) {
 
   $(self.numRecordsPerPageEntry).change(function() {
     var val = parseInt(self.numRecordsPerPageEntry.val());
-    if (!isFinite(val))
+    if (!isFinite(val) || val < 0)
       val = self.numRecordsPerPage;
     self.numRecordsPerPageEntry.val(val);
     self.numRecordsPerPage = val;
@@ -43,6 +43,8 @@ var HatoholPager = function(params) {
 HatoholPager.prototype.getTotalNumberOfPages = function() {
   if (this.numTotalRecords < 0)
     return -1; // unknown
+  if (!this.numRecordsPerPage || this.numRecordsPerPage < 0)
+    return this.numTotalRecords > 0 ? 1 : 0;
   return Math.ceil(this.numTotalRecords / this.numRecordsPerPage);
 }
 
