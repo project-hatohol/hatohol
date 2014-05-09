@@ -158,6 +158,7 @@ var LatestView = function(userProfile) {
   function load(page) {
     self.startConnection(getQuery(page), updateCore);
     setLoading(true);
+    self.pager.update({ currentPage: isNaN(page) ? 0 : page });
   }
 };
 
