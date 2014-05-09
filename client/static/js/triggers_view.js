@@ -32,15 +32,8 @@ var TriggersView = function(userProfile) {
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
 
+  setupCallbacks();
   load();
-
-  $("#table").stupidtable();
-  $("#table").bind('aftertablesort', function(event, data) {
-    var th = $(this).find("th");
-    th.find("i.sort").remove();
-    var icon = data.direction === "asc" ? "up" : "down";
-    th.eq(data.column).append("<i class='sort glyphicon glyphicon-arrow-" + icon +"'></i>");
-  });
 
   var status_choices = [
     gettext("OK"),
@@ -56,11 +49,21 @@ var TriggersView = function(userProfile) {
     gettext("Disaster")
   ];
 
-  self.setupHostQuerySelectorCallback(
-    load, '#select-server', '#select-host-group', '#select-host');
-  $("#select-severity, #select-status").change(function() {
-    load();
-  });
+  function setupCallbacks() {
+    $("#table").stupidtable();
+    $("#table").bind('aftertablesort', function(event, data) {
+      var th = $(this).find("th");
+      th.find("i.sort").remove();
+      var icon = data.direction === "asc" ? "up" : "down";
+      th.eq(data.column).append("<i class='sort glyphicon glyphicon-arrow-" + icon +"'></i>");
+    });
+
+    self.setupHostQuerySelectorCallback(
+      load, '#select-server', '#select-host-group', '#select-host');
+    $("#select-severity, #select-status").change(function() {
+      load();
+    });
+  }
 
   function setLoading(loading) {
     if (loading) {
