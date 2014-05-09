@@ -28,7 +28,7 @@ var TriggersView = function(userProfile) {
   HatoholMonitoringView.apply(this, [userProfile]);
 
   self.pager = new HatoholPager();
-  self.userConfig = new HatoholUserConfig(); 
+  self.userConfig = new HatoholUserConfig();
   start();
 
   function start() {
@@ -66,7 +66,7 @@ var TriggersView = function(userProfile) {
       },
     });
   }
-  
+
   function updatePager() {
     self.pager.update({
       numTotalRecords: rawData ? rawData["totalNumberOfTriggers"] : -1,

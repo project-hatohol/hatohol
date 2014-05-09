@@ -28,7 +28,7 @@ var LatestView = function(userProfile) {
   HatoholMonitoringView.apply(this, [userProfile]);
 
   self.pager = new HatoholPager();
-  self.userConfig = new HatoholUserConfig(); 
+  self.userConfig = new HatoholUserConfig();
   start();
 
   function start() {
@@ -66,7 +66,7 @@ var LatestView = function(userProfile) {
       },
     });
   }
-  
+
   function updatePager() {
     self.pager.update({
       numTotalRecords: rawData ? rawData["totalNumberOfItems"] : -1,
@@ -89,7 +89,7 @@ var LatestView = function(userProfile) {
       var icon = data.direction === "asc" ? "up" : "down";
       th.eq(data.column).append("<i class='sort glyphicon glyphicon-arrow-" + icon +"'></i>");
     });
-    
+
     self.setupHostQuerySelectorCallback(
       load, '#select-server', '#select-host-group', '#select-host');
     $("#select-application").change(function() {
