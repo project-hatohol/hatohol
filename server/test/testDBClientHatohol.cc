@@ -278,6 +278,17 @@ static void _assertGetItemsWithFilter(AssertGetItemsArg &arg)
 #define assertGetItemsWithFilter(ARG) \
 cut_trace(_assertGetItemsWithFilter(ARG))
 
+static void _assertGetNumberOfItems(AssertGetItemsArg &arg)
+{
+	void test_addItemInfoList(gconstpointer data);
+	test_addItemInfoList(arg.ddtParam);
+	arg.fixup();
+	DBClientHatohol dbHatohol;
+	cppcut_assert_equal(arg.expectedRecords.size(),
+			    dbHatohol.getNumberOfItems(arg.option));
+}
+#define assertGetNumberOfItems(A) cut_trace(_assertGetNumberOfItems(A))
+
 void _assertItemInfoList(gconstpointer data, uint32_t serverId)
 {
 	DBClientHatohol dbHatohol;
@@ -766,6 +777,58 @@ void test_getItemWithItemGroupName(gconstpointer data)
 	AssertGetItemsArg arg(data);
 	arg.itemGroupName = "City";
 	assertGetItemsWithFilter(arg);
+}
+
+void data_getNumberOfItemsWithOneAuthorizedServer(gconstpointer data)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getNumberOfItemsWithOneAuthorizedServer(gconstpointer data)
+{
+	setupTestDBUser(true, true);
+	AssertGetItemsArg arg(data);
+	arg.userId = 5;
+	assertGetNumberOfItems(arg);
+}
+
+void data_getNumberOfItemWithNoAuthorizedServer(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getNumberOfItemWithNoAuthorizedServer(gconstpointer data)
+{
+	setupTestDBUser(true, true);
+	AssertGetItemsArg arg(data);
+	arg.userId = 4;
+	assertGetNumberOfItems(arg);
+}
+
+void data_getNumberOfItemWithInvalidUserId(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getNumberOfItemWithInvalidUserId(gconstpointer data)
+{
+	setupTestDBUser(true, true);
+	AssertGetItemsArg arg(data);
+	arg.userId = INVALID_USER_ID;
+	assertGetNumberOfItems(arg);
+}
+
+void data_getNumberOfItemsWithItemGroupName(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getNumberOfItemsWithItemGroupName(gconstpointer data)
+{
+	setupTestDBUser(true, true);
+	AssertGetItemsArg arg(data);
+	arg.itemGroupName = "City";
+	assertGetNumberOfItems(arg);
 }
 
 void data_addEventInfoList(void)

@@ -1892,6 +1892,35 @@ size_t DBClientHatohol::getNumberOfBadHosts(const TriggersQueryOption &option)
 	return itemGroupStream.read<int>();
 }
 
+size_t DBClientHatohol::getNumberOfItems(
+  const ItemsQueryOption &option)
+{
+	DBAgent::SelectExArg arg(tableProfileTriggers);
+	string stmt = "count(*)";
+	if (option.isHostgroupUsed()) {
+		// TODO: It has a same issue with getNumberOfTriggers();
+		stmt = StringUtils::sprintf(
+		  "count(distinct %s || ',' || %s)",
+		  option.getColumnName(IDX_ITEMS_SERVER_ID).c_str(),
+		  option.getColumnName(IDX_ITEMS_ID).c_str());
+	}
+	arg.add(stmt, SQL_COLUMN_TYPE_INT);
+
+	// from
+	arg.tableField = option.getFromClause();
+
+	// condition
+	arg.condition = option.getCondition();
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	return itemGroupStream.read<int>();
+}
+
 HatoholError DBClientHatohol::getNumberOfMonitoredItemsPerSecond
   (const DataQueryOption &option, MonitoringServerStatus &serverStatus)
 {
