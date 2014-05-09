@@ -22,18 +22,64 @@ var LatestView = function(userProfile) {
   var rawData, parsedData;
 
   self.reloadIntervalSeconds = 60;
-  self.pager = new HatoholPager({
-    numTotalRecords: -1,
-    clickPageCallback: function(page) {
-      load(page);
-    }
-  });
+  self.numRecordsPerPage = 50;
 
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
 
-  setupCallbacks();
-  load();
+  self.pager = new HatoholPager();
+  self.userConfig = new HatoholUserConfig(); 
+  start();
+
+  function start() {
+    var numRecordsPerPage;
+    self.userConfig.get({
+      itemNames:['num-items-per-page'],
+      successCallback: function(conf) {
+        self.numRecordsPerPage =
+          self.userConfig.findOrDefault(conf, 'num-items-per-page',
+                                        self.numRecordsPerPage);
+        updatePager();
+        setupCallbacks();
+        load();
+      },
+      connectErrorCallback: function(XMLHttpRequest) {
+        showXHRError(XMLHttpRequest);
+      },
+    });
+  }
+
+  function showXHRError(XMLHttpRequest) {
+    var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
+      XMLHttpRequest.statusText;
+    hatoholErrorMsgBox(textStatus);
+  }
+
+  function saveConfig(items) {
+    self.userConfig.store({
+      items: items,
+      successCallback: function() {
+        // we just ignore it
+      },
+      connectErrorCallback: function(XMLHttpRequest) {
+        showXHRError(XMLHttpRequest);
+      },
+    });
+  }
+  
+  function updatePager() {
+    self.pager.update({
+      numTotalRecords: rawData ? rawData["totalNumberOfItems"] : -1,
+      numRecordsPerPage: self.numRecordsPerPage,
+      clickPageCallback: function(page) {
+        load(page);
+        if (self.pager.numRecordsPerPage != self.numRecordsPerPage) {
+          self.numRecordsPerPage = self.pager.numRecordsPerPage;
+          saveConfig({'num-items-per-page': self.numRecordsPerPage})
+        }
+      }
+    });
+  }
 
   function setupCallbacks() {
     $("#table").stupidtable();
