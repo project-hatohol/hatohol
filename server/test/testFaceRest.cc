@@ -682,6 +682,10 @@ static void _assertItems(const string &path, const string &callbackName = "")
 	size_t numItems = static_cast<size_t>(_numItems);
 	cppcut_assert_equal(numExpectedItems, numItems);
 
+	cppcut_assert_equal(true, g_parser->read("totalNumberOfItems", _numItems));
+	numItems = static_cast<size_t>(_numItems);
+	cppcut_assert_equal(numExpectedItems, numItems);
+
 	// Check each ItemInfo
 	ServerIdItemInfoIdIndexMapMap indexMap;
 	getTestItemsIndexes(indexMap);

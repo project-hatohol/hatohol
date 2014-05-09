@@ -972,13 +972,13 @@ static HatoholError addOverviewEachServer(FaceRest::RestJob *job,
 	dataStore->getHostList(hostInfoList, option);
 	agent.add("numberOfHosts", hostInfoList.size());
 
-	ItemInfoList itemInfoList;
 	ItemsQueryOption itemsQueryOption(job->dataQueryContextPtr);
-	bool fetchItemsSynchronously = true;
 	itemsQueryOption.setTargetServerId(svInfo.id);
-	dataStore->getItemList(itemInfoList, itemsQueryOption,
-			       fetchItemsSynchronously);
-	agent.add("numberOfItems", itemInfoList.size());
+	bool fetchItemsSynchronously = true;
+	size_t numberOfItems =
+	  dataStore->getNumberOfItems(itemsQueryOption,
+				      fetchItemsSynchronously);
+	agent.add("numberOfItems", numberOfItems);
 
 	TriggerInfoList triggerInfoList;
 	TriggersQueryOption triggersQueryOption(job->dataQueryContextPtr);
@@ -1884,7 +1884,7 @@ void FaceRest::replyGetItem(RestJob *job)
 	}
 	agent.endArray();
 	agent.add("numberOfItems", itemList.size());
-	agent.add("totalNumberOfItems", -1);
+	agent.add("totalNumberOfItems", dataStore->getNumberOfItems(option));
 	addServersMap(job, agent, NULL, false);
 	agent.endObject();
 

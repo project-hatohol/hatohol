@@ -380,6 +380,15 @@ size_t UnifiedDataStore::getNumberOfBadHosts(const TriggersQueryOption &option)
 	return dbHatohol.getNumberOfBadHosts(option);
 }
 
+size_t UnifiedDataStore::getNumberOfItems(const ItemsQueryOption &option,
+					  bool fetchItemsSynchronously)
+{
+	if (fetchItemsSynchronously)
+		fetchItems(option.getTargetServerId());
+	DBClientHatohol dbHatohol;
+	return dbHatohol.getNumberOfItems(option);
+}
+
 HatoholError UnifiedDataStore::getNumberOfMonitoredItemsPerSecond(
   const DataQueryOption &option, MonitoringServerStatus &serverStatus)
 {
