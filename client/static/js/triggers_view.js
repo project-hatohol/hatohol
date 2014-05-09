@@ -22,18 +22,64 @@ var TriggersView = function(userProfile) {
   var rawData;
 
   self.reloadIntervalSeconds = 60;
-  self.pager = new HatoholPager({
-    numTotalRecords: -1,
-    clickPageCallback: function(page) {
-      load(page);
-    }
-  });
+  self.numRecordsPerPage = 50;
 
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
 
-  setupCallbacks();
-  load();
+  self.pager = new HatoholPager();
+  self.userConfig = new HatoholUserConfig(); 
+  start();
+
+  function start() {
+    var numRecordsPerPage;
+    self.userConfig.get({
+      itemNames:['num-triggers-per-page'],
+      successCallback: function(conf) {
+        self.numRecordsPerPage =
+          self.userConfig.findOrDefault(conf, 'num-triggers-per-page',
+                                        self.numRecordsPerPage);
+        updatePager();
+        setupCallbacks();
+        load();
+      },
+      connectErrorCallback: function(XMLHttpRequest) {
+        showXHRError(XMLHttpRequest);
+      },
+    });
+  }
+
+  function showXHRError(XMLHttpRequest) {
+    var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
+      XMLHttpRequest.statusText;
+    hatoholErrorMsgBox(textStatus);
+  }
+
+  function saveConfig(items) {
+    self.userConfig.store({
+      items: items,
+      successCallback: function() {
+        // we just ignore it
+      },
+      connectErrorCallback: function(XMLHttpRequest) {
+        showXHRError(XMLHttpRequest);
+      },
+    });
+  }
+  
+  function updatePager() {
+    self.pager.update({
+      numTotalRecords: rawData ? rawData["totalNumberOfTriggers"] : -1,
+      numRecordsPerPage: self.numRecordsPerPage,
+      clickPageCallback: function(page) {
+        load(page);
+        if (self.pager.numRecordsPerPage != self.numRecordsPerPage) {
+          self.numRecordsPerPage = self.pager.numRecordsPerPage;
+          saveConfig({'num-triggers-per-page': self.numRecordsPerPage})
+        }
+      }
+    });
+  }
 
   var status_choices = [
     gettext("OK"),
@@ -136,7 +182,7 @@ var TriggersView = function(userProfile) {
     self.setHostFilterCandidates(rawData["servers"]);
 
     drawTableContents(rawData);
-    self.pager.update({ numTotalRecords: rawData["totalNumberOfTriggers"] });
+    updatePager();
     setLoading(false);
     self.setAutoReload(load, self.reloadIntervalSeconds);
   }
