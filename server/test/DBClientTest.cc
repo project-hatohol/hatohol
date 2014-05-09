@@ -469,12 +469,12 @@ AccessInfo testAccessInfo[] = {
 	ALL_HOST_GROUPS,   // hostgroupId
 }, {
 	0,                 // id
-	7,                 // userId
+	userIdWithMultipleAuthorizedHostgroups, // userId
 	1,                 // serverId
 	1,                 // hostgroupId
 }, {
 	0,                 // id
-	7,                 // userId
+	userIdWithMultipleAuthorizedHostgroups, // userId
 	1,                 // serverId
 	2,                 // hostgroupId
 }
