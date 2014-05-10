@@ -181,8 +181,10 @@ begin:
 			onReceived(message);
 
 			sessionLocker.lock();
-			if (m_ctx->exitRequest)
+			if (m_ctx->exitRequest) {
+				sessionLocker.unlock();
 				break;
+			}
 			session.acknowledge();
 			sessionLocker.unlock();
 		}
