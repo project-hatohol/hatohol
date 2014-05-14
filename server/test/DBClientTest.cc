@@ -26,6 +26,10 @@ using namespace mlpl;
 static const ServerIdType defunctServerId1 = 0x7fff0001;
 const MonitoringSystemType MONITORING_SYSTEM_HAPI_TEST =
   static_cast<MonitoringSystemType>(NUM_MONITORING_SYSTEMS + 100);
+const MonitoringSystemType MONITORING_SYSTEM_HAPI_TEST_NOT_EXIST =
+  static_cast<MonitoringSystemType>(NUM_MONITORING_SYSTEMS + 101);
+extern const MonitoringSystemType MONITORING_SYSTEM_HAPI_TEST_PASSIVE =
+  static_cast<MonitoringSystemType>(NUM_MONITORING_SYSTEMS + 102);
 
 MonitoringServerInfo testServerInfo[] = 
 {{
@@ -683,6 +687,14 @@ ArmPluginInfo testArmPluginInfo[] = {
 	MONITORING_SYSTEM_HAPI_TEST,     // type
 	"Test monitoring system",        // name
 	"hapi-test-plugin",              // path
+}, {
+	MONITORING_SYSTEM_HAPI_TEST_NOT_EXIST, // type
+	"Test monitoring system (command not exist)", // name
+	"hapi-test-non-existing-plugin",              // path
+}, {
+	MONITORING_SYSTEM_HAPI_TEST_PASSIVE,       // type
+	"Test monitoring system (passive plugin)", // name
+	"#PASSIVE_PLUGIN#",                        // path
 }
 };
 const size_t NumTestArmPluginInfo = sizeof(testArmPluginInfo) / sizeof(ArmPluginInfo);

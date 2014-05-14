@@ -50,6 +50,8 @@ public:
 		/**
 		 * Called when SIGCHLD of the child process concerned with
 		 * this object is received.
+		 * Note that this method is called only when the signal code
+		 * is any of CLD_EXITED, CLD_KILLED, or CLD_DUMPED.
 		 */
 		virtual void onCollected(const siginfo_t *siginfo);
 
@@ -113,6 +115,7 @@ protected:
 	virtual ~ChildProcessManager(); // override
 	virtual gpointer mainThread(HatoholThreadArg *arg); // override
 
+	bool isDead(const siginfo_t *siginfo);
 	void collected(const siginfo_t *siginfo);
 
 private:

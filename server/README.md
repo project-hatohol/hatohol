@@ -16,9 +16,9 @@ Supported output method
 
 Supported platforms
 -------------------
-- CentOS 6.4 (x86\_64)
-- Ubuntu Server 12.04.2 LTS (64-bit)
-- Ubuntu 13.04 (64-bit) [supported until the next ubuntu release]
+- CentOS 6.5 (x86\_64)
+- Ubuntu Server 14.04LTS (64-bit)
+- Ubuntu 14.04 (64-bit) [supported until the next ubuntu release]
 
 Required libraries
 ------------------
@@ -31,6 +31,9 @@ Required libraries
 - librt
 - libstdc++
 - uuid-dev
+- qpidd
+- libqpidmessaging2-dev
+- libqpidtypes1-dev
 
 ### Example to install required libraries on CentOS 6.4
 > See also [this page](../doc/install/hatohol13.12-centos6.4.md)
@@ -79,11 +82,13 @@ You should install these package to build Hatohol and required libraries.
 - libmysqlclient-dev
 - mysql-server
 - uuid-dev
+- qpidd
+- libqpidmessaging2-dev
+- libqpidtypes1-dev
 
 installing by following commands:
 
-    $ sudo apt-get install automake g++ libtool libsoup2.4-dev libjson-glib-dev
-      libsqlite3-dev libmysqlclient-dev mysql-server sqlite3 uuid-dev
+    $ sudo apt-get install automake g++ libtool libsoup2.4-dev libjson-glib-dev libsqlite3-dev libmysqlclient-dev mysql-server sqlite3 uuid-dev qpidd libqpidmessaging2-dev libqpidtypes1-dev
 
 How to build Hatohol
 --------------------
@@ -99,7 +104,20 @@ Then run the following commands to install Hatohol:
 
 How to start
 ------------
-(0) Run MySQL server for storing configuration.
+(0.1) Run MySQL server for storing configuration.
+
+(0.2) Set QPid's setting
+(0.2.a) Disable authentification
+Add the following line in /etc/qpid/qpidd.conf
+
+    auth=no
+
+(0.2.b) Allow all yours (Setting of ACL)
+Example of /etc/qpid/qpidd.acl
+
+    acl allow all all
+
+NOTE: You have to restart qpidd after you edit /etc/qpid/qpiid.acl.
 
 (1) Make configuration database
 

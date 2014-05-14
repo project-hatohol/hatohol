@@ -18,6 +18,9 @@
  */
 
 #include <cppcutter.h>
+#include <errno.h>
+#include <fstream>
+#include <unistd.h>
 #include "ChildProcessManager.h"
 #include "HatoholError.h"
 #include "Helpers.h"
@@ -209,5 +212,90 @@ void test_reset(void)
 	cppcut_assert_equal(false, ctx->calledFinalized);
 	cppcut_assert_equal(true,  ctx->calledReset);
 }
+
+void test_ignore_sigstop(void)
+{
+	struct Ctx : public ChildProcessManager::EventCallback {
+		bool succeeded;
+		AtomicValue<bool> calledCollected;
+		AtomicValue<bool> calledFinalized;
+		GMainLoopWithTimeout mainLoop;
+
+		Ctx(void)
+		: succeeded(false),
+		 calledCollected(false),
+		 calledFinalized(false)
+		{
+		}
+
+		virtual void onExecuted(const bool &_succeeded, GError *gerror) // override
+		{
+			succeeded = _succeeded;
+		}
+
+		virtual void onCollected(const siginfo_t *siginfo) // override
+		{
+			calledCollected = true;
+		}
+
+		virtual void onFinalized(void) // override
+		{
+			calledFinalized = true;
+			mainLoop.quit();
+		}
+
+		void waitForStopped(const pid_t pid)
+		{
+			const string path =
+			   StringUtils::sprintf("/proc/%d/stat", pid);
+			const size_t timeoutMSec = 5000; // ms
+			SmartTime t0(SmartTime::INIT_CURR_TIME);
+			while (true) {
+				// Check elapsed time
+				SmartTime dt(SmartTime::INIT_CURR_TIME);
+				dt -= t0;
+				cppcut_assert_equal(
+				  true, dt.getAsMSec() < timeoutMSec);
+
+				// Get the status from /proc/<pid>/stat
+				ifstream ifs(path.c_str());
+				cppcut_assert_equal(true, ifs.good());
+				string pidStr;
+				string name;
+				string stat;
+				ifs >> pidStr;
+				ifs >> name;
+				ifs >> stat;
+				cppcut_assert_equal(
+				  pid, atoi(pidStr.c_str()));
+				cppcut_assert_equal(string("(cat)"), name);
+				if (stat == "T")
+					break;
+				usleep(100);
+			}
+		}
+	} *ctx = new Ctx();
+
+	ChildProcessManager::CreateArg arg;
+	arg.eventCb = ctx;
+	assertCreate(arg);
+	cppcut_assert_equal(true, ctx->succeeded);
+	errno = 0;
+	kill(arg.pid, SIGSTOP);
+	cut_assert_errno();
+
+	// The child's status Should be STOPPED
+	ctx->waitForStopped(arg.pid);
+
+	// At this point, these callbacks shouldn't be fired.
+	cppcut_assert_equal(false, (bool)ctx->calledCollected);
+	cppcut_assert_equal(false, (bool)ctx->calledFinalized);
+
+	cppcut_assert_equal(0, kill(arg.pid, SIGKILL));
+	ctx->mainLoop.run();
+	cppcut_assert_equal(true, (bool)ctx->calledCollected);
+	cppcut_assert_equal(true, (bool)ctx->calledFinalized);
+}
+
 
 } // namespace testChildProcessManager

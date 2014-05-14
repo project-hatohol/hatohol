@@ -92,5 +92,8 @@ zabbix_api_response_collector_SOURCES = zabbix-api-response-collector.cc
 zabbix_api_response_collector_LDFLAGS = -lstdc++
 zabbix_api_response_collector_LDADD = $(LIBS)
 
+hapi_test_plugin_SOURCES = hapi-test-plugin.cc
+hapi_test_plugin_LDFLAGS = $(LIBS) -lqpidmessaging
+
 echo-cutter:
 	@echo $(CUTTER)
