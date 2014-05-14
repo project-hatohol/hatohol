@@ -1770,14 +1770,26 @@ void DBClientHatohol::addMonitoringServerStatus(
 	} DBCLIENT_TRANSACTION_END();
 }
 
-// TODO: Should we name it getNumberOfBadGriggers ?
-size_t DBClientHatohol::getNumberOfTriggers(const TriggersQueryOption &option,
-                                            TriggerSeverityType severity)
+size_t DBClientHatohol::getNumberOfTriggers(
+  const TriggersQueryOption &option, const std::string &additionalCondition)
 {
 	DBAgent::SelectExArg arg(tableProfileTriggers);
-	string stmt =
-	  StringUtils::sprintf("count(distinct %s)",
-	    option.getColumnName(IDX_TRIGGERS_HOST_ID).c_str());
+	string stmt = "count(*)";
+	if (option.isHostgroupUsed()) {
+		// Because a same trigger can be counted multiple times in
+		// this case, we should distinguish duplicated records. Althogh
+		// we have to use 2 columns (server ID and trigger ID) to do
+		// it, count() function doesn't accept multiple arguments.
+		// To avoid this issue we concat server ID and trigger ID.
+
+		// TODO: The statement depends on SQL implementations.
+		// We should remove this code after we improve the hostgroups
+		// issue by using sub query (github issue #168).
+		stmt = StringUtils::sprintf(
+		  "count(distinct %s || ',' || %s)",
+		  option.getColumnName(IDX_TRIGGERS_SERVER_ID).c_str(),
+		  option.getColumnName(IDX_TRIGGERS_ID).c_str());
+	}
 	arg.add(stmt, SQL_COLUMN_TYPE_INT);
 
 	// from
@@ -1785,13 +1797,11 @@ size_t DBClientHatohol::getNumberOfTriggers(const TriggersQueryOption &option,
 
 	// condition
 	arg.condition = option.getCondition();
-	if (!arg.condition.empty())
-		arg.condition += " and ";
-	arg.condition +=
-	  StringUtils::sprintf("%s=%d and %s=%d",
-	    option.getColumnName(IDX_TRIGGERS_SEVERITY).c_str(), severity,
-	    option.getColumnName(IDX_TRIGGERS_STATUS).c_str(), 
-	    TRIGGER_STATUS_PROBLEM);
+	if (!additionalCondition.empty()) {
+		if (!arg.condition.empty())
+			arg.condition += " and ";
+		arg.condition += additionalCondition;
+	}
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -1800,6 +1810,22 @@ size_t DBClientHatohol::getNumberOfTriggers(const TriggersQueryOption &option,
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupStream itemGroupStream(*grpList.begin());
 	return itemGroupStream.read<int>();
+}
+
+size_t DBClientHatohol::getNumberOfBadTriggers(
+  const TriggersQueryOption &option, TriggerSeverityType severity)
+{
+	string additionalCondition =
+	  StringUtils::sprintf("%s=%d and %s=%d",
+	    option.getColumnName(IDX_TRIGGERS_SEVERITY).c_str(), severity,
+	    option.getColumnName(IDX_TRIGGERS_STATUS).c_str(),
+	    TRIGGER_STATUS_PROBLEM);
+	return getNumberOfTriggers(option, additionalCondition);
+}
+
+size_t DBClientHatohol::getNumberOfTriggers(const TriggersQueryOption &option)
+{
+	return getNumberOfTriggers(option, string());
 }
 
 size_t DBClientHatohol::getNumberOfHosts(const TriggersQueryOption &option)

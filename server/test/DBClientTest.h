@@ -58,6 +58,7 @@ extern const size_t NumTestActionDef;
 
 extern UserInfo testUserInfo[];
 extern const size_t NumTestUserInfo;
+extern const UserIdType userIdWithMultipleAuthorizedHostgroups;
 
 extern AccessInfo testAccessInfo[];
 extern const size_t NumTestAccessInfo;
