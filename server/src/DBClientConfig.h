@@ -24,6 +24,19 @@
 #include "DBClientHatohol.h"
 #include "MonitoringServerInfo.h"
 
+// Issue Tracking System
+struct ITSInfo {
+	std::string baseURL;
+	std::string projectId;
+	std::string trackerId;
+	std::string userName;
+	std::string password;
+};
+
+typedef std::list<ITSInfo>    ITSInfoList;
+typedef ITSInfoList::iterator ITSInfoListIterator;
+typedef ITSInfoList::const_iterator ITSInfoListConstIterator;
+
 struct ArmPluginInfo {
 	MonitoringSystemType type;
 	std::string name; // must be unique
