@@ -131,7 +131,7 @@ bool HatoholArmPluginGate::start(const MonitoringSystemType &type)
 	if (m_ctx->armPluginInfo.path == PassivePluginQuasiPath) {
 		MLPL_INFO("Started: passive plugin (%d) %s\n",
 		          m_ctx->armPluginInfo.type,
-		          m_ctx-> armPluginInfo.path.c_str());
+		          m_ctx->armPluginInfo.path.c_str());
 	} else {
 		// launch a plugin process
 		if (!launchPluginProcess(m_ctx->armPluginInfo))
