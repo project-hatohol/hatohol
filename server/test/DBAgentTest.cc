@@ -583,6 +583,30 @@ void dbAgentTestDelete(DBAgent &dbAgent, DBAgentChecker &checker)
 	cppcut_assert_equal(matchCount, actualIds.size());
 }
 
+void dbAgentTestAddColumns(DBAgent &dbAgent, DBAgentChecker &checker)
+{
+	static const size_t numColumnsOfTable0 = 2;
+	static const size_t numColumnsOfTable1 =
+	  NUM_COLUMNS_TEST - numColumnsOfTable0;
+	static const DBAgent::TableProfile tableProfile0(
+	  "test_table", COLUMN_DEF_TEST,
+	  sizeof(ColumnDef) * numColumnsOfTable0, numColumnsOfTable0);
+	static const DBAgent::TableProfile tableProfile1(
+	  "test_table", &COLUMN_DEF_TEST[numColumnsOfTable0],
+	  sizeof(ColumnDef) * numColumnsOfTable1, numColumnsOfTable1);
+
+	// A table with the first two columns of'tableProfileTest' is created.
+	dbAgent.createTable(tableProfile0);
+
+	// Add remaining columns
+	DBAgent::AddColumnsArg arg(tableProfile1);
+	for (size_t idx = 0; idx < numColumnsOfTable1; idx++)
+		arg.columnIndexes.push_back(idx);
+	dbAgent.addColumns(arg);
+
+	checker.assertTable(tableProfileTest);
+}
+
 void dbAgentTestIsTableExisting(DBAgent &dbAgent, DBAgentChecker &checker)
 {
 	cppcut_assert_equal(false, dbAgent.isTableExisting(TABLE_NAME_TEST));

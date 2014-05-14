@@ -478,13 +478,16 @@ void DBAgentMySQL::addColumns(const AddColumnsArg &addColumnsArg)
 	string query = "ALTER TABLE ";
 	query += addColumnsArg.tableProfile.name;
 	vector<size_t>::const_iterator it = addColumnsArg.columnIndexes.begin();
+	vector<size_t>::const_iterator lastElemIt =
+	  --addColumnsArg.columnIndexes.end();
+
 	for (; it != addColumnsArg.columnIndexes.end(); ++it) {
 		const size_t index = *it;
 		const ColumnDef &columnDef =
 		  addColumnsArg.tableProfile.columnDefs[index];
 		query += " ADD COLUMN ";
 		query += getColumnDefinitionQuery(columnDef);
-		if (index < addColumnsArg.columnIndexes.size() - 1)
+		if (it != lastElemIt)
 			query += ",";
 	}
 	execSql(query);

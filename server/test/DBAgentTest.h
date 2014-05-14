@@ -113,6 +113,7 @@ void dbAgentTestSelectHeightOrder
  (DBAgent &dbAgent, size_t limit = 0, size_t offset = 0,
   size_t forceExpectedRows = (size_t)-1);
 void dbAgentTestDelete(DBAgent &dbAgent, DBAgentChecker &checker);
+void dbAgentTestAddColumns(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestIsTableExisting(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestAutoIncrement(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestAutoIncrementWithDel(DBAgent &dbAgent, DBAgentChecker &checker);
