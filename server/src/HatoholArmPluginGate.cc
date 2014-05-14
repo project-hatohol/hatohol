@@ -84,6 +84,7 @@ struct HatoholArmPluginGate::PrivateContext
 	GPid                 pid;
 	AtomicValue<bool>    exitRequest;
 	Session             *sessionPtr;
+	Session              session;
 	MutexLock            sessionLock;
 	MutexLock            retrySleeper;
 
@@ -167,10 +168,10 @@ begin:
 		Connection connection(brokerUrl, connectionOptions);
 		connection.open();
 
-		Session session = connection.createSession();
-		m_ctx->sessionPtr = &session;
-		onSessionChanged(m_ctx->sessionPtr);
-		Receiver receiver = session.createReceiver(address);
+		m_ctx->session = connection.createSession();
+		m_ctx->sessionPtr = &m_ctx->session;
+		onSessionChanged(&m_ctx->session);
+		Receiver receiver = m_ctx->session.createReceiver(address);
 		sessionLocker.unlock();
 
 		while (true) {
@@ -185,7 +186,7 @@ begin:
 				sessionLocker.unlock();
 				break;
 			}
-			session.acknowledge();
+			m_ctx->session.acknowledge();
 			sessionLocker.unlock();
 		}
 
