@@ -34,16 +34,6 @@ struct HatoholThreadArg {
 
 class HatoholThreadBase {
 private:
-	typedef void (*ExceptionCallbackFunc)(const std::exception &e,
-	                                      void *data);
-	struct ExceptionCallbackInfo {
-		ExceptionCallbackFunc func;
-		void                 *data;
-	};
-	typedef std::list<ExceptionCallbackInfo> ExceptionCallbackInfoList;
-	typedef ExceptionCallbackInfoList::iterator
-	        ExceptionCallbackInfoListIterator;
-
 	typedef void (*ExitCallbackFunc)(void *data);
 	struct ExitCallbackInfo {
 		ExitCallbackFunc func;
@@ -53,12 +43,26 @@ private:
 	typedef ExitCallbackInfoList::iterator ExitCallbackInfoListIterator;
 
 public:
+	static const int EXIT_THREAD = -1;
+
 	HatoholThreadBase(void);
 	virtual ~HatoholThreadBase();
 	void start(bool autoDeleteObject = false, void *userData = NULL);
-	void addExceptionCallback(ExceptionCallbackFunc func, void *data);
 	void addExitCallback(ExitCallbackFunc func, void *data);
 	bool isStarted(void) const;
+
+	/**
+	 * Get the flag if exitSync() or requestExit() is called.
+	 *
+	 * @return
+	 * true once exitSync() or requestExit() is called. Otherwise false.
+	 */
+	bool isExitRequested(void) const;
+
+	/**
+	 * Request to exit and wait for its completion synchronously.
+	 */
+	virtual void exitSync(void);
 
 	/**
 	 * Wait for the exit of the thread.
@@ -66,11 +70,31 @@ public:
 	virtual void waitExit(void);
 
 protected:
-	void doExceptionCallback(const std::exception &e);
 	void doExitCallback(void);
 
 	// virtual methods
 	virtual gpointer mainThread(HatoholThreadArg *arg) = 0;
+
+	/**
+	 * Called when an exception is caught.
+	 *
+	 * @param e An exception instance.
+	 * @return
+	 * The sleep time in msec if the return value is positive. After the
+	 * sleep, mainThread() will be re-executed. If it's EXIT_THREAD,
+	 * the main thread exits. If you cancel the sleep, you can call
+	 * cancelReexecSleep().
+	 * The default implementation of the this method returns EXIT_THREAD.
+	 */
+	virtual int onCaughtException(const std::exception &e);
+
+	/**
+	 * Set the internal exit flag. After this method is called,
+	 * isExitRequested returns true.
+	 */
+	void requestExit(void);
+
+	void cancelReexecSleep(void);
 
 private:
 	struct PrivateContext;
