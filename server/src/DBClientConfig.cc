@@ -584,6 +584,60 @@ string ServerQueryOption::getCondition(void) const
 }
 
 // ---------------------------------------------------------------------------
+// IssueTrackerQueryOption
+// ---------------------------------------------------------------------------
+struct IssueTrackerQueryOption::PrivateContext {
+	PrivateContext(void)
+	{
+	}
+};
+
+IssueTrackerQueryOption::IssueTrackerQueryOption(const UserIdType &userId)
+: DataQueryOption(userId), m_ctx(NULL)
+{
+	m_ctx = new PrivateContext();
+}
+
+IssueTrackerQueryOption::IssueTrackerQueryOption(
+  DataQueryContext *dataQueryContext)
+: DataQueryOption(dataQueryContext),
+  m_ctx(NULL)
+{
+	m_ctx = new PrivateContext();
+}
+
+IssueTrackerQueryOption::~IssueTrackerQueryOption()
+{
+	if (m_ctx)
+		delete m_ctx;
+}
+
+bool IssueTrackerQueryOption::hasPrivilegeCondition(string &condition) const
+{
+	UserIdType userId = getUserId();
+
+	if (userId == USER_ID_SYSTEM || has(OPPRVLG_GET_ALL_SERVER)) {
+		return true;
+	}
+
+	if (userId == INVALID_USER_ID) {
+		MLPL_DBG("INVALID_USER_ID\n");
+		condition = DBClientHatohol::getAlwaysFalseCondition();
+		return true;
+	}
+
+	return false;
+}
+
+string IssueTrackerQueryOption::getCondition(void) const
+{
+	string condition;
+	if (hasPrivilegeCondition(condition))
+		return condition;
+	return condition;
+}
+
+// ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 void DBClientConfig::init(const CommandLineArg &cmdArg)
@@ -1036,7 +1090,8 @@ HatoholError DBClientConfig::addIssueTracker(
 }
 
 void DBClientConfig::getIssueTrackers(
-  IssueTrackerInfoVect &issueTrackerInfoVect, DataQueryOption &option)
+  IssueTrackerInfoVect &issueTrackerInfoVect,
+  IssueTrackerQueryOption &option)
 {
 	DBAgent::SelectExArg arg(tableProfileIssueTrackers);
 	arg.add(IDX_ISSUE_TRACKERS_ID);

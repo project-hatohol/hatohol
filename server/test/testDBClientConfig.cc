@@ -838,6 +838,7 @@ cut_trace(_assertAddToDB<IssueTrackerInfo>(X, addIssueTracker))
 void _assertGetIssueTrackers(UserIdType userId)
 {
 	string expectedText;
+	size_t expectedSize = 0;
 	OperationPrivilege privilege(userId);
 	if (privilege.has(OPPRVLG_GET_ALL_SERVER)) {
 		for (size_t i = 0; i < NumTestIssueTrackerInfo; i++) {
@@ -845,13 +846,14 @@ void _assertGetIssueTrackers(UserIdType userId)
 			assertAddIssueTrackerToDB(&info);
 			expectedText += makeIssueTrackerInfoOutput(info);
 		}
+		expectedSize = NumTestIssueTrackerInfo;
 	}
 
 	IssueTrackerInfoVect actual;
-	DataQueryOption option(userId);
+	IssueTrackerQueryOption option(userId);
 	DBClientConfig dbConfig;
 	dbConfig.getIssueTrackers(actual, option);
-	cppcut_assert_equal(NumTestIssueTrackerInfo, actual.size());
+	cppcut_assert_equal(expectedSize, actual.size());
 
 	string actualText;
 	IssueTrackerInfoVectIterator it = actual.begin();

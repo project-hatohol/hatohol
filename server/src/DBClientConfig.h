@@ -90,6 +90,22 @@ private:
 	PrivateContext *m_ctx;
 };
 
+class IssueTrackerQueryOption : public DataQueryOption {
+public:
+	IssueTrackerQueryOption(const UserIdType &userId = INVALID_USER_ID);
+	IssueTrackerQueryOption(DataQueryContext *dataQueryContext);
+	virtual ~IssueTrackerQueryOption();
+
+	virtual std::string getCondition(void) const; //overrride
+
+protected:
+	bool hasPrivilegeCondition(std::string &condition) const;
+
+private:
+	struct PrivateContext;
+	PrivateContext *m_ctx;
+};
+
 class DBClientConfig : public DBClient {
 public:
 	static int CONFIG_DB_VERSION;
@@ -182,7 +198,7 @@ public:
 	 * Options for the query
 	 */
 	void getIssueTrackers(IssueTrackerInfoVect &issueTrackerVect,
-	                      DataQueryOption &option);
+	                      IssueTrackerQueryOption &option);
 
 protected:
 	static bool parseCommandLineArgument(const CommandLineArg &cmdArg);
