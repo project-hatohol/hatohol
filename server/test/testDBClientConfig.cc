@@ -787,6 +787,18 @@ void test_saveArmPluginInfoUpdate(void)
 	assertDBContent(dbConfig.getDBAgent(), statement, expect);
 }
 
+void test_issueTrackerQueryOptionForAdmin(void)
+{
+	IssueTrackerQueryOption option(USER_ID_SYSTEM);
+	cppcut_assert_equal(string(), option.getCondition());
+}
+
+void test_issueTrackerQueryOptionForInvalidUser(void)
+{
+	IssueTrackerQueryOption option(INVALID_USER_ID);
+	cppcut_assert_equal(string("0"), option.getCondition());
+}
+
 void _assertAddIssueTracker(
   IssueTrackerInfo issueTrackerInfo,
   const HatoholErrorCode expectedErrorCode,
