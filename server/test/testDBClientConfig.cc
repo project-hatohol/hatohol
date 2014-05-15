@@ -797,7 +797,7 @@ void _assertAddIssueTracker(
 	err = dbConfig.addIssueTracker(&issueTrackerInfo, privilege);
 	assertHatoholError(expectedErrorCode, err);
 
-	string expectedOut("");
+	string expectedOut;
 	if (expectedErrorCode == HTERR_OK)
 		expectedOut = makeIssueTrackerInfoOutput(issueTrackerInfo);
 	string statement("select * from issue_trackers");
