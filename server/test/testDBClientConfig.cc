@@ -812,6 +812,20 @@ void test_addIssueTracker(void)
 	assertAddIssueTracker(*testInfo, HTERR_OK);
 }
 
+void test_addIssueTrackerWithEmptyLoction(void)
+{
+	IssueTrackerInfo testInfo = testIssueTrackerInfo[0];
+	testInfo.baseURL = string();
+	assertAddIssueTracker(testInfo, HTERR_NO_ISSUE_TRACKER_LOCATION);
+}
+
+void test_addIssueTrackerWithInvalieType(void)
+{
+	IssueTrackerInfo testInfo = testIssueTrackerInfo[0];
+	testInfo.type = NUM_ISSUE_TRACKERS;
+	assertAddIssueTracker(testInfo, HTERR_INVALID_ISSUE_TRACKER_TYPE);
+}
+
 } // namespace testDBClientConfig
 
 namespace testDBClientConfigDefault {
