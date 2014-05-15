@@ -838,10 +838,13 @@ cut_trace(_assertAddToDB<IssueTrackerInfo>(X, addIssueTracker))
 void _assertGetIssueTrackers(UserIdType userId)
 {
 	string expectedText;
-	for (size_t i = 0; i < NumTestIssueTrackerInfo; i++) {
-		IssueTrackerInfo &info = testIssueTrackerInfo[i];
-		assertAddIssueTrackerToDB(&info);
-		expectedText += makeIssueTrackerInfoOutput(info);
+	OperationPrivilege privilege(userId);
+	if (privilege.has(OPPRVLG_GET_ALL_SERVER)) {
+		for (size_t i = 0; i < NumTestIssueTrackerInfo; i++) {
+			IssueTrackerInfo &info = testIssueTrackerInfo[i];
+			assertAddIssueTrackerToDB(&info);
+			expectedText += makeIssueTrackerInfoOutput(info);
+		}
 	}
 
 	IssueTrackerInfoVect actual;
