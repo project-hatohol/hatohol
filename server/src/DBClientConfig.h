@@ -42,9 +42,9 @@ struct IssueTrackerInfo {
 	std::string password;
 };
 
-typedef std::list<IssueTrackerInfo>    IssueTrackerInfoList;
-typedef IssueTrackerInfoList::iterator ITSInfoListIterator;
-typedef IssueTrackerInfoList::const_iterator IssueTrackerInfoListConstIterator;
+typedef std::vector<IssueTrackerInfo>        IssueTrackerInfoVect;
+typedef IssueTrackerInfoVect::iterator       IssueTrackerInfoVectIterator;
+typedef IssueTrackerInfoVect::const_iterator IssueTrackerInfoVectoConstIterator;
 
 struct ArmPluginInfo {
 	MonitoringSystemType type;
