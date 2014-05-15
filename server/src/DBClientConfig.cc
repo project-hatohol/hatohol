@@ -47,6 +47,12 @@ static void operator>>(
 	monSysType = itemGroupStream.read<int, MonitoringSystemType>();
 }
 
+static void operator>>(
+  ItemGroupStream &itemGroupStream, IssueTrackerType &issueTrackerType)
+{
+       issueTrackerType = itemGroupStream.read<int, IssueTrackerType>();
+}
+
 static const ColumnDef COLUMN_DEF_SYSTEM[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
@@ -1027,6 +1033,43 @@ HatoholError DBClientConfig::addIssueTracker(
 		issueTrackerInfo->id = getLastInsertId();
 	} DBCLIENT_TRANSACTION_END();
 	return HTERR_OK;
+}
+
+void DBClientConfig::getIssueTrackers(
+  IssueTrackerInfoVect &issueTrackerInfoVect, DataQueryOption &option)
+{
+	DBAgent::SelectExArg arg(tableProfileIssueTrackers);
+	arg.add(IDX_ISSUE_TRACKERS_ID);
+	arg.add(IDX_ISSUE_TRACKERS_TYPE);
+	arg.add(IDX_ISSUE_TRACKERS_NICKNAME);
+	arg.add(IDX_ISSUE_TRACKERS_BASE_URL);
+	arg.add(IDX_ISSUE_TRACKERS_PROJECT_ID);
+	arg.add(IDX_ISSUE_TRACKERS_TRACKER_ID);
+	arg.add(IDX_ISSUE_TRACKERS_USER_NAME);
+	arg.add(IDX_ISSUE_TRACKERS_PASSWORD);
+	arg.condition = option.getCondition();
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	// check the result and copy
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
+		issueTrackerInfoVect.push_back(IssueTrackerInfo());
+		IssueTrackerInfo &info = issueTrackerInfoVect.back();
+
+		itemGroupStream >> info.id;
+		itemGroupStream >> info.type;
+		itemGroupStream >> info.nickname;
+		itemGroupStream >> info.baseURL;
+		itemGroupStream >> info.projectId;
+		itemGroupStream >> info.trackerId;
+		itemGroupStream >> info.userName;
+		itemGroupStream >> info.password;
+	}
 }
 
 // ---------------------------------------------------------------------------

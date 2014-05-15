@@ -173,6 +173,17 @@ public:
 	HatoholError addIssueTracker(IssueTrackerInfo *issueTrackerInfo,
 				     const OperationPrivilege &privilege);
 
+	/**
+	 * Get entries in the issue_trackers table.
+	 *
+	 * @param issueTrackerVect
+	 * The obtained data is added to this variable.
+	 * @param option
+	 * Options for the query
+	 */
+	void getIssueTrackers(IssueTrackerInfoVect &issueTrackerVect,
+	                      DataQueryOption &option);
+
 protected:
 	static bool parseCommandLineArgument(const CommandLineArg &cmdArg);
 	static void tableInitializerSystem(DBAgent *dbAgent, void *data);

@@ -826,6 +826,51 @@ void test_addIssueTrackerWithInvalieType(void)
 	assertAddIssueTracker(testInfo, HTERR_INVALID_ISSUE_TRACKER_TYPE);
 }
 
+static void addIssueTracker(IssueTrackerInfo *info)
+{
+	DBClientConfig dbConfig;
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	dbConfig.addIssueTracker(info, privilege);
+}
+#define assertAddIssueTrackerToDB(X) \
+cut_trace(_assertAddToDB<IssueTrackerInfo>(X, addIssueTracker))
+
+void _assertGetIssueTrackers(UserIdType userId)
+{
+	string expectedText;
+	for (size_t i = 0; i < NumTestIssueTrackerInfo; i++) {
+		IssueTrackerInfo &info = testIssueTrackerInfo[i];
+		assertAddIssueTrackerToDB(&info);
+		expectedText += makeIssueTrackerInfoOutput(info);
+	}
+
+	IssueTrackerInfoVect actual;
+	DataQueryOption option(userId);
+	DBClientConfig dbConfig;
+	dbConfig.getIssueTrackers(actual, option);
+	cppcut_assert_equal(NumTestIssueTrackerInfo, actual.size());
+
+	string actualText;
+	IssueTrackerInfoVectIterator it = actual.begin();
+	for (; it != actual.end(); ++it)
+		actualText += makeIssueTrackerInfoOutput(*it);
+	cppcut_assert_equal(expectedText, actualText);
+}
+#define assertGetIssueTrackers(U) \
+  cut_trace(_assertGetIssueTrackers(U))
+
+void test_getIssueTrackers(void)
+{
+	setupTestDBUser(true, true);
+	assertGetIssueTrackers(USER_ID_SYSTEM);
+}
+
+void test_getIssueTrackersByInvalidUser(void)
+{
+	setupTestDBUser(true, true);
+	assertGetIssueTrackers(INVALID_USER_ID);
+}
+
 } // namespace testDBClientConfig
 
 namespace testDBClientConfigDefault {
