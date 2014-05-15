@@ -24,8 +24,17 @@
 #include "DBClientHatohol.h"
 #include "MonitoringServerInfo.h"
 
+enum IssueTrackerType {
+	ISSUE_TRACKER_UNKNOWN = -2,
+	ISSUE_TRACKER_FAKE    = -1,
+	ISSUE_TRACKER_REDMINE,
+	NUM_ISSUE_TRACKERS,
+};
+
 // Issue Tracking System
 struct ITSInfo {
+	IssueTrackerIdType id;
+	IssueTrackerType   type;
 	std::string baseURL;
 	std::string projectId;
 	std::string trackerId;
