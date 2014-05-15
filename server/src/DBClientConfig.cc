@@ -558,6 +558,8 @@ void DBClientConfig::init(const CommandLineArg &cmdArg)
 		&tableProfileServers,
 	}, {
 		&tableProfileArmPlugins,
+	}, {
+		&tableProfileIssueTrackers,
 	}
 	};
 	static const size_t NUM_TABLE_INFO =
