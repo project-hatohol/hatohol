@@ -50,6 +50,7 @@ libhatohol_la_SOURCES = \
 	HatoholException.cc HatoholException.h \
 	HatoholThreadBase.cc HatoholThreadBase.h \
 	HostResourceQueryOption.cc HostResourceQueryOption.h \
+	HatoholArmPluginInterface.cc HatoholArmPluginInterface.h \
 	HatoholArmPluginGate.cc HatoholArmPluginGate.h \
 	HapgZabbixAPI.cc HapgZabbixAPI.h \
 	ItemData.cc ItemData.h \

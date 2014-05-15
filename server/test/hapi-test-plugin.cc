@@ -20,47 +20,59 @@
 #include <cstdio>
 #include <cstdlib>
 #include <string>
-#include <unistd.h>
 #include <qpid/messaging/Address.h>
 #include <qpid/messaging/Connection.h>
 #include <qpid/messaging/Message.h>
 #include <qpid/messaging/Receiver.h>
 #include <qpid/messaging/Sender.h>
 #include <qpid/messaging/Session.h>
-#include "HatoholArmPluginGate.h"
+#include <SimpleSemaphore.h>
+#include "HatoholArmPluginGate.h" // TODO: remove after ENV_NAME_QUEUE_ADDR is moved to HatoholArmPluginInterface.h 
+#include "HatoholArmPluginInterface.h"
 #include "hapi-test-plugin.h"
 
 using namespace std;
+using namespace mlpl;
 using namespace qpid::messaging;
+
+class TestPlugin : public HatoholArmPluginInterface {
+public:
+	TestPlugin(void)
+	: m_sem(0)
+	{
+		const char *envQueueAddr =
+		  getenv(HatoholArmPluginGate::ENV_NAME_QUEUE_ADDR);
+		if (!envQueueAddr) {
+			HatoholArmPluginError hapError;
+			hapError.code = HAPERR_NOT_FOUND_QUEUE_ADDR;
+			onGotError(hapError);
+			return;
+		}
+		string queueAddr = envQueueAddr;
+		queueAddr += "; {create: always}";
+		setQueueAddress(queueAddr);
+	}
+
+	void waitSent(void)
+	{
+		m_sem.wait();
+	}
+
+protected:
+	virtual void onConnected(void) // override
+	{
+		send(testMessage);
+		m_sem.post();
+	}
+
+private:
+	SimpleSemaphore m_sem;
+};
 
 int main(void)
 {
-	const char *envQueueAddr =
-	  getenv(HatoholArmPluginGate::ENV_NAME_QUEUE_ADDR);
-	if (!envQueueAddr) {
-		printf("Not found environment variable: %s\n",
-		       HatoholArmPluginGate::ENV_NAME_QUEUE_ADDR);
-		abort();
-	}
-	string queueAddr = envQueueAddr;
-	queueAddr += "; {create: always}";
-
-	const string brokerUrl = HatoholArmPluginGate::DEFAULT_BROKER_URL;
-	const string connectionOptions;
-	Connection connection(brokerUrl, connectionOptions);
-	try {
-		connection.open();
-		Session session = connection.createSession();
-		Sender sender = session.createSender(queueAddr);
-		Message request;
-		request.setContent(testMessage);
-		sender.send(request);
-	} catch (const exception &error) {
-		printf("Got exception: %s\n", error.what());
-		abort();
-	}
-	connection.close();
-	sleep(3600);
-
+	TestPlugin plugin;
+	plugin.start();
+	plugin.waitSent();
 	return EXIT_SUCCESS;
 }
