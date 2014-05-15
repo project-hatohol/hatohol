@@ -26,6 +26,7 @@
 #include <exception>
 #include <stdexcept>
 #include <AtomicValue.h>
+#include <SimpleSemaphore.h>
 #include "Utils.h"
 #include "HatoholThreadBase.h"
 #include "HatoholException.h"
@@ -38,7 +39,7 @@ struct HatoholThreadBase::PrivateContext {
 	ReadWriteLock rwlock;
 	ExitCallbackInfoList      exitCbList;
 	MutexLock                 mutexForThreadStart;
-	MutexLock                 mutexForThreadExit;
+	SimpleSemaphore           semThreadExit;
 	MutexLock                 mutexForReexecSleep;
 	AtomicValue<bool>         exitRequested;
 
@@ -89,7 +90,7 @@ struct HatoholThreadBase::PrivateContext {
 
 	void notifyThreadStarted(void)
 	{
-		mutexForThreadExit.lock();
+		semThreadExit.wait();
 		mutexForThreadStart.unlock();
 	}
 };
@@ -133,8 +134,10 @@ void HatoholThreadBase::start(bool autoDeleteObject, void *userData)
 
 void HatoholThreadBase::waitExit(void)
 {
-	m_ctx->mutexForThreadExit.lock();
-	m_ctx->mutexForThreadExit.unlock();
+	m_ctx->semThreadExit.wait();
+
+	// Enable to call this method more than once
+	m_ctx->semThreadExit.post();
 }
 
 void HatoholThreadBase::addExitCallback(ExitCallbackFunc func, void *data)
@@ -202,7 +205,7 @@ void HatoholThreadBase::threadCleanup(HatoholThreadArg *arg)
 	arg->obj->doExitCallback();
 	CacheServiceDBClient::cleanup();
 	arg->obj->m_ctx->thread = NULL;
-	arg->obj->m_ctx->mutexForThreadExit.unlock();
+	arg->obj->m_ctx->semThreadExit.post();
 	if (arg->autoDeleteObject)
 		delete arg->obj;
 	delete arg;
