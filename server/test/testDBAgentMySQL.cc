@@ -627,6 +627,12 @@ void test_delete(void)
 	dbAgentTestDelete(*g_dbAgent, dbAgentChecker);
 }
 
+void test_addColumns(void)
+{
+	createGlobalDBAgent();
+	dbAgentTestAddColumns(*g_dbAgent, dbAgentChecker);
+}
+
 void test_isTableExisting(void)
 {
 	createGlobalDBAgent();

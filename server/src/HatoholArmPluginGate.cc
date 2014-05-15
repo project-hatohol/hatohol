@@ -88,6 +88,7 @@ struct HatoholArmPluginGate::PrivateContext
 	ArmStatus            armStatus;
 	GPid                 pid;
 	Session             *sessionPtr;
+	Session              session;
 	MutexLock            sessionLock;
 
 	PrivateContext(const MonitoringServerInfo &_serverInfo,
@@ -131,7 +132,7 @@ bool HatoholArmPluginGate::start(const MonitoringSystemType &type)
 	if (m_ctx->armPluginInfo.path == PassivePluginQuasiPath) {
 		MLPL_INFO("Started: passive plugin (%d) %s\n",
 		          m_ctx->armPluginInfo.type,
-		          m_ctx-> armPluginInfo.path.c_str());
+		          m_ctx->armPluginInfo.path.c_str());
 	} else {
 		// launch a plugin process
 		if (!launchPluginProcess(m_ctx->armPluginInfo))
@@ -186,10 +187,10 @@ gpointer HatoholArmPluginGate::mainThread(HatoholThreadArg *arg)
 	Connection connection(brokerUrl, connectionOptions);
 	connection.open();
 
-	Session session = connection.createSession();
-	m_ctx->sessionPtr = &session;
+	m_ctx->session = connection.createSession();
+	m_ctx->sessionPtr = &m_ctx->session;
 	onSessionChanged(m_ctx->sessionPtr);
-	Receiver receiver = session.createReceiver(address);
+	Receiver receiver = m_ctx->session.createReceiver(address);
 	sessionLocker.unlock();
 
 	while (true) {
@@ -202,7 +203,7 @@ gpointer HatoholArmPluginGate::mainThread(HatoholThreadArg *arg)
 		sessionLocker.lock();
 		if (isExitRequested()) 
 			break;
-		session.acknowledge();
+		m_ctx->session.acknowledge();
 		sessionLocker.unlock();
 	}
 

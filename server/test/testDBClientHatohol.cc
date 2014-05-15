@@ -426,7 +426,8 @@ static string makeHostsOutput(const HostInfo &hostInfo, size_t id)
 
 static void prepareDataForAllHostgroupIds(void)
 {
-	const set<HostgroupIdType> &hostgroupIdSet = getTestHostgroupIdSet();
+	set<HostgroupIdType> hostgroupIdSet = getTestHostgroupIdSet();
+	hostgroupIdSet.insert(ALL_HOST_GROUPS);
 	set<HostgroupIdType>::const_iterator hostgrpIdItr =
 	  hostgroupIdSet.begin();
 	for (; hostgrpIdItr != hostgroupIdSet.end(); ++hostgrpIdItr) {
@@ -866,6 +867,50 @@ void test_getHostInfoListWithUserWhoCanAccessSomeHostgroups(gpointer data)
 	assertGetHosts(arg);
 }
 
+void data_getNumberOfTriggers(void)
+{
+	prepareDataForAllHostgroupIds();
+}
+
+void test_getNumberOfTriggers(gconstpointer data)
+{
+	setupTestTriggerDB();
+	setupTestHostgroupElementDB();
+
+	const ServerIdType targetServerId = testTriggerInfo[0].serverId;
+	const HostgroupIdType hostgroupId =
+	  gcut_data_get_int(data, "hostgroupId");
+
+	DBClientHatohol dbHatohol;
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(targetServerId);
+	option.setTargetHostgroupId(hostgroupId);
+	cppcut_assert_equal(
+	  dbHatohol.getNumberOfTriggers(option),
+	  getNumberOfTestTriggers(targetServerId, hostgroupId),
+	  cut_message("sv: %"FMT_SERVER_ID", hostgroup: %"FMT_HOST_GROUP_ID,
+		      targetServerId, hostgroupId));
+}
+
+void test_getNumberOfTriggersForMultipleAuthorizedHostgroups(void)
+{
+	setupTestDBUser(true, true);
+	setupTestTriggerDB();
+	setupTestHostgroupElementDB();
+
+	const ServerIdType targetServerId = testTriggerInfo[0].serverId;
+	const HostgroupIdType hostgroupId = ALL_HOST_GROUPS;
+
+	DBClientHatohol dbHatohol;
+	TriggersQueryOption option(userIdWithMultipleAuthorizedHostgroups);
+	option.setTargetServerId(targetServerId);
+	option.setTargetHostgroupId(hostgroupId);
+
+	cppcut_assert_equal(
+	  dbHatohol.getNumberOfTriggers(option),
+	  getNumberOfTestTriggers(targetServerId, hostgroupId));
+}
+
 void data_getNumberOfTriggersBySeverity(void)
 {
 	prepareDataForAllHostgroupIds();
@@ -887,7 +932,7 @@ void test_getNumberOfTriggersBySeverity(gconstpointer data)
 		option.setTargetHostgroupId(hostgroupId);
 		TriggerSeverityType severity = (TriggerSeverityType)i;
 		const size_t actual =
-		  dbHatohol.getNumberOfTriggers(option, severity);
+		  dbHatohol.getNumberOfBadTriggers(option, severity);
 		const size_t expect = getNumberOfTestTriggers(
 		  targetServerId, hostgroupId, severity);
 		cppcut_assert_equal(
@@ -915,7 +960,8 @@ void test_getNumberOfTriggersBySeverityWithoutPriviledge(void)
 		//TODO: uncomment it after Hatohol supports host group
 		//option.setTargetHostgroupId(hostgroupId);
 		TriggerSeverityType severity = (TriggerSeverityType)i;
-		size_t actual = dbHatohol.getNumberOfTriggers(option, severity);
+		size_t actual
+		  = dbHatohol.getNumberOfBadTriggers(option, severity);
 		size_t expected = 0;
 		cppcut_assert_equal(expected, actual,
 		                    cut_message("severity: %d", i));
