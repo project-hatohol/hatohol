@@ -32,6 +32,7 @@ using namespace mlpl;
 static const char *TABLE_NAME_SYSTEM  = "system";
 static const char *TABLE_NAME_SERVERS = "servers";
 static const char *TABLE_NAME_ARM_PLUGINS = "arm_plugins";
+static const char *TABLE_NAME_ISSUE_TRACKERS = "issue_trackers";
 
 int DBClientConfig::CONFIG_DB_VERSION = 9;
 const char *DBClientConfig::DEFAULT_DB_NAME = "hatohol";
@@ -321,6 +322,78 @@ enum {
 static const DBAgent::TableProfile tableProfileArmPlugins(
   TABLE_NAME_ARM_PLUGINS, COLUMN_DEF_ARM_PLUGINS,
   sizeof(COLUMN_DEF_ARM_PLUGINS), NUM_IDX_ARM_PLUGINS);
+
+static const ColumnDef COLUMN_DEF_ISSUE_TRACKERS[] = {
+{
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_SERVERS,                // tableName
+	"baseURL",                         // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_SERVERS,                // tableName
+	"project_id",                      // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_SERVERS,                // tableName
+	"tracker_id",                      // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_SERVERS,                // tableName
+	"user_name",                       // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_SERVERS,                // tableName
+	"password",                        // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}
+};
+
+enum {
+	IDX_ISSUE_TRACKERS_BASE_URL,
+	IDX_ISSUE_TRACKERS_PROJECT_ID,
+	IDX_ISSUE_TRACKERS_TRACKER_ID,
+	IDX_ISSUE_TRACKERS_USER_NAME,
+	IDX_ISSUE_TRACKERS_PASSWORD,
+	NUM_IDX_ISSUE_TRACKERS,
+};
+
+static const DBAgent::TableProfile tableProfileIssueTrackers(
+  TABLE_NAME_ISSUE_TRACKERS, COLUMN_DEF_ISSUE_TRACKERS,
+  sizeof(COLUMN_DEF_ISSUE_TRACKERS), NUM_IDX_ISSUE_TRACKERS);
 
 struct DBClientConfig::PrivateContext
 {
