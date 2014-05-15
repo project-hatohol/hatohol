@@ -787,6 +787,31 @@ void test_saveArmPluginInfoUpdate(void)
 	assertDBContent(dbConfig.getDBAgent(), statement, expect);
 }
 
+void _assertAddIssueTracker(
+  IssueTrackerInfo issueTrackerInfo,
+  const HatoholErrorCode expectedErrorCode,
+  OperationPrivilege privilege = ALL_PRIVILEGES)
+{
+	DBClientConfig dbConfig;
+	HatoholError err;
+	err = dbConfig.addIssueTracker(&issueTrackerInfo, privilege);
+	assertHatoholError(expectedErrorCode, err);
+
+	string expectedOut("");
+	if (expectedErrorCode == HTERR_OK)
+		expectedOut = makeIssueTrackerInfoOutput(issueTrackerInfo);
+	string statement("select * from issue_trackers");
+	assertDBContent(dbConfig.getDBAgent(), statement, expectedOut);
+}
+#define assertAddIssueTracker(I,E,...) \
+cut_trace(_assertAddIssueTracker(I,E,##__VA_ARGS__))
+
+void test_addIssueTracker(void)
+{
+	IssueTrackerInfo *testInfo = testIssueTrackerInfo;
+	assertAddIssueTracker(*testInfo, HTERR_OK);
+}
+
 } // namespace testDBClientConfig
 
 namespace testDBClientConfigDefault {

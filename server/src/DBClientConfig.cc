@@ -992,6 +992,43 @@ HatoholError DBClientConfig::saveArmPluginInfo(
 	return err;
 }
 
+HatoholError validIssueTrackerInfo(const IssueTrackerInfo &issueTrackerInfo)
+{
+	if (issueTrackerInfo.type <= ISSUE_TRACKER_UNKNOWN ||
+	    issueTrackerInfo.type >= NUM_ISSUE_TRACKERS)
+		return HTERR_INVALID_ISSUE_TRACKER_TYPE;
+	if (issueTrackerInfo.baseURL.empty())
+		return HTERR_NO_ISSUE_TRACKER_LOCATION;
+	return HTERR_OK;
+}
+
+HatoholError DBClientConfig::addIssueTracker(
+  IssueTrackerInfo *issueTrackerInfo, const OperationPrivilege &privilege)
+{
+	if (!privilege.has(OPPRVLG_CREATE_SERVER))
+		return HatoholError(HTERR_NO_PRIVILEGE);
+
+	HatoholError err = validIssueTrackerInfo(*issueTrackerInfo);
+	if (err != HTERR_OK)
+		return err;
+
+	DBAgent::InsertArg arg(tableProfileIssueTrackers);
+	arg.add(AUTO_INCREMENT_VALUE);
+	arg.add(issueTrackerInfo->type);
+	arg.add(issueTrackerInfo->nickname);
+	arg.add(issueTrackerInfo->baseURL);
+	arg.add(issueTrackerInfo->projectId);
+	arg.add(issueTrackerInfo->trackerId);
+	arg.add(issueTrackerInfo->userName);
+	arg.add(issueTrackerInfo->password);
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		insert(arg);
+		issueTrackerInfo->id = getLastInsertId();
+	} DBCLIENT_TRANSACTION_END();
+	return HTERR_OK;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

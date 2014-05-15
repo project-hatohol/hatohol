@@ -712,6 +712,29 @@ ArmPluginInfo testArmPluginInfo[] = {
 };
 const size_t NumTestArmPluginInfo = sizeof(testArmPluginInfo) / sizeof(ArmPluginInfo);
 
+IssueTrackerInfo testIssueTrackerInfo[] = {
+{
+	1,                        // id
+	ISSUE_TRACKER_REDMINE,    // type
+	"Numerical ID",           // nickname
+	"http://localhost",       // baseURL
+	"1",                      // projectId
+	"3",                      // TrackerId
+	"foo",                    // user_name
+	"bar",                    // password
+},{
+	2,                        // id
+	ISSUE_TRACKER_REDMINE,    // type
+	"String project ID",      // nickname
+	"http://localhost",       // baseURL
+	"hatohol",                // projectId
+	"3",                      // TrackerId
+	"foo",                    // user_name
+	"bar",                    // password
+}
+};
+size_t NumTestIssueTrackerInfo = sizeof(testIssueTrackerInfo) / sizeof(IssueTrackerInfo);
+
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 {
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {

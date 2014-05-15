@@ -162,6 +162,17 @@ public:
 	 */
 	HatoholError saveArmPluginInfo(const ArmPluginInfo &armPluginInfo);
 
+
+	/**
+	 * Add issue tracker information.
+	 *
+	 * @param issueTrackerInfo A data to be saved.
+	 *
+	 * @rerurn A HatoholError insntace.
+	 */
+	HatoholError addIssueTracker(IssueTrackerInfo *issueTrackerInfo,
+				     const OperationPrivilege &privilege);
+
 protected:
 	static bool parseCommandLineArgument(const CommandLineArg &cmdArg);
 	static void tableInitializerSystem(DBAgent *dbAgent, void *data);

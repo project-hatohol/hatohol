@@ -104,6 +104,7 @@ std::string execMySQL(const std::string &dbName, const std::string &statement,
                       bool showHeader = false);
 
 std::string makeServerInfoOutput(const MonitoringServerInfo &serverInfo);
+std::string makeIssueTrackerInfoOutput(const IssueTrackerInfo &issueTrackerInfo);
 std::string makeUserRoleInfoOutput(const UserRoleInfo &userRoleInfo);
 std::string makeEventOutput(const EventInfo &eventInfo);
 

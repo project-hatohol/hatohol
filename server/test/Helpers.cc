@@ -403,6 +403,22 @@ string makeServerInfoOutput(const MonitoringServerInfo &serverInfo)
 	return expectedOut;
 }
 
+string makeIssueTrackerInfoOutput(const IssueTrackerInfo &issueTrackerInfo)
+{
+	string expectedOut =
+	  mlpl::StringUtils::sprintf(
+	    "%"FMT_ISSUE_TRACKER_ID"|%d|%s|%s|%s|%s|%s|%s\n",
+	    issueTrackerInfo.id,
+	    issueTrackerInfo.type,
+	    issueTrackerInfo.nickname.c_str(),
+	    issueTrackerInfo.baseURL.c_str(),
+	    issueTrackerInfo.projectId.c_str(),
+	    issueTrackerInfo.trackerId.c_str(),
+	    issueTrackerInfo.userName.c_str(),
+	    issueTrackerInfo.password.c_str());
+	return expectedOut;
+}
+
 std::string makeUserRoleInfoOutput(const UserRoleInfo &userRoleInfo)
 {
 	return StringUtils::sprintf(
