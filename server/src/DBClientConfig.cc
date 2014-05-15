@@ -326,7 +326,7 @@ static const DBAgent::TableProfile tableProfileArmPlugins(
 static const ColumnDef COLUMN_DEF_ISSUE_TRACKERS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_SERVERS,                // tableName
+	TABLE_NAME_ISSUE_TRACKERS,         // tableName
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -337,7 +337,7 @@ static const ColumnDef COLUMN_DEF_ISSUE_TRACKERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_SERVERS,                // tableName
+	TABLE_NAME_ISSUE_TRACKERS,         // tableName
 	"type",                            // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -348,7 +348,7 @@ static const ColumnDef COLUMN_DEF_ISSUE_TRACKERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_SERVERS,                // tableName
+	TABLE_NAME_ISSUE_TRACKERS,         // tableName
 	"baseURL",                         // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -359,7 +359,7 @@ static const ColumnDef COLUMN_DEF_ISSUE_TRACKERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_SERVERS,                // tableName
+	TABLE_NAME_ISSUE_TRACKERS,         // tableName
 	"project_id",                      // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -370,7 +370,7 @@ static const ColumnDef COLUMN_DEF_ISSUE_TRACKERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_SERVERS,                // tableName
+	TABLE_NAME_ISSUE_TRACKERS,         // tableName
 	"tracker_id",                      // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -381,7 +381,7 @@ static const ColumnDef COLUMN_DEF_ISSUE_TRACKERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_SERVERS,                // tableName
+	TABLE_NAME_ISSUE_TRACKERS,         // tableName
 	"user_name",                       // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -392,7 +392,7 @@ static const ColumnDef COLUMN_DEF_ISSUE_TRACKERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_SERVERS,                // tableName
+	TABLE_NAME_ISSUE_TRACKERS,         // tableName
 	"password",                        // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
