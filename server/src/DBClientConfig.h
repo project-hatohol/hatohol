@@ -25,10 +25,12 @@
 #include "MonitoringServerInfo.h"
 
 // Issue Tracking System
-struct ITSInfo :  public MonitoringServerInfo {
-	std::string baseURL; // TODO: Should be moved to MontoringServerInfo
+struct ITSInfo {
+	std::string baseURL;
 	std::string projectId;
 	std::string trackerId;
+	std::string userName;
+	std::string password;
 };
 
 typedef std::list<ITSInfo>    ITSInfoList;
