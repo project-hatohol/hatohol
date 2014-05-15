@@ -44,7 +44,7 @@ struct IssueTrackerInfo {
 
 typedef std::vector<IssueTrackerInfo>        IssueTrackerInfoVect;
 typedef IssueTrackerInfoVect::iterator       IssueTrackerInfoVectIterator;
-typedef IssueTrackerInfoVect::const_iterator IssueTrackerInfoVectoConstIterator;
+typedef IssueTrackerInfoVect::const_iterator IssueTrackerInfoVectConstIterator;
 
 struct ArmPluginInfo {
 	MonitoringSystemType type;
