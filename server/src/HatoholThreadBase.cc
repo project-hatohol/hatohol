@@ -38,7 +38,7 @@ struct HatoholThreadBase::PrivateContext {
 	AtomicValue<GThread *>    thread;
 	ReadWriteLock rwlock;
 	ExitCallbackInfoList      exitCbList;
-	MutexLock                 mutexForThreadStart;
+	SimpleSemaphore           semThreadStart;
 	SimpleSemaphore           semThreadExit;
 	MutexLock                 mutexForReexecSleep;
 	AtomicValue<bool>         exitRequested;
@@ -46,9 +46,9 @@ struct HatoholThreadBase::PrivateContext {
 	// methods
 	PrivateContext(void)
 	: thread(NULL),
+	  semThreadStart(0),
 	  exitRequested(false)
 	{
-		mutexForThreadStart.lock();
 		mutexForReexecSleep.lock();
 	}
 
@@ -85,13 +85,13 @@ struct HatoholThreadBase::PrivateContext {
 
 	void waitThreadStarted(void)
 	{
-		mutexForThreadStart.lock();
+		semThreadStart.wait();
 	}
 
 	void notifyThreadStarted(void)
 	{
 		semThreadExit.wait();
-		mutexForThreadStart.unlock();
+		semThreadStart.post();
 	}
 };
 
