@@ -34,6 +34,7 @@ enum IssueTrackerType {
 struct IssueTrackerInfo {
 	IssueTrackerIdType id;
 	IssueTrackerType   type;
+	std::string nickname;
 	std::string baseURL;
 	std::string projectId;
 	std::string trackerId;

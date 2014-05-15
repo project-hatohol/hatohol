@@ -349,6 +349,17 @@ static const ColumnDef COLUMN_DEF_ISSUE_TRACKERS[] = {
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_ISSUE_TRACKERS,         // tableName
+	"nickname",                        // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_ISSUE_TRACKERS,         // tableName
 	"baseURL",                         // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -407,6 +418,7 @@ static const ColumnDef COLUMN_DEF_ISSUE_TRACKERS[] = {
 enum {
 	IDX_ISSUE_TRACKERS_ID,
 	IDX_ISSUE_TRACKERS_TYPE,
+	IDX_ISSUE_TRACKERS_NICKNAME,
 	IDX_ISSUE_TRACKERS_BASE_URL,
 	IDX_ISSUE_TRACKERS_PROJECT_ID,
 	IDX_ISSUE_TRACKERS_TRACKER_ID,
