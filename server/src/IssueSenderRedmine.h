@@ -22,13 +22,16 @@
 
 #include "IssueSender.h"
 
-class IssueSenderRedmine
+class IssueSenderRedmine : public IssueSender
 {
 public:
 	IssueSenderRedmine(const IssueTrackerInfo &tracker);
 	virtual ~IssueSenderRedmine();
 
 	virtual HatoholError send(const EventInfo &event); // override
+
+protected:
+	std::string buildJson(const EventInfo &event);
 
 private:
 	struct PrivateContext;

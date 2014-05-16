@@ -18,6 +18,10 @@
  */
 
 #include "IssueSender.h"
+#include "StringUtils.h"
+
+using namespace std;
+using namespace mlpl;
 
 struct IssueSender::PrivateContext
 {
@@ -38,4 +42,19 @@ IssueSender::~IssueSender()
 const IssueTrackerInfo &IssueSender::getIssueTrackerInfo(void)
 {
 	return m_ctx->issueTrackerInfo;
+}
+
+string IssueSender::buildTitle(const EventInfo &event)
+{
+	// TODO: Add server name
+        return StringUtils::sprintf("[%"FMT_SERVER_ID" %s] %s",
+				    event.serverId,
+				    event.hostName.c_str(),
+				    event.brief.c_str());
+}
+
+string IssueSender::buildDescription(const EventInfo &event)
+{
+	// TODO: Set full information
+        return StringUtils::sprintf("%s", event.brief.c_str());
 }

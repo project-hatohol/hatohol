@@ -18,12 +18,16 @@
  */
 
 #include "IssueSenderRedmine.h"
+#include "JsonBuilderAgent.h"
+
+using namespace std;
 
 struct IssueSenderRedmine::PrivateContext
 {
 };
 
 IssueSenderRedmine::IssueSenderRedmine(const IssueTrackerInfo &tracker)
+: IssueSender(tracker)
 {
 	m_ctx = new PrivateContext();
 }
@@ -33,7 +37,21 @@ IssueSenderRedmine::~IssueSenderRedmine()
 	delete m_ctx;
 }
 
+string IssueSenderRedmine::buildJson(const EventInfo &event)
+{
+	const IssueTrackerInfo &trackerInfo = getIssueTrackerInfo();
+	JsonBuilderAgent agent;
+	agent.startObject("issue");
+	agent.add("subject", buildTitle(event));
+	if (!trackerInfo.trackerId.empty())
+		agent.add("trackerId", trackerInfo.trackerId);
+	agent.add("description", buildDescription(event));
+	agent.endObject();
+	return agent.generate();
+}
+
 HatoholError IssueSenderRedmine::send(const EventInfo &event)
 {
+	string json = buildJson(event);
 	return HTERR_NOT_IMPLEMENTED;
 }
