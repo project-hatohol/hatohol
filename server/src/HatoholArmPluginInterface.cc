@@ -17,6 +17,8 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <MutexLock.h>
+#include <Reaper.h>
 #include <qpid/messaging/Address.h>
 #include <qpid/messaging/Connection.h>
 #include <qpid/messaging/Message.h>
@@ -39,14 +41,46 @@ struct HatoholArmPluginInterface::PrivateContext {
 	Receiver   receiver;
 
 	PrivateContext(const string &_queueAddr)
-	: queueAddr(_queueAddr)
+	: queueAddr(_queueAddr),
+	  connected(false)
 	{
 	}
 
 	virtual ~PrivateContext()
 	{
-		//session.sync();
+		disconnect();
 	}
+
+	void connect(void)
+	{
+		const string brokerUrl =
+		   HatoholArmPluginGate::DEFAULT_BROKER_URL;
+		const string connectionOptions;
+		connectionLock.lock();
+		Reaper<MutexLock> unlocker(&connectionLock, MutexLock::unlock);
+		connection = Connection(brokerUrl, connectionOptions);
+		connection.open();
+		session = connection.createSession();
+		sender = session.createSender(queueAddr);
+		receiver = session.createReceiver(queueAddr);
+		connected = true;
+	}
+
+	void disconnect(void)
+	{
+		connectionLock.lock();
+		if (connected) {
+			session.sync();
+			session.close();
+			connection.close();
+			connected = false;
+		}
+		connectionLock.unlock();
+	}
+
+private:
+	bool       connected;
+	MutexLock  connectionLock;
 };
 
 // ---------------------------------------------------------------------------
@@ -92,7 +126,7 @@ gpointer HatoholArmPluginInterface::mainThread(HatoholThreadArg *arg)
 		load(sbuf, message);
 		onReceived(sbuf);
 	};
-	m_ctx->connection.close();
+	m_ctx->disconnect();
 	return NULL;
 }
 
@@ -112,13 +146,7 @@ void HatoholArmPluginInterface::onGotError(
 
 void HatoholArmPluginInterface::setupConnection(void)
 {
-	const string brokerUrl = HatoholArmPluginGate::DEFAULT_BROKER_URL;
-	const string connectionOptions;
-	m_ctx->connection = Connection(brokerUrl, connectionOptions);
-	m_ctx->connection.open();
-	m_ctx->session = m_ctx->connection.createSession();
-	m_ctx->sender = m_ctx->session.createSender(m_ctx->queueAddr);
-	m_ctx->receiver = m_ctx->session.createReceiver(m_ctx->queueAddr);
+	m_ctx->connect();
 	onConnected();
 }
 
