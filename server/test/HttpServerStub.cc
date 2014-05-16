@@ -101,6 +101,10 @@ void HttpServerStub::stop(void)
 	m_ctx->soupServer = NULL;
 }
 
+void HttpServerStub::reset(void)
+{
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

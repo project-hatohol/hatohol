@@ -32,6 +32,7 @@ public:
 	virtual bool isRunning(void);
 	virtual void start(guint port);
 	virtual void stop(void);
+	virtual void reset(void);
 
 protected:
 	virtual gpointer mainThread(void);
