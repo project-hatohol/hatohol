@@ -63,8 +63,7 @@ HttpServerStub::~HttpServerStub()
 		g_object_unref(m_ctx->soupServer);
 		m_ctx->soupServer = NULL;
 	}
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 bool HttpServerStub::isRunning(void)

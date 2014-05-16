@@ -137,8 +137,7 @@ ZabbixAPIEmulator::ZabbixAPIEmulator(void)
 
 ZabbixAPIEmulator::~ZabbixAPIEmulator()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 void ZabbixAPIEmulator::reset(void)
