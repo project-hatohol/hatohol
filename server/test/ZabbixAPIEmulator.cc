@@ -166,8 +166,6 @@ void ZabbixAPIEmulator::setAPIVersion(APIVersion version)
 // ---------------------------------------------------------------------------
 void ZabbixAPIEmulator::setSoupHandlers(SoupServer *soupServer)
 {
-	soup_server_add_handler(soupServer, NULL, handlerDefault,
-	                        this, NULL);
 	soup_server_add_handler(soupServer, "/zabbix/api_jsonrpc.php",
 	                        handlerAPI, this, NULL);
 }
