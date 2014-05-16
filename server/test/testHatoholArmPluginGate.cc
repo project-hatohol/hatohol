@@ -140,11 +140,11 @@ public:
 
 	virtual void onTerminated(const siginfo_t *siginfo) // override
 	{
-		g_main_loop_quit(loop.get());
 		if (siginfo->si_signo == SIGCHLD &&
 		    siginfo->si_code  == CLD_EXITED) {
 			return;
 		}
+		g_main_loop_quit(loop.get());
 		abnormalChildTerm = true;
 		MLPL_ERR("si_signo: %d, si_code: %d\n",
 		         siginfo->si_signo, siginfo->si_code);
