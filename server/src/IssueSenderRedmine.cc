@@ -41,11 +41,13 @@ string IssueSenderRedmine::buildJson(const EventInfo &event)
 {
 	const IssueTrackerInfo &trackerInfo = getIssueTrackerInfo();
 	JsonBuilderAgent agent;
+	agent.startObject();
 	agent.startObject("issue");
 	agent.add("subject", buildTitle(event));
 	if (!trackerInfo.trackerId.empty())
 		agent.add("trackerId", trackerInfo.trackerId);
 	agent.add("description", buildDescription(event));
+	agent.endObject();
 	agent.endObject();
 	return agent.generate();
 }
