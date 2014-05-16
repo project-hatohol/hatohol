@@ -201,8 +201,10 @@ gpointer HatoholArmPluginGate::mainThread(HatoholThreadArg *arg)
 		onReceived(message);
 
 		sessionLocker.lock();
-		if (isExitRequested()) 
+		if (isExitRequested()) {
+			sessionLocker.unlock();
 			break;
+		}
 		m_ctx->session.acknowledge();
 		sessionLocker.unlock();
 	}
