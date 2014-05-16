@@ -30,9 +30,6 @@ public:
 
 	virtual HatoholError send(const EventInfo &event); // override
 
-protected:
-	const IssueTrackerInfo &getIssueTrackerInfo(void);
-
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
