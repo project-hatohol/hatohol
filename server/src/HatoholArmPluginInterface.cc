@@ -83,18 +83,15 @@ void HatoholArmPluginInterface::send(const string &message)
 gpointer HatoholArmPluginInterface::mainThread(HatoholThreadArg *arg)
 {
 	setupConnection();
-	// TODO: implement
-	/*
 	while (!isExitRequested()) {
 		Message message;
 		m_ctx->receiver.fetch(message);
 		if (isExitRequested()) 
 			break;
 		SmartBuffer sbuf;
-		convertSmartBuffer(sbuf, message);
+		load(sbuf, message);
 		onReceived(sbuf);
 	};
-	*/
 	m_ctx->connection.close();
 	return NULL;
 }
@@ -123,4 +120,9 @@ void HatoholArmPluginInterface::setupConnection(void)
 	m_ctx->sender = m_ctx->session.createSender(m_ctx->queueAddr);
 	m_ctx->receiver = m_ctx->session.createReceiver(m_ctx->queueAddr);
 	onConnected();
+}
+
+void HatoholArmPluginInterface::load(SmartBuffer &sbuf, const Message &message)
+{
+	sbuf.add(message.getContentPtr(), message.getContentSize());
 }

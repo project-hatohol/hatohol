@@ -22,6 +22,7 @@
 
 #include <string>
 #include <SmartBuffer.h>
+#include <qpid/messaging/Message.h>
 #include "HatoholThreadBase.h"
 
 enum HatoholArmPluginErrorCode {
@@ -49,6 +50,15 @@ protected:
 	virtual void onGotError(const HatoholArmPluginError &hapError);
 
 	void setupConnection(void);
+
+	/**
+	 * Fill data to a smart buffer.
+	 *
+	 * @param sbuf    A smart buffer to be setup.
+	 * @param message A source message.
+	 */
+	void load(mlpl::SmartBuffer &sbuf,
+	          const qpid::messaging::Message &message);
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
