@@ -74,9 +74,6 @@ struct ZabbixAPIEmulator::ZabbixAPIEvent {
 };
 
 struct ZabbixAPIEmulator::PrivateContext {
-	GThread    *thread;
-	guint       port;
-	SoupServer *soupServer;
 	OperationMode operationMode;
 	APIVersion    apiVersion;
 	set<string>   authTokens;
@@ -84,35 +81,20 @@ struct ZabbixAPIEmulator::PrivateContext {
 	size_t        numEventSlices;
 	size_t        currEventSliceIndex;
 	vector<string> slicedEventVector;
-	GMainContext   *gMainCtx;
 	struct ParameterEventGet paramEvent;
 	ZabbixAPIEventMap zbxEventMap;
 	
 	// methods
 	PrivateContext(void)
-	: thread(NULL),
-	  port(0),
-	  soupServer(NULL),
-	  operationMode(OPE_MODE_NORMAL),
+	: operationMode(OPE_MODE_NORMAL),
 	  apiVersion(API_VERSION_2_0_4),
 	  numEventSlices(0),
-	  currEventSliceIndex(0),
-	  gMainCtx(0)
+	  currEventSliceIndex(0)
 	{
-		gMainCtx = g_main_context_new();
 	}
 
 	virtual ~PrivateContext()
 	{
-		if (thread) {
-#ifdef GLIB_VERSION_2_32
-			g_thread_unref(thread);
-#else
-			// nothing to do
-#endif // GLIB_VERSION_2_32
-		}
-		if (gMainCtx)
-			g_main_context_unref(gMainCtx);
 	}
 
 	void reset(void)
@@ -132,7 +114,7 @@ struct ZabbixAPIEmulator::PrivateContext {
 // Public methods
 // ---------------------------------------------------------------------------
 ZabbixAPIEmulator::ZabbixAPIEmulator(void)
-: m_ctx(NULL)
+: HttpServerStub("ZabbixAPIEmulator"), m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 	m_ctx->apiHandlerMap["apiinfo.version"] =
@@ -155,11 +137,6 @@ ZabbixAPIEmulator::ZabbixAPIEmulator(void)
 
 ZabbixAPIEmulator::~ZabbixAPIEmulator()
 {
-	if (isRunning()) {
-		soup_server_quit(m_ctx->soupServer);
-		g_object_unref(m_ctx->soupServer);
-		m_ctx->soupServer = NULL;
-	}
 	if (m_ctx)
 		delete m_ctx;
 }
@@ -172,41 +149,6 @@ void ZabbixAPIEmulator::reset(void)
 void ZabbixAPIEmulator::setNumberOfEventSlices(size_t numSlices)
 {
 	m_ctx->numEventSlices = numSlices;
-}
-
-bool ZabbixAPIEmulator::isRunning(void)
-{
-	return m_ctx->thread;
-}
-
-void ZabbixAPIEmulator::start(guint port)
-{
-	if (isRunning()) {
-		MLPL_WARN("Thread is already running.");
-		return;
-	}
-	
-	m_ctx->soupServer =
-	  soup_server_new(SOUP_SERVER_PORT, port,
-	                  SOUP_SERVER_ASYNC_CONTEXT, m_ctx->gMainCtx, NULL);
-	soup_server_add_handler(m_ctx->soupServer, NULL, handlerDefault,
-	                        this, NULL);
-	soup_server_add_handler(m_ctx->soupServer, "/zabbix/api_jsonrpc.php",
-	                        handlerAPI, this, NULL);
-#ifdef GLIB_VERSION_2_32
-	m_ctx->thread = g_thread_new("ZabbixAPIEmulator", _mainThread, this);
-#else
-	m_ctx->thread = g_thread_create(_mainThread, this, TRUE, NULL);
-#endif // GLIB_VERSION_2_32
-}
-
-void ZabbixAPIEmulator::stop(void)
-{
-	soup_server_quit(m_ctx->soupServer);
-	g_thread_join(m_ctx->thread);
-	m_ctx->thread = NULL;
-	g_object_unref(m_ctx->soupServer);
-	m_ctx->soupServer = NULL;
 }
 
 void ZabbixAPIEmulator::setOperationMode(OperationMode mode)
@@ -222,16 +164,12 @@ void ZabbixAPIEmulator::setAPIVersion(APIVersion version)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-gpointer ZabbixAPIEmulator::_mainThread(gpointer data)
+void ZabbixAPIEmulator::setSoupHandler(SoupServer *soupServer)
 {
-	ZabbixAPIEmulator *obj = static_cast<ZabbixAPIEmulator *>(data);
-	return obj->mainThread();
-}
-
-gpointer ZabbixAPIEmulator::mainThread(void)
-{
-	soup_server_run(m_ctx->soupServer);
-	return NULL;
+	soup_server_add_handler(soupServer, NULL, handlerDefault,
+	                        this, NULL);
+	soup_server_add_handler(soupServer, "/zabbix/api_jsonrpc.php",
+	                        handlerAPI, this, NULL);
 }
 
 void ZabbixAPIEmulator::startObject(JsonParserAgent &parser,
@@ -241,15 +179,6 @@ void ZabbixAPIEmulator::startObject(JsonParserAgent &parser,
 		THROW_HATOHOL_EXCEPTION(
 		  "Failed to read object: %s", name.c_str());
 	}
-}
-
-void ZabbixAPIEmulator::handlerDefault
-  (SoupServer *server, SoupMessage *msg, const char *path, GHashTable *query,
-   SoupClientContext *client, gpointer user_data)
-{
-	MLPL_DBG("Default handler: path: %s, method: %s\n",
-	         path, msg->method);
-	soup_message_set_status(msg, SOUP_STATUS_NOT_FOUND);
 }
 
 void ZabbixAPIEmulator::handlerAPI
