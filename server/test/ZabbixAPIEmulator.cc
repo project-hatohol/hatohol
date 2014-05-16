@@ -164,7 +164,7 @@ void ZabbixAPIEmulator::setAPIVersion(APIVersion version)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void ZabbixAPIEmulator::setSoupHandler(SoupServer *soupServer)
+void ZabbixAPIEmulator::setSoupHandlers(SoupServer *soupServer)
 {
 	soup_server_add_handler(soupServer, NULL, handlerDefault,
 	                        this, NULL);
