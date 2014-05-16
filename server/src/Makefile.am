@@ -73,6 +73,8 @@ libhatohol_la_SOURCES = \
 	HatoholArmPluginGate.cc HatoholArmPluginGate.h \
 	HapgZabbixAPI.cc HapgZabbixAPI.h \
 	HatoholServer.cc \
+	IssueSender.cc IssueSender.h \
+	IssueSenderRedmine.cc IssueSenderRedmine.h \
 	ItemData.cc ItemData.h \
 	ItemDataPtr.h \
 	ItemEnum.h \
