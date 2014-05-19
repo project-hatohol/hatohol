@@ -56,7 +56,9 @@ string IssueSenderRedmine::getPostURL(void)
 {
 	const IssueTrackerInfo &trackerInfo = getIssueTrackerInfo();
 	string url = trackerInfo.baseURL;
-	url += "/projects/";
+	if (url[url.size() - 1] != '/')
+		url += "/";
+	url += "projects/";
 	gchar *escapedProjectId =
 	  g_uri_escape_string(trackerInfo.projectId.c_str(),
 			      NULL, false);
