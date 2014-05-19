@@ -20,14 +20,34 @@
 #include "Synchronizer.h"
 #include "RedmineAPIEmulator.h"
 #include "Hatohol.h"
+#include "IssueSenderRedmine.h"
+#include "DBClientTest.h"
 #include <cppcutter.h>
 #include <gcutter.h>
+
+using namespace std;
+using namespace mlpl;
 
 namespace testIssueSenderRedmine {
 
 static const guint EMULATOR_PORT = 44444;
 static Synchronizer g_sync;
 RedmineAPIEmulator g_redmineEmulator;
+
+class TestRedmineSender : public IssueSenderRedmine {
+public:
+	TestRedmineSender(const IssueTrackerInfo &tracker)
+	: IssueSenderRedmine(tracker)
+	{
+	}
+	virtual ~TestRedmineSender()
+	{
+	}
+	string buildJson(const EventInfo &event)
+	{
+		return IssueSenderRedmine::buildJson(event);
+	}
+};
 
 void cut_setup(void)
 {
@@ -43,6 +63,29 @@ void cut_teardown(void)
 {
 	g_sync.reset();
 	g_redmineEmulator.reset();
+}
+
+string expectedJson(const EventInfo event)
+{
+	string expected =
+	  StringUtils::sprintf(
+	    "{\"issue\":{"
+	    "\"subject\":\"[%"FMT_SERVER_ID" %s] %s\","
+	    "\"description\":\"%s\""
+	    "}}",
+	    event.serverId,
+	    event.hostName.c_str(),
+	    event.brief.c_str(),
+	    event.brief.c_str());
+	return expected;
+}
+
+void test_buildJson(void)
+{
+	IssueTrackerInfo tracker;
+	TestRedmineSender sender(tracker);
+	cppcut_assert_equal(expectedJson(testEventInfo[0]),
+			    sender.buildJson(testEventInfo[0]));
 }
 
 }
