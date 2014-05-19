@@ -40,12 +40,29 @@ static SoupSession *getSoupSession(void)
 
 struct IssueSenderRedmine::PrivateContext
 {
+	PrivateContext(IssueSenderRedmine &sender)
+	: m_sender(sender)
+	{
+	}
+	virtual ~PrivateContext()
+	{
+	}
+
+	static void authenticateCallback(SoupSession *session,
+					 SoupMessage *msg,
+					 SoupAuth *auth,
+					 gboolean retrying,
+					 gpointer user_data);
+	void connectSessionSignals(SoupSession *session);
+	void disconnectSessionSignals(SoupSession *session);
+
+	IssueSenderRedmine &m_sender;
 };
 
 IssueSenderRedmine::IssueSenderRedmine(const IssueTrackerInfo &tracker)
 : IssueSender(tracker)
 {
-	m_ctx = new PrivateContext();
+	m_ctx = new PrivateContext(*this);
 }
 
 IssueSenderRedmine::~IssueSenderRedmine()
@@ -90,6 +107,30 @@ string IssueSenderRedmine::buildJson(const EventInfo &event)
 	return agent.generate();
 }
 
+void IssueSenderRedmine::PrivateContext::authenticateCallback(
+  SoupSession *session, SoupMessage *msg, SoupAuth *auth, gboolean retrying,
+  gpointer user_data)
+{
+	IssueSenderRedmine *sender
+	  = reinterpret_cast<IssueSenderRedmine*>(user_data);
+	const IssueTrackerInfo &tracker = sender->getIssueTrackerInfo();
+	soup_auth_authenticate(auth, tracker.userName.c_str(), tracker.password.c_str());
+}
+
+void IssueSenderRedmine::PrivateContext::connectSessionSignals(
+  SoupSession *session)
+{
+	g_signal_connect(session, "authenticate",
+			 G_CALLBACK(authenticateCallback), &this->m_sender);
+}
+
+void IssueSenderRedmine::PrivateContext::disconnectSessionSignals(
+  SoupSession *session)
+{
+	g_signal_handlers_disconnect_by_func(
+	  session, reinterpret_cast<gpointer>(authenticateCallback), this);
+}
+
 HatoholError IssueSenderRedmine::send(const EventInfo &event)
 {
 	string url = getPostURL();
@@ -100,7 +141,10 @@ HatoholError IssueSenderRedmine::send(const EventInfo &event)
 	string json = buildJson(event);
 	soup_message_body_append(msg->request_body, SOUP_MEMORY_TEMPORARY,
 	                         json.c_str(), json.size());
-	guint sendResult = soup_session_send_message(getSoupSession(), msg);
+	SoupSession *session = getSoupSession();
+	m_ctx->connectSessionSignals(session);
+	guint sendResult = soup_session_send_message(session, msg);
+	m_ctx->disconnectSessionSignals(session);
 	g_object_unref(msg);
 
 	return HTERR_NOT_IMPLEMENTED;
