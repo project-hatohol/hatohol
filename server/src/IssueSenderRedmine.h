@@ -32,6 +32,7 @@ public:
 
 protected:
 	std::string buildJson(const EventInfo &event);
+	std::string getPostURL(void);
 
 private:
 	struct PrivateContext;

@@ -48,6 +48,10 @@ public:
 	{
 		return IssueSenderRedmine::buildJson(event);
 	}
+	string getPostURL(void)
+	{
+		return IssueSenderRedmine::getPostURL();
+	}
 };
 
 void cut_setup(void)
@@ -89,6 +93,24 @@ void test_buildJson(void)
 	TestRedmineSender sender(tracker);
 	cppcut_assert_equal(expectedJson(testEventInfo[0]),
 			    sender.buildJson(testEventInfo[0]));
+}
+
+void test_getPostURL(void)
+{
+	IssueTrackerInfo &tracker = testIssueTrackerInfo[0];
+	TestRedmineSender sender(tracker);
+	cppcut_assert_equal(
+	  string("http://localhost/projects/1/issues.json"),
+	  sender.getPostURL());
+}
+
+void test_getPostURLWithStringProjectId(void)
+{
+	IssueTrackerInfo &tracker = testIssueTrackerInfo[1];
+	TestRedmineSender sender(tracker);
+	cppcut_assert_equal(
+	  string("http://localhost/projects/hatohol/issues.json"),
+	  sender.getPostURL());
 }
 
 }

@@ -52,12 +52,13 @@ IssueSenderRedmine::~IssueSenderRedmine()
 	delete m_ctx;
 }
 
-static string getPostURL(const IssueTrackerInfo &trackerInfo)
+string IssueSenderRedmine::getPostURL(void)
 {
+	const IssueTrackerInfo &trackerInfo = getIssueTrackerInfo();
 	string url = trackerInfo.baseURL;
 	url += "/projects/";
 	gchar *escapedProjectId =
-	  g_uri_escape_string(trackerInfo.baseURL.c_str(),
+	  g_uri_escape_string(trackerInfo.projectId.c_str(),
 			      NULL, false);
 	if (escapedProjectId)
 		url += escapedProjectId;
@@ -88,8 +89,7 @@ string IssueSenderRedmine::buildJson(const EventInfo &event)
 
 HatoholError IssueSenderRedmine::send(const EventInfo &event)
 {
-	const IssueTrackerInfo &trackerInfo = getIssueTrackerInfo();
-	string url = getPostURL(trackerInfo);
+	string url = getPostURL();
 
 	SoupMessage *msg = soup_message_new(SOUP_METHOD_POST, url.c_str());
 	soup_message_headers_set_content_type(msg->request_headers,
