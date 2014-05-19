@@ -19,6 +19,7 @@
 
 #include "IssueSender.h"
 #include "StringUtils.h"
+#include "CacheServiceDBClient.h"
 
 using namespace std;
 using namespace mlpl;
@@ -44,16 +45,42 @@ const IssueTrackerInfo &IssueSender::getIssueTrackerInfo(void)
 	return m_ctx->issueTrackerInfo;
 }
 
-string IssueSender::buildTitle(const EventInfo &event)
+bool IssueSender::getServerInfo(const EventInfo &event,
+				MonitoringServerInfo &server)
 {
-	// TODO: Add server name
-        return StringUtils::sprintf("[%"FMT_SERVER_ID" %s] %s",
-				    event.serverId,
+	CacheServiceDBClient cache;
+	DBClientConfig *dbConfig = cache.getConfig();
+	ServerQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(event.serverId);
+	MonitoringServerInfoList servers;
+	dbConfig->getTargetServers(servers, option);
+	if (servers.empty())
+		return false;
+	server = *(servers.begin());
+	return true;
+}
+
+static string getServerLabel(const EventInfo &event,
+			     const MonitoringServerInfo *server = NULL)
+{
+	if (server)
+		return server->getHostAddress();
+	else
+		return StringUtils::sprintf("Unknown:%"FMT_SERVER_ID,
+					    event.serverId);
+}
+
+string IssueSender::buildTitle(const EventInfo &event,
+			       const MonitoringServerInfo *server)
+{
+        return StringUtils::sprintf("[%s %s] %s",
+				    getServerLabel(event, server).c_str(),
 				    event.hostName.c_str(),
 				    event.brief.c_str());
 }
 
-string IssueSender::buildDescription(const EventInfo &event)
+string IssueSender::buildDescription(const EventInfo &event,
+				     const MonitoringServerInfo *server)
 {
 	// TODO: Set full information
         return StringUtils::sprintf("%s", event.brief.c_str());

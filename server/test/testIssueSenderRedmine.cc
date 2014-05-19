@@ -22,6 +22,7 @@
 #include "Hatohol.h"
 #include "IssueSenderRedmine.h"
 #include "DBClientTest.h"
+#include "Helpers.h"
 #include <cppcutter.h>
 #include <gcutter.h>
 
@@ -67,13 +68,14 @@ void cut_teardown(void)
 
 string expectedJson(const EventInfo event)
 {
+	MonitoringServerInfo &server = testServerInfo[event.serverId - 1];
 	string expected =
 	  StringUtils::sprintf(
 	    "{\"issue\":{"
-	    "\"subject\":\"[%"FMT_SERVER_ID" %s] %s\","
+	    "\"subject\":\"[%s %s] %s\","
 	    "\"description\":\"%s\""
 	    "}}",
-	    event.serverId,
+	    server.getHostAddress().c_str(),
 	    event.hostName.c_str(),
 	    event.brief.c_str(),
 	    event.brief.c_str());
@@ -82,6 +84,7 @@ string expectedJson(const EventInfo event)
 
 void test_buildJson(void)
 {
+	setupTestDBConfig(true, true);
 	IssueTrackerInfo tracker;
 	TestRedmineSender sender(tracker);
 	cppcut_assert_equal(expectedJson(testEventInfo[0]),

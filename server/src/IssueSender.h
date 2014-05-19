@@ -34,8 +34,12 @@ public:
 
 protected:
 	const IssueTrackerInfo &getIssueTrackerInfo(void);
-	std::string buildTitle(const EventInfo &event);
-	std::string buildDescription(const EventInfo &event);
+	bool getServerInfo(const EventInfo &event,
+			   MonitoringServerInfo &server);
+	std::string buildTitle(const EventInfo &event,
+			       const MonitoringServerInfo *server);
+	std::string buildDescription(const EventInfo &event,
+				     const MonitoringServerInfo *server);
 
 private:
 	struct PrivateContext;
