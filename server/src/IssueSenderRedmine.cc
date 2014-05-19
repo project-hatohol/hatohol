@@ -30,10 +30,11 @@ static const char *MIME_JSON = "application/json";
 static SoupSession *getSoupSession(void)
 {
 	static SoupSession *session = NULL;
-	if (!session)
-		session = soup_session_sync_new_with_options(
-			    SOUP_SESSION_TIMEOUT, DEFAULT_TIMEOUT_SECONDS,
-			    NULL);
+	if (session)
+		return session;
+
+	session = soup_session_sync_new_with_options(
+		    SOUP_SESSION_TIMEOUT, DEFAULT_TIMEOUT_SECONDS, NULL);
 	return session;
 }
 
