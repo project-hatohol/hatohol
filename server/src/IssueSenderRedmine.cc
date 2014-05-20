@@ -145,7 +145,13 @@ HatoholError IssueSenderRedmine::send(const EventInfo &event)
 	m_ctx->connectSessionSignals(session);
 	guint sendResult = soup_session_send_message(session, msg);
 	m_ctx->disconnectSessionSignals(session);
+	// TODO: parse response
 	g_object_unref(msg);
 
-	return HTERR_NOT_IMPLEMENTED;
+	if (SOUP_STATUS_IS_SUCCESSFUL(sendResult)) {
+		// TODO: not completed yet
+		return HTERR_NOT_IMPLEMENTED;
+	} else {
+		return HTERR_NOT_IMPLEMENTED;
+	}
 }
