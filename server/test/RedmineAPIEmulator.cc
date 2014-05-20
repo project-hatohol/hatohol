@@ -30,6 +30,16 @@ struct RedmineAPIEmulator::PrivateContext {
 	virtual ~PrivateContext()
 	{
 	}
+
+	static gboolean auth_callback(SoupAuthDomain *domain, SoupMessage *msg,
+				      const char *username,
+				      const char *password,
+				      gpointer user_data);
+	
+	static void handlerIssuesJson(SoupServer *server, SoupMessage *msg,
+				      const char *path, GHashTable *query,
+				      SoupClientContext *client,
+				      gpointer user_data);
 };
 
 RedmineAPIEmulator::RedmineAPIEmulator(void)
@@ -43,14 +53,30 @@ RedmineAPIEmulator::~RedmineAPIEmulator()
 	delete m_ctx;
 }
 
-void RedmineAPIEmulator::setSoupHandlers(SoupServer *soupServer)
+gboolean RedmineAPIEmulator::PrivateContext::auth_callback
+  (SoupAuthDomain *domain, SoupMessage *msg, const char *username,
+   const char *password, gpointer user_data)
 {
-	soup_server_add_handler(soupServer,
-				"/projects/hatoholtestproject/issues.json",
-				handlerIssuesJson, this, NULL);
+	return TRUE;
 }
 
-void RedmineAPIEmulator::handlerIssuesJson
+void RedmineAPIEmulator::setSoupHandlers(SoupServer *soupServer)
+{
+	SoupAuthDomain *domain = soup_auth_domain_basic_new(
+	  SOUP_AUTH_DOMAIN_REALM, "RedminEmulatorRealm",
+	  SOUP_AUTH_DOMAIN_BASIC_AUTH_CALLBACK, PrivateContext::auth_callback,
+	  SOUP_AUTH_DOMAIN_BASIC_AUTH_DATA, this,
+	  SOUP_AUTH_DOMAIN_ADD_PATH, "/",
+	  NULL);
+	soup_server_add_auth_domain(soupServer, domain);
+	g_object_unref(domain);
+
+	soup_server_add_handler(soupServer,
+				"/projects/hatoholtestproject/issues.json",
+				PrivateContext::handlerIssuesJson, this, NULL);
+}
+
+void RedmineAPIEmulator::PrivateContext::handlerIssuesJson
   (SoupServer *server, SoupMessage *msg, const char *path, GHashTable *query,
    SoupClientContext *client, gpointer user_data)
 {

@@ -29,9 +29,6 @@ public:
 
 protected:
 	virtual void setSoupHandlers(SoupServer *soupServer);
-	static void handlerIssuesJson
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, gpointer user_data);
 
 private:
 	struct PrivateContext;
