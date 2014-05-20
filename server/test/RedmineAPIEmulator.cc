@@ -18,6 +18,7 @@
  */
 
 #include <string>
+#include <map>
 #include "RedmineAPIEmulator.h"
 
 using namespace std;
@@ -40,6 +41,8 @@ struct RedmineAPIEmulator::PrivateContext {
 				      const char *path, GHashTable *query,
 				      SoupClientContext *client,
 				      gpointer user_data);
+
+	map<string, string> m_passwords;
 };
 
 RedmineAPIEmulator::RedmineAPIEmulator(void)
@@ -53,11 +56,28 @@ RedmineAPIEmulator::~RedmineAPIEmulator()
 	delete m_ctx;
 }
 
+void RedmineAPIEmulator::reset(void)
+{
+	m_ctx->m_passwords.clear();
+}
+
+void RedmineAPIEmulator::addUser(const std::string &userName,
+				 const std::string &password)
+{
+	m_ctx->m_passwords[userName] = password;
+}
+
 gboolean RedmineAPIEmulator::PrivateContext::auth_callback
   (SoupAuthDomain *domain, SoupMessage *msg, const char *username,
    const char *password, gpointer user_data)
 {
-	return TRUE;
+	RedmineAPIEmulator *emulator
+	  = reinterpret_cast<RedmineAPIEmulator *>(user_data);
+	map<string, string> &passwords = emulator->m_ctx->m_passwords;
+
+	if (passwords.find(username) == passwords.end())
+		return FALSE;
+	return passwords[username] == string(password);
 }
 
 void RedmineAPIEmulator::setSoupHandlers(SoupServer *soupServer)

@@ -26,6 +26,8 @@ class RedmineAPIEmulator : public HttpServerStub {
 public:
 	RedmineAPIEmulator(void);
 	virtual ~RedmineAPIEmulator();
+	virtual void reset(void);
+	void addUser(const std::string &userName, const std::string &password);
 
 protected:
 	virtual void setSoupHandlers(SoupServer *soupServer);
