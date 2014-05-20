@@ -19,6 +19,7 @@
 
 #include "IssueSender.h"
 #include "StringUtils.h"
+#include "LabelUtils.h"
 #include "CacheServiceDBClient.h"
 
 using namespace std;
@@ -82,6 +83,38 @@ string IssueSender::buildTitle(const EventInfo &event,
 string IssueSender::buildDescription(const EventInfo &event,
 				     const MonitoringServerInfo *server)
 {
-	// TODO: Set full information
-        return StringUtils::sprintf("%s", event.brief.c_str());
+	string desc;
+	desc += StringUtils::sprintf(
+		  "Server ID: %"FMT_SERVER_ID"\n"
+		  "    Hostname:   \"%s\"\n"
+		  "    IP Address: \"%s\"\n"
+		  "    Nickname:   \"%s\"\n",
+		  event.serverId,
+		  server->hostName.c_str(),
+		  server->ipAddress.c_str(),
+		  server->nickname.c_str());
+	desc += StringUtils::sprintf(
+		  "Host ID: %"FMT_HOST_ID"\n"
+		  "    Hostname:   \"%s\"\n",
+		  event.hostId, event.hostName.c_str());
+	desc += StringUtils::sprintf(
+		  "Event ID: %"FMT_EVENT_ID"\n"
+		  "    Time:       \"%ld.%09ld\"\n"
+		  "    Type:       \"%d (%s)\"\n"
+		  "    Brief:      \"%s\"\n",
+		  event.id,
+		  event.time.tv_sec, event.time.tv_nsec,
+		  event.type,
+		  LabelUtils::getEventTypeLabel(event.type).c_str(),
+		  event.brief.c_str());
+	desc += StringUtils::sprintf(
+		  "Trigger ID: %"FMT_TRIGGER_ID"\n"
+		  "    Status:     \"%d (%s)\"\n"
+		  "    Severity:   \"%d (%s)\"\n",
+		  event.triggerId,
+		  event.status,
+		  LabelUtils::getTriggerStatusLabel(event.status).c_str(),
+		  event.severity,
+		  LabelUtils::getTriggerSeverityLabel(event.severity).c_str());
+	return desc;
 }
