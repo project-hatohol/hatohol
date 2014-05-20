@@ -114,7 +114,8 @@ void IssueSenderRedmine::PrivateContext::authenticateCallback(
 	IssueSenderRedmine *sender
 	  = reinterpret_cast<IssueSenderRedmine*>(user_data);
 	const IssueTrackerInfo &tracker = sender->getIssueTrackerInfo();
-	soup_auth_authenticate(auth, tracker.userName.c_str(), tracker.password.c_str());
+	soup_auth_authenticate(
+	  auth, tracker.userName.c_str(), tracker.password.c_str());
 }
 
 void IssueSenderRedmine::PrivateContext::connectSessionSignals(
