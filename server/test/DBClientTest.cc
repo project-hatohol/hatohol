@@ -731,6 +731,15 @@ IssueTrackerInfo testIssueTrackerInfo[] = {
 	"3",                      // TrackerId
 	"foo",                    // user_name
 	"bar",                    // password
+},{
+	3,                        // id
+	ISSUE_TRACKER_REDMINE,    // type
+	"Redmine Emulator",       // nickname
+	"http://localhost:44444", // baseURL
+	"hatoholtestproject",     // projectId
+	"1",                      // TrackerId
+	"hatohol",                // user_name
+	"o.o662L6q1V7E",          // password
 }
 };
 size_t NumTestIssueTrackerInfo = sizeof(testIssueTrackerInfo) / sizeof(IssueTrackerInfo);
