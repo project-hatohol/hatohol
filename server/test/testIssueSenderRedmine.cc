@@ -119,6 +119,7 @@ void test_send(void)
 	TestRedmineSender sender(testIssueTrackerInfo[2]);
 	g_redmineEmulator.addUser(testIssueTrackerInfo[2].userName,
 				  testIssueTrackerInfo[2].password);
+	// TODO: not completed yet
 	HatoholErrorCode expected = HTERR_NOT_IMPLEMENTED;
 	HatoholError result = sender.send(testEventInfo[0]);
 	cppcut_assert_equal(expected, result.getCode());
