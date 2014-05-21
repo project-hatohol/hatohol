@@ -74,6 +74,13 @@ void cut_teardown(void)
 string expectedJson(const EventInfo event)
 {
 	MonitoringServerInfo &server = testServerInfo[event.serverId - 1];
+
+	char timeString[128];
+	struct tm eventTime;
+	localtime_r(&event.time.tv_sec, &eventTime);
+	strftime(timeString, sizeof(timeString),
+		 "%a, %d %b %Y %T %z", &eventTime);
+
 	string expected =
 	  StringUtils::sprintf(
 	    "{\"issue\":{"
@@ -86,7 +93,7 @@ string expectedJson(const EventInfo event)
 	    "Host ID: %"FMT_HOST_ID"\\n"
 	    "    Hostname:   \\\"%s\\\"\\n"
 	    "Event ID: %"FMT_EVENT_ID"\\n"
-	    "    Time:       \\\"%ld.%09ld\\\"\\n"
+	    "    Time:       \\\"%ld.%09ld (%s)\\\"\\n"
 	    "    Type:       \\\"%d (%s)\\\"\\n"
 	    "    Brief:      \\\"%s\\\"\\n"
 	    "Trigger ID: %"FMT_TRIGGER_ID"\\n"
@@ -106,7 +113,7 @@ string expectedJson(const EventInfo event)
 	    event.hostId,
 	    event.hostName.c_str(),
 	    event.id,
-	    event.time.tv_sec, event.time.tv_nsec,
+	    event.time.tv_sec, event.time.tv_nsec, timeString,
 	    event.type,
 	    LabelUtils::getEventTypeLabel(event.type).c_str(),
 	    event.brief.c_str(),

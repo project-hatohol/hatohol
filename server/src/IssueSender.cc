@@ -21,6 +21,7 @@
 #include "StringUtils.h"
 #include "LabelUtils.h"
 #include "CacheServiceDBClient.h"
+#include <time.h>
 
 using namespace std;
 using namespace mlpl;
@@ -84,6 +85,11 @@ string IssueSender::buildDescription(const EventInfo &event,
 				     const MonitoringServerInfo *server)
 {
 	string desc;
+	char timeString[128];
+	struct tm eventTime;
+	localtime_r(&event.time.tv_sec, &eventTime);
+	strftime(timeString, sizeof(timeString),
+		 "%a, %d %b %Y %T %z", &eventTime);
 	desc += StringUtils::sprintf(
 		  "Server ID: %"FMT_SERVER_ID"\n"
 		  "    Hostname:   \"%s\"\n"
@@ -99,11 +105,11 @@ string IssueSender::buildDescription(const EventInfo &event,
 		  event.hostId, event.hostName.c_str());
 	desc += StringUtils::sprintf(
 		  "Event ID: %"FMT_EVENT_ID"\n"
-		  "    Time:       \"%ld.%09ld\"\n"
+		  "    Time:       \"%ld.%09ld (%s)\"\n"
 		  "    Type:       \"%d (%s)\"\n"
 		  "    Brief:      \"%s\"\n",
 		  event.id,
-		  event.time.tv_sec, event.time.tv_nsec,
+		  event.time.tv_sec, event.time.tv_nsec, timeString,
 		  event.type,
 		  LabelUtils::getEventTypeLabel(event.type).c_str(),
 		  event.brief.c_str());
