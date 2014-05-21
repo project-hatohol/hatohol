@@ -19,6 +19,7 @@
 
 #include <string>
 #include <map>
+#include <set>
 #include "RedmineAPIEmulator.h"
 #include "JsonParserAgent.h"
 #include "JsonBuilderAgent.h"
@@ -50,6 +51,7 @@ struct RedmineAPIEmulator::PrivateContext {
 	void replyPostIssue(SoupMessage *msg);
 
 	map<string, string> m_passwords;
+	string m_currentUser;
 	size_t m_issueId;
 };
 
@@ -67,6 +69,7 @@ RedmineAPIEmulator::~RedmineAPIEmulator()
 void RedmineAPIEmulator::reset(void)
 {
 	m_ctx->m_passwords.clear();
+	m_ctx->m_currentUser.clear();
 	m_ctx->m_issueId = 0;
 }
 
@@ -86,7 +89,10 @@ gboolean RedmineAPIEmulator::PrivateContext::auth_callback
 
 	if (passwords.find(username) == passwords.end())
 		return FALSE;
-	return passwords[username] == string(password);
+	if (passwords[username] != string(password))
+		return FALSE;
+	emulator->m_ctx->m_currentUser = username;
+	return TRUE;
 }
 
 void RedmineAPIEmulator::setSoupHandlers(SoupServer *soupServer)
@@ -134,15 +140,47 @@ string RedmineAPIEmulator::PrivateContext::buildReply(
   const string &subject, const string &description, const string &trackerId)
 {
 	JsonBuilderAgent agent;
-	agent.startObject("");
+	agent.startObject();
 	agent.startObject("Issue");
 	agent.add("id", m_issueId++);
 
-	// TODO: implement
+	agent.startObject("project");
+	agent.add("id", "1");
+	agent.add("name", "HatoholTestProject");
+	agent.endObject();
+
+	agent.startObject("tracker");
+	agent.add("id", 1); // TODO: check trackerId
+	agent.add("name", "Bug");
+	agent.endObject();
+
+	agent.startObject("status");
+	agent.add("id", "1");
+	agent.add("name", "New");
+	agent.endObject();
+
+	agent.startObject("priority");
+	agent.add("id", "2");
+	agent.add("name", "Normal");
+	agent.endObject();
+
+	agent.startObject("author");
+	agent.add("id", "1");
+	agent.add("name", m_currentUser);
+	agent.endObject();
+
+	agent.add("subject", subject);
+	agent.add("description", description);
+	agent.add("start_date", "2014-05-21"); // TODO
+	agent.add("done_ratio", "0");
+	agent.add("spent_hours", ":0.0,");
+	agent.add("created_on", "2014-05-21T05:43:57Z"); // TODO
+	agent.add("created_on", "2014-05-21T05:43:57Z"); // TODO
 
 	agent.endObject();
 	agent.endObject();
-	return string();
+
+	return agent.generate();
 }
 
 void RedmineAPIEmulator::PrivateContext::replyPostIssue(SoupMessage *msg)
@@ -152,22 +190,22 @@ void RedmineAPIEmulator::PrivateContext::replyPostIssue(SoupMessage *msg)
 	string errors;
 	JsonParserAgent agent(body);
 
-	if (!agent.startObject("")) {
+	if (agent.hasError()) {
 		soup_message_set_status(
 		  msg, SOUP_STATUS_INTERNAL_SERVER_ERROR);
 		return;
 	}
 
 	string subject, description, trackerId;
-	if (!agent.startObject("issue")) {
-		addError(errors, ERR_NO_SUBJECT);
-	} else {
+	if (agent.startObject("issue")) {
 		agent.read("subject", subject);
 		agent.read("description", description);
 		agent.read("tracker_id", trackerId);
 
 		if (subject.empty())
 			addError(errors, ERR_NO_SUBJECT);
+	} else {
+		addError(errors, ERR_NO_SUBJECT);
 	}
 
 	agent.endObject();
@@ -175,12 +213,12 @@ void RedmineAPIEmulator::PrivateContext::replyPostIssue(SoupMessage *msg)
 
 	if (errors.empty()) {
 		string reply = buildReply(subject, description, trackerId);
-		soup_message_body_append(msg->response_body, SOUP_MEMORY_TAKE,
+		soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
 					 reply.c_str(), reply.size());
-		soup_message_set_status(msg, SOUP_STATUS_UNPROCESSABLE_ENTITY);
+		soup_message_set_status(msg, SOUP_STATUS_OK);
 	} else {
 		errors += "]}";
-		soup_message_body_append(msg->response_body, SOUP_MEMORY_TAKE,
+		soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
 					 errors.c_str(), errors.size());
 		soup_message_set_status(msg, SOUP_STATUS_UNPROCESSABLE_ENTITY);
 	}
