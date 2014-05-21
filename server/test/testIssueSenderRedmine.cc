@@ -21,6 +21,7 @@
 #include "RedmineAPIEmulator.h"
 #include "Hatohol.h"
 #include "IssueSenderRedmine.h"
+#include "LabelUtils.h"
 #include "DBClientTest.h"
 #include "Helpers.h"
 #include <cppcutter.h>
@@ -77,12 +78,43 @@ string expectedJson(const EventInfo event)
 	  StringUtils::sprintf(
 	    "{\"issue\":{"
 	    "\"subject\":\"[%s %s] %s\","
-	    "\"description\":\"%s\""
+	    "\"description\":\""
+	    "Server ID: %"FMT_SERVER_ID"\\n"
+	    "    Hostname:   \\\"%s\\\"\\n"
+	    "    IP Address: \\\"%s\\\"\\n"
+	    "    Nickname:   \\\"%s\\\"\\n"
+	    "Host ID: %"FMT_HOST_ID"\\n"
+	    "    Hostname:   \\\"%s\\\"\\n"
+	    "Event ID: %"FMT_EVENT_ID"\\n"
+	    "    Time:       \\\"%ld.%09ld\\\"\\n"
+	    "    Type:       \\\"%d (%s)\\\"\\n"
+	    "    Brief:      \\\"%s\\\"\\n"
+	    "Trigger ID: %"FMT_TRIGGER_ID"\\n"
+	    "    Status:     \\\"%d (%s)\\\"\\n"
+	    "    Severity:   \\\"%d (%s)\\\"\\n"
+	    "\""
 	    "}}",
+	    // subject
 	    server.getHostAddress().c_str(),
 	    event.hostName.c_str(),
 	    event.brief.c_str(),
-	    event.brief.c_str());
+	    // description
+	    server.id,
+	    server.hostName.c_str(),
+	    server.ipAddress.c_str(),
+	    server.nickname.c_str(),
+	    event.hostId,
+	    event.hostName.c_str(),
+	    event.id,
+	    event.time.tv_sec, event.time.tv_nsec,
+	    event.type,
+	    LabelUtils::getEventTypeLabel(event.type).c_str(),
+	    event.brief.c_str(),
+	    event.triggerId,
+	    event.status,
+	    LabelUtils::getTriggerStatusLabel(event.status).c_str(),
+	    event.severity,
+	    LabelUtils::getTriggerSeverityLabel(event.severity).c_str());
 	return expected;
 }
 
