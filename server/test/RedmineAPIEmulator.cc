@@ -20,11 +20,14 @@
 #include <string>
 #include <map>
 #include "RedmineAPIEmulator.h"
+#include "JsonParserAgent.h"
+#include "JsonBuilderAgent.h"
 
 using namespace std;
 
 struct RedmineAPIEmulator::PrivateContext {
 	PrivateContext(void)
+	: m_issueId(0)
 	{
 	}
 
@@ -41,8 +44,13 @@ struct RedmineAPIEmulator::PrivateContext {
 				      const char *path, GHashTable *query,
 				      SoupClientContext *client,
 				      gpointer user_data);
+	string buildReply(const string &subject,
+			  const string &description,
+			  const string &trackerId);
+	void replyPostIssue(SoupMessage *msg);
 
 	map<string, string> m_passwords;
+	size_t m_issueId;
 };
 
 RedmineAPIEmulator::RedmineAPIEmulator(void)
@@ -59,6 +67,7 @@ RedmineAPIEmulator::~RedmineAPIEmulator()
 void RedmineAPIEmulator::reset(void)
 {
 	m_ctx->m_passwords.clear();
+	m_ctx->m_issueId = 0;
 }
 
 void RedmineAPIEmulator::addUser(const std::string &userName,
@@ -96,17 +105,101 @@ void RedmineAPIEmulator::setSoupHandlers(SoupServer *soupServer)
 				PrivateContext::handlerIssuesJson, this, NULL);
 }
 
+typedef enum {
+	ERR_NO_SUBJECT,
+	ERR_OTHER,
+	N_ERRORS
+} RedmineErrorType;
+
+void addError(string &errors, RedmineErrorType type,
+	      const string &message = "")
+{
+	if (errors.empty()) {
+		errors = "{\"errors\":[";
+	} else {
+		errors += ",";
+	}
+	switch (type) {
+	case ERR_NO_SUBJECT:
+		errors += "\"Subject can't be blank\"";
+		break;
+	case ERR_OTHER:
+		errors += "\"" + message + "\"";
+	default:
+		break;
+	}
+}
+
+string RedmineAPIEmulator::PrivateContext::buildReply(
+  const string &subject, const string &description, const string &trackerId)
+{
+	JsonBuilderAgent agent;
+	agent.startObject("");
+	agent.startObject("Issue");
+	agent.add("id", m_issueId++);
+
+	// TODO: implement
+
+	agent.endObject();
+	agent.endObject();
+	return string();
+}
+
+void RedmineAPIEmulator::PrivateContext::replyPostIssue(SoupMessage *msg)
+{
+	string body(msg->request_body->data,
+		    msg->request_body->length);
+	string errors;
+	JsonParserAgent agent(body);
+
+	if (!agent.startObject("")) {
+		soup_message_set_status(
+		  msg, SOUP_STATUS_INTERNAL_SERVER_ERROR);
+		return;
+	}
+
+	string subject, description, trackerId;
+	if (!agent.startObject("issue")) {
+		addError(errors, ERR_NO_SUBJECT);
+	} else {
+		agent.read("subject", subject);
+		agent.read("description", description);
+		agent.read("tracker_id", trackerId);
+
+		if (subject.empty())
+			addError(errors, ERR_NO_SUBJECT);
+	}
+
+	agent.endObject();
+	agent.endObject();
+
+	if (errors.empty()) {
+		string reply = buildReply(subject, description, trackerId);
+		soup_message_body_append(msg->response_body, SOUP_MEMORY_TAKE,
+					 reply.c_str(), reply.size());
+		soup_message_set_status(msg, SOUP_STATUS_UNPROCESSABLE_ENTITY);
+	} else {
+		errors += "]}";
+		soup_message_body_append(msg->response_body, SOUP_MEMORY_TAKE,
+					 errors.c_str(), errors.size());
+		soup_message_set_status(msg, SOUP_STATUS_UNPROCESSABLE_ENTITY);
+	}
+}
+
 void RedmineAPIEmulator::PrivateContext::handlerIssuesJson
   (SoupServer *server, SoupMessage *msg, const char *path, GHashTable *query,
    SoupClientContext *client, gpointer user_data)
 {
+	RedmineAPIEmulator *emulator
+	  = reinterpret_cast<RedmineAPIEmulator *>(user_data);
+
 	string method = msg->method;
 	if (method == "GET") {
 
 	} else if (method == "PUT") {
 
 	} else if (method == "POST") {
-
+		emulator->m_ctx->replyPostIssue(msg);
 	} else if (method == "DELETE") {
 
 	} else {
