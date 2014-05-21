@@ -139,6 +139,13 @@ void addError(string &errors, RedmineErrorType type,
 string RedmineAPIEmulator::PrivateContext::buildReply(
   const string &subject, const string &description, const string &trackerId)
 {
+	time_t current = time(NULL);
+	struct tm tm;
+	gmtime_r(&current, &tm);
+	char dateString[128], timeString[128];
+	strftime(dateString, sizeof(dateString), "%Y-%m-%d", &tm);
+	strftime(timeString, sizeof(timeString), "%Y-%m-%dT%H:%M:%SZ", &tm);
+
 	JsonBuilderAgent agent;
 	agent.startObject();
 	agent.startObject("Issue");
@@ -171,11 +178,11 @@ string RedmineAPIEmulator::PrivateContext::buildReply(
 
 	agent.add("subject", subject);
 	agent.add("description", description);
-	agent.add("start_date", "2014-05-21"); // TODO
+	agent.add("start_date", dateString);
 	agent.add("done_ratio", "0");
 	agent.add("spent_hours", ":0.0,");
-	agent.add("created_on", "2014-05-21T05:43:57Z"); // TODO
-	agent.add("created_on", "2014-05-21T05:43:57Z"); // TODO
+	agent.add("created_on", timeString);
+	agent.add("updated_on", timeString);
 
 	agent.endObject();
 	agent.endObject();
