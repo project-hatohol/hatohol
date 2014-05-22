@@ -163,4 +163,16 @@ void test_send(void)
 	cppcut_assert_equal(expected, result.getCode());
 }
 
+void test_sendWithUnknownTracker(void)
+{
+	IssueTrackerInfo tracker = testIssueTrackerInfo[2];
+	tracker.trackerId = "100";
+	setupTestDBConfig(true, true);
+	TestRedmineSender sender(tracker);
+	g_redmineEmulator.addUser(tracker.userName, tracker.password);
+	HatoholErrorCode expected = HTERR_FAILED_TO_SEND_ISSUE;
+	HatoholError result = sender.send(testEventInfo[0]);
+	cppcut_assert_equal(expected, result.getCode());
+}
+
 }

@@ -223,10 +223,13 @@ void RedmineAPIEmulator::PrivateContext::replyPostIssue(SoupMessage *msg)
 		agent.read("description", description);
 
 		bool hasTrackerId = agent.read("tracker_id", trackerIdString);
-		trackerId = getTrackerId(trackerIdString);
-		if (hasTrackerId && trackerId <= 0) {
-			soup_message_set_status(msg, SOUP_STATUS_NOT_FOUND);
-			return;
+		if (hasTrackerId) {
+			trackerId = getTrackerId(trackerIdString);
+			if (trackerId <= 0) {
+				soup_message_set_status(
+				  msg, SOUP_STATUS_NOT_FOUND);
+				return;
+			}
 		}
 	} else {
 		addError(errors, ERR_NO_SUBJECT);
