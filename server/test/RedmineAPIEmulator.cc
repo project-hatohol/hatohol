@@ -18,6 +18,7 @@
  */
 
 #include <string>
+#include <stdlib.h>
 #include <map>
 #include <set>
 #include "RedmineAPIEmulator.h"
@@ -47,8 +48,9 @@ struct RedmineAPIEmulator::PrivateContext {
 				      gpointer user_data);
 	string buildReply(const string &subject,
 			  const string &description,
-			  const string &trackerId);
+			  const int trackerId);
 	void replyPostIssue(SoupMessage *msg);
+	int getTrackerId(const string &trackerId);
 
 	map<string, string> m_passwords;
 	string m_currentUser;
@@ -137,7 +139,7 @@ void addError(string &errors, RedmineErrorType type,
 }
 
 string RedmineAPIEmulator::PrivateContext::buildReply(
-  const string &subject, const string &description, const string &trackerId)
+  const string &subject, const string &description, const int trackerId)
 {
 	time_t current = time(NULL);
 	struct tm tm;
@@ -157,7 +159,7 @@ string RedmineAPIEmulator::PrivateContext::buildReply(
 	agent.endObject();
 
 	agent.startObject("tracker");
-	agent.add("id", 1); // TODO: check trackerId
+	agent.add("id", trackerId);
 	agent.add("name", "Bug");
 	agent.endObject();
 
@@ -190,6 +192,16 @@ string RedmineAPIEmulator::PrivateContext::buildReply(
 	return agent.generate();
 }
 
+int RedmineAPIEmulator::PrivateContext::getTrackerId(const string &trackerId)
+{
+	int id = atoi(trackerId.c_str());
+	if (id > 0 && id < 4) {
+		// There are 3 trackers by default
+		return id;
+	}
+	return -1;
+}
+
 void RedmineAPIEmulator::PrivateContext::replyPostIssue(SoupMessage *msg)
 {
 	string body(msg->request_body->data,
@@ -203,14 +215,21 @@ void RedmineAPIEmulator::PrivateContext::replyPostIssue(SoupMessage *msg)
 		return;
 	}
 
-	string subject, description, trackerId;
+	string subject, description, trackerIdString;
+	int trackerId = 1;
 	if (agent.startObject("issue")) {
 		agent.read("subject", subject);
-		agent.read("description", description);
-		agent.read("tracker_id", trackerId);
-
 		if (subject.empty())
 			addError(errors, ERR_NO_SUBJECT);
+
+		agent.read("description", description);
+
+		bool hasTrackerId = agent.read("tracker_id", trackerIdString);
+		trackerId = getTrackerId(trackerIdString);
+		if (hasTrackerId && trackerId <= 0) {
+			soup_message_set_status(msg, SOUP_STATUS_NOT_FOUND);
+			return;
+		}
 	} else {
 		addError(errors, ERR_NO_SUBJECT);
 	}
