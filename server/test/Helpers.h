@@ -250,13 +250,31 @@ class GMainLoopAgent {
 public:
 	GMainLoopAgent(void);
 	virtual ~GMainLoopAgent(void);
-	virtual void run(void);
+
+	/**
+	 * Start the main loop run with a timeout.
+	 *
+	 * @param timeout
+	 * A timeout value in millisecond. If it is zero, timeout is disabled.
+	 *
+	 * @param timeoutCb
+	 * A callback function that is called at the timeout, If this
+	 * parameters is NULL, default callback function that just call
+	 * cut_fail() will be used.
+	 *
+	 * @param timeoutCbData
+	 * Arbitary pointer to be passed to timeoutCb.
+	 */
+	virtual void run(const size_t timeout = TIMEOUT,
+	                 GSourceFunc timeoutCb = NULL,
+	                 gpointer timeoutCbData = NULL);
 	virtual void quit(void);
 	GMainLoop   *get(void);
 
 protected:
 	static gboolean failureDueToTimedOut(gpointer data);
 private:
+	static const size_t TIMEOUT = 5000;
 	guint           m_timerTag;
 	GMainLoop      *m_loop;
 	mlpl::MutexLock m_lock;

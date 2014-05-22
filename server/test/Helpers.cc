@@ -1112,10 +1112,12 @@ GMainLoopAgent::~GMainLoopAgent()
 		g_source_remove(m_timerTag);
 }
 
-void GMainLoopAgent::run(void)
+void GMainLoopAgent::run(
+  const size_t timeout, GSourceFunc timeoutCb, gpointer timeoutCbData)
 {
-	static const size_t timeout = 5000; // ms
-	m_timerTag = g_timeout_add(timeout, failureDueToTimedOut, NULL);
+	if (!timeoutCb)
+		timeoutCb = failureDueToTimedOut;
+	m_timerTag = g_timeout_add(TIMEOUT, timeoutCb, timeoutCbData);
 	g_main_loop_run(get());
 }
 
