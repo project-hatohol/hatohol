@@ -111,6 +111,12 @@ void HatoholArmPluginInterface::send(const string &message)
 	m_ctx->sender.send(request);
 }
 
+void HatoholArmPluginInterface::exitSync(void)
+{
+	m_ctx->disconnect();
+	HatoholThreadBase::exitSync();
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

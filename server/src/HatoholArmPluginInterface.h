@@ -39,6 +39,8 @@ public:
 	HatoholArmPluginInterface(const std::string &queueAddr = "");
 	virtual ~HatoholArmPluginInterface(); // override
 
+	virtual void exitSync(void); // override
+
 	void setQueueAddress(const std::string &queueAddr);
 	void send(const std::string &message);
 
