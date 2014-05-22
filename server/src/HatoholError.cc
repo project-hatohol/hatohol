@@ -123,6 +123,10 @@ void HatoholError::init(void)
 	DEFINE_ERR(FAILED_TO_STOP_DATA_STORE,
 		   "Failed to stop a DataStore object.");
 
+	// Incident Mangement
+	DEFINE_ERR(FAILED_TO_SEND_ISSUE,
+		   "Failed to send an issue to an issue tracker.");
+
 	// OTHER
 	DEFINE_ERR(ERROR_TEST,
 		   "Error test.");

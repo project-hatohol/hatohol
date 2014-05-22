@@ -19,6 +19,7 @@
 
 #include "IssueSenderRedmine.h"
 #include "JsonBuilderAgent.h"
+#include "JsonParserAgent.h"
 #include <libsoup/soup.h>
 
 using namespace std;
@@ -146,13 +147,36 @@ HatoholError IssueSenderRedmine::send(const EventInfo &event)
 	m_ctx->connectSessionSignals(session);
 	guint sendResult = soup_session_send_message(session, msg);
 	m_ctx->disconnectSessionSignals(session);
-	// TODO: parse response
+	string response(msg->response_body->data, msg->response_body->length);
 	g_object_unref(msg);
 
-	if (SOUP_STATUS_IS_SUCCESSFUL(sendResult)) {
-		// TODO: not completed yet
-		return HTERR_NOT_IMPLEMENTED;
-	} else {
-		return HTERR_NOT_IMPLEMENTED;
+	if (!SOUP_STATUS_IS_SUCCESSFUL(sendResult)) {
+		MLPL_ERR("The server returns an error: %d\n", sendResult);
+		return HTERR_FAILED_TO_SEND_ISSUE;
 	}
+
+	JsonParserAgent agent(response);
+	if (agent.hasError()) {
+		MLPL_ERR("Failed to parse response.\n");
+		return HTERR_FAILED_TO_SEND_ISSUE;
+	}
+
+	if (!agent.isMember("issue")) {
+		if (agent.isMember("errors")) {
+			MLPL_ERR("Redmine returns errors.\n");
+		} else {
+			MLPL_ERR("Failed to parse response.\n");
+		}
+		return HTERR_FAILED_TO_SEND_ISSUE;
+	}
+
+	agent.startObject("issue");
+	int64_t issueId = 0;
+	if (!agent.read("id", issueId) || issueId == 0) {
+		MLPL_ERR("Failed to parse Issue ID\n");
+		return HTERR_FAILED_TO_SEND_ISSUE;
+	}
+	agent.endObject();
+
+	return HTERR_OK;
 }

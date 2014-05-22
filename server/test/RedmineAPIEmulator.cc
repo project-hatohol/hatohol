@@ -148,8 +148,8 @@ string RedmineAPIEmulator::PrivateContext::buildReply(
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.startObject("Issue");
-	agent.add("id", m_issueId++);
+	agent.startObject("issue");
+	agent.add("id", ++m_issueId);
 
 	agent.startObject("project");
 	agent.add("id", "1");
