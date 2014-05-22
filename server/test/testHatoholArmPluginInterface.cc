@@ -18,7 +18,6 @@
  */
 
 #include <cppcutter.h>
-#include <AtomicValue.h>
 #include "Helpers.h"
 #include "HatoholArmPluginInterface.h"
 
@@ -58,14 +57,9 @@ public:
 		m_loop.run(timeoutCb, this);
 	}
 
-	bool isConnected(void) const
+	TestContext &getTestContext(void)
 	{
-		return m_testCtx.connected;
-	}
-
-	bool isTimedout(void) const
-	{
-		return m_testCtx.timedout;
+		return m_testCtx;
 	}
 
 protected:
@@ -95,8 +89,8 @@ void test_onConnected(void)
 {
 	TestHatoholArmPluginInterface hapi;
 	hapi.run();
-	cppcut_assert_equal(false, hapi.isTimedout());
-	cppcut_assert_equal(true, hapi.isConnected());
+	cppcut_assert_equal(false, (bool)hapi.getTestContext().timedout);
+	cppcut_assert_equal(true, (bool)hapi.getTestContext().connected);
 }
 
 } // namespace testHatoholArmPluginInterface
