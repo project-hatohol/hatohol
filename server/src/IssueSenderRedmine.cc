@@ -45,11 +45,13 @@ static SoupSession *getSoupSession(void)
 struct IssueSenderRedmine::PrivateContext
 {
 	PrivateContext(IssueSenderRedmine &sender)
-	: m_sender(sender)
+	: m_sender(sender), m_session(getSoupSession())
 	{
+		connectSessionSignals();
 	}
 	virtual ~PrivateContext()
 	{
+		disconnectSessionSignals();
 	}
 
 	static void authenticateCallback(SoupSession *session,
@@ -57,11 +59,12 @@ struct IssueSenderRedmine::PrivateContext
 					 SoupAuth *auth,
 					 gboolean retrying,
 					 gpointer user_data);
-	void connectSessionSignals(SoupSession *session);
-	void disconnectSessionSignals(SoupSession *session);
+	void connectSessionSignals(void);
+	void disconnectSessionSignals(void);
 	HatoholError parseResponse(const string &response);
 
 	IssueSenderRedmine &m_sender;
+	SoupSession *m_session;
 };
 
 IssueSenderRedmine::IssueSenderRedmine(const IssueTrackerInfo &tracker)
@@ -123,18 +126,18 @@ void IssueSenderRedmine::PrivateContext::authenticateCallback(
 	  auth, tracker.userName.c_str(), tracker.password.c_str());
 }
 
-void IssueSenderRedmine::PrivateContext::connectSessionSignals(
-  SoupSession *session)
+void IssueSenderRedmine::PrivateContext::connectSessionSignals(void)
 {
-	g_signal_connect(session, "authenticate",
+	g_signal_connect(m_session, "authenticate",
 			 G_CALLBACK(authenticateCallback), &this->m_sender);
 }
 
-void IssueSenderRedmine::PrivateContext::disconnectSessionSignals(
-  SoupSession *session)
+void IssueSenderRedmine::PrivateContext::disconnectSessionSignals(void)
 {
 	g_signal_handlers_disconnect_by_func(
-	  session, reinterpret_cast<gpointer>(authenticateCallback), this);
+	  m_session,
+	  reinterpret_cast<gpointer>(authenticateCallback),
+	  &this->m_sender);
 }
 
 HatoholError IssueSenderRedmine::PrivateContext::parseResponse(
@@ -169,17 +172,13 @@ HatoholError IssueSenderRedmine::PrivateContext::parseResponse(
 HatoholError IssueSenderRedmine::send(const EventInfo &event)
 {
 	string url = getPostURL();
-
+	string json = buildJson(event);
 	SoupMessage *msg = soup_message_new(SOUP_METHOD_POST, url.c_str());
 	soup_message_headers_set_content_type(msg->request_headers,
 	                                      MIME_JSON, NULL);
-	string json = buildJson(event);
 	soup_message_body_append(msg->request_body, SOUP_MEMORY_TEMPORARY,
 	                         json.c_str(), json.size());
-	SoupSession *session = getSoupSession();
-	m_ctx->connectSessionSignals(session);
-	guint sendResult = soup_session_send_message(session, msg);
-	m_ctx->disconnectSessionSignals(session);
+	guint sendResult = soup_session_send_message(m_ctx->m_session, msg);
 	string response(msg->response_body->data, msg->response_body->length);
 	g_object_unref(msg);
 
