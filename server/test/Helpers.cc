@@ -1102,7 +1102,6 @@ GMainLoopWithTimeout::GMainLoopWithTimeout(void)
 : m_timerTag(0),
   m_loop(NULL)
 {
-	m_loop = g_main_loop_new(NULL, TRUE);
 }
 
 GMainLoopWithTimeout::~GMainLoopWithTimeout()
@@ -1117,12 +1116,21 @@ void GMainLoopWithTimeout::run(void)
 {
 	static const size_t timeout = 5000; // ms
 	m_timerTag = g_timeout_add(timeout, failureDueToTimedOut, NULL);
-	g_main_loop_run(m_loop);
+	g_main_loop_run(get());
 }
 
 void GMainLoopWithTimeout::quit(void)
 {
-	g_main_loop_quit(m_loop);
+	g_main_loop_quit(get());
+}
+
+GMainLoop *GMainLoopWithTimeout::get(void)
+{
+	m_lock.lock();
+	if (!m_loop)
+		m_loop = g_main_loop_new(NULL, TRUE);
+	m_lock.unlock();
+	return m_loop;
 }
 
 gboolean GMainLoopWithTimeout::failureDueToTimedOut(gpointer data)

@@ -22,6 +22,7 @@
 
 #include <cppcutter.h>
 #include <StringUtils.h>
+#include <MutexLock.h>
 #include <SmartTime.h>
 #include "ItemTable.h"
 #include "DBAgent.h"
@@ -251,12 +252,14 @@ public:
 	virtual ~GMainLoopWithTimeout(void);
 	virtual void run(void);
 	virtual void quit(void);
+	GMainLoop   *get(void);
 
 protected:
 	static gboolean failureDueToTimedOut(gpointer data);
 private:
-	guint      m_timerTag;
-	GMainLoop *m_loop;
+	guint           m_timerTag;
+	GMainLoop      *m_loop;
+	mlpl::MutexLock m_lock;
 };
 
 #endif // Helpers_h
