@@ -91,14 +91,16 @@ string IssueSender::buildDescription(const EventInfo &event,
 	strftime(timeString, sizeof(timeString),
 		 "%a, %d %b %Y %T %z", &eventTime);
 	desc += StringUtils::sprintf(
-		  "Server ID: %"FMT_SERVER_ID"\n"
-		  "    Hostname:   \"%s\"\n"
-		  "    IP Address: \"%s\"\n"
-		  "    Nickname:   \"%s\"\n",
-		  event.serverId,
-		  server->hostName.c_str(),
-		  server->ipAddress.c_str(),
-		  server->nickname.c_str());
+		  "Server ID: %"FMT_SERVER_ID"\n",
+		  event.serverId);
+	if (server)
+		desc += StringUtils::sprintf(
+			  "    Hostname:   \"%s\"\n"
+			  "    IP Address: \"%s\"\n"
+			  "    Nickname:   \"%s\"\n",
+			  server->hostName.c_str(),
+			  server->ipAddress.c_str(),
+			  server->nickname.c_str());
 	desc += StringUtils::sprintf(
 		  "Host ID: %"FMT_HOST_ID"\n"
 		  "    Hostname:   \"%s\"\n",
