@@ -28,6 +28,8 @@ public:
 	virtual ~RedmineAPIEmulator();
 	virtual void reset(void);
 	void addUser(const std::string &userName, const std::string &password);
+	const std::string &getLastRequest(void);
+	const std::string &getLastResponse(void);
 
 protected:
 	virtual void setSoupHandlers(SoupServer *soupServer);

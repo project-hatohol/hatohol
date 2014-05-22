@@ -53,6 +53,8 @@ struct RedmineAPIEmulator::PrivateContext {
 	map<string, string> m_passwords;
 	string m_currentUser;
 	size_t m_issueId;
+	string m_lastRequest;
+	string m_lastResponse;
 };
 
 RedmineAPIEmulator::RedmineAPIEmulator(void)
@@ -71,12 +73,24 @@ void RedmineAPIEmulator::reset(void)
 	m_ctx->m_passwords.clear();
 	m_ctx->m_currentUser.clear();
 	m_ctx->m_issueId = 0;
+	m_ctx->m_lastRequest.clear();
+	m_ctx->m_lastResponse.clear();
 }
 
 void RedmineAPIEmulator::addUser(const std::string &userName,
 				 const std::string &password)
 {
 	m_ctx->m_passwords[userName] = password;
+}
+
+const string &RedmineAPIEmulator::getLastRequest(void)
+{
+	return m_ctx->m_lastRequest;
+}
+
+const string &RedmineAPIEmulator::getLastResponse(void)
+{
+	return m_ctx->m_lastResponse;
 }
 
 gboolean RedmineAPIEmulator::PrivateContext::auth_callback
@@ -202,10 +216,9 @@ int RedmineAPIEmulator::PrivateContext::getTrackerId(const string &trackerId)
 
 void RedmineAPIEmulator::PrivateContext::replyPostIssue(SoupMessage *msg)
 {
-	string body(msg->request_body->data,
-		    msg->request_body->length);
-	string errors;
-	JsonParserAgent agent(body);
+	m_lastRequest.assign(msg->request_body->data,
+			     msg->request_body->length);
+	JsonParserAgent agent(m_lastRequest);
 
 	if (agent.hasError()) {
 		soup_message_set_status(
@@ -213,7 +226,7 @@ void RedmineAPIEmulator::PrivateContext::replyPostIssue(SoupMessage *msg)
 		return;
 	}
 
-	string subject, description, trackerIdString;
+	string errors, subject, description, trackerIdString;
 	int trackerId = 1;
 	if (agent.startObject("issue")) {
 		agent.read("subject", subject);
@@ -239,15 +252,17 @@ void RedmineAPIEmulator::PrivateContext::replyPostIssue(SoupMessage *msg)
 	agent.endObject();
 
 	if (errors.empty()) {
-		string reply = buildReply(subject, description, trackerId);
+		m_lastResponse = buildReply(subject, description, trackerId);
 		soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
-					 reply.c_str(), reply.size());
+					 m_lastResponse.c_str(),
+					 m_lastResponse.size());
 		soup_message_set_status(msg, SOUP_STATUS_OK);
 	} else {
 		errors += "]}";
 		soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
 					 errors.c_str(), errors.size());
 		soup_message_set_status(msg, SOUP_STATUS_UNPROCESSABLE_ENTITY);
+		m_lastResponse = errors;
 	}
 }
 
