@@ -32,7 +32,6 @@ struct RedmineAPIEmulator::PrivateContext {
 	: m_issueId(0)
 	{
 	}
-
 	virtual ~PrivateContext()
 	{
 	}
@@ -41,7 +40,6 @@ struct RedmineAPIEmulator::PrivateContext {
 				      const char *username,
 				      const char *password,
 				      gpointer user_data);
-	
 	static void handlerIssuesJson(SoupServer *server, SoupMessage *msg,
 				      const char *path, GHashTable *query,
 				      SoupClientContext *client,
