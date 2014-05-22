@@ -40,8 +40,10 @@ struct TestContext {
 class TestHatoholArmPluginInterface : public HatoholArmPluginInterface {
 public:
 	TestHatoholArmPluginInterface(
+	  TestContext &ctx,
 	  const string &addr = "test-hatohol-arm-plugin-interface; {create: always}")
-	: HatoholArmPluginInterface(addr)
+	: HatoholArmPluginInterface(addr),
+	  m_testCtx(ctx)
 	{
 	}
 
@@ -74,7 +76,7 @@ protected:
 
 private:
 	GMainLoopAgent m_loop;
-	TestContext    m_testCtx;
+	TestContext   &m_testCtx;
 };
 
 // ---------------------------------------------------------------------------
@@ -87,10 +89,11 @@ void test_constructor(void)
 
 void test_onConnected(void)
 {
-	TestHatoholArmPluginInterface hapi;
+	TestContext testCtx;
+	TestHatoholArmPluginInterface hapi(testCtx);
 	hapi.run();
-	cppcut_assert_equal(false, (bool)hapi.getTestContext().timedout);
-	cppcut_assert_equal(true, (bool)hapi.getTestContext().connected);
+	cppcut_assert_equal(false, (bool)testCtx.timedout);
+	cppcut_assert_equal(true, (bool)testCtx.connected);
 }
 
 } // namespace testHatoholArmPluginInterface
