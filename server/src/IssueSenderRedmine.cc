@@ -56,6 +56,7 @@ struct IssueSenderRedmine::PrivateContext
 					 gpointer user_data);
 	void connectSessionSignals(SoupSession *session);
 	void disconnectSessionSignals(SoupSession *session);
+	HatoholError parseResponse(const string &response);
 
 	IssueSenderRedmine &m_sender;
 };
@@ -133,6 +134,35 @@ void IssueSenderRedmine::PrivateContext::disconnectSessionSignals(
 	  session, reinterpret_cast<gpointer>(authenticateCallback), this);
 }
 
+HatoholError IssueSenderRedmine::PrivateContext::parseResponse(
+  const string &response)
+{
+	JsonParserAgent agent(response);
+	if (agent.hasError()) {
+		MLPL_ERR("Failed to parse response.\n");
+		return HTERR_FAILED_TO_SEND_ISSUE;
+	}
+
+	if (!agent.isMember("issue")) {
+		if (agent.isMember("errors")) {
+			MLPL_ERR("Redmine returns errors.\n");
+		} else {
+			MLPL_ERR("Failed to parse issue.\n");
+		}
+		return HTERR_FAILED_TO_SEND_ISSUE;
+	}
+
+	agent.startObject("issue");
+	int64_t issueId = 0;
+	if (!agent.read("id", issueId) || issueId == 0) {
+		MLPL_ERR("Failed to parse Issue ID.\n");
+		return HTERR_FAILED_TO_SEND_ISSUE;
+	}
+	agent.endObject();
+
+	return HTERR_OK;
+}
+
 HatoholError IssueSenderRedmine::send(const EventInfo &event)
 {
 	string url = getPostURL();
@@ -155,28 +185,5 @@ HatoholError IssueSenderRedmine::send(const EventInfo &event)
 		return HTERR_FAILED_TO_SEND_ISSUE;
 	}
 
-	JsonParserAgent agent(response);
-	if (agent.hasError()) {
-		MLPL_ERR("Failed to parse response.\n");
-		return HTERR_FAILED_TO_SEND_ISSUE;
-	}
-
-	if (!agent.isMember("issue")) {
-		if (agent.isMember("errors")) {
-			MLPL_ERR("Redmine returns errors.\n");
-		} else {
-			MLPL_ERR("Failed to parse response.\n");
-		}
-		return HTERR_FAILED_TO_SEND_ISSUE;
-	}
-
-	agent.startObject("issue");
-	int64_t issueId = 0;
-	if (!agent.read("id", issueId) || issueId == 0) {
-		MLPL_ERR("Failed to parse Issue ID\n");
-		return HTERR_FAILED_TO_SEND_ISSUE;
-	}
-	agent.endObject();
-
-	return HTERR_OK;
+	return m_ctx->parseResponse(response);
 }
