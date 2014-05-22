@@ -18,9 +18,70 @@
  */
 
 #include <cppcutter.h>
+#include <AtomicValue.h>
+#include "Helpers.h"
 #include "HatoholArmPluginInterface.h"
 
+using namespace std;
+using namespace mlpl;
+
 namespace testHatoholArmPluginInterface {
+
+struct TestContext {
+	AtomicValue<bool> timedout;
+	AtomicValue<bool> connected;
+
+	TestContext(void)
+	: timedout(false),
+	  connected(false)
+	{
+	}
+};
+
+class TestHatoholArmPluginInterface : public HatoholArmPluginInterface {
+public:
+	TestHatoholArmPluginInterface(
+	  const string &addr = "test-hatohol-arm-plugin-interface; {create: always}")
+	: HatoholArmPluginInterface(addr)
+	{
+	}
+
+	virtual void onConnected(void) // override
+	{
+		m_testCtx.connected = true;
+		m_loop.quit();
+	}
+
+	void run(void)
+	{
+		start();
+		m_loop.run(timeoutCb, this);
+	}
+
+	bool isConnected(void) const
+	{
+		return m_testCtx.connected;
+	}
+
+	bool isTimedout(void) const
+	{
+		return m_testCtx.timedout;
+	}
+
+protected:
+	static gboolean timeoutCb(gpointer data)
+	{
+		TestHatoholArmPluginInterface *obj =
+		  static_cast<TestHatoholArmPluginInterface *>(data);
+		obj->m_testCtx.timedout = true;
+		obj->m_loop.quit();
+		return G_SOURCE_REMOVE;
+	}
+
+private:
+	GMainLoopAgent m_loop;
+	TestContext    m_testCtx;
+};
 
 // ---------------------------------------------------------------------------
 // Test cases
@@ -28,6 +89,14 @@ namespace testHatoholArmPluginInterface {
 void test_constructor(void)
 {
 	HatoholArmPluginInterface hapi;
+}
+
+void test_onConnected(void)
+{
+	TestHatoholArmPluginInterface hapi;
+	hapi.run();
+	cppcut_assert_equal(false, hapi.isTimedout());
+	cppcut_assert_equal(true, hapi.isConnected());
 }
 
 } // namespace testHatoholArmPluginInterface
