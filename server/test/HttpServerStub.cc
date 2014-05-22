@@ -25,7 +25,7 @@ struct HttpServerStub::PrivateContext {
 	guint       port;
 	SoupServer *soupServer;
 	GMainContext   *gMainCtx;
-	
+
 	// methods
 	PrivateContext(void)
 	: thread(NULL),
@@ -77,7 +77,7 @@ void HttpServerStub::start(guint port)
 		MLPL_WARN("Thread is already running.");
 		return;
 	}
-	
+
 	m_ctx->soupServer =
 	  soup_server_new(SOUP_SERVER_PORT, port,
 	                  SOUP_SERVER_ASYNC_CONTEXT, m_ctx->gMainCtx, NULL);
