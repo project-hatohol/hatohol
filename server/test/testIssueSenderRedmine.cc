@@ -71,7 +71,7 @@ void cut_teardown(void)
 	g_redmineEmulator.reset();
 }
 
-string expectedJson(const EventInfo event)
+string expectedJson(const EventInfo &event)
 {
 	MonitoringServerInfo &server = testServerInfo[event.serverId - 1];
 
@@ -152,7 +152,7 @@ void test_getPostURLWithStringProjectId(void)
 	  sender.getPostURL());
 }
 
-void _assertSend(const HatoholErrorCode expected,
+void _assertSend(const HatoholErrorCode &expected,
 		 const IssueTrackerInfo &tracker,
 		 const EventInfo &event)
 {

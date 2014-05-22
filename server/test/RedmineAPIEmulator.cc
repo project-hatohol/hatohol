@@ -46,7 +46,7 @@ struct RedmineAPIEmulator::PrivateContext {
 				      gpointer user_data);
 	string buildReply(const string &subject,
 			  const string &description,
-			  const int trackerId);
+			  const int &trackerId);
 	void replyPostIssue(SoupMessage *msg);
 	int getTrackerId(const string &trackerId);
 
@@ -137,7 +137,7 @@ void addError(string &errors, RedmineErrorType type,
 }
 
 string RedmineAPIEmulator::PrivateContext::buildReply(
-  const string &subject, const string &description, const int trackerId)
+  const string &subject, const string &description, const int &trackerId)
 {
 	time_t current = time(NULL);
 	struct tm tm;
