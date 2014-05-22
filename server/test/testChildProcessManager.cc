@@ -141,7 +141,7 @@ void test_collectedCb(void)
 {
 	struct Ctx : public ChildProcessManager::EventCallback {
 
-		GMainLoopWithTimeout mainLoop;
+		GMainLoopAgent mainLoop;
 		virtual void onCollected(const siginfo_t *siginfo) // override
 		{
 			mainLoop.quit();
@@ -159,7 +159,7 @@ void test_finalizedCb(void)
 {
 	struct Ctx : public ChildProcessManager::EventCallback {
 
-		GMainLoopWithTimeout mainLoop;
+		GMainLoopAgent mainLoop;
 		virtual void onFinalized(void) // override
 		{
 			mainLoop.quit();
@@ -219,7 +219,7 @@ void test_ignore_sigstop(void)
 		bool succeeded;
 		AtomicValue<bool> calledCollected;
 		AtomicValue<bool> calledFinalized;
-		GMainLoopWithTimeout mainLoop;
+		GMainLoopAgent mainLoop;
 
 		Ctx(void)
 		: succeeded(false),

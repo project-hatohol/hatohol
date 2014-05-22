@@ -246,10 +246,10 @@ private:
 	PrivateContext *m_ctx;
 };
 
-class GMainLoopWithTimeout {
+class GMainLoopAgent {
 public:
-	GMainLoopWithTimeout(void);
-	virtual ~GMainLoopWithTimeout(void);
+	GMainLoopAgent(void);
+	virtual ~GMainLoopAgent(void);
 	virtual void run(void);
 	virtual void quit(void);
 	GMainLoop   *get(void);

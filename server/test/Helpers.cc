@@ -1096,15 +1096,15 @@ void LinesComparator::assert(const bool &strictOrder)
 }
 
 // ---------------------------------------------------------------------------
-// GMainLoopWithTimeout
+// GMainLoopAgent
 // ---------------------------------------------------------------------------
-GMainLoopWithTimeout::GMainLoopWithTimeout(void)
+GMainLoopAgent::GMainLoopAgent(void)
 : m_timerTag(0),
   m_loop(NULL)
 {
 }
 
-GMainLoopWithTimeout::~GMainLoopWithTimeout()
+GMainLoopAgent::~GMainLoopAgent()
 {
 	if (m_loop)
 		g_main_loop_unref(m_loop);
@@ -1112,19 +1112,19 @@ GMainLoopWithTimeout::~GMainLoopWithTimeout()
 		g_source_remove(m_timerTag);
 }
 
-void GMainLoopWithTimeout::run(void)
+void GMainLoopAgent::run(void)
 {
 	static const size_t timeout = 5000; // ms
 	m_timerTag = g_timeout_add(timeout, failureDueToTimedOut, NULL);
 	g_main_loop_run(get());
 }
 
-void GMainLoopWithTimeout::quit(void)
+void GMainLoopAgent::quit(void)
 {
 	g_main_loop_quit(get());
 }
 
-GMainLoop *GMainLoopWithTimeout::get(void)
+GMainLoop *GMainLoopAgent::get(void)
 {
 	m_lock.lock();
 	if (!m_loop)
@@ -1133,7 +1133,7 @@ GMainLoop *GMainLoopWithTimeout::get(void)
 	return m_loop;
 }
 
-gboolean GMainLoopWithTimeout::failureDueToTimedOut(gpointer data)
+gboolean GMainLoopAgent::failureDueToTimedOut(gpointer data)
 {
 	cut_fail("Timed out");
 	return G_SOURCE_REMOVE;
