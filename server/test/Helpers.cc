@@ -1112,8 +1112,7 @@ GMainLoopAgent::~GMainLoopAgent()
 		g_source_remove(m_timerTag);
 }
 
-void GMainLoopAgent::run(
-  const size_t timeout, GSourceFunc timeoutCb, gpointer timeoutCbData)
+void GMainLoopAgent::run(GSourceFunc timeoutCb, gpointer timeoutCbData)
 {
 	if (!timeoutCb)
 		timeoutCb = failureDueToTimedOut;

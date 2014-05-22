@@ -254,9 +254,6 @@ public:
 	/**
 	 * Start the main loop run with a timeout.
 	 *
-	 * @param timeout
-	 * A timeout value in millisecond. If it is zero, timeout is disabled.
-	 *
 	 * @param timeoutCb
 	 * A callback function that is called at the timeout, If this
 	 * parameters is NULL, default callback function that just call
@@ -265,8 +262,7 @@ public:
 	 * @param timeoutCbData
 	 * Arbitary pointer to be passed to timeoutCb.
 	 */
-	virtual void run(const size_t timeout = TIMEOUT,
-	                 GSourceFunc timeoutCb = NULL,
+	virtual void run(GSourceFunc timeoutCb = NULL,
 	                 gpointer timeoutCbData = NULL);
 	virtual void quit(void);
 	GMainLoop   *get(void);
