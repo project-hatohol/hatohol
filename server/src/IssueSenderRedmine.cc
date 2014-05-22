@@ -62,6 +62,7 @@ struct IssueSenderRedmine::PrivateContext
 	void connectSessionSignals(void);
 	void disconnectSessionSignals(void);
 	HatoholError parseResponse(const string &response);
+	HatoholError parseErrorResponse(const string &response);
 
 	IssueSenderRedmine &m_sender;
 	SoupSession *m_session;
@@ -149,14 +150,8 @@ HatoholError IssueSenderRedmine::PrivateContext::parseResponse(
 		return HTERR_FAILED_TO_SEND_ISSUE;
 	}
 
-	if (!agent.isMember("issue")) {
-		if (agent.isMember("errors")) {
-			MLPL_ERR("Redmine returns errors.\n");
-		} else {
-			MLPL_ERR("Failed to parse issue.\n");
-		}
-		return HTERR_FAILED_TO_SEND_ISSUE;
-	}
+	if (!agent.isMember("issue"))
+		return parseErrorResponse(response);
 
 	agent.startObject("issue");
 	int64_t issueId = 0;
@@ -167,6 +162,30 @@ HatoholError IssueSenderRedmine::PrivateContext::parseResponse(
 	agent.endObject();
 
 	return HTERR_OK;
+}
+
+HatoholError IssueSenderRedmine::PrivateContext::parseErrorResponse(
+  const string &response)
+{
+	JsonParserAgent agent(response);
+	if (!agent.startObject("errors")) {
+		MLPL_ERR("Failed to parse errors.\n");
+		return HTERR_FAILED_TO_SEND_ISSUE;
+	}
+
+	int numErrors = agent.countElements();
+	if (numErrors <= 0)
+		return HTERR_FAILED_TO_SEND_ISSUE;
+
+	string message = "Redmine errors:\n";
+	for (int i = 0; i < numErrors; i++) {
+		string error;
+		agent.read(i, error);
+		message += StringUtils::sprintf("    * %s\n", error.c_str());
+	}
+	MLPL_ERR("%s", message.c_str());
+
+	return HTERR_FAILED_TO_SEND_ISSUE;
 }
 
 HatoholError IssueSenderRedmine::send(const EventInfo &event)
@@ -184,7 +203,10 @@ HatoholError IssueSenderRedmine::send(const EventInfo &event)
 
 	if (!SOUP_STATUS_IS_SUCCESSFUL(sendResult)) {
 		MLPL_ERR("The server returns an error: %d\n", sendResult);
-		return HTERR_FAILED_TO_SEND_ISSUE;
+		if (sendResult == SOUP_STATUS_UNPROCESSABLE_ENTITY)
+			return m_ctx->parseErrorResponse(response);
+		else
+			return HTERR_FAILED_TO_SEND_ISSUE;
 	}
 
 	return m_ctx->parseResponse(response);
