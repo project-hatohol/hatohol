@@ -159,7 +159,7 @@ void _assertSend(const HatoholErrorCode expected,
 	setupTestDBConfig(true, true);
 	TestRedmineSender sender(tracker);
 	g_redmineEmulator.addUser(tracker.userName, tracker.password);
-	HatoholError result = sender.send(testEventInfo[0]);
+	HatoholError result = sender.send(event);
 	cppcut_assert_equal(expected, result.getCode());
 }
 #define assertSend(E,T,V) \
