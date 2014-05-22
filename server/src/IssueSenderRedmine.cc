@@ -20,6 +20,7 @@
 #include "IssueSenderRedmine.h"
 #include "JsonBuilderAgent.h"
 #include "JsonParserAgent.h"
+#include "MutexLock.h"
 #include <libsoup/soup.h>
 
 using namespace std;
@@ -31,11 +32,13 @@ static const char *MIME_JSON = "application/json";
 static SoupSession *getSoupSession(void)
 {
 	static SoupSession *session = NULL;
-	if (session)
-		return session;
-
-	session = soup_session_sync_new_with_options(
-		    SOUP_SESSION_TIMEOUT, DEFAULT_TIMEOUT_SECONDS, NULL);
+	static MutexLock mutex;
+	mutex.lock();
+	if (!session) {
+		session = soup_session_sync_new_with_options(
+			SOUP_SESSION_TIMEOUT, DEFAULT_TIMEOUT_SECONDS, NULL);
+	}
+	mutex.unlock();
 	return session;
 }
 
