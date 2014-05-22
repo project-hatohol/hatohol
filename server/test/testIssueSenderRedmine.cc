@@ -152,27 +152,29 @@ void test_getPostURLWithStringProjectId(void)
 	  sender.getPostURL());
 }
 
-void test_send(void)
+void _assertSend(const HatoholErrorCode expected,
+		 const IssueTrackerInfo &tracker,
+		 const EventInfo &event)
 {
-	IssueTrackerInfo &tracker = testIssueTrackerInfo[2];
 	setupTestDBConfig(true, true);
 	TestRedmineSender sender(tracker);
 	g_redmineEmulator.addUser(tracker.userName, tracker.password);
-	HatoholErrorCode expected = HTERR_OK;
 	HatoholError result = sender.send(testEventInfo[0]);
 	cppcut_assert_equal(expected, result.getCode());
+}
+#define assertSend(E,T,V) \
+cut_trace(_assertSend(E,T,V))
+
+void test_send(void)
+{
+	assertSend(HTERR_OK, testIssueTrackerInfo[2], testEventInfo[0]);
 }
 
 void test_sendWithUnknownTracker(void)
 {
 	IssueTrackerInfo tracker = testIssueTrackerInfo[2];
 	tracker.trackerId = "100";
-	setupTestDBConfig(true, true);
-	TestRedmineSender sender(tracker);
-	g_redmineEmulator.addUser(tracker.userName, tracker.password);
-	HatoholErrorCode expected = HTERR_FAILED_TO_SEND_ISSUE;
-	HatoholError result = sender.send(testEventInfo[0]);
-	cppcut_assert_equal(expected, result.getCode());
+	assertSend(HTERR_FAILED_TO_SEND_ISSUE, tracker, testEventInfo[0]);
 }
 
 }
