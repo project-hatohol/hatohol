@@ -78,6 +78,9 @@ typedef uint64_t HostIdType;
 typedef int IssueTrackerIdType;
 #define FMT_ISSUE_TRACKER_ID "d"
 
+typedef uint64_t IssueIdType;
+#define FMT_ISSUE_ID PRIu64
+
 static const ServerIdType    ALL_SERVERS = -1;
 static const HostIdType      ALL_HOSTS   = -1;
 static const HostgroupIdType ALL_HOST_GROUPS = -1;

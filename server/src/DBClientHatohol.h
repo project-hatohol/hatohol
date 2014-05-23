@@ -156,6 +156,21 @@ typedef std::list<MonitoringServerStatus> MonitoringServerStatusList;
 typedef MonitoringServerStatusList::iterator MonitoringServerStatusListIterator;
 typedef MonitoringServerStatusList::const_iterator MonitoringServerStatusListConstIterator;
 
+struct IssueInfo {
+	IssueIdType        unifiedId;
+	IssueTrackerIdType trackerId;
+	EventIdType        eventId;
+	std::string        identifier;
+	std::string        location;
+	std::string        assignee;
+	time_t             createdAt;
+	time_t             updatedAt;
+};
+
+typedef std::vector<IssueInfo>        IssueInfoVect;
+typedef IssueInfoVect::iterator       IssueInfoVectIterator;
+typedef IssueInfoVect::const_iterator IssueInfoVectConstIterator;
+
 class EventsQueryOption : public HostResourceQueryOption {
 public:
 	enum SortType {
