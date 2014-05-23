@@ -47,6 +47,9 @@ public:
 protected:
 	virtual gpointer mainThread(HatoholThreadArg *arg); // override
 
+	/**
+	 * Called when connection with the AMQP broker is established.
+	 */
 	virtual void onConnected(void);
 
 	/**
