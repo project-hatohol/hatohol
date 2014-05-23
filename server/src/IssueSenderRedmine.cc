@@ -202,7 +202,15 @@ HatoholError IssueSenderRedmine::send(const EventInfo &event)
 	g_object_unref(msg);
 
 	if (!SOUP_STATUS_IS_SUCCESSFUL(sendResult)) {
-		MLPL_ERR("The server returns an error: %d\n", sendResult);
+		if (SOUP_STATUS_IS_TRANSPORT_ERROR(sendResult)) {
+			MLPL_ERR("Transport error: %d %s\n",
+				 sendResult,
+				 soup_status_get_phrase(sendResult));
+		} else {
+			MLPL_ERR("The server returns an error: %d %s\n",
+				 sendResult,
+				 soup_status_get_phrase(sendResult));
+		}
 		if (sendResult == SOUP_STATUS_UNPROCESSABLE_ENTITY)
 			return m_ctx->parseErrorResponse(response);
 		else
