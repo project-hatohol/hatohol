@@ -36,7 +36,7 @@ const char *DBClientHatohol::TABLE_NAME_HOSTS      = "hosts";
 const char *DBClientHatohol::TABLE_NAME_HOSTGROUPS = "hostgroups";
 const char *DBClientHatohol::TABLE_NAME_MAP_HOSTS_HOSTGROUPS
                                                    = "map_hosts_hostgroups";
-static const char *TABLE_NAME_SERVERS              = "servers";
+const char *DBClientHatohol::TABLE_NAME_SERVERS    = "servers";
 
 const EventIdType DBClientHatohol::EVENT_NOT_FOUND = -1;
 const int         DBClientHatohol::HATOHOL_DB_VERSION = 4;
@@ -703,7 +703,7 @@ static const DBAgent::IndexDef indexDefsMapHostsHostgroups[] = {
 static const ColumnDef COLUMN_DEF_SERVERS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_SERVERS,                // tableName
+	DBClientHatohol::TABLE_NAME_SERVERS, // tableName
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -714,7 +714,7 @@ static const ColumnDef COLUMN_DEF_SERVERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_SERVERS,                // tableName
+	DBClientHatohol::TABLE_NAME_SERVERS, // tableName
 	"nvps",                            // columnName
 	SQL_COLUMN_TYPE_DOUBLE,            // type
 	15,                                // columnLength
@@ -733,7 +733,7 @@ enum {
 };
 
 static const DBAgent::TableProfile tableProfileServers(
-  TABLE_NAME_SERVERS, COLUMN_DEF_SERVERS,
+  DBClientHatohol::TABLE_NAME_SERVERS, COLUMN_DEF_SERVERS,
   sizeof(COLUMN_DEF_SERVERS), NUM_IDX_SERVERS);
 
 static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
@@ -2139,7 +2139,7 @@ void DBClientHatohol::addMonitoringServerStatusWithoutTransaction(
 	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
 	string condition = StringUtils::sprintf(
 	  "id=%s", dbTermCodec->enc(serverStatus.serverId).c_str());
-	if (!isRecordExisting(TABLE_NAME_SERVERS, condition)) {
+	if (!isRecordExisting(DBClientHatohol::TABLE_NAME_SERVERS, condition)) {
 		DBAgent::InsertArg arg(tableProfileServers);
 		arg.add(serverStatus.serverId);
 		arg.add(serverStatus.nvps);
