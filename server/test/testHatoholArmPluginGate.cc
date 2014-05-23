@@ -41,6 +41,7 @@ struct StartAndExitArg {
 	size_t               numRetry;
 	size_t               retrySleepTime; // msec.
 	bool                 cancelRetrySleep;
+	bool                 checkNumRetry;
 
 	StartAndExitArg(void)
 	: monitoringSystemType(MONITORING_SYSTEM_HAPI_TEST),
@@ -49,7 +50,8 @@ struct StartAndExitArg {
 	  checkMessage(false),
 	  numRetry(0),
 	  retrySleepTime(1),
-	  cancelRetrySleep(false)
+	  cancelRetrySleep(false),
+	  checkNumRetry(false)
 	{
 	}
 };
@@ -198,6 +200,8 @@ static void _assertStartAndExit(StartAndExitArg &arg)
 	if (arg.checkMessage)
 		cppcut_assert_equal(string(testMessage), hapg->rcvMessage);
 	cppcut_assert_equal(false, hapg->gotUnexceptedException);
+	if (arg.checkNumRetry)
+		cppcut_assert_equal(arg.numRetry, hapg->retryCount-1);
 }
 #define assertStartAndExit(A) cut_trace(_assertStartAndExit(A))
 
@@ -261,6 +265,7 @@ void test_retryToConnect(void)
 	arg.runMainLoop = true;
 	arg.checkMessage = true;
 	arg.numRetry = 3;
+	arg.checkNumRetry = true;
 	assertStartAndExit(arg);
 }
 
