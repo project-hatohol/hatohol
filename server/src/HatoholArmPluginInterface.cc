@@ -34,14 +34,17 @@ using namespace mlpl;
 using namespace qpid::messaging;
 
 struct HatoholArmPluginInterface::PrivateContext {
+	HatoholArmPluginInterface *hapi;
 	string queueAddr;
 	Connection connection;
 	Session    session;
 	Sender     sender;
 	Receiver   receiver;
 
-	PrivateContext(const string &_queueAddr)
-	: queueAddr(_queueAddr),
+	PrivateContext(HatoholArmPluginInterface *_hapi,
+	               const string &_queueAddr)
+	: hapi(_hapi),
+	  queueAddr(_queueAddr),
 	  connected(false)
 	{
 	}
@@ -64,6 +67,7 @@ struct HatoholArmPluginInterface::PrivateContext {
 		sender = session.createSender(queueAddr);
 		receiver = session.createReceiver(queueAddr);
 		connected = true;
+		hapi->onConnected(connection);
 	}
 
 	void disconnect(void)
@@ -98,7 +102,7 @@ private:
 HatoholArmPluginInterface::HatoholArmPluginInterface(const string &queueAddr)
 : m_ctx(NULL)
 {
-	m_ctx = new PrivateContext(queueAddr);
+	m_ctx = new PrivateContext(this, queueAddr);
 }
 
 HatoholArmPluginInterface::~HatoholArmPluginInterface()
@@ -132,7 +136,7 @@ void HatoholArmPluginInterface::exitSync(void)
 // ---------------------------------------------------------------------------
 gpointer HatoholArmPluginInterface::mainThread(HatoholThreadArg *arg)
 {
-	setupConnection();
+	m_ctx->connect();
 	while (!isExitRequested()) {
 		Message message;
 		m_ctx->receiver.fetch(message);
@@ -148,7 +152,7 @@ gpointer HatoholArmPluginInterface::mainThread(HatoholThreadArg *arg)
 	return NULL;
 }
 
-void HatoholArmPluginInterface::onConnected(void)
+void HatoholArmPluginInterface::onConnected(Connection &conn)
 {
 }
 
@@ -160,12 +164,6 @@ void HatoholArmPluginInterface::onGotError(
   const HatoholArmPluginError &hapError)
 {
 	THROW_HATOHOL_EXCEPTION("Got error: %d\n", hapError.code);
-}
-
-void HatoholArmPluginInterface::setupConnection(void)
-{
-	m_ctx->connect();
-	onConnected();
 }
 
 void HatoholArmPluginInterface::load(SmartBuffer &sbuf, const Message &message)

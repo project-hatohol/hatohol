@@ -23,6 +23,7 @@
 
 using namespace std;
 using namespace mlpl;
+using namespace qpid::messaging;
 
 namespace testHatoholArmPluginInterface {
 
@@ -71,7 +72,7 @@ public:
 	{
 	}
 
-	virtual void onConnected(void) // override
+	virtual void onConnected(Connection &conn) // override
 	{
 		m_testCtx.connected = true;
 		if (m_testCtx.quitOnConnected)

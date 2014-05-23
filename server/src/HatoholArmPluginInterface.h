@@ -23,6 +23,7 @@
 #include <string>
 #include <SmartBuffer.h>
 #include <qpid/messaging/Message.h>
+#include <qpid/messaging/Connection.h>
 #include "HatoholThreadBase.h"
 
 enum HatoholArmPluginErrorCode {
@@ -49,8 +50,10 @@ protected:
 
 	/**
 	 * Called when connection with the AMQP broker is established.
+	 *
+	 * @param conn A connection object
 	 */
-	virtual void onConnected(void);
+	virtual void onConnected(qpid::messaging::Connection &conn);
 
 	/**
 	 * Called when a message is received.
@@ -60,8 +63,6 @@ protected:
 	 */
 	virtual void onReceived(mlpl::SmartBuffer &smbuf);
 	virtual void onGotError(const HatoholArmPluginError &hapError);
-
-	void setupConnection(void);
 
 	/**
 	 * Fill data to a smart buffer.

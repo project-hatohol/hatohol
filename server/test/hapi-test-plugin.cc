@@ -59,7 +59,7 @@ public:
 	}
 
 protected:
-	virtual void onConnected(void) // override
+	virtual void onConnected(Connection &conn) // override
 	{
 		send(testMessage);
 		m_sem.post();
