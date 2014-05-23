@@ -633,6 +633,42 @@ static const DBAgent::TableProfile tableProfileMapHostsHostgroups(
   COLUMN_DEF_MAP_HOSTS_HOSTGROUPS,
   sizeof(COLUMN_DEF_MAP_HOSTS_HOSTGROUPS), NUM_IDX_MAP_HOSTS_HOSTGROUPS);
 
+static const ColumnDef COLUMN_DEF_SERVERS[] = {
+{
+	ITEM_ID_NOT_SET,                   // itemId
+	DBClientHatohol::TABLE_NAME_SERVERS, // tableName
+	"id",                              // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	DBClientHatohol::TABLE_NAME_SERVERS, // tableName
+	"nvps",                            // columnName
+	SQL_COLUMN_TYPE_DOUBLE,            // type
+	15,                                // columnLength
+	2,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+},
+};
+
+enum {
+	IDX_SERVERS_ID,
+	IDX_SERVERS_NVPS,
+	NUM_IDX_SERVERS,
+};
+
+static const DBAgent::TableProfile tableProfileServers(
+  DBClientHatohol::TABLE_NAME_SERVERS, COLUMN_DEF_SERVERS,
+  sizeof(COLUMN_DEF_SERVERS), NUM_IDX_SERVERS);
+
 // Trigger
 static const int columnIndexesTrigUniqId[] = {
   IDX_TRIGGERS_SERVER_ID, IDX_TRIGGERS_ID, DBAgent::IndexDef::END,
@@ -699,42 +735,6 @@ static const DBAgent::IndexDef indexDefsMapHostsHostgroups[] = {
    (const int *)columnIndexesMapHostsHostgroupsUniqId, true},
   {NULL}
 };
-
-static const ColumnDef COLUMN_DEF_SERVERS[] = {
-{
-	ITEM_ID_NOT_SET,                   // itemId
-	DBClientHatohol::TABLE_NAME_SERVERS, // tableName
-	"id",                              // columnName
-	SQL_COLUMN_TYPE_INT,               // type
-	11,                                // columnLength
-	0,                                 // decFracLength
-	false,                             // canBeNull
-	SQL_KEY_PRI,                       // keyType
-	0,                                 // flags
-	NULL,                              // defaultValue
-}, {
-	ITEM_ID_NOT_SET,                   // itemId
-	DBClientHatohol::TABLE_NAME_SERVERS, // tableName
-	"nvps",                            // columnName
-	SQL_COLUMN_TYPE_DOUBLE,            // type
-	15,                                // columnLength
-	2,                                 // decFracLength
-	false,                             // canBeNull
-	SQL_KEY_NONE,                      // keyType
-	0,                                 // flags
-	NULL,                              // defaultValue
-},
-};
-
-enum {
-	IDX_SERVERS_ID,
-	IDX_SERVERS_NVPS,
-	NUM_IDX_SERVERS,
-};
-
-static const DBAgent::TableProfile tableProfileServers(
-  DBClientHatohol::TABLE_NAME_SERVERS, COLUMN_DEF_SERVERS,
-  sizeof(COLUMN_DEF_SERVERS), NUM_IDX_SERVERS);
 
 static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
 {
