@@ -71,7 +71,6 @@ protected:
 	// To avoid an instance from being created on a stack.
 	virtual ~HatoholArmPluginGate();
 
-	virtual void onSessionChanged(qpid::messaging::Session *session);
 	virtual void onTerminated(const siginfo_t *siginfo);
 
 	/**

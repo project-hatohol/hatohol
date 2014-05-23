@@ -118,10 +118,6 @@ HatoholArmPluginGate::~HatoholArmPluginGate()
 		delete m_ctx;
 }
 
-void HatoholArmPluginGate::onSessionChanged(Session *session)
-{
-}
-
 void HatoholArmPluginGate::onTerminated(const siginfo_t *siginfo)
 {
 }
