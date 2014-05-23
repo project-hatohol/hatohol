@@ -1100,7 +1100,9 @@ void LinesComparator::assert(const bool &strictOrder)
 // ---------------------------------------------------------------------------
 GMainLoopAgent::GMainLoopAgent(void)
 : m_timerTag(0),
-  m_loop(NULL)
+  m_loop(NULL),
+  m_timeoutCb(NULL),
+  m_timeoutCbData(NULL)
 {
 }
 
@@ -1112,12 +1114,17 @@ GMainLoopAgent::~GMainLoopAgent()
 		g_source_remove(m_timerTag);
 }
 
-void GMainLoopAgent::run(GSourceFunc timeoutCb, gpointer timeoutCbData)
+void GMainLoopAgent::run(GSourceFunc _timeoutCb, gpointer _timeoutCbData)
 {
-	if (!timeoutCb)
-		timeoutCb = failureDueToTimedOut;
-	m_timerTag = g_timeout_add(TIMEOUT, timeoutCb, timeoutCbData);
+	cppcut_assert_equal(0u, m_timerTag);
+	m_timeoutCb = _timeoutCb ? : NULL;
+	m_timeoutCbData = _timeoutCbData ? : NULL;
+	m_timerTag = g_timeout_add(TIMEOUT, timedOut, this);
 	g_main_loop_run(get());
+	if (m_timerTag) {
+		g_source_remove(m_timerTag);
+		m_timerTag = 0;
+	}
 }
 
 void GMainLoopAgent::quit(void)
@@ -1134,8 +1141,16 @@ GMainLoop *GMainLoopAgent::get(void)
 	return m_loop;
 }
 
-gboolean GMainLoopAgent::failureDueToTimedOut(gpointer data)
+gboolean GMainLoopAgent::timedOut(gpointer data)
 {
+	GMainLoopAgent *obj = static_cast<GMainLoopAgent *>(data);
+	if (obj->m_timeoutCb) {
+		gboolean removeFlag = (*obj->m_timeoutCb)(obj->m_timeoutCbData);
+		if (removeFlag == G_SOURCE_REMOVE)
+			obj->m_timerTag = 0;
+		return removeFlag;
+	}
+	obj->m_timerTag = 0;
 	cut_fail("Timed out");
 	return G_SOURCE_REMOVE;
 }

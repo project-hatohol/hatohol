@@ -268,12 +268,14 @@ public:
 	GMainLoop   *get(void);
 
 protected:
-	static gboolean failureDueToTimedOut(gpointer data);
+	static gboolean timedOut(gpointer data);
 private:
 	static const size_t TIMEOUT = 5000;
 	guint           m_timerTag;
 	GMainLoop      *m_loop;
 	mlpl::MutexLock m_lock;
+	GSourceFunc     m_timeoutCb;
+	gpointer        m_timeoutCbData;
 };
 
 #endif // Helpers_h
