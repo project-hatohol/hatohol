@@ -36,7 +36,7 @@ struct RedmineAPIEmulator::PrivateContext {
 	{
 	}
 
-	static gboolean auth_callback(SoupAuthDomain *domain, SoupMessage *msg,
+	static gboolean authCallback(SoupAuthDomain *domain, SoupMessage *msg,
 				      const char *username,
 				      const char *password,
 				      gpointer user_data);
@@ -93,7 +93,7 @@ const string &RedmineAPIEmulator::getLastResponse(void)
 	return m_ctx->m_lastResponse;
 }
 
-gboolean RedmineAPIEmulator::PrivateContext::auth_callback
+gboolean RedmineAPIEmulator::PrivateContext::authCallback
   (SoupAuthDomain *domain, SoupMessage *msg, const char *username,
    const char *password, gpointer user_data)
 {
@@ -113,7 +113,7 @@ void RedmineAPIEmulator::setSoupHandlers(SoupServer *soupServer)
 {
 	SoupAuthDomain *domain = soup_auth_domain_basic_new(
 	  SOUP_AUTH_DOMAIN_REALM, "RedminEmulatorRealm",
-	  SOUP_AUTH_DOMAIN_BASIC_AUTH_CALLBACK, PrivateContext::auth_callback,
+	  SOUP_AUTH_DOMAIN_BASIC_AUTH_CALLBACK, PrivateContext::authCallback,
 	  SOUP_AUTH_DOMAIN_BASIC_AUTH_DATA, this,
 	  SOUP_AUTH_DOMAIN_ADD_PATH, "/",
 	  NULL);
