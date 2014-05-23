@@ -690,7 +690,7 @@ static const ColumnDef COLUMN_DEF_ISSUES[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_NONE, // indexDefsMapHostsHostgroups // keyType
+	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
