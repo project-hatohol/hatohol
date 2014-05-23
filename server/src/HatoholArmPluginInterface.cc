@@ -78,6 +78,15 @@ struct HatoholArmPluginInterface::PrivateContext {
 		connectionLock.unlock();
 	}
 
+	void acknowledge(void)
+	{
+		Reaper<MutexLock> unlocker(&connectionLock, MutexLock::unlock);
+		connectionLock.lock();
+		if (!connected)
+			return;
+		session.acknowledge();
+	}
+
 private:
 	bool       connected;
 	MutexLock  connectionLock;
@@ -113,6 +122,7 @@ void HatoholArmPluginInterface::send(const string &message)
 
 void HatoholArmPluginInterface::exitSync(void)
 {
+	requestExit();
 	m_ctx->disconnect();
 	HatoholThreadBase::exitSync();
 }
@@ -128,11 +138,11 @@ gpointer HatoholArmPluginInterface::mainThread(HatoholThreadArg *arg)
 		m_ctx->receiver.fetch(message);
 		if (isExitRequested()) 
 			break;
-		m_ctx->session.acknowledge();
 		SmartBuffer sbuf;
 		load(sbuf, message);
 		sbuf.resetIndex();
 		onReceived(sbuf);
+		m_ctx->acknowledge();
 	};
 	m_ctx->disconnect();
 	return NULL;

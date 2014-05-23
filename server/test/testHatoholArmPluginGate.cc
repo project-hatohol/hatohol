@@ -102,9 +102,9 @@ public:
 		}
 	}
 
-	virtual void onReceived(Message &message) // override
+	virtual void onReceived(SmartBuffer &smbuf) // override
 	{
-		rcvMessage = message.getContent();
+		rcvMessage = string(smbuf, smbuf.size());
 		loop.quit();
 	}
 
