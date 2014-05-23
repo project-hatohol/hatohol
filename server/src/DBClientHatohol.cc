@@ -37,6 +37,7 @@ const char *DBClientHatohol::TABLE_NAME_HOSTGROUPS = "hostgroups";
 const char *DBClientHatohol::TABLE_NAME_MAP_HOSTS_HOSTGROUPS
                                                    = "map_hosts_hostgroups";
 const char *DBClientHatohol::TABLE_NAME_SERVERS    = "servers";
+const char *DBClientHatohol::TABLE_NAME_ISSUES     = "issues";
 
 const EventIdType DBClientHatohol::EVENT_NOT_FOUND = -1;
 const int         DBClientHatohol::HATOHOL_DB_VERSION = 4;
@@ -668,6 +669,114 @@ enum {
 static const DBAgent::TableProfile tableProfileServers(
   DBClientHatohol::TABLE_NAME_SERVERS, COLUMN_DEF_SERVERS,
   sizeof(COLUMN_DEF_SERVERS), NUM_IDX_SERVERS);
+
+static const ColumnDef COLUMN_DEF_ISSUES[] = {
+{
+	ITEM_ID_NOT_SET,                   // itemId
+	DBClientHatohol::TABLE_NAME_ISSUES, // tableName
+	"unified_id",                      // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	SQL_COLUMN_FLAG_AUTO_INC,          // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	DBClientHatohol::TABLE_NAME_ISSUES, // tableName
+	"tracker_id",                      // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE, // indexDefsMapHostsHostgroups // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	DBClientHatohol::TABLE_NAME_ISSUES, // tableName
+	"event_id",                        // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	DBClientHatohol::TABLE_NAME_ISSUES, // tableName
+	"identifier",                      // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	DBClientHatohol::TABLE_NAME_ISSUES, // tableName
+	"location",                        // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	DBClientHatohol::TABLE_NAME_ISSUES, // tableName
+	"assignee",                        // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	DBClientHatohol::TABLE_NAME_ISSUES, // tableName
+	"created_at",                      // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	DBClientHatohol::TABLE_NAME_ISSUES, // tableName
+	"updated_at",                      // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+},
+};
+
+enum {
+	IDX_ISSUES_UNIFIED_ID,
+	IDX_ISSUES_TRACKER_ID,
+	IDX_ISSUES_EVENT_ID,
+	IDX_ISSUES_IDENTIFIER,
+	IDX_ISSUES_LOCATION,
+	IDX_ISSUES_ASIGNEE,
+	IDX_ISSUES_CREATED_AT,
+	IDX_ISSUES_UPDATED_AT,
+	NUM_IDX_ISSUES,
+};
+
+static const DBAgent::TableProfile tableProfileIssues(
+  DBClientHatohol::TABLE_NAME_ISSUES, COLUMN_DEF_ISSUES,
+  sizeof(COLUMN_DEF_ISSUES), NUM_IDX_ISSUES);
 
 // Trigger
 static const int columnIndexesTrigUniqId[] = {

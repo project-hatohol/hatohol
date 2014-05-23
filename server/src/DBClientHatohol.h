@@ -275,6 +275,7 @@ public:
 	static const char *TABLE_NAME_HOSTGROUPS;
 	static const char *TABLE_NAME_MAP_HOSTS_HOSTGROUPS;
 	static const char *TABLE_NAME_SERVERS;
+	static const char *TABLE_NAME_ISSUES;
 
 	DBClientHatohol(void);
 	virtual ~DBClientHatohol();
