@@ -28,17 +28,17 @@ using namespace mlpl;
 
 static const guint DEFAULT_TIMEOUT_SECONDS = 60;
 static const char *MIME_JSON = "application/json";
+static MutexLock soupSessionMutex;
 
 static SoupSession *getSoupSession(void)
 {
 	static SoupSession *session = NULL;
-	static MutexLock mutex;
-	mutex.lock();
+	soupSessionMutex.lock();
 	if (!session) {
 		session = soup_session_sync_new_with_options(
 			SOUP_SESSION_TIMEOUT, DEFAULT_TIMEOUT_SECONDS, NULL);
 	}
-	mutex.unlock();
+	soupSessionMutex.unlock();
 	return session;
 }
 
