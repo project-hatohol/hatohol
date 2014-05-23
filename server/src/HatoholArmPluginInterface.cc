@@ -128,8 +128,10 @@ gpointer HatoholArmPluginInterface::mainThread(HatoholThreadArg *arg)
 		m_ctx->receiver.fetch(message);
 		if (isExitRequested()) 
 			break;
+		m_ctx->session.acknowledge();
 		SmartBuffer sbuf;
 		load(sbuf, message);
+		sbuf.resetIndex();
 		onReceived(sbuf);
 	};
 	m_ctx->disconnect();
@@ -158,5 +160,5 @@ void HatoholArmPluginInterface::setupConnection(void)
 
 void HatoholArmPluginInterface::load(SmartBuffer &sbuf, const Message &message)
 {
-	sbuf.add(message.getContentPtr(), message.getContentSize());
+	sbuf.addEx(message.getContentPtr(), message.getContentSize());
 }

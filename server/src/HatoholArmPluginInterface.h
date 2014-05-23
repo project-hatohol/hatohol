@@ -48,6 +48,13 @@ protected:
 	virtual gpointer mainThread(HatoholThreadArg *arg); // override
 
 	virtual void onConnected(void);
+
+	/**
+	 * Called when a message is received.
+	 *
+	 * @param smbuf
+	 * A received message. The index of smbuf has been reset to zero.
+	 */
 	virtual void onReceived(mlpl::SmartBuffer &smbuf);
 	virtual void onGotError(const HatoholArmPluginError &hapError);
 

@@ -29,12 +29,35 @@ namespace testHatoholArmPluginInterface {
 struct TestContext {
 	AtomicValue<bool> timedout;
 	AtomicValue<bool> connected;
+	AtomicValue<bool> quitOnConnected;
+	AtomicValue<bool> quitOnReceived;
 
 	TestContext(void)
 	: timedout(false),
-	  connected(false)
+	  connected(false),
+	  quitOnConnected(false),
+	  quitOnReceived(false)
 	{
 	}
+
+	string getReceivedMessage(void)
+	{
+		lock.lock();
+		string msg = receivedMessage;
+		lock.unlock();
+		return msg;
+	}
+
+	void setReceivedMessage(const SmartBuffer &smbuf)
+	{
+		lock.lock();
+		receivedMessage = string(smbuf, smbuf.size());
+		lock.unlock();
+	}
+
+private:
+	MutexLock   lock;
+	string      receivedMessage;
 };
 
 class TestHatoholArmPluginInterface : public HatoholArmPluginInterface {
@@ -43,19 +66,30 @@ public:
 	  TestContext &ctx,
 	  const string &addr = "test-hatohol-arm-plugin-interface; {create: always}")
 	: HatoholArmPluginInterface(addr),
-	  m_testCtx(ctx)
+	  m_testCtx(ctx),
+	  m_started(false)
 	{
 	}
 
 	virtual void onConnected(void) // override
 	{
 		m_testCtx.connected = true;
+		if (m_testCtx.quitOnConnected)
+			m_loop.quit();
+	}
+
+	virtual void onReceived(SmartBuffer &smbuf)
+	{
+		m_testCtx.setReceivedMessage(smbuf);
 		m_loop.quit();
 	}
 
 	void run(void)
 	{
-		start();
+		if (!m_started) {
+			start();
+			m_started = true;
+		}
 		m_loop.run(timeoutCb, this);
 	}
 
@@ -77,6 +111,7 @@ protected:
 private:
 	GMainLoopAgent m_loop;
 	TestContext   &m_testCtx;
+	bool           m_started;
 };
 
 // ---------------------------------------------------------------------------
@@ -90,10 +125,32 @@ void test_constructor(void)
 void test_onConnected(void)
 {
 	TestContext testCtx;
+	testCtx.quitOnConnected = true;
 	TestHatoholArmPluginInterface hapi(testCtx);
 	hapi.run();
 	cppcut_assert_equal(false, (bool)testCtx.timedout);
 	cppcut_assert_equal(true, (bool)testCtx.connected);
+}
+
+void test_sendAndonReceived(void)
+{
+	const string testMessage = "FOO";
+	TestContext testCtx;
+
+	// wait for connection
+	testCtx.quitOnConnected = true;
+	TestHatoholArmPluginInterface hapi(testCtx);
+	hapi.run();
+	cppcut_assert_equal(false, (bool)hapi.getTestContext().timedout);
+
+	// send the message and receive it
+	hapi.send(testMessage);
+	testCtx.quitOnConnected = false;
+	testCtx.quitOnReceived = true;
+	hapi.run();
+	cppcut_assert_equal(false, (bool)hapi.getTestContext().timedout);
+	cppcut_assert_equal(testMessage,
+	                    hapi.getTestContext().getReceivedMessage());
 }
 
 } // namespace testHatoholArmPluginInterface
