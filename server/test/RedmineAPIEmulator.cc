@@ -275,13 +275,16 @@ void RedmineAPIEmulator::PrivateContext::handlerIssuesJson
 
 	string method = msg->method;
 	if (method == "GET") {
-
+		// TODO
+		soup_message_set_status(msg, SOUP_STATUS_NOT_IMPLEMENTED);
 	} else if (method == "PUT") {
-
+		// TODO
+		soup_message_set_status(msg, SOUP_STATUS_NOT_IMPLEMENTED);
 	} else if (method == "POST") {
 		emulator->m_ctx->replyPostIssue(msg);
 	} else if (method == "DELETE") {
-
+		// TODO
+		soup_message_set_status(msg, SOUP_STATUS_NOT_IMPLEMENTED);
 	} else {
 		soup_message_set_status(msg, SOUP_STATUS_METHOD_NOT_ALLOWED);
 	}
