@@ -56,6 +56,14 @@ protected:
 	virtual void onConnected(qpid::messaging::Connection &conn);
 
 	/**
+	 * Called when the session is changed.
+	 *
+	 * @param session
+	 * An session instance or NULL if the session is lost.
+	 */
+	virtual void onSessionChanged(qpid::messaging::Session *session);
+
+	/**
 	 * Called when a message is received.
 	 *
 	 * @param smbuf

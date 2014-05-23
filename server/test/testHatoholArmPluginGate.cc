@@ -104,6 +104,8 @@ public:
 
 	virtual void onReceived(SmartBuffer &smbuf) // override
 	{
+		if (arg.numRetry && retryCount <= arg.numRetry)
+			return;
 		rcvMessage = string(smbuf, smbuf.size());
 		loop.quit();
 	}

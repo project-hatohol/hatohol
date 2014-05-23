@@ -68,18 +68,23 @@ struct HatoholArmPluginInterface::PrivateContext {
 		receiver = session.createReceiver(queueAddr);
 		connected = true;
 		hapi->onConnected(connection);
+		hapi->onSessionChanged(&session);
 	}
 
 	void disconnect(void)
 	{
 		connectionLock.lock();
-		if (connected) {
+		Reaper<MutexLock> unlocker(&connectionLock, MutexLock::unlock);
+		if (!connected)
+			return;
+		try {
 			session.sync();
 			session.close();
 			connection.close();
-			connected = false;
+		} catch (...) {
 		}
-		connectionLock.unlock();
+		connected = false;
+		hapi->onSessionChanged(NULL);
 	}
 
 	void acknowledge(void)
@@ -153,6 +158,10 @@ gpointer HatoholArmPluginInterface::mainThread(HatoholThreadArg *arg)
 }
 
 void HatoholArmPluginInterface::onConnected(Connection &conn)
+{
+}
+
+void HatoholArmPluginInterface::onSessionChanged(Session *session)
 {
 }
 
