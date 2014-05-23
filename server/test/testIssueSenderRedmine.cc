@@ -24,6 +24,7 @@
 #include "LabelUtils.h"
 #include "DBClientTest.h"
 #include "Helpers.h"
+#include "JsonParserAgent.h"
 #include <cppcutter.h>
 #include <gcutter.h>
 
@@ -44,6 +45,16 @@ public:
 	}
 	virtual ~TestRedmineSender()
 	{
+	}
+	string buildTitle(const EventInfo &event,
+			  const MonitoringServerInfo *server)
+	{
+		return IssueSender::buildTitle(event, server);
+	}
+	string buildDescription(const EventInfo &event,
+				const MonitoringServerInfo *server)
+	{
+		return IssueSender::buildDescription(event, server);
 	}
 	string buildJson(const EventInfo &event)
 	{
@@ -161,6 +172,27 @@ void _assertSend(const HatoholErrorCode &expected,
 	g_redmineEmulator.addUser(tracker.userName, tracker.password);
 	HatoholError result = sender.send(event);
 	cppcut_assert_equal(expected, result.getCode());
+
+	if (expected != HTERR_OK)
+		return;
+
+	MonitoringServerInfo &server = testServerInfo[event.serverId - 1];
+	JsonParserAgent agent(g_redmineEmulator.getLastResponse());
+	cppcut_assert_equal(true, agent.startObject("issue"));
+	string title, description, trackerId;
+	agent.read("subject", title);
+	agent.read("description", description);
+	cppcut_assert_equal(sender.buildTitle(event, &server), title);
+	cppcut_assert_equal(sender.buildDescription(event, &server),
+			    description);
+	if (!tracker.trackerId.empty()) {
+		agent.startObject("tracker");
+		int64_t trackerId = 0;
+		agent.read("id", trackerId);
+		cppcut_assert_equal(tracker.trackerId,
+				    StringUtils::toString((int)trackerId));
+		agent.endObject();
+	}
 }
 #define assertSend(E,T,V) \
 cut_trace(_assertSend(E,T,V))
