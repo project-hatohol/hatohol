@@ -93,7 +93,8 @@ libhatohol_la_SOURCES = \
 	UnifiedDataStore.cc UnifiedDataStore.h \
 	UsedCountable.cc UsedCountable.h \
 	UsedCountablePtr.cc UsedCountablePtr.h \
-	Utils.cc Utils.h
+	Utils.cc Utils.h \
+	ZabbixAPI.cc ZabbixAPI.h
 
 AM_CXXFLAGS = -Wall -g3 \
 	-D__STDC_FORMAT_MACROS \

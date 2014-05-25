@@ -21,6 +21,7 @@
 #define ArmZabbixAPI_h
 
 #include <libsoup/soup.h>
+#include "ZabbixAPI.h"
 #include "ArmBase.h"
 #include "ItemTablePtr.h"
 #include "JsonParserAgent.h"
@@ -30,7 +31,7 @@
 
 const static uint64_t UNLIMITED = -1;
 
-class ArmZabbixAPI : public ArmBase
+class ArmZabbixAPI : public ZabbixAPI, public ArmBase
 {
 public:
 	typedef ItemTablePtr
