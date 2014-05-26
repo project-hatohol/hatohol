@@ -262,6 +262,12 @@ public:
 	HostgroupElementQueryOption(DataQueryContext *dataQueryContext);
 };
 
+class IssuesQueryOption : public DataQueryOption {
+public:
+	IssuesQueryOption(const UserIdType &userId = INVALID_USER_ID);
+	IssuesQueryOption(DataQueryContext *dataQueryContext);
+};
+
 class DBClientHatohol : public DBClient {
 public:
 	static const EventIdType EVENT_NOT_FOUND;

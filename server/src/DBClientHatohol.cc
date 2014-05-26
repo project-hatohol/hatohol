@@ -1373,6 +1373,19 @@ HostgroupElementQueryOption::HostgroupElementQueryOption(
 {
 }
 
+//
+// IssuesQueryOption
+//
+IssuesQueryOption::IssuesQueryOption(const UserIdType &userId)
+: DataQueryOption(userId)
+{
+}
+
+IssuesQueryOption::IssuesQueryOption(DataQueryContext *dataQueryContext)
+: DataQueryOption(dataQueryContext)
+{
+}
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
