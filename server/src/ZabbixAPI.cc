@@ -19,7 +19,6 @@
 
 #include <cstdio>
 #include <string>
-#include <libsoup/soup.h>
 #include "JsonParserAgent.h"
 #include "ZabbixAPI.h"
 #include "StringUtils.h"

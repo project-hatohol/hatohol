@@ -21,6 +21,7 @@
 #define ZabbixAPI_h
 
 #include <string>
+#include <libsoup/soup.h>
 #include "DBClientConfig.h"
 #include "JsonBuilderAgent.h"
 
