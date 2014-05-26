@@ -41,6 +41,7 @@ struct StartAndExitArg {
 	size_t               numRetry;
 	size_t               retrySleepTime; // msec.
 	bool                 cancelRetrySleep;
+	bool                 checkNumRetry;
 
 	StartAndExitArg(void)
 	: monitoringSystemType(MONITORING_SYSTEM_HAPI_TEST),
@@ -49,7 +50,8 @@ struct StartAndExitArg {
 	  checkMessage(false),
 	  numRetry(0),
 	  retrySleepTime(1),
-	  cancelRetrySleep(false)
+	  cancelRetrySleep(false),
+	  checkNumRetry(false)
 	{
 	}
 };
@@ -59,46 +61,18 @@ public:
 	static const size_t TIMEOUT_MSEC = 5000;
 	const StartAndExitArg &arg;
 	bool       timedOut;
-	guint      timerTag;
 	bool       abnormalChildTerm;
 	string     rcvMessage;
 	bool       gotUnexceptedException;
 	size_t     retryCount;
 	guint      cancelTimerTag;
 
-	class Loop {
-	public:
-		Loop(void)
-		: m_loop(NULL)
-		{
-		}
-
-		virtual ~Loop()
-		{
-			if (m_loop)
-				g_main_loop_unref(m_loop);
-		}
-
-		GMainLoop *get(void)
-		{
-			m_lock.lock();
-			if (!m_loop)
-				m_loop = g_main_loop_new(NULL, TRUE);
-			m_lock.unlock();
-			return m_loop;
-		}
-
-	private:
-		MutexLock m_lock;
-		GMainLoop *m_loop;
-	} loop;
-
+	GMainLoopAgent loop;
 	TestHatoholArmPluginGate(const MonitoringServerInfo &serverInfo,
 	                         const StartAndExitArg &_arg)
 	: HatoholArmPluginGate(serverInfo),
 	  arg(_arg),
 	  timedOut(false),
-	  timerTag(INVALID_EVENT_ID),
 	  abnormalChildTerm(false),
 	  gotUnexceptedException(false),
 	  retryCount(0),
@@ -108,8 +82,6 @@ public:
 	
 	virtual ~TestHatoholArmPluginGate()
 	{
-		if (timerTag != INVALID_EVENT_ID)
-			g_source_remove(timerTag);
 		if (cancelTimerTag != INVALID_EVENT_ID)
 			g_source_remove(cancelTimerTag);
 	}
@@ -132,19 +104,21 @@ public:
 		}
 	}
 
-	virtual void onReceived(Message &message) // override
+	virtual void onReceived(SmartBuffer &smbuf) // override
 	{
-		rcvMessage = message.getContent();
-		g_main_loop_quit(loop.get());
+		if (arg.numRetry && retryCount <= arg.numRetry)
+			return;
+		rcvMessage = string(smbuf, smbuf.size());
+		loop.quit();
 	}
 
 	virtual void onTerminated(const siginfo_t *siginfo) // override
 	{
-		g_main_loop_quit(loop.get());
 		if (siginfo->si_signo == SIGCHLD &&
 		    siginfo->si_code  == CLD_EXITED) {
 			return;
 		}
+		loop.quit();
 		abnormalChildTerm = true;
 		MLPL_ERR("si_signo: %d, si_code: %d\n",
 		         siginfo->si_signo, siginfo->si_code);
@@ -166,17 +140,15 @@ public:
 	// We assume this funciton is called from the main test thread.
 	void mainLoopRun(void)
 	{
-		timerTag = g_timeout_add(TIMEOUT_MSEC, timeOutFunc, this);
-		g_main_loop_run(loop.get());
+		loop.run(timeOutFunc, this);
 	}
 
 	static gboolean timeOutFunc(gpointer data)
 	{
 		TestHatoholArmPluginGate *obj =
 		  static_cast<TestHatoholArmPluginGate *>(data);
-		obj->timerTag = INVALID_EVENT_ID;
 		obj->timedOut = true;
-		g_main_loop_quit(obj->loop.get());
+		obj->loop.quit();
 		return G_SOURCE_REMOVE;
 	}
 
@@ -191,7 +163,7 @@ public:
 				TestHatoholArmPluginGate *obj =
 				  static_cast<TestHatoholArmPluginGate *>(data);
 				obj->cancelTimerTag = INVALID_EVENT_ID;
-				g_main_loop_quit(obj->loop.get());
+				obj->loop.quit();
 				return G_SOURCE_REMOVE;
 			}
 		};
@@ -228,6 +200,8 @@ static void _assertStartAndExit(StartAndExitArg &arg)
 	if (arg.checkMessage)
 		cppcut_assert_equal(string(testMessage), hapg->rcvMessage);
 	cppcut_assert_equal(false, hapg->gotUnexceptedException);
+	if (arg.checkNumRetry)
+		cppcut_assert_equal(arg.numRetry, hapg->retryCount-1);
 }
 #define assertStartAndExit(A) cut_trace(_assertStartAndExit(A))
 
@@ -291,6 +265,7 @@ void test_retryToConnect(void)
 	arg.runMainLoop = true;
 	arg.checkMessage = true;
 	arg.numRetry = 3;
+	arg.checkNumRetry = true;
 	assertStartAndExit(arg);
 }
 

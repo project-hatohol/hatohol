@@ -41,45 +41,6 @@ const char *HatoholArmPluginGate::ENV_NAME_QUEUE_ADDR = "HAPI_QUEUE_ADDR";
 const int   HatoholArmPluginGate::NO_RETRY = -1;
 static const int DEFAULT_RETRY_INTERVAL = 10 * 1000; // ms
 
-class Locker {
-public:
-	Locker(MutexLock &lock, const bool &lockNow = true)
-	: m_lock(lock),
-	  m_inUse(lockNow)
-	{
-		if (lockNow)
-			m_lock.lock();
-	}
-
-	virtual ~Locker()
-	{
-		if (m_inUse)
-			m_lock.unlock();
-	}
-
-	void lock(void)
-	{
-		m_lock.lock();
-		m_inUse = true;
-	}
-
-	void unlock(void)
-	{
-		m_lock.unlock();
-		m_inUse = false;
-	}
-
-	bool isInUse(void) const
-	{
-		return m_inUse;
-	}
-
-private:
-	MutexLock &m_lock;
-	bool m_inUse;
-
-};
-
 struct HatoholArmPluginGate::PrivateContext
 {
 	HatoholArmPluginGate *hapg;
@@ -87,25 +48,13 @@ struct HatoholArmPluginGate::PrivateContext
 	ArmPluginInfo        armPluginInfo;
 	ArmStatus            armStatus;
 	GPid                 pid;
-	Session             *sessionPtr;
-	Session              session;
-	MutexLock            sessionLock;
 
 	PrivateContext(const MonitoringServerInfo &_serverInfo,
 	               HatoholArmPluginGate *_hapg)
 	: hapg(_hapg),
 	  serverInfo(_serverInfo),
-	  pid(0),
-	  sessionPtr(NULL)
+	  pid(0)
 	{
-	}
-
-	void sessionPtrToNull(void)
-	{
-		sessionLock.lock();
-		sessionPtr = NULL;
-		hapg->onSessionChanged(sessionPtr);
-		sessionLock.unlock();
 	}
 };
 
@@ -119,6 +68,10 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext(serverInfo, this);
+
+	string address = generateBrokerAddress(m_ctx->serverInfo);
+	address += "; {create: always}";
+	setQueueAddress(address);
 }
 
 bool HatoholArmPluginGate::start(const MonitoringSystemType &type)
@@ -141,7 +94,7 @@ bool HatoholArmPluginGate::start(const MonitoringSystemType &type)
 
 	// start a thread
 	m_ctx->armStatus.setRunningStatus(true);
-	HatoholThreadBase::start();
+	HatoholArmPluginInterface::start();
 	return true;
 }
 
@@ -150,83 +103,9 @@ const ArmStatus &HatoholArmPluginGate::getArmStatus(void) const
 	return m_ctx->armStatus;
 }
 
-gpointer HatoholArmPluginGate::mainThread(HatoholThreadArg *arg)
-{
-	struct Cleaner {
-		HatoholArmPluginGate *obj;
-		Locker                sessionLocker;
-
-		Cleaner(HatoholArmPluginGate *_obj, MutexLock &lock)
-		: obj(_obj),
-		  sessionLocker(lock)
-		{
-		}
-
-		virtual ~Cleaner()
-		{
-			if (!sessionLocker.isInUse())
-				sessionLocker.lock();
-			obj->m_ctx->sessionPtr = NULL;
-			obj->onSessionChanged(NULL);
-		}
-	};
-
-	string brokerUrl;
-	if (m_ctx->armPluginInfo.brokerUrl.empty())
-		brokerUrl = DEFAULT_BROKER_URL;
-	else
-		brokerUrl = m_ctx->armPluginInfo.brokerUrl;
-	string address = generateBrokerAddress(m_ctx->serverInfo);
-	address += "; {create: always}";
-	string connectionOptions;
-
-	Cleaner cleaner(this, m_ctx->sessionLock);
-	Locker &sessionLocker = cleaner.sessionLocker;
-	if (isExitRequested()) 
-		return NULL;
-	Connection connection(brokerUrl, connectionOptions);
-	connection.open();
-
-	m_ctx->session = connection.createSession();
-	m_ctx->sessionPtr = &m_ctx->session;
-	onSessionChanged(m_ctx->sessionPtr);
-	Receiver receiver = m_ctx->session.createReceiver(address);
-	sessionLocker.unlock();
-
-	while (true) {
-		Message message;
-		receiver.fetch(message);
-		if (isExitRequested()) 
-			break;
-		onReceived(message);
-
-		sessionLocker.lock();
-		if (isExitRequested()) 
-			break;
-		m_ctx->session.acknowledge();
-		sessionLocker.unlock();
-	}
-
-	// Avoid session from being closed after connection is closed.
-	sessionLocker.lock();
-
-	connection.close();
-	return NULL;
-}
-
 void HatoholArmPluginGate::exitSync(void)
 {
-	m_ctx->sessionLock.lock();
-	// Closing the receiver doesn't unblock fetch() due to a QPid's bug:
-	// http://qpid.2158936.n2.nabble.com/Forcibly-close-a-receiver-td7581255.html
-	// So we close the session here.
-	// Note: The bug was fixed at Qpid 0.26.
-	requestExit();
-	if (m_ctx->sessionPtr)
-		m_ctx->sessionPtr->close();
-	m_ctx->sessionLock.unlock();
-
-	HatoholThreadBase::exitSync();
+	HatoholArmPluginInterface::exitSync();
 	m_ctx->armStatus.setRunningStatus(false);
 }
 
@@ -237,14 +116,6 @@ HatoholArmPluginGate::~HatoholArmPluginGate()
 {
 	if (m_ctx)
 		delete m_ctx;
-}
-
-void HatoholArmPluginGate::onSessionChanged(Session *session)
-{
-}
-
-void HatoholArmPluginGate::onReceived(Message &message)
-{
 }
 
 void HatoholArmPluginGate::onTerminated(const siginfo_t *siginfo)

@@ -22,11 +22,11 @@
 
 #include <qpid/messaging/Message.h>
 #include <qpid/messaging/Session.h>
-#include "HatoholThreadBase.h"
+#include "HatoholArmPluginInterface.h"
 #include "DataStore.h"
 #include "UsedCountablePtr.h"
 
-class HatoholArmPluginGate : public DataStore, public HatoholThreadBase {
+class HatoholArmPluginGate : public DataStore, public HatoholArmPluginInterface {
 public:
 	static const std::string PassivePluginQuasiPath;
 	static const char *DEFAULT_BROKER_URL;
@@ -67,14 +67,10 @@ public:
 	 */
 	virtual void exitSync(void); // override
 
-	gpointer mainThread(HatoholThreadArg *arg); // override
-
 protected:
 	// To avoid an instance from being created on a stack.
 	virtual ~HatoholArmPluginGate();
 
-	virtual void onSessionChanged(qpid::messaging::Session *session);
-	virtual void onReceived(qpid::messaging::Message &message);
 	virtual void onTerminated(const siginfo_t *siginfo);
 
 	/**

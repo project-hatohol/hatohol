@@ -25,7 +25,7 @@ testMLPL_la_SOURCES = \
 	testMutexLock.cc testReadWriteLock.cc \
 	testLogger.cc testStringUtils.cc testParsableString.cc \
 	testSmartBuffer.cc testReaper.cc testSmartTime.cc \
-	testAtomicValue.cc testEventSemaphore.cc
+	testAtomicValue.cc testSimpleSemaphore.cc testEventSemaphore.cc
 
 echo-cutter:
 	@echo $(CUTTER)

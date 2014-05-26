@@ -22,6 +22,7 @@
 
 #include <cppcutter.h>
 #include <StringUtils.h>
+#include <MutexLock.h>
 #include <SmartTime.h>
 #include "ItemTable.h"
 #include "DBAgent.h"
@@ -245,18 +246,36 @@ private:
 	PrivateContext *m_ctx;
 };
 
-class GMainLoopWithTimeout {
+class GMainLoopAgent {
 public:
-	GMainLoopWithTimeout(void);
-	virtual ~GMainLoopWithTimeout(void);
-	virtual void run(void);
+	GMainLoopAgent(void);
+	virtual ~GMainLoopAgent(void);
+
+	/**
+	 * Start the main loop run with a timeout.
+	 *
+	 * @param timeoutCb
+	 * A callback function that is called at the timeout, If this
+	 * parameters is NULL, default callback function that just call
+	 * cut_fail() will be used.
+	 *
+	 * @param timeoutCbData
+	 * Arbitary pointer to be passed to timeoutCb.
+	 */
+	virtual void run(GSourceFunc timeoutCb = NULL,
+	                 gpointer timeoutCbData = NULL);
 	virtual void quit(void);
+	GMainLoop   *get(void);
 
 protected:
-	static gboolean failureDueToTimedOut(gpointer data);
+	static gboolean timedOut(gpointer data);
 private:
-	guint      m_timerTag;
-	GMainLoop *m_loop;
+	static const size_t TIMEOUT = 5000;
+	guint           m_timerTag;
+	GMainLoop      *m_loop;
+	mlpl::MutexLock m_lock;
+	GSourceFunc     m_timeoutCb;
+	gpointer        m_timeoutCbData;
 };
 
 #endif // Helpers_h
