@@ -33,7 +33,7 @@ public:
 
 protected:
 	/**
-	 * Get an API version of the ZABBIX server.
+	 * Get the API version of the target ZABBIX server.
 	 * Note that this method is NOT MT-safe.
 	 *
 	 * @retrun An API version.
@@ -41,7 +41,7 @@ protected:
 	const std::string &getAPIVersion(void);
 
 	/**
-	 * Compare the API version of the connectiong Zabbix server
+	 * Compare the API version of the target Zabbix server
 	 * with the specified version.
 	 *
 	 * @param major A major version. Ex. 1 if version is 1.2.3.
