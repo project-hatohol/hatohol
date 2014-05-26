@@ -71,7 +71,7 @@ var TriggersView = function(userProfile) {
     self.pager.update({
       numTotalRecords: rawData ? rawData["totalNumberOfTriggers"] : -1,
       numRecordsPerPage: self.numRecordsPerPage,
-      clickPageCallback: function(page) {
+      selectPageCallback: function(page) {
         load(page);
         if (self.pager.numRecordsPerPage != self.numRecordsPerPage) {
           self.numRecordsPerPage = self.pager.numRecordsPerPage;

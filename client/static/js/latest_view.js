@@ -71,7 +71,7 @@ var LatestView = function(userProfile) {
     self.pager.update({
       numTotalRecords: rawData ? rawData["totalNumberOfItems"] : -1,
       numRecordsPerPage: self.numRecordsPerPage,
-      clickPageCallback: function(page) {
+      selectPageCallback: function(page) {
         load(page);
         if (self.pager.numRecordsPerPage != self.numRecordsPerPage) {
           self.numRecordsPerPage = self.pager.numRecordsPerPage;

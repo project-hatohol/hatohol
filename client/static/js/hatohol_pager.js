@@ -33,7 +33,7 @@ var HatoholPager = function(params) {
   //   maxPagesToShow: <number> [optional]
   //     Defaut: 10
   //
-  //   clickPageCallback: <function> [optional]
+  //   selectPageCallback: <function> [optional]
   //     function(page)
   //     Note: Called when a page is selected or numRecordsPerPage is changed.
   //           The "page" argument will be undefined when the numRecordsPerPage
@@ -54,7 +54,7 @@ var HatoholPager = function(params) {
   self.currentPage = 0;
   self.numTotalRecords = -1; // unknown
   self.maxPagesToShow = 10;
-  self.clickPageCallback = null;
+  self.selectPageCallback = null;
 
   self.update(params);
 
@@ -64,8 +64,8 @@ var HatoholPager = function(params) {
       val = self.numRecordsPerPage;
     self.numRecordsPerPageEntries.val(val);
     self.numRecordsPerPage = val;
-    if (self.clickPageCallback)
-      self.clickPageCallback();
+    if (self.selectPageCallback)
+      self.selectPageCallback();
   });
 };
 
@@ -90,8 +90,8 @@ HatoholPager.prototype.applyParams = function(params) {
     this.numTotalRecords = params.numTotalRecords;
   if (params && !isNaN(params.maxPagesToShow))
     this.maxPagesToShow = params.maxPagesToShow;
-  if (params && params.clickPageCallback)
-    this.clickPageCallback = params.clickPageCallback;
+  if (params && params.selectPageCallback)
+    this.selectPageCallback = params.selectPageCallback;
 }
 
 HatoholPager.prototype.getPagesRange = function(params) {
@@ -133,8 +133,8 @@ HatoholPager.prototype.update = function(params) {
 	  page = parseInt($(this).text()) - 1;
 	if (page < 0 || (numPages >= 0 && page >= numPages))
 	  return;
-	if (self.clickPageCallback)
-	  self.clickPageCallback(page);
+	if (self.selectPageCallback)
+	  self.selectPageCallback(page);
 	self.currentPage = page;
 	self.update();
       }
