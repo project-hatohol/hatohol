@@ -891,6 +891,7 @@ static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
 	&tableProfileServers,
 }, {
 	&tableProfileIssues,
+	(const DBAgent::IndexDef *)&indexDefsIssues,
 }
 };
 
