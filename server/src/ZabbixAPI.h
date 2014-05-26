@@ -39,6 +39,19 @@ protected:
 	 * @retrun An API version.
 	 */
 	const std::string &getAPIVersion(void);
+
+	/**
+	 * Compare the API version of the connectiong Zabbix server
+	 * with the specified version.
+	 *
+	 * @param major A major version. Ex. 1 if version is 1.2.3.
+	 * @param minor A minor version. Ex. 2 if version is 1.2.3.
+	 * @param micro A micro version. Ex. 3 if version is 1.2.3.
+	 *
+	 * @return
+	 * true if the API version of the server is equal to or greater than
+	 * that of specified version. Otherwise false is returned.
+	 */
 	bool checkAPIVersion(int major, int minor, int micro);
 
 	SoupSession *getSession(void);
