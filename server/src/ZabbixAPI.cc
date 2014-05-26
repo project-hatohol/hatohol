@@ -19,6 +19,7 @@
 
 #include <cstdio>
 #include <string>
+#include <Reaper.h>
 #include "JsonParserAgent.h"
 #include "ZabbixAPI.h"
 #include "StringUtils.h"
@@ -90,11 +91,12 @@ const string &ZabbixAPI::getAPIVersion(void)
 	SoupMessage *msg = queryAPIVersion();
 	if (!msg)
 		return m_ctx->apiVersion;
+	Reaper<void> msgReaper(msg, g_object_unref);
 
 	JsonParserAgent parser(msg->response_body->data);
 	if (parser.hasError()) {
 		MLPL_ERR("Failed to parser: %s\n", parser.getErrorMessage());
-		goto OUT;
+		return m_ctx->apiVersion;
 	}
 
 	if (parser.read("result", m_ctx->apiVersion)) {
@@ -120,9 +122,6 @@ const string &ZabbixAPI::getAPIVersion(void)
 				break;
 		}
 	}
-
-OUT:
-	g_object_unref(msg);
 	return m_ctx->apiVersion;
 }
 
