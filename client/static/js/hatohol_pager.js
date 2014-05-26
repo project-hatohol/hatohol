@@ -18,6 +18,35 @@
  */
 
 var HatoholPager = function(params) {
+  //
+  // Possible parameters in the "params" argument:
+  //
+  //   numRecordsPerPage: <number> [optional]
+  //     Defaut: 50
+  //
+  //   numTotalRecords: <number> [optional]
+  //     Defaut: -1 (unknown)
+  //
+  //   currentPage: <number> [optional]
+  //     Defaut: 0
+  //
+  //   maxPagesToShow: <number> [optional]
+  //     Defaut: 10
+  //
+  //   clickPageCallback: <function> [optional]
+  //     function(page)
+  //     Note: Called when a page is selected or numRecordsPerPage is changed.
+  //           The "page" argument will be undefined when the numRecordsPerPage
+  //           is changed.
+  //
+  //   parentElements: <jQuery object> [optional]
+  //     Default: $("ul.pagination").
+  //     Note: Elements to show pager
+  //
+  //   numRecordsPerPageEntry: <jQuery object> [optional]
+  //     Default: $("input.num-records-per-page");
+  //     Note: input elements to change numRecordsPerPage
+  //
   self = this;
   self.parentElements = $("ul.pagination");
   self.numRecordsPerPageEntry = $("input.num-records-per-page");
