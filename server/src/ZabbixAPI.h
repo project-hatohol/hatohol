@@ -20,13 +20,29 @@
 #ifndef ZabbixAPI_h
 #define ZabbixAPI_h
 
+#include <string>
 #include "DBClientConfig.h"
+#include "JsonBuilderAgent.h"
 
 class ZabbixAPI
 {
 public:
 	ZabbixAPI(const MonitoringServerInfo &serverInfo);
 	virtual ~ZabbixAPI();
+
+protected:
+	/**
+	 * Get an API version of the ZABBIX server.
+	 * Note that this method is NOT MT-safe.
+	 *
+	 * @retrun An API version.
+	 */
+	const std::string &getAPIVersion(void);
+	bool checkAPIVersion(int major, int minor, int micro);
+
+	SoupSession *getSession(void);
+	SoupMessage *queryCommon(JsonBuilderAgent &agent);
+	SoupMessage *queryAPIVersion(void);
 
 private:
 	struct PrivateContext;
