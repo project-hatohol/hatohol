@@ -103,15 +103,6 @@ public:
 		cppcut_assert_equal(version, getAPIVersion());
 	}
 
-	void testCheckAPIVersion(bool expected,
-				 int major, int minor, int micro)
-	{
-		const string &version = getAPIVersion();
-		cppcut_assert_equal(string("2.0.4"), version);
-		cppcut_assert_equal(expected,
-				    checkAPIVersion(major, minor, micro));
-	}
-
 	bool testOpenSession(void)
 	{
 		g_sync.lock();
@@ -524,20 +515,6 @@ static void _assertTestGet(ArmZabbixAPITestee::GetTestType testType,
 }
 #define assertTestGet(TYPE, ...) cut_trace(_assertTestGet(TYPE, ##__VA_ARGS__))
 
-static void _assertCheckAPIVersion(
-  bool expected, int major, int minor , int micro)
-{
-	int svId = 0;
-	MonitoringServerInfo serverInfo = g_defaultServerInfo;
-	serverInfo.id = svId;
-	serverInfo.port = getTestPort();
-	deleteDBClientZabbixDB(svId);
-	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
-	armZbxApiTestee.testCheckAPIVersion(expected, major, minor, micro);
-}
-#define assertCheckAPIVersion(EXPECTED,MAJOR,MINOR,MICRO) \
-  cut_trace(_assertCheckAPIVersion(EXPECTED,MAJOR,MINOR,MICRO))
-
 void cut_setup(void)
 {
 	cppcut_assert_equal(false, g_sync.isLocked(),
@@ -564,65 +541,6 @@ void cut_teardown(void)
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
-void test_getAPIVersion(void)
-{
-	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_API_VERSION);
-}
-
-void test_getAPIVersion_2_2_0(void)
-{
-	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_API_VERSION,
-		      ZabbixAPIEmulator::API_VERSION_2_2_0);
-}
-
-void data_getAPIVersion(void)
-{
-	gcut_add_datum("Equal",
-		       "expected", G_TYPE_BOOLEAN, TRUE,
-		       "major", G_TYPE_INT, "2",
-		       "minor", G_TYPE_INT, "0",
-		       "micro", G_TYPE_INT, "4",
-		       NULL);
-	gcut_add_datum("Lower micro version",
-		       "expected", G_TYPE_BOOLEAN, TRUE,
-		       "major", G_TYPE_INT, "2",
-		       "minor", G_TYPE_INT, "0",
-		       "micro", G_TYPE_INT, "3",
-		       NULL);
-	gcut_add_datum("Higher micro version",
-		       "expected", G_TYPE_BOOLEAN, FALSE,
-		       "major", G_TYPE_INT, "2",
-		       "minor", G_TYPE_INT, "0",
-		       "micro", G_TYPE_INT, "5",
-		       NULL);
-	gcut_add_datum("Higher minor version",
-		       "expected", G_TYPE_BOOLEAN, FALSE,
-		       "major", G_TYPE_INT, "2",
-		       "minor", G_TYPE_INT, "1",
-		       "micro", G_TYPE_INT, "4",
-		       NULL);
-	gcut_add_datum("Lower major version",
-		       "expected", G_TYPE_BOOLEAN, TRUE,
-		       "major", G_TYPE_INT, "1",
-		       "minor", G_TYPE_INT, "0",
-		       "micro", G_TYPE_INT, "4",
-		       NULL);
-	gcut_add_datum("Higher major version",
-		       "expected", G_TYPE_BOOLEAN, FALSE,
-		       "major", G_TYPE_INT, "3",
-		       "minor", G_TYPE_INT, "0",
-		       "micro", G_TYPE_INT, "4",
-		       NULL);
-}
-
-void test_checkAPIVersion(gconstpointer data)
-{
-	assertCheckAPIVersion(gcut_data_get_boolean(data, "expected"),
-			      gcut_data_get_int(data, "major"),
-			      gcut_data_get_int(data, "minor"),
-			      gcut_data_get_int(data, "micro"));
-}
-
 void test_openSession(void)
 {
 	int svId = 0;

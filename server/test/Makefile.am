@@ -67,7 +67,9 @@ testHatohol_la_SOURCES = \
 	testArmZabbixAPI.cc testArmNagiosNDOUtils.cc \
 	testArmStatus.cc \
 	testUsedCountable.cc \
-	testUnifiedDataStore.cc testMain.cc
+	testUnifiedDataStore.cc testMain.cc \
+	testZabbixAPI.cc
+
 testHatohol_la_LDFLAGS = $(AM_LDFLAGS) $(LIBS)
 testHatohol_la_LIBADD = libTest.la
 
@@ -77,6 +79,7 @@ residentTest_la_LIBADD  = libTest.la
 
 libTest_la_SOURCES = \
 	FormulaTestUtils.cc Helpers.cc DBAgentTest.cc DBClientTest.cc \
+	ZabbixAPITestUtils.cc ZabbixAPITestUtils.h \
 	ZabbixAPIEmulator.cc Synchronizer.cc \
 	FormulaTestUtils.h Helpers.h DBAgentTest.h DBClientTest.h \
 	ZabbixAPIEmulator.h Synchronizer.h \
