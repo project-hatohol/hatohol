@@ -729,6 +729,17 @@ static const ColumnDef COLUMN_DEF_ISSUES[] = {
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
 	DBClientHatohol::TABLE_NAME_ISSUES, // tableName
+	"status",                          // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	DBClientHatohol::TABLE_NAME_ISSUES, // tableName
 	"assignee",                        // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -768,6 +779,7 @@ enum {
 	IDX_ISSUES_EVENT_ID,
 	IDX_ISSUES_IDENTIFIER,
 	IDX_ISSUES_LOCATION,
+	IDX_ISSUES_STATUS,
 	IDX_ISSUES_ASIGNEE,
 	IDX_ISSUES_CREATED_AT,
 	IDX_ISSUES_UPDATED_AT,

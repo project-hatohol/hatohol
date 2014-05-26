@@ -162,6 +162,7 @@ struct IssueInfo {
 	EventIdType        eventId;
 	std::string        identifier;
 	std::string        location;
+	std::string        status;
 	std::string        assignee;
 	time_t             createdAt;
 	time_t             updatedAt;
