@@ -389,6 +389,8 @@ public:
 	void pickupAbsentHostIds(std::vector<uint64_t> &absentHostIdVector,
 	                         const std::vector<uint64_t> &hostIdVector);
 
+	void addIssueInfo(IssueInfo *issueInfo);
+
 protected:
 	void addTriggerInfoWithoutTransaction(const TriggerInfo &triggerInfo);
 	void addEventInfoWithoutTransaction(const EventInfo &eventInfo);
@@ -399,6 +401,7 @@ protected:
 	void addHostInfoWithoutTransaction(const HostInfo &hostInfo);
 	void addMonitoringServerStatusWithoutTransaction(
 	  const MonitoringServerStatus &serverStatus);
+	void addIssueInfoWithoutTransaction(const IssueInfo &issueInfo);
 	size_t getNumberOfTriggers(const TriggersQueryOption &option,
 				   const std::string &additionalCondition);
 

@@ -744,6 +744,21 @@ IssueTrackerInfo testIssueTrackerInfo[] = {
 };
 size_t NumTestIssueTrackerInfo = sizeof(testIssueTrackerInfo) / sizeof(IssueTrackerInfo);
 
+IssueInfo testIssueInfo[] = {
+{
+	AUTO_INCREMENT_VALUE,     // unifiedId
+	1,                        // trackerId
+	1,                        // eventId
+	"13",                     // identifier
+	"http://localhost/issues/13", // location
+	"New",                    // status
+	"foobar",                 // assignee
+	1362957260,               // createdAt
+	1362957260,               // updatedAt
+}
+};
+size_t NumTestIssueInfo = sizeof(testIssueInfo) / sizeof(IssueInfo);
+
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 {
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {

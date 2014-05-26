@@ -107,6 +107,7 @@ std::string makeServerInfoOutput(const MonitoringServerInfo &serverInfo);
 std::string makeIssueTrackerInfoOutput(const IssueTrackerInfo &issueTrackerInfo);
 std::string makeUserRoleInfoOutput(const UserRoleInfo &userRoleInfo);
 std::string makeEventOutput(const EventInfo &eventInfo);
+std::string makeIssueOutput(const IssueInfo &issueInfo);
 
 void _assertDatetime(int expectedClock, int actualClock);
 #define assertDatetime(E,A) cut_trace(_assertDatetime(E,A))

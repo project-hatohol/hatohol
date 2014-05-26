@@ -82,6 +82,9 @@ extern const size_t NumTestArmPluginInfo;
 extern IssueTrackerInfo testIssueTrackerInfo[];
 extern size_t NumTestIssueTrackerInfo;
 
+extern IssueInfo testIssueInfo[];
+extern size_t NumTestIssueInfo;
+
 /**
  * get the test trigger data indexes whose serverId and hostId are 
  * matched with the specified.

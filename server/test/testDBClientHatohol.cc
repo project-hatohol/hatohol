@@ -1267,4 +1267,20 @@ void test_addHostInfo(void)
 	assertDBContent(dbAgent, statement, expect);
 }
 
+void test_addIssueInfo(void)
+{
+	DBClientHatohol dbClientHatohol;
+	DBAgent *dbAgent = dbClientHatohol.getDBAgent();
+	string statement = "select * from issues;";
+	string expect;
+
+	for(size_t i = 0; i < NumTestIssueInfo; i++) {
+		IssueInfo expectedIssueInfo = testIssueInfo[i];
+		expectedIssueInfo.unifiedId = i + 1;
+		expect += makeIssueOutput(expectedIssueInfo);
+		dbClientHatohol.addIssueInfo(&testIssueInfo[i]);
+	}
+	assertDBContent(dbAgent, statement, expect);
+}
+
 } // namespace testDBClientHatohol

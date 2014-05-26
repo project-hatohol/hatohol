@@ -857,6 +857,17 @@ static const DBAgent::IndexDef indexDefsMapHostsHostgroups[] = {
   {NULL}
 };
 
+// Items
+static const int columnIndexesIssuesUniqId[] = {
+  IDX_ISSUES_UNIFIED_ID, DBAgent::IndexDef::END,
+};
+
+static const DBAgent::IndexDef indexDefsIssues[] = {
+  {"IssuesUniqId", &tableProfileIssues,
+   (const int *)columnIndexesIssuesUniqId, true},
+  {NULL}
+};
+
 static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
 {
 	&tableProfileTriggers,
@@ -878,6 +889,8 @@ static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
 	(const DBAgent::IndexDef *)&indexDefsMapHostsHostgroups,
 }, {
 	&tableProfileServers,
+}, {
+	&tableProfileIssues,
 }
 };
 
@@ -2080,6 +2093,13 @@ void DBClientHatohol::pickupAbsentHostIds(vector<uint64_t> &absentHostIdVector,
 	} DBCLIENT_TRANSACTION_END();
 }
 
+void DBClientHatohol::addIssueInfo(IssueInfo *issueInfo)
+{
+	DBCLIENT_TRANSACTION_BEGIN() {
+		addIssueInfoWithoutTransaction(*issueInfo);
+	} DBCLIENT_TRANSACTION_END();
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -2282,6 +2302,39 @@ void DBClientHatohol::addMonitoringServerStatusWithoutTransaction(
 		DBAgent::UpdateArg arg(tableProfileServers);
 		arg.add(IDX_SERVERS_ID,   serverStatus.serverId);
 		arg.add(IDX_SERVERS_NVPS, serverStatus.nvps);
+		arg.condition = condition;
+		update(arg);
+	}
+}
+
+void DBClientHatohol::addIssueInfoWithoutTransaction(const IssueInfo &issueInfo)
+{
+	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
+	string condition = StringUtils::sprintf(
+	  "unified_id=%s",
+	  dbTermCodec->enc(issueInfo.unifiedId).c_str());
+	if (!isRecordExisting(TABLE_NAME_ISSUES, condition)) {
+		DBAgent::InsertArg arg(tableProfileIssues);
+		arg.add(AUTO_INCREMENT_VALUE_U64);
+		arg.add(issueInfo.trackerId);
+		arg.add(issueInfo.eventId);
+		arg.add(issueInfo.identifier);
+		arg.add(issueInfo.location);
+		arg.add(issueInfo.status);
+		arg.add(issueInfo.assignee);
+		arg.add(issueInfo.createdAt);
+		arg.add(issueInfo.updatedAt);
+		insert(arg);
+	} else {
+		DBAgent::UpdateArg arg(tableProfileIssues);
+		arg.add(IDX_ISSUES_TRACKER_ID,  issueInfo.trackerId);
+		arg.add(IDX_ISSUES_EVENT_ID,    issueInfo.eventId);
+		arg.add(IDX_ISSUES_IDENTIFIER,  issueInfo.identifier);
+		arg.add(IDX_ISSUES_LOCATION,    issueInfo.location);
+		arg.add(IDX_ISSUES_STATUS,      issueInfo.status);
+		arg.add(IDX_ISSUES_ASSIGNEE,    issueInfo.assignee);
+		arg.add(IDX_ISSUES_CREATED_AT,  issueInfo.createdAt);
+		arg.add(IDX_ISSUES_UPDATED_AT,  issueInfo.updatedAt);
 		arg.condition = condition;
 		update(arg);
 	}
