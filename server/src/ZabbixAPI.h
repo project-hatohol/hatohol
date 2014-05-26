@@ -20,10 +20,12 @@
 #ifndef ZabbixAPI_h
 #define ZabbixAPI_h
 
+#include "DBClientConfig.h"
+
 class ZabbixAPI
 {
 public:
-	ZabbixAPI(void);
+	ZabbixAPI(const MonitoringServerInfo &serverInfo);
 	virtual ~ZabbixAPI();
 
 private:

@@ -18,13 +18,30 @@
  */
 
 #include <cstdio>
+#include <string>
 #include "ZabbixAPI.h"
+#include "StringUtils.h"
+
+using namespace std;
+using namespace mlpl;
 
 struct ZabbixAPI::PrivateContext {
 
+	string         uri;
+	string         username;
+	string         password;
+
 	// constructors and destructor
-	PrivateContext(void)
+	PrivateContext(const MonitoringServerInfo &serverInfo)
 	{
+		const bool forURI = true;
+		uri = "http://";
+		uri += serverInfo.getHostAddress(forURI);
+		uri += StringUtils::sprintf(":%d", serverInfo.port);
+		uri += "/zabbix/api_jsonrpc.php";
+
+		username = serverInfo.userName.c_str();
+		password = serverInfo.password.c_str();
 	}
 
 	virtual ~PrivateContext()
@@ -35,10 +52,10 @@ struct ZabbixAPI::PrivateContext {
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-ZabbixAPI::ZabbixAPI(void)
+ZabbixAPI::ZabbixAPI(const MonitoringServerInfo &serverInfo)
 : m_ctx(NULL)
 {
-	m_ctx = new PrivateContext();
+	m_ctx = new PrivateContext(serverInfo);
 }
 
 ZabbixAPI::~ZabbixAPI()
