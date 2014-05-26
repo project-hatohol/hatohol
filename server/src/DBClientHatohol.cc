@@ -1118,7 +1118,7 @@ struct TriggersQueryOption::PrivateContext {
 	}
 };
 
-TriggersQueryOption::TriggersQueryOption(UserIdType userId)
+TriggersQueryOption::TriggersQueryOption(const UserIdType &userId)
 : HostResourceQueryOption(synapseTriggersQueryOption, userId)
 {
 	m_ctx = new PrivateContext();
@@ -1233,7 +1233,7 @@ struct ItemsQueryOption::PrivateContext {
 	}
 };
 
-ItemsQueryOption::ItemsQueryOption(UserIdType userId)
+ItemsQueryOption::ItemsQueryOption(const UserIdType &userId)
 : HostResourceQueryOption(synapseItemsQueryOption, userId)
 {
 	m_ctx = new PrivateContext();
@@ -1320,7 +1320,7 @@ static const HostResourceQueryOption::Synapse synapseHostsQueryOption(
   IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
   IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
 
-HostsQueryOption::HostsQueryOption(UserIdType userId)
+HostsQueryOption::HostsQueryOption(const UserIdType &userId)
 : HostResourceQueryOption(synapseHostsQueryOption, userId)
 {
 }
@@ -1341,7 +1341,7 @@ static const HostResourceQueryOption::Synapse synapseHostgroupsQueryOption(
   IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
   IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
 
-HostgroupsQueryOption::HostgroupsQueryOption(UserIdType userId)
+HostgroupsQueryOption::HostgroupsQueryOption(const UserIdType &userId)
 : HostResourceQueryOption(synapseHostgroupsQueryOption, userId)
 {
 }
@@ -1362,7 +1362,7 @@ static const HostResourceQueryOption::Synapse synapseHostgroupElementQueryOption
   IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
   IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
 
-HostgroupElementQueryOption::HostgroupElementQueryOption(UserIdType userId)
+HostgroupElementQueryOption::HostgroupElementQueryOption(const UserIdType &userId)
 : HostResourceQueryOption(synapseHostgroupElementQueryOption, userId)
 {
 }

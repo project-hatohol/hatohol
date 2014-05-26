@@ -206,7 +206,7 @@ private:
 
 class TriggersQueryOption : public HostResourceQueryOption {
 public:
-	TriggersQueryOption(UserIdType userId = INVALID_USER_ID);
+	TriggersQueryOption(const UserIdType &userId = INVALID_USER_ID);
 	TriggersQueryOption(DataQueryContext *dataQueryContext);
 	TriggersQueryOption(const TriggersQueryOption &src);
 	~TriggersQueryOption();
@@ -227,7 +227,7 @@ private:
 
 class ItemsQueryOption : public HostResourceQueryOption {
 public:
-	ItemsQueryOption(UserIdType userId = INVALID_USER_ID);
+	ItemsQueryOption(const UserIdType &userId = INVALID_USER_ID);
 	ItemsQueryOption(DataQueryContext *dataQueryContext);
 	ItemsQueryOption(const ItemsQueryOption &src);
 	~ItemsQueryOption();
@@ -246,19 +246,19 @@ private:
 
 class HostsQueryOption : public HostResourceQueryOption {
 public:
-	HostsQueryOption(UserIdType userId = INVALID_USER_ID);
+	HostsQueryOption(const UserIdType &userId = INVALID_USER_ID);
 	HostsQueryOption(DataQueryContext *dataQueryContext);
 };
 
 class HostgroupsQueryOption : public HostResourceQueryOption {
 public:
-	HostgroupsQueryOption(UserIdType userId = INVALID_USER_ID);
+	HostgroupsQueryOption(const UserIdType &userId = INVALID_USER_ID);
 	HostgroupsQueryOption(DataQueryContext *dataQueryContext);
 };
 
 class HostgroupElementQueryOption: public HostResourceQueryOption {
 public:
-	HostgroupElementQueryOption(UserIdType userId = INVALID_USER_ID);
+	HostgroupElementQueryOption(const UserIdType &userId = INVALID_USER_ID);
 	HostgroupElementQueryOption(DataQueryContext *dataQueryContext);
 };
 
