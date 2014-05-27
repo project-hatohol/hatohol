@@ -44,10 +44,10 @@ struct RedmineAPIEmulator::PrivateContext {
 				      const char *path, GHashTable *query,
 				      SoupClientContext *client,
 				      gpointer user_data);
-	string buildReply(const string &subject,
-			  const string &description,
-			  const int &trackerId,
-			  bool withAssignee = false);
+	string buildResponse(const string &subject,
+			     const string &description,
+			     const int &trackerId,
+			     bool withAssignee = false);
 	void replyPostIssue(SoupMessage *msg);
 	int getTrackerId(const string &trackerId);
 
@@ -151,7 +151,7 @@ void addError(string &errors, RedmineErrorType type,
 	}
 }
 
-string RedmineAPIEmulator::PrivateContext::buildReply(
+string RedmineAPIEmulator::PrivateContext::buildResponse(
   const string &subject, const string &description, const int &trackerId,
   bool withAssignee)
 {
@@ -261,7 +261,7 @@ void RedmineAPIEmulator::PrivateContext::replyPostIssue(SoupMessage *msg)
 	agent.endObject();
 
 	if (errors.empty()) {
-		m_lastResponse = buildReply(subject, description, trackerId);
+		m_lastResponse = buildResponse(subject, description, trackerId);
 		soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
 					 m_lastResponse.c_str(),
 					 m_lastResponse.size());
