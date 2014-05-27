@@ -337,6 +337,31 @@ void ZabbixAPI::getGroups(ItemTablePtr &groupsTablePtr)
 	groupsTablePtr = ItemTablePtr(variableGroupsTablePtr);
 }
 
+ItemTablePtr ZabbixAPI::getApplications(const vector<uint64_t> &appIdVector)
+{
+	SoupMessage *msg = queryApplication(appIdVector);
+	if (!msg)
+		THROW_DATA_STORE_EXCEPTION("Failed to query application.");
+
+	JsonParserAgent parser(msg->response_body->data);
+	g_object_unref(msg);
+	if (parser.hasError()) {
+		THROW_DATA_STORE_EXCEPTION(
+		  "Failed to parser: %s", parser.getErrorMessage());
+	}
+	startObject(parser, "result");
+
+	VariableItemTablePtr tablePtr;
+	int numData = parser.countElements();
+	MLPL_DBG("The number of aplications: %d\n", numData);
+	if (numData < 1)
+		return ItemTablePtr(tablePtr);
+
+	for (int i = 0; i < numData; i++)
+		parseAndPushApplicationsData(parser, tablePtr, i);
+	return ItemTablePtr(tablePtr);
+}
+
 SoupMessage *ZabbixAPI::queryTrigger(int requestSince)
 {
 	JsonBuilderAgent agent;
@@ -422,6 +447,32 @@ SoupMessage *ZabbixAPI::queryGroup(void)
 
 	return queryCommon(agent);
 }
+
+SoupMessage *ZabbixAPI::queryApplication(const vector<uint64_t> &appIdVector)
+{
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.add("jsonrpc", "2.0");
+	agent.add("method", "application.get");
+
+	agent.startObject("params");
+	agent.add("output", "extend");
+	if (!appIdVector.empty()) {
+		agent.startArray("applicationids");
+		vector<uint64_t>::const_iterator it = appIdVector.begin();
+		for (; it != appIdVector.end(); ++it)
+			agent.add(*it);
+		agent.endArray();
+	}
+	agent.endObject(); // params
+
+	agent.add("auth", m_ctx->authToken);
+	agent.add("id", 1);
+	agent.endObject();
+
+	return queryCommon(agent);
+}
+
 
 ItemTablePtr ZabbixAPI::getFunctions(void)
 {
@@ -796,6 +847,35 @@ void ZabbixAPI::parseAndPushGroupsData(
 	pushUint64(parser, grp, "groupid",      ITEM_ID_ZBX_GROUPS_GROUPID);
 	pushString(parser, grp, "name",         ITEM_ID_ZBX_GROUPS_NAME);
 	pushInt   (parser, grp, "internal",     ITEM_ID_ZBX_GROUPS_INTERNAL);
+	tablePtr->add(grp);
+	parser.endElement();
+}
+
+void ZabbixAPI::parseAndPushApplicationsData(
+  JsonParserAgent &parser, VariableItemTablePtr &tablePtr, const int &index)
+{
+	startElement(parser, index);
+	VariableItemGroupPtr grp;
+	pushUint64(parser, grp, "applicationid",
+	           ITEM_ID_ZBX_APPLICATIONS_APPLICATIONID);
+	pushUint64(parser, grp, "hostid", ITEM_ID_ZBX_APPLICATIONS_HOSTID);
+	pushString(parser, grp, "name",   ITEM_ID_ZBX_APPLICATIONS_NAME);
+	if (checkAPIVersion(2, 2, 0)) {
+		// TODO: Zabbix 2.2 returns array of templateid, but Hatohol
+		// stores only one templateid.
+		parser.startObject("templateids");
+		string value;
+		uint64_t valU64 = 0;
+		parser.read(0, value);
+		sscanf(value.c_str(), "%"PRIu64, &valU64);
+		grp->add(
+		  new ItemUint64(ITEM_ID_ZBX_APPLICATIONS_TEMPLATEID, valU64),
+		  false);
+		parser.endObject();
+	} else {
+		pushUint64(parser, grp, "templateid",
+			   ITEM_ID_ZBX_APPLICATIONS_TEMPLATEID);
+	}
 	tablePtr->add(grp);
 	parser.endElement();
 }

@@ -43,21 +43,16 @@ public:
 	ArmZabbixAPI(const MonitoringServerInfo &serverInfo);
 	virtual ~ArmZabbixAPI();
 
-	ItemTablePtr getApplications(const std::vector<uint64_t> &appIdVector);
 	ItemTablePtr getEvents(uint64_t eventIdOffset, uint64_t eventIdTill);
 	uint64_t getLastEventId(void);
 	virtual void onGotNewEvents(const ItemTablePtr &itemPtr);
 
 protected:
 
-	SoupMessage *queryApplication(const std::vector<uint64_t> &appIdVector);
 	SoupMessage *queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill);
 	SoupMessage *queryGetLastEventId(void);
 
 	uint64_t convertStrToUint64(const std::string strData);
-	void parseAndPushApplicationsData(JsonParserAgent &parser,
-	                                  VariableItemTablePtr &tablePtr,
-	                                  int index);
 	void parseAndPushEventsData(JsonParserAgent &parser,
 	                            VariableItemTablePtr &tablePtr, int index);
 	template<typename T>

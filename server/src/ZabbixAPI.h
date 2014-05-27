@@ -118,6 +118,16 @@ protected:
 	void getGroups(ItemTablePtr &groupsTablePtr);
 
 	/**
+	 * Get the applications
+	 *
+	 * @param appIdVector
+	 * A vector filled with required application IDs.
+	 *
+	 * @return The obtained triggers as an ItemTable format.
+	 */
+	ItemTablePtr getApplications(const std::vector<uint64_t> &appIdVector);
+
+	/**
 	 * Get the triggers.
 	 *
 	 * @param requestSince
@@ -151,6 +161,14 @@ protected:
 	 * A SoupMessage object with the raw Zabbix servers's response.
 	 */
 	SoupMessage *queryGroup(void);
+
+	/**
+	 * Get the applications.
+	 *
+	 * @return
+	 * A SoupMessage object with the raw Zabbix servers's response.
+	 */
+	SoupMessage *queryApplication(const std::vector<uint64_t> &appIdVector);
 
 	/**
 	 * Get the functions.
@@ -190,6 +208,9 @@ protected:
 	  JsonParserAgent &parser,
 	  VariableItemTablePtr &tablePtr, const int &index);
 	void parseAndPushGroupsData(
+	  JsonParserAgent &parser,
+	  VariableItemTablePtr &tablePtr, const int &index);
+	void parseAndPushApplicationsData(
 	  JsonParserAgent &parser,
 	  VariableItemTablePtr &tablePtr, const int &index);
 
