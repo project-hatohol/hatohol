@@ -196,12 +196,12 @@ HatoholError IssueSenderRedmine::PrivateContext::parseResponse(
 
 	string timeString;
 	struct tm tm;
-	agent.read("created_at", timeString);
+	agent.read("created_on", timeString);
 	strptime(timeString.c_str(), "%Y-%m-%dT%H:%M:%SZ", &tm);
 	issueInfo.createdAt = mktime(&tm);
-	agent.read("updated_at", timeString);
+	agent.read("updated_on", timeString);
 	strptime(timeString.c_str(), "%Y-%m-%dT%H:%M:%SZ", &tm);
-	issueInfo.createdAt = mktime(&tm);
+	issueInfo.updatedAt = mktime(&tm);
 
 	agent.endObject();
 
