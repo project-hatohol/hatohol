@@ -69,6 +69,34 @@ void _assertExist(const string &target, const string &words)
 	cut_fail("Not found: %s in %s", target.c_str(), words.c_str());
 }
 
+void _assertItemTable(const ItemTablePtr &expect, const ItemTablePtr &actual)
+{
+	const ItemGroupList &expectList = expect->getItemGroupList();
+	const ItemGroupList &actualList = actual->getItemGroupList();
+	cppcut_assert_equal(expectList.size(), actualList.size());
+	ItemGroupListConstIterator exItr = expectList.begin();
+	ItemGroupListConstIterator acItr = actualList.begin();
+
+	size_t grpCnt = 0;
+	for (; exItr != expectList.end(); ++exItr, ++acItr, grpCnt++) {
+		const ItemGroup *expectGroup = *exItr;
+		const ItemGroup *actualGroup = *acItr;
+		size_t numberOfItems = expectGroup->getNumberOfItems();
+		cppcut_assert_equal(numberOfItems,
+		                    actualGroup->getNumberOfItems());
+		for (size_t index = 0; index < numberOfItems; index++){
+			const ItemData *expectData =
+			   expectGroup->getItemAt(index);
+			const ItemData *actualData =
+			   actualGroup->getItemAt(index);
+			cppcut_assert_equal(
+			  *expectData, *actualData,
+			  cut_message("index: %zd, group count: %zd",
+			              index, grpCnt));
+		}
+	}
+}
+
 struct SpawnSyncContext {
 	bool running;
 	bool hasError;

@@ -79,6 +79,10 @@ cut_trace(_assertItemData<T>(IGRP, E, IDX))
 extern void _assertExist(const std::string &target, const std::string &words);
 #define assertExist(T,W) cut_trace(_assertExist(T,W))
 
+extern void _assertItemTable(
+  const ItemTablePtr &expect, const ItemTablePtr &actual);
+#define assertItemTable(E,A) cut_trace(_assertItemTable(E,A))
+
 std::string executeCommand(const std::string &commandLine);
 std::string getFixturesDir(void);
 bool isVerboseMode(void);

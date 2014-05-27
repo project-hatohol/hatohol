@@ -282,32 +282,6 @@ public:
 		hostsGroupsTablePtr = ItemTablePtr(variableHostsGroupsTablePtr);
 	}
 
-	bool assertItemTable(const ItemTablePtr &expect, const ItemTablePtr &actual)
-	{
-		const ItemGroupList &expectList = expect->getItemGroupList();
-		const ItemGroupList &actualList = actual->getItemGroupList();
-		cppcut_assert_equal(expectList.size(), actualList.size());
-		ItemGroupListConstIterator exItr = expectList.begin();
-		ItemGroupListConstIterator acItr = actualList.begin();
-
-		size_t grpCnt = 0;
-		for (; exItr != expectList.end(); ++exItr, ++acItr, grpCnt++) {
-			const ItemGroup *expectGroup = *exItr;
-			const ItemGroup *actualGroup = *acItr;
-			size_t numberOfItems = expectGroup->getNumberOfItems();
-			cppcut_assert_equal(numberOfItems, actualGroup->getNumberOfItems());
-
-			for (size_t index = 0; index < numberOfItems; index++){
-				const ItemData *expectData = expectGroup->getItemAt(index);
-				const ItemData *actualData = actualGroup->getItemAt(index);
-				cppcut_assert_equal(*expectData, *actualData,
-				  cut_message("index: %zd, group count: %zd",
-				              index, grpCnt));
-			}
-		}
-		return true;
-	}
-
 	void assertMakeItemVector(bool testNull = false)
 	{
 		// make test data and call the target method.
@@ -855,9 +829,8 @@ void test_verifyEventsObtanedBySplitWay(void)
 
 	ItemTablePtr expectTable = armZbxApiTestee.testMakeEventsItemTable();
 	armZbxApiTestee.callUpdateEvents();
-	cppcut_assert_equal(true,
-	                    armZbxApiTestee.assertItemTable(expectTable,
-	                      ItemTablePtr(armZbxApiTestee.m_actualEventTablePtr)));
+	assertItemTable(expectTable,
+	                ItemTablePtr(armZbxApiTestee.m_actualEventTablePtr));
 	const uint64_t upperLimitOfEventsAtOneTime = 
 	  armZbxApiTestee.testGetMaximumNumberGetEventPerOnce();
 	list<uint64_t>::iterator itr =
