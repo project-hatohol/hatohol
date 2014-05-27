@@ -64,7 +64,6 @@ typedef bool (ArmZabbixAPITestee::*ThreadOneProc)(void);
 
 public:
 	enum GetTestType {
-		GET_TEST_TYPE_API_VERSION,
 		GET_TEST_TYPE_TRIGGERS,
 		GET_TEST_TYPE_FUNCTIONS,
 		GET_TEST_TYPE_ITEMS,
@@ -119,12 +118,7 @@ public:
 		       ZabbixAPIEmulator::API_VERSION_2_0_4)
 	{
 		bool succeeded = false;
-		if (type == GET_TEST_TYPE_API_VERSION) {
-			succeeded =
-			  launch(&ArmZabbixAPITestee::threadOneProcTriggers,
-			         exitCbDefault, this);
-			testGetAPIVersion(expectedVersion);
-		} else if (type == GET_TEST_TYPE_TRIGGERS) {
+		if (type == GET_TEST_TYPE_TRIGGERS) {
 			succeeded =
 			  launch(&ArmZabbixAPITestee::threadOneProcTriggers,
 			         exitCbDefault, this);
