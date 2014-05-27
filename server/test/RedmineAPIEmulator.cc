@@ -95,6 +95,59 @@ string RedmineIssue::getTimeString(time_t time)
 	return string(timeString);
 }
 
+string RedmineIssue::toJson(void)
+{
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.startObject("issue");
+	agent.add("id", id);
+
+	agent.startObject("project");
+	agent.add("id", projectId);
+	agent.add("name", getProjectName());
+	agent.endObject();
+
+	agent.startObject("tracker");
+	agent.add("id", trackerId);
+	agent.add("name", getTrackerName());
+	agent.endObject();
+
+	agent.startObject("status");
+	agent.add("id", statusId);
+	agent.add("name", getStatusName());
+	agent.endObject();
+
+	agent.startObject("priority");
+	agent.add("id", priorityId);
+	agent.add("name", getPriorityName());
+	agent.endObject();
+
+	agent.startObject("author");
+	agent.add("id", authorId);
+	agent.add("name", authorName);
+	agent.endObject();
+
+	if (assigneeId) {
+		agent.startObject("assigned_to");
+		agent.add("id", assigneeId);
+		agent.add("name", assigneeName);
+		agent.endObject();
+	}
+
+	agent.add("subject", subject);
+	agent.add("description", description);
+	agent.add("start_date", getStartDate());
+	agent.add("done_ratio", "0");
+	agent.add("spent_hours", ":0.0,");
+	agent.add("created_on", getCreatedOn());
+	agent.add("updated_on", getUpdatedOn());
+
+	agent.endObject();
+	agent.endObject();
+
+	return agent.generate();
+}
+
 struct RedmineAPIEmulator::PrivateContext {
 	PrivateContext(void)
 	: m_issueId(0)
@@ -216,59 +269,6 @@ void addError(string &errors, RedmineErrorType type,
 	}
 }
 
-string RedmineAPIEmulator::PrivateContext::buildResponse(RedmineIssue &issue)
-{
-	JsonBuilderAgent agent;
-	agent.startObject();
-	agent.startObject("issue");
-	agent.add("id", issue.id);
-
-	agent.startObject("project");
-	agent.add("id", issue.projectId);
-	agent.add("name", issue.getProjectName());
-	agent.endObject();
-
-	agent.startObject("tracker");
-	agent.add("id", issue.trackerId);
-	agent.add("name", issue.getTrackerName());
-	agent.endObject();
-
-	agent.startObject("status");
-	agent.add("id", issue.statusId);
-	agent.add("name", issue.getStatusName());
-	agent.endObject();
-
-	agent.startObject("priority");
-	agent.add("id", issue.priorityId);
-	agent.add("name", issue.getPriorityName());
-	agent.endObject();
-
-	agent.startObject("author");
-	agent.add("id", issue.authorId);
-	agent.add("name", issue.authorName);
-	agent.endObject();
-
-	if (issue.assigneeId) {
-		agent.startObject("assigned_to");
-		agent.add("id", issue.assigneeId);
-		agent.add("name", issue.assigneeName);
-		agent.endObject();
-	}
-
-	agent.add("subject", issue.subject);
-	agent.add("description", issue.description);
-	agent.add("start_date", issue.getStartDate());
-	agent.add("done_ratio", "0");
-	agent.add("spent_hours", ":0.0,");
-	agent.add("created_on", issue.getCreatedOn());
-	agent.add("updated_on", issue.getUpdatedOn());
-
-	agent.endObject();
-	agent.endObject();
-
-	return agent.generate();
-}
-
 int RedmineAPIEmulator::PrivateContext::getTrackerId(const string &trackerId)
 {
 	int id = atoi(trackerId.c_str());
@@ -319,7 +319,7 @@ void RedmineAPIEmulator::PrivateContext::replyPostIssue(SoupMessage *msg)
 	if (errors.empty()) {
 		RedmineIssue issue(++m_issueId, subject, description,
 				   m_currentUser, trackerId);
-		m_lastResponse = buildResponse(issue);
+		m_lastResponse = issue.toJson();
 		soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
 					 m_lastResponse.c_str(),
 					 m_lastResponse.size());
