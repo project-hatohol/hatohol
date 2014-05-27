@@ -28,8 +28,6 @@
 #include "DBClientConfig.h"
 #include "DBClientZabbix.h"
 
-const static uint64_t UNLIMITED = -1;
-
 class ArmZabbixAPI : public ZabbixAPI, public ArmBase
 {
 public:
@@ -43,18 +41,14 @@ public:
 	ArmZabbixAPI(const MonitoringServerInfo &serverInfo);
 	virtual ~ArmZabbixAPI();
 
-	ItemTablePtr getEvents(uint64_t eventIdOffset, uint64_t eventIdTill);
 	uint64_t getLastEventId(void);
 	virtual void onGotNewEvents(const ItemTablePtr &itemPtr);
 
 protected:
 
-	SoupMessage *queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill);
 	SoupMessage *queryGetLastEventId(void);
 
 	uint64_t convertStrToUint64(const std::string strData);
-	void parseAndPushEventsData(JsonParserAgent &parser,
-	                            VariableItemTablePtr &tablePtr, int index);
 	template<typename T>
 	void updateOnlyNeededItem(
 	  const ItemTable *primaryTable,

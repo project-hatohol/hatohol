@@ -33,6 +33,8 @@ public:
 	virtual ~ZabbixAPI();
 
 protected:
+	const static uint64_t UNLIMITED = -1;
+
 	/**
 	 * Called when the authtoken is updated.
 	 */
@@ -128,6 +130,19 @@ protected:
 	ItemTablePtr getApplications(const std::vector<uint64_t> &appIdVector);
 
 	/**
+	 * Get the applications
+	 *
+	 * @param eventIdOffset
+	 * The first event ID to be obtained.
+	 *
+	 * @param eventIdTill
+	 * The last event ID to be obtained.
+	 *
+	 * @return The obtained events as an ItemTable format.
+	 */
+	ItemTablePtr getEvents(uint64_t eventIdOffset, uint64_t eventIdTill);
+
+	/**
 	 * Get the triggers.
 	 *
 	 * @param requestSince
@@ -171,6 +186,14 @@ protected:
 	SoupMessage *queryApplication(const std::vector<uint64_t> &appIdVector);
 
 	/**
+	 * Get the events.
+	 *
+	 * @return
+	 * A SoupMessage object with the raw Zabbix servers's response.
+	 */
+	SoupMessage *queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill);
+
+	/**
 	 * Get the functions.
 	 * Actually, the body of 'functions' is objtained in the prior call of
 	 * getTrigger(). So the caller must be call getTrigger() before this
@@ -211,6 +234,9 @@ protected:
 	  JsonParserAgent &parser,
 	  VariableItemTablePtr &tablePtr, const int &index);
 	void parseAndPushApplicationsData(
+	  JsonParserAgent &parser,
+	  VariableItemTablePtr &tablePtr, const int &index);
+	void parseAndPushEventsData(
 	  JsonParserAgent &parser,
 	  VariableItemTablePtr &tablePtr, const int &index);
 

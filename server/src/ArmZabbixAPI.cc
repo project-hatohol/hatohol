@@ -87,31 +87,6 @@ ArmZabbixAPI::~ArmZabbixAPI()
 		delete m_ctx;
 }
 
-ItemTablePtr ArmZabbixAPI::getEvents(uint64_t eventIdOffset, uint64_t eventIdTill)
-{
-	SoupMessage *msg = queryEvent(eventIdOffset, eventIdTill);
-	if (!msg)
-		THROW_DATA_STORE_EXCEPTION("Failed to query events.");
-
-	JsonParserAgent parser(msg->response_body->data);
-	g_object_unref(msg);
-	if (parser.hasError()) {
-		THROW_DATA_STORE_EXCEPTION(
-		  "Failed to parser: %s", parser.getErrorMessage());
-	}
-	startObject(parser, "result");
-
-	VariableItemTablePtr tablePtr;
-	int numData = parser.countElements();
-	MLPL_DBG("The number of events: %d\n", numData);
-	if (numData < 1)
-		return ItemTablePtr(tablePtr);
-
-	for (int i = 0; i < numData; i++)
-		parseAndPushEventsData(parser, tablePtr, i);
-	return ItemTablePtr(tablePtr);
-}
-
 uint64_t ArmZabbixAPI::getLastEventId(void)
 {
 	string strLastEventId;
@@ -149,30 +124,6 @@ void ArmZabbixAPI::onGotNewEvents(const ItemTablePtr &itemPtr)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-SoupMessage *ArmZabbixAPI::queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill)
-{
-	JsonBuilderAgent agent;
-	agent.startObject();
-	agent.add("jsonrpc", "2.0");
-	agent.add("method", "event.get");
-
-	agent.startObject("params");
-	agent.add("output", "extend");
-	string strEventIdFrom = StringUtils::sprintf("%"PRId64, eventIdOffset);
-	agent.add("eventid_from", strEventIdFrom.c_str());
-	if (eventIdTill != UNLIMITED) {
-		string strEventIdTill = StringUtils::sprintf("%"PRId64, eventIdTill);
-		agent.add("eventid_till", strEventIdTill.c_str());
-	}
-	agent.endObject(); // params
-
-	agent.add("auth", m_ctx->authToken);
-	agent.add("id", 1);
-	agent.endObject();
-
-	return queryCommon(agent);
-}
-
 SoupMessage *ArmZabbixAPI::queryGetLastEventId(void)
 {
 	JsonBuilderAgent agent;
@@ -199,32 +150,6 @@ uint64_t ArmZabbixAPI::convertStrToUint64(const string strData)
 	uint64_t valU64;
 	sscanf(strData.c_str(), "%"PRIu64, &valU64);
 	return valU64;
-}
-
-void ArmZabbixAPI::parseAndPushEventsData
-  (JsonParserAgent &parser, VariableItemTablePtr &tablePtr, int index)
-{
-	startElement(parser, index);
-	VariableItemGroupPtr grp;
-	pushUint64(parser, grp, "eventid",      ITEM_ID_ZBX_EVENTS_EVENTID);
-	pushInt   (parser, grp, "source",       ITEM_ID_ZBX_EVENTS_SOURCE);
-	pushInt   (parser, grp, "object",       ITEM_ID_ZBX_EVENTS_OBJECT);
-	pushUint64(parser, grp, "objectid",     ITEM_ID_ZBX_EVENTS_OBJECTID);
-	pushInt   (parser, grp, "clock",        ITEM_ID_ZBX_EVENTS_CLOCK);
-	pushInt   (parser, grp, "value",        ITEM_ID_ZBX_EVENTS_VALUE);
-	pushInt   (parser, grp, "acknowledged",
-	           ITEM_ID_ZBX_EVENTS_ACKNOWLEDGED);
-	pushInt   (parser, grp, "ns",           ITEM_ID_ZBX_EVENTS_NS);
-	if (checkAPIVersion(2, 2, 0)) {
-		// Zabbix 2.2 doesn't have "value_changed" property
-		grp->add(new ItemInt(ITEM_ID_ZBX_EVENTS_VALUE_CHANGED, 0),
-			 false);
-	} else {
-		pushInt(parser, grp, "value_changed",
-			ITEM_ID_ZBX_EVENTS_VALUE_CHANGED);
-	}
-	tablePtr->add(grp);
-	parser.endElement();
 }
 
 template<typename T>
