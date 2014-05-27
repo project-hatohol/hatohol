@@ -174,10 +174,8 @@ void _assertReceiveData(
 void _assertCheckAPIVersion(
   bool expected, int major, int minor , int micro)
 {
-	int svId = 0;
-	MonitoringServerInfo serverInfo = g_defaultServerInfo;
-	serverInfo.id = svId;
-	serverInfo.port = getTestPort();
+	MonitoringServerInfo serverInfo;
+	ZabbixAPITestee::initServerInfoWithDefaultParam(serverInfo);
 	ZabbixAPITestee zbxApiTestee(serverInfo);
 	zbxApiTestee.testCheckAPIVersion(expected, major, minor, micro);
 }
