@@ -35,6 +35,8 @@ protected:
 	std::string getProjectURL(void);
 	std::string getIssuesJsonURL(void);
 	std::string getIssueURL(const std::string &id);
+	HatoholError parseResponse(IssueInfo &issueInfo,
+				   const std::string &response);
 
 private:
 	struct PrivateContext;

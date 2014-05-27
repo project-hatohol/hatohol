@@ -64,6 +64,10 @@ public:
 	{
 		return IssueSenderRedmine::getIssuesJsonURL();
 	}
+	HatoholError parseResponse(IssueInfo &issueInfo,const string &response)
+	{
+		return IssueSenderRedmine::parseResponse(issueInfo, response);
+	}
 };
 
 void cut_setup(void)
@@ -207,6 +211,29 @@ void test_sendWithUnknownTracker(void)
 	IssueTrackerInfo tracker = testIssueTrackerInfo[2];
 	tracker.trackerId = "100";
 	assertSend(HTERR_FAILED_TO_SEND_ISSUE, tracker, testEventInfo[0]);
+}
+
+void test_parseResponse(void)
+{
+	IssueTrackerInfo tracker = testIssueTrackerInfo[2];
+	IssueInfo expected = testIssueInfo[0], actual;
+	RedmineIssue issue;
+	issue.id = atoi(expected.identifier.c_str());
+	issue.trackerId = atoi(tracker.trackerId.c_str());
+	issue.assigneeId = 1;
+	issue.assigneeName = expected.assignee;
+	issue.startDate = expected.createdAt;
+	issue.createdOn = expected.createdAt;
+	issue.updatedOn = expected.updatedAt;
+
+	TestRedmineSender sender(tracker);
+	HatoholError result = sender.parseResponse(actual, issue.toJson());
+	actual.unifiedId = expected.unifiedId;
+	actual.trackerId = expected.trackerId;
+	actual.eventId = expected.eventId;
+	cppcut_assert_equal(HTERR_OK, result.getCode());
+	cppcut_assert_equal(makeIssueOutput(expected),
+			    makeIssueOutput(actual));
 }
 
 }
