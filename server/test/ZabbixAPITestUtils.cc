@@ -137,6 +137,11 @@ void ZabbixAPITestee::callGetGroups(ItemTablePtr &groupsTablePtr)
 	getGroups(groupsTablePtr);
 }
 
+uint64_t ZabbixAPITestee::callGetLastEventId(void)
+{
+	return getLastEventId();
+}
+
 void ZabbixAPITestee::makeGroupsItemTable(ItemTablePtr &groupsTablePtr)
 {
 	ifstream ifs("fixtures/zabbix-api-res-hostgroup-002-refer.json");

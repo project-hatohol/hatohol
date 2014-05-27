@@ -131,4 +131,13 @@ void test_verifyGroupsAndHostsGroups(void)
 	assertItemTable(expectHostsGroupsTablePtr, actualHostsGroupsTablePtr);
 }
 
+void test_getLastEventId(void)
+{
+	MonitoringServerInfo serverInfo;
+	ZabbixAPITestee::initServerInfoWithDefaultParam(serverInfo);
+	ZabbixAPITestee zbxApiTestee(serverInfo);
+	zbxApiTestee.testOpenSession();
+	cppcut_assert_equal((uint64_t)8697, zbxApiTestee.callGetLastEventId());
+}
+
 } // namespace testZabbixAPI

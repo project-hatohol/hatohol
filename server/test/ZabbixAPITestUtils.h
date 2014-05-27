@@ -49,6 +49,7 @@ public:
 	void callGetHosts(ItemTablePtr &hostsTablePtr,
 	                  ItemTablePtr &hostsGroupsTablePtr);
 	void callGetGroups(ItemTablePtr &groupsTablePtr);
+	uint64_t callGetLastEventId(void);
 
 	void makeGroupsItemTable(ItemTablePtr &groupsTablePtr);
 	void makeMapHostsHostgroupsItemTable(ItemTablePtr &hostsGroupsTablePtr);

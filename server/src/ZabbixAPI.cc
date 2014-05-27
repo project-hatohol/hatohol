@@ -387,6 +387,34 @@ ItemTablePtr ZabbixAPI::getEvents(uint64_t eventIdOffset, uint64_t eventIdTill)
 	return ItemTablePtr(tablePtr);
 }
 
+uint64_t ZabbixAPI::getLastEventId(void)
+{
+	string strLastEventId;
+	uint64_t lastEventId = 0;
+
+	SoupMessage *msg = queryLastEventId();
+	if (!msg) {
+		MLPL_ERR("Failed to query eventID.\n");
+		return 0;
+	}
+
+	JsonParserAgent parser(msg->response_body->data);
+	g_object_unref(msg);
+	if (parser.hasError()) {
+		THROW_DATA_STORE_EXCEPTION(
+		  "Failed to parser: %s", parser.getErrorMessage());
+	}
+	startObject(parser, "result");
+	startElement(parser, 0);
+
+	if (!parser.read("eventid", strLastEventId))
+		THROW_DATA_STORE_EXCEPTION("Failed to read: eventid\n");
+
+	lastEventId = convertStrToUint64(strLastEventId);
+	MLPL_DBG("LastEventID: %"PRIu64"\n", lastEventId);
+
+	return lastEventId;
+}
 
 SoupMessage *ZabbixAPI::queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill)
 {
@@ -411,6 +439,28 @@ SoupMessage *ZabbixAPI::queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill)
 
 	return queryCommon(agent);
 }
+
+SoupMessage *ZabbixAPI::queryLastEventId(void)
+{
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.add("jsonrpc", "2.0");
+	agent.add("method", "event.get");
+
+	agent.startObject("params");
+	agent.add("output", "shorten");
+	agent.add("sortfield", "eventid");
+	agent.add("sortorder", "DESC");
+	agent.add("limit", 1);
+	agent.endObject(); //params
+
+	agent.add("auth", m_ctx->authToken);
+	agent.add("id", 1);
+	agent.endObject();
+
+	return queryCommon(agent);
+}
+
 
 
 SoupMessage *ZabbixAPI::queryTrigger(int requestSince)
@@ -995,5 +1045,13 @@ void ZabbixAPI::pushApplicationid(JsonParserAgent &parser, ItemGroup *itemGroup)
 		parser.endElement();
 	}
 	parser.endObject();
+}
+
+uint64_t ZabbixAPI::convertStrToUint64(const string strData)
+{
+	// I want to replace this method with the more general method.
+	uint64_t valU64;
+	sscanf(strData.c_str(), "%"PRIu64, &valU64);
+	return valU64;
 }
 

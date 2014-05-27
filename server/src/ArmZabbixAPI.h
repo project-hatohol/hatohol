@@ -41,14 +41,10 @@ public:
 	ArmZabbixAPI(const MonitoringServerInfo &serverInfo);
 	virtual ~ArmZabbixAPI();
 
-	uint64_t getLastEventId(void);
 	virtual void onGotNewEvents(const ItemTablePtr &itemPtr);
 
 protected:
 
-	SoupMessage *queryGetLastEventId(void);
-
-	uint64_t convertStrToUint64(const std::string strData);
 	template<typename T>
 	void updateOnlyNeededItem(
 	  const ItemTable *primaryTable,

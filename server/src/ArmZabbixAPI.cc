@@ -87,35 +87,6 @@ ArmZabbixAPI::~ArmZabbixAPI()
 		delete m_ctx;
 }
 
-uint64_t ArmZabbixAPI::getLastEventId(void)
-{
-	string strLastEventId;
-	uint64_t lastEventId = 0;
-
-	SoupMessage *msg = queryGetLastEventId();
-	if (!msg) {
-		MLPL_ERR("Failed to query eventID.\n");
-		return 0;
-	}
-
-	JsonParserAgent parser(msg->response_body->data);
-	g_object_unref(msg);
-	if (parser.hasError()) {
-		THROW_DATA_STORE_EXCEPTION(
-		  "Failed to parser: %s", parser.getErrorMessage());
-	}
-	startObject(parser, "result");
-	startElement(parser, 0);
-
-	if (!parser.read("eventid", strLastEventId))
-		THROW_DATA_STORE_EXCEPTION("Failed to read: eventid\n");
-
-	lastEventId = convertStrToUint64(strLastEventId);
-	MLPL_DBG("LastEventID: %"PRIu64"\n", lastEventId);
-
-	return lastEventId;
-}
-
 void ArmZabbixAPI::onGotNewEvents(const ItemTablePtr &itemPtr)
 {
 	// This function is used on a test class.
@@ -124,34 +95,6 @@ void ArmZabbixAPI::onGotNewEvents(const ItemTablePtr &itemPtr)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-SoupMessage *ArmZabbixAPI::queryGetLastEventId(void)
-{
-	JsonBuilderAgent agent;
-	agent.startObject();
-	agent.add("jsonrpc", "2.0");
-	agent.add("method", "event.get");
-
-	agent.startObject("params");
-	agent.add("output", "shorten");
-	agent.add("sortfield", "eventid");
-	agent.add("sortorder", "DESC");
-	agent.add("limit", 1);
-	agent.endObject(); //params
-
-	agent.add("auth", m_ctx->authToken);
-	agent.add("id", 1);
-	agent.endObject();
-
-	return queryCommon(agent);
-}
-
-uint64_t ArmZabbixAPI::convertStrToUint64(const string strData)
-{
-	uint64_t valU64;
-	sscanf(strData.c_str(), "%"PRIu64, &valU64);
-	return valU64;
-}
-
 template<typename T>
 void ArmZabbixAPI::updateOnlyNeededItem
   (const ItemTable *primaryTable,

@@ -143,6 +143,13 @@ protected:
 	ItemTablePtr getEvents(uint64_t eventIdOffset, uint64_t eventIdTill);
 
 	/**
+	 * Get the last event ID the target Zabbix server has.
+	 *
+	 * @return The last event ID.
+	 */
+	uint64_t getLastEventId(void);
+
+	/**
 	 * Get the triggers.
 	 *
 	 * @param requestSince
@@ -194,6 +201,14 @@ protected:
 	SoupMessage *queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill);
 
 	/**
+	 * Get the last event ID the target Zabbix server has.
+	 *
+	 * @return
+	 * A SoupMessage object with the raw Zabbix servers's response.
+	 */
+	SoupMessage *queryLastEventId(void);
+
+	/**
 	 * Get the functions.
 	 * Actually, the body of 'functions' is objtained in the prior call of
 	 * getTrigger(). So the caller must be call getTrigger() before this
@@ -242,6 +257,8 @@ protected:
 
 	void pushTriggersHostid(JsonParserAgent &parser, ItemGroup *itemGroup);
 	void pushApplicationid(JsonParserAgent &parser, ItemGroup *itemGroup);
+
+	uint64_t convertStrToUint64(const std::string strData);
 
 private:
 	struct PrivateContext;

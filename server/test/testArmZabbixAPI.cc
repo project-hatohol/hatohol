@@ -767,13 +767,6 @@ void test_sessionErrorAuthToken(void)
 
 }
 
-void test_getLastEventId(void)
-{
-	ArmZabbixAPITestee armZbxApiTestee(setupServer());
-	armZbxApiTestee.testOpenSession();
-	cppcut_assert_equal((uint64_t)8697, armZbxApiTestee.getLastEventId());
-}
-
 void test_verifyEventsObtanedBySplitWay(void)
 {
 	ArmZabbixAPITestee armZbxApiTestee(setupServer());
