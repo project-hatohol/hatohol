@@ -30,10 +30,6 @@ public:
 	virtual ~DataStoreZabbix();
 
 	virtual ArmBase &getArmBase(void);
-	ItemTablePtr getTriggers(void);
-	ItemTablePtr getFunctions(void);
-	ItemTablePtr getItems(void);
-	ItemTablePtr getHosts(void);
 	void setCopyOnDemandEnable(bool enable);
 private:
 	ArmZabbixAPI	m_armApi;

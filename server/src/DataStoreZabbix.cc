@@ -41,28 +41,6 @@ ArmBase &DataStoreZabbix::getArmBase(void)
 	return m_armApi;
 }
 
-ItemTablePtr DataStoreZabbix::getTriggers(void)
-{
-	return m_armApi.getTrigger();
-}
-
-ItemTablePtr DataStoreZabbix::getFunctions(void)
-{
-	return m_armApi.getFunctions();
-}
-
-ItemTablePtr DataStoreZabbix::getItems(void)
-{
-	return m_armApi.getItems();
-}
-
-ItemTablePtr DataStoreZabbix::getHosts(void)
-{
-	ItemTablePtr hostsTablePtr, hostsGroupsTablePtr;
-	m_armApi.getHosts(hostsTablePtr, hostsGroupsTablePtr);
-	return hostsTablePtr;
-}
-
 void DataStoreZabbix::setCopyOnDemandEnable(bool enable)
 {
 	m_armApi.setCopyOnDemandEnabled(enable);
