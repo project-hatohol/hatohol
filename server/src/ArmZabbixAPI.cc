@@ -42,7 +42,6 @@ static const guint DEFAULT_IDLE_TIMEOUT = 60;
 
 struct ArmZabbixAPI::PrivateContext
 {
-	string         authToken;
 	const ServerIdType zabbixServerId;
 	DBClientZabbix  *dbClientZabbix;
 	DBClientHatohol  dbClientHatohol;
@@ -380,11 +379,6 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 	}
 
 	return true;
-}
-
-void ArmZabbixAPI::onUpdatedAuthToken(const string &authToken)
-{
-	m_ctx->authToken = authToken;
 }
 
 // ---------------------------------------------------------------------------

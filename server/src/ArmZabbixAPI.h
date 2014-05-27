@@ -102,7 +102,6 @@ protected:
 	// virtual methods
 	virtual gpointer mainThread(HatoholThreadArg *arg);
 	virtual bool mainThreadOneProc(void);
-	virtual void onUpdatedAuthToken(const std::string &authToken); // override
 
 private:
 	struct PrivateContext;
