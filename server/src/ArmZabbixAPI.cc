@@ -520,6 +520,7 @@ void ArmZabbixAPI::pushFunctionsCacheOne(JsonParserAgent &parser,
 	parser.endElement();
 }
 
+#if 0 // See the comment in parseAndPushTriggerData()
 void ArmZabbixAPI::pushFunctionsCache(JsonParserAgent &parser)
 {
 	startObject(parser, "functions");
@@ -531,6 +532,7 @@ void ArmZabbixAPI::pushFunctionsCache(JsonParserAgent &parser)
 	}
 	parser.endObject();
 }
+#endif
 
 void ArmZabbixAPI::parseAndPushTriggerData
   (JsonParserAgent &parser, VariableItemTablePtr &tablePtr, int index)

@@ -82,7 +82,6 @@ protected:
 	std::string pushString(JsonParserAgent &parser, ItemGroup *itemGroup,
 	                       const std::string &name, ItemId itemId);
 
-	void pushFunctionsCache(JsonParserAgent &parser);
 	void pushFunctionsCacheOne(JsonParserAgent &parser,
 	                           ItemGroup *itemGroup, int index);
 	void parseAndPushTriggerData(JsonParserAgent &parser,
