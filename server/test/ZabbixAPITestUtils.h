@@ -41,6 +41,10 @@ public:
 	           ZabbixAPIEmulator::API_VERSION_2_0_4);
 	void testCheckAPIVersion(
 	       bool expected, int major, int minor, int micro);
+	void testOpenSession(void);
+
+	static void initServerInfoWithDefaultParam(
+	              MonitoringServerInfo &serverInfo);
 
 protected:
 	typedef bool (ZabbixAPITestee::*TestProc)(void);

@@ -541,19 +541,6 @@ void cut_teardown(void)
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
-void test_openSession(void)
-{
-	int svId = 0;
-	MonitoringServerInfo serverInfo = g_defaultServerInfo;
-	serverInfo.id = svId;
-	serverInfo.port = getTestPort();
-
-	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
-	cppcut_assert_equal
-	  (true, armZbxApiTestee.testOpenSession(),
-	   cut_message("%s\n", armZbxApiTestee.errorMessage().c_str()));
-}
-
 void test_getTriggers(void)
 {
 	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_TRIGGERS);

@@ -84,4 +84,12 @@ void test_checkAPIVersion(gconstpointer data)
 			      gcut_data_get_int(data, "micro"));
 }
 
+void test_openSession(void)
+{
+	MonitoringServerInfo serverInfo;
+	ZabbixAPITestee::initServerInfoWithDefaultParam(serverInfo);
+	ZabbixAPITestee zbxApiTestee(serverInfo);
+	zbxApiTestee.testOpenSession();
+}
+
 } // namespace testZabbixAPI

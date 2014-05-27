@@ -106,6 +106,20 @@ void ZabbixAPITestee::testCheckAPIVersion(
 	                    checkAPIVersion(major, minor, micro));
 }
 
+void ZabbixAPITestee::testOpenSession(void)
+{
+	cppcut_assert_equal(true, openSession());
+}
+
+void ZabbixAPITestee::initServerInfoWithDefaultParam(
+  MonitoringServerInfo &serverInfo)
+{
+	int svId = 0;
+	serverInfo = g_defaultServerInfo;
+	serverInfo.id = svId;
+	serverInfo.port = getTestPort();
+}
+
 //
 // Protected
 //
