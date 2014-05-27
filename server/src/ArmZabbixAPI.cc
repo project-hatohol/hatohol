@@ -171,30 +171,6 @@ void ArmZabbixAPI::onGotNewEvents(const ItemTablePtr &itemPtr)
 	// This function is used on a test class.
 }
 
-void ArmZabbixAPI::getGroups(ItemTablePtr &groupsTablePtr)
-{
-	SoupMessage *msg = queryGroup();
-	if (!msg)
-		THROW_DATA_STORE_EXCEPTION("Failed to query groups.");
-
-	JsonParserAgent parser(msg->response_body->data);
-	g_object_unref(msg);
-	if (parser.hasError()) {
-		THROW_DATA_STORE_EXCEPTION(
-		  "Failed to parser: %s", parser.getErrorMessage());
-	}
-	startObject(parser, "result");
-
-	VariableItemTablePtr variableGroupsTablePtr;
-	int numData = parser.countElements();
-	MLPL_DBG("The number of groups: %d\n", numData);
-
-	for (int i = 0; i < numData; i++)
-		parseAndPushGroupsData(parser, variableGroupsTablePtr, i);
-
-	groupsTablePtr = ItemTablePtr(variableGroupsTablePtr);
-}
-
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -268,26 +244,6 @@ SoupMessage *ArmZabbixAPI::queryGetLastEventId(void)
 	return queryCommon(agent);
 }
 
-SoupMessage *ArmZabbixAPI::queryGroup(void)
-{
-	JsonBuilderAgent agent;
-	agent.startObject();
-	agent.add("jsonrpc", "2.0");
-	agent.add("method", "hostgroup.get");
-
-	agent.startObject("params");
-	agent.add("real_hosts", true);
-	agent.add("output", "extend");
-	agent.add("selectHosts", "refer");
-	agent.endObject(); //params
-
-	agent.add("auth", m_ctx->authToken);
-	agent.add("id", 1);
-	agent.endObject();
-
-	return queryCommon(agent);
-}
-
 uint64_t ArmZabbixAPI::convertStrToUint64(const string strData)
 {
 	uint64_t valU64;
@@ -347,18 +303,6 @@ void ArmZabbixAPI::parseAndPushEventsData
 		pushInt(parser, grp, "value_changed",
 			ITEM_ID_ZBX_EVENTS_VALUE_CHANGED);
 	}
-	tablePtr->add(grp);
-	parser.endElement();
-}
-
-void ArmZabbixAPI::parseAndPushGroupsData
-  (JsonParserAgent &parser, VariableItemTablePtr &tablePtr, int index)
-{
-	startElement(parser, index);
-	VariableItemGroupPtr grp;
-	pushUint64(parser, grp, "groupid",      ITEM_ID_ZBX_GROUPS_GROUPID);
-	pushString(parser, grp, "name",         ITEM_ID_ZBX_GROUPS_NAME);
-	pushInt   (parser, grp, "internal",     ITEM_ID_ZBX_GROUPS_INTERNAL);
 	tablePtr->add(grp);
 	parser.endElement();
 }

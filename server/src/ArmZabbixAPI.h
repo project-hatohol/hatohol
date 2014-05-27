@@ -47,22 +47,18 @@ public:
 	ItemTablePtr getEvents(uint64_t eventIdOffset, uint64_t eventIdTill);
 	uint64_t getLastEventId(void);
 	virtual void onGotNewEvents(const ItemTablePtr &itemPtr);
-	void getGroups(ItemTablePtr &groupsTablePtr);
 
 protected:
 
 	SoupMessage *queryApplication(const std::vector<uint64_t> &appIdVector);
 	SoupMessage *queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill);
 	SoupMessage *queryGetLastEventId(void);
-	SoupMessage *queryGroup(void);
 
 	uint64_t convertStrToUint64(const std::string strData);
 	void parseAndPushApplicationsData(JsonParserAgent &parser,
 	                                  VariableItemTablePtr &tablePtr,
 	                                  int index);
 	void parseAndPushEventsData(JsonParserAgent &parser,
-	                            VariableItemTablePtr &tablePtr, int index);
-	void parseAndPushGroupsData(JsonParserAgent &parser,
 	                            VariableItemTablePtr &tablePtr, int index);
 	template<typename T>
 	void updateOnlyNeededItem(

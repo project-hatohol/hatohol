@@ -110,6 +110,14 @@ protected:
 	              ItemTablePtr &hostsGroupsTablePtr);
 
 	/**
+	 * Get the groups.
+	 *
+	 * @param groupsTablePtr
+	 * A ItemTablePtr the obtained groups are stored in.
+	 */
+	void getGroups(ItemTablePtr &groupsTablePtr);
+
+	/**
 	 * Get the triggers.
 	 *
 	 * @param requestSince
@@ -135,6 +143,14 @@ protected:
 	 * A SoupMessage object with the raw Zabbix servers's response.
 	 */
 	SoupMessage *queryHost(void);
+
+	/**
+	 * Get the groups.
+	 *
+	 * @return
+	 * A SoupMessage object with the raw Zabbix servers's response.
+	 */
+	SoupMessage *queryGroup(void);
 
 	/**
 	 * Get the functions.
@@ -171,6 +187,9 @@ protected:
 	  JsonParserAgent &parser,
 	  VariableItemTablePtr &tablePtr, const int &index);
 	void parseAndPushHostsGroupsData(
+	  JsonParserAgent &parser,
+	  VariableItemTablePtr &tablePtr, const int &index);
+	void parseAndPushGroupsData(
 	  JsonParserAgent &parser,
 	  VariableItemTablePtr &tablePtr, const int &index);
 

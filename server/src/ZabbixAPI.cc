@@ -313,6 +313,30 @@ void ZabbixAPI::getHosts(
 	hostsGroupsTablePtr = ItemTablePtr(variableHostsGroupsTablePtr);
 }
 
+void ZabbixAPI::getGroups(ItemTablePtr &groupsTablePtr)
+{
+	SoupMessage *msg = queryGroup();
+	if (!msg)
+		THROW_DATA_STORE_EXCEPTION("Failed to query groups.");
+
+	JsonParserAgent parser(msg->response_body->data);
+	g_object_unref(msg);
+	if (parser.hasError()) {
+		THROW_DATA_STORE_EXCEPTION(
+		  "Failed to parser: %s", parser.getErrorMessage());
+	}
+	startObject(parser, "result");
+
+	VariableItemTablePtr variableGroupsTablePtr;
+	int numData = parser.countElements();
+	MLPL_DBG("The number of groups: %d\n", numData);
+
+	for (int i = 0; i < numData; i++)
+		parseAndPushGroupsData(parser, variableGroupsTablePtr, i);
+
+	groupsTablePtr = ItemTablePtr(variableGroupsTablePtr);
+}
+
 SoupMessage *ZabbixAPI::queryTrigger(int requestSince)
 {
 	JsonBuilderAgent agent;
@@ -371,6 +395,26 @@ SoupMessage *ZabbixAPI::queryHost(void)
 	agent.add("output", "extend");
 	agent.add("selectGroups", "refer");
 	agent.endObject(); // params
+
+	agent.add("auth", m_ctx->authToken);
+	agent.add("id", 1);
+	agent.endObject();
+
+	return queryCommon(agent);
+}
+
+SoupMessage *ZabbixAPI::queryGroup(void)
+{
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.add("jsonrpc", "2.0");
+	agent.add("method", "hostgroup.get");
+
+	agent.startObject("params");
+	agent.add("real_hosts", true);
+	agent.add("output", "extend");
+	agent.add("selectHosts", "refer");
+	agent.endObject(); //params
 
 	agent.add("auth", m_ctx->authToken);
 	agent.add("id", 1);
@@ -741,6 +785,18 @@ void ZabbixAPI::parseAndPushHostsGroupsData(
 		tablePtr->add(grp);
 	}
 
+	parser.endElement();
+}
+
+void ZabbixAPI::parseAndPushGroupsData(
+  JsonParserAgent &parser, VariableItemTablePtr &tablePtr, const int &index)
+{
+	startElement(parser, index);
+	VariableItemGroupPtr grp;
+	pushUint64(parser, grp, "groupid",      ITEM_ID_ZBX_GROUPS_GROUPID);
+	pushString(parser, grp, "name",         ITEM_ID_ZBX_GROUPS_NAME);
+	pushInt   (parser, grp, "internal",     ITEM_ID_ZBX_GROUPS_INTERNAL);
+	tablePtr->add(grp);
 	parser.endElement();
 }
 
