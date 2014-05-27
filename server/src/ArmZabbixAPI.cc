@@ -43,9 +43,6 @@ static const guint DEFAULT_IDLE_TIMEOUT = 60;
 struct ArmZabbixAPI::PrivateContext
 {
 	string         authToken;
-	string         uri;
-	string         username;
-	string         password;
 	const ServerIdType zabbixServerId;
 	bool           gotTriggers;
 	TriggerIdType  triggerid;
@@ -85,15 +82,7 @@ ArmZabbixAPI::ArmZabbixAPI(const MonitoringServerInfo &serverInfo)
   ArmBase("ArmZabbixAPI", serverInfo),
   m_ctx(NULL)
 {
-	bool forURI = true;
 	m_ctx = new PrivateContext(serverInfo);
-	m_ctx->uri = "http://";
-	m_ctx->uri += serverInfo.getHostAddress(forURI);
-	m_ctx->uri += StringUtils::sprintf(":%d", serverInfo.port);
-	m_ctx->uri += "/zabbix/api_jsonrpc.php";
-
-	m_ctx->username = serverInfo.userName.c_str();
-	m_ctx->password = serverInfo.password.c_str();
 }
 
 ArmZabbixAPI::~ArmZabbixAPI()
