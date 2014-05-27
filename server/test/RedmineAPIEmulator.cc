@@ -46,7 +46,8 @@ struct RedmineAPIEmulator::PrivateContext {
 				      gpointer user_data);
 	string buildReply(const string &subject,
 			  const string &description,
-			  const int &trackerId);
+			  const int &trackerId,
+			  bool withAssignee = false);
 	void replyPostIssue(SoupMessage *msg);
 	int getTrackerId(const string &trackerId);
 
@@ -151,7 +152,8 @@ void addError(string &errors, RedmineErrorType type,
 }
 
 string RedmineAPIEmulator::PrivateContext::buildReply(
-  const string &subject, const string &description, const int &trackerId)
+  const string &subject, const string &description, const int &trackerId,
+  bool withAssignee)
 {
 	time_t current = time(NULL);
 	struct tm tm;
@@ -189,6 +191,13 @@ string RedmineAPIEmulator::PrivateContext::buildReply(
 	agent.add("id", "1");
 	agent.add("name", m_currentUser);
 	agent.endObject();
+
+	if (withAssignee) {
+		agent.startObject("assigned_to");
+		agent.add("id", "1");
+		agent.add("name", m_currentUser);
+		agent.endObject();
+	}
 
 	agent.add("subject", subject);
 	agent.add("description", description);
