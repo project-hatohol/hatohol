@@ -33,7 +33,7 @@ public:
 protected:
 	std::string buildJson(const EventInfo &event);
 	std::string getProjectURL(void);
-	std::string getPostURL(void);
+	std::string getIssuesJsonURL(void);
 
 private:
 	struct PrivateContext;

@@ -98,7 +98,7 @@ string IssueSenderRedmine::getProjectURL(void)
 	return url;
 }
 
-string IssueSenderRedmine::getPostURL(void)
+string IssueSenderRedmine::getIssuesJsonURL(void)
 {
 	string url = getProjectURL();
 	if (url[url.size() - 1] != '/')
@@ -222,7 +222,7 @@ HatoholError IssueSenderRedmine::PrivateContext::parseErrorResponse(
 
 HatoholError IssueSenderRedmine::send(const EventInfo &event)
 {
-	string url = getPostURL();
+	string url = getIssuesJsonURL();
 	string json = buildJson(event);
 	SoupMessage *msg = soup_message_new(SOUP_METHOD_POST, url.c_str());
 	soup_message_headers_set_content_type(msg->request_headers,
