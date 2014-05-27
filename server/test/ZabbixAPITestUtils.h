@@ -46,6 +46,12 @@ public:
 	static void initServerInfoWithDefaultParam(
 	              MonitoringServerInfo &serverInfo);
 	std::string callAuthToken(void);
+	void callGetHosts(ItemTablePtr &hostsTablePtr,
+	                  ItemTablePtr &hostsGroupsTablePtr);
+	void callGetGroups(ItemTablePtr &groupsTablePtr);
+
+	void makeGroupsItemTable(ItemTablePtr &groupsTablePtr);
+	void makeMapHostsHostgroupsItemTable(ItemTablePtr &hostsGroupsTablePtr);
 
 protected:
 	typedef bool (ZabbixAPITestee::*TestProc)(void);

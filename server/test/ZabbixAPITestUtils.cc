@@ -18,6 +18,7 @@
  */
 
 #include <string>
+#include <fstream>
 #include "Synchronizer.h"
 #include "ZabbixAPIEmulator.h"
 #include "ZabbixAPITestUtils.h"
@@ -123,6 +124,60 @@ void ZabbixAPITestee::initServerInfoWithDefaultParam(
 string ZabbixAPITestee::callAuthToken(void)
 {
 	return getAuthToken();
+}
+
+void ZabbixAPITestee::callGetHosts(ItemTablePtr &hostsTablePtr,
+                                   ItemTablePtr &hostsGroupsTablePtr)
+{
+	getHosts(hostsTablePtr, hostsGroupsTablePtr);
+}
+
+void ZabbixAPITestee::callGetGroups(ItemTablePtr &groupsTablePtr)
+{
+	getGroups(groupsTablePtr);
+}
+
+void ZabbixAPITestee::makeGroupsItemTable(ItemTablePtr &groupsTablePtr)
+{
+	ifstream ifs("fixtures/zabbix-api-res-hostgroup-002-refer.json");
+	cppcut_assert_equal(false, ifs.fail());
+
+	string fixtureData;
+	getline(ifs, fixtureData);
+	JsonParserAgent parser(fixtureData);
+	cppcut_assert_equal(false, parser.hasError());
+	startObject(parser, "result");
+
+	VariableItemTablePtr variableGroupsTablePtr;
+	int numData = parser.countElements();
+	if (numData < 1)
+		cut_fail("Value of the elements is empty.");
+	for (int i = 0; i < numData; i++)
+		parseAndPushGroupsData(parser, variableGroupsTablePtr, i);
+	groupsTablePtr = ItemTablePtr(variableGroupsTablePtr);
+}
+
+void ZabbixAPITestee::makeMapHostsHostgroupsItemTable(
+  ItemTablePtr &hostsGroupsTablePtr)
+{
+	ifstream ifs("fixtures/zabbix-api-res-hosts-002.json");
+	cppcut_assert_equal(false, ifs.fail());
+
+	string fixtureData;
+	getline(ifs, fixtureData);
+	JsonParserAgent parser(fixtureData);
+	cppcut_assert_equal(false, parser.hasError());
+	startObject(parser, "result");
+
+	VariableItemTablePtr variableHostsGroupsTablePtr;
+	int numData = parser.countElements();
+	if (numData < 1)
+		cut_fail("Value of the elements is empty.");
+	for (int i = 0; i < numData; i++) {
+		parseAndPushHostsGroupsData(parser,
+		                            variableHostsGroupsTablePtr, i);
+	}
+	hostsGroupsTablePtr = ItemTablePtr(variableHostsGroupsTablePtr);
 }
 
 //

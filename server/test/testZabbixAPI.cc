@@ -19,6 +19,7 @@
 
 #include <string>
 #include <gcutter.h>
+#include "Helpers.h"
 #include "ZabbixAPITestUtils.h"
 
 using namespace std;
@@ -105,6 +106,29 @@ void test_getAuthToken(void)
 	firstToken = zbxApiTestee.callAuthToken();
 	secondToken = zbxApiTestee.callAuthToken();
 	cppcut_assert_equal(firstToken, secondToken);
+}
+
+void test_verifyGroupsAndHostsGroups(void)
+{
+	MonitoringServerInfo serverInfo;
+	ZabbixAPITestee::initServerInfoWithDefaultParam(serverInfo);
+	ZabbixAPITestee zbxApiTestee(serverInfo);
+	zbxApiTestee.testOpenSession();
+
+	ItemTablePtr expectGroupsTablePtr;
+	ItemTablePtr expectHostsGroupsTablePtr;
+	ItemTablePtr actualGroupsTablePtr;
+	ItemTablePtr actualHostsGroupsTablePtr;
+	ItemTablePtr dummyHostsTablePtr;
+
+	zbxApiTestee.makeGroupsItemTable(expectGroupsTablePtr);
+	zbxApiTestee.makeMapHostsHostgroupsItemTable(expectHostsGroupsTablePtr);
+	zbxApiTestee.callGetGroups(actualGroupsTablePtr);
+	zbxApiTestee.callGetHosts(dummyHostsTablePtr,
+	                          actualHostsGroupsTablePtr);
+
+	assertItemTable(expectGroupsTablePtr, actualGroupsTablePtr);
+	assertItemTable(expectHostsGroupsTablePtr, actualHostsGroupsTablePtr);
 }
 
 } // namespace testZabbixAPI

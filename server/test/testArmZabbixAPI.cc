@@ -234,54 +234,6 @@ public:
 		return ItemTablePtr(tablePtr);
 	}
 
-	void testMakeGroupsItemTable(ItemTablePtr &groupsTablePtr)
-	{
-		ifstream ifs("fixtures/zabbix-api-res-hostgroup-002-refer.json");
-		cppcut_assert_equal(false, ifs.fail());
-
-		string fixtureData;
-		getline(ifs, fixtureData);
-		JsonParserAgent parser(fixtureData);
-		cppcut_assert_equal(false, parser.hasError());
-		startObject(parser, "result");
-
-		VariableItemTablePtr variableGroupsTablePtr;
-		int numData = parser.countElements();
-		if (numData < 1)
-			cut_fail("Value of the elements is empty.");
-		for (int i = 0; i < numData; i++) {
-			ArmZabbixAPI::parseAndPushGroupsData(parser,
-			                                     variableGroupsTablePtr,
-			                                     i);
-		}
-
-		groupsTablePtr = ItemTablePtr(variableGroupsTablePtr);
-	}
-
-	void testMakeMapHostsHostgroupsItemTable(ItemTablePtr &hostsGroupsTablePtr)
-	{
-		ifstream ifs("fixtures/zabbix-api-res-hosts-002.json");
-		cppcut_assert_equal(false, ifs.fail());
-
-		string fixtureData;
-		getline(ifs, fixtureData);
-		JsonParserAgent parser(fixtureData);
-		cppcut_assert_equal(false, parser.hasError());
-		startObject(parser, "result");
-
-		VariableItemTablePtr variableHostsGroupsTablePtr;
-		int numData = parser.countElements();
-		if (numData < 1)
-			cut_fail("Value of the elements is empty.");
-		for (int i = 0; i < numData; i++) {
-			ArmZabbixAPI::parseAndPushHostsGroupsData(parser,
-			                                          variableHostsGroupsTablePtr,
-			                                          i);
-		}
-
-		hostsGroupsTablePtr = ItemTablePtr(variableHostsGroupsTablePtr);
-	}
-
 	void assertMakeItemVector(bool testNull = false)
 	{
 		// make test data and call the target method.
@@ -838,30 +790,5 @@ void test_verifyEventsObtanedBySplitWay(void)
 	for (; itr != armZbxApiTestee.m_numbersOfGotEvents.end(); ++itr)
 		cppcut_assert_equal(true, *itr <= upperLimitOfEventsAtOneTime);
 }
-
-#if 0 // Temporarlily disable this test. We'll move this test to testZabbixAPI after getGroups is moved to ZabbixAPI.
-void test_verifyGroupsAndHostsGroups(void)
-{
-	ArmZabbixAPITestee armZbxApiTestee(setupServer());
-	armZbxApiTestee.testOpenSession();
-
-	ItemTablePtr expectGroupsTablePtr;
-	ItemTablePtr expectHostsGroupsTablePtr;
-	ItemTablePtr actualGroupsTablePtr;
-	ItemTablePtr actualHostsGroupsTablePtr;
-	ItemTablePtr dummyHostsTablePtr;
-
-	armZbxApiTestee.testMakeGroupsItemTable(expectGroupsTablePtr);
-	armZbxApiTestee.testMakeMapHostsHostgroupsItemTable
-	                  (expectHostsGroupsTablePtr);
-	armZbxApiTestee.getGroups(actualGroupsTablePtr);
-	armZbxApiTestee.getHosts(dummyHostsTablePtr, actualHostsGroupsTablePtr);
-
-	armZbxApiTestee.assertItemTable(expectGroupsTablePtr,
-	                                actualGroupsTablePtr);
-	armZbxApiTestee.assertItemTable(expectHostsGroupsTablePtr,
-	                                actualHostsGroupsTablePtr);
-}
-#endif
 
 } // namespace testArmZabbixAPI
