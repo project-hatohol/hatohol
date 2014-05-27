@@ -63,19 +63,6 @@ public:
 
 protected:
 
-	/**
-	 * open a session with with Zabbix API server
-	 *
-	 * @param msgPtr
-	 * An address of SoupMessage object pointer. If this parameter is
-	 * not NULL, SoupMessage object pointer is copied to this parameter.
-	 * Otherwise, the object is freeed in this function and the parameter
-	 * is not changed.
-	 *
-	 * @return
-	 * true if session is oppned successfully. Otherwise, false is returned.
-	 */
-	bool openSession(SoupMessage **msgPtr = NULL);
 	bool updateAuthTokenIfNeeded(void);
 	std::string getAuthToken(void);
 
@@ -86,8 +73,6 @@ protected:
 	SoupMessage *queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill);
 	SoupMessage *queryGetLastEventId(void);
 	SoupMessage *queryGroup(void);
-	std::string getInitialJsonRequest(void);
-	bool parseInitialResponse(SoupMessage *msg);
 	void startObject(JsonParserAgent &parser, const std::string &name);
 	void startElement(JsonParserAgent &parser, int index);
 	void getString(JsonParserAgent &parser, const std::string &name,
@@ -179,6 +164,7 @@ protected:
 	// virtual methods
 	virtual gpointer mainThread(HatoholThreadArg *arg);
 	virtual bool mainThreadOneProc(void);
+	virtual void onGotAuthToken(const std::string &authToken); // override
 
 private:
 	struct PrivateContext;

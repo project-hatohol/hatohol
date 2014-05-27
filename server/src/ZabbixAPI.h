@@ -33,6 +33,11 @@ public:
 
 protected:
 	/**
+	 * Called when the authtoken is obtained or updated.
+	 */
+	virtual void onGotAuthToken(const std::string &authToken);
+
+	/**
 	 * Get the API version of the target ZABBIX server.
 	 * Note that this method is NOT MT-safe.
 	 *
@@ -54,9 +59,26 @@ protected:
 	 */
 	bool checkAPIVersion(int major, int minor, int micro);
 
+	/**
+	 * Open a session with with Zabbix API server
+	 *
+	 * @param msgPtr
+	 * An address of a SoupMessage object pointer. If this parameter is
+	 * not NULL, a SoupMessage object pointer is copied to this parameter.
+	 * Otherwise, the object is freeed internally. And the parameter is
+	 * not changed.
+	 *
+	 * @return
+	 * true if a session is oppned successfully. Otherwise, false is
+	 * returned.
+	 */
+	bool openSession(SoupMessage **msgPtr = NULL);
+
 	SoupSession *getSession(void);
 	SoupMessage *queryCommon(JsonBuilderAgent &agent);
 	SoupMessage *queryAPIVersion(void);
+	std::string getInitialJsonRequest(void);
+	bool parseInitialResponse(SoupMessage *msg);
 
 private:
 	struct PrivateContext;

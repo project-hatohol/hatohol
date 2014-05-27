@@ -40,6 +40,7 @@ struct ZabbixAPI::PrivateContext {
 	int            apiVersionMinor;
 	int            apiVersionMicro;
 	SoupSession   *session;
+	string         authToken;
 
 	// constructors and destructor
 	PrivateContext(const MonitoringServerInfo &serverInfo)
@@ -83,6 +84,10 @@ ZabbixAPI::~ZabbixAPI()
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+void ZabbixAPI::onGotAuthToken(const string &authToken)
+{
+}
+
 const string &ZabbixAPI::getAPIVersion(void)
 {
 	if (!m_ctx->apiVersion.empty())
@@ -141,6 +146,46 @@ bool ZabbixAPI::checkAPIVersion(int major, int minor, int micro)
 	return false;
 }
 
+bool ZabbixAPI::openSession(SoupMessage **msgPtr)
+{
+	const string &version = getAPIVersion();
+	if (version.empty())
+		return false;
+
+	SoupMessage *msg =
+	  soup_message_new(SOUP_METHOD_POST, m_ctx->uri.c_str());
+	soup_message_headers_set_content_type(msg->request_headers,
+	                                      MIME_JSON_RPC, NULL);
+	string request_body = getInitialJsonRequest();
+	soup_message_body_append(msg->request_body, SOUP_MEMORY_TEMPORARY,
+	                         request_body.c_str(), request_body.size());
+	guint ret = soup_session_send_message(getSession(), msg);
+	if (ret != SOUP_STATUS_OK) {
+		g_object_unref(msg);
+		MLPL_ERR("Failed to get: code: %d: %s\n",
+	                 ret, m_ctx->uri.c_str());
+		return false;
+	}
+	MLPL_DBG("body: %"G_GOFFSET_FORMAT", %s\n",
+	         msg->response_body->length, msg->response_body->data);
+	bool succeeded = parseInitialResponse(msg);
+	if (!succeeded) {
+		g_object_unref(msg);
+		return false;
+	}
+	onGotAuthToken(m_ctx->authToken);
+	MLPL_DBG("authToken: %s\n", m_ctx->authToken.c_str());
+
+	// copy the SoupMessage object if msgPtr is not NULL.
+	if (msgPtr)
+		*msgPtr = msg;
+	else
+		g_object_unref(msg);
+
+	return true;
+}
+
+
 SoupSession *ZabbixAPI::getSession(void)
 {
 	// NOTE: current implementaion is not MT-safe.
@@ -184,3 +229,38 @@ SoupMessage *ZabbixAPI::queryAPIVersion(void)
 
 	return queryCommon(agent);
 }
+
+string ZabbixAPI::getInitialJsonRequest(void)
+{
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.addNull("auth");
+	agent.add("method", "user.login");
+	agent.add("id", 1);
+
+	agent.startObject("params");
+	agent.add("user", m_ctx->username);
+	agent.add("password", m_ctx->password);
+	agent.endObject();
+
+	agent.add("jsonrpc", "2.0");
+	agent.endObject();
+
+	return agent.generate();
+}
+
+bool ZabbixAPI::parseInitialResponse(SoupMessage *msg)
+{
+	JsonParserAgent parser(msg->response_body->data);
+	if (parser.hasError()) {
+		MLPL_ERR("Failed to parser: %s\n", parser.getErrorMessage());
+		return false;
+	}
+
+	if (!parser.read("result", m_ctx->authToken)) {
+		MLPL_ERR("Failed to read: result\n");
+		return false;
+	}
+	return true;
+}
+
