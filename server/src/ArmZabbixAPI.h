@@ -43,14 +43,6 @@ public:
 	ArmZabbixAPI(const MonitoringServerInfo &serverInfo);
 	virtual ~ArmZabbixAPI();
 
-	/**
-	 * get the hosts database with Zabbix API server
-	 *
-	 * TODO: Write parameters and return value here.
-	 */
-	void getHosts(ItemTablePtr &hostsTablePtr,
-	              ItemTablePtr &hostsGroupsTablePtr);
-
 	ItemTablePtr getApplications(const std::vector<uint64_t> &appIdVector);
 	ItemTablePtr getEvents(uint64_t eventIdOffset, uint64_t eventIdTill);
 	uint64_t getLastEventId(void);
@@ -59,15 +51,12 @@ public:
 
 protected:
 
-	SoupMessage *queryHost(void);
 	SoupMessage *queryApplication(const std::vector<uint64_t> &appIdVector);
 	SoupMessage *queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill);
 	SoupMessage *queryGetLastEventId(void);
 	SoupMessage *queryGroup(void);
 
 	uint64_t convertStrToUint64(const std::string strData);
-	void parseAndPushHostsData(JsonParserAgent &parser,
-	                           VariableItemTablePtr &tablePtr, int index);
 	void parseAndPushApplicationsData(JsonParserAgent &parser,
 	                                  VariableItemTablePtr &tablePtr,
 	                                  int index);
@@ -75,9 +64,6 @@ protected:
 	                            VariableItemTablePtr &tablePtr, int index);
 	void parseAndPushGroupsData(JsonParserAgent &parser,
 	                            VariableItemTablePtr &tablePtr, int index);
-	void parseAndPushHostsGroupsData(JsonParserAgent &parser,
-	                                 VariableItemTablePtr &tablePtr, int index);
-
 	template<typename T>
 	void updateOnlyNeededItem(
 	  const ItemTable *primaryTable,

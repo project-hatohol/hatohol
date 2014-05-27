@@ -866,6 +866,7 @@ void test_verifyEventsObtanedBySplitWay(void)
 		cppcut_assert_equal(true, *itr <= upperLimitOfEventsAtOneTime);
 }
 
+#if 0 // Temporarlily disable this test. We'll move this test to testZabbixAPI after getGroups is moved to ZabbixAPI.
 void test_verifyGroupsAndHostsGroups(void)
 {
 	ArmZabbixAPITestee armZbxApiTestee(setupServer());
@@ -888,4 +889,6 @@ void test_verifyGroupsAndHostsGroups(void)
 	armZbxApiTestee.assertItemTable(expectHostsGroupsTablePtr,
 	                                actualHostsGroupsTablePtr);
 }
+#endif
+
 } // namespace testArmZabbixAPI

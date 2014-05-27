@@ -87,36 +87,6 @@ ArmZabbixAPI::~ArmZabbixAPI()
 		delete m_ctx;
 }
 
-void ArmZabbixAPI::getHosts
-(ItemTablePtr &hostsTablePtr, ItemTablePtr &hostsGroupsTablePtr)
-{
-	SoupMessage *msg = queryHost();
-	if (!msg)
-		THROW_DATA_STORE_EXCEPTION("Failed to query hosts.");
-
-	JsonParserAgent parser(msg->response_body->data);
-	g_object_unref(msg);
-	if (parser.hasError()) {
-		THROW_DATA_STORE_EXCEPTION(
-		  "Failed to parser: %s", parser.getErrorMessage());
-	}
-	startObject(parser, "result");
-
-	VariableItemTablePtr variableHostsTablePtr, variableHostsGroupsTablePtr;
-	int numData = parser.countElements();
-	MLPL_DBG("The number of hosts: %d\n", numData);
-	if (numData < 1)
-		return;
-
-	for (int i = 0; i < numData; i++) {
-		parseAndPushHostsData(parser, variableHostsTablePtr, i);
-		parseAndPushHostsGroupsData(parser,
-		                            variableHostsGroupsTablePtr, i);
-	}
-	hostsTablePtr = ItemTablePtr(variableHostsTablePtr);
-	hostsGroupsTablePtr = ItemTablePtr(variableHostsGroupsTablePtr);
-}
-
 ItemTablePtr ArmZabbixAPI::getApplications(const vector<uint64_t> &appIdVector)
 {
 	SoupMessage *msg = queryApplication(appIdVector);
@@ -228,25 +198,6 @@ void ArmZabbixAPI::getGroups(ItemTablePtr &groupsTablePtr)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-SoupMessage *ArmZabbixAPI::queryHost(void)
-{
-	JsonBuilderAgent agent;
-	agent.startObject();
-	agent.add("jsonrpc", "2.0");
-	agent.add("method", "host.get");
-
-	agent.startObject("params");
-	agent.add("output", "extend");
-	agent.add("selectGroups", "refer");
-	agent.endObject(); // params
-
-	agent.add("auth", m_ctx->authToken);
-	agent.add("id", 1);
-	agent.endObject();
-
-	return queryCommon(agent);
-}
-
 SoupMessage *ArmZabbixAPI::queryApplication(const vector<uint64_t> &appIdVector)
 {
 	JsonBuilderAgent agent;
@@ -344,63 +295,6 @@ uint64_t ArmZabbixAPI::convertStrToUint64(const string strData)
 	return valU64;
 }
 
-void ArmZabbixAPI::parseAndPushHostsData
-  (JsonParserAgent &parser, VariableItemTablePtr &tablePtr, int index)
-{
-	startElement(parser, index);
-	VariableItemGroupPtr grp;
-	pushUint64(parser, grp, "hostid",       ITEM_ID_ZBX_HOSTS_HOSTID);
-	pushUint64(parser, grp, "proxy_hostid", ITEM_ID_ZBX_HOSTS_PROXY_HOSTID);
-	pushString(parser, grp, "host",         ITEM_ID_ZBX_HOSTS_HOST);
-	pushInt   (parser, grp, "status",       ITEM_ID_ZBX_HOSTS_STATUS);
-	pushInt   (parser, grp, "disable_until",
-	           ITEM_ID_ZBX_HOSTS_DISABLE_UNTIL);
-	pushString(parser, grp, "error",        ITEM_ID_ZBX_HOSTS_ERROR);
-	pushInt   (parser, grp, "available",    ITEM_ID_ZBX_HOSTS_AVAILABLE);
-	pushInt   (parser, grp, "errors_from",  ITEM_ID_ZBX_HOSTS_ERRORS_FROM);
-	pushInt   (parser, grp, "lastaccess",   ITEM_ID_ZBX_HOSTS_LASTACCESS);
-	pushInt   (parser, grp, "ipmi_authtype",
-	           ITEM_ID_ZBX_HOSTS_IPMI_AUTHTYPE);
-	pushInt   (parser, grp, "ipmi_privilege",
-	           ITEM_ID_ZBX_HOSTS_IPMI_PRIVILEGE);
-	pushString(parser, grp, "ipmi_username",
-	           ITEM_ID_ZBX_HOSTS_IPMI_USERNAME);
-	pushString(parser, grp, "ipmi_password",
-	           ITEM_ID_ZBX_HOSTS_IPMI_PASSWORD);
-	pushInt   (parser, grp, "ipmi_disable_until",
-	           ITEM_ID_ZBX_HOSTS_IPMI_DISABLE_UNTIL);
-	pushInt   (parser, grp, "ipmi_available",
-	           ITEM_ID_ZBX_HOSTS_IPMI_AVAILABLE);
-	pushInt   (parser, grp, "snmp_disable_until",
-	           ITEM_ID_ZBX_HOSTS_SNMP_DISABLE_UNTIL);
-	pushInt   (parser, grp, "snmp_available",
-	           ITEM_ID_ZBX_HOSTS_SNMP_AVAILABLE);
-	pushUint64(parser, grp, "maintenanceid",
-	           ITEM_ID_ZBX_HOSTS_MAINTENANCEID);
-	pushInt   (parser, grp, "maintenance_status",
-	           ITEM_ID_ZBX_HOSTS_MAINTENANCE_STATUS);
-	pushInt   (parser, grp, "maintenance_type",
-	           ITEM_ID_ZBX_HOSTS_MAINTENANCE_TYPE);
-	pushInt   (parser, grp, "maintenance_from",
-	           ITEM_ID_ZBX_HOSTS_MAINTENANCE_FROM);
-	pushInt   (parser, grp, "ipmi_errors_from",
-	           ITEM_ID_ZBX_HOSTS_IPMI_ERRORS_FROM);
-	pushInt   (parser, grp, "snmp_errors_from",
-	           ITEM_ID_ZBX_HOSTS_SNMP_ERRORS_FROM);
-	pushString(parser, grp, "ipmi_error", ITEM_ID_ZBX_HOSTS_IPMI_ERROR);
-	pushString(parser, grp, "snmp_error", ITEM_ID_ZBX_HOSTS_SNMP_ERROR);
-	pushInt   (parser, grp, "jmx_disable_until",
-	           ITEM_ID_ZBX_HOSTS_JMX_DISABLE_UNTIL);
-	pushInt   (parser, grp, "jmx_available",
-	           ITEM_ID_ZBX_HOSTS_JMX_AVAILABLE);
-	pushInt   (parser, grp, "jmx_errors_from",
-	           ITEM_ID_ZBX_HOSTS_JMX_ERRORS_FROM);
-	pushString(parser, grp, "jmx_error", ITEM_ID_ZBX_HOSTS_JMX_ERROR);
-	pushString(parser, grp, "name",      ITEM_ID_ZBX_HOSTS_NAME);
-	tablePtr->add(grp);
-	parser.endElement();
-}
-
 void ArmZabbixAPI::parseAndPushApplicationsData(JsonParserAgent &parser,
                                                 VariableItemTablePtr &tablePtr,
                                                 int index)
@@ -466,33 +360,6 @@ void ArmZabbixAPI::parseAndPushGroupsData
 	pushString(parser, grp, "name",         ITEM_ID_ZBX_GROUPS_NAME);
 	pushInt   (parser, grp, "internal",     ITEM_ID_ZBX_GROUPS_INTERNAL);
 	tablePtr->add(grp);
-	parser.endElement();
-}
-
-void ArmZabbixAPI::parseAndPushHostsGroupsData
-  (JsonParserAgent &parser, VariableItemTablePtr &tablePtr, int index)
-{
-	startElement(parser, index);
-	startObject(parser, "groups");
-	int numElement = parser.countElements();
-	parser.endObject(); // Get number of element first.
-
-	for (int i = 0; i < numElement; i++) {
-		VariableItemGroupPtr grp;
-		const uint64_t hostgroupId = 0;
-		grp->addNewItem(hostgroupId);
-
-		pushUint64(parser, grp, "hostid",
-		           ITEM_ID_ZBX_HOSTS_GROUPS_HOSTID);
-		startObject(parser, "groups");
-		startElement(parser, i);
-		pushUint64(parser, grp, "groupid",
-		           ITEM_ID_ZBX_HOSTS_GROUPS_GROUPID);
-		parser.endElement();
-		parser.endObject();
-		tablePtr->add(grp);
-	}
-
 	parser.endElement();
 }
 

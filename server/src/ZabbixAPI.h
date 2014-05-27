@@ -98,6 +98,18 @@ protected:
 	ItemTablePtr getItems(void);
 
 	/**
+	 * Get the hosts and the host groups.
+	 *
+	 * @param hostsTablePtr
+	 * A ItemTablePtr the obtained hosts are stored in.
+	 *
+	 * @param hostsGroupsTablePtr
+	 * A ItemTablePtr the obtained host groups are stored in.
+	 */
+	void getHosts(ItemTablePtr &hostsTablePtr,
+	              ItemTablePtr &hostsGroupsTablePtr);
+
+	/**
 	 * Get the triggers.
 	 *
 	 * @param requestSince
@@ -115,6 +127,14 @@ protected:
 	 * A SoupMessage object with the raw Zabbix servers's response.
 	 */
 	SoupMessage *queryItem(void);
+
+	/**
+	 * Get the hosts.
+	 *
+	 * @return
+	 * A SoupMessage object with the raw Zabbix servers's response.
+	 */
+	SoupMessage *queryHost(void);
 
 	/**
 	 * Get the functions.
@@ -145,6 +165,12 @@ protected:
 	  JsonParserAgent &parser,
 	  VariableItemTablePtr &tablePtr, const int &index);
 	void parseAndPushItemsData(
+	  JsonParserAgent &parser,
+	  VariableItemTablePtr &tablePtr, const int &index);
+	void parseAndPushHostsData(
+	  JsonParserAgent &parser,
+	  VariableItemTablePtr &tablePtr, const int &index);
+	void parseAndPushHostsGroupsData(
 	  JsonParserAgent &parser,
 	  VariableItemTablePtr &tablePtr, const int &index);
 
