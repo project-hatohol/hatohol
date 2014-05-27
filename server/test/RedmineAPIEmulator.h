@@ -22,6 +22,42 @@
 
 #include "HttpServerStub.h"
 
+struct RedmineIssue {
+	size_t id;
+	std::string subject;
+	std::string description;
+	int projectId;
+	int trackerId;
+	int statusId;
+	int priorityId;
+	int authorId;
+	std::string authorName;
+	int assigneeId;
+	std::string assigneeName;
+	time_t startDate;
+	time_t createdOn;
+	time_t updatedOn;
+
+	RedmineIssue(const size_t &_id = 0,
+		     const std::string &_subject = "",
+		     const std::string &_description = "",
+		     const std::string &_authorName = "",
+		     const int &_trackerId = 1);
+
+	std::string getProjectName(void);
+	std::string getTrackerName(void);
+	std::string getStatusName(void);
+	std::string getPriorityName(void);
+	std::string getAuthorName(void);
+	std::string getAssigneeName(void);
+	std::string getStartDate(void);
+	std::string getCreatedOn(void);
+	std::string getUpdatedOn(void);
+
+	static std::string getDateString(time_t time);
+	static std::string getTimeString(time_t time);
+};
+
 class RedmineAPIEmulator : public HttpServerStub {
 public:
 	RedmineAPIEmulator(void);

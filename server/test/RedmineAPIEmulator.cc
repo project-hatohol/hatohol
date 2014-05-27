@@ -27,6 +27,74 @@
 
 using namespace std;
 
+RedmineIssue::RedmineIssue(const size_t &_id,
+			   const std::string &_subject,
+			   const std::string &_description,
+			   const std::string &_authorName,
+			   const int &_trackerId)
+: id(_id), subject(_subject), description(_description),
+  projectId(1), trackerId(_trackerId), statusId(1), priorityId(1),
+  authorId(1), authorName(_authorName), assigneeId(0),
+  startDate(time(NULL)), createdOn(startDate), updatedOn(startDate)
+{
+}
+
+string RedmineIssue::getProjectName(void)
+{
+	// TODO
+	return "HatoholTestProject";
+}
+
+string RedmineIssue::getTrackerName(void)
+{
+	// TODO
+	return "Bug";
+}
+
+string RedmineIssue::getStatusName(void)
+{
+	// TODO
+	return "New";
+}
+
+string RedmineIssue::getPriorityName(void)
+{
+	// TODO
+	return "Normal";
+}
+
+string RedmineIssue::getStartDate(void)
+{
+	return getDateString(startDate);
+};
+
+string RedmineIssue::getCreatedOn(void)
+{
+	return getTimeString(createdOn);
+};
+string RedmineIssue::getUpdatedOn(void)
+{
+	return getTimeString(updatedOn);
+};
+
+string RedmineIssue::getDateString(time_t time)
+{
+	struct tm tm;
+	gmtime_r(&time, &tm);
+	char dateString[128];
+	strftime(dateString, sizeof(dateString), "%Y-%m-%d", &tm);
+	return string(dateString);
+}
+
+string RedmineIssue::getTimeString(time_t time)
+{
+	struct tm tm;
+	gmtime_r(&time, &tm);
+	char timeString[128];
+	strftime(timeString, sizeof(timeString), "%Y-%m-%dT%H:%M:%SZ", &tm);
+	return string(timeString);
+}
+
 struct RedmineAPIEmulator::PrivateContext {
 	PrivateContext(void)
 	: m_issueId(0)
@@ -44,10 +112,7 @@ struct RedmineAPIEmulator::PrivateContext {
 				      const char *path, GHashTable *query,
 				      SoupClientContext *client,
 				      gpointer user_data);
-	string buildResponse(const string &subject,
-			     const string &description,
-			     const int &trackerId,
-			     bool withAssignee = false);
+	string buildResponse(RedmineIssue &issue);
 	void replyPostIssue(SoupMessage *msg);
 	int getTrackerId(const string &trackerId);
 
@@ -151,61 +216,52 @@ void addError(string &errors, RedmineErrorType type,
 	}
 }
 
-string RedmineAPIEmulator::PrivateContext::buildResponse(
-  const string &subject, const string &description, const int &trackerId,
-  bool withAssignee)
+string RedmineAPIEmulator::PrivateContext::buildResponse(RedmineIssue &issue)
 {
-	time_t current = time(NULL);
-	struct tm tm;
-	gmtime_r(&current, &tm);
-	char dateString[128], timeString[128];
-	strftime(dateString, sizeof(dateString), "%Y-%m-%d", &tm);
-	strftime(timeString, sizeof(timeString), "%Y-%m-%dT%H:%M:%SZ", &tm);
-
 	JsonBuilderAgent agent;
 	agent.startObject();
 	agent.startObject("issue");
-	agent.add("id", ++m_issueId);
+	agent.add("id", issue.id);
 
 	agent.startObject("project");
-	agent.add("id", "1");
-	agent.add("name", "HatoholTestProject");
+	agent.add("id", issue.projectId);
+	agent.add("name", issue.getProjectName());
 	agent.endObject();
 
 	agent.startObject("tracker");
-	agent.add("id", trackerId);
-	agent.add("name", "Bug");
+	agent.add("id", issue.trackerId);
+	agent.add("name", issue.getTrackerName());
 	agent.endObject();
 
 	agent.startObject("status");
-	agent.add("id", "1");
-	agent.add("name", "New");
+	agent.add("id", issue.statusId);
+	agent.add("name", issue.getStatusName());
 	agent.endObject();
 
 	agent.startObject("priority");
-	agent.add("id", "2");
-	agent.add("name", "Normal");
+	agent.add("id", issue.priorityId);
+	agent.add("name", issue.getPriorityName());
 	agent.endObject();
 
 	agent.startObject("author");
-	agent.add("id", "1");
-	agent.add("name", m_currentUser);
+	agent.add("id", issue.authorId);
+	agent.add("name", issue.authorName);
 	agent.endObject();
 
-	if (withAssignee) {
+	if (issue.assigneeId) {
 		agent.startObject("assigned_to");
-		agent.add("id", "1");
-		agent.add("name", m_currentUser);
+		agent.add("id", issue.assigneeId);
+		agent.add("name", issue.assigneeName);
 		agent.endObject();
 	}
 
-	agent.add("subject", subject);
-	agent.add("description", description);
-	agent.add("start_date", dateString);
+	agent.add("subject", issue.subject);
+	agent.add("description", issue.description);
+	agent.add("start_date", issue.getStartDate());
 	agent.add("done_ratio", "0");
 	agent.add("spent_hours", ":0.0,");
-	agent.add("created_on", timeString);
-	agent.add("updated_on", timeString);
+	agent.add("created_on", issue.getCreatedOn());
+	agent.add("updated_on", issue.getUpdatedOn());
 
 	agent.endObject();
 	agent.endObject();
@@ -261,7 +317,9 @@ void RedmineAPIEmulator::PrivateContext::replyPostIssue(SoupMessage *msg)
 	agent.endObject();
 
 	if (errors.empty()) {
-		m_lastResponse = buildResponse(subject, description, trackerId);
+		RedmineIssue issue(++m_issueId, subject, description,
+				   m_currentUser, trackerId);
+		m_lastResponse = buildResponse(issue);
 		soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
 					 m_lastResponse.c_str(),
 					 m_lastResponse.size());
