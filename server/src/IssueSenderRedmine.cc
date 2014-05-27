@@ -80,7 +80,7 @@ IssueSenderRedmine::~IssueSenderRedmine()
 	delete m_ctx;
 }
 
-string IssueSenderRedmine::getPostURL(void)
+string IssueSenderRedmine::getProjectURL(void)
 {
 	const IssueTrackerInfo &trackerInfo = getIssueTrackerInfo();
 	string url = trackerInfo.baseURL;
@@ -90,10 +90,20 @@ string IssueSenderRedmine::getPostURL(void)
 	gchar *escapedProjectId =
 	  g_uri_escape_string(trackerInfo.projectId.c_str(),
 			      NULL, false);
-	if (escapedProjectId)
+	if (escapedProjectId) {
 		url += escapedProjectId;
+		url += "/";
+	}
 	g_free(escapedProjectId);
-	url += "/issues.json";
+	return url;
+}
+
+string IssueSenderRedmine::getPostURL(void)
+{
+	string url = getProjectURL();
+	if (url[url.size() - 1] != '/')
+		url += "/";
+	url += "issues.json";
 	return url;
 }
 
