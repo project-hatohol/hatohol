@@ -42,7 +42,6 @@ public:
 
 	ArmZabbixAPI(const MonitoringServerInfo &serverInfo);
 	virtual ~ArmZabbixAPI();
-	ItemTablePtr getItems(void);
 
 	/**
 	 * get the hosts database with Zabbix API server
@@ -60,17 +59,13 @@ public:
 
 protected:
 
-	SoupMessage *queryItem(void);
 	SoupMessage *queryHost(void);
 	SoupMessage *queryApplication(const std::vector<uint64_t> &appIdVector);
 	SoupMessage *queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill);
 	SoupMessage *queryGetLastEventId(void);
 	SoupMessage *queryGroup(void);
 
-	void pushApplicationid(JsonParserAgent &parser, ItemGroup *itemGroup);
 	uint64_t convertStrToUint64(const std::string strData);
-	void parseAndPushItemsData(JsonParserAgent &parser,
-	                           VariableItemTablePtr &tablePtr, int index);
 	void parseAndPushHostsData(JsonParserAgent &parser,
 	                           VariableItemTablePtr &tablePtr, int index);
 	void parseAndPushApplicationsData(JsonParserAgent &parser,

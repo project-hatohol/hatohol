@@ -91,6 +91,13 @@ protected:
 	ItemTablePtr getTrigger(int requestSince = 0);
 
 	/**
+	 * Get the items.
+	 *
+	 * @return The obtained items as an ItemTable format.
+	 */
+	ItemTablePtr getItems(void);
+
+	/**
 	 * Get the triggers.
 	 *
 	 * @param requestSince
@@ -100,6 +107,14 @@ protected:
 	 * A SoupMessage object with the raw Zabbix servers's response.
 	 */
 	SoupMessage *queryTrigger(int requestSince = 0);
+
+	/**
+	 * Get the triggers.
+	 *
+	 * @return
+	 * A SoupMessage object with the raw Zabbix servers's response.
+	 */
+	SoupMessage *queryItem(void);
 
 	/**
 	 * Get the functions.
@@ -129,8 +144,12 @@ protected:
 	void parseAndPushTriggerData(
 	  JsonParserAgent &parser,
 	  VariableItemTablePtr &tablePtr, const int &index);
+	void parseAndPushItemsData(
+	  JsonParserAgent &parser,
+	  VariableItemTablePtr &tablePtr, const int &index);
 
 	void pushTriggersHostid(JsonParserAgent &parser, ItemGroup *itemGroup);
+	void pushApplicationid(JsonParserAgent &parser, ItemGroup *itemGroup);
 
 private:
 	struct PrivateContext;

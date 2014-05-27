@@ -258,6 +258,32 @@ ItemTablePtr ZabbixAPI::getTrigger(int requestSince)
 	return ItemTablePtr(tablePtr);
 }
 
+ItemTablePtr ZabbixAPI::getItems(void)
+{
+	SoupMessage *msg = queryItem();
+	if (!msg)
+		THROW_DATA_STORE_EXCEPTION("Failed to query items.");
+
+	JsonParserAgent parser(msg->response_body->data);
+	g_object_unref(msg);
+	if (parser.hasError()) {
+		THROW_DATA_STORE_EXCEPTION(
+		  "Failed to parser: %s", parser.getErrorMessage());
+	}
+	startObject(parser, "result");
+
+	VariableItemTablePtr tablePtr;
+	int numData = parser.countElements();
+	MLPL_DBG("The number of items: %d\n", numData);
+	if (numData < 1)
+		return ItemTablePtr(tablePtr);
+
+	for (int i = 0; i < numData; i++)
+		parseAndPushItemsData(parser, tablePtr, i);
+	return ItemTablePtr(tablePtr);
+}
+
+
 SoupMessage *ZabbixAPI::queryTrigger(int requestSince)
 {
 	JsonBuilderAgent agent;
@@ -277,6 +303,26 @@ SoupMessage *ZabbixAPI::queryTrigger(int requestSince)
 	agent.add("selectHosts", "refer");
 	agent.addTrue("active");
 	agent.endObject();
+
+	agent.add("auth", m_ctx->authToken);
+	agent.add("id", 1);
+	agent.endObject();
+
+	return queryCommon(agent);
+}
+
+SoupMessage *ZabbixAPI::queryItem(void)
+{
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.add("jsonrpc", "2.0");
+	agent.add("method", "item.get");
+
+	agent.startObject("params");
+	agent.add("output", "extend");
+	agent.add("selectApplications", "refer");
+	agent.addTrue("monitored");
+	agent.endObject(); // params
 
 	agent.add("auth", m_ctx->authToken);
 	agent.add("id", 1);
@@ -482,6 +528,90 @@ void ZabbixAPI::parseAndPushTriggerData(
 	parser.endElement();
 }
 
+void ZabbixAPI::parseAndPushItemsData(
+  JsonParserAgent &parser, VariableItemTablePtr &tablePtr, const int &index)
+{
+	startElement(parser, index);
+	VariableItemGroupPtr grp;
+	pushUint64(parser, grp, "itemid",       ITEM_ID_ZBX_ITEMS_ITEMID);
+	pushInt   (parser, grp, "type",         ITEM_ID_ZBX_ITEMS_TYPE);
+	pushString(parser, grp, "snmp_community",
+	           ITEM_ID_ZBX_ITEMS_SNMP_COMMUNITY);
+	pushString(parser, grp, "snmp_oid",     ITEM_ID_ZBX_ITEMS_SNMP_OID);
+	pushUint64(parser, grp, "hostid",       ITEM_ID_ZBX_ITEMS_HOSTID);
+	pushString(parser, grp, "name",         ITEM_ID_ZBX_ITEMS_NAME);
+	pushString(parser, grp, "key_",         ITEM_ID_ZBX_ITEMS_KEY_);
+	pushInt   (parser, grp, "delay",        ITEM_ID_ZBX_ITEMS_DELAY);
+	pushInt   (parser, grp, "history",      ITEM_ID_ZBX_ITEMS_HISTORY);
+	pushInt   (parser, grp, "trends",       ITEM_ID_ZBX_ITEMS_TRENDS);
+	pushString(parser, grp, "lastvalue",    ITEM_ID_ZBX_ITEMS_LASTVALUE);
+
+	pushInt   (parser, grp, "lastclock",    ITEM_ID_ZBX_ITEMS_LASTCLOCK);
+	pushString(parser, grp, "prevvalue",    ITEM_ID_ZBX_ITEMS_PREVVALUE);
+	pushInt   (parser, grp, "status",       ITEM_ID_ZBX_ITEMS_STATUS);
+	pushInt   (parser, grp, "value_type",   ITEM_ID_ZBX_ITEMS_VALUE_TYPE);
+	pushString(parser, grp, "trapper_hosts",
+	           ITEM_ID_ZBX_ITEMS_TRAPPER_HOSTS);
+
+	pushString(parser, grp, "units",        ITEM_ID_ZBX_ITEMS_UNITS);
+	pushInt   (parser, grp, "multiplier",   ITEM_ID_ZBX_ITEMS_MULTIPLIER);
+	pushInt   (parser, grp, "delta",        ITEM_ID_ZBX_ITEMS_DELTA);
+	if (checkAPIVersion(2, 2, 0)) {
+		// Zabbix 2.2 doesn't have "prevorgvalue" property
+		grp->add(new ItemString(ITEM_ID_ZBX_ITEMS_PREVORGVALUE, ""),
+			 false);
+	} else {
+		pushString(parser, grp, "prevorgvalue",
+			   ITEM_ID_ZBX_ITEMS_PREVORGVALUE);
+	}
+	pushString(parser, grp, "snmpv3_securityname",
+	           ITEM_ID_ZBX_ITEMS_SNMPV3_SECURITYNAME);
+	pushInt   (parser, grp, "snmpv3_securitylevel",
+	           ITEM_ID_ZBX_ITEMS_SNMPV3_SECURITYLEVEL);
+	pushString(parser, grp, "snmpv3_authpassphrase",
+	           ITEM_ID_ZBX_ITEMS_SNMPV3_AUTHPASSPHRASE);
+	pushString(parser, grp, "snmpv3_privpassphrase",
+	           ITEM_ID_ZBX_ITEMS_SNMPV3_PRIVPASSPHRASE);
+	pushString(parser, grp, "formula",     ITEM_ID_ZBX_ITEMS_FORMULA);
+	pushString(parser, grp, "error",       ITEM_ID_ZBX_ITEMS_ERROR);
+	pushUint64(parser, grp, "lastlogsize", ITEM_ID_ZBX_ITEMS_LASTLOGSIZE);
+	pushString(parser, grp, "logtimefmt",  ITEM_ID_ZBX_ITEMS_LOGTIMEFMT);
+	pushUint64(parser, grp, "templateid",  ITEM_ID_ZBX_ITEMS_TEMPLATEID);
+	pushUint64(parser, grp, "valuemapid",  ITEM_ID_ZBX_ITEMS_VALUEMAPID);
+	pushString(parser, grp, "delay_flex",  ITEM_ID_ZBX_ITEMS_DELAY_FLEX);
+	pushString(parser, grp, "params",      ITEM_ID_ZBX_ITEMS_PARAMS);
+	pushString(parser, grp, "ipmi_sensor", ITEM_ID_ZBX_ITEMS_IPMI_SENSOR);
+	pushInt   (parser, grp, "data_type",   ITEM_ID_ZBX_ITEMS_DATA_TYPE);
+	pushInt   (parser, grp, "authtype",    ITEM_ID_ZBX_ITEMS_AUTHTYPE);
+	pushString(parser, grp, "username",    ITEM_ID_ZBX_ITEMS_USERNAME);
+	pushString(parser, grp, "password",    ITEM_ID_ZBX_ITEMS_PASSWORD);
+	pushString(parser, grp, "publickey",   ITEM_ID_ZBX_ITEMS_PUBLICKEY);
+	pushString(parser, grp, "privatekey",  ITEM_ID_ZBX_ITEMS_PRIVATEKEY);
+	pushInt   (parser, grp, "mtime",       ITEM_ID_ZBX_ITEMS_MTIME);
+	pushInt   (parser, grp, "lastns",      ITEM_ID_ZBX_ITEMS_LASTNS);
+	pushInt   (parser, grp, "flags",       ITEM_ID_ZBX_ITEMS_FLAGS);
+	if (checkAPIVersion(2, 3, 0)) {
+		// Zabbix 2.4 doesn't have "filter" property
+		grp->add(new ItemString(ITEM_ID_ZBX_ITEMS_FILTER, ""),
+			 false);
+	} else {
+		pushString(parser, grp, "filter", ITEM_ID_ZBX_ITEMS_FILTER);
+	}
+	pushUint64(parser, grp, "interfaceid", ITEM_ID_ZBX_ITEMS_INTERFACEID);
+	pushString(parser, grp, "port",        ITEM_ID_ZBX_ITEMS_PORT);
+	pushString(parser, grp, "description", ITEM_ID_ZBX_ITEMS_DESCRIPTION);
+	pushInt   (parser, grp, "inventory_link",
+	           ITEM_ID_ZBX_ITEMS_INVENTORY_LINK);
+	pushString(parser, grp, "lifetime",    ITEM_ID_ZBX_ITEMS_LIFETIME);
+
+	// application
+	pushApplicationid(parser, grp);
+
+	tablePtr->add(grp);
+
+	parser.endElement();
+}
+
 void ZabbixAPI::pushTriggersHostid(JsonParserAgent &parser,
                                    ItemGroup *itemGroup)
 {
@@ -495,6 +625,25 @@ void ZabbixAPI::pushTriggersHostid(JsonParserAgent &parser,
 		for (int i = 0; i < numElem; i++) {
 			startElement(parser, i);
 			pushUint64(parser, itemGroup, "hostid", itemId);
+			break; // we use the first applicationid
+		}
+		parser.endElement();
+	}
+	parser.endObject();
+}
+
+void ZabbixAPI::pushApplicationid(JsonParserAgent &parser, ItemGroup *itemGroup)
+{
+	ItemId itemId = ITEM_ID_ZBX_ITEMS_APPLICATIONID;
+	startObject(parser, "applications");
+	int numElem = parser.countElements();
+	if (numElem == 0) {
+		const uint64_t dummyData = 0;
+		itemGroup->addNewItem(itemId, dummyData, ITEM_DATA_NULL);
+	} else  {
+		for (int i = 0; i < numElem; i++) {
+			startElement(parser, i);
+			pushUint64(parser, itemGroup, "applicationid", itemId);
 			break; // we use the first applicationid
 		}
 		parser.endElement();
