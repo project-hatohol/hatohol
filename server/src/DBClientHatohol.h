@@ -390,6 +390,8 @@ public:
 	                         const std::vector<uint64_t> &hostIdVector);
 
 	void addIssueInfo(IssueInfo *issueInfo);
+	HatoholError getIssueInfoVect(IssueInfoVect &issueInfoVect,
+				      const IssuesQueryOption &option);
 
 protected:
 	void addTriggerInfoWithoutTransaction(const TriggerInfo &triggerInfo);

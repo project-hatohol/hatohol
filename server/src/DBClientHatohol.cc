@@ -2101,6 +2101,52 @@ void DBClientHatohol::addIssueInfo(IssueInfo *issueInfo)
 	} DBCLIENT_TRANSACTION_END();
 }
 
+HatoholError DBClientHatohol::getIssueInfoVect(
+  IssueInfoVect &issueInfoVect, const IssuesQueryOption &option)
+{
+	DBAgent::SelectExArg arg(tableProfileIssues);
+	for (int i = 0; i < NUM_IDX_ISSUES; i++)
+		arg.add(i);
+
+	// condition
+	arg.condition = option.getCondition();
+	if (isAlwaysFalseCondition(arg.condition))
+		return HatoholError(HTERR_OK);
+
+	// Order By
+	arg.orderBy = option.getOrderBy();
+
+	// Limit and Offset
+	arg.limit = option.getMaximumNumber();
+	arg.offset = option.getOffset();
+	if (!arg.limit && arg.offset)
+		return HatoholError(HTERR_OFFSET_WITHOUT_LIMIT);
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	// check the result and copy
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
+		issueInfoVect.push_back(IssueInfo());
+		IssueInfo &issueInfo = issueInfoVect.back();
+		itemGroupStream >> issueInfo.unifiedId;
+		itemGroupStream >> issueInfo.trackerId;
+		itemGroupStream >> issueInfo.eventId;
+		itemGroupStream >> issueInfo.identifier;
+		itemGroupStream >> issueInfo.location;
+		itemGroupStream >> issueInfo.status;
+		itemGroupStream >> issueInfo.assignee;
+		itemGroupStream >> issueInfo.createdAt;
+		itemGroupStream >> issueInfo.updatedAt;
+	}
+
+	return HatoholError(HTERR_OK);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

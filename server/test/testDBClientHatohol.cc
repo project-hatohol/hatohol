@@ -1283,4 +1283,28 @@ void test_addIssueInfo(void)
 	assertDBContent(dbAgent, statement, expect);
 }
 
+void test_getIssueInfo(void)
+{
+	DBClientHatohol dbClientHatohol;
+	IssueInfoVect issues;
+	IssuesQueryOption option(USER_ID_SYSTEM);
+	string expected, actual;
+
+	for (size_t i = 0; i < NumTestIssueInfo; i++) {
+		IssueInfo expectedIssueInfo = testIssueInfo[i];
+		expectedIssueInfo.unifiedId = i + 1;
+		expected += makeIssueOutput(expectedIssueInfo);
+		dbClientHatohol.addIssueInfo(&expectedIssueInfo);
+	}
+
+	dbClientHatohol.getIssueInfoVect(issues, option);
+	IssueInfoVectIterator it = issues.begin();
+	for (; it != issues.end(); it++) {
+		IssueInfo &actualIssueInfo = *it;
+		actual += makeIssueOutput(actualIssueInfo);
+	}
+
+	cppcut_assert_equal(expected, actual);
+}
+
 } // namespace testDBClientHatohol
