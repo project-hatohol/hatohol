@@ -107,6 +107,17 @@ string IssueSenderRedmine::getIssuesJsonURL(void)
 	return url;
 }
 
+string IssueSenderRedmine::getIssueURL(const string &id)
+{
+	const IssueTrackerInfo &trackerInfo = getIssueTrackerInfo();
+	string url = trackerInfo.baseURL;
+	if (url[url.size() - 1] != '/')
+		url += "/";
+	url += "issues/";
+	url += id;
+	return url;
+}
+
 string IssueSenderRedmine::buildJson(const EventInfo &event)
 {
 	MonitoringServerInfo serverInfo;
@@ -171,6 +182,7 @@ HatoholError IssueSenderRedmine::PrivateContext::parseResponse(
 		return HTERR_FAILED_TO_SEND_ISSUE;
 	}
 	issueInfo.identifier = StringUtils::toString((uint64_t)issueId);
+	issueInfo.location = m_sender.getIssueURL(issueInfo.identifier);
 
 	agent.startObject("status");
 	agent.read("name", issueInfo.status);
