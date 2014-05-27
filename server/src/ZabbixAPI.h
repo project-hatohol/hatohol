@@ -24,6 +24,7 @@
 #include <libsoup/soup.h>
 #include "DBClientConfig.h"
 #include "JsonBuilderAgent.h"
+#include "JsonParserAgent.h"
 
 class ZabbixAPI
 {
@@ -79,10 +80,57 @@ protected:
 	std::string getAuthToken(void);
 	void clearAuthToken(void);
 
+	/**
+	 * Get the triggers.
+	 *
+	 * @param requestSince
+	 * Triggers with timestamp after this parameter will be returned.
+	 *
+	 * @return The obtained triggers as an ItemTable format.
+	 */
+	ItemTablePtr getTrigger(int requestSince = 0);
+
+	/**
+	 * Get the triggers.
+	 *
+	 * @param requestSince
+	 * Triggers with timestamp after this parameter will be returned.
+	 *
+	 * @return
+	 * A SoupMessage object with the raw Zabbix servers's response.
+	 */
+	SoupMessage *queryTrigger(int requestSince = 0);
+
+	/**
+	 * Get the functions.
+	 * Actually, the body of 'functions' is objtained in the prior call of
+	 * getTrigger(). So the caller must be call getTrigger() before this
+	 * method.
+	 *
+	 * @return The obtained functions as an ItemTable format.
+	 */
+	ItemTablePtr getFunctions(void);
+
 	SoupMessage *queryCommon(JsonBuilderAgent &agent);
 	SoupMessage *queryAPIVersion(void);
 	std::string getInitialJsonRequest(void);
 	bool parseInitialResponse(SoupMessage *msg);
+	void startObject(JsonParserAgent &parser, const std::string &name);
+	void startElement(JsonParserAgent &parser, const int &index);
+
+	void getString(JsonParserAgent &parser, const std::string &name,
+	               std::string &value);
+	int pushInt(JsonParserAgent &parser, ItemGroup *itemGroup,
+	            const std::string &name, const ItemId &itemId);
+	uint64_t pushUint64(JsonParserAgent &parser, ItemGroup *itemGroup,
+	                    const std::string &name, const ItemId &itemId);
+	std::string pushString(JsonParserAgent &parser, ItemGroup *itemGroup,
+	                       const std::string &name, const ItemId &itemId);
+	void parseAndPushTriggerData(
+	  JsonParserAgent &parser,
+	  VariableItemTablePtr &tablePtr, const int &index);
+
+	void pushTriggersHostid(JsonParserAgent &parser, ItemGroup *itemGroup);
 
 private:
 	struct PrivateContext;

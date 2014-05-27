@@ -23,6 +23,7 @@
 #include "JsonParserAgent.h"
 #include "ZabbixAPI.h"
 #include "StringUtils.h"
+#include "DataStoreException.h"
 
 using namespace std;
 using namespace mlpl;
@@ -42,12 +43,16 @@ struct ZabbixAPI::PrivateContext {
 	SoupSession   *session;
 	string         authToken;
 
+	bool                 gotTriggers;
+	VariableItemTablePtr functionsTablePtr;
+
 	// constructors and destructor
 	PrivateContext(const MonitoringServerInfo &serverInfo)
 	: apiVersionMajor(0),
 	  apiVersionMinor(0),
 	  apiVersionMicro(0),
-	  session(NULL)
+	  session(NULL),
+	  gotTriggers(false)
 	{
 		const bool forURI = true;
 		uri = "http://";
@@ -224,6 +229,72 @@ void ZabbixAPI::clearAuthToken(void)
 	onUpdatedAuthToken(m_ctx->authToken);
 }
 
+ItemTablePtr ZabbixAPI::getTrigger(int requestSince)
+{
+	SoupMessage *msg = queryTrigger(requestSince);
+	if (!msg)
+		THROW_DATA_STORE_EXCEPTION("Failed to query triggers.");
+
+	JsonParserAgent parser(msg->response_body->data);
+	if (parser.hasError()) {
+		g_object_unref(msg);
+		THROW_DATA_STORE_EXCEPTION(
+		  "Failed to parser: %s", parser.getErrorMessage());
+	}
+	g_object_unref(msg);
+	startObject(parser, "result");
+
+	VariableItemTablePtr tablePtr;
+	int numTriggers = parser.countElements();
+	MLPL_DBG("The number of triggers: %d\n", numTriggers);
+	if (numTriggers < 1)
+		return ItemTablePtr(tablePtr);
+
+	m_ctx->gotTriggers = false;
+	m_ctx->functionsTablePtr = VariableItemTablePtr();
+	for (int i = 0; i < numTriggers; i++)
+		parseAndPushTriggerData(parser, tablePtr, i);
+	m_ctx->gotTriggers = true;
+	return ItemTablePtr(tablePtr);
+}
+
+SoupMessage *ZabbixAPI::queryTrigger(int requestSince)
+{
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.add("jsonrpc", "2.0");
+	agent.add("method", "trigger.get");
+
+	agent.startObject("params");
+	agent.add("output", "extend");
+
+	// We are no longer request 'functions'.
+	// See also comments in mainThreadOneProc().
+	//
+	// agent.add("selectFunctions", "extend");
+	if (requestSince > 0)
+		agent.add("lastChangeSince", requestSince);
+	agent.add("selectHosts", "refer");
+	agent.addTrue("active");
+	agent.endObject();
+
+	agent.add("auth", m_ctx->authToken);
+	agent.add("id", 1);
+	agent.endObject();
+
+	return queryCommon(agent);
+}
+
+ItemTablePtr ZabbixAPI::getFunctions(void)
+{
+	if (!m_ctx->gotTriggers) {
+		THROW_DATA_STORE_EXCEPTION(
+		  "Cache for 'functions' is empty. 'triggers' may not have "
+		  "been retrieved.");
+	}
+	return ItemTablePtr(m_ctx->functionsTablePtr);
+}
+
 SoupMessage *ZabbixAPI::queryCommon(JsonBuilderAgent &agent)
 {
 	string request_body = agent.generate();
@@ -289,3 +360,144 @@ bool ZabbixAPI::parseInitialResponse(SoupMessage *msg)
 	return true;
 }
 
+void ZabbixAPI::startObject(JsonParserAgent &parser, const string &name)
+{
+	if (!parser.startObject(name)) {
+		THROW_DATA_STORE_EXCEPTION(
+		  "Failed to read object: %s", name.c_str());
+	}
+}
+
+void ZabbixAPI::startElement(JsonParserAgent &parser, const int &index)
+{
+	if (!parser.startElement(index)) {
+		THROW_DATA_STORE_EXCEPTION(
+		  "Failed to start element: %d",index);
+	}
+}
+
+#if 0 // See the comment in parseAndPushTriggerData()
+void ArmZabbixAPI::pushFunctionsCache(JsonParserAgent &parser)
+{
+	startObject(parser, "functions");
+	int numFunctions = parser.countElements();
+	for (int i = 0; i < numFunctions; i++) {
+		VariableItemGroupPtr itemGroup;
+		pushFunctionsCacheOne(parser, itemGroup, i);
+		m_ctx->functionsTablePtr->add(itemGroup);
+	}
+	parser.endObject();
+}
+
+void ArmZabbixAPI::pushFunctionsCacheOne(JsonParserAgent &parser,
+                                         ItemGroup *grp, int index)
+{
+	startElement(parser, index);
+	pushUint64(parser, grp, "functionid", ITEM_ID_ZBX_FUNCTIONS_FUNCTIONID);
+	pushUint64(parser, grp, "itemid",     ITEM_ID_ZBX_FUNCTIONS_ITEMID);
+	grp->add(new ItemUint64(ITEM_ID_ZBX_FUNCTIONS_TRIGGERID,
+	                        m_ctx->triggerid), false);
+	pushString(parser, grp, "function",   ITEM_ID_ZBX_FUNCTIONS_FUNCTION);
+	pushString(parser, grp, "parameter",  ITEM_ID_ZBX_FUNCTIONS_PARAMETER);
+	parser.endElement();
+}
+#endif
+
+void ZabbixAPI::getString(JsonParserAgent &parser, const string &name,
+                          string &value)
+{
+	if (!parser.read(name.c_str(), value)) {
+		THROW_DATA_STORE_EXCEPTION("Failed to read: %s", name.c_str());
+	}
+}
+
+int ZabbixAPI::pushInt(JsonParserAgent &parser, ItemGroup *itemGroup,
+                       const string &name, const ItemId &itemId)
+{
+	string value;
+	getString(parser, name, value);
+	int valInt = atoi(value.c_str());
+	itemGroup->add(new ItemInt(itemId, valInt), false);
+	return valInt;
+}
+
+uint64_t ZabbixAPI::pushUint64(JsonParserAgent &parser, ItemGroup *itemGroup,
+                               const string &name, const ItemId &itemId)
+{
+	string value;
+	getString(parser, name, value);
+	uint64_t valU64;
+	sscanf(value.c_str(), "%"PRIu64, &valU64);
+	itemGroup->add(new ItemUint64(itemId, valU64), false);
+	return valU64;
+}
+
+string ZabbixAPI::pushString(JsonParserAgent &parser, ItemGroup *itemGroup,
+                             const string &name, const ItemId &itemId)
+{
+	string value;
+	getString(parser, name, value);
+	itemGroup->add(new ItemString(itemId, value), false);
+	return value;
+}
+
+void ZabbixAPI::parseAndPushTriggerData(
+  JsonParserAgent &parser, VariableItemTablePtr &tablePtr, const int &index)
+{
+	startElement(parser, index);
+	VariableItemGroupPtr grp;
+	pushUint64(parser, grp, "triggerid",   ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
+	pushString(parser, grp, "expression",  ITEM_ID_ZBX_TRIGGERS_EXPRESSION);
+	pushString(parser, grp, "description", ITEM_ID_ZBX_TRIGGERS_DESCRIPTION);
+	pushString(parser, grp, "url",         ITEM_ID_ZBX_TRIGGERS_URL);
+	pushInt   (parser, grp, "status",      ITEM_ID_ZBX_TRIGGERS_STATUS);
+	pushInt   (parser, grp, "value",       ITEM_ID_ZBX_TRIGGERS_VALUE);
+	pushInt   (parser, grp, "priority",    ITEM_ID_ZBX_TRIGGERS_PRIORITY);
+	pushInt   (parser, grp, "lastchange",  ITEM_ID_ZBX_TRIGGERS_LASTCHANGE);
+	pushString(parser, grp, "comments",    ITEM_ID_ZBX_TRIGGERS_COMMENTS);
+	pushString(parser, grp, "error",       ITEM_ID_ZBX_TRIGGERS_ERROR);
+	pushUint64(parser, grp, "templateid",  ITEM_ID_ZBX_TRIGGERS_TEMPLATEID);
+	pushInt   (parser, grp, "type",        ITEM_ID_ZBX_TRIGGERS_TYPE);
+	if (checkAPIVersion(2, 3, 0)) {
+		// Zabbix 2.4 doesn't have "value_falgs" property
+		grp->add(new ItemInt(ITEM_ID_ZBX_TRIGGERS_VALUE_FLAGS, 0),
+			 false);
+	} else {
+		pushInt(parser, grp, "value_flags",
+			ITEM_ID_ZBX_TRIGGERS_VALUE_FLAGS);
+	}
+	pushInt   (parser, grp, "flags",       ITEM_ID_ZBX_TRIGGERS_FLAGS);
+
+	// get hostid
+	pushTriggersHostid(parser, grp);
+
+	tablePtr->add(grp);
+
+	// We are no longer request 'functions'.
+	// See also comments in mainThreadOneProc().
+	//
+	// get functions
+	// pushFunctionsCache(parser);
+
+	parser.endElement();
+}
+
+void ZabbixAPI::pushTriggersHostid(JsonParserAgent &parser,
+                                   ItemGroup *itemGroup)
+{
+	ItemId itemId = ITEM_ID_ZBX_TRIGGERS_HOSTID;
+	startObject(parser, "hosts");
+	int numElem = parser.countElements();
+	if (numElem == 0) {
+		const uint64_t dummyData = 0;
+		itemGroup->addNewItem(itemId, dummyData, ITEM_DATA_NULL);
+	} else  {
+		for (int i = 0; i < numElem; i++) {
+			startElement(parser, i);
+			pushUint64(parser, itemGroup, "hostid", itemId);
+			break; // we use the first applicationid
+		}
+		parser.endElement();
+	}
+	parser.endObject();
+}

@@ -24,7 +24,6 @@
 #include "ZabbixAPI.h"
 #include "ArmBase.h"
 #include "ItemTablePtr.h"
-#include "JsonParserAgent.h"
 #include "JsonBuilderAgent.h"
 #include "DBClientConfig.h"
 #include "DBClientZabbix.h"
@@ -43,8 +42,6 @@ public:
 
 	ArmZabbixAPI(const MonitoringServerInfo &serverInfo);
 	virtual ~ArmZabbixAPI();
-	ItemTablePtr getTrigger(int requestSince = 0);
-	ItemTablePtr getFunctions(void);
 	ItemTablePtr getItems(void);
 
 	/**
@@ -63,31 +60,14 @@ public:
 
 protected:
 
-	SoupMessage *queryTrigger(int requestSince = 0);
 	SoupMessage *queryItem(void);
 	SoupMessage *queryHost(void);
 	SoupMessage *queryApplication(const std::vector<uint64_t> &appIdVector);
 	SoupMessage *queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill);
 	SoupMessage *queryGetLastEventId(void);
 	SoupMessage *queryGroup(void);
-	void startObject(JsonParserAgent &parser, const std::string &name);
-	void startElement(JsonParserAgent &parser, int index);
-	void getString(JsonParserAgent &parser, const std::string &name,
-	               std::string &value);
 
-	int pushInt(JsonParserAgent &parser, ItemGroup *itemGroup,
-	            const std::string &name, ItemId itemId);
-	uint64_t pushUint64(JsonParserAgent &parser, ItemGroup *itemGroup,
-	                    const std::string &name, ItemId itemId);
-	std::string pushString(JsonParserAgent &parser, ItemGroup *itemGroup,
-	                       const std::string &name, ItemId itemId);
-
-	void pushFunctionsCacheOne(JsonParserAgent &parser,
-	                           ItemGroup *itemGroup, int index);
-	void parseAndPushTriggerData(JsonParserAgent &parser,
-	                             VariableItemTablePtr &tablePtr, int index);
 	void pushApplicationid(JsonParserAgent &parser, ItemGroup *itemGroup);
-	void pushTriggersHostid(JsonParserAgent &parser, ItemGroup *itemGroup);
 	uint64_t convertStrToUint64(const std::string strData);
 	void parseAndPushItemsData(JsonParserAgent &parser,
 	                           VariableItemTablePtr &tablePtr, int index);
