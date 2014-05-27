@@ -297,25 +297,6 @@ void ArmZabbixAPI::getGroups(ItemTablePtr &groupsTablePtr)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-bool ArmZabbixAPI::updateAuthTokenIfNeeded(void)
-{
-	if (m_ctx->authToken.empty()) {
-		MLPL_DBG("authToken is empty\n");
-		if (!openSession())
-			return false;
-	}
-	MLPL_DBG("authToken: %s\n", m_ctx->authToken.c_str());
-
-	return true;
-}
-
-string ArmZabbixAPI::getAuthToken(void)
-{
-	// This function is used in the test class.
-	updateAuthTokenIfNeeded();
-	return m_ctx->authToken;
-}
-
 SoupMessage *ArmZabbixAPI::queryTrigger(int requestSince)
 {
 	JsonBuilderAgent agent;
@@ -1156,14 +1137,14 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 		}
 	} catch (const DataStoreException &dse) {
 		MLPL_ERR("Error on update: %s\n", dse.what());
-		m_ctx->authToken = "";
+		clearAuthToken();
 		return false;
 	}
 
 	return true;
 }
 
-void ArmZabbixAPI::onGotAuthToken(const string &authToken)
+void ArmZabbixAPI::onUpdatedAuthToken(const string &authToken)
 {
 	m_ctx->authToken = authToken;
 }

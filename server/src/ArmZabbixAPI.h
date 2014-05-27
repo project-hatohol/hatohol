@@ -63,9 +63,6 @@ public:
 
 protected:
 
-	bool updateAuthTokenIfNeeded(void);
-	std::string getAuthToken(void);
-
 	SoupMessage *queryTrigger(int requestSince = 0);
 	SoupMessage *queryItem(void);
 	SoupMessage *queryHost(void);
@@ -164,7 +161,7 @@ protected:
 	// virtual methods
 	virtual gpointer mainThread(HatoholThreadArg *arg);
 	virtual bool mainThreadOneProc(void);
-	virtual void onGotAuthToken(const std::string &authToken); // override
+	virtual void onUpdatedAuthToken(const std::string &authToken); // override
 
 private:
 	struct PrivateContext;

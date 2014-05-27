@@ -84,7 +84,7 @@ ZabbixAPI::~ZabbixAPI()
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void ZabbixAPI::onGotAuthToken(const string &authToken)
+void ZabbixAPI::onUpdatedAuthToken(const string &authToken)
 {
 }
 
@@ -173,7 +173,6 @@ bool ZabbixAPI::openSession(SoupMessage **msgPtr)
 		g_object_unref(msg);
 		return false;
 	}
-	onGotAuthToken(m_ctx->authToken);
 	MLPL_DBG("authToken: %s\n", m_ctx->authToken.c_str());
 
 	// copy the SoupMessage object if msgPtr is not NULL.
@@ -198,6 +197,31 @@ SoupSession *ZabbixAPI::getSession(void)
 			//SOUP_SESSION_IDLE_TIMEOUT, DEFAULT_IDLE_TIMEOUT,
 			NULL);
 	return m_ctx->session;
+}
+
+bool ZabbixAPI::updateAuthTokenIfNeeded(void)
+{
+	if (m_ctx->authToken.empty()) {
+		MLPL_DBG("authToken is empty\n");
+		if (!openSession())
+			return false;
+	}
+	MLPL_DBG("authToken: %s\n", m_ctx->authToken.c_str());
+
+	return true;
+}
+
+string ZabbixAPI::getAuthToken(void)
+{
+	// This function is used in the test class.
+	updateAuthTokenIfNeeded();
+	return m_ctx->authToken;
+}
+
+void ZabbixAPI::clearAuthToken(void)
+{
+	m_ctx->authToken.clear();
+	onUpdatedAuthToken(m_ctx->authToken);
 }
 
 SoupMessage *ZabbixAPI::queryCommon(JsonBuilderAgent &agent)
@@ -261,6 +285,7 @@ bool ZabbixAPI::parseInitialResponse(SoupMessage *msg)
 		MLPL_ERR("Failed to read: result\n");
 		return false;
 	}
+	onUpdatedAuthToken(m_ctx->authToken);
 	return true;
 }
 

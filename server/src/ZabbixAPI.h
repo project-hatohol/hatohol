@@ -33,9 +33,9 @@ public:
 
 protected:
 	/**
-	 * Called when the authtoken is obtained or updated.
+	 * Called when the authtoken is updated.
 	 */
-	virtual void onGotAuthToken(const std::string &authToken);
+	virtual void onUpdatedAuthToken(const std::string &authToken);
 
 	/**
 	 * Get the API version of the target ZABBIX server.
@@ -75,6 +75,10 @@ protected:
 	bool openSession(SoupMessage **msgPtr = NULL);
 
 	SoupSession *getSession(void);
+	bool updateAuthTokenIfNeeded(void);
+	std::string getAuthToken(void);
+	void clearAuthToken(void);
+
 	SoupMessage *queryCommon(JsonBuilderAgent &agent);
 	SoupMessage *queryAPIVersion(void);
 	std::string getInitialJsonRequest(void);
