@@ -61,7 +61,8 @@ struct IssueSenderRedmine::PrivateContext
 					 gpointer user_data);
 	void connectSessionSignals(void);
 	void disconnectSessionSignals(void);
-	HatoholError parseResponse(const string &response);
+	HatoholError parseResponse(IssueInfo &issueInfo,
+				   const string &response);
 	HatoholError parseErrorResponse(const string &response);
 
 	IssueSenderRedmine &m_sender;
@@ -142,7 +143,7 @@ void IssueSenderRedmine::PrivateContext::disconnectSessionSignals(void)
 }
 
 HatoholError IssueSenderRedmine::PrivateContext::parseResponse(
-  const string &response)
+  IssueInfo &issueInfo, const string &response)
 {
 	JsonParserAgent agent(response);
 	if (agent.hasError()) {
@@ -159,6 +160,18 @@ HatoholError IssueSenderRedmine::PrivateContext::parseResponse(
 		MLPL_ERR("Failed to parse Issue ID.\n");
 		return HTERR_FAILED_TO_SEND_ISSUE;
 	}
+	issueInfo.identifier = StringUtils::toString((uint64_t)issueId);
+
+	agent.startObject("status");
+	agent.read("name", issueInfo.status);
+	agent.endObject();
+
+	if (agent.isMember("assigned_to")) {
+		agent.startObject("assigned_to");
+		agent.read("name", issueInfo.status);
+		agent.endObject();
+	}
+
 	agent.endObject();
 
 	return HTERR_OK;
@@ -217,5 +230,11 @@ HatoholError IssueSenderRedmine::send(const EventInfo &event)
 			return HTERR_FAILED_TO_SEND_ISSUE;
 	}
 
-	return m_ctx->parseResponse(response);
+	const IssueTrackerInfo &tracker = getIssueTrackerInfo();
+	IssueInfo issueInfo;
+	issueInfo.trackerId = tracker.id;
+	issueInfo.eventId = event.id;
+	HatoholError result = m_ctx->parseResponse(issueInfo, response);
+
+	return result;
 }
