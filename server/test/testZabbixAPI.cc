@@ -17,8 +17,11 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <string>
 #include <gcutter.h>
 #include "ZabbixAPITestUtils.h"
+
+using namespace std;
 
 namespace testZabbixAPI {
 
@@ -90,6 +93,18 @@ void test_openSession(void)
 	ZabbixAPITestee::initServerInfoWithDefaultParam(serverInfo);
 	ZabbixAPITestee zbxApiTestee(serverInfo);
 	zbxApiTestee.testOpenSession();
+}
+
+void test_getAuthToken(void)
+{
+	MonitoringServerInfo serverInfo;
+	ZabbixAPITestee::initServerInfoWithDefaultParam(serverInfo);
+	ZabbixAPITestee zbxApiTestee(serverInfo);
+
+	string firstToken, secondToken;
+	firstToken = zbxApiTestee.callAuthToken();
+	secondToken = zbxApiTestee.callAuthToken();
+	cppcut_assert_equal(firstToken, secondToken);
 }
 
 } // namespace testZabbixAPI

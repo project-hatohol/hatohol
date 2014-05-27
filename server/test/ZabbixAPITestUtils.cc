@@ -120,6 +120,11 @@ void ZabbixAPITestee::initServerInfoWithDefaultParam(
 	serverInfo.port = getTestPort();
 }
 
+string ZabbixAPITestee::callAuthToken(void)
+{
+	return getAuthToken();
+}
+
 //
 // Protected
 //

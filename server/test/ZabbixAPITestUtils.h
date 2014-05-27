@@ -45,6 +45,7 @@ public:
 
 	static void initServerInfoWithDefaultParam(
 	              MonitoringServerInfo &serverInfo);
+	std::string callAuthToken(void);
 
 protected:
 	typedef bool (ZabbixAPITestee::*TestProc)(void);

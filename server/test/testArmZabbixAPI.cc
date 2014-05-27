@@ -804,20 +804,6 @@ void test_checkUsernamePassword(void)
 	cppcut_assert_equal(g_defaultServerInfo.password, jsonPassword);
 }
 
-void test_checkAuthToken(void)
-{
-	int svId = 0;
-	MonitoringServerInfo serverInfo = g_defaultServerInfo;
-	serverInfo.id = svId;
-	serverInfo.port = getTestPort();
-	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
-
-	string firstToken,secondToken;
-	firstToken = armZbxApiTestee.testAuthToken();
-	secondToken = armZbxApiTestee.testAuthToken();
-	cppcut_assert_equal(firstToken, secondToken);
-}
-
 void test_httpErrorAuthToken(void)
 {
 	int svId = 0;
