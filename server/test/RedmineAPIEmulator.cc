@@ -39,40 +39,40 @@ RedmineIssue::RedmineIssue(const size_t &_id,
 {
 }
 
-string RedmineIssue::getProjectName(void)
+string RedmineIssue::getProjectName(void) const
 {
 	// TODO
 	return "HatoholTestProject";
 }
 
-string RedmineIssue::getTrackerName(void)
+string RedmineIssue::getTrackerName(void) const
 {
 	// TODO
 	return "Bug";
 }
 
-string RedmineIssue::getStatusName(void)
+string RedmineIssue::getStatusName(void) const
 {
 	// TODO
 	return "New";
 }
 
-string RedmineIssue::getPriorityName(void)
+string RedmineIssue::getPriorityName(void) const
 {
 	// TODO
 	return "Normal";
 }
 
-string RedmineIssue::getStartDate(void)
+string RedmineIssue::getStartDate(void) const
 {
 	return getDateString(startDate);
 };
 
-string RedmineIssue::getCreatedOn(void)
+string RedmineIssue::getCreatedOn(void) const
 {
 	return getTimeString(createdOn);
 };
-string RedmineIssue::getUpdatedOn(void)
+string RedmineIssue::getUpdatedOn(void) const
 {
 	return getTimeString(updatedOn);
 };
@@ -95,7 +95,7 @@ string RedmineIssue::getTimeString(time_t time)
 	return string(timeString);
 }
 
-string RedmineIssue::toJson(void)
+string RedmineIssue::toJson(void) const
 {
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -204,17 +204,17 @@ void RedmineAPIEmulator::addUser(const std::string &userName,
 	m_ctx->m_passwords[userName] = password;
 }
 
-const string &RedmineAPIEmulator::getLastRequest(void)
+const string &RedmineAPIEmulator::getLastRequest(void) const
 {
 	return m_ctx->m_lastRequest;
 }
 
-const string &RedmineAPIEmulator::getLastResponse(void)
+const string &RedmineAPIEmulator::getLastResponse(void) const
 {
 	return m_ctx->m_lastResponse;
 }
 
-const RedmineIssue &RedmineAPIEmulator::getLastIssue(void)
+const RedmineIssue &RedmineAPIEmulator::getLastIssue(void) const
 {
 	return m_ctx->m_lastIssue;
 }

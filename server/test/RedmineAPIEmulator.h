@@ -44,16 +44,16 @@ struct RedmineIssue {
 		     const std::string &_authorName = "",
 		     const int &_trackerId = 1);
 
-	std::string getProjectName(void);
-	std::string getTrackerName(void);
-	std::string getStatusName(void);
-	std::string getPriorityName(void);
-	std::string getAuthorName(void);
-	std::string getAssigneeName(void);
-	std::string getStartDate(void);
-	std::string getCreatedOn(void);
-	std::string getUpdatedOn(void);
-	std::string toJson(void);
+	std::string getProjectName(void) const;
+	std::string getTrackerName(void) const;
+	std::string getStatusName(void) const;
+	std::string getPriorityName(void) const;
+	std::string getAuthorName(void) const;
+	std::string getAssigneeName(void) const;
+	std::string getStartDate(void) const;
+	std::string getCreatedOn(void) const;
+	std::string getUpdatedOn(void) const;
+	std::string toJson(void) const;
 
 	static std::string getDateString(time_t time);
 	static std::string getTimeString(time_t time);
@@ -65,9 +65,9 @@ public:
 	virtual ~RedmineAPIEmulator();
 	virtual void reset(void);
 	void addUser(const std::string &userName, const std::string &password);
-	const std::string &getLastRequest(void);
-	const std::string &getLastResponse(void);
-	const RedmineIssue &getLastIssue(void);
+	const std::string &getLastRequest(void) const;
+	const std::string &getLastResponse(void) const;
+	const RedmineIssue &getLastIssue(void) const;
 
 protected:
 	virtual void setSoupHandlers(SoupServer *soupServer);
