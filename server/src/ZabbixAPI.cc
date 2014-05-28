@@ -461,8 +461,6 @@ SoupMessage *ZabbixAPI::queryLastEventId(void)
 	return queryCommon(agent);
 }
 
-
-
 SoupMessage *ZabbixAPI::queryTrigger(int requestSince)
 {
 	JsonBuilderAgent agent;
