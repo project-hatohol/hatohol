@@ -277,7 +277,7 @@ static void _assertValueInParser(JsonParserAgent *parser,
 {
 	int64_t val;
 	cppcut_assert_equal(true, parser->read(member, val),
-	                    cut_message("member: %s, expect: %"PRIu32,
+	                    cut_message("member: %s, expect: %" PRIu32,
 	                                member.c_str(), expected));
 	cppcut_assert_equal(expected, (uint32_t)val);
 }
@@ -525,7 +525,7 @@ static void _assertHosts(const string &path, const string &callbackName = "",
 	StringMap queryMap;
 	if (serverId != ALL_SERVERS) {
 		queryMap["serverId"] =
-		   StringUtils::sprintf("%"PRIu32, serverId); 
+		   StringUtils::sprintf("%" PRIu32, serverId); 
 	}
 	RequestArg arg(path, callbackName);
 	arg.parameters = queryMap;
@@ -570,10 +570,10 @@ static void _assertTriggers(const string &path, const string &callbackName = "",
 	StringMap queryMap;
 	if (serverId != ALL_SERVERS) {
 		queryMap["serverId"] =
-		  StringUtils::sprintf("%"PRIu32, serverId);
+		  StringUtils::sprintf("%" PRIu32, serverId);
 	}
 	if (hostId != ALL_HOSTS)
-		queryMap["hostId"] = StringUtils::sprintf("%"PRIu64, hostId); 
+		queryMap["hostId"] = StringUtils::sprintf("%" PRIu64, hostId); 
 	arg.parameters = queryMap;
 	g_parser = getResponseAsJsonParser(arg);
 
@@ -814,7 +814,7 @@ void _assertUpdateRecord(const StringMap &params, const string &baseUrl,
 	if (targetId == invalidId)
 		url = baseUrl;
 	else
-		url = baseUrl + StringUtils::sprintf("/%"PRIu32, targetId);
+		url = baseUrl + StringUtils::sprintf("/%" PRIu32, targetId);
 	RequestArg arg(url, "foo");
 	arg.parameters = params;
 	arg.request = "PUT";
@@ -868,12 +868,12 @@ static void assertUserRolesMapInParser(JsonParserAgent *parser)
 	assertStartObject(parser, "userRoles");
 
 	string flagsStr =
-	  StringUtils::sprintf("%"FMT_OPPRVLG, NONE_PRIVILEGE);
+	  StringUtils::sprintf("%" FMT_OPPRVLG, NONE_PRIVILEGE);
 	assertStartObject(parser, flagsStr);
 	assertValueInParser(parser, "name", string("Guest"));
 	parser->endObject();
 
-	flagsStr = StringUtils::sprintf("%"FMT_OPPRVLG, ALL_PRIVILEGES);
+	flagsStr = StringUtils::sprintf("%" FMT_OPPRVLG, ALL_PRIVILEGES);
 	assertStartObject(parser, flagsStr);
 	assertValueInParser(parser, "name", string("Admin"));
 	parser->endObject();
@@ -1018,7 +1018,7 @@ static void _assertServerAccessInfo(JsonParserAgent *parser, HostGrpAccessInfoMa
 		if (hostgroupId == ALL_HOST_GROUPS)
 			idStr = "-1";
 		else
-			idStr = StringUtils::sprintf("%"PRIu64, hostgroupId);
+			idStr = StringUtils::sprintf("%" PRIu64, hostgroupId);
 		assertStartObject(parser, idStr);
 		AccessInfo *info = it->second;
 		assertValueInParser(parser, "accessInfoId",
@@ -1071,7 +1071,7 @@ void _assertAddAccessInfoWithCond(
 	const UserIdType targetUserId = 1;
 
 	const string url = StringUtils::sprintf(
-	  "/user/%"FMT_USER_ID"/access-info", targetUserId);
+	  "/user/%" FMT_USER_ID "/access-info", targetUserId);
 	StringMap params;
 	params["serverId"] = serverId;
 	params["hostgroupId"] = hostgroupId;
@@ -1085,7 +1085,7 @@ void _assertAddAccessInfoWithCond(
 	if (expectHostgroupId.empty())
 		expectHostgroupId = hostgroupId;
 	string expect = StringUtils::sprintf(
-	  "%"FMT_ACCESS_INFO_ID"|%"FMT_USER_ID"|%s|%s\n",
+	  "%" FMT_ACCESS_INFO_ID "|%" FMT_USER_ID "|%s|%s\n",
 	  expectedId, targetUserId, serverId.c_str(),
 	  expectHostgroupId.c_str());
 	assertDBContent(dbUser.getDBAgent(), statement, expect);
@@ -1138,7 +1138,7 @@ static void assertHostgroupsInParser(JsonParserAgent *parser,
 			continue;
 		const HostgroupIdType hostgroupId = hgrpInfo.groupId;
 		const string expectKey =
-		  StringUtils::sprintf("%"FMT_HOST_GROUP_ID, hostgroupId);
+		  StringUtils::sprintf("%" FMT_HOST_GROUP_ID, hostgroupId);
 		assertStartObject(parser, expectKey);
 		assertValueInParser(parser, string("name"), hgrpInfo.groupName);
 		parser->endObject();
@@ -1503,7 +1503,8 @@ void test_updateServer(void)
 
 	MonitoringServerInfo updateSvInfo = testServerInfo[1]; // make a copy;
 	const UserIdType userId = findUserWith(OPPRVLG_UPDATE_ALL_SERVER);
-	string url = StringUtils::sprintf("/server/%"FMT_SERVER_ID, srcSvInfo.id);
+	string url = StringUtils::sprintf("/server/%" FMT_SERVER_ID,
+	                                  srcSvInfo.id);
 	StringMap params;
 	serverInfo2StringMap(updateSvInfo, params);
 
@@ -1546,7 +1547,7 @@ void test_deleteServer(void)
 
 	const ServerIdType targetServerId = targetSvInfo.id;
 	const UserIdType userId = findUserWith(OPPRVLG_DELETE_SERVER);
-	string url = StringUtils::sprintf("/server/%"FMT_SERVER_ID,
+	string url = StringUtils::sprintf("/server/%" FMT_SERVER_ID,
 					  targetServerId);
 	RequestArg arg(url);
 	arg.request = "DELETE";
@@ -1662,7 +1663,7 @@ void test_addAction(void)
 	expect += StringUtils::sprintf("%d|",type);
 	expect += command;
 	expect += "||0"; /* workingDirectory and timeout */
-	expect += StringUtils::sprintf("|%"FMT_USER_ID, userId);
+	expect += StringUtils::sprintf("|%" FMT_USER_ID, userId);
 	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }
 
@@ -1689,9 +1690,9 @@ void test_addActionParameterFull(void)
 	params["workingDirectory"] = workingDir;
 	params["timeout"]     = StringUtils::sprintf("%d", timeout);
 	params["serverId"]    = StringUtils::sprintf("%d", serverId);
-	params["hostId"]      = StringUtils::sprintf("%"PRIu64, hostId);
-	params["hostgroupId"] = StringUtils::sprintf("%"PRIu64, hostgroupId);
-	params["triggerId"]   = StringUtils::sprintf("%"PRIu64, triggerId);
+	params["hostId"]      = StringUtils::sprintf("%" PRIu64, hostId);
+	params["hostgroupId"] = StringUtils::sprintf("%" PRIu64, hostgroupId);
+	params["triggerId"]   = StringUtils::sprintf("%" PRIu64, triggerId);
 	params["triggerStatus"]   = StringUtils::sprintf("%d", triggerStatus);
 	params["triggerSeverity"] = StringUtils::sprintf("%d", triggerSeverity);
 	params["triggerSeverityCompType"] =
@@ -1706,7 +1707,7 @@ void test_addActionParameterFull(void)
 	string expect;
 	int expectedId = 1;
 	expect += StringUtils::sprintf("%d|%d|", expectedId, serverId);
-	expect += StringUtils::sprintf("%"PRIu64"|%"PRIu64"|%"PRIu64"|",
+	expect += StringUtils::sprintf("%" PRIu64 "|%" PRIu64 "|%" PRIu64 "|",
 	  hostId, hostgroupId, triggerId);
 	expect += StringUtils::sprintf(
 	  "%d|%d|%d|", triggerStatus, triggerSeverity, triggerSeverityCompType);
@@ -1715,7 +1716,7 @@ void test_addActionParameterFull(void)
 	expect += "|";
 	expect += workingDir;
 	expect += "|";
-	expect += StringUtils::sprintf("%d|%"FMT_USER_ID, timeout, userId);
+	expect += StringUtils::sprintf("%d|%" FMT_USER_ID, timeout, userId);
 	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }
 
@@ -1732,9 +1733,9 @@ void test_addActionParameterOver32bit(void)
 	StringMap params;
 	params["type"]        = StringUtils::sprintf("%d", ACTION_RESIDENT);
 	params["command"]     = command;
-	params["hostId"]      = StringUtils::sprintf("%"PRIu64, hostId);
-	params["hostgroupId"] = StringUtils::sprintf("%"PRIu64, hostgroupId);
-	params["triggerId"]   = StringUtils::sprintf("%"PRIu64, triggerId);
+	params["hostId"]      = StringUtils::sprintf("%" PRIu64, hostId);
+	params["hostgroupId"] = StringUtils::sprintf("%" PRIu64, hostgroupId);
+	params["triggerId"]   = StringUtils::sprintf("%" PRIu64, triggerId);
 	const UserIdType userId = findUserWith(OPPRVLG_CREATE_ACTION);
 	assertAddAction(params, userId);
 
@@ -1743,7 +1744,7 @@ void test_addActionParameterOver32bit(void)
 	string statement = "select host_id, host_group_id, trigger_id from ";
 	statement += DBClientAction::getTableNameActions();
 	string expect;
-	expect += StringUtils::sprintf("%"PRIu64"|%"PRIu64"|%"PRIu64"",
+	expect += StringUtils::sprintf("%" PRIu64 "|%" PRIu64 "|%" PRIu64,
 	  hostId, hostgroupId, triggerId);
 	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }
@@ -1939,7 +1940,7 @@ void test_addUser(void)
 	StringMap params;
 	params["name"] = user;
 	params["password"] = password;
-	params["flags"] = StringUtils::sprintf("%"FMT_OPPRVLG, flags);
+	params["flags"] = StringUtils::sprintf("%" FMT_OPPRVLG, flags);
 	assertAddUserWithSetup(params, HTERR_OK);
 
 	// check the content in the DB
@@ -1948,7 +1949,7 @@ void test_addUser(void)
 	statement += DBClientUser::TABLE_NAME_USERS;
 	statement += " order by id desc limit 1";
 	const int expectedId = NumTestUserInfo + 1;
-	string expect = StringUtils::sprintf("%d|%s|%s|%"FMT_OPPRVLG,
+	string expect = StringUtils::sprintf("%d|%s|%s|%" FMT_OPPRVLG,
 	  expectedId, user.c_str(), Utils::sha256(password).c_str(), flags);
 	assertDBContent(dbUser.getDBAgent(), statement, expect);
 }
@@ -1963,7 +1964,7 @@ void test_updateUser(void)
 	StringMap params;
 	params["name"] = user;
 	params["password"] = password;
-	params["flags"] = StringUtils::sprintf("%"FMT_OPPRVLG, flags);
+	params["flags"] = StringUtils::sprintf("%" FMT_OPPRVLG, flags);
 	assertUpdateUserWithSetup(params, targetId, HTERR_OK);
 
 	// check the content in the DB
@@ -1971,7 +1972,7 @@ void test_updateUser(void)
 	string statement = StringUtils::sprintf(
 	                     "select * from %s where id=%d",
 	                     DBClientUser::TABLE_NAME_USERS, targetId);
-	string expect = StringUtils::sprintf("%d|%s|%s|%"FMT_OPPRVLG,
+	string expect = StringUtils::sprintf("%d|%s|%s|%" FMT_OPPRVLG,
 	  targetId, user.c_str(), Utils::sha256(password).c_str(), flags);
 	assertDBContent(dbUser.getDBAgent(), statement, expect);
 }
@@ -1993,7 +1994,7 @@ void test_updateUserWithoutFlags(void)
 	string statement = StringUtils::sprintf(
 	                     "select * from %s where id=%d",
 	                     DBClientUser::TABLE_NAME_USERS, targetId);
-	string expect = StringUtils::sprintf("%d|%s|%s|%"FMT_OPPRVLG,
+	string expect = StringUtils::sprintf("%d|%s|%s|%" FMT_OPPRVLG,
 	  targetId, user.c_str(), Utils::sha256(password).c_str(), flags);
 	assertDBContent(dbUser.getDBAgent(), statement, expect);
 }
@@ -2020,7 +2021,7 @@ void test_updateUserWithoutPassword(void)
 
 	StringMap params;
 	params["name"] = user;
-	params["flags"] = StringUtils::sprintf("%"FMT_OPPRVLG, flags);
+	params["flags"] = StringUtils::sprintf("%" FMT_OPPRVLG, flags);
 	assertUpdateUserWithSetup(params, targetId, HTERR_OK);
 
 	// check the content in the DB
@@ -2028,7 +2029,7 @@ void test_updateUserWithoutPassword(void)
 	string statement = StringUtils::sprintf(
 	                     "select * from %s where id=%d",
 	                     DBClientUser::TABLE_NAME_USERS, targetId);
-	string expect = StringUtils::sprintf("%d|%s|%s|%"FMT_OPPRVLG,
+	string expect = StringUtils::sprintf("%d|%s|%s|%" FMT_OPPRVLG,
 	  targetId, user.c_str(),
 	  Utils::sha256(expectedPassword).c_str(), flags);
 	assertDBContent(dbUser.getDBAgent(), statement, expect);
@@ -2043,7 +2044,7 @@ void test_updateUserWithoutUserId(void)
 
 	StringMap params;
 	params["name"] = user;
-	params["flags"] = StringUtils::sprintf("%"FMT_OPPRVLG, flags);
+	params["flags"] = StringUtils::sprintf("%" FMT_OPPRVLG, flags);
 	assertUpdateUserWithSetup(params, -1, HTERR_NOT_FOUND_ID_IN_URL);
 }
 
@@ -2088,7 +2089,7 @@ void test_deleteUser(void)
 	setupTestDBUser(dbRecreate, loadTestData);
 
 	const UserIdType userId = findUserWith(OPPRVLG_DELETE_USER);
-	string url = StringUtils::sprintf("/user/%"FMT_USER_ID, userId);
+	string url = StringUtils::sprintf("/user/%" FMT_USER_ID, userId);
 	RequestArg arg(url, "cbname");
 	arg.request = "DELETE";
 	arg.userId = userId;
@@ -2210,7 +2211,7 @@ void test_updateAccessInfo(void)
 	const UserIdType userId = findUserWith(OPPRVLG_UPDATE_USER);
 	const UserIdType targetUserId = 1;
 	const string url = StringUtils::sprintf(
-	  "/user/%"FMT_USER_ID"/access-info/2", targetUserId);
+	  "/user/%" FMT_USER_ID "/access-info/2", targetUserId);
 	StringMap params;
 	params["serverId"] = "2";
 	params["hostgroupId"] = "-1";
@@ -2231,7 +2232,7 @@ void test_addAccessInfoWithAllHostgroups(void)
 {
 	const string serverId = "2";
 	const string hostgroupId =
-	  StringUtils::sprintf("%"PRIu64, ALL_HOST_GROUPS);
+	  StringUtils::sprintf("%" PRIu64, ALL_HOST_GROUPS);
 	assertAddAccessInfoWithCond(serverId, hostgroupId);
 }
 
@@ -2240,7 +2241,7 @@ void test_addAccessInfoWithAllHostgroupsNegativeValue(void)
 	const string serverId = "2";
 	const string hostgroupId = "-1";
 	const string expectHostgroup =
-	  StringUtils::sprintf("%"PRIu64, ALL_HOST_GROUPS);
+	  StringUtils::sprintf("%" PRIu64, ALL_HOST_GROUPS);
 	assertAddAccessInfoWithCond(serverId, hostgroupId, expectHostgroup);
 }
 
@@ -2256,12 +2257,12 @@ void test_addAccessInfoWithExistingData(void)
 	const string hostgroupId = "1";
 
 	StringMap params;
-	params["userId"] = StringUtils::sprintf("%"FMT_USER_ID, userId);
+	params["userId"] = StringUtils::sprintf("%" FMT_USER_ID, userId);
 	params["serverId"] = serverId;
 	params["hostgroupId"] = hostgroupId;
 
 	const string url = StringUtils::sprintf(
-	  "/user/%"FMT_USER_ID"/access-info", targetUserId);
+	  "/user/%" FMT_USER_ID "/access-info", targetUserId);
 	assertAddAccessInfo(url, params, userId, HTERR_OK, 2);
 
 	AccessInfoIdSet accessInfoIdSet;
@@ -2277,7 +2278,7 @@ void test_deleteAccessInfo(void)
 
 	const AccessInfoIdType targetId = 2;
 	string url = StringUtils::sprintf(
-	  "/user/1/access-info/%"FMT_ACCESS_INFO_ID,
+	  "/user/1/access-info/%" FMT_ACCESS_INFO_ID,
 	  targetId);
 	RequestArg arg(url, "cbname");
 	arg.request = "DELETE";
@@ -2331,7 +2332,7 @@ void test_addUserRole(void)
 	StringMap params;
 	params["name"] = expectedUserRoleInfo.name;
 	params["flags"] = StringUtils::sprintf(
-	  "%"FMT_OPPRVLG, expectedUserRoleInfo.flags);
+	  "%" FMT_OPPRVLG, expectedUserRoleInfo.flags);
 	assertAddUserRoleWithSetup(params, HTERR_OK);
 
 	// check the content in the DB
@@ -2342,7 +2343,7 @@ void test_addUserRoleWithoutPrivilege(void)
 {
 	StringMap params;
 	params["name"] = "maintainer";
-	params["flags"] = StringUtils::sprintf("%"FMT_OPPRVLG, ALL_PRIVILEGES);
+	params["flags"] = StringUtils::sprintf("%" FMT_OPPRVLG, ALL_PRIVILEGES);
 	bool operatorHasPrivilege = true;
 	assertAddUserRoleWithSetup(params, HTERR_NO_PRIVILEGE,
 				   !operatorHasPrivilege);
@@ -2353,7 +2354,7 @@ void test_addUserRoleWithoutPrivilege(void)
 void test_addUserRoleWithoutName(void)
 {
 	StringMap params;
-	params["flags"] = StringUtils::sprintf("%"FMT_OPPRVLG, ALL_PRIVILEGES);
+	params["flags"] = StringUtils::sprintf("%" FMT_OPPRVLG, ALL_PRIVILEGES);
 	assertAddUserRoleWithSetup(params, HTERR_NOT_FOUND_PARAMETER);
 
 	assertUserRolesInDB();
@@ -2372,7 +2373,7 @@ void test_addUserRoleWithEmptyUserName(void)
 {
 	StringMap params;
 	params["name"] = "";
-	params["flags"] = StringUtils::sprintf("%"FMT_OPPRVLG, ALL_PRIVILEGES);
+	params["flags"] = StringUtils::sprintf("%" FMT_OPPRVLG, ALL_PRIVILEGES);
 	assertAddUserRoleWithSetup(params, HTERR_EMPTY_USER_ROLE_NAME);
 
 	assertUserRolesInDB();
@@ -2383,7 +2384,7 @@ void test_addUserRoleWithInvalidFlags(void)
 	StringMap params;
 	params["name"] = "maintainer";
 	params["flags"] = StringUtils::sprintf(
-	  "%"FMT_OPPRVLG, ALL_PRIVILEGES + 1);
+	  "%" FMT_OPPRVLG, ALL_PRIVILEGES + 1);
 	assertAddUserRoleWithSetup(params, HTERR_INVALID_PRIVILEGE_FLAGS);
 
 	assertUserRolesInDB();
@@ -2421,7 +2422,7 @@ void test_updateUserRole(void)
 	StringMap params;
 	params["name"] = expectedUserRoleInfo.name;
 	params["flags"] = StringUtils::sprintf(
-	  "%"FMT_OPPRVLG, expectedUserRoleInfo.flags);
+	  "%" FMT_OPPRVLG, expectedUserRoleInfo.flags);
 	assertUpdateUserRoleWithSetup(params, expectedUserRoleInfo.id,
 				      HTERR_OK);
 
@@ -2439,7 +2440,7 @@ void test_updateUserRoleWithoutName(void)
 
 	StringMap params;
 	params["flags"] = StringUtils::sprintf(
-	  "%"FMT_OPPRVLG, expectedUserRoleInfo.flags);
+	  "%" FMT_OPPRVLG, expectedUserRoleInfo.flags);
 	assertUpdateUserRoleWithSetup(params, expectedUserRoleInfo.id,
 				      HTERR_OK);
 
@@ -2471,7 +2472,7 @@ void test_updateUserRoleWithoutPrivilege(void)
 
 	StringMap params;
 	params["name"] = "ServerAdmin";
-	params["flags"] = StringUtils::sprintf("%"FMT_OPPRVLG, flags);
+	params["flags"] = StringUtils::sprintf("%" FMT_OPPRVLG, flags);
 	bool operatorHasPrivilege = true;
 	assertUpdateUserRoleWithSetup(params, targetUserRoleId,
 				      HTERR_NO_PRIVILEGE,
@@ -2492,7 +2493,7 @@ void _assertDeleteUserRoleWithSetup(
 	setupTestDBUser(dbRecreate, loadTestData);
 
 	if (url.empty())
-		url = StringUtils::sprintf("/user-role/%"FMT_USER_ROLE_ID,
+		url = StringUtils::sprintf("/user-role/%" FMT_USER_ROLE_ID,
 					   targetUserRoleId);
 	RequestArg arg(url, "cbname");
 	arg.request = "DELETE";
@@ -2617,7 +2618,7 @@ void _assertParseEventParameterTargetServerId(
   const HatoholErrorCode &expectCode = HTERR_OK)
 {
 	assertParseEventParameterTempl(
-	  ServerIdType, expectValue, "%"FMT_SERVER_ID, "serverId",
+	  ServerIdType, expectValue, "%" FMT_SERVER_ID, "serverId",
 	  &EventsQueryOption::getTargetServerId, expectCode, forceValueStr);
 }
 #define assertParseEventParameterTargetServerId(E, ...) \
@@ -2628,7 +2629,7 @@ void _assertParseEventParameterTargetHostgroupId(
   const HatoholErrorCode &expectCode = HTERR_OK)
 {
 	assertParseEventParameterTempl(
-	  HostgroupIdType, expectValue, "%"FMT_HOST_GROUP_ID,
+	  HostgroupIdType, expectValue, "%" FMT_HOST_GROUP_ID,
 	  "hostgroupId", &EventsQueryOption::getTargetHostgroupId,
 	  expectCode, forceValueStr);
 }
@@ -2640,7 +2641,7 @@ void _assertParseEventParameterTargetHostId(
   const HatoholErrorCode &expectCode = HTERR_OK)
 {
 	assertParseEventParameterTempl(
-	  HostIdType, expectValue, "%"FMT_HOST_ID, "hostId",
+	  HostIdType, expectValue, "%" FMT_HOST_ID, "hostId",
 	  &EventsQueryOption::getTargetHostId, expectCode, forceValueStr);
 }
 #define assertParseEventParameterTargetHostId(E, ...) \
@@ -2684,7 +2685,7 @@ void _assertParseEventParameterLimitOfUnifiedId(
   const HatoholErrorCode &expectCode = HTERR_OK)
 {
 	assertParseEventParameterTempl(
-	  uint64_t, expectValue, "%"PRIu64, "limitOfUnifiedId",
+	  uint64_t, expectValue, "%" PRIu64, "limitOfUnifiedId",
 	  &EventsQueryOption::getLimitOfUnifiedId, expectCode, forceValueStr);
 }
 #define assertParseEventParameterLimitOfUnifiedId(E, ...) \

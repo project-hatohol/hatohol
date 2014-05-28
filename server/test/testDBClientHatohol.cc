@@ -51,7 +51,7 @@ static string makeTriggerOutput(const TriggerInfo &triggerInfo)
 {
 	string expectedOut =
 	  StringUtils::sprintf(
-	    "%"FMT_SERVER_ID"|%"PRIu64"|%d|%d|%ld|%lu|%"PRIu64"|%s|%s\n",
+	    "%" FMT_SERVER_ID "|%" PRIu64 "|%d|%d|%ld|%lu|%" PRIu64 "|%s|%s\n",
 	    triggerInfo.serverId,
 	    triggerInfo.id,
 	    triggerInfo.status, triggerInfo.severity,
@@ -197,7 +197,7 @@ static string makeItemOutput(const ItemInfo &itemInfo)
 {
 	string expectedOut =
 	  StringUtils::sprintf(
-	    "%"PRIu32"|%"PRIu64"|%"PRIu64"|%s|%ld|%lu|%s|%s|%s\n",
+	    "%" PRIu32 "|%" PRIu64 "|%" PRIu64 "|%s|%ld|%lu|%s|%s|%s\n",
 	    itemInfo.serverId, itemInfo.id,
 	    itemInfo.hostId,
 	    itemInfo.brief.c_str(),
@@ -307,7 +307,7 @@ static string makeHostOutput(const HostInfo &hostInfo)
 {
 	string expectedOut =
 	  StringUtils::sprintf(
-	    "%"PRIu32"|%"PRIu64"|%s\n",
+	    "%" PRIu32 "|%" PRIu64 "|%s\n",
 	    hostInfo.serverId, hostInfo.id, hostInfo.hostName.c_str());
 	return expectedOut;
 }
@@ -393,7 +393,7 @@ void _assertTriggerInfo(const TriggerInfo &expect, const TriggerInfo &actual)
 static string makeHostgroupsOutput(const HostgroupInfo &hostgroupInfo, size_t id)
 {
 	string expectedOut = StringUtils::sprintf(
-	  "%zd|%"FMT_SERVER_ID"|%"FMT_HOST_GROUP_ID"|%s\n",
+	  "%zd|%" FMT_SERVER_ID "|%" FMT_HOST_GROUP_ID "|%s\n",
 	  id + 1, hostgroupInfo.serverId,
 	  hostgroupInfo.groupId, hostgroupInfo.groupName.c_str());
 
@@ -418,7 +418,7 @@ static string makeMapHostsHostgroupsOutput
 static string makeHostsOutput(const HostInfo &hostInfo, size_t id)
 {
 	string expectedOut = StringUtils::sprintf(
-	  "%zd|%"FMT_SERVER_ID"|%"FMT_HOST_ID"|%s\n",
+	  "%zd|%" FMT_SERVER_ID "|%" FMT_HOST_ID "|%s\n",
 	  id + 1, hostInfo.serverId, hostInfo.id, hostInfo.hostName.c_str());
 
 	return expectedOut;
@@ -432,7 +432,7 @@ static void prepareDataForAllHostgroupIds(void)
 	  hostgroupIdSet.begin();
 	for (; hostgrpIdItr != hostgroupIdSet.end(); ++hostgrpIdItr) {
 		gcut_add_datum(
-		  StringUtils::sprintf("Hostgroup ID: %"FMT_HOST_GROUP_ID,
+		  StringUtils::sprintf("Hostgroup ID: %" FMT_HOST_GROUP_ID,
 		                       *hostgrpIdItr).c_str(),
 		  "hostgroupId", G_TYPE_UINT64, *hostgrpIdItr, NULL);
 	}
@@ -888,7 +888,7 @@ void test_getNumberOfTriggers(gconstpointer data)
 	cppcut_assert_equal(
 	  dbHatohol.getNumberOfTriggers(option),
 	  getNumberOfTestTriggers(targetServerId, hostgroupId),
-	  cut_message("sv: %"FMT_SERVER_ID", hostgroup: %"FMT_HOST_GROUP_ID,
+	  cut_message("sv: %" FMT_SERVER_ID ", hostgroup: %" FMT_HOST_GROUP_ID,
 		      targetServerId, hostgroupId));
 }
 
@@ -938,7 +938,8 @@ void test_getNumberOfTriggersBySeverity(gconstpointer data)
 		cppcut_assert_equal(
 		  expect, actual,
 		  cut_message(
-		    "sv: %"FMT_SERVER_ID", hostgroup: %"FMT_HOST_GROUP_ID", "
+		    "sv: %" FMT_SERVER_ID ", "
+		    "hostgroup: %" FMT_HOST_GROUP_ID ", "
 		    "severity: %d", targetServerId, hostgroupId, i));
 	}
 }

@@ -403,7 +403,7 @@ string ZabbixAPIEmulator::getAPIVersionString(void)
 void ZabbixAPIEmulator::APIHandlerAPIVersion(APIHandlerArg &arg)
 {
 	string response = StringUtils::sprintf(
-	  "{\"jsonrpc\":\"2.0\",\"result\":\"%s\",\"id\":%"PRId64"}",
+	  "{\"jsonrpc\":\"2.0\",\"result\":\"%s\",\"id\":%" PRId64 "}",
 	  getAPIVersionString().c_str(), arg.id);
 	soup_message_body_append(arg.msg->response_body, SOUP_MEMORY_COPY,
 	                         response.c_str(), response.size());
@@ -415,7 +415,7 @@ void ZabbixAPIEmulator::APIHandlerUserLogin(APIHandlerArg &arg)
 	string authToken = generateAuthToken();
 	m_ctx->authTokens.insert(authToken);
 	const char *fmt = 
-	  "{\"jsonrpc\":\"2.0\",\"result\":\"%s\",\"id\":%"PRId64"}";
+	  "{\"jsonrpc\":\"2.0\",\"result\":\"%s\",\"id\":%" PRId64 "}";
 	string response = StringUtils::sprintf(fmt, authToken.c_str(), arg.id);
 	soup_message_body_append(arg.msg->response_body, SOUP_MEMORY_COPY,
 	                         response.c_str(), response.size());
@@ -659,7 +659,7 @@ void ZabbixAPIEmulator::makeEventJsonData(const string &path)
 		parser.endElement();
 
 		int64_t eventId = 0;
-		sscanf(parsedData[0].c_str(), "%"PRId64, &eventId);
+		sscanf(parsedData[0].c_str(), "%" PRId64, &eventId);
 		ZabbixAPIEvent evt;
 		evt.eventid = parsedData[0];
 		evt.source = parsedData[1];
@@ -678,7 +678,7 @@ string ZabbixAPIEmulator::addJsonResponse(const string &slice,
                                             APIHandlerArg &arg)
 {
 	const char *fmt = 
-	  "{\"jsonrpc\":\"2.0\",\"result\":[%s],\"id\":%"PRId64"}";
+	  "{\"jsonrpc\":\"2.0\",\"result\":[%s],\"id\":%" PRId64 "}";
 	return StringUtils::sprintf(fmt, slice.c_str(), arg.id);
 }
 
@@ -726,10 +726,10 @@ void ZabbixAPIEmulator::parseEventGetParameter(APIHandlerArg &arg)
 
 	string rawLimit;
 	if (parser.read("limit", m_ctx->paramEvent.limit)) {
-		sscanf(rawLimit.c_str(), "%"PRIu64, &m_ctx->paramEvent.limit);
+		sscanf(rawLimit.c_str(), "%" PRIu64, &m_ctx->paramEvent.limit);
 		if (m_ctx->paramEvent.limit < 0)
 			THROW_HATOHOL_EXCEPTION(
-			  "Invalid parameter: limit: %"PRId64"\n",
+			  "Invalid parameter: limit: %" PRId64 "\n",
 			  m_ctx->paramEvent.limit);
 	} else {
 		m_ctx->paramEvent.limit = 0;
@@ -737,11 +737,11 @@ void ZabbixAPIEmulator::parseEventGetParameter(APIHandlerArg &arg)
 
 	string rawEventIdFrom;
 	if(parser.read("eventid_from", rawEventIdFrom)) {
-		sscanf(rawEventIdFrom.c_str(), "%"PRIu64,
+		sscanf(rawEventIdFrom.c_str(), "%" PRIu64,
 		       &m_ctx->paramEvent.eventIdFrom);
 		if (m_ctx->paramEvent.eventIdFrom < 0)
 			THROW_HATOHOL_EXCEPTION(
-			  "Invalid parameter: eventid_from: %"PRId64"\n",
+			  "Invalid parameter: eventid_from: %" PRId64 "\n",
 			  m_ctx->paramEvent.eventIdFrom);
 	} else {
 		m_ctx->paramEvent.eventIdFrom = 0;
@@ -749,11 +749,11 @@ void ZabbixAPIEmulator::parseEventGetParameter(APIHandlerArg &arg)
 
 	string rawEventIdTill;
 	if(parser.read("eventid_till", rawEventIdTill)) {
-		sscanf(rawEventIdTill.c_str(), "%"PRIu64,
+		sscanf(rawEventIdTill.c_str(), "%" PRIu64,
 		       &m_ctx->paramEvent.eventIdTill);
 		if (m_ctx->paramEvent.eventIdTill < 0)
 			THROW_HATOHOL_EXCEPTION(
-			  "Invalid parameter: eventid_till: %"PRId64"\n",
+			  "Invalid parameter: eventid_till: %" PRId64 "\n",
 			  m_ctx->paramEvent.eventIdTill);
 	} else {
 		m_ctx->paramEvent.eventIdFrom = 0;

@@ -200,7 +200,7 @@ public:
 		// in the following statement.
 		string cmd =
 		  StringUtils::sprintf(
-		    "sqlite3 %s \"select * from %s where id=%"PRId64 "\"",
+		    "sqlite3 %s \"select * from %s where id=%" PRId64 "\"",
 	            g_dbPath.c_str(), TABLE_NAME_TEST, id);
 		string result = executeCommand(cmd);
 
@@ -212,7 +212,7 @@ public:
 		assertExistingRecordEachWord
 		  (id, age, name, height, datetime,
 		   numColumns, columnDefs, lines[0], '|', nullIndexes, "",
-		   "%"PRId64);
+		   "%" PRId64);
 	}
 
 	virtual void getIDStringVector(const ColumnDef &columnDefId,

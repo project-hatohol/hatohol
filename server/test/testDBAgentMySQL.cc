@@ -170,7 +170,7 @@ public:
 	{
 		// get the table information with mysql command.
 		string sql =
-		   StringUtils::sprintf("select * from %s where id=%"PRIu64,
+		   StringUtils::sprintf("select * from %s where id=%" PRIu64,
 		                        TABLE_NAME_TEST, id);
 		string result = execMySQL(TEST_DB_NAME, sql, true);
 

@@ -392,7 +392,7 @@ string makeServerInfoOutput(const MonitoringServerInfo &serverInfo)
 std::string makeUserRoleInfoOutput(const UserRoleInfo &userRoleInfo)
 {
 	return StringUtils::sprintf(
-		 "%"FMT_USER_ROLE_ID"|%s|%"FMT_OPPRVLG"\n",
+		 "%" FMT_USER_ROLE_ID "|%s|%" FMT_OPPRVLG "\n",
 		 userRoleInfo.id, userRoleInfo.name.c_str(),
 		 userRoleInfo.flags);
 }
@@ -401,7 +401,7 @@ string makeEventOutput(const EventInfo &eventInfo)
 {
 	string output =
 	  mlpl::StringUtils::sprintf(
-	    "%"PRIu32"|%"PRIu64"|%ld|%ld|%d|%u|%"PRIu64"|%s|%s\n",
+	    "%" PRIu32 "|%" PRIu64 "|%ld|%ld|%d|%u|%" PRIu64 "|%s|%s\n",
 	    eventInfo.serverId, eventInfo.id,
 	    eventInfo.time.tv_sec, eventInfo.time.tv_nsec,
 	    eventInfo.status, eventInfo.severity,
@@ -524,7 +524,7 @@ void _assertUsersInDB(const UserIdSet &excludeUserIdSet)
 			continue;
 		const UserInfo &userInfo = testUserInfo[i];
 		expect += StringUtils::sprintf(
-		  "%"FMT_USER_ID"|%s|%s|%"FMT_OPPRVLG"\n",
+		  "%" FMT_USER_ID "|%s|%s|%" FMT_OPPRVLG "\n",
 		  userId, userInfo.name.c_str(),
 		  Utils::sha256(userInfo.password).c_str(),
 		  userInfo.flags);
@@ -545,7 +545,7 @@ void _assertAccessInfoInDB(const AccessInfoIdSet &excludeAccessInfoIdSet)
 			continue;
 		const AccessInfo &accessInfo = testAccessInfo[i];
 		expect += StringUtils::sprintf(
-		  "%"FMT_ACCESS_INFO_ID"|%"FMT_USER_ID"|%d|%"PRIu64"\n",
+		  "%" FMT_ACCESS_INFO_ID "|%" FMT_USER_ID "|%d|%" PRIu64 "\n",
 		  id, accessInfo.userId, accessInfo.serverId, accessInfo.hostgroupId);
 	}
 	CacheServiceDBClient cache;

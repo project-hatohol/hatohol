@@ -709,7 +709,7 @@ const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 			continue;
 		return trigInfo;
 	}
-	cut_fail("Not found: server ID: %u, trigger ID: %"PRIu64,
+	cut_fail("Not found: server ID: %u, trigger ID: %" PRIu64,
 	         eventInfo.serverId, eventInfo.triggerId);
 	return *(new TriggerInfo()); // never exectuted, just to pass build
 }
@@ -1083,7 +1083,7 @@ size_t findIndexFromTestActionDef(const UserIdType &userId)
 	cppcut_assert_not_equal(
 	  NumTestActionDef, idx,
 	  cut_message("Not found a testActionDef entry owned "
-	              "by user: %"FMT_USER_ID, userId));
+	              "by user: %" FMT_USER_ID, userId));
 	return idx;
 }
 
