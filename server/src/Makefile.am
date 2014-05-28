@@ -1,4 +1,4 @@
-sbin_PROGRAMS = hatohol hatohol-resident-yard hatohol-arm-plugin-zabbix-api
+sbin_PROGRAMS = hatohol hatohol-resident-yard
 hatohol_SOURCES = main.cc
 hatohol_resident_yard_SOURCES = hatoholResidentYard.cc
 
