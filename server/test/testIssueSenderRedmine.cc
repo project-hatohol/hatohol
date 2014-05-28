@@ -78,6 +78,7 @@ void cut_setup(void)
 	hatoholInit();
 	if (!g_redmineEmulator.isRunning())
 		g_redmineEmulator.start(EMULATOR_PORT);
+	deleteDBClientHatoholDB();
 }
 
 void cut_teardown(void)
@@ -167,6 +168,21 @@ void test_getIssuesJsonURLWithStringProjectId(void)
 	  sender.getIssuesJsonURL());
 }
 
+static void makeExpectedIssueInfo(IssueInfo &issue,
+				  const IssueTrackerInfo &tracker,
+				  const EventInfo &event,
+				  const RedmineIssue &postedIssue)
+{
+	issue.unifiedId = 1;
+	issue.eventId = event.id;
+	issue.trackerId = tracker.id;
+	issue.identifier = StringUtils::toString((int)postedIssue.id);
+	issue.location = tracker.baseURL + "/issues/" + issue.identifier;
+	issue.status = postedIssue.getStatusName();
+	issue.createdAt = postedIssue.createdOn;
+	issue.updatedAt = postedIssue.updatedOn;
+}
+
 void _assertSend(const HatoholErrorCode &expected,
 		 const IssueTrackerInfo &tracker,
 		 const EventInfo &event)
@@ -197,6 +213,15 @@ void _assertSend(const HatoholErrorCode &expected,
 				    StringUtils::toString((int)trackerId));
 		agent.endObject();
 	}
+
+	IssueInfo issue;
+	makeExpectedIssueInfo(issue, tracker, event,
+			      g_redmineEmulator.getLastIssue());
+	DBClientHatohol dbClientHatohol;
+	DBAgent *dbAgent = dbClientHatohol.getDBAgent();
+	string statement = "select * from issues;";
+	string expect = makeIssueOutput(issue);
+	assertDBContent(dbAgent, statement, expect);
 }
 #define assertSend(E,T,V) \
 cut_trace(_assertSend(E,T,V))

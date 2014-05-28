@@ -271,5 +271,10 @@ HatoholError IssueSenderRedmine::send(const EventInfo &event)
 	issueInfo.eventId = event.id;
 	HatoholError result = parseResponse(issueInfo, response);
 
+	if (result == HTERR_OK) {
+		DBClientHatohol dbHatohol;
+		dbHatohol.addIssueInfo(&issueInfo);
+	}
+
 	return result;
 }
