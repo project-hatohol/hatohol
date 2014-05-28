@@ -123,7 +123,7 @@ void DataStoreManager::remove(uint32_t storeId)
 	m_ctx->mutex.unlock();
 
 	if (!dataStore) {
-		MLPL_WARN("Not found: storeId: %"PRIu32"\n", storeId);
+		MLPL_WARN("Not found: storeId: %" PRIu32 "\n", storeId);
 		return;
 	}
 

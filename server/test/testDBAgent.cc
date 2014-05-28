@@ -372,26 +372,26 @@ private:
 	}
 
 	virtual void fixupIndexes(const TableProfile &tableProfile,
-	                          const IndexDef *indexDefArray) // override
+	                          const IndexDef *indexDefArray) override
 	{
 	}
 
 	virtual string
-	makeCreateIndexStatement(const IndexDef &indexDef) // override
+	makeCreateIndexStatement(const IndexDef &indexDef) override
 	{
 		return "";
 	}
 
 	virtual string
 	makeDropIndexStatement(const string &name,
-	                       const string &tableName) // override
+	                       const string &tableName) override
 	{
 		return "";
 	}
 
 	virtual void getIndexInfoVect(
 	  std::vector<IndexInfo> &indexInfoVect,
-	  const TableProfile &tableProfile) // override
+	  const TableProfile &tableProfile) override
 	{
 	}
 };

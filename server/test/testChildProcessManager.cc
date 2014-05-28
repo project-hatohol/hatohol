@@ -98,7 +98,7 @@ void test_executedCb(void)
 		{
 		}
 
-		virtual void onExecuted(const bool &_succeeded, GError *gerror) // override
+		virtual void onExecuted(const bool &_succeeded, GError *gerror) override
 		{
 			called = true;
 			succeeded = _succeeded;
@@ -117,7 +117,7 @@ void test_executedCbWithError(void)
 {
 	struct Ctx : public ChildProcessManager::EventCallback {
 		bool called;
-		virtual void onExecuted(const bool &succeeded, GError *gerror) // override
+		virtual void onExecuted(const bool &succeeded, GError *gerror) override
 		{
 			cppcut_assert_equal(false, succeeded);
 			cppcut_assert_not_null(gerror);
@@ -142,7 +142,7 @@ void test_collectedCb(void)
 	struct Ctx : public ChildProcessManager::EventCallback {
 
 		GMainLoopAgent mainLoop;
-		virtual void onCollected(const siginfo_t *siginfo) // override
+		virtual void onCollected(const siginfo_t *siginfo) override
 		{
 			mainLoop.quit();
 		}
@@ -160,7 +160,7 @@ void test_finalizedCb(void)
 	struct Ctx : public ChildProcessManager::EventCallback {
 
 		GMainLoopAgent mainLoop;
-		virtual void onFinalized(void) // override
+		virtual void onFinalized(void) override
 		{
 			mainLoop.quit();
 		}
@@ -187,17 +187,17 @@ void test_reset(void)
 		{
 		}
 
-		virtual void onCollected(const siginfo_t *siginfo) // override
+		virtual void onCollected(const siginfo_t *siginfo) override
 		{
 			calledCollected = true;
 		}
 
-		virtual void onFinalized(void) // override
+		virtual void onFinalized(void) override
 		{
 			calledFinalized = true;
 		}
 
-		virtual void onReset(void) // override
+		virtual void onReset(void) override
 		{
 			calledReset = true;
 		}
@@ -228,17 +228,17 @@ void test_ignore_sigstop(void)
 		{
 		}
 
-		virtual void onExecuted(const bool &_succeeded, GError *gerror) // override
+		virtual void onExecuted(const bool &_succeeded, GError *gerror) override
 		{
 			succeeded = _succeeded;
 		}
 
-		virtual void onCollected(const siginfo_t *siginfo) // override
+		virtual void onCollected(const siginfo_t *siginfo) override
 		{
 			calledCollected = true;
 		}
 
-		virtual void onFinalized(void) // override
+		virtual void onFinalized(void) override
 		{
 			calledFinalized = true;
 			mainLoop.quit();

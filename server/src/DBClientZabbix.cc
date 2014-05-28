@@ -2034,8 +2034,8 @@ string DBClientZabbix::getApplicationName(uint64_t applicationId)
 {
 	DBAgent::SelectExArg arg(tableProfileApplicationsRaw_2_0);
 	arg.add(IDX_APPLICATIONS_RAW_2_0_NAME);
-	arg.condition = StringUtils::sprintf("applicationid=%"PRIu64,
-	                                           applicationId);
+	arg.condition = StringUtils::sprintf("applicationid=%" PRIu64,
+	                                     applicationId);
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
 	} DBCLIENT_TRANSACTION_END();
@@ -2059,7 +2059,7 @@ void DBClientZabbix::pickupAbsentHostIds(vector<uint64_t> &absentHostIdVector,
 		for (size_t i = 0; i < hostIdVector.size(); i++) {
 			uint64_t id = hostIdVector[i];
 			condition = hostidName;
-			condition += StringUtils::sprintf("=%"PRIu64, id);
+			condition += StringUtils::sprintf("=%" PRIu64, id);
 			if (isRecordExisting(tableName, condition))
 				continue;
 			absentHostIdVector.push_back(id);
@@ -2080,7 +2080,7 @@ void DBClientZabbix::pickupAbsentApplcationIds
 		for (size_t i = 0; i < appIdVector.size(); i++) {
 			uint64_t id = appIdVector[i];
 			condition = appidName;
-			condition += StringUtils::sprintf("=%"PRIu64, id);
+			condition += StringUtils::sprintf("=%" PRIu64, id);
 			if (isRecordExisting(tableName, condition))
 				continue;
 			absentAppIdVector.push_back(id);
@@ -2093,7 +2093,7 @@ void DBClientZabbix::pickupAbsentApplcationIds
 // ---------------------------------------------------------------------------
 string DBClientZabbix::getDBName(const ServerIdType zabbixServerId)
 {
-	return StringUtils::sprintf("hatohol_cache_zabbix_%"FMT_SERVER_ID,
+	return StringUtils::sprintf("hatohol_cache_zabbix_%" FMT_SERVER_ID,
 	                            zabbixServerId);
 }
 

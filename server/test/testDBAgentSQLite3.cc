@@ -35,8 +35,7 @@ static string g_dbPath = DBAgentSQLite3::getDBPath(DEFAULT_DB_DOMAIN_ID);
 
 class DBAgentCheckerSQLite3 : public DBAgentChecker {
 public:
-	// overriden virtual methods
-	virtual void assertTable(const DBAgent::TableProfile &tableProfile)
+	virtual void assertTable(const DBAgent::TableProfile &tableProfile) override
 	{
 		// check if the table has been created successfully
 		cut_assert_exist_path(g_dbPath.c_str());
@@ -117,7 +116,7 @@ public:
 	}
 
 	virtual void assertMakeCreateIndexStatement(
-	  const std::string sql, const DBAgent::IndexDef &indexDef) // override
+	  const std::string sql, const DBAgent::IndexDef &indexDef) override
 	{
 		const string expect = makeExpectedCreateIndexStatement(
 		  *indexDef.tableProfile, indexDef);
@@ -126,7 +125,7 @@ public:
 
 	virtual void assertMakeDropIndexStatement(
 	  const std::string sql,
-	  const std::string &name, const std::string &tableName) // override
+	  const std::string &name, const std::string &tableName) override
 	{
 		string expect = "DROP INDEX ";
 		expect += name;
@@ -135,7 +134,7 @@ public:
 
 	virtual void assertFixupIndexes(
 	  const DBAgent::TableProfile &tableProfile,
-	  const DBAgent::IndexDef *indexDefArray) // override
+	  const DBAgent::IndexDef *indexDefArray) override
 	{
 		vector<string> expectLines;
 
@@ -192,7 +191,7 @@ public:
 	                                  int datetime,
 	                                  size_t numColumns,
 	                                  const ColumnDef *columnDefs,
-	                                  const set<size_t> *nullIndexes)
+	                                  const set<size_t> *nullIndexes) override
 	{
 		// INFO: We use the trick that unsigned interger is stored as
 		// signed interger. So large integers (MSB bit is one) are
@@ -200,7 +199,7 @@ public:
 		// in the following statement.
 		string cmd =
 		  StringUtils::sprintf(
-		    "sqlite3 %s \"select * from %s where id=%"PRId64 "\"",
+		    "sqlite3 %s \"select * from %s where id=%" PRId64 "\"",
 	            g_dbPath.c_str(), TABLE_NAME_TEST, id);
 		string result = executeCommand(cmd);
 
@@ -212,11 +211,11 @@ public:
 		assertExistingRecordEachWord
 		  (id, age, name, height, datetime,
 		   numColumns, columnDefs, lines[0], '|', nullIndexes, "",
-		   "%"PRId64);
+		   "%" PRId64);
 	}
 
 	virtual void getIDStringVector(const ColumnDef &columnDefId,
-	                               vector<string> &actualIds)
+	                               vector<string> &actualIds) override
 	{
 		cut_assert_exist_path(g_dbPath.c_str());
 		string cmd =

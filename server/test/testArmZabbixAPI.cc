@@ -285,7 +285,7 @@ protected:
 		return m_result;
 	}
 
-	virtual int onCaughtException(const exception &e) // override
+	virtual int onCaughtException(const exception &e) override
 	{
 		m_result = false;
 		m_errorMessage = e.what();

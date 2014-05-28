@@ -198,8 +198,8 @@ static void getParametersBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 
 	// check the module version
 	if (ctx->module->moduleVersion != RESIDENT_MODULE_VERSION) {
-		MLPL_ERR("Module version unmatched: %"PRIu16", "
-		         "expected: %"PRIu16"\n",
+		MLPL_ERR("Module version unmatched: %" PRIu16 ", "
+		         "expected: %" PRIu16 "\n",
 		         ctx->module->moduleVersion, RESIDENT_MODULE_VERSION);
 		sendModuleLoaded(
 		  ctx, RESIDENT_PROTO_MODULE_LOADED_CODE_MOD_VER_INVALID);
@@ -210,7 +210,7 @@ static void getParametersBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	if (ctx->module->init) {
 		uint32_t result = (*ctx->module->init)(moduleOption.c_str());
 		if (result != RESIDENT_MOD_INIT_OK) {
-			MLPL_ERR("Failed to initialize: %"PRIu32"\n", result);
+			MLPL_ERR("Failed to initialize: %" PRIu32 "\n", result);
 			sendModuleLoaded(
 			  ctx, RESIDENT_PROTO_MODULE_LOADED_CODE_INIT_FAILURE);
 			return;
@@ -252,8 +252,8 @@ static void getParametersCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	// packet type
 	uint16_t pktType = *sbuf.getPointerAndIncIndex<uint16_t>();
 	if (pktType != RESIDENT_PROTO_PKT_TYPE_PARAMETERS) {
-		MLPL_ERR("Invalid packet type: %"PRIu16", "
-		         "expect: %"PRIu16"\n", pktType,
+		MLPL_ERR("Invalid packet type: %" PRIu16 ", "
+		         "expect: %" PRIu16 "\n", pktType,
 		         RESIDENT_PROTO_PKT_TYPE_LAUNCHED);
 		requestQuit(ctx);
 		return;

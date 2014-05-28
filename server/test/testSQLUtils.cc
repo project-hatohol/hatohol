@@ -160,7 +160,7 @@ void test_createFromStringBiguint(void)
 	uint64_t val = 0x89abcdef01234567;
 	ItemDataPtr dataPtr =
 	  SQLUtils::createFromString(
-	    StringUtils::sprintf("%"PRIu64, val).c_str(),
+	    StringUtils::sprintf("%" PRIu64, val).c_str(),
 	                         SQL_COLUMN_TYPE_BIGUINT);
 	uint64_t actual = *dataPtr;
 	cppcut_assert_equal(val, actual);

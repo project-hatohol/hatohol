@@ -325,7 +325,7 @@ void test_makeConditionServer(void)
 	ServerIdSetIterator expectId = svIdSet.begin(); 
 	for (int i = 0; expectId != svIdSet.end(); ++expectId, i++) {
 		string expect =
-		  StringUtils::sprintf("%"FMT_SERVER_ID, *expectId);
+		  StringUtils::sprintf("%" FMT_SERVER_ID, *expectId);
 		cppcut_assert_equal(expect, actualIds[i]);
 	}
 }

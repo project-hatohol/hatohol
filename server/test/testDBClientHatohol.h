@@ -205,7 +205,7 @@ struct AssertGetEventsArg
 			idMap[&fixtures[i]] = i + 1;
 	}
 
-	virtual void fixupOption(void) // override
+	virtual void fixupOption(void) override
 	{
 		AssertGetHostResourceArg<EventInfo, EventsQueryOption>::
 			fixupOption();
@@ -220,7 +220,7 @@ struct AssertGetEventsArg
 		option.setTriggerStatus(triggerStatus);
 	}
 
-	virtual bool filterOutExpectedRecord(EventInfo *info) // override
+	virtual bool filterOutExpectedRecord(EventInfo *info) override
 	{
   		if (AssertGetHostResourceArg <EventInfo, EventsQueryOption>
 		      ::filterOutExpectedRecord(info)) {
@@ -259,7 +259,7 @@ struct AssertGetEventsArg
 		}
 	};
 
-	virtual void fixupExpectedRecords(void) // override
+	virtual void fixupExpectedRecords(void) override
 	{
 		AssertGetHostResourceArg<EventInfo, EventsQueryOption>::
 			fixupExpectedRecords();
@@ -270,7 +270,7 @@ struct AssertGetEventsArg
 				  lessTime());
 	}
 
-	virtual HostIdType getHostId(const EventInfo &info) const // override
+	virtual HostIdType getHostId(const EventInfo &info) const override
 	{
 		return info.hostId;
 	}

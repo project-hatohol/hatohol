@@ -135,7 +135,7 @@ void test_getCurrTimeAsMicroSecond(void)
 	timeError -= tv.tv_usec;
 	cppcut_assert_equal(true, timeError < allowedErrorInMicroSec);
 	if (isVerboseMode())
-		cut_notify("timeError: %"PRIu64 " [us]", timeError);
+		cut_notify("timeError: %" PRIu64 " [us]", timeError);
 }
 
 void test_validateJSMethodName(void)

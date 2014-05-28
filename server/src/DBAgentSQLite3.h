@@ -68,16 +68,16 @@ public:
 	virtual void begin(void);
 	virtual void commit(void);
 	virtual void rollback(void);
-	virtual void execSql(const std::string &sql); // override
-	virtual void createTable(const TableProfile &tableProfile); // override
-	virtual void insert(const InsertArg &insertArg); // override
-	virtual void update(const UpdateArg &updateArg); // override
-	virtual void select(const SelectArg &selectArg); // override
-	virtual void select(const SelectExArg &selectExArg); // override
-	virtual void deleteRows(const DeleteArg &deleteArg); // override
-	virtual void addColumns(const AddColumnsArg &addColumnsArg); // override
+	virtual void execSql(const std::string &sql) override;
+	virtual void createTable(const TableProfile &tableProfile) override;
+	virtual void insert(const InsertArg &insertArg) override;
+	virtual void update(const UpdateArg &updateArg) override;
+	virtual void select(const SelectArg &selectArg) override;
+	virtual void select(const SelectExArg &selectExArg) override;
+	virtual void deleteRows(const DeleteArg &deleteArg) override;
+	virtual void addColumns(const AddColumnsArg &addColumnsArg) override;
 	virtual const
-	  DBTermCodec *getDBTermCodec(void) const; // override
+	  DBTermCodec *getDBTermCodec(void) const override;
 
 	virtual uint64_t getLastInsertId(void);
 	virtual uint64_t getNumberOfAffectedRows(void);
@@ -116,15 +116,15 @@ protected:
 
 	// virtual methods
 	virtual std::string
-	makeCreateIndexStatement(const IndexDef &indexDef); // override
+	makeCreateIndexStatement(const IndexDef &indexDef) override;
 
 	virtual std::string
 	makeDropIndexStatement(const std::string &name,
-	                       const std::string &tableName); // override
+	                       const std::string &tableName) override;
 
 	virtual void getIndexInfoVect(
 	  std::vector<IndexInfo> &indexInfoVect,
-	  const TableProfile &tableProfile); // override
+	  const TableProfile &tableProfile) override;
 
 private:
 	struct PrivateContext;

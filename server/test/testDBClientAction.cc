@@ -44,13 +44,13 @@ static string makeExpectedString(const ActionDef &actDef, int expectedId)
 	            StringUtils::sprintf("%d|", cond.serverId) :
 	            DBCONTENT_MAGIC_NULL "|";
 	expect += cond.isEnable(ACTCOND_HOST_ID) ?
-	            StringUtils::sprintf("%"PRIu64"|", cond.hostId) :
+	            StringUtils::sprintf("%" PRIu64 "|", cond.hostId) :
 	            DBCONTENT_MAGIC_NULL "|";
 	expect += cond.isEnable(ACTCOND_HOST_GROUP_ID) ?
-	            StringUtils::sprintf("%"PRIu64"|", cond.hostgroupId) :
+	            StringUtils::sprintf("%" PRIu64 "|", cond.hostgroupId) :
 	            DBCONTENT_MAGIC_NULL "|";
 	expect += cond.isEnable(ACTCOND_TRIGGER_ID) ?
-	             StringUtils::sprintf("%"PRIu64"|", cond.triggerId) :
+	             StringUtils::sprintf("%" PRIu64 "|", cond.triggerId) :
 	            DBCONTENT_MAGIC_NULL "|";
 	expect += cond.isEnable(ACTCOND_TRIGGER_STATUS) ?
 	            StringUtils::sprintf("%d|", cond.triggerStatus) :
@@ -86,7 +86,7 @@ static string makeExpectedLogString(
 
 	string expect =
 	  StringUtils::sprintf(
-	    "%"PRIu64"|%d|%d|%d|%s|%s|%s|%d|%s|%"PRIu32"|%"PRIu64"\n",
+	    "%" PRIu64 "|%d|%d|%d|%s|%s|%s|%d|%s|%" PRIu32 "|%" PRIu64 "\n",
 	    logId, actDef.id, status, expectedStarterId,
 	    DBCONTENT_MAGIC_NULL,
 	    DBCONTENT_MAGIC_CURR_DATETIME,
@@ -329,7 +329,7 @@ void test_addActionAndCheckOwner(void)
 	ActionIdType actionId = dbAction.callGetLastInsertId();
 
 	// check
-	string expect = StringUtils::sprintf("%"FMT_ACTION_ID"|%"FMT_USER_ID,
+	string expect = StringUtils::sprintf("%" FMT_ACTION_ID "|%" FMT_USER_ID,
 	                                     actionId, userId);
 	string statement = "select action_id, owner_user_id from ";
 	statement += DBClientAction::getTableNameActions();

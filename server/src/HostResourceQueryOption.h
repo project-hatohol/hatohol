@@ -64,7 +64,7 @@ public:
 	 */
 	const char *getPrimaryTableName(void) const;
 
-	virtual std::string getCondition(void) const; // override
+	virtual std::string getCondition(void) const override;
 
 	/**
 	 * Get a part of an SQL statement for a FROM clause.
@@ -138,7 +138,7 @@ public:
 	 */
 	const bool &getFilterForDataOfDefunctServers(void) const;
 
-	virtual const DBTermCodec *getDBTermCodec(void) const; // override
+	virtual const DBTermCodec *getDBTermCodec(void) const override;
 
 protected:
 	std::string getServerIdColumnName(void) const;

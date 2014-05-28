@@ -427,7 +427,7 @@ ServerQueryOption::~ServerQueryOption()
 static string serverIdCondition(const ServerIdType &serverId)
 {
 	const char *columnName = COLUMN_DEF_SERVERS[IDX_SERVERS_ID].columnName;
-	return StringUtils::sprintf("%s=%"FMT_SERVER_ID, columnName, serverId);
+	return StringUtils::sprintf("%s=%" FMT_SERVER_ID, columnName, serverId);
 }
 
 bool ServerQueryOption::hasPrivilegeCondition(string &condition) const
@@ -831,7 +831,7 @@ HatoholError DBClientConfig::deleteTargetServer(
 
 	DBAgent::DeleteArg arg(tableProfileServers);
 	const ColumnDef &colId = COLUMN_DEF_SERVERS[IDX_SERVERS_ID];
-	arg.condition = StringUtils::sprintf("%s=%"FMT_SERVER_ID,
+	arg.condition = StringUtils::sprintf("%s=%" FMT_SERVER_ID,
 	                                     colId.columnName, serverId);
 	DBCLIENT_TRANSACTION_BEGIN() {
 		deleteRows(arg);
