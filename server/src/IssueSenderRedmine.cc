@@ -193,13 +193,19 @@ HatoholError IssueSenderRedmine::parseResponse(
 	}
 
 	string timeString;
-	struct tm tm;
+	GTimeVal _time;
+
 	agent.read("created_on", timeString);
-	strptime(timeString.c_str(), "%Y-%m-%dT%H:%M:%SZ", &tm);
-	issueInfo.createdAt = mktime(&tm);
+	if (g_time_val_from_iso8601(timeString.c_str(), &_time))
+		issueInfo.createdAt = _time.tv_sec;
+	else
+		issueInfo.createdAt = 0;
+
 	agent.read("updated_on", timeString);
-	strptime(timeString.c_str(), "%Y-%m-%dT%H:%M:%SZ", &tm);
-	issueInfo.updatedAt = mktime(&tm);
+	if (g_time_val_from_iso8601(timeString.c_str(), &_time))
+		issueInfo.updatedAt = _time.tv_sec;
+	else
+		issueInfo.updatedAt = 0;
 
 	agent.endObject();
 

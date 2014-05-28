@@ -227,10 +227,10 @@ void test_parseResponse(void)
 	issue.updatedOn = expected.updatedAt;
 
 	TestRedmineSender sender(tracker);
-	HatoholError result = sender.parseResponse(actual, issue.toJson());
 	actual.unifiedId = expected.unifiedId;
 	actual.trackerId = expected.trackerId;
 	actual.eventId = expected.eventId;
+	HatoholError result = sender.parseResponse(actual, issue.toJson());
 	cppcut_assert_equal(HTERR_OK, result.getCode());
 	cppcut_assert_equal(makeIssueOutput(expected),
 			    makeIssueOutput(actual));
