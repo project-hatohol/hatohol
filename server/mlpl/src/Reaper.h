@@ -19,6 +19,9 @@
 
 #ifndef Reaper_h
 #define Reaper_h
+#ifndef USE_CPP11
+#define override
+#endif
 
 namespace mlpl {
 
