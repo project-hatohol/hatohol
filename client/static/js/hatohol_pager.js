@@ -75,7 +75,7 @@ HatoholPager.prototype.getTotalNumberOfPages = function() {
   if (!this.numRecordsPerPage || this.numRecordsPerPage < 0)
     return this.numTotalRecords > 0 ? 1 : 0;
   return Math.ceil(this.numTotalRecords / this.numRecordsPerPage);
-}
+};
 
 HatoholPager.prototype.applyParams = function(params) {
   if (params && params.parentElements)
@@ -92,7 +92,7 @@ HatoholPager.prototype.applyParams = function(params) {
     this.maxPagesToShow = params.maxPagesToShow;
   if (params && params.selectPageCallback)
     this.selectPageCallback = params.selectPageCallback;
-}
+};
 
 HatoholPager.prototype.getPagesRange = function(params) {
   var numPages = this.getTotalNumberOfPages();
@@ -112,7 +112,7 @@ HatoholPager.prototype.getPagesRange = function(params) {
     firstPage: firstPage,
     lastPage:  lastPage,
   };
-}
+};
 
 HatoholPager.prototype.update = function(params) {
   this.applyParams(params);
