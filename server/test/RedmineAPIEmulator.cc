@@ -174,6 +174,7 @@ struct RedmineAPIEmulator::PrivateContext {
 	size_t m_issueId;
 	string m_lastRequest;
 	string m_lastResponse;
+	RedmineIssue m_lastIssue;
 };
 
 RedmineAPIEmulator::RedmineAPIEmulator(void)
@@ -210,6 +211,11 @@ const string &RedmineAPIEmulator::getLastRequest(void)
 const string &RedmineAPIEmulator::getLastResponse(void)
 {
 	return m_ctx->m_lastResponse;
+}
+
+const RedmineIssue &RedmineAPIEmulator::getLastIssue(void)
+{
+	return m_ctx->m_lastIssue;
 }
 
 gboolean RedmineAPIEmulator::PrivateContext::authCallback
@@ -320,6 +326,7 @@ void RedmineAPIEmulator::PrivateContext::replyPostIssue(SoupMessage *msg)
 		RedmineIssue issue(++m_issueId, subject, description,
 				   m_currentUser, trackerId);
 		m_lastResponse = issue.toJson();
+		m_lastIssue = issue;
 		soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
 					 m_lastResponse.c_str(),
 					 m_lastResponse.size());

@@ -67,6 +67,7 @@ public:
 	void addUser(const std::string &userName, const std::string &password);
 	const std::string &getLastRequest(void);
 	const std::string &getLastResponse(void);
+	const RedmineIssue &getLastIssue(void);
 
 protected:
 	virtual void setSoupHandlers(SoupServer *soupServer);
