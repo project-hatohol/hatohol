@@ -214,6 +214,13 @@ string StringUtils::stripBothEndsSpaces(const string &str)
 	return string(str, startPosition, bodyLength);
 }
 
+uint64_t StringUtils::toUint64(const string &numStr)
+{
+	uint64_t valU64;
+	sscanf(numStr.c_str(), "%"PRIu64, &valU64);
+	return valU64;
+}
+
 string StringUtils::eraseChars(const string &source, const string &eraseChars)
 {
 	static const size_t numArrayChars = 0x100;
