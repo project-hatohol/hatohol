@@ -410,7 +410,7 @@ uint64_t ZabbixAPI::getLastEventId(void)
 	if (!parser.read("eventid", strLastEventId))
 		THROW_DATA_STORE_EXCEPTION("Failed to read: eventid\n");
 
-	lastEventId = convertStrToUint64(strLastEventId);
+	lastEventId = StringUtils::toUint64(strLastEventId);
 	MLPL_DBG("LastEventID: %"PRIu64"\n", lastEventId);
 
 	return lastEventId;
@@ -1044,12 +1044,3 @@ void ZabbixAPI::pushApplicationid(JsonParserAgent &parser, ItemGroup *itemGroup)
 	}
 	parser.endObject();
 }
-
-uint64_t ZabbixAPI::convertStrToUint64(const string strData)
-{
-	// I want to replace this method with the more general method.
-	uint64_t valU64;
-	sscanf(strData.c_str(), "%"PRIu64, &valU64);
-	return valU64;
-}
-

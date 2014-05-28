@@ -258,8 +258,6 @@ protected:
 	void pushTriggersHostid(JsonParserAgent &parser, ItemGroup *itemGroup);
 	void pushApplicationid(JsonParserAgent &parser, ItemGroup *itemGroup);
 
-	uint64_t convertStrToUint64(const std::string strData);
-
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
