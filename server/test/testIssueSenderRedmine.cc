@@ -173,7 +173,6 @@ static void makeExpectedIssueInfo(IssueInfo &issue,
 				  const EventInfo &event,
 				  const RedmineIssue &postedIssue)
 {
-	issue.unifiedId = 1;
 	issue.eventId = event.unifiedId;
 	issue.trackerId = tracker.id;
 	issue.identifier = StringUtils::toString((int)postedIssue.id);
@@ -254,7 +253,6 @@ void test_parseResponse(void)
 	issue.updatedOn = expected.updatedAt;
 
 	TestRedmineSender sender(tracker);
-	actual.unifiedId = expected.unifiedId;
 	actual.trackerId = expected.trackerId;
 	actual.eventId = expected.eventId;
 	HatoholError result = sender.parseResponse(actual, issue.toJson());

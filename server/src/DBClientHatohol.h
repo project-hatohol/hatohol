@@ -157,7 +157,6 @@ typedef MonitoringServerStatusList::iterator MonitoringServerStatusListIterator;
 typedef MonitoringServerStatusList::const_iterator MonitoringServerStatusListConstIterator;
 
 struct IssueInfo {
-	IssueIdType        unifiedId;
 	IssueTrackerIdType trackerId;
 	EventIdType        eventId;
 	std::string        identifier;

@@ -674,17 +674,6 @@ static const ColumnDef COLUMN_DEF_ISSUES[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
 	DBClientHatohol::TABLE_NAME_ISSUES, // tableName
-	"unified_id",                      // columnName
-	SQL_COLUMN_TYPE_BIGUINT,           // type
-	20,                                // columnLength
-	0,                                 // decFracLength
-	false,                             // canBeNull
-	SQL_KEY_PRI,                       // keyType
-	SQL_COLUMN_FLAG_AUTO_INC,          // flags
-	NULL,                              // defaultValue
-}, {
-	ITEM_ID_NOT_SET,                   // itemId
-	DBClientHatohol::TABLE_NAME_ISSUES, // tableName
 	"tracker_id",                      // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -774,7 +763,6 @@ static const ColumnDef COLUMN_DEF_ISSUES[] = {
 };
 
 enum {
-	IDX_ISSUES_UNIFIED_ID,
 	IDX_ISSUES_TRACKER_ID,
 	IDX_ISSUES_EVENT_ID,
 	IDX_ISSUES_IDENTIFIER,
@@ -857,13 +845,13 @@ static const DBAgent::IndexDef indexDefsMapHostsHostgroups[] = {
   {NULL}
 };
 
-// Items
+// Issues
 static const int columnIndexesIssuesUniqId[] = {
-  IDX_ISSUES_UNIFIED_ID, DBAgent::IndexDef::END,
+  IDX_ISSUES_EVENT_ID, DBAgent::IndexDef::END,
 };
 
 static const DBAgent::IndexDef indexDefsIssues[] = {
-  {"IssuesUniqId", &tableProfileIssues,
+  {"IssuesEventId", &tableProfileIssues,
    (const int *)columnIndexesIssuesUniqId, true},
   {NULL}
 };
@@ -2133,7 +2121,6 @@ HatoholError DBClientHatohol::getIssueInfoVect(
 		ItemGroupStream itemGroupStream(*itemGrpItr);
 		issueInfoVect.push_back(IssueInfo());
 		IssueInfo &issueInfo = issueInfoVect.back();
-		itemGroupStream >> issueInfo.unifiedId;
 		itemGroupStream >> issueInfo.trackerId;
 		itemGroupStream >> issueInfo.eventId;
 		itemGroupStream >> issueInfo.identifier;
@@ -2358,8 +2345,8 @@ void DBClientHatohol::addIssueInfoWithoutTransaction(const IssueInfo &issueInfo)
 {
 	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
 	string condition = StringUtils::sprintf(
-	  "unified_id=%s",
-	  dbTermCodec->enc(issueInfo.unifiedId).c_str());
+	  "event_id=%s",
+	  dbTermCodec->enc(issueInfo.eventId).c_str());
 	if (!isRecordExisting(TABLE_NAME_ISSUES, condition)) {
 		DBAgent::InsertArg arg(tableProfileIssues);
 		arg.add(AUTO_INCREMENT_VALUE_U64);

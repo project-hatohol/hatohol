@@ -746,7 +746,6 @@ size_t NumTestIssueTrackerInfo = sizeof(testIssueTrackerInfo) / sizeof(IssueTrac
 
 IssueInfo testIssueInfo[] = {
 {
-	AUTO_INCREMENT_VALUE,     // unifiedId
 	3,                        // trackerId
 	1,                        // eventId
 	"13",                     // identifier

@@ -1276,7 +1276,6 @@ void test_addIssueInfo(void)
 
 	for (size_t i = 0; i < NumTestIssueInfo; i++) {
 		IssueInfo expectedIssueInfo = testIssueInfo[i];
-		expectedIssueInfo.unifiedId = i + 1;
 		expect += makeIssueOutput(expectedIssueInfo);
 		dbClientHatohol.addIssueInfo(&testIssueInfo[i]);
 	}
@@ -1292,7 +1291,6 @@ void test_getIssueInfo(void)
 
 	for (size_t i = 0; i < NumTestIssueInfo; i++) {
 		IssueInfo expectedIssueInfo = testIssueInfo[i];
-		expectedIssueInfo.unifiedId = i + 1;
 		expected += makeIssueOutput(expectedIssueInfo);
 		dbClientHatohol.addIssueInfo(&expectedIssueInfo);
 	}
