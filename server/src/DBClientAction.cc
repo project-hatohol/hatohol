@@ -188,7 +188,7 @@ static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 	false,                             // canBeNull
 	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
-	USER_ID_SYSTEM,                     // defaultValue
+	"0", // USER_ID_SYSTEM             // defaultValue
 },
 };
 
