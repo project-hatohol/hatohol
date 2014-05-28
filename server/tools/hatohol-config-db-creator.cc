@@ -577,8 +577,8 @@ int main(int argc, char *argv[])
 			printf("Failed to add user: %s (code: %d)\n",
 			       userInfo.name.c_str(), err.getCode());
 		}
-		printf("USER: ID: %"FMT_USER_ID", name: %s, "
-		       "flags: %"FMT_OPPRVLG"\n",
+		printf("USER: ID: %" FMT_USER_ID ", name: %s, "
+		       "flags: %" FMT_OPPRVLG "\n",
 		       userInfo.id, userInfo.name.c_str(), userInfo.flags);
 	}
 
