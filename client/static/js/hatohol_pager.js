@@ -144,7 +144,7 @@ HatoholPager.prototype.update = function(params) {
       item.addClass("disabled");
     return item;
   };
-  var item, enable;
+  var i, item, enable;
 
   parent.empty();
   if (numPages == 0 || numPages == 1)
