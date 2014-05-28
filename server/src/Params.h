@@ -24,6 +24,11 @@
 #include <stdint.h>
 #include <set>
 #include <map>
+#include "config.h"
+
+#ifndef USE_CPP11
+#define override
+#endif
 
 typedef int DBDomainId;
 
