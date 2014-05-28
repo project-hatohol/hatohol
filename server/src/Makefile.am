@@ -1,4 +1,4 @@
-sbin_PROGRAMS = hatohol hatohol-resident-yard
+sbin_PROGRAMS = hatohol hatohol-resident-yard hatohol-arm-plugin-zabbix-api
 hatohol_SOURCES = main.cc
 hatohol_resident_yard_SOURCES = hatoholResidentYard.cc
 
@@ -97,7 +97,7 @@ libhatohol_la_SOURCES = \
 	ZabbixAPI.cc ZabbixAPI.h
 
 AM_CXXFLAGS = -Wall -g3 \
-	-D__STDC_FORMAT_MACROS \
+	-D__STDC_FORMAT_MACROS $(OPT_CXXFLAGS) \
 	$(MLPL_CFLAGS) $(GLIB_CFLAGS) $(GTHREAD_CFLAGS) $(GIO_CFLAGS) \
 	$(LIBSOUP_CFLAGS) $(JSON_GLIB_CFLAGS) $(SQLITE3_CFLAGS) \
 	$(UUID_CFLAGS) $(MYSQL_CFLAGS) $(COVERAGE_CFLAGS)
