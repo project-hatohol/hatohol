@@ -174,7 +174,7 @@ static void makeExpectedIssueInfo(IssueInfo &issue,
 				  const RedmineIssue &postedIssue)
 {
 	issue.unifiedId = 1;
-	issue.eventId = event.id;
+	issue.eventId = event.unifiedId;
 	issue.trackerId = tracker.id;
 	issue.identifier = StringUtils::toString((int)postedIssue.id);
 	issue.location = tracker.baseURL + "/issues/" + issue.identifier;
