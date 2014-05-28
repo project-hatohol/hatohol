@@ -27,19 +27,29 @@ describe('HatoholPager', function() {
   it('create with 100 records', function() {
     var pager = new HatoholPager({numTotalRecords: 100});
     var i, list = $('#' + fixtureId + ' li');
-    expect(list.length).to.be(3);
-    for (i = 0; i < 2; i++)
-      expect($(list[i]).text()).to.be("" + (i + 1));
-    expect($(list[2]).text()).to.be($('<div/>').html("&raquo;").text());
+    expect(list.length).to.be(4);
+    expect($(list[0]).text()).to.be($('<div/>').html("&laquo;").text());
+    expect($(list[0]).hasClass("disabled")).to.be(true);
+    for (i = 1; i < 3; i++) {
+      expect($(list[i]).text()).to.be("" + (i));
+      expect($(list[i]).hasClass("disabled")).to.be(false);
+    }
+    expect($(list[i]).text()).to.be($('<div/>').html("&raquo;").text());
+    expect($(list[i]).hasClass("disabled")).to.be(false);
   });
 
   it('create with 101 records', function() {
     var pager = new HatoholPager({numTotalRecords: 101});
     var i, list = $('#' + fixtureId + ' li');
-    expect(list.length).to.be(4);
-    for (i = 0; i < 3; i++)
-      expect($(list[i]).text()).to.be("" + (i + 1));
-    expect($(list[3]).text()).to.be($('<div/>').html("&raquo;").text());
+    expect(list.length).to.be(5);
+    expect($(list[0]).text()).to.be($('<div/>').html("&laquo;").text());
+    expect($(list[0]).hasClass("disabled")).to.be(true);
+    for (i = 1; i < 4; i++) {
+      expect($(list[i]).text()).to.be("" + (i));
+      expect($(list[i]).hasClass("disabled")).to.be(false);
+    }
+    expect($(list[4]).text()).to.be($('<div/>').html("&raquo;").text());
+    expect($(list[i]).hasClass("disabled")).to.be(false);
   });
 
   it('0 records per page', function() {
