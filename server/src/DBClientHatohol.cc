@@ -2349,7 +2349,6 @@ void DBClientHatohol::addIssueInfoWithoutTransaction(const IssueInfo &issueInfo)
 	  dbTermCodec->enc(issueInfo.eventId).c_str());
 	if (!isRecordExisting(TABLE_NAME_ISSUES, condition)) {
 		DBAgent::InsertArg arg(tableProfileIssues);
-		arg.add(AUTO_INCREMENT_VALUE_U64);
 		arg.add(issueInfo.trackerId);
 		arg.add(issueInfo.eventId);
 		arg.add(issueInfo.identifier);
