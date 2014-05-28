@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -57,6 +57,15 @@ public:
 	static std::string toString(uint64_t number);
 	static std::string toLower(std::string str);
 	static std::string stripBothEndsSpaces(const std::string &str);
+
+	/**
+	 * Convert a decimal number string to uint64_t.
+	 *
+	 * @param numStr A string of a decimal number
+	 *
+	 * @return the converted number.
+	 */
+	static uint64_t toUint64(const std::string &numStr);
 
 	/**
 	 * Erase specified characters in a string.

@@ -21,16 +21,14 @@
 #define ArmZabbixAPI_h
 
 #include <libsoup/soup.h>
+#include "ZabbixAPI.h"
 #include "ArmBase.h"
 #include "ItemTablePtr.h"
-#include "JsonParserAgent.h"
 #include "JsonBuilderAgent.h"
 #include "DBClientConfig.h"
 #include "DBClientZabbix.h"
 
-const static uint64_t UNLIMITED = -1;
-
-class ArmZabbixAPI : public ArmBase
+class ArmZabbixAPI : public ZabbixAPI, public ArmBase
 {
 public:
 	typedef ItemTablePtr
@@ -42,89 +40,10 @@ public:
 
 	ArmZabbixAPI(const MonitoringServerInfo &serverInfo);
 	virtual ~ArmZabbixAPI();
-	ItemTablePtr getTrigger(int requestSince = 0);
-	ItemTablePtr getFunctions(void);
-	ItemTablePtr getItems(void);
 
-	/**
-	 * get the hosts database with Zabbix API server
-	 *
-	 * TODO: Write parameters and return value here.
-	 */
-	void getHosts(ItemTablePtr &hostsTablePtr,
-	              ItemTablePtr &hostsGroupsTablePtr);
-
-	ItemTablePtr getApplications(const std::vector<uint64_t> &appIdVector);
-	ItemTablePtr getEvents(uint64_t eventIdOffset, uint64_t eventIdTill);
-	uint64_t getLastEventId(void);
 	virtual void onGotNewEvents(const ItemTablePtr &itemPtr);
-	void getGroups(ItemTablePtr &groupsTablePtr);
 
 protected:
-	const std::string &getAPIVersion(void);
-	bool checkAPIVersion(int major, int minor, int micro);
-	SoupSession *getSession(void);
-
-	/**
-	 * open a session with with Zabbix API server
-	 *
-	 * @param msgPtr
-	 * An address of SoupMessage object pointer. If this parameter is
-	 * not NULL, SoupMessage object pointer is copied to this parameter.
-	 * Otherwise, the object is freeed in this function and the parameter
-	 * is not changed.
-	 *
-	 * @return
-	 * true if session is oppned successfully. Otherwise, false is returned.
-	 */
-	bool openSession(SoupMessage **msgPtr = NULL);
-	bool updateAuthTokenIfNeeded(void);
-	std::string getAuthToken(void);
-
-	SoupMessage *queryCommon(JsonBuilderAgent &agent);
-	SoupMessage *queryAPIVersion(void);
-	SoupMessage *queryTrigger(int requestSince = 0);
-	SoupMessage *queryItem(void);
-	SoupMessage *queryHost(void);
-	SoupMessage *queryApplication(const std::vector<uint64_t> &appIdVector);
-	SoupMessage *queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill);
-	SoupMessage *queryGetLastEventId(void);
-	SoupMessage *queryGroup(void);
-	std::string getInitialJsonRequest(void);
-	bool parseInitialResponse(SoupMessage *msg);
-	void startObject(JsonParserAgent &parser, const std::string &name);
-	void startElement(JsonParserAgent &parser, int index);
-	void getString(JsonParserAgent &parser, const std::string &name,
-	               std::string &value);
-
-	int pushInt(JsonParserAgent &parser, ItemGroup *itemGroup,
-	            const std::string &name, ItemId itemId);
-	uint64_t pushUint64(JsonParserAgent &parser, ItemGroup *itemGroup,
-	                    const std::string &name, ItemId itemId);
-	std::string pushString(JsonParserAgent &parser, ItemGroup *itemGroup,
-	                       const std::string &name, ItemId itemId);
-
-	void pushFunctionsCache(JsonParserAgent &parser);
-	void pushFunctionsCacheOne(JsonParserAgent &parser,
-	                           ItemGroup *itemGroup, int index);
-	void parseAndPushTriggerData(JsonParserAgent &parser,
-	                             VariableItemTablePtr &tablePtr, int index);
-	void pushApplicationid(JsonParserAgent &parser, ItemGroup *itemGroup);
-	void pushTriggersHostid(JsonParserAgent &parser, ItemGroup *itemGroup);
-	uint64_t convertStrToUint64(const std::string strData);
-	void parseAndPushItemsData(JsonParserAgent &parser,
-	                           VariableItemTablePtr &tablePtr, int index);
-	void parseAndPushHostsData(JsonParserAgent &parser,
-	                           VariableItemTablePtr &tablePtr, int index);
-	void parseAndPushApplicationsData(JsonParserAgent &parser,
-	                                  VariableItemTablePtr &tablePtr,
-	                                  int index);
-	void parseAndPushEventsData(JsonParserAgent &parser,
-	                            VariableItemTablePtr &tablePtr, int index);
-	void parseAndPushGroupsData(JsonParserAgent &parser,
-	                            VariableItemTablePtr &tablePtr, int index);
-	void parseAndPushHostsGroupsData(JsonParserAgent &parser,
-	                                 VariableItemTablePtr &tablePtr, int index);
 
 	template<typename T>
 	void updateOnlyNeededItem(

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -23,6 +23,7 @@ using namespace std;
 
 #include <cutter.h>
 #include <cppcutter.h>
+#include <gcutter.h>
 
 #include "StringUtils.h"
 using namespace mlpl;
@@ -338,6 +339,46 @@ void test_shouldNotReplaceUTF8(void)
 	string expected = src;
 	string actual = StringUtils::replace(src, "'", "''");
 	cppcut_assert_equal(expected, actual);
+}
+
+void data_toUint64(void)
+{
+	gcut_add_datum("Zero",
+	               "val", G_TYPE_STRING, "0",
+	               "expect", G_TYPE_UINT64, (guint64)0,
+	               NULL);
+	gcut_add_datum("Positive within 32bit",
+	               "val", G_TYPE_STRING, "3456",
+	               "expect", G_TYPE_UINT64, (guint64)3456,
+	               NULL);
+	gcut_add_datum("Positive 32bit Max",
+	               "val", G_TYPE_STRING, "2147483647",
+	               "expect", G_TYPE_UINT64, (guint64)2147483647,
+	               NULL);
+	gcut_add_datum("Positive 32bit Max + 1",
+	               "val", G_TYPE_STRING, "2147483648",
+	               "expect", G_TYPE_UINT64, (guint64)2147483648,
+	               NULL);
+	gcut_add_datum("Positive 64bit Poistive Max",
+	               "val", G_TYPE_STRING, "9223372036854775807",
+	               "expect", G_TYPE_UINT64, 9223372036854775807UL,
+	               NULL);
+	gcut_add_datum("Positive 64bit Poistive Max+1",
+	               "val", G_TYPE_STRING, "9223372036854775808",
+	               "expect", G_TYPE_UINT64, 9223372036854775808UL,
+	               NULL);
+	gcut_add_datum("Positive 64bit Max",
+	               "val", G_TYPE_STRING, "18446744073709551615",
+	               "expect", G_TYPE_UINT64, 18446744073709551615UL,
+	               NULL);
+}
+
+void test_toUint64(gconstpointer data)
+{
+	uint64_t actual =
+	   StringUtils::toUint64(gcut_data_get_string(data, "val"));
+	uint64_t expect = gcut_data_get_uint64(data, "expect");
+	cppcut_assert_equal(expect, actual);
 }
 
 } // namespace testStringUtils

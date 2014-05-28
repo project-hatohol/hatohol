@@ -64,7 +64,6 @@ typedef bool (ArmZabbixAPITestee::*ThreadOneProc)(void);
 
 public:
 	enum GetTestType {
-		GET_TEST_TYPE_API_VERSION,
 		GET_TEST_TYPE_TRIGGERS,
 		GET_TEST_TYPE_FUNCTIONS,
 		GET_TEST_TYPE_ITEMS,
@@ -103,15 +102,6 @@ public:
 		cppcut_assert_equal(version, getAPIVersion());
 	}
 
-	void testCheckAPIVersion(bool expected,
-				 int major, int minor, int micro)
-	{
-		const string &version = getAPIVersion();
-		cppcut_assert_equal(string("2.0.4"), version);
-		cppcut_assert_equal(expected,
-				    checkAPIVersion(major, minor, micro));
-	}
-
 	bool testOpenSession(void)
 	{
 		g_sync.lock();
@@ -128,12 +118,7 @@ public:
 		       ZabbixAPIEmulator::API_VERSION_2_0_4)
 	{
 		bool succeeded = false;
-		if (type == GET_TEST_TYPE_API_VERSION) {
-			succeeded =
-			  launch(&ArmZabbixAPITestee::threadOneProcTriggers,
-			         exitCbDefault, this);
-			testGetAPIVersion(expectedVersion);
-		} else if (type == GET_TEST_TYPE_TRIGGERS) {
+		if (type == GET_TEST_TYPE_TRIGGERS) {
 			succeeded =
 			  launch(&ArmZabbixAPITestee::threadOneProcTriggers,
 			         exitCbDefault, this);
@@ -247,80 +232,6 @@ public:
 		for (int i = 0; i < numData; i++)
 			ArmZabbixAPI::parseAndPushEventsData(parser, tablePtr, i);
 		return ItemTablePtr(tablePtr);
-	}
-
-	void testMakeGroupsItemTable(ItemTablePtr &groupsTablePtr)
-	{
-		ifstream ifs("fixtures/zabbix-api-res-hostgroup-002-refer.json");
-		cppcut_assert_equal(false, ifs.fail());
-
-		string fixtureData;
-		getline(ifs, fixtureData);
-		JsonParserAgent parser(fixtureData);
-		cppcut_assert_equal(false, parser.hasError());
-		startObject(parser, "result");
-
-		VariableItemTablePtr variableGroupsTablePtr;
-		int numData = parser.countElements();
-		if (numData < 1)
-			cut_fail("Value of the elements is empty.");
-		for (int i = 0; i < numData; i++) {
-			ArmZabbixAPI::parseAndPushGroupsData(parser,
-			                                     variableGroupsTablePtr,
-			                                     i);
-		}
-
-		groupsTablePtr = ItemTablePtr(variableGroupsTablePtr);
-	}
-
-	void testMakeMapHostsHostgroupsItemTable(ItemTablePtr &hostsGroupsTablePtr)
-	{
-		ifstream ifs("fixtures/zabbix-api-res-hosts-002.json");
-		cppcut_assert_equal(false, ifs.fail());
-
-		string fixtureData;
-		getline(ifs, fixtureData);
-		JsonParserAgent parser(fixtureData);
-		cppcut_assert_equal(false, parser.hasError());
-		startObject(parser, "result");
-
-		VariableItemTablePtr variableHostsGroupsTablePtr;
-		int numData = parser.countElements();
-		if (numData < 1)
-			cut_fail("Value of the elements is empty.");
-		for (int i = 0; i < numData; i++) {
-			ArmZabbixAPI::parseAndPushHostsGroupsData(parser,
-			                                          variableHostsGroupsTablePtr,
-			                                          i);
-		}
-
-		hostsGroupsTablePtr = ItemTablePtr(variableHostsGroupsTablePtr);
-	}
-
-	bool assertItemTable(const ItemTablePtr &expect, const ItemTablePtr &actual)
-	{
-		const ItemGroupList &expectList = expect->getItemGroupList();
-		const ItemGroupList &actualList = actual->getItemGroupList();
-		cppcut_assert_equal(expectList.size(), actualList.size());
-		ItemGroupListConstIterator exItr = expectList.begin();
-		ItemGroupListConstIterator acItr = actualList.begin();
-
-		size_t grpCnt = 0;
-		for (; exItr != expectList.end(); ++exItr, ++acItr, grpCnt++) {
-			const ItemGroup *expectGroup = *exItr;
-			const ItemGroup *actualGroup = *acItr;
-			size_t numberOfItems = expectGroup->getNumberOfItems();
-			cppcut_assert_equal(numberOfItems, actualGroup->getNumberOfItems());
-
-			for (size_t index = 0; index < numberOfItems; index++){
-				const ItemData *expectData = expectGroup->getItemAt(index);
-				const ItemData *actualData = actualGroup->getItemAt(index);
-				cppcut_assert_equal(*expectData, *actualData,
-				  cut_message("index: %zd, group count: %zd",
-				              index, grpCnt));
-			}
-		}
-		return true;
 	}
 
 	void assertMakeItemVector(bool testNull = false)
@@ -524,20 +435,6 @@ static void _assertTestGet(ArmZabbixAPITestee::GetTestType testType,
 }
 #define assertTestGet(TYPE, ...) cut_trace(_assertTestGet(TYPE, ##__VA_ARGS__))
 
-static void _assertCheckAPIVersion(
-  bool expected, int major, int minor , int micro)
-{
-	int svId = 0;
-	MonitoringServerInfo serverInfo = g_defaultServerInfo;
-	serverInfo.id = svId;
-	serverInfo.port = getTestPort();
-	deleteDBClientZabbixDB(svId);
-	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
-	armZbxApiTestee.testCheckAPIVersion(expected, major, minor, micro);
-}
-#define assertCheckAPIVersion(EXPECTED,MAJOR,MINOR,MICRO) \
-  cut_trace(_assertCheckAPIVersion(EXPECTED,MAJOR,MINOR,MICRO))
-
 void cut_setup(void)
 {
 	cppcut_assert_equal(false, g_sync.isLocked(),
@@ -564,78 +461,6 @@ void cut_teardown(void)
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
-void test_getAPIVersion(void)
-{
-	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_API_VERSION);
-}
-
-void test_getAPIVersion_2_2_0(void)
-{
-	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_API_VERSION,
-		      ZabbixAPIEmulator::API_VERSION_2_2_0);
-}
-
-void data_getAPIVersion(void)
-{
-	gcut_add_datum("Equal",
-		       "expected", G_TYPE_BOOLEAN, TRUE,
-		       "major", G_TYPE_INT, "2",
-		       "minor", G_TYPE_INT, "0",
-		       "micro", G_TYPE_INT, "4",
-		       NULL);
-	gcut_add_datum("Lower micro version",
-		       "expected", G_TYPE_BOOLEAN, TRUE,
-		       "major", G_TYPE_INT, "2",
-		       "minor", G_TYPE_INT, "0",
-		       "micro", G_TYPE_INT, "3",
-		       NULL);
-	gcut_add_datum("Higher micro version",
-		       "expected", G_TYPE_BOOLEAN, FALSE,
-		       "major", G_TYPE_INT, "2",
-		       "minor", G_TYPE_INT, "0",
-		       "micro", G_TYPE_INT, "5",
-		       NULL);
-	gcut_add_datum("Higher minor version",
-		       "expected", G_TYPE_BOOLEAN, FALSE,
-		       "major", G_TYPE_INT, "2",
-		       "minor", G_TYPE_INT, "1",
-		       "micro", G_TYPE_INT, "4",
-		       NULL);
-	gcut_add_datum("Lower major version",
-		       "expected", G_TYPE_BOOLEAN, TRUE,
-		       "major", G_TYPE_INT, "1",
-		       "minor", G_TYPE_INT, "0",
-		       "micro", G_TYPE_INT, "4",
-		       NULL);
-	gcut_add_datum("Higher major version",
-		       "expected", G_TYPE_BOOLEAN, FALSE,
-		       "major", G_TYPE_INT, "3",
-		       "minor", G_TYPE_INT, "0",
-		       "micro", G_TYPE_INT, "4",
-		       NULL);
-}
-
-void test_checkAPIVersion(gconstpointer data)
-{
-	assertCheckAPIVersion(gcut_data_get_boolean(data, "expected"),
-			      gcut_data_get_int(data, "major"),
-			      gcut_data_get_int(data, "minor"),
-			      gcut_data_get_int(data, "micro"));
-}
-
-void test_openSession(void)
-{
-	int svId = 0;
-	MonitoringServerInfo serverInfo = g_defaultServerInfo;
-	serverInfo.id = svId;
-	serverInfo.port = getTestPort();
-
-	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
-	cppcut_assert_equal
-	  (true, armZbxApiTestee.testOpenSession(),
-	   cut_message("%s\n", armZbxApiTestee.errorMessage().c_str()));
-}
-
 void test_getTriggers(void)
 {
 	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_TRIGGERS);
@@ -905,20 +730,6 @@ void test_checkUsernamePassword(void)
 	cppcut_assert_equal(g_defaultServerInfo.password, jsonPassword);
 }
 
-void test_checkAuthToken(void)
-{
-	int svId = 0;
-	MonitoringServerInfo serverInfo = g_defaultServerInfo;
-	serverInfo.id = svId;
-	serverInfo.port = getTestPort();
-	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
-
-	string firstToken,secondToken;
-	firstToken = armZbxApiTestee.testAuthToken();
-	secondToken = armZbxApiTestee.testAuthToken();
-	cppcut_assert_equal(firstToken, secondToken);
-}
-
 void test_httpErrorAuthToken(void)
 {
 	int svId = 0;
@@ -956,13 +767,6 @@ void test_sessionErrorAuthToken(void)
 
 }
 
-void test_getLastEventId(void)
-{
-	ArmZabbixAPITestee armZbxApiTestee(setupServer());
-	armZbxApiTestee.testOpenSession();
-	cppcut_assert_equal((uint64_t)8697, armZbxApiTestee.getLastEventId());
-}
-
 void test_verifyEventsObtanedBySplitWay(void)
 {
 	ArmZabbixAPITestee armZbxApiTestee(setupServer());
@@ -970,9 +774,8 @@ void test_verifyEventsObtanedBySplitWay(void)
 
 	ItemTablePtr expectTable = armZbxApiTestee.testMakeEventsItemTable();
 	armZbxApiTestee.callUpdateEvents();
-	cppcut_assert_equal(true,
-	                    armZbxApiTestee.assertItemTable(expectTable,
-	                      ItemTablePtr(armZbxApiTestee.m_actualEventTablePtr)));
+	assertItemTable(expectTable,
+	                ItemTablePtr(armZbxApiTestee.m_actualEventTablePtr));
 	const uint64_t upperLimitOfEventsAtOneTime = 
 	  armZbxApiTestee.testGetMaximumNumberGetEventPerOnce();
 	list<uint64_t>::iterator itr =
@@ -981,26 +784,4 @@ void test_verifyEventsObtanedBySplitWay(void)
 		cppcut_assert_equal(true, *itr <= upperLimitOfEventsAtOneTime);
 }
 
-void test_verifyGroupsAndHostsGroups(void)
-{
-	ArmZabbixAPITestee armZbxApiTestee(setupServer());
-	armZbxApiTestee.testOpenSession();
-
-	ItemTablePtr expectGroupsTablePtr;
-	ItemTablePtr expectHostsGroupsTablePtr;
-	ItemTablePtr actualGroupsTablePtr;
-	ItemTablePtr actualHostsGroupsTablePtr;
-	ItemTablePtr dummyHostsTablePtr;
-
-	armZbxApiTestee.testMakeGroupsItemTable(expectGroupsTablePtr);
-	armZbxApiTestee.testMakeMapHostsHostgroupsItemTable
-	                  (expectHostsGroupsTablePtr);
-	armZbxApiTestee.getGroups(actualGroupsTablePtr);
-	armZbxApiTestee.getHosts(dummyHostsTablePtr, actualHostsGroupsTablePtr);
-
-	armZbxApiTestee.assertItemTable(expectGroupsTablePtr,
-	                                actualGroupsTablePtr);
-	armZbxApiTestee.assertItemTable(expectHostsGroupsTablePtr,
-	                                actualHostsGroupsTablePtr);
-}
 } // namespace testArmZabbixAPI
