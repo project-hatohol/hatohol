@@ -179,7 +179,7 @@ string StringUtils::toString(int number)
 
 string StringUtils::toString(uint64_t number)
 {
-	return sprintf("%"PRIu64, number);
+	return sprintf("%" PRIu64, number);
 }
 
 string StringUtils::toLower(string str)
@@ -217,7 +217,7 @@ string StringUtils::stripBothEndsSpaces(const string &str)
 uint64_t StringUtils::toUint64(const string &numStr)
 {
 	uint64_t valU64;
-	sscanf(numStr.c_str(), "%"PRIu64, &valU64);
+	sscanf(numStr.c_str(), "%" PRIu64, &valU64);
 	return valU64;
 }
 
