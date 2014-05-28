@@ -6,7 +6,7 @@ endif
 
 noinst_SCRIPTS = mkFooTable.sh
 
-AM_CXXFLAGS = -g3 -Wall -I .. -I ../../src $(GLIB_CFLAGS) $(MLPL_CFLAGS)
+AM_CXXFLAGS = -g3 -Wall $(OPT_CXXFLAGS) -I .. -I ../../src $(GLIB_CFLAGS) $(MLPL_CFLAGS)
 LIBS = ../../src/libhatohol.la ../libTest.la
 
 mkTestDB_SOURCES = mkTestDB.cc
