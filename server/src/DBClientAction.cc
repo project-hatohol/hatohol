@@ -409,7 +409,7 @@ string DBClientAction::PrivateContext::makeActionDefConditionTemplate(void)
 	// host_id;
 	const ColumnDef &colDefHostId = COLUMN_DEF_ACTIONS[IDX_ACTIONS_HOST_ID];
 	cond += StringUtils::sprintf(
-	  "((%s is NULL) or (%s=%%"PRIu64"))",
+	  "((%s is NULL) or (%s=%%" PRIu64 "))",
 	  colDefHostId.columnName, colDefHostId.columnName);
 	cond += " and ";
 
@@ -425,7 +425,7 @@ string DBClientAction::PrivateContext::makeActionDefConditionTemplate(void)
 	const ColumnDef &colDefTrigId =
 	   COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_ID];
 	cond += StringUtils::sprintf(
-	  "((%s is NULL) or (%s=%%"PRIu64"))",
+	  "((%s is NULL) or (%s=%%" PRIu64 "))",
 	  colDefTrigId.columnName, colDefTrigId.columnName);
 	cond += " and ";
 
@@ -576,7 +576,7 @@ HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
 		if (!arg.condition.empty())
 			arg.condition += " AND ";
 		arg.condition += StringUtils::sprintf(
-		  "%s=%"FMT_USER_ID,
+		  "%s=%" FMT_USER_ID,
 		  COLUMN_DEF_ACTIONS[IDX_ACTIONS_OWNER_USER_ID].columnName,
 		  privilege.getUserId());
 	}
@@ -660,7 +660,7 @@ HatoholError DBClientAction::deleteActions(const ActionIdList &idList,
 	// becase it is checked in checkPrevilegeForDelete().
 	if (!privilege.has(OPPRVLG_DELETE_ALL_ACTION)) {
 		arg.condition += StringUtils::sprintf(
-		  " AND %s=%"FMT_USER_ID,
+		  " AND %s=%" FMT_USER_ID,
 		  COLUMN_DEF_ACTIONS[IDX_ACTIONS_OWNER_USER_ID].columnName,
 		  privilege.getUserId());
 	}
@@ -673,7 +673,7 @@ HatoholError DBClientAction::deleteActions(const ActionIdList &idList,
 
 	// Check the result
 	if (numAffectedRows != idList.size()) {
-		MLPL_ERR("affectedRows: %"PRIu64", idList.size(): %zd\n",
+		MLPL_ERR("affectedRows: %" PRIu64 ", idList.size(): %zd\n",
 		         numAffectedRows, idList.size());
 		return HTERR_DELETE_INCOMPLETE;
 	}
@@ -736,7 +736,7 @@ void DBClientAction::logEndExecAction(const LogEndExecActionArg &logArg)
 
 	const char *actionLogIdColumnName = 
 	  COLUMN_DEF_ACTION_LOGS[IDX_ACTION_LOGS_ACTION_LOG_ID].columnName;
-	arg.condition = StringUtils::sprintf("%s=%"PRIu64,
+	arg.condition = StringUtils::sprintf("%s=%" PRIu64,
 	                                     actionLogIdColumnName,
 	                                     logArg.logId);
 	// status
@@ -762,7 +762,7 @@ void DBClientAction::updateLogStatusToStart(uint64_t logId)
 
 	const char *actionLogIdColumnName = 
 	  COLUMN_DEF_ACTION_LOGS[IDX_ACTION_LOGS_ACTION_LOG_ID].columnName;
-	arg.condition = StringUtils::sprintf("%s=%"PRIu64,
+	arg.condition = StringUtils::sprintf("%s=%" PRIu64,
 	                                     actionLogIdColumnName, logId);
 	arg.add(IDX_ACTION_LOGS_STATUS, ACTLOG_STAT_STARTED);
 	arg.add(IDX_ACTION_LOGS_START_TIME, CURR_DATETIME);
@@ -776,7 +776,8 @@ bool DBClientAction::getLog(ActionLog &actionLog, uint64_t logId)
 {
 	const ColumnDef *def = COLUMN_DEF_ACTION_LOGS;
 	const char *idColName = def[IDX_ACTION_LOGS_ACTION_LOG_ID].columnName;
-	string condition = StringUtils::sprintf("%s=%"PRIu64, idColName, logId);
+	string condition = StringUtils::sprintf("%s=%" PRIu64,
+	                                        idColName, logId);
 	return getLog(actionLog, condition);
 }
 
@@ -787,7 +788,7 @@ bool DBClientAction::getLog(ActionLog &actionLog,
 	const char *idColNameSvId = def[IDX_ACTION_LOGS_SERVER_ID].columnName;
 	const char *idColNameEvtId = def[IDX_ACTION_LOGS_EVENT_ID].columnName;
 	string condition = StringUtils::sprintf(
-	  "%s=%"FMT_SERVER_ID" AND %s=%"PRIu64,
+	  "%s=%" FMT_SERVER_ID " AND %s=%" PRIu64,
 	  idColNameSvId, serverId, idColNameEvtId, eventId);
 	return getLog(actionLog, condition);
 }
@@ -828,7 +829,7 @@ static void getHostgroupIdStringList(string &stringHostgroupId,
 	for(; it != hostgroupElementList.end(); ++it) {
 		HostgroupElement hostgroupElement = *it;
 		stringHostgroupId += StringUtils::sprintf(
-		  "%"FMT_HOST_GROUP_ID",", hostgroupElement.groupId);
+		  "%" FMT_HOST_GROUP_ID ",", hostgroupElement.groupId);
 	}
 	if (!stringHostgroupId.empty())
 		stringHostgroupId.erase(--stringHostgroupId.end());

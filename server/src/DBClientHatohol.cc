@@ -864,7 +864,7 @@ string EventsQueryOption::getCondition(void) const
 		if (!condition.empty())
 			condition += " AND ";
 		condition += StringUtils::sprintf(
-			"%s<=%"PRIu64,
+			"%s<=%" PRIu64,
 			getColumnName(IDX_EVENTS_UNIFIED_ID).c_str(),
 			m_ctx->limitOfUnifiedId);
 	}
@@ -1938,7 +1938,7 @@ void DBClientHatohol::pickupAbsentHostIds(vector<uint64_t> &absentHostIdVector,
 		for (size_t i = 0; i < hostIdVector.size(); i++) {
 			uint64_t id = hostIdVector[i];
 			condition = hostIdName;
-			condition += StringUtils::sprintf("=%"PRIu64, id);
+			condition += StringUtils::sprintf("=%" PRIu64, id);
 			if (isRecordExisting(tableName, condition))
 				continue;
 			absentHostIdVector.push_back(id);

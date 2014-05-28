@@ -97,8 +97,8 @@ struct UnifiedDataStore::PrivateContext
 		serverIdDataStoreMapLock.unlock();
 		HATOHOL_ASSERT(
 		  result.second,
-		  "Failed to insert: ServerID: %"FMT_SERVER_ID", DataStore: %p",
-		  serverId, dataStore);
+		  "Failed to insert: ServerID: %" FMT_SERVER_ID ", "
+		  "DataStore: %p", serverId, dataStore);
 	}
 
 	void removeFromDataStoreMap(DataStore *dataStore)
@@ -114,8 +114,8 @@ struct UnifiedDataStore::PrivateContext
 		serverIdDataStoreMapLock.unlock();
 		HATOHOL_ASSERT(
 		  found,
-		  "Failed to found: ServerID: %"FMT_SERVER_ID", DataStore: %p",
-		  serverId, dataStore);
+		  "Failed to found: ServerID: %" FMT_SERVER_ID ", "
+		  "DataStore: %p", serverId, dataStore);
 	}
 
 	DataStorePtr getDataStore(const ServerIdType &serverId)
@@ -162,7 +162,7 @@ struct UnifiedDataStore::PrivateContext
 		const MonitoringServerInfo &svInfo = armBase.getServerInfo();
 		HATOHOL_ASSERT(
 		  svInfo.id == serverId,
-		  "svInfo.id: %"FMT_SERVER_ID", serverId: %"FMT_SERVER_ID, 
+		  "svInfo.id: %" FMT_SERVER_ID ", serverId: %" FMT_SERVER_ID, 
 		  svInfo.id, serverId);
 
 		if (isRunning) {

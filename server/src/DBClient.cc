@@ -280,8 +280,8 @@ void DBClient::updateDBIfNeeded(DBDomainId domainId, DBAgent *dbAgent,
 	int dbVersion = getDBVersion(dbAgent);
 	if (dbVersion != setupFuncArg->version) {
 		MLPL_INFO("DBDomain %d is outdated, try to update it ...\n"
-		          "\told-version: %"PRIu32"\n"
-		          "\tnew-version: %"PRIu32"\n",
+		          "\told-version: %" PRIu32 "\n"
+		          "\tnew-version: %" PRIu32 "\n",
 		          domainId, dbVersion, setupFuncArg->version);
 		void *data = setupFuncArg->dbUpdaterData;
 		HATOHOL_ASSERT(setupFuncArg->dbUpdater,
@@ -293,7 +293,7 @@ void DBClient::updateDBIfNeeded(DBDomainId domainId, DBAgent *dbAgent,
 		               "Failed to update DB, expect/actual ver. %d/%d",
 		               setupFuncArg->version, dbVersion);
 		setDBVersion(dbAgent, setupFuncArg->version);
-		MLPL_INFO("Succeeded in updating DBDomain %"PRIu32"\n",
+		MLPL_INFO("Succeeded in updating DBDomain %" PRIu32 "\n",
 		          domainId);
 	}
 }

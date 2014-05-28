@@ -653,7 +653,7 @@ void ArmNagiosNDOUtils::addConditionForEventQuery(void)
 	if (lastEventId == DBClientHatohol::EVENT_NOT_FOUND)
  		cond = "0";
 	else
- 		cond = StringUtils::sprintf("%"PRIu64, lastEventId+1);
+ 		cond = StringUtils::sprintf("%" PRIu64, lastEventId+1);
 	m_ctx->selectEventArg.condition += cond;
 }
 

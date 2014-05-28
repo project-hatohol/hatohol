@@ -36,7 +36,7 @@ const static int TRANSACTION_TIME_OUT_MSEC = 30 * 1000;
 class DBTermCodecSQLite3 : public DBTermCodec {
 	virtual string enc(const uint64_t &val) const // override
 	{
-		return StringUtils::sprintf("%"PRId64, val);
+		return StringUtils::sprintf("%" PRId64, val);
 	}
 };
 

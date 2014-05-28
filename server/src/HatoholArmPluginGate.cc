@@ -176,7 +176,7 @@ bool HatoholArmPluginGate::launchPluginProcess(
 string HatoholArmPluginGate::generateBrokerAddress(
   const MonitoringServerInfo &serverInfo)
 {
-	return StringUtils::sprintf("hatohol-arm-plugin.%"FMT_SERVER_ID,
+	return StringUtils::sprintf("hatohol-arm-plugin.%" FMT_SERVER_ID,
 	                            serverInfo.id);
 }
 

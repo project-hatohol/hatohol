@@ -182,7 +182,7 @@ void ActorCollector::addActor(ActorInfo *actorInfo)
 	  PrivateContext::waitChildSet.insert
 	    (pair<pid_t, ActorInfo *>(actorInfo->pid, actorInfo));
 	if (!result.second) {
-		MLPL_BUG("pid: %d (logId: %"PRIu64 ") is already regstered.\n",
+		MLPL_BUG("pid: %d (logId: %" PRIu64 ") is already regstered.\n",
 		         actorInfo->pid, actorInfo->logId);
 		return;
 	}

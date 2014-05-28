@@ -171,7 +171,7 @@ bool ZabbixAPI::openSession(SoupMessage **msgPtr)
 	                 ret, m_ctx->uri.c_str());
 		return false;
 	}
-	MLPL_DBG("body: %"G_GOFFSET_FORMAT", %s\n",
+	MLPL_DBG("body: %" G_GOFFSET_FORMAT ", %s\n",
 	         msg->response_body->length, msg->response_body->data);
 	bool succeeded = parseInitialResponse(msg);
 	if (!succeeded) {
@@ -411,7 +411,7 @@ uint64_t ZabbixAPI::getLastEventId(void)
 		THROW_DATA_STORE_EXCEPTION("Failed to read: eventid\n");
 
 	lastEventId = StringUtils::toUint64(strLastEventId);
-	MLPL_DBG("LastEventID: %"PRIu64"\n", lastEventId);
+	MLPL_DBG("LastEventID: %" PRIu64 "\n", lastEventId);
 
 	return lastEventId;
 }
@@ -425,10 +425,11 @@ SoupMessage *ZabbixAPI::queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill)
 
 	agent.startObject("params");
 	agent.add("output", "extend");
-	string strEventIdFrom = StringUtils::sprintf("%"PRId64, eventIdOffset);
+	string strEventIdFrom = StringUtils::sprintf("%" PRId64, eventIdOffset);
 	agent.add("eventid_from", strEventIdFrom.c_str());
 	if (eventIdTill != UNLIMITED) {
-		string strEventIdTill = StringUtils::sprintf("%"PRId64, eventIdTill);
+		string strEventIdTill = StringUtils::sprintf("%" PRId64,
+		                                             eventIdTill);
 		agent.add("eventid_till", strEventIdTill.c_str());
 	}
 	agent.endObject(); // params
@@ -715,7 +716,7 @@ uint64_t ZabbixAPI::pushUint64(JsonParserAgent &parser, ItemGroup *itemGroup,
 	string value;
 	getString(parser, name, value);
 	uint64_t valU64;
-	sscanf(value.c_str(), "%"PRIu64, &valU64);
+	sscanf(value.c_str(), "%" PRIu64, &valU64);
 	itemGroup->add(new ItemUint64(itemId, valU64), false);
 	return valU64;
 }
@@ -966,7 +967,7 @@ void ZabbixAPI::parseAndPushApplicationsData(
 		string value;
 		uint64_t valU64 = 0;
 		parser.read(0, value);
-		sscanf(value.c_str(), "%"PRIu64, &valU64);
+		sscanf(value.c_str(), "%" PRIu64, &valU64);
 		grp->add(
 		  new ItemUint64(ITEM_ID_ZBX_APPLICATIONS_TEMPLATEID, valU64),
 		  false);

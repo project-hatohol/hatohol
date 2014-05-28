@@ -301,7 +301,7 @@ string HostResourceQueryOption::makeConditionHostgroup(
 		const uint64_t hostgroupId = *it;
 		if (hostgroupId == ALL_HOST_GROUPS)
 			return "";
-		hostGrps += StringUtils::sprintf("%"PRIu64, hostgroupId);
+		hostGrps += StringUtils::sprintf("%" PRIu64, hostgroupId);
 		if (commaCnt)
 			hostGrps += ",";
 	}

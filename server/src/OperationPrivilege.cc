@@ -110,7 +110,7 @@ void OperationPrivilege::setUserId(const UserIdType &userId)
 	CacheServiceDBClient cache;
 	if (!cache.getUser()->getUserInfo(userInfo, userId)) {
 		MLPL_ERR("Failed to getUserInfo(): userId: "
-		         "%"FMT_USER_ID"\n", userId);
+		         "%" FMT_USER_ID "\n", userId);
 		m_ctx->userId = INVALID_USER_ID;
 		return;
 	}

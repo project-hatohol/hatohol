@@ -137,7 +137,7 @@ struct ResidentInfo :
 			ActionManager::ResidentNotifyInfo *notifyInfo
 			  = notifyQueue.front();
 			MLPL_BUG("ResidentNotifyInfo is deleted, "
-			         "but not logged: logId: %"PRIu64"\n",
+			         "but not logged: logId: %" PRIu64 "\n",
 			         notifyInfo->logId);
 			delete notifyInfo;
 			notifyQueue.pop_front();
@@ -318,7 +318,7 @@ struct CommandActionContext {
 		pair<set<uint64_t>::iterator, bool> result =
 		   runningSet.insert(logId);
 		HATOHOL_ASSERT(result.second,
-		               "Failed to insert: logID: %"PRIu64"\n", logId);
+		               "Failed to insert: logID: %" PRIu64 "\n", logId);
 		lock.unlock();
 	}
 
@@ -327,7 +327,7 @@ struct CommandActionContext {
 		lock.lock();
 		set<uint64_t>::iterator it = runningSet.find(logId);
 		HATOHOL_ASSERT(it != runningSet.end(),
-		               "Not found log ID: %"PRIu64"\n", logId);
+		               "Not found log ID: %" PRIu64 "\n", logId);
 		runningSet.erase(it);
 		lock.unlock();
 	}
@@ -569,8 +569,8 @@ HatoholError ActionManager::runAction(const ActionDef &actionDef,
 	DBClientUser *dbUser = cache.getUser();
 	UserInfo userInfo;
 	if (!dbUser->getUserInfo(userInfo, actionDef.ownerUserId)) {
-		MLPL_INFO("Not found user: %"FMT_USER_ID", "
-		          "action: %"FMT_ACTION_ID"\n",
+		MLPL_INFO("Not found user: %" FMT_USER_ID ", "
+		          "action: %" FMT_ACTION_ID "\n",
 		          actionDef.ownerUserId, actionDef.id);
 		return HTERR_INVALID_USER;
 	}
@@ -711,13 +711,14 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 		addCommandDirectory(argVect[0]);
 	argVect.push_back(NUM_COMMNAD_ACTION_EVENT_ARG_MAGIC);
 	argVect.push_back(StringUtils::sprintf("%d", actionDef.id));
-	argVect.push_back(StringUtils::sprintf("%"PRIu32, eventInfo.serverId));
-	argVect.push_back(StringUtils::sprintf("%"PRIu64, eventInfo.hostId));
+	argVect.push_back(StringUtils::sprintf("%" PRIu32, eventInfo.serverId));
+	argVect.push_back(StringUtils::sprintf("%" PRIu64, eventInfo.hostId));
 	argVect.push_back(StringUtils::sprintf("%ld.%ld",
 	  eventInfo.time.tv_sec, eventInfo.time.tv_nsec));
-	argVect.push_back(StringUtils::sprintf("%"PRIu64, eventInfo.id));
+	argVect.push_back(StringUtils::sprintf("%" PRIu64, eventInfo.id));
 	argVect.push_back(StringUtils::sprintf("%d", eventInfo.type));
-	argVect.push_back(StringUtils::sprintf("%"PRIu64, eventInfo.triggerId));
+	argVect.push_back(StringUtils::sprintf("%" PRIu64,
+	   eventInfo.triggerId));
 	argVect.push_back(StringUtils::sprintf("%d", eventInfo.status));
 	argVect.push_back(StringUtils::sprintf("%d", eventInfo.severity));
 
@@ -908,7 +909,7 @@ void ActionManager::launchedCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	// check the packet type
 	uint32_t bodyLen = *sbuf.getPointerAndIncIndex<uint32_t>();
 	if (bodyLen != 0) {
-		MLPL_ERR("Invalid body length: %"PRIu32", "
+		MLPL_ERR("Invalid body length: %" PRIu32 ", "
 		         "expect: 0\n", bodyLen);
 		obj->closeResident(notifyInfo,
 		                   ACTLOG_EXECFAIL_PIPE_READ_DATA_UNEXPECTED);
@@ -917,7 +918,7 @@ void ActionManager::launchedCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 
 	int pktType = ResidentCommunicator::getPacketType(sbuf);
 	if (pktType != RESIDENT_PROTO_PKT_TYPE_LAUNCHED) {
-		MLPL_ERR("Invalid packet type: %"PRIu16", "
+		MLPL_ERR("Invalid packet type: %" PRIu16 ", "
 		         "expect: %d\n", pktType,
 		         RESIDENT_PROTO_PKT_TYPE_LAUNCHED);
 		obj->closeResident(notifyInfo,
@@ -962,7 +963,7 @@ void ActionManager::moduleLoadedCb(GIOStatus stat, SmartBuffer &sbuf,
 	if (resultCode != RESIDENT_PROTO_MODULE_LOADED_CODE_SUCCESS) {
 		ActionLogExecFailureCode code;
 		MLPL_ERR("Failed to load module. "
-		         "code: %"PRIu32"\n", resultCode);
+		         "code: %" PRIu32 "\n", resultCode);
 		switch (resultCode) {
 		case RESIDENT_PROTO_MODULE_LOADED_CODE_FAIL_DLOPEN:
 			code = ACTLOG_EXECFAIL_ENTRY_NOT_FOUND;
@@ -1023,7 +1024,7 @@ void ActionManager::gotNotifyEventAckCb(GIOStatus stat, SmartBuffer &sbuf,
 
 	// log the end of action
 	HATOHOL_ASSERT(notifyInfo->logId != INVALID_ACTION_LOG_ID,
-	               "log ID: %"PRIx64, notifyInfo->logId);
+	               "log ID: %" PRIx64, notifyInfo->logId);
 	DBClientAction::LogEndExecActionArg logArg;
 	logArg.logId = notifyInfo->logId;
 	logArg.status = ACTLOG_STAT_SUCCEEDED,
@@ -1422,11 +1423,11 @@ void ActionManager::postProcSpawnFailure(
 
 	// MLPL log
 	MLPL_ERR(
-	  "%s, action ID: %d, log ID: %"PRIu64", "
-	  "server ID: %d, event ID: %"PRIu64", "
+	  "%s, action ID: %d, log ID: %" PRIu64 ", "
+	  "server ID: %d, event ID: %" PRIu64 ", "
 	  "time: %ld.%09ld, type: %s, "
-	  "trigger ID: %"PRIu64", status: %s, severity: %s, "
-	  "host ID: %"PRIu64"\n", 
+	  "trigger ID: %" PRIu64 ", status: %s, severity: %s, "
+	  "host ID: %" PRIu64 "\n", 
 	  error->message, actionDef.id, actorInfo->logId,
 	  eventInfo.serverId, eventInfo.id,
 	  eventInfo.time.tv_sec, eventInfo.time.tv_nsec,
@@ -1455,7 +1456,7 @@ void ActionManager::fillTriggerInfoInEventInfo(EventInfo &eventInfo)
 		eventInfo.hostName = triggerInfo.hostName;
 		eventInfo.brief    = triggerInfo.brief;
 	} else {
-		MLPL_ERR("Not found: svID: %"PRIu32", trigID: %"PRIu64"\n",
+		MLPL_ERR("Not found: svID: %" PRIu32 ", trigID: %" PRIu64 "\n",
 		         eventInfo.serverId, eventInfo.triggerId);
 		eventInfo.severity = TRIGGER_SEVERITY_UNKNOWN;
 		eventInfo.hostId   = INVALID_HOST_ID;
