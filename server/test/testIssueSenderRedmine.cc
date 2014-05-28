@@ -196,6 +196,7 @@ void _assertSend(const HatoholErrorCode &expected,
 	if (expected != HTERR_OK)
 		return;
 
+	// verify the reply
 	MonitoringServerInfo &server = testServerInfo[event.serverId - 1];
 	JsonParserAgent agent(g_redmineEmulator.getLastResponse());
 	cppcut_assert_equal(true, agent.startObject("issue"));
@@ -214,6 +215,7 @@ void _assertSend(const HatoholErrorCode &expected,
 		agent.endObject();
 	}
 
+	// verify the saved information
 	IssueInfo issue;
 	makeExpectedIssueInfo(issue, tracker, event,
 			      g_redmineEmulator.getLastIssue());
