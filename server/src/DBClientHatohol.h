@@ -169,7 +169,7 @@ public:
 	EventsQueryOption(const EventsQueryOption &src);
 	~EventsQueryOption();
 
-	virtual std::string getCondition(void) const; // override
+	virtual std::string getCondition(void) const override;
 
 	void setLimitOfUnifiedId(const uint64_t &unifiedId);
 	uint64_t getLimitOfUnifiedId(void) const;
@@ -195,7 +195,7 @@ public:
 	TriggersQueryOption(const TriggersQueryOption &src);
 	~TriggersQueryOption();
 
-	virtual std::string getCondition(void) const; // override
+	virtual std::string getCondition(void) const override;
 
 	void setTargetId(const TriggerIdType &id);
 	TriggerIdType getTargetId(void) const;
@@ -216,7 +216,7 @@ public:
 	ItemsQueryOption(const ItemsQueryOption &src);
 	~ItemsQueryOption();
 
-	virtual std::string getCondition(void) const; // override
+	virtual std::string getCondition(void) const override;
 
 	void setTargetId(const ItemIdType &id);
 	ItemIdType getTargetId(void) const;

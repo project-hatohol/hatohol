@@ -72,7 +72,7 @@ public:
 	{
 	}
 
-	virtual void onConnected(Connection &conn) // override
+	virtual void onConnected(Connection &conn) override
 	{
 		m_testCtx.connected = true;
 		if (m_testCtx.quitOnConnected)

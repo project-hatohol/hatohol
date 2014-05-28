@@ -93,7 +93,7 @@ public:
 		reap();
 	}
 
-	virtual void reap(void) // override
+	virtual void reap(void) override
 	{
 		if (Reaper<T>::m_obj) {
 			delete Reaper<T>::m_obj;

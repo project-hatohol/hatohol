@@ -616,7 +616,7 @@ struct ActionManager::ActorProfile : public ActorCollector::Profile {
 		actorInfo = new ActorInfo();
 	}
 
-	virtual ActorInfo *successCb(const pid_t &pid) // override
+	virtual ActorInfo *successCb(const pid_t &pid) override
 	{
 		actorInfo->pid = pid;
 		ActionLogStatus initialStatus =
@@ -637,7 +637,7 @@ struct ActionManager::ActorProfile : public ActorCollector::Profile {
 		return actorInfo;
 	}
 
-	virtual void postSuccessCb(void) // override
+	virtual void postSuccessCb(void) override
 	{
 		if (postproc) {
 			(*postproc)(actorInfo, actionDef,
@@ -645,7 +645,7 @@ struct ActionManager::ActorProfile : public ActorCollector::Profile {
 		}
 	}
 
-	virtual void errorCb(GError *error) // override
+	virtual void errorCb(GError *error) override
 	{
 		uint64_t logId;
 		bool logUpdateFlag = false;

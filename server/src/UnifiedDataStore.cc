@@ -58,13 +58,13 @@ struct UnifiedDataStore::PrivateContext
 		{
 		}
 
-		virtual void onAdded(DataStore *dataStore) // override
+		virtual void onAdded(DataStore *dataStore) override
 		{
 			dataStore->setCopyOnDemandEnable(enableCopyOnDemand);
 			ctx->addToDataStoreMap(dataStore);
 		}
 
-		virtual void onRemoved(DataStore *dataStore) // override
+		virtual void onRemoved(DataStore *dataStore) override
 		{
 			ctx->removeFromDataStoreMap(dataStore);
 		}

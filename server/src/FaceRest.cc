@@ -247,7 +247,7 @@ public:
 	{
 	}
 
-	virtual void waitExit(void) // override
+	virtual void waitExit(void) override
 	{
 		if (!isStarted())
 			return;

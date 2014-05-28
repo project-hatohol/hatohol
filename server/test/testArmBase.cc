@@ -68,7 +68,7 @@ public:
 	}
 
 protected:
-	virtual bool mainThreadOneProc(void) // override
+	virtual bool mainThreadOneProc(void) override
 	{
 		if (m_oneProcHook)
 			return (*m_oneProcHook)(m_oneProcHookData);

@@ -138,7 +138,7 @@ HatoholError ActorCollector::debut(Profile &profile)
 		}
 
 		virtual void onExecuted(
-		  bool const &succeeded, GError *gerror) // override
+		  bool const &succeeded, GError *gerror) override
 		{
 			if (succeeded) {
 				actorCtx.actorInfo = profile.successCb(arg.pid);
@@ -149,19 +149,19 @@ HatoholError ActorCollector::debut(Profile &profile)
 			}
 		}
 
-		virtual void onCollected(const siginfo_t *siginfo) // override
+		virtual void onCollected(const siginfo_t *siginfo) override
 		{
 			notifyChildSiginfo(siginfo, actorCtx);
 		}
 
-		virtual void onFinalized(void) // override
+		virtual void onFinalized(void) override
 		{
 			if (!actorCtx.actorInfo)
 				return ;
 			postCollectedProc(actorCtx);
 		}
 
-		virtual void onReset(void) // override
+		virtual void onReset(void) override
 		{
 			cleanupChildInfo(actorCtx.actorInfo->pid);
 		}

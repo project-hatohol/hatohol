@@ -28,7 +28,7 @@ public:
 	virtual ~ArmFake();
 
 protected:
-	virtual bool mainThreadOneProc(void); // override
+	virtual bool mainThreadOneProc(void) override;
 };
 
 #endif // ArmFake_h

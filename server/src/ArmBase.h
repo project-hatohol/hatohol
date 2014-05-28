@@ -40,7 +40,7 @@ public:
 	virtual ~ArmBase();
 
 	void start(void);
-	virtual void waitExit(void); // override
+	virtual void waitExit(void) override;
 
 	const MonitoringServerInfo &getServerInfo(void) const;
 	const ArmStatus &getArmStatus(void) const;

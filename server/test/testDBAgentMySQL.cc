@@ -47,8 +47,7 @@ static string getEngine(const string &dbName, const string &tableName)
 
 class DBAgentCheckerMySQL : public DBAgentChecker {
 public:
-	// overriden virtual methods
-	virtual void assertTable(const DBAgent::TableProfile &tableProfile)
+	virtual void assertTable(const DBAgent::TableProfile &tableProfile) override
 	{
 		// get the table information with mysql command.
 		string sql = "desc ";
@@ -166,7 +165,7 @@ public:
 	                                  int datetime,
 	                                  size_t numColumns,
 	                                  const ColumnDef *columnDefs,
-	                                  const set<size_t> *nullIndexes)
+	                                  const set<size_t> *nullIndexes) override
 	{
 		// get the table information with mysql command.
 		string sql =
@@ -198,7 +197,7 @@ public:
 	}
 
 	virtual void assertMakeCreateIndexStatement(
-	  const std::string sql, const DBAgent::IndexDef &indexDef) // override
+	  const std::string sql, const DBAgent::IndexDef &indexDef) override
 	{
 		const string expect = makeExpectedCreateIndexStatement(
 		  *indexDef.tableProfile, indexDef);
@@ -207,7 +206,7 @@ public:
 
 	virtual void assertMakeDropIndexStatement(
 	  const std::string sql,
-	  const std::string &name, const std::string &tableName) // override
+	  const std::string &name, const std::string &tableName) override
 	{
 		string expect = "DROP INDEX ";
 		expect += name;
@@ -218,7 +217,7 @@ public:
 
 	virtual void assertFixupIndexes(
 	  const DBAgent::TableProfile &tableProfile,
-	  const DBAgent::IndexDef *indexDefArray) // override
+	  const DBAgent::IndexDef *indexDefArray) override
 	{
 		const bool isMemoryEngine =
 		  (getEngine(TEST_DB_NAME, tableProfile.name) == "MEMORY");
@@ -287,7 +286,7 @@ public:
 	}
 
 	virtual void getIDStringVector(const ColumnDef &columnDefId,
-	                               vector<string> &actualIds)
+	                               vector<string> &actualIds) override
 	{
 		string sql =
 		  StringUtils::sprintf(

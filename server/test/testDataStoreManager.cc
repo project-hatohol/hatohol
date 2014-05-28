@@ -34,7 +34,7 @@ public:
 	{
 	}
 
-	virtual bool mainThreadOneProc(void) // override
+	virtual bool mainThreadOneProc(void) override
 	{
 		return true;
 	}
@@ -116,12 +116,12 @@ void test_dataStoreEventProc(void)
 		{
 		}
 
-		virtual void onAdded(DataStore *dataStore) // override
+		virtual void onAdded(DataStore *dataStore) override
 		{
 			added = dataStore;
 		}
 
-		virtual void onRemoved(DataStore *dataStore) // override
+		virtual void onRemoved(DataStore *dataStore) override
 		{
 			removed = dataStore;
 		}

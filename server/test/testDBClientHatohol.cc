@@ -97,7 +97,7 @@ struct AssertGetTriggersArg
 		setDataDrivenTestParam(ddtParam);
 	}
 
-	virtual HostIdType getHostId(const TriggerInfo &info) const // override
+	virtual HostIdType getHostId(const TriggerInfo &info) const override
 	{
 		return info.hostId;
 	}
@@ -221,14 +221,14 @@ struct AssertGetItemsArg
 		setDataDrivenTestParam(ddtParam);
 	}
 
-	virtual void fixupOption(void) // override
+	virtual void fixupOption(void) override
 	{
 		AssertGetHostResourceArg<ItemInfo, ItemsQueryOption>::
 			fixupOption();
 		option.setTargetItemGroupName(itemGroupName);
 	}
 
-	virtual bool filterOutExpectedRecord(ItemInfo *info) // override
+	virtual bool filterOutExpectedRecord(ItemInfo *info) override
 	{
 		if (AssertGetHostResourceArg<ItemInfo, ItemsQueryOption>
 		      ::filterOutExpectedRecord(info)) {
@@ -248,12 +248,12 @@ struct AssertGetItemsArg
 		return false;
 	}
 
-	virtual HostIdType getHostId(const ItemInfo &info) const // override
+	virtual HostIdType getHostId(const ItemInfo &info) const override
 	{
 		return info.hostId;
 	}
 
-	virtual string makeOutputText(const ItemInfo &itemInfo) // override
+	virtual string makeOutputText(const ItemInfo &itemInfo) override
 	{
 		return makeItemOutput(itemInfo);
 	}
@@ -324,7 +324,7 @@ struct AssertGetHostsArg
 		setDataDrivenTestParam(ddtParam);
 	}
 
-	virtual HostIdType getHostId(const HostInfo &info) const // override
+	virtual HostIdType getHostId(const HostInfo &info) const override
 	{
 		return info.id;
 	}

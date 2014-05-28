@@ -144,12 +144,12 @@ bool HatoholArmPluginGate::launchPluginProcess(
 		}
 
 		virtual void onExecuted(const bool &succeeded,
-		                        GError *gerror) // override
+		                        GError *gerror) override
 		{
 			succeededInCreation = succeeded;
 		}
 
-		virtual void onCollected(const siginfo_t *siginfo) // override
+		virtual void onCollected(const siginfo_t *siginfo) override
 		{
 			hapg->onTerminated(siginfo);
 		}
