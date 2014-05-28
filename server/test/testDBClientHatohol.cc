@@ -1282,6 +1282,23 @@ void test_addIssueInfo(void)
 	assertDBContent(dbAgent, statement, expect);
 }
 
+void test_updateIssueInfo(void)
+{
+	DBClientHatohol dbClientHatohol;
+	DBAgent *dbAgent = dbClientHatohol.getDBAgent();
+
+	IssueInfo issueInfo = testIssueInfo[0];
+	dbClientHatohol.addIssueInfo(&issueInfo);
+	issueInfo.status = "Assigned";
+	issueInfo.assignee = "hikeshi";
+	issueInfo.updatedAt = time(NULL);
+	dbClientHatohol.addIssueInfo(&issueInfo);
+
+	string statement("select * from issues;");
+	string expect(makeIssueOutput(issueInfo));
+	assertDBContent(dbAgent, statement, expect);
+}
+
 void test_getIssueInfo(void)
 {
 	DBClientHatohol dbClientHatohol;
