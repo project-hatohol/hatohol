@@ -195,6 +195,7 @@ void RedmineAPIEmulator::reset(void)
 	m_ctx->m_issueId = 0;
 	m_ctx->m_lastRequest.clear();
 	m_ctx->m_lastResponse.clear();
+	m_ctx->m_lastIssue = RedmineIssue();
 }
 
 void RedmineAPIEmulator::addUser(const std::string &userName,
