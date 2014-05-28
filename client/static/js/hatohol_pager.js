@@ -121,7 +121,7 @@ HatoholPager.prototype.update = function(params) {
   var parent = this.parentElements;
   var range = this.getPagesRange();
   var numPages = this.getTotalNumberOfPages();
-  var createItem = function(label, getPageFunc) {
+  var createItem = function(label, enable, getPageFunc) {
     var anchor = $("<a>", {
       href: "#",
       html: label,
@@ -139,32 +139,35 @@ HatoholPager.prototype.update = function(params) {
 	self.update();
       }
     });
-    return $("<li/>").append(anchor);
-  }
-  var item;
+    var item = $("<li/>").append(anchor);
+    if (!enable)
+      item.addClass("disabled");
+    return item;
+  };
+  var item, enable;
 
   parent.empty();
   if (numPages == 0 || numPages == 1)
     return;
 
   for (i = range.firstPage; i <= range.lastPage; ++i) {
-    item = createItem("" + (i + 1));
+    enable = true;
+    item = createItem("" + (i + 1), enable);
     if (i == this.currentPage)
       item.addClass("active");
     parent.append(item);
   }
 
   if (numPages > 1 || numPages < 0) {
-    if (this.currentPage > 0) {
-      parent.prepend(createItem("&laquo;", function() {
-	return self.currentPage - 1;
-      }));
-    }
-    if (this.currentPage != numPages - 1) {
-      parent.append(createItem("&raquo;", function() {
-	return self.currentPage + 1;
-      }));
-    }
+    enable = this.currentPage > 0;
+    parent.prepend(createItem("&laquo;", enable, function() {
+      return self.currentPage - 1;
+    }));
+
+    enable = (this.currentPage != numPages - 1);
+    parent.append(createItem("&raquo;", enable, function() {
+      return self.currentPage + 1;
+    }));
   }
 
   $(self.numRecordsPerPageEntries).val(self.numRecordsPerPage);
