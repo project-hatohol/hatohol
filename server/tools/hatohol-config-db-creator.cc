@@ -45,6 +45,7 @@ struct ConfigValue {
 	int                      faceRestPort;
 	MonitoringServerInfoList serverInfoList;
 	UserInfoList             userInfoList;
+	IssueTrackerInfoVect     issueTrackerInfoVect;
 	
 	// constructor
 	ConfigValue(void)
@@ -193,6 +194,63 @@ static bool parseUserConfigLine(ParsableString &parsable,
 	return true;
 }
 
+static bool parseIssueTrackerConfigLine(ParsableString &parsable,
+					IssueTrackerInfoVect &trackersVect,
+					size_t lineNo)
+{
+	string word;
+	IssueTrackerInfo trackerInfo;
+	bool succeeded;
+
+	trackerInfo.id = 0;
+
+	// type
+	int type;
+	succeeded = parseInt(parsable, type, lineNo);
+	if (!succeeded)
+		return false;
+	if (type < 0 || type >= NUM_ISSUE_TRACKERS) {
+		fprintf(stderr, "Invalid issue tracker type: %d\n", type);
+		return false;
+	}
+	trackerInfo.type = static_cast<IssueTrackerType>(type);
+
+	// nickname
+	if (!extractString(parsable, word, lineNo))
+		return false;
+	trackerInfo.nickname = word;
+
+	// base URL
+	if (!extractString(parsable, word, lineNo))
+		return false;
+	trackerInfo.baseURL = word;
+
+	// project ID
+	if (!extractString(parsable, word, lineNo))
+		return false;
+	trackerInfo.projectId = word;
+
+	// tracker ID
+	if (!extractString(parsable, word, lineNo))
+		return false;
+	trackerInfo.trackerId = word;
+
+	// user name
+	if (!extractString(parsable, word, lineNo))
+		return false;
+	trackerInfo.userName = word;
+
+	// password
+	if (!extractString(parsable, word, lineNo))
+		return false;
+	trackerInfo.password = word;
+
+	// push back the info
+	trackersVect.push_back(trackerInfo);
+
+	return true;
+}
+
 static bool readConfigFile(const string &configFilePath, ConfigValue &confValue)
 {
 	ifstream ifs(configFilePath.c_str());
@@ -244,6 +302,11 @@ static bool readConfigFile(const string &configFilePath, ConfigValue &confValue)
 		} else if (element == "user") {
 			if (!parseUserConfigLine(
 			       parsable, confValue.userInfoList, lineNo))
+				return false;
+		} else if (element == "issueTracker") {
+			if (!parseIssueTrackerConfigLine(
+			       parsable, confValue.issueTrackerInfoVect,
+			       lineNo))
 				return false;
 		} else {
 			fprintf(stderr, "Unknown element: %zd: %s\n",
@@ -580,6 +643,32 @@ int main(int argc, char *argv[])
 		printf("USER: ID: %" FMT_USER_ID ", name: %s, "
 		       "flags: %" FMT_OPPRVLG "\n",
 		       userInfo.id, userInfo.name.c_str(), userInfo.flags);
+	}
+
+	// issue trackers
+	IssueTrackerInfoVectIterator itIssueTracker;
+	for (itIssueTracker = confValue.issueTrackerInfoVect.begin();
+	     itIssueTracker != confValue.issueTrackerInfoVect.end();
+	     ++itIssueTracker)
+	{
+		IssueTrackerInfo &issueTrackerInfo = *itIssueTracker;
+		HatoholError err = dbConfig.addIssueTracker(&issueTrackerInfo,
+							    privilege);
+		if (err != HTERR_OK) {
+			printf("Failed to add issue tracker: %s (code: %d)\n",
+			       issueTrackerInfo.nickname.c_str(),
+			       err.getCode());
+		}
+		printf("ISSUE TRACKER: ID: %"FMT_ISSUE_TRACKER_ID","
+		       " TYPE: %d, NICKNAME: %s, BASEURL: %s, PROJECTID: %s,"
+		       " TRACKERID: %s, USERNAME: %s, PASSWORD: %s\n",
+		       issueTrackerInfo.id, issueTrackerInfo.type,
+		       issueTrackerInfo.nickname.c_str(),
+		       issueTrackerInfo.baseURL.c_str(),
+		       issueTrackerInfo.projectId.c_str(),
+		       issueTrackerInfo.trackerId.c_str(),
+		       issueTrackerInfo.userName.c_str(),
+		       issueTrackerInfo.password.c_str());
 	}
 
 	return EXIT_SUCCESS;
