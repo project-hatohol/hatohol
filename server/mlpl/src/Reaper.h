@@ -19,6 +19,9 @@
 
 #ifndef Reaper_h
 #define Reaper_h
+#ifndef USE_CPP11
+#define override
+#endif
 
 namespace mlpl {
 
@@ -93,7 +96,7 @@ public:
 		reap();
 	}
 
-	virtual void reap(void) // override
+	virtual void reap(void) override
 	{
 		if (Reaper<T>::m_obj) {
 			delete Reaper<T>::m_obj;

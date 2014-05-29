@@ -340,7 +340,7 @@ static void sendQuit(ExecCommandContext *ctx)
 static string getActionLogContent(const ActionLog &actionLog)
 {
 	string str = StringUtils::sprintf(
-	  "ID: %"PRIu64", actionID: %"FMT_ACTION_ID", status: %d, ",
+	  "ID: %" PRIu64 ", actionID: %" FMT_ACTION_ID ", status: %d, ",
 	  actionLog.id, actionLog.actionId, actionLog.status);
 	str += StringUtils::sprintf(
 	  "queuingTime: %d, startTime: %d, endTime: %d, ",
@@ -478,14 +478,15 @@ void _assertActionLogJustAfterExec(
 	expectedArgs.push_back(
 	  ActionManager::NUM_COMMNAD_ACTION_EVENT_ARG_MAGIC);
 	expectedArgs.push_back(StringUtils::sprintf("%d", ctx->actDef.id));
-	expectedArgs.push_back(StringUtils::sprintf("%"PRIu32, evInf.serverId));
-	expectedArgs.push_back(StringUtils::sprintf("%"PRIu64, evInf.hostId));
+	expectedArgs.push_back(StringUtils::sprintf("%" PRIu32,
+	                                            evInf.serverId));
+	expectedArgs.push_back(StringUtils::sprintf("%" PRIu64, evInf.hostId));
 	expectedArgs.push_back(StringUtils::sprintf("%ld.%ld",
 	  evInf.time.tv_sec, evInf.time.tv_nsec));
-	expectedArgs.push_back(StringUtils::sprintf("%"PRIu64, evInf.id));
+	expectedArgs.push_back(StringUtils::sprintf("%" PRIu64, evInf.id));
 	expectedArgs.push_back(StringUtils::sprintf("%d", evInf.type));
 	expectedArgs.push_back(
-	  StringUtils::sprintf("%"PRIu64, evInf.triggerId));
+	  StringUtils::sprintf("%" PRIu64, evInf.triggerId));
 	expectedArgs.push_back(StringUtils::sprintf("%d", evInf.status));
 	expectedArgs.push_back(StringUtils::sprintf("%d", evInf.severity));
 	getArguments(ctx, expectedArgs);
@@ -794,7 +795,7 @@ static void _assertExecuteAction(
 	g_execCommandCtxVect.push_back(ctx); // just an alias
 
 	string pipeName = StringUtils::sprintf(
-	  "test-command-action-%"FMT_ACTION_ID, actionId);
+	  "test-command-action-%" FMT_ACTION_ID, actionId);
 	ctx->initPipes(pipeName);
 
 	ctx->eventInfo = testEventInfo[0];

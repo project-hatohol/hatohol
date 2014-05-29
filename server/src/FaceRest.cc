@@ -247,7 +247,7 @@ public:
 	{
 	}
 
-	virtual void waitExit(void) // override
+	virtual void waitExit(void) override
 	{
 		if (!isStarted())
 			return;
@@ -640,7 +640,7 @@ void FaceRest::parseQueryServerId(GHashTable *query,
 		return;
 
 	ServerIdType svId;
-	if (sscanf(value, "%"FMT_SERVER_ID, &svId) == 1)
+	if (sscanf(value, "%" FMT_SERVER_ID, &svId) == 1)
 		serverId = svId;
 	else
 		MLPL_INFO("Invalid requested ID: %s\n", value);
@@ -833,7 +833,7 @@ uint64_t FaceRest::RestJob::getResourceId(int nest)
 	if (pathElements.size() <= idx)
 		return INVALID_ID;
 	uint64_t id = INVALID_ID;
-	if (sscanf(pathElements[idx].c_str(), "%"PRIu64"", &id) != 1)
+	if (sscanf(pathElements[idx].c_str(), "%" PRIu64, &id) != 1)
 		return INVALID_ID;
 	return id;
 }
@@ -927,8 +927,8 @@ addHostgroupsMap(FaceRest::RestJob *job, JsonBuilderAgent &outputJson,
 	HatoholError err = dataStore->getHostgroupInfoList(hostgroupList,
 	                                                   option);
 	if (err != HTERR_OK) {
-		MLPL_ERR("Error: %d, user ID: %"FMT_USER_ID", "
-		         "sv ID: %"FMT_SERVER_ID"\n",
+		MLPL_ERR("Error: %d, user ID: %" FMT_USER_ID ", "
+		         "sv ID: %" FMT_SERVER_ID "\n",
 		         err.getCode(), job->userId, serverInfo.id);
 		return err;
 	}
@@ -1215,7 +1215,7 @@ static void addHostsMap(
 	HostgroupIdType targetHostgroupId = ALL_HOST_GROUPS;
 	char *value = (char *)g_hash_table_lookup(job->query, "hostgroupId");
 	if (value)
-		sscanf(value, "%"FMT_HOST_GROUP_ID, &targetHostgroupId);
+		sscanf(value, "%" FMT_HOST_GROUP_ID, &targetHostgroupId);
 
 	HostInfoList hostList;
 	HostsQueryOption option(job->dataQueryContextPtr);
@@ -1254,7 +1254,7 @@ static string getTriggerBrief(
 			triggerBrief = triggerInfo.brief;
 		} else {
 			MLPL_WARN("Failed to getTriggerInfo: "
-			          "%"FMT_SERVER_ID", %"FMT_TRIGGER_ID"\n",
+			          "%" FMT_SERVER_ID ", %" FMT_TRIGGER_ID "\n",
 			          serverId, triggerId);
 		}
 	}
@@ -1465,7 +1465,7 @@ static bool parseQueryShowHostgroupInfo(GHashTable *query, UserIdType &targetUse
 	char *charUserId = (char *)g_hash_table_lookup(query, "targetUser");
 	if (!charUserId)
 		return false;
-	sscanf(charUserId, "%"FMT_USER_ID, &targetUserId);
+	sscanf(charUserId, "%" FMT_USER_ID, &targetUserId);
 
 	int showHostgroup;
 	char *value = (char *)g_hash_table_lookup(query, "showHostgroup");
@@ -1617,7 +1617,7 @@ void FaceRest::handlerPutServer(RestJob *job)
 	dataStore->getTargetServers(serversList, option);
 	if (serversList.empty()) {
 		REPLY_ERROR(job, HTERR_NOT_FOUND_TARGET_RECORD,
-		            "id: %"PRIu64, serverId);
+		            "id: %" PRIu64, serverId);
 		return;
 	}
 
@@ -2084,7 +2084,7 @@ void FaceRest::handlerPostAction(RestJob *job)
 
 	// hostId
 	succeeded = getParamWithErrorReply<uint64_t>(
-	              job, "hostId", "%"PRIu64, cond.hostId, &exist);
+	              job, "hostId", "%" PRIu64, cond.hostId, &exist);
 	if (!succeeded)
 		return;
 	if (exist)
@@ -2092,7 +2092,7 @@ void FaceRest::handlerPostAction(RestJob *job)
 
 	// hostgroupId
 	succeeded = getParamWithErrorReply<uint64_t>(
-	              job, "hostgroupId", "%"PRIu64, cond.hostgroupId, &exist);
+	              job, "hostgroupId", "%" PRIu64, cond.hostgroupId, &exist);
 	if (!succeeded)
 		return;
 	if (exist)
@@ -2100,7 +2100,7 @@ void FaceRest::handlerPostAction(RestJob *job)
 
 	// triggerId
 	succeeded = getParamWithErrorReply<uint64_t>(
-	              job, "triggerId", "%"PRIu64, cond.triggerId, &exist);
+	              job, "triggerId", "%" PRIu64, cond.triggerId, &exist);
 	if (!succeeded)
 		return;
 	if (exist)
@@ -2311,7 +2311,7 @@ void FaceRest::handlerPutUser(RestJob *job)
 	bool exist = dbUser.getUserInfo(userInfo, userInfo.id);
 	if (!exist) {
 		REPLY_ERROR(job, HTERR_NOT_FOUND_TARGET_RECORD,
-		            "id: %"FMT_USER_ID, userInfo.id);
+		            "id: %" FMT_USER_ID, userInfo.id);
 		return;
 	}
 	bool allowEmpty = true;
@@ -2420,7 +2420,7 @@ void FaceRest::handlerGetAccessInfo(RestJob *job)
 				hostgroupIdString = StringUtils::toString(-1);
 			} else {
 				hostgroupIdString
-				  = StringUtils::sprintf("%"PRIu64,
+				  = StringUtils::sprintf("%" PRIu64,
 				                         hostgroupId);
 			}
 			agent.startObject(hostgroupIdString);
@@ -2451,7 +2451,7 @@ void FaceRest::handlerPostAccessInfo(RestJob *job)
 
 	// serverId
 	succeeded = getParamWithErrorReply<ServerIdType>(
-	              job, "serverId", "%"FMT_SERVER_ID,
+	              job, "serverId", "%" FMT_SERVER_ID,
 	              accessInfo.serverId, &exist);
 	if (!succeeded)
 		return;
@@ -2462,7 +2462,8 @@ void FaceRest::handlerPostAccessInfo(RestJob *job)
 
 	// hostgroupId
 	succeeded = getParamWithErrorReply<uint64_t>(
-	              job, "hostgroupId", "%"PRIu64, accessInfo.hostgroupId, &exist);
+	              job, "hostgroupId", "%" PRIu64,
+	              accessInfo.hostgroupId, &exist);
 	if (!succeeded)
 		return;
 	if (!exist) {
@@ -2611,7 +2612,7 @@ void FaceRest::handlerPutUserRole(RestJob *job)
 	dataStore->getUserRoleList(userRoleList, option);
 	if (userRoleList.empty()) {
 		REPLY_ERROR(job, HTERR_NOT_FOUND_TARGET_RECORD,
-		            "id: %"FMT_USER_ID, userRoleInfo.id);
+		            "id: %" FMT_USER_ID, userRoleInfo.id);
 		return;
 	}
 	userRoleInfo = *(userRoleList.begin());
@@ -2744,7 +2745,7 @@ HatoholError FaceRest::parseUserParameter(
 
 	// flags
 	HatoholError err = getParam<OperationPrivilegeFlag>(
-		query, "flags", "%"FMT_OPPRVLG, userInfo.flags);
+		query, "flags", "%" FMT_OPPRVLG, userInfo.flags);
 	if (err != HTERR_OK) {
 		if (!allowEmpty || err != HTERR_NOT_FOUND_PARAMETER)
 			return err;
@@ -2766,7 +2767,7 @@ HatoholError FaceRest::parseUserRoleParameter(
 
 	// flags
 	HatoholError err = getParam<OperationPrivilegeFlag>(
-		query, "flags", "%"FMT_OPPRVLG, userRoleInfo.flags);
+		query, "flags", "%" FMT_OPPRVLG, userRoleInfo.flags);
 	if (err != HTERR_OK && !allowEmpty)
 		return err;
 	return HatoholError(HTERR_OK);
@@ -2845,7 +2846,7 @@ HatoholError FaceRest::parseHostResourceQueryParameter(
 	// target server id
 	ServerIdType targetServerId = ALL_SERVERS;
 	err = getParam<ServerIdType>(query, "serverId",
-				     "%"FMT_SERVER_ID,
+				     "%" FMT_SERVER_ID,
 				     targetServerId);
 	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
 		return err;
@@ -2854,7 +2855,7 @@ HatoholError FaceRest::parseHostResourceQueryParameter(
 	// target host group id
 	HostIdType targetHostgroupId = ALL_HOST_GROUPS;
 	err = getParam<HostgroupIdType>(query, "hostgroupId",
-					"%"FMT_HOST_GROUP_ID,
+					"%" FMT_HOST_GROUP_ID,
 					targetHostgroupId);
 	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
 		return err;
@@ -2863,7 +2864,7 @@ HatoholError FaceRest::parseHostResourceQueryParameter(
 	// target host id
 	HostIdType targetHostId = ALL_HOSTS;
 	err = getParam<HostIdType>(query, "hostId",
-				   "%"FMT_HOST_ID,
+				   "%" FMT_HOST_ID,
 				   targetHostId);
 	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
 		return err;
@@ -2878,7 +2879,7 @@ HatoholError FaceRest::parseHostResourceQueryParameter(
 
 	// offset
 	uint64_t offset = 0;
-	err = getParam<uint64_t>(query, "offset", "%"PRIu64, offset);
+	err = getParam<uint64_t>(query, "offset", "%" PRIu64, offset);
 	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
 		return err;
 	option.setOffset(offset);
@@ -2964,7 +2965,7 @@ HatoholError FaceRest::parseEventParameter(EventsQueryOption &option,
 
 	// limit of unifiedId
 	uint64_t limitOfUnifiedId = 0;
-	err = getParam<uint64_t>(query, "limitOfUnifiedId", "%"PRIu64,
+	err = getParam<uint64_t>(query, "limitOfUnifiedId", "%" PRIu64,
 				 limitOfUnifiedId);
 	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
 		return err;

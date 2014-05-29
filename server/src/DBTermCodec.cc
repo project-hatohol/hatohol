@@ -30,5 +30,5 @@ string DBTermCodec::enc(const int &val) const
 
 string DBTermCodec::enc(const uint64_t &val) const
 {
-	return StringUtils::sprintf("%"PRIu64, val);
+	return StringUtils::sprintf("%" PRIu64, val);
 }

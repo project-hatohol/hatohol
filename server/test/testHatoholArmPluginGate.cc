@@ -95,7 +95,7 @@ public:
 	// We assume these virtual funcitons are called from
 	// the plugin's thread.
 	// I.e. we must not call cutter's assertions in them.
-	virtual void onSessionChanged(Session *session) // override
+	virtual void onSessionChanged(Session *session) override
 	{
 		if (arg.numRetry && session) {
 			if (retryCount < arg.numRetry)
@@ -104,7 +104,7 @@ public:
 		}
 	}
 
-	virtual void onReceived(SmartBuffer &smbuf) // override
+	virtual void onReceived(SmartBuffer &smbuf) override
 	{
 		if (arg.numRetry && retryCount <= arg.numRetry)
 			return;
@@ -112,7 +112,7 @@ public:
 		loop.quit();
 	}
 
-	virtual void onTerminated(const siginfo_t *siginfo) // override
+	virtual void onTerminated(const siginfo_t *siginfo) override
 	{
 		if (siginfo->si_signo == SIGCHLD &&
 		    siginfo->si_code  == CLD_EXITED) {
@@ -124,7 +124,7 @@ public:
 		         siginfo->si_signo, siginfo->si_code);
 	}
 
-	virtual int onCaughtException(const exception &e) // override
+	virtual int onCaughtException(const exception &e) override
 	{
 		printf("onCaughtException: %s\n", e.what());
 		if (arg.numRetry) {

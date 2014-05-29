@@ -144,12 +144,12 @@ bool HatoholArmPluginGate::launchPluginProcess(
 		}
 
 		virtual void onExecuted(const bool &succeeded,
-		                        GError *gerror) // override
+		                        GError *gerror) override
 		{
 			succeededInCreation = succeeded;
 		}
 
-		virtual void onCollected(const siginfo_t *siginfo) // override
+		virtual void onCollected(const siginfo_t *siginfo) override
 		{
 			hapg->onTerminated(siginfo);
 		}
@@ -176,7 +176,7 @@ bool HatoholArmPluginGate::launchPluginProcess(
 string HatoholArmPluginGate::generateBrokerAddress(
   const MonitoringServerInfo &serverInfo)
 {
-	return StringUtils::sprintf("hatohol-arm-plugin.%"FMT_SERVER_ID,
+	return StringUtils::sprintf("hatohol-arm-plugin.%" FMT_SERVER_ID,
 	                            serverInfo.id);
 }
 

@@ -38,15 +38,15 @@ struct HatoholArmPluginError {
 class HatoholArmPluginInterface : public HatoholThreadBase {
 public:
 	HatoholArmPluginInterface(const std::string &queueAddr = "");
-	virtual ~HatoholArmPluginInterface(); // override
+	virtual ~HatoholArmPluginInterface() override;
 
-	virtual void exitSync(void); // override
+	virtual void exitSync(void) override;
 
 	void setQueueAddress(const std::string &queueAddr);
 	void send(const std::string &message);
 
 protected:
-	virtual gpointer mainThread(HatoholThreadArg *arg); // override
+	virtual gpointer mainThread(HatoholThreadArg *arg) override;
 
 	/**
 	 * Called when connection with the AMQP broker is established.

@@ -55,7 +55,7 @@ public:
 	const ArmStatus &getArmStatus(void) const;
 
 	// This is dummy and this virtual method should be removed
-	virtual ArmBase &getArmBase(void) // override
+	virtual ArmBase &getArmBase(void) override
 	{
 		return *((ArmBase *)NULL);
 	}
@@ -65,7 +65,7 @@ public:
 	/**
 	 * Wait for a complete exit of the thread.
 	 */
-	virtual void exitSync(void); // override
+	virtual void exitSync(void) override;
 
 protected:
 	// To avoid an instance from being created on a stack.
@@ -82,7 +82,7 @@ protected:
 	 * A sleep time until the next retry to connect with Qpidd in
 	 * millisecond. If the value is NO_RETRY, the retry won't be done.
 	 */
-	virtual int onCaughtException(const std::exception &e); // override
+	virtual int onCaughtException(const std::exception &e) override;
 
 	bool launchPluginProcess(const ArmPluginInfo &armPluginInfo);
 	static std::string generateBrokerAddress(

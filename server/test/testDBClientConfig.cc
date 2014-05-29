@@ -598,7 +598,7 @@ void test_serverQueryOptionForAdminWithTarget(void)
 	uint32_t serverId = 2;
 	ServerQueryOption option(USER_ID_SYSTEM);
 	option.setTargetServerId(serverId);
-	cppcut_assert_equal(StringUtils::sprintf("id=%"PRIu32, serverId),
+	cppcut_assert_equal(StringUtils::sprintf("id=%" PRIu32, serverId),
 			    option.getCondition());
 }
 
@@ -631,7 +631,7 @@ static string makeExpectedCondition(UserIdType userId)
 
 		if (!condition.empty())
 			condition += " OR ";
-		condition += StringUtils::sprintf("id=%"PRIu32, serverId);
+		condition += StringUtils::sprintf("id=%" PRIu32, serverId);
 		knownServerIdSet.insert(serverId);
 	}
 	return StringUtils::sprintf("(%s)", condition.c_str());
@@ -653,7 +653,7 @@ void test_serverQueryOptionForGuestUserWithTarget(void)
 	uint32_t serverId = 2;
 	ServerQueryOption option(userId);
 	option.setTargetServerId(serverId);
-	cppcut_assert_equal(StringUtils::sprintf("id=%"PRIu32, serverId),
+	cppcut_assert_equal(StringUtils::sprintf("id=%" PRIu32, serverId),
 			    option.getCondition());
 }
 

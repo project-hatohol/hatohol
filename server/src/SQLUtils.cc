@@ -122,7 +122,7 @@ ItemDataPtr SQLUtils::getItemDataFromItemGroupWithColumnName
 	ItemId itemId = columnDef->itemId;
 	ItemDataPtr dataPtr = itemGroup->getItem(itemId);
 	if (!dataPtr) {
-		MLPL_DBG("Not found: item: %s (%"PRIu_ITEM"), "
+		MLPL_DBG("Not found: item: %s (%" PRIu_ITEM "), "
 		         "table: %s\n",
 		         columnName.c_str(), itemId,
 		         tableStaticInfo->tableName);
@@ -172,7 +172,7 @@ ItemDataPtr SQLUtils::createFromString(const char *str, SQLColumnType type)
 			itemData = new ItemUint64(0, ITEM_DATA_NULL);
 		} else {
 			uint64_t val;
-			sscanf(str, "%"PRIu64, &val);
+			sscanf(str, "%" PRIu64, &val);
 			itemData = new ItemUint64(val);
 		}
 		break;
@@ -254,7 +254,7 @@ ItemDataPtr SQLUtils::creatorItemBiguint(const ColumnDef *columnDef,
 		          "Precision may be lost: %s\n", value);
 	}
 	uint64_t valUint64;
-	if (sscanf(value, "%"PRIu64, &valUint64) != 1) {
+	if (sscanf(value, "%" PRIu64, &valUint64) != 1) {
 		MLPL_DBG("Not number: %s\n", value);
 		return ItemDataPtr();
 	}

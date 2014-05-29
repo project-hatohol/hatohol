@@ -86,7 +86,7 @@ protected:
 	               const char splitChar,
 	               const std::set<size_t> *nullIndexes,
 	               const std::string &expectedNullNotation,
-	               const char *U64fmt = "%"PRIu64);
+	               const char *U64fmt = "%" PRIu64);
 };
 
 void dbAgentTestExecSql(DBAgent &dbAgent, DBAgentChecker &checker);

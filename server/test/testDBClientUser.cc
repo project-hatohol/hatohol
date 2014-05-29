@@ -48,7 +48,7 @@ void _assertUserInfoInDB(UserInfo &userInfo)
 	                     DBClientUser::TABLE_NAME_USERS, userInfo.id);
 	string expect =
 	  StringUtils::sprintf(
-	    "%"FMT_USER_ID"|%s|%s|%"PRIu64"\n",
+	    "%" FMT_USER_ID "|%s|%s|%" PRIu64 "\n",
 	    userInfo.id, userInfo.name.c_str(),
 	    Utils::sha256(userInfo.password).c_str(), userInfo.flags);
 	DBClientUser dbUser;
@@ -105,13 +105,13 @@ static void _assertServerAccessInfoMap(
 		ServerAccessInfoMapConstIterator jt = 
 		  srvAccessInfoMap.find(expectAccessInfo.serverId);
 		cppcut_assert_equal(true, jt != srvAccessInfoMap.end(),
-		                    cut_message("Failed to lookup: %"PRIu32,
+		                    cut_message("Failed to lookup: %" PRIu32,
 		                                expectAccessInfo.serverId));
 		const HostGrpAccessInfoMap *hostGrpAccessInfoMap = jt->second;
 		HostGrpAccessInfoMapConstIterator kt =
 		   hostGrpAccessInfoMap->find(expectAccessInfo.hostgroupId);
 		cppcut_assert_equal(true, kt != hostGrpAccessInfoMap->end(),
-		                    cut_message("Failed to lookup: %"PRIu64,
+		                    cut_message("Failed to lookup: %" PRIu64,
 		                                expectAccessInfo.hostgroupId));
 		const AccessInfo *actualAccessInfo = kt->second;
 		assertAccessInfo(expectAccessInfo, *actualAccessInfo);
@@ -133,13 +133,13 @@ static void _assertServerHostGrpSetMap(
 		ServerHostGrpSetMapConstIterator jt = 
 		  srvHostGrpSetMap.find(expectAccessInfo.serverId);
 		cppcut_assert_equal(true, jt != srvHostGrpSetMap.end(),
-		                    cut_message("Failed to lookup: %"PRIu32,
+		                    cut_message("Failed to lookup: %" PRIu32,
 		                                expectAccessInfo.serverId));
 		const HostgroupIdSet &hostgroupIdSet = jt->second;
 		HostgroupIdSetConstIterator kt =
 		   hostgroupIdSet.find(expectAccessInfo.hostgroupId);
 		cppcut_assert_equal(true, kt != hostgroupIdSet.end(),
-		                    cut_message("Failed to lookup: %"PRIu64,
+		                    cut_message("Failed to lookup: %" PRIu64,
 		                                expectAccessInfo.hostgroupId));
 	}
 }
@@ -158,7 +158,7 @@ static const UserInfo findFirstTestUserInfoByFlag(
 			return retUserInfo;
 		}
 	}
-	cut_fail("Failed to find the user with flags: %"FMT_OPPRVLG, flags);
+	cut_fail("Failed to find the user with flags: %" FMT_OPPRVLG, flags);
 	return retUserInfo;
 }
 

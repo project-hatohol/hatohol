@@ -53,7 +53,7 @@ ItemDataException::ItemDataException(
 {
 	string header = getMessageHeader(type);
 	string msg = StringUtils::sprintf(
-	  "%s: '%s' (%s) (ItemID: %"PRIu_ITEM")",
+	  "%s: '%s' (%s) (ItemID: %" PRIu_ITEM ")",
 	  header.c_str(), operatorName.c_str(),
 	  lhs.getNativeTypeName(), lhs.getId());
 	setBrief(msg);
@@ -68,7 +68,8 @@ ItemDataException::ItemDataException(
 {
 	string header = getMessageHeader(type);
 	string msg = StringUtils::sprintf(
-	  "%s: '%s' between %s and %s (ItemID: %"PRIu_ITEM" and %"PRIu_ITEM")",
+	  "%s: '%s' between %s and %s "
+	  "(ItemID: %" PRIu_ITEM " and %" PRIu_ITEM ")",
 	  header.c_str(), operatorName.c_str(),
 	  lhs.getNativeTypeName(), rhs.getNativeTypeName(),
 	  lhs.getId(), rhs.getId());
@@ -84,7 +85,7 @@ ItemDataException::ItemDataException(
 {
 	string header = getMessageHeader(type);
 	string msg =
-	   StringUtils::sprintf("%s: %"PRIu_ITEM, header.c_str(), itemId);
+	   StringUtils::sprintf("%s: %" PRIu_ITEM, header.c_str(), itemId);
 	setBrief(msg);
 }
 

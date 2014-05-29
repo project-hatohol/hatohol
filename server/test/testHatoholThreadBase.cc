@@ -159,7 +159,7 @@ public:
 	{
 	}
 
-	virtual ~HatoholThreadTestReexec() // override
+	virtual ~HatoholThreadTestReexec() override
 	{
 		if (cancelTimerTag != INVALID_EVENT_ID)
 			g_source_remove(cancelTimerTag);
@@ -167,12 +167,12 @@ public:
 
 protected:
 
-	virtual gpointer mainThread(HatoholThreadArg *arg) // override
+	virtual gpointer mainThread(HatoholThreadArg *arg) override
 	{
 		throw exception();
 	}
 
-	virtual int onCaughtException(const exception &e) // override
+	virtual int onCaughtException(const exception &e) override
 	{
 		exceptionCount++;
 		if (exceptionCount >= numReexec) {

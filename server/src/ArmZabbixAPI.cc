@@ -326,7 +326,7 @@ void ArmZabbixAPI::checkObtainedItems(const ItemTable *obtainedItemTable,
 			ss << reqItem;
 			MLPL_WARN(
 			  "Not found in the obtained items: %s "
-			  "(%"PRIu64")\n",
+			  "(%" PRIu64 ")\n",
 		          ss.str().c_str(), itemId);
 		} else {
 			obtainedItemSet.erase(it);

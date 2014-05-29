@@ -204,7 +204,7 @@ void test_triggersQueryOptionWithTargetId(gconstpointer data)
 	TriggerIdType expectedId = 634;
 	option.setTargetId(expectedId);
 	string expected = StringUtils::sprintf(
-		"triggers.id=%"FMT_TRIGGER_ID, expectedId);
+		"triggers.id=%" FMT_TRIGGER_ID, expectedId);
 	fixupForFilteringDefunctServer(data, expected, option);
 	cppcut_assert_equal(expectedId, option.getTargetId());
 	cppcut_assert_equal(expected, option.getCondition());
@@ -469,7 +469,7 @@ void test_itemsQueryOptionWithTargetId(gconstpointer data)
 	ItemIdType expectedId = 436;
 	option.setTargetId(expectedId);
 	string expected = StringUtils::sprintf(
-		"items.id=%"FMT_ITEM_ID, expectedId);
+		"items.id=%" FMT_ITEM_ID, expectedId);
 	fixupForFilteringDefunctServer(data, expected, option);
 	cppcut_assert_equal(expectedId, option.getTargetId());
 	cppcut_assert_equal(expected, option.getCondition());

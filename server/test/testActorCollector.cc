@@ -41,7 +41,7 @@ struct TestProfile : public ActorCollector::Profile {
 	{
 	}
 
-	virtual ActorInfo *successCb(const pid_t &pid) // override
+	virtual ActorInfo *successCb(const pid_t &pid) override
 	{
 		ActorInfo *actorInfo  = new ActorInfo();
 		actorInfo->pid = pid;
@@ -49,13 +49,13 @@ struct TestProfile : public ActorCollector::Profile {
 		return actorInfo;
 	}
 
-	virtual void postSuccessCb(void) // override
+	virtual void postSuccessCb(void) override
 	{
 		cppcut_assert_equal(true, calledSuccessCb);
 		calledPostSuccessCb = true;
 	}
 
-	virtual void errorCb(GError *error) // override
+	virtual void errorCb(GError *error) override
 	{
 		if (expectError) {
 			cppcut_assert_equal(expectError, error->code);

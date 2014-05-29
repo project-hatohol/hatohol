@@ -242,7 +242,7 @@ static void updateAdminPrivilege(DBAgent *dbAgent,
 	DBAgent::UpdateArg arg(tableProfileUsers);
 	arg.add(IDX_USERS_FLAGS, ALL_PRIVILEGES);
 	arg.condition = StringUtils::sprintf(
-	  "%s=%"FMT_OPPRVLG,
+	  "%s=%" FMT_OPPRVLG,
 	  COLUMN_DEF_USERS[IDX_USERS_FLAGS].columnName, oldAdminFlags);
 	dbAgent->update(arg);
 }
@@ -318,7 +318,7 @@ string UserQueryOption::getCondition(void) const
 
 	string condition;
 	if (!has(OPPRVLG_GET_ALL_USER) || m_ctx->onlyMyself) {
-		condition = StringUtils::sprintf("%s=%"FMT_USER_ID"",
+		condition = StringUtils::sprintf("%s=%" FMT_USER_ID,
 		  COLUMN_DEF_USERS[IDX_USERS_ID].columnName, userId);
 	}
 
@@ -381,7 +381,7 @@ string AccessInfoQueryOption::getCondition(void) const
 		return DBClientUser::getAlwaysFalseCondition();
 	}
 
-	return StringUtils::sprintf("%s=%"FMT_USER_ID"",
+	return StringUtils::sprintf("%s=%" FMT_USER_ID,
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID].columnName,
 	  getTargetUserId());
 }
@@ -442,7 +442,7 @@ string UserRoleQueryOption::getCondition(void) const
 	string condition;
 
 	if (m_ctx->targetUserRoleId != INVALID_USER_ROLE_ID)
-		condition = StringUtils::sprintf("%s=%"FMT_USER_ROLE_ID"",
+		condition = StringUtils::sprintf("%s=%" FMT_USER_ROLE_ID,
 		  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_ID].columnName,
 		  m_ctx->targetUserRoleId);
 
@@ -590,7 +590,7 @@ HatoholError DBClientUser::updateUserInfo(
 		arg.add(IDX_USERS_PASSWORD, Utils::sha256(userInfo.password));
 	arg.add(IDX_USERS_FLAGS, userInfo.flags);
 
-	arg.condition = StringUtils::sprintf("%s=%"FMT_USER_ID,
+	arg.condition = StringUtils::sprintf("%s=%" FMT_USER_ID,
 	  COLUMN_DEF_USERS[IDX_USERS_ID].columnName, userInfo.id);
 
 	string dupCheckCond = StringUtils::sprintf(
@@ -622,7 +622,7 @@ HatoholError DBClientUser::deleteUserInfo(
 
 	DBAgent::DeleteArg arg(tableProfileUsers);
 	const ColumnDef &colId = COLUMN_DEF_USERS[IDX_USERS_ID];
-	arg.condition = StringUtils::sprintf("%s=%"FMT_USER_ID,
+	arg.condition = StringUtils::sprintf("%s=%" FMT_USER_ID,
 	                                     colId.columnName, userId);
 	DBCLIENT_TRANSACTION_BEGIN() {
 		deleteRows(arg);
@@ -676,7 +676,7 @@ HatoholError DBClientUser::addAccessInfo(AccessInfo &accessInfo,
 	selarg.add(IDX_ACCESS_LIST_SERVER_ID);
 	selarg.add(IDX_ACCESS_LIST_HOST_GROUP_ID);
 	selarg.condition = StringUtils::sprintf(
-	  "%s=%"FMT_USER_ID" AND %s=%"PRIu32" AND %s=%"PRIu64,
+	  "%s=%" FMT_USER_ID " AND %s=%" PRIu32 " AND %s=%" PRIu64,
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID].columnName,
 	  accessInfo.userId,
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_SERVER_ID].columnName,
@@ -717,7 +717,7 @@ HatoholError DBClientUser::deleteAccessInfo(const AccessInfoIdType id,
 
 	DBAgent::DeleteArg arg(tableProfileAccessList);
 	const ColumnDef &colId = COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_ID];
-	arg.condition = StringUtils::sprintf("%s=%"FMT_ACCESS_INFO_ID,
+	arg.condition = StringUtils::sprintf("%s=%" FMT_ACCESS_INFO_ID,
 	                                     colId.columnName, id);
 	DBCLIENT_TRANSACTION_BEGIN() {
 		deleteRows(arg);
@@ -728,7 +728,7 @@ HatoholError DBClientUser::deleteAccessInfo(const AccessInfoIdType id,
 bool DBClientUser::getUserInfo(UserInfo &userInfo, const UserIdType userId)
 {
 	UserInfoList userInfoList;
-	string condition = StringUtils::sprintf("%s='%"FMT_USER_ID"'",
+	string condition = StringUtils::sprintf("%s='%" FMT_USER_ID "'",
 	  COLUMN_DEF_USERS[IDX_USERS_ID].columnName, userId);
 	getUserInfoList(userInfoList, condition);
 	if (userInfoList.empty())
@@ -788,7 +788,7 @@ HatoholError DBClientUser::getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMa
 		  hostGrpAccessInfoMap->find(accessInfo->hostgroupId);
 		if (jt != hostGrpAccessInfoMap->end()) {
 			MLPL_WARN("Found duplicated serverId and hostgroupId: "
-			          "%"FMT_SERVER_ID", %"PRIu64"\n",
+			          "%" FMT_SERVER_ID ", %" PRIu64 "\n",
 			          accessInfo->serverId,
 			          accessInfo->hostgroupId);
 			delete accessInfo;
@@ -821,7 +821,7 @@ void DBClientUser::getServerHostGrpSetMap(
 	DBAgent::SelectExArg arg(tableProfileAccessList);
 	arg.add(IDX_ACCESS_LIST_SERVER_ID);
 	arg.add(IDX_ACCESS_LIST_HOST_GROUP_ID);
-	arg.condition = StringUtils::sprintf("%s=%"FMT_USER_ID"",
+	arg.condition = StringUtils::sprintf("%s=%" FMT_USER_ID,
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID].columnName, userId);
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -841,7 +841,8 @@ void DBClientUser::getServerHostGrpSetMap(
 		  srvHostGrpSetMap[serverId].insert(hostgroupId);
 		if (!result.second) {
 			MLPL_WARN("Found duplicated serverId and hostgroupId: "
-			          "%"FMT_SERVER_ID", %"FMT_HOST_GROUP_ID"\n",
+			          "%" FMT_SERVER_ID ", "
+			          "%" FMT_HOST_GROUP_ID "\n",
 			          serverId, hostgroupId);
 			continue;
 		}
@@ -871,7 +872,7 @@ HatoholError DBClientUser::addUserRoleInfo(UserRoleInfo &userRoleInfo,
 	arg.add(userRoleInfo.flags);
 
 	string dupCheckCond = StringUtils::sprintf(
-	  "(%s='%s' or %s=%"FMT_OPPRVLG")",
+	  "(%s='%s' or %s=%" FMT_OPPRVLG ")",
 	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_NAME].columnName,
 	  StringUtils::replace(userRoleInfo.name, "'", "''").c_str(),
 	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_FLAGS].columnName,
@@ -910,7 +911,7 @@ HatoholError DBClientUser::updateUserRoleInfo(
 	arg.add(IDX_USER_ROLES_NAME, userRoleInfo.name);
 	arg.add(IDX_USER_ROLES_FLAGS, userRoleInfo.flags);
 
-	arg.condition = StringUtils::sprintf("%s=%"FMT_USER_ROLE_ID,
+	arg.condition = StringUtils::sprintf("%s=%" FMT_USER_ROLE_ID,
 	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_ID].columnName,
 	  userRoleInfo.id);
 
@@ -945,7 +946,7 @@ HatoholError DBClientUser::deleteUserRoleInfo(
 
 	DBAgent::DeleteArg arg(tableProfileUserRoles);
 	const ColumnDef &colId = COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_ID];
-	arg.condition = StringUtils::sprintf("%s=%"FMT_USER_ROLE_ID,
+	arg.condition = StringUtils::sprintf("%s=%" FMT_USER_ROLE_ID,
 	                                     colId.columnName, userRoleId);
 	DBCLIENT_TRANSACTION_BEGIN() {
 		deleteRows(arg);
@@ -1028,9 +1029,9 @@ bool DBClientUser::isAccessible(const ServerIdType &serverId,
 	}
 
 	string condition = StringUtils::sprintf(
-	  "%s=%"FMT_USER_ID" AND "
-	  "(%s=%"FMT_SERVER_ID" OR %s=%"FMT_SERVER_ID") AND "
-	  "%s=%"FMT_HOST_GROUP_ID,
+	  "%s=%" FMT_USER_ID " AND "
+	  "(%s=%" FMT_SERVER_ID " OR %s=%" FMT_SERVER_ID ") AND "
+	  "%s=%" FMT_HOST_GROUP_ID,
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID].columnName,
 	  userId,
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_SERVER_ID].columnName,

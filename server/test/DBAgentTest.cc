@@ -399,7 +399,7 @@ void dbAgentTestSelect(DBAgent &dbAgent)
 		itemGroupStream >> id;
 		itrId = testDataIdIndexMap.find(id);
 		cppcut_assert_equal(false, itrId == testDataIdIndexMap.end(),
-		                    cut_message("id: 0x%"PRIx64, id));
+		                    cut_message("id: 0x%" PRIx64, id));
 		srcDataIdx = itrId->second;
 
 		// age
@@ -452,8 +452,8 @@ void dbAgentTestSelectExWithCond(DBAgent &dbAgent)
 	DBAgent::SelectExArg arg(tableProfileTest);
 	arg.add(IDX_TEST_TABLE_ID);
 
-	arg.condition = StringUtils::sprintf
-	                  ("%s=%"PRIu64, columnDefId.columnName, ID[targetRow]);
+	arg.condition = StringUtils::sprintf(
+	  "%s=%" PRIu64, columnDefId.columnName, ID[targetRow]);
 	dbAgent.select(arg);
 
 	const ItemGroupList &itemList = arg.dataTable->getItemGroupList();
@@ -479,8 +479,8 @@ void dbAgentTestSelectExWithCondAllColumns(DBAgent &dbAgent)
 	for (size_t i = 0; i < NUM_COLUMNS_TEST; i++)
 		arg.add(i);
 
-	arg.condition = StringUtils::sprintf
-	                  ("%s=%"PRIu64, columnDefId.columnName, ID[targetRow]);
+	arg.condition = StringUtils::sprintf(
+	  "%s=%" PRIu64, columnDefId.columnName, ID[targetRow]);
 	dbAgent.select(arg);
 
 	const ItemGroupList &itemList = arg.dataTable->getItemGroupList();
@@ -576,7 +576,7 @@ void dbAgentTestDelete(DBAgent &dbAgent, DBAgentChecker &checker)
 			continue;
 		cppcut_assert_equal(true, actualIds.size() > matchCount);
 		string &actualIdStr = actualIds[matchCount];
-		string expectedIdStr = StringUtils::sprintf("%"PRIu64, ID[i]);
+		string expectedIdStr = StringUtils::sprintf("%" PRIu64, ID[i]);
 		cppcut_assert_equal(expectedIdStr, actualIdStr);
 		matchCount++;
 	}
@@ -695,7 +695,7 @@ static bool dbAgentUpdateIfExistEleseInsertOneRecord(
 void dbAgentUpdateIfExistEleseInsert(DBAgent &dbAgent, DBAgentChecker &checker)
 {
 	dbAgentTestCreateTable(dbAgent, checker);
-	string fmt = "%"PRIu64"|%d|%s|";
+	string fmt = "%" PRIu64 "|%d|%s|";
 	fmt += makeDoubleFloatFormat(COLUMN_DEF_TEST[IDX_TEST_TABLE_HEIGHT]);
 	fmt += "|%s\n";
 	string expectLines;

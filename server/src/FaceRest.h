@@ -51,7 +51,7 @@ public:
 
 	FaceRest(CommandLineArg &cmdArg, FaceRestParam *param = NULL);
 	virtual ~FaceRest();
-	virtual void waitExit(void); // override
+	virtual void waitExit(void) override;
 	virtual void setNumberOfPreLoadWorkers(size_t num);
 
 	class Worker;

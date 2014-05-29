@@ -29,8 +29,8 @@ public:
 	              const bool &autoStart = true);
 	virtual ~DataStoreFake();
 
-	virtual ArmBase &getArmBase(void); // override
-	virtual void setCopyOnDemandEnable(bool enable); // override
+	virtual ArmBase &getArmBase(void) override;
+	virtual void setCopyOnDemandEnable(bool enable) override;
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;

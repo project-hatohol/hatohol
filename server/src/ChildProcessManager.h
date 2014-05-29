@@ -112,8 +112,8 @@ public:
 protected:
 	// This class is sigleton. So the construtor should not be public.
 	ChildProcessManager(void);
-	virtual ~ChildProcessManager(); // override
-	virtual gpointer mainThread(HatoholThreadArg *arg); // override
+	virtual ~ChildProcessManager() override;
+	virtual gpointer mainThread(HatoholThreadArg *arg) override;
 
 	bool isDead(const siginfo_t *siginfo);
 	void collected(const siginfo_t *siginfo);

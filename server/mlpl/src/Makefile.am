@@ -5,7 +5,7 @@ libmlpl_la_SOURCES = \
 	ParsableString.cc SmartTime.cc
  
 AM_CXXFLAGS = -Wall -g3 -O2 \
-	-D__STDC_FORMAT_MACROS \
+	-D__STDC_FORMAT_MACROS $(OPT_CXXFLAGS) \
 	$(COVERAGE_CFLAGS)
 AM_LDFLAGS = -lpthread -lrt $(COVERAGE_LIBS)
 
