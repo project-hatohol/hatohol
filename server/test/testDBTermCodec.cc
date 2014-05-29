@@ -29,23 +29,23 @@ namespace testDBTermCodec {
 void data_getInt(void)
 {
 	gcut_add_datum("Zero",
-		       "val", G_TYPE_INT, 0,
+		       "val", G_TYPE_INT, (gint)0,
 		       "expect", G_TYPE_STRING, "0",
 		       NULL);
 	gcut_add_datum("Positive within 32bit",
-		       "val", G_TYPE_INT, 3456,
+		       "val", G_TYPE_INT, (gint)3456,
 		       "expect", G_TYPE_STRING, "3456",
 		       NULL);
 	gcut_add_datum("Positive 32bit Max",
-		       "val", G_TYPE_INT, 2147483647,
+		       "val", G_TYPE_INT, (gint)2147483647,
 		       "expect", G_TYPE_STRING, "2147483647",
 		       NULL);
 	gcut_add_datum("Negative within 32bit",
-		       "val", G_TYPE_INT, -1389,
+		       "val", G_TYPE_INT, (gint)-1389,
 		       "expect", G_TYPE_STRING, "-1389",
 		       NULL);
 	gcut_add_datum("Negative 32bit Min",
-		       "val", G_TYPE_INT, -2147483648,
+		       "val", G_TYPE_INT, (gint)-2147483648,
 		       "expect", G_TYPE_STRING, "-2147483648",
 		       NULL);
 }
