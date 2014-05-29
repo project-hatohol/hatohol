@@ -44,7 +44,7 @@ void data_getInt(void)
 		       "val", G_TYPE_INT, -1389,
 		       "expect", G_TYPE_STRING, "-1389",
 		       NULL);
-	gcut_add_datum("Positive 32bit Min",
+	gcut_add_datum("Negative 32bit Min",
 		       "val", G_TYPE_INT, -2147483648,
 		       "expect", G_TYPE_STRING, "-2147483648",
 		       NULL);
