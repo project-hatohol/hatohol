@@ -648,13 +648,17 @@ void cut_setup(void)
 void test_withoutUser(void)
 {
 	ActionsQueryOption option;
-	cppcut_assert_equal(string("owner_user_id=-1"), option.getCondition());
+	cppcut_assert_equal(
+	  string("owner_user_id=-1 AND (action_type>=0 AND action_TYPE<2)"),
+	  option.getCondition());
 }
 
 void test_withSystemUser(void)
 {
 	ActionsQueryOption option(USER_ID_SYSTEM);
-	cppcut_assert_equal(string(), option.getCondition());
+	cppcut_assert_equal(
+	  string("(action_type>=0 AND action_TYPE<2)"),
+	  option.getCondition());
 }
 
 void test_withPrivilege(void)
@@ -662,7 +666,9 @@ void test_withPrivilege(void)
 	setupTestDBUser(true, true);
 	UserIdType id = findUserWith(OPPRVLG_GET_ALL_ACTION);
 	ActionsQueryOption option(id);
-	cppcut_assert_equal(string(), option.getCondition());
+	cppcut_assert_equal(
+	  string("(action_type>=0 AND action_TYPE<2)"),
+	  option.getCondition());
 }
 
 void test_withoutPrivilege(void)
@@ -671,7 +677,9 @@ void test_withoutPrivilege(void)
 	UserIdType id = findUserWithout(OPPRVLG_GET_ALL_ACTION);
 	ActionsQueryOption option(id);
 	string expected
-	  = StringUtils::sprintf("owner_user_id=%"FMT_USER_ID, id);
+	  = StringUtils::sprintf(
+	    "owner_user_id=%" FMT_USER_ID
+	    " AND (action_type>=0 AND action_TYPE<2)", id);
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
@@ -685,6 +693,7 @@ void test_withEventInfo(void)
 	string expected
 	  = StringUtils::sprintf(
 	    "owner_user_id=%" FMT_USER_ID " AND "
+	    "(action_type>=0 AND action_TYPE<2) AND "
 	    "((server_id IS NULL) OR (server_id=%" FMT_SERVER_ID ")) AND "
 	    "((host_id IS NULL) OR (host_id=%"FMT_HOST_ID")) AND "
 	    // test with empty hostgroups

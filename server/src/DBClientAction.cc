@@ -971,6 +971,14 @@ string ActionsQueryOption::getCondition(void) const
 		  getUserId());
 	}
 
+	// filter by action type
+	if (!cond.empty())
+		cond += " AND ";
+	cond += StringUtils::sprintf(
+	  "(action_type>=0 AND action_TYPE<%d)",
+	  ACTION_DUMMY);
+
+	// filter by EventInfo
 	const EventInfo *eventInfo = m_ctx->eventInfo;
 	if (!eventInfo)
 		return cond;
