@@ -109,7 +109,7 @@ struct ActionDef {
 	// module path and options.
 	// Ex.) /usr/lib/foo.so -l -o 'IYH... oooo' ABC
 	//
-	// [Issue sender type action]
+	// [IssueSender type action]
 	// IssueTrackerInfo ID & IssueSenderOption ID
 	// Format: IssueTrackerId[:IssueSenderOptionId]
 	//   Ex.) 3:17 (with IssueSenderOption)
