@@ -876,40 +876,40 @@ string ActionsQueryOption::PrivateContext::makeConditionTemplate(void)
 	// server_id;
 	const ColumnDef &colDefSvId = COLUMN_DEF_ACTIONS[IDX_ACTIONS_SERVER_ID];
 	cond += StringUtils::sprintf(
-	  "((%s is NULL) or (%s=%%d))",
+	  "((%s IS NULL) OR (%s=%%d))",
 	  colDefSvId.columnName, colDefSvId.columnName);
-	cond += " and ";
+	cond += " AND ";
 
 	// host_id;
 	const ColumnDef &colDefHostId = COLUMN_DEF_ACTIONS[IDX_ACTIONS_HOST_ID];
 	cond += StringUtils::sprintf(
-	  "((%s is NULL) or (%s=%%"PRIu64"))",
+	  "((%s IS NULL) OR (%s=%%"PRIu64"))",
 	  colDefHostId.columnName, colDefHostId.columnName);
-	cond += " and ";
+	cond += " AND ";
 
 	// host_group_id;
 	const ColumnDef &colDefHostGrpId =
 	   COLUMN_DEF_ACTIONS[IDX_ACTIONS_HOST_GROUP_ID];
 	cond += StringUtils::sprintf(
-	  "((%s is NULL) or %s IN (%%s))",
+	  "((%s IS NULL) OR %s IN (%%s))",
 	  colDefHostGrpId.columnName, colDefHostGrpId.columnName);
-	cond += " and ";
+	cond += " AND ";
 
 	// trigger_id
 	const ColumnDef &colDefTrigId =
 	   COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_ID];
 	cond += StringUtils::sprintf(
-	  "((%s is NULL) or (%s=%%"PRIu64"))",
+	  "((%s IS NULL) OR (%s=%%"PRIu64"))",
 	  colDefTrigId.columnName, colDefTrigId.columnName);
-	cond += " and ";
+	cond += " AND ";
 
 	// trigger_status
 	const ColumnDef &colDefTrigStat =
 	   COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_STATUS];
 	cond += StringUtils::sprintf(
-	  "((%s is NULL) or (%s=%%d))",
+	  "((%s IS NULL) OR (%s=%%d))",
 	  colDefTrigStat.columnName, colDefTrigStat.columnName);
-	cond += " and ";
+	cond += " AND ";
 
 	// trigger_severity
 	const ColumnDef &colDefTrigSeve =
@@ -917,7 +917,7 @@ string ActionsQueryOption::PrivateContext::makeConditionTemplate(void)
 	const ColumnDef &colDefTrigSeveCmpType =
 	   COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_SEVERITY_COMP_TYPE];
 	cond += StringUtils::sprintf(
-	  "((%s is NULL) or (%s=%d and %s=%%d) or (%s=%d and %s>=%%d))",
+	  "((%s IS NULL) OR (%s=%d AND %s=%%d) OR (%s=%d AND %s>=%%d))",
 	  colDefTrigSeve.columnName,
 	  colDefTrigSeveCmpType.columnName, CMP_EQ, colDefTrigSeve.columnName,
 	  colDefTrigSeveCmpType.columnName, CMP_EQ_GT,

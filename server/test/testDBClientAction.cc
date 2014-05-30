@@ -675,4 +675,28 @@ void test_withoutPrivilege(void)
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
+void test_withEventInfo(void)
+{
+	setupTestDBUser(true, true);
+	UserIdType id = findUserWithout(OPPRVLG_GET_ALL_ACTION);
+	EventInfo &event = testEventInfo[0];
+	ActionsQueryOption option(id);
+	option.setTargetEventInfo(&event);
+	string expected
+	  = StringUtils::sprintf(
+	    "owner_user_id=%" FMT_USER_ID " AND "
+	    "((server_id IS NULL) OR (server_id=%" FMT_SERVER_ID ")) AND "
+	    "((host_id IS NULL) OR (host_id=%"FMT_HOST_ID")) AND "
+	    // test with empty hostgroups
+	    "((host_group_id IS NULL) OR host_group_id IN (0)) AND "
+	    "((trigger_id IS NULL) OR (trigger_id=%"FMT_TRIGGER_ID")) AND "
+	    "((trigger_status IS NULL) OR (trigger_status=%d)) AND "
+	    "((trigger_severity IS NULL) OR "
+	    "(trigger_severity_comp_type=1 AND trigger_severity=%d) OR "
+	    "(trigger_severity_comp_type=2 AND trigger_severity>=%d))",
+	    id, event.serverId, event.hostId, event.triggerId,
+	    event.status, event.severity, event.severity);
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
 }
