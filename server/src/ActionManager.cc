@@ -500,7 +500,6 @@ ActionManager::~ActionManager()
 void ActionManager::checkEvents(const EventInfoList &eventList)
 {
 	DBClientAction dbAction;
-	OperationPrivilege privilege(USER_ID_SYSTEM);
 	EventInfoListConstIterator it = eventList.begin();
 	for (; it != eventList.end(); ++it) {
 		ActionDefList actionDefList;
@@ -509,7 +508,9 @@ void ActionManager::checkEvents(const EventInfoList &eventList)
 			continue;
 		if (shouldSkipByLog(eventInfo, dbAction))
 			continue;
-		dbAction.getActionList(actionDefList, privilege, &eventInfo);
+		ActionsQueryOption option(USER_ID_SYSTEM);
+		option.setTargetEventInfo(&eventInfo);
+		dbAction.getActionList(actionDefList, option);
 		ActionDefListIterator actIt = actionDefList.begin();
 		for (; actIt != actionDefList.end(); ++actIt)
 			runAction(*actIt, eventInfo, dbAction);

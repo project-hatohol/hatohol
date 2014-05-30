@@ -488,8 +488,7 @@ HatoholError DBClientAction::addAction(ActionDef &actionDef,
 }
 
 HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
-                                           const OperationPrivilege &privilege,
-                                           const EventInfo *eventInfo)
+					   const ActionsQueryOption &option)
 {
 	DBAgent::SelectExArg arg(tableProfileActions);
 	arg.add(IDX_ACTIONS_ACTION_ID);
@@ -505,9 +504,6 @@ HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
 	arg.add(IDX_ACTIONS_WORKING_DIR);
 	arg.add(IDX_ACTIONS_TIMEOUT);
 	arg.add(IDX_ACTIONS_OWNER_USER_ID);
-
-	ActionsQueryOption option(privilege.getUserId());
-	option.setTargetEventInfo(eventInfo);
 
 	// condition
 	arg.condition = option.getCondition();
@@ -964,7 +960,7 @@ const EventInfo *ActionsQueryOption::getTargetEventInfo(void) const
 	return m_ctx->eventInfo;
 }
 
-string ActionsQueryOption::getCondition(void)
+string ActionsQueryOption::getCondition(void) const
 {
 	string cond;
 

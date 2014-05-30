@@ -1954,9 +1954,9 @@ void FaceRest::handlerGetAction(RestJob *job)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	ActionDefList actionList;
+	ActionsQueryOption option(job->dataQueryContextPtr);
 	HatoholError err =
-	  dataStore->getActionList(
-	    actionList, job->dataQueryContextPtr->getOperationPrivilege());
+	  dataStore->getActionList(actionList, option);
 
 	JsonBuilderAgent agent;
 	agent.startObject();

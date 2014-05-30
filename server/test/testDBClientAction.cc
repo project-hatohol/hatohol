@@ -169,12 +169,12 @@ static void pickupActionIdsFromTestActionDef(
 void _assertGetActionList(const UserIdType &userId,
                           const UserIdType &expectUserId)
 {
-	OperationPrivilege privilege(userId);
+	ActionsQueryOption option(userId);
 
 	DBClientAction dbAction;
 	ActionDefList actionDefList;
 	assertHatoholError(HTERR_OK,
-	                   dbAction.getActionList(actionDefList, privilege));
+	                   dbAction.getActionList(actionDefList, option));
 
 	// pick up expected action IDs
 	ActionIdSet expectActionIdSet;
@@ -541,10 +541,11 @@ void test_getTriggerActionList(void)
 	// get the list and check the number
 	DBClientAction dbAction;
 	ActionDefList actionDefList;
-	OperationPrivilege privilege(USER_ID_SYSTEM);
+	ActionsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetEventInfo(&eventInfo);
 	assertHatoholError(
 	  HTERR_OK,
-	  dbAction.getActionList(actionDefList, privilege, &eventInfo));
+	  dbAction.getActionList(actionDefList, option));
 	cppcut_assert_equal((size_t)1, actionDefList.size());
 
 	// check the content
@@ -576,10 +577,11 @@ void test_getTriggerActionListWithAllCondition(void)
 	// get the list and check the number
 	DBClientAction dbAction;
 	ActionDefList actionDefList;
-	OperationPrivilege privilege(USER_ID_SYSTEM);
+	ActionsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetEventInfo(&eventInfo);
 	assertHatoholError(
 	  HTERR_OK,
-	  dbAction.getActionList(actionDefList, privilege, &eventInfo));
+	  dbAction.getActionList(actionDefList, option));
 	cppcut_assert_equal((size_t)1, actionDefList.size());
 
 	// check the content

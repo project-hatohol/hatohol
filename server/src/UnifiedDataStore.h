@@ -95,7 +95,7 @@ public:
 
 	// Action
 	HatoholError getActionList(ActionDefList &actionList,
-	                           const OperationPrivilege &privilege);
+	                           const ActionsQueryOption &option);
 	HatoholError addAction(ActionDef &actionDef,
 	                       const OperationPrivilege &privilege);
 	HatoholError deleteActionList(const ActionIdList &actionIdList,

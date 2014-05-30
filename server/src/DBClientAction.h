@@ -233,7 +233,7 @@ public:
 	void setTargetEventInfo(const EventInfo *eventInfo);
 	const EventInfo *getTargetEventInfo(void) const;
 
-	virtual std::string getCondition(void); // override
+	virtual std::string getCondition(void) const; // override
 
 private:
 	struct PrivateContext;
@@ -267,8 +267,7 @@ public:
 	HatoholError addAction(ActionDef &actionDef,
 	                       const OperationPrivilege &privilege);
 	HatoholError getActionList(ActionDefList &actionDefList,
-	                           const OperationPrivilege &privilege,
-	                           const EventInfo *eventInfo = NULL);
+	                           const ActionsQueryOption &option);
 	HatoholError deleteActions(const ActionIdList &idList,
 	                           const OperationPrivilege &privilege);
 
