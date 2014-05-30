@@ -947,6 +947,7 @@ HatoholError DBClientAction::checkPrivilegeForDelete(
 // ActionsQueryOption
 // ---------------------------------------------------------------------------
 struct ActionsQueryOption::PrivateContext {
+	// TODO: should have replica?
 	const EventInfo *eventInfo;
 
 	PrivateContext()
@@ -977,4 +978,14 @@ ActionsQueryOption::ActionsQueryOption(const ActionsQueryOption &src)
 ActionsQueryOption::~ActionsQueryOption()
 {
 	delete m_ctx;
+}
+
+void ActionsQueryOption::setTargetEventInfo(const EventInfo *eventInfo)
+{
+	m_ctx->eventInfo = eventInfo;
+}
+
+const EventInfo *ActionsQueryOption::getTargetEventInfo(void) const
+{
+	return m_ctx->eventInfo;
 }

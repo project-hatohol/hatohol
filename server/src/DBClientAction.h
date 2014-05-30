@@ -230,6 +230,9 @@ public:
 	ActionsQueryOption(const ActionsQueryOption &src);
 	~ActionsQueryOption();
 
+	void setTargetEventInfo(const EventInfo *eventInfo);
+	const EventInfo *getTargetEventInfo(void) const;
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
