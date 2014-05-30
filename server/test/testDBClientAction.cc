@@ -637,3 +637,40 @@ void test_databasePassword(void)
 }
 
 } // namespace testDBClientActionDefault
+
+namespace testActionsQueryOption {
+
+void cut_setup(void)
+{
+	hatoholInit();
+}
+
+void test_withoutUser(void)
+{
+	ActionsQueryOption option;
+	cppcut_assert_equal(string("owner_user_id=-1"), option.getCondition());
+}
+
+void test_withSystemUser(void)
+{
+	ActionsQueryOption option(USER_ID_SYSTEM);
+	cppcut_assert_equal(string(), option.getCondition());
+}
+
+void test_withPrivilege(void)
+{
+	setupTestDBUser(true, true);
+	UserIdType id = findUserWith(OPPRVLG_GET_ALL_ACTION);
+	ActionsQueryOption option(id);
+	cppcut_assert_equal(string(), option.getCondition());
+}
+
+void test_withoutPrivilege(void)
+{
+	setupTestDBUser(true, true);
+	UserIdType id = findUserWithout(OPPRVLG_GET_ALL_ACTION);
+	ActionsQueryOption option(id);
+	cppcut_assert_equal(string("owner_user_id=1"), option.getCondition());
+}
+
+}
