@@ -223,6 +223,18 @@ enum ActionLogExecFailureCode {
 	ACTLOG_EXECFAIL_UNEXPECTED_EXIT,
 };
 
+class ActionsQueryOption : public DataQueryOption {
+public:
+	ActionsQueryOption(const UserIdType &userId = INVALID_USER_ID);
+	ActionsQueryOption(DataQueryContext *dataQueryContext);
+	ActionsQueryOption(const ActionsQueryOption &src);
+	~ActionsQueryOption();
+
+private:
+	struct PrivateContext;
+	PrivateContext *m_ctx;
+};
+
 class DBClientAction : public DBClient {
 
 public:

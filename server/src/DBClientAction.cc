@@ -943,3 +943,38 @@ HatoholError DBClientAction::checkPrivilegeForDelete(
 	return HTERR_OK;
 }
 
+// ---------------------------------------------------------------------------
+// ActionsQueryOption
+// ---------------------------------------------------------------------------
+struct ActionsQueryOption::PrivateContext {
+	const EventInfo *eventInfo;
+
+	PrivateContext()
+	: eventInfo(NULL)
+	{
+	}
+};
+
+ActionsQueryOption::ActionsQueryOption(const UserIdType &userId)
+: DataQueryOption(userId)
+{
+	m_ctx = new PrivateContext();
+}
+
+ActionsQueryOption::ActionsQueryOption(DataQueryContext *dataQueryContext)
+: DataQueryOption(dataQueryContext)
+{
+	m_ctx = new PrivateContext();
+}
+
+ActionsQueryOption::ActionsQueryOption(const ActionsQueryOption &src)
+: DataQueryOption(src)
+{
+	m_ctx = new PrivateContext();
+	*m_ctx = *src.m_ctx;
+}
+
+ActionsQueryOption::~ActionsQueryOption()
+{
+	delete m_ctx;
+}
