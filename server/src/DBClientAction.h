@@ -30,7 +30,7 @@ const static uint64_t INVALID_ACTION_LOG_ID = -1;
 enum ActionType {
 	ACTION_COMMAND,
 	ACTION_RESIDENT,
-	ACTION_ISSUE,
+	ACTION_ISSUE_SENDER,
 	NUM_ACTION_TYPES,
 };
 
@@ -109,7 +109,7 @@ struct ActionDef {
 	// module path and options.
 	// Ex.) /usr/lib/foo.so -l -o 'IYH... oooo' ABC
 	//
-	// [Issue type action]
+	// [Issue sender type action]
 	// IssueTrackerInfo ID & IssueSenderOption ID
 	// Format: IssueTrackerId[:IssueSenderOptionId]
 	//   Ex.) 3:17 (with IssueSenderOption)
