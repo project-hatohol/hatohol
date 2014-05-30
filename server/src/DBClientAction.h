@@ -109,6 +109,13 @@ struct ActionDef {
 	// module path and options.
 	// Ex.) /usr/lib/foo.so -l -o 'IYH... oooo' ABC
 	//
+	// [Issue type action]
+	// IssueTrackerInfo ID & IssueSenderOption ID
+	// Format: IssueTrackerId[:IssueSenderOptionId]
+	//   Ex.) 3:17 (with IssueSenderOption)
+	//        3    (without IssueSenderOption)
+	// Note: IssueSenderOption isn't implemeneted yet
+	//
 	// Note: A string: "-l -o 'IYH... oooo' ABC" is passed as an
 	// argument of module's init() function.
 	// Ref: struct ResidentModule in ResidentProtocol.h
