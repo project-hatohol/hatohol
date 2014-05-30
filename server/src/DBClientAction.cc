@@ -379,8 +379,6 @@ static const DBClient::DBSetupFuncArg DB_ACTION_SETUP_FUNC_ARG = {
 
 struct DBClientAction::PrivateContext
 {
-	static const string actionDefConditionTemplate;
-
 	PrivateContext(void)
 	{
 	}
@@ -388,69 +386,7 @@ struct DBClientAction::PrivateContext
 	virtual ~PrivateContext()
 	{
 	}
-	
-	static string makeActionDefConditionTemplate(void);
 };
-
-const string DBClientAction::PrivateContext::actionDefConditionTemplate
-  = makeActionDefConditionTemplate();
-
-string DBClientAction::PrivateContext::makeActionDefConditionTemplate(void)
-{
-	string cond;
-
-	// server_id;
-	const ColumnDef &colDefSvId = COLUMN_DEF_ACTIONS[IDX_ACTIONS_SERVER_ID];
-	cond += StringUtils::sprintf(
-	  "((%s is NULL) or (%s=%%d))",
-	  colDefSvId.columnName, colDefSvId.columnName);
-	cond += " and ";
-
-	// host_id;
-	const ColumnDef &colDefHostId = COLUMN_DEF_ACTIONS[IDX_ACTIONS_HOST_ID];
-	cond += StringUtils::sprintf(
-	  "((%s is NULL) or (%s=%%" PRIu64 "))",
-	  colDefHostId.columnName, colDefHostId.columnName);
-	cond += " and ";
-
-	// host_group_id;
-	const ColumnDef &colDefHostGrpId =
-	   COLUMN_DEF_ACTIONS[IDX_ACTIONS_HOST_GROUP_ID];
-	cond += StringUtils::sprintf(
-	  "((%s is NULL) or %s IN (%%s))",
-	  colDefHostGrpId.columnName, colDefHostGrpId.columnName);
-	cond += " and ";
-
-	// trigger_id
-	const ColumnDef &colDefTrigId =
-	   COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_ID];
-	cond += StringUtils::sprintf(
-	  "((%s is NULL) or (%s=%%" PRIu64 "))",
-	  colDefTrigId.columnName, colDefTrigId.columnName);
-	cond += " and ";
-
-	// trigger_status
-	const ColumnDef &colDefTrigStat =
-	   COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_STATUS];
-	cond += StringUtils::sprintf(
-	  "((%s is NULL) or (%s=%%d))",
-	  colDefTrigStat.columnName, colDefTrigStat.columnName);
-	cond += " and ";
-
-	// trigger_severity
-	const ColumnDef &colDefTrigSeve =
-	   COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_SEVERITY];
-	const ColumnDef &colDefTrigSeveCmpType =
-	   COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_SEVERITY_COMP_TYPE];
-	cond += StringUtils::sprintf(
-	  "((%s is NULL) or (%s=%d and %s=%%d) or (%s=%d and %s>=%%d))",
-	  colDefTrigSeve.columnName,
-	  colDefTrigSeveCmpType.columnName, CMP_EQ, colDefTrigSeve.columnName,
-	  colDefTrigSeveCmpType.columnName, CMP_EQ_GT,
-	  colDefTrigSeve.columnName);
-
-	return cond;
-}
 
 // ---------------------------------------------------------------------------
 // LogEndExecActionArg
@@ -570,16 +506,9 @@ HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
 	arg.add(IDX_ACTIONS_TIMEOUT);
 	arg.add(IDX_ACTIONS_OWNER_USER_ID);
 
-	if (eventInfo)
-		arg.condition = makeActionDefCondition(*eventInfo);
-	if (!privilege.has(OPPRVLG_GET_ALL_ACTION)) {
-		if (!arg.condition.empty())
-			arg.condition += " AND ";
-		arg.condition += StringUtils::sprintf(
-		  "%s=%" FMT_USER_ID,
-		  COLUMN_DEF_ACTIONS[IDX_ACTIONS_OWNER_USER_ID].columnName,
-		  privilege.getUserId());
-	}
+	ActionsQueryOption option(privilege.getUserId());
+	option.setTargetEventInfo(eventInfo);
+	arg.condition = option.getCondition();
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -837,37 +766,6 @@ static void getHostgroupIdStringList(string &stringHostgroupId,
 		stringHostgroupId = "0";
 }
 
-string DBClientAction::makeActionDefCondition(const EventInfo &eventInfo)
-{
-	HATOHOL_ASSERT(!m_ctx->actionDefConditionTemplate.empty(),
-	               "ActionDef condition template is empty.");
-	TriggerInfo triggerInfo;
-	// TODO: eventInfo should always be filled before this function
-	//       is called. (The conditional branch here is not good)
-	if ((!eventInfo.hostId) &&
-	   (eventInfo.severity == TRIGGER_SEVERITY_UNKNOWN)) {
-		takeTriggerInfo(
-		  triggerInfo, eventInfo.serverId, eventInfo.triggerId);
-	} else {
-		triggerInfo.serverId = eventInfo.serverId;
-		triggerInfo.hostId   = eventInfo.hostId;
-		triggerInfo.severity = eventInfo.severity;
-	}
-	string hostgroupIdList;
-	getHostgroupIdStringList(hostgroupIdList,
-	  triggerInfo.serverId, triggerInfo.hostId);
-	string cond = 
-	  StringUtils::sprintf(m_ctx->actionDefConditionTemplate.c_str(),
-	                       eventInfo.serverId,
-	                       triggerInfo.hostId,
-	                       hostgroupIdList.c_str(),
-	                       eventInfo.triggerId,
-	                       eventInfo.status,
-	                       triggerInfo.severity,
-	                       triggerInfo.severity);
-	return cond;
-}
-
 bool DBClientAction::getLog(ActionLog &actionLog, const string &condition)
 {
 	DBAgent::SelectExArg arg(tableProfileActionLogs);
@@ -947,6 +845,8 @@ HatoholError DBClientAction::checkPrivilegeForDelete(
 // ActionsQueryOption
 // ---------------------------------------------------------------------------
 struct ActionsQueryOption::PrivateContext {
+	static const string conditionTemplate;
+
 	// TODO: should have replica?
 	const EventInfo *eventInfo;
 
@@ -954,7 +854,69 @@ struct ActionsQueryOption::PrivateContext {
 	: eventInfo(NULL)
 	{
 	}
+
+	static string makeConditionTemplate(void);
 };
+
+const string ActionsQueryOption::PrivateContext::conditionTemplate
+  = makeConditionTemplate();
+
+string ActionsQueryOption::PrivateContext::makeConditionTemplate(void)
+{
+	string cond;
+
+	// server_id;
+	const ColumnDef &colDefSvId = COLUMN_DEF_ACTIONS[IDX_ACTIONS_SERVER_ID];
+	cond += StringUtils::sprintf(
+	  "((%s is NULL) or (%s=%%d))",
+	  colDefSvId.columnName, colDefSvId.columnName);
+	cond += " and ";
+
+	// host_id;
+	const ColumnDef &colDefHostId = COLUMN_DEF_ACTIONS[IDX_ACTIONS_HOST_ID];
+	cond += StringUtils::sprintf(
+	  "((%s is NULL) or (%s=%%"PRIu64"))",
+	  colDefHostId.columnName, colDefHostId.columnName);
+	cond += " and ";
+
+	// host_group_id;
+	const ColumnDef &colDefHostGrpId =
+	   COLUMN_DEF_ACTIONS[IDX_ACTIONS_HOST_GROUP_ID];
+	cond += StringUtils::sprintf(
+	  "((%s is NULL) or %s IN (%%s))",
+	  colDefHostGrpId.columnName, colDefHostGrpId.columnName);
+	cond += " and ";
+
+	// trigger_id
+	const ColumnDef &colDefTrigId =
+	   COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_ID];
+	cond += StringUtils::sprintf(
+	  "((%s is NULL) or (%s=%%"PRIu64"))",
+	  colDefTrigId.columnName, colDefTrigId.columnName);
+	cond += " and ";
+
+	// trigger_status
+	const ColumnDef &colDefTrigStat =
+	   COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_STATUS];
+	cond += StringUtils::sprintf(
+	  "((%s is NULL) or (%s=%%d))",
+	  colDefTrigStat.columnName, colDefTrigStat.columnName);
+	cond += " and ";
+
+	// trigger_severity
+	const ColumnDef &colDefTrigSeve =
+	   COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_SEVERITY];
+	const ColumnDef &colDefTrigSeveCmpType =
+	   COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_SEVERITY_COMP_TYPE];
+	cond += StringUtils::sprintf(
+	  "((%s is NULL) or (%s=%d and %s=%%d) or (%s=%d and %s>=%%d))",
+	  colDefTrigSeve.columnName,
+	  colDefTrigSeveCmpType.columnName, CMP_EQ, colDefTrigSeve.columnName,
+	  colDefTrigSeveCmpType.columnName, CMP_EQ_GT,
+	  colDefTrigSeve.columnName);
+
+	return cond;
+}
 
 ActionsQueryOption::ActionsQueryOption(const UserIdType &userId)
 : DataQueryOption(userId)
@@ -988,4 +950,49 @@ void ActionsQueryOption::setTargetEventInfo(const EventInfo *eventInfo)
 const EventInfo *ActionsQueryOption::getTargetEventInfo(void) const
 {
 	return m_ctx->eventInfo;
+}
+
+string ActionsQueryOption::getCondition(void)
+{
+	string cond;
+
+	if (!has(OPPRVLG_GET_ALL_ACTION)) {
+		cond += StringUtils::sprintf(
+		  "%s=%"FMT_USER_ID,
+		  COLUMN_DEF_ACTIONS[IDX_ACTIONS_OWNER_USER_ID].columnName,
+		  getUserId());
+	}
+
+	const EventInfo *eventInfo = m_ctx->eventInfo;
+	if (!eventInfo)
+		return cond;
+
+	HATOHOL_ASSERT(!m_ctx->conditionTemplate.empty(),
+	               "ActionDef condition template is empty.");
+	TriggerInfo triggerInfo;
+	// TODO: eventInfo should always be filled before this function
+	//       is called. (The conditional branch here is not good)
+	if ((!eventInfo->hostId) &&
+	   (eventInfo->severity == TRIGGER_SEVERITY_UNKNOWN)) {
+		takeTriggerInfo(
+		  triggerInfo, eventInfo->serverId, eventInfo->triggerId);
+	} else {
+		triggerInfo.serverId = eventInfo->serverId;
+		triggerInfo.hostId   = eventInfo->hostId;
+		triggerInfo.severity = eventInfo->severity;
+	}
+	string hostgroupIdList;
+	getHostgroupIdStringList(hostgroupIdList,
+	  triggerInfo.serverId, triggerInfo.hostId);
+	if (!cond.empty())
+		cond += " AND ";
+	cond += StringUtils::sprintf(m_ctx->conditionTemplate.c_str(),
+	                       eventInfo->serverId,
+	                       triggerInfo.hostId,
+	                       hostgroupIdList.c_str(),
+	                       eventInfo->triggerId,
+	                       eventInfo->status,
+	                       triggerInfo.severity,
+	                       triggerInfo.severity);
+	return cond;
 }

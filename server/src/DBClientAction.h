@@ -233,6 +233,8 @@ public:
 	void setTargetEventInfo(const EventInfo *eventInfo);
 	const EventInfo *getTargetEventInfo(void) const;
 
+	virtual std::string getCondition(void); // override
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
@@ -341,7 +343,6 @@ public:
 protected:
 	ItemDataNullFlagType getNullFlag(const ActionDef &actionDef,
 	                                 ActionConditionEnableFlag enableFlag);
-	std::string makeActionDefCondition(const EventInfo &eventInfo);
 
 	/**
 	 * Get the action log.
