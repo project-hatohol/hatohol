@@ -670,7 +670,9 @@ void test_withoutPrivilege(void)
 	setupTestDBUser(true, true);
 	UserIdType id = findUserWithout(OPPRVLG_GET_ALL_ACTION);
 	ActionsQueryOption option(id);
-	cppcut_assert_equal(string("owner_user_id=1"), option.getCondition());
+	string expected
+	  = StringUtils::sprintf("owner_user_id=%"FMT_USER_ID, id);
+	cppcut_assert_equal(expected, option.getCondition());
 }
 
 }
