@@ -508,7 +508,19 @@ HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
 
 	ActionsQueryOption option(privilege.getUserId());
 	option.setTargetEventInfo(eventInfo);
+
+	// condition
 	arg.condition = option.getCondition();
+
+	// Order By
+	arg.orderBy = option.getOrderBy();
+
+	// Limit and Offset
+	arg.limit = option.getMaximumNumber();
+	arg.offset = option.getOffset();
+
+	if (!arg.limit && arg.offset)
+		return HTERR_OFFSET_WITHOUT_LIMIT;
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
