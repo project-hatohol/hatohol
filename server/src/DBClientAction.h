@@ -30,6 +30,8 @@ const static uint64_t INVALID_ACTION_LOG_ID = -1;
 enum ActionType {
 	ACTION_COMMAND,
 	ACTION_RESIDENT,
+	ACTION_ISSUE,
+	NUM_ACTION_TYPES,
 };
 
 enum ComparisonType {
