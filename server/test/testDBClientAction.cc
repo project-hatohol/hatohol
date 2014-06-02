@@ -643,6 +643,8 @@ namespace testActionsQueryOption {
 void cut_setup(void)
 {
 	hatoholInit();
+	deleteDBClientHatoholDB();
+	setupTestDBConfig(true, true);
 }
 
 void test_withoutUser(void)
