@@ -104,7 +104,7 @@ public:
 	void setAt(size_t index, uint32_t val);
 	void printBuffer(void);
 
-	template <typename T> T *getPointer(void) {
+	template <typename T> T *getPointer(void) const {
 		return reinterpret_cast<T *>(&m_buf[m_index]);
 	}
 
