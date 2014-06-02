@@ -977,12 +977,12 @@ string ActionsQueryOption::PrivateContext::getActionTypeCondition(void)
 	switch(type) {
 	case ACTION_WITHOUT_ISSUE_SENDER:
 		return StringUtils::sprintf(
-			 "(action_type>=0 AND action_TYPE<%d)",
+			 "(action_type>=0 AND action_type<%d)",
 			 ACTION_ISSUE_SENDER);
 	case ACTION_ALL:
 		return string();
 	default:
-		return StringUtils::sprintf("action_TYPE=%d", (int)type);
+		return StringUtils::sprintf("action_type=%d", (int)type);
 	}
 }
 
