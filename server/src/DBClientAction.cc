@@ -976,7 +976,7 @@ string ActionsQueryOption::getCondition(void) const
 		cond += " AND ";
 	cond += StringUtils::sprintf(
 	  "(action_type>=0 AND action_TYPE<%d)",
-	  ACTION_DUMMY);
+	  ACTION_ISSUE_SENDER);
 
 	// filter by EventInfo
 	const EventInfo *eventInfo = m_ctx->eventInfo;
