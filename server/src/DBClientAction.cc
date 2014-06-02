@@ -998,9 +998,12 @@ string ActionsQueryOption::getCondition(void) const
 	}
 
 	// filter by action type
-	if (!cond.empty())
-		cond += " AND ";
-	cond += m_ctx->getActionTypeCondition();
+	string actionTypeCondition = m_ctx->getActionTypeCondition();
+	if (!actionTypeCondition.empty()) {
+		if (!cond.empty())
+			cond += " AND ";
+		cond += actionTypeCondition;
+	}
 
 	// filter by EventInfo
 	const EventInfo *eventInfo = m_ctx->eventInfo;
