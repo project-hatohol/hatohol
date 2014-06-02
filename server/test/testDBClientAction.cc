@@ -156,12 +156,20 @@ void _assertEqual(const ActionDef &expect, const ActionDef &actual)
 #define assertEqual(E,A) cut_trace(_assertEqual(E,A))
 
 static void pickupActionIdsFromTestActionDef(
-  ActionIdSet &actionIdSet, const UserIdType &userId)
+  ActionIdSet &actionIdSet, const UserIdType &userId,
+  const ActionType &actionType = ACTION_WITHOUT_ISSUE_SENDER)
 {
 	for (size_t i = 0; i < NumTestActionDef; i++) {
 		const ActionDef &actDef = testActionDef[i];
-		if (actDef.type >= ACTION_ISSUE_SENDER)
-			continue;
+		if (actionType == ACTION_WITHOUT_ISSUE_SENDER) {
+			if (actDef.type >= ACTION_ISSUE_SENDER)
+				continue;
+		} else if (actionType == ACTION_ALL) {
+			// accept all actions
+		} else {
+			if (actDef.type != actionType)
+				continue;
+		}
 		if (userId != USER_ID_ANY && actDef.ownerUserId != userId)
 			continue;
 		const int expectedId = i + 1;
@@ -170,9 +178,11 @@ static void pickupActionIdsFromTestActionDef(
 }
 
 void _assertGetActionList(const UserIdType &userId,
-                          const UserIdType &expectUserId)
+			  const UserIdType &expectUserId,
+			  const ActionType &actionType = ACTION_WITHOUT_ISSUE_SENDER)
 {
 	ActionsQueryOption option(userId);
+	option.setActionType(actionType);
 
 	DBClientAction dbAction;
 	ActionDefList actionDefList;
@@ -181,7 +191,8 @@ void _assertGetActionList(const UserIdType &userId,
 
 	// pick up expected action IDs
 	ActionIdSet expectActionIdSet;
-	pickupActionIdsFromTestActionDef(expectActionIdSet, expectUserId);
+	pickupActionIdsFromTestActionDef(expectActionIdSet, expectUserId,
+					 actionType);
 	cppcut_assert_not_equal((size_t)0, expectActionIdSet.size());
 
 	// check the result
@@ -193,7 +204,8 @@ void _assertGetActionList(const UserIdType &userId,
 		expectActionIdSet.erase(it);
 	}
 }
-#define assertGetActionList(U,E) cut_trace(_assertGetActionList(U,E))
+#define assertGetActionList(U,E, ...) \
+cut_trace(_assertGetActionList(U,E, ##__VA_ARGS__))
 
 static bool g_existTestDB = false;
 static void setupHelperForTestDBUser(void)
@@ -608,6 +620,30 @@ void test_getActionListWithUserHavingGetAllFlag(void)
 	setupTestDBUserAndDBAction();
 	const UserIdType userId = findUserWith(OPPRVLG_GET_ALL_ACTION);
 	assertGetActionList(userId, USER_ID_ANY);
+}
+
+void data_actionType(void)
+{
+	gcut_add_datum("All",
+		       "type", G_TYPE_INT, (int)ACTION_ALL,
+		       NULL);
+	gcut_add_datum("Command",
+		       "type", G_TYPE_INT, (int)ACTION_COMMAND,
+		       NULL);
+	gcut_add_datum("Resident",
+		       "type", G_TYPE_INT, (int)ACTION_RESIDENT,
+		       NULL);
+	gcut_add_datum("IssueSender",
+		       "type", G_TYPE_INT, (int)ACTION_ISSUE_SENDER,
+		       NULL);
+}
+
+void test_getActionListWithActionType(gconstpointer data)
+{
+	setupTestDBUserAndDBAction();
+	const UserIdType userId = findUserWith(OPPRVLG_GET_ALL_ACTION);
+	ActionType type = (ActionType)gcut_data_get_int(data, "type");
+	assertGetActionList(userId, USER_ID_ANY, type);
 }
 
 } // namespace testDBClientAction
