@@ -112,6 +112,33 @@ void test_watermarkSetAt(void)
 	cppcut_assert_equal((size_t)4, sbuf.watermark());
 }
 
+void test_getPointer(void)
+{
+	SmartBuffer sbuf(10);
+	for (size_t i = 0; i < 10; i++)
+		sbuf.add8(2*i);
+	cppcut_assert_equal((char)10, *sbuf.getPointer<char>(5));
+}
+
+void test_getPointerDefaultParam(void)
+{
+	SmartBuffer sbuf(10);
+	for (size_t i = 0; i < 10; i++)
+		sbuf.add8(2*i);
+	sbuf.resetIndex();
+	sbuf.incIndex(3);
+	cppcut_assert_equal((char)6, *sbuf.getPointer<char>());
+}
+
+void test_getPointerWithType(void)
+{
+	SmartBuffer sbuf(10);
+	for (size_t i = 0; i < 10; i++)
+		sbuf.add8(2*i);
+	sbuf.resetIndex();
+	cppcut_assert_equal((uint32_t)0x06040200, *sbuf.getPointer<uint32_t>());
+}
+
 void test_takeOver(void)
 {
 	static const size_t buflen = 5;

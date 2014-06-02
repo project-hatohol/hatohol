@@ -104,8 +104,19 @@ public:
 	void setAt(size_t index, uint32_t val);
 	void printBuffer(void);
 
-	template <typename T> T *getPointer(void) const {
-		return reinterpret_cast<T *>(&m_buf[m_index]);
+	/**
+	 * Get a pointer of the given type.
+	 *
+	 * @param index
+	 * An index of the buffer that is pointed by the returned value.
+	 * If this parameter is CURR_INDEX, the current index is used.
+	 *
+	 * @return A pointer of the type: T.
+	 */
+	static const size_t CURR_INDEX = SIZE_MAX;
+	template <typename T> T *getPointer(size_t index = CURR_INDEX) const {
+		size_t headIndex = index == CURR_INDEX ? m_index : index;
+		return reinterpret_cast<T *>(&m_buf[headIndex]);
 	}
 
 	template <typename T> T getValue(void) {
