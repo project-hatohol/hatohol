@@ -17,7 +17,6 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define __STDC_LIMIT_MACROS 
 #include <stdint.h>
 #include <cppcutter.h>
 #include <cutter.h>
