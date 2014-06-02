@@ -79,7 +79,7 @@ public:
 			m_loop.quit();
 	}
 
-	virtual void onReceived(SmartBuffer &smbuf)
+	virtual void onReceived(SmartBuffer &smbuf) override
 	{
 		m_testCtx.setReceivedMessage(smbuf);
 		m_loop.quit();
