@@ -745,6 +745,8 @@ static void _assertActions(const string &path, const string &callbackName = "")
 	for (size_t i = 0; i < NumTestActionDef; i++) {
 		g_parser->startElement(i);
 		const ActionDef &actionDef = testActionDef[i];
+		if (actionDef.type == ACTION_ISSUE_SENDER)
+			continue;
 		const ActionCondition &cond = actionDef.condition;
 		assertValueInParser(g_parser, "actionId", actionDef.id);
 
