@@ -177,9 +177,9 @@ static void pickupActionIdsFromTestActionDef(
 	}
 }
 
-void _assertGetActionList(const UserIdType &userId,
-			  const UserIdType &expectUserId,
-			  const ActionType &actionType = ACTION_WITHOUT_ISSUE_SENDER)
+void _assertGetActionList(
+  const UserIdType &userId, const UserIdType &expectUserId,
+  const ActionType &actionType = ACTION_WITHOUT_ISSUE_SENDER)
 {
 	ActionsQueryOption option(userId);
 	option.setActionType(actionType);
