@@ -25,7 +25,7 @@ AC_DEFINE_UNQUOTED(LIBEXECDIR, "`eval echo $libexecdir`", "Prefix for libexec di
 dnl **************************************************************
 dnl Optional C++ compiler flags
 dnl **************************************************************
-OPT_CXXFLAGS="-D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS"
+OPT_CXXFLAGS="-Wall -g3 -O2 -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS"
 
 dnl **************************************************************
 dnl Checks for GLib

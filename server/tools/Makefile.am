@@ -8,7 +8,7 @@ hatohol_config_db_creator_SOURCES = hatohol-config-db-creator.cc
 MLPL_CFLAGS = -I ../mlpl/src
 MLPL_LIBS = ../mlpl/src/libmlpl.la
 
-AM_CXXFLAGS = -Wall -g3 \
+AM_CXXFLAGS = \
 	$(OPT_CXXFLAGS) \
 	-I ../src $(MLPL_CFLAGS) $(GLIB_CFLAGS) $(MYSQL_CFLAGS) $(LIBSOUP_CFLAGS) $(JSON_GLIB_CFLAGS)
 

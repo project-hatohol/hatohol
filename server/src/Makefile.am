@@ -96,7 +96,7 @@ libhatohol_la_SOURCES = \
 	Utils.cc Utils.h \
 	ZabbixAPI.cc ZabbixAPI.h
 
-AM_CXXFLAGS = -Wall -g3 \
+AM_CXXFLAGS = \
 	$(OPT_CXXFLAGS) \
 	$(MLPL_CFLAGS) $(GLIB_CFLAGS) $(GTHREAD_CFLAGS) $(GIO_CFLAGS) \
 	$(LIBSOUP_CFLAGS) $(JSON_GLIB_CFLAGS) $(SQLITE3_CFLAGS) \
