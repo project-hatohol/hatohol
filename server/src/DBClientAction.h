@@ -28,6 +28,8 @@
 const static uint64_t INVALID_ACTION_LOG_ID = -1;
 
 enum ActionType {
+	ACTION_WITHOUT_ISSUE_SENDER = -2,
+	ACTION_ALL = -1,
 	ACTION_COMMAND,
 	ACTION_RESIDENT,
 	ACTION_ISSUE_SENDER,
@@ -232,6 +234,8 @@ public:
 
 	void setTargetEventInfo(const EventInfo *eventInfo);
 	const EventInfo *getTargetEventInfo(void) const;
+	void setActionType(const ActionType &type);
+	const ActionType &getActionType(void);
 
 	virtual std::string getCondition(void) const; // override
 

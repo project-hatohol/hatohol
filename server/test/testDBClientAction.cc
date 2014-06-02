@@ -159,6 +159,8 @@ static void pickupActionIdsFromTestActionDef(
 {
 	for (size_t i = 0; i < NumTestActionDef; i++) {
 		const ActionDef &actDef = testActionDef[i];
+		if (actDef.type >= ACTION_ISSUE_SENDER)
+			continue;
 		if (userId != USER_ID_ANY && actDef.ownerUserId != userId)
 			continue;
 		const int expectedId = i + 1;
@@ -254,6 +256,7 @@ static void _assertDeleteActions(const bool &deleteMyActions,
 	// check
 	string statement = "select action_id from ";
 	statement += DBClientAction::getTableNameActions();
+	statement += " order by action_id";
 	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }
 #define assertDeleteActions(D,T) cut_trace(_assertDeleteActions(D,T))
@@ -447,7 +450,10 @@ void test_startExecAction(void)
 			status = ACTLOG_STAT_STARTED;
 		else if (actDef.type == ACTION_RESIDENT)
 			status = ACTLOG_STAT_LAUNCHING_RESIDENT;
-		else {
+		else if (actDef.type == ACTION_ISSUE_SENDER) {
+			// TODO: Not implemented yet
+			continue;
+		} else {
 			// Set any value to avoid a compiler warning.
 			status = ACTLOG_STAT_STARTED;
 			cut_fail("Unknown action type: %d\n", actDef.type);
@@ -485,6 +491,26 @@ void test_startExecActionWithExecFailure(void)
 	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }
 
+static size_t countActions(
+  const ActionType &actionType = ACTION_WITHOUT_ISSUE_SENDER)
+{
+	size_t num = 0;
+	for (size_t i = 0; i < NumTestActionDef; ++i) {
+		if (actionType == ACTION_WITHOUT_ISSUE_SENDER) {
+			if (testActionDef[i].type < ACTION_ISSUE_SENDER)
+				++num;
+		} else if (actionType == ACTION_ALL) {
+			++num;
+		} else if (actionType < NUM_ACTION_TYPES) {
+			if (actionType == testActionDef[i].type)
+				++num;
+		} else {
+			cut_fail("Invalid action type: %d\n", actionType);
+		}
+	}
+	return num;
+}
+
 void test_endExecAction(void)
 {
 	size_t targetIdx = 1;
@@ -502,7 +528,7 @@ void test_endExecAction(void)
 	string rows = execSQL(dbAction.getDBAgent(), statement);
 	StringVector rowVector;
 	StringUtils::split(rowVector, rows, '\n');
-	cppcut_assert_equal(NumTestActionDef, rowVector.size());
+	cppcut_assert_equal(countActions(), rowVector.size());
 
 	// update one log
 	dbAction.logEndExecAction(logArg);

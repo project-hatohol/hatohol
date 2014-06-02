@@ -397,6 +397,24 @@ ActionDef testActionDef[] = {
 	"a-dog-meets-food",// command
 	3939,              // timeout
 	2,                 // ownerUserId
+}, {
+	0,                 // id (this field is ignored)
+	ActionCondition(
+	  ACTCOND_SERVER_ID | ACTCOND_HOST_ID |
+	  ACTCOND_HOST_GROUP_ID,    // enableBits
+	  1,                        // serverId
+	  10,                       // hostId
+	  5,                        // hostgroupId
+	  0,                        // triggerId
+	  TRIGGER_STATUS_OK,        // triggerStatus
+	  TRIGGER_SEVERITY_CRITICAL,// triggerSeverity
+	  CMP_INVALID               // triggerSeverityCompType;
+	), // condition
+	ACTION_ISSUE_SENDER, // type
+	"",                  // working dir
+	"3",                 // command
+	0,                   // timeout
+	0,                   // ownerUserId
 },
 };
 

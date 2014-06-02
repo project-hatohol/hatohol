@@ -857,13 +857,15 @@ struct ActionsQueryOption::PrivateContext {
 
 	// TODO: should have replica?
 	const EventInfo *eventInfo;
+	ActionType type;
 
 	PrivateContext()
-	: eventInfo(NULL)
+	: eventInfo(NULL), type(ACTION_WITHOUT_ISSUE_SENDER)
 	{
 	}
 
 	static string makeConditionTemplate(void);
+	string getActionTypeCondition(void);
 };
 
 const string ActionsQueryOption::PrivateContext::conditionTemplate
@@ -960,6 +962,30 @@ const EventInfo *ActionsQueryOption::getTargetEventInfo(void) const
 	return m_ctx->eventInfo;
 }
 
+void ActionsQueryOption::setActionType(const ActionType &type)
+{
+	m_ctx->type = type;
+}
+
+const ActionType &ActionsQueryOption::getActionType(void)
+{
+	return m_ctx->type;
+}
+
+string ActionsQueryOption::PrivateContext::getActionTypeCondition(void)
+{
+	switch(type) {
+	case ACTION_WITHOUT_ISSUE_SENDER:
+		return StringUtils::sprintf(
+			 "(action_type>=0 AND action_TYPE<%d)",
+			 ACTION_ISSUE_SENDER);
+	case ACTION_ALL:
+		return string();
+	default:
+		return StringUtils::sprintf("action_TYPE=%d", (int)type);
+	}
+}
+
 string ActionsQueryOption::getCondition(void) const
 {
 	string cond;
@@ -974,9 +1000,7 @@ string ActionsQueryOption::getCondition(void) const
 	// filter by action type
 	if (!cond.empty())
 		cond += " AND ";
-	cond += StringUtils::sprintf(
-	  "(action_type>=0 AND action_TYPE<%d)",
-	  ACTION_ISSUE_SENDER);
+	cond += m_ctx->getActionTypeCondition();
 
 	// filter by EventInfo
 	const EventInfo *eventInfo = m_ctx->eventInfo;
