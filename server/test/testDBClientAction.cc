@@ -19,6 +19,7 @@
 
 #include <cppcutter.h>
 #include <cutter.h>
+#include <gcutter.h>
 #include "Hatohol.h"
 #include "Params.h"
 #include "DBClientAction.h"
@@ -714,6 +715,38 @@ void test_withEventInfo(void)
 	    id, event.serverId, event.hostId, event.triggerId,
 	    event.status, event.severity, event.severity);
 	cppcut_assert_equal(expected, option.getCondition());
+}
+
+void data_actionType(void)
+{
+	gcut_add_datum("All",
+		       "type", G_TYPE_INT, (int)ACTION_ALL,
+		       "condition", G_TYPE_STRING, "",
+		       NULL);
+	gcut_add_datum("Command",
+		       "type", G_TYPE_INT, (int)ACTION_COMMAND,
+		       "condition", G_TYPE_STRING, "action_type=0",
+		       NULL);
+	gcut_add_datum("Resident",
+		       "type", G_TYPE_INT, (int)ACTION_RESIDENT,
+		       "condition", G_TYPE_STRING, "action_type=1",
+		       NULL);
+	gcut_add_datum("IssueSender",
+		       "type", G_TYPE_INT, (int)ACTION_ISSUE_SENDER,
+		       "condition", G_TYPE_STRING, "action_type=2",
+		       NULL);
+}
+
+void test_actionType(gconstpointer data)
+{
+	setupTestDBUser(true, true);
+	UserIdType id = findUserWith(OPPRVLG_GET_ALL_ACTION);
+	ActionsQueryOption option(id);
+	ActionType type = (ActionType)gcut_data_get_int(data, "type");
+	string condition = gcut_data_get_string(data, "condition");
+	option.setActionType(type);
+	cppcut_assert_equal(type, option.getActionType());
+	cppcut_assert_equal(condition, option.getCondition());
 }
 
 }
