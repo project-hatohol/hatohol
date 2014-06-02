@@ -491,26 +491,6 @@ void test_startExecActionWithExecFailure(void)
 	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }
 
-static size_t countActions(
-  const ActionType &actionType = ACTION_WITHOUT_ISSUE_SENDER)
-{
-	size_t num = 0;
-	for (size_t i = 0; i < NumTestActionDef; ++i) {
-		if (actionType == ACTION_WITHOUT_ISSUE_SENDER) {
-			if (testActionDef[i].type < ACTION_ISSUE_SENDER)
-				++num;
-		} else if (actionType == ACTION_ALL) {
-			++num;
-		} else if (actionType < NUM_ACTION_TYPES) {
-			if (actionType == testActionDef[i].type)
-				++num;
-		} else {
-			cut_fail("Invalid action type: %d\n", actionType);
-		}
-	}
-	return num;
-}
-
 void test_endExecAction(void)
 {
 	size_t targetIdx = 1;
@@ -528,7 +508,7 @@ void test_endExecAction(void)
 	string rows = execSQL(dbAction.getDBAgent(), statement);
 	StringVector rowVector;
 	StringUtils::split(rowVector, rows, '\n');
-	cppcut_assert_equal(countActions(), rowVector.size());
+	cppcut_assert_equal(getNumberOfTestActions(), rowVector.size());
 
 	// update one log
 	dbAction.logEndExecAction(logArg);

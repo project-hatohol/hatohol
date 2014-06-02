@@ -131,6 +131,9 @@ size_t getNumberOfTestHostsWithStatus(
   const ServerIdType &serverId, const HostgroupIdType &hostgroupId,
   const bool &status, const UserIdType &userId = USER_ID_SYSTEM);
 
+size_t getNumberOfTestActions(
+  const ActionType &actionType = ACTION_WITHOUT_ISSUE_SENDER);
+
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo);
 mlpl::SmartTime getTimestampOfLastTestTrigger(const ServerIdType &serverId);
 

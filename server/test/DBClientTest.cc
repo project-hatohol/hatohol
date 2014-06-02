@@ -1068,6 +1068,25 @@ size_t getNumberOfTestHostsWithStatus(
 	return hostIdSet.size();
 }
 
+size_t getNumberOfTestActions(const ActionType &actionType)
+{
+	size_t num = 0;
+	for (size_t i = 0; i < NumTestActionDef; ++i) {
+		if (actionType == ACTION_WITHOUT_ISSUE_SENDER) {
+			if (testActionDef[i].type < ACTION_ISSUE_SENDER)
+				++num;
+		} else if (actionType == ACTION_ALL) {
+			++num;
+		} else if (actionType < NUM_ACTION_TYPES) {
+			if (actionType == testActionDef[i].type)
+				++num;
+		} else {
+			cut_fail("Invalid action type: %d\n", actionType);
+		}
+	}
+	return num;
+}
+
 void getDBCTestHostInfo(HostInfoList &hostInfoList,
                         const ServerIdType &targetServerId)
 {

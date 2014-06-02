@@ -739,7 +739,8 @@ static void _assertActions(const string &path, const string &callbackName = "")
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_USER);
 	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
-	assertValueInParser(g_parser, "numberOfActions", NumTestActionDef);
+	assertValueInParser(g_parser, "numberOfActions",
+			    getNumberOfTestActions());
 	assertStartObject(g_parser, "actions");
 	for (size_t i = 0; i < NumTestActionDef; i++) {
 		g_parser->startElement(i);
