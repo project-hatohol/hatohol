@@ -61,9 +61,9 @@ private:
 	string      receivedMessage;
 };
 
-class TestHatoholArmPluginInterface : public HatoholArmPluginInterface {
+class TestBasicHatoholArmPluginInterface : public HatoholArmPluginInterface {
 public:
-	TestHatoholArmPluginInterface(
+	TestBasicHatoholArmPluginInterface(
 	  TestContext &ctx,
 	  const string &addr = "test-hatohol-arm-plugin-interface; {create: always}")
 	: HatoholArmPluginInterface(addr),
@@ -77,12 +77,6 @@ public:
 		m_testCtx.connected = true;
 		if (m_testCtx.quitOnConnected)
 			m_loop.quit();
-	}
-
-	virtual void onReceived(SmartBuffer &smbuf) override
-	{
-		m_testCtx.setReceivedMessage(smbuf);
-		m_loop.quit();
 	}
 
 	void run(void)
@@ -102,17 +96,30 @@ public:
 protected:
 	static gboolean timeoutCb(gpointer data)
 	{
-		TestHatoholArmPluginInterface *obj =
-		  static_cast<TestHatoholArmPluginInterface *>(data);
+		TestBasicHatoholArmPluginInterface *obj =
+		  static_cast<TestBasicHatoholArmPluginInterface *>(data);
 		obj->m_testCtx.timedout = true;
 		obj->m_loop.quit();
 		return G_SOURCE_REMOVE;
 	}
 
-private:
 	GMainLoopAgent m_loop;
 	TestContext   &m_testCtx;
 	bool           m_started;
+};
+
+class TestHatoholArmPluginInterface : public TestBasicHatoholArmPluginInterface {
+public:
+	TestHatoholArmPluginInterface(TestContext &ctx)
+	: TestBasicHatoholArmPluginInterface(ctx)
+	{
+	}
+
+	virtual void onReceived(SmartBuffer &smbuf) override
+	{
+		m_testCtx.setReceivedMessage(smbuf);
+		m_loop.quit();
+	}
 };
 
 // ---------------------------------------------------------------------------
@@ -152,6 +159,41 @@ void test_sendAndonReceived(void)
 	cppcut_assert_equal(false, (bool)hapi.getTestContext().timedout);
 	cppcut_assert_equal(testMessage,
 	                    hapi.getTestContext().getReceivedMessage());
+}
+
+void test_registCommandHandler(void)
+{
+	struct Hapi : public TestBasicHatoholArmPluginInterface {
+		TestContext     testCtx;
+		const HapiCommandCode testCmdCode;
+		HapiCommandCode       gotCmdCode;
+
+		Hapi(void)
+		: TestBasicHatoholArmPluginInterface(testCtx),
+		  testCmdCode((HapiCommandCode)5),
+		  gotCmdCode((HapiCommandCode)0)
+		{
+			registCommandHandler(
+			  testCmdCode, (CommandHandler)&Hapi::handler);
+		}
+
+		virtual void onConnected(Connection &conn) override
+		{
+			SmartBuffer cmdBuf(sizeof(HapiCommandHeader));
+			cmdBuf.add16(testCmdCode);
+			send(cmdBuf);
+		}
+
+		void handler(const HapiCommandHeader *header)
+		{
+			gotCmdCode = (HapiCommandCode)header->code;
+			m_loop.quit();
+		}
+	} hapi;
+
+	hapi.run();
+	cppcut_assert_equal(false, (bool)hapi.getTestContext().timedout);
+	cppcut_assert_equal(hapi.testCmdCode, hapi.gotCmdCode);
 }
 
 } // namespace testHatoholArmPluginInterface

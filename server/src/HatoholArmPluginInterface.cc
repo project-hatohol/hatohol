@@ -18,6 +18,7 @@
  */
 
 #include <MutexLock.h>
+#include <SmartBuffer.h>
 #include <Reaper.h>
 #include <qpid/messaging/Address.h>
 #include <qpid/messaging/Connection.h>
@@ -40,11 +41,14 @@ struct HatoholArmPluginInterface::PrivateContext {
 	Session    session;
 	Sender     sender;
 	Receiver   receiver;
+	Message   *currMessage;
+	CommandHandlerMap receiveHandlerMap;
 
 	PrivateContext(HatoholArmPluginInterface *_hapi,
 	               const string &_queueAddr)
 	: hapi(_hapi),
 	  queueAddr(_queueAddr),
+	  currMessage(NULL),
 	  connected(false)
 	{
 	}
@@ -129,11 +133,47 @@ void HatoholArmPluginInterface::send(const string &message)
 	m_ctx->sender.send(request);
 }
 
+void HatoholArmPluginInterface::send(const SmartBuffer &smbuf)
+{
+	Message request;
+	request.setContent(smbuf.getPointer<char>(0), smbuf.size());
+	m_ctx->sender.send(request);
+}
+
+void HatoholArmPluginInterface::reply(const mlpl::SmartBuffer &replyBuf)
+{
+	HATOHOL_ASSERT(m_ctx->currMessage,
+	               "This object doesn't have a current message.\n");
+	const Address& address = m_ctx->currMessage->getReplyTo();
+	if (!address) {
+		MLPL_ERR("No return address.\n");
+		m_ctx->session.reject(*m_ctx->currMessage);
+		return;
+	}
+	Message reply;
+	reply.setContent(replyBuf.getPointer<char>(0), replyBuf.size());
+	Sender sender = m_ctx->session.createSender(address);
+	sender.send(reply);
+}
+
+void HatoholArmPluginInterface::replyError(const HapiResponseCode &code)
+{
+	SmartBuffer replyBuf(sizeof(HapiResponseHeader));
+	replyBuf.add16(code);
+	reply(replyBuf);
+}
+
 void HatoholArmPluginInterface::exitSync(void)
 {
 	requestExit();
 	m_ctx->disconnect();
 	HatoholThreadBase::exitSync();
+}
+
+void HatoholArmPluginInterface::registCommandHandler(
+  const HapiCommandCode &code, CommandHandler handler)
+{
+	m_ctx->receiveHandlerMap[code] = handler;
 }
 
 // ---------------------------------------------------------------------------
@@ -150,7 +190,9 @@ gpointer HatoholArmPluginInterface::mainThread(HatoholThreadArg *arg)
 		SmartBuffer sbuf;
 		load(sbuf, message);
 		sbuf.resetIndex();
+		m_ctx->currMessage = &message;
 		onReceived(sbuf);
+		m_ctx->currMessage = NULL;
 		m_ctx->acknowledge();
 	};
 	m_ctx->disconnect();
@@ -165,8 +207,23 @@ void HatoholArmPluginInterface::onSessionChanged(Session *session)
 {
 }
 
-void HatoholArmPluginInterface::onReceived(mlpl::SmartBuffer &smbuf)
+void HatoholArmPluginInterface::onReceived(mlpl::SmartBuffer &cmdBuf)
 {
+	if (cmdBuf.size() < sizeof(HapiCommandHeader)) {
+		MLPL_INFO("Got too small packet.\n");
+		replyError(HAPI_RES_INVALID_HEADER);
+		return;
+	}
+
+	const HapiCommandHeader *header = cmdBuf.getPointer<HapiCommandHeader>();
+	CommandHandlerMapConstIterator it =
+	  m_ctx->receiveHandlerMap.find(header->code);
+	if (it == m_ctx->receiveHandlerMap.end()) {
+		replyError(HAPI_RES_UNKNOWN_CODE);
+		return;
+	}
+	CommandHandler handler = it->second;
+	(this->*handler)(header);
 }
 
 void HatoholArmPluginInterface::onGotError(
@@ -179,3 +236,4 @@ void HatoholArmPluginInterface::load(SmartBuffer &sbuf, const Message &message)
 {
 	sbuf.addEx(message.getContentPtr(), message.getContentSize());
 }
+

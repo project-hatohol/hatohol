@@ -35,8 +35,32 @@ struct HatoholArmPluginError {
 	HatoholArmPluginErrorCode code;
 };
 
+enum HapiCommandCode {
+	HAPI_CMD_GET_LAST_TRIGGER_TIME,
+	NUM_HAPI_CMD
+};
+
+enum HapiResponseCode {
+	HAPI_RES_OK,
+	HAPI_RES_INVALID_HEADER,
+	HAPI_RES_UNKNOWN_CODE,
+	HAPI_RES_INVALID_ARG,
+	NUM_HAPI_CMD_RES
+};
+
+struct HapiCommandHeader {
+	uint16_t code;
+};
+
+struct HapiResponseHeader {
+	uint16_t code;
+};
+
 class HatoholArmPluginInterface : public HatoholThreadBase {
 public:
+	typedef void (HatoholArmPluginInterface::*CommandHandler)(
+	  const HapiCommandHeader *header);
+
 	HatoholArmPluginInterface(const std::string &queueAddr = "");
 	virtual ~HatoholArmPluginInterface() override;
 
@@ -44,8 +68,27 @@ public:
 
 	void setQueueAddress(const std::string &queueAddr);
 	void send(const std::string &message);
+	void send(const mlpl::SmartBuffer &smbuf);
+
+	void reply(const mlpl::SmartBuffer &replyBuf);
+	void replyError(const HapiResponseCode &code);
+
+	/**
+	 * Register a message receive callback method.
+	 * If the same code is specified more than twice, the handler is
+	 * updated.
+	 *
+	 * @param code HapiCommandCode or HapiServiceCode.
+	 * @param handler A receive handler.
+	 */
+	void registCommandHandler(const HapiCommandCode &code,
+	                          CommandHandler handler);
 
 protected:
+	typedef std::map<uint16_t, CommandHandler> CommandHandlerMap;
+	typedef CommandHandlerMap::iterator        CommandHandlerMapIterator;
+	typedef CommandHandlerMap::const_iterator  CommandHandlerMapConstIterator;
+
 	virtual gpointer mainThread(HatoholThreadArg *arg) override;
 
 	/**
@@ -80,6 +123,7 @@ protected:
 	 */
 	void load(mlpl::SmartBuffer &sbuf,
 	          const qpid::messaging::Message &message);
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
