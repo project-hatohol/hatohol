@@ -28,7 +28,7 @@ using namespace qpid::messaging;
 
 namespace testHatoholArmPluginInterface {
 
-static size_t TIMEOUT = 5000;
+static const size_t TIMEOUT = 5000;
 
 struct TestContext {
 	SimpleSemaphore   sem;
