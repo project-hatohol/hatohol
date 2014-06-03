@@ -56,19 +56,6 @@ struct IssueSenderManager::PrivateContext
 
 IssueSenderManager IssueSenderManager::PrivateContext::instance;
 
-class IssueSenderManager::Worker : public HatoholThreadBase
-{
-public:
-	Worker(void);
-	~Worker();
-
-protected:
-	virtual gpointer mainThread(HatoholThreadArg *arg)
-	{
-		return NULL;
-	}
-};
-
 IssueSenderManager &IssueSenderManager::getInstance(void)
 {
 	return PrivateContext::instance;
