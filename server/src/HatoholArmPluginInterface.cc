@@ -234,7 +234,7 @@ void HatoholArmPluginInterface::onSessionChanged(Session *session)
 void HatoholArmPluginInterface::onReceived(mlpl::SmartBuffer &cmdBuf)
 {
 	if (cmdBuf.size() < sizeof(HapiCommandHeader)) {
-		MLPL_ERR("Got too small packet: %zd.\n", cmdBuf.size());
+		MLPL_ERR("Got a too small packet: %zd.\n", cmdBuf.size());
 		replyError(HAPI_RES_INVALID_HEADER);
 		return;
 	}
