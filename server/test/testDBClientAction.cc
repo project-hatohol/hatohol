@@ -157,11 +157,11 @@ void _assertEqual(const ActionDef &expect, const ActionDef &actual)
 
 static void pickupActionIdsFromTestActionDef(
   ActionIdSet &actionIdSet, const UserIdType &userId,
-  const ActionType &actionType = ACTION_WITHOUT_ISSUE_SENDER)
+  const ActionType &actionType = ACTION_USER_DEFINED)
 {
 	for (size_t i = 0; i < NumTestActionDef; i++) {
 		const ActionDef &actDef = testActionDef[i];
-		if (actionType == ACTION_WITHOUT_ISSUE_SENDER) {
+		if (actionType == ACTION_USER_DEFINED) {
 			if (actDef.type >= ACTION_ISSUE_SENDER)
 				continue;
 		} else if (actionType == ACTION_ALL) {
@@ -179,7 +179,7 @@ static void pickupActionIdsFromTestActionDef(
 
 void _assertGetActionList(
   const UserIdType &userId, const UserIdType &expectUserId,
-  const ActionType &actionType = ACTION_WITHOUT_ISSUE_SENDER)
+  const ActionType &actionType = ACTION_USER_DEFINED)
 {
 	ActionsQueryOption option(userId);
 	option.setActionType(actionType);

@@ -1072,7 +1072,7 @@ size_t getNumberOfTestActions(const ActionType &actionType)
 {
 	size_t num = 0;
 	for (size_t i = 0; i < NumTestActionDef; ++i) {
-		if (actionType == ACTION_WITHOUT_ISSUE_SENDER) {
+		if (actionType == ACTION_USER_DEFINED) {
 			if (testActionDef[i].type < ACTION_ISSUE_SENDER)
 				++num;
 		} else if (actionType == ACTION_ALL) {

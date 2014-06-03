@@ -860,7 +860,7 @@ struct ActionsQueryOption::PrivateContext {
 	ActionType type;
 
 	PrivateContext()
-	: eventInfo(NULL), type(ACTION_WITHOUT_ISSUE_SENDER)
+	: eventInfo(NULL), type(ACTION_USER_DEFINED)
 	{
 	}
 
@@ -975,7 +975,7 @@ const ActionType &ActionsQueryOption::getActionType(void)
 string ActionsQueryOption::PrivateContext::getActionTypeCondition(void)
 {
 	switch(type) {
-	case ACTION_WITHOUT_ISSUE_SENDER:
+	case ACTION_USER_DEFINED:
 		return StringUtils::sprintf(
 			 "(action_type>=0 AND action_type<%d)",
 			 ACTION_ISSUE_SENDER);
