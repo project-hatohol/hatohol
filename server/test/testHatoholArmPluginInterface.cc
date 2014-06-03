@@ -187,7 +187,7 @@ void test_sendAndonReceived(void)
 void test_registCommandHandler(void)
 {
 	struct Hapi : public TestBasicHatoholArmPluginInterface {
-		TestContext     testCtx;
+		TestContext           testCtx;
 		const HapiCommandCode testCmdCode;
 		HapiCommandCode       gotCmdCode;
 		SimpleSemaphore       handlerSem;
@@ -225,7 +225,7 @@ void test_registCommandHandler(void)
 	// send command code and wait for the callback.
 	hapi.sendCmdCode();
 	cppcut_assert_equal(SimpleSemaphore::STAT_OK,
-	                    hapi.handlerSem.timedWait(5000));
+	                    hapi.handlerSem.timedWait(TIMEOUT));
 	cppcut_assert_equal(hapi.testCmdCode, hapi.gotCmdCode);
 }
 
