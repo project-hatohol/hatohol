@@ -18,7 +18,7 @@
  */
 
 #include "IssueSenderManager.h"
-#include "MutexLock.h"
+#include "HatoholThreadBase.h"
 
 using namespace mlpl;
 
@@ -27,6 +27,19 @@ struct IssueSenderManager::PrivateContext {
 };
 
 IssueSenderManager IssueSenderManager::PrivateContext::instance;
+
+class IssueSenderWorker : public HatoholThreadBase
+{
+public:
+	IssueSenderWorker(void);
+	~IssueSenderWorker();
+
+protected:
+	virtual gpointer mainThread(HatoholThreadArg *arg)
+	{
+		return NULL;
+	}
+};
 
 IssueSenderManager &IssueSenderManager::getInstance(void)
 {
