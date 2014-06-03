@@ -39,7 +39,7 @@ static int TIME_OUT = 5000;
 struct StartAndExitArg {
 	MonitoringSystemType monitoringSystemType;
 	bool                 expectedResultOfStart;
-	bool                 runMainLoop;
+	bool                 waitMainSem;
 	bool                 checkMessage;
 	size_t               numRetry;
 	size_t               retrySleepTime; // msec.
@@ -49,7 +49,7 @@ struct StartAndExitArg {
 	StartAndExitArg(void)
 	: monitoringSystemType(MONITORING_SYSTEM_HAPI_TEST),
 	  expectedResultOfStart(false),
-	  runMainLoop(false),
+	  waitMainSem(false),
 	  checkMessage(false),
 	  numRetry(0),
 	  retrySleepTime(1),
@@ -169,7 +169,7 @@ static void _assertStartAndExit(StartAndExitArg &arg)
 	cppcut_assert_equal(arg.expectedResultOfStart, hapg->launchSucceeded);
 
 	SimpleSemaphore::Status status = SimpleSemaphore::STAT_OK;
-	if (arg.runMainLoop)
+	if (arg.waitMainSem)
 		status = hapg->mainSem.timedWait(TIME_OUT);
 
 	pluginGate->exitSync();
@@ -207,7 +207,7 @@ void test_startAndWaitExit(void)
 	StartAndExitArg arg;
 	arg.monitoringSystemType = MONITORING_SYSTEM_HAPI_TEST;
 	arg.expectedResultOfStart = true;
-	arg.runMainLoop = true;
+	arg.waitMainSem = true;
 	arg.checkMessage = true;
 	assertStartAndExit(arg);
 }
@@ -243,7 +243,7 @@ void test_retryToConnect(void)
 	StartAndExitArg arg;
 	arg.monitoringSystemType = MONITORING_SYSTEM_HAPI_TEST;
 	arg.expectedResultOfStart = true;
-	arg.runMainLoop = true;
+	arg.waitMainSem = true;
 	arg.checkMessage = true;
 	arg.numRetry = 3;
 	arg.checkNumRetry = true;
