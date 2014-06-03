@@ -17,13 +17,41 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <queue>
+#include "MutexLock.h"
 #include "IssueSenderManager.h"
 #include "HatoholThreadBase.h"
 
+using namespace std;
 using namespace mlpl;
 
-struct IssueSenderManager::PrivateContext {
+struct IssueSenderManager::Job
+{
+	IssueTrackerIdType trackerId;
+	EventInfo          eventInfo;
+	Job(const IssueTrackerIdType &_trackerId,
+	    const EventInfo &_eventInfo)
+	: trackerId(_trackerId), eventInfo(_eventInfo)
+	{
+	}
+};
+
+struct IssueSenderManager::PrivateContext
+{
 	static IssueSenderManager instance;
+	MutexLock queueLock;
+	std::queue<Job*> queue;
+
+	~PrivateContext()
+	{
+		queueLock.lock();
+		while (!queue.empty()) {
+			Job *job = queue.front();
+			queue.pop();
+			delete job;
+		}
+		queueLock.unlock();
+	}
 };
 
 IssueSenderManager IssueSenderManager::PrivateContext::instance;
@@ -44,6 +72,15 @@ protected:
 IssueSenderManager &IssueSenderManager::getInstance(void)
 {
 	return PrivateContext::instance;
+}
+
+void IssueSenderManager::queue(
+  const IssueTrackerIdType &trackerId, const EventInfo &eventInfo)
+{
+	Job *job = new Job(trackerId, eventInfo);
+	m_ctx->queueLock.lock();
+	m_ctx->queue.push(job);
+	m_ctx->queueLock.unlock();
 }
 
 IssueSenderManager::IssueSenderManager(void)

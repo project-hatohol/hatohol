@@ -20,6 +20,9 @@
 #ifndef IssueSenderManager_h
 #define IssueSenderManager_h
 
+#include "Params.h"
+#include "DBClientHatohol.h"
+
 class IssueSenderManager
 {
 public:
@@ -29,7 +32,11 @@ protected:
 	IssueSenderManager(void);
 	virtual ~IssueSenderManager();
 
+	void queue(const IssueTrackerIdType &trackerId,
+		   const EventInfo &info);
+
 private:
+	struct Job;
 	struct PrivateContext;
 	PrivateContext *m_ctx;
 };
