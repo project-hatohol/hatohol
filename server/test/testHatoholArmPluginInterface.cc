@@ -28,14 +28,16 @@ using namespace qpid::messaging;
 
 namespace testHatoholArmPluginInterface {
 
+static size_t TIMEOUT = 5000;
+
 struct TestContext {
-	AtomicValue<bool> timedout;
+	SimpleSemaphore   sem;
 	AtomicValue<bool> connected;
 	AtomicValue<bool> quitOnConnected;
 	AtomicValue<bool> quitOnReceived;
 
 	TestContext(void)
-	: timedout(false),
+	: sem(0),
 	  connected(false),
 	  quitOnConnected(false),
 	  quitOnReceived(false)
@@ -72,9 +74,10 @@ class TestBasicHatoholArmPluginInterface : public HatoholArmPluginInterface {
 			ctx.quitOnConnected = true;
 			obj = new TestBasicHatoholArmPluginInterface(
 			            ctx, queueAddr, false);
-			obj->run();
+			obj->start();
 			cppcut_assert_equal(
-			  false, (bool)obj->getTestContext().timedout);
+			  SimpleSemaphore::STAT_OK,
+			  obj->getTestContext().sem.timedWait(TIMEOUT));
 		}
 
 		virtual ~OtherSide()
@@ -90,8 +93,7 @@ public:
 	  const string &addr = "test-hatohol-arm-plugin-interface",
 	  const bool workInServer = true)
 	: HatoholArmPluginInterface(addr, workInServer),
-	  m_testCtx(ctx),
-	  m_started(false)
+	  m_testCtx(ctx)
 	{
 	}
 
@@ -99,16 +101,7 @@ public:
 	{
 		m_testCtx.connected = true;
 		if (m_testCtx.quitOnConnected)
-			m_loop.quit();
-	}
-
-	void run(void)
-	{
-		if (!m_started) {
-			start();
-			m_started = true;
-		}
-		m_loop.run(timeoutCb, this);
+			m_testCtx.sem.post();
 	}
 
 	TestContext &getTestContext(void)
@@ -129,18 +122,8 @@ public:
 	}
 
 protected:
-	static gboolean timeoutCb(gpointer data)
-	{
-		TestBasicHatoholArmPluginInterface *obj =
-		  static_cast<TestBasicHatoholArmPluginInterface *>(data);
-		obj->m_testCtx.timedout = true;
-		obj->m_loop.quit();
-		return G_SOURCE_REMOVE;
-	}
 
-	GMainLoopAgent m_loop;
-	TestContext   &m_testCtx;
-	bool           m_started;
+	TestContext &m_testCtx;
 };
 
 class TestHatoholArmPluginInterface : public TestBasicHatoholArmPluginInterface {
@@ -173,8 +156,9 @@ void test_onConnected(void)
 	TestContext testCtx;
 	testCtx.quitOnConnected = true;
 	TestHatoholArmPluginInterface hapi(testCtx);
-	hapi.run();
-	cppcut_assert_equal(false, (bool)testCtx.timedout);
+	hapi.start();
+	cppcut_assert_equal(SimpleSemaphore::STAT_OK,
+	                    testCtx.sem.timedWait(TIMEOUT));
 	cppcut_assert_equal(true, (bool)testCtx.connected);
 }
 
@@ -186,15 +170,16 @@ void test_sendAndonReceived(void)
 	// wait for connection
 	testCtx.quitOnConnected = true;
 	TestHatoholArmPluginInterface hapi(testCtx);
-	hapi.run();
-	cppcut_assert_equal(false, (bool)hapi.getTestContext().timedout);
+	hapi.start();
+	cppcut_assert_equal(SimpleSemaphore::STAT_OK,
+	                    testCtx.sem.timedWait(TIMEOUT));
 
 	// send the message and receive it
 	hapi.sendAsOther(testMessage);
 	testCtx.quitOnConnected = false;
 	testCtx.quitOnReceived = true;
 	cppcut_assert_equal(SimpleSemaphore::STAT_OK,
-	                    hapi.rcvSem.timedWait(5000));
+	                    hapi.rcvSem.timedWait(TIMEOUT));
 	cppcut_assert_equal(testMessage,
 	                    hapi.getTestContext().getReceivedMessage());
 }
@@ -233,8 +218,9 @@ void test_registCommandHandler(void)
 	} hapi;
 
 	// wait for conection
-	hapi.run();
-	cppcut_assert_equal(false, (bool)hapi.getTestContext().timedout);
+	hapi.start();
+	cppcut_assert_equal(SimpleSemaphore::STAT_OK,
+	                    hapi.testCtx.sem.timedWait(TIMEOUT));
 
 	// send command code and wait for the callback.
 	hapi.sendCmdCode();
