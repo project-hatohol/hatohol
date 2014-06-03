@@ -63,36 +63,27 @@ class TestHatoholArmPluginGate : public HatoholArmPluginGate {
 public:
 	static const size_t TIMEOUT_MSEC = 5000;
 	const StartAndExitArg &arg;
-	bool       timedOut;
 	bool       abnormalChildTerm;
 	string     rcvMessage;
 	bool       gotUnexceptedException;
 	size_t     retryCount;
-	guint      cancelTimerTag;
 	SimpleSemaphore launchedSem;
 	bool            launchSucceeded;
+	SimpleSemaphore mainSem;
 
-	GMainLoopAgent loop;
 	TestHatoholArmPluginGate(const MonitoringServerInfo &serverInfo,
 	                         const StartAndExitArg &_arg)
 	: HatoholArmPluginGate(serverInfo),
 	  arg(_arg),
-	  timedOut(false),
 	  abnormalChildTerm(false),
 	  gotUnexceptedException(false),
 	  retryCount(0),
-	  cancelTimerTag(INVALID_EVENT_ID),
 	  launchedSem(0),
-	  launchSucceeded(false)
+	  launchSucceeded(false),
+	  mainSem(0)
 	{
 	}
 	
-	virtual ~TestHatoholArmPluginGate()
-	{
-		if (cancelTimerTag != INVALID_EVENT_ID)
-			g_source_remove(cancelTimerTag);
-	}
-
 	static string callGenerateBrokerAddress(
 	  const MonitoringServerInfo &serverInfo)
 	{
@@ -116,7 +107,7 @@ public:
 		if (arg.numRetry && retryCount <= arg.numRetry)
 			return;
 		rcvMessage = string(smbuf, smbuf.size());
-		loop.quit();
+		mainSem.post();
 	}
 
 	virtual void onTerminated(const siginfo_t *siginfo) override
@@ -125,7 +116,7 @@ public:
 		    siginfo->si_code  == CLD_EXITED) {
 			return;
 		}
-		loop.quit();
+		mainSem.post();
 		abnormalChildTerm = true;
 		MLPL_ERR("si_signo: %d, si_code: %d\n",
 		         siginfo->si_signo, siginfo->si_code);
@@ -151,37 +142,11 @@ public:
 		launchedSem.post();
 	}
 
-	// We assume this funciton is called from the main test thread.
-	void mainLoopRun(void)
-	{
-		loop.run(timeOutFunc, this);
-	}
-
-	static gboolean timeOutFunc(gpointer data)
-	{
-		TestHatoholArmPluginGate *obj =
-		  static_cast<TestHatoholArmPluginGate *>(data);
-		obj->timedOut = true;
-		obj->loop.quit();
-		return G_SOURCE_REMOVE;
-	}
-
 	void canncelRetrySleepIfNeeded(void)
 	{
 		if (!arg.cancelRetrySleep)
 			return;
-
-		struct TimerCtx {
-			static gboolean func(gpointer data)
-			{
-				TestHatoholArmPluginGate *obj =
-				  static_cast<TestHatoholArmPluginGate *>(data);
-				obj->cancelTimerTag = INVALID_EVENT_ID;
-				obj->loop.quit();
-				return G_SOURCE_REMOVE;
-			}
-		};
-		cancelTimerTag = g_timeout_add(1, TimerCtx::func, this);
+		mainSem.post();
 	}
 };
 
@@ -203,13 +168,14 @@ static void _assertStartAndExit(StartAndExitArg &arg)
 	  SimpleSemaphore::STAT_OK, hapg->launchedSem.timedWait(TIME_OUT));
 	cppcut_assert_equal(arg.expectedResultOfStart, hapg->launchSucceeded);
 
+	SimpleSemaphore::Status status = SimpleSemaphore::STAT_OK;
 	if (arg.runMainLoop)
-		hapg->mainLoopRun();
+		status = hapg->mainSem.timedWait(TIME_OUT);
 
 	pluginGate->exitSync();
 	// These assertions must be after pluginGate->exitSync()
 	// to be sure to exit the thread.
-	cppcut_assert_equal(false, hapg->timedOut);
+	cppcut_assert_equal(SimpleSemaphore::STAT_OK, status);
 	cppcut_assert_equal(false, armStatus.getArmInfo().running);
 	cppcut_assert_equal(false, hapg->abnormalChildTerm);
 	if (arg.checkMessage)
