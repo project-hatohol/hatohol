@@ -44,4 +44,11 @@ void test_postAndWait(void)
 	cppcut_assert_equal(0, sem.wait());
 }
 
+void test_timedWait(void)
+{
+	SimpleSemaphore sem(1);
+	cppcut_assert_equal(SimpleSemaphore::STAT_OK, sem.timedWait(1));
+	cppcut_assert_equal(SimpleSemaphore::STAT_TIMEDOUT, sem.timedWait(1));
+}
+
 } // namespace testSimpleSemaphore

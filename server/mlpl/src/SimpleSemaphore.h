@@ -24,6 +24,12 @@ namespace mlpl {
 
 class SimpleSemaphore {
 public:
+	enum Status {
+		STAT_OK,
+		STAT_TIMEDOUT,
+		STAT_ERROR_UNKNOWN,
+	};
+
 	/**
 	 * A constructor of SimpleSemaphore.
 	 *
@@ -46,6 +52,14 @@ public:
 	 * @return 0 on Succeess, or errno if an error occured.
 	 */
 	int wait(void);
+
+	/**
+	 * Wait a semaphore with a timeout value.
+	 *
+	 * @param timeoutInMSec A timeout in millisecond.
+	 * @return the return status.
+	 */
+	Status timedWait(size_t timeoutInMSec);
 
 private:
 	struct PrivateContext;
