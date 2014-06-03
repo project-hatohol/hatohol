@@ -177,9 +177,11 @@ void HatoholArmPluginInterface::reply(const mlpl::SmartBuffer &replyBuf)
 
 void HatoholArmPluginInterface::replyError(const HapiResponseCode &code)
 {
-	SmartBuffer replyBuf(sizeof(HapiResponseHeader));
-	replyBuf.add16(code);
-	reply(replyBuf);
+	SmartBuffer resBuf(sizeof(HapiResponseHeader));
+	HapiResponseHeader *header = resBuf.getPointer<HapiResponseHeader>();
+	header->type = HAPI_MSG_RESPONSE;
+	header->code = code;
+	reply(resBuf);
 }
 
 void HatoholArmPluginInterface::exitSync(void)
@@ -231,15 +233,31 @@ void HatoholArmPluginInterface::onSessionChanged(Session *session)
 {
 }
 
-void HatoholArmPluginInterface::onReceived(mlpl::SmartBuffer &cmdBuf)
+void HatoholArmPluginInterface::onReceived(mlpl::SmartBuffer &smbuf)
 {
-	if (cmdBuf.size() < sizeof(HapiCommandHeader)) {
-		MLPL_ERR("Got a too small packet: %zd.\n", cmdBuf.size());
+	if (smbuf.size() < sizeof(HapiCommandHeader)) {
+		MLPL_ERR("Got a too small packet: %zd.\n", smbuf.size());
 		replyError(HAPI_RES_INVALID_HEADER);
 		return;
 	}
 
-	const HapiCommandHeader *header = cmdBuf.getPointer<HapiCommandHeader>();
+	const uint16_t type = smbuf.getValue<uint16_t>();
+	switch (type) {
+	case HAPI_MSG_COMMAND:
+		parseCommand(smbuf.getPointer<HapiCommandHeader>(), smbuf);
+		break;
+	case HAPI_MSG_RESPONSE:
+		parseResponse(smbuf.getPointer<HapiResponseHeader>(), smbuf);
+		break;
+	default:
+		MLPL_ERR("Got an invalid message type: %d.\n", type);
+		replyError(HAPI_RES_INVALID_HEADER);
+	}
+}
+
+void HatoholArmPluginInterface::parseCommand(
+  const HapiCommandHeader *header, mlpl::SmartBuffer &cmdBuf)
+{
 	CommandHandlerMapConstIterator it =
 	  m_ctx->receiveHandlerMap.find(header->code);
 	if (it == m_ctx->receiveHandlerMap.end()) {
@@ -250,10 +268,21 @@ void HatoholArmPluginInterface::onReceived(mlpl::SmartBuffer &cmdBuf)
 	(this->*handler)(header);
 }
 
+void HatoholArmPluginInterface::parseResponse(
+  const HapiResponseHeader *header, mlpl::SmartBuffer &resBuf)
+{
+	onGotResponse(header, resBuf);
+}
+
 void HatoholArmPluginInterface::onGotError(
   const HatoholArmPluginError &hapError)
 {
 	THROW_HATOHOL_EXCEPTION("Got error: %d\n", hapError.code);
+}
+
+void HatoholArmPluginInterface::onGotResponse(
+  const HapiResponseHeader *header, mlpl::SmartBuffer &resBuf)
+{
 }
 
 void HatoholArmPluginInterface::load(SmartBuffer &sbuf, const Message &message)

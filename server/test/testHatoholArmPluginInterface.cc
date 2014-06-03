@@ -206,7 +206,10 @@ void test_registCommandHandler(void)
 		void sendCmdCode(void)
 		{
 			SmartBuffer cmdBuf(sizeof(HapiCommandHeader));
-			cmdBuf.add16(testCmdCode);
+			HapiCommandHeader *header =
+			  cmdBuf.getPointer<HapiCommandHeader>();
+			header->type = HAPI_MSG_COMMAND;
+			header->code = testCmdCode;
 			sendAsOther(cmdBuf);
 		}
 

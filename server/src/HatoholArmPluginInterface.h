@@ -35,6 +35,12 @@ struct HatoholArmPluginError {
 	HatoholArmPluginErrorCode code;
 };
 
+enum HapiMessageType {
+	HAPI_MSG_COMMAND,
+	HAPI_MSG_RESPONSE,
+	NUM_HAPI_MSG
+};
+
 enum HapiCommandCode {
 	HAPI_CMD_GET_LAST_TRIGGER_TIME,
 	NUM_HAPI_CMD
@@ -48,11 +54,19 @@ enum HapiResponseCode {
 	NUM_HAPI_CMD_RES
 };
 
+// ---------------------------------------------------------------------------
+// Structure of the message header
+//
+// [ 2B] HapiMessageType
+//       HapiCommandHeader or HapiResponseHeader
+// ---------------------------------------------------------------------------
 struct HapiCommandHeader {
+	uint16_t type;
 	uint16_t code;
 };
 
 struct HapiResponseHeader {
+	uint16_t type;
 	uint16_t code;
 };
 
@@ -119,6 +133,15 @@ protected:
 	virtual void onGotError(const HatoholArmPluginError &hapError);
 
 	/**
+	 * Called when a HAPI's response is received.
+	 *
+	 * @param smbuf
+	 * A received response. The index of smbuf has been reset to zero.
+	 */
+	virtual void onGotResponse(const HapiResponseHeader *header,
+	                           mlpl::SmartBuffer &resBuf);
+
+	/**
 	 * Fill data to a smart buffer.
 	 *
 	 * @param sbuf    A smart buffer to be setup.
@@ -126,6 +149,11 @@ protected:
 	 */
 	void load(mlpl::SmartBuffer &sbuf,
 	          const qpid::messaging::Message &message);
+
+	void parseCommand(const HapiCommandHeader *header,
+	                  mlpl::SmartBuffer &cmdBuf);
+	void parseResponse(const HapiResponseHeader *header,
+	                   mlpl::SmartBuffer &resBuf);
 
 private:
 	struct PrivateContext;
