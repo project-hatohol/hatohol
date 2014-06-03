@@ -36,7 +36,6 @@ protected:
 		   const EventInfo &info);
 
 private:
-	struct Job;
 	struct PrivateContext;
 	PrivateContext *m_ctx;
 };
