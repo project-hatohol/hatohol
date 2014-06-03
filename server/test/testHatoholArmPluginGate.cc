@@ -21,6 +21,7 @@
 #include <string>
 #include <qpid/messaging/Message.h>
 #include <MutexLock.h>
+#include <SimpleSemaphore.h>
 #include "HatoholArmPluginGate.h"
 #include "DBClientTest.h"
 #include "Helpers.h"
@@ -32,6 +33,8 @@ using namespace mlpl;
 using namespace qpid::messaging;
 
 namespace testHatoholArmPluginGate {
+
+static int TIME_OUT = 5000;
 
 struct StartAndExitArg {
 	MonitoringSystemType monitoringSystemType;
@@ -66,6 +69,8 @@ public:
 	bool       gotUnexceptedException;
 	size_t     retryCount;
 	guint      cancelTimerTag;
+	SimpleSemaphore launchedSem;
+	bool            launchSucceeded;
 
 	GMainLoopAgent loop;
 	TestHatoholArmPluginGate(const MonitoringServerInfo &serverInfo,
@@ -76,7 +81,9 @@ public:
 	  abnormalChildTerm(false),
 	  gotUnexceptedException(false),
 	  retryCount(0),
-	  cancelTimerTag(INVALID_EVENT_ID)
+	  cancelTimerTag(INVALID_EVENT_ID),
+	  launchedSem(0),
+	  launchSucceeded(false)
 	{
 	}
 	
@@ -137,6 +144,13 @@ public:
 		return HatoholArmPluginGate::NO_RETRY;
 	}
 
+	virtual void onLaunchedProcess(
+	  const bool &succeeded, const ArmPluginInfo &armPluginInfo) override
+	{
+		launchSucceeded = succeeded;
+		launchedSem.post();
+	}
+
 	// We assume this funciton is called from the main test thread.
 	void mainLoopRun(void)
 	{
@@ -177,16 +191,17 @@ static void _assertStartAndExit(StartAndExitArg &arg)
 	loadTestDBArmPlugin();
 	MonitoringServerInfo serverInfo;
 	initServerInfo(serverInfo);
+	serverInfo.type = arg.monitoringSystemType;
 	TestHatoholArmPluginGate *hapg =
 	  new TestHatoholArmPluginGate(serverInfo, arg);
 	HatoholArmPluginGatePtr pluginGate(hapg, false);
 	const ArmStatus &armStatus = pluginGate->getArmStatus();
 	cppcut_assert_equal(false, armStatus.getArmInfo().running);
+	pluginGate->start();
+	cppcut_assert_equal(true, armStatus.getArmInfo().running);
 	cppcut_assert_equal(
-	  arg.expectedResultOfStart,
-	  pluginGate->start(arg.monitoringSystemType));
-	cppcut_assert_equal(
-	  arg.expectedResultOfStart, armStatus.getArmInfo().running);
+	  SimpleSemaphore::STAT_OK, hapg->launchedSem.timedWait(TIME_OUT));
+	cppcut_assert_equal(arg.expectedResultOfStart, hapg->launchSucceeded);
 
 	if (arg.runMainLoop)
 		hapg->mainLoopRun();

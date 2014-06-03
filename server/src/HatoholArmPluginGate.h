@@ -36,13 +36,9 @@ public:
 	HatoholArmPluginGate(const MonitoringServerInfo &serverInfo);
 
 	/**
-	 * Start an initiation. This typically launch a plugin process.
-	 *
-	 * @param type A monitoring system type.
-	 *
-	 * @return true if successfully started. Or false is returned.
+	 * Start the plugin gate thread.
 	 */
-	bool start(const MonitoringSystemType &type);
+	void start(void);
 
 	/**
 	 * Reutrn an ArmStatus instance.
@@ -73,6 +69,8 @@ protected:
 
 	virtual void onTerminated(const siginfo_t *siginfo) override;
 
+	virtual void onConnected(qpid::messaging::Connection &conn) override;
+
 	/**
 	 * Called when an exception was caught.
 	 *
@@ -83,6 +81,9 @@ protected:
 	 * millisecond. If the value is NO_RETRY, the retry won't be done.
 	 */
 	virtual int onCaughtException(const std::exception &e) override;
+
+	virtual void onLaunchedProcess(
+	  const bool &succeeded, const ArmPluginInfo &armPluginInfo);
 
 	bool launchPluginProcess(const ArmPluginInfo &armPluginInfo);
 	static std::string generateBrokerAddress(

@@ -74,28 +74,10 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 	setQueueAddress(address);
 }
 
-bool HatoholArmPluginGate::start(const MonitoringSystemType &type)
+void HatoholArmPluginGate::start(void)
 {
-	CacheServiceDBClient cache;
-	DBClientConfig *dbConfig = cache.getConfig();
-	if (!dbConfig->getArmPluginInfo(m_ctx->armPluginInfo, type)) {
-		MLPL_ERR("Failed to get ArmPluginInfo: type: %d\n", type);
-		return false;
-	}
-	if (m_ctx->armPluginInfo.path == PassivePluginQuasiPath) {
-		MLPL_INFO("Started: passive plugin (%d) %s\n",
-		          m_ctx->armPluginInfo.type,
-		          m_ctx->armPluginInfo.path.c_str());
-	} else {
-		// launch a plugin process
-		if (!launchPluginProcess(m_ctx->armPluginInfo))
-			return false;
-	}
-
-	// start a thread
 	m_ctx->armStatus.setRunningStatus(true);
 	HatoholArmPluginInterface::start();
-	return true;
 }
 
 const ArmStatus &HatoholArmPluginGate::getArmStatus(void) const
@@ -120,6 +102,32 @@ HatoholArmPluginGate::~HatoholArmPluginGate()
 
 void HatoholArmPluginGate::onTerminated(const siginfo_t *siginfo)
 {
+	m_ctx->pid = 0;
+}
+
+void HatoholArmPluginGate::onConnected(qpid::messaging::Connection &conn)
+{
+	if (m_ctx->pid)
+		return;
+
+	CacheServiceDBClient cache;
+	const MonitoringSystemType &type = m_ctx->serverInfo.type;
+	DBClientConfig *dbConfig = cache.getConfig();
+	if (!dbConfig->getArmPluginInfo(m_ctx->armPluginInfo, type)) {
+		MLPL_ERR("Failed to get ArmPluginInfo: type: %d\n", type);
+		return;
+	}
+	if (m_ctx->armPluginInfo.path == PassivePluginQuasiPath) {
+		MLPL_INFO("Started: passive plugin (%d) %s\n",
+		          m_ctx->armPluginInfo.type,
+		          m_ctx->armPluginInfo.path.c_str());
+		onLaunchedProcess(true, m_ctx->armPluginInfo);
+		return;
+	}
+
+	// launch a plugin process
+	bool succeeded = launchPluginProcess(m_ctx->armPluginInfo);
+	onLaunchedProcess(succeeded, m_ctx->armPluginInfo);
 }
 
 int HatoholArmPluginGate::onCaughtException(const exception &e)
@@ -127,6 +135,11 @@ int HatoholArmPluginGate::onCaughtException(const exception &e)
 	MLPL_INFO("Caught an exception: %s. Retry afeter %d ms.\n",
 	          e.what(), DEFAULT_RETRY_INTERVAL);
 	return DEFAULT_RETRY_INTERVAL;
+}
+
+void HatoholArmPluginGate::onLaunchedProcess(
+  const bool &succeeded, const ArmPluginInfo &armPluginInfo)
+{
 }
 
 bool HatoholArmPluginGate::launchPluginProcess(
@@ -168,6 +181,7 @@ bool HatoholArmPluginGate::launchPluginProcess(
 		return false;
 	}
 
+	m_ctx->pid = arg.pid;
 	MLPL_INFO("Started: plugin (%d) %s\n",
 	          armPluginInfo.type, armPluginInfo.path.c_str());
 	return true;
