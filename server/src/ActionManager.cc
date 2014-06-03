@@ -580,6 +580,8 @@ HatoholError ActionManager::runAction(const ActionDef &actionDef,
 		execCommandAction(actionDef, eventInfo, dbAction);
 	} else if (actionDef.type == ACTION_RESIDENT) {
 		execResidentAction(actionDef, eventInfo, dbAction);
+	} else if (actionDef.type == ACTION_ISSUE_SENDER) {
+		execIssueSenderAction(actionDef, eventInfo, dbAction);
 	} else {
 		HATOHOL_ASSERT(true, "Unknown type: %d\n", actionDef.type);
 	}
@@ -1257,6 +1259,20 @@ void ActionManager::notifyEvent(ResidentInfo *residentInfo,
 	HATOHOL_ASSERT(notifyInfo->logId != INVALID_ACTION_LOG_ID,
 	               "An action log ID is not set.");
 	dbAction.updateLogStatusToStart(notifyInfo->logId);
+}
+
+/*
+ * executed on the following thread(s)
+ * - Threads that call checkEvents()
+ *     [from runAction()]
+ */
+void ActionManager::execIssueSenderAction(const ActionDef &actionDef,
+					  const EventInfo &eventInfo,
+					  DBClientAction &dbAction)
+{
+	HATOHOL_ASSERT(actionDef.type == ACTION_ISSUE_SENDER,
+	               "Invalid type: %d\n", actionDef.type);
+	// TODO: queue the action
 }
 
 /*
