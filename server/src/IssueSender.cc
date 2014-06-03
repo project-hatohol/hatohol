@@ -22,6 +22,7 @@
 #include "LabelUtils.h"
 #include "CacheServiceDBClient.h"
 #include "MutexLock.h"
+#include "SimpleSemaphore.h"
 #include <time.h>
 #include <queue>
 
@@ -39,9 +40,16 @@ struct IssueSender::Job
 
 struct IssueSender::PrivateContext
 {
+	AtomicValue<bool> quitRequest;
 	IssueTrackerInfo issueTrackerInfo;
 	MutexLock queueLock;
 	std::queue<Job*> queue;
+	SimpleSemaphore jobSemaphore;
+
+	PrivateContext()
+	: quitRequest(false)
+	{
+	}
  
 	~PrivateContext()
 	{
@@ -58,6 +66,7 @@ struct IssueSender::PrivateContext
 	{
 		queueLock.lock();
 		queue.push(job);
+		jobSemaphore.post();
 		queueLock.unlock();
 	}
 
@@ -71,6 +80,15 @@ struct IssueSender::PrivateContext
 		}
 		queueLock.unlock();
 		return job;
+	}
+
+	Job *waitNextJob(void)
+	{
+		jobSemaphore.wait();
+		if (quitRequest.get())
+			return NULL;
+		else
+			return popJob();
 	}
 };
 
@@ -178,6 +196,16 @@ string IssueSender::buildDescription(const EventInfo &event,
 
 gpointer IssueSender::mainThread(HatoholThreadArg *arg)
 {
-	// TODO: implement
+	const IssueTrackerInfo &tracker = m_ctx->issueTrackerInfo;
+	Job *job;
+	MLPL_INFO("Start IssueSender thread for %" FMT_ISSUE_TRACKER_ID ":%s\n",
+		  tracker.id, tracker.nickname.c_str());
+	while ((job = m_ctx->waitNextJob())) {
+		if (!m_ctx->quitRequest.get())
+			send(job->eventInfo);
+		delete job;
+	}
+	MLPL_INFO("Exited IssueSender thread for %" FMT_ISSUE_TRACKER_ID ":%s\n",
+		  tracker.id, tracker.nickname.c_str());
 	return NULL;
 }
