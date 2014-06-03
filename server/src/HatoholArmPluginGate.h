@@ -71,7 +71,7 @@ protected:
 	// To avoid an instance from being created on a stack.
 	virtual ~HatoholArmPluginGate();
 
-	virtual void onTerminated(const siginfo_t *siginfo);
+	virtual void onTerminated(const siginfo_t *siginfo) override;
 
 	/**
 	 * Called when an exception was caught.
