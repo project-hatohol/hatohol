@@ -126,3 +126,9 @@ string IssueSender::buildDescription(const EventInfo &event,
 		  LabelUtils::getTriggerSeverityLabel(event.severity).c_str());
 	return desc;
 }
+
+gpointer IssueSender::mainThread(HatoholThreadArg *arg)
+{
+	// TODO: implement
+	return NULL;
+}

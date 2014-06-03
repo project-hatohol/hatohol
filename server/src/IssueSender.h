@@ -23,8 +23,9 @@
 #include "HatoholError.h"
 #include "DBClientConfig.h"
 #include "DBClientHatohol.h"
+#include "HatoholThreadBase.h"
 
-class IssueSender
+class IssueSender : public HatoholThreadBase
 {
 public:
 	IssueSender(const IssueTrackerInfo &tracker);
@@ -40,6 +41,8 @@ protected:
 			       const MonitoringServerInfo *server);
 	std::string buildDescription(const EventInfo &event,
 				     const MonitoringServerInfo *server);
+
+	virtual gpointer mainThread(HatoholThreadArg *arg); // override
 
 private:
 	struct PrivateContext;
