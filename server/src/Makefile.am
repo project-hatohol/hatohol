@@ -52,6 +52,7 @@ libhatohol_la_SOURCES = \
 	HostResourceQueryOption.cc HostResourceQueryOption.h \
 	HatoholArmPluginInterface.cc HatoholArmPluginInterface.h \
 	HatoholArmPluginGate.cc HatoholArmPluginGate.h \
+	HatoholArmPluginBase.cc HatoholArmPluginBase.h \
 	HapgZabbixAPI.cc HapgZabbixAPI.h \
 	ItemData.cc ItemData.h \
 	ItemDataPtr.h \
