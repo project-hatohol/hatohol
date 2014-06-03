@@ -18,9 +18,20 @@
  */
 
 #include "IssueSenderManager.h"
+#include "MutexLock.h"
 
-class IssueSenderManager::PrivateContext {
+using namespace mlpl;
+
+struct IssueSenderManager::PrivateContext {
+	static IssueSenderManager instance;
 };
+
+IssueSenderManager IssueSenderManager::PrivateContext::instance;
+
+IssueSenderManager &IssueSenderManager::getInstance(void)
+{
+	return PrivateContext::instance;
+}
 
 IssueSenderManager::IssueSenderManager(void)
 {

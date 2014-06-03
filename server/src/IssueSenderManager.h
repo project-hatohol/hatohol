@@ -23,6 +23,9 @@
 class IssueSenderManager
 {
 public:
+	static IssueSenderManager &getInstance(void);
+
+protected:
 	IssueSenderManager(void);
 	virtual ~IssueSenderManager();
 
