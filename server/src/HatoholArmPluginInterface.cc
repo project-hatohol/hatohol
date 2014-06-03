@@ -36,7 +36,8 @@ using namespace qpid::messaging;
 
 struct HatoholArmPluginInterface::PrivateContext {
 	HatoholArmPluginInterface *hapi;
-	string queueAddr;
+	bool       workInServer;
+	string     queueAddr;
 	Connection connection;
 	Session    session;
 	Sender     sender;
@@ -45,8 +46,10 @@ struct HatoholArmPluginInterface::PrivateContext {
 	CommandHandlerMap receiveHandlerMap;
 
 	PrivateContext(HatoholArmPluginInterface *_hapi,
-	               const string &_queueAddr)
+	               const string &_queueAddr,
+	               const bool &_workInServer)
 	: hapi(_hapi),
+	  workInServer(_workInServer),
 	  queueAddr(_queueAddr),
 	  currMessage(NULL),
 	  connected(false)
@@ -56,6 +59,11 @@ struct HatoholArmPluginInterface::PrivateContext {
 	virtual ~PrivateContext()
 	{
 		disconnect();
+	}
+
+	void setQueueAddress(const string &_queueAddr)
+	{
+		queueAddr = _queueAddr;
 	}
 
 	void connect(void)
@@ -68,8 +76,18 @@ struct HatoholArmPluginInterface::PrivateContext {
 		connection = Connection(brokerUrl, connectionOptions);
 		connection.open();
 		session = connection.createSession();
-		sender = session.createSender(queueAddr);
-		receiver = session.createReceiver(queueAddr);
+
+		string queueAddrS = queueAddr + "-S"; // Plugin -> Hatohol
+		string queueAddrT = queueAddr + "-T"; // Plugin <- Hatohol
+		if (workInServer) {
+			queueAddrS += "; {create: always}";
+			queueAddrT += "; {create: always}";
+			sender = session.createSender(queueAddrT);
+			receiver = session.createReceiver(queueAddrS);
+		} else {
+			sender = session.createSender(queueAddrS);
+			receiver = session.createReceiver(queueAddrT);
+		}
 		connected = true;
 		hapi->onConnected(connection);
 		hapi->onSessionChanged(&session);
@@ -108,10 +126,11 @@ private:
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-HatoholArmPluginInterface::HatoholArmPluginInterface(const string &queueAddr)
+HatoholArmPluginInterface::HatoholArmPluginInterface(
+  const string &queueAddr, const bool &workInServer)
 : m_ctx(NULL)
 {
-	m_ctx = new PrivateContext(this, queueAddr);
+	m_ctx = new PrivateContext(this, queueAddr, workInServer);
 }
 
 HatoholArmPluginInterface::~HatoholArmPluginInterface()
@@ -123,7 +142,7 @@ HatoholArmPluginInterface::~HatoholArmPluginInterface()
 
 void HatoholArmPluginInterface::setQueueAddress(const string &queueAddr)
 {
-	m_ctx->queueAddr = queueAddr;
+	m_ctx->setQueueAddress(queueAddr);
 }
 
 void HatoholArmPluginInterface::send(const string &message)
@@ -174,6 +193,11 @@ void HatoholArmPluginInterface::registCommandHandler(
   const HapiCommandCode &code, CommandHandler handler)
 {
 	m_ctx->receiveHandlerMap[code] = handler;
+}
+
+const string &HatoholArmPluginInterface::getQueueAddress(void) const
+{
+	return m_ctx->queueAddr;
 }
 
 // ---------------------------------------------------------------------------

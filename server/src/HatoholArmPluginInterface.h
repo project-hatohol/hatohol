@@ -61,7 +61,8 @@ public:
 	typedef void (HatoholArmPluginInterface::*CommandHandler)(
 	  const HapiCommandHeader *header);
 
-	HatoholArmPluginInterface(const std::string &queueAddr = "");
+	HatoholArmPluginInterface(const std::string &queueAddr = "",
+	                          const bool &workInServer = false);
 	virtual ~HatoholArmPluginInterface() override;
 
 	virtual void exitSync(void) override;
@@ -83,6 +84,8 @@ public:
 	 */
 	void registCommandHandler(const HapiCommandCode &code,
 	                          CommandHandler handler);
+
+	const std::string &getQueueAddress(void) const;
 
 protected:
 	typedef std::map<uint16_t, CommandHandler> CommandHandlerMap;

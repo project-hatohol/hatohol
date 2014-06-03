@@ -48,9 +48,7 @@ public:
 			onGotError(hapError);
 			return;
 		}
-		string queueAddr = envQueueAddr;
-		queueAddr += "; {create: always}";
-		setQueueAddress(queueAddr);
+		setQueueAddress(envQueueAddr);
 	}
 
 	void waitSent(void)

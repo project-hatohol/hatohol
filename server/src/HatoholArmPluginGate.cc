@@ -65,12 +65,12 @@ const string HatoholArmPluginGate::PassivePluginQuasiPath = "#PASSIVE_PLUGIN#";
 // ---------------------------------------------------------------------------
 HatoholArmPluginGate::HatoholArmPluginGate(
   const MonitoringServerInfo &serverInfo)
-: m_ctx(NULL)
+: HatoholArmPluginInterface("", true),
+  m_ctx(NULL)
 {
 	m_ctx = new PrivateContext(serverInfo, this);
 
 	string address = generateBrokerAddress(m_ctx->serverInfo);
-	address += "; {create: always}";
 	setQueueAddress(address);
 }
 
