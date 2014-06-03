@@ -32,6 +32,7 @@ public:
 	virtual ~IssueSender();
 
 	virtual HatoholError send(const EventInfo &event) = 0;
+	void queue(const EventInfo &eventInfo);
 
 protected:
 	const IssueTrackerInfo &getIssueTrackerInfo(void);
@@ -45,6 +46,7 @@ protected:
 	virtual gpointer mainThread(HatoholThreadArg *arg); // override
 
 private:
+	struct Job;
 	struct PrivateContext;
 	PrivateContext *m_ctx;
 };

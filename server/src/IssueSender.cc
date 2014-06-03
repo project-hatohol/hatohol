@@ -21,14 +21,57 @@
 #include "StringUtils.h"
 #include "LabelUtils.h"
 #include "CacheServiceDBClient.h"
+#include "MutexLock.h"
 #include <time.h>
+#include <queue>
 
 using namespace std;
 using namespace mlpl;
 
+struct IssueSender::Job
+{
+	EventInfo eventInfo;
+	Job(const EventInfo &_eventInfo)
+	: eventInfo(_eventInfo)
+	{
+	}
+};
+
 struct IssueSender::PrivateContext
 {
 	IssueTrackerInfo issueTrackerInfo;
+	MutexLock queueLock;
+	std::queue<Job*> queue;
+ 
+	~PrivateContext()
+	{
+		queueLock.lock();
+		while (!queue.empty()) {
+			Job *job = queue.front();
+			queue.pop();
+			delete job;
+		}
+		queueLock.unlock();
+	}
+
+	void pushJob(Job *job)
+	{
+		queueLock.lock();
+		queue.push(job);
+		queueLock.unlock();
+	}
+
+	Job *popJob(void)
+	{
+		Job *job = NULL;
+		queueLock.lock();
+		if (!queue.empty()) {
+			job = queue.front();
+			queue.pop();
+		}
+		queueLock.unlock();
+		return job;
+	}
 };
 
 IssueSender::IssueSender(const IssueTrackerInfo &tracker)
@@ -40,6 +83,12 @@ IssueSender::IssueSender(const IssueTrackerInfo &tracker)
 IssueSender::~IssueSender()
 {
 	delete m_ctx;
+}
+
+void IssueSender::queue(const EventInfo &eventInfo)
+{
+	Job *job = new Job(eventInfo);
+	m_ctx->pushJob(job);
 }
 
 const IssueTrackerInfo &IssueSender::getIssueTrackerInfo(void)
