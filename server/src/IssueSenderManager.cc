@@ -56,11 +56,11 @@ struct IssueSenderManager::PrivateContext
 
 IssueSenderManager IssueSenderManager::PrivateContext::instance;
 
-class IssueSenderWorker : public HatoholThreadBase
+class IssueSenderManager::Worker : public HatoholThreadBase
 {
 public:
-	IssueSenderWorker(void);
-	~IssueSenderWorker();
+	Worker(void);
+	~Worker();
 
 protected:
 	virtual gpointer mainThread(HatoholThreadArg *arg)
