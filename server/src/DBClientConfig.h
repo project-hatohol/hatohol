@@ -96,6 +96,8 @@ public:
 	IssueTrackerQueryOption(DataQueryContext *dataQueryContext);
 	virtual ~IssueTrackerQueryOption();
 
+	void setTargetId(const IssueTrackerIdType &targetId);
+
 	virtual std::string getCondition(void) const; //overrride
 
 protected:

@@ -799,6 +799,13 @@ void test_issueTrackerQueryOptionForInvalidUser(void)
 	cppcut_assert_equal(string("0"), option.getCondition());
 }
 
+void test_issueTrackerQueryOptionWithId(void)
+{
+	IssueTrackerQueryOption option(USER_ID_SYSTEM);
+	option.setTargetId(2);
+	cppcut_assert_equal(string("id=2"), option.getCondition());
+}
+
 void _assertAddIssueTracker(
   IssueTrackerInfo issueTrackerInfo,
   const HatoholErrorCode expectedErrorCode,
@@ -847,22 +854,27 @@ static void addIssueTracker(IssueTrackerInfo *info)
 #define assertAddIssueTrackerToDB(X) \
 cut_trace(_assertAddToDB<IssueTrackerInfo>(X, addIssueTracker))
 
-void _assertGetIssueTrackers(UserIdType userId)
+void _assertGetIssueTrackers(
+  UserIdType userId, IssueTrackerIdType targetId = ALL_ISSUE_TRACKERS)
 {
 	string expectedText;
 	size_t expectedSize = 0;
 	OperationPrivilege privilege(userId);
-	if (privilege.has(OPPRVLG_GET_ALL_SERVER)) {
-		for (size_t i = 0; i < NumTestIssueTrackerInfo; i++) {
-			IssueTrackerInfo &info = testIssueTrackerInfo[i];
-			assertAddIssueTrackerToDB(&info);
-			expectedText += makeIssueTrackerInfoOutput(info);
-		}
-		expectedSize = NumTestIssueTrackerInfo;
+	for (size_t i = 0; i < NumTestIssueTrackerInfo; i++) {
+		IssueTrackerInfo &info = testIssueTrackerInfo[i];
+		assertAddIssueTrackerToDB(&info);
+		if (!privilege.has(OPPRVLG_GET_ALL_SERVER))
+			continue;
+		if (targetId != ALL_ISSUE_TRACKERS && targetId != info.id)
+			continue;
+		expectedText += makeIssueTrackerInfoOutput(info);
+		++expectedSize;
 	}
 
 	IssueTrackerInfoVect actual;
 	IssueTrackerQueryOption option(userId);
+	if (targetId != ALL_ISSUE_TRACKERS)
+		option.setTargetId(targetId);
 	DBClientConfig dbConfig;
 	dbConfig.getIssueTrackers(actual, option);
 	cppcut_assert_equal(expectedSize, actual.size());
@@ -873,13 +885,19 @@ void _assertGetIssueTrackers(UserIdType userId)
 		actualText += makeIssueTrackerInfoOutput(*it);
 	cppcut_assert_equal(expectedText, actualText);
 }
-#define assertGetIssueTrackers(U) \
-  cut_trace(_assertGetIssueTrackers(U))
+#define assertGetIssueTrackers(U, ...) \
+  cut_trace(_assertGetIssueTrackers(U, ##__VA_ARGS__))
 
 void test_getIssueTrackers(void)
 {
 	setupTestDBUser(true, true);
 	assertGetIssueTrackers(USER_ID_SYSTEM);
+}
+
+void test_getIssueTrackersWithId(void)
+{
+	setupTestDBUser(true, true);
+	assertGetIssueTrackers(USER_ID_SYSTEM, NumTestIssueTrackerInfo - 1);
 }
 
 void test_getIssueTrackersByInvalidUser(void)

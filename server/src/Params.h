@@ -81,6 +81,7 @@ typedef int IssueTrackerIdType;
 static const ServerIdType    ALL_SERVERS = -1;
 static const HostIdType      ALL_HOSTS   = -1;
 static const HostgroupIdType ALL_HOST_GROUPS = -1;
+static const IssueTrackerIdType ALL_ISSUE_TRACKERS = -1;
 
 static const UserIdType INVALID_USER_ID = -1;
 static const UserIdType USER_ID_ANY     = -2;

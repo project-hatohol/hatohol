@@ -587,7 +587,9 @@ string ServerQueryOption::getCondition(void) const
 // IssueTrackerQueryOption
 // ---------------------------------------------------------------------------
 struct IssueTrackerQueryOption::PrivateContext {
+	IssueTrackerIdType targetId;
 	PrivateContext(void)
+	: targetId(ALL_ISSUE_TRACKERS)
 	{
 	}
 };
@@ -612,11 +614,23 @@ IssueTrackerQueryOption::~IssueTrackerQueryOption()
 		delete m_ctx;
 }
 
+void IssueTrackerQueryOption::setTargetId(const IssueTrackerIdType &targetId)
+{
+	m_ctx->targetId = targetId;
+}
+
 bool IssueTrackerQueryOption::hasPrivilegeCondition(string &condition) const
 {
 	UserIdType userId = getUserId();
 
 	if (userId == USER_ID_SYSTEM || has(OPPRVLG_GET_ALL_SERVER)) {
+		const char *columnName					\
+		  = COLUMN_DEF_ISSUE_TRACKERS[IDX_ISSUE_TRACKERS_ID].columnName;
+		if (m_ctx->targetId != ALL_ISSUE_TRACKERS) {
+			condition = StringUtils::sprintf(
+				      "%s=%" FMT_ISSUE_TRACKER_ID,
+				      columnName, m_ctx->targetId);
+		}
 		return true;
 	}
 
