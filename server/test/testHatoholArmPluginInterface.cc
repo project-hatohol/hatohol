@@ -190,13 +190,11 @@ void test_registCommandHandler(void)
 		TestContext           testCtx;
 		const HapiCommandCode testCmdCode;
 		HapiCommandCode       gotCmdCode;
-		SimpleSemaphore       handlerSem;
 
 		Hapi(void)
 		: TestBasicHatoholArmPluginInterface(testCtx),
 		  testCmdCode((HapiCommandCode)5),
-		  gotCmdCode((HapiCommandCode)0),
-		  handlerSem(0)
+		  gotCmdCode((HapiCommandCode)0)
 		{
 			testCtx.quitOnConnected = true;
 			registCommandHandler(
@@ -216,7 +214,7 @@ void test_registCommandHandler(void)
 		void handler(const HapiCommandHeader *header)
 		{
 			gotCmdCode = (HapiCommandCode)header->code;
-			handlerSem.post();
+			testCtx.sem.post();
 		}
 	} hapi;
 
@@ -228,7 +226,7 @@ void test_registCommandHandler(void)
 	// send command code and wait for the callback.
 	hapi.sendCmdCode();
 	cppcut_assert_equal(SimpleSemaphore::STAT_OK,
-	                    hapi.handlerSem.timedWait(TIMEOUT));
+	                    hapi.testCtx.sem.timedWait(TIMEOUT));
 	cppcut_assert_equal(hapi.testCmdCode, hapi.gotCmdCode);
 }
 
