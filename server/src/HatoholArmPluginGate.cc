@@ -100,11 +100,6 @@ HatoholArmPluginGate::~HatoholArmPluginGate()
 		delete m_ctx;
 }
 
-void HatoholArmPluginGate::onTerminated(const siginfo_t *siginfo)
-{
-	m_ctx->pid = 0;
-}
-
 void HatoholArmPluginGate::onConnected(qpid::messaging::Connection &conn)
 {
 	if (m_ctx->pid)
@@ -140,6 +135,11 @@ int HatoholArmPluginGate::onCaughtException(const exception &e)
 void HatoholArmPluginGate::onLaunchedProcess(
   const bool &succeeded, const ArmPluginInfo &armPluginInfo)
 {
+}
+
+void HatoholArmPluginGate::onTerminated(const siginfo_t *siginfo)
+{
+	m_ctx->pid = 0;
 }
 
 bool HatoholArmPluginGate::launchPluginProcess(

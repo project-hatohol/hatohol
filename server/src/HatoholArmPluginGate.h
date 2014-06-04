@@ -67,8 +67,6 @@ protected:
 	// To avoid an instance from being created on a stack.
 	virtual ~HatoholArmPluginGate();
 
-	virtual void onTerminated(const siginfo_t *siginfo);
-
 	virtual void onConnected(qpid::messaging::Connection &conn) override;
 
 	/**
@@ -84,6 +82,7 @@ protected:
 
 	virtual void onLaunchedProcess(
 	  const bool &succeeded, const ArmPluginInfo &armPluginInfo);
+	virtual void onTerminated(const siginfo_t *siginfo);
 
 	bool launchPluginProcess(const ArmPluginInfo &armPluginInfo);
 	static std::string generateBrokerAddress(
