@@ -261,4 +261,26 @@ void test_parseResponse(void)
 			    makeIssueOutput(actual));
 }
 
+void test_thread(void)
+{
+	const IssueTrackerInfo tracker = testIssueTrackerInfo[2];
+	const EventInfo &event = testEventInfo[0];
+	TestRedmineSender sender(tracker);
+	g_redmineEmulator.addUser(tracker.userName, tracker.password);
+	sender.queue(event);
+	sender.start();
+	usleep(100 * 1000); // TODO: should detect completing the job
+	sender.exitSync();
+
+	// check the posted isssue
+	IssueInfo issue;
+	makeExpectedIssueInfo(issue, tracker, event,
+			      g_redmineEmulator.getLastIssue());
+	DBClientHatohol dbClientHatohol;
+	DBAgent *dbAgent = dbClientHatohol.getDBAgent();
+	string statement = "select * from issues;";
+	string expect = makeIssueOutput(issue);
+	assertDBContent(dbAgent, statement, expect);
+}
+
 }
