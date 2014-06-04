@@ -123,6 +123,7 @@ IssueSender::IssueSender(const IssueTrackerInfo &tracker)
 
 IssueSender::~IssueSender()
 {
+	exitSync();
 	delete m_ctx;
 }
 
