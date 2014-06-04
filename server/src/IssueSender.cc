@@ -23,11 +23,15 @@
 #include "CacheServiceDBClient.h"
 #include "MutexLock.h"
 #include "SimpleSemaphore.h"
+#include <unistd.h>
 #include <time.h>
 #include <queue>
 
 using namespace std;
 using namespace mlpl;
+
+static const size_t DEFAULT_RETRY_LIMIT = 3;
+static const unsigned int DEFAULT_RETRY_INTERVAL_SECONDS = 5;
 
 struct IssueSender::Job
 {
@@ -45,9 +49,12 @@ struct IssueSender::PrivateContext
 	MutexLock queueLock;
 	std::queue<Job*> queue;
 	SimpleSemaphore jobSemaphore;
+	size_t retryLimit;
+	unsigned int retryIntervalSeconds;
 
 	PrivateContext(IssueSender &_sender)
-	: sender(_sender)
+	: sender(_sender), retryLimit(DEFAULT_RETRY_LIMIT),
+	  retryIntervalSeconds(DEFAULT_RETRY_INTERVAL_SECONDS)
 	{
 	}
  
@@ -89,6 +96,17 @@ struct IssueSender::PrivateContext
 			return NULL;
 		else
 			return popJob();
+	}
+
+	HatoholError trySend(const Job &job) {
+		HatoholError result;
+		for (size_t i = 0; i <= retryLimit; i++) {
+			result = sender.send(job.eventInfo);
+			if (result == HTERR_OK)
+				break;
+			sleep(retryIntervalSeconds);
+		}
+		return result;
 	}
 };
 
@@ -208,7 +226,7 @@ gpointer IssueSender::mainThread(HatoholThreadArg *arg)
 		  tracker.id, tracker.nickname.c_str());
 	while ((job = m_ctx->waitNextJob())) {
 		if (!isExitRequested())
-			send(job->eventInfo);
+			m_ctx->trySend(*job);
 		delete job;
 	}
 	MLPL_INFO("Exited IssueSender thread for %" FMT_ISSUE_TRACKER_ID ":%s\n",
