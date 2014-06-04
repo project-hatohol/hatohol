@@ -20,6 +20,8 @@
 #ifndef SimpleSemaphore_h
 #define SimpleSemaphore_h
 
+#include <cstddef>
+
 namespace mlpl {
 
 class SimpleSemaphore {
