@@ -45,7 +45,7 @@ struct IssueSenderManager::PrivateContext
 		sendersMap.clear();
 	}
 
-	IssueSender *createIssueSender(const IssueTrackerIdType &id)
+	IssueSender *createSender(const IssueTrackerIdType &id)
 	{
 		CacheServiceDBClient cache;
 		DBClientConfig *dbConfig = cache.getConfig();
@@ -84,7 +84,7 @@ struct IssueSenderManager::PrivateContext
 		if (sendersMap.find(id) != sendersMap.end() && sendersMap[id])
 			return sendersMap[id];
 
-		IssueSender *sender = createIssueSender(id);
+		IssueSender *sender = createSender(id);
 		if (sender)
 			sendersMap[id] = sender;
 
