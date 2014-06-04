@@ -20,12 +20,21 @@
 #ifndef HatoholArmPluginBase_h
 #define HatoholArmPluginBase_h
 
+#include <SmartTime.h>
 #include "HatoholArmPluginInterface.h"
 
 class HatoholArmPluginBase : public HatoholArmPluginInterface {
 public:
 	HatoholArmPluginBase(void);
 	virtual ~HatoholArmPluginBase();
+
+	mlpl::SmartTime getTimestampOfLastTrigger(void);
+
+protected:
+	virtual void onGotResponse(const HapiResponseHeader *header,
+	                           mlpl::SmartBuffer &resBuf) override;
+
+	void waitResponseAndCheckHeader(void);
 
 private:
 	struct PrivateContext;

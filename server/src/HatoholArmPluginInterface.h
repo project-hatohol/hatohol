@@ -25,6 +25,8 @@
 #include <qpid/messaging/Message.h>
 #include <qpid/messaging/Connection.h>
 #include "HatoholThreadBase.h"
+#include "HatoholException.h"
+#include "Utils.h"
 
 enum HatoholArmPluginErrorCode {
 	HAPERR_OK,
@@ -59,6 +61,7 @@ enum HapiResponseCode {
 //
 // [ 2B] HapiMessageType
 //       HapiCommandHeader or HapiResponseHeader
+//       Body
 // ---------------------------------------------------------------------------
 struct HapiCommandHeader {
 	uint16_t type;
@@ -68,6 +71,11 @@ struct HapiCommandHeader {
 struct HapiResponseHeader {
 	uint16_t type;
 	uint16_t code;
+} __attribute__((__packed__));
+
+struct HapiResTimestampOfLastTrigger {
+	uint64_t timestamp; // Unix time (GMT)
+	uint32_t nanosec;
 } __attribute__((__packed__));
 
 class HatoholArmPluginInterface : public HatoholThreadBase {
@@ -154,6 +162,38 @@ protected:
 	                  mlpl::SmartBuffer &cmdBuf);
 	void parseResponse(const HapiResponseHeader *header,
 	                   mlpl::SmartBuffer &resBuf);
+
+	/**
+	 * Get the response header.
+	 *
+	 * If the response size is smaller than the size of the header or
+	 * code is not HAPI_RES_OK, HatoholException is thrown.
+	 *
+	 * @param resBuf A response buffer.
+	 */
+	const HapiResponseHeader *getResponseHeader(mlpl::SmartBuffer &resBuf)
+	  throw(HatoholException);
+
+	/**
+	 * Get the response body.
+	 *
+	 * If the response size is smaller than the expected size,
+	 * HatoholException is thrown.
+	 *
+	 * @param resBuf A response buffer.
+	 */
+	template<class T>
+	const T *getResponseBody(mlpl::SmartBuffer &resBuf)
+	  throw(HatoholException)
+	{
+		size_t expectedSize = sizeof(HapiResponseHeader) + sizeof(T);
+		if (resBuf.size() < expectedSize) {
+			THROW_HATOHOL_EXCEPTION(
+			  "Bad size: expected: %zd, actual: %zd (%s)",
+			  expectedSize, resBuf.size(), DEMANGLED_TYPE_NAME(T));
+		}
+		return resBuf.getPointer<T>(sizeof(HapiResponseHeader));
+	}
 
 private:
 	struct PrivateContext;

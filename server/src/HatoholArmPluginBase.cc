@@ -17,9 +17,20 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cstdio>
+#include <SimpleSemaphore.h>
 #include "HatoholArmPluginBase.h"
 
+using namespace mlpl;
+
 struct HatoholArmPluginBase::PrivateContext {
+	SimpleSemaphore replyWaitSem;
+	SmartBuffer     responseBuf;
+
+	PrivateContext(void)
+	: replyWaitSem(0)
+	{
+	}
 };
 
 // ---------------------------------------------------------------------------
@@ -37,6 +48,34 @@ HatoholArmPluginBase::~HatoholArmPluginBase()
 		delete m_ctx;
 }
 
+SmartTime HatoholArmPluginBase::getTimestampOfLastTrigger(void)
+{
+	SmartBuffer cmdBuf(sizeof(HapiCommandHeader));
+	HapiCommandHeader *cmdHeader = cmdBuf.getPointer<HapiCommandHeader>();
+	cmdHeader->code = HAPI_CMD_GET_LAST_TRIGGER_TIME;
+	send(cmdBuf);
+	waitResponseAndCheckHeader();
+
+	const HapiResTimestampOfLastTrigger *body = 
+	  getResponseBody<HapiResTimestampOfLastTrigger>(m_ctx->responseBuf);
+	const timespec ts = {(time_t)body->timestamp, body->nanosec};
+	return SmartTime(ts);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+void HatoholArmPluginBase::onGotResponse(
+  const HapiResponseHeader *header, SmartBuffer &resBuf)
+{
+	resBuf.handOver(m_ctx->responseBuf);
+	m_ctx->replyWaitSem.post();
+}
+
+void HatoholArmPluginBase::waitResponseAndCheckHeader(void)
+{
+	m_ctx->replyWaitSem.wait();
+
+	// To check the sainity of the header
+	getResponseHeader(m_ctx->responseBuf);
+}

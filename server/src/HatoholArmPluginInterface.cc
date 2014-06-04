@@ -290,3 +290,18 @@ void HatoholArmPluginInterface::load(SmartBuffer &sbuf, const Message &message)
 	sbuf.addEx(message.getContentPtr(), message.getContentSize());
 }
 
+const HapiResponseHeader *HatoholArmPluginInterface::getResponseHeader(
+  SmartBuffer &resBuf) throw(HatoholException)
+{
+	if (resBuf.size() < sizeof(HapiResponseHeader)) {
+		THROW_HATOHOL_EXCEPTION("Invalid message size: %zd\n",
+		                        sizeof(HapiResponseHeader));
+	}
+	const HapiResponseHeader *header =
+	  resBuf.getPointer<HapiResponseHeader>(0);
+	if (header->code != HAPI_RES_OK) {
+		THROW_HATOHOL_EXCEPTION("Bad response code: %d\n",
+		                        header->code);
+	}
+	return header;
+}
