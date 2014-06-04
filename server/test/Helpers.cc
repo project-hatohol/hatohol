@@ -721,6 +721,14 @@ void loadTestDBTriggers(void)
 		dbHatohol.addTriggerInfo(&testTriggerInfo[i]);
 }
 
+void loadTestDBIssueTracker(void)
+{
+	DBClientConfig dbConfig;
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	for (size_t i = 0; i < NumTestIssueTrackerInfo; i++)
+		dbConfig.addIssueTracker(&testIssueTrackerInfo[i], privilege);
+}
+
 void setupTestDBConfig(bool dbRecreate, bool loadTestData)
 {
 	static const char *TEST_DB_NAME = "test_config";
@@ -730,8 +738,10 @@ void setupTestDBConfig(bool dbRecreate, bool loadTestData)
 	                             TEST_DB_USER, TEST_DB_PASSWORD);
 	bool recreate = true;
 	makeTestMySQLDBIfNeeded(TEST_DB_NAME, recreate);
-	if (loadTestData)
+	if (loadTestData) {
 		loadTestDBServer();
+		loadTestDBIssueTracker();
+	}
 }
 
 void setupTestDBAction(bool dbRecreate, bool loadTestData)

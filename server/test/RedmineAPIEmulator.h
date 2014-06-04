@@ -77,5 +77,8 @@ private:
 	PrivateContext *m_ctx;
 };
 
+extern const guint EMULATOR_PORT;
+extern RedmineAPIEmulator g_redmineEmulator;
+
 #endif // ZabbixAPIEmulator_h
 

@@ -21,16 +21,34 @@
 #include <cppcutter.h>
 #include "IssueSenderManager.h"
 #include "Hatohol.h"
+#include "Helpers.h"
+#include "DBClientTest.h"
+#include "RedmineAPIEmulator.h"
+
+using namespace std;
 
 namespace testIssueSenderManager {
+
+class TestIssueSenderManager : public IssueSenderManager
+{
+public:
+	// Enable to create a object to test destructor
+	TestIssueSenderManager(void)
+	{
+	}
+};
 
 void cut_setup(void)
 {
 	hatoholInit();
+	if (!g_redmineEmulator.isRunning())
+		g_redmineEmulator.start(EMULATOR_PORT);
+	deleteDBClientHatoholDB();
 }
 
 void cut_teardown(void)
 {
+	g_redmineEmulator.reset();
 }
 
 void test_instanceIsSingleton(void)
@@ -38,6 +56,19 @@ void test_instanceIsSingleton(void)
 	IssueSenderManager &manager1 = IssueSenderManager::getInstance();
 	IssueSenderManager &manager2 = IssueSenderManager::getInstance();
 	cppcut_assert_equal(&manager1, &manager2);
+}
+
+void test_sendRedmineIssue(void)
+{
+	setupTestDBConfig(true, true);
+	IssueTrackerIdType trackerId = 3;
+	IssueTrackerInfo &tracker = testIssueTrackerInfo[trackerId - 1];
+	g_redmineEmulator.addUser(tracker.userName, tracker.password);
+	TestIssueSenderManager manager;
+	manager.queue(trackerId, testEventInfo[0]);
+	usleep(300 * 1000); // TODO: should syncronize with completing the job
+	const string &json = g_redmineEmulator.getLastResponse();
+	cppcut_assert_equal(false, json.empty());
 }
 
 } // namespace testIssueSenderManager

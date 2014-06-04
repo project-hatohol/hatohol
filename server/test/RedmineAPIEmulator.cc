@@ -27,6 +27,9 @@
 
 using namespace std;
 
+const guint EMULATOR_PORT = 44444;
+RedmineAPIEmulator g_redmineEmulator;
+
 RedmineIssue::RedmineIssue(const size_t &_id,
 			   const std::string &_subject,
 			   const std::string &_description,

@@ -33,9 +33,7 @@ using namespace mlpl;
 
 namespace testIssueSenderRedmine {
 
-static const guint EMULATOR_PORT = 44444;
 static Synchronizer g_sync;
-RedmineAPIEmulator g_redmineEmulator;
 
 class TestRedmineSender : public IssueSenderRedmine {
 public:
