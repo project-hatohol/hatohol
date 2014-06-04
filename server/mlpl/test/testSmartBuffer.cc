@@ -25,6 +25,36 @@ namespace testSmartBuffer {
 
 static SmartBuffer *g_sbuf = NULL;
 
+struct BufferParams {
+	const char *ptr;
+	size_t size;
+	size_t index;
+	size_t watermark;
+
+	BufferParams(SmartBuffer &sbuf)
+	{
+		ptr   = sbuf;
+		size  = sbuf.size();
+		index = sbuf.index();
+		watermark = sbuf.watermark();
+	}
+};
+
+static void _assertEqual(
+  const BufferParams &srcParams, SmartBuffer &src, SmartBuffer &dest)
+{
+	cppcut_assert_equal(srcParams.ptr,       (const char *)dest);
+	cppcut_assert_equal(srcParams.size,      dest.size());
+	cppcut_assert_equal(srcParams.index,     dest.index());
+	cppcut_assert_equal(srcParams.watermark, dest.watermark());
+
+	cppcut_assert_equal(NULL, (const char *)src);
+	cppcut_assert_equal((size_t)0, src.size());
+	cppcut_assert_equal((size_t)0, src.index());
+	cppcut_assert_equal((size_t)0, src.watermark());
+}
+#define assertEqual(P,S,D) cut_trace(_assertEqual(P,S,D))
+
 void cut_teardown(void)
 {
 	if (g_sbuf) {
@@ -160,6 +190,19 @@ void test_takeOver(void)
 	cppcut_assert_equal((size_t)0, sbuf.size());
 	cppcut_assert_equal((size_t)0, sbuf.index());
 	cppcut_assert_equal((size_t)0, sbuf.watermark());
+}
+
+void test_handOver(void)
+{
+	static const size_t buflen = 5;
+	SmartBuffer src(buflen);
+	for (size_t i = 0; i < buflen; i++)
+		src.add8(i);
+
+	BufferParams srcParams(src);
+	SmartBuffer dest;
+	src.handOver(dest);
+	assertEqual(srcParams, src, dest);
 }
 
 } // namespace testSmartBuffer

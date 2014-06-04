@@ -145,6 +145,16 @@ public:
 	 */
 	SmartBuffer *takeOver(void);
 
+	/**
+	 * Hand over contents of this SmartBuffer instance.
+	 * After the call of this methodo, the buffer is cleared.
+	 *
+	 * @param dest
+	 * A destination buffer instance. The contents of it is overwritten.
+	 */
+	void handOver(SmartBuffer &dest);
+
+
 protected:
 	void setWatermarkIfNeeded(void) {
 		if (m_index > m_watermark)
