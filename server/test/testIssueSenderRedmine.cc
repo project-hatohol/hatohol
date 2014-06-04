@@ -276,7 +276,7 @@ void test_thread(void)
 	usleep(500 * 1000);
 	sender.exitSync();
 
-	// check the posted isssue
+	// check the posted issue
 	IssueInfo issue;
 	makeExpectedIssueInfo(issue, tracker, event,
 			      g_redmineEmulator.getLastIssue());
