@@ -40,14 +40,14 @@ struct IssueSender::Job
 
 struct IssueSender::PrivateContext
 {
-	AtomicValue<bool> quitRequest;
+	IssueSender &sender;
 	IssueTrackerInfo issueTrackerInfo;
 	MutexLock queueLock;
 	std::queue<Job*> queue;
 	SimpleSemaphore jobSemaphore;
 
-	PrivateContext()
-	: quitRequest(false)
+	PrivateContext(IssueSender &_sender)
+	: sender(_sender)
 	{
 	}
  
@@ -85,7 +85,7 @@ struct IssueSender::PrivateContext
 	Job *waitNextJob(void)
 	{
 		jobSemaphore.wait();
-		if (quitRequest.get())
+		if (sender.isExitRequested())
 			return NULL;
 		else
 			return popJob();
@@ -94,7 +94,7 @@ struct IssueSender::PrivateContext
 
 IssueSender::IssueSender(const IssueTrackerInfo &tracker)
 {
-	m_ctx = new PrivateContext();
+	m_ctx = new PrivateContext(*this);
 	m_ctx->issueTrackerInfo = tracker;
 }
 
@@ -201,7 +201,7 @@ gpointer IssueSender::mainThread(HatoholThreadArg *arg)
 	MLPL_INFO("Start IssueSender thread for %" FMT_ISSUE_TRACKER_ID ":%s\n",
 		  tracker.id, tracker.nickname.c_str());
 	while ((job = m_ctx->waitNextJob())) {
-		if (!m_ctx->quitRequest.get())
+		if (!isExitRequested())
 			send(job->eventInfo);
 		delete job;
 	}
