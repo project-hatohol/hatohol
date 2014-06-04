@@ -53,7 +53,8 @@ struct IssueSender::PrivateContext
 	unsigned int retryIntervalSeconds;
 
 	PrivateContext(IssueSender &_sender)
-	: sender(_sender), retryLimit(DEFAULT_RETRY_LIMIT),
+	: sender(_sender), jobSemaphore(0),
+	  retryLimit(DEFAULT_RETRY_LIMIT),
 	  retryIntervalSeconds(DEFAULT_RETRY_INTERVAL_SECONDS)
 	{
 	}
@@ -73,8 +74,8 @@ struct IssueSender::PrivateContext
 	{
 		queueLock.lock();
 		queue.push(job);
-		jobSemaphore.post();
 		queueLock.unlock();
+		jobSemaphore.post();
 	}
 
 	Job *popJob(void)

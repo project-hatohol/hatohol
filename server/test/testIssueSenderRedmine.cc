@@ -267,8 +267,8 @@ void test_thread(void)
 	const EventInfo &event = testEventInfo[0];
 	TestRedmineSender sender(tracker);
 	g_redmineEmulator.addUser(tracker.userName, tracker.password);
-	sender.queue(event);
 	sender.start();
+	sender.queue(event);
 	usleep(100 * 1000); // TODO: should detect completing the job
 	sender.exitSync();
 
