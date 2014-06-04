@@ -646,6 +646,23 @@ void test_getActionListWithActionType(gconstpointer data)
 	assertGetActionList(userId, USER_ID_ANY, type);
 }
 
+void test_parseIssueSenderCommand(void)
+{
+	ActionDef action;
+	action.command = "3";
+	IssueTrackerIdType trackerId;
+	cppcut_assert_equal(true, action.parseIssueSenderCommand(trackerId));
+	cppcut_assert_equal(3, trackerId);
+}
+
+void test_parseInvalidIssueSenderCommand(void)
+{
+	ActionDef action;
+	action.command = "hoge3";
+	IssueTrackerIdType trackerId;
+	cppcut_assert_equal(false, action.parseIssueSenderCommand(trackerId));
+}
+
 } // namespace testDBClientAction
 
 namespace testDBClientActionDefault {

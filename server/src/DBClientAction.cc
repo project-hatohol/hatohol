@@ -1039,3 +1039,9 @@ string ActionsQueryOption::getCondition(void) const
 	                       triggerInfo.severity);
 	return cond;
 }
+
+bool ActionDef::parseIssueSenderCommand(IssueTrackerIdType &trackerId)
+{
+	int ret = sscanf(command.c_str(), "%" FMT_ISSUE_TRACKER_ID, &trackerId);
+	return ret == 1;
+}

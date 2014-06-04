@@ -129,6 +129,17 @@ struct ActionDef {
 	int         timeout;
 
 	UserIdType  ownerUserId;
+
+	/**
+	 * Parse "command" string for IssueSender type action.
+	 *
+	 * @param trackerId 
+	 * An ID of IssueTrackerInfo parsed from command string will be stored.
+	 *
+	 * @return true when succeeded to parse, otherwise false.
+	 *
+	 */
+	bool parseIssueSenderCommand(IssueTrackerIdType &trackerId);
 };
 
 typedef std::list<ActionDef>          ActionDefList;
