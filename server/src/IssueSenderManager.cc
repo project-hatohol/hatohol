@@ -51,8 +51,7 @@ struct IssueSenderManager::PrivateContext
 		DBClientConfig *dbConfig = cache.getConfig();
 		IssueTrackerInfoVect issueTrackerVect;
 		IssueTrackerQueryOption option(USER_ID_SYSTEM);
-		//TODO: not implemented yet
-		//option.setTragetId(id);
+		option.setTargetId(id);
 		dbConfig->getIssueTrackers(issueTrackerVect, option);
 
 		if (issueTrackerVect.size() <= 0) {
