@@ -172,24 +172,13 @@ void test_getPointerWithType(void)
 void test_takeOver(void)
 {
 	static const size_t buflen = 5;
-	SmartBuffer sbuf(buflen);
+	SmartBuffer src(buflen);
 	for (size_t i = 0; i < buflen; i++)
-		sbuf.add8(i);
-	const char *ptr = sbuf;
-	size_t size  = sbuf.size();
-	size_t index = sbuf.index();
-	size_t watermark = sbuf.watermark();
+		src.add8(i);
 
-	g_sbuf = sbuf.takeOver();
-	cppcut_assert_equal(ptr, (const char *)(*g_sbuf));
-	cppcut_assert_equal(size, g_sbuf->size());
-	cppcut_assert_equal(index, g_sbuf->index());
-	cppcut_assert_equal(watermark, g_sbuf->watermark());
-
-	cppcut_assert_equal(NULL, (const char *)sbuf);
-	cppcut_assert_equal((size_t)0, sbuf.size());
-	cppcut_assert_equal((size_t)0, sbuf.index());
-	cppcut_assert_equal((size_t)0, sbuf.watermark());
+	BufferParams srcParams(src);
+	g_sbuf = src.takeOver();
+	assertEqual(srcParams, src, *g_sbuf);
 }
 
 void test_handOver(void)
