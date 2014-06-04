@@ -85,8 +85,10 @@ struct IssueSenderManager::PrivateContext
 			return sendersMap[id];
 
 		IssueSender *sender = createSender(id);
-		if (sender)
+		if (sender) {
 			sendersMap[id] = sender;
+			sender->start();
+		}
 
 		return sender;
 	}
