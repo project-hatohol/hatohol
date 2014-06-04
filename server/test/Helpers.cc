@@ -407,7 +407,7 @@ string makeIssueTrackerInfoOutput(const IssueTrackerInfo &issueTrackerInfo)
 {
 	string expectedOut =
 	  mlpl::StringUtils::sprintf(
-	    "%"FMT_ISSUE_TRACKER_ID"|%d|%s|%s|%s|%s|%s|%s\n",
+	    "%" FMT_ISSUE_TRACKER_ID "|%d|%s|%s|%s|%s|%s|%s\n",
 	    issueTrackerInfo.id,
 	    issueTrackerInfo.type,
 	    issueTrackerInfo.nickname.c_str(),
@@ -445,7 +445,7 @@ string makeIssueOutput(const IssueInfo &issueInfo)
 {
 	string output =
 	  mlpl::StringUtils::sprintf(
-	    "%"FMT_ISSUE_TRACKER_ID"|%"FMT_EVENT_ID
+	    "%" FMT_ISSUE_TRACKER_ID "|%" FMT_EVENT_ID
 	    "|%s|%s|%s|%s|%ld|%ld\n",
 	    issueInfo.trackerId,
 	    issueInfo.eventId,

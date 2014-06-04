@@ -757,10 +757,10 @@ void test_withEventInfo(void)
 	    "owner_user_id=%" FMT_USER_ID " AND "
 	    "(action_type>=0 AND action_type<2) AND "
 	    "((server_id IS NULL) OR (server_id=%" FMT_SERVER_ID ")) AND "
-	    "((host_id IS NULL) OR (host_id=%"FMT_HOST_ID")) AND "
+	    "((host_id IS NULL) OR (host_id=%" FMT_HOST_ID ")) AND "
 	    // test with empty hostgroups
 	    "((host_group_id IS NULL) OR host_group_id IN (0)) AND "
-	    "((trigger_id IS NULL) OR (trigger_id=%"FMT_TRIGGER_ID")) AND "
+	    "((trigger_id IS NULL) OR (trigger_id=%" FMT_TRIGGER_ID ")) AND "
 	    "((trigger_status IS NULL) OR (trigger_status=%d)) AND "
 	    "((trigger_severity IS NULL) OR "
 	    "(trigger_severity_comp_type=1 AND trigger_severity=%d) OR "

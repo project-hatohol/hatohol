@@ -659,7 +659,7 @@ int main(int argc, char *argv[])
 			       issueTrackerInfo.nickname.c_str(),
 			       err.getCode());
 		}
-		printf("ISSUE TRACKER: ID: %"FMT_ISSUE_TRACKER_ID","
+		printf("ISSUE TRACKER: ID: %" FMT_ISSUE_TRACKER_ID ","
 		       " TYPE: %d, NICKNAME: %s, BASEURL: %s, PROJECTID: %s,"
 		       " TRACKERID: %s, USERNAME: %s, PASSWORD: %s\n",
 		       issueTrackerInfo.id, issueTrackerInfo.type,

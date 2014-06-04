@@ -885,7 +885,7 @@ string ActionsQueryOption::PrivateContext::makeConditionTemplate(void)
 	// host_id;
 	const ColumnDef &colDefHostId = COLUMN_DEF_ACTIONS[IDX_ACTIONS_HOST_ID];
 	cond += StringUtils::sprintf(
-	  "((%s IS NULL) OR (%s=%%"PRIu64"))",
+	  "((%s IS NULL) OR (%s=%%" PRIu64 "))",
 	  colDefHostId.columnName, colDefHostId.columnName);
 	cond += " AND ";
 
@@ -901,7 +901,7 @@ string ActionsQueryOption::PrivateContext::makeConditionTemplate(void)
 	const ColumnDef &colDefTrigId =
 	   COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_ID];
 	cond += StringUtils::sprintf(
-	  "((%s IS NULL) OR (%s=%%"PRIu64"))",
+	  "((%s IS NULL) OR (%s=%%" PRIu64 "))",
 	  colDefTrigId.columnName, colDefTrigId.columnName);
 	cond += " AND ";
 
@@ -992,7 +992,7 @@ string ActionsQueryOption::getCondition(void) const
 
 	if (!has(OPPRVLG_GET_ALL_ACTION)) {
 		cond += StringUtils::sprintf(
-		  "%s=%"FMT_USER_ID,
+		  "%s=%" FMT_USER_ID,
 		  COLUMN_DEF_ACTIONS[IDX_ACTIONS_OWNER_USER_ID].columnName,
 		  getUserId());
 	}

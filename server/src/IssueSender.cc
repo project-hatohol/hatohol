@@ -164,7 +164,7 @@ static string getServerLabel(const EventInfo &event,
 	if (server)
 		return server->getHostAddress();
 	else
-		return StringUtils::sprintf("Unknown:%"FMT_SERVER_ID,
+		return StringUtils::sprintf("Unknown:%" FMT_SERVER_ID,
 					    event.serverId);
 }
 
@@ -187,7 +187,7 @@ string IssueSender::buildDescription(const EventInfo &event,
 	strftime(timeString, sizeof(timeString),
 		 "%a, %d %b %Y %T %z", &eventTime);
 	desc += StringUtils::sprintf(
-		  "Server ID: %"FMT_SERVER_ID"\n",
+		  "Server ID: %" FMT_SERVER_ID "\n",
 		  event.serverId);
 	if (server)
 		desc += StringUtils::sprintf(
@@ -198,11 +198,11 @@ string IssueSender::buildDescription(const EventInfo &event,
 			  server->ipAddress.c_str(),
 			  server->nickname.c_str());
 	desc += StringUtils::sprintf(
-		  "Host ID: %"FMT_HOST_ID"\n"
+		  "Host ID: %" FMT_HOST_ID "\n"
 		  "    Hostname:   \"%s\"\n",
 		  event.hostId, event.hostName.c_str());
 	desc += StringUtils::sprintf(
-		  "Event ID: %"FMT_EVENT_ID"\n"
+		  "Event ID: %" FMT_EVENT_ID "\n"
 		  "    Time:       \"%ld.%09ld (%s)\"\n"
 		  "    Type:       \"%d (%s)\"\n"
 		  "    Brief:      \"%s\"\n",
@@ -212,7 +212,7 @@ string IssueSender::buildDescription(const EventInfo &event,
 		  LabelUtils::getEventTypeLabel(event.type).c_str(),
 		  event.brief.c_str());
 	desc += StringUtils::sprintf(
-		  "Trigger ID: %"FMT_TRIGGER_ID"\n"
+		  "Trigger ID: %" FMT_TRIGGER_ID "\n"
 		  "    Status:     \"%d (%s)\"\n"
 		  "    Severity:   \"%d (%s)\"\n",
 		  event.triggerId,
