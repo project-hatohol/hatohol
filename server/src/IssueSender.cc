@@ -74,8 +74,8 @@ struct IssueSender::PrivateContext
 	{
 		queueLock.lock();
 		queue.push(job);
-		queueLock.unlock();
 		jobSemaphore.post();
+		queueLock.unlock();
 	}
 
 	Job *popJob(void)
