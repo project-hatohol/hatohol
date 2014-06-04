@@ -31,7 +31,7 @@ public:
 	IssueSender(const IssueTrackerInfo &tracker);
 	virtual ~IssueSender();
 
-	virtual void waitExit(void); // override
+	virtual void waitExit(void) override;
 
 	virtual HatoholError send(const EventInfo &event) = 0;
 	void queue(const EventInfo &eventInfo);
@@ -45,7 +45,7 @@ protected:
 	std::string buildDescription(const EventInfo &event,
 				     const MonitoringServerInfo *server);
 
-	virtual gpointer mainThread(HatoholThreadArg *arg); // override
+	virtual gpointer mainThread(HatoholThreadArg *arg) override;
 
 private:
 	struct Job;

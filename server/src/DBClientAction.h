@@ -237,7 +237,7 @@ public:
 	void setActionType(const ActionType &type);
 	const ActionType &getActionType(void);
 
-	virtual std::string getCondition(void) const; // override
+	virtual std::string getCondition(void) const override;
 
 private:
 	struct PrivateContext;
