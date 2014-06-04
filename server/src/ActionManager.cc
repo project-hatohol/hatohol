@@ -35,6 +35,7 @@
 #include "SessionManager.h"
 #include "Reaper.h"
 #include "ChildProcessManager.h"
+#include "IssueSenderManager.h"
 
 using namespace std;
 using namespace mlpl;
@@ -1272,7 +1273,17 @@ void ActionManager::execIssueSenderAction(const ActionDef &actionDef,
 {
 	HATOHOL_ASSERT(actionDef.type == ACTION_ISSUE_SENDER,
 	               "Invalid type: %d\n", actionDef.type);
-	// TODO: queue the action
+
+	IssueTrackerIdType trackerId;
+	bool succeeded = actionDef.parseIssueSenderCommand(trackerId);
+	if (!succeeded) {
+		MLPL_ERR("Invalid IssueSender command: %s\n",
+			 actionDef.command.c_str());
+		return;
+	}
+	IssueSenderManager &senderManager = IssueSenderManager::getInstance();
+	// TODO: Implement ActionLog for IssueSender action
+	senderManager.queue(trackerId, eventInfo);
 }
 
 /*
