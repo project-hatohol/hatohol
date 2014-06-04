@@ -56,7 +56,7 @@ struct IssueSenderManager::PrivateContext
 		dbConfig->getIssueTrackers(issueTrackerVect, option);
 
 		if (issueTrackerVect.size() <= 0) {
-		MLPL_ERR("Not found IssueTrackerInfo: %d\n", id);
+			MLPL_ERR("Not found IssueTrackerInfo: %d\n", id);
 			return NULL;
 		}
 		if (issueTrackerVect.size() > 1) {
