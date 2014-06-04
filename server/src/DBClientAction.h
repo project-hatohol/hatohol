@@ -139,7 +139,7 @@ struct ActionDef {
 	 * @return true when succeeded to parse, otherwise false.
 	 *
 	 */
-	bool parseIssueSenderCommand(IssueTrackerIdType &trackerId);
+	bool parseIssueSenderCommand(IssueTrackerIdType &trackerId) const;
 };
 
 typedef std::list<ActionDef>          ActionDefList;

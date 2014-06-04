@@ -1040,7 +1040,7 @@ string ActionsQueryOption::getCondition(void) const
 	return cond;
 }
 
-bool ActionDef::parseIssueSenderCommand(IssueTrackerIdType &trackerId)
+bool ActionDef::parseIssueSenderCommand(IssueTrackerIdType &trackerId) const
 {
 	int ret = sscanf(command.c_str(), "%" FMT_ISSUE_TRACKER_ID, &trackerId);
 	return ret == 1;
