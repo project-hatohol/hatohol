@@ -44,7 +44,7 @@ enum HapiMessageType {
 };
 
 enum HapiCommandCode {
-	HAPI_CMD_GET_LAST_TRIGGER_TIME,
+	HAPI_CMD_GET_TIMESTAMP_OF_LAST_TRIGGER,
 	NUM_HAPI_CMD
 };
 
@@ -193,6 +193,26 @@ protected:
 			  expectedSize, resBuf.size(), DEMANGLED_TYPE_NAME(T));
 		}
 		return resBuf.getPointer<T>(sizeof(HapiResponseHeader));
+	}
+
+	/**
+	 * Allocate buffer to include the specified body and set up
+	 * parameters of the header.
+	 *
+	 * @param resBuf A SmartBuffer instance to be set up.
+	 * @return A pointer of the body area.
+	 */
+	template<class T>
+	T *setupResponseBuffer(mlpl::SmartBuffer &resBuf)
+	{
+		const size_t requiredSize =
+		  sizeof(HapiResponseHeader) + sizeof(T);
+		resBuf.alloc(requiredSize);
+		HapiResponseHeader *header =
+		  resBuf.getPointer<HapiResponseHeader>(0);
+		header->type = HAPI_MSG_RESPONSE;
+		header->code = HAPI_RES_OK;
+		return resBuf.getPointer<T>(sizeof(T));
 	}
 
 private:

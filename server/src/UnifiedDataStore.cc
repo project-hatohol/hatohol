@@ -290,6 +290,13 @@ void UnifiedDataStore::getTriggerList(TriggerInfoList &triggerList,
 	dbHatohol.getTriggerInfoList(triggerList, option);
 }
 
+SmartTime UnifiedDataStore::getTimestampOfLastTrigger(
+  const ServerIdType serverId)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return SmartTime();
+}
+
 HatoholError UnifiedDataStore::getEventList(EventInfoList &eventList,
 					    EventsQueryOption &option)
 {

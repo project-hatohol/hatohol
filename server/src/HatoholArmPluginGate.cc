@@ -27,6 +27,7 @@
 #include <AtomicValue.h>
 #include <MutexLock.h>
 #include <Reaper.h>
+#include "UnifiedDataStore.h"
 #include "HatoholArmPluginGate.h"
 #include "CacheServiceDBClient.h"
 #include "ChildProcessManager.h"
@@ -72,6 +73,11 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 
 	string address = generateBrokerAddress(m_ctx->serverInfo);
 	setQueueAddress(address);
+
+	registCommandHandler(
+	  HAPI_CMD_GET_TIMESTAMP_OF_LAST_TRIGGER,
+	  (CommandHandler)
+	    &HatoholArmPluginGate::cmdHandlerGetTimestampOfLastTrigger);
 }
 
 void HatoholArmPluginGate::start(void)
@@ -194,3 +200,16 @@ string HatoholArmPluginGate::generateBrokerAddress(
 	                            serverInfo.id);
 }
 
+void HatoholArmPluginGate::cmdHandlerGetTimestampOfLastTrigger(
+  const HapiCommandHeader *header)
+{
+	SmartBuffer resBuf;
+	HapiResTimestampOfLastTrigger *body =
+	  setupResponseBuffer<HapiResTimestampOfLastTrigger>(resBuf);
+	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+	SmartTime last = uds->getTimestampOfLastTrigger(m_ctx->serverInfo.id);
+	const timespec &lastTimespec = last.getAsTimespec();
+	body->timestamp = lastTimespec.tv_sec;
+	body->nanosec   = lastTimespec.tv_nsec;
+	reply(resBuf);
+}
