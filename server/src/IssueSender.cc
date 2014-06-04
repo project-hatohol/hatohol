@@ -103,6 +103,12 @@ IssueSender::~IssueSender()
 	delete m_ctx;
 }
 
+void IssueSender::waitExit(void)
+{
+	m_ctx->jobSemaphore.post();
+	HatoholThreadBase::waitExit();
+}
+
 void IssueSender::queue(const EventInfo &eventInfo)
 {
 	Job *job = new Job(eventInfo);

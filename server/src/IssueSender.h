@@ -31,6 +31,8 @@ public:
 	IssueSender(const IssueTrackerInfo &tracker);
 	virtual ~IssueSender();
 
+	virtual void waitExit(void); // override
+
 	virtual HatoholError send(const EventInfo &event) = 0;
 	void queue(const EventInfo &eventInfo);
 
