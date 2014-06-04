@@ -269,7 +269,10 @@ void test_thread(void)
 	g_redmineEmulator.addUser(tracker.userName, tracker.password);
 	sender.start();
 	sender.queue(event);
-	usleep(100 * 1000); // TODO: should detect completing the job
+	// TODO:
+	// Should detect completing the job
+	// (I'll add callback mechanism to realize ActionLog)
+	usleep(500 * 1000);
 	sender.exitSync();
 
 	// check the posted isssue
