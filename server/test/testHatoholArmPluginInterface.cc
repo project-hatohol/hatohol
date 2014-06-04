@@ -232,4 +232,48 @@ void test_registCommandHandler(void)
 	cppcut_assert_equal(hapi.testCmdCode, hapi.gotCmdCode);
 }
 
+void test_onGotResponse(void)
+{
+	struct Hapi : public TestBasicHatoholArmPluginInterface {
+		TestContext           testCtx;
+		HapiResponseCode      gotResCode;
+
+		Hapi(void)
+		: TestBasicHatoholArmPluginInterface(testCtx),
+		  gotResCode(NUM_HAPI_CMD_RES)
+		{
+			testCtx.quitOnConnected = true;
+		}
+		
+		void sendReply(void)
+		{
+			SmartBuffer resBuf(sizeof(HapiResponseHeader));
+			HapiResponseHeader *header =
+			  resBuf.getPointer<HapiResponseHeader>();
+			header->type = HAPI_MSG_RESPONSE;
+			header->code = HAPI_RES_OK;
+			sendAsOther(resBuf);
+		}
+
+		void onGotResponse(const HapiResponseHeader *header,
+		                   SmartBuffer &resBuf) override
+		{
+			gotResCode =
+			  static_cast<HapiResponseCode>(header->code);
+			testCtx.sem.post();
+		}
+	} hapi;
+
+	// wait for conection
+	hapi.start();
+	cppcut_assert_equal(SimpleSemaphore::STAT_OK,
+	                    hapi.testCtx.sem.timedWait(TIMEOUT));
+
+	// send command code and wait for the callback.
+	hapi.sendReply();
+	cppcut_assert_equal(SimpleSemaphore::STAT_OK,
+	                    hapi.testCtx.sem.timedWait(TIMEOUT));
+	cppcut_assert_equal(HAPI_RES_OK, hapi.gotResCode);
+}
+
 } // namespace testHatoholArmPluginInterface
