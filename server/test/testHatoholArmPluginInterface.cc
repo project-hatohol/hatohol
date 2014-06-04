@@ -220,7 +220,7 @@ void test_registCommandHandler(void)
 		}
 	} hapi;
 
-	// wait for conection
+	// wait for the connection
 	hapi.start();
 	cppcut_assert_equal(SimpleSemaphore::STAT_OK,
 	                    hapi.testCtx.sem.timedWait(TIMEOUT));
@@ -264,7 +264,7 @@ void test_onGotResponse(void)
 		}
 	} hapi;
 
-	// wait for conection
+	// wait for the connection
 	hapi.start();
 	cppcut_assert_equal(SimpleSemaphore::STAT_OK,
 	                    hapi.testCtx.sem.timedWait(TIMEOUT));
