@@ -263,6 +263,7 @@ void test_parseResponse(void)
 
 void test_thread(void)
 {
+	setupTestDBConfig(true, true);
 	const IssueTrackerInfo tracker = testIssueTrackerInfo[2];
 	const EventInfo &event = testEventInfo[0];
 	TestRedmineSender sender(tracker);
