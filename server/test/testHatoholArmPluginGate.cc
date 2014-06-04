@@ -27,6 +27,7 @@
 #include "Helpers.h"
 #include "Hatohol.h"
 #include "hapi-test-plugin.h"
+#include "HatoholArmPluginGateTest.h"
 
 using namespace std;
 using namespace mlpl;
@@ -36,129 +37,15 @@ namespace testHatoholArmPluginGate {
 
 static int TIME_OUT = 5000;
 
-struct StartAndExitArg {
-	MonitoringSystemType monitoringSystemType;
-	bool                 expectedResultOfStart;
-	bool                 waitMainSem;
-	bool                 checkMessage;
-	size_t               numRetry;
-	size_t               retrySleepTime; // msec.
-	bool                 cancelRetrySleep;
-	bool                 checkNumRetry;
-
-	StartAndExitArg(void)
-	: monitoringSystemType(MONITORING_SYSTEM_HAPI_TEST),
-	  expectedResultOfStart(false),
-	  waitMainSem(false),
-	  checkMessage(false),
-	  numRetry(0),
-	  retrySleepTime(1),
-	  cancelRetrySleep(false),
-	  checkNumRetry(false)
-	{
-	}
-};
-
-class TestHatoholArmPluginGate : public HatoholArmPluginGate {
-public:
-	static const size_t TIMEOUT_MSEC = 5000;
-	const StartAndExitArg &arg;
-	bool       abnormalChildTerm;
-	string     rcvMessage;
-	bool       gotUnexceptedException;
-	size_t     retryCount;
-	SimpleSemaphore launchedSem;
-	bool            launchSucceeded;
-	SimpleSemaphore mainSem;
-
-	TestHatoholArmPluginGate(const MonitoringServerInfo &serverInfo,
-	                         const StartAndExitArg &_arg)
-	: HatoholArmPluginGate(serverInfo),
-	  arg(_arg),
-	  abnormalChildTerm(false),
-	  gotUnexceptedException(false),
-	  retryCount(0),
-	  launchedSem(0),
-	  launchSucceeded(false),
-	  mainSem(0)
-	{
-	}
-	
-	static string callGenerateBrokerAddress(
-	  const MonitoringServerInfo &serverInfo)
-	{
-		return generateBrokerAddress(serverInfo);
-	}
-
-	// We assume these virtual funcitons are called from
-	// the plugin's thread.
-	// I.e. we must not call cutter's assertions in them.
-	virtual void onSessionChanged(Session *session) override
-	{
-		if (arg.numRetry && session) {
-			if (retryCount < arg.numRetry)
-				session->close();
-			retryCount++;
-		}
-	}
-
-	virtual void onReceived(SmartBuffer &smbuf) override
-	{
-		if (arg.numRetry && retryCount <= arg.numRetry)
-			return;
-		rcvMessage = string(smbuf, smbuf.size());
-		mainSem.post();
-	}
-
-	virtual void onTerminated(const siginfo_t *siginfo) override
-	{
-		if (siginfo->si_signo == SIGCHLD &&
-		    siginfo->si_code  == CLD_EXITED) {
-			return;
-		}
-		mainSem.post();
-		abnormalChildTerm = true;
-		MLPL_ERR("si_signo: %d, si_code: %d\n",
-		         siginfo->si_signo, siginfo->si_code);
-	}
-
-	virtual int onCaughtException(const exception &e) override
-	{
-		printf("onCaughtException: %s\n", e.what());
-		if (arg.numRetry) {
-			canncelRetrySleepIfNeeded();
-			return arg.retrySleepTime;
-		}
-
-		if (rcvMessage.empty())
-			gotUnexceptedException = true;
-		return HatoholArmPluginGate::NO_RETRY;
-	}
-
-	virtual void onLaunchedProcess(
-	  const bool &succeeded, const ArmPluginInfo &armPluginInfo) override
-	{
-		launchSucceeded = succeeded;
-		launchedSem.post();
-	}
-
-	void canncelRetrySleepIfNeeded(void)
-	{
-		if (!arg.cancelRetrySleep)
-			return;
-		mainSem.post();
-	}
-};
-
-static void _assertStartAndExit(StartAndExitArg &arg)
+static void _assertStartAndExit(HapgTestArg &arg)
 {
 	setupTestDBConfig();
 	loadTestDBArmPlugin();
 	MonitoringServerInfo serverInfo;
 	initServerInfo(serverInfo);
 	serverInfo.type = arg.monitoringSystemType;
-	TestHatoholArmPluginGate *hapg =
-	  new TestHatoholArmPluginGate(serverInfo, arg);
+	HatoholArmPluginGateTest *hapg =
+	  new HatoholArmPluginGateTest(serverInfo, arg);
 	HatoholArmPluginGatePtr pluginGate(hapg, false);
 	const ArmStatus &armStatus = pluginGate->getArmStatus();
 	cppcut_assert_equal(false, armStatus.getArmInfo().running);
@@ -204,7 +91,7 @@ void test_constructor(void)
 
 void test_startAndWaitExit(void)
 {
-	StartAndExitArg arg;
+	HapgTestArg arg;
 	arg.monitoringSystemType = MONITORING_SYSTEM_HAPI_TEST;
 	arg.expectedResultOfStart = true;
 	arg.waitMainSem = true;
@@ -214,7 +101,7 @@ void test_startAndWaitExit(void)
 
 void test_startWithInvalidPath(void)
 {
-	StartAndExitArg arg;
+	HapgTestArg arg;
 	arg.monitoringSystemType = MONITORING_SYSTEM_HAPI_TEST_NOT_EXIST;
 	arg.expectedResultOfStart = false;
 	assertStartAndExit(arg);
@@ -222,7 +109,7 @@ void test_startWithInvalidPath(void)
 
 void test_startWithPassivePlugin(void)
 {
-	StartAndExitArg arg;
+	HapgTestArg arg;
 	arg.monitoringSystemType = MONITORING_SYSTEM_HAPI_TEST_PASSIVE;
 	arg.expectedResultOfStart = true;
 	assertStartAndExit(arg);
@@ -235,12 +122,12 @@ void test_generateBrokerAddress(void)
 	serverInfo.id = 530;
 	cppcut_assert_equal(
 	  string("hatohol-arm-plugin.530"),
-	  TestHatoholArmPluginGate::callGenerateBrokerAddress(serverInfo));
+	  HatoholArmPluginGateTest::callGenerateBrokerAddress(serverInfo));
 }
 
 void test_retryToConnect(void)
 {
-	StartAndExitArg arg;
+	HapgTestArg arg;
 	arg.monitoringSystemType = MONITORING_SYSTEM_HAPI_TEST;
 	arg.expectedResultOfStart = true;
 	arg.waitMainSem = true;
@@ -252,7 +139,7 @@ void test_retryToConnect(void)
 
 void test_abortRetryWait(void)
 {
-	StartAndExitArg arg;
+	HapgTestArg arg;
 	arg.monitoringSystemType = MONITORING_SYSTEM_HAPI_TEST;
 	arg.expectedResultOfStart = true;
 	arg.checkMessage = false;

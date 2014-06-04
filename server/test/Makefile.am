@@ -84,7 +84,8 @@ libTest_la_SOURCES = \
 	FormulaTestUtils.h Helpers.h DBAgentTest.h DBClientTest.h \
 	ZabbixAPIEmulator.h Synchronizer.h \
 	ExceptionTestUtils.h AssertJoin.h \
-	MultiLangTest.h
+	MultiLangTest.h \
+	HatoholArmPluginGateTest.cc HatoholArmPluginGateTest.h
 libTest_la_LDFLAGS =
 
 ActionTp_SOURCES = ActionTp.cc ActionTp.h
