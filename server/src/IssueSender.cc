@@ -104,7 +104,11 @@ struct IssueSender::PrivateContext
 			result = sender.send(job.eventInfo);
 			if (result == HTERR_OK)
 				break;
+			if (sender.isExitRequested())
+				break;
 			sleep(retryIntervalSeconds);
+			if (sender.isExitRequested())
+				break;
 		}
 		return result;
 	}
