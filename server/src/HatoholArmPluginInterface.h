@@ -63,12 +63,12 @@ enum HapiResponseCode {
 struct HapiCommandHeader {
 	uint16_t type;
 	uint16_t code;
-};
+} __attribute__((__packed__));
 
 struct HapiResponseHeader {
 	uint16_t type;
 	uint16_t code;
-};
+} __attribute__((__packed__));
 
 class HatoholArmPluginInterface : public HatoholThreadBase {
 public:
