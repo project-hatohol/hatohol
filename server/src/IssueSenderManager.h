@@ -28,12 +28,12 @@ class IssueSenderManager
 public:
 	static IssueSenderManager &getInstance(void);
 
+	void queue(const IssueTrackerIdType &trackerId,
+		   const EventInfo &info);
+
 protected:
 	IssueSenderManager(void);
 	virtual ~IssueSenderManager();
-
-	void queue(const IssueTrackerIdType &trackerId,
-		   const EventInfo &info);
 
 private:
 	struct PrivateContext;
