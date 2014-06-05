@@ -209,7 +209,8 @@ void RedmineAPIEmulator::reset(void)
 	m_ctx->m_lastRequest.clear();
 	m_ctx->m_lastResponse.clear();
 	m_ctx->m_lastIssue = RedmineIssue();
-	queue<Response>().swap(m_ctx->m_dummyResponseQueue);
+	queue<Response> empty;
+	std::swap(m_ctx->m_dummyResponseQueue, empty);
 }
 
 void RedmineAPIEmulator::addUser(const std::string &userName,
