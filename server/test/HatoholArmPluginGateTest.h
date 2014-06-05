@@ -28,6 +28,7 @@
 #include "DBClientTest.h"
 
 struct HapgTestArg {
+	// Set by test cases if needed
 	MonitoringSystemType monitoringSystemType;
 	bool                 expectedResultOfStart;
 	bool                 waitMainSem;
@@ -37,6 +38,15 @@ struct HapgTestArg {
 	bool                 cancelRetrySleep;
 	bool                 checkNumRetry;
 
+	// Set by HatoholArmgPluginTest
+	mlpl::SimpleSemaphore launchedSem;
+	bool                  launchSucceeded;
+	mlpl::SimpleSemaphore mainSem;
+	bool                  abnormalChildTerm;
+	std::string           rcvMessage;
+	bool                  gotUnexceptedException;
+	size_t                retryCount;
+
 	HapgTestArg(void)
 	: monitoringSystemType(MONITORING_SYSTEM_HAPI_TEST),
 	  expectedResultOfStart(false),
@@ -45,24 +55,21 @@ struct HapgTestArg {
 	  numRetry(0),
 	  retrySleepTime(1),
 	  cancelRetrySleep(false),
-	  checkNumRetry(false)
+	  checkNumRetry(false),
+	  launchedSem(0),
+	  launchSucceeded(false),
+	  mainSem(0),
+	  abnormalChildTerm(false),
+	  gotUnexceptedException(false),
+	  retryCount(0)
 	{
 	}
 };
 
 class HatoholArmPluginGateTest : public HatoholArmPluginGate {
 public:
-	const HapgTestArg &arg;
-	bool        abnormalChildTerm;
-	std::string rcvMessage;
-	bool        gotUnexceptedException;
-	size_t      retryCount;
-	mlpl::SimpleSemaphore launchedSem;
-	bool                  launchSucceeded;
-	mlpl::SimpleSemaphore mainSem;
-
 	HatoholArmPluginGateTest(const MonitoringServerInfo &serverInfo,
-	                           const HapgTestArg &_arg);
+	                         HapgTestArg &_arg);
 	static std::string callGenerateBrokerAddress(
 	  const MonitoringServerInfo &serverInfo);
 
@@ -77,6 +84,9 @@ public:
 	virtual void onLaunchedProcess(
 	  const bool &succeeded, const ArmPluginInfo &armPluginInfo) override;
 	void canncelRetrySleepIfNeeded(void);
+
+private:
+	HapgTestArg       &m_arg;
 };
 
 #endif // HatoholArmPluginGateTest_h

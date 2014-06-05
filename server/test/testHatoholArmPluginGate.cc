@@ -52,24 +52,24 @@ static void _assertStartAndExit(HapgTestArg &arg)
 	pluginGate->start();
 	cppcut_assert_equal(true, armStatus.getArmInfo().running);
 	cppcut_assert_equal(
-	  SimpleSemaphore::STAT_OK, hapg->launchedSem.timedWait(TIME_OUT));
-	cppcut_assert_equal(arg.expectedResultOfStart, hapg->launchSucceeded);
+	  SimpleSemaphore::STAT_OK, arg.launchedSem.timedWait(TIME_OUT));
+	cppcut_assert_equal(arg.expectedResultOfStart, arg.launchSucceeded);
 
 	SimpleSemaphore::Status status = SimpleSemaphore::STAT_OK;
 	if (arg.waitMainSem)
-		status = hapg->mainSem.timedWait(TIME_OUT);
+		status = arg.mainSem.timedWait(TIME_OUT);
 
 	pluginGate->exitSync();
 	// These assertions must be after pluginGate->exitSync()
 	// to be sure to exit the thread.
 	cppcut_assert_equal(SimpleSemaphore::STAT_OK, status);
 	cppcut_assert_equal(false, armStatus.getArmInfo().running);
-	cppcut_assert_equal(false, hapg->abnormalChildTerm);
+	cppcut_assert_equal(false, arg.abnormalChildTerm);
 	if (arg.checkMessage)
-		cppcut_assert_equal(string(testMessage), hapg->rcvMessage);
-	cppcut_assert_equal(false, hapg->gotUnexceptedException);
+		cppcut_assert_equal(string(testMessage), arg.rcvMessage);
+	cppcut_assert_equal(false, arg.gotUnexceptedException);
 	if (arg.checkNumRetry)
-		cppcut_assert_equal(arg.numRetry, hapg->retryCount-1);
+		cppcut_assert_equal(arg.numRetry, arg.retryCount-1);
 }
 #define assertStartAndExit(A) cut_trace(_assertStartAndExit(A))
 
