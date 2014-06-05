@@ -646,6 +646,72 @@ static bool setupDBServer(const ConfigValue &confValue)
 	return true;
 }
 
+static void registerServers(DBClientConfig &dbConfig, ConfigValue &confValue)
+{
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	MonitoringServerInfoListIterator it = confValue.serverInfoList.begin();
+	for (; it != confValue.serverInfoList.end(); ++it) {
+		MonitoringServerInfo &svInfo = *it;
+		dbConfig.addTargetServer(&svInfo, privilege);
+
+		printf("SERVER: TYPE: %d, HOSTNAME: %s, IP ADDR: %s, "
+		       "NICKNAME: %s, PORT: %d, POLLING: %d, RETRY: %d, "
+		       "USERNAME: %s, PASSWORD: %s, DB NAME: %s\n",
+		       svInfo.type, svInfo.hostName.c_str(),
+		       svInfo.ipAddress.c_str(), svInfo.nickname.c_str(),
+		       svInfo.port, svInfo.pollingIntervalSec,
+		       svInfo.retryIntervalSec,
+		       svInfo.userName.c_str(), svInfo.password.c_str(),
+		       svInfo.dbName.c_str());
+	}
+}
+
+static void registerUsers(ConfigValue &confValue)
+{
+	DBClientUser dbUser;
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	UserInfoListIterator it = confValue.userInfoList.begin();
+	for (; it != confValue.userInfoList.end(); ++it) {
+		UserInfo &userInfo = *it;
+		HatoholError err = dbUser.addUserInfo(userInfo, privilege);
+		if (err != HTERR_OK) {
+			printf("Failed to add user: %s (code: %d)\n",
+			       userInfo.name.c_str(), err.getCode());
+		}
+		printf("USER: ID: %" FMT_USER_ID ", name: %s, "
+		       "flags: %" FMT_OPPRVLG "\n",
+		       userInfo.id, userInfo.name.c_str(), userInfo.flags);
+	}
+}
+
+static void registerIssueTrackers(DBClientConfig &dbConfig,
+				  ConfigValue &confValue)
+{
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	IssueTrackerInfoVectIterator it
+	  = confValue.issueTrackerInfoVect.begin();
+	for (; it != confValue.issueTrackerInfoVect.end(); ++it) {
+		IssueTrackerInfo &issueTrackerInfo = *it;
+		HatoholError err = dbConfig.addIssueTracker(&issueTrackerInfo,
+							    privilege);
+		if (err != HTERR_OK) {
+			printf("Failed to add issue tracker: %s (code: %d)\n",
+			       issueTrackerInfo.nickname.c_str(),
+			       err.getCode());
+		}
+		printf("ISSUE TRACKER: ID: %" FMT_ISSUE_TRACKER_ID ","
+		       " TYPE: %d, NICKNAME: %s, BASEURL: %s, PROJECTID: %s,"
+		       " TRACKERID: %s, USERNAME: %s, PASSWORD: %s\n",
+		       issueTrackerInfo.id, issueTrackerInfo.type,
+		       issueTrackerInfo.nickname.c_str(),
+		       issueTrackerInfo.baseURL.c_str(),
+		       issueTrackerInfo.projectId.c_str(),
+		       issueTrackerInfo.trackerId.c_str(),
+		       issueTrackerInfo.userName.c_str(),
+		       issueTrackerInfo.password.c_str());
+	}
+}
+
 static void registerIssueSenderActions(ConfigValue &confValue)
 {
 	DBClientAction dbAction;
@@ -699,70 +765,14 @@ int main(int argc, char *argv[])
 	if (!setupDBServer(confValue))
 		return EXIT_SUCCESS;
 	DBClientConfig dbConfig;
-	DBClientUser   dbUser;
 
 	// FaceRest port
 	dbConfig.setFaceRestPort(confValue.faceRestPort);
 	printf("FaceRest port: %d\n", confValue.faceRestPort);
 
-	// servers
-	OperationPrivilege privilege(ALL_PRIVILEGES);
-	MonitoringServerInfoListIterator it = confValue.serverInfoList.begin();
-	for (; it != confValue.serverInfoList.end(); ++it) {
-		MonitoringServerInfo &svInfo = *it;
-		dbConfig.addTargetServer(&svInfo, privilege);
-
-		printf("SERVER: TYPE: %d, HOSTNAME: %s, IP ADDR: %s, "
-		       "NICKNAME: %s, PORT: %d, POLLING: %d, RETRY: %d, "
-		       "USERNAME: %s, PASSWORD: %s, DB NAME: %s\n",
-		       svInfo.type, svInfo.hostName.c_str(),
-		       svInfo.ipAddress.c_str(), svInfo.nickname.c_str(),
-		       svInfo.port, svInfo.pollingIntervalSec,
-		       svInfo.retryIntervalSec,
-		       svInfo.userName.c_str(), svInfo.password.c_str(),
-		       svInfo.dbName.c_str());
-	}
-
-	// users
-	UserInfoListIterator itUser = confValue.userInfoList.begin();
-	for (; itUser != confValue.userInfoList.end(); ++itUser) {
-		UserInfo &userInfo = *itUser;
-		HatoholError err = dbUser.addUserInfo(userInfo, privilege);
-		if (err != HTERR_OK) {
-			printf("Failed to add user: %s (code: %d)\n",
-			       userInfo.name.c_str(), err.getCode());
-		}
-		printf("USER: ID: %" FMT_USER_ID ", name: %s, "
-		       "flags: %" FMT_OPPRVLG "\n",
-		       userInfo.id, userInfo.name.c_str(), userInfo.flags);
-	}
-
-	// issue trackers
-	IssueTrackerInfoVectIterator itIssueTracker;
-	for (itIssueTracker = confValue.issueTrackerInfoVect.begin();
-	     itIssueTracker != confValue.issueTrackerInfoVect.end();
-	     ++itIssueTracker)
-	{
-		IssueTrackerInfo &issueTrackerInfo = *itIssueTracker;
-		HatoholError err = dbConfig.addIssueTracker(&issueTrackerInfo,
-							    privilege);
-		if (err != HTERR_OK) {
-			printf("Failed to add issue tracker: %s (code: %d)\n",
-			       issueTrackerInfo.nickname.c_str(),
-			       err.getCode());
-		}
-		printf("ISSUE TRACKER: ID: %" FMT_ISSUE_TRACKER_ID ","
-		       " TYPE: %d, NICKNAME: %s, BASEURL: %s, PROJECTID: %s,"
-		       " TRACKERID: %s, USERNAME: %s, PASSWORD: %s\n",
-		       issueTrackerInfo.id, issueTrackerInfo.type,
-		       issueTrackerInfo.nickname.c_str(),
-		       issueTrackerInfo.baseURL.c_str(),
-		       issueTrackerInfo.projectId.c_str(),
-		       issueTrackerInfo.trackerId.c_str(),
-		       issueTrackerInfo.userName.c_str(),
-		       issueTrackerInfo.password.c_str());
-	}
-
+	registerServers(dbConfig, confValue);
+	registerUsers(confValue);
+	registerIssueTrackers(dbConfig, confValue);
 	registerIssueSenderActions(confValue);
 
 	return EXIT_SUCCESS;
