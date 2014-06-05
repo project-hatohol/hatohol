@@ -85,6 +85,7 @@ libTest_la_SOURCES = \
 	ZabbixAPIEmulator.h Synchronizer.h \
 	ExceptionTestUtils.h AssertJoin.h \
 	MultiLangTest.h \
+	HatoholArmPluginInterfaceTest.cc HatoholArmPluginInterfaceTest.h \
 	HatoholArmPluginGateTest.cc HatoholArmPluginGateTest.h
 libTest_la_LDFLAGS =
 

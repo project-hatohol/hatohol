@@ -21,6 +21,7 @@
 #include <SimpleSemaphore.h>
 #include "Helpers.h"
 #include "HatoholArmPluginInterface.h"
+#include "HatoholArmPluginInterfaceTest.h"
 
 using namespace std;
 using namespace mlpl;
@@ -29,119 +30,6 @@ using namespace qpid::messaging;
 namespace testHatoholArmPluginInterface {
 
 static const size_t TIMEOUT = 5000;
-
-struct TestContext {
-	SimpleSemaphore   sem;
-	AtomicValue<bool> connected;
-	AtomicValue<bool> quitOnConnected;
-	AtomicValue<bool> quitOnReceived;
-
-	TestContext(void)
-	: sem(0),
-	  connected(false),
-	  quitOnConnected(false),
-	  quitOnReceived(false)
-	{
-	}
-
-	string getReceivedMessage(void)
-	{
-		lock.lock();
-		string msg = receivedMessage;
-		lock.unlock();
-		return msg;
-	}
-
-	void setReceivedMessage(const SmartBuffer &smbuf)
-	{
-		lock.lock();
-		receivedMessage = string(smbuf, smbuf.size());
-		lock.unlock();
-	}
-
-private:
-	MutexLock   lock;
-	string      receivedMessage;
-};
-
-class TestBasicHatoholArmPluginInterface : public HatoholArmPluginInterface {
-	struct OtherSide {
-		TestContext ctx;
-		TestBasicHatoholArmPluginInterface *obj;
-		OtherSide(const string &queueAddr)
-		: obj(NULL)
-		{
-			ctx.quitOnConnected = true;
-			obj = new TestBasicHatoholArmPluginInterface(
-			            ctx, queueAddr, false);
-			obj->start();
-			cppcut_assert_equal(
-			  SimpleSemaphore::STAT_OK,
-			  obj->getTestContext().sem.timedWait(TIMEOUT));
-		}
-
-		virtual ~OtherSide()
-		{
-			if (obj)
-				delete obj;
-		}
-	};
-
-public:
-	TestBasicHatoholArmPluginInterface(
-	  TestContext &ctx,
-	  const string &addr = "test-hatohol-arm-plugin-interface",
-	  const bool workInServer = true)
-	: HatoholArmPluginInterface(addr, workInServer),
-	  m_testCtx(ctx)
-	{
-	}
-
-	virtual void onConnected(Connection &conn) override
-	{
-		m_testCtx.connected = true;
-		if (m_testCtx.quitOnConnected)
-			m_testCtx.sem.post();
-	}
-
-	TestContext &getTestContext(void)
-	{
-		return m_testCtx;
-	}
-
-	void sendAsOther(const string &msg)
-	{
-		OtherSide other(getQueueAddress());
-		other.obj->send(msg);
-	}
-
-	void sendAsOther(const SmartBuffer &smbuf)
-	{
-		OtherSide other(getQueueAddress());
-		other.obj->send(smbuf);
-	}
-
-protected:
-
-	TestContext &m_testCtx;
-};
-
-class TestHatoholArmPluginInterface : public TestBasicHatoholArmPluginInterface {
-public:
-	SimpleSemaphore rcvSem;
-
-	TestHatoholArmPluginInterface(TestContext &ctx)
-	: TestBasicHatoholArmPluginInterface(ctx),
-	  rcvSem(0)
-	{
-	}
-
-	virtual void onReceived(SmartBuffer &smbuf) override
-	{
-		m_testCtx.setReceivedMessage(smbuf);
-		rcvSem.post();
-	}
-};
 
 // ---------------------------------------------------------------------------
 // Test cases
@@ -153,9 +41,9 @@ void test_constructor(void)
 
 void test_onConnected(void)
 {
-	TestContext testCtx;
+	HapiTestCtx testCtx;
 	testCtx.quitOnConnected = true;
-	TestHatoholArmPluginInterface hapi(testCtx);
+	HatoholArmPluginInterfaceTest hapi(testCtx);
 	hapi.start();
 	cppcut_assert_equal(SimpleSemaphore::STAT_OK,
 	                    testCtx.sem.timedWait(TIMEOUT));
@@ -165,11 +53,11 @@ void test_onConnected(void)
 void test_sendAndonReceived(void)
 {
 	const string testMessage = "FOO";
-	TestContext testCtx;
+	HapiTestCtx testCtx;
 
 	// wait for connection
 	testCtx.quitOnConnected = true;
-	TestHatoholArmPluginInterface hapi(testCtx);
+	HatoholArmPluginInterfaceTest hapi(testCtx);
 	hapi.start();
 	cppcut_assert_equal(SimpleSemaphore::STAT_OK,
 	                    testCtx.sem.timedWait(TIMEOUT));
@@ -181,18 +69,18 @@ void test_sendAndonReceived(void)
 	cppcut_assert_equal(SimpleSemaphore::STAT_OK,
 	                    hapi.rcvSem.timedWait(TIMEOUT));
 	cppcut_assert_equal(testMessage,
-	                    hapi.getTestContext().getReceivedMessage());
+	                    hapi.getHapiTestCtx().getReceivedMessage());
 }
 
 void test_registCommandHandler(void)
 {
-	struct Hapi : public TestBasicHatoholArmPluginInterface {
-		TestContext           testCtx;
+	struct Hapi : public HatoholArmPluginInterfaceTestBasic {
+		HapiTestCtx           testCtx;
 		const HapiCommandCode testCmdCode;
 		HapiCommandCode       gotCmdCode;
 
 		Hapi(void)
-		: TestBasicHatoholArmPluginInterface(testCtx),
+		: HatoholArmPluginInterfaceTestBasic(testCtx),
 		  testCmdCode((HapiCommandCode)5),
 		  gotCmdCode((HapiCommandCode)0)
 		{
@@ -232,12 +120,12 @@ void test_registCommandHandler(void)
 
 void test_onGotResponse(void)
 {
-	struct Hapi : public TestBasicHatoholArmPluginInterface {
-		TestContext           testCtx;
+	struct Hapi : public HatoholArmPluginInterfaceTestBasic {
+		HapiTestCtx           testCtx;
 		HapiResponseCode      gotResCode;
 
 		Hapi(void)
-		: TestBasicHatoholArmPluginInterface(testCtx),
+		: HatoholArmPluginInterfaceTestBasic(testCtx),
 		  gotResCode(NUM_HAPI_CMD_RES)
 		{
 			testCtx.quitOnConnected = true;
