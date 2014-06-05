@@ -31,6 +31,7 @@
 #include <termios.h>
 #include "Hatohol.h"
 #include "DBClientConfig.h"
+#include "DBClientAction.h"
 #include "ConfigManager.h"
 #include "DBAgentMySQL.h"
 using namespace std;
@@ -46,6 +47,7 @@ struct ConfigValue {
 	MonitoringServerInfoList serverInfoList;
 	UserInfoList             userInfoList;
 	IssueTrackerInfoVect     issueTrackerInfoVect;
+	ActionDefList            issueSenderActionList;
 	
 	// constructor
 	ConfigValue(void)
@@ -251,6 +253,71 @@ static bool parseIssueTrackerConfigLine(ParsableString &parsable,
 	return true;
 }
 
+static bool parseIssueSenderActionConfigLine(
+  ParsableString &parsable, ActionDefList &issueSenderActionList,
+  size_t lineNo)
+{
+	ActionDef action;
+	ActionCondition &cond = action.condition;
+	bool succeeded;
+
+	action.id = 0;
+	action.type = ACTION_ISSUE_SENDER;
+	action.timeout = 0;
+	action.ownerUserId = USER_ID_SYSTEM;
+
+	int issueTrackerId;
+	succeeded = parseInt(parsable, issueTrackerId, lineNo);
+	if (!succeeded)
+		return false;
+	action.command = StringUtils::toString(issueTrackerId);
+
+	int serverId;
+	succeeded = parseInt(parsable, serverId, lineNo);
+	if (!succeeded)
+		return false;
+	if (serverId > 0) {
+		cond.enable(ACTCOND_SERVER_ID);
+		cond.serverId = serverId;
+	} else {
+		cond.serverId = ALL_SERVERS;
+	}
+
+	int hostgroupId;
+	succeeded = parseInt(parsable, hostgroupId, lineNo);
+	if (!succeeded)
+		return false;
+	if (hostgroupId > 0) {
+		cond.enable(ACTCOND_HOST_GROUP_ID);
+		cond.hostgroupId = hostgroupId;
+	} else {
+		cond.hostgroupId = ALL_HOST_GROUPS;
+	}
+
+	int severity;
+	succeeded = parseInt(parsable, severity, lineNo);
+	if (!succeeded)
+		return false;
+	if (severity >= NUM_TRIGGER_SEVERITY) {
+		fprintf(stderr, "Invalid trigger severity: %d\n", severity);
+		return false;
+	} else if (severity > 0) {
+		cond.enable(ACTCOND_TRIGGER_SEVERITY);
+		cond.triggerSeverity = severity;
+	} else {
+		cond.triggerSeverity = TRIGGER_SEVERITY_UNKNOWN;
+	}
+
+	cond.hostId = ALL_HOSTS;
+	cond.triggerId = ALL_TRIGGERS;
+	cond.triggerStatus = TRIGGER_STATUS_PROBLEM;
+	cond.triggerSeverityCompType = CMP_EQ_GT;
+
+	issueSenderActionList.push_back(action);
+
+	return true;
+}
+
 static bool readConfigFile(const string &configFilePath, ConfigValue &confValue)
 {
 	ifstream ifs(configFilePath.c_str());
@@ -306,6 +373,11 @@ static bool readConfigFile(const string &configFilePath, ConfigValue &confValue)
 		} else if (element == "issueTracker") {
 			if (!parseIssueTrackerConfigLine(
 			       parsable, confValue.issueTrackerInfoVect,
+			       lineNo))
+				return false;
+		} else if (element == "issueSenderAction") {
+			if (!parseIssueSenderActionConfigLine(
+			       parsable, confValue.issueSenderActionList,
 			       lineNo))
 				return false;
 		} else {
@@ -574,6 +646,26 @@ static bool setupDBServer(const ConfigValue &confValue)
 	return true;
 }
 
+static void registerIssueSenderActions(ConfigValue &confValue)
+{
+	DBClientAction dbAction;
+	OperationPrivilege privilege(USER_ID_SYSTEM);
+	ActionDefListIterator it = confValue.issueSenderActionList.begin();
+	size_t idx = 1;
+	for (; it != confValue.issueSenderActionList.end(); ++it) {
+		ActionDef &action = *it;
+		HatoholError err = dbAction.addAction(action, privilege);
+		if (err != HTERR_OK) {
+			printf("Failed to add issue sender action: "
+			       "%d (code: %d %s)\n",
+			       idx, err.getCode(), err.getCodeName().c_str());
+		}
+		++idx;
+		printf("ISSUE SENDER_ACTION: ID: %" FMT_ACTION_ID "\n",
+		       action.id);
+	}
+}
+
 int main(int argc, char *argv[])
 {
 #ifndef GLIB_VERSION_2_36
@@ -670,6 +762,8 @@ int main(int argc, char *argv[])
 		       issueTrackerInfo.userName.c_str(),
 		       issueTrackerInfo.password.c_str());
 	}
+
+	registerIssueSenderActions(confValue);
 
 	return EXIT_SUCCESS;
 }
