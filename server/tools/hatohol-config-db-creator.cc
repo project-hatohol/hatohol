@@ -723,7 +723,7 @@ static void registerIssueSenderActions(ConfigValue &confValue)
 		HatoholError err = dbAction.addAction(action, privilege);
 		if (err != HTERR_OK) {
 			printf("Failed to add issue sender action: "
-			       "%d (code: %d %s)\n",
+			       "%zd (code: %d %s)\n",
 			       idx, err.getCode(), err.getCodeName().c_str());
 		}
 		++idx;
