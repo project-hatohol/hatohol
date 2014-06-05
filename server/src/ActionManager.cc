@@ -510,6 +510,7 @@ void ActionManager::checkEvents(const EventInfoList &eventList)
 		if (shouldSkipByLog(eventInfo, dbAction))
 			continue;
 		ActionsQueryOption option(USER_ID_SYSTEM);
+		option.setActionType(ACTION_ALL);
 		option.setTargetEventInfo(&eventInfo);
 		dbAction.getActionList(actionDefList, option);
 		ActionDefListIterator actIt = actionDefList.begin();
