@@ -68,6 +68,8 @@ public:
 	const std::string &getLastRequest(void) const;
 	const std::string &getLastResponse(void) const;
 	const RedmineIssue &getLastIssue(void) const;
+	void queueDummyResponse(const guint &soupStatus,
+				const std::string &body);
 
 protected:
 	virtual void setSoupHandlers(SoupServer *soupServer);

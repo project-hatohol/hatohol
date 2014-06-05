@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <map>
 #include <set>
+#include <queue>
 #include "RedmineAPIEmulator.h"
 #include "JsonParserAgent.h"
 #include "JsonBuilderAgent.h"
@@ -151,6 +152,11 @@ string RedmineIssue::toJson(void) const
 	return agent.generate();
 }
 
+struct Response {
+	guint  soupStatus;
+	string body;
+};
+
 struct RedmineAPIEmulator::PrivateContext {
 	PrivateContext(void)
 	: m_issueId(0)
@@ -168,6 +174,9 @@ struct RedmineAPIEmulator::PrivateContext {
 				      const char *path, GHashTable *query,
 				      SoupClientContext *client,
 				      gpointer user_data);
+	bool handlerDummyResponse(SoupMessage *msg,
+				  const char *path, GHashTable *query,
+				  SoupClientContext *client);
 	string buildResponse(RedmineIssue &issue);
 	void replyPostIssue(SoupMessage *msg);
 	int getTrackerId(const string &trackerId);
@@ -178,6 +187,7 @@ struct RedmineAPIEmulator::PrivateContext {
 	string m_lastRequest;
 	string m_lastResponse;
 	RedmineIssue m_lastIssue;
+	queue<Response> m_dummyResponseQueue;
 };
 
 RedmineAPIEmulator::RedmineAPIEmulator(void)
@@ -199,6 +209,7 @@ void RedmineAPIEmulator::reset(void)
 	m_ctx->m_lastRequest.clear();
 	m_ctx->m_lastResponse.clear();
 	m_ctx->m_lastIssue = RedmineIssue();
+	queue<Response>().swap(m_ctx->m_dummyResponseQueue);
 }
 
 void RedmineAPIEmulator::addUser(const std::string &userName,
@@ -220,6 +231,15 @@ const string &RedmineAPIEmulator::getLastResponse(void) const
 const RedmineIssue &RedmineAPIEmulator::getLastIssue(void) const
 {
 	return m_ctx->m_lastIssue;
+}
+
+void RedmineAPIEmulator::queueDummyResponse(const guint &soupStatus,
+					    const std::string &body)
+{
+	Response res;
+	res.soupStatus = soupStatus;
+	res.body = body;
+	m_ctx->m_dummyResponseQueue.push(res);
 }
 
 gboolean RedmineAPIEmulator::PrivateContext::authCallback
@@ -344,12 +364,33 @@ void RedmineAPIEmulator::PrivateContext::replyPostIssue(SoupMessage *msg)
 	}
 }
 
+bool RedmineAPIEmulator::PrivateContext::handlerDummyResponse
+  (SoupMessage *msg, const char *path, GHashTable *query,
+   SoupClientContext *client)
+{
+	if (m_dummyResponseQueue.empty())
+		return false;
+
+	Response &res = m_dummyResponseQueue.front();
+	soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
+				 res.body.c_str(), res.body.size());
+	soup_message_set_status(msg, res.soupStatus);
+	m_dummyResponseQueue.pop();
+
+	return true;
+}
+
 void RedmineAPIEmulator::PrivateContext::handlerIssuesJson
   (SoupServer *server, SoupMessage *msg, const char *path, GHashTable *query,
    SoupClientContext *client, gpointer user_data)
 {
+
 	RedmineAPIEmulator *emulator
 	  = reinterpret_cast<RedmineAPIEmulator *>(user_data);
+	RedmineAPIEmulator::PrivateContext *priv = emulator->m_ctx;
+
+	if (priv->handlerDummyResponse(msg, path ,query, client))
+		return;
 
 	string method = msg->method;
 	if (method == "GET") {
@@ -359,7 +400,7 @@ void RedmineAPIEmulator::PrivateContext::handlerIssuesJson
 		// TODO
 		soup_message_set_status(msg, SOUP_STATUS_NOT_IMPLEMENTED);
 	} else if (method == "POST") {
-		emulator->m_ctx->replyPostIssue(msg);
+		priv->replyPostIssue(msg);
 	} else if (method == "DELETE") {
 		// TODO
 		soup_message_set_status(msg, SOUP_STATUS_NOT_IMPLEMENTED);
