@@ -89,6 +89,7 @@ struct IssueSender::PrivateContext
 			job = queue.front();
 			queue.pop();
 		}
+		runningJob = job;
 		queueLock.unlock();
 		return job;
 	}
@@ -253,11 +254,9 @@ gpointer IssueSender::mainThread(HatoholThreadArg *arg)
 	MLPL_INFO("Start IssueSender thread for %" FMT_ISSUE_TRACKER_ID ":%s\n",
 		  tracker.id, tracker.nickname.c_str());
 	while ((job = m_ctx->waitNextJob())) {
-		if (!isExitRequested()) {
-			m_ctx->runningJob = job;
+		if (!isExitRequested())
 			m_ctx->trySend(*job);
-			m_ctx->runningJob = NULL;
-		}
+		m_ctx->runningJob = NULL;
 		delete job;
 	}
 	MLPL_INFO("Exited IssueSender thread for %" FMT_ISSUE_TRACKER_ID ":%s\n",
