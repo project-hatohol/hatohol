@@ -23,14 +23,6 @@ using namespace std;
 using namespace mlpl;
 using namespace qpid::messaging;
 
-template<>
-  HatoholArmPluginInterfaceTestTemplate<HatoholArmPluginGate>
-    ::HatoholArmPluginInterfaceTestTemplate(void)
-: HatoholArmPluginGate(*((MonitoringServerInfo *)NULL)), // Not used because of the virtual inheritance. We give it just to pass the build.
-  m_connectedSem(0)
-{
-}
-
 HatoholArmPluginGateTest::HatoholArmPluginGateTest(
   const MonitoringServerInfo &serverInfo, HapgTestCtx &_ctx)
 : HatoholArmPluginGate(serverInfo),

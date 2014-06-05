@@ -43,26 +43,11 @@ private:
 	std::string     receivedMessage;
 };
 
-
-template<class T>
-class HatoholArmPluginInterfaceTestTemplate : virtual public T {
+class HatoholArmPluginInterfaceTestBasis : public HatoholArmPluginInterface {
 public:
-	HatoholArmPluginInterfaceTestTemplate(void)
-	: m_connectedSem(0)
-	{
-	}
-
-	virtual void onConnected(qpid::messaging::Connection &conn) override
-	{
-		T::onConnected(conn);
-		m_connectedSem.post();
-	}
-
-	mlpl::SimpleSemaphore &getConnectedSem(void)
-	{
-		return m_connectedSem;
-	}
-
+	HatoholArmPluginInterfaceTestBasis(void);
+	virtual void onConnected(qpid::messaging::Connection &conn) override;
+	mlpl::SimpleSemaphore &getConnectedSem(void);
 private:
 	mlpl::SimpleSemaphore   m_connectedSem;
 };
