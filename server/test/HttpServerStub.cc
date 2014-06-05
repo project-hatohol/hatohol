@@ -80,7 +80,7 @@ void HttpServerStub::start(guint port)
 	}
 
 	const int retryCount = 12;
-	for (int i = 0; i <= 12; i++) {
+	for (int i = 0; i <= retryCount; i++) {
 		m_ctx->soupServer
 		  = soup_server_new(
 		      SOUP_SERVER_PORT, port,
