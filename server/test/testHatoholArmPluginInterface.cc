@@ -67,7 +67,7 @@ void test_sendAndonReceived(void)
 	testCtx.quitOnConnected = false;
 	testCtx.quitOnReceived = true;
 	cppcut_assert_equal(SimpleSemaphore::STAT_OK,
-	                    hapi.rcvSem.timedWait(TIMEOUT));
+	                    hapi.getRcvSem().timedWait(TIMEOUT));
 	cppcut_assert_equal(testMessage,
 	                    hapi.getHapiTestCtx().getReceivedMessage());
 }

@@ -108,12 +108,17 @@ void HatoholArmPluginInterfaceTestBasic::sendAsOther(const SmartBuffer &smbuf)
 // ---------------------------------------------------------------------------
 HatoholArmPluginInterfaceTest::HatoholArmPluginInterfaceTest(HapiTestCtx &ctx)
 : HatoholArmPluginInterfaceTestBasic(ctx),
-  rcvSem(0)
+  m_rcvSem(0)
 {
 }
 
 void HatoholArmPluginInterfaceTest::onReceived(mlpl::SmartBuffer &smbuf)
 {
-	m_testCtx.setReceivedMessage(smbuf);
-	rcvSem.post();
+	getHapiTestCtx().setReceivedMessage(smbuf);
+	m_rcvSem.post();
+}
+
+SimpleSemaphore &HatoholArmPluginInterfaceTest::getRcvSem(void)
+{
+	return m_rcvSem;
 }

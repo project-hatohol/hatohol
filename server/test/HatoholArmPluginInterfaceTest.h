@@ -66,16 +66,18 @@ public:
 	void sendAsOther(const std::string &msg);
 	void sendAsOther(const mlpl::SmartBuffer &smbuf);
 
-protected:
+private:
 	HapiTestCtx &m_testCtx;
 };
 
 class HatoholArmPluginInterfaceTest : public HatoholArmPluginInterfaceTestBasic {
 public:
-	mlpl::SimpleSemaphore rcvSem;
-
 	HatoholArmPluginInterfaceTest(HapiTestCtx &ctx);
 	virtual void onReceived(mlpl::SmartBuffer &smbuf) override;
+	mlpl::SimpleSemaphore &getRcvSem(void);
+
+private:
+	mlpl::SimpleSemaphore m_rcvSem;
 };
 
 #endif // HatoholArmPluginInterfaces_h
