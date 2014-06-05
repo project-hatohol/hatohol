@@ -18,6 +18,7 @@
  */
 
 #include "HttpServerStub.h"
+#include <string.h>
 
 struct HttpServerStub::PrivateContext {
 	std::string name;
@@ -78,9 +79,17 @@ void HttpServerStub::start(guint port)
 		return;
 	}
 
-	m_ctx->soupServer =
-	  soup_server_new(SOUP_SERVER_PORT, port,
-	                  SOUP_SERVER_ASYNC_CONTEXT, m_ctx->gMainCtx, NULL);
+	for (int i = 0; !m_ctx->soupServer && i < 3; i++) {
+		m_ctx->soupServer
+		  = soup_server_new(
+		      SOUP_SERVER_PORT, port,
+		      SOUP_SERVER_ASYNC_CONTEXT, m_ctx->gMainCtx, NULL);
+		if (!m_ctx->soupServer) {
+			MLPL_ERR("Failed to create SoupServer: %d: %s\n",
+				 errno, strerror(errno));
+			sleep(5);
+		}
+	}
 	soup_server_add_handler(m_ctx->soupServer, NULL, handlerDefault,
 	                        this, NULL);
 	setSoupHandlers(m_ctx->soupServer);
