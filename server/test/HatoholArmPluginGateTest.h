@@ -25,6 +25,7 @@
 #include <SmartBuffer.h>
 #include <SimpleSemaphore.h>
 #include "HatoholArmPluginGate.h"
+#include "HatoholArmPluginInterfaceTest.h"
 #include "DBClientTest.h"
 
 struct HapgTestCtx {
@@ -66,7 +67,9 @@ struct HapgTestCtx {
 	}
 };
 
-class HatoholArmPluginGateTest : public HatoholArmPluginGate {
+class HatoholArmPluginGateTest :
+   virtual public HatoholArmPluginGate,
+   virtual public HatoholArmPluginInterfaceTestBasis {
 public:
 	HatoholArmPluginGateTest(const MonitoringServerInfo &serverInfo,
 	                         HapgTestCtx &_ctx);
