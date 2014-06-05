@@ -31,7 +31,7 @@ using namespace std;
 using namespace mlpl;
 
 static const size_t DEFAULT_RETRY_LIMIT = 3;
-static const unsigned int DEFAULT_RETRY_INTERVAL_SECONDS = 5;
+static const unsigned int DEFAULT_RETRY_INTERVAL_MSEC = 5000;
 
 struct IssueSender::Job
 {
@@ -50,12 +50,12 @@ struct IssueSender::PrivateContext
 	std::queue<Job*> queue;
 	SimpleSemaphore jobSemaphore;
 	size_t retryLimit;
-	unsigned int retryIntervalSeconds;
+	unsigned int retryIntervalMSec;
 
 	PrivateContext(IssueSender &_sender)
 	: sender(_sender), jobSemaphore(0),
 	  retryLimit(DEFAULT_RETRY_LIMIT),
-	  retryIntervalSeconds(DEFAULT_RETRY_INTERVAL_SECONDS)
+	  retryIntervalMSec(DEFAULT_RETRY_INTERVAL_MSEC)
 	{
 	}
  
@@ -107,7 +107,7 @@ struct IssueSender::PrivateContext
 				break;
 			if (sender.isExitRequested())
 				break;
-			sleep(retryIntervalSeconds);
+			usleep(retryIntervalMSec * 1000);
 			if (sender.isExitRequested())
 				break;
 		}
@@ -137,6 +137,16 @@ void IssueSender::queue(const EventInfo &eventInfo)
 {
 	Job *job = new Job(eventInfo);
 	m_ctx->pushJob(job);
+}
+
+void IssueSender::setRetryLimit(const size_t &limit)
+{
+	m_ctx->retryLimit = limit;
+}
+
+void IssueSender::setRetryInterval(const unsigned int &msec)
+{
+	m_ctx->retryIntervalMSec = msec;
 }
 
 const IssueTrackerInfo &IssueSender::getIssueTrackerInfo(void)

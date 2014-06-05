@@ -285,4 +285,60 @@ void test_thread(void)
 	assertDBContent(dbAgent, statement, expect);
 }
 
+void test_threadWithWithInLimitErrors(void)
+{
+	setupTestDBConfig(true, true);
+	const IssueTrackerInfo tracker = testIssueTrackerInfo[2];
+	const EventInfo &event = testEventInfo[0];
+	TestRedmineSender sender(tracker);
+	sender.setRetryInterval(10);
+	g_redmineEmulator.addUser(tracker.userName, tracker.password);
+	for (size_t i = 0; i < 3; i++)
+		g_redmineEmulator.queueDummyResponse(
+		  SOUP_STATUS_INTERNAL_SERVER_ERROR);
+	sender.start();
+	sender.queue(event);
+	// TODO:
+	// Should detect completing the job
+	// (I'll add callback mechanism to realize ActionLog)
+	usleep(500 * 1000);
+	sender.exitSync();
+
+	// check the posted issue
+	IssueInfo issue;
+	makeExpectedIssueInfo(issue, tracker, event,
+			      g_redmineEmulator.getLastIssue());
+	DBClientHatohol dbClientHatohol;
+	DBAgent *dbAgent = dbClientHatohol.getDBAgent();
+	string statement = "select * from issues;";
+	string expect = makeIssueOutput(issue);
+	assertDBContent(dbAgent, statement, expect);
+}
+
+void test_threadWithLimitOverErrors(void)
+{
+	setupTestDBConfig(true, true);
+	const IssueTrackerInfo tracker = testIssueTrackerInfo[2];
+	const EventInfo &event = testEventInfo[0];
+	TestRedmineSender sender(tracker);
+	sender.setRetryInterval(10);
+	g_redmineEmulator.addUser(tracker.userName, tracker.password);
+	for (size_t i = 0; i < 4; i++)
+		g_redmineEmulator.queueDummyResponse(
+		  SOUP_STATUS_INTERNAL_SERVER_ERROR);
+	sender.start();
+	sender.queue(event);
+	// TODO:
+	// Should detect completing the job
+	// (I'll add callback mechanism to realize ActionLog)
+	usleep(500 * 1000);
+	sender.exitSync();
+
+	// check the posted issue
+	DBClientHatohol dbClientHatohol;
+	DBAgent *dbAgent = dbClientHatohol.getDBAgent();
+	string statement = "select * from issues;";
+	assertDBContent(dbAgent, statement, string(""));
+}
+
 }

@@ -35,6 +35,8 @@ public:
 
 	virtual HatoholError send(const EventInfo &event) = 0;
 	void queue(const EventInfo &eventInfo);
+	void setRetryLimit(const size_t &limit);
+	void setRetryInterval(const unsigned int &msec);
 
 protected:
 	const IssueTrackerInfo &getIssueTrackerInfo(void);
