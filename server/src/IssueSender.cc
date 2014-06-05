@@ -23,6 +23,7 @@
 #include "CacheServiceDBClient.h"
 #include "MutexLock.h"
 #include "SimpleSemaphore.h"
+#include "Reaper.h"
 #include "AtomicValue.h"
 #include <unistd.h>
 #include <time.h>
@@ -149,6 +150,15 @@ void IssueSender::setRetryLimit(const size_t &limit)
 void IssueSender::setRetryInterval(const unsigned int &msec)
 {
 	m_ctx->retryIntervalMSec = msec;
+}
+
+bool IssueSender::isIdling(void)
+{
+	m_ctx->queueLock.lock();
+	Reaper<MutexLock> unlocker(&m_ctx->queueLock, MutexLock::unlock);
+	if (!m_ctx->queue.empty())
+		return false;
+	return !m_ctx->runningJob;
 }
 
 const IssueTrackerInfo &IssueSender::getIssueTrackerInfo(void)

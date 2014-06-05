@@ -37,6 +37,7 @@ public:
 	void queue(const EventInfo &eventInfo);
 	void setRetryLimit(const size_t &limit);
 	void setRetryInterval(const unsigned int &msec);
+	bool isIdling(void);
 
 protected:
 	const IssueTrackerInfo &getIssueTrackerInfo(void);

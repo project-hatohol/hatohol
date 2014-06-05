@@ -272,10 +272,8 @@ void _assertThread(size_t numErrors, bool shouldSuccess = true)
 		  SOUP_STATUS_INTERNAL_SERVER_ERROR);
 	sender.start();
 	sender.queue(event);
-	// TODO:
-	// Should detect completing the job
-	// (I'll add callback mechanism to realize ActionLog)
-	usleep(200 * 1000);
+	while (!sender.isIdling())
+		usleep(100 * 1000);
 	sender.exitSync();
 
 	// check the posted issue
