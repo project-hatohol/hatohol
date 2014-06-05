@@ -79,15 +79,18 @@ void HttpServerStub::start(guint port)
 		return;
 	}
 
-	for (int i = 0; !m_ctx->soupServer && i < 3; i++) {
+	const int retryCount = 12;
+	for (int i = 0; !m_ctx->soupServer && i <= 12; i++) {
 		m_ctx->soupServer
 		  = soup_server_new(
 		      SOUP_SERVER_PORT, port,
 		      SOUP_SERVER_ASYNC_CONTEXT, m_ctx->gMainCtx, NULL);
+
 		if (!m_ctx->soupServer) {
 			MLPL_ERR("Failed to create SoupServer: %d: %s\n",
 				 errno, strerror(errno));
-			sleep(5);
+			if (i != retryCount)
+				sleep(5);
 		}
 	}
 	soup_server_add_handler(m_ctx->soupServer, NULL, handlerDefault,
