@@ -43,10 +43,10 @@ private:
 	std::string     receivedMessage;
 };
 
-class HatoholArmPluginInterfaceTestBasis : public HatoholArmPluginInterface {
+class HatoholArmPluginInterfaceTestHelper {
 public:
-	HatoholArmPluginInterfaceTestBasis(void);
-	virtual void onConnected(qpid::messaging::Connection &conn) override;
+	HatoholArmPluginInterfaceTestHelper(void);
+	void onConnected(qpid::messaging::Connection &conn);
 	mlpl::SimpleSemaphore &getConnectedSem(void);
 private:
 	mlpl::SimpleSemaphore   m_connectedSem;

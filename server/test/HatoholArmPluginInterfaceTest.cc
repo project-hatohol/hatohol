@@ -52,19 +52,19 @@ void HapiTestCtx::setReceivedMessage(const SmartBuffer &smbuf)
 }
 
 // ---------------------------------------------------------------------------
-//  HatoholArmPluginInterfaceTestBasis
+//  HatoholArmPluginInterfaceTestHelper
 // ---------------------------------------------------------------------------
-HatoholArmPluginInterfaceTestBasis::HatoholArmPluginInterfaceTestBasis(void)
+HatoholArmPluginInterfaceTestHelper::HatoholArmPluginInterfaceTestHelper(void)
 : m_connectedSem(0)
 {
 }
 
-void HatoholArmPluginInterfaceTestBasis::onConnected(Connection &conn)
+void HatoholArmPluginInterfaceTestHelper::onConnected(Connection &conn)
 {
 	m_connectedSem.post();
 }
 
-SimpleSemaphore &HatoholArmPluginInterfaceTestBasis::getConnectedSem(void)
+SimpleSemaphore &HatoholArmPluginInterfaceTestHelper::getConnectedSem(void)
 {
 	return m_connectedSem;
 }
