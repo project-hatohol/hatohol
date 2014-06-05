@@ -727,7 +727,7 @@ static void registerIssueSenderActions(ConfigValue &confValue)
 			       idx, err.getCode(), err.getCodeName().c_str());
 		}
 		++idx;
-		printf("ISSUE SENDER_ACTION: ID: %" FMT_ACTION_ID "\n",
+		printf("ISSUE SENDER ACTION: ID: %" FMT_ACTION_ID "\n",
 		       action.id);
 	}
 }
