@@ -30,6 +30,7 @@ public:
 
 	void queue(const IssueTrackerIdType &trackerId,
 		   const EventInfo &info);
+	bool isIdling(void);
 
 protected:
 	IssueSenderManager(void);

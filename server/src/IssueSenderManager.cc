@@ -123,3 +123,19 @@ IssueSenderManager::~IssueSenderManager()
 {
 	delete m_ctx;
 }
+
+bool IssueSenderManager::isIdling(void)
+{
+	m_ctx->sendersLock.lock();
+	Reaper<MutexLock> unlocker(&m_ctx->sendersLock, MutexLock::unlock);
+
+	map<IssueTrackerIdType, IssueSender*>::iterator it
+	  = m_ctx->sendersMap.begin();
+	for (; it != m_ctx->sendersMap.end(); it++) {
+		IssueSender *sender = it->second;
+		if (!sender->isIdling())
+			return false;
+	}
+
+	return true;
+}

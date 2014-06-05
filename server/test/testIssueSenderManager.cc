@@ -66,7 +66,8 @@ void test_sendRedmineIssue(void)
 	g_redmineEmulator.addUser(tracker.userName, tracker.password);
 	TestIssueSenderManager manager;
 	manager.queue(trackerId, testEventInfo[0]);
-	usleep(300 * 1000); // TODO: should syncronize with completing the job
+	while (!manager.isIdling())
+		usleep(100 * 1000);
 	const string &json = g_redmineEmulator.getLastResponse();
 	cppcut_assert_equal(false, json.empty());
 }
