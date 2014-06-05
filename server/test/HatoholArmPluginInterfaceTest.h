@@ -52,7 +52,10 @@ private:
 	mlpl::SimpleSemaphore   m_connectedSem;
 };
 
-class HatoholArmPluginInterfaceTestBasic : public HatoholArmPluginInterface {
+class HatoholArmPluginInterfaceTestBasic :
+  public HatoholArmPluginInterface,
+  public HatoholArmPluginInterfaceTestHelper
+{
 	struct OtherSide {
 		HapiTestCtx ctx;
 		HatoholArmPluginInterfaceTestBasic *obj;

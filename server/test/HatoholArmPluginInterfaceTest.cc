@@ -102,6 +102,7 @@ void HatoholArmPluginInterfaceTestBasic::onConnected(Connection &conn)
 	m_testCtx.connected = true;
 	if (m_testCtx.quitOnConnected)
 		m_testCtx.sem.post();
+	HatoholArmPluginInterfaceTestHelper::onConnected(conn);
 }
 
 HapiTestCtx &HatoholArmPluginInterfaceTestBasic::getHapiTestCtx(void)
