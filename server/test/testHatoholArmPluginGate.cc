@@ -35,40 +35,40 @@ using namespace qpid::messaging;
 
 namespace testHatoholArmPluginGate {
 
-static void _assertStartAndExit(HapgTestArg &arg)
+static void _assertStartAndExit(HapgTestCtx &ctx)
 {
 	static const size_t TIMEOUT = 5000;
 	setupTestDBConfig();
 	loadTestDBArmPlugin();
 	MonitoringServerInfo serverInfo;
 	initServerInfo(serverInfo);
-	serverInfo.type = arg.monitoringSystemType;
+	serverInfo.type = ctx.monitoringSystemType;
 	HatoholArmPluginGateTest *hapg =
-	  new HatoholArmPluginGateTest(serverInfo, arg);
+	  new HatoholArmPluginGateTest(serverInfo, ctx);
 	HatoholArmPluginGatePtr pluginGate(hapg, false);
 	const ArmStatus &armStatus = pluginGate->getArmStatus();
 	cppcut_assert_equal(false, armStatus.getArmInfo().running);
 	pluginGate->start();
 	cppcut_assert_equal(true, armStatus.getArmInfo().running);
 	cppcut_assert_equal(
-	  SimpleSemaphore::STAT_OK, arg.launchedSem.timedWait(TIMEOUT));
-	cppcut_assert_equal(arg.expectedResultOfStart, arg.launchSucceeded);
+	  SimpleSemaphore::STAT_OK, ctx.launchedSem.timedWait(TIMEOUT));
+	cppcut_assert_equal(ctx.expectedResultOfStart, ctx.launchSucceeded);
 
 	SimpleSemaphore::Status status = SimpleSemaphore::STAT_OK;
-	if (arg.waitMainSem)
-		status = arg.mainSem.timedWait(TIMEOUT);
+	if (ctx.waitMainSem)
+		status = ctx.mainSem.timedWait(TIMEOUT);
 
 	pluginGate->exitSync();
 	// These assertions must be after pluginGate->exitSync()
 	// to be sure to exit the thread.
 	cppcut_assert_equal(SimpleSemaphore::STAT_OK, status);
 	cppcut_assert_equal(false, armStatus.getArmInfo().running);
-	cppcut_assert_equal(false, arg.abnormalChildTerm);
-	if (arg.checkMessage)
-		cppcut_assert_equal(string(testMessage), arg.rcvMessage);
-	cppcut_assert_equal(false, arg.gotUnexceptedException);
-	if (arg.checkNumRetry)
-		cppcut_assert_equal(arg.numRetry, arg.retryCount-1);
+	cppcut_assert_equal(false, ctx.abnormalChildTerm);
+	if (ctx.checkMessage)
+		cppcut_assert_equal(string(testMessage), ctx.rcvMessage);
+	cppcut_assert_equal(false, ctx.gotUnexceptedException);
+	if (ctx.checkNumRetry)
+		cppcut_assert_equal(ctx.numRetry, ctx.retryCount-1);
 }
 #define assertStartAndExit(A) cut_trace(_assertStartAndExit(A))
 
@@ -90,28 +90,28 @@ void test_constructor(void)
 
 void test_startAndWaitExit(void)
 {
-	HapgTestArg arg;
-	arg.monitoringSystemType = MONITORING_SYSTEM_HAPI_TEST;
-	arg.expectedResultOfStart = true;
-	arg.waitMainSem = true;
-	arg.checkMessage = true;
-	assertStartAndExit(arg);
+	HapgTestCtx ctx;
+	ctx.monitoringSystemType = MONITORING_SYSTEM_HAPI_TEST;
+	ctx.expectedResultOfStart = true;
+	ctx.waitMainSem = true;
+	ctx.checkMessage = true;
+	assertStartAndExit(ctx);
 }
 
 void test_startWithInvalidPath(void)
 {
-	HapgTestArg arg;
-	arg.monitoringSystemType = MONITORING_SYSTEM_HAPI_TEST_NOT_EXIST;
-	arg.expectedResultOfStart = false;
-	assertStartAndExit(arg);
+	HapgTestCtx ctx;
+	ctx.monitoringSystemType = MONITORING_SYSTEM_HAPI_TEST_NOT_EXIST;
+	ctx.expectedResultOfStart = false;
+	assertStartAndExit(ctx);
 }
 
 void test_startWithPassivePlugin(void)
 {
-	HapgTestArg arg;
-	arg.monitoringSystemType = MONITORING_SYSTEM_HAPI_TEST_PASSIVE;
-	arg.expectedResultOfStart = true;
-	assertStartAndExit(arg);
+	HapgTestCtx ctx;
+	ctx.monitoringSystemType = MONITORING_SYSTEM_HAPI_TEST_PASSIVE;
+	ctx.expectedResultOfStart = true;
+	assertStartAndExit(ctx);
 }
 
 void test_generateBrokerAddress(void)
@@ -126,26 +126,26 @@ void test_generateBrokerAddress(void)
 
 void test_retryToConnect(void)
 {
-	HapgTestArg arg;
-	arg.monitoringSystemType = MONITORING_SYSTEM_HAPI_TEST;
-	arg.expectedResultOfStart = true;
-	arg.waitMainSem = true;
-	arg.checkMessage = true;
-	arg.numRetry = 3;
-	arg.checkNumRetry = true;
-	assertStartAndExit(arg);
+	HapgTestCtx ctx;
+	ctx.monitoringSystemType = MONITORING_SYSTEM_HAPI_TEST;
+	ctx.expectedResultOfStart = true;
+	ctx.waitMainSem = true;
+	ctx.checkMessage = true;
+	ctx.numRetry = 3;
+	ctx.checkNumRetry = true;
+	assertStartAndExit(ctx);
 }
 
 void test_abortRetryWait(void)
 {
-	HapgTestArg arg;
-	arg.monitoringSystemType = MONITORING_SYSTEM_HAPI_TEST;
-	arg.expectedResultOfStart = true;
-	arg.checkMessage = false;
-	arg.numRetry = 1;
-	arg.retrySleepTime = 3600 * 1000; // any value OK if it's long enough
-	arg.cancelRetrySleep = true;
-	assertStartAndExit(arg);
+	HapgTestCtx ctx;
+	ctx.monitoringSystemType = MONITORING_SYSTEM_HAPI_TEST;
+	ctx.expectedResultOfStart = true;
+	ctx.checkMessage = false;
+	ctx.numRetry = 1;
+	ctx.retrySleepTime = 3600 * 1000; // any value OK if it's long enough
+	ctx.cancelRetrySleep = true;
+	assertStartAndExit(ctx);
 }
 
 } // namespace testHatoholArmPluginGate

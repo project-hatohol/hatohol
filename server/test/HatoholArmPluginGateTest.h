@@ -27,7 +27,7 @@
 #include "HatoholArmPluginGate.h"
 #include "DBClientTest.h"
 
-struct HapgTestArg {
+struct HapgTestCtx {
 	// Set by test cases if needed
 	MonitoringSystemType monitoringSystemType;
 	bool                 expectedResultOfStart;
@@ -47,7 +47,7 @@ struct HapgTestArg {
 	bool                  gotUnexceptedException;
 	size_t                retryCount;
 
-	HapgTestArg(void)
+	HapgTestCtx(void)
 	: monitoringSystemType(MONITORING_SYSTEM_HAPI_TEST),
 	  expectedResultOfStart(false),
 	  waitMainSem(false),
@@ -69,7 +69,7 @@ struct HapgTestArg {
 class HatoholArmPluginGateTest : public HatoholArmPluginGate {
 public:
 	HatoholArmPluginGateTest(const MonitoringServerInfo &serverInfo,
-	                         HapgTestArg &_arg);
+	                         HapgTestCtx &_ctx);
 	static std::string callGenerateBrokerAddress(
 	  const MonitoringServerInfo &serverInfo);
 
@@ -86,7 +86,7 @@ public:
 	void canncelRetrySleepIfNeeded(void);
 
 private:
-	HapgTestArg       &m_arg;
+	HapgTestCtx       &m_ctx;
 };
 
 #endif // HatoholArmPluginGateTest_h

@@ -24,9 +24,9 @@ using namespace mlpl;
 using namespace qpid::messaging;
 
 HatoholArmPluginGateTest::HatoholArmPluginGateTest(
-  const MonitoringServerInfo &serverInfo, HapgTestArg &_arg)
+  const MonitoringServerInfo &serverInfo, HapgTestCtx &_ctx)
 : HatoholArmPluginGate(serverInfo),
-  m_arg(_arg)
+  m_ctx(_ctx)
 {
 }
 
@@ -38,19 +38,19 @@ string HatoholArmPluginGateTest::callGenerateBrokerAddress(
 
 void HatoholArmPluginGateTest::onSessionChanged(Session *session)
 {
-	if (m_arg.numRetry && session) {
-		if (m_arg.retryCount < m_arg.numRetry)
+	if (m_ctx.numRetry && session) {
+		if (m_ctx.retryCount < m_ctx.numRetry)
 			session->close();
-		m_arg.retryCount++;
+		m_ctx.retryCount++;
 	}
 }
 
 void HatoholArmPluginGateTest::onReceived(SmartBuffer &smbuf)
 {
-	if (m_arg.numRetry && m_arg.retryCount <= m_arg.numRetry)
+	if (m_ctx.numRetry && m_ctx.retryCount <= m_ctx.numRetry)
 		return;
-	m_arg.rcvMessage = std::string(smbuf, smbuf.size());
-	m_arg.mainSem.post();
+	m_ctx.rcvMessage = std::string(smbuf, smbuf.size());
+	m_ctx.mainSem.post();
 }
 
 void HatoholArmPluginGateTest::onTerminated(const siginfo_t *siginfo)
@@ -59,8 +59,8 @@ void HatoholArmPluginGateTest::onTerminated(const siginfo_t *siginfo)
 	    siginfo->si_code  == CLD_EXITED) {
 		return;
 	}
-	m_arg.mainSem.post();
-	m_arg.abnormalChildTerm = true;
+	m_ctx.mainSem.post();
+	m_ctx.abnormalChildTerm = true;
 	MLPL_ERR("si_signo: %d, si_code: %d\n",
 	         siginfo->si_signo, siginfo->si_code);
 }
@@ -68,26 +68,26 @@ void HatoholArmPluginGateTest::onTerminated(const siginfo_t *siginfo)
 int HatoholArmPluginGateTest::onCaughtException(const exception &e)
 {
 	printf("onCaughtException: %s\n", e.what());
-	if (m_arg.numRetry) {
+	if (m_ctx.numRetry) {
 		canncelRetrySleepIfNeeded();
-		return m_arg.retrySleepTime;
+		return m_ctx.retrySleepTime;
 	}
 
-	if (m_arg.rcvMessage.empty())
-		m_arg.gotUnexceptedException = true;
+	if (m_ctx.rcvMessage.empty())
+		m_ctx.gotUnexceptedException = true;
 	return HatoholArmPluginGate::NO_RETRY;
 }
 
 void HatoholArmPluginGateTest::onLaunchedProcess(
   const bool &succeeded, const ArmPluginInfo &armPluginInfo)
 {
-	m_arg.launchSucceeded = succeeded;
-	m_arg.launchedSem.post();
+	m_ctx.launchSucceeded = succeeded;
+	m_ctx.launchedSem.post();
 }
 
 void HatoholArmPluginGateTest::canncelRetrySleepIfNeeded(void)
 {
-	if (!m_arg.cancelRetrySleep)
+	if (!m_ctx.cancelRetrySleep)
 		return;
-	m_arg.mainSem.post();
+	m_ctx.mainSem.post();
 }
