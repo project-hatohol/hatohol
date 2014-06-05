@@ -19,6 +19,7 @@
 
 #include "HttpServerStub.h"
 #include <string.h>
+#include <errno.h>
 
 struct HttpServerStub::PrivateContext {
 	std::string name;
