@@ -301,13 +301,15 @@ void test_thread(void)
 
 void test_threadWithWithInLimitErrors(void)
 {
-	assertThread(3);
+	const size_t retryLimit = 3;
+	assertThread(retryLimit);
 }
 
 void test_threadWithLimitOverErrors(void)
 {
+	const size_t retryLimit = 3;
 	bool shouldSuccessSending = true;
-	assertThread(4, !shouldSuccessSending);
+	assertThread(retryLimit + 1, !shouldSuccessSending);
 }
 
 }
