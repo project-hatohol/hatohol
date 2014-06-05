@@ -18,6 +18,7 @@
  */
 
 #include "HttpServerStub.h"
+#include "Utils.h"
 #include <string.h>
 #include <errno.h>
 
@@ -94,6 +95,8 @@ void HttpServerStub::start(guint port)
 			 errno, strerror(errno));
 		if (i < retryCount)
 			sleep(5);
+		else
+			MLPL_ERR("%s", Utils::getUsingPortInfo(port).c_str());
 	}
 	soup_server_add_handler(m_ctx->soupServer, NULL, handlerDefault,
 	                        this, NULL);
