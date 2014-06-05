@@ -35,10 +35,9 @@ using namespace qpid::messaging;
 
 namespace testHatoholArmPluginGate {
 
-static int TIME_OUT = 5000;
-
 static void _assertStartAndExit(HapgTestArg &arg)
 {
+	static const size_t TIMEOUT = 5000;
 	setupTestDBConfig();
 	loadTestDBArmPlugin();
 	MonitoringServerInfo serverInfo;
@@ -52,12 +51,12 @@ static void _assertStartAndExit(HapgTestArg &arg)
 	pluginGate->start();
 	cppcut_assert_equal(true, armStatus.getArmInfo().running);
 	cppcut_assert_equal(
-	  SimpleSemaphore::STAT_OK, arg.launchedSem.timedWait(TIME_OUT));
+	  SimpleSemaphore::STAT_OK, arg.launchedSem.timedWait(TIMEOUT));
 	cppcut_assert_equal(arg.expectedResultOfStart, arg.launchSucceeded);
 
 	SimpleSemaphore::Status status = SimpleSemaphore::STAT_OK;
 	if (arg.waitMainSem)
-		status = arg.mainSem.timedWait(TIME_OUT);
+		status = arg.mainSem.timedWait(TIMEOUT);
 
 	pluginGate->exitSync();
 	// These assertions must be after pluginGate->exitSync()
