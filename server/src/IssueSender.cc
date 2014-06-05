@@ -23,6 +23,7 @@
 #include "CacheServiceDBClient.h"
 #include "MutexLock.h"
 #include "SimpleSemaphore.h"
+#include "AtomicValue.h"
 #include <unistd.h>
 #include <time.h>
 #include <queue>
@@ -48,6 +49,7 @@ struct IssueSender::PrivateContext
 	IssueTrackerInfo issueTrackerInfo;
 	MutexLock queueLock;
 	std::queue<Job*> queue;
+	AtomicValue<Job*> runningJob;
 	SimpleSemaphore jobSemaphore;
 	size_t retryLimit;
 	unsigned int retryIntervalMSec;
@@ -241,8 +243,11 @@ gpointer IssueSender::mainThread(HatoholThreadArg *arg)
 	MLPL_INFO("Start IssueSender thread for %" FMT_ISSUE_TRACKER_ID ":%s\n",
 		  tracker.id, tracker.nickname.c_str());
 	while ((job = m_ctx->waitNextJob())) {
-		if (!isExitRequested())
+		if (!isExitRequested()) {
+			m_ctx->runningJob = job;
 			m_ctx->trySend(*job);
+			m_ctx->runningJob = NULL;
+		}
 		delete job;
 	}
 	MLPL_INFO("Exited IssueSender thread for %" FMT_ISSUE_TRACKER_ID ":%s\n",
