@@ -259,14 +259,32 @@ void test_parseResponse(void)
 			    makeIssueOutput(actual));
 }
 
+struct CallbackData
+{
+	size_t errorsCount;
+	bool   succeeded;
+	bool   failed;
+
+	CallbackData()
+	: errorsCount(0), succeeded(false), failed(false)
+	{
+	}
+};
+
 static void statusCallback(const EventInfo &info,
 			   const IssueSender::JobStatus &status,
 			   void *userData)
 {
-	size_t *actualErrorsCount = static_cast<size_t*>(userData);
+	CallbackData *data = static_cast<CallbackData*>(userData);
 	switch (status) {
 	case IssueSender::JOB_RETRYING:
-		(*actualErrorsCount)++;
+		data->errorsCount++;
+		break;
+	case IssueSender::JOB_SUCCEEDED:
+		data->succeeded = true;
+		break;
+	case IssueSender::JOB_FAILED:
+		data->failed = true;
 		break;
 	default:
 		break;
@@ -279,7 +297,7 @@ void _assertThread(size_t numErrors, bool shouldSuccess = true)
 	const IssueTrackerInfo tracker = testIssueTrackerInfo[2];
 	const EventInfo &event = testEventInfo[0];
 	TestRedmineSender sender(tracker);
-	size_t actualErrorsCount = 0;
+	CallbackData cbData;
 	sender.setRetryInterval(10);
 	g_redmineEmulator.addUser(tracker.userName, tracker.password);
 	for (size_t i = 0; i < numErrors; i++)
@@ -287,13 +305,15 @@ void _assertThread(size_t numErrors, bool shouldSuccess = true)
 		  SOUP_STATUS_INTERNAL_SERVER_ERROR);
 
 	sender.start();
-	sender.queue(event, statusCallback, (void*)&actualErrorsCount);
+	sender.queue(event, statusCallback, (void*)&cbData);
 	while (!sender.isIdling())
 		usleep(100 * 1000);
 	sender.exitSync();
 
 	size_t expectedErrorsCount = shouldSuccess ? numErrors : 3;
-	cppcut_assert_equal(expectedErrorsCount, actualErrorsCount);
+	cppcut_assert_equal(expectedErrorsCount, cbData.errorsCount);
+	cppcut_assert_equal(shouldSuccess, cbData.succeeded);
+	cppcut_assert_equal(!shouldSuccess, cbData.failed);
 
 	// check the posted issue
 	string expect;

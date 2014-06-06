@@ -134,7 +134,7 @@ struct IssueSender::PrivateContext
 			job.notifyStatus(JOB_RETRYING);
 		}
 		if (result == HTERR_OK)
-			job.notifyStatus(JOB_COMPLETED);
+			job.notifyStatus(JOB_SUCCEEDED);
 		else
 			job.notifyStatus(JOB_FAILED);
 		return result;
