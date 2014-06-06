@@ -38,9 +38,19 @@ static const unsigned int DEFAULT_RETRY_INTERVAL_MSEC = 5000;
 struct IssueSender::Job
 {
 	EventInfo eventInfo;
-	Job(const EventInfo &_eventInfo)
-	: eventInfo(_eventInfo)
+	StatusCallback callback;
+	void *userData;
+
+	Job(const EventInfo &_eventInfo, StatusCallback _callback = NULL,
+	    void *_userData = NULL)
+	: eventInfo(_eventInfo), callback(_callback), userData(_userData)
 	{
+	}
+
+	void notifyStatus(const JobStatus &status) const
+	{
+		if (callback)
+			callback(eventInfo, status, userData);
 	}
 };
 
@@ -77,6 +87,7 @@ struct IssueSender::PrivateContext
 	{
 		queueLock.lock();
 		queue.push(job);
+		job->notifyStatus(JOB_QUEUED);
 		jobSemaphore.post();
 		queueLock.unlock();
 	}
@@ -90,6 +101,7 @@ struct IssueSender::PrivateContext
 			queue.pop();
 		}
 		runningJob = job;
+		job->notifyStatus(JOB_STARTED);
 		queueLock.unlock();
 		return job;
 	}
@@ -111,13 +123,20 @@ struct IssueSender::PrivateContext
 				break;
 			if (i == retryLimit)
 				break;
+			if (sender.isExitRequested())
+				break;
+
+			job.notifyStatus(JOB_WAITING_RETRY);
+			usleep(retryIntervalMSec * 1000);
 
 			if (sender.isExitRequested())
 				break;
-			usleep(retryIntervalMSec * 1000);
-			if (sender.isExitRequested())
-				break;
+			job.notifyStatus(JOB_RETRYING);
 		}
+		if (result == HTERR_OK)
+			job.notifyStatus(JOB_COMPLETED);	
+		else
+			job.notifyStatus(JOB_FAILED);
 		return result;
 	}
 };
@@ -140,9 +159,10 @@ void IssueSender::waitExit(void)
 	HatoholThreadBase::waitExit();
 }
 
-void IssueSender::queue(const EventInfo &eventInfo)
+void IssueSender::queue(const EventInfo &eventInfo,
+			StatusCallback callback, void *userData)
 {
-	Job *job = new Job(eventInfo);
+	Job *job = new Job(eventInfo, callback, userData);
 	m_ctx->pushJob(job);
 }
 

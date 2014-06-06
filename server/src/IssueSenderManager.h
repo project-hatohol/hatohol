@@ -22,6 +22,7 @@
 
 #include "Params.h"
 #include "DBClientHatohol.h"
+#include "IssueSender.h"
 
 class IssueSenderManager
 {
@@ -29,7 +30,9 @@ public:
 	static IssueSenderManager &getInstance(void);
 
 	void queue(const IssueTrackerIdType &trackerId,
-		   const EventInfo &info);
+		   const EventInfo &info,
+		   IssueSender::StatusCallback callback = NULL,
+		   void *userData = NULL);
 	bool isIdling(void);
 
 protected:

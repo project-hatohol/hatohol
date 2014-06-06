@@ -102,7 +102,8 @@ IssueSenderManager &IssueSenderManager::getInstance(void)
 }
 
 void IssueSenderManager::queue(
-  const IssueTrackerIdType &trackerId, const EventInfo &eventInfo)
+  const IssueTrackerIdType &trackerId, const EventInfo &eventInfo,
+  IssueSender::StatusCallback callback, void *userData)
 {
 	IssueSender *sender = m_ctx->getSender(trackerId);
 	if (!sender) {

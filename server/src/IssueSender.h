@@ -28,13 +28,28 @@
 class IssueSender : public HatoholThreadBase
 {
 public:
+	typedef enum {
+		JOB_QUEUED,
+		JOB_STARTED,
+		JOB_WAITING_RETRY,
+		JOB_RETRYING,
+		JOB_COMPLETED,
+		JOB_FAILED,
+	} JobStatus;
+
+	typedef void (*StatusCallback)(const EventInfo &info,
+				       const JobStatus &status,
+				       void *userData);
+
 	IssueSender(const IssueTrackerInfo &tracker);
 	virtual ~IssueSender();
 
 	virtual void waitExit(void) override;
 
 	virtual HatoholError send(const EventInfo &event) = 0;
-	void queue(const EventInfo &eventInfo);
+	void queue(const EventInfo &eventInfo,
+		   StatusCallback callback = NULL,
+		   void *userData = NULL);
 	void setRetryLimit(const size_t &limit);
 	void setRetryInterval(const unsigned int &msec);
 	bool isIdling(void);
