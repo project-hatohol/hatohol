@@ -212,7 +212,7 @@ protected:
 		  resBuf.getPointer<HapiResponseHeader>(0);
 		header->type = HAPI_MSG_RESPONSE;
 		header->code = HAPI_RES_OK;
-		return resBuf.getPointer<T>(sizeof(T));
+		return resBuf.getPointer<T>(sizeof(HapiResponseHeader));
 	}
 
 private:
