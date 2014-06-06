@@ -1263,6 +1263,10 @@ void ActionManager::notifyEvent(ResidentInfo *residentInfo,
 	dbAction.updateLogStatusToStart(notifyInfo->logId);
 }
 
+/*
+ * executed on the following thread(s)
+ * - IssueSender thread
+ */
 static void onIssueSenderJobStatusChanged(
   const EventInfo &info, const IssueSender::JobStatus &status,
   void *userData)
