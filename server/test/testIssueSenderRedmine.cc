@@ -259,22 +259,41 @@ void test_parseResponse(void)
 			    makeIssueOutput(actual));
 }
 
+static void statusCallback(const EventInfo &info,
+			   const IssueSender::JobStatus &status,
+			   void *userData)
+{
+	size_t *actualErrorsCount = static_cast<size_t*>(userData);
+	switch (status) {
+	case IssueSender::JOB_RETRYING:
+		(*actualErrorsCount)++;
+		break;
+	default:
+		break;
+	}
+}
+
 void _assertThread(size_t numErrors, bool shouldSuccess = true)
 {
 	setupTestDBConfig(true, true);
 	const IssueTrackerInfo tracker = testIssueTrackerInfo[2];
 	const EventInfo &event = testEventInfo[0];
 	TestRedmineSender sender(tracker);
+	size_t actualErrorsCount = 0;
 	sender.setRetryInterval(10);
 	g_redmineEmulator.addUser(tracker.userName, tracker.password);
 	for (size_t i = 0; i < numErrors; i++)
 		g_redmineEmulator.queueDummyResponse(
 		  SOUP_STATUS_INTERNAL_SERVER_ERROR);
+
 	sender.start();
-	sender.queue(event);
+	sender.queue(event, statusCallback, (void*)&actualErrorsCount);
 	while (!sender.isIdling())
 		usleep(100 * 1000);
 	sender.exitSync();
+
+	size_t expectedErrorsCount = shouldSuccess ? numErrors : 3;
+	cppcut_assert_equal(expectedErrorsCount, actualErrorsCount);
 
 	// check the posted issue
 	string expect;
