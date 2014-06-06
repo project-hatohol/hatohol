@@ -38,6 +38,7 @@ struct HapgTestCtx {
 	size_t               retrySleepTime; // msec.
 	bool                 cancelRetrySleep;
 	bool                 checkNumRetry;
+	bool                 useDefaultReceivedHandler;
 
 	// Set by HatoholArmgPluginTest
 	mlpl::SimpleSemaphore launchedSem;
@@ -57,6 +58,7 @@ struct HapgTestCtx {
 	  retrySleepTime(1),
 	  cancelRetrySleep(false),
 	  checkNumRetry(false),
+	  useDefaultReceivedHandler(false),
 	  launchedSem(0),
 	  launchSucceeded(false),
 	  mainSem(0),
@@ -85,10 +87,13 @@ public:
 	virtual int onCaughtException(const std::exception &e) override;
 	virtual void onLaunchedProcess(
 	  const bool &succeeded, const ArmPluginInfo &armPluginInfo) override;
+	virtual void onConnected(qpid::messaging::Connection &conn) override;
 	void canncelRetrySleepIfNeeded(void);
 
 private:
 	HapgTestCtx       &m_ctx;
 };
+
+typedef UsedCountablePtr<HatoholArmPluginGateTest> HatoholArmPluginGateTestPtr;
 
 #endif // HatoholArmPluginGateTest_h

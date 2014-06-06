@@ -52,6 +52,7 @@ SmartTime HatoholArmPluginBase::getTimestampOfLastTrigger(void)
 {
 	SmartBuffer cmdBuf(sizeof(HapiCommandHeader));
 	HapiCommandHeader *cmdHeader = cmdBuf.getPointer<HapiCommandHeader>();
+	cmdHeader->type = HAPI_MSG_COMMAND;
 	cmdHeader->code = HAPI_CMD_GET_TIMESTAMP_OF_LAST_TRIGGER;
 	send(cmdBuf);
 	waitResponseAndCheckHeader();

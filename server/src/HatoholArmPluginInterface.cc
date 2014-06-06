@@ -44,6 +44,7 @@ struct HatoholArmPluginInterface::PrivateContext {
 	Receiver   receiver;
 	Message   *currMessage;
 	CommandHandlerMap receiveHandlerMap;
+	string     receiverAddr;
 
 	PrivateContext(HatoholArmPluginInterface *_hapi,
 	               const string &_queueAddr,
@@ -84,9 +85,11 @@ struct HatoholArmPluginInterface::PrivateContext {
 			queueAddrT += "; {create: always}";
 			sender = session.createSender(queueAddrT);
 			receiver = session.createReceiver(queueAddrS);
+			receiverAddr = queueAddrS;
 		} else {
 			sender = session.createSender(queueAddrS);
 			receiver = session.createReceiver(queueAddrT);
+			receiverAddr = queueAddrT;
 		}
 		connected = true;
 		hapi->onConnected(connection);
@@ -148,6 +151,7 @@ void HatoholArmPluginInterface::setQueueAddress(const string &queueAddr)
 void HatoholArmPluginInterface::send(const string &message)
 {
 	Message request;
+	request.setReplyTo(m_ctx->receiverAddr);
 	request.setContent(message);
 	m_ctx->sender.send(request);
 }
@@ -155,6 +159,7 @@ void HatoholArmPluginInterface::send(const string &message)
 void HatoholArmPluginInterface::send(const SmartBuffer &smbuf)
 {
 	Message request;
+	request.setReplyTo(m_ctx->receiverAddr);
 	request.setContent(smbuf.getPointer<char>(0), smbuf.size());
 	m_ctx->sender.send(request);
 }

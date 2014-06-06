@@ -34,6 +34,7 @@ testHatohol_la_SOURCES = \
 	testDataStoreManager.cc testDataStoreFactory.cc \
 	testDataStoreZabbix.cc testDataStoreNagios.cc \
 	testHatoholArmPluginInterface.cc testHatoholArmPluginGate.cc \
+	testHatoholArmPluginBase.cc \
 	testHatoholError.cc \
 	testHatoholException.cc testSQLProcessorException.cc \
 	testHatoholThreadBase.cc \

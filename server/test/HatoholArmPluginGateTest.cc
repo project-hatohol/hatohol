@@ -47,6 +47,10 @@ void HatoholArmPluginGateTest::onSessionChanged(Session *session)
 
 void HatoholArmPluginGateTest::onReceived(SmartBuffer &smbuf)
 {
+	if (m_ctx.useDefaultReceivedHandler) {
+		HatoholArmPluginGate::onReceived(smbuf);
+		return;
+	}
 	if (m_ctx.numRetry && m_ctx.retryCount <= m_ctx.numRetry)
 		return;
 	m_ctx.rcvMessage = std::string(smbuf, smbuf.size());
@@ -83,6 +87,10 @@ void HatoholArmPluginGateTest::onLaunchedProcess(
 {
 	m_ctx.launchSucceeded = succeeded;
 	m_ctx.launchedSem.post();
+}
+void HatoholArmPluginGateTest::onConnected(Connection &conn)
+{
+	HapiTestHelper::onConnected(conn);
 }
 
 void HatoholArmPluginGateTest::canncelRetrySleepIfNeeded(void)
