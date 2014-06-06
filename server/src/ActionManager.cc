@@ -1263,6 +1263,42 @@ void ActionManager::notifyEvent(ResidentInfo *residentInfo,
 	dbAction.updateLogStatusToStart(notifyInfo->logId);
 }
 
+static void onIssueSenderJobStatusChanged(
+  const EventInfo &info, const IssueSender::JobStatus &status,
+  void *userData)
+{
+	DBClientAction::LogEndExecActionArg *logArg
+	  = static_cast<DBClientAction::LogEndExecActionArg *>(userData);
+	bool completed = false;
+	
+	switch(status) {
+	case IssueSender::JOB_STARTED:
+	{
+		DBClientAction dbAction;
+		dbAction.updateLogStatusToStart(logArg->logId);
+		break;
+	}
+	case IssueSender::JOB_SUCCEEDED:
+		logArg->status = ACTLOG_STAT_SUCCEEDED;
+		completed = true;
+		break;
+	case IssueSender::JOB_FAILED:
+		logArg->status = ACTLOG_STAT_FAILED;
+		// TODO: add more detailed failure code
+		logArg->failureCode = ACTLOG_EXECFAIL_EXEC_FAILURE;
+		completed = true;
+		break;
+	default:
+		break;
+	}
+
+	if (completed) {
+		DBClientAction dbAction;
+		dbAction.logEndExecAction(*logArg);
+		delete logArg;
+	}
+}
+
 /*
  * executed on the following thread(s)
  * - Threads that call checkEvents()
@@ -1283,8 +1319,13 @@ void ActionManager::execIssueSenderAction(const ActionDef &actionDef,
 		return;
 	}
 	IssueSenderManager &senderManager = IssueSenderManager::getInstance();
-	// TODO: Implement ActionLog for IssueSender action
-	senderManager.queue(trackerId, eventInfo);
+	DBClientAction::LogEndExecActionArg *logArg
+	  = new DBClientAction::LogEndExecActionArg();
+	logArg->logId = dbAction.createActionLog(actionDef, eventInfo,
+						 ACTLOG_EXECFAIL_NONE,
+						 ACTLOG_STAT_QUEUING);
+	senderManager.queue(trackerId, eventInfo,
+			    onIssueSenderJobStatusChanged, logArg);
 }
 
 /*
