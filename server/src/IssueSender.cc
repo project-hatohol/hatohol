@@ -134,7 +134,7 @@ struct IssueSender::PrivateContext
 			job.notifyStatus(JOB_RETRYING);
 		}
 		if (result == HTERR_OK)
-			job.notifyStatus(JOB_COMPLETED);	
+			job.notifyStatus(JOB_COMPLETED);
 		else
 			job.notifyStatus(JOB_FAILED);
 		return result;
@@ -218,7 +218,7 @@ static string getServerLabel(const EventInfo &event,
 string IssueSender::buildTitle(const EventInfo &event,
 			       const MonitoringServerInfo *server)
 {
-        return StringUtils::sprintf("[%s %s] %s",
+	return StringUtils::sprintf("[%s %s] %s",
 				    getServerLabel(event, server).c_str(),
 				    event.hostName.c_str(),
 				    event.brief.c_str());
