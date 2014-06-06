@@ -88,8 +88,10 @@ void HatoholArmPluginGateTest::onLaunchedProcess(
 	m_ctx.launchSucceeded = succeeded;
 	m_ctx.launchedSem.post();
 }
+
 void HatoholArmPluginGateTest::onConnected(Connection &conn)
 {
+	HatoholArmPluginGate::onConnected(conn);
 	HapiTestHelper::onConnected(conn);
 }
 
