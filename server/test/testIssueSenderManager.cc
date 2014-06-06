@@ -58,6 +58,21 @@ void test_instanceIsSingleton(void)
 	cppcut_assert_equal(&manager1, &manager2);
 }
 
+static void statusCallback(const EventInfo &info,
+			   const IssueSender::JobStatus &status,
+			   void *userData)
+{
+	bool *succeeded = static_cast<bool*>(userData);
+
+	switch(status) {
+	case IssueSender::JOB_SUCCEEDED:
+		*succeeded = true;
+		break;
+	default:
+		break;
+	}
+}
+
 void test_sendRedmineIssue(void)
 {
 	setupTestDBConfig(true, true);
@@ -65,10 +80,13 @@ void test_sendRedmineIssue(void)
 	IssueTrackerInfo &tracker = testIssueTrackerInfo[trackerId - 1];
 	g_redmineEmulator.addUser(tracker.userName, tracker.password);
 	TestIssueSenderManager manager;
-	manager.queue(trackerId, testEventInfo[0]);
+	bool succeeded = false;
+	manager.queue(trackerId, testEventInfo[0],
+		      statusCallback, (void*)&succeeded);
 	while (!manager.isIdling())
 		usleep(100 * 1000);
 	const string &json = g_redmineEmulator.getLastResponse();
+	cppcut_assert_equal(true, succeeded);
 	cppcut_assert_equal(false, json.empty());
 }
 

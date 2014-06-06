@@ -112,7 +112,7 @@ void IssueSenderManager::queue(
 			 eventInfo.id);
 		return;
 	}
-	sender->queue(eventInfo);
+	sender->queue(eventInfo, callback, userData);
 }
 
 IssueSenderManager::IssueSenderManager(void)
