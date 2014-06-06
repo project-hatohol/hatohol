@@ -77,6 +77,7 @@ void test_getTimestampOfLastTrigger(void)
 	MonitoringServerInfo serverInfo;
 	HatoholArmPluginGateTestPtr pluginGate =
 	  createHapgTest(hapgCtx, serverInfo);
+	loadTestDBTriggers();
 	pluginGate->start();
 	cppcut_assert_equal(
 	  SimpleSemaphore::STAT_OK, pluginGate->getConnectedSem().timedWait(TIMEOUT));
@@ -88,9 +89,10 @@ void test_getTimestampOfLastTrigger(void)
 	  SimpleSemaphore::STAT_OK,
 	  plugin.getConnectedSem().timedWait(TIMEOUT));
 
-	// Send command
-	SmartTime timestamp = plugin.getTimestampOfLastTrigger();
-	// TODO: check the timestamp is really the last.
+	// Send command and check the result
+	SmartTime expect = getTimestampOfLastTestTrigger(serverInfo.id);
+	SmartTime actual = plugin.getTimestampOfLastTrigger();
+	cppcut_assert_equal(expect, actual);
 }
 
 } // namespace testHatoholArmPluginBase
