@@ -109,6 +109,9 @@ struct IssueSender::PrivateContext
 			result = sender.send(job.eventInfo);
 			if (result == HTERR_OK)
 				break;
+			if (i == retryLimit)
+				break;
+
 			if (sender.isExitRequested())
 				break;
 			usleep(retryIntervalMSec * 1000);
