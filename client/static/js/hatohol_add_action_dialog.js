@@ -365,7 +365,7 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
     s += '    <option value="SELECT">== ' + gettext("SELECT") + ' ==</option>'
     s += '  </select>'
 
-    s += '  <label>' + gettext("Host Group") + '</label>'
+    s += '  <label>' + gettext("Hostgroup") + '</label>'
     s += '  <select id="selectHostgroupId">'
     s += '    <option value="ANY">ANY</option>'
     s += '  </select>'
