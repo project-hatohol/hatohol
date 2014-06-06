@@ -68,7 +68,7 @@ struct HapgTestCtx {
 };
 
 class HatoholArmPluginGateTest :
-   public HatoholArmPluginGate, public HatoholArmPluginInterfaceTestHelper {
+   public HatoholArmPluginGate, public HapiTestHelper {
 public:
 	HatoholArmPluginGateTest(const MonitoringServerInfo &serverInfo,
 	                         HapgTestCtx &_ctx);

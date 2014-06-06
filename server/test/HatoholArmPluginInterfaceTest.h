@@ -43,9 +43,9 @@ private:
 	std::string     receivedMessage;
 };
 
-class HatoholArmPluginInterfaceTestHelper {
+class HapiTestHelper {
 public:
-	HatoholArmPluginInterfaceTestHelper(void);
+	HapiTestHelper(void);
 	void onConnected(qpid::messaging::Connection &conn);
 	mlpl::SimpleSemaphore &getConnectedSem(void);
 private:
@@ -53,8 +53,7 @@ private:
 };
 
 class HatoholArmPluginInterfaceTestBasic :
-  public HatoholArmPluginInterface,
-  public HatoholArmPluginInterfaceTestHelper
+  public HatoholArmPluginInterface, public HapiTestHelper
 {
 	struct OtherSide {
 		HapiTestCtx ctx;
