@@ -158,16 +158,6 @@ TriggerInfo testTriggerInfo[] =
 	"hostQ1",                 // hostName,
 	"TEST Trigger Action",    // brief,
 },{
-	// This entry is for tests with a defunct server
-	defunctServerId1,         // serverId
-	3,                        // id
-	TRIGGER_STATUS_PROBLEM,   // status
-	TRIGGER_SEVERITY_INFO,    // severity
-	{1362957117,0},           // lastChangeTime
-	10002,                    // hostId,
-	"defunctSv1Host1",        // hostName,
-	"defunctSv1Host1 material", // brief,
-},{
 	// This entry is used for testHatoholArmPluginGate.
 	12345,                    // serverId
 	2468,                     // id
@@ -177,6 +167,16 @@ TriggerInfo testTriggerInfo[] =
 	10002,                    // hostId,
 	"host12345",              // hostName,
 	"Brief for host12345",    // brief,
+},{
+	// This entry is for tests with a defunct server
+	defunctServerId1,         // serverId
+	3,                        // id
+	TRIGGER_STATUS_PROBLEM,   // status
+	TRIGGER_SEVERITY_INFO,    // severity
+	{1362957117,0},           // lastChangeTime
+	10002,                    // hostId,
+	"defunctSv1Host1",        // hostName,
+	"defunctSv1Host1 material", // brief,
 },
 };
 size_t NumTestTriggerInfo = sizeof(testTriggerInfo) / sizeof(TriggerInfo);
@@ -259,6 +259,9 @@ EventInfo testEventInfo[] = {
 	trigInfoDefunctSv1.hostName, // hostName,
 	trigInfoDefunctSv1.brief,    // brief,
 },
+// We assumed the data of the default server's is at the tail in testEventInfo.
+// See also the definition of trigInfoDefunctSv1 above. Anyway,
+// ******* DON'T APPEND RECORDS AFTER HERE *******
 };
 size_t NumTestEventInfo = sizeof(testEventInfo) / sizeof(EventInfo);
 
