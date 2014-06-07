@@ -38,8 +38,8 @@ The following shows examples to install Required Packages.
 
 #### On Ubuntu 12.04 and 14.04
 
-    # apt-get install python-pip python-dev gettext
-    # pip install django==1.5.4 mysql-python
+    $ sudo apt-get install python-pip python-dev gettext
+    $ sudo pip install django==1.5.4 mysql-python
 
 
 ### Create the database
