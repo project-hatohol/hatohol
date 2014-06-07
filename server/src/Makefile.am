@@ -53,6 +53,7 @@ libhatohol_la_SOURCES = \
 	HatoholArmPluginInterface.cc HatoholArmPluginInterface.h \
 	HatoholArmPluginGate.cc HatoholArmPluginGate.h \
 	HatoholArmPluginBase.cc HatoholArmPluginBase.h \
+	HapZabbixAPI.cc HapZabbixAPI.h \
 	HapgZabbixAPI.cc HapgZabbixAPI.h \
 	ItemData.cc ItemData.h \
 	ItemDataPtr.h \
