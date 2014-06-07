@@ -16,7 +16,7 @@ $(TEST_DBS): mkTestDB ../../src/libhatohol.la ../libTest.la
 
 # To make the creation time short, we create it on tmpfs.
 testDatabase-hatohol.db:
-	rm -f $@
+	rm -f $@ /dev/shm/$@
 	./mkTestDB hatohol /dev/shm/$@
 	cp -f /dev/shm/$@ .
 
