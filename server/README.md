@@ -70,7 +70,7 @@ Building & installing by following commands:
     $ su
     # make install
 
-### Example to install required libraries on ubuntu 13.04
+### Example to install required libraries on ubuntu 14.04 
 
 You should install these package to build Hatohol and required libraries.
 
