@@ -36,7 +36,7 @@ The following shows examples to install Required Packages.
     # easy_install pip
     # pip install django==1.5.4 mysql-python
 
-#### On Ubuntu 12.04 and 13.10
+#### On Ubuntu 12.04 and 14.04
 
     # apt-get install python-pip python-dev gettext
     # pip install django==1.5.4 mysql-python
