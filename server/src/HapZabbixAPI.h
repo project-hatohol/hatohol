@@ -26,7 +26,7 @@
 
 class HapZabbixAPI : public HatoholArmPluginBase, public ZabbixAPI {
 public:
-	HapZabbixAPI(const MonitoringServerInfo &serverInfo);
+	HapZabbixAPI(void);
 	virtual ~HapZabbixAPI();
 
 protected:
