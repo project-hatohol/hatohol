@@ -40,7 +40,29 @@ describe('getServerLocation', function() {
       "ipAddress": "127.0.0.1",
       "name": "localhost"
     };
-    expect(getServerLocation(server)).to.be(undefined);
+    var expected = "http://127.0.0.1/nagios/";
+    expect(getServerLocation(server)).to.be(expected);
+  });
+
+  it('nagios server with port', function() {
+    var server = {
+      "type": 1,
+      "ipAddress": "127.0.0.1",
+      "name": "localhost",
+      "port": 8080
+    };
+    var expected = "http://127.0.0.1:8080/nagios/";
+    expect(getServerLocation(server)).to.be(expected);
+  });
+
+  it('ipv6 nagios server', function() {
+    var server = {
+      "type": 1,
+      "ipAddress": "::1",
+      "name": "localhost"
+    };
+    var expected = "http://[::1]/nagios/";
+    expect(getServerLocation(server)).to.be(expected);
   });
 });
 
