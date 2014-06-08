@@ -117,6 +117,17 @@ function getServerLocation(server) {
       url += ":" + port;
     url += "/zabbix/";
     break;
+  case hatohol.MONITORING_SYSTEM_NAGIOS:
+    ipAddress = server["ipAddress"];
+    port = server["port"];
+    if (isIPv4(ipAddress))
+      url = "http://" + ipAddress;
+    else // maybe IPv6
+      url = "http://[" + ipAddress + "]";
+    if (!isNaN(port) && port != "80")
+      url += ":" + port;
+    url += "/nagios/";
+    break;
   default:
     break;
   }
