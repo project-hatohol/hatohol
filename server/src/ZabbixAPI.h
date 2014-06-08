@@ -29,11 +29,12 @@
 class ZabbixAPI
 {
 public:
-	ZabbixAPI(const MonitoringServerInfo &serverInfo);
+	ZabbixAPI(void);
 	virtual ~ZabbixAPI();
 
 protected:
 	const static uint64_t UNLIMITED = -1;
+	void setMonitoringServerInfo(const MonitoringServerInfo &serverInfo);
 
 	/**
 	 * Called when the authtoken is updated.

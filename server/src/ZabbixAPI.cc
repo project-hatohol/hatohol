@@ -47,12 +47,22 @@ struct ZabbixAPI::PrivateContext {
 	VariableItemTablePtr functionsTablePtr;
 
 	// constructors and destructor
-	PrivateContext(const MonitoringServerInfo &serverInfo)
+	PrivateContext(void)
 	: apiVersionMajor(0),
 	  apiVersionMinor(0),
 	  apiVersionMicro(0),
 	  session(NULL),
 	  gotTriggers(false)
+	{
+	}
+
+	virtual ~PrivateContext()
+	{
+		if (session)
+			g_object_unref(session);
+	}
+
+	void setMonitoringServerInfo(const MonitoringServerInfo &serverInfo)
 	{
 		const bool forURI = true;
 		uri = "http://";
@@ -63,21 +73,15 @@ struct ZabbixAPI::PrivateContext {
 		username = serverInfo.userName.c_str();
 		password = serverInfo.password.c_str();
 	}
-
-	virtual ~PrivateContext()
-	{
-		if (session)
-			g_object_unref(session);
-	}
 };
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-ZabbixAPI::ZabbixAPI(const MonitoringServerInfo &serverInfo)
+ZabbixAPI::ZabbixAPI(void)
 : m_ctx(NULL)
 {
-	m_ctx = new PrivateContext(serverInfo);
+	m_ctx = new PrivateContext();
 }
 
 ZabbixAPI::~ZabbixAPI()
@@ -89,6 +93,11 @@ ZabbixAPI::~ZabbixAPI()
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+void ZabbixAPI::setMonitoringServerInfo(const MonitoringServerInfo &serverInfo)
+{
+	m_ctx->setMonitoringServerInfo(serverInfo);
+}
+
 void ZabbixAPI::onUpdatedAuthToken(const string &authToken)
 {
 }

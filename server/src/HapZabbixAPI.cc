@@ -32,9 +32,9 @@ struct HapZabbixAPI::PrivateContext {
 // Public methods
 // ---------------------------------------------------------------------------
 HapZabbixAPI::HapZabbixAPI(const MonitoringServerInfo &serverInfo)
-: ZabbixAPI(serverInfo),
-  m_ctx(NULL)
+: m_ctx(NULL)
 {
+	setMonitoringServerInfo(serverInfo);
 	m_ctx = new PrivateContext();
 }
 
