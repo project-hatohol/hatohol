@@ -34,7 +34,7 @@ using namespace mlpl;
 #include <syscall.h>
 #include <limits.h>
 #include "Utils.h"
-#include "FormulaElement.h"
+#include "HatoholException.h"
 using namespace std;
 
 const static size_t SIZE_JS_METHOD_VALID_CODE_MAP = 0x100;
