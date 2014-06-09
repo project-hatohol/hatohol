@@ -21,12 +21,21 @@
 #define HatoholArmPluginBase_h
 
 #include <SmartTime.h>
+#include "MonitoringServerInfo.h"
 #include "HatoholArmPluginInterface.h"
 
 class HatoholArmPluginBase : public HatoholArmPluginInterface {
 public:
 	HatoholArmPluginBase(void);
 	virtual ~HatoholArmPluginBase();
+
+	/**
+	 * Get the monitoring server information from the server.
+	 *
+	 * @param serverInfo Obtained data is set to this object.
+	 * @return true on success. Or false is returned.
+	 */
+	bool getMonitoringServerInfo(MonitoringServerInfo &serverInfo);
 
 	mlpl::SmartTime getTimestampOfLastTrigger(void);
 

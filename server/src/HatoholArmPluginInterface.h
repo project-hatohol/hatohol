@@ -44,6 +44,7 @@ enum HapiMessageType {
 };
 
 enum HapiCommandCode {
+	HAPI_CMD_GET_MONITORING_SERVER_INFO,
 	HAPI_CMD_GET_TIMESTAMP_OF_LAST_TRIGGER,
 	NUM_HAPI_CMD
 };
@@ -71,6 +72,23 @@ struct HapiCommandHeader {
 struct HapiResponseHeader {
 	uint16_t type;
 	uint16_t code;
+} __attribute__((__packed__));
+
+struct HapiResMonitoringServerInfo {
+	uint32_t serverId;
+	uint32_t type;
+	uint16_t hostNameLength;  // Not include the NULL terminator
+	uint16_t hostNameOffset;  // from the top of this structure
+	uint16_t ipAddressLength; // Not include the NULL terminator
+	uint16_t ipAddressOffset; // from the top of this structure
+	uint16_t nicknameLength;  // Not include the NULL terminator
+	uint16_t nicknameOffset;  // from the top of this structure
+	uint32_t port;
+	uint32_t pollingIntervalSec;
+	uint32_t retryIntervalSec;
+	// Body of hostName  (including NULL terminator)
+	// Body of ipAddress (including NULL terminator)
+	// Body of nickname  (including NULL terminator)
 } __attribute__((__packed__));
 
 struct HapiResTimestampOfLastTrigger {
