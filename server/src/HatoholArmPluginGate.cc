@@ -211,11 +211,12 @@ void HatoholArmPluginGate::cmdHandlerGetMonitoringServerInfo(
 	SmartBuffer resBuf;
 	MonitoringServerInfo &svInfo = m_ctx->serverInfo;
 
+	const size_t lenHostName  = svInfo.hostName.size();
+	const size_t lenIpAddress = svInfo.ipAddress.size();
+	const size_t lenNickname  = svInfo.nickname.size();
 	// +1: Null Term.
-	const size_t lenHostName  = svInfo.hostName.size()  + 1;
-	const size_t lenIpAddress = svInfo.ipAddress.size() + 1;
-	const size_t lenNickname  = svInfo.nickname.size()  + 1;
-	size_t addSize = lenHostName + lenIpAddress + lenNickname;
+	size_t addSize =
+	  (lenHostName + 1) + (lenIpAddress + 1) + (lenNickname + 1);
 	
 	HapiResMonitoringServerInfo *body =
 	  setupResponseBuffer<HapiResMonitoringServerInfo>(resBuf, addSize);
@@ -228,13 +229,19 @@ void HatoholArmPluginGate::cmdHandlerGetMonitoringServerInfo(
 	char *buf =
 	   reinterpret_cast<char *>(body) + sizeof(HapiResMonitoringServerInfo);
 
-	memcpy(buf, svInfo.hostName.c_str(), lenHostName);
+	body->hostNameLength = lenHostName;
+	body->hostNameOffset = buf - (char *)body;
+	memcpy(buf, svInfo.hostName.c_str(), lenHostName + 1);
 	buf += lenHostName;
 
-	memcpy(buf, svInfo.ipAddress.c_str(), lenIpAddress);
+	body->ipAddressLength = lenHostName;
+	body->ipAddressOffset = buf - (char *)body;
+	memcpy(buf, svInfo.ipAddress.c_str(), lenIpAddress + 1);
 	buf += lenIpAddress;
 
-	memcpy(buf, svInfo.nickname.c_str(), lenNickname);
+	body->nicknameLength = lenHostName;
+	body->nicknameOffset = buf - (char *)body;
+	memcpy(buf, svInfo.nickname.c_str(), lenNickname + 1);
 	buf += lenNickname;
 
 	reply(resBuf);

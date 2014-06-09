@@ -83,6 +83,10 @@ extern void _assertItemTable(
   const ItemTablePtr &expect, const ItemTablePtr &actual);
 #define assertItemTable(E,A) cut_trace(_assertItemTable(E,A))
 
+extern void _assertEqual(
+  const MonitoringServerInfo &expect, const MonitoringServerInfo &actual);
+#define assertEqual(E,A) cut_trace(_assertEqual(E,A))
+
 std::string executeCommand(const std::string &commandLine);
 std::string getFixturesDir(void);
 bool isVerboseMode(void);

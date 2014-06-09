@@ -97,6 +97,20 @@ void _assertItemTable(const ItemTablePtr &expect, const ItemTablePtr &actual)
 	}
 }
 
+// TODO: We should prepare '== operator' and cppcut_assert_equal() ?
+void _assertEqual(
+  const MonitoringServerInfo &expect, const MonitoringServerInfo &actual)
+{
+	cppcut_assert_equal(expect.id,        actual.id);
+	cppcut_assert_equal(expect.type,      actual.type);
+	cppcut_assert_equal(expect.hostName,  actual.hostName);
+	cppcut_assert_equal(expect.ipAddress, actual.ipAddress);
+	cppcut_assert_equal(expect.nickname,  actual.nickname);
+	cppcut_assert_equal(expect.port,      actual.port);
+	cppcut_assert_equal(expect.pollingIntervalSec, actual.pollingIntervalSec);
+	cppcut_assert_equal(expect.retryIntervalSec, actual.retryIntervalSec);
+}
+
 struct SpawnSyncContext {
 	bool running;
 	bool hasError;
@@ -903,7 +917,10 @@ string makeDoubleFloatFormat(const ColumnDef &columnDef)
 void initServerInfo(MonitoringServerInfo &serverInfo)
 {
 	serverInfo.id = 12345;
+	serverInfo.type = MONITORING_SYSTEM_UNKNOWN;
+	serverInfo.port = 0;
 	serverInfo.pollingIntervalSec = 1;
+	serverInfo.retryIntervalSec = 1;
 }
 
 static GMainContext *g_acquiredContext = NULL;

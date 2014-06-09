@@ -71,6 +71,30 @@ void cut_setup(void)
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
+void test_getMonitoringServerInfo(void)
+{
+	HapgTestCtx hapgCtx;
+	MonitoringServerInfo serverInfo;
+	HatoholArmPluginGateTestPtr pluginGate =
+	  createHapgTest(hapgCtx, serverInfo);
+	loadTestDBTriggers();
+	pluginGate->start();
+	cppcut_assert_equal(
+	  SimpleSemaphore::STAT_OK, pluginGate->getConnectedSem().timedWait(TIMEOUT));
+
+	HatoholArmPluginBaseTest plugin(
+	  pluginGate->callGenerateBrokerAddress(serverInfo));
+	plugin.start();
+	cppcut_assert_equal(
+	  SimpleSemaphore::STAT_OK,
+	  plugin.getConnectedSem().timedWait(TIMEOUT));
+
+	// Send the command and check the result
+	MonitoringServerInfo actual;
+	cppcut_assert_equal(true, plugin.getMonitoringServerInfo(actual));
+	assertEqual(serverInfo, actual);
+}
+
 void test_getTimestampOfLastTrigger(void)
 {
 	HapgTestCtx hapgCtx;
