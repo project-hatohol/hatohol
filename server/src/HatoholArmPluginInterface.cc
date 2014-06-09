@@ -71,8 +71,7 @@ struct HatoholArmPluginInterface::PrivateContext {
 
 	void connect(void)
 	{
-		const string brokerUrl =
-		   HatoholArmPluginGate::DEFAULT_BROKER_URL;
+		const string brokerUrl = DEFAULT_BROKER_URL;
 		const string connectionOptions;
 		connectionLock.lock();
 		Reaper<MutexLock> unlocker(&connectionLock, MutexLock::unlock);
