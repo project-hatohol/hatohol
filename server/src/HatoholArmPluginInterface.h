@@ -111,6 +111,28 @@ public:
 
 	const std::string &getQueueAddress(void) const;
 
+	/**
+	 * Get a C-style string from the received packet.
+	 * The string shall have a NULL terminator.
+	 *
+	 * @param repBuf An received buffer.
+	 * @param head
+	 * The reference position (Typically the top of the body).
+	 *
+	 * @param offset
+	 * An offset to the top of the string from the reference point.
+	 *
+	 * @param length
+	 * A length of the string. The NULL terminator is not counted.
+	 *
+	 * @return
+	 * A pointer of the string. If the error happens, NULL is returned.
+	 *
+	 */
+	static const char *getString(
+	  const mlpl::SmartBuffer &repBuf,
+	  const void *head, const size_t &offset, const size_t &length);
+
 protected:
 	typedef std::map<uint16_t, CommandHandler> CommandHandlerMap;
 	typedef CommandHandlerMap::iterator        CommandHandlerMapIterator;

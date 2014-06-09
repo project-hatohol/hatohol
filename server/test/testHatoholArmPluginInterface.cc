@@ -162,4 +162,16 @@ void test_onGotResponse(void)
 	cppcut_assert_equal(HAPI_RES_OK, hapi.gotResCode);
 }
 
+void test_getString(void)
+{
+	SmartBuffer buf(10);
+	char *head = buf.getPointer<char>(1);
+	const size_t offset = 3;
+	head[offset+0] = 'A';
+	head[offset+1] = 'B';
+	head[offset+2] = '\0';
+	cut_assert_equal_string(
+	  "AB", HatoholArmPluginInterface::getString(buf, head, offset, 2));
+}
+
 } // namespace testHatoholArmPluginInterface

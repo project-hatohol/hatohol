@@ -207,6 +207,37 @@ const string &HatoholArmPluginInterface::getQueueAddress(void) const
 	return m_ctx->queueAddr;
 }
 
+const char *HatoholArmPluginInterface::getString(
+  const SmartBuffer &repBuf, const void *head,
+  const size_t &offset, const size_t &length)
+{
+	// check if the buffer length is enough
+	const char *bufTopAddr = repBuf.getPointer<char>(0);
+	const char *bufTailAddr = bufTopAddr;
+	bufTailAddr += (repBuf.size() - 1);
+
+	const char *stringAddr = static_cast<const char *>(head);
+	stringAddr += offset;
+
+	const size_t sizeOfNullTerm = 1;
+	const char *stringTailAddr = stringAddr;
+	stringTailAddr += (length + sizeOfNullTerm) - 1;
+
+	if (stringAddr < bufTopAddr || stringTailAddr > bufTailAddr) {
+		MLPL_ERR("Invalid paramter: bufTopAddr: %p, head: %p, "
+		         "offset: %zd, length: %zd\n",
+		         bufTopAddr, head, offset, length);
+		return NULL;
+	}
+
+	if (*stringTailAddr != '\0') {
+		MLPL_ERR("Not end with NULL: %02x\n", *stringTailAddr);
+		return NULL;
+	}
+
+	return stringAddr;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
