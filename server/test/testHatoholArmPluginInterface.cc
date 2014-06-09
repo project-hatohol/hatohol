@@ -187,4 +187,17 @@ void test_getStringWithTooLongParam(void)
 	  HatoholArmPluginInterface::getString(buf, head, offset, 3));
 }
 
+void test_getStringWithoutNullTerm(void)
+{
+	SmartBuffer buf(3);
+	char *head = buf.getPointer<char>(0);
+	const size_t offset = 0;
+	head[offset+0] = 'A';
+	head[offset+1] = 'B';
+	head[offset+2] = 'C';
+	cut_assert_equal_string(
+	  NULL,
+	  HatoholArmPluginInterface::getString(buf, head, offset, 2));
+}
+
 } // namespace testHatoholArmPluginInterface
