@@ -87,6 +87,8 @@ protected:
 	static std::string generateBrokerAddress(
 	  const MonitoringServerInfo &serverInfo);
 
+	void cmdHandlerGetMonitoringServerInfo(
+	  const HapiCommandHeader *header);
 	void cmdHandlerGetTimestampOfLastTrigger(
 	  const HapiCommandHeader *header);
 

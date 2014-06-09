@@ -24,6 +24,7 @@
 #include <qpid/messaging/Sender.h>
 #include <qpid/messaging/Session.h>
 #include <string>
+#include <cstring>
 #include <AtomicValue.h>
 #include <MutexLock.h>
 #include <Reaper.h>
@@ -72,6 +73,11 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 
 	string address = generateBrokerAddress(m_ctx->serverInfo);
 	setQueueAddress(address);
+
+	registCommandHandler(
+	  HAPI_CMD_GET_MONITORING_SERVER_INFO,
+	  (CommandHandler)
+	    &HatoholArmPluginGate::cmdHandlerGetMonitoringServerInfo);
 
 	registCommandHandler(
 	  HAPI_CMD_GET_TIMESTAMP_OF_LAST_TRIGGER,
@@ -197,6 +203,41 @@ string HatoholArmPluginGate::generateBrokerAddress(
 {
 	return StringUtils::sprintf("hatohol-arm-plugin.%" FMT_SERVER_ID,
 	                            serverInfo.id);
+}
+
+void HatoholArmPluginGate::cmdHandlerGetMonitoringServerInfo(
+  const HapiCommandHeader *header)
+{
+	SmartBuffer resBuf;
+	MonitoringServerInfo &svInfo = m_ctx->serverInfo;
+
+	// +1: Null Term.
+	const size_t lenHostName  = svInfo.hostName.size()  + 1;
+	const size_t lenIpAddress = svInfo.ipAddress.size() + 1;
+	const size_t lenNickname  = svInfo.nickname.size()  + 1;
+	size_t addSize = lenHostName + lenIpAddress + lenNickname;
+	
+	HapiResMonitoringServerInfo *body =
+	  setupResponseBuffer<HapiResMonitoringServerInfo>(resBuf, addSize);
+	body->serverId = svInfo.id;
+	body->type     = svInfo.type;
+	body->port     = svInfo.port;
+	body->pollingIntervalSec = svInfo.pollingIntervalSec;
+	body->retryIntervalSec   = svInfo.retryIntervalSec;
+
+	char *buf =
+	   reinterpret_cast<char *>(body) + sizeof(HapiResMonitoringServerInfo);
+
+	memcpy(buf, svInfo.hostName.c_str(), lenHostName);
+	buf += lenHostName;
+
+	memcpy(buf, svInfo.ipAddress.c_str(), lenIpAddress);
+	buf += lenIpAddress;
+
+	memcpy(buf, svInfo.nickname.c_str(), lenNickname);
+	buf += lenNickname;
+
+	reply(resBuf);
 }
 
 void HatoholArmPluginGate::cmdHandlerGetTimestampOfLastTrigger(

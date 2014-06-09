@@ -242,14 +242,17 @@ protected:
 	 * parameters of the header.
 	 *
 	 * @param resBuf A SmartBuffer instance to be set up.
+	 * @param additionalSize An addition size to allocate a buffer.
+	 *
 	 * @return A pointer of the body area.
 	 */
 	template<class T>
-	T *setupResponseBuffer(mlpl::SmartBuffer &resBuf)
+	T *setupResponseBuffer(mlpl::SmartBuffer &resBuf,
+	                       const size_t &additionalSize = 0)
 	{
 		const size_t requiredSize =
 		  sizeof(HapiResponseHeader) + sizeof(T);
-		resBuf.alloc(requiredSize);
+		resBuf.alloc(requiredSize + additionalSize);
 		HapiResponseHeader *header =
 		  resBuf.getPointer<HapiResponseHeader>(0);
 		header->type = HAPI_MSG_RESPONSE;
