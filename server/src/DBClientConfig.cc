@@ -363,36 +363,6 @@ static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
 }
 
 // ---------------------------------------------------------------------------
-// MonitoringServerInfo
-// ---------------------------------------------------------------------------
-string MonitoringServerInfo::getHostAddress(bool forURI) const
-{
-	if (ipAddress.empty())
-		return hostName;
-
-	if (!forURI)
-		return ipAddress;
-
-	if (!Utils::validIPv4Address(ipAddress) &&
-	    Utils::validIPv6Address(ipAddress)) {
-		return StringUtils::sprintf("[%s]", ipAddress.c_str());
-	} else {
-		return ipAddress;
-	}
-}
-
-void MonitoringServerInfo::initialize(MonitoringServerInfo &monSvInfo)
-{
-	monSvInfo.id = 0;
-	monSvInfo.type = MONITORING_SYSTEM_UNKNOWN;
-	monSvInfo.port               = 0;
-	monSvInfo.pollingIntervalSec = 0;
-	monSvInfo.retryIntervalSec   = 0;
-	monSvInfo.hostName  = "localhost";
-	monSvInfo.ipAddress = "127.0.0.1";
-}
-
-// ---------------------------------------------------------------------------
 // ServerQueryOption
 // ---------------------------------------------------------------------------
 struct ServerQueryOption::PrivateContext {
