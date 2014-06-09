@@ -190,6 +190,30 @@ public:
 
 	static void flushPendingGLibEvents(GMainContext *context = NULL);
 
+	/**
+	 * Check if an string is a valid IPv4 or v6 address.
+	 *
+	 * @param ipAddress A string to be checked.
+	 * @return true if the string is valid, or false.
+	 */
+	static bool validIPAddress(const std::string &ipAddress);
+
+	/**
+	 * Check if an string is a valid IPv4 address.
+	 *
+	 * @param ipAddress A string to be checked.
+	 * @return true if the string is valid, or false.
+	 */
+	static bool validIPv4Address(const std::string &ipAddress);
+
+	/**
+	 * Check if an string is a valid IPv6 address.
+	 *
+	 * @param ipAddress A string to be checked.
+	 * @return true if the string is valid, or false.
+	 */
+	static bool validIPv6Address(const std::string &ipAddress);
+
 protected:
 	static std::string makeDemangledStackTraceString(
 	  const std::string &stackTraceLine);
