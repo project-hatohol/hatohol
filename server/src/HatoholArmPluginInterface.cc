@@ -34,6 +34,8 @@ using namespace std;
 using namespace mlpl;
 using namespace qpid::messaging;
 
+const char *HatoholArmPluginInterface::DEFAULT_BROKER_URL = "localhost:5672";
+
 struct HatoholArmPluginInterface::PrivateContext {
 	HatoholArmPluginInterface *hapi;
 	bool       workInServer;

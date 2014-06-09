@@ -37,7 +37,6 @@ using namespace std;
 using namespace mlpl;
 using namespace qpid::messaging;
 
-const char *HatoholArmPluginGate::DEFAULT_BROKER_URL = "localhost:5672";
 const char *HatoholArmPluginGate::ENV_NAME_QUEUE_ADDR = "HAPI_QUEUE_ADDR";
 const int   HatoholArmPluginGate::NO_RETRY = -1;
 static const int DEFAULT_RETRY_INTERVAL = 10 * 1000; // ms

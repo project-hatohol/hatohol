@@ -80,6 +80,8 @@ struct HapiResTimestampOfLastTrigger {
 
 class HatoholArmPluginInterface : public HatoholThreadBase {
 public:
+	static const char *DEFAULT_BROKER_URL;
+
 	typedef void (HatoholArmPluginInterface::*CommandHandler)(
 	  const HapiCommandHeader *header);
 
