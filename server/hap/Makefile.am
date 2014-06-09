@@ -1,8 +1,6 @@
 sbin_PROGRAMS = hatohol-arm-plugin-zabbix
 hatohol_arm_plugin_zabbix_SOURCES = hatohol-arm-plugin-zabbix.cc
-# TODO: We divide libhatohol into the server specifiled part and not.
-#       Then we only link the lattter library.
-hatohol_arm_plugin_zabbix_LDADD = libhapprocess.la ../src/libhatohol.la
+hatohol_arm_plugin_zabbix_LDADD = libhapprocess.la ../src/libhatohol-common.la
 
 lib_LTLIBRARIES = libhapprocess.la
 libhapprocess_la_SOURCES = \
