@@ -27,7 +27,6 @@
 #include <qpid/messaging/Sender.h>
 #include <qpid/messaging/Session.h>
 #include "HatoholArmPluginInterface.h"
-#include "HatoholArmPluginGate.h"
 #include "HatoholException.h"
 
 using namespace std;
