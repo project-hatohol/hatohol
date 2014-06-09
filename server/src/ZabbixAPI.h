@@ -22,7 +22,8 @@
 
 #include <string>
 #include <libsoup/soup.h>
-#include "DBClientConfig.h"
+#include "MonitoringServerInfo.h"
+#include "ItemTablePtr.h"
 #include "JsonBuilderAgent.h"
 #include "JsonParserAgent.h"
 
