@@ -158,6 +158,7 @@ typedef MonitoringServerStatusList::const_iterator MonitoringServerStatusListCon
 
 struct IssueInfo {
 	IssueTrackerIdType trackerId;
+	ServerIdType       serverId;
 	EventIdType        eventId;
 	std::string        identifier;
 	std::string        location;

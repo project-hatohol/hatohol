@@ -685,6 +685,17 @@ static const ColumnDef COLUMN_DEF_ISSUES[] = {
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
 	DBClientHatohol::TABLE_NAME_ISSUES, // tableName
+	"server_id",                       // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	DBClientHatohol::TABLE_NAME_ISSUES, // tableName
 	"event_id",                        // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -764,6 +775,7 @@ static const ColumnDef COLUMN_DEF_ISSUES[] = {
 
 enum {
 	IDX_ISSUES_TRACKER_ID,
+	IDX_ISSUES_SERVER_ID,
 	IDX_ISSUES_EVENT_ID,
 	IDX_ISSUES_IDENTIFIER,
 	IDX_ISSUES_LOCATION,
@@ -847,7 +859,7 @@ static const DBAgent::IndexDef indexDefsMapHostsHostgroups[] = {
 
 // Issues
 static const int columnIndexesIssuesUniqId[] = {
-  IDX_ISSUES_EVENT_ID, DBAgent::IndexDef::END,
+  IDX_ISSUES_SERVER_ID, IDX_ISSUES_EVENT_ID, DBAgent::IndexDef::END,
 };
 
 static const DBAgent::IndexDef indexDefsIssues[] = {
@@ -2122,6 +2134,7 @@ HatoholError DBClientHatohol::getIssueInfoVect(
 		issueInfoVect.push_back(IssueInfo());
 		IssueInfo &issueInfo = issueInfoVect.back();
 		itemGroupStream >> issueInfo.trackerId;
+		itemGroupStream >> issueInfo.serverId;
 		itemGroupStream >> issueInfo.eventId;
 		itemGroupStream >> issueInfo.identifier;
 		itemGroupStream >> issueInfo.location;
@@ -2345,11 +2358,13 @@ void DBClientHatohol::addIssueInfoWithoutTransaction(const IssueInfo &issueInfo)
 {
 	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
 	string condition = StringUtils::sprintf(
-	  "event_id=%s",
+	  "server_id=%s AND event_id=%s",
+	  dbTermCodec->enc(issueInfo.serverId).c_str(),
 	  dbTermCodec->enc(issueInfo.eventId).c_str());
 	if (!isRecordExisting(TABLE_NAME_ISSUES, condition)) {
 		DBAgent::InsertArg arg(tableProfileIssues);
 		arg.add(issueInfo.trackerId);
+		arg.add(issueInfo.serverId);
 		arg.add(issueInfo.eventId);
 		arg.add(issueInfo.identifier);
 		arg.add(issueInfo.location);
@@ -2361,6 +2376,7 @@ void DBClientHatohol::addIssueInfoWithoutTransaction(const IssueInfo &issueInfo)
 	} else {
 		DBAgent::UpdateArg arg(tableProfileIssues);
 		arg.add(IDX_ISSUES_TRACKER_ID,  issueInfo.trackerId);
+		arg.add(IDX_ISSUES_EVENT_ID,    issueInfo.serverId);
 		arg.add(IDX_ISSUES_EVENT_ID,    issueInfo.eventId);
 		arg.add(IDX_ISSUES_IDENTIFIER,  issueInfo.identifier);
 		arg.add(IDX_ISSUES_LOCATION,    issueInfo.location);

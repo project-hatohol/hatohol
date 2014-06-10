@@ -765,6 +765,7 @@ size_t NumTestIssueTrackerInfo = sizeof(testIssueTrackerInfo) / sizeof(IssueTrac
 IssueInfo testIssueInfo[] = {
 {
 	3,                        // trackerId
+	1,                        // serverId
 	1,                        // eventId
 	"13",                     // identifier
 	"http://localhost:44444/issues/13", // location

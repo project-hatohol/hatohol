@@ -268,7 +268,8 @@ HatoholError IssueSenderRedmine::send(const EventInfo &event)
 	const IssueTrackerInfo &tracker = getIssueTrackerInfo();
 	IssueInfo issueInfo;
 	issueInfo.trackerId = tracker.id;
-	issueInfo.eventId = event.unifiedId;
+	issueInfo.serverId = event.serverId;
+	issueInfo.eventId = event.id;
 	HatoholError result = parseResponse(issueInfo, response);
 
 	if (result == HTERR_OK) {

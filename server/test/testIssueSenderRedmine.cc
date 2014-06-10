@@ -171,7 +171,8 @@ static void makeExpectedIssueInfo(IssueInfo &issue,
 				  const EventInfo &event,
 				  const RedmineIssue &postedIssue)
 {
-	issue.eventId = event.unifiedId;
+	issue.serverId = event.serverId;
+	issue.eventId = event.id;
 	issue.trackerId = tracker.id;
 	issue.identifier = StringUtils::toString((int)postedIssue.id);
 	issue.location = tracker.baseURL + "/issues/" + issue.identifier;
@@ -252,6 +253,7 @@ void test_parseResponse(void)
 
 	TestRedmineSender sender(tracker);
 	actual.trackerId = expected.trackerId;
+	actual.serverId = expected.serverId;
 	actual.eventId = expected.eventId;
 	HatoholError result = sender.parseResponse(actual, issue.toJson());
 	cppcut_assert_equal(HTERR_OK, result.getCode());
