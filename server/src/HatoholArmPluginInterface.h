@@ -67,11 +67,13 @@ enum HapiResponseCode {
 struct HapiCommandHeader {
 	uint16_t type;
 	uint16_t code;
+	uint32_t sequenceId;
 } __attribute__((__packed__));
 
 struct HapiResponseHeader {
 	uint16_t type;
 	uint16_t code;
+	uint32_t sequenceId;
 } __attribute__((__packed__));
 
 struct HapiResMonitoringServerInfo {
@@ -99,6 +101,8 @@ struct HapiResTimestampOfLastTrigger {
 class HatoholArmPluginInterface : public HatoholThreadBase {
 public:
 	static const char *DEFAULT_BROKER_URL;
+	static const uint32_t SEQ_ID_UNKNOWN = UINT32_MAX;
+	static const uint32_t SEQ_ID_MAX = UINT32_MAX - 1;
 
 	typedef void (HatoholArmPluginInterface::*CommandHandler)(
 	  const HapiCommandHeader *header);
@@ -308,6 +312,7 @@ protected:
 		  cmdBuf.getPointer<HapiCommandHeader>(0);
 		cmdHeader->type = HAPI_MSG_COMMAND;
 		cmdHeader->code = code;
+		cmdHeader->sequenceId = getIncrementedSequenceId();
 		return cmdBuf.getPointer<BodyType>(sizeof(HapiCommandHeader));
 	}
 
@@ -363,8 +368,12 @@ protected:
 		  resBuf.getPointer<HapiResponseHeader>(0);
 		header->type = HAPI_MSG_RESPONSE;
 		header->code = code;
+		header->sequenceId = getSequenceIdInProgress();
 		return resBuf.getPointer<BodyType>(sizeof(HapiResponseHeader));
 	}
+
+	uint32_t getIncrementedSequenceId(void);
+	uint32_t getSequenceIdInProgress(void);
 
 	void dumpBuffer(const mlpl::SmartBuffer &sbuf,
 	                const std::string &label = "");

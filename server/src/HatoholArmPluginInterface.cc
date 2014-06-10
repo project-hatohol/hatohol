@@ -47,6 +47,8 @@ struct HatoholArmPluginInterface::PrivateContext {
 	Message   *currMessage;
 	CommandHandlerMap receiveHandlerMap;
 	string     receiverAddr;
+	uint32_t   sequenceId;
+	uint32_t   sequenceIdOfCurrCmd;
 
 	PrivateContext(HatoholArmPluginInterface *_hapi,
 	               const string &_queueAddr,
@@ -55,6 +57,8 @@ struct HatoholArmPluginInterface::PrivateContext {
 	  workInServer(_workInServer),
 	  queueAddr(_queueAddr),
 	  currMessage(NULL),
+	  sequenceId(0),
+	  sequenceIdOfCurrCmd(SEQ_ID_UNKNOWN),
 	  connected(false)
 	{
 	}
@@ -269,6 +273,7 @@ gpointer HatoholArmPluginInterface::mainThread(HatoholThreadArg *arg)
 		m_ctx->currMessage = &message;
 		onReceived(sbuf);
 		m_ctx->currMessage = NULL;
+		m_ctx->sequenceIdOfCurrCmd = SEQ_ID_UNKNOWN,
 		m_ctx->acknowledge();
 	};
 	m_ctx->disconnect();
@@ -291,10 +296,13 @@ void HatoholArmPluginInterface::onReceived(mlpl::SmartBuffer &smbuf)
 		return;
 	}
 
+	HapiCommandHeader *header;
 	const uint16_t type = smbuf.getValue<uint16_t>();
 	switch (type) {
 	case HAPI_MSG_COMMAND:
-		parseCommand(smbuf.getPointer<HapiCommandHeader>(), smbuf);
+		header = smbuf.getPointer<HapiCommandHeader>();
+		m_ctx->sequenceIdOfCurrCmd = header->sequenceId;
+		parseCommand(header, smbuf);
 		break;
 	case HAPI_MSG_RESPONSE:
 		parseResponse(smbuf.getPointer<HapiResponseHeader>(), smbuf);
@@ -321,6 +329,13 @@ void HatoholArmPluginInterface::parseCommand(
 void HatoholArmPluginInterface::parseResponse(
   const HapiResponseHeader *header, mlpl::SmartBuffer &resBuf)
 {
+	if (header->sequenceId != m_ctx->sequenceId) {
+		MLPL_WARN("Got unexpected response: "
+		          "expect: %08" PRIx32 ", actual: %08" PRIx32 "\n", 
+		          m_ctx->sequenceId, header->sequenceId);
+		// TODO: Consider if we should call onGotError().
+		return;
+	}
 	onGotResponse(header, resBuf);
 }
 
@@ -354,6 +369,19 @@ const HapiResponseHeader *HatoholArmPluginInterface::getResponseHeader(
 		                        header->code);
 	}
 	return header;
+}
+
+uint32_t HatoholArmPluginInterface::getIncrementedSequenceId(void)
+{
+	m_ctx->sequenceId++;
+	if (m_ctx->sequenceId == SEQ_ID_MAX)
+		m_ctx->sequenceId = 0;
+	return m_ctx->sequenceId;
+}
+
+uint32_t HatoholArmPluginInterface::getSequenceIdInProgress(void)
+{
+	return m_ctx->sequenceIdOfCurrCmd;
 }
 
 void HatoholArmPluginInterface::dumpBuffer(
