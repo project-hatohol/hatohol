@@ -425,15 +425,18 @@ void ZabbixAPIEmulator::APIHandlerUserLogin(APIHandlerArg &arg)
 void ZabbixAPIEmulator::APIHandlerTriggerGet(APIHandlerArg &arg)
 {
 	const char *dataFileName;
-	if (m_ctx->apiVersion < API_VERSION_2_3_0) {
+	if (m_ctx->apiVersion >= API_VERSION_2_3_0) {
+		dataFileName = "zabbix-api-2_3_0-res-triggers.json";
+	} else if (m_ctx->apiVersion >= API_VERSION_2_2_0 &&
+		   m_ctx->apiVersion < API_VERSION_2_2_2) {
+		dataFileName = "zabbix-api-2_2_0-res-triggers.json";
+	} else {
 		if (hasParameter(arg, "selectHosts", "refer")) {
 			dataFileName = "zabbix-api-res-triggers-003-hosts.json";
 		} else {
 			// current implementation doesn't have this case
 			dataFileName = "zabbix-api-res-triggers-001.json";
 		}
-	} else {
-		dataFileName = "zabbix-api-2_3_0-res-triggers.json";
 	}
 	APIHandlerGetWithFile(arg, dataFileName);
 }
