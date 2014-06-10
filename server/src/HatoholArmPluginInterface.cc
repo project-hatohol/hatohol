@@ -183,10 +183,8 @@ void HatoholArmPluginInterface::reply(const mlpl::SmartBuffer &replyBuf)
 
 void HatoholArmPluginInterface::replyError(const HapiResponseCode &code)
 {
-	SmartBuffer resBuf(sizeof(HapiResponseHeader));
-	HapiResponseHeader *header = resBuf.getPointer<HapiResponseHeader>();
-	header->type = HAPI_MSG_RESPONSE;
-	header->code = code;
+	SmartBuffer resBuf;
+	setupResponseBuffer<void>(resBuf, 0, code);
 	reply(resBuf);
 }
 
