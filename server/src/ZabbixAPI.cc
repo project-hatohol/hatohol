@@ -748,7 +748,7 @@ void ZabbixAPI::parseAndPushTriggerData(
 	pushUint64(parser, grp, "templateid",  ITEM_ID_ZBX_TRIGGERS_TEMPLATEID);
 	pushInt   (parser, grp, "type",        ITEM_ID_ZBX_TRIGGERS_TYPE);
 	if (checkAPIVersion(2, 3, 0)) {
-		// Zabbix 2.4 doesn't have "value_falgs" property
+		// Zabbix 2.4 doesn't have "value_flags" property
 		grp->add(new ItemInt(ITEM_ID_ZBX_TRIGGERS_VALUE_FLAGS, 0),
 			 false);
 	} else {
