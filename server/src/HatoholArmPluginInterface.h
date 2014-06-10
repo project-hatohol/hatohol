@@ -281,7 +281,8 @@ protected:
 	}
 
 	/**
-	 * Setup the commnad header and return the top address for the body.
+	 * Allocate buffer for the command, Setup the header, and
+	 * return the top address for the body.
 	 *
 	 * @tparam BodyType
 	 * A Body type. If a body doesn't exist, 'void' shall be set.
@@ -299,12 +300,15 @@ protected:
 	                             const HapiCommandCode &code,
 	                             const size_t &additionalSize = 0)
 	{
+		const size_t requiredSize = sizeof(HapiCommandHeader)
+		                            + getBodySize<BodyType>()
+		                            + additionalSize;
+		cmdBuf.alloc(requiredSize);
 		HapiCommandHeader *cmdHeader =
 		  cmdBuf.getPointer<HapiCommandHeader>(0);
 		cmdHeader->type = HAPI_MSG_COMMAND;
 		cmdHeader->code = code;
-		return getBodyPointerWithCheck<HapiCommandHeader, BodyType>(
-		         cmdBuf, additionalSize);
+		return cmdBuf.getPointer<BodyType>(sizeof(HapiCommandHeader));
 	}
 
 	/**

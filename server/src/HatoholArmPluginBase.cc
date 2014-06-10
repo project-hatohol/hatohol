@@ -51,7 +51,7 @@ HatoholArmPluginBase::~HatoholArmPluginBase()
 bool HatoholArmPluginBase::getMonitoringServerInfo(
   MonitoringServerInfo &serverInfo)
 {
-	SmartBuffer cmdBuf(sizeof(HapiCommandHeader));
+	SmartBuffer cmdBuf;
 	setupCommandHeader<void>(
 	  cmdBuf, HAPI_CMD_GET_MONITORING_SERVER_INFO);
 	send(cmdBuf);
@@ -96,7 +96,7 @@ bool HatoholArmPluginBase::getMonitoringServerInfo(
 
 SmartTime HatoholArmPluginBase::getTimestampOfLastTrigger(void)
 {
-	SmartBuffer cmdBuf(sizeof(HapiCommandHeader));
+	SmartBuffer cmdBuf;
 	setupCommandHeader<void>(
 	  cmdBuf, HAPI_CMD_GET_TIMESTAMP_OF_LAST_TRIGGER);
 	send(cmdBuf);
