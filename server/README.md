@@ -34,6 +34,7 @@ Required libraries
 - qpidd
 - libqpidmessaging2-dev
 - libqpidtypes1-dev
+- libqpidcommon2-dev
 
 ### Example to install required libraries on CentOS 6.4
 > See also [this page](../doc/install/hatohol13.12-centos6.4.md)
@@ -69,7 +70,7 @@ Building & installing by following commands:
     $ su
     # make install
 
-### Example to install required libraries on ubuntu 13.04
+### Example to install required libraries on ubuntu 14.04 
 
 You should install these package to build Hatohol and required libraries.
 
@@ -85,10 +86,11 @@ You should install these package to build Hatohol and required libraries.
 - qpidd
 - libqpidmessaging2-dev
 - libqpidtypes1-dev
+- libqpidcommon2-dev
 
 installing by following commands:
 
-    $ sudo apt-get install automake g++ libtool libsoup2.4-dev libjson-glib-dev libsqlite3-dev libmysqlclient-dev mysql-server sqlite3 uuid-dev qpidd libqpidmessaging2-dev libqpidtypes1-dev
+    $ sudo apt-get install automake g++ libtool libsoup2.4-dev libjson-glib-dev libsqlite3-dev libmysqlclient-dev mysql-server sqlite3 uuid-dev qpidd libqpidmessaging2-dev libqpidtypes1-dev libqpidcommon2-dev
 
 How to build Hatohol
 --------------------
