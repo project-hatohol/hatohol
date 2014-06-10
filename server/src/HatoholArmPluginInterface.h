@@ -350,8 +350,10 @@ protected:
 	 * @return A pointer of the body area.
 	 */
 	template<class BodyType>
-	BodyType *setupResponseBuffer(mlpl::SmartBuffer &resBuf,
-	                              const size_t &additionalSize = 0)
+	BodyType *setupResponseBuffer(
+	  mlpl::SmartBuffer &resBuf,
+	  const size_t &additionalSize = 0,
+	  const HapiResponseCode &code = HAPI_RES_OK)
 	{
 		const size_t requiredSize = sizeof(HapiResponseHeader)
 		                            + getBodySize<BodyType>()
@@ -360,7 +362,7 @@ protected:
 		HapiResponseHeader *header =
 		  resBuf.getPointer<HapiResponseHeader>(0);
 		header->type = HAPI_MSG_RESPONSE;
-		header->code = HAPI_RES_OK;
+		header->code = code;
 		return resBuf.getPointer<BodyType>(sizeof(HapiResponseHeader));
 	}
 
