@@ -308,24 +308,28 @@ protected:
 	}
 
 	/**
-	 * Get the response body.
+	 * Get the response body with a buffer size check.
 	 *
 	 * If the response size is smaller than the expected size,
 	 * HatoholException is thrown.
 	 *
+	 * @tparam BodyType
+	 * A Body type. If a body doesn't exist, 'void' shall be set.
+	 *
 	 * @param resBuf A response buffer.
+	 * @param additionalSize An additional content size.
+	 *
+	 * @return
+	 * An address next to the header region. It is typically the top of
+	 * the body.
 	 */
-	template<class T>
-	const T *getResponseBody(mlpl::SmartBuffer &resBuf)
+	template<class BodyType>
+	BodyType *getResponseBody(mlpl::SmartBuffer &resBuf,
+	                          const size_t &additionalSize = 0)
 	  throw(HatoholException)
 	{
-		size_t expectedSize = sizeof(HapiResponseHeader) + sizeof(T);
-		if (resBuf.size() < expectedSize) {
-			THROW_HATOHOL_EXCEPTION(
-			  "Bad size: expected: %zd, actual: %zd (%s)",
-			  expectedSize, resBuf.size(), DEMANGLED_TYPE_NAME(T));
-		}
-		return resBuf.getPointer<T>(sizeof(HapiResponseHeader));
+		return getBodyPointerWithCheck<HapiResponseHeader, BodyType>(
+		         resBuf, additionalSize);
 	}
 
 	/**
