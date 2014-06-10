@@ -243,6 +243,71 @@ protected:
 	  throw(HatoholException);
 
 	/**
+	 * Get the pointer of the body region with the size check of the buffer.
+	 *
+	 * @tparam HeaderType A header type.
+	 * @tparam BodyType
+	 * A Body type. If a body doesn't exist, 'void' shall be set.
+	 *
+	 * @param buf A buffer for the packet.
+	 * @param additionalSize An additional content size.
+	 *
+	 * @return
+	 * An address next to the header region. It is typically the top of
+	 * the body.
+	 */
+	template<class HeaderType, class BodyType>
+	BodyType *getBodyPointerWithCheck(const mlpl::SmartBuffer &buf,
+	                                  const size_t &additionalSize = 0)
+	  throw(HatoholException)
+	{
+		const size_t requiredSize = sizeof(HeaderType)
+		                            + getBodySize<BodyType>()
+		                            + additionalSize;
+		if (buf.size() < requiredSize) {
+			THROW_HATOHOL_EXCEPTION(
+			  "Bad size: required: %zd, buffer: %zd (%s, %s)",
+			  requiredSize, buf.size(),
+			  DEMANGLED_TYPE_NAME(HeaderType),
+			  DEMANGLED_TYPE_NAME(BodyType));
+		}
+		return buf.getPointer<BodyType>(sizeof(HeaderType));
+	}
+
+	template<class BodyType>
+	size_t getBodySize(void)
+	{
+		return sizeof(BodyType);
+	}
+
+	/**
+	 * Setup the commnad header and return the top address for the body.
+	 *
+	 * @tparam BodyType
+	 * A Body type. If a body doesn't exist, 'void' shall be set.
+	 *
+	 * @param cmdBuf A buffer for the command.
+	 * @param code   A command code.
+	 * @param additionalSize An additional content size.
+	 *
+	 * @return
+	 * An address next to the header region. It is typically the top of
+	 * the body.
+	 */
+	template<class BodyType>
+	BodyType *setupCommandHeader(mlpl::SmartBuffer &cmdBuf,
+	                             const HapiCommandCode &code,
+	                             const size_t &additionalSize = 0)
+	{
+		HapiCommandHeader *cmdHeader =
+		  cmdBuf.getPointer<HapiCommandHeader>(0);
+		cmdHeader->type = HAPI_MSG_COMMAND;
+		cmdHeader->code = code;
+		return getBodyPointerWithCheck<HapiCommandHeader, BodyType>(
+		         cmdBuf, additionalSize);
+	}
+
+	/**
 	 * Get the response body.
 	 *
 	 * If the response size is smaller than the expected size,
@@ -290,5 +355,11 @@ private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
 };
+
+template <>
+inline size_t HatoholArmPluginInterface::getBodySize<void>(void)
+{
+	return 0;
+}
 
 #endif // HatoholArmPluginInterface_h
