@@ -122,6 +122,17 @@ void HatoholArmPluginInterfaceTestBasic::sendAsOther(const SmartBuffer &smbuf)
 	other.obj->send(smbuf);
 }
 
+uint32_t HatoholArmPluginInterfaceTestBasic::callGetIncrementedSequenceId(void)
+{
+	return getIncrementedSequenceId();
+}
+
+void HatoholArmPluginInterfaceTestBasic::callSetSequenceId(
+  const uint32_t &sequenceId)
+{
+	setSequenceId(sequenceId);
+}
+
 // ---------------------------------------------------------------------------
 //  HatoholArmPluginInterfaceTest
 // ---------------------------------------------------------------------------

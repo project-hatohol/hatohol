@@ -35,6 +35,8 @@ using namespace mlpl;
 using namespace qpid::messaging;
 
 const char *HatoholArmPluginInterface::DEFAULT_BROKER_URL = "localhost:5672";
+const uint32_t HatoholArmPluginInterface::SEQ_ID_UNKNOWN = UINT32_MAX;
+const uint32_t HatoholArmPluginInterface::SEQ_ID_MAX     = UINT32_MAX - 1;
 
 struct HatoholArmPluginInterface::PrivateContext {
 	HatoholArmPluginInterface *hapi;
@@ -374,9 +376,14 @@ const HapiResponseHeader *HatoholArmPluginInterface::getResponseHeader(
 uint32_t HatoholArmPluginInterface::getIncrementedSequenceId(void)
 {
 	m_ctx->sequenceId++;
-	if (m_ctx->sequenceId == SEQ_ID_MAX)
+	if (m_ctx->sequenceId > SEQ_ID_MAX)
 		m_ctx->sequenceId = 0;
 	return m_ctx->sequenceId;
+}
+
+void HatoholArmPluginInterface::setSequenceId(const uint32_t &sequenceId)
+{
+	m_ctx->sequenceId = sequenceId;
 }
 
 uint32_t HatoholArmPluginInterface::getSequenceIdInProgress(void)

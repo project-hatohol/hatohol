@@ -216,5 +216,25 @@ void test_putString(void)
 	cut_assert_equal_string("Cat", buf);
 }
 
+void test_getIncrementedSequenceId(void)
+{
+	HapiTestCtx ctx;
+	HatoholArmPluginInterfaceTest plugin(ctx);
+	cppcut_assert_equal(1u, plugin.callGetIncrementedSequenceId());
+	cppcut_assert_equal(2u, plugin.callGetIncrementedSequenceId());
+	cppcut_assert_equal(3u, plugin.callGetIncrementedSequenceId());
+}
+
+void test_getIncrementedSequenceIdAroundMax(void)
+{
+	HapiTestCtx ctx;
+	HatoholArmPluginInterfaceTest plugin(ctx);
+	plugin.callSetSequenceId(HatoholArmPluginInterface::SEQ_ID_MAX-1);
+	cppcut_assert_equal(
+	  HatoholArmPluginInterface::SEQ_ID_MAX,
+	  plugin.callGetIncrementedSequenceId());
+	cppcut_assert_equal(0u, plugin.callGetIncrementedSequenceId());
+	cppcut_assert_equal(1u, plugin.callGetIncrementedSequenceId());
+}
 
 } // namespace testHatoholArmPluginInterface

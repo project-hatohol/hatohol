@@ -76,6 +76,8 @@ public:
 	HapiTestCtx &getHapiTestCtx(void);
 	void sendAsOther(const std::string &msg);
 	void sendAsOther(const mlpl::SmartBuffer &smbuf);
+	uint32_t callGetIncrementedSequenceId(void);
+	void callSetSequenceId(const uint32_t &sequenceId);
 
 private:
 	HapiTestCtx &m_testCtx;

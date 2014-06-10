@@ -101,8 +101,8 @@ struct HapiResTimestampOfLastTrigger {
 class HatoholArmPluginInterface : public HatoholThreadBase {
 public:
 	static const char *DEFAULT_BROKER_URL;
-	static const uint32_t SEQ_ID_UNKNOWN = UINT32_MAX;
-	static const uint32_t SEQ_ID_MAX = UINT32_MAX - 1;
+	static const uint32_t SEQ_ID_UNKNOWN;
+	static const uint32_t SEQ_ID_MAX;
 
 	typedef void (HatoholArmPluginInterface::*CommandHandler)(
 	  const HapiCommandHeader *header);
@@ -373,6 +373,7 @@ protected:
 	}
 
 	uint32_t getIncrementedSequenceId(void);
+	void setSequenceId(const uint32_t &sequenceId);
 	uint32_t getSequenceIdInProgress(void);
 
 	void dumpBuffer(const mlpl::SmartBuffer &sbuf,
