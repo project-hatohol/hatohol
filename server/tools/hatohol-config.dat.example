@@ -18,3 +18,9 @@ server: 1, localhost, 127.0.0.1, NDOUtils,   0,  30, 10, ndoutils, admin, ndouti
 # user: name, password, admin|guest
 user: admin, hatohol, admin
 user: guest, guest,   guest
+
+# issueTracker: TYPE (0: Redmine), Nickname, Base URL, Project Name, Issue Tracker ID (numeric, cab be empty), User name, Password
+#issueTracker: 0, Redmine, http://redmine.localdomain, incidents, , admin, admin
+
+# issueSenderAction: Issue Tracker ID, Monitoring Server ID, Hostgroup ID, Trigger Severity
+#issueSenderAction: 1, -1, -1, 3
