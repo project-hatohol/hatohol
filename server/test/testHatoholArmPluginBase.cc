@@ -63,6 +63,37 @@ static HatoholArmPluginGateTestPtr createHapgTest(
 	return HatoholArmPluginGateTestPtr(hapg, false);
 }
 
+struct TestPair {
+	HapgTestCtx hapgCtx;
+	MonitoringServerInfo serverInfo;
+	HatoholArmPluginGateTestPtr pluginGate;
+	HatoholArmPluginBaseTest   *plugin;
+
+	TestPair(void)
+	: plugin(NULL)
+	{
+		pluginGate = createHapgTest(hapgCtx, serverInfo);
+		loadTestDBTriggers();
+		pluginGate->start();
+		cppcut_assert_equal(
+		  SimpleSemaphore::STAT_OK,
+		  pluginGate->getConnectedSem().timedWait(TIMEOUT));
+
+		plugin = new HatoholArmPluginBaseTest(
+		  pluginGate->callGenerateBrokerAddress(serverInfo));
+		plugin->start();
+		cppcut_assert_equal(
+		  SimpleSemaphore::STAT_OK,
+		  plugin->getConnectedSem().timedWait(TIMEOUT));
+	}
+
+	virtual ~TestPair()
+	{
+		if (plugin)
+			delete plugin;
+	}
+};
+
 void cut_setup(void)
 {
 	hatoholInit();
@@ -73,26 +104,10 @@ void cut_setup(void)
 // ---------------------------------------------------------------------------
 void test_getMonitoringServerInfo(void)
 {
-	HapgTestCtx hapgCtx;
-	MonitoringServerInfo serverInfo;
-	HatoholArmPluginGateTestPtr pluginGate =
-	  createHapgTest(hapgCtx, serverInfo);
-	loadTestDBTriggers();
-	pluginGate->start();
-	cppcut_assert_equal(
-	  SimpleSemaphore::STAT_OK, pluginGate->getConnectedSem().timedWait(TIMEOUT));
-
-	HatoholArmPluginBaseTest plugin(
-	  pluginGate->callGenerateBrokerAddress(serverInfo));
-	plugin.start();
-	cppcut_assert_equal(
-	  SimpleSemaphore::STAT_OK,
-	  plugin.getConnectedSem().timedWait(TIMEOUT));
-
-	// Send the command and check the result
+	TestPair pair;
 	MonitoringServerInfo actual;
-	cppcut_assert_equal(true, plugin.getMonitoringServerInfo(actual));
-	assertEqual(serverInfo, actual);
+	cppcut_assert_equal(true, pair.plugin->getMonitoringServerInfo(actual));
+	assertEqual(pair.serverInfo, actual);
 }
 
 void test_getTimestampOfLastTrigger(void)
