@@ -336,23 +336,28 @@ protected:
 	 * Allocate buffer to include the specified body and set up
 	 * parameters of the header.
 	 *
+	 * @tparam BodyType
+	 * A Body type. If a body doesn't exist, 'void' shall be set.
+	 *
+	 *
 	 * @param resBuf A SmartBuffer instance to be set up.
 	 * @param additionalSize An addition size to allocate a buffer.
 	 *
 	 * @return A pointer of the body area.
 	 */
-	template<class T>
-	T *setupResponseBuffer(mlpl::SmartBuffer &resBuf,
-	                       const size_t &additionalSize = 0)
+	template<class BodyType>
+	BodyType *setupResponseBuffer(mlpl::SmartBuffer &resBuf,
+	                              const size_t &additionalSize = 0)
 	{
-		const size_t requiredSize =
-		  sizeof(HapiResponseHeader) + sizeof(T);
-		resBuf.alloc(requiredSize + additionalSize);
+		const size_t requiredSize = sizeof(HapiResponseHeader)
+		                            + getBodySize<BodyType>()
+		                            + additionalSize;
+		resBuf.alloc(requiredSize);
 		HapiResponseHeader *header =
 		  resBuf.getPointer<HapiResponseHeader>(0);
 		header->type = HAPI_MSG_RESPONSE;
 		header->code = HAPI_RES_OK;
-		return resBuf.getPointer<T>(sizeof(HapiResponseHeader));
+		return resBuf.getPointer<BodyType>(sizeof(HapiResponseHeader));
 	}
 
 private:
