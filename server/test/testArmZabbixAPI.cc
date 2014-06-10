@@ -466,6 +466,18 @@ void test_getTriggers(void)
 	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_TRIGGERS);
 }
 
+void test_getTriggers_2_2_0(void)
+{
+	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_TRIGGERS,
+		      ZabbixAPIEmulator::API_VERSION_2_2_0);
+}
+
+void test_getTriggers_2_2_2(void)
+{
+	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_TRIGGERS,
+		      ZabbixAPIEmulator::API_VERSION_2_2_2);
+}
+
 void test_getTriggers_2_3_0(void)
 {
 	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_TRIGGERS,
