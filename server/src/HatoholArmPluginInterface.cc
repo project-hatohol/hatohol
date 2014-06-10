@@ -357,3 +357,24 @@ const HapiResponseHeader *HatoholArmPluginInterface::getResponseHeader(
 	}
 	return header;
 }
+
+void HatoholArmPluginInterface::dumpBuffer(
+  const SmartBuffer &sbuf, const string &label)
+{
+	size_t size = sbuf.size();
+	printf("===============================================\n");
+	printf("[%s] obj: %p, size: %zd\n", label.c_str(), this, size);
+	uint8_t *p = sbuf.getPointer<uint8_t>(0);
+	size_t i = 0;
+	while (true) {
+		printf("%02x ", p[i]);
+		i++;
+		if (i >= size) {
+			printf("\n");
+			break;
+		}
+		if (i % 16 == 0)
+			printf("\n");
+	}
+	printf("-----------------------------------------------\n");
+}

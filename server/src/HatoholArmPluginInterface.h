@@ -364,6 +364,9 @@ protected:
 		return resBuf.getPointer<BodyType>(sizeof(HapiResponseHeader));
 	}
 
+	void dumpBuffer(const mlpl::SmartBuffer &sbuf,
+	                const std::string &label = "");
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
