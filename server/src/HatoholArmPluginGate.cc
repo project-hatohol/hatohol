@@ -228,22 +228,12 @@ void HatoholArmPluginGate::cmdHandlerGetMonitoringServerInfo(
 
 	char *buf =
 	   reinterpret_cast<char *>(body) + sizeof(HapiResMonitoringServerInfo);
-
-	body->hostNameLength = lenHostName;
-	body->hostNameOffset = buf - (char *)body;
-	memcpy(buf, svInfo.hostName.c_str(), lenHostName + 1);
-	buf += lenHostName;
-
-	body->ipAddressLength = lenHostName;
-	body->ipAddressOffset = buf - (char *)body;
-	memcpy(buf, svInfo.ipAddress.c_str(), lenIpAddress + 1);
-	buf += lenIpAddress;
-
-	body->nicknameLength = lenHostName;
-	body->nicknameOffset = buf - (char *)body;
-	memcpy(buf, svInfo.nickname.c_str(), lenNickname + 1);
-	buf += lenNickname;
-
+	buf = putString(buf, body, svInfo.hostName,
+	                &body->hostNameOffset, &body->hostNameLength);
+	buf = putString(buf, body, svInfo.ipAddress,
+	                &body->ipAddressOffset, &body->ipAddressLength);
+	buf = putString(buf, body, svInfo.nickname,
+	                &body->nicknameOffset, &body->nicknameLength);
 	reply(resBuf);
 }
 
