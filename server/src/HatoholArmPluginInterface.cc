@@ -17,6 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cstring>
 #include <MutexLock.h>
 #include <SmartBuffer.h>
 #include <Reaper.h>
@@ -236,6 +237,21 @@ const char *HatoholArmPluginInterface::getString(
 	}
 
 	return stringAddr;
+}
+
+char *HatoholArmPluginInterface::putString(
+  void *buf, const void *refAddr, const string &src,
+  uint16_t *offsetField, uint16_t *lengthField)
+{
+	const size_t length = src.size();
+	*lengthField = length;
+	*offsetField =
+	  static_cast<uint16_t>((long)buf - (long)refAddr);
+	memcpy(buf, src.c_str(), length + 1); // +1: Null terminator.
+
+	char *nextAddr = reinterpret_cast<char *>(buf);
+	nextAddr += (length + 1);
+	return nextAddr;
 }
 
 // ---------------------------------------------------------------------------

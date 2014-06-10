@@ -151,6 +151,32 @@ public:
 	  const mlpl::SmartBuffer &repBuf,
 	  const void *head, const size_t &offset, const size_t &length);
 
+	/**
+	 * Write a C-style string to the buffer for the packet in conjunction
+	 * with the same meta information such as length and offset.
+	 *
+	 * @param buf
+	 * An address where the string is written.
+	 *
+	 * @param refAddr
+	 * A reference address that is used to calculate the offset.
+	 *
+	 * @param src
+	 * A string to be written.
+	 *
+	 * @param offsetField
+	 * An address where the offset (buf - refAddress) is written.
+	 *
+	 * @param lengthField
+	 * An address where the length (not including NULL term) is written.
+	 *
+	 * @return
+	 * The address next to the written string.
+	 */
+	static char *putString(
+	  void *buf, const void *refAddr, const std::string &src,
+	  uint16_t *offsetField, uint16_t *lengthField);
+
 protected:
 	typedef std::map<uint16_t, CommandHandler> CommandHandlerMap;
 	typedef CommandHandlerMap::iterator        CommandHandlerMapIterator;

@@ -200,4 +200,21 @@ void test_getStringWithoutNullTerm(void)
 	  HatoholArmPluginInterface::getString(buf, head, offset, 2));
 }
 
+void test_putString(void)
+{
+	char _buf[50];
+	char *refAddr = &_buf[15];
+	char *buf = &_buf[20];
+	string str = "Cat";
+	uint16_t offset;
+	uint16_t length;
+	char *next = HatoholArmPluginInterface::putString(buf, refAddr, str,
+	                                                  &offset, &length);
+	cppcut_assert_equal((uint16_t)5, offset);
+	cppcut_assert_equal((uint16_t)3, length);
+	cppcut_assert_equal(&_buf[24], next);
+	cut_assert_equal_string("Cat", buf);
+}
+
+
 } // namespace testHatoholArmPluginInterface
