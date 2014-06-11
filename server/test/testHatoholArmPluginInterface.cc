@@ -133,11 +133,8 @@ void test_onGotResponse(void)
 		
 		void sendReply(void)
 		{
-			SmartBuffer resBuf(sizeof(HapiResponseHeader));
-			HapiResponseHeader *header =
-			  resBuf.getPointer<HapiResponseHeader>();
-			header->type = HAPI_MSG_RESPONSE;
-			header->code = HAPI_RES_OK;
+			SmartBuffer resBuf;
+			setupResponseBuffer<void>(resBuf);
 			sendAsOther(resBuf);
 		}
 
