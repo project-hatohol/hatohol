@@ -417,7 +417,7 @@ void HatoholArmPluginInterface::waitInitiationResponse(
 	}
 	if (initPkt->key != m_ctx->initiationKey) {
 		MLPL_INFO("[Init] Ignore unexpected key: %" PRIx64 ", "
-		          "actual: %" PRIx64 ". Ignored.\n",
+		          "actual: %" PRIx64 ".\n",
 		          initPkt->key, m_ctx->initiationKey);
 		return;
 	}
