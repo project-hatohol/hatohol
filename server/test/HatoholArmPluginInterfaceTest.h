@@ -29,8 +29,6 @@
 #include "HatoholArmPluginInterface.h"
 
 struct HapiTestCtx {
-	mlpl::AtomicValue<bool> connected;
-	mlpl::AtomicValue<bool> quitOnConnected;
 	mlpl::AtomicValue<bool> useCustomOnReceived;
 
 	HapiTestCtx(void);

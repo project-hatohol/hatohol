@@ -29,9 +29,7 @@ using namespace qpid::messaging;
 // HapiTestCtx
 // ---------------------------------------------------------------------------
 HapiTestCtx::HapiTestCtx(void)
-: connected(false),
-  quitOnConnected(false),
-  useCustomOnReceived(false)
+: useCustomOnReceived(false)
 {
 }
 

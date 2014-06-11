@@ -42,7 +42,6 @@ void test_constructor(void)
 void test_onConnected(void)
 {
 	HapiTestCtx testCtx;
-	testCtx.quitOnConnected = true;
 	HatoholArmPluginInterfaceTest hapi(testCtx);
 	hapi.start();
 	cppcut_assert_equal(SimpleSemaphore::STAT_OK,
@@ -56,11 +55,9 @@ void test_sendAndonReceived(void)
 	HapiTestCtx ctxCl;
 
 	// start HAPI pair
-	ctxSv.quitOnConnected = true;
 	HatoholArmPluginInterfaceTest hapiSv(ctxSv);
 	hapiSv.start();
 
-	ctxCl.quitOnConnected = true;
 	HatoholArmPluginInterfaceTest hapiCl(ctxCl, hapiSv);
 	hapiCl.start();
 
@@ -91,7 +88,6 @@ void test_registCommandHandler(void)
 		  gotCmdCode((HapiCommandCode)0),
 		  handledSem(0)
 		{
-			ctx.quitOnConnected = true;
 			registerCommandHandler(
 			  testCmdCode, (CommandHandler)&Hapi::handler);
 		}
@@ -105,7 +101,6 @@ void test_registCommandHandler(void)
 	hapiSv.start();
 
 	HapiTestCtx ctxCl;
-	ctxCl.quitOnConnected = true;
 	HatoholArmPluginInterfaceTest hapiCl(ctxCl, hapiSv);
 	hapiCl.start();
 
@@ -140,7 +135,6 @@ void test_onGotResponse(void)
 		  gotResCode(NUM_HAPI_CMD_RES),
 		  gotResSem(0)
 		{
-			ctx.quitOnConnected = true;
 		}
 		
 		void onGotResponse(const HapiResponseHeader *header,
@@ -154,7 +148,6 @@ void test_onGotResponse(void)
 	hapiSv.start();
 
 	HapiTestCtx ctxCl;
-	ctxCl.quitOnConnected = true;
 	HatoholArmPluginInterfaceTest hapiCl(ctxCl, hapiSv);
 	hapiCl.start();
 
