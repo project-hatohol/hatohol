@@ -157,7 +157,7 @@ public:
 
 	/**
 	 * Write a C-style string to the buffer for the packet in conjunction
-	 * with the same meta information such as length and offset.
+	 * with some meta information such as length and offset.
 	 *
 	 * @param buf
 	 * An address where the string is written.
