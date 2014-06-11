@@ -128,8 +128,8 @@ public:
 	 * @param code HapiCommandCode or HapiServiceCode.
 	 * @param handler A receive handler.
 	 */
-	void registCommandHandler(const HapiCommandCode &code,
-	                          CommandHandler handler);
+	void registerCommandHandler(const HapiCommandCode &code,
+	                            CommandHandler handler);
 
 	const std::string &getQueueAddress(void) const;
 

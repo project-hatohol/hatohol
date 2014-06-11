@@ -74,12 +74,12 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 	string address = generateBrokerAddress(m_ctx->serverInfo);
 	setQueueAddress(address);
 
-	registCommandHandler(
+	registerCommandHandler(
 	  HAPI_CMD_GET_MONITORING_SERVER_INFO,
 	  (CommandHandler)
 	    &HatoholArmPluginGate::cmdHandlerGetMonitoringServerInfo);
 
-	registCommandHandler(
+	registerCommandHandler(
 	  HAPI_CMD_GET_TIMESTAMP_OF_LAST_TRIGGER,
 	  (CommandHandler)
 	    &HatoholArmPluginGate::cmdHandlerGetTimestampOfLastTrigger);

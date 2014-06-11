@@ -201,7 +201,7 @@ void HatoholArmPluginInterface::exitSync(void)
 	HatoholThreadBase::exitSync();
 }
 
-void HatoholArmPluginInterface::registCommandHandler(
+void HatoholArmPluginInterface::registerCommandHandler(
   const HapiCommandCode &code, CommandHandler handler)
 {
 	m_ctx->receiveHandlerMap[code] = handler;

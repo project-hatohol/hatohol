@@ -85,7 +85,7 @@ void test_registCommandHandler(void)
 		  gotCmdCode((HapiCommandCode)0)
 		{
 			testCtx.quitOnConnected = true;
-			registCommandHandler(
+			registerCommandHandler(
 			  testCmdCode, (CommandHandler)&Hapi::handler);
 		}
 
