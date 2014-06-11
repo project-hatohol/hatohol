@@ -130,7 +130,10 @@ string IssueSenderRedmine::buildJson(const EventInfo &event)
 	agent.add("subject", buildTitle(event, server));
 	if (!trackerInfo.trackerId.empty())
 		agent.add("tracker_id", trackerInfo.trackerId);
-	agent.add("description", buildDescription(event, server));
+	string description = "<pre>";
+	description += buildDescription(event, server);
+	description += "</pre>";
+	agent.add("description", description);
 	agent.endObject();
 	agent.endObject();
 	return agent.generate();
