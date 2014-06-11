@@ -79,7 +79,7 @@ Some tests for ActionManager fails due to the following reason.
     expected: <13>
       actual: <14>
 
-The reason may be due to the content of /proc/sys/kernel/core_patter.
+The reason may be due to the content of /proc/sys/kernel/core_pattern.
 Some distribution (such as Ubuntu 13.10, 14.04) sets it to a command that
 calls 'apport' like,
 
