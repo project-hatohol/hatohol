@@ -209,7 +209,7 @@ static string getServerLabel(const EventInfo &event,
 			     const MonitoringServerInfo *server = NULL)
 {
 	if (server)
-		return server->getHostAddress();
+		return server->getName();
 	else
 		return StringUtils::sprintf("Unknown:%" FMT_SERVER_ID,
 					    event.serverId);

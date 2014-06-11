@@ -40,6 +40,15 @@ string MonitoringServerInfo::getHostAddress(bool forURI) const
 	}
 }
 
+std::string MonitoringServerInfo::getName(void) const
+{
+	if (!nickname.empty())
+		return nickname;
+	if (!hostName.empty())
+		return hostName;
+	return ipAddress;
+}
+
 void MonitoringServerInfo::initialize(MonitoringServerInfo &monSvInfo)
 {
 	monSvInfo.id = 0;

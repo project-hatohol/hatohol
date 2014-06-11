@@ -117,7 +117,7 @@ string expectedJson(const EventInfo &event)
 	    "</pre>\""
 	    "}}",
 	    // subject
-	    server.getHostAddress().c_str(),
+	    server.getName().c_str(),
 	    event.hostName.c_str(),
 	    event.brief.c_str(),
 	    // description
