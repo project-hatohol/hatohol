@@ -115,6 +115,7 @@ AM_LDFLAGS = -lrt \
 	$(LIBSOUP_LIBS) $(JSON_GLIB_LIBS) $(SQLITE3_LIBS) \
 	$(UUID_LIBS) $(MYSQL_LIBS) $(COVERAGE_LIBS)
 
-libhatohol_la_LDFLAGS = $(AM_LDFLAGS) libhatohol-common.la
+libhatohol_la_LDFLAGS = $(AM_LDFLAGS)
+libhatohol_la_LIBADD = libhatohol-common.la
 hatohol_LDADD = libhatohol.la libhatohol-common.la
 hatohol_resident_yard_LDADD = libhatohol.la libhatohol-common.la
