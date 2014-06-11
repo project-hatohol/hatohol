@@ -80,6 +80,9 @@ struct TestPair {
 		pluginGate = createHapgTest(hapgCtx, serverInfo);
 		loadTestDBTriggers();
 		pluginGate->start();
+		cppcut_assert_equal(
+		  SimpleSemaphore::STAT_OK,
+		  pluginGate->getConnectedSem().timedWait(TIMEOUT));
 
 		plugin = new HatoholArmPluginBaseTest(
 		  pluginGate->callGenerateBrokerAddress(serverInfo));
