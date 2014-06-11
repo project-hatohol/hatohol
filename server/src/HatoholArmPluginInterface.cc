@@ -267,7 +267,7 @@ gpointer HatoholArmPluginInterface::mainThread(HatoholThreadArg *arg)
 	while (!isExitRequested()) {
 		Message message;
 		m_ctx->receiver.fetch(message);
-		if (isExitRequested()) 
+		if (isExitRequested())
 			break;
 		SmartBuffer sbuf;
 		load(sbuf, message);
