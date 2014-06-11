@@ -71,7 +71,7 @@ void HatoholArmPluginGateTest::onTerminated(const siginfo_t *siginfo)
 
 int HatoholArmPluginGateTest::onCaughtException(const exception &e)
 {
-	printf("onCaughtException: %s\n", e.what());
+	MLPL_INFO("onCaughtException: %s\n", e.what());
 	if (m_ctx.numRetry) {
 		canncelRetrySleepIfNeeded();
 		return m_ctx.retrySleepTime;
