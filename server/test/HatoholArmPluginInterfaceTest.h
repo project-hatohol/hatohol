@@ -60,14 +60,6 @@ private:
 class HatoholArmPluginInterfaceTestBasic :
   public HatoholArmPluginInterface, public HapiTestHelper
 {
-	struct OtherSide {
-		HapiTestCtx ctx;
-		HatoholArmPluginInterfaceTestBasic *obj;
-
-		OtherSide(const std::string &queueAddr);
-		virtual ~OtherSide();
-	};
-
 public:
 	static const size_t TIMEOUT = 5000; // ms
 
@@ -80,8 +72,6 @@ public:
 	virtual void onInitiated(void) override;
 
 	HapiTestCtx &getHapiTestCtx(void);
-	void sendAsOther(const std::string &msg);
-	void sendAsOther(const mlpl::SmartBuffer &smbuf);
 	uint32_t callGetIncrementedSequenceId(void);
 	void callSetSequenceId(const uint32_t &sequenceId);
 

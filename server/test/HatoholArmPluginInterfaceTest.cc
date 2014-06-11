@@ -84,24 +84,6 @@ SimpleSemaphore &HapiTestHelper::getInitiatedSem(void)
 // ---------------------------------------------------------------------------
 //  HatoholArmPluginInterfaceTestBasic
 // ---------------------------------------------------------------------------
-HatoholArmPluginInterfaceTestBasic::OtherSide::OtherSide(
-  const string &queueAddr)
-: obj(NULL)
-{
-	ctx.quitOnConnected = true;
-	obj = new HatoholArmPluginInterfaceTestBasic(ctx, queueAddr, false);
-	obj->start();
-	cppcut_assert_equal(
-	  SimpleSemaphore::STAT_OK,
-	  obj->getHapiTestCtx().sem.timedWait(TIMEOUT));
-}
-
-HatoholArmPluginInterfaceTestBasic::OtherSide::~OtherSide()
-{
-	if (obj)
-		delete obj;
-}
-
 HatoholArmPluginInterfaceTestBasic::HatoholArmPluginInterfaceTestBasic(
   HapiTestCtx &ctx, const string &addr, const bool workInServer)
 : HatoholArmPluginInterface(addr, workInServer),
@@ -125,18 +107,6 @@ void HatoholArmPluginInterfaceTestBasic::onInitiated(void)
 HapiTestCtx &HatoholArmPluginInterfaceTestBasic::getHapiTestCtx(void)
 {
 	return m_testCtx;
-}
-
-void HatoholArmPluginInterfaceTestBasic::sendAsOther(const string &msg)
-{
-	OtherSide other(getQueueAddress());
-	other.obj->send(msg);
-}
-
-void HatoholArmPluginInterfaceTestBasic::sendAsOther(const SmartBuffer &smbuf)
-{
-	OtherSide other(getQueueAddress());
-	other.obj->send(smbuf);
 }
 
 uint32_t HatoholArmPluginInterfaceTestBasic::callGetIncrementedSequenceId(void)
