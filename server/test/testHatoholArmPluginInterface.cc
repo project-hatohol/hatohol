@@ -41,8 +41,7 @@ void test_constructor(void)
 
 void test_onConnected(void)
 {
-	HapiTestCtx testCtx;
-	HatoholArmPluginInterfaceTest hapi(testCtx);
+	HatoholArmPluginInterfaceTest hapi;
 	hapi.start();
 	cppcut_assert_equal(SimpleSemaphore::STAT_OK,
 	                    hapi.getConnectedSem().timedWait(TIMEOUT));
@@ -51,14 +50,12 @@ void test_onConnected(void)
 void test_sendAndonReceived(void)
 {
 	const string testMessage = "FOO";
-	HapiTestCtx ctxSv;
-	HapiTestCtx ctxCl;
 
 	// start HAPI pair
-	HatoholArmPluginInterfaceTest hapiSv(ctxSv);
+	HatoholArmPluginInterfaceTest hapiSv;
 	hapiSv.start();
 
-	HatoholArmPluginInterfaceTest hapiCl(ctxCl, hapiSv);
+	HatoholArmPluginInterfaceTest hapiCl(hapiSv);
 	hapiCl.start();
 
 	// wait for the completion of the initiation
@@ -76,14 +73,12 @@ void test_sendAndonReceived(void)
 void test_registCommandHandler(void)
 {
 	struct Hapi : public HatoholArmPluginInterfaceTest {
-		HapiTestCtx           ctx;
 		const HapiCommandCode testCmdCode;
 		HapiCommandCode       gotCmdCode;
 		SimpleSemaphore       handledSem;
 
 		Hapi(void)
-		: HatoholArmPluginInterfaceTest(ctx),
-		  testCmdCode((HapiCommandCode)5),
+		: testCmdCode((HapiCommandCode)5),
 		  gotCmdCode((HapiCommandCode)0),
 		  handledSem(0)
 		{
@@ -99,8 +94,7 @@ void test_registCommandHandler(void)
 	} hapiSv;
 	hapiSv.start();
 
-	HapiTestCtx ctxCl;
-	HatoholArmPluginInterfaceTest hapiCl(ctxCl, hapiSv);
+	HatoholArmPluginInterfaceTest hapiCl(hapiSv);
 	hapiCl.start();
 
 	// wait for the completion of the initiation
@@ -125,13 +119,11 @@ void test_registCommandHandler(void)
 void test_onGotResponse(void)
 {
 	struct Hapi : public HatoholArmPluginInterfaceTest {
-		HapiTestCtx           ctx;
 		HapiResponseCode      gotResCode;
 		SimpleSemaphore       gotResSem;
 
 		Hapi(void)
-		: HatoholArmPluginInterfaceTest(ctx),
-		  gotResCode(NUM_HAPI_CMD_RES),
+		: gotResCode(NUM_HAPI_CMD_RES),
 		  gotResSem(0)
 		{
 		}
@@ -146,8 +138,7 @@ void test_onGotResponse(void)
 	} hapiSv;
 	hapiSv.start();
 
-	HapiTestCtx ctxCl;
-	HatoholArmPluginInterfaceTest hapiCl(ctxCl, hapiSv);
+	HatoholArmPluginInterfaceTest hapiCl(hapiSv);
 	hapiCl.start();
 
 	// wait for the completion of the initiation
@@ -222,8 +213,7 @@ void test_putString(void)
 
 void test_getIncrementedSequenceId(void)
 {
-	HapiTestCtx ctx;
-	HatoholArmPluginInterfaceTest plugin(ctx);
+	HatoholArmPluginInterfaceTest plugin;
 	cppcut_assert_equal(1u, plugin.callGetIncrementedSequenceId());
 	cppcut_assert_equal(2u, plugin.callGetIncrementedSequenceId());
 	cppcut_assert_equal(3u, plugin.callGetIncrementedSequenceId());
@@ -231,8 +221,7 @@ void test_getIncrementedSequenceId(void)
 
 void test_getIncrementedSequenceIdAroundMax(void)
 {
-	HapiTestCtx ctx;
-	HatoholArmPluginInterfaceTest plugin(ctx);
+	HatoholArmPluginInterfaceTest plugin;
 	plugin.callSetSequenceId(HatoholArmPluginInterface::SEQ_ID_MAX-1);
 	cppcut_assert_equal(
 	  HatoholArmPluginInterface::SEQ_ID_MAX,

@@ -26,13 +26,6 @@ using namespace mlpl;
 using namespace qpid::messaging;
 
 // ---------------------------------------------------------------------------
-// HapiTestCtx
-// ---------------------------------------------------------------------------
-HapiTestCtx::HapiTestCtx(void)
-{
-}
-
-// ---------------------------------------------------------------------------
 //  HapiTestHelper
 // ---------------------------------------------------------------------------
 HapiTestHelper::HapiTestHelper(void)
@@ -66,9 +59,8 @@ SimpleSemaphore &HapiTestHelper::getInitiatedSem(void)
 //  HatoholArmPluginInterfaceTestBasic
 // ---------------------------------------------------------------------------
 HatoholArmPluginInterfaceTestBasic::HatoholArmPluginInterfaceTestBasic(
-  HapiTestCtx &ctx, const string &addr, const bool workInServer)
-: HatoholArmPluginInterface(addr, workInServer),
-  m_testCtx(ctx)
+  const string &addr, const bool workInServer)
+: HatoholArmPluginInterface(addr, workInServer)
 {
 }
 
@@ -80,11 +72,6 @@ void HatoholArmPluginInterfaceTestBasic::onConnected(Connection &conn)
 void HatoholArmPluginInterfaceTestBasic::onInitiated(void)
 {
 	HapiTestHelper::onInitiated();
-}
-
-HapiTestCtx &HatoholArmPluginInterfaceTestBasic::getHapiTestCtx(void)
-{
-	return m_testCtx;
 }
 
 uint32_t HatoholArmPluginInterfaceTestBasic::callGetIncrementedSequenceId(void)
@@ -101,16 +88,15 @@ void HatoholArmPluginInterfaceTestBasic::callSetSequenceId(
 // ---------------------------------------------------------------------------
 //  HatoholArmPluginInterfaceTest
 // ---------------------------------------------------------------------------
-HatoholArmPluginInterfaceTest::HatoholArmPluginInterfaceTest(HapiTestCtx &ctx)
-: HatoholArmPluginInterfaceTestBasic(ctx),
-  m_rcvSem(0),
+HatoholArmPluginInterfaceTest::HatoholArmPluginInterfaceTest(void)
+: m_rcvSem(0),
   m_msgIntercept(false)
 {
 }
 
 HatoholArmPluginInterfaceTest::HatoholArmPluginInterfaceTest(
-  HapiTestCtx &ctx, HatoholArmPluginInterfaceTest &hapiSv)
-: HatoholArmPluginInterfaceTestBasic(ctx, hapiSv.getQueueAddress(), false),
+  HatoholArmPluginInterfaceTest &hapiSv)
+: HatoholArmPluginInterfaceTestBasic(hapiSv.getQueueAddress(), false),
   m_rcvSem(0),
   m_msgIntercept(false)
 {

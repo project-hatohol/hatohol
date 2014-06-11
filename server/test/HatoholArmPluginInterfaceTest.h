@@ -28,11 +28,6 @@
 #include <qpid/messaging/Connection.h>
 #include "HatoholArmPluginInterface.h"
 
-struct HapiTestCtx {
-	HapiTestCtx(void);
-private:
-};
-
 class HapiTestHelper {
 public:
 	HapiTestHelper(void);
@@ -54,14 +49,12 @@ public:
 	static const size_t TIMEOUT = 5000; // ms
 
 	HatoholArmPluginInterfaceTestBasic(
-	  HapiTestCtx &ctx,
 	  const std::string &addr = "test-hatohol-arm-plugin-interface",
 	  const bool workInServer = true);
 
 	virtual void onConnected(qpid::messaging::Connection &conn) override;
 	virtual void onInitiated(void) override;
 
-	HapiTestCtx &getHapiTestCtx(void);
 	uint32_t callGetIncrementedSequenceId(void);
 	void callSetSequenceId(const uint32_t &sequenceId);
 
@@ -73,20 +66,16 @@ public:
 		return setupResponseBuffer<BodyType>(resBuf, additionalSize,
 		                                     code);
 	}
-
-private:
-	HapiTestCtx &m_testCtx;
 };
 
 class HatoholArmPluginInterfaceTest : public HatoholArmPluginInterfaceTestBasic {
 public:
-	HatoholArmPluginInterfaceTest(HapiTestCtx &ctx);
+	HatoholArmPluginInterfaceTest(void);
 
 	/**
 	 * Create a Hapi instance for client.
 	 */
-	HatoholArmPluginInterfaceTest(
-	  HapiTestCtx &ctx, HatoholArmPluginInterfaceTest &hapiSv);
+	HatoholArmPluginInterfaceTest(HatoholArmPluginInterfaceTest &hapiSv);
 
 	virtual void onReceived(mlpl::SmartBuffer &smbuf) override;
 	mlpl::SimpleSemaphore &getRcvSem(void);
