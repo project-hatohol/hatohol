@@ -85,6 +85,13 @@ void HatoholArmPluginInterfaceTestBasic::callSetSequenceId(
 	setSequenceId(sequenceId);
 }
 
+void HatoholArmPluginInterfaceTestBasic::assertStartAndWaitConnected(void)
+{
+	start();
+	cppcut_assert_equal(SimpleSemaphore::STAT_OK,
+	                    getConnectedSem().timedWait(TIMEOUT));
+}
+
 // ---------------------------------------------------------------------------
 //  HatoholArmPluginInterfaceTest
 // ---------------------------------------------------------------------------

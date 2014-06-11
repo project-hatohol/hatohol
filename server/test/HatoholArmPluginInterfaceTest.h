@@ -66,6 +66,8 @@ public:
 		return setupResponseBuffer<BodyType>(resBuf, additionalSize,
 		                                     code);
 	}
+
+	void assertStartAndWaitConnected(void);
 };
 
 class HatoholArmPluginInterfaceTest : public HatoholArmPluginInterfaceTestBasic {

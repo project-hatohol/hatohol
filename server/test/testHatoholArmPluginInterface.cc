@@ -42,9 +42,7 @@ void test_constructor(void)
 void test_onConnected(void)
 {
 	HatoholArmPluginInterfaceTest hapi;
-	hapi.start();
-	cppcut_assert_equal(SimpleSemaphore::STAT_OK,
-	                    hapi.getConnectedSem().timedWait(TIMEOUT));
+	hapi.assertStartAndWaitConnected();
 }
 
 void test_sendAndonReceived(void)
@@ -53,10 +51,10 @@ void test_sendAndonReceived(void)
 
 	// start HAPI pair
 	HatoholArmPluginInterfaceTest hapiSv;
-	hapiSv.start();
+	hapiSv.assertStartAndWaitConnected();
 
 	HatoholArmPluginInterfaceTest hapiCl(hapiSv);
-	hapiCl.start();
+	hapiCl.assertStartAndWaitConnected();
 
 	// wait for the completion of the initiation
 	cppcut_assert_equal(SimpleSemaphore::STAT_OK,
@@ -92,10 +90,10 @@ void test_registCommandHandler(void)
 			handledSem.post();
 		}
 	} hapiSv;
-	hapiSv.start();
+	hapiSv.assertStartAndWaitConnected();
 
 	HatoholArmPluginInterfaceTest hapiCl(hapiSv);
-	hapiCl.start();
+	hapiCl.assertStartAndWaitConnected();
 
 	// wait for the completion of the initiation
 	cppcut_assert_equal(SimpleSemaphore::STAT_OK,
@@ -136,10 +134,10 @@ void test_onGotResponse(void)
 			gotResSem.post();
 		}
 	} hapiSv;
-	hapiSv.start();
+	hapiSv.assertStartAndWaitConnected();
 
 	HatoholArmPluginInterfaceTest hapiCl(hapiSv);
-	hapiCl.start();
+	hapiCl.assertStartAndWaitConnected();
 
 	// wait for the completion of the initiation
 	cppcut_assert_equal(SimpleSemaphore::STAT_OK,
