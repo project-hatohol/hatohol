@@ -38,6 +38,8 @@ struct HatoholArmPluginError {
 };
 
 enum HapiMessageType {
+	HAPI_MSG_INITIATION,
+	HAPI_MSG_INITIATION_RESPONSE,
 	HAPI_MSG_COMMAND,
 	HAPI_MSG_RESPONSE,
 	NUM_HAPI_MSG
@@ -64,6 +66,11 @@ enum HapiResponseCode {
 //       HapiCommandHeader or HapiResponseHeader
 //       Body
 // ---------------------------------------------------------------------------
+struct HapiInitiationPacket {
+	uint16_t type;
+	uint64_t key;
+} __attribute__((__packed__));
+
 struct HapiCommandHeader {
 	uint16_t type;
 	uint16_t code;
@@ -196,6 +203,11 @@ protected:
 	virtual void onConnected(qpid::messaging::Connection &conn);
 
 	/**
+	 * Called when initiation with the other side is completed.
+	 */
+	virtual void onInitiated(void);
+
+	/**
 	 * Called when the session is changed.
 	 *
 	 * @param session
@@ -221,6 +233,10 @@ protected:
 	virtual void onGotResponse(const HapiResponseHeader *header,
 	                           mlpl::SmartBuffer &resBuf);
 
+	void sendInitiationPacket(void);
+	void initiation(const mlpl::SmartBuffer &sbuf);
+	void waitInitiationResponse(const HapiInitiationPacket *initPkt);
+	void replyInitiationPacket(const HapiInitiationPacket *initPkt);
 	/**
 	 * Fill data to a smart buffer.
 	 *

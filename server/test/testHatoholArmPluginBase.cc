@@ -47,6 +47,11 @@ protected:
 	{
 		HapiTestHelper::onConnected(conn);
 	}
+
+	void onInitiated(void) override
+	{
+		HapiTestHelper::onInitiated();
+	}
 };
 
 static HatoholArmPluginGateTestPtr createHapgTest(
@@ -75,16 +80,17 @@ struct TestPair {
 		pluginGate = createHapgTest(hapgCtx, serverInfo);
 		loadTestDBTriggers();
 		pluginGate->start();
-		cppcut_assert_equal(
-		  SimpleSemaphore::STAT_OK,
-		  pluginGate->getConnectedSem().timedWait(TIMEOUT));
 
 		plugin = new HatoholArmPluginBaseTest(
 		  pluginGate->callGenerateBrokerAddress(serverInfo));
 		plugin->start();
+
 		cppcut_assert_equal(
 		  SimpleSemaphore::STAT_OK,
-		  plugin->getConnectedSem().timedWait(TIMEOUT));
+		  pluginGate->getInitiatedSem().timedWait(TIMEOUT));
+		cppcut_assert_equal(
+		  SimpleSemaphore::STAT_OK,
+		  plugin->getInitiatedSem().timedWait(TIMEOUT));
 	}
 
 	virtual ~TestPair()

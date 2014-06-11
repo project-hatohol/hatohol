@@ -95,6 +95,12 @@ void HatoholArmPluginGateTest::onConnected(Connection &conn)
 	HapiTestHelper::onConnected(conn);
 }
 
+void HatoholArmPluginGateTest::onInitiated(void)
+{
+	HatoholArmPluginGate::onInitiated();
+	HapiTestHelper::onInitiated();
+}
+
 void HatoholArmPluginGateTest::canncelRetrySleepIfNeeded(void)
 {
 	if (!m_ctx.cancelRetrySleep)

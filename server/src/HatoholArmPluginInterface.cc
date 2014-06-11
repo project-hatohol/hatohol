@@ -20,6 +20,7 @@
 #include <cstring>
 #include <MutexLock.h>
 #include <SmartBuffer.h>
+#include <SmartTime.h>
 #include <Reaper.h>
 #include <qpid/messaging/Address.h>
 #include <qpid/messaging/Connection.h>
@@ -46,6 +47,8 @@ struct HatoholArmPluginInterface::PrivateContext {
 	Session    session;
 	Sender     sender;
 	Receiver   receiver;
+	bool       initiated;
+	uint64_t   initiationKey;
 	Message   *currMessage;
 	CommandHandlerMap receiveHandlerMap;
 	string     receiverAddr;
@@ -58,6 +61,8 @@ struct HatoholArmPluginInterface::PrivateContext {
 	: hapi(_hapi),
 	  workInServer(_workInServer),
 	  queueAddr(_queueAddr),
+	  initiated(false),
+	  initiationKey(0),
 	  currMessage(NULL),
 	  sequenceId(0),
 	  sequenceIdOfCurrCmd(SEQ_ID_UNKNOWN),
@@ -126,6 +131,12 @@ struct HatoholArmPluginInterface::PrivateContext {
 		if (!connected)
 			return;
 		session.acknowledge();
+	}
+
+	void completeInitiation(void)
+	{
+		initiated = true;
+		hapi->onInitiated();
 	}
 
 private:
@@ -264,6 +275,8 @@ char *HatoholArmPluginInterface::putString(
 gpointer HatoholArmPluginInterface::mainThread(HatoholThreadArg *arg)
 {
 	m_ctx->connect();
+	if (m_ctx->workInServer)
+		sendInitiationPacket();
 	while (!isExitRequested()) {
 		Message message;
 		m_ctx->receiver.fetch(message);
@@ -286,12 +299,21 @@ void HatoholArmPluginInterface::onConnected(Connection &conn)
 {
 }
 
+void HatoholArmPluginInterface::onInitiated(void)
+{
+}
+
 void HatoholArmPluginInterface::onSessionChanged(Session *session)
 {
 }
 
 void HatoholArmPluginInterface::onReceived(mlpl::SmartBuffer &smbuf)
 {
+	if (!m_ctx->initiated) {
+		initiation(smbuf);
+		return;
+	}
+
 	if (smbuf.size() < sizeof(HapiCommandHeader)) {
 		MLPL_ERR("Got a too small packet: %zd.\n", smbuf.size());
 		replyError(HAPI_RES_INVALID_HEADER);
@@ -301,6 +323,9 @@ void HatoholArmPluginInterface::onReceived(mlpl::SmartBuffer &smbuf)
 	HapiCommandHeader *header;
 	const uint16_t type = smbuf.getValue<uint16_t>();
 	switch (type) {
+	case HAPI_MSG_INITIATION:
+		initiation(smbuf);
+		break;
 	case HAPI_MSG_COMMAND:
 		header = smbuf.getPointer<HapiCommandHeader>();
 		m_ctx->sequenceIdOfCurrCmd = header->sequenceId;
@@ -350,6 +375,70 @@ void HatoholArmPluginInterface::onGotError(
 void HatoholArmPluginInterface::onGotResponse(
   const HapiResponseHeader *header, mlpl::SmartBuffer &resBuf)
 {
+}
+
+void HatoholArmPluginInterface::sendInitiationPacket(void)
+{
+	SmartBuffer pktBuf(sizeof(HapiInitiationPacket));
+	HapiInitiationPacket *initPkt =
+	  pktBuf.getPointer<HapiInitiationPacket>(0);
+	initPkt->type = HAPI_MSG_INITIATION;
+
+	// TODO: improve the quality of random
+	SmartTime stime(SmartTime::INIT_CURR_TIME);
+	srandom(stime.getAsTimespec().tv_nsec);
+	m_ctx->initiationKey = ((double)random() / RAND_MAX) * UINT64_MAX;
+	initPkt->key = m_ctx->initiationKey;
+	send(pktBuf);
+}
+
+void HatoholArmPluginInterface::initiation(const mlpl::SmartBuffer &sbuf)
+{
+	const size_t bufferSize = sbuf.size();
+	if (bufferSize != sizeof(HapiInitiationPacket)) {
+		MLPL_INFO("[Init] Drop a message: size: %zd.\n",
+		          bufferSize);
+		return;
+	}
+	HapiInitiationPacket *initPkt =
+	  sbuf.getPointer<HapiInitiationPacket>(0);
+	if (m_ctx->workInServer)
+		waitInitiationResponse(initPkt);
+	else
+		replyInitiationPacket(initPkt);
+}
+
+void HatoholArmPluginInterface::waitInitiationResponse(
+  const HapiInitiationPacket *initPkt)
+{
+	if (initPkt->type != HAPI_MSG_INITIATION_RESPONSE) {
+		MLPL_INFO("[Init] Drop a message: type: %d.\n", initPkt->type);
+		return;
+	}
+	if (initPkt->key != m_ctx->initiationKey) {
+		MLPL_INFO("[Init] Ignore unexpected key: %" PRIx64 ", "
+		          "actual: %" PRIx64 ". Ignored.\n",
+		          initPkt->key, m_ctx->initiationKey);
+		return;
+	}
+	m_ctx->completeInitiation();
+}
+
+void HatoholArmPluginInterface::replyInitiationPacket(
+  const HapiInitiationPacket *initPkt)
+{
+	if (initPkt->type != HAPI_MSG_INITIATION) {
+		MLPL_INFO("[Init] Drop a message: type: %d.\n", initPkt->type);
+		return;
+	}
+
+	SmartBuffer resBuf(sizeof(HapiInitiationPacket));
+	HapiInitiationPacket *initRes =
+	  resBuf.getPointer<HapiInitiationPacket>(0);
+	initRes->type = HAPI_MSG_INITIATION_RESPONSE;
+	initRes->key = initPkt->key;
+	reply(resBuf);
+	m_ctx->completeInitiation();
 }
 
 void HatoholArmPluginInterface::load(SmartBuffer &sbuf, const Message &message)

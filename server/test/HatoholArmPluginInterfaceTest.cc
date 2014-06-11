@@ -32,7 +32,7 @@ HapiTestCtx::HapiTestCtx(void)
 : sem(0),
   connected(false),
   quitOnConnected(false),
-  quitOnReceived(false)
+  useCustomOnReceived(false)
 {
 }
 
@@ -55,7 +55,8 @@ void HapiTestCtx::setReceivedMessage(const SmartBuffer &smbuf)
 //  HapiTestHelper
 // ---------------------------------------------------------------------------
 HapiTestHelper::HapiTestHelper(void)
-: m_connectedSem(0)
+: m_connectedSem(0),
+  m_initiatedSem(0)
 {
 }
 
@@ -64,9 +65,20 @@ void HapiTestHelper::onConnected(Connection &conn)
 	m_connectedSem.post();
 }
 
+void HapiTestHelper::onInitiated(void)
+{
+	m_initiatedSem.post();
+}
+
+
 SimpleSemaphore &HapiTestHelper::getConnectedSem(void)
 {
 	return m_connectedSem;
+}
+
+SimpleSemaphore &HapiTestHelper::getInitiatedSem(void)
+{
+	return m_initiatedSem;
 }
 
 // ---------------------------------------------------------------------------
@@ -103,6 +115,11 @@ void HatoholArmPluginInterfaceTestBasic::onConnected(Connection &conn)
 	if (m_testCtx.quitOnConnected)
 		m_testCtx.sem.post();
 	HapiTestHelper::onConnected(conn);
+}
+
+void HatoholArmPluginInterfaceTestBasic::onInitiated(void)
+{
+	HapiTestHelper::onInitiated();
 }
 
 HapiTestCtx &HatoholArmPluginInterfaceTestBasic::getHapiTestCtx(void)
@@ -142,8 +159,19 @@ HatoholArmPluginInterfaceTest::HatoholArmPluginInterfaceTest(HapiTestCtx &ctx)
 {
 }
 
+HatoholArmPluginInterfaceTest::HatoholArmPluginInterfaceTest(
+  HapiTestCtx &ctx, HatoholArmPluginInterfaceTest &hapiSv)
+: HatoholArmPluginInterfaceTestBasic(ctx, hapiSv.getQueueAddress(), false),
+  m_rcvSem(0)
+{
+}
+
 void HatoholArmPluginInterfaceTest::onReceived(mlpl::SmartBuffer &smbuf)
 {
+	if (!getHapiTestCtx().useCustomOnReceived) {
+		HatoholArmPluginInterfaceTestBasic::onReceived(smbuf);
+		return;
+	}
 	getHapiTestCtx().setReceivedMessage(smbuf);
 	m_rcvSem.post();
 }

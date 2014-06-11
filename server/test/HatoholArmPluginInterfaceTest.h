@@ -32,7 +32,7 @@ struct HapiTestCtx {
 	mlpl::SimpleSemaphore   sem;
 	mlpl::AtomicValue<bool> connected;
 	mlpl::AtomicValue<bool> quitOnConnected;
-	mlpl::AtomicValue<bool> quitOnReceived;
+	mlpl::AtomicValue<bool> useCustomOnReceived;
 
 	HapiTestCtx(void);
 	std::string getReceivedMessage(void);
@@ -47,9 +47,14 @@ class HapiTestHelper {
 public:
 	HapiTestHelper(void);
 	void onConnected(qpid::messaging::Connection &conn);
+	void onInitiated(void);
+
 	mlpl::SimpleSemaphore &getConnectedSem(void);
+	mlpl::SimpleSemaphore &getInitiatedSem(void);
+
 private:
 	mlpl::SimpleSemaphore   m_connectedSem;
+	mlpl::SimpleSemaphore   m_initiatedSem;
 };
 
 class HatoholArmPluginInterfaceTestBasic :
@@ -72,12 +77,22 @@ public:
 	  const bool workInServer = true);
 
 	virtual void onConnected(qpid::messaging::Connection &conn) override;
+	virtual void onInitiated(void) override;
 
 	HapiTestCtx &getHapiTestCtx(void);
 	void sendAsOther(const std::string &msg);
 	void sendAsOther(const mlpl::SmartBuffer &smbuf);
 	uint32_t callGetIncrementedSequenceId(void);
 	void callSetSequenceId(const uint32_t &sequenceId);
+
+	template<class BodyType>
+	BodyType *callSetupResponseBuffer(
+	  mlpl::SmartBuffer &resBuf, const size_t &additionalSize = 0,
+	  const HapiResponseCode &code = HAPI_RES_OK)
+	{
+		return setupResponseBuffer<BodyType>(resBuf, additionalSize,
+		                                     code);
+	}
 
 private:
 	HapiTestCtx &m_testCtx;
@@ -86,6 +101,13 @@ private:
 class HatoholArmPluginInterfaceTest : public HatoholArmPluginInterfaceTestBasic {
 public:
 	HatoholArmPluginInterfaceTest(HapiTestCtx &ctx);
+
+	/**
+	 * Create a Hapi instance for client.
+	 */
+	HatoholArmPluginInterfaceTest(
+	  HapiTestCtx &ctx, HatoholArmPluginInterfaceTest &hapiSv);
+
 	virtual void onReceived(mlpl::SmartBuffer &smbuf) override;
 	mlpl::SimpleSemaphore &getRcvSem(void);
 
