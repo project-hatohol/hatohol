@@ -47,7 +47,6 @@ void test_onConnected(void)
 	hapi.start();
 	cppcut_assert_equal(SimpleSemaphore::STAT_OK,
 	                    hapi.getConnectedSem().timedWait(TIMEOUT));
-	cppcut_assert_equal(true, (bool)testCtx.connected);
 }
 
 void test_sendAndonReceived(void)
