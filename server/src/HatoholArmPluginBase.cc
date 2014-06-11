@@ -104,7 +104,7 @@ SmartTime HatoholArmPluginBase::getTimestampOfLastTrigger(void)
 
 	const HapiResTimestampOfLastTrigger *body = 
 	  getResponseBody<HapiResTimestampOfLastTrigger>(m_ctx->responseBuf);
-	const timespec ts = {(time_t)body->timestamp, body->nanosec};
+	const timespec ts = {(time_t)body->timestamp, (long)body->nanosec};
 	return SmartTime(ts);
 }
 
