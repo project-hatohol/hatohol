@@ -29,7 +29,6 @@
 #include "HatoholArmPluginInterface.h"
 
 struct HapiTestCtx {
-	mlpl::SimpleSemaphore   sem;
 	mlpl::AtomicValue<bool> connected;
 	mlpl::AtomicValue<bool> quitOnConnected;
 	mlpl::AtomicValue<bool> useCustomOnReceived;

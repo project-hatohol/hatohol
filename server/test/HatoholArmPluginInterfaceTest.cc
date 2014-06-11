@@ -29,8 +29,7 @@ using namespace qpid::messaging;
 // HapiTestCtx
 // ---------------------------------------------------------------------------
 HapiTestCtx::HapiTestCtx(void)
-: sem(0),
-  connected(false),
+: connected(false),
   quitOnConnected(false),
   useCustomOnReceived(false)
 {
@@ -94,8 +93,6 @@ HatoholArmPluginInterfaceTestBasic::HatoholArmPluginInterfaceTestBasic(
 void HatoholArmPluginInterfaceTestBasic::onConnected(Connection &conn)
 {
 	m_testCtx.connected = true;
-	if (m_testCtx.quitOnConnected)
-		m_testCtx.sem.post();
 	HapiTestHelper::onConnected(conn);
 }
 

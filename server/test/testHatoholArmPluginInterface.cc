@@ -46,7 +46,7 @@ void test_onConnected(void)
 	HatoholArmPluginInterfaceTest hapi(testCtx);
 	hapi.start();
 	cppcut_assert_equal(SimpleSemaphore::STAT_OK,
-	                    testCtx.sem.timedWait(TIMEOUT));
+	                    hapi.getConnectedSem().timedWait(TIMEOUT));
 	cppcut_assert_equal(true, (bool)testCtx.connected);
 }
 
