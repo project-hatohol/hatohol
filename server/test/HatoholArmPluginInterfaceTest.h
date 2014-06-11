@@ -29,15 +29,8 @@
 #include "HatoholArmPluginInterface.h"
 
 struct HapiTestCtx {
-	mlpl::AtomicValue<bool> useCustomOnReceived;
-
 	HapiTestCtx(void);
-	std::string getReceivedMessage(void);
-	void setReceivedMessage(const mlpl::SmartBuffer &smbuf);
-
 private:
-	mlpl::MutexLock lock;
-	std::string     receivedMessage;
 };
 
 class HapiTestHelper {
@@ -98,8 +91,17 @@ public:
 	virtual void onReceived(mlpl::SmartBuffer &smbuf) override;
 	mlpl::SimpleSemaphore &getRcvSem(void);
 
+	std::string getMessage(void);
+	void setMessageIntercept(void);
+
+protected:
+	void setMessage(const mlpl::SmartBuffer &smbuf);
+
 private:
-	mlpl::SimpleSemaphore m_rcvSem;
+	mlpl::SimpleSemaphore   m_rcvSem;
+	mlpl::MutexLock         m_lock;
+	std::string             m_message;
+	mlpl::AtomicValue<bool> m_msgIntercept;
 };
 
 #endif // HatoholArmPluginInterfaces_h

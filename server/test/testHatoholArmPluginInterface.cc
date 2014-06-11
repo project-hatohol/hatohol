@@ -66,12 +66,11 @@ void test_sendAndonReceived(void)
 	                    hapiSv.getInitiatedSem().timedWait(TIMEOUT));
 
 	// send the message and receive it
-	ctxSv.useCustomOnReceived = true;
+	hapiSv.setMessageIntercept();
 	hapiCl.send(testMessage);
 	cppcut_assert_equal(SimpleSemaphore::STAT_OK,
 	                    hapiSv.getRcvSem().timedWait(TIMEOUT));
-	cppcut_assert_equal(testMessage,
-	                    hapiSv.getHapiTestCtx().getReceivedMessage());
+	cppcut_assert_equal(testMessage, hapiSv.getMessage());
 }
 
 void test_registCommandHandler(void)

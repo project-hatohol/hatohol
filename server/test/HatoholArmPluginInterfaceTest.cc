@@ -29,23 +29,7 @@ using namespace qpid::messaging;
 // HapiTestCtx
 // ---------------------------------------------------------------------------
 HapiTestCtx::HapiTestCtx(void)
-: useCustomOnReceived(false)
 {
-}
-
-string HapiTestCtx::getReceivedMessage(void)
-{
-	lock.lock();
-	string msg = receivedMessage;
-	lock.unlock();
-	return msg;
-}
-
-void HapiTestCtx::setReceivedMessage(const SmartBuffer &smbuf)
-{
-	lock.lock();
-	receivedMessage = string(smbuf, smbuf.size());
-	lock.unlock();
 }
 
 // ---------------------------------------------------------------------------
@@ -119,24 +103,26 @@ void HatoholArmPluginInterfaceTestBasic::callSetSequenceId(
 // ---------------------------------------------------------------------------
 HatoholArmPluginInterfaceTest::HatoholArmPluginInterfaceTest(HapiTestCtx &ctx)
 : HatoholArmPluginInterfaceTestBasic(ctx),
-  m_rcvSem(0)
+  m_rcvSem(0),
+  m_msgIntercept(false)
 {
 }
 
 HatoholArmPluginInterfaceTest::HatoholArmPluginInterfaceTest(
   HapiTestCtx &ctx, HatoholArmPluginInterfaceTest &hapiSv)
 : HatoholArmPluginInterfaceTestBasic(ctx, hapiSv.getQueueAddress(), false),
-  m_rcvSem(0)
+  m_rcvSem(0),
+  m_msgIntercept(false)
 {
 }
 
 void HatoholArmPluginInterfaceTest::onReceived(mlpl::SmartBuffer &smbuf)
 {
-	if (!getHapiTestCtx().useCustomOnReceived) {
+	if (!m_msgIntercept) {
 		HatoholArmPluginInterfaceTestBasic::onReceived(smbuf);
 		return;
 	}
-	getHapiTestCtx().setReceivedMessage(smbuf);
+	setMessage(smbuf);
 	m_rcvSem.post();
 }
 
@@ -144,3 +130,24 @@ SimpleSemaphore &HatoholArmPluginInterfaceTest::getRcvSem(void)
 {
 	return m_rcvSem;
 }
+
+string HatoholArmPluginInterfaceTest::getMessage(void)
+{
+	m_lock.lock();
+	string msg = m_message;
+	m_lock.unlock();
+	return msg;
+}
+
+void HatoholArmPluginInterfaceTest::setMessageIntercept(void)
+{
+	m_msgIntercept = true;
+}
+
+void HatoholArmPluginInterfaceTest::setMessage(const SmartBuffer &smbuf)
+{
+	m_lock.lock();
+	m_message = string(smbuf, smbuf.size());
+	m_lock.unlock();
+}
+
