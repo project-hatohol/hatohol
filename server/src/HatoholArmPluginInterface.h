@@ -27,6 +27,7 @@
 #include <qpid/messaging/Connection.h>
 #include "HatoholThreadBase.h"
 #include "HatoholException.h"
+#include "ItemDataPtr.h"
 #include "Utils.h"
 
 enum HatoholArmPluginErrorCode {
@@ -100,10 +101,23 @@ struct HapiItemGroupHeader {
 struct HapiItemDataHeader {
 	//   0b: Null flag (0: Not NULL, 1: NULL)
 	// 1-7b: reseverd
-	uint8_t  metaInfo;
+	uint8_t  flags;
+
+	// 0: ITEM_TYPE_BOOL
+	// 1: ITEM_TYPE_INT
+	// 2: ITEM_TYPE_UINT64
+	// 3: ITEM_TYPE_DOUBLE
+	// 4: ITEM_TYPE_STRING
 	uint8_t  type;
+
 	uint64_t itemId;
-	// data Body
+
+	// Data Body: Field size is the following.
+	//   1B (BOOL)
+	//   8B (INT)
+	//   8B (UINT64)
+	//   8B (DOUBLE: IEEE754 [64bit])
+
 } __attribute__((__packed__));
 
 struct HapiItemStringHeader {
@@ -225,6 +239,18 @@ public:
 	static char *putString(
 	  void *buf, const void *refAddr, const std::string &src,
 	  uint16_t *offsetField, uint16_t *lengthField);
+
+	/**
+	 * Append HapiItemData to the SmartBuffer.
+	 *
+	 * @param sbuf
+	 * A SmartBuffer instance for appending the data. The buffer size is
+	 * automatically extended if necessary.
+	 *
+	 * @param itemData An ItemData to be written.
+	 */
+	static void appendItemData(mlpl::SmartBuffer &sbuf,
+	                           ItemDataPtr itemData);
 
 protected:
 	typedef std::map<uint16_t, CommandHandler> CommandHandlerMap;

@@ -285,6 +285,70 @@ char *HatoholArmPluginInterface::putString(
 	return nextAddr;
 }
 
+static const size_t ITEM_DATA_BODY_SIZE[NUM_ITEM_TYPE] = {
+	1, // BOOL
+	8, // INT
+	8, // UINT64
+	8, // DOUBLE
+	
+	// STRING (Only length field. Entire size will be computed later)
+	sizeof(HapiItemStringHeader::length),
+};
+
+void HatoholArmPluginInterface::appendItemData(
+  SmartBuffer &sbuf, ItemDataPtr itemData)
+{
+	const ItemDataType type = itemData->getItemType();
+	HATOHOL_ASSERT(type < NUM_ITEM_TYPE, "Invalid type: %d", type);
+	size_t requiredSize =
+	  sizeof(HapiItemDataHeader) + ITEM_DATA_BODY_SIZE[type];
+
+	// To reduce frequency of a call of ensureRemainingSize(),
+	// We do preprocessing for the string item.
+	const char *stringPtr = NULL;
+	size_t stringLength = 0;
+	size_t stringLengthWithNullTerm = 0;
+	if (type == ITEM_TYPE_STRING) {
+		const string &val = *itemData;
+		stringLength = val.size();
+		stringLengthWithNullTerm = stringLength + 1;
+		stringPtr = val.c_str();
+		requiredSize += stringLengthWithNullTerm;
+	}
+	sbuf.ensureRemainingSize(requiredSize);
+
+	// Header
+	HapiItemDataHeader *header = sbuf.getPointer<HapiItemDataHeader>();
+	header->flags = NtoL(itemData->isNull() ? 0x01 : 0x00);
+	header->type  = NtoL(type);
+	header->itemId = NtoL(itemData->getId());
+
+	// Body
+	void *ptr = static_cast<void *>(header + 1);
+	if (type == ITEM_TYPE_BOOL) {
+		const bool &val = *itemData;
+		uint8_t *ptr8 = static_cast<uint8_t *>(ptr);
+		*ptr8 = NtoL(val);
+	} else if (type == ITEM_TYPE_INT || type == ITEM_TYPE_UINT64) {
+		const int &val = *itemData;
+		uint64_t *ptr64 = static_cast<uint64_t *>(ptr);
+		*ptr64 = NtoL(val);
+	} else if (type == ITEM_TYPE_DOUBLE) {
+		// IEEE754 (64bit)
+		const double &val = *itemData;
+		uint64_t *ptr64 = static_cast<uint64_t *>(ptr);
+		*ptr64 = NtoL(val);
+	} else if (type == ITEM_TYPE_STRING) {
+		uint32_t *length = static_cast<uint32_t *>(ptr);
+		*length = NtoL(stringLength);
+		void *dest = length + 1;
+		memcpy(dest, stringPtr, stringLengthWithNullTerm);
+	} else {
+		HATOHOL_ASSERT(false, "Unknown item type: %d", type);
+	}
+	sbuf.incIndex(requiredSize);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
