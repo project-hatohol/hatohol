@@ -22,6 +22,7 @@
 
 #include <string>
 #include <SmartBuffer.h>
+#include <Serializer.h>
 #include <qpid/messaging/Message.h>
 #include <qpid/messaging/Connection.h>
 #include "HatoholThreadBase.h"
@@ -106,7 +107,7 @@ struct HapiResTimestampOfLastTrigger {
 	uint32_t nanosec;
 } __attribute__((__packed__));
 
-class HatoholArmPluginInterface : public HatoholThreadBase {
+class HatoholArmPluginInterface : public HatoholThreadBase, public Serializer {
 public:
 	static const char *DEFAULT_BROKER_URL;
 	static const uint32_t SEQ_ID_UNKNOWN;
