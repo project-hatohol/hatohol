@@ -31,8 +31,6 @@ using namespace qpid::messaging;
 
 namespace testHatoholArmPluginBase {
 
-static const size_t TIMEOUT = 5000;
-
 class HatoholArmPluginBaseTest :
   public HatoholArmPluginBase, public HapiTestHelper
 {
@@ -71,29 +69,23 @@ static HatoholArmPluginGateTestPtr createHapgTest(
 struct TestPair {
 	HapgTestCtx hapgCtx;
 	MonitoringServerInfo serverInfo;
-	HatoholArmPluginGateTestPtr pluginGate;
+	HatoholArmPluginGateTestPtr gate;
 	HatoholArmPluginBaseTest   *plugin;
 
 	TestPair(void)
 	: plugin(NULL)
 	{
-		pluginGate = createHapgTest(hapgCtx, serverInfo);
+		gate = createHapgTest(hapgCtx, serverInfo);
 		loadTestDBTriggers();
-		pluginGate->start();
-		cppcut_assert_equal(
-		  SimpleSemaphore::STAT_OK,
-		  pluginGate->getConnectedSem().timedWait(TIMEOUT));
+		gate->start();
+		gate->assertWaitConnected();
 
 		plugin = new HatoholArmPluginBaseTest(
-		  pluginGate->callGenerateBrokerAddress(serverInfo));
+		  gate->callGenerateBrokerAddress(serverInfo));
 		plugin->start();
 
-		cppcut_assert_equal(
-		  SimpleSemaphore::STAT_OK,
-		  pluginGate->getInitiatedSem().timedWait(TIMEOUT));
-		cppcut_assert_equal(
-		  SimpleSemaphore::STAT_OK,
-		  plugin->getInitiatedSem().timedWait(TIMEOUT));
+		gate->assertWaitInitiated();
+		plugin->assertWaitInitiated();
 	}
 
 	virtual ~TestPair()
