@@ -57,8 +57,7 @@ void test_sendAndonReceived(void)
 	hapiCl.assertStartAndWaitConnected();
 
 	// wait for the completion of the initiation
-	cppcut_assert_equal(SimpleSemaphore::STAT_OK,
-	                    hapiSv.getInitiatedSem().timedWait(TIMEOUT));
+	hapiSv.assertWaitInitiated();
 
 	// send the message and receive it
 	hapiSv.setMessageIntercept();
@@ -96,8 +95,7 @@ void test_registCommandHandler(void)
 	hapiCl.assertStartAndWaitConnected();
 
 	// wait for the completion of the initiation
-	cppcut_assert_equal(SimpleSemaphore::STAT_OK,
-	                    hapiSv.getInitiatedSem().timedWait(TIMEOUT));
+	hapiSv.assertWaitInitiated();
 
 	// send command code and wait for the callback.
 	// TODO: useSetupCommandHeader()
@@ -140,8 +138,7 @@ void test_onGotResponse(void)
 	hapiCl.assertStartAndWaitConnected();
 
 	// wait for the completion of the initiation
-	cppcut_assert_equal(SimpleSemaphore::STAT_OK,
-	                    hapiSv.getInitiatedSem().timedWait(TIMEOUT));
+	hapiSv.assertWaitInitiated();
 
 	// send a command code and wait for the callback.
 	SmartBuffer resBuf;
