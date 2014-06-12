@@ -62,7 +62,7 @@ void HapiTestHelper::assertWaitConnected(void)
 	  getConnectedSem().timedWait(TIMEOUT));
 }
 
-void HapiTestHelper::assertWaitInitiation(void)
+void HapiTestHelper::assertWaitInitiated(void)
 {
 	cppcut_assert_equal(
 	  SimpleSemaphore::STAT_OK,
