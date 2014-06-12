@@ -38,8 +38,9 @@ struct HatoholArmPluginError {
 };
 
 enum HapiMessageType {
-	HAPI_MSG_INITIATION,
-	HAPI_MSG_INITIATION_RESPONSE,
+	HAPI_MSG_INITIATION,          // Sv -> Cl
+	HAPI_MSG_INITIATION_RESPONSE, // Cl -> Sv
+	HAPI_MSG_INITIATION_FINISH,   // Sv -> Cl (confirmation)
 	HAPI_MSG_COMMAND,
 	HAPI_MSG_RESPONSE,
 	NUM_HAPI_MSG
@@ -237,6 +238,8 @@ protected:
 	void initiation(const mlpl::SmartBuffer &sbuf);
 	void waitInitiationResponse(const HapiInitiationPacket *initPkt);
 	void replyInitiationPacket(const HapiInitiationPacket *initPkt);
+	void finishInitiation(const HapiInitiationPacket *initPkt);
+
 	/**
 	 * Fill data to a smart buffer.
 	 *

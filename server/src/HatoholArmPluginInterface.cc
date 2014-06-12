@@ -39,6 +39,15 @@ const char *HatoholArmPluginInterface::DEFAULT_BROKER_URL = "localhost:5672";
 const uint32_t HatoholArmPluginInterface::SEQ_ID_UNKNOWN = UINT32_MAX;
 const uint32_t HatoholArmPluginInterface::SEQ_ID_MAX     = UINT32_MAX - 1;
 
+enum InitiationState {
+	INIT_STAT_UNKNOWN,
+	INIT_STAT_DONE,
+	// Serer side
+	INIT_STAT_WAIT_RES,
+	// Client Side
+	INIT_STAT_WAIT_FINISH,
+};
+
 struct HatoholArmPluginInterface::PrivateContext {
 	HatoholArmPluginInterface *hapi;
 	bool       workInServer;
@@ -47,7 +56,7 @@ struct HatoholArmPluginInterface::PrivateContext {
 	Session    session;
 	Sender     sender;
 	Receiver   receiver;
-	bool       initiated;
+	InitiationState initState;
 	uint64_t   initiationKey;
 	Message   *currMessage;
 	CommandHandlerMap receiveHandlerMap;
@@ -61,7 +70,7 @@ struct HatoholArmPluginInterface::PrivateContext {
 	: hapi(_hapi),
 	  workInServer(_workInServer),
 	  queueAddr(_queueAddr),
-	  initiated(false),
+	  initState(INIT_STAT_UNKNOWN),
 	  initiationKey(0),
 	  currMessage(NULL),
 	  sequenceId(0),
@@ -133,9 +142,16 @@ struct HatoholArmPluginInterface::PrivateContext {
 		session.acknowledge();
 	}
 
+	void resetInitiation(void)
+	{
+		initState = INIT_STAT_UNKNOWN;
+		if (!workInServer)
+			initiationKey = 0;
+	}
+
 	void completeInitiation(void)
 	{
-		initiated = true;
+		initState = INIT_STAT_DONE;
 		hapi->onInitiated();
 	}
 
@@ -309,7 +325,7 @@ void HatoholArmPluginInterface::onSessionChanged(Session *session)
 
 void HatoholArmPluginInterface::onReceived(mlpl::SmartBuffer &smbuf)
 {
-	if (!m_ctx->initiated) {
+	if (m_ctx->initState != INIT_STAT_DONE) {
 		initiation(smbuf);
 		return;
 	}
@@ -390,6 +406,7 @@ void HatoholArmPluginInterface::sendInitiationPacket(void)
 	m_ctx->initiationKey = ((double)random() / RAND_MAX) * UINT64_MAX;
 	initPkt->key = m_ctx->initiationKey;
 	send(pktBuf);
+	m_ctx->initState = INIT_STAT_WAIT_RES;
 }
 
 void HatoholArmPluginInterface::initiation(const mlpl::SmartBuffer &sbuf)
@@ -398,46 +415,82 @@ void HatoholArmPluginInterface::initiation(const mlpl::SmartBuffer &sbuf)
 	if (bufferSize != sizeof(HapiInitiationPacket)) {
 		MLPL_INFO("[Init] Drop a message: size: %zd.\n",
 		          bufferSize);
+		m_ctx->resetInitiation();
 		return;
 	}
 	HapiInitiationPacket *initPkt =
 	  sbuf.getPointer<HapiInitiationPacket>(0);
-	if (m_ctx->workInServer)
+	if (m_ctx->workInServer) {
 		waitInitiationResponse(initPkt);
-	else
-		replyInitiationPacket(initPkt);
+	} else {
+		if (initPkt->type == HAPI_MSG_INITIATION) {
+			replyInitiationPacket(initPkt);
+		} else if (initPkt->type == HAPI_MSG_INITIATION_FINISH) {
+			finishInitiation(initPkt);
+		} else {
+			MLPL_INFO("[Init] Drop a message: type: %d.\n",
+			          initPkt->type);
+			m_ctx->resetInitiation();
+		}
+	}
 }
 
 void HatoholArmPluginInterface::waitInitiationResponse(
   const HapiInitiationPacket *initPkt)
 {
 	if (initPkt->type != HAPI_MSG_INITIATION_RESPONSE) {
-		MLPL_INFO("[Init] Drop a message: type: %d.\n", initPkt->type);
+		MLPL_INFO("[Init] Drop a message: type: %d (expect: %d).\n",
+		          initPkt->type, HAPI_MSG_INITIATION_RESPONSE);
+		m_ctx->resetInitiation();
 		return;
 	}
 	if (initPkt->key != m_ctx->initiationKey) {
-		MLPL_INFO("[Init] Ignore unexpected key: %" PRIx64 ", "
-		          "actual: %" PRIx64 ".\n",
+		MLPL_INFO("[Init] Ignore unexpected key: %" PRIx64
+		          " (expect: %" PRIx64 ").\n",
 		          initPkt->key, m_ctx->initiationKey);
+		m_ctx->resetInitiation();
 		return;
 	}
+
+	// Send finish packet
+	SmartBuffer finBuf(sizeof(HapiInitiationPacket));
+	HapiInitiationPacket *initFin =
+	  finBuf.getPointer<HapiInitiationPacket>(0);
+	initFin->type = HAPI_MSG_INITIATION_FINISH;
+	initFin->key = m_ctx->initiationKey;
+	send(finBuf);
 	m_ctx->completeInitiation();
 }
 
 void HatoholArmPluginInterface::replyInitiationPacket(
   const HapiInitiationPacket *initPkt)
 {
-	if (initPkt->type != HAPI_MSG_INITIATION) {
-		MLPL_INFO("[Init] Drop a message: type: %d.\n", initPkt->type);
-		return;
-	}
-
 	SmartBuffer resBuf(sizeof(HapiInitiationPacket));
 	HapiInitiationPacket *initRes =
 	  resBuf.getPointer<HapiInitiationPacket>(0);
 	initRes->type = HAPI_MSG_INITIATION_RESPONSE;
 	initRes->key = initPkt->key;
+	m_ctx->initiationKey = initPkt->key;;
 	reply(resBuf);
+	m_ctx->initState = INIT_STAT_WAIT_FINISH;
+}
+
+void HatoholArmPluginInterface::finishInitiation(
+  const HapiInitiationPacket *initPkt)
+{
+	if (m_ctx->initState != INIT_STAT_WAIT_FINISH) {
+		MLPL_INFO("[Init] Ingnore HAPI_MSG_INITIATION_FINISH. "
+		          "state: %d.\n",  m_ctx->initState);
+		m_ctx->resetInitiation();
+		return;
+	}
+	if (initPkt->key != m_ctx->initiationKey) {
+		MLPL_INFO("[Init] Unmatch initiation key: 1st: %" PRIx64
+		          ", 2nd: %" PRIx64 ".\n",
+		          m_ctx->initiationKey, initPkt->key);
+		m_ctx->resetInitiation();
+		return;
+	}
 	m_ctx->completeInitiation();
 }
 
