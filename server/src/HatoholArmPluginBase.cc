@@ -110,6 +110,11 @@ SmartTime HatoholArmPluginBase::getTimestampOfLastTrigger(void)
 	return SmartTime(ts);
 }
 
+void HatoholArmPluginBase::sendUpdatedTriggers(ItemTablePtr triggers)
+{
+	MLPL_BUG("Not implemented yet: %s\n", __PRETTY_FUNCTION__);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

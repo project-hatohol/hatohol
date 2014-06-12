@@ -21,6 +21,7 @@
 #define HatoholArmPluginBase_h
 
 #include <SmartTime.h>
+#include "ItemTablePtr.h"
 #include "MonitoringServerInfo.h"
 #include "HatoholArmPluginInterface.h"
 
@@ -38,6 +39,8 @@ public:
 	bool getMonitoringServerInfo(MonitoringServerInfo &serverInfo);
 
 	mlpl::SmartTime getTimestampOfLastTrigger(void);
+
+	void sendUpdatedTriggers(ItemTablePtr triggers);
 
 protected:
 	virtual void onGotResponse(const HapiResponseHeader *header,
