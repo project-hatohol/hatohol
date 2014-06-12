@@ -64,6 +64,15 @@ public:
 	void callSetSequenceId(const uint32_t &sequenceId);
 
 	template<class BodyType>
+	BodyType *callSetupCommandHeader(mlpl::SmartBuffer &cmdBuf,
+	                                 const HapiCommandCode &code,
+	                                 const size_t &additionalSize = 0)
+	{
+		return setupCommandHeader<BodyType>(cmdBuf, code,
+		                                    additionalSize);
+	}
+
+	template<class BodyType>
 	BodyType *callSetupResponseBuffer(
 	  mlpl::SmartBuffer &resBuf, const size_t &additionalSize = 0,
 	  const HapiResponseCode &code = HAPI_RES_OK)

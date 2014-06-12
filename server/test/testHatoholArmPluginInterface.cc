@@ -98,13 +98,8 @@ void test_registCommandHandler(void)
 	hapiSv.assertWaitInitiated();
 
 	// send command code and wait for the callback.
-	// TODO: useSetupCommandHeader()
-	SmartBuffer cmdBuf(sizeof(HapiCommandHeader));
-	HapiCommandHeader *header =
-	  cmdBuf.getPointer<HapiCommandHeader>();
-	header->type = HAPI_MSG_COMMAND;
-	header->code = hapiSv.testCmdCode;
-	header->sequenceId = 0;
+	SmartBuffer cmdBuf;
+	hapiCl.callSetupCommandHeader<void>(cmdBuf, hapiSv.testCmdCode);
 	hapiCl.send(cmdBuf);
 
 	cppcut_assert_equal(SimpleSemaphore::STAT_OK,
