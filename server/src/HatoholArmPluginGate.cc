@@ -220,11 +220,11 @@ void HatoholArmPluginGate::cmdHandlerGetMonitoringServerInfo(
 	
 	HapiResMonitoringServerInfo *body =
 	  setupResponseBuffer<HapiResMonitoringServerInfo>(resBuf, addSize);
-	body->serverId = svInfo.id;
-	body->type     = svInfo.type;
-	body->port     = svInfo.port;
-	body->pollingIntervalSec = svInfo.pollingIntervalSec;
-	body->retryIntervalSec   = svInfo.retryIntervalSec;
+	body->serverId = NtoL(svInfo.id);
+	body->type     = NtoL(svInfo.type);
+	body->port     = NtoL(svInfo.port);
+	body->pollingIntervalSec = NtoL(svInfo.pollingIntervalSec);
+	body->retryIntervalSec   = NtoL(svInfo.retryIntervalSec);
 
 	char *buf =
 	   reinterpret_cast<char *>(body) + sizeof(HapiResMonitoringServerInfo);
@@ -246,7 +246,7 @@ void HatoholArmPluginGate::cmdHandlerGetTimestampOfLastTrigger(
 	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
 	SmartTime last = uds->getTimestampOfLastTrigger(m_ctx->serverInfo.id);
 	const timespec &lastTimespec = last.getAsTimespec();
-	body->timestamp = lastTimespec.tv_sec;
-	body->nanosec   = lastTimespec.tv_nsec;
+	body->timestamp = NtoL(lastTimespec.tv_sec);
+	body->nanosec   = NtoL(lastTimespec.tv_nsec);
 	reply(resBuf);
 }

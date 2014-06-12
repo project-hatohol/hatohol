@@ -178,10 +178,12 @@ public:
 	 * A string to be written.
 	 *
 	 * @param offsetField
-	 * An address where the offset (buf - refAddress) is written.
+	 * An address where the offset (buf - refAddress) is written
+	 * as little endian.
 	 *
 	 * @param lengthField
-	 * An address where the length (not including NULL term) is written.
+	 * An address where the length (not including NULL term) is written
+	 * as little endian.
 	 *
 	 * @return
 	 * The address next to the written string.
@@ -330,9 +332,9 @@ protected:
 		cmdBuf.alloc(requiredSize);
 		HapiCommandHeader *cmdHeader =
 		  cmdBuf.getPointer<HapiCommandHeader>(0);
-		cmdHeader->type = HAPI_MSG_COMMAND;
-		cmdHeader->code = code;
-		cmdHeader->sequenceId = getIncrementedSequenceId();
+		cmdHeader->type = NtoL(HAPI_MSG_COMMAND);
+		cmdHeader->code = NtoL(code);
+		cmdHeader->sequenceId = NtoL(getIncrementedSequenceId());
 		return cmdBuf.getPointer<BodyType>(sizeof(HapiCommandHeader));
 	}
 
@@ -386,9 +388,9 @@ protected:
 		resBuf.alloc(requiredSize);
 		HapiResponseHeader *header =
 		  resBuf.getPointer<HapiResponseHeader>(0);
-		header->type = HAPI_MSG_RESPONSE;
-		header->code = code;
-		header->sequenceId = getSequenceIdInProgress();
+		header->type = NtoL(HAPI_MSG_RESPONSE);
+		header->code = NtoL(code);
+		header->sequenceId = NtoL(getSequenceIdInProgress());
 		return resBuf.getPointer<BodyType>(sizeof(HapiResponseHeader));
 	}
 

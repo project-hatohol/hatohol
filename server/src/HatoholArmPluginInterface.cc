@@ -275,9 +275,9 @@ char *HatoholArmPluginInterface::putString(
   uint16_t *offsetField, uint16_t *lengthField)
 {
 	const size_t length = src.size();
-	*lengthField = length;
+	*lengthField = NtoL(length);
 	*offsetField =
-	  static_cast<uint16_t>((long)buf - (long)refAddr);
+	  NtoL(static_cast<uint16_t>((long)buf - (long)refAddr));
 	memcpy(buf, src.c_str(), length + 1); // +1: Null terminator.
 
 	char *nextAddr = reinterpret_cast<char *>(buf);
@@ -337,14 +337,14 @@ void HatoholArmPluginInterface::onReceived(mlpl::SmartBuffer &smbuf)
 	}
 
 	HapiCommandHeader *header;
-	const uint16_t type = smbuf.getValue<uint16_t>();
+	uint16_t type = LtoN(smbuf.getValue<uint16_t>());
 	switch (type) {
 	case HAPI_MSG_INITIATION:
 		initiation(smbuf);
 		break;
 	case HAPI_MSG_COMMAND:
 		header = smbuf.getPointer<HapiCommandHeader>();
-		m_ctx->sequenceIdOfCurrCmd = header->sequenceId;
+		m_ctx->sequenceIdOfCurrCmd = LtoN(header->sequenceId);
 		parseCommand(header, smbuf);
 		break;
 	case HAPI_MSG_RESPONSE:
@@ -398,13 +398,13 @@ void HatoholArmPluginInterface::sendInitiationPacket(void)
 	SmartBuffer pktBuf(sizeof(HapiInitiationPacket));
 	HapiInitiationPacket *initPkt =
 	  pktBuf.getPointer<HapiInitiationPacket>(0);
-	initPkt->type = HAPI_MSG_INITIATION;
+	initPkt->type = NtoL(HAPI_MSG_INITIATION);
 
 	// TODO: improve the quality of random
 	SmartTime stime(SmartTime::INIT_CURR_TIME);
 	srandom(stime.getAsTimespec().tv_nsec);
 	m_ctx->initiationKey = ((double)random() / RAND_MAX) * UINT64_MAX;
-	initPkt->key = m_ctx->initiationKey;
+	initPkt->key = NtoL(m_ctx->initiationKey);
 	send(pktBuf);
 	m_ctx->initState = INIT_STAT_WAIT_RES;
 }
@@ -456,8 +456,8 @@ void HatoholArmPluginInterface::waitInitiationResponse(
 	SmartBuffer finBuf(sizeof(HapiInitiationPacket));
 	HapiInitiationPacket *initFin =
 	  finBuf.getPointer<HapiInitiationPacket>(0);
-	initFin->type = HAPI_MSG_INITIATION_FINISH;
-	initFin->key = m_ctx->initiationKey;
+	initFin->type = NtoL(HAPI_MSG_INITIATION_FINISH);
+	initFin->key = NtoL(m_ctx->initiationKey);
 	send(finBuf);
 	m_ctx->completeInitiation();
 }
@@ -468,9 +468,10 @@ void HatoholArmPluginInterface::replyInitiationPacket(
 	SmartBuffer resBuf(sizeof(HapiInitiationPacket));
 	HapiInitiationPacket *initRes =
 	  resBuf.getPointer<HapiInitiationPacket>(0);
-	initRes->type = HAPI_MSG_INITIATION_RESPONSE;
-	initRes->key = initPkt->key;
-	m_ctx->initiationKey = initPkt->key;;
+
+	m_ctx->initiationKey = LtoN(initPkt->key);
+	initRes->type = NtoL(HAPI_MSG_INITIATION_RESPONSE);
+	initRes->key = NtoL(m_ctx->initiationKey);
 	reply(resBuf);
 	m_ctx->initState = INIT_STAT_WAIT_FINISH;
 }
@@ -484,10 +485,12 @@ void HatoholArmPluginInterface::finishInitiation(
 		m_ctx->resetInitiation();
 		return;
 	}
-	if (initPkt->key != m_ctx->initiationKey) {
+
+	uint64_t receivedKey = LtoN(initPkt->key);
+	if (receivedKey != m_ctx->initiationKey) {
 		MLPL_INFO("[Init] Unmatch initiation key: 1st: %" PRIx64
 		          ", 2nd: %" PRIx64 ".\n",
-		          m_ctx->initiationKey, initPkt->key);
+		          m_ctx->initiationKey, receivedKey);
 		m_ctx->resetInitiation();
 		return;
 	}
@@ -508,7 +511,7 @@ const HapiResponseHeader *HatoholArmPluginInterface::getResponseHeader(
 	}
 	const HapiResponseHeader *header =
 	  resBuf.getPointer<HapiResponseHeader>(0);
-	if (header->code != HAPI_RES_OK) {
+	if (LtoN(header->code) != HAPI_RES_OK) {
 		THROW_HATOHOL_EXCEPTION("Bad response code: %d\n",
 		                        header->code);
 	}

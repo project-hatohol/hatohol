@@ -22,24 +22,53 @@
 
 #if defined __x86_64__ || defined __i386__
 class Serializer {
-	static inline void writeLE(uint8_t &dest, const uint8_t &src)
+public:
+	/**
+	 * Convert native endian to little endian.
+	 */
+	template<typename T>
+	static inline T NtoL(const T &val)
 	{
-		dest = src;
+		return val;
 	}
 
-	static inline void writeLE(uint16_t &dest, const uint16_t &src)
+	static inline uint16_t NtoL(const uint16_t &val)
 	{
-		dest = src;
+		return val;
 	}
 
-	static inline void writeLE(uint32_t &dest, const uint32_t &src)
+	static inline uint32_t NtoL(const uint32_t &val)
 	{
-		dest = src;
+		return val;
 	}
 
-	static inline void writeLE(uint64_t &dest, const uint64_t &src)
+	static inline uint64_t NtoL(const uint64_t &val)
 	{
-		dest = src;
+		return val;
+	}
+
+	/**
+	 * Convert little endian to native endian.
+	 */
+	template<typename T>
+	static inline T LtoN(const T &val)
+	{
+		return val;
+	}
+
+	static inline uint16_t LtoN(const uint16_t &val)
+	{
+		return val;
+	}
+
+	static inline uint32_t LtoN(const uint32_t &val)
+	{
+		return val;
+	}
+
+	static inline uint64_t LtoN(const uint64_t &val)
+	{
+		return val;
 	}
 };
 #endif // defined __x86_64__ || defined __i386__
