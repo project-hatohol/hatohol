@@ -17,11 +17,11 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef Serializer_h
-#define Serializer_h
+#ifndef EndianConverter_h
+#define EndianConverter_h
 
 #if defined __x86_64__ || defined __i386__
-class Serializer {
+class EndianConverter {
 public:
 	/**
 	 * Convert native endian to little endian.
@@ -73,4 +73,4 @@ public:
 };
 #endif // defined __x86_64__ || defined __i386__
 
-#endif // Serializer_h
+#endif // EndianConverter_h
