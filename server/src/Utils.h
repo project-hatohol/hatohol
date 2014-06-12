@@ -46,9 +46,6 @@ public:
 	static std::string makeDemangledStackTraceLines(void **trace, int num);
 	static void assertNotNull(const void *ptr);
 	static std::string demangle(const std::string &str);
-	static void showTreeInfo(FormulaElement *formulaElement, int fd = 1,
-	                         bool fromRoot = true, int maxNumElem = -1,
-	                         int currNum = 0, int depth = 0);
 	static uint64_t getCurrTimeAsMicroSecond(void);
 	static bool isValidPort(int port, bool showErrorMsg = true);
 	static std::string getExtension(const std::string &path);
@@ -189,6 +186,30 @@ public:
 	static bool removeGSourceIfNeeded(const guint &tag);
 
 	static void flushPendingGLibEvents(GMainContext *context = NULL);
+
+	/**
+	 * Check if an string is a valid IPv4 or v6 address.
+	 *
+	 * @param ipAddress A string to be checked.
+	 * @return true if the string is valid, or false.
+	 */
+	static bool validIPAddress(const std::string &ipAddress);
+
+	/**
+	 * Check if an string is a valid IPv4 address.
+	 *
+	 * @param ipAddress A string to be checked.
+	 * @return true if the string is valid, or false.
+	 */
+	static bool validIPv4Address(const std::string &ipAddress);
+
+	/**
+	 * Check if an string is a valid IPv6 address.
+	 *
+	 * @param ipAddress A string to be checked.
+	 * @return true if the string is valid, or false.
+	 */
+	static bool validIPv6Address(const std::string &ipAddress);
 
 protected:
 	static std::string makeDemangledStackTraceString(

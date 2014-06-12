@@ -17,38 +17,23 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cstdio>
+#include "HapProcess.h"
 
-#include <cppcutter.h>
-#include <errno.h>
-
-#include "SimpleSemaphore.h"
-
-using namespace mlpl;
-
-namespace testSimpleSemaphore {
+struct HapProcess::PrivateContext {
+};
 
 // ---------------------------------------------------------------------------
-// Test cases
+// Public methods
 // ---------------------------------------------------------------------------
-void test_constructor(void)
+HapProcess::HapProcess(int argc, char *argv[])
+: m_ctx(NULL)
 {
-	SimpleSemaphore sem(0);
+	m_ctx = new PrivateContext();
 }
 
-void test_postAndWait(void)
+HapProcess::~HapProcess()
 {
-	SimpleSemaphore sem(0);
-	cppcut_assert_equal(0, sem.post());
-	cppcut_assert_equal(0, sem.post());
-	cppcut_assert_equal(0, sem.wait());
-	cppcut_assert_equal(0, sem.wait());
+	if (m_ctx)
+		delete m_ctx;
 }
-
-void test_timedWait(void)
-{
-	SimpleSemaphore sem(1);
-	cppcut_assert_equal(SimpleSemaphore::STAT_OK, sem.timedWait(1));
-	cppcut_assert_equal(SimpleSemaphore::STAT_TIMEDOUT, sem.timedWait(1));
-}
-
-} // namespace testSimpleSemaphore

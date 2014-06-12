@@ -17,58 +17,37 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SimpleSemaphore_h
-#define SimpleSemaphore_h
+#ifndef HatoholArmPluginBase_h
+#define HatoholArmPluginBase_h
 
-#include <cstddef>
+#include <SmartTime.h>
+#include "MonitoringServerInfo.h"
+#include "HatoholArmPluginInterface.h"
 
-namespace mlpl {
-
-class SimpleSemaphore {
+class HatoholArmPluginBase : public HatoholArmPluginInterface {
 public:
-	enum Status {
-		STAT_OK,
-		STAT_TIMEDOUT,
-		STAT_ERROR_UNKNOWN,
-	};
+	HatoholArmPluginBase(void);
+	virtual ~HatoholArmPluginBase();
 
 	/**
-	 * A constructor of SimpleSemaphore.
+	 * Get the monitoring server information from the server.
 	 *
-	 * @param count An initial count of the semaphore.
+	 * @param serverInfo Obtained data is set to this object.
+	 * @return true on success. Or false is returned.
 	 */
-	SimpleSemaphore(const int &count = 1);
+	bool getMonitoringServerInfo(MonitoringServerInfo &serverInfo);
 
-	virtual ~SimpleSemaphore();
+	mlpl::SmartTime getTimestampOfLastTrigger(void);
 
-	/**
-	 * Post a semaphore.
-	 *
-	 * @return 0 on Succeess, or errno if an error occured.
-	 */
-	int post(void);
+protected:
+	virtual void onGotResponse(const HapiResponseHeader *header,
+	                           mlpl::SmartBuffer &resBuf) override;
 
-	/**
-	 * Wait a semaphore.
-	 *
-	 * @return 0 on Succeess, or errno if an error occured.
-	 */
-	int wait(void);
-
-	/**
-	 * Wait a semaphore with a timeout value.
-	 *
-	 * @param timeoutInMSec A timeout in millisecond.
-	 * @return the return status.
-	 */
-	Status timedWait(size_t timeoutInMSec);
+	void waitResponseAndCheckHeader(void);
 
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
 };
 
-} // namespace mlpl
-
-#endif // SimpleSemaphore_h
-
+#endif // HatoholArmPluginBase_h

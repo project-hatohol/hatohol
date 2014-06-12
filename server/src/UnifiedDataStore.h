@@ -73,6 +73,7 @@ public:
 
 	void getTriggerList(TriggerInfoList &triggerList,
 	                    const TriggersQueryOption &option);
+	mlpl::SmartTime getTimestampOfLastTrigger(const ServerIdType serverId);
 	HatoholError getEventList(EventInfoList &eventList,
 	                          EventsQueryOption &option);
 	void getItemList(ItemInfoList &itemList,

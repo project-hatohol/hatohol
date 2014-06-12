@@ -29,20 +29,15 @@
 class HatoholArmPluginGate : public DataStore, public HatoholArmPluginInterface {
 public:
 	static const std::string PassivePluginQuasiPath;
-	static const char *DEFAULT_BROKER_URL;
 	static const char *ENV_NAME_QUEUE_ADDR;
 	static const int   NO_RETRY;
 
 	HatoholArmPluginGate(const MonitoringServerInfo &serverInfo);
 
 	/**
-	 * Start an initiation. This typically launch a plugin process.
-	 *
-	 * @param type A monitoring system type.
-	 *
-	 * @return true if successfully started. Or false is returned.
+	 * Start the plugin gate thread.
 	 */
-	bool start(const MonitoringSystemType &type);
+	void start(void);
 
 	/**
 	 * Reutrn an ArmStatus instance.
@@ -71,7 +66,7 @@ protected:
 	// To avoid an instance from being created on a stack.
 	virtual ~HatoholArmPluginGate();
 
-	virtual void onTerminated(const siginfo_t *siginfo);
+	virtual void onConnected(qpid::messaging::Connection &conn) override;
 
 	/**
 	 * Called when an exception was caught.
@@ -84,9 +79,18 @@ protected:
 	 */
 	virtual int onCaughtException(const std::exception &e) override;
 
+	virtual void onLaunchedProcess(
+	  const bool &succeeded, const ArmPluginInfo &armPluginInfo);
+	virtual void onTerminated(const siginfo_t *siginfo);
+
 	bool launchPluginProcess(const ArmPluginInfo &armPluginInfo);
 	static std::string generateBrokerAddress(
 	  const MonitoringServerInfo &serverInfo);
+
+	void cmdHandlerGetMonitoringServerInfo(
+	  const HapiCommandHeader *header);
+	void cmdHandlerGetTimestampOfLastTrigger(
+	  const HapiCommandHeader *header);
 
 private:
 	struct PrivateContext;

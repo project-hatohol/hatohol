@@ -30,7 +30,6 @@
 #include "Utils.h"
 #include "HatoholThreadBase.h"
 #include "HatoholException.h"
-#include "CacheServiceDBClient.h"
 using namespace std;
 using namespace mlpl;
 
@@ -200,10 +199,19 @@ void HatoholThreadBase::cancelReexecSleep(void)
 // ---------------------------------------------------------------------------
 // Private methods
 // ---------------------------------------------------------------------------
+void hatoholThreadCleanup(HatoholThreadArg *arg) __attribute__((weak));
+
+void hatoholThreadCleanup(HatoholThreadArg *arg)
+{
+	// We do nothing here. Instead, the function with the same name is in
+	// HatoholServer.cc in order to call CacheServiceDBClient::cleanup()
+	// only when this class is used from Hatohol Server.
+}
+
 void HatoholThreadBase::threadCleanup(HatoholThreadArg *arg)
 {
 	arg->obj->doExitCallback();
-	CacheServiceDBClient::cleanup();
+	hatoholThreadCleanup(arg);
 	arg->obj->m_ctx->thread = NULL;
 	arg->obj->m_ctx->semThreadExit.post();
 	if (arg->autoDeleteObject)

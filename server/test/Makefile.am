@@ -12,7 +12,7 @@ endif
 
 # default
 AM_CXXFLAGS = \
-	-g3 -Wall -D__STDC_FORMAT_MACROS $(OPT_CXXFLAGS) \
+	$(OPT_CXXFLAGS) \
 	$(CUTTER_CFLAGS) $(CPPCUTTER_CFLAGS) \
 	$(GLIB_CFLAGS) $(MLPL_CFLAGS) $(JSON_GLIB_CFLAGS) $(LIBSOUP_CFLAGS) \
 	$(MYSQL_CFLAGS) \
@@ -21,7 +21,7 @@ AM_LDFLAGS = -module -rpath $(libdir) -avoid-version -no-undefined
 
 LIBS = \
 	$(CUTTER_LIBS) $(CPPCUTTER_LIBS) \
-	$(GLIB_LIBS) $(GIO_LIBS) $(MLPL_LIBS) ../src/libhatohol.la
+	$(GLIB_LIBS) $(GIO_LIBS) $(MLPL_LIBS) ../src/libhatohol.la ../src/libhatohol-common.la
 
 # Test cases
 testHatohol_la_SOURCES = \
@@ -34,6 +34,7 @@ testHatohol_la_SOURCES = \
 	testDataStoreManager.cc testDataStoreFactory.cc \
 	testDataStoreZabbix.cc testDataStoreNagios.cc \
 	testHatoholArmPluginInterface.cc testHatoholArmPluginGate.cc \
+	testHatoholArmPluginBase.cc \
 	testHatoholError.cc \
 	testHatoholException.cc testSQLProcessorException.cc \
 	testHatoholThreadBase.cc \
@@ -84,7 +85,9 @@ libTest_la_SOURCES = \
 	FormulaTestUtils.h Helpers.h DBAgentTest.h DBClientTest.h \
 	ZabbixAPIEmulator.h Synchronizer.h \
 	ExceptionTestUtils.h AssertJoin.h \
-	MultiLangTest.h
+	MultiLangTest.h \
+	HatoholArmPluginInterfaceTest.cc HatoholArmPluginInterfaceTest.h \
+	HatoholArmPluginGateTest.cc HatoholArmPluginGateTest.h
 libTest_la_LDFLAGS =
 
 ActionTp_SOURCES = ActionTp.cc ActionTp.h

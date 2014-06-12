@@ -290,6 +290,16 @@ void UnifiedDataStore::getTriggerList(TriggerInfoList &triggerList,
 	dbHatohol.getTriggerInfoList(triggerList, option);
 }
 
+SmartTime UnifiedDataStore::getTimestampOfLastTrigger(
+  const ServerIdType serverId)
+{
+	CacheServiceDBClient cache;
+	DBClientHatohol *dbHatohol = cache.getHatohol();
+	const timespec ts =
+	  {dbHatohol->getLastChangeTimeOfTrigger(serverId), 0};
+	return SmartTime(ts);
+}
+
 HatoholError UnifiedDataStore::getEventList(EventInfoList &eventList,
 					    EventsQueryOption &option)
 {

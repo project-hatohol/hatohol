@@ -209,14 +209,21 @@ void SmartBuffer::printBuffer(void)
 SmartBuffer *SmartBuffer::takeOver(void)
 {
 	SmartBuffer *sbuf = new SmartBuffer();
-	sbuf->m_index = m_index;
-	sbuf->m_buf = m_buf;
-	sbuf->m_size = m_size;
-	sbuf->m_watermark = m_watermark;
+	handOver(*sbuf);
+	return sbuf;
+}
+
+void SmartBuffer::handOver(SmartBuffer &sbuf)
+{
+	if (sbuf.m_buf)
+		free(sbuf.m_buf);
+	sbuf.m_index = m_index;
+	sbuf.m_buf = m_buf;
+	sbuf.m_size = m_size;
+	sbuf.m_watermark = m_watermark;
 	resetIndexDeep();
 	m_buf = NULL;
 	m_size = 0;
-	return sbuf;
 }
 
 // ---------------------------------------------------------------------------

@@ -22,6 +22,7 @@
 
 #include <map>
 #include <set>
+#include <SmartTime.h>
 #include "DBClientConfig.h"
 #include "DBClientHatohol.h"
 #include "DBClientAction.h"
@@ -125,6 +126,7 @@ size_t getNumberOfTestHostsWithStatus(
   const bool &status, const UserIdType &userId = USER_ID_SYSTEM);
 
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo);
+mlpl::SmartTime getTimestampOfLastTestTrigger(const ServerIdType &serverId);
 
 void getDBCTestHostInfo(HostInfoList &hostInfoList,
                         const ServerIdType &targetServerId = ALL_SERVERS);

@@ -8,11 +8,11 @@ hatohol_config_db_creator_SOURCES = hatohol-config-db-creator.cc
 MLPL_CFLAGS = -I ../mlpl/src
 MLPL_LIBS = ../mlpl/src/libmlpl.la
 
-AM_CXXFLAGS = -Wall -g3 \
-	-D__STDC_FORMAT_MACROS $(OPT_CXXFLAGS) \
+AM_CXXFLAGS = \
+	$(OPT_CXXFLAGS) \
 	-I ../src $(MLPL_CFLAGS) $(GLIB_CFLAGS) $(MYSQL_CFLAGS) $(LIBSOUP_CFLAGS) $(JSON_GLIB_CFLAGS)
 
-AM_LDFLAGS = ../src/libhatohol.la $(MLPL_LIBS) $(GLIB_LIBS) $(MYSQL_LIBS)
+AM_LDFLAGS = ../src/libhatohol.la ../src/libhatohol-common.la $(MLPL_LIBS) $(GLIB_LIBS) $(MYSQL_LIBS)
 
 config_example_DATA = hatohol-config.dat.example
 config_exampledir = $(pkgdatadir)

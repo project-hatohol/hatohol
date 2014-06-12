@@ -67,8 +67,8 @@ static guint getTestPort(void)
 // ZabbixAPITestee
 // ---------------------------------------------------------------------------
 ZabbixAPITestee::ZabbixAPITestee(const MonitoringServerInfo &serverInfo)
-: ZabbixAPI(serverInfo)
 {
+	setMonitoringServerInfo(serverInfo);
 	if (!g_apiEmulator.isRunning())
 		g_apiEmulator.start(EMULATOR_PORT);
 	else

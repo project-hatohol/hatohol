@@ -4,8 +4,8 @@ libmlpl_la_SOURCES = \
 	SmartBuffer.cc Logger.cc StringUtils.cc SmartQueue.cc \
 	ParsableString.cc SmartTime.cc
  
-AM_CXXFLAGS = -Wall -g3 -O2 \
-	-D__STDC_FORMAT_MACROS $(OPT_CXXFLAGS) \
+AM_CXXFLAGS = \
+	$(OPT_CXXFLAGS) \
 	$(COVERAGE_CFLAGS)
 AM_LDFLAGS = -lpthread -lrt $(COVERAGE_LIBS)
 

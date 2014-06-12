@@ -83,6 +83,10 @@ extern void _assertItemTable(
   const ItemTablePtr &expect, const ItemTablePtr &actual);
 #define assertItemTable(E,A) cut_trace(_assertItemTable(E,A))
 
+extern void _assertEqual(
+  const MonitoringServerInfo &expect, const MonitoringServerInfo &actual);
+#define assertEqual(E,A) cut_trace(_assertEqual(E,A))
+
 std::string executeCommand(const std::string &commandLine);
 std::string getFixturesDir(void);
 bool isVerboseMode(void);
@@ -158,6 +162,7 @@ void makeTestMySQLDBIfNeeded(const std::string &dbName, bool recreate = false);
 void setupTestDBConfig(bool dbRecreate = true, bool loadTestDat = false);
 void setupTestDBAction(bool dbRecreate = true, bool loadTestDat = false);
 void setupTestDBUser(bool dbRecreate = true, bool loadTestDat = false);
+void loadTestDBTriggers(void);
 void loadTestDBServer(void);
 void loadTestDBAction(void);
 void loadTestDBUser(void);

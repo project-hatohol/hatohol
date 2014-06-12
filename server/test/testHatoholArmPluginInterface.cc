@@ -18,8 +18,10 @@
  */
 
 #include <cppcutter.h>
+#include <SimpleSemaphore.h>
 #include "Helpers.h"
 #include "HatoholArmPluginInterface.h"
+#include "HatoholArmPluginInterfaceTest.h"
 
 using namespace std;
 using namespace mlpl;
@@ -27,93 +29,7 @@ using namespace qpid::messaging;
 
 namespace testHatoholArmPluginInterface {
 
-struct TestContext {
-	AtomicValue<bool> timedout;
-	AtomicValue<bool> connected;
-	AtomicValue<bool> quitOnConnected;
-	AtomicValue<bool> quitOnReceived;
-
-	TestContext(void)
-	: timedout(false),
-	  connected(false),
-	  quitOnConnected(false),
-	  quitOnReceived(false)
-	{
-	}
-
-	string getReceivedMessage(void)
-	{
-		lock.lock();
-		string msg = receivedMessage;
-		lock.unlock();
-		return msg;
-	}
-
-	void setReceivedMessage(const SmartBuffer &smbuf)
-	{
-		lock.lock();
-		receivedMessage = string(smbuf, smbuf.size());
-		lock.unlock();
-	}
-
-private:
-	MutexLock   lock;
-	string      receivedMessage;
-};
-
-class TestHatoholArmPluginInterface : public HatoholArmPluginInterface {
-public:
-	TestHatoholArmPluginInterface(
-	  TestContext &ctx,
-	  const string &addr = "test-hatohol-arm-plugin-interface; {create: always}")
-	: HatoholArmPluginInterface(addr),
-	  m_testCtx(ctx),
-	  m_started(false)
-	{
-	}
-
-	virtual void onConnected(Connection &conn) override
-	{
-		m_testCtx.connected = true;
-		if (m_testCtx.quitOnConnected)
-			m_loop.quit();
-	}
-
-	virtual void onReceived(SmartBuffer &smbuf)
-	{
-		m_testCtx.setReceivedMessage(smbuf);
-		m_loop.quit();
-	}
-
-	void run(void)
-	{
-		if (!m_started) {
-			start();
-			m_started = true;
-		}
-		m_loop.run(timeoutCb, this);
-	}
-
-	TestContext &getTestContext(void)
-	{
-		return m_testCtx;
-	}
-
-protected:
-	static gboolean timeoutCb(gpointer data)
-	{
-		TestHatoholArmPluginInterface *obj =
-		  static_cast<TestHatoholArmPluginInterface *>(data);
-		obj->m_testCtx.timedout = true;
-		obj->m_loop.quit();
-		return G_SOURCE_REMOVE;
-	}
-
-private:
-	GMainLoopAgent m_loop;
-	TestContext   &m_testCtx;
-	bool           m_started;
-};
+static const size_t TIMEOUT = 5000;
 
 // ---------------------------------------------------------------------------
 // Test cases
@@ -125,33 +41,183 @@ void test_constructor(void)
 
 void test_onConnected(void)
 {
-	TestContext testCtx;
-	testCtx.quitOnConnected = true;
-	TestHatoholArmPluginInterface hapi(testCtx);
-	hapi.run();
-	cppcut_assert_equal(false, (bool)testCtx.timedout);
-	cppcut_assert_equal(true, (bool)testCtx.connected);
+	HatoholArmPluginInterfaceTest hapi;
+	hapi.assertStartAndWaitConnected();
 }
 
 void test_sendAndonReceived(void)
 {
 	const string testMessage = "FOO";
-	TestContext testCtx;
 
-	// wait for connection
-	testCtx.quitOnConnected = true;
-	TestHatoholArmPluginInterface hapi(testCtx);
-	hapi.run();
-	cppcut_assert_equal(false, (bool)hapi.getTestContext().timedout);
+	// start HAPI pair
+	HatoholArmPluginInterfaceTest hapiSv;
+	hapiSv.assertStartAndWaitConnected();
+
+	HatoholArmPluginInterfaceTest hapiCl(hapiSv);
+	hapiCl.assertStartAndWaitConnected();
+
+	// wait for the completion of the initiation
+	hapiSv.assertWaitInitiated();
 
 	// send the message and receive it
-	hapi.send(testMessage);
-	testCtx.quitOnConnected = false;
-	testCtx.quitOnReceived = true;
-	hapi.run();
-	cppcut_assert_equal(false, (bool)hapi.getTestContext().timedout);
-	cppcut_assert_equal(testMessage,
-	                    hapi.getTestContext().getReceivedMessage());
+	hapiSv.setMessageIntercept();
+	hapiCl.send(testMessage);
+	cppcut_assert_equal(SimpleSemaphore::STAT_OK,
+	                    hapiSv.getRcvSem().timedWait(TIMEOUT));
+	cppcut_assert_equal(testMessage, hapiSv.getMessage());
+}
+
+void test_registCommandHandler(void)
+{
+	struct Hapi : public HatoholArmPluginInterfaceTest {
+		const HapiCommandCode testCmdCode;
+		HapiCommandCode       gotCmdCode;
+		SimpleSemaphore       handledSem;
+
+		Hapi(void)
+		: testCmdCode((HapiCommandCode)5),
+		  gotCmdCode((HapiCommandCode)0),
+		  handledSem(0)
+		{
+			registerCommandHandler(
+			  testCmdCode, (CommandHandler)&Hapi::handler);
+		}
+
+		void handler(const HapiCommandHeader *header)
+		{
+			gotCmdCode = (HapiCommandCode)header->code;
+			handledSem.post();
+		}
+	} hapiSv;
+	hapiSv.assertStartAndWaitConnected();
+
+	HatoholArmPluginInterfaceTest hapiCl(hapiSv);
+	hapiCl.assertStartAndWaitConnected();
+
+	// wait for the completion of the initiation
+	hapiSv.assertWaitInitiated();
+
+	// send command code and wait for the callback.
+	SmartBuffer cmdBuf;
+	hapiCl.callSetupCommandHeader<void>(cmdBuf, hapiSv.testCmdCode);
+	hapiCl.send(cmdBuf);
+
+	cppcut_assert_equal(SimpleSemaphore::STAT_OK,
+	                    hapiSv.handledSem.timedWait(TIMEOUT));
+	cppcut_assert_equal(hapiSv.testCmdCode, hapiSv.gotCmdCode);
+}
+
+void test_onGotResponse(void)
+{
+	struct Hapi : public HatoholArmPluginInterfaceTest {
+		HapiResponseCode      gotResCode;
+		SimpleSemaphore       gotResSem;
+
+		Hapi(void)
+		: gotResCode(NUM_HAPI_CMD_RES),
+		  gotResSem(0)
+		{
+		}
+		
+		void onGotResponse(const HapiResponseHeader *header,
+		                   SmartBuffer &resBuf) override
+		{
+			gotResCode =
+			  static_cast<HapiResponseCode>(header->code);
+			gotResSem.post();
+		}
+	} hapiSv;
+	hapiSv.assertStartAndWaitConnected();
+
+	HatoholArmPluginInterfaceTest hapiCl(hapiSv);
+	hapiCl.assertStartAndWaitConnected();
+
+	// wait for the completion of the initiation
+	hapiSv.assertWaitInitiated();
+
+	// send a command code and wait for the callback.
+	SmartBuffer resBuf;
+	hapiCl.callSetupResponseBuffer<void>(resBuf);
+	HapiResponseHeader *header = resBuf.getPointer<HapiResponseHeader>(0);
+	header->sequenceId = 0;
+	hapiCl.send(resBuf);
+
+	cppcut_assert_equal(SimpleSemaphore::STAT_OK,
+	                    hapiSv.gotResSem.timedWait(TIMEOUT));
+	cppcut_assert_equal(HAPI_RES_OK, hapiSv.gotResCode);
+}
+
+void test_getString(void)
+{
+	SmartBuffer buf(10);
+	char *head = buf.getPointer<char>(1);
+	const size_t offset = 3;
+	head[offset+0] = 'A';
+	head[offset+1] = 'B';
+	head[offset+2] = '\0';
+	cut_assert_equal_string(
+	  "AB", HatoholArmPluginInterface::getString(buf, head, offset, 2));
+}
+
+void test_getStringWithTooLongParam(void)
+{
+	SmartBuffer buf(3);
+	char *head = buf.getPointer<char>(0);
+	const size_t offset = 0;
+	head[offset+0] = 'A';
+	head[offset+1] = 'B';
+	head[offset+2] = '\0';
+	cut_assert_equal_string(
+	  NULL,
+	  HatoholArmPluginInterface::getString(buf, head, offset, 3));
+}
+
+void test_getStringWithoutNullTerm(void)
+{
+	SmartBuffer buf(3);
+	char *head = buf.getPointer<char>(0);
+	const size_t offset = 0;
+	head[offset+0] = 'A';
+	head[offset+1] = 'B';
+	head[offset+2] = 'C';
+	cut_assert_equal_string(
+	  NULL,
+	  HatoholArmPluginInterface::getString(buf, head, offset, 2));
+}
+
+void test_putString(void)
+{
+	char _buf[50];
+	char *refAddr = &_buf[15];
+	char *buf = &_buf[20];
+	string str = "Cat";
+	uint16_t offset;
+	uint16_t length;
+	char *next = HatoholArmPluginInterface::putString(buf, refAddr, str,
+	                                                  &offset, &length);
+	cppcut_assert_equal((uint16_t)5, offset);
+	cppcut_assert_equal((uint16_t)3, length);
+	cppcut_assert_equal(&_buf[24], next);
+	cut_assert_equal_string("Cat", buf);
+}
+
+void test_getIncrementedSequenceId(void)
+{
+	HatoholArmPluginInterfaceTest plugin;
+	cppcut_assert_equal(1u, plugin.callGetIncrementedSequenceId());
+	cppcut_assert_equal(2u, plugin.callGetIncrementedSequenceId());
+	cppcut_assert_equal(3u, plugin.callGetIncrementedSequenceId());
+}
+
+void test_getIncrementedSequenceIdAroundMax(void)
+{
+	HatoholArmPluginInterfaceTest plugin;
+	plugin.callSetSequenceId(HatoholArmPluginInterface::SEQ_ID_MAX-1);
+	cppcut_assert_equal(
+	  HatoholArmPluginInterface::SEQ_ID_MAX,
+	  plugin.callGetIncrementedSequenceId());
+	cppcut_assert_equal(0u, plugin.callGetIncrementedSequenceId());
+	cppcut_assert_equal(1u, plugin.callGetIncrementedSequenceId());
 }
 
 } // namespace testHatoholArmPluginInterface

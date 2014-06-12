@@ -23,6 +23,7 @@
 #include <unistd.h>
 #include <semaphore.h>
 #include "SimpleSemaphore.h"
+#include "SmartTime.h"
 #include "Logger.h"
 
 using namespace mlpl;
@@ -87,4 +88,25 @@ retry:
 		return errno;
 	}
 	return 0;
+}
+
+SimpleSemaphore::Status SimpleSemaphore::timedWait(size_t timeoutInMSec)
+{
+	SmartTime abs(SmartTime::INIT_CURR_TIME);
+	struct timespec waitTime;
+	waitTime.tv_sec = timeoutInMSec / 1000;
+	waitTime.tv_nsec = (timeoutInMSec % 1000) * 1000 * 1000;
+	abs += waitTime;
+retry:
+	int ret = sem_timedwait(&m_ctx->sem, &abs.getAsTimespec());
+	if (ret == 0)
+		return STAT_OK;
+
+	switch (errno) {
+	case EINTR:
+		goto retry;
+	case ETIMEDOUT:
+		return STAT_TIMEDOUT;
+	}
+	return STAT_ERROR_UNKNOWN;
 }

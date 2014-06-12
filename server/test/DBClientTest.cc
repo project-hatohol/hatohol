@@ -158,6 +158,16 @@ TriggerInfo testTriggerInfo[] =
 	"hostQ1",                 // hostName,
 	"TEST Trigger Action",    // brief,
 },{
+	// This entry is used for testHatoholArmPluginGate.
+	12345,                    // serverId
+	2468,                     // id
+	TRIGGER_STATUS_PROBLEM,   // status
+	TRIGGER_SEVERITY_INFO,    // severity
+	{1362957117,0},           // lastChangeTime
+	10002,                    // hostId,
+	"host12345",              // hostName,
+	"Brief for host12345",    // brief,
+},{
 	// This entry is for tests with a defunct server
 	defunctServerId1,         // serverId
 	3,                        // id
@@ -249,6 +259,9 @@ EventInfo testEventInfo[] = {
 	trigInfoDefunctSv1.hostName, // hostName,
 	trigInfoDefunctSv1.brief,    // brief,
 },
+// We assumed the data of the default server's is at the tail in testEventInfo.
+// See also the definition of trigInfoDefunctSv1 above. Anyway,
+// ******* DON'T APPEND RECORDS AFTER HERE *******
 };
 size_t NumTestEventInfo = sizeof(testEventInfo) / sizeof(EventInfo);
 
@@ -712,6 +725,27 @@ const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 	cut_fail("Not found: server ID: %u, trigger ID: %" PRIu64,
 	         eventInfo.serverId, eventInfo.triggerId);
 	return *(new TriggerInfo()); // never exectuted, just to pass build
+}
+
+SmartTime getTimestampOfLastTestTrigger(const ServerIdType &serverId)
+{
+	TriggerInfo *lastTimeTrigInfo = NULL;
+	SmartTime lastTimestamp;
+	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
+		TriggerInfo &trigInfo = testTriggerInfo[i];
+		if (trigInfo.serverId != serverId)
+			continue;
+		SmartTime timestamp = SmartTime(trigInfo.lastChangeTime);
+		if (!lastTimeTrigInfo || !(timestamp >= lastTimestamp)) {
+			lastTimestamp = timestamp;
+			lastTimeTrigInfo = &trigInfo;
+		}
+	}
+	cppcut_assert_not_null(
+	  lastTimeTrigInfo,
+	  cut_message(
+	    "No test triggers with ServerID: %" FMT_SERVER_ID, serverId));
+	return lastTimestamp;
 }
 
 uint64_t findLastEventId(const ServerIdType &serverId)

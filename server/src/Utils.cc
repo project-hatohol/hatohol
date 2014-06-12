@@ -34,7 +34,7 @@ using namespace mlpl;
 #include <syscall.h>
 #include <limits.h>
 #include "Utils.h"
-#include "FormulaElement.h"
+#include "HatoholException.h"
 using namespace std;
 
 const static size_t SIZE_JS_METHOD_VALID_CODE_MAP = 0x100;
@@ -89,48 +89,6 @@ string Utils::demangle(const string &str)
 		free(demangled);
 	}
 	return demangledStr;
-}
-
-void Utils::showTreeInfo(FormulaElement *formulaElement, int fd,
-                         bool fromRoot, int maxNumElem, int currNum, int depth)
-{
-	string treeInfo;
-	FormulaElement *startElement = formulaElement;
-	if (!formulaElement) {
-		MLPL_BUG("formulaElement: NULL\n");
-		return;
-	}
-	if (fromRoot) {
-		startElement = formulaElement->getRootElement();
-		if (!startElement) {
-			MLPL_BUG("formulaElement->getRootElement(): NULL\n");
-			return;
-		}
-	}
-
-	startElement->getTreeInfo(treeInfo, maxNumElem, currNum, depth);
-	string msg;
-	msg = StringUtils::sprintf(
-	        "***** FormulaInfo: Tree Information "
-	        "(request: %p, fromRoot: %d) ***\n",
-	        formulaElement, fromRoot);
-	msg += treeInfo;
-
-	size_t remainBytes = msg.size() + 1; /* '+ 1' means NULL term. */
-	const char *buf = msg.c_str();
-	while (remainBytes > 0) {
-		ssize_t writtenBytes = write(fd, buf, remainBytes);
-		if (writtenBytes == 0) {
-			MLPL_ERR("writtenBytes: 0\n");
-			return;
-		}
-		if (writtenBytes < 0) {
-			MLPL_ERR("Failed: errno: %d\n", errno);
-			return;
-		}
-		buf += writtenBytes;
-		remainBytes -= writtenBytes;
-	}
 }
 
 uint64_t Utils::getCurrTimeAsMicroSecond(void)
@@ -455,6 +413,95 @@ void Utils::flushPendingGLibEvents(GMainContext *context)
 	while (g_main_context_iteration(context, FALSE))
 		;
 }
+
+bool Utils::validIPAddress(const string &ipAddress)
+{
+	if (validIPv4Address(ipAddress))
+		return true;
+	if (validIPv6Address(ipAddress))
+		return true;
+	return false;
+}
+
+// TODO: Merge this function to mlpl::stringUtils.
+static bool isNumber(const string &str, bool isHex = false)
+{
+	for (size_t i = 0; i < str.size(); i++) {
+		int ch = str[i];
+		if (ch >= '0' && ch <= '9')
+			continue;
+		if (!isHex)
+			return false;
+		if (ch >= 'A' && ch <= 'F')
+			continue;
+		if (ch >= 'a' && ch <= 'f')
+			continue;
+		return false;
+	}
+	return true;
+}
+
+bool Utils::validIPv4Address(const string &ipAddress)
+{
+	StringVector fields;
+	StringUtils::split(fields, ipAddress,  '.');
+	if (fields.size() != 4)
+		return false;
+	for (size_t i = 0; i < fields.size(); i++) {
+		if (fields[i].empty())
+			return false;
+		if (!isNumber(fields[i]))
+			return false;
+		int value = atoi(fields[i].c_str());
+		if (value < 0 || value > 255)
+			return false;
+	}
+	return true;
+}
+
+static bool validIPv6AddressField(const string &field)
+{
+	bool isHex = true;
+	if (!isNumber(field, isHex))
+		return false;
+	long int value = strtol(field.c_str(), NULL, 16);
+	if (value < 0 || value > 0xFFFF)
+		return false;
+	return true;
+}
+
+bool Utils::validIPv6Address(const string &ipAddress)
+{
+	if (ipAddress == "::1")
+		return true;
+
+	StringVector fields;
+	StringUtils::split(fields, ipAddress,  ':');
+	if (fields.size() < 3 || fields.size() > 8)
+		return false;
+	bool hasEmptyField = false;
+	for (size_t i = 0; i < fields.size(); i++) {
+		if (fields[i].empty()) {
+			// only one empty filed is allowed
+			if (hasEmptyField)
+				return false;
+			hasEmptyField = true;
+			continue;
+		}
+		if (validIPv6AddressField(fields[i]))
+			continue;
+		if (i < 8 && i == fields.size() - 1 &&
+		    validIPv4Address(fields[i])) {
+			// It's v4 compatible address.
+			// The last field is the IPv4 address.
+			return true;
+		} else {
+			return false;
+		}
+	}
+	return true;
+}
+
 
 // ---------------------------------------------------------------------------
 // Protected methods

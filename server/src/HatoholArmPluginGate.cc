@@ -24,9 +24,11 @@
 #include <qpid/messaging/Sender.h>
 #include <qpid/messaging/Session.h>
 #include <string>
+#include <cstring>
 #include <AtomicValue.h>
 #include <MutexLock.h>
 #include <Reaper.h>
+#include "UnifiedDataStore.h"
 #include "HatoholArmPluginGate.h"
 #include "CacheServiceDBClient.h"
 #include "ChildProcessManager.h"
@@ -36,7 +38,6 @@ using namespace std;
 using namespace mlpl;
 using namespace qpid::messaging;
 
-const char *HatoholArmPluginGate::DEFAULT_BROKER_URL = "localhost:5672";
 const char *HatoholArmPluginGate::ENV_NAME_QUEUE_ADDR = "HAPI_QUEUE_ADDR";
 const int   HatoholArmPluginGate::NO_RETRY = -1;
 static const int DEFAULT_RETRY_INTERVAL = 10 * 1000; // ms
@@ -65,37 +66,29 @@ const string HatoholArmPluginGate::PassivePluginQuasiPath = "#PASSIVE_PLUGIN#";
 // ---------------------------------------------------------------------------
 HatoholArmPluginGate::HatoholArmPluginGate(
   const MonitoringServerInfo &serverInfo)
-: m_ctx(NULL)
+: HatoholArmPluginInterface("", true),
+  m_ctx(NULL)
 {
 	m_ctx = new PrivateContext(serverInfo, this);
 
 	string address = generateBrokerAddress(m_ctx->serverInfo);
-	address += "; {create: always}";
 	setQueueAddress(address);
+
+	registerCommandHandler(
+	  HAPI_CMD_GET_MONITORING_SERVER_INFO,
+	  (CommandHandler)
+	    &HatoholArmPluginGate::cmdHandlerGetMonitoringServerInfo);
+
+	registerCommandHandler(
+	  HAPI_CMD_GET_TIMESTAMP_OF_LAST_TRIGGER,
+	  (CommandHandler)
+	    &HatoholArmPluginGate::cmdHandlerGetTimestampOfLastTrigger);
 }
 
-bool HatoholArmPluginGate::start(const MonitoringSystemType &type)
+void HatoholArmPluginGate::start(void)
 {
-	CacheServiceDBClient cache;
-	DBClientConfig *dbConfig = cache.getConfig();
-	if (!dbConfig->getArmPluginInfo(m_ctx->armPluginInfo, type)) {
-		MLPL_ERR("Failed to get ArmPluginInfo: type: %d\n", type);
-		return false;
-	}
-	if (m_ctx->armPluginInfo.path == PassivePluginQuasiPath) {
-		MLPL_INFO("Started: passive plugin (%d) %s\n",
-		          m_ctx->armPluginInfo.type,
-		          m_ctx->armPluginInfo.path.c_str());
-	} else {
-		// launch a plugin process
-		if (!launchPluginProcess(m_ctx->armPluginInfo))
-			return false;
-	}
-
-	// start a thread
 	m_ctx->armStatus.setRunningStatus(true);
 	HatoholArmPluginInterface::start();
-	return true;
 }
 
 const ArmStatus &HatoholArmPluginGate::getArmStatus(void) const
@@ -118,8 +111,29 @@ HatoholArmPluginGate::~HatoholArmPluginGate()
 		delete m_ctx;
 }
 
-void HatoholArmPluginGate::onTerminated(const siginfo_t *siginfo)
+void HatoholArmPluginGate::onConnected(qpid::messaging::Connection &conn)
 {
+	if (m_ctx->pid)
+		return;
+
+	CacheServiceDBClient cache;
+	const MonitoringSystemType &type = m_ctx->serverInfo.type;
+	DBClientConfig *dbConfig = cache.getConfig();
+	if (!dbConfig->getArmPluginInfo(m_ctx->armPluginInfo, type)) {
+		MLPL_ERR("Failed to get ArmPluginInfo: type: %d\n", type);
+		return;
+	}
+	if (m_ctx->armPluginInfo.path == PassivePluginQuasiPath) {
+		MLPL_INFO("Started: passive plugin (%d) %s\n",
+		          m_ctx->armPluginInfo.type,
+		          m_ctx->armPluginInfo.path.c_str());
+		onLaunchedProcess(true, m_ctx->armPluginInfo);
+		return;
+	}
+
+	// launch a plugin process
+	bool succeeded = launchPluginProcess(m_ctx->armPluginInfo);
+	onLaunchedProcess(succeeded, m_ctx->armPluginInfo);
 }
 
 int HatoholArmPluginGate::onCaughtException(const exception &e)
@@ -127,6 +141,16 @@ int HatoholArmPluginGate::onCaughtException(const exception &e)
 	MLPL_INFO("Caught an exception: %s. Retry afeter %d ms.\n",
 	          e.what(), DEFAULT_RETRY_INTERVAL);
 	return DEFAULT_RETRY_INTERVAL;
+}
+
+void HatoholArmPluginGate::onLaunchedProcess(
+  const bool &succeeded, const ArmPluginInfo &armPluginInfo)
+{
+}
+
+void HatoholArmPluginGate::onTerminated(const siginfo_t *siginfo)
+{
+	m_ctx->pid = 0;
 }
 
 bool HatoholArmPluginGate::launchPluginProcess(
@@ -168,6 +192,7 @@ bool HatoholArmPluginGate::launchPluginProcess(
 		return false;
 	}
 
+	m_ctx->pid = arg.pid;
 	MLPL_INFO("Started: plugin (%d) %s\n",
 	          armPluginInfo.type, armPluginInfo.path.c_str());
 	return true;
@@ -180,3 +205,48 @@ string HatoholArmPluginGate::generateBrokerAddress(
 	                            serverInfo.id);
 }
 
+void HatoholArmPluginGate::cmdHandlerGetMonitoringServerInfo(
+  const HapiCommandHeader *header)
+{
+	SmartBuffer resBuf;
+	MonitoringServerInfo &svInfo = m_ctx->serverInfo;
+
+	const size_t lenHostName  = svInfo.hostName.size();
+	const size_t lenIpAddress = svInfo.ipAddress.size();
+	const size_t lenNickname  = svInfo.nickname.size();
+	// +1: Null Term.
+	size_t addSize =
+	  (lenHostName + 1) + (lenIpAddress + 1) + (lenNickname + 1);
+	
+	HapiResMonitoringServerInfo *body =
+	  setupResponseBuffer<HapiResMonitoringServerInfo>(resBuf, addSize);
+	body->serverId = svInfo.id;
+	body->type     = svInfo.type;
+	body->port     = svInfo.port;
+	body->pollingIntervalSec = svInfo.pollingIntervalSec;
+	body->retryIntervalSec   = svInfo.retryIntervalSec;
+
+	char *buf =
+	   reinterpret_cast<char *>(body) + sizeof(HapiResMonitoringServerInfo);
+	buf = putString(buf, body, svInfo.hostName,
+	                &body->hostNameOffset, &body->hostNameLength);
+	buf = putString(buf, body, svInfo.ipAddress,
+	                &body->ipAddressOffset, &body->ipAddressLength);
+	buf = putString(buf, body, svInfo.nickname,
+	                &body->nicknameOffset, &body->nicknameLength);
+	reply(resBuf);
+}
+
+void HatoholArmPluginGate::cmdHandlerGetTimestampOfLastTrigger(
+  const HapiCommandHeader *header)
+{
+	SmartBuffer resBuf;
+	HapiResTimestampOfLastTrigger *body =
+	  setupResponseBuffer<HapiResTimestampOfLastTrigger>(resBuf);
+	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+	SmartTime last = uds->getTimestampOfLastTrigger(m_ctx->serverInfo.id);
+	const timespec &lastTimespec = last.getAsTimespec();
+	body->timestamp = lastTimespec.tv_sec;
+	body->nanosec   = lastTimespec.tv_nsec;
+	reply(resBuf);
+}

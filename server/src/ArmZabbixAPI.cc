@@ -72,10 +72,10 @@ class connectionException : public HatoholException {};
 // Public methods
 // ---------------------------------------------------------------------------
 ArmZabbixAPI::ArmZabbixAPI(const MonitoringServerInfo &serverInfo)
-: ZabbixAPI(serverInfo),
-  ArmBase("ArmZabbixAPI", serverInfo),
+: ArmBase("ArmZabbixAPI", serverInfo),
   m_ctx(NULL)
 {
+	setMonitoringServerInfo(serverInfo);
 	m_ctx = new PrivateContext(serverInfo);
 }
 

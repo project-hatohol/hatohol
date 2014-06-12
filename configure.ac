@@ -23,6 +23,11 @@ fi
 AC_DEFINE_UNQUOTED(LIBEXECDIR, "`eval echo $libexecdir`", "Prefix for libexec directory")
 
 dnl **************************************************************
+dnl Optional C++ compiler flags
+dnl **************************************************************
+OPT_CXXFLAGS="-Wall -g3 -O2 -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS"
+
+dnl **************************************************************
 dnl Checks for GLib
 dnl **************************************************************
 GLIB_REQUIRED=2.22
@@ -150,7 +155,7 @@ AC_ARG_ENABLE([cpp11],
 
 if test "$enable_cpp11" == "yes"; then
   AC_DEFINE(USE_CPP11, 1, [Define to 1 if you use C++11])
-  OPT_CXXFLAGS="-std=c++11"
+  OPT_CXXFLAGS+=" -std=c++11"
   AC_SUBST(OPT_CXXFLAGS)
 fi
 
@@ -199,6 +204,7 @@ server/mlpl/src/Makefile
 server/mlpl/test/Makefile
 server/mlpl/mlpl.pc
 server/src/Makefile
+server/hap/Makefile
 server/tools/Makefile
 server/test/Makefile
 server/test/fixtures/Makefile

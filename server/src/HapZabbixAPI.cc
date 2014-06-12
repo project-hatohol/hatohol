@@ -17,38 +17,43 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#include <cppcutter.h>
-#include <errno.h>
-
-#include "SimpleSemaphore.h"
+#include "HapZabbixAPI.h"
+#include "ItemTablePtr.h"
 
 using namespace mlpl;
 
-namespace testSimpleSemaphore {
+struct HapZabbixAPI::PrivateContext {
+	PrivateContext(void)
+	{
+	}
+};
 
 // ---------------------------------------------------------------------------
-// Test cases
+// Public methods
 // ---------------------------------------------------------------------------
-void test_constructor(void)
+HapZabbixAPI::HapZabbixAPI(void)
+: m_ctx(NULL)
 {
-	SimpleSemaphore sem(0);
+	m_ctx = new PrivateContext();
+	// TODO: we have to call setMonitoringServerInfo(serverInfo)
+	//       before the actual communication.
 }
 
-void test_postAndWait(void)
+HapZabbixAPI::~HapZabbixAPI()
 {
-	SimpleSemaphore sem(0);
-	cppcut_assert_equal(0, sem.post());
-	cppcut_assert_equal(0, sem.post());
-	cppcut_assert_equal(0, sem.wait());
-	cppcut_assert_equal(0, sem.wait());
+	if (m_ctx)
+		delete m_ctx;
 }
 
-void test_timedWait(void)
+// ---------------------------------------------------------------------------
+// Protected methods
+// ---------------------------------------------------------------------------
+void HapZabbixAPI::workOnTriggers(void)
 {
-	SimpleSemaphore sem(1);
-	cppcut_assert_equal(SimpleSemaphore::STAT_OK, sem.timedWait(1));
-	cppcut_assert_equal(SimpleSemaphore::STAT_TIMEDOUT, sem.timedWait(1));
-}
+	SmartTime lastTriggerTime = getTimestampOfLastTrigger();
+	// TODO: getTrigger() should accept SmartTime directly.
+	const int requestSince = lastTriggerTime.getAsTimespec().tv_sec;
+	ItemTablePtr tablePtr = getTrigger(requestSince);
 
-} // namespace testSimpleSemaphore
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}

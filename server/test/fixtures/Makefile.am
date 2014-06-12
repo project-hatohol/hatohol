@@ -6,7 +6,7 @@ endif
 
 noinst_SCRIPTS = mkFooTable.sh
 
-AM_CXXFLAGS = -g3 -Wall $(OPT_CXXFLAGS) -I .. -I ../../src $(GLIB_CFLAGS) $(MLPL_CFLAGS)
+AM_CXXFLAGS = $(OPT_CXXFLAGS) -I .. -I ../../src $(GLIB_CFLAGS) $(MLPL_CFLAGS)
 LIBS = ../../src/libhatohol.la ../libTest.la
 
 mkTestDB_SOURCES = mkTestDB.cc
@@ -16,7 +16,7 @@ $(TEST_DBS): mkTestDB ../../src/libhatohol.la ../libTest.la
 
 # To make the creation time short, we create it on tmpfs.
 testDatabase-hatohol.db:
-	rm -f $@
+	rm -f $@ /dev/shm/$@
 	./mkTestDB hatohol /dev/shm/$@
 	cp -f /dev/shm/$@ .
 
