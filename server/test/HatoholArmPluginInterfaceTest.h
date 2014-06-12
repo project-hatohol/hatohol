@@ -30,12 +30,17 @@
 
 class HapiTestHelper {
 public:
+	static const size_t TIMEOUT = 5000; // ms
+
 	HapiTestHelper(void);
 	void onConnected(qpid::messaging::Connection &conn);
 	void onInitiated(void);
 
 	mlpl::SimpleSemaphore &getConnectedSem(void);
 	mlpl::SimpleSemaphore &getInitiatedSem(void);
+
+	void assertWaitConnected(void);
+	void assertWaitInitiation(void);
 
 private:
 	mlpl::SimpleSemaphore   m_connectedSem;

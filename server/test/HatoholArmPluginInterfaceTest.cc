@@ -55,6 +55,20 @@ SimpleSemaphore &HapiTestHelper::getInitiatedSem(void)
 	return m_initiatedSem;
 }
 
+void HapiTestHelper::assertWaitConnected(void)
+{
+	cppcut_assert_equal(
+	  SimpleSemaphore::STAT_OK,
+	  getConnectedSem().timedWait(TIMEOUT));
+}
+
+void HapiTestHelper::assertWaitInitiation(void)
+{
+	cppcut_assert_equal(
+	  SimpleSemaphore::STAT_OK,
+	  getInitiatedSem().timedWait(TIMEOUT));
+}
+
 // ---------------------------------------------------------------------------
 //  HatoholArmPluginInterfaceTestBasic
 // ---------------------------------------------------------------------------
