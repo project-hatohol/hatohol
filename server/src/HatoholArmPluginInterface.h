@@ -79,6 +79,38 @@ struct HapiCommandHeader {
 	uint32_t sequenceId;
 } __attribute__((__packed__));
 
+struct HapiItemTableHeader {
+	uint32_t numGroups;
+	// HapiItemGroupHeader
+	// HapiItemDataHeader ...
+	// HapiItemGroupHeader
+	// HapiItemDataHeader ...
+	// ...
+} __attribute__((__packed__));
+
+struct HapiItemGroupHeader {
+	uint32_t numItems;
+
+	// Total bytes of items. The next address of this region plus
+	// 'length' should be the next HapiItemGroup.
+	uint32_t length;
+} __attribute__((__packed__));
+
+struct HapiItemDataHeader {
+	//   0b: Null flag (0: Not NULL, 1: NULL)
+	// 1-7b: reseverd
+	uint8_t  metaInfo;
+	uint8_t  type;
+	uint64_t itemId;
+	// data Body
+} __attribute__((__packed__));
+
+struct HapiItemStringHeader {
+	HapiItemDataHeader dataHeader;
+	uint32_t           length;  // not count a NULL terminator.
+	// string body: NULL terminator is needed.
+} __attribute__((__packed__));
+
 struct HapiResponseHeader {
 	uint16_t type;
 	uint16_t code;
