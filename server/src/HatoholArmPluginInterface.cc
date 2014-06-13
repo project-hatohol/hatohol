@@ -292,7 +292,7 @@ static const size_t ITEM_DATA_BODY_SIZE[NUM_ITEM_TYPE] = {
 	8, // DOUBLE
 	
 	// STRING (Only length field. Entire size will be computed later)
-	sizeof(HapiItemStringHeader::length),
+	sizeof(uint32_t),
 };
 
 void HatoholArmPluginInterface::appendItemData(
