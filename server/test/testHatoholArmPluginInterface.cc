@@ -31,6 +31,29 @@ namespace testHatoholArmPluginInterface {
 
 static const size_t TIMEOUT = 5000;
 
+void _assertHapiItemDataHeader(
+  const HapiItemDataHeader *header,
+  const ItemDataType &type, const ItemId &itemId, const bool &isNull = false)
+{
+	cppcut_assert_equal(isNull, (bool)EndianConverter::LtoN(header->flags));
+	cppcut_assert_equal(type,
+	                    (ItemDataType)EndianConverter::LtoN(header->type));
+	cppcut_assert_equal(itemId,
+	                    (ItemId)EndianConverter::LtoN(header->itemId));
+}
+#define assertHapiItemDataHeader(H,T,I,...) \
+  cut_trace(_assertHapiItemDataHeader(H,T,I,##__VA_ARGS__))
+
+template<typename ValueType, typename BodyType>
+void _assertHapiItemDataBody(const void *body, const ValueType &expect)
+{
+	const BodyType *valuePtr = static_cast<const BodyType *>(body);
+	cppcut_assert_equal(expect,
+	                    (ValueType)EndianConverter::LtoN(*valuePtr));
+}
+#define assertHapiItemDataBody(VT,BT,BP,E) \
+  cut_trace((_assertHapiItemDataBody<VT,BT>)(BP,E))
+
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
@@ -218,6 +241,33 @@ void test_getIncrementedSequenceIdAroundMax(void)
 	  plugin.callGetIncrementedSequenceId());
 	cppcut_assert_equal(0u, plugin.callGetIncrementedSequenceId());
 	cppcut_assert_equal(1u, plugin.callGetIncrementedSequenceId());
+}
+
+void test_appendItemBool(void)
+{
+	SmartBuffer sbuf;
+	const ItemId itemId0 = 5;
+	const ItemId itemId1 = 309;
+	ItemDataPtr itemFalse(new ItemBool(itemId0, false), false);
+	ItemDataPtr itemTrue(new ItemBool(itemId1, true), false);
+
+	const size_t expectBodySize = 1;
+	const size_t expectSize = sizeof(HapiItemDataHeader) + expectBodySize;
+
+	// append first one
+	HatoholArmPluginInterface::appendItemData(sbuf, itemFalse);
+	cppcut_assert_equal(expectSize, sbuf.index());
+	const HapiItemDataHeader *header =
+	  sbuf.getPointer<HapiItemDataHeader>(0);
+	assertHapiItemDataHeader(header, ITEM_TYPE_BOOL, itemId0);
+	assertHapiItemDataBody(bool, uint8_t, header + 1, false);
+
+	// append 2nd one
+	HatoholArmPluginInterface::appendItemData(sbuf, itemTrue);
+	cppcut_assert_equal(2*expectSize, sbuf.index());
+	header = sbuf.getPointer<HapiItemDataHeader>(expectSize);
+	assertHapiItemDataHeader(header, ITEM_TYPE_BOOL, itemId1);
+	assertHapiItemDataBody(bool, uint8_t, header + 1, true);
 }
 
 } // namespace testHatoholArmPluginInterface
