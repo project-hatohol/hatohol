@@ -290,6 +290,7 @@ void HatoholArmPluginInterface::appendItemGroupHeader(
 {
 	sbuf.ensureRemainingSize(sizeof(HapiItemGroupHeader));
 	HapiItemGroupHeader *header = sbuf.getPointer<HapiItemGroupHeader>();
+	header->flags = 0;
 	header->numItems = numItems;
 	header->length = 0;
 	sbuf.incIndex(sizeof(HapiItemGroupHeader));

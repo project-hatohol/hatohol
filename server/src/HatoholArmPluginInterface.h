@@ -82,6 +82,7 @@ struct HapiCommandHeader {
 } __attribute__((__packed__));
 
 struct HapiItemTableHeader {
+	uint16_t flags;
 	uint32_t numGroups;
 	// HapiItemGroupHeader
 	// HapiItemDataHeader ...
@@ -91,6 +92,7 @@ struct HapiItemTableHeader {
 } __attribute__((__packed__));
 
 struct HapiItemGroupHeader {
+	uint16_t flags;
 	uint32_t numItems;
 
 	// Total bytes of items. The next address of this region plus
