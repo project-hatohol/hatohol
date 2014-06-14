@@ -248,6 +248,7 @@ public:
 	 * @param sbuf
 	 * A SmartBuffer instance for appending the data. The buffer size is
 	 * automatically extended if necessary.
+	 * After this method is created, the index of 'sbuf' is forwarded.
 	 *
 	 * @param itemData An ItemData to be written.
 	 */
