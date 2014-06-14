@@ -318,20 +318,8 @@ void data_appendItemInt(void)
 
 void test_appendItemInt(gconstpointer data)
 {
-	SmartBuffer sbuf;
-	const ItemId itemId = 500;
 	int value = gcut_data_get_int(data, "val");
-	ItemDataPtr itemData(new ItemInt(itemId, value), false);
-
-	const size_t expectBodySize = 8;
-	const size_t expectSize = sizeof(HapiItemDataHeader) + expectBodySize;
-
-	HatoholArmPluginInterface::appendItemData(sbuf, itemData);
-	cppcut_assert_equal(expectSize, sbuf.index());
-	const HapiItemDataHeader *header =
-	  sbuf.getPointer<HapiItemDataHeader>(0);
-	assertHapiItemDataHeader(header, ITEM_TYPE_INT, itemId);
-	assertHapiItemDataBody(int, uint64_t, header + 1, value);
+	assertAppendItemData(int, ItemInt, uint64_t, value, 8, ITEM_TYPE_INT);
 }
 
 // TODO: merge with data_getUint64()
