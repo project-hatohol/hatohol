@@ -359,4 +359,24 @@ void test_appendItemDataWithNull(void)
 	  sbuf.getPointer<HapiItemDataHeader>(0), ITEM_TYPE_BOOL, 1234, true);
 }
 
+void test_createItemBool(void)
+{
+	addDataSamplesForGCutBool();
+}
+
+void test_createItemBool(gconstpointer data)
+{
+	SmartBuffer sbuf;
+	const ItemId itemId = 12345678;
+	bool value = gcut_data_get_boolean(data, "val");
+	ItemDataPtr srcItemData(new ItemBool(itemId, value), false);
+	HatoholArmPluginInterface::appendItemData(sbuf, srcItemData);
+	sbuf.resetIndex();
+
+	ItemDataPtr actual = HatoholArmPluginInterface::createItemData(sbuf);
+	cppcut_assert_equal(itemId, actual->getId());
+	cppcut_assert_equal(*srcItemData, *actual);
+	cppcut_assert_equal(1, actual->getUsedCount());
+}
+
 } // namespace testHatoholArmPluginInterface
