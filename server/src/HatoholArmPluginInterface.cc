@@ -285,6 +285,16 @@ char *HatoholArmPluginInterface::putString(
 	return nextAddr;
 }
 
+void HatoholArmPluginInterface::appendItemGroupHeader(
+  SmartBuffer &sbuf, const size_t &numItems)
+{
+	sbuf.ensureRemainingSize(sizeof(HapiItemGroupHeader));
+	HapiItemGroupHeader *header = sbuf.getPointer<HapiItemGroupHeader>();
+	header->numItems = numItems;
+	header->length = 0;
+	sbuf.incIndex(sizeof(HapiItemGroupHeader));
+}
+
 static const size_t ITEM_DATA_BODY_SIZE[NUM_ITEM_TYPE] = {
 	1, // BOOL
 	8, // INT
