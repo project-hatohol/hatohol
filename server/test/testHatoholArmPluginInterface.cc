@@ -346,7 +346,7 @@ void data_appendItemUint64(void)
 
 void test_appendItemUint64(gconstpointer data)
 {
-	uint64_t value = gcut_data_get_int(data, "val");
+	uint64_t value = gcut_data_get_uint64(data, "val");
 	assertAppendItemData(uint64_t, ItemUint64, uint64_t,
 	                     value, 8, ITEM_TYPE_UINT64);
 }
