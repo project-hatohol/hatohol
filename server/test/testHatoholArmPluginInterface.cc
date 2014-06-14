@@ -83,6 +83,23 @@ void _assertAppendItemData(
 #define assertAppendItemData(NT,IDC,BT,VAL,BODY_SZ,IT,...) \
   cut_trace((_assertAppendItemData<NT,IDC,BT>)(VAL,BODY_SZ,IT,##__VA_ARGS__))
 
+template<typename NativeType, typename ItemDataClass>
+static void _assertCreateItemData(const NativeType &value)
+{
+	SmartBuffer sbuf;
+	const ItemId itemId = 12345678;
+	ItemDataPtr srcItemData(new ItemDataClass(itemId, value), false);
+	HatoholArmPluginInterface::appendItemData(sbuf, srcItemData);
+	sbuf.resetIndex();
+
+	ItemDataPtr actual = HatoholArmPluginInterface::createItemData(sbuf);
+	cppcut_assert_equal(itemId, actual->getId());
+	cppcut_assert_equal(*srcItemData, *actual);
+	cppcut_assert_equal(1, actual->getUsedCount());
+}
+#define assertCreateItemData(NT,IDC,VAL) \
+  cut_trace((_assertCreateItemData<NT,IDC>)(VAL))
+
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
@@ -366,17 +383,8 @@ void data_createItemBool(void)
 
 void test_createItemBool(gconstpointer data)
 {
-	SmartBuffer sbuf;
-	const ItemId itemId = 12345678;
 	bool value = gcut_data_get_boolean(data, "val");
-	ItemDataPtr srcItemData(new ItemBool(itemId, value), false);
-	HatoholArmPluginInterface::appendItemData(sbuf, srcItemData);
-	sbuf.resetIndex();
-
-	ItemDataPtr actual = HatoholArmPluginInterface::createItemData(sbuf);
-	cppcut_assert_equal(itemId, actual->getId());
-	cppcut_assert_equal(*srcItemData, *actual);
-	cppcut_assert_equal(1, actual->getUsedCount());
+	assertCreateItemData(bool, ItemBool, value);
 }
 
 } // namespace testHatoholArmPluginInterface
