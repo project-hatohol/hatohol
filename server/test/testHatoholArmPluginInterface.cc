@@ -265,31 +265,20 @@ void test_getIncrementedSequenceIdAroundMax(void)
 	cppcut_assert_equal(1u, plugin.callGetIncrementedSequenceId());
 }
 
-void test_appendItemBool(void)
+void data_appendItemBool(void)
 {
-	SmartBuffer sbuf;
-	const ItemId itemId0 = 5;
-	const ItemId itemId1 = 309;
-	ItemDataPtr itemFalse(new ItemBool(itemId0, false), false);
-	ItemDataPtr itemTrue(new ItemBool(itemId1, true), false);
+	gcut_add_datum("False",
+	               "val", G_TYPE_BOOLEAN, FALSE,
+	               NULL);
+	gcut_add_datum("True",
+	               "val", G_TYPE_BOOLEAN, TRUE,
+	               NULL);
+}
 
-	const size_t expectBodySize = 1;
-	const size_t expectSize = sizeof(HapiItemDataHeader) + expectBodySize;
-
-	// append first one
-	HatoholArmPluginInterface::appendItemData(sbuf, itemFalse);
-	cppcut_assert_equal(expectSize, sbuf.index());
-	const HapiItemDataHeader *header =
-	  sbuf.getPointer<HapiItemDataHeader>(0);
-	assertHapiItemDataHeader(header, ITEM_TYPE_BOOL, itemId0);
-	assertHapiItemDataBody(bool, uint8_t, header + 1, false);
-
-	// append 2nd one
-	HatoholArmPluginInterface::appendItemData(sbuf, itemTrue);
-	cppcut_assert_equal(2*expectSize, sbuf.index());
-	header = sbuf.getPointer<HapiItemDataHeader>(expectSize);
-	assertHapiItemDataHeader(header, ITEM_TYPE_BOOL, itemId1);
-	assertHapiItemDataBody(bool, uint8_t, header + 1, true);
+void test_appendItemBool(gconstpointer data)
+{
+	bool value = gcut_data_get_boolean(data, "val");
+	assertAppendItemData(bool, ItemBool, uint8_t, value, 1, ITEM_TYPE_BOOL);
 }
 
 void data_appendItemInt(void)
