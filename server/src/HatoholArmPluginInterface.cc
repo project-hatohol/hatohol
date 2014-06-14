@@ -329,8 +329,12 @@ void HatoholArmPluginInterface::appendItemData(
 		const bool &val = *itemData;
 		uint8_t *ptr8 = static_cast<uint8_t *>(ptr);
 		*ptr8 = NtoL(val);
-	} else if (type == ITEM_TYPE_INT || type == ITEM_TYPE_UINT64) {
+	} else if (type == ITEM_TYPE_INT) {
 		const int &val = *itemData;
+		uint64_t *ptr64 = static_cast<uint64_t *>(ptr);
+		*ptr64 = NtoL(val);
+	} else if (type == ITEM_TYPE_UINT64) {
+		const uint64_t &val = *itemData;
 		uint64_t *ptr64 = static_cast<uint64_t *>(ptr);
 		*ptr64 = NtoL(val);
 	} else if (type == ITEM_TYPE_DOUBLE) {
