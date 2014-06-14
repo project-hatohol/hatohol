@@ -387,4 +387,15 @@ void test_createItemBool(gconstpointer data)
 	assertCreateItemData(bool, ItemBool, value);
 }
 
+void data_createItemInt(void)
+{
+	addDataSamplesForGCutInt();
+}
+
+void test_createItemInt(gconstpointer data)
+{
+	int value = gcut_data_get_int(data, "val");
+	assertCreateItemData(int, ItemInt, value);
+}
+
 } // namespace testHatoholArmPluginInterface
