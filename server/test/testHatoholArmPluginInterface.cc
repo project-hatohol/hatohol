@@ -84,21 +84,24 @@ void _assertAppendItemData(
   cut_trace((_assertAppendItemData<NT,IDC,BT>)(VAL,BODY_SZ,IT,##__VA_ARGS__))
 
 template<typename NativeType, typename ItemDataClass>
-static void _assertCreateItemData(const NativeType &value)
+static void _assertCreateItemData(
+  const NativeType &value,
+  const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL)
 {
 	SmartBuffer sbuf;
 	const ItemId itemId = 12345678;
-	ItemDataPtr srcItemData(new ItemDataClass(itemId, value), false);
+	ItemDataPtr srcItemData(new ItemDataClass(itemId, value, nullFlag), false);
 	HatoholArmPluginInterface::appendItemData(sbuf, srcItemData);
 	sbuf.resetIndex();
 
 	ItemDataPtr actual = HatoholArmPluginInterface::createItemData(sbuf);
 	cppcut_assert_equal(itemId, actual->getId());
+	cppcut_assert_equal(nullFlag == ITEM_DATA_NULL, actual->isNull());
 	cppcut_assert_equal(*srcItemData, *actual);
 	cppcut_assert_equal(1, actual->getUsedCount());
 }
-#define assertCreateItemData(NT,IDC,VAL) \
-  cut_trace((_assertCreateItemData<NT,IDC>)(VAL))
+#define assertCreateItemData(NT,IDC,VAL,...) \
+  cut_trace((_assertCreateItemData<NT,IDC>)(VAL,##__VA_ARGS__))
 
 // ---------------------------------------------------------------------------
 // Test cases
@@ -429,6 +432,11 @@ void test_createItemString(gconstpointer data)
 {
 	string value = gcut_data_get_string(data, "val");
 	assertCreateItemData(string, ItemString, value);
+}
+
+void test_createItemDataOfNull(void)
+{
+	assertCreateItemData(bool, ItemBool, true, ITEM_DATA_NULL);
 }
 
 } // namespace testHatoholArmPluginInterface
