@@ -319,7 +319,8 @@ void HatoholArmPluginInterface::appendItemData(
 
 	// Header
 	HapiItemDataHeader *header = sbuf.getPointer<HapiItemDataHeader>();
-	header->flags = NtoL(itemData->isNull() ? 0x01 : 0x00);
+	header->flags = NtoL(itemData->isNull() ?
+	                       HAPI_ITEM_DATA_HEADER_FLAG_NULL : 0x00);
 	header->type  = NtoL(type);
 	header->itemId = NtoL(itemData->getId());
 
