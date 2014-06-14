@@ -420,4 +420,15 @@ void test_createItemDouble(gconstpointer data)
 	assertCreateItemData(double, ItemDouble, value);
 }
 
+void data_createItemString(void)
+{
+	addDataSamplesForGCutString();
+}
+
+void test_createItemString(gconstpointer data)
+{
+	string value = gcut_data_get_string(data, "val");
+	assertCreateItemData(string, ItemString, value);
+}
+
 } // namespace testHatoholArmPluginInterface
