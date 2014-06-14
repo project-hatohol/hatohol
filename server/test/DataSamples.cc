@@ -102,7 +102,7 @@ void addDataSamplesForGCutString(void)
 	               "val", G_TYPE_STRING, "",
 	               NULL);
 	gcut_add_datum("ASCII",
-	               "val", G_TYPE_STRING, "",
+	               "val", G_TYPE_STRING, "The early bird gets the worm.",
 	               NULL);
 	gcut_add_datum("UTF8",
 	               "val", G_TYPE_STRING, "棚からぼた餅",
