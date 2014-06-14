@@ -95,3 +95,16 @@ void addDataSamplesForGCutDouble(void)
 	               "val", G_TYPE_DOUBLE, -0.123456789012345,
 	               NULL);
 }
+
+void addDataSamplesForGCutString(void)
+{
+	gcut_add_datum("Empty",
+	               "val", G_TYPE_STRING, "",
+	               NULL);
+	gcut_add_datum("ASCII",
+	               "val", G_TYPE_STRING, "",
+	               NULL);
+	gcut_add_datum("UTF8",
+	               "val", G_TYPE_STRING, "棚からぼた餅",
+	               NULL);
+}

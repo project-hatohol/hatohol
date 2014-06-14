@@ -24,5 +24,6 @@ void addDataSamplesForGCutBool(void);
 void addDataSamplesForGCutInt(void);
 void addDataSamplesForGCutUint64(void);
 void addDataSamplesForGCutDouble(void);
+void addDataSamplesForGCutString(void);
 
 #endif // DataSamples_h

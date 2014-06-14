@@ -59,7 +59,9 @@ void _assertHapiItemDataBody(const void *body, const NativeType &expect)
 template <typename NativeType, typename ItemDataClass, typename BodyType>
 void _assertAppendItemData(
   const NativeType &value, const size_t &expectBodySize,
-  const ItemDataType &itemDataType)
+  const ItemDataType &itemDataType,
+  void (*bodyAssertFunc)(const void *body, void *userData) = NULL,
+  void *assertFuncUserData = NULL)
 {
 	SmartBuffer sbuf;
 	const ItemId itemId = 12345678;
@@ -72,10 +74,14 @@ void _assertAppendItemData(
 	const HapiItemDataHeader *header =
 	  sbuf.getPointer<HapiItemDataHeader>(0);
 	assertHapiItemDataHeader(header, itemDataType, itemId);
+	if (bodyAssertFunc) {
+		(*bodyAssertFunc)(header + 1, assertFuncUserData);
+		return;
+	}
 	assertHapiItemDataBody(NativeType, BodyType, header + 1, value);
 }
-#define assertAppendItemData(NT,IDC,BT,VAL,BODY_SZ,IT) \
-  cut_trace((_assertAppendItemData<NT,IDC,BT>)(VAL,BODY_SZ,IT))
+#define assertAppendItemData(NT,IDC,BT,VAL,BODY_SZ,IT,...) \
+  cut_trace((_assertAppendItemData<NT,IDC,BT>)(VAL,BODY_SZ,IT,##__VA_ARGS__))
 
 // ---------------------------------------------------------------------------
 // Test cases
@@ -310,6 +316,39 @@ void test_appendItemDouble(gconstpointer data)
 	double value = gcut_data_get_double(data, "val");
 	assertAppendItemData(double, ItemDouble, double,
 	                     value, 8, ITEM_TYPE_DOUBLE);
+}
+
+void data_appendItemString(void)
+{
+	addDataSamplesForGCutString();
+}
+
+void test_appendItemString(gconstpointer data)
+{
+	struct Gadget {
+		string testStr;
+		uint32_t strLen;
+
+		static void assertBody(const void *body, void *userData)
+		{
+			Gadget *obj = static_cast<Gadget *>(userData);
+			const uint32_t *size =
+			  static_cast<const uint32_t *>(body);
+			cppcut_assert_equal(obj->strLen,
+			                    EndianConverter::LtoN(*size));
+			const char *actual =
+			  reinterpret_cast<const char *>(size + 1);
+			cut_assert_equal_string(obj->testStr.c_str(), actual);
+		}
+	} gadget;
+
+	gadget.testStr = gcut_data_get_string(data, "val");
+	gadget.strLen = gadget.testStr.size();
+	const size_t expectBodySize = sizeof(uint32_t) + gadget.strLen + 1;
+	// The check the header and the length
+	assertAppendItemData(string, ItemString, string,
+	                     gadget.testStr, expectBodySize, ITEM_TYPE_STRING,
+	                     Gadget::assertBody, &gadget);
 }
 
 } // namespace testHatoholArmPluginInterface
