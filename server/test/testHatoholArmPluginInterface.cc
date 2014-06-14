@@ -46,15 +46,15 @@ void _assertHapiItemDataHeader(
 #define assertHapiItemDataHeader(H,T,I,...) \
   cut_trace(_assertHapiItemDataHeader(H,T,I,##__VA_ARGS__))
 
-template<typename ValueType, typename BodyType>
-void _assertHapiItemDataBody(const void *body, const ValueType &expect)
+template<typename NativeType, typename BodyType>
+void _assertHapiItemDataBody(const void *body, const NativeType &expect)
 {
 	const BodyType *valuePtr = static_cast<const BodyType *>(body);
 	cppcut_assert_equal(expect,
-	                    (ValueType)EndianConverter::LtoN(*valuePtr));
+	                    (NativeType)EndianConverter::LtoN(*valuePtr));
 }
-#define assertHapiItemDataBody(VT,BT,BP,E) \
-  cut_trace((_assertHapiItemDataBody<VT,BT>)(BP,E))
+#define assertHapiItemDataBody(NT,BT,BP,E) \
+  cut_trace((_assertHapiItemDataBody<NT,BT>)(BP,E))
 
 template <typename NativeType, typename ItemDataClass, typename BodyType>
 void _assertAppendItemData(
