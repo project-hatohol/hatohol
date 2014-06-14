@@ -340,8 +340,8 @@ void HatoholArmPluginInterface::appendItemData(
 	} else if (type == ITEM_TYPE_DOUBLE) {
 		// IEEE754 (64bit)
 		const double &val = *itemData;
-		uint64_t *ptr64 = static_cast<uint64_t *>(ptr);
-		*ptr64 = NtoL(val);
+		double *ptrDouble = static_cast<double *>(ptr);
+		*ptrDouble = NtoL(val);
 	} else if (type == ITEM_TYPE_STRING) {
 		uint32_t *length = static_cast<uint32_t *>(ptr);
 		*length = NtoL(stringLength);

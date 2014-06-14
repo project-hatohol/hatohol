@@ -85,3 +85,13 @@ void addDataSamplesForGCutUint64(void)
 	               "expect", G_TYPE_STRING, "-1",
 	               NULL);
 }
+
+void addDataSamplesForGCutDouble(void)
+{
+	gcut_add_datum("Positive",
+	               "val", G_TYPE_DOUBLE, 0.123456789012345,
+	               NULL);
+	gcut_add_datum("Negative",
+	               "val", G_TYPE_DOUBLE, -0.123456789012345,
+	               NULL);
+}

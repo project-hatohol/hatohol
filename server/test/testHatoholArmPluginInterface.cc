@@ -300,4 +300,16 @@ void test_appendItemUint64(gconstpointer data)
 	                     value, 8, ITEM_TYPE_UINT64);
 }
 
+void data_appendItemDouble(void)
+{
+	addDataSamplesForGCutDouble();
+}
+
+void test_appendItemDouble(gconstpointer data)
+{
+	double value = gcut_data_get_double(data, "val");
+	assertAppendItemData(double, ItemDouble, double,
+	                     value, 8, ITEM_TYPE_DOUBLE);
+}
+
 } // namespace testHatoholArmPluginInterface
