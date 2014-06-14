@@ -55,6 +55,27 @@ void _assertHapiItemDataBody(const void *body, const ValueType &expect)
 #define assertHapiItemDataBody(VT,BT,BP,E) \
   cut_trace((_assertHapiItemDataBody<VT,BT>)(BP,E))
 
+template <typename NativeType, typename ItemDataClass, typename BodyType>
+void _assertAppendItemData(
+  const NativeType &value, const size_t &expectBodySize,
+  const ItemDataType &itemDataType)
+{
+	SmartBuffer sbuf;
+	const ItemId itemId = 12345678;
+	ItemDataPtr itemData(new ItemDataClass(itemId, value), false);
+
+	const size_t expectSize = sizeof(HapiItemDataHeader) + expectBodySize;
+
+	HatoholArmPluginInterface::appendItemData(sbuf, itemData);
+	cppcut_assert_equal(expectSize, sbuf.index());
+	const HapiItemDataHeader *header =
+	  sbuf.getPointer<HapiItemDataHeader>(0);
+	assertHapiItemDataHeader(header, itemDataType, itemId);
+	assertHapiItemDataBody(NativeType, BodyType, header + 1, value);
+}
+#define assertAppendItemData(NT,IDC,BT,VAL,BODY_SZ,IT) \
+  cut_trace((_assertAppendItemData<NT,IDC,BT>)(VAL,BODY_SZ,IT))
+
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
@@ -348,20 +369,9 @@ void data_appendItemUint64(void)
 
 void test_appendItemUint64(gconstpointer data)
 {
-	SmartBuffer sbuf;
-	const ItemId itemId = 50300;
-	int value = gcut_data_get_int(data, "val");
-	ItemDataPtr itemData(new ItemInt(itemId, value), false);
-
-	const size_t expectBodySize = 8;
-	const size_t expectSize = sizeof(HapiItemDataHeader) + expectBodySize;
-
-	HatoholArmPluginInterface::appendItemData(sbuf, itemData);
-	cppcut_assert_equal(expectSize, sbuf.index());
-	const HapiItemDataHeader *header =
-	  sbuf.getPointer<HapiItemDataHeader>(0);
-	assertHapiItemDataHeader(header, ITEM_TYPE_INT, itemId);
-	assertHapiItemDataBody(uint64_t, uint64_t, header + 1, value);
+	uint64_t value = gcut_data_get_int(data, "val");
+	assertAppendItemData(uint64_t, ItemUint64, uint64_t,
+	                     value, 8, ITEM_TYPE_UINT64);
 }
 
 } // namespace testHatoholArmPluginInterface
