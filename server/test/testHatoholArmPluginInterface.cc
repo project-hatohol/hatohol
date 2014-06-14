@@ -350,4 +350,13 @@ void test_appendItemString(gconstpointer data)
 	                     Gadget::assertBody, &gadget);
 }
 
+void test_appendItemDataWithNull(void)
+{
+	SmartBuffer sbuf;
+	ItemDataPtr itemData(new ItemBool(1234, true, ITEM_DATA_NULL), false);
+	HatoholArmPluginInterface::appendItemData(sbuf, itemData);
+	assertHapiItemDataHeader(
+	  sbuf.getPointer<HapiItemDataHeader>(0), ITEM_TYPE_BOOL, 1234, true);
+}
+
 } // namespace testHatoholArmPluginInterface
