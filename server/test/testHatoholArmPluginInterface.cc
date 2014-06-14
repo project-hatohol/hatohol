@@ -345,7 +345,6 @@ void test_appendItemString(gconstpointer data)
 	gadget.testStr = gcut_data_get_string(data, "val");
 	gadget.strLen = gadget.testStr.size();
 	const size_t expectBodySize = sizeof(uint32_t) + gadget.strLen + 1;
-	// The check the header and the length
 	assertAppendItemData(string, ItemString, string,
 	                     gadget.testStr, expectBodySize, ITEM_TYPE_STRING,
 	                     Gadget::assertBody, &gadget);
