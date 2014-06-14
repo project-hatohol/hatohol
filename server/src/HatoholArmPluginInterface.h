@@ -257,13 +257,13 @@ public:
 	                                  const size_t &numGroups);
 
 	/**
-	 * Append HapiItemGroup to the SmartBuffer.
+	 * Append HapiItemGroupHeader to the SmartBuffer.
 	 *
 	 * @param sbuf
 	 * A SmartBuffer instance for appending HapiItemGroupHeader data.
 	 * The buffer size is automatically extended if necessary.
 	 *
-	 * @param numGroups A number of groups.
+	 * @param numItems The number of items the group has.
 	 */
 	static void appendItemGroupHeader(mlpl::SmartBuffer &sbuf,
 	                                  const size_t &numItems);
