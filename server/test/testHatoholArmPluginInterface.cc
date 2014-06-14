@@ -17,6 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <gcutter.h>
 #include <cppcutter.h>
 #include <SimpleSemaphore.h>
 #include "Helpers.h"
@@ -268,6 +269,48 @@ void test_appendItemBool(void)
 	header = sbuf.getPointer<HapiItemDataHeader>(expectSize);
 	assertHapiItemDataHeader(header, ITEM_TYPE_BOOL, itemId1);
 	assertHapiItemDataBody(bool, uint8_t, header + 1, true);
+}
+
+void data_appendItemInt(void)
+{
+	gcut_add_datum("Zero",
+		       "val", G_TYPE_INT, (gint)0,
+		       "expect", G_TYPE_STRING, "0",
+		       NULL);
+	gcut_add_datum("Positive within 32bit",
+		       "val", G_TYPE_INT, (gint)3456,
+		       "expect", G_TYPE_STRING, "3456",
+		       NULL);
+	gcut_add_datum("Positive 32bit Max",
+		       "val", G_TYPE_INT, (gint)2147483647,
+		       "expect", G_TYPE_STRING, "2147483647",
+		       NULL);
+	gcut_add_datum("Negative within 32bit",
+		       "val", G_TYPE_INT, (gint)-1389,
+		       "expect", G_TYPE_STRING, "-1389",
+		       NULL);
+	gcut_add_datum("Negative 32bit Min",
+		       "val", G_TYPE_INT, (gint)-2147483648,
+		       "expect", G_TYPE_STRING, "-2147483648",
+		       NULL);
+}
+
+void test_appendItemInt(gconstpointer data)
+{
+	SmartBuffer sbuf;
+	const ItemId itemId = 500;
+	int value = gcut_data_get_int(data, "val");
+	ItemDataPtr itemData(new ItemInt(itemId, value), false);
+
+	const size_t expectBodySize = 8;
+	const size_t expectSize = sizeof(HapiItemDataHeader) + expectBodySize;
+
+	HatoholArmPluginInterface::appendItemData(sbuf, itemData);
+	cppcut_assert_equal(expectSize, sbuf.index());
+	const HapiItemDataHeader *header =
+	  sbuf.getPointer<HapiItemDataHeader>(0);
+	assertHapiItemDataHeader(header, ITEM_TYPE_INT, itemId);
+	assertHapiItemDataBody(int, uint64_t, header + 1, value);
 }
 
 } // namespace testHatoholArmPluginInterface
