@@ -260,6 +260,7 @@ public:
 	 * @param sbuf
 	 * A SmartBuffer instance. The index shall be at the top of
 	 * the HapiItemDataHeader region of the targert.
+	 * After this method is created, the index of 'sbuf' is forwarded.
 	 *
 	 * @return A created ItemData.
 	 */
