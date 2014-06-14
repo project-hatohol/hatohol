@@ -64,6 +64,15 @@ describe('getServerLocation', function() {
     var expected = "http://[::1]/nagios/";
     expect(getServerLocation(server)).to.be(expected);
   });
+
+  it('with unknown server type', function() {
+    var server = {
+      "type": 2,
+      "ipAddress": "192.168.19.111",
+      "NAME": "localhost"
+    };
+    expect(getServerLocation(server)).to.be(undefined);
+  });
 });
 
 describe('getItemGraphLocation', function() {
