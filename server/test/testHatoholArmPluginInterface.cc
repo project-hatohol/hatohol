@@ -359,7 +359,7 @@ void test_appendItemDataWithNull(void)
 	  sbuf.getPointer<HapiItemDataHeader>(0), ITEM_TYPE_BOOL, 1234, true);
 }
 
-void test_createItemBool(void)
+void data_createItemBool(void)
 {
 	addDataSamplesForGCutBool();
 }
