@@ -285,6 +285,16 @@ char *HatoholArmPluginInterface::putString(
 	return nextAddr;
 }
 
+void HatoholArmPluginInterface::appendItemTableHeader(
+  SmartBuffer &sbuf, const size_t &numGroups)
+{
+	sbuf.ensureRemainingSize(sizeof(HapiItemTableHeader));
+	HapiItemTableHeader *header = sbuf.getPointer<HapiItemTableHeader>();
+	header->flags = 0;
+	header->numGroups = numGroups;
+	sbuf.incIndex(sizeof(HapiItemTableHeader));
+}
+
 void HatoholArmPluginInterface::appendItemGroupHeader(
   SmartBuffer &sbuf, const size_t &numItems)
 {

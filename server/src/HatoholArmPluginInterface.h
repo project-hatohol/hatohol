@@ -245,6 +245,18 @@ public:
 	  uint16_t *offsetField, uint16_t *lengthField);
 
 	/**
+	 * Append HapiItemTableHeader to the SmartBuffer.
+	 *
+	 * @param sbuf
+	 * A SmartBuffer instance for appending HapiItemTableHeader data.
+	 * The buffer size is automatically extended if necessary.
+	 *
+	 * @param numGroups A number of groups the table has.
+	 */
+	static void appendItemTableHeader(mlpl::SmartBuffer &sbuf,
+	                                  const size_t &numGroups);
+
+	/**
 	 * Append HapiItemGroup to the SmartBuffer.
 	 *
 	 * @param sbuf
