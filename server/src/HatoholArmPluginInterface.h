@@ -251,7 +251,7 @@ public:
 	 * A SmartBuffer instance for appending HapiItemTableHeader data.
 	 * The buffer size is automatically extended if necessary.
 	 *
-	 * @param numGroups A number of groups the table has.
+	 * @param numGroups The number of groups the table has.
 	 */
 	static void appendItemTableHeader(mlpl::SmartBuffer &sbuf,
 	                                  const size_t &numGroups);
