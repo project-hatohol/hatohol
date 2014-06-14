@@ -98,6 +98,8 @@ struct HapiItemGroupHeader {
 	uint32_t length;
 } __attribute__((__packed__));
 
+#define HAPI_ITEM_DATA_HEADER_FLAG_NULL 0x01
+
 struct HapiItemDataHeader {
 	//   0b: Null flag (0: Not NULL, 1: NULL)
 	// 1-7b: reseverd
@@ -251,6 +253,18 @@ public:
 	 */
 	static void appendItemData(mlpl::SmartBuffer &sbuf,
 	                           ItemDataPtr itemData);
+
+	/**
+	 * Create the ItemData instance from the buffer data.
+	 *
+	 * @param sbuf
+	 * A SmartBuffer instance. The index shall be at the top of
+	 * the HapiItemDataHeader region of the targert.
+	 *
+	 * @return A created ItemData.
+	 */
+	static ItemDataPtr createItemData(mlpl::SmartBuffer &sbuf)
+	  throw(HatoholException);
 
 protected:
 	typedef std::map<uint16_t, CommandHandler> CommandHandlerMap;

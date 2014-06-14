@@ -353,6 +353,67 @@ void HatoholArmPluginInterface::appendItemData(
 	sbuf.incIndex(requiredSize);
 }
 
+ItemDataPtr HatoholArmPluginInterface::createItemData(SmartBuffer &sbuf)
+  throw(HatoholException)
+{
+	// read header
+	HATOHOL_ASSERT(sbuf.remainingSize() >= sizeof(HapiItemDataHeader),
+	 "Remain size (header) is too small: %zd\n", sbuf.remainingSize());
+	const HapiItemDataHeader *header =
+	  sbuf.getPointerAndIncIndex<HapiItemDataHeader>();
+	const uint8_t flags     = LtoN(header->flags);
+	const ItemDataType type = static_cast<ItemDataType>(LtoN(header->type));
+	const uint64_t itemId   = LtoN(header->itemId);
+
+	// check the type
+	HATOHOL_ASSERT(type < NUM_ITEM_TYPE, "Invalid type: %d\n", type);
+
+	// check the body size
+	const size_t requiredBodySize = ITEM_DATA_BODY_SIZE[NUM_ITEM_TYPE];
+	HATOHOL_ASSERT(
+	  sbuf.remainingSize() >= requiredBodySize,
+	  "Remain size (body) is too small: %zd (expect: %zd), type: %d\n",
+	  sbuf.remainingSize(), requiredBodySize, type);
+
+	// Body
+	ItemData *itemData = NULL;
+	if (type == ITEM_TYPE_BOOL) {
+		const bool val = LtoN(*sbuf.getPointerAndIncIndex<uint8_t>());
+		itemData = new ItemBool(itemId, val);
+	} else if (type == ITEM_TYPE_INT) {
+		const int val = LtoN(*sbuf.getPointerAndIncIndex<uint64_t>());
+		itemData = new ItemInt(itemId, val);
+	} else if (type == ITEM_TYPE_UINT64) {
+		const uint64_t val =
+		  LtoN(*sbuf.getPointerAndIncIndex<uint64_t>());
+		itemData = new ItemUint64(itemId, val);
+	} else if (type == ITEM_TYPE_DOUBLE) {
+		const double val = LtoN(*sbuf.getPointerAndIncIndex<double>());
+		itemData = new ItemDouble(itemId, val);
+	} else if (type == ITEM_TYPE_STRING) {
+		// get the string length and check it
+		const uint32_t length =
+		  LtoN(*sbuf.getPointerAndIncIndex<uint32_t>());
+		HATOHOL_ASSERT(
+		  sbuf.remainingSize() >= length + 1,
+		  "Remain size (body) is too small: %zd "
+		  "(expect: %" PRIu32 ")\n",
+		  sbuf.remainingSize(), length + 1);
+
+		// get the string content
+		string val(sbuf.getPointer<char>(), length);
+		itemData = new ItemString(itemId, val);
+		sbuf.incIndex(length + 1);
+	} else {
+		HATOHOL_ASSERT(false, "Unknown item type: %d", type);
+	}
+	
+	if (flags & HAPI_ITEM_DATA_HEADER_FLAG_NULL)
+		itemData->setNull();
+
+	return ItemDataPtr(itemData, false);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
