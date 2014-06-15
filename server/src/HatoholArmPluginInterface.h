@@ -22,10 +22,12 @@
 
 #include <string>
 #include <SmartBuffer.h>
+#include <EndianConverter.h>
 #include <qpid/messaging/Message.h>
 #include <qpid/messaging/Connection.h>
 #include "HatoholThreadBase.h"
 #include "HatoholException.h"
+#include "ItemDataPtr.h"
 #include "Utils.h"
 
 enum HatoholArmPluginErrorCode {
@@ -49,6 +51,7 @@ enum HapiMessageType {
 enum HapiCommandCode {
 	HAPI_CMD_GET_MONITORING_SERVER_INFO,
 	HAPI_CMD_GET_TIMESTAMP_OF_LAST_TRIGGER,
+	HAPI_CMD_SEND_UPDATED_TRIGGERS,
 	NUM_HAPI_CMD
 };
 
@@ -76,6 +79,51 @@ struct HapiCommandHeader {
 	uint16_t type;
 	uint16_t code;
 	uint32_t sequenceId;
+} __attribute__((__packed__));
+
+struct HapiItemTableHeader {
+	uint32_t numGroups;
+	// HapiItemGroupHeader
+	// HapiItemDataHeader ...
+	// HapiItemGroupHeader
+	// HapiItemDataHeader ...
+	// ...
+} __attribute__((__packed__));
+
+struct HapiItemGroupHeader {
+	uint32_t numItems;
+
+	// Total bytes of items. The next address of this region plus
+	// 'length' should be the next HapiItemGroup.
+	uint32_t length;
+} __attribute__((__packed__));
+
+struct HapiItemDataHeader {
+	//   0b: Null flag (0: Not NULL, 1: NULL)
+	// 1-7b: reseverd
+	uint8_t  flags;
+
+	// 0: ITEM_TYPE_BOOL
+	// 1: ITEM_TYPE_INT
+	// 2: ITEM_TYPE_UINT64
+	// 3: ITEM_TYPE_DOUBLE
+	// 4: ITEM_TYPE_STRING
+	uint8_t  type;
+
+	uint64_t itemId;
+
+	// Data Body: Field size is the following.
+	//   1B (BOOL)
+	//   8B (INT)
+	//   8B (UINT64)
+	//   8B (DOUBLE: IEEE754 [64bit])
+
+} __attribute__((__packed__));
+
+struct HapiItemStringHeader {
+	HapiItemDataHeader dataHeader;
+	uint32_t           length;  // not count a NULL terminator.
+	// string body: NULL terminator is needed.
 } __attribute__((__packed__));
 
 struct HapiResponseHeader {
@@ -106,7 +154,8 @@ struct HapiResTimestampOfLastTrigger {
 	uint32_t nanosec;
 } __attribute__((__packed__));
 
-class HatoholArmPluginInterface : public HatoholThreadBase {
+class HatoholArmPluginInterface :
+  public HatoholThreadBase, public EndianConverter {
 public:
 	static const char *DEFAULT_BROKER_URL;
 	static const uint32_t SEQ_ID_UNKNOWN;
@@ -177,10 +226,12 @@ public:
 	 * A string to be written.
 	 *
 	 * @param offsetField
-	 * An address where the offset (buf - refAddress) is written.
+	 * An address where the offset (buf - refAddress) is written
+	 * as little endian.
 	 *
 	 * @param lengthField
-	 * An address where the length (not including NULL term) is written.
+	 * An address where the length (not including NULL term) is written
+	 * as little endian.
 	 *
 	 * @return
 	 * The address next to the written string.
@@ -188,6 +239,18 @@ public:
 	static char *putString(
 	  void *buf, const void *refAddr, const std::string &src,
 	  uint16_t *offsetField, uint16_t *lengthField);
+
+	/**
+	 * Append HapiItemData to the SmartBuffer.
+	 *
+	 * @param sbuf
+	 * A SmartBuffer instance for appending the data. The buffer size is
+	 * automatically extended if necessary.
+	 *
+	 * @param itemData An ItemData to be written.
+	 */
+	static void appendItemData(mlpl::SmartBuffer &sbuf,
+	                           ItemDataPtr itemData);
 
 protected:
 	typedef std::map<uint16_t, CommandHandler> CommandHandlerMap;
@@ -329,9 +392,9 @@ protected:
 		cmdBuf.alloc(requiredSize);
 		HapiCommandHeader *cmdHeader =
 		  cmdBuf.getPointer<HapiCommandHeader>(0);
-		cmdHeader->type = HAPI_MSG_COMMAND;
-		cmdHeader->code = code;
-		cmdHeader->sequenceId = getIncrementedSequenceId();
+		cmdHeader->type = NtoL(HAPI_MSG_COMMAND);
+		cmdHeader->code = NtoL(code);
+		cmdHeader->sequenceId = NtoL(getIncrementedSequenceId());
 		return cmdBuf.getPointer<BodyType>(sizeof(HapiCommandHeader));
 	}
 
@@ -385,9 +448,9 @@ protected:
 		resBuf.alloc(requiredSize);
 		HapiResponseHeader *header =
 		  resBuf.getPointer<HapiResponseHeader>(0);
-		header->type = HAPI_MSG_RESPONSE;
-		header->code = code;
-		header->sequenceId = getSequenceIdInProgress();
+		header->type = NtoL(HAPI_MSG_RESPONSE);
+		header->code = NtoL(code);
+		header->sequenceId = NtoL(getSequenceIdInProgress());
 		return resBuf.getPointer<BodyType>(sizeof(HapiResponseHeader));
 	}
 

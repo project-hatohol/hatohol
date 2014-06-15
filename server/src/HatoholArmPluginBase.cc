@@ -59,8 +59,8 @@ bool HatoholArmPluginBase::getMonitoringServerInfo(
 
 	const HapiResMonitoringServerInfo *svInfo =
 	  getResponseBody<HapiResMonitoringServerInfo>(m_ctx->responseBuf);
-	serverInfo.id   = svInfo->serverId;
-	serverInfo.type = static_cast<MonitoringSystemType>(svInfo->type);
+	serverInfo.id   = LtoN(svInfo->serverId);
+	serverInfo.type = static_cast<MonitoringSystemType>(LtoN(svInfo->type));
 
 	const char *str;
 	str = getString(m_ctx->responseBuf, svInfo,
@@ -87,9 +87,9 @@ bool HatoholArmPluginBase::getMonitoringServerInfo(
 	}
 	serverInfo.nickname = str;
 
-	serverInfo.port               = svInfo->port;
-	serverInfo.pollingIntervalSec = svInfo->pollingIntervalSec;
-	serverInfo.retryIntervalSec   = svInfo->retryIntervalSec;
+	serverInfo.port               = LtoN(svInfo->port);
+	serverInfo.pollingIntervalSec = LtoN(svInfo->pollingIntervalSec);
+	serverInfo.retryIntervalSec   = LtoN(svInfo->retryIntervalSec);
 
 	return true;
 }
@@ -104,8 +104,15 @@ SmartTime HatoholArmPluginBase::getTimestampOfLastTrigger(void)
 
 	const HapiResTimestampOfLastTrigger *body = 
 	  getResponseBody<HapiResTimestampOfLastTrigger>(m_ctx->responseBuf);
-	const timespec ts = {(time_t)body->timestamp, (long)body->nanosec};
+	timespec ts;
+	ts.tv_sec  = LtoN(body->timestamp);
+	ts.tv_nsec = LtoN(body->nanosec);
 	return SmartTime(ts);
+}
+
+void HatoholArmPluginBase::sendUpdatedTriggers(ItemTablePtr triggers)
+{
+	MLPL_BUG("Not implemented yet: %s\n", __PRETTY_FUNCTION__);
 }
 
 // ---------------------------------------------------------------------------

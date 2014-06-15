@@ -71,6 +71,17 @@ public:
 	 */
 	size_t watermark(void) const;
 	void alloc(size_t size, bool resetIndexDeep = true);
+
+	/**
+	 * Ensure that the remaining buffer size is large than the specified
+	 * size. The remaing size means the difference between the tail of the
+	 * buffer and the current index position.
+	 * After this method is called, the buffer address might be changed.
+	 * Therefore a pointer obtained by getPointer() should not be used
+	 * after calling this method.
+	 *
+	 * @param size A required remaining size.
+	 */
 	void ensureRemainingSize(size_t size);
 
 	void resetIndex(void);

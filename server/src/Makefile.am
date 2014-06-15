@@ -21,6 +21,7 @@ libhatohol_common_la_SOURCES = \
 	JsonBuilderAgent.cc JsonBuilderAgent.h \
 	JsonParserAgent.cc JsonParserAgent.h \
 	MonitoringServerInfo.cc MonitoringServerInfo.h \
+	EndianConverter.h \
 	UsedCountable.cc UsedCountable.h \
 	Utils.cc Utils.h \
 	UsedCountablePtr.cc UsedCountablePtr.h \
