@@ -519,11 +519,15 @@ void test_createItemGroup(void)
 	// Check the created ItemGroup
 	cppcut_assert_equal(srcItemGrpPtr->getNumberOfItems(),
 	                    createdItemGrpPtr->getNumberOfItems());
+	cppcut_assert_equal(1, createdItemGrpPtr->getUsedCount());
 
 	// check each item data
 	for (size_t i = 0; i < srcItemGrpPtr->getNumberOfItems(); i++) {
+		const ItemData *createdItemData =
+		  createdItemGrpPtr->getItemAt(i);
 		cppcut_assert_equal(*srcItemGrpPtr->getItemAt(i),
-		                    *createdItemGrpPtr->getItemAt(i));
+		                    *createdItemData);
+		cppcut_assert_equal(1, createdItemData->getUsedCount());
 	}
 }
 
