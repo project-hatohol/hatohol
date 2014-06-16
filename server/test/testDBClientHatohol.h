@@ -186,11 +186,14 @@ struct AssertGetEventsArg
 	TriggerSeverityType minSeverity;
 	TriggerStatusType triggerStatus;
 	std::map<const EventInfo *, uint64_t> idMap;
+	IssueInfoVect actualIssueInfoVect;
+	bool withIssueInfo;
 
 	AssertGetEventsArg(gconstpointer ddtParam)
 	: limitOfUnifiedId(0), sortType(EventsQueryOption::SORT_UNIFIED_ID),
 	  minSeverity(TRIGGER_SEVERITY_UNKNOWN),
-	  triggerStatus(TRIGGER_STATUS_ALL)
+	  triggerStatus(TRIGGER_STATUS_ALL),
+	  withIssueInfo(false)
 	{
 		fixtures = testEventInfo;
 		numberOfFixtures = NumTestEventInfo;
@@ -278,5 +281,40 @@ struct AssertGetEventsArg
 	virtual std::string makeOutputText(const EventInfo &eventInfo)
 	{
 		return makeEventOutput(eventInfo);
+	}
+
+	virtual void assert(void) override
+	{
+		AssertGetHostResourceArg<EventInfo, EventsQueryOption>::assert();
+
+		if (!withIssueInfo)
+			return;
+
+		cppcut_assert_equal(actualRecordList.size(),
+				    actualIssueInfoVect.size());
+
+		std::map<std::string, IssueInfo*> eventIssueMap;
+		makeEventIssueMap(eventIssueMap);
+		EventInfoListIterator eventIt = actualRecordList.begin();
+		IssueInfoVectIterator issueIt = actualIssueInfoVect.begin();
+		IssueInfoVectIterator issueEndIt = actualIssueInfoVect.end();
+		std::string expected, actual;
+		for (; issueIt != issueEndIt; issueIt++, eventIt++) {
+			std::string key = makeEventIssueMapKey(*eventIt);
+			if (eventIssueMap.find(key) == eventIssueMap.end()) {
+				IssueInfo issue;
+				issue.trackerId = 0;
+				issue.serverId  = eventIt->serverId;
+				issue.eventId   = eventIt->id;
+				issue.triggerId = eventIt->triggerId;
+				issue.createdAt = 0;
+				issue.updatedAt = 0;
+				expected += makeIssueOutput(issue);
+			} else {
+				expected += makeIssueOutput(*eventIssueMap[key]);
+			}
+			actual += makeIssueOutput(*issueIt);
+		}
+		cppcut_assert_equal(expected, actual);
 	}
 };
