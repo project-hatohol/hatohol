@@ -535,13 +535,7 @@ void test_createItemGroup(void)
 	cppcut_assert_equal(1, createdItemGrpPtr->getUsedCount());
 
 	// check each item data
-	for (size_t i = 0; i < srcItemGrpPtr->getNumberOfItems(); i++) {
-		const ItemData *createdItemData =
-		  createdItemGrpPtr->getItemAt(i);
-		cppcut_assert_equal(*srcItemGrpPtr->getItemAt(i),
-		                    *createdItemData);
-		cppcut_assert_equal(1, createdItemData->getUsedCount());
-	}
+	assertTestItemGroup(srcItemGrpPtr, createdItemGrpPtr);
 }
 
 void test_appendItemTable(void)
