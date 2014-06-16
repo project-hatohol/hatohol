@@ -767,6 +767,7 @@ IssueInfo testIssueInfo[] = {
 	3,                        // trackerId
 	1,                        // serverId
 	1,                        // eventId
+	2,                        // triggerId
 	"13",                     // identifier
 	"http://localhost:44444/issues/13", // location
 	"New",                    // status

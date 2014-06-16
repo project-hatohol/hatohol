@@ -174,6 +174,7 @@ static void makeExpectedIssueInfo(IssueInfo &issue,
 {
 	issue.serverId = event.serverId;
 	issue.eventId = event.id;
+	issue.triggerId = event.triggerId;
 	issue.trackerId = tracker.id;
 	issue.identifier = StringUtils::toString((int)postedIssue.id);
 	issue.location = tracker.baseURL + "/issues/" + issue.identifier;
@@ -258,6 +259,7 @@ void test_parseResponse(void)
 	actual.trackerId = expected.trackerId;
 	actual.serverId = expected.serverId;
 	actual.eventId = expected.eventId;
+	actual.triggerId = expected.triggerId;
 	HatoholError result = sender.parseResponse(actual, issue.toJson());
 	cppcut_assert_equal(HTERR_OK, result.getCode());
 	cppcut_assert_equal(makeIssueOutput(expected),

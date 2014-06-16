@@ -446,10 +446,11 @@ string makeIssueOutput(const IssueInfo &issueInfo)
 	string output =
 	  mlpl::StringUtils::sprintf(
 	    "%" FMT_ISSUE_TRACKER_ID "|%" FMT_SERVER_ID "|%" FMT_EVENT_ID
-	    "|%s|%s|%s|%s|%ld|%ld\n",
+	    "|%" FMT_TRIGGER_ID "|%s|%s|%s|%s|%ld|%ld\n",
 	    issueInfo.trackerId,
 	    issueInfo.serverId,
 	    issueInfo.eventId,
+	    issueInfo.triggerId,
 	    issueInfo.identifier.c_str(),
 	    issueInfo.location.c_str(),
 	    issueInfo.status.c_str(),

@@ -160,6 +160,7 @@ struct IssueInfo {
 	IssueTrackerIdType trackerId;
 	ServerIdType       serverId;
 	EventIdType        eventId;
+	TriggerIdType      triggerId;
 	std::string        identifier;
 	std::string        location;
 	std::string        status;

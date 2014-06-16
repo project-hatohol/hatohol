@@ -706,6 +706,17 @@ static const ColumnDef COLUMN_DEF_ISSUES[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
+	DBClientHatohol::TABLE_NAME_ISSUES,// tableName
+	"trigger_id",                      // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_IDX,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
 	DBClientHatohol::TABLE_NAME_ISSUES, // tableName
 	"identifier",                      // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
@@ -777,6 +788,7 @@ enum {
 	IDX_ISSUES_TRACKER_ID,
 	IDX_ISSUES_SERVER_ID,
 	IDX_ISSUES_EVENT_ID,
+	IDX_ISSUES_TRIGGER_ID,
 	IDX_ISSUES_IDENTIFIER,
 	IDX_ISSUES_LOCATION,
 	IDX_ISSUES_STATUS,
@@ -2136,6 +2148,7 @@ HatoholError DBClientHatohol::getIssueInfoVect(
 		itemGroupStream >> issueInfo.trackerId;
 		itemGroupStream >> issueInfo.serverId;
 		itemGroupStream >> issueInfo.eventId;
+		itemGroupStream >> issueInfo.triggerId;
 		itemGroupStream >> issueInfo.identifier;
 		itemGroupStream >> issueInfo.location;
 		itemGroupStream >> issueInfo.status;
@@ -2366,6 +2379,7 @@ void DBClientHatohol::addIssueInfoWithoutTransaction(const IssueInfo &issueInfo)
 		arg.add(issueInfo.trackerId);
 		arg.add(issueInfo.serverId);
 		arg.add(issueInfo.eventId);
+		arg.add(issueInfo.triggerId);
 		arg.add(issueInfo.identifier);
 		arg.add(issueInfo.location);
 		arg.add(issueInfo.status);
@@ -2378,6 +2392,7 @@ void DBClientHatohol::addIssueInfoWithoutTransaction(const IssueInfo &issueInfo)
 		arg.add(IDX_ISSUES_TRACKER_ID,  issueInfo.trackerId);
 		arg.add(IDX_ISSUES_EVENT_ID,    issueInfo.serverId);
 		arg.add(IDX_ISSUES_EVENT_ID,    issueInfo.eventId);
+		arg.add(IDX_ISSUES_TRIGGER_ID,  issueInfo.triggerId);
 		arg.add(IDX_ISSUES_IDENTIFIER,  issueInfo.identifier);
 		arg.add(IDX_ISSUES_LOCATION,    issueInfo.location);
 		arg.add(IDX_ISSUES_STATUS,      issueInfo.status);
