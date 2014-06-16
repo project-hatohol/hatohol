@@ -315,6 +315,24 @@ void HatoholArmPluginInterface::completeItemTable(
 	completeItemTemplate<HapiItemTableHeader>(sbuf, headerIndex);
 }
 
+void HatoholArmPluginInterface::appendItemTable(
+  mlpl::SmartBuffer &sbuf, ItemTablePtr itemTablePtr)
+{
+	struct {
+		static bool appendGroup(const ItemGroup *itemGrp,
+		                        SmartBuffer &sbuf)
+		{
+			appendItemGroup(sbuf, itemGrp);
+			return true;
+		}
+	} func;
+
+	const size_t numGroups = itemTablePtr->getNumberOfRows();
+	const size_t headerIndex = appendItemTableHeader(sbuf, numGroups);
+	itemTablePtr->foreach<SmartBuffer &>(func.appendGroup, sbuf);
+	completeItemTable(sbuf, headerIndex);
+}
+
 size_t HatoholArmPluginInterface::appendItemGroupHeader(
   SmartBuffer &sbuf, const size_t &numItems)
 {

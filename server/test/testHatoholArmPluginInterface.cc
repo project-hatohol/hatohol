@@ -33,6 +33,8 @@ namespace testHatoholArmPluginInterface {
 
 static const size_t TIMEOUT = 5000;
 static const size_t HAPI_ITEM_INT_BODY_SIZE = 8;
+static const size_t HAPI_ITEM_INT_SIZE =
+  sizeof(HapiItemDataHeader) + HAPI_ITEM_INT_BODY_SIZE;
 
 void _assertHapiItemDataHeader(
   const HapiItemDataHeader *header,
@@ -114,8 +116,30 @@ static ItemGroupPtr createTestItemGroup(void)
 		ItemData *itemData = new ItemInt(value);
 		itemGrpPtr->add(itemData, false);
 	}
+	itemGrpPtr->freeze();
 	return (ItemGroupPtr)itemGrpPtr;
 }
+
+static ItemTablePtr createTestItemTable(void)
+{
+	const size_t NUM_ROWS = 5;
+	SmartBuffer sbuf;
+	VariableItemTablePtr itemTablePtr(new ItemTable());
+	for (size_t i = 0; i < NUM_ROWS; i++)
+		itemTablePtr->add(createTestItemGroup());
+	return (ItemTablePtr)itemTablePtr;
+}
+
+static void _assertAppendedTestItemGroup(ItemGroupPtr itemGrpPtr)
+{
+	for (size_t i = 0; i < itemGrpPtr->getNumberOfItems(); i++) {
+		assertAppendItemData(int, ItemInt, uint64_t,
+		                     *itemGrpPtr->getItemAt(i),
+		                     HAPI_ITEM_INT_BODY_SIZE, ITEM_TYPE_INT);
+	}
+}
+#define assertAppendedTestItemGroup(IGP) \
+  cut_trace(_assertAppendedTestItemGroup(IGP))
 
 // ---------------------------------------------------------------------------
 // Test cases
@@ -462,8 +486,6 @@ void test_appendItemGroup(void)
 	const size_t numItems = itemGrpPtr->getNumberOfItems();
 
 	// check the entirely written size
-	const size_t HAPI_ITEM_INT_SIZE =
-	  sizeof(HapiItemDataHeader) + HAPI_ITEM_INT_BODY_SIZE;
 	const size_t expectedSize =
 	  sizeof(HapiItemGroupHeader) + numItems * HAPI_ITEM_INT_SIZE;
 	cppcut_assert_equal(expectedSize, sbuf.index());
@@ -508,5 +530,40 @@ void test_createItemGroup(void)
 		                    *createdItemGrpPtr->getItemAt(i));
 	}
 }
+
+void test_appendItemTable(void)
+{
+	// create test samples
+	SmartBuffer sbuf;
+	ItemTablePtr itemTablePtr = createTestItemTable();
+	HatoholArmPluginInterface::appendItemTable(sbuf, itemTablePtr);
+	const size_t numRows = itemTablePtr->getNumberOfRows();
+	const size_t numItems = itemTablePtr->getNumberOfColumns();
+
+	// check the entirely written size
+	const size_t sizePerGroup =
+	  sizeof(HapiItemGroupHeader) + numItems * HAPI_ITEM_INT_SIZE;
+	const size_t expectedSize =
+	  sizeof(HapiItemTableHeader) + numRows * sizePerGroup;
+	cppcut_assert_equal(expectedSize, sbuf.index());
+
+	// check the header content
+	const HapiItemTableHeader *tableHeader =
+	  sbuf.getPointer<HapiItemTableHeader>(0);
+	const uint16_t expectedFlags = 0;
+	cppcut_assert_equal(expectedFlags,
+	                    EndianConverter::LtoN(tableHeader->flags));
+	cppcut_assert_equal(
+	  numRows, (size_t)EndianConverter::LtoN(tableHeader->numGroups));
+	cppcut_assert_equal(
+	  expectedSize, (size_t)EndianConverter::LtoN(tableHeader->length));
+
+	// check each ItemGroup
+	const ItemGroupList &itemGrpList = itemTablePtr->getItemGroupList();
+	ItemGroupListConstIterator grpIt = itemGrpList.begin();
+	for (; grpIt != itemGrpList.end(); ++grpIt)
+		assertAppendedTestItemGroup(*grpIt);
+}
+
 
 } // namespace testHatoholArmPluginInterface

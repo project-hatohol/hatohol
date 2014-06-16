@@ -276,6 +276,18 @@ public:
 	                              const size_t &headerIndex);
 
 	/**
+	 * Append HapiTable to the SmartBuffer.
+	 *
+	 * @param sbuf
+	 * A SmartBuffer instance for appending HapiItemTable data.
+	 * The buffer size is automatically extended if necessary.
+	 *
+	 * @param itemTablePtr An ItemTable to be appended.
+	 */
+	static void appendItemTable(mlpl::SmartBuffer &sbuf,
+	                            ItemTablePtr itemTablePtr);
+
+	/**
 	 * Append HapiItemGroupHeader to the SmartBuffer.
 	 *
 	 * Note that: completeItemGroup() shall be called after all ItemData
