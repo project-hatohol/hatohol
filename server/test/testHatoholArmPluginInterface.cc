@@ -502,11 +502,7 @@ void test_appendItemGroup(void)
 	                    (size_t)EndianConverter::LtoN(grpHeader->length));
 
 	// check each item data
-	for (size_t i = 0; i < itemGrpPtr->getNumberOfItems(); i++) {
-		assertAppendItemData(int, ItemInt, uint64_t,
-		                     *itemGrpPtr->getItemAt(i),
-		                     HAPI_ITEM_INT_BODY_SIZE, ITEM_TYPE_INT);
-	}
+	assertAppendedTestItemGroup(itemGrpPtr);
 }
 
 void test_createItemGroup(void)
