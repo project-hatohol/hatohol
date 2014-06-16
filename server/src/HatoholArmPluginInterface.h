@@ -249,6 +249,9 @@ public:
 	/**
 	 * Append HapiItemTableHeader to the SmartBuffer.
 	 *
+	 * Note that: completeItemTable() shall be called after all ItemGroup
+	 * instances are appended.
+	 *
 	 * @param sbuf
 	 * A SmartBuffer instance for appending HapiItemTableHeader data.
 	 * The buffer size is automatically extended if necessary.
