@@ -730,6 +730,16 @@ bool DBClientAction::getLog(ActionLog &actionLog,
 	return getLog(actionLog, condition);
 }
 
+bool DBClientAction::isIssueSenderEnabled(void)
+{
+	ActionDefList actionDefList;
+	ActionsQueryOption option(USER_ID_SYSTEM);
+	option.setActionType(ACTION_ISSUE_SENDER);
+	option.setMaximumNumber(1);
+	getActionList(actionDefList, option);
+	return (actionDefList.size() == 1);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

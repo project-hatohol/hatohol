@@ -663,6 +663,19 @@ void test_parseInvalidIssueSenderCommand(void)
 	cppcut_assert_equal(false, action.parseIssueSenderCommand(trackerId));
 }
 
+void test_issueSenderIsEnabled(void)
+{
+	setupTestDBUserAndDBAction();
+	DBClientAction dbAction;
+	cppcut_assert_equal(true, dbAction.isIssueSenderEnabled());
+}
+
+void test_issueSenderIsNotEnabled(void)
+{
+	DBClientAction dbAction;
+	cppcut_assert_equal(false, dbAction.isIssueSenderEnabled());
+}
+
 } // namespace testDBClientAction
 
 namespace testDBClientActionDefault {

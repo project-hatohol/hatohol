@@ -354,6 +354,13 @@ public:
 	bool getLog(ActionLog &actionLog, const ServerIdType &serverId,
 	            uint64_t eventId);
 
+	/**
+	 * Check whether IssueSender type action exists or not
+	 *
+	 * @return true if IssueSender type action exists
+	 */
+	bool isIssueSenderEnabled(void);
+
 protected:
 	ItemDataNullFlagType getNullFlag(const ActionDef &actionDef,
 	                                 ActionConditionEnableFlag enableFlag);
