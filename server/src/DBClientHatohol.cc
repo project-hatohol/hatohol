@@ -2390,7 +2390,7 @@ void DBClientHatohol::addIssueInfoWithoutTransaction(const IssueInfo &issueInfo)
 	} else {
 		DBAgent::UpdateArg arg(tableProfileIssues);
 		arg.add(IDX_ISSUES_TRACKER_ID,  issueInfo.trackerId);
-		arg.add(IDX_ISSUES_EVENT_ID,    issueInfo.serverId);
+		arg.add(IDX_ISSUES_SERVER_ID,   issueInfo.serverId);
 		arg.add(IDX_ISSUES_EVENT_ID,    issueInfo.eventId);
 		arg.add(IDX_ISSUES_TRIGGER_ID,  issueInfo.triggerId);
 		arg.add(IDX_ISSUES_IDENTIFIER,  issueInfo.identifier);
