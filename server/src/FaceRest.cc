@@ -1225,7 +1225,7 @@ static void addHostsMap(
 	dataStore->getHostList(hostList, option);
 	HostInfoListIterator it = hostList.begin();
 	agent.startObject("hosts");
-	for (; it != hostList.end(); it++) {
+	for (; it != hostList.end(); ++it) {
 		HostInfo &host = *it;
 		agent.startObject(StringUtils::toString(host.id));
 		agent.add("name", host.hostName);
@@ -1272,7 +1272,7 @@ static void addTriggersIdBriefHash(
 	ServerIdType serverId = server_it->first;
 	TriggerBriefMap &triggers = server_it->second;
 	TriggerBriefMap::iterator it = triggers.begin();
-	for (; server_it != triggerMaps.end() && it != triggers.end(); it++) {
+	for (; server_it != triggerMaps.end() && it != triggers.end(); ++it) {
 		TriggerIdType triggerId = it->first;
 		string &triggerBrief = it->second;
 		if (lookupTriggerBrief)
@@ -2401,7 +2401,7 @@ void FaceRest::handlerGetAccessInfo(RestJob *job)
 	addHatoholError(agent, HatoholError(HTERR_OK));
 	ServerAccessInfoMapIterator it = serversMap.begin();
 	agent.startObject("allowedServers");
-	for (; it != serversMap.end(); it++) {
+	for (; it != serversMap.end(); ++it) {
 		const ServerIdType &serverId = it->first;
 		string serverIdString;
 		HostGrpAccessInfoMap *hostgroupsMap = it->second;
