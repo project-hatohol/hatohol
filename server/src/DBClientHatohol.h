@@ -326,7 +326,8 @@ public:
 	void addEventInfo(EventInfo *eventInfo);
 	void addEventInfoList(const EventInfoList &eventInfoList);
 	HatoholError getEventInfoList(EventInfoList &eventInfoList,
-	                              const EventsQueryOption &option);
+	                              const EventsQueryOption &option,
+				      IssueInfoVect *issueInfoVect = NULL);
 	void setEventInfoList(const EventInfoList &eventInfoList,
 	                      const ServerIdType &serverId);
 

@@ -1648,15 +1648,18 @@ void DBClientHatohol::addEventInfoList(const EventInfoList &eventInfoList)
 }
 
 HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
-                                               const EventsQueryOption &option)
+                                               const EventsQueryOption &option,
+                                               IssueInfoVect *issueInfoVect)
 {
 	static const DBAgent::TableProfile *tableProfiles[] = {
 	  &tableProfileEvents,
 	  &tableProfileTriggers,
+	  &tableProfileIssues,
 	};
 	enum {
 		TBLIDX_EVENTS,
 		TBLIDX_TRIGGERS,
+		TBLIDX_ISSUES,
 	};
 	static const size_t numTableProfiles =
 	  sizeof(tableProfiles) / sizeof(DBAgent::TableProfile *);
@@ -1675,7 +1678,17 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_SERVER_ID).c_str(),
 
 	  option.getColumnName(IDX_EVENTS_TRIGGER_ID).c_str(),
-	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_ID).c_str()),
+	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_ID).c_str());
+
+	if (issueInfoVect) {
+		arg.tableField += StringUtils::sprintf(
+		  " LEFT JOIN %s ON (%s=%s AND %s=%s)",
+		  TABLE_NAME_ISSUES,
+		  option.getColumnName(IDX_EVENTS_SERVER_ID).c_str(),
+		  arg.getFullName(TBLIDX_ISSUES, IDX_ISSUES_SERVER_ID).c_str(),
+		  option.getColumnName(IDX_EVENTS_ID).c_str(),
+		  arg.getFullName(TBLIDX_ISSUES, IDX_ISSUES_EVENT_ID).c_str());
+	}
 
 	// Columns
 	arg.setTable(TBLIDX_EVENTS);
@@ -1693,6 +1706,17 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	arg.add(IDX_TRIGGERS_HOST_ID);
 	arg.add(IDX_TRIGGERS_HOSTNAME);
 	arg.add(IDX_TRIGGERS_BRIEF);
+
+	if (issueInfoVect) {
+		arg.setTable(TBLIDX_ISSUES);
+		arg.add(IDX_ISSUES_TRACKER_ID);
+		arg.add(IDX_ISSUES_IDENTIFIER);
+		arg.add(IDX_ISSUES_LOCATION);
+		arg.add(IDX_ISSUES_STATUS);
+		arg.add(IDX_ISSUES_ASSIGNEE);
+		arg.add(IDX_ISSUES_CREATED_AT);
+		arg.add(IDX_ISSUES_UPDATED_AT);
+	}
 
 	// Condition
 	arg.condition = StringUtils::sprintf(
@@ -1743,6 +1767,21 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 		itemGroupStream >> eventInfo.hostId;
 		itemGroupStream >> eventInfo.hostName;
 		itemGroupStream >> eventInfo.brief;
+
+		if (issueInfoVect) {
+			issueInfoVect->push_back(IssueInfo());
+			IssueInfo &issueInfo = issueInfoVect->back();
+			itemGroupStream >> issueInfo.trackerId;
+			itemGroupStream >> issueInfo.identifier;
+			itemGroupStream >> issueInfo.location;
+			itemGroupStream >> issueInfo.status;
+			itemGroupStream >> issueInfo.assignee;
+			itemGroupStream >> issueInfo.createdAt;
+			itemGroupStream >> issueInfo.updatedAt;
+			issueInfo.serverId  = eventInfo.serverId;
+			issueInfo.eventId   = eventInfo.id;
+			issueInfo.triggerId = eventInfo.triggerId;
+		}
 	}
 	return HatoholError(HTERR_OK);
 }

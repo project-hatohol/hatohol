@@ -765,7 +765,7 @@ size_t NumTestIssueTrackerInfo = sizeof(testIssueTrackerInfo) / sizeof(IssueTrac
 IssueInfo testIssueInfo[] = {
 {
 	3,                        // trackerId
-	3,                        // serverId
+	1,                        // serverId
 	1,                        // eventId
 	2,                        // triggerId
 	"13",                     // identifier
@@ -1215,4 +1215,21 @@ const HostgroupIdSet &getTestHostgroupIdSet(void)
 	for (size_t i = 0; i < NumTestHostgroupElement; i++)
 		testHostgroupIdSet.insert(testHostgroupElement[i].groupId);
 	return testHostgroupIdSet;
+}
+
+string makeEventIssueMapKey(const EventInfo &eventInfo)
+{
+	return StringUtils::sprintf("%" FMT_SERVER_ID ":%" FMT_EVENT_ID,
+				    eventInfo.serverId, eventInfo.id);
+}
+
+void makeEventIssueMap(map<string, IssueInfo*> &eventIssueMap)
+{
+	for (size_t i = 0; i < NumTestIssueInfo; i++) {
+		string key = StringUtils::sprintf(
+			       "%" FMT_SERVER_ID ":%" FMT_EVENT_ID,
+			       testIssueInfo[i].serverId,
+			       testIssueInfo[i].eventId);
+		eventIssueMap[key] = &testIssueInfo[i];
+	}
 }

@@ -147,6 +147,8 @@ void makeServerAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
 			     UserIdType userId);
 void makeServerHostGrpSetMap(ServerHostGrpSetMap &map,
                              const UserIdType &userId);
+std::string makeEventIssueMapKey(const EventInfo &eventInfo);
+void makeEventIssueMap(std::map<std::string, IssueInfo*> &eventIssueMap);
 bool isAuthorized(ServerHostGrpSetMap &authMap,
                   const UserIdType &userId,
                   const ServerIdType &serverId,

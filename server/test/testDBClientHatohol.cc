@@ -1218,6 +1218,75 @@ void test_getEventWithTriggerStatus(gconstpointer data)
 	assertGetEventsWithFilter(arg);
 }
 
+static void _assertGetEventsWithIssueInfo(AssertGetEventsArg &arg)
+{
+	test_addEventInfoList(arg.ddtParam);
+	loadTestDBIssues();
+	arg.fixup();
+
+	DBClientHatohol dbHatohol;
+	IssueInfoVect issueInfoVect;
+	assertHatoholError(
+	  arg.expectedErrorCode,
+	  dbHatohol.getEventInfoList(arg.actualRecordList, arg.option,
+				     &issueInfoVect));
+	if (arg.expectedErrorCode != HTERR_OK)
+		return;
+	arg.assert();
+
+	// check all IssueInfo
+	cppcut_assert_equal(arg.actualRecordList.size(), issueInfoVect.size());
+
+	map<string, IssueInfo*> eventIssueMap;
+	makeEventIssueMap(eventIssueMap);
+	EventInfoListIterator eventIt = arg.actualRecordList.begin();
+	IssueInfoVectIterator issueIt = issueInfoVect.begin();
+	string expected, actual;
+	for (; issueIt != issueInfoVect.end(); issueIt++, eventIt++) {
+		string key = makeEventIssueMapKey(*eventIt);
+		if (eventIssueMap.find(key) == eventIssueMap.end()) {
+			IssueInfo issue;
+			issue.trackerId = 0;
+			issue.serverId  = eventIt->serverId;
+			issue.eventId   = eventIt->id;
+			issue.triggerId = eventIt->triggerId;
+			issue.createdAt = 0;
+			issue.updatedAt = 0;
+			expected += makeIssueOutput(issue);
+		} else {
+			expected += makeIssueOutput(*eventIssueMap[key]);
+		}
+		actual += makeIssueOutput(*issueIt);
+	}
+	cppcut_assert_equal(expected, actual);
+}
+#define assertGetEventsWithIssueInfo(A) \
+cut_trace(_assertGetEventsWithIssueInfo(A))
+
+void data_getEventsWithIssueInfo(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getEventsWithIssueInfo(gconstpointer data)
+{
+	AssertGetEventsArg arg(data);
+	assertGetEventsWithIssueInfo(arg);
+}
+
+void data_getEventsWithIssueInfoByAuthorizedUser(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getEventsWithIssueInfoByAuthorizedUser(gconstpointer data)
+{
+	setupTestDBUser(true, true);
+	AssertGetEventsArg arg(data);
+	arg.userId = 5;
+	assertGetEventsWithIssueInfo(arg);
+}
+
 void test_addHostgroupInfo(void)
 {
 	DBClientHatohol dbClientHatohol;
