@@ -1314,7 +1314,7 @@ void test_getIssueInfo(void)
 
 	dbClientHatohol.getIssueInfoVect(issues, option);
 	IssueInfoVectIterator it = issues.begin();
-	for (; it != issues.end(); it++) {
+	for (; it != issues.end(); ++it) {
 		IssueInfo &actualIssueInfo = *it;
 		actual += makeIssueOutput(actualIssueInfo);
 	}
