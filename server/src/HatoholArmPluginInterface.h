@@ -29,6 +29,7 @@
 #include "HatoholException.h"
 #include "ItemDataPtr.h"
 #include "ItemGroupPtr.h"
+#include "ItemTablePtr.h"
 #include "Utils.h"
 
 enum HatoholArmPluginErrorCode {
@@ -85,6 +86,7 @@ struct HapiCommandHeader {
 struct HapiItemTableHeader {
 	uint16_t flags;
 	uint32_t numGroups;
+	uint32_t length;
 	// HapiItemGroupHeader
 	// HapiItemDataHeader ...
 	// HapiItemGroupHeader
@@ -258,6 +260,18 @@ public:
 	                                  const size_t &numGroups);
 
 	/**
+	 * Complete an ItemTable on the buffer.
+	 *
+	 * @param sbuf
+	 * A SmartBuffer instance for appending HapiItemTableHeader data.
+	 *
+	 * @param headerIndex
+	 * A top index of the HapiItemTableHeader that is to be completed.
+	 */
+	static void completeItemTable(mlpl::SmartBuffer &sbuf,
+	                              const size_t &headerIndex);
+
+	/**
 	 * Append HapiItemGroupHeader to the SmartBuffer.
 	 *
 	 * Note that: completeItemGroup() shall be called after all ItemData
@@ -297,6 +311,21 @@ public:
 	 */
 	static void appendItemData(mlpl::SmartBuffer &sbuf,
 	                           ItemDataPtr itemData);
+
+	/**
+	 * Create an ItemTable instance and append the subsequent
+	 * ItemGroup and ItemData instances from the buffer data.
+	 *
+	 * @param sbuf
+	 * A SmartBuffer instance. The index shall be at the top of
+	 * the HapiItemTableHeader region followed by HapiItemDataHeaders
+	 * and HapiItemGroupHeaders of the targert.
+	 * After this method is called, the index of 'sbuf' is forwarded.
+	 *
+	 * @return A created ItemGroup.
+	 */
+	static ItemTablePtr createItemTable(mlpl::SmartBuffer &sbuf)
+	  throw(HatoholException);
 
 	/**
 	 * Create an ItemGroup instance push ItemData instances from

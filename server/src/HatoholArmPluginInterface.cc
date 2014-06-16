@@ -295,6 +295,18 @@ void HatoholArmPluginInterface::appendItemTableHeader(
 	sbuf.incIndex(sizeof(HapiItemTableHeader));
 }
 
+void HatoholArmPluginInterface::completeItemTable(
+  mlpl::SmartBuffer &sbuf, const size_t &headerIndex)
+{
+	HapiItemTableHeader *header =
+	  sbuf.getPointer<HapiItemTableHeader>(headerIndex);
+	const size_t currIndex = sbuf.index();
+	HATOHOL_ASSERT(currIndex >= headerIndex,
+	               "currIndex: %zd, headerIndex: %zd",
+	               currIndex, headerIndex);
+	header->length = NtoL(currIndex - headerIndex);
+}
+
 size_t HatoholArmPluginInterface::appendItemGroupHeader(
   SmartBuffer &sbuf, const size_t &numItems)
 {
@@ -387,6 +399,35 @@ void HatoholArmPluginInterface::appendItemData(
 		HATOHOL_ASSERT(false, "Unknown item type: %d", type);
 	}
 	sbuf.incIndex(requiredSize);
+}
+
+ItemTablePtr HatoholArmPluginInterface::createItemTable(mlpl::SmartBuffer &sbuf)
+  throw(HatoholException)
+{
+	// read header
+	HATOHOL_ASSERT(sbuf.remainingSize() >= sizeof(HapiItemTableHeader),
+	 "Remain size (header) is too small: %zd\n", sbuf.remainingSize());
+	const size_t index0 = sbuf.index();
+	const HapiItemTableHeader *header =
+	  sbuf.getPointerAndIncIndex<HapiItemTableHeader>();
+
+	// Comment out to suppress a warning:
+	//   unused variable 'flags' [-Wunused-variable]
+	// const uint16_t flags    = LtoN(header->flags);
+
+	const uint32_t numItems = LtoN(header->numGroups);
+	const uint32_t length   = LtoN(header->length);
+
+	VariableItemTablePtr itemTblPtr(new ItemTable(), false);
+	// append ItemGroups
+	for (size_t idx = 0; idx < numItems; idx++)
+		itemTblPtr->add(createItemGroup(sbuf));
+
+	const size_t actualLength = sbuf.index() - index0;
+	HATOHOL_ASSERT(actualLength == length,
+	               "Actual length is different from that in the header: "
+	               " %zd (expect: %" PRIu32 ")", actualLength, length);
+	return (ItemTablePtr)itemTblPtr;
 }
 
 ItemGroupPtr HatoholArmPluginInterface::createItemGroup(mlpl::SmartBuffer &sbuf)
