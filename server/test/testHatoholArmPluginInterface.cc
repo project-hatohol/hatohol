@@ -456,21 +456,16 @@ void test_createItemDataOfNull(void)
 void test_appendItemGroup(void)
 {
 	// create test samples
-	const size_t NUM_ITEMS = 3;
 	SmartBuffer sbuf;
-	VariableItemGroupPtr itemGrpPtr(new ItemGroup());
-	for (size_t i = 0; i < NUM_ITEMS; i++) {
-		const int value = i * 5;
-		ItemData *itemData = new ItemInt(value);
-		itemGrpPtr->add(itemData, false);
-	}
-	HatoholArmPluginInterface::appendItemGroup(sbuf,
-	                                           (ItemGroupPtr)itemGrpPtr);
+	ItemGroupPtr itemGrpPtr = createTestItemGroup();
+	HatoholArmPluginInterface::appendItemGroup(sbuf, itemGrpPtr);
+	const size_t numItems = itemGrpPtr->getNumberOfItems();
+
 	// check the entirely written size
 	const size_t HAPI_ITEM_INT_SIZE =
 	  sizeof(HapiItemDataHeader) + HAPI_ITEM_INT_BODY_SIZE;
 	const size_t expectedSize =
-	  sizeof(HapiItemGroupHeader) + NUM_ITEMS * HAPI_ITEM_INT_SIZE;
+	  sizeof(HapiItemGroupHeader) + numItems * HAPI_ITEM_INT_SIZE;
 	cppcut_assert_equal(expectedSize, sbuf.index());
 
 	// check the header content
@@ -479,7 +474,7 @@ void test_appendItemGroup(void)
 	const uint16_t expectedFlags = 0;
 	cppcut_assert_equal(expectedFlags,
 	                    EndianConverter::LtoN(grpHeader->flags));
-	cppcut_assert_equal(NUM_ITEMS,
+	cppcut_assert_equal(numItems,
 	                    (size_t)EndianConverter::LtoN(grpHeader->numItems));
 	cppcut_assert_equal(expectedSize,
 	                    (size_t)EndianConverter::LtoN(grpHeader->length));
