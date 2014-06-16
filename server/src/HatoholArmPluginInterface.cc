@@ -480,6 +480,7 @@ ItemGroupPtr HatoholArmPluginInterface::createItemGroup(mlpl::SmartBuffer &sbuf)
 	HATOHOL_ASSERT(actualLength == length,
 	               "Actual length is different from that in the header: "
 	               " %zd (expect: %" PRIu32 ")", actualLength, length);
+	itemGrpPtr->freeze();
 	return (ItemGroupPtr)itemGrpPtr;
 }
 
