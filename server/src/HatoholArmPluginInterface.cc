@@ -318,18 +318,12 @@ void HatoholArmPluginInterface::completeItemTable(
 void HatoholArmPluginInterface::appendItemTable(
   mlpl::SmartBuffer &sbuf, ItemTablePtr itemTablePtr)
 {
-	struct {
-		static bool appendGroup(const ItemGroup *itemGrp,
-		                        SmartBuffer &sbuf)
-		{
-			appendItemGroup(sbuf, itemGrp);
-			return true;
-		}
-	} func;
-
 	const size_t numGroups = itemTablePtr->getNumberOfRows();
 	const size_t headerIndex = appendItemTableHeader(sbuf, numGroups);
-	itemTablePtr->foreach<SmartBuffer &>(func.appendGroup, sbuf);
+	const ItemGroupList &itemGrpList = itemTablePtr->getItemGroupList();
+	ItemGroupListConstIterator grpIt = itemGrpList.begin();
+	for (; grpIt != itemGrpList.end(); ++grpIt)
+		appendItemGroup(sbuf, *grpIt);
 	completeItemTable(sbuf, headerIndex);
 }
 
