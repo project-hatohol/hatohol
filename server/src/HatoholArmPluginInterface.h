@@ -28,6 +28,7 @@
 #include "HatoholThreadBase.h"
 #include "HatoholException.h"
 #include "ItemDataPtr.h"
+#include "ItemGroupPtr.h"
 #include "Utils.h"
 
 enum HatoholArmPluginErrorCode {
@@ -285,6 +286,21 @@ public:
 	 */
 	static void appendItemData(mlpl::SmartBuffer &sbuf,
 	                           ItemDataPtr itemData);
+
+	/**
+	 * Create an ItemGroup instance push ItemData instances from
+	 * the buffer data.
+	 *
+	 * @param sbuf
+	 * A SmartBuffer instance. The index shall be at the top of
+	 * the HapiItemGroupHeader region followed by HapiItemDataHeaders
+	 * of the targert.
+	 * After this method is called, the index of 'sbuf' is forwarded.
+	 *
+	 * @return A created ItemGroup.
+	 */
+	static ItemGroupPtr createItemGroup(mlpl::SmartBuffer &sbuf)
+	  throw(HatoholException);
 
 	/**
 	 * Create the ItemData instance from the buffer data.

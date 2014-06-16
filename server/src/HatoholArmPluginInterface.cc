@@ -377,6 +377,35 @@ void HatoholArmPluginInterface::appendItemData(
 	sbuf.incIndex(requiredSize);
 }
 
+ItemGroupPtr HatoholArmPluginInterface::createItemGroup(mlpl::SmartBuffer &sbuf)
+  throw(HatoholException)
+{
+	// read header
+	HATOHOL_ASSERT(sbuf.remainingSize() >= sizeof(HapiItemGroupHeader),
+	 "Remain size (header) is too small: %zd\n", sbuf.remainingSize());
+	const size_t index0 = sbuf.index();
+	const HapiItemGroupHeader *header =
+	  sbuf.getPointerAndIncIndex<HapiItemGroupHeader>();
+
+	// Comment out to suppress a warning:
+	//   unused variable 'flags' [-Wunused-variable]
+	// const uint16_t flags    = LtoN(header->flags);
+
+	const uint32_t numItems = LtoN(header->numItems);
+	const uint32_t length   = LtoN(header->length);
+
+	VariableItemGroupPtr itemGrpPtr(new ItemGroup(), false);
+	// append ItemData
+	for (size_t idx = 0; idx < numItems; idx++)
+		itemGrpPtr->add(createItemData(sbuf));
+
+	const size_t actualLength = sbuf.index() - index0;
+	HATOHOL_ASSERT(actualLength == length,
+	               "Actual length is different from that in the header: "
+	               " %zd (expect: %" PRIu32 ")", actualLength, length);
+	return (ItemGroupPtr)itemGrpPtr;
+}
+
 ItemDataPtr HatoholArmPluginInterface::createItemData(SmartBuffer &sbuf)
   throw(HatoholException)
 {
