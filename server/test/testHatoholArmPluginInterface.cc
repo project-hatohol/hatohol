@@ -32,6 +32,7 @@ using namespace qpid::messaging;
 namespace testHatoholArmPluginInterface {
 
 static const size_t TIMEOUT = 5000;
+static const size_t HAPI_ITEM_INT_BODY_SIZE = 8;
 
 void _assertHapiItemDataHeader(
   const HapiItemDataHeader *header,
@@ -437,6 +438,45 @@ void test_createItemString(gconstpointer data)
 void test_createItemDataOfNull(void)
 {
 	assertCreateItemData(bool, ItemBool, true, ITEM_DATA_NULL);
+}
+
+void test_appendItemGroup(void)
+{
+	// create test samples
+	const size_t NUM_ITEMS = 3;
+	SmartBuffer sbuf;
+	VariableItemGroupPtr itemGrpPtr(new ItemGroup());
+	for (size_t i = 0; i < NUM_ITEMS; i++) {
+		const int value = i * 5;
+		ItemData *itemData = new ItemInt(value);
+		itemGrpPtr->add(itemData, false);
+	}
+	HatoholArmPluginInterface::appendItemGroup(sbuf,
+	                                           (ItemGroupPtr)itemGrpPtr);
+	// check the entirely written size
+	const size_t HAPI_ITEM_INT_SIZE =
+	  sizeof(HapiItemDataHeader) + HAPI_ITEM_INT_BODY_SIZE;
+	const size_t expectedSize =
+	  sizeof(HapiItemGroupHeader) + NUM_ITEMS * HAPI_ITEM_INT_SIZE;
+	cppcut_assert_equal(expectedSize, sbuf.index());
+
+	// check the header content
+	const HapiItemGroupHeader *grpHeader =
+	  sbuf.getPointer<HapiItemGroupHeader>(0);
+	const uint16_t expectedFlags = 0;
+	cppcut_assert_equal(expectedFlags,
+	                    EndianConverter::LtoN(grpHeader->flags));
+	cppcut_assert_equal(NUM_ITEMS,
+	                    (size_t)EndianConverter::LtoN(grpHeader->numItems));
+	cppcut_assert_equal(expectedSize,
+	                    (size_t)EndianConverter::LtoN(grpHeader->length));
+
+	// check each item data
+	for (size_t i = 0; i < itemGrpPtr->getNumberOfItems(); i++) {
+		assertAppendItemData(int, ItemInt, uint64_t,
+		                     *itemGrpPtr->getItemAt(i),
+		                     HAPI_ITEM_INT_BODY_SIZE, ITEM_TYPE_INT);
+	}
 }
 
 } // namespace testHatoholArmPluginInterface

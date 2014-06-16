@@ -326,6 +326,16 @@ size_t HatoholArmPluginInterface::appendItemGroupHeader(
 	return index;
 }
 
+void HatoholArmPluginInterface::appendItemGroup(
+  SmartBuffer &sbuf, ItemGroupPtr itemGrpPtr)
+{
+	const size_t numItems = itemGrpPtr->getNumberOfItems();
+	const size_t headerIndex = appendItemGroupHeader(sbuf, numItems);
+	for (size_t idx = 0; idx < numItems; idx++)
+		appendItemData(sbuf, itemGrpPtr->getItemAt(idx));
+	completeItemGroup(sbuf, headerIndex);
+}
+
 void HatoholArmPluginInterface::completeItemGroup(
   mlpl::SmartBuffer &sbuf, const size_t &headerIndex)
 {

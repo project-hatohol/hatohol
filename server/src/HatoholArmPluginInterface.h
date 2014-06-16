@@ -98,8 +98,7 @@ struct HapiItemGroupHeader {
 	uint16_t flags;
 	uint32_t numItems;
 
-	// Total bytes of items. The next address of this region plus
-	// 'length' should be the next HapiItemGroup.
+	// Total bytes of this header and all of the ItemData.
 	uint32_t length;
 } __attribute__((__packed__));
 
@@ -287,6 +286,17 @@ public:
 	 */
 	static size_t appendItemGroupHeader(mlpl::SmartBuffer &sbuf,
 	                                    const size_t &numItems);
+	/**
+	 * Append HapiItem to the SmartBuffer.
+	 *
+	 * @param sbuf
+	 * A SmartBuffer instance for appending HapiItemGroupHeader data.
+	 * The buffer size is automatically extended if necessary.
+	 *
+	 * @param itemGrpPtr An ItemGroup to be appended.
+	 */
+	static void appendItemGroup(mlpl::SmartBuffer &sbuf,
+	                            ItemGroupPtr itemGrpPtr);
 	/**
 	 * Complete an ItemGroup on the buffer.
 	 *
