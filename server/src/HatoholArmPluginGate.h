@@ -91,6 +91,7 @@ protected:
 	  const HapiCommandHeader *header);
 	void cmdHandlerGetTimestampOfLastTrigger(
 	  const HapiCommandHeader *header);
+	void cmdHandlerSendUpdatedTriggers(const HapiCommandHeader *header);
 
 private:
 	struct PrivateContext;

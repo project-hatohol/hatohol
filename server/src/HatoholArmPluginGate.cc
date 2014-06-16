@@ -83,6 +83,11 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 	  HAPI_CMD_GET_TIMESTAMP_OF_LAST_TRIGGER,
 	  (CommandHandler)
 	    &HatoholArmPluginGate::cmdHandlerGetTimestampOfLastTrigger);
+
+	registerCommandHandler(
+	  HAPI_CMD_GET_TIMESTAMP_OF_LAST_TRIGGER,
+	  (CommandHandler)
+	    &HatoholArmPluginGate::cmdHandlerSendUpdatedTriggers);
 }
 
 void HatoholArmPluginGate::start(void)
@@ -249,4 +254,10 @@ void HatoholArmPluginGate::cmdHandlerGetTimestampOfLastTrigger(
 	body->timestamp = NtoL(lastTimespec.tv_sec);
 	body->nanosec   = NtoL(lastTimespec.tv_nsec);
 	reply(resBuf);
+}
+
+void HatoholArmPluginGate::cmdHandlerSendUpdatedTriggers(
+  const HapiCommandHeader *header)
+{
+	MLPL_BUG("Not implemented yet: %s\n", __PRETTY_FUNCTION__);
 }
