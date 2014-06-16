@@ -165,6 +165,7 @@ void setupTestDBConfig(bool dbRecreate = true, bool loadTestDat = false);
 void setupTestDBAction(bool dbRecreate = true, bool loadTestDat = false);
 void setupTestDBUser(bool dbRecreate = true, bool loadTestDat = false);
 void loadTestDBTriggers(void);
+void loadTestDBIssues(void);
 void loadTestDBServer(void);
 void loadTestDBAction(void);
 void loadTestDBUser(void);

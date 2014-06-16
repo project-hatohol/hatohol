@@ -1306,10 +1306,10 @@ void test_getIssueInfo(void)
 	IssuesQueryOption option(USER_ID_SYSTEM);
 	string expected, actual;
 
+	loadTestDBIssues();
 	for (size_t i = 0; i < NumTestIssueInfo; i++) {
 		IssueInfo expectedIssueInfo = testIssueInfo[i];
 		expected += makeIssueOutput(expectedIssueInfo);
-		dbClientHatohol.addIssueInfo(&expectedIssueInfo);
 	}
 
 	dbClientHatohol.getIssueInfoVect(issues, option);

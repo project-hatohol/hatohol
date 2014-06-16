@@ -731,6 +731,13 @@ void loadTestDBIssueTracker(void)
 		dbConfig.addIssueTracker(&testIssueTrackerInfo[i], privilege);
 }
 
+void loadTestDBIssues(void)
+{
+	DBClientHatohol dbHatohol;
+	for (size_t i = 0; i < NumTestIssueInfo; i++)
+		dbHatohol.addIssueInfo(&testIssueInfo[i]);
+}
+
 void setupTestDBConfig(bool dbRecreate, bool loadTestData)
 {
 	static const char *TEST_DB_NAME = "test_config";
