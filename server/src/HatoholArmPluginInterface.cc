@@ -295,7 +295,7 @@ void HatoholArmPluginInterface::appendItemTableHeader(
 	sbuf.incIndex(sizeof(HapiItemTableHeader));
 }
 
-void HatoholArmPluginInterface::appendItemGroupHeader(
+size_t HatoholArmPluginInterface::appendItemGroupHeader(
   SmartBuffer &sbuf, const size_t &numItems)
 {
 	sbuf.ensureRemainingSize(sizeof(HapiItemGroupHeader));
@@ -303,7 +303,9 @@ void HatoholArmPluginInterface::appendItemGroupHeader(
 	header->flags = 0;
 	header->numItems = numItems;
 	header->length = 0;
+	size_t index = sbuf.index();
 	sbuf.incIndex(sizeof(HapiItemGroupHeader));
+	return index;
 }
 
 static const size_t ITEM_DATA_BODY_SIZE[NUM_ITEM_TYPE] = {
