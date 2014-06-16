@@ -3,7 +3,7 @@ describe('Utils', function() {
 describe('getServerLocation', function() {
   it('with valid zabbix server', function() {
     var server = {
-      "type": 0,
+      "type": hatohol.MONITORING_SYSTEM_ZABBIX,
       "ipAddress": "127.0.0.1",
       "name": "localhost",
       "port": 80
@@ -14,7 +14,7 @@ describe('getServerLocation', function() {
 
   it('zabbix server with port', function() {
     var server = {
-      "type": 0,
+      "type": hatohol.MONITORING_SYSTEM_ZABBIX,
       "ipAddress": "127.0.0.1",
       "name": "localhost",
       "port": 8080
@@ -25,7 +25,7 @@ describe('getServerLocation', function() {
 
   it('ipv6 zabbix server', function() {
     var server = {
-      "type": 0,
+      "type": hatohol.MONITORING_SYSTEM_ZABBIX,
       "ipAddress": "::1",
       "name": "localhost",
       "port": 8080
@@ -36,7 +36,7 @@ describe('getServerLocation', function() {
 
   it('with valid nagios server', function() {
     var server = {
-      "type": 1,
+      "type": hatohol.MONITORING_SYSTEM_NAGIOS,
       "ipAddress": "127.0.0.1",
       "name": "localhost"
     };
@@ -46,7 +46,7 @@ describe('getServerLocation', function() {
 
   it('nagios server with port', function() {
     var server = {
-      "type": 1,
+      "type": hatohol.MONITORING_SYSTEM_NAGIOS,
       "ipAddress": "127.0.0.1",
       "name": "localhost",
       "port": 8080
@@ -57,7 +57,7 @@ describe('getServerLocation', function() {
 
   it('ipv6 nagios server', function() {
     var server = {
-      "type": 1,
+      "type": hatohol.MONITORING_SYSTEM_NAGIOS,
       "ipAddress": "::1",
       "name": "localhost"
     };
@@ -102,7 +102,7 @@ describe('getItemGraphLocation', function() {
 describe('getMapsLocation', function() {
   it('with valid zabbix server', function() {
     var server = {
-      "type": 0,
+      "type": hatohol.MONITORING_SYSTEM_ZABBIX,
       "ipAddress": "192.168.23.119",
       "name": "localhost"
     };
@@ -112,7 +112,7 @@ describe('getMapsLocation', function() {
 
   it('with valid nagios server', function() {
     var server = {
-      "type": 1,
+      "type": hatohol.MONITORING_SYSTEM_NAGIOS,
       "ipAddress": "192.168.22.118",
       "name": "localhost"
     };
