@@ -79,6 +79,7 @@ residentTest_la_LDFLAGS = $(AM_LDFLAGS) $(LIBS)
 residentTest_la_LIBADD  = libTest.la
 
 libTest_la_SOURCES = \
+	DataSamples.cc DataSamples.h \
 	FormulaTestUtils.cc Helpers.cc DBAgentTest.cc DBClientTest.cc \
 	ZabbixAPITestUtils.cc ZabbixAPITestUtils.h \
 	ZabbixAPIEmulator.cc Synchronizer.cc \

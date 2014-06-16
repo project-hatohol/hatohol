@@ -285,6 +285,77 @@ char *HatoholArmPluginInterface::putString(
 	return nextAddr;
 }
 
+size_t HatoholArmPluginInterface::appendItemTableHeader(
+  SmartBuffer &sbuf, const size_t &numGroups)
+{
+	sbuf.ensureRemainingSize(sizeof(HapiItemTableHeader));
+	HapiItemTableHeader *header = sbuf.getPointer<HapiItemTableHeader>();
+	header->flags = 0;
+	header->numGroups = numGroups;
+	size_t index = sbuf.index();
+	sbuf.incIndex(sizeof(HapiItemTableHeader));
+	return index;
+}
+
+template <typename HapiItemHeader>
+static void completeItemTemplate(
+  mlpl::SmartBuffer &sbuf, const size_t &headerIndex)
+{
+	HapiItemHeader *header = sbuf.getPointer<HapiItemHeader>(headerIndex);
+	const size_t currIndex = sbuf.index();
+	HATOHOL_ASSERT(currIndex >= headerIndex,
+	               "currIndex: %zd, headerIndex: %zd",
+	               currIndex, headerIndex);
+	header->length = EndianConverter::NtoL(currIndex - headerIndex);
+}
+
+void HatoholArmPluginInterface::completeItemTable(
+  mlpl::SmartBuffer &sbuf, const size_t &headerIndex)
+{
+	completeItemTemplate<HapiItemTableHeader>(sbuf, headerIndex);
+}
+
+void HatoholArmPluginInterface::appendItemTable(
+  mlpl::SmartBuffer &sbuf, ItemTablePtr itemTablePtr)
+{
+	const size_t numGroups = itemTablePtr->getNumberOfRows();
+	const size_t headerIndex = appendItemTableHeader(sbuf, numGroups);
+	const ItemGroupList &itemGrpList = itemTablePtr->getItemGroupList();
+	ItemGroupListConstIterator grpIt = itemGrpList.begin();
+	for (; grpIt != itemGrpList.end(); ++grpIt)
+		appendItemGroup(sbuf, *grpIt);
+	completeItemTable(sbuf, headerIndex);
+}
+
+size_t HatoholArmPluginInterface::appendItemGroupHeader(
+  SmartBuffer &sbuf, const size_t &numItems)
+{
+	sbuf.ensureRemainingSize(sizeof(HapiItemGroupHeader));
+	HapiItemGroupHeader *header = sbuf.getPointer<HapiItemGroupHeader>();
+	header->flags = 0;
+	header->numItems = numItems;
+	header->length = 0;
+	size_t index = sbuf.index();
+	sbuf.incIndex(sizeof(HapiItemGroupHeader));
+	return index;
+}
+
+void HatoholArmPluginInterface::appendItemGroup(
+  SmartBuffer &sbuf, ItemGroupPtr itemGrpPtr)
+{
+	const size_t numItems = itemGrpPtr->getNumberOfItems();
+	const size_t headerIndex = appendItemGroupHeader(sbuf, numItems);
+	for (size_t idx = 0; idx < numItems; idx++)
+		appendItemData(sbuf, itemGrpPtr->getItemAt(idx));
+	completeItemGroup(sbuf, headerIndex);
+}
+
+void HatoholArmPluginInterface::completeItemGroup(
+  mlpl::SmartBuffer &sbuf, const size_t &headerIndex)
+{
+	completeItemTemplate<HapiItemGroupHeader>(sbuf, headerIndex);
+}
+
 static const size_t ITEM_DATA_BODY_SIZE[NUM_ITEM_TYPE] = {
 	1, // BOOL
 	8, // INT
@@ -319,7 +390,8 @@ void HatoholArmPluginInterface::appendItemData(
 
 	// Header
 	HapiItemDataHeader *header = sbuf.getPointer<HapiItemDataHeader>();
-	header->flags = NtoL(itemData->isNull() ? 0x01 : 0x00);
+	header->flags = NtoL(itemData->isNull() ?
+	                       HAPI_ITEM_DATA_HEADER_FLAG_NULL : 0x00);
 	header->type  = NtoL(type);
 	header->itemId = NtoL(itemData->getId());
 
@@ -329,15 +401,19 @@ void HatoholArmPluginInterface::appendItemData(
 		const bool &val = *itemData;
 		uint8_t *ptr8 = static_cast<uint8_t *>(ptr);
 		*ptr8 = NtoL(val);
-	} else if (type == ITEM_TYPE_INT || type == ITEM_TYPE_UINT64) {
+	} else if (type == ITEM_TYPE_INT) {
 		const int &val = *itemData;
+		uint64_t *ptr64 = static_cast<uint64_t *>(ptr);
+		*ptr64 = NtoL(val);
+	} else if (type == ITEM_TYPE_UINT64) {
+		const uint64_t &val = *itemData;
 		uint64_t *ptr64 = static_cast<uint64_t *>(ptr);
 		*ptr64 = NtoL(val);
 	} else if (type == ITEM_TYPE_DOUBLE) {
 		// IEEE754 (64bit)
 		const double &val = *itemData;
-		uint64_t *ptr64 = static_cast<uint64_t *>(ptr);
-		*ptr64 = NtoL(val);
+		double *ptrDouble = static_cast<double *>(ptr);
+		*ptrDouble = NtoL(val);
 	} else if (type == ITEM_TYPE_STRING) {
 		uint32_t *length = static_cast<uint32_t *>(ptr);
 		*length = NtoL(stringLength);
@@ -347,6 +423,126 @@ void HatoholArmPluginInterface::appendItemData(
 		HATOHOL_ASSERT(false, "Unknown item type: %d", type);
 	}
 	sbuf.incIndex(requiredSize);
+}
+
+ItemTablePtr HatoholArmPluginInterface::createItemTable(mlpl::SmartBuffer &sbuf)
+  throw(HatoholException)
+{
+	// read header
+	HATOHOL_ASSERT(sbuf.remainingSize() >= sizeof(HapiItemTableHeader),
+	 "Remain size (header) is too small: %zd\n", sbuf.remainingSize());
+	const size_t index0 = sbuf.index();
+	const HapiItemTableHeader *header =
+	  sbuf.getPointerAndIncIndex<HapiItemTableHeader>();
+
+	// Comment out to suppress a warning:
+	//   unused variable 'flags' [-Wunused-variable]
+	// const uint16_t flags    = LtoN(header->flags);
+
+	const uint32_t numGroups = LtoN(header->numGroups);
+	const uint32_t length    = LtoN(header->length);
+
+	VariableItemTablePtr itemTblPtr(new ItemTable(), false);
+	// append ItemGroups
+	for (size_t idx = 0; idx < numGroups; idx++)
+		itemTblPtr->add(createItemGroup(sbuf));
+
+	const size_t actualLength = sbuf.index() - index0;
+	HATOHOL_ASSERT(actualLength == length,
+	               "Actual length is different from that in the header: "
+	               " %zd (expect: %" PRIu32 ")", actualLength, length);
+	return (ItemTablePtr)itemTblPtr;
+}
+
+ItemGroupPtr HatoholArmPluginInterface::createItemGroup(mlpl::SmartBuffer &sbuf)
+  throw(HatoholException)
+{
+	// read header
+	HATOHOL_ASSERT(sbuf.remainingSize() >= sizeof(HapiItemGroupHeader),
+	 "Remain size (header) is too small: %zd\n", sbuf.remainingSize());
+	const size_t index0 = sbuf.index();
+	const HapiItemGroupHeader *header =
+	  sbuf.getPointerAndIncIndex<HapiItemGroupHeader>();
+
+	// Comment out to suppress a warning:
+	//   unused variable 'flags' [-Wunused-variable]
+	// const uint16_t flags    = LtoN(header->flags);
+
+	const uint32_t numItems = LtoN(header->numItems);
+	const uint32_t length   = LtoN(header->length);
+
+	VariableItemGroupPtr itemGrpPtr(new ItemGroup(), false);
+	// append ItemData
+	for (size_t idx = 0; idx < numItems; idx++)
+		itemGrpPtr->add(createItemData(sbuf));
+
+	const size_t actualLength = sbuf.index() - index0;
+	HATOHOL_ASSERT(actualLength == length,
+	               "Actual length is different from that in the header: "
+	               " %zd (expect: %" PRIu32 ")", actualLength, length);
+	itemGrpPtr->freeze();
+	return (ItemGroupPtr)itemGrpPtr;
+}
+
+ItemDataPtr HatoholArmPluginInterface::createItemData(SmartBuffer &sbuf)
+  throw(HatoholException)
+{
+	// read header
+	HATOHOL_ASSERT(sbuf.remainingSize() >= sizeof(HapiItemDataHeader),
+	 "Remain size (header) is too small: %zd\n", sbuf.remainingSize());
+	const HapiItemDataHeader *header =
+	  sbuf.getPointerAndIncIndex<HapiItemDataHeader>();
+	const uint8_t flags     = LtoN(header->flags);
+	const ItemDataType type = static_cast<ItemDataType>(LtoN(header->type));
+	const uint64_t itemId   = LtoN(header->itemId);
+
+	// check the type
+	HATOHOL_ASSERT(type < NUM_ITEM_TYPE, "Invalid type: %d\n", type);
+
+	// check the body size
+	const size_t requiredBodySize = ITEM_DATA_BODY_SIZE[NUM_ITEM_TYPE];
+	HATOHOL_ASSERT(
+	  sbuf.remainingSize() >= requiredBodySize,
+	  "Remain size (body) is too small: %zd (expect: %zd), type: %d\n",
+	  sbuf.remainingSize(), requiredBodySize, type);
+
+	// Body
+	ItemData *itemData = NULL;
+	if (type == ITEM_TYPE_BOOL) {
+		const bool val = LtoN(*sbuf.getPointerAndIncIndex<uint8_t>());
+		itemData = new ItemBool(itemId, val);
+	} else if (type == ITEM_TYPE_INT) {
+		const int val = LtoN(*sbuf.getPointerAndIncIndex<uint64_t>());
+		itemData = new ItemInt(itemId, val);
+	} else if (type == ITEM_TYPE_UINT64) {
+		const uint64_t val =
+		  LtoN(*sbuf.getPointerAndIncIndex<uint64_t>());
+		itemData = new ItemUint64(itemId, val);
+	} else if (type == ITEM_TYPE_DOUBLE) {
+		const double val = LtoN(*sbuf.getPointerAndIncIndex<double>());
+		itemData = new ItemDouble(itemId, val);
+	} else if (type == ITEM_TYPE_STRING) {
+		// get the string length and check it
+		const uint32_t length =
+		  LtoN(*sbuf.getPointerAndIncIndex<uint32_t>());
+		HATOHOL_ASSERT(
+		  sbuf.remainingSize() >= length + 1,
+		  "Remain size (body) is too small: %zd "
+		  "(expect: %" PRIu32 ")\n",
+		  sbuf.remainingSize(), length + 1);
+
+		// get the string content
+		string val(sbuf.getPointer<char>(), length);
+		itemData = new ItemString(itemId, val);
+		sbuf.incIndex(length + 1);
+	} else {
+		HATOHOL_ASSERT(false, "Unknown item type: %d", type);
+	}
+	
+	if (flags & HAPI_ITEM_DATA_HEADER_FLAG_NULL)
+		itemData->setNull();
+
+	return ItemDataPtr(itemData, false);
 }
 
 // ---------------------------------------------------------------------------

@@ -17,8 +17,10 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <gcutter.h>
 #include <cppcutter.h>
 #include <SimpleSemaphore.h>
+#include "DataSamples.h"
 #include "Helpers.h"
 #include "HatoholArmPluginInterface.h"
 #include "HatoholArmPluginInterfaceTest.h"
@@ -30,6 +32,9 @@ using namespace qpid::messaging;
 namespace testHatoholArmPluginInterface {
 
 static const size_t TIMEOUT = 5000;
+static const size_t HAPI_ITEM_INT_BODY_SIZE = 8;
+static const size_t HAPI_ITEM_INT_SIZE =
+  sizeof(HapiItemDataHeader) + HAPI_ITEM_INT_BODY_SIZE;
 
 void _assertHapiItemDataHeader(
   const HapiItemDataHeader *header,
@@ -44,15 +49,110 @@ void _assertHapiItemDataHeader(
 #define assertHapiItemDataHeader(H,T,I,...) \
   cut_trace(_assertHapiItemDataHeader(H,T,I,##__VA_ARGS__))
 
-template<typename ValueType, typename BodyType>
-void _assertHapiItemDataBody(const void *body, const ValueType &expect)
+template<typename NativeType, typename BodyType>
+void _assertHapiItemDataBody(const void *body, const NativeType &expect)
 {
 	const BodyType *valuePtr = static_cast<const BodyType *>(body);
 	cppcut_assert_equal(expect,
-	                    (ValueType)EndianConverter::LtoN(*valuePtr));
+	                    (NativeType)EndianConverter::LtoN(*valuePtr));
 }
-#define assertHapiItemDataBody(VT,BT,BP,E) \
-  cut_trace((_assertHapiItemDataBody<VT,BT>)(BP,E))
+#define assertHapiItemDataBody(NT,BT,BP,E) \
+  cut_trace((_assertHapiItemDataBody<NT,BT>)(BP,E))
+
+template <typename NativeType, typename ItemDataClass, typename BodyType>
+void _assertAppendedItemData(
+  const NativeType &value, const size_t &expectBodySize,
+  const ItemDataType &itemDataType,
+  void (*bodyAssertFunc)(const void *body, void *userData) = NULL,
+  void *assertFuncUserData = NULL)
+{
+	SmartBuffer sbuf;
+	const ItemId itemId = 12345678;
+	ItemDataPtr itemData(new ItemDataClass(itemId, value), false);
+
+	const size_t expectSize = sizeof(HapiItemDataHeader) + expectBodySize;
+
+	HatoholArmPluginInterface::appendItemData(sbuf, itemData);
+	cppcut_assert_equal(expectSize, sbuf.index());
+	const HapiItemDataHeader *header =
+	  sbuf.getPointer<HapiItemDataHeader>(0);
+	assertHapiItemDataHeader(header, itemDataType, itemId);
+	if (bodyAssertFunc) {
+		(*bodyAssertFunc)(header + 1, assertFuncUserData);
+		return;
+	}
+	assertHapiItemDataBody(NativeType, BodyType, header + 1, value);
+}
+#define assertAppendedItemData(NT,IDC,BT,VAL,BODY_SZ,IT,...) \
+  cut_trace((_assertAppendedItemData<NT,IDC,BT>)(VAL,BODY_SZ,IT,##__VA_ARGS__))
+
+template<typename NativeType, typename ItemDataClass>
+static void _assertCreateItemData(
+  const NativeType &value,
+  const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL)
+{
+	SmartBuffer sbuf;
+	const ItemId itemId = 12345678;
+	ItemDataPtr srcItemData(new ItemDataClass(itemId, value, nullFlag), false);
+	HatoholArmPluginInterface::appendItemData(sbuf, srcItemData);
+	sbuf.resetIndex();
+
+	ItemDataPtr actual = HatoholArmPluginInterface::createItemData(sbuf);
+	cppcut_assert_equal(itemId, actual->getId());
+	cppcut_assert_equal(nullFlag == ITEM_DATA_NULL, actual->isNull());
+	cppcut_assert_equal(*srcItemData, *actual);
+	cppcut_assert_equal(1, actual->getUsedCount());
+}
+#define assertCreateItemData(NT,IDC,VAL,...) \
+  cut_trace((_assertCreateItemData<NT,IDC>)(VAL,##__VA_ARGS__))
+
+static ItemGroupPtr createTestItemGroup(void)
+{
+	const size_t NUM_ITEMS = 3;
+	SmartBuffer sbuf;
+	VariableItemGroupPtr itemGrpPtr(new ItemGroup());
+	for (size_t i = 0; i < NUM_ITEMS; i++) {
+		const int value = i * 5;
+		ItemData *itemData = new ItemInt(value);
+		itemGrpPtr->add(itemData, false);
+	}
+	itemGrpPtr->freeze();
+	return (ItemGroupPtr)itemGrpPtr;
+}
+
+static ItemTablePtr createTestItemTable(void)
+{
+	const size_t NUM_ROWS = 5;
+	SmartBuffer sbuf;
+	VariableItemTablePtr itemTablePtr(new ItemTable());
+	for (size_t i = 0; i < NUM_ROWS; i++)
+		itemTablePtr->add(createTestItemGroup());
+	return (ItemTablePtr)itemTablePtr;
+}
+
+static void _assertAppendedTestItemGroup(ItemGroupPtr itemGrpPtr)
+{
+	for (size_t i = 0; i < itemGrpPtr->getNumberOfItems(); i++) {
+		assertAppendedItemData(int, ItemInt, uint64_t,
+		                     *itemGrpPtr->getItemAt(i),
+		                     HAPI_ITEM_INT_BODY_SIZE, ITEM_TYPE_INT);
+	}
+}
+#define assertAppendedTestItemGroup(IGP) \
+  cut_trace(_assertAppendedTestItemGroup(IGP))
+
+static void _assertTestItemGroup(
+  ItemGroupPtr expectGrpPtr, ItemGroupPtr actualGrpPtr)
+{
+	cppcut_assert_equal(expectGrpPtr->getNumberOfItems(),
+	                    actualGrpPtr->getNumberOfItems());
+	for (size_t i = 0; i < expectGrpPtr->getNumberOfItems(); i++) {
+		const ItemData *actualItem = actualGrpPtr->getItemAt(i);
+		cppcut_assert_equal(*expectGrpPtr->getItemAt(i), *actualItem);
+		cppcut_assert_equal(1, actualItem->getUsedCount());
+	}
+}
+#define assertTestItemGroup(E,A) cut_trace(_assertTestItemGroup(E,A))
 
 // ---------------------------------------------------------------------------
 // Test cases
@@ -243,31 +343,261 @@ void test_getIncrementedSequenceIdAroundMax(void)
 	cppcut_assert_equal(1u, plugin.callGetIncrementedSequenceId());
 }
 
-void test_appendItemBool(void)
+void data_appendItemBool(void)
+{
+	addDataSamplesForGCutBool();
+}
+
+void test_appendItemBool(gconstpointer data)
+{
+	bool value = gcut_data_get_boolean(data, "val");
+	assertAppendedItemData(bool, ItemBool, uint8_t, value,
+	                       1, ITEM_TYPE_BOOL);
+}
+
+void data_appendItemInt(void)
+{
+	addDataSamplesForGCutInt();
+}
+
+void test_appendItemInt(gconstpointer data)
+{
+	int value = gcut_data_get_int(data, "val");
+	assertAppendedItemData(int, ItemInt, uint64_t, value,
+	                       8, ITEM_TYPE_INT);
+}
+
+void data_appendItemUint64(void)
+{
+	addDataSamplesForGCutUint64();
+}
+
+void test_appendItemUint64(gconstpointer data)
+{
+	uint64_t value = gcut_data_get_uint64(data, "val");
+	assertAppendedItemData(uint64_t, ItemUint64, uint64_t,
+	                       value, 8, ITEM_TYPE_UINT64);
+}
+
+void data_appendItemDouble(void)
+{
+	addDataSamplesForGCutDouble();
+}
+
+void test_appendItemDouble(gconstpointer data)
+{
+	double value = gcut_data_get_double(data, "val");
+	assertAppendedItemData(double, ItemDouble, double,
+	                       value, 8, ITEM_TYPE_DOUBLE);
+}
+
+void data_appendItemString(void)
+{
+	addDataSamplesForGCutString();
+}
+
+void test_appendItemString(gconstpointer data)
+{
+	struct Gadget {
+		string testStr;
+		uint32_t strLen;
+
+		static void assertBody(const void *body, void *userData)
+		{
+			Gadget *obj = static_cast<Gadget *>(userData);
+			const uint32_t *size =
+			  static_cast<const uint32_t *>(body);
+			cppcut_assert_equal(obj->strLen,
+			                    EndianConverter::LtoN(*size));
+			const char *actual =
+			  reinterpret_cast<const char *>(size + 1);
+			cut_assert_equal_string(obj->testStr.c_str(), actual);
+		}
+	} gadget;
+
+	gadget.testStr = gcut_data_get_string(data, "val");
+	gadget.strLen = gadget.testStr.size();
+	const size_t expectBodySize = sizeof(uint32_t) + gadget.strLen + 1;
+	assertAppendedItemData(string, ItemString, string,
+	                       gadget.testStr, expectBodySize, ITEM_TYPE_STRING,
+	                       Gadget::assertBody, &gadget);
+}
+
+void test_appendItemDataWithNull(void)
 {
 	SmartBuffer sbuf;
-	const ItemId itemId0 = 5;
-	const ItemId itemId1 = 309;
-	ItemDataPtr itemFalse(new ItemBool(itemId0, false), false);
-	ItemDataPtr itemTrue(new ItemBool(itemId1, true), false);
+	ItemDataPtr itemData(new ItemBool(1234, true, ITEM_DATA_NULL), false);
+	HatoholArmPluginInterface::appendItemData(sbuf, itemData);
+	assertHapiItemDataHeader(
+	  sbuf.getPointer<HapiItemDataHeader>(0), ITEM_TYPE_BOOL, 1234, true);
+}
 
-	const size_t expectBodySize = 1;
-	const size_t expectSize = sizeof(HapiItemDataHeader) + expectBodySize;
+void data_createItemBool(void)
+{
+	addDataSamplesForGCutBool();
+}
 
-	// append first one
-	HatoholArmPluginInterface::appendItemData(sbuf, itemFalse);
-	cppcut_assert_equal(expectSize, sbuf.index());
-	const HapiItemDataHeader *header =
-	  sbuf.getPointer<HapiItemDataHeader>(0);
-	assertHapiItemDataHeader(header, ITEM_TYPE_BOOL, itemId0);
-	assertHapiItemDataBody(bool, uint8_t, header + 1, false);
+void test_createItemBool(gconstpointer data)
+{
+	bool value = gcut_data_get_boolean(data, "val");
+	assertCreateItemData(bool, ItemBool, value);
+}
 
-	// append 2nd one
-	HatoholArmPluginInterface::appendItemData(sbuf, itemTrue);
-	cppcut_assert_equal(2*expectSize, sbuf.index());
-	header = sbuf.getPointer<HapiItemDataHeader>(expectSize);
-	assertHapiItemDataHeader(header, ITEM_TYPE_BOOL, itemId1);
-	assertHapiItemDataBody(bool, uint8_t, header + 1, true);
+void data_createItemInt(void)
+{
+	addDataSamplesForGCutInt();
+}
+
+void test_createItemInt(gconstpointer data)
+{
+	int value = gcut_data_get_int(data, "val");
+	assertCreateItemData(int, ItemInt, value);
+}
+
+void data_createItemUint64(void)
+{
+	addDataSamplesForGCutUint64();
+}
+
+void test_createItemUint64(gconstpointer data)
+{
+	uint64_t value = gcut_data_get_uint64(data, "val");
+	assertCreateItemData(uint64_t, ItemUint64, value);
+}
+
+void data_createItemDouble(void)
+{
+	addDataSamplesForGCutDouble();
+}
+
+void test_createItemDouble(gconstpointer data)
+{
+	double value = gcut_data_get_double(data, "val");
+	assertCreateItemData(double, ItemDouble, value);
+}
+
+void data_createItemString(void)
+{
+	addDataSamplesForGCutString();
+}
+
+void test_createItemString(gconstpointer data)
+{
+	string value = gcut_data_get_string(data, "val");
+	assertCreateItemData(string, ItemString, value);
+}
+
+void test_createItemDataOfNull(void)
+{
+	assertCreateItemData(bool, ItemBool, true, ITEM_DATA_NULL);
+}
+
+void test_appendItemGroup(void)
+{
+	// create test samples
+	SmartBuffer sbuf;
+	ItemGroupPtr itemGrpPtr = createTestItemGroup();
+	HatoholArmPluginInterface::appendItemGroup(sbuf, itemGrpPtr);
+	const size_t numItems = itemGrpPtr->getNumberOfItems();
+
+	// check the entirely written size
+	const size_t expectedSize =
+	  sizeof(HapiItemGroupHeader) + numItems * HAPI_ITEM_INT_SIZE;
+	cppcut_assert_equal(expectedSize, sbuf.index());
+
+	// check the header content
+	const HapiItemGroupHeader *grpHeader =
+	  sbuf.getPointer<HapiItemGroupHeader>(0);
+	const uint16_t expectedFlags = 0;
+	cppcut_assert_equal(expectedFlags,
+	                    EndianConverter::LtoN(grpHeader->flags));
+	cppcut_assert_equal(numItems,
+	                    (size_t)EndianConverter::LtoN(grpHeader->numItems));
+	cppcut_assert_equal(expectedSize,
+	                    (size_t)EndianConverter::LtoN(grpHeader->length));
+
+	// check each item data
+	assertAppendedTestItemGroup(itemGrpPtr);
+}
+
+void test_createItemGroup(void)
+{
+	// Make a test data.
+	SmartBuffer sbuf;
+	ItemGroupPtr srcItemGrpPtr = createTestItemGroup();
+	HatoholArmPluginInterface::appendItemGroup(sbuf, srcItemGrpPtr);
+
+	sbuf.resetIndex();
+	ItemGroupPtr createdItemGrpPtr =
+	  HatoholArmPluginInterface::createItemGroup(sbuf);
+
+	// Check the created ItemGroup
+	cppcut_assert_equal(srcItemGrpPtr->getNumberOfItems(),
+	                    createdItemGrpPtr->getNumberOfItems());
+	cppcut_assert_equal(1, createdItemGrpPtr->getUsedCount());
+
+	// check each item data
+	assertTestItemGroup(srcItemGrpPtr, createdItemGrpPtr);
+}
+
+void test_appendItemTable(void)
+{
+	// create test samples
+	SmartBuffer sbuf;
+	ItemTablePtr itemTablePtr = createTestItemTable();
+	HatoholArmPluginInterface::appendItemTable(sbuf, itemTablePtr);
+	const size_t numRows = itemTablePtr->getNumberOfRows();
+	const size_t numItems = itemTablePtr->getNumberOfColumns();
+
+	// check the entirely written size
+	const size_t sizePerGroup =
+	  sizeof(HapiItemGroupHeader) + numItems * HAPI_ITEM_INT_SIZE;
+	const size_t expectedSize =
+	  sizeof(HapiItemTableHeader) + numRows * sizePerGroup;
+	cppcut_assert_equal(expectedSize, sbuf.index());
+
+	// check the header content
+	const HapiItemTableHeader *tableHeader =
+	  sbuf.getPointer<HapiItemTableHeader>(0);
+	const uint16_t expectedFlags = 0;
+	cppcut_assert_equal(expectedFlags,
+	                    EndianConverter::LtoN(tableHeader->flags));
+	cppcut_assert_equal(
+	  numRows, (size_t)EndianConverter::LtoN(tableHeader->numGroups));
+	cppcut_assert_equal(
+	  expectedSize, (size_t)EndianConverter::LtoN(tableHeader->length));
+
+	// check each ItemGroup
+	const ItemGroupList &itemGrpList = itemTablePtr->getItemGroupList();
+	ItemGroupListConstIterator grpIt = itemGrpList.begin();
+	for (; grpIt != itemGrpList.end(); ++grpIt)
+		assertAppendedTestItemGroup(*grpIt);
+}
+
+void test_createItemTable(void)
+{
+	// Make a test data.
+	SmartBuffer sbuf;
+	ItemTablePtr srcItemTablePtr = createTestItemTable();
+	HatoholArmPluginInterface::appendItemTable(sbuf, srcItemTablePtr);
+
+	sbuf.resetIndex();
+	ItemTablePtr createdItemTablePtr =
+	  HatoholArmPluginInterface::createItemTable(sbuf);
+	cppcut_assert_equal(1, createdItemTablePtr->getUsedCount());
+
+	// check each item data
+	cppcut_assert_equal(srcItemTablePtr->getNumberOfRows(),
+	                    createdItemTablePtr->getNumberOfRows());
+
+	const ItemGroupList &srcItemGrpList =
+	  srcItemTablePtr->getItemGroupList();
+	const ItemGroupList &createdItemGrpList =
+	  createdItemTablePtr->getItemGroupList();
+	ItemGroupListConstIterator srcGrpIt = srcItemGrpList.begin();
+	ItemGroupListConstIterator createdGrpIt = createdItemGrpList.begin();
+	for (; srcGrpIt != srcItemGrpList.end(); ++srcGrpIt, ++createdGrpIt)
+		assertTestItemGroup(*srcGrpIt, *createdGrpIt);
 }
 
 } // namespace testHatoholArmPluginInterface
