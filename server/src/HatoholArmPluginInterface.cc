@@ -308,6 +308,18 @@ size_t HatoholArmPluginInterface::appendItemGroupHeader(
 	return index;
 }
 
+void HatoholArmPluginInterface::completeItemGroup(
+  mlpl::SmartBuffer &sbuf, const size_t &headerIndex)
+{
+	HapiItemGroupHeader *header =
+	  sbuf.getPointer<HapiItemGroupHeader>(headerIndex);
+	const size_t currIndex = sbuf.index();
+	HATOHOL_ASSERT(currIndex >= headerIndex,
+	               "currIndex: %zd, headerIndex: %zd",
+	               currIndex, headerIndex);
+	header->length = NtoL(currIndex - headerIndex);
+}
+
 static const size_t ITEM_DATA_BODY_SIZE[NUM_ITEM_TYPE] = {
 	1, // BOOL
 	8, // INT

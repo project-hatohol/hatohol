@@ -260,8 +260,8 @@ public:
 	/**
 	 * Append HapiItemGroupHeader to the SmartBuffer.
 	 *
-	 * Note that: length field shall be explicitly filled after this
-	 * function is called.
+	 * Note that: completeItemGroup() shall be called after all ItemData
+	 * instances are appended.
 	 *
 	 * @param sbuf
 	 * A SmartBuffer instance for appending HapiItemGroupHeader data.
@@ -273,6 +273,17 @@ public:
 	 */
 	static size_t appendItemGroupHeader(mlpl::SmartBuffer &sbuf,
 	                                    const size_t &numItems);
+	/**
+	 * Complete an ItemGroup on the buffer.
+	 *
+	 * @param sbuf
+	 * A SmartBuffer instance for appending HapiItemGroupHeader data.
+	 *
+	 * @param headerIndex
+	 * A top index of the HapiItemGroupHeader that is to be completed.
+	 */
+	static void completeItemGroup(mlpl::SmartBuffer &sbuf,
+	                              const size_t &headerIndex);
 
 	/**
 	 * Append HapiItemData to the SmartBuffer.
