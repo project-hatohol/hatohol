@@ -254,9 +254,11 @@ public:
 	 * The buffer size is automatically extended if necessary.
 	 *
 	 * @param numGroups The number of groups the table has.
+	 *
+	 * @return The index of the top of the appended header.
 	 */
-	static void appendItemTableHeader(mlpl::SmartBuffer &sbuf,
-	                                  const size_t &numGroups);
+	static size_t appendItemTableHeader(mlpl::SmartBuffer &sbuf,
+	                                    const size_t &numGroups);
 
 	/**
 	 * Complete an ItemTable on the buffer.
