@@ -53,7 +53,9 @@ void HapZabbixAPI::workOnTriggers(void)
 	SmartTime lastTriggerTime = getTimestampOfLastTrigger();
 	// TODO: getTrigger() should accept SmartTime directly.
 	const int requestSince = lastTriggerTime.getAsTimespec().tv_sec;
-	ItemTablePtr tablePtr = getTrigger(requestSince);
 
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	SmartBuffer cmdBuf;
+	setupCommandHeader<void>(cmdBuf, HAPI_CMD_SEND_UPDATED_TRIGGERS);
+	appendItemTable(cmdBuf, getTrigger(requestSince));
+	send(cmdBuf);
 }

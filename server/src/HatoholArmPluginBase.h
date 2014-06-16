@@ -40,8 +40,6 @@ public:
 
 	mlpl::SmartTime getTimestampOfLastTrigger(void);
 
-	void sendUpdatedTriggers(ItemTablePtr triggers);
-
 protected:
 	virtual void onGotResponse(const HapiResponseHeader *header,
 	                           mlpl::SmartBuffer &resBuf) override;
