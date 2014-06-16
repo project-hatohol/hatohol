@@ -60,7 +60,7 @@ void _assertHapiItemDataBody(const void *body, const NativeType &expect)
   cut_trace((_assertHapiItemDataBody<NT,BT>)(BP,E))
 
 template <typename NativeType, typename ItemDataClass, typename BodyType>
-void _assertAppendItemData(
+void _assertAppendedItemData(
   const NativeType &value, const size_t &expectBodySize,
   const ItemDataType &itemDataType,
   void (*bodyAssertFunc)(const void *body, void *userData) = NULL,
@@ -83,8 +83,8 @@ void _assertAppendItemData(
 	}
 	assertHapiItemDataBody(NativeType, BodyType, header + 1, value);
 }
-#define assertAppendItemData(NT,IDC,BT,VAL,BODY_SZ,IT,...) \
-  cut_trace((_assertAppendItemData<NT,IDC,BT>)(VAL,BODY_SZ,IT,##__VA_ARGS__))
+#define assertAppendedItemData(NT,IDC,BT,VAL,BODY_SZ,IT,...) \
+  cut_trace((_assertAppendedItemData<NT,IDC,BT>)(VAL,BODY_SZ,IT,##__VA_ARGS__))
 
 template<typename NativeType, typename ItemDataClass>
 static void _assertCreateItemData(
@@ -133,7 +133,7 @@ static ItemTablePtr createTestItemTable(void)
 static void _assertAppendedTestItemGroup(ItemGroupPtr itemGrpPtr)
 {
 	for (size_t i = 0; i < itemGrpPtr->getNumberOfItems(); i++) {
-		assertAppendItemData(int, ItemInt, uint64_t,
+		assertAppendedItemData(int, ItemInt, uint64_t,
 		                     *itemGrpPtr->getItemAt(i),
 		                     HAPI_ITEM_INT_BODY_SIZE, ITEM_TYPE_INT);
 	}
@@ -351,7 +351,8 @@ void data_appendItemBool(void)
 void test_appendItemBool(gconstpointer data)
 {
 	bool value = gcut_data_get_boolean(data, "val");
-	assertAppendItemData(bool, ItemBool, uint8_t, value, 1, ITEM_TYPE_BOOL);
+	assertAppendedItemData(bool, ItemBool, uint8_t, value,
+	                       1, ITEM_TYPE_BOOL);
 }
 
 void data_appendItemInt(void)
@@ -362,7 +363,8 @@ void data_appendItemInt(void)
 void test_appendItemInt(gconstpointer data)
 {
 	int value = gcut_data_get_int(data, "val");
-	assertAppendItemData(int, ItemInt, uint64_t, value, 8, ITEM_TYPE_INT);
+	assertAppendedItemData(int, ItemInt, uint64_t, value,
+	                       8, ITEM_TYPE_INT);
 }
 
 void data_appendItemUint64(void)
@@ -373,8 +375,8 @@ void data_appendItemUint64(void)
 void test_appendItemUint64(gconstpointer data)
 {
 	uint64_t value = gcut_data_get_uint64(data, "val");
-	assertAppendItemData(uint64_t, ItemUint64, uint64_t,
-	                     value, 8, ITEM_TYPE_UINT64);
+	assertAppendedItemData(uint64_t, ItemUint64, uint64_t,
+	                       value, 8, ITEM_TYPE_UINT64);
 }
 
 void data_appendItemDouble(void)
@@ -385,8 +387,8 @@ void data_appendItemDouble(void)
 void test_appendItemDouble(gconstpointer data)
 {
 	double value = gcut_data_get_double(data, "val");
-	assertAppendItemData(double, ItemDouble, double,
-	                     value, 8, ITEM_TYPE_DOUBLE);
+	assertAppendedItemData(double, ItemDouble, double,
+	                       value, 8, ITEM_TYPE_DOUBLE);
 }
 
 void data_appendItemString(void)
@@ -416,9 +418,9 @@ void test_appendItemString(gconstpointer data)
 	gadget.testStr = gcut_data_get_string(data, "val");
 	gadget.strLen = gadget.testStr.size();
 	const size_t expectBodySize = sizeof(uint32_t) + gadget.strLen + 1;
-	assertAppendItemData(string, ItemString, string,
-	                     gadget.testStr, expectBodySize, ITEM_TYPE_STRING,
-	                     Gadget::assertBody, &gadget);
+	assertAppendedItemData(string, ItemString, string,
+	                       gadget.testStr, expectBodySize, ITEM_TYPE_STRING,
+	                       Gadget::assertBody, &gadget);
 }
 
 void test_appendItemDataWithNull(void)
