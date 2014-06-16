@@ -498,6 +498,27 @@ ActionManager::~ActionManager()
 		delete m_ctx;
 }
 
+static bool shouldSkipIssueSender(
+  ActionIdType &issueSenderActionId, const ActionDef &actionDef,
+  const EventInfo &eventInfo)
+{
+	if (actionDef.type != ACTION_ISSUE_SENDER)
+		return false;
+
+	if (issueSenderActionId > 0) {
+		MLPL_DBG("Skip IssueSenderAction:%" FMT_ACTION_ID " for "
+			 "Trigger:%" FMT_TRIGGER_ID " because "
+			 "IssueSenderAction:%" FMT_ACTION_ID " has "
+			 "higher priority.",
+			 actionDef.id, eventInfo.triggerId,
+			 issueSenderActionId);
+		issueSenderActionId = actionDef.id;
+		return true;
+	}
+
+	return false;
+}
+
 void ActionManager::checkEvents(const EventInfoList &eventList)
 {
 	DBClientAction dbAction;
@@ -510,12 +531,18 @@ void ActionManager::checkEvents(const EventInfoList &eventList)
 		if (shouldSkipByLog(eventInfo, dbAction))
 			continue;
 		ActionsQueryOption option(USER_ID_SYSTEM);
+		// TODO: sort IssueSender type actions by priority
 		option.setActionType(ACTION_ALL);
 		option.setTargetEventInfo(&eventInfo);
 		dbAction.getActionList(actionDefList, option);
 		ActionDefListIterator actIt = actionDefList.begin();
-		for (; actIt != actionDefList.end(); ++actIt)
-			runAction(*actIt, eventInfo, dbAction);
+		ActionIdType issueSenderActionId = 0;
+		for (; actIt != actionDefList.end(); ++actIt) {
+			bool skip = shouldSkipIssueSender(issueSenderActionId,
+							  *actIt, eventInfo);
+			if (!skip)
+				runAction(*actIt, eventInfo, dbAction);
+		}
 	}
 }
 
