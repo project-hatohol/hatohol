@@ -141,6 +141,19 @@ static void _assertAppendedTestItemGroup(ItemGroupPtr itemGrpPtr)
 #define assertAppendedTestItemGroup(IGP) \
   cut_trace(_assertAppendedTestItemGroup(IGP))
 
+static void _assertTestItemGroup(
+  ItemGroupPtr expectGrpPtr, ItemGroupPtr actualGrpPtr)
+{
+	cppcut_assert_equal(expectGrpPtr->getNumberOfItems(),
+	                    actualGrpPtr->getNumberOfItems());
+	for (size_t i = 0; i < expectGrpPtr->getNumberOfItems(); i++) {
+		const ItemData *actualItem = actualGrpPtr->getItemAt(i);
+		cppcut_assert_equal(*expectGrpPtr->getItemAt(i), *actualItem);
+		cppcut_assert_equal(1, actualItem->getUsedCount());
+	}
+}
+#define assertTestItemGroup(E,A) cut_trace(_assertTestItemGroup(E,A))
+
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
@@ -565,5 +578,30 @@ void test_appendItemTable(void)
 		assertAppendedTestItemGroup(*grpIt);
 }
 
+void test_createItemTable(void)
+{
+	// Make a test data.
+	SmartBuffer sbuf;
+	ItemTablePtr srcItemTablePtr = createTestItemTable();
+	HatoholArmPluginInterface::appendItemTable(sbuf, srcItemTablePtr);
+
+	sbuf.resetIndex();
+	ItemTablePtr createdItemTablePtr =
+	  HatoholArmPluginInterface::createItemTable(sbuf);
+	cppcut_assert_equal(1, createdItemTablePtr->getUsedCount());
+
+	// check each item data
+	cppcut_assert_equal(srcItemTablePtr->getNumberOfRows(),
+	                    createdItemTablePtr->getNumberOfRows());
+
+	const ItemGroupList &srcItemGrpList =
+	  srcItemTablePtr->getItemGroupList();
+	const ItemGroupList &createdItemGrpList =
+	  createdItemTablePtr->getItemGroupList();
+	ItemGroupListConstIterator srcGrpIt = srcItemGrpList.begin();
+	ItemGroupListConstIterator createdGrpIt = createdItemGrpList.begin();
+	for (; srcGrpIt != srcItemGrpList.end(); ++srcGrpIt, ++createdGrpIt)
+		assertTestItemGroup(*srcGrpIt, *createdGrpIt);
+}
 
 } // namespace testHatoholArmPluginInterface
