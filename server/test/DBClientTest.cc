@@ -765,7 +765,7 @@ size_t NumTestIssueTrackerInfo = sizeof(testIssueTrackerInfo) / sizeof(IssueTrac
 IssueInfo testIssueInfo[] = {
 {
 	3,                        // trackerId
-	1,                        // serverId
+	3,                        // serverId
 	1,                        // eventId
 	2,                        // triggerId
 	"13",                     // identifier
