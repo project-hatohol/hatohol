@@ -295,16 +295,22 @@ void HatoholArmPluginInterface::appendItemTableHeader(
 	sbuf.incIndex(sizeof(HapiItemTableHeader));
 }
 
-void HatoholArmPluginInterface::completeItemTable(
+template <typename HapiItemHeader>
+static void completeItemTemplate(
   mlpl::SmartBuffer &sbuf, const size_t &headerIndex)
 {
-	HapiItemTableHeader *header =
-	  sbuf.getPointer<HapiItemTableHeader>(headerIndex);
+	HapiItemHeader *header = sbuf.getPointer<HapiItemHeader>(headerIndex);
 	const size_t currIndex = sbuf.index();
 	HATOHOL_ASSERT(currIndex >= headerIndex,
 	               "currIndex: %zd, headerIndex: %zd",
 	               currIndex, headerIndex);
-	header->length = NtoL(currIndex - headerIndex);
+	header->length = EndianConverter::NtoL(currIndex - headerIndex);
+}
+
+void HatoholArmPluginInterface::completeItemTable(
+  mlpl::SmartBuffer &sbuf, const size_t &headerIndex)
+{
+	completeItemTemplate<HapiItemTableHeader>(sbuf, headerIndex);
 }
 
 size_t HatoholArmPluginInterface::appendItemGroupHeader(
@@ -323,13 +329,7 @@ size_t HatoholArmPluginInterface::appendItemGroupHeader(
 void HatoholArmPluginInterface::completeItemGroup(
   mlpl::SmartBuffer &sbuf, const size_t &headerIndex)
 {
-	HapiItemGroupHeader *header =
-	  sbuf.getPointer<HapiItemGroupHeader>(headerIndex);
-	const size_t currIndex = sbuf.index();
-	HATOHOL_ASSERT(currIndex >= headerIndex,
-	               "currIndex: %zd, headerIndex: %zd",
-	               currIndex, headerIndex);
-	header->length = NtoL(currIndex - headerIndex);
+	completeItemTemplate<HapiItemGroupHeader>(sbuf, headerIndex);
 }
 
 static const size_t ITEM_DATA_BODY_SIZE[NUM_ITEM_TYPE] = {
