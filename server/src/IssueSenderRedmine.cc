@@ -62,6 +62,8 @@ struct IssueSenderRedmine::PrivateContext
 	void connectSessionSignals(void);
 	void disconnectSessionSignals(void);
 	HatoholError parseErrorResponse(const string &response);
+	HatoholError handleSendError(int soupStatus,
+				     const string &response);
 
 	IssueSenderRedmine &m_sender;
 	SoupSession *m_session;
@@ -215,6 +217,17 @@ HatoholError IssueSenderRedmine::parseResponse(
 	return HTERR_OK;
 }
 
+HatoholError IssueSenderRedmine::buildIssueInfo(
+  IssueInfo &issueInfo, const string &response, const EventInfo &event)
+{
+	const IssueTrackerInfo &tracker = getIssueTrackerInfo();
+	issueInfo.trackerId = tracker.id;
+	issueInfo.serverId = event.serverId;
+	issueInfo.eventId = event.id;
+	issueInfo.triggerId = event.triggerId;
+	return parseResponse(issueInfo, response);
+}
+
 HatoholError IssueSenderRedmine::PrivateContext::parseErrorResponse(
   const string &response)
 {
@@ -239,6 +252,23 @@ HatoholError IssueSenderRedmine::PrivateContext::parseErrorResponse(
 	return HTERR_FAILED_TO_SEND_ISSUE;
 }
 
+HatoholError IssueSenderRedmine::PrivateContext::handleSendError(
+  int soupStatus, const string &response)
+{
+	if (SOUP_STATUS_IS_TRANSPORT_ERROR(soupStatus)) {
+		MLPL_ERR("Transport error: %d %s\n",
+			 soupStatus, soup_status_get_phrase(soupStatus));
+	} else {
+		MLPL_ERR("The server returns an error: %d %s\n",
+			 soupStatus, soup_status_get_phrase(soupStatus));
+	}
+
+	if (soupStatus == SOUP_STATUS_UNPROCESSABLE_ENTITY)
+		return parseErrorResponse(response);
+	else
+		return HTERR_FAILED_TO_SEND_ISSUE;
+}
+
 HatoholError IssueSenderRedmine::send(const EventInfo &event)
 {
 	string url = getIssuesJsonURL();
@@ -252,30 +282,11 @@ HatoholError IssueSenderRedmine::send(const EventInfo &event)
 	string response(msg->response_body->data, msg->response_body->length);
 	g_object_unref(msg);
 
-	if (!SOUP_STATUS_IS_SUCCESSFUL(sendResult)) {
-		if (SOUP_STATUS_IS_TRANSPORT_ERROR(sendResult)) {
-			MLPL_ERR("Transport error: %d %s\n",
-				 sendResult,
-				 soup_status_get_phrase(sendResult));
-		} else {
-			MLPL_ERR("The server returns an error: %d %s\n",
-				 sendResult,
-				 soup_status_get_phrase(sendResult));
-		}
-		if (sendResult == SOUP_STATUS_UNPROCESSABLE_ENTITY)
-			return m_ctx->parseErrorResponse(response);
-		else
-			return HTERR_FAILED_TO_SEND_ISSUE;
-	}
+	if (!SOUP_STATUS_IS_SUCCESSFUL(sendResult))
+		return m_ctx->handleSendError(sendResult, response);
 
-	const IssueTrackerInfo &tracker = getIssueTrackerInfo();
 	IssueInfo issueInfo;
-	issueInfo.trackerId = tracker.id;
-	issueInfo.serverId = event.serverId;
-	issueInfo.eventId = event.id;
-	issueInfo.triggerId = event.triggerId;
-	HatoholError result = parseResponse(issueInfo, response);
-
+	HatoholError result = buildIssueInfo(issueInfo, response, event);
 	if (result == HTERR_OK) {
 		DBClientHatohol dbHatohol;
 		dbHatohol.addIssueInfo(&issueInfo);

@@ -37,6 +37,9 @@ protected:
 	std::string getIssueURL(const std::string &id);
 	HatoholError parseResponse(IssueInfo &issueInfo,
 				   const std::string &response);
+	HatoholError buildIssueInfo(IssueInfo &issueInfo,
+				    const std::string &response,
+				    const EventInfo &event);
 
 private:
 	struct PrivateContext;
