@@ -104,6 +104,19 @@ static void _assertCreateItemData(
 #define assertCreateItemData(NT,IDC,VAL,...) \
   cut_trace((_assertCreateItemData<NT,IDC>)(VAL,##__VA_ARGS__))
 
+static ItemGroupPtr createTestItemGroup(void)
+{
+	const size_t NUM_ITEMS = 3;
+	SmartBuffer sbuf;
+	VariableItemGroupPtr itemGrpPtr(new ItemGroup());
+	for (size_t i = 0; i < NUM_ITEMS; i++) {
+		const int value = i * 5;
+		ItemData *itemData = new ItemInt(value);
+		itemGrpPtr->add(itemData, false);
+	}
+	return (ItemGroupPtr)itemGrpPtr;
+}
+
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
@@ -476,6 +489,28 @@ void test_appendItemGroup(void)
 		assertAppendItemData(int, ItemInt, uint64_t,
 		                     *itemGrpPtr->getItemAt(i),
 		                     HAPI_ITEM_INT_BODY_SIZE, ITEM_TYPE_INT);
+	}
+}
+
+void test_createItemGroup(void)
+{
+	// Make a test data.
+	SmartBuffer sbuf;
+	ItemGroupPtr srcItemGrpPtr = createTestItemGroup();
+	HatoholArmPluginInterface::appendItemGroup(sbuf, srcItemGrpPtr);
+
+	sbuf.resetIndex();
+	ItemGroupPtr createdItemGrpPtr =
+	  HatoholArmPluginInterface::createItemGroup(sbuf);
+
+	// Check the created ItemGroup
+	cppcut_assert_equal(srcItemGrpPtr->getNumberOfItems(),
+	                    createdItemGrpPtr->getNumberOfItems());
+
+	// check each item data
+	for (size_t i = 0; i < srcItemGrpPtr->getNumberOfItems(); i++) {
+		cppcut_assert_equal(*srcItemGrpPtr->getItemAt(i),
+		                    *createdItemGrpPtr->getItemAt(i));
 	}
 }
 
