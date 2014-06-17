@@ -588,6 +588,16 @@ protected:
 	void setSequenceId(const uint32_t &sequenceId);
 	uint32_t getSequenceIdInProgress(void);
 
+	/**
+	 * Get the received buffer that is currently being processed.
+	 * This method is seemed to be called from command handlers.
+	 *
+	 * @return
+	 * A currently processed receive buffer. Or NULL if no buffer is
+	 * processed.
+	 */
+	mlpl::SmartBuffer *getCurrBuffer(void);
+
 	void dumpBuffer(const mlpl::SmartBuffer &sbuf,
 	                const std::string &label = "");
 

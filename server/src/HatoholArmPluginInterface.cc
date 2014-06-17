@@ -59,6 +59,7 @@ struct HatoholArmPluginInterface::PrivateContext {
 	InitiationState initState;
 	uint64_t   initiationKey;
 	Message   *currMessage;
+	SmartBuffer      *currBuffer;
 	CommandHandlerMap receiveHandlerMap;
 	string     receiverAddr;
 	uint32_t   sequenceId;
@@ -73,6 +74,7 @@ struct HatoholArmPluginInterface::PrivateContext {
 	  initState(INIT_STAT_UNKNOWN),
 	  initiationKey(0),
 	  currMessage(NULL),
+	  currBuffer(NULL),
 	  sequenceId(0),
 	  sequenceIdOfCurrCmd(SEQ_ID_UNKNOWN),
 	  connected(false)
@@ -562,8 +564,10 @@ gpointer HatoholArmPluginInterface::mainThread(HatoholThreadArg *arg)
 		load(sbuf, message);
 		sbuf.resetIndex();
 		m_ctx->currMessage = &message;
+		m_ctx->currBuffer  = &sbuf;
 		onReceived(sbuf);
 		m_ctx->currMessage = NULL;
+		m_ctx->currBuffer  = NULL;
 		m_ctx->sequenceIdOfCurrCmd = SEQ_ID_UNKNOWN,
 		m_ctx->acknowledge();
 	};
@@ -794,6 +798,11 @@ void HatoholArmPluginInterface::setSequenceId(const uint32_t &sequenceId)
 uint32_t HatoholArmPluginInterface::getSequenceIdInProgress(void)
 {
 	return m_ctx->sequenceIdOfCurrCmd;
+}
+
+SmartBuffer *HatoholArmPluginInterface::getCurrBuffer(void)
+{
+	return m_ctx->currBuffer;
 }
 
 void HatoholArmPluginInterface::dumpBuffer(
