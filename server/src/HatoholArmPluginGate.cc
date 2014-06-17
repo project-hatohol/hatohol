@@ -35,6 +35,7 @@
 #include "StringUtils.h"
 #include "HostInfoCache.h"
 #include "DBClientZabbix.h" // deprecated
+#include "UnifiedDataStore.h"
 
 using namespace std;
 using namespace mlpl;
@@ -106,6 +107,11 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 	  HAPI_CMD_SEND_HOST_GROUPS,
 	  (CommandHandler)
 	    &HatoholArmPluginGate::cmdHandlerSendHostgroups);
+
+	registerCommandHandler(
+	  HAPI_CMD_SEND_UPDATED_EVENTS,
+	  (CommandHandler)
+	    &HatoholArmPluginGate::cmdHandlerSendUpdatedEvents);
 }
 
 void HatoholArmPluginGate::start(void)
@@ -407,4 +413,23 @@ void HatoholArmPluginGate::cmdHandlerSendHostgroups(
 	CacheServiceDBClient cache;
 	DBClientHatohol *dbHatohol = cache.getHatohol();
 	dbHatohol->addHostgroupInfoList(hostgroupInfoList);
+}
+
+void HatoholArmPluginGate::cmdHandlerSendUpdatedEvents(
+  const HapiCommandHeader *header)
+{
+	SmartBuffer *cmdBuf = getCurrBuffer();
+	HATOHOL_ASSERT(cmdBuf, "Current buffer: NULL");
+
+	cmdBuf->setIndex(sizeof(HapiCommandHeader));
+	ItemTablePtr eventTablePtr = createItemTable(*cmdBuf);
+
+	// We don't save host data to DBClientZabbix.
+	// See also the comment in cmdHandlerSendUpdatedTriggers().
+	// TODO: replace DBClientZabbix::transformEventsToHatoholFormat()
+	// with a similar helper function.
+	EventInfoList eventInfoList;
+	DBClientZabbix::transformEventsToHatoholFormat(
+	  eventInfoList, eventTablePtr, m_ctx->serverInfo.id);
+	UnifiedDataStore::getInstance()->addEventList(eventInfoList);
 }
