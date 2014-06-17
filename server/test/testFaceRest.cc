@@ -632,6 +632,7 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 	assertStartObject(g_parser, "events");
 	vector<EventInfo*>::reverse_iterator it
 	  = eventsArg.expectedRecords.rbegin();
+	DBClientAction dbAction;
 	for (size_t i = 0; it != eventsArg.expectedRecords.rend(); i++, ++it) {
 		EventInfo &eventInfo = *(*it);
 		uint64_t unifiedId = eventsArg.idMap[*it];
@@ -645,6 +646,11 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 		assertValueInParser(g_parser, "severity",  eventInfo.severity);
 		assertValueInParser(g_parser, "hostId",    eventInfo.hostId);
 		assertValueInParser(g_parser, "brief",     eventInfo.brief);
+		if (dbAction.isIssueSenderEnabled()) {
+			// TODO
+		} else {
+			assertNoValueInParser(g_parser, "issue");
+		}
 		g_parser->endElement();
 	}
 	g_parser->endObject();
@@ -1329,6 +1335,12 @@ static void changeLocale(const char *locale)
 void cut_setup(void)
 {
 	hatoholInit();
+
+	// Make sure to clear actions on intial state because the issue object
+	// in an event object depends on them.
+	bool recreate = true;
+	bool loadData = false;
+	setupTestDBAction(recreate, loadData);
 }
 
 void cut_teardown(void)
