@@ -18,6 +18,7 @@
  */
 
 #include <cppcutter.h>
+#include "HostInfoCache.h"
 using namespace std;
 
 namespace testHostInfoCache {
@@ -25,5 +26,84 @@ namespace testHostInfoCache {
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
+
+void test_updateAndGetName(void)
+{
+	HostInfo hostInfo;
+	hostInfo.serverId = 100;
+	hostInfo.id = 2;
+	hostInfo.hostName = "foo";
+
+	HostInfoCache hiCache;
+	hiCache.update(hostInfo);
+	string name;
+	cppcut_assert_equal(true, hiCache.getName(hostInfo.id, name));
+	cppcut_assert_equal(hostInfo.hostName, name);
+}
+
+void test_getNameExpectFalse(void)
+{
+	HostInfo hostInfo;
+	hostInfo.serverId = 100;
+	hostInfo.id = 2;
+	hostInfo.hostName = "foo";
+
+	HostInfoCache hiCache;
+	hiCache.update(hostInfo);
+	string name;
+	cppcut_assert_equal(false, hiCache.getName(500, name));
+}
+
+void test_updateTwice(void)
+{
+	HostInfo hostInfo;
+	hostInfo.serverId = 100;
+	hostInfo.id = 2;
+	hostInfo.hostName = "foo";
+
+	HostInfoCache hiCache;
+	hiCache.update(hostInfo);
+	string name;
+	cppcut_assert_equal(true, hiCache.getName(hostInfo.id, name));
+	cppcut_assert_equal(hostInfo.hostName, name);
+
+	// update again
+	hostInfo.hostName = "Dog Dog Dog Cat";
+	hiCache.update(hostInfo);
+	cppcut_assert_equal(true, hiCache.getName(hostInfo.id, name));
+	cppcut_assert_equal(hostInfo.hostName, name);
+}
+
+void test_getNameFromMany(void)
+{
+	struct DataArray {
+		HostIdType id;
+		const char *name;
+	} dataArray [] = {
+		{105,   "You"},
+		{211,   "Hydrogen"},
+		{5,     "foo"},
+		{10555, "3K background radition is not 4K display"},
+		{4,     "I like strawberry."},
+	};
+	const size_t numData = sizeof(dataArray) / sizeof(DataArray);
+
+	HostInfoCache hiCache;
+	for (size_t i = 0; i < numData; i++) {
+		HostInfo hostInfo;
+		hostInfo.serverId = 100;
+		hostInfo.id = dataArray[i].id;
+		hostInfo.hostName = dataArray[i].name;
+		hiCache.update(hostInfo);
+	}
+
+	// check
+	for (size_t i = 0; i < numData; i++) {
+		string name;
+		const HostIdType id = dataArray[i].id;
+		cppcut_assert_equal(true, hiCache.getName(id, name));
+		cppcut_assert_equal(string(dataArray[i].name), name);
+	}
+}
 
 } // namespace testHostInfoCache
