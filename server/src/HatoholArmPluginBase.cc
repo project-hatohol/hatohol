@@ -112,8 +112,14 @@ SmartTime HatoholArmPluginBase::getTimestampOfLastTrigger(void)
 
 EventIdType HatoholArmPluginBase::getLastEventId(void)
 {
-	MLPL_BUG("Not implemented yet: %s\n", __PRETTY_FUNCTION__);
-	return EVENT_ID_NOT_FOUND;
+	SmartBuffer cmdBuf;
+	setupCommandHeader<void>(cmdBuf, HAPI_CMD_GET_LAST_EVENT_ID);
+	send(cmdBuf);
+	waitResponseAndCheckHeader();
+
+	const HapiResLastEventId *body =
+	  getResponseBody<HapiResLastEventId>(m_ctx->responseBuf);
+	return body->lastEventId;
 }
 
 // ---------------------------------------------------------------------------
