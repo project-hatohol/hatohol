@@ -52,6 +52,9 @@ void HapZabbixAPI::workOnTriggers(void)
 {
 	SmartTime lastTriggerTime = getTimestampOfLastTrigger();
 	// TODO: getTrigger() should accept SmartTime directly.
+	// TODO: We should add a way to get newly added triggers.
+	//       Their timestamp are 0 in UNIX time. So the following way
+	//       cannot retrieve them.
 	const int requestSince = lastTriggerTime.getAsTimespec().tv_sec;
 	sendTable(HAPI_CMD_SEND_UPDATED_TRIGGERS, getTrigger(requestSince));
 }
