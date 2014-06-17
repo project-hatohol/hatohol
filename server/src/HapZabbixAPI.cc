@@ -22,6 +22,8 @@
 
 using namespace mlpl;
 
+static const uint64_t NUMBER_OF_GET_EVENT_PER_ONCE  = 1000;
+
 struct HapZabbixAPI::PrivateContext {
 	PrivateContext(void)
 	{
@@ -72,4 +74,32 @@ void HapZabbixAPI::workOnHostgroups(void)
 	ItemTablePtr hostgroupsTablePtr;
 	getGroups(hostgroupsTablePtr);
 	sendTable(HAPI_CMD_SEND_HOST_GROUPS, hostgroupsTablePtr);
+}
+
+void HapZabbixAPI::workOnEvents(void)
+{
+	// TODO: Should we consider the case in which the last event in
+	// Zabbix server changes during the execution of the following loop ?
+	const uint64_t lastEventIdOfZbxSv
+	  = ZabbixAPI::getLastEventId();
+	uint64_t lastEventIdOfHatohol = HatoholArmPluginBase::getLastEventId();
+
+	// TODO: Does this condition cause a infinite loop when
+	// the differerence between adjacent two events IDs is greater than
+	// NUMBER_OF_GET_EVENT_PER_ONCE ?
+	// The same suspicion is in void ArmZabbixAPI::updateEvents(void)
+	while (lastEventIdOfHatohol != lastEventIdOfZbxSv) {
+		uint64_t eventIdOffset = 0;
+		uint64_t eventIdTill = NUMBER_OF_GET_EVENT_PER_ONCE;
+		if (lastEventIdOfHatohol != EVENT_ID_NOT_FOUND) {
+			eventIdOffset = lastEventIdOfHatohol + 1;
+			eventIdTill += lastEventIdOfHatohol;
+		}
+		sendTable(HAPI_CMD_SEND_UPDATED_EVENTS,
+		          getEvents(eventIdOffset, eventIdTill));
+		// TODO: Get the last event ID from the obtained data.
+		// Calling getLastEventId() requires the communication w/
+		// Hatohol server.
+		lastEventIdOfHatohol = HatoholArmPluginBase::getLastEventId();
+	}
 }
