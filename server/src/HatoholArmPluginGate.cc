@@ -33,6 +33,7 @@
 #include "CacheServiceDBClient.h"
 #include "ChildProcessManager.h"
 #include "StringUtils.h"
+#include "DBClientZabbix.h" // deprecated
 
 using namespace std;
 using namespace mlpl;
@@ -88,6 +89,11 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 	  HAPI_CMD_SEND_UPDATED_TRIGGERS,
 	  (CommandHandler)
 	    &HatoholArmPluginGate::cmdHandlerSendUpdatedTriggers);
+
+	registerCommandHandler(
+	  HAPI_CMD_SEND_HOSTS,
+	  (CommandHandler)
+	    &HatoholArmPluginGate::cmdHandlerSendHosts);
 }
 
 void HatoholArmPluginGate::start(void)
@@ -280,4 +286,30 @@ void HatoholArmPluginGate::cmdHandlerSendUpdatedTriggers(
 	CacheServiceDBClient cache;
 	DBClientHatohol *dbHatohol = cache.getHatohol();
 	dbHatohol->addTriggerInfoList(triggerInfoList);
+}
+
+void HatoholArmPluginGate::cmdHandlerSendHosts(
+  const HapiCommandHeader *header)
+{
+	MLPL_BUG("Not implemented yet: %s\n", __PRETTY_FUNCTION__);
+	return;
+
+	SmartBuffer *cmdBuf = getCurrBuffer();
+	HATOHOL_ASSERT(cmdBuf, "Current buffer: NULL");
+
+	cmdBuf->setIndex(sizeof(HapiCommandHeader));
+	ItemTablePtr hostTablePtr = createItemTable(*cmdBuf);
+
+	// We don't save host data to DBClientZabbix.
+	// See also the comment in cmdHandlerSendUpdatedTriggers().
+	// TODO: replace DBClientZabbix::transformHostsToHatoholFormat()
+	// with a similar helper function.
+	HostInfoList hostInfoList;
+	DBClientZabbix::transformHostsToHatoholFormat(
+	  hostInfoList, hostTablePtr, m_ctx->serverInfo.id);
+	bool getMonitoringServerInfo(MonitoringServerInfo &serverInfo);
+
+	CacheServiceDBClient cache;
+	DBClientHatohol *dbHatohol = cache.getHatohol();
+	dbHatohol->addHostInfoList(hostInfoList);
 }
