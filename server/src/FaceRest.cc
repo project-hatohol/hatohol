@@ -1826,6 +1826,7 @@ void FaceRest::handlerGetEvent(RestJob *job)
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
+	// TODO: should use transaction to avoid conflicting with event list
 	agent.add("lastUnifiedEventId", getLastUnifiedEventId(job));
 	agent.startArray("events");
 	EventInfoListIterator it = eventList.begin();
