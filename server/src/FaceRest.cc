@@ -1787,6 +1787,15 @@ static uint64_t getLastUnifiedEventId(FaceRest::RestJob *job)
 	return lastUnifiedId;
 }
 
+static void addIssue(FaceRest::RestJob *job, JsonBuilderAgent &agent,
+		     const IssueInfo &issue)
+{
+		agent.startObject("issue");
+		agent.add("location", issue.location);
+		// TODO: remaining properties will be added later
+		agent.endObject();
+}
+
 void FaceRest::handlerGetEvent(RestJob *job)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
@@ -1798,7 +1807,17 @@ void FaceRest::handlerGetEvent(RestJob *job)
 		replyError(job, err);
 		return;
 	}
-	err = dataStore->getEventList(eventList, option);
+
+	bool addIssues = dataStore->isIssueSenderActionEnabled();
+	IssueInfoVect issueVect;
+	if (addIssues) {
+		err = dataStore->getEventList(eventList, option, &issueVect);
+		HATOHOL_ASSERT(eventList.size() == issueVect.size(),
+			       "eventList: %d, issueVect: %d\n",
+			       eventList.size(), issueVect.size());
+	} else {
+		err = dataStore->getEventList(eventList, option);
+	}
 	if (err != HTERR_OK) {
 		replyError(job, err);
 		return;
@@ -1810,7 +1829,7 @@ void FaceRest::handlerGetEvent(RestJob *job)
 	agent.add("lastUnifiedEventId", getLastUnifiedEventId(job));
 	agent.startArray("events");
 	EventInfoListIterator it = eventList.begin();
-	for (; it != eventList.end(); ++it) {
+	for (size_t i = 0; it != eventList.end(); ++i, ++it) {
 		EventInfo &eventInfo = *it;
 		agent.startObject();
 		agent.add("unifiedId", eventInfo.unifiedId);
@@ -1822,6 +1841,8 @@ void FaceRest::handlerGetEvent(RestJob *job)
 		agent.add("severity",  eventInfo.severity);
 		agent.add("hostId",    eventInfo.hostId);
 		agent.add("brief",     eventInfo.brief);
+		if (addIssues)
+			addIssue(job, agent, issueVect[i]);
 		agent.endObject();
 	}
 	agent.endArray();
