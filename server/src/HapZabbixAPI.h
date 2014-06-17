@@ -31,6 +31,7 @@ public:
 
 protected:
 	void workOnTriggers(void);
+	void workOnHostsAndHostgroups(void);
 
 private:
 	struct PrivateContext;
