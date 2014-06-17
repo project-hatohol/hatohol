@@ -74,3 +74,14 @@ void HapZabbixAPI::workOnHostsAndHostgroups(void)
 	appendItemTable(cmdBuf, hostGroupsTablePtr);
 	send(cmdBuf);
 }
+
+void HapZabbixAPI::workOnHostgroups(void)
+{
+	ItemTablePtr hostgroupsTablePtr;
+	getGroups(hostgroupsTablePtr);
+
+	SmartBuffer cmdBuf;
+	setupCommandHeader<void>(cmdBuf, HAPI_CMD_SEND_HOST_GROUPS);
+	appendItemTable(cmdBuf, hostgroupsTablePtr);
+	send(cmdBuf);
+}
