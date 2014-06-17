@@ -647,7 +647,12 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 		assertValueInParser(g_parser, "hostId",    eventInfo.hostId);
 		assertValueInParser(g_parser, "brief",     eventInfo.brief);
 		if (dbAction.isIssueSenderEnabled()) {
-			// TODO
+			assertStartObject(g_parser, "issue");
+			IssueInfo issue
+			  = eventsArg.getExpectedIssueInfo(eventInfo);
+			assertValueInParser(g_parser, "location",
+					    issue.location);
+			g_parser->endElement();
 		} else {
 			assertNoValueInParser(g_parser, "issue");
 		}
@@ -1609,6 +1614,13 @@ void test_triggersForOneServerOneHost(void)
 
 void test_events(void)
 {
+	assertEvents("/event");
+}
+
+void test_eventsWithIssues(void)
+{
+	 // issue info will be added when a IssueSender action exists
+	setupActionDB();
 	assertEvents("/event");
 }
 
