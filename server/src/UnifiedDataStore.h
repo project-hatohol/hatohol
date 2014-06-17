@@ -101,6 +101,7 @@ public:
 	                       const OperationPrivilege &privilege);
 	HatoholError deleteActionList(const ActionIdList &actionIdList,
 	                              const OperationPrivilege &privilege);
+	bool isIssueSenderActionEnabled(void);
 
 	size_t getNumberOfBadTriggers(const TriggersQueryOption &option,
 				      TriggerSeverityType severity);

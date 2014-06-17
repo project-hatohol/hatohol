@@ -350,6 +350,12 @@ HatoholError UnifiedDataStore::deleteActionList(
 	return dbAction.deleteActions(actionIdList, privilege);
 }
 
+bool UnifiedDataStore::isIssueSenderActionEnabled(void)
+{
+	DBClientAction dbAction;
+	return dbAction.isIssueSenderEnabled();
+}
+
 HatoholError UnifiedDataStore::getHostgroupInfoList
   (HostgroupInfoList &hostgroupInfoList, const HostgroupsQueryOption &option)
 {
