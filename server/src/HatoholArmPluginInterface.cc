@@ -38,6 +38,7 @@ using namespace qpid::messaging;
 const char *HatoholArmPluginInterface::DEFAULT_BROKER_URL = "localhost:5672";
 const uint32_t HatoholArmPluginInterface::SEQ_ID_UNKNOWN = UINT32_MAX;
 const uint32_t HatoholArmPluginInterface::SEQ_ID_MAX     = UINT32_MAX - 1;
+const EventIdType HatoholArmPluginInterface::EVENT_ID_NOT_FOUND = -1;
 
 enum InitiationState {
 	INIT_STAT_UNKNOWN,

@@ -110,6 +110,12 @@ SmartTime HatoholArmPluginBase::getTimestampOfLastTrigger(void)
 	return SmartTime(ts);
 }
 
+EventIdType HatoholArmPluginBase::getLastEventId(void)
+{
+	MLPL_BUG("Not implemented yet: %s\n", __PRETTY_FUNCTION__);
+	return EVENT_ID_NOT_FOUND;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

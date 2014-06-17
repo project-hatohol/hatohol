@@ -40,6 +40,15 @@ public:
 
 	mlpl::SmartTime getTimestampOfLastTrigger(void);
 
+	/**
+	 * Get the last event ID in the Hatohol server.
+	 *
+	 * @return
+	 * A last event ID. If the server dosen't have events,
+	 * EVENT_ID_NOT_FOUND is returned.
+	 */
+	EventIdType getLastEventId(void);
+
 protected:
 	virtual void onGotResponse(const HapiResponseHeader *header,
 	                           mlpl::SmartBuffer &resBuf) override;
