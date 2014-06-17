@@ -226,6 +226,7 @@ var EventsView = function(userProfile, baseElem) {
       status     = event["type"];
       severity   = event["severity"];
       duration   = self.durations[serverId][event["triggerId"]][clock];
+      issue      = event["issue"];
 
       html += "<tr><td>" + escapeHTML(serverName) + "</td>";
       html += "<td data-sort-value='" + escapeHTML(clock) + "'>" +
@@ -240,8 +241,15 @@ var EventsView = function(userProfile, baseElem) {
         severity_choices[Number(severity)] + "</td>";
       html += "<td data-sort-value='" + duration + "'>" +
         formatSecond(duration) + "</td>";
+      if (self.rawData["haveIssue"]) {
+          html += "<td class='issue-column'>";
+          if (issue && issue.location) {
+            html += "<a href='" + issue.location + "'>";
+            html += gettext("Show") + "</a>";
+          }
+          html += "</td>";
+      }
       /*
-      html += "<td>" + "unsupported" + "</td>";
       html += "<td>" + "unsupported" + "</td>";
       */
       html += "</tr>";
@@ -251,6 +259,8 @@ var EventsView = function(userProfile, baseElem) {
   }
 
   function drawTableContents() {
+    if (self.rawData["haveIssue"])
+      $(".issue-column").show();
     $("#table tbody").empty();
     $("#table tbody").append(drawTableBody());
   }
