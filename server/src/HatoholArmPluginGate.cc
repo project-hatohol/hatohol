@@ -291,9 +291,6 @@ void HatoholArmPluginGate::cmdHandlerSendUpdatedTriggers(
 void HatoholArmPluginGate::cmdHandlerSendHosts(
   const HapiCommandHeader *header)
 {
-	MLPL_BUG("Not implemented yet: %s\n", __PRETTY_FUNCTION__);
-	return;
-
 	SmartBuffer *cmdBuf = getCurrBuffer();
 	HATOHOL_ASSERT(cmdBuf, "Current buffer: NULL");
 
@@ -307,7 +304,6 @@ void HatoholArmPluginGate::cmdHandlerSendHosts(
 	HostInfoList hostInfoList;
 	DBClientZabbix::transformHostsToHatoholFormat(
 	  hostInfoList, hostTablePtr, m_ctx->serverInfo.id);
-	bool getMonitoringServerInfo(MonitoringServerInfo &serverInfo);
 
 	CacheServiceDBClient cache;
 	DBClientHatohol *dbHatohol = cache.getHatohol();
