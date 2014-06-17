@@ -554,6 +554,31 @@ protected:
 	}
 
 	/**
+	 * Get the command body with a buffer size check.
+	 *
+	 * If the command buffer size is smaller than the expected size,
+	 * HatoholException is thrown.
+	 *
+	 * @tparam BodyType
+	 * A Body type. If a body doesn't exist, 'void' shall be set.
+	 *
+	 * @param cmdBuf A command buffer.
+	 * @param additionalSize An additional content size.
+	 *
+	 * @return
+	 * An address next to the header region. It is typically the top of
+	 * the body.
+	 */
+	template<class BodyType>
+	BodyType *getCommandBody(mlpl::SmartBuffer &cmdBuf,
+	                         const size_t &additionalSize = 0)
+	  throw(HatoholException)
+	{
+		return getBodyPointerWithCheck<HapiCommandHeader, BodyType>(
+		         cmdBuf, additionalSize);
+	}
+
+	/**
 	 * Allocate buffer to include the specified body and set up
 	 * parameters of the header.
 	 *
