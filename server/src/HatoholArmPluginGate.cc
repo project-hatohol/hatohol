@@ -33,6 +33,7 @@
 #include "CacheServiceDBClient.h"
 #include "ChildProcessManager.h"
 #include "StringUtils.h"
+#include "HostInfoCache.h"
 #include "DBClientZabbix.h" // deprecated
 
 using namespace std;
@@ -50,6 +51,7 @@ struct HatoholArmPluginGate::PrivateContext
 	ArmPluginInfo        armPluginInfo;
 	ArmStatus            armStatus;
 	GPid                 pid;
+	HostInfoCache        hostInfoCache;
 
 	PrivateContext(const MonitoringServerInfo &_serverInfo,
 	               HatoholArmPluginGate *_hapg)
