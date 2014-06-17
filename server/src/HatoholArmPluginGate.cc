@@ -300,9 +300,6 @@ void HatoholArmPluginGate::cmdHandlerGetLastEventId(
 void HatoholArmPluginGate::cmdHandlerSendUpdatedTriggers(
   const HapiCommandHeader *header)
 {
-	MLPL_BUG("Not implemented yet: %s\n", __PRETTY_FUNCTION__);
-	return;
-
 	SmartBuffer *cmdBuf = getCurrBuffer();
 	HATOHOL_ASSERT(cmdBuf, "Current buffer: NULL");
 
