@@ -509,7 +509,9 @@ protected:
 	 * @tparam BodyType
 	 * A Body type. If a body doesn't exist, 'void' shall be set.
 	 *
-	 * @param cmdBuf A buffer for the command.
+	 * @param cmdBuf
+	 * A buffer for the command. The index is set to the nex to the header
+	 * region after the call.
 	 * @param code   A command code.
 	 * @param additionalSize An additional content size.
 	 *
@@ -531,6 +533,7 @@ protected:
 		cmdHeader->type = NtoL(HAPI_MSG_COMMAND);
 		cmdHeader->code = NtoL(code);
 		cmdHeader->sequenceId = NtoL(getIncrementedSequenceId());
+		cmdBuf.setIndex(sizeof(HapiCommandHeader));
 		return cmdBuf.getPointer<BodyType>(sizeof(HapiCommandHeader));
 	}
 
