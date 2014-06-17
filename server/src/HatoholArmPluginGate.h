@@ -94,6 +94,7 @@ protected:
 	void cmdHandlerSendUpdatedTriggers(const HapiCommandHeader *header);
 	void cmdHandlerSendHosts(const HapiCommandHeader *header);
 	void cmdHandlerSendHostgroupElements(const HapiCommandHeader *header);
+	void cmdHandlerSendHostgroups(const HapiCommandHeader *header);
 
 private:
 	struct PrivateContext;
