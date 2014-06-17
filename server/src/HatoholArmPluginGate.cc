@@ -260,4 +260,24 @@ void HatoholArmPluginGate::cmdHandlerSendUpdatedTriggers(
   const HapiCommandHeader *header)
 {
 	MLPL_BUG("Not implemented yet: %s\n", __PRETTY_FUNCTION__);
+	return;
+
+	SmartBuffer *cmdBuf = getCurrBuffer();
+	HATOHOL_ASSERT(cmdBuf, "Current buffer: NULL");
+
+	cmdBuf->setIndex(sizeof(HapiCommandHeader));
+	ItemTablePtr tablePtr = createItemTable(*cmdBuf);
+
+	// We don't save trigger data to DBClientZabbix. Instead
+	// save the data to DBClientHatohol directly.
+	// Different from ArmZabbixAPI, our new design deprecates
+	// using DBClinetZabbix, because it hasn't worked usefully.
+
+	TriggerInfoList triggerInfoList;
+	// TODO: Build triggerInfoList with the host data.
+	// We implemnet code to get host data first.
+
+	CacheServiceDBClient cache;
+	DBClientHatohol *dbHatohol = cache.getHatohol();
+	dbHatohol->addTriggerInfoList(triggerInfoList);
 }
