@@ -109,6 +109,11 @@ void SmartBuffer::resetIndex(void)
 	m_index = 0;
 }
 
+void SmartBuffer::setIndex(const size_t &index)
+{
+	m_index = index;
+}
+
 void SmartBuffer::resetIndexDeep(void)
 {
 	resetIndex();

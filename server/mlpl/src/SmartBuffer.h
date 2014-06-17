@@ -85,6 +85,7 @@ public:
 	void ensureRemainingSize(size_t size);
 
 	void resetIndex(void);
+	void setIndex(const size_t &index = 0);
 
 	/**
 	 * reset both the index and the watermark.
