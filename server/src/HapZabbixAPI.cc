@@ -53,35 +53,20 @@ void HapZabbixAPI::workOnTriggers(void)
 	SmartTime lastTriggerTime = getTimestampOfLastTrigger();
 	// TODO: getTrigger() should accept SmartTime directly.
 	const int requestSince = lastTriggerTime.getAsTimespec().tv_sec;
-
-	SmartBuffer cmdBuf;
-	setupCommandHeader<void>(cmdBuf, HAPI_CMD_SEND_UPDATED_TRIGGERS);
-	appendItemTable(cmdBuf, getTrigger(requestSince));
-	send(cmdBuf);
+	sendTable(HAPI_CMD_SEND_UPDATED_TRIGGERS, getTrigger(requestSince));
 }
 
 void HapZabbixAPI::workOnHostsAndHostgroups(void)
 {
 	ItemTablePtr hostTablePtr, hostGroupsTablePtr;
 	getHosts(hostTablePtr, hostGroupsTablePtr);
-
-	SmartBuffer cmdBuf;
-	setupCommandHeader<void>(cmdBuf, HAPI_CMD_SEND_HOSTS);
-	appendItemTable(cmdBuf, hostTablePtr);
-	send(cmdBuf);
-
-	setupCommandHeader<void>(cmdBuf, HAPI_CMD_SEND_HOST_GROUP_ELEMENTS);
-	appendItemTable(cmdBuf, hostGroupsTablePtr);
-	send(cmdBuf);
+	sendTable(HAPI_CMD_SEND_HOSTS, hostTablePtr);
+	sendTable(HAPI_CMD_SEND_HOST_GROUP_ELEMENTS, hostGroupsTablePtr);
 }
 
 void HapZabbixAPI::workOnHostgroups(void)
 {
 	ItemTablePtr hostgroupsTablePtr;
 	getGroups(hostgroupsTablePtr);
-
-	SmartBuffer cmdBuf;
-	setupCommandHeader<void>(cmdBuf, HAPI_CMD_SEND_HOST_GROUPS);
-	appendItemTable(cmdBuf, hostgroupsTablePtr);
-	send(cmdBuf);
+	sendTable(HAPI_CMD_SEND_HOST_GROUPS, hostgroupsTablePtr);
 }
