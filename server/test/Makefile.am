@@ -38,6 +38,7 @@ testHatohol_la_SOURCES = \
 	testHatoholError.cc \
 	testHatoholException.cc testSQLProcessorException.cc \
 	testHatoholThreadBase.cc \
+	testHostInfoCache.cc \
 	testHostResourceQueryOption.cc \
 	testHostResourceQueryOptionSubClasses.cc \
 	testDBAgent.cc \
