@@ -74,4 +74,36 @@ void test_updateTwice(void)
 	cppcut_assert_equal(hostInfo.hostName, name);
 }
 
+void test_getNameFromMany(void)
+{
+	struct DataArray {
+		HostIdType id;
+		const char *name;
+	} dataArray [] = {
+		{105, "You"},
+		{211, "Hydrogen"},
+		{5, "foo"},
+		{10555, "3K background radition is not 4K display"},
+		{4, "I like strawberry."},
+	};
+	const size_t numData = sizeof(dataArray) / sizeof(DataArray);
+
+	HostInfoCache hiCache;
+	for (size_t i = 0; i < numData; i++) {
+		HostInfo hostInfo;
+		hostInfo.serverId = 100;
+		hostInfo.id = dataArray[i].id;
+		hostInfo.hostName = dataArray[i].name;
+		hiCache.update(hostInfo);
+	}
+
+	// check
+	for (size_t i = 0; i < numData; i++) {
+		string name;
+		const HostIdType id = dataArray[i].id;
+		cppcut_assert_equal(true, hiCache.getName(id, name));
+		cppcut_assert_equal(string(dataArray[i].name), name);
+	}
+}
+
 } // namespace testHostInfoCache
