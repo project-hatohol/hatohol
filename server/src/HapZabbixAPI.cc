@@ -70,7 +70,7 @@ void HapZabbixAPI::workOnHostsAndHostgroups(void)
 	appendItemTable(cmdBuf, hostTablePtr);
 	send(cmdBuf);
 
-	setupCommandHeader<void>(cmdBuf, HAPI_CMD_SEND_HOST_GROUPS);
+	setupCommandHeader<void>(cmdBuf, HAPI_CMD_SEND_HOST_GROUP_ELEMENTS);
 	appendItemTable(cmdBuf, hostGroupsTablePtr);
 	send(cmdBuf);
 }
