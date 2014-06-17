@@ -45,7 +45,8 @@ protected:
 	                           mlpl::SmartBuffer &resBuf) override;
 
 	void waitResponseAndCheckHeader(void);
-	void sendTable(const HapiCommandCode &code, ItemTablePtr tablePtr);
+	void sendTable(const HapiCommandCode &code,
+	               const ItemTablePtr &tablePtr);
 
 private:
 	struct PrivateContext;

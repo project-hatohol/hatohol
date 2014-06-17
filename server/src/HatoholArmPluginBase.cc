@@ -129,7 +129,7 @@ void HatoholArmPluginBase::waitResponseAndCheckHeader(void)
 }
 
 void HatoholArmPluginBase::sendTable(
-  const HapiCommandCode &code, ItemTablePtr tablePtr)
+  const HapiCommandCode &code, const ItemTablePtr &tablePtr)
 {
 	SmartBuffer cmdBuf;
 	setupCommandHeader<void>(cmdBuf, code);
