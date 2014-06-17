@@ -291,13 +291,50 @@ void HatoholArmPluginGate::cmdHandlerSendUpdatedTriggers(
 	// Different from ArmZabbixAPI, our new design deprecates
 	// using DBClinetZabbix, because it hasn't worked usefully.
 
-	TriggerInfoList triggerInfoList;
-	// TODO: Build triggerInfoList with the host data.
-	// We implemnet code to get host data first.
+	TriggerInfoList trigInfoList;
+	const ItemGroupList &trigGrpList = tablePtr->getItemGroupList();
+	ItemGroupListConstIterator trigGrpItr = trigGrpList.begin();
+	for (; trigGrpItr != trigGrpList.end(); ++trigGrpItr) {
+		ItemGroupStream trigGroupStream(*trigGrpItr);
+		TriggerInfo trigInfo;
+
+		trigInfo.serverId = m_ctx->serverInfo.id;
+
+		trigGroupStream.seek(ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
+		trigGroupStream >> trigInfo.id;
+
+		trigGroupStream.seek(ITEM_ID_ZBX_TRIGGERS_VALUE);
+		trigGroupStream >> trigInfo.status;
+
+		trigGroupStream.seek(ITEM_ID_ZBX_TRIGGERS_PRIORITY);
+		trigGroupStream >> trigInfo.severity;
+
+		trigGroupStream.seek(ITEM_ID_ZBX_TRIGGERS_LASTCHANGE);
+		trigGroupStream >> trigInfo.lastChangeTime.tv_sec;
+		trigInfo.lastChangeTime.tv_nsec = 0;
+
+		trigGroupStream.seek(ITEM_ID_ZBX_TRIGGERS_DESCRIPTION);
+		trigGroupStream >> trigInfo.brief;
+
+		trigGroupStream.seek(ITEM_ID_ZBX_TRIGGERS_HOSTID);
+		trigGroupStream >> trigInfo.hostId;
+
+		if (!m_ctx->hostInfoCache.getName(trigInfo.id,
+		                                  trigInfo.hostName)) {
+			MLPL_WARN(
+			  "Ignored a trigger whose host name was not found: "
+			  "server: %" FMT_SERVER_ID ", host: %" FMT_HOST_ID
+			  "\n",
+			  m_ctx->serverInfo.id, trigInfo.id);
+			continue;
+		}
+
+		trigInfoList.push_back(trigInfo);
+	}
 
 	CacheServiceDBClient cache;
 	DBClientHatohol *dbHatohol = cache.getHatohol();
-	dbHatohol->addTriggerInfoList(triggerInfoList);
+	dbHatohol->addTriggerInfoList(trigInfoList);
 }
 
 void HatoholArmPluginGate::cmdHandlerSendHosts(
