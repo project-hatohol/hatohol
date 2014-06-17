@@ -244,10 +244,12 @@ string IssueSender::buildDescription(const EventInfo &event,
 			  server->hostName.c_str(),
 			  server->ipAddress.c_str(),
 			  server->nickname.c_str());
+	desc += "\n";
 	desc += StringUtils::sprintf(
 		  "Host ID: %" FMT_HOST_ID "\n"
 		  "    Hostname:   \"%s\"\n",
 		  event.hostId, event.hostName.c_str());
+	desc += "\n";
 	desc += StringUtils::sprintf(
 		  "Event ID: %" FMT_EVENT_ID "\n"
 		  "    Time:       \"%ld.%09ld (%s)\"\n"
@@ -258,6 +260,7 @@ string IssueSender::buildDescription(const EventInfo &event,
 		  event.type,
 		  LabelUtils::getEventTypeLabel(event.type).c_str(),
 		  event.brief.c_str());
+	desc += "\n";
 	desc += StringUtils::sprintf(
 		  "Trigger ID: %" FMT_TRIGGER_ID "\n"
 		  "    Status:     \"%d (%s)\"\n"
