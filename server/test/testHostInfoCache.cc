@@ -80,11 +80,11 @@ void test_getNameFromMany(void)
 		HostIdType id;
 		const char *name;
 	} dataArray [] = {
-		{105, "You"},
-		{211, "Hydrogen"},
-		{5, "foo"},
+		{105,   "You"},
+		{211,   "Hydrogen"},
+		{5,     "foo"},
 		{10555, "3K background radition is not 4K display"},
-		{4, "I like strawberry."},
+		{4,     "I like strawberry."},
 	};
 	const size_t numData = sizeof(dataArray) / sizeof(DataArray);
 
