@@ -94,6 +94,11 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 	  HAPI_CMD_SEND_HOSTS,
 	  (CommandHandler)
 	    &HatoholArmPluginGate::cmdHandlerSendHosts);
+
+	registerCommandHandler(
+	  HAPI_CMD_SEND_HOST_GROUP_ELEMENTS,
+	  (CommandHandler)
+	    &HatoholArmPluginGate::cmdHandlerSendHostgroupElements);
 }
 
 void HatoholArmPluginGate::start(void)
@@ -308,4 +313,27 @@ void HatoholArmPluginGate::cmdHandlerSendHosts(
 	CacheServiceDBClient cache;
 	DBClientHatohol *dbHatohol = cache.getHatohol();
 	dbHatohol->addHostInfoList(hostInfoList);
+}
+
+void HatoholArmPluginGate::cmdHandlerSendHostgroupElements(
+  const HapiCommandHeader *header)
+{
+	SmartBuffer *cmdBuf = getCurrBuffer();
+	HATOHOL_ASSERT(cmdBuf, "Current buffer: NULL");
+
+	cmdBuf->setIndex(sizeof(HapiCommandHeader));
+	ItemTablePtr hostgroupTablePtr = createItemTable(*cmdBuf);
+
+	// We don't save host data to DBClientZabbix.
+	// See also the comment in cmdHandlerSendUpdatedTriggers().
+	// TODO: replace DBClientZabbix::transformHostsGroupsToHatoholFormat()
+	// with a similar helper function.
+	HostgroupElementList hostgroupElementList;
+	HostInfoList hostInfoList;
+	DBClientZabbix::transformHostsGroupsToHatoholFormat(
+	  hostgroupElementList, hostgroupTablePtr, m_ctx->serverInfo.id);
+
+	CacheServiceDBClient cache;
+	DBClientHatohol *dbHatohol = cache.getHatohol();
+	dbHatohol->addHostgroupElementList(hostgroupElementList);
 }
