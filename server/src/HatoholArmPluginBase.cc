@@ -127,3 +127,12 @@ void HatoholArmPluginBase::waitResponseAndCheckHeader(void)
 	// To check the sainity of the header
 	getResponseHeader(m_ctx->responseBuf);
 }
+
+void HatoholArmPluginBase::sendTable(
+  const HapiCommandCode &code, ItemTablePtr tablePtr)
+{
+	SmartBuffer cmdBuf;
+	setupCommandHeader<void>(cmdBuf, code);
+	appendItemTable(cmdBuf, tablePtr);
+	send(cmdBuf);
+}
