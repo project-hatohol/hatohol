@@ -18,6 +18,7 @@
  */
 
 #include <cppcutter.h>
+#include "HostInfoCache.h"
 using namespace std;
 
 namespace testHostInfoCache {
@@ -25,5 +26,19 @@ namespace testHostInfoCache {
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
+
+void test_updateAndGetName(void)
+{
+	HostInfo hostInfo;
+	hostInfo.serverId = 100;
+	hostInfo.id = 2;
+	hostInfo.hostName = "foo";
+
+	HostInfoCache hiCache;
+	hiCache.update(hostInfo);
+	string name;
+	cppcut_assert_equal(true, hiCache.getName(hostInfo.id, name));
+	cppcut_assert_equal(hostInfo.hostName, name);
+}
 
 } // namespace testHostInfoCache
