@@ -20,10 +20,28 @@
 #ifndef HostInfoCache_h
 #define HostInfoCache_h
 
+#include <string>
+#include "DBClientHatohol.h"
+
+/**
+ * Currently This class has only the ID and the name. In addition,
+ * Hosts with the same serverId can be cached for an instance.
+ */
 class HostInfoCache {
 public:
 	HostInfoCache(void);
 	virtual ~HostInfoCache();
+	void update(const HostInfo &hostInfo);
+
+	/**
+	 * Get the name corresponding to the specified host ID.
+	 *
+	 * @param id A target host ID.
+	 * @param name The obtained name is store in this paramter.
+	 *
+	 * @return true if the host is found, or false.
+	 */
+	bool getName(const HostIdType &id, std::string &name);
 
 private:
 	struct PrivateContext;
