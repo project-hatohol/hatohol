@@ -89,6 +89,11 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 	    &HatoholArmPluginGate::cmdHandlerGetTimestampOfLastTrigger);
 
 	registerCommandHandler(
+	  HAPI_CMD_GET_LAST_EVENT_ID,
+	  (CommandHandler)
+	    &HatoholArmPluginGate::cmdHandlerGetLastEventId);
+
+	registerCommandHandler(
 	  HAPI_CMD_SEND_UPDATED_TRIGGERS,
 	  (CommandHandler)
 	    &HatoholArmPluginGate::cmdHandlerSendUpdatedTriggers);
@@ -277,6 +282,18 @@ void HatoholArmPluginGate::cmdHandlerGetTimestampOfLastTrigger(
 	const timespec &lastTimespec = last.getAsTimespec();
 	body->timestamp = NtoL(lastTimespec.tv_sec);
 	body->nanosec   = NtoL(lastTimespec.tv_nsec);
+	reply(resBuf);
+}
+
+void HatoholArmPluginGate::cmdHandlerGetLastEventId(
+  const HapiCommandHeader *header)
+{
+	SmartBuffer resBuf;
+	HapiResLastEventId *body =
+	  setupResponseBuffer<HapiResLastEventId>(resBuf);
+	CacheServiceDBClient cache;
+	DBClientHatohol *dbHatohol = cache.getHatohol();
+	body->lastEventId = dbHatohol->getLastEventId(m_ctx->serverInfo.id);
 	reply(resBuf);
 }
 

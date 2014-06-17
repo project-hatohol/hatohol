@@ -54,6 +54,7 @@ enum HapiCommandCode {
 	// Cl -> Sv
 	HAPI_CMD_GET_MONITORING_SERVER_INFO,
 	HAPI_CMD_GET_TIMESTAMP_OF_LAST_TRIGGER,
+	HAPI_CMD_GET_LAST_EVENT_ID,
 	HAPI_CMD_SEND_UPDATED_TRIGGERS,
 	HAPI_CMD_SEND_HOSTS,
 	HAPI_CMD_SEND_HOST_GROUP_ELEMENTS,
@@ -165,6 +166,10 @@ struct HapiResMonitoringServerInfo {
 struct HapiResTimestampOfLastTrigger {
 	uint64_t timestamp; // Unix time (GMT)
 	uint32_t nanosec;
+} __attribute__((__packed__));
+
+struct HapiResLastEventId {
+	uint64_t lastEventId;
 } __attribute__((__packed__));
 
 class HatoholArmPluginInterface :
