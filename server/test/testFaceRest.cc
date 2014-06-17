@@ -629,10 +629,13 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 	                    eventsArg.expectedRecords.size());
 	assertValueInParser(g_parser, "lastUnifiedEventId",
 	                    eventsArg.expectedRecords.size());
+	DBClientAction dbAction;
+	bool shouldHaveIssue = dbAction.isIssueSenderEnabled();
+	assertValueInParser(g_parser, "haveIssue", shouldHaveIssue);
+
 	assertStartObject(g_parser, "events");
 	vector<EventInfo*>::reverse_iterator it
 	  = eventsArg.expectedRecords.rbegin();
-	DBClientAction dbAction;
 	for (size_t i = 0; it != eventsArg.expectedRecords.rend(); i++, ++it) {
 		EventInfo &eventInfo = *(*it);
 		uint64_t unifiedId = eventsArg.idMap[*it];
@@ -646,7 +649,7 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 		assertValueInParser(g_parser, "severity",  eventInfo.severity);
 		assertValueInParser(g_parser, "hostId",    eventInfo.hostId);
 		assertValueInParser(g_parser, "brief",     eventInfo.brief);
-		if (dbAction.isIssueSenderEnabled()) {
+		if (shouldHaveIssue) {
 			assertStartObject(g_parser, "issue");
 			IssueInfo issue
 			  = eventsArg.getExpectedIssueInfo(eventInfo);
