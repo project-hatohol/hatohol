@@ -41,4 +41,17 @@ void test_updateAndGetName(void)
 	cppcut_assert_equal(hostInfo.hostName, name);
 }
 
+void test_getNameExpectFalse(void)
+{
+	HostInfo hostInfo;
+	hostInfo.serverId = 100;
+	hostInfo.id = 2;
+	hostInfo.hostName = "foo";
+
+	HostInfoCache hiCache;
+	hiCache.update(hostInfo);
+	string name;
+	cppcut_assert_equal(false, hiCache.getName(500, name));
+}
+
 } // namespace testHostInfoCache
