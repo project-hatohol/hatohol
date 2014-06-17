@@ -1828,7 +1828,10 @@ void FaceRest::handlerGetEvent(RestJob *job)
 	addHatoholError(agent, HatoholError(HTERR_OK));
 	// TODO: should use transaction to avoid conflicting with event list
 	agent.add("lastUnifiedEventId", getLastUnifiedEventId(job));
-	agent.add("haveIssue", addIssues);
+	if (addIssues)
+		agent.addTrue("haveIssue");
+	else
+		agent.addFalse("haveIssue");
 	agent.startArray("events");
 	EventInfoListIterator it = eventList.begin();
 	for (size_t i = 0; it != eventList.end(); ++i, ++it) {
