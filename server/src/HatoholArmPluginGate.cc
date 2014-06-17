@@ -85,7 +85,7 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 	    &HatoholArmPluginGate::cmdHandlerGetTimestampOfLastTrigger);
 
 	registerCommandHandler(
-	  HAPI_CMD_GET_TIMESTAMP_OF_LAST_TRIGGER,
+	  HAPI_CMD_SEND_UPDATED_TRIGGERS,
 	  (CommandHandler)
 	    &HatoholArmPluginGate::cmdHandlerSendUpdatedTriggers);
 }
