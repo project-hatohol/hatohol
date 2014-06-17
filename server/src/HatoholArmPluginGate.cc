@@ -320,6 +320,11 @@ void HatoholArmPluginGate::cmdHandlerSendHosts(
 	CacheServiceDBClient cache;
 	DBClientHatohol *dbHatohol = cache.getHatohol();
 	dbHatohol->addHostInfoList(hostInfoList);
+
+	// TODO: consider if DBClientHatohol should have the cache
+	HostInfoListConstIterator hostInfoItr = hostInfoList.begin();
+	for (; hostInfoItr != hostInfoList.end(); ++hostInfoItr)
+		m_ctx->hostInfoCache.update(*hostInfoItr);
 }
 
 void HatoholArmPluginGate::cmdHandlerSendHostgroupElements(
