@@ -6,36 +6,31 @@ http://www.hatohol.org/
 
 Overview
 --------
-Hatohol collects monitoring information from running monitoring systems
-and shows their integrated data on one screen.
-This feature enables to consolidate monitoring centers and the operators
-even when monitored devices are being used in different places or
-with different monitoring software.
+Hatohol consolidates monitoring data from any number of running monitoring systems on one screen. This feature enables
+the integration of monitoring centers, even when these centers are in different places or are being monitored by 
+different software.
 
 ![Overview](doc/misc/hatohol-overview.png)
 
-Currently Hatohol provides the following information.
+Hatohol currently maintains the following information:
 
-- Item
+- Items
 
-  Each monitoring target such as CPU load and free memory size.
+  Monitoring items of targets, such as CPU load and free memory size.
 
-- Trigger
+- Triggers
 
-  Current status of monitoring items.
+  The current status of monitoring items.
 
-- Event
+- Events
 
-  History of the status change of items. When an event detected, Hatohol can execute
-  a user command (called action).
+  History of items' status changes. When an event detected, Hatohol can execute a defined user command (called an action).
 
 
 Project Hatohol
 -----------------------------
 Hatohol is an open source software developed and copyrighted by Project Hatohol.
-Participation of any people is welcome
-(e.g., bug fix, problem report, feature request/suggestion/discussion,
-functional improvement, and so on) 
+We welcome participation in all stages of our development (bug fixes, bug reports, feature requests/suggestions/discussion, functional improvement, etc.) 
 
 Supported monitoring software
 -----------------------------
@@ -50,29 +45,25 @@ Supported platforms
 
 Basic architecture
 ------------------
-Hatohol consists of a server and a client for Web UI. Hatohol server actually
-gathers monitoring information and integrate them. It provides the integrated
-data as a JSON format via HTTP (REST). A client internally communicates with
-the server and creates a response page when a user accesses.
+Hatohol consists of a server and a client using Web UI. Hatohol server gathers monitoring information and consolidates it. The integration of data is done via JSON format using HTTP (REST). A Hatohol client internally communicates with
+the server and creates a response page to see the consolidated data.
 
 ![BasicArchitecture](doc/misc/hatohol-basic-architecture.png)
 
-This architectures makes to develop alternative clients easy. For example,
-android applications, iOS applications, Win32 native client,
-or Web applications with other frameworks can be added.
+The architecture used, makes it easy to develop alternative clients. There is no internal complication in adding Android applications, iOS applications, Win32 native clients or Web applications with other frameworks.
 
 Screenshots
 -----------
-- dashboard
+- Dashboard
 ![dashboard](doc/misc/screenshot-dashboard.png)
 
-- events
+- Events
 ![events](doc/misc/screenshot-events.png)
 
-- servers
+- Servers
 ![servers](doc/misc/screenshot-servers.png)
 
-Other pages are now preparing.
+Other pages are being constructed.
 
 Installation
 ------------
@@ -90,22 +81,21 @@ Plans
 -----
 See [Milestone](https://github.com/project-hatohol/hatohol/issues/milestones)
 
-We will add useful features. If you have requests or good ideas,
-please tell us them.
+We will continue to add, what we believe are, useful features. If you have requests or good ideas, do not hesitate to discuss them with us!
 
 Mailing Lists
 -------------
-There are some mailing lists to discuss Hatohol.
+Below are the mailing lists to discuss Hatohol:
 
 * hatohol-users@lists.sourceforge.jp
-  * Discuss anything about how to install and use Hatohol (for Japanese users).
+  * Discuss about anything related to installing and using Hatohol (for Japanese users).
   * How to subscribe: http://lists.sourceforge.jp/mailman/listinfo/hatohol-users
 * hatohol-users@lists.sourceforge.net
-  * Discuss anything about how to install and use Hatohol (English).
+  * Discuss about anything related to installing and using Hatohol (for English speaking users).
   * How to subscribe: https://lists.sourceforge.net/lists/listinfo/hatohol-users
 * hatohol-commit@lists.sourceforge.net
-  * Receive commit notifications & discuss each commit.
+  * Receive commit notifications & be able to discuss each commit.
   * How to subscribe: https://lists.sourceforge.net/lists/listinfo/hatohol-commit
 * For Hatohol developers
-  * Currently no mailing list exists to discuss developing Hatohol.
+  * There is currently no mailing list to discuss Hatohol development.
   * Please use github issue instead: https://github.com/project-hatohol/hatohol/issues
