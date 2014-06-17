@@ -354,7 +354,7 @@ void HatoholArmPluginGate::cmdHandlerSendHostgroups(
 
 	// We don't save host data to DBClientZabbix.
 	// See also the comment in cmdHandlerSendUpdatedTriggers().
-	// TODO: replace DBClientZabbix::transformHostsGroupsToHatoholFormat()
+	// TODO: replace DBClientZabbix::transformGroupsToHatoholFormat()
 	// with a similar helper function.
 	HostgroupInfoList hostgroupInfoList;
 	DBClientZabbix::transformGroupsToHatoholFormat(
