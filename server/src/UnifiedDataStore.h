@@ -75,7 +75,8 @@ public:
 	                    const TriggersQueryOption &option);
 	mlpl::SmartTime getTimestampOfLastTrigger(const ServerIdType serverId);
 	HatoholError getEventList(EventInfoList &eventList,
-	                          EventsQueryOption &option);
+	                          EventsQueryOption &option,
+				  IssueInfoVect *issueVect = NULL);
 	void getItemList(ItemInfoList &itemList,
 	                 const ItemsQueryOption &option,
 	                 bool fetchItemsSynchronously = false);

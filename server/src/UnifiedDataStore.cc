@@ -301,10 +301,11 @@ SmartTime UnifiedDataStore::getTimestampOfLastTrigger(
 }
 
 HatoholError UnifiedDataStore::getEventList(EventInfoList &eventList,
-					    EventsQueryOption &option)
+					    EventsQueryOption &option,
+					    IssueInfoVect *issueVect)
 {
 	DBClientHatohol dbHatohol;
-	return dbHatohol.getEventInfoList(eventList, option);
+	return dbHatohol.getEventInfoList(eventList, option, issueVect);
 }
 
 void UnifiedDataStore::getItemList(ItemInfoList &itemList,
