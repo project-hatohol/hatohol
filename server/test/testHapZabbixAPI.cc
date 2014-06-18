@@ -46,10 +46,19 @@ public:
 		assertWaitSemaphore(m_readySem);
 	}
 
-	void callWorkOnTriggers(void)
+	void callUpdateAuthTokenIfNeeded(void)
 	{
 		updateAuthTokenIfNeeded();
+	}
+
+	void callWorkOnTriggers(void)
+	{
 		workOnTriggers();
+	}
+
+	void callWorkOnHostsAndHostgroups()
+	{
+		workOnHostsAndHostgroups();
 	}
 
 protected:
@@ -90,16 +99,31 @@ void cut_teardown(void)
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
-void test_getTriggers(void)
+void test_getHostsAndTriggers(void)
 {
 	deleteDBClientHatoholDB();
 	HatoholArmPluginTestPair<HapZabbixAPITest> pair(
 	  DEFAULT_SERVER_ID, "127.0.0.1", EMULATOR_PORT);
+
+	// TODO: Suppress warning.
+	// We get host data before triggers since the host name is needed
+	// when the trigger is saved on the Hatohol DB.
+	// However, the following warnigs are shown.
+	//     [WARN] <HatoholArmPluginGate.cc:348> Ignored a trigger whose host name was not found: server: 5, host: 10010
+	// The reason why is the mismatch of host data and trigger data.
+	// ZabbixAPIEmulator generates trigger data with
+	// zabbix-api-res-triggers-003-hosts.json.  But the host data is
+	// beased on zabbix-api-res-hosts-002.json.
 	pair.plugin->assertWaitReady();
+	pair.plugin->callUpdateAuthTokenIfNeeded();
+	pair.plugin->callWorkOnHostsAndHostgroups();
+	pair.gate->assertWaitHandledCommand(HAPI_CMD_SEND_HOSTS);
+	pair.gate->assertWaitHandledCommand(HAPI_CMD_SEND_HOST_GROUP_ELEMENTS);
+
 	pair.plugin->callWorkOnTriggers();
+	pair.gate->assertWaitHandledCommand(HAPI_CMD_SEND_UPDATED_TRIGGERS);
 
 	// TODO: check the DB content
-	sleep(1);
 }
 
 } // namespace testHapZabbixAPI
