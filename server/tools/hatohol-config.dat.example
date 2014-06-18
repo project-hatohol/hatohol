@@ -36,5 +36,13 @@ user: guest, guest,   guest
 # server, therefor you should find it on each system's UI.
 # You can put "-1" for "Monitoring Server ID" and "Hostgroup ID" to choose all
 # monitoring servers or hostgroups.
+#
+# Trigger Severity is a numeric value:
+#   0: UNKNOWN
+#   1: INFO
+#   2: WARNING
+#   3: ERROR     ("Average" in ZABBIX)
+#   4: CRITICAL  ("High" in Zabbix)
+#   5: EMERGENCY ("Disaster" in Zabbix)
 
 #issueSenderAction: 1, -1, -1, 3
