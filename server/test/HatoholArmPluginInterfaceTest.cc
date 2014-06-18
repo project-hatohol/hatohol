@@ -30,7 +30,9 @@ using namespace qpid::messaging;
 // ---------------------------------------------------------------------------
 HapiTestHelper::HapiTestHelper(void)
 : m_connectedSem(0),
-  m_initiatedSem(0)
+  m_initiatedSem(0),
+  m_handledCommandSem(0),
+  m_lastHandledCode(NUM_HAPI_CMD)
 {
 }
 
@@ -44,6 +46,11 @@ void HapiTestHelper::onInitiated(void)
 	m_initiatedSem.post();
 }
 
+void HapiTestHelper::onHandledCommand(const HapiCommandCode &code)
+{
+	m_lastHandledCode = code;
+	m_initiatedSem.post();
+}
 
 SimpleSemaphore &HapiTestHelper::getConnectedSem(void)
 {
@@ -51,6 +58,11 @@ SimpleSemaphore &HapiTestHelper::getConnectedSem(void)
 }
 
 SimpleSemaphore &HapiTestHelper::getInitiatedSem(void)
+{
+	return m_initiatedSem;
+}
+
+SimpleSemaphore &HapiTestHelper::getHandledCommandSem(void)
 {
 	return m_initiatedSem;
 }
@@ -68,6 +80,13 @@ void HapiTestHelper::assertWaitConnected(void)
 void HapiTestHelper::assertWaitInitiated(void)
 {
 	assertWaitSemaphore(getInitiatedSem());
+}
+
+void HapiTestHelper::assertWaitHandledCommand(const HapiCommandCode &code)
+{
+	do {
+		assertWaitSemaphore(getInitiatedSem());
+	} while (m_lastHandledCode != code);
 }
 
 // ---------------------------------------------------------------------------

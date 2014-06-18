@@ -35,17 +35,22 @@ public:
 	HapiTestHelper(void);
 	void onConnected(qpid::messaging::Connection &conn);
 	void onInitiated(void);
+	void onHandledCommand(const HapiCommandCode &code);
 
 	mlpl::SimpleSemaphore &getConnectedSem(void);
 	mlpl::SimpleSemaphore &getInitiatedSem(void);
+	mlpl::SimpleSemaphore &getHandledCommandSem(void);
 
 	void assertWaitSemaphore(mlpl::SimpleSemaphore &sem);
 	void assertWaitConnected(void);
 	void assertWaitInitiated(void);
+	void assertWaitHandledCommand(const HapiCommandCode &code);
 
 private:
 	mlpl::SimpleSemaphore   m_connectedSem;
 	mlpl::SimpleSemaphore   m_initiatedSem;
+	mlpl::SimpleSemaphore   m_handledCommandSem;
+	HapiCommandCode         m_lastHandledCode;
 };
 
 class HatoholArmPluginInterfaceTestBasic :
