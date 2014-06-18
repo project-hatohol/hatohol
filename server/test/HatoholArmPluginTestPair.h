@@ -20,9 +20,19 @@
 #include "Helpers.h"
 #include "HatoholArmPluginGateTest.h"
 
+struct HatoholArmPluginTestPairBase {
+	// Definition like 'static const variable = val;' in a tempalate
+	// header file such as HatoholArmPluginPair causes the following
+	// runtime error when it is built with clang on Ubunu 12.04 and 14.04.
+	//
+	// can't load a shared object for test case: ./.libs/testHatohol.so: ./.libs/testHatohol.so: undefined symbol: _ZN24HatoholArmPluginTestPairIN24testHatoholArmPluginBase24HatoholArmPluginBaseTestEE17DEFAULT_SERVER_IDE
+	//
+	// This class is a workaround to it.
+	static const ServerIdType DEFAULT_SERVER_ID;
+};
+
 template <class HapClass>
-struct HatoholArmPluginTestPair {
-	static const ServerIdType DEFAULT_SERVER_ID = -1;
+struct HatoholArmPluginTestPair : public HatoholArmPluginTestPairBase {
 
 	HapgTestCtx hapgCtx;
 	MonitoringServerInfo serverInfo;

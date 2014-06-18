@@ -90,7 +90,8 @@ libTest_la_SOURCES = \
 	ExceptionTestUtils.h AssertJoin.h \
 	MultiLangTest.h \
 	HatoholArmPluginInterfaceTest.cc HatoholArmPluginInterfaceTest.h \
-	HatoholArmPluginGateTest.cc HatoholArmPluginGateTest.h
+	HatoholArmPluginGateTest.cc HatoholArmPluginGateTest.h \
+	HatoholArmPluginTestPair.cc HatoholArmPluginTestPair.h
 libTest_la_LDFLAGS =
 
 ActionTp_SOURCES = ActionTp.cc ActionTp.h
