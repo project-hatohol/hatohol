@@ -688,6 +688,14 @@ void loadTestDBTriggers(void)
 		dbHatohol.addTriggerInfo(&testTriggerInfo[i]);
 }
 
+void loadTestDBEvents(void)
+{
+	DBClientHatohol dbHatohol;
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	for (size_t i = 0; i < NumTestEventInfo; i++)
+		dbHatohol.addEventInfo(&testEventInfo[i]);
+}
+
 void setupTestDBConfig(bool dbRecreate, bool loadTestData)
 {
 	static const char *TEST_DB_NAME = "test_config";
