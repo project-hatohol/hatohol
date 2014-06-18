@@ -23,15 +23,45 @@
 
 using namespace mlpl;
 
-struct HatoholArmPluginBase::PrivateContext {
-	SimpleSemaphore replyWaitSem;
-	SmartBuffer     responseBuf;
+struct HatoholArmPluginBase::AsyncCbData {
+	HatoholArmPluginBase *obj;
+	void                 *priv;
 
-	PrivateContext(void)
-	: replyWaitSem(0)
+	AsyncCbData(HatoholArmPluginBase *_obj, void *_priv)
+	: obj(_obj),
+	  priv(_priv)
 	{
 	}
 };
+
+typedef void (*AsyncCallback)(HatoholArmPluginBase::AsyncCbData *data);
+
+struct HatoholArmPluginBase::PrivateContext {
+	SimpleSemaphore replyWaitSem;
+	SmartBuffer     responseBuf;
+	AsyncCallback   currAsyncCb;
+	AsyncCbData    *currAsyncCbData;
+
+	PrivateContext(void)
+	: replyWaitSem(0),
+	  currAsyncCb(NULL),
+	  currAsyncCbData(NULL)
+	{
+	}
+};
+
+// ---------------------------------------------------------------------------
+// GetMonitoringServerInfoAsyncArg
+// ---------------------------------------------------------------------------
+HatoholArmPluginBase::GetMonitoringServerInfoAsyncArg::GetMonitoringServerInfoAsyncArg(void)
+: serverInfo(NULL)
+{
+}
+
+void HatoholArmPluginBase::GetMonitoringServerInfoAsyncArg::doneCb(
+  const bool &succeeded)
+{
+}
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -54,6 +84,16 @@ bool HatoholArmPluginBase::getMonitoringServerInfo(
 	getMonitoringServerInfoTopHalf();
 	waitResponseAndCheckHeader();
 	return getMonitoringServerInfoBottomHalf(serverInfo);
+}
+
+void HatoholArmPluginBase::getMonitoringServerInfoAsync(
+  GetMonitoringServerInfoAsyncArg *arg)
+{
+	HATOHOL_ASSERT(!m_ctx->currAsyncCb,
+	               "Async. process is already running.");
+	getMonitoringServerInfoTopHalf();
+	m_ctx->currAsyncCb = _getMonitoringServerInfoAsyncCb;
+	m_ctx->currAsyncCbData = new AsyncCbData(this, arg);
 }
 
 SmartTime HatoholArmPluginBase::getTimestampOfLastTrigger(void)
@@ -91,6 +131,12 @@ void HatoholArmPluginBase::onGotResponse(
   const HapiResponseHeader *header, SmartBuffer &resBuf)
 {
 	resBuf.handOver(m_ctx->responseBuf);
+	if (m_ctx->currAsyncCb) {
+		(*m_ctx->currAsyncCb)(m_ctx->currAsyncCbData);
+		m_ctx->currAsyncCb = NULL;
+		m_ctx->currAsyncCbData = NULL;
+		return;
+	}
 	m_ctx->replyWaitSem.post();
 }
 
@@ -142,8 +188,26 @@ bool HatoholArmPluginBase::getMonitoringServerInfoBottomHalf(
 	return true;
 }
 
+void HatoholArmPluginBase::_getMonitoringServerInfoAsyncCb(
+  HatoholArmPluginBase::AsyncCbData *data)
+{
+	GetMonitoringServerInfoAsyncArg *arg =
+	  static_cast<GetMonitoringServerInfoAsyncArg *>(data->priv);
+	data->obj->getMonitoringServerInfoAsyncCb(arg);
+	delete data;
+}
+
+void HatoholArmPluginBase::getMonitoringServerInfoAsyncCb(
+  HatoholArmPluginBase::GetMonitoringServerInfoAsyncArg *arg)
+{
+	bool succeeded = getMonitoringServerInfoBottomHalf(*arg->serverInfo);
+	arg->doneCb(succeeded);
+}
+
 void HatoholArmPluginBase::waitResponseAndCheckHeader(void)
 {
+	HATOHOL_ASSERT(!m_ctx->currAsyncCb,
+	               "Async. process is already running.");
 	m_ctx->replyWaitSem.wait();
 
 	// To check the sainity of the header
