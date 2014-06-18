@@ -597,6 +597,11 @@ SoupMessage *ZabbixAPI::queryCommon(JsonBuilderAgent &agent)
 {
 	string request_body = agent.generate();
 	SoupMessage *msg = soup_message_new(SOUP_METHOD_POST, m_ctx->uri.c_str());
+	if (!msg) {
+		MLPL_ERR("Failed to call: soup_message_new: uri: %s\n",
+		         m_ctx->uri.c_str());
+		return NULL;
+	}
 	soup_message_headers_set_content_type(msg->request_headers,
 	                                      MIME_JSON_RPC, NULL);
 	soup_message_body_append(msg->request_body, SOUP_MEMORY_TEMPORARY,
