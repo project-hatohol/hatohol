@@ -631,6 +631,7 @@ void HatoholArmPluginInterface::parseCommand(
 	}
 	CommandHandler handler = it->second;
 	(this->*handler)(header);
+	onHandledCommand(static_cast<HapiCommandCode>(header->code));
 }
 
 void HatoholArmPluginInterface::parseResponse(
@@ -650,6 +651,10 @@ void HatoholArmPluginInterface::onGotError(
   const HatoholArmPluginError &hapError)
 {
 	THROW_HATOHOL_EXCEPTION("Got error: %d\n", hapError.code);
+}
+
+void HatoholArmPluginInterface::onHandledCommand(const HapiCommandCode &code)
+{
 }
 
 void HatoholArmPluginInterface::onGotResponse(

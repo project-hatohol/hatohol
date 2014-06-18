@@ -429,6 +429,7 @@ protected:
 	 */
 	virtual void onReceived(mlpl::SmartBuffer &smbuf);
 	virtual void onGotError(const HatoholArmPluginError &hapError);
+	virtual void onHandledCommand(const HapiCommandCode &code);
 
 	/**
 	 * Called when a HAPI's response is received.
