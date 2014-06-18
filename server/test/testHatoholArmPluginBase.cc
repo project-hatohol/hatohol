@@ -37,9 +37,8 @@ class HatoholArmPluginBaseTest :
   public HatoholArmPluginBase, public HapiTestHelper
 {
 public:
-	HatoholArmPluginBaseTest(const string queueAddr)
+	HatoholArmPluginBaseTest(void)
 	{
-		setQueueAddress(queueAddr);
 	}
 
 protected:
@@ -85,7 +84,8 @@ struct TestPair {
 		gate->start();
 		gate->assertWaitConnected();
 
-		plugin = new HatoholArmPluginBaseTest(
+		plugin = new HatoholArmPluginBaseTest();
+		plugin->setQueueAddress(
 		  gate->callGenerateBrokerAddress(serverInfo));
 		plugin->start();
 
