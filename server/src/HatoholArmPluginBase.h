@@ -40,11 +40,14 @@ public:
 	 */
 	bool getMonitoringServerInfo(MonitoringServerInfo &serverInfo);
 
-	struct GetMonitoringServerInfoAsyncArg {
-		MonitoringServerInfo *serverInfo;
+	class GetMonitoringServerInfoAsyncArg {
+	public:
+		GetMonitoringServerInfoAsyncArg(
+		  MonitoringServerInfo *serverInfo);
 		virtual void doneCb(const bool &succeeded);
-
-		GetMonitoringServerInfoAsyncArg(void);
+		MonitoringServerInfo &getMonitoringServerInfo(void);
+	private:
+		MonitoringServerInfo *m_serverInfo;
 	};
 
 	void getMonitoringServerInfoAsync(GetMonitoringServerInfoAsyncArg *arg);

@@ -80,8 +80,9 @@ void test_getMonitoringServerInfoAsync(void)
 	{
 		SimpleSemaphore sem;
 
-		Arg(void)
-		: sem(0)
+		Arg(MonitoringServerInfo *serverInfo)
+		: GetMonitoringServerInfoAsyncArg(serverInfo),
+		  sem(0)
 		{
 		}
 
@@ -89,8 +90,7 @@ void test_getMonitoringServerInfoAsync(void)
 		{
 			sem.post();
 		}
-	} arg;
-	arg.serverInfo = &serverInfo;
+	} arg(&serverInfo);
 
 	TestPair pair;
 	MonitoringServerInfo actual;

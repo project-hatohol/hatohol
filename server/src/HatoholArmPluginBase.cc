@@ -53,14 +53,20 @@ struct HatoholArmPluginBase::PrivateContext {
 // ---------------------------------------------------------------------------
 // GetMonitoringServerInfoAsyncArg
 // ---------------------------------------------------------------------------
-HatoholArmPluginBase::GetMonitoringServerInfoAsyncArg::GetMonitoringServerInfoAsyncArg(void)
-: serverInfo(NULL)
+HatoholArmPluginBase::GetMonitoringServerInfoAsyncArg::GetMonitoringServerInfoAsyncArg(MonitoringServerInfo *serverInfo)
+: m_serverInfo(serverInfo)
 {
 }
 
 void HatoholArmPluginBase::GetMonitoringServerInfoAsyncArg::doneCb(
   const bool &succeeded)
 {
+}
+
+MonitoringServerInfo &
+  HatoholArmPluginBase::GetMonitoringServerInfoAsyncArg::getMonitoringServerInfo(void)
+{
+	return *m_serverInfo;
 }
 
 // ---------------------------------------------------------------------------
@@ -200,7 +206,8 @@ void HatoholArmPluginBase::_getMonitoringServerInfoAsyncCb(
 void HatoholArmPluginBase::getMonitoringServerInfoAsyncCb(
   HatoholArmPluginBase::GetMonitoringServerInfoAsyncArg *arg)
 {
-	bool succeeded = getMonitoringServerInfoBottomHalf(*arg->serverInfo);
+	bool succeeded = getMonitoringServerInfoBottomHalf(
+	                   arg->getMonitoringServerInfo());
 	arg->doneCb(succeeded);
 }
 
