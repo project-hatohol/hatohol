@@ -55,6 +55,11 @@ SimpleSemaphore &HapiTestHelper::getInitiatedSem(void)
 	return m_initiatedSem;
 }
 
+void HapiTestHelper::assertWaitSemaphore(SimpleSemaphore &sem)
+{
+	cppcut_assert_equal(SimpleSemaphore::STAT_OK, sem.timedWait(TIMEOUT));
+}
+
 void HapiTestHelper::assertWaitConnected(void)
 {
 	cppcut_assert_equal(

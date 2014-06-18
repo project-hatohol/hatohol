@@ -39,6 +39,7 @@ public:
 	mlpl::SimpleSemaphore &getConnectedSem(void);
 	mlpl::SimpleSemaphore &getInitiatedSem(void);
 
+	void assertWaitSemaphore(mlpl::SimpleSemaphore &sem);
 	void assertWaitConnected(void);
 	void assertWaitInitiated(void);
 
