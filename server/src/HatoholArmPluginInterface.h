@@ -178,7 +178,6 @@ public:
 	static const char *DEFAULT_BROKER_URL;
 	static const uint32_t SEQ_ID_UNKNOWN;
 	static const uint32_t SEQ_ID_MAX;
-	static const EventIdType EVENT_ID_NOT_FOUND;
 
 	typedef void (HatoholArmPluginInterface::*CommandHandler)(
 	  const HapiCommandHeader *header);

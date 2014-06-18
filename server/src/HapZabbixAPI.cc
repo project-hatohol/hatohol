@@ -91,7 +91,7 @@ void HapZabbixAPI::workOnEvents(void)
 	while (lastEventIdOfHatohol != lastEventIdOfZbxSv) {
 		uint64_t eventIdOffset = 0;
 		uint64_t eventIdTill = NUMBER_OF_GET_EVENT_PER_ONCE;
-		if (lastEventIdOfHatohol != EVENT_ID_NOT_FOUND) {
+		if (lastEventIdOfHatohol != EVENT_NOT_FOUND) {
 			eventIdOffset = lastEventIdOfHatohol + 1;
 			eventIdTill += lastEventIdOfHatohol;
 		}

@@ -248,7 +248,6 @@ public:
 
 class DBClientHatohol : public DBClient {
 public:
-	static const EventIdType EVENT_NOT_FOUND;
 	static const int         HATOHOL_DB_VERSION;
 	static const char       *DEFAULT_DB_NAME;
 	static void init(void);

@@ -45,7 +45,7 @@ public:
 	 *
 	 * @return
 	 * A last event ID. If the server dosen't have events,
-	 * EVENT_ID_NOT_FOUND is returned.
+	 * EVENT_NOT_FOUND is returned.
 	 */
 	EventIdType getLastEventId(void);
 
