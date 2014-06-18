@@ -66,7 +66,7 @@ struct IssueSender::PrivateContext
 	unsigned int retryIntervalMSec;
 
 	PrivateContext(IssueSender &_sender)
-	: sender(_sender), jobSemaphore(0),
+	: sender(_sender), runningJob(NULL), jobSemaphore(0),
 	  retryLimit(DEFAULT_RETRY_LIMIT),
 	  retryIntervalMSec(DEFAULT_RETRY_INTERVAL_MSEC)
 	{
