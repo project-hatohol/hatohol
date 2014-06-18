@@ -34,6 +34,8 @@ HapiTestHelper::HapiTestHelper(void)
   m_handledCommandSem(0),
   m_lastHandledCode(NUM_HAPI_CMD)
 {
+	for (size_t i = 0; i < NUM_HAPI_CMD; i++)
+		m_timesHandled[i] = 0;
 }
 
 void HapiTestHelper::onConnected(Connection &conn)
@@ -48,7 +50,10 @@ void HapiTestHelper::onInitiated(void)
 
 void HapiTestHelper::onHandledCommand(const HapiCommandCode &code)
 {
+	m_handledCodeLock.writeLock();
 	m_lastHandledCode = code;
+	m_timesHandled[code]++;
+	m_handledCodeLock.unlock();
 	m_initiatedSem.post();
 }
 
@@ -82,11 +87,17 @@ void HapiTestHelper::assertWaitInitiated(void)
 	assertWaitSemaphore(getInitiatedSem());
 }
 
-void HapiTestHelper::assertWaitHandledCommand(const HapiCommandCode &code)
+void HapiTestHelper::assertWaitHandledCommand(
+  const HapiCommandCode &code, const size_t &minCalledTimes)
 {
-	do {
+	while (true) {
+		m_handledCodeLock.readLock();
+		bool shouldExit = (m_timesHandled[code] >= minCalledTimes);
+		m_handledCodeLock.unlock();
+		if (shouldExit)
+			break;
 		assertWaitSemaphore(getHandledCommandSem());
-	} while (m_lastHandledCode != code);
+	}
 }
 
 // ---------------------------------------------------------------------------

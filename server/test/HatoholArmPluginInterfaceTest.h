@@ -44,13 +44,16 @@ public:
 	void assertWaitSemaphore(mlpl::SimpleSemaphore &sem);
 	void assertWaitConnected(void);
 	void assertWaitInitiated(void);
-	void assertWaitHandledCommand(const HapiCommandCode &code);
+	void assertWaitHandledCommand(const HapiCommandCode &code,
+	                              const size_t &minCalledTimes = 1);
 
 private:
 	mlpl::SimpleSemaphore   m_connectedSem;
 	mlpl::SimpleSemaphore   m_initiatedSem;
 	mlpl::SimpleSemaphore   m_handledCommandSem;
 	HapiCommandCode         m_lastHandledCode;
+	size_t                  m_timesHandled[NUM_HAPI_CMD];
+	mlpl::ReadWriteLock     m_handledCodeLock;
 };
 
 class HatoholArmPluginInterfaceTestBasic :
