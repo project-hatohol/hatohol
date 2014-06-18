@@ -22,6 +22,7 @@
 #include "Hatohol.h"
 #include "HatoholArmPluginBase.h"
 #include "HatoholArmPluginGateTest.h"
+#include "HatoholArmPluginTestPair.h"
 #include "DBClientTest.h"
 #include "Helpers.h"
 
@@ -53,52 +54,7 @@ protected:
 	}
 };
 
-static HatoholArmPluginGateTestPtr createHapgTest(
-  HapgTestCtx &hapgCtx, MonitoringServerInfo &serverInfo,
-  const ServerIdType &serverId = DEFAULT_SERVER_ID)
-{
-	hapgCtx.useDefaultReceivedHandler = true;
-	hapgCtx.monitoringSystemType = MONITORING_SYSTEM_HAPI_TEST_PASSIVE;
-	setupTestDBConfig();
-	loadTestDBArmPlugin();
-	initServerInfo(serverInfo);
-	if (serverId != DEFAULT_SERVER_ID)
-		serverInfo.id = serverId;
-	serverInfo.type = hapgCtx.monitoringSystemType;
-	HatoholArmPluginGateTest *hapg =
-	  new HatoholArmPluginGateTest(serverInfo, hapgCtx);
-	return HatoholArmPluginGateTestPtr(hapg, false);
-}
-
-struct TestPair {
-	HapgTestCtx hapgCtx;
-	MonitoringServerInfo serverInfo;
-	HatoholArmPluginGateTestPtr gate;
-	HatoholArmPluginBaseTest   *plugin;
-
-	TestPair(const ServerIdType &serverId = DEFAULT_SERVER_ID)
-	: plugin(NULL)
-	{
-		gate = createHapgTest(hapgCtx, serverInfo, serverId);
-		loadTestDBTriggers();
-		gate->start();
-		gate->assertWaitConnected();
-
-		plugin = new HatoholArmPluginBaseTest();
-		plugin->setQueueAddress(
-		  gate->callGenerateBrokerAddress(serverInfo));
-		plugin->start();
-
-		gate->assertWaitInitiated();
-		plugin->assertWaitInitiated();
-	}
-
-	virtual ~TestPair()
-	{
-		if (plugin)
-			delete plugin;
-	}
-};
+typedef HatoholArmPluginTestPair<HatoholArmPluginBaseTest> TestPair;
 
 void cut_setup(void)
 {
