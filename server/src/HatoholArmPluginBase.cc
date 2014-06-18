@@ -51,47 +51,9 @@ HatoholArmPluginBase::~HatoholArmPluginBase()
 bool HatoholArmPluginBase::getMonitoringServerInfo(
   MonitoringServerInfo &serverInfo)
 {
-	SmartBuffer cmdBuf;
-	setupCommandHeader<void>(
-	  cmdBuf, HAPI_CMD_GET_MONITORING_SERVER_INFO);
-	send(cmdBuf);
+	getMonitoringServerInfoTopHalf();
 	waitResponseAndCheckHeader();
-
-	const HapiResMonitoringServerInfo *svInfo =
-	  getResponseBody<HapiResMonitoringServerInfo>(m_ctx->responseBuf);
-	serverInfo.id   = LtoN(svInfo->serverId);
-	serverInfo.type = static_cast<MonitoringSystemType>(LtoN(svInfo->type));
-
-	const char *str;
-	str = getString(m_ctx->responseBuf, svInfo,
-	                svInfo->hostNameOffset, svInfo->hostNameLength);
-	if (!str) {
-		MLPL_ERR("Broken packet: hostName.\n");
-		return false;
-	}
-	serverInfo.hostName = str;
-
-	str = getString(m_ctx->responseBuf, svInfo,
-	                svInfo->ipAddressOffset, svInfo->ipAddressLength);
-	if (!str) {
-		MLPL_ERR("Broken packet: ipAddress.\n");
-		return false;
-	}
-	serverInfo.ipAddress = str;
-
-	str = getString(m_ctx->responseBuf, svInfo,
-	                svInfo->nicknameOffset, svInfo->nicknameLength);
-	if (!str) {
-		MLPL_ERR("Broken packet: nickname.\n");
-		return false;
-	}
-	serverInfo.nickname = str;
-
-	serverInfo.port               = LtoN(svInfo->port);
-	serverInfo.pollingIntervalSec = LtoN(svInfo->pollingIntervalSec);
-	serverInfo.retryIntervalSec   = LtoN(svInfo->retryIntervalSec);
-
-	return true;
+	return getMonitoringServerInfoBottomHalf(serverInfo);
 }
 
 SmartTime HatoholArmPluginBase::getTimestampOfLastTrigger(void)
@@ -130,6 +92,54 @@ void HatoholArmPluginBase::onGotResponse(
 {
 	resBuf.handOver(m_ctx->responseBuf);
 	m_ctx->replyWaitSem.post();
+}
+
+void HatoholArmPluginBase::getMonitoringServerInfoTopHalf(void)
+{
+	SmartBuffer cmdBuf;
+	setupCommandHeader<void>(
+	  cmdBuf, HAPI_CMD_GET_MONITORING_SERVER_INFO);
+	send(cmdBuf);
+}
+
+bool HatoholArmPluginBase::getMonitoringServerInfoBottomHalf(
+  MonitoringServerInfo &serverInfo)
+{
+	const HapiResMonitoringServerInfo *svInfo =
+	  getResponseBody<HapiResMonitoringServerInfo>(m_ctx->responseBuf);
+	serverInfo.id   = LtoN(svInfo->serverId);
+	serverInfo.type = static_cast<MonitoringSystemType>(LtoN(svInfo->type));
+
+	const char *str;
+	str = getString(m_ctx->responseBuf, svInfo,
+	                svInfo->hostNameOffset, svInfo->hostNameLength);
+	if (!str) {
+		MLPL_ERR("Broken packet: hostName.\n");
+		return false;
+	}
+	serverInfo.hostName = str;
+
+	str = getString(m_ctx->responseBuf, svInfo,
+	                svInfo->ipAddressOffset, svInfo->ipAddressLength);
+	if (!str) {
+		MLPL_ERR("Broken packet: ipAddress.\n");
+		return false;
+	}
+	serverInfo.ipAddress = str;
+
+	str = getString(m_ctx->responseBuf, svInfo,
+	                svInfo->nicknameOffset, svInfo->nicknameLength);
+	if (!str) {
+		MLPL_ERR("Broken packet: nickname.\n");
+		return false;
+	}
+	serverInfo.nickname = str;
+
+	serverInfo.port               = LtoN(svInfo->port);
+	serverInfo.pollingIntervalSec = LtoN(svInfo->pollingIntervalSec);
+	serverInfo.retryIntervalSec   = LtoN(svInfo->retryIntervalSec);
+
+	return true;
 }
 
 void HatoholArmPluginBase::waitResponseAndCheckHeader(void)

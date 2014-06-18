@@ -53,6 +53,10 @@ protected:
 	virtual void onGotResponse(const HapiResponseHeader *header,
 	                           mlpl::SmartBuffer &resBuf) override;
 
+	void getMonitoringServerInfoTopHalf(void);
+	bool getMonitoringServerInfoBottomHalf(
+	  MonitoringServerInfo &serverInfo);
+
 	void waitResponseAndCheckHeader(void);
 	void sendTable(const HapiCommandCode &code,
 	               const ItemTablePtr &tablePtr);
