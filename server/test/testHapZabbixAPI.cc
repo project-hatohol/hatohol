@@ -58,7 +58,7 @@ public:
 
 	void callWorkOnHostsAndHostgroups()
 	{
-		workOnHostsAndHostgroups();
+		workOnHostsAndHostgroupElements();
 	}
 
 	void callWorkOnHostgroups()
