@@ -31,7 +31,7 @@ namespace testHapZabbixAPI {
 
 static const ServerIdType DEFAULT_SERVER_ID = 5;
 static const guint EMULATOR_PORT = 33333;
-static ZabbixAPIEmulator g_apiEmulator;
+static ZabbixAPIEmulator *g_apiEmulator = NULL;
 
 class HapZabbixAPITest :
   public HapZabbixAPI, public HapiTestHelper {
@@ -87,18 +87,29 @@ private:
 	SimpleSemaphore m_readySem;
 };
 
+void cut_startup(void)
+{
+	g_apiEmulator = new ZabbixAPIEmulator();
+}
+
+void cut_shutdown(void)
+{
+	if (g_apiEmulator)
+		delete g_apiEmulator;
+}
+
 void cut_setup(void)
 {
 	hatoholInit();
-	if (!g_apiEmulator.isRunning())
-		g_apiEmulator.start(EMULATOR_PORT);
+	if (!g_apiEmulator->isRunning())
+		g_apiEmulator->start(EMULATOR_PORT);
 	else
-		g_apiEmulator.setOperationMode(OPE_MODE_NORMAL);
+		g_apiEmulator->setOperationMode(OPE_MODE_NORMAL);
 }
 
 void cut_teardown(void)
 {
-	g_apiEmulator.reset();
+	g_apiEmulator->reset();
 }
 
 // ---------------------------------------------------------------------------
