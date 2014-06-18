@@ -32,8 +32,6 @@ using namespace qpid::messaging;
 
 namespace testHatoholArmPluginBase {
 
-const ServerIdType DEFAULT_SERVER_ID = -1;
-
 class HatoholArmPluginBaseTest :
   public HatoholArmPluginBase, public HapiTestHelper
 {
