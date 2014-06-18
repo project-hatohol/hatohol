@@ -72,6 +72,33 @@ void test_getMonitoringServerInfo(void)
 	assertEqual(pair.serverInfo, actual);
 }
 
+void test_getMonitoringServerInfoAsync(void)
+{
+	MonitoringServerInfo serverInfo;
+	struct Arg :
+	  public HatoholArmPluginBase::GetMonitoringServerInfoAsyncArg
+	{
+		SimpleSemaphore sem;
+
+		Arg(void)
+		: sem(0)
+		{
+		}
+
+		virtual void doneCb(const bool &succeeded) override
+		{
+			sem.post();
+		}
+	} arg;
+	arg.serverInfo = &serverInfo;
+
+	TestPair pair;
+	MonitoringServerInfo actual;
+	pair.plugin->getMonitoringServerInfoAsync(&arg);
+	pair.plugin->assertWaitSemaphore(arg.sem);
+	assertEqual(pair.serverInfo, serverInfo);
+}
+
 void test_getTimestampOfLastTrigger(void)
 {
 	TestPair pair;
