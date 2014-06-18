@@ -80,8 +80,7 @@ void HapZabbixAPI::workOnEvents(void)
 {
 	// TODO: Should we consider the case in which the last event in
 	// Zabbix server changes during the execution of the following loop ?
-	const uint64_t lastEventIdOfZbxSv
-	  = ZabbixAPI::getLastEventId();
+	const uint64_t lastEventIdOfZbxSv = ZabbixAPI::getLastEventId();
 	uint64_t lastEventIdOfHatohol = HatoholArmPluginBase::getLastEventId();
 
 	// TODO: Does this condition cause a infinite loop when
