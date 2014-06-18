@@ -61,6 +61,11 @@ public:
 		workOnHostsAndHostgroups();
 	}
 
+	void callWorkOnHostgroups()
+	{
+		workOnHostgroups();
+	}
+
 protected:
 	void onConnected(Connection &conn) override
 	{
@@ -122,6 +127,20 @@ void test_getHostsAndTriggers(void)
 
 	pair.plugin->callWorkOnTriggers();
 	pair.gate->assertWaitHandledCommand(HAPI_CMD_SEND_UPDATED_TRIGGERS);
+
+	// TODO: check the DB content
+}
+
+void test_getHostgroups(void)
+{
+	deleteDBClientHatoholDB();
+	HatoholArmPluginTestPair<HapZabbixAPITest> pair(
+	  DEFAULT_SERVER_ID, "127.0.0.1", EMULATOR_PORT);
+
+	pair.plugin->assertWaitReady();
+	pair.plugin->callUpdateAuthTokenIfNeeded();
+	pair.plugin->callWorkOnHostgroups();
+	pair.gate->assertWaitHandledCommand(HAPI_CMD_SEND_HOST_GROUPS);
 
 	// TODO: check the DB content
 }
