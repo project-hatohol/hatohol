@@ -79,29 +79,24 @@ void HapZabbixAPI::workOnEvents(void)
 	// TODO: Should we consider the case in which the last event in
 	// Zabbix server changes during the execution of the following loop ?
 	const uint64_t lastEventIdOfZbxSv = ZabbixAPI::getLastEventId();
-	uint64_t lastEventIdOfHatohol = 0;
+	// TOOD: we should exit immediately if the Zabbix server does not
+	// have any events at all.
 
-	// TODO: Does this condition cause a infinite loop when
-	// the differerence between adjacent two events IDs is greater than
-	// NUMBER_OF_GET_EVENT_PER_ONCE ?
-	// The same suspicion is in void ArmZabbixAPI::updateEvents(void)
-	while (true) {
-		// TODO: Get the last event ID from the obtained data.
-		// Calling getLastEventId() requires the communication w/
-		// Hatohol server.
-		lastEventIdOfHatohol = HatoholArmPluginBase::getLastEventId();
-		if (lastEventIdOfHatohol == lastEventIdOfZbxSv)
-			break;
-		uint64_t eventIdOffset = 0;
-		uint64_t eventIdTill = NUMBER_OF_GET_EVENT_PER_ONCE;
-		if (lastEventIdOfHatohol != EVENT_NOT_FOUND) {
-			eventIdOffset = lastEventIdOfHatohol + 1;
-			eventIdTill += lastEventIdOfHatohol;
-		}
+	uint64_t lastEventIdOfHatohol = HatoholArmPluginBase::getLastEventId();
+	uint64_t eventIdOffset = 0;
+	if (lastEventIdOfHatohol != EVENT_NOT_FOUND)
+		eventIdOffset = lastEventIdOfHatohol + 1;
+
+	while (eventIdOffset < lastEventIdOfZbxSv) {
+		const uint64_t eventIdTill =
+		  eventIdOffset + NUMBER_OF_GET_EVENT_PER_ONCE;
 		ItemTablePtr eventsTablePtr =
 		  getEvents(eventIdOffset, eventIdTill);
 		onGotNewEvents(eventsTablePtr);
 		sendTable(HAPI_CMD_SEND_UPDATED_EVENTS, eventsTablePtr);
+
+		// prepare for the next loop
+		eventIdOffset = eventIdTill + 1;
 	}
 }
 
