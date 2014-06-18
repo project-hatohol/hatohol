@@ -59,7 +59,7 @@ void HapZabbixAPI::workOnTriggers(void)
 	sendTable(HAPI_CMD_SEND_UPDATED_TRIGGERS, getTrigger(requestSince));
 }
 
-void HapZabbixAPI::workOnHostsAndHostgroups(void)
+void HapZabbixAPI::workOnHostsAndHostgroupElements(void)
 {
 	ItemTablePtr hostTablePtr, hostGroupsTablePtr;
 	getHosts(hostTablePtr, hostGroupsTablePtr);
