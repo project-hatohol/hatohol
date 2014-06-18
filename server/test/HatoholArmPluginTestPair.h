@@ -30,10 +30,13 @@ struct HatoholArmPluginTestPair {
 	HapClass                   *plugin;
 
 	HatoholArmPluginTestPair(
-	  const ServerIdType &serverId = DEFAULT_SERVER_ID)
+	  const ServerIdType &serverId = DEFAULT_SERVER_ID,
+	  const std::string &serverIpAddr = "127.0.0.1",
+	  const int &serverPort = 80)
 	: plugin(NULL)
 	{
-		gate = createHapgTest(hapgCtx, serverInfo, serverId);
+		gate = createHapgTest(hapgCtx, serverInfo, serverId,
+		                      serverIpAddr, serverPort);
 		loadTestDBTriggers();
 		gate->start();
 		gate->assertWaitConnected();
@@ -55,7 +58,9 @@ struct HatoholArmPluginTestPair {
 
 	static HatoholArmPluginGateTestPtr createHapgTest(
 	  HapgTestCtx &hapgCtx, MonitoringServerInfo &serverInfo,
-	  const ServerIdType &serverId = DEFAULT_SERVER_ID)
+	  const ServerIdType &serverId = DEFAULT_SERVER_ID,
+	  const std::string &serverIpAddr = "",
+	  const int &serverPort = 0)
 	{
 		hapgCtx.useDefaultReceivedHandler = true;
 		hapgCtx.monitoringSystemType =
@@ -65,6 +70,8 @@ struct HatoholArmPluginTestPair {
 		initServerInfo(serverInfo);
 		if (serverId != DEFAULT_SERVER_ID)
 			serverInfo.id = serverId;
+		serverInfo.ipAddress = serverIpAddr;
+		serverInfo.port = serverPort;
 		serverInfo.type = hapgCtx.monitoringSystemType;
 		HatoholArmPluginGateTest *hapg =
 		  new HatoholArmPluginGateTest(serverInfo, hapgCtx);

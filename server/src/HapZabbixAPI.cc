@@ -37,8 +37,6 @@ HapZabbixAPI::HapZabbixAPI(void)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
-	// TODO: we have to call setMonitoringServerInfo(serverInfo)
-	//       before the actual communication.
 }
 
 HapZabbixAPI::~HapZabbixAPI()
@@ -101,4 +99,42 @@ void HapZabbixAPI::workOnEvents(void)
 		// Hatohol server.
 		lastEventIdOfHatohol = HatoholArmPluginBase::getLastEventId();
 	}
+}
+
+void HapZabbixAPI::onInitiated(void)
+{
+	struct Arg : public GetMonitoringServerInfoAsyncArg {
+		HapZabbixAPI *obj;
+		MonitoringServerInfo serverInfo;
+
+		Arg(HapZabbixAPI *_obj)
+		: GetMonitoringServerInfoAsyncArg(&serverInfo),
+		  obj(_obj)
+		{
+		}
+
+		virtual ~Arg()
+		{
+		}
+
+		virtual void doneCb(const bool &succeeded) override
+		{
+			if (succeeded) {
+				obj->setMonitoringServerInfo(serverInfo);
+			} else {
+				MLPL_ERR(
+				  "Failed to get monitoring server "
+				  "information. This process will try it when "
+				  "an initiation happens again.");
+			}
+			obj->onReady();
+			delete this;
+		}
+	};
+
+	getMonitoringServerInfoAsync(new Arg(this));
+}
+
+void HapZabbixAPI::onReady(void)
+{
 }

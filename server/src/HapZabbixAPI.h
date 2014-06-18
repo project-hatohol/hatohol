@@ -35,6 +35,9 @@ protected:
 	void workOnHostgroups(void);
 	void workOnEvents(void);
 
+	virtual void onInitiated(void) override;
+	virtual void onReady(void);
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
