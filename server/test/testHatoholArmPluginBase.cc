@@ -31,6 +31,8 @@ using namespace qpid::messaging;
 
 namespace testHatoholArmPluginBase {
 
+const ServerIdType DEFAULT_SERVER_ID = -1;
+
 class HatoholArmPluginBaseTest :
   public HatoholArmPluginBase, public HapiTestHelper
 {
@@ -53,13 +55,16 @@ protected:
 };
 
 static HatoholArmPluginGateTestPtr createHapgTest(
-  HapgTestCtx &hapgCtx, MonitoringServerInfo &serverInfo)
+  HapgTestCtx &hapgCtx, MonitoringServerInfo &serverInfo,
+  const ServerIdType &serverId = DEFAULT_SERVER_ID)
 {
 	hapgCtx.useDefaultReceivedHandler = true;
 	hapgCtx.monitoringSystemType = MONITORING_SYSTEM_HAPI_TEST_PASSIVE;
 	setupTestDBConfig();
 	loadTestDBArmPlugin();
 	initServerInfo(serverInfo);
+	if (serverId != DEFAULT_SERVER_ID)
+		serverInfo.id = serverId;
 	serverInfo.type = hapgCtx.monitoringSystemType;
 	HatoholArmPluginGateTest *hapg =
 	  new HatoholArmPluginGateTest(serverInfo, hapgCtx);
@@ -72,10 +77,10 @@ struct TestPair {
 	HatoholArmPluginGateTestPtr gate;
 	HatoholArmPluginBaseTest   *plugin;
 
-	TestPair(void)
+	TestPair(const ServerIdType &serverId = DEFAULT_SERVER_ID)
 	: plugin(NULL)
 	{
-		gate = createHapgTest(hapgCtx, serverInfo);
+		gate = createHapgTest(hapgCtx, serverInfo, serverId);
 		loadTestDBTriggers();
 		gate->start();
 		gate->assertWaitConnected();
@@ -116,6 +121,16 @@ void test_getTimestampOfLastTrigger(void)
 	TestPair pair;
 	SmartTime expect = getTimestampOfLastTestTrigger(pair.serverInfo.id);
 	SmartTime actual = pair.plugin->getTimestampOfLastTrigger();
+	cppcut_assert_equal(expect, actual);
+}
+
+void test_getLastEventId(void)
+{
+	loadTestDBEvents();
+	const ServerIdType serverId = 1;
+	TestPair pair(serverId);
+	const EventIdType expect = findLastEventId(serverId);
+	const EventIdType actual = pair.plugin->getLastEventId();
 	cppcut_assert_equal(expect, actual);
 }
 
