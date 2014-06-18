@@ -31,10 +31,10 @@ user: guest, guest,   guest
 
 # issueSenderAction: Issue Tracker ID, Monitoring Server ID, Hostgroup ID, Trigger Severity
 #
-# Issue Tracker ID & Monitoring Server ID will begin from 1 and be incremented
-# sequentially. Hostgroup ID is assigned by each monitoring server, therefor
-# you should find it on each system's UI.
-# You can put "-1" for Monitoring Server ID and Hostgroup ID to choose all
+# "Issue Tracker ID" & "Monitoring Server ID" will begin from 1 and be
+# incremented sequentially. "Hostgroup ID" is assigned by each monitoring
+# server, therefor you should find it on each system's UI.
+# You can put "-1" for "Monitoring Server ID" and "Hostgroup ID" to choose all
 # monitoring servers or hostgroups.
 
 #issueSenderAction: 1, -1, -1, 3
