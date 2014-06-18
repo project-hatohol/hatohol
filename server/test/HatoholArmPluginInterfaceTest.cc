@@ -85,7 +85,7 @@ void HapiTestHelper::assertWaitInitiated(void)
 void HapiTestHelper::assertWaitHandledCommand(const HapiCommandCode &code)
 {
 	do {
-		assertWaitSemaphore(getInitiatedSem());
+		assertWaitSemaphore(getHandledCommandSem());
 	} while (m_lastHandledCode != code);
 }
 
