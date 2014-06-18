@@ -37,7 +37,8 @@ class HapZabbixAPITest :
   public HapZabbixAPI, public HapiTestHelper {
 public:
 	HapZabbixAPITest(void)
-	: m_readySem(0)
+	: m_readySem(0),
+	  m_numGotEvents(0)
 	{
 	}
 
@@ -66,6 +67,16 @@ public:
 		workOnHostgroups();
 	}
 
+	void callWorkOnEvents()
+	{
+		workOnEvents();
+	}
+
+	size_t getNumGotEvents(void) const
+	{
+		return m_numGotEvents;
+	}
+
 protected:
 	void onConnected(Connection &conn) override
 	{
@@ -83,8 +94,14 @@ protected:
 		m_readySem.post();
 	}
 
+	void onGotNewEvents(ItemTablePtr eventsTablePtr) override
+	{
+		m_numGotEvents++;
+	}
+
 private:
 	SimpleSemaphore m_readySem;
+	size_t          m_numGotEvents;
 };
 
 void cut_startup(void)
@@ -152,6 +169,25 @@ void test_getHostgroups(void)
 	pair.plugin->callUpdateAuthTokenIfNeeded();
 	pair.plugin->callWorkOnHostgroups();
 	pair.gate->assertWaitHandledCommand(HAPI_CMD_SEND_HOST_GROUPS);
+
+	// TODO: check the DB content
+}
+
+void test_getEvents(void)
+{
+	setupTestDBAction();
+	deleteDBClientHatoholDB();
+	HatoholArmPluginTestPair<HapZabbixAPITest> pair(
+	  DEFAULT_SERVER_ID, "127.0.0.1", EMULATOR_PORT);
+
+	pair.plugin->assertWaitReady();
+	pair.plugin->callUpdateAuthTokenIfNeeded();
+	pair.plugin->callWorkOnEvents();
+	const size_t numGotEvents = pair.plugin->getNumGotEvents();
+	// We expect that the events are sent multitimes.
+	cppcut_assert_equal(true, numGotEvents >= 2);
+	pair.gate->assertWaitHandledCommand(HAPI_CMD_SEND_UPDATED_EVENTS,
+	                                    numGotEvents);
 
 	// TODO: check the DB content
 }
