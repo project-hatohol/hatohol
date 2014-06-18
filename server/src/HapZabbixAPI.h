@@ -37,6 +37,7 @@ protected:
 
 	virtual void onInitiated(void) override;
 	virtual void onReady(void);
+	virtual void onGotNewEvents(ItemTablePtr eventsTablePtr);
 
 private:
 	struct PrivateContext;

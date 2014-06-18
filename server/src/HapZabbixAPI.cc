@@ -98,8 +98,10 @@ void HapZabbixAPI::workOnEvents(void)
 			eventIdOffset = lastEventIdOfHatohol + 1;
 			eventIdTill += lastEventIdOfHatohol;
 		}
-		sendTable(HAPI_CMD_SEND_UPDATED_EVENTS,
-		          getEvents(eventIdOffset, eventIdTill));
+		ItemTablePtr eventsTablePtr =
+		  getEvents(eventIdOffset, eventIdTill);
+		onGotNewEvents(eventsTablePtr);
+		sendTable(HAPI_CMD_SEND_UPDATED_EVENTS, eventsTablePtr);
 	}
 }
 
@@ -138,5 +140,9 @@ void HapZabbixAPI::onInitiated(void)
 }
 
 void HapZabbixAPI::onReady(void)
+{
+}
+
+void HapZabbixAPI::onGotNewEvents(ItemTablePtr eventsTablePtr)
 {
 }
