@@ -67,7 +67,7 @@ protected:
 	virtual void onGotResponse(const HapiResponseHeader *header,
 	                           mlpl::SmartBuffer &resBuf) override;
 
-	void getMonitoringServerInfoTopHalf(void);
+	void sendCmdGetMonitoringServerInfo(void);
 	bool getMonitoringServerInfoBottomHalf(
 	  MonitoringServerInfo &serverInfo);
 	static void _getMonitoringServerInfoAsyncCb(AsyncCbData *data);

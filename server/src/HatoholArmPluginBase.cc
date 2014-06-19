@@ -87,7 +87,7 @@ HatoholArmPluginBase::~HatoholArmPluginBase()
 bool HatoholArmPluginBase::getMonitoringServerInfo(
   MonitoringServerInfo &serverInfo)
 {
-	getMonitoringServerInfoTopHalf();
+	sendCmdGetMonitoringServerInfo();
 	waitResponseAndCheckHeader();
 	return getMonitoringServerInfoBottomHalf(serverInfo);
 }
@@ -97,7 +97,7 @@ void HatoholArmPluginBase::getMonitoringServerInfoAsync(
 {
 	HATOHOL_ASSERT(!m_ctx->currAsyncCb,
 	               "Async. process is already running.");
-	getMonitoringServerInfoTopHalf();
+	sendCmdGetMonitoringServerInfo();
 	m_ctx->currAsyncCb = _getMonitoringServerInfoAsyncCb;
 	m_ctx->currAsyncCbData = new AsyncCbData(this, arg);
 }
@@ -146,7 +146,7 @@ void HatoholArmPluginBase::onGotResponse(
 	m_ctx->replyWaitSem.post();
 }
 
-void HatoholArmPluginBase::getMonitoringServerInfoTopHalf(void)
+void HatoholArmPluginBase::sendCmdGetMonitoringServerInfo(void)
 {
 	SmartBuffer cmdBuf;
 	setupCommandHeader<void>(
