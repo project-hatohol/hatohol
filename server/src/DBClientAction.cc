@@ -984,7 +984,7 @@ const ActionType &ActionsQueryOption::getActionType(void)
 
 string ActionsQueryOption::PrivateContext::getActionTypeCondition(void)
 {
-	switch(type) {
+	switch (type) {
 	case ACTION_USER_DEFINED:
 		return StringUtils::sprintf(
 			 "(action_type>=0 AND action_type<%d)",

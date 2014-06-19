@@ -80,7 +80,7 @@ public:
 			expected += " ";
 
 			// type 
-			switch(columnDef.type) {
+			switch (columnDef.type) {
 			case SQL_COLUMN_TYPE_INT:
 			case SQL_COLUMN_TYPE_BIGUINT:
 				expected += "INTEGER ";

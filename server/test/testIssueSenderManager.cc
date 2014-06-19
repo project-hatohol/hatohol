@@ -64,7 +64,7 @@ static void statusCallback(const EventInfo &info,
 {
 	bool *succeeded = static_cast<bool*>(userData);
 
-	switch(status) {
+	switch (status) {
 	case IssueSender::JOB_SUCCEEDED:
 		*succeeded = true;
 		break;

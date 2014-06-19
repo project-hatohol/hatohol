@@ -1315,7 +1315,7 @@ static void onIssueSenderJobStatusChanged(
 	  = static_cast<DBClientAction::LogEndExecActionArg *>(userData);
 	bool completed = false;
 
-	switch(status) {
+	switch (status) {
 	case IssueSender::JOB_STARTED:
 	{
 		DBClientAction dbAction;

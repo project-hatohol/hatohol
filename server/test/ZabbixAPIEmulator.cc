@@ -306,7 +306,7 @@ void ZabbixAPIEmulator::APIHandlerGetWithFile
 
 string ZabbixAPIEmulator::getAPIVersionString(APIVersion version)
 {
-	switch(version) {
+	switch (version) {
 	case ZabbixAPIEmulator::API_VERSION_1_3_0:
 		return "1.3";
 	case ZabbixAPIEmulator::API_VERSION_1_4_0:
