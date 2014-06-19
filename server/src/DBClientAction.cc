@@ -939,19 +939,19 @@ string ActionsQueryOption::PrivateContext::makeConditionTemplate(void)
 }
 
 ActionsQueryOption::ActionsQueryOption(const UserIdType &userId)
-: DataQueryOption(userId)
+: DataQueryOption(userId), m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 }
 
 ActionsQueryOption::ActionsQueryOption(DataQueryContext *dataQueryContext)
-: DataQueryOption(dataQueryContext)
+: DataQueryOption(dataQueryContext), m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 }
 
 ActionsQueryOption::ActionsQueryOption(const ActionsQueryOption &src)
-: DataQueryOption(src)
+: DataQueryOption(src), m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 	*m_ctx = *src.m_ctx;

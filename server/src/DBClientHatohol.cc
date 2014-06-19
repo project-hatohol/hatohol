@@ -977,19 +977,20 @@ struct EventsQueryOption::PrivateContext {
 };
 
 EventsQueryOption::EventsQueryOption(const UserIdType &userId)
-: HostResourceQueryOption(synapseEventsQueryOption, userId)
+: HostResourceQueryOption(synapseEventsQueryOption, userId), m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 }
 
 EventsQueryOption::EventsQueryOption(DataQueryContext *dataQueryContext)
-: HostResourceQueryOption(synapseEventsQueryOption, dataQueryContext)
+: HostResourceQueryOption(synapseEventsQueryOption, dataQueryContext),
+  m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 }
 
 EventsQueryOption::EventsQueryOption(const EventsQueryOption &src)
-: HostResourceQueryOption(src)
+: HostResourceQueryOption(src), m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 	*m_ctx = *src.m_ctx;
@@ -1145,19 +1146,20 @@ struct TriggersQueryOption::PrivateContext {
 };
 
 TriggersQueryOption::TriggersQueryOption(const UserIdType &userId)
-: HostResourceQueryOption(synapseTriggersQueryOption, userId)
+: HostResourceQueryOption(synapseTriggersQueryOption, userId), m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 }
 
 TriggersQueryOption::TriggersQueryOption(DataQueryContext *dataQueryContext)
-: HostResourceQueryOption(synapseTriggersQueryOption, dataQueryContext)
+: HostResourceQueryOption(synapseTriggersQueryOption, dataQueryContext),
+  m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 }
 
 TriggersQueryOption::TriggersQueryOption(const TriggersQueryOption &src)
-: HostResourceQueryOption(src)
+: HostResourceQueryOption(src), m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 	*m_ctx = *src.m_ctx;
@@ -1260,19 +1262,20 @@ struct ItemsQueryOption::PrivateContext {
 };
 
 ItemsQueryOption::ItemsQueryOption(const UserIdType &userId)
-: HostResourceQueryOption(synapseItemsQueryOption, userId)
+: HostResourceQueryOption(synapseItemsQueryOption, userId), m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 }
 
 ItemsQueryOption::ItemsQueryOption(DataQueryContext *dataQueryContext)
-: HostResourceQueryOption(synapseItemsQueryOption, dataQueryContext)
+: HostResourceQueryOption(synapseItemsQueryOption, dataQueryContext),
+  m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 }
 
 ItemsQueryOption::ItemsQueryOption(const ItemsQueryOption &src)
-: HostResourceQueryOption(src)
+: HostResourceQueryOption(src), m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 	*m_ctx = *src.m_ctx;

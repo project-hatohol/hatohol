@@ -70,7 +70,7 @@ struct IssueSenderRedmine::PrivateContext
 };
 
 IssueSenderRedmine::IssueSenderRedmine(const IssueTrackerInfo &tracker)
-: IssueSender(tracker)
+: IssueSender(tracker), m_ctx(NULL)
 {
 	m_ctx = new PrivateContext(*this);
 }

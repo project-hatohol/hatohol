@@ -142,6 +142,7 @@ struct IssueSender::PrivateContext
 };
 
 IssueSender::IssueSender(const IssueTrackerInfo &tracker)
+: m_ctx(NULL)
 {
 	m_ctx = new PrivateContext(*this);
 	m_ctx->issueTrackerInfo = tracker;
