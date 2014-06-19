@@ -365,7 +365,7 @@ static const ColumnDef COLUMN_DEF_ISSUE_TRACKERS[] = {
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_ISSUE_TRACKERS,         // tableName
-	"baseURL",                         // columnName
+	"base_url",                        // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
 	0,                                 // decFracLength
