@@ -89,7 +89,7 @@ bool HatoholArmPluginBase::getMonitoringServerInfo(
 {
 	sendCmdGetMonitoringServerInfo();
 	waitResponseAndCheckHeader();
-	return getMonitoringServerInfoBottomHalf(serverInfo);
+	return parseReplyGetMonitoringServerInfo(serverInfo);
 }
 
 void HatoholArmPluginBase::getMonitoringServerInfoAsync(
@@ -154,7 +154,7 @@ void HatoholArmPluginBase::sendCmdGetMonitoringServerInfo(void)
 	send(cmdBuf);
 }
 
-bool HatoholArmPluginBase::getMonitoringServerInfoBottomHalf(
+bool HatoholArmPluginBase::parseReplyGetMonitoringServerInfo(
   MonitoringServerInfo &serverInfo)
 {
 	const HapiResMonitoringServerInfo *svInfo =
@@ -206,7 +206,7 @@ void HatoholArmPluginBase::_getMonitoringServerInfoAsyncCb(
 void HatoholArmPluginBase::getMonitoringServerInfoAsyncCb(
   HatoholArmPluginBase::GetMonitoringServerInfoAsyncArg *arg)
 {
-	bool succeeded = getMonitoringServerInfoBottomHalf(
+	bool succeeded = parseReplyGetMonitoringServerInfo(
 	                   arg->getMonitoringServerInfo());
 	arg->doneCb(succeeded);
 }

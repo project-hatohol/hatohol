@@ -68,7 +68,7 @@ protected:
 	                           mlpl::SmartBuffer &resBuf) override;
 
 	void sendCmdGetMonitoringServerInfo(void);
-	bool getMonitoringServerInfoBottomHalf(
+	bool parseReplyGetMonitoringServerInfo(
 	  MonitoringServerInfo &serverInfo);
 	static void _getMonitoringServerInfoAsyncCb(AsyncCbData *data);
 	void getMonitoringServerInfoAsyncCb(GetMonitoringServerInfoAsyncArg *);
