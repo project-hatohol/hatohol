@@ -21,12 +21,18 @@
 #include "Hatohol.h"
 #include "Helpers.h"
 #include "HatoholArmPluginGateTest.h"
+#include "ChildProcessManager.h"
 
 namespace test_hatohol_arm_plugin_zabbix {
 
 void cut_setup(void)
 {
 	hatoholInit();
+}
+
+void cut_teardown(void)
+{
+	ChildProcessManager::getInstance()->reset();
 }
 
 // ---------------------------------------------------------------------------
