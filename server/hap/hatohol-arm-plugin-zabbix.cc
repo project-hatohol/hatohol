@@ -25,12 +25,19 @@ public:
 	HapProcessZabbixAPI(int argc, char *argv[])
 	: HapProcess(argc, argv)
 	{
+		initGLib();
 	}
 
 	int mainLoopRun(void)
 	{
-		// Not implemented yet
-		return 1;
+		g_main_loop_run(getGMainLoop());
+		return EXIT_SUCCESS;
+	}
+
+protected:
+	gpointer hapMainThread(HatoholThreadArg *arg) override
+	{
+		return NULL;
 	}
 };
 

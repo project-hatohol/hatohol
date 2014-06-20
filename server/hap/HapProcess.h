@@ -21,8 +21,9 @@
 #define HapProcess_h
 
 #include <glib.h>
+#include "HatoholThreadBase.h"
 
-class HapProcess {
+class HapProcess : public HatoholThreadBase {
 public:
 	HapProcess(int argc, char *argv[]);
 	virtual ~HapProcess();
@@ -33,6 +34,11 @@ public:
 	void initGLib(void);
 
 	GMainLoop *getGMainLoop(void);
+
+protected:
+	virtual gpointer mainThread(HatoholThreadArg *arg) override;
+	virtual gpointer hapMainThread(HatoholThreadArg *arg);
+
 
 private:
 	struct PrivateContext;

@@ -69,3 +69,20 @@ GMainLoop *HapProcess::getGMainLoop(void)
 	HATOHOL_ASSERT(m_ctx->loop, "Failed to create GMainLoop.");
 	return m_ctx->loop;
 }
+
+// ---------------------------------------------------------------------------
+// Protected methods
+// ---------------------------------------------------------------------------
+gpointer HapProcess::mainThread(HatoholThreadArg *arg)
+{
+	// This class changed the virtual method name for the thread.
+	// If a sub class also inherits HatoholArmPluginBase (that inherits
+	// HatoholThreadBase) or its sub classes, mainThread() is ambiguous.
+	return hapMainThread(arg);
+}
+
+gpointer HapProcess::hapMainThread(HatoholThreadArg *arg)
+{
+	// The implementation will be done in the sub class.
+	return NULL;
+}
