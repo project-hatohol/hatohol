@@ -36,7 +36,7 @@ protected:
 	 * do a basic setup with it. The obtained MonitoringServerInfo is
 	 * stored in PrivateContext.
 	 *
-	 * @return false if exit is requsted. Otherwise true is returned.
+	 * @return true if exit is requsted. Otherwise false is returned.
 	 */
 	bool initMonitoringServerInfo(void);
 
@@ -90,7 +90,7 @@ int HapProcessZabbixAPI::mainLoopRun(void)
 // ---------------------------------------------------------------------------
 gpointer HapProcessZabbixAPI::hapMainThread(HatoholThreadArg *arg)
 {
-	if (!initMonitoringServerInfo())
+	if (initMonitoringServerInfo())
 		return NULL;
 
 	bool shouldExit = false;
@@ -124,10 +124,10 @@ bool HapProcessZabbixAPI::initMonitoringServerInfo(void)
 		MLPL_INFO("Failed to get MonitoringServerInfo. "
 		          "Retry after %zd sec.\n",  sleepTimeSec);
 		if (sleepForMainThread(sleepTimeSec))
-			return false;
+			return true;
 	}
 	setExceptionSleepTime(m_ctx->serverInfo.retryIntervalSec*1000);
-	return true;
+	return false;
 }
 
 void HapProcessZabbixAPI::acquireData(void)
