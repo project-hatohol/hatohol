@@ -116,6 +116,7 @@ void IssueSenderManager::queue(
 }
 
 IssueSenderManager::IssueSenderManager(void)
+: m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 }
