@@ -232,7 +232,7 @@ HatoholServerEditDialog.prototype.onAppendMainElement = function () {
       self.setDBNameTextState(true);
       self.setHapiParamState(false);
     } else if (type == hatohol.MONITORING_SYSTEM_HAPI_ZABBIX) {
-      self.setDBNameTextState(true);
+      self.setDBNameTextState(false);
       self.setHapiParamState(true);
     }
   });
