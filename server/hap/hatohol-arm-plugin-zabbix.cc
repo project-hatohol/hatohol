@@ -94,7 +94,7 @@ bool HapProcessZabbixAPI::initMonitoringServerInfo(void)
 			HATOHOL_ASSERT(true, "Unexpected result: %d\n", status);
 		}
 	}
-	setExceptionSleepTime(m_ctx->serverInfo.retryIntervalSec);
+	setExceptionSleepTime(m_ctx->serverInfo.retryIntervalSec*1000);
 	return true;
 }
 
