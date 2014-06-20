@@ -18,7 +18,10 @@
  */
 
 #include <HapZabbixAPI.h>
+#include <SimpleSemaphore.h>
 #include "HapProcess.h"
+
+using namespace mlpl;
 
 class HapProcessZabbixAPI : public HapProcess, public HapZabbixAPI {
 public:
@@ -27,10 +30,33 @@ public:
 
 protected:
 	gpointer hapMainThread(HatoholThreadArg *arg) override;
+
+	bool initMonitoringServerInfo(void);
+
+private:
+	struct PrivateContext;
+	PrivateContext *m_ctx;;
 };
 
+// ---------------------------------------------------------------------------
+// PrivateContext
+// ---------------------------------------------------------------------------
+struct HapProcessZabbixAPI::PrivateContext {
+	MonitoringServerInfo serverInfo;
+	SimpleSemaphore      mainThreadSem;
+
+	PrivateContext(void)
+	: mainThreadSem(0)
+	{
+	}
+};
+
+// ---------------------------------------------------------------------------
+// Public methods
+// ---------------------------------------------------------------------------
 HapProcessZabbixAPI::HapProcessZabbixAPI(int argc, char *argv[])
-: HapProcess(argc, argv)
+: HapProcess(argc, argv),
+  m_ctx(NULL)
 {
 	initGLib();
 }
@@ -41,11 +67,40 @@ int HapProcessZabbixAPI::mainLoopRun(void)
 	return EXIT_SUCCESS;
 }
 
+// ---------------------------------------------------------------------------
+// Protected methods
+// ---------------------------------------------------------------------------
 gpointer HapProcessZabbixAPI::hapMainThread(HatoholThreadArg *arg)
 {
+	if (!initMonitoringServerInfo())
+		return NULL;
 	return NULL;
 }
 
+bool HapProcessZabbixAPI::initMonitoringServerInfo(void)
+{
+	const size_t sleepTimeMSec = 30 * 1000;
+	while (true) {
+		bool succeeded = getMonitoringServerInfo(m_ctx->serverInfo);
+		if (succeeded)
+			break;
+		MLPL_INFO("Failed to get MonitoringServerInfo. "
+		          "Retry after %zd sec.\n",  sleepTimeMSec/1000);
+		SimpleSemaphore::Status status =
+		  m_ctx->mainThreadSem.timedWait(sleepTimeMSec);
+		// TODO: Add a mechanism to exit
+		if (status == SimpleSemaphore::STAT_OK ||
+		    status == SimpleSemaphore::STAT_ERROR_UNKNOWN) {
+			HATOHOL_ASSERT(true, "Unexpected result: %d\n", status);
+		}
+	}
+	setExceptionSleepTime(m_ctx->serverInfo.retryIntervalSec);
+	return true;
+}
+
+// ---------------------------------------------------------------------------
+// main
+// ---------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
 	HapProcessZabbixAPI hapProc(argc, argv);
