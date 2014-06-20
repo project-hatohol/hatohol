@@ -49,6 +49,12 @@ public:
 	static bool casecmp(const std::string &str1, const char *str2);
 	static bool casecmp(const char *str1, const std::string &str2);
 	static bool casecmp(const std::string &str1, const std::string &str2);
+	static bool hasPrefix(const std::string &str,
+	                      const std::string &prefix,
+			      bool caseSensitive = true);
+	static bool hasSuffix(const std::string &str,
+	                      const std::string &suffix,
+			      bool caseSensitive = true);
 	static std::string sprintf(const char *fmt, ...) __attribute__((__format__ (__printf__, 1, 2)));
 	static std::string vsprintf(const char *fmt, va_list ap);
 	static bool isNumber(const char *str, bool *isFloat = NULL);
