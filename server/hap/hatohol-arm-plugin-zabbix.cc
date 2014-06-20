@@ -125,10 +125,10 @@ void HapProcessZabbixAPI::onReady(void)
 
 bool HapProcessZabbixAPI::waitOnReady(void)
 {
-	const size_t sleepTimeSec = 10 * 60;
+	const size_t waitTimeSec = 10 * 60;
 	bool shouldExit = false;
 	while (!shouldExit) {
-		shouldExit = sleepForMainThread(sleepTimeSec);
+		shouldExit = sleepForMainThread(waitTimeSec);
 		if (m_ctx->readyFlag)
 			break;
 		else
