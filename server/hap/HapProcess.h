@@ -25,6 +25,11 @@ public:
 	HapProcess(int argc, char *argv[]);
 	virtual ~HapProcess();
 
+	/**
+	 * Call g_type_init() and g_thread_init if needed.
+	 */
+	void initGLib(void);
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;

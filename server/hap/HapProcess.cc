@@ -17,6 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <glib.h>
 #include <cstdio>
 #include "HapProcess.h"
 
@@ -36,4 +37,14 @@ HapProcess::~HapProcess()
 {
 	if (m_ctx)
 		delete m_ctx;
+}
+
+void HapProcess::initGLib(void)
+{
+#ifndef GLIB_VERSION_2_36
+	g_type_init();
+#endif // GLIB_VERSION_2_36
+#ifndef GLIB_VERSION_2_32
+	g_thread_init(NULL);
+#endif // GLIB_VERSION_2_32
 }
