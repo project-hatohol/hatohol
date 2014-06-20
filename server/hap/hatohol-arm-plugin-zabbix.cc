@@ -22,24 +22,29 @@
 
 class HapProcessZabbixAPI : public HapProcess, public HapZabbixAPI {
 public:
-	HapProcessZabbixAPI(int argc, char *argv[])
-	: HapProcess(argc, argv)
-	{
-		initGLib();
-	}
-
-	int mainLoopRun(void)
-	{
-		g_main_loop_run(getGMainLoop());
-		return EXIT_SUCCESS;
-	}
+	HapProcessZabbixAPI(int argc, char *argv[]);
+	int mainLoopRun(void);
 
 protected:
-	gpointer hapMainThread(HatoholThreadArg *arg) override
-	{
-		return NULL;
-	}
+	gpointer hapMainThread(HatoholThreadArg *arg) override;
 };
+
+HapProcessZabbixAPI::HapProcessZabbixAPI(int argc, char *argv[])
+: HapProcess(argc, argv)
+{
+	initGLib();
+}
+
+int HapProcessZabbixAPI::mainLoopRun(void)
+{
+	g_main_loop_run(getGMainLoop());
+	return EXIT_SUCCESS;
+}
+
+gpointer HapProcessZabbixAPI::hapMainThread(HatoholThreadArg *arg)
+{
+	return NULL;
+}
 
 int main(int argc, char *argv[])
 {
