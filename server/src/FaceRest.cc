@@ -1813,7 +1813,7 @@ void FaceRest::handlerGetEvent(RestJob *job)
 	if (addIssues) {
 		err = dataStore->getEventList(eventList, option, &issueVect);
 		HATOHOL_ASSERT(eventList.size() == issueVect.size(),
-			       "eventList: %d, issueVect: %d\n",
+			       "eventList: %zd, issueVect: %zd\n",
 			       eventList.size(), issueVect.size());
 	} else {
 		err = dataStore->getEventList(eventList, option);
