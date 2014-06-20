@@ -67,7 +67,7 @@ describe('getServerLocation', function() {
 
   it('with unknown server type', function() {
     var server = {
-      "type": 2,
+      "type": hatohol.MONITORING_SYSTEM_UNKNOWN,
       "ipAddress": "192.168.19.111",
       "NAME": "localhost"
     };
