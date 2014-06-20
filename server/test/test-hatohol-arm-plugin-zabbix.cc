@@ -41,6 +41,7 @@ void cut_teardown(void)
 void test_launch(void)
 {
 	HapgTestCtx ctx;
+	ctx.useDefaultReceivedHandler = true;
 	setupTestDBConfig();
 	loadTestDBArmPlugin();
 	MonitoringServerInfo serverInfo;
