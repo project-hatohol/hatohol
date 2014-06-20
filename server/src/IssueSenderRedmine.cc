@@ -84,7 +84,7 @@ string IssueSenderRedmine::getProjectURL(void)
 {
 	const IssueTrackerInfo &trackerInfo = getIssueTrackerInfo();
 	string url = trackerInfo.baseURL;
-	if (url[url.size() - 1] != '/')
+	if (!StringUtils::hasSuffix(url, "/"))
 		url += "/";
 	url += "projects/";
 	gchar *escapedProjectId =
@@ -101,7 +101,7 @@ string IssueSenderRedmine::getProjectURL(void)
 string IssueSenderRedmine::getIssuesJsonURL(void)
 {
 	string url = getProjectURL();
-	if (url[url.size() - 1] != '/')
+	if (!StringUtils::hasSuffix(url, "/"))
 		url += "/";
 	url += "issues.json";
 	return url;
@@ -111,7 +111,7 @@ string IssueSenderRedmine::getIssueURL(const string &id)
 {
 	const IssueTrackerInfo &trackerInfo = getIssueTrackerInfo();
 	string url = trackerInfo.baseURL;
-	if (url[url.size() - 1] != '/')
+	if (!StringUtils::hasSuffix(url, "/"))
 		url += "/";
 	url += "issues/";
 	url += id;
