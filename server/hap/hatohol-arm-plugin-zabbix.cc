@@ -167,7 +167,10 @@ bool HapProcessZabbixAPI::initMonitoringServerInfo(void)
 
 void HapProcessZabbixAPI::acquireData(void)
 {
-	MLPL_BUG("Not implemented yet: %s\n", __PRETTY_FUNCTION__);
+	workOnHostsAndHostgroupElements();
+	workOnHostgroups();
+	workOnTriggers();
+	workOnEvents();
 }
 
 // ---------------------------------------------------------------------------
