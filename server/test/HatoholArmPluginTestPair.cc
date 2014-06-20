@@ -17,31 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HapZabbixAPI_h
-#define HapZabbixAPI_h
+#include "HatoholArmPluginTestPair.h"
 
-#include <SmartTime.h>
-#include "ZabbixAPI.h"
-#include "HatoholArmPluginBase.h"
+const ServerIdType HatoholArmPluginTestPairBase::DEFAULT_SERVER_ID = -1;
 
-class HapZabbixAPI : public HatoholArmPluginBase, public ZabbixAPI {
-public:
-	HapZabbixAPI(void);
-	virtual ~HapZabbixAPI();
-
-protected:
-	void workOnTriggers(void);
-	void workOnHostsAndHostgroupElements(void);
-	void workOnHostgroups(void);
-	void workOnEvents(void);
-
-	virtual void onInitiated(void) override;
-	virtual void onReady(void);
-	virtual void onGotNewEvents(ItemTablePtr eventsTablePtr);
-
-private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
-};
-
-#endif // HapZabbixAPI_h

@@ -33,6 +33,9 @@
 #include "CacheServiceDBClient.h"
 #include "ChildProcessManager.h"
 #include "StringUtils.h"
+#include "HostInfoCache.h"
+#include "DBClientZabbix.h" // deprecated
+#include "UnifiedDataStore.h"
 
 using namespace std;
 using namespace mlpl;
@@ -49,6 +52,7 @@ struct HatoholArmPluginGate::PrivateContext
 	ArmPluginInfo        armPluginInfo;
 	ArmStatus            armStatus;
 	GPid                 pid;
+	HostInfoCache        hostInfoCache;
 
 	PrivateContext(const MonitoringServerInfo &_serverInfo,
 	               HatoholArmPluginGate *_hapg)
@@ -83,6 +87,36 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 	  HAPI_CMD_GET_TIMESTAMP_OF_LAST_TRIGGER,
 	  (CommandHandler)
 	    &HatoholArmPluginGate::cmdHandlerGetTimestampOfLastTrigger);
+
+	registerCommandHandler(
+	  HAPI_CMD_GET_LAST_EVENT_ID,
+	  (CommandHandler)
+	    &HatoholArmPluginGate::cmdHandlerGetLastEventId);
+
+	registerCommandHandler(
+	  HAPI_CMD_SEND_UPDATED_TRIGGERS,
+	  (CommandHandler)
+	    &HatoholArmPluginGate::cmdHandlerSendUpdatedTriggers);
+
+	registerCommandHandler(
+	  HAPI_CMD_SEND_HOSTS,
+	  (CommandHandler)
+	    &HatoholArmPluginGate::cmdHandlerSendHosts);
+
+	registerCommandHandler(
+	  HAPI_CMD_SEND_HOST_GROUP_ELEMENTS,
+	  (CommandHandler)
+	    &HatoholArmPluginGate::cmdHandlerSendHostgroupElements);
+
+	registerCommandHandler(
+	  HAPI_CMD_SEND_HOST_GROUPS,
+	  (CommandHandler)
+	    &HatoholArmPluginGate::cmdHandlerSendHostgroups);
+
+	registerCommandHandler(
+	  HAPI_CMD_SEND_UPDATED_EVENTS,
+	  (CommandHandler)
+	    &HatoholArmPluginGate::cmdHandlerSendUpdatedEvents);
 }
 
 void HatoholArmPluginGate::start(void)
@@ -249,4 +283,167 @@ void HatoholArmPluginGate::cmdHandlerGetTimestampOfLastTrigger(
 	body->timestamp = NtoL(lastTimespec.tv_sec);
 	body->nanosec   = NtoL(lastTimespec.tv_nsec);
 	reply(resBuf);
+}
+
+void HatoholArmPluginGate::cmdHandlerGetLastEventId(
+  const HapiCommandHeader *header)
+{
+	SmartBuffer resBuf;
+	HapiResLastEventId *body =
+	  setupResponseBuffer<HapiResLastEventId>(resBuf);
+	CacheServiceDBClient cache;
+	DBClientHatohol *dbHatohol = cache.getHatohol();
+	body->lastEventId = dbHatohol->getLastEventId(m_ctx->serverInfo.id);
+	reply(resBuf);
+}
+
+void HatoholArmPluginGate::cmdHandlerSendUpdatedTriggers(
+  const HapiCommandHeader *header)
+{
+	SmartBuffer *cmdBuf = getCurrBuffer();
+	HATOHOL_ASSERT(cmdBuf, "Current buffer: NULL");
+
+	cmdBuf->setIndex(sizeof(HapiCommandHeader));
+	ItemTablePtr tablePtr = createItemTable(*cmdBuf);
+
+	// We don't save trigger data to DBClientZabbix. Instead
+	// save the data to DBClientHatohol directly.
+	// Different from ArmZabbixAPI, our new design deprecates
+	// using DBClinetZabbix, because it hasn't worked usefully.
+
+	TriggerInfoList trigInfoList;
+	const ItemGroupList &trigGrpList = tablePtr->getItemGroupList();
+	ItemGroupListConstIterator trigGrpItr = trigGrpList.begin();
+	for (; trigGrpItr != trigGrpList.end(); ++trigGrpItr) {
+		ItemGroupStream trigGroupStream(*trigGrpItr);
+		TriggerInfo trigInfo;
+
+		trigInfo.serverId = m_ctx->serverInfo.id;
+
+		trigGroupStream.seek(ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
+		trigGroupStream >> trigInfo.id;
+
+		trigGroupStream.seek(ITEM_ID_ZBX_TRIGGERS_VALUE);
+		trigGroupStream >> trigInfo.status;
+
+		trigGroupStream.seek(ITEM_ID_ZBX_TRIGGERS_PRIORITY);
+		trigGroupStream >> trigInfo.severity;
+
+		trigGroupStream.seek(ITEM_ID_ZBX_TRIGGERS_LASTCHANGE);
+		trigGroupStream >> trigInfo.lastChangeTime.tv_sec;
+		trigInfo.lastChangeTime.tv_nsec = 0;
+
+		trigGroupStream.seek(ITEM_ID_ZBX_TRIGGERS_DESCRIPTION);
+		trigGroupStream >> trigInfo.brief;
+
+		trigGroupStream.seek(ITEM_ID_ZBX_TRIGGERS_HOSTID);
+		trigGroupStream >> trigInfo.hostId;
+
+		if (!m_ctx->hostInfoCache.getName(trigInfo.id,
+		                                  trigInfo.hostName)) {
+			MLPL_WARN(
+			  "Ignored a trigger whose host name was not found: "
+			  "server: %" FMT_SERVER_ID ", host: %" FMT_HOST_ID
+			  "\n",
+			  m_ctx->serverInfo.id, trigInfo.id);
+			continue;
+		}
+
+		trigInfoList.push_back(trigInfo);
+	}
+
+	CacheServiceDBClient cache;
+	DBClientHatohol *dbHatohol = cache.getHatohol();
+	dbHatohol->addTriggerInfoList(trigInfoList);
+}
+
+void HatoholArmPluginGate::cmdHandlerSendHosts(
+  const HapiCommandHeader *header)
+{
+	SmartBuffer *cmdBuf = getCurrBuffer();
+	HATOHOL_ASSERT(cmdBuf, "Current buffer: NULL");
+
+	cmdBuf->setIndex(sizeof(HapiCommandHeader));
+	ItemTablePtr hostTablePtr = createItemTable(*cmdBuf);
+
+	// We don't save host data to DBClientZabbix.
+	// See also the comment in cmdHandlerSendUpdatedTriggers().
+	// TODO: replace DBClientZabbix::transformHostsToHatoholFormat()
+	// with a similar helper function.
+	HostInfoList hostInfoList;
+	DBClientZabbix::transformHostsToHatoholFormat(
+	  hostInfoList, hostTablePtr, m_ctx->serverInfo.id);
+
+	CacheServiceDBClient cache;
+	DBClientHatohol *dbHatohol = cache.getHatohol();
+	dbHatohol->addHostInfoList(hostInfoList);
+
+	// TODO: consider if DBClientHatohol should have the cache
+	HostInfoListConstIterator hostInfoItr = hostInfoList.begin();
+	for (; hostInfoItr != hostInfoList.end(); ++hostInfoItr)
+		m_ctx->hostInfoCache.update(*hostInfoItr);
+}
+
+void HatoholArmPluginGate::cmdHandlerSendHostgroupElements(
+  const HapiCommandHeader *header)
+{
+	SmartBuffer *cmdBuf = getCurrBuffer();
+	HATOHOL_ASSERT(cmdBuf, "Current buffer: NULL");
+
+	cmdBuf->setIndex(sizeof(HapiCommandHeader));
+	ItemTablePtr hostgroupElementTablePtr = createItemTable(*cmdBuf);
+
+	// We don't save host data to DBClientZabbix.
+	// See also the comment in cmdHandlerSendUpdatedTriggers().
+	// TODO: replace DBClientZabbix::transformHostsGroupsToHatoholFormat()
+	// with a similar helper function.
+	HostgroupElementList hostgroupElementList;
+	HostInfoList hostInfoList;
+	DBClientZabbix::transformHostsGroupsToHatoholFormat(
+	  hostgroupElementList, hostgroupElementTablePtr, m_ctx->serverInfo.id);
+
+	CacheServiceDBClient cache;
+	DBClientHatohol *dbHatohol = cache.getHatohol();
+	dbHatohol->addHostgroupElementList(hostgroupElementList);
+}
+
+void HatoholArmPluginGate::cmdHandlerSendHostgroups(
+  const HapiCommandHeader *header)
+{
+	SmartBuffer *cmdBuf = getCurrBuffer();
+	HATOHOL_ASSERT(cmdBuf, "Current buffer: NULL");
+
+	cmdBuf->setIndex(sizeof(HapiCommandHeader));
+	ItemTablePtr hostgroupTablePtr = createItemTable(*cmdBuf);
+
+	// We don't save host data to DBClientZabbix.
+	// See also the comment in cmdHandlerSendUpdatedTriggers().
+	// TODO: replace DBClientZabbix::transformGroupsToHatoholFormat()
+	// with a similar helper function.
+	HostgroupInfoList hostgroupInfoList;
+	DBClientZabbix::transformGroupsToHatoholFormat(
+	  hostgroupInfoList, hostgroupTablePtr, m_ctx->serverInfo.id);
+
+	CacheServiceDBClient cache;
+	DBClientHatohol *dbHatohol = cache.getHatohol();
+	dbHatohol->addHostgroupInfoList(hostgroupInfoList);
+}
+
+void HatoholArmPluginGate::cmdHandlerSendUpdatedEvents(
+  const HapiCommandHeader *header)
+{
+	SmartBuffer *cmdBuf = getCurrBuffer();
+	HATOHOL_ASSERT(cmdBuf, "Current buffer: NULL");
+
+	cmdBuf->setIndex(sizeof(HapiCommandHeader));
+	ItemTablePtr eventTablePtr = createItemTable(*cmdBuf);
+
+	// We don't save host data to DBClientZabbix.
+	// See also the comment in cmdHandlerSendUpdatedTriggers().
+	// TODO: replace DBClientZabbix::transformEventsToHatoholFormat()
+	// with a similar helper function.
+	EventInfoList eventInfoList;
+	DBClientZabbix::transformEventsToHatoholFormat(
+	  eventInfoList, eventTablePtr, m_ctx->serverInfo.id);
+	UnifiedDataStore::getInstance()->addEventList(eventInfoList);
 }

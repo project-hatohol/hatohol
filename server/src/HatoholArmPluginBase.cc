@@ -23,15 +23,51 @@
 
 using namespace mlpl;
 
-struct HatoholArmPluginBase::PrivateContext {
-	SimpleSemaphore replyWaitSem;
-	SmartBuffer     responseBuf;
+struct HatoholArmPluginBase::AsyncCbData {
+	HatoholArmPluginBase *obj;
+	void                 *priv;
 
-	PrivateContext(void)
-	: replyWaitSem(0)
+	AsyncCbData(HatoholArmPluginBase *_obj, void *_priv)
+	: obj(_obj),
+	  priv(_priv)
 	{
 	}
 };
+
+typedef void (*AsyncCallback)(HatoholArmPluginBase::AsyncCbData *data);
+
+struct HatoholArmPluginBase::PrivateContext {
+	SimpleSemaphore replyWaitSem;
+	SmartBuffer     responseBuf;
+	AsyncCallback   currAsyncCb;
+	AsyncCbData    *currAsyncCbData;
+
+	PrivateContext(void)
+	: replyWaitSem(0),
+	  currAsyncCb(NULL),
+	  currAsyncCbData(NULL)
+	{
+	}
+};
+
+// ---------------------------------------------------------------------------
+// GetMonitoringServerInfoAsyncArg
+// ---------------------------------------------------------------------------
+HatoholArmPluginBase::GetMonitoringServerInfoAsyncArg::GetMonitoringServerInfoAsyncArg(MonitoringServerInfo *serverInfo)
+: m_serverInfo(serverInfo)
+{
+}
+
+void HatoholArmPluginBase::GetMonitoringServerInfoAsyncArg::doneCb(
+  const bool &succeeded)
+{
+}
+
+MonitoringServerInfo &
+  HatoholArmPluginBase::GetMonitoringServerInfoAsyncArg::getMonitoringServerInfo(void)
+{
+	return *m_serverInfo;
+}
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -51,12 +87,76 @@ HatoholArmPluginBase::~HatoholArmPluginBase()
 bool HatoholArmPluginBase::getMonitoringServerInfo(
   MonitoringServerInfo &serverInfo)
 {
+	sendCmdGetMonitoringServerInfo();
+	waitResponseAndCheckHeader();
+	return parseReplyGetMonitoringServerInfo(serverInfo);
+}
+
+void HatoholArmPluginBase::getMonitoringServerInfoAsync(
+  GetMonitoringServerInfoAsyncArg *arg)
+{
+	HATOHOL_ASSERT(!m_ctx->currAsyncCb,
+	               "Async. process is already running.");
+	sendCmdGetMonitoringServerInfo();
+	m_ctx->currAsyncCb = _getMonitoringServerInfoAsyncCb;
+	m_ctx->currAsyncCbData = new AsyncCbData(this, arg);
+}
+
+SmartTime HatoholArmPluginBase::getTimestampOfLastTrigger(void)
+{
+	SmartBuffer cmdBuf;
+	setupCommandHeader<void>(
+	  cmdBuf, HAPI_CMD_GET_TIMESTAMP_OF_LAST_TRIGGER);
+	send(cmdBuf);
+	waitResponseAndCheckHeader();
+
+	const HapiResTimestampOfLastTrigger *body = 
+	  getResponseBody<HapiResTimestampOfLastTrigger>(m_ctx->responseBuf);
+	timespec ts;
+	ts.tv_sec  = LtoN(body->timestamp);
+	ts.tv_nsec = LtoN(body->nanosec);
+	return SmartTime(ts);
+}
+
+EventIdType HatoholArmPluginBase::getLastEventId(void)
+{
+	SmartBuffer cmdBuf;
+	setupCommandHeader<void>(cmdBuf, HAPI_CMD_GET_LAST_EVENT_ID);
+	send(cmdBuf);
+	waitResponseAndCheckHeader();
+
+	const HapiResLastEventId *body =
+	  getResponseBody<HapiResLastEventId>(m_ctx->responseBuf);
+	return body->lastEventId;
+}
+
+// ---------------------------------------------------------------------------
+// Protected methods
+// ---------------------------------------------------------------------------
+void HatoholArmPluginBase::onGotResponse(
+  const HapiResponseHeader *header, SmartBuffer &resBuf)
+{
+	resBuf.handOver(m_ctx->responseBuf);
+	if (m_ctx->currAsyncCb) {
+		(*m_ctx->currAsyncCb)(m_ctx->currAsyncCbData);
+		m_ctx->currAsyncCb = NULL;
+		m_ctx->currAsyncCbData = NULL;
+		return;
+	}
+	m_ctx->replyWaitSem.post();
+}
+
+void HatoholArmPluginBase::sendCmdGetMonitoringServerInfo(void)
+{
 	SmartBuffer cmdBuf;
 	setupCommandHeader<void>(
 	  cmdBuf, HAPI_CMD_GET_MONITORING_SERVER_INFO);
 	send(cmdBuf);
-	waitResponseAndCheckHeader();
+}
 
+bool HatoholArmPluginBase::parseReplyGetMonitoringServerInfo(
+  MonitoringServerInfo &serverInfo)
+{
 	const HapiResMonitoringServerInfo *svInfo =
 	  getResponseBody<HapiResMonitoringServerInfo>(m_ctx->responseBuf);
 	serverInfo.id   = LtoN(svInfo->serverId);
@@ -94,41 +194,38 @@ bool HatoholArmPluginBase::getMonitoringServerInfo(
 	return true;
 }
 
-SmartTime HatoholArmPluginBase::getTimestampOfLastTrigger(void)
+void HatoholArmPluginBase::_getMonitoringServerInfoAsyncCb(
+  HatoholArmPluginBase::AsyncCbData *data)
 {
-	SmartBuffer cmdBuf;
-	setupCommandHeader<void>(
-	  cmdBuf, HAPI_CMD_GET_TIMESTAMP_OF_LAST_TRIGGER);
-	send(cmdBuf);
-	waitResponseAndCheckHeader();
-
-	const HapiResTimestampOfLastTrigger *body = 
-	  getResponseBody<HapiResTimestampOfLastTrigger>(m_ctx->responseBuf);
-	timespec ts;
-	ts.tv_sec  = LtoN(body->timestamp);
-	ts.tv_nsec = LtoN(body->nanosec);
-	return SmartTime(ts);
+	GetMonitoringServerInfoAsyncArg *arg =
+	  static_cast<GetMonitoringServerInfoAsyncArg *>(data->priv);
+	data->obj->getMonitoringServerInfoAsyncCb(arg);
+	delete data;
 }
 
-void HatoholArmPluginBase::sendUpdatedTriggers(ItemTablePtr triggers)
+void HatoholArmPluginBase::getMonitoringServerInfoAsyncCb(
+  HatoholArmPluginBase::GetMonitoringServerInfoAsyncArg *arg)
 {
-	MLPL_BUG("Not implemented yet: %s\n", __PRETTY_FUNCTION__);
-}
-
-// ---------------------------------------------------------------------------
-// Protected methods
-// ---------------------------------------------------------------------------
-void HatoholArmPluginBase::onGotResponse(
-  const HapiResponseHeader *header, SmartBuffer &resBuf)
-{
-	resBuf.handOver(m_ctx->responseBuf);
-	m_ctx->replyWaitSem.post();
+	bool succeeded = parseReplyGetMonitoringServerInfo(
+	                   arg->getMonitoringServerInfo());
+	arg->doneCb(succeeded);
 }
 
 void HatoholArmPluginBase::waitResponseAndCheckHeader(void)
 {
+	HATOHOL_ASSERT(!m_ctx->currAsyncCb,
+	               "Async. process is already running.");
 	m_ctx->replyWaitSem.wait();
 
 	// To check the sainity of the header
 	getResponseHeader(m_ctx->responseBuf);
+}
+
+void HatoholArmPluginBase::sendTable(
+  const HapiCommandCode &code, const ItemTablePtr &tablePtr)
+{
+	SmartBuffer cmdBuf;
+	setupCommandHeader<void>(cmdBuf, code);
+	appendItemTable(cmdBuf, tablePtr);
+	send(cmdBuf);
 }

@@ -89,6 +89,7 @@ public:
 	  const bool &succeeded, const ArmPluginInfo &armPluginInfo) override;
 	virtual void onConnected(qpid::messaging::Connection &conn) override;
 	virtual void onInitiated(void) override;
+	virtual void onHandledCommand(const HapiCommandCode &code) override;
 	void canncelRetrySleepIfNeeded(void);
 
 private:

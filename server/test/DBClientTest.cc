@@ -762,7 +762,7 @@ uint64_t findLastEventId(const ServerIdType &serverId)
 		}
 	}
 	if (!found)
-		return DBClientHatohol::EVENT_NOT_FOUND;
+		return EVENT_NOT_FOUND;
 	return maxId;
 }
 

@@ -194,4 +194,12 @@ void test_handOver(void)
 	assertEqual(srcParams, src, dest);
 }
 
+void test_setIndex(void)
+{
+	SmartBuffer sbuf;
+	sbuf.alloc(100);
+	sbuf.setIndex(5);
+	cppcut_assert_equal((size_t)5, sbuf.index());
+}
+
 } // namespace testSmartBuffer

@@ -35,9 +35,11 @@ testHatohol_la_SOURCES = \
 	testDataStoreZabbix.cc testDataStoreNagios.cc \
 	testHatoholArmPluginInterface.cc testHatoholArmPluginGate.cc \
 	testHatoholArmPluginBase.cc \
+	testHapZabbixAPI.cc \
 	testHatoholError.cc \
 	testHatoholException.cc testSQLProcessorException.cc \
 	testHatoholThreadBase.cc \
+	testHostInfoCache.cc \
 	testHostResourceQueryOption.cc \
 	testHostResourceQueryOptionSubClasses.cc \
 	testDBAgent.cc \
@@ -88,7 +90,8 @@ libTest_la_SOURCES = \
 	ExceptionTestUtils.h AssertJoin.h \
 	MultiLangTest.h \
 	HatoholArmPluginInterfaceTest.cc HatoholArmPluginInterfaceTest.h \
-	HatoholArmPluginGateTest.cc HatoholArmPluginGateTest.h
+	HatoholArmPluginGateTest.cc HatoholArmPluginGateTest.h \
+	HatoholArmPluginTestPair.cc HatoholArmPluginTestPair.h
 libTest_la_LDFLAGS =
 
 ActionTp_SOURCES = ActionTp.cc ActionTp.h

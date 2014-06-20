@@ -91,6 +91,12 @@ protected:
 	  const HapiCommandHeader *header);
 	void cmdHandlerGetTimestampOfLastTrigger(
 	  const HapiCommandHeader *header);
+	void cmdHandlerGetLastEventId(const HapiCommandHeader *header);
+	void cmdHandlerSendUpdatedTriggers(const HapiCommandHeader *header);
+	void cmdHandlerSendHosts(const HapiCommandHeader *header);
+	void cmdHandlerSendHostgroupElements(const HapiCommandHeader *header);
+	void cmdHandlerSendHostgroups(const HapiCommandHeader *header);
+	void cmdHandlerSendUpdatedEvents(const HapiCommandHeader *header);
 
 private:
 	struct PrivateContext;

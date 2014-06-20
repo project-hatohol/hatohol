@@ -17,31 +17,35 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HapZabbixAPI_h
-#define HapZabbixAPI_h
+#ifndef HostInfoCache_h
+#define HostInfoCache_h
 
-#include <SmartTime.h>
-#include "ZabbixAPI.h"
-#include "HatoholArmPluginBase.h"
+#include <string>
+#include "DBClientHatohol.h"
 
-class HapZabbixAPI : public HatoholArmPluginBase, public ZabbixAPI {
+/**
+ * Currently This class has only the ID and the name. In addition,
+ * Hosts with the same serverId can be cached for an instance.
+ */
+class HostInfoCache {
 public:
-	HapZabbixAPI(void);
-	virtual ~HapZabbixAPI();
+	HostInfoCache(void);
+	virtual ~HostInfoCache();
+	void update(const HostInfo &hostInfo);
 
-protected:
-	void workOnTriggers(void);
-	void workOnHostsAndHostgroupElements(void);
-	void workOnHostgroups(void);
-	void workOnEvents(void);
-
-	virtual void onInitiated(void) override;
-	virtual void onReady(void);
-	virtual void onGotNewEvents(ItemTablePtr eventsTablePtr);
+	/**
+	 * Get the name corresponding to the specified host ID.
+	 *
+	 * @param id A target host ID.
+	 * @param name The obtained name is store in this paramter.
+	 *
+	 * @return true if the host is found, or false.
+	 */
+	bool getName(const HostIdType &id, std::string &name);
 
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
 };
 
-#endif // HapZabbixAPI_h
+#endif // HostInfoCache_h

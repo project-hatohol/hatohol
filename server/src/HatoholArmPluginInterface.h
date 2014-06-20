@@ -51,9 +51,17 @@ enum HapiMessageType {
 };
 
 enum HapiCommandCode {
+	// Cl -> Sv
 	HAPI_CMD_GET_MONITORING_SERVER_INFO,
 	HAPI_CMD_GET_TIMESTAMP_OF_LAST_TRIGGER,
+	HAPI_CMD_GET_LAST_EVENT_ID,
 	HAPI_CMD_SEND_UPDATED_TRIGGERS,
+	HAPI_CMD_SEND_HOSTS,
+	HAPI_CMD_SEND_HOST_GROUP_ELEMENTS,
+	HAPI_CMD_SEND_HOST_GROUPS,
+	HAPI_CMD_SEND_UPDATED_EVENTS,
+	// Sv -> Cl
+	HAPI_CMD_REQ_ITEMS,
 	NUM_HAPI_CMD
 };
 
@@ -158,6 +166,10 @@ struct HapiResMonitoringServerInfo {
 struct HapiResTimestampOfLastTrigger {
 	uint64_t timestamp; // Unix time (GMT)
 	uint32_t nanosec;
+} __attribute__((__packed__));
+
+struct HapiResLastEventId {
+	uint64_t lastEventId;
 } __attribute__((__packed__));
 
 class HatoholArmPluginInterface :
@@ -417,6 +429,7 @@ protected:
 	 */
 	virtual void onReceived(mlpl::SmartBuffer &smbuf);
 	virtual void onGotError(const HatoholArmPluginError &hapError);
+	virtual void onHandledCommand(const HapiCommandCode &code);
 
 	/**
 	 * Called when a HAPI's response is received.
@@ -503,7 +516,9 @@ protected:
 	 * @tparam BodyType
 	 * A Body type. If a body doesn't exist, 'void' shall be set.
 	 *
-	 * @param cmdBuf A buffer for the command.
+	 * @param cmdBuf
+	 * A buffer for the command. The index is set to the nex to the header
+	 * region after the call.
 	 * @param code   A command code.
 	 * @param additionalSize An additional content size.
 	 *
@@ -525,6 +540,7 @@ protected:
 		cmdHeader->type = NtoL(HAPI_MSG_COMMAND);
 		cmdHeader->code = NtoL(code);
 		cmdHeader->sequenceId = NtoL(getIncrementedSequenceId());
+		cmdBuf.setIndex(sizeof(HapiCommandHeader));
 		return cmdBuf.getPointer<BodyType>(sizeof(HapiCommandHeader));
 	}
 
@@ -551,6 +567,31 @@ protected:
 	{
 		return getBodyPointerWithCheck<HapiResponseHeader, BodyType>(
 		         resBuf, additionalSize);
+	}
+
+	/**
+	 * Get the command body with a buffer size check.
+	 *
+	 * If the command buffer size is smaller than the expected size,
+	 * HatoholException is thrown.
+	 *
+	 * @tparam BodyType
+	 * A Body type. If a body doesn't exist, 'void' shall be set.
+	 *
+	 * @param cmdBuf A command buffer.
+	 * @param additionalSize An additional content size.
+	 *
+	 * @return
+	 * An address next to the header region. It is typically the top of
+	 * the body.
+	 */
+	template<class BodyType>
+	BodyType *getCommandBody(mlpl::SmartBuffer &cmdBuf,
+	                         const size_t &additionalSize = 0)
+	  throw(HatoholException)
+	{
+		return getBodyPointerWithCheck<HapiCommandHeader, BodyType>(
+		         cmdBuf, additionalSize);
 	}
 
 	/**
@@ -587,6 +628,16 @@ protected:
 	uint32_t getIncrementedSequenceId(void);
 	void setSequenceId(const uint32_t &sequenceId);
 	uint32_t getSequenceIdInProgress(void);
+
+	/**
+	 * Get the received buffer that is currently being processed.
+	 * This method is seemed to be called from command handlers.
+	 *
+	 * @return
+	 * A currently processed receive buffer. Or NULL if no buffer is
+	 * processed.
+	 */
+	mlpl::SmartBuffer *getCurrBuffer(void);
 
 	void dumpBuffer(const mlpl::SmartBuffer &sbuf,
 	                const std::string &label = "");
