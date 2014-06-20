@@ -171,6 +171,8 @@ HatoholServerEditDialog.prototype.createMainElement = function() {
       gettext("Zabbix") + '</option>';
     s += '    <option value="' + hatohol.MONITORING_SYSTEM_NAGIOS +'">' +
       gettext("Nagios") + '</option>';
+    s += '    <option value="' + hatohol.MONITORING_SYSTEM_HAPI_ZABBIX +'">' +
+      gettext("Zabbix (HAPI) [experimental]") + '</option>';
     s += '  </select>';
     s += '</form>';
     s += '<form class="form-inline">';
@@ -201,6 +203,12 @@ HatoholServerEditDialog.prototype.createMainElement = function() {
     s += '  <label for="inputRetryInterval">' + gettext("Retry interval (sec)") + '</label>';
     s += '  <input id="inputRetryInterval" type="text" value="10" style="width:4em;" class="input-xlarge">';
     s += '</form>';
+    // Input form for HAPI's parameter
+    s += '<form class="form-inline" style="display:none;" id="hapiParamArea">';
+    s += '  <input id="chkboxStaticQueueAddr" type="checkbox" class="selectcheckbox">';
+    s += '  <label for="inputStaticQueueAddr">' + gettext("Use static queue address") + '</label>';
+    s += '  <input id="inputStaticQueueAddr" type="text" value="" style="width:10em" class="input-xlarge" disabled="disabled">';
+    s += '</form>';
     s += '</div>';
     return s;
   }
@@ -219,8 +227,13 @@ HatoholServerEditDialog.prototype.onAppendMainElement = function () {
     var type = $("#selectServerType").val();
     if (type == hatohol.MONITORING_SYSTEM_ZABBIX) {
       self.setDBNameTextState(false);
+      self.setHapiParamState(false);
     } else if (type == hatohol.MONITORING_SYSTEM_NAGIOS) {
       self.setDBNameTextState(true);
+      self.setHapiParamState(false);
+    } else if (type == hatohol.MONITORING_SYSTEM_HAPI_ZABBIX) {
+      self.setDBNameTextState(true);
+      self.setHapiParamState(true);
     }
   });
 
@@ -250,6 +263,14 @@ HatoholServerEditDialog.prototype.onAppendMainElement = function () {
 
   $("#inputPassword").keyup(function() {
     self.fixupApplyButtonState();
+  });
+
+  $("#chkboxStaticQueueAddr").change(function() {
+    if ($(this).is(':checked')) {
+      $("#inputStaticQueueAddr").removeAttr("disabled");
+    } else {
+      $("#inputStaticQueueAddr").attr("disabled", "disabled");
+    }
   });
 };
 
@@ -295,6 +316,15 @@ HatoholServerEditDialog.prototype.setDBNameTextState = function(state) {
     dbNameArea.hide();
   }
 };
+
+HatoholServerEditDialog.prototype.setHapiParamState = function(state) {
+  var hapiParamArea = $("#hapiParamArea");
+  if (state) {
+    hapiParamArea.show();
+  } else {
+    hapiParamArea.hide();
+  }
+}
 
 HatoholServerEditDialog.prototype.setServer = function(server) {
   this.server = server;
