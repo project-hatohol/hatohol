@@ -40,7 +40,7 @@ string MonitoringServerInfo::getHostAddress(bool forURI) const
 	}
 }
 
-std::string MonitoringServerInfo::getName(void) const
+std::string MonitoringServerInfo::getDisplayName(void) const
 {
 	if (!nickname.empty())
 		return nickname;

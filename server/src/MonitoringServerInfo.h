@@ -82,7 +82,7 @@ struct MonitoringServerInfo {
 	 * If nickname is set, it is returned. Otherwise, if hostName is set,
 	 * it is returned. If both of them are empty, ipAddress is returned.
 	 */
-	std::string getName(void) const;
+	std::string getDisplayName(void) const;
 
 	static void initialize(MonitoringServerInfo &monitroingServerInfo);
 };
