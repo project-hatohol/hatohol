@@ -20,8 +20,21 @@
 #include <glib.h>
 #include <cstdio>
 #include "HapProcess.h"
+#include "HatoholException.h"
 
 struct HapProcess::PrivateContext {
+	GMainLoop *loop;
+
+	PrivateContext(void)
+	: loop(NULL)
+	{
+	}
+
+	~PrivateContext()
+	{
+		if (loop)
+			g_main_loop_unref(loop);
+	}
 };
 
 // ---------------------------------------------------------------------------
@@ -47,4 +60,12 @@ void HapProcess::initGLib(void)
 #ifndef GLIB_VERSION_2_32
 	g_thread_init(NULL);
 #endif // GLIB_VERSION_2_32
+}
+
+GMainLoop *HapProcess::getGMainLoop(void)
+{
+	if (!m_ctx->loop)
+		m_ctx->loop = g_main_loop_new(NULL, FALSE);
+	HATOHOL_ASSERT(m_ctx->loop, "Failed to create GMainLoop.");
+	return m_ctx->loop;
 }

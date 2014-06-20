@@ -20,6 +20,8 @@
 #ifndef HapProcess_h
 #define HapProcess_h
 
+#include <glib.h>
+
 class HapProcess {
 public:
 	HapProcess(int argc, char *argv[]);
@@ -29,6 +31,8 @@ public:
 	 * Call g_type_init() and g_thread_init if needed.
 	 */
 	void initGLib(void);
+
+	GMainLoop *getGMainLoop(void);
 
 private:
 	struct PrivateContext;
