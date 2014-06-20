@@ -71,7 +71,8 @@ testHatohol_la_SOURCES = \
 	testArmStatus.cc \
 	testUsedCountable.cc \
 	testUnifiedDataStore.cc testMain.cc \
-	testZabbixAPI.cc
+	testZabbixAPI.cc \
+	test-hatohol-arm-plugin-zabbix.cc
 
 testHatohol_la_LDFLAGS = $(AM_LDFLAGS) $(LIBS)
 testHatohol_la_LIBADD = libTest.la

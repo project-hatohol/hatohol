@@ -691,7 +691,7 @@ ArmPluginInfo testArmPluginInfo[] = {
 {
 	MONITORING_SYSTEM_HAPI_ZABBIX,   // type
 	"Zabbix API",                    // name
-	"/usr/local/lib/hatohol/hapi/hapi-zabbix-api",       // path
+	"../hap/hatohol-arm-plugin-zabbix", // path
 }, {
 	MONITORING_SYSTEM_HAPI_NAGIOS,   // type
 	"Nagios NDO",                    // name
