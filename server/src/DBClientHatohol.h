@@ -165,8 +165,8 @@ struct IssueInfo {
 	std::string        location;
 	std::string        status;
 	std::string        assignee;
-	time_t             createdAt;
-	time_t             updatedAt;
+	timespec           createdAt;
+	timespec           updatedAt;
 };
 
 typedef std::vector<IssueInfo>        IssueInfoVect;

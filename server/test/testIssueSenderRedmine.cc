@@ -182,8 +182,10 @@ static void makeExpectedIssueInfo(IssueInfo &issue,
 	issue.identifier = StringUtils::toString((int)postedIssue.id);
 	issue.location = tracker.baseURL + "/issues/" + issue.identifier;
 	issue.status = postedIssue.getStatusName();
-	issue.createdAt = postedIssue.createdOn;
-	issue.updatedAt = postedIssue.updatedOn;
+	issue.createdAt.tv_sec = postedIssue.createdOn;
+	issue.createdAt.tv_nsec = 0;
+	issue.updatedAt.tv_sec = postedIssue.updatedOn;
+	issue.updatedAt.tv_nsec = 0;
 }
 
 void _assertSend(const HatoholErrorCode &expected,
@@ -254,9 +256,9 @@ void test_parseResponse(void)
 	issue.trackerId = atoi(tracker.trackerId.c_str());
 	issue.assigneeId = 1;
 	issue.assigneeName = expected.assignee;
-	issue.startDate = expected.createdAt;
-	issue.createdOn = expected.createdAt;
-	issue.updatedOn = expected.updatedAt;
+	issue.startDate = expected.createdAt.tv_sec;
+	issue.createdOn = expected.createdAt.tv_sec;
+	issue.updatedOn = expected.updatedAt.tv_sec;
 
 	TestRedmineSender sender(tracker);
 	actual.trackerId = expected.trackerId;

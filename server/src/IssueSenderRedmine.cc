@@ -202,15 +202,17 @@ HatoholError IssueSenderRedmine::parseResponse(
 
 	agent.read("created_on", timeString);
 	if (g_time_val_from_iso8601(timeString.c_str(), &_time))
-		issueInfo.createdAt = _time.tv_sec;
+		issueInfo.createdAt.tv_sec = _time.tv_sec;
 	else
-		issueInfo.createdAt = 0;
+		issueInfo.createdAt.tv_sec = 0;
+	issueInfo.createdAt.tv_nsec = 0;
 
 	agent.read("updated_on", timeString);
 	if (g_time_val_from_iso8601(timeString.c_str(), &_time))
-		issueInfo.updatedAt = _time.tv_sec;
+		issueInfo.updatedAt.tv_sec = _time.tv_sec;
 	else
-		issueInfo.updatedAt = 0;
+		issueInfo.updatedAt.tv_sec = 0;
+	issueInfo.updatedAt.tv_nsec = 0;
 
 	agent.endObject();
 

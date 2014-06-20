@@ -772,8 +772,8 @@ IssueInfo testIssueInfo[] = {
 	"http://localhost:44444/issues/13", // location
 	"New",                    // status
 	"foobar",                 // assignee
-	1362957260,               // createdAt
-	1362957260,               // updatedAt
+	{1362957260, 0},          // createdAt
+	{1362957260, 0},          // updatedAt
 }
 };
 size_t NumTestIssueInfo = sizeof(testIssueInfo) / sizeof(IssueInfo);

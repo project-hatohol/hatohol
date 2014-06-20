@@ -1322,7 +1322,8 @@ void test_updateIssueInfo(void)
 	dbClientHatohol.addIssueInfo(&issueInfo);
 	issueInfo.status = "Assigned";
 	issueInfo.assignee = "hikeshi";
-	issueInfo.updatedAt = time(NULL);
+	issueInfo.updatedAt.tv_sec = time(NULL);
+	issueInfo.updatedAt.tv_nsec = 0;
 	dbClientHatohol.addIssueInfo(&issueInfo);
 
 	string statement("select * from issues;");

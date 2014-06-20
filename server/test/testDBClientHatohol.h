@@ -294,8 +294,10 @@ struct AssertGetEventsArg
 			issue.serverId  = event.serverId;
 			issue.eventId   = event.id;
 			issue.triggerId = event.triggerId;
-			issue.createdAt = 0;
-			issue.updatedAt = 0;
+			issue.createdAt.tv_sec  = 0;
+			issue.createdAt.tv_nsec = 0;
+			issue.updatedAt.tv_sec  = 0;
+			issue.updatedAt.tv_nsec = 0;
 			return issue;
 		} else {
 			return *eventIssueMap[key];
