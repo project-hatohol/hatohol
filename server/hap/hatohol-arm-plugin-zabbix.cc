@@ -109,20 +109,15 @@ bool HapProcessZabbixAPI::sleepForMainThread(const int &sleepTimeInSec)
 
 bool HapProcessZabbixAPI::initMonitoringServerInfo(void)
 {
-	const size_t sleepTimeMSec = 30 * 1000;
+	const size_t sleepTimeSec = 30;
 	while (true) {
 		bool succeeded = getMonitoringServerInfo(m_ctx->serverInfo);
 		if (succeeded)
 			break;
 		MLPL_INFO("Failed to get MonitoringServerInfo. "
-		          "Retry after %zd sec.\n",  sleepTimeMSec/1000);
-		SimpleSemaphore::Status status =
-		  m_ctx->mainThreadSem.timedWait(sleepTimeMSec);
-		// TODO: Add a mechanism to exit
-		if (status == SimpleSemaphore::STAT_OK ||
-		    status == SimpleSemaphore::STAT_ERROR_UNKNOWN) {
-			HATOHOL_ASSERT(true, "Unexpected result: %d\n", status);
-		}
+		          "Retry after %zd sec.\n",  sleepTimeSec);
+		if (sleepForMainThread(sleepTimeSec))
+			return false;
 	}
 	setExceptionSleepTime(m_ctx->serverInfo.retryIntervalSec*1000);
 	return true;
