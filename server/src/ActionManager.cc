@@ -731,7 +731,8 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 	// WaitingCommandActionInfo. In the case, the action is queued
 	// and will be executed later.
 	if (waitCmdInfo) {
-		_actorInfo->logId = waitCmdInfo->logId;
+		if (_actorInfo)
+			_actorInfo->logId = waitCmdInfo->logId;
 		return;
 	}
 

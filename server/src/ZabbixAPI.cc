@@ -761,8 +761,9 @@ void ZabbixAPI::parseAndPushTriggerData(
 	pushString(parser, grp, "error",       ITEM_ID_ZBX_TRIGGERS_ERROR);
 	pushUint64(parser, grp, "templateid",  ITEM_ID_ZBX_TRIGGERS_TEMPLATEID);
 	pushInt   (parser, grp, "type",        ITEM_ID_ZBX_TRIGGERS_TYPE);
-	if (checkAPIVersion(2, 3, 0)) {
-		// Zabbix 2.4 doesn't have "value_falgs" property
+	if (checkAPIVersion(2, 2, 0)) {
+		// Zabbix 2.4 doesn't have "value_flags" property.
+		// In addition it's already deprecated on Zabbix 2.2.
 		grp->add(new ItemInt(ITEM_ID_ZBX_TRIGGERS_VALUE_FLAGS, 0),
 			 false);
 	} else {

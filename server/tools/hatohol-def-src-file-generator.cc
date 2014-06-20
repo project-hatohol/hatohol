@@ -147,6 +147,7 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 
 	ADD_LINE(s, langType, MONITORING_SYSTEM_ZABBIX);
 	ADD_LINE(s, langType, MONITORING_SYSTEM_NAGIOS);
+	ADD_LINE(s, langType, MONITORING_SYSTEM_UNKNOWN);
 	APPEND(s, "\n");
 
 	//

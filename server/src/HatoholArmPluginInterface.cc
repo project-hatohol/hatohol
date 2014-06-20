@@ -442,12 +442,12 @@ ItemTablePtr HatoholArmPluginInterface::createItemTable(mlpl::SmartBuffer &sbuf)
 	//   unused variable 'flags' [-Wunused-variable]
 	// const uint16_t flags    = LtoN(header->flags);
 
-	const uint32_t numItems = LtoN(header->numGroups);
-	const uint32_t length   = LtoN(header->length);
+	const uint32_t numGroups = LtoN(header->numGroups);
+	const uint32_t length    = LtoN(header->length);
 
 	VariableItemTablePtr itemTblPtr(new ItemTable(), false);
 	// append ItemGroups
-	for (size_t idx = 0; idx < numItems; idx++)
+	for (size_t idx = 0; idx < numGroups; idx++)
 		itemTblPtr->add(createItemGroup(sbuf));
 
 	const size_t actualLength = sbuf.index() - index0;
