@@ -75,7 +75,7 @@ GMainLoop *HapProcess::getGMainLoop(void)
 // ---------------------------------------------------------------------------
 gpointer HapProcess::mainThread(HatoholThreadArg *arg)
 {
-	// This class changed the virtual method name for the thread.
+	// This class changes the virtual method name for the thread.
 	// If a sub class also inherits HatoholArmPluginBase (that inherits
 	// HatoholThreadBase) or its sub classes, mainThread() is ambiguous.
 	return hapMainThread(arg);
