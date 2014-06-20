@@ -298,7 +298,7 @@ static const ColumnDef COLUMN_DEF_ARM_PLUGINS[] = {
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_ARM_PLUGINS,            // tableName
-	"static_session_key",              // columnName
+	"static_queue_addr",               // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
 	0,                                 // decFracLength
@@ -314,7 +314,7 @@ enum {
 	IDX_ARM_PLUGINS_NAME,
 	IDX_ARM_PLUGINS_PATH,
 	IDX_ARM_PLUGINS_BROKER_URL,
-	IDX_ARM_PLUGINS_STATIC_SESSION_KEY,
+	IDX_ARM_PLUGINS_STATIC_QUEUE_ADDR,
 	NUM_IDX_ARM_PLUGINS,
 };
 
@@ -356,7 +356,7 @@ static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
 		addColumnsArg.columnIndexes.push_back(
 		  IDX_ARM_PLUGINS_BROKER_URL);
 		addColumnsArg.columnIndexes.push_back(
-		  IDX_ARM_PLUGINS_STATIC_SESSION_KEY);
+		  IDX_ARM_PLUGINS_STATIC_QUEUE_ADDR);
 		dbAgent->addColumns(addColumnsArg);
 	}
 	return true;
@@ -864,7 +864,7 @@ HatoholError DBClientConfig::saveArmPluginInfo(
 			arg.add(IDX_ARM_PLUGINS_PATH, armPluginInfo.path);
 			arg.add(IDX_ARM_PLUGINS_BROKER_URL,
 			        armPluginInfo.brokerUrl);
-			arg.add(IDX_ARM_PLUGINS_STATIC_SESSION_KEY,
+			arg.add(IDX_ARM_PLUGINS_STATIC_QUEUE_ADDR,
 			        armPluginInfo.staticSessionKey);
 			arg.condition = condType;
 			update(arg);
@@ -980,7 +980,7 @@ void DBClientConfig::selectArmPluginInfo(DBAgent::SelectExArg &arg)
 	arg.add(IDX_ARM_PLUGINS_NAME);
 	arg.add(IDX_ARM_PLUGINS_PATH);
 	arg.add(IDX_ARM_PLUGINS_BROKER_URL);
-	arg.add(IDX_ARM_PLUGINS_STATIC_SESSION_KEY);
+	arg.add(IDX_ARM_PLUGINS_STATIC_QUEUE_ADDR);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
