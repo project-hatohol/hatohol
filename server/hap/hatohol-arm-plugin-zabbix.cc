@@ -16,6 +16,9 @@
  * You should have received a copy of the GNU General Public License
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
 
 #include <HapZabbixAPI.h>
 #include <SimpleSemaphore.h>
@@ -102,6 +105,7 @@ gpointer HapProcessZabbixAPI::hapMainThread(HatoholThreadArg *arg)
 {
 	if (waitOnReady())
 		return NULL;
+	MLPL_INFO("Status: ready.\n");
 
 	// TODO: HapZabbixAPI get MonitoringServerInfo in onInitiated()
 	//       We should fix to use it to reduce the communication.
@@ -178,6 +182,7 @@ void HapProcessZabbixAPI::acquireData(void)
 // ---------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
+	MLPL_INFO("hatohol-arm-plugin-zabbix. ver: %s\n", PACKAGE_VERSION);
 	HapProcessZabbixAPI hapProc(argc, argv);
 	return hapProc.mainLoopRun();
 }
