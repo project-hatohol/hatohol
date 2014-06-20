@@ -81,7 +81,7 @@ struct IssueSenderManager::PrivateContext
 	{
 		sendersLock.lock();
 		Reaper<MutexLock> unlocker(&sendersLock, MutexLock::unlock);
-		if (sendersMap.find(id) != sendersMap.end() && sendersMap[id])
+		if (sendersMap.find(id) != sendersMap.end())
 			return sendersMap[id];
 
 		IssueSender *sender = createSender(id);
