@@ -19,14 +19,21 @@
 
 #include <glib.h>
 #include <cstdio>
+#include <AtomicValue.h>
 #include "HapProcess.h"
 #include "HatoholException.h"
 
+using namespace mlpl;
+
+const int HapProcess::DEFAULT_EXCEPTION_SLEEP_TIME_MS = 60 * 1000;
+
 struct HapProcess::PrivateContext {
 	GMainLoop *loop;
+	AtomicValue<int> exceptionSleepTimeMS;
 
 	PrivateContext(void)
-	: loop(NULL)
+	: loop(NULL),
+	  exceptionSleepTimeMS(DEFAULT_EXCEPTION_SLEEP_TIME_MS)
 	{
 	}
 
@@ -81,8 +88,18 @@ gpointer HapProcess::mainThread(HatoholThreadArg *arg)
 	return hapMainThread(arg);
 }
 
+int HapProcess::onCaughtException(const std::exception &e)
+{
+	return m_ctx->exceptionSleepTimeMS;
+}
+
 gpointer HapProcess::hapMainThread(HatoholThreadArg *arg)
 {
 	// The implementation will be done in the sub class.
 	return NULL;
+}
+
+void HapProcess::setExceptionSleepTime(int sleepTimeMS)
+{
+	m_ctx->exceptionSleepTimeMS = sleepTimeMS;
 }

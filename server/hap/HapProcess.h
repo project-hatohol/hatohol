@@ -37,9 +37,20 @@ public:
 	GMainLoop *getGMainLoop(void);
 
 protected:
+	static const int DEFAULT_EXCEPTION_SLEEP_TIME_MS;
 	virtual gpointer mainThread(HatoholThreadArg *arg) override;
+	virtual int onCaughtException(const std::exception &e) override;
 	virtual gpointer hapMainThread(HatoholThreadArg *arg);
 
+	/**
+	 * Set the sleep time until re-launch of mainThread() after
+	 * an exception is catched outside mainThread().
+	 *
+	 * @param sleepTimeInMS
+	 * A sleep time in millisecond. If EXIT_THREAD is given, the thread
+	 * exits soon after an exception is catched.
+	 */
+	void setExceptionSleepTime(int sleepTimeMS);
 
 private:
 	struct PrivateContext;
