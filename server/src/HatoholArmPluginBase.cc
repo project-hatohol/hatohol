@@ -76,6 +76,9 @@ HatoholArmPluginBase::HatoholArmPluginBase(void)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
+	const char *env = getenv(ENV_NAME_QUEUE_ADDR);
+	if (env)
+		setQueueAddress(env);
 }
 
 HatoholArmPluginBase::~HatoholArmPluginBase()

@@ -35,6 +35,7 @@ using namespace std;
 using namespace mlpl;
 using namespace qpid::messaging;
 
+const char *HatoholArmPluginInterface::ENV_NAME_QUEUE_ADDR = "HAPI_QUEUE_ADDR";
 const char *HatoholArmPluginInterface::DEFAULT_BROKER_URL = "localhost:5672";
 const uint32_t HatoholArmPluginInterface::SEQ_ID_UNKNOWN = UINT32_MAX;
 const uint32_t HatoholArmPluginInterface::SEQ_ID_MAX     = UINT32_MAX - 1;

@@ -29,7 +29,6 @@
 class HatoholArmPluginGate : public DataStore, public HatoholArmPluginInterface {
 public:
 	static const std::string PassivePluginQuasiPath;
-	static const char *ENV_NAME_QUEUE_ADDR;
 	static const int   NO_RETRY;
 
 	HatoholArmPluginGate(const MonitoringServerInfo &serverInfo);
