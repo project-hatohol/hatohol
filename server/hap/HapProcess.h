@@ -21,6 +21,7 @@
 #define HapProcess_h
 
 #include <glib.h>
+#include <glib-object.h>
 #include "HatoholThreadBase.h"
 
 class HapProcess : public HatoholThreadBase {
