@@ -31,6 +31,13 @@ public:
 protected:
 	gpointer hapMainThread(HatoholThreadArg *arg) override;
 
+	/**
+	 * Get the MonitoringServerInfo from Hatohol and
+	 * do a basic setup with it. The obtained MonitoringServerInfo is
+	 * stored in PrivateContext.
+	 *
+	 * @return false if exit is requsted. Otherwise true is returned.
+	 */
 	bool initMonitoringServerInfo(void);
 
 	/**
