@@ -29,6 +29,7 @@ using namespace mlpl;
 class HapProcessZabbixAPI : public HapProcess, public HapZabbixAPI {
 public:
 	HapProcessZabbixAPI(int argc, char *argv[]);
+	virtual ~HapProcessZabbixAPI();
 	int mainLoopRun(void);
 
 protected:
@@ -90,10 +91,18 @@ HapProcessZabbixAPI::HapProcessZabbixAPI(int argc, char *argv[])
   m_ctx(NULL)
 {
 	initGLib();
+	m_ctx = new PrivateContext();
+}
+
+HapProcessZabbixAPI::~HapProcessZabbixAPI()
+{
+	delete m_ctx;
 }
 
 int HapProcessZabbixAPI::mainLoopRun(void)
 {
+	HapZabbixAPI::start();
+	HapProcess::start();
 	g_main_loop_run(getGMainLoop());
 	return EXIT_SUCCESS;
 }
