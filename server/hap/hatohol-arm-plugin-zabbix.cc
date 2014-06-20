@@ -30,6 +30,14 @@ public:
 
 protected:
 	gpointer hapMainThread(HatoholThreadArg *arg) override;
+	void onReady(void) override; // called from HapZabbixAPI
+
+	/**
+	 * Wait for the callback of onReady.
+	 *
+	 * @return true if exit is requsted. Otherwise false is returned.
+	 */
+	bool waitOnReady(void);
 
 	/**
 	 * Get the MonitoringServerInfo from Hatohol and
@@ -62,9 +70,11 @@ private:
 struct HapProcessZabbixAPI::PrivateContext {
 	MonitoringServerInfo serverInfo;
 	SimpleSemaphore      mainThreadSem;
+	AtomicValue<bool>    readyFlag;
 
 	PrivateContext(void)
-	: mainThreadSem(0)
+	: mainThreadSem(0),
+	  readyFlag(false)
 	{
 	}
 };
@@ -90,6 +100,11 @@ int HapProcessZabbixAPI::mainLoopRun(void)
 // ---------------------------------------------------------------------------
 gpointer HapProcessZabbixAPI::hapMainThread(HatoholThreadArg *arg)
 {
+	if (waitOnReady())
+		return NULL;
+
+	// TODO: HapZabbixAPI get MonitoringServerInfo in onInitiated()
+	//       We should fix to use it to reduce the communication.
 	if (initMonitoringServerInfo())
 		return NULL;
 
@@ -100,6 +115,26 @@ gpointer HapProcessZabbixAPI::hapMainThread(HatoholThreadArg *arg)
 		  sleepForMainThread(m_ctx->serverInfo.pollingIntervalSec);
 	}
 	return NULL;
+}
+
+void HapProcessZabbixAPI::onReady(void)
+{
+	m_ctx->readyFlag = true;
+	m_ctx->mainThreadSem.post();
+}
+
+bool HapProcessZabbixAPI::waitOnReady(void)
+{
+	const size_t sleepTimeSec = 10 * 60;
+	bool shouldExit = false;
+	while (!shouldExit) {
+		shouldExit = sleepForMainThread(sleepTimeSec);
+		if (m_ctx->readyFlag)
+			break;
+		else
+			MLPL_INFO("Waitting for the ready state.\n");
+	}
+	return shouldExit;
 }
 
 bool HapProcessZabbixAPI::sleepForMainThread(const int &sleepTimeInSec)
