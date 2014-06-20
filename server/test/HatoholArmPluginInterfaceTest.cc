@@ -79,12 +79,12 @@ void HapiTestHelper::assertWaitSemaphore(SimpleSemaphore &sem)
 
 void HapiTestHelper::assertWaitConnected(void)
 {
-	assertWaitSemaphore(getConnectedSem());
+	cut_trace(assertWaitSemaphore(getConnectedSem()));
 }
 
 void HapiTestHelper::assertWaitInitiated(void)
 {
-	assertWaitSemaphore(getInitiatedSem());
+	cut_trace(assertWaitSemaphore(getInitiatedSem()));
 }
 
 void HapiTestHelper::assertWaitHandledCommand(
@@ -96,7 +96,7 @@ void HapiTestHelper::assertWaitHandledCommand(
 		m_handledCodeLock.unlock();
 		if (shouldExit)
 			break;
-		assertWaitSemaphore(getHandledCommandSem());
+		cut_trace(assertWaitSemaphore(getHandledCommandSem()));
 	}
 }
 
