@@ -109,7 +109,7 @@ gpointer HapProcessZabbixAPI::hapMainThread(HatoholThreadArg *arg)
 		return NULL;
 
 	bool shouldExit = false;
-	while (shouldExit) {
+	while (!shouldExit) {
 		acquireData();
 		shouldExit =
 		  sleepForMainThread(m_ctx->serverInfo.pollingIntervalSec);
