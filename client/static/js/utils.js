@@ -105,19 +105,24 @@ function getServerLocation(server) {
   if (!server)
     return undefined;
 
+  ipAddress = server["ipAddress"];
+  port = server["port"];
+  if (isIPv4(ipAddress))
+    url = "http://" + ipAddress;
+  else // maybe IPv6
+    url = "http://[" + ipAddress + "]";
+  if (!isNaN(port) && port != "80")
+    url += ":" + port;
+
   switch (server["type"]) {
   case hatohol.MONITORING_SYSTEM_ZABBIX:
-    ipAddress = server["ipAddress"];
-    port = server["port"];
-    if (isIPv4(ipAddress))
-      url = "http://" + ipAddress;
-    else // maybe IPv6
-      url = "http://[" + ipAddress + "]";
-    if (!isNaN(port) && port != "80")
-      url += ":" + port;
     url += "/zabbix/";
     break;
+  case hatohol.MONITORING_SYSTEM_NAGIOS:
+    url += "/nagios/";
+    break;
   default:
+    url = undefined;
     break;
   }
   return url;
