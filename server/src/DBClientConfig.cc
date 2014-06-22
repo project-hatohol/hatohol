@@ -700,6 +700,10 @@ HatoholError DBClientConfig::addTargetServer(
 			armPluginInfo->serverId = monitoringServerInfo->id;
 			err = saveArmPluginInfoWithoutTransaction(
 			  *armPluginInfo, condForHap);
+			if (err != HTERR_OK) {
+				rollback();
+				return err;
+			}
 		}
 	} DBCLIENT_TRANSACTION_END();
 	return err;
