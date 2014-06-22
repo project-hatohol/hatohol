@@ -682,21 +682,17 @@ HatoholError DBClientConfig::addTargetServer(
 	arg.add(monitoringServerInfo->dbName);
 
 	string condForHap;
-	const bool isHap = isHatoholArmPlugin(monitoringServerInfo->type);
-	if (isHap) {
-		if (armPluginInfo->type != monitoringServerInfo->type)
-			return HTERR_DIFFER_TYPE_SERVER_AND_ARM_PLUGIN;
-		err = preprocForSaveArmPlguinInfo(*armPluginInfo, condForHap);
-		if (err != HTERR_OK)
-			return err;
-	}
+	err = preprocForSaveArmPlguinInfo(*monitoringServerInfo,
+	                                  *armPluginInfo, condForHap);
+	if (err != HTERR_OK)
+		return err;
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		insert(arg);
 		monitoringServerInfo->id = getLastInsertId();
 		// TODO: Add AccessInfo for the server to enable the operator to
 		// access to it
-		if (isHap) {
+		if (!condForHap.empty()) {
 			armPluginInfo->serverId = monitoringServerInfo->id;
 			err = saveArmPluginInfoWithoutTransaction(
 			  *armPluginInfo, condForHap);
@@ -1009,6 +1005,18 @@ void DBClientConfig::readArmPluginStream(
 	itemGroupStream >> armPluginInfo.brokerUrl;
 	itemGroupStream >> armPluginInfo.staticQueueAddress;
 	itemGroupStream >> armPluginInfo.serverId;
+}
+
+HatoholError DBClientConfig::preprocForSaveArmPlguinInfo(
+  const MonitoringServerInfo &serverInfo,
+  const ArmPluginInfo &armPluginInfo, string &condition)
+{
+	if (!isHatoholArmPlugin(serverInfo.type))
+		return HTERR_OK;
+
+	if (armPluginInfo.type != serverInfo.type)
+		return HTERR_DIFFER_TYPE_SERVER_AND_ARM_PLUGIN;
+	return preprocForSaveArmPlguinInfo(armPluginInfo, condition);
 }
 
 HatoholError DBClientConfig::preprocForSaveArmPlguinInfo(

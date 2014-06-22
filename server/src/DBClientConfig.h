@@ -167,6 +167,9 @@ protected:
 	                         ArmPluginInfo &armPluginInfo);
 
 	HatoholError preprocForSaveArmPlguinInfo(
+	  const MonitoringServerInfo &serverInfo,
+	  const ArmPluginInfo &armPluginInfo, std::string &condition);
+	HatoholError preprocForSaveArmPlguinInfo(
 	  const ArmPluginInfo &armPluginInfo, std::string &condition);
 	HatoholError saveArmPluginInfoWithoutTransaction(
 	  const ArmPluginInfo &armPluginInfo, const std::string &condition);
