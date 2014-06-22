@@ -699,18 +699,30 @@ ArmPluginInfo testArmPluginInfo[] = {
 	AUTO_INCREMENT_VALUE,            // id
 	MONITORING_SYSTEM_HAPI_NAGIOS,   // type
 	"/usr/local/lib/hatohol/hapi/hapi-nagios-ndoutils",  // path
+	"",                              // brokerUrl
+	"",                              // staticQueueAddress
+	100, // (Not exists)             // serverId
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	MONITORING_SYSTEM_HAPI_TEST,     // type
 	"hapi-test-plugin",              // path
+	"",                              // brokerUrl
+	"",                              // staticQueueAddress
+	101, // (Not exists)             // serverId
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	MONITORING_SYSTEM_HAPI_TEST_NOT_EXIST, // type
 	"hapi-test-non-existing-plugin",       // path
+	"",                              // brokerUrl
+	"",                              // staticQueueAddress
+	102, // (Not exists)             // serverId
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	MONITORING_SYSTEM_HAPI_TEST_PASSIVE,   // type
 	"#PASSIVE_PLUGIN#",                    // path
+	"",                              // brokerUrl
+	"",                              // staticQueueAddress
+	103, // (Not exists)             // serverId
 }
 };
 const size_t NumTestArmPluginInfo = sizeof(testArmPluginInfo) / sizeof(ArmPluginInfo);
