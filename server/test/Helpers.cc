@@ -1072,6 +1072,14 @@ void _assertFileContent(const string &expect, const string &path)
 	                        contents, length);
 }
 
+void prepareDataWithAndWithoutArmPlugin(void)
+{
+	gcut_add_datum("w/o ArmPlugin",
+	               "withArmPlugin", G_TYPE_BOOLEAN, FALSE, NULL);
+	gcut_add_datum("w/ ArmPlugin",
+	               "withArmPlugin", G_TYPE_BOOLEAN, TRUE, NULL);
+}
+
 // ---------------------------------------------------------------------------
 // Watcher
 // ---------------------------------------------------------------------------
