@@ -1146,3 +1146,12 @@ const HostgroupIdSet &getTestHostgroupIdSet(void)
 		testHostgroupIdSet.insert(testHostgroupElement[i].groupId);
 	return testHostgroupIdSet;
 }
+
+int findIndexOfTestArmPluginInfo(const MonitoringSystemType &type)
+{
+	for (size_t i = 0; i < NumTestArmPluginInfo; i++) {
+		if (testArmPluginInfo[i].type == type)
+			return i;
+	}
+	return -1;
+}
