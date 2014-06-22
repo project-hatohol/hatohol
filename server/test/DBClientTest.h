@@ -157,6 +157,7 @@ const HostgroupIdSet &getTestHostgroupIdSet(void);
  * An index if returned when the record is found. Otherwise false is returned.
  */
 int findIndexOfTestArmPluginInfo(const MonitoringSystemType &type);
+int findIndexOfTestArmPluginInfo(const ServerIdType &serverId);
 const ArmPluginInfo &getTestArmPluginInfo(const MonitoringSystemType &type);
 
 extern const MonitoringSystemType MONITORING_SYSTEM_HAPI_TEST;

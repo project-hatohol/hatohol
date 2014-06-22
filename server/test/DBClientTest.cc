@@ -1156,6 +1156,15 @@ int findIndexOfTestArmPluginInfo(const MonitoringSystemType &type)
 	return -1;
 }
 
+int findIndexOfTestArmPluginInfo(const ServerIdType &serverId)
+{
+	for (size_t i = 0; i < NumTestArmPluginInfo; i++) {
+		if (testArmPluginInfo[i].serverId == serverId)
+			return i;
+	}
+	return -1;
+}
+
 const ArmPluginInfo &getTestArmPluginInfo(const MonitoringSystemType &type)
 {
 	const int testArmPluginIndex = findIndexOfTestArmPluginInfo(type);
