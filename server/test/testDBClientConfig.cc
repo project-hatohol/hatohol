@@ -669,6 +669,34 @@ void test_serverQueryOptionConstructorTakingDataQueryContext(void)
 	cppcut_assert_equal(userId, option.getUserId());
 }
 
+void data_isHatoholArmPlugin(void)
+{
+	gcut_add_datum("MONITORING_SYSTEM_ZABBIX",
+	               "data", G_TYPE_INT, (int)MONITORING_SYSTEM_ZABBIX,
+	               "expect", G_TYPE_BOOLEAN, FALSE, NULL);
+	gcut_add_datum("MONITORING_SYSTEM_NAGIOS",
+	               "data", G_TYPE_INT, (int)MONITORING_SYSTEM_NAGIOS,
+	               "expect", G_TYPE_BOOLEAN, FALSE, NULL);
+	gcut_add_datum("MONITORING_SYSTEM_HAPI_ZABBIX",
+	               "data", G_TYPE_INT, (int)MONITORING_SYSTEM_HAPI_ZABBIX,
+	               "expect", G_TYPE_BOOLEAN, TRUE, NULL);
+	gcut_add_datum("MONITORING_SYSTEM_HAPI_NAGIOS",
+	               "data", G_TYPE_INT, (int)MONITORING_SYSTEM_HAPI_NAGIOS,
+	               "expect", G_TYPE_BOOLEAN, TRUE, NULL);
+	cppcut_assert_equal((int)NUM_MONITORING_SYSTEMS,
+	                    (int)MONITORING_SYSTEM_HAPI_NAGIOS + 1,
+	                    cut_message("Probably missing test data."));
+}
+
+void test_isHatoholArmPlugin(gconstpointer data)
+{
+	const bool expect = gcut_data_get_boolean(data, "expect");
+	const bool actual =
+	  DBClientConfig::isHatoholArmPlugin(
+	    (MonitoringSystemType)gcut_data_get_int(data, "data"));
+	cppcut_assert_equal(expect, actual);
+}
+
 void test_getArmPluginInfo(void)
 {
 	setupTestDBConfig();

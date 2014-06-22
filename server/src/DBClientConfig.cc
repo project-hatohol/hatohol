@@ -537,6 +537,15 @@ void DBClientConfig::reset(void)
 	setConnectInfo(DB_DOMAIN_ID_CONFIG, connInfo);
 }
 
+bool DBClientConfig::isHatoholArmPlugin(const MonitoringSystemType &type)
+{
+	if (type == MONITORING_SYSTEM_HAPI_ZABBIX)
+		return true;
+	else if (type == MONITORING_SYSTEM_HAPI_NAGIOS)
+		return true;
+	return false;
+}
+
 DBClientConfig::DBClientConfig(void)
 : DBClient(DB_DOMAIN_ID_CONFIG),
   m_ctx(NULL)

@@ -81,6 +81,7 @@ public:
 	static const char *DEFAULT_PASSWORD;
 	static void init(const CommandLineArg &cmdArg);
 	static void reset(void);
+	static bool isHatoholArmPlugin(const MonitoringSystemType &type);
 
 	DBClientConfig(void);
 	virtual ~DBClientConfig();
