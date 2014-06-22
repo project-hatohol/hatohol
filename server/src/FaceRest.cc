@@ -1496,7 +1496,8 @@ void FaceRest::handlerGetServer(RestJob *job)
 }
 
 HatoholError FaceRest::parseServerParameter(
-  MonitoringServerInfo &svInfo, GHashTable *query, bool allowEmpty)
+  MonitoringServerInfo &svInfo, ArmPluginInfo &armPluginInfo,
+  GHashTable *query, bool allowEmpty)
 {
 	HatoholError err;
 	char *value;
@@ -1570,15 +1571,39 @@ HatoholError FaceRest::parseServerParameter(
 		svInfo.dbName = value;
 	}
 
+	//
+	// HAPI's paramters
+	//
+	bool parseHapiParams = false;
+	if (svInfo.type == MONITORING_SYSTEM_HAPI_ZABBIX)
+		parseHapiParams = true;
+	else if (svInfo.type == MONITORING_SYSTEM_HAPI_ZABBIX)
+		parseHapiParams = true;
+	if (!parseHapiParams)
+		return HTERR_OK;
+
+	armPluginInfo.id = AUTO_INCREMENT_VALUE; // set latter if needed
+	armPluginInfo.serverId = MONITORING_SYSTEM_UNKNOWN; // set laster
+	armPluginInfo.type = svInfo.type;
+
+	// brokerUrl
+	value = (char *)g_hash_table_lookup(query, "brokerUrl");
+	armPluginInfo.brokerUrl = value ? : "";
+
+	// staticQueueAddress
+	value = (char *)g_hash_table_lookup(query, "staticQueueAddress");
+	armPluginInfo.staticQueueAddress = value ? : "";
+
 	return HTERR_OK;
 }
 
 void FaceRest::handlerPostServer(RestJob *job)
 {
 	MonitoringServerInfo svInfo;
+	ArmPluginInfo        armPluginInfo;
 	HatoholError err;
 
-	err = parseServerParameter(svInfo, job->query);
+	err = parseServerParameter(svInfo, armPluginInfo, job->query);
 	if (err != HTERR_OK) {
 		replyError(job, err);
 		return;
@@ -1622,13 +1647,14 @@ void FaceRest::handlerPutServer(RestJob *job)
 	}
 
 	MonitoringServerInfo serverInfo;
+	ArmPluginInfo        armPluginInfo;
 	serverInfo = *serversList.begin();
 	serverInfo.id = serverId;
 
 	// check the request
 	bool allowEmpty = true;
-	HatoholError err = parseServerParameter(serverInfo, job->query,
-						allowEmpty);
+	HatoholError err = parseServerParameter(serverInfo, armPluginInfo,
+	                                        job->query, allowEmpty);
 	if (err != HTERR_OK) {
 		replyError(job, err);
 		return;
