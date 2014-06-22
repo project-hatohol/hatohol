@@ -31,6 +31,7 @@
 #include "ZabbixAPIEmulator.h"
 #include "SessionManager.h"
 #include "testDBClientHatohol.h"
+#include "HatoholArmPluginInterface.h"
 using namespace std;
 using namespace mlpl;
 
@@ -1473,6 +1474,35 @@ void test_addServer(void)
 	assertDBContent(dbConfig.getDBAgent(), statement, expectedOutput);
 }
 
+void test_addServerWithHapiParams(void)
+{
+	MonitoringServerInfo expected;
+	MonitoringServerInfo::initialize(expected);
+	expected.id = NumTestServerInfo + 1;
+	expected.type = MONITORING_SYSTEM_HAPI_ZABBIX;
+
+	ArmPluginInfo armPluginInfo;
+	armPluginInfo.id = 1; // We suppose all entries are deleted
+	armPluginInfo.type = expected.type;
+	armPluginInfo.path =
+	  HatoholArmPluginInterface::getDefaultPluginPath(armPluginInfo.type);
+	armPluginInfo.brokerUrl = "abc.example.com:22222";
+	armPluginInfo.staticQueueAddress = "";
+	armPluginInfo.serverId = expected.id;
+
+	StringMap params;
+	serverInfo2StringMap(expected, params);
+	params["brokerUrl"] = armPluginInfo.brokerUrl;
+	assertAddServerWithSetup(params, HTERR_OK);
+
+	// check the content in the DB
+	DBClientConfig dbConfig;
+	string statement = "select * from arm_plugins";
+	statement += " order by id desc limit 1";
+	string expectedOutput = makeArmPluginInfoOutput(armPluginInfo);
+	assertDBContent(dbConfig.getDBAgent(), statement, expectedOutput);
+}
+
 void test_addServerWithoutNickname(void)
 {
 	MonitoringServerInfo serverInfo = testServerInfo[0];
@@ -1495,9 +1525,10 @@ void test_updateServer(void)
 	// a copy is necessary not to change the source.
 	MonitoringServerInfo srcSvInfo = testServerInfo[0];
 	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+	ArmPluginInfo *armPluginInfo = NULL;
 	assertHatoholError(
 	  HTERR_OK,
-	  uds->addTargetServer(srcSvInfo,
+	  uds->addTargetServer(srcSvInfo, *armPluginInfo,
 	                       OperationPrivilege(USER_ID_SYSTEM), false)
 	);
 
@@ -1535,13 +1566,14 @@ void test_deleteServer(void)
 	bool loadTestData = true;
 	setupTestDBUser(dbRecreate, loadTestData);
 	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+	ArmPluginInfo *armPluginInfo = NULL;
 
 	// a copy is necessary not to change the source.
 	MonitoringServerInfo targetSvInfo = testServerInfo[0];
 
 	assertHatoholError(
 	  HTERR_OK,
-	  uds->addTargetServer(targetSvInfo,
+	  uds->addTargetServer(targetSvInfo, *armPluginInfo,
 	                       OperationPrivilege(USER_ID_SYSTEM), false)
 	);
 

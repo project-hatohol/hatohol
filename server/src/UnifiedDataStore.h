@@ -141,6 +141,7 @@ public:
 	void getTargetServers(MonitoringServerInfoList &monitoringServers,
 	                      ServerQueryOption &option);
 	HatoholError addTargetServer(MonitoringServerInfo &svInfo,
+	                             ArmPluginInfo &armPluginInfo,
 	                             const OperationPrivilege &privilege,
 	                             bool const &autoRun = true);
 	HatoholError updateTargetServer(MonitoringServerInfo &svInfo,

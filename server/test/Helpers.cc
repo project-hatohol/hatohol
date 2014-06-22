@@ -403,6 +403,18 @@ string makeServerInfoOutput(const MonitoringServerInfo &serverInfo)
 	return expectedOut;
 }
 
+std::string makeArmPluginInfoOutput(const ArmPluginInfo &armPluginInfo)
+{
+	string expectedOut = StringUtils::sprintf
+	                       ("%u|%d|%s|%s|%s|%" FMT_SERVER_ID "\n",
+	                        armPluginInfo.id, armPluginInfo.type,
+	                        armPluginInfo.path.c_str(),
+	                        armPluginInfo.brokerUrl.c_str(),
+	                        armPluginInfo.staticQueueAddress.c_str(),
+	                        armPluginInfo.serverId);
+	return expectedOut;
+}
+
 std::string makeUserRoleInfoOutput(const UserRoleInfo &userRoleInfo)
 {
 	return StringUtils::sprintf(

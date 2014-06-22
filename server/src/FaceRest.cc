@@ -37,6 +37,7 @@
 #include "DBClientConfig.h"
 #include "SessionManager.h"
 #include "CacheServiceDBClient.h"
+#include "HatoholArmPluginInterface.h"
 using namespace std;
 using namespace mlpl;
 
@@ -1580,6 +1581,8 @@ HatoholError FaceRest::parseServerParameter(
 	armPluginInfo.id = AUTO_INCREMENT_VALUE; // set latter if needed
 	armPluginInfo.serverId = MONITORING_SYSTEM_UNKNOWN; // set laster
 	armPluginInfo.type = svInfo.type;
+	armPluginInfo.path =
+	  HatoholArmPluginInterface::getDefaultPluginPath(svInfo.type) ? : "";
 
 	// brokerUrl
 	value = (char *)g_hash_table_lookup(query, "brokerUrl");
@@ -1606,7 +1609,8 @@ void FaceRest::handlerPostServer(RestJob *job)
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	err = dataStore->addTargetServer(
-	  svInfo, job->dataQueryContextPtr->getOperationPrivilege());
+	  svInfo, armPluginInfo,
+	  job->dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
 		replyError(job, err);
 		return;
