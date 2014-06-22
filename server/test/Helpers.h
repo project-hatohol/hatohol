@@ -148,6 +148,9 @@ template<typename T> void _assertAddToDB(T *arg, void (*func)(T *))
 void _assertServersInDB(const ServerIdSet &excludeServerIdSet = EMPTY_SERVER_ID_SET);
 #define assertServersInDB(E) cut_trace(_assertServersInDB(E))
 
+void _assertArmPluginsInDB(const std::set<int> &excludeIdSet);
+#define assertArmPluginsInDB(E) cut_trace(_assertArmPluginsInDB(E))
+
 void _assertUsersInDB(const UserIdSet &excludeUserIdSet = EMPTY_USER_ID_SET);
 #define assertUsersInDB(E) cut_trace(_assertUsersInDB(E))
 

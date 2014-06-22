@@ -538,6 +538,23 @@ void _assertServersInDB(const ServerIdSet &excludeServerIdSet)
 	assertDBContent(cache.getConfig()->getDBAgent(), statement, expect);
 }
 
+void _assertArmPluginsInDB(const set<int> &excludeIdSet)
+{
+	string statement = "SELECT * FROM arm_plugins ORDER BY id ASC";
+	string expect;
+	for (size_t i = 0; i < NumTestArmPluginInfo; i++) {
+		const int id = i + 1;
+		ArmPluginInfo &armPluginInfo = testArmPluginInfo[i];
+		armPluginInfo.id = id;
+		set<int>::const_iterator it = excludeIdSet.find(id);
+		if (it != excludeIdSet.end())
+			continue;
+		expect += makeArmPluginInfoOutput(armPluginInfo);
+	}
+	CacheServiceDBClient cache;
+	assertDBContent(cache.getConfig()->getDBAgent(), statement, expect);
+}
+
 void _assertUsersInDB(const UserIdSet &excludeUserIdSet)
 {
 	string statement = "select * from ";
