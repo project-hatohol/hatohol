@@ -49,10 +49,7 @@ public:
 	const ArmStatus &getArmStatus(void) const;
 
 	// This is dummy and this virtual method should be removed
-	virtual ArmBase &getArmBase(void) override
-	{
-		return *((ArmBase *)NULL);
-	}
+	virtual ArmBase &getArmBase(void) override;
 
 	// virtual methods
 

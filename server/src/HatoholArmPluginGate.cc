@@ -129,6 +129,25 @@ const ArmStatus &HatoholArmPluginGate::getArmStatus(void) const
 	return m_ctx->armStatus;
 }
 
+// TODO: remove this method
+ArmBase &HatoholArmPluginGate::getArmBase(void)
+{
+	class Impromptu : public ArmBase {
+	public:
+		Impromptu(const MonitoringServerInfo &serverInfo)
+		: ArmBase("HatoholArmPluginGate", serverInfo)
+		{
+		}
+
+		virtual bool mainThreadOneProc(void) override
+		{
+			return true;
+		}
+	};
+	static Impromptu armBase(m_ctx->serverInfo);
+	return armBase;
+}
+
 void HatoholArmPluginGate::exitSync(void)
 {
 	HatoholArmPluginInterface::exitSync();
