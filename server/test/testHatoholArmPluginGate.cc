@@ -38,6 +38,9 @@ namespace testHatoholArmPluginGate {
 static void _assertStartAndExit(HapgTestCtx &ctx)
 {
 	static const size_t TIMEOUT = 5000;
+	if (ctx.checkMessage)
+		ctx.expectRcvMessage = testMessage;
+
 	setupTestDBConfig();
 	loadTestDBArmPlugin();
 	MonitoringServerInfo serverInfo;

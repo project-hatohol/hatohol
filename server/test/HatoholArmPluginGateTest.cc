@@ -54,6 +54,10 @@ void HatoholArmPluginGateTest::onReceived(SmartBuffer &smbuf)
 	if (m_ctx.numRetry && m_ctx.retryCount <= m_ctx.numRetry)
 		return;
 	m_ctx.rcvMessage = std::string(smbuf, smbuf.size());
+	if (!m_ctx.expectRcvMessage.empty()) {
+		if (m_ctx.expectRcvMessage != m_ctx.rcvMessage)
+			return; // don't post the semaphore
+	}
 	m_ctx.mainSem.post();
 }
 

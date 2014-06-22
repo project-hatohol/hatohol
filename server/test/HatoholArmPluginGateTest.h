@@ -39,6 +39,7 @@ struct HapgTestCtx {
 	bool                 cancelRetrySleep;
 	bool                 checkNumRetry;
 	bool                 useDefaultReceivedHandler;
+	std::string          expectRcvMessage;
 
 	// Set by HatoholArmgPluginTest
 	mlpl::SimpleSemaphore launchedSem;
