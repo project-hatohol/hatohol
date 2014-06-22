@@ -25,8 +25,8 @@
 #include "MonitoringServerInfo.h"
 
 struct ArmPluginInfo {
+	int id;
 	MonitoringSystemType type;
-	std::string name; // must be unique
 	std::string path;
 
 	/**

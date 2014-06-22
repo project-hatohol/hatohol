@@ -254,23 +254,23 @@ static const ColumnDef COLUMN_DEF_ARM_PLUGINS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_ARM_PLUGINS,            // tableName
-	"type", // server.type             // columnName
+	"id",                              // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_PRI,                       // keyType
-	0,                                 // flags
+	SQL_COLUMN_FLAG_AUTO_INC,          // flags
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_ARM_PLUGINS,            // tableName
-	"name",                            // columnName
-	SQL_COLUMN_TYPE_VARCHAR,           // type
-	255,                               // columnLength
+	"type", // server.type             // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_UNI,                       // keyType
+	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -321,8 +321,8 @@ static const ColumnDef COLUMN_DEF_ARM_PLUGINS[] = {
 };
 
 enum {
+	IDX_ARM_PLUGINS_ID,
 	IDX_ARM_PLUGINS_TYPE,
-	IDX_ARM_PLUGINS_NAME,
 	IDX_ARM_PLUGINS_PATH,
 	IDX_ARM_PLUGINS_BROKER_URL,
 	IDX_ARM_PLUGINS_STATIC_QUEUE_ADDR,
@@ -848,8 +848,6 @@ HatoholError DBClientConfig::saveArmPluginInfo(
   const ArmPluginInfo &armPluginInfo)
 {
 	// validation
-	if (armPluginInfo.name.empty())
-		return HTERR_INVALID_ARM_PLUGIN_NAME;
 	if (armPluginInfo.path.empty())
 		return HTERR_INVALID_ARM_PLUGIN_PATH;
 	if (armPluginInfo.type < MONITORING_SYSTEM_HAPI_ZABBIX) {
@@ -859,20 +857,16 @@ HatoholError DBClientConfig::saveArmPluginInfo(
 
 	// save
 	const string condName = StringUtils::sprintf(
-	  "%s='%s'",
-	  COLUMN_DEF_ARM_PLUGINS[IDX_ARM_PLUGINS_NAME].columnName,
-	  armPluginInfo.name.c_str());
-	const string condType = StringUtils::sprintf(
 	  "%s=%d",
-	  COLUMN_DEF_ARM_PLUGINS[IDX_ARM_PLUGINS_TYPE].columnName,
-	  armPluginInfo.type);
+	  COLUMN_DEF_ARM_PLUGINS[IDX_ARM_PLUGINS_ID].columnName,
+	  armPluginInfo.id);
 	HatoholError err(HTERR_OK);
 	DBCLIENT_TRANSACTION_BEGIN() {
-		if (isRecordExisting(TABLE_NAME_ARM_PLUGINS, condName)) {
-			err = HTERR_DUPLICATED_ARM_PLUGIN_NAME;
-		} else if (isRecordExisting(TABLE_NAME_ARM_PLUGINS, condType)) {
+		if (armPluginInfo.id != AUTO_INCREMENT_VALUE &&
+		    !isRecordExisting(TABLE_NAME_ARM_PLUGINS, condName)) {
+			err = HTERR_INVALID_ARM_PLUGIN_ID;
+		} else if (armPluginInfo.id != AUTO_INCREMENT_VALUE) {
 			DBAgent::UpdateArg arg(tableProfileArmPlugins);
-			arg.add(IDX_ARM_PLUGINS_NAME, armPluginInfo.name);
 			arg.add(IDX_ARM_PLUGINS_PATH, armPluginInfo.path);
 			arg.add(IDX_ARM_PLUGINS_BROKER_URL,
 			        armPluginInfo.brokerUrl);
@@ -880,12 +874,12 @@ HatoholError DBClientConfig::saveArmPluginInfo(
 			        armPluginInfo.staticQueueAddress);
 			arg.add(IDX_ARM_PLUGINS_SERVER_ID,
 			        armPluginInfo.serverId);
-			arg.condition = condType;
+			arg.condition = condName;
 			update(arg);
 		} else {
 			DBAgent::InsertArg arg(tableProfileArmPlugins);
+			arg.add(AUTO_INCREMENT_VALUE); // armPluginInfo.id
 			arg.add(armPluginInfo.type);
-			arg.add(armPluginInfo.name);
 			arg.add(armPluginInfo.path);
 			arg.add(armPluginInfo.brokerUrl);
 			arg.add(armPluginInfo.staticQueueAddress);
@@ -991,8 +985,8 @@ bool DBClientConfig::canDeleteTargetServer(
 
 void DBClientConfig::selectArmPluginInfo(DBAgent::SelectExArg &arg)
 {
+	arg.add(IDX_ARM_PLUGINS_ID);
 	arg.add(IDX_ARM_PLUGINS_TYPE);
-	arg.add(IDX_ARM_PLUGINS_NAME);
 	arg.add(IDX_ARM_PLUGINS_PATH);
 	arg.add(IDX_ARM_PLUGINS_BROKER_URL);
 	arg.add(IDX_ARM_PLUGINS_STATIC_QUEUE_ADDR);
@@ -1006,8 +1000,8 @@ void DBClientConfig::selectArmPluginInfo(DBAgent::SelectExArg &arg)
 void DBClientConfig::readArmPluginStream(
   ItemGroupStream &itemGroupStream, ArmPluginInfo &armPluginInfo)
 {
+	itemGroupStream >> armPluginInfo.id;
 	itemGroupStream >> armPluginInfo.type;
-	itemGroupStream >> armPluginInfo.name;
 	itemGroupStream >> armPluginInfo.path;
 	itemGroupStream >> armPluginInfo.brokerUrl;
 	itemGroupStream >> armPluginInfo.staticQueueAddress;

@@ -78,12 +78,13 @@ static void getTargetServersData(void)
 		       NULL);
 }
 
-static string makeExpectedDBOutLine(const ArmPluginInfo &armPluginInfo)
+static string makeExpectedDBOutLine(
+  const size_t &idx, const ArmPluginInfo &armPluginInfo)
 {
 	string s = StringUtils::sprintf(
-	  "%d|%s|%s|%s|%s|%" FMT_SERVER_ID,
+	  "%zd|%d|%s|%s|%s|%" FMT_SERVER_ID,
+	  (idx + 1), // armPluginInfo.id
 	  armPluginInfo.type,
-	  armPluginInfo.name.c_str(),
 	  armPluginInfo.path.c_str(),
 	  armPluginInfo.brokerUrl.c_str(),
 	  armPluginInfo.staticQueueAddress.c_str(),
@@ -682,8 +683,9 @@ void test_getArmPluginInfo(void)
 	for (size_t i = 0; i < armPluginInfoVect.size(); i++) {
 		const ArmPluginInfo &expect = testArmPluginInfo[i];
 		const ArmPluginInfo &actual = armPluginInfoVect[i];
+		const int expectId = i + 1;
+		cppcut_assert_equal(expectId,    actual.id);
 		cppcut_assert_equal(expect.type, actual.type);
-		cppcut_assert_equal(expect.name, actual.name);
 		cppcut_assert_equal(expect.path, actual.path);
 	}
 }
@@ -693,12 +695,14 @@ void test_getArmPluginInfoWithType(void)
 	setupTestDBConfig();
 	loadTestDBArmPlugin();
 	DBClientConfig dbConfig;
-	const ArmPluginInfo &expect = testArmPluginInfo[1];
+	const int targetIdx = 1;
+	const ArmPluginInfo &expect = testArmPluginInfo[targetIdx];
 	ArmPluginInfo armPluginInfo;
 	cppcut_assert_equal(true, dbConfig.getArmPluginInfo(armPluginInfo,
 	                                                    expect.type));
+	const int expectId = targetIdx + 1;
+	cppcut_assert_equal(expectId,    armPluginInfo.id);
 	cppcut_assert_equal(expect.type, armPluginInfo.type);
-	cppcut_assert_equal(expect.name, armPluginInfo.name);
 	cppcut_assert_equal(expect.path, armPluginInfo.path);
 }
 
@@ -730,16 +734,6 @@ void test_saveArmPluginInfoWithInvalidType(void)
 	                   dbConfig.saveArmPluginInfo(armPluginInfo));
 }
 
-void test_saveArmPluginInfoWithNoName(void)
-{
-	setupTestDBConfig();
-	DBClientConfig dbConfig;
-	ArmPluginInfo armPluginInfo = testArmPluginInfo[0];
-	armPluginInfo.name = "";
-	assertHatoholError(HTERR_INVALID_ARM_PLUGIN_NAME,
-	                   dbConfig.saveArmPluginInfo(armPluginInfo));
-}
-
 void test_saveArmPluginInfoWithNoPath(void)
 {
 	setupTestDBConfig();
@@ -750,14 +744,16 @@ void test_saveArmPluginInfoWithNoPath(void)
 	                   dbConfig.saveArmPluginInfo(armPluginInfo));
 }
 
-void test_saveArmPluginInfoDuplicateName(void)
+void test_saveArmPluginInfoInvalidId(void)
 {
 	setupTestDBConfig();
 	loadTestDBArmPlugin();
 
 	DBClientConfig dbConfig;
-	HatoholError err = dbConfig.saveArmPluginInfo(testArmPluginInfo[0]);
-	assertHatoholError(HTERR_DUPLICATED_ARM_PLUGIN_NAME, err);
+	ArmPluginInfo armPluginInfo = testArmPluginInfo[0];
+	armPluginInfo.id = NumTestArmPluginInfo + 100;
+	HatoholError err = dbConfig.saveArmPluginInfo(armPluginInfo);
+	assertHatoholError(HTERR_INVALID_ARM_PLUGIN_ID, err);
 }
 
 void test_saveArmPluginInfoUpdate(void)
@@ -768,7 +764,7 @@ void test_saveArmPluginInfoUpdate(void)
 	DBClientConfig dbConfig;
 	const size_t targetIdx = 1;
 	ArmPluginInfo armPluginInfo = testArmPluginInfo[targetIdx];
-	armPluginInfo.name = "Hachi Jr.";
+	armPluginInfo.id = targetIdx + 1;
 	armPluginInfo.path = "/usr/lib/dog";
 	armPluginInfo.brokerUrl = "abc.example.com:28765";
 	armPluginInfo.staticQueueAddress =
@@ -781,9 +777,9 @@ void test_saveArmPluginInfoUpdate(void)
 	string expect;
 	for (size_t i = 0; i < NumTestArmPluginInfo; i++) {
 		if (i == targetIdx)
-			expect += makeExpectedDBOutLine(armPluginInfo);
+			expect += makeExpectedDBOutLine(i, armPluginInfo);
 		else
-			expect += makeExpectedDBOutLine(testArmPluginInfo[i]);
+			expect += makeExpectedDBOutLine(i, testArmPluginInfo[i]);
 		if (i < NumTestArmPluginInfo - 1)
 			expect += "\n";
 	}

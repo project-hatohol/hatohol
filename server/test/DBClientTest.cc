@@ -689,28 +689,28 @@ const size_t NumTestUserRoleInfo = sizeof(testUserRoleInfo) / sizeof(UserRoleInf
 
 ArmPluginInfo testArmPluginInfo[] = {
 {
+	AUTO_INCREMENT_VALUE,            // id
 	MONITORING_SYSTEM_HAPI_ZABBIX,   // type
-	"Zabbix API",                    // name
 	"../hap/hatohol-arm-plugin-zabbix", // path
 	"",                              // brokerUrl
 	"",                              // staticQueueAddress
 	1,                               // serverId
 }, {
+	AUTO_INCREMENT_VALUE,            // id
 	MONITORING_SYSTEM_HAPI_NAGIOS,   // type
-	"Nagios NDO",                    // name
 	"/usr/local/lib/hatohol/hapi/hapi-nagios-ndoutils",  // path
 }, {
+	AUTO_INCREMENT_VALUE,            // id
 	MONITORING_SYSTEM_HAPI_TEST,     // type
-	"Test monitoring system",        // name
 	"hapi-test-plugin",              // path
 }, {
+	AUTO_INCREMENT_VALUE,            // id
 	MONITORING_SYSTEM_HAPI_TEST_NOT_EXIST, // type
-	"Test monitoring system (command not exist)", // name
-	"hapi-test-non-existing-plugin",              // path
+	"hapi-test-non-existing-plugin",       // path
 }, {
-	MONITORING_SYSTEM_HAPI_TEST_PASSIVE,       // type
-	"Test monitoring system (passive plugin)", // name
-	"#PASSIVE_PLUGIN#",                        // path
+	AUTO_INCREMENT_VALUE,            // id
+	MONITORING_SYSTEM_HAPI_TEST_PASSIVE,   // type
+	"#PASSIVE_PLUGIN#",                    // path
 }
 };
 const size_t NumTestArmPluginInfo = sizeof(testArmPluginInfo) / sizeof(ArmPluginInfo);
