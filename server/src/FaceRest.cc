@@ -1574,12 +1574,7 @@ HatoholError FaceRest::parseServerParameter(
 	//
 	// HAPI's paramters
 	//
-	bool parseHapiParams = false;
-	if (svInfo.type == MONITORING_SYSTEM_HAPI_ZABBIX)
-		parseHapiParams = true;
-	else if (svInfo.type == MONITORING_SYSTEM_HAPI_ZABBIX)
-		parseHapiParams = true;
-	if (!parseHapiParams)
+	if (!DBClientConfig::isHatoholArmPlugin(svInfo.type))
 		return HTERR_OK;
 
 	armPluginInfo.id = AUTO_INCREMENT_VALUE; // set latter if needed
