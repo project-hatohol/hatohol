@@ -757,7 +757,11 @@ HatoholError DBClientConfig::deleteTargetServer(
 	const ColumnDef &colId = COLUMN_DEF_SERVERS[IDX_SERVERS_ID];
 	arg.condition = StringUtils::sprintf("%s=%" FMT_SERVER_ID,
 	                                     colId.columnName, serverId);
+	string delCondForArmPlugin;
+	preprocForDeleteArmPluginInfo(serverId, delCondForArmPlugin);
+
 	DBCLIENT_TRANSACTION_BEGIN() {
+		deleteArmPluginInfoWithoutTransaction(delCondForArmPlugin);
 		deleteRows(arg);
 	} DBCLIENT_TRANSACTION_END();
 	return HTERR_OK;
