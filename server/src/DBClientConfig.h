@@ -135,7 +135,7 @@ public:
 	 * true if the ArmPluginInfo is got successfully. Otherwise false.
 	 */
 	bool getArmPluginInfo(ArmPluginInfo &armPluginInfo,
-	                      const ServerIdType &serevrId);
+	                      const ServerIdType &serverId);
 
 	/**
 	 * Save Arm plugin information.
