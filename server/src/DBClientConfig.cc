@@ -856,45 +856,15 @@ bool DBClientConfig::getArmPluginInfo(ArmPluginInfo &armPluginInfo,
 HatoholError DBClientConfig::saveArmPluginInfo(
   const ArmPluginInfo &armPluginInfo)
 {
-	// validation
-	if (armPluginInfo.path.empty())
-		return HTERR_INVALID_ARM_PLUGIN_PATH;
-	if (armPluginInfo.type < MONITORING_SYSTEM_HAPI_ZABBIX) {
-		MLPL_ERR("Invalid type: %d\n", armPluginInfo.type);
-		return HTERR_INVALID_ARM_PLUGIN_TYPE;
-	}
+	string condition;
+	HatoholError err = preprocForSaveArmPlguinInfo(armPluginInfo,
+	                                               condition);
+	if (err != HTERR_OK)
+		return err;
 
-	// save
-	const string condName = StringUtils::sprintf(
-	  "%s=%d",
-	  COLUMN_DEF_ARM_PLUGINS[IDX_ARM_PLUGINS_ID].columnName,
-	  armPluginInfo.id);
-	HatoholError err(HTERR_OK);
 	DBCLIENT_TRANSACTION_BEGIN() {
-		if (armPluginInfo.id != AUTO_INCREMENT_VALUE &&
-		    !isRecordExisting(TABLE_NAME_ARM_PLUGINS, condName)) {
-			err = HTERR_INVALID_ARM_PLUGIN_ID;
-		} else if (armPluginInfo.id != AUTO_INCREMENT_VALUE) {
-			DBAgent::UpdateArg arg(tableProfileArmPlugins);
-			arg.add(IDX_ARM_PLUGINS_PATH, armPluginInfo.path);
-			arg.add(IDX_ARM_PLUGINS_BROKER_URL,
-			        armPluginInfo.brokerUrl);
-			arg.add(IDX_ARM_PLUGINS_STATIC_QUEUE_ADDR,
-			        armPluginInfo.staticQueueAddress);
-			arg.add(IDX_ARM_PLUGINS_SERVER_ID,
-			        armPluginInfo.serverId);
-			arg.condition = condName;
-			update(arg);
-		} else {
-			DBAgent::InsertArg arg(tableProfileArmPlugins);
-			arg.add(AUTO_INCREMENT_VALUE); // armPluginInfo.id
-			arg.add(armPluginInfo.type);
-			arg.add(armPluginInfo.path);
-			arg.add(armPluginInfo.brokerUrl);
-			arg.add(armPluginInfo.staticQueueAddress);
-			arg.add(armPluginInfo.serverId);
-			insert(arg);
-		}
+		err = saveArmPluginInfoWithoutTransaction(armPluginInfo,
+		                                          condition);
 	} DBCLIENT_TRANSACTION_END();
 	return err;
 }
@@ -1015,4 +985,51 @@ void DBClientConfig::readArmPluginStream(
 	itemGroupStream >> armPluginInfo.brokerUrl;
 	itemGroupStream >> armPluginInfo.staticQueueAddress;
 	itemGroupStream >> armPluginInfo.serverId;
+}
+
+HatoholError DBClientConfig::preprocForSaveArmPlguinInfo(
+  const ArmPluginInfo &armPluginInfo, string &condition)
+{
+	if (armPluginInfo.path.empty())
+		return HTERR_INVALID_ARM_PLUGIN_PATH;
+	if (armPluginInfo.type < MONITORING_SYSTEM_HAPI_ZABBIX) {
+		MLPL_ERR("Invalid type: %d\n", armPluginInfo.type);
+		return HTERR_INVALID_ARM_PLUGIN_TYPE;
+	}
+
+	condition = StringUtils::sprintf(
+	  "%s=%d",
+	  COLUMN_DEF_ARM_PLUGINS[IDX_ARM_PLUGINS_ID].columnName,
+	  armPluginInfo.id);
+	return HTERR_OK;
+}
+
+HatoholError DBClientConfig::saveArmPluginInfoWithoutTransaction(
+  const ArmPluginInfo &armPluginInfo, const string &condition)
+{
+	if (armPluginInfo.id != AUTO_INCREMENT_VALUE &&
+	    !isRecordExisting(TABLE_NAME_ARM_PLUGINS, condition)) {
+		return HTERR_INVALID_ARM_PLUGIN_ID;
+	} else if (armPluginInfo.id != AUTO_INCREMENT_VALUE) {
+		DBAgent::UpdateArg arg(tableProfileArmPlugins);
+		arg.add(IDX_ARM_PLUGINS_PATH, armPluginInfo.path);
+		arg.add(IDX_ARM_PLUGINS_BROKER_URL,
+		        armPluginInfo.brokerUrl);
+		arg.add(IDX_ARM_PLUGINS_STATIC_QUEUE_ADDR,
+		        armPluginInfo.staticQueueAddress);
+		arg.add(IDX_ARM_PLUGINS_SERVER_ID,
+		        armPluginInfo.serverId);
+		arg.condition = condition;
+		update(arg);
+	} else {
+		DBAgent::InsertArg arg(tableProfileArmPlugins);
+		arg.add(AUTO_INCREMENT_VALUE); // armPluginInfo.id
+		arg.add(armPluginInfo.type);
+		arg.add(armPluginInfo.path);
+		arg.add(armPluginInfo.brokerUrl);
+		arg.add(armPluginInfo.staticQueueAddress);
+		arg.add(armPluginInfo.serverId);
+		insert(arg);
+	}
+	return HTERR_OK;
 }

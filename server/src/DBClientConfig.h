@@ -165,6 +165,11 @@ protected:
 	void readArmPluginStream(ItemGroupStream &itemGroupStream,
 	                         ArmPluginInfo &armPluginInfo);
 
+	HatoholError preprocForSaveArmPlguinInfo(
+	  const ArmPluginInfo &armPluginInfo, std::string &condition);
+	HatoholError saveArmPluginInfoWithoutTransaction(
+	  const ArmPluginInfo &armPluginInfo, const std::string &condition);
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
