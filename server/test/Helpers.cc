@@ -734,8 +734,7 @@ void setupTestDBConfig(bool dbRecreate, bool loadTestData)
 	static const char *TEST_DB_PASSWORD = ""; // empty: No password is used
 	DBClient::setDefaultDBParams(DB_DOMAIN_ID_CONFIG, TEST_DB_NAME,
 	                             TEST_DB_USER, TEST_DB_PASSWORD);
-	bool recreate = true; // TODO: Why forcely recreated ?
-	makeTestMySQLDBIfNeeded(TEST_DB_NAME, recreate);
+	makeTestMySQLDBIfNeeded(TEST_DB_NAME, dbRecreate);
 	if (loadTestData)
 		loadTestDBServer();
 }
