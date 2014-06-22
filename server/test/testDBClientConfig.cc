@@ -417,10 +417,21 @@ void test_updateTargetServerWithNoHostNameAndIPAddress(void)
 	  serverInfo, HTERR_NO_IP_ADDRESS_AND_HOST_NAME);
 }
 
-void test_deleteTargetServer(void)
+void data_deleteTargetServer(void)
 {
+	gcut_add_datum("w/o ArmPlugin",
+	               "withArmPlugin", G_TYPE_BOOLEAN, FALSE, NULL);
+	gcut_add_datum("w/ ArmPlugin",
+	               "withArmPlugin", G_TYPE_BOOLEAN, TRUE, NULL);
+}
+
+void test_deleteTargetServer(gconstpointer data)
+{
+	const bool withArmPlugin = gcut_data_get_boolean(data, "withArmPlugin");
 	setupTestDBUser(true, true);
 	loadTestDBServer();
+	if (withArmPlugin)
+		loadTestDBArmPlugin();
 	ServerIdType targetServerId = 1;
 	OperationPrivilege privilege(findUserWith(OPPRVLG_DELETE_ALL_SERVER));
 	DBClientConfig dbConfig;
@@ -431,6 +442,15 @@ void test_deleteTargetServer(void)
 	ServerIdSet serverIdSet;
 	serverIdSet.insert(targetServerId);
 	assertServersInDB(serverIdSet);
+	if (withArmPlugin) {
+		int armPluginId =
+		  findIndexOfTestArmPluginInfo(targetServerId);
+		cppcut_assert_not_equal(-1, armPluginId);
+		armPluginId += 1; // ID should be index + 1
+		set<int> armPluginIdSet;
+		armPluginIdSet.insert(armPluginId);
+		assertArmPluginsInDB(serverIdSet);
+	}
 }
 
 void test_deleteTargetServerWithoutPrivilege(void)
