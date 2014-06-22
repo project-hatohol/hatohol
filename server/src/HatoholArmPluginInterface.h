@@ -31,6 +31,7 @@
 #include "ItemGroupPtr.h"
 #include "ItemTablePtr.h"
 #include "Utils.h"
+#include "MonitoringServerInfo.h"
 
 enum HatoholArmPluginErrorCode {
 	HAPERR_OK,
@@ -394,6 +395,9 @@ public:
 	 */
 	static ItemDataPtr createItemData(mlpl::SmartBuffer &sbuf)
 	  throw(HatoholException);
+
+	static const char *getDefaultPluginPath(
+	  const MonitoringSystemType &type);
 
 protected:
 	typedef std::map<uint16_t, CommandHandler> CommandHandlerMap;

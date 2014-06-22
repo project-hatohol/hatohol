@@ -30,6 +30,7 @@
 #include <qpid/messaging/Session.h>
 #include "HatoholArmPluginInterface.h"
 #include "HatoholException.h"
+#include "MonitoringServerInfo.h"
 
 using namespace std;
 using namespace mlpl;
@@ -546,6 +547,20 @@ ItemDataPtr HatoholArmPluginInterface::createItemData(SmartBuffer &sbuf)
 		itemData->setNull();
 
 	return ItemDataPtr(itemData, false);
+}
+
+const char *HatoholArmPluginInterface::getDefaultPluginPath(
+  const MonitoringSystemType &type)
+{
+	switch (type) {
+	case MONITORING_SYSTEM_HAPI_ZABBIX:
+		return "hatohol-arm-plugin-zabbix";
+	case MONITORING_SYSTEM_HAPI_NAGIOS:
+		return "hatohol-arm-plugin-nagios";
+	default:
+		;
+	}
+	return NULL;
 }
 
 // ---------------------------------------------------------------------------
