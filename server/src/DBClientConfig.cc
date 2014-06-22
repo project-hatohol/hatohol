@@ -865,7 +865,7 @@ HatoholError DBClientConfig::saveArmPluginInfo(
 			arg.add(IDX_ARM_PLUGINS_BROKER_URL,
 			        armPluginInfo.brokerUrl);
 			arg.add(IDX_ARM_PLUGINS_STATIC_QUEUE_ADDR,
-			        armPluginInfo.staticSessionKey);
+			        armPluginInfo.staticQueueAddress);
 			arg.condition = condType;
 			update(arg);
 		} else {
@@ -874,7 +874,7 @@ HatoholError DBClientConfig::saveArmPluginInfo(
 			arg.add(armPluginInfo.name);
 			arg.add(armPluginInfo.path);
 			arg.add(armPluginInfo.brokerUrl);
-			arg.add(armPluginInfo.staticSessionKey);
+			arg.add(armPluginInfo.staticQueueAddress);
 			insert(arg);
 		}
 	} DBCLIENT_TRANSACTION_END();
@@ -994,5 +994,5 @@ void DBClientConfig::readArmPluginStream(
 	itemGroupStream >> armPluginInfo.name;
 	itemGroupStream >> armPluginInfo.path;
 	itemGroupStream >> armPluginInfo.brokerUrl;
-	itemGroupStream >> armPluginInfo.staticSessionKey;
+	itemGroupStream >> armPluginInfo.staticQueueAddress;
 }

@@ -86,7 +86,7 @@ static string makeExpectedDBOutLine(const ArmPluginInfo &armPluginInfo)
 	  armPluginInfo.name.c_str(),
 	  armPluginInfo.path.c_str(),
 	  armPluginInfo.brokerUrl.c_str(),
-	  armPluginInfo.staticSessionKey.c_str());
+	  armPluginInfo.staticQueueAddress.c_str());
 	return s;
 }
 
@@ -770,7 +770,8 @@ void test_saveArmPluginInfoUpdate(void)
 	armPluginInfo.name = "Hachi Jr.";
 	armPluginInfo.path = "/usr/lib/dog";
 	armPluginInfo.brokerUrl = "abc.example.com:28765";
-	armPluginInfo.staticSessionKey = "b4e28ba-2fa1-11d2-883f-b9a761bde3fb";
+	armPluginInfo.staticQueueAddress =
+	  "b4e28ba-2fa1-11d2-883f-b9a761bde3fb";
 	assertHatoholError(HTERR_OK, dbConfig.saveArmPluginInfo(armPluginInfo));
 
 	// check
