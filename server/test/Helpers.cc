@@ -527,6 +527,7 @@ void _assertServersInDB(const ServerIdSet &excludeServerIdSet)
 	string expect;
 	for (size_t i = 0; i < NumTestServerInfo; i++) {
 		ServerIdType serverId = i + 1;
+		// We must make a copy because the member will be changed.
 		MonitoringServerInfo serverInfo = testServerInfo[i];
 		serverInfo.id = serverId;
 		ServerIdSetIterator it = excludeServerIdSet.find(serverId);
@@ -544,7 +545,8 @@ void _assertArmPluginsInDB(const set<int> &excludeIdSet)
 	string expect;
 	for (size_t i = 0; i < NumTestArmPluginInfo; i++) {
 		const int id = i + 1;
-		ArmPluginInfo &armPluginInfo = testArmPluginInfo[i];
+		// We must make a copy because the member will be changed.
+		ArmPluginInfo armPluginInfo = testArmPluginInfo[i];
 		armPluginInfo.id = id;
 		set<int>::const_iterator it = excludeIdSet.find(id);
 		if (it != excludeIdSet.end())
