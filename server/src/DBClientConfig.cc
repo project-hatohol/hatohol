@@ -1053,3 +1053,20 @@ HatoholError DBClientConfig::saveArmPluginInfoWithoutTransaction(
 	}
 	return HTERR_OK;
 }
+
+void DBClientConfig::preprocForDeleteArmPluginInfo(
+  const ServerIdType &serverId, std::string &condition)
+{
+	condition = StringUtils::sprintf(
+	  "%s=%" FMT_SERVER_ID,
+	  COLUMN_DEF_ARM_PLUGINS[IDX_ARM_PLUGINS_SERVER_ID].columnName,
+	  serverId);
+}
+
+void DBClientConfig::deleteArmPluginInfoWithoutTransaction(
+  const std::string &condition)
+{
+	DBAgent::DeleteArg arg(tableProfileArmPlugins);
+	arg.condition = condition;
+	deleteRows(arg);
+}

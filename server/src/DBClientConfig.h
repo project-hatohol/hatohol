@@ -171,6 +171,10 @@ protected:
 	HatoholError saveArmPluginInfoWithoutTransaction(
 	  const ArmPluginInfo &armPluginInfo, const std::string &condition);
 
+	void preprocForDeleteArmPluginInfo(
+	  const ServerIdType &serverId, std::string &condition);
+	void deleteArmPluginInfoWithoutTransaction(const std::string &condition);
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
