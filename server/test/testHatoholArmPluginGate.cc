@@ -47,12 +47,7 @@ static void _assertStartAndExit(HapgTestCtx &ctx)
 	MonitoringServerInfo serverInfo;
 	initServerInfo(serverInfo);
 	serverInfo.type = ctx.monitoringSystemType;
-
-	int targetPluginIndex =
-	  findIndexOfTestArmPluginInfo(ctx.monitoringSystemType);
-	cppcut_assert_not_equal(-1, targetPluginIndex);
-	serverInfo.id = testArmPluginInfo[targetPluginIndex].serverId;
-
+	serverInfo.id = getTestArmPluginInfo(ctx.monitoringSystemType).serverId;
 	HatoholArmPluginGateTest *hapg =
 	  new HatoholArmPluginGateTest(serverInfo, ctx);
 	HatoholArmPluginGatePtr pluginGate(hapg, false);

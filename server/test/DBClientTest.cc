@@ -1155,3 +1155,10 @@ int findIndexOfTestArmPluginInfo(const MonitoringSystemType &type)
 	}
 	return -1;
 }
+
+const ArmPluginInfo &getTestArmPluginInfo(const MonitoringSystemType &type)
+{
+	const int testArmPluginIndex = findIndexOfTestArmPluginInfo(type);
+	cppcut_assert_not_equal(-1, testArmPluginIndex);
+	return testArmPluginInfo[testArmPluginIndex];
+}
