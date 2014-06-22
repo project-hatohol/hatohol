@@ -95,7 +95,8 @@ public:
 
 	HatoholError addTargetServer(
 	  MonitoringServerInfo *monitoringServerInfo,
-	  const OperationPrivilege &privilege);
+	  const OperationPrivilege &privilege,
+	  ArmPluginInfo *armPluginInfo = NULL);
 
 	HatoholError updateTargetServer(
 	  MonitoringServerInfo *monitoringServerInfo,

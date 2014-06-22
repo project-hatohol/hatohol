@@ -658,7 +658,8 @@ HatoholError validServerInfo(const MonitoringServerInfo &serverInfo)
 
 HatoholError DBClientConfig::addTargetServer(
   MonitoringServerInfo *monitoringServerInfo,
-  const OperationPrivilege &privilege)
+  const OperationPrivilege &privilege,
+  ArmPluginInfo *armPluginInfo)
 {
 	if (!privilege.has(OPPRVLG_CREATE_SERVER))
 		return HatoholError(HTERR_NO_PRIVILEGE);
@@ -680,13 +681,28 @@ HatoholError DBClientConfig::addTargetServer(
 	arg.add(monitoringServerInfo->password);
 	arg.add(monitoringServerInfo->dbName);
 
+	string condForHap;
+	const bool isHap = isHatoholArmPlugin(monitoringServerInfo->type);
+	if (isHap) {
+		if (armPluginInfo->type != monitoringServerInfo->type)
+			return HTERR_DIFFER_TYPE_SERVER_AND_ARM_PLUGIN;
+		err = preprocForSaveArmPlguinInfo(*armPluginInfo, condForHap);
+		if (err != HTERR_OK)
+			return err;
+	}
+
 	DBCLIENT_TRANSACTION_BEGIN() {
 		insert(arg);
 		monitoringServerInfo->id = getLastInsertId();
 		// TODO: Add AccessInfo for the server to enable the operator to
 		// access to it
+		if (isHap) {
+			armPluginInfo->serverId = monitoringServerInfo->id;
+			err = saveArmPluginInfoWithoutTransaction(
+			  *armPluginInfo, condForHap);
+		}
 	} DBCLIENT_TRANSACTION_END();
-	return HTERR_OK;
+	return err;
 }
 
 HatoholError DBClientConfig::updateTargetServer(
