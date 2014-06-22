@@ -306,6 +306,17 @@ static const ColumnDef COLUMN_DEF_ARM_PLUGINS[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	"",                                // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_SERVERS,                // tableName
+	"serverId",                        // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 }
 };
 
@@ -315,6 +326,7 @@ enum {
 	IDX_ARM_PLUGINS_PATH,
 	IDX_ARM_PLUGINS_BROKER_URL,
 	IDX_ARM_PLUGINS_STATIC_QUEUE_ADDR,
+	IDX_ARM_PLUGINS_SERVER_ID,
 	NUM_IDX_ARM_PLUGINS,
 };
 
@@ -866,6 +878,8 @@ HatoholError DBClientConfig::saveArmPluginInfo(
 			        armPluginInfo.brokerUrl);
 			arg.add(IDX_ARM_PLUGINS_STATIC_QUEUE_ADDR,
 			        armPluginInfo.staticQueueAddress);
+			arg.add(IDX_ARM_PLUGINS_SERVER_ID,
+			        armPluginInfo.serverId);
 			arg.condition = condType;
 			update(arg);
 		} else {
@@ -875,6 +889,7 @@ HatoholError DBClientConfig::saveArmPluginInfo(
 			arg.add(armPluginInfo.path);
 			arg.add(armPluginInfo.brokerUrl);
 			arg.add(armPluginInfo.staticQueueAddress);
+			arg.add(armPluginInfo.serverId);
 			insert(arg);
 		}
 	} DBCLIENT_TRANSACTION_END();
@@ -981,6 +996,7 @@ void DBClientConfig::selectArmPluginInfo(DBAgent::SelectExArg &arg)
 	arg.add(IDX_ARM_PLUGINS_PATH);
 	arg.add(IDX_ARM_PLUGINS_BROKER_URL);
 	arg.add(IDX_ARM_PLUGINS_STATIC_QUEUE_ADDR);
+	arg.add(IDX_ARM_PLUGINS_SERVER_ID);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -995,4 +1011,5 @@ void DBClientConfig::readArmPluginStream(
 	itemGroupStream >> armPluginInfo.path;
 	itemGroupStream >> armPluginInfo.brokerUrl;
 	itemGroupStream >> armPluginInfo.staticQueueAddress;
+	itemGroupStream >> armPluginInfo.serverId;
 }

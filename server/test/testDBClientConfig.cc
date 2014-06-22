@@ -81,12 +81,13 @@ static void getTargetServersData(void)
 static string makeExpectedDBOutLine(const ArmPluginInfo &armPluginInfo)
 {
 	string s = StringUtils::sprintf(
-	  "%d|%s|%s|%s|%s",
+	  "%d|%s|%s|%s|%s|%" FMT_SERVER_ID,
 	  armPluginInfo.type,
 	  armPluginInfo.name.c_str(),
 	  armPluginInfo.path.c_str(),
 	  armPluginInfo.brokerUrl.c_str(),
-	  armPluginInfo.staticQueueAddress.c_str());
+	  armPluginInfo.staticQueueAddress.c_str(),
+	  armPluginInfo.serverId);
 	return s;
 }
 
@@ -772,6 +773,7 @@ void test_saveArmPluginInfoUpdate(void)
 	armPluginInfo.brokerUrl = "abc.example.com:28765";
 	armPluginInfo.staticQueueAddress =
 	  "b4e28ba-2fa1-11d2-883f-b9a761bde3fb";
+	armPluginInfo.serverId = 52343;
 	assertHatoholError(HTERR_OK, dbConfig.saveArmPluginInfo(armPluginInfo));
 
 	// check

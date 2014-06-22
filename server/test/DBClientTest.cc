@@ -692,6 +692,9 @@ ArmPluginInfo testArmPluginInfo[] = {
 	MONITORING_SYSTEM_HAPI_ZABBIX,   // type
 	"Zabbix API",                    // name
 	"../hap/hatohol-arm-plugin-zabbix", // path
+	"",                              // brokerUrl
+	"",                              // staticQueueAddress
+	1,                               // serverId
 }, {
 	MONITORING_SYSTEM_HAPI_NAGIOS,   // type
 	"Nagios NDO",                    // name

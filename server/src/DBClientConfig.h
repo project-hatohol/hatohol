@@ -42,6 +42,11 @@ struct ArmPluginInfo {
 	 * Hatohol), the parameter should be set.
 	 */
 	std::string staticQueueAddress;
+
+	/**
+	 * Monitoring server ID of the server this ArmPlugin communicates with.
+	 */
+	ServerIdType serverId;
 };
 
 typedef std::vector<ArmPluginInfo>        ArmPluginInfoVect;
