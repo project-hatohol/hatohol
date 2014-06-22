@@ -154,7 +154,7 @@ protected:
 
 	static HatoholError parseServerParameter(
 	  MonitoringServerInfo &svInfo, ArmPluginInfo &armPluginInfo,
-	  GHashTable *query, bool forUpdate = false);
+	  GHashTable *query, const bool &forUpdate = false);
 	static HatoholError parseUserParameter(UserInfo &userInfo,
 	                                       GHashTable *query,
 					       bool forUpdate = false);

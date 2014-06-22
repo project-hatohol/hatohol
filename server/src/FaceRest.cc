@@ -1498,8 +1498,9 @@ void FaceRest::handlerGetServer(RestJob *job)
 
 HatoholError FaceRest::parseServerParameter(
   MonitoringServerInfo &svInfo, ArmPluginInfo &armPluginInfo,
-  GHashTable *query, bool allowEmpty)
+  GHashTable *query, const bool &forUpdate)
 {
+	const bool allowEmpty = forUpdate;
 	HatoholError err;
 	char *value;
 
