@@ -108,7 +108,11 @@ void test_getTimestampOfLastTrigger(void)
 void test_getLastEventId(void)
 {
 	loadTestDBEvents();
-	const ServerIdType serverId = 1;
+	const int testArmPluginIndex =
+	   findIndexOfTestArmPluginInfo(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
+	cppcut_assert_not_equal(-1, testArmPluginIndex);
+	const ServerIdType serverId =
+	  testArmPluginInfo[testArmPluginIndex].serverId;
 	TestPair pair(serverId);
 	const EventIdType expect = findLastEventId(serverId);
 	const EventIdType actual = pair.plugin->getLastEventId();

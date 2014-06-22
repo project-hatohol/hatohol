@@ -314,7 +314,7 @@ static const ColumnDef COLUMN_DEF_ARM_PLUGINS[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_NONE,                      // keyType
+	SQL_KEY_UNI,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }
@@ -827,12 +827,12 @@ void DBClientConfig::getArmPluginInfo(ArmPluginInfoVect &armPluginVect)
 }
 
 bool DBClientConfig::getArmPluginInfo(ArmPluginInfo &armPluginInfo,
-                                      const MonitoringSystemType &type)
+                                      const ServerIdType &serverId)
 {
 	DBAgent::SelectExArg arg(tableProfileArmPlugins);
 	arg.condition = StringUtils::sprintf(
-	  "%s=%d",
-	  COLUMN_DEF_ARM_PLUGINS[IDX_ARM_PLUGINS_TYPE].columnName, type);
+	  "%s=%" FMT_SERVER_ID,
+	  COLUMN_DEF_ARM_PLUGINS[IDX_ARM_PLUGINS_SERVER_ID].columnName, serverId);
 	selectArmPluginInfo(arg);
 
 	// check the result and copy

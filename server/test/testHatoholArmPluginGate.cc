@@ -42,10 +42,17 @@ static void _assertStartAndExit(HapgTestCtx &ctx)
 		ctx.expectRcvMessage = testMessage;
 
 	setupTestDBConfig();
+	loadTestDBServer();
 	loadTestDBArmPlugin();
 	MonitoringServerInfo serverInfo;
 	initServerInfo(serverInfo);
 	serverInfo.type = ctx.monitoringSystemType;
+
+	int targetPluginIndex =
+	  findIndexOfTestArmPluginInfo(ctx.monitoringSystemType);
+	cppcut_assert_not_equal(-1, targetPluginIndex);
+	serverInfo.id = testArmPluginInfo[targetPluginIndex].serverId;
+
 	HatoholArmPluginGateTest *hapg =
 	  new HatoholArmPluginGateTest(serverInfo, ctx);
 	HatoholArmPluginGatePtr pluginGate(hapg, false);

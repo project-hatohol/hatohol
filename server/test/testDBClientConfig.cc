@@ -693,13 +693,14 @@ void test_getArmPluginInfo(void)
 void test_getArmPluginInfoWithType(void)
 {
 	setupTestDBConfig();
+	loadTestDBServer();
 	loadTestDBArmPlugin();
 	DBClientConfig dbConfig;
-	const int targetIdx = 1;
+	const int targetIdx = 0;
 	const ArmPluginInfo &expect = testArmPluginInfo[targetIdx];
 	ArmPluginInfo armPluginInfo;
 	cppcut_assert_equal(true, dbConfig.getArmPluginInfo(armPluginInfo,
-	                                                    expect.type));
+	                                                    expect.serverId));
 	const int expectId = targetIdx + 1;
 	cppcut_assert_equal(expectId,    armPluginInfo.id);
 	cppcut_assert_equal(expect.type, armPluginInfo.type);

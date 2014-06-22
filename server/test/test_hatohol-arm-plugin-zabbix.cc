@@ -47,6 +47,12 @@ void test_launch(void)
 	MonitoringServerInfo serverInfo;
 	initServerInfo(serverInfo);
 	serverInfo.type = MONITORING_SYSTEM_HAPI_ZABBIX;
+
+	int targetPluginIndex =
+	  findIndexOfTestArmPluginInfo(serverInfo.type);
+	cppcut_assert_not_equal(-1, targetPluginIndex);
+	serverInfo.id = testArmPluginInfo[targetPluginIndex].serverId;
+
 	HatoholArmPluginGateTestPtr pluginGate(
 	  new HatoholArmPluginGateTest(serverInfo, ctx), false);
 	pluginGate->start();

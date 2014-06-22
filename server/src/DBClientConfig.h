@@ -123,16 +123,17 @@ public:
 	void getArmPluginInfo(ArmPluginInfoVect &armPluginVect);
 
 	/**
-	 * Get ArmPluginInfo with the specified type.
+	 * Get ArmPluginInfo with the specified server ID.
 	 *
 	 * @param armPluginInfo The obtained data is filled to this variable.
-	 * @param type A monitoring system type to be obtained.
+	 * @param
+	 * serverId A target server ID.
 	 *
 	 * @return
 	 * true if the ArmPluginInfo is got successfully. Otherwise false.
 	 */
 	bool getArmPluginInfo(ArmPluginInfo &armPluginInfo,
-	                      const MonitoringSystemType &type);
+	                      const ServerIdType &serevrId);
 
 	/**
 	 * Save Arm plugin information.

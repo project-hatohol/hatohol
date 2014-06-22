@@ -722,7 +722,7 @@ ArmPluginInfo testArmPluginInfo[] = {
 	"#PASSIVE_PLUGIN#",                    // path
 	"",                              // brokerUrl
 	"",                              // staticQueueAddress
-	103, // (Not exists)             // serverId
+	3,                               // serverId
 }
 };
 const size_t NumTestArmPluginInfo = sizeof(testArmPluginInfo) / sizeof(ArmPluginInfo);

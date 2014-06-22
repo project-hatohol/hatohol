@@ -149,13 +149,16 @@ void HatoholArmPluginGate::onConnected(qpid::messaging::Connection &conn)
 	if (m_ctx->pid)
 		return;
 
+	// TODO: check in the constructor.
 	CacheServiceDBClient cache;
-	const MonitoringSystemType &type = m_ctx->serverInfo.type;
+	const ServerIdType &serverId = m_ctx->serverInfo.id;
 	DBClientConfig *dbConfig = cache.getConfig();
-	if (!dbConfig->getArmPluginInfo(m_ctx->armPluginInfo, type)) {
-		MLPL_ERR("Failed to get ArmPluginInfo: type: %d\n", type);
+	if (!dbConfig->getArmPluginInfo(m_ctx->armPluginInfo, serverId)) {
+		MLPL_ERR("Failed to get ArmPluginInfo: serverId: %d\n",
+		         serverId);
 		return;
 	}
+	// TODO: Check the type.
 	if (m_ctx->armPluginInfo.path == PassivePluginQuasiPath) {
 		MLPL_INFO("Started: passive plugin (%d) %s\n",
 		          m_ctx->armPluginInfo.type,
