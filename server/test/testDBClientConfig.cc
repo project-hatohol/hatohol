@@ -419,10 +419,7 @@ void test_updateTargetServerWithNoHostNameAndIPAddress(void)
 
 void data_deleteTargetServer(void)
 {
-	gcut_add_datum("w/o ArmPlugin",
-	               "withArmPlugin", G_TYPE_BOOLEAN, FALSE, NULL);
-	gcut_add_datum("w/ ArmPlugin",
-	               "withArmPlugin", G_TYPE_BOOLEAN, TRUE, NULL);
+	prepareDataWithAndWithoutArmPlugin();
 }
 
 void test_deleteTargetServer(gconstpointer data)
