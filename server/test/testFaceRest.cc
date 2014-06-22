@@ -1484,8 +1484,9 @@ void test_addServerWithHapiParams(void)
 	ArmPluginInfo armPluginInfo;
 	armPluginInfo.id = 1; // We suppose all entries are deleted
 	armPluginInfo.type = expected.type;
-	armPluginInfo.path =
+	const char *path =
 	  HatoholArmPluginInterface::getDefaultPluginPath(armPluginInfo.type);
+	armPluginInfo.path = path ? : "";
 	armPluginInfo.brokerUrl = "abc.example.com:22222";
 	armPluginInfo.staticQueueAddress = "";
 	armPluginInfo.serverId = expected.id;
