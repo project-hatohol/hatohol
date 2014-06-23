@@ -203,11 +203,19 @@ HatoholServerEditDialog.prototype.createMainElement = function() {
     s += '  <label for="inputRetryInterval">' + gettext("Retry interval (sec)") + '</label>';
     s += '  <input id="inputRetryInterval" type="text" value="10" style="width:4em;" class="input-xlarge">';
     s += '</form>';
+
     // Input form for HAPI's parameter
     s += '<form class="form-inline" style="display:none;" id="hapiParamArea">';
+    // Broker URL
+    s += '  <label for="inputbrokerUrl">' + gettext("Broker URL") + '</label>';
+    s += '  <input id="inputbrokerUrl" type="text" value="" style="width:10em" class="input-xlarge"';
+    s += '  <label for="inputbrokerUrl">' + gettext("(empty: Default)") + '</label>';
+    s += '<br>'
+    // Static queue address
     s += '  <label for="inputStaticQueueAddr">' + gettext("Static queue address") + '</label>';
     s += '  <input id="inputStaticQueueAddr" type="text" value="" style="width:10em" class="input-xlarge"';
     s += '  <label for="inputStaticQueueAddr">' + gettext("(empty: Default)") + '</label>';
+
     s += '</form>';
     s += '</div>';
     return s;
