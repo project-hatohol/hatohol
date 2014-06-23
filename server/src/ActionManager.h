@@ -215,6 +215,10 @@ protected:
 	void notifyEvent(ResidentInfo *residentInfo,
 	                 ResidentNotifyInfo *notifyInfo);
 
+	void execIssueSenderAction(const ActionDef &actionDef,
+				   const EventInfo &eventInfo,
+				   DBClientAction &dbAction);
+
 	static void commandActorCollectedCb(const ActorInfo *actorInfo);
 	static void commandActorPostCollectedCb(const ActorInfo *actorInfo);
 	static void residentActorCollectedCb(const ActorInfo *actorInfo);

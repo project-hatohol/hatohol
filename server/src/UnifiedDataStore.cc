@@ -301,10 +301,11 @@ SmartTime UnifiedDataStore::getTimestampOfLastTrigger(
 }
 
 HatoholError UnifiedDataStore::getEventList(EventInfoList &eventList,
-					    EventsQueryOption &option)
+					    EventsQueryOption &option,
+					    IssueInfoVect *issueVect)
 {
 	DBClientHatohol dbHatohol;
-	return dbHatohol.getEventInfoList(eventList, option);
+	return dbHatohol.getEventInfoList(eventList, option, issueVect);
 }
 
 void UnifiedDataStore::getItemList(ItemInfoList &itemList,
@@ -336,10 +337,10 @@ void UnifiedDataStore::getHostList(HostInfoList &hostInfoList,
 }
 
 HatoholError UnifiedDataStore::getActionList(
-  ActionDefList &actionList, const OperationPrivilege &privilege)
+  ActionDefList &actionList, const ActionsQueryOption &option)
 {
 	DBClientAction dbAction;
-	return dbAction.getActionList(actionList, privilege);
+	return dbAction.getActionList(actionList, option);
 }
 
 HatoholError UnifiedDataStore::deleteActionList(
@@ -347,6 +348,12 @@ HatoholError UnifiedDataStore::deleteActionList(
 {
 	DBClientAction dbAction;
 	return dbAction.deleteActions(actionIdList, privilege);
+}
+
+bool UnifiedDataStore::isIssueSenderActionEnabled(void)
+{
+	DBClientAction dbAction;
+	return dbAction.isIssueSenderEnabled();
 }
 
 HatoholError UnifiedDataStore::getHostgroupInfoList

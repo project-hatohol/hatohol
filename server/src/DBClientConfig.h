@@ -24,6 +24,28 @@
 #include "DBClientHatohol.h"
 #include "MonitoringServerInfo.h"
 
+enum IssueTrackerType {
+	ISSUE_TRACKER_UNKNOWN = -2,
+	ISSUE_TRACKER_FAKE    = -1,
+	ISSUE_TRACKER_REDMINE,
+	NUM_ISSUE_TRACKERS,
+};
+
+struct IssueTrackerInfo {
+	IssueTrackerIdType id;
+	IssueTrackerType   type;
+	std::string nickname;
+	std::string baseURL;
+	std::string projectId;
+	std::string trackerId;
+	std::string userName;
+	std::string password;
+};
+
+typedef std::vector<IssueTrackerInfo>        IssueTrackerInfoVect;
+typedef IssueTrackerInfoVect::iterator       IssueTrackerInfoVectIterator;
+typedef IssueTrackerInfoVect::const_iterator IssueTrackerInfoVectConstIterator;
+
 struct ArmPluginInfo {
 	MonitoringSystemType type;
 	std::string name; // must be unique
@@ -59,6 +81,24 @@ public:
 	void setTargetServerId(const ServerIdType &serverId);
 
 	virtual std::string getCondition(void) const override;
+
+protected:
+	bool hasPrivilegeCondition(std::string &condition) const;
+
+private:
+	struct PrivateContext;
+	PrivateContext *m_ctx;
+};
+
+class IssueTrackerQueryOption : public DataQueryOption {
+public:
+	IssueTrackerQueryOption(const UserIdType &userId = INVALID_USER_ID);
+	IssueTrackerQueryOption(DataQueryContext *dataQueryContext);
+	virtual ~IssueTrackerQueryOption();
+
+	void setTargetId(const IssueTrackerIdType &targetId);
+
+	virtual std::string getCondition(void) const; //overrride
 
 protected:
 	bool hasPrivilegeCondition(std::string &condition) const;
@@ -139,6 +179,28 @@ public:
 	 * @rerurn A HatoholError insntace.
 	 */
 	HatoholError saveArmPluginInfo(const ArmPluginInfo &armPluginInfo);
+
+
+	/**
+	 * Add issue tracker information.
+	 *
+	 * @param issueTrackerInfo A data to be saved.
+	 *
+	 * @rerurn A HatoholError insntace.
+	 */
+	HatoholError addIssueTracker(IssueTrackerInfo *issueTrackerInfo,
+				     const OperationPrivilege &privilege);
+
+	/**
+	 * Get entries in the issue_trackers table.
+	 *
+	 * @param issueTrackerVect
+	 * The obtained data is added to this variable.
+	 * @param option
+	 * Options for the query
+	 */
+	void getIssueTrackers(IssueTrackerInfoVect &issueTrackerVect,
+	                      IssueTrackerQueryOption &option);
 
 protected:
 	static bool parseCommandLineArgument(const CommandLineArg &cmdArg);

@@ -397,6 +397,24 @@ ActionDef testActionDef[] = {
 	"a-dog-meets-food",// command
 	3939,              // timeout
 	2,                 // ownerUserId
+}, {
+	0,                 // id (this field is ignored)
+	ActionCondition(
+	  ACTCOND_SERVER_ID | ACTCOND_HOST_ID |
+	  ACTCOND_HOST_GROUP_ID,    // enableBits
+	  1,                        // serverId
+	  10,                       // hostId
+	  5,                        // hostgroupId
+	  0,                        // triggerId
+	  TRIGGER_STATUS_OK,        // triggerStatus
+	  TRIGGER_SEVERITY_CRITICAL,// triggerSeverity
+	  CMP_INVALID               // triggerSeverityCompType;
+	), // condition
+	ACTION_ISSUE_SENDER, // type
+	"",                  // working dir
+	"3",                 // command
+	0,                   // timeout
+	0,                   // ownerUserId
 },
 };
 
@@ -712,6 +730,54 @@ ArmPluginInfo testArmPluginInfo[] = {
 };
 const size_t NumTestArmPluginInfo = sizeof(testArmPluginInfo) / sizeof(ArmPluginInfo);
 
+IssueTrackerInfo testIssueTrackerInfo[] = {
+{
+	1,                        // id
+	ISSUE_TRACKER_REDMINE,    // type
+	"Numerical ID",           // nickname
+	"http://localhost",       // baseURL
+	"1",                      // projectId
+	"3",                      // TrackerId
+	"foo",                    // user_name
+	"bar",                    // password
+},{
+	2,                        // id
+	ISSUE_TRACKER_REDMINE,    // type
+	"String project ID",      // nickname
+	"http://localhost",       // baseURL
+	"hatohol",                // projectId
+	"3",                      // TrackerId
+	"foo",                    // user_name
+	"bar",                    // password
+},{
+	3,                        // id
+	ISSUE_TRACKER_REDMINE,    // type
+	"Redmine Emulator",       // nickname
+	"http://localhost:44444", // baseURL
+	"hatoholtestproject",     // projectId
+	"1",                      // TrackerId
+	"hatohol",                // user_name
+	"o.o662L6q1V7E",          // password
+}
+};
+size_t NumTestIssueTrackerInfo = sizeof(testIssueTrackerInfo) / sizeof(IssueTrackerInfo);
+
+IssueInfo testIssueInfo[] = {
+{
+	3,                        // trackerId
+	1,                        // serverId
+	1,                        // eventId
+	2,                        // triggerId
+	"13",                     // identifier
+	"http://localhost:44444/issues/13", // location
+	"New",                    // status
+	"foobar",                 // assignee
+	{1362957260, 0},          // createdAt
+	{1362957260, 0},          // updatedAt
+}
+};
+size_t NumTestIssueInfo = sizeof(testIssueInfo) / sizeof(IssueInfo);
+
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 {
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
@@ -1004,6 +1070,25 @@ size_t getNumberOfTestHostsWithStatus(
 	return hostIdSet.size();
 }
 
+size_t getNumberOfTestActions(const ActionType &actionType)
+{
+	size_t num = 0;
+	for (size_t i = 0; i < NumTestActionDef; ++i) {
+		if (actionType == ACTION_USER_DEFINED) {
+			if (testActionDef[i].type < ACTION_ISSUE_SENDER)
+				++num;
+		} else if (actionType == ACTION_ALL) {
+			++num;
+		} else if (actionType < NUM_ACTION_TYPES) {
+			if (actionType == testActionDef[i].type)
+				++num;
+		} else {
+			cut_fail("Invalid action type: %d\n", actionType);
+		}
+	}
+	return num;
+}
+
 void getDBCTestHostInfo(HostInfoList &hostInfoList,
                         const ServerIdType &targetServerId)
 {
@@ -1130,4 +1215,21 @@ const HostgroupIdSet &getTestHostgroupIdSet(void)
 	for (size_t i = 0; i < NumTestHostgroupElement; i++)
 		testHostgroupIdSet.insert(testHostgroupElement[i].groupId);
 	return testHostgroupIdSet;
+}
+
+string makeEventIssueMapKey(const EventInfo &eventInfo)
+{
+	return StringUtils::sprintf("%" FMT_SERVER_ID ":%" FMT_EVENT_ID,
+				    eventInfo.serverId, eventInfo.id);
+}
+
+void makeEventIssueMap(map<string, IssueInfo*> &eventIssueMap)
+{
+	for (size_t i = 0; i < NumTestIssueInfo; i++) {
+		string key = StringUtils::sprintf(
+			       "%" FMT_SERVER_ID ":%" FMT_EVENT_ID,
+			       testIssueInfo[i].serverId,
+			       testIssueInfo[i].eventId);
+		eventIssueMap[key] = &testIssueInfo[i];
+	}
 }

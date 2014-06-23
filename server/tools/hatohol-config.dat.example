@@ -18,3 +18,31 @@ server: 1, localhost, 127.0.0.1, NDOUtils,   0,  30, 10, ndoutils, admin, ndouti
 # user: name, password, admin|guest
 user: admin, hatohol, admin
 user: guest, guest,   guest
+
+
+#
+# Example config for issue tracking system
+#
+
+# issueTracker: TYPE (0: Redmine), Nickname, Base URL, Project Name, Issue Tracker ID (numeric, cab be empty), User name, Password
+
+#issueTracker: 0, Redmine, http://redmine.localdomain, incidents, , admin, admin
+
+
+# issueSenderAction: Issue Tracker ID, Monitoring Server ID, Hostgroup ID, Trigger Severity
+#
+# "Issue Tracker ID" & "Monitoring Server ID" will begin from 1 and be
+# incremented sequentially. "Hostgroup ID" is assigned by each monitoring
+# server, therefor you should find it on each system's UI.
+# You can put "-1" for "Monitoring Server ID" and "Hostgroup ID" to choose all
+# monitoring servers or hostgroups.
+#
+# Trigger Severity is a numeric value:
+#   0: UNKNOWN
+#   1: INFO
+#   2: WARNING
+#   3: ERROR     ("Average" in ZABBIX)
+#   4: CRITICAL  ("High" in Zabbix)
+#   5: EMERGENCY ("Disaster" in Zabbix)
+
+#issueSenderAction: 1, -1, -1, 3

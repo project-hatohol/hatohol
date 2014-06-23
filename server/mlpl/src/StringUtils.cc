@@ -105,6 +105,33 @@ bool StringUtils::casecmp(const string &str1, const string &str2)
 	return casecmp(str1.c_str(), str2.c_str());
 }
 
+bool StringUtils::hasPrefix(const string &str, const string &prefix,
+			    bool caseSensitive)
+{
+	if (str.size() < prefix.size())
+		return false;
+	const char *str1 = str.c_str();
+	const char *str2 = prefix.c_str();
+	size_t len = prefix.size();
+	if (caseSensitive)
+		return (strncmp(str1, str2, len) == 0);
+	else
+		return (strncasecmp(str1, str2, len) == 0);
+}
+
+bool StringUtils::hasSuffix(const string &str, const string &suffix,
+			    bool caseSensitive)
+{
+	if (str.size() < suffix.size())
+		return false;
+	const char *str1 = str.c_str() + str.size() - suffix.size();
+	const char *str2 = suffix.c_str();
+	if (caseSensitive)
+		return (strcmp(str1, str2) == 0);
+	else
+		return (strcasecmp(str1, str2) == 0);
+}
+
 string StringUtils::sprintf(const char *fmt, ...)
 {
 	va_list ap;

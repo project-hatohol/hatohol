@@ -198,7 +198,7 @@ std::string DataQueryOption::getOrderBy(void) const
 {
 	SortOrderListIterator it = m_ctx->sortOrderList.begin();
 	std::string orderBy;
-	for (; it != m_ctx->sortOrderList.end(); it++) {
+	for (; it != m_ctx->sortOrderList.end(); ++it) {
 		if (it->columnName.empty()) {
 			MLPL_ERR("Empty sort column name\n");
 			continue;

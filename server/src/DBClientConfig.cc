@@ -32,6 +32,7 @@ using namespace mlpl;
 static const char *TABLE_NAME_SYSTEM  = "system";
 static const char *TABLE_NAME_SERVERS = "servers";
 static const char *TABLE_NAME_ARM_PLUGINS = "arm_plugins";
+static const char *TABLE_NAME_ISSUE_TRACKERS = "issue_trackers";
 
 int DBClientConfig::CONFIG_DB_VERSION = 9;
 const char *DBClientConfig::DEFAULT_DB_NAME = "hatohol";
@@ -39,11 +40,16 @@ const char *DBClientConfig::DEFAULT_USER_NAME = "hatohol";
 const char *DBClientConfig::DEFAULT_PASSWORD  = "hatohol";
 
 const ServerIdSet EMPTY_SERVER_ID_SET;
-
 static void operator>>(
   ItemGroupStream &itemGroupStream, MonitoringSystemType &monSysType)
 {
 	monSysType = itemGroupStream.read<int, MonitoringSystemType>();
+}
+
+static void operator>>(
+  ItemGroupStream &itemGroupStream, IssueTrackerType &issueTrackerType)
+{
+       issueTrackerType = itemGroupStream.read<int, IssueTrackerType>();
 }
 
 static const ColumnDef COLUMN_DEF_SYSTEM[] = {
@@ -322,6 +328,114 @@ static const DBAgent::TableProfile tableProfileArmPlugins(
   TABLE_NAME_ARM_PLUGINS, COLUMN_DEF_ARM_PLUGINS,
   sizeof(COLUMN_DEF_ARM_PLUGINS), NUM_IDX_ARM_PLUGINS);
 
+static const ColumnDef COLUMN_DEF_ISSUE_TRACKERS[] = {
+{
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_ISSUE_TRACKERS,         // tableName
+	"id",                              // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	SQL_COLUMN_FLAG_AUTO_INC,          // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_ISSUE_TRACKERS,         // tableName
+	"type",                            // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_ISSUE_TRACKERS,         // tableName
+	"nickname",                        // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_ISSUE_TRACKERS,         // tableName
+	"base_url",                        // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_ISSUE_TRACKERS,         // tableName
+	"project_id",                      // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_ISSUE_TRACKERS,         // tableName
+	"tracker_id",                      // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_ISSUE_TRACKERS,         // tableName
+	"user_name",                       // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_ISSUE_TRACKERS,         // tableName
+	"password",                        // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}
+};
+
+enum {
+	IDX_ISSUE_TRACKERS_ID,
+	IDX_ISSUE_TRACKERS_TYPE,
+	IDX_ISSUE_TRACKERS_NICKNAME,
+	IDX_ISSUE_TRACKERS_BASE_URL,
+	IDX_ISSUE_TRACKERS_PROJECT_ID,
+	IDX_ISSUE_TRACKERS_TRACKER_ID,
+	IDX_ISSUE_TRACKERS_USER_NAME,
+	IDX_ISSUE_TRACKERS_PASSWORD,
+	NUM_IDX_ISSUE_TRACKERS,
+};
+
+static const DBAgent::TableProfile tableProfileIssueTrackers(
+  TABLE_NAME_ISSUE_TRACKERS, COLUMN_DEF_ISSUE_TRACKERS,
+  sizeof(COLUMN_DEF_ISSUE_TRACKERS), NUM_IDX_ISSUE_TRACKERS);
+
 struct DBClientConfig::PrivateContext
 {
 	static DBConnectInfo connInfo;
@@ -469,6 +583,74 @@ string ServerQueryOption::getCondition(void) const
 }
 
 // ---------------------------------------------------------------------------
+// IssueTrackerQueryOption
+// ---------------------------------------------------------------------------
+struct IssueTrackerQueryOption::PrivateContext {
+	IssueTrackerIdType targetId;
+	PrivateContext(void)
+	: targetId(ALL_ISSUE_TRACKERS)
+	{
+	}
+};
+
+IssueTrackerQueryOption::IssueTrackerQueryOption(const UserIdType &userId)
+: DataQueryOption(userId), m_ctx(NULL)
+{
+	m_ctx = new PrivateContext();
+}
+
+IssueTrackerQueryOption::IssueTrackerQueryOption(
+  DataQueryContext *dataQueryContext)
+: DataQueryOption(dataQueryContext),
+  m_ctx(NULL)
+{
+	m_ctx = new PrivateContext();
+}
+
+IssueTrackerQueryOption::~IssueTrackerQueryOption()
+{
+	if (m_ctx)
+		delete m_ctx;
+}
+
+void IssueTrackerQueryOption::setTargetId(const IssueTrackerIdType &targetId)
+{
+	m_ctx->targetId = targetId;
+}
+
+bool IssueTrackerQueryOption::hasPrivilegeCondition(string &condition) const
+{
+	UserIdType userId = getUserId();
+
+	if (userId == USER_ID_SYSTEM || has(OPPRVLG_GET_ALL_SERVER)) {
+		const char *columnName					\
+		  = COLUMN_DEF_ISSUE_TRACKERS[IDX_ISSUE_TRACKERS_ID].columnName;
+		if (m_ctx->targetId != ALL_ISSUE_TRACKERS) {
+			condition = StringUtils::sprintf(
+				      "%s=%" FMT_ISSUE_TRACKER_ID,
+				      columnName, m_ctx->targetId);
+		}
+		return true;
+	}
+
+	if (userId == INVALID_USER_ID) {
+		MLPL_DBG("INVALID_USER_ID\n");
+		condition = DBClientHatohol::getAlwaysFalseCondition();
+		return true;
+	}
+
+	return false;
+}
+
+string IssueTrackerQueryOption::getCondition(void) const
+{
+	string condition;
+	if (hasPrivilegeCondition(condition))
+		return condition;
+	return condition;
+}
+
+// ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 void DBClientConfig::init(const CommandLineArg &cmdArg)
@@ -485,6 +667,8 @@ void DBClientConfig::init(const CommandLineArg &cmdArg)
 		&tableProfileServers,
 	}, {
 		&tableProfileArmPlugins,
+	}, {
+		&tableProfileIssueTrackers,
 	}
 	};
 	static const size_t NUM_TABLE_INFO =
@@ -879,6 +1063,81 @@ HatoholError DBClientConfig::saveArmPluginInfo(
 		}
 	} DBCLIENT_TRANSACTION_END();
 	return err;
+}
+
+HatoholError validIssueTrackerInfo(const IssueTrackerInfo &issueTrackerInfo)
+{
+	if (issueTrackerInfo.type <= ISSUE_TRACKER_UNKNOWN ||
+	    issueTrackerInfo.type >= NUM_ISSUE_TRACKERS)
+		return HTERR_INVALID_ISSUE_TRACKER_TYPE;
+	if (issueTrackerInfo.baseURL.empty())
+		return HTERR_NO_ISSUE_TRACKER_LOCATION;
+	return HTERR_OK;
+}
+
+HatoholError DBClientConfig::addIssueTracker(
+  IssueTrackerInfo *issueTrackerInfo, const OperationPrivilege &privilege)
+{
+	if (!privilege.has(OPPRVLG_CREATE_SERVER))
+		return HatoholError(HTERR_NO_PRIVILEGE);
+
+	HatoholError err = validIssueTrackerInfo(*issueTrackerInfo);
+	if (err != HTERR_OK)
+		return err;
+
+	DBAgent::InsertArg arg(tableProfileIssueTrackers);
+	arg.add(AUTO_INCREMENT_VALUE);
+	arg.add(issueTrackerInfo->type);
+	arg.add(issueTrackerInfo->nickname);
+	arg.add(issueTrackerInfo->baseURL);
+	arg.add(issueTrackerInfo->projectId);
+	arg.add(issueTrackerInfo->trackerId);
+	arg.add(issueTrackerInfo->userName);
+	arg.add(issueTrackerInfo->password);
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		insert(arg);
+		issueTrackerInfo->id = getLastInsertId();
+	} DBCLIENT_TRANSACTION_END();
+	return HTERR_OK;
+}
+
+void DBClientConfig::getIssueTrackers(
+  IssueTrackerInfoVect &issueTrackerInfoVect,
+  IssueTrackerQueryOption &option)
+{
+	DBAgent::SelectExArg arg(tableProfileIssueTrackers);
+	arg.add(IDX_ISSUE_TRACKERS_ID);
+	arg.add(IDX_ISSUE_TRACKERS_TYPE);
+	arg.add(IDX_ISSUE_TRACKERS_NICKNAME);
+	arg.add(IDX_ISSUE_TRACKERS_BASE_URL);
+	arg.add(IDX_ISSUE_TRACKERS_PROJECT_ID);
+	arg.add(IDX_ISSUE_TRACKERS_TRACKER_ID);
+	arg.add(IDX_ISSUE_TRACKERS_USER_NAME);
+	arg.add(IDX_ISSUE_TRACKERS_PASSWORD);
+	arg.condition = option.getCondition();
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	// check the result and copy
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
+		issueTrackerInfoVect.push_back(IssueTrackerInfo());
+		IssueTrackerInfo &info = issueTrackerInfoVect.back();
+
+		itemGroupStream >> info.id;
+		itemGroupStream >> info.type;
+		itemGroupStream >> info.nickname;
+		itemGroupStream >> info.baseURL;
+		itemGroupStream >> info.projectId;
+		itemGroupStream >> info.trackerId;
+		itemGroupStream >> info.userName;
+		itemGroupStream >> info.password;
+	}
 }
 
 // ---------------------------------------------------------------------------

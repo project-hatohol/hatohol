@@ -787,6 +787,125 @@ void test_saveArmPluginInfoUpdate(void)
 	assertDBContent(dbConfig.getDBAgent(), statement, expect);
 }
 
+void test_issueTrackerQueryOptionForAdmin(void)
+{
+	IssueTrackerQueryOption option(USER_ID_SYSTEM);
+	cppcut_assert_equal(string(), option.getCondition());
+}
+
+void test_issueTrackerQueryOptionForInvalidUser(void)
+{
+	IssueTrackerQueryOption option(INVALID_USER_ID);
+	cppcut_assert_equal(string("0"), option.getCondition());
+}
+
+void test_issueTrackerQueryOptionWithId(void)
+{
+	IssueTrackerQueryOption option(USER_ID_SYSTEM);
+	option.setTargetId(2);
+	cppcut_assert_equal(string("id=2"), option.getCondition());
+}
+
+void _assertAddIssueTracker(
+  IssueTrackerInfo issueTrackerInfo,
+  const HatoholErrorCode expectedErrorCode,
+  OperationPrivilege privilege = ALL_PRIVILEGES)
+{
+	DBClientConfig dbConfig;
+	HatoholError err;
+	err = dbConfig.addIssueTracker(&issueTrackerInfo, privilege);
+	assertHatoholError(expectedErrorCode, err);
+
+	string expectedOut;
+	if (expectedErrorCode == HTERR_OK)
+		expectedOut = makeIssueTrackerInfoOutput(issueTrackerInfo);
+	string statement("select * from issue_trackers");
+	assertDBContent(dbConfig.getDBAgent(), statement, expectedOut);
+}
+#define assertAddIssueTracker(I,E,...) \
+cut_trace(_assertAddIssueTracker(I,E,##__VA_ARGS__))
+
+void test_addIssueTracker(void)
+{
+	IssueTrackerInfo *testInfo = testIssueTrackerInfo;
+	assertAddIssueTracker(*testInfo, HTERR_OK);
+}
+
+void test_addIssueTrackerWithEmptyLoction(void)
+{
+	IssueTrackerInfo testInfo = testIssueTrackerInfo[0];
+	testInfo.baseURL = string();
+	assertAddIssueTracker(testInfo, HTERR_NO_ISSUE_TRACKER_LOCATION);
+}
+
+void test_addIssueTrackerWithInvalieType(void)
+{
+	IssueTrackerInfo testInfo = testIssueTrackerInfo[0];
+	testInfo.type = NUM_ISSUE_TRACKERS;
+	assertAddIssueTracker(testInfo, HTERR_INVALID_ISSUE_TRACKER_TYPE);
+}
+
+static void addIssueTracker(IssueTrackerInfo *info)
+{
+	DBClientConfig dbConfig;
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	dbConfig.addIssueTracker(info, privilege);
+}
+#define assertAddIssueTrackerToDB(X) \
+cut_trace(_assertAddToDB<IssueTrackerInfo>(X, addIssueTracker))
+
+void _assertGetIssueTrackers(
+  UserIdType userId, IssueTrackerIdType targetId = ALL_ISSUE_TRACKERS)
+{
+	string expectedText;
+	size_t expectedSize = 0;
+	OperationPrivilege privilege(userId);
+	for (size_t i = 0; i < NumTestIssueTrackerInfo; i++) {
+		IssueTrackerInfo &info = testIssueTrackerInfo[i];
+		assertAddIssueTrackerToDB(&info);
+		if (!privilege.has(OPPRVLG_GET_ALL_SERVER))
+			continue;
+		if (targetId != ALL_ISSUE_TRACKERS && targetId != info.id)
+			continue;
+		expectedText += makeIssueTrackerInfoOutput(info);
+		++expectedSize;
+	}
+
+	IssueTrackerInfoVect actual;
+	IssueTrackerQueryOption option(userId);
+	if (targetId != ALL_ISSUE_TRACKERS)
+		option.setTargetId(targetId);
+	DBClientConfig dbConfig;
+	dbConfig.getIssueTrackers(actual, option);
+	cppcut_assert_equal(expectedSize, actual.size());
+
+	string actualText;
+	IssueTrackerInfoVectIterator it = actual.begin();
+	for (; it != actual.end(); ++it)
+		actualText += makeIssueTrackerInfoOutput(*it);
+	cppcut_assert_equal(expectedText, actualText);
+}
+#define assertGetIssueTrackers(U, ...) \
+  cut_trace(_assertGetIssueTrackers(U, ##__VA_ARGS__))
+
+void test_getIssueTrackers(void)
+{
+	setupTestDBUser(true, true);
+	assertGetIssueTrackers(USER_ID_SYSTEM);
+}
+
+void test_getIssueTrackersWithId(void)
+{
+	setupTestDBUser(true, true);
+	assertGetIssueTrackers(USER_ID_SYSTEM, NumTestIssueTrackerInfo - 1);
+}
+
+void test_getIssueTrackersByInvalidUser(void)
+{
+	setupTestDBUser(true, true);
+	assertGetIssueTrackers(INVALID_USER_ID);
+}
+
 } // namespace testDBClientConfig
 
 namespace testDBClientConfigDefault {

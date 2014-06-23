@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -19,6 +19,7 @@
 
 #include <cppcutter.h>
 #include <cutter.h>
+#include <gcutter.h>
 #include "Hatohol.h"
 #include "Params.h"
 #include "DBClientAction.h"
@@ -155,10 +156,20 @@ void _assertEqual(const ActionDef &expect, const ActionDef &actual)
 #define assertEqual(E,A) cut_trace(_assertEqual(E,A))
 
 static void pickupActionIdsFromTestActionDef(
-  ActionIdSet &actionIdSet, const UserIdType &userId)
+  ActionIdSet &actionIdSet, const UserIdType &userId,
+  const ActionType &actionType = ACTION_USER_DEFINED)
 {
 	for (size_t i = 0; i < NumTestActionDef; i++) {
 		const ActionDef &actDef = testActionDef[i];
+		if (actionType == ACTION_USER_DEFINED) {
+			if (actDef.type >= ACTION_ISSUE_SENDER)
+				continue;
+		} else if (actionType == ACTION_ALL) {
+			// accept all actions
+		} else {
+			if (actDef.type != actionType)
+				continue;
+		}
 		if (userId != USER_ID_ANY && actDef.ownerUserId != userId)
 			continue;
 		const int expectedId = i + 1;
@@ -166,19 +177,22 @@ static void pickupActionIdsFromTestActionDef(
 	}
 }
 
-void _assertGetActionList(const UserIdType &userId,
-                          const UserIdType &expectUserId)
+void _assertGetActionList(
+  const UserIdType &userId, const UserIdType &expectUserId,
+  const ActionType &actionType = ACTION_USER_DEFINED)
 {
-	OperationPrivilege privilege(userId);
+	ActionsQueryOption option(userId);
+	option.setActionType(actionType);
 
 	DBClientAction dbAction;
 	ActionDefList actionDefList;
 	assertHatoholError(HTERR_OK,
-	                   dbAction.getActionList(actionDefList, privilege));
+	                   dbAction.getActionList(actionDefList, option));
 
 	// pick up expected action IDs
 	ActionIdSet expectActionIdSet;
-	pickupActionIdsFromTestActionDef(expectActionIdSet, expectUserId);
+	pickupActionIdsFromTestActionDef(expectActionIdSet, expectUserId,
+					 actionType);
 	cppcut_assert_not_equal((size_t)0, expectActionIdSet.size());
 
 	// check the result
@@ -190,7 +204,8 @@ void _assertGetActionList(const UserIdType &userId,
 		expectActionIdSet.erase(it);
 	}
 }
-#define assertGetActionList(U,E) cut_trace(_assertGetActionList(U,E))
+#define assertGetActionList(U,E, ...) \
+cut_trace(_assertGetActionList(U,E, ##__VA_ARGS__))
 
 static bool g_existTestDB = false;
 static void setupHelperForTestDBUser(void)
@@ -254,6 +269,7 @@ static void _assertDeleteActions(const bool &deleteMyActions,
 	// check
 	string statement = "select action_id from ";
 	statement += DBClientAction::getTableNameActions();
+	statement += " order by action_id";
 	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }
 #define assertDeleteActions(D,T) cut_trace(_assertDeleteActions(D,T))
@@ -447,7 +463,10 @@ void test_startExecAction(void)
 			status = ACTLOG_STAT_STARTED;
 		else if (actDef.type == ACTION_RESIDENT)
 			status = ACTLOG_STAT_LAUNCHING_RESIDENT;
-		else {
+		else if (actDef.type == ACTION_ISSUE_SENDER) {
+			// TODO: Not implemented yet
+			continue;
+		} else {
 			// Set any value to avoid a compiler warning.
 			status = ACTLOG_STAT_STARTED;
 			cut_fail("Unknown action type: %d\n", actDef.type);
@@ -502,7 +521,7 @@ void test_endExecAction(void)
 	string rows = execSQL(dbAction.getDBAgent(), statement);
 	StringVector rowVector;
 	StringUtils::split(rowVector, rows, '\n');
-	cppcut_assert_equal(NumTestActionDef, rowVector.size());
+	cppcut_assert_equal(getNumberOfTestActions(), rowVector.size());
 
 	// update one log
 	dbAction.logEndExecAction(logArg);
@@ -541,10 +560,11 @@ void test_getTriggerActionList(void)
 	// get the list and check the number
 	DBClientAction dbAction;
 	ActionDefList actionDefList;
-	OperationPrivilege privilege(USER_ID_SYSTEM);
+	ActionsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetEventInfo(&eventInfo);
 	assertHatoholError(
 	  HTERR_OK,
-	  dbAction.getActionList(actionDefList, privilege, &eventInfo));
+	  dbAction.getActionList(actionDefList, option));
 	cppcut_assert_equal((size_t)1, actionDefList.size());
 
 	// check the content
@@ -576,10 +596,11 @@ void test_getTriggerActionListWithAllCondition(void)
 	// get the list and check the number
 	DBClientAction dbAction;
 	ActionDefList actionDefList;
-	OperationPrivilege privilege(USER_ID_SYSTEM);
+	ActionsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetEventInfo(&eventInfo);
 	assertHatoholError(
 	  HTERR_OK,
-	  dbAction.getActionList(actionDefList, privilege, &eventInfo));
+	  dbAction.getActionList(actionDefList, option));
 	cppcut_assert_equal((size_t)1, actionDefList.size());
 
 	// check the content
@@ -599,6 +620,60 @@ void test_getActionListWithUserHavingGetAllFlag(void)
 	setupTestDBUserAndDBAction();
 	const UserIdType userId = findUserWith(OPPRVLG_GET_ALL_ACTION);
 	assertGetActionList(userId, USER_ID_ANY);
+}
+
+void data_actionType(void)
+{
+	gcut_add_datum("All",
+		       "type", G_TYPE_INT, (int)ACTION_ALL,
+		       NULL);
+	gcut_add_datum("Command",
+		       "type", G_TYPE_INT, (int)ACTION_COMMAND,
+		       NULL);
+	gcut_add_datum("Resident",
+		       "type", G_TYPE_INT, (int)ACTION_RESIDENT,
+		       NULL);
+	gcut_add_datum("IssueSender",
+		       "type", G_TYPE_INT, (int)ACTION_ISSUE_SENDER,
+		       NULL);
+}
+
+void test_getActionListWithActionType(gconstpointer data)
+{
+	setupTestDBUserAndDBAction();
+	const UserIdType userId = findUserWith(OPPRVLG_GET_ALL_ACTION);
+	ActionType type = (ActionType)gcut_data_get_int(data, "type");
+	assertGetActionList(userId, USER_ID_ANY, type);
+}
+
+void test_parseIssueSenderCommand(void)
+{
+	ActionDef action;
+	action.command = "3";
+	IssueTrackerIdType trackerId;
+	cppcut_assert_equal(true, action.parseIssueSenderCommand(trackerId));
+	cppcut_assert_equal(3, trackerId);
+}
+
+void test_parseInvalidIssueSenderCommand(void)
+{
+	ActionDef action;
+	action.command = "hoge3";
+	IssueTrackerIdType trackerId;
+	cppcut_assert_equal(false, action.parseIssueSenderCommand(trackerId));
+}
+
+void test_issueSenderIsEnabled(void)
+{
+	setupTestDBUserAndDBAction();
+	DBClientAction dbAction;
+	cppcut_assert_equal(true, dbAction.isIssueSenderEnabled());
+}
+
+void test_issueSenderIsNotEnabled(void)
+{
+	DBClientAction dbAction;
+	cppcut_assert_equal(false, dbAction.isIssueSenderEnabled());
 }
 
 } // namespace testDBClientAction
@@ -635,3 +710,109 @@ void test_databasePassword(void)
 }
 
 } // namespace testDBClientActionDefault
+
+namespace testActionsQueryOption {
+
+void cut_setup(void)
+{
+	hatoholInit();
+	deleteDBClientHatoholDB();
+	setupTestDBConfig(true, true);
+}
+
+void test_withoutUser(void)
+{
+	ActionsQueryOption option;
+	cppcut_assert_equal(
+	  string("owner_user_id=-1 AND (action_type>=0 AND action_type<2)"),
+	  option.getCondition());
+}
+
+void test_withSystemUser(void)
+{
+	ActionsQueryOption option(USER_ID_SYSTEM);
+	cppcut_assert_equal(
+	  string("(action_type>=0 AND action_type<2)"),
+	  option.getCondition());
+}
+
+void test_withPrivilege(void)
+{
+	setupTestDBUser(true, true);
+	UserIdType id = findUserWith(OPPRVLG_GET_ALL_ACTION);
+	ActionsQueryOption option(id);
+	cppcut_assert_equal(
+	  string("(action_type>=0 AND action_type<2)"),
+	  option.getCondition());
+}
+
+void test_withoutPrivilege(void)
+{
+	setupTestDBUser(true, true);
+	UserIdType id = findUserWithout(OPPRVLG_GET_ALL_ACTION);
+	ActionsQueryOption option(id);
+	string expected
+	  = StringUtils::sprintf(
+	    "owner_user_id=%" FMT_USER_ID
+	    " AND (action_type>=0 AND action_type<2)", id);
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
+void test_withEventInfo(void)
+{
+	setupTestDBUser(true, true);
+	UserIdType id = findUserWithout(OPPRVLG_GET_ALL_ACTION);
+	EventInfo &event = testEventInfo[0];
+	ActionsQueryOption option(id);
+	option.setTargetEventInfo(&event);
+	string expected
+	  = StringUtils::sprintf(
+	    "owner_user_id=%" FMT_USER_ID " AND "
+	    "(action_type>=0 AND action_type<2) AND "
+	    "((server_id IS NULL) OR (server_id=%" FMT_SERVER_ID ")) AND "
+	    "((host_id IS NULL) OR (host_id=%" FMT_HOST_ID ")) AND "
+	    // test with empty hostgroups
+	    "((host_group_id IS NULL) OR host_group_id IN (0)) AND "
+	    "((trigger_id IS NULL) OR (trigger_id=%" FMT_TRIGGER_ID ")) AND "
+	    "((trigger_status IS NULL) OR (trigger_status=%d)) AND "
+	    "((trigger_severity IS NULL) OR "
+	    "(trigger_severity_comp_type=1 AND trigger_severity=%d) OR "
+	    "(trigger_severity_comp_type=2 AND trigger_severity>=%d))",
+	    id, event.serverId, event.hostId, event.triggerId,
+	    event.status, event.severity, event.severity);
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
+void data_actionType(void)
+{
+	gcut_add_datum("All",
+		       "type", G_TYPE_INT, (int)ACTION_ALL,
+		       "condition", G_TYPE_STRING, "",
+		       NULL);
+	gcut_add_datum("Command",
+		       "type", G_TYPE_INT, (int)ACTION_COMMAND,
+		       "condition", G_TYPE_STRING, "action_type=0",
+		       NULL);
+	gcut_add_datum("Resident",
+		       "type", G_TYPE_INT, (int)ACTION_RESIDENT,
+		       "condition", G_TYPE_STRING, "action_type=1",
+		       NULL);
+	gcut_add_datum("IssueSender",
+		       "type", G_TYPE_INT, (int)ACTION_ISSUE_SENDER,
+		       "condition", G_TYPE_STRING, "action_type=2",
+		       NULL);
+}
+
+void test_actionType(gconstpointer data)
+{
+	setupTestDBUser(true, true);
+	UserIdType id = findUserWith(OPPRVLG_GET_ALL_ACTION);
+	ActionsQueryOption option(id);
+	ActionType type = (ActionType)gcut_data_get_int(data, "type");
+	string condition = gcut_data_get_string(data, "condition");
+	option.setActionType(type);
+	cppcut_assert_equal(type, option.getActionType());
+	cppcut_assert_equal(condition, option.getCondition());
+}
+
+}

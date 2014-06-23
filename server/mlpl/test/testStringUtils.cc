@@ -381,4 +381,112 @@ void test_toUint64(gconstpointer data)
 	cppcut_assert_equal(expect, actual);
 }
 
+void data_hasPrefix(void)
+{
+	gcut_add_datum("has prefix",
+	               "str", G_TYPE_STRING, "image.png",
+	               "prefix", G_TYPE_STRING, "image",
+	               "expect", G_TYPE_BOOLEAN, TRUE,
+	               NULL);
+	gcut_add_datum("different prefix",
+	               "str", G_TYPE_STRING, "image.png",
+	               "prefix", G_TYPE_STRING, "foobar",
+	               "expect", G_TYPE_BOOLEAN, FALSE,
+	               NULL);
+	gcut_add_datum("prefix with different case",
+	               "str", G_TYPE_STRING, "IMAGE.png",
+	               "prefix", G_TYPE_STRING, "image",
+	               "expect", G_TYPE_BOOLEAN, FALSE,
+	               NULL);
+	gcut_add_datum("same string",
+	               "str", G_TYPE_STRING, "image",
+	               "prefix", G_TYPE_STRING, "image",
+	               "expect", G_TYPE_BOOLEAN, TRUE,
+	               NULL);
+	gcut_add_datum("shorter string",
+	               "str", G_TYPE_STRING, "ima",
+	               "prefix", G_TYPE_STRING, "image",
+	               "expect", G_TYPE_BOOLEAN, FALSE,
+	               NULL);
+	gcut_add_datum("empty string",
+	               "str", G_TYPE_STRING, "",
+	               "prefix", G_TYPE_STRING, "image",
+	               "expect", G_TYPE_BOOLEAN, FALSE,
+	               NULL);
+	gcut_add_datum("empty prefix",
+	               "str", G_TYPE_STRING, "image.png",
+	               "prefix", G_TYPE_STRING, "",
+	               "expect", G_TYPE_BOOLEAN, TRUE,
+	               NULL);
+}
+
+void test_hasPrefix(gconstpointer data)
+{
+	const char *str = gcut_data_get_string(data, "str");
+	const char *prefix = gcut_data_get_string(data, "prefix");
+	bool expect = gcut_data_get_boolean(data, "expect");
+	bool actual = StringUtils::hasPrefix(str, prefix);
+	cppcut_assert_equal(expect, actual);
+}
+
+void test_hasPrefixWithCaseInsensitive(void)
+{
+	bool actual = StringUtils::hasPrefix("image.png", "IMAGE", false);
+	cppcut_assert_equal(true, actual);
+}
+
+void data_hasSuffix(void)
+{
+	gcut_add_datum("has suffix",
+	               "str", G_TYPE_STRING, "image.png",
+	               "suffix", G_TYPE_STRING, "png",
+	               "expect", G_TYPE_BOOLEAN, TRUE,
+	               NULL);
+	gcut_add_datum("different suffix",
+	               "str", G_TYPE_STRING, "image.png",
+	               "suffix", G_TYPE_STRING, "jpg",
+	               "expect", G_TYPE_BOOLEAN, FALSE,
+	               NULL);
+	gcut_add_datum("suffix with different case",
+	               "str", G_TYPE_STRING, "image.PNG",
+	               "suffix", G_TYPE_STRING, "png",
+	               "expect", G_TYPE_BOOLEAN, FALSE,
+	               NULL);
+	gcut_add_datum("same string",
+	               "str", G_TYPE_STRING, "png",
+	               "suffix", G_TYPE_STRING, "png",
+	               "expect", G_TYPE_BOOLEAN, TRUE,
+	               NULL);
+	gcut_add_datum("shorter string",
+	               "str", G_TYPE_STRING, "ng",
+	               "suffix", G_TYPE_STRING, "png",
+	               "expect", G_TYPE_BOOLEAN, FALSE,
+	               NULL);
+	gcut_add_datum("empty string",
+	               "str", G_TYPE_STRING, "",
+	               "suffix", G_TYPE_STRING, "png",
+	               "expect", G_TYPE_BOOLEAN, FALSE,
+	               NULL);
+	gcut_add_datum("empty suffix",
+	               "str", G_TYPE_STRING, "image.png",
+	               "suffix", G_TYPE_STRING, "",
+	               "expect", G_TYPE_BOOLEAN, TRUE,
+	               NULL);
+}
+
+void test_hasSuffix(gconstpointer data)
+{
+	const char *str = gcut_data_get_string(data, "str");
+	const char *suffix = gcut_data_get_string(data, "suffix");
+	bool expect = gcut_data_get_boolean(data, "expect");
+	bool actual = StringUtils::hasSuffix(str, suffix);
+	cppcut_assert_equal(expect, actual);
+}
+
+void test_hasSuffixWithCaseInsensitive(void)
+{
+	bool actual = StringUtils::hasSuffix("image.PNG", "png", false);
+	cppcut_assert_equal(true, actual);
+}
+
 } // namespace testStringUtils

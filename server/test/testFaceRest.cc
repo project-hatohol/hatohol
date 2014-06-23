@@ -629,6 +629,10 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 	                    eventsArg.expectedRecords.size());
 	assertValueInParser(g_parser, "lastUnifiedEventId",
 	                    eventsArg.expectedRecords.size());
+	DBClientAction dbAction;
+	bool shouldHaveIssue = dbAction.isIssueSenderEnabled();
+	assertValueInParser(g_parser, "haveIssue", shouldHaveIssue);
+
 	assertStartObject(g_parser, "events");
 	vector<EventInfo*>::reverse_iterator it
 	  = eventsArg.expectedRecords.rbegin();
@@ -645,6 +649,16 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 		assertValueInParser(g_parser, "severity",  eventInfo.severity);
 		assertValueInParser(g_parser, "hostId",    eventInfo.hostId);
 		assertValueInParser(g_parser, "brief",     eventInfo.brief);
+		if (shouldHaveIssue) {
+			assertStartObject(g_parser, "issue");
+			IssueInfo issue
+			  = eventsArg.getExpectedIssueInfo(eventInfo);
+			assertValueInParser(g_parser, "location",
+					    issue.location);
+			g_parser->endElement();
+		} else {
+			assertNoValueInParser(g_parser, "issue");
+		}
 		g_parser->endElement();
 	}
 	g_parser->endObject();
@@ -739,11 +753,14 @@ static void _assertActions(const string &path, const string &callbackName = "")
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_USER);
 	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
-	assertValueInParser(g_parser, "numberOfActions", NumTestActionDef);
+	assertValueInParser(g_parser, "numberOfActions",
+			    getNumberOfTestActions());
 	assertStartObject(g_parser, "actions");
 	for (size_t i = 0; i < NumTestActionDef; i++) {
 		g_parser->startElement(i);
 		const ActionDef &actionDef = testActionDef[i];
+		if (actionDef.type == ACTION_ISSUE_SENDER)
+			continue;
 		const ActionCondition &cond = actionDef.condition;
 		assertValueInParser(g_parser, "actionId", actionDef.id);
 
@@ -1326,6 +1343,12 @@ static void changeLocale(const char *locale)
 void cut_setup(void)
 {
 	hatoholInit();
+
+	// Make sure to clear actions on intial state because the issue object
+	// in an event object depends on them.
+	bool recreate = true;
+	bool loadData = false;
+	setupTestDBAction(recreate, loadData);
 }
 
 void cut_teardown(void)
@@ -1594,6 +1617,13 @@ void test_triggersForOneServerOneHost(void)
 
 void test_events(void)
 {
+	assertEvents("/event");
+}
+
+void test_eventsWithIssues(void)
+{
+	 // issue info will be added when a IssueSender action exists
+	setupActionDB();
 	assertEvents("/event");
 }
 

@@ -79,6 +79,12 @@ extern const size_t NumTestUserRoleInfo;
 extern ArmPluginInfo testArmPluginInfo[];
 extern const size_t NumTestArmPluginInfo;
 
+extern IssueTrackerInfo testIssueTrackerInfo[];
+extern size_t NumTestIssueTrackerInfo;
+
+extern IssueInfo testIssueInfo[];
+extern size_t NumTestIssueInfo;
+
 /**
  * get the test trigger data indexes whose serverId and hostId are 
  * matched with the specified.
@@ -125,6 +131,9 @@ size_t getNumberOfTestHostsWithStatus(
   const ServerIdType &serverId, const HostgroupIdType &hostgroupId,
   const bool &status, const UserIdType &userId = USER_ID_SYSTEM);
 
+size_t getNumberOfTestActions(
+  const ActionType &actionType = ACTION_USER_DEFINED);
+
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo);
 mlpl::SmartTime getTimestampOfLastTestTrigger(const ServerIdType &serverId);
 
@@ -138,6 +147,8 @@ void makeServerAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
 			     UserIdType userId);
 void makeServerHostGrpSetMap(ServerHostGrpSetMap &map,
                              const UserIdType &userId);
+std::string makeEventIssueMapKey(const EventInfo &eventInfo);
+void makeEventIssueMap(std::map<std::string, IssueInfo*> &eventIssueMap);
 bool isAuthorized(ServerHostGrpSetMap &authMap,
                   const UserIdType &userId,
                   const ServerIdType &serverId,

@@ -36,7 +36,8 @@ const char *DBClientHatohol::TABLE_NAME_HOSTS      = "hosts";
 const char *DBClientHatohol::TABLE_NAME_HOSTGROUPS = "hostgroups";
 const char *DBClientHatohol::TABLE_NAME_MAP_HOSTS_HOSTGROUPS
                                                    = "map_hosts_hostgroups";
-static const char *TABLE_NAME_SERVERS              = "servers";
+const char *DBClientHatohol::TABLE_NAME_SERVERS    = "servers";
+const char *DBClientHatohol::TABLE_NAME_ISSUES     = "issues";
 
 const int         DBClientHatohol::HATOHOL_DB_VERSION = 4;
 const char       *DBClientHatohol::DEFAULT_DB_NAME = "hatohol";
@@ -632,6 +633,198 @@ static const DBAgent::TableProfile tableProfileMapHostsHostgroups(
   COLUMN_DEF_MAP_HOSTS_HOSTGROUPS,
   sizeof(COLUMN_DEF_MAP_HOSTS_HOSTGROUPS), NUM_IDX_MAP_HOSTS_HOSTGROUPS);
 
+static const ColumnDef COLUMN_DEF_SERVERS[] = {
+{
+	ITEM_ID_NOT_SET,                   // itemId
+	DBClientHatohol::TABLE_NAME_SERVERS, // tableName
+	"id",                              // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	DBClientHatohol::TABLE_NAME_SERVERS, // tableName
+	"nvps",                            // columnName
+	SQL_COLUMN_TYPE_DOUBLE,            // type
+	15,                                // columnLength
+	2,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+},
+};
+
+enum {
+	IDX_SERVERS_ID,
+	IDX_SERVERS_NVPS,
+	NUM_IDX_SERVERS,
+};
+
+static const DBAgent::TableProfile tableProfileServers(
+  DBClientHatohol::TABLE_NAME_SERVERS, COLUMN_DEF_SERVERS,
+  sizeof(COLUMN_DEF_SERVERS), NUM_IDX_SERVERS);
+
+static const ColumnDef COLUMN_DEF_ISSUES[] = {
+{
+	ITEM_ID_NOT_SET,                   // itemId
+	DBClientHatohol::TABLE_NAME_ISSUES, // tableName
+	"tracker_id",                      // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	DBClientHatohol::TABLE_NAME_ISSUES, // tableName
+	"server_id",                       // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	DBClientHatohol::TABLE_NAME_ISSUES, // tableName
+	"event_id",                        // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	DBClientHatohol::TABLE_NAME_ISSUES,// tableName
+	"trigger_id",                      // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_IDX,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	DBClientHatohol::TABLE_NAME_ISSUES, // tableName
+	"identifier",                      // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	DBClientHatohol::TABLE_NAME_ISSUES, // tableName
+	"location",                        // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	DBClientHatohol::TABLE_NAME_ISSUES, // tableName
+	"status",                          // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	DBClientHatohol::TABLE_NAME_ISSUES, // tableName
+	"assignee",                        // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	DBClientHatohol::TABLE_NAME_ISSUES, // tableName
+	"created_at_sec",                  // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	DBClientHatohol::TABLE_NAME_ISSUES,// tableName
+	"created_at_ns",                   // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	DBClientHatohol::TABLE_NAME_ISSUES,// tableName
+	"updated_at_sec",                  // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	DBClientHatohol::TABLE_NAME_ISSUES,// tableName
+	"updated_at_ns",                   // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+},
+};
+
+enum {
+	IDX_ISSUES_TRACKER_ID,
+	IDX_ISSUES_SERVER_ID,
+	IDX_ISSUES_EVENT_ID,
+	IDX_ISSUES_TRIGGER_ID,
+	IDX_ISSUES_IDENTIFIER,
+	IDX_ISSUES_LOCATION,
+	IDX_ISSUES_STATUS,
+	IDX_ISSUES_ASSIGNEE,
+	IDX_ISSUES_CREATED_AT_SEC,
+	IDX_ISSUES_CREATED_AT_NS,
+	IDX_ISSUES_UPDATED_AT_SEC,
+	IDX_ISSUES_UPDATED_AT_NS,
+	NUM_IDX_ISSUES,
+};
+
+static const DBAgent::TableProfile tableProfileIssues(
+  DBClientHatohol::TABLE_NAME_ISSUES, COLUMN_DEF_ISSUES,
+  sizeof(COLUMN_DEF_ISSUES), NUM_IDX_ISSUES);
+
 // Trigger
 static const int columnIndexesTrigUniqId[] = {
   IDX_TRIGGERS_SERVER_ID, IDX_TRIGGERS_ID, DBAgent::IndexDef::END,
@@ -699,41 +892,16 @@ static const DBAgent::IndexDef indexDefsMapHostsHostgroups[] = {
   {NULL}
 };
 
-static const ColumnDef COLUMN_DEF_SERVERS[] = {
-{
-	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_SERVERS,                // tableName
-	"id",                              // columnName
-	SQL_COLUMN_TYPE_INT,               // type
-	11,                                // columnLength
-	0,                                 // decFracLength
-	false,                             // canBeNull
-	SQL_KEY_PRI,                       // keyType
-	0,                                 // flags
-	NULL,                              // defaultValue
-}, {
-	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_SERVERS,                // tableName
-	"nvps",                            // columnName
-	SQL_COLUMN_TYPE_DOUBLE,            // type
-	15,                                // columnLength
-	2,                                 // decFracLength
-	false,                             // canBeNull
-	SQL_KEY_NONE,                      // keyType
-	0,                                 // flags
-	NULL,                              // defaultValue
-},
+// Issues
+static const int columnIndexesIssuesUniqId[] = {
+  IDX_ISSUES_SERVER_ID, IDX_ISSUES_EVENT_ID, DBAgent::IndexDef::END,
 };
 
-enum {
-	IDX_SERVERS_ID,
-	IDX_SERVERS_NVPS,
-	NUM_IDX_SERVERS,
+static const DBAgent::IndexDef indexDefsIssues[] = {
+  {"IssuesEventId", &tableProfileIssues,
+   (const int *)columnIndexesIssuesUniqId, true},
+  {NULL}
 };
-
-static const DBAgent::TableProfile tableProfileServers(
-  TABLE_NAME_SERVERS, COLUMN_DEF_SERVERS,
-  sizeof(COLUMN_DEF_SERVERS), NUM_IDX_SERVERS);
 
 static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
 {
@@ -756,6 +924,9 @@ static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
 	(const DBAgent::IndexDef *)&indexDefsMapHostsHostgroups,
 }, {
 	&tableProfileServers,
+}, {
+	&tableProfileIssues,
+	(const DBAgent::IndexDef *)&indexDefsIssues,
 }
 };
 
@@ -829,19 +1000,20 @@ struct EventsQueryOption::PrivateContext {
 };
 
 EventsQueryOption::EventsQueryOption(const UserIdType &userId)
-: HostResourceQueryOption(synapseEventsQueryOption, userId)
+: HostResourceQueryOption(synapseEventsQueryOption, userId), m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 }
 
 EventsQueryOption::EventsQueryOption(DataQueryContext *dataQueryContext)
-: HostResourceQueryOption(synapseEventsQueryOption, dataQueryContext)
+: HostResourceQueryOption(synapseEventsQueryOption, dataQueryContext),
+  m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 }
 
 EventsQueryOption::EventsQueryOption(const EventsQueryOption &src)
-: HostResourceQueryOption(src)
+: HostResourceQueryOption(src), m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 	*m_ctx = *src.m_ctx;
@@ -996,20 +1168,21 @@ struct TriggersQueryOption::PrivateContext {
 	}
 };
 
-TriggersQueryOption::TriggersQueryOption(UserIdType userId)
-: HostResourceQueryOption(synapseTriggersQueryOption, userId)
+TriggersQueryOption::TriggersQueryOption(const UserIdType &userId)
+: HostResourceQueryOption(synapseTriggersQueryOption, userId), m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 }
 
 TriggersQueryOption::TriggersQueryOption(DataQueryContext *dataQueryContext)
-: HostResourceQueryOption(synapseTriggersQueryOption, dataQueryContext)
+: HostResourceQueryOption(synapseTriggersQueryOption, dataQueryContext),
+  m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 }
 
 TriggersQueryOption::TriggersQueryOption(const TriggersQueryOption &src)
-: HostResourceQueryOption(src)
+: HostResourceQueryOption(src), m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 	*m_ctx = *src.m_ctx;
@@ -1111,20 +1284,21 @@ struct ItemsQueryOption::PrivateContext {
 	}
 };
 
-ItemsQueryOption::ItemsQueryOption(UserIdType userId)
-: HostResourceQueryOption(synapseItemsQueryOption, userId)
+ItemsQueryOption::ItemsQueryOption(const UserIdType &userId)
+: HostResourceQueryOption(synapseItemsQueryOption, userId), m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 }
 
 ItemsQueryOption::ItemsQueryOption(DataQueryContext *dataQueryContext)
-: HostResourceQueryOption(synapseItemsQueryOption, dataQueryContext)
+: HostResourceQueryOption(synapseItemsQueryOption, dataQueryContext),
+  m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 }
 
 ItemsQueryOption::ItemsQueryOption(const ItemsQueryOption &src)
-: HostResourceQueryOption(src)
+: HostResourceQueryOption(src), m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 	*m_ctx = *src.m_ctx;
@@ -1198,7 +1372,7 @@ static const HostResourceQueryOption::Synapse synapseHostsQueryOption(
   IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
   IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
 
-HostsQueryOption::HostsQueryOption(UserIdType userId)
+HostsQueryOption::HostsQueryOption(const UserIdType &userId)
 : HostResourceQueryOption(synapseHostsQueryOption, userId)
 {
 }
@@ -1219,7 +1393,7 @@ static const HostResourceQueryOption::Synapse synapseHostgroupsQueryOption(
   IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
   IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
 
-HostgroupsQueryOption::HostgroupsQueryOption(UserIdType userId)
+HostgroupsQueryOption::HostgroupsQueryOption(const UserIdType &userId)
 : HostResourceQueryOption(synapseHostgroupsQueryOption, userId)
 {
 }
@@ -1240,7 +1414,7 @@ static const HostResourceQueryOption::Synapse synapseHostgroupElementQueryOption
   IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
   IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
 
-HostgroupElementQueryOption::HostgroupElementQueryOption(UserIdType userId)
+HostgroupElementQueryOption::HostgroupElementQueryOption(const UserIdType &userId)
 : HostResourceQueryOption(synapseHostgroupElementQueryOption, userId)
 {
 }
@@ -1248,6 +1422,19 @@ HostgroupElementQueryOption::HostgroupElementQueryOption(UserIdType userId)
 HostgroupElementQueryOption::HostgroupElementQueryOption(
   DataQueryContext *dataQueryContext)
 : HostResourceQueryOption(synapseHostgroupElementQueryOption, dataQueryContext)
+{
+}
+
+//
+// IssuesQueryOption
+//
+IssuesQueryOption::IssuesQueryOption(const UserIdType &userId)
+: DataQueryOption(userId)
+{
+}
+
+IssuesQueryOption::IssuesQueryOption(DataQueryContext *dataQueryContext)
+: DataQueryOption(dataQueryContext)
 {
 }
 
@@ -1487,15 +1674,18 @@ void DBClientHatohol::addEventInfoList(const EventInfoList &eventInfoList)
 }
 
 HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
-                                               const EventsQueryOption &option)
+                                               const EventsQueryOption &option,
+                                               IssueInfoVect *issueInfoVect)
 {
 	static const DBAgent::TableProfile *tableProfiles[] = {
 	  &tableProfileEvents,
 	  &tableProfileTriggers,
+	  &tableProfileIssues,
 	};
 	enum {
 		TBLIDX_EVENTS,
 		TBLIDX_TRIGGERS,
+		TBLIDX_ISSUES,
 	};
 	static const size_t numTableProfiles =
 	  sizeof(tableProfiles) / sizeof(DBAgent::TableProfile *);
@@ -1514,7 +1704,17 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_SERVER_ID).c_str(),
 
 	  option.getColumnName(IDX_EVENTS_TRIGGER_ID).c_str(),
-	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_ID).c_str()),
+	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_ID).c_str());
+
+	if (issueInfoVect) {
+		arg.tableField += StringUtils::sprintf(
+		  " LEFT JOIN %s ON (%s=%s AND %s=%s)",
+		  TABLE_NAME_ISSUES,
+		  option.getColumnName(IDX_EVENTS_SERVER_ID).c_str(),
+		  arg.getFullName(TBLIDX_ISSUES, IDX_ISSUES_SERVER_ID).c_str(),
+		  option.getColumnName(IDX_EVENTS_ID).c_str(),
+		  arg.getFullName(TBLIDX_ISSUES, IDX_ISSUES_EVENT_ID).c_str());
+	}
 
 	// Columns
 	arg.setTable(TBLIDX_EVENTS);
@@ -1532,6 +1732,19 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	arg.add(IDX_TRIGGERS_HOST_ID);
 	arg.add(IDX_TRIGGERS_HOSTNAME);
 	arg.add(IDX_TRIGGERS_BRIEF);
+
+	if (issueInfoVect) {
+		arg.setTable(TBLIDX_ISSUES);
+		arg.add(IDX_ISSUES_TRACKER_ID);
+		arg.add(IDX_ISSUES_IDENTIFIER);
+		arg.add(IDX_ISSUES_LOCATION);
+		arg.add(IDX_ISSUES_STATUS);
+		arg.add(IDX_ISSUES_ASSIGNEE);
+		arg.add(IDX_ISSUES_CREATED_AT_SEC);
+		arg.add(IDX_ISSUES_CREATED_AT_NS);
+		arg.add(IDX_ISSUES_UPDATED_AT_SEC);
+		arg.add(IDX_ISSUES_UPDATED_AT_NS);
+	}
 
 	// Condition
 	arg.condition = StringUtils::sprintf(
@@ -1582,6 +1795,23 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 		itemGroupStream >> eventInfo.hostId;
 		itemGroupStream >> eventInfo.hostName;
 		itemGroupStream >> eventInfo.brief;
+
+		if (issueInfoVect) {
+			issueInfoVect->push_back(IssueInfo());
+			IssueInfo &issueInfo = issueInfoVect->back();
+			itemGroupStream >> issueInfo.trackerId;
+			itemGroupStream >> issueInfo.identifier;
+			itemGroupStream >> issueInfo.location;
+			itemGroupStream >> issueInfo.status;
+			itemGroupStream >> issueInfo.assignee;
+			itemGroupStream >> issueInfo.createdAt.tv_sec;
+			itemGroupStream >> issueInfo.createdAt.tv_nsec;
+			itemGroupStream >> issueInfo.updatedAt.tv_sec;
+			itemGroupStream >> issueInfo.updatedAt.tv_nsec;
+			issueInfo.serverId  = eventInfo.serverId;
+			issueInfo.eventId   = eventInfo.id;
+			issueInfo.triggerId = eventInfo.triggerId;
+		}
 	}
 	return HatoholError(HTERR_OK);
 }
@@ -1945,6 +2175,62 @@ void DBClientHatohol::pickupAbsentHostIds(vector<uint64_t> &absentHostIdVector,
 	} DBCLIENT_TRANSACTION_END();
 }
 
+void DBClientHatohol::addIssueInfo(IssueInfo *issueInfo)
+{
+	DBCLIENT_TRANSACTION_BEGIN() {
+		addIssueInfoWithoutTransaction(*issueInfo);
+	} DBCLIENT_TRANSACTION_END();
+}
+
+HatoholError DBClientHatohol::getIssueInfoVect(
+  IssueInfoVect &issueInfoVect, const IssuesQueryOption &option)
+{
+	DBAgent::SelectExArg arg(tableProfileIssues);
+	for (int i = 0; i < NUM_IDX_ISSUES; i++)
+		arg.add(i);
+
+	// condition
+	arg.condition = option.getCondition();
+	if (isAlwaysFalseCondition(arg.condition))
+		return HatoholError(HTERR_OK);
+
+	// Order By
+	arg.orderBy = option.getOrderBy();
+
+	// Limit and Offset
+	arg.limit = option.getMaximumNumber();
+	arg.offset = option.getOffset();
+	if (!arg.limit && arg.offset)
+		return HatoholError(HTERR_OFFSET_WITHOUT_LIMIT);
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	// check the result and copy
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
+		issueInfoVect.push_back(IssueInfo());
+		IssueInfo &issueInfo = issueInfoVect.back();
+		itemGroupStream >> issueInfo.trackerId;
+		itemGroupStream >> issueInfo.serverId;
+		itemGroupStream >> issueInfo.eventId;
+		itemGroupStream >> issueInfo.triggerId;
+		itemGroupStream >> issueInfo.identifier;
+		itemGroupStream >> issueInfo.location;
+		itemGroupStream >> issueInfo.status;
+		itemGroupStream >> issueInfo.assignee;
+		itemGroupStream >> issueInfo.createdAt.tv_sec;
+		itemGroupStream >> issueInfo.createdAt.tv_nsec;
+		itemGroupStream >> issueInfo.updatedAt.tv_sec;
+		itemGroupStream >> issueInfo.updatedAt.tv_nsec;
+	}
+
+	return HatoholError(HTERR_OK);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -2138,7 +2424,7 @@ void DBClientHatohol::addMonitoringServerStatusWithoutTransaction(
 	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
 	string condition = StringUtils::sprintf(
 	  "id=%s", dbTermCodec->enc(serverStatus.serverId).c_str());
-	if (!isRecordExisting(TABLE_NAME_SERVERS, condition)) {
+	if (!isRecordExisting(DBClientHatohol::TABLE_NAME_SERVERS, condition)) {
 		DBAgent::InsertArg arg(tableProfileServers);
 		arg.add(serverStatus.serverId);
 		arg.add(serverStatus.nvps);
@@ -2147,6 +2433,47 @@ void DBClientHatohol::addMonitoringServerStatusWithoutTransaction(
 		DBAgent::UpdateArg arg(tableProfileServers);
 		arg.add(IDX_SERVERS_ID,   serverStatus.serverId);
 		arg.add(IDX_SERVERS_NVPS, serverStatus.nvps);
+		arg.condition = condition;
+		update(arg);
+	}
+}
+
+void DBClientHatohol::addIssueInfoWithoutTransaction(const IssueInfo &issueInfo)
+{
+	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
+	string condition = StringUtils::sprintf(
+	  "server_id=%s AND event_id=%s",
+	  dbTermCodec->enc(issueInfo.serverId).c_str(),
+	  dbTermCodec->enc(issueInfo.eventId).c_str());
+	if (!isRecordExisting(TABLE_NAME_ISSUES, condition)) {
+		DBAgent::InsertArg arg(tableProfileIssues);
+		arg.add(issueInfo.trackerId);
+		arg.add(issueInfo.serverId);
+		arg.add(issueInfo.eventId);
+		arg.add(issueInfo.triggerId);
+		arg.add(issueInfo.identifier);
+		arg.add(issueInfo.location);
+		arg.add(issueInfo.status);
+		arg.add(issueInfo.assignee);
+		arg.add(issueInfo.createdAt.tv_sec);
+		arg.add(issueInfo.createdAt.tv_nsec);
+		arg.add(issueInfo.updatedAt.tv_sec);
+		arg.add(issueInfo.updatedAt.tv_nsec);
+		insert(arg);
+	} else {
+		DBAgent::UpdateArg arg(tableProfileIssues);
+		arg.add(IDX_ISSUES_TRACKER_ID,     issueInfo.trackerId);
+		arg.add(IDX_ISSUES_SERVER_ID,      issueInfo.serverId);
+		arg.add(IDX_ISSUES_EVENT_ID,       issueInfo.eventId);
+		arg.add(IDX_ISSUES_TRIGGER_ID,     issueInfo.triggerId);
+		arg.add(IDX_ISSUES_IDENTIFIER,     issueInfo.identifier);
+		arg.add(IDX_ISSUES_LOCATION,       issueInfo.location);
+		arg.add(IDX_ISSUES_STATUS,         issueInfo.status);
+		arg.add(IDX_ISSUES_ASSIGNEE,       issueInfo.assignee);
+		arg.add(IDX_ISSUES_CREATED_AT_SEC, issueInfo.createdAt.tv_sec);
+		arg.add(IDX_ISSUES_CREATED_AT_NS,  issueInfo.createdAt.tv_nsec);
+		arg.add(IDX_ISSUES_UPDATED_AT_SEC, issueInfo.updatedAt.tv_sec);
+		arg.add(IDX_ISSUES_UPDATED_AT_NS,  issueInfo.updatedAt.tv_nsec);
 		arg.condition = condition;
 		update(arg);
 	}
