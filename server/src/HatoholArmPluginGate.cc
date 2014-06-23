@@ -46,8 +46,6 @@ static const int DEFAULT_RETRY_INTERVAL = 10 * 1000; // ms
 
 struct HatoholArmPluginGate::PrivateContext
 {
-	HatoholArmPluginGate *hapg;
-
 	// We have a copy. The access to the object is MT-safe.
 	const MonitoringServerInfo serverInfo;
 
@@ -58,8 +56,7 @@ struct HatoholArmPluginGate::PrivateContext
 
 	PrivateContext(const MonitoringServerInfo &_serverInfo,
 	               HatoholArmPluginGate *_hapg)
-	: hapg(_hapg),
-	  serverInfo(_serverInfo),
+	: serverInfo(_serverInfo),
 	  pid(0)
 	{
 	}
