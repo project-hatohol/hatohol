@@ -68,18 +68,6 @@ MonitoringServerInfo testServerInfo[] =
 	"Fermi",                  // user_name
 	"fermion",                // password
 	"",                       // db_name
-}, {
-	4,                        // id
-	MONITORING_SYSTEM_HAPI_ZABBIX, // type
-	"tora.dog.com",           // hostname
-	"172.16.100.1",           // ip_address
-	"Tigger",                 // nickname
-	80,                       // port
-	30,                       // polling_interval_sec
-	300,                      // retry_interval_sec
-	"admin",                  // user_name
-	"admin",                  // password
-	"",                       // db_name
 }};
 size_t NumTestServerInfo = sizeof(testServerInfo) / sizeof(MonitoringServerInfo);
 
