@@ -1639,6 +1639,7 @@ void FaceRest::handlerPutServer(RestJob *job)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	MonitoringServerInfoList serversList;
 	ServerQueryOption option(job->dataQueryContextPtr);
+	option.setTargetServerId(serverId);
 	dataStore->getTargetServers(serversList, option);
 	if (serversList.empty()) {
 		REPLY_ERROR(job, HTERR_NOT_FOUND_TARGET_RECORD,

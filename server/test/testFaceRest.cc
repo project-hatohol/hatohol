@@ -1516,7 +1516,13 @@ void test_addServerWithoutNickname(void)
 	assertServersInDB(serverIdSet);
 }
 
-void test_updateServer(void)
+void data_updateServer(void)
+{
+	gcut_add_datum("Test server 1", "index", G_TYPE_INT, 0, NULL);
+	gcut_add_datum("Test server 3", "index", G_TYPE_INT, 2, NULL);
+}
+
+void test_updateServer(gconstpointer data)
 {
 	startFaceRest();
 	bool dbRecreate = true;
@@ -1524,7 +1530,8 @@ void test_updateServer(void)
 	setupTestDBUser(dbRecreate, loadTestData);
 
 	// a copy is necessary not to change the source.
-	MonitoringServerInfo srcSvInfo = testServerInfo[0];
+	const int serverIndex = gcut_data_get_int(data, "index");
+	MonitoringServerInfo srcSvInfo = testServerInfo[serverIndex];
 	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
 	ArmPluginInfo *armPluginInfo = NULL;
 	assertHatoholError(
