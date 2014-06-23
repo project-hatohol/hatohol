@@ -74,6 +74,7 @@ private:
 struct HapProcessZabbixAPI::PrivateContext {
 	MonitoringServerInfo serverInfo;
 	SimpleSemaphore      mainThreadSem;
+	// TODO: set readyFlag false when the connection is lost.
 	AtomicValue<bool>    readyFlag;
 
 	PrivateContext(void)
@@ -112,7 +113,7 @@ int HapProcessZabbixAPI::mainLoopRun(void)
 // ---------------------------------------------------------------------------
 gpointer HapProcessZabbixAPI::hapMainThread(HatoholThreadArg *arg)
 {
-	if (waitOnReady())
+	if (!m_ctx->readyFlag && waitOnReady())
 		return NULL;
 	MLPL_INFO("Status: ready.\n");
 
