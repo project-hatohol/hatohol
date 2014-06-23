@@ -237,6 +237,12 @@ bool HatoholArmPluginGate::launchPluginProcess(
 	ChildProcessManager::CreateArg arg;
 	arg.args.push_back(armPluginInfo.path);
 	arg.addFlag(G_SPAWN_SEARCH_PATH);
+	const char *ldlibpath = getenv("LD_LIBRARY_PATH");
+	if (ldlibpath) {
+		string env = "LD_LIBRARY_PATH=";
+		env += ldlibpath;
+		arg.envs.push_back(env);
+	}
 	arg.eventCb = eventCb;
 	arg.envs.push_back(StringUtils::sprintf(
 	  "%s=%s", ENV_NAME_QUEUE_ADDR,
