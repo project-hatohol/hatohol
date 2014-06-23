@@ -205,9 +205,9 @@ HatoholServerEditDialog.prototype.createMainElement = function() {
     s += '</form>';
     // Input form for HAPI's parameter
     s += '<form class="form-inline" style="display:none;" id="hapiParamArea">';
-    s += '  <input id="chkboxStaticQueueAddr" type="checkbox" class="selectcheckbox">';
-    s += '  <label for="inputStaticQueueAddr">' + gettext("Use static queue address") + '</label>';
-    s += '  <input id="inputStaticQueueAddr" type="text" value="" style="width:10em" class="input-xlarge" disabled="disabled">';
+    s += '  <label for="inputStaticQueueAddr">' + gettext("Static queue address") + '</label>';
+    s += '  <input id="inputStaticQueueAddr" type="text" value="" style="width:10em" class="input-xlarge"';
+    s += '  <label for="inputStaticQueueAddr">' + gettext("(empty: Default)") + '</label>';
     s += '</form>';
     s += '</div>';
     return s;
@@ -263,14 +263,6 @@ HatoholServerEditDialog.prototype.onAppendMainElement = function () {
 
   $("#inputPassword").keyup(function() {
     self.fixupApplyButtonState();
-  });
-
-  $("#chkboxStaticQueueAddr").change(function() {
-    if ($(this).is(':checked')) {
-      $("#inputStaticQueueAddr").removeAttr("disabled");
-    } else {
-      $("#inputStaticQueueAddr").attr("disabled", "disabled");
-    }
   });
 };
 
