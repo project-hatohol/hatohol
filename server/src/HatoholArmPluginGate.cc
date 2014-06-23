@@ -150,8 +150,13 @@ ArmBase &HatoholArmPluginGate::getArmBase(void)
 
 void HatoholArmPluginGate::exitSync(void)
 {
+	MLPL_INFO("HatoholArmPluginGate: [%d:%s]: requested to exit.\n",
+	          m_ctx->serverInfo.id, m_ctx->serverInfo.hostName.c_str());
+	// TODO: Terminate the plugin.
 	HatoholArmPluginInterface::exitSync();
 	m_ctx->armStatus.setRunningStatus(false);
+	MLPL_INFO("  => [%d:%s]: done.\n",
+	          m_ctx->serverInfo.id, m_ctx->serverInfo.hostName.c_str());
 }
 
 // ---------------------------------------------------------------------------
@@ -159,6 +164,7 @@ void HatoholArmPluginGate::exitSync(void)
 // ---------------------------------------------------------------------------
 HatoholArmPluginGate::~HatoholArmPluginGate()
 {
+	exitSync();
 	if (m_ctx)
 		delete m_ctx;
 }
