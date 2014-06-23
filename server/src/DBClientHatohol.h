@@ -26,6 +26,7 @@
 #include "DBClientUser.h"
 #include "ItemGroupStream.h"
 #include "HostResourceQueryOption.h"
+#include "SmartTime.h"
 
 enum TriggerStatusType {
 	TRIGGER_STATUS_ALL = -1,
@@ -165,8 +166,8 @@ struct IssueInfo {
 	std::string        location;
 	std::string        status;
 	std::string        assignee;
-	timespec           createdAt;
-	timespec           updatedAt;
+	mlpl::Time         createdAt;
+	mlpl::Time         updatedAt;
 };
 
 typedef std::vector<IssueInfo>        IssueInfoVect;

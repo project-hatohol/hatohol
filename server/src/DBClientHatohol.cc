@@ -763,8 +763,8 @@ static const ColumnDef COLUMN_DEF_ISSUES[] = {
 	ITEM_ID_NOT_SET,                   // itemId
 	DBClientHatohol::TABLE_NAME_ISSUES, // tableName
 	"created_at_sec",                  // columnName
-	SQL_COLUMN_TYPE_INT,               // type
-	11,                                // columnLength
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_NONE,                      // keyType
@@ -774,8 +774,8 @@ static const ColumnDef COLUMN_DEF_ISSUES[] = {
 	ITEM_ID_NOT_SET,                   // itemId
 	DBClientHatohol::TABLE_NAME_ISSUES,// tableName
 	"created_at_ns",                   // columnName
-	SQL_COLUMN_TYPE_INT,               // type
-	11,                                // columnLength
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_NONE,                      // keyType
@@ -785,8 +785,8 @@ static const ColumnDef COLUMN_DEF_ISSUES[] = {
 	ITEM_ID_NOT_SET,                   // itemId
 	DBClientHatohol::TABLE_NAME_ISSUES,// tableName
 	"updated_at_sec",                  // columnName
-	SQL_COLUMN_TYPE_INT,               // type
-	11,                                // columnLength
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_NONE,                      // keyType
@@ -796,8 +796,8 @@ static const ColumnDef COLUMN_DEF_ISSUES[] = {
 	ITEM_ID_NOT_SET,                   // itemId
 	DBClientHatohol::TABLE_NAME_ISSUES,// tableName
 	"updated_at_ns",                   // columnName
-	SQL_COLUMN_TYPE_INT,               // type
-	11,                                // columnLength
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_NONE,                      // keyType
