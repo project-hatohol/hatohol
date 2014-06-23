@@ -692,8 +692,10 @@ HatoholError DBClientConfig::addTargetServer(
 		monitoringServerInfo->id = getLastInsertId();
 		// TODO: Add AccessInfo for the server to enable the operator to
 		// access to it
+		if (!condForHap.empty())
+			armPluginInfo->serverId = monitoringServerInfo->id;
 		err = saveArmPluginInfoIfNeededWithoutTransaction(
-		        *monitoringServerInfo, *armPluginInfo, condForHap);
+		        *armPluginInfo, condForHap);
 		if (err != HTERR_OK) {
 			rollback();
 			return err;
@@ -1073,12 +1075,10 @@ void DBClientConfig::preprocForDeleteArmPluginInfo(
 }
 
 HatoholError DBClientConfig::saveArmPluginInfoIfNeededWithoutTransaction(
-  const MonitoringServerInfo &serverInfo, ArmPluginInfo &armPluginInfo,
-  const std::string &condition)
+  const ArmPluginInfo &armPluginInfo, const std::string &condition)
 {
 	if (condition.empty())
 		return HTERR_OK;
-	armPluginInfo.serverId = serverInfo.id;
 	return saveArmPluginInfoWithoutTransaction(armPluginInfo, condition);
 }
 
