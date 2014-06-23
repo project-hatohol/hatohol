@@ -51,7 +51,7 @@ struct HatoholArmPluginGate::PrivateContext
 
 	ArmPluginInfo        armPluginInfo;
 	ArmStatus            armStatus;
-	GPid                 pid;
+	AtomicValue<GPid>    pid;
 	HostInfoCache        hostInfoCache;
 
 	PrivateContext(const MonitoringServerInfo &_serverInfo,
