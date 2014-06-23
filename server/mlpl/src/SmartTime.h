@@ -22,8 +22,14 @@
 
 #include <time.h>
 #include <ostream>
+#include <stdint.h>
 
 namespace mlpl {
+
+struct Time {
+	uint64_t tv_sec;
+	uint64_t tv_nsec;
+};
 
 class SmartTime {
 public:
