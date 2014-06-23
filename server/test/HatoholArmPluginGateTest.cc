@@ -63,6 +63,7 @@ void HatoholArmPluginGateTest::onReceived(SmartBuffer &smbuf)
 
 void HatoholArmPluginGateTest::onTerminated(const siginfo_t *siginfo)
 {
+	HatoholArmPluginGate::onTerminated(siginfo);
 	if (siginfo->si_signo == SIGCHLD &&
 	    siginfo->si_code  == CLD_EXITED) {
 		return;

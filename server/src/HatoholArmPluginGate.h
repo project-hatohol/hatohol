@@ -79,6 +79,11 @@ protected:
 	  const bool &succeeded, const ArmPluginInfo &armPluginInfo);
 	virtual void onTerminated(const siginfo_t *siginfo);
 
+	/**
+	 * Terminates the plugin and wait for it.
+	 */
+	virtual void terminatePluginSync(void);
+
 	bool launchPluginProcess(const ArmPluginInfo &armPluginInfo);
 	static std::string generateBrokerAddress(
 	  const MonitoringServerInfo &serverInfo);

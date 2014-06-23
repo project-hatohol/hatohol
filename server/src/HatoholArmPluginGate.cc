@@ -23,11 +23,13 @@
 #include <qpid/messaging/Receiver.h>
 #include <qpid/messaging/Sender.h>
 #include <qpid/messaging/Session.h>
+#include <errno.h>
 #include <string>
 #include <cstring>
 #include <AtomicValue.h>
 #include <MutexLock.h>
 #include <Reaper.h>
+#include <SimpleSemaphore.h>
 #include "UnifiedDataStore.h"
 #include "HatoholArmPluginGate.h"
 #include "CacheServiceDBClient.h"
@@ -44,6 +46,10 @@ using namespace qpid::messaging;
 const int   HatoholArmPluginGate::NO_RETRY = -1;
 static const int DEFAULT_RETRY_INTERVAL = 10 * 1000; // ms
 
+static const size_t TIMEOUT_PLUGIN_TERM_CMD_MS     =  30 * 1000;
+static const size_t TIMEOUT_PLUGIN_TERM_SIGTERM_MS =  60 * 1000;
+static const size_t TIMEOUT_PLUGIN_TERM_SIGKILL_MS = 120 * 1000;
+
 struct HatoholArmPluginGate::PrivateContext
 {
 	// We have a copy. The access to the object is MT-safe.
@@ -52,13 +58,31 @@ struct HatoholArmPluginGate::PrivateContext
 	ArmPluginInfo        armPluginInfo;
 	ArmStatus            armStatus;
 	AtomicValue<GPid>    pid;
+	SimpleSemaphore      pluginTermSem;
 	HostInfoCache        hostInfoCache;
 
 	PrivateContext(const MonitoringServerInfo &_serverInfo,
 	               HatoholArmPluginGate *_hapg)
 	: serverInfo(_serverInfo),
-	  pid(0)
+	  pid(0),
+	  pluginTermSem(0)
 	{
+	}
+
+	/**
+	 * Wait for the temination of the plugin process.
+	 *
+	 * @param timeoutInMSec A timeout value in millisecond.
+	 *
+	 * @return
+	 * true if the plugin process is terminated within the given timeout
+	 * value. Otherwise, false is returned.
+	 */
+	bool waitTermPlugin(const size_t &timeoutInMSec)
+	{
+		SimpleSemaphore::Status status =
+		  pluginTermSem.timedWait(timeoutInMSec);
+		return (status == SimpleSemaphore::STAT_OK);
 	}
 };
 
@@ -152,7 +176,7 @@ void HatoholArmPluginGate::exitSync(void)
 {
 	MLPL_INFO("HatoholArmPluginGate: [%d:%s]: requested to exit.\n",
 	          m_ctx->serverInfo.id, m_ctx->serverInfo.hostName.c_str());
-	// TODO: Terminate the plugin.
+	terminatePluginSync();
 	HatoholArmPluginInterface::exitSync();
 	m_ctx->armStatus.setRunningStatus(false);
 	MLPL_INFO("  => [%d:%s]: done.\n",
@@ -212,6 +236,50 @@ void HatoholArmPluginGate::onLaunchedProcess(
 void HatoholArmPluginGate::onTerminated(const siginfo_t *siginfo)
 {
 	m_ctx->pid = 0;
+	m_ctx->pluginTermSem.post();
+}
+
+void HatoholArmPluginGate::terminatePluginSync(void)
+{
+	// If the the plugin is a passive type, it will naturally return at
+	// the following condition.
+	if (!m_ctx->pid)
+		return;
+
+	// Send the teminate command.
+	// TODO: send command to terminate
+	size_t timeoutMSec = TIMEOUT_PLUGIN_TERM_CMD_MS;
+	if (m_ctx->waitTermPlugin(timeoutMSec))
+		return;
+	size_t elapsedTime = timeoutMSec;
+
+	// Send SIGTERM
+	timeoutMSec = TIMEOUT_PLUGIN_TERM_SIGKILL_MS - elapsedTime;
+	MLPL_INFO("Send SIGTERM to the plugin and wait for %zd sec.\n",
+	          timeoutMSec/1000);
+	if (kill(m_ctx->pid, SIGTERM) == -1) {
+		MLPL_ERR("Failed to send SIGTERM, pid: %d, errno: %d\n",
+		         (int)m_ctx->pid, errno);
+	}
+	if (m_ctx->waitTermPlugin(timeoutMSec))
+		return;
+	elapsedTime += timeoutMSec;
+
+	// Send SIGKILL
+	timeoutMSec = TIMEOUT_PLUGIN_TERM_SIGKILL_MS - elapsedTime;
+	MLPL_INFO("Send SIGKILL to the plugin and wait for %zd sec.\n",
+	          timeoutMSec/1000);
+	if (kill(m_ctx->pid, SIGKILL) == -1) {
+		MLPL_ERR("Failed to send SIGKILL, pid: %d, errno: %d\n",
+		         (int)m_ctx->pid, errno);
+	}
+	if (m_ctx->waitTermPlugin(timeoutMSec))
+		return;
+	elapsedTime += timeoutMSec;
+
+	MLPL_WARN(
+	  "The plugin (%d) hasn't terminated within a timeout. Ignore it.\n",
+	  (int)m_ctx->pid);
 }
 
 bool HatoholArmPluginGate::launchPluginProcess(
