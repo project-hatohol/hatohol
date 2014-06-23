@@ -101,6 +101,12 @@ void HatoholArmPluginGateTest::onInitiated(void)
 	HapiTestHelper::onInitiated();
 }
 
+void HatoholArmPluginGateTest::onHandledCommand(const HapiCommandCode &code)
+{
+	HatoholArmPluginGate::onHandledCommand(code);
+	HapiTestHelper::onHandledCommand(code);
+}
+
 void HatoholArmPluginGateTest::canncelRetrySleepIfNeeded(void)
 {
 	if (!m_ctx.cancelRetrySleep)

@@ -21,11 +21,14 @@
 #define HatoholArmPluginBase_h
 
 #include <SmartTime.h>
+#include "ItemTablePtr.h"
 #include "MonitoringServerInfo.h"
 #include "HatoholArmPluginInterface.h"
 
 class HatoholArmPluginBase : public HatoholArmPluginInterface {
 public:
+	struct AsyncCbData;
+
 	HatoholArmPluginBase(void);
 	virtual ~HatoholArmPluginBase();
 
@@ -37,13 +40,42 @@ public:
 	 */
 	bool getMonitoringServerInfo(MonitoringServerInfo &serverInfo);
 
+	class GetMonitoringServerInfoAsyncArg {
+	public:
+		GetMonitoringServerInfoAsyncArg(
+		  MonitoringServerInfo *serverInfo);
+		virtual void doneCb(const bool &succeeded);
+		MonitoringServerInfo &getMonitoringServerInfo(void);
+	private:
+		MonitoringServerInfo *m_serverInfo;
+	};
+
+	void getMonitoringServerInfoAsync(GetMonitoringServerInfoAsyncArg *arg);
+
 	mlpl::SmartTime getTimestampOfLastTrigger(void);
+
+	/**
+	 * Get the last event ID in the Hatohol server.
+	 *
+	 * @return
+	 * A last event ID. If the server dosen't have events,
+	 * EVENT_NOT_FOUND is returned.
+	 */
+	EventIdType getLastEventId(void);
 
 protected:
 	virtual void onGotResponse(const HapiResponseHeader *header,
 	                           mlpl::SmartBuffer &resBuf) override;
 
+	void sendCmdGetMonitoringServerInfo(void);
+	bool parseReplyGetMonitoringServerInfo(
+	  MonitoringServerInfo &serverInfo);
+	static void _getMonitoringServerInfoAsyncCb(AsyncCbData *data);
+	void getMonitoringServerInfoAsyncCb(GetMonitoringServerInfoAsyncArg *);
+
 	void waitResponseAndCheckHeader(void);
+	void sendTable(const HapiCommandCode &code,
+	               const ItemTablePtr &tablePtr);
 
 private:
 	struct PrivateContext;

@@ -21,6 +21,7 @@ libhatohol_common_la_SOURCES = \
 	JsonBuilderAgent.cc JsonBuilderAgent.h \
 	JsonParserAgent.cc JsonParserAgent.h \
 	MonitoringServerInfo.cc MonitoringServerInfo.h \
+	EndianConverter.h \
 	UsedCountable.cc UsedCountable.h \
 	Utils.cc Utils.h \
 	UsedCountablePtr.cc UsedCountablePtr.h \
@@ -73,6 +74,7 @@ libhatohol_la_SOURCES = \
 	HatoholArmPluginGate.cc HatoholArmPluginGate.h \
 	HapgZabbixAPI.cc HapgZabbixAPI.h \
 	HatoholServer.cc \
+	HostInfoCache.cc HostInfoCache.h \
 	IssueSender.cc IssueSender.h \
 	IssueSenderManager.cc IssueSenderManager.h \
 	IssueSenderRedmine.cc IssueSenderRedmine.h \

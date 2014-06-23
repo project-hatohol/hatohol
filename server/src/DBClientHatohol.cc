@@ -39,7 +39,6 @@ const char *DBClientHatohol::TABLE_NAME_MAP_HOSTS_HOSTGROUPS
 const char *DBClientHatohol::TABLE_NAME_SERVERS    = "servers";
 const char *DBClientHatohol::TABLE_NAME_ISSUES     = "issues";
 
-const EventIdType DBClientHatohol::EVENT_NOT_FOUND = -1;
 const int         DBClientHatohol::HATOHOL_DB_VERSION = 4;
 const char       *DBClientHatohol::DEFAULT_DB_NAME = "hatohol";
 

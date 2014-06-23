@@ -726,6 +726,14 @@ void loadTestDBTriggers(void)
 		dbHatohol.addTriggerInfo(&testTriggerInfo[i]);
 }
 
+void loadTestDBEvents(void)
+{
+	DBClientHatohol dbHatohol;
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	for (size_t i = 0; i < NumTestEventInfo; i++)
+		dbHatohol.addEventInfo(&testEventInfo[i]);
+}
+
 void loadTestDBIssueTracker(void)
 {
 	DBClientConfig dbConfig;

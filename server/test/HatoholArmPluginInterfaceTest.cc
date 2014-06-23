@@ -30,8 +30,12 @@ using namespace qpid::messaging;
 // ---------------------------------------------------------------------------
 HapiTestHelper::HapiTestHelper(void)
 : m_connectedSem(0),
-  m_initiatedSem(0)
+  m_initiatedSem(0),
+  m_handledCommandSem(0),
+  m_lastHandledCode(NUM_HAPI_CMD)
 {
+	for (size_t i = 0; i < NUM_HAPI_CMD; i++)
+		m_timesHandled[i] = 0;
 }
 
 void HapiTestHelper::onConnected(Connection &conn)
@@ -44,6 +48,14 @@ void HapiTestHelper::onInitiated(void)
 	m_initiatedSem.post();
 }
 
+void HapiTestHelper::onHandledCommand(const HapiCommandCode &code)
+{
+	m_handledCodeLock.writeLock();
+	m_lastHandledCode = code;
+	m_timesHandled[code]++;
+	m_handledCodeLock.unlock();
+	m_initiatedSem.post();
+}
 
 SimpleSemaphore &HapiTestHelper::getConnectedSem(void)
 {
@@ -55,18 +67,37 @@ SimpleSemaphore &HapiTestHelper::getInitiatedSem(void)
 	return m_initiatedSem;
 }
 
+SimpleSemaphore &HapiTestHelper::getHandledCommandSem(void)
+{
+	return m_initiatedSem;
+}
+
+void HapiTestHelper::assertWaitSemaphore(SimpleSemaphore &sem)
+{
+	cppcut_assert_equal(SimpleSemaphore::STAT_OK, sem.timedWait(TIMEOUT));
+}
+
 void HapiTestHelper::assertWaitConnected(void)
 {
-	cppcut_assert_equal(
-	  SimpleSemaphore::STAT_OK,
-	  getConnectedSem().timedWait(TIMEOUT));
+	assertWaitSemaphore(getConnectedSem());
 }
 
 void HapiTestHelper::assertWaitInitiated(void)
 {
-	cppcut_assert_equal(
-	  SimpleSemaphore::STAT_OK,
-	  getInitiatedSem().timedWait(TIMEOUT));
+	assertWaitSemaphore(getInitiatedSem());
+}
+
+void HapiTestHelper::assertWaitHandledCommand(
+  const HapiCommandCode &code, const size_t &minCalledTimes)
+{
+	while (true) {
+		m_handledCodeLock.readLock();
+		bool shouldExit = (m_timesHandled[code] >= minCalledTimes);
+		m_handledCodeLock.unlock();
+		if (shouldExit)
+			break;
+		assertWaitSemaphore(getHandledCommandSem());
+	}
 }
 
 // ---------------------------------------------------------------------------

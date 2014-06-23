@@ -22,10 +22,14 @@
 
 #include <string>
 #include <SmartBuffer.h>
+#include <EndianConverter.h>
 #include <qpid/messaging/Message.h>
 #include <qpid/messaging/Connection.h>
 #include "HatoholThreadBase.h"
 #include "HatoholException.h"
+#include "ItemDataPtr.h"
+#include "ItemGroupPtr.h"
+#include "ItemTablePtr.h"
 #include "Utils.h"
 
 enum HatoholArmPluginErrorCode {
@@ -47,8 +51,17 @@ enum HapiMessageType {
 };
 
 enum HapiCommandCode {
+	// Cl -> Sv
 	HAPI_CMD_GET_MONITORING_SERVER_INFO,
 	HAPI_CMD_GET_TIMESTAMP_OF_LAST_TRIGGER,
+	HAPI_CMD_GET_LAST_EVENT_ID,
+	HAPI_CMD_SEND_UPDATED_TRIGGERS,
+	HAPI_CMD_SEND_HOSTS,
+	HAPI_CMD_SEND_HOST_GROUP_ELEMENTS,
+	HAPI_CMD_SEND_HOST_GROUPS,
+	HAPI_CMD_SEND_UPDATED_EVENTS,
+	// Sv -> Cl
+	HAPI_CMD_REQ_ITEMS,
 	NUM_HAPI_CMD
 };
 
@@ -76,6 +89,55 @@ struct HapiCommandHeader {
 	uint16_t type;
 	uint16_t code;
 	uint32_t sequenceId;
+} __attribute__((__packed__));
+
+struct HapiItemTableHeader {
+	uint16_t flags;
+	uint32_t numGroups;
+	uint32_t length;
+	// HapiItemGroupHeader
+	// HapiItemDataHeader ...
+	// HapiItemGroupHeader
+	// HapiItemDataHeader ...
+	// ...
+} __attribute__((__packed__));
+
+struct HapiItemGroupHeader {
+	uint16_t flags;
+	uint32_t numItems;
+
+	// Total bytes of this header and all of the ItemData.
+	uint32_t length;
+} __attribute__((__packed__));
+
+#define HAPI_ITEM_DATA_HEADER_FLAG_NULL 0x01
+
+struct HapiItemDataHeader {
+	//   0b: Null flag (0: Not NULL, 1: NULL)
+	// 1-7b: reseverd
+	uint8_t  flags;
+
+	// 0: ITEM_TYPE_BOOL
+	// 1: ITEM_TYPE_INT
+	// 2: ITEM_TYPE_UINT64
+	// 3: ITEM_TYPE_DOUBLE
+	// 4: ITEM_TYPE_STRING
+	uint8_t  type;
+
+	uint64_t itemId;
+
+	// Data Body: Field size is the following.
+	//   1B (BOOL)
+	//   8B (INT)
+	//   8B (UINT64)
+	//   8B (DOUBLE: IEEE754 [64bit])
+
+} __attribute__((__packed__));
+
+struct HapiItemStringHeader {
+	HapiItemDataHeader dataHeader;
+	uint32_t           length;  // not count a NULL terminator.
+	// string body: NULL terminator is needed.
 } __attribute__((__packed__));
 
 struct HapiResponseHeader {
@@ -106,7 +168,12 @@ struct HapiResTimestampOfLastTrigger {
 	uint32_t nanosec;
 } __attribute__((__packed__));
 
-class HatoholArmPluginInterface : public HatoholThreadBase {
+struct HapiResLastEventId {
+	uint64_t lastEventId;
+} __attribute__((__packed__));
+
+class HatoholArmPluginInterface :
+  public HatoholThreadBase, public EndianConverter {
 public:
 	static const char *DEFAULT_BROKER_URL;
 	static const uint32_t SEQ_ID_UNKNOWN;
@@ -177,10 +244,12 @@ public:
 	 * A string to be written.
 	 *
 	 * @param offsetField
-	 * An address where the offset (buf - refAddress) is written.
+	 * An address where the offset (buf - refAddress) is written
+	 * as little endian.
 	 *
 	 * @param lengthField
-	 * An address where the length (not including NULL term) is written.
+	 * An address where the length (not including NULL term) is written
+	 * as little endian.
 	 *
 	 * @return
 	 * The address next to the written string.
@@ -188,6 +257,142 @@ public:
 	static char *putString(
 	  void *buf, const void *refAddr, const std::string &src,
 	  uint16_t *offsetField, uint16_t *lengthField);
+
+	/**
+	 * Append HapiItemTableHeader to the SmartBuffer.
+	 *
+	 * Note that: completeItemTable() shall be called after all ItemGroup
+	 * instances are appended.
+	 *
+	 * @param sbuf
+	 * A SmartBuffer instance for appending HapiItemTableHeader data.
+	 * The buffer size is automatically extended if necessary.
+	 *
+	 * @param numGroups The number of groups the table has.
+	 *
+	 * @return The index of the top of the appended header.
+	 */
+	static size_t appendItemTableHeader(mlpl::SmartBuffer &sbuf,
+	                                    const size_t &numGroups);
+
+	/**
+	 * Complete an ItemTable on the buffer.
+	 *
+	 * @param sbuf
+	 * A SmartBuffer instance for appending HapiItemTableHeader data.
+	 *
+	 * @param headerIndex
+	 * A top index of the HapiItemTableHeader that is to be completed.
+	 */
+	static void completeItemTable(mlpl::SmartBuffer &sbuf,
+	                              const size_t &headerIndex);
+
+	/**
+	 * Append HapiTable to the SmartBuffer.
+	 *
+	 * @param sbuf
+	 * A SmartBuffer instance for appending HapiItemTable data.
+	 * The buffer size is automatically extended if necessary.
+	 *
+	 * @param itemTablePtr An ItemTable to be appended.
+	 */
+	static void appendItemTable(mlpl::SmartBuffer &sbuf,
+	                            ItemTablePtr itemTablePtr);
+
+	/**
+	 * Append HapiItemGroupHeader to the SmartBuffer.
+	 *
+	 * Note that: completeItemGroup() shall be called after all ItemData
+	 * instances are appended.
+	 *
+	 * @param sbuf
+	 * A SmartBuffer instance for appending HapiItemGroupHeader data.
+	 * The buffer size is automatically extended if necessary.
+	 *
+	 * @param numItems The number of items the group has.
+	 *
+	 * @return The index of the top of the append header.
+	 */
+	static size_t appendItemGroupHeader(mlpl::SmartBuffer &sbuf,
+	                                    const size_t &numItems);
+	/**
+	 * Append HapiItem to the SmartBuffer.
+	 *
+	 * @param sbuf
+	 * A SmartBuffer instance for appending HapiItemGroupHeader data.
+	 * The buffer size is automatically extended if necessary.
+	 *
+	 * @param itemGrpPtr An ItemGroup to be appended.
+	 */
+	static void appendItemGroup(mlpl::SmartBuffer &sbuf,
+	                            ItemGroupPtr itemGrpPtr);
+	/**
+	 * Complete an ItemGroup on the buffer.
+	 *
+	 * @param sbuf
+	 * A SmartBuffer instance for appending HapiItemGroupHeader data.
+	 *
+	 * @param headerIndex
+	 * A top index of the HapiItemGroupHeader that is to be completed.
+	 */
+	static void completeItemGroup(mlpl::SmartBuffer &sbuf,
+	                              const size_t &headerIndex);
+
+	/**
+	 * Append HapiItemData to the SmartBuffer.
+	 *
+	 * @param sbuf
+	 * A SmartBuffer instance for appending the data. The buffer size is
+	 * automatically extended if necessary.
+	 * After this method is created, the index of 'sbuf' is forwarded.
+	 *
+	 * @param itemData An ItemData to be written.
+	 */
+	static void appendItemData(mlpl::SmartBuffer &sbuf,
+	                           ItemDataPtr itemData);
+
+	/**
+	 * Create an ItemTable instance and append the subsequent
+	 * ItemGroup and ItemData instances from the buffer data.
+	 *
+	 * @param sbuf
+	 * A SmartBuffer instance. The index shall be at the top of
+	 * the HapiItemTableHeader region followed by HapiItemDataHeaders
+	 * and HapiItemGroupHeaders of the targert.
+	 * After this method is called, the index of 'sbuf' is forwarded.
+	 *
+	 * @return A created ItemGroup.
+	 */
+	static ItemTablePtr createItemTable(mlpl::SmartBuffer &sbuf)
+	  throw(HatoholException);
+
+	/**
+	 * Create an ItemGroup instance push ItemData instances from
+	 * the buffer data.
+	 *
+	 * @param sbuf
+	 * A SmartBuffer instance. The index shall be at the top of
+	 * the HapiItemGroupHeader region followed by HapiItemDataHeaders
+	 * of the targert.
+	 * After this method is called, the index of 'sbuf' is forwarded.
+	 *
+	 * @return A created ItemGroup.
+	 */
+	static ItemGroupPtr createItemGroup(mlpl::SmartBuffer &sbuf)
+	  throw(HatoholException);
+
+	/**
+	 * Create the ItemData instance from the buffer data.
+	 *
+	 * @param sbuf
+	 * A SmartBuffer instance. The index shall be at the top of
+	 * the HapiItemDataHeader region of the targert.
+	 * After this method is created, the index of 'sbuf' is forwarded.
+	 *
+	 * @return A created ItemData.
+	 */
+	static ItemDataPtr createItemData(mlpl::SmartBuffer &sbuf)
+	  throw(HatoholException);
 
 protected:
 	typedef std::map<uint16_t, CommandHandler> CommandHandlerMap;
@@ -224,6 +429,7 @@ protected:
 	 */
 	virtual void onReceived(mlpl::SmartBuffer &smbuf);
 	virtual void onGotError(const HatoholArmPluginError &hapError);
+	virtual void onHandledCommand(const HapiCommandCode &code);
 
 	/**
 	 * Called when a HAPI's response is received.
@@ -310,7 +516,9 @@ protected:
 	 * @tparam BodyType
 	 * A Body type. If a body doesn't exist, 'void' shall be set.
 	 *
-	 * @param cmdBuf A buffer for the command.
+	 * @param cmdBuf
+	 * A buffer for the command. The index is set to the nex to the header
+	 * region after the call.
 	 * @param code   A command code.
 	 * @param additionalSize An additional content size.
 	 *
@@ -329,9 +537,10 @@ protected:
 		cmdBuf.alloc(requiredSize);
 		HapiCommandHeader *cmdHeader =
 		  cmdBuf.getPointer<HapiCommandHeader>(0);
-		cmdHeader->type = HAPI_MSG_COMMAND;
-		cmdHeader->code = code;
-		cmdHeader->sequenceId = getIncrementedSequenceId();
+		cmdHeader->type = NtoL(HAPI_MSG_COMMAND);
+		cmdHeader->code = NtoL(code);
+		cmdHeader->sequenceId = NtoL(getIncrementedSequenceId());
+		cmdBuf.setIndex(sizeof(HapiCommandHeader));
 		return cmdBuf.getPointer<BodyType>(sizeof(HapiCommandHeader));
 	}
 
@@ -361,6 +570,31 @@ protected:
 	}
 
 	/**
+	 * Get the command body with a buffer size check.
+	 *
+	 * If the command buffer size is smaller than the expected size,
+	 * HatoholException is thrown.
+	 *
+	 * @tparam BodyType
+	 * A Body type. If a body doesn't exist, 'void' shall be set.
+	 *
+	 * @param cmdBuf A command buffer.
+	 * @param additionalSize An additional content size.
+	 *
+	 * @return
+	 * An address next to the header region. It is typically the top of
+	 * the body.
+	 */
+	template<class BodyType>
+	BodyType *getCommandBody(mlpl::SmartBuffer &cmdBuf,
+	                         const size_t &additionalSize = 0)
+	  throw(HatoholException)
+	{
+		return getBodyPointerWithCheck<HapiCommandHeader, BodyType>(
+		         cmdBuf, additionalSize);
+	}
+
+	/**
 	 * Allocate buffer to include the specified body and set up
 	 * parameters of the header.
 	 *
@@ -385,15 +619,25 @@ protected:
 		resBuf.alloc(requiredSize);
 		HapiResponseHeader *header =
 		  resBuf.getPointer<HapiResponseHeader>(0);
-		header->type = HAPI_MSG_RESPONSE;
-		header->code = code;
-		header->sequenceId = getSequenceIdInProgress();
+		header->type = NtoL(HAPI_MSG_RESPONSE);
+		header->code = NtoL(code);
+		header->sequenceId = NtoL(getSequenceIdInProgress());
 		return resBuf.getPointer<BodyType>(sizeof(HapiResponseHeader));
 	}
 
 	uint32_t getIncrementedSequenceId(void);
 	void setSequenceId(const uint32_t &sequenceId);
 	uint32_t getSequenceIdInProgress(void);
+
+	/**
+	 * Get the received buffer that is currently being processed.
+	 * This method is seemed to be called from command handlers.
+	 *
+	 * @return
+	 * A currently processed receive buffer. Or NULL if no buffer is
+	 * processed.
+	 */
+	mlpl::SmartBuffer *getCurrBuffer(void);
 
 	void dumpBuffer(const mlpl::SmartBuffer &sbuf,
 	                const std::string &label = "");

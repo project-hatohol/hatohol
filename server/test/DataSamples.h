@@ -17,31 +17,13 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HapZabbixAPI_h
-#define HapZabbixAPI_h
+#ifndef DataSamples_h
+#define DataSamples_h
 
-#include <SmartTime.h>
-#include "ZabbixAPI.h"
-#include "HatoholArmPluginBase.h"
+void addDataSamplesForGCutBool(void);
+void addDataSamplesForGCutInt(void);
+void addDataSamplesForGCutUint64(void);
+void addDataSamplesForGCutDouble(void);
+void addDataSamplesForGCutString(void);
 
-class HapZabbixAPI : public HatoholArmPluginBase, public ZabbixAPI {
-public:
-	HapZabbixAPI(void);
-	virtual ~HapZabbixAPI();
-
-protected:
-	void workOnTriggers(void);
-	void workOnHostsAndHostgroupElements(void);
-	void workOnHostgroups(void);
-	void workOnEvents(void);
-
-	virtual void onInitiated(void) override;
-	virtual void onReady(void);
-	virtual void onGotNewEvents(ItemTablePtr eventsTablePtr);
-
-private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
-};
-
-#endif // HapZabbixAPI_h
+#endif // DataSamples_h

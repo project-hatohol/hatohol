@@ -22,6 +22,7 @@
 #include "Hatohol.h"
 #include "HatoholArmPluginBase.h"
 #include "HatoholArmPluginGateTest.h"
+#include "HatoholArmPluginTestPair.h"
 #include "DBClientTest.h"
 #include "Helpers.h"
 
@@ -35,9 +36,8 @@ class HatoholArmPluginBaseTest :
   public HatoholArmPluginBase, public HapiTestHelper
 {
 public:
-	HatoholArmPluginBaseTest(const string queueAddr)
+	HatoholArmPluginBaseTest(void)
 	{
-		setQueueAddress(queueAddr);
 	}
 
 protected:
@@ -52,48 +52,7 @@ protected:
 	}
 };
 
-static HatoholArmPluginGateTestPtr createHapgTest(
-  HapgTestCtx &hapgCtx, MonitoringServerInfo &serverInfo)
-{
-	hapgCtx.useDefaultReceivedHandler = true;
-	hapgCtx.monitoringSystemType = MONITORING_SYSTEM_HAPI_TEST_PASSIVE;
-	setupTestDBConfig();
-	loadTestDBArmPlugin();
-	initServerInfo(serverInfo);
-	serverInfo.type = hapgCtx.monitoringSystemType;
-	HatoholArmPluginGateTest *hapg =
-	  new HatoholArmPluginGateTest(serverInfo, hapgCtx);
-	return HatoholArmPluginGateTestPtr(hapg, false);
-}
-
-struct TestPair {
-	HapgTestCtx hapgCtx;
-	MonitoringServerInfo serverInfo;
-	HatoholArmPluginGateTestPtr gate;
-	HatoholArmPluginBaseTest   *plugin;
-
-	TestPair(void)
-	: plugin(NULL)
-	{
-		gate = createHapgTest(hapgCtx, serverInfo);
-		loadTestDBTriggers();
-		gate->start();
-		gate->assertWaitConnected();
-
-		plugin = new HatoholArmPluginBaseTest(
-		  gate->callGenerateBrokerAddress(serverInfo));
-		plugin->start();
-
-		gate->assertWaitInitiated();
-		plugin->assertWaitInitiated();
-	}
-
-	virtual ~TestPair()
-	{
-		if (plugin)
-			delete plugin;
-	}
-};
+typedef HatoholArmPluginTestPair<HatoholArmPluginBaseTest> TestPair;
 
 void cut_setup(void)
 {
@@ -111,11 +70,48 @@ void test_getMonitoringServerInfo(void)
 	assertEqual(pair.serverInfo, actual);
 }
 
+void test_getMonitoringServerInfoAsync(void)
+{
+	MonitoringServerInfo serverInfo;
+	struct Arg :
+	  public HatoholArmPluginBase::GetMonitoringServerInfoAsyncArg
+	{
+		SimpleSemaphore sem;
+
+		Arg(MonitoringServerInfo *serverInfo)
+		: GetMonitoringServerInfoAsyncArg(serverInfo),
+		  sem(0)
+		{
+		}
+
+		virtual void doneCb(const bool &succeeded) override
+		{
+			sem.post();
+		}
+	} arg(&serverInfo);
+
+	TestPair pair;
+	MonitoringServerInfo actual;
+	pair.plugin->getMonitoringServerInfoAsync(&arg);
+	pair.plugin->assertWaitSemaphore(arg.sem);
+	assertEqual(pair.serverInfo, serverInfo);
+}
+
 void test_getTimestampOfLastTrigger(void)
 {
 	TestPair pair;
 	SmartTime expect = getTimestampOfLastTestTrigger(pair.serverInfo.id);
 	SmartTime actual = pair.plugin->getTimestampOfLastTrigger();
+	cppcut_assert_equal(expect, actual);
+}
+
+void test_getLastEventId(void)
+{
+	loadTestDBEvents();
+	const ServerIdType serverId = 1;
+	TestPair pair(serverId);
+	const EventIdType expect = findLastEventId(serverId);
+	const EventIdType actual = pair.plugin->getLastEventId();
 	cppcut_assert_equal(expect, actual);
 }
 
