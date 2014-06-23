@@ -38,6 +38,7 @@ DataStore *DataStoreFactory::create(const MonitoringServerInfo &svInfo,
 		HatoholArmPluginGate *gate = new HatoholArmPluginGate(svInfo);
 		if (autoStart)
 			gate->start();
+                return gate;
 	}
 	default:
 		MLPL_BUG("Invalid monitoring system: %d\n", svInfo.type);
