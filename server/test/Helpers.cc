@@ -803,8 +803,9 @@ void loadTestDBArmPlugin(void)
 {
 	DBClientConfig dbConfig;
 	for (size_t i = 0; i < NumTestArmPluginInfo; i++) {
-		HatoholError err =
-		  dbConfig.saveArmPluginInfo(testArmPluginInfo[i]);
+		// Make a copy since armPluginInfo.id will be set.
+		ArmPluginInfo armPluginInfo = testArmPluginInfo[i];
+		HatoholError err = dbConfig.saveArmPluginInfo(armPluginInfo);
 		assertHatoholError(HTERR_OK, err);
 	}
 }

@@ -706,7 +706,7 @@ HatoholError DBClientConfig::addTargetServer(
 
 HatoholError DBClientConfig::updateTargetServer(
   MonitoringServerInfo *monitoringServerInfo,
-  const OperationPrivilege &privilege, const ArmPluginInfo *armPluginInfo)
+  const OperationPrivilege &privilege, ArmPluginInfo *armPluginInfo)
 {
 	if (!canUpdateTargetServer(monitoringServerInfo, privilege))
 		return HatoholError(HTERR_NO_PRIVILEGE);
@@ -884,8 +884,7 @@ bool DBClientConfig::getArmPluginInfo(ArmPluginInfo &armPluginInfo,
 	return true;
 }
 
-HatoholError DBClientConfig::saveArmPluginInfo(
-  const ArmPluginInfo &armPluginInfo)
+HatoholError DBClientConfig::saveArmPluginInfo(ArmPluginInfo &armPluginInfo)
 {
 	string condition;
 	HatoholError err = preprocForSaveArmPlguinInfo(armPluginInfo,
@@ -1048,7 +1047,7 @@ HatoholError DBClientConfig::preprocForSaveArmPlguinInfo(
 }
 
 HatoholError DBClientConfig::saveArmPluginInfoWithoutTransaction(
-  const ArmPluginInfo &armPluginInfo, const string &condition)
+  ArmPluginInfo &armPluginInfo, const string &condition)
 {
 	if (armPluginInfo.id != AUTO_INCREMENT_VALUE &&
 	    !isRecordExisting(TABLE_NAME_ARM_PLUGINS, condition)) {
@@ -1073,6 +1072,7 @@ HatoholError DBClientConfig::saveArmPluginInfoWithoutTransaction(
 		arg.add(armPluginInfo.staticQueueAddress);
 		arg.add(armPluginInfo.serverId);
 		insert(arg);
+		armPluginInfo.id = getLastInsertId();
 	}
 	return HTERR_OK;
 }
@@ -1087,7 +1087,7 @@ void DBClientConfig::preprocForDeleteArmPluginInfo(
 }
 
 HatoholError DBClientConfig::saveArmPluginInfoIfNeededWithoutTransaction(
-  const ArmPluginInfo &armPluginInfo, const std::string &condition)
+  ArmPluginInfo &armPluginInfo, const std::string &condition)
 {
 	if (condition.empty())
 		return HTERR_OK;

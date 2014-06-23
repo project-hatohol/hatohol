@@ -101,7 +101,7 @@ public:
 	HatoholError updateTargetServer(
 	  MonitoringServerInfo *monitoringServerInfo,
 	  const OperationPrivilege &privilege,
-	  const ArmPluginInfo *armPluginInfo = NULL);
+	  ArmPluginInfo *armPluginInfo = NULL);
 
 	HatoholError deleteTargetServer(const ServerIdType &serverId,
 	                                const OperationPrivilege &privilege);
@@ -147,7 +147,7 @@ public:
 	 *
 	 * @rerurn A HatoholError insntace.
 	 */
-	HatoholError saveArmPluginInfo(const ArmPluginInfo &armPluginInfo);
+	HatoholError saveArmPluginInfo(ArmPluginInfo &armPluginInfo);
 
 protected:
 	static bool parseCommandLineArgument(const CommandLineArg &cmdArg);
@@ -173,9 +173,9 @@ protected:
 	HatoholError preprocForSaveArmPlguinInfo(
 	  const ArmPluginInfo &armPluginInfo, std::string &condition);
 	HatoholError saveArmPluginInfoIfNeededWithoutTransaction(
-	  const ArmPluginInfo &armPluginInfo, const std::string &condition);
+	  ArmPluginInfo &armPluginInfo, const std::string &condition);
 	HatoholError saveArmPluginInfoWithoutTransaction(
-	  const ArmPluginInfo &armPluginInfo, const std::string &condition);
+	  ArmPluginInfo &armPluginInfo, const std::string &condition);
 
 	void preprocForDeleteArmPluginInfo(
 	  const ServerIdType &serverId, std::string &condition);
