@@ -1284,6 +1284,19 @@ static void _assertServerConnStat(JsonParserAgent *parser)
 }
 #define assertServerConnStat(P) cut_trace(_assertServerConnStat(P))
 
+static void setupArmPluginInfo(
+  ArmPluginInfo &armPluginInfo, const MonitoringServerInfo &serverInfo)
+{
+	armPluginInfo.id = AUTO_INCREMENT_VALUE;
+	armPluginInfo.type = serverInfo.type;
+	const char *path =
+	  HatoholArmPluginInterface::getDefaultPluginPath(armPluginInfo.type);
+	armPluginInfo.path = path ? : "";
+	armPluginInfo.brokerUrl = "abc.example.com:22222";
+	armPluginInfo.staticQueueAddress = "";
+	armPluginInfo.serverId = serverInfo.id;
+}
+
 static void setupPostAction(void)
 {
 	bool recreate = true;
@@ -1564,6 +1577,61 @@ void test_updateServer(gconstpointer data)
  	// TODO: serverInfo2StringMap() doesn't set dbName. Is this OK ?
 	updateSvInfo.dbName = srcSvInfo.dbName;
 	string expectedOutput = makeServerInfoOutput(updateSvInfo);
+	assertDBContent(dbConfig.getDBAgent(), statement, expectedOutput);
+}
+
+void test_updateServerWithArmPlugin(void)
+{
+	startFaceRest();
+	const bool dbRecreate = true;
+	const bool loadTestData = true;
+	setupTestDBUser(dbRecreate, loadTestData);
+
+	// a copy is necessary not to change the source.
+	MonitoringServerInfo serverInfo;
+	MonitoringServerInfo::initialize(serverInfo);
+	serverInfo.type = MONITORING_SYSTEM_HAPI_ZABBIX;
+	ArmPluginInfo armPluginInfo;
+	setupArmPluginInfo(armPluginInfo, serverInfo);
+	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+	assertHatoholError(
+	  HTERR_OK,
+	  uds->addTargetServer(serverInfo, armPluginInfo,
+	                       OperationPrivilege(USER_ID_SYSTEM), false)
+	);
+
+	// Make an updated data
+	serverInfo.hostName = "ume.tree.com";
+	serverInfo.pollingIntervalSec = 30;
+	const UserIdType userId = findUserWith(OPPRVLG_UPDATE_ALL_SERVER);
+	string url = StringUtils::sprintf("/server/%" FMT_SERVER_ID,
+	                                  serverInfo.id);
+	StringMap params;
+	serverInfo2StringMap(serverInfo, params);
+	armPluginInfo.brokerUrl = "tosaken.dog.exmaple.com:3322";
+	armPluginInfo.staticQueueAddress = "address-for-cats";
+	params["brokerUrl"] = armPluginInfo.brokerUrl;
+	params["staticQueueAddress"] = armPluginInfo.staticQueueAddress;
+
+	// send a request
+	RequestArg arg(url);
+	arg.parameters = params;
+	arg.request = "PUT";
+	arg.userId = userId;
+	g_parser = getResponseAsJsonParser(arg);
+	assertErrorCode(g_parser);
+	assertValueInParser(g_parser, "id", serverInfo.id);
+
+	// check the content in the DB
+	DBClientConfig dbConfig;
+	string statement = StringUtils::sprintf(
+	  "SELECT * FROM servers WHERE id=%d", serverInfo.id);
+	// TODO: serverInfo2StringMap() doesn't set dbName. Is this OK ?
+	string expectedOutput = makeServerInfoOutput(serverInfo);
+	assertDBContent(dbConfig.getDBAgent(), statement, expectedOutput);
+
+	statement = "SELECT * FROM arm_plugins ORDER BY id DESC LIMIT 1";
+	expectedOutput = makeArmPluginInfoOutput(armPluginInfo);
 	assertDBContent(dbConfig.getDBAgent(), statement, expectedOutput);
 }
 

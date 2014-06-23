@@ -1579,19 +1579,23 @@ HatoholError FaceRest::parseServerParameter(
 	if (!DBClientConfig::isHatoholArmPlugin(svInfo.type))
 		return HTERR_OK;
 
-	armPluginInfo.id = AUTO_INCREMENT_VALUE; // set latter if needed
-	armPluginInfo.serverId = MONITORING_SYSTEM_UNKNOWN; // set laster
+	if (!forUpdate) {
+		armPluginInfo.id = AUTO_INCREMENT_VALUE;
+		armPluginInfo.serverId = MONITORING_SYSTEM_UNKNOWN;
+	}
 	armPluginInfo.type = svInfo.type;
 	armPluginInfo.path =
 	  HatoholArmPluginInterface::getDefaultPluginPath(svInfo.type) ? : "";
 
 	// brokerUrl
 	value = (char *)g_hash_table_lookup(query, "brokerUrl");
-	armPluginInfo.brokerUrl = value ? : "";
+	if (value)
+		armPluginInfo.brokerUrl = value;
 
 	// staticQueueAddress
 	value = (char *)g_hash_table_lookup(query, "staticQueueAddress");
-	armPluginInfo.staticQueueAddress = value ? : "";
+	if (value)
+		armPluginInfo.staticQueueAddress = value;
 
 	return HTERR_OK;
 }
@@ -1651,6 +1655,12 @@ void FaceRest::handlerPutServer(RestJob *job)
 	ArmPluginInfo        armPluginInfo;
 	serverInfo = *serversList.begin();
 	serverInfo.id = serverId;
+	// TODO: Use unified data store and consider wethere the 'option'
+	// for privilege is needed for getting information. We've already
+	// checked it above. So it's not absolutely necessary.
+	CacheServiceDBClient cache;
+	DBClientConfig *dbConfig = cache.getConfig();
+	dbConfig->getArmPluginInfo(armPluginInfo, serverId);
 
 	// check the request
 	bool allowEmpty = true;
