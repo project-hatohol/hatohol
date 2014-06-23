@@ -705,7 +705,7 @@ ArmPluginInfo testArmPluginInfo[] = {
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	MONITORING_SYSTEM_HAPI_TEST,     // type
-	"hapi-test-plugin",              // path
+	"./hapi-test-plugin",            // path
 	"",                              // brokerUrl
 	"",                              // staticQueueAddress
 	101, // (Not exists)             // serverId
