@@ -183,6 +183,11 @@ ChildProcessManager::CreateArg::~CreateArg()
 		eventCb->unref();
 }
 
+void ChildProcessManager::CreateArg::addFlag(const GSpawnFlags &flag)
+{
+	flags = (GSpawnFlags)(flags | flag);
+}
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------

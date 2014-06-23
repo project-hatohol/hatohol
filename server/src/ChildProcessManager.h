@@ -91,6 +91,7 @@ public:
 		// Methods
 		CreateArg(void);
 		virtual ~CreateArg();
+		void addFlag(const GSpawnFlags &flag);
 	};
 
 	/**
