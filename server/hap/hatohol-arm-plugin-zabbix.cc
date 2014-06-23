@@ -115,6 +115,7 @@ gpointer HapProcessZabbixAPI::hapMainThread(HatoholThreadArg *arg)
 {
 	if (!m_ctx->readyFlag && waitOnReady())
 		return NULL;
+	clearAuthToken();
 	MLPL_INFO("Status: ready.\n");
 
 	// TODO: HapZabbixAPI get MonitoringServerInfo in onInitiated()
@@ -175,12 +176,14 @@ bool HapProcessZabbixAPI::initMonitoringServerInfo(void)
 		if (sleepForMainThread(sleepTimeSec))
 			return true;
 	}
+	setMonitoringServerInfo(m_ctx->serverInfo);
 	setExceptionSleepTime(m_ctx->serverInfo.retryIntervalSec*1000);
 	return false;
 }
 
 void HapProcessZabbixAPI::acquireData(void)
 {
+	updateAuthTokenIfNeeded();
 	workOnHostsAndHostgroupElements();
 	workOnHostgroups();
 	workOnTriggers();
