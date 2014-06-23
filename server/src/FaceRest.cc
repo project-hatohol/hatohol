@@ -1661,7 +1661,7 @@ void FaceRest::handlerPutServer(RestJob *job)
 	}
 
 	// try to update
-	err = dataStore->updateTargetServer(serverInfo, option);
+	err = dataStore->updateTargetServer(serverInfo, armPluginInfo, option);
 	if (err != HTERR_OK) {
 		replyError(job, err);
 		return;

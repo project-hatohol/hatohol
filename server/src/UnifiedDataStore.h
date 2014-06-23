@@ -145,6 +145,7 @@ public:
 	                             const OperationPrivilege &privilege,
 	                             bool const &autoRun = true);
 	HatoholError updateTargetServer(MonitoringServerInfo &svInfo,
+	                                ArmPluginInfo &armPluginInfo,
 	                                const OperationPrivilege &privilege);
 	HatoholError deleteTargetServer(const ServerIdType &serverId,
 	                                const OperationPrivilege &privilege);

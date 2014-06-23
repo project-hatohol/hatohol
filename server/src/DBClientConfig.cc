@@ -706,7 +706,7 @@ HatoholError DBClientConfig::addTargetServer(
 
 HatoholError DBClientConfig::updateTargetServer(
   MonitoringServerInfo *monitoringServerInfo,
-  const OperationPrivilege &privilege)
+  const OperationPrivilege &privilege, const ArmPluginInfo *armPluginInfo)
 {
 	if (!canUpdateTargetServer(monitoringServerInfo, privilege))
 		return HatoholError(HTERR_NO_PRIVILEGE);
@@ -730,11 +730,23 @@ HatoholError DBClientConfig::updateTargetServer(
 	arg.add(IDX_SERVERS_DB_NAME,    monitoringServerInfo->dbName);
 	arg.condition = StringUtils::sprintf("id=%u", monitoringServerInfo->id);
 
+	string condForHap;
+	err = preprocForSaveArmPlguinInfo(*monitoringServerInfo,
+	                                  *armPluginInfo, condForHap);
+	if (err != HTERR_OK)
+		return err;
+
 	DBCLIENT_TRANSACTION_BEGIN() {
 		if (!isRecordExisting(TABLE_NAME_SERVERS, arg.condition)) {
 			err = HTERR_NOT_FOUND_TARGET_RECORD;
 		} else {
 			update(arg);
+			err = saveArmPluginInfoIfNeededWithoutTransaction(
+			        *armPluginInfo, condForHap);
+			if (err != HTERR_OK) {
+				rollback();
+				return err;
+			}
 			err = HTERR_OK;
 		}
 	} DBCLIENT_TRANSACTION_END();

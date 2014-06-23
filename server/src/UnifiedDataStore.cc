@@ -533,11 +533,13 @@ HatoholError UnifiedDataStore::addTargetServer(
 }
 
 HatoholError UnifiedDataStore::updateTargetServer(
-  MonitoringServerInfo &svInfo, const OperationPrivilege &privilege)
+  MonitoringServerInfo &svInfo, ArmPluginInfo &armPluginInfo,
+  const OperationPrivilege &privilege)
 {
 	CacheServiceDBClient cache;
 	DBClientConfig *dbConfig = cache.getConfig();
-	HatoholError err = dbConfig->updateTargetServer(&svInfo, privilege);
+	HatoholError err = dbConfig->updateTargetServer(&svInfo, privilege,
+	                                                &armPluginInfo);
 	if (err != HTERR_OK)
 		return err;
 

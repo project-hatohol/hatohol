@@ -100,7 +100,8 @@ public:
 
 	HatoholError updateTargetServer(
 	  MonitoringServerInfo *monitoringServerInfo,
-	  const OperationPrivilege &privilege);
+	  const OperationPrivilege &privilege,
+	  const ArmPluginInfo *armPluginInfo = NULL);
 
 	HatoholError deleteTargetServer(const ServerIdType &serverId,
 	                                const OperationPrivilege &privilege);
