@@ -47,7 +47,10 @@ static const int DEFAULT_RETRY_INTERVAL = 10 * 1000; // ms
 struct HatoholArmPluginGate::PrivateContext
 {
 	HatoholArmPluginGate *hapg;
-	MonitoringServerInfo serverInfo;    // we have a copy.
+
+	// We have a copy. The access to the object is MT-safe.
+	const MonitoringServerInfo serverInfo;
+
 	ArmPluginInfo        armPluginInfo;
 	ArmStatus            armStatus;
 	GPid                 pid;
@@ -277,7 +280,7 @@ void HatoholArmPluginGate::cmdHandlerGetMonitoringServerInfo(
   const HapiCommandHeader *header)
 {
 	SmartBuffer resBuf;
-	MonitoringServerInfo &svInfo = m_ctx->serverInfo;
+	const MonitoringServerInfo &svInfo = m_ctx->serverInfo;
 
 	const size_t lenHostName  = svInfo.hostName.size();
 	const size_t lenIpAddress = svInfo.ipAddress.size();
