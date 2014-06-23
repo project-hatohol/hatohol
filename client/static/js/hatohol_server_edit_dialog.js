@@ -107,7 +107,8 @@ var HatoholServerEditDialog = function(params) {
     var type = $("#selectServerType").val();
 
     if (type != hatohol.MONITORING_SYSTEM_ZABBIX &&
-        type != hatohol.MONITORING_SYSTEM_NAGIOS)
+        type != hatohol.MONITORING_SYSTEM_NAGIOS &&
+        type != hatohol.MONITORING_SYSTEM_HAPI_ZABBIX)
     {
       hatoholErrorMsgBox(gettext("Invalid Server type!"));
       return false;
