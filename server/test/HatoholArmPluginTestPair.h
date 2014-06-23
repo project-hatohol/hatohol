@@ -83,6 +83,9 @@ struct HatoholArmPluginTestPair : public HatoholArmPluginTestPairBase {
 		serverInfo.ipAddress = serverIpAddr;
 		serverInfo.port = serverPort;
 		serverInfo.type = hapgCtx.monitoringSystemType;
+		serverInfo.userName = "hogetahogeo";
+		serverInfo.password = "honehonelock";
+		serverInfo.dbName   = "my_memory";
 		HatoholArmPluginGateTest *hapg =
 		  new HatoholArmPluginGateTest(serverInfo, hapgCtx);
 		return HatoholArmPluginGateTestPtr(hapg, false);

@@ -109,6 +109,9 @@ void _assertEqual(
 	cppcut_assert_equal(expect.port,      actual.port);
 	cppcut_assert_equal(expect.pollingIntervalSec, actual.pollingIntervalSec);
 	cppcut_assert_equal(expect.retryIntervalSec, actual.retryIntervalSec);
+	cppcut_assert_equal(expect.userName,  actual.userName);
+	cppcut_assert_equal(expect.password,  actual.password);
+	cppcut_assert_equal(expect.dbName,    actual.dbName);
 }
 
 struct SpawnSyncContext {

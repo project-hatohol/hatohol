@@ -276,9 +276,13 @@ void HatoholArmPluginGate::cmdHandlerGetMonitoringServerInfo(
 	const size_t lenHostName  = svInfo.hostName.size();
 	const size_t lenIpAddress = svInfo.ipAddress.size();
 	const size_t lenNickname  = svInfo.nickname.size();
+	const size_t lenUserName  = svInfo.userName.size();
+	const size_t lenPassword  = svInfo.password.size();
+	const size_t lenDbName    = svInfo.dbName.size();
 	// +1: Null Term.
-	size_t addSize =
-	  (lenHostName + 1) + (lenIpAddress + 1) + (lenNickname + 1);
+	const size_t addSize =
+	  (lenHostName + 1) + (lenIpAddress + 1) + (lenNickname + 1) +
+	  (lenUserName + 1) + (lenPassword + 1) + (lenDbName + 1);
 	
 	HapiResMonitoringServerInfo *body =
 	  setupResponseBuffer<HapiResMonitoringServerInfo>(resBuf, addSize);
@@ -296,6 +300,12 @@ void HatoholArmPluginGate::cmdHandlerGetMonitoringServerInfo(
 	                &body->ipAddressOffset, &body->ipAddressLength);
 	buf = putString(buf, body, svInfo.nickname,
 	                &body->nicknameOffset, &body->nicknameLength);
+	buf = putString(buf, body, svInfo.userName,
+	                &body->userNameOffset, &body->userNameLength);
+	buf = putString(buf, body, svInfo.password,
+	                &body->passwordOffset, &body->passwordLength);
+	buf = putString(buf, body, svInfo.dbName,
+	                &body->dbNameOffset, &body->dbNameLength);
 	reply(resBuf);
 }
 

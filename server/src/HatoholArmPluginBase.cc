@@ -190,6 +190,30 @@ bool HatoholArmPluginBase::parseReplyGetMonitoringServerInfo(
 	}
 	serverInfo.nickname = str;
 
+	str = getString(m_ctx->responseBuf, svInfo,
+	                svInfo->userNameOffset, svInfo->userNameLength);
+	if (!str) {
+		MLPL_ERR("Broken packet: userName.\n");
+		return false;
+	}
+	serverInfo.userName = str;
+
+	str = getString(m_ctx->responseBuf, svInfo,
+	                svInfo->passwordOffset, svInfo->passwordLength);
+	if (!str) {
+		MLPL_ERR("Broken packet: password.\n");
+		return false;
+	}
+	serverInfo.password = str;
+
+	str = getString(m_ctx->responseBuf, svInfo,
+	                svInfo->dbNameOffset, svInfo->dbNameLength);
+	if (!str) {
+		MLPL_ERR("Broken packet: dbName.\n");
+		return false;
+	}
+	serverInfo.dbName = str;
+
 	serverInfo.port               = LtoN(svInfo->port);
 	serverInfo.pollingIntervalSec = LtoN(svInfo->pollingIntervalSec);
 	serverInfo.retryIntervalSec   = LtoN(svInfo->retryIntervalSec);
