@@ -236,6 +236,7 @@ bool HatoholArmPluginGate::launchPluginProcess(
 
 	ChildProcessManager::CreateArg arg;
 	arg.args.push_back(armPluginInfo.path);
+	arg.addFlag(G_SPAWN_SEARCH_PATH);
 	arg.eventCb = eventCb;
 	arg.envs.push_back(StringUtils::sprintf(
 	  "%s=%s", ENV_NAME_QUEUE_ADDR,
