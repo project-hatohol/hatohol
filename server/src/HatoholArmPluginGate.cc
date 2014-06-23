@@ -377,13 +377,13 @@ void HatoholArmPluginGate::cmdHandlerSendUpdatedTriggers(
 		trigGroupStream.seek(ITEM_ID_ZBX_TRIGGERS_HOSTID);
 		trigGroupStream >> trigInfo.hostId;
 
-		if (!m_ctx->hostInfoCache.getName(trigInfo.id,
+		if (!m_ctx->hostInfoCache.getName(trigInfo.hostId,
 		                                  trigInfo.hostName)) {
 			MLPL_WARN(
 			  "Ignored a trigger whose host name was not found: "
 			  "server: %" FMT_SERVER_ID ", host: %" FMT_HOST_ID
 			  "\n",
-			  m_ctx->serverInfo.id, trigInfo.id);
+			  m_ctx->serverInfo.id, trigInfo.hostId);
 			continue;
 		}
 
