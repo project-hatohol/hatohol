@@ -34,7 +34,11 @@ DataStore *DataStoreFactory::create(const MonitoringServerInfo &svInfo,
 	case MONITORING_SYSTEM_NAGIOS:
 		return new DataStoreNagios(svInfo, autoStart);
 	case MONITORING_SYSTEM_HAPI_ZABBIX:
-		return new HapgZabbixAPI(svInfo, autoStart);
+	{
+		HatoholArmPluginGate *gate = new HatoholArmPluginGate(svInfo);
+		if (autoStart)
+			gate->start();
+	}
 	default:
 		MLPL_BUG("Invalid monitoring system: %d\n", svInfo.type);
 	}
