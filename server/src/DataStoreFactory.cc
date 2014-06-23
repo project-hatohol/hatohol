@@ -21,7 +21,7 @@
 #include "DataStoreFake.h"
 #include "DataStoreZabbix.h"
 #include "DataStoreNagios.h"
-#include "HapgZabbixAPI.h"
+#include "HatoholArmPluginGate.h"
 
 DataStore *DataStoreFactory::create(const MonitoringServerInfo &svInfo,
                                     const bool &autoStart)

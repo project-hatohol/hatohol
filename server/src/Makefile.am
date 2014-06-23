@@ -72,7 +72,6 @@ libhatohol_la_SOURCES = \
 	HatoholError.cc HatoholError.h \
 	HostResourceQueryOption.cc HostResourceQueryOption.h \
 	HatoholArmPluginGate.cc HatoholArmPluginGate.h \
-	HapgZabbixAPI.cc HapgZabbixAPI.h \
 	HatoholServer.cc \
 	HostInfoCache.cc HostInfoCache.h \
 	ItemData.cc ItemData.h \
