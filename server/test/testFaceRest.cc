@@ -1495,14 +1495,8 @@ void test_addServerWithHapiParams(void)
 	expected.type = MONITORING_SYSTEM_HAPI_ZABBIX;
 
 	ArmPluginInfo armPluginInfo;
-	armPluginInfo.id = 1; // We suppose all entries are deleted
-	armPluginInfo.type = expected.type;
-	const char *path =
-	  HatoholArmPluginInterface::getDefaultPluginPath(armPluginInfo.type);
-	armPluginInfo.path = path ? : "";
-	armPluginInfo.brokerUrl = "abc.example.com:22222";
-	armPluginInfo.staticQueueAddress = "";
-	armPluginInfo.serverId = expected.id;
+	setupArmPluginInfo(armPluginInfo, expected);
+	armPluginInfo.id = 1; // We suppose all entries have been deleted
 
 	StringMap params;
 	serverInfo2StringMap(expected, params);
