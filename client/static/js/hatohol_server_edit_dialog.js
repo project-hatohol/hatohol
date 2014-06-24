@@ -339,6 +339,8 @@ HatoholServerEditDialog.prototype.setServer = function(server) {
   $("#inputDbName").val(server.dbName);
   $("#inputPollingInterval").val(server.pollingInterval);
   $("#inputRetryInterval").val(server.retryInterval);
+  $("#inputBrokerUrl").val(server.brokerUrl);
+  $("#inputStaticQeueuAddr").val(server.staticQueueAddress);
 
   this.setDBNameTextState(server.type == hatohol.MONITORING_SYSTEM_NAGIOS);
   this.setHapiParamState(server.type == hatohol.MONITORING_SYSTEM_HAPI_ZABBIX);
