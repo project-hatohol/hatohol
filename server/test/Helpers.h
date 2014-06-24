@@ -32,6 +32,7 @@
 #include "DBClientConfig.h"
 #include "DBClientHatohol.h"
 #include "DBClientAction.h"
+#include "ArmStatus.h"
 
 #define DBCONTENT_MAGIC_CURR_DATETIME "#CURR_DATETIME#"
 #define DBCONTENT_MAGIC_NULL          "#NULL#"
@@ -85,6 +86,7 @@ extern void _assertItemTable(
 
 extern void _assertEqual(
   const MonitoringServerInfo &expect, const MonitoringServerInfo &actual);
+extern void _assertEqual(const ArmInfo &expect, const ArmInfo &actual);
 #define assertEqual(E,A) cut_trace(_assertEqual(E,A))
 
 std::string executeCommand(const std::string &commandLine);

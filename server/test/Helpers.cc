@@ -114,6 +114,18 @@ void _assertEqual(
 	cppcut_assert_equal(expect.dbName,    actual.dbName);
 }
 
+void _assertEqual(const ArmInfo &expect, const ArmInfo &actual)
+{
+	cppcut_assert_equal(expect.running,    actual.running);
+	cppcut_assert_equal(expect.stat,       actual.stat);
+	cppcut_assert_equal(expect.statUpdateTime, actual.statUpdateTime);
+	cppcut_assert_equal(expect.failureComment, actual.failureComment);
+	cppcut_assert_equal(expect.lastSuccessTime, actual.lastSuccessTime);
+	cppcut_assert_equal(expect.lastFailureTime, actual.lastFailureTime);
+	cppcut_assert_equal(expect.numUpdate,  actual.numUpdate);
+	cppcut_assert_equal(expect.numFailure, actual.numFailure);
+}
+
 struct SpawnSyncContext {
 	bool running;
 	bool hasError;
