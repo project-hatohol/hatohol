@@ -93,14 +93,7 @@ void test_logFailure(void)
 void test_setArmInfo(void)
 {
 	ArmInfo armInfo;
-	armInfo.running = true;
-	armInfo.stat = ARM_WORK_STAT_FAILURE;
-	armInfo.statUpdateTime = SmartTime(SmartTime::INIT_CURR_TIME);
-	armInfo.failureComment = "How times have changed!";
-	armInfo.lastSuccessTime = SmartTime();
-	armInfo.lastFailureTime = SmartTime(SmartTime::INIT_CURR_TIME);
-	armInfo.numUpdate  = 12345678;
-	armInfo.numFailure = 543210;
+	setTestValue(armInfo);
 
 	ArmStatus armStatus;
 	armStatus.setArmInfo(armInfo);
