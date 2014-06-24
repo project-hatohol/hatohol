@@ -77,6 +77,7 @@ public:
 	                         HapgTestCtx &_ctx);
 	static std::string callGenerateBrokerAddress(
 	  const MonitoringServerInfo &serverInfo);
+	void callSendTerminateCommand(void);
 
 	// We assume these virtual funcitons are called from
 	// the plugin's thread.

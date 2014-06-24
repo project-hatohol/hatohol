@@ -36,6 +36,11 @@ string HatoholArmPluginGateTest::callGenerateBrokerAddress(
 	return generateBrokerAddress(serverInfo);
 }
 
+void HatoholArmPluginGateTest::callSendTerminateCommand(void)
+{
+	sendTerminateCommand();
+}
+
 void HatoholArmPluginGateTest::onSessionChanged(Session *session)
 {
 	if (m_ctx.numRetry && session) {
