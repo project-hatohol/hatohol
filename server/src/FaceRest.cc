@@ -1585,7 +1585,7 @@ HatoholError FaceRest::parseServerParameter(
 	}
 
 	//
-	// HAPI's paramters
+	// HAPI's parameters
 	//
 	if (!DBClientConfig::isHatoholArmPlugin(svInfo.type))
 		return HTERR_OK;
