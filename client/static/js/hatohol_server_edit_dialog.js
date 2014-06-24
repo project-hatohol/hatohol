@@ -76,6 +76,9 @@ var HatoholServerEditDialog = function(params) {
     queryData.userName = $("#inputUserName").val();
     queryData.password = $("#inputPassword").val();
     queryData.dbName = $("#inputDbName").val();
+
+    queryData.brokerUrl = $("#inputBrokerUrl").val();
+    queryData.staticQueueAddress = $("#inputStaticQueueAddr").val();
     return queryData;
   }
 
