@@ -594,7 +594,7 @@ void HatoholArmPluginGate::cmdHandlerSendArmInfo(
 
 	HapiArmInfo *body = getCommandBody<HapiArmInfo>(*cmdBuf);
 	armInfo.running = LtoN(body->running);
-	armInfo.stat    = LtoN((typeof(armInfo.stat))body->stat);
+	armInfo.stat    = static_cast<ArmWorkingStatus>(LtoN(body->stat));
 
 	ts.tv_sec  = LtoN(body->statUpdateTime);
 	ts.tv_nsec = LtoN(body->statUpdateTimeNanosec);
