@@ -37,6 +37,20 @@ using namespace mlpl;
 typedef map<ServerIdType, DataStore *> ServerIdDataStoreMap;
 typedef ServerIdDataStoreMap::iterator ServerIdDataStoreMapIterator;
 
+static ArmInfo getArmInfo(DataStore *dataStore)
+{
+	// TODO: Too direct. Be elegant.
+	// HatoholArmPluginGate::getArmBase is stub to pass
+	// the build. So we can't use it.
+	// Our new design suggests that DataStore instance
+	// provides getArmStats() directly.
+	HatoholArmPluginGate *pluginGate =
+	  dynamic_cast<HatoholArmPluginGate *>(dataStore);
+	if (pluginGate)
+		return pluginGate->getArmStatus().getArmInfo();
+	return dataStore->getArmBase().getArmStatus().getArmInfo();
+}
+
 // ---------------------------------------------------------------------------
 // UnifiedDataStore
 // ---------------------------------------------------------------------------
@@ -166,21 +180,8 @@ struct UnifiedDataStore::PrivateContext
 		  "svInfo.id: %" FMT_SERVER_ID ", serverId: %" FMT_SERVER_ID, 
 		  svInfo.id, serverId);
 
-		if (isRunning) {
-			// TODO: Too direct. Be elegant.
-			// HatoholArmPluginGate::getArmBase is stub to pass
-			// the build. So we can't use it.
-			// Our new design suggests that DataStore instance
-			// provides getArmStats() directly.
-			ArmInfo armInfo;
-			HatoholArmPluginGate *pluginGate =
-			  dynamic_cast<HatoholArmPluginGate *>(it->second);
-			if (pluginGate)
-				armInfo = pluginGate->getArmStatus().getArmInfo();
-			else
-				armInfo = armBase.getArmStatus().getArmInfo();
-			*isRunning = armInfo.running;
-		}
+		if (isRunning)
+			*isRunning = getArmInfo(it->second).running;
 		dataStoreManager.remove(serverId);
 		return HTERR_OK;
 	}
@@ -592,8 +593,7 @@ void UnifiedDataStore::getServerConnStatusVector(
 			continue;
 		ServerConnStatus svConnStat;
 		svConnStat.serverId = *serverIdItr;
-		svConnStat.armInfo =
-		   dataStorePtr->getArmBase().getArmStatus().getArmInfo();
+		svConnStat.armInfo = getArmInfo(dataStorePtr);
 		svConnStatVec.push_back(svConnStat);
 	}
 }
