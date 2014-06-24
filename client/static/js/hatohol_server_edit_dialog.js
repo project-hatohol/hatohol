@@ -80,7 +80,6 @@ var HatoholServerEditDialog = function(params) {
     queryData.passiveMode = $("#inputPassiveMode").prop('checked');
     queryData.brokerUrl = $("#inputBrokerUrl").val();
     queryData.staticQueueAddress = $("#inputStaticQueueAddr").val();
-    console.log(queryData);
     return queryData;
   }
 
