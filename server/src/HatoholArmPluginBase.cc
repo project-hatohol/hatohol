@@ -79,6 +79,11 @@ HatoholArmPluginBase::HatoholArmPluginBase(void)
 	const char *env = getenv(ENV_NAME_QUEUE_ADDR);
 	if (env)
 		setQueueAddress(env);
+
+	registerCommandHandler(
+	  HAPI_CMD_REQ_TERMINATE,
+	  (CommandHandler)
+	    &HatoholArmPluginBase::cmdHandlerTerminate);
 }
 
 HatoholArmPluginBase::~HatoholArmPluginBase()
@@ -147,6 +152,12 @@ void HatoholArmPluginBase::onGotResponse(
 		return;
 	}
 	m_ctx->replyWaitSem.post();
+}
+
+void HatoholArmPluginBase::onReceivedTerminate(void)
+{
+	MLPL_INFO("Got the teminate command.\n");
+	exit(EXIT_SUCCESS);
 }
 
 void HatoholArmPluginBase::sendCmdGetMonitoringServerInfo(void)
@@ -255,4 +266,9 @@ void HatoholArmPluginBase::sendTable(
 	setupCommandHeader<void>(cmdBuf, code);
 	appendItemTable(cmdBuf, tablePtr);
 	send(cmdBuf);
+}
+
+void HatoholArmPluginBase::cmdHandlerTerminate(const HapiCommandHeader *header)
+{
+	onReceivedTerminate();
 }

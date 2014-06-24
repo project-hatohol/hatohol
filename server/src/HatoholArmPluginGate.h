@@ -87,6 +87,7 @@ protected:
 	bool launchPluginProcess(const ArmPluginInfo &armPluginInfo);
 	static std::string generateBrokerAddress(
 	  const MonitoringServerInfo &serverInfo);
+	void sendTerminateCommand(void);
 
 	void cmdHandlerGetMonitoringServerInfo(
 	  const HapiCommandHeader *header);

@@ -60,12 +60,15 @@ struct HatoholArmPluginGate::PrivateContext
 	AtomicValue<GPid>    pid;
 	SimpleSemaphore      pluginTermSem;
 	HostInfoCache        hostInfoCache;
+	MutexLock            exitSyncLock;
+	bool                 exitSyncDone;
 
 	PrivateContext(const MonitoringServerInfo &_serverInfo,
 	               HatoholArmPluginGate *_hapg)
 	: serverInfo(_serverInfo),
 	  pid(0),
-	  pluginTermSem(0)
+	  pluginTermSem(0),
+	  exitSyncDone(false)
 	{
 	}
 
@@ -174,6 +177,10 @@ ArmBase &HatoholArmPluginGate::getArmBase(void)
 
 void HatoholArmPluginGate::exitSync(void)
 {
+	m_ctx->exitSyncLock.lock();
+	Reaper<MutexLock> unlocker(&m_ctx->exitSyncLock, MutexLock::unlock);
+	if (m_ctx->exitSyncDone)
+		return;
 	MLPL_INFO("HatoholArmPluginGate: [%d:%s]: requested to exit.\n",
 	          m_ctx->serverInfo.id, m_ctx->serverInfo.hostName.c_str());
 	terminatePluginSync();
@@ -181,6 +188,7 @@ void HatoholArmPluginGate::exitSync(void)
 	m_ctx->armStatus.setRunningStatus(false);
 	MLPL_INFO("  => [%d:%s]: done.\n",
 	          m_ctx->serverInfo.id, m_ctx->serverInfo.hostName.c_str());
+	m_ctx->exitSyncDone = true;
 }
 
 // ---------------------------------------------------------------------------
@@ -247,7 +255,7 @@ void HatoholArmPluginGate::terminatePluginSync(void)
 		return;
 
 	// Send the teminate command.
-	// TODO: send command to terminate
+	sendTerminateCommand();
 	size_t timeoutMSec = TIMEOUT_PLUGIN_TERM_CMD_MS;
 	if (m_ctx->waitTermPlugin(timeoutMSec))
 		return;
@@ -339,6 +347,13 @@ string HatoholArmPluginGate::generateBrokerAddress(
 {
 	return StringUtils::sprintf("hatohol-arm-plugin.%" FMT_SERVER_ID,
 	                            serverInfo.id);
+}
+
+void HatoholArmPluginGate::sendTerminateCommand(void)
+{
+	SmartBuffer cmdBuf;
+	setupCommandHeader<void>(cmdBuf, HAPI_CMD_REQ_TERMINATE);
+	send(cmdBuf);
 }
 
 void HatoholArmPluginGate::cmdHandlerGetMonitoringServerInfo(
