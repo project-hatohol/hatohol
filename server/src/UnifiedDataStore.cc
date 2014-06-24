@@ -168,6 +168,10 @@ struct UnifiedDataStore::PrivateContext
 
 		if (isRunning) {
 			// TODO: Too direct. Be elegant.
+			// HatoholArmPluginGate::getArmBase is stub to pass
+			// the build. So we can't use it.
+			// Our new design suggests that DataStore instance
+			// provides getArmStats() directly.
 			ArmInfo armInfo;
 			HatoholArmPluginGate *pluginGate =
 			  dynamic_cast<HatoholArmPluginGate *>(it->second);
