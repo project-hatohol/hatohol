@@ -124,8 +124,15 @@ gpointer HapProcessZabbixAPI::hapMainThread(HatoholThreadArg *arg)
 		return NULL;
 
 	bool shouldExit = false;
+	// TODO: this structure should be in the base class.
 	while (!shouldExit) {
-		acquireData();
+		try {
+			acquireData();
+		} catch (const HatoholException &e) {
+			getArmStatus().logFailure(e.getFancyMessage());
+			sendArmInfo(getArmStatus().getArmInfo());
+			throw;
+		}
 		getArmStatus().logSuccess();
 		sendArmInfo(getArmStatus().getArmInfo());
 		shouldExit =
