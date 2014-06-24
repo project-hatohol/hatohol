@@ -99,6 +99,7 @@ protected:
 	void cmdHandlerSendHostgroupElements(const HapiCommandHeader *header);
 	void cmdHandlerSendHostgroups(const HapiCommandHeader *header);
 	void cmdHandlerSendUpdatedEvents(const HapiCommandHeader *header);
+	void cmdHandlerSendArmInfo(const HapiCommandHeader *header);
 
 private:
 	struct PrivateContext;

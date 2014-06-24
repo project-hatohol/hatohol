@@ -277,7 +277,7 @@ void HatoholArmPluginBase::sendArmInfo(const ArmInfo &armInfo)
 	  setupCommandHeader<HapiArmInfo>(cmdBuf, HAPI_CMD_SEND_ARM_INFO,
 	                                  additionalSize);
 	body->running = NtoL(armInfo.running);
-	body->running = NtoL(armInfo.stat);
+	body->stat    = NtoL(armInfo.stat);
 
 	const timespec *ts = &armInfo.statUpdateTime.getAsTimespec();
 	body->statUpdateTime = NtoL(ts->tv_sec);

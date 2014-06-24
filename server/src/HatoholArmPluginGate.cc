@@ -160,6 +160,11 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 	  HAPI_CMD_SEND_UPDATED_EVENTS,
 	  (CommandHandler)
 	    &HatoholArmPluginGate::cmdHandlerSendUpdatedEvents);
+
+	registerCommandHandler(
+	  HAPI_CMD_SEND_ARM_INFO,
+	  (CommandHandler)
+	    &HatoholArmPluginGate::cmdHandlerSendArmInfo);
 }
 
 void HatoholArmPluginGate::start(void)
@@ -577,4 +582,37 @@ void HatoholArmPluginGate::cmdHandlerSendUpdatedEvents(
 	DBClientZabbix::transformEventsToHatoholFormat(
 	  eventInfoList, eventTablePtr, m_ctx->serverInfo.id);
 	UnifiedDataStore::getInstance()->addEventList(eventInfoList);
+}
+
+void HatoholArmPluginGate::cmdHandlerSendArmInfo(
+  const HapiCommandHeader *header)
+{
+	ArmInfo armInfo;
+	timespec ts;
+	SmartBuffer *cmdBuf = getCurrBuffer();
+	HATOHOL_ASSERT(cmdBuf, "Current buffer: NULL");
+
+	HapiArmInfo *body = getCommandBody<HapiArmInfo>(*cmdBuf);
+	armInfo.running = LtoN(body->running);
+	armInfo.stat    = LtoN((typeof(armInfo.stat))body->stat);
+
+	ts.tv_sec  = LtoN(body->statUpdateTime);
+	ts.tv_nsec = LtoN(body->statUpdateTimeNanosec);
+	armInfo.statUpdateTime = SmartTime(ts);
+
+	ts.tv_sec  = LtoN(body->lastSuccessTime);
+	ts.tv_nsec = LtoN(body->lastSuccessTimeNanosec);
+	armInfo.lastSuccessTime = SmartTime(ts);
+
+	ts.tv_sec  = LtoN(body->lastFailureTime);
+	ts.tv_nsec = LtoN(body->lastFailureTimeNanosec);
+	armInfo.lastFailureTime = SmartTime(ts);
+
+	armInfo.numUpdate  = LtoN(body->numUpdate);
+	armInfo.numFailure = LtoN(body->numFailure);
+
+	armInfo.failureComment = getString(*cmdBuf, body,
+	                                   body->failureCommentOffset,
+	                                   body->failureCommentLength);
+	m_ctx->armStatus.setArmInfo(armInfo);
 }
