@@ -89,4 +89,31 @@ void test_logFailure(void)
 	cppcut_assert_equal(initTime, armInfo.lastSuccessTime);
 }
 
+void test_setArmInfo(void)
+{
+	ArmInfo armInfo;
+	armInfo.running = true;
+	armInfo.stat = ARM_WORK_STAT_FAILURE;
+	armInfo.statUpdateTime = SmartTime(SmartTime::INIT_CURR_TIME);
+	armInfo.failureComment = "How times have changed!";
+	armInfo.lastSuccessTime = SmartTime();
+	armInfo.lastFailureTime = SmartTime(SmartTime::INIT_CURR_TIME);
+	armInfo.numUpdate  = 12345678;
+	armInfo.numFailure = 543210;
+
+	ArmStatus armStatus;
+	armStatus.setArmInfo(armInfo);
+	ArmInfo actual = armStatus.getArmInfo();
+
+	// check
+	cppcut_assert_equal(armInfo.running,    actual.running);
+	cppcut_assert_equal(armInfo.stat,       actual.stat);
+	cppcut_assert_equal(armInfo.statUpdateTime, actual.statUpdateTime);
+	cppcut_assert_equal(armInfo.failureComment, actual.failureComment);
+	cppcut_assert_equal(armInfo.lastSuccessTime, actual.lastSuccessTime);
+	cppcut_assert_equal(armInfo.lastFailureTime, actual.lastFailureTime);
+	cppcut_assert_equal(armInfo.numUpdate,  actual.numUpdate);
+	cppcut_assert_equal(armInfo.numFailure, actual.numFailure);
+}
+
 } // namespace testArmStatus
