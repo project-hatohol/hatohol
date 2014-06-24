@@ -1185,6 +1185,12 @@ static void addServers(FaceRest::RestJob *job, JsonBuilderAgent &agent,
 			                             agent);
 		}
 		if (pluginIt->id != INVALID_ARM_PLUGIN_INFO_ID) {
+			const bool passiveMode =
+			  (pluginIt->path == HatoholArmPluginGate::PassivePluginQuasiPath);
+			if (passiveMode)
+				agent.addTrue("passiveMode");
+			else
+				agent.addFalse("passiveMode");
 			agent.add("brokerUrl", pluginIt->brokerUrl);
 			agent.add("staticQueueAddress",
 			          pluginIt->staticQueueAddress);

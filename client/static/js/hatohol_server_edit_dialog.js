@@ -360,7 +360,8 @@ HatoholServerEditDialog.prototype.setServer = function(server) {
   $("#inputDbName").val(server.dbName);
   $("#inputPollingInterval").val(server.pollingInterval);
   $("#inputRetryInterval").val(server.retryInterval);
-  $("#inputPassiveMode").val(server.passiveMode);
+
+  $("#inputPassiveMode").prop("checked", server.passiveMode);
   $("#inputBrokerUrl").val(server.brokerUrl);
   $("#inputStaticQueueAddr").val(server.staticQueueAddress);
 
