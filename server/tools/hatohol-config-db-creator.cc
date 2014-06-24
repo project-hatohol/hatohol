@@ -411,7 +411,7 @@ static bool validateServerInfoList(ConfigValue &confValue)
 		// should be given hostname or IP address.
 		if (svInfo.hostName.empty() && svInfo.ipAddress.empty()) {
 			fprintf(stderr,
-			        "Sould be specify hostname or IP adress.\n");
+			        "hostname or IP address should be specified.\n");
 		}
 
 		// TODO: If IP address is given, check the format
