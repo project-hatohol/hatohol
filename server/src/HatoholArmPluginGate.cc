@@ -593,7 +593,12 @@ void HatoholArmPluginGate::cmdHandlerSendArmInfo(
 	HATOHOL_ASSERT(cmdBuf, "Current buffer: NULL");
 
 	HapiArmInfo *body = getCommandBody<HapiArmInfo>(*cmdBuf);
-	armInfo.running = LtoN(body->running);
+	// We use running status in this side, becaus this is used for
+	// the desicion of restart of dataStore in UnifiedDataStore when
+	// the Paramter of monitoring server is changed.
+	armInfo.running = m_ctx->armStatus.getArmInfo().running;
+	//armInfo.running = LtoN(body->running);
+
 	armInfo.stat    = static_cast<ArmWorkingStatus>(LtoN(body->stat));
 
 	ts.tv_sec  = LtoN(body->statUpdateTime);
