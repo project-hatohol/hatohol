@@ -478,7 +478,9 @@ static void prepareGetServer(
 		assertAddServerToDB(&testServerInfo[i]);
 }
 
-void _assertGetTargetServers(UserIdType userId)
+void _assertGetTargetServers(
+  UserIdType userId, ArmPluginInfoVect *armPluginInfoVect = NULL,
+  MonitoringServerInfoList *copyDest = NULL)
 {
 	ServerHostGrpSetMap authMap;
 	MonitoringServerInfoList expected;
@@ -487,7 +489,7 @@ void _assertGetTargetServers(UserIdType userId)
 	MonitoringServerInfoList actual;
 	ServerQueryOption option(userId);
 	DBClientConfig dbConfig;
-	dbConfig.getTargetServers(actual, option);
+	dbConfig.getTargetServers(actual, option, armPluginInfoVect);
 	cppcut_assert_equal(expected.size(), actual.size());
 
 	string expectedText;
@@ -499,9 +501,10 @@ void _assertGetTargetServers(UserIdType userId)
 		actualText += makeServerInfoOutput(*it_actual);
 	}
 	cppcut_assert_equal(expectedText, actualText);
+	*copyDest = actual;
 }
-#define assertGetTargetServers(U) \
-  cut_trace(_assertGetTargetServers(U))
+#define assertGetTargetServers(U, ...) \
+  cut_trace(_assertGetTargetServers(U, ##__VA_ARGS__))
 
 static void _assertGetServerIdSet(const UserIdType &userId)
 {
@@ -542,6 +545,45 @@ void test_getTargetServersByInvalidUser(void)
 {
 	UserIdType userId = INVALID_USER_ID;
 	assertGetTargetServers(userId);
+}
+
+void test_getTargetServersWithArmPlugin(void)
+{
+	const UserIdType userId = USER_ID_SYSTEM;
+	// loadTestDBServer() is not needed. data server data is added in
+	// prepareGetServer().
+	loadTestDBArmPlugin();
+
+	ArmPluginInfoVect armPluginInfoVect;
+	MonitoringServerInfoList serverInfoList;
+	assertGetTargetServers(userId, &armPluginInfoVect, &serverInfoList);
+	
+	cppcut_assert_equal(serverInfoList.size(), armPluginInfoVect.size());
+	MonitoringServerInfoListIterator svInfoIt = serverInfoList.begin();
+	ArmPluginInfoVectConstIterator pluginIt = armPluginInfoVect.begin();
+	size_t numValidPluginInfo = 0;
+	for (; svInfoIt != serverInfoList.end(); ++svInfoIt, ++pluginIt) {
+		const int index = findIndexOfTestArmPluginInfo(svInfoIt->id);
+		if (index == -1) {
+			cppcut_assert_equal(INVALID_ARM_PLUGIN_INFO_ID,
+			                    pluginIt->id);
+			continue;
+		}
+		const ArmPluginInfo &expect = testArmPluginInfo[index];
+		const int expectId = index + 1;
+		cppcut_assert_equal(expectId,    pluginIt->id);
+		cppcut_assert_equal(expect.type, pluginIt->type);
+		cppcut_assert_equal(expect.path, pluginIt->path);
+		cppcut_assert_equal(expect.brokerUrl, pluginIt->brokerUrl);
+		cppcut_assert_equal(expect.staticQueueAddress,
+		                    pluginIt->staticQueueAddress);
+		numValidPluginInfo++;
+	}
+	cppcut_assert_equal(
+	  true, numValidPluginInfo > 0,
+	  cut_message("The test materials are inappropriate\n"));
+	if (isVerboseMode())
+		cut_notify("<<numValidPluginInfo>>: %zd", numValidPluginInfo);
 }
 
 void data_getServerIdSet(void)

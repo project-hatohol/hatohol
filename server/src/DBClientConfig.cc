@@ -774,8 +774,9 @@ HatoholError DBClientConfig::deleteTargetServer(
 	return HTERR_OK;
 }
 
-void DBClientConfig::getTargetServers
-  (MonitoringServerInfoList &monitoringServers, ServerQueryOption &option)
+void DBClientConfig::getTargetServers(
+  MonitoringServerInfoList &monitoringServers, ServerQueryOption &option,
+  ArmPluginInfoVect *armPluginInfoVect)
 {
 	// TODO: We'd better consider if we should use a query like,
 	//
@@ -804,6 +805,12 @@ void DBClientConfig::getTargetServers
 	} DBCLIENT_TRANSACTION_END();
 
 	// check the result and copy
+	if (armPluginInfoVect) {
+		const size_t reserveSize =
+		  armPluginInfoVect->size() + arg.dataTable->getNumberOfRows();
+		armPluginInfoVect->reserve(reserveSize);
+	}
+
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
@@ -822,6 +829,14 @@ void DBClientConfig::getTargetServers
 		itemGroupStream >> svInfo.userName;
 		itemGroupStream >> svInfo.password;
 		itemGroupStream >> svInfo.dbName;
+
+		// TODO: Should we do in the transaction ?
+		if (armPluginInfoVect) {
+			ArmPluginInfo armPluginInfo;
+			if (!getArmPluginInfo(armPluginInfo, svInfo.id))
+				armPluginInfo.id = INVALID_ARM_PLUGIN_INFO_ID;
+			armPluginInfoVect->push_back(armPluginInfo);
+		}
 	}
 }
 

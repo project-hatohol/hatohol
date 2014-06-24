@@ -50,6 +50,8 @@ struct ArmPluginInfo {
 };
 
 typedef std::vector<ArmPluginInfo>        ArmPluginInfoVect;
+typedef ArmPluginInfoVect::iterator       ArmPluginInfoVectIterator;
+typedef ArmPluginInfoVect::const_iterator ArmPluginInfoVectConstIterator;
 
 typedef std::map<MonitoringSystemType, ArmPluginInfo *> ArmPluginInfoMap;
 typedef ArmPluginInfoMap::iterator          ArmPluginInfoMapIterator;
@@ -106,7 +108,8 @@ public:
 	HatoholError deleteTargetServer(const ServerIdType &serverId,
 	                                const OperationPrivilege &privilege);
 	void getTargetServers(MonitoringServerInfoList &monitoringServers,
-	                      ServerQueryOption &option);
+	                      ServerQueryOption &option,
+	                      ArmPluginInfoVect *armPluginInfoVect = NULL);
 
 	/**
 	 * Get the ID set of accessible servers.

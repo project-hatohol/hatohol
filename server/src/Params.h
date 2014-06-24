@@ -92,6 +92,8 @@ static const size_t INVALID_COLUMN_IDX = -1;
 
 static const EventIdType EVENT_NOT_FOUND = -1;
 
+static const int INVALID_ARM_PLUGIN_INFO_ID = -1;
+
 typedef std::set<UserIdType>      UserIdSet;
 typedef UserIdSet::iterator       UserIdSetIterator;
 typedef UserIdSet::const_iterator UserIdSetIterator;
