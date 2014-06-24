@@ -75,7 +75,9 @@ typedef uint64_t HostgroupIdType;
 typedef uint64_t HostIdType;
 #define FMT_HOST_ID PRIu64
 
-static const ServerIdType    ALL_SERVERS = -1;
+static const ServerIdType    INVALID_SERVER_ID = -2;
+static const ServerIdType    ALL_SERVERS       = -1;
+
 static const HostIdType      ALL_HOSTS   = -1;
 static const HostgroupIdType ALL_HOST_GROUPS = -1;
 
