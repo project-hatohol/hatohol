@@ -1604,6 +1604,9 @@ HatoholError FaceRest::parseServerParameter(
 	  HatoholArmPluginInterface::getDefaultPluginPath(svInfo.type) ? : "";
 
 	// passiveMode
+	// Note: We don't accept a plugin path from outside for security.
+	// Instead we use a flag named passiveMode.
+
 	// TODO: We should create a method to parse Boolean value.
 	value = (char *)g_hash_table_lookup(query, "passiveMode");
 	if (!value && !allowEmpty)
