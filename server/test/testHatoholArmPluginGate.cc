@@ -153,4 +153,11 @@ void test_abortRetryWait(void)
 	assertStartAndExit(ctx);
 }
 
+// TODO: implement
+/*
+void test_terminateCommand(void)
+{
+}
+*/
+
 } // namespace testHatoholArmPluginGate
