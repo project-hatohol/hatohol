@@ -77,8 +77,10 @@ var HatoholServerEditDialog = function(params) {
     queryData.password = $("#inputPassword").val();
     queryData.dbName = $("#inputDbName").val();
 
+    queryData.passiveMode = $("#inputPassiveMode").prop('checked');
     queryData.brokerUrl = $("#inputBrokerUrl").val();
     queryData.staticQueueAddress = $("#inputStaticQueueAddr").val();
+    console.log(queryData);
     return queryData;
   }
 
@@ -210,6 +212,10 @@ HatoholServerEditDialog.prototype.createMainElement = function() {
 
     // Input form for HAPI's parameter
     s += '<form class="form-inline" style="display:none;" id="hapiParamArea">';
+    // Flag for passive type
+    s += '  <input id="inputPassiveMode" type="checkbox">';
+    s += '  <label for="inputPassiveMode">' + gettext("Passive mode") + '</label>';
+    s += '<br>'
     // Broker URL
     s += '  <label for="inputBrokerUrl">' + gettext("Broker URL") + '</label>';
     s += '  <input id="inputBrokerUrl" type="text" value="" style="width:10em" class="input-xlarge"';
@@ -342,6 +348,7 @@ HatoholServerEditDialog.prototype.setServer = function(server) {
   $("#inputDbName").val(server.dbName);
   $("#inputPollingInterval").val(server.pollingInterval);
   $("#inputRetryInterval").val(server.retryInterval);
+  $("#inputPassiveMode").val(server.passiveMode);
   $("#inputBrokerUrl").val(server.brokerUrl);
   $("#inputStaticQueueAddr").val(server.staticQueueAddress);
 

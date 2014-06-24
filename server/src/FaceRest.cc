@@ -38,6 +38,8 @@
 #include "SessionManager.h"
 #include "CacheServiceDBClient.h"
 #include "HatoholArmPluginInterface.h"
+#include "HatoholArmPluginGate.h"
+
 using namespace std;
 using namespace mlpl;
 
@@ -1600,6 +1602,19 @@ HatoholError FaceRest::parseServerParameter(
 	armPluginInfo.type = svInfo.type;
 	armPluginInfo.path =
 	  HatoholArmPluginInterface::getDefaultPluginPath(svInfo.type) ? : "";
+
+	// passiveMode
+	// TODO: We should create a method to parse Boolean value.
+	value = (char *)g_hash_table_lookup(query, "passiveMode");
+	if (!value && !allowEmpty)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "passiveMode");
+	bool passiveMode = false;
+	if (value)
+		passiveMode = (string(value) == "true");
+	if (passiveMode) {
+		armPluginInfo.path =
+		  HatoholArmPluginGate::PassivePluginQuasiPath;
+	}
 
 	// brokerUrl
 	value = (char *)g_hash_table_lookup(query, "brokerUrl");

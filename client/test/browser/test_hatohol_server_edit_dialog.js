@@ -51,6 +51,7 @@ describe('HatoholServerEditDialog', function() {
       userName: "nagios",
       password: "soigan",
       dbName: "nagios-db",
+      passiveMode: "",
       brokerUrl: "",
       staticQueueAddress: ""
     };
