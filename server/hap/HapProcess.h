@@ -23,6 +23,7 @@
 #include <glib.h>
 #include <glib-object.h>
 #include "HatoholThreadBase.h"
+#include "ArmStatus.h"
 
 class HapProcess : public HatoholThreadBase {
 public:
@@ -51,6 +52,8 @@ protected:
 	 * exits soon after an exception is catched.
 	 */
 	void setExceptionSleepTime(int sleepTimeMS);
+
+	ArmStatus &getArmStatus(void);
 
 private:
 	struct PrivateContext;

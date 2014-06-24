@@ -30,6 +30,7 @@ const int HapProcess::DEFAULT_EXCEPTION_SLEEP_TIME_MS = 60 * 1000;
 struct HapProcess::PrivateContext {
 	GMainLoop *loop;
 	AtomicValue<int> exceptionSleepTimeMS;
+	ArmStatus        armStatus;
 
 	PrivateContext(void)
 	: loop(NULL),
@@ -102,4 +103,9 @@ gpointer HapProcess::hapMainThread(HatoholThreadArg *arg)
 void HapProcess::setExceptionSleepTime(int sleepTimeMS)
 {
 	m_ctx->exceptionSleepTimeMS = sleepTimeMS;
+}
+
+ArmStatus &HapProcess::getArmStatus(void)
+{
+	return m_ctx->armStatus;
 }

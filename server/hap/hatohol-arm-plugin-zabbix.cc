@@ -126,6 +126,8 @@ gpointer HapProcessZabbixAPI::hapMainThread(HatoholThreadArg *arg)
 	bool shouldExit = false;
 	while (!shouldExit) {
 		acquireData();
+		getArmStatus().logSuccess();
+		sendArmInfo(getArmStatus().getArmInfo());
 		shouldExit =
 		  sleepForMainThread(m_ctx->serverInfo.pollingIntervalSec);
 	}
