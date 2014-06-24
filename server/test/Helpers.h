@@ -191,6 +191,7 @@ void insertValidServerCond(
   std::string &condition, const HostResourceQueryOption &opt,
   const std::string &tableName = "");
 void initServerInfo(MonitoringServerInfo &serverInfo);
+void setTestValue(ArmInfo &armInfo);
 
 /**
  * Make a format string for a double float value that can be used for

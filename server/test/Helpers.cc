@@ -977,6 +977,18 @@ void initServerInfo(MonitoringServerInfo &serverInfo)
 	serverInfo.retryIntervalSec = 1;
 }
 
+void setTestValue(ArmInfo &armInfo)
+{
+	armInfo.running = true;
+	armInfo.stat = ARM_WORK_STAT_FAILURE;
+	armInfo.statUpdateTime = SmartTime(SmartTime::INIT_CURR_TIME);
+	armInfo.failureComment = "How times have changed!";
+	armInfo.lastSuccessTime = SmartTime();
+	armInfo.lastFailureTime = SmartTime(SmartTime::INIT_CURR_TIME);
+	armInfo.numUpdate  = 12345678;
+	armInfo.numFailure = 543210;
+}
+
 static GMainContext *g_acquiredContext = NULL;
 void _acquireDefaultContext(void)
 {
