@@ -20,6 +20,7 @@
 #include <cppcutter.h>
 #include <SmartTime.h>
 #include "ArmStatus.h"
+#include "Helpers.h"
 
 using namespace std;
 using namespace mlpl;
@@ -106,14 +107,7 @@ void test_setArmInfo(void)
 	ArmInfo actual = armStatus.getArmInfo();
 
 	// check
-	cppcut_assert_equal(armInfo.running,    actual.running);
-	cppcut_assert_equal(armInfo.stat,       actual.stat);
-	cppcut_assert_equal(armInfo.statUpdateTime, actual.statUpdateTime);
-	cppcut_assert_equal(armInfo.failureComment, actual.failureComment);
-	cppcut_assert_equal(armInfo.lastSuccessTime, actual.lastSuccessTime);
-	cppcut_assert_equal(armInfo.lastFailureTime, actual.lastFailureTime);
-	cppcut_assert_equal(armInfo.numUpdate,  actual.numUpdate);
-	cppcut_assert_equal(armInfo.numFailure, actual.numFailure);
+	assertEqual(armInfo, actual);
 }
 
 } // namespace testArmStatus
