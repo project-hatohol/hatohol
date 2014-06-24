@@ -47,6 +47,8 @@ struct ArmPluginInfo {
 	 * Monitoring server ID of the server this ArmPlugin communicates with.
 	 */
 	ServerIdType serverId;
+
+	static void initialize(ArmPluginInfo &armPluginInfo);
 };
 
 typedef std::vector<ArmPluginInfo>        ArmPluginInfoVect;

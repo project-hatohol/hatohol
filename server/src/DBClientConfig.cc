@@ -375,6 +375,16 @@ static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
 }
 
 // ---------------------------------------------------------------------------
+// ArmPluginInfo
+// ---------------------------------------------------------------------------
+void ArmPluginInfo::initialize(ArmPluginInfo &armPluginInfo)
+{
+	armPluginInfo.id = INVALID_ARM_PLUGIN_INFO_ID;
+	armPluginInfo.type = MONITORING_SYSTEM_UNKNOWN;
+	armPluginInfo.serverId = INVALID_SERVER_ID;
+}
+
+// ---------------------------------------------------------------------------
 // ServerQueryOption
 // ---------------------------------------------------------------------------
 struct ServerQueryOption::PrivateContext {
