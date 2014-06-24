@@ -53,6 +53,23 @@ void _assertGetHostAddress
 #define assertGetHostAddress(IP, HOSTNAME, EXPECTED, ...) \
 cut_trace(_assertGetHostAddress(IP, HOSTNAME, EXPECTED, ##__VA_ARGS__))
 
+void _assertArmPluginInfo(
+  const ArmPluginInfo &expect, const ArmPluginInfo &actual,
+  const int *expectId = NULL)
+{
+	if (expectId)
+		cppcut_assert_equal(*expectId, actual.id);
+	else
+		cppcut_assert_equal(expect.id, actual.id);
+	cppcut_assert_equal(expect.type, actual.type);
+	cppcut_assert_equal(expect.path, actual.path);
+	cppcut_assert_equal(expect.brokerUrl, actual.brokerUrl);
+	cppcut_assert_equal(expect.staticQueueAddress,
+	                    actual.staticQueueAddress);
+}
+#define assertArmPluginInfo(E,A,...) \
+  cut_trace(_assertArmPluginInfo(E,A, ##__VA_ARGS__))
+
 static void addTargetServer(MonitoringServerInfo *serverInfo)
 {
 	DBClientConfig dbConfig;
@@ -572,12 +589,7 @@ void test_getTargetServersWithArmPlugin(void)
 		}
 		const ArmPluginInfo &expect = testArmPluginInfo[index];
 		const int expectId = index + 1;
-		cppcut_assert_equal(expectId,    pluginIt->id);
-		cppcut_assert_equal(expect.type, pluginIt->type);
-		cppcut_assert_equal(expect.path, pluginIt->path);
-		cppcut_assert_equal(expect.brokerUrl, pluginIt->brokerUrl);
-		cppcut_assert_equal(expect.staticQueueAddress,
-		                    pluginIt->staticQueueAddress);
+		assertArmPluginInfo(expect, *pluginIt, &expectId);
 		numValidPluginInfo++;
 	}
 	cppcut_assert_equal(
