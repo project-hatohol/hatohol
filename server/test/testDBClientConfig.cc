@@ -802,9 +802,7 @@ void test_getArmPluginInfoWithType(void)
 	cppcut_assert_equal(true, dbConfig.getArmPluginInfo(armPluginInfo,
 	                                                    expect.serverId));
 	const int expectId = targetIdx + 1;
-	cppcut_assert_equal(expectId,    armPluginInfo.id);
-	cppcut_assert_equal(expect.type, armPluginInfo.type);
-	cppcut_assert_equal(expect.path, armPluginInfo.path);
+	assertArmPluginInfo(expect, armPluginInfo, &expectId);
 }
 
 void test_getArmPluginInfoWithTypeFail(void)
