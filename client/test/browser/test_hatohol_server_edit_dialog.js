@@ -34,8 +34,13 @@ describe('HatoholServerEditDialog', function() {
     expect($("#inputPollingInterval").val()).to.be("30");
     expect($("#inputRetryInterval").val()).to.be("10");
 
+    expect($("#inputPassiveMode").prop("checked")).to.be(false);
+    expect($("#inputBrokerUrl").val()).to.empty();
+    expect($("#inputStaticQueueAddr").val()).to.empty();
+
     // check initial state
     expect($("#dbNameArea").css("display")).to.be("none");
+    expect($("#hapiParamArea").css("display")).to.be("none");
   });
 
   function getNagiosServer() {
