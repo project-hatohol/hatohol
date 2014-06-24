@@ -139,7 +139,8 @@ public:
 
 	// Server
 	void getTargetServers(MonitoringServerInfoList &monitoringServers,
-	                      ServerQueryOption &option);
+	                      ServerQueryOption &option,
+	                      ArmPluginInfoVect *armPluginInfoVect = NULL);
 	HatoholError addTargetServer(MonitoringServerInfo &svInfo,
 	                             ArmPluginInfo &armPluginInfo,
 	                             const OperationPrivilege &privilege,

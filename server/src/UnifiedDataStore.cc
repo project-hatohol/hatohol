@@ -511,11 +511,13 @@ HatoholError UnifiedDataStore::deleteUserRole(
 }
 
 void UnifiedDataStore::getTargetServers(
-  MonitoringServerInfoList &monitoringServers, ServerQueryOption &option)
+  MonitoringServerInfoList &monitoringServers, ServerQueryOption &option,
+  ArmPluginInfoVect *armPluginInfoVect)
 {
 	CacheServiceDBClient cache;
 	DBClientConfig *dbConfig = cache.getConfig();
-	dbConfig->getTargetServers(monitoringServers, option);
+	dbConfig->getTargetServers(monitoringServers, option,
+	                           armPluginInfoVect);
 }
 
 HatoholError UnifiedDataStore::addTargetServer(

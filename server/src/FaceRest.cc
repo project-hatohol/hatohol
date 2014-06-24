@@ -1146,14 +1146,20 @@ static void addServers(FaceRest::RestJob *job, JsonBuilderAgent &agent,
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	MonitoringServerInfoList monitoringServers;
+	ArmPluginInfoVect armPluginInfoVect;
 	ServerQueryOption option(job->dataQueryContextPtr);
 	option.setTargetServerId(targetServerId);
-	dataStore->getTargetServers(monitoringServers, option);
+	dataStore->getTargetServers(monitoringServers, option,
+	                            &armPluginInfoVect);
 
 	agent.add("numberOfServers", monitoringServers.size());
 	agent.startArray("servers");
 	MonitoringServerInfoListIterator it = monitoringServers.begin();
-	for (; it != monitoringServers.end(); ++it) {
+	ArmPluginInfoVectConstIterator pluginIt = armPluginInfoVect.begin();
+	HATOHOL_ASSERT(monitoringServers.size() == armPluginInfoVect.size(),
+	               "The nubmer of elements differs: %zd, %zd",
+	               monitoringServers.size(), armPluginInfoVect.size());
+	for (; it != monitoringServers.end(); ++it, ++pluginIt) {
 		MonitoringServerInfo &serverInfo = *it;
 		agent.startObject();
 		agent.add("id", serverInfo.id);
@@ -1175,6 +1181,11 @@ static void addServers(FaceRest::RestJob *job, JsonBuilderAgent &agent,
 			addNumberOfAllowedHostgroups(dataStore, job->userId,
 			                             targetUserId, serverInfo.id,
 			                             agent);
+		}
+		if (pluginIt->id != INVALID_ARM_PLUGIN_INFO_ID) {
+			agent.add("brokerUrl", pluginIt->brokerUrl);
+			agent.add("staticQueueAddress",
+			          pluginIt->staticQueueAddress);
 		}
 		agent.endObject();
 	}
