@@ -154,7 +154,7 @@ const HostgroupIdSet &getTestHostgroupIdSet(void);
  * Find an index of the record that has the specified type.
  *
  * @return
- * An index if returned when the record is found. Otherwise false is returned.
+ * An index if returned when the record is found. Otherwise -1 is returned.
  */
 int findIndexOfTestArmPluginInfo(const MonitoringSystemType &type);
 int findIndexOfTestArmPluginInfo(const ServerIdType &serverId);
