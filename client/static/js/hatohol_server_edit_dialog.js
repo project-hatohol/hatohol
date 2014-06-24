@@ -281,6 +281,14 @@ HatoholServerEditDialog.prototype.onAppendMainElement = function () {
   $("#inputPassword").keyup(function() {
     self.fixupApplyButtonState();
   });
+
+  $("#inputPassiveMode").change(function() {
+    self.fixupApplyButtonState();
+  });
+
+  $("#inputStaticQueueAddr").keyup(function() {
+    self.fixupApplyButtonState();
+  });
 };
 
 HatoholServerEditDialog.prototype.setApplyButtonState = function(state) {
@@ -313,6 +321,11 @@ HatoholServerEditDialog.prototype.fixupApplyButtonState = function(enable) {
     validRetryInterval &&
     validUserName &&
     validPassword;
+
+  // Passive mode needs a static queue address.
+  if ($("#inputPassiveMode").prop('checked'))
+    state &= !!$("#inputStaticQueueAddr").val()
+
   this.setApplyButtonState(state);
 };
 
