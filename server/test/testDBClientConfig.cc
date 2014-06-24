@@ -784,9 +784,7 @@ void test_getArmPluginInfo(void)
 		const ArmPluginInfo &expect = testArmPluginInfo[i];
 		const ArmPluginInfo &actual = armPluginInfoVect[i];
 		const int expectId = i + 1;
-		cppcut_assert_equal(expectId,    actual.id);
-		cppcut_assert_equal(expect.type, actual.type);
-		cppcut_assert_equal(expect.path, actual.path);
+		assertArmPluginInfo(expect, actual, &expectId);
 	}
 }
 
