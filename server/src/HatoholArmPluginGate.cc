@@ -50,11 +50,27 @@ static const size_t TIMEOUT_PLUGIN_TERM_CMD_MS     =  30 * 1000;
 static const size_t TIMEOUT_PLUGIN_TERM_SIGTERM_MS =  60 * 1000;
 static const size_t TIMEOUT_PLUGIN_TERM_SIGKILL_MS = 120 * 1000;
 
+class ImpromptuArmBase : public ArmBase {
+public:
+	ImpromptuArmBase(const MonitoringServerInfo &serverInfo)
+	: ArmBase("HatoholArmPluginGate", serverInfo)
+	{
+	}
+
+	virtual bool mainThreadOneProc(void) override
+	{
+		// This method is never called because nobody calls start().
+		// Just written to pass the build.
+		return true;
+	}
+};
+
 struct HatoholArmPluginGate::PrivateContext
 {
 	// We have a copy. The access to the object is MT-safe.
 	const MonitoringServerInfo serverInfo;
 
+	ImpromptuArmBase     armBase;
 	ArmPluginInfo        armPluginInfo;
 	ArmStatus            armStatus;
 	AtomicValue<GPid>    pid;
@@ -66,6 +82,7 @@ struct HatoholArmPluginGate::PrivateContext
 	PrivateContext(const MonitoringServerInfo &_serverInfo,
 	               HatoholArmPluginGate *_hapg)
 	: serverInfo(_serverInfo),
+	  armBase(_serverInfo),
 	  pid(0),
 	  pluginTermSem(0),
 	  exitSyncDone(false)
@@ -159,20 +176,7 @@ const ArmStatus &HatoholArmPluginGate::getArmStatus(void) const
 // TODO: remove this method
 ArmBase &HatoholArmPluginGate::getArmBase(void)
 {
-	class Impromptu : public ArmBase {
-	public:
-		Impromptu(const MonitoringServerInfo &serverInfo)
-		: ArmBase("HatoholArmPluginGate", serverInfo)
-		{
-		}
-
-		virtual bool mainThreadOneProc(void) override
-		{
-			return true;
-		}
-	};
-	static Impromptu armBase(m_ctx->serverInfo);
-	return armBase;
+	return m_ctx->armBase;
 }
 
 void HatoholArmPluginGate::exitSync(void)
