@@ -341,5 +341,6 @@ HatoholServerEditDialog.prototype.setServer = function(server) {
   $("#inputRetryInterval").val(server.retryInterval);
 
   this.setDBNameTextState(server.type == hatohol.MONITORING_SYSTEM_NAGIOS);
+  this.setHapiParamState(server.type == hatohol.MONITORING_SYSTEM_HAPI_ZABBIX);
   this.fixupApplyButtonState();
 };
