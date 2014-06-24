@@ -61,6 +61,7 @@ enum HapiCommandCode {
 	HAPI_CMD_SEND_HOST_GROUP_ELEMENTS,
 	HAPI_CMD_SEND_HOST_GROUPS,
 	HAPI_CMD_SEND_UPDATED_EVENTS,
+	HAPI_CMD_SEND_ARM_INFO,
 	// Sv -> Cl
 	HAPI_CMD_REQ_ITEMS,
 	HAPI_CMD_REQ_TERMINATE,
@@ -140,6 +141,21 @@ struct HapiItemStringHeader {
 	HapiItemDataHeader dataHeader;
 	uint32_t           length;  // not count a NULL terminator.
 	// string body: NULL terminator is needed.
+} __attribute__((__packed__));
+
+struct HapiArmInfo {
+	uint8_t  running;
+	uint8_t  stat;
+	uint64_t statUpdateTime;
+	uint32_t statUpdateTimeNanosec;
+	uint16_t failureCommentLength; // Not include the NULL terminator
+	uint16_t failureCommentOffset; // from the top of this structure
+	uint64_t lastSuccessTime;
+	uint32_t lastSuccessTimeNanosec;
+	uint64_t lastFailureTime;
+	uint32_t lastFailureTimeNanosec;
+	uint64_t numUpdate;
+	uint64_t numFailure;
 } __attribute__((__packed__));
 
 struct HapiResponseHeader {

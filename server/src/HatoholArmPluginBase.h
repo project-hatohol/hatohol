@@ -21,6 +21,7 @@
 #define HatoholArmPluginBase_h
 
 #include <SmartTime.h>
+#include "ArmStatus.h"
 #include "ItemTablePtr.h"
 #include "MonitoringServerInfo.h"
 #include "HatoholArmPluginInterface.h"
@@ -82,6 +83,7 @@ protected:
 	void waitResponseAndCheckHeader(void);
 	void sendTable(const HapiCommandCode &code,
 	               const ItemTablePtr &tablePtr);
+	void sendArmInfo(const ArmInfo &armInfo);
 
 	void cmdHandlerTerminate(const HapiCommandHeader *header);
 

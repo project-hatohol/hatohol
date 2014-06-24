@@ -268,6 +268,39 @@ void HatoholArmPluginBase::sendTable(
 	send(cmdBuf);
 }
 
+void HatoholArmPluginBase::sendArmInfo(const ArmInfo &armInfo)
+{
+	SmartBuffer cmdBuf;
+	const size_t failureCommentLen = armInfo.failureComment.size();
+	const size_t additionalSize = failureCommentLen + 1;
+	HapiArmInfo *body =
+	  setupCommandHeader<HapiArmInfo>(cmdBuf, HAPI_CMD_SEND_ARM_INFO,
+	                                  additionalSize);
+	body->running = NtoL(armInfo.running);
+	body->running = NtoL(armInfo.stat);
+
+	const timespec *ts = &armInfo.statUpdateTime.getAsTimespec();
+	body->statUpdateTime = NtoL(ts->tv_sec);
+	body->statUpdateTimeNanosec = NtoL(ts->tv_nsec);
+
+	ts = &armInfo.lastSuccessTime.getAsTimespec();
+	body->lastSuccessTime = NtoL(ts->tv_sec);
+	body->lastSuccessTimeNanosec = NtoL(ts->tv_nsec);
+
+	ts = &armInfo.lastFailureTime.getAsTimespec();
+	body->lastFailureTime = NtoL(ts->tv_sec);
+	body->lastFailureTimeNanosec = NtoL(ts->tv_nsec);
+
+	body->numUpdate  = NtoL(armInfo.numUpdate);
+	body->numFailure = NtoL(armInfo.numFailure);
+
+	char *buf = reinterpret_cast<char *>(body) + sizeof(HapiArmInfo);
+	buf = putString(buf, body, armInfo.failureComment,
+	                &body->failureCommentOffset,
+	                &body->failureCommentLength);
+	send(cmdBuf);
+}
+
 void HatoholArmPluginBase::cmdHandlerTerminate(const HapiCommandHeader *header)
 {
 	onReceivedTerminate();
