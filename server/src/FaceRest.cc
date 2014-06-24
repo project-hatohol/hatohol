@@ -1592,7 +1592,10 @@ HatoholError FaceRest::parseServerParameter(
 
 	if (!forUpdate) {
 		armPluginInfo.id = AUTO_INCREMENT_VALUE;
-		armPluginInfo.serverId = MONITORING_SYSTEM_UNKNOWN;
+		// The proper sever ID will be set later when the DB record
+		// of the concerned MonitoringServerInfo is created in
+		// DBClientConfig::addTargetServer()
+		armPluginInfo.serverId = INVALID_SERVER_ID;
 	}
 	armPluginInfo.type = svInfo.type;
 	armPluginInfo.path =
