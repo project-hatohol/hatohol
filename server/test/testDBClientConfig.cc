@@ -501,7 +501,8 @@ void _assertGetTargetServers(
 		actualText += makeServerInfoOutput(*it_actual);
 	}
 	cppcut_assert_equal(expectedText, actualText);
-	*copyDest = actual;
+	if (copyDest)
+		*copyDest = actual;
 }
 #define assertGetTargetServers(U, ...) \
   cut_trace(_assertGetTargetServers(U, ##__VA_ARGS__))
