@@ -29,6 +29,7 @@
 #include "CacheServiceDBClient.h"
 #include "ItemFetchWorker.h"
 #include "DataStoreFactory.h"
+#include "HatoholArmPluginGate.h" // TODO: remove after dynamic_cast is deleted
 
 using namespace std;
 using namespace mlpl;
@@ -166,7 +167,14 @@ struct UnifiedDataStore::PrivateContext
 		  svInfo.id, serverId);
 
 		if (isRunning) {
-			ArmInfo armInfo = armBase.getArmStatus().getArmInfo();
+			// TODO: Too direct. Be elegant.
+			ArmInfo armInfo;
+			HatoholArmPluginGate *pluginGate =
+			  dynamic_cast<HatoholArmPluginGate *>(it->second);
+			if (pluginGate)
+				armInfo = pluginGate->getArmStatus().getArmInfo();
+			else
+				armInfo = armBase.getArmStatus().getArmInfo();
 			*isRunning = armInfo.running;
 		}
 		dataStoreManager.remove(serverId);
