@@ -1618,6 +1618,7 @@ void FaceRest::handlerPostServer(RestJob *job)
 {
 	MonitoringServerInfo svInfo;
 	ArmPluginInfo        armPluginInfo;
+	ArmPluginInfo::initialize(armPluginInfo);
 	HatoholError err;
 
 	err = parseServerParameter(svInfo, armPluginInfo, job->query);
