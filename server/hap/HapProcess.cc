@@ -52,7 +52,7 @@ struct HapProcess::PrivateContext {
 // ---------------------------------------------------------------------------
 HapCommandLineArg::HapCommandLineArg(void)
 : brokerUrl(HatoholArmPluginInterface::DEFAULT_BROKER_URL),
-  queueAddress(NULL)
+  queueAddress("")
 {
 }
 
