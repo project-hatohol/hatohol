@@ -128,7 +128,7 @@ ArmStatus &HapProcess::getArmStatus(void)
 void HapProcess::parseCommandLineArg(
   HapCommandLineArg &arg, int argc, char *argv[])
 {
-	static GOptionEntry entries[] = {
+	GOptionEntry entries[] = {
 		{"broker-url", 'b', 0, G_OPTION_ARG_STRING,
 		 &arg.brokerUrl, "Broker URL", "URL:PORT"},
 		{"queue-address", 'q', 0, G_OPTION_ARG_STRING,
