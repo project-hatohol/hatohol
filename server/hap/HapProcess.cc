@@ -141,6 +141,7 @@ void HapProcess::parseCommandLineArg(
 	g_option_context_add_main_entries(context, entries, NULL);
 	g_option_context_parse(context, &argc, &argv,
 	                       &m_ctx->cmdLineArgParseError);
+	g_option_context_free(context);
 }
 
 const GError *HapProcess::getErrorOfCommandLineArg(void) const
