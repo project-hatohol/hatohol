@@ -831,6 +831,7 @@ void DBClientConfig::getTargetServers(
 		itemGroupStream >> svInfo.dbName;
 
 		// TODO: Should we do in the transaction ?
+		// and using LEFT JOIN is smart ?
 		if (armPluginInfoVect) {
 			ArmPluginInfo armPluginInfo;
 			if (!getArmPluginInfo(armPluginInfo, svInfo.id))
