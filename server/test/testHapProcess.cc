@@ -73,4 +73,11 @@ void test_commandlineArgBrokerUrlShort(void)
 	cut_assert_equal_string("example.com:52211", cmdLineArg.brokerUrl);
 }
 
+void test_commandlineArgQueueAddress(void)
+{
+	const char *argv[] = {"progname", "--queue-address=system-235.11"};
+	PARSE_OPTION(argv, cmdLineArg);
+	cut_assert_equal_string("system-235.11", cmdLineArg.queueAddress);
+}
+
 } // namespace testHapProcess
