@@ -80,4 +80,11 @@ void test_commandlineArgQueueAddress(void)
 	cut_assert_equal_string("system-235.11", cmdLineArg.queueAddress);
 }
 
+void test_commandlineArgQueueAddressShort(void)
+{
+	const char *argv[] = {"progname", "-q", "system-235.11"};
+	PARSE_OPTION(argv, cmdLineArg);
+	cut_assert_equal_string("system-235.11", cmdLineArg.queueAddress);
+}
+
 } // namespace testHapProcess
