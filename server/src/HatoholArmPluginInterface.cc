@@ -68,11 +68,9 @@ struct HatoholArmPluginInterface::PrivateContext {
 	uint32_t   sequenceIdOfCurrCmd;
 
 	PrivateContext(HatoholArmPluginInterface *_hapi,
-	               const string &_queueAddr,
 	               const bool &_workInServer)
 	: hapi(_hapi),
 	  workInServer(_workInServer),
-	  queueAddr(_queueAddr),
 	  initState(INIT_STAT_UNKNOWN),
 	  initiationKey(0),
 	  currMessage(NULL),
@@ -184,11 +182,10 @@ private:
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-HatoholArmPluginInterface::HatoholArmPluginInterface(
-  const string &queueAddr, const bool &workInServer)
+HatoholArmPluginInterface::HatoholArmPluginInterface(const bool &workInServer)
 : m_ctx(NULL)
 {
-	m_ctx = new PrivateContext(this, queueAddr, workInServer);
+	m_ctx = new PrivateContext(this, workInServer);
 }
 
 HatoholArmPluginInterface::~HatoholArmPluginInterface()

@@ -211,7 +211,6 @@ public:
 	  const HapiCommandHeader *header);
 
 	HatoholArmPluginInterface(
-	  const std::string &queueAddr = "",
 	  const bool &workInServer = false);
 	virtual ~HatoholArmPluginInterface() override;
 

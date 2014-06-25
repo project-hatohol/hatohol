@@ -113,7 +113,7 @@ const string HatoholArmPluginGate::PassivePluginQuasiPath = "#PASSIVE_PLUGIN#";
 // ---------------------------------------------------------------------------
 HatoholArmPluginGate::HatoholArmPluginGate(
   const MonitoringServerInfo &serverInfo)
-: HatoholArmPluginInterface("", true),
+: HatoholArmPluginInterface(true),
   m_ctx(NULL)
 {
 	m_ctx = new PrivateContext(serverInfo, this);
