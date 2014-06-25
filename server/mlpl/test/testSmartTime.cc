@@ -336,6 +336,48 @@ void test_operatorGreater(gconstpointer data)
 	cppcut_assert_equal(expect, stime0 > stime1);
 }
 
+void data_operatorLessOrEqual(void)
+{
+	gcut_add_datum("Second of LHS is greater",
+	               "secLhs", G_TYPE_INT, 1393897001, "nsLhs",  G_TYPE_INT,  987654321,
+	               "secRhs", G_TYPE_INT, 1393897000, "nsRhs",  G_TYPE_INT,  987654321,
+	               "expect", G_TYPE_BOOLEAN, FALSE,
+	               NULL);
+	gcut_add_datum("Nanosecond of LHS is greater",
+	               "secLhs", G_TYPE_INT, 1393897000, "nsLhs",  G_TYPE_INT,  987654322,
+	               "secRhs", G_TYPE_INT, 1393897000, "nsRhs",  G_TYPE_INT,  987654321,
+	               "expect", G_TYPE_BOOLEAN, FALSE,
+	               NULL);
+	gcut_add_datum("Equal",
+	               "secLhs", G_TYPE_INT, 1393897000, "nsLhs",  G_TYPE_INT,  987654321,
+	               "secRhs", G_TYPE_INT, 1393897000, "nsRhs",  G_TYPE_INT,  987654321,
+	               "expect", G_TYPE_BOOLEAN, TRUE,
+	               NULL);
+	gcut_add_datum("Second of LHS is smaller",
+	               "secLhs", G_TYPE_INT, 1393897000, "nsLhs",  G_TYPE_INT,  987654321,
+	               "secRhs", G_TYPE_INT, 1393897001, "nsRhs",  G_TYPE_INT,  987654321,
+	               "expect", G_TYPE_BOOLEAN, TRUE,
+	               NULL);
+	gcut_add_datum("Nanosecond of LHS is smaller",
+	               "secLhs", G_TYPE_INT, 1393897000, "nsLhs",  G_TYPE_INT,  987654320,
+	               "secRhs", G_TYPE_INT, 1393897000, "nsRhs",  G_TYPE_INT,  987654321,
+	               "expect", G_TYPE_BOOLEAN, TRUE,
+	               NULL);
+}
+
+void test_operatorLessOrEqual(gconstpointer data)
+{
+	timespec ts0 = {gcut_data_get_int(data, "secLhs"),
+	                gcut_data_get_int(data, "nsLhs")};
+	timespec ts1 = {gcut_data_get_int(data, "secRhs"),
+	                gcut_data_get_int(data, "nsRhs")};
+	const bool expect = gcut_data_get_boolean(data, "expect");
+	SmartTime stime0(ts0);
+	SmartTime stime1(ts1);
+	cppcut_assert_equal(expect, stime0 <= stime1);
+}
+
+
 void test_operatorOStream(void)
 {
 	timespec ts = {1234567890, 12345678};
