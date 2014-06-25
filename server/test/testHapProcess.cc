@@ -18,7 +18,7 @@
  */
 
 #include <cppcutter.h>
-#include <gcutter.h>
+#include "Helpers.h"
 #include "HapProcess.h"
 #include "HatoholArmPluginInterface.h"
 
@@ -50,7 +50,7 @@ void test_commandlineArgDefault(void)
 	int argc = 1;
 	char *argv[argc];
 	TestHapProcess hapProc(argc, argv);
-	cppcut_assert_null(hapProc.callGetErrorOfCommandLineArg());
+	assertGError(hapProc.callGetErrorOfCommandLineArg());
 	const HapCommandLineArg &cmdLineArg = hapProc.callGetCommandLineArg();
 	cut_assert_equal_string(NULL, cmdLineArg.brokerUrl);
 	cut_assert_equal_string(NULL, cmdLineArg.queueAddress);
