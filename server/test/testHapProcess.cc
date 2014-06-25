@@ -53,11 +53,8 @@ public:
 // ---------------------------------------------------------------------------
 void test_commandlineArgDefault(void)
 {
-	int argc = 1;
-	char *argv[argc];
-	TestHapProcess hapProc(argc, argv);
-	assertGError(hapProc.callGetErrorOfCommandLineArg());
-	const HapCommandLineArg &cmdLineArg = hapProc.callGetCommandLineArg();
+	const char *argv[] = {"progname"};
+	PARSE_OPTION(argv, cmdLineArg);
 	cut_assert_equal_string(NULL, cmdLineArg.brokerUrl);
 	cut_assert_equal_string(NULL, cmdLineArg.queueAddress);
 }
