@@ -53,7 +53,6 @@ enum InitiationState {
 struct HatoholArmPluginInterface::PrivateContext {
 	HatoholArmPluginInterface *hapi;
 	bool       workInServer;
-	string     queueAddr;
 	Connection connection;
 	Session    session;
 	Sender     sender;
@@ -87,11 +86,6 @@ struct HatoholArmPluginInterface::PrivateContext {
 		disconnect();
 	}
 
-	void setQueueAddress(const string &_queueAddr)
-	{
-		queueAddr = _queueAddr;
-	}
-
 	void connect(void)
 	{
 		const string connectionOptions;
@@ -101,6 +95,7 @@ struct HatoholArmPluginInterface::PrivateContext {
 		connection.open();
 		session = connection.createSession();
 
+		const string queueAddr = getQueueAddress();
 		string queueAddrS = queueAddr + "-S"; // Plugin -> Hatohol
 		string queueAddrT = queueAddr + "-T"; // Plugin <- Hatohol
 		if (workInServer) {
@@ -172,11 +167,28 @@ struct HatoholArmPluginInterface::PrivateContext {
 		generalLock.unlock();
 	}
 
+	string getQueueAddress(void)
+	{
+		string addr;
+		generalLock.lock();
+		addr = queueAddress;
+		generalLock.unlock();
+		return addr;
+	}
+
+	void setQueueAddress(const string &_queueAddr)
+	{
+		generalLock.lock();
+		queueAddress = _queueAddr;
+		generalLock.unlock();
+	}
+
 private:
 	bool       connected;
 	MutexLock  connectionLock;
 	mutable MutexLock generalLock;
 	string     brokerUrl;
+	string     queueAddress;
 };
 
 // ---------------------------------------------------------------------------
@@ -193,11 +205,6 @@ HatoholArmPluginInterface::~HatoholArmPluginInterface()
 	exitSync();
 	if (m_ctx)
 		delete m_ctx;
-}
-
-void HatoholArmPluginInterface::setQueueAddress(const string &queueAddr)
-{
-	m_ctx->setQueueAddress(queueAddr);
 }
 
 void HatoholArmPluginInterface::send(const string &message)
@@ -250,11 +257,6 @@ void HatoholArmPluginInterface::registerCommandHandler(
   const HapiCommandCode &code, CommandHandler handler)
 {
 	m_ctx->receiveHandlerMap[code] = handler;
-}
-
-const string &HatoholArmPluginInterface::getQueueAddress(void) const
-{
-	return m_ctx->queueAddr;
 }
 
 const char *HatoholArmPluginInterface::getString(
@@ -585,6 +587,16 @@ string HatoholArmPluginInterface::getBrokerUrl(void) const
 void HatoholArmPluginInterface::setBrokerUrl(const string &brokerUrl)
 {
 	m_ctx->setBrokerUrl(brokerUrl);
+}
+
+string HatoholArmPluginInterface::getQueueAddress(void) const
+{
+	return m_ctx->getQueueAddress();
+}
+
+void HatoholArmPluginInterface::setQueueAddress(const string &queueAddr)
+{
+	return m_ctx->setQueueAddress(queueAddr);
 }
 
 // ---------------------------------------------------------------------------
