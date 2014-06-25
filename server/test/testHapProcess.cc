@@ -42,11 +42,11 @@ public:
 	}
 };
 
-#define PARSE_OPTION(ARGV) \
+#define PARSE_OPTION(ARGV, VAR_NAME) \
 	int argc = sizeof(argv) / sizeof(char *); \
 	TestHapProcess hapProc(argc, (char**)argv); \
 	assertGError(hapProc.callGetErrorOfCommandLineArg()); \
-	const HapCommandLineArg &cmdLineArg = hapProc.callGetCommandLineArg();
+	const HapCommandLineArg &VAR_NAME = hapProc.callGetCommandLineArg();
 
 // ---------------------------------------------------------------------------
 // Test cases
@@ -75,7 +75,7 @@ void test_commandlineArgBrokerUrl(void)
 void test_commandlineArgBrokerUrlShort(void)
 {
 	const char *argv[] = {"progname", "-b", "example.com:52211"};
-	PARSE_OPTION(argv);
+	PARSE_OPTION(argv, cmdLineArg);
 	cut_assert_equal_string("example.com:52211", cmdLineArg.brokerUrl);
 }
 
