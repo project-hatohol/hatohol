@@ -109,6 +109,21 @@ void _assertEqual(
 	cppcut_assert_equal(expect.port,      actual.port);
 	cppcut_assert_equal(expect.pollingIntervalSec, actual.pollingIntervalSec);
 	cppcut_assert_equal(expect.retryIntervalSec, actual.retryIntervalSec);
+	cppcut_assert_equal(expect.userName,  actual.userName);
+	cppcut_assert_equal(expect.password,  actual.password);
+	cppcut_assert_equal(expect.dbName,    actual.dbName);
+}
+
+void _assertEqual(const ArmInfo &expect, const ArmInfo &actual)
+{
+	cppcut_assert_equal(expect.running,    actual.running);
+	cppcut_assert_equal(expect.stat,       actual.stat);
+	cppcut_assert_equal(expect.statUpdateTime, actual.statUpdateTime);
+	cppcut_assert_equal(expect.failureComment, actual.failureComment);
+	cppcut_assert_equal(expect.lastSuccessTime, actual.lastSuccessTime);
+	cppcut_assert_equal(expect.lastFailureTime, actual.lastFailureTime);
+	cppcut_assert_equal(expect.numUpdate,  actual.numUpdate);
+	cppcut_assert_equal(expect.numFailure, actual.numFailure);
 }
 
 struct SpawnSyncContext {
@@ -403,6 +418,18 @@ string makeServerInfoOutput(const MonitoringServerInfo &serverInfo)
 	return expectedOut;
 }
 
+std::string makeArmPluginInfoOutput(const ArmPluginInfo &armPluginInfo)
+{
+	string expectedOut = StringUtils::sprintf
+	                       ("%u|%d|%s|%s|%s|%" FMT_SERVER_ID "\n",
+	                        armPluginInfo.id, armPluginInfo.type,
+	                        armPluginInfo.path.c_str(),
+	                        armPluginInfo.brokerUrl.c_str(),
+	                        armPluginInfo.staticQueueAddress.c_str(),
+	                        armPluginInfo.serverId);
+	return expectedOut;
+}
+
 string makeIssueTrackerInfoOutput(const IssueTrackerInfo &issueTrackerInfo)
 {
 	string expectedOut =
@@ -553,12 +580,31 @@ void _assertServersInDB(const ServerIdSet &excludeServerIdSet)
 	string expect;
 	for (size_t i = 0; i < NumTestServerInfo; i++) {
 		ServerIdType serverId = i + 1;
+		// We must make a copy because the member will be changed.
 		MonitoringServerInfo serverInfo = testServerInfo[i];
 		serverInfo.id = serverId;
 		ServerIdSetIterator it = excludeServerIdSet.find(serverId);
 		if (it != excludeServerIdSet.end())
 			continue;
 		expect += makeServerInfoOutput(serverInfo);
+	}
+	CacheServiceDBClient cache;
+	assertDBContent(cache.getConfig()->getDBAgent(), statement, expect);
+}
+
+void _assertArmPluginsInDB(const set<int> &excludeIdSet)
+{
+	string statement = "SELECT * FROM arm_plugins ORDER BY id ASC";
+	string expect;
+	for (size_t i = 0; i < NumTestArmPluginInfo; i++) {
+		const int id = i + 1;
+		// We must make a copy because the member will be changed.
+		ArmPluginInfo armPluginInfo = testArmPluginInfo[i];
+		armPluginInfo.id = id;
+		set<int>::const_iterator it = excludeIdSet.find(id);
+		if (it != excludeIdSet.end())
+			continue;
+		expect += makeArmPluginInfoOutput(armPluginInfo);
 	}
 	CacheServiceDBClient cache;
 	assertDBContent(cache.getConfig()->getDBAgent(), statement, expect);
@@ -756,8 +802,7 @@ void setupTestDBConfig(bool dbRecreate, bool loadTestData)
 	static const char *TEST_DB_PASSWORD = ""; // empty: No password is used
 	DBClient::setDefaultDBParams(DB_DOMAIN_ID_CONFIG, TEST_DB_NAME,
 	                             TEST_DB_USER, TEST_DB_PASSWORD);
-	bool recreate = true;
-	makeTestMySQLDBIfNeeded(TEST_DB_NAME, recreate);
+	makeTestMySQLDBIfNeeded(TEST_DB_NAME, dbRecreate);
 	if (loadTestData) {
 		loadTestDBServer();
 		loadTestDBIssueTracker();
@@ -828,8 +873,9 @@ void loadTestDBArmPlugin(void)
 {
 	DBClientConfig dbConfig;
 	for (size_t i = 0; i < NumTestArmPluginInfo; i++) {
-		HatoholError err =
-		  dbConfig.saveArmPluginInfo(testArmPluginInfo[i]);
+		// Make a copy since armPluginInfo.id will be set.
+		ArmPluginInfo armPluginInfo = testArmPluginInfo[i];
+		HatoholError err = dbConfig.saveArmPluginInfo(armPluginInfo);
 		assertHatoholError(HTERR_OK, err);
 	}
 }
@@ -986,6 +1032,18 @@ void initServerInfo(MonitoringServerInfo &serverInfo)
 	serverInfo.retryIntervalSec = 1;
 }
 
+void setTestValue(ArmInfo &armInfo)
+{
+	armInfo.running = true;
+	armInfo.stat = ARM_WORK_STAT_FAILURE;
+	armInfo.statUpdateTime = SmartTime(SmartTime::INIT_CURR_TIME);
+	armInfo.failureComment = "How times have changed!";
+	armInfo.lastSuccessTime = SmartTime();
+	armInfo.lastFailureTime = SmartTime(SmartTime::INIT_CURR_TIME);
+	armInfo.numUpdate  = 12345678;
+	armInfo.numFailure = 543210;
+}
+
 static GMainContext *g_acquiredContext = NULL;
 void _acquireDefaultContext(void)
 {
@@ -1096,6 +1154,14 @@ void _assertFileContent(const string &expect, const string &path)
 	Reaper<void> reaper(contents, g_free);
 	cut_assert_equal_memory(expect.c_str(), expect.size(),
 	                        contents, length);
+}
+
+void prepareDataWithAndWithoutArmPlugin(void)
+{
+	gcut_add_datum("w/o ArmPlugin",
+	               "withArmPlugin", G_TYPE_BOOLEAN, FALSE, NULL);
+	gcut_add_datum("w/ ArmPlugin",
+	               "withArmPlugin", G_TYPE_BOOLEAN, TRUE, NULL);
 }
 
 // ---------------------------------------------------------------------------

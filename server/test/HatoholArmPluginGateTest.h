@@ -39,6 +39,7 @@ struct HapgTestCtx {
 	bool                 cancelRetrySleep;
 	bool                 checkNumRetry;
 	bool                 useDefaultReceivedHandler;
+	std::string          expectRcvMessage;
 
 	// Set by HatoholArmgPluginTest
 	mlpl::SimpleSemaphore launchedSem;
@@ -76,6 +77,7 @@ public:
 	                         HapgTestCtx &_ctx);
 	static std::string callGenerateBrokerAddress(
 	  const MonitoringServerInfo &serverInfo);
+	void callSendTerminateCommand(void);
 
 	// We assume these virtual funcitons are called from
 	// the plugin's thread.

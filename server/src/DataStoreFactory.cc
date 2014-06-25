@@ -21,7 +21,7 @@
 #include "DataStoreFake.h"
 #include "DataStoreZabbix.h"
 #include "DataStoreNagios.h"
-#include "HapgZabbixAPI.h"
+#include "HatoholArmPluginGate.h"
 
 DataStore *DataStoreFactory::create(const MonitoringServerInfo &svInfo,
                                     const bool &autoStart)
@@ -34,7 +34,12 @@ DataStore *DataStoreFactory::create(const MonitoringServerInfo &svInfo,
 	case MONITORING_SYSTEM_NAGIOS:
 		return new DataStoreNagios(svInfo, autoStart);
 	case MONITORING_SYSTEM_HAPI_ZABBIX:
-		return new HapgZabbixAPI(svInfo, autoStart);
+	{
+		HatoholArmPluginGate *gate = new HatoholArmPluginGate(svInfo);
+		if (autoStart)
+			gate->start();
+                return gate;
+	}
 	default:
 		MLPL_BUG("Invalid monitoring system: %d\n", svInfo.type);
 	}

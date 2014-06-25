@@ -29,12 +29,27 @@
 #include "CacheServiceDBClient.h"
 #include "ItemFetchWorker.h"
 #include "DataStoreFactory.h"
+#include "HatoholArmPluginGate.h" // TODO: remove after dynamic_cast is deleted
 
 using namespace std;
 using namespace mlpl;
 
 typedef map<ServerIdType, DataStore *> ServerIdDataStoreMap;
 typedef ServerIdDataStoreMap::iterator ServerIdDataStoreMapIterator;
+
+static ArmInfo getArmInfo(DataStore *dataStore)
+{
+	// TODO: Too direct. Be elegant.
+	// HatoholArmPluginGate::getArmBase is stub to pass
+	// the build. So we can't use it.
+	// Our new design suggests that DataStore instance
+	// provides getArmStats() directly.
+	HatoholArmPluginGate *pluginGate =
+	  dynamic_cast<HatoholArmPluginGate *>(dataStore);
+	if (pluginGate)
+		return pluginGate->getArmStatus().getArmInfo();
+	return dataStore->getArmBase().getArmStatus().getArmInfo();
+}
 
 // ---------------------------------------------------------------------------
 // UnifiedDataStore
@@ -165,10 +180,8 @@ struct UnifiedDataStore::PrivateContext
 		  "svInfo.id: %" FMT_SERVER_ID ", serverId: %" FMT_SERVER_ID, 
 		  svInfo.id, serverId);
 
-		if (isRunning) {
-			ArmInfo armInfo = armBase.getArmStatus().getArmInfo();
-			*isRunning = armInfo.running;
-		}
+		if (isRunning)
+			*isRunning = getArmInfo(it->second).running;
 		dataStoreManager.remove(serverId);
 		return HTERR_OK;
 	}
@@ -518,20 +531,23 @@ HatoholError UnifiedDataStore::deleteUserRole(
 }
 
 void UnifiedDataStore::getTargetServers(
-  MonitoringServerInfoList &monitoringServers, ServerQueryOption &option)
+  MonitoringServerInfoList &monitoringServers, ServerQueryOption &option,
+  ArmPluginInfoVect *armPluginInfoVect)
 {
 	CacheServiceDBClient cache;
 	DBClientConfig *dbConfig = cache.getConfig();
-	dbConfig->getTargetServers(monitoringServers, option);
+	dbConfig->getTargetServers(monitoringServers, option,
+	                           armPluginInfoVect);
 }
 
 HatoholError UnifiedDataStore::addTargetServer(
-  MonitoringServerInfo &svInfo, const OperationPrivilege &privilege,
-  const bool &autoRun)
+  MonitoringServerInfo &svInfo, ArmPluginInfo &armPluginInfo,
+  const OperationPrivilege &privilege, const bool &autoRun)
 {
 	CacheServiceDBClient cache;
 	DBClientConfig *dbConfig = cache.getConfig();
-	HatoholError err = dbConfig->addTargetServer(&svInfo, privilege);
+	HatoholError err = dbConfig->addTargetServer(&svInfo, privilege,
+	                                             &armPluginInfo);
 	if (err != HTERR_OK)
 		return err;
 
@@ -539,11 +555,13 @@ HatoholError UnifiedDataStore::addTargetServer(
 }
 
 HatoholError UnifiedDataStore::updateTargetServer(
-  MonitoringServerInfo &svInfo, const OperationPrivilege &privilege)
+  MonitoringServerInfo &svInfo, ArmPluginInfo &armPluginInfo,
+  const OperationPrivilege &privilege)
 {
 	CacheServiceDBClient cache;
 	DBClientConfig *dbConfig = cache.getConfig();
-	HatoholError err = dbConfig->updateTargetServer(&svInfo, privilege);
+	HatoholError err = dbConfig->updateTargetServer(&svInfo, privilege,
+	                                                &armPluginInfo);
 	if (err != HTERR_OK)
 		return err;
 
@@ -582,8 +600,7 @@ void UnifiedDataStore::getServerConnStatusVector(
 			continue;
 		ServerConnStatus svConnStat;
 		svConnStat.serverId = *serverIdItr;
-		svConnStat.armInfo =
-		   dataStorePtr->getArmBase().getArmStatus().getArmInfo();
+		svConnStat.armInfo = getArmInfo(dataStorePtr);
 		svConnStatVec.push_back(svConnStat);
 	}
 }

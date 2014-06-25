@@ -230,8 +230,10 @@ void test_serverIdDataStoreMap(void)
 	cppcut_assert_equal(false, uds->getDataStore(svInfo.id).hasData());
 
 	// Create a DataStore instance.
-	assertHatoholError(HTERR_OK,
-	                   uds->addTargetServer(svInfo, USER_ID_SYSTEM, false));
+	ArmPluginInfo *armPluginInfo = NULL;
+	assertHatoholError(
+	  HTERR_OK, uds->addTargetServer(svInfo, *armPluginInfo,
+	                                 USER_ID_SYSTEM, false));
 
 	DataStorePtr dataStore0 = uds->getDataStore(svInfo.id);
 	cppcut_assert_equal(true, dataStore0.hasData());

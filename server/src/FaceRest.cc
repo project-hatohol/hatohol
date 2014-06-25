@@ -37,6 +37,7 @@
 #include "DBClientConfig.h"
 #include "SessionManager.h"
 #include "CacheServiceDBClient.h"
+#include "HatoholArmPluginInterface.h"
 using namespace std;
 using namespace mlpl;
 
@@ -1145,14 +1146,20 @@ static void addServers(FaceRest::RestJob *job, JsonBuilderAgent &agent,
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	MonitoringServerInfoList monitoringServers;
+	ArmPluginInfoVect armPluginInfoVect;
 	ServerQueryOption option(job->dataQueryContextPtr);
 	option.setTargetServerId(targetServerId);
-	dataStore->getTargetServers(monitoringServers, option);
+	dataStore->getTargetServers(monitoringServers, option,
+	                            &armPluginInfoVect);
 
 	agent.add("numberOfServers", monitoringServers.size());
 	agent.startArray("servers");
 	MonitoringServerInfoListIterator it = monitoringServers.begin();
-	for (; it != monitoringServers.end(); ++it) {
+	ArmPluginInfoVectConstIterator pluginIt = armPluginInfoVect.begin();
+	HATOHOL_ASSERT(monitoringServers.size() == armPluginInfoVect.size(),
+	               "The nubmer of elements differs: %zd, %zd",
+	               monitoringServers.size(), armPluginInfoVect.size());
+	for (; it != monitoringServers.end(); ++it, ++pluginIt) {
 		MonitoringServerInfo &serverInfo = *it;
 		agent.startObject();
 		agent.add("id", serverInfo.id);
@@ -1174,6 +1181,11 @@ static void addServers(FaceRest::RestJob *job, JsonBuilderAgent &agent,
 			addNumberOfAllowedHostgroups(dataStore, job->userId,
 			                             targetUserId, serverInfo.id,
 			                             agent);
+		}
+		if (pluginIt->id != INVALID_ARM_PLUGIN_INFO_ID) {
+			agent.add("brokerUrl", pluginIt->brokerUrl);
+			agent.add("staticQueueAddress",
+			          pluginIt->staticQueueAddress);
 		}
 		agent.endObject();
 	}
@@ -1496,8 +1508,10 @@ void FaceRest::handlerGetServer(RestJob *job)
 }
 
 HatoholError FaceRest::parseServerParameter(
-  MonitoringServerInfo &svInfo, GHashTable *query, bool allowEmpty)
+  MonitoringServerInfo &svInfo, ArmPluginInfo &armPluginInfo,
+  GHashTable *query, const bool &forUpdate)
 {
+	const bool allowEmpty = forUpdate;
 	HatoholError err;
 	char *value;
 
@@ -1570,15 +1584,44 @@ HatoholError FaceRest::parseServerParameter(
 		svInfo.dbName = value;
 	}
 
+	//
+	// HAPI's parameters
+	//
+	if (!DBClientConfig::isHatoholArmPlugin(svInfo.type))
+		return HTERR_OK;
+
+	if (!forUpdate) {
+		armPluginInfo.id = AUTO_INCREMENT_VALUE;
+		// The proper sever ID will be set later when the DB record
+		// of the concerned MonitoringServerInfo is created in
+		// DBClientConfig::addTargetServer()
+		armPluginInfo.serverId = INVALID_SERVER_ID;
+	}
+	armPluginInfo.type = svInfo.type;
+	armPluginInfo.path =
+	  HatoholArmPluginInterface::getDefaultPluginPath(svInfo.type) ? : "";
+
+	// brokerUrl
+	value = (char *)g_hash_table_lookup(query, "brokerUrl");
+	if (value)
+		armPluginInfo.brokerUrl = value;
+
+	// staticQueueAddress
+	value = (char *)g_hash_table_lookup(query, "staticQueueAddress");
+	if (value)
+		armPluginInfo.staticQueueAddress = value;
+
 	return HTERR_OK;
 }
 
 void FaceRest::handlerPostServer(RestJob *job)
 {
 	MonitoringServerInfo svInfo;
+	ArmPluginInfo        armPluginInfo;
+	ArmPluginInfo::initialize(armPluginInfo);
 	HatoholError err;
 
-	err = parseServerParameter(svInfo, job->query);
+	err = parseServerParameter(svInfo, armPluginInfo, job->query);
 	if (err != HTERR_OK) {
 		replyError(job, err);
 		return;
@@ -1586,7 +1629,8 @@ void FaceRest::handlerPostServer(RestJob *job)
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	err = dataStore->addTargetServer(
-	  svInfo, job->dataQueryContextPtr->getOperationPrivilege());
+	  svInfo, armPluginInfo,
+	  job->dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
 		replyError(job, err);
 		return;
@@ -1614,6 +1658,7 @@ void FaceRest::handlerPutServer(RestJob *job)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	MonitoringServerInfoList serversList;
 	ServerQueryOption option(job->dataQueryContextPtr);
+	option.setTargetServerId(serverId);
 	dataStore->getTargetServers(serversList, option);
 	if (serversList.empty()) {
 		REPLY_ERROR(job, HTERR_NOT_FOUND_TARGET_RECORD,
@@ -1622,20 +1667,27 @@ void FaceRest::handlerPutServer(RestJob *job)
 	}
 
 	MonitoringServerInfo serverInfo;
+	ArmPluginInfo        armPluginInfo;
 	serverInfo = *serversList.begin();
 	serverInfo.id = serverId;
+	// TODO: Use unified data store and consider wethere the 'option'
+	// for privilege is needed for getting information. We've already
+	// checked it above. So it's not absolutely necessary.
+	CacheServiceDBClient cache;
+	DBClientConfig *dbConfig = cache.getConfig();
+	dbConfig->getArmPluginInfo(armPluginInfo, serverId);
 
 	// check the request
 	bool allowEmpty = true;
-	HatoholError err = parseServerParameter(serverInfo, job->query,
-						allowEmpty);
+	HatoholError err = parseServerParameter(serverInfo, armPluginInfo,
+	                                        job->query, allowEmpty);
 	if (err != HTERR_OK) {
 		replyError(job, err);
 		return;
 	}
 
 	// try to update
-	err = dataStore->updateTargetServer(serverInfo, option);
+	err = dataStore->updateTargetServer(serverInfo, armPluginInfo, option);
 	if (err != HTERR_OK) {
 		replyError(job, err);
 		return;

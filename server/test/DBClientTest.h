@@ -161,6 +161,16 @@ size_t findIndexFromTestActionDef(const UserIdType &userId);
  */
 const HostgroupIdSet &getTestHostgroupIdSet(void);
 
+/**
+ * Find an index of the record that has the specified type.
+ *
+ * @return
+ * An index if returned when the record is found. Otherwise -1 is returned.
+ */
+int findIndexOfTestArmPluginInfo(const MonitoringSystemType &type);
+int findIndexOfTestArmPluginInfo(const ServerIdType &serverId);
+const ArmPluginInfo &getTestArmPluginInfo(const MonitoringSystemType &type);
+
 extern const MonitoringSystemType MONITORING_SYSTEM_HAPI_TEST;
 extern const MonitoringSystemType MONITORING_SYSTEM_HAPI_TEST_NOT_EXIST;
 extern const MonitoringSystemType MONITORING_SYSTEM_HAPI_TEST_PASSIVE;

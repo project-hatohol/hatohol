@@ -75,6 +75,9 @@ var HatoholServerEditDialog = function(params) {
     queryData.userName = $("#inputUserName").val();
     queryData.password = $("#inputPassword").val();
     queryData.dbName = $("#inputDbName").val();
+
+    queryData.brokerUrl = $("#inputBrokerUrl").val();
+    queryData.staticQueueAddress = $("#inputStaticQueueAddr").val();
     return queryData;
   }
 
@@ -106,7 +109,8 @@ var HatoholServerEditDialog = function(params) {
     var type = $("#selectServerType").val();
 
     if (type != hatohol.MONITORING_SYSTEM_ZABBIX &&
-        type != hatohol.MONITORING_SYSTEM_NAGIOS)
+        type != hatohol.MONITORING_SYSTEM_NAGIOS &&
+        type != hatohol.MONITORING_SYSTEM_HAPI_ZABBIX)
     {
       hatoholErrorMsgBox(gettext("Invalid Server type!"));
       return false;
@@ -170,6 +174,8 @@ HatoholServerEditDialog.prototype.createMainElement = function() {
       gettext("Zabbix") + '</option>';
     s += '    <option value="' + hatohol.MONITORING_SYSTEM_NAGIOS +'">' +
       gettext("Nagios") + '</option>';
+    s += '    <option value="' + hatohol.MONITORING_SYSTEM_HAPI_ZABBIX +'">' +
+      gettext("Zabbix (HAPI) [experimental]") + '</option>';
     s += '  </select>';
     s += '</form>';
     s += '<form class="form-inline">';
@@ -200,6 +206,20 @@ HatoholServerEditDialog.prototype.createMainElement = function() {
     s += '  <label for="inputRetryInterval">' + gettext("Retry interval (sec)") + '</label>';
     s += '  <input id="inputRetryInterval" type="text" value="10" style="width:4em;" class="input-xlarge">';
     s += '</form>';
+
+    // Input form for HAPI's parameter
+    s += '<form class="form-inline" style="display:none;" id="hapiParamArea">';
+    // Broker URL
+    s += '  <label for="inputBrokerUrl">' + gettext("Broker URL") + '</label>';
+    s += '  <input id="inputBrokerUrl" type="text" value="" style="width:10em" class="input-xlarge"';
+    s += '  <label for="inputBrokerUrl">' + gettext("(empty: Default)") + '</label>';
+    s += '<br>'
+    // Static queue address
+    s += '  <label for="inputStaticQueueAddr">' + gettext("Static queue address") + '</label>';
+    s += '  <input id="inputStaticQueueAddr" type="text" value="" style="width:10em" class="input-xlarge"';
+    s += '  <label for="inputStaticQueueAddr">' + gettext("(empty: Default)") + '</label>';
+
+    s += '</form>';
     s += '</div>';
     return s;
   }
@@ -218,8 +238,13 @@ HatoholServerEditDialog.prototype.onAppendMainElement = function () {
     var type = $("#selectServerType").val();
     if (type == hatohol.MONITORING_SYSTEM_ZABBIX) {
       self.setDBNameTextState(false);
+      self.setHapiParamState(false);
     } else if (type == hatohol.MONITORING_SYSTEM_NAGIOS) {
       self.setDBNameTextState(true);
+      self.setHapiParamState(false);
+    } else if (type == hatohol.MONITORING_SYSTEM_HAPI_ZABBIX) {
+      self.setDBNameTextState(false);
+      self.setHapiParamState(true);
     }
   });
 
@@ -295,6 +320,15 @@ HatoholServerEditDialog.prototype.setDBNameTextState = function(state) {
   }
 };
 
+HatoholServerEditDialog.prototype.setHapiParamState = function(state) {
+  var hapiParamArea = $("#hapiParamArea");
+  if (state) {
+    hapiParamArea.show();
+  } else {
+    hapiParamArea.hide();
+  }
+}
+
 HatoholServerEditDialog.prototype.setServer = function(server) {
   this.server = server;
   $("#selectServerType").val(server.type);
@@ -307,7 +341,10 @@ HatoholServerEditDialog.prototype.setServer = function(server) {
   $("#inputDbName").val(server.dbName);
   $("#inputPollingInterval").val(server.pollingInterval);
   $("#inputRetryInterval").val(server.retryInterval);
+  $("#inputBrokerUrl").val(server.brokerUrl);
+  $("#inputStaticQueueAddr").val(server.staticQueueAddress);
 
   this.setDBNameTextState(server.type == hatohol.MONITORING_SYSTEM_NAGIOS);
+  this.setHapiParamState(server.type == hatohol.MONITORING_SYSTEM_HAPI_ZABBIX);
   this.fixupApplyButtonState();
 };

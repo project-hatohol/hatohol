@@ -21,6 +21,7 @@
 #define HatoholArmPluginBase_h
 
 #include <SmartTime.h>
+#include "ArmStatus.h"
 #include "ItemTablePtr.h"
 #include "MonitoringServerInfo.h"
 #include "HatoholArmPluginInterface.h"
@@ -67,6 +68,12 @@ protected:
 	virtual void onGotResponse(const HapiResponseHeader *header,
 	                           mlpl::SmartBuffer &resBuf) override;
 
+	/**
+	 * Called when the terminate command is received. The default
+	 * behavior is calling exit(EXIT_SUCCESS).
+	 */
+	virtual void onReceivedTerminate(void);
+
 	void sendCmdGetMonitoringServerInfo(void);
 	bool parseReplyGetMonitoringServerInfo(
 	  MonitoringServerInfo &serverInfo);
@@ -76,6 +83,9 @@ protected:
 	void waitResponseAndCheckHeader(void);
 	void sendTable(const HapiCommandCode &code,
 	               const ItemTablePtr &tablePtr);
+	void sendArmInfo(const ArmInfo &armInfo);
+
+	void cmdHandlerTerminate(const HapiCommandHeader *header);
 
 private:
 	struct PrivateContext;

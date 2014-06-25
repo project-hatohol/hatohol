@@ -99,6 +99,13 @@ void ArmStatus::logFailure(const string &comment,
 	m_ctx->rwlock.unlock();
 }
 
+void ArmStatus::setArmInfo(const ArmInfo &armInfo)
+{
+	m_ctx->rwlock.writeLock();
+	m_ctx->armInfo = armInfo;
+	m_ctx->rwlock.unlock();
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

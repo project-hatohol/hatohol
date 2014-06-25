@@ -30,11 +30,13 @@
 #include <qpid/messaging/Session.h>
 #include "HatoholArmPluginInterface.h"
 #include "HatoholException.h"
+#include "MonitoringServerInfo.h"
 
 using namespace std;
 using namespace mlpl;
 using namespace qpid::messaging;
 
+const char *HatoholArmPluginInterface::ENV_NAME_QUEUE_ADDR = "HAPI_QUEUE_ADDR";
 const char *HatoholArmPluginInterface::DEFAULT_BROKER_URL = "localhost:5672";
 const uint32_t HatoholArmPluginInterface::SEQ_ID_UNKNOWN = UINT32_MAX;
 const uint32_t HatoholArmPluginInterface::SEQ_ID_MAX     = UINT32_MAX - 1;
@@ -545,6 +547,20 @@ ItemDataPtr HatoholArmPluginInterface::createItemData(SmartBuffer &sbuf)
 		itemData->setNull();
 
 	return ItemDataPtr(itemData, false);
+}
+
+const char *HatoholArmPluginInterface::getDefaultPluginPath(
+  const MonitoringSystemType &type)
+{
+	switch (type) {
+	case MONITORING_SYSTEM_HAPI_ZABBIX:
+		return "hatohol-arm-plugin-zabbix";
+	case MONITORING_SYSTEM_HAPI_NAGIOS:
+		return "hatohol-arm-plugin-nagios";
+	default:
+		;
+	}
+	return NULL;
 }
 
 // ---------------------------------------------------------------------------

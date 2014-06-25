@@ -40,6 +40,11 @@ public:
 	{
 	}
 
+	void callSendArmInfo(const ArmInfo &armInfo)
+	{
+		sendArmInfo(armInfo);
+	}
+
 protected:
 	void onConnected(Connection &conn) override
 	{
@@ -108,11 +113,24 @@ void test_getTimestampOfLastTrigger(void)
 void test_getLastEventId(void)
 {
 	loadTestDBEvents();
-	const ServerIdType serverId = 1;
+	const ServerIdType serverId =
+	  getTestArmPluginInfo(MONITORING_SYSTEM_HAPI_TEST_PASSIVE).serverId;
 	TestPair pair(serverId);
 	const EventIdType expect = findLastEventId(serverId);
 	const EventIdType actual = pair.plugin->getLastEventId();
 	cppcut_assert_equal(expect, actual);
+}
+
+void test_sendArmInfo(void)
+{
+	ArmInfo armInfo;
+	setTestValue(armInfo);
+	const ServerIdType serverId =
+	  getTestArmPluginInfo(MONITORING_SYSTEM_HAPI_TEST_PASSIVE).serverId;
+	TestPair pair(serverId);
+	pair.plugin->callSendArmInfo(armInfo);
+	pair.gate->assertWaitHandledCommand(HAPI_CMD_SEND_ARM_INFO);
+	assertEqual(armInfo, pair.gate->getArmStatus().getArmInfo());
 }
 
 } // namespace testHatoholArmPluginBase

@@ -32,6 +32,7 @@
 #include "DBClientConfig.h"
 #include "DBClientHatohol.h"
 #include "DBClientAction.h"
+#include "ArmStatus.h"
 
 #define DBCONTENT_MAGIC_CURR_DATETIME "#CURR_DATETIME#"
 #define DBCONTENT_MAGIC_NULL          "#NULL#"
@@ -85,6 +86,7 @@ extern void _assertItemTable(
 
 extern void _assertEqual(
   const MonitoringServerInfo &expect, const MonitoringServerInfo &actual);
+extern void _assertEqual(const ArmInfo &expect, const ArmInfo &actual);
 #define assertEqual(E,A) cut_trace(_assertEqual(E,A))
 
 std::string executeCommand(const std::string &commandLine);
@@ -104,6 +106,7 @@ std::string execMySQL(const std::string &dbName, const std::string &statement,
                       bool showHeader = false);
 
 std::string makeServerInfoOutput(const MonitoringServerInfo &serverInfo);
+std::string makeArmPluginInfoOutput(const ArmPluginInfo &armPluginInfo);
 std::string makeIssueTrackerInfoOutput(const IssueTrackerInfo &issueTrackerInfo);
 std::string makeUserRoleInfoOutput(const UserRoleInfo &userRoleInfo);
 std::string makeEventOutput(const EventInfo &eventInfo);
@@ -149,6 +152,9 @@ template<typename T> void _assertAddToDB(T *arg, void (*func)(T *))
 void _assertServersInDB(const ServerIdSet &excludeServerIdSet = EMPTY_SERVER_ID_SET);
 #define assertServersInDB(E) cut_trace(_assertServersInDB(E))
 
+void _assertArmPluginsInDB(const std::set<int> &excludeIdSet);
+#define assertArmPluginsInDB(E) cut_trace(_assertArmPluginsInDB(E))
+
 void _assertUsersInDB(const UserIdSet &excludeUserIdSet = EMPTY_USER_ID_SET);
 #define assertUsersInDB(E) cut_trace(_assertUsersInDB(E))
 
@@ -188,6 +194,7 @@ void insertValidServerCond(
   std::string &condition, const HostResourceQueryOption &opt,
   const std::string &tableName = "");
 void initServerInfo(MonitoringServerInfo &serverInfo);
+void setTestValue(ArmInfo &armInfo);
 
 /**
  * Make a format string for a double float value that can be used for
@@ -214,6 +221,8 @@ std::string getSyslogTail(size_t numLines);
 
 void _assertFileContent(const std::string &expect, const std::string &path);
 #define assertFileContent(E,P) cut_trace(_assertFileContent(E,P))
+
+void prepareDataWithAndWithoutArmPlugin(void);
 
 class Watcher {
 	bool expired;

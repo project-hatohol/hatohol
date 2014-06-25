@@ -38,11 +38,16 @@ namespace testHatoholArmPluginGate {
 static void _assertStartAndExit(HapgTestCtx &ctx)
 {
 	static const size_t TIMEOUT = 5000;
+	if (ctx.checkMessage)
+		ctx.expectRcvMessage = testMessage;
+
 	setupTestDBConfig();
+	loadTestDBServer();
 	loadTestDBArmPlugin();
 	MonitoringServerInfo serverInfo;
 	initServerInfo(serverInfo);
 	serverInfo.type = ctx.monitoringSystemType;
+	serverInfo.id = getTestArmPluginInfo(ctx.monitoringSystemType).serverId;
 	HatoholArmPluginGateTest *hapg =
 	  new HatoholArmPluginGateTest(serverInfo, ctx);
 	HatoholArmPluginGatePtr pluginGate(hapg, false);
@@ -147,5 +152,12 @@ void test_abortRetryWait(void)
 	ctx.cancelRetrySleep = true;
 	assertStartAndExit(ctx);
 }
+
+// TODO: implement
+/*
+void test_terminateCommand(void)
+{
+}
+*/
 
 } // namespace testHatoholArmPluginGate

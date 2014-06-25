@@ -17,30 +17,42 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "HapgZabbixAPI.h"
+#include <cppcutter.h>
+#include "Hatohol.h"
+#include "Helpers.h"
+#include "HatoholArmPluginGateTest.h"
+#include "ChildProcessManager.h"
 
-using namespace std;
-using namespace mlpl;
+namespace test_hatohol_arm_plugin_zabbix {
 
-struct HapgZabbixAPI::PrivateContext {
-};
-
-// ---------------------------------------------------------------------------
-// Public methods
-// ---------------------------------------------------------------------------
-HapgZabbixAPI::HapgZabbixAPI(const MonitoringServerInfo &svInfo,
-                             const bool &autoStart)
-: HatoholArmPluginGate(svInfo),
-  m_ctx(NULL)
+void cut_setup(void)
 {
-	m_ctx = new PrivateContext();
+	hatoholInit();
+}
+
+void cut_teardown(void)
+{
+	ChildProcessManager::getInstance()->reset();
 }
 
 // ---------------------------------------------------------------------------
-// Public methods
+// Test cases
 // ---------------------------------------------------------------------------
-HapgZabbixAPI::~HapgZabbixAPI()
+void test_launch(void)
 {
-	if (m_ctx)
-		delete m_ctx;
+	HapgTestCtx ctx;
+	ctx.useDefaultReceivedHandler = true;
+	setupTestDBConfig();
+	loadTestDBArmPlugin();
+	MonitoringServerInfo serverInfo;
+	initServerInfo(serverInfo);
+	serverInfo.type = MONITORING_SYSTEM_HAPI_ZABBIX;
+	serverInfo.id = getTestArmPluginInfo(serverInfo.type).serverId;
+	HatoholArmPluginGateTestPtr pluginGate(
+	  new HatoholArmPluginGateTest(serverInfo, ctx), false);
+	pluginGate->start();
+	pluginGate->assertWaitConnected();
+	pluginGate->assertWaitInitiated();
 }
+
+} // namespace test_hatohol_arm_plugin_zabbix

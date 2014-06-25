@@ -29,7 +29,6 @@
 class HatoholArmPluginGate : public DataStore, public HatoholArmPluginInterface {
 public:
 	static const std::string PassivePluginQuasiPath;
-	static const char *ENV_NAME_QUEUE_ADDR;
 	static const int   NO_RETRY;
 
 	HatoholArmPluginGate(const MonitoringServerInfo &serverInfo);
@@ -50,10 +49,7 @@ public:
 	const ArmStatus &getArmStatus(void) const;
 
 	// This is dummy and this virtual method should be removed
-	virtual ArmBase &getArmBase(void) override
-	{
-		return *((ArmBase *)NULL);
-	}
+	virtual ArmBase &getArmBase(void) override;
 
 	// virtual methods
 
@@ -83,9 +79,15 @@ protected:
 	  const bool &succeeded, const ArmPluginInfo &armPluginInfo);
 	virtual void onTerminated(const siginfo_t *siginfo);
 
+	/**
+	 * Terminates the plugin and wait for it.
+	 */
+	virtual void terminatePluginSync(void);
+
 	bool launchPluginProcess(const ArmPluginInfo &armPluginInfo);
 	static std::string generateBrokerAddress(
 	  const MonitoringServerInfo &serverInfo);
+	void sendTerminateCommand(void);
 
 	void cmdHandlerGetMonitoringServerInfo(
 	  const HapiCommandHeader *header);
@@ -97,6 +99,7 @@ protected:
 	void cmdHandlerSendHostgroupElements(const HapiCommandHeader *header);
 	void cmdHandlerSendHostgroups(const HapiCommandHeader *header);
 	void cmdHandlerSendUpdatedEvents(const HapiCommandHeader *header);
+	void cmdHandlerSendArmInfo(const HapiCommandHeader *header);
 
 private:
 	struct PrivateContext;

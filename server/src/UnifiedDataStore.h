@@ -141,11 +141,14 @@ public:
 
 	// Server
 	void getTargetServers(MonitoringServerInfoList &monitoringServers,
-	                      ServerQueryOption &option);
+	                      ServerQueryOption &option,
+	                      ArmPluginInfoVect *armPluginInfoVect = NULL);
 	HatoholError addTargetServer(MonitoringServerInfo &svInfo,
+	                             ArmPluginInfo &armPluginInfo,
 	                             const OperationPrivilege &privilege,
 	                             bool const &autoRun = true);
 	HatoholError updateTargetServer(MonitoringServerInfo &svInfo,
+	                                ArmPluginInfo &armPluginInfo,
 	                                const OperationPrivilege &privilege);
 	HatoholError deleteTargetServer(const ServerIdType &serverId,
 	                                const OperationPrivilege &privilege);

@@ -80,9 +80,16 @@ struct HatoholArmPluginTestPair : public HatoholArmPluginTestPairBase {
 		initServerInfo(serverInfo);
 		if (serverId != DEFAULT_SERVER_ID)
 			serverInfo.id = serverId;
+		serverInfo.hostName = "cat.cat.cat.com";
 		serverInfo.ipAddress = serverIpAddr;
+		serverInfo.nickname = "Lightning";
 		serverInfo.port = serverPort;
 		serverInfo.type = hapgCtx.monitoringSystemType;
+		serverInfo.pollingIntervalSec = 123;
+		serverInfo.retryIntervalSec = 3535;
+		serverInfo.userName = "hogetahogeo";
+		serverInfo.password = "honehonelock";
+		serverInfo.dbName   = "my_memory";
 		HatoholArmPluginGateTest *hapg =
 		  new HatoholArmPluginGateTest(serverInfo, hapgCtx);
 		return HatoholArmPluginGateTestPtr(hapg, false);

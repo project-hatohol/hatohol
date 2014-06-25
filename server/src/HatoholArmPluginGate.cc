@@ -23,11 +23,13 @@
 #include <qpid/messaging/Receiver.h>
 #include <qpid/messaging/Sender.h>
 #include <qpid/messaging/Session.h>
+#include <errno.h>
 #include <string>
 #include <cstring>
 #include <AtomicValue.h>
 #include <MutexLock.h>
 #include <Reaper.h>
+#include <SimpleSemaphore.h>
 #include "UnifiedDataStore.h"
 #include "HatoholArmPluginGate.h"
 #include "CacheServiceDBClient.h"
@@ -41,25 +43,66 @@ using namespace std;
 using namespace mlpl;
 using namespace qpid::messaging;
 
-const char *HatoholArmPluginGate::ENV_NAME_QUEUE_ADDR = "HAPI_QUEUE_ADDR";
 const int   HatoholArmPluginGate::NO_RETRY = -1;
 static const int DEFAULT_RETRY_INTERVAL = 10 * 1000; // ms
 
+static const size_t TIMEOUT_PLUGIN_TERM_CMD_MS     =  30 * 1000;
+static const size_t TIMEOUT_PLUGIN_TERM_SIGTERM_MS =  60 * 1000;
+static const size_t TIMEOUT_PLUGIN_TERM_SIGKILL_MS = 120 * 1000;
+
+class ImpromptuArmBase : public ArmBase {
+public:
+	ImpromptuArmBase(const MonitoringServerInfo &serverInfo)
+	: ArmBase("HatoholArmPluginGate", serverInfo)
+	{
+	}
+
+	virtual bool mainThreadOneProc(void) override
+	{
+		// This method is never called because nobody calls start().
+		// Just written to pass the build.
+		return true;
+	}
+};
+
 struct HatoholArmPluginGate::PrivateContext
 {
-	HatoholArmPluginGate *hapg;
-	MonitoringServerInfo serverInfo;    // we have a copy.
+	// We have a copy. The access to the object is MT-safe.
+	const MonitoringServerInfo serverInfo;
+
+	ImpromptuArmBase     armBase;
 	ArmPluginInfo        armPluginInfo;
 	ArmStatus            armStatus;
-	GPid                 pid;
+	AtomicValue<GPid>    pid;
+	SimpleSemaphore      pluginTermSem;
 	HostInfoCache        hostInfoCache;
+	MutexLock            exitSyncLock;
+	bool                 exitSyncDone;
 
 	PrivateContext(const MonitoringServerInfo &_serverInfo,
 	               HatoholArmPluginGate *_hapg)
-	: hapg(_hapg),
-	  serverInfo(_serverInfo),
-	  pid(0)
+	: serverInfo(_serverInfo),
+	  armBase(_serverInfo),
+	  pid(0),
+	  pluginTermSem(0),
+	  exitSyncDone(false)
 	{
+	}
+
+	/**
+	 * Wait for the temination of the plugin process.
+	 *
+	 * @param timeoutInMSec A timeout value in millisecond.
+	 *
+	 * @return
+	 * true if the plugin process is terminated within the given timeout
+	 * value. Otherwise, false is returned.
+	 */
+	bool waitTermPlugin(const size_t &timeoutInMSec)
+	{
+		SimpleSemaphore::Status status =
+		  pluginTermSem.timedWait(timeoutInMSec);
+		return (status == SimpleSemaphore::STAT_OK);
 	}
 };
 
@@ -117,6 +160,11 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 	  HAPI_CMD_SEND_UPDATED_EVENTS,
 	  (CommandHandler)
 	    &HatoholArmPluginGate::cmdHandlerSendUpdatedEvents);
+
+	registerCommandHandler(
+	  HAPI_CMD_SEND_ARM_INFO,
+	  (CommandHandler)
+	    &HatoholArmPluginGate::cmdHandlerSendArmInfo);
 }
 
 void HatoholArmPluginGate::start(void)
@@ -130,10 +178,26 @@ const ArmStatus &HatoholArmPluginGate::getArmStatus(void) const
 	return m_ctx->armStatus;
 }
 
+// TODO: remove this method
+ArmBase &HatoholArmPluginGate::getArmBase(void)
+{
+	return m_ctx->armBase;
+}
+
 void HatoholArmPluginGate::exitSync(void)
 {
+	m_ctx->exitSyncLock.lock();
+	Reaper<MutexLock> unlocker(&m_ctx->exitSyncLock, MutexLock::unlock);
+	if (m_ctx->exitSyncDone)
+		return;
+	MLPL_INFO("HatoholArmPluginGate: [%d:%s]: requested to exit.\n",
+	          m_ctx->serverInfo.id, m_ctx->serverInfo.hostName.c_str());
+	terminatePluginSync();
 	HatoholArmPluginInterface::exitSync();
 	m_ctx->armStatus.setRunningStatus(false);
+	MLPL_INFO("  => [%d:%s]: done.\n",
+	          m_ctx->serverInfo.id, m_ctx->serverInfo.hostName.c_str());
+	m_ctx->exitSyncDone = true;
 }
 
 // ---------------------------------------------------------------------------
@@ -141,6 +205,7 @@ void HatoholArmPluginGate::exitSync(void)
 // ---------------------------------------------------------------------------
 HatoholArmPluginGate::~HatoholArmPluginGate()
 {
+	exitSync();
 	if (m_ctx)
 		delete m_ctx;
 }
@@ -150,13 +215,16 @@ void HatoholArmPluginGate::onConnected(qpid::messaging::Connection &conn)
 	if (m_ctx->pid)
 		return;
 
+	// TODO: check in the constructor.
 	CacheServiceDBClient cache;
-	const MonitoringSystemType &type = m_ctx->serverInfo.type;
+	const ServerIdType &serverId = m_ctx->serverInfo.id;
 	DBClientConfig *dbConfig = cache.getConfig();
-	if (!dbConfig->getArmPluginInfo(m_ctx->armPluginInfo, type)) {
-		MLPL_ERR("Failed to get ArmPluginInfo: type: %d\n", type);
+	if (!dbConfig->getArmPluginInfo(m_ctx->armPluginInfo, serverId)) {
+		MLPL_ERR("Failed to get ArmPluginInfo: serverId: %d\n",
+		         serverId);
 		return;
 	}
+	// TODO: Check the type.
 	if (m_ctx->armPluginInfo.path == PassivePluginQuasiPath) {
 		MLPL_INFO("Started: passive plugin (%d) %s\n",
 		          m_ctx->armPluginInfo.type,
@@ -185,6 +253,50 @@ void HatoholArmPluginGate::onLaunchedProcess(
 void HatoholArmPluginGate::onTerminated(const siginfo_t *siginfo)
 {
 	m_ctx->pid = 0;
+	m_ctx->pluginTermSem.post();
+}
+
+void HatoholArmPluginGate::terminatePluginSync(void)
+{
+	// If the the plugin is a passive type, it will naturally return at
+	// the following condition.
+	if (!m_ctx->pid)
+		return;
+
+	// Send the teminate command.
+	sendTerminateCommand();
+	size_t timeoutMSec = TIMEOUT_PLUGIN_TERM_CMD_MS;
+	if (m_ctx->waitTermPlugin(timeoutMSec))
+		return;
+	size_t elapsedTime = timeoutMSec;
+
+	// Send SIGTERM
+	timeoutMSec = TIMEOUT_PLUGIN_TERM_SIGKILL_MS - elapsedTime;
+	MLPL_INFO("Send SIGTERM to the plugin and wait for %zd sec.\n",
+	          timeoutMSec/1000);
+	if (kill(m_ctx->pid, SIGTERM) == -1) {
+		MLPL_ERR("Failed to send SIGTERM, pid: %d, errno: %d\n",
+		         (int)m_ctx->pid, errno);
+	}
+	if (m_ctx->waitTermPlugin(timeoutMSec))
+		return;
+	elapsedTime += timeoutMSec;
+
+	// Send SIGKILL
+	timeoutMSec = TIMEOUT_PLUGIN_TERM_SIGKILL_MS - elapsedTime;
+	MLPL_INFO("Send SIGKILL to the plugin and wait for %zd sec.\n",
+	          timeoutMSec/1000);
+	if (kill(m_ctx->pid, SIGKILL) == -1) {
+		MLPL_ERR("Failed to send SIGKILL, pid: %d, errno: %d\n",
+		         (int)m_ctx->pid, errno);
+	}
+	if (m_ctx->waitTermPlugin(timeoutMSec))
+		return;
+	elapsedTime += timeoutMSec;
+
+	MLPL_WARN(
+	  "The plugin (%d) hasn't terminated within a timeout. Ignore it.\n",
+	  (int)m_ctx->pid);
 }
 
 bool HatoholArmPluginGate::launchPluginProcess(
@@ -215,6 +327,13 @@ bool HatoholArmPluginGate::launchPluginProcess(
 
 	ChildProcessManager::CreateArg arg;
 	arg.args.push_back(armPluginInfo.path);
+	arg.addFlag(G_SPAWN_SEARCH_PATH);
+	const char *ldlibpath = getenv("LD_LIBRARY_PATH");
+	if (ldlibpath) {
+		string env = "LD_LIBRARY_PATH=";
+		env += ldlibpath;
+		arg.envs.push_back(env);
+	}
 	arg.eventCb = eventCb;
 	arg.envs.push_back(StringUtils::sprintf(
 	  "%s=%s", ENV_NAME_QUEUE_ADDR,
@@ -239,18 +358,29 @@ string HatoholArmPluginGate::generateBrokerAddress(
 	                            serverInfo.id);
 }
 
+void HatoholArmPluginGate::sendTerminateCommand(void)
+{
+	SmartBuffer cmdBuf;
+	setupCommandHeader<void>(cmdBuf, HAPI_CMD_REQ_TERMINATE);
+	send(cmdBuf);
+}
+
 void HatoholArmPluginGate::cmdHandlerGetMonitoringServerInfo(
   const HapiCommandHeader *header)
 {
 	SmartBuffer resBuf;
-	MonitoringServerInfo &svInfo = m_ctx->serverInfo;
+	const MonitoringServerInfo &svInfo = m_ctx->serverInfo;
 
 	const size_t lenHostName  = svInfo.hostName.size();
 	const size_t lenIpAddress = svInfo.ipAddress.size();
 	const size_t lenNickname  = svInfo.nickname.size();
+	const size_t lenUserName  = svInfo.userName.size();
+	const size_t lenPassword  = svInfo.password.size();
+	const size_t lenDbName    = svInfo.dbName.size();
 	// +1: Null Term.
-	size_t addSize =
-	  (lenHostName + 1) + (lenIpAddress + 1) + (lenNickname + 1);
+	const size_t addSize =
+	  (lenHostName + 1) + (lenIpAddress + 1) + (lenNickname + 1) +
+	  (lenUserName + 1) + (lenPassword + 1) + (lenDbName + 1);
 	
 	HapiResMonitoringServerInfo *body =
 	  setupResponseBuffer<HapiResMonitoringServerInfo>(resBuf, addSize);
@@ -268,6 +398,12 @@ void HatoholArmPluginGate::cmdHandlerGetMonitoringServerInfo(
 	                &body->ipAddressOffset, &body->ipAddressLength);
 	buf = putString(buf, body, svInfo.nickname,
 	                &body->nicknameOffset, &body->nicknameLength);
+	buf = putString(buf, body, svInfo.userName,
+	                &body->userNameOffset, &body->userNameLength);
+	buf = putString(buf, body, svInfo.password,
+	                &body->passwordOffset, &body->passwordLength);
+	buf = putString(buf, body, svInfo.dbName,
+	                &body->dbNameOffset, &body->dbNameLength);
 	reply(resBuf);
 }
 
@@ -339,13 +475,13 @@ void HatoholArmPluginGate::cmdHandlerSendUpdatedTriggers(
 		trigGroupStream.seek(ITEM_ID_ZBX_TRIGGERS_HOSTID);
 		trigGroupStream >> trigInfo.hostId;
 
-		if (!m_ctx->hostInfoCache.getName(trigInfo.id,
+		if (!m_ctx->hostInfoCache.getName(trigInfo.hostId,
 		                                  trigInfo.hostName)) {
 			MLPL_WARN(
 			  "Ignored a trigger whose host name was not found: "
 			  "server: %" FMT_SERVER_ID ", host: %" FMT_HOST_ID
 			  "\n",
-			  m_ctx->serverInfo.id, trigInfo.id);
+			  m_ctx->serverInfo.id, trigInfo.hostId);
 			continue;
 		}
 
@@ -446,4 +582,42 @@ void HatoholArmPluginGate::cmdHandlerSendUpdatedEvents(
 	DBClientZabbix::transformEventsToHatoholFormat(
 	  eventInfoList, eventTablePtr, m_ctx->serverInfo.id);
 	UnifiedDataStore::getInstance()->addEventList(eventInfoList);
+}
+
+void HatoholArmPluginGate::cmdHandlerSendArmInfo(
+  const HapiCommandHeader *header)
+{
+	ArmInfo armInfo;
+	timespec ts;
+	SmartBuffer *cmdBuf = getCurrBuffer();
+	HATOHOL_ASSERT(cmdBuf, "Current buffer: NULL");
+
+	HapiArmInfo *body = getCommandBody<HapiArmInfo>(*cmdBuf);
+	// We use running status in this side, because this is used for
+	// the decision of restart of dataStore in UnifiedDataStore when
+	// the Parameter of monitoring server is changed.
+	armInfo.running = m_ctx->armStatus.getArmInfo().running;
+	//armInfo.running = LtoN(body->running);
+
+	armInfo.stat    = static_cast<ArmWorkingStatus>(LtoN(body->stat));
+
+	ts.tv_sec  = LtoN(body->statUpdateTime);
+	ts.tv_nsec = LtoN(body->statUpdateTimeNanosec);
+	armInfo.statUpdateTime = SmartTime(ts);
+
+	ts.tv_sec  = LtoN(body->lastSuccessTime);
+	ts.tv_nsec = LtoN(body->lastSuccessTimeNanosec);
+	armInfo.lastSuccessTime = SmartTime(ts);
+
+	ts.tv_sec  = LtoN(body->lastFailureTime);
+	ts.tv_nsec = LtoN(body->lastFailureTimeNanosec);
+	armInfo.lastFailureTime = SmartTime(ts);
+
+	armInfo.numUpdate  = LtoN(body->numUpdate);
+	armInfo.numFailure = LtoN(body->numFailure);
+
+	armInfo.failureComment = getString(*cmdBuf, body,
+	                                   body->failureCommentOffset,
+	                                   body->failureCommentLength);
+	m_ctx->armStatus.setArmInfo(armInfo);
 }

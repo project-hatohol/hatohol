@@ -600,4 +600,34 @@ void test_createItemTable(void)
 		assertTestItemGroup(*srcGrpIt, *createdGrpIt);
 }
 
+void data_getDefaultPluginPath(void)
+{
+	gcut_add_datum("MONITORING_SYSTEM_ZABBIX",
+	               "type", G_TYPE_INT, (int)MONITORING_SYSTEM_ZABBIX,
+	               "expect", G_TYPE_STRING, NULL, NULL);
+	gcut_add_datum("MONITORING_SYSTEM_NAGIOS",
+	               "type", G_TYPE_INT, (int)MONITORING_SYSTEM_NAGIOS,
+	               "expect", G_TYPE_STRING, NULL, NULL);
+	gcut_add_datum("MONITORING_SYSTEM_HAPI_ZABBIX",
+	               "type", G_TYPE_INT, (int)MONITORING_SYSTEM_HAPI_ZABBIX,
+	               "expect", G_TYPE_STRING, "hatohol-arm-plugin-zabbix",
+	               NULL);
+	gcut_add_datum("MONITORING_SYSTEM_HAPI_NAGIOS",
+	               "type", G_TYPE_INT, (int)MONITORING_SYSTEM_HAPI_NAGIOS,
+	               "expect", G_TYPE_STRING, "hatohol-arm-plugin-nagios",
+	               NULL);
+	cppcut_assert_equal((int)NUM_MONITORING_SYSTEMS,
+	                    (int)MONITORING_SYSTEM_HAPI_NAGIOS + 1,
+	                    cut_message("Probably missing test data."));
+}
+
+void test_getDefaultPluginPath(gconstpointer data)
+{
+	const char *expect = gcut_data_get_string(data, "expect");
+	const char *actual =
+	  HatoholArmPluginInterface::getDefaultPluginPath(
+	    (MonitoringSystemType)gcut_data_get_int(data, "type"));
+	cppcut_assert_equal(expect, actual);
+}
+
 } // namespace testHatoholArmPluginInterface

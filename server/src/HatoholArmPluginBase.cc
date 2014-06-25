@@ -76,6 +76,14 @@ HatoholArmPluginBase::HatoholArmPluginBase(void)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
+	const char *env = getenv(ENV_NAME_QUEUE_ADDR);
+	if (env)
+		setQueueAddress(env);
+
+	registerCommandHandler(
+	  HAPI_CMD_REQ_TERMINATE,
+	  (CommandHandler)
+	    &HatoholArmPluginBase::cmdHandlerTerminate);
 }
 
 HatoholArmPluginBase::~HatoholArmPluginBase()
@@ -146,6 +154,12 @@ void HatoholArmPluginBase::onGotResponse(
 	m_ctx->replyWaitSem.post();
 }
 
+void HatoholArmPluginBase::onReceivedTerminate(void)
+{
+	MLPL_INFO("Got the teminate command.\n");
+	exit(EXIT_SUCCESS);
+}
+
 void HatoholArmPluginBase::sendCmdGetMonitoringServerInfo(void)
 {
 	SmartBuffer cmdBuf;
@@ -186,6 +200,30 @@ bool HatoholArmPluginBase::parseReplyGetMonitoringServerInfo(
 		return false;
 	}
 	serverInfo.nickname = str;
+
+	str = getString(m_ctx->responseBuf, svInfo,
+	                svInfo->userNameOffset, svInfo->userNameLength);
+	if (!str) {
+		MLPL_ERR("Broken packet: userName.\n");
+		return false;
+	}
+	serverInfo.userName = str;
+
+	str = getString(m_ctx->responseBuf, svInfo,
+	                svInfo->passwordOffset, svInfo->passwordLength);
+	if (!str) {
+		MLPL_ERR("Broken packet: password.\n");
+		return false;
+	}
+	serverInfo.password = str;
+
+	str = getString(m_ctx->responseBuf, svInfo,
+	                svInfo->dbNameOffset, svInfo->dbNameLength);
+	if (!str) {
+		MLPL_ERR("Broken packet: dbName.\n");
+		return false;
+	}
+	serverInfo.dbName = str;
 
 	serverInfo.port               = LtoN(svInfo->port);
 	serverInfo.pollingIntervalSec = LtoN(svInfo->pollingIntervalSec);
@@ -228,4 +266,42 @@ void HatoholArmPluginBase::sendTable(
 	setupCommandHeader<void>(cmdBuf, code);
 	appendItemTable(cmdBuf, tablePtr);
 	send(cmdBuf);
+}
+
+void HatoholArmPluginBase::sendArmInfo(const ArmInfo &armInfo)
+{
+	SmartBuffer cmdBuf;
+	const size_t failureCommentLen = armInfo.failureComment.size();
+	const size_t additionalSize = failureCommentLen + 1;
+	HapiArmInfo *body =
+	  setupCommandHeader<HapiArmInfo>(cmdBuf, HAPI_CMD_SEND_ARM_INFO,
+	                                  additionalSize);
+	body->running = NtoL(armInfo.running);
+	body->stat    = NtoL(armInfo.stat);
+
+	const timespec *ts = &armInfo.statUpdateTime.getAsTimespec();
+	body->statUpdateTime = NtoL(ts->tv_sec);
+	body->statUpdateTimeNanosec = NtoL(ts->tv_nsec);
+
+	ts = &armInfo.lastSuccessTime.getAsTimespec();
+	body->lastSuccessTime = NtoL(ts->tv_sec);
+	body->lastSuccessTimeNanosec = NtoL(ts->tv_nsec);
+
+	ts = &armInfo.lastFailureTime.getAsTimespec();
+	body->lastFailureTime = NtoL(ts->tv_sec);
+	body->lastFailureTimeNanosec = NtoL(ts->tv_nsec);
+
+	body->numUpdate  = NtoL(armInfo.numUpdate);
+	body->numFailure = NtoL(armInfo.numFailure);
+
+	char *buf = reinterpret_cast<char *>(body) + sizeof(HapiArmInfo);
+	buf = putString(buf, body, armInfo.failureComment,
+	                &body->failureCommentOffset,
+	                &body->failureCommentLength);
+	send(cmdBuf);
+}
+
+void HatoholArmPluginBase::cmdHandlerTerminate(const HapiCommandHeader *header)
+{
+	onReceivedTerminate();
 }

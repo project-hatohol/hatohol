@@ -53,6 +53,23 @@ void _assertGetHostAddress
 #define assertGetHostAddress(IP, HOSTNAME, EXPECTED, ...) \
 cut_trace(_assertGetHostAddress(IP, HOSTNAME, EXPECTED, ##__VA_ARGS__))
 
+void _assertArmPluginInfo(
+  const ArmPluginInfo &expect, const ArmPluginInfo &actual,
+  const int *expectId = NULL)
+{
+	if (expectId)
+		cppcut_assert_equal(*expectId, actual.id);
+	else
+		cppcut_assert_equal(expect.id, actual.id);
+	cppcut_assert_equal(expect.type, actual.type);
+	cppcut_assert_equal(expect.path, actual.path);
+	cppcut_assert_equal(expect.brokerUrl, actual.brokerUrl);
+	cppcut_assert_equal(expect.staticQueueAddress,
+	                    actual.staticQueueAddress);
+}
+#define assertArmPluginInfo(E,A,...) \
+  cut_trace(_assertArmPluginInfo(E,A, ##__VA_ARGS__))
+
 static void addTargetServer(MonitoringServerInfo *serverInfo)
 {
 	DBClientConfig dbConfig;
@@ -78,15 +95,17 @@ static void getTargetServersData(void)
 		       NULL);
 }
 
-static string makeExpectedDBOutLine(const ArmPluginInfo &armPluginInfo)
+static string makeExpectedDBOutLine(
+  const size_t &idx, const ArmPluginInfo &armPluginInfo)
 {
 	string s = StringUtils::sprintf(
-	  "%d|%s|%s|%s|%s",
+	  "%zd|%d|%s|%s|%s|%" FMT_SERVER_ID,
+	  (idx + 1), // armPluginInfo.id
 	  armPluginInfo.type,
-	  armPluginInfo.name.c_str(),
 	  armPluginInfo.path.c_str(),
 	  armPluginInfo.brokerUrl.c_str(),
-	  armPluginInfo.staticSessionKey.c_str());
+	  armPluginInfo.staticQueueAddress.c_str(),
+	  armPluginInfo.serverId);
 	return s;
 }
 
@@ -415,10 +434,18 @@ void test_updateTargetServerWithNoHostNameAndIPAddress(void)
 	  serverInfo, HTERR_NO_IP_ADDRESS_AND_HOST_NAME);
 }
 
-void test_deleteTargetServer(void)
+void data_deleteTargetServer(void)
 {
+	prepareDataWithAndWithoutArmPlugin();
+}
+
+void test_deleteTargetServer(gconstpointer data)
+{
+	const bool withArmPlugin = gcut_data_get_boolean(data, "withArmPlugin");
 	setupTestDBUser(true, true);
 	loadTestDBServer();
+	if (withArmPlugin)
+		loadTestDBArmPlugin();
 	ServerIdType targetServerId = 1;
 	OperationPrivilege privilege(findUserWith(OPPRVLG_DELETE_ALL_SERVER));
 	DBClientConfig dbConfig;
@@ -429,6 +456,15 @@ void test_deleteTargetServer(void)
 	ServerIdSet serverIdSet;
 	serverIdSet.insert(targetServerId);
 	assertServersInDB(serverIdSet);
+	if (withArmPlugin) {
+		int armPluginId =
+		  findIndexOfTestArmPluginInfo(targetServerId);
+		cppcut_assert_not_equal(-1, armPluginId);
+		armPluginId += 1; // ID should be index + 1
+		set<int> armPluginIdSet;
+		armPluginIdSet.insert(armPluginId);
+		assertArmPluginsInDB(serverIdSet);
+	}
 }
 
 void test_deleteTargetServerWithoutPrivilege(void)
@@ -459,7 +495,9 @@ static void prepareGetServer(
 		assertAddServerToDB(&testServerInfo[i]);
 }
 
-void _assertGetTargetServers(UserIdType userId)
+void _assertGetTargetServers(
+  UserIdType userId, ArmPluginInfoVect *armPluginInfoVect = NULL,
+  MonitoringServerInfoList *copyDest = NULL)
 {
 	ServerHostGrpSetMap authMap;
 	MonitoringServerInfoList expected;
@@ -468,7 +506,7 @@ void _assertGetTargetServers(UserIdType userId)
 	MonitoringServerInfoList actual;
 	ServerQueryOption option(userId);
 	DBClientConfig dbConfig;
-	dbConfig.getTargetServers(actual, option);
+	dbConfig.getTargetServers(actual, option, armPluginInfoVect);
 	cppcut_assert_equal(expected.size(), actual.size());
 
 	string expectedText;
@@ -480,9 +518,11 @@ void _assertGetTargetServers(UserIdType userId)
 		actualText += makeServerInfoOutput(*it_actual);
 	}
 	cppcut_assert_equal(expectedText, actualText);
+	if (copyDest)
+		*copyDest = actual;
 }
-#define assertGetTargetServers(U) \
-  cut_trace(_assertGetTargetServers(U))
+#define assertGetTargetServers(U, ...) \
+  cut_trace(_assertGetTargetServers(U, ##__VA_ARGS__))
 
 static void _assertGetServerIdSet(const UserIdType &userId)
 {
@@ -523,6 +563,40 @@ void test_getTargetServersByInvalidUser(void)
 {
 	UserIdType userId = INVALID_USER_ID;
 	assertGetTargetServers(userId);
+}
+
+void test_getTargetServersWithArmPlugin(void)
+{
+	const UserIdType userId = USER_ID_SYSTEM;
+	// loadTestDBServer() is not needed. data server data is added in
+	// prepareGetServer().
+	loadTestDBArmPlugin();
+
+	ArmPluginInfoVect armPluginInfoVect;
+	MonitoringServerInfoList serverInfoList;
+	assertGetTargetServers(userId, &armPluginInfoVect, &serverInfoList);
+	
+	cppcut_assert_equal(serverInfoList.size(), armPluginInfoVect.size());
+	MonitoringServerInfoListIterator svInfoIt = serverInfoList.begin();
+	ArmPluginInfoVectConstIterator pluginIt = armPluginInfoVect.begin();
+	size_t numValidPluginInfo = 0;
+	for (; svInfoIt != serverInfoList.end(); ++svInfoIt, ++pluginIt) {
+		const int index = findIndexOfTestArmPluginInfo(svInfoIt->id);
+		if (index == -1) {
+			cppcut_assert_equal(INVALID_ARM_PLUGIN_INFO_ID,
+			                    pluginIt->id);
+			continue;
+		}
+		const ArmPluginInfo &expect = testArmPluginInfo[index];
+		const int expectId = index + 1;
+		assertArmPluginInfo(expect, *pluginIt, &expectId);
+		numValidPluginInfo++;
+	}
+	cppcut_assert_equal(
+	  true, numValidPluginInfo > 0,
+	  cut_message("The test materials are inappropriate\n"));
+	if (isVerboseMode())
+		cut_notify("<<numValidPluginInfo>>: %zd", numValidPluginInfo);
 }
 
 void data_getServerIdSet(void)
@@ -667,6 +741,34 @@ void test_serverQueryOptionConstructorTakingDataQueryContext(void)
 	cppcut_assert_equal(userId, option.getUserId());
 }
 
+void data_isHatoholArmPlugin(void)
+{
+	gcut_add_datum("MONITORING_SYSTEM_ZABBIX",
+	               "data", G_TYPE_INT, (int)MONITORING_SYSTEM_ZABBIX,
+	               "expect", G_TYPE_BOOLEAN, FALSE, NULL);
+	gcut_add_datum("MONITORING_SYSTEM_NAGIOS",
+	               "data", G_TYPE_INT, (int)MONITORING_SYSTEM_NAGIOS,
+	               "expect", G_TYPE_BOOLEAN, FALSE, NULL);
+	gcut_add_datum("MONITORING_SYSTEM_HAPI_ZABBIX",
+	               "data", G_TYPE_INT, (int)MONITORING_SYSTEM_HAPI_ZABBIX,
+	               "expect", G_TYPE_BOOLEAN, TRUE, NULL);
+	gcut_add_datum("MONITORING_SYSTEM_HAPI_NAGIOS",
+	               "data", G_TYPE_INT, (int)MONITORING_SYSTEM_HAPI_NAGIOS,
+	               "expect", G_TYPE_BOOLEAN, TRUE, NULL);
+	cppcut_assert_equal((int)NUM_MONITORING_SYSTEMS,
+	                    (int)MONITORING_SYSTEM_HAPI_NAGIOS + 1,
+	                    cut_message("Probably missing test data."));
+}
+
+void test_isHatoholArmPlugin(gconstpointer data)
+{
+	const bool expect = gcut_data_get_boolean(data, "expect");
+	const bool actual =
+	  DBClientConfig::isHatoholArmPlugin(
+	    (MonitoringSystemType)gcut_data_get_int(data, "data"));
+	cppcut_assert_equal(expect, actual);
+}
+
 void test_getArmPluginInfo(void)
 {
 	setupTestDBConfig();
@@ -681,24 +783,24 @@ void test_getArmPluginInfo(void)
 	for (size_t i = 0; i < armPluginInfoVect.size(); i++) {
 		const ArmPluginInfo &expect = testArmPluginInfo[i];
 		const ArmPluginInfo &actual = armPluginInfoVect[i];
-		cppcut_assert_equal(expect.type, actual.type);
-		cppcut_assert_equal(expect.name, actual.name);
-		cppcut_assert_equal(expect.path, actual.path);
+		const int expectId = i + 1;
+		assertArmPluginInfo(expect, actual, &expectId);
 	}
 }
 
 void test_getArmPluginInfoWithType(void)
 {
 	setupTestDBConfig();
+	loadTestDBServer();
 	loadTestDBArmPlugin();
 	DBClientConfig dbConfig;
-	const ArmPluginInfo &expect = testArmPluginInfo[1];
+	const int targetIdx = 0;
+	const ArmPluginInfo &expect = testArmPluginInfo[targetIdx];
 	ArmPluginInfo armPluginInfo;
 	cppcut_assert_equal(true, dbConfig.getArmPluginInfo(armPluginInfo,
-	                                                    expect.type));
-	cppcut_assert_equal(expect.type, armPluginInfo.type);
-	cppcut_assert_equal(expect.name, armPluginInfo.name);
-	cppcut_assert_equal(expect.path, armPluginInfo.path);
+	                                                    expect.serverId));
+	const int expectId = targetIdx + 1;
+	assertArmPluginInfo(expect, armPluginInfo, &expectId);
 }
 
 void test_getArmPluginInfoWithTypeFail(void)
@@ -729,16 +831,6 @@ void test_saveArmPluginInfoWithInvalidType(void)
 	                   dbConfig.saveArmPluginInfo(armPluginInfo));
 }
 
-void test_saveArmPluginInfoWithNoName(void)
-{
-	setupTestDBConfig();
-	DBClientConfig dbConfig;
-	ArmPluginInfo armPluginInfo = testArmPluginInfo[0];
-	armPluginInfo.name = "";
-	assertHatoholError(HTERR_INVALID_ARM_PLUGIN_NAME,
-	                   dbConfig.saveArmPluginInfo(armPluginInfo));
-}
-
 void test_saveArmPluginInfoWithNoPath(void)
 {
 	setupTestDBConfig();
@@ -749,14 +841,16 @@ void test_saveArmPluginInfoWithNoPath(void)
 	                   dbConfig.saveArmPluginInfo(armPluginInfo));
 }
 
-void test_saveArmPluginInfoDuplicateName(void)
+void test_saveArmPluginInfoInvalidId(void)
 {
 	setupTestDBConfig();
 	loadTestDBArmPlugin();
 
 	DBClientConfig dbConfig;
-	HatoholError err = dbConfig.saveArmPluginInfo(testArmPluginInfo[0]);
-	assertHatoholError(HTERR_DUPLICATED_ARM_PLUGIN_NAME, err);
+	ArmPluginInfo armPluginInfo = testArmPluginInfo[0];
+	armPluginInfo.id = NumTestArmPluginInfo + 100;
+	HatoholError err = dbConfig.saveArmPluginInfo(armPluginInfo);
+	assertHatoholError(HTERR_INVALID_ARM_PLUGIN_ID, err);
 }
 
 void test_saveArmPluginInfoUpdate(void)
@@ -767,10 +861,12 @@ void test_saveArmPluginInfoUpdate(void)
 	DBClientConfig dbConfig;
 	const size_t targetIdx = 1;
 	ArmPluginInfo armPluginInfo = testArmPluginInfo[targetIdx];
-	armPluginInfo.name = "Hachi Jr.";
+	armPluginInfo.id = targetIdx + 1;
 	armPluginInfo.path = "/usr/lib/dog";
 	armPluginInfo.brokerUrl = "abc.example.com:28765";
-	armPluginInfo.staticSessionKey = "b4e28ba-2fa1-11d2-883f-b9a761bde3fb";
+	armPluginInfo.staticQueueAddress =
+	  "b4e28ba-2fa1-11d2-883f-b9a761bde3fb";
+	armPluginInfo.serverId = 52343;
 	assertHatoholError(HTERR_OK, dbConfig.saveArmPluginInfo(armPluginInfo));
 
 	// check
@@ -778,9 +874,9 @@ void test_saveArmPluginInfoUpdate(void)
 	string expect;
 	for (size_t i = 0; i < NumTestArmPluginInfo; i++) {
 		if (i == targetIdx)
-			expect += makeExpectedDBOutLine(armPluginInfo);
+			expect += makeExpectedDBOutLine(i, armPluginInfo);
 		else
-			expect += makeExpectedDBOutLine(testArmPluginInfo[i]);
+			expect += makeExpectedDBOutLine(i, testArmPluginInfo[i]);
 		if (i < NumTestArmPluginInfo - 1)
 			expect += "\n";
 	}

@@ -50,7 +50,9 @@ describe('HatoholServerEditDialog', function() {
       retryInterval: 15,
       userName: "nagios",
       password: "soigan",
-      dbName: "nagios-db"
+      dbName: "nagios-db",
+      brokerUrl: "",
+      staticQueueAddress: ""
     };
   }
 

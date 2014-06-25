@@ -31,6 +31,7 @@
 #include "ZabbixAPIEmulator.h"
 #include "SessionManager.h"
 #include "testDBClientHatohol.h"
+#include "HatoholArmPluginInterface.h"
 using namespace std;
 using namespace mlpl;
 
@@ -1300,6 +1301,19 @@ static void _assertServerConnStat(JsonParserAgent *parser)
 }
 #define assertServerConnStat(P) cut_trace(_assertServerConnStat(P))
 
+static void setupArmPluginInfo(
+  ArmPluginInfo &armPluginInfo, const MonitoringServerInfo &serverInfo)
+{
+	armPluginInfo.id = AUTO_INCREMENT_VALUE;
+	armPluginInfo.type = serverInfo.type;
+	const char *path =
+	  HatoholArmPluginInterface::getDefaultPluginPath(armPluginInfo.type);
+	armPluginInfo.path = path ? : "";
+	armPluginInfo.brokerUrl = "abc.example.com:22222";
+	armPluginInfo.staticQueueAddress = "";
+	armPluginInfo.serverId = serverInfo.id;
+}
+
 static void setupPostAction(void)
 {
 	bool recreate = true;
@@ -1496,6 +1510,30 @@ void test_addServer(void)
 	assertDBContent(dbConfig.getDBAgent(), statement, expectedOutput);
 }
 
+void test_addServerWithHapiParams(void)
+{
+	MonitoringServerInfo expected;
+	MonitoringServerInfo::initialize(expected);
+	expected.id = NumTestServerInfo + 1;
+	expected.type = MONITORING_SYSTEM_HAPI_ZABBIX;
+
+	ArmPluginInfo armPluginInfo;
+	setupArmPluginInfo(armPluginInfo, expected);
+	armPluginInfo.id = 1; // We suppose all entries have been deleted
+
+	StringMap params;
+	serverInfo2StringMap(expected, params);
+	params["brokerUrl"] = armPluginInfo.brokerUrl;
+	assertAddServerWithSetup(params, HTERR_OK);
+
+	// check the content in the DB
+	DBClientConfig dbConfig;
+	string statement = "select * from arm_plugins";
+	statement += " order by id desc limit 1";
+	string expectedOutput = makeArmPluginInfoOutput(armPluginInfo);
+	assertDBContent(dbConfig.getDBAgent(), statement, expectedOutput);
+}
+
 void test_addServerWithoutNickname(void)
 {
 	MonitoringServerInfo serverInfo = testServerInfo[0];
@@ -1508,7 +1546,13 @@ void test_addServerWithoutNickname(void)
 	assertServersInDB(serverIdSet);
 }
 
-void test_updateServer(void)
+void data_updateServer(void)
+{
+	gcut_add_datum("Test server 1", "index", G_TYPE_INT, 0, NULL);
+	gcut_add_datum("Test server 3", "index", G_TYPE_INT, 2, NULL);
+}
+
+void test_updateServer(gconstpointer data)
 {
 	startFaceRest();
 	bool dbRecreate = true;
@@ -1516,11 +1560,13 @@ void test_updateServer(void)
 	setupTestDBUser(dbRecreate, loadTestData);
 
 	// a copy is necessary not to change the source.
-	MonitoringServerInfo srcSvInfo = testServerInfo[0];
+	const int serverIndex = gcut_data_get_int(data, "index");
+	MonitoringServerInfo srcSvInfo = testServerInfo[serverIndex];
 	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+	ArmPluginInfo *armPluginInfo = NULL;
 	assertHatoholError(
 	  HTERR_OK,
-	  uds->addTargetServer(srcSvInfo,
+	  uds->addTargetServer(srcSvInfo, *armPluginInfo,
 	                       OperationPrivilege(USER_ID_SYSTEM), false)
 	);
 
@@ -1551,6 +1597,61 @@ void test_updateServer(void)
 	assertDBContent(dbConfig.getDBAgent(), statement, expectedOutput);
 }
 
+void test_updateServerWithArmPlugin(void)
+{
+	startFaceRest();
+	const bool dbRecreate = true;
+	const bool loadTestData = true;
+	setupTestDBUser(dbRecreate, loadTestData);
+
+	// a copy is necessary not to change the source.
+	MonitoringServerInfo serverInfo;
+	MonitoringServerInfo::initialize(serverInfo);
+	serverInfo.type = MONITORING_SYSTEM_HAPI_ZABBIX;
+	ArmPluginInfo armPluginInfo;
+	setupArmPluginInfo(armPluginInfo, serverInfo);
+	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+	assertHatoholError(
+	  HTERR_OK,
+	  uds->addTargetServer(serverInfo, armPluginInfo,
+	                       OperationPrivilege(USER_ID_SYSTEM), false)
+	);
+
+	// Make an updated data
+	serverInfo.hostName = "ume.tree.com";
+	serverInfo.pollingIntervalSec = 30;
+	const UserIdType userId = findUserWith(OPPRVLG_UPDATE_ALL_SERVER);
+	string url = StringUtils::sprintf("/server/%" FMT_SERVER_ID,
+	                                  serverInfo.id);
+	StringMap params;
+	serverInfo2StringMap(serverInfo, params);
+	armPluginInfo.brokerUrl = "tosaken.dog.exmaple.com:3322";
+	armPluginInfo.staticQueueAddress = "address-for-cats";
+	params["brokerUrl"] = armPluginInfo.brokerUrl;
+	params["staticQueueAddress"] = armPluginInfo.staticQueueAddress;
+
+	// send a request
+	RequestArg arg(url);
+	arg.parameters = params;
+	arg.request = "PUT";
+	arg.userId = userId;
+	g_parser = getResponseAsJsonParser(arg);
+	assertErrorCode(g_parser);
+	assertValueInParser(g_parser, "id", serverInfo.id);
+
+	// check the content in the DB
+	DBClientConfig dbConfig;
+	string statement = StringUtils::sprintf(
+	  "SELECT * FROM servers WHERE id=%d", serverInfo.id);
+	// TODO: serverInfo2StringMap() doesn't set dbName. Is this OK ?
+	string expectedOutput = makeServerInfoOutput(serverInfo);
+	assertDBContent(dbConfig.getDBAgent(), statement, expectedOutput);
+
+	statement = "SELECT * FROM arm_plugins ORDER BY id DESC LIMIT 1";
+	expectedOutput = makeArmPluginInfoOutput(armPluginInfo);
+	assertDBContent(dbConfig.getDBAgent(), statement, expectedOutput);
+}
+
 void test_deleteServer(void)
 {
 	startFaceRest();
@@ -1558,13 +1659,14 @@ void test_deleteServer(void)
 	bool loadTestData = true;
 	setupTestDBUser(dbRecreate, loadTestData);
 	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+	ArmPluginInfo *armPluginInfo = NULL;
 
 	// a copy is necessary not to change the source.
 	MonitoringServerInfo targetSvInfo = testServerInfo[0];
 
 	assertHatoholError(
 	  HTERR_OK,
-	  uds->addTargetServer(targetSvInfo,
+	  uds->addTargetServer(targetSvInfo, *armPluginInfo,
 	                       OperationPrivilege(USER_ID_SYSTEM), false)
 	);
 

@@ -65,6 +65,7 @@ public:
 	void logSuccess(void);
 	void logFailure(const std::string &comment = "",
 	                const ArmWorkingStatus &status = ARM_WORK_STAT_FAILURE);
+	void setArmInfo(const ArmInfo &armInfo);
 
 protected:
 

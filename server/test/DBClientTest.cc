@@ -707,25 +707,40 @@ const size_t NumTestUserRoleInfo = sizeof(testUserRoleInfo) / sizeof(UserRoleInf
 
 ArmPluginInfo testArmPluginInfo[] = {
 {
+	AUTO_INCREMENT_VALUE,            // id
 	MONITORING_SYSTEM_HAPI_ZABBIX,   // type
-	"Zabbix API",                    // name
-	"/usr/local/lib/hatohol/hapi/hapi-zabbix-api",       // path
+	"../hap/hatohol-arm-plugin-zabbix", // path
+	"",                              // brokerUrl
+	"",                              // staticQueueAddress
+	1,                               // serverId
 }, {
+	AUTO_INCREMENT_VALUE,            // id
 	MONITORING_SYSTEM_HAPI_NAGIOS,   // type
-	"Nagios NDO",                    // name
 	"/usr/local/lib/hatohol/hapi/hapi-nagios-ndoutils",  // path
+	"",                              // brokerUrl
+	"",                              // staticQueueAddress
+	100, // (Not exists)             // serverId
 }, {
+	AUTO_INCREMENT_VALUE,            // id
 	MONITORING_SYSTEM_HAPI_TEST,     // type
-	"Test monitoring system",        // name
-	"hapi-test-plugin",              // path
+	"./hapi-test-plugin",            // path
+	"",                              // brokerUrl
+	"",                              // staticQueueAddress
+	101, // (Not exists)             // serverId
 }, {
+	AUTO_INCREMENT_VALUE,            // id
 	MONITORING_SYSTEM_HAPI_TEST_NOT_EXIST, // type
-	"Test monitoring system (command not exist)", // name
-	"hapi-test-non-existing-plugin",              // path
+	"hapi-test-non-existing-plugin",       // path
+	"",                              // brokerUrl
+	"",                              // staticQueueAddress
+	102, // (Not exists)             // serverId
 }, {
-	MONITORING_SYSTEM_HAPI_TEST_PASSIVE,       // type
-	"Test monitoring system (passive plugin)", // name
-	"#PASSIVE_PLUGIN#",                        // path
+	AUTO_INCREMENT_VALUE,            // id
+	MONITORING_SYSTEM_HAPI_TEST_PASSIVE,   // type
+	"#PASSIVE_PLUGIN#",                    // path
+	"",                              // brokerUrl
+	"",                              // staticQueueAddress
+	3,                               // serverId
 }
 };
 const size_t NumTestArmPluginInfo = sizeof(testArmPluginInfo) / sizeof(ArmPluginInfo);
@@ -1215,6 +1230,31 @@ const HostgroupIdSet &getTestHostgroupIdSet(void)
 	for (size_t i = 0; i < NumTestHostgroupElement; i++)
 		testHostgroupIdSet.insert(testHostgroupElement[i].groupId);
 	return testHostgroupIdSet;
+}
+
+int findIndexOfTestArmPluginInfo(const MonitoringSystemType &type)
+{
+	for (size_t i = 0; i < NumTestArmPluginInfo; i++) {
+		if (testArmPluginInfo[i].type == type)
+			return i;
+	}
+	return -1;
+}
+
+int findIndexOfTestArmPluginInfo(const ServerIdType &serverId)
+{
+	for (size_t i = 0; i < NumTestArmPluginInfo; i++) {
+		if (testArmPluginInfo[i].serverId == serverId)
+			return i;
+	}
+	return -1;
+}
+
+const ArmPluginInfo &getTestArmPluginInfo(const MonitoringSystemType &type)
+{
+	const int testArmPluginIndex = findIndexOfTestArmPluginInfo(type);
+	cppcut_assert_not_equal(-1, testArmPluginIndex);
+	return testArmPluginInfo[testArmPluginIndex];
 }
 
 string makeEventIssueMapKey(const EventInfo &eventInfo)

@@ -260,23 +260,23 @@ static const ColumnDef COLUMN_DEF_ARM_PLUGINS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_ARM_PLUGINS,            // tableName
-	"type", // server.type             // columnName
+	"id",                              // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_PRI,                       // keyType
-	0,                                 // flags
+	SQL_COLUMN_FLAG_AUTO_INC,          // flags
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_ARM_PLUGINS,            // tableName
-	"name",                            // columnName
-	SQL_COLUMN_TYPE_VARCHAR,           // type
-	255,                               // columnLength
+	"type", // server.type             // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_UNI,                       // keyType
+	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -304,7 +304,7 @@ static const ColumnDef COLUMN_DEF_ARM_PLUGINS[] = {
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_ARM_PLUGINS,            // tableName
-	"static_session_key",              // columnName
+	"static_queue_addr",               // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
 	0,                                 // decFracLength
@@ -312,15 +312,27 @@ static const ColumnDef COLUMN_DEF_ARM_PLUGINS[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	"",                                // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_SERVERS,                // tableName
+	"serverId",                        // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_UNI,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 }
 };
 
 enum {
+	IDX_ARM_PLUGINS_ID,
 	IDX_ARM_PLUGINS_TYPE,
-	IDX_ARM_PLUGINS_NAME,
 	IDX_ARM_PLUGINS_PATH,
 	IDX_ARM_PLUGINS_BROKER_URL,
-	IDX_ARM_PLUGINS_STATIC_SESSION_KEY,
+	IDX_ARM_PLUGINS_STATIC_QUEUE_ADDR,
+	IDX_ARM_PLUGINS_SERVER_ID,
 	NUM_IDX_ARM_PLUGINS,
 };
 
@@ -470,10 +482,20 @@ static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
 		addColumnsArg.columnIndexes.push_back(
 		  IDX_ARM_PLUGINS_BROKER_URL);
 		addColumnsArg.columnIndexes.push_back(
-		  IDX_ARM_PLUGINS_STATIC_SESSION_KEY);
+		  IDX_ARM_PLUGINS_STATIC_QUEUE_ADDR);
 		dbAgent->addColumns(addColumnsArg);
 	}
 	return true;
+}
+
+// ---------------------------------------------------------------------------
+// ArmPluginInfo
+// ---------------------------------------------------------------------------
+void ArmPluginInfo::initialize(ArmPluginInfo &armPluginInfo)
+{
+	armPluginInfo.id = INVALID_ARM_PLUGIN_INFO_ID;
+	armPluginInfo.type = MONITORING_SYSTEM_UNKNOWN;
+	armPluginInfo.serverId = INVALID_SERVER_ID;
 }
 
 // ---------------------------------------------------------------------------
@@ -709,6 +731,15 @@ void DBClientConfig::reset(void)
 	setConnectInfo(DB_DOMAIN_ID_CONFIG, connInfo);
 }
 
+bool DBClientConfig::isHatoholArmPlugin(const MonitoringSystemType &type)
+{
+	if (type == MONITORING_SYSTEM_HAPI_ZABBIX)
+		return true;
+	else if (type == MONITORING_SYSTEM_HAPI_NAGIOS)
+		return true;
+	return false;
+}
+
 DBClientConfig::DBClientConfig(void)
 : DBClient(DB_DOMAIN_ID_CONFIG),
   m_ctx(NULL)
@@ -821,7 +852,8 @@ HatoholError validServerInfo(const MonitoringServerInfo &serverInfo)
 
 HatoholError DBClientConfig::addTargetServer(
   MonitoringServerInfo *monitoringServerInfo,
-  const OperationPrivilege &privilege)
+  const OperationPrivilege &privilege,
+  ArmPluginInfo *armPluginInfo)
 {
 	if (!privilege.has(OPPRVLG_CREATE_SERVER))
 		return HatoholError(HTERR_NO_PRIVILEGE);
@@ -843,18 +875,32 @@ HatoholError DBClientConfig::addTargetServer(
 	arg.add(monitoringServerInfo->password);
 	arg.add(monitoringServerInfo->dbName);
 
+	string condForHap;
+	err = preprocForSaveArmPlguinInfo(*monitoringServerInfo,
+	                                  *armPluginInfo, condForHap);
+	if (err != HTERR_OK)
+		return err;
+
 	DBCLIENT_TRANSACTION_BEGIN() {
 		insert(arg);
 		monitoringServerInfo->id = getLastInsertId();
 		// TODO: Add AccessInfo for the server to enable the operator to
 		// access to it
+		if (!condForHap.empty())
+			armPluginInfo->serverId = monitoringServerInfo->id;
+		err = saveArmPluginInfoIfNeededWithoutTransaction(
+		        *armPluginInfo, condForHap);
+		if (err != HTERR_OK) {
+			rollback();
+			return err;
+		}
 	} DBCLIENT_TRANSACTION_END();
-	return HTERR_OK;
+	return err;
 }
 
 HatoholError DBClientConfig::updateTargetServer(
   MonitoringServerInfo *monitoringServerInfo,
-  const OperationPrivilege &privilege)
+  const OperationPrivilege &privilege, ArmPluginInfo *armPluginInfo)
 {
 	if (!canUpdateTargetServer(monitoringServerInfo, privilege))
 		return HatoholError(HTERR_NO_PRIVILEGE);
@@ -878,11 +924,23 @@ HatoholError DBClientConfig::updateTargetServer(
 	arg.add(IDX_SERVERS_DB_NAME,    monitoringServerInfo->dbName);
 	arg.condition = StringUtils::sprintf("id=%u", monitoringServerInfo->id);
 
+	string condForHap;
+	err = preprocForSaveArmPlguinInfo(*monitoringServerInfo,
+	                                  *armPluginInfo, condForHap);
+	if (err != HTERR_OK)
+		return err;
+
 	DBCLIENT_TRANSACTION_BEGIN() {
 		if (!isRecordExisting(TABLE_NAME_SERVERS, arg.condition)) {
 			err = HTERR_NOT_FOUND_TARGET_RECORD;
 		} else {
 			update(arg);
+			err = saveArmPluginInfoIfNeededWithoutTransaction(
+			        *armPluginInfo, condForHap);
+			if (err != HTERR_OK) {
+				rollback();
+				return err;
+			}
 			err = HTERR_OK;
 		}
 	} DBCLIENT_TRANSACTION_END();
@@ -900,14 +958,19 @@ HatoholError DBClientConfig::deleteTargetServer(
 	const ColumnDef &colId = COLUMN_DEF_SERVERS[IDX_SERVERS_ID];
 	arg.condition = StringUtils::sprintf("%s=%" FMT_SERVER_ID,
 	                                     colId.columnName, serverId);
+	string delCondForArmPlugin;
+	preprocForDeleteArmPluginInfo(serverId, delCondForArmPlugin);
+
 	DBCLIENT_TRANSACTION_BEGIN() {
+		deleteArmPluginInfoWithoutTransaction(delCondForArmPlugin);
 		deleteRows(arg);
 	} DBCLIENT_TRANSACTION_END();
 	return HTERR_OK;
 }
 
-void DBClientConfig::getTargetServers
-  (MonitoringServerInfoList &monitoringServers, ServerQueryOption &option)
+void DBClientConfig::getTargetServers(
+  MonitoringServerInfoList &monitoringServers, ServerQueryOption &option,
+  ArmPluginInfoVect *armPluginInfoVect)
 {
 	// TODO: We'd better consider if we should use a query like,
 	//
@@ -936,6 +999,12 @@ void DBClientConfig::getTargetServers
 	} DBCLIENT_TRANSACTION_END();
 
 	// check the result and copy
+	if (armPluginInfoVect) {
+		const size_t reserveSize =
+		  armPluginInfoVect->size() + arg.dataTable->getNumberOfRows();
+		armPluginInfoVect->reserve(reserveSize);
+	}
+
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
@@ -954,6 +1023,14 @@ void DBClientConfig::getTargetServers
 		itemGroupStream >> svInfo.userName;
 		itemGroupStream >> svInfo.password;
 		itemGroupStream >> svInfo.dbName;
+
+		// TODO: Should we do in the transaction ?
+		if (armPluginInfoVect) {
+			ArmPluginInfo armPluginInfo;
+			if (!getArmPluginInfo(armPluginInfo, svInfo.id))
+				armPluginInfo.id = INVALID_ARM_PLUGIN_INFO_ID;
+			armPluginInfoVect->push_back(armPluginInfo);
+		}
 	}
 }
 
@@ -999,12 +1076,12 @@ void DBClientConfig::getArmPluginInfo(ArmPluginInfoVect &armPluginVect)
 }
 
 bool DBClientConfig::getArmPluginInfo(ArmPluginInfo &armPluginInfo,
-                                      const MonitoringSystemType &type)
+                                      const ServerIdType &serverId)
 {
 	DBAgent::SelectExArg arg(tableProfileArmPlugins);
 	arg.condition = StringUtils::sprintf(
-	  "%s=%d",
-	  COLUMN_DEF_ARM_PLUGINS[IDX_ARM_PLUGINS_TYPE].columnName, type);
+	  "%s=%" FMT_SERVER_ID,
+	  COLUMN_DEF_ARM_PLUGINS[IDX_ARM_PLUGINS_SERVER_ID].columnName, serverId);
 	selectArmPluginInfo(arg);
 
 	// check the result and copy
@@ -1016,51 +1093,17 @@ bool DBClientConfig::getArmPluginInfo(ArmPluginInfo &armPluginInfo,
 	return true;
 }
 
-HatoholError DBClientConfig::saveArmPluginInfo(
-  const ArmPluginInfo &armPluginInfo)
+HatoholError DBClientConfig::saveArmPluginInfo(ArmPluginInfo &armPluginInfo)
 {
-	// validation
-	if (armPluginInfo.name.empty())
-		return HTERR_INVALID_ARM_PLUGIN_NAME;
-	if (armPluginInfo.path.empty())
-		return HTERR_INVALID_ARM_PLUGIN_PATH;
-	if (armPluginInfo.type < MONITORING_SYSTEM_HAPI_ZABBIX) {
-		MLPL_ERR("Invalid type: %d\n", armPluginInfo.type);
-		return HTERR_INVALID_ARM_PLUGIN_TYPE;
-	}
+	string condition;
+	HatoholError err = preprocForSaveArmPlguinInfo(armPluginInfo,
+	                                               condition);
+	if (err != HTERR_OK)
+		return err;
 
-	// save
-	const string condName = StringUtils::sprintf(
-	  "%s='%s'",
-	  COLUMN_DEF_ARM_PLUGINS[IDX_ARM_PLUGINS_NAME].columnName,
-	  armPluginInfo.name.c_str());
-	const string condType = StringUtils::sprintf(
-	  "%s=%d",
-	  COLUMN_DEF_ARM_PLUGINS[IDX_ARM_PLUGINS_TYPE].columnName,
-	  armPluginInfo.type);
-	HatoholError err(HTERR_OK);
 	DBCLIENT_TRANSACTION_BEGIN() {
-		if (isRecordExisting(TABLE_NAME_ARM_PLUGINS, condName)) {
-			err = HTERR_DUPLICATED_ARM_PLUGIN_NAME;
-		} else if (isRecordExisting(TABLE_NAME_ARM_PLUGINS, condType)) {
-			DBAgent::UpdateArg arg(tableProfileArmPlugins);
-			arg.add(IDX_ARM_PLUGINS_NAME, armPluginInfo.name);
-			arg.add(IDX_ARM_PLUGINS_PATH, armPluginInfo.path);
-			arg.add(IDX_ARM_PLUGINS_BROKER_URL,
-			        armPluginInfo.brokerUrl);
-			arg.add(IDX_ARM_PLUGINS_STATIC_SESSION_KEY,
-			        armPluginInfo.staticSessionKey);
-			arg.condition = condType;
-			update(arg);
-		} else {
-			DBAgent::InsertArg arg(tableProfileArmPlugins);
-			arg.add(armPluginInfo.type);
-			arg.add(armPluginInfo.name);
-			arg.add(armPluginInfo.path);
-			arg.add(armPluginInfo.brokerUrl);
-			arg.add(armPluginInfo.staticSessionKey);
-			insert(arg);
-		}
+		err = saveArmPluginInfoWithoutTransaction(armPluginInfo,
+		                                          condition);
 	} DBCLIENT_TRANSACTION_END();
 	return err;
 }
@@ -1235,11 +1278,12 @@ bool DBClientConfig::canDeleteTargetServer(
 
 void DBClientConfig::selectArmPluginInfo(DBAgent::SelectExArg &arg)
 {
+	arg.add(IDX_ARM_PLUGINS_ID);
 	arg.add(IDX_ARM_PLUGINS_TYPE);
-	arg.add(IDX_ARM_PLUGINS_NAME);
 	arg.add(IDX_ARM_PLUGINS_PATH);
 	arg.add(IDX_ARM_PLUGINS_BROKER_URL);
-	arg.add(IDX_ARM_PLUGINS_STATIC_SESSION_KEY);
+	arg.add(IDX_ARM_PLUGINS_STATIC_QUEUE_ADDR);
+	arg.add(IDX_ARM_PLUGINS_SERVER_ID);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -1249,9 +1293,95 @@ void DBClientConfig::selectArmPluginInfo(DBAgent::SelectExArg &arg)
 void DBClientConfig::readArmPluginStream(
   ItemGroupStream &itemGroupStream, ArmPluginInfo &armPluginInfo)
 {
+	itemGroupStream >> armPluginInfo.id;
 	itemGroupStream >> armPluginInfo.type;
-	itemGroupStream >> armPluginInfo.name;
 	itemGroupStream >> armPluginInfo.path;
 	itemGroupStream >> armPluginInfo.brokerUrl;
-	itemGroupStream >> armPluginInfo.staticSessionKey;
+	itemGroupStream >> armPluginInfo.staticQueueAddress;
+	itemGroupStream >> armPluginInfo.serverId;
+}
+
+HatoholError DBClientConfig::preprocForSaveArmPlguinInfo(
+  const MonitoringServerInfo &serverInfo,
+  const ArmPluginInfo &armPluginInfo, string &condition)
+{
+	if (!isHatoholArmPlugin(serverInfo.type))
+		return HTERR_OK;
+
+	if (armPluginInfo.type != serverInfo.type)
+		return HTERR_DIFFER_TYPE_SERVER_AND_ARM_PLUGIN;
+	return preprocForSaveArmPlguinInfo(armPluginInfo, condition);
+}
+
+HatoholError DBClientConfig::preprocForSaveArmPlguinInfo(
+  const ArmPluginInfo &armPluginInfo, string &condition)
+{
+	if (armPluginInfo.path.empty())
+		return HTERR_INVALID_ARM_PLUGIN_PATH;
+	if (armPluginInfo.type < MONITORING_SYSTEM_HAPI_ZABBIX) {
+		MLPL_ERR("Invalid type: %d\n", armPluginInfo.type);
+		return HTERR_INVALID_ARM_PLUGIN_TYPE;
+	}
+
+	condition = StringUtils::sprintf(
+	  "%s=%d",
+	  COLUMN_DEF_ARM_PLUGINS[IDX_ARM_PLUGINS_ID].columnName,
+	  armPluginInfo.id);
+	return HTERR_OK;
+}
+
+HatoholError DBClientConfig::saveArmPluginInfoWithoutTransaction(
+  ArmPluginInfo &armPluginInfo, const string &condition)
+{
+	if (armPluginInfo.id != AUTO_INCREMENT_VALUE &&
+	    !isRecordExisting(TABLE_NAME_ARM_PLUGINS, condition)) {
+		return HTERR_INVALID_ARM_PLUGIN_ID;
+	} else if (armPluginInfo.id != AUTO_INCREMENT_VALUE) {
+		DBAgent::UpdateArg arg(tableProfileArmPlugins);
+		arg.add(IDX_ARM_PLUGINS_PATH, armPluginInfo.path);
+		arg.add(IDX_ARM_PLUGINS_BROKER_URL,
+		        armPluginInfo.brokerUrl);
+		arg.add(IDX_ARM_PLUGINS_STATIC_QUEUE_ADDR,
+		        armPluginInfo.staticQueueAddress);
+		arg.add(IDX_ARM_PLUGINS_SERVER_ID,
+		        armPluginInfo.serverId);
+		arg.condition = condition;
+		update(arg);
+	} else {
+		DBAgent::InsertArg arg(tableProfileArmPlugins);
+		arg.add(AUTO_INCREMENT_VALUE); // armPluginInfo.id
+		arg.add(armPluginInfo.type);
+		arg.add(armPluginInfo.path);
+		arg.add(armPluginInfo.brokerUrl);
+		arg.add(armPluginInfo.staticQueueAddress);
+		arg.add(armPluginInfo.serverId);
+		insert(arg);
+		armPluginInfo.id = getLastInsertId();
+	}
+	return HTERR_OK;
+}
+
+void DBClientConfig::preprocForDeleteArmPluginInfo(
+  const ServerIdType &serverId, std::string &condition)
+{
+	condition = StringUtils::sprintf(
+	  "%s=%" FMT_SERVER_ID,
+	  COLUMN_DEF_ARM_PLUGINS[IDX_ARM_PLUGINS_SERVER_ID].columnName,
+	  serverId);
+}
+
+HatoholError DBClientConfig::saveArmPluginInfoIfNeededWithoutTransaction(
+  ArmPluginInfo &armPluginInfo, const std::string &condition)
+{
+	if (condition.empty())
+		return HTERR_OK;
+	return saveArmPluginInfoWithoutTransaction(armPluginInfo, condition);
+}
+
+void DBClientConfig::deleteArmPluginInfoWithoutTransaction(
+  const std::string &condition)
+{
+	DBAgent::DeleteArg arg(tableProfileArmPlugins);
+	arg.condition = condition;
+	deleteRows(arg);
 }

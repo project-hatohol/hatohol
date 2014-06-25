@@ -31,6 +31,7 @@
 #include "ItemGroupPtr.h"
 #include "ItemTablePtr.h"
 #include "Utils.h"
+#include "MonitoringServerInfo.h"
 
 enum HatoholArmPluginErrorCode {
 	HAPERR_OK,
@@ -60,8 +61,10 @@ enum HapiCommandCode {
 	HAPI_CMD_SEND_HOST_GROUP_ELEMENTS,
 	HAPI_CMD_SEND_HOST_GROUPS,
 	HAPI_CMD_SEND_UPDATED_EVENTS,
+	HAPI_CMD_SEND_ARM_INFO,
 	// Sv -> Cl
 	HAPI_CMD_REQ_ITEMS,
+	HAPI_CMD_REQ_TERMINATE,
 	NUM_HAPI_CMD
 };
 
@@ -140,6 +143,21 @@ struct HapiItemStringHeader {
 	// string body: NULL terminator is needed.
 } __attribute__((__packed__));
 
+struct HapiArmInfo {
+	uint8_t  running;
+	uint8_t  stat;
+	uint64_t statUpdateTime;
+	uint32_t statUpdateTimeNanosec;
+	uint16_t failureCommentLength; // Not include the NULL terminator
+	uint16_t failureCommentOffset; // from the top of this structure
+	uint64_t lastSuccessTime;
+	uint32_t lastSuccessTimeNanosec;
+	uint64_t lastFailureTime;
+	uint32_t lastFailureTimeNanosec;
+	uint64_t numUpdate;
+	uint64_t numFailure;
+} __attribute__((__packed__));
+
 struct HapiResponseHeader {
 	uint16_t type;
 	uint16_t code;
@@ -155,12 +173,21 @@ struct HapiResMonitoringServerInfo {
 	uint16_t ipAddressOffset; // from the top of this structure
 	uint16_t nicknameLength;  // Not include the NULL terminator
 	uint16_t nicknameOffset;  // from the top of this structure
+	uint16_t userNameLength;  // Not include the NULL terminator
+	uint16_t userNameOffset;  // from the top of this structure
+	uint16_t passwordLength;  // Not include the NULL terminator
+	uint16_t passwordOffset;  // from the top of this structure
+	uint16_t dbNameLength;    // Not include the NULL terminator
+	uint16_t dbNameOffset;    // from the top of this structure
 	uint32_t port;
 	uint32_t pollingIntervalSec;
 	uint32_t retryIntervalSec;
 	// Body of hostName  (including NULL terminator)
 	// Body of ipAddress (including NULL terminator)
 	// Body of nickname  (including NULL terminator)
+	// Body of userName  (including NULL terminator)
+	// Body of password  (including NULL terminator)
+	// Body of dbName    (including NULL terminator)
 } __attribute__((__packed__));
 
 struct HapiResTimestampOfLastTrigger {
@@ -175,6 +202,7 @@ struct HapiResLastEventId {
 class HatoholArmPluginInterface :
   public HatoholThreadBase, public EndianConverter {
 public:
+	static const char *ENV_NAME_QUEUE_ADDR;
 	static const char *DEFAULT_BROKER_URL;
 	static const uint32_t SEQ_ID_UNKNOWN;
 	static const uint32_t SEQ_ID_MAX;
@@ -393,6 +421,9 @@ public:
 	 */
 	static ItemDataPtr createItemData(mlpl::SmartBuffer &sbuf)
 	  throw(HatoholException);
+
+	static const char *getDefaultPluginPath(
+	  const MonitoringSystemType &type);
 
 protected:
 	typedef std::map<uint16_t, CommandHandler> CommandHandlerMap;

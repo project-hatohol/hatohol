@@ -78,7 +78,9 @@ typedef uint64_t HostIdType;
 typedef int IssueTrackerIdType;
 #define FMT_ISSUE_TRACKER_ID "d"
 
-static const ServerIdType    ALL_SERVERS = -1;
+static const ServerIdType    INVALID_SERVER_ID = -2;
+static const ServerIdType    ALL_SERVERS       = -1;
+
 static const HostIdType      ALL_HOSTS   = -1;
 static const HostgroupIdType ALL_HOST_GROUPS = -1;
 static const IssueTrackerIdType ALL_ISSUE_TRACKERS = -1;
@@ -95,6 +97,8 @@ static const UserRoleIdType INVALID_USER_ROLE_ID = -1;
 static const size_t INVALID_COLUMN_IDX = -1;
 
 static const EventIdType EVENT_NOT_FOUND = -1;
+
+static const int INVALID_ARM_PLUGIN_INFO_ID = -1;
 
 typedef std::set<UserIdType>      UserIdSet;
 typedef UserIdSet::iterator       UserIdSetIterator;

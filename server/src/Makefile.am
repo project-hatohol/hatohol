@@ -5,6 +5,7 @@ hatohol_resident_yard_SOURCES = hatoholResidentYard.cc
 lib_LTLIBRARIES = libhatohol-common.la libhatohol.la
 
 libhatohol_common_la_SOURCES = \
+	ArmStatus.cc ArmStatus.h \
 	DataStoreException.cc DataStoreException.h \
 	HatoholThreadBase.cc HatoholThreadBase.h \
 	HatoholArmPluginInterface.cc HatoholArmPluginInterface.h \
@@ -37,7 +38,6 @@ libhatohol_la_SOURCES = \
 	ArmZabbixAPI-template.h \
 	ArmZabbixAPI.cc ArmZabbixAPI.h \
 	ArmCeilometer.cc ArmCeilometer.h \
-	ArmStatus.cc ArmStatus.h \
 	ChildProcessManager.cc ChildProcessManager.h \
 	Closure.cc Closure.h \
 	CacheServiceDBClient.cc CacheServiceDBClient.h \
@@ -72,7 +72,6 @@ libhatohol_la_SOURCES = \
 	HatoholError.cc HatoholError.h \
 	HostResourceQueryOption.cc HostResourceQueryOption.h \
 	HatoholArmPluginGate.cc HatoholArmPluginGate.h \
-	HapgZabbixAPI.cc HapgZabbixAPI.h \
 	HatoholServer.cc \
 	HostInfoCache.cc HostInfoCache.h \
 	IssueSender.cc IssueSender.h \
