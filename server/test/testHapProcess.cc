@@ -42,6 +42,12 @@ public:
 	}
 };
 
+#define PARSE_OPTION(ARGV) \
+	int argc = sizeof(argv) / sizeof(char *); \
+	TestHapProcess hapProc(argc, (char**)argv); \
+	assertGError(hapProc.callGetErrorOfCommandLineArg()); \
+	const HapCommandLineArg &cmdLineArg = hapProc.callGetCommandLineArg();
+
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
@@ -63,6 +69,13 @@ void test_commandlineArgBrokerUrl(void)
 	TestHapProcess hapProc(argc, (char**)argv);
 	assertGError(hapProc.callGetErrorOfCommandLineArg());
 	const HapCommandLineArg &cmdLineArg = hapProc.callGetCommandLineArg();
+	cut_assert_equal_string("example.com:52211", cmdLineArg.brokerUrl);
+}
+
+void test_commandlineArgBrokerUrlShort(void)
+{
+	const char *argv[] = {"progname", "-b", "example.com:52211"};
+	PARSE_OPTION(argv);
 	cut_assert_equal_string("example.com:52211", cmdLineArg.brokerUrl);
 }
 
