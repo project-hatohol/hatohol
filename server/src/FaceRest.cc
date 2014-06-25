@@ -986,6 +986,8 @@ static HatoholError addOverviewEachServer(FaceRest::RestJob *job,
 	triggersQueryOption.setTargetServerId(svInfo.id);
 	agent.add("numberOfTriggers",
 		  dataStore->getNumberOfTriggers(triggersQueryOption));
+	agent.add("numberOfBadHosts",
+		  dataStore->getNumberOfBadHosts(triggersQueryOption));
 
 	// TODO: These elements should be fixed
 	// after the funtion concerned is added

@@ -108,7 +108,7 @@ var DashboardView = function(userProfile) {
       html += "<tr>";
       html += "<td rowspan='4'>" + escapeHTML(serverStatus["serverNickname"]) + "</td>";
       html += "<td>" + gettext("Number of hosts [with problem]") + "</td>";
-      html += buildRatioColumns(parsedData[serverId]["badHosts"],
+      html += buildRatioColumns(serverStatus["numberOfBadHosts"],
                                 serverStatus["numberOfHosts"]);
       html += "</tr>";
       html += "<tr>";

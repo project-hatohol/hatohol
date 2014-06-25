@@ -1223,7 +1223,7 @@ static void assertSystemStatusInParser(JsonParserAgent *parser,
 	parser->endObject();
 }
 
-static void _assertOverviewInParser(JsonParserAgent *parser)
+static void _assertOverviewInParser(JsonParserAgent *parser, RequestArg &arg)
 {
 	assertValueInParser(parser, "numberOfServers", NumTestServerInfo);
 	assertStartObject(parser, "serverStatus");
@@ -1239,6 +1239,10 @@ static void _assertOverviewInParser(JsonParserAgent *parser)
 		assertValueInParser(parser, "serverNickname", svInfo.nickname);
 		assertValueInParser(parser, "numberOfHosts",
 				    getNumberOfTestHosts(svInfo.id));
+		size_t numBadHosts = getNumberOfTestHostsWithStatus(
+				       svInfo.id, ALL_HOST_GROUPS,
+				       false, arg.userId);
+		assertValueInParser(parser, "numberOfBadHosts", numBadHosts);
 		assertValueInParser(parser, "numberOfItems",
 				    getNumberOfTestItems(svInfo.id));
 		assertValueInParser(parser, "numberOfTriggers",
@@ -1265,7 +1269,7 @@ static void _assertOverviewInParser(JsonParserAgent *parser)
 
 	// TODO: check badServers
 }
-#define assertOverviewInParser(P) cut_trace(_assertOverviewInParser(P))
+#define assertOverviewInParser(P,A) cut_trace(_assertOverviewInParser(P,A))
 
 static void _assertServerConnStat(JsonParserAgent *parser)
 {
@@ -2680,7 +2684,7 @@ void test_overview(void)
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
 	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
-	assertOverviewInParser(g_parser);
+	assertOverviewInParser(g_parser, arg);
 }
 
 void test_getServerConnStat(void)
