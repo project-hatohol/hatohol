@@ -129,7 +129,11 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 	if (!m_ctx->armPluginInfo.brokerUrl.empty())
 		setBrokerUrl(m_ctx->armPluginInfo.brokerUrl);
 
-	string address = generateBrokerAddress(m_ctx->serverInfo);
+	string address;
+	if (!m_ctx->armPluginInfo.staticQueueAddress.empty())
+		address = m_ctx->armPluginInfo.staticQueueAddress;
+	else
+		address = generateBrokerAddress(m_ctx->serverInfo);
 	setQueueAddress(address);
 
 	registerCommandHandler(
