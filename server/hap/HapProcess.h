@@ -61,6 +61,12 @@ protected:
 	 */
 	void setExceptionSleepTime(int sleepTimeMS);
 
+	/**
+	 * Pasrse the command line argument. This method is called in the
+	 * constructor. Generally it's not needed to call explicitly.
+	 * The parsing result can be obtained by
+	 * getErrorOfCommandLineArg() and getCommandLineArg().
+	 */
 	void parseCommandLineArg(HapCommandLineArg &arg,
 	                         int argc, char *argv[]);
 	/**
