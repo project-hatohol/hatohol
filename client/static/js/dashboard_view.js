@@ -38,14 +38,6 @@ var DashboardView = function(userProfile) {
       serverId = serverStatus["serverId"];
       parsedData[serverId] = {};
 
-      parsedData[serverId]["goodHosts"] = 0;
-      parsedData[serverId]["badHosts"]  = 0;
-      for (y = 0; y < serverStatus["hostStatus"].length; ++y) {
-        hostStatus = serverStatus["hostStatus"][y];
-        parsedData[serverId]["goodHosts"] += hostStatus["numberOfGoodHosts"];
-        parsedData[serverId]["badHosts"]  += hostStatus["numberOfBadHosts"];
-      }
-
       parsedData[serverId]["numberOfHostgroups"] = 0;
       for (y in serverStatus["hostgroups"])
         parsedData[serverId]["numberOfHostgroups"] += 1;
