@@ -46,6 +46,14 @@ Requires: %{name} = %{version}-%{release}
 %description libhatohol-common
 Library files for hatohol.
 
+%package libhatohol-arm-plugin
+Summary: Library files for Hatohol Arm Plugin
+Group: Applications/System
+Requires: %{name} = %{version}-%{release}
+
+%description libhatohol-arm-plugin
+Library files for Hatohol Arm Plugin Interface.
+
 %package client
 Summary: A web UI client of Hatohol.
 Group: Applications/System
