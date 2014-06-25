@@ -21,6 +21,7 @@
 #include <cstdio>
 #include <AtomicValue.h>
 #include "HapProcess.h"
+#include "HatoholArmPluginInterface.h"
 #include "HatoholException.h"
 
 using namespace mlpl;
@@ -31,6 +32,7 @@ struct HapProcess::PrivateContext {
 	GMainLoop *loop;
 	AtomicValue<int> exceptionSleepTimeMS;
 	ArmStatus        armStatus;
+	HapCommandLineArg cmdLineArg;
 
 	PrivateContext(void)
 	: loop(NULL),
@@ -46,12 +48,22 @@ struct HapProcess::PrivateContext {
 };
 
 // ---------------------------------------------------------------------------
+// HapCommandLineArg
+// ---------------------------------------------------------------------------
+HapCommandLineArg::HapCommandLineArg(void)
+: brokerUrl(HatoholArmPluginInterface::DEFAULT_BROKER_URL),
+  queueAddress(NULL)
+{
+}
+
+// ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 HapProcess::HapProcess(int argc, char *argv[])
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
+	parseCommandLineArg(m_ctx->cmdLineArg, argc, argv);
 }
 
 HapProcess::~HapProcess()
@@ -108,4 +120,37 @@ void HapProcess::setExceptionSleepTime(int sleepTimeMS)
 ArmStatus &HapProcess::getArmStatus(void)
 {
 	return m_ctx->armStatus;
+}
+
+void HapProcess::parseCommandLineArg(
+  HapCommandLineArg &arg, int argc, char *argv[])
+{
+	static GOptionEntry entries[] = {
+		{"broker-url", 'b', 0, G_OPTION_ARG_STRING,
+		 &arg.brokerUrl, "Broker URL", "URL:PORT"},
+		{"queue-address", 'q', 0, G_OPTION_ARG_STRING,
+		 &arg.queueAddress, "Queue Address", "ADDR"},
+		{NULL}
+	};
+
+	GError *error = NULL;
+	GOptionContext *context;
+
+	context = g_option_context_new("- test tree model performance");
+	g_option_context_add_main_entries(context, entries, NULL);
+	if (!g_option_context_parse(context, &argc, &argv, &error)) {
+		MLPL_ERR("option parsing failed: %s\n", error->message);
+		onErrorInCommandLineArg(error);
+	}
+}
+
+void HapProcess::onErrorInCommandLineArg(GError *error)
+{
+	g_error_free(error);
+	exit(EXIT_FAILURE);
+}
+
+const HapCommandLineArg &HapProcess::getCommandLineArg(void) const
+{
+	return m_ctx->cmdLineArg;
 }

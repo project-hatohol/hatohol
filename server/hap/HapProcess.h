@@ -25,6 +25,13 @@
 #include "HatoholThreadBase.h"
 #include "ArmStatus.h"
 
+struct HapCommandLineArg {
+	const gchar *brokerUrl;
+	const gchar *queueAddress;
+
+	HapCommandLineArg(void);
+};
+
 class HapProcess : public HatoholThreadBase {
 public:
 	HapProcess(int argc, char *argv[]);
@@ -52,6 +59,11 @@ protected:
 	 * exits soon after an exception is catched.
 	 */
 	void setExceptionSleepTime(int sleepTimeMS);
+
+	void parseCommandLineArg(HapCommandLineArg &arg,
+	                         int argc, char *argv[]);
+	virtual void onErrorInCommandLineArg(GError *error);
+	const HapCommandLineArg &getCommandLineArg(void) const;
 
 	ArmStatus &getArmStatus(void);
 
