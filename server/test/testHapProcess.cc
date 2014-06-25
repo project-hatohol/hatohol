@@ -65,10 +65,7 @@ void test_commandlineArgDefault(void)
 void test_commandlineArgBrokerUrl(void)
 {
 	const char *argv[] = {"abc", "--broker-url=example.com:52211"};
-	int argc = sizeof(argv) / sizeof(char *);
-	TestHapProcess hapProc(argc, (char**)argv);
-	assertGError(hapProc.callGetErrorOfCommandLineArg());
-	const HapCommandLineArg &cmdLineArg = hapProc.callGetCommandLineArg();
+	PARSE_OPTION(argv, cmdLineArg);
 	cut_assert_equal_string("example.com:52211", cmdLineArg.brokerUrl);
 }
 
