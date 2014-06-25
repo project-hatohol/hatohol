@@ -210,8 +210,9 @@ public:
 	typedef void (HatoholArmPluginInterface::*CommandHandler)(
 	  const HapiCommandHeader *header);
 
-	HatoholArmPluginInterface(const std::string &queueAddr = "",
-	                          const bool &workInServer = false);
+	HatoholArmPluginInterface(
+	  const std::string &queueAddr = "",
+	  const bool &workInServer = false);
 	virtual ~HatoholArmPluginInterface() override;
 
 	virtual void exitSync(void) override;
@@ -424,6 +425,9 @@ public:
 
 	static const char *getDefaultPluginPath(
 	  const MonitoringSystemType &type);
+
+	std::string getBrokerUrl(void) const;
+	void setBrokerUrl(const std::string &brokerUrl);
 
 protected:
 	typedef std::map<uint16_t, CommandHandler> CommandHandlerMap;

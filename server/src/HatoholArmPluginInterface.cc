@@ -79,7 +79,8 @@ struct HatoholArmPluginInterface::PrivateContext {
 	  currBuffer(NULL),
 	  sequenceId(0),
 	  sequenceIdOfCurrCmd(SEQ_ID_UNKNOWN),
-	  connected(false)
+	  connected(false),
+	  brokerUrl(DEFAULT_BROKER_URL)
 	{
 	}
 
@@ -95,11 +96,10 @@ struct HatoholArmPluginInterface::PrivateContext {
 
 	void connect(void)
 	{
-		const string brokerUrl = DEFAULT_BROKER_URL;
 		const string connectionOptions;
 		connectionLock.lock();
 		Reaper<MutexLock> unlocker(&connectionLock, MutexLock::unlock);
-		connection = Connection(brokerUrl, connectionOptions);
+		connection = Connection(getBrokerUrl(), connectionOptions);
 		connection.open();
 		session = connection.createSession();
 
@@ -159,9 +159,26 @@ struct HatoholArmPluginInterface::PrivateContext {
 		hapi->onInitiated();
 	}
 
+	string getBrokerUrl(void) const
+	{
+		generalLock.lock();
+		string url = brokerUrl;
+		generalLock.unlock();
+		return url;
+	}
+
+	void setBrokerUrl(const string &_brokerUrl)
+	{
+		generalLock.lock();
+		brokerUrl = _brokerUrl;
+		generalLock.unlock();
+	}
+
 private:
 	bool       connected;
 	MutexLock  connectionLock;
+	mutable MutexLock generalLock;
+	string     brokerUrl;
 };
 
 // ---------------------------------------------------------------------------
@@ -561,6 +578,16 @@ const char *HatoholArmPluginInterface::getDefaultPluginPath(
 		;
 	}
 	return NULL;
+}
+
+string HatoholArmPluginInterface::getBrokerUrl(void) const
+{
+	return m_ctx->getBrokerUrl();
+}
+
+void HatoholArmPluginInterface::setBrokerUrl(const string &brokerUrl)
+{
+	m_ctx->setBrokerUrl(brokerUrl);
 }
 
 // ---------------------------------------------------------------------------
