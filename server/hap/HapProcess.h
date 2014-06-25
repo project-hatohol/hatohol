@@ -30,6 +30,7 @@ struct HapCommandLineArg {
 	const gchar *queueAddress;
 
 	HapCommandLineArg(void);
+	virtual ~HapCommandLineArg();
 };
 
 class HapProcess : public HatoholThreadBase {

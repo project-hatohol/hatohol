@@ -59,6 +59,12 @@ HapCommandLineArg::HapCommandLineArg(void)
 {
 }
 
+HapCommandLineArg::~HapCommandLineArg()
+{
+	g_free((gchar *)brokerUrl);
+	g_free((gchar *)queueAddress);
+}
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
