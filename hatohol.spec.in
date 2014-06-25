@@ -29,6 +29,15 @@ to consolidate monitoring centers and the operators even when monitored
 devices are being used in different places or with different monitoring
 software.
 
+%package arm-plugin-zabbix
+Summary: Arm plguin for Zabbix server.
+Group: Applications/System
+Requires: %{name} = %{version}-%{release}
+
+%description arm-plugin-zabbix
+Arm plugin is a plugin interface for collecting monitoring information
+from Zabbix server.
+
 %package client
 Summary: A web UI client of Hatohol.
 Group: Applications/System
