@@ -45,9 +45,8 @@ void test_commandlineArgDefault(void)
 	char *argv[argc];
 	TestHapProcess hapProc(argc, argv);
 	const HapCommandLineArg &cmdLineArg = hapProc.callGetCommandLineArg();
-	cut_assert_equal_string(
-	  HatoholArmPluginInterface::DEFAULT_BROKER_URL, cmdLineArg.brokerUrl);
-	cut_assert_equal_string("", cmdLineArg.queueAddress);
+	cut_assert_equal_string(NULL, cmdLineArg.brokerUrl);
+	cut_assert_equal_string(NULL, cmdLineArg.queueAddress);
 }
 
 } // namespace testHapProcess

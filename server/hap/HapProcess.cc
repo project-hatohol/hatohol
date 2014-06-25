@@ -21,7 +21,6 @@
 #include <cstdio>
 #include <AtomicValue.h>
 #include "HapProcess.h"
-#include "HatoholArmPluginInterface.h"
 #include "HatoholException.h"
 
 using namespace mlpl;
@@ -51,8 +50,8 @@ struct HapProcess::PrivateContext {
 // HapCommandLineArg
 // ---------------------------------------------------------------------------
 HapCommandLineArg::HapCommandLineArg(void)
-: brokerUrl(HatoholArmPluginInterface::DEFAULT_BROKER_URL),
-  queueAddress("")
+: brokerUrl(NULL),
+  queueAddress(NULL)
 {
 }
 
