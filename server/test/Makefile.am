@@ -21,7 +21,7 @@ AM_LDFLAGS = -module -rpath $(libdir) -avoid-version -no-undefined
 
 LIBS = \
 	$(CUTTER_LIBS) $(CPPCUTTER_LIBS) \
-	$(GLIB_LIBS) $(GIO_LIBS) $(MLPL_LIBS) ../src/libhatohol.la ../src/libhatohol-common.la ../hap/libhapprocess.la
+	$(GLIB_LIBS) $(GIO_LIBS) $(MLPL_LIBS) ../src/libhatohol.la ../src/libhatohol-common.la
 
 # Test cases
 testHatohol_la_SOURCES = \
@@ -74,7 +74,7 @@ testHatohol_la_SOURCES = \
 	testZabbixAPI.cc \
 	test_hatohol-arm-plugin-zabbix.cc
 
-testHatohol_la_LDFLAGS = $(AM_LDFLAGS) $(LIBS)
+testHatohol_la_LDFLAGS = $(AM_LDFLAGS) $(LIBS) ../hap/libhapprocess.la
 testHatohol_la_LIBADD = libTest.la
 
 residentTest_la_SOURCES = residentTest.cc residentTest.h
