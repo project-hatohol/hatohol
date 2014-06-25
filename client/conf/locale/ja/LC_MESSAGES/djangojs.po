@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-06-06 13:13+0900\n"
+"POT-Creation-Date: 2014-06-24 19:01-0500\n"
 "PO-Revision-Date: 2014-06-06 13:15+0900\n"
 "Last-Translator: Noriki Nakamura <noriki.nakamura@miraclelinux.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -117,7 +117,7 @@ msgstr "致命的な障害"
 #: static/js/hatohol_server_edit_dialog.js:28
 #: static/js/hatohol_user_edit_dialog.js:28
 #: static/js/hatohol_user_roles_editor.js:261
-#: test/browser/test_hatohol_server_edit_dialog.js:67
+#: test/browser/test_hatohol_server_edit_dialog.js:75
 #: test/browser/test_hatohol_user_edit_dialog.js:49
 msgid "APPLY"
 msgstr "適用"
@@ -178,7 +178,7 @@ msgid "SELECT"
 msgstr "選択"
 
 #: static/js/hatohol_add_action_dialog.js:335
-#: static/js/hatohol_server_edit_dialog.js:100
+#: static/js/hatohol_server_edit_dialog.js:104
 #: static/js/hatohol_user_edit_dialog.js:104
 #: static/js/hatohol_user_roles_editor.js:331
 msgid "Successfully created."
@@ -262,153 +262,153 @@ msgstr "テンプレートスクリプトが不正な値を返しました。"
 msgid "Failed to login. "
 msgstr "ログインに失敗しました。"
 
-#: static/js/hatohol_def.js:164 static/js/hatohol_reply_parser.js:106
+#: static/js/hatohol_def.js:167 static/js/hatohol_reply_parser.js:106
 msgid "OK."
 msgstr "OK。"
 
-#: static/js/hatohol_def.js:165
+#: static/js/hatohol_def.js:168
 msgid "Uninitialized (This is probably a bug)."
 msgstr "初期化されていません（これはおそらくバグです）。"
 
-#: static/js/hatohol_def.js:166
+#: static/js/hatohol_def.js:169
 msgid "Unknown reason."
 msgstr "不明な理由です。"
 
-#: static/js/hatohol_def.js:167
+#: static/js/hatohol_def.js:170
 msgid "Not implemented."
 msgstr "実装されていません。"
 
-#: static/js/hatohol_def.js:168
+#: static/js/hatohol_def.js:171
 msgid "Got exception."
 msgstr "例外が発生しました。"
 
-#: static/js/hatohol_def.js:169
+#: static/js/hatohol_def.js:172
 msgid "Invalid user."
 msgstr "不正なユーザです。"
 
-#: static/js/hatohol_def.js:170
+#: static/js/hatohol_def.js:173
 msgid "Not found target record."
 msgstr "対象レコードが見つかりません。"
 
-#: static/js/hatohol_def.js:171
+#: static/js/hatohol_def.js:174
 msgid "Invalid monitoring system type."
 msgstr "不正な監視システムタイプです。"
 
-#: static/js/hatohol_def.js:172
+#: static/js/hatohol_def.js:175
 msgid "Invalid port number."
 msgstr "不正なポート番号です。"
 
-#: static/js/hatohol_def.js:173
+#: static/js/hatohol_def.js:176
 msgid "Invalid IP address."
 msgstr "不正なIPアドレスです。"
 
-#: static/js/hatohol_def.js:174
+#: static/js/hatohol_def.js:177
 msgid "Invalid host name."
 msgstr "不正なホスト名です。"
 
-#: static/js/hatohol_def.js:175
+#: static/js/hatohol_def.js:178
 msgid "No IP address and host name."
 msgstr "IPアドレスとホスト名が入力されていません。"
 
-#: static/js/hatohol_def.js:176
+#: static/js/hatohol_def.js:179
 msgid "Empty user name."
 msgstr "ユーザ名が入力されていません。"
 
-#: static/js/hatohol_def.js:177
+#: static/js/hatohol_def.js:180
 msgid "Too long user name."
 msgstr "ユーザ名が長すぎます。"
 
-#: static/js/hatohol_def.js:178
+#: static/js/hatohol_def.js:181
 msgid "Invalid character."
 msgstr "不正な文字が含まれています。"
 
-#: static/js/hatohol_def.js:179
+#: static/js/hatohol_def.js:182
 msgid "Password is empty."
 msgstr "パスワードが入力されていません。"
 
-#: static/js/hatohol_def.js:180
+#: static/js/hatohol_def.js:183
 msgid "Too long password."
 msgstr "パスワードが長すぎます。"
 
-#: static/js/hatohol_def.js:181
+#: static/js/hatohol_def.js:184
 msgid "The same user name already exists."
 msgstr "同じユーザ名が既に存在します。"
 
-#: static/js/hatohol_def.js:182
+#: static/js/hatohol_def.js:185
 msgid "No privilege."
 msgstr "権限がありません。"
 
-#: static/js/hatohol_def.js:183
+#: static/js/hatohol_def.js:186
 msgid "Invalid privilege flags."
 msgstr "不正な権限です。"
 
-#: static/js/hatohol_def.js:184
+#: static/js/hatohol_def.js:187
 msgid "Empty user role name."
 msgstr "ユーザ種別名が入力されていません。"
 
-#: static/js/hatohol_def.js:185
+#: static/js/hatohol_def.js:188
 msgid "Too long User role name."
 msgstr "ユーザ種別名が長すぎます。"
 
-#: static/js/hatohol_def.js:186
+#: static/js/hatohol_def.js:189
 msgid ""
 "The same user role name or a user role with the same privilege already "
 "exists."
 msgstr "同じユーザ種別名か同じ権限のユーザが既に存在します。"
 
-#: static/js/hatohol_def.js:187
+#: static/js/hatohol_def.js:190
 msgid "An offset value is specified but no limit value is specified."
 msgstr ""
 
-#: static/js/hatohol_def.js:188
+#: static/js/hatohol_def.js:191
 msgid "Not found sort order."
 msgstr "ソート順が指定されていません。"
 
-#: static/js/hatohol_def.js:189
+#: static/js/hatohol_def.js:192
 msgid "The delete operation was incomplete."
 msgstr "削除操作が不完全です。"
 
-#: static/js/hatohol_def.js:190
+#: static/js/hatohol_def.js:193
 msgid "Unsupported format."
 msgstr "対応していない形式です。"
 
-#: static/js/hatohol_def.js:191
+#: static/js/hatohol_def.js:194
 msgid "Not found session ID."
 msgstr "セッションIDが見つかりません。"
 
-#: static/js/hatohol_def.js:192
+#: static/js/hatohol_def.js:195
 msgid "Not found ID in the URL."
 msgstr "URLにIDが含まれていません。"
 
-#: static/js/hatohol_def.js:193
+#: static/js/hatohol_def.js:196
 msgid "Not found parameter."
 msgstr "パラメータが見つかりません。"
 
-#: static/js/hatohol_def.js:194
+#: static/js/hatohol_def.js:197
 msgid "Invalid parameter."
 msgstr "不正なパラメータです。"
 
-#: static/js/hatohol_def.js:195
+#: static/js/hatohol_def.js:198
 msgid "Authentication failed."
 msgstr "認証に失敗しました。"
 
-#: static/js/hatohol_def.js:196
+#: static/js/hatohol_def.js:199
 msgid "Not test mode."
 msgstr "テストモードではありません。"
 
-#: static/js/hatohol_def.js:197
+#: static/js/hatohol_def.js:200
 msgid "Failed to create a DataStore object."
 msgstr ""
 
-#: static/js/hatohol_def.js:198
+#: static/js/hatohol_def.js:201
 msgid "Failed to regist a DataStore object."
 msgstr ""
 
-#: static/js/hatohol_def.js:199
+#: static/js/hatohol_def.js:202
 msgid "Failed to stop a DataStore object."
 msgstr ""
 
-#: static/js/hatohol_def.js:200 test/browser/test_hatohol_message_box.js:176
+#: static/js/hatohol_def.js:203 test/browser/test_hatohol_message_box.js:176
 msgid "Error test."
 msgstr "エラーテストです。"
 
@@ -491,13 +491,13 @@ msgid "Login"
 msgstr "ログイン"
 
 #: static/js/hatohol_login_dialog.js:57
-#: static/js/hatohol_server_edit_dialog.js:193
+#: static/js/hatohol_server_edit_dialog.js:200
 #: static/js/hatohol_user_edit_dialog.js:157
 msgid "User name"
 msgstr "ユーザ名"
 
 #: static/js/hatohol_login_dialog.js:59
-#: static/js/hatohol_server_edit_dialog.js:195
+#: static/js/hatohol_server_edit_dialog.js:202
 #: static/js/hatohol_user_edit_dialog.js:159
 msgid "Password"
 msgstr "パスワード"
@@ -636,7 +636,7 @@ msgid "Successfully changed."
 msgstr "正常に変更されました。"
 
 #: static/js/hatohol_password_changer.js:81
-#: static/js/hatohol_server_edit_dialog.js:144
+#: static/js/hatohol_server_edit_dialog.js:149
 #: static/js/hatohol_user_edit_dialog.js:118
 msgid "Password is empty!"
 msgstr "パスワードが入力されていません！"
@@ -671,7 +671,7 @@ msgid "IP Address"
 msgstr "IPアドレス"
 
 #: static/js/hatohol_privilege_edit_dialog.js:202
-#: static/js/hatohol_server_edit_dialog.js:177
+#: static/js/hatohol_server_edit_dialog.js:184
 #: static/js/hatohol_server_selector.js:48
 msgid "Nickname"
 msgstr "ニックネーム"
@@ -728,83 +728,105 @@ msgstr "サーバを更新しています..."
 msgid "Now adding a server..."
 msgstr "サーバを追加しています..."
 
-#: static/js/hatohol_server_edit_dialog.js:98
+#: static/js/hatohol_server_edit_dialog.js:102
 #: static/js/hatohol_user_edit_dialog.js:102
 #: static/js/hatohol_user_roles_editor.js:329
 msgid "Successfully updated."
 msgstr "正常に更新されました。"
 
-#: static/js/hatohol_server_edit_dialog.js:112
+#: static/js/hatohol_server_edit_dialog.js:117
 msgid "Invalid Server type!"
 msgstr "サーバの種類が正しくありません！"
 
-#: static/js/hatohol_server_edit_dialog.js:116
+#: static/js/hatohol_server_edit_dialog.js:121
 msgid "Host name is empty!"
 msgstr "ホスト名が入力されていません！"
 
-#: static/js/hatohol_server_edit_dialog.js:120
+#: static/js/hatohol_server_edit_dialog.js:125
 msgid "IP address is empty!"
 msgstr "IPアドレスが入力されていません！"
 
-#: static/js/hatohol_server_edit_dialog.js:124
+#: static/js/hatohol_server_edit_dialog.js:129
 msgid "NickName is empty!"
 msgstr "ニックネームが入力されていません！"
 
-#: static/js/hatohol_server_edit_dialog.js:128
+#: static/js/hatohol_server_edit_dialog.js:133
 msgid "Port is empty!"
 msgstr "ポート番号が入力されていません！"
 
-#: static/js/hatohol_server_edit_dialog.js:132
+#: static/js/hatohol_server_edit_dialog.js:137
 msgid "Polling interval is empty!"
 msgstr "ポーリング間隔が入力されていません！"
 
-#: static/js/hatohol_server_edit_dialog.js:136
+#: static/js/hatohol_server_edit_dialog.js:141
 msgid "Retry interval is empty!"
 msgstr "リトライ間隔が入力されていません！"
 
-#: static/js/hatohol_server_edit_dialog.js:140
+#: static/js/hatohol_server_edit_dialog.js:145
 msgid "User Name is empty!"
 msgstr "ユーザ名が入力されていません！"
 
-#: static/js/hatohol_server_edit_dialog.js:150
+#: static/js/hatohol_server_edit_dialog.js:155
 msgid "DB name is empty!"
 msgstr "データベース名が入力されていません！"
 
-#: static/js/hatohol_server_edit_dialog.js:168
+#: static/js/hatohol_server_edit_dialog.js:173
 msgid "Server type"
 msgstr "サーバ種類"
 
-#: static/js/hatohol_server_edit_dialog.js:171 static/js/servers_view.js:138
+#: static/js/hatohol_server_edit_dialog.js:176 static/js/servers_view.js:138
 msgid "Zabbix"
 msgstr "Zabbix"
 
-#: static/js/hatohol_server_edit_dialog.js:173 static/js/servers_view.js:140
+#: static/js/hatohol_server_edit_dialog.js:178 static/js/servers_view.js:140
 msgid "Nagios"
 msgstr "Nagios"
 
-#: static/js/hatohol_server_edit_dialog.js:181
+#: static/js/hatohol_server_edit_dialog.js:180
+msgid "Zabbix (HAPI) [experimental]"
+msgstr ""
+
+#: static/js/hatohol_server_edit_dialog.js:188
 msgid "Host name"
 msgstr "ホスト名"
 
-#: static/js/hatohol_server_edit_dialog.js:183
+#: static/js/hatohol_server_edit_dialog.js:190
 msgid "IP address"
 msgstr "IPアドレス"
 
-#: static/js/hatohol_server_edit_dialog.js:185
+#: static/js/hatohol_server_edit_dialog.js:192
 msgid "Port"
 msgstr "ポート番号"
 
-#: static/js/hatohol_server_edit_dialog.js:189
+#: static/js/hatohol_server_edit_dialog.js:196
 msgid "DB name"
 msgstr "データベース名"
 
-#: static/js/hatohol_server_edit_dialog.js:199
+#: static/js/hatohol_server_edit_dialog.js:206
 msgid "Polling interval (sec)"
 msgstr "ポーリング間隔（秒）"
 
-#: static/js/hatohol_server_edit_dialog.js:201
+#: static/js/hatohol_server_edit_dialog.js:208
 msgid "Retry interval (sec)"
 msgstr "リトライ間隔（秒）"
+
+#: static/js/hatohol_server_edit_dialog.js:216
+#, fuzzy
+msgid "Passive mode"
+msgstr "パッシブモード"
+
+#: static/js/hatohol_server_edit_dialog.js:219
+msgid "Broker URL"
+msgstr "ブローカーURL"
+
+#: static/js/hatohol_server_edit_dialog.js:221
+#: static/js/hatohol_server_edit_dialog.js:226
+msgid "(empty: Default)"
+msgstr "(空白：既定値)"
+
+#: static/js/hatohol_server_edit_dialog.js:224
+msgid "Static queue address"
+msgstr "静的キューアドレス"
 
 #: static/js/hatohol_server_selector.js:26
 msgid "Server selecion"
