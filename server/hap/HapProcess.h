@@ -62,7 +62,14 @@ protected:
 
 	void parseCommandLineArg(HapCommandLineArg &arg,
 	                         int argc, char *argv[]);
-	virtual void onErrorInCommandLineArg(GError *error);
+	/**
+	 * Get the error status of the command line argument parsing.
+	 *
+	 * @return
+	 * A GError object. If no errors happen, NULL is returned.
+	 * The returned object must not be freed.
+	 */
+	const GError *getErrorOfCommandLineArg(void) const;
 	const HapCommandLineArg &getCommandLineArg(void) const;
 
 	ArmStatus &getArmStatus(void);

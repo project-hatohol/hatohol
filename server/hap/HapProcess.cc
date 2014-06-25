@@ -32,10 +32,12 @@ struct HapProcess::PrivateContext {
 	AtomicValue<int> exceptionSleepTimeMS;
 	ArmStatus        armStatus;
 	HapCommandLineArg cmdLineArg;
+	GError           *cmdLineArgParseError;
 
 	PrivateContext(void)
 	: loop(NULL),
-	  exceptionSleepTimeMS(DEFAULT_EXCEPTION_SLEEP_TIME_MS)
+	  exceptionSleepTimeMS(DEFAULT_EXCEPTION_SLEEP_TIME_MS),
+	  cmdLineArgParseError(NULL)
 	{
 	}
 
@@ -43,6 +45,8 @@ struct HapProcess::PrivateContext {
 	{
 		if (loop)
 			g_main_loop_unref(loop);
+		if (cmdLineArgParseError)
+			g_error_free(cmdLineArgParseError);
 	}
 };
 
@@ -132,21 +136,16 @@ void HapProcess::parseCommandLineArg(
 		{NULL}
 	};
 
-	GError *error = NULL;
 	GOptionContext *context;
-
 	context = g_option_context_new("- test tree model performance");
 	g_option_context_add_main_entries(context, entries, NULL);
-	if (!g_option_context_parse(context, &argc, &argv, &error)) {
-		MLPL_ERR("option parsing failed: %s\n", error->message);
-		onErrorInCommandLineArg(error);
-	}
+	g_option_context_parse(context, &argc, &argv,
+	                       &m_ctx->cmdLineArgParseError);
 }
 
-void HapProcess::onErrorInCommandLineArg(GError *error)
+const GError *HapProcess::getErrorOfCommandLineArg(void) const
 {
-	g_error_free(error);
-	exit(EXIT_FAILURE);
+	return m_ctx->cmdLineArgParseError;
 }
 
 const HapCommandLineArg &HapProcess::getCommandLineArg(void) const
