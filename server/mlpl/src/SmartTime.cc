@@ -173,6 +173,11 @@ bool SmartTime::operator<=(const SmartTime &rhs) const
 	return !(*this > rhs);
 }
 
+bool SmartTime::operator<(const SmartTime &rhs) const
+{
+	return !(*this >= rhs);
+}
+
 SmartTime::operator std::string () const
 {
 	return StringUtils::sprintf("%ld.%09ld",
