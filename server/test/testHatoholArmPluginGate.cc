@@ -87,6 +87,7 @@ void cut_setup(void)
 // ---------------------------------------------------------------------------
 void test_constructor(void)
 {
+	setupTestDBConfig();
 	MonitoringServerInfo serverInfo;
 	initServerInfo(serverInfo);
 	HatoholArmPluginGatePtr pluginGate(
