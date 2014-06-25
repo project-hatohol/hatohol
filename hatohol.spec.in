@@ -38,6 +38,14 @@ Requires: %{name} = %{version}-%{release}
 Arm plugin is a plugin interface for collecting monitoring information
 from Zabbix server.
 
+%package libhatohol-common
+Summary: Library files for Hatohol
+Group: Applications/System
+Requires: %{name} = %{version}-%{release}
+
+%description libhatohol-common
+Library files for hatohol.
+
 %package client
 Summary: A web UI client of Hatohol.
 Group: Applications/System
