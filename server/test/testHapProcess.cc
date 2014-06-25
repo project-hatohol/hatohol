@@ -61,7 +61,7 @@ void test_commandlineArgDefault(void)
 
 void test_commandlineArgBrokerUrl(void)
 {
-	const char *argv[] = {"abc", "--broker-url=example.com:52211"};
+	const char *argv[] = {"progname", "--broker-url=example.com:52211"};
 	PARSE_OPTION(argv, cmdLineArg);
 	cut_assert_equal_string("example.com:52211", cmdLineArg.brokerUrl);
 }
