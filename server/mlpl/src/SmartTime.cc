@@ -163,6 +163,11 @@ bool SmartTime::operator>=(const SmartTime &rhs) const
 	return m_ctx->time.tv_nsec >= rhs.m_ctx->time.tv_nsec;
 }
 
+bool SmartTime::operator>(const SmartTime &rhs) const
+{
+	return !(rhs >= *this);
+}
+
 SmartTime::operator std::string () const
 {
 	return StringUtils::sprintf("%ld.%09ld",
