@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -28,8 +28,12 @@
 const static uint64_t INVALID_ACTION_LOG_ID = -1;
 
 enum ActionType {
+	ACTION_USER_DEFINED = -2, // COMMAND & RESIDENT
+	ACTION_ALL = -1,
 	ACTION_COMMAND,
 	ACTION_RESIDENT,
+	ACTION_ISSUE_SENDER,
+	NUM_ACTION_TYPES,
 };
 
 enum ComparisonType {
@@ -107,6 +111,13 @@ struct ActionDef {
 	// module path and options.
 	// Ex.) /usr/lib/foo.so -l -o 'IYH... oooo' ABC
 	//
+	// [IssueSender type action]
+	// IssueTrackerInfo ID & IssueSenderOption ID
+	// Format: IssueTrackerId[:IssueSenderOptionId]
+	//   Ex.) 3:17 (with IssueSenderOption)
+	//        3    (without IssueSenderOption)
+	// Note: IssueSenderOption isn't implemeneted yet
+	//
 	// Note: A string: "-l -o 'IYH... oooo' ABC" is passed as an
 	// argument of module's init() function.
 	// Ref: struct ResidentModule in ResidentProtocol.h
@@ -118,6 +129,17 @@ struct ActionDef {
 	int         timeout;
 
 	UserIdType  ownerUserId;
+
+	/**
+	 * Parse "command" string for IssueSender type action.
+	 *
+	 * @param trackerId 
+	 * An ID of IssueTrackerInfo parsed from command string will be stored.
+	 *
+	 * @return true when succeeded to parse, otherwise false.
+	 *
+	 */
+	bool parseIssueSenderCommand(IssueTrackerIdType &trackerId) const;
 };
 
 typedef std::list<ActionDef>          ActionDefList;
@@ -214,6 +236,25 @@ enum ActionLogExecFailureCode {
 	ACTLOG_EXECFAIL_UNEXPECTED_EXIT,
 };
 
+class ActionsQueryOption : public DataQueryOption {
+public:
+	ActionsQueryOption(const UserIdType &userId = INVALID_USER_ID);
+	ActionsQueryOption(DataQueryContext *dataQueryContext);
+	ActionsQueryOption(const ActionsQueryOption &src);
+	~ActionsQueryOption();
+
+	void setTargetEventInfo(const EventInfo *eventInfo);
+	const EventInfo *getTargetEventInfo(void) const;
+	void setActionType(const ActionType &type);
+	const ActionType &getActionType(void);
+
+	virtual std::string getCondition(void) const override;
+
+private:
+	struct PrivateContext;
+	PrivateContext *m_ctx;
+};
+
 class DBClientAction : public DBClient {
 
 public:
@@ -241,8 +282,7 @@ public:
 	HatoholError addAction(ActionDef &actionDef,
 	                       const OperationPrivilege &privilege);
 	HatoholError getActionList(ActionDefList &actionDefList,
-	                           const OperationPrivilege &privilege,
-	                           const EventInfo *eventInfo = NULL);
+	                           const ActionsQueryOption &option);
 	HatoholError deleteActions(const ActionIdList &idList,
 	                           const OperationPrivilege &privilege);
 
@@ -314,10 +354,16 @@ public:
 	bool getLog(ActionLog &actionLog, const ServerIdType &serverId,
 	            uint64_t eventId);
 
+	/**
+	 * Check whether IssueSender type action exists or not
+	 *
+	 * @return true if IssueSender type action exists
+	 */
+	bool isIssueSenderEnabled(void);
+
 protected:
 	ItemDataNullFlagType getNullFlag(const ActionDef &actionDef,
 	                                 ActionConditionEnableFlag enableFlag);
-	std::string makeActionDefCondition(const EventInfo &eventInfo);
 
 	/**
 	 * Get the action log.

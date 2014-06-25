@@ -107,8 +107,10 @@ std::string execMySQL(const std::string &dbName, const std::string &statement,
 
 std::string makeServerInfoOutput(const MonitoringServerInfo &serverInfo);
 std::string makeArmPluginInfoOutput(const ArmPluginInfo &armPluginInfo);
+std::string makeIssueTrackerInfoOutput(const IssueTrackerInfo &issueTrackerInfo);
 std::string makeUserRoleInfoOutput(const UserRoleInfo &userRoleInfo);
 std::string makeEventOutput(const EventInfo &eventInfo);
+std::string makeIssueOutput(const IssueInfo &issueInfo);
 
 void _assertDatetime(int expectedClock, int actualClock);
 #define assertDatetime(E,A) cut_trace(_assertDatetime(E,A))
@@ -170,6 +172,7 @@ void setupTestDBAction(bool dbRecreate = true, bool loadTestDat = false);
 void setupTestDBUser(bool dbRecreate = true, bool loadTestDat = false);
 void loadTestDBTriggers(void);
 void loadTestDBEvents(void);
+void loadTestDBIssues(void);
 void loadTestDBServer(void);
 void loadTestDBAction(void);
 void loadTestDBUser(void);

@@ -56,6 +56,12 @@ static void makeDBHatohol(const string &dbName)
 		MonitoringServerStatus *serverStatus = &testServerStatus[i];
 		dbHatohol.addMonitoringServerStatus(serverStatus);
 	}
+
+	// Issues
+	for (size_t i = 0; i < NumTestIssueInfo; i++) {
+		IssueInfo *issueInfo = &testIssueInfo[i];
+		dbHatohol.addIssueInfo(issueInfo);
+	}
 }
 
 int main(int argc, char *argv[])

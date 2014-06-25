@@ -26,6 +26,7 @@
 #include "DBClientUser.h"
 #include "ItemGroupStream.h"
 #include "HostResourceQueryOption.h"
+#include "SmartTime.h"
 
 enum TriggerStatusType {
 	TRIGGER_STATUS_ALL = -1,
@@ -156,6 +157,23 @@ typedef std::list<MonitoringServerStatus> MonitoringServerStatusList;
 typedef MonitoringServerStatusList::iterator MonitoringServerStatusListIterator;
 typedef MonitoringServerStatusList::const_iterator MonitoringServerStatusListConstIterator;
 
+struct IssueInfo {
+	IssueTrackerIdType trackerId;
+	ServerIdType       serverId;
+	EventIdType        eventId;
+	TriggerIdType      triggerId;
+	std::string        identifier;
+	std::string        location;
+	std::string        status;
+	std::string        assignee;
+	mlpl::Time         createdAt;
+	mlpl::Time         updatedAt;
+};
+
+typedef std::vector<IssueInfo>        IssueInfoVect;
+typedef IssueInfoVect::iterator       IssueInfoVectIterator;
+typedef IssueInfoVect::const_iterator IssueInfoVectConstIterator;
+
 class EventsQueryOption : public HostResourceQueryOption {
 public:
 	enum SortType {
@@ -190,7 +208,7 @@ private:
 
 class TriggersQueryOption : public HostResourceQueryOption {
 public:
-	TriggersQueryOption(UserIdType userId = INVALID_USER_ID);
+	TriggersQueryOption(const UserIdType &userId = INVALID_USER_ID);
 	TriggersQueryOption(DataQueryContext *dataQueryContext);
 	TriggersQueryOption(const TriggersQueryOption &src);
 	~TriggersQueryOption();
@@ -211,7 +229,7 @@ private:
 
 class ItemsQueryOption : public HostResourceQueryOption {
 public:
-	ItemsQueryOption(UserIdType userId = INVALID_USER_ID);
+	ItemsQueryOption(const UserIdType &userId = INVALID_USER_ID);
 	ItemsQueryOption(DataQueryContext *dataQueryContext);
 	ItemsQueryOption(const ItemsQueryOption &src);
 	~ItemsQueryOption();
@@ -230,20 +248,26 @@ private:
 
 class HostsQueryOption : public HostResourceQueryOption {
 public:
-	HostsQueryOption(UserIdType userId = INVALID_USER_ID);
+	HostsQueryOption(const UserIdType &userId = INVALID_USER_ID);
 	HostsQueryOption(DataQueryContext *dataQueryContext);
 };
 
 class HostgroupsQueryOption : public HostResourceQueryOption {
 public:
-	HostgroupsQueryOption(UserIdType userId = INVALID_USER_ID);
+	HostgroupsQueryOption(const UserIdType &userId = INVALID_USER_ID);
 	HostgroupsQueryOption(DataQueryContext *dataQueryContext);
 };
 
 class HostgroupElementQueryOption: public HostResourceQueryOption {
 public:
-	HostgroupElementQueryOption(UserIdType userId = INVALID_USER_ID);
+	HostgroupElementQueryOption(const UserIdType &userId = INVALID_USER_ID);
 	HostgroupElementQueryOption(DataQueryContext *dataQueryContext);
+};
+
+class IssuesQueryOption : public DataQueryOption {
+public:
+	IssuesQueryOption(const UserIdType &userId = INVALID_USER_ID);
+	IssuesQueryOption(DataQueryContext *dataQueryContext);
 };
 
 class DBClientHatohol : public DBClient {
@@ -258,6 +282,8 @@ public:
 	static const char *TABLE_NAME_HOSTS;
 	static const char *TABLE_NAME_HOSTGROUPS;
 	static const char *TABLE_NAME_MAP_HOSTS_HOSTGROUPS;
+	static const char *TABLE_NAME_SERVERS;
+	static const char *TABLE_NAME_ISSUES;
 
 	DBClientHatohol(void);
 	virtual ~DBClientHatohol();
@@ -300,7 +326,8 @@ public:
 	void addEventInfo(EventInfo *eventInfo);
 	void addEventInfoList(const EventInfoList &eventInfoList);
 	HatoholError getEventInfoList(EventInfoList &eventInfoList,
-	                              const EventsQueryOption &option);
+	                              const EventsQueryOption &option,
+				      IssueInfoVect *issueInfoVect = NULL);
 	void setEventInfoList(const EventInfoList &eventInfoList,
 	                      const ServerIdType &serverId);
 
@@ -364,6 +391,10 @@ public:
 	void pickupAbsentHostIds(std::vector<uint64_t> &absentHostIdVector,
 	                         const std::vector<uint64_t> &hostIdVector);
 
+	void addIssueInfo(IssueInfo *issueInfo);
+	HatoholError getIssueInfoVect(IssueInfoVect &issueInfoVect,
+				      const IssuesQueryOption &option);
+
 protected:
 	void addTriggerInfoWithoutTransaction(const TriggerInfo &triggerInfo);
 	void addEventInfoWithoutTransaction(const EventInfo &eventInfo);
@@ -374,6 +405,7 @@ protected:
 	void addHostInfoWithoutTransaction(const HostInfo &hostInfo);
 	void addMonitoringServerStatusWithoutTransaction(
 	  const MonitoringServerStatus &serverStatus);
+	void addIssueInfoWithoutTransaction(const IssueInfo &issueInfo);
 	size_t getNumberOfTriggers(const TriggersQueryOption &option,
 				   const std::string &additionalCondition);
 

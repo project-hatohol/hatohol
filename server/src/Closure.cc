@@ -43,7 +43,7 @@ void Signal::disconnect (ClosureBase *closure)
 			delete (*it);
 			it = m_closures.erase(it);
 		} else {
-			it++;
+			++it;
 		}
 	}
 	m_rwlock.unlock();
@@ -53,7 +53,7 @@ void Signal::clear (void)
 {
 	m_rwlock.writeLock();
 	ClosureBaseIterator it = m_closures.begin();
-	for (; it != m_closures.end(); it++) {
+	for (; it != m_closures.end(); ++it) {
 		ClosureBase *closure = *it;
 		delete closure;
 	}
@@ -65,7 +65,7 @@ void Signal::operator() (void)
 {
 	m_rwlock.readLock();
 	ClosureBaseIterator it;
-	for (it = m_closures.begin(); it != m_closures.end(); it++) {
+	for (it = m_closures.begin(); it != m_closures.end(); ++it) {
 		ClosureBase *closure = *it;
 		(*closure)();
 	}

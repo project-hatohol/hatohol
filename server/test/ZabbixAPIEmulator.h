@@ -24,13 +24,14 @@
 #include <glib.h>
 #include <libsoup/soup.h>
 #include "JsonParserAgent.h"
+#include "HttpServerStub.h"
 
 enum OperationMode {
 	OPE_MODE_NORMAL,
 	OPE_MODE_HTTP_NOT_FOUND,
 };
 
-class ZabbixAPIEmulator {
+class ZabbixAPIEmulator : public HttpServerStub {
 public:
 	enum APIVersion {
 		API_VERSION_1_3_0, // Zabbix 1.8
@@ -57,9 +58,6 @@ public:
 	void reset(void);
 	void setNumberOfEventSlices(size_t numSlices);
 
-	bool isRunning(void);
-	void start(guint port);
-	void stop(void);
 	void setOperationMode(OperationMode mode);
 	void setAPIVersion(APIVersion version);
 	std::string getAPIVersionString(void);
@@ -67,13 +65,9 @@ public:
 	static std::string getAPIVersionString(APIVersion version);
 
 protected:
-	static gpointer _mainThread(gpointer data);
-	gpointer mainThread(void);
+	virtual void setSoupHandlers(SoupServer *soupServer);
 	static void startObject(JsonParserAgent &parser,
 	                        const std::string &name);
-	static void handlerDefault
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, gpointer user_data);
 	static void handlerAPI
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, gpointer user_data);

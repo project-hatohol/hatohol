@@ -430,6 +430,22 @@ std::string makeArmPluginInfoOutput(const ArmPluginInfo &armPluginInfo)
 	return expectedOut;
 }
 
+string makeIssueTrackerInfoOutput(const IssueTrackerInfo &issueTrackerInfo)
+{
+	string expectedOut =
+	  mlpl::StringUtils::sprintf(
+	    "%" FMT_ISSUE_TRACKER_ID "|%d|%s|%s|%s|%s|%s|%s\n",
+	    issueTrackerInfo.id,
+	    issueTrackerInfo.type,
+	    issueTrackerInfo.nickname.c_str(),
+	    issueTrackerInfo.baseURL.c_str(),
+	    issueTrackerInfo.projectId.c_str(),
+	    issueTrackerInfo.trackerId.c_str(),
+	    issueTrackerInfo.userName.c_str(),
+	    issueTrackerInfo.password.c_str());
+	return expectedOut;
+}
+
 std::string makeUserRoleInfoOutput(const UserRoleInfo &userRoleInfo)
 {
 	return StringUtils::sprintf(
@@ -449,6 +465,28 @@ string makeEventOutput(const EventInfo &eventInfo)
 	    eventInfo.hostId,
 	    eventInfo.hostName.c_str(),
 	    eventInfo.brief.c_str());
+	return output;
+}
+
+string makeIssueOutput(const IssueInfo &issueInfo)
+{
+	string output =
+	  mlpl::StringUtils::sprintf(
+	    "%" FMT_ISSUE_TRACKER_ID "|%" FMT_SERVER_ID "|%" FMT_EVENT_ID
+	    "|%" FMT_TRIGGER_ID "|%s|%s|%s|%s"
+	    "|%" PRIu64 "|%" PRIu64 "|%" PRIu64 "|%" PRIu64 "\n",
+	    issueInfo.trackerId,
+	    issueInfo.serverId,
+	    issueInfo.eventId,
+	    issueInfo.triggerId,
+	    issueInfo.identifier.c_str(),
+	    issueInfo.location.c_str(),
+	    issueInfo.status.c_str(),
+	    issueInfo.assignee.c_str(),
+	    issueInfo.createdAt.tv_sec,
+	    issueInfo.createdAt.tv_nsec,
+	    issueInfo.updatedAt.tv_sec,
+	    issueInfo.updatedAt.tv_nsec);
 	return output;
 }
 
@@ -742,6 +780,21 @@ void loadTestDBEvents(void)
 		dbHatohol.addEventInfo(&testEventInfo[i]);
 }
 
+void loadTestDBIssueTracker(void)
+{
+	DBClientConfig dbConfig;
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	for (size_t i = 0; i < NumTestIssueTrackerInfo; i++)
+		dbConfig.addIssueTracker(&testIssueTrackerInfo[i], privilege);
+}
+
+void loadTestDBIssues(void)
+{
+	DBClientHatohol dbHatohol;
+	for (size_t i = 0; i < NumTestIssueInfo; i++)
+		dbHatohol.addIssueInfo(&testIssueInfo[i]);
+}
+
 void setupTestDBConfig(bool dbRecreate, bool loadTestData)
 {
 	static const char *TEST_DB_NAME = "test_config";
@@ -750,8 +803,10 @@ void setupTestDBConfig(bool dbRecreate, bool loadTestData)
 	DBClient::setDefaultDBParams(DB_DOMAIN_ID_CONFIG, TEST_DB_NAME,
 	                             TEST_DB_USER, TEST_DB_PASSWORD);
 	makeTestMySQLDBIfNeeded(TEST_DB_NAME, dbRecreate);
-	if (loadTestData)
+	if (loadTestData) {
 		loadTestDBServer();
+		loadTestDBIssueTracker();
+	}
 }
 
 void setupTestDBAction(bool dbRecreate, bool loadTestData)

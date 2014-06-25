@@ -58,6 +58,10 @@ void HatoholError::init(void)
 		   "Invalid host name.");
 	DEFINE_ERR(NO_IP_ADDRESS_AND_HOST_NAME,
 		   "No IP address and host name.");
+	DEFINE_ERR(INVALID_ISSUE_TRACKER_TYPE,
+		   "Invalid issue tracker type.");
+	DEFINE_ERR(NO_ISSUE_TRACKER_LOCATION,
+		   "NO issue tracker location.");
 
 	// DBClientUser
 	DEFINE_ERR(EMPTY_USER_NAME,
@@ -118,6 +122,10 @@ void HatoholError::init(void)
 		   "Failed to regist a DataStore object.");
 	DEFINE_ERR(FAILED_TO_STOP_DATA_STORE,
 		   "Failed to stop a DataStore object.");
+
+	// Incident Mangement
+	DEFINE_ERR(FAILED_TO_SEND_ISSUE,
+		   "Failed to send an issue to an issue tracker.");
 
 	// OTHER
 	DEFINE_ERR(ERROR_TEST,

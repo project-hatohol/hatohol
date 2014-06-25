@@ -75,7 +75,8 @@ public:
 	                    const TriggersQueryOption &option);
 	mlpl::SmartTime getTimestampOfLastTrigger(const ServerIdType serverId);
 	HatoholError getEventList(EventInfoList &eventList,
-	                          EventsQueryOption &option);
+	                          EventsQueryOption &option,
+				  IssueInfoVect *issueVect = NULL);
 	void getItemList(ItemInfoList &itemList,
 	                 const ItemsQueryOption &option,
 	                 bool fetchItemsSynchronously = false);
@@ -95,11 +96,12 @@ public:
 
 	// Action
 	HatoholError getActionList(ActionDefList &actionList,
-	                           const OperationPrivilege &privilege);
+	                           const ActionsQueryOption &option);
 	HatoholError addAction(ActionDef &actionDef,
 	                       const OperationPrivilege &privilege);
 	HatoholError deleteActionList(const ActionIdList &actionIdList,
 	                              const OperationPrivilege &privilege);
+	bool isIssueSenderActionEnabled(void);
 
 	size_t getNumberOfBadTriggers(const TriggersQueryOption &option,
 				      TriggerSeverityType severity);

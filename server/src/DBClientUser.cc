@@ -802,7 +802,7 @@ HatoholError DBClientUser::getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMa
 void DBClientUser::destroyServerAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap)
 {
 	ServerAccessInfoMapIterator it = srvAccessInfoMap.begin();
-	for (; it != srvAccessInfoMap.end(); it++) {
+	for (; it != srvAccessInfoMap.end(); ++it) {
 		HostGrpAccessInfoMap *hostGrpAccessInfoMap = it->second;
 		HostGrpAccessInfoMapIterator it2 = hostGrpAccessInfoMap->begin();
 		for (; it2 != hostGrpAccessInfoMap->end(); it2++) {

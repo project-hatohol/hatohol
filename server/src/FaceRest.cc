@@ -1237,7 +1237,7 @@ static void addHostsMap(
 	dataStore->getHostList(hostList, option);
 	HostInfoListIterator it = hostList.begin();
 	agent.startObject("hosts");
-	for (; it != hostList.end(); it++) {
+	for (; it != hostList.end(); ++it) {
 		HostInfo &host = *it;
 		agent.startObject(StringUtils::toString(host.id));
 		agent.add("name", host.hostName);
@@ -1284,7 +1284,7 @@ static void addTriggersIdBriefHash(
 	ServerIdType serverId = server_it->first;
 	TriggerBriefMap &triggers = server_it->second;
 	TriggerBriefMap::iterator it = triggers.begin();
-	for (; server_it != triggerMaps.end() && it != triggers.end(); it++) {
+	for (; server_it != triggerMaps.end() && it != triggers.end(); ++it) {
 		TriggerIdType triggerId = it->first;
 		string &triggerBrief = it->second;
 		if (lookupTriggerBrief)
@@ -1839,6 +1839,15 @@ static uint64_t getLastUnifiedEventId(FaceRest::RestJob *job)
 	return lastUnifiedId;
 }
 
+static void addIssue(FaceRest::RestJob *job, JsonBuilderAgent &agent,
+		     const IssueInfo &issue)
+{
+		agent.startObject("issue");
+		agent.add("location", issue.location);
+		// TODO: remaining properties will be added later
+		agent.endObject();
+}
+
 void FaceRest::handlerGetEvent(RestJob *job)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
@@ -1850,7 +1859,17 @@ void FaceRest::handlerGetEvent(RestJob *job)
 		replyError(job, err);
 		return;
 	}
-	err = dataStore->getEventList(eventList, option);
+
+	bool addIssues = dataStore->isIssueSenderActionEnabled();
+	IssueInfoVect issueVect;
+	if (addIssues) {
+		err = dataStore->getEventList(eventList, option, &issueVect);
+		HATOHOL_ASSERT(eventList.size() == issueVect.size(),
+			       "eventList: %zd, issueVect: %zd\n",
+			       eventList.size(), issueVect.size());
+	} else {
+		err = dataStore->getEventList(eventList, option);
+	}
 	if (err != HTERR_OK) {
 		replyError(job, err);
 		return;
@@ -1859,10 +1878,15 @@ void FaceRest::handlerGetEvent(RestJob *job)
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
+	// TODO: should use transaction to avoid conflicting with event list
 	agent.add("lastUnifiedEventId", getLastUnifiedEventId(job));
+	if (addIssues)
+		agent.addTrue("haveIssue");
+	else
+		agent.addFalse("haveIssue");
 	agent.startArray("events");
 	EventInfoListIterator it = eventList.begin();
-	for (; it != eventList.end(); ++it) {
+	for (size_t i = 0; it != eventList.end(); ++i, ++it) {
 		EventInfo &eventInfo = *it;
 		agent.startObject();
 		agent.add("unifiedId", eventInfo.unifiedId);
@@ -1874,6 +1898,8 @@ void FaceRest::handlerGetEvent(RestJob *job)
 		agent.add("severity",  eventInfo.severity);
 		agent.add("hostId",    eventInfo.hostId);
 		agent.add("brief",     eventInfo.brief);
+		if (addIssues)
+			addIssue(job, agent, issueVect[i]);
 		agent.endObject();
 	}
 	agent.endArray();
@@ -2006,9 +2032,9 @@ void FaceRest::handlerGetAction(RestJob *job)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	ActionDefList actionList;
+	ActionsQueryOption option(job->dataQueryContextPtr);
 	HatoholError err =
-	  dataStore->getActionList(
-	    actionList, job->dataQueryContextPtr->getOperationPrivilege());
+	  dataStore->getActionList(actionList, option);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -2453,7 +2479,7 @@ void FaceRest::handlerGetAccessInfo(RestJob *job)
 	addHatoholError(agent, HatoholError(HTERR_OK));
 	ServerAccessInfoMapIterator it = serversMap.begin();
 	agent.startObject("allowedServers");
-	for (; it != serversMap.end(); it++) {
+	for (; it != serversMap.end(); ++it) {
 		const ServerIdType &serverId = it->first;
 		string serverIdString;
 		HostGrpAccessInfoMap *hostgroupsMap = it->second;

@@ -51,7 +51,6 @@ var HatoholServerEditDialog = function(params) {
   //
   function addButtonClickedCb() {
     if (validateParameters()) {
-      makeQueryData();
       if (self.server)
         hatoholInfoMsgBox(gettext("Now updating the server ..."));
       else

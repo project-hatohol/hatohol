@@ -31,6 +31,7 @@
 #include <termios.h>
 #include "Hatohol.h"
 #include "DBClientConfig.h"
+#include "DBClientAction.h"
 #include "ConfigManager.h"
 #include "DBAgentMySQL.h"
 using namespace std;
@@ -45,6 +46,8 @@ struct ConfigValue {
 	int                      faceRestPort;
 	MonitoringServerInfoList serverInfoList;
 	UserInfoList             userInfoList;
+	IssueTrackerInfoVect     issueTrackerInfoVect;
+	ActionDefList            issueSenderActionList;
 	
 	// constructor
 	ConfigValue(void)
@@ -193,6 +196,128 @@ static bool parseUserConfigLine(ParsableString &parsable,
 	return true;
 }
 
+static bool parseIssueTrackerConfigLine(ParsableString &parsable,
+					IssueTrackerInfoVect &trackersVect,
+					size_t lineNo)
+{
+	string word;
+	IssueTrackerInfo trackerInfo;
+	bool succeeded;
+
+	trackerInfo.id = 0;
+
+	// type
+	int type;
+	succeeded = parseInt(parsable, type, lineNo);
+	if (!succeeded)
+		return false;
+	if (type < 0 || type >= NUM_ISSUE_TRACKERS) {
+		fprintf(stderr, "Invalid issue tracker type: %d\n", type);
+		return false;
+	}
+	trackerInfo.type = static_cast<IssueTrackerType>(type);
+
+	// nickname
+	if (!extractString(parsable, word, lineNo))
+		return false;
+	trackerInfo.nickname = word;
+
+	// base URL
+	if (!extractString(parsable, word, lineNo))
+		return false;
+	trackerInfo.baseURL = word;
+
+	// project ID
+	if (!extractString(parsable, word, lineNo))
+		return false;
+	trackerInfo.projectId = word;
+
+	// tracker ID
+	if (!extractString(parsable, word, lineNo))
+		return false;
+	trackerInfo.trackerId = word;
+
+	// user name
+	if (!extractString(parsable, word, lineNo))
+		return false;
+	trackerInfo.userName = word;
+
+	// password
+	if (!extractString(parsable, word, lineNo))
+		return false;
+	trackerInfo.password = word;
+
+	// push back the info
+	trackersVect.push_back(trackerInfo);
+
+	return true;
+}
+
+static bool parseIssueSenderActionConfigLine(
+  ParsableString &parsable, ActionDefList &issueSenderActionList,
+  size_t lineNo)
+{
+	ActionDef action;
+	ActionCondition &cond = action.condition;
+	bool succeeded;
+
+	action.id = 0;
+	action.type = ACTION_ISSUE_SENDER;
+	action.timeout = 0;
+	action.ownerUserId = USER_ID_SYSTEM;
+
+	int issueTrackerId;
+	succeeded = parseInt(parsable, issueTrackerId, lineNo);
+	if (!succeeded)
+		return false;
+	action.command = StringUtils::toString(issueTrackerId);
+
+	int serverId;
+	succeeded = parseInt(parsable, serverId, lineNo);
+	if (!succeeded)
+		return false;
+	if (serverId > 0) {
+		cond.enable(ACTCOND_SERVER_ID);
+		cond.serverId = serverId;
+	} else {
+		cond.serverId = ALL_SERVERS;
+	}
+
+	int hostgroupId;
+	succeeded = parseInt(parsable, hostgroupId, lineNo);
+	if (!succeeded)
+		return false;
+	if (hostgroupId > 0) {
+		cond.enable(ACTCOND_HOST_GROUP_ID);
+		cond.hostgroupId = hostgroupId;
+	} else {
+		cond.hostgroupId = ALL_HOST_GROUPS;
+	}
+
+	int severity;
+	succeeded = parseInt(parsable, severity, lineNo);
+	if (!succeeded)
+		return false;
+	if (severity >= NUM_TRIGGER_SEVERITY) {
+		fprintf(stderr, "Invalid trigger severity: %d\n", severity);
+		return false;
+	} else if (severity > 0) {
+		cond.enable(ACTCOND_TRIGGER_SEVERITY);
+		cond.triggerSeverity = severity;
+	} else {
+		cond.triggerSeverity = TRIGGER_SEVERITY_UNKNOWN;
+	}
+
+	cond.hostId = ALL_HOSTS;
+	cond.triggerId = ALL_TRIGGERS;
+	cond.triggerStatus = TRIGGER_STATUS_PROBLEM;
+	cond.triggerSeverityCompType = CMP_EQ_GT;
+
+	issueSenderActionList.push_back(action);
+
+	return true;
+}
+
 static bool readConfigFile(const string &configFilePath, ConfigValue &confValue)
 {
 	ifstream ifs(configFilePath.c_str());
@@ -245,6 +370,16 @@ static bool readConfigFile(const string &configFilePath, ConfigValue &confValue)
 			if (!parseUserConfigLine(
 			       parsable, confValue.userInfoList, lineNo))
 				return false;
+		} else if (element == "issueTracker") {
+			if (!parseIssueTrackerConfigLine(
+			       parsable, confValue.issueTrackerInfoVect,
+			       lineNo))
+				return false;
+		} else if (element == "issueSenderAction") {
+			if (!parseIssueSenderActionConfigLine(
+			       parsable, confValue.issueSenderActionList,
+			       lineNo))
+				return false;
 		} else {
 			fprintf(stderr, "Unknown element: %zd: %s\n",
 			        lineNo, element.c_str());
@@ -276,7 +411,7 @@ static bool validateServerInfoList(ConfigValue &confValue)
 		// should be given hostname or IP address.
 		if (svInfo.hostName.empty() && svInfo.ipAddress.empty()) {
 			fprintf(stderr,
-			        "Sould be specify hostname or IP adress.\n");
+			        "hostname or IP address should be specified.\n");
 		}
 
 		// TODO: If IP address is given, check the format
@@ -511,6 +646,92 @@ static bool setupDBServer(const ConfigValue &confValue)
 	return true;
 }
 
+static void registerServers(DBClientConfig &dbConfig, ConfigValue &confValue)
+{
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	MonitoringServerInfoListIterator it = confValue.serverInfoList.begin();
+	for (; it != confValue.serverInfoList.end(); ++it) {
+		MonitoringServerInfo &svInfo = *it;
+		dbConfig.addTargetServer(&svInfo, privilege);
+
+		printf("SERVER: TYPE: %d, HOSTNAME: %s, IP ADDR: %s, "
+		       "NICKNAME: %s, PORT: %d, POLLING: %d, RETRY: %d, "
+		       "USERNAME: %s, PASSWORD: %s, DB NAME: %s\n",
+		       svInfo.type, svInfo.hostName.c_str(),
+		       svInfo.ipAddress.c_str(), svInfo.nickname.c_str(),
+		       svInfo.port, svInfo.pollingIntervalSec,
+		       svInfo.retryIntervalSec,
+		       svInfo.userName.c_str(), svInfo.password.c_str(),
+		       svInfo.dbName.c_str());
+	}
+}
+
+static void registerUsers(ConfigValue &confValue)
+{
+	DBClientUser dbUser;
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	UserInfoListIterator it = confValue.userInfoList.begin();
+	for (; it != confValue.userInfoList.end(); ++it) {
+		UserInfo &userInfo = *it;
+		HatoholError err = dbUser.addUserInfo(userInfo, privilege);
+		if (err != HTERR_OK) {
+			printf("Failed to add user: %s (code: %d)\n",
+			       userInfo.name.c_str(), err.getCode());
+		}
+		printf("USER: ID: %" FMT_USER_ID ", name: %s, "
+		       "flags: %" FMT_OPPRVLG "\n",
+		       userInfo.id, userInfo.name.c_str(), userInfo.flags);
+	}
+}
+
+static void registerIssueTrackers(DBClientConfig &dbConfig,
+				  ConfigValue &confValue)
+{
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	IssueTrackerInfoVectIterator it
+	  = confValue.issueTrackerInfoVect.begin();
+	for (; it != confValue.issueTrackerInfoVect.end(); ++it) {
+		IssueTrackerInfo &issueTrackerInfo = *it;
+		HatoholError err = dbConfig.addIssueTracker(&issueTrackerInfo,
+							    privilege);
+		if (err != HTERR_OK) {
+			printf("Failed to add issue tracker: %s (code: %d)\n",
+			       issueTrackerInfo.nickname.c_str(),
+			       err.getCode());
+		}
+		printf("ISSUE TRACKER: ID: %" FMT_ISSUE_TRACKER_ID ","
+		       " TYPE: %d, NICKNAME: %s, BASEURL: %s, PROJECTID: %s,"
+		       " TRACKERID: %s, USERNAME: %s, PASSWORD: %s\n",
+		       issueTrackerInfo.id, issueTrackerInfo.type,
+		       issueTrackerInfo.nickname.c_str(),
+		       issueTrackerInfo.baseURL.c_str(),
+		       issueTrackerInfo.projectId.c_str(),
+		       issueTrackerInfo.trackerId.c_str(),
+		       issueTrackerInfo.userName.c_str(),
+		       issueTrackerInfo.password.c_str());
+	}
+}
+
+static void registerIssueSenderActions(ConfigValue &confValue)
+{
+	DBClientAction dbAction;
+	OperationPrivilege privilege(USER_ID_SYSTEM);
+	ActionDefListIterator it = confValue.issueSenderActionList.begin();
+	size_t idx = 1;
+	for (; it != confValue.issueSenderActionList.end(); ++it) {
+		ActionDef &action = *it;
+		HatoholError err = dbAction.addAction(action, privilege);
+		if (err != HTERR_OK) {
+			printf("Failed to add issue sender action: "
+			       "%zd (code: %d %s)\n",
+			       idx, err.getCode(), err.getCodeName().c_str());
+		}
+		++idx;
+		printf("ISSUE SENDER ACTION: ID: %" FMT_ACTION_ID "\n",
+		       action.id);
+	}
+}
+
 int main(int argc, char *argv[])
 {
 #ifndef GLIB_VERSION_2_36
@@ -544,43 +765,15 @@ int main(int argc, char *argv[])
 	if (!setupDBServer(confValue))
 		return EXIT_SUCCESS;
 	DBClientConfig dbConfig;
-	DBClientUser   dbUser;
 
 	// FaceRest port
 	dbConfig.setFaceRestPort(confValue.faceRestPort);
 	printf("FaceRest port: %d\n", confValue.faceRestPort);
 
-	// servers
-	OperationPrivilege privilege(ALL_PRIVILEGES);
-	MonitoringServerInfoListIterator it = confValue.serverInfoList.begin();
-	for (; it != confValue.serverInfoList.end(); ++it) {
-		MonitoringServerInfo &svInfo = *it;
-		dbConfig.addTargetServer(&svInfo, privilege);
-
-		printf("SERVER: TYPE: %d, HOSTNAME: %s, IP ADDR: %s, "
-		       "NICKNAME: %s, PORT: %d, POLLING: %d, RETRY: %d, "
-		       "USERNAME: %s, PASSWORD: %s, DB NAME: %s\n",
-		       svInfo.type, svInfo.hostName.c_str(),
-		       svInfo.ipAddress.c_str(), svInfo.nickname.c_str(),
-		       svInfo.port, svInfo.pollingIntervalSec,
-		       svInfo.retryIntervalSec,
-		       svInfo.userName.c_str(), svInfo.password.c_str(),
-		       svInfo.dbName.c_str());
-	}
-
-	// users
-	UserInfoListIterator itUser = confValue.userInfoList.begin();
-	for (; itUser != confValue.userInfoList.end(); ++itUser) {
-		UserInfo &userInfo = *itUser;
-		HatoholError err = dbUser.addUserInfo(userInfo, privilege);
-		if (err != HTERR_OK) {
-			printf("Failed to add user: %s (code: %d)\n",
-			       userInfo.name.c_str(), err.getCode());
-		}
-		printf("USER: ID: %" FMT_USER_ID ", name: %s, "
-		       "flags: %" FMT_OPPRVLG "\n",
-		       userInfo.id, userInfo.name.c_str(), userInfo.flags);
-	}
+	registerServers(dbConfig, confValue);
+	registerUsers(confValue);
+	registerIssueTrackers(dbConfig, confValue);
+	registerIssueSenderActions(confValue);
 
 	return EXIT_SUCCESS;
 }

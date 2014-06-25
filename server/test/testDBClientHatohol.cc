@@ -173,9 +173,12 @@ static void _assertGetEvents(AssertGetEventsArg &arg)
 {
 	DBClientHatohol dbHatohol;
 	arg.fixup();
+	IssueInfoVect *issueInfoVectPointer
+	  = arg.withIssueInfo ? &arg.actualIssueInfoVect : NULL;
 	assertHatoholError(
 	  arg.expectedErrorCode,
-	  dbHatohol.getEventInfoList(arg.actualRecordList, arg.option));
+	  dbHatohol.getEventInfoList(arg.actualRecordList, arg.option,
+				     issueInfoVectPointer));
 	if (arg.expectedErrorCode != HTERR_OK)
 		return;
 	arg.assert();
@@ -187,6 +190,8 @@ static void _assertGetEventsWithFilter(AssertGetEventsArg &arg)
 	// setup event data
 	void test_addEventInfoList(gconstpointer data);
 	test_addEventInfoList(arg.ddtParam);
+	if (arg.withIssueInfo)
+		loadTestDBIssues();
 
 	assertGetEvents(arg);
 }
@@ -1218,6 +1223,32 @@ void test_getEventWithTriggerStatus(gconstpointer data)
 	assertGetEventsWithFilter(arg);
 }
 
+void data_getEventsWithIssueInfo(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getEventsWithIssueInfo(gconstpointer data)
+{
+	AssertGetEventsArg arg(data);
+	arg.withIssueInfo = true;
+	assertGetEventsWithFilter(arg);
+}
+
+void data_getEventsWithIssueInfoByAuthorizedUser(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getEventsWithIssueInfoByAuthorizedUser(gconstpointer data)
+{
+	setupTestDBUser(true, true);
+	AssertGetEventsArg arg(data);
+	arg.userId = 5;
+	arg.withIssueInfo = true;
+	assertGetEventsWithFilter(arg);
+}
+
 void test_addHostgroupInfo(void)
 {
 	DBClientHatohol dbClientHatohol;
@@ -1265,6 +1296,62 @@ void test_addHostInfo(void)
 	}
 	dbClientHatohol.addHostInfoList(hostInfoList);
 	assertDBContent(dbAgent, statement, expect);
+}
+
+void test_addIssueInfo(void)
+{
+	DBClientHatohol dbClientHatohol;
+	DBAgent *dbAgent = dbClientHatohol.getDBAgent();
+	string statement = "select * from issues;";
+	string expect;
+
+	for (size_t i = 0; i < NumTestIssueInfo; i++) {
+		IssueInfo expectedIssueInfo = testIssueInfo[i];
+		expect += makeIssueOutput(expectedIssueInfo);
+		dbClientHatohol.addIssueInfo(&testIssueInfo[i]);
+	}
+	assertDBContent(dbAgent, statement, expect);
+}
+
+void test_updateIssueInfo(void)
+{
+	DBClientHatohol dbClientHatohol;
+	DBAgent *dbAgent = dbClientHatohol.getDBAgent();
+
+	IssueInfo issueInfo = testIssueInfo[0];
+	dbClientHatohol.addIssueInfo(&issueInfo);
+	issueInfo.status = "Assigned";
+	issueInfo.assignee = "hikeshi";
+	issueInfo.updatedAt.tv_sec = time(NULL);
+	issueInfo.updatedAt.tv_nsec = 0;
+	dbClientHatohol.addIssueInfo(&issueInfo);
+
+	string statement("select * from issues;");
+	string expect(makeIssueOutput(issueInfo));
+	assertDBContent(dbAgent, statement, expect);
+}
+
+void test_getIssueInfo(void)
+{
+	DBClientHatohol dbClientHatohol;
+	IssueInfoVect issues;
+	IssuesQueryOption option(USER_ID_SYSTEM);
+	string expected, actual;
+
+	loadTestDBIssues();
+	for (size_t i = 0; i < NumTestIssueInfo; i++) {
+		IssueInfo expectedIssueInfo = testIssueInfo[i];
+		expected += makeIssueOutput(expectedIssueInfo);
+	}
+
+	dbClientHatohol.getIssueInfoVect(issues, option);
+	IssueInfoVectIterator it = issues.begin();
+	for (; it != issues.end(); ++it) {
+		IssueInfo &actualIssueInfo = *it;
+		actual += makeIssueOutput(actualIssueInfo);
+	}
+
+	cppcut_assert_equal(expected, actual);
 }
 
 } // namespace testDBClientHatohol

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -35,6 +35,7 @@
 #include "SessionManager.h"
 #include "Reaper.h"
 #include "ChildProcessManager.h"
+#include "IssueSenderManager.h"
 
 using namespace std;
 using namespace mlpl;
@@ -497,10 +498,30 @@ ActionManager::~ActionManager()
 		delete m_ctx;
 }
 
+static bool shouldSkipIssueSender(
+  ActionIdType &issueSenderActionId, const ActionDef &actionDef,
+  const EventInfo &eventInfo)
+{
+	if (actionDef.type != ACTION_ISSUE_SENDER)
+		return false;
+
+	if (issueSenderActionId > 0) {
+		MLPL_DBG("Skip IssueSenderAction:%" FMT_ACTION_ID " for "
+			 "Trigger:%" FMT_TRIGGER_ID " because "
+			 "IssueSenderAction:%" FMT_ACTION_ID " has "
+			 "higher priority.",
+			 actionDef.id, eventInfo.triggerId,
+			 issueSenderActionId);
+		issueSenderActionId = actionDef.id;
+		return true;
+	}
+
+	return false;
+}
+
 void ActionManager::checkEvents(const EventInfoList &eventList)
 {
 	DBClientAction dbAction;
-	OperationPrivilege privilege(USER_ID_SYSTEM);
 	EventInfoListConstIterator it = eventList.begin();
 	for (; it != eventList.end(); ++it) {
 		ActionDefList actionDefList;
@@ -509,10 +530,19 @@ void ActionManager::checkEvents(const EventInfoList &eventList)
 			continue;
 		if (shouldSkipByLog(eventInfo, dbAction))
 			continue;
-		dbAction.getActionList(actionDefList, privilege, &eventInfo);
+		ActionsQueryOption option(USER_ID_SYSTEM);
+		// TODO: sort IssueSender type actions by priority
+		option.setActionType(ACTION_ALL);
+		option.setTargetEventInfo(&eventInfo);
+		dbAction.getActionList(actionDefList, option);
 		ActionDefListIterator actIt = actionDefList.begin();
-		for (; actIt != actionDefList.end(); ++actIt)
-			runAction(*actIt, eventInfo, dbAction);
+		ActionIdType issueSenderActionId = 0;
+		for (; actIt != actionDefList.end(); ++actIt) {
+			bool skip = shouldSkipIssueSender(issueSenderActionId,
+							  *actIt, eventInfo);
+			if (!skip)
+				runAction(*actIt, eventInfo, dbAction);
+		}
 	}
 }
 
@@ -557,14 +587,14 @@ bool ActionManager::shouldSkipByLog(const EventInfo &eventInfo,
 	return found;
 }
 
-HatoholError ActionManager::runAction(const ActionDef &actionDef,
-                                      const EventInfo &_eventInfo,
-                                      DBClientAction &dbAction)
+static bool checkActionOwner(const ActionDef &actionDef)
 {
-	EventInfo eventInfo(_eventInfo);
-	fillTriggerInfoInEventInfo(eventInfo);
+	if (actionDef.type == ACTION_ISSUE_SENDER) {
+		// We will not introduce the ownership concept for this action
+		// type. Access control will be realized only by privilege.
+		return true;
+	}
 
-	// Confirm that the owner of the action exists
 	CacheServiceDBClient cache;
 	DBClientUser *dbUser = cache.getUser();
 	UserInfo userInfo;
@@ -572,13 +602,28 @@ HatoholError ActionManager::runAction(const ActionDef &actionDef,
 		MLPL_INFO("Not found user: %" FMT_USER_ID ", "
 		          "action: %" FMT_ACTION_ID "\n",
 		          actionDef.ownerUserId, actionDef.id);
-		return HTERR_INVALID_USER;
+		return false;
 	}
+
+	return true;
+}
+
+HatoholError ActionManager::runAction(const ActionDef &actionDef,
+                                      const EventInfo &_eventInfo,
+                                      DBClientAction &dbAction)
+{
+	EventInfo eventInfo(_eventInfo);
+	fillTriggerInfoInEventInfo(eventInfo);
+
+	if (!checkActionOwner(actionDef))
+		return HTERR_INVALID_USER;
 
 	if (actionDef.type == ACTION_COMMAND) {
 		execCommandAction(actionDef, eventInfo, dbAction);
 	} else if (actionDef.type == ACTION_RESIDENT) {
 		execResidentAction(actionDef, eventInfo, dbAction);
+	} else if (actionDef.type == ACTION_ISSUE_SENDER) {
+		execIssueSenderAction(actionDef, eventInfo, dbAction);
 	} else {
 		HATOHOL_ASSERT(true, "Unknown type: %d\n", actionDef.type);
 	}
@@ -1256,6 +1301,75 @@ void ActionManager::notifyEvent(ResidentInfo *residentInfo,
 	HATOHOL_ASSERT(notifyInfo->logId != INVALID_ACTION_LOG_ID,
 	               "An action log ID is not set.");
 	dbAction.updateLogStatusToStart(notifyInfo->logId);
+}
+
+/*
+ * executed on the following thread(s)
+ * - IssueSender thread
+ */
+static void onIssueSenderJobStatusChanged(
+  const EventInfo &info, const IssueSender::JobStatus &status,
+  void *userData)
+{
+	DBClientAction::LogEndExecActionArg *logArg
+	  = static_cast<DBClientAction::LogEndExecActionArg *>(userData);
+	bool completed = false;
+
+	switch (status) {
+	case IssueSender::JOB_STARTED:
+	{
+		DBClientAction dbAction;
+		dbAction.updateLogStatusToStart(logArg->logId);
+		break;
+	}
+	case IssueSender::JOB_SUCCEEDED:
+		logArg->status = ACTLOG_STAT_SUCCEEDED;
+		completed = true;
+		break;
+	case IssueSender::JOB_FAILED:
+		logArg->status = ACTLOG_STAT_FAILED;
+		// TODO: add more detailed failure code
+		logArg->failureCode = ACTLOG_EXECFAIL_EXEC_FAILURE;
+		completed = true;
+		break;
+	default:
+		break;
+	}
+
+	if (completed) {
+		DBClientAction dbAction;
+		dbAction.logEndExecAction(*logArg);
+		delete logArg;
+	}
+}
+
+/*
+ * executed on the following thread(s)
+ * - Threads that call checkEvents()
+ *     [from runAction()]
+ */
+void ActionManager::execIssueSenderAction(const ActionDef &actionDef,
+					  const EventInfo &eventInfo,
+					  DBClientAction &dbAction)
+{
+	HATOHOL_ASSERT(actionDef.type == ACTION_ISSUE_SENDER,
+	               "Invalid type: %d\n", actionDef.type);
+
+	IssueTrackerIdType trackerId;
+	bool succeeded = actionDef.parseIssueSenderCommand(trackerId);
+	if (!succeeded) {
+		MLPL_ERR("Invalid IssueSender command: %s\n",
+			 actionDef.command.c_str());
+		return;
+	}
+	IssueSenderManager &senderManager = IssueSenderManager::getInstance();
+	DBClientAction::LogEndExecActionArg *logArg
+	  = new DBClientAction::LogEndExecActionArg();
+	logArg->logId = dbAction.createActionLog(actionDef, eventInfo,
+						 ACTLOG_EXECFAIL_NONE,
+						 ACTLOG_STAT_QUEUING);
+	senderManager.queue(trackerId, eventInfo,
+			    onIssueSenderJobStatusChanged, logArg);
 }
 
 /*

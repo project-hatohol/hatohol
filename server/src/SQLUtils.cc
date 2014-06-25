@@ -160,7 +160,7 @@ ItemDataPtr SQLUtils::createFromString(const char *str, SQLColumnType type)
 	if (!str)
 		strIsNull = true;
 
-	switch(type) {
+	switch (type) {
 	case SQL_COLUMN_TYPE_INT:
 		if (strIsNull)
 			itemData = new ItemInt(0, ITEM_DATA_NULL);

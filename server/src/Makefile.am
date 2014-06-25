@@ -74,6 +74,9 @@ libhatohol_la_SOURCES = \
 	HatoholArmPluginGate.cc HatoholArmPluginGate.h \
 	HatoholServer.cc \
 	HostInfoCache.cc HostInfoCache.h \
+	IssueSender.cc IssueSender.h \
+	IssueSenderManager.cc IssueSenderManager.h \
+	IssueSenderRedmine.cc IssueSenderRedmine.h \
 	ItemData.cc ItemData.h \
 	ItemDataPtr.h \
 	ItemEnum.h \
