@@ -177,7 +177,7 @@ HatoholServerEditDialog.prototype.createMainElement = function() {
     s += '    <option value="' + hatohol.MONITORING_SYSTEM_NAGIOS +'">' +
       gettext("Nagios") + '</option>';
     s += '    <option value="' + hatohol.MONITORING_SYSTEM_HAPI_ZABBIX +'">' +
-      gettext("Zabbix (HAPI) [experimental]") + '</option>';
+      gettext("Zabbix") + " (HAPI) [" + gettext("experimental") + "]" + '</option>';
     s += '  </select>';
     s += '</form>';
     s += '<form class="form-inline">';
