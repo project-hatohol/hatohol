@@ -1101,6 +1101,12 @@ void _assertFileContent(const string &expect, const string &path)
 	                        contents, length);
 }
 
+void _assertGError(const GError *error)
+{
+	const char *errmsg = error ? error->message : "";
+	cppcut_assert_null(error, cut_message("%s", errmsg));
+}
+
 void prepareDataWithAndWithoutArmPlugin(void)
 {
 	gcut_add_datum("w/o ArmPlugin",

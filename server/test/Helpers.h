@@ -219,6 +219,9 @@ std::string getSyslogTail(size_t numLines);
 void _assertFileContent(const std::string &expect, const std::string &path);
 #define assertFileContent(E,P) cut_trace(_assertFileContent(E,P))
 
+void _assertGError(const GError *error);
+#define assertGError(E) cut_trace(_assertGError(E))
+
 void prepareDataWithAndWithoutArmPlugin(void);
 
 class Watcher {
