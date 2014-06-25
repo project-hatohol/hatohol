@@ -137,7 +137,7 @@ void HapProcess::parseCommandLineArg(
 	};
 
 	GOptionContext *context;
-	context = g_option_context_new("- test tree model performance");
+	context = g_option_context_new(NULL);
 	g_option_context_add_main_entries(context, entries, NULL);
 	g_option_context_parse(context, &argc, &argv,
 	                       &m_ctx->cmdLineArgParseError);
