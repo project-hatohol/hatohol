@@ -95,7 +95,7 @@ struct HatoholArmPluginInterface::PrivateContext {
 		string queueAddrT = queueAddr + "-T"; // Plugin <- Hatohol
 
 		MLPL_INFO("Try to connect (%s). broker: '%s', queue: '%s'\n",
-		          workInServer ? "sv" : "cl",
+		          workInServer ? "server" : "client",
 		          brokerUrl.c_str(), queueAddr.c_str());
 
 		connectionLock.lock();
