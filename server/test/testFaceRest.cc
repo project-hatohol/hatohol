@@ -1523,6 +1523,7 @@ void test_addServerWithHapiParams(void)
 
 	StringMap params;
 	serverInfo2StringMap(expected, params);
+	params["passiveMode"] = "false";
 	params["brokerUrl"] = armPluginInfo.brokerUrl;
 	assertAddServerWithSetup(params, HTERR_OK);
 

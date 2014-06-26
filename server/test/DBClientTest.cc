@@ -817,7 +817,7 @@ SmartTime getTimestampOfLastTestTrigger(const ServerIdType &serverId)
 		if (trigInfo.serverId != serverId)
 			continue;
 		SmartTime timestamp = SmartTime(trigInfo.lastChangeTime);
-		if (!lastTimeTrigInfo || !(timestamp >= lastTimestamp)) {
+		if (!lastTimeTrigInfo || timestamp > lastTimestamp) {
 			lastTimestamp = timestamp;
 			lastTimeTrigInfo = &trigInfo;
 		}

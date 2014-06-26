@@ -53,7 +53,6 @@ enum InitiationState {
 struct HatoholArmPluginInterface::PrivateContext {
 	HatoholArmPluginInterface *hapi;
 	bool       workInServer;
-	string     queueAddr;
 	Connection connection;
 	Session    session;
 	Sender     sender;
@@ -68,18 +67,17 @@ struct HatoholArmPluginInterface::PrivateContext {
 	uint32_t   sequenceIdOfCurrCmd;
 
 	PrivateContext(HatoholArmPluginInterface *_hapi,
-	               const string &_queueAddr,
 	               const bool &_workInServer)
 	: hapi(_hapi),
 	  workInServer(_workInServer),
-	  queueAddr(_queueAddr),
 	  initState(INIT_STAT_UNKNOWN),
 	  initiationKey(0),
 	  currMessage(NULL),
 	  currBuffer(NULL),
 	  sequenceId(0),
 	  sequenceIdOfCurrCmd(SEQ_ID_UNKNOWN),
-	  connected(false)
+	  connected(false),
+	  brokerUrl(DEFAULT_BROKER_URL)
 	{
 	}
 
@@ -88,21 +86,16 @@ struct HatoholArmPluginInterface::PrivateContext {
 		disconnect();
 	}
 
-	void setQueueAddress(const string &_queueAddr)
-	{
-		queueAddr = _queueAddr;
-	}
-
 	void connect(void)
 	{
-		const string brokerUrl = DEFAULT_BROKER_URL;
 		const string connectionOptions;
 		connectionLock.lock();
 		Reaper<MutexLock> unlocker(&connectionLock, MutexLock::unlock);
-		connection = Connection(brokerUrl, connectionOptions);
+		connection = Connection(getBrokerUrl(), connectionOptions);
 		connection.open();
 		session = connection.createSession();
 
+		const string queueAddr = getQueueAddress();
 		string queueAddrS = queueAddr + "-S"; // Plugin -> Hatohol
 		string queueAddrT = queueAddr + "-T"; // Plugin <- Hatohol
 		if (workInServer) {
@@ -159,19 +152,52 @@ struct HatoholArmPluginInterface::PrivateContext {
 		hapi->onInitiated();
 	}
 
+	string getBrokerUrl(void) const
+	{
+		generalLock.lock();
+		string url = brokerUrl;
+		generalLock.unlock();
+		return url;
+	}
+
+	void setBrokerUrl(const string &_brokerUrl)
+	{
+		generalLock.lock();
+		brokerUrl = _brokerUrl;
+		generalLock.unlock();
+	}
+
+	string getQueueAddress(void)
+	{
+		string addr;
+		generalLock.lock();
+		addr = queueAddress;
+		generalLock.unlock();
+		return addr;
+	}
+
+	void setQueueAddress(const string &_queueAddr)
+	{
+		generalLock.lock();
+		queueAddress = _queueAddr;
+		generalLock.unlock();
+	}
+
 private:
 	bool       connected;
 	MutexLock  connectionLock;
+	mutable MutexLock generalLock;
+	string     brokerUrl;
+	string     queueAddress;
 };
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-HatoholArmPluginInterface::HatoholArmPluginInterface(
-  const string &queueAddr, const bool &workInServer)
+HatoholArmPluginInterface::HatoholArmPluginInterface(const bool &workInServer)
 : m_ctx(NULL)
 {
-	m_ctx = new PrivateContext(this, queueAddr, workInServer);
+	m_ctx = new PrivateContext(this, workInServer);
 }
 
 HatoholArmPluginInterface::~HatoholArmPluginInterface()
@@ -179,11 +205,6 @@ HatoholArmPluginInterface::~HatoholArmPluginInterface()
 	exitSync();
 	if (m_ctx)
 		delete m_ctx;
-}
-
-void HatoholArmPluginInterface::setQueueAddress(const string &queueAddr)
-{
-	m_ctx->setQueueAddress(queueAddr);
 }
 
 void HatoholArmPluginInterface::send(const string &message)
@@ -236,11 +257,6 @@ void HatoholArmPluginInterface::registerCommandHandler(
   const HapiCommandCode &code, CommandHandler handler)
 {
 	m_ctx->receiveHandlerMap[code] = handler;
-}
-
-const string &HatoholArmPluginInterface::getQueueAddress(void) const
-{
-	return m_ctx->queueAddr;
 }
 
 const char *HatoholArmPluginInterface::getString(
@@ -561,6 +577,26 @@ const char *HatoholArmPluginInterface::getDefaultPluginPath(
 		;
 	}
 	return NULL;
+}
+
+string HatoholArmPluginInterface::getBrokerUrl(void) const
+{
+	return m_ctx->getBrokerUrl();
+}
+
+void HatoholArmPluginInterface::setBrokerUrl(const string &brokerUrl)
+{
+	m_ctx->setBrokerUrl(brokerUrl);
+}
+
+string HatoholArmPluginInterface::getQueueAddress(void) const
+{
+	return m_ctx->getQueueAddress();
+}
+
+void HatoholArmPluginInterface::setQueueAddress(const string &queueAddr)
+{
+	return m_ctx->setQueueAddress(queueAddr);
 }
 
 // ---------------------------------------------------------------------------

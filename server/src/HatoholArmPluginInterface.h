@@ -210,13 +210,12 @@ public:
 	typedef void (HatoholArmPluginInterface::*CommandHandler)(
 	  const HapiCommandHeader *header);
 
-	HatoholArmPluginInterface(const std::string &queueAddr = "",
-	                          const bool &workInServer = false);
+	HatoholArmPluginInterface(
+	  const bool &workInServer = false);
 	virtual ~HatoholArmPluginInterface() override;
 
 	virtual void exitSync(void) override;
 
-	void setQueueAddress(const std::string &queueAddr);
 	void send(const std::string &message);
 	void send(const mlpl::SmartBuffer &smbuf);
 
@@ -233,8 +232,6 @@ public:
 	 */
 	void registerCommandHandler(const HapiCommandCode &code,
 	                            CommandHandler handler);
-
-	const std::string &getQueueAddress(void) const;
 
 	/**
 	 * Get a C-style string from the received packet.
@@ -424,6 +421,12 @@ public:
 
 	static const char *getDefaultPluginPath(
 	  const MonitoringSystemType &type);
+
+	std::string getBrokerUrl(void) const;
+	void setBrokerUrl(const std::string &brokerUrl);
+
+	std::string getQueueAddress(void) const;
+	void setQueueAddress(const std::string &queueAddr);
 
 protected:
 	typedef std::map<uint16_t, CommandHandler> CommandHandlerMap;

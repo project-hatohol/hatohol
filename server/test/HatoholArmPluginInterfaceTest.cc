@@ -104,9 +104,10 @@ void HapiTestHelper::assertWaitHandledCommand(
 //  HatoholArmPluginInterfaceTestBasic
 // ---------------------------------------------------------------------------
 HatoholArmPluginInterfaceTestBasic::HatoholArmPluginInterfaceTestBasic(
-  const string &addr, const bool workInServer)
-: HatoholArmPluginInterface(addr, workInServer)
+  const bool workInServer)
+: HatoholArmPluginInterface(workInServer)
 {
+	setQueueAddress("test-hatohol-arm-plugin-interface");
 }
 
 void HatoholArmPluginInterfaceTestBasic::onConnected(Connection &conn)
@@ -147,10 +148,11 @@ HatoholArmPluginInterfaceTest::HatoholArmPluginInterfaceTest(void)
 
 HatoholArmPluginInterfaceTest::HatoholArmPluginInterfaceTest(
   HatoholArmPluginInterfaceTest &hapiSv)
-: HatoholArmPluginInterfaceTestBasic(hapiSv.getQueueAddress(), false),
+: HatoholArmPluginInterfaceTestBasic(false),
   m_rcvSem(0),
   m_msgIntercept(false)
 {
+	setQueueAddress(hapiSv.getQueueAddress());
 }
 
 void HatoholArmPluginInterfaceTest::onReceived(mlpl::SmartBuffer &smbuf)

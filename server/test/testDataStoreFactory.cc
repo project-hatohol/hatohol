@@ -92,6 +92,8 @@ void test_create(gconstpointer data)
 	initServerInfo(svInfo);
 	svInfo.type =
 	  static_cast<MonitoringSystemType>(gcut_data_get_int(data, "type"));
+	if (svInfo.type == MONITORING_SYSTEM_HAPI_ZABBIX)
+		setupTestDBConfig();
 	string typeName = gcut_data_get_string(data, "type-name");
 	DataStore *dataStore = DataStoreFactory::create(svInfo);
 	// to free the instance automatically
