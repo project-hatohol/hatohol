@@ -87,13 +87,12 @@ bool ItemFetchWorker::start(
 
 		bool shouldWake = true;
 		ArmBase &arm = dataStore->getArmBase();
-		if (targetServerId != ALL_SERVERS) {
-			if (targetServerId != arm.getServerInfo().id)
-				shouldWake = false;
-		} else {
-			if (!arm.isFetchItemsSupported())
-				shouldWake = false;
-		}
+		if (targetServerId != ALL_SERVERS &&
+		    targetServerId != arm.getServerInfo().id)
+			shouldWake = false;
+		else if (!arm.isFetchItemsSupported())
+			shouldWake = false;
+
 		if (!shouldWake) {
 			m_ctx->remainingArmsCount--;
 			dataStore->unref();
