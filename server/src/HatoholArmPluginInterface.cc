@@ -736,6 +736,17 @@ void HatoholArmPluginInterface::sendInitiationPacket(void)
 	m_ctx->initState = INIT_STAT_WAIT_RES;
 }
 
+void HatoholArmPluginInterface::sendInitiationRequest(void)
+{
+	m_ctx->resetInitiation();
+	SmartBuffer pktBuf(sizeof(HapiInitiationPacket));
+	HapiInitiationPacket *initPkt =
+	  pktBuf.getPointer<HapiInitiationPacket>(0);
+	initPkt->type = NtoL(HAPI_MSG_INITIATION_REQUEST);
+	initPkt->key  = NtoL(0);
+	send(pktBuf);
+}
+
 void HatoholArmPluginInterface::initiation(const mlpl::SmartBuffer &sbuf)
 {
 	const size_t bufferSize = sbuf.size();
