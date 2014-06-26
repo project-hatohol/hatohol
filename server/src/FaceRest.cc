@@ -1986,6 +1986,13 @@ void FaceRest::handlerGetItem(RestJob *job)
 	GetItemClosure *closure =
 	  new GetItemClosure(face, &FaceRest::itemFetchedCallback, job);
 
+	// TODO: Fix a crash.
+	// There is a bug. When 'closure' is cleared before
+	// finishRestJobIfNeeded(RestJob *job) is called, 'job' is deleted
+	// in the destructor and becomes a dangling pointer. Then it is used
+	// in finishRestJobIfNeeded(). As a result, hatohol crashes.
+	// NOTE: Actually, fetching items takes a little time.
+	// So it happens rarely.
 	bool handled = dataStore->fetchItemsAsync(closure, serverId);
 	if (!handled) {
 		face->replyGetItem(job);
