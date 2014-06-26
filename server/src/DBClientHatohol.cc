@@ -2046,13 +2046,13 @@ size_t DBClientHatohol::getNumberOfBadTriggers(
 {
 	string additionalCondition;
 
-	if (severity == TRIGGER_SEVERITY_ALL)
+	if (severity == TRIGGER_SEVERITY_ALL) {
 		additionalCondition
 		  = StringUtils::sprintf(
 		      "%s=%d",
 		      option.getColumnName(IDX_TRIGGERS_STATUS).c_str(),
 		      TRIGGER_STATUS_PROBLEM);
-	else
+	} else {
 		additionalCondition
 		  = StringUtils::sprintf(
 		      "%s=%d and %s=%d",
@@ -2060,6 +2060,7 @@ size_t DBClientHatohol::getNumberOfBadTriggers(
 		      severity,
 		      option.getColumnName(IDX_TRIGGERS_STATUS).c_str(),
 		      TRIGGER_STATUS_PROBLEM);
+	}
 	return getNumberOfTriggers(option, additionalCondition);
 }
 
