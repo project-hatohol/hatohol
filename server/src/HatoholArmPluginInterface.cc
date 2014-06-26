@@ -613,6 +613,8 @@ gpointer HatoholArmPluginInterface::mainThread(HatoholThreadArg *arg)
 	m_ctx->connect();
 	if (m_ctx->workInServer)
 		sendInitiationPacket();
+	else
+		sendInitiationRequest();
 	while (!isExitRequested()) {
 		Message message;
 		m_ctx->receiver.fetch(message);
