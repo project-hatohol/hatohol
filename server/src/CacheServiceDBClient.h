@@ -46,6 +46,9 @@ private:
 	 * An instance of this class is designed to be defined
 	 * only as a stack variable. The following as a private makes it
 	 * impossible to allocate an instance with a 'new' operator.
+	 *
+	 * 'new' operator must not return NULL unless it is declared 'throw()'.
+	 * So, this operator returns 1 of void * type.
 	 */
 	static void *operator new(size_t) {return (void *)1;}
 
