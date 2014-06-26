@@ -63,6 +63,11 @@ public:
 		// Just written to pass the build.
 		return true;
 	}
+
+	virtual bool isFetchItemsSupported(void) const override
+	{
+		return false;
+	}
 };
 
 struct HatoholArmPluginGate::PrivateContext
