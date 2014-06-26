@@ -921,6 +921,28 @@ void data_getNumberOfTriggersBySeverity(void)
 	prepareDataForAllHostgroupIds();
 }
 
+void _assertGetNumberOfTriggers(DBClientHatohol &dbHatohol,
+				const ServerIdType &serverId,
+				const HostgroupIdType &hostgroupId,
+				const TriggerSeverityType &severity)
+{
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(serverId);
+	option.setTargetHostgroupId(hostgroupId);
+	const size_t actual =
+	  dbHatohol.getNumberOfBadTriggers(option, severity);
+	const size_t expect = getNumberOfTestTriggers(
+	  serverId, hostgroupId, severity);
+	cppcut_assert_equal(expect, actual,
+			    cut_message(
+			      "sv: %" FMT_SERVER_ID ", "
+			      "hostgroup: %" FMT_HOST_GROUP_ID ", "
+			      "severity: %d",
+			      serverId, hostgroupId, severity));
+}
+#define assertGetNumberOfTriggers(D,S,H,V) \
+cut_trace(_assertGetNumberOfTriggers(D,S,H,V))
+
 void test_getNumberOfTriggersBySeverity(gconstpointer data)
 {
 	setupTestTriggerDB();
@@ -932,21 +954,30 @@ void test_getNumberOfTriggersBySeverity(gconstpointer data)
 
 	DBClientHatohol dbHatohol;
 	for (int i = 0; i < NUM_TRIGGER_SEVERITY; i++) {
-		TriggersQueryOption option(USER_ID_SYSTEM);
-		option.setTargetServerId(targetServerId);
-		option.setTargetHostgroupId(hostgroupId);
-		TriggerSeverityType severity = (TriggerSeverityType)i;
-		const size_t actual =
-		  dbHatohol.getNumberOfBadTriggers(option, severity);
-		const size_t expect = getNumberOfTestTriggers(
-		  targetServerId, hostgroupId, severity);
-		cppcut_assert_equal(
-		  expect, actual,
-		  cut_message(
-		    "sv: %" FMT_SERVER_ID ", "
-		    "hostgroup: %" FMT_HOST_GROUP_ID ", "
-		    "severity: %d", targetServerId, hostgroupId, i));
+		const TriggerSeverityType severity
+		  = static_cast<TriggerSeverityType>(i);
+		assertGetNumberOfTriggers(
+		  dbHatohol, targetServerId, hostgroupId, severity);
 	}
+}
+
+void data_getNumberOfAllBadTriggers(void)
+{
+	prepareDataForAllHostgroupIds();
+}
+
+void test_getNumberOfAllBadTriggers(gconstpointer data)
+{
+	setupTestTriggerDB();
+	setupTestHostgroupElementDB();
+
+	const ServerIdType targetServerId = testTriggerInfo[0].serverId;
+	const HostgroupIdType hostgroupId =
+	  gcut_data_get_int(data, "hostgroupId");
+
+	DBClientHatohol dbHatohol;
+	assertGetNumberOfTriggers(dbHatohol, targetServerId, hostgroupId,
+				  TRIGGER_SEVERITY_ALL);
 }
 
 void test_getNumberOfTriggersBySeverityWithoutPriviledge(void)
