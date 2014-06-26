@@ -777,7 +777,7 @@ void test_withEventInfo(void)
 	    "((trigger_status IS NULL) OR (trigger_status=%d)) AND "
 	    "((trigger_severity IS NULL) OR "
 	    "(trigger_severity_comp_type=1 AND trigger_severity=%d) OR "
-	    "(trigger_severity_comp_type=2 AND trigger_severity>=%d))",
+	    "(trigger_severity_comp_type=2 AND trigger_severity<=%d))",
 	    id, event.serverId, event.hostId, event.triggerId,
 	    event.status, event.severity, event.severity);
 	cppcut_assert_equal(expected, option.getCondition());
