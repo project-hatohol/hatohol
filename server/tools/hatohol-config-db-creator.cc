@@ -310,6 +310,7 @@ static bool parseIssueSenderActionConfigLine(
 
 	cond.hostId = ALL_HOSTS;
 	cond.triggerId = ALL_TRIGGERS;
+	cond.enable(ACTCOND_TRIGGER_STATUS);
 	cond.triggerStatus = TRIGGER_STATUS_PROBLEM;
 	cond.triggerSeverityCompType = CMP_EQ_GT;
 
