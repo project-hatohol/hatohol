@@ -963,7 +963,8 @@ size_t getNumberOfTestTriggers(const ServerIdType &serverId,
 		if (serverId != ALL_SERVERS && trigInfo.serverId != serverId)
 			continue;
 		if (severity != NUM_TRIGGER_SEVERITY) {
-			if (trigInfo.severity != severity)
+			if (trigInfo.severity != severity &&
+			    severity != TRIGGER_SEVERITY_ALL)
 				continue;
 			if (trigInfo.status == TRIGGER_STATUS_OK)
 				continue;

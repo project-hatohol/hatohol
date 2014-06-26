@@ -931,7 +931,7 @@ void test_getNumberOfTriggersBySeverity(gconstpointer data)
 	  gcut_data_get_int(data, "hostgroupId");
 
 	DBClientHatohol dbHatohol;
-	for (int i = 0; i < NUM_TRIGGER_SEVERITY; i++) {
+	for (int i = TRIGGER_SEVERITY_ALL; i < NUM_TRIGGER_SEVERITY; i++) {
 		TriggersQueryOption option(USER_ID_SYSTEM);
 		option.setTargetServerId(targetServerId);
 		option.setTargetHostgroupId(hostgroupId);

@@ -110,7 +110,7 @@ var DashboardView = function(userProfile) {
       html += "</tr>";
       html += "<tr>";
       html += "<td>" + gettext("Number of triggers [with problem]") + "</td>";
-      html += buildRatioColumns(parsedData[serverId]["problem"],
+      html += buildRatioColumns(serverStatus["numberOfBadTriggers"],
                                 serverStatus["numberOfTriggers"]);
       html += "</tr>";
       /* Not implemeneted yet
