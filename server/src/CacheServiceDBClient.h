@@ -47,7 +47,7 @@ private:
 	 * only as a stack variable. The following as a private makes it
 	 * impossible to allocate an instance with a 'new' operator.
 	 */
-	static void *operator new(size_t) {return NULL;}
+	static void *operator new(size_t) {return (void *)1;}
 
 	struct PrivateContext;
 
