@@ -150,6 +150,11 @@ void ArmBase::waitExit(void)
 	m_ctx->armStatus.setRunningStatus(false);
 }
 
+bool ArmBase::isFetchItemsSupported(void) const
+{
+	return true;
+}
+
 void ArmBase::fetchItems(ClosureBase *closure)
 {
 	setUpdateType(UPDATE_ITEM_REQUEST);

@@ -25,6 +25,14 @@
 #include "HatoholThreadBase.h"
 #include "ArmStatus.h"
 
+struct HapCommandLineArg {
+	const gchar *brokerUrl;
+	const gchar *queueAddress;
+
+	HapCommandLineArg(void);
+	virtual ~HapCommandLineArg();
+};
+
 class HapProcess : public HatoholThreadBase {
 public:
 	HapProcess(int argc, char *argv[]);
@@ -52,6 +60,24 @@ protected:
 	 * exits soon after an exception is catched.
 	 */
 	void setExceptionSleepTime(int sleepTimeMS);
+
+	/**
+	 * Pasrse the command line argument. This method is called in the
+	 * constructor. Generally it's not needed to call explicitly.
+	 * The parsing result can be obtained by
+	 * getErrorOfCommandLineArg() and getCommandLineArg().
+	 */
+	void parseCommandLineArg(HapCommandLineArg &arg,
+	                         int argc, char *argv[]);
+	/**
+	 * Get the error status of the command line argument parsing.
+	 *
+	 * @return
+	 * A GError object. If no errors happen, NULL is returned.
+	 * The returned object must not be freed.
+	 */
+	const GError *getErrorOfCommandLineArg(void) const;
+	const HapCommandLineArg &getCommandLineArg(void) const;
 
 	ArmStatus &getArmStatus(void);
 

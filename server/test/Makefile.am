@@ -16,7 +16,7 @@ AM_CXXFLAGS = \
 	$(CUTTER_CFLAGS) $(CPPCUTTER_CFLAGS) \
 	$(GLIB_CFLAGS) $(MLPL_CFLAGS) $(JSON_GLIB_CFLAGS) $(LIBSOUP_CFLAGS) \
 	$(MYSQL_CFLAGS) \
-	-I ../src
+	-I ../src -I ../hap
 AM_LDFLAGS = -module -rpath $(libdir) -avoid-version -no-undefined
 
 LIBS = \
@@ -35,7 +35,7 @@ testHatohol_la_SOURCES = \
 	testDataStoreZabbix.cc testDataStoreNagios.cc \
 	testHatoholArmPluginInterface.cc testHatoholArmPluginGate.cc \
 	testHatoholArmPluginBase.cc \
-	testHapZabbixAPI.cc \
+	testHapProcess.cc testHapZabbixAPI.cc \
 	testHatoholError.cc \
 	testHatoholException.cc testSQLProcessorException.cc \
 	testHatoholThreadBase.cc \
@@ -76,7 +76,7 @@ testHatohol_la_SOURCES = \
 	testZabbixAPI.cc \
 	test_hatohol-arm-plugin-zabbix.cc
 
-testHatohol_la_LDFLAGS = $(AM_LDFLAGS) $(LIBS)
+testHatohol_la_LDFLAGS = $(AM_LDFLAGS) $(LIBS) ../hap/libhapprocess.la
 testHatohol_la_LIBADD = libTest.la
 
 residentTest_la_SOURCES = residentTest.cc residentTest.h

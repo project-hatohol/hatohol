@@ -85,13 +85,18 @@ bool ItemFetchWorker::start(
 	for (size_t i = 0; i < allDataStores.size(); i++) {
 		DataStore *dataStore = allDataStores[i];
 
-		if (targetServerId != ALL_SERVERS) {
-			ArmBase &arm = dataStore->getArmBase();
-			if (targetServerId != arm.getServerInfo().id) {
-				m_ctx->remainingArmsCount--;
-				dataStore->unref();
-				continue;
-			}
+		bool shouldWake = true;
+		ArmBase &arm = dataStore->getArmBase();
+		if (targetServerId != ALL_SERVERS &&
+		    targetServerId != arm.getServerInfo().id)
+			shouldWake = false;
+		else if (!arm.isFetchItemsSupported())
+			shouldWake = false;
+
+		if (!shouldWake) {
+			m_ctx->remainingArmsCount--;
+			dataStore->unref();
+			continue;
 		}
 
 		if (i < PrivateContext::maxRunningArms)
