@@ -664,6 +664,16 @@ void HatoholArmPluginInterface::onReceived(mlpl::SmartBuffer &smbuf)
 	case HAPI_MSG_INITIATION:
 		initiation(smbuf);
 		break;
+	case HAPI_MSG_INITIATION_REQUEST:
+		if (!m_ctx->workInServer) {
+			MLPL_WARN(
+			  "Ignore HAPI_MSG_INITIATION_REQUEST received in "
+			  "the client side.\n");
+			break;
+		}
+		m_ctx->resetInitiation();
+		sendInitiationPacket();
+		break;
 	case HAPI_MSG_COMMAND:
 		header = smbuf.getPointer<HapiCommandHeader>();
 		m_ctx->sequenceIdOfCurrCmd = LtoN(header->sequenceId);
