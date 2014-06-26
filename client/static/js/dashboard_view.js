@@ -42,7 +42,6 @@ var DashboardView = function(userProfile) {
       for (y in serverStatus["hostgroups"])
         parsedData[serverId]["numberOfHostgroups"] += 1;
 
-      parsedData[serverId]["problem"] = 0;
       for (y = 0; y < serverStatus["systemStatus"].length; ++y) {
         systemStatus = serverStatus["systemStatus"][y];
         groupId = systemStatus["hostgroupId"];
@@ -51,7 +50,6 @@ var DashboardView = function(userProfile) {
         severity = systemStatus["severity"];
         numberOfTriggers = systemStatus["numberOfTriggers"];
         parsedData[serverId][groupId][severity] = numberOfTriggers;
-        parsedData[serverId]["problem"] += numberOfTriggers;
       }
     }
 
