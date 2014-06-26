@@ -630,4 +630,15 @@ void test_getDefaultPluginPath(gconstpointer data)
 	cppcut_assert_equal(expect, actual);
 }
 
+void test_setGetBrokerUrl(void)
+{
+	const string brokerUrl = "foo.dog.panda.example.com:2345";
+	HatoholArmPluginInterface hapi;
+	cppcut_assert_equal(
+	  string(HatoholArmPluginInterface::DEFAULT_BROKER_URL),
+	  hapi.getBrokerUrl());
+	hapi.setBrokerUrl(brokerUrl);
+	cppcut_assert_equal(brokerUrl, hapi.getBrokerUrl());
+}
+
 } // namespace testHatoholArmPluginInterface

@@ -69,7 +69,9 @@ void cut_setup(void)
 // ---------------------------------------------------------------------------
 void test_getMonitoringServerInfo(void)
 {
-	TestPair pair;
+	const ServerIdType serverId =
+	  getTestArmPluginInfo(MONITORING_SYSTEM_HAPI_TEST_PASSIVE).serverId;
+	TestPair pair(serverId);
 	MonitoringServerInfo actual;
 	cppcut_assert_equal(true, pair.plugin->getMonitoringServerInfo(actual));
 	assertEqual(pair.serverInfo, actual);
@@ -95,7 +97,9 @@ void test_getMonitoringServerInfoAsync(void)
 		}
 	} arg(&serverInfo);
 
-	TestPair pair;
+	const ServerIdType serverId =
+	  getTestArmPluginInfo(MONITORING_SYSTEM_HAPI_TEST_PASSIVE).serverId;
+	TestPair pair(serverId);
 	MonitoringServerInfo actual;
 	pair.plugin->getMonitoringServerInfoAsync(&arg);
 	pair.plugin->assertWaitSemaphore(arg.sem);
@@ -104,8 +108,10 @@ void test_getMonitoringServerInfoAsync(void)
 
 void test_getTimestampOfLastTrigger(void)
 {
-	TestPair pair;
-	SmartTime expect = getTimestampOfLastTestTrigger(pair.serverInfo.id);
+	const ServerIdType serverId =
+	  getTestArmPluginInfo(MONITORING_SYSTEM_HAPI_TEST_PASSIVE).serverId;
+	TestPair pair(serverId);
+	SmartTime expect = getTimestampOfLastTestTrigger(serverId);
 	SmartTime actual = pair.plugin->getTimestampOfLastTrigger();
 	cppcut_assert_equal(expect, actual);
 }

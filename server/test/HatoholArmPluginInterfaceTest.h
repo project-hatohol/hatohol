@@ -63,7 +63,6 @@ public:
 	static const size_t TIMEOUT = 5000; // ms
 
 	HatoholArmPluginInterfaceTestBasic(
-	  const std::string &addr = "test-hatohol-arm-plugin-interface",
 	  const bool workInServer = true);
 
 	virtual void onConnected(qpid::messaging::Connection &conn) override;

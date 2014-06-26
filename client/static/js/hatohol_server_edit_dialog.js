@@ -76,6 +76,7 @@ var HatoholServerEditDialog = function(params) {
     queryData.password = $("#inputPassword").val();
     queryData.dbName = $("#inputDbName").val();
 
+    queryData.passiveMode = $("#inputPassiveMode").prop('checked');
     queryData.brokerUrl = $("#inputBrokerUrl").val();
     queryData.staticQueueAddress = $("#inputStaticQueueAddr").val();
     return queryData;
@@ -175,7 +176,7 @@ HatoholServerEditDialog.prototype.createMainElement = function() {
     s += '    <option value="' + hatohol.MONITORING_SYSTEM_NAGIOS +'">' +
       gettext("Nagios") + '</option>';
     s += '    <option value="' + hatohol.MONITORING_SYSTEM_HAPI_ZABBIX +'">' +
-      gettext("Zabbix (HAPI) [experimental]") + '</option>';
+      gettext("Zabbix") + " (HAPI) [" + gettext("experimental") + "]" + '</option>';
     s += '  </select>';
     s += '</form>';
     s += '<form class="form-inline">';
@@ -209,6 +210,10 @@ HatoholServerEditDialog.prototype.createMainElement = function() {
 
     // Input form for HAPI's parameter
     s += '<form class="form-inline" style="display:none;" id="hapiParamArea">';
+    // Flag for passive type
+    s += '  <input id="inputPassiveMode" type="checkbox">';
+    s += '  <label for="inputPassiveMode">' + gettext("Passive mode") + '</label>';
+    s += '<br>'
     // Broker URL
     s += '  <label for="inputBrokerUrl">' + gettext("Broker URL") + '</label>';
     s += '  <input id="inputBrokerUrl" type="text" value="" style="width:10em" class="input-xlarge"';
@@ -275,6 +280,14 @@ HatoholServerEditDialog.prototype.onAppendMainElement = function () {
   $("#inputPassword").keyup(function() {
     self.fixupApplyButtonState();
   });
+
+  $("#inputPassiveMode").change(function() {
+    self.fixupApplyButtonState();
+  });
+
+  $("#inputStaticQueueAddr").keyup(function() {
+    self.fixupApplyButtonState();
+  });
 };
 
 HatoholServerEditDialog.prototype.setApplyButtonState = function(state) {
@@ -307,6 +320,11 @@ HatoholServerEditDialog.prototype.fixupApplyButtonState = function(enable) {
     validRetryInterval &&
     validUserName &&
     validPassword;
+
+  // Passive mode needs a static queue address.
+  if ($("#inputPassiveMode").prop('checked'))
+    state &= !!$("#inputStaticQueueAddr").val()
+
   this.setApplyButtonState(state);
 };
 
@@ -341,6 +359,8 @@ HatoholServerEditDialog.prototype.setServer = function(server) {
   $("#inputDbName").val(server.dbName);
   $("#inputPollingInterval").val(server.pollingInterval);
   $("#inputRetryInterval").val(server.retryInterval);
+
+  $("#inputPassiveMode").prop("checked", server.passiveMode);
   $("#inputBrokerUrl").val(server.brokerUrl);
   $("#inputStaticQueueAddr").val(server.staticQueueAddress);
 
