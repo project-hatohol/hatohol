@@ -127,6 +127,9 @@ rm -rf %{buildroot}
 %{_datadir}/hatohol/hatohol.centos
 %{_datadir}/hatohol/hatohol.debian
 
+%files arm-plugin-zabbix
+%{_sbindir}/hatohol-arm-plugin-zabbix
+
 %files client
 %defattr(-,root,root,-)
 %{_libexecdir}/hatohol/client/*
