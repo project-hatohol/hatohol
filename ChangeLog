@@ -1,3 +1,13 @@
+2014-06-27 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.06-2
+
+	[Server] Support Zabbix 2.2 (#186)
+	[Client][utils] Check existence of hostId at getHostName() (#185)
+	[Client] Make a link to nagios Web UI (#209)
+	[Server] Can't update on Zabbix 2.2.0 (#221)
+	[Server] The basic implementation of the incident management feature
+	(#229)
+	[Server] The basic implementation of the plugin mechanism for 'Arm'
+
 2014-03-28 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.03-4
 
 	[Server][Client] Support Host group  (#27)
