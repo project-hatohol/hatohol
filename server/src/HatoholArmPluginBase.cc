@@ -253,6 +253,10 @@ void HatoholArmPluginBase::waitResponseAndCheckHeader(void)
 {
 	HATOHOL_ASSERT(!m_ctx->currAsyncCb,
 	               "Async. process is already running.");
+	// TODO: Fix a potential bug.
+	// If the initiation happens while the following wait() is running,
+	// it may not return forever. It will look that the thread running
+	// this method stalls.
 	m_ctx->replyWaitSem.wait();
 
 	// To check the sainity of the header

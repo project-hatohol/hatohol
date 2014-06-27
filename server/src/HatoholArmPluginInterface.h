@@ -46,6 +46,7 @@ enum HapiMessageType {
 	HAPI_MSG_INITIATION,          // Sv -> Cl
 	HAPI_MSG_INITIATION_RESPONSE, // Cl -> Sv
 	HAPI_MSG_INITIATION_FINISH,   // Sv -> Cl (confirmation)
+	HAPI_MSG_INITIATION_REQUEST,  // Cl -> Sv
 	HAPI_MSG_COMMAND,
 	HAPI_MSG_RESPONSE,
 	NUM_HAPI_MSG
@@ -475,6 +476,7 @@ protected:
 	                           mlpl::SmartBuffer &resBuf);
 
 	void sendInitiationPacket(void);
+	void sendInitiationRequest(void);
 	void initiation(const mlpl::SmartBuffer &sbuf);
 	void waitInitiationResponse(const HapiInitiationPacket *initPkt);
 	void replyInitiationPacket(const HapiInitiationPacket *initPkt);
