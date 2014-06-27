@@ -120,7 +120,6 @@ rm -rf %{buildroot}
 %doc README.md COPYING
 %{_bindir}/*
 %{_sbindir}/*
-%{_libdir}/lib*.so.*
 %{_prefix}/lib/python*
 %{_libexecdir}/hatohol/action/*
 %{_datadir}/hatohol/hatohol-config.dat.example
@@ -129,6 +128,11 @@ rm -rf %{buildroot}
 
 %files arm-plugin-zabbix
 %{_sbindir}/hatohol-arm-plugin-zabbix
+
+%files libhatohol-common
+%{_libdir}/libhatohol.so.*
+%{_libdir}/libhatohol-common.so.*
+%{_libdir}/libmlpl.so.*
 
 %files libhatohol-arm-plugin
 %{_libdir}/libhapprocess.so.*
