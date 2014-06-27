@@ -45,6 +45,7 @@ public:
 	const MonitoringServerInfo &getServerInfo(void) const;
 	const ArmStatus &getArmStatus(void) const;
 
+	virtual bool isFetchItemsSupported(void) const;
 	virtual void fetchItems(ClosureBase *closure = NULL);
 
 	void setPollingInterval(int sec);

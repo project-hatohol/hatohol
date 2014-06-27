@@ -89,15 +89,21 @@ struct HatoholArmPluginInterface::PrivateContext {
 	void connect(void)
 	{
 		const string connectionOptions;
-		connectionLock.lock();
-		Reaper<MutexLock> unlocker(&connectionLock, MutexLock::unlock);
-		connection = Connection(getBrokerUrl(), connectionOptions);
-		connection.open();
-		session = connection.createSession();
-
+		const string url = getBrokerUrl();
 		const string queueAddr = getQueueAddress();
 		string queueAddrS = queueAddr + "-S"; // Plugin -> Hatohol
 		string queueAddrT = queueAddr + "-T"; // Plugin <- Hatohol
+
+		MLPL_INFO("Try to connect (%s). broker: '%s', queue: '%s'\n",
+		          workInServer ? "server" : "client",
+		          brokerUrl.c_str(), queueAddr.c_str());
+
+		connectionLock.lock();
+		Reaper<MutexLock> unlocker(&connectionLock, MutexLock::unlock);
+		connection = Connection(url, connectionOptions);
+		connection.open();
+		session = connection.createSession();
+
 		if (workInServer) {
 			queueAddrS += "; {create: always}";
 			queueAddrT += "; {create: always}";

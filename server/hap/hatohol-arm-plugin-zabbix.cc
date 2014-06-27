@@ -102,6 +102,17 @@ HapProcessZabbixAPI::~HapProcessZabbixAPI()
 
 int HapProcessZabbixAPI::mainLoopRun(void)
 {
+	const GError *error = getErrorOfCommandLineArg();
+	if (getErrorOfCommandLineArg()) {
+		MLPL_ERR("%s\n", error->message);
+		return EXIT_FAILURE;
+	}
+	const HapCommandLineArg &clarg = getCommandLineArg();
+	if (clarg.brokerUrl)
+		setBrokerUrl(clarg.brokerUrl);
+	if (clarg.queueAddress)
+		setQueueAddress(clarg.queueAddress);
+
 	HapZabbixAPI::start();
 	HapProcess::start();
 	g_main_loop_run(getGMainLoop());

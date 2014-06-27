@@ -988,6 +988,11 @@ static HatoholError addOverviewEachServer(FaceRest::RestJob *job,
 	triggersQueryOption.setTargetServerId(svInfo.id);
 	agent.add("numberOfTriggers",
 		  dataStore->getNumberOfTriggers(triggersQueryOption));
+	agent.add("numberOfBadHosts",
+		  dataStore->getNumberOfBadHosts(triggersQueryOption));
+	size_t numBadTriggers = dataStore->getNumberOfBadTriggers(
+				  triggersQueryOption, TRIGGER_SEVERITY_ALL);
+	agent.add("numberOfBadTriggers", numBadTriggers);
 
 	// TODO: These elements should be fixed
 	// after the funtion concerned is added
@@ -2013,6 +2018,13 @@ void FaceRest::handlerGetItem(RestJob *job)
 	GetItemClosure *closure =
 	  new GetItemClosure(face, &FaceRest::itemFetchedCallback, job);
 
+	// TODO: Fix a crash.
+	// There is a bug. When 'closure' is cleared before
+	// finishRestJobIfNeeded(RestJob *job) is called, 'job' is deleted
+	// in the destructor and becomes a dangling pointer. Then it is used
+	// in finishRestJobIfNeeded(). As a result, hatohol crashes.
+	// NOTE: Actually, fetching items takes a little time.
+	// So it happens rarely.
 	bool handled = dataStore->fetchItemsAsync(closure, serverId);
 	if (!handled) {
 		face->replyGetItem(job);

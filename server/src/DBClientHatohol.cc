@@ -2044,11 +2044,23 @@ size_t DBClientHatohol::getNumberOfTriggers(
 size_t DBClientHatohol::getNumberOfBadTriggers(
   const TriggersQueryOption &option, TriggerSeverityType severity)
 {
-	string additionalCondition =
-	  StringUtils::sprintf("%s=%d and %s=%d",
-	    option.getColumnName(IDX_TRIGGERS_SEVERITY).c_str(), severity,
-	    option.getColumnName(IDX_TRIGGERS_STATUS).c_str(),
-	    TRIGGER_STATUS_PROBLEM);
+	string additionalCondition;
+
+	if (severity == TRIGGER_SEVERITY_ALL) {
+		additionalCondition
+		  = StringUtils::sprintf(
+		      "%s=%d",
+		      option.getColumnName(IDX_TRIGGERS_STATUS).c_str(),
+		      TRIGGER_STATUS_PROBLEM);
+	} else {
+		additionalCondition
+		  = StringUtils::sprintf(
+		      "%s=%d and %s=%d",
+		      option.getColumnName(IDX_TRIGGERS_SEVERITY).c_str(),
+		      severity,
+		      option.getColumnName(IDX_TRIGGERS_STATUS).c_str(),
+		      TRIGGER_STATUS_PROBLEM);
+	}
 	return getNumberOfTriggers(option, additionalCondition);
 }
 

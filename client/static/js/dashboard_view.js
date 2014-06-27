@@ -38,19 +38,10 @@ var DashboardView = function(userProfile) {
       serverId = serverStatus["serverId"];
       parsedData[serverId] = {};
 
-      parsedData[serverId]["goodHosts"] = 0;
-      parsedData[serverId]["badHosts"]  = 0;
-      for (y = 0; y < serverStatus["hostStatus"].length; ++y) {
-        hostStatus = serverStatus["hostStatus"][y];
-        parsedData[serverId]["goodHosts"] += hostStatus["numberOfGoodHosts"];
-        parsedData[serverId]["badHosts"]  += hostStatus["numberOfBadHosts"];
-      }
-
       parsedData[serverId]["numberOfHostgroups"] = 0;
       for (y in serverStatus["hostgroups"])
         parsedData[serverId]["numberOfHostgroups"] += 1;
 
-      parsedData[serverId]["problem"] = 0;
       for (y = 0; y < serverStatus["systemStatus"].length; ++y) {
         systemStatus = serverStatus["systemStatus"][y];
         groupId = systemStatus["hostgroupId"];
@@ -59,7 +50,6 @@ var DashboardView = function(userProfile) {
         severity = systemStatus["severity"];
         numberOfTriggers = systemStatus["numberOfTriggers"];
         parsedData[serverId][groupId][severity] = numberOfTriggers;
-        parsedData[serverId]["problem"] += numberOfTriggers;
       }
     }
 
@@ -108,7 +98,7 @@ var DashboardView = function(userProfile) {
       html += "<tr>";
       html += "<td rowspan='4'>" + escapeHTML(serverStatus["serverNickname"]) + "</td>";
       html += "<td>" + gettext("Number of hosts [with problem]") + "</td>";
-      html += buildRatioColumns(parsedData[serverId]["badHosts"],
+      html += buildRatioColumns(serverStatus["numberOfBadHosts"],
                                 serverStatus["numberOfHosts"]);
       html += "</tr>";
       html += "<tr>";
@@ -118,7 +108,7 @@ var DashboardView = function(userProfile) {
       html += "</tr>";
       html += "<tr>";
       html += "<td>" + gettext("Number of triggers [with problem]") + "</td>";
-      html += buildRatioColumns(parsedData[serverId]["problem"],
+      html += buildRatioColumns(serverStatus["numberOfBadTriggers"],
                                 serverStatus["numberOfTriggers"]);
       html += "</tr>";
       /* Not implemeneted yet

@@ -929,7 +929,7 @@ string ActionsQueryOption::PrivateContext::makeConditionTemplate(void)
 	const ColumnDef &colDefTrigSeveCmpType =
 	   COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_SEVERITY_COMP_TYPE];
 	cond += StringUtils::sprintf(
-	  "((%s IS NULL) OR (%s=%d AND %s=%%d) OR (%s=%d AND %s>=%%d))",
+	  "((%s IS NULL) OR (%s=%d AND %s=%%d) OR (%s=%d AND %s<=%%d))",
 	  colDefTrigSeve.columnName,
 	  colDefTrigSeveCmpType.columnName, CMP_EQ, colDefTrigSeve.columnName,
 	  colDefTrigSeveCmpType.columnName, CMP_EQ_GT,
