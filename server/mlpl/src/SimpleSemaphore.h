@@ -63,6 +63,16 @@ public:
 	 */
 	Status timedWait(size_t timeoutInMSec);
 
+	/**
+	 * Initialize semaphore forcely.
+	 *
+	 * This method must not be used while any method of the instance
+	 * is being called.
+	 *
+	 * @param count An initial count of the semaphore.
+	 */
+	void init(const int &count);
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
