@@ -613,6 +613,8 @@ gpointer HatoholArmPluginInterface::mainThread(HatoholThreadArg *arg)
 	m_ctx->connect();
 	if (m_ctx->workInServer)
 		sendInitiationPacket();
+	else
+		sendInitiationRequest();
 	while (!isExitRequested()) {
 		Message message;
 		m_ctx->receiver.fetch(message);
@@ -663,6 +665,16 @@ void HatoholArmPluginInterface::onReceived(mlpl::SmartBuffer &smbuf)
 	switch (type) {
 	case HAPI_MSG_INITIATION:
 		initiation(smbuf);
+		break;
+	case HAPI_MSG_INITIATION_REQUEST:
+		if (!m_ctx->workInServer) {
+			MLPL_WARN(
+			  "Ignore HAPI_MSG_INITIATION_REQUEST received in "
+			  "the client side.\n");
+			break;
+		}
+		m_ctx->resetInitiation();
+		sendInitiationPacket();
 		break;
 	case HAPI_MSG_COMMAND:
 		header = smbuf.getPointer<HapiCommandHeader>();
@@ -734,6 +746,17 @@ void HatoholArmPluginInterface::sendInitiationPacket(void)
 	initPkt->key = NtoL(m_ctx->initiationKey);
 	send(pktBuf);
 	m_ctx->initState = INIT_STAT_WAIT_RES;
+}
+
+void HatoholArmPluginInterface::sendInitiationRequest(void)
+{
+	m_ctx->resetInitiation();
+	SmartBuffer pktBuf(sizeof(HapiInitiationPacket));
+	HapiInitiationPacket *initPkt =
+	  pktBuf.getPointer<HapiInitiationPacket>(0);
+	initPkt->type = NtoL(HAPI_MSG_INITIATION_REQUEST);
+	initPkt->key  = NtoL(0);
+	send(pktBuf);
 }
 
 void HatoholArmPluginInterface::initiation(const mlpl::SmartBuffer &sbuf)
