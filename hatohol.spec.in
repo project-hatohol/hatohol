@@ -17,7 +17,7 @@ Requires: mysql-server >= 5.1
 Requires: libuuid >= 2.17
 Requires: qpid-cpp-client >= 0.14
 Requires: qpid-cpp-server >= 0.14
-Requires: libhatohol-common >= 14.06
+Requires: hatohol-lib-common >= 14.06
 Requires: arm-plugin-zabbix >= 14.06
 BuildRequires: gcc-c++, pkgconfig
 BuildRequires: glib2-devel >= 2.22
@@ -39,27 +39,27 @@ software.
 Summary: Arm plguin for Zabbix server.
 Group: Applications/System
 Requires: %{name} = %{version}-%{release}
-Requires: libhatohol-arm-plugin >= 14.06
+Requires: hatohol-lib-arm-plugin >= 14.06
 
 %description arm-plugin-zabbix
 Arm plugin is a plugin interface for collecting monitoring information
 from Zabbix server.
 
-%package libhatohol-common
+%package lib-common
 Summary: Library files for Hatohol
 Group: Applications/System
 Requires: %{name} = %{version}-%{release}
 
-%description libhatohol-common
+%description lib-common
 Library files for hatohol.
 
-%package libhatohol-arm-plugin
+%package lib-arm-plugin
 Summary: Library files for Hatohol Arm Plugin
 Group: Applications/System
 Requires: %{name} = %{version}-%{release}
-Requires: libhatohol-common >= 14.06
+Requires: hatohol-lib-common >= 14.06
 
-%description libhatohol-arm-plugin
+%description lib-arm-plugin
 Library files for Hatohol Arm Plugin Interface.
 
 %package client
@@ -129,12 +129,12 @@ rm -rf %{buildroot}
 %files arm-plugin-zabbix
 %{_sbindir}/hatohol-arm-plugin-zabbix
 
-%files libhatohol-common
+%files lib-common
 %{_libdir}/libhatohol.so.*
 %{_libdir}/libhatohol-common.so.*
 %{_libdir}/libmlpl.so.*
 
-%files libhatohol-arm-plugin
+%files lib-arm-plugin
 %{_libdir}/libhapprocess.so.*
 
 %files client
