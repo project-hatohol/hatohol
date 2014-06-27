@@ -55,11 +55,13 @@ struct IssueSenderManager::PrivateContext
 		dbConfig->getIssueTrackers(issueTrackerVect, option);
 
 		if (issueTrackerVect.size() <= 0) {
-			MLPL_ERR("Not found IssueTrackerInfo: %d\n", id);
+			MLPL_ERR("Not found IssueTrackerInfo: %"
+				 FMT_ISSUE_TRACKER_ID "\n", id);
 			return NULL;
 		}
 		if (issueTrackerVect.size() > 1) {
-			MLPL_ERR("Too many IssueTrackerInfo for ID:%d\n", id);
+			MLPL_ERR("Too many IssueTrackerInfo for ID:%"
+				 FMT_ISSUE_TRACKER_ID "\n", id);
 			return NULL;
 		}
 
