@@ -122,6 +122,9 @@ int HapProcessZabbixAPI::mainLoopRun(void)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+//
+// Method running on HapProcess's thread
+//
 gpointer HapProcessZabbixAPI::hapMainThread(HatoholThreadArg *arg)
 {
 	if (!m_ctx->readyFlag && waitOnReady())
@@ -152,12 +155,6 @@ gpointer HapProcessZabbixAPI::hapMainThread(HatoholThreadArg *arg)
 	return NULL;
 }
 
-void HapProcessZabbixAPI::onReady(void)
-{
-	m_ctx->readyFlag = true;
-	m_ctx->mainThreadSem.post();
-}
-
 bool HapProcessZabbixAPI::waitOnReady(void)
 {
 	const size_t waitTimeSec = 10 * 60;
@@ -170,18 +167,6 @@ bool HapProcessZabbixAPI::waitOnReady(void)
 			MLPL_INFO("Waitting for the ready state.\n");
 	}
 	return shouldExit;
-}
-
-bool HapProcessZabbixAPI::sleepForMainThread(const int &sleepTimeInSec)
-{
-	SimpleSemaphore::Status status =
-	  m_ctx->mainThreadSem.timedWait(sleepTimeInSec * 1000);
-	// TODO: Add a mechanism to exit
-	if (status == SimpleSemaphore::STAT_OK ||
-	    status == SimpleSemaphore::STAT_ERROR_UNKNOWN) {
-		HATOHOL_ASSERT(true, "Unexpected result: %d\n", status);
-	}
-	return false;
 }
 
 bool HapProcessZabbixAPI::initMonitoringServerInfo(void)
@@ -201,6 +186,18 @@ bool HapProcessZabbixAPI::initMonitoringServerInfo(void)
 	return false;
 }
 
+bool HapProcessZabbixAPI::sleepForMainThread(const int &sleepTimeInSec)
+{
+	SimpleSemaphore::Status status =
+	  m_ctx->mainThreadSem.timedWait(sleepTimeInSec * 1000);
+	// TODO: Add a mechanism to exit
+	if (status == SimpleSemaphore::STAT_OK ||
+	    status == SimpleSemaphore::STAT_ERROR_UNKNOWN) {
+		HATOHOL_ASSERT(true, "Unexpected result: %d\n", status);
+	}
+	return false;
+}
+
 void HapProcessZabbixAPI::acquireData(void)
 {
 	updateAuthTokenIfNeeded();
@@ -208,6 +205,15 @@ void HapProcessZabbixAPI::acquireData(void)
 	workOnHostgroups();
 	workOnTriggers();
 	workOnEvents();
+}
+
+//
+// Methods running on HapZabbixAPI's thread
+//
+void HapProcessZabbixAPI::onReady(void)
+{
+	m_ctx->readyFlag = true;
+	m_ctx->mainThreadSem.post();
 }
 
 // ---------------------------------------------------------------------------
