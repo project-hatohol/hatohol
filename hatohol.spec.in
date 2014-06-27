@@ -15,6 +15,10 @@ Requires: sqlite >= 3.6
 Requires: mysql >= 5.1
 Requires: mysql-server >= 5.1
 Requires: libuuid >= 2.17
+Requires: qpid-cpp-client >= 0.14
+Requires: qpid-cpp-server >= 0.14
+Requires: libhatohol-common >= 14.06
+Requires: arm-plugin-zabbix >= 14.06
 BuildRequires: gcc-c++, pkgconfig
 BuildRequires: glib2-devel >= 2.22
 BuildRequires: libsoup-devel >= 2.22
@@ -22,6 +26,8 @@ BuildRequires: json-glib-devel >= 0.12
 BuildRequires: sqlite-devel >= 3.6
 BuildRequires: mysql-devel >= 5.1
 BuildRequires: libuuid-devel >= 2.17
+BuildRequires: qpid-cpp-client-devel >= 0.14
+BuildRequires: qpid-cpp-server-devel >= 0.14
 %description
 Hatohol collects monitoring information from running monitoring systems
 and shows their integrated data on one screen. This feature enables
@@ -33,6 +39,7 @@ software.
 Summary: Arm plguin for Zabbix server.
 Group: Applications/System
 Requires: %{name} = %{version}-%{release}
+Requires: libhatohol-arm-plugin >= 14.06
 
 %description arm-plugin-zabbix
 Arm plugin is a plugin interface for collecting monitoring information
@@ -50,6 +57,7 @@ Library files for hatohol.
 Summary: Library files for Hatohol Arm Plugin
 Group: Applications/System
 Requires: %{name} = %{version}-%{release}
+Requires: libhatohol-common >= 14.06
 
 %description libhatohol-arm-plugin
 Library files for Hatohol Arm Plugin Interface.
