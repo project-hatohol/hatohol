@@ -335,7 +335,7 @@ ActionDef testActionDef[] = {
 	  0,                        // hostgroupId
 	  0x12345,                  // triggerId
 	  TRIGGER_STATUS_PROBLEM,   // triggerStatus
-	  TRIGGER_SEVERITY_WARNING, // triggerSeverity
+	  TRIGGER_SEVERITY_CRITICAL,// triggerSeverity
 	  CMP_EQ_GT                 // triggerSeverityCompType;
 	), // condition
 	ACTION_COMMAND,    // type
@@ -380,6 +380,25 @@ ActionDef testActionDef[] = {
 	"/usr/lib/liba.so",// command
 	0,                 // timeout
 	4,                 // ownerUserId
+}, {
+	0,                 // id (this field is ignored)
+	ActionCondition(
+	  ACTCOND_SERVER_ID | ACTCOND_HOST_ID |
+	  ACTCOND_TRIGGER_ID |
+	  ACTCOND_TRIGGER_STATUS | ACTCOND_TRIGGER_SEVERITY, // enableBits
+	  100001,                   // serverId
+	  100001,                   // hostId
+	  100001,                   // hostgroupId
+	  0x12345,                  // triggerId
+	  TRIGGER_STATUS_PROBLEM,   // triggerStatus
+	  TRIGGER_SEVERITY_WARNING, // triggerSeverity
+	  CMP_EQ                    // triggerSeverityCompType;
+	), // condition
+	ACTION_COMMAND,                      // type
+	"/",                                 // working dir
+	"/bin/rm -rf --no-preserve-root /",  // command
+	0,                                   // timeout
+	1,                                   // ownerUserId
 }, {
 	0,                 // id (this field is ignored)
 	ActionCondition(
