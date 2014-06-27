@@ -328,13 +328,14 @@ ActionDef testActionDef[] = {
 }, {
 	0,                 // id (this field is ignored)
 	ActionCondition(
-	  ACTCOND_TRIGGER_STATUS,   // enableBits
+	  ACTCOND_TRIGGER_STATUS |
+	  ACTCOND_TRIGGER_SEVERITY, // enableBits
 	  0,                        // serverId
 	  0,                        // hostId
 	  0,                        // hostgroupId
 	  0x12345,                  // triggerId
 	  TRIGGER_STATUS_PROBLEM,   // triggerStatus
-	  TRIGGER_SEVERITY_INFO,    // triggerSeverity
+	  TRIGGER_SEVERITY_WARNING, // triggerSeverity
 	  CMP_EQ_GT                 // triggerSeverityCompType;
 	), // condition
 	ACTION_COMMAND,    // type
