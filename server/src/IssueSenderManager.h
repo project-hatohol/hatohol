@@ -39,6 +39,9 @@ protected:
 	IssueSenderManager(void);
 	virtual ~IssueSenderManager();
 
+	IssueSender *getSender(const IssueTrackerIdType &id,
+			       bool autoCreate = false);
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;

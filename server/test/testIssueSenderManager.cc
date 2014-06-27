@@ -36,6 +36,11 @@ public:
 	TestIssueSenderManager(void)
 	{
 	}
+
+	IssueSender *getSender(const IssueTrackerIdType &id)
+	{
+		return IssueSenderManager::getSender(id);
+	}
 };
 
 void cut_setup(void)
@@ -88,6 +93,34 @@ void test_sendRedmineIssue(void)
 	const string &json = g_redmineEmulator.getLastResponse();
 	cppcut_assert_equal(true, succeeded);
 	cppcut_assert_equal(false, json.empty());
+}
+
+void test_createMultiThreads(void)
+{
+	setupTestDBConfig(true, true);
+	IssueTrackerIdType trackerId1 = 3;
+	IssueTrackerIdType trackerId2 = 4;
+	IssueTrackerInfo &tracker1 = testIssueTrackerInfo[trackerId1 - 1];
+	IssueTrackerInfo &tracker2 = testIssueTrackerInfo[trackerId2 - 1];
+	g_redmineEmulator.addUser(tracker1.userName, tracker1.password);
+	g_redmineEmulator.addUser(tracker2.userName, tracker2.password);
+	TestIssueSenderManager manager;
+	bool succeeded1 = false;
+	bool succeeded2 = false;
+	manager.queue(trackerId1, testEventInfo[0],
+		      statusCallback, (void*)&succeeded1);
+	manager.queue(trackerId2, testEventInfo[0],
+		      statusCallback, (void*)&succeeded2);
+	while (!manager.isIdling())
+		usleep(100 * 1000);
+	const string &json = g_redmineEmulator.getLastResponse();
+	cppcut_assert_equal(true, succeeded1 && succeeded2);
+	cppcut_assert_equal(false, json.empty());
+	IssueSender *sender1 = manager.getSender(trackerId1);
+	IssueSender *sender2 = manager.getSender(trackerId2);
+	cppcut_assert_equal(true, sender1 && sender2);
+	cppcut_assert_equal(trackerId1, sender1->getIssueTrackerInfo().id);
+	cppcut_assert_equal(trackerId2, sender2->getIssueTrackerInfo().id);
 }
 
 } // namespace testIssueSenderManager
