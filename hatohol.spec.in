@@ -130,6 +130,9 @@ rm -rf %{buildroot}
 %files arm-plugin-zabbix
 %{_sbindir}/hatohol-arm-plugin-zabbix
 
+%files libhatohol-arm-plugin
+%{_libdir}/libhapprocess.so.*
+
 %files client
 %defattr(-,root,root,-)
 %{_libexecdir}/hatohol/client/*
