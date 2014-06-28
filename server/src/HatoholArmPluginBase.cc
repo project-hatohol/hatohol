@@ -19,6 +19,7 @@
 
 #include <cstdio>
 #include <SimpleSemaphore.h>
+#include <AtomicValue.h>
 #include "HatoholArmPluginBase.h"
 
 using namespace mlpl;
@@ -41,6 +42,7 @@ struct HatoholArmPluginBase::PrivateContext {
 	SmartBuffer     responseBuf;
 	AsyncCallback   currAsyncCb;
 	AsyncCbData    *currAsyncCbData;
+	AtomicValue<bool> inResetForInitiated;
 
 	PrivateContext(void)
 	: replyWaitSem(0),
@@ -258,9 +260,17 @@ void HatoholArmPluginBase::waitResponseAndCheckHeader(void)
 	// it may not return forever. It will look that the thread running
 	// this method stalls.
 	m_ctx->replyWaitSem.wait();
+	if (m_ctx->inResetForInitiated)
+		throw HapInitiatedException();
 
 	// To check the sainity of the header
 	getResponseHeader(m_ctx->responseBuf);
+}
+
+void HatoholArmPluginBase::startResetForInitiated(void)
+{
+	m_ctx->inResetForInitiated = true;
+	m_ctx->replyWaitSem.post();
 }
 
 void HatoholArmPluginBase::sendTable(

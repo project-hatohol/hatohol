@@ -81,6 +81,14 @@ protected:
 	void getMonitoringServerInfoAsyncCb(GetMonitoringServerInfoAsyncArg *);
 
 	void waitResponseAndCheckHeader(void);
+
+	/**
+	 * Start a reset process for the situation after initiation is done.
+	 * If a thread is blocked in waitResponseAndCheckHeader(),
+	 * it exit from the method and then throw HapInitiatedException.
+	 */
+	void startResetForInitiated(void);
+
 	void sendTable(const HapiCommandCode &code,
 	               const ItemTablePtr &tablePtr);
 	void sendArmInfo(const ArmInfo &armInfo);
