@@ -42,8 +42,8 @@ Requires: %{name} = %{version}-%{release}
 Requires: hatohol-lib-arm-plugin >= 14.06
 
 %description arm-plugin-zabbix
-Arm plugin is a plugin interface for collecting monitoring information
-from Zabbix server.
+arm-plugin-zabbix collects monitoring data from a Zabbix server and sends
+it to hatohol via HAPI.
 
 %package lib-common
 Summary: Library files for Hatohol
