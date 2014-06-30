@@ -7,6 +7,7 @@
 	[Server] The basic implementation of the incident management feature
 	(#229)
 	[Server] The basic implementation of the plugin mechanism for 'Arm'
+	(#171)
 
 2014-03-28 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.03-4
 
