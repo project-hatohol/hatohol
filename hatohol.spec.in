@@ -4,7 +4,7 @@ Group: Applications/System
 Version: @VERSION@
 License: GPLv2+
 URL: https://github.com/project-hatohol/hatohol
-Release: 4%{?dist}
+Release: 3%{?dist}
 Source0: %{name}-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -15,6 +15,10 @@ Requires: sqlite >= 3.6
 Requires: mysql >= 5.1
 Requires: mysql-server >= 5.1
 Requires: libuuid >= 2.17
+Requires: qpid-cpp-client >= 0.14
+Requires: qpid-cpp-server >= 0.14
+Requires: hatohol-lib-common >= 14.06
+Requires: hatohol-arm-plugin-zabbix >= 14.06
 BuildRequires: gcc-c++, pkgconfig
 BuildRequires: glib2-devel >= 2.22
 BuildRequires: libsoup-devel >= 2.22
@@ -22,12 +26,41 @@ BuildRequires: json-glib-devel >= 0.12
 BuildRequires: sqlite-devel >= 3.6
 BuildRequires: mysql-devel >= 5.1
 BuildRequires: libuuid-devel >= 2.17
+BuildRequires: qpid-cpp-client-devel >= 0.14
+BuildRequires: qpid-cpp-server-devel >= 0.14
 %description
 Hatohol collects monitoring information from running monitoring systems
 and shows their integrated data on one screen. This feature enables
 to consolidate monitoring centers and the operators even when monitored
 devices are being used in different places or with different monitoring
 software.
+
+%package arm-plugin-zabbix
+Summary: Arm plguin for Zabbix server.
+Group: Applications/System
+Requires: %{name} = %{version}-%{release}
+Requires: hatohol-lib-arm-plugin >= 14.06
+
+%description arm-plugin-zabbix
+arm-plugin-zabbix collects monitoring data from a Zabbix server and sends
+it to hatohol via HAPI.
+
+%package lib-common
+Summary: Library files for Hatohol
+Group: Applications/System
+Requires: %{name} = %{version}-%{release}
+
+%description lib-common
+Common libraries for hatohol and arm plugins.
+
+%package lib-arm-plugin
+Summary: Library files for Hatohol Arm Plugin
+Group: Applications/System
+Requires: %{name} = %{version}-%{release}
+Requires: hatohol-lib-common >= 14.06
+
+%description lib-arm-plugin
+Libraries for arm plugins.
 
 %package client
 Summary: A web UI client of Hatohol.
@@ -87,12 +120,22 @@ rm -rf %{buildroot}
 %doc README.md COPYING
 %{_bindir}/*
 %{_sbindir}/*
-%{_libdir}/lib*.so.*
+%{_libdir}/libhatohol.so.*
 %{_prefix}/lib/python*
 %{_libexecdir}/hatohol/action/*
 %{_datadir}/hatohol/hatohol-config.dat.example
 %{_datadir}/hatohol/hatohol.centos
 %{_datadir}/hatohol/hatohol.debian
+
+%files arm-plugin-zabbix
+%{_sbindir}/hatohol-arm-plugin-zabbix
+
+%files lib-common
+%{_libdir}/libhatohol-common.so.*
+%{_libdir}/libmlpl.so.*
+
+%files lib-arm-plugin
+%{_libdir}/libhapprocess.so.*
 
 %files client
 %defattr(-,root,root,-)
@@ -106,6 +149,14 @@ rm -rf %{buildroot}
 %{_libdir}/pkgconfig/*.pc
 
 %changelog
+* Fri Jun 27 2014 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.06-2
+- [Server] Support Zabbix 2.2 (#186)
+- [Client][utils] Check existence of hostId at getHostName() (#185)
+- [Client] Make a link to nagios Web UI (#209)
+- [Server] Can't update on Zabbix 2.2.0 (#221)
+- [Server] The basic implementation of the incident management feature (#229)
+- [Server] The basic implementation of the plugin mechanism for 'Arm' (#171)
+- [Server] Fix wrong number of bad hosts & triggers of a server (#236)
 * Fri Mar 28 2014 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.03-4
 - [Server][Client] Support Host group  (#27)
 - [Server] Add user role (#92)
