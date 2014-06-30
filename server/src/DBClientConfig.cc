@@ -476,15 +476,6 @@ static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
 		arg.add(IDX_SYSTEM_ENABLE_COPY_ON_DEMAND, 1);
 		dbAgent->update(arg);
 	}
-	if (oldVer <= 8) {
-		// Broker URL and Static Session Key
-		DBAgent::AddColumnsArg addColumnsArg(tableProfileArmPlugins);
-		addColumnsArg.columnIndexes.push_back(
-		  IDX_ARM_PLUGINS_BROKER_URL);
-		addColumnsArg.columnIndexes.push_back(
-		  IDX_ARM_PLUGINS_STATIC_QUEUE_ADDR);
-		dbAgent->addColumns(addColumnsArg);
-	}
 	return true;
 }
 
