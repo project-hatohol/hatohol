@@ -69,9 +69,7 @@ void cut_setup(void)
 // ---------------------------------------------------------------------------
 void test_getMonitoringServerInfo(void)
 {
-	const ServerIdType serverId =
-	  getTestArmPluginInfo(MONITORING_SYSTEM_HAPI_TEST_PASSIVE).serverId;
-	TestPair pair(serverId);
+	TestPair pair(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
 	MonitoringServerInfo actual;
 	cppcut_assert_equal(true, pair.plugin->getMonitoringServerInfo(actual));
 	assertEqual(pair.serverInfo, actual);
@@ -97,9 +95,7 @@ void test_getMonitoringServerInfoAsync(void)
 		}
 	} arg(&serverInfo);
 
-	const ServerIdType serverId =
-	  getTestArmPluginInfo(MONITORING_SYSTEM_HAPI_TEST_PASSIVE).serverId;
-	TestPair pair(serverId);
+	TestPair pair(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
 	MonitoringServerInfo actual;
 	pair.plugin->getMonitoringServerInfoAsync(&arg);
 	pair.plugin->assertWaitSemaphore(arg.sem);
@@ -108,10 +104,9 @@ void test_getMonitoringServerInfoAsync(void)
 
 void test_getTimestampOfLastTrigger(void)
 {
-	const ServerIdType serverId =
-	  getTestArmPluginInfo(MONITORING_SYSTEM_HAPI_TEST_PASSIVE).serverId;
-	TestPair pair(serverId);
-	SmartTime expect = getTimestampOfLastTestTrigger(serverId);
+	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
+	TestPair pair(arg);
+	SmartTime expect = getTimestampOfLastTestTrigger(arg.serverId);
 	SmartTime actual = pair.plugin->getTimestampOfLastTrigger();
 	cppcut_assert_equal(expect, actual);
 }
@@ -119,10 +114,9 @@ void test_getTimestampOfLastTrigger(void)
 void test_getLastEventId(void)
 {
 	loadTestDBEvents();
-	const ServerIdType serverId =
-	  getTestArmPluginInfo(MONITORING_SYSTEM_HAPI_TEST_PASSIVE).serverId;
-	TestPair pair(serverId);
-	const EventIdType expect = findLastEventId(serverId);
+	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
+	TestPair pair(arg);
+	const EventIdType expect = findLastEventId(arg.serverId);
 	const EventIdType actual = pair.plugin->getLastEventId();
 	cppcut_assert_equal(expect, actual);
 }
@@ -131,9 +125,7 @@ void test_sendArmInfo(void)
 {
 	ArmInfo armInfo;
 	setTestValue(armInfo);
-	const ServerIdType serverId =
-	  getTestArmPluginInfo(MONITORING_SYSTEM_HAPI_TEST_PASSIVE).serverId;
-	TestPair pair(serverId);
+	TestPair pair(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
 	pair.plugin->callSendArmInfo(armInfo);
 	pair.gate->assertWaitHandledCommand(HAPI_CMD_SEND_ARM_INFO);
 	assertEqual(armInfo, pair.gate->getArmStatus().getArmInfo());
