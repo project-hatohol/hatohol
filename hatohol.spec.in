@@ -51,7 +51,7 @@ Group: Applications/System
 Requires: %{name} = %{version}-%{release}
 
 %description lib-common
-Library files for hatohol.
+Common libraries for hatohol and arm plugins.
 
 %package lib-arm-plugin
 Summary: Library files for Hatohol Arm Plugin
