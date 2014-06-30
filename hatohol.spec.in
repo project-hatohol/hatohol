@@ -156,6 +156,7 @@ rm -rf %{buildroot}
 - [Server] Can't update on Zabbix 2.2.0 (#221)
 - [Server] The basic implementation of the incident management feature (#229)
 - [Server] The basic implementation of the plugin mechanism for 'Arm' (#171)
+- [Server] Fix wrong number of bad hosts & triggers of a server (#236)
 * Fri Mar 28 2014 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.03-4
 - [Server][Client] Support Host group  (#27)
 - [Server] Add user role (#92)
