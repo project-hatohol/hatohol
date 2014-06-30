@@ -47,7 +47,8 @@ struct HatoholArmPluginBase::PrivateContext {
 	PrivateContext(void)
 	: replyWaitSem(0),
 	  currAsyncCb(NULL),
-	  currAsyncCbData(NULL)
+	  currAsyncCbData(NULL),
+	  inResetForInitiated(false)
 	{
 	}
 };
