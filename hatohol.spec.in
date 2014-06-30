@@ -60,7 +60,7 @@ Requires: %{name} = %{version}-%{release}
 Requires: hatohol-lib-common >= 14.06
 
 %description lib-arm-plugin
-Library files for Hatohol Arm Plugin Interface.
+Libraries for arm plugins.
 
 %package client
 Summary: A web UI client of Hatohol.
