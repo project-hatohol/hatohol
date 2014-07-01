@@ -77,6 +77,8 @@ protected:
 	 * behavior is calling exit(EXIT_SUCCESS).
 	 */
 	virtual void onReceivedTerminate(void);
+	virtual void onPreWaitInitiatedAck(void);
+	virtual void onPostWaitInitiatedAck(void);
 
 	void sendCmdGetMonitoringServerInfo(void);
 	bool parseReplyGetMonitoringServerInfo(

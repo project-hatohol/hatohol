@@ -177,14 +177,24 @@ void HatoholArmPluginBase::onInitiated(void)
 	m_ctx->inResetForInitiated = true;
 	m_ctx->replyWaitSem.post();
 	m_ctx->waitMutex.unlock();
+	onPreWaitInitiatedAck();
 	m_ctx->initiatedAckSem.wait();
 	m_ctx->inResetForInitiated = false;
+	onPostWaitInitiatedAck();
 }
 
 void HatoholArmPluginBase::onReceivedTerminate(void)
 {
 	MLPL_INFO("Got the teminate command.\n");
 	exit(EXIT_SUCCESS);
+}
+
+void HatoholArmPluginBase::onPreWaitInitiatedAck(void)
+{
+}
+
+void HatoholArmPluginBase::onPostWaitInitiatedAck(void)
+{
 }
 
 void HatoholArmPluginBase::enableWaitInitiatedAck(const bool &enable)
