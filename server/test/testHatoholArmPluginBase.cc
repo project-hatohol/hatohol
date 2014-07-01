@@ -50,7 +50,7 @@ public:
 		enableWaitInitiatedAck(enable);
 	}
 
-	bool callSsleepInitiatedExceptionThrowable(const size_t timeoutInMS)
+	bool callSleepInitiatedExceptionThrowable(const size_t timeoutInMS)
 	{
 		return sleepInitiatedExceptionThrowable(timeoutInMS);
 	}
@@ -187,7 +187,7 @@ void test_waitInitiatedException(void)
 			HatoholArmPluginBaseTest *plugin = dcast(_plugin);
 			try {
 				wakedUp =
-				  plugin->callSsleepInitiatedExceptionThrowable(TIMEOUT);
+				  plugin->callSleepInitiatedExceptionThrowable(TIMEOUT);
 			} catch (const HapInitiatedException &e) {
 				gotInitiatedException = true;
 				plugin->callAckInitiated();
