@@ -1306,27 +1306,50 @@ void test_checkExitWaitedCommandAction(void)
 	                    actMgr.callGetNumberOfOnstageCommandActors());
 }
 
-void test_runAction(void)
+static void _assertRunAction(
+ const HatoholErrorCode expectedErrorCode, const ActionDef &actDef,
+ const EventInfo &eventInfo)
 {
 	setupTestDBUser(true, true);
 	setupTestDBConfig(true, true);
 
 	DBClientAction dbAction;
 	TestActionManager actMgr;
-	// make a copy to overwrite ownerUserId
-	ActionDef actDef = testActionDef[0];
-	const EventInfo &eventInfo = testEventInfo[0];
-
-	// normal case
 	HatoholError err = actMgr.callRunAction(actDef, eventInfo, dbAction);
-	assertHatoholError(HTERR_OK, err);
+	assertHatoholError(expectedErrorCode, err);
+}
+#define assertRunAction(X,A,E) \
+cut_trace(_assertRunAction(X,A,E))
 
-	// with nonexisting user
-	const UserIdType nonExistingUserId = NumTestUserInfo + 5;
-	actDef.ownerUserId = nonExistingUserId;
-	err = actMgr.callRunAction(actDef, eventInfo, dbAction);
-	assertHatoholError(HTERR_INVALID_USER, err);
+void test_runAction(void)
+{
+	assertRunAction(HTERR_OK, testActionDef[0], testEventInfo[0]);
 }
 
+void test_runActionWithNonExistingUser(void)
+{
+	// make a copy to overwrite ownerUserId
+	ActionDef actDef = testActionDef[0];
+	const UserIdType nonExistingUserId = NumTestUserInfo + 5;
+	actDef.ownerUserId = nonExistingUserId;
+	assertRunAction(HTERR_INVALID_USER, actDef, testEventInfo[0]);
+}
+
+void test_runActionWithSystemUser(void)
+{
+	// make a copy to overwrite ownerUserId
+	ActionDef actDef = testActionDef[0];
+	actDef.ownerUserId = USER_ID_SYSTEM;
+	assertRunAction(HTERR_INVALID_USER, actDef, testEventInfo[0]);
+}
+
+void test_runIssueSenderActionWithSystemUser(void)
+{
+	size_t idx = findIndexFromTestActionDef(ACTION_ISSUE_SENDER);
+	// make a copy to overwrite ownerUserId
+	ActionDef actDef = testActionDef[idx];
+	actDef.ownerUserId = USER_ID_SYSTEM;
+	assertRunAction(HTERR_OK, actDef, testEventInfo[0]);
+}
 
 } // namespace testActionManager

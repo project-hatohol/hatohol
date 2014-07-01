@@ -1251,6 +1251,21 @@ size_t findIndexFromTestActionDef(const UserIdType &userId)
 	return idx;
 }
 
+size_t findIndexFromTestActionDef(const ActionType &type)
+{
+	size_t idx = 0;
+	for (; idx < NumTestActionDef; idx++) {
+		const ActionDef &actDef = testActionDef[idx];
+		if (actDef.type == type)
+			break;
+	}
+	cppcut_assert_not_equal(
+	  NumTestActionDef, idx,
+	  cut_message("Not found a testActionDef entry with type: %d",
+	              type));
+	return idx;
+}
+
 const HostgroupIdSet &getTestHostgroupIdSet(void)
 {
 	static HostgroupIdSet testHostgroupIdSet;
