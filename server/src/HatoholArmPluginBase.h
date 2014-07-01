@@ -114,7 +114,7 @@ protected:
 	 * @return
 	 * true if wake() is called within the timeout. Otherwise false.
 	 */
-	bool sleepIniatedExceptThrowable(size_t timeoutInMSec);
+	bool sleepInitiatedExceptThrowable(size_t timeoutInMSec);
 	void wake(void);
 
 	void sendTable(const HapiCommandCode &code,

@@ -48,7 +48,7 @@ struct HatoholArmPluginBase::PrivateContext {
 
 	MutexLock       waitMutex;
 	bool            inResetForInitiated;
-	bool            waitIniatedAck;
+	bool            waitInitiatedAck;
 	SimpleSemaphore initiatedAckSem;
 
 	PrivateContext(void)
@@ -56,7 +56,7 @@ struct HatoholArmPluginBase::PrivateContext {
 	  currAsyncCb(NULL),
 	  currAsyncCbData(NULL),
 	  inResetForInitiated(false),
-	  waitIniatedAck(false),
+	  waitInitiatedAck(false),
 	  initiatedAckSem(0)
 	{
 	}
@@ -169,7 +169,7 @@ void HatoholArmPluginBase::onGotResponse(
 void HatoholArmPluginBase::onInitiated(void)
 {
 	m_ctx->waitMutex.lock();
-	if (!m_ctx->waitIniatedAck) {
+	if (!m_ctx->waitInitiatedAck) {
 		m_ctx->waitMutex.unlock();
 		return;
 	}
@@ -201,7 +201,7 @@ void HatoholArmPluginBase::enableWaitInitiatedAck(const bool &enable)
 {
 	Reaper<MutexLock> unlocker(&m_ctx->waitMutex, MutexLock::unlock);
 	m_ctx->waitMutex.lock();
-	m_ctx->waitIniatedAck = enable;
+	m_ctx->waitInitiatedAck = enable;
 	throwInitiatedExceptionIfNeeded();
 }
 
@@ -311,13 +311,13 @@ void HatoholArmPluginBase::waitResponseAndCheckHeader(void)
 {
 	HATOHOL_ASSERT(!m_ctx->currAsyncCb,
 	               "Async. process is already running.");
-	sleepIniatedExceptThrowable(WAIT_INFINITE);
+	sleepInitiatedExceptThrowable(WAIT_INFINITE);
 
 	// To check the sainity of the header
 	getResponseHeader(m_ctx->responseBuf);
 }
 
-bool HatoholArmPluginBase::sleepIniatedExceptThrowable(size_t timeoutInMS)
+bool HatoholArmPluginBase::sleepInitiatedExceptThrowable(size_t timeoutInMS)
 {
 	bool wakedUp = true;
 	if (timeoutInMS == WAIT_INFINITE) {
