@@ -131,6 +131,7 @@ void HapZabbixAPI::onInitiated(void)
 		}
 	};
 
+	HatoholArmPluginBase::onInitiated();
 	getMonitoringServerInfoAsync(new Arg(this));
 }
 
