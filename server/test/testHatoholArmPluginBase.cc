@@ -69,7 +69,8 @@ void cut_setup(void)
 // ---------------------------------------------------------------------------
 void test_getMonitoringServerInfo(void)
 {
-	TestPair pair(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
+	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
+	TestPair pair(arg);
 	MonitoringServerInfo actual;
 	cppcut_assert_equal(true, pair.plugin->getMonitoringServerInfo(actual));
 	assertEqual(pair.serverInfo, actual);
@@ -95,7 +96,9 @@ void test_getMonitoringServerInfoAsync(void)
 		}
 	} arg(&serverInfo);
 
-	TestPair pair(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
+	HatoholArmPluginTestPairArg
+	  testPairArg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
+	TestPair pair(testPairArg);
 	MonitoringServerInfo actual;
 	pair.plugin->getMonitoringServerInfoAsync(&arg);
 	pair.plugin->assertWaitSemaphore(arg.sem);
@@ -125,7 +128,8 @@ void test_sendArmInfo(void)
 {
 	ArmInfo armInfo;
 	setTestValue(armInfo);
-	TestPair pair(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
+	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
+	TestPair pair(arg);
 	pair.plugin->callSendArmInfo(armInfo);
 	pair.gate->assertWaitHandledCommand(HAPI_CMD_SEND_ARM_INFO);
 	assertEqual(armInfo, pair.gate->getArmStatus().getArmInfo());

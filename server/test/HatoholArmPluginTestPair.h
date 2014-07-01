@@ -53,7 +53,7 @@ struct HatoholArmPluginTestPair : public HatoholArmPluginTestPairBase {
 	HatoholArmPluginGateTestPtr gate;
 	HapClass                   *plugin;
 
-	HatoholArmPluginTestPair(HatoholArmPluginTestPairArg arg)
+	HatoholArmPluginTestPair(HatoholArmPluginTestPairArg &arg)
 	: plugin(NULL)
 	{
 		gate = createHapgTest(hapgCtx, serverInfo, arg);
