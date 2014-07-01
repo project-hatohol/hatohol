@@ -51,7 +51,7 @@ void test_timedWait(void)
 	cppcut_assert_equal(SimpleSemaphore::STAT_TIMEDOUT, sem.timedWait(1));
 }
 
-void test_initr(void)
+void test_init(void)
 {
 	SimpleSemaphore sem(0);
 	sem.init(1);
