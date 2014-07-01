@@ -178,6 +178,7 @@ void HatoholArmPluginBase::onInitiated(void)
 	m_ctx->replyWaitSem.post();
 	m_ctx->waitMutex.unlock();
 	m_ctx->initiatedAckSem.wait();
+	m_ctx->inResetForInitiated = false;
 }
 
 void HatoholArmPluginBase::onReceivedTerminate(void)
