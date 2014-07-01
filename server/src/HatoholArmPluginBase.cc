@@ -311,13 +311,13 @@ void HatoholArmPluginBase::waitResponseAndCheckHeader(void)
 {
 	HATOHOL_ASSERT(!m_ctx->currAsyncCb,
 	               "Async. process is already running.");
-	sleepInitiatedExceptThrowable(WAIT_INFINITE);
+	sleepInitiatedExceptionThrowable(WAIT_INFINITE);
 
 	// To check the sainity of the header
 	getResponseHeader(m_ctx->responseBuf);
 }
 
-bool HatoholArmPluginBase::sleepInitiatedExceptThrowable(size_t timeoutInMS)
+bool HatoholArmPluginBase::sleepInitiatedExceptionThrowable(size_t timeoutInMS)
 {
 	bool wakedUp = true;
 	if (timeoutInMS == WAIT_INFINITE) {
