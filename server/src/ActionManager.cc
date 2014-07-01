@@ -592,7 +592,7 @@ static bool checkActionOwner(const ActionDef &actionDef)
 	if (actionDef.type == ACTION_ISSUE_SENDER) {
 		// We will not introduce the ownership concept for this action
 		// type. Access control will be realized only by privilege.
-		return true;
+		return (actionDef.ownerUserId == USER_ID_SYSTEM);
 	}
 
 	CacheServiceDBClient cache;

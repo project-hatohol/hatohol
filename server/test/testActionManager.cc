@@ -1352,4 +1352,24 @@ void test_runIssueSenderActionWithSystemUser(void)
 	assertRunAction(HTERR_OK, actDef, testEventInfo[0]);
 }
 
+void test_runIssueSenderActionWithExistingUser(void)
+{
+	size_t idx = findIndexFromTestActionDef(ACTION_ISSUE_SENDER);
+	// make a copy to overwrite ownerUserId
+	ActionDef actDef = testActionDef[idx];
+	const UserIdType existingUserId = NumTestUserInfo - 1;
+	actDef.ownerUserId = existingUserId;
+	assertRunAction(HTERR_INVALID_USER, actDef, testEventInfo[0]);
+}
+
+void test_runIssueSenderActionWithNonExistingUser(void)
+{
+	size_t idx = findIndexFromTestActionDef(ACTION_ISSUE_SENDER);
+	// make a copy to overwrite ownerUserId
+	ActionDef actDef = testActionDef[idx];
+	const UserIdType nonExistingUserId = NumTestUserInfo + 5;
+	actDef.ownerUserId = nonExistingUserId;
+	assertRunAction(HTERR_INVALID_USER, actDef, testEventInfo[0]);
+}
+
 } // namespace testActionManager
