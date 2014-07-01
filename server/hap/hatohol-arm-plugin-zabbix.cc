@@ -120,6 +120,10 @@ int HapProcessZabbixAPI::mainLoopRun(void)
 	if (clarg.queueAddress)
 		setQueueAddress(clarg.queueAddress);
 
+	// TODO: Consider the architecuture
+	// Current implementation using two threads is a little complicated.
+	// (especially the synchornization)
+	// How about using GLib Event loop instead of hapMainThread ?
 	enableWaitInitiatedAck();
 	ackInitiated(); // To pass the first initiation
 	HapZabbixAPI::start();
