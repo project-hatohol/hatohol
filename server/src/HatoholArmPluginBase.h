@@ -65,8 +65,12 @@ public:
 	EventIdType getLastEventId(void);
 
 protected:
+	static const size_t WAIT_INFINITE;
+
 	virtual void onGotResponse(const HapiResponseHeader *header,
 	                           mlpl::SmartBuffer &resBuf) override;
+
+	virtual void onInitiated(void) override;
 
 	/**
 	 * Called when the terminate command is received. The default
@@ -83,11 +87,33 @@ protected:
 	void waitResponseAndCheckHeader(void);
 
 	/**
-	 * Start a reset process for the situation after initiation is done.
-	 * If a thread is blocked in waitResponseAndCheckHeader(),
-	 * it exit from the method and then throw HapInitiatedException.
+	 * Enable/disable the wait for an acknowlege in onInitiated().
+	 * After this method is called with enable=true, onIniated() is blocked
+	 * until ackInitiated() is called.
+	 *
+	 * @param enable A flag to enable or disable.
 	 */
-	void startResetForInitiated(void);
+	void enableWaitInitiatedAck(const bool &enable = true);
+	void ackInitiated(void);
+
+	/**
+	 * Throw InitiatedException if this instance waits for
+	 * an acknowlege in onInitiated().
+	 */
+	void throwInitiatedExceptionIfNeeded(void);
+
+	/**
+	 * Sleep until wake() is called.
+	 *
+	 * @param timeoutInMSec
+	 * A timeout value in millisecond. If WAIT_INFINITE is specified,
+	 * it isn't timed out.
+	 *
+	 * @return
+	 * true if wake() is called within the timeout. Otherwise false.
+	 */
+	bool sleepIniatedExceptThrowable(size_t timeoutInMSec);
+	void wake(void);
 
 	void sendTable(const HapiCommandCode &code,
 	               const ItemTablePtr &tablePtr);

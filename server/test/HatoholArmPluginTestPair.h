@@ -19,6 +19,7 @@
 
 #include "Helpers.h"
 #include "HatoholArmPluginGateTest.h"
+#include "HatoholArmPluginBase.h"
 
 struct HatoholArmPluginTestPairBase {
 	// Definition like 'static const variable = val;' in a tempalate
@@ -43,6 +44,14 @@ struct HatoholArmPluginTestPairArg {
 	  serverPort(80)
 	{
 	}
+
+	virtual void onCreatedPlugin(HatoholArmPluginBase *plugin)
+	{
+	}
+
+	virtual void preAssertWaitInitiated(HatoholArmPluginBase *plugin)
+	{
+	}
 };
 
 template <class HapClass>
@@ -62,11 +71,13 @@ struct HatoholArmPluginTestPair : public HatoholArmPluginTestPairBase {
 		gate->assertWaitConnected();
 
 		plugin = new HapClass();
+		arg.onCreatedPlugin(plugin);
 		plugin->setQueueAddress(
 		  gate->callGenerateBrokerAddress(serverInfo));
 		plugin->start();
 
 		gate->assertWaitInitiated();
+		arg.preAssertWaitInitiated(plugin);
 		plugin->assertWaitInitiated();
 	}
 
