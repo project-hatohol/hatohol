@@ -36,6 +36,7 @@
 #include "DBClientTest.h"
 #include "ConfigManager.h"
 #include "SessionManager.h"
+#include "IssueSenderManager.h"
 using namespace std;
 using namespace mlpl;
 
@@ -1349,6 +1350,7 @@ void test_runIssueSenderActionWithSystemUser(void)
 	// make a copy to overwrite ownerUserId
 	ActionDef actDef = testActionDef[idx];
 	actDef.ownerUserId = USER_ID_SYSTEM;
+	actDef.command = "Don't run actual IssueSender.";
 	assertRunAction(HTERR_OK, actDef, testEventInfo[0]);
 }
 
@@ -1359,6 +1361,7 @@ void test_runIssueSenderActionWithExistingUser(void)
 	ActionDef actDef = testActionDef[idx];
 	const UserIdType existingUserId = NumTestUserInfo - 1;
 	actDef.ownerUserId = existingUserId;
+	actDef.command = "Don't run actual IssueSender.";
 	assertRunAction(HTERR_INVALID_USER, actDef, testEventInfo[0]);
 }
 
@@ -1369,6 +1372,7 @@ void test_runIssueSenderActionWithNonExistingUser(void)
 	ActionDef actDef = testActionDef[idx];
 	const UserIdType nonExistingUserId = NumTestUserInfo + 5;
 	actDef.ownerUserId = nonExistingUserId;
+	actDef.command = "Don't run actual IssueSender.";
 	assertRunAction(HTERR_INVALID_USER, actDef, testEventInfo[0]);
 }
 
