@@ -334,3 +334,152 @@ void FaceRest::handlerDeleteAccessInfo(RestJob *job)
 	agent.endObject();
 	replyJsonData(agent, job);
 }
+
+void FaceRest::handlerUserRole(RestJob *job)
+{
+	if (StringUtils::casecmp(job->message->method, "GET")) {
+		handlerGetUserRole(job);
+	} else if (StringUtils::casecmp(job->message->method, "POST")) {
+		handlerPostUserRole(job);
+	} else if (StringUtils::casecmp(job->message->method, "PUT")) {
+		handlerPutUserRole(job);
+	} else if (StringUtils::casecmp(job->message->method, "DELETE")) {
+		handlerDeleteUserRole(job);
+	} else {
+		MLPL_ERR("Unknown method: %s\n", job->message->method);
+		soup_message_set_status(job->message,
+		                        SOUP_STATUS_METHOD_NOT_ALLOWED);
+		job->replyIsPrepared = true;
+	}
+}
+
+void FaceRest::handlerPutUserRole(RestJob *job)
+{
+	uint64_t id = job->getResourceId();
+	if (id == INVALID_ID) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
+		            "id: %s", job->getResourceIdString().c_str());
+		return;
+	}
+	UserRoleInfo userRoleInfo;
+	userRoleInfo.id = id;
+
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	UserRoleInfoList userRoleList;
+	UserRoleQueryOption option(job->dataQueryContextPtr);
+	option.setTargetUserRoleId(userRoleInfo.id);
+	dataStore->getUserRoleList(userRoleList, option);
+	if (userRoleList.empty()) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_TARGET_RECORD,
+		            "id: %" FMT_USER_ID, userRoleInfo.id);
+		return;
+	}
+	userRoleInfo = *(userRoleList.begin());
+
+	bool allowEmpty = true;
+	HatoholError err = parseUserRoleParameter(userRoleInfo, job->query,
+						  allowEmpty);
+	if (err != HTERR_OK) {
+		replyError(job, err);
+		return;
+	}
+
+	// try to update
+	err = dataStore->updateUserRole(
+	  userRoleInfo, job->dataQueryContextPtr->getOperationPrivilege());
+	if (err != HTERR_OK) {
+		replyError(job, err);
+		return;
+	}
+
+	// make a response
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, err);
+	agent.add("id", userRoleInfo.id);
+	agent.endObject();
+	replyJsonData(agent, job);
+}
+
+void FaceRest::handlerGetUserRole(RestJob *job)
+{
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+
+	UserRoleInfoList userRoleList;
+	UserRoleQueryOption option(job->dataQueryContextPtr);
+	dataStore->getUserRoleList(userRoleList, option);
+
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, HatoholError(HTERR_OK));
+	agent.add("numberOfUserRoles", userRoleList.size());
+	agent.startArray("userRoles");
+	UserRoleInfoListIterator it = userRoleList.begin();
+	for (; it != userRoleList.end(); ++it) {
+		const UserRoleInfo &userRoleInfo = *it;
+		agent.startObject();
+		agent.add("userRoleId",  userRoleInfo.id);
+		agent.add("name", userRoleInfo.name);
+		agent.add("flags", userRoleInfo.flags);
+		agent.endObject();
+	}
+	agent.endArray();
+	agent.endObject();
+
+	replyJsonData(agent, job);
+}
+
+void FaceRest::handlerPostUserRole(RestJob *job)
+{
+	UserRoleInfo userRoleInfo;
+	HatoholError err = parseUserRoleParameter(userRoleInfo, job->query);
+	if (err != HTERR_OK) {
+		replyError(job, err);
+		return;
+	}
+
+	// try to add
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	err = dataStore->addUserRole(
+	  userRoleInfo, job->dataQueryContextPtr->getOperationPrivilege());
+	if (err != HTERR_OK) {
+		replyError(job, err);
+		return;
+	}
+
+	// make a response
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, err);
+	agent.add("id", userRoleInfo.id);
+	agent.endObject();
+	replyJsonData(agent, job);
+}
+
+void FaceRest::handlerDeleteUserRole(RestJob *job)
+{
+	uint64_t id = job->getResourceId();
+	if (id == INVALID_ID) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
+		            "id: %s", job->getResourceIdString().c_str());
+		return;
+	}
+	UserRoleIdType userRoleId = id;
+
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	HatoholError err =
+	  dataStore->deleteUserRole(
+	    userRoleId, job->dataQueryContextPtr->getOperationPrivilege());
+	if (err != HTERR_OK) {
+		replyError(job, err);
+		return;
+	}
+
+	// replay
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, err);
+	agent.add("id", userRoleId);
+	agent.endObject();
+	replyJsonData(agent, job);
+}
