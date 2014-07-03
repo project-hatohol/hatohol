@@ -434,13 +434,13 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	                        queueRestJob,
 	                        new HandlerClosure(this, handlerAction),
 	                        deleteHandlerClosure);
-	soup_server_add_handler(m_ctx->soupServer, pathForUser,
-	                        queueRestJob,
-	                        new HandlerClosure(this, handlerUser),
-	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForHostgroup,
 	                        queueRestJob,
 	                        new HandlerClosure(this, handlerGetHostgroup),
+	                        deleteHandlerClosure);
+	soup_server_add_handler(m_ctx->soupServer, pathForUser,
+	                        queueRestJob,
+	                        new HandlerClosure(this, handlerUser),
 	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForUserRole,
 	                        queueRestJob,
