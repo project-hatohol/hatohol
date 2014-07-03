@@ -1314,13 +1314,13 @@ void FaceRest::handlerTest(RestJob *job)
 		agent.endObject(); // top level
 		replyJsonData(agent, job);
 		return;
-	} 
+	}
 
 	if (string(job->path) == "/test/error") {
 		agent.endObject(); // top level
 		replyError(job, HTERR_ERROR_TEST);
 		return;
-	} 
+	}
 
 	if (string(job->path) == "/test/user" &&
 	    string(job->message->method) == "POST")
@@ -2188,7 +2188,7 @@ void FaceRest::handlerPostAction(RestJob *job)
 		if (!succeeded)
 			return;
 		if (!exist) {
-			replyError(job, HTERR_NOT_FOUND_PARAMETER, 
+			replyError(job, HTERR_NOT_FOUND_PARAMETER,
 			           "triggerSeverityCompType");
 			return;
 		}
