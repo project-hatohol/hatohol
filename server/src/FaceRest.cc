@@ -623,6 +623,22 @@ FaceRest::RestJob::~RestJob()
 		g_hash_table_unref(query);
 }
 
+SoupServer *FaceRest::RestJob::server(void)
+{
+	return faceRest ? faceRest->getSoupServer() : NULL;
+}
+
+GMainContext *FaceRest::RestJob::gMainContext(void)
+{
+	return faceRest ? faceRest->getGMainContext() : NULL;
+}
+
+bool FaceRest::RestJob::pathIsUserMe(void)
+{
+	if (!faceRest)
+		return false;
+	return (path == faceRest->getPathForUserMe());
+}
 
 string FaceRest::RestJob::getJsonpCallbackName(void)
 {

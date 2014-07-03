@@ -74,24 +74,9 @@ struct FaceRest::RestJob
 		GHashTable *_query, SoupClientContext *_client);
 	virtual ~RestJob();
 
-	SoupServer *server(void)
-	{
-		return faceRest ? faceRest->getSoupServer() : NULL;
-	}
-
-	GMainContext *gMainContext(void)
-	{
-
-		return faceRest ? faceRest->getGMainContext() : NULL;
-	}
-
-	bool pathIsUserMe(void)
-	{
-		if (!faceRest)
-			return false;
-		return (path == faceRest->getPathForUserMe());
-	}
-
+	SoupServer *server(void);
+	GMainContext *gMainContext(void);
+	bool pathIsUserMe(void);
 	bool prepare(void);
 	void pauseResponse(void);
 	void unpauseResponse(void);
