@@ -404,6 +404,16 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	return NULL;
 }
 
+SoupServer *FaceRest::getSoupServer(void)
+{
+	return m_ctx->soupServer;
+}
+
+GMainContext *FaceRest::getGMainContext(void)
+{
+	return m_ctx->gMainCtx;
+}
+
 size_t FaceRest::parseCmdArgPort(CommandLineArg &cmdArg, size_t idx)
 {
 	if (idx == cmdArg.size() - 1) {

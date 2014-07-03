@@ -69,6 +69,8 @@ protected:
 	void stopWorkers(void);
 
 	// generic sub routines
+	SoupServer   *getSoupServer(void);
+	GMainContext *getGMainContext(void);
 	size_t parseCmdArgPort(CommandLineArg &cmdArg, size_t idx);
 	static void addHatoholError(JsonBuilderAgent &agent,
 	                            const HatoholError &err);
