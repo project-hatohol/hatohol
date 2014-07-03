@@ -1831,10 +1831,10 @@ static uint64_t getLastUnifiedEventId(FaceRest::RestJob *job)
 static void addIssue(FaceRest::RestJob *job, JsonBuilderAgent &agent,
 		     const IssueInfo &issue)
 {
-		agent.startObject("issue");
-		agent.add("location", issue.location);
-		// TODO: remaining properties will be added later
-		agent.endObject();
+	agent.startObject("issue");
+	agent.add("location", issue.location);
+	// TODO: remaining properties will be added later
+	agent.endObject();
 }
 
 void FaceRest::handlerGetEvent(RestJob *job)
