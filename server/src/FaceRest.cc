@@ -75,6 +75,14 @@ static const char *MIME_HTML = "text/html";
 static const char *MIME_JSON = "application/json";
 static const char *MIME_JAVASCRIPT = "text/javascript";
 
+#define RETURN_IF_NOT_TEST_MODE(ARG) \
+do { \
+	if (!isTestMode()) { \
+		replyError(ARG, HTERR_NOT_TEST_MODE); \
+		return; \
+	}\
+} while(0)
+
 typedef map<string, FormatType> FormatTypeMap;
 typedef FormatTypeMap::iterator FormatTypeMapIterator;
 static FormatTypeMap g_formatTypeMap;
