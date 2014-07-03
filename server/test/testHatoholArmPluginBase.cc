@@ -45,6 +45,21 @@ public:
 		sendArmInfo(armInfo);
 	}
 
+	void callEnableWaitInitiatedAck(const bool &enable = true)
+	{
+		enableWaitInitiatedAck(enable);
+	}
+
+	bool callSleepInitiatedExceptionThrowable(const size_t timeoutInMS)
+	{
+		return sleepInitiatedExceptionThrowable(timeoutInMS);
+	}
+
+	void callAckInitiated(void)
+	{
+		ackInitiated();
+	}
+
 protected:
 	void onConnected(Connection &conn) override
 	{
@@ -53,6 +68,7 @@ protected:
 
 	void onInitiated(void) override
 	{
+		HatoholArmPluginBase::onInitiated();
 		HapiTestHelper::onInitiated();
 	}
 };
@@ -69,9 +85,8 @@ void cut_setup(void)
 // ---------------------------------------------------------------------------
 void test_getMonitoringServerInfo(void)
 {
-	const ServerIdType serverId =
-	  getTestArmPluginInfo(MONITORING_SYSTEM_HAPI_TEST_PASSIVE).serverId;
-	TestPair pair(serverId);
+	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
+	TestPair pair(arg);
 	MonitoringServerInfo actual;
 	cppcut_assert_equal(true, pair.plugin->getMonitoringServerInfo(actual));
 	assertEqual(pair.serverInfo, actual);
@@ -97,9 +112,9 @@ void test_getMonitoringServerInfoAsync(void)
 		}
 	} arg(&serverInfo);
 
-	const ServerIdType serverId =
-	  getTestArmPluginInfo(MONITORING_SYSTEM_HAPI_TEST_PASSIVE).serverId;
-	TestPair pair(serverId);
+	HatoholArmPluginTestPairArg
+	  testPairArg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
+	TestPair pair(testPairArg);
 	MonitoringServerInfo actual;
 	pair.plugin->getMonitoringServerInfoAsync(&arg);
 	pair.plugin->assertWaitSemaphore(arg.sem);
@@ -108,10 +123,9 @@ void test_getMonitoringServerInfoAsync(void)
 
 void test_getTimestampOfLastTrigger(void)
 {
-	const ServerIdType serverId =
-	  getTestArmPluginInfo(MONITORING_SYSTEM_HAPI_TEST_PASSIVE).serverId;
-	TestPair pair(serverId);
-	SmartTime expect = getTimestampOfLastTestTrigger(serverId);
+	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
+	TestPair pair(arg);
+	SmartTime expect = getTimestampOfLastTestTrigger(arg.serverId);
 	SmartTime actual = pair.plugin->getTimestampOfLastTrigger();
 	cppcut_assert_equal(expect, actual);
 }
@@ -119,10 +133,9 @@ void test_getTimestampOfLastTrigger(void)
 void test_getLastEventId(void)
 {
 	loadTestDBEvents();
-	const ServerIdType serverId =
-	  getTestArmPluginInfo(MONITORING_SYSTEM_HAPI_TEST_PASSIVE).serverId;
-	TestPair pair(serverId);
-	const EventIdType expect = findLastEventId(serverId);
+	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
+	TestPair pair(arg);
+	const EventIdType expect = findLastEventId(arg.serverId);
 	const EventIdType actual = pair.plugin->getLastEventId();
 	cppcut_assert_equal(expect, actual);
 }
@@ -131,12 +144,60 @@ void test_sendArmInfo(void)
 {
 	ArmInfo armInfo;
 	setTestValue(armInfo);
-	const ServerIdType serverId =
-	  getTestArmPluginInfo(MONITORING_SYSTEM_HAPI_TEST_PASSIVE).serverId;
-	TestPair pair(serverId);
+	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
+	TestPair pair(arg);
 	pair.plugin->callSendArmInfo(armInfo);
 	pair.gate->assertWaitHandledCommand(HAPI_CMD_SEND_ARM_INFO);
 	assertEqual(armInfo, pair.gate->getArmStatus().getArmInfo());
+}
+
+void test_waitInitiatedException(void)
+{
+	struct Arg : public HatoholArmPluginTestPairArg {
+
+		bool wakedUp;
+		bool gotInitiatedException;
+
+		Arg(void)
+		: HatoholArmPluginTestPairArg(
+		    MONITORING_SYSTEM_HAPI_TEST_PASSIVE),
+		  wakedUp(false),
+		  gotInitiatedException(false)
+		{
+		}
+
+		HatoholArmPluginBaseTest *dcast(HatoholArmPluginBase *_plugin)
+		{
+			HatoholArmPluginBaseTest *plugin =
+			  dynamic_cast<HatoholArmPluginBaseTest *>(_plugin);
+			return plugin;
+		}
+
+		virtual void
+		  onCreatedPlugin(HatoholArmPluginBase *_plugin) override
+		{
+			HatoholArmPluginBaseTest *plugin = dcast(_plugin);
+			plugin->callEnableWaitInitiatedAck(true);
+		}
+	
+		virtual void
+		  preAssertWaitInitiated(HatoholArmPluginBase *_plugin) override
+		{
+			static const size_t TIMEOUT = 5000;
+			HatoholArmPluginBaseTest *plugin = dcast(_plugin);
+			try {
+				wakedUp =
+				  plugin->callSleepInitiatedExceptionThrowable(TIMEOUT);
+			} catch (const HapInitiatedException &e) {
+				gotInitiatedException = true;
+				plugin->callAckInitiated();
+			}
+		}
+	} arg;
+
+	TestPair pair(arg);
+	cppcut_assert_equal(false, arg.wakedUp);
+	cppcut_assert_equal(true,  arg.gotInitiatedException);
 }
 
 } // namespace testHatoholArmPluginBase

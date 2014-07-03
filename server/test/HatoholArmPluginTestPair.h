@@ -19,6 +19,7 @@
 
 #include "Helpers.h"
 #include "HatoholArmPluginGateTest.h"
+#include "HatoholArmPluginBase.h"
 
 struct HatoholArmPluginTestPairBase {
 	// Definition like 'static const variable = val;' in a tempalate
@@ -31,6 +32,28 @@ struct HatoholArmPluginTestPairBase {
 	static const ServerIdType DEFAULT_SERVER_ID;
 };
 
+struct HatoholArmPluginTestPairArg {
+
+	ServerIdType serverId;
+	std::string  serverIpAddr;
+	int          serverPort;
+
+	HatoholArmPluginTestPairArg(const MonitoringSystemType &type)
+	: serverId(getTestArmPluginInfo(type).serverId),
+	  serverIpAddr("127.0.0.1"),
+	  serverPort(80)
+	{
+	}
+
+	virtual void onCreatedPlugin(HatoholArmPluginBase *plugin)
+	{
+	}
+
+	virtual void preAssertWaitInitiated(HatoholArmPluginBase *plugin)
+	{
+	}
+};
+
 template <class HapClass>
 struct HatoholArmPluginTestPair : public HatoholArmPluginTestPairBase {
 
@@ -39,24 +62,22 @@ struct HatoholArmPluginTestPair : public HatoholArmPluginTestPairBase {
 	HatoholArmPluginGateTestPtr gate;
 	HapClass                   *plugin;
 
-	HatoholArmPluginTestPair(
-	  const ServerIdType &serverId = DEFAULT_SERVER_ID,
-	  const std::string &serverIpAddr = "127.0.0.1",
-	  const int &serverPort = 80)
+	HatoholArmPluginTestPair(HatoholArmPluginTestPairArg &arg)
 	: plugin(NULL)
 	{
-		gate = createHapgTest(hapgCtx, serverInfo, serverId,
-		                      serverIpAddr, serverPort);
+		gate = createHapgTest(hapgCtx, serverInfo, arg);
 		loadTestDBTriggers();
 		gate->start();
 		gate->assertWaitConnected();
 
 		plugin = new HapClass();
+		arg.onCreatedPlugin(plugin);
 		plugin->setQueueAddress(
 		  gate->callGenerateBrokerAddress(serverInfo));
 		plugin->start();
 
 		gate->assertWaitInitiated();
+		arg.preAssertWaitInitiated(plugin);
 		plugin->assertWaitInitiated();
 	}
 
@@ -68,9 +89,7 @@ struct HatoholArmPluginTestPair : public HatoholArmPluginTestPairBase {
 
 	static HatoholArmPluginGateTestPtr createHapgTest(
 	  HapgTestCtx &hapgCtx, MonitoringServerInfo &serverInfo,
-	  const ServerIdType &serverId = DEFAULT_SERVER_ID,
-	  const std::string &serverIpAddr = "",
-	  const int &serverPort = 0)
+	  HatoholArmPluginTestPairArg &arg)
 	{
 		hapgCtx.useDefaultReceivedHandler = true;
 		hapgCtx.monitoringSystemType =
@@ -78,12 +97,12 @@ struct HatoholArmPluginTestPair : public HatoholArmPluginTestPairBase {
 		setupTestDBConfig();
 		loadTestDBArmPlugin();
 		initServerInfo(serverInfo);
-		if (serverId != DEFAULT_SERVER_ID)
-			serverInfo.id = serverId;
+		if (arg.serverId != DEFAULT_SERVER_ID)
+			serverInfo.id = arg.serverId;
 		serverInfo.hostName = "cat.cat.cat.com";
-		serverInfo.ipAddress = serverIpAddr;
+		serverInfo.ipAddress = arg.serverIpAddr;
 		serverInfo.nickname = "Lightning";
-		serverInfo.port = serverPort;
+		serverInfo.port = arg.serverPort;
 		serverInfo.type = hapgCtx.monitoringSystemType;
 		serverInfo.pollingIntervalSec = 123;
 		serverInfo.retryIntervalSec = 3535;

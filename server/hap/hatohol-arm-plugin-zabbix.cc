@@ -34,7 +34,11 @@ public:
 
 protected:
 	gpointer hapMainThread(HatoholThreadArg *arg) override;
-	void onReady(void) override; // called from HapZabbixAPI
+
+	// called from HapZabbixAPI
+	void onPreWaitInitiatedAck(void) override;
+	void onPostWaitInitiatedAck(void) override;
+	void onReady(void) override;
 
 	/**
 	 * Wait for the callback of onReady.
@@ -61,6 +65,7 @@ protected:
 	 */
 	bool sleepForMainThread(const int &sleepTimeInSec);
 
+	gpointer _hapMainThread(HatoholThreadArg *arg);
 	void acquireData(void);
 
 private:
@@ -73,12 +78,14 @@ private:
 // ---------------------------------------------------------------------------
 struct HapProcessZabbixAPI::PrivateContext {
 	MonitoringServerInfo serverInfo;
+	SimpleSemaphore      startSem;
 	SimpleSemaphore      mainThreadSem;
 	// TODO: set readyFlag false when the connection is lost.
 	AtomicValue<bool>    readyFlag;
 
 	PrivateContext(void)
-	: mainThreadSem(0),
+	: startSem(0),
+	  mainThreadSem(0),
 	  readyFlag(false)
 	{
 	}
@@ -113,6 +120,12 @@ int HapProcessZabbixAPI::mainLoopRun(void)
 	if (clarg.queueAddress)
 		setQueueAddress(clarg.queueAddress);
 
+	// TODO: Consider the architecuture
+	// Current implementation using two threads is a little complicated.
+	// (especially the synchornization)
+	// How about using GLib Event loop instead of hapMainThread ?
+	enableWaitInitiatedAck();
+	ackInitiated(); // To pass the first initiation
 	HapZabbixAPI::start();
 	HapProcess::start();
 	g_main_loop_run(getGMainLoop());
@@ -122,7 +135,28 @@ int HapProcessZabbixAPI::mainLoopRun(void)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+//
+// Method running on HapProcess's thread
+//
 gpointer HapProcessZabbixAPI::hapMainThread(HatoholThreadArg *arg)
+{
+top:
+	m_ctx->startSem.wait(); // Wait for completion of initiation
+	gpointer ret = NULL;
+	try {
+		ret = _hapMainThread(arg);
+	} catch (const HapInitiatedException &e) {
+		m_ctx->readyFlag = false;
+		ackInitiated();
+		goto top;
+	} catch (...) {
+		m_ctx->startSem.post();
+		throw;
+	}
+	return ret;
+}
+
+gpointer HapProcessZabbixAPI::_hapMainThread(HatoholThreadArg *arg)
 {
 	if (!m_ctx->readyFlag && waitOnReady())
 		return NULL;
@@ -152,12 +186,6 @@ gpointer HapProcessZabbixAPI::hapMainThread(HatoholThreadArg *arg)
 	return NULL;
 }
 
-void HapProcessZabbixAPI::onReady(void)
-{
-	m_ctx->readyFlag = true;
-	m_ctx->mainThreadSem.post();
-}
-
 bool HapProcessZabbixAPI::waitOnReady(void)
 {
 	const size_t waitTimeSec = 10 * 60;
@@ -170,18 +198,6 @@ bool HapProcessZabbixAPI::waitOnReady(void)
 			MLPL_INFO("Waitting for the ready state.\n");
 	}
 	return shouldExit;
-}
-
-bool HapProcessZabbixAPI::sleepForMainThread(const int &sleepTimeInSec)
-{
-	SimpleSemaphore::Status status =
-	  m_ctx->mainThreadSem.timedWait(sleepTimeInSec * 1000);
-	// TODO: Add a mechanism to exit
-	if (status == SimpleSemaphore::STAT_OK ||
-	    status == SimpleSemaphore::STAT_ERROR_UNKNOWN) {
-		HATOHOL_ASSERT(true, "Unexpected result: %d\n", status);
-	}
-	return false;
 }
 
 bool HapProcessZabbixAPI::initMonitoringServerInfo(void)
@@ -201,6 +217,19 @@ bool HapProcessZabbixAPI::initMonitoringServerInfo(void)
 	return false;
 }
 
+bool HapProcessZabbixAPI::sleepForMainThread(const int &sleepTimeInSec)
+{
+	SimpleSemaphore::Status status =
+	  m_ctx->mainThreadSem.timedWait(sleepTimeInSec * 1000);
+	// TODO: Add a mechanism to exit
+	HATOHOL_ASSERT(
+	  status != SimpleSemaphore::STAT_ERROR_UNKNOWN,
+	  "Unexpected result: %d\n", status);
+	throwInitiatedExceptionIfNeeded();
+
+	return false;
+}
+
 void HapProcessZabbixAPI::acquireData(void)
 {
 	updateAuthTokenIfNeeded();
@@ -208,6 +237,29 @@ void HapProcessZabbixAPI::acquireData(void)
 	workOnHostgroups();
 	workOnTriggers();
 	workOnEvents();
+}
+
+//
+// Methods running on HapZabbixAPI's thread
+//
+void HapProcessZabbixAPI::onPreWaitInitiatedAck(void)
+{
+	m_ctx->mainThreadSem.post();
+}
+
+void HapProcessZabbixAPI::onPostWaitInitiatedAck(void)
+{
+	// If hapMainThread isn't in mainThreadSem.timedWait() when
+	// onPreWaitInitiatedAck() is called, the count of mainThreadSem
+	// overabounds. So we forecely reset here.
+	m_ctx->mainThreadSem.init(0);
+	m_ctx->startSem.post();
+}
+
+void HapProcessZabbixAPI::onReady(void)
+{
+	m_ctx->readyFlag = true;
+	m_ctx->mainThreadSem.post();
 }
 
 // ---------------------------------------------------------------------------

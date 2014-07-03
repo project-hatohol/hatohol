@@ -135,10 +135,10 @@ void cut_teardown(void)
 void test_getHostsAndTriggers(void)
 {
 	deleteDBClientHatoholDB();
-	const ServerIdType serverId =
-	  getTestArmPluginInfo(MONITORING_SYSTEM_HAPI_TEST_PASSIVE).serverId;
-	HatoholArmPluginTestPair<HapZabbixAPITest> pair(
-	  serverId, "127.0.0.1", EMULATOR_PORT);
+	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
+	arg.serverIpAddr = "127.0.0.1";
+	arg.serverPort   = EMULATOR_PORT;
+	HatoholArmPluginTestPair<HapZabbixAPITest> pair(arg);
 
 	// TODO: Suppress warning.
 	// We get host data before triggers since the host name is needed
@@ -163,11 +163,11 @@ void test_getHostsAndTriggers(void)
 
 void test_getHostgroups(void)
 {
-	const ServerIdType serverId =
-	  getTestArmPluginInfo(MONITORING_SYSTEM_HAPI_TEST_PASSIVE).serverId;
+	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
+	arg.serverIpAddr = "127.0.0.1";
+	arg.serverPort   = EMULATOR_PORT;
 	deleteDBClientHatoholDB();
-	HatoholArmPluginTestPair<HapZabbixAPITest> pair(
-	  serverId, "127.0.0.1", EMULATOR_PORT);
+	HatoholArmPluginTestPair<HapZabbixAPITest> pair(arg);
 
 	pair.plugin->assertWaitReady();
 	pair.plugin->callUpdateAuthTokenIfNeeded();
@@ -179,12 +179,12 @@ void test_getHostgroups(void)
 
 void test_getEvents(void)
 {
-	const ServerIdType serverId =
-	  getTestArmPluginInfo(MONITORING_SYSTEM_HAPI_TEST_PASSIVE).serverId;
+	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
+	arg.serverIpAddr = "127.0.0.1";
+	arg.serverPort   = EMULATOR_PORT;
 	setupTestDBAction();
 	deleteDBClientHatoholDB();
-	HatoholArmPluginTestPair<HapZabbixAPITest> pair(
-	  serverId, "127.0.0.1", EMULATOR_PORT);
+	HatoholArmPluginTestPair<HapZabbixAPITest> pair(arg);
 
 	pair.plugin->assertWaitReady();
 	pair.plugin->callUpdateAuthTokenIfNeeded();

@@ -42,6 +42,9 @@ struct HatoholArmPluginError {
 	HatoholArmPluginErrorCode code;
 };
 
+class HapInitiatedException : public std::exception {
+};
+
 enum HapiMessageType {
 	HAPI_MSG_INITIATION,          // Sv -> Cl
 	HAPI_MSG_INITIATION_RESPONSE, // Cl -> Sv

@@ -19,9 +19,13 @@
 
 #include <cstdio>
 #include <SimpleSemaphore.h>
+#include <MutexLock.h>
+#include <Reaper.h>
 #include "HatoholArmPluginBase.h"
 
 using namespace mlpl;
+
+const size_t HatoholArmPluginBase::WAIT_INFINITE = 0;
 
 struct HatoholArmPluginBase::AsyncCbData {
 	HatoholArmPluginBase *obj;
@@ -42,10 +46,18 @@ struct HatoholArmPluginBase::PrivateContext {
 	AsyncCallback   currAsyncCb;
 	AsyncCbData    *currAsyncCbData;
 
+	MutexLock       waitMutex;
+	bool            inResetForInitiated;
+	bool            waitInitiatedAck;
+	SimpleSemaphore initiatedAckSem;
+
 	PrivateContext(void)
 	: replyWaitSem(0),
 	  currAsyncCb(NULL),
-	  currAsyncCbData(NULL)
+	  currAsyncCbData(NULL),
+	  inResetForInitiated(false),
+	  waitInitiatedAck(false),
+	  initiatedAckSem(0)
 	{
 	}
 };
@@ -154,10 +166,56 @@ void HatoholArmPluginBase::onGotResponse(
 	m_ctx->replyWaitSem.post();
 }
 
+void HatoholArmPluginBase::onInitiated(void)
+{
+	m_ctx->waitMutex.lock();
+	if (!m_ctx->waitInitiatedAck) {
+		m_ctx->waitMutex.unlock();
+		return;
+	}
+
+	m_ctx->inResetForInitiated = true;
+	m_ctx->replyWaitSem.post();
+	m_ctx->waitMutex.unlock();
+	onPreWaitInitiatedAck();
+	m_ctx->initiatedAckSem.wait();
+	m_ctx->inResetForInitiated = false;
+	onPostWaitInitiatedAck();
+}
+
 void HatoholArmPluginBase::onReceivedTerminate(void)
 {
 	MLPL_INFO("Got the teminate command.\n");
 	exit(EXIT_SUCCESS);
+}
+
+void HatoholArmPluginBase::onPreWaitInitiatedAck(void)
+{
+}
+
+void HatoholArmPluginBase::onPostWaitInitiatedAck(void)
+{
+}
+
+void HatoholArmPluginBase::enableWaitInitiatedAck(const bool &enable)
+{
+	Reaper<MutexLock> unlocker(&m_ctx->waitMutex, MutexLock::unlock);
+	m_ctx->waitMutex.lock();
+	m_ctx->waitInitiatedAck = enable;
+	throwInitiatedExceptionIfNeeded();
+}
+
+void HatoholArmPluginBase::ackInitiated(void)
+{
+	m_ctx->initiatedAckSem.post();
+}
+
+void HatoholArmPluginBase::throwInitiatedExceptionIfNeeded(void)
+{
+	if (m_ctx->inResetForInitiated) {
+		m_ctx->inResetForInitiated = false;
+		throw HapInitiatedException();
+	}
 }
 
 void HatoholArmPluginBase::sendCmdGetMonitoringServerInfo(void)
@@ -253,14 +311,34 @@ void HatoholArmPluginBase::waitResponseAndCheckHeader(void)
 {
 	HATOHOL_ASSERT(!m_ctx->currAsyncCb,
 	               "Async. process is already running.");
-	// TODO: Fix a potential bug.
-	// If the initiation happens while the following wait() is running,
-	// it may not return forever. It will look that the thread running
-	// this method stalls.
-	m_ctx->replyWaitSem.wait();
+	sleepInitiatedExceptionThrowable(WAIT_INFINITE);
 
 	// To check the sainity of the header
 	getResponseHeader(m_ctx->responseBuf);
+}
+
+bool HatoholArmPluginBase::sleepInitiatedExceptionThrowable(size_t timeoutInMS)
+{
+	bool wakedUp = true;
+	if (timeoutInMS == WAIT_INFINITE) {
+		m_ctx->replyWaitSem.wait();
+	} else {
+		SimpleSemaphore::Status stat =
+		  m_ctx->replyWaitSem.timedWait(timeoutInMS);
+		HATOHOL_ASSERT(stat != SimpleSemaphore::STAT_ERROR_UNKNOWN,
+		               "timedWait() returns STAT_ERROR_UNKNOWN");
+		if (stat == SimpleSemaphore::STAT_TIMEDOUT)
+			wakedUp = false;
+	}
+	Reaper<MutexLock> unlocker(&m_ctx->waitMutex, MutexLock::unlock);
+	m_ctx->waitMutex.lock();
+	throwInitiatedExceptionIfNeeded();
+	return wakedUp;
+}
+
+void HatoholArmPluginBase::wake(void)
+{
+	m_ctx->replyWaitSem.post();
 }
 
 void HatoholArmPluginBase::sendTable(

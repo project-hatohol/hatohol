@@ -33,18 +33,23 @@ struct SimpleSemaphore::PrivateContext {
 
 	PrivateContext(const int &count)
 	{
-		int ret = sem_init(&sem, 0 /* pshared */, count);
-		if (ret == -1) {
-			MLPL_CRIT("Failed to call sem_init: errno: %d\n",
-			          errno);
-			abort();
-		}
+		init(count);
 	}
 
 	virtual ~PrivateContext()
 	{
 		if (sem_destroy(&sem) == -1) {
 			MLPL_CRIT("Failed to call sem_destroy: errno: %d\n",
+			          errno);
+			abort();
+		}
+	}
+
+	void init(const int &count)
+	{
+		int ret = sem_init(&sem, 0 /* pshared */, count);
+		if (ret == -1) {
+			MLPL_CRIT("Failed to call sem_init: errno: %d\n",
 			          errno);
 			abort();
 		}
@@ -109,4 +114,9 @@ retry:
 		return STAT_TIMEDOUT;
 	}
 	return STAT_ERROR_UNKNOWN;
+}
+
+void SimpleSemaphore::init(const int &count)
+{
+	m_ctx->init(count);
 }
