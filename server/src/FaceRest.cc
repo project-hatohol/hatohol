@@ -30,6 +30,7 @@
 #include <uuid/uuid.h>
 #include <semaphore.h>
 #include "FaceRest.h"
+#include "FaceRestPrivate.h"
 #include "JsonBuilderAgent.h"
 #include "HatoholException.h"
 #include "UnifiedDataStore.h"
@@ -46,8 +47,6 @@ using namespace mlpl;
 int FaceRest::API_VERSION = 3;
 const char *FaceRest::SESSION_ID_HEADER_NAME = "X-Hatohol-Session";
 const int FaceRest::DEFAULT_NUM_WORKERS = 4;
-
-typedef void (*RestHandler) (FaceRest::RestJob *job);
 
 typedef map<HostIdType, string> HostNameMap;
 typedef map<ServerIdType, HostNameMap> HostNameMaps;
@@ -76,26 +75,6 @@ static const char *MIME_HTML = "text/html";
 static const char *MIME_JSON = "application/json";
 static const char *MIME_JAVASCRIPT = "text/javascript";
 
-#define REPLY_ERROR(ARG, ERR_CODE, ERR_MSG_FMT, ...) \
-do { \
-	string optMsg = StringUtils::sprintf(ERR_MSG_FMT, ##__VA_ARGS__); \
-	replyError(ARG, ERR_CODE, optMsg); \
-} while (0)
-
-#define RETURN_IF_NOT_TEST_MODE(ARG) \
-do { \
-	if (!isTestMode()) { \
-		replyError(ARG, HTERR_NOT_TEST_MODE); \
-		return; \
-	}\
-} while(0)
-
-enum FormatType {
-	FORMAT_HTML,
-	FORMAT_JSON,
-	FORMAT_JSONP,
-};
-
 typedef map<string, FormatType> FormatTypeMap;
 typedef FormatTypeMap::iterator FormatTypeMapIterator;
 static FormatTypeMap g_formatTypeMap;
@@ -104,141 +83,29 @@ typedef map<FormatType, const char *> MimeTypeMap;
 typedef MimeTypeMap::iterator   MimeTypeMapIterator;
 static MimeTypeMap g_mimeTypeMap;
 
-struct FaceRest::PrivateContext {
-	struct MainThreadCleaner;
-	static bool         testMode;
-	static MutexLock    lock;
-	static const string pathForUserMe;
-	guint               port;
-	SoupServer         *soupServer;
-	GMainContext       *gMainCtx;
-	FaceRestParam      *param;
-	AtomicValue<bool>   quitRequest;
-
-	// for async mode
-	bool                asyncMode;
-	size_t              numPreLoadWorkers;
-	set<Worker *>       workers;
-	queue<RestJob *>    restJobQueue;
-	MutexLock           restJobLock;
-	sem_t               waitJobSemaphore;
-
-	PrivateContext(FaceRestParam *_param)
-	: port(DEFAULT_PORT),
-	  soupServer(NULL),
-	  gMainCtx(NULL),
-	  param(_param),
-	  quitRequest(false),
-	  asyncMode(true),
-	  numPreLoadWorkers(DEFAULT_NUM_WORKERS)
-	{
-		gMainCtx = g_main_context_new();
-		sem_init(&waitJobSemaphore, 0, 0);
-	}
-
-	virtual ~PrivateContext()
-	{
-		g_main_context_unref(gMainCtx);
-		sem_destroy(&waitJobSemaphore);
-	}
-
-	static string initPathForUserMe(void)
-	{
-		return string(FaceRest::pathForUser) + "/me";
-	}
-
-	void pushJob(RestJob *job)
-	{
-		restJobLock.lock();
-		restJobQueue.push(job);
-		if (sem_post(&waitJobSemaphore) == -1)
-			MLPL_ERR("Failed to call sem_post: %d\n",
-				 errno);
-		restJobLock.unlock();
-	}
-
-	bool waitJob(void)
-	{
-		if (sem_wait(&waitJobSemaphore) == -1)
-			MLPL_ERR("Failed to call sem_wait: %d\n", errno);
-		return !quitRequest.get();
-	}
-
-	RestJob *popJob(void)
-	{
-		RestJob *job = NULL;
-		restJobLock.lock();
-		if (!restJobQueue.empty()) {
-			job = restJobQueue.front();
-			restJobQueue.pop();
-		}
-		restJobLock.unlock();
-		return job;
-	}
-
-	static bool isTestPath(const string &path)
-	{
-		size_t len = strlen(pathForTest);
-		return (strncmp(path.c_str(), pathForTest, len) == 0);
-	}
-};
-
 bool         FaceRest::PrivateContext::testMode = false;
 MutexLock    FaceRest::PrivateContext::lock;
 const string FaceRest::PrivateContext::pathForUserMe =
   FaceRest::PrivateContext::initPathForUserMe();
 
-static const uint64_t INVALID_ID = -1;
-
-struct FaceRest::RestJob
+FaceRest::PrivateContext::PrivateContext(FaceRestParam *_param)
+: port(DEFAULT_PORT),
+  soupServer(NULL),
+  gMainCtx(NULL),
+  param(_param),
+  quitRequest(false),
+  asyncMode(true),
+  numPreLoadWorkers(DEFAULT_NUM_WORKERS)
 {
-	// arguments of SoupServerCallback
-	SoupMessage       *message;
-	string             path;
-	StringVector       pathElements;
-	GHashTable        *query;
-	SoupClientContext *client;
+	gMainCtx = g_main_context_new();
+	sem_init(&waitJobSemaphore, 0, 0);
+}
 
-	FaceRest   *faceRest;
-	RestHandler handler;
-
-	// parsed data
-	string      formatString;
-	FormatType  formatType;
-	const char *mimeType;
-	string      jsonpCallbackName;
-	string      sessionId;
-	UserIdType  userId;
-	bool        replyIsPrepared;
-	DataQueryContextPtr dataQueryContextPtr;
-
-	RestJob(FaceRest *_faceRest, RestHandler _handler,
-		SoupMessage *_msg, const char *_path,
-		GHashTable *_query, SoupClientContext *_client);
-	virtual ~RestJob();
-
-	SoupServer *server(void)
-	{
-		return faceRest ? faceRest->m_ctx->soupServer : NULL;
-	}
-
-	GMainContext *gMainContext(void)
-	{
-		return faceRest ? faceRest->m_ctx->gMainCtx : NULL;
-	}
-
-	bool prepare(void);
-	void pauseResponse(void);
-	void unpauseResponse(void);
-
-	string   getResourceName(int nest = 0);
-	string   getResourceIdString(int nest = 0);
-	uint64_t getResourceId(int nest = 0);
-
-private:
-	string getJsonpCallbackName(void);
-	bool parseFormatType(void);
-};
+FaceRest::PrivateContext::~PrivateContext()
+{
+	g_main_context_unref(gMainCtx);
+	sem_destroy(&waitJobSemaphore);
+}
 
 class FaceRest::Worker : public HatoholThreadBase {
 public:
@@ -2298,185 +2165,6 @@ void FaceRest::handlerDeleteAction(RestJob *job)
 	agent.startObject();
 	addHatoholError(agent, err);
 	agent.add("id", actionId);
-	agent.endObject();
-	replyJsonData(agent, job);
-}
-
-void FaceRest::handlerUser(RestJob *job)
-{
-	// handle sub-resources
-	string resourceName = job->getResourceName(1);
-	if (StringUtils::casecmp(resourceName, "access-info")) {
-		handlerAccessInfo(job);
-		return;
-	}
-
-	// handle "user" resource itself
-	if (StringUtils::casecmp(job->message->method, "GET")) {
-		handlerGetUser(job);
-	} else if (StringUtils::casecmp(job->message->method, "POST")) {
-		handlerPostUser(job);
-	} else if (StringUtils::casecmp(job->message->method, "PUT")) {
-		handlerPutUser(job);
-	} else if (StringUtils::casecmp(job->message->method, "DELETE")) {
-		handlerDeleteUser(job);
-	} else {
-		MLPL_ERR("Unknown method: %s\n", job->message->method);
-		soup_message_set_status(job->message,
-		                        SOUP_STATUS_METHOD_NOT_ALLOWED);
-		job->replyIsPrepared = true;
-	}
-}
-
-static void addUserRolesMap(
-  FaceRest::RestJob *job, JsonBuilderAgent &agent)
-{
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	UserRoleInfoList userRoleList;
-	UserRoleQueryOption option(job->dataQueryContextPtr);
-	dataStore->getUserRoleList(userRoleList, option);
-
-	agent.startObject("userRoles");
-	UserRoleInfoListIterator it = userRoleList.begin();
-	agent.startObject(StringUtils::toString(NONE_PRIVILEGE));
-	agent.add("name", "Guest");
-	agent.endObject();
-	agent.startObject(StringUtils::toString(ALL_PRIVILEGES));
-	agent.add("name", "Admin");
-	agent.endObject();
-	for (; it != userRoleList.end(); ++it) {
-		UserRoleInfo &userRoleInfo = *it;
-		agent.startObject(StringUtils::toString(userRoleInfo.flags));
-		agent.add("name", userRoleInfo.name);
-		agent.endObject();
-	}
-	agent.endObject();
-}
-
-void FaceRest::handlerGetUser(RestJob *job)
-{
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-
-	UserInfoList userList;
-	UserQueryOption option(job->dataQueryContextPtr);
-	if (job->path == PrivateContext::pathForUserMe)
-		option.queryOnlyMyself();
-	dataStore->getUserList(userList, option);
-
-	JsonBuilderAgent agent;
-	agent.startObject();
-	addHatoholError(agent, HatoholError(HTERR_OK));
-	agent.add("numberOfUsers", userList.size());
-	agent.startArray("users");
-	UserInfoListIterator it = userList.begin();
-	for (; it != userList.end(); ++it) {
-		const UserInfo &userInfo = *it;
-		agent.startObject();
-		agent.add("userId",  userInfo.id);
-		agent.add("name", userInfo.name);
-		agent.add("flags", userInfo.flags);
-		agent.endObject();
-	}
-	agent.endArray();
-	addUserRolesMap(job, agent);
-	agent.endObject();
-
-	replyJsonData(agent, job);
-}
-
-void FaceRest::handlerPostUser(RestJob *job)
-{
-	UserInfo userInfo;
-	HatoholError err = parseUserParameter(userInfo, job->query);
-	if (err != HTERR_OK) {
-		replyError(job, err);
-		return;
-	}
-
-	// try to add
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	err = dataStore->addUser(
-	  userInfo, job->dataQueryContextPtr->getOperationPrivilege());
-	if (err != HTERR_OK) {
-		replyError(job, err);
-		return;
-	}
-
-	// make a response
-	JsonBuilderAgent agent;
-	agent.startObject();
-	addHatoholError(agent, err);
-	agent.add("id", userInfo.id);
-	agent.endObject();
-	replyJsonData(agent, job);
-}
-
-void FaceRest::handlerPutUser(RestJob *job)
-{
-	UserInfo userInfo;
-	userInfo.id = job->getResourceId();
-	if (userInfo.id == INVALID_USER_ID) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
-		            "id: %s", job->getResourceIdString().c_str());
-		return;
-	}
-
-	DBClientUser dbUser;
-	bool exist = dbUser.getUserInfo(userInfo, userInfo.id);
-	if (!exist) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_TARGET_RECORD,
-		            "id: %" FMT_USER_ID, userInfo.id);
-		return;
-	}
-	bool allowEmpty = true;
-	HatoholError err = parseUserParameter(userInfo, job->query,
-					      allowEmpty);
-	if (err != HTERR_OK) {
-		replyError(job, err);
-		return;
-	}
-
-	// try to update
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	err = dataStore->updateUser(
-	  userInfo, job->dataQueryContextPtr->getOperationPrivilege());
-	if (err != HTERR_OK) {
-		replyError(job, err);
-		return;
-	}
-
-	// make a response
-	JsonBuilderAgent agent;
-	agent.startObject();
-	addHatoholError(agent, err);
-	agent.add("id", userInfo.id);
-	agent.endObject();
-	replyJsonData(agent, job);
-}
-
-void FaceRest::handlerDeleteUser(RestJob *job)
-{
-	uint64_t userId = job->getResourceId();
-	if (userId == INVALID_ID) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
-		            "id: %s", job->getResourceIdString().c_str());
-		return;
-	}
-
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HatoholError err =
-	  dataStore->deleteUser(
-	    userId, job->dataQueryContextPtr->getOperationPrivilege());
-	if (err != HTERR_OK) {
-		replyError(job, err);
-		return;
-	}
-
-	// replay
-	JsonBuilderAgent agent;
-	agent.startObject();
-	addHatoholError(agent, err);
-	agent.add("id", userId);
 	agent.endObject();
 	replyJsonData(agent, job);
 }
