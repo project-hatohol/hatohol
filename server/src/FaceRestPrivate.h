@@ -23,20 +23,6 @@
 #include "FaceRest.h"
 #include "StringUtils.h"
 
-#define REPLY_ERROR(ARG, ERR_CODE, ERR_MSG_FMT, ...) \
-do { \
-	string optMsg = StringUtils::sprintf(ERR_MSG_FMT, ##__VA_ARGS__); \
-	replyError(ARG, ERR_CODE, optMsg); \
-} while (0)
-
-#define RETURN_IF_NOT_TEST_MODE(ARG) \
-do { \
-	if (!isTestMode()) { \
-		replyError(ARG, HTERR_NOT_TEST_MODE); \
-		return; \
-	}\
-} while(0)
-
 static const uint64_t INVALID_ID = -1;
 
 typedef void (*RestHandler) (FaceRest::RestJob *job);
@@ -89,5 +75,56 @@ private:
 	std::string getJsonpCallbackName(void);
 	bool parseFormatType(void);
 };
+
+template<typename T>
+HatoholError FaceRest::getParam(
+  GHashTable *query, const char *paramName, const char *scanFmt, T &dest)
+{
+	char *value = (char *)g_hash_table_lookup(query, paramName);
+	if (!value)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, paramName);
+
+	if (sscanf(value, scanFmt, &dest) != 1) {
+		std::string optMsg = mlpl::StringUtils::sprintf("%s: %s",
+		                                     paramName, value);
+		return HatoholError(HTERR_INVALID_PARAMETER, optMsg);
+	}
+	return HatoholError(HTERR_OK);
+}
+
+#define REPLY_ERROR(ARG, ERR_CODE, ERR_MSG_FMT, ...) \
+do { \
+	std::string optMsg \
+	  = mlpl::StringUtils::sprintf(ERR_MSG_FMT, ##__VA_ARGS__); \
+	replyError(ARG, ERR_CODE, optMsg); \
+} while (0)
+
+#define RETURN_IF_NOT_TEST_MODE(ARG) \
+do { \
+	if (!isTestMode()) { \
+		replyError(ARG, HTERR_NOT_TEST_MODE); \
+		return; \
+	}\
+} while(0)
+
+template<typename T>
+bool FaceRest::getParamWithErrorReply(
+  RestJob *job, const char *paramName, const char *scanFmt,
+  T &dest, bool *exist)
+{
+	char *value = (char *)g_hash_table_lookup(job->query, paramName);
+	if (exist)
+		*exist = value;
+	if (!value)
+		return true;
+
+	if (sscanf(value, scanFmt, &dest) != 1) {
+		REPLY_ERROR(job, HTERR_INVALID_PARAMETER,
+		            "%s: %s", paramName, value);
+		return false;
+	}
+	return true;
+}
+
 
 #endif // FaceRestPrivate_h
