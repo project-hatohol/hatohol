@@ -623,12 +623,12 @@ FaceRest::RestJob::~RestJob()
 		g_hash_table_unref(query);
 }
 
-SoupServer *FaceRest::RestJob::server(void)
+SoupServer *FaceRest::RestJob::getSoupServer(void)
 {
 	return faceRest ? faceRest->getSoupServer() : NULL;
 }
 
-GMainContext *FaceRest::RestJob::gMainContext(void)
+GMainContext *FaceRest::RestJob::getGMainContext(void)
 {
 	return faceRest ? faceRest->getGMainContext() : NULL;
 }
@@ -739,7 +739,7 @@ bool FaceRest::RestJob::prepare(void)
 
 void FaceRest::RestJob::pauseResponse(void)
 {
-	soup_server_pause_message(server(), message);
+	soup_server_pause_message(getSoupServer(), message);
 }
 
 struct UnpauseContext {
@@ -758,16 +758,16 @@ static gboolean idleUnpause(gpointer data)
 
 void FaceRest::RestJob::unpauseResponse(void)
 {
-	if (g_main_context_acquire(gMainContext())) {
+	if (g_main_context_acquire(getGMainContext())) {
 		// FaceRest thread
-		soup_server_unpause_message(server(), message);
-		g_main_context_release(gMainContext());
+		soup_server_unpause_message(getSoupServer(), message);
+		g_main_context_release(getGMainContext());
 	} else {
 		// Other threads
 		UnpauseContext *unpauseContext = new UnpauseContext;
-		unpauseContext->server = server();
+		unpauseContext->server = getSoupServer();
 		unpauseContext->message = message;
-		soup_add_completion(gMainContext(), idleUnpause,
+		soup_add_completion(getGMainContext(), idleUnpause,
 				    unpauseContext);
 	}
 }
