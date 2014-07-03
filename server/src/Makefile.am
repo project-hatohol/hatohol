@@ -65,7 +65,7 @@ libhatohol_la_SOURCES = \
 	FaceMySQL.cc FaceMySQL.h \
 	FaceMySQLWorker.cc FaceMySQLWorker.h \
 	FaceRest.cc FaceRest.h \
-	FaceRestUser.cc FaceRestServer.cc \
+	FaceRestHandlerUser.cc FaceRestHandlerServer.cc \
 	FormulaElement.cc FormulaElement.h \
 	FormulaFunction.cc FormulaFunction.h \
 	FormulaOperator.cc FormulaOperator.h \
