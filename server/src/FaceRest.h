@@ -71,6 +71,7 @@ protected:
 	// generic sub routines
 	SoupServer   *getSoupServer(void);
 	GMainContext *getGMainContext(void);
+	const std::string &getPathForUserMe(void);
 	size_t parseCmdArgPort(CommandLineArg &cmdArg, size_t idx);
 	static void addHatoholError(JsonBuilderAgent &agent,
 	                            const HatoholError &err);

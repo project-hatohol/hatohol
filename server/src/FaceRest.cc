@@ -83,29 +83,89 @@ typedef map<FormatType, const char *> MimeTypeMap;
 typedef MimeTypeMap::iterator   MimeTypeMapIterator;
 static MimeTypeMap g_mimeTypeMap;
 
+struct FaceRest::PrivateContext {
+	struct MainThreadCleaner;
+	static bool         testMode;
+	static MutexLock    lock;
+	static const string pathForUserMe;
+	guint               port;
+	SoupServer         *soupServer;
+	GMainContext       *gMainCtx;
+	FaceRestParam      *param;
+	AtomicValue<bool>   quitRequest;
+
+	// for async mode
+	bool                  asyncMode;
+	size_t                numPreLoadWorkers;
+	set<Worker *>    workers;
+	queue<RestJob *> restJobQueue;
+	MutexLock        restJobLock;
+	sem_t            waitJobSemaphore;
+
+	PrivateContext(FaceRestParam *_param)
+	: port(DEFAULT_PORT),
+	  soupServer(NULL),
+	  gMainCtx(NULL),
+	  param(_param),
+	  quitRequest(false),
+	  asyncMode(true),
+	  numPreLoadWorkers(DEFAULT_NUM_WORKERS)
+	{
+		gMainCtx = g_main_context_new();
+		sem_init(&waitJobSemaphore, 0, 0);
+	}
+
+	~PrivateContext()
+	{
+		g_main_context_unref(gMainCtx);
+		sem_destroy(&waitJobSemaphore);
+	}
+
+	static string initPathForUserMe(void)
+	{
+		return string(FaceRest::pathForUser) + "/me";
+	}
+
+	void pushJob(RestJob *job)
+	{
+		restJobLock.lock();
+		restJobQueue.push(job);
+		if (sem_post(&waitJobSemaphore) == -1)
+			MLPL_ERR("Failed to call sem_post: %d\n",
+				 errno);
+		restJobLock.unlock();
+	}
+
+	bool waitJob(void)
+	{
+		if (sem_wait(&waitJobSemaphore) == -1)
+			MLPL_ERR("Failed to call sem_wait: %d\n", errno);
+		return !quitRequest.get();
+	}
+
+	RestJob *popJob(void)
+	{
+		RestJob *job = NULL;
+		restJobLock.lock();
+		if (!restJobQueue.empty()) {
+			job = restJobQueue.front();
+			restJobQueue.pop();
+		}
+		restJobLock.unlock();
+		return job;
+	}
+
+	static bool isTestPath(const string &path)
+	{
+		size_t len = strlen(pathForTest);
+		return (strncmp(path.c_str(), pathForTest, len) == 0);
+	}
+};
+
 bool         FaceRest::PrivateContext::testMode = false;
 MutexLock    FaceRest::PrivateContext::lock;
 const string FaceRest::PrivateContext::pathForUserMe =
   FaceRest::PrivateContext::initPathForUserMe();
-
-FaceRest::PrivateContext::PrivateContext(FaceRestParam *_param)
-: port(DEFAULT_PORT),
-  soupServer(NULL),
-  gMainCtx(NULL),
-  param(_param),
-  quitRequest(false),
-  asyncMode(true),
-  numPreLoadWorkers(DEFAULT_NUM_WORKERS)
-{
-	gMainCtx = g_main_context_new();
-	sem_init(&waitJobSemaphore, 0, 0);
-}
-
-FaceRest::PrivateContext::~PrivateContext()
-{
-	g_main_context_unref(gMainCtx);
-	sem_destroy(&waitJobSemaphore);
-}
 
 class FaceRest::Worker : public HatoholThreadBase {
 public:
@@ -412,6 +472,11 @@ SoupServer *FaceRest::getSoupServer(void)
 GMainContext *FaceRest::getGMainContext(void)
 {
 	return m_ctx->gMainCtx;
+}
+
+const std::string &FaceRest::getPathForUserMe(void)
+{
+	return m_ctx->pathForUserMe;
 }
 
 size_t FaceRest::parseCmdArgPort(CommandLineArg &cmdArg, size_t idx)
