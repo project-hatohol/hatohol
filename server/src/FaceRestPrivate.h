@@ -76,6 +76,13 @@ private:
 	bool parseFormatType(void);
 };
 
+#define REPLY_ERROR(ARG, ERR_CODE, ERR_MSG_FMT, ...) \
+do { \
+	std::string optMsg \
+	  = mlpl::StringUtils::sprintf(ERR_MSG_FMT, ##__VA_ARGS__); \
+	replyError(ARG, ERR_CODE, optMsg); \
+} while (0)
+
 template<typename T>
 HatoholError FaceRest::getParam(
   GHashTable *query, const char *paramName, const char *scanFmt, T &dest)
@@ -91,21 +98,6 @@ HatoholError FaceRest::getParam(
 	}
 	return HatoholError(HTERR_OK);
 }
-
-#define REPLY_ERROR(ARG, ERR_CODE, ERR_MSG_FMT, ...) \
-do { \
-	std::string optMsg \
-	  = mlpl::StringUtils::sprintf(ERR_MSG_FMT, ##__VA_ARGS__); \
-	replyError(ARG, ERR_CODE, optMsg); \
-} while (0)
-
-#define RETURN_IF_NOT_TEST_MODE(ARG) \
-do { \
-	if (!isTestMode()) { \
-		replyError(ARG, HTERR_NOT_TEST_MODE); \
-		return; \
-	}\
-} while(0)
 
 template<typename T>
 bool FaceRest::getParamWithErrorReply(
