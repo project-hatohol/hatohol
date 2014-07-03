@@ -108,6 +108,8 @@ public:
 	size_t getNumberOfTriggers(const TriggersQueryOption &option);
 	size_t getNumberOfGoodHosts(const TriggersQueryOption &option);
 	size_t getNumberOfBadHosts(const TriggersQueryOption &option);
+	size_t getNumberOfItems(const ItemsQueryOption &option,
+				bool fetchItemsSynchronously = false);
 	HatoholError getNumberOfMonitoredItemsPerSecond(const DataQueryOption &option,
 	                                                MonitoringServerStatus &serverStatus);
 

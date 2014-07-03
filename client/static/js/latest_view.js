@@ -22,26 +22,81 @@ var LatestView = function(userProfile) {
   var rawData, parsedData;
 
   self.reloadIntervalSeconds = 60;
+  self.numRecordsPerPage = 50;
 
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
 
-  load();
+  self.pager = new HatoholPager();
+  self.userConfig = new HatoholUserConfig();
+  start();
 
-  $("#table").stupidtable();
-  $("#table").bind('aftertablesort', function(event, data) {
-    var th = $(this).find("th");
-    th.find("i.sort").remove();
-    var icon = data.direction === "asc" ? "up" : "down";
-    th.eq(data.column).append("<i class='sort glyphicon glyphicon-arrow-" + icon +"'></i>");
-  });
+  function start() {
+    var numRecordsPerPage;
+    self.userConfig.get({
+      itemNames:['num-items-per-page'],
+      successCallback: function(conf) {
+        self.numRecordsPerPage =
+          self.userConfig.findOrDefault(conf, 'num-items-per-page',
+                                        self.numRecordsPerPage);
+        updatePager();
+        setupCallbacks();
+        load();
+      },
+      connectErrorCallback: function(XMLHttpRequest) {
+        showXHRError(XMLHttpRequest);
+      },
+    });
+  }
 
-  self.setupHostQuerySelectorCallback(
-    load, '#select-server', '#select-host-group', '#select-host');
-  $("#select-application").change(function() {
-    // will be migrated to server side
-    drawTableContents(rawData);
-  });
+  function showXHRError(XMLHttpRequest) {
+    var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
+      XMLHttpRequest.statusText;
+    hatoholErrorMsgBox(textStatus);
+  }
+
+  function saveConfig(items) {
+    self.userConfig.store({
+      items: items,
+      successCallback: function() {
+        // we just ignore it
+      },
+      connectErrorCallback: function(XMLHttpRequest) {
+        showXHRError(XMLHttpRequest);
+      },
+    });
+  }
+
+  function updatePager() {
+    self.pager.update({
+      numTotalRecords: rawData ? rawData["totalNumberOfItems"] : -1,
+      numRecordsPerPage: self.numRecordsPerPage,
+      selectPageCallback: function(page) {
+        load(page);
+        if (self.pager.numRecordsPerPage != self.numRecordsPerPage) {
+          self.numRecordsPerPage = self.pager.numRecordsPerPage;
+          saveConfig({'num-items-per-page': self.numRecordsPerPage})
+        }
+      }
+    });
+  }
+
+  function setupCallbacks() {
+    $("#table").stupidtable();
+    $("#table").bind('aftertablesort', function(event, data) {
+      var th = $(this).find("th");
+      th.find("i.sort").remove();
+      var icon = data.direction === "asc" ? "up" : "down";
+      th.eq(data.column).append("<i class='sort glyphicon glyphicon-arrow-" + icon +"'></i>");
+    });
+
+    self.setupHostQuerySelectorCallback(
+      load, '#select-server', '#select-host-group', '#select-host');
+    $("#select-application").change(function() {
+      // will be migrated to server side
+      drawTableContents(rawData);
+    });
+  }
 
   function parseData(replyData) {
     var parsedData = {};
@@ -130,22 +185,26 @@ var LatestView = function(userProfile) {
     self.setFilterCandidates($("#select-application"), parsedData.applications);
 
     drawTableContents(rawData);
+    self.pager.update({ numTotalRecords: rawData["totalNumberOfItems"] });
     setLoading(false);
     self.setAutoReload(load, self.reloadIntervalSeconds);
   }
 
-  function getQuery() {
+  function getQuery(page) {
+    if (isNaN(page))
+      page = 0;
     var query = {
-      maximumNumber: 0,
-      offset:        0
+      maximumNumber:   self.pager.numRecordsPerPage,
+      offset:          self.pager.numRecordsPerPage * page
     };
     self.addHostQuery(query);
     return 'item?' + $.param(query);
   };
 
-  function load() {
-    self.startConnection(getQuery(), updateCore);
+  function load(page) {
+    self.startConnection(getQuery(page), updateCore);
     setLoading(true);
+    self.pager.update({ currentPage: isNaN(page) ? 0 : page });
   }
 };
 
