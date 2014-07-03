@@ -484,6 +484,32 @@ void FaceRest::handlerDeleteUserRole(RestJob *job)
 	replyJsonData(agent, job);
 }
 
+HatoholError FaceRest::updateOrAddUser(GHashTable *query,
+                                       UserQueryOption &option)
+{
+	UserInfo userInfo;
+	HatoholError err = parseUserParameter(userInfo, query);
+	if (err != HTERR_OK)
+		return err;
+
+	err = option.setTargetName(userInfo.name);
+	if (err != HTERR_OK)
+		return err;
+	UserInfoList userList;
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	dataStore->getUserList(userList, option);
+
+	if (userList.empty()) {
+		err = dataStore->addUser(userInfo, option);
+	} else {
+		userInfo.id = userList.begin()->id;
+		err = dataStore->updateUser(userInfo, option);
+	}
+	if (err != HTERR_OK)
+		return err;
+	return HatoholError(HTERR_OK);
+}
+
 HatoholError FaceRest::parseUserParameter(
   UserInfo &userInfo, GHashTable *query, bool allowEmpty)
 {
