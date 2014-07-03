@@ -46,69 +46,6 @@ static const uint64_t INVALID_ID = -1;
 
 typedef void (*RestHandler) (FaceRest::RestJob *job);
 
-struct FaceRest::PrivateContext {
-	struct MainThreadCleaner;
-	static bool         testMode;
-	static mlpl::MutexLock lock;
-	static const std::string pathForUserMe;
-	guint               port;
-	SoupServer         *soupServer;
-	GMainContext       *gMainCtx;
-	FaceRestParam      *param;
-	mlpl::AtomicValue<bool>   quitRequest;
-
-	// for async mode
-	bool                  asyncMode;
-	size_t                numPreLoadWorkers;
-	std::set<Worker *>    workers;
-	std::queue<RestJob *> restJobQueue;
-	mlpl::MutexLock       restJobLock;
-	sem_t                 waitJobSemaphore;
-
-	PrivateContext(FaceRestParam *_param);
-	virtual ~PrivateContext();
-
-	static std::string initPathForUserMe(void)
-	{
-		return std::string(FaceRest::pathForUser) + "/me";
-	}
-
-	void pushJob(RestJob *job)
-	{
-		restJobLock.lock();
-		restJobQueue.push(job);
-		if (sem_post(&waitJobSemaphore) == -1)
-			MLPL_ERR("Failed to call sem_post: %d\n",
-				 errno);
-		restJobLock.unlock();
-	}
-
-	bool waitJob(void)
-	{
-		if (sem_wait(&waitJobSemaphore) == -1)
-			MLPL_ERR("Failed to call sem_wait: %d\n", errno);
-		return !quitRequest.get();
-	}
-
-	RestJob *popJob(void)
-	{
-		RestJob *job = NULL;
-		restJobLock.lock();
-		if (!restJobQueue.empty()) {
-			job = restJobQueue.front();
-			restJobQueue.pop();
-		}
-		restJobLock.unlock();
-		return job;
-	}
-
-	static bool isTestPath(const std::string &path)
-	{
-		size_t len = strlen(pathForTest);
-		return (strncmp(path.c_str(), pathForTest, len) == 0);
-	}
-};
-
 enum FormatType {
 	FORMAT_HTML,
 	FORMAT_JSON,
@@ -151,6 +88,13 @@ struct FaceRest::RestJob
 	{
 
 		return faceRest ? faceRest->getGMainContext() : NULL;
+	}
+
+	bool pathIsUserMe(void)
+	{
+		if (!faceRest)
+			return false;
+		return (path == faceRest->getPathForUserMe());
 	}
 
 	bool prepare(void);

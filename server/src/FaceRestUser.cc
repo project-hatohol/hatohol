@@ -62,7 +62,7 @@ void FaceRest::handlerGetUser(RestJob *job)
 
 	UserInfoList userList;
 	UserQueryOption option(job->dataQueryContextPtr);
-	if (job->path == PrivateContext::pathForUserMe)
+	if (job->pathIsUserMe())
 		option.queryOnlyMyself();
 	dataStore->getUserList(userList, option);
 
