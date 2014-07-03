@@ -170,7 +170,7 @@ protected:
 	 * exits in the DB. Otherwise, the user is newly added.
 	 * NOTE: This method is currently used for test purpose.
 	 *
-	 * @param query 
+	 * @param query
 	 * A hash table that has query parameters in the URL.
 	 *
 	 * @param option
