@@ -56,8 +56,6 @@ public:
 
 	class Worker;
 	struct RestJob;
-	template<typename InfoListT, typename InfoT, typename TargetIdT>
-	class HandlerGetHelper;
 
 protected:
 	// virtual methods
