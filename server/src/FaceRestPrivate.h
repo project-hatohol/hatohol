@@ -144,12 +144,13 @@ struct FaceRest::RestJob
 
 	SoupServer *server(void)
 	{
-		return faceRest ? faceRest->m_ctx->soupServer : NULL;
+		return faceRest ? faceRest->getSoupServer() : NULL;
 	}
 
 	GMainContext *gMainContext(void)
 	{
-		return faceRest ? faceRest->m_ctx->gMainCtx : NULL;
+
+		return faceRest ? faceRest->getGMainContext() : NULL;
 	}
 
 	bool prepare(void);
