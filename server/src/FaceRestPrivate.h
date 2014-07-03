@@ -22,11 +22,6 @@
 
 #include "FaceRest.h"
 #include "StringUtils.h"
-#include "MutexLock.h"
-#include "AtomicValue.h"
-#include <semaphore.h>
-#include <errno.h>
-#include <string.h>
 
 #define REPLY_ERROR(ARG, ERR_CODE, ERR_MSG_FMT, ...) \
 do { \
