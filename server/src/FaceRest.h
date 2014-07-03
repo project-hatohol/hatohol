@@ -132,6 +132,8 @@ protected:
 	static void handlerPostAction(RestJob *job);
 	static void handlerDeleteAction(RestJob *job);
 
+	static void handlerGetHostgroup(RestJob *job);
+
 	static void handlerUser(RestJob *job);
 	static void handlerGetUser(RestJob *job);
 	static void handlerPostUser(RestJob *job);
@@ -142,8 +144,6 @@ protected:
 	static void handlerGetAccessInfo(RestJob *job);
 	static void handlerPostAccessInfo(RestJob *job);
 	static void handlerDeleteAccessInfo(RestJob *job);
-
-	static void handlerGetHostgroup(RestJob *job);
 
 	static void handlerUserRole(RestJob *job);
 	static void handlerGetUserRole(RestJob *job);
