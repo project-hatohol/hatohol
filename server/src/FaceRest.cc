@@ -511,70 +511,6 @@ void FaceRest::addHatoholError(JsonBuilderAgent &agent,
 		agent.add("optionMessages", err.getOptionMessage());
 }
 
-void FaceRest::RestJob::replyError(const HatoholErrorCode &errorCode,
-				   const string &optionMessage)
-{
-	HatoholError hatoholError(errorCode, optionMessage);
-	replyError(hatoholError);
-}
-
-static string wrapForJsonp(const string &jsonBody,
-			   const string &callbackName)
-{
-	string jsonp = callbackName;
-	jsonp += "(";
-	jsonp += jsonBody;
-	jsonp += ")";
-	return jsonp;
-}
-
-void FaceRest::RestJob::replyError(const HatoholError &hatoholError)
-{
-	string error
-	  = StringUtils::sprintf("%d", hatoholError.getCode());
-	const string &codeName = hatoholError.getCodeName();
-	const string &optionMessage = hatoholError.getOptionMessage();
-
-	if (!codeName.empty()) {
-		error += ", ";
-		error += codeName;
-	}
-	if (!optionMessage.empty()) {
-		error += ": ";
-		error += optionMessage;
-	}
-	MLPL_INFO("reply error: %s\n", error.c_str());
-
-	JsonBuilderAgent agent;
-	agent.startObject();
-	addHatoholError(agent, hatoholError);
-	agent.endObject();
-	string response = agent.generate();
-	if (!jsonpCallbackName.empty())
-		response = wrapForJsonp(response, jsonpCallbackName);
-	soup_message_headers_set_content_type(message->response_headers,
-	                                      MIME_JSON, NULL);
-	soup_message_body_append(message->response_body, SOUP_MEMORY_COPY,
-	                         response.c_str(), response.size());
-	soup_message_set_status(message, SOUP_STATUS_OK);
-
-	replyIsPrepared = true;
-}
-
-void FaceRest::RestJob::replyJsonData(JsonBuilderAgent &agent)
-{
-	string response = agent.generate();
-	if (!jsonpCallbackName.empty())
-		response = wrapForJsonp(response, jsonpCallbackName);
-	soup_message_headers_set_content_type(message->response_headers,
-	                                      mimeType, NULL);
-	soup_message_body_append(message->response_body, SOUP_MEMORY_COPY,
-	                         response.c_str(), response.size());
-	soup_message_set_status(message, SOUP_STATUS_OK);
-
-	replyIsPrepared = true;
-}
-
 // handlers
 void FaceRest::handlerDefault(SoupServer *server, SoupMessage *msg,
                               const char *path, GHashTable *query,
@@ -584,6 +520,190 @@ void FaceRest::handlerDefault(SoupServer *server, SoupMessage *msg,
 	         path, msg->method);
 	soup_message_set_status(msg, SOUP_STATUS_NOT_FOUND);
 }
+
+static void copyHashTable (gpointer key, gpointer data, gpointer user_data)
+{
+	GHashTable *dest = static_cast<GHashTable *>(user_data);
+	g_hash_table_insert(dest,
+			    g_strdup(static_cast<gchar*>(key)),
+			    g_strdup(static_cast<gchar*>(data)));
+}
+
+void FaceRest::queueRestJob
+  (SoupServer *server, SoupMessage *msg, const char *path,
+   GHashTable *_query, SoupClientContext *client, gpointer user_data)
+{
+	GHashTable *query = _query;
+	Reaper<GHashTable> postQueryReaper;
+	if (StringUtils::casecmp(msg->method, "POST") ||
+	    StringUtils::casecmp(msg->method, "PUT")) {
+		// The POST request contains query parameters in the body
+		// according to application/x-www-form-urlencoded.
+		query = soup_form_decode(msg->request_body->data);
+	} else {
+		GHashTable *dest = g_hash_table_new_full(g_str_hash,
+							 g_str_equal,
+							 g_free, g_free);
+		if (query)
+			g_hash_table_foreach(query, copyHashTable, dest);
+		query = dest;
+	}
+	postQueryReaper.set(query, g_hash_table_unref);
+
+	HandlerClosure *closure = static_cast<HandlerClosure *>(user_data);
+	FaceRest *face = closure->m_faceRest;
+	RestJob *job = new RestJob(face, closure->m_handler,
+				   msg, path, query, client);
+	if (!job->prepare())
+		return;
+
+	job->pauseResponse();
+
+	if (face->isAsyncMode()) {
+		face->m_ctx->pushJob(job);
+	} else {
+		launchHandlerInTryBlock(job);
+		finishRestJobIfNeeded(job);
+	}
+}
+
+void FaceRest::finishRestJobIfNeeded(RestJob *job)
+{
+	if (job->replyIsPrepared) {
+		job->unpauseResponse();
+		delete job;
+	}
+}
+
+void FaceRest::launchHandlerInTryBlock(RestJob *job)
+{
+	try {
+		(*job->handler)(job);
+	} catch (const HatoholException &e) {
+		REPLY_ERROR(job, HTERR_GOT_EXCEPTION,
+		            "%s", e.getFancyMessage().c_str());
+	}
+}
+
+void FaceRest::handlerHelloPage(RestJob *job)
+{
+	string response;
+	const char *pageTemplate =
+	  "<html>"
+	  "HATOHOL Server ver. %s"
+	  "</html>";
+	response = StringUtils::sprintf(pageTemplate, PACKAGE_VERSION);
+	soup_message_body_append(job->message->response_body, SOUP_MEMORY_COPY,
+	                         response.c_str(), response.size());
+	soup_message_set_status(job->message, SOUP_STATUS_OK);
+	job->replyIsPrepared = true;
+}
+
+void FaceRest::handlerTest(RestJob *job)
+{
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, HatoholError(HTERR_OK));
+	if (PrivateContext::testMode)
+		agent.addTrue("testMode");
+	else
+		agent.addFalse("testMode");
+
+	if (string(job->path) == "/test" &&
+	    string(job->message->method) == "POST")
+	{
+		agent.startObject("queryData");
+		GHashTableIter iter;
+		gpointer key, value;
+		g_hash_table_iter_init(&iter, job->query);
+		while (g_hash_table_iter_next(&iter, &key, &value)) {
+			agent.add(string((const char *)key),
+			          string((const char *)value));
+		}
+		agent.endObject(); // queryData
+		agent.endObject(); // top level
+		job->replyJsonData(agent);
+		return;
+	}
+
+	if (string(job->path) == "/test/error") {
+		agent.endObject(); // top level
+		job->replyError(HTERR_ERROR_TEST);
+		return;
+	}
+
+	if (string(job->path) == "/test/user" &&
+	    string(job->message->method) == "POST")
+	{
+		RETURN_IF_NOT_TEST_MODE(job);
+		UserQueryOption option(USER_ID_SYSTEM);
+		HatoholError err = updateOrAddUser(job->query, option);
+		if (err != HTERR_OK) {
+			job->replyError(err);
+			return;
+		}
+	}
+
+	agent.endObject();
+	job->replyJsonData(agent);
+}
+
+void FaceRest::handlerLogin(RestJob *job)
+{
+	gchar *user = (gchar *)g_hash_table_lookup(job->query, "user");
+	if (!user) {
+		MLPL_INFO("Not found: user\n");
+		job->replyError(HTERR_AUTH_FAILED);
+		return;
+	}
+	gchar *password = (gchar *)g_hash_table_lookup(job->query, "password");
+	if (!password) {
+		MLPL_INFO("Not found: password\n");
+		job->replyError(HTERR_AUTH_FAILED);
+		return;
+	}
+
+	DBClientUser dbUser;
+	UserIdType userId = dbUser.getUserId(user, password);
+	if (userId == INVALID_USER_ID) {
+		MLPL_INFO("Failed to authenticate: Client: %s, User: %s.\n",
+			  soup_client_context_get_host(job->client), user);
+		job->replyError(HTERR_AUTH_FAILED);
+		return;
+	}
+
+	SessionManager *sessionMgr = SessionManager::getInstance();
+	string sessionId = sessionMgr->create(userId);
+
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, HatoholError(HTERR_OK));
+	agent.add("sessionId", sessionId);
+	agent.endObject();
+
+	job->replyJsonData(agent);
+}
+
+void FaceRest::handlerLogout(RestJob *job)
+{
+	SessionManager *sessionMgr = SessionManager::getInstance();
+	if (!sessionMgr->remove(job->sessionId)) {
+		job->replyError(HTERR_NOT_FOUND_SESSION_ID);
+		return;
+	}
+
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, HatoholError(HTERR_OK));
+	agent.endObject();
+
+	job->replyJsonData(agent);
+}
+
+
+// ---------------------------------------------------------------------------
+// FaceRest::RestJob
+// ---------------------------------------------------------------------------
 
 FaceRest::RestJob::RestJob
   (FaceRest *_faceRest, RestHandler _handler, SoupMessage *_msg,
@@ -783,181 +903,66 @@ uint64_t FaceRest::RestJob::getResourceId(int nest)
 	return id;
 }
 
-static void copyHashTable (gpointer key, gpointer data, gpointer user_data)
+void FaceRest::RestJob::replyError(const HatoholErrorCode &errorCode,
+				   const string &optionMessage)
 {
-	GHashTable *dest = static_cast<GHashTable *>(user_data);
-	g_hash_table_insert(dest,
-			    g_strdup(static_cast<gchar*>(key)),
-			    g_strdup(static_cast<gchar*>(data)));
+	HatoholError hatoholError(errorCode, optionMessage);
+	replyError(hatoholError);
 }
 
-void FaceRest::queueRestJob
-  (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *_query, SoupClientContext *client, gpointer user_data)
+static string wrapForJsonp(const string &jsonBody,
+			   const string &callbackName)
 {
-	GHashTable *query = _query;
-	Reaper<GHashTable> postQueryReaper;
-	if (StringUtils::casecmp(msg->method, "POST") ||
-	    StringUtils::casecmp(msg->method, "PUT")) {
-		// The POST request contains query parameters in the body
-		// according to application/x-www-form-urlencoded.
-		query = soup_form_decode(msg->request_body->data);
-	} else {
-		GHashTable *dest = g_hash_table_new_full(g_str_hash,
-							 g_str_equal,
-							 g_free, g_free);
-		if (query)
-			g_hash_table_foreach(query, copyHashTable, dest);
-		query = dest;
-	}
-	postQueryReaper.set(query, g_hash_table_unref);
-
-	HandlerClosure *closure = static_cast<HandlerClosure *>(user_data);
-	FaceRest *face = closure->m_faceRest;
-	RestJob *job = new RestJob(face, closure->m_handler,
-				   msg, path, query, client);
-	if (!job->prepare())
-		return;
-
-	job->pauseResponse();
-
-	if (face->isAsyncMode()) {
-		face->m_ctx->pushJob(job);
-	} else {
-		launchHandlerInTryBlock(job);
-		finishRestJobIfNeeded(job);
-	}
+	string jsonp = callbackName;
+	jsonp += "(";
+	jsonp += jsonBody;
+	jsonp += ")";
+	return jsonp;
 }
 
-void FaceRest::finishRestJobIfNeeded(RestJob *job)
+void FaceRest::RestJob::replyError(const HatoholError &hatoholError)
 {
-	if (job->replyIsPrepared) {
-		job->unpauseResponse();
-		delete job;
-	}
-}
+	string error
+	  = StringUtils::sprintf("%d", hatoholError.getCode());
+	const string &codeName = hatoholError.getCodeName();
+	const string &optionMessage = hatoholError.getOptionMessage();
 
-void FaceRest::launchHandlerInTryBlock(RestJob *job)
-{
-	try {
-		(*job->handler)(job);
-	} catch (const HatoholException &e) {
-		REPLY_ERROR(job, HTERR_GOT_EXCEPTION,
-		            "%s", e.getFancyMessage().c_str());
+	if (!codeName.empty()) {
+		error += ", ";
+		error += codeName;
 	}
-}
+	if (!optionMessage.empty()) {
+		error += ": ";
+		error += optionMessage;
+	}
+	MLPL_INFO("reply error: %s\n", error.c_str());
 
-void FaceRest::handlerHelloPage(RestJob *job)
-{
-	string response;
-	const char *pageTemplate =
-	  "<html>"
-	  "HATOHOL Server ver. %s"
-	  "</html>";
-	response = StringUtils::sprintf(pageTemplate, PACKAGE_VERSION);
-	soup_message_body_append(job->message->response_body, SOUP_MEMORY_COPY,
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, hatoholError);
+	agent.endObject();
+	string response = agent.generate();
+	if (!jsonpCallbackName.empty())
+		response = wrapForJsonp(response, jsonpCallbackName);
+	soup_message_headers_set_content_type(message->response_headers,
+	                                      MIME_JSON, NULL);
+	soup_message_body_append(message->response_body, SOUP_MEMORY_COPY,
 	                         response.c_str(), response.size());
-	soup_message_set_status(job->message, SOUP_STATUS_OK);
-	job->replyIsPrepared = true;
+	soup_message_set_status(message, SOUP_STATUS_OK);
+
+	replyIsPrepared = true;
 }
 
-void FaceRest::handlerTest(RestJob *job)
+void FaceRest::RestJob::replyJsonData(JsonBuilderAgent &agent)
 {
-	JsonBuilderAgent agent;
-	agent.startObject();
-	addHatoholError(agent, HatoholError(HTERR_OK));
-	if (PrivateContext::testMode)
-		agent.addTrue("testMode");
-	else
-		agent.addFalse("testMode");
+	string response = agent.generate();
+	if (!jsonpCallbackName.empty())
+		response = wrapForJsonp(response, jsonpCallbackName);
+	soup_message_headers_set_content_type(message->response_headers,
+	                                      mimeType, NULL);
+	soup_message_body_append(message->response_body, SOUP_MEMORY_COPY,
+	                         response.c_str(), response.size());
+	soup_message_set_status(message, SOUP_STATUS_OK);
 
-	if (string(job->path) == "/test" &&
-	    string(job->message->method) == "POST")
-	{
-		agent.startObject("queryData");
-		GHashTableIter iter;
-		gpointer key, value;
-		g_hash_table_iter_init(&iter, job->query);
-		while (g_hash_table_iter_next(&iter, &key, &value)) {
-			agent.add(string((const char *)key),
-			          string((const char *)value));
-		}
-		agent.endObject(); // queryData
-		agent.endObject(); // top level
-		job->replyJsonData(agent);
-		return;
-	}
-
-	if (string(job->path) == "/test/error") {
-		agent.endObject(); // top level
-		job->replyError(HTERR_ERROR_TEST);
-		return;
-	}
-
-	if (string(job->path) == "/test/user" &&
-	    string(job->message->method) == "POST")
-	{
-		RETURN_IF_NOT_TEST_MODE(job);
-		UserQueryOption option(USER_ID_SYSTEM);
-		HatoholError err = updateOrAddUser(job->query, option);
-		if (err != HTERR_OK) {
-			job->replyError(err);
-			return;
-		}
-	}
-
-	agent.endObject();
-	job->replyJsonData(agent);
-}
-
-void FaceRest::handlerLogin(RestJob *job)
-{
-	gchar *user = (gchar *)g_hash_table_lookup(job->query, "user");
-	if (!user) {
-		MLPL_INFO("Not found: user\n");
-		job->replyError(HTERR_AUTH_FAILED);
-		return;
-	}
-	gchar *password = (gchar *)g_hash_table_lookup(job->query, "password");
-	if (!password) {
-		MLPL_INFO("Not found: password\n");
-		job->replyError(HTERR_AUTH_FAILED);
-		return;
-	}
-
-	DBClientUser dbUser;
-	UserIdType userId = dbUser.getUserId(user, password);
-	if (userId == INVALID_USER_ID) {
-		MLPL_INFO("Failed to authenticate: Client: %s, User: %s.\n",
-			  soup_client_context_get_host(job->client), user);
-		job->replyError(HTERR_AUTH_FAILED);
-		return;
-	}
-
-	SessionManager *sessionMgr = SessionManager::getInstance();
-	string sessionId = sessionMgr->create(userId);
-
-	JsonBuilderAgent agent;
-	agent.startObject();
-	addHatoholError(agent, HatoholError(HTERR_OK));
-	agent.add("sessionId", sessionId);
-	agent.endObject();
-
-	job->replyJsonData(agent);
-}
-
-void FaceRest::handlerLogout(RestJob *job)
-{
-	SessionManager *sessionMgr = SessionManager::getInstance();
-	if (!sessionMgr->remove(job->sessionId)) {
-		job->replyError(HTERR_NOT_FOUND_SESSION_ID);
-		return;
-	}
-
-	JsonBuilderAgent agent;
-	agent.startObject();
-	addHatoholError(agent, HatoholError(HTERR_OK));
-	agent.endObject();
-
-	job->replyJsonData(agent);
+	replyIsPrepared = true;
 }
