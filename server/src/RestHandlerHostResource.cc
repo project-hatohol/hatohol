@@ -806,6 +806,27 @@ void FaceRest::handlerGetItem(RestJob *job)
 	}
 }
 
+static void addHostsIsMemberOfGroup(
+  FaceRest::RestJob *job, JsonBuilderAgent &agent,
+  uint64_t targetServerId, uint64_t targetGroupId)
+{
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+
+	HostgroupElementList hostgroupElementList;
+	HostgroupElementQueryOption option(job->dataQueryContextPtr);
+	option.setTargetServerId(targetServerId);
+	option.setTargetHostgroupId(targetGroupId);
+	dataStore->getHostgroupElementList(hostgroupElementList, option);
+
+	agent.startArray("hosts");
+	HostgroupElementListIterator it = hostgroupElementList.begin();
+	for (; it != hostgroupElementList.end(); ++it) {
+		HostgroupElement hostgroupElement = *it;
+		agent.add(hostgroupElement.hostId);
+	}
+	agent.endArray();
+}
+
 void FaceRest::handlerGetHostgroup(RestJob *job)
 {
 	HostgroupsQueryOption option(job->dataQueryContextPtr);
@@ -841,25 +862,4 @@ void FaceRest::handlerGetHostgroup(RestJob *job)
 	agent.endObject();
 
 	job->replyJsonData(agent);
-}
-
-void FaceRest::addHostsIsMemberOfGroup(
-  RestJob *job, JsonBuilderAgent &agent,
-  uint64_t targetServerId, uint64_t targetGroupId)
-{
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-
-	HostgroupElementList hostgroupElementList;
-	HostgroupElementQueryOption option(job->dataQueryContextPtr);
-	option.setTargetServerId(targetServerId);
-	option.setTargetHostgroupId(targetGroupId);
-	dataStore->getHostgroupElementList(hostgroupElementList, option);
-
-	agent.startArray("hosts");
-	HostgroupElementListIterator it = hostgroupElementList.begin();
-	for (; it != hostgroupElementList.end(); ++it) {
-		HostgroupElement hostgroupElement = *it;
-		agent.add(hostgroupElement.hostId);
-	}
-	agent.endArray();
 }

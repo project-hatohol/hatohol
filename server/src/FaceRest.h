@@ -80,10 +80,6 @@ protected:
 				  JsonBuilderAgent &agent,
 				  TriggerBriefMaps *triggerMaps = NULL,
 				  bool lookupTriggerBrief = false);
-	static void addHostsIsMemberOfGroup(RestJob *job,
-	                                   JsonBuilderAgent &agent,
-	                                   uint64_t targetServerId,
-	                                   uint64_t targetGroupId);
 	static void replyGetItem(RestJob *job);
 	static void finishRestJobIfNeeded(RestJob *job);
 
