@@ -92,7 +92,7 @@ libhatohol_la_SOURCES = \
 	PrimaryConditionPicker.cc PrimaryConditionPicker.h \
 	ResidentProtocol.h \
 	ResidentCommunicator.cc ResidentCommunicator.h \
-	RestHandlerServer.cc RestHandlerUser.cc \
+	RestHandlerAction.cc RestHandlerServer.cc RestHandlerUser.cc \
 	SessionManager.cc SessionManager.h \
 	SQLColumnParser.cc SQLColumnParser.h \
 	SQLFormulaParser.cc SQLFormulaParser.h \
