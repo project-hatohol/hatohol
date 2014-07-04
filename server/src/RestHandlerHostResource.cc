@@ -42,6 +42,203 @@ void FaceRest::parseQueryServerId(GHashTable *query,
 		MLPL_INFO("Invalid requested ID: %s\n", value);
 }
 
+static HatoholError parseSortTypeFromQuery(
+  EventsQueryOption::SortType &sortType, GHashTable *query)
+{
+	const char *key = "sortType";
+	char *value = (char *)g_hash_table_lookup(query, key);
+	if (!value)
+		return HTERR_NOT_FOUND_PARAMETER;
+	if (!strcasecmp(value, "time")) {
+		sortType = EventsQueryOption::SORT_TIME;
+	} else if (!strcasecmp(value, "unifiedId")) {
+		sortType = EventsQueryOption::SORT_UNIFIED_ID;
+	} else {
+		string optionMessage
+		  = StringUtils::sprintf("%s: %s", key, value);
+		return HatoholError(HTERR_INVALID_PARAMETER, optionMessage);
+	}
+	return HatoholError(HTERR_OK);
+}
+
+static HatoholError parseSortOrderFromQuery(
+  DataQueryOption::SortDirection &sortDirection, GHashTable *query)
+{
+	HatoholError err =
+	   getParam<DataQueryOption::SortDirection>(query, "sortOrder", "%d",
+						    sortDirection);
+	if (err != HTERR_OK)
+		return err;
+	if (sortDirection != DataQueryOption::SORT_DONT_CARE &&
+	    sortDirection != DataQueryOption::SORT_ASCENDING &&
+	    sortDirection != DataQueryOption::SORT_DESCENDING) {
+		return HatoholError(HTERR_INVALID_PARAMETER,
+		                    StringUtils::sprintf("%d", sortDirection));
+	}
+	return HatoholError(HTERR_OK);
+}
+
+static HatoholError parseHostResourceQueryParameter(
+  HostResourceQueryOption &option, GHashTable *query)
+{
+	if (!query)
+		return HatoholError(HTERR_OK);
+
+	HatoholError err;
+
+	// target server id
+	ServerIdType targetServerId = ALL_SERVERS;
+	err = getParam<ServerIdType>(query, "serverId",
+				     "%" FMT_SERVER_ID,
+				     targetServerId);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+	option.setTargetServerId(targetServerId);
+
+	// target host group id
+	HostIdType targetHostgroupId = ALL_HOST_GROUPS;
+	err = getParam<HostgroupIdType>(query, "hostgroupId",
+					"%" FMT_HOST_GROUP_ID,
+					targetHostgroupId);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+	option.setTargetHostgroupId(targetHostgroupId);
+
+	// target host id
+	HostIdType targetHostId = ALL_HOSTS;
+	err = getParam<HostIdType>(query, "hostId",
+				   "%" FMT_HOST_ID,
+				   targetHostId);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+	option.setTargetHostId(targetHostId);
+
+	// maximum number
+	size_t maximumNumber = 0;
+	err = getParam<size_t>(query, "maximumNumber", "%zd", maximumNumber);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+	option.setMaximumNumber(maximumNumber);
+
+	// offset
+	uint64_t offset = 0;
+	err = getParam<uint64_t>(query, "offset", "%" PRIu64, offset);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+	option.setOffset(offset);
+
+	return HatoholError(HTERR_OK);
+}
+
+static HatoholError parseTriggerParameter(TriggersQueryOption &option,
+					  GHashTable *query)
+{
+	if (!query)
+		return HatoholError(HTERR_OK);
+
+	HatoholError err;
+
+	// query parameters for HostResourceQueryOption
+	err = parseHostResourceQueryParameter(option, query);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+
+	// minimum severity
+	TriggerSeverityType severity = TRIGGER_SEVERITY_UNKNOWN;
+	err = getParam<TriggerSeverityType>(query, "minimumSeverity",
+					    "%d", severity);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+	option.setMinimumSeverity(severity);
+
+	// trigger status
+	TriggerStatusType status = TRIGGER_STATUS_ALL;
+	err = getParam<TriggerStatusType>(query, "status",
+					  "%d", status);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+	option.setTriggerStatus(status);
+
+	return HatoholError(HTERR_OK);
+}
+
+HatoholError FaceRest::parseEventParameter(EventsQueryOption &option,
+					   GHashTable *query)
+{
+	if (!query)
+		return HatoholError(HTERR_OK);
+
+	HatoholError err;
+
+	// query parameters for HostResourceQueryOption
+	err = parseHostResourceQueryParameter(option, query);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+
+	// minimum severity
+	TriggerSeverityType severity = TRIGGER_SEVERITY_UNKNOWN;
+	err = getParam<TriggerSeverityType>(query, "minimumSeverity",
+					    "%d", severity);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+	option.setMinimumSeverity(severity);
+
+	// trigger status
+	TriggerStatusType status = TRIGGER_STATUS_ALL;
+	err = getParam<TriggerStatusType>(query, "status",
+					  "%d", status);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+	option.setTriggerStatus(status);
+
+	// sort type
+	EventsQueryOption::SortType sortType = EventsQueryOption::SORT_TIME;
+	err = parseSortTypeFromQuery(sortType, query);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+
+	// sort order
+	DataQueryOption::SortDirection sortDirection
+	  = DataQueryOption::SORT_DESCENDING;
+	err = parseSortOrderFromQuery(sortDirection, query);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+
+	option.setSortType(sortType, sortDirection);
+
+	// limit of unifiedId
+	uint64_t limitOfUnifiedId = 0;
+	err = getParam<uint64_t>(query, "limitOfUnifiedId", "%" PRIu64,
+				 limitOfUnifiedId);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+	option.setLimitOfUnifiedId(limitOfUnifiedId);
+
+	return HatoholError(HTERR_OK);
+}
+
+static HatoholError parseItemParameter(ItemsQueryOption &option,
+				       GHashTable *query)
+{
+	if (!query)
+		return HatoholError(HTERR_OK);
+
+	HatoholError err;
+
+	// query parameters for HostResourceQueryOption
+	err = parseHostResourceQueryParameter(option, query);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+
+	// itemGroupName
+	const gchar *value = static_cast<const gchar*>(
+	  g_hash_table_lookup(query, "itemGroupName"));
+	if (value && *value)
+		option.setTargetItemGroupName(value);
+
+	return HatoholError(HTERR_OK);
+}
+
 static HatoholError
 addHostgroupsMap(FaceRest::RestJob *job, JsonBuilderAgent &outputJson,
                  const MonitoringServerInfo &serverInfo,
@@ -685,201 +882,4 @@ void FaceRest::addHostsIsMemberOfGroup(
 		agent.add(hostgroupElement.hostId);
 	}
 	agent.endArray();
-}
-
-static HatoholError parseSortTypeFromQuery(
-  EventsQueryOption::SortType &sortType, GHashTable *query)
-{
-	const char *key = "sortType";
-	char *value = (char *)g_hash_table_lookup(query, key);
-	if (!value)
-		return HTERR_NOT_FOUND_PARAMETER;
-	if (!strcasecmp(value, "time")) {
-		sortType = EventsQueryOption::SORT_TIME;
-	} else if (!strcasecmp(value, "unifiedId")) {
-		sortType = EventsQueryOption::SORT_UNIFIED_ID;
-	} else {
-		string optionMessage
-		  = StringUtils::sprintf("%s: %s", key, value);
-		return HatoholError(HTERR_INVALID_PARAMETER, optionMessage);
-	}
-	return HatoholError(HTERR_OK);
-}
-
-HatoholError FaceRest::parseSortOrderFromQuery(
-  DataQueryOption::SortDirection &sortDirection, GHashTable *query)
-{
-	HatoholError err =
-	   getParam<DataQueryOption::SortDirection>(query, "sortOrder", "%d",
-						    sortDirection);
-	if (err != HTERR_OK)
-		return err;
-	if (sortDirection != DataQueryOption::SORT_DONT_CARE &&
-	    sortDirection != DataQueryOption::SORT_ASCENDING &&
-	    sortDirection != DataQueryOption::SORT_DESCENDING) {
-		return HatoholError(HTERR_INVALID_PARAMETER,
-		                    StringUtils::sprintf("%d", sortDirection));
-	}
-	return HatoholError(HTERR_OK);
-}
-
-HatoholError FaceRest::parseHostResourceQueryParameter(
-  HostResourceQueryOption &option, GHashTable *query)
-{
-	if (!query)
-		return HatoholError(HTERR_OK);
-
-	HatoholError err;
-
-	// target server id
-	ServerIdType targetServerId = ALL_SERVERS;
-	err = getParam<ServerIdType>(query, "serverId",
-				     "%" FMT_SERVER_ID,
-				     targetServerId);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-	option.setTargetServerId(targetServerId);
-
-	// target host group id
-	HostIdType targetHostgroupId = ALL_HOST_GROUPS;
-	err = getParam<HostgroupIdType>(query, "hostgroupId",
-					"%" FMT_HOST_GROUP_ID,
-					targetHostgroupId);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-	option.setTargetHostgroupId(targetHostgroupId);
-
-	// target host id
-	HostIdType targetHostId = ALL_HOSTS;
-	err = getParam<HostIdType>(query, "hostId",
-				   "%" FMT_HOST_ID,
-				   targetHostId);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-	option.setTargetHostId(targetHostId);
-
-	// maximum number
-	size_t maximumNumber = 0;
-	err = getParam<size_t>(query, "maximumNumber", "%zd", maximumNumber);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-	option.setMaximumNumber(maximumNumber);
-
-	// offset
-	uint64_t offset = 0;
-	err = getParam<uint64_t>(query, "offset", "%" PRIu64, offset);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-	option.setOffset(offset);
-
-	return HatoholError(HTERR_OK);
-}
-
-HatoholError FaceRest::parseTriggerParameter(TriggersQueryOption &option,
-					     GHashTable *query)
-{
-	if (!query)
-		return HatoholError(HTERR_OK);
-
-	HatoholError err;
-
-	// query parameters for HostResourceQueryOption
-	err = parseHostResourceQueryParameter(option, query);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-
-	// minimum severity
-	TriggerSeverityType severity = TRIGGER_SEVERITY_UNKNOWN;
-	err = getParam<TriggerSeverityType>(query, "minimumSeverity",
-					    "%d", severity);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-	option.setMinimumSeverity(severity);
-
-	// trigger status
-	TriggerStatusType status = TRIGGER_STATUS_ALL;
-	err = getParam<TriggerStatusType>(query, "status",
-					  "%d", status);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-	option.setTriggerStatus(status);
-
-	return HatoholError(HTERR_OK);
-}
-
-HatoholError FaceRest::parseEventParameter(EventsQueryOption &option,
-					   GHashTable *query)
-{
-	if (!query)
-		return HatoholError(HTERR_OK);
-
-	HatoholError err;
-
-	// query parameters for HostResourceQueryOption
-	err = parseHostResourceQueryParameter(option, query);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-
-	// minimum severity
-	TriggerSeverityType severity = TRIGGER_SEVERITY_UNKNOWN;
-	err = getParam<TriggerSeverityType>(query, "minimumSeverity",
-					    "%d", severity);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-	option.setMinimumSeverity(severity);
-
-	// trigger status
-	TriggerStatusType status = TRIGGER_STATUS_ALL;
-	err = getParam<TriggerStatusType>(query, "status",
-					  "%d", status);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-	option.setTriggerStatus(status);
-
-	// sort type
-	EventsQueryOption::SortType sortType = EventsQueryOption::SORT_TIME;
-	err = parseSortTypeFromQuery(sortType, query);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-
-	// sort order
-	DataQueryOption::SortDirection sortDirection
-	  = DataQueryOption::SORT_DESCENDING;
-	err = parseSortOrderFromQuery(sortDirection, query);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-
-	option.setSortType(sortType, sortDirection);
-
-	// limit of unifiedId
-	uint64_t limitOfUnifiedId = 0;
-	err = getParam<uint64_t>(query, "limitOfUnifiedId", "%" PRIu64,
-				 limitOfUnifiedId);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-	option.setLimitOfUnifiedId(limitOfUnifiedId);
-
-	return HatoholError(HTERR_OK);
-}
-
-HatoholError FaceRest::parseItemParameter(ItemsQueryOption &option,
-					  GHashTable *query)
-{
-	if (!query)
-		return HatoholError(HTERR_OK);
-
-	HatoholError err;
-
-	// query parameters for HostResourceQueryOption
-	err = parseHostResourceQueryParameter(option, query);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-
-	// itemGroupName
-	const gchar *value = static_cast<const gchar*>(
-	  g_hash_table_lookup(query, "itemGroupName"));
-	if (value && *value)
-		option.setTargetItemGroupName(value);
-
-	return HatoholError(HTERR_OK);
 }
