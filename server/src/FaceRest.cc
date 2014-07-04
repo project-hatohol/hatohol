@@ -530,20 +530,20 @@ static string wrapForJsonp(const string &jsonBody,
 
 void FaceRest::RestJob::replyError(const HatoholError &hatoholError)
 {
-	string response
+	string error
 	  = StringUtils::sprintf("%d", hatoholError.getCode());
 	const string &codeName = hatoholError.getCodeName();
 	const string &optionMessage = hatoholError.getOptionMessage();
 
 	if (!codeName.empty()) {
-		response += ", ";
-		response += codeName;
+		error += ", ";
+		error += codeName;
 	}
 	if (!optionMessage.empty()) {
-		response += ": ";
-		response += optionMessage;
+		error += ": ";
+		error += optionMessage;
 	}
-	MLPL_INFO("reply error: %s\n", response.c_str());
+	MLPL_INFO("reply error: %s\n", error.c_str());
 
 	JsonBuilderAgent agent;
 	agent.startObject();
