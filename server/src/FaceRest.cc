@@ -69,10 +69,10 @@ static const char *MIME_HTML = "text/html";
 static const char *MIME_JSON = "application/json";
 static const char *MIME_JAVASCRIPT = "text/javascript";
 
-#define RETURN_IF_NOT_TEST_MODE(ARG) \
+#define RETURN_IF_NOT_TEST_MODE(JOB) \
 do { \
 	if (!isTestMode()) { \
-		replyError(ARG, HTERR_NOT_TEST_MODE); \
+		JOB->replyError(HTERR_NOT_TEST_MODE); \
 		return; \
 	}\
 } while(0)
@@ -511,45 +511,44 @@ void FaceRest::addHatoholError(JsonBuilderAgent &agent,
 		agent.add("optionMessages", err.getOptionMessage());
 }
 
-void FaceRest::replyError(RestJob *job,
-                          const HatoholErrorCode &errorCode,
-                          const string &optionMessage)
+void FaceRest::RestJob::replyError(const HatoholErrorCode &errorCode,
+				   const string &optionMessage)
 {
 	HatoholError hatoholError(errorCode, optionMessage);
-	replyError(job, hatoholError);
+	replyError(hatoholError);
 }
 
-void FaceRest::replyError(RestJob *job,
-                          const HatoholError &hatoholError)
+void FaceRest::RestJob::replyError(const HatoholError &hatoholError)
 {
-	string message = StringUtils::sprintf("%d", hatoholError.getCode());
+	string messageString
+	  = StringUtils::sprintf("%d", hatoholError.getCode());
 	const string &codeName = hatoholError.getCodeName();
 	const string &optionMessage = hatoholError.getOptionMessage();
 
 	if (!codeName.empty()) {
-		message += ", ";
-		message += codeName;
+		messageString += ", ";
+		messageString += codeName;
 	}
 	if (!optionMessage.empty()) {
-		message += ": ";
-		message += optionMessage;
+		messageString += ": ";
+		messageString += optionMessage;
 	}
-	MLPL_INFO("reply error: %s\n", message.c_str());
+	MLPL_INFO("reply error: %s\n", messageString.c_str());
 
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, hatoholError);
 	agent.endObject();
 	string response = agent.generate();
-	if (!job->jsonpCallbackName.empty())
-		response = wrapForJsonp(response, job->jsonpCallbackName);
-	soup_message_headers_set_content_type(job->message->response_headers,
+	if (!jsonpCallbackName.empty())
+		response = wrapForJsonp(response, jsonpCallbackName);
+	soup_message_headers_set_content_type(message->response_headers,
 	                                      MIME_JSON, NULL);
-	soup_message_body_append(job->message->response_body, SOUP_MEMORY_COPY,
+	soup_message_body_append(message->response_body, SOUP_MEMORY_COPY,
 	                         response.c_str(), response.size());
-	soup_message_set_status(job->message, SOUP_STATUS_OK);
+	soup_message_set_status(message, SOUP_STATUS_OK);
 
-	job->replyIsPrepared = true;
+	replyIsPrepared = true;
 }
 
 string FaceRest::wrapForJsonp(const string &jsonBody,
@@ -562,18 +561,18 @@ string FaceRest::wrapForJsonp(const string &jsonBody,
 	return jsonp;
 }
 
-void FaceRest::replyJsonData(JsonBuilderAgent &agent, RestJob *job)
+void FaceRest::RestJob::replyJsonData(JsonBuilderAgent &agent)
 {
 	string response = agent.generate();
-	if (!job->jsonpCallbackName.empty())
-		response = wrapForJsonp(response, job->jsonpCallbackName);
-	soup_message_headers_set_content_type(job->message->response_headers,
-	                                      job->mimeType, NULL);
-	soup_message_body_append(job->message->response_body, SOUP_MEMORY_COPY,
+	if (!jsonpCallbackName.empty())
+		response = wrapForJsonp(response, jsonpCallbackName);
+	soup_message_headers_set_content_type(message->response_headers,
+	                                      mimeType, NULL);
+	soup_message_body_append(message->response_body, SOUP_MEMORY_COPY,
 	                         response.c_str(), response.size());
-	soup_message_set_status(job->message, SOUP_STATUS_OK);
+	soup_message_set_status(message, SOUP_STATUS_OK);
 
-	job->replyIsPrepared = true;
+	replyIsPrepared = true;
 }
 
 // handlers
@@ -686,7 +685,7 @@ bool FaceRest::RestJob::prepare(void)
 		}
 	}
 	if (notFoundSessionId) {
-		replyError(this, HTERR_NOT_FOUND_SESSION_ID);
+		replyError(HTERR_NOT_FOUND_SESSION_ID);
 		return false;
 	}
 	dataQueryContextPtr =
@@ -885,13 +884,13 @@ void FaceRest::handlerTest(RestJob *job)
 		}
 		agent.endObject(); // queryData
 		agent.endObject(); // top level
-		replyJsonData(agent, job);
+		job->replyJsonData(agent);
 		return;
 	}
 
 	if (string(job->path) == "/test/error") {
 		agent.endObject(); // top level
-		replyError(job, HTERR_ERROR_TEST);
+		job->replyError(HTERR_ERROR_TEST);
 		return;
 	}
 
@@ -902,13 +901,13 @@ void FaceRest::handlerTest(RestJob *job)
 		UserQueryOption option(USER_ID_SYSTEM);
 		HatoholError err = updateOrAddUser(job->query, option);
 		if (err != HTERR_OK) {
-			replyError(job, err);
+			job->replyError(err);
 			return;
 		}
 	}
 
 	agent.endObject();
-	replyJsonData(agent, job);
+	job->replyJsonData(agent);
 }
 
 void FaceRest::handlerLogin(RestJob *job)
@@ -916,13 +915,13 @@ void FaceRest::handlerLogin(RestJob *job)
 	gchar *user = (gchar *)g_hash_table_lookup(job->query, "user");
 	if (!user) {
 		MLPL_INFO("Not found: user\n");
-		replyError(job, HTERR_AUTH_FAILED);
+		job->replyError(HTERR_AUTH_FAILED);
 		return;
 	}
 	gchar *password = (gchar *)g_hash_table_lookup(job->query, "password");
 	if (!password) {
 		MLPL_INFO("Not found: password\n");
-		replyError(job, HTERR_AUTH_FAILED);
+		job->replyError(HTERR_AUTH_FAILED);
 		return;
 	}
 
@@ -931,7 +930,7 @@ void FaceRest::handlerLogin(RestJob *job)
 	if (userId == INVALID_USER_ID) {
 		MLPL_INFO("Failed to authenticate: Client: %s, User: %s.\n",
 			  soup_client_context_get_host(job->client), user);
-		replyError(job, HTERR_AUTH_FAILED);
+		job->replyError(HTERR_AUTH_FAILED);
 		return;
 	}
 
@@ -944,14 +943,14 @@ void FaceRest::handlerLogin(RestJob *job)
 	agent.add("sessionId", sessionId);
 	agent.endObject();
 
-	replyJsonData(agent, job);
+	job->replyJsonData(agent);
 }
 
 void FaceRest::handlerLogout(RestJob *job)
 {
 	SessionManager *sessionMgr = SessionManager::getInstance();
 	if (!sessionMgr->remove(job->sessionId)) {
-		replyError(job, HTERR_NOT_FOUND_SESSION_ID);
+		job->replyError(HTERR_NOT_FOUND_SESSION_ID);
 		return;
 	}
 
@@ -960,5 +959,5 @@ void FaceRest::handlerLogout(RestJob *job)
 	addHatoholError(agent, HatoholError(HTERR_OK));
 	agent.endObject();
 
-	replyJsonData(agent, job);
+	job->replyJsonData(agent);
 }

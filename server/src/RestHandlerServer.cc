@@ -166,7 +166,7 @@ void FaceRest::handlerGetServer(RestJob *job)
 	addServers(job, agent, targetServerId, showHostgroupInfo, targetUserId);
 	agent.endObject();
 
-	replyJsonData(agent, job);
+	job->replyJsonData(agent);
 }
 
 HatoholError FaceRest::parseServerParameter(
@@ -301,7 +301,7 @@ void FaceRest::handlerPostServer(RestJob *job)
 
 	err = parseServerParameter(svInfo, armPluginInfo, job->query);
 	if (err != HTERR_OK) {
-		replyError(job, err);
+		job->replyError(err);
 		return;
 	}
 
@@ -310,7 +310,7 @@ void FaceRest::handlerPostServer(RestJob *job)
 	  svInfo, armPluginInfo,
 	  job->dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
-		replyError(job, err);
+		job->replyError(err);
 		return;
 	}
 
@@ -319,7 +319,7 @@ void FaceRest::handlerPostServer(RestJob *job)
 	addHatoholError(agent, err);
 	agent.add("id", svInfo.id);
 	agent.endObject();
-	replyJsonData(agent, job);
+	job->replyJsonData(agent);
 }
 
 void FaceRest::handlerPutServer(RestJob *job)
@@ -360,14 +360,14 @@ void FaceRest::handlerPutServer(RestJob *job)
 	HatoholError err = parseServerParameter(serverInfo, armPluginInfo,
 	                                        job->query, allowEmpty);
 	if (err != HTERR_OK) {
-		replyError(job, err);
+		job->replyError(err);
 		return;
 	}
 
 	// try to update
 	err = dataStore->updateTargetServer(serverInfo, armPluginInfo, option);
 	if (err != HTERR_OK) {
-		replyError(job, err);
+		job->replyError(err);
 		return;
 	}
 
@@ -377,7 +377,7 @@ void FaceRest::handlerPutServer(RestJob *job)
 	addHatoholError(agent, err);
 	agent.add("id", serverInfo.id);
 	agent.endObject();
-	replyJsonData(agent, job);
+	job->replyJsonData(agent);
 }
 
 void FaceRest::handlerDeleteServer(RestJob *job)
@@ -394,7 +394,7 @@ void FaceRest::handlerDeleteServer(RestJob *job)
 	  dataStore->deleteTargetServer(
 	    serverId, job->dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
-		replyError(job, err);
+		job->replyError(err);
 		return;
 	}
 
@@ -404,7 +404,7 @@ void FaceRest::handlerDeleteServer(RestJob *job)
 	agent.add("id", serverId);
 	agent.endObject();
 
-	replyJsonData(agent, job);
+	job->replyJsonData(agent);
 }
 
 void FaceRest::handlerServerConnStat(RestJob *job)
@@ -435,5 +435,5 @@ void FaceRest::handlerServerConnStat(RestJob *job)
 	agent.endObject(); // serverConnStat
 	agent.endObject();
 
-	replyJsonData(agent, job);
+	job->replyJsonData(agent);
 }
