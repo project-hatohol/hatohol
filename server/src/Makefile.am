@@ -65,7 +65,6 @@ libhatohol_la_SOURCES = \
 	FaceMySQL.cc FaceMySQL.h \
 	FaceMySQLWorker.cc FaceMySQLWorker.h \
 	FaceRest.cc FaceRest.h \
-	FaceRestHandlerUser.cc FaceRestHandlerServer.cc \
 	FormulaElement.cc FormulaElement.h \
 	FormulaFunction.cc FormulaFunction.h \
 	FormulaOperator.cc FormulaOperator.h \
@@ -93,6 +92,7 @@ libhatohol_la_SOURCES = \
 	PrimaryConditionPicker.cc PrimaryConditionPicker.h \
 	ResidentProtocol.h \
 	ResidentCommunicator.cc ResidentCommunicator.h \
+	RestHandlerServer.cc RestHandlerUser.cc \
 	SessionManager.cc SessionManager.h \
 	SQLColumnParser.cc SQLColumnParser.h \
 	SQLFormulaParser.cc SQLFormulaParser.h \
