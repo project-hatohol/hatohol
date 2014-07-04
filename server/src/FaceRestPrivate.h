@@ -89,7 +89,7 @@ do { \
 } while (0)
 
 template<typename T>
-HatoholError FaceRest::getParam(
+HatoholError getParam(
   GHashTable *query, const char *paramName, const char *scanFmt, T &dest)
 {
 	char *value = (char *)g_hash_table_lookup(query, paramName);
@@ -105,8 +105,8 @@ HatoholError FaceRest::getParam(
 }
 
 template<typename T>
-bool FaceRest::getParamWithErrorReply(
-  RestJob *job, const char *paramName, const char *scanFmt,
+bool getParamWithErrorReply(
+  FaceRest::RestJob *job, const char *paramName, const char *scanFmt,
   T &dest, bool *exist)
 {
 	char *value = (char *)g_hash_table_lookup(job->query, paramName);
@@ -122,6 +122,5 @@ bool FaceRest::getParamWithErrorReply(
 	}
 	return true;
 }
-
 
 #endif // FaceRestPrivate_h
