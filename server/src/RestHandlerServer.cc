@@ -131,6 +131,22 @@ void FaceRest::handlerServer(RestJob *job)
 	}
 }
 
+static void parseQueryServerId(GHashTable *query, ServerIdType &serverId)
+{
+	serverId = ALL_SERVERS;
+	if (!query)
+		return;
+	gchar *value = (gchar *)g_hash_table_lookup(query, "serverId");
+	if (!value)
+		return;
+
+	ServerIdType svId;
+	if (sscanf(value, "%" FMT_SERVER_ID, &svId) == 1)
+		serverId = svId;
+	else
+		MLPL_INFO("Invalid requested ID: %s\n", value);
+}
+
 static bool parseQueryShowHostgroupInfo(GHashTable *query, UserIdType &targetUserId)
 {
 	if (!query)

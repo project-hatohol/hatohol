@@ -25,23 +25,6 @@
 using namespace std;
 using namespace mlpl;
 
-void FaceRest::parseQueryServerId(GHashTable *query,
-                                  ServerIdType &serverId)
-{
-	serverId = ALL_SERVERS;
-	if (!query)
-		return;
-	gchar *value = (gchar *)g_hash_table_lookup(query, "serverId");
-	if (!value)
-		return;
-
-	ServerIdType svId;
-	if (sscanf(value, "%" FMT_SERVER_ID, &svId) == 1)
-		serverId = svId;
-	else
-		MLPL_INFO("Invalid requested ID: %s\n", value);
-}
-
 static HatoholError parseSortTypeFromQuery(
   EventsQueryOption::SortType &sortType, GHashTable *query)
 {

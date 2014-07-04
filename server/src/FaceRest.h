@@ -87,19 +87,6 @@ protected:
 	static void replyGetItem(RestJob *job);
 	static void finishRestJobIfNeeded(RestJob *job);
 
-	/**
-	 * Parse 'serverId' query parameter if it exists.
-	 *
-	 * @param query
-	 * A hash table of query parameters.
-	 *
-	 * @param serverId.
-	 * If 'serverId' query parameter is found, the value is set to
-	 * this variable. Otherwise, ALL_SERVERS is set.
-	 */
-	static void parseQueryServerId(GHashTable *query,
-	                               ServerIdType &serverId);
-
 	// handlers
 	static void
 	  handlerDefault(SoupServer *server, SoupMessage *msg,
