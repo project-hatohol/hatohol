@@ -71,16 +71,22 @@ struct FaceRest::RestJob
 	std::string getResourceIdString(int nest = 0);
 	uint64_t    getResourceId(int nest = 0);
 
+public:
+	void replyError(const HatoholError &hatoholError);
+	void replyError(const HatoholErrorCode &errorCode,
+			const std::string &optionMessage = "");
+	void replyJsonData(JsonBuilderAgent &agent);
+
 private:
 	std::string getJsonpCallbackName(void);
 	bool parseFormatType(void);
 };
 
-#define REPLY_ERROR(ARG, ERR_CODE, ERR_MSG_FMT, ...) \
+#define REPLY_ERROR(JOB, ERR_CODE, ERR_MSG_FMT, ...) \
 do { \
 	std::string optMsg \
 	  = mlpl::StringUtils::sprintf(ERR_MSG_FMT, ##__VA_ARGS__); \
-	replyError(ARG, ERR_CODE, optMsg); \
+	JOB->replyError(ERR_CODE, optMsg); \
 } while (0)
 
 template<typename T>

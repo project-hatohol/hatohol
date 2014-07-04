@@ -67,7 +67,7 @@ void FaceRest::handlerGetAction(RestJob *job)
 	addHatoholError(agent, err);
 	if (err != HTERR_OK) {
 		agent.endObject();
-		replyJsonData(agent, job);
+		job->replyJsonData(agent);
 		return;
 	}
 	agent.add("numberOfActions", actionList.size());
@@ -112,7 +112,7 @@ void FaceRest::handlerGetAction(RestJob *job)
 	addServersMap(job, agent, &triggerMaps, lookupTriggerBrief);
 	agent.endObject();
 
-	replyJsonData(agent, job);
+	job->replyJsonData(agent);
 }
 
 void FaceRest::handlerPostAction(RestJob *job)
@@ -146,7 +146,7 @@ void FaceRest::handlerPostAction(RestJob *job)
 	// command
 	value = (char *)g_hash_table_lookup(job->query, "command");
 	if (!value) {
-		replyError(job, HTERR_NOT_FOUND_PARAMETER, "command");
+		job->replyError(HTERR_NOT_FOUND_PARAMETER, "command");
 		return;
 	}
 	actionDef.command = value;
@@ -233,8 +233,8 @@ void FaceRest::handlerPostAction(RestJob *job)
 		if (!succeeded)
 			return;
 		if (!exist) {
-			replyError(job, HTERR_NOT_FOUND_PARAMETER,
-			           "triggerSeverityCompType");
+			job->replyError(HTERR_NOT_FOUND_PARAMETER,
+					"triggerSeverityCompType");
 			return;
 		}
 		if (!(cond.triggerSeverityCompType == CMP_EQ ||
@@ -250,7 +250,7 @@ void FaceRest::handlerPostAction(RestJob *job)
 	  dataStore->addAction(
 	    actionDef, job->dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
-		replyError(job, err);
+		job->replyError(err);
 		return;
 	}
 
@@ -260,7 +260,7 @@ void FaceRest::handlerPostAction(RestJob *job)
 	addHatoholError(agent, err);
 	agent.add("id", actionDef.id);
 	agent.endObject();
-	replyJsonData(agent, job);
+	job->replyJsonData(agent);
 }
 
 void FaceRest::handlerDeleteAction(RestJob *job)
@@ -279,7 +279,7 @@ void FaceRest::handlerDeleteAction(RestJob *job)
 	  dataStore->deleteActionList(
 	    actionIdList, job->dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
-		replyError(job, err);
+		job->replyError(err);
 		return;
 	}
 
@@ -289,5 +289,5 @@ void FaceRest::handlerDeleteAction(RestJob *job)
 	addHatoholError(agent, err);
 	agent.add("id", actionId);
 	agent.endObject();
-	replyJsonData(agent, job);
+	job->replyJsonData(agent);
 }

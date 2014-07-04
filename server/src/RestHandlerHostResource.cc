@@ -372,12 +372,12 @@ void FaceRest::handlerGetOverview(RestJob *job)
 	addHatoholError(agent, HatoholError(HTERR_OK));
 	err = addOverview(job, agent);
 	if (err != HTERR_OK) {
-		replyError(job, err);
+		job->replyError(err);
 		return;
 	}
 	agent.endObject();
 
-	replyJsonData(agent, job);
+	job->replyJsonData(agent);
 }
 
 void FaceRest::handlerGetHost(RestJob *job)
@@ -385,7 +385,7 @@ void FaceRest::handlerGetHost(RestJob *job)
 	HostsQueryOption option(job->dataQueryContextPtr);
 	HatoholError err = parseHostResourceQueryParameter(option, job->query);
 	if (err != HTERR_OK) {
-		replyError(job, err);
+		job->replyError(err);
 		return;
 	}
 
@@ -398,7 +398,7 @@ void FaceRest::handlerGetHost(RestJob *job)
 		 option.getTargetHostId());
 	agent.endObject();
 
-	replyJsonData(agent, job);
+	job->replyJsonData(agent);
 }
 
 void FaceRest::handlerGetTrigger(RestJob *job)
@@ -406,7 +406,7 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 	TriggersQueryOption option(job->dataQueryContextPtr);
 	HatoholError err = parseTriggerParameter(option, job->query);
 	if (err != HTERR_OK) {
-		replyError(job, err);
+		job->replyError(err);
 		return;
 	}
 
@@ -439,7 +439,7 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 	addServersMap(job, agent, NULL, false);
 	agent.endObject();
 
-	replyJsonData(agent, job);
+	job->replyJsonData(agent);
 }
 
 static uint64_t getLastUnifiedEventId(FaceRest::RestJob *job)
@@ -478,7 +478,7 @@ void FaceRest::handlerGetEvent(RestJob *job)
 	EventsQueryOption option(job->dataQueryContextPtr);
 	HatoholError err = parseEventParameter(option, job->query);
 	if (err != HTERR_OK) {
-		replyError(job, err);
+		job->replyError(err);
 		return;
 	}
 
@@ -493,7 +493,7 @@ void FaceRest::handlerGetEvent(RestJob *job)
 		err = dataStore->getEventList(eventList, option);
 	}
 	if (err != HTERR_OK) {
-		replyError(job, err);
+		job->replyError(err);
 		return;
 	}
 
@@ -529,7 +529,7 @@ void FaceRest::handlerGetEvent(RestJob *job)
 	addServersMap(job, agent, NULL, false);
 	agent.endObject();
 
-	replyJsonData(agent, job);
+	job->replyJsonData(agent);
 }
 
 struct GetItemClosure : Closure<FaceRest>
@@ -553,7 +553,7 @@ void FaceRest::replyGetItem(RestJob *job)
 	ItemsQueryOption option(job->dataQueryContextPtr);
 	HatoholError err = parseItemParameter(option, job->query);
 	if (err != HTERR_OK) {
-		replyError(job, err);
+		job->replyError(err);
 		return;
 	}
 
@@ -586,7 +586,7 @@ void FaceRest::replyGetItem(RestJob *job)
 	addServersMap(job, agent, NULL, false);
 	agent.endObject();
 
-	replyJsonData(agent, job);
+	job->replyJsonData(agent);
 }
 
 void FaceRest::itemFetchedCallback(ClosureBase *closure)
@@ -602,7 +602,7 @@ void FaceRest::handlerGetItem(RestJob *job)
 	ItemsQueryOption option(job->dataQueryContextPtr);
 	HatoholError err = parseItemParameter(option, job->query);
 	if (err != HTERR_OK) {
-		replyError(job, err);
+		job->replyError(err);
 		return;
 	}
 
@@ -634,7 +634,7 @@ void FaceRest::handlerGetHostgroup(RestJob *job)
 	HostgroupsQueryOption option(job->dataQueryContextPtr);
 	HatoholError err = parseHostResourceQueryParameter(option, job->query);
 	if (err != HTERR_OK) {
-		replyError(job, err);
+		job->replyError(err);
 		return;
 	}
 
@@ -663,7 +663,7 @@ void FaceRest::handlerGetHostgroup(RestJob *job)
 	agent.endArray();
 	agent.endObject();
 
-	replyJsonData(agent, job);
+	job->replyJsonData(agent);
 }
 
 void FaceRest::addHostsIsMemberOfGroup(

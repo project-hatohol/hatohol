@@ -84,7 +84,7 @@ void FaceRest::handlerGetUser(RestJob *job)
 	addUserRolesMap(job, agent);
 	agent.endObject();
 
-	replyJsonData(agent, job);
+	job->replyJsonData(agent);
 }
 
 void FaceRest::handlerPostUser(RestJob *job)
@@ -92,7 +92,7 @@ void FaceRest::handlerPostUser(RestJob *job)
 	UserInfo userInfo;
 	HatoholError err = parseUserParameter(userInfo, job->query);
 	if (err != HTERR_OK) {
-		replyError(job, err);
+		job->replyError(err);
 		return;
 	}
 
@@ -101,7 +101,7 @@ void FaceRest::handlerPostUser(RestJob *job)
 	err = dataStore->addUser(
 	  userInfo, job->dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
-		replyError(job, err);
+		job->replyError(err);
 		return;
 	}
 
@@ -111,7 +111,7 @@ void FaceRest::handlerPostUser(RestJob *job)
 	addHatoholError(agent, err);
 	agent.add("id", userInfo.id);
 	agent.endObject();
-	replyJsonData(agent, job);
+	job->replyJsonData(agent);
 }
 
 void FaceRest::handlerPutUser(RestJob *job)
@@ -135,7 +135,7 @@ void FaceRest::handlerPutUser(RestJob *job)
 	HatoholError err = parseUserParameter(userInfo, job->query,
 					      allowEmpty);
 	if (err != HTERR_OK) {
-		replyError(job, err);
+		job->replyError(err);
 		return;
 	}
 
@@ -144,7 +144,7 @@ void FaceRest::handlerPutUser(RestJob *job)
 	err = dataStore->updateUser(
 	  userInfo, job->dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
-		replyError(job, err);
+		job->replyError(err);
 		return;
 	}
 
@@ -154,7 +154,7 @@ void FaceRest::handlerPutUser(RestJob *job)
 	addHatoholError(agent, err);
 	agent.add("id", userInfo.id);
 	agent.endObject();
-	replyJsonData(agent, job);
+	job->replyJsonData(agent);
 }
 
 void FaceRest::handlerDeleteUser(RestJob *job)
@@ -171,7 +171,7 @@ void FaceRest::handlerDeleteUser(RestJob *job)
 	  dataStore->deleteUser(
 	    userId, job->dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
-		replyError(job, err);
+		job->replyError(err);
 		return;
 	}
 
@@ -181,7 +181,7 @@ void FaceRest::handlerDeleteUser(RestJob *job)
 	addHatoholError(agent, err);
 	agent.add("id", userId);
 	agent.endObject();
-	replyJsonData(agent, job);
+	job->replyJsonData(agent);
 }
 
 void FaceRest::handlerAccessInfo(RestJob *job)
@@ -209,7 +209,7 @@ void FaceRest::handlerGetAccessInfo(RestJob *job)
 	ServerAccessInfoMap serversMap;
 	HatoholError error = dataStore->getAccessInfoMap(serversMap, option);
 	if (error != HTERR_OK) {
-		replyError(job, error);
+		job->replyError(error);
 		return;
 	}
 
@@ -252,7 +252,7 @@ void FaceRest::handlerGetAccessInfo(RestJob *job)
 
 	DBClientUser::destroyServerAccessInfoMap(serversMap);
 
-	replyJsonData(agent, job);
+	job->replyJsonData(agent);
 }
 
 void FaceRest::handlerPostAccessInfo(RestJob *job)
@@ -294,7 +294,7 @@ void FaceRest::handlerPostAccessInfo(RestJob *job)
 	  dataStore->addAccessInfo(
 	    accessInfo, job->dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
-		replyError(job, err);
+		job->replyError(err);
 		return;
 	}
 
@@ -304,7 +304,7 @@ void FaceRest::handlerPostAccessInfo(RestJob *job)
 	addHatoholError(agent, err);
 	agent.add("id", accessInfo.id);
 	agent.endObject();
-	replyJsonData(agent, job);
+	job->replyJsonData(agent);
 }
 
 void FaceRest::handlerDeleteAccessInfo(RestJob *job)
@@ -322,7 +322,7 @@ void FaceRest::handlerDeleteAccessInfo(RestJob *job)
 	  dataStore->deleteAccessInfo(
 	    id, job->dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
-		replyError(job, err);
+		job->replyError(err);
 		return;
 	}
 
@@ -332,7 +332,7 @@ void FaceRest::handlerDeleteAccessInfo(RestJob *job)
 	addHatoholError(agent, err);
 	agent.add("id", id);
 	agent.endObject();
-	replyJsonData(agent, job);
+	job->replyJsonData(agent);
 }
 
 void FaceRest::handlerUserRole(RestJob *job)
@@ -380,7 +380,7 @@ void FaceRest::handlerPutUserRole(RestJob *job)
 	HatoholError err = parseUserRoleParameter(userRoleInfo, job->query,
 						  allowEmpty);
 	if (err != HTERR_OK) {
-		replyError(job, err);
+		job->replyError(err);
 		return;
 	}
 
@@ -388,7 +388,7 @@ void FaceRest::handlerPutUserRole(RestJob *job)
 	err = dataStore->updateUserRole(
 	  userRoleInfo, job->dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
-		replyError(job, err);
+		job->replyError(err);
 		return;
 	}
 
@@ -398,7 +398,7 @@ void FaceRest::handlerPutUserRole(RestJob *job)
 	addHatoholError(agent, err);
 	agent.add("id", userRoleInfo.id);
 	agent.endObject();
-	replyJsonData(agent, job);
+	job->replyJsonData(agent);
 }
 
 void FaceRest::handlerGetUserRole(RestJob *job)
@@ -426,7 +426,7 @@ void FaceRest::handlerGetUserRole(RestJob *job)
 	agent.endArray();
 	agent.endObject();
 
-	replyJsonData(agent, job);
+	job->replyJsonData(agent);
 }
 
 void FaceRest::handlerPostUserRole(RestJob *job)
@@ -434,7 +434,7 @@ void FaceRest::handlerPostUserRole(RestJob *job)
 	UserRoleInfo userRoleInfo;
 	HatoholError err = parseUserRoleParameter(userRoleInfo, job->query);
 	if (err != HTERR_OK) {
-		replyError(job, err);
+		job->replyError(err);
 		return;
 	}
 
@@ -443,7 +443,7 @@ void FaceRest::handlerPostUserRole(RestJob *job)
 	err = dataStore->addUserRole(
 	  userRoleInfo, job->dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
-		replyError(job, err);
+		job->replyError(err);
 		return;
 	}
 
@@ -453,7 +453,7 @@ void FaceRest::handlerPostUserRole(RestJob *job)
 	addHatoholError(agent, err);
 	agent.add("id", userRoleInfo.id);
 	agent.endObject();
-	replyJsonData(agent, job);
+	job->replyJsonData(agent);
 }
 
 void FaceRest::handlerDeleteUserRole(RestJob *job)
@@ -471,7 +471,7 @@ void FaceRest::handlerDeleteUserRole(RestJob *job)
 	  dataStore->deleteUserRole(
 	    userRoleId, job->dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
-		replyError(job, err);
+		job->replyError(err);
 		return;
 	}
 
@@ -481,7 +481,7 @@ void FaceRest::handlerDeleteUserRole(RestJob *job)
 	addHatoholError(agent, err);
 	agent.add("id", userRoleId);
 	agent.endObject();
-	replyJsonData(agent, job);
+	job->replyJsonData(agent);
 }
 
 HatoholError FaceRest::updateOrAddUser(GHashTable *query,
