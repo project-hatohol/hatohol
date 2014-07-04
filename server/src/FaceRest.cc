@@ -103,8 +103,8 @@ struct FaceRest::PrivateContext {
 	AtomicValue<bool>   quitRequest;
 
 	// for async mode
-	bool                  asyncMode;
-	size_t                numPreLoadWorkers;
+	bool             asyncMode;
+	size_t           numPreLoadWorkers;
 	set<Worker *>    workers;
 	queue<RestJob *> restJobQueue;
 	MutexLock        restJobLock;
