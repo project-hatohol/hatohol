@@ -169,9 +169,9 @@ void FaceRest::handlerGetServer(RestJob *job)
 	job->replyJsonData(agent);
 }
 
-HatoholError FaceRest::parseServerParameter(
+static HatoholError parseServerParameter(
   MonitoringServerInfo &svInfo, ArmPluginInfo &armPluginInfo,
-  GHashTable *query, const bool &forUpdate)
+  GHashTable *query, const bool &forUpdate = false)
 {
 	const bool allowEmpty = forUpdate;
 	HatoholError err;

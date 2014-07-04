@@ -152,16 +152,6 @@ protected:
 
 	void itemFetchedCallback(ClosureBase *closure);
 
-	static HatoholError parseServerParameter(
-	  MonitoringServerInfo &svInfo, ArmPluginInfo &armPluginInfo,
-	  GHashTable *query, const bool &forUpdate = false);
-	static HatoholError parseUserParameter(UserInfo &userInfo,
-	                                       GHashTable *query,
-					       bool forUpdate = false);
-	static HatoholError parseUserRoleParameter(UserRoleInfo &userRoleInfo,
-	                                           GHashTable *query,
-					           bool forUpdate = false);
-
 	/**
 	 * Update the user informformation if 'name' specifined in 'query'
 	 * exits in the DB. Otherwise, the user is newly added.

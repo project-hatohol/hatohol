@@ -5,6 +5,54 @@
 using namespace std;
 using namespace mlpl;
 
+static HatoholError parseUserParameter(
+  UserInfo &userInfo, GHashTable *query, bool allowEmpty = false)
+{
+	char *value;
+
+	// name
+	value = (char *)g_hash_table_lookup(query, "name");
+	if (!value && !allowEmpty)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "name");
+	if (value)
+		userInfo.name = value;
+
+	// password
+	value = (char *)g_hash_table_lookup(query, "password");
+	if (!value && !allowEmpty)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "password");
+	userInfo.password = value ? value : "";
+
+	// flags
+	HatoholError err = getParam<OperationPrivilegeFlag>(
+		query, "flags", "%" FMT_OPPRVLG, userInfo.flags);
+	if (err != HTERR_OK) {
+		if (!allowEmpty || err != HTERR_NOT_FOUND_PARAMETER)
+			return err;
+	}
+	return HatoholError(HTERR_OK);
+}
+
+static HatoholError parseUserRoleParameter(
+  UserRoleInfo &userRoleInfo, GHashTable *query, bool allowEmpty = false)
+{
+	char *value;
+
+	// name
+	value = (char *)g_hash_table_lookup(query, "name");
+	if (!value && !allowEmpty)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "name");
+	if (value)
+		userRoleInfo.name = value;
+
+	// flags
+	HatoholError err = getParam<OperationPrivilegeFlag>(
+		query, "flags", "%" FMT_OPPRVLG, userRoleInfo.flags);
+	if (err != HTERR_OK && !allowEmpty)
+		return err;
+	return HatoholError(HTERR_OK);
+}
+
 void FaceRest::handlerUser(RestJob *job)
 {
 	// handle sub-resources
@@ -506,54 +554,6 @@ HatoholError FaceRest::updateOrAddUser(GHashTable *query,
 		err = dataStore->updateUser(userInfo, option);
 	}
 	if (err != HTERR_OK)
-		return err;
-	return HatoholError(HTERR_OK);
-}
-
-HatoholError FaceRest::parseUserParameter(
-  UserInfo &userInfo, GHashTable *query, bool allowEmpty)
-{
-	char *value;
-
-	// name
-	value = (char *)g_hash_table_lookup(query, "name");
-	if (!value && !allowEmpty)
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "name");
-	if (value)
-		userInfo.name = value;
-
-	// password
-	value = (char *)g_hash_table_lookup(query, "password");
-	if (!value && !allowEmpty)
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "password");
-	userInfo.password = value ? value : "";
-
-	// flags
-	HatoholError err = getParam<OperationPrivilegeFlag>(
-		query, "flags", "%" FMT_OPPRVLG, userInfo.flags);
-	if (err != HTERR_OK) {
-		if (!allowEmpty || err != HTERR_NOT_FOUND_PARAMETER)
-			return err;
-	}
-	return HatoholError(HTERR_OK);
-}
-
-HatoholError FaceRest::parseUserRoleParameter(
-  UserRoleInfo &userRoleInfo, GHashTable *query, bool allowEmpty)
-{
-	char *value;
-
-	// name
-	value = (char *)g_hash_table_lookup(query, "name");
-	if (!value && !allowEmpty)
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "name");
-	if (value)
-		userRoleInfo.name = value;
-
-	// flags
-	HatoholError err = getParam<OperationPrivilegeFlag>(
-		query, "flags", "%" FMT_OPPRVLG, userRoleInfo.flags);
-	if (err != HTERR_OK && !allowEmpty)
 		return err;
 	return HatoholError(HTERR_OK);
 }
