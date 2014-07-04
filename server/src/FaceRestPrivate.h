@@ -71,7 +71,6 @@ struct FaceRest::RestJob
 	std::string getResourceIdString(int nest = 0);
 	uint64_t    getResourceId(int nest = 0);
 
-public:
 	void replyError(const HatoholError &hatoholError);
 	void replyError(const HatoholErrorCode &errorCode,
 			const std::string &optionMessage = "");
