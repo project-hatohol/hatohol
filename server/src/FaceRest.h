@@ -38,6 +38,9 @@ struct FaceRestParam {
 	}
 };
 
+typedef std::map<TriggerIdType, std::string> TriggerBriefMap;
+typedef std::map<ServerIdType, TriggerBriefMap> TriggerBriefMaps;
+
 class FaceRest : public FaceBase {
 public:
 
@@ -73,6 +76,10 @@ protected:
 	size_t parseCmdArgPort(CommandLineArg &cmdArg, size_t idx);
 	static void addHatoholError(JsonBuilderAgent &agent,
 	                            const HatoholError &err);
+	static void addServersMap(FaceRest::RestJob *job,
+				  JsonBuilderAgent &agent,
+				  TriggerBriefMaps *triggerMaps = NULL,
+				  bool lookupTriggerBrief = false);
 	static void addHostsIsMemberOfGroup(RestJob *job,
 	                                   JsonBuilderAgent &agent,
 	                                   uint64_t targetServerId,
