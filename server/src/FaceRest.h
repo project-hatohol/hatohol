@@ -192,18 +192,6 @@ private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
 
-	// The body is defined in the FaceRest.cc. So this function can
-	// be used only from the soruce file.
-	template<typename T>
-	static HatoholError getParam(
-	  GHashTable *query, const char *paramName,
-	  const char *scanFmt, T &dest);
-
-	template<typename T>
-	static bool getParamWithErrorReply(
-	  RestJob *job, const char *paramName, const char *scanFmt,
-	  T &dest, bool *exist);
-
 	static const char *pathForTest;
 	static const char *pathForLogin;
 	static const char *pathForLogout;
