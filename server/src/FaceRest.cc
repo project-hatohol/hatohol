@@ -518,6 +518,16 @@ void FaceRest::RestJob::replyError(const HatoholErrorCode &errorCode,
 	replyError(hatoholError);
 }
 
+static string wrapForJsonp(const string &jsonBody,
+			   const string &callbackName)
+{
+	string jsonp = callbackName;
+	jsonp += "(";
+	jsonp += jsonBody;
+	jsonp += ")";
+	return jsonp;
+}
+
 void FaceRest::RestJob::replyError(const HatoholError &hatoholError)
 {
 	string messageString
@@ -549,16 +559,6 @@ void FaceRest::RestJob::replyError(const HatoholError &hatoholError)
 	soup_message_set_status(message, SOUP_STATUS_OK);
 
 	replyIsPrepared = true;
-}
-
-string FaceRest::wrapForJsonp(const string &jsonBody,
-                              const string &callbackName)
-{
-	string jsonp = callbackName;
-	jsonp += "(";
-	jsonp += jsonBody;
-	jsonp += ")";
-	return jsonp;
 }
 
 void FaceRest::RestJob::replyJsonData(JsonBuilderAgent &agent)

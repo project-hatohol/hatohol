@@ -84,8 +84,6 @@ protected:
 	                                   JsonBuilderAgent &agent,
 	                                   uint64_t targetServerId,
 	                                   uint64_t targetGroupId);
-	static std::string wrapForJsonp(const std::string &jsonBody,
-	                                const std::string &callbackName);
 	static void replyGetItem(RestJob *job);
 	static void finishRestJobIfNeeded(RestJob *job);
 
