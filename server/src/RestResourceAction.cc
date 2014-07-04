@@ -17,8 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "FaceRest.h"
-#include "FaceRestPrivate.h"
+#include "RestResourceAction.h"
 #include "DBClientAction.h"
 #include "UnifiedDataStore.h"
 
