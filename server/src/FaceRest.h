@@ -58,7 +58,7 @@ public:
 	virtual void setNumberOfPreLoadWorkers(size_t num);
 
 	class Worker;
-	struct RestJob;
+	struct ResourceHandler;
 
 protected:
 	// virtual methods
@@ -76,12 +76,12 @@ protected:
 	size_t parseCmdArgPort(CommandLineArg &cmdArg, size_t idx);
 	static void addHatoholError(JsonBuilderAgent &agent,
 	                            const HatoholError &err);
-	static void addServersMap(FaceRest::RestJob *job,
+	static void addServersMap(FaceRest::ResourceHandler *job,
 				  JsonBuilderAgent &agent,
 				  TriggerBriefMaps *triggerMaps = NULL,
 				  bool lookupTriggerBrief = false);
-	static void replyGetItem(RestJob *job);
-	static void finishRestJobIfNeeded(RestJob *job);
+	static void replyGetItem(ResourceHandler *job);
+	static void finishRestJobIfNeeded(ResourceHandler *job);
 
 	// handlers
 	static void
@@ -91,47 +91,47 @@ protected:
 	static void queueRestJob
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, gpointer user_data);
-	static void launchHandlerInTryBlock(RestJob *job);
+	static void launchHandlerInTryBlock(ResourceHandler *job);
 
-	static void handlerHelloPage(RestJob *job);
-	static void handlerTest(RestJob *job);
-	static void handlerLogin(RestJob *job);
-	static void handlerLogout(RestJob *job);
-	static void handlerGetOverview(RestJob *job);
-	static void handlerServer(RestJob *job);
-	static void handlerGetServer(RestJob *job);
-	static void handlerPostServer(RestJob *job);
-	static void handlerPutServer(RestJob *job);
-	static void handlerDeleteServer(RestJob *job);
-	static void handlerServerConnStat(RestJob *job);
-	static void handlerGetHost(RestJob *job);
-	static void handlerGetTrigger(RestJob *job);
-	static void handlerGetEvent(RestJob *job);
-	static void handlerGetItem(RestJob *job);
+	static void handlerHelloPage(ResourceHandler *job);
+	static void handlerTest(ResourceHandler *job);
+	static void handlerLogin(ResourceHandler *job);
+	static void handlerLogout(ResourceHandler *job);
+	static void handlerGetOverview(ResourceHandler *job);
+	static void handlerServer(ResourceHandler *job);
+	static void handlerGetServer(ResourceHandler *job);
+	static void handlerPostServer(ResourceHandler *job);
+	static void handlerPutServer(ResourceHandler *job);
+	static void handlerDeleteServer(ResourceHandler *job);
+	static void handlerServerConnStat(ResourceHandler *job);
+	static void handlerGetHost(ResourceHandler *job);
+	static void handlerGetTrigger(ResourceHandler *job);
+	static void handlerGetEvent(ResourceHandler *job);
+	static void handlerGetItem(ResourceHandler *job);
 
-	static void handlerAction(RestJob *job);
-	static void handlerGetAction(RestJob *job);
-	static void handlerPostAction(RestJob *job);
-	static void handlerDeleteAction(RestJob *job);
+	static void handlerAction(ResourceHandler *job);
+	static void handlerGetAction(ResourceHandler *job);
+	static void handlerPostAction(ResourceHandler *job);
+	static void handlerDeleteAction(ResourceHandler *job);
 
-	static void handlerGetHostgroup(RestJob *job);
+	static void handlerGetHostgroup(ResourceHandler *job);
 
-	static void handlerUser(RestJob *job);
-	static void handlerGetUser(RestJob *job);
-	static void handlerPostUser(RestJob *job);
-	static void handlerPutUser(RestJob *job);
-	static void handlerDeleteUser(RestJob *job);
+	static void handlerUser(ResourceHandler *job);
+	static void handlerGetUser(ResourceHandler *job);
+	static void handlerPostUser(ResourceHandler *job);
+	static void handlerPutUser(ResourceHandler *job);
+	static void handlerDeleteUser(ResourceHandler *job);
 
-	static void handlerAccessInfo(RestJob *job);
-	static void handlerGetAccessInfo(RestJob *job);
-	static void handlerPostAccessInfo(RestJob *job);
-	static void handlerDeleteAccessInfo(RestJob *job);
+	static void handlerAccessInfo(ResourceHandler *job);
+	static void handlerGetAccessInfo(ResourceHandler *job);
+	static void handlerPostAccessInfo(ResourceHandler *job);
+	static void handlerDeleteAccessInfo(ResourceHandler *job);
 
-	static void handlerUserRole(RestJob *job);
-	static void handlerGetUserRole(RestJob *job);
-	static void handlerPostUserRole(RestJob *job);
-	static void handlerPutUserRole(RestJob *job);
-	static void handlerDeleteUserRole(RestJob *job);
+	static void handlerUserRole(ResourceHandler *job);
+	static void handlerGetUserRole(ResourceHandler *job);
+	static void handlerPostUserRole(ResourceHandler *job);
+	static void handlerPutUserRole(ResourceHandler *job);
+	static void handlerDeleteUserRole(ResourceHandler *job);
 
 	void itemFetchedCallback(ClosureBase *closure);
 

@@ -25,7 +25,7 @@
 
 static const uint64_t INVALID_ID = -1;
 
-typedef void (*RestHandler) (FaceRest::RestJob *job);
+typedef void (*RestHandler) (FaceRest::ResourceHandler *job);
 
 enum FormatType {
 	FORMAT_HTML,
@@ -33,7 +33,7 @@ enum FormatType {
 	FORMAT_JSONP,
 };
 
-struct FaceRest::RestJob
+struct FaceRest::ResourceHandler
 {
 	// arguments of SoupServerCallback
 	SoupMessage       *message;
@@ -55,10 +55,10 @@ struct FaceRest::RestJob
 	bool        replyIsPrepared;
 	DataQueryContextPtr dataQueryContextPtr;
 
-	RestJob(FaceRest *_faceRest, RestHandler _handler,
-		SoupMessage *_msg, const char *_path,
-		GHashTable *_query, SoupClientContext *_client);
-	virtual ~RestJob();
+	ResourceHandler(FaceRest *_faceRest, RestHandler _handler,
+			SoupMessage *_msg, const char *_path,
+			GHashTable *_query, SoupClientContext *_client);
+	virtual ~ResourceHandler();
 
 	SoupServer *getSoupServer(void);
 	GMainContext *getGMainContext(void);
@@ -106,7 +106,7 @@ HatoholError getParam(
 
 template<typename T>
 bool getParamWithErrorReply(
-  FaceRest::RestJob *job, const char *paramName, const char *scanFmt,
+  FaceRest::ResourceHandler *job, const char *paramName, const char *scanFmt,
   T &dest, bool *exist)
 {
 	char *value = (char *)g_hash_table_lookup(job->query, paramName);

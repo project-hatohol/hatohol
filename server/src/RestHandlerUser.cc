@@ -53,7 +53,7 @@ static HatoholError parseUserRoleParameter(
 	return HatoholError(HTERR_OK);
 }
 
-void FaceRest::handlerUser(RestJob *job)
+void FaceRest::handlerUser(ResourceHandler *job)
 {
 	// handle sub-resources
 	string resourceName = job->getResourceName(1);
@@ -80,7 +80,7 @@ void FaceRest::handlerUser(RestJob *job)
 }
 
 static void addUserRolesMap(
-  FaceRest::RestJob *job, JsonBuilderAgent &agent)
+  FaceRest::ResourceHandler *job, JsonBuilderAgent &agent)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	UserRoleInfoList userRoleList;
@@ -104,7 +104,7 @@ static void addUserRolesMap(
 	agent.endObject();
 }
 
-void FaceRest::handlerGetUser(RestJob *job)
+void FaceRest::handlerGetUser(ResourceHandler *job)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
@@ -135,7 +135,7 @@ void FaceRest::handlerGetUser(RestJob *job)
 	job->replyJsonData(agent);
 }
 
-void FaceRest::handlerPostUser(RestJob *job)
+void FaceRest::handlerPostUser(ResourceHandler *job)
 {
 	UserInfo userInfo;
 	HatoholError err = parseUserParameter(userInfo, job->query);
@@ -162,7 +162,7 @@ void FaceRest::handlerPostUser(RestJob *job)
 	job->replyJsonData(agent);
 }
 
-void FaceRest::handlerPutUser(RestJob *job)
+void FaceRest::handlerPutUser(ResourceHandler *job)
 {
 	UserInfo userInfo;
 	userInfo.id = job->getResourceId();
@@ -205,7 +205,7 @@ void FaceRest::handlerPutUser(RestJob *job)
 	job->replyJsonData(agent);
 }
 
-void FaceRest::handlerDeleteUser(RestJob *job)
+void FaceRest::handlerDeleteUser(ResourceHandler *job)
 {
 	uint64_t userId = job->getResourceId();
 	if (userId == INVALID_ID) {
@@ -232,7 +232,7 @@ void FaceRest::handlerDeleteUser(RestJob *job)
 	job->replyJsonData(agent);
 }
 
-void FaceRest::handlerAccessInfo(RestJob *job)
+void FaceRest::handlerAccessInfo(ResourceHandler *job)
 {
 	if (StringUtils::casecmp(job->message->method, "GET")) {
 		handlerGetAccessInfo(job);
@@ -248,7 +248,7 @@ void FaceRest::handlerAccessInfo(RestJob *job)
 	}
 }
 
-void FaceRest::handlerGetAccessInfo(RestJob *job)
+void FaceRest::handlerGetAccessInfo(ResourceHandler *job)
 {
 	AccessInfoQueryOption option(job->dataQueryContextPtr);
 	option.setTargetUserId(job->getResourceId());
@@ -303,7 +303,7 @@ void FaceRest::handlerGetAccessInfo(RestJob *job)
 	job->replyJsonData(agent);
 }
 
-void FaceRest::handlerPostAccessInfo(RestJob *job)
+void FaceRest::handlerPostAccessInfo(ResourceHandler *job)
 {
 	// Get query parameters
 	bool exist;
@@ -355,7 +355,7 @@ void FaceRest::handlerPostAccessInfo(RestJob *job)
 	job->replyJsonData(agent);
 }
 
-void FaceRest::handlerDeleteAccessInfo(RestJob *job)
+void FaceRest::handlerDeleteAccessInfo(ResourceHandler *job)
 {
 	int nest = 1;
 	uint64_t id = job->getResourceId(nest);
@@ -383,7 +383,7 @@ void FaceRest::handlerDeleteAccessInfo(RestJob *job)
 	job->replyJsonData(agent);
 }
 
-void FaceRest::handlerUserRole(RestJob *job)
+void FaceRest::handlerUserRole(ResourceHandler *job)
 {
 	if (StringUtils::casecmp(job->message->method, "GET")) {
 		handlerGetUserRole(job);
@@ -401,7 +401,7 @@ void FaceRest::handlerUserRole(RestJob *job)
 	}
 }
 
-void FaceRest::handlerPutUserRole(RestJob *job)
+void FaceRest::handlerPutUserRole(ResourceHandler *job)
 {
 	uint64_t id = job->getResourceId();
 	if (id == INVALID_ID) {
@@ -449,7 +449,7 @@ void FaceRest::handlerPutUserRole(RestJob *job)
 	job->replyJsonData(agent);
 }
 
-void FaceRest::handlerGetUserRole(RestJob *job)
+void FaceRest::handlerGetUserRole(ResourceHandler *job)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
@@ -477,7 +477,7 @@ void FaceRest::handlerGetUserRole(RestJob *job)
 	job->replyJsonData(agent);
 }
 
-void FaceRest::handlerPostUserRole(RestJob *job)
+void FaceRest::handlerPostUserRole(ResourceHandler *job)
 {
 	UserRoleInfo userRoleInfo;
 	HatoholError err = parseUserRoleParameter(userRoleInfo, job->query);
@@ -504,7 +504,7 @@ void FaceRest::handlerPostUserRole(RestJob *job)
 	job->replyJsonData(agent);
 }
 
-void FaceRest::handlerDeleteUserRole(RestJob *job)
+void FaceRest::handlerDeleteUserRole(ResourceHandler *job)
 {
 	uint64_t id = job->getResourceId();
 	if (id == INVALID_ID) {
