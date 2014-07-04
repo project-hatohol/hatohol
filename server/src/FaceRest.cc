@@ -100,7 +100,7 @@ struct FaceRest::PrivateContext {
 	bool             asyncMode;
 	size_t           numPreLoadWorkers;
 	set<Worker *>    workers;
-	queue<RestJob *> restJobQueue;
+	queue<ResourceHandler *> restJobQueue;
 	MutexLock        restJobLock;
 	sem_t            waitJobSemaphore;
 
@@ -128,7 +128,7 @@ struct FaceRest::PrivateContext {
 		return string(FaceRest::pathForUser) + "/me";
 	}
 
-	void pushJob(RestJob *job)
+	void pushJob(ResourceHandler *job)
 	{
 		restJobLock.lock();
 		restJobQueue.push(job);
@@ -145,9 +145,9 @@ struct FaceRest::PrivateContext {
 		return !quitRequest.get();
 	}
 
-	RestJob *popJob(void)
+	ResourceHandler *popJob(void)
 	{
-		RestJob *job = NULL;
+		ResourceHandler *job = NULL;
 		restJobLock.lock();
 		if (!restJobQueue.empty()) {
 			job = restJobQueue.front();
@@ -189,7 +189,7 @@ public:
 protected:
 	virtual gpointer mainThread(HatoholThreadArg *arg)
 	{
-		RestJob *job;
+		ResourceHandler *job;
 		MLPL_INFO("start face-rest worker\n");
 		while ((job = waitNextJob())) {
 			launchHandlerInTryBlock(job);
@@ -200,10 +200,10 @@ protected:
 	}
 
 private:
-	RestJob *waitNextJob(void)
+	ResourceHandler *waitNextJob(void)
 	{
 		while (m_faceRest->m_ctx->waitJob()) {
-			RestJob *job = m_faceRest->m_ctx->popJob();
+			ResourceHandler *job = m_faceRest->m_ctx->popJob();
 			if (job)
 				return job;
 		}
@@ -552,8 +552,8 @@ void FaceRest::queueRestJob
 
 	HandlerClosure *closure = static_cast<HandlerClosure *>(user_data);
 	FaceRest *face = closure->m_faceRest;
-	RestJob *job = new RestJob(face, closure->m_handler,
-				   msg, path, query, client);
+	ResourceHandler *job = new ResourceHandler(face, closure->m_handler,
+						   msg, path, query, client);
 	if (!job->prepare())
 		return;
 
@@ -567,7 +567,7 @@ void FaceRest::queueRestJob
 	}
 }
 
-void FaceRest::finishRestJobIfNeeded(RestJob *job)
+void FaceRest::finishRestJobIfNeeded(ResourceHandler *job)
 {
 	if (job->replyIsPrepared) {
 		job->unpauseResponse();
@@ -575,7 +575,7 @@ void FaceRest::finishRestJobIfNeeded(RestJob *job)
 	}
 }
 
-void FaceRest::launchHandlerInTryBlock(RestJob *job)
+void FaceRest::launchHandlerInTryBlock(ResourceHandler *job)
 {
 	try {
 		(*job->handler)(job);
@@ -585,7 +585,7 @@ void FaceRest::launchHandlerInTryBlock(RestJob *job)
 	}
 }
 
-void FaceRest::handlerHelloPage(RestJob *job)
+void FaceRest::handlerHelloPage(ResourceHandler *job)
 {
 	string response;
 	const char *pageTemplate =
@@ -599,7 +599,7 @@ void FaceRest::handlerHelloPage(RestJob *job)
 	job->replyIsPrepared = true;
 }
 
-void FaceRest::handlerTest(RestJob *job)
+void FaceRest::handlerTest(ResourceHandler *job)
 {
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -648,7 +648,7 @@ void FaceRest::handlerTest(RestJob *job)
 	job->replyJsonData(agent);
 }
 
-void FaceRest::handlerLogin(RestJob *job)
+void FaceRest::handlerLogin(ResourceHandler *job)
 {
 	gchar *user = (gchar *)g_hash_table_lookup(job->query, "user");
 	if (!user) {
@@ -684,7 +684,7 @@ void FaceRest::handlerLogin(RestJob *job)
 	job->replyJsonData(agent);
 }
 
-void FaceRest::handlerLogout(RestJob *job)
+void FaceRest::handlerLogout(ResourceHandler *job)
 {
 	SessionManager *sessionMgr = SessionManager::getInstance();
 	if (!sessionMgr->remove(job->sessionId)) {
@@ -702,10 +702,10 @@ void FaceRest::handlerLogout(RestJob *job)
 
 
 // ---------------------------------------------------------------------------
-// FaceRest::RestJob
+// FaceRest::ResourceHandler
 // ---------------------------------------------------------------------------
 
-FaceRest::RestJob::RestJob
+FaceRest::ResourceHandler::ResourceHandler
   (FaceRest *_faceRest, RestHandler _handler, SoupMessage *_msg,
    const char *_path, GHashTable *_query, SoupClientContext *_client)
 : message(_msg), path(_path ? _path : ""), query(_query), client(_client),
@@ -721,30 +721,30 @@ FaceRest::RestJob::RestJob
 	// inclement reference count of them.
 }
 
-FaceRest::RestJob::~RestJob()
+FaceRest::ResourceHandler::~ResourceHandler()
 {
 	if (query)
 		g_hash_table_unref(query);
 }
 
-SoupServer *FaceRest::RestJob::getSoupServer(void)
+SoupServer *FaceRest::ResourceHandler::getSoupServer(void)
 {
 	return faceRest ? faceRest->getSoupServer() : NULL;
 }
 
-GMainContext *FaceRest::RestJob::getGMainContext(void)
+GMainContext *FaceRest::ResourceHandler::getGMainContext(void)
 {
 	return faceRest ? faceRest->getGMainContext() : NULL;
 }
 
-bool FaceRest::RestJob::pathIsUserMe(void)
+bool FaceRest::ResourceHandler::pathIsUserMe(void)
 {
 	if (!faceRest)
 		return false;
 	return (path == faceRest->getPathForUserMe());
 }
 
-string FaceRest::RestJob::getJsonpCallbackName(void)
+string FaceRest::ResourceHandler::getJsonpCallbackName(void)
 {
 	if (formatType != FORMAT_JSONP)
 		return "";
@@ -761,7 +761,7 @@ string FaceRest::RestJob::getJsonpCallbackName(void)
 	return callbackName;
 }
 
-bool FaceRest::RestJob::parseFormatType(void)
+bool FaceRest::ResourceHandler::parseFormatType(void)
 {
 	formatString.clear();
 	if (!query) {
@@ -783,7 +783,7 @@ bool FaceRest::RestJob::parseFormatType(void)
 	return true;
 }
 
-bool FaceRest::RestJob::prepare(void)
+bool FaceRest::ResourceHandler::prepare(void)
 {
 	const char *_sessionId =
 	   soup_message_headers_get_one(message->request_headers,
@@ -841,7 +841,7 @@ bool FaceRest::RestJob::prepare(void)
 	return true;
 }
 
-void FaceRest::RestJob::pauseResponse(void)
+void FaceRest::ResourceHandler::pauseResponse(void)
 {
 	soup_server_pause_message(getSoupServer(), message);
 }
@@ -860,7 +860,7 @@ static gboolean idleUnpause(gpointer data)
 	return FALSE;
 }
 
-void FaceRest::RestJob::unpauseResponse(void)
+void FaceRest::ResourceHandler::unpauseResponse(void)
 {
 	if (g_main_context_acquire(getGMainContext())) {
 		// FaceRest thread
@@ -876,7 +876,7 @@ void FaceRest::RestJob::unpauseResponse(void)
 	}
 }
 
-string FaceRest::RestJob::getResourceName(int nest)
+string FaceRest::ResourceHandler::getResourceName(int nest)
 {
 	size_t idx = nest * 2;
 	if (pathElements.size() > idx)
@@ -884,7 +884,7 @@ string FaceRest::RestJob::getResourceName(int nest)
 	return string();
 }
 
-string FaceRest::RestJob::getResourceIdString(int nest)
+string FaceRest::ResourceHandler::getResourceIdString(int nest)
 {
 	size_t idx = nest * 2 + 1;
 	if (pathElements.size() > idx)
@@ -892,7 +892,7 @@ string FaceRest::RestJob::getResourceIdString(int nest)
 	return string();
 }
 
-uint64_t FaceRest::RestJob::getResourceId(int nest)
+uint64_t FaceRest::ResourceHandler::getResourceId(int nest)
 {
 	size_t idx = nest * 2 + 1;
 	if (pathElements.size() <= idx)
@@ -903,8 +903,8 @@ uint64_t FaceRest::RestJob::getResourceId(int nest)
 	return id;
 }
 
-void FaceRest::RestJob::replyError(const HatoholErrorCode &errorCode,
-				   const string &optionMessage)
+void FaceRest::ResourceHandler::replyError(const HatoholErrorCode &errorCode,
+					   const string &optionMessage)
 {
 	HatoholError hatoholError(errorCode, optionMessage);
 	replyError(hatoholError);
@@ -920,7 +920,7 @@ static string wrapForJsonp(const string &jsonBody,
 	return jsonp;
 }
 
-void FaceRest::RestJob::replyError(const HatoholError &hatoholError)
+void FaceRest::ResourceHandler::replyError(const HatoholError &hatoholError)
 {
 	string error
 	  = StringUtils::sprintf("%d", hatoholError.getCode());
@@ -953,7 +953,7 @@ void FaceRest::RestJob::replyError(const HatoholError &hatoholError)
 	replyIsPrepared = true;
 }
 
-void FaceRest::RestJob::replyJsonData(JsonBuilderAgent &agent)
+void FaceRest::ResourceHandler::replyJsonData(JsonBuilderAgent &agent)
 {
 	string response = agent.generate();
 	if (!jsonpCallbackName.empty())

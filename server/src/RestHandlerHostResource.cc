@@ -223,7 +223,7 @@ static HatoholError parseItemParameter(ItemsQueryOption &option,
 }
 
 static HatoholError
-addHostgroupsMap(FaceRest::RestJob *job, JsonBuilderAgent &outputJson,
+addHostgroupsMap(FaceRest::ResourceHandler *job, JsonBuilderAgent &outputJson,
                  const MonitoringServerInfo &serverInfo,
                  HostgroupInfoList &hostgroupList)
 {
@@ -251,14 +251,14 @@ addHostgroupsMap(FaceRest::RestJob *job, JsonBuilderAgent &outputJson,
 }
 
 static HatoholError
-addHostgroupsMap(FaceRest::RestJob *job, JsonBuilderAgent &outputJson,
+addHostgroupsMap(FaceRest::ResourceHandler *job, JsonBuilderAgent &outputJson,
                  const MonitoringServerInfo &serverInfo)
 {
 	HostgroupInfoList hostgroupList;
 	return addHostgroupsMap(job, outputJson, serverInfo, hostgroupList);
 }
 
-static HatoholError addOverviewEachServer(FaceRest::RestJob *job,
+static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 					  JsonBuilderAgent &agent,
 					  MonitoringServerInfo &svInfo,
 					  bool &serverIsGoodStatus)
@@ -373,7 +373,7 @@ static HatoholError addOverviewEachServer(FaceRest::RestJob *job,
 	return HTERR_OK;
 }
 
-static HatoholError addOverview(FaceRest::RestJob *job, JsonBuilderAgent &agent)
+static HatoholError addOverview(FaceRest::ResourceHandler *job, JsonBuilderAgent &agent)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	MonitoringServerInfoList monitoringServers;
@@ -403,7 +403,7 @@ static HatoholError addOverview(FaceRest::RestJob *job, JsonBuilderAgent &agent)
 	return HTERR_OK;
 }
 
-static void addHosts(FaceRest::RestJob *job, JsonBuilderAgent &agent,
+static void addHosts(FaceRest::ResourceHandler *job, JsonBuilderAgent &agent,
                      const ServerIdType &targetServerId,
                      const HostgroupIdType &targetHostgroupId,
                      const HostIdType &targetHostId)
@@ -431,7 +431,7 @@ static void addHosts(FaceRest::RestJob *job, JsonBuilderAgent &agent,
 }
 
 static void addHostsMap(
-  FaceRest::RestJob *job, JsonBuilderAgent &agent,
+  FaceRest::ResourceHandler *job, JsonBuilderAgent &agent,
   const MonitoringServerInfo &serverInfo)
 {
 	HostgroupIdType targetHostgroupId = ALL_HOST_GROUPS;
@@ -457,7 +457,7 @@ static void addHostsMap(
 }
 
 static string getTriggerBrief(
-  FaceRest::RestJob *job, const ServerIdType serverId, const TriggerIdType triggerId)
+  FaceRest::ResourceHandler *job, const ServerIdType serverId, const TriggerIdType triggerId)
 {
 	string triggerBrief;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
@@ -485,7 +485,7 @@ static string getTriggerBrief(
 }
 
 static void addTriggersIdBriefHash(
-  FaceRest::RestJob *job,
+  FaceRest::ResourceHandler *job,
   JsonBuilderAgent &agent, const MonitoringServerInfo &serverInfo,
   TriggerBriefMaps &triggerMaps, bool lookupTriggerBrief = false)
 {
@@ -509,7 +509,7 @@ static void addTriggersIdBriefHash(
 }
 
 void FaceRest::addServersMap(
-  FaceRest::RestJob *job,
+  FaceRest::ResourceHandler *job,
   JsonBuilderAgent &agent,
   TriggerBriefMaps *triggerMaps, bool lookupTriggerBrief)
 {
@@ -544,7 +544,7 @@ void FaceRest::addServersMap(
 	agent.endObject();
 }
 
-void FaceRest::handlerGetOverview(RestJob *job)
+void FaceRest::handlerGetOverview(ResourceHandler *job)
 {
 	JsonBuilderAgent agent;
 	HatoholError err;
@@ -560,7 +560,7 @@ void FaceRest::handlerGetOverview(RestJob *job)
 	job->replyJsonData(agent);
 }
 
-void FaceRest::handlerGetHost(RestJob *job)
+void FaceRest::handlerGetHost(ResourceHandler *job)
 {
 	HostsQueryOption option(job->dataQueryContextPtr);
 	HatoholError err = parseHostResourceQueryParameter(option, job->query);
@@ -581,7 +581,7 @@ void FaceRest::handlerGetHost(RestJob *job)
 	job->replyJsonData(agent);
 }
 
-void FaceRest::handlerGetTrigger(RestJob *job)
+void FaceRest::handlerGetTrigger(ResourceHandler *job)
 {
 	TriggersQueryOption option(job->dataQueryContextPtr);
 	HatoholError err = parseTriggerParameter(option, job->query);
@@ -620,7 +620,7 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 	job->replyJsonData(agent);
 }
 
-static uint64_t getLastUnifiedEventId(FaceRest::RestJob *job)
+static uint64_t getLastUnifiedEventId(FaceRest::ResourceHandler *job)
 {
 	EventsQueryOption option(job->dataQueryContextPtr);
 	option.setMaximumNumber(1);
@@ -639,7 +639,7 @@ static uint64_t getLastUnifiedEventId(FaceRest::RestJob *job)
 	return lastUnifiedId;
 }
 
-static void addIssue(FaceRest::RestJob *job, JsonBuilderAgent &agent,
+static void addIssue(FaceRest::ResourceHandler *job, JsonBuilderAgent &agent,
 		     const IssueInfo &issue)
 {
 	agent.startObject("issue");
@@ -648,7 +648,7 @@ static void addIssue(FaceRest::RestJob *job, JsonBuilderAgent &agent,
 	agent.endObject();
 }
 
-void FaceRest::handlerGetEvent(RestJob *job)
+void FaceRest::handlerGetEvent(ResourceHandler *job)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
@@ -712,10 +712,10 @@ void FaceRest::handlerGetEvent(RestJob *job)
 
 struct GetItemClosure : Closure<FaceRest>
 {
-	struct FaceRest::RestJob *m_restJob;
+	struct FaceRest::ResourceHandler *m_restJob;
 	GetItemClosure(FaceRest *receiver,
 		       callback func,
-		       struct FaceRest::RestJob *restJob)
+		       struct FaceRest::ResourceHandler *restJob)
 	: Closure<FaceRest>::Closure(receiver, func), m_restJob(restJob)
 	{
 	}
@@ -726,7 +726,7 @@ struct GetItemClosure : Closure<FaceRest>
 	}
 };
 
-void FaceRest::replyGetItem(RestJob *job)
+void FaceRest::replyGetItem(ResourceHandler *job)
 {
 	ItemsQueryOption option(job->dataQueryContextPtr);
 	HatoholError err = parseItemParameter(option, job->query);
@@ -769,12 +769,12 @@ void FaceRest::replyGetItem(RestJob *job)
 void FaceRest::itemFetchedCallback(ClosureBase *closure)
 {
 	GetItemClosure *data = dynamic_cast<GetItemClosure*>(closure);
-	RestJob *job = data->m_restJob;
+	ResourceHandler *job = data->m_restJob;
 	replyGetItem(job);
 	job->unpauseResponse();
 }
 
-void FaceRest::handlerGetItem(RestJob *job)
+void FaceRest::handlerGetItem(ResourceHandler *job)
 {
 	ItemsQueryOption option(job->dataQueryContextPtr);
 	HatoholError err = parseItemParameter(option, job->query);
@@ -791,7 +791,7 @@ void FaceRest::handlerGetItem(RestJob *job)
 
 	// TODO: Fix a crash.
 	// There is a bug. When 'closure' is cleared before
-	// finishRestJobIfNeeded(RestJob *job) is called, 'job' is deleted
+	// finishRestJobIfNeeded(ResourceHandler *job) is called, 'job' is deleted
 	// in the destructor and becomes a dangling pointer. Then it is used
 	// in finishRestJobIfNeeded(). As a result, hatohol crashes.
 	// NOTE: Actually, fetching items takes a little time.
@@ -807,7 +807,7 @@ void FaceRest::handlerGetItem(RestJob *job)
 }
 
 static void addHostsIsMemberOfGroup(
-  FaceRest::RestJob *job, JsonBuilderAgent &agent,
+  FaceRest::ResourceHandler *job, JsonBuilderAgent &agent,
   uint64_t targetServerId, uint64_t targetGroupId)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
@@ -827,7 +827,7 @@ static void addHostsIsMemberOfGroup(
 	agent.endArray();
 }
 
-void FaceRest::handlerGetHostgroup(RestJob *job)
+void FaceRest::handlerGetHostgroup(ResourceHandler *job)
 {
 	HostgroupsQueryOption option(job->dataQueryContextPtr);
 	HatoholError err = parseHostResourceQueryParameter(option, job->query);

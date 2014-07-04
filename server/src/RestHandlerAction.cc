@@ -37,7 +37,7 @@ static void setActionCondition(
 			agent.addNull(member);
 }
 
-void FaceRest::handlerAction(RestJob *job)
+void FaceRest::handlerAction(ResourceHandler *job)
 {
 	if (StringUtils::casecmp(job->message->method, "GET")) {
 		handlerGetAction(job);
@@ -53,7 +53,7 @@ void FaceRest::handlerAction(RestJob *job)
 	}
 }
 
-void FaceRest::handlerGetAction(RestJob *job)
+void FaceRest::handlerGetAction(ResourceHandler *job)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
@@ -115,7 +115,7 @@ void FaceRest::handlerGetAction(RestJob *job)
 	job->replyJsonData(agent);
 }
 
-void FaceRest::handlerPostAction(RestJob *job)
+void FaceRest::handlerPostAction(ResourceHandler *job)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
@@ -263,7 +263,7 @@ void FaceRest::handlerPostAction(RestJob *job)
 	job->replyJsonData(agent);
 }
 
-void FaceRest::handlerDeleteAction(RestJob *job)
+void FaceRest::handlerDeleteAction(ResourceHandler *job)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 

@@ -54,7 +54,7 @@ static void addNumberOfAllowedHostgroups(UnifiedDataStore *dataStore,
 	outputJson.add("numberOfAllowedHostgroups", numberOfAllowedHostgroups);
 }
 
-static void addServers(FaceRest::RestJob *job, JsonBuilderAgent &agent,
+static void addServers(FaceRest::ResourceHandler *job, JsonBuilderAgent &agent,
                        const ServerIdType &targetServerId,
                        const bool &showHostgroupInfo,
                        const UserIdType &targetUserId)
@@ -113,7 +113,7 @@ static void addServers(FaceRest::RestJob *job, JsonBuilderAgent &agent,
 	agent.endArray();
 }
 
-void FaceRest::handlerServer(RestJob *job)
+void FaceRest::handlerServer(ResourceHandler *job)
 {
 	if (StringUtils::casecmp(job->message->method, "GET")) {
 		handlerGetServer(job);
@@ -168,7 +168,7 @@ static bool parseQueryShowHostgroupInfo(GHashTable *query, UserIdType &targetUse
 		return false;
 }
 
-void FaceRest::handlerGetServer(RestJob *job)
+void FaceRest::handlerGetServer(ResourceHandler *job)
 {
 	ServerIdType targetServerId;
 	UserIdType targetUserId = 0;
@@ -308,7 +308,7 @@ static HatoholError parseServerParameter(
 	return HTERR_OK;
 }
 
-void FaceRest::handlerPostServer(RestJob *job)
+void FaceRest::handlerPostServer(ResourceHandler *job)
 {
 	MonitoringServerInfo svInfo;
 	ArmPluginInfo        armPluginInfo;
@@ -338,7 +338,7 @@ void FaceRest::handlerPostServer(RestJob *job)
 	job->replyJsonData(agent);
 }
 
-void FaceRest::handlerPutServer(RestJob *job)
+void FaceRest::handlerPutServer(ResourceHandler *job)
 {
 	uint64_t serverId;
 	serverId = job->getResourceId();
@@ -396,7 +396,7 @@ void FaceRest::handlerPutServer(RestJob *job)
 	job->replyJsonData(agent);
 }
 
-void FaceRest::handlerDeleteServer(RestJob *job)
+void FaceRest::handlerDeleteServer(ResourceHandler *job)
 {
 	uint64_t serverId = job->getResourceId();
 	if (serverId == INVALID_ID) {
@@ -423,7 +423,7 @@ void FaceRest::handlerDeleteServer(RestJob *job)
 	job->replyJsonData(agent);
 }
 
-void FaceRest::handlerServerConnStat(RestJob *job)
+void FaceRest::handlerServerConnStat(ResourceHandler *job)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	ServerConnStatusVector serverConnStatVec;
