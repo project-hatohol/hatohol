@@ -22,6 +22,7 @@
 
 #include <HapZabbixAPI.h>
 #include <SimpleSemaphore.h>
+#include <MutexLock.h>
 #include "Utils.h"
 #include "HapProcess.h"
 
@@ -92,6 +93,7 @@ struct HapProcessZabbixAPI::PrivateContext {
 	SimpleSemaphore      mainThreadSem;
 	// TODO: set readyFlag false when the connection is lost.
 	AtomicValue<bool>    readyFlag;
+	MutexLock            lock;
 
 	PrivateContext(void)
 	: startSem(0),
@@ -254,6 +256,9 @@ bool HapProcessZabbixAPI::sleepForMainThread(const int &sleepTimeInSec)
 
 void HapProcessZabbixAPI::startAcquisition(void)
 {
+	m_ctx->lock.lock();
+	setMonitoringServerInfo(m_ctx->serverInfo);
+	m_ctx->lock.unlock();
 	acquireData();
 }
 
@@ -272,8 +277,9 @@ void HapProcessZabbixAPI::acquireData(void)
 #ifdef USE_EVENT_LOOP
 void HapProcessZabbixAPI::onReady(const MonitoringServerInfo &serverInfo)
 {
+	m_ctx->lock.lock();
 	m_ctx->serverInfo = serverInfo;
-	setMonitoringServerInfo(m_ctx->serverInfo);
+	m_ctx->lock.unlock();
 	struct NoName {
 		static void startAcquisition(HapProcessZabbixAPI *obj)
 		{
