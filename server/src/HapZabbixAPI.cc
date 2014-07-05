@@ -126,7 +126,7 @@ void HapZabbixAPI::onInitiated(void)
 				  "information. This process will try it when "
 				  "an initiation happens again.");
 			}
-			obj->onReady();
+			obj->onReady(serverInfo);
 			delete this;
 		}
 	};
@@ -135,7 +135,7 @@ void HapZabbixAPI::onInitiated(void)
 	getMonitoringServerInfoAsync(new Arg(this));
 }
 
-void HapZabbixAPI::onReady(void)
+void HapZabbixAPI::onReady(const MonitoringServerInfo &serverInfo)
 {
 }
 

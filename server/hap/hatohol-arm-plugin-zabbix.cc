@@ -44,7 +44,7 @@ protected:
 	void onPreWaitInitiatedAck(void) override;
 	void onPostWaitInitiatedAck(void) override;
 #endif // USE_EVENT_LOOP
-	void onReady(void) override;
+	void onReady(const MonitoringServerInfo &serverInfo) override;
 
 #if USE_EVENT_LOOP
 	void startAcquisition(void);
@@ -270,8 +270,9 @@ void HapProcessZabbixAPI::acquireData(void)
 // Methods running on HapZabbixAPI's thread
 //
 #ifdef USE_EVENT_LOOP
-void HapProcessZabbixAPI::onReady(void)
+void HapProcessZabbixAPI::onReady(const MonitoringServerInfo &serverInfo)
 {
+	m_ctx->serverInfo = serverInfo;
 	struct NoName {
 		static void startAcquisition(HapProcessZabbixAPI *obj)
 		{

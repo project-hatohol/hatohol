@@ -36,7 +36,7 @@ protected:
 	void workOnEvents(void);
 
 	virtual void onInitiated(void) override;
-	virtual void onReady(void);
+	virtual void onReady(const MonitoringServerInfo &serverInfo);
 	virtual void onGotNewEvents(ItemTablePtr eventsTablePtr);
 
 private:
