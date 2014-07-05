@@ -89,16 +89,22 @@ private:
 // ---------------------------------------------------------------------------
 struct HapProcessZabbixAPI::PrivateContext {
 	MonitoringServerInfo serverInfo;
+#ifdef USE_EVENT_LOOP
+	MutexLock            lock;
+#else
 	SimpleSemaphore      startSem;
 	SimpleSemaphore      mainThreadSem;
 	// TODO: set readyFlag false when the connection is lost.
 	AtomicValue<bool>    readyFlag;
-	MutexLock            lock;
+#endif // USE_EVENT_LOOP
 
 	PrivateContext(void)
+#ifdef USE_EVENT_LOOP
+#else
 	: startSem(0),
 	  mainThreadSem(0),
 	  readyFlag(false)
+#endif // USE_EVENT_LOOP
 	{
 	}
 };
