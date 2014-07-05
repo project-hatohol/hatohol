@@ -273,6 +273,7 @@ void HapProcessZabbixAPI::acquireData(void)
 void HapProcessZabbixAPI::onReady(const MonitoringServerInfo &serverInfo)
 {
 	m_ctx->serverInfo = serverInfo;
+	setMonitoringServerInfo(m_ctx->serverInfo);
 	struct NoName {
 		static void startAcquisition(HapProcessZabbixAPI *obj)
 		{
