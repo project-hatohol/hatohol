@@ -22,7 +22,11 @@
 
 #include <HapZabbixAPI.h>
 #include <SimpleSemaphore.h>
+#include "Utils.h"
 #include "HapProcess.h"
+
+// If we will implement code with this way, we should remove the original way and dirty #ifdef and #if.
+#define USE_EVENT_LOOP 1
 
 using namespace mlpl;
 
@@ -36,10 +40,15 @@ protected:
 	gpointer hapMainThread(HatoholThreadArg *arg) override;
 
 	// called from HapZabbixAPI
+#ifndef USE_EVENT_LOOP
 	void onPreWaitInitiatedAck(void) override;
 	void onPostWaitInitiatedAck(void) override;
+#endif // USE_EVENT_LOOP
 	void onReady(void) override;
 
+#if USE_EVENT_LOOP
+	void startAcquisition(void);
+#else
 	/**
 	 * Wait for the callback of onReady.
 	 *
@@ -66,6 +75,7 @@ protected:
 	bool sleepForMainThread(const int &sleepTimeInSec);
 
 	gpointer _hapMainThread(HatoholThreadArg *arg);
+#endif // USE_EVENT_LOOP
 	void acquireData(void);
 
 private:
@@ -120,6 +130,9 @@ int HapProcessZabbixAPI::mainLoopRun(void)
 	if (clarg.queueAddress)
 		setQueueAddress(clarg.queueAddress);
 
+#ifdef USE_EVENT_LOOP
+	HapZabbixAPI::start();
+#else
 	// TODO: Consider the architecuture
 	// Current implementation using two threads is a little complicated.
 	// (especially the synchornization)
@@ -128,6 +141,7 @@ int HapProcessZabbixAPI::mainLoopRun(void)
 	ackInitiated(); // To pass the first initiation
 	HapZabbixAPI::start();
 	HapProcess::start();
+#endif
 	g_main_loop_run(getGMainLoop());
 	return EXIT_SUCCESS;
 }
@@ -138,6 +152,13 @@ int HapProcessZabbixAPI::mainLoopRun(void)
 //
 // Method running on HapProcess's thread
 //
+#ifdef USE_EVENT_LOOP
+gpointer HapProcessZabbixAPI::hapMainThread(HatoholThreadArg *arg)
+{
+	// This method is never called since nobody calls start()
+	return NULL;
+}
+#else
 gpointer HapProcessZabbixAPI::hapMainThread(HatoholThreadArg *arg)
 {
 top:
@@ -229,6 +250,12 @@ bool HapProcessZabbixAPI::sleepForMainThread(const int &sleepTimeInSec)
 
 	return false;
 }
+#endif // USE_EVENT_LOOP
+
+void HapProcessZabbixAPI::startAcquisition(void)
+{
+	acquireData();
+}
 
 void HapProcessZabbixAPI::acquireData(void)
 {
@@ -242,6 +269,18 @@ void HapProcessZabbixAPI::acquireData(void)
 //
 // Methods running on HapZabbixAPI's thread
 //
+#ifdef USE_EVENT_LOOP
+void HapProcessZabbixAPI::onReady(void)
+{
+	struct NoName {
+		static void startAcquisition(HapProcessZabbixAPI *obj)
+		{
+			obj->startAcquisition();
+		}
+	};
+	Utils::executeOnGLibEventLoop<HapProcessZabbixAPI>(NoName::startAcquisition);
+}
+#else
 void HapProcessZabbixAPI::onPreWaitInitiatedAck(void)
 {
 	m_ctx->mainThreadSem.post();
@@ -261,6 +300,7 @@ void HapProcessZabbixAPI::onReady(void)
 	m_ctx->readyFlag = true;
 	m_ctx->mainThreadSem.post();
 }
+#endif // USE_EVENT_LOOP
 
 // ---------------------------------------------------------------------------
 // main
