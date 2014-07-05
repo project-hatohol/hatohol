@@ -278,7 +278,8 @@ void HapProcessZabbixAPI::onReady(void)
 			obj->startAcquisition();
 		}
 	};
-	Utils::executeOnGLibEventLoop<HapProcessZabbixAPI>(NoName::startAcquisition);
+	Utils::executeOnGLibEventLoop<HapProcessZabbixAPI>(
+	  NoName::startAcquisition, this, ASYNC);
 }
 #else
 void HapProcessZabbixAPI::onPreWaitInitiatedAck(void)
