@@ -29,6 +29,7 @@
 // If we will implement code with this way, we should remove the original way and dirty #ifdef and #if.
 #define USE_EVENT_LOOP 1
 
+using namespace std;
 using namespace mlpl;
 
 class HapProcessZabbixAPI : public HapProcess, public HapZabbixAPI {
@@ -48,6 +49,7 @@ protected:
 	void onReady(const MonitoringServerInfo &serverInfo) override;
 
 #if USE_EVENT_LOOP
+	static gboolean acquisitionTimerCb(void *data);
 	void startAcquisition(void);
 #else
 	/**
@@ -91,6 +93,7 @@ struct HapProcessZabbixAPI::PrivateContext {
 	MonitoringServerInfo serverInfo;
 #ifdef USE_EVENT_LOOP
 	MutexLock            lock;
+	guint                timerTag;
 #else
 	SimpleSemaphore      startSem;
 	SimpleSemaphore      mainThreadSem;
@@ -100,6 +103,7 @@ struct HapProcessZabbixAPI::PrivateContext {
 
 	PrivateContext(void)
 #ifdef USE_EVENT_LOOP
+	: timerTag(INVALID_EVENT_ID)
 #else
 	: startSem(0),
 	  mainThreadSem(0),
@@ -166,6 +170,56 @@ gpointer HapProcessZabbixAPI::hapMainThread(HatoholThreadArg *arg)
 	// This method is never called since nobody calls start()
 	return NULL;
 }
+
+gboolean  HapProcessZabbixAPI::acquisitionTimerCb(void *data)
+{
+	HapProcessZabbixAPI *obj = static_cast<HapProcessZabbixAPI *>(data);
+	obj->m_ctx->timerTag = INVALID_EVENT_ID;
+	obj->startAcquisition();
+	return G_SOURCE_REMOVE;
+}
+
+void HapProcessZabbixAPI::startAcquisition(void)
+{
+	if (m_ctx->timerTag != INVALID_EVENT_ID) {
+		// TODO: cancel previous one
+	}
+
+	m_ctx->lock.lock();
+	int pollingIntervalSec = m_ctx->serverInfo.pollingIntervalSec;
+	int retryIntervalSec   = m_ctx->serverInfo.retryIntervalSec;
+	// TODO: Don't call setMonitoringServerInfo() if m_ctx->serverInfo is
+	//       not changed except for the first time.
+	setMonitoringServerInfo(m_ctx->serverInfo);
+	m_ctx->lock.unlock();
+
+	bool caughtException = false;
+	string exceptionName;
+	string exceptionMsg;
+	try {
+		acquireData();
+	} catch (const HatoholException &e) {
+		exceptionName = DEMANGLED_TYPE_NAME(e);
+		exceptionMsg  = e.getFancyMessage();
+		caughtException = true;
+	} catch (const exception &e) {
+		exceptionName = DEMANGLED_TYPE_NAME(e);
+		exceptionMsg  = e.what();
+		caughtException = true;
+	} catch (...) {
+		caughtException = true;
+	}
+
+	guint intervalMSec = pollingIntervalSec * 1000;
+	if (caughtException) {
+		intervalMSec = retryIntervalSec * 1000;
+		const char *name = exceptionName.c_str() ? : "Unknown";
+		const char *msg  = exceptionMsg.c_str()  ? : "N/A";
+		MLPL_ERR("Caught an exception: (%s) %s\n", name, msg);
+	}
+	m_ctx->timerTag = g_timeout_add(intervalMSec, acquisitionTimerCb, this);
+}
+
 #else
 gpointer HapProcessZabbixAPI::hapMainThread(HatoholThreadArg *arg)
 {
@@ -259,14 +313,6 @@ bool HapProcessZabbixAPI::sleepForMainThread(const int &sleepTimeInSec)
 	return false;
 }
 #endif // USE_EVENT_LOOP
-
-void HapProcessZabbixAPI::startAcquisition(void)
-{
-	m_ctx->lock.lock();
-	setMonitoringServerInfo(m_ctx->serverInfo);
-	m_ctx->lock.unlock();
-	acquireData();
-}
 
 void HapProcessZabbixAPI::acquireData(void)
 {
