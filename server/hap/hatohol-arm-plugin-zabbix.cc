@@ -184,9 +184,21 @@ gboolean  HapProcessZabbixAPI::acquisitionTimerCb(void *data)
 void HapProcessZabbixAPI::startAcquisition(void)
 {
 	if (m_ctx->timerTag != INVALID_EVENT_ID) {
-		// TODO: cancel previous one
+		// This condition may happend when unexpected initiation
+		// happens and then onReady() is called. In the case,
+		// we cancel the previous timer.
+		MLPL_INFO("Remove previously registered timer: %u\n",
+		          m_ctx->timerTag);
+		bool succeeded =
+		  Utils::removeEventSourceIfNeeded(m_ctx->timerTag);
+		if (!succeeded) {
+			MLPL_ERR("Failed to remove timer: %u\n",
+		                 m_ctx->timerTag);
+		}
+		m_ctx->timerTag = INVALID_EVENT_ID;
 	}
 
+	// copy the paramter and set server info if needed
 	m_ctx->lock.lock();
 	int pollingIntervalSec = m_ctx->serverInfo.pollingIntervalSec;
 	int retryIntervalSec   = m_ctx->serverInfo.retryIntervalSec;
@@ -196,6 +208,7 @@ void HapProcessZabbixAPI::startAcquisition(void)
 	}
 	m_ctx->lock.unlock();
 
+	// try to acquisition
 	bool caughtException = false;
 	string exceptionName;
 	string exceptionMsg;
@@ -213,6 +226,7 @@ void HapProcessZabbixAPI::startAcquisition(void)
 		caughtException = true;
 	}
 
+	// Set up a timer for next aquisition
 	guint intervalMSec = pollingIntervalSec * 1000;
 	if (caughtException) {
 		intervalMSec = retryIntervalSec * 1000;
