@@ -94,6 +94,7 @@ struct HapProcessZabbixAPI::PrivateContext {
 #ifdef USE_EVENT_LOOP
 	MutexLock            lock;
 	guint                timerTag;
+	bool                 hasNewServerInfo;
 #else
 	SimpleSemaphore      startSem;
 	SimpleSemaphore      mainThreadSem;
@@ -103,7 +104,8 @@ struct HapProcessZabbixAPI::PrivateContext {
 
 	PrivateContext(void)
 #ifdef USE_EVENT_LOOP
-	: timerTag(INVALID_EVENT_ID)
+	: timerTag(INVALID_EVENT_ID),
+	  hasNewServerInfo(false)
 #else
 	: startSem(0),
 	  mainThreadSem(0),
@@ -188,9 +190,10 @@ void HapProcessZabbixAPI::startAcquisition(void)
 	m_ctx->lock.lock();
 	int pollingIntervalSec = m_ctx->serverInfo.pollingIntervalSec;
 	int retryIntervalSec   = m_ctx->serverInfo.retryIntervalSec;
-	// TODO: Don't call setMonitoringServerInfo() if m_ctx->serverInfo is
-	//       not changed except for the first time.
-	setMonitoringServerInfo(m_ctx->serverInfo);
+	if (m_ctx->hasNewServerInfo) {
+		setMonitoringServerInfo(m_ctx->serverInfo);
+		m_ctx->hasNewServerInfo = false;
+	}
 	m_ctx->lock.unlock();
 
 	bool caughtException = false;
@@ -331,6 +334,7 @@ void HapProcessZabbixAPI::onReady(const MonitoringServerInfo &serverInfo)
 {
 	m_ctx->lock.lock();
 	m_ctx->serverInfo = serverInfo;
+	m_ctx->hasNewServerInfo = true;
 	m_ctx->lock.unlock();
 	struct NoName {
 		static void startAcquisition(HapProcessZabbixAPI *obj)
