@@ -184,7 +184,7 @@ gboolean  HapProcessZabbixAPI::acquisitionTimerCb(void *data)
 void HapProcessZabbixAPI::startAcquisition(void)
 {
 	if (m_ctx->timerTag != INVALID_EVENT_ID) {
-		// This condition may happend when unexpected initiation
+		// This condition may happen when unexpected initiation
 		// happens and then onReady() is called. In the case,
 		// we cancel the previous timer.
 		MLPL_INFO("Remove previously registered timer: %u\n",
