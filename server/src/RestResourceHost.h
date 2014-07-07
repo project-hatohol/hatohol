@@ -22,4 +22,16 @@
 
 #include "FaceRestPrivate.h"
 
+struct RestResourceHost : public FaceRest::ResourceHandler
+{
+	static void handlerGetOverview(ResourceHandler *job);
+	static void handlerGetHost(ResourceHandler *job);
+	static void handlerGetTrigger(ResourceHandler *job);
+	static void handlerGetEvent(ResourceHandler *job);
+	static void handlerGetHostgroup(ResourceHandler *job);
+
+	static HatoholError parseEventParameter(EventsQueryOption &option,
+						GHashTable *query);
+};
+
 #endif // RestResourceHost_h

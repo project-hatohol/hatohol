@@ -76,7 +76,6 @@ protected:
 	size_t parseCmdArgPort(CommandLineArg &cmdArg, size_t idx);
 	static void addHatoholError(JsonBuilderAgent &agent,
 	                            const HatoholError &err);
-	static void replyGetItem(ResourceHandler *job);
 	static void finishRestJobIfNeeded(ResourceHandler *job);
 
 	// handlers
@@ -93,14 +92,9 @@ protected:
 	static void handlerTest(ResourceHandler *job);
 	static void handlerLogin(ResourceHandler *job);
 	static void handlerLogout(ResourceHandler *job);
-	static void handlerGetOverview(ResourceHandler *job);
-	static void handlerGetHost(ResourceHandler *job);
-	static void handlerGetTrigger(ResourceHandler *job);
-	static void handlerGetEvent(ResourceHandler *job);
+
 	static void handlerGetItem(ResourceHandler *job);
-
-	static void handlerGetHostgroup(ResourceHandler *job);
-
+	static void replyGetItem(ResourceHandler *job);
 	void itemFetchedCallback(ClosureBase *closure);
 
 	/**
@@ -118,9 +112,6 @@ protected:
 	 */
 	static HatoholError updateOrAddUser(GHashTable *query,
 	                                    UserQueryOption &option);
-
-	static HatoholError parseEventParameter(EventsQueryOption &option,
-						GHashTable *query);
 
 private:
 	struct PrivateContext;
