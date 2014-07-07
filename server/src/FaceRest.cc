@@ -54,9 +54,9 @@ const int FaceRest::DEFAULT_NUM_WORKERS = 4;
 
 static const guint DEFAULT_PORT = 33194;
 
-const char *FaceRest::pathForTest        = "/test";
-const char *FaceRest::pathForLogin       = "/login";
-const char *FaceRest::pathForLogout      = "/logout";
+const char *FaceRest::pathForTest   = "/test";
+const char *FaceRest::pathForLogin  = "/login";
+const char *FaceRest::pathForLogout = "/logout";
 
 static const char *MIME_HTML = "text/html";
 static const char *MIME_JSON = "application/json";
