@@ -544,10 +544,10 @@ void FaceRest::queueRestJob
 	ResourceHandlerFactory *factory
 	  = static_cast<ResourceHandlerFactory *>(user_data);
 	FaceRest *face = factory->m_faceRest;
-	ResourceHandler *job
-	  = factory->createHandler(face, factory->m_handler,
-				   msg, path, query, client);
-	if (!job->prepare())
+	ResourceHandler *job = factory->createHandler();
+	bool succeeded = job->init(face, factory->m_handler, msg, path,
+				   query, client);
+	if (!succeeded)
 		return;
 
 	job->pauseResponse();
@@ -700,19 +700,32 @@ void FaceRest::handlerLogout(ResourceHandler *job)
 // FaceRest::ResourceHandler
 // ---------------------------------------------------------------------------
 
-FaceRest::ResourceHandler::ResourceHandler
-  (FaceRest *_faceRest, RestHandler _handler, SoupMessage *_msg,
-   const char *_path, GHashTable *_query, SoupClientContext *_client)
-: message(_msg), path(_path ? _path : ""), query(_query), client(_client),
-  faceRest(_faceRest), handler(_handler), mimeType(NULL),
+FaceRest::ResourceHandler::ResourceHandler()
+: message(NULL), path(), query(NULL), client(NULL),
+  faceRest(NULL), handler(NULL), mimeType(NULL),
   userId(INVALID_USER_ID), replyIsPrepared(false)
 {
+}
+
+bool FaceRest::ResourceHandler::init
+  (FaceRest *_faceRest, RestHandler _handler, SoupMessage *_msg,
+   const char *_path, GHashTable *_query, SoupClientContext *_client)
+{
+	message  = _msg;
+	path     = _path ? _path : "";
+	query    = _query;
+	client   = _client;
+	faceRest = _faceRest;
+	handler  = _handler;
+
 	if (query)
 		g_hash_table_ref(query);
 
 	// Since life-span of other libsoup's objects should always be longer
 	// than this object and shoube be managed by libsoup, we don't
 	// inclement reference count of them.
+
+	return prepare();
 }
 
 FaceRest::ResourceHandler::~ResourceHandler()
@@ -990,10 +1003,8 @@ void FaceRest::ResourceHandlerFactory::destroy(gpointer data)
 	delete factory;
 }
 
-FaceRest::ResourceHandler *FaceRest::ResourceHandlerFactory::createHandler(
-  FaceRest *faceRest, RestHandler handler, SoupMessage *msg, const char *path,
-  GHashTable *query, SoupClientContext *client)
+FaceRest::ResourceHandler *
+FaceRest::ResourceHandlerFactory::createHandler(void)
 {
-	return new ResourceHandler(faceRest, handler, msg,
-				   path, query, client);
+	return new ResourceHandler();
 }
