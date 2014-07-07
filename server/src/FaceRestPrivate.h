@@ -22,7 +22,7 @@
 
 #include "FaceRest.h"
 #include <StringUtils.h>
-#include <AtomicValue.h>
+#include <UsedCountable.h>
 
 static const uint64_t INVALID_ID = -1;
 
@@ -37,10 +37,8 @@ enum FormatType {
 	FORMAT_JSONP,
 };
 
-struct FaceRest::ResourceHandler
+struct FaceRest::ResourceHandler : public UsedCountable
 {
-	mlpl::AtomicValue<int> refCount;
-
 	// arguments of SoupServerCallback
 	SoupMessage       *message;
 	std::string        path;
@@ -65,9 +63,6 @@ struct FaceRest::ResourceHandler
 			SoupMessage *_msg, const char *_path,
 			GHashTable *_query, SoupClientContext *_client);
 	virtual ~ResourceHandler();
-
-	void ref(void);
-	void unref(void);
 
 	SoupServer *getSoupServer(void);
 	GMainContext *getGMainContext(void);

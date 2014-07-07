@@ -726,10 +726,9 @@ void FaceRest::handlerLogout(ResourceHandler *job)
 FaceRest::ResourceHandler::ResourceHandler
   (FaceRest *_faceRest, RestHandler _handler, SoupMessage *_msg,
    const char *_path, GHashTable *_query, SoupClientContext *_client)
-: refCount(1), message(_msg), path(_path ? _path : ""), query(_query),
-  client(_client), faceRest(_faceRest), handler(_handler), mimeType(NULL),
-  userId(INVALID_USER_ID),
-  replyIsPrepared(false)
+: message(_msg), path(_path ? _path : ""), query(_query), client(_client),
+  faceRest(_faceRest), handler(_handler), mimeType(NULL),
+  userId(INVALID_USER_ID), replyIsPrepared(false)
 {
 	if (query)
 		g_hash_table_ref(query);
@@ -743,19 +742,6 @@ FaceRest::ResourceHandler::~ResourceHandler()
 {
 	if (query)
 		g_hash_table_unref(query);
-}
-
-void FaceRest::ResourceHandler::ref(void)
-{
-	refCount.add(1);
-}
-
-void FaceRest::ResourceHandler::unref(void)
-{
-	int numRef = refCount.sub(1);
-	HATOHOL_ASSERT(numRef >= 0, "Too many unref() call for %p\n", this);
-	if (numRef == 0)
-		delete this;
 }
 
 SoupServer *FaceRest::ResourceHandler::getSoupServer(void)
