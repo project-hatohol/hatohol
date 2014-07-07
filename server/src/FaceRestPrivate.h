@@ -94,6 +94,16 @@ private:
 	bool parseFormatType(void);
 };
 
+struct FaceRest::ResourceHandlerFactory
+{
+	FaceRest *m_faceRest;
+	RestHandler m_handler;
+
+	ResourceHandlerFactory(FaceRest *faceRest, RestHandler handler);
+
+	static void destroy(gpointer data);
+};
+
 #define REPLY_ERROR(JOB, ERR_CODE, ERR_MSG_FMT, ...) \
 do { \
 	std::string optMsg \
