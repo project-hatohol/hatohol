@@ -585,10 +585,9 @@ void FaceRest::queueRestJob
 
 void FaceRest::finishRestJobIfNeeded(ResourceHandler *job)
 {
-	if (job->replyIsPrepared) {
+	if (job->replyIsPrepared)
 		job->unpauseResponse();
-		delete job;
-	}
+	job->unref();
 }
 
 void FaceRest::launchHandlerInTryBlock(ResourceHandler *job)
@@ -727,8 +726,8 @@ void FaceRest::handlerLogout(ResourceHandler *job)
 FaceRest::ResourceHandler::ResourceHandler
   (FaceRest *_faceRest, RestHandler _handler, SoupMessage *_msg,
    const char *_path, GHashTable *_query, SoupClientContext *_client)
-: message(_msg), path(_path ? _path : ""), query(_query), client(_client),
-  faceRest(_faceRest), handler(_handler), mimeType(NULL),
+: refCount(1), message(_msg), path(_path ? _path : ""), query(_query),
+  client(_client), faceRest(_faceRest), handler(_handler), mimeType(NULL),
   userId(INVALID_USER_ID),
   replyIsPrepared(false)
 {
@@ -744,6 +743,18 @@ FaceRest::ResourceHandler::~ResourceHandler()
 {
 	if (query)
 		g_hash_table_unref(query);
+}
+
+void FaceRest::ResourceHandler::ref(void)
+{
+	refCount.set(refCount + 1);
+}
+
+void FaceRest::ResourceHandler::unref(void)
+{
+	refCount.set(refCount - 1);
+	if (refCount.get() == 0)
+		delete this;
 }
 
 SoupServer *FaceRest::ResourceHandler::getSoupServer(void)
