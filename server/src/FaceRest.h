@@ -116,23 +116,6 @@ protected:
 
 	static void handlerGetHostgroup(ResourceHandler *job);
 
-	static void handlerUser(ResourceHandler *job);
-	static void handlerGetUser(ResourceHandler *job);
-	static void handlerPostUser(ResourceHandler *job);
-	static void handlerPutUser(ResourceHandler *job);
-	static void handlerDeleteUser(ResourceHandler *job);
-
-	static void handlerAccessInfo(ResourceHandler *job);
-	static void handlerGetAccessInfo(ResourceHandler *job);
-	static void handlerPostAccessInfo(ResourceHandler *job);
-	static void handlerDeleteAccessInfo(ResourceHandler *job);
-
-	static void handlerUserRole(ResourceHandler *job);
-	static void handlerGetUserRole(ResourceHandler *job);
-	static void handlerPostUserRole(ResourceHandler *job);
-	static void handlerPutUserRole(ResourceHandler *job);
-	static void handlerDeleteUserRole(ResourceHandler *job);
-
 	void itemFetchedCallback(ClosureBase *closure);
 
 	/**

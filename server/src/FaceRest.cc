@@ -40,6 +40,7 @@
 #include "CacheServiceDBClient.h"
 #include "HatoholArmPluginInterface.h"
 #include "HatoholArmPluginGate.h"
+#include "RestResourceUser.h"
 
 using namespace std;
 using namespace mlpl;
@@ -442,11 +443,13 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForUser,
 	                        queueRestJob,
-	                        new HandlerClosure(this, handlerUser),
+	                        new HandlerClosure(
+				  this, RestResourceUser::handlerUser),
 	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForUserRole,
 	                        queueRestJob,
-	                        new HandlerClosure(this, handlerUserRole),
+	                        new HandlerClosure(
+				  this, RestResourceUser::handlerUserRole),
 	                        deleteHandlerClosure);
 	if (m_ctx->param)
 		m_ctx->param->setupDoneNotifyFunc();
@@ -502,6 +505,12 @@ size_t FaceRest::parseCmdArgPort(CommandLineArg &cmdArg, size_t idx)
 
 void FaceRest::addHatoholError(JsonBuilderAgent &agent,
                                const HatoholError &err)
+{
+	FaceRest::ResourceHandler::addHatoholError(agent, err);
+}
+
+void FaceRest::ResourceHandler::addHatoholError(JsonBuilderAgent &agent,
+						const HatoholError &err)
 {
 	agent.add("apiVersion", API_VERSION);
 	agent.add("errorCode", err.getCode());
@@ -603,7 +612,8 @@ void FaceRest::handlerTest(ResourceHandler *job)
 {
 	JsonBuilderAgent agent;
 	agent.startObject();
-	addHatoholError(agent, HatoholError(HTERR_OK));
+	FaceRest::ResourceHandler::addHatoholError(
+	  agent, HatoholError(HTERR_OK));
 	if (PrivateContext::testMode)
 		agent.addTrue("testMode");
 	else
