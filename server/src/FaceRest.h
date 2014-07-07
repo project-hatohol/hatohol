@@ -94,12 +94,6 @@ protected:
 	static void handlerLogin(ResourceHandler *job);
 	static void handlerLogout(ResourceHandler *job);
 	static void handlerGetOverview(ResourceHandler *job);
-	static void handlerServer(ResourceHandler *job);
-	static void handlerGetServer(ResourceHandler *job);
-	static void handlerPostServer(ResourceHandler *job);
-	static void handlerPutServer(ResourceHandler *job);
-	static void handlerDeleteServer(ResourceHandler *job);
-	static void handlerServerConnStat(ResourceHandler *job);
 	static void handlerGetHost(ResourceHandler *job);
 	static void handlerGetTrigger(ResourceHandler *job);
 	static void handlerGetEvent(ResourceHandler *job);

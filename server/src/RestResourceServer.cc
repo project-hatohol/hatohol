@@ -131,7 +131,7 @@ static void addServers(FaceRest::ResourceHandler *job, JsonBuilderAgent &agent,
 	agent.endArray();
 }
 
-void FaceRest::handlerServer(ResourceHandler *job)
+void RestResourceServer::handlerServer(ResourceHandler *job)
 {
 	if (StringUtils::casecmp(job->message->method, "GET")) {
 		handlerGetServer(job);
@@ -186,7 +186,7 @@ static bool parseQueryShowHostgroupInfo(GHashTable *query, UserIdType &targetUse
 		return false;
 }
 
-void FaceRest::handlerGetServer(ResourceHandler *job)
+void RestResourceServer::handlerGetServer(ResourceHandler *job)
 {
 	ServerIdType targetServerId;
 	UserIdType targetUserId = 0;
@@ -326,7 +326,7 @@ static HatoholError parseServerParameter(
 	return HTERR_OK;
 }
 
-void FaceRest::handlerPostServer(ResourceHandler *job)
+void RestResourceServer::handlerPostServer(ResourceHandler *job)
 {
 	MonitoringServerInfo svInfo;
 	ArmPluginInfo        armPluginInfo;
@@ -356,7 +356,7 @@ void FaceRest::handlerPostServer(ResourceHandler *job)
 	job->replyJsonData(agent);
 }
 
-void FaceRest::handlerPutServer(ResourceHandler *job)
+void RestResourceServer::handlerPutServer(ResourceHandler *job)
 {
 	uint64_t serverId;
 	serverId = job->getResourceId();
@@ -414,7 +414,7 @@ void FaceRest::handlerPutServer(ResourceHandler *job)
 	job->replyJsonData(agent);
 }
 
-void FaceRest::handlerDeleteServer(ResourceHandler *job)
+void RestResourceServer::handlerDeleteServer(ResourceHandler *job)
 {
 	uint64_t serverId = job->getResourceId();
 	if (serverId == INVALID_ID) {
@@ -441,7 +441,7 @@ void FaceRest::handlerDeleteServer(ResourceHandler *job)
 	job->replyJsonData(agent);
 }
 
-void FaceRest::handlerServerConnStat(ResourceHandler *job)
+void RestResourceServer::handlerServerConnStat(ResourceHandler *job)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	ServerConnStatusVector serverConnStatVec;
