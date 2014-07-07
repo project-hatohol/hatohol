@@ -32,6 +32,7 @@
 #include "SessionManager.h"
 #include "testDBClientHatohol.h"
 #include "HatoholArmPluginInterface.h"
+#include "RestResourceHost.h"
 using namespace std;
 using namespace mlpl;
 
@@ -2717,7 +2718,7 @@ void test_getServerConnStat(void)
 // ---------------------------------------------------------------------------
 namespace testFaceRestNoInit {
 
-class TestFaceRestNoInit : public FaceRest {
+class TestFaceRestNoInit : public RestResourceHost {
 public:
 	static HatoholError callParseEventParameter(
 		EventsQueryOption &option,

@@ -41,6 +41,7 @@
 #include "HatoholArmPluginInterface.h"
 #include "HatoholArmPluginGate.h"
 #include "RestResourceAction.h"
+#include "RestResourceHost.h"
 #include "RestResourceServer.h"
 #include "RestResourceUser.h"
 
@@ -409,7 +410,8 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetOverview,
 	                        queueRestJob,
-	                        new HandlerClosure(this, handlerGetOverview),
+	                        new HandlerClosure(
+				  this, RestResourceHost::handlerGetOverview),
 	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForServer,
 	                        queueRestJob,
@@ -424,15 +426,18 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetHost,
 	                        queueRestJob,
-	                        new HandlerClosure(this, handlerGetHost),
+	                        new HandlerClosure(
+				  this, RestResourceHost::handlerGetHost),
 	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetTrigger,
 	                        queueRestJob,
-	                        new HandlerClosure(this, handlerGetTrigger),
+	                        new HandlerClosure(
+				  this, RestResourceHost::handlerGetTrigger),
 	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetEvent,
 	                        queueRestJob,
-	                        new HandlerClosure(this, handlerGetEvent),
+	                        new HandlerClosure(
+				  this, RestResourceHost::handlerGetEvent),
 	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetItem,
 	                        queueRestJob,
@@ -445,7 +450,8 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForHostgroup,
 	                        queueRestJob,
-	                        new HandlerClosure(this, handlerGetHostgroup),
+	                        new HandlerClosure(
+				  this, RestResourceHost::handlerGetHostgroup),
 	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForUser,
 	                        queueRestJob,

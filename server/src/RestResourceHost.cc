@@ -144,8 +144,8 @@ static HatoholError parseTriggerParameter(TriggersQueryOption &option,
 	return HatoholError(HTERR_OK);
 }
 
-HatoholError FaceRest::parseEventParameter(EventsQueryOption &option,
-					   GHashTable *query)
+HatoholError RestResourceHost::parseEventParameter(EventsQueryOption &option,
+						   GHashTable *query)
 {
 	if (!query)
 		return HatoholError(HTERR_OK);
@@ -542,7 +542,7 @@ void FaceRest::ResourceHandler::addServersMap(
 	agent.endObject();
 }
 
-void FaceRest::handlerGetOverview(ResourceHandler *job)
+void RestResourceHost::handlerGetOverview(ResourceHandler *job)
 {
 	JsonBuilderAgent agent;
 	HatoholError err;
@@ -558,7 +558,7 @@ void FaceRest::handlerGetOverview(ResourceHandler *job)
 	job->replyJsonData(agent);
 }
 
-void FaceRest::handlerGetHost(ResourceHandler *job)
+void RestResourceHost::handlerGetHost(ResourceHandler *job)
 {
 	HostsQueryOption option(job->dataQueryContextPtr);
 	HatoholError err = parseHostResourceQueryParameter(option, job->query);
@@ -579,7 +579,7 @@ void FaceRest::handlerGetHost(ResourceHandler *job)
 	job->replyJsonData(agent);
 }
 
-void FaceRest::handlerGetTrigger(ResourceHandler *job)
+void RestResourceHost::handlerGetTrigger(ResourceHandler *job)
 {
 	TriggersQueryOption option(job->dataQueryContextPtr);
 	HatoholError err = parseTriggerParameter(option, job->query);
@@ -648,7 +648,7 @@ static void addIssue(FaceRest::ResourceHandler *job, JsonBuilderAgent &agent,
 	agent.endObject();
 }
 
-void FaceRest::handlerGetEvent(ResourceHandler *job)
+void RestResourceHost::handlerGetEvent(ResourceHandler *job)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
@@ -828,7 +828,7 @@ static void addHostsIsMemberOfGroup(
 	agent.endArray();
 }
 
-void FaceRest::handlerGetHostgroup(ResourceHandler *job)
+void RestResourceHost::handlerGetHostgroup(ResourceHandler *job)
 {
 	HostgroupsQueryOption option(job->dataQueryContextPtr);
 	HatoholError err = parseHostResourceQueryParameter(option, job->query);
