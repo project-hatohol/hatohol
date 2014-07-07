@@ -109,11 +109,6 @@ protected:
 	static void handlerGetEvent(ResourceHandler *job);
 	static void handlerGetItem(ResourceHandler *job);
 
-	static void handlerAction(ResourceHandler *job);
-	static void handlerGetAction(ResourceHandler *job);
-	static void handlerPostAction(ResourceHandler *job);
-	static void handlerDeleteAction(ResourceHandler *job);
-
 	static void handlerGetHostgroup(ResourceHandler *job);
 
 	void itemFetchedCallback(ClosureBase *closure);

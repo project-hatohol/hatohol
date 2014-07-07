@@ -508,13 +508,19 @@ static void addTriggersIdBriefHash(
 }
 
 void FaceRest::addServersMap(
-  FaceRest::ResourceHandler *job,
+  FaceRest::ResourceHandler *job, JsonBuilderAgent &agent,
+  TriggerBriefMaps *triggerMaps, bool lookupTriggerBrief)
+{
+	job->addServersMap(agent, triggerMaps, lookupTriggerBrief);
+}
+
+void FaceRest::ResourceHandler::addServersMap(
   JsonBuilderAgent &agent,
   TriggerBriefMaps *triggerMaps, bool lookupTriggerBrief)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	MonitoringServerInfoList monitoringServers;
-	ServerQueryOption option(job->dataQueryContextPtr);
+	ServerQueryOption option(dataQueryContextPtr);
 	dataStore->getTargetServers(monitoringServers, option);
 
 	HatoholError err;
@@ -526,9 +532,9 @@ void FaceRest::addServersMap(
 		agent.add("name", serverInfo.hostName);
 		agent.add("type", serverInfo.type);
 		agent.add("ipAddress", serverInfo.ipAddress);
-		addHostsMap(job, agent, serverInfo);
+		addHostsMap(this, agent, serverInfo);
 		if (triggerMaps) {
-			addTriggersIdBriefHash(job, agent, serverInfo,
+			addTriggersIdBriefHash(this, agent, serverInfo,
 					       *triggerMaps,
 			                       lookupTriggerBrief);
 		}
@@ -536,7 +542,7 @@ void FaceRest::addServersMap(
 		// Even if the following function retrun an error,
 		// We cannot do anything. The receiver (client) should handle
 		// the returned empty or unperfect group information.
-		addHostgroupsMap(job, agent, serverInfo);
+		addHostgroupsMap(this, agent, serverInfo);
 		agent.endObject(); // "gropus"
 		agent.endObject(); // toString(serverInfo.id)
 	}
