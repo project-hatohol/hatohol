@@ -76,10 +76,6 @@ protected:
 	size_t parseCmdArgPort(CommandLineArg &cmdArg, size_t idx);
 	static void addHatoholError(JsonBuilderAgent &agent,
 	                            const HatoholError &err);
-	static void addServersMap(FaceRest::ResourceHandler *job,
-				  JsonBuilderAgent &agent,
-				  TriggerBriefMaps *triggerMaps = NULL,
-				  bool lookupTriggerBrief = false);
 	static void replyGetItem(ResourceHandler *job);
 	static void finishRestJobIfNeeded(ResourceHandler *job);
 

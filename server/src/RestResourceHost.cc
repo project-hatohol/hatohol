@@ -507,13 +507,6 @@ static void addTriggersIdBriefHash(
 	agent.endObject();
 }
 
-void FaceRest::addServersMap(
-  FaceRest::ResourceHandler *job, JsonBuilderAgent &agent,
-  TriggerBriefMaps *triggerMaps, bool lookupTriggerBrief)
-{
-	job->addServersMap(agent, triggerMaps, lookupTriggerBrief);
-}
-
 void FaceRest::ResourceHandler::addServersMap(
   JsonBuilderAgent &agent,
   TriggerBriefMaps *triggerMaps, bool lookupTriggerBrief)
@@ -619,7 +612,7 @@ void FaceRest::handlerGetTrigger(ResourceHandler *job)
 	}
 	agent.endArray();
 	agent.add("numberOfTriggers", triggerList.size());
-	addServersMap(job, agent, NULL, false);
+	job->addServersMap(agent, NULL, false);
 	agent.endObject();
 
 	job->replyJsonData(agent);
@@ -709,7 +702,7 @@ void FaceRest::handlerGetEvent(ResourceHandler *job)
 	}
 	agent.endArray();
 	agent.add("numberOfEvents", eventList.size());
-	addServersMap(job, agent, NULL, false);
+	job->addServersMap(agent, NULL, false);
 	agent.endObject();
 
 	job->replyJsonData(agent);
@@ -765,7 +758,7 @@ void FaceRest::replyGetItem(ResourceHandler *job)
 	}
 	agent.endArray();
 	agent.add("numberOfItems", itemList.size());
-	addServersMap(job, agent, NULL, false);
+	job->addServersMap(agent, NULL, false);
 	agent.endObject();
 
 	job->replyJsonData(agent);
