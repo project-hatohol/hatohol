@@ -55,6 +55,7 @@ public:
 	virtual void setNumberOfPreLoadWorkers(size_t num);
 
 	class Worker;
+	struct ResourceHandlerFactory;
 	struct ResourceHandler;
 
 protected:
