@@ -59,15 +59,14 @@ struct FaceRest::ResourceHandler : public UsedCountable
 	bool        replyIsPrepared;
 	DataQueryContextPtr dataQueryContextPtr;
 
-	ResourceHandler(FaceRest *_faceRest, RestHandler _handler,
-			SoupMessage *_msg, const char *_path,
-			GHashTable *_query, SoupClientContext *_client);
+	ResourceHandler();
 	virtual ~ResourceHandler();
-
+	virtual bool init(FaceRest *_faceRest, RestHandler _handler,
+			  SoupMessage *_msg, const char *_path,
+			  GHashTable *_query, SoupClientContext *_client);
 	SoupServer *getSoupServer(void);
 	GMainContext *getGMainContext(void);
 	bool pathIsUserMe(void);
-	bool prepare(void);
 	void pauseResponse(void);
 	void unpauseResponse(void);
 
@@ -90,6 +89,7 @@ struct FaceRest::ResourceHandler : public UsedCountable
 	void itemFetchedCallback(ClosureBase *closure);
 
 private:
+	bool prepare(void);
 	std::string getJsonpCallbackName(void);
 	bool parseFormatType(void);
 };
@@ -101,12 +101,7 @@ struct FaceRest::ResourceHandlerFactory
 
 	ResourceHandlerFactory(FaceRest *faceRest, RestHandler handler);
 	virtual ~ResourceHandlerFactory();
-	virtual ResourceHandler *createHandler(FaceRest *faceRest,
-					       RestHandler handler,
-					       SoupMessage *msg,
-					       const char *path,
-					       GHashTable *query,
-					       SoupClientContext *client);
+	virtual ResourceHandler *createHandler(void);
 	static void destroy(gpointer data);
 };
 
