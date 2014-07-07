@@ -100,7 +100,13 @@ struct FaceRest::ResourceHandlerFactory
 	RestHandler m_handler;
 
 	ResourceHandlerFactory(FaceRest *faceRest, RestHandler handler);
-
+	virtual ~ResourceHandlerFactory();
+	virtual ResourceHandler *createHandler(FaceRest *faceRest,
+					       RestHandler handler,
+					       SoupMessage *msg,
+					       const char *path,
+					       GHashTable *query,
+					       SoupClientContext *client);
 	static void destroy(gpointer data);
 };
 
