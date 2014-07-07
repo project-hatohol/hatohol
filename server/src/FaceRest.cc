@@ -516,17 +516,6 @@ size_t FaceRest::parseCmdArgPort(CommandLineArg &cmdArg, size_t idx)
 	return idx;
 }
 
-void FaceRest::ResourceHandler::addHatoholError(JsonBuilderAgent &agent,
-						const HatoholError &err)
-{
-	agent.add("apiVersion", API_VERSION);
-	agent.add("errorCode", err.getCode());
-	if (err != HTERR_OK && !err.getMessage().empty())
-		agent.add("errorMessage", err.getMessage());
-	if (!err.getOptionMessage().empty())
-		agent.add("optionMessages", err.getOptionMessage());
-}
-
 // handlers
 void FaceRest::handlerDefault(SoupServer *server, SoupMessage *msg,
                               const char *path, GHashTable *query,
@@ -982,4 +971,15 @@ void FaceRest::ResourceHandler::replyJsonData(JsonBuilderAgent &agent)
 	soup_message_set_status(message, SOUP_STATUS_OK);
 
 	replyIsPrepared = true;
+}
+
+void FaceRest::ResourceHandler::addHatoholError(JsonBuilderAgent &agent,
+						const HatoholError &err)
+{
+	agent.add("apiVersion", API_VERSION);
+	agent.add("errorCode", err.getCode());
+	if (err != HTERR_OK && !err.getMessage().empty())
+		agent.add("errorMessage", err.getMessage());
+	if (!err.getOptionMessage().empty())
+		agent.add("optionMessages", err.getOptionMessage());
 }
