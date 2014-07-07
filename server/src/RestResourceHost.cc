@@ -24,12 +24,12 @@
 using namespace std;
 using namespace mlpl;
 
-const char *RestResourceHost::pathForGetOverview = "/overview";
-const char *RestResourceHost::pathForGetHost     = "/host";
-const char *RestResourceHost::pathForGetTrigger  = "/trigger";
-const char *RestResourceHost::pathForGetEvent    = "/event";
-const char *RestResourceHost::pathForGetItem     = "/item";
-const char *RestResourceHost::pathForHostgroup   = "/hostgroup";
+const char *RestResourceHost::pathForOverview  = "/overview";
+const char *RestResourceHost::pathForHost      = "/host";
+const char *RestResourceHost::pathForTrigger   = "/trigger";
+const char *RestResourceHost::pathForEvent     = "/event";
+const char *RestResourceHost::pathForItem      = "/item";
+const char *RestResourceHost::pathForHostgroup = "/hostgroup";
 
 static HatoholError parseSortTypeFromQuery(
   EventsQueryOption::SortType &sortType, GHashTable *query)
