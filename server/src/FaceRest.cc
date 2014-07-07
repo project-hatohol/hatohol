@@ -747,13 +747,18 @@ FaceRest::ResourceHandler::~ResourceHandler()
 
 void FaceRest::ResourceHandler::ref(void)
 {
-	refCount.set(refCount + 1);
+	refCountLock.lock();
+	refCount++;
+	refCountLock.unlock();
 }
 
 void FaceRest::ResourceHandler::unref(void)
 {
-	refCount.set(refCount - 1);
-	if (refCount.get() == 0)
+	refCountLock.lock();
+	Reaper<MutexLock> unlocker(&refCountLock, MutexLock::unlock);
+	HATOHOL_ASSERT(refCount > 0, "Too many unref() call for %p\n", this);
+	refCount--;
+	if (refCount == 0)
 		delete this;
 }
 
