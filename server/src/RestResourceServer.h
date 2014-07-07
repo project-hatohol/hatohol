@@ -24,6 +24,9 @@
 
 struct RestResourceServer : public FaceRest::ResourceHandler
 {
+	RestResourceServer(FaceRest *_faceRest, RestHandler _handler);
+	virtual ~RestResourceServer();
+
 	static void handlerServer(ResourceHandler *job);
 	static void handlerGetServer(ResourceHandler *job);
 	static void handlerPostServer(ResourceHandler *job);

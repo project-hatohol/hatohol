@@ -24,6 +24,9 @@
 
 struct RestResourceAction : public FaceRest::ResourceHandler
 {
+	RestResourceAction(FaceRest *_faceRest, RestHandler _handler);
+	virtual ~RestResourceAction();
+
 	static void handlerAction(ResourceHandler *job);
 	static void handlerGetAction(ResourceHandler *job);
 	static void handlerPostAction(ResourceHandler *job);
