@@ -22,4 +22,14 @@
 
 #include "FaceRestPrivate.h"
 
+struct RestResourceServer : public FaceRest::ResourceHandler
+{
+	static void handlerServer(ResourceHandler *job);
+	static void handlerGetServer(ResourceHandler *job);
+	static void handlerPostServer(ResourceHandler *job);
+	static void handlerPutServer(ResourceHandler *job);
+	static void handlerDeleteServer(ResourceHandler *job);
+	static void handlerServerConnStat(ResourceHandler *job);
+};
+
 #endif // RestResourceServer_h

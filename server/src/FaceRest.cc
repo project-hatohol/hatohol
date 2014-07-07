@@ -41,6 +41,7 @@
 #include "HatoholArmPluginInterface.h"
 #include "HatoholArmPluginGate.h"
 #include "RestResourceAction.h"
+#include "RestResourceServer.h"
 #include "RestResourceUser.h"
 
 using namespace std;
@@ -412,11 +413,14 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForServer,
 	                        queueRestJob,
-	                        new HandlerClosure(this, handlerServer),
+	                        new HandlerClosure(
+				  this, RestResourceServer::handlerServer),
 	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForServerConnStat,
 	                        queueRestJob,
-	                        new HandlerClosure(this, handlerServerConnStat),
+	                        new HandlerClosure(
+				  this,
+				  RestResourceServer::handlerServerConnStat),
 	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetHost,
 	                        queueRestJob,
