@@ -516,12 +516,6 @@ size_t FaceRest::parseCmdArgPort(CommandLineArg &cmdArg, size_t idx)
 	return idx;
 }
 
-void FaceRest::addHatoholError(JsonBuilderAgent &agent,
-                               const HatoholError &err)
-{
-	FaceRest::ResourceHandler::addHatoholError(agent, err);
-}
-
 void FaceRest::ResourceHandler::addHatoholError(JsonBuilderAgent &agent,
 						const HatoholError &err)
 {
@@ -700,7 +694,8 @@ void FaceRest::handlerLogin(ResourceHandler *job)
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	addHatoholError(agent, HatoholError(HTERR_OK));
+	FaceRest::ResourceHandler::addHatoholError(
+	  agent, HatoholError(HTERR_OK));
 	agent.add("sessionId", sessionId);
 	agent.endObject();
 
@@ -717,7 +712,8 @@ void FaceRest::handlerLogout(ResourceHandler *job)
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	addHatoholError(agent, HatoholError(HTERR_OK));
+	FaceRest::ResourceHandler::addHatoholError(
+	  agent, HatoholError(HTERR_OK));
 	agent.endObject();
 
 	job->replyJsonData(agent);
