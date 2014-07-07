@@ -36,7 +36,7 @@ static void setActionCondition(
 			agent.addNull(member);
 }
 
-void FaceRest::handlerAction(ResourceHandler *job)
+void RestResourceAction::handlerAction(ResourceHandler *job)
 {
 	if (StringUtils::casecmp(job->message->method, "GET")) {
 		handlerGetAction(job);
@@ -52,7 +52,7 @@ void FaceRest::handlerAction(ResourceHandler *job)
 	}
 }
 
-void FaceRest::handlerGetAction(ResourceHandler *job)
+void RestResourceAction::handlerGetAction(ResourceHandler *job)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
@@ -108,13 +108,13 @@ void FaceRest::handlerGetAction(ResourceHandler *job)
 	}
 	agent.endArray();
 	const bool lookupTriggerBrief = true;
-	addServersMap(job, agent, &triggerMaps, lookupTriggerBrief);
+	job->addServersMap(agent, &triggerMaps, lookupTriggerBrief);
 	agent.endObject();
 
 	job->replyJsonData(agent);
 }
 
-void FaceRest::handlerPostAction(ResourceHandler *job)
+void RestResourceAction::handlerPostAction(ResourceHandler *job)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
@@ -262,7 +262,7 @@ void FaceRest::handlerPostAction(ResourceHandler *job)
 	job->replyJsonData(agent);
 }
 
-void FaceRest::handlerDeleteAction(ResourceHandler *job)
+void RestResourceAction::handlerDeleteAction(ResourceHandler *job)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 

@@ -75,6 +75,9 @@ struct FaceRest::ResourceHandler
 	void replyError(const HatoholErrorCode &errorCode,
 			const std::string &optionMessage = "");
 	void replyJsonData(JsonBuilderAgent &agent);
+	void addServersMap(JsonBuilderAgent &agent,
+			   TriggerBriefMaps *triggerMaps = NULL,
+			   bool lookupTriggerBrief = false);
 
 	static void addHatoholError(JsonBuilderAgent &agent,
 	                            const HatoholError &err);

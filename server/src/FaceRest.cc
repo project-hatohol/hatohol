@@ -40,6 +40,7 @@
 #include "CacheServiceDBClient.h"
 #include "HatoholArmPluginInterface.h"
 #include "HatoholArmPluginGate.h"
+#include "RestResourceAction.h"
 #include "RestResourceUser.h"
 
 using namespace std;
@@ -435,7 +436,8 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForAction,
 	                        queueRestJob,
-	                        new HandlerClosure(this, handlerAction),
+	                        new HandlerClosure(
+				  this, RestResourceAction::handlerAction),
 	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForHostgroup,
 	                        queueRestJob,
