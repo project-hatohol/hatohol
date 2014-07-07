@@ -35,4 +35,10 @@ struct RestResourceServer : public FaceRest::ResourceHandler
 	static const char *pathForServerConnStat;
 };
 
+struct RestResourceServerFactory : public FaceRest::ResourceHandlerFactory
+{
+	RestResourceServerFactory(FaceRest *faceRest, RestHandler handler);
+	virtual FaceRest::ResourceHandler *createHandler(void) override;
+};
+
 #endif // RestResourceServer_h

@@ -45,4 +45,10 @@ struct RestResourceUser : public FaceRest::ResourceHandler
 	static const char *pathForUserRole;
 };
 
+struct RestResourceUserFactory : public FaceRest::ResourceHandlerFactory
+{
+	RestResourceUserFactory(FaceRest *faceRest, RestHandler handler);
+	virtual FaceRest::ResourceHandler *createHandler(void) override;
+};
+
 #endif // RestResourceUser_h

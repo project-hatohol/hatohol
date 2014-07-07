@@ -578,3 +578,14 @@ HatoholError FaceRest::updateOrAddUser(GHashTable *query,
 		return err;
 	return HatoholError(HTERR_OK);
 }
+
+RestResourceUserFactory::RestResourceUserFactory(
+  FaceRest *faceRest, RestHandler handler)
+: FaceRest::ResourceHandlerFactory(faceRest, handler)
+{
+}
+
+FaceRest::ResourceHandler *RestResourceUserFactory::createHandler()
+{
+	return new RestResourceUser();
+}

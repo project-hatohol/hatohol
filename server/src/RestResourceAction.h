@@ -32,4 +32,10 @@ struct RestResourceAction : public FaceRest::ResourceHandler
 	static const char *pathForAction;
 };
 
+struct RestResourceActionFactory : public FaceRest::ResourceHandlerFactory
+{
+	RestResourceActionFactory(FaceRest *faceRest, RestHandler handler);
+	virtual FaceRest::ResourceHandler *createHandler(void) override;
+};
+
 #endif // RestResourceAction_h
