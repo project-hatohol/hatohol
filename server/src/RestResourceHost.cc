@@ -710,23 +710,21 @@ void RestResourceHost::handlerGetEvent(ResourceHandler *job)
 	job->replyJsonData(agent);
 }
 
-struct GetItemClosure : Closure<FaceRest>
+struct GetItemClosure : Closure<FaceRest::ResourceHandler>
 {
-	struct FaceRest::ResourceHandler *m_restJob;
-	GetItemClosure(FaceRest *receiver,
-		       callback func,
-		       struct FaceRest::ResourceHandler *restJob)
-	: Closure<FaceRest>::Closure(receiver, func), m_restJob(restJob)
+	GetItemClosure(FaceRest::ResourceHandler *receiver,
+		       callback func)
+	: Closure<FaceRest::ResourceHandler>::Closure(receiver, func)
 	{
 	}
 
 	virtual ~GetItemClosure()
 	{
-		delete m_restJob;
+		delete m_receiver;
 	}
 };
 
-void FaceRest::replyGetItem(ResourceHandler *job)
+void RestResourceHost::replyGetItem(ResourceHandler *job)
 {
 	ItemsQueryOption option(job->dataQueryContextPtr);
 	HatoholError err = parseItemParameter(option, job->query);
@@ -767,15 +765,14 @@ void FaceRest::replyGetItem(ResourceHandler *job)
 	job->replyJsonData(agent);
 }
 
-void FaceRest::itemFetchedCallback(ClosureBase *closure)
+// TODO: Move to RestResourceHost
+void FaceRest::ResourceHandler::itemFetchedCallback(ClosureBase *closure)
 {
-	GetItemClosure *data = dynamic_cast<GetItemClosure*>(closure);
-	ResourceHandler *job = data->m_restJob;
-	replyGetItem(job);
-	job->unpauseResponse();
+	RestResourceHost::replyGetItem(this);
+	unpauseResponse();
 }
 
-void FaceRest::handlerGetItem(ResourceHandler *job)
+void RestResourceHost::handlerGetItem(ResourceHandler *job)
 {
 	ItemsQueryOption option(job->dataQueryContextPtr);
 	HatoholError err = parseItemParameter(option, job->query);
@@ -786,9 +783,9 @@ void FaceRest::handlerGetItem(ResourceHandler *job)
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	ServerIdType serverId = option.getTargetServerId();
-	FaceRest *face = job->faceRest;
 	GetItemClosure *closure =
-	  new GetItemClosure(face, &FaceRest::itemFetchedCallback, job);
+	  new GetItemClosure(
+	    job, &FaceRest::ResourceHandler::itemFetchedCallback);
 
 	// TODO: Fix a crash.
 	// There is a bug. When 'closure' is cleared before
@@ -799,10 +796,10 @@ void FaceRest::handlerGetItem(ResourceHandler *job)
 	// So it happens rarely.
 	bool handled = dataStore->fetchItemsAsync(closure, serverId);
 	if (!handled) {
-		face->replyGetItem(job);
-		// avoid freeing m_restJob because m_restJob will be freed at
+		replyGetItem(job);
+		// avoid freeing job because job will be freed at
 		// queueRestJob()
-		closure->m_restJob = NULL;
+		closure->m_receiver = NULL;
 		delete closure;
 	}
 }

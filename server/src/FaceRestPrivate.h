@@ -82,6 +82,9 @@ struct FaceRest::ResourceHandler
 	static void addHatoholError(JsonBuilderAgent &agent,
 	                            const HatoholError &err);
 
+        // TODO: Move to RestResourceHost
+	void itemFetchedCallback(ClosureBase *closure);
+
 private:
 	std::string getJsonpCallbackName(void);
 	bool parseFormatType(void);

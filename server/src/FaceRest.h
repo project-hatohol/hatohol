@@ -93,10 +93,6 @@ protected:
 	static void handlerLogin(ResourceHandler *job);
 	static void handlerLogout(ResourceHandler *job);
 
-	static void handlerGetItem(ResourceHandler *job);
-	static void replyGetItem(ResourceHandler *job);
-	void itemFetchedCallback(ClosureBase *closure);
-
 	/**
 	 * Update the user informformation if 'name' specifined in 'query'
 	 * exits in the DB. Otherwise, the user is newly added.

@@ -29,6 +29,8 @@ struct RestResourceHost : public FaceRest::ResourceHandler
 	static void handlerGetTrigger(ResourceHandler *job);
 	static void handlerGetEvent(ResourceHandler *job);
 	static void handlerGetHostgroup(ResourceHandler *job);
+	static void handlerGetItem(ResourceHandler *job);
+	static void replyGetItem(ResourceHandler *job);
 
 	static HatoholError parseEventParameter(EventsQueryOption &option,
 						GHashTable *query);
