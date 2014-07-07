@@ -292,3 +292,14 @@ void RestResourceAction::handlerDeleteAction(ResourceHandler *job)
 	agent.endObject();
 	job->replyJsonData(agent);
 }
+
+RestResourceActionFactory::RestResourceActionFactory(
+  FaceRest *faceRest, RestHandler handler)
+: FaceRest::ResourceHandlerFactory(faceRest, handler)
+{
+}
+
+FaceRest::ResourceHandler *RestResourceActionFactory::createHandler()
+{
+	return new RestResourceAction();
+}

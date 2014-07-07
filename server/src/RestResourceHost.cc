@@ -859,3 +859,14 @@ void RestResourceHost::handlerGetHostgroup(ResourceHandler *job)
 
 	job->replyJsonData(agent);
 }
+
+RestResourceHostFactory::RestResourceHostFactory(
+  FaceRest *faceRest, RestHandler handler)
+: FaceRest::ResourceHandlerFactory(faceRest, handler)
+{
+}
+
+FaceRest::ResourceHandler *RestResourceHostFactory::createHandler()
+{
+	return new RestResourceHost();
+}

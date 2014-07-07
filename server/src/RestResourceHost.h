@@ -43,4 +43,10 @@ struct RestResourceHost : public FaceRest::ResourceHandler
 	static const char *pathForHostgroup;
 };
 
+struct RestResourceHostFactory : public FaceRest::ResourceHandlerFactory
+{
+	RestResourceHostFactory(FaceRest *faceRest, RestHandler handler);
+	virtual FaceRest::ResourceHandler *createHandler(void) override;
+};
+
 #endif // RestResourceHost_h

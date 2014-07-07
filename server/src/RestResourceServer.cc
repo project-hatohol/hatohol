@@ -474,3 +474,14 @@ void RestResourceServer::handlerServerConnStat(ResourceHandler *job)
 
 	job->replyJsonData(agent);
 }
+
+RestResourceServerFactory::RestResourceServerFactory(
+  FaceRest *faceRest, RestHandler handler)
+: FaceRest::ResourceHandlerFactory(faceRest, handler)
+{
+}
+
+FaceRest::ResourceHandler *RestResourceServerFactory::createHandler()
+{
+	return new RestResourceServer();
+}
