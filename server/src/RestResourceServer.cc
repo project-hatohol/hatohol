@@ -26,6 +26,9 @@
 using namespace std;
 using namespace mlpl;
 
+const char *RestResourceServer::pathForServer         = "/server";
+const char *RestResourceServer::pathForServerConnStat = "/server-conn-stat";
+
 static bool canUpdateServer(
   const OperationPrivilege &privilege, const MonitoringServerInfo &serverInfo)
 {

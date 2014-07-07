@@ -28,6 +28,8 @@ struct RestResourceAction : public FaceRest::ResourceHandler
 	static void handlerGetAction(ResourceHandler *job);
 	static void handlerPostAction(ResourceHandler *job);
 	static void handlerDeleteAction(ResourceHandler *job);
+
+	static const char *pathForAction;
 };
 
 #endif // RestResourceAction_h

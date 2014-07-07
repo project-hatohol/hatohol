@@ -24,6 +24,8 @@
 using namespace std;
 using namespace mlpl;
 
+const char *RestResourceAction::pathForAction = "/action";
+
 template <typename T>
 static void setActionCondition(
   JsonBuilderAgent &agent, const ActionCondition &cond,
