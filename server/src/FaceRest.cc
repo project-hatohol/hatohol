@@ -544,8 +544,9 @@ void FaceRest::queueRestJob
 	ResourceHandlerFactory *factory
 	  = static_cast<ResourceHandlerFactory *>(user_data);
 	FaceRest *face = factory->m_faceRest;
-	ResourceHandler *job = new ResourceHandler(face, factory->m_handler,
-						   msg, path, query, client);
+	ResourceHandler *job
+	  = factory->createHandler(face, factory->m_handler,
+				   msg, path, query, client);
 	if (!job->prepare())
 		return;
 
@@ -978,9 +979,21 @@ FaceRest::ResourceHandlerFactory::ResourceHandlerFactory(
 {
 }
 
+FaceRest::ResourceHandlerFactory::~ResourceHandlerFactory()
+{
+}
+
 void FaceRest::ResourceHandlerFactory::destroy(gpointer data)
 {
 	ResourceHandlerFactory *factory
 		= static_cast<ResourceHandlerFactory *>(data);
 	delete factory;
+}
+
+FaceRest::ResourceHandler *FaceRest::ResourceHandlerFactory::createHandler(
+  FaceRest *faceRest, RestHandler handler, SoupMessage *msg, const char *path,
+  GHashTable *query, SoupClientContext *client)
+{
+	return new ResourceHandler(faceRest, handler, msg,
+				   path, query, client);
 }
