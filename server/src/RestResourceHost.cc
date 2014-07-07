@@ -721,11 +721,12 @@ struct GetItemClosure : Closure<FaceRest::ResourceHandler>
 		       callback func)
 	: Closure<FaceRest::ResourceHandler>::Closure(receiver, func)
 	{
+		m_receiver->ref();
 	}
 
 	virtual ~GetItemClosure()
 	{
-		delete m_receiver;
+		m_receiver->unref();
 	}
 };
 
@@ -791,19 +792,9 @@ void RestResourceHost::handlerGetItem(ResourceHandler *job)
 	  new GetItemClosure(
 	    job, &FaceRest::ResourceHandler::itemFetchedCallback);
 
-	// TODO: Fix a crash.
-	// There is a bug. When 'closure' is cleared before
-	// finishRestJobIfNeeded(ResourceHandler *job) is called, 'job' is deleted
-	// in the destructor and becomes a dangling pointer. Then it is used
-	// in finishRestJobIfNeeded(). As a result, hatohol crashes.
-	// NOTE: Actually, fetching items takes a little time.
-	// So it happens rarely.
 	bool handled = dataStore->fetchItemsAsync(closure, serverId);
 	if (!handled) {
 		replyGetItem(job);
-		// avoid freeing job because job will be freed at
-		// queueRestJob()
-		closure->m_receiver = NULL;
 		delete closure;
 	}
 }

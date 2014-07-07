@@ -21,7 +21,8 @@
 #define FaceRestPrivate_h
 
 #include "FaceRest.h"
-#include "StringUtils.h"
+#include <StringUtils.h>
+#include <AtomicValue.h>
 
 static const uint64_t INVALID_ID = -1;
 
@@ -38,6 +39,8 @@ enum FormatType {
 
 struct FaceRest::ResourceHandler
 {
+	mlpl::AtomicValue<size_t> refCount;
+
 	// arguments of SoupServerCallback
 	SoupMessage       *message;
 	std::string        path;
@@ -62,6 +65,9 @@ struct FaceRest::ResourceHandler
 			SoupMessage *_msg, const char *_path,
 			GHashTable *_query, SoupClientContext *_client);
 	virtual ~ResourceHandler();
+
+	void ref(void);
+	void unref(void);
 
 	SoupServer *getSoupServer(void);
 	GMainContext *getGMainContext(void);
