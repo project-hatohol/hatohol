@@ -40,6 +40,9 @@ struct RestResourceUser : public FaceRest::ResourceHandler
 	static void handlerPostUserRole(ResourceHandler *job);
 	static void handlerPutUserRole(ResourceHandler *job);
 	static void handlerDeleteUserRole(ResourceHandler *job);
+
+	static const char *pathForUser;
+	static const char *pathForUserRole;
 };
 
 #endif // RestResourceUser_h

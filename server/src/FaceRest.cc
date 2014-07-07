@@ -57,17 +57,6 @@ static const guint DEFAULT_PORT = 33194;
 const char *FaceRest::pathForTest        = "/test";
 const char *FaceRest::pathForLogin       = "/login";
 const char *FaceRest::pathForLogout      = "/logout";
-const char *FaceRest::pathForGetOverview = "/overview";
-const char *FaceRest::pathForServer      = "/server";
-const char *FaceRest::pathForServerConnStat = "/server-conn-stat";
-const char *FaceRest::pathForGetHost     = "/host";
-const char *FaceRest::pathForGetTrigger  = "/trigger";
-const char *FaceRest::pathForGetEvent    = "/event";
-const char *FaceRest::pathForGetItem     = "/item";
-const char *FaceRest::pathForAction      = "/action";
-const char *FaceRest::pathForUser        = "/user";
-const char *FaceRest::pathForHostgroup   = "/hostgroup";
-const char *FaceRest::pathForUserRole    = "/user-role";
 
 static const char *MIME_HTML = "text/html";
 static const char *MIME_JSON = "application/json";
@@ -129,7 +118,7 @@ struct FaceRest::PrivateContext {
 
 	static string initPathForUserMe(void)
 	{
-		return string(FaceRest::pathForUser) + "/me";
+		return string(RestResourceUser::pathForUser) + "/me";
 	}
 
 	void pushJob(ResourceHandler *job)
@@ -408,58 +397,69 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	                        queueRestJob,
 	                        new HandlerClosure(this, handlerLogout),
 	                        deleteHandlerClosure);
-	soup_server_add_handler(m_ctx->soupServer, pathForGetOverview,
+	soup_server_add_handler(m_ctx->soupServer,
+				RestResourceHost::pathForGetOverview,
 	                        queueRestJob,
 	                        new HandlerClosure(
 				  this, RestResourceHost::handlerGetOverview),
 	                        deleteHandlerClosure);
-	soup_server_add_handler(m_ctx->soupServer, pathForServer,
+	soup_server_add_handler(m_ctx->soupServer,
+				RestResourceServer::pathForServer,
 	                        queueRestJob,
 	                        new HandlerClosure(
 				  this, RestResourceServer::handlerServer),
 	                        deleteHandlerClosure);
-	soup_server_add_handler(m_ctx->soupServer, pathForServerConnStat,
+	soup_server_add_handler(m_ctx->soupServer,
+				RestResourceServer::pathForServerConnStat,
 	                        queueRestJob,
 	                        new HandlerClosure(
 				  this,
 				  RestResourceServer::handlerServerConnStat),
 	                        deleteHandlerClosure);
-	soup_server_add_handler(m_ctx->soupServer, pathForGetHost,
+	soup_server_add_handler(m_ctx->soupServer,
+				RestResourceHost::pathForGetHost,
 	                        queueRestJob,
 	                        new HandlerClosure(
 				  this, RestResourceHost::handlerGetHost),
 	                        deleteHandlerClosure);
-	soup_server_add_handler(m_ctx->soupServer, pathForGetTrigger,
+	soup_server_add_handler(m_ctx->soupServer,
+				RestResourceHost::pathForGetTrigger,
 	                        queueRestJob,
 	                        new HandlerClosure(
 				  this, RestResourceHost::handlerGetTrigger),
 	                        deleteHandlerClosure);
-	soup_server_add_handler(m_ctx->soupServer, pathForGetEvent,
+	soup_server_add_handler(m_ctx->soupServer,
+				RestResourceHost::pathForGetEvent,
 	                        queueRestJob,
 	                        new HandlerClosure(
 				  this, RestResourceHost::handlerGetEvent),
 	                        deleteHandlerClosure);
-	soup_server_add_handler(m_ctx->soupServer, pathForGetItem,
+	soup_server_add_handler(m_ctx->soupServer,
+				RestResourceHost::pathForGetItem,
 	                        queueRestJob,
 	                        new HandlerClosure(
 				  this, RestResourceHost::handlerGetItem),
 	                        deleteHandlerClosure);
-	soup_server_add_handler(m_ctx->soupServer, pathForAction,
+	soup_server_add_handler(m_ctx->soupServer,
+				RestResourceAction::pathForAction,
 	                        queueRestJob,
 	                        new HandlerClosure(
 				  this, RestResourceAction::handlerAction),
 	                        deleteHandlerClosure);
-	soup_server_add_handler(m_ctx->soupServer, pathForHostgroup,
+	soup_server_add_handler(m_ctx->soupServer,
+				RestResourceHost::pathForHostgroup,
 	                        queueRestJob,
 	                        new HandlerClosure(
 				  this, RestResourceHost::handlerGetHostgroup),
 	                        deleteHandlerClosure);
-	soup_server_add_handler(m_ctx->soupServer, pathForUser,
+	soup_server_add_handler(m_ctx->soupServer,
+				RestResourceUser::pathForUser,
 	                        queueRestJob,
 	                        new HandlerClosure(
 				  this, RestResourceUser::handlerUser),
 	                        deleteHandlerClosure);
-	soup_server_add_handler(m_ctx->soupServer, pathForUserRole,
+	soup_server_add_handler(m_ctx->soupServer,
+				RestResourceUser::pathForUserRole,
 	                        queueRestJob,
 	                        new HandlerClosure(
 				  this, RestResourceUser::handlerUserRole),

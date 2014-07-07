@@ -34,6 +34,13 @@ struct RestResourceHost : public FaceRest::ResourceHandler
 
 	static HatoholError parseEventParameter(EventsQueryOption &option,
 						GHashTable *query);
+
+	static const char *pathForGetOverview;
+	static const char *pathForGetHost;
+	static const char *pathForGetTrigger;
+	static const char *pathForGetEvent;
+	static const char *pathForGetItem;
+	static const char *pathForHostgroup;
 };
 
 #endif // RestResourceHost_h

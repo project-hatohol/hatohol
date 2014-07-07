@@ -111,17 +111,6 @@ private:
 	static const char *pathForTest;
 	static const char *pathForLogin;
 	static const char *pathForLogout;
-	static const char *pathForGetOverview;
-	static const char *pathForServer;
-	static const char *pathForServerConnStat;
-	static const char *pathForGetHost;
-	static const char *pathForGetTrigger;
-	static const char *pathForGetEvent;
-	static const char *pathForGetItem;
-	static const char *pathForAction;
-	static const char *pathForUser;
-	static const char *pathForHostgroup;
-	static const char *pathForUserRole;
 };
 
 #endif // FaceRest_h

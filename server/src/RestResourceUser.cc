@@ -23,6 +23,9 @@
 using namespace std;
 using namespace mlpl;
 
+const char *RestResourceUser::pathForUser     = "/user";
+const char *RestResourceUser::pathForUserRole = "/user-role";
+
 static HatoholError parseUserParameter(
   UserInfo &userInfo, GHashTable *query, bool allowEmpty = false)
 {
