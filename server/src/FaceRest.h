@@ -79,9 +79,6 @@ protected:
 	  handlerDefault(SoupServer *server, SoupMessage *msg,
 	                 const char *path, GHashTable *query,
 	                 SoupClientContext *client, gpointer user_data);
-	static void queueRestJob
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, gpointer user_data);
 	static void launchHandlerInTryBlock(ResourceHandler *job);
 
 	static void handlerHelloPage(ResourceHandler *job);
