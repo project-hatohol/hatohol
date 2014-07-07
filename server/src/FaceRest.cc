@@ -398,7 +398,7 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	                        new HandlerClosure(this, handlerLogout),
 	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer,
-				RestResourceHost::pathForGetOverview,
+				RestResourceHost::pathForOverview,
 	                        queueRestJob,
 	                        new HandlerClosure(
 				  this, RestResourceHost::handlerGetOverview),
@@ -417,25 +417,25 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 				  RestResourceServer::handlerServerConnStat),
 	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer,
-				RestResourceHost::pathForGetHost,
+				RestResourceHost::pathForHost,
 	                        queueRestJob,
 	                        new HandlerClosure(
 				  this, RestResourceHost::handlerGetHost),
 	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer,
-				RestResourceHost::pathForGetTrigger,
+				RestResourceHost::pathForTrigger,
 	                        queueRestJob,
 	                        new HandlerClosure(
 				  this, RestResourceHost::handlerGetTrigger),
 	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer,
-				RestResourceHost::pathForGetEvent,
+				RestResourceHost::pathForEvent,
 	                        queueRestJob,
 	                        new HandlerClosure(
 				  this, RestResourceHost::handlerGetEvent),
 	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer,
-				RestResourceHost::pathForGetItem,
+				RestResourceHost::pathForItem,
 	                        queueRestJob,
 	                        new HandlerClosure(
 				  this, RestResourceHost::handlerGetItem),
