@@ -59,10 +59,9 @@ struct FaceRest::ResourceHandler : public UsedCountable
 	bool        replyIsPrepared;
 	DataQueryContextPtr dataQueryContextPtr;
 
-	ResourceHandler();
+	ResourceHandler(FaceRest *_faceRest, RestHandler _handler);
 	virtual ~ResourceHandler();
-	virtual bool init(FaceRest *_faceRest, RestHandler _handler,
-			  SoupMessage *_msg, const char *_path,
+	virtual bool init(SoupMessage *_msg, const char *_path,
 			  GHashTable *_query, SoupClientContext *_client);
 	SoupServer *getSoupServer(void);
 	GMainContext *getGMainContext(void);

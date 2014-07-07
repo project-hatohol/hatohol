@@ -31,6 +31,16 @@ const char *RestResourceHost::pathForEvent     = "/event";
 const char *RestResourceHost::pathForItem      = "/item";
 const char *RestResourceHost::pathForHostgroup = "/hostgroup";
 
+RestResourceHost::RestResourceHost(
+  FaceRest *_faceRest, RestHandler _handler)
+: FaceRest::ResourceHandler(_faceRest, _handler)
+{
+}
+
+RestResourceHost::~RestResourceHost()
+{
+}
+
 static HatoholError parseSortTypeFromQuery(
   EventsQueryOption::SortType &sortType, GHashTable *query)
 {
@@ -865,5 +875,5 @@ RestResourceHostFactory::RestResourceHostFactory(
 
 FaceRest::ResourceHandler *RestResourceHostFactory::createHandler()
 {
-	return new RestResourceHost();
+	return new RestResourceHost(m_faceRest, m_handler);
 }

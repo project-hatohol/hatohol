@@ -29,6 +29,16 @@ using namespace mlpl;
 const char *RestResourceServer::pathForServer         = "/server";
 const char *RestResourceServer::pathForServerConnStat = "/server-conn-stat";
 
+RestResourceServer::RestResourceServer(
+  FaceRest *_faceRest, RestHandler _handler)
+: FaceRest::ResourceHandler(_faceRest, _handler)
+{
+}
+
+RestResourceServer::~RestResourceServer()
+{
+}
+
 static bool canUpdateServer(
   const OperationPrivilege &privilege, const MonitoringServerInfo &serverInfo)
 {
@@ -483,5 +493,5 @@ RestResourceServerFactory::RestResourceServerFactory(
 
 FaceRest::ResourceHandler *RestResourceServerFactory::createHandler()
 {
-	return new RestResourceServer();
+	return new RestResourceServer(m_faceRest, m_handler);
 }

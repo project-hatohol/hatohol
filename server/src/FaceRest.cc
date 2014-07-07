@@ -512,8 +512,7 @@ void FaceRest::PrivateContext::queueRestJob
 	  = static_cast<ResourceHandlerFactory *>(user_data);
 	FaceRest *face = factory->m_faceRest;
 	ResourceHandler *job = factory->createHandler();
-	bool succeeded = job->init(face, factory->m_handler, msg, path,
-				   query, client);
+	bool succeeded = job->init(msg, path, query, client);
 	if (!succeeded)
 		return;
 
@@ -667,23 +666,22 @@ void FaceRest::handlerLogout(ResourceHandler *job)
 // FaceRest::ResourceHandler
 // ---------------------------------------------------------------------------
 
-FaceRest::ResourceHandler::ResourceHandler()
+FaceRest::ResourceHandler::ResourceHandler(FaceRest *_faceRest,
+					   RestHandler _handler)
 : message(NULL), path(), query(NULL), client(NULL),
-  faceRest(NULL), handler(NULL), mimeType(NULL),
+  faceRest(_faceRest), handler(_handler), mimeType(NULL),
   userId(INVALID_USER_ID), replyIsPrepared(false)
 {
 }
 
-bool FaceRest::ResourceHandler::init
-  (FaceRest *_faceRest, RestHandler _handler, SoupMessage *_msg,
-   const char *_path, GHashTable *_query, SoupClientContext *_client)
+bool FaceRest::ResourceHandler::init(
+  SoupMessage *_msg, const char *_path, GHashTable *_query,
+  SoupClientContext *_client)
 {
 	message  = _msg;
 	path     = _path ? _path : "";
 	query    = _query;
 	client   = _client;
-	faceRest = _faceRest;
-	handler  = _handler;
 
 	if (query)
 		g_hash_table_ref(query);
@@ -973,5 +971,5 @@ void FaceRest::ResourceHandlerFactory::destroy(gpointer data)
 FaceRest::ResourceHandler *
 FaceRest::ResourceHandlerFactory::createHandler(void)
 {
-	return new ResourceHandler();
+	return new ResourceHandler(m_faceRest, m_handler);
 }

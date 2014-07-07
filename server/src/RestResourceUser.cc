@@ -26,6 +26,16 @@ using namespace mlpl;
 const char *RestResourceUser::pathForUser     = "/user";
 const char *RestResourceUser::pathForUserRole = "/user-role";
 
+RestResourceUser::RestResourceUser(
+  FaceRest *_faceRest, RestHandler _handler)
+: FaceRest::ResourceHandler(_faceRest, _handler)
+{
+}
+
+RestResourceUser::~RestResourceUser()
+{
+}
+
 static HatoholError parseUserParameter(
   UserInfo &userInfo, GHashTable *query, bool allowEmpty = false)
 {
@@ -587,5 +597,5 @@ RestResourceUserFactory::RestResourceUserFactory(
 
 FaceRest::ResourceHandler *RestResourceUserFactory::createHandler()
 {
-	return new RestResourceUser();
+	return new RestResourceUser(m_faceRest, m_handler);
 }

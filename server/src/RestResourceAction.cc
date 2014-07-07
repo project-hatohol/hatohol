@@ -26,6 +26,16 @@ using namespace mlpl;
 
 const char *RestResourceAction::pathForAction = "/action";
 
+RestResourceAction::RestResourceAction(
+  FaceRest *_faceRest, RestHandler _handler)
+: FaceRest::ResourceHandler(_faceRest, _handler)
+{
+}
+
+RestResourceAction::~RestResourceAction()
+{
+}
+
 template <typename T>
 static void setActionCondition(
   JsonBuilderAgent &agent, const ActionCondition &cond,
@@ -301,5 +311,5 @@ RestResourceActionFactory::RestResourceActionFactory(
 
 FaceRest::ResourceHandler *RestResourceActionFactory::createHandler()
 {
-	return new RestResourceAction();
+	return new RestResourceAction(m_faceRest, m_handler);
 }
