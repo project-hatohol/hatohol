@@ -25,6 +25,9 @@
 
 static const uint64_t INVALID_ID = -1;
 
+typedef std::map<TriggerIdType, std::string> TriggerBriefMap;
+typedef std::map<ServerIdType, TriggerBriefMap> TriggerBriefMaps;
+
 typedef void (*RestHandler) (FaceRest::ResourceHandler *job);
 
 enum FormatType {

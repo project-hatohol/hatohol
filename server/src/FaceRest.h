@@ -38,9 +38,6 @@ struct FaceRestParam {
 	}
 };
 
-typedef std::map<TriggerIdType, std::string> TriggerBriefMap;
-typedef std::map<ServerIdType, TriggerBriefMap> TriggerBriefMaps;
-
 class FaceRest : public FaceBase {
 public:
 
