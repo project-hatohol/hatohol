@@ -76,6 +76,9 @@ struct FaceRest::ResourceHandler
 			const std::string &optionMessage = "");
 	void replyJsonData(JsonBuilderAgent &agent);
 
+	static void addHatoholError(JsonBuilderAgent &agent,
+	                            const HatoholError &err);
+
 private:
 	std::string getJsonpCallbackName(void);
 	bool parseFormatType(void);
