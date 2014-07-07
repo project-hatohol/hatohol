@@ -22,7 +22,7 @@
 
 #include "FaceRest.h"
 #include <StringUtils.h>
-#include <AtomicValue.h>
+#include <MutexLock.h>
 
 static const uint64_t INVALID_ID = -1;
 
@@ -39,7 +39,8 @@ enum FormatType {
 
 struct FaceRest::ResourceHandler
 {
-	mlpl::AtomicValue<size_t> refCount;
+	size_t refCount;
+	mlpl::MutexLock refCountLock;
 
 	// arguments of SoupServerCallback
 	SoupMessage       *message;
