@@ -536,7 +536,7 @@ void FaceRest::finishRestJobIfNeeded(ResourceHandler *job)
 void FaceRest::launchHandlerInTryBlock(ResourceHandler *job)
 {
 	try {
-		(*job->handler)(job);
+		job->handle();
 	} catch (const HatoholException &e) {
 		REPLY_ERROR(job, HTERR_GOT_EXCEPTION,
 		            "%s", e.getFancyMessage().c_str());
@@ -691,6 +691,11 @@ bool FaceRest::ResourceHandler::init(
 	// inclement reference count of them.
 
 	return prepare();
+}
+
+void FaceRest::ResourceHandler::handle(void)
+{
+	handler(this);
 }
 
 FaceRest::ResourceHandler::~ResourceHandler()
