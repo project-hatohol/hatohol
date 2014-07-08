@@ -161,16 +161,11 @@ bool HatoholArmPluginBase::getMonitoringServerInfo(
 
 SmartTime HatoholArmPluginBase::getTimestampOfLastTrigger(void)
 {
-	struct Callback : public CommandCallbacks {
-		HatoholArmPluginBase *obj;
-		SimpleSemaphore sem;
+	struct Callback : public SyncCommand {
 		timespec ts;
-		bool succeeded;
 
-		Callback(HatoholArmPluginBase *_obj)
-		: obj(_obj),
-		  sem(0),
-		  succeeded(false)
+		Callback(HatoholArmPluginBase *obj)
+		: SyncCommand(obj)
 		{
 		}
 
@@ -178,22 +173,15 @@ SmartTime HatoholArmPluginBase::getTimestampOfLastTrigger(void)
 		  const mlpl::SmartBuffer &replyBuf,
 		  const HapiCommandHeader &cmdHeader) override
 		{
-			Reaper<SimpleSemaphore>
-			   poster(&sem, SimpleSemaphore::post);
+			SemaphorePoster poster(this);
 			const HapiResTimestampOfLastTrigger *body =
-			  obj->getResponseBody
+			  getObject()->getResponseBody
 			    <HapiResTimestampOfLastTrigger>(replyBuf);
 			ts.tv_sec  = LtoN(body->timestamp);
 			ts.tv_nsec = LtoN(body->nanosec);
-			succeeded = true;
+			setSucceeded();
 		}
 
-		virtual void onError(
-		  const HapiResponseCode &code,
-		  const HapiCommandHeader &cmdHeader) override
-		{
-			sem.post();
-		}
 	} *cb = new Callback(this);
 	Reaper<UsedCountable> reaper(cb, UsedCountable::unref);
 
@@ -201,8 +189,8 @@ SmartTime HatoholArmPluginBase::getTimestampOfLastTrigger(void)
 	setupCommandHeader<void>(
 	  cmdBuf, HAPI_CMD_GET_TIMESTAMP_OF_LAST_TRIGGER);
 	send(cmdBuf, cb);
-	cb->sem.wait();
-	if (!cb->succeeded) {
+	cb->wait();
+	if (!cb->getSucceeded()) {
 		THROW_HATOHOL_EXCEPTION(
 		  "Failed to call HAPI_CMD_GET_TIMESTAMP_OF_LAST_TRIGGER\n");
 	}
