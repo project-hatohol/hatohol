@@ -18,7 +18,10 @@
  */
 
 #include <cppcutter.h>
+#include <vector>
 #include "SmartQueue.h"
+
+using namespace std;
 using namespace mlpl;
 
 namespace testSmartQueue {
@@ -35,6 +38,27 @@ void test_pushAndPop(void)
 	cppcut_assert_equal(1, q.pop());
 	cppcut_assert_equal(-5, q.pop());
 	cppcut_assert_equal(8, q.pop());
+}
+
+void test_popAll(void)
+{
+	struct Gadget {
+		vector<int> vec;
+		static void valueReceiver(int v, Gadget &obj)
+		{
+			obj.vec.push_back(v);
+		}
+	} actual;
+
+	SmartQueue<int> q;
+	q.push(1);
+	q.push(-5);
+	q.push(8);
+	q.popAll<Gadget &>(Gadget::valueReceiver, actual);
+	cppcut_assert_equal((size_t)3, actual.vec.size());
+	cppcut_assert_equal(1,  actual.vec[0]);
+	cppcut_assert_equal(-5, actual.vec[1]);
+	cppcut_assert_equal(8,  actual.vec[2]);
 }
 
 } // namespace testSmartQueue
