@@ -26,6 +26,16 @@ using namespace mlpl;
 const char *RestResourceUser::pathForUser     = "/user";
 const char *RestResourceUser::pathForUserRole = "/user-role";
 
+void RestResourceUser::registerFactories(FaceRest *faceRest)
+{
+	faceRest->addResourceHandlerFactory(
+	  pathForUser,
+	  new RestResourceUserFactory(faceRest, handlerUser));
+	faceRest->addResourceHandlerFactory(
+	  pathForUserRole,
+	  new RestResourceUserFactory(faceRest, handlerUserRole));
+}
+
 RestResourceUser::RestResourceUser(
   FaceRest *_faceRest, RestHandler _handler)
 : FaceRest::ResourceHandler(_faceRest, _handler)

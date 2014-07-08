@@ -26,6 +26,13 @@ using namespace mlpl;
 
 const char *RestResourceAction::pathForAction = "/action";
 
+void RestResourceAction::registerFactories(FaceRest *faceRest)
+{
+	faceRest->addResourceHandlerFactory(
+	  pathForAction,
+	  new RestResourceActionFactory(faceRest, handlerAction));
+}
+
 RestResourceAction::RestResourceAction(
   FaceRest *_faceRest, RestHandler _handler)
 : FaceRest::ResourceHandler(_faceRest, _handler)

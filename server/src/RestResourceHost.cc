@@ -31,6 +31,28 @@ const char *RestResourceHost::pathForEvent     = "/event";
 const char *RestResourceHost::pathForItem      = "/item";
 const char *RestResourceHost::pathForHostgroup = "/hostgroup";
 
+void RestResourceHost::registerFactories(FaceRest *faceRest)
+{
+	faceRest->addResourceHandlerFactory(
+	  pathForOverview,
+	  new RestResourceHostFactory(faceRest, handlerGetOverview));
+	faceRest->addResourceHandlerFactory(
+	  pathForHost,
+	  new RestResourceHostFactory(faceRest, handlerGetHost));
+	faceRest->addResourceHandlerFactory(
+	  pathForHostgroup,
+	  new RestResourceHostFactory(faceRest, handlerGetHostgroup));
+	faceRest->addResourceHandlerFactory(
+	  pathForTrigger,
+	  new RestResourceHostFactory(faceRest, handlerGetTrigger));
+	faceRest->addResourceHandlerFactory(
+	  pathForEvent,
+	  new RestResourceHostFactory(faceRest, handlerGetEvent));
+	faceRest->addResourceHandlerFactory(
+	  pathForItem,
+	  new RestResourceHostFactory(faceRest, handlerGetItem));
+}
+
 RestResourceHost::RestResourceHost(
   FaceRest *_faceRest, RestHandler _handler)
 : FaceRest::ResourceHandler(_faceRest, _handler)
