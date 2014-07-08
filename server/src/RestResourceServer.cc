@@ -29,6 +29,16 @@ using namespace mlpl;
 const char *RestResourceServer::pathForServer         = "/server";
 const char *RestResourceServer::pathForServerConnStat = "/server-conn-stat";
 
+void RestResourceServer::registerFactories(FaceRest *faceRest)
+{
+	faceRest->addResourceHandlerFactory(
+	  pathForServer,
+	  new RestResourceServerFactory(faceRest, handlerServer));
+	faceRest->addResourceHandlerFactory(
+	  pathForServerConnStat,
+	  new RestResourceServerFactory(faceRest, handlerServerConnStat));
+}
+
 RestResourceServer::RestResourceServer(
   FaceRest *_faceRest, RestHandler _handler)
 : FaceRest::ResourceHandler(_faceRest, _handler)

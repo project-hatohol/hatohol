@@ -390,39 +390,11 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 			  new ResourceHandlerFactory(this, handlerLogin));
 	m_ctx->addHandler(pathForLogout,
 			  new ResourceHandlerFactory(this, handlerLogout));
-	m_ctx->addHandler(RestResourceHost::pathForOverview,
-			  new RestResourceHostFactory(
-			    this, RestResourceHost::handlerGetOverview));
-	m_ctx->addHandler(RestResourceServer::pathForServer,
-			  new RestResourceServerFactory(
-			    this, RestResourceServer::handlerServer));
-	m_ctx->addHandler(RestResourceServer::pathForServerConnStat,
-			  new RestResourceServerFactory(
-			    this, RestResourceServer::handlerServerConnStat));
-	m_ctx->addHandler(RestResourceHost::pathForHost,
-			  new RestResourceHostFactory(
-			    this, RestResourceHost::handlerGetHost));
-	m_ctx->addHandler(RestResourceHost::pathForTrigger,
-			  new RestResourceHostFactory(
-			    this, RestResourceHost::handlerGetTrigger));
-	m_ctx->addHandler(RestResourceHost::pathForEvent,
-			  new RestResourceHostFactory(
-			    this, RestResourceHost::handlerGetEvent));
-	m_ctx->addHandler(RestResourceHost::pathForItem,
-			  new RestResourceHostFactory(
-			    this, RestResourceHost::handlerGetItem));
-	m_ctx->addHandler(RestResourceAction::pathForAction,
-			  new RestResourceActionFactory(
-			    this, RestResourceAction::handlerAction));
-	m_ctx->addHandler(RestResourceHost::pathForHostgroup,
-			  new RestResourceHostFactory(
-			    this, RestResourceHost::handlerGetHostgroup));
-	m_ctx->addHandler(RestResourceUser::pathForUser,
-			  new RestResourceUserFactory(
-			    this, RestResourceUser::handlerUser));
-	m_ctx->addHandler(RestResourceUser::pathForUserRole,
-			  new RestResourceUserFactory(
-			   this, RestResourceUser::handlerUserRole));
+	RestResourceUser::registerFactories(this);
+	RestResourceServer::registerFactories(this);
+	RestResourceHost::registerFactories(this);
+	RestResourceAction::registerFactories(this);
+
 	if (m_ctx->param)
 		m_ctx->param->setupDoneNotifyFunc();
 	soup_server_run_async(m_ctx->soupServer);
