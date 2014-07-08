@@ -77,6 +77,7 @@ enum HapiResponseCode {
 	HAPI_RES_INVALID_HEADER,
 	HAPI_RES_UNKNOWN_CODE,
 	HAPI_RES_INVALID_ARG,
+	HAPI_RES_ERR_DESTRUCTED,
 	NUM_HAPI_CMD_RES
 };
 
@@ -214,6 +215,13 @@ public:
 	typedef void (HatoholArmPluginInterface::*CommandHandler)(
 	  const HapiCommandHeader *header);
 
+	struct CommandCallbacks {
+		void onGotReply(const mlpl::SmartBuffer &replyBuf,
+		                const HapiCommandHeader &cmdHeader);
+		void onError(const HapiResponseCode &code,
+		             const HapiCommandHeader &cmdHeader);
+	};
+
 	HatoholArmPluginInterface(
 	  const bool &workInServer = false);
 	virtual ~HatoholArmPluginInterface() override;
@@ -222,6 +230,8 @@ public:
 
 	void send(const std::string &message);
 	void send(const mlpl::SmartBuffer &smbuf);
+	void sendCommand(
+	  const mlpl::SmartBuffer &smbuf, CommandCallbacks *callbacks);
 
 	void reply(const mlpl::SmartBuffer &replyBuf);
 	void replyError(const HapiResponseCode &code);

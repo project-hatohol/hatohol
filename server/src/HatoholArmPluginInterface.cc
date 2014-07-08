@@ -21,6 +21,7 @@
 #include <MutexLock.h>
 #include <SmartBuffer.h>
 #include <SmartTime.h>
+#include <SmartQueue.h>
 #include <Reaper.h>
 #include <qpid/messaging/Address.h>
 #include <qpid/messaging/Connection.h>
@@ -50,6 +51,26 @@ enum InitiationState {
 	INIT_STAT_WAIT_FINISH,
 };
 
+struct ReplyWaiter {
+	HatoholArmPluginInterface::CommandCallbacks *callbacks;
+	HapiCommandHeader                            header;
+
+	ReplyWaiter(
+	  const SmartBuffer &smbuf,
+	  HatoholArmPluginInterface::CommandCallbacks *_callbacks)
+	: callbacks(_callbacks)
+	{
+		const HapiCommandHeader *cmdHeader =
+		  smbuf.getPointer<HapiCommandHeader>(0);
+		header = *cmdHeader;
+	}
+
+	virtual ~ReplyWaiter()
+	{
+		delete callbacks;
+	}
+};
+
 struct HatoholArmPluginInterface::PrivateContext {
 	HatoholArmPluginInterface *hapi;
 	bool       workInServer;
@@ -65,6 +86,7 @@ struct HatoholArmPluginInterface::PrivateContext {
 	string     receiverAddr;
 	uint32_t   sequenceId;
 	uint32_t   sequenceIdOfCurrCmd;
+	SmartQueue<ReplyWaiter *> replyWaiterQueue;
 
 	PrivateContext(HatoholArmPluginInterface *_hapi,
 	               const bool &_workInServer)
@@ -84,6 +106,7 @@ struct HatoholArmPluginInterface::PrivateContext {
 	virtual ~PrivateContext()
 	{
 		disconnect();
+		freeReplyWaiters();
 	}
 
 	void connect(void)
@@ -134,6 +157,20 @@ struct HatoholArmPluginInterface::PrivateContext {
 		}
 		connected = false;
 		hapi->onSessionChanged(NULL);
+	}
+
+	static void destroyReplyWaiter(ReplyWaiter *replyWaiter,
+	                               PrivateContext *ctx)
+	{
+		replyWaiter->callbacks->onError(HAPI_RES_ERR_DESTRUCTED,
+		                                replyWaiter->header);
+		delete replyWaiter;
+	}
+
+	void freeReplyWaiters(void)
+	{
+		replyWaiterQueue.popAll<PrivateContext *>(destroyReplyWaiter,
+	                                                  this);
 	}
 
 	void acknowledge(void)
@@ -198,6 +235,19 @@ private:
 };
 
 // ---------------------------------------------------------------------------
+// CommandCallbacks
+// ---------------------------------------------------------------------------
+void HatoholArmPluginInterface::CommandCallbacks::onGotReply(
+  const SmartBuffer &replyBuf, const HapiCommandHeader &cmdHeader)
+{
+}
+
+void HatoholArmPluginInterface::CommandCallbacks::onError(
+  const HapiResponseCode &code, const HapiCommandHeader &cmdHeader)
+{
+}
+
+// ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 HatoholArmPluginInterface::HatoholArmPluginInterface(const bool &workInServer)
@@ -227,6 +277,13 @@ void HatoholArmPluginInterface::send(const SmartBuffer &smbuf)
 	request.setReplyTo(m_ctx->receiverAddr);
 	request.setContent(smbuf.getPointer<char>(0), smbuf.size());
 	m_ctx->sender.send(request);
+}
+
+void HatoholArmPluginInterface::sendCommand(
+  const SmartBuffer &smbuf, CommandCallbacks *callbacks)
+{
+	send(smbuf);
+	m_ctx->replyWaiterQueue.push(new ReplyWaiter(smbuf, callbacks));
 }
 
 void HatoholArmPluginInterface::reply(const mlpl::SmartBuffer &replyBuf)
