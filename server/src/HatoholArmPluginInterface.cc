@@ -275,17 +275,17 @@ void HatoholArmPluginInterface::send(const string &message)
 void HatoholArmPluginInterface::send(
   const SmartBuffer &smbuf, CommandCallbacks *callbacks)
 {
+	CommandCallbacksPtr callbacksPtr(callbacks);
 	if (!callbacks) {
-		// TODO: remove this branch. This is to keep compatibility
-		//       of source code until the transition finishes.
-		const uint16_t type = LtoN(*smbuf.getPointer<uint16_t>(0));
+		const uint16_t type = LtoN(smbuf.getValue<uint16_t>(0));
 		if (type == HAPI_MSG_COMMAND) {
-			CommandCallbacksPtr cb(new CommandCallbacks(), false);
-			m_ctx->replyWaiterQueue.push(
-			  new ReplyWaiter(smbuf, cb));
+			callbacksPtr =
+			  CommandCallbacksPtr(new CommandCallbacks(), false);
 		}
-	} else {
-		m_ctx->replyWaiterQueue.push(new ReplyWaiter(smbuf, callbacks));
+	}
+	if (callbacksPtr.hasData()) {
+		ReplyWaiter *replyWaiter = new ReplyWaiter(smbuf, callbacksPtr);
+		m_ctx->replyWaiterQueue.push(replyWaiter);
 	}
 
 	Message request;

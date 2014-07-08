@@ -234,6 +234,17 @@ public:
 	virtual void exitSync(void) override;
 
 	void send(const std::string &message);
+
+	/**
+	 * Send data to the broker's queue.
+	 *
+	 * @param smbuf Data to be sent.
+	 * @param callbacks
+	 * An instance including methods that are called back when the reply
+	 * comes or gets an error. If this paramter is NULL and the data type
+	 * is HAPI_MSG_COMMAND, the default callback handlers (mainly works to
+	 * keep the internal consistency) are created and used.
+	 */
 	void send(
 	  const mlpl::SmartBuffer &smbuf, CommandCallbacks *callbacks = NULL);
 
