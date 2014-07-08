@@ -40,7 +40,6 @@ struct FaceRestParam {
 
 class FaceRest : public FaceBase {
 public:
-	class Worker;
 	struct ResourceHandlerFactory;
 	struct ResourceHandler;
 
@@ -61,6 +60,8 @@ public:
 				       ResourceHandlerFactory *factory);
 
 protected:
+	class Worker;
+
 	// virtual methods
 	gpointer mainThread(HatoholThreadArg *arg);
 
