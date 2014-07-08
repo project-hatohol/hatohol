@@ -52,6 +52,14 @@ private:
 	PrivateContext *m_ctx;
 };
 
+class AutoMutexLock {
+public:
+	AutoMutexLock(MutexLock *mutex);
+	virtual ~AutoMutexLock();
+private:
+	MutexLock *m_mutex;
+};
+
 } // namespace mlpl
 
 #endif // MutexLock_h

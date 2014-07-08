@@ -108,4 +108,14 @@ void test_staticUnlock(void)
 	MutexLock::unlock(&lock);
 }
 
+void test_autoMutexLock(void)
+{
+	MutexLock lock;
+	{
+		AutoMutexLock autoLock(&lock);
+		cppcut_assert_equal(false, lock.trylock());
+	}
+	cppcut_assert_equal(true, lock.trylock());
+}
+
 } // namespace testMutexLock
