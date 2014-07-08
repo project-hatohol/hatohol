@@ -131,8 +131,9 @@ public:
 		return reinterpret_cast<T *>(&m_buf[headIndex]);
 	}
 
-	template <typename T> T getValue(void) {
-		return *getPointer<T>();
+	template <typename T>
+	T getValue(const size_t &index = CURR_INDEX) const {
+		return *getPointer<T>(index);
 	}
 
 	template <typename T> T *getPointerAndIncIndex(void) {
