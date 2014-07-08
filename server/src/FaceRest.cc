@@ -305,6 +305,12 @@ void FaceRest::setNumberOfPreLoadWorkers(size_t num)
 	m_ctx->numPreLoadWorkers = num;
 }
 
+void FaceRest::addResourceHandlerFactory(const char *path,
+					 ResourceHandlerFactory *factory)
+{
+	m_ctx->addHandler(path, factory);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
