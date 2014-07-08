@@ -694,6 +694,8 @@ protected:
 	void setSequenceId(const uint32_t &sequenceId);
 	uint32_t getSequenceIdInProgress(void);
 
+	HapiMessageType getMessageType(const mlpl::SmartBuffer &smbuf);
+
 	/**
 	 * Get the received buffer that is currently being processed.
 	 * This method is seemed to be called from command handlers.

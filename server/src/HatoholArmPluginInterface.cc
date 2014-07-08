@@ -969,6 +969,12 @@ uint32_t HatoholArmPluginInterface::getSequenceIdInProgress(void)
 	return m_ctx->sequenceIdOfCurrCmd;
 }
 
+HapiMessageType HatoholArmPluginInterface::getMessageType(
+  const mlpl::SmartBuffer &smbuf)
+{
+	return static_cast<HapiMessageType>(LtoN(smbuf.getValue<uint16_t>(0)));
+}
+
 SmartBuffer *HatoholArmPluginInterface::getCurrBuffer(void)
 {
 	return m_ctx->currBuffer;
