@@ -39,26 +39,7 @@ enum FormatType {
 
 struct FaceRest::ResourceHandler : public UsedCountable
 {
-	// arguments of SoupServerCallback
-	SoupMessage       *message;
-	std::string        path;
-	mlpl::StringVector pathElements;
-	GHashTable        *query;
-	SoupClientContext *client;
-
-	FaceRest   *faceRest;
-	RestHandler handler;
-
-	// parsed data
-	std::string formatString;
-	FormatType  formatType;
-	const char *mimeType;
-	std::string jsonpCallbackName;
-	std::string sessionId;
-	UserIdType  userId;
-	bool        replyIsPrepared;
-	DataQueryContextPtr dataQueryContextPtr;
-
+public:
 	ResourceHandler(FaceRest *_faceRest, RestHandler _handler);
 	virtual ~ResourceHandler();
 	virtual bool setRequest(SoupMessage *_msg,
@@ -89,6 +70,27 @@ struct FaceRest::ResourceHandler : public UsedCountable
 
         // TODO: Move to RestResourceHost
 	void itemFetchedCallback(ClosureBase *closure);
+
+public:
+	FaceRest   *m_faceRest;
+	RestHandler m_handler;
+
+	// arguments of SoupServerCallback
+	SoupMessage       *m_message;
+	std::string        m_path;
+	mlpl::StringVector m_pathElements;
+	GHashTable        *m_query;
+	SoupClientContext *m_client;
+
+	// parsed data
+	std::string m_formatString;
+	FormatType  m_formatType;
+	const char *m_mimeType;
+	std::string m_jsonpCallbackName;
+	std::string m_sessionId;
+	UserIdType  m_userId;
+	bool        m_replyIsPrepared;
+	DataQueryContextPtr m_dataQueryContextPtr;
 
 protected:
 	bool prepare(void);
@@ -135,7 +137,7 @@ bool getParamWithErrorReply(
   FaceRest::ResourceHandler *job, const char *paramName, const char *scanFmt,
   T &dest, bool *exist)
 {
-	char *value = (char *)g_hash_table_lookup(job->query, paramName);
+	char *value = (char *)g_hash_table_lookup(job->m_query, paramName);
 	if (exist)
 		*exist = value;
 	if (!value)

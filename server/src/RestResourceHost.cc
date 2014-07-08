@@ -265,7 +265,7 @@ addHostgroupsMap(FaceRest::ResourceHandler *job, JsonBuilderAgent &outputJson,
                  const MonitoringServerInfo &serverInfo,
                  HostgroupInfoList &hostgroupList)
 {
-	HostgroupsQueryOption option(job->dataQueryContextPtr);
+	HostgroupsQueryOption option(job->m_dataQueryContextPtr);
 	option.setTargetServerId(serverInfo.id);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HatoholError err = dataStore->getHostgroupInfoList(hostgroupList,
@@ -273,7 +273,7 @@ addHostgroupsMap(FaceRest::ResourceHandler *job, JsonBuilderAgent &outputJson,
 	if (err != HTERR_OK) {
 		MLPL_ERR("Error: %d, user ID: %" FMT_USER_ID ", "
 		         "sv ID: %" FMT_SERVER_ID "\n",
-		         err.getCode(), job->userId, serverInfo.id);
+		         err.getCode(), job->m_userId, serverInfo.id);
 		return err;
 	}
 
@@ -311,12 +311,12 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 	// TODO: This implementeation is not effective.
 	//       We should add a function only to get the number of list.
 	HostInfoList hostInfoList;
-	HostsQueryOption option(job->dataQueryContextPtr);
+	HostsQueryOption option(job->m_dataQueryContextPtr);
 	option.setTargetServerId(svInfo.id);
 	dataStore->getHostList(hostInfoList, option);
 	agent.add("numberOfHosts", hostInfoList.size());
 
-	ItemsQueryOption itemsQueryOption(job->dataQueryContextPtr);
+	ItemsQueryOption itemsQueryOption(job->m_dataQueryContextPtr);
 	itemsQueryOption.setTargetServerId(svInfo.id);
 	bool fetchItemsSynchronously = true;
 	size_t numberOfItems =
@@ -325,7 +325,7 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 	agent.add("numberOfItems", numberOfItems);
 
 	TriggerInfoList triggerInfoList;
-	TriggersQueryOption triggersQueryOption(job->dataQueryContextPtr);
+	TriggersQueryOption triggersQueryOption(job->m_dataQueryContextPtr);
 	triggersQueryOption.setTargetServerId(svInfo.id);
 	agent.add("numberOfTriggers",
 		  dataStore->getNumberOfTriggers(triggersQueryOption));
@@ -339,7 +339,7 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 	// after the funtion concerned is added
 	agent.add("numberOfUsers", 0);
 	agent.add("numberOfOnlineUsers", 0);
-	DataQueryOption dataQueryOption(job->userId);
+	DataQueryOption dataQueryOption(job->m_userId);
 	MonitoringServerStatus serverStatus;
 	serverStatus.serverId = svInfo.id;
 	err = dataStore->getNumberOfMonitoredItemsPerSecond(
@@ -372,7 +372,7 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 		const HostgroupIdType hostgroupId = hostgrpItr->groupId;
 		for (int severity = 0;
 		     severity < NUM_TRIGGER_SEVERITY; severity++) {
-			TriggersQueryOption option(job->dataQueryContextPtr);
+			TriggersQueryOption option(job->m_dataQueryContextPtr);
 			option.setTargetServerId(svInfo.id);
 			option.setTargetHostgroupId(hostgroupId);
 			agent.startObject();
@@ -393,7 +393,7 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 	hostgrpItr = hostgroupInfoList.begin();
 	for (; hostgrpItr != hostgroupInfoList.end(); ++ hostgrpItr) {
 		const HostgroupIdType hostgroupId = hostgrpItr->groupId;
-		TriggersQueryOption option(job->dataQueryContextPtr);
+		TriggersQueryOption option(job->m_dataQueryContextPtr);
 		option.setTargetServerId(svInfo.id);
 		option.setTargetHostgroupId(hostgroupId);
 		size_t numBadHosts = dataStore->getNumberOfBadHosts(option);
@@ -415,7 +415,7 @@ static HatoholError addOverview(FaceRest::ResourceHandler *job, JsonBuilderAgent
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	MonitoringServerInfoList monitoringServers;
-	ServerQueryOption option(job->dataQueryContextPtr);
+	ServerQueryOption option(job->m_dataQueryContextPtr);
 	dataStore->getTargetServers(monitoringServers, option);
 	MonitoringServerInfoListIterator it = monitoringServers.begin();
 	agent.add("numberOfServers", monitoringServers.size());
@@ -448,7 +448,7 @@ static void addHosts(FaceRest::ResourceHandler *job, JsonBuilderAgent &agent,
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HostInfoList hostInfoList;
-	HostsQueryOption option(job->dataQueryContextPtr);
+	HostsQueryOption option(job->m_dataQueryContextPtr);
 	option.setTargetServerId(targetServerId);
 	option.setTargetHostgroupId(targetHostgroupId);
 	option.setTargetHostId(targetHostId);
@@ -473,12 +473,12 @@ static void addHostsMap(
   const MonitoringServerInfo &serverInfo)
 {
 	HostgroupIdType targetHostgroupId = ALL_HOST_GROUPS;
-	char *value = (char *)g_hash_table_lookup(job->query, "hostgroupId");
+	char *value = (char *)g_hash_table_lookup(job->m_query, "hostgroupId");
 	if (value)
 		sscanf(value, "%" FMT_HOST_GROUP_ID, &targetHostgroupId);
 
 	HostInfoList hostList;
-	HostsQueryOption option(job->dataQueryContextPtr);
+	HostsQueryOption option(job->m_dataQueryContextPtr);
 	option.setTargetServerId(serverInfo.id);
 	option.setTargetHostgroupId(targetHostgroupId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
@@ -500,7 +500,7 @@ static string getTriggerBrief(
 	string triggerBrief;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	TriggerInfoList triggerInfoList;
-	TriggersQueryOption triggersQueryOption(job->dataQueryContextPtr);
+	TriggersQueryOption triggersQueryOption(job->m_dataQueryContextPtr);
 	triggersQueryOption.setTargetServerId(serverId);
 	triggersQueryOption.setTargetId(triggerId);
 	dataStore->getTriggerList(triggerInfoList, triggersQueryOption);
@@ -552,7 +552,7 @@ void FaceRest::ResourceHandler::addServersMap(
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	MonitoringServerInfoList monitoringServers;
-	ServerQueryOption option(dataQueryContextPtr);
+	ServerQueryOption option(m_dataQueryContextPtr);
 	dataStore->getTargetServers(monitoringServers, option);
 
 	HatoholError err;
@@ -599,8 +599,9 @@ void RestResourceHost::handlerGetOverview(ResourceHandler *job)
 
 void RestResourceHost::handlerGetHost(ResourceHandler *job)
 {
-	HostsQueryOption option(job->dataQueryContextPtr);
-	HatoholError err = parseHostResourceQueryParameter(option, job->query);
+	HostsQueryOption option(job->m_dataQueryContextPtr);
+	HatoholError err
+	  = parseHostResourceQueryParameter(option, job->m_query);
 	if (err != HTERR_OK) {
 		job->replyError(err);
 		return;
@@ -620,8 +621,8 @@ void RestResourceHost::handlerGetHost(ResourceHandler *job)
 
 void RestResourceHost::handlerGetTrigger(ResourceHandler *job)
 {
-	TriggersQueryOption option(job->dataQueryContextPtr);
-	HatoholError err = parseTriggerParameter(option, job->query);
+	TriggersQueryOption option(job->m_dataQueryContextPtr);
+	HatoholError err = parseTriggerParameter(option, job->m_query);
 	if (err != HTERR_OK) {
 		job->replyError(err);
 		return;
@@ -661,7 +662,7 @@ void RestResourceHost::handlerGetTrigger(ResourceHandler *job)
 
 static uint64_t getLastUnifiedEventId(FaceRest::ResourceHandler *job)
 {
-	EventsQueryOption option(job->dataQueryContextPtr);
+	EventsQueryOption option(job->m_dataQueryContextPtr);
 	option.setMaximumNumber(1);
 	option.setSortType(EventsQueryOption::SORT_UNIFIED_ID,
 			   DataQueryOption::SORT_DESCENDING);
@@ -692,8 +693,8 @@ void RestResourceHost::handlerGetEvent(ResourceHandler *job)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	EventInfoList eventList;
-	EventsQueryOption option(job->dataQueryContextPtr);
-	HatoholError err = parseEventParameter(option, job->query);
+	EventsQueryOption option(job->m_dataQueryContextPtr);
+	HatoholError err = parseEventParameter(option, job->m_query);
 	if (err != HTERR_OK) {
 		job->replyError(err);
 		return;
@@ -766,8 +767,8 @@ struct GetItemClosure : Closure<FaceRest::ResourceHandler>
 
 void RestResourceHost::replyGetItem(ResourceHandler *job)
 {
-	ItemsQueryOption option(job->dataQueryContextPtr);
-	HatoholError err = parseItemParameter(option, job->query);
+	ItemsQueryOption option(job->m_dataQueryContextPtr);
+	HatoholError err = parseItemParameter(option, job->m_query);
 	if (err != HTERR_OK) {
 		job->replyError(err);
 		return;
@@ -814,8 +815,8 @@ void FaceRest::ResourceHandler::itemFetchedCallback(ClosureBase *closure)
 
 void RestResourceHost::handlerGetItem(ResourceHandler *job)
 {
-	ItemsQueryOption option(job->dataQueryContextPtr);
-	HatoholError err = parseItemParameter(option, job->query);
+	ItemsQueryOption option(job->m_dataQueryContextPtr);
+	HatoholError err = parseItemParameter(option, job->m_query);
 	if (err != HTERR_OK) {
 		job->replyError(err);
 		return;
@@ -841,7 +842,7 @@ static void addHostsIsMemberOfGroup(
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	HostgroupElementList hostgroupElementList;
-	HostgroupElementQueryOption option(job->dataQueryContextPtr);
+	HostgroupElementQueryOption option(job->m_dataQueryContextPtr);
 	option.setTargetServerId(targetServerId);
 	option.setTargetHostgroupId(targetGroupId);
 	dataStore->getHostgroupElementList(hostgroupElementList, option);
@@ -857,8 +858,9 @@ static void addHostsIsMemberOfGroup(
 
 void RestResourceHost::handlerGetHostgroup(ResourceHandler *job)
 {
-	HostgroupsQueryOption option(job->dataQueryContextPtr);
-	HatoholError err = parseHostResourceQueryParameter(option, job->query);
+	HostgroupsQueryOption option(job->m_dataQueryContextPtr);
+	HatoholError err
+	  = parseHostResourceQueryParameter(option, job->m_query);
 	if (err != HTERR_OK) {
 		job->replyError(err);
 		return;

@@ -506,7 +506,7 @@ void FaceRest::PrivateContext::queueRestJob
 
 void FaceRest::finishRestJobIfNeeded(ResourceHandler *job)
 {
-	if (job->replyIsPrepared)
+	if (job->m_replyIsPrepared)
 		job->unpauseResponse();
 	job->unref();
 }
@@ -529,10 +529,11 @@ void FaceRest::handlerHelloPage(ResourceHandler *job)
 	  "HATOHOL Server ver. %s"
 	  "</html>";
 	response = StringUtils::sprintf(pageTemplate, PACKAGE_VERSION);
-	soup_message_body_append(job->message->response_body, SOUP_MEMORY_COPY,
+	soup_message_body_append(job->m_message->response_body,
+				 SOUP_MEMORY_COPY,
 	                         response.c_str(), response.size());
-	soup_message_set_status(job->message, SOUP_STATUS_OK);
-	job->replyIsPrepared = true;
+	soup_message_set_status(job->m_message, SOUP_STATUS_OK);
+	job->m_replyIsPrepared = true;
 }
 
 void FaceRest::handlerTest(ResourceHandler *job)
@@ -546,13 +547,13 @@ void FaceRest::handlerTest(ResourceHandler *job)
 	else
 		agent.addFalse("testMode");
 
-	if (string(job->path) == "/test" &&
-	    string(job->message->method) == "POST")
+	if (string(job->m_path) == "/test" &&
+	    string(job->m_message->method) == "POST")
 	{
 		agent.startObject("queryData");
 		GHashTableIter iter;
 		gpointer key, value;
-		g_hash_table_iter_init(&iter, job->query);
+		g_hash_table_iter_init(&iter, job->m_query);
 		while (g_hash_table_iter_next(&iter, &key, &value)) {
 			agent.add(string((const char *)key),
 			          string((const char *)value));
@@ -563,18 +564,18 @@ void FaceRest::handlerTest(ResourceHandler *job)
 		return;
 	}
 
-	if (string(job->path) == "/test/error") {
+	if (string(job->m_path) == "/test/error") {
 		agent.endObject(); // top level
 		job->replyError(HTERR_ERROR_TEST);
 		return;
 	}
 
-	if (string(job->path) == "/test/user" &&
-	    string(job->message->method) == "POST")
+	if (string(job->m_path) == "/test/user" &&
+	    string(job->m_message->method) == "POST")
 	{
 		RETURN_IF_NOT_TEST_MODE(job);
 		UserQueryOption option(USER_ID_SYSTEM);
-		HatoholError err = updateOrAddUser(job->query, option);
+		HatoholError err = updateOrAddUser(job->m_query, option);
 		if (err != HTERR_OK) {
 			job->replyError(err);
 			return;
@@ -587,13 +588,14 @@ void FaceRest::handlerTest(ResourceHandler *job)
 
 void FaceRest::handlerLogin(ResourceHandler *job)
 {
-	gchar *user = (gchar *)g_hash_table_lookup(job->query, "user");
+	gchar *user = (gchar *)g_hash_table_lookup(job->m_query, "user");
 	if (!user) {
 		MLPL_INFO("Not found: user\n");
 		job->replyError(HTERR_AUTH_FAILED);
 		return;
 	}
-	gchar *password = (gchar *)g_hash_table_lookup(job->query, "password");
+	gchar *password
+	  = (gchar *)g_hash_table_lookup(job->m_query, "password");
 	if (!password) {
 		MLPL_INFO("Not found: password\n");
 		job->replyError(HTERR_AUTH_FAILED);
@@ -604,7 +606,7 @@ void FaceRest::handlerLogin(ResourceHandler *job)
 	UserIdType userId = dbUser.getUserId(user, password);
 	if (userId == INVALID_USER_ID) {
 		MLPL_INFO("Failed to authenticate: Client: %s, User: %s.\n",
-			  soup_client_context_get_host(job->client), user);
+			  soup_client_context_get_host(job->m_client), user);
 		job->replyError(HTERR_AUTH_FAILED);
 		return;
 	}
@@ -625,7 +627,7 @@ void FaceRest::handlerLogin(ResourceHandler *job)
 void FaceRest::handlerLogout(ResourceHandler *job)
 {
 	SessionManager *sessionMgr = SessionManager::getInstance();
-	if (!sessionMgr->remove(job->sessionId)) {
+	if (!sessionMgr->remove(job->m_sessionId)) {
 		job->replyError(HTERR_NOT_FOUND_SESSION_ID);
 		return;
 	}
@@ -646,29 +648,29 @@ void FaceRest::handlerLogout(ResourceHandler *job)
 
 FaceRest::ResourceHandler::ResourceHandler(FaceRest *_faceRest,
 					   RestHandler _handler)
-: message(NULL), path(), query(NULL), client(NULL),
-  faceRest(_faceRest), handler(_handler), mimeType(NULL),
-  userId(INVALID_USER_ID), replyIsPrepared(false)
+: m_faceRest(_faceRest), m_handler(_handler), m_message(NULL), m_path(),
+  m_query(NULL), m_client(NULL), m_mimeType(NULL), m_userId(INVALID_USER_ID),
+  m_replyIsPrepared(false)
 {
 }
 
 FaceRest::ResourceHandler::~ResourceHandler()
 {
-	if (query)
-		g_hash_table_unref(query);
+	if (m_query)
+		g_hash_table_unref(m_query);
 }
 
 bool FaceRest::ResourceHandler::setRequest(
   SoupMessage *_msg, const char *_path, GHashTable *_query,
   SoupClientContext *_client)
 {
-	message  = _msg;
-	path     = _path ? _path : "";
-	query    = _query;
-	client   = _client;
+	m_message  = _msg;
+	m_path     = _path ? _path : "";
+	m_query    = _query;
+	m_client   = _client;
 
-	if (query)
-		g_hash_table_ref(query);
+	if (m_query)
+		g_hash_table_ref(m_query);
 
 	// Since life-span of other libsoup's objects should always be longer
 	// than this object and shoube be managed by libsoup, we don't
@@ -679,31 +681,31 @@ bool FaceRest::ResourceHandler::setRequest(
 
 void FaceRest::ResourceHandler::handle(void)
 {
-	handler(this);
+	m_handler(this);
 }
 
 SoupServer *FaceRest::ResourceHandler::getSoupServer(void)
 {
-	return faceRest ? faceRest->getSoupServer() : NULL;
+	return m_faceRest ? m_faceRest->getSoupServer() : NULL;
 }
 
 GMainContext *FaceRest::ResourceHandler::getGMainContext(void)
 {
-	return faceRest ? faceRest->getGMainContext() : NULL;
+	return m_faceRest ? m_faceRest->getGMainContext() : NULL;
 }
 
 bool FaceRest::ResourceHandler::pathIsUserMe(void)
 {
-	if (!faceRest)
+	if (!m_faceRest)
 		return false;
-	return (path == faceRest->getPathForUserMe());
+	return (m_path == m_faceRest->getPathForUserMe());
 }
 
 string FaceRest::ResourceHandler::getJsonpCallbackName(void)
 {
-	if (formatType != FORMAT_JSONP)
+	if (m_formatType != FORMAT_JSONP)
 		return "";
-	gpointer value = g_hash_table_lookup(query, "callback");
+	gpointer value = g_hash_table_lookup(m_query, "callback");
 	if (!value)
 		THROW_HATOHOL_EXCEPTION("Not found parameter: callback");
 
@@ -718,53 +720,54 @@ string FaceRest::ResourceHandler::getJsonpCallbackName(void)
 
 bool FaceRest::ResourceHandler::parseFormatType(void)
 {
-	formatString.clear();
-	if (!query) {
-		formatType = FORMAT_JSON;
+	m_formatString.clear();
+	if (!m_query) {
+		m_formatType = FORMAT_JSON;
 		return true;
 	}
 
-	gchar *format = (gchar *)g_hash_table_lookup(query, "fmt");
+	gchar *format = (gchar *)g_hash_table_lookup(m_query, "fmt");
 	if (!format) {
-		formatType = FORMAT_JSON; // default value
+		m_formatType = FORMAT_JSON; // default value
 		return true;
 	}
-	formatString = format;
+	m_formatString = format;
 
 	FormatTypeMapIterator fmtIt = g_formatTypeMap.find(format);
 	if (fmtIt == g_formatTypeMap.end())
 		return false;
-	formatType = fmtIt->second;
+	m_formatType = fmtIt->second;
 	return true;
 }
 
 bool FaceRest::ResourceHandler::prepare(void)
 {
 	const char *_sessionId =
-	   soup_message_headers_get_one(message->request_headers,
+	   soup_message_headers_get_one(m_message->request_headers,
 	                                SESSION_ID_HEADER_NAME);
-	sessionId = _sessionId ? _sessionId : "";
+	m_sessionId = _sessionId ? _sessionId : "";
 
 	bool notFoundSessionId = true;
-	if (sessionId.empty()) {
-		if (path == pathForLogin || PrivateContext::isTestPath(path)) {
-			userId = INVALID_USER_ID;
+	if (m_sessionId.empty()) {
+		if (m_path == pathForLogin ||
+		    PrivateContext::isTestPath(m_path)) {
+			m_userId = INVALID_USER_ID;
 			notFoundSessionId = false;
 		}
 	} else {
 		SessionManager *sessionMgr = SessionManager::getInstance();
-		SessionPtr session = sessionMgr->getSession(sessionId);
+		SessionPtr session = sessionMgr->getSession(m_sessionId);
 		if (session.hasData()) {
 			notFoundSessionId = false;
-			userId = session->userId;
+			m_userId = session->userId;
 		}
 	}
 	if (notFoundSessionId) {
 		replyError(HTERR_NOT_FOUND_SESSION_ID);
 		return false;
 	}
-	dataQueryContextPtr =
-	  DataQueryContextPtr(new DataQueryContext(userId), false);
+	m_dataQueryContextPtr =
+	  DataQueryContextPtr(new DataQueryContext(m_userId), false);
 
 	// We expect URIs  whose style are the following.
 	//
@@ -776,29 +779,29 @@ bool FaceRest::ResourceHandler::prepare(void)
 	// a format type
 	if (!parseFormatType()) {
 		REPLY_ERROR(this, HTERR_UNSUPPORTED_FORMAT,
-		            "%s", formatString.c_str());
+		            "%s", m_formatString.c_str());
 		return false;
 	}
 
 	// path elements
-	StringUtils::split(pathElements, path, '/');
+	StringUtils::split(m_pathElements, m_path, '/');
 
 	// MIME
-	MimeTypeMapIterator mimeIt = g_mimeTypeMap.find(formatType);
+	MimeTypeMapIterator mimeIt = g_mimeTypeMap.find(m_formatType);
 	HATOHOL_ASSERT(
 	  mimeIt != g_mimeTypeMap.end(),
-	  "Invalid formatType: %d, %s", formatType, path.c_str());
-	mimeType = mimeIt->second;
+	  "Invalid formatType: %d, %s", m_formatType, m_path.c_str());
+	m_mimeType = mimeIt->second;
 
 	// jsonp callback name
-	jsonpCallbackName = getJsonpCallbackName();
+	m_jsonpCallbackName = getJsonpCallbackName();
 
 	return true;
 }
 
 void FaceRest::ResourceHandler::pauseResponse(void)
 {
-	soup_server_pause_message(getSoupServer(), message);
+	soup_server_pause_message(getSoupServer(), m_message);
 }
 
 struct UnpauseContext {
@@ -819,13 +822,13 @@ void FaceRest::ResourceHandler::unpauseResponse(void)
 {
 	if (g_main_context_acquire(getGMainContext())) {
 		// FaceRest thread
-		soup_server_unpause_message(getSoupServer(), message);
+		soup_server_unpause_message(getSoupServer(), m_message);
 		g_main_context_release(getGMainContext());
 	} else {
 		// Other threads
 		UnpauseContext *unpauseContext = new UnpauseContext;
 		unpauseContext->server = getSoupServer();
-		unpauseContext->message = message;
+		unpauseContext->message = m_message;
 		soup_add_completion(getGMainContext(), idleUnpause,
 				    unpauseContext);
 	}
@@ -834,26 +837,26 @@ void FaceRest::ResourceHandler::unpauseResponse(void)
 string FaceRest::ResourceHandler::getResourceName(int nest)
 {
 	size_t idx = nest * 2;
-	if (pathElements.size() > idx)
-		return pathElements[idx];
+	if (m_pathElements.size() > idx)
+		return m_pathElements[idx];
 	return string();
 }
 
 string FaceRest::ResourceHandler::getResourceIdString(int nest)
 {
 	size_t idx = nest * 2 + 1;
-	if (pathElements.size() > idx)
-		return pathElements[idx];
+	if (m_pathElements.size() > idx)
+		return m_pathElements[idx];
 	return string();
 }
 
 uint64_t FaceRest::ResourceHandler::getResourceId(int nest)
 {
 	size_t idx = nest * 2 + 1;
-	if (pathElements.size() <= idx)
+	if (m_pathElements.size() <= idx)
 		return INVALID_ID;
 	uint64_t id = INVALID_ID;
-	if (sscanf(pathElements[idx].c_str(), "%" PRIu64, &id) != 1)
+	if (sscanf(m_pathElements[idx].c_str(), "%" PRIu64, &id) != 1)
 		return INVALID_ID;
 	return id;
 }
@@ -897,29 +900,29 @@ void FaceRest::ResourceHandler::replyError(const HatoholError &hatoholError)
 	addHatoholError(agent, hatoholError);
 	agent.endObject();
 	string response = agent.generate();
-	if (!jsonpCallbackName.empty())
-		response = wrapForJsonp(response, jsonpCallbackName);
-	soup_message_headers_set_content_type(message->response_headers,
+	if (!m_jsonpCallbackName.empty())
+		response = wrapForJsonp(response, m_jsonpCallbackName);
+	soup_message_headers_set_content_type(m_message->response_headers,
 	                                      MIME_JSON, NULL);
-	soup_message_body_append(message->response_body, SOUP_MEMORY_COPY,
+	soup_message_body_append(m_message->response_body, SOUP_MEMORY_COPY,
 	                         response.c_str(), response.size());
-	soup_message_set_status(message, SOUP_STATUS_OK);
+	soup_message_set_status(m_message, SOUP_STATUS_OK);
 
-	replyIsPrepared = true;
+	m_replyIsPrepared = true;
 }
 
 void FaceRest::ResourceHandler::replyJsonData(JsonBuilderAgent &agent)
 {
 	string response = agent.generate();
-	if (!jsonpCallbackName.empty())
-		response = wrapForJsonp(response, jsonpCallbackName);
-	soup_message_headers_set_content_type(message->response_headers,
-	                                      mimeType, NULL);
-	soup_message_body_append(message->response_body, SOUP_MEMORY_COPY,
+	if (!m_jsonpCallbackName.empty())
+		response = wrapForJsonp(response, m_jsonpCallbackName);
+	soup_message_headers_set_content_type(m_message->response_headers,
+	                                      m_mimeType, NULL);
+	soup_message_body_append(m_message->response_body, SOUP_MEMORY_COPY,
 	                         response.c_str(), response.size());
-	soup_message_set_status(message, SOUP_STATUS_OK);
+	soup_message_set_status(m_message, SOUP_STATUS_OK);
 
-	replyIsPrepared = true;
+	m_replyIsPrepared = true;
 }
 
 void FaceRest::ResourceHandler::addHatoholError(JsonBuilderAgent &agent,
