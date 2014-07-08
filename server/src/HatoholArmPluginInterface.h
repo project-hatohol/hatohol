@@ -77,6 +77,7 @@ enum HapiResponseCode {
 	HAPI_RES_INVALID_HEADER,
 	HAPI_RES_UNKNOWN_CODE,
 	HAPI_RES_INVALID_ARG,
+	HAPI_RES_UNEXPECTED_SEQ_ID,
 	HAPI_RES_ERR_DESTRUCTED,
 	NUM_HAPI_CMD_RES
 };
@@ -240,6 +241,7 @@ public:
 
 	void reply(const mlpl::SmartBuffer &replyBuf);
 	void replyError(const HapiResponseCode &code);
+	void replyOk(void);
 
 	/**
 	 * Register a message receive callback method.

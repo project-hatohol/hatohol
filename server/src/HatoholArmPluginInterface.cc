@@ -290,6 +290,13 @@ void HatoholArmPluginInterface::send(const string &message)
 void HatoholArmPluginInterface::send(
   const SmartBuffer &smbuf, CommandCallbacks *callbacks)
 {
+	if (!callbacks) {
+		// TODO: remove this branch. This is to keep compatibility
+		//       of source code until the transition finishes.
+		const uint16_t type = LtoN(*smbuf.getPointer<uint16_t>(0));
+		if (type == HAPI_MSG_COMMAND)
+			callbacks = new CommandCallbacks();
+	}
 	if (callbacks)
 		m_ctx->replyWaiterQueue.push(new ReplyWaiter(smbuf, callbacks));
 
@@ -320,6 +327,13 @@ void HatoholArmPluginInterface::replyError(const HapiResponseCode &code)
 	SmartBuffer resBuf;
 	setupResponseBuffer<void>(resBuf, 0, code);
 	reply(resBuf);
+}
+
+void HatoholArmPluginInterface::replyOk(void)
+{
+	SmartBuffer replyBuf;
+	setupResponseBuffer<void>(replyBuf);
+	reply(replyBuf);
 }
 
 void HatoholArmPluginInterface::exitSync(void)
@@ -777,13 +791,23 @@ void HatoholArmPluginInterface::parseCommand(
 void HatoholArmPluginInterface::parseResponse(
   const HapiResponseHeader *header, mlpl::SmartBuffer &resBuf)
 {
-	if (header->sequenceId != m_ctx->sequenceId) {
-		MLPL_WARN("Got unexpected response: "
-		          "expect: %08" PRIx32 ", actual: %08" PRIx32 "\n", 
-		          m_ctx->sequenceId, header->sequenceId);
-		// TODO: Consider if we should call onGotError().
+	ReplyWaiter *replyWaiter = NULL;
+	uint32_t rcvSeqId = LtoN(header->sequenceId);
+	if (!m_ctx->replyWaiterQueue.popIfNonEmpty(replyWaiter)) {
+		MLPL_WARN("Got unexpected response: actual: %08" PRIx32 ", "
+		          "But threre's no reply waiter.\n", rcvSeqId);
 		return;
 	}
+	CppReaper<ReplyWaiter> replyWaiterDeleter(replyWaiter);
+	if (rcvSeqId != replyWaiter->header.sequenceId) {
+		MLPL_WARN("Got unexpected response: "
+		          "expect: %08" PRIx32 ", actual: %08" PRIx32 "\n", 
+		          replyWaiter->header.sequenceId, rcvSeqId);
+		replyWaiter->callbacks->onError(HAPI_RES_UNEXPECTED_SEQ_ID,
+		                                replyWaiter->header);
+		return;
+	}
+	replyWaiter->callbacks->onGotReply(resBuf, replyWaiter->header);
 	onGotResponse(header, resBuf);
 }
 

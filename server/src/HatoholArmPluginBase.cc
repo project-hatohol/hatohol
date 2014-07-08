@@ -124,18 +124,51 @@ void HatoholArmPluginBase::getMonitoringServerInfoAsync(
 
 SmartTime HatoholArmPluginBase::getTimestampOfLastTrigger(void)
 {
+	struct Callback : public CommandCallbacks {
+		HatoholArmPluginBase *obj;
+		SimpleSemaphore sem;
+		timespec ts;
+		bool succeeded;
+
+		Callback(HatoholArmPluginBase *_obj)
+		: CommandCallbacks(false), // autoDelete
+		  obj(_obj),
+		  sem(0),
+		  succeeded(false)
+		{
+		}
+
+		virtual void onGotReply(
+		  const mlpl::SmartBuffer &replyBuf,
+		  const HapiCommandHeader &cmdHeader) override
+		{
+			const HapiResTimestampOfLastTrigger *body =
+			  obj->getResponseBody
+			    <HapiResTimestampOfLastTrigger>(replyBuf);
+			ts.tv_sec  = LtoN(body->timestamp);
+			ts.tv_nsec = LtoN(body->nanosec);
+			succeeded = true;
+			sem.post();
+		}
+
+		virtual void onError(
+		  const HapiResponseCode &code,
+		  const HapiCommandHeader &cmdHeader) override
+		{
+			sem.post();
+		}
+	} cb(this);
+
 	SmartBuffer cmdBuf;
 	setupCommandHeader<void>(
 	  cmdBuf, HAPI_CMD_GET_TIMESTAMP_OF_LAST_TRIGGER);
-	send(cmdBuf);
-	waitResponseAndCheckHeader();
-
-	const HapiResTimestampOfLastTrigger *body = 
-	  getResponseBody<HapiResTimestampOfLastTrigger>(m_ctx->responseBuf);
-	timespec ts;
-	ts.tv_sec  = LtoN(body->timestamp);
-	ts.tv_nsec = LtoN(body->nanosec);
-	return SmartTime(ts);
+	send(cmdBuf, &cb);
+	cb.sem.wait();
+	if (!cb.succeeded) {
+		THROW_HATOHOL_EXCEPTION(
+		  "Failed to call HAPI_CMD_GET_TIMESTAMP_OF_LAST_TRIGGER\n");
+	}
+	return SmartTime(cb.ts);
 }
 
 EventIdType HatoholArmPluginBase::getLastEventId(void)
