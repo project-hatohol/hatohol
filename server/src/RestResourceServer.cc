@@ -103,7 +103,7 @@ static void addServers(FaceRest::ResourceHandler *job, JsonBuilderAgent &agent,
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	MonitoringServerInfoList monitoringServers;
 	ArmPluginInfoVect armPluginInfoVect;
-	ServerQueryOption option(job->dataQueryContextPtr);
+	ServerQueryOption option(job->m_dataQueryContextPtr);
 	option.setTargetServerId(targetServerId);
 	dataStore->getTargetServers(monitoringServers, option,
 	                            &armPluginInfoVect);
@@ -134,7 +134,7 @@ static void addServers(FaceRest::ResourceHandler *job, JsonBuilderAgent &agent,
 			agent.add("dbName", serverInfo.dbName);
 		}
 		if (showHostgroupInfo) {
-			addNumberOfAllowedHostgroups(dataStore, job->userId,
+			addNumberOfAllowedHostgroups(dataStore, job->m_userId,
 			                             targetUserId, serverInfo.id,
 			                             agent);
 		}
@@ -156,19 +156,19 @@ static void addServers(FaceRest::ResourceHandler *job, JsonBuilderAgent &agent,
 
 void RestResourceServer::handlerServer(ResourceHandler *job)
 {
-	if (StringUtils::casecmp(job->message->method, "GET")) {
+	if (StringUtils::casecmp(job->m_message->method, "GET")) {
 		handlerGetServer(job);
-	} else if (StringUtils::casecmp(job->message->method, "POST")) {
+	} else if (StringUtils::casecmp(job->m_message->method, "POST")) {
 		handlerPostServer(job);
-	} else if (StringUtils::casecmp(job->message->method, "PUT")) {
+	} else if (StringUtils::casecmp(job->m_message->method, "PUT")) {
 		handlerPutServer(job);
-	} else if (StringUtils::casecmp(job->message->method, "DELETE")) {
+	} else if (StringUtils::casecmp(job->m_message->method, "DELETE")) {
 		handlerDeleteServer(job);
 	} else {
-		MLPL_ERR("Unknown method: %s\n", job->message->method);
-		soup_message_set_status(job->message,
+		MLPL_ERR("Unknown method: %s\n", job->m_message->method);
+		soup_message_set_status(job->m_message,
 					SOUP_STATUS_METHOD_NOT_ALLOWED);
-		job->replyIsPrepared = true;
+		job->m_replyIsPrepared = true;
 	}
 }
 
@@ -213,9 +213,9 @@ void RestResourceServer::handlerGetServer(ResourceHandler *job)
 {
 	ServerIdType targetServerId;
 	UserIdType targetUserId = 0;
-	bool showHostgroupInfo = parseQueryShowHostgroupInfo(job->query,
+	bool showHostgroupInfo = parseQueryShowHostgroupInfo(job->m_query,
 	                                                     targetUserId);
-	parseQueryServerId(job->query, targetServerId);
+	parseQueryServerId(job->m_query, targetServerId);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -356,7 +356,7 @@ void RestResourceServer::handlerPostServer(ResourceHandler *job)
 	ArmPluginInfo::initialize(armPluginInfo);
 	HatoholError err;
 
-	err = parseServerParameter(svInfo, armPluginInfo, job->query);
+	err = parseServerParameter(svInfo, armPluginInfo, job->m_query);
 	if (err != HTERR_OK) {
 		job->replyError(err);
 		return;
@@ -365,7 +365,7 @@ void RestResourceServer::handlerPostServer(ResourceHandler *job)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	err = dataStore->addTargetServer(
 	  svInfo, armPluginInfo,
-	  job->dataQueryContextPtr->getOperationPrivilege());
+	  job->m_dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
 		job->replyError(err);
 		return;
@@ -392,7 +392,7 @@ void RestResourceServer::handlerPutServer(ResourceHandler *job)
 	// check the existing record
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	MonitoringServerInfoList serversList;
-	ServerQueryOption option(job->dataQueryContextPtr);
+	ServerQueryOption option(job->m_dataQueryContextPtr);
 	option.setTargetServerId(serverId);
 	dataStore->getTargetServers(serversList, option);
 	if (serversList.empty()) {
@@ -415,7 +415,7 @@ void RestResourceServer::handlerPutServer(ResourceHandler *job)
 	// check the request
 	bool allowEmpty = true;
 	HatoholError err = parseServerParameter(serverInfo, armPluginInfo,
-	                                        job->query, allowEmpty);
+	                                        job->m_query, allowEmpty);
 	if (err != HTERR_OK) {
 		job->replyError(err);
 		return;
@@ -449,7 +449,7 @@ void RestResourceServer::handlerDeleteServer(ResourceHandler *job)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HatoholError err =
 	  dataStore->deleteTargetServer(
-	    serverId, job->dataQueryContextPtr->getOperationPrivilege());
+	    serverId, job->m_dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
 		job->replyError(err);
 		return;
@@ -469,7 +469,7 @@ void RestResourceServer::handlerServerConnStat(ResourceHandler *job)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	ServerConnStatusVector serverConnStatVec;
 	dataStore->getServerConnStatusVector(serverConnStatVec,
-	                                     job->dataQueryContextPtr);
+	                                     job->m_dataQueryContextPtr);
 
 	JsonBuilderAgent agent;
 	agent.startObject();

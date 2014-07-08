@@ -57,17 +57,17 @@ static void setActionCondition(
 
 void RestResourceAction::handlerAction(ResourceHandler *job)
 {
-	if (StringUtils::casecmp(job->message->method, "GET")) {
+	if (StringUtils::casecmp(job->m_message->method, "GET")) {
 		handlerGetAction(job);
-	} else if (StringUtils::casecmp(job->message->method, "POST")) {
+	} else if (StringUtils::casecmp(job->m_message->method, "POST")) {
 		handlerPostAction(job);
-	} else if (StringUtils::casecmp(job->message->method, "DELETE")) {
+	} else if (StringUtils::casecmp(job->m_message->method, "DELETE")) {
 		handlerDeleteAction(job);
 	} else {
-		MLPL_ERR("Unknown method: %s\n", job->message->method);
-		soup_message_set_status(job->message,
+		MLPL_ERR("Unknown method: %s\n", job->m_message->method);
+		soup_message_set_status(job->m_message,
 					SOUP_STATUS_METHOD_NOT_ALLOWED);
-		job->replyIsPrepared = true;
+		job->m_replyIsPrepared = true;
 	}
 }
 
@@ -76,7 +76,7 @@ void RestResourceAction::handlerGetAction(ResourceHandler *job)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	ActionDefList actionList;
-	ActionsQueryOption option(job->dataQueryContextPtr);
+	ActionsQueryOption option(job->m_dataQueryContextPtr);
 	HatoholError err =
 	  dataStore->getActionList(actionList, option);
 
@@ -162,7 +162,7 @@ void RestResourceAction::handlerPostAction(ResourceHandler *job)
 	}
 
 	// command
-	value = (char *)g_hash_table_lookup(job->query, "command");
+	value = (char *)g_hash_table_lookup(job->m_query, "command");
 	if (!value) {
 		job->replyError(HTERR_NOT_FOUND_PARAMETER, "command");
 		return;
@@ -175,7 +175,7 @@ void RestResourceAction::handlerPostAction(ResourceHandler *job)
 	ActionCondition &cond = actionDef.condition;
 
 	// workingDirectory
-	value = (char *)g_hash_table_lookup(job->query, "workingDirectory");
+	value = (char *)g_hash_table_lookup(job->m_query, "workingDirectory");
 	if (value) {
 		actionDef.workingDir = value;
 	}
@@ -194,7 +194,7 @@ void RestResourceAction::handlerPostAction(ResourceHandler *job)
 	if (!succeeded)
 		return;
 	if (!exist)
-		actionDef.ownerUserId = job->userId;
+		actionDef.ownerUserId = job->m_userId;
 
 	// serverId
 	succeeded = getParamWithErrorReply<int>(
@@ -266,7 +266,7 @@ void RestResourceAction::handlerPostAction(ResourceHandler *job)
 	// save the obtained action
 	HatoholError err =
 	  dataStore->addAction(
-	    actionDef, job->dataQueryContextPtr->getOperationPrivilege());
+	    actionDef, job->m_dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
 		job->replyError(err);
 		return;
@@ -295,7 +295,7 @@ void RestResourceAction::handlerDeleteAction(ResourceHandler *job)
 	actionIdList.push_back(actionId);
 	HatoholError err =
 	  dataStore->deleteActionList(
-	    actionIdList, job->dataQueryContextPtr->getOperationPrivilege());
+	    actionIdList, job->m_dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
 		job->replyError(err);
 		return;
