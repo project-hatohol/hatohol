@@ -222,15 +222,6 @@ EventIdType HatoholArmPluginBase::getLastEventId(void)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void HatoholArmPluginBase::onGotResponse(
-  const HapiResponseHeader *header, SmartBuffer &resBuf)
-{
-}
-
-void HatoholArmPluginBase::onInitiated(void)
-{
-}
-
 void HatoholArmPluginBase::onReceivedTerminate(void)
 {
 	MLPL_INFO("Got the teminate command.\n");

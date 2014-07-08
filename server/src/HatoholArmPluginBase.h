@@ -65,11 +65,6 @@ public:
 protected:
 	static const size_t WAIT_INFINITE;
 
-	virtual void onGotResponse(const HapiResponseHeader *header,
-	                           mlpl::SmartBuffer &resBuf) override;
-
-	virtual void onInitiated(void) override;
-
 	/**
 	 * Called when the terminate command is received. The default
 	 * behavior is calling exit(EXIT_SUCCESS).
