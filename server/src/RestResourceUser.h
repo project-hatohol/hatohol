@@ -26,7 +26,7 @@ struct RestResourceUser : public FaceRest::ResourceHandler
 {
 	static void registerFactories(FaceRest *faceRest);
 
-	RestResourceUser(FaceRest *_faceRest, RestHandler _handler);
+	RestResourceUser(FaceRest *faceRest, RestHandler handler);
 	virtual ~RestResourceUser();
 
 	static void handlerUser(ResourceHandler *job);
