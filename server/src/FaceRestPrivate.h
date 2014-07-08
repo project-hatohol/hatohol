@@ -90,6 +90,7 @@ struct FaceRest::ResourceHandler : public UsedCountable
         // TODO: Move to RestResourceHost
 	void itemFetchedCallback(ClosureBase *closure);
 
+protected:
 	bool prepare(void);
 	std::string getJsonpCallbackName(void);
 	bool parseFormatType(void);
