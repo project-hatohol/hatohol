@@ -616,7 +616,7 @@ protected:
 	 * the body.
 	 */
 	template<class BodyType>
-	BodyType *getResponseBody(mlpl::SmartBuffer &resBuf,
+	BodyType *getResponseBody(const mlpl::SmartBuffer &resBuf,
 	                          const size_t &additionalSize = 0)
 	  throw(HatoholException)
 	{
@@ -641,7 +641,7 @@ protected:
 	 * the body.
 	 */
 	template<class BodyType>
-	BodyType *getCommandBody(mlpl::SmartBuffer &cmdBuf,
+	BodyType *getCommandBody(const mlpl::SmartBuffer &cmdBuf,
 	                         const size_t &additionalSize = 0)
 	  throw(HatoholException)
 	{
