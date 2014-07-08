@@ -518,7 +518,7 @@ void FaceRest::PrivateContext::queueRestJob
 	  = static_cast<ResourceHandlerFactory *>(user_data);
 	FaceRest *face = factory->m_faceRest;
 	ResourceHandler *job = factory->createHandler();
-	bool succeeded = job->init(msg, path, query, client);
+	bool succeeded = job->setRequest(msg, path, query, client);
 	if (!succeeded)
 		return;
 
@@ -680,7 +680,7 @@ FaceRest::ResourceHandler::ResourceHandler(FaceRest *_faceRest,
 {
 }
 
-bool FaceRest::ResourceHandler::init(
+bool FaceRest::ResourceHandler::setRequest(
   SoupMessage *_msg, const char *_path, GHashTable *_query,
   SoupClientContext *_client)
 {

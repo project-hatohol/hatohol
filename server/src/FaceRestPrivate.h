@@ -61,8 +61,10 @@ struct FaceRest::ResourceHandler : public UsedCountable
 
 	ResourceHandler(FaceRest *_faceRest, RestHandler _handler);
 	virtual ~ResourceHandler();
-	virtual bool init(SoupMessage *_msg, const char *_path,
-			  GHashTable *_query, SoupClientContext *_client);
+	virtual bool setRequest(SoupMessage *_msg,
+				const char *_path,
+				GHashTable *_query,
+				SoupClientContext *_client);
 	virtual void handle(void);
 	SoupServer *getSoupServer(void);
 	GMainContext *getGMainContext(void);
