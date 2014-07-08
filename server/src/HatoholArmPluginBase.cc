@@ -199,17 +199,12 @@ SmartTime HatoholArmPluginBase::getTimestampOfLastTrigger(void)
 
 EventIdType HatoholArmPluginBase::getLastEventId(void)
 {
-	struct Callback : public CommandCallbacks {
-		HatoholArmPluginBase *obj;
-		SimpleSemaphore sem;
+	struct Callback : public SyncCommand {
 		EventIdType eventId;
-		bool succeeded;
 
-		Callback(HatoholArmPluginBase *_obj)
-		: obj(_obj),
-		  sem(0),
-		  eventId(INVALID_EVENT_ID),
-		  succeeded(false)
+		Callback(HatoholArmPluginBase *obj)
+		: SyncCommand(obj),
+		  eventId(INVALID_EVENT_ID)
 		{
 		}
 
@@ -217,19 +212,12 @@ EventIdType HatoholArmPluginBase::getLastEventId(void)
 		  const mlpl::SmartBuffer &replyBuf,
 		  const HapiCommandHeader &cmdHeader) override
 		{
-			Reaper<SimpleSemaphore>
-			   poster(&sem, SimpleSemaphore::post);
+			SemaphorePoster poster(this);
 			const HapiResLastEventId *body =
-			  obj->getResponseBody<HapiResLastEventId>(replyBuf);
+			  getObject()->getResponseBody
+			    <HapiResLastEventId>(replyBuf);
 			eventId = body->lastEventId;
-			succeeded = true;
-		}
-
-		virtual void onError(
-		  const HapiResponseCode &code,
-		  const HapiCommandHeader &cmdHeader) override
-		{
-			sem.post();
+			setSucceeded();
 		}
 	} *cb = new Callback(this);
 	Reaper<UsedCountable> reaper(cb, UsedCountable::unref);
@@ -237,8 +225,8 @@ EventIdType HatoholArmPluginBase::getLastEventId(void)
 	SmartBuffer cmdBuf;
 	setupCommandHeader<void>(cmdBuf, HAPI_CMD_GET_LAST_EVENT_ID);
 	send(cmdBuf, cb);
-	cb->sem.wait();
-	if (!cb->succeeded) {
+	cb->wait();
+	if (!cb->getSucceeded()) {
 		THROW_HATOHOL_EXCEPTION(
 		  "Failed to call HAPI_CMD_GET_LAST_EVENT_ID\n");
 	}
