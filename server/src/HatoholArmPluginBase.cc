@@ -142,13 +142,14 @@ SmartTime HatoholArmPluginBase::getTimestampOfLastTrigger(void)
 		  const mlpl::SmartBuffer &replyBuf,
 		  const HapiCommandHeader &cmdHeader) override
 		{
+			Reaper<SimpleSemaphore>
+			   poster(&sem, SimpleSemaphore::post);
 			const HapiResTimestampOfLastTrigger *body =
 			  obj->getResponseBody
 			    <HapiResTimestampOfLastTrigger>(replyBuf);
 			ts.tv_sec  = LtoN(body->timestamp);
 			ts.tv_nsec = LtoN(body->nanosec);
 			succeeded = true;
-			sem.post();
 		}
 
 		virtual void onError(
