@@ -216,6 +216,9 @@ public:
 	  const HapiCommandHeader *header);
 
 	struct CommandCallbacks {
+		bool autoDelete;
+
+		CommandCallbacks(void);
 		virtual ~CommandCallbacks();
 		virtual void onGotReply(const mlpl::SmartBuffer &replyBuf,
 		                        const HapiCommandHeader &cmdHeader);

@@ -67,7 +67,8 @@ struct ReplyWaiter {
 
 	virtual ~ReplyWaiter()
 	{
-		delete callbacks;
+		if (callbacks->autoDelete)
+			delete callbacks;
 	}
 };
 
@@ -237,6 +238,11 @@ private:
 // ---------------------------------------------------------------------------
 // CommandCallbacks
 // ---------------------------------------------------------------------------
+HatoholArmPluginInterface::CommandCallbacks::CommandCallbacks()
+: autoDelete(true)
+{
+}
+
 HatoholArmPluginInterface::CommandCallbacks::~CommandCallbacks()
 {
 }
