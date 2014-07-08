@@ -685,7 +685,7 @@ gpointer HatoholArmPluginInterface::mainThread(HatoholThreadArg *arg)
 		onReceived(sbuf);
 		m_ctx->currMessage = NULL;
 		m_ctx->currBuffer  = NULL;
-		m_ctx->sequenceIdOfCurrCmd = SEQ_ID_UNKNOWN,
+		m_ctx->sequenceIdOfCurrCmd = SEQ_ID_UNKNOWN;
 		m_ctx->acknowledge();
 	};
 	m_ctx->disconnect();
