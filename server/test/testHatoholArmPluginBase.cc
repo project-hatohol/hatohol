@@ -45,21 +45,6 @@ public:
 		sendArmInfo(armInfo);
 	}
 
-	void callEnableWaitInitiatedAck(const bool &enable = true)
-	{
-		enableWaitInitiatedAck(enable);
-	}
-
-	bool callSleepInitiatedExceptionThrowable(const size_t timeoutInMS)
-	{
-		return sleepInitiatedExceptionThrowable(timeoutInMS);
-	}
-
-	void callAckInitiated(void)
-	{
-		ackInitiated();
-	}
-
 protected:
 	void onConnected(Connection &conn) override
 	{
@@ -149,55 +134,6 @@ void test_sendArmInfo(void)
 	pair.plugin->callSendArmInfo(armInfo);
 	pair.gate->assertWaitHandledCommand(HAPI_CMD_SEND_ARM_INFO);
 	assertEqual(armInfo, pair.gate->getArmStatus().getArmInfo());
-}
-
-void test_waitInitiatedException(void)
-{
-	struct Arg : public HatoholArmPluginTestPairArg {
-
-		bool wakedUp;
-		bool gotInitiatedException;
-
-		Arg(void)
-		: HatoholArmPluginTestPairArg(
-		    MONITORING_SYSTEM_HAPI_TEST_PASSIVE),
-		  wakedUp(false),
-		  gotInitiatedException(false)
-		{
-		}
-
-		HatoholArmPluginBaseTest *dcast(HatoholArmPluginBase *_plugin)
-		{
-			HatoholArmPluginBaseTest *plugin =
-			  dynamic_cast<HatoholArmPluginBaseTest *>(_plugin);
-			return plugin;
-		}
-
-		virtual void
-		  onCreatedPlugin(HatoholArmPluginBase *_plugin) override
-		{
-			HatoholArmPluginBaseTest *plugin = dcast(_plugin);
-			plugin->callEnableWaitInitiatedAck(true);
-		}
-	
-		virtual void
-		  preAssertWaitInitiated(HatoholArmPluginBase *_plugin) override
-		{
-			static const size_t TIMEOUT = 5000;
-			HatoholArmPluginBaseTest *plugin = dcast(_plugin);
-			try {
-				wakedUp =
-				  plugin->callSleepInitiatedExceptionThrowable(TIMEOUT);
-			} catch (const HapInitiatedException &e) {
-				gotInitiatedException = true;
-				plugin->callAckInitiated();
-			}
-		}
-	} arg;
-
-	TestPair pair(arg);
-	cppcut_assert_equal(false, arg.wakedUp);
-	cppcut_assert_equal(true,  arg.gotInitiatedException);
 }
 
 } // namespace testHatoholArmPluginBase
