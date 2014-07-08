@@ -35,6 +35,9 @@ protected:
 	void workOnHostgroups(void);
 	void workOnEvents(void);
 
+	void parseReplyGetMonitoringServerInfoOnInitiated(
+	  MonitoringServerInfo &serverInfo, const mlpl::SmartBuffer &replyBuf);
+
 	virtual void onInitiated(void) override;
 	virtual void onReady(const MonitoringServerInfo &serverInfo);
 	virtual void onGotNewEvents(ItemTablePtr eventsTablePtr);

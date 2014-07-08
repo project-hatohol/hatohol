@@ -51,8 +51,6 @@ public:
 		MonitoringServerInfo *m_serverInfo;
 	};
 
-	void getMonitoringServerInfoAsync(GetMonitoringServerInfoAsyncArg *arg);
-
 	mlpl::SmartTime getTimestampOfLastTrigger(void);
 
 	/**
@@ -82,8 +80,6 @@ protected:
 	bool parseReplyGetMonitoringServerInfo(
 	  MonitoringServerInfo &serverInfo,
 	  const mlpl::SmartBuffer &responseBuf);
-	static void _getMonitoringServerInfoAsyncCb(AsyncCbData *data);
-	void getMonitoringServerInfoAsyncCb(GetMonitoringServerInfoAsyncArg *);
 
 	void sendTable(const HapiCommandCode &code,
 	               const ItemTablePtr &tablePtr);

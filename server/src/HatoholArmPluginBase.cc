@@ -27,30 +27,7 @@ using namespace mlpl;
 
 const size_t HatoholArmPluginBase::WAIT_INFINITE = 0;
 
-struct HatoholArmPluginBase::AsyncCbData {
-	HatoholArmPluginBase *obj;
-	void                 *priv;
-
-	AsyncCbData(HatoholArmPluginBase *_obj, void *_priv)
-	: obj(_obj),
-	  priv(_priv)
-	{
-	}
-};
-
-typedef void (*AsyncCallback)(HatoholArmPluginBase::AsyncCbData *data);
-
 struct HatoholArmPluginBase::PrivateContext {
-	SmartBuffer     responseBuf;
-	AsyncCallback   currAsyncCb;
-	AsyncCbData    *currAsyncCbData;
-
-
-	PrivateContext(void)
-	: currAsyncCb(NULL),
-	  currAsyncCbData(NULL)
-	{
-	}
 };
 
 // ---------------------------------------------------------------------------
@@ -142,16 +119,6 @@ bool HatoholArmPluginBase::getMonitoringServerInfo(
 		  "Failed to call HAPI_CMD_GET_TIMESTAMP_OF_LAST_TRIGGER\n");
 	}
 	return cb.parseResult;
-}
-
-void HatoholArmPluginBase::getMonitoringServerInfoAsync(
-  GetMonitoringServerInfoAsyncArg *arg)
-{
-	HATOHOL_ASSERT(!m_ctx->currAsyncCb,
-	               "Async. process is already running.");
-	sendCmdGetMonitoringServerInfo(new CommandCallbacks());
-	m_ctx->currAsyncCb = _getMonitoringServerInfoAsyncCb;
-	m_ctx->currAsyncCbData = new AsyncCbData(this, arg);
 }
 
 SmartTime HatoholArmPluginBase::getTimestampOfLastTrigger(void)
@@ -258,13 +225,6 @@ EventIdType HatoholArmPluginBase::getLastEventId(void)
 void HatoholArmPluginBase::onGotResponse(
   const HapiResponseHeader *header, SmartBuffer &resBuf)
 {
-	resBuf.handOver(m_ctx->responseBuf);
-	if (m_ctx->currAsyncCb) {
-		(*m_ctx->currAsyncCb)(m_ctx->currAsyncCbData);
-		m_ctx->currAsyncCb = NULL;
-		m_ctx->currAsyncCbData = NULL;
-		return;
-	}
 }
 
 void HatoholArmPluginBase::onInitiated(void)
@@ -348,23 +308,6 @@ bool HatoholArmPluginBase::parseReplyGetMonitoringServerInfo(
 	serverInfo.retryIntervalSec   = LtoN(svInfo->retryIntervalSec);
 
 	return true;
-}
-
-void HatoholArmPluginBase::_getMonitoringServerInfoAsyncCb(
-  HatoholArmPluginBase::AsyncCbData *data)
-{
-	GetMonitoringServerInfoAsyncArg *arg =
-	  static_cast<GetMonitoringServerInfoAsyncArg *>(data->priv);
-	data->obj->getMonitoringServerInfoAsyncCb(arg);
-	delete data;
-}
-
-void HatoholArmPluginBase::getMonitoringServerInfoAsyncCb(
-  HatoholArmPluginBase::GetMonitoringServerInfoAsyncArg *arg)
-{
-	bool succeeded = parseReplyGetMonitoringServerInfo(
-	                   arg->getMonitoringServerInfo(), m_ctx->responseBuf);
-	arg->doneCb(succeeded);
 }
 
 void HatoholArmPluginBase::sendTable(
