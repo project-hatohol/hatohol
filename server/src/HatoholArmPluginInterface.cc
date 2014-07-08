@@ -55,8 +55,7 @@ struct ReplyWaiter {
 	// The used counter is incremented on the constructor and decremented
 	// when this object is deleted.
 	HatoholArmPluginInterface::CommandCallbacksPtr callbacksPtr;
-
-	HapiCommandHeader                            header;
+	HapiCommandHeader header;
 
 	ReplyWaiter(
 	  const SmartBuffer &smbuf,
