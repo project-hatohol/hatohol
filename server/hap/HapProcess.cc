@@ -102,30 +102,6 @@ GMainLoop *HapProcess::getGMainLoop(void)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-gpointer HapProcess::mainThread(HatoholThreadArg *arg)
-{
-	// This class changes the virtual method name for the thread.
-	// If a sub class also inherits HatoholArmPluginBase (that inherits
-	// HatoholThreadBase) or its sub classes, mainThread() is ambiguous.
-	return hapMainThread(arg);
-}
-
-int HapProcess::onCaughtException(const std::exception &e)
-{
-	return m_ctx->exceptionSleepTimeMS;
-}
-
-gpointer HapProcess::hapMainThread(HatoholThreadArg *arg)
-{
-	// The implementation will be done in the sub class.
-	return NULL;
-}
-
-void HapProcess::setExceptionSleepTime(int sleepTimeMS)
-{
-	m_ctx->exceptionSleepTimeMS = sleepTimeMS;
-}
-
 ArmStatus &HapProcess::getArmStatus(void)
 {
 	return m_ctx->armStatus;
