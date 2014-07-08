@@ -40,6 +40,9 @@ struct FaceRestParam {
 
 class FaceRest : public FaceBase {
 public:
+	class Worker;
+	struct ResourceHandlerFactory;
+	struct ResourceHandler;
 
 	static int API_VERSION;
 	static const char *SESSION_ID_HEADER_NAME;
@@ -54,9 +57,8 @@ public:
 	virtual void waitExit(void) override;
 	virtual void setNumberOfPreLoadWorkers(size_t num);
 
-	class Worker;
-	struct ResourceHandlerFactory;
-	struct ResourceHandler;
+	void addResourceHandlerFactory(const char *path,
+				       ResourceHandlerFactory *factory);
 
 protected:
 	// virtual methods
