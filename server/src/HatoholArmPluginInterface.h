@@ -216,18 +216,16 @@ public:
 	typedef void (HatoholArmPluginInterface::*CommandHandler)(
 	  const HapiCommandHeader *header);
 
-	class CommandCallbacks {
+	class CommandCallbacks : public UsedCountable {
 	public:
-		CommandCallbacks(const bool &autoDelete = true);
-		virtual ~CommandCallbacks();
 		virtual void onGotReply(const mlpl::SmartBuffer &replyBuf,
 		                        const HapiCommandHeader &cmdHeader);
 		virtual void onError(const HapiResponseCode &code,
 		                     const HapiCommandHeader &cmdHeader);
-		bool getAutoDeleteFlag(void) const;
-	private:
-		bool m_autoDelete;
+	protected:
+		virtual ~CommandCallbacks();
 	};
+	typedef UsedCountablePtr<CommandCallbacks> CommandCallbacksPtr;
 
 	HatoholArmPluginInterface(
 	  const bool &workInServer = false);

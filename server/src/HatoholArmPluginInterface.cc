@@ -52,23 +52,20 @@ enum InitiationState {
 };
 
 struct ReplyWaiter {
-	HatoholArmPluginInterface::CommandCallbacks *callbacks;
+	// The used counter is incremented on the constructor and decremented
+	// when this object is deleted.
+	HatoholArmPluginInterface::CommandCallbacksPtr callbacksPtr;
+
 	HapiCommandHeader                            header;
 
 	ReplyWaiter(
 	  const SmartBuffer &smbuf,
 	  HatoholArmPluginInterface::CommandCallbacks *_callbacks)
-	: callbacks(_callbacks)
+	: callbacksPtr(_callbacks)
 	{
 		const HapiCommandHeader *cmdHeader =
 		  smbuf.getPointer<HapiCommandHeader>(0);
 		header = *cmdHeader;
-	}
-
-	virtual ~ReplyWaiter()
-	{
-		if (callbacks->getAutoDeleteFlag())
-			delete callbacks;
 	}
 };
 
@@ -163,8 +160,8 @@ struct HatoholArmPluginInterface::PrivateContext {
 	static void destroyReplyWaiter(ReplyWaiter *replyWaiter,
 	                               PrivateContext *ctx)
 	{
-		replyWaiter->callbacks->onError(HAPI_RES_ERR_DESTRUCTED,
-		                                replyWaiter->header);
+		replyWaiter->callbacksPtr->onError(HAPI_RES_ERR_DESTRUCTED,
+		                                   replyWaiter->header);
 		delete replyWaiter;
 	}
 
@@ -238,16 +235,6 @@ private:
 // ---------------------------------------------------------------------------
 // CommandCallbacks
 // ---------------------------------------------------------------------------
-HatoholArmPluginInterface::CommandCallbacks::CommandCallbacks(
-  const bool &autoDelete)
-: m_autoDelete(autoDelete)
-{
-}
-
-HatoholArmPluginInterface::CommandCallbacks::~CommandCallbacks()
-{
-}
-
 void HatoholArmPluginInterface::CommandCallbacks::onGotReply(
   const SmartBuffer &replyBuf, const HapiCommandHeader &cmdHeader)
 {
@@ -258,9 +245,8 @@ void HatoholArmPluginInterface::CommandCallbacks::onError(
 {
 }
 
-bool HatoholArmPluginInterface::CommandCallbacks::getAutoDeleteFlag(void) const
+HatoholArmPluginInterface::CommandCallbacks::~CommandCallbacks()
 {
-	return m_autoDelete;
 }
 
 // ---------------------------------------------------------------------------
@@ -294,11 +280,14 @@ void HatoholArmPluginInterface::send(
 		// TODO: remove this branch. This is to keep compatibility
 		//       of source code until the transition finishes.
 		const uint16_t type = LtoN(*smbuf.getPointer<uint16_t>(0));
-		if (type == HAPI_MSG_COMMAND)
-			callbacks = new CommandCallbacks();
-	}
-	if (callbacks)
+		if (type == HAPI_MSG_COMMAND) {
+			CommandCallbacksPtr cb(new CommandCallbacks(), false);
+			m_ctx->replyWaiterQueue.push(
+			  new ReplyWaiter(smbuf, cb));
+		}
+	} else {
 		m_ctx->replyWaiterQueue.push(new ReplyWaiter(smbuf, callbacks));
+	}
 
 	Message request;
 	request.setReplyTo(m_ctx->receiverAddr);
@@ -804,11 +793,11 @@ void HatoholArmPluginInterface::parseResponse(
 		MLPL_WARN("Got unexpected response: "
 		          "expect: %08" PRIx32 ", actual: %08" PRIx32 "\n", 
 		          replyWaiter->header.sequenceId, rcvSeqId);
-		replyWaiter->callbacks->onError(HAPI_RES_UNEXPECTED_SEQ_ID,
-		                                replyWaiter->header);
+		replyWaiter->callbacksPtr->onError(HAPI_RES_UNEXPECTED_SEQ_ID,
+		                                   replyWaiter->header);
 		return;
 	}
-	replyWaiter->callbacks->onGotReply(resBuf, replyWaiter->header);
+	replyWaiter->callbacksPtr->onGotReply(resBuf, replyWaiter->header);
 	onGotResponse(header, resBuf);
 }
 

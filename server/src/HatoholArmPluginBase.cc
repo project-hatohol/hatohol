@@ -84,8 +84,7 @@ bool HatoholArmPluginBase::getMonitoringServerInfo(
 
 		Callback(HatoholArmPluginBase *_obj,
 		         MonitoringServerInfo &_serverInfo)
-		: CommandCallbacks(false), // autoDelete
-		  obj(_obj),
+		: obj(_obj),
 		  sem(0),
 		  succeeded(false),
 		  parseResult(false),
@@ -110,15 +109,16 @@ bool HatoholArmPluginBase::getMonitoringServerInfo(
 		{
 			sem.post();
 		}
-	} cb(this, serverInfo);
+	} *cb = new Callback(this, serverInfo);
+	Reaper<UsedCountable> reaper(cb, UsedCountable::unref);
 
-	sendCmdGetMonitoringServerInfo(&cb);
-	cb.sem.wait();
-	if (!cb.succeeded) {
+	sendCmdGetMonitoringServerInfo(cb);
+	cb->sem.wait();
+	if (!cb->succeeded) {
 		THROW_HATOHOL_EXCEPTION(
 		  "Failed to call HAPI_CMD_GET_TIMESTAMP_OF_LAST_TRIGGER\n");
 	}
-	return cb.parseResult;
+	return cb->parseResult;
 }
 
 SmartTime HatoholArmPluginBase::getTimestampOfLastTrigger(void)
@@ -130,8 +130,7 @@ SmartTime HatoholArmPluginBase::getTimestampOfLastTrigger(void)
 		bool succeeded;
 
 		Callback(HatoholArmPluginBase *_obj)
-		: CommandCallbacks(false), // autoDelete
-		  obj(_obj),
+		: obj(_obj),
 		  sem(0),
 		  succeeded(false)
 		{
@@ -157,18 +156,19 @@ SmartTime HatoholArmPluginBase::getTimestampOfLastTrigger(void)
 		{
 			sem.post();
 		}
-	} cb(this);
+	} *cb = new Callback(this);
+	Reaper<UsedCountable> reaper(cb, UsedCountable::unref);
 
 	SmartBuffer cmdBuf;
 	setupCommandHeader<void>(
 	  cmdBuf, HAPI_CMD_GET_TIMESTAMP_OF_LAST_TRIGGER);
-	send(cmdBuf, &cb);
-	cb.sem.wait();
-	if (!cb.succeeded) {
+	send(cmdBuf, cb);
+	cb->sem.wait();
+	if (!cb->succeeded) {
 		THROW_HATOHOL_EXCEPTION(
 		  "Failed to call HAPI_CMD_GET_TIMESTAMP_OF_LAST_TRIGGER\n");
 	}
-	return SmartTime(cb.ts);
+	return SmartTime(cb->ts);
 }
 
 EventIdType HatoholArmPluginBase::getLastEventId(void)
@@ -180,8 +180,7 @@ EventIdType HatoholArmPluginBase::getLastEventId(void)
 		bool succeeded;
 
 		Callback(HatoholArmPluginBase *_obj)
-		: CommandCallbacks(false), // autoDelete
-		  obj(_obj),
+		: obj(_obj),
 		  sem(0),
 		  eventId(INVALID_EVENT_ID),
 		  succeeded(false)
@@ -206,17 +205,18 @@ EventIdType HatoholArmPluginBase::getLastEventId(void)
 		{
 			sem.post();
 		}
-	} cb(this);
+	} *cb = new Callback(this);
+	Reaper<UsedCountable> reaper(cb, UsedCountable::unref);
 
 	SmartBuffer cmdBuf;
 	setupCommandHeader<void>(cmdBuf, HAPI_CMD_GET_LAST_EVENT_ID);
-	send(cmdBuf, &cb);
-	cb.sem.wait();
-	if (!cb.succeeded) {
+	send(cmdBuf, cb);
+	cb->sem.wait();
+	if (!cb->succeeded) {
 		THROW_HATOHOL_EXCEPTION(
 		  "Failed to call HAPI_CMD_GET_LAST_EVENT_ID\n");
 	}
-	return cb.eventId;
+	return cb->eventId;
 }
 
 // ---------------------------------------------------------------------------
