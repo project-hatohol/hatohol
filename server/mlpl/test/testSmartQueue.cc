@@ -40,16 +40,17 @@ void test_pushAndPop(void)
 	cppcut_assert_equal(8, q.pop());
 }
 
+struct Gadget {
+	vector<int> vec;
+	static void valueReceiver(int v, Gadget &obj)
+	{
+		obj.vec.push_back(v);
+	}
+};
+
 void test_popAll(void)
 {
-	struct Gadget {
-		vector<int> vec;
-		static void valueReceiver(int v, Gadget &obj)
-		{
-			obj.vec.push_back(v);
-		}
-	} actual;
-
+	Gadget actual;
 	SmartQueue<int> q;
 	q.push(1);
 	q.push(-5);
