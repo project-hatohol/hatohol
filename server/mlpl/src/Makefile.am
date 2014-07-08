@@ -1,7 +1,7 @@
 lib_LTLIBRARIES = libmlpl.la
 libmlpl_la_SOURCES = \
 	MutexLock.cc ReadWriteLock.cc SimpleSemaphore.cc EventSemaphore.cc \
-	SmartBuffer.cc Logger.cc StringUtils.cc SmartQueue.cc \
+	SmartBuffer.cc Logger.cc StringUtils.cc \
 	ParsableString.cc SmartTime.cc
  
 AM_CXXFLAGS = \
