@@ -107,9 +107,50 @@ HatoholArmPluginBase::~HatoholArmPluginBase()
 bool HatoholArmPluginBase::getMonitoringServerInfo(
   MonitoringServerInfo &serverInfo)
 {
-	sendCmdGetMonitoringServerInfo();
-	waitResponseAndCheckHeader();
-	return parseReplyGetMonitoringServerInfo(serverInfo);
+	struct Callback : public CommandCallbacks {
+		HatoholArmPluginBase *obj;
+		SimpleSemaphore sem;
+		bool succeeded;
+		bool parseResult;
+		MonitoringServerInfo &serverInfo;
+
+		Callback(HatoholArmPluginBase *_obj,
+		         MonitoringServerInfo &_serverInfo)
+		: CommandCallbacks(false), // autoDelete
+		  obj(_obj),
+		  sem(0),
+		  succeeded(false),
+		  parseResult(false),
+		  serverInfo(_serverInfo)
+		{
+		}
+
+		virtual void onGotReply(
+		  const mlpl::SmartBuffer &replyBuf,
+		  const HapiCommandHeader &cmdHeader) override
+		{
+			Reaper<SimpleSemaphore>
+			   poster(&sem, SimpleSemaphore::post);
+			parseResult = obj->parseReplyGetMonitoringServerInfo(
+			                serverInfo, replyBuf);
+			succeeded = true;
+		}
+
+		virtual void onError(
+		  const HapiResponseCode &code,
+		  const HapiCommandHeader &cmdHeader) override
+		{
+			sem.post();
+		}
+	} cb(this, serverInfo);
+
+	sendCmdGetMonitoringServerInfo(&cb);
+	cb.sem.wait();
+	if (!cb.succeeded) {
+		THROW_HATOHOL_EXCEPTION(
+		  "Failed to call HAPI_CMD_GET_TIMESTAMP_OF_LAST_TRIGGER\n");
+	}
+	return cb.parseResult;
 }
 
 void HatoholArmPluginBase::getMonitoringServerInfoAsync(
@@ -117,7 +158,7 @@ void HatoholArmPluginBase::getMonitoringServerInfoAsync(
 {
 	HATOHOL_ASSERT(!m_ctx->currAsyncCb,
 	               "Async. process is already running.");
-	sendCmdGetMonitoringServerInfo();
+	sendCmdGetMonitoringServerInfo(new CommandCallbacks());
 	m_ctx->currAsyncCb = _getMonitoringServerInfoAsyncCb;
 	m_ctx->currAsyncCbData = new AsyncCbData(this, arg);
 }
@@ -288,24 +329,25 @@ void HatoholArmPluginBase::throwInitiatedExceptionIfNeeded(void)
 	}
 }
 
-void HatoholArmPluginBase::sendCmdGetMonitoringServerInfo(void)
+void HatoholArmPluginBase::sendCmdGetMonitoringServerInfo(
+  CommandCallbacks *callbacks)
 {
 	SmartBuffer cmdBuf;
 	setupCommandHeader<void>(
 	  cmdBuf, HAPI_CMD_GET_MONITORING_SERVER_INFO);
-	send(cmdBuf);
+	send(cmdBuf, callbacks);
 }
 
 bool HatoholArmPluginBase::parseReplyGetMonitoringServerInfo(
-  MonitoringServerInfo &serverInfo)
+  MonitoringServerInfo &serverInfo, const SmartBuffer &responseBuf)
 {
 	const HapiResMonitoringServerInfo *svInfo =
-	  getResponseBody<HapiResMonitoringServerInfo>(m_ctx->responseBuf);
+	  getResponseBody<HapiResMonitoringServerInfo>(responseBuf);
 	serverInfo.id   = LtoN(svInfo->serverId);
 	serverInfo.type = static_cast<MonitoringSystemType>(LtoN(svInfo->type));
 
 	const char *str;
-	str = getString(m_ctx->responseBuf, svInfo,
+	str = getString(responseBuf, svInfo,
 	                svInfo->hostNameOffset, svInfo->hostNameLength);
 	if (!str) {
 		MLPL_ERR("Broken packet: hostName.\n");
@@ -313,7 +355,7 @@ bool HatoholArmPluginBase::parseReplyGetMonitoringServerInfo(
 	}
 	serverInfo.hostName = str;
 
-	str = getString(m_ctx->responseBuf, svInfo,
+	str = getString(responseBuf, svInfo,
 	                svInfo->ipAddressOffset, svInfo->ipAddressLength);
 	if (!str) {
 		MLPL_ERR("Broken packet: ipAddress.\n");
@@ -321,7 +363,7 @@ bool HatoholArmPluginBase::parseReplyGetMonitoringServerInfo(
 	}
 	serverInfo.ipAddress = str;
 
-	str = getString(m_ctx->responseBuf, svInfo,
+	str = getString(responseBuf, svInfo,
 	                svInfo->nicknameOffset, svInfo->nicknameLength);
 	if (!str) {
 		MLPL_ERR("Broken packet: nickname.\n");
@@ -329,7 +371,7 @@ bool HatoholArmPluginBase::parseReplyGetMonitoringServerInfo(
 	}
 	serverInfo.nickname = str;
 
-	str = getString(m_ctx->responseBuf, svInfo,
+	str = getString(responseBuf, svInfo,
 	                svInfo->userNameOffset, svInfo->userNameLength);
 	if (!str) {
 		MLPL_ERR("Broken packet: userName.\n");
@@ -337,7 +379,7 @@ bool HatoholArmPluginBase::parseReplyGetMonitoringServerInfo(
 	}
 	serverInfo.userName = str;
 
-	str = getString(m_ctx->responseBuf, svInfo,
+	str = getString(responseBuf, svInfo,
 	                svInfo->passwordOffset, svInfo->passwordLength);
 	if (!str) {
 		MLPL_ERR("Broken packet: password.\n");
@@ -345,7 +387,7 @@ bool HatoholArmPluginBase::parseReplyGetMonitoringServerInfo(
 	}
 	serverInfo.password = str;
 
-	str = getString(m_ctx->responseBuf, svInfo,
+	str = getString(responseBuf, svInfo,
 	                svInfo->dbNameOffset, svInfo->dbNameLength);
 	if (!str) {
 		MLPL_ERR("Broken packet: dbName.\n");
@@ -373,7 +415,7 @@ void HatoholArmPluginBase::getMonitoringServerInfoAsyncCb(
   HatoholArmPluginBase::GetMonitoringServerInfoAsyncArg *arg)
 {
 	bool succeeded = parseReplyGetMonitoringServerInfo(
-	                   arg->getMonitoringServerInfo());
+	                   arg->getMonitoringServerInfo(), m_ctx->responseBuf);
 	arg->doneCb(succeeded);
 }
 

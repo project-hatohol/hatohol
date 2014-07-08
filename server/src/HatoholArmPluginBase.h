@@ -80,9 +80,10 @@ protected:
 	virtual void onPreWaitInitiatedAck(void);
 	virtual void onPostWaitInitiatedAck(void);
 
-	void sendCmdGetMonitoringServerInfo(void);
+	void sendCmdGetMonitoringServerInfo(CommandCallbacks *callbacks);
 	bool parseReplyGetMonitoringServerInfo(
-	  MonitoringServerInfo &serverInfo);
+	  MonitoringServerInfo &serverInfo,
+	  const mlpl::SmartBuffer &responseBuf);
 	static void _getMonitoringServerInfoAsyncCb(AsyncCbData *data);
 	void getMonitoringServerInfoAsyncCb(GetMonitoringServerInfoAsyncArg *);
 
