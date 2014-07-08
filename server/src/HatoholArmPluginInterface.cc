@@ -725,6 +725,7 @@ void HatoholArmPluginInterface::onConnected(Connection &conn)
 
 void HatoholArmPluginInterface::onInitiated(void)
 {
+	m_ctx->freeReplyWaiters();
 }
 
 void HatoholArmPluginInterface::onSessionChanged(Session *session)
