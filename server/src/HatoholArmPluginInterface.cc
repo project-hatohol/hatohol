@@ -237,6 +237,10 @@ private:
 // ---------------------------------------------------------------------------
 // CommandCallbacks
 // ---------------------------------------------------------------------------
+HatoholArmPluginInterface::CommandCallbacks::~CommandCallbacks()
+{
+}
+
 void HatoholArmPluginInterface::CommandCallbacks::onGotReply(
   const SmartBuffer &replyBuf, const HapiCommandHeader &cmdHeader)
 {

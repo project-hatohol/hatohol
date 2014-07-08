@@ -216,10 +216,11 @@ public:
 	  const HapiCommandHeader *header);
 
 	struct CommandCallbacks {
-		void onGotReply(const mlpl::SmartBuffer &replyBuf,
-		                const HapiCommandHeader &cmdHeader);
-		void onError(const HapiResponseCode &code,
-		             const HapiCommandHeader &cmdHeader);
+		virtual ~CommandCallbacks();
+		virtual void onGotReply(const mlpl::SmartBuffer &replyBuf,
+		                        const HapiCommandHeader &cmdHeader);
+		virtual void onError(const HapiResponseCode &code,
+		                     const HapiCommandHeader &cmdHeader);
 	};
 
 	HatoholArmPluginInterface(
