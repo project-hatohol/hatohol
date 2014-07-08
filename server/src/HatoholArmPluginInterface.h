@@ -235,9 +235,8 @@ public:
 	virtual void exitSync(void) override;
 
 	void send(const std::string &message);
-	void send(const mlpl::SmartBuffer &smbuf);
-	void sendCommand(
-	  const mlpl::SmartBuffer &smbuf, CommandCallbacks *callbacks);
+	void send(
+	  const mlpl::SmartBuffer &smbuf, CommandCallbacks *callbacks = NULL);
 
 	void reply(const mlpl::SmartBuffer &replyBuf);
 	void replyError(const HapiResponseCode &code);

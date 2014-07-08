@@ -287,19 +287,16 @@ void HatoholArmPluginInterface::send(const string &message)
 	m_ctx->sender.send(request);
 }
 
-void HatoholArmPluginInterface::send(const SmartBuffer &smbuf)
+void HatoholArmPluginInterface::send(
+  const SmartBuffer &smbuf, CommandCallbacks *callbacks)
 {
+	if (callbacks)
+		m_ctx->replyWaiterQueue.push(new ReplyWaiter(smbuf, callbacks));
+
 	Message request;
 	request.setReplyTo(m_ctx->receiverAddr);
 	request.setContent(smbuf.getPointer<char>(0), smbuf.size());
 	m_ctx->sender.send(request);
-}
-
-void HatoholArmPluginInterface::sendCommand(
-  const SmartBuffer &smbuf, CommandCallbacks *callbacks)
-{
-	send(smbuf);
-	m_ctx->replyWaiterQueue.push(new ReplyWaiter(smbuf, callbacks));
 }
 
 void HatoholArmPluginInterface::reply(const mlpl::SmartBuffer &replyBuf)
