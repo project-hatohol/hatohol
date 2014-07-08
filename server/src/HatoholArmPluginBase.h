@@ -28,6 +28,8 @@
 
 class HatoholArmPluginBase : public HatoholArmPluginInterface {
 public:
+	class SyncCommand;
+
 	HatoholArmPluginBase(void);
 	virtual ~HatoholArmPluginBase();
 

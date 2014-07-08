@@ -27,6 +27,75 @@ using namespace mlpl;
 
 const size_t HatoholArmPluginBase::WAIT_INFINITE = 0;
 
+class HatoholArmPluginBase::SyncCommand : public CommandCallbacks {
+public:
+	SyncCommand(HatoholArmPluginBase *obj)
+	: m_obj(obj),
+	  m_sem(0),
+	  m_succeeded(false)
+	{
+	}
+
+	virtual void onGotReply(
+	  const mlpl::SmartBuffer &replyBuf,
+	  const HapiCommandHeader &cmdHeader) override
+	{
+	}
+
+	virtual void onError(
+	  const HapiResponseCode &code,
+	  const HapiCommandHeader &cmdHeader) override
+	{
+		post();
+	}
+
+	void wait(void)
+	{
+		m_sem.wait();
+	}
+
+	bool getSucceeded(void) const
+	{
+		return m_succeeded;
+	}
+
+protected:
+	struct SemaphorePoster {
+		SyncCommand *syncCmd;
+
+		SemaphorePoster(SyncCommand *_syncCmd)
+		: syncCmd(_syncCmd)
+		{
+		}
+
+		virtual ~SemaphorePoster()
+		{
+			syncCmd->post();
+		}
+	};
+
+	void setSucceeded(const bool &succeeded = true)
+	{
+		m_succeeded = succeeded;
+	}
+
+	void post(void)
+	{
+		m_sem.post();
+	}
+
+	HatoholArmPluginBase *getObject(void) const
+	{
+		return m_obj;
+	}
+
+private:
+	HatoholArmPluginBase *m_obj;
+	SimpleSemaphore       m_sem;
+	bool                  m_succeeded;
+
+};
+
 struct HatoholArmPluginBase::PrivateContext {
 };
 
@@ -56,18 +125,13 @@ HatoholArmPluginBase::~HatoholArmPluginBase()
 bool HatoholArmPluginBase::getMonitoringServerInfo(
   MonitoringServerInfo &serverInfo)
 {
-	struct Callback : public CommandCallbacks {
-		HatoholArmPluginBase *obj;
-		SimpleSemaphore sem;
-		bool succeeded;
+	struct Callback : public SyncCommand {
 		bool parseResult;
 		MonitoringServerInfo &serverInfo;
 
-		Callback(HatoholArmPluginBase *_obj,
+		Callback(HatoholArmPluginBase *obj,
 		         MonitoringServerInfo &_serverInfo)
-		: obj(_obj),
-		  sem(0),
-		  succeeded(false),
+		: SyncCommand(obj),
 		  parseResult(false),
 		  serverInfo(_serverInfo)
 		{
@@ -77,25 +141,18 @@ bool HatoholArmPluginBase::getMonitoringServerInfo(
 		  const mlpl::SmartBuffer &replyBuf,
 		  const HapiCommandHeader &cmdHeader) override
 		{
-			Reaper<SimpleSemaphore>
-			   poster(&sem, SimpleSemaphore::post);
-			parseResult = obj->parseReplyGetMonitoringServerInfo(
-			                serverInfo, replyBuf);
-			succeeded = true;
-		}
-
-		virtual void onError(
-		  const HapiResponseCode &code,
-		  const HapiCommandHeader &cmdHeader) override
-		{
-			sem.post();
+			SemaphorePoster poster(this);
+			parseResult =
+			  getObject()->parseReplyGetMonitoringServerInfo(
+			    serverInfo, replyBuf);
+			setSucceeded();
 		}
 	} *cb = new Callback(this, serverInfo);
 	Reaper<UsedCountable> reaper(cb, UsedCountable::unref);
 
 	sendCmdGetMonitoringServerInfo(cb);
-	cb->sem.wait();
-	if (!cb->succeeded) {
+	cb->wait();
+	if (!cb->getSucceeded()) {
 		THROW_HATOHOL_EXCEPTION(
 		  "Failed to call HAPI_CMD_GET_TIMESTAMP_OF_LAST_TRIGGER\n");
 	}
