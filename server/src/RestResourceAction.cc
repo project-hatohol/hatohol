@@ -34,8 +34,8 @@ void RestResourceAction::registerFactories(FaceRest *faceRest)
 }
 
 RestResourceAction::RestResourceAction(
-  FaceRest *_faceRest, RestHandler _handler)
-: FaceRest::ResourceHandler(_faceRest, _handler)
+  FaceRest *faceRest, RestHandler handler)
+: FaceRest::ResourceHandler(faceRest, handler)
 {
 }
 

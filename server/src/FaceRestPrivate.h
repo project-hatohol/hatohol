@@ -40,12 +40,12 @@ enum FormatType {
 struct FaceRest::ResourceHandler : public UsedCountable
 {
 public:
-	ResourceHandler(FaceRest *_faceRest, RestHandler _handler);
+	ResourceHandler(FaceRest *faceRest, RestHandler handler);
 	virtual ~ResourceHandler();
-	virtual bool setRequest(SoupMessage *_msg,
-				const char *_path,
-				GHashTable *_query,
-				SoupClientContext *_client);
+	virtual bool setRequest(SoupMessage *msg,
+				const char *path,
+				GHashTable *query,
+				SoupClientContext *client);
 	virtual void handle(void);
 	SoupServer *getSoupServer(void);
 	GMainContext *getGMainContext(void);

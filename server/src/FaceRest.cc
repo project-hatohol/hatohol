@@ -646,9 +646,9 @@ void FaceRest::handlerLogout(ResourceHandler *job)
 // FaceRest::ResourceHandler
 // ---------------------------------------------------------------------------
 
-FaceRest::ResourceHandler::ResourceHandler(FaceRest *_faceRest,
-					   RestHandler _handler)
-: m_faceRest(_faceRest), m_handler(_handler), m_message(NULL), m_path(),
+FaceRest::ResourceHandler::ResourceHandler(FaceRest *faceRest,
+					   RestHandler handler)
+: m_faceRest(faceRest), m_handler(handler), m_message(NULL), m_path(),
   m_query(NULL), m_client(NULL), m_mimeType(NULL), m_userId(INVALID_USER_ID),
   m_replyIsPrepared(false)
 {
@@ -661,13 +661,13 @@ FaceRest::ResourceHandler::~ResourceHandler()
 }
 
 bool FaceRest::ResourceHandler::setRequest(
-  SoupMessage *_msg, const char *_path, GHashTable *_query,
-  SoupClientContext *_client)
+  SoupMessage *msg, const char *path, GHashTable *query,
+  SoupClientContext *client)
 {
-	m_message  = _msg;
-	m_path     = _path ? _path : "";
-	m_query    = _query;
-	m_client   = _client;
+	m_message  = msg;
+	m_path     = path ? path : "";
+	m_query    = query;
+	m_client   = client;
 
 	if (m_query)
 		g_hash_table_ref(m_query);

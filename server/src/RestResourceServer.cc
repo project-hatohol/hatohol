@@ -40,8 +40,8 @@ void RestResourceServer::registerFactories(FaceRest *faceRest)
 }
 
 RestResourceServer::RestResourceServer(
-  FaceRest *_faceRest, RestHandler _handler)
-: FaceRest::ResourceHandler(_faceRest, _handler)
+  FaceRest *faceRest, RestHandler handler)
+: FaceRest::ResourceHandler(faceRest, handler)
 {
 }
 
