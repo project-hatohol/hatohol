@@ -174,14 +174,50 @@ SmartTime HatoholArmPluginBase::getTimestampOfLastTrigger(void)
 
 EventIdType HatoholArmPluginBase::getLastEventId(void)
 {
+	struct Callback : public CommandCallbacks {
+		HatoholArmPluginBase *obj;
+		SimpleSemaphore sem;
+		EventIdType eventId;
+		bool succeeded;
+
+		Callback(HatoholArmPluginBase *_obj)
+		: CommandCallbacks(false), // autoDelete
+		  obj(_obj),
+		  sem(0),
+		  eventId(INVALID_EVENT_ID),
+		  succeeded(false)
+		{
+		}
+
+		virtual void onGotReply(
+		  const mlpl::SmartBuffer &replyBuf,
+		  const HapiCommandHeader &cmdHeader) override
+		{
+			Reaper<SimpleSemaphore>
+			   poster(&sem, SimpleSemaphore::post);
+			const HapiResLastEventId *body =
+			  obj->getResponseBody<HapiResLastEventId>(replyBuf);
+			eventId = body->lastEventId;
+			succeeded = true;
+		}
+
+		virtual void onError(
+		  const HapiResponseCode &code,
+		  const HapiCommandHeader &cmdHeader) override
+		{
+			sem.post();
+		}
+	} cb(this);
+
 	SmartBuffer cmdBuf;
 	setupCommandHeader<void>(cmdBuf, HAPI_CMD_GET_LAST_EVENT_ID);
-	send(cmdBuf);
-	waitResponseAndCheckHeader();
-
-	const HapiResLastEventId *body =
-	  getResponseBody<HapiResLastEventId>(m_ctx->responseBuf);
-	return body->lastEventId;
+	send(cmdBuf, &cb);
+	cb.sem.wait();
+	if (!cb.succeeded) {
+		THROW_HATOHOL_EXCEPTION(
+		  "Failed to call HAPI_CMD_GET_LAST_EVENT_ID\n");
+	}
+	return cb.eventId;
 }
 
 // ---------------------------------------------------------------------------
