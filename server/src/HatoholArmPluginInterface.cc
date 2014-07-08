@@ -276,12 +276,9 @@ void HatoholArmPluginInterface::send(
   const SmartBuffer &smbuf, CommandCallbacks *callbacks)
 {
 	CommandCallbacksPtr callbacksPtr(callbacks);
-	if (!callbacks) {
-		const uint16_t type = LtoN(smbuf.getValue<uint16_t>(0));
-		if (type == HAPI_MSG_COMMAND) {
-			callbacksPtr =
-			  CommandCallbacksPtr(new CommandCallbacks(), false);
-		}
+	if (!callbacks && (getMessageType(smbuf) == HAPI_MSG_COMMAND)) {
+		CommandCallbacks *cb = new CommandCallbacks();
+		callbacksPtr = CommandCallbacksPtr(cb, false);
 	}
 	if (callbacksPtr.hasData()) {
 		ReplyWaiter *replyWaiter = new ReplyWaiter(smbuf, callbacksPtr);
