@@ -67,7 +67,7 @@ struct ReplyWaiter {
 
 	virtual ~ReplyWaiter()
 	{
-		if (callbacks->autoDelete)
+		if (callbacks->getAutoDeleteFlag())
 			delete callbacks;
 	}
 };
@@ -238,8 +238,9 @@ private:
 // ---------------------------------------------------------------------------
 // CommandCallbacks
 // ---------------------------------------------------------------------------
-HatoholArmPluginInterface::CommandCallbacks::CommandCallbacks()
-: autoDelete(true)
+HatoholArmPluginInterface::CommandCallbacks::CommandCallbacks(
+  const bool &autoDelete)
+: m_autoDelete(autoDelete)
 {
 }
 
@@ -255,6 +256,11 @@ void HatoholArmPluginInterface::CommandCallbacks::onGotReply(
 void HatoholArmPluginInterface::CommandCallbacks::onError(
   const HapiResponseCode &code, const HapiCommandHeader &cmdHeader)
 {
+}
+
+bool HatoholArmPluginInterface::CommandCallbacks::getAutoDeleteFlag(void) const
+{
+	return m_autoDelete;
 }
 
 // ---------------------------------------------------------------------------

@@ -215,15 +215,17 @@ public:
 	typedef void (HatoholArmPluginInterface::*CommandHandler)(
 	  const HapiCommandHeader *header);
 
-	struct CommandCallbacks {
-		bool autoDelete;
-
-		CommandCallbacks(void);
+	class CommandCallbacks {
+	public:
+		CommandCallbacks(const bool &autoDelete = true);
 		virtual ~CommandCallbacks();
 		virtual void onGotReply(const mlpl::SmartBuffer &replyBuf,
 		                        const HapiCommandHeader &cmdHeader);
 		virtual void onError(const HapiResponseCode &code,
 		                     const HapiCommandHeader &cmdHeader);
+		bool getAutoDeleteFlag(void) const;
+	private:
+		bool m_autoDelete;
 	};
 
 	HatoholArmPluginInterface(
