@@ -80,6 +80,26 @@ public:
 		}
 	}
 
+	/**
+	 * Pop an element only if there's an element.
+	 *
+	 * @param dest The popped value is stored to this variable.
+	 * @return true if an element is popped. Otherwise false.
+	 */
+	bool popIfNonEmpty(T &dest)
+	{
+		bool exist = false;
+		m_mutex.lock();
+		if (!m_queue.empty()) {
+			exist = true;
+			m_sem.wait();
+			dest = m_queue.front();
+			m_queue.pop_front();
+		}
+		m_mutex.unlock();
+		return exist;
+	}
+
 protected:
 
 private:

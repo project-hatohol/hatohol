@@ -61,4 +61,20 @@ void test_popAll(void)
 	cppcut_assert_equal(8,  actual.vec[2]);
 }
 
+void test_popIfNonEmptyWithElement(void)
+{
+	SmartQueue<int> q;
+	q.push(1);
+	int val;
+	cppcut_assert_equal(true, q.popIfNonEmpty(val));
+	cppcut_assert_equal(1, val);
+}
+
+void test_popIfNonEmptyWithoutElement(void)
+{
+	SmartQueue<int> q;
+	int val;
+	cppcut_assert_equal(false, q.popIfNonEmpty(val));
+}
+
 } // namespace testSmartQueue
