@@ -126,7 +126,8 @@ public:
 	 * @return A pointer of the type: T.
 	 */
 	static const size_t CURR_INDEX = SIZE_MAX;
-	template <typename T> T *getPointer(size_t index = CURR_INDEX) const {
+	template <typename T>
+	T *getPointer(const size_t &index = CURR_INDEX) const {
 		size_t headIndex = (index == CURR_INDEX) ? m_index : index;
 		return reinterpret_cast<T *>(&m_buf[headIndex]);
 	}
