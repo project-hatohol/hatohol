@@ -28,8 +28,6 @@
 
 class HatoholArmPluginBase : public HatoholArmPluginInterface {
 public:
-	struct AsyncCbData;
-
 	HatoholArmPluginBase(void);
 	virtual ~HatoholArmPluginBase();
 
@@ -40,16 +38,6 @@ public:
 	 * @return true on success. Or false is returned.
 	 */
 	bool getMonitoringServerInfo(MonitoringServerInfo &serverInfo);
-
-	class GetMonitoringServerInfoAsyncArg {
-	public:
-		GetMonitoringServerInfoAsyncArg(
-		  MonitoringServerInfo *serverInfo);
-		virtual void doneCb(const bool &succeeded);
-		MonitoringServerInfo &getMonitoringServerInfo(void);
-	private:
-		MonitoringServerInfo *m_serverInfo;
-	};
 
 	mlpl::SmartTime getTimestampOfLastTrigger(void);
 

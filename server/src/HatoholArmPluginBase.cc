@@ -31,25 +31,6 @@ struct HatoholArmPluginBase::PrivateContext {
 };
 
 // ---------------------------------------------------------------------------
-// GetMonitoringServerInfoAsyncArg
-// ---------------------------------------------------------------------------
-HatoholArmPluginBase::GetMonitoringServerInfoAsyncArg::GetMonitoringServerInfoAsyncArg(MonitoringServerInfo *serverInfo)
-: m_serverInfo(serverInfo)
-{
-}
-
-void HatoholArmPluginBase::GetMonitoringServerInfoAsyncArg::doneCb(
-  const bool &succeeded)
-{
-}
-
-MonitoringServerInfo &
-  HatoholArmPluginBase::GetMonitoringServerInfoAsyncArg::getMonitoringServerInfo(void)
-{
-	return *m_serverInfo;
-}
-
-// ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 HatoholArmPluginBase::HatoholArmPluginBase(void)
