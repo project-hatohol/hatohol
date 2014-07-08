@@ -652,6 +652,12 @@ FaceRest::ResourceHandler::ResourceHandler(FaceRest *_faceRest,
 {
 }
 
+FaceRest::ResourceHandler::~ResourceHandler()
+{
+	if (query)
+		g_hash_table_unref(query);
+}
+
 bool FaceRest::ResourceHandler::setRequest(
   SoupMessage *_msg, const char *_path, GHashTable *_query,
   SoupClientContext *_client)
@@ -674,12 +680,6 @@ bool FaceRest::ResourceHandler::setRequest(
 void FaceRest::ResourceHandler::handle(void)
 {
 	handler(this);
-}
-
-FaceRest::ResourceHandler::~ResourceHandler()
-{
-	if (query)
-		g_hash_table_unref(query);
 }
 
 SoupServer *FaceRest::ResourceHandler::getSoupServer(void)
