@@ -68,7 +68,7 @@ public:
 			   bool lookupTriggerBrief = false);
 	HatoholError addHostgroupsMap(JsonBuilderAgent &outputJson,
 				      const MonitoringServerInfo &serverInfo,
-				      HostgroupInfoList &hostgroupList);
+				      HostgroupInfoList &hostgroupList /* out */);
 
 	static void addHatoholError(JsonBuilderAgent &agent,
 	                            const HatoholError &err);
