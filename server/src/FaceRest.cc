@@ -547,7 +547,8 @@ void FaceRest::handlerTest(ResourceHandler *job)
 	{
 		RETURN_IF_NOT_TEST_MODE(job);
 		UserQueryOption option(USER_ID_SYSTEM);
-		HatoholError err = updateOrAddUser(job->m_query, option);
+		HatoholError err
+		  = RestResourceUser::updateOrAddUser(job->m_query, option);
 		if (err != HTERR_OK) {
 			job->replyError(err);
 			return;

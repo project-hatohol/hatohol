@@ -594,8 +594,8 @@ void RestResourceUser::handlerDeleteUserRole(void)
 	replyJsonData(agent);
 }
 
-HatoholError FaceRest::updateOrAddUser(GHashTable *query,
-                                       UserQueryOption &option)
+HatoholError RestResourceUser::updateOrAddUser(GHashTable *query,
+					       UserQueryOption &option)
 {
 	UserInfo userInfo;
 	HatoholError err = parseUserParameter(userInfo, query);
