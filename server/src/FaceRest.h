@@ -80,7 +80,6 @@ protected:
 	  handlerDefault(SoupServer *server, SoupMessage *msg,
 	                 const char *path, GHashTable *query,
 	                 SoupClientContext *client, gpointer user_data);
-
 	static void handlerHelloPage(ResourceHandler *job);
 	static void handlerTest(ResourceHandler *job);
 	static void handlerLogin(ResourceHandler *job);
