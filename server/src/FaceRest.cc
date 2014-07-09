@@ -676,7 +676,7 @@ bool FaceRest::ResourceHandler::setRequest(
 	// than this object and shoube be managed by libsoup, we don't
 	// inclement reference count of them.
 
-	return prepare();
+	return parseRequest();
 }
 
 void FaceRest::ResourceHandler::handle(void)
@@ -741,7 +741,7 @@ bool FaceRest::ResourceHandler::parseFormatType(void)
 	return true;
 }
 
-bool FaceRest::ResourceHandler::prepare(void)
+bool FaceRest::ResourceHandler::parseRequest(void)
 {
 	const char *_sessionId =
 	   soup_message_headers_get_one(m_message->request_headers,
