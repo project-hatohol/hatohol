@@ -607,5 +607,5 @@ RestResourceUserFactory::RestResourceUserFactory(
 
 FaceRest::ResourceHandler *RestResourceUserFactory::createHandler()
 {
-	return new RestResourceUser(m_faceRest, m_handler);
+	return new RestResourceUser(m_faceRest, m_staticHandler);
 }

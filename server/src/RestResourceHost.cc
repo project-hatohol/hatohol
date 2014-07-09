@@ -902,5 +902,5 @@ RestResourceHostFactory::RestResourceHostFactory(
 
 FaceRest::ResourceHandler *RestResourceHostFactory::createHandler()
 {
-	return new RestResourceHost(m_faceRest, m_handler);
+	return new RestResourceHost(m_faceRest, m_staticHandler);
 }

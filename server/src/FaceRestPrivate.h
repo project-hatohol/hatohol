@@ -73,7 +73,7 @@ public:
 
 public:
 	FaceRest   *m_faceRest;
-	RestHandler m_handler;
+	RestHandler m_staticHandler;
 
 	// arguments of SoupServerCallback
 	SoupMessage       *m_message;
@@ -101,7 +101,7 @@ protected:
 struct FaceRest::ResourceHandlerFactory
 {
 	FaceRest *m_faceRest;
-	RestHandler m_handler;
+	RestHandler m_staticHandler;
 
 	ResourceHandlerFactory(FaceRest *faceRest, RestHandler handler);
 	virtual ~ResourceHandlerFactory();
