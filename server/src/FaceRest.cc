@@ -82,7 +82,6 @@ struct FaceRest::PrivateContext {
 	struct MainThreadCleaner;
 	static bool         testMode;
 	static MutexLock    lock;
-	static const string pathForUserMe;
 	guint               port;
 	SoupServer         *soupServer;
 	GMainContext       *gMainCtx;
@@ -114,11 +113,6 @@ struct FaceRest::PrivateContext {
 	{
 		g_main_context_unref(gMainCtx);
 		sem_destroy(&waitJobSemaphore);
-	}
-
-	static string initPathForUserMe(void)
-	{
-		return string(RestResourceUser::pathForUser) + "/me";
 	}
 
 	void pushJob(ResourceHandler *job)
@@ -170,8 +164,6 @@ struct FaceRest::PrivateContext {
 
 bool         FaceRest::PrivateContext::testMode = false;
 MutexLock    FaceRest::PrivateContext::lock;
-const string FaceRest::PrivateContext::pathForUserMe =
-  FaceRest::PrivateContext::initPathForUserMe();
 
 class FaceRest::Worker : public HatoholThreadBase {
 public:
@@ -421,11 +413,6 @@ SoupServer *FaceRest::getSoupServer(void)
 GMainContext *FaceRest::getGMainContext(void)
 {
 	return m_ctx->gMainCtx;
-}
-
-const std::string &FaceRest::getPathForUserMe(void)
-{
-	return m_ctx->pathForUserMe;
 }
 
 size_t FaceRest::parseCmdArgPort(CommandLineArg &cmdArg, size_t idx)
@@ -693,13 +680,6 @@ SoupServer *FaceRest::ResourceHandler::getSoupServer(void)
 GMainContext *FaceRest::ResourceHandler::getGMainContext(void)
 {
 	return m_faceRest ? m_faceRest->getGMainContext() : NULL;
-}
-
-bool FaceRest::ResourceHandler::pathIsUserMe(void)
-{
-	if (!m_faceRest)
-		return false;
-	return (m_path == m_faceRest->getPathForUserMe());
 }
 
 string FaceRest::ResourceHandler::getJsonpCallbackName(void)

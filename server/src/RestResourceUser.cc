@@ -25,6 +25,8 @@ using namespace mlpl;
 
 const char *RestResourceUser::pathForUser     = "/user";
 const char *RestResourceUser::pathForUserRole = "/user-role";
+const string RestResourceUser::pathForUserMe =
+  string(RestResourceUser::pathForUser) + "/me";
 
 void RestResourceUser::registerFactories(FaceRest *faceRest)
 {
@@ -36,6 +38,11 @@ void RestResourceUser::registerFactories(FaceRest *faceRest)
 	  pathForUserRole,
 	  new RestResourceUserFactory(faceRest,
 				      &RestResourceUser::handlerUserRole));
+}
+
+const string &RestResourceUser::getPathForUserMe(void)
+{
+	return pathForUserMe;
 }
 
 RestResourceUser::RestResourceUser(FaceRest *faceRest, HandlerFunc handler)
@@ -51,6 +58,13 @@ void RestResourceUser::handle(void)
 {
 	HATOHOL_ASSERT(m_handlerFunc, "No handler function!");
 	(this->*m_handlerFunc)();
+}
+
+bool RestResourceUser::pathIsUserMe(void)
+{
+	if (!m_faceRest)
+		return false;
+	return (m_path == getPathForUserMe());
 }
 
 static HatoholError parseUserParameter(
