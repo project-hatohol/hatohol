@@ -48,7 +48,7 @@ public:
 				SoupClientContext *client);
 
 	virtual void handle(void);
-	void launchInTryBlock(void);
+	void handleInTryBlock(void);
 
 	SoupServer *getSoupServer(void);
 	GMainContext *getGMainContext(void);

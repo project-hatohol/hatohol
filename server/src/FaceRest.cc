@@ -188,7 +188,7 @@ protected:
 		ResourceHandler *job;
 		MLPL_INFO("start face-rest worker\n");
 		while ((job = waitNextJob())) {
-			job->launchInTryBlock();
+			job->handleInTryBlock();
 			job->unpauseResponse();
 			job->unref();
 		}
@@ -487,7 +487,7 @@ void FaceRest::PrivateContext::queueRestJob
 	if (face->isAsyncMode()) {
 		face->m_ctx->pushJob(job);
 	} else {
-		job->launchInTryBlock();
+		job->handleInTryBlock();
 		job->unpauseResponse();
 		job->unref();
 	}
@@ -658,7 +658,7 @@ void FaceRest::ResourceHandler::handle(void)
 	m_staticHandlerFunc(this);
 }
 
-void FaceRest::ResourceHandler::launchInTryBlock(void)
+void FaceRest::ResourceHandler::handleInTryBlock(void)
 {
 	try {
 		handle();
