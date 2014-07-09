@@ -30,20 +30,27 @@ void RestResourceUser::registerFactories(FaceRest *faceRest)
 {
 	faceRest->addResourceHandlerFactory(
 	  pathForUser,
-	  new RestResourceUserFactory(faceRest, handlerUser));
+	  new RestResourceUserFactory(faceRest,
+				      &RestResourceUser::handlerUser));
 	faceRest->addResourceHandlerFactory(
 	  pathForUserRole,
-	  new RestResourceUserFactory(faceRest, handlerUserRole));
+	  new RestResourceUserFactory(faceRest,
+				      &RestResourceUser::handlerUserRole));
 }
 
-RestResourceUser::RestResourceUser(
-  FaceRest *faceRest, RestHandler handler)
-: FaceRest::ResourceHandler(faceRest, handler)
+RestResourceUser::RestResourceUser(FaceRest *faceRest, HandlerFunc handler)
+: FaceRest::ResourceHandler(faceRest, NULL), m_handlerFunc(handler)
 {
 }
 
 RestResourceUser::~RestResourceUser()
 {
+}
+
+void RestResourceUser::handle(void)
+{
+	HATOHOL_ASSERT(m_handlerFunc, "No handler function!");
+	(this->*m_handlerFunc)();
 }
 
 static HatoholError parseUserParameter(
@@ -94,29 +101,29 @@ static HatoholError parseUserRoleParameter(
 	return HatoholError(HTERR_OK);
 }
 
-void RestResourceUser::handlerUser(ResourceHandler *job)
+void RestResourceUser::handlerUser(void)
 {
 	// handle sub-resources
-	string resourceName = job->getResourceName(1);
+	string resourceName = getResourceName(1);
 	if (StringUtils::casecmp(resourceName, "access-info")) {
-		handlerAccessInfo(job);
+		handlerAccessInfo();
 		return;
 	}
 
 	// handle "user" resource itself
-	if (StringUtils::casecmp(job->m_message->method, "GET")) {
-		handlerGetUser(job);
-	} else if (StringUtils::casecmp(job->m_message->method, "POST")) {
-		handlerPostUser(job);
-	} else if (StringUtils::casecmp(job->m_message->method, "PUT")) {
-		handlerPutUser(job);
-	} else if (StringUtils::casecmp(job->m_message->method, "DELETE")) {
-		handlerDeleteUser(job);
+	if (StringUtils::casecmp(m_message->method, "GET")) {
+		handlerGetUser();
+	} else if (StringUtils::casecmp(m_message->method, "POST")) {
+		handlerPostUser();
+	} else if (StringUtils::casecmp(m_message->method, "PUT")) {
+		handlerPutUser();
+	} else if (StringUtils::casecmp(m_message->method, "DELETE")) {
+		handlerDeleteUser();
 	} else {
-		MLPL_ERR("Unknown method: %s\n", job->m_message->method);
-		soup_message_set_status(job->m_message,
+		MLPL_ERR("Unknown method: %s\n", m_message->method);
+		soup_message_set_status(m_message,
 		                        SOUP_STATUS_METHOD_NOT_ALLOWED);
-		job->m_replyIsPrepared = true;
+		m_replyIsPrepared = true;
 	}
 }
 
@@ -145,13 +152,13 @@ static void addUserRolesMap(
 	agent.endObject();
 }
 
-void RestResourceUser::handlerGetUser(ResourceHandler *job)
+void RestResourceUser::handlerGetUser(void)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	UserInfoList userList;
-	UserQueryOption option(job->m_dataQueryContextPtr);
-	if (job->pathIsUserMe())
+	UserQueryOption option(m_dataQueryContextPtr);
+	if (pathIsUserMe())
 		option.queryOnlyMyself();
 	dataStore->getUserList(userList, option);
 
@@ -170,27 +177,27 @@ void RestResourceUser::handlerGetUser(ResourceHandler *job)
 		agent.endObject();
 	}
 	agent.endArray();
-	addUserRolesMap(job, agent);
+	addUserRolesMap(this, agent);
 	agent.endObject();
 
-	job->replyJsonData(agent);
+	replyJsonData(agent);
 }
 
-void RestResourceUser::handlerPostUser(ResourceHandler *job)
+void RestResourceUser::handlerPostUser(void)
 {
 	UserInfo userInfo;
-	HatoholError err = parseUserParameter(userInfo, job->m_query);
+	HatoholError err = parseUserParameter(userInfo, m_query);
 	if (err != HTERR_OK) {
-		job->replyError(err);
+		replyError(err);
 		return;
 	}
 
 	// try to add
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	err = dataStore->addUser(
-	  userInfo, job->m_dataQueryContextPtr->getOperationPrivilege());
+	  userInfo, m_dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
-		job->replyError(err);
+		replyError(err);
 		return;
 	}
 
@@ -200,40 +207,40 @@ void RestResourceUser::handlerPostUser(ResourceHandler *job)
 	addHatoholError(agent, err);
 	agent.add("id", userInfo.id);
 	agent.endObject();
-	job->replyJsonData(agent);
+	replyJsonData(agent);
 }
 
-void RestResourceUser::handlerPutUser(ResourceHandler *job)
+void RestResourceUser::handlerPutUser(void)
 {
 	UserInfo userInfo;
-	userInfo.id = job->getResourceId();
+	userInfo.id = getResourceId();
 	if (userInfo.id == INVALID_USER_ID) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
-		            "id: %s", job->getResourceIdString().c_str());
+		REPLY_ERROR(this, HTERR_NOT_FOUND_ID_IN_URL,
+		            "id: %s", getResourceIdString().c_str());
 		return;
 	}
 
 	DBClientUser dbUser;
 	bool exist = dbUser.getUserInfo(userInfo, userInfo.id);
 	if (!exist) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_TARGET_RECORD,
+		REPLY_ERROR(this, HTERR_NOT_FOUND_TARGET_RECORD,
 		            "id: %" FMT_USER_ID, userInfo.id);
 		return;
 	}
 	bool allowEmpty = true;
-	HatoholError err = parseUserParameter(userInfo, job->m_query,
+	HatoholError err = parseUserParameter(userInfo, m_query,
 					      allowEmpty);
 	if (err != HTERR_OK) {
-		job->replyError(err);
+		replyError(err);
 		return;
 	}
 
 	// try to update
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	err = dataStore->updateUser(
-	  userInfo, job->m_dataQueryContextPtr->getOperationPrivilege());
+	  userInfo, m_dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
-		job->replyError(err);
+		replyError(err);
 		return;
 	}
 
@@ -243,24 +250,24 @@ void RestResourceUser::handlerPutUser(ResourceHandler *job)
 	addHatoholError(agent, err);
 	agent.add("id", userInfo.id);
 	agent.endObject();
-	job->replyJsonData(agent);
+	replyJsonData(agent);
 }
 
-void RestResourceUser::handlerDeleteUser(ResourceHandler *job)
+void RestResourceUser::handlerDeleteUser(void)
 {
-	uint64_t userId = job->getResourceId();
+	uint64_t userId = getResourceId();
 	if (userId == INVALID_ID) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
-		            "id: %s", job->getResourceIdString().c_str());
+		REPLY_ERROR(this, HTERR_NOT_FOUND_ID_IN_URL,
+		            "id: %s", getResourceIdString().c_str());
 		return;
 	}
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HatoholError err =
 	  dataStore->deleteUser(
-	    userId, job->m_dataQueryContextPtr->getOperationPrivilege());
+	    userId, m_dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
-		job->replyError(err);
+		replyError(err);
 		return;
 	}
 
@@ -270,35 +277,35 @@ void RestResourceUser::handlerDeleteUser(ResourceHandler *job)
 	addHatoholError(agent, err);
 	agent.add("id", userId);
 	agent.endObject();
-	job->replyJsonData(agent);
+	replyJsonData(agent);
 }
 
-void RestResourceUser::handlerAccessInfo(ResourceHandler *job)
+void RestResourceUser::handlerAccessInfo(void)
 {
-	if (StringUtils::casecmp(job->m_message->method, "GET")) {
-		handlerGetAccessInfo(job);
-	} else if (StringUtils::casecmp(job->m_message->method, "POST")) {
-		handlerPostAccessInfo(job);
-	} else if (StringUtils::casecmp(job->m_message->method, "DELETE")) {
-		handlerDeleteAccessInfo(job);
+	if (StringUtils::casecmp(m_message->method, "GET")) {
+		handlerGetAccessInfo();
+	} else if (StringUtils::casecmp(m_message->method, "POST")) {
+		handlerPostAccessInfo();
+	} else if (StringUtils::casecmp(m_message->method, "DELETE")) {
+		handlerDeleteAccessInfo();
 	} else {
-		MLPL_ERR("Unknown method: %s\n", job->m_message->method);
-		soup_message_set_status(job->m_message,
+		MLPL_ERR("Unknown method: %s\n", m_message->method);
+		soup_message_set_status(m_message,
 		                        SOUP_STATUS_METHOD_NOT_ALLOWED);
-		job->m_replyIsPrepared = true;
+		m_replyIsPrepared = true;
 	}
 }
 
-void RestResourceUser::handlerGetAccessInfo(ResourceHandler *job)
+void RestResourceUser::handlerGetAccessInfo(void)
 {
-	AccessInfoQueryOption option(job->m_dataQueryContextPtr);
-	option.setTargetUserId(job->getResourceId());
+	AccessInfoQueryOption option(m_dataQueryContextPtr);
+	option.setTargetUserId(getResourceId());
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	ServerAccessInfoMap serversMap;
 	HatoholError error = dataStore->getAccessInfoMap(serversMap, option);
 	if (error != HTERR_OK) {
-		job->replyError(error);
+		replyError(error);
 		return;
 	}
 
@@ -341,10 +348,10 @@ void RestResourceUser::handlerGetAccessInfo(ResourceHandler *job)
 
 	DBClientUser::destroyServerAccessInfoMap(serversMap);
 
-	job->replyJsonData(agent);
+	replyJsonData(agent);
 }
 
-void RestResourceUser::handlerPostAccessInfo(ResourceHandler *job)
+void RestResourceUser::handlerPostAccessInfo(void)
 {
 	// Get query parameters
 	bool exist;
@@ -353,27 +360,27 @@ void RestResourceUser::handlerPostAccessInfo(ResourceHandler *job)
 
 	// userId
 	int userIdPos = 0;
-	accessInfo.userId = job->getResourceId(userIdPos);
+	accessInfo.userId = getResourceId(userIdPos);
 
 	// serverId
 	succeeded = getParamWithErrorReply<ServerIdType>(
-	              job, "serverId", "%" FMT_SERVER_ID,
+	              this, "serverId", "%" FMT_SERVER_ID,
 	              accessInfo.serverId, &exist);
 	if (!succeeded)
 		return;
 	if (!exist) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "serverId");
+		REPLY_ERROR(this, HTERR_NOT_FOUND_PARAMETER, "serverId");
 		return;
 	}
 
 	// hostgroupId
 	succeeded = getParamWithErrorReply<uint64_t>(
-	              job, "hostgroupId", "%" PRIu64,
+	              this, "hostgroupId", "%" PRIu64,
 	              accessInfo.hostgroupId, &exist);
 	if (!succeeded)
 		return;
 	if (!exist) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "hostgroupId");
+		REPLY_ERROR(this, HTERR_NOT_FOUND_PARAMETER, "hostgroupId");
 		return;
 	}
 
@@ -381,9 +388,9 @@ void RestResourceUser::handlerPostAccessInfo(ResourceHandler *job)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HatoholError err =
 	  dataStore->addAccessInfo(
-	    accessInfo, job->m_dataQueryContextPtr->getOperationPrivilege());
+	    accessInfo, m_dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
-		job->replyError(err);
+		replyError(err);
 		return;
 	}
 
@@ -393,25 +400,25 @@ void RestResourceUser::handlerPostAccessInfo(ResourceHandler *job)
 	addHatoholError(agent, err);
 	agent.add("id", accessInfo.id);
 	agent.endObject();
-	job->replyJsonData(agent);
+	replyJsonData(agent);
 }
 
-void RestResourceUser::handlerDeleteAccessInfo(ResourceHandler *job)
+void RestResourceUser::handlerDeleteAccessInfo(void)
 {
 	int nest = 1;
-	uint64_t id = job->getResourceId(nest);
+	uint64_t id = getResourceId(nest);
 	if (id == INVALID_ID) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
-			    "id: %s", job->getResourceIdString(nest).c_str());
+		REPLY_ERROR(this, HTERR_NOT_FOUND_ID_IN_URL,
+			    "id: %s", getResourceIdString(nest).c_str());
 		return;
 	}
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HatoholError err =
 	  dataStore->deleteAccessInfo(
-	    id, job->m_dataQueryContextPtr->getOperationPrivilege());
+	    id, m_dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
-		job->replyError(err);
+		replyError(err);
 		return;
 	}
 
@@ -421,33 +428,33 @@ void RestResourceUser::handlerDeleteAccessInfo(ResourceHandler *job)
 	addHatoholError(agent, err);
 	agent.add("id", id);
 	agent.endObject();
-	job->replyJsonData(agent);
+	replyJsonData(agent);
 }
 
-void RestResourceUser::handlerUserRole(ResourceHandler *job)
+void RestResourceUser::handlerUserRole(void)
 {
-	if (StringUtils::casecmp(job->m_message->method, "GET")) {
-		handlerGetUserRole(job);
-	} else if (StringUtils::casecmp(job->m_message->method, "POST")) {
-		handlerPostUserRole(job);
-	} else if (StringUtils::casecmp(job->m_message->method, "PUT")) {
-		handlerPutUserRole(job);
-	} else if (StringUtils::casecmp(job->m_message->method, "DELETE")) {
-		handlerDeleteUserRole(job);
+	if (StringUtils::casecmp(m_message->method, "GET")) {
+		handlerGetUserRole();
+	} else if (StringUtils::casecmp(m_message->method, "POST")) {
+		handlerPostUserRole();
+	} else if (StringUtils::casecmp(m_message->method, "PUT")) {
+		handlerPutUserRole();
+	} else if (StringUtils::casecmp(m_message->method, "DELETE")) {
+		handlerDeleteUserRole();
 	} else {
-		MLPL_ERR("Unknown method: %s\n", job->m_message->method);
-		soup_message_set_status(job->m_message,
+		MLPL_ERR("Unknown method: %s\n", m_message->method);
+		soup_message_set_status(m_message,
 		                        SOUP_STATUS_METHOD_NOT_ALLOWED);
-		job->m_replyIsPrepared = true;
+		m_replyIsPrepared = true;
 	}
 }
 
-void RestResourceUser::handlerPutUserRole(ResourceHandler *job)
+void RestResourceUser::handlerPutUserRole(void)
 {
-	uint64_t id = job->getResourceId();
+	uint64_t id = getResourceId();
 	if (id == INVALID_ID) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
-		            "id: %s", job->getResourceIdString().c_str());
+		REPLY_ERROR(this, HTERR_NOT_FOUND_ID_IN_URL,
+		            "id: %s", getResourceIdString().c_str());
 		return;
 	}
 	UserRoleInfo userRoleInfo;
@@ -455,29 +462,29 @@ void RestResourceUser::handlerPutUserRole(ResourceHandler *job)
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	UserRoleInfoList userRoleList;
-	UserRoleQueryOption option(job->m_dataQueryContextPtr);
+	UserRoleQueryOption option(m_dataQueryContextPtr);
 	option.setTargetUserRoleId(userRoleInfo.id);
 	dataStore->getUserRoleList(userRoleList, option);
 	if (userRoleList.empty()) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_TARGET_RECORD,
+		REPLY_ERROR(this, HTERR_NOT_FOUND_TARGET_RECORD,
 		            "id: %" FMT_USER_ID, userRoleInfo.id);
 		return;
 	}
 	userRoleInfo = *(userRoleList.begin());
 
 	bool allowEmpty = true;
-	HatoholError err = parseUserRoleParameter(userRoleInfo, job->m_query,
+	HatoholError err = parseUserRoleParameter(userRoleInfo, m_query,
 						  allowEmpty);
 	if (err != HTERR_OK) {
-		job->replyError(err);
+		replyError(err);
 		return;
 	}
 
 	// try to update
 	err = dataStore->updateUserRole(
-	  userRoleInfo, job->m_dataQueryContextPtr->getOperationPrivilege());
+	  userRoleInfo, m_dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
-		job->replyError(err);
+		replyError(err);
 		return;
 	}
 
@@ -487,15 +494,15 @@ void RestResourceUser::handlerPutUserRole(ResourceHandler *job)
 	addHatoholError(agent, err);
 	agent.add("id", userRoleInfo.id);
 	agent.endObject();
-	job->replyJsonData(agent);
+	replyJsonData(agent);
 }
 
-void RestResourceUser::handlerGetUserRole(ResourceHandler *job)
+void RestResourceUser::handlerGetUserRole(void)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	UserRoleInfoList userRoleList;
-	UserRoleQueryOption option(job->m_dataQueryContextPtr);
+	UserRoleQueryOption option(m_dataQueryContextPtr);
 	dataStore->getUserRoleList(userRoleList, option);
 
 	JsonBuilderAgent agent;
@@ -515,24 +522,24 @@ void RestResourceUser::handlerGetUserRole(ResourceHandler *job)
 	agent.endArray();
 	agent.endObject();
 
-	job->replyJsonData(agent);
+	replyJsonData(agent);
 }
 
-void RestResourceUser::handlerPostUserRole(ResourceHandler *job)
+void RestResourceUser::handlerPostUserRole(void)
 {
 	UserRoleInfo userRoleInfo;
-	HatoholError err = parseUserRoleParameter(userRoleInfo, job->m_query);
+	HatoholError err = parseUserRoleParameter(userRoleInfo, m_query);
 	if (err != HTERR_OK) {
-		job->replyError(err);
+		replyError(err);
 		return;
 	}
 
 	// try to add
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	err = dataStore->addUserRole(
-	  userRoleInfo, job->m_dataQueryContextPtr->getOperationPrivilege());
+	  userRoleInfo, m_dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
-		job->replyError(err);
+		replyError(err);
 		return;
 	}
 
@@ -542,15 +549,15 @@ void RestResourceUser::handlerPostUserRole(ResourceHandler *job)
 	addHatoholError(agent, err);
 	agent.add("id", userRoleInfo.id);
 	agent.endObject();
-	job->replyJsonData(agent);
+	replyJsonData(agent);
 }
 
-void RestResourceUser::handlerDeleteUserRole(ResourceHandler *job)
+void RestResourceUser::handlerDeleteUserRole(void)
 {
-	uint64_t id = job->getResourceId();
+	uint64_t id = getResourceId();
 	if (id == INVALID_ID) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
-		            "id: %s", job->getResourceIdString().c_str());
+		REPLY_ERROR(this, HTERR_NOT_FOUND_ID_IN_URL,
+		            "id: %s", getResourceIdString().c_str());
 		return;
 	}
 	UserRoleIdType userRoleId = id;
@@ -558,9 +565,9 @@ void RestResourceUser::handlerDeleteUserRole(ResourceHandler *job)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HatoholError err =
 	  dataStore->deleteUserRole(
-	    userRoleId, job->m_dataQueryContextPtr->getOperationPrivilege());
+	    userRoleId, m_dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
-		job->replyError(err);
+		replyError(err);
 		return;
 	}
 
@@ -570,7 +577,7 @@ void RestResourceUser::handlerDeleteUserRole(ResourceHandler *job)
 	addHatoholError(agent, err);
 	agent.add("id", userRoleId);
 	agent.endObject();
-	job->replyJsonData(agent);
+	replyJsonData(agent);
 }
 
 HatoholError FaceRest::updateOrAddUser(GHashTable *query,
@@ -600,12 +607,12 @@ HatoholError FaceRest::updateOrAddUser(GHashTable *query,
 }
 
 RestResourceUserFactory::RestResourceUserFactory(
-  FaceRest *faceRest, RestHandler handler)
-: FaceRest::ResourceHandlerFactory(faceRest, handler)
+  FaceRest *faceRest, RestResourceUser::HandlerFunc handler)
+: FaceRest::ResourceHandlerFactory(faceRest, NULL), m_handlerFunc(handler)
 {
 }
 
 FaceRest::ResourceHandler *RestResourceUserFactory::createHandler()
 {
-	return new RestResourceUser(m_faceRest, m_staticHandler);
+	return new RestResourceUser(m_faceRest, m_handlerFunc);
 }

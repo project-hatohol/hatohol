@@ -24,36 +24,45 @@
 
 struct RestResourceUser : public FaceRest::ResourceHandler
 {
+	typedef void (RestResourceUser::*HandlerFunc)(void);
+
 	static void registerFactories(FaceRest *faceRest);
 
-	RestResourceUser(FaceRest *faceRest, RestHandler handler);
+	RestResourceUser(FaceRest *faceRest, HandlerFunc handler);
 	virtual ~RestResourceUser();
 
-	static void handlerUser(ResourceHandler *job);
-	static void handlerGetUser(ResourceHandler *job);
-	static void handlerPostUser(ResourceHandler *job);
-	static void handlerPutUser(ResourceHandler *job);
-	static void handlerDeleteUser(ResourceHandler *job);
+	virtual void handle(void) override;
 
-	static void handlerAccessInfo(ResourceHandler *job);
-	static void handlerGetAccessInfo(ResourceHandler *job);
-	static void handlerPostAccessInfo(ResourceHandler *job);
-	static void handlerDeleteAccessInfo(ResourceHandler *job);
+	void handlerUser(void);
+	void handlerGetUser(void);
+	void handlerPostUser(void);
+	void handlerPutUser(void);
+	void handlerDeleteUser(void);
 
-	static void handlerUserRole(ResourceHandler *job);
-	static void handlerGetUserRole(ResourceHandler *job);
-	static void handlerPostUserRole(ResourceHandler *job);
-	static void handlerPutUserRole(ResourceHandler *job);
-	static void handlerDeleteUserRole(ResourceHandler *job);
+	void handlerAccessInfo(void);
+	void handlerGetAccessInfo(void);
+	void handlerPostAccessInfo(void);
+	void handlerDeleteAccessInfo(void);
+
+	void handlerUserRole(void);
+	void handlerGetUserRole(void);
+	void handlerPostUserRole(void);
+	void handlerPutUserRole(void);
+	void handlerDeleteUserRole(void);
 
 	static const char *pathForUser;
 	static const char *pathForUserRole;
+
+	HandlerFunc m_handlerFunc;
 };
 
 struct RestResourceUserFactory : public FaceRest::ResourceHandlerFactory
 {
-	RestResourceUserFactory(FaceRest *faceRest, RestHandler handler);
+	RestResourceUserFactory(FaceRest *faceRest,
+				RestResourceUser::HandlerFunc handler);
 	virtual FaceRest::ResourceHandler *createHandler(void) override;
+
+	RestResourceUser::HandlerFunc m_handlerFunc;
 };
 
 #endif // RestResourceUser_h
