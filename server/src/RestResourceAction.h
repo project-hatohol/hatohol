@@ -26,8 +26,10 @@ struct RestResourceAction : public FaceRest::ResourceHandler
 {
 	static void registerFactories(FaceRest *faceRest);
 
-	RestResourceAction(FaceRest *faceRest, RestHandler handler);
+	RestResourceAction(FaceRest *faceRest);
 	virtual ~RestResourceAction();
+
+	virtual void handle(void) override;
 
 	static void handlerAction(ResourceHandler *job);
 	static void handlerGetAction(ResourceHandler *job);
@@ -39,7 +41,7 @@ struct RestResourceAction : public FaceRest::ResourceHandler
 
 struct RestResourceActionFactory : public FaceRest::ResourceHandlerFactory
 {
-	RestResourceActionFactory(FaceRest *faceRest, RestHandler handler);
+	RestResourceActionFactory(FaceRest *faceRest);
 	virtual FaceRest::ResourceHandler *createHandler(void) override;
 };
 

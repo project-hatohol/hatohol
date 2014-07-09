@@ -29,13 +29,11 @@ const char *RestResourceAction::pathForAction = "/action";
 void RestResourceAction::registerFactories(FaceRest *faceRest)
 {
 	faceRest->addResourceHandlerFactory(
-	  pathForAction,
-	  new RestResourceActionFactory(faceRest, handlerAction));
+	  pathForAction, new RestResourceActionFactory(faceRest));
 }
 
-RestResourceAction::RestResourceAction(
-  FaceRest *faceRest, RestHandler handler)
-: FaceRest::ResourceHandler(faceRest, handler)
+RestResourceAction::RestResourceAction(FaceRest *faceRest)
+: FaceRest::ResourceHandler(faceRest, NULL)
 {
 }
 
@@ -53,6 +51,11 @@ static void setActionCondition(
 			agent.add(member, value);
 		else
 			agent.addNull(member);
+}
+
+void RestResourceAction::handle(void)
+{
+	handlerAction(this);
 }
 
 void RestResourceAction::handlerAction(ResourceHandler *job)
@@ -310,13 +313,12 @@ void RestResourceAction::handlerDeleteAction(ResourceHandler *job)
 	job->replyJsonData(agent);
 }
 
-RestResourceActionFactory::RestResourceActionFactory(
-  FaceRest *faceRest, RestHandler handler)
-: FaceRest::ResourceHandlerFactory(faceRest, handler)
+RestResourceActionFactory::RestResourceActionFactory(FaceRest *faceRest)
+: FaceRest::ResourceHandlerFactory(faceRest, NULL)
 {
 }
 
 FaceRest::ResourceHandler *RestResourceActionFactory::createHandler()
 {
-	return new RestResourceAction(m_faceRest, m_handler);
+	return new RestResourceAction(m_faceRest);
 }
