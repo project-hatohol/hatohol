@@ -55,31 +55,31 @@ static void setActionCondition(
 
 void RestResourceAction::handle(void)
 {
-	handlerAction(this);
+	handlerAction();
 }
 
-void RestResourceAction::handlerAction(ResourceHandler *job)
+void RestResourceAction::handlerAction(void)
 {
-	if (StringUtils::casecmp(job->m_message->method, "GET")) {
-		handlerGetAction(job);
-	} else if (StringUtils::casecmp(job->m_message->method, "POST")) {
-		handlerPostAction(job);
-	} else if (StringUtils::casecmp(job->m_message->method, "DELETE")) {
-		handlerDeleteAction(job);
+	if (StringUtils::casecmp(m_message->method, "GET")) {
+		handlerGetAction();
+	} else if (StringUtils::casecmp(m_message->method, "POST")) {
+		handlerPostAction();
+	} else if (StringUtils::casecmp(m_message->method, "DELETE")) {
+		handlerDeleteAction();
 	} else {
-		MLPL_ERR("Unknown method: %s\n", job->m_message->method);
-		soup_message_set_status(job->m_message,
+		MLPL_ERR("Unknown method: %s\n", m_message->method);
+		soup_message_set_status(m_message,
 					SOUP_STATUS_METHOD_NOT_ALLOWED);
-		job->m_replyIsPrepared = true;
+		m_replyIsPrepared = true;
 	}
 }
 
-void RestResourceAction::handlerGetAction(ResourceHandler *job)
+void RestResourceAction::handlerGetAction(void)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	ActionDefList actionList;
-	ActionsQueryOption option(job->m_dataQueryContextPtr);
+	ActionsQueryOption option(m_dataQueryContextPtr);
 	HatoholError err =
 	  dataStore->getActionList(actionList, option);
 
@@ -88,7 +88,7 @@ void RestResourceAction::handlerGetAction(ResourceHandler *job)
 	addHatoholError(agent, err);
 	if (err != HTERR_OK) {
 		agent.endObject();
-		job->replyJsonData(agent);
+		replyJsonData(agent);
 		return;
 	}
 	agent.add("numberOfActions", actionList.size());
@@ -130,13 +130,13 @@ void RestResourceAction::handlerGetAction(ResourceHandler *job)
 	}
 	agent.endArray();
 	const bool lookupTriggerBrief = true;
-	job->addServersMap(agent, &triggerMaps, lookupTriggerBrief);
+	addServersMap(agent, &triggerMaps, lookupTriggerBrief);
 	agent.endObject();
 
-	job->replyJsonData(agent);
+	replyJsonData(agent);
 }
 
-void RestResourceAction::handlerPostAction(ResourceHandler *job)
+void RestResourceAction::handlerPostAction(void)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
@@ -150,24 +150,24 @@ void RestResourceAction::handlerPostAction(ResourceHandler *job)
 
 	// action type
 	succeeded = getParamWithErrorReply<int>(
-	              job, "type", "%d", (int &)actionDef.type, &exist);
+	              this, "type", "%d", (int &)actionDef.type, &exist);
 	if (!succeeded)
 		return;
 	if (!exist) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "type");
+		REPLY_ERROR(this, HTERR_NOT_FOUND_PARAMETER, "type");
 		return;
 	}
 	if (!(actionDef.type == ACTION_COMMAND ||
 	      actionDef.type == ACTION_RESIDENT)) {
-		REPLY_ERROR(job, HTERR_INVALID_PARAMETER,
+		REPLY_ERROR(this, HTERR_INVALID_PARAMETER,
 		            "type: %d", actionDef.type);
 		return;
 	}
 
 	// command
-	value = (char *)g_hash_table_lookup(job->m_query, "command");
+	value = (char *)g_hash_table_lookup(m_query, "command");
 	if (!value) {
-		job->replyError(HTERR_NOT_FOUND_PARAMETER, "command");
+		replyError(HTERR_NOT_FOUND_PARAMETER, "command");
 		return;
 	}
 	actionDef.command = value;
@@ -178,14 +178,14 @@ void RestResourceAction::handlerPostAction(ResourceHandler *job)
 	ActionCondition &cond = actionDef.condition;
 
 	// workingDirectory
-	value = (char *)g_hash_table_lookup(job->m_query, "workingDirectory");
+	value = (char *)g_hash_table_lookup(m_query, "workingDirectory");
 	if (value) {
 		actionDef.workingDir = value;
 	}
 
 	// timeout
 	succeeded = getParamWithErrorReply<int>(
-	              job, "timeout", "%d", actionDef.timeout, &exist);
+	              this, "timeout", "%d", actionDef.timeout, &exist);
 	if (!succeeded)
 		return;
 	if (!exist)
@@ -193,15 +193,15 @@ void RestResourceAction::handlerPostAction(ResourceHandler *job)
 
 	// ownerUserId
 	succeeded = getParamWithErrorReply<int>(
-	              job, "ownerUserId", "%d", actionDef.ownerUserId, &exist);
+	              this, "ownerUserId", "%d", actionDef.ownerUserId, &exist);
 	if (!succeeded)
 		return;
 	if (!exist)
-		actionDef.ownerUserId = job->m_userId;
+		actionDef.ownerUserId = m_userId;
 
 	// serverId
 	succeeded = getParamWithErrorReply<int>(
-	              job, "serverId", "%d", cond.serverId, &exist);
+	              this, "serverId", "%d", cond.serverId, &exist);
 	if (!succeeded)
 		return;
 	if (exist)
@@ -209,7 +209,7 @@ void RestResourceAction::handlerPostAction(ResourceHandler *job)
 
 	// hostId
 	succeeded = getParamWithErrorReply<uint64_t>(
-	              job, "hostId", "%" PRIu64, cond.hostId, &exist);
+	              this, "hostId", "%" PRIu64, cond.hostId, &exist);
 	if (!succeeded)
 		return;
 	if (exist)
@@ -217,7 +217,7 @@ void RestResourceAction::handlerPostAction(ResourceHandler *job)
 
 	// hostgroupId
 	succeeded = getParamWithErrorReply<uint64_t>(
-	              job, "hostgroupId", "%" PRIu64, cond.hostgroupId, &exist);
+	              this, "hostgroupId", "%" PRIu64, cond.hostgroupId, &exist);
 	if (!succeeded)
 		return;
 	if (exist)
@@ -225,7 +225,7 @@ void RestResourceAction::handlerPostAction(ResourceHandler *job)
 
 	// triggerId
 	succeeded = getParamWithErrorReply<uint64_t>(
-	              job, "triggerId", "%" PRIu64, cond.triggerId, &exist);
+	              this, "triggerId", "%" PRIu64, cond.triggerId, &exist);
 	if (!succeeded)
 		return;
 	if (exist)
@@ -233,7 +233,7 @@ void RestResourceAction::handlerPostAction(ResourceHandler *job)
 
 	// triggerStatus
 	succeeded = getParamWithErrorReply<int>(
-	              job, "triggerStatus", "%d", cond.triggerStatus, &exist);
+	              this, "triggerStatus", "%d", cond.triggerStatus, &exist);
 	if (!succeeded)
 		return;
 	if (exist)
@@ -241,7 +241,7 @@ void RestResourceAction::handlerPostAction(ResourceHandler *job)
 
 	// triggerSeverity
 	succeeded = getParamWithErrorReply<int>(
-	              job, "triggerSeverity", "%d", cond.triggerSeverity, &exist);
+	              this, "triggerSeverity", "%d", cond.triggerSeverity, &exist);
 	if (!succeeded)
 		return;
 	if (exist) {
@@ -249,18 +249,18 @@ void RestResourceAction::handlerPostAction(ResourceHandler *job)
 
 		// triggerSeverityComparatorType
 		succeeded = getParamWithErrorReply<int>(
-		              job, "triggerSeverityCompType", "%d",
+		              this, "triggerSeverityCompType", "%d",
 		              (int &)cond.triggerSeverityCompType, &exist);
 		if (!succeeded)
 			return;
 		if (!exist) {
-			job->replyError(HTERR_NOT_FOUND_PARAMETER,
+			replyError(HTERR_NOT_FOUND_PARAMETER,
 					"triggerSeverityCompType");
 			return;
 		}
 		if (!(cond.triggerSeverityCompType == CMP_EQ ||
 		      cond.triggerSeverityCompType == CMP_EQ_GT)) {
-			REPLY_ERROR(job, HTERR_INVALID_PARAMETER,
+			REPLY_ERROR(this, HTERR_INVALID_PARAMETER,
 			            "type: %d", cond.triggerSeverityCompType);
 			return;
 		}
@@ -269,9 +269,9 @@ void RestResourceAction::handlerPostAction(ResourceHandler *job)
 	// save the obtained action
 	HatoholError err =
 	  dataStore->addAction(
-	    actionDef, job->m_dataQueryContextPtr->getOperationPrivilege());
+	    actionDef, m_dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
-		job->replyError(err);
+		replyError(err);
 		return;
 	}
 
@@ -281,26 +281,26 @@ void RestResourceAction::handlerPostAction(ResourceHandler *job)
 	addHatoholError(agent, err);
 	agent.add("id", actionDef.id);
 	agent.endObject();
-	job->replyJsonData(agent);
+	replyJsonData(agent);
 }
 
-void RestResourceAction::handlerDeleteAction(ResourceHandler *job)
+void RestResourceAction::handlerDeleteAction(void)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
-	uint64_t actionId = job->getResourceId();
+	uint64_t actionId = getResourceId();
 	if (actionId == INVALID_ID) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
-			    "id: %s", job->getResourceIdString().c_str());
+		REPLY_ERROR(this, HTERR_NOT_FOUND_ID_IN_URL,
+			    "id: %s", getResourceIdString().c_str());
 		return;
 	}
 	ActionIdList actionIdList;
 	actionIdList.push_back(actionId);
 	HatoholError err =
 	  dataStore->deleteActionList(
-	    actionIdList, job->m_dataQueryContextPtr->getOperationPrivilege());
+	    actionIdList, m_dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
-		job->replyError(err);
+		replyError(err);
 		return;
 	}
 
@@ -310,7 +310,7 @@ void RestResourceAction::handlerDeleteAction(ResourceHandler *job)
 	addHatoholError(agent, err);
 	agent.add("id", actionId);
 	agent.endObject();
-	job->replyJsonData(agent);
+	replyJsonData(agent);
 }
 
 RestResourceActionFactory::RestResourceActionFactory(FaceRest *faceRest)
