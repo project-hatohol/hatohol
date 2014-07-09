@@ -88,10 +88,10 @@ Mailing Lists
 Below are the mailing lists to discuss Hatohol:
 
 * hatohol-users@lists.sourceforge.jp
-  * Discuss about anything related to installing and using Hatohol (for Japanese users).
+  * Discuss anything related to installing and using Hatohol (for Japanese users).
   * How to subscribe: http://lists.sourceforge.jp/mailman/listinfo/hatohol-users
 * hatohol-users@lists.sourceforge.net
-  * Discuss about anything related to installing and using Hatohol (for English speaking users).
+  * Discuss anything related to installing and using Hatohol (for English speaking users).
   * How to subscribe: https://lists.sourceforge.net/lists/listinfo/hatohol-users
 * hatohol-commit@lists.sourceforge.net
   * Receive commit notifications & be able to discuss each commit.
