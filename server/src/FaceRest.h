@@ -74,7 +74,6 @@ protected:
 	SoupServer   *getSoupServer(void);
 	GMainContext *getGMainContext(void);
 	size_t parseCmdArgPort(CommandLineArg &cmdArg, size_t idx);
-	static void finishRestJobIfNeeded(ResourceHandler *job);
 
 	// handlers
 	static void
