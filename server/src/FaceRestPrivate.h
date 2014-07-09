@@ -49,7 +49,6 @@ public:
 	virtual void handle(void);
 	SoupServer *getSoupServer(void);
 	GMainContext *getGMainContext(void);
-	bool pathIsUserMe(void);
 	void pauseResponse(void);
 	void unpauseResponse(void);
 
