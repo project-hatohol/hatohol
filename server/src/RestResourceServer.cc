@@ -33,20 +33,28 @@ void RestResourceServer::registerFactories(FaceRest *faceRest)
 {
 	faceRest->addResourceHandlerFactory(
 	  pathForServer,
-	  new RestResourceServerFactory(faceRest, handlerServer));
+	  new RestResourceServerFactory(
+	    faceRest, &RestResourceServer::handlerServer));
 	faceRest->addResourceHandlerFactory(
 	  pathForServerConnStat,
-	  new RestResourceServerFactory(faceRest, handlerServerConnStat));
+	  new RestResourceServerFactory(
+	    faceRest, &RestResourceServer::handlerServerConnStat));
 }
 
 RestResourceServer::RestResourceServer(
-  FaceRest *faceRest, RestHandler handler)
-: FaceRest::ResourceHandler(faceRest, handler)
+  FaceRest *faceRest, RestResourceServer::HandlerFunc handler)
+: FaceRest::ResourceHandler(faceRest, NULL), m_handlerFunc(handler)
 {
 }
 
 RestResourceServer::~RestResourceServer()
 {
+}
+
+void RestResourceServer::handle(void)
+{
+	HATOHOL_ASSERT(m_handlerFunc, "No handler function!");
+	(this->*m_handlerFunc)();
 }
 
 static bool canUpdateServer(
@@ -154,21 +162,21 @@ static void addServers(FaceRest::ResourceHandler *job, JsonBuilderAgent &agent,
 	agent.endArray();
 }
 
-void RestResourceServer::handlerServer(ResourceHandler *job)
+void RestResourceServer::handlerServer(void)
 {
-	if (StringUtils::casecmp(job->m_message->method, "GET")) {
-		handlerGetServer(job);
-	} else if (StringUtils::casecmp(job->m_message->method, "POST")) {
-		handlerPostServer(job);
-	} else if (StringUtils::casecmp(job->m_message->method, "PUT")) {
-		handlerPutServer(job);
-	} else if (StringUtils::casecmp(job->m_message->method, "DELETE")) {
-		handlerDeleteServer(job);
+	if (StringUtils::casecmp(m_message->method, "GET")) {
+		handlerGetServer();
+	} else if (StringUtils::casecmp(m_message->method, "POST")) {
+		handlerPostServer();
+	} else if (StringUtils::casecmp(m_message->method, "PUT")) {
+		handlerPutServer();
+	} else if (StringUtils::casecmp(m_message->method, "DELETE")) {
+		handlerDeleteServer();
 	} else {
-		MLPL_ERR("Unknown method: %s\n", job->m_message->method);
-		soup_message_set_status(job->m_message,
+		MLPL_ERR("Unknown method: %s\n", m_message->method);
+		soup_message_set_status(m_message,
 					SOUP_STATUS_METHOD_NOT_ALLOWED);
-		job->m_replyIsPrepared = true;
+		m_replyIsPrepared = true;
 	}
 }
 
@@ -209,21 +217,21 @@ static bool parseQueryShowHostgroupInfo(GHashTable *query, UserIdType &targetUse
 		return false;
 }
 
-void RestResourceServer::handlerGetServer(ResourceHandler *job)
+void RestResourceServer::handlerGetServer(void)
 {
 	ServerIdType targetServerId;
 	UserIdType targetUserId = 0;
-	bool showHostgroupInfo = parseQueryShowHostgroupInfo(job->m_query,
+	bool showHostgroupInfo = parseQueryShowHostgroupInfo(m_query,
 	                                                     targetUserId);
-	parseQueryServerId(job->m_query, targetServerId);
+	parseQueryServerId(m_query, targetServerId);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
-	addServers(job, agent, targetServerId, showHostgroupInfo, targetUserId);
+	addServers(this, agent, targetServerId, showHostgroupInfo, targetUserId);
 	agent.endObject();
 
-	job->replyJsonData(agent);
+	replyJsonData(agent);
 }
 
 static HatoholError parseServerParameter(
@@ -349,25 +357,25 @@ static HatoholError parseServerParameter(
 	return HTERR_OK;
 }
 
-void RestResourceServer::handlerPostServer(ResourceHandler *job)
+void RestResourceServer::handlerPostServer(void)
 {
 	MonitoringServerInfo svInfo;
 	ArmPluginInfo        armPluginInfo;
 	ArmPluginInfo::initialize(armPluginInfo);
 	HatoholError err;
 
-	err = parseServerParameter(svInfo, armPluginInfo, job->m_query);
+	err = parseServerParameter(svInfo, armPluginInfo, m_query);
 	if (err != HTERR_OK) {
-		job->replyError(err);
+		replyError(err);
 		return;
 	}
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	err = dataStore->addTargetServer(
 	  svInfo, armPluginInfo,
-	  job->m_dataQueryContextPtr->getOperationPrivilege());
+	  m_dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
-		job->replyError(err);
+		replyError(err);
 		return;
 	}
 
@@ -376,27 +384,27 @@ void RestResourceServer::handlerPostServer(ResourceHandler *job)
 	addHatoholError(agent, err);
 	agent.add("id", svInfo.id);
 	agent.endObject();
-	job->replyJsonData(agent);
+	replyJsonData(agent);
 }
 
-void RestResourceServer::handlerPutServer(ResourceHandler *job)
+void RestResourceServer::handlerPutServer(void)
 {
 	uint64_t serverId;
-	serverId = job->getResourceId();
+	serverId = getResourceId();
 	if (serverId == INVALID_ID) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
-		            "id: %s", job->getResourceIdString().c_str());
+		REPLY_ERROR(this, HTERR_NOT_FOUND_ID_IN_URL,
+		            "id: %s", getResourceIdString().c_str());
 		return;
 	}
 
 	// check the existing record
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	MonitoringServerInfoList serversList;
-	ServerQueryOption option(job->m_dataQueryContextPtr);
+	ServerQueryOption option(m_dataQueryContextPtr);
 	option.setTargetServerId(serverId);
 	dataStore->getTargetServers(serversList, option);
 	if (serversList.empty()) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_TARGET_RECORD,
+		REPLY_ERROR(this, HTERR_NOT_FOUND_TARGET_RECORD,
 		            "id: %" PRIu64, serverId);
 		return;
 	}
@@ -415,16 +423,16 @@ void RestResourceServer::handlerPutServer(ResourceHandler *job)
 	// check the request
 	bool allowEmpty = true;
 	HatoholError err = parseServerParameter(serverInfo, armPluginInfo,
-	                                        job->m_query, allowEmpty);
+	                                        m_query, allowEmpty);
 	if (err != HTERR_OK) {
-		job->replyError(err);
+		replyError(err);
 		return;
 	}
 
 	// try to update
 	err = dataStore->updateTargetServer(serverInfo, armPluginInfo, option);
 	if (err != HTERR_OK) {
-		job->replyError(err);
+		replyError(err);
 		return;
 	}
 
@@ -434,24 +442,24 @@ void RestResourceServer::handlerPutServer(ResourceHandler *job)
 	addHatoholError(agent, err);
 	agent.add("id", serverInfo.id);
 	agent.endObject();
-	job->replyJsonData(agent);
+	replyJsonData(agent);
 }
 
-void RestResourceServer::handlerDeleteServer(ResourceHandler *job)
+void RestResourceServer::handlerDeleteServer(void)
 {
-	uint64_t serverId = job->getResourceId();
+	uint64_t serverId = getResourceId();
 	if (serverId == INVALID_ID) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
-			    "id: %s", job->getResourceIdString().c_str());
+		REPLY_ERROR(this, HTERR_NOT_FOUND_ID_IN_URL,
+			    "id: %s", getResourceIdString().c_str());
 		return;
 	}
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HatoholError err =
 	  dataStore->deleteTargetServer(
-	    serverId, job->m_dataQueryContextPtr->getOperationPrivilege());
+	    serverId, m_dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
-		job->replyError(err);
+		replyError(err);
 		return;
 	}
 
@@ -461,15 +469,15 @@ void RestResourceServer::handlerDeleteServer(ResourceHandler *job)
 	agent.add("id", serverId);
 	agent.endObject();
 
-	job->replyJsonData(agent);
+	replyJsonData(agent);
 }
 
-void RestResourceServer::handlerServerConnStat(ResourceHandler *job)
+void RestResourceServer::handlerServerConnStat(void)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	ServerConnStatusVector serverConnStatVec;
 	dataStore->getServerConnStatusVector(serverConnStatVec,
-	                                     job->m_dataQueryContextPtr);
+	                                     m_dataQueryContextPtr);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -492,16 +500,17 @@ void RestResourceServer::handlerServerConnStat(ResourceHandler *job)
 	agent.endObject(); // serverConnStat
 	agent.endObject();
 
-	job->replyJsonData(agent);
+	replyJsonData(agent);
 }
 
 RestResourceServerFactory::RestResourceServerFactory(
-  FaceRest *faceRest, RestHandler handler)
-: FaceRest::ResourceHandlerFactory(faceRest, handler)
+  FaceRest *faceRest, RestResourceServer::HandlerFunc handler)
+: FaceRest::ResourceHandlerFactory(faceRest, NULL),
+  m_handlerFunc(handler)
 {
 }
 
 FaceRest::ResourceHandler *RestResourceServerFactory::createHandler()
 {
-	return new RestResourceServer(m_faceRest, m_handler);
+	return new RestResourceServer(m_faceRest, m_handlerFunc);
 }

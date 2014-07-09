@@ -24,26 +24,35 @@
 
 struct RestResourceServer : public FaceRest::ResourceHandler
 {
+	typedef void (RestResourceServer::*HandlerFunc)(void);
+
 	static void registerFactories(FaceRest *faceRest);
 
-	RestResourceServer(FaceRest *faceRest, RestHandler handler);
+	RestResourceServer(FaceRest *faceRest, HandlerFunc handler);
 	virtual ~RestResourceServer();
 
-	static void handlerServer(ResourceHandler *job);
-	static void handlerGetServer(ResourceHandler *job);
-	static void handlerPostServer(ResourceHandler *job);
-	static void handlerPutServer(ResourceHandler *job);
-	static void handlerDeleteServer(ResourceHandler *job);
-	static void handlerServerConnStat(ResourceHandler *job);
+	virtual void handle(void) override;
+
+	void handlerServer(void);
+	void handlerGetServer(void);
+	void handlerPostServer(void);
+	void handlerPutServer(void);
+	void handlerDeleteServer(void);
+	void handlerServerConnStat(void);
 
 	static const char *pathForServer;
 	static const char *pathForServerConnStat;
+
+	HandlerFunc m_handlerFunc;
 };
 
 struct RestResourceServerFactory : public FaceRest::ResourceHandlerFactory
 {
-	RestResourceServerFactory(FaceRest *faceRest, RestHandler handler);
+	RestResourceServerFactory(FaceRest *faceRest,
+				  RestResourceServer::HandlerFunc handler);
 	virtual FaceRest::ResourceHandler *createHandler(void) override;
+
+	RestResourceServer::HandlerFunc m_handlerFunc;
 };
 
 #endif // RestResourceServer_h
