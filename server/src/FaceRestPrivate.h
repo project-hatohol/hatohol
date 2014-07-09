@@ -102,13 +102,13 @@ protected:
 
 struct FaceRest::ResourceHandlerFactory
 {
-	FaceRest        *m_faceRest;
-	RestHandlerFunc  m_staticHandlerFunc;
-
 	ResourceHandlerFactory(FaceRest *faceRest, RestHandlerFunc handler);
 	virtual ~ResourceHandlerFactory();
 	virtual ResourceHandler *createHandler(void);
 	static void destroy(gpointer data);
+
+	FaceRest        *m_faceRest;
+	RestHandlerFunc  m_staticHandlerFunc;
 };
 
 #define REPLY_ERROR(JOB, ERR_CODE, ERR_MSG_FMT, ...) \
