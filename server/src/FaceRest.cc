@@ -681,6 +681,7 @@ bool FaceRest::ResourceHandler::setRequest(
 
 void FaceRest::ResourceHandler::handle(void)
 {
+	HATOHOL_ASSERT(m_staticHandlerFunc, "No handler function!");
 	m_staticHandlerFunc(this);
 }
 
