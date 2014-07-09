@@ -55,17 +55,12 @@ static void setActionCondition(
 
 void RestResourceAction::handle(void)
 {
-	handlerAction();
-}
-
-void RestResourceAction::handlerAction(void)
-{
 	if (StringUtils::casecmp(m_message->method, "GET")) {
-		handlerGetAction();
+		handleGet();
 	} else if (StringUtils::casecmp(m_message->method, "POST")) {
-		handlerPostAction();
+		handlePost();
 	} else if (StringUtils::casecmp(m_message->method, "DELETE")) {
-		handlerDeleteAction();
+		handleDelete();
 	} else {
 		MLPL_ERR("Unknown method: %s\n", m_message->method);
 		soup_message_set_status(m_message,
@@ -74,7 +69,7 @@ void RestResourceAction::handlerAction(void)
 	}
 }
 
-void RestResourceAction::handlerGetAction(void)
+void RestResourceAction::handleGet(void)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
@@ -136,7 +131,7 @@ void RestResourceAction::handlerGetAction(void)
 	replyJsonData(agent);
 }
 
-void RestResourceAction::handlerPostAction(void)
+void RestResourceAction::handlePost(void)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
@@ -284,7 +279,7 @@ void RestResourceAction::handlerPostAction(void)
 	replyJsonData(agent);
 }
 
-void RestResourceAction::handlerDeleteAction(void)
+void RestResourceAction::handleDelete(void)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 

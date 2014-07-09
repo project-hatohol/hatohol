@@ -31,10 +31,9 @@ struct RestResourceAction : public FaceRest::ResourceHandler
 
 	virtual void handle(void) override;
 
-	void handlerAction(void);
-	void handlerGetAction(void);
-	void handlerPostAction(void);
-	void handlerDeleteAction(void);
+	void handleGet(void);
+	void handlePost(void);
+	void handleDelete(void);
 
 	static const char *pathForAction;
 };
