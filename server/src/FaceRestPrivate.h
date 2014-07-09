@@ -50,7 +50,7 @@ public:
 	SoupServer *getSoupServer(void);
 	GMainContext *getGMainContext(void);
 	void pauseResponse(void);
-	void unpauseResponse(void);
+	bool unpauseResponse(bool force = false);
 
 	std::string getResourceName(int nest = 0);
 	std::string getResourceIdString(int nest = 0);
