@@ -29,7 +29,7 @@ static const uint64_t INVALID_ID = -1;
 typedef std::map<TriggerIdType, std::string> TriggerBriefMap;
 typedef std::map<ServerIdType, TriggerBriefMap> TriggerBriefMaps;
 
-typedef void (*RestHandler) (FaceRest::ResourceHandler *job);
+typedef void (*RestHandlerFunc) (FaceRest::ResourceHandler *job);
 
 enum FormatType {
 	FORMAT_HTML,
@@ -40,7 +40,7 @@ enum FormatType {
 struct FaceRest::ResourceHandler : public UsedCountable
 {
 public:
-	ResourceHandler(FaceRest *faceRest, RestHandler handler);
+	ResourceHandler(FaceRest *faceRest, RestHandlerFunc handler);
 	virtual ~ResourceHandler();
 	virtual bool setRequest(SoupMessage *msg,
 				const char *path,
@@ -69,8 +69,8 @@ public:
 	                            const HatoholError &err);
 
 public:
-	FaceRest   *m_faceRest;
-	RestHandler m_staticHandler;
+	FaceRest          *m_faceRest;
+	RestHandlerFunc    m_staticHandlerFunc;
 
 	// arguments of SoupServerCallback
 	SoupMessage       *m_message;
@@ -97,10 +97,10 @@ protected:
 
 struct FaceRest::ResourceHandlerFactory
 {
-	FaceRest *m_faceRest;
-	RestHandler m_staticHandler;
+	FaceRest        *m_faceRest;
+	RestHandlerFunc  m_staticHandlerFunc;
 
-	ResourceHandlerFactory(FaceRest *faceRest, RestHandler handler);
+	ResourceHandlerFactory(FaceRest *faceRest, RestHandlerFunc handler);
 	virtual ~ResourceHandlerFactory();
 	virtual ResourceHandler *createHandler(void);
 	static void destroy(gpointer data);

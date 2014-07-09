@@ -647,10 +647,10 @@ void FaceRest::handlerLogout(ResourceHandler *job)
 // ---------------------------------------------------------------------------
 
 FaceRest::ResourceHandler::ResourceHandler(FaceRest *faceRest,
-					   RestHandler handler)
-: m_faceRest(faceRest), m_staticHandler(handler), m_message(NULL), m_path(),
-  m_query(NULL), m_client(NULL), m_mimeType(NULL), m_userId(INVALID_USER_ID),
-  m_replyIsPrepared(false)
+					   RestHandlerFunc handler)
+: m_faceRest(faceRest), m_staticHandlerFunc(handler), m_message(NULL),
+  m_path(), m_query(NULL), m_client(NULL), m_mimeType(NULL),
+  m_userId(INVALID_USER_ID), m_replyIsPrepared(false)
 {
 }
 
@@ -681,7 +681,7 @@ bool FaceRest::ResourceHandler::setRequest(
 
 void FaceRest::ResourceHandler::handle(void)
 {
-	m_staticHandler(this);
+	m_staticHandlerFunc(this);
 }
 
 SoupServer *FaceRest::ResourceHandler::getSoupServer(void)
@@ -938,8 +938,8 @@ void FaceRest::ResourceHandler::addHatoholError(JsonBuilderAgent &agent,
 
 
 FaceRest::ResourceHandlerFactory::ResourceHandlerFactory(
-  FaceRest *faceRest, RestHandler handler)
-: m_faceRest(faceRest), m_staticHandler(handler)
+  FaceRest *faceRest, RestHandlerFunc handler)
+: m_faceRest(faceRest), m_staticHandlerFunc(handler)
 {
 }
 
@@ -957,5 +957,5 @@ void FaceRest::ResourceHandlerFactory::destroy(gpointer data)
 FaceRest::ResourceHandler *
 FaceRest::ResourceHandlerFactory::createHandler(void)
 {
-	return new ResourceHandler(m_faceRest, m_staticHandler);
+	return new ResourceHandler(m_faceRest, m_staticHandlerFunc);
 }
