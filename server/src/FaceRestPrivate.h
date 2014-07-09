@@ -46,7 +46,10 @@ public:
 				const char *path,
 				GHashTable *query,
 				SoupClientContext *client);
+
 	virtual void handle(void);
+	void launchInTryBlock(void);
+
 	SoupServer *getSoupServer(void);
 	GMainContext *getGMainContext(void);
 	void pauseResponse(void);

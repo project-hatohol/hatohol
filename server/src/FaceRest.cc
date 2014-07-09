@@ -188,7 +188,7 @@ protected:
 		ResourceHandler *job;
 		MLPL_INFO("start face-rest worker\n");
 		while ((job = waitNextJob())) {
-			launchHandlerInTryBlock(job);
+			job->launchInTryBlock();
 			job->unpauseResponse();
 			job->unref();
 		}
@@ -487,19 +487,9 @@ void FaceRest::PrivateContext::queueRestJob
 	if (face->isAsyncMode()) {
 		face->m_ctx->pushJob(job);
 	} else {
-		launchHandlerInTryBlock(job);
+		job->launchInTryBlock();
 		job->unpauseResponse();
 		job->unref();
-	}
-}
-
-void FaceRest::launchHandlerInTryBlock(ResourceHandler *job)
-{
-	try {
-		job->handle();
-	} catch (const HatoholException &e) {
-		REPLY_ERROR(job, HTERR_GOT_EXCEPTION,
-		            "%s", e.getFancyMessage().c_str());
 	}
 }
 
@@ -665,6 +655,16 @@ void FaceRest::ResourceHandler::handle(void)
 {
 	HATOHOL_ASSERT(m_staticHandlerFunc, "No handler function!");
 	m_staticHandlerFunc(this);
+}
+
+void FaceRest::ResourceHandler::launchInTryBlock(void)
+{
+	try {
+		handle();
+	} catch (const HatoholException &e) {
+		REPLY_ERROR(this, HTERR_GOT_EXCEPTION,
+		            "%s", e.getFancyMessage().c_str());
+	}
 }
 
 SoupServer *FaceRest::ResourceHandler::getSoupServer(void)
