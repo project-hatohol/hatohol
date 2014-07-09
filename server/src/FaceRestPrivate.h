@@ -66,6 +66,9 @@ public:
 	void addServersMap(JsonBuilderAgent &agent,
 			   TriggerBriefMaps *triggerMaps = NULL,
 			   bool lookupTriggerBrief = false);
+	HatoholError addHostgroupsMap(JsonBuilderAgent &outputJson,
+				      const MonitoringServerInfo &serverInfo,
+				      HostgroupInfoList &hostgroupList);
 
 	static void addHatoholError(JsonBuilderAgent &agent,
 	                            const HatoholError &err);
