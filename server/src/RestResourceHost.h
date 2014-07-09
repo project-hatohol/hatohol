@@ -24,18 +24,23 @@
 
 struct RestResourceHost : public FaceRest::ResourceHandler
 {
+	typedef void (RestResourceHost::*HandlerFunc)(void);
+
 	static void registerFactories(FaceRest *faceRest);
 
-	RestResourceHost(FaceRest *faceRest, RestHandler handler);
+	RestResourceHost(FaceRest *faceRest, HandlerFunc handler);
 	virtual ~RestResourceHost();
 
-	static void handlerGetOverview(ResourceHandler *job);
-	static void handlerGetHost(ResourceHandler *job);
-	static void handlerGetTrigger(ResourceHandler *job);
-	static void handlerGetEvent(ResourceHandler *job);
-	static void handlerGetHostgroup(ResourceHandler *job);
-	static void handlerGetItem(ResourceHandler *job);
-	static void replyGetItem(ResourceHandler *job);
+	virtual void handle(void) override;
+
+	void handlerGetOverview(void);
+	void handlerGetHost(void);
+	void handlerGetTrigger(void);
+	void handlerGetEvent(void);
+	void handlerGetHostgroup(void);
+	void handlerGetItem(void);
+	void replyGetItem(void);
+	void itemFetchedCallback(ClosureBase *closure);
 
 	static HatoholError parseEventParameter(EventsQueryOption &option,
 						GHashTable *query);
@@ -46,12 +51,17 @@ struct RestResourceHost : public FaceRest::ResourceHandler
 	static const char *pathForEvent;
 	static const char *pathForItem;
 	static const char *pathForHostgroup;
+
+	HandlerFunc m_handlerFunc;
 };
 
 struct RestResourceHostFactory : public FaceRest::ResourceHandlerFactory
 {
-	RestResourceHostFactory(FaceRest *faceRest, RestHandler handler);
+	RestResourceHostFactory(FaceRest *faceRest,
+				RestResourceHost::HandlerFunc handler);
 	virtual FaceRest::ResourceHandler *createHandler(void) override;
+
+	RestResourceHost::HandlerFunc m_handlerFunc;
 };
 
 #endif // RestResourceHost_h

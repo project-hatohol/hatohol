@@ -68,9 +68,6 @@ public:
 	static void addHatoholError(JsonBuilderAgent &agent,
 	                            const HatoholError &err);
 
-        // TODO: Move to RestResourceHost
-	void itemFetchedCallback(ClosureBase *closure);
-
 public:
 	FaceRest   *m_faceRest;
 	RestHandler m_staticHandler;

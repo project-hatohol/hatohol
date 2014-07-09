@@ -35,32 +35,43 @@ void RestResourceHost::registerFactories(FaceRest *faceRest)
 {
 	faceRest->addResourceHandlerFactory(
 	  pathForOverview,
-	  new RestResourceHostFactory(faceRest, handlerGetOverview));
+	  new RestResourceHostFactory(
+	    faceRest, &RestResourceHost::handlerGetOverview));
 	faceRest->addResourceHandlerFactory(
 	  pathForHost,
-	  new RestResourceHostFactory(faceRest, handlerGetHost));
+	  new RestResourceHostFactory(
+	    faceRest, &RestResourceHost::handlerGetHost));
 	faceRest->addResourceHandlerFactory(
 	  pathForHostgroup,
-	  new RestResourceHostFactory(faceRest, handlerGetHostgroup));
+	  new RestResourceHostFactory(
+	    faceRest, &RestResourceHost::handlerGetHostgroup));
 	faceRest->addResourceHandlerFactory(
 	  pathForTrigger,
-	  new RestResourceHostFactory(faceRest, handlerGetTrigger));
+	  new RestResourceHostFactory(
+	    faceRest, &RestResourceHost::handlerGetTrigger));
 	faceRest->addResourceHandlerFactory(
 	  pathForEvent,
-	  new RestResourceHostFactory(faceRest, handlerGetEvent));
+	  new RestResourceHostFactory(
+	    faceRest, &RestResourceHost::handlerGetEvent));
 	faceRest->addResourceHandlerFactory(
 	  pathForItem,
-	  new RestResourceHostFactory(faceRest, handlerGetItem));
+	  new RestResourceHostFactory(
+	    faceRest, &RestResourceHost::handlerGetItem));
 }
 
-RestResourceHost::RestResourceHost(
-  FaceRest *faceRest, RestHandler handler)
-: FaceRest::ResourceHandler(faceRest, handler)
+RestResourceHost::RestResourceHost(FaceRest *faceRest, HandlerFunc handler)
+: FaceRest::ResourceHandler(faceRest, NULL), m_handlerFunc(handler)
 {
 }
 
 RestResourceHost::~RestResourceHost()
 {
+}
+
+void RestResourceHost::handle(void)
+{
+	HATOHOL_ASSERT(m_handlerFunc, "No handler function!");
+	(this->*m_handlerFunc)();
 }
 
 static HatoholError parseSortTypeFromQuery(
@@ -581,50 +592,50 @@ void FaceRest::ResourceHandler::addServersMap(
 	agent.endObject();
 }
 
-void RestResourceHost::handlerGetOverview(ResourceHandler *job)
+void RestResourceHost::handlerGetOverview(void)
 {
 	JsonBuilderAgent agent;
 	HatoholError err;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
-	err = addOverview(job, agent);
+	err = addOverview(this, agent);
 	if (err != HTERR_OK) {
-		job->replyError(err);
+		replyError(err);
 		return;
 	}
 	agent.endObject();
 
-	job->replyJsonData(agent);
+	replyJsonData(agent);
 }
 
-void RestResourceHost::handlerGetHost(ResourceHandler *job)
+void RestResourceHost::handlerGetHost(void)
 {
-	HostsQueryOption option(job->m_dataQueryContextPtr);
+	HostsQueryOption option(m_dataQueryContextPtr);
 	HatoholError err
-	  = parseHostResourceQueryParameter(option, job->m_query);
+	  = parseHostResourceQueryParameter(option, m_query);
 	if (err != HTERR_OK) {
-		job->replyError(err);
+		replyError(err);
 		return;
 	}
 
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
-	addHosts(job, agent,
+	addHosts(this, agent,
 		 option.getTargetServerId(),
 		 option.getTargetHostgroupId(),
 		 option.getTargetHostId());
 	agent.endObject();
 
-	job->replyJsonData(agent);
+	replyJsonData(agent);
 }
 
-void RestResourceHost::handlerGetTrigger(ResourceHandler *job)
+void RestResourceHost::handlerGetTrigger(void)
 {
-	TriggersQueryOption option(job->m_dataQueryContextPtr);
-	HatoholError err = parseTriggerParameter(option, job->m_query);
+	TriggersQueryOption option(m_dataQueryContextPtr);
+	HatoholError err = parseTriggerParameter(option, m_query);
 	if (err != HTERR_OK) {
-		job->replyError(err);
+		replyError(err);
 		return;
 	}
 
@@ -652,10 +663,10 @@ void RestResourceHost::handlerGetTrigger(ResourceHandler *job)
 	}
 	agent.endArray();
 	agent.add("numberOfTriggers", triggerList.size());
-	job->addServersMap(agent, NULL, false);
+	addServersMap(agent, NULL, false);
 	agent.endObject();
 
-	job->replyJsonData(agent);
+	replyJsonData(agent);
 }
 
 static uint64_t getLastUnifiedEventId(FaceRest::ResourceHandler *job)
@@ -686,15 +697,15 @@ static void addIssue(FaceRest::ResourceHandler *job, JsonBuilderAgent &agent,
 	agent.endObject();
 }
 
-void RestResourceHost::handlerGetEvent(ResourceHandler *job)
+void RestResourceHost::handlerGetEvent(void)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	EventInfoList eventList;
-	EventsQueryOption option(job->m_dataQueryContextPtr);
-	HatoholError err = parseEventParameter(option, job->m_query);
+	EventsQueryOption option(m_dataQueryContextPtr);
+	HatoholError err = parseEventParameter(option, m_query);
 	if (err != HTERR_OK) {
-		job->replyError(err);
+		replyError(err);
 		return;
 	}
 
@@ -709,7 +720,7 @@ void RestResourceHost::handlerGetEvent(ResourceHandler *job)
 		err = dataStore->getEventList(eventList, option);
 	}
 	if (err != HTERR_OK) {
-		job->replyError(err);
+		replyError(err);
 		return;
 	}
 
@@ -717,7 +728,7 @@ void RestResourceHost::handlerGetEvent(ResourceHandler *job)
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
 	// TODO: should use transaction to avoid conflicting with event list
-	agent.add("lastUnifiedEventId", getLastUnifiedEventId(job));
+	agent.add("lastUnifiedEventId", getLastUnifiedEventId(this));
 	if (addIssues)
 		agent.addTrue("haveIssue");
 	else
@@ -737,22 +748,22 @@ void RestResourceHost::handlerGetEvent(ResourceHandler *job)
 		agent.add("hostId",    eventInfo.hostId);
 		agent.add("brief",     eventInfo.brief);
 		if (addIssues)
-			addIssue(job, agent, issueVect[i]);
+			addIssue(this, agent, issueVect[i]);
 		agent.endObject();
 	}
 	agent.endArray();
 	agent.add("numberOfEvents", eventList.size());
-	job->addServersMap(agent, NULL, false);
+	addServersMap(agent, NULL, false);
 	agent.endObject();
 
-	job->replyJsonData(agent);
+	replyJsonData(agent);
 }
 
-struct GetItemClosure : Closure<FaceRest::ResourceHandler>
+struct GetItemClosure : Closure<RestResourceHost>
 {
-	GetItemClosure(FaceRest::ResourceHandler *receiver,
+	GetItemClosure(RestResourceHost *receiver,
 		       callback func)
-	: Closure<FaceRest::ResourceHandler>::Closure(receiver, func)
+	: Closure<RestResourceHost>::Closure(receiver, func)
 	{
 		m_receiver->ref();
 	}
@@ -763,12 +774,12 @@ struct GetItemClosure : Closure<FaceRest::ResourceHandler>
 	}
 };
 
-void RestResourceHost::replyGetItem(ResourceHandler *job)
+void RestResourceHost::replyGetItem(void)
 {
-	ItemsQueryOption option(job->m_dataQueryContextPtr);
-	HatoholError err = parseItemParameter(option, job->m_query);
+	ItemsQueryOption option(m_dataQueryContextPtr);
+	HatoholError err = parseItemParameter(option, m_query);
 	if (err != HTERR_OK) {
-		job->replyError(err);
+		replyError(err);
 		return;
 	}
 
@@ -797,25 +808,24 @@ void RestResourceHost::replyGetItem(ResourceHandler *job)
 	}
 	agent.endArray();
 	agent.add("numberOfItems", itemList.size());
-	job->addServersMap(agent, NULL, false);
+	addServersMap(agent, NULL, false);
 	agent.endObject();
 
-	job->replyJsonData(agent);
+	replyJsonData(agent);
 }
 
-// TODO: Move to RestResourceHost
-void FaceRest::ResourceHandler::itemFetchedCallback(ClosureBase *closure)
+void RestResourceHost::itemFetchedCallback(ClosureBase *closure)
 {
-	RestResourceHost::replyGetItem(this);
+	replyGetItem();
 	unpauseResponse();
 }
 
-void RestResourceHost::handlerGetItem(ResourceHandler *job)
+void RestResourceHost::handlerGetItem(void)
 {
-	ItemsQueryOption option(job->m_dataQueryContextPtr);
-	HatoholError err = parseItemParameter(option, job->m_query);
+	ItemsQueryOption option(m_dataQueryContextPtr);
+	HatoholError err = parseItemParameter(option, m_query);
 	if (err != HTERR_OK) {
-		job->replyError(err);
+		replyError(err);
 		return;
 	}
 
@@ -823,11 +833,11 @@ void RestResourceHost::handlerGetItem(ResourceHandler *job)
 	ServerIdType serverId = option.getTargetServerId();
 	GetItemClosure *closure =
 	  new GetItemClosure(
-	    job, &FaceRest::ResourceHandler::itemFetchedCallback);
+	    this, &RestResourceHost::itemFetchedCallback);
 
 	bool handled = dataStore->fetchItemsAsync(closure, serverId);
 	if (!handled) {
-		replyGetItem(job);
+		replyGetItem();
 		delete closure;
 	}
 }
@@ -853,13 +863,13 @@ static void addHostsIsMemberOfGroup(
 	agent.endArray();
 }
 
-void RestResourceHost::handlerGetHostgroup(ResourceHandler *job)
+void RestResourceHost::handlerGetHostgroup(void)
 {
-	HostgroupsQueryOption option(job->m_dataQueryContextPtr);
+	HostgroupsQueryOption option(m_dataQueryContextPtr);
 	HatoholError err
-	  = parseHostResourceQueryParameter(option, job->m_query);
+	  = parseHostResourceQueryParameter(option, m_query);
 	if (err != HTERR_OK) {
-		job->replyError(err);
+		replyError(err);
 		return;
 	}
 
@@ -880,7 +890,7 @@ void RestResourceHost::handlerGetHostgroup(ResourceHandler *job)
 		agent.add("serverId", hostgroupInfo.serverId);
 		agent.add("groupId", hostgroupInfo.groupId);
 		agent.add("groupName", hostgroupInfo.groupName.c_str());
-		addHostsIsMemberOfGroup(job, agent,
+		addHostsIsMemberOfGroup(this, agent,
 		                        hostgroupInfo.serverId,
 		                        hostgroupInfo.groupId);
 		agent.endObject();
@@ -888,16 +898,16 @@ void RestResourceHost::handlerGetHostgroup(ResourceHandler *job)
 	agent.endArray();
 	agent.endObject();
 
-	job->replyJsonData(agent);
+	replyJsonData(agent);
 }
 
 RestResourceHostFactory::RestResourceHostFactory(
-  FaceRest *faceRest, RestHandler handler)
-: FaceRest::ResourceHandlerFactory(faceRest, handler)
+  FaceRest *faceRest, RestResourceHost::HandlerFunc handler)
+: FaceRest::ResourceHandlerFactory(faceRest, NULL), m_handlerFunc(handler)
 {
 }
 
 FaceRest::ResourceHandler *RestResourceHostFactory::createHandler()
 {
-	return new RestResourceHost(m_faceRest, m_staticHandler);
+	return new RestResourceHost(m_faceRest, m_handlerFunc);
 }
