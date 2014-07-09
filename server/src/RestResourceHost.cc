@@ -271,42 +271,6 @@ static HatoholError parseItemParameter(ItemsQueryOption &option,
 	return HatoholError(HTERR_OK);
 }
 
-static HatoholError
-addHostgroupsMap(FaceRest::ResourceHandler *job, JsonBuilderAgent &outputJson,
-                 const MonitoringServerInfo &serverInfo,
-                 HostgroupInfoList &hostgroupList)
-{
-	HostgroupsQueryOption option(job->m_dataQueryContextPtr);
-	option.setTargetServerId(serverInfo.id);
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HatoholError err = dataStore->getHostgroupInfoList(hostgroupList,
-	                                                   option);
-	if (err != HTERR_OK) {
-		MLPL_ERR("Error: %d, user ID: %" FMT_USER_ID ", "
-		         "sv ID: %" FMT_SERVER_ID "\n",
-		         err.getCode(), job->m_userId, serverInfo.id);
-		return err;
-	}
-
-	HostgroupInfoListIterator it = hostgroupList.begin();
-	for (; it != hostgroupList.end(); ++it) {
-		const HostgroupInfo &hostgroupInfo = *it;
-		outputJson.startObject(
-		  StringUtils::toString(hostgroupInfo.groupId));
-		outputJson.add("name", hostgroupInfo.groupName);
-		outputJson.endObject();
-	}
-	return HTERR_OK;
-}
-
-static HatoholError
-addHostgroupsMap(FaceRest::ResourceHandler *job, JsonBuilderAgent &outputJson,
-                 const MonitoringServerInfo &serverInfo)
-{
-	HostgroupInfoList hostgroupList;
-	return addHostgroupsMap(job, outputJson, serverInfo, hostgroupList);
-}
-
 static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 					  JsonBuilderAgent &agent,
 					  MonitoringServerInfo &svInfo,
@@ -365,7 +329,7 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 	//       after host group is supported in Hatohol server.
 	agent.startObject("hostgroups");
 	HostgroupInfoList hostgroupInfoList;
-	err = addHostgroupsMap(job, agent, svInfo, hostgroupInfoList);
+	err = job->addHostgroupsMap(agent, svInfo, hostgroupInfoList);
 	if (err != HTERR_OK) {
 		HostgroupInfo hgrpInfo;
 		hgrpInfo.id = 0;
@@ -452,6 +416,22 @@ static HatoholError addOverview(FaceRest::ResourceHandler *job, JsonBuilderAgent
 	return HTERR_OK;
 }
 
+void RestResourceHost::handlerGetOverview(void)
+{
+	JsonBuilderAgent agent;
+	HatoholError err;
+	agent.startObject();
+	addHatoholError(agent, HatoholError(HTERR_OK));
+	err = addOverview(this, agent);
+	if (err != HTERR_OK) {
+		replyError(err);
+		return;
+	}
+	agent.endObject();
+
+	replyJsonData(agent);
+}
+
 static void addHosts(FaceRest::ResourceHandler *job, JsonBuilderAgent &agent,
                      const ServerIdType &targetServerId,
                      const HostgroupIdType &targetHostgroupId,
@@ -477,135 +457,6 @@ static void addHosts(FaceRest::ResourceHandler *job, JsonBuilderAgent &agent,
 		agent.endObject();
 	}
 	agent.endArray();
-}
-
-static void addHostsMap(
-  FaceRest::ResourceHandler *job, JsonBuilderAgent &agent,
-  const MonitoringServerInfo &serverInfo)
-{
-	HostgroupIdType targetHostgroupId = ALL_HOST_GROUPS;
-	char *value = (char *)g_hash_table_lookup(job->m_query, "hostgroupId");
-	if (value)
-		sscanf(value, "%" FMT_HOST_GROUP_ID, &targetHostgroupId);
-
-	HostInfoList hostList;
-	HostsQueryOption option(job->m_dataQueryContextPtr);
-	option.setTargetServerId(serverInfo.id);
-	option.setTargetHostgroupId(targetHostgroupId);
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	dataStore->getHostList(hostList, option);
-	HostInfoListIterator it = hostList.begin();
-	agent.startObject("hosts");
-	for (; it != hostList.end(); ++it) {
-		HostInfo &host = *it;
-		agent.startObject(StringUtils::toString(host.id));
-		agent.add("name", host.hostName);
-		agent.endObject();
-	}
-	agent.endObject();
-}
-
-static string getTriggerBrief(
-  FaceRest::ResourceHandler *job, const ServerIdType serverId, const TriggerIdType triggerId)
-{
-	string triggerBrief;
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	TriggerInfoList triggerInfoList;
-	TriggersQueryOption triggersQueryOption(job->m_dataQueryContextPtr);
-	triggersQueryOption.setTargetServerId(serverId);
-	triggersQueryOption.setTargetId(triggerId);
-	dataStore->getTriggerList(triggerInfoList, triggersQueryOption);
-
-	TriggerInfoListIterator it = triggerInfoList.begin();
-	TriggerInfo &firstTriggerInfo = *it;
-	TriggerIdType firstId = firstTriggerInfo.id;
-	for (; it != triggerInfoList.end(); ++it) {
-		TriggerInfo &triggerInfo = *it;
-		if (firstId == triggerInfo.id) {
-			triggerBrief = triggerInfo.brief;
-		} else {
-			MLPL_WARN("Failed to getTriggerInfo: "
-			          "%" FMT_SERVER_ID ", %" FMT_TRIGGER_ID "\n",
-			          serverId, triggerId);
-		}
-	}
-
-	return triggerBrief;
-}
-
-static void addTriggersIdBriefHash(
-  FaceRest::ResourceHandler *job,
-  JsonBuilderAgent &agent, const MonitoringServerInfo &serverInfo,
-  TriggerBriefMaps &triggerMaps, bool lookupTriggerBrief = false)
-{
-	TriggerBriefMaps::iterator server_it = triggerMaps.find(serverInfo.id);
-	agent.startObject("triggers");
-	ServerIdType serverId = server_it->first;
-	TriggerBriefMap &triggers = server_it->second;
-	TriggerBriefMap::iterator it = triggers.begin();
-	for (; server_it != triggerMaps.end() && it != triggers.end(); ++it) {
-		TriggerIdType triggerId = it->first;
-		string &triggerBrief = it->second;
-		if (lookupTriggerBrief)
-			triggerBrief = getTriggerBrief(job,
-						       serverId,
-						       triggerId);
-		agent.startObject(StringUtils::toString(triggerId));
-		agent.add("brief", triggerBrief);
-		agent.endObject();
-	}
-	agent.endObject();
-}
-
-void FaceRest::ResourceHandler::addServersMap(
-  JsonBuilderAgent &agent,
-  TriggerBriefMaps *triggerMaps, bool lookupTriggerBrief)
-{
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	MonitoringServerInfoList monitoringServers;
-	ServerQueryOption option(m_dataQueryContextPtr);
-	dataStore->getTargetServers(monitoringServers, option);
-
-	HatoholError err;
-	agent.startObject("servers");
-	MonitoringServerInfoListIterator it = monitoringServers.begin();
-	for (; it != monitoringServers.end(); ++it) {
-		const MonitoringServerInfo &serverInfo = *it;
-		agent.startObject(StringUtils::toString(serverInfo.id));
-		agent.add("name", serverInfo.hostName);
-		agent.add("type", serverInfo.type);
-		agent.add("ipAddress", serverInfo.ipAddress);
-		addHostsMap(this, agent, serverInfo);
-		if (triggerMaps) {
-			addTriggersIdBriefHash(this, agent, serverInfo,
-					       *triggerMaps,
-			                       lookupTriggerBrief);
-		}
-		agent.startObject("groups");
-		// Even if the following function retrun an error,
-		// We cannot do anything. The receiver (client) should handle
-		// the returned empty or unperfect group information.
-		addHostgroupsMap(this, agent, serverInfo);
-		agent.endObject(); // "gropus"
-		agent.endObject(); // toString(serverInfo.id)
-	}
-	agent.endObject();
-}
-
-void RestResourceHost::handlerGetOverview(void)
-{
-	JsonBuilderAgent agent;
-	HatoholError err;
-	agent.startObject();
-	addHatoholError(agent, HatoholError(HTERR_OK));
-	err = addOverview(this, agent);
-	if (err != HTERR_OK) {
-		replyError(err);
-		return;
-	}
-	agent.endObject();
-
-	replyJsonData(agent);
 }
 
 void RestResourceHost::handlerGetHost(void)
