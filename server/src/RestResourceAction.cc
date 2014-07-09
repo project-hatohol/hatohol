@@ -47,10 +47,10 @@ static void setActionCondition(
   const string &member, ActionConditionEnableFlag bit,
   T value)
 {
-		if (cond.isEnable(bit))
-			agent.add(member, value);
-		else
-			agent.addNull(member);
+	if (cond.isEnable(bit))
+		agent.add(member, value);
+	else
+		agent.addNull(member);
 }
 
 void RestResourceAction::handle(void)
