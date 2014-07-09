@@ -189,7 +189,8 @@ protected:
 		MLPL_INFO("start face-rest worker\n");
 		while ((job = waitNextJob())) {
 			launchHandlerInTryBlock(job);
-			finishRestJobIfNeeded(job);
+			job->unpauseResponse();
+			job->unref();
 		}
 		MLPL_INFO("exited face-rest worker\n");
 		return NULL;
@@ -487,15 +488,9 @@ void FaceRest::PrivateContext::queueRestJob
 		face->m_ctx->pushJob(job);
 	} else {
 		launchHandlerInTryBlock(job);
-		finishRestJobIfNeeded(job);
-	}
-}
-
-void FaceRest::finishRestJobIfNeeded(ResourceHandler *job)
-{
-	if (job->m_replyIsPrepared)
 		job->unpauseResponse();
-	job->unref();
+		job->unref();
+	}
 }
 
 void FaceRest::launchHandlerInTryBlock(ResourceHandler *job)
@@ -799,8 +794,11 @@ static gboolean idleUnpause(gpointer data)
 	return FALSE;
 }
 
-void FaceRest::ResourceHandler::unpauseResponse(void)
+bool FaceRest::ResourceHandler::unpauseResponse(bool force)
 {
+	if (!m_replyIsPrepared && !force)
+		return false;
+
 	if (g_main_context_acquire(getGMainContext())) {
 		// FaceRest thread
 		soup_server_unpause_message(getSoupServer(), m_message);
@@ -813,6 +811,8 @@ void FaceRest::ResourceHandler::unpauseResponse(void)
 		soup_add_completion(getGMainContext(), idleUnpause,
 				    unpauseContext);
 	}
+
+	return true;
 }
 
 string FaceRest::ResourceHandler::getResourceName(int nest)
