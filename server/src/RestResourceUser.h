@@ -53,6 +53,22 @@ struct RestResourceUser : public FaceRest::ResourceHandler
 	void handlerPutUserRole(void);
 	void handlerDeleteUserRole(void);
 
+	/**
+	 * Update the user informformation if 'name' specifined in 'query'
+	 * exits in the DB. Otherwise, the user is newly added.
+	 * NOTE: This method is currently used for test purpose.
+	 *
+	 * @param query
+	 * A hash table that has query parameters in the URL.
+	 *
+	 * @param option
+	 * A UserQueryOption used for the query.
+	 *
+	 * @return A HatoholError is returned.
+	 */
+	static HatoholError updateOrAddUser(GHashTable *query,
+	                                    UserQueryOption &option);
+
 	static const char *pathForUser;
 	static const char *pathForUserRole;
 	static const std::string pathForUserMe;
