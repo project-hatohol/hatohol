@@ -30,6 +30,7 @@
 #include <uuid/uuid.h>
 #include <semaphore.h>
 #include "FaceRest.h"
+#include "FaceRestPrivate.h"
 #include "JsonBuilderAgent.h"
 #include "HatoholException.h"
 #include "UnifiedDataStore.h"
@@ -39,6 +40,10 @@
 #include "CacheServiceDBClient.h"
 #include "HatoholArmPluginInterface.h"
 #include "HatoholArmPluginGate.h"
+#include "RestResourceAction.h"
+#include "RestResourceHost.h"
+#include "RestResourceServer.h"
+#include "RestResourceUser.h"
 
 using namespace std;
 using namespace mlpl;
@@ -47,54 +52,23 @@ int FaceRest::API_VERSION = 3;
 const char *FaceRest::SESSION_ID_HEADER_NAME = "X-Hatohol-Session";
 const int FaceRest::DEFAULT_NUM_WORKERS = 4;
 
-typedef void (*RestHandler) (FaceRest::RestJob *job);
-
-typedef map<HostIdType, string> HostNameMap;
-typedef map<ServerIdType, HostNameMap> HostNameMaps;
-
-typedef map<TriggerIdType, string> TriggerBriefMap;
-typedef map<ServerIdType, TriggerBriefMap> TriggerBriefMaps;
-
 static const guint DEFAULT_PORT = 33194;
 
-const char *FaceRest::pathForTest        = "/test";
-const char *FaceRest::pathForLogin       = "/login";
-const char *FaceRest::pathForLogout      = "/logout";
-const char *FaceRest::pathForGetOverview = "/overview";
-const char *FaceRest::pathForServer      = "/server";
-const char *FaceRest::pathForServerConnStat = "/server-conn-stat";
-const char *FaceRest::pathForGetHost     = "/host";
-const char *FaceRest::pathForGetTrigger  = "/trigger";
-const char *FaceRest::pathForGetEvent    = "/event";
-const char *FaceRest::pathForGetItem     = "/item";
-const char *FaceRest::pathForAction      = "/action";
-const char *FaceRest::pathForUser        = "/user";
-const char *FaceRest::pathForHostgroup   = "/hostgroup";
-const char *FaceRest::pathForUserRole    = "/user-role";
+const char *FaceRest::pathForTest   = "/test";
+const char *FaceRest::pathForLogin  = "/login";
+const char *FaceRest::pathForLogout = "/logout";
 
 static const char *MIME_HTML = "text/html";
 static const char *MIME_JSON = "application/json";
 static const char *MIME_JAVASCRIPT = "text/javascript";
 
-#define REPLY_ERROR(ARG, ERR_CODE, ERR_MSG_FMT, ...) \
-do { \
-	string optMsg = StringUtils::sprintf(ERR_MSG_FMT, ##__VA_ARGS__); \
-	replyError(ARG, ERR_CODE, optMsg); \
-} while (0)
-
-#define RETURN_IF_NOT_TEST_MODE(ARG) \
+#define RETURN_IF_NOT_TEST_MODE(JOB) \
 do { \
 	if (!isTestMode()) { \
-		replyError(ARG, HTERR_NOT_TEST_MODE); \
+		JOB->replyError(HTERR_NOT_TEST_MODE); \
 		return; \
 	}\
 } while(0)
-
-enum FormatType {
-	FORMAT_HTML,
-	FORMAT_JSON,
-	FORMAT_JSONP,
-};
 
 typedef map<string, FormatType> FormatTypeMap;
 typedef FormatTypeMap::iterator FormatTypeMapIterator;
@@ -108,7 +82,6 @@ struct FaceRest::PrivateContext {
 	struct MainThreadCleaner;
 	static bool         testMode;
 	static MutexLock    lock;
-	static const string pathForUserMe;
 	guint               port;
 	SoupServer         *soupServer;
 	GMainContext       *gMainCtx;
@@ -116,12 +89,12 @@ struct FaceRest::PrivateContext {
 	AtomicValue<bool>   quitRequest;
 
 	// for async mode
-	bool                asyncMode;
-	size_t              numPreLoadWorkers;
-	set<Worker *>       workers;
-	queue<RestJob *>    restJobQueue;
-	MutexLock           restJobLock;
-	sem_t               waitJobSemaphore;
+	bool             asyncMode;
+	size_t           numPreLoadWorkers;
+	set<Worker *>    workers;
+	queue<ResourceHandler *> restJobQueue;
+	MutexLock        restJobLock;
+	sem_t            waitJobSemaphore;
 
 	PrivateContext(FaceRestParam *_param)
 	: port(DEFAULT_PORT),
@@ -136,18 +109,13 @@ struct FaceRest::PrivateContext {
 		sem_init(&waitJobSemaphore, 0, 0);
 	}
 
-	virtual ~PrivateContext()
+	~PrivateContext()
 	{
 		g_main_context_unref(gMainCtx);
 		sem_destroy(&waitJobSemaphore);
 	}
 
-	static string initPathForUserMe(void)
-	{
-		return string(FaceRest::pathForUser) + "/me";
-	}
-
-	void pushJob(RestJob *job)
+	void pushJob(ResourceHandler *job)
 	{
 		restJobLock.lock();
 		restJobQueue.push(job);
@@ -164,9 +132,9 @@ struct FaceRest::PrivateContext {
 		return !quitRequest.get();
 	}
 
-	RestJob *popJob(void)
+	ResourceHandler *popJob(void)
 	{
-		RestJob *job = NULL;
+		ResourceHandler *job = NULL;
 		restJobLock.lock();
 		if (!restJobQueue.empty()) {
 			job = restJobQueue.front();
@@ -175,6 +143,17 @@ struct FaceRest::PrivateContext {
 		restJobLock.unlock();
 		return job;
 	}
+
+	void addHandler(const char *path, ResourceHandlerFactory *factory)
+	{
+		soup_server_add_handler(soupServer, path,
+					queueRestJob, factory,
+					ResourceHandlerFactory::destroy);
+	}
+
+	static void queueRestJob
+	  (SoupServer *server, SoupMessage *msg, const char *path,
+	   GHashTable *query, SoupClientContext *client, gpointer user_data);
 
 	static bool isTestPath(const string &path)
 	{
@@ -185,60 +164,6 @@ struct FaceRest::PrivateContext {
 
 bool         FaceRest::PrivateContext::testMode = false;
 MutexLock    FaceRest::PrivateContext::lock;
-const string FaceRest::PrivateContext::pathForUserMe =
-  FaceRest::PrivateContext::initPathForUserMe();
-
-static const uint64_t INVALID_ID = -1;
-
-struct FaceRest::RestJob
-{
-	// arguments of SoupServerCallback
-	SoupMessage       *message;
-	string             path;
-	StringVector       pathElements;
-	GHashTable        *query;
-	SoupClientContext *client;
-
-	FaceRest   *faceRest;
-	RestHandler handler;
-
-	// parsed data
-	string      formatString;
-	FormatType  formatType;
-	const char *mimeType;
-	string      jsonpCallbackName;
-	string      sessionId;
-	UserIdType  userId;
-	bool        replyIsPrepared;
-	DataQueryContextPtr dataQueryContextPtr;
-
-	RestJob(FaceRest *_faceRest, RestHandler _handler,
-		SoupMessage *_msg, const char *_path,
-		GHashTable *_query, SoupClientContext *_client);
-	virtual ~RestJob();
-
-	SoupServer *server(void)
-	{
-		return faceRest ? faceRest->m_ctx->soupServer : NULL;
-	}
-
-	GMainContext *gMainContext(void)
-	{
-		return faceRest ? faceRest->m_ctx->gMainCtx : NULL;
-	}
-
-	bool prepare(void);
-	void pauseResponse(void);
-	void unpauseResponse(void);
-
-	string   getResourceName(int nest = 0);
-	string   getResourceIdString(int nest = 0);
-	uint64_t getResourceId(int nest = 0);
-
-private:
-	string getJsonpCallbackName(void);
-	bool parseFormatType(void);
-};
 
 class FaceRest::Worker : public HatoholThreadBase {
 public:
@@ -260,21 +185,22 @@ public:
 protected:
 	virtual gpointer mainThread(HatoholThreadArg *arg)
 	{
-		RestJob *job;
+		ResourceHandler *job;
 		MLPL_INFO("start face-rest worker\n");
 		while ((job = waitNextJob())) {
-			launchHandlerInTryBlock(job);
-			finishRestJobIfNeeded(job);
+			job->handleInTryBlock();
+			job->unpauseResponse();
+			job->unref();
 		}
 		MLPL_INFO("exited face-rest worker\n");
 		return NULL;
 	}
 
 private:
-	RestJob *waitNextJob(void)
+	ResourceHandler *waitNextJob(void)
 	{
 		while (m_faceRest->m_ctx->waitJob()) {
-			RestJob *job = m_faceRest->m_ctx->popJob();
+			ResourceHandler *job = m_faceRest->m_ctx->popJob();
 			if (job)
 				return job;
 		}
@@ -372,6 +298,12 @@ void FaceRest::setNumberOfPreLoadWorkers(size_t num)
 	m_ctx->numPreLoadWorkers = num;
 }
 
+void FaceRest::addResourceHandlerFactory(const char *path,
+					 ResourceHandlerFactory *factory)
+{
+	m_ctx->addHandler(path, factory);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -396,22 +328,6 @@ struct FaceRest::PrivateContext::MainThreadCleaner {
 			soup_server_quit(ctx->soupServer);
 	}
 };
-
-typedef struct HandlerClosure
-{
-	FaceRest *m_faceRest;
-	RestHandler m_handler;
-	HandlerClosure(FaceRest *faceRest, RestHandler handler)
-	: m_faceRest(faceRest), m_handler(handler)
-	{
-	}
-} HandlerClosure;
-
-static void deleteHandlerClosure(gpointer data)
-{
-	HandlerClosure *arg = static_cast<HandlerClosure *>(data);
-	delete arg;
-}
 
 bool FaceRest::isAsyncMode(void)
 {
@@ -459,66 +375,19 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	               m_ctx->port, errno);
 	soup_server_add_handler(m_ctx->soupServer, NULL,
 	                        handlerDefault, this, NULL);
-	soup_server_add_handler(m_ctx->soupServer, "/hello.html",
-	                        queueRestJob,
-	                        new HandlerClosure(this, &handlerHelloPage),
-	                        deleteHandlerClosure);
-	soup_server_add_handler(m_ctx->soupServer, pathForTest,
-	                        queueRestJob,
-	                        new HandlerClosure(this, handlerTest),
-	                        deleteHandlerClosure);
-	soup_server_add_handler(m_ctx->soupServer, pathForLogin,
-	                        queueRestJob,
-	                        new HandlerClosure(this, handlerLogin),
-	                        deleteHandlerClosure);
-	soup_server_add_handler(m_ctx->soupServer, pathForLogout,
-	                        queueRestJob,
-	                        new HandlerClosure(this, handlerLogout),
-	                        deleteHandlerClosure);
-	soup_server_add_handler(m_ctx->soupServer, pathForGetOverview,
-	                        queueRestJob,
-	                        new HandlerClosure(this, handlerGetOverview),
-	                        deleteHandlerClosure);
-	soup_server_add_handler(m_ctx->soupServer, pathForServer,
-	                        queueRestJob,
-	                        new HandlerClosure(this, handlerServer),
-	                        deleteHandlerClosure);
-	soup_server_add_handler(m_ctx->soupServer, pathForServerConnStat,
-	                        queueRestJob,
-	                        new HandlerClosure(this, handlerServerConnStat),
-	                        deleteHandlerClosure);
-	soup_server_add_handler(m_ctx->soupServer, pathForGetHost,
-	                        queueRestJob,
-	                        new HandlerClosure(this, handlerGetHost),
-	                        deleteHandlerClosure);
-	soup_server_add_handler(m_ctx->soupServer, pathForGetTrigger,
-	                        queueRestJob,
-	                        new HandlerClosure(this, handlerGetTrigger),
-	                        deleteHandlerClosure);
-	soup_server_add_handler(m_ctx->soupServer, pathForGetEvent,
-	                        queueRestJob,
-	                        new HandlerClosure(this, handlerGetEvent),
-	                        deleteHandlerClosure);
-	soup_server_add_handler(m_ctx->soupServer, pathForGetItem,
-	                        queueRestJob,
-	                        new HandlerClosure(this, handlerGetItem),
-	                        deleteHandlerClosure);
-	soup_server_add_handler(m_ctx->soupServer, pathForAction,
-	                        queueRestJob,
-	                        new HandlerClosure(this, handlerAction),
-	                        deleteHandlerClosure);
-	soup_server_add_handler(m_ctx->soupServer, pathForUser,
-	                        queueRestJob,
-	                        new HandlerClosure(this, handlerUser),
-	                        deleteHandlerClosure);
-	soup_server_add_handler(m_ctx->soupServer, pathForHostgroup,
-	                        queueRestJob,
-	                        new HandlerClosure(this, handlerGetHostgroup),
-	                        deleteHandlerClosure);
-	soup_server_add_handler(m_ctx->soupServer, pathForUserRole,
-	                        queueRestJob,
-	                        new HandlerClosure(this, handlerUserRole),
-	                        deleteHandlerClosure);
+	m_ctx->addHandler("/hello.html",
+			  new ResourceHandlerFactory(this, &handlerHelloPage));
+	m_ctx->addHandler(pathForTest,
+			  new ResourceHandlerFactory(this, handlerTest));
+	m_ctx->addHandler(pathForLogin,
+			  new ResourceHandlerFactory(this, handlerLogin));
+	m_ctx->addHandler(pathForLogout,
+			  new ResourceHandlerFactory(this, handlerLogout));
+	RestResourceUser::registerFactories(this);
+	RestResourceServer::registerFactories(this);
+	RestResourceHost::registerFactories(this);
+	RestResourceAction::registerFactories(this);
+
 	if (m_ctx->param)
 		m_ctx->param->setupDoneNotifyFunc();
 	soup_server_run_async(m_ctx->soupServer);
@@ -535,6 +404,16 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 
 	MLPL_INFO("exited face-rest\n");
 	return NULL;
+}
+
+SoupServer *FaceRest::getSoupServer(void)
+{
+	return m_ctx->soupServer;
+}
+
+GMainContext *FaceRest::getGMainContext(void)
+{
+	return m_ctx->gMainCtx;
 }
 
 size_t FaceRest::parseCmdArgPort(CommandLineArg &cmdArg, size_t idx)
@@ -556,99 +435,6 @@ size_t FaceRest::parseCmdArgPort(CommandLineArg &cmdArg, size_t idx)
 	return idx;
 }
 
-void FaceRest::addHatoholError(JsonBuilderAgent &agent,
-                               const HatoholError &err)
-{
-	agent.add("apiVersion", API_VERSION);
-	agent.add("errorCode", err.getCode());
-	if (err != HTERR_OK && !err.getMessage().empty())
-		agent.add("errorMessage", err.getMessage());
-	if (!err.getOptionMessage().empty())
-		agent.add("optionMessages", err.getOptionMessage());
-}
-
-void FaceRest::replyError(RestJob *job,
-                          const HatoholErrorCode &errorCode,
-                          const string &optionMessage)
-{
-	HatoholError hatoholError(errorCode, optionMessage);
-	replyError(job, hatoholError);
-}
-
-void FaceRest::replyError(RestJob *job,
-                          const HatoholError &hatoholError)
-{
-	string message = StringUtils::sprintf("%d", hatoholError.getCode());
-	const string &codeName = hatoholError.getCodeName();
-	const string &optionMessage = hatoholError.getOptionMessage();
-
-	if (!codeName.empty()) {
-		message += ", ";
-		message += codeName;
-	}
-	if (!optionMessage.empty()) {
-		message += ": ";
-		message += optionMessage;
-	}
-	MLPL_INFO("reply error: %s\n", message.c_str());
-
-	JsonBuilderAgent agent;
-	agent.startObject();
-	addHatoholError(agent, hatoholError);
-	agent.endObject();
-	string response = agent.generate();
-	if (!job->jsonpCallbackName.empty())
-		response = wrapForJsonp(response, job->jsonpCallbackName);
-	soup_message_headers_set_content_type(job->message->response_headers,
-	                                      MIME_JSON, NULL);
-	soup_message_body_append(job->message->response_body, SOUP_MEMORY_COPY,
-	                         response.c_str(), response.size());
-	soup_message_set_status(job->message, SOUP_STATUS_OK);
-
-	job->replyIsPrepared = true;
-}
-
-string FaceRest::wrapForJsonp(const string &jsonBody,
-                              const string &callbackName)
-{
-	string jsonp = callbackName;
-	jsonp += "(";
-	jsonp += jsonBody;
-	jsonp += ")";
-	return jsonp;
-}
-
-void FaceRest::replyJsonData(JsonBuilderAgent &agent, RestJob *job)
-{
-	string response = agent.generate();
-	if (!job->jsonpCallbackName.empty())
-		response = wrapForJsonp(response, job->jsonpCallbackName);
-	soup_message_headers_set_content_type(job->message->response_headers,
-	                                      job->mimeType, NULL);
-	soup_message_body_append(job->message->response_body, SOUP_MEMORY_COPY,
-	                         response.c_str(), response.size());
-	soup_message_set_status(job->message, SOUP_STATUS_OK);
-
-	job->replyIsPrepared = true;
-}
-
-void FaceRest::parseQueryServerId(GHashTable *query,
-                                  ServerIdType &serverId)
-{
-	serverId = ALL_SERVERS;
-	if (!query)
-		return;
-	gchar *value = (gchar *)g_hash_table_lookup(query, "serverId");
-	if (!value)
-		return;
-
-	ServerIdType svId;
-	if (sscanf(value, "%" FMT_SERVER_ID, &svId) == 1)
-		serverId = svId;
-	else
-		MLPL_INFO("Invalid requested ID: %s\n", value);
-}
-
 // handlers
 void FaceRest::handlerDefault(SoupServer *server, SoupMessage *msg,
                               const char *path, GHashTable *query,
@@ -659,188 +445,6 @@ void FaceRest::handlerDefault(SoupServer *server, SoupMessage *msg,
 	soup_message_set_status(msg, SOUP_STATUS_NOT_FOUND);
 }
 
-FaceRest::RestJob::RestJob
-  (FaceRest *_faceRest, RestHandler _handler, SoupMessage *_msg,
-   const char *_path, GHashTable *_query, SoupClientContext *_client)
-: message(_msg), path(_path ? _path : ""), query(_query), client(_client),
-  faceRest(_faceRest), handler(_handler), mimeType(NULL),
-  userId(INVALID_USER_ID),
-  replyIsPrepared(false)
-{
-	if (query)
-		g_hash_table_ref(query);
-
-	// Since life-span of other libsoup's objects should always be longer
-	// than this object and shoube be managed by libsoup, we don't
-	// inclement reference count of them.
-}
-
-FaceRest::RestJob::~RestJob()
-{
-	if (query)
-		g_hash_table_unref(query);
-}
-
-
-string FaceRest::RestJob::getJsonpCallbackName(void)
-{
-	if (formatType != FORMAT_JSONP)
-		return "";
-	gpointer value = g_hash_table_lookup(query, "callback");
-	if (!value)
-		THROW_HATOHOL_EXCEPTION("Not found parameter: callback");
-
-	const char *callbackName = (const char *)value;
-	string errMsg;
-	if (!Utils::validateJSMethodName(callbackName, errMsg)) {
-		THROW_HATOHOL_EXCEPTION(
-		  "Invalid callback name: %s", errMsg.c_str());
-	}
-	return callbackName;
-}
-
-bool FaceRest::RestJob::parseFormatType(void)
-{
-	formatString.clear();
-	if (!query) {
-		formatType = FORMAT_JSON;
-		return true;
-	}
-
-	gchar *format = (gchar *)g_hash_table_lookup(query, "fmt");
-	if (!format) {
-		formatType = FORMAT_JSON; // default value
-		return true;
-	}
-	formatString = format;
-
-	FormatTypeMapIterator fmtIt = g_formatTypeMap.find(format);
-	if (fmtIt == g_formatTypeMap.end())
-		return false;
-	formatType = fmtIt->second;
-	return true;
-}
-
-bool FaceRest::RestJob::prepare(void)
-{
-	const char *_sessionId =
-	   soup_message_headers_get_one(message->request_headers,
-	                                SESSION_ID_HEADER_NAME);
-	sessionId = _sessionId ? _sessionId : "";
-
-	bool notFoundSessionId = true;
-	if (sessionId.empty()) {
-		if (path == pathForLogin || PrivateContext::isTestPath(path)) {
-			userId = INVALID_USER_ID;
-			notFoundSessionId = false;
-		}
-	} else {
-		SessionManager *sessionMgr = SessionManager::getInstance();
-		SessionPtr session = sessionMgr->getSession(sessionId);
-		if (session.hasData()) {
-			notFoundSessionId = false;
-			userId = session->userId;
-		}
-	}
-	if (notFoundSessionId) {
-		replyError(this, HTERR_NOT_FOUND_SESSION_ID);
-		return false;
-	}
-	dataQueryContextPtr =
-	  DataQueryContextPtr(new DataQueryContext(userId), false);
-
-	// We expect URIs  whose style are the following.
-	//
-	// Examples:
-	// http://localhost:33194/action
-	// http://localhost:33194/action?fmt=json
-	// http://localhost:33194/action/2345?fmt=html
-
-	// a format type
-	if (!parseFormatType()) {
-		REPLY_ERROR(this, HTERR_UNSUPPORTED_FORMAT,
-		            "%s", formatString.c_str());
-		return false;
-	}
-
-	// path elements
-	StringUtils::split(pathElements, path, '/');
-
-	// MIME
-	MimeTypeMapIterator mimeIt = g_mimeTypeMap.find(formatType);
-	HATOHOL_ASSERT(
-	  mimeIt != g_mimeTypeMap.end(),
-	  "Invalid formatType: %d, %s", formatType, path.c_str());
-	mimeType = mimeIt->second;
-
-	// jsonp callback name
-	jsonpCallbackName = getJsonpCallbackName();
-
-	return true;
-}
-
-void FaceRest::RestJob::pauseResponse(void)
-{
-	soup_server_pause_message(server(), message);
-}
-
-struct UnpauseContext {
-	SoupServer *server;
-	SoupMessage *message;
-};
-
-static gboolean idleUnpause(gpointer data)
-{
-	UnpauseContext *ctx = static_cast<UnpauseContext *>(data);
-	soup_server_unpause_message(ctx->server,
-				    ctx->message);
-	delete ctx;
-	return FALSE;
-}
-
-void FaceRest::RestJob::unpauseResponse(void)
-{
-	if (g_main_context_acquire(gMainContext())) {
-		// FaceRest thread
-		soup_server_unpause_message(server(), message);
-		g_main_context_release(gMainContext());
-	} else {
-		// Other threads
-		UnpauseContext *unpauseContext = new UnpauseContext;
-		unpauseContext->server = server();
-		unpauseContext->message = message;
-		soup_add_completion(gMainContext(), idleUnpause,
-				    unpauseContext);
-	}
-}
-
-string FaceRest::RestJob::getResourceName(int nest)
-{
-	size_t idx = nest * 2;
-	if (pathElements.size() > idx)
-		return pathElements[idx];
-	return string();
-}
-
-string FaceRest::RestJob::getResourceIdString(int nest)
-{
-	size_t idx = nest * 2 + 1;
-	if (pathElements.size() > idx)
-		return pathElements[idx];
-	return string();
-}
-
-uint64_t FaceRest::RestJob::getResourceId(int nest)
-{
-	size_t idx = nest * 2 + 1;
-	if (pathElements.size() <= idx)
-		return INVALID_ID;
-	uint64_t id = INVALID_ID;
-	if (sscanf(pathElements[idx].c_str(), "%" PRIu64, &id) != 1)
-		return INVALID_ID;
-	return id;
-}
-
 static void copyHashTable (gpointer key, gpointer data, gpointer user_data)
 {
 	GHashTable *dest = static_cast<GHashTable *>(user_data);
@@ -849,7 +453,7 @@ static void copyHashTable (gpointer key, gpointer data, gpointer user_data)
 			    g_strdup(static_cast<gchar*>(data)));
 }
 
-void FaceRest::queueRestJob
+void FaceRest::PrivateContext::queueRestJob
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *_query, SoupClientContext *client, gpointer user_data)
 {
@@ -870,11 +474,12 @@ void FaceRest::queueRestJob
 	}
 	postQueryReaper.set(query, g_hash_table_unref);
 
-	HandlerClosure *closure = static_cast<HandlerClosure *>(user_data);
-	FaceRest *face = closure->m_faceRest;
-	RestJob *job = new RestJob(face, closure->m_handler,
-				   msg, path, query, client);
-	if (!job->prepare())
+	ResourceHandlerFactory *factory
+	  = static_cast<ResourceHandlerFactory *>(user_data);
+	FaceRest *face = factory->m_faceRest;
+	ResourceHandler *job = factory->createHandler();
+	bool succeeded = job->setRequest(msg, path, query, client);
+	if (!succeeded)
 		return;
 
 	job->pauseResponse();
@@ -882,30 +487,13 @@ void FaceRest::queueRestJob
 	if (face->isAsyncMode()) {
 		face->m_ctx->pushJob(job);
 	} else {
-		launchHandlerInTryBlock(job);
-		finishRestJobIfNeeded(job);
-	}
-}
-
-void FaceRest::finishRestJobIfNeeded(RestJob *job)
-{
-	if (job->replyIsPrepared) {
+		job->handleInTryBlock();
 		job->unpauseResponse();
-		delete job;
+		job->unref();
 	}
 }
 
-void FaceRest::launchHandlerInTryBlock(RestJob *job)
-{
-	try {
-		(*job->handler)(job);
-	} catch (const HatoholException &e) {
-		REPLY_ERROR(job, HTERR_GOT_EXCEPTION,
-		            "%s", e.getFancyMessage().c_str());
-	}
-}
-
-void FaceRest::handlerHelloPage(RestJob *job)
+void FaceRest::handlerHelloPage(ResourceHandler *job)
 {
 	string response;
 	const char *pageTemplate =
@@ -913,337 +501,434 @@ void FaceRest::handlerHelloPage(RestJob *job)
 	  "HATOHOL Server ver. %s"
 	  "</html>";
 	response = StringUtils::sprintf(pageTemplate, PACKAGE_VERSION);
-	soup_message_body_append(job->message->response_body, SOUP_MEMORY_COPY,
+	soup_message_body_append(job->m_message->response_body,
+				 SOUP_MEMORY_COPY,
 	                         response.c_str(), response.size());
-	soup_message_set_status(job->message, SOUP_STATUS_OK);
-	job->replyIsPrepared = true;
+	soup_message_set_status(job->m_message, SOUP_STATUS_OK);
+	job->m_replyIsPrepared = true;
 }
 
-static HatoholError
-addHostgroupsMap(FaceRest::RestJob *job, JsonBuilderAgent &outputJson,
-                 const MonitoringServerInfo &serverInfo,
-                 HostgroupInfoList &hostgroupList)
+void FaceRest::handlerTest(ResourceHandler *job)
 {
-	HostgroupsQueryOption option(job->dataQueryContextPtr);
-	option.setTargetServerId(serverInfo.id);
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HatoholError err = dataStore->getHostgroupInfoList(hostgroupList,
-	                                                   option);
-	if (err != HTERR_OK) {
-		MLPL_ERR("Error: %d, user ID: %" FMT_USER_ID ", "
-		         "sv ID: %" FMT_SERVER_ID "\n",
-		         err.getCode(), job->userId, serverInfo.id);
-		return err;
+	JsonBuilderAgent agent;
+	agent.startObject();
+	FaceRest::ResourceHandler::addHatoholError(
+	  agent, HatoholError(HTERR_OK));
+	if (PrivateContext::testMode)
+		agent.addTrue("testMode");
+	else
+		agent.addFalse("testMode");
+
+	if (string(job->m_path) == "/test" &&
+	    string(job->m_message->method) == "POST")
+	{
+		agent.startObject("queryData");
+		GHashTableIter iter;
+		gpointer key, value;
+		g_hash_table_iter_init(&iter, job->m_query);
+		while (g_hash_table_iter_next(&iter, &key, &value)) {
+			agent.add(string((const char *)key),
+			          string((const char *)value));
+		}
+		agent.endObject(); // queryData
+		agent.endObject(); // top level
+		job->replyJsonData(agent);
+		return;
 	}
 
-	HostgroupInfoListIterator it = hostgroupList.begin();
-	for (; it != hostgroupList.end(); ++it) {
-		const HostgroupInfo &hostgroupInfo = *it;
-		outputJson.startObject(
-		  StringUtils::toString(hostgroupInfo.groupId));
-		outputJson.add("name", hostgroupInfo.groupName);
-		outputJson.endObject();
+	if (string(job->m_path) == "/test/error") {
+		agent.endObject(); // top level
+		job->replyError(HTERR_ERROR_TEST);
+		return;
 	}
-	return HTERR_OK;
+
+	if (string(job->m_path) == "/test/user" &&
+	    string(job->m_message->method) == "POST")
+	{
+		RETURN_IF_NOT_TEST_MODE(job);
+		UserQueryOption option(USER_ID_SYSTEM);
+		HatoholError err
+		  = RestResourceUser::updateOrAddUser(job->m_query, option);
+		if (err != HTERR_OK) {
+			job->replyError(err);
+			return;
+		}
+	}
+
+	agent.endObject();
+	job->replyJsonData(agent);
 }
 
-static HatoholError
-addHostgroupsMap(FaceRest::RestJob *job, JsonBuilderAgent &outputJson,
-                 const MonitoringServerInfo &serverInfo)
+void FaceRest::handlerLogin(ResourceHandler *job)
 {
-	HostgroupInfoList hostgroupList;
-	return addHostgroupsMap(job, outputJson, serverInfo, hostgroupList);
-}
-
-static HatoholError addOverviewEachServer(FaceRest::RestJob *job,
-					  JsonBuilderAgent &agent,
-					  MonitoringServerInfo &svInfo,
-					  bool &serverIsGoodStatus)
-{
-	HatoholError err;
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	agent.add("serverId", svInfo.id);
-	agent.add("serverHostName", svInfo.hostName);
-	agent.add("serverIpAddr", svInfo.ipAddress);
-	agent.add("serverNickname", svInfo.nickname);
-
-	// TODO: This implementeation is not effective.
-	//       We should add a function only to get the number of list.
-	HostInfoList hostInfoList;
-	HostsQueryOption option(job->dataQueryContextPtr);
-	option.setTargetServerId(svInfo.id);
-	dataStore->getHostList(hostInfoList, option);
-	agent.add("numberOfHosts", hostInfoList.size());
-
-	ItemsQueryOption itemsQueryOption(job->dataQueryContextPtr);
-	itemsQueryOption.setTargetServerId(svInfo.id);
-	bool fetchItemsSynchronously = true;
-	size_t numberOfItems =
-	  dataStore->getNumberOfItems(itemsQueryOption,
-				      fetchItemsSynchronously);
-	agent.add("numberOfItems", numberOfItems);
-
-	TriggerInfoList triggerInfoList;
-	TriggersQueryOption triggersQueryOption(job->dataQueryContextPtr);
-	triggersQueryOption.setTargetServerId(svInfo.id);
-	agent.add("numberOfTriggers",
-		  dataStore->getNumberOfTriggers(triggersQueryOption));
-	agent.add("numberOfBadHosts",
-		  dataStore->getNumberOfBadHosts(triggersQueryOption));
-	size_t numBadTriggers = dataStore->getNumberOfBadTriggers(
-				  triggersQueryOption, TRIGGER_SEVERITY_ALL);
-	agent.add("numberOfBadTriggers", numBadTriggers);
-
-	// TODO: These elements should be fixed
-	// after the funtion concerned is added
-	agent.add("numberOfUsers", 0);
-	agent.add("numberOfOnlineUsers", 0);
-	DataQueryOption dataQueryOption(job->userId);
-	MonitoringServerStatus serverStatus;
-	serverStatus.serverId = svInfo.id;
-	err = dataStore->getNumberOfMonitoredItemsPerSecond(
-	  dataQueryOption, serverStatus);
-	if (err != HTERR_OK)
-		return err;
-	string nvps = StringUtils::sprintf("%.2f", serverStatus.nvps);
-	agent.add("numberOfMonitoredItemsPerSecond", nvps);
-
-	// Hostgroups
-	// TODO: We temtatively returns 'No group'. We should fix it
-	//       after host group is supported in Hatohol server.
-	agent.startObject("hostgroups");
-	HostgroupInfoList hostgroupInfoList;
-	err = addHostgroupsMap(job, agent, svInfo, hostgroupInfoList);
-	if (err != HTERR_OK) {
-		HostgroupInfo hgrpInfo;
-		hgrpInfo.id = 0;
-		hgrpInfo.serverId = svInfo.id;
-		hgrpInfo.groupId = ALL_HOST_GROUPS;
-		hgrpInfo.groupName = "All host groups";
-		hostgroupInfoList.push_back(hgrpInfo);
+	gchar *user = (gchar *)g_hash_table_lookup(job->m_query, "user");
+	if (!user) {
+		MLPL_INFO("Not found: user\n");
+		job->replyError(HTERR_AUTH_FAILED);
+		return;
 	}
+	gchar *password
+	  = (gchar *)g_hash_table_lookup(job->m_query, "password");
+	if (!password) {
+		MLPL_INFO("Not found: password\n");
+		job->replyError(HTERR_AUTH_FAILED);
+		return;
+	}
+
+	DBClientUser dbUser;
+	UserIdType userId = dbUser.getUserId(user, password);
+	if (userId == INVALID_USER_ID) {
+		MLPL_INFO("Failed to authenticate: Client: %s, User: %s.\n",
+			  soup_client_context_get_host(job->m_client), user);
+		job->replyError(HTERR_AUTH_FAILED);
+		return;
+	}
+
+	SessionManager *sessionMgr = SessionManager::getInstance();
+	string sessionId = sessionMgr->create(userId);
+
+	JsonBuilderAgent agent;
+	agent.startObject();
+	FaceRest::ResourceHandler::addHatoholError(
+	  agent, HatoholError(HTERR_OK));
+	agent.add("sessionId", sessionId);
 	agent.endObject();
 
-	// SystemStatus
-	agent.startArray("systemStatus");
-	HostgroupInfoListConstIterator hostgrpItr = hostgroupInfoList.begin();
-	for (; hostgrpItr != hostgroupInfoList.end(); ++ hostgrpItr) {
-		const HostgroupIdType hostgroupId = hostgrpItr->groupId;
-		for (int severity = 0;
-		     severity < NUM_TRIGGER_SEVERITY; severity++) {
-			TriggersQueryOption option(job->dataQueryContextPtr);
-			option.setTargetServerId(svInfo.id);
-			option.setTargetHostgroupId(hostgroupId);
-			agent.startObject();
-			agent.add("hostgroupId", hostgroupId);
-			agent.add("severity", severity);
-			agent.add(
-			  "numberOfTriggers",
-			  dataStore->getNumberOfBadTriggers
-			    (option, (TriggerSeverityType)severity));
-			agent.endObject();
-		}
-	}
-	agent.endArray();
-
-	// HostStatus
-	serverIsGoodStatus = true;
-	agent.startArray("hostStatus");
-	hostgrpItr = hostgroupInfoList.begin();
-	for (; hostgrpItr != hostgroupInfoList.end(); ++ hostgrpItr) {
-		const HostgroupIdType hostgroupId = hostgrpItr->groupId;
-		TriggersQueryOption option(job->dataQueryContextPtr);
-		option.setTargetServerId(svInfo.id);
-		option.setTargetHostgroupId(hostgroupId);
-		size_t numBadHosts = dataStore->getNumberOfBadHosts(option);
-		agent.startObject();
-		agent.add("hostgroupId", hostgroupId);
-		agent.add("numberOfGoodHosts",
-		          dataStore->getNumberOfGoodHosts(option));
-		agent.add("numberOfBadHosts", numBadHosts);
-		agent.endObject();
-		if (numBadHosts > 0)
-			serverIsGoodStatus =false;
-	}
-	agent.endArray();
-
-	return HTERR_OK;
+	job->replyJsonData(agent);
 }
 
-static HatoholError addOverview(FaceRest::RestJob *job, JsonBuilderAgent &agent)
+void FaceRest::handlerLogout(ResourceHandler *job)
 {
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	MonitoringServerInfoList monitoringServers;
-	ServerQueryOption option(job->dataQueryContextPtr);
-	dataStore->getTargetServers(monitoringServers, option);
-	MonitoringServerInfoListIterator it = monitoringServers.begin();
-	agent.add("numberOfServers", monitoringServers.size());
-	agent.startArray("serverStatus");
-	size_t numGoodServers = 0, numBadServers = 0;
-	for (; it != monitoringServers.end(); ++it) {
-		bool serverIsGoodStatus = false;
-		agent.startObject();
-		HatoholError err = addOverviewEachServer(job, agent, *it, serverIsGoodStatus);
-		if (err != HTERR_OK)
-			return err;
-		agent.endObject();
-		if (serverIsGoodStatus)
-			numGoodServers++;
-		else
-			numBadServers++;
-	}
-	agent.endArray();
-
-	agent.add("numberOfGoodServers", numGoodServers);
-	agent.add("numberOfBadServers", numBadServers);
-
-	return HTERR_OK;
-}
-
-static bool canUpdateServer(
-  const OperationPrivilege &privilege, const MonitoringServerInfo &serverInfo)
-{
-        if (privilege.has(OPPRVLG_UPDATE_ALL_SERVER))
-                return true;
-        if (!privilege.has(OPPRVLG_UPDATE_SERVER))
-                return false;
-        CacheServiceDBClient cache;
-        DBClientUser *dbUser = cache.getUser();
-        return dbUser->isAccessible(serverInfo.id, privilege);
-}
-
-static void addNumberOfAllowedHostgroups(UnifiedDataStore *dataStore,
-                                         const UserIdType &userId,
-                                         const UserIdType &targetUser,
-                                         const ServerIdType &targetServer,
-                                         JsonBuilderAgent &outputJson)
-{
-	HostgroupsQueryOption hostgroupOption(userId);
-	AccessInfoQueryOption allowedHostgroupOption(userId);
-	hostgroupOption.setTargetServerId(targetServer);
-	allowedHostgroupOption.setTargetUserId(targetUser);
-	HostgroupInfoList hostgroupInfoList;
-	ServerAccessInfoMap serversMap;
-	dataStore->getHostgroupInfoList(hostgroupInfoList, hostgroupOption);
-	dataStore->getAccessInfoMap(serversMap, allowedHostgroupOption);
-
-	size_t numberOfHostgroups = hostgroupInfoList.size();
-	size_t numberOfAllowedHostgroups = 0;
-	ServerAccessInfoMapIterator serverIt = serversMap.find(targetServer);
-	if (serverIt != serversMap.end()) {
-		HostGrpAccessInfoMap *hostgroupsMap = serverIt->second;
-		numberOfAllowedHostgroups = hostgroupsMap->size();
-		HostGrpAccessInfoMapIterator hostgroupIt
-		  = hostgroupsMap->begin();
-		for (; hostgroupIt != hostgroupsMap->end(); ++hostgroupIt) {
-			HostgroupIdType hostgroupId = hostgroupIt->first;
-			if (hostgroupId == ALL_HOST_GROUPS)
-				numberOfAllowedHostgroups--;
-		}
+	SessionManager *sessionMgr = SessionManager::getInstance();
+	if (!sessionMgr->remove(job->m_sessionId)) {
+		job->replyError(HTERR_NOT_FOUND_SESSION_ID);
+		return;
 	}
 
-	outputJson.add("numberOfHostgroups", numberOfHostgroups);
-	outputJson.add("numberOfAllowedHostgroups", numberOfAllowedHostgroups);
-}
+	JsonBuilderAgent agent;
+	agent.startObject();
+	FaceRest::ResourceHandler::addHatoholError(
+	  agent, HatoholError(HTERR_OK));
+	agent.endObject();
 
-static void addServers(FaceRest::RestJob *job, JsonBuilderAgent &agent,
-                       const ServerIdType &targetServerId,
-                       const bool &showHostgroupInfo,
-                       const UserIdType &targetUserId)
-{
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	MonitoringServerInfoList monitoringServers;
-	ArmPluginInfoVect armPluginInfoVect;
-	ServerQueryOption option(job->dataQueryContextPtr);
-	option.setTargetServerId(targetServerId);
-	dataStore->getTargetServers(monitoringServers, option,
-	                            &armPluginInfoVect);
-
-	agent.add("numberOfServers", monitoringServers.size());
-	agent.startArray("servers");
-	MonitoringServerInfoListIterator it = monitoringServers.begin();
-	ArmPluginInfoVectConstIterator pluginIt = armPluginInfoVect.begin();
-	HATOHOL_ASSERT(monitoringServers.size() == armPluginInfoVect.size(),
-	               "The nubmer of elements differs: %zd, %zd",
-	               monitoringServers.size(), armPluginInfoVect.size());
-	for (; it != monitoringServers.end(); ++it, ++pluginIt) {
-		MonitoringServerInfo &serverInfo = *it;
-		agent.startObject();
-		agent.add("id", serverInfo.id);
-		agent.add("type", serverInfo.type);
-		agent.add("hostName", serverInfo.hostName);
-		agent.add("ipAddress", serverInfo.ipAddress);
-		agent.add("nickname", serverInfo.nickname);
-		agent.add("port", serverInfo.port);
-		agent.add("pollingInterval", serverInfo.pollingIntervalSec);
-		agent.add("retryInterval", serverInfo.retryIntervalSec);
-		if (canUpdateServer(option, serverInfo)) {
-			// Shouldn't show account information of the server to
-			// a user who isn't allowed to update it.
-			agent.add("userName", serverInfo.userName);
-			agent.add("password", serverInfo.password);
-			agent.add("dbName", serverInfo.dbName);
-		}
-		if (showHostgroupInfo) {
-			addNumberOfAllowedHostgroups(dataStore, job->userId,
-			                             targetUserId, serverInfo.id,
-			                             agent);
-		}
-		if (pluginIt->id != INVALID_ARM_PLUGIN_INFO_ID) {
-			const bool passiveMode =
-			  (pluginIt->path == HatoholArmPluginGate::PassivePluginQuasiPath);
-			if (passiveMode)
-				agent.addTrue("passiveMode");
-			else
-				agent.addFalse("passiveMode");
-			agent.add("brokerUrl", pluginIt->brokerUrl);
-			agent.add("staticQueueAddress",
-			          pluginIt->staticQueueAddress);
-		}
-		agent.endObject();
-	}
-	agent.endArray();
+	job->replyJsonData(agent);
 }
 
 
-static void addHosts(FaceRest::RestJob *job, JsonBuilderAgent &agent,
-                     const ServerIdType &targetServerId,
-                     const HostgroupIdType &targetHostgroupId,
-                     const HostIdType &targetHostId)
-{
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HostInfoList hostInfoList;
-	HostsQueryOption option(job->dataQueryContextPtr);
-	option.setTargetServerId(targetServerId);
-	option.setTargetHostgroupId(targetHostgroupId);
-	option.setTargetHostId(targetHostId);
-	dataStore->getHostList(hostInfoList, option);
+// ---------------------------------------------------------------------------
+// FaceRest::ResourceHandler
+// ---------------------------------------------------------------------------
 
-	agent.add("numberOfHosts", hostInfoList.size());
-	agent.startArray("hosts");
-	HostInfoListIterator it = hostInfoList.begin();
-	for (; it != hostInfoList.end(); ++it) {
-		HostInfo &hostInfo = *it;
-		agent.startObject();
-		agent.add("id", hostInfo.id);
-		agent.add("serverId", hostInfo.serverId);
-		agent.add("hostName", hostInfo.hostName);
-		agent.endObject();
+FaceRest::ResourceHandler::ResourceHandler(FaceRest *faceRest,
+					   RestHandlerFunc handler)
+: m_faceRest(faceRest), m_staticHandlerFunc(handler), m_message(NULL),
+  m_path(), m_query(NULL), m_client(NULL), m_mimeType(NULL),
+  m_userId(INVALID_USER_ID), m_replyIsPrepared(false)
+{
+}
+
+FaceRest::ResourceHandler::~ResourceHandler()
+{
+	if (m_query)
+		g_hash_table_unref(m_query);
+}
+
+bool FaceRest::ResourceHandler::setRequest(
+  SoupMessage *msg, const char *path, GHashTable *query,
+  SoupClientContext *client)
+{
+	m_message  = msg;
+	m_path     = path ? path : "";
+	m_query    = query;
+	m_client   = client;
+
+	if (m_query)
+		g_hash_table_ref(m_query);
+
+	// Since life-span of other libsoup's objects should always be longer
+	// than this object and shoube be managed by libsoup, we don't
+	// inclement reference count of them.
+
+	return parseRequest();
+}
+
+void FaceRest::ResourceHandler::handle(void)
+{
+	HATOHOL_ASSERT(m_staticHandlerFunc, "No handler function!");
+	m_staticHandlerFunc(this);
+}
+
+void FaceRest::ResourceHandler::handleInTryBlock(void)
+{
+	try {
+		handle();
+	} catch (const HatoholException &e) {
+		REPLY_ERROR(this, HTERR_GOT_EXCEPTION,
+		            "%s", e.getFancyMessage().c_str());
 	}
-	agent.endArray();
+}
+
+SoupServer *FaceRest::ResourceHandler::getSoupServer(void)
+{
+	return m_faceRest ? m_faceRest->getSoupServer() : NULL;
+}
+
+GMainContext *FaceRest::ResourceHandler::getGMainContext(void)
+{
+	return m_faceRest ? m_faceRest->getGMainContext() : NULL;
+}
+
+string FaceRest::ResourceHandler::getJsonpCallbackName(void)
+{
+	if (m_formatType != FORMAT_JSONP)
+		return "";
+	gpointer value = g_hash_table_lookup(m_query, "callback");
+	if (!value)
+		THROW_HATOHOL_EXCEPTION("Not found parameter: callback");
+
+	const char *callbackName = (const char *)value;
+	string errMsg;
+	if (!Utils::validateJSMethodName(callbackName, errMsg)) {
+		THROW_HATOHOL_EXCEPTION(
+		  "Invalid callback name: %s", errMsg.c_str());
+	}
+	return callbackName;
+}
+
+bool FaceRest::ResourceHandler::parseFormatType(void)
+{
+	m_formatString.clear();
+	if (!m_query) {
+		m_formatType = FORMAT_JSON;
+		return true;
+	}
+
+	gchar *format = (gchar *)g_hash_table_lookup(m_query, "fmt");
+	if (!format) {
+		m_formatType = FORMAT_JSON; // default value
+		return true;
+	}
+	m_formatString = format;
+
+	FormatTypeMapIterator fmtIt = g_formatTypeMap.find(format);
+	if (fmtIt == g_formatTypeMap.end())
+		return false;
+	m_formatType = fmtIt->second;
+	return true;
+}
+
+bool FaceRest::ResourceHandler::parseRequest(void)
+{
+	const char *_sessionId =
+	   soup_message_headers_get_one(m_message->request_headers,
+	                                SESSION_ID_HEADER_NAME);
+	m_sessionId = _sessionId ? _sessionId : "";
+
+	bool notFoundSessionId = true;
+	if (m_sessionId.empty()) {
+		if (m_path == pathForLogin ||
+		    PrivateContext::isTestPath(m_path)) {
+			m_userId = INVALID_USER_ID;
+			notFoundSessionId = false;
+		}
+	} else {
+		SessionManager *sessionMgr = SessionManager::getInstance();
+		SessionPtr session = sessionMgr->getSession(m_sessionId);
+		if (session.hasData()) {
+			notFoundSessionId = false;
+			m_userId = session->userId;
+		}
+	}
+	if (notFoundSessionId) {
+		replyError(HTERR_NOT_FOUND_SESSION_ID);
+		return false;
+	}
+	m_dataQueryContextPtr =
+	  DataQueryContextPtr(new DataQueryContext(m_userId), false);
+
+	// We expect URIs  whose style are the following.
+	//
+	// Examples:
+	// http://localhost:33194/action
+	// http://localhost:33194/action?fmt=json
+	// http://localhost:33194/action/2345?fmt=html
+
+	// a format type
+	if (!parseFormatType()) {
+		REPLY_ERROR(this, HTERR_UNSUPPORTED_FORMAT,
+		            "%s", m_formatString.c_str());
+		return false;
+	}
+
+	// path elements
+	StringUtils::split(m_pathElements, m_path, '/');
+
+	// MIME
+	MimeTypeMapIterator mimeIt = g_mimeTypeMap.find(m_formatType);
+	HATOHOL_ASSERT(
+	  mimeIt != g_mimeTypeMap.end(),
+	  "Invalid formatType: %d, %s", m_formatType, m_path.c_str());
+	m_mimeType = mimeIt->second;
+
+	// jsonp callback name
+	m_jsonpCallbackName = getJsonpCallbackName();
+
+	return true;
+}
+
+void FaceRest::ResourceHandler::pauseResponse(void)
+{
+	soup_server_pause_message(getSoupServer(), m_message);
+}
+
+struct UnpauseContext {
+	SoupServer *server;
+	SoupMessage *message;
+};
+
+static gboolean idleUnpause(gpointer data)
+{
+	UnpauseContext *ctx = static_cast<UnpauseContext *>(data);
+	soup_server_unpause_message(ctx->server,
+				    ctx->message);
+	delete ctx;
+	return FALSE;
+}
+
+bool FaceRest::ResourceHandler::unpauseResponse(bool force)
+{
+	if (!m_replyIsPrepared && !force)
+		return false;
+
+	if (g_main_context_acquire(getGMainContext())) {
+		// FaceRest thread
+		soup_server_unpause_message(getSoupServer(), m_message);
+		g_main_context_release(getGMainContext());
+	} else {
+		// Other threads
+		UnpauseContext *unpauseContext = new UnpauseContext;
+		unpauseContext->server = getSoupServer();
+		unpauseContext->message = m_message;
+		soup_add_completion(getGMainContext(), idleUnpause,
+				    unpauseContext);
+	}
+
+	return true;
+}
+
+string FaceRest::ResourceHandler::getResourceName(int nest)
+{
+	size_t idx = nest * 2;
+	if (m_pathElements.size() > idx)
+		return m_pathElements[idx];
+	return string();
+}
+
+string FaceRest::ResourceHandler::getResourceIdString(int nest)
+{
+	size_t idx = nest * 2 + 1;
+	if (m_pathElements.size() > idx)
+		return m_pathElements[idx];
+	return string();
+}
+
+uint64_t FaceRest::ResourceHandler::getResourceId(int nest)
+{
+	size_t idx = nest * 2 + 1;
+	if (m_pathElements.size() <= idx)
+		return INVALID_ID;
+	uint64_t id = INVALID_ID;
+	if (sscanf(m_pathElements[idx].c_str(), "%" PRIu64, &id) != 1)
+		return INVALID_ID;
+	return id;
+}
+
+void FaceRest::ResourceHandler::replyError(const HatoholErrorCode &errorCode,
+					   const string &optionMessage)
+{
+	HatoholError hatoholError(errorCode, optionMessage);
+	replyError(hatoholError);
+}
+
+static string wrapForJsonp(const string &jsonBody,
+			   const string &callbackName)
+{
+	string jsonp = callbackName;
+	jsonp += "(";
+	jsonp += jsonBody;
+	jsonp += ")";
+	return jsonp;
+}
+
+void FaceRest::ResourceHandler::replyError(const HatoholError &hatoholError)
+{
+	string error
+	  = StringUtils::sprintf("%d", hatoholError.getCode());
+	const string &codeName = hatoholError.getCodeName();
+	const string &optionMessage = hatoholError.getOptionMessage();
+
+	if (!codeName.empty()) {
+		error += ", ";
+		error += codeName;
+	}
+	if (!optionMessage.empty()) {
+		error += ": ";
+		error += optionMessage;
+	}
+	MLPL_INFO("reply error: %s\n", error.c_str());
+
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, hatoholError);
+	agent.endObject();
+	string response = agent.generate();
+	if (!m_jsonpCallbackName.empty())
+		response = wrapForJsonp(response, m_jsonpCallbackName);
+	soup_message_headers_set_content_type(m_message->response_headers,
+	                                      MIME_JSON, NULL);
+	soup_message_body_append(m_message->response_body, SOUP_MEMORY_COPY,
+	                         response.c_str(), response.size());
+	soup_message_set_status(m_message, SOUP_STATUS_OK);
+
+	m_replyIsPrepared = true;
+}
+
+void FaceRest::ResourceHandler::replyJsonData(JsonBuilderAgent &agent)
+{
+	string response = agent.generate();
+	if (!m_jsonpCallbackName.empty())
+		response = wrapForJsonp(response, m_jsonpCallbackName);
+	soup_message_headers_set_content_type(m_message->response_headers,
+	                                      m_mimeType, NULL);
+	soup_message_body_append(m_message->response_body, SOUP_MEMORY_COPY,
+	                         response.c_str(), response.size());
+	soup_message_set_status(m_message, SOUP_STATUS_OK);
+
+	m_replyIsPrepared = true;
+}
+
+void FaceRest::ResourceHandler::addHatoholError(JsonBuilderAgent &agent,
+						const HatoholError &err)
+{
+	agent.add("apiVersion", API_VERSION);
+	agent.add("errorCode", err.getCode());
+	if (err != HTERR_OK && !err.getMessage().empty())
+		agent.add("errorMessage", err.getMessage());
+	if (!err.getOptionMessage().empty())
+		agent.add("optionMessages", err.getOptionMessage());
 }
 
 static void addHostsMap(
-  FaceRest::RestJob *job, JsonBuilderAgent &agent,
+  FaceRest::ResourceHandler *job, JsonBuilderAgent &agent,
   const MonitoringServerInfo &serverInfo)
 {
 	HostgroupIdType targetHostgroupId = ALL_HOST_GROUPS;
-	char *value = (char *)g_hash_table_lookup(job->query, "hostgroupId");
+	char *value = (char *)g_hash_table_lookup(job->m_query, "hostgroupId");
 	if (value)
 		sscanf(value, "%" FMT_HOST_GROUP_ID, &targetHostgroupId);
 
 	HostInfoList hostList;
-	HostsQueryOption option(job->dataQueryContextPtr);
+	HostsQueryOption option(job->m_dataQueryContextPtr);
 	option.setTargetServerId(serverInfo.id);
 	option.setTargetHostgroupId(targetHostgroupId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
@@ -1260,12 +945,12 @@ static void addHostsMap(
 }
 
 static string getTriggerBrief(
-  FaceRest::RestJob *job, const ServerIdType serverId, const TriggerIdType triggerId)
+  FaceRest::ResourceHandler *job, const ServerIdType serverId, const TriggerIdType triggerId)
 {
 	string triggerBrief;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	TriggerInfoList triggerInfoList;
-	TriggersQueryOption triggersQueryOption(job->dataQueryContextPtr);
+	TriggersQueryOption triggersQueryOption(job->m_dataQueryContextPtr);
 	triggersQueryOption.setTargetServerId(serverId);
 	triggersQueryOption.setTargetId(triggerId);
 	dataStore->getTriggerList(triggerInfoList, triggersQueryOption);
@@ -1288,7 +973,7 @@ static string getTriggerBrief(
 }
 
 static void addTriggersIdBriefHash(
-  FaceRest::RestJob *job,
+  FaceRest::ResourceHandler *job,
   JsonBuilderAgent &agent, const MonitoringServerInfo &serverInfo,
   TriggerBriefMaps &triggerMaps, bool lookupTriggerBrief = false)
 {
@@ -1311,14 +996,40 @@ static void addTriggersIdBriefHash(
 	agent.endObject();
 }
 
-static void addServersMap(
-  FaceRest::RestJob *job,
+HatoholError FaceRest::ResourceHandler::addHostgroupsMap(
+  JsonBuilderAgent &outputJson, const MonitoringServerInfo &serverInfo,
+  HostgroupInfoList &hostgroupList)
+{
+	HostgroupsQueryOption option(m_dataQueryContextPtr);
+	option.setTargetServerId(serverInfo.id);
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	HatoholError err = dataStore->getHostgroupInfoList(hostgroupList,
+	                                                   option);
+	if (err != HTERR_OK) {
+		MLPL_ERR("Error: %d, user ID: %" FMT_USER_ID ", "
+		         "sv ID: %" FMT_SERVER_ID "\n",
+		         err.getCode(), m_userId, serverInfo.id);
+		return err;
+	}
+
+	HostgroupInfoListIterator it = hostgroupList.begin();
+	for (; it != hostgroupList.end(); ++it) {
+		const HostgroupInfo &hostgroupInfo = *it;
+		outputJson.startObject(
+		  StringUtils::toString(hostgroupInfo.groupId));
+		outputJson.add("name", hostgroupInfo.groupName);
+		outputJson.endObject();
+	}
+	return HTERR_OK;
+}
+
+void FaceRest::ResourceHandler::addServersMap(
   JsonBuilderAgent &agent,
-  TriggerBriefMaps *triggerMaps = NULL, bool lookupTriggerBrief = false)
+  TriggerBriefMaps *triggerMaps, bool lookupTriggerBrief)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	MonitoringServerInfoList monitoringServers;
-	ServerQueryOption option(job->dataQueryContextPtr);
+	ServerQueryOption option(m_dataQueryContextPtr);
 	dataStore->getTargetServers(monitoringServers, option);
 
 	HatoholError err;
@@ -1330,9 +1041,9 @@ static void addServersMap(
 		agent.add("name", serverInfo.hostName);
 		agent.add("type", serverInfo.type);
 		agent.add("ipAddress", serverInfo.ipAddress);
-		addHostsMap(job, agent, serverInfo);
+		addHostsMap(this, agent, serverInfo);
 		if (triggerMaps) {
-			addTriggersIdBriefHash(job, agent, serverInfo,
+			addTriggersIdBriefHash(this, agent, serverInfo,
 					       *triggerMaps,
 			                       lookupTriggerBrief);
 		}
@@ -1340,1814 +1051,33 @@ static void addServersMap(
 		// Even if the following function retrun an error,
 		// We cannot do anything. The receiver (client) should handle
 		// the returned empty or unperfect group information.
-		addHostgroupsMap(job, agent, serverInfo);
+		HostgroupInfoList hostgroupList;
+		addHostgroupsMap(agent, serverInfo, hostgroupList);
 		agent.endObject(); // "gropus"
 		agent.endObject(); // toString(serverInfo.id)
 	}
 	agent.endObject();
 }
 
-void FaceRest::handlerTest(RestJob *job)
+FaceRest::ResourceHandlerFactory::ResourceHandlerFactory(
+  FaceRest *faceRest, RestHandlerFunc handler)
+: m_faceRest(faceRest), m_staticHandlerFunc(handler)
 {
-	JsonBuilderAgent agent;
-	agent.startObject();
-	addHatoholError(agent, HatoholError(HTERR_OK));
-	if (PrivateContext::testMode)
-		agent.addTrue("testMode");
-	else
-		agent.addFalse("testMode");
-
-	if (string(job->path) == "/test" &&
-	    string(job->message->method) == "POST")
-	{
-		agent.startObject("queryData");
-		GHashTableIter iter;
-		gpointer key, value;
-		g_hash_table_iter_init(&iter, job->query);
-		while (g_hash_table_iter_next(&iter, &key, &value)) {
-			agent.add(string((const char *)key),
-			          string((const char *)value));
-		}
-		agent.endObject(); // queryData
-		agent.endObject(); // top level
-		replyJsonData(agent, job);
-		return;
-	} 
-
-	if (string(job->path) == "/test/error") {
-		agent.endObject(); // top level
-		replyError(job, HTERR_ERROR_TEST);
-		return;
-	} 
-
-	if (string(job->path) == "/test/user" &&
-	    string(job->message->method) == "POST")
-	{
-		RETURN_IF_NOT_TEST_MODE(job);
-		UserQueryOption option(USER_ID_SYSTEM);
-		HatoholError err = updateOrAddUser(job->query, option);
-		if (err != HTERR_OK) {
-			replyError(job, err);
-			return;
-		}
-	}
-
-	agent.endObject();
-	replyJsonData(agent, job);
 }
 
-void FaceRest::handlerLogin(RestJob *job)
+FaceRest::ResourceHandlerFactory::~ResourceHandlerFactory()
 {
-	gchar *user = (gchar *)g_hash_table_lookup(job->query, "user");
-	if (!user) {
-		MLPL_INFO("Not found: user\n");
-		replyError(job, HTERR_AUTH_FAILED);
-		return;
-	}
-	gchar *password = (gchar *)g_hash_table_lookup(job->query, "password");
-	if (!password) {
-		MLPL_INFO("Not found: password\n");
-		replyError(job, HTERR_AUTH_FAILED);
-		return;
-	}
-
-	DBClientUser dbUser;
-	UserIdType userId = dbUser.getUserId(user, password);
-	if (userId == INVALID_USER_ID) {
-		MLPL_INFO("Failed to authenticate: Client: %s, User: %s.\n",
-			  soup_client_context_get_host(job->client), user);
-		replyError(job, HTERR_AUTH_FAILED);
-		return;
-	}
-
-	SessionManager *sessionMgr = SessionManager::getInstance();
-	string sessionId = sessionMgr->create(userId);
-
-	JsonBuilderAgent agent;
-	agent.startObject();
-	addHatoholError(agent, HatoholError(HTERR_OK));
-	agent.add("sessionId", sessionId);
-	agent.endObject();
-
-	replyJsonData(agent, job);
 }
 
-void FaceRest::handlerLogout(RestJob *job)
+void FaceRest::ResourceHandlerFactory::destroy(gpointer data)
 {
-	SessionManager *sessionMgr = SessionManager::getInstance();
-	if (!sessionMgr->remove(job->sessionId)) {
-		replyError(job, HTERR_NOT_FOUND_SESSION_ID);
-		return;
-	}
-
-	JsonBuilderAgent agent;
-	agent.startObject();
-	addHatoholError(agent, HatoholError(HTERR_OK));
-	agent.endObject();
-
-	replyJsonData(agent, job);
+	ResourceHandlerFactory *factory
+		= static_cast<ResourceHandlerFactory *>(data);
+	delete factory;
 }
 
-void FaceRest::handlerGetOverview(RestJob *job)
+FaceRest::ResourceHandler *
+FaceRest::ResourceHandlerFactory::createHandler(void)
 {
-	JsonBuilderAgent agent;
-	HatoholError err;
-	agent.startObject();
-	addHatoholError(agent, HatoholError(HTERR_OK));
-	err = addOverview(job, agent);
-	if (err != HTERR_OK) {
-		replyError(job, err);
-		return;
-	}
-	agent.endObject();
-
-	replyJsonData(agent, job);
+	return new ResourceHandler(m_faceRest, m_staticHandlerFunc);
 }
-
-void FaceRest::handlerServer(RestJob *job)
-{
-	if (StringUtils::casecmp(job->message->method, "GET")) {
-		handlerGetServer(job);
-	} else if (StringUtils::casecmp(job->message->method, "POST")) {
-		handlerPostServer(job);
-	} else if (StringUtils::casecmp(job->message->method, "PUT")) {
-		handlerPutServer(job);
-	} else if (StringUtils::casecmp(job->message->method, "DELETE")) {
-		handlerDeleteServer(job);
-	} else {
-		MLPL_ERR("Unknown method: %s\n", job->message->method);
-		soup_message_set_status(job->message,
-					SOUP_STATUS_METHOD_NOT_ALLOWED);
-		job->replyIsPrepared = true;
-	}
-}
-
-static bool parseQueryShowHostgroupInfo(GHashTable *query, UserIdType &targetUserId)
-{
-	if (!query)
-		return false;
-
-	char *charUserId = (char *)g_hash_table_lookup(query, "targetUser");
-	if (!charUserId)
-		return false;
-	sscanf(charUserId, "%" FMT_USER_ID, &targetUserId);
-
-	int showHostgroup;
-	char *value = (char *)g_hash_table_lookup(query, "showHostgroup");
-	if (!value)
-		return false;
-	sscanf(value, "%d", &showHostgroup);
-	if (showHostgroup == 1)
-		return true;
-	else
-		return false;
-}
-
-void FaceRest::handlerGetServer(RestJob *job)
-{
-	ServerIdType targetServerId;
-	UserIdType targetUserId = 0;
-	bool showHostgroupInfo = parseQueryShowHostgroupInfo(job->query,
-	                                                     targetUserId);
-	parseQueryServerId(job->query, targetServerId);
-
-	JsonBuilderAgent agent;
-	agent.startObject();
-	addHatoholError(agent, HatoholError(HTERR_OK));
-	addServers(job, agent, targetServerId, showHostgroupInfo, targetUserId);
-	agent.endObject();
-
-	replyJsonData(agent, job);
-}
-
-HatoholError FaceRest::parseServerParameter(
-  MonitoringServerInfo &svInfo, ArmPluginInfo &armPluginInfo,
-  GHashTable *query, const bool &forUpdate)
-{
-	const bool allowEmpty = forUpdate;
-	HatoholError err;
-	char *value;
-
-	// type
-	err = getParam<MonitoringSystemType>(
-		query, "type", "%d", svInfo.type);
-	if (err != HTERR_OK) {
-		if (!allowEmpty || err != HTERR_NOT_FOUND_PARAMETER)
-			return err;
-	}
-
-	// hostname
-	value = (char *)g_hash_table_lookup(query, "hostName");
-	if (!value && !allowEmpty)
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "hostName");
-	svInfo.hostName = value;
-
-	// ipAddress
-	value = (char *)g_hash_table_lookup(query, "ipAddress");
-	if (!value && !allowEmpty)
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "ipAddress");
-	svInfo.ipAddress = value;
-
-	// nickname
-	value = (char *)g_hash_table_lookup(query, "nickname");
-	if (!value && !allowEmpty)
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "nickname");
-	svInfo.nickname = value;
-
-	// port
-	err = getParam<int>(
-		query, "port", "%d", svInfo.port);
-	if (err != HTERR_OK) {
-		if (!allowEmpty || err != HTERR_NOT_FOUND_PARAMETER)
-			return err;
-	}
-
-	// polling
-	err = getParam<int>(
-		query, "pollingInterval", "%d", svInfo.pollingIntervalSec);
-	if (err != HTERR_OK) {
-		if (!allowEmpty || err != HTERR_NOT_FOUND_PARAMETER)
-			return err;
-	}
-
-	// retry
-	err = getParam<int>(
-		query, "retryInterval", "%d", svInfo.retryIntervalSec);
-	if (err != HTERR_OK && !allowEmpty)
-		return err;
-
-	// username
-	value = (char *)g_hash_table_lookup(query, "userName");
-	if (!value && !allowEmpty)
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "userName");
-	svInfo.userName = value;
-
-	// password
-	value = (char *)g_hash_table_lookup(query, "password");
-	if (!value && !allowEmpty)
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "password");
-	svInfo.password = value;
-
-	// dbname
-	if (svInfo.type == MONITORING_SYSTEM_NAGIOS) {
-		value = (char *)g_hash_table_lookup(query, "dbName");
-		if (!value && !allowEmpty)
-			return HatoholError(HTERR_NOT_FOUND_PARAMETER,
-					    "dbName");
-		svInfo.dbName = value;
-	}
-
-	//
-	// HAPI's parameters
-	//
-	if (!DBClientConfig::isHatoholArmPlugin(svInfo.type))
-		return HTERR_OK;
-
-	if (!forUpdate) {
-		armPluginInfo.id = AUTO_INCREMENT_VALUE;
-		// The proper sever ID will be set later when the DB record
-		// of the concerned MonitoringServerInfo is created in
-		// DBClientConfig::addTargetServer()
-		armPluginInfo.serverId = INVALID_SERVER_ID;
-	}
-	armPluginInfo.type = svInfo.type;
-	armPluginInfo.path =
-	  HatoholArmPluginInterface::getDefaultPluginPath(svInfo.type) ? : "";
-
-	// passiveMode
-	// Note: We don't accept a plugin path from outside for security.
-	// Instead we use a flag named passiveMode.
-
-	// TODO: We should create a method to parse Boolean value.
-	value = (char *)g_hash_table_lookup(query, "passiveMode");
-	if (!value && !allowEmpty)
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "passiveMode");
-	bool passiveMode = false;
-	if (value)
-		passiveMode = (string(value) == "true");
-	if (passiveMode) {
-		armPluginInfo.path =
-		  HatoholArmPluginGate::PassivePluginQuasiPath;
-	}
-
-	// brokerUrl
-	value = (char *)g_hash_table_lookup(query, "brokerUrl");
-	if (value)
-		armPluginInfo.brokerUrl = value;
-
-	// staticQueueAddress
-	value = (char *)g_hash_table_lookup(query, "staticQueueAddress");
-	if (value)
-		armPluginInfo.staticQueueAddress = value;
-
-	return HTERR_OK;
-}
-
-void FaceRest::handlerPostServer(RestJob *job)
-{
-	MonitoringServerInfo svInfo;
-	ArmPluginInfo        armPluginInfo;
-	ArmPluginInfo::initialize(armPluginInfo);
-	HatoholError err;
-
-	err = parseServerParameter(svInfo, armPluginInfo, job->query);
-	if (err != HTERR_OK) {
-		replyError(job, err);
-		return;
-	}
-
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	err = dataStore->addTargetServer(
-	  svInfo, armPluginInfo,
-	  job->dataQueryContextPtr->getOperationPrivilege());
-	if (err != HTERR_OK) {
-		replyError(job, err);
-		return;
-	}
-
-	JsonBuilderAgent agent;
-	agent.startObject();
-	addHatoholError(agent, err);
-	agent.add("id", svInfo.id);
-	agent.endObject();
-	replyJsonData(agent, job);
-}
-
-void FaceRest::handlerPutServer(RestJob *job)
-{
-	uint64_t serverId;
-	serverId = job->getResourceId();
-	if (serverId == INVALID_ID) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
-		            "id: %s", job->getResourceIdString().c_str());
-		return;
-	}
-
-	// check the existing record
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	MonitoringServerInfoList serversList;
-	ServerQueryOption option(job->dataQueryContextPtr);
-	option.setTargetServerId(serverId);
-	dataStore->getTargetServers(serversList, option);
-	if (serversList.empty()) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_TARGET_RECORD,
-		            "id: %" PRIu64, serverId);
-		return;
-	}
-
-	MonitoringServerInfo serverInfo;
-	ArmPluginInfo        armPluginInfo;
-	serverInfo = *serversList.begin();
-	serverInfo.id = serverId;
-	// TODO: Use unified data store and consider wethere the 'option'
-	// for privilege is needed for getting information. We've already
-	// checked it above. So it's not absolutely necessary.
-	CacheServiceDBClient cache;
-	DBClientConfig *dbConfig = cache.getConfig();
-	dbConfig->getArmPluginInfo(armPluginInfo, serverId);
-
-	// check the request
-	bool allowEmpty = true;
-	HatoholError err = parseServerParameter(serverInfo, armPluginInfo,
-	                                        job->query, allowEmpty);
-	if (err != HTERR_OK) {
-		replyError(job, err);
-		return;
-	}
-
-	// try to update
-	err = dataStore->updateTargetServer(serverInfo, armPluginInfo, option);
-	if (err != HTERR_OK) {
-		replyError(job, err);
-		return;
-	}
-
-	// make a response
-	JsonBuilderAgent agent;
-	agent.startObject();
-	addHatoholError(agent, err);
-	agent.add("id", serverInfo.id);
-	agent.endObject();
-	replyJsonData(agent, job);
-}
-
-void FaceRest::handlerDeleteServer(RestJob *job)
-{
-	uint64_t serverId = job->getResourceId();
-	if (serverId == INVALID_ID) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
-			    "id: %s", job->getResourceIdString().c_str());
-		return;
-	}
-
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HatoholError err =
-	  dataStore->deleteTargetServer(
-	    serverId, job->dataQueryContextPtr->getOperationPrivilege());
-	if (err != HTERR_OK) {
-		replyError(job, err);
-		return;
-	}
-
-	JsonBuilderAgent agent;
-	agent.startObject();
-	addHatoholError(agent, err);
-	agent.add("id", serverId);
-	agent.endObject();
-
-	replyJsonData(agent, job);
-}
-
-void FaceRest::handlerServerConnStat(RestJob *job)
-{
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	ServerConnStatusVector serverConnStatVec;
-	dataStore->getServerConnStatusVector(serverConnStatVec,
-	                                     job->dataQueryContextPtr);
-
-	JsonBuilderAgent agent;
-	agent.startObject();
-	addHatoholError(agent, HatoholError(HTERR_OK));
-	agent.startObject("serverConnStat");
-	for (size_t idx = 0; idx < serverConnStatVec.size(); idx++) {
-		const ServerConnStatus &svConnStat = serverConnStatVec[idx];
-		const ArmInfo &armInfo = svConnStat.armInfo;
-		agent.startObject(StringUtils::toString(svConnStat.serverId));
-		agent.add("running",         armInfo.running);
-		agent.add("status",          armInfo.stat);
-		agent.add("statUpdateTime",  armInfo.statUpdateTime);
-		agent.add("lastSuccessTime", armInfo.lastSuccessTime);
-		agent.add("lastFailureTime", armInfo.lastFailureTime);
-		agent.add("failureComment",  armInfo.failureComment);
-		agent.add("numUpdate",       armInfo.numUpdate);
-		agent.add("numFailure",      armInfo.numFailure);
-		agent.endObject(); // serverId
-	} 
-	agent.endObject(); // serverConnStat
-	agent.endObject();
-
-	replyJsonData(agent, job);
-}
-
-void FaceRest::handlerGetHost(RestJob *job)
-{
-	HostsQueryOption option(job->dataQueryContextPtr);
-	HatoholError err = parseHostResourceQueryParameter(option, job->query);
-	if (err != HTERR_OK) {
-		replyError(job, err);
-		return;
-	}
-
-	JsonBuilderAgent agent;
-	agent.startObject();
-	addHatoholError(agent, HatoholError(HTERR_OK));
-	addHosts(job, agent,
-		 option.getTargetServerId(),
-		 option.getTargetHostgroupId(),
-		 option.getTargetHostId());
-	agent.endObject();
-
-	replyJsonData(agent, job);
-}
-
-void FaceRest::handlerGetTrigger(RestJob *job)
-{
-	TriggersQueryOption option(job->dataQueryContextPtr);
-	HatoholError err = parseTriggerParameter(option, job->query);
-	if (err != HTERR_OK) {
-		replyError(job, err);
-		return;
-	}
-
-	TriggerInfoList triggerList;
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	dataStore->getTriggerList(triggerList, option);
-
-	JsonBuilderAgent agent;
-	agent.startObject();
-	addHatoholError(agent, HatoholError(HTERR_OK));
-	agent.startArray("triggers");
-	TriggerInfoListIterator it = triggerList.begin();
-	for (; it != triggerList.end(); ++it) {
-		TriggerInfo &triggerInfo = *it;
-		agent.startObject();
-		agent.add("id",       triggerInfo.id);
-		agent.add("status",   triggerInfo.status);
-		agent.add("severity", triggerInfo.severity);
-		agent.add("lastChangeTime",
-		          triggerInfo.lastChangeTime.tv_sec);
-		agent.add("serverId", triggerInfo.serverId);
-		agent.add("hostId",   triggerInfo.hostId);
-		agent.add("brief",    triggerInfo.brief);
-		agent.endObject();
-	}
-	agent.endArray();
-	agent.add("numberOfTriggers", triggerList.size());
-	agent.add("totalNumberOfTriggers",
-		  dataStore->getNumberOfTriggers(option));
-	addServersMap(job, agent, NULL, false);
-	agent.endObject();
-
-	replyJsonData(agent, job);
-}
-
-static uint64_t getLastUnifiedEventId(FaceRest::RestJob *job)
-{
-	EventsQueryOption option(job->dataQueryContextPtr);
-	option.setMaximumNumber(1);
-	option.setSortType(EventsQueryOption::SORT_UNIFIED_ID,
-			   DataQueryOption::SORT_DESCENDING);
-
-	EventInfoList eventList;
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	dataStore->getEventList(eventList, option);
-
-	uint64_t lastUnifiedId = 0;
-	if (!eventList.empty()) {
-		lastUnifiedId = eventList.begin()->unifiedId;
-		eventList.clear();
-	}
-	return lastUnifiedId;
-}
-
-static void addIssue(FaceRest::RestJob *job, JsonBuilderAgent &agent,
-		     const IssueInfo &issue)
-{
-		agent.startObject("issue");
-		agent.add("location", issue.location);
-		// TODO: remaining properties will be added later
-		agent.endObject();
-}
-
-void FaceRest::handlerGetEvent(RestJob *job)
-{
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-
-	EventInfoList eventList;
-	EventsQueryOption option(job->dataQueryContextPtr);
-	HatoholError err = parseEventParameter(option, job->query);
-	if (err != HTERR_OK) {
-		replyError(job, err);
-		return;
-	}
-
-	bool addIssues = dataStore->isIssueSenderActionEnabled();
-	IssueInfoVect issueVect;
-	if (addIssues) {
-		err = dataStore->getEventList(eventList, option, &issueVect);
-		HATOHOL_ASSERT(eventList.size() == issueVect.size(),
-			       "eventList: %zd, issueVect: %zd\n",
-			       eventList.size(), issueVect.size());
-	} else {
-		err = dataStore->getEventList(eventList, option);
-	}
-	if (err != HTERR_OK) {
-		replyError(job, err);
-		return;
-	}
-
-	JsonBuilderAgent agent;
-	agent.startObject();
-	addHatoholError(agent, HatoholError(HTERR_OK));
-	// TODO: should use transaction to avoid conflicting with event list
-	agent.add("lastUnifiedEventId", getLastUnifiedEventId(job));
-	if (addIssues)
-		agent.addTrue("haveIssue");
-	else
-		agent.addFalse("haveIssue");
-	agent.startArray("events");
-	EventInfoListIterator it = eventList.begin();
-	for (size_t i = 0; it != eventList.end(); ++i, ++it) {
-		EventInfo &eventInfo = *it;
-		agent.startObject();
-		agent.add("unifiedId", eventInfo.unifiedId);
-		agent.add("serverId",  eventInfo.serverId);
-		agent.add("time",      eventInfo.time.tv_sec);
-		agent.add("type",      eventInfo.type);
-		agent.add("triggerId", eventInfo.triggerId);
-		agent.add("status",    eventInfo.status);
-		agent.add("severity",  eventInfo.severity);
-		agent.add("hostId",    eventInfo.hostId);
-		agent.add("brief",     eventInfo.brief);
-		if (addIssues)
-			addIssue(job, agent, issueVect[i]);
-		agent.endObject();
-	}
-	agent.endArray();
-	agent.add("numberOfEvents", eventList.size());
-	addServersMap(job, agent, NULL, false);
-	agent.endObject();
-
-	replyJsonData(agent, job);
-}
-
-struct GetItemClosure : Closure<FaceRest>
-{
-	struct FaceRest::RestJob *m_restJob;
-	GetItemClosure(FaceRest *receiver,
-		       callback func,
-		       struct FaceRest::RestJob *restJob)
-	: Closure<FaceRest>::Closure(receiver, func), m_restJob(restJob)
-	{
-	}
-
-	virtual ~GetItemClosure()
-	{
-		delete m_restJob;
-	}
-};
-
-void FaceRest::replyGetItem(RestJob *job)
-{
-	ItemsQueryOption option(job->dataQueryContextPtr);
-	HatoholError err = parseItemParameter(option, job->query);
-	if (err != HTERR_OK) {
-		replyError(job, err);
-		return;
-	}
-
-	ItemInfoList itemList;
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	dataStore->getItemList(itemList, option);
-
-	JsonBuilderAgent agent;
-	agent.startObject();
-	addHatoholError(agent, HatoholError(HTERR_OK));
-	agent.startArray("items");
-	ItemInfoListIterator it = itemList.begin();
-	for (; it != itemList.end(); ++it) {
-		ItemInfo &itemInfo = *it;
-		agent.startObject();
-		agent.add("id",        itemInfo.id);
-		agent.add("serverId",  itemInfo.serverId);
-		agent.add("hostId",    itemInfo.hostId);
-		agent.add("brief",     itemInfo.brief.c_str());
-		agent.add("lastValueTime",
-		          itemInfo.lastValueTime.tv_sec);
-		agent.add("lastValue", itemInfo.lastValue);
-		agent.add("prevValue", itemInfo.prevValue);
-		agent.add("itemGroupName", itemInfo.itemGroupName);
-		agent.endObject();
-	}
-	agent.endArray();
-	agent.add("numberOfItems", itemList.size());
-	agent.add("totalNumberOfItems", dataStore->getNumberOfItems(option));
-	addServersMap(job, agent, NULL, false);
-	agent.endObject();
-
-	replyJsonData(agent, job);
-}
-
-void FaceRest::itemFetchedCallback(ClosureBase *closure)
-{
-	GetItemClosure *data = dynamic_cast<GetItemClosure*>(closure);
-	RestJob *job = data->m_restJob;
-	replyGetItem(job);
-	job->unpauseResponse();
-}
-
-void FaceRest::handlerGetItem(RestJob *job)
-{
-	ItemsQueryOption option(job->dataQueryContextPtr);
-	HatoholError err = parseItemParameter(option, job->query);
-	if (err != HTERR_OK) {
-		replyError(job, err);
-		return;
-	}
-
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	ServerIdType serverId = option.getTargetServerId();
-	FaceRest *face = job->faceRest;
-	GetItemClosure *closure =
-	  new GetItemClosure(face, &FaceRest::itemFetchedCallback, job);
-
-	// TODO: Fix a crash.
-	// There is a bug. When 'closure' is cleared before
-	// finishRestJobIfNeeded(RestJob *job) is called, 'job' is deleted
-	// in the destructor and becomes a dangling pointer. Then it is used
-	// in finishRestJobIfNeeded(). As a result, hatohol crashes.
-	// NOTE: Actually, fetching items takes a little time.
-	// So it happens rarely.
-	bool handled = dataStore->fetchItemsAsync(closure, serverId);
-	if (!handled) {
-		face->replyGetItem(job);
-		// avoid freeing m_restJob because m_restJob will be freed at
-		// queueRestJob()
-		closure->m_restJob = NULL;
-		delete closure;
-	}
-}
-
-template <typename T>
-static void setActionCondition(
-  JsonBuilderAgent &agent, const ActionCondition &cond,
-  const string &member, ActionConditionEnableFlag bit,
-  T value)
-{
-		if (cond.isEnable(bit))
-			agent.add(member, value);
-		else
-			agent.addNull(member);
-}
-
-void FaceRest::handlerAction(RestJob *job)
-{
-	if (StringUtils::casecmp(job->message->method, "GET")) {
-		handlerGetAction(job);
-	} else if (StringUtils::casecmp(job->message->method, "POST")) {
-		handlerPostAction(job);
-	} else if (StringUtils::casecmp(job->message->method, "DELETE")) {
-		handlerDeleteAction(job);
-	} else {
-		MLPL_ERR("Unknown method: %s\n", job->message->method);
-		soup_message_set_status(job->message,
-					SOUP_STATUS_METHOD_NOT_ALLOWED);
-		job->replyIsPrepared = true;
-	}
-}
-
-void FaceRest::handlerGetAction(RestJob *job)
-{
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-
-	ActionDefList actionList;
-	ActionsQueryOption option(job->dataQueryContextPtr);
-	HatoholError err =
-	  dataStore->getActionList(actionList, option);
-
-	JsonBuilderAgent agent;
-	agent.startObject();
-	addHatoholError(agent, err);
-	if (err != HTERR_OK) {
-		agent.endObject();
-		replyJsonData(agent, job);
-		return;
-	}
-	agent.add("numberOfActions", actionList.size());
-	agent.startArray("actions");
-	TriggerBriefMaps triggerMaps;
-	ActionDefListIterator it = actionList.begin();
-	for (; it != actionList.end(); ++it) {
-		const ActionDef &actionDef = *it;
-		const ActionCondition &cond = actionDef.condition;
-		agent.startObject();
-		agent.add("actionId",  actionDef.id);
-		agent.add("enableBits", cond.enableBits);
-		setActionCondition<ServerIdType>(
-		  agent, cond, "serverId", ACTCOND_SERVER_ID, cond.serverId);
-		setActionCondition<uint64_t>(
-		  agent, cond, "hostId", ACTCOND_HOST_ID, cond.hostId);
-		setActionCondition<uint64_t>(
-		  agent, cond, "hostgroupId", ACTCOND_HOST_GROUP_ID,
-		   cond.hostgroupId);
-		setActionCondition<uint64_t>(
-		  agent, cond, "triggerId", ACTCOND_TRIGGER_ID, cond.triggerId);
-		setActionCondition<uint32_t>(
-		  agent, cond, "triggerStatus", ACTCOND_TRIGGER_STATUS,
-		  cond.triggerStatus);
-		setActionCondition<uint32_t>(
-		  agent, cond, "triggerSeverity", ACTCOND_TRIGGER_SEVERITY,
-		  cond.triggerSeverity);
-		agent.add("triggerSeverityComparatorType",
-		          cond.triggerSeverityCompType);
-		agent.add("type",      actionDef.type);
-		agent.add("workingDirectory",
-		          actionDef.workingDir.c_str());
-		agent.add("command", actionDef.command);
-		agent.add("timeout", actionDef.timeout);
-		agent.add("ownerUserId", actionDef.ownerUserId);
-		agent.endObject();
-		if (cond.isEnable(ACTCOND_TRIGGER_ID))
-			triggerMaps[cond.serverId][cond.triggerId] = "";
-	}
-	agent.endArray();
-	const bool lookupTriggerBrief = true;
-	addServersMap(job, agent, &triggerMaps, lookupTriggerBrief);
-	agent.endObject();
-
-	replyJsonData(agent, job);
-}
-
-void FaceRest::handlerPostAction(RestJob *job)
-{
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-
-	//
-	// mandatory parameters
-	//
-	char *value;
-	bool exist;
-	bool succeeded;
-	ActionDef actionDef;
-
-	// action type
-	succeeded = getParamWithErrorReply<int>(
-	              job, "type", "%d", (int &)actionDef.type, &exist);
-	if (!succeeded)
-		return;
-	if (!exist) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "type");
-		return;
-	}
-	if (!(actionDef.type == ACTION_COMMAND ||
-	      actionDef.type == ACTION_RESIDENT)) {
-		REPLY_ERROR(job, HTERR_INVALID_PARAMETER,
-		            "type: %d", actionDef.type);
-		return;
-	}
-
-	// command
-	value = (char *)g_hash_table_lookup(job->query, "command");
-	if (!value) {
-		replyError(job, HTERR_NOT_FOUND_PARAMETER, "command");
-		return;
-	}
-	actionDef.command = value;
-
-	//
-	// optional parameters
-	//
-	ActionCondition &cond = actionDef.condition;
-
-	// workingDirectory
-	value = (char *)g_hash_table_lookup(job->query, "workingDirectory");
-	if (value) {
-		actionDef.workingDir = value;
-	}
-
-	// timeout
-	succeeded = getParamWithErrorReply<int>(
-	              job, "timeout", "%d", actionDef.timeout, &exist);
-	if (!succeeded)
-		return;
-	if (!exist)
-		actionDef.timeout = 0;
-
-	// ownerUserId
-	succeeded = getParamWithErrorReply<int>(
-	              job, "ownerUserId", "%d", actionDef.ownerUserId, &exist);
-	if (!succeeded)
-		return;
-	if (!exist)
-		actionDef.ownerUserId = job->userId;
-
-	// serverId
-	succeeded = getParamWithErrorReply<int>(
-	              job, "serverId", "%d", cond.serverId, &exist);
-	if (!succeeded)
-		return;
-	if (exist)
-		cond.enable(ACTCOND_SERVER_ID);
-
-	// hostId
-	succeeded = getParamWithErrorReply<uint64_t>(
-	              job, "hostId", "%" PRIu64, cond.hostId, &exist);
-	if (!succeeded)
-		return;
-	if (exist)
-		cond.enable(ACTCOND_HOST_ID);
-
-	// hostgroupId
-	succeeded = getParamWithErrorReply<uint64_t>(
-	              job, "hostgroupId", "%" PRIu64, cond.hostgroupId, &exist);
-	if (!succeeded)
-		return;
-	if (exist)
-		cond.enable(ACTCOND_HOST_GROUP_ID);
-
-	// triggerId
-	succeeded = getParamWithErrorReply<uint64_t>(
-	              job, "triggerId", "%" PRIu64, cond.triggerId, &exist);
-	if (!succeeded)
-		return;
-	if (exist)
-		cond.enable(ACTCOND_TRIGGER_ID);
-
-	// triggerStatus
-	succeeded = getParamWithErrorReply<int>(
-	              job, "triggerStatus", "%d", cond.triggerStatus, &exist);
-	if (!succeeded)
-		return;
-	if (exist)
-		cond.enable(ACTCOND_TRIGGER_STATUS);
-
-	// triggerSeverity
-	succeeded = getParamWithErrorReply<int>(
-	              job, "triggerSeverity", "%d", cond.triggerSeverity, &exist);
-	if (!succeeded)
-		return;
-	if (exist) {
-		cond.enable(ACTCOND_TRIGGER_SEVERITY);
-
-		// triggerSeverityComparatorType
-		succeeded = getParamWithErrorReply<int>(
-		              job, "triggerSeverityCompType", "%d",
-		              (int &)cond.triggerSeverityCompType, &exist);
-		if (!succeeded)
-			return;
-		if (!exist) {
-			replyError(job, HTERR_NOT_FOUND_PARAMETER, 
-			           "triggerSeverityCompType");
-			return;
-		}
-		if (!(cond.triggerSeverityCompType == CMP_EQ ||
-		      cond.triggerSeverityCompType == CMP_EQ_GT)) {
-			REPLY_ERROR(job, HTERR_INVALID_PARAMETER,
-			            "type: %d", cond.triggerSeverityCompType);
-			return;
-		}
-	}
-
-	// save the obtained action
-	HatoholError err =
-	  dataStore->addAction(
-	    actionDef, job->dataQueryContextPtr->getOperationPrivilege());
-	if (err != HTERR_OK) {
-		replyError(job, err);
-		return;
-	}
-
-	// make a response
-	JsonBuilderAgent agent;
-	agent.startObject();
-	addHatoholError(agent, err);
-	agent.add("id", actionDef.id);
-	agent.endObject();
-	replyJsonData(agent, job);
-}
-
-void FaceRest::handlerDeleteAction(RestJob *job)
-{
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-
-	uint64_t actionId = job->getResourceId();
-	if (actionId == INVALID_ID) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
-			    "id: %s", job->getResourceIdString().c_str());
-		return;
-	}
-	ActionIdList actionIdList;
-	actionIdList.push_back(actionId);
-	HatoholError err =
-	  dataStore->deleteActionList(
-	    actionIdList, job->dataQueryContextPtr->getOperationPrivilege());
-	if (err != HTERR_OK) {
-		replyError(job, err);
-		return;
-	}
-
-	// replay
-	JsonBuilderAgent agent;
-	agent.startObject();
-	addHatoholError(agent, err);
-	agent.add("id", actionId);
-	agent.endObject();
-	replyJsonData(agent, job);
-}
-
-void FaceRest::handlerUser(RestJob *job)
-{
-	// handle sub-resources
-	string resourceName = job->getResourceName(1);
-	if (StringUtils::casecmp(resourceName, "access-info")) {
-		handlerAccessInfo(job);
-		return;
-	}
-
-	// handle "user" resource itself
-	if (StringUtils::casecmp(job->message->method, "GET")) {
-		handlerGetUser(job);
-	} else if (StringUtils::casecmp(job->message->method, "POST")) {
-		handlerPostUser(job);
-	} else if (StringUtils::casecmp(job->message->method, "PUT")) {
-		handlerPutUser(job);
-	} else if (StringUtils::casecmp(job->message->method, "DELETE")) {
-		handlerDeleteUser(job);
-	} else {
-		MLPL_ERR("Unknown method: %s\n", job->message->method);
-		soup_message_set_status(job->message,
-		                        SOUP_STATUS_METHOD_NOT_ALLOWED);
-		job->replyIsPrepared = true;
-	}
-}
-
-static void addUserRolesMap(
-  FaceRest::RestJob *job, JsonBuilderAgent &agent)
-{
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	UserRoleInfoList userRoleList;
-	UserRoleQueryOption option(job->dataQueryContextPtr);
-	dataStore->getUserRoleList(userRoleList, option);
-
-	agent.startObject("userRoles");
-	UserRoleInfoListIterator it = userRoleList.begin();
-	agent.startObject(StringUtils::toString(NONE_PRIVILEGE));
-	agent.add("name", "Guest");
-	agent.endObject();
-	agent.startObject(StringUtils::toString(ALL_PRIVILEGES));
-	agent.add("name", "Admin");
-	agent.endObject();
-	for (; it != userRoleList.end(); ++it) {
-		UserRoleInfo &userRoleInfo = *it;
-		agent.startObject(StringUtils::toString(userRoleInfo.flags));
-		agent.add("name", userRoleInfo.name);
-		agent.endObject();
-	}
-	agent.endObject();
-}
-
-void FaceRest::handlerGetUser(RestJob *job)
-{
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-
-	UserInfoList userList;
-	UserQueryOption option(job->dataQueryContextPtr);
-	if (job->path == PrivateContext::pathForUserMe)
-		option.queryOnlyMyself();
-	dataStore->getUserList(userList, option);
-
-	JsonBuilderAgent agent;
-	agent.startObject();
-	addHatoholError(agent, HatoholError(HTERR_OK));
-	agent.add("numberOfUsers", userList.size());
-	agent.startArray("users");
-	UserInfoListIterator it = userList.begin();
-	for (; it != userList.end(); ++it) {
-		const UserInfo &userInfo = *it;
-		agent.startObject();
-		agent.add("userId",  userInfo.id);
-		agent.add("name", userInfo.name);
-		agent.add("flags", userInfo.flags);
-		agent.endObject();
-	}
-	agent.endArray();
-	addUserRolesMap(job, agent);
-	agent.endObject();
-
-	replyJsonData(agent, job);
-}
-
-void FaceRest::handlerPostUser(RestJob *job)
-{
-	UserInfo userInfo;
-	HatoholError err = parseUserParameter(userInfo, job->query);
-	if (err != HTERR_OK) {
-		replyError(job, err);
-		return;
-	}
-
-	// try to add
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	err = dataStore->addUser(
-	  userInfo, job->dataQueryContextPtr->getOperationPrivilege());
-	if (err != HTERR_OK) {
-		replyError(job, err);
-		return;
-	}
-
-	// make a response
-	JsonBuilderAgent agent;
-	agent.startObject();
-	addHatoholError(agent, err);
-	agent.add("id", userInfo.id);
-	agent.endObject();
-	replyJsonData(agent, job);
-}
-
-void FaceRest::handlerPutUser(RestJob *job)
-{
-	UserInfo userInfo;
-	userInfo.id = job->getResourceId();
-	if (userInfo.id == INVALID_USER_ID) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
-		            "id: %s", job->getResourceIdString().c_str());
-		return;
-	}
-
-	DBClientUser dbUser;
-	bool exist = dbUser.getUserInfo(userInfo, userInfo.id);
-	if (!exist) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_TARGET_RECORD,
-		            "id: %" FMT_USER_ID, userInfo.id);
-		return;
-	}
-	bool allowEmpty = true;
-	HatoholError err = parseUserParameter(userInfo, job->query,
-					      allowEmpty);
-	if (err != HTERR_OK) {
-		replyError(job, err);
-		return;
-	}
-
-	// try to update
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	err = dataStore->updateUser(
-	  userInfo, job->dataQueryContextPtr->getOperationPrivilege());
-	if (err != HTERR_OK) {
-		replyError(job, err);
-		return;
-	}
-
-	// make a response
-	JsonBuilderAgent agent;
-	agent.startObject();
-	addHatoholError(agent, err);
-	agent.add("id", userInfo.id);
-	agent.endObject();
-	replyJsonData(agent, job);
-}
-
-void FaceRest::handlerDeleteUser(RestJob *job)
-{
-	uint64_t userId = job->getResourceId();
-	if (userId == INVALID_ID) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
-		            "id: %s", job->getResourceIdString().c_str());
-		return;
-	}
-
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HatoholError err =
-	  dataStore->deleteUser(
-	    userId, job->dataQueryContextPtr->getOperationPrivilege());
-	if (err != HTERR_OK) {
-		replyError(job, err);
-		return;
-	}
-
-	// replay
-	JsonBuilderAgent agent;
-	agent.startObject();
-	addHatoholError(agent, err);
-	agent.add("id", userId);
-	agent.endObject();
-	replyJsonData(agent, job);
-}
-
-void FaceRest::handlerAccessInfo(RestJob *job)
-{
-	if (StringUtils::casecmp(job->message->method, "GET")) {
-		handlerGetAccessInfo(job);
-	} else if (StringUtils::casecmp(job->message->method, "POST")) {
-		handlerPostAccessInfo(job);
-	} else if (StringUtils::casecmp(job->message->method, "DELETE")) {
-		handlerDeleteAccessInfo(job);
-	} else {
-		MLPL_ERR("Unknown method: %s\n", job->message->method);
-		soup_message_set_status(job->message,
-		                        SOUP_STATUS_METHOD_NOT_ALLOWED);
-		job->replyIsPrepared = true;
-	}
-}
-
-void FaceRest::handlerGetAccessInfo(RestJob *job)
-{
-	AccessInfoQueryOption option(job->dataQueryContextPtr);
-	option.setTargetUserId(job->getResourceId());
-
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	ServerAccessInfoMap serversMap;
-	HatoholError error = dataStore->getAccessInfoMap(serversMap, option);
-	if (error != HTERR_OK) {
-		replyError(job, error);
-		return;
-	}
-
-	JsonBuilderAgent agent;
-	agent.startObject();
-	addHatoholError(agent, HatoholError(HTERR_OK));
-	ServerAccessInfoMapIterator it = serversMap.begin();
-	agent.startObject("allowedServers");
-	for (; it != serversMap.end(); ++it) {
-		const ServerIdType &serverId = it->first;
-		string serverIdString;
-		HostGrpAccessInfoMap *hostgroupsMap = it->second;
-		if (serverId == ALL_SERVERS)
-			serverIdString = StringUtils::toString(-1);
-		else
-			serverIdString = StringUtils::toString(serverId);
-		agent.startObject(serverIdString);
-		agent.startObject("allowedHostgroups");
-		HostGrpAccessInfoMapIterator it2 = hostgroupsMap->begin();
-		for (; it2 != hostgroupsMap->end(); it2++) {
-			AccessInfo *info = it2->second;
-			uint64_t hostgroupId = it2->first;
-			string hostgroupIdString;
-			if (hostgroupId == ALL_HOST_GROUPS) {
-				hostgroupIdString = StringUtils::toString(-1);
-			} else {
-				hostgroupIdString
-				  = StringUtils::sprintf("%" PRIu64,
-				                         hostgroupId);
-			}
-			agent.startObject(hostgroupIdString);
-			agent.add("accessInfoId", info->id);
-			agent.endObject();
-		}
-		agent.endObject();
-		agent.endObject();
-	}
-	agent.endObject();
-	agent.endObject();
-
-	DBClientUser::destroyServerAccessInfoMap(serversMap);
-
-	replyJsonData(agent, job);
-}
-
-void FaceRest::handlerPostAccessInfo(RestJob *job)
-{
-	// Get query parameters
-	bool exist;
-	bool succeeded;
-	AccessInfo accessInfo;
-
-	// userId
-	int userIdPos = 0;
-	accessInfo.userId = job->getResourceId(userIdPos);
-
-	// serverId
-	succeeded = getParamWithErrorReply<ServerIdType>(
-	              job, "serverId", "%" FMT_SERVER_ID,
-	              accessInfo.serverId, &exist);
-	if (!succeeded)
-		return;
-	if (!exist) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "serverId");
-		return;
-	}
-
-	// hostgroupId
-	succeeded = getParamWithErrorReply<uint64_t>(
-	              job, "hostgroupId", "%" PRIu64,
-	              accessInfo.hostgroupId, &exist);
-	if (!succeeded)
-		return;
-	if (!exist) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "hostgroupId");
-		return;
-	}
-
-	// try to add
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HatoholError err =
-	  dataStore->addAccessInfo(
-	    accessInfo, job->dataQueryContextPtr->getOperationPrivilege());
-	if (err != HTERR_OK) {
-		replyError(job, err);
-		return;
-	}
-
-	// make a response
-	JsonBuilderAgent agent;
-	agent.startObject();
-	addHatoholError(agent, err);
-	agent.add("id", accessInfo.id);
-	agent.endObject();
-	replyJsonData(agent, job);
-}
-
-void FaceRest::handlerDeleteAccessInfo(RestJob *job)
-{
-	int nest = 1;
-	uint64_t id = job->getResourceId(nest);
-	if (id == INVALID_ID) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
-			    "id: %s", job->getResourceIdString(nest).c_str());
-		return;
-	}
-
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HatoholError err =
-	  dataStore->deleteAccessInfo(
-	    id, job->dataQueryContextPtr->getOperationPrivilege());
-	if (err != HTERR_OK) {
-		replyError(job, err);
-		return;
-	}
-
-	// replay
-	JsonBuilderAgent agent;
-	agent.startObject();
-	addHatoholError(agent, err);
-	agent.add("id", id);
-	agent.endObject();
-	replyJsonData(agent, job);
-}
-
-void FaceRest::handlerGetHostgroup(RestJob *job)
-{
-	HostgroupsQueryOption option(job->dataQueryContextPtr);
-	HatoholError err = parseHostResourceQueryParameter(option, job->query);
-	if (err != HTERR_OK) {
-		replyError(job, err);
-		return;
-	}
-
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HostgroupInfoList hostgroupInfoList;
-	err = dataStore->getHostgroupInfoList(hostgroupInfoList, option);
-
-	JsonBuilderAgent agent;
-	agent.startObject();
-	addHatoholError(agent, err);
-	agent.add("numberOfHostgroups", hostgroupInfoList.size());
-	agent.startArray("hostgroups");
-	HostgroupInfoListIterator it = hostgroupInfoList.begin();
-	for (; it != hostgroupInfoList.end(); ++it) {
-		HostgroupInfo hostgroupInfo = *it;
-		agent.startObject();
-		agent.add("id", hostgroupInfo.id);
-		agent.add("serverId", hostgroupInfo.serverId);
-		agent.add("groupId", hostgroupInfo.groupId);
-		agent.add("groupName", hostgroupInfo.groupName.c_str());
-		addHostsIsMemberOfGroup(job, agent,
-		                        hostgroupInfo.serverId,
-		                        hostgroupInfo.groupId);
-		agent.endObject();
-	}
-	agent.endArray();
-	agent.endObject();
-
-	replyJsonData(agent, job);
-}
-
-void FaceRest::addHostsIsMemberOfGroup(
-  RestJob *job, JsonBuilderAgent &agent,
-  uint64_t targetServerId, uint64_t targetGroupId)
-{
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-
-	HostgroupElementList hostgroupElementList;
-	HostgroupElementQueryOption option(job->dataQueryContextPtr);
-	option.setTargetServerId(targetServerId);
-	option.setTargetHostgroupId(targetGroupId);
-	dataStore->getHostgroupElementList(hostgroupElementList, option);
-
-	agent.startArray("hosts");
-	HostgroupElementListIterator it = hostgroupElementList.begin();
-	for (; it != hostgroupElementList.end(); ++it) {
-		HostgroupElement hostgroupElement = *it;
-		agent.add(hostgroupElement.hostId);
-	}
-	agent.endArray();
-}
-
-void FaceRest::handlerUserRole(RestJob *job)
-{
-	if (StringUtils::casecmp(job->message->method, "GET")) {
-		handlerGetUserRole(job);
-	} else if (StringUtils::casecmp(job->message->method, "POST")) {
-		handlerPostUserRole(job);
-	} else if (StringUtils::casecmp(job->message->method, "PUT")) {
-		handlerPutUserRole(job);
-	} else if (StringUtils::casecmp(job->message->method, "DELETE")) {
-		handlerDeleteUserRole(job);
-	} else {
-		MLPL_ERR("Unknown method: %s\n", job->message->method);
-		soup_message_set_status(job->message,
-		                        SOUP_STATUS_METHOD_NOT_ALLOWED);
-		job->replyIsPrepared = true;
-	}
-}
-
-void FaceRest::handlerPutUserRole(RestJob *job)
-{
-	uint64_t id = job->getResourceId();
-	if (id == INVALID_ID) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
-		            "id: %s", job->getResourceIdString().c_str());
-		return;
-	}
-	UserRoleInfo userRoleInfo;
-	userRoleInfo.id = id;
-
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	UserRoleInfoList userRoleList;
-	UserRoleQueryOption option(job->dataQueryContextPtr);
-	option.setTargetUserRoleId(userRoleInfo.id);
-	dataStore->getUserRoleList(userRoleList, option);
-	if (userRoleList.empty()) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_TARGET_RECORD,
-		            "id: %" FMT_USER_ID, userRoleInfo.id);
-		return;
-	}
-	userRoleInfo = *(userRoleList.begin());
-
-	bool allowEmpty = true;
-	HatoholError err = parseUserRoleParameter(userRoleInfo, job->query,
-						  allowEmpty);
-	if (err != HTERR_OK) {
-		replyError(job, err);
-		return;
-	}
-
-	// try to update
-	err = dataStore->updateUserRole(
-	  userRoleInfo, job->dataQueryContextPtr->getOperationPrivilege());
-	if (err != HTERR_OK) {
-		replyError(job, err);
-		return;
-	}
-
-	// make a response
-	JsonBuilderAgent agent;
-	agent.startObject();
-	addHatoholError(agent, err);
-	agent.add("id", userRoleInfo.id);
-	agent.endObject();
-	replyJsonData(agent, job);
-}
-
-void FaceRest::handlerGetUserRole(RestJob *job)
-{
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-
-	UserRoleInfoList userRoleList;
-	UserRoleQueryOption option(job->dataQueryContextPtr);
-	dataStore->getUserRoleList(userRoleList, option);
-
-	JsonBuilderAgent agent;
-	agent.startObject();
-	addHatoholError(agent, HatoholError(HTERR_OK));
-	agent.add("numberOfUserRoles", userRoleList.size());
-	agent.startArray("userRoles");
-	UserRoleInfoListIterator it = userRoleList.begin();
-	for (; it != userRoleList.end(); ++it) {
-		const UserRoleInfo &userRoleInfo = *it;
-		agent.startObject();
-		agent.add("userRoleId",  userRoleInfo.id);
-		agent.add("name", userRoleInfo.name);
-		agent.add("flags", userRoleInfo.flags);
-		agent.endObject();
-	}
-	agent.endArray();
-	agent.endObject();
-
-	replyJsonData(agent, job);
-}
-
-void FaceRest::handlerPostUserRole(RestJob *job)
-{
-	UserRoleInfo userRoleInfo;
-	HatoholError err = parseUserRoleParameter(userRoleInfo, job->query);
-	if (err != HTERR_OK) {
-		replyError(job, err);
-		return;
-	}
-
-	// try to add
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	err = dataStore->addUserRole(
-	  userRoleInfo, job->dataQueryContextPtr->getOperationPrivilege());
-	if (err != HTERR_OK) {
-		replyError(job, err);
-		return;
-	}
-
-	// make a response
-	JsonBuilderAgent agent;
-	agent.startObject();
-	addHatoholError(agent, err);
-	agent.add("id", userRoleInfo.id);
-	agent.endObject();
-	replyJsonData(agent, job);
-}
-
-void FaceRest::handlerDeleteUserRole(RestJob *job)
-{
-	uint64_t id = job->getResourceId();
-	if (id == INVALID_ID) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
-		            "id: %s", job->getResourceIdString().c_str());
-		return;
-	}
-	UserRoleIdType userRoleId = id;
-
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HatoholError err =
-	  dataStore->deleteUserRole(
-	    userRoleId, job->dataQueryContextPtr->getOperationPrivilege());
-	if (err != HTERR_OK) {
-		replyError(job, err);
-		return;
-	}
-
-	// replay
-	JsonBuilderAgent agent;
-	agent.startObject();
-	addHatoholError(agent, err);
-	agent.add("id", userRoleId);
-	agent.endObject();
-	replyJsonData(agent, job);
-}
-
-HatoholError FaceRest::parseUserParameter(
-  UserInfo &userInfo, GHashTable *query, bool allowEmpty)
-{
-	char *value;
-
-	// name
-	value = (char *)g_hash_table_lookup(query, "name");
-	if (!value && !allowEmpty)
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "name");
-	if (value)
-		userInfo.name = value;
-
-	// password
-	value = (char *)g_hash_table_lookup(query, "password");
-	if (!value && !allowEmpty)
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "password");
-	userInfo.password = value ? value : "";
-
-	// flags
-	HatoholError err = getParam<OperationPrivilegeFlag>(
-		query, "flags", "%" FMT_OPPRVLG, userInfo.flags);
-	if (err != HTERR_OK) {
-		if (!allowEmpty || err != HTERR_NOT_FOUND_PARAMETER)
-			return err;
-	}
-	return HatoholError(HTERR_OK);
-}
-
-HatoholError FaceRest::parseUserRoleParameter(
-  UserRoleInfo &userRoleInfo, GHashTable *query, bool allowEmpty)
-{
-	char *value;
-
-	// name
-	value = (char *)g_hash_table_lookup(query, "name");
-	if (!value && !allowEmpty)
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "name");
-	if (value)
-		userRoleInfo.name = value;
-
-	// flags
-	HatoholError err = getParam<OperationPrivilegeFlag>(
-		query, "flags", "%" FMT_OPPRVLG, userRoleInfo.flags);
-	if (err != HTERR_OK && !allowEmpty)
-		return err;
-	return HatoholError(HTERR_OK);
-}
-
-HatoholError FaceRest::updateOrAddUser(GHashTable *query,
-                                       UserQueryOption &option)
-{
-	UserInfo userInfo;
-	HatoholError err = parseUserParameter(userInfo, query);
-	if (err != HTERR_OK)
-		return err;
-
-	err = option.setTargetName(userInfo.name);
-	if (err != HTERR_OK)
-		return err;
-	UserInfoList userList;
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	dataStore->getUserList(userList, option);
-
-	if (userList.empty()) {
-		err = dataStore->addUser(userInfo, option);
-	} else {
-		userInfo.id = userList.begin()->id;
-		err = dataStore->updateUser(userInfo, option);
-	}
-	if (err != HTERR_OK)
-		return err;
-	return HatoholError(HTERR_OK);
-}
-
-static HatoholError parseSortTypeFromQuery(
-  EventsQueryOption::SortType &sortType, GHashTable *query)
-{
-	const char *key = "sortType";
-	char *value = (char *)g_hash_table_lookup(query, key);
-	if (!value)
-		return HTERR_NOT_FOUND_PARAMETER;
-	if (!strcasecmp(value, "time")) {
-		sortType = EventsQueryOption::SORT_TIME;
-	} else if (!strcasecmp(value, "unifiedId")) {
-		sortType = EventsQueryOption::SORT_UNIFIED_ID;
-	} else {
-		string optionMessage
-		  = StringUtils::sprintf("%s: %s", key, value);
-		return HatoholError(HTERR_INVALID_PARAMETER, optionMessage);
-	}
-	return HatoholError(HTERR_OK);
-}
-
-HatoholError FaceRest::parseSortOrderFromQuery(
-  DataQueryOption::SortDirection &sortDirection, GHashTable *query)
-{
-	HatoholError err =
-	   getParam<DataQueryOption::SortDirection>(query, "sortOrder", "%d",
-						    sortDirection);
-	if (err != HTERR_OK)
-		return err;
-	if (sortDirection != DataQueryOption::SORT_DONT_CARE &&
-	    sortDirection != DataQueryOption::SORT_ASCENDING &&
-	    sortDirection != DataQueryOption::SORT_DESCENDING) {
-		return HatoholError(HTERR_INVALID_PARAMETER,
-		                    StringUtils::sprintf("%d", sortDirection));
-	}
-	return HatoholError(HTERR_OK);
-}
-
-HatoholError FaceRest::parseHostResourceQueryParameter(
-  HostResourceQueryOption &option, GHashTable *query)
-{
-	if (!query)
-		return HatoholError(HTERR_OK);
-
-	HatoholError err;
-
-	// target server id
-	ServerIdType targetServerId = ALL_SERVERS;
-	err = getParam<ServerIdType>(query, "serverId",
-				     "%" FMT_SERVER_ID,
-				     targetServerId);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-	option.setTargetServerId(targetServerId);
-
-	// target host group id
-	HostIdType targetHostgroupId = ALL_HOST_GROUPS;
-	err = getParam<HostgroupIdType>(query, "hostgroupId",
-					"%" FMT_HOST_GROUP_ID,
-					targetHostgroupId);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-	option.setTargetHostgroupId(targetHostgroupId);
-
-	// target host id
-	HostIdType targetHostId = ALL_HOSTS;
-	err = getParam<HostIdType>(query, "hostId",
-				   "%" FMT_HOST_ID,
-				   targetHostId);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-	option.setTargetHostId(targetHostId);
-
-	// maximum number
-	size_t maximumNumber = 0;
-	err = getParam<size_t>(query, "maximumNumber", "%zd", maximumNumber);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-	option.setMaximumNumber(maximumNumber);
-
-	// offset
-	uint64_t offset = 0;
-	err = getParam<uint64_t>(query, "offset", "%" PRIu64, offset);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-	option.setOffset(offset);
-
-	return HatoholError(HTERR_OK);
-}
-
-HatoholError FaceRest::parseTriggerParameter(TriggersQueryOption &option,
-					     GHashTable *query)
-{
-	if (!query)
-		return HatoholError(HTERR_OK);
-
-	HatoholError err;
-
-	// query parameters for HostResourceQueryOption
-	err = parseHostResourceQueryParameter(option, query);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-
-	// minimum severity
-	TriggerSeverityType severity = TRIGGER_SEVERITY_UNKNOWN;
-	err = getParam<TriggerSeverityType>(query, "minimumSeverity",
-					    "%d", severity);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-	option.setMinimumSeverity(severity);
-
-	// trigger status
-	TriggerStatusType status = TRIGGER_STATUS_ALL;
-	err = getParam<TriggerStatusType>(query, "status",
-					  "%d", status);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-	option.setTriggerStatus(status);
-
-	return HatoholError(HTERR_OK);
-}
-
-HatoholError FaceRest::parseEventParameter(EventsQueryOption &option,
-					   GHashTable *query)
-{
-	if (!query)
-		return HatoholError(HTERR_OK);
-
-	HatoholError err;
-
-	// query parameters for HostResourceQueryOption
-	err = parseHostResourceQueryParameter(option, query);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-
-	// minimum severity
-	TriggerSeverityType severity = TRIGGER_SEVERITY_UNKNOWN;
-	err = getParam<TriggerSeverityType>(query, "minimumSeverity",
-					    "%d", severity);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-	option.setMinimumSeverity(severity);
-
-	// trigger status
-	TriggerStatusType status = TRIGGER_STATUS_ALL;
-	err = getParam<TriggerStatusType>(query, "status",
-					  "%d", status);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-	option.setTriggerStatus(status);
-
-	// sort type
-	EventsQueryOption::SortType sortType = EventsQueryOption::SORT_TIME;
-	err = parseSortTypeFromQuery(sortType, query);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-
-	// sort order
-	DataQueryOption::SortDirection sortDirection
-	  = DataQueryOption::SORT_DESCENDING;
-	err = parseSortOrderFromQuery(sortDirection, query);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-
-	option.setSortType(sortType, sortDirection);
-
-	// limit of unifiedId
-	uint64_t limitOfUnifiedId = 0;
-	err = getParam<uint64_t>(query, "limitOfUnifiedId", "%" PRIu64,
-				 limitOfUnifiedId);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-	option.setLimitOfUnifiedId(limitOfUnifiedId);
-
-	return HatoholError(HTERR_OK);
-}
-
-HatoholError FaceRest::parseItemParameter(ItemsQueryOption &option,
-					  GHashTable *query)
-{
-	if (!query)
-		return HatoholError(HTERR_OK);
-
-	HatoholError err;
-
-	// query parameters for HostResourceQueryOption
-	err = parseHostResourceQueryParameter(option, query);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-
-	// itemGroupName
-	const gchar *value = static_cast<const gchar*>(
-	  g_hash_table_lookup(query, "itemGroupName"));
-	if (value && *value)
-		option.setTargetItemGroupName(value);
-
-	return HatoholError(HTERR_OK);
-}
-
-// ---------------------------------------------------------------------------
-// Private methods
-// ---------------------------------------------------------------------------
-template<typename T>
-HatoholError FaceRest::getParam(
-  GHashTable *query, const char *paramName, const char *scanFmt, T &dest)
-{
-	char *value = (char *)g_hash_table_lookup(query, paramName);
-	if (!value)
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, paramName);
-
-	if (sscanf(value, scanFmt, &dest) != 1) {
-		string optMsg = StringUtils::sprintf("%s: %s",
-		                                     paramName, value);
-		return HatoholError(HTERR_INVALID_PARAMETER, optMsg);
-	}
-	return HatoholError(HTERR_OK);
-}
-
-template<typename T>
-bool FaceRest::getParamWithErrorReply(
-  RestJob *job, const char *paramName, const char *scanFmt,
-  T &dest, bool *exist)
-{
-	char *value = (char *)g_hash_table_lookup(job->query, paramName);
-	if (exist)
-		*exist = value;
-	if (!value)
-		return true;
-
-	if (sscanf(value, scanFmt, &dest) != 1) {
-		REPLY_ERROR(job, HTERR_INVALID_PARAMETER,
-		            "%s: %s", paramName, value);
-		return false;
-	}
-	return true;
-}
-
