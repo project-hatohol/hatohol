@@ -89,7 +89,7 @@ protected:
 		HapiTestHelper::onInitiated();
 	}
 
-	void onReady(void) override
+	void onReady(const MonitoringServerInfo &serverInfo) override
 	{
 		m_readySem.post();
 	}

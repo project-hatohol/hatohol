@@ -233,11 +233,13 @@ void test_registCommandHandler(void)
 void test_onGotResponse(void)
 {
 	struct Hapi : public HatoholArmPluginInterfaceTest {
+		const HapiCommandCode testCmdCode;
 		HapiResponseCode      gotResCode;
 		SimpleSemaphore       gotResSem;
 
 		Hapi(void)
-		: gotResCode(NUM_HAPI_CMD_RES),
+		: testCmdCode((HapiCommandCode)5),
+		  gotResCode(NUM_HAPI_CMD_RES),
 		  gotResSem(0)
 		{
 		}
@@ -249,22 +251,40 @@ void test_onGotResponse(void)
 			  static_cast<HapiResponseCode>(header->code);
 			gotResSem.post();
 		}
-	} hapiSv;
-	hapiSv.assertStartAndWaitConnected();
 
-	HatoholArmPluginInterfaceTest hapiCl(hapiSv);
+		void sendTestCommand(void)
+		{
+			SmartBuffer cmdBuf;
+			setupCommandHeader<void>(cmdBuf, testCmdCode);
+			send(cmdBuf);
+		}
+	} hapiSv;
+
+	struct HapiCl : public HatoholArmPluginInterfaceTest {
+		HapiCl(Hapi &hapiSv)
+		: HatoholArmPluginInterfaceTest(hapiSv)
+		{
+			registerCommandHandler(
+			  hapiSv.testCmdCode, (CommandHandler)&HapiCl::handler);
+		}
+
+		void handler(const HapiCommandHeader *header)
+		{
+			SmartBuffer resBuf;
+			setupResponseBuffer<void>(resBuf);
+			send(resBuf);
+		}
+	} hapiCl(hapiSv);
+
+	hapiSv.assertStartAndWaitConnected();
 	hapiCl.assertStartAndWaitConnected();
 
 	// wait for the completion of the initiation
 	hapiSv.assertWaitInitiated();
+	hapiCl.assertWaitInitiated();
 
-	// send a command code and wait for the callback.
-	SmartBuffer resBuf;
-	hapiCl.callSetupResponseBuffer<void>(resBuf);
-	HapiResponseHeader *header = resBuf.getPointer<HapiResponseHeader>(0);
-	header->sequenceId = 0;
-	hapiCl.send(resBuf);
-
+	// send a command and wait for the reponse.
+	hapiSv.sendTestCommand();
 	cppcut_assert_equal(SimpleSemaphore::STAT_OK,
 	                    hapiSv.gotResSem.timedWait(TIMEOUT));
 	cppcut_assert_equal(HAPI_RES_OK, hapiSv.gotResCode);

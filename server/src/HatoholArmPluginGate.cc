@@ -502,6 +502,8 @@ void HatoholArmPluginGate::cmdHandlerSendUpdatedTriggers(
 	CacheServiceDBClient cache;
 	DBClientHatohol *dbHatohol = cache.getHatohol();
 	dbHatohol->addTriggerInfoList(trigInfoList);
+
+	replyOk();
 }
 
 void HatoholArmPluginGate::cmdHandlerSendHosts(
@@ -529,6 +531,8 @@ void HatoholArmPluginGate::cmdHandlerSendHosts(
 	HostInfoListConstIterator hostInfoItr = hostInfoList.begin();
 	for (; hostInfoItr != hostInfoList.end(); ++hostInfoItr)
 		m_ctx->hostInfoCache.update(*hostInfoItr);
+
+	replyOk();
 }
 
 void HatoholArmPluginGate::cmdHandlerSendHostgroupElements(
@@ -552,6 +556,8 @@ void HatoholArmPluginGate::cmdHandlerSendHostgroupElements(
 	CacheServiceDBClient cache;
 	DBClientHatohol *dbHatohol = cache.getHatohol();
 	dbHatohol->addHostgroupElementList(hostgroupElementList);
+
+	replyOk();
 }
 
 void HatoholArmPluginGate::cmdHandlerSendHostgroups(
@@ -574,6 +580,8 @@ void HatoholArmPluginGate::cmdHandlerSendHostgroups(
 	CacheServiceDBClient cache;
 	DBClientHatohol *dbHatohol = cache.getHatohol();
 	dbHatohol->addHostgroupInfoList(hostgroupInfoList);
+
+	replyOk();
 }
 
 void HatoholArmPluginGate::cmdHandlerSendUpdatedEvents(
@@ -593,6 +601,8 @@ void HatoholArmPluginGate::cmdHandlerSendUpdatedEvents(
 	DBClientZabbix::transformEventsToHatoholFormat(
 	  eventInfoList, eventTablePtr, m_ctx->serverInfo.id);
 	UnifiedDataStore::getInstance()->addEventList(eventInfoList);
+
+	replyOk();
 }
 
 void HatoholArmPluginGate::cmdHandlerSendArmInfo(
@@ -631,4 +641,6 @@ void HatoholArmPluginGate::cmdHandlerSendArmInfo(
 	                                   body->failureCommentOffset,
 	                                   body->failureCommentLength);
 	m_ctx->armStatus.setArmInfo(armInfo);
+
+	replyOk();
 }

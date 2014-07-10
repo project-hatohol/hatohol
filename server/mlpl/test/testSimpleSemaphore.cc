@@ -59,5 +59,11 @@ void test_init(void)
 	cppcut_assert_equal(SimpleSemaphore::STAT_TIMEDOUT, sem.timedWait(1));
 }
 
+void test_staticPost(void)
+{
+	SimpleSemaphore sem(0);
+	SimpleSemaphore::post(&sem);
+	cppcut_assert_equal(0, sem.wait());
+}
 
 } // namespace testSimpleSemaphore

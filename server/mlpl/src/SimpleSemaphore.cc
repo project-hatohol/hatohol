@@ -83,6 +83,11 @@ retry:
 	return 0;
 }
 
+void SimpleSemaphore::post(SimpleSemaphore *sem)
+{
+	sem->post();
+}
+
 int SimpleSemaphore::wait(void)
 {
 retry:

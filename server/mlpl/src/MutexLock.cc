@@ -93,3 +93,16 @@ void MutexLock::unlock(MutexLock *lock)
 	pthread_mutex_unlock(&lock->m_ctx->lock);
 }
 
+// ----------------------------------------------------------------------------
+// AutoMutexLock
+// ----------------------------------------------------------------------------
+AutoMutexLock::AutoMutexLock(MutexLock *mutex)
+: m_mutex(mutex)
+{
+	m_mutex->lock();
+}
+
+AutoMutexLock::~AutoMutexLock()
+{
+	m_mutex->unlock();
+}

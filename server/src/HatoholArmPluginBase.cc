@@ -27,59 +27,77 @@ using namespace mlpl;
 
 const size_t HatoholArmPluginBase::WAIT_INFINITE = 0;
 
-struct HatoholArmPluginBase::AsyncCbData {
-	HatoholArmPluginBase *obj;
-	void                 *priv;
-
-	AsyncCbData(HatoholArmPluginBase *_obj, void *_priv)
-	: obj(_obj),
-	  priv(_priv)
+class HatoholArmPluginBase::SyncCommand : public CommandCallbacks {
+public:
+	SyncCommand(HatoholArmPluginBase *obj)
+	: m_obj(obj),
+	  m_sem(0),
+	  m_succeeded(false)
 	{
 	}
-};
 
-typedef void (*AsyncCallback)(HatoholArmPluginBase::AsyncCbData *data);
+	virtual void onGotReply(
+	  const mlpl::SmartBuffer &replyBuf,
+	  const HapiCommandHeader &cmdHeader) override
+	{
+	}
+
+	virtual void onError(
+	  const HapiResponseCode &code,
+	  const HapiCommandHeader &cmdHeader) override
+	{
+		post();
+	}
+
+	void wait(void)
+	{
+		m_sem.wait();
+	}
+
+	bool getSucceeded(void) const
+	{
+		return m_succeeded;
+	}
+
+protected:
+	struct SemaphorePoster {
+		SyncCommand *syncCmd;
+
+		SemaphorePoster(SyncCommand *_syncCmd)
+		: syncCmd(_syncCmd)
+		{
+		}
+
+		virtual ~SemaphorePoster()
+		{
+			syncCmd->post();
+		}
+	};
+
+	void setSucceeded(const bool &succeeded = true)
+	{
+		m_succeeded = succeeded;
+	}
+
+	void post(void)
+	{
+		m_sem.post();
+	}
+
+	HatoholArmPluginBase *getObject(void) const
+	{
+		return m_obj;
+	}
+
+private:
+	HatoholArmPluginBase *m_obj;
+	SimpleSemaphore       m_sem;
+	bool                  m_succeeded;
+
+};
 
 struct HatoholArmPluginBase::PrivateContext {
-	SimpleSemaphore replyWaitSem;
-	SmartBuffer     responseBuf;
-	AsyncCallback   currAsyncCb;
-	AsyncCbData    *currAsyncCbData;
-
-	MutexLock       waitMutex;
-	bool            inResetForInitiated;
-	bool            waitInitiatedAck;
-	SimpleSemaphore initiatedAckSem;
-
-	PrivateContext(void)
-	: replyWaitSem(0),
-	  currAsyncCb(NULL),
-	  currAsyncCbData(NULL),
-	  inResetForInitiated(false),
-	  waitInitiatedAck(false),
-	  initiatedAckSem(0)
-	{
-	}
 };
-
-// ---------------------------------------------------------------------------
-// GetMonitoringServerInfoAsyncArg
-// ---------------------------------------------------------------------------
-HatoholArmPluginBase::GetMonitoringServerInfoAsyncArg::GetMonitoringServerInfoAsyncArg(MonitoringServerInfo *serverInfo)
-: m_serverInfo(serverInfo)
-{
-}
-
-void HatoholArmPluginBase::GetMonitoringServerInfoAsyncArg::doneCb(
-  const bool &succeeded)
-{
-}
-
-MonitoringServerInfo &
-  HatoholArmPluginBase::GetMonitoringServerInfoAsyncArg::getMonitoringServerInfo(void)
-{
-	return *m_serverInfo;
-}
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -107,135 +125,142 @@ HatoholArmPluginBase::~HatoholArmPluginBase()
 bool HatoholArmPluginBase::getMonitoringServerInfo(
   MonitoringServerInfo &serverInfo)
 {
-	sendCmdGetMonitoringServerInfo();
-	waitResponseAndCheckHeader();
-	return parseReplyGetMonitoringServerInfo(serverInfo);
-}
+	struct Callback : public SyncCommand {
+		bool parseResult;
+		MonitoringServerInfo &serverInfo;
 
-void HatoholArmPluginBase::getMonitoringServerInfoAsync(
-  GetMonitoringServerInfoAsyncArg *arg)
-{
-	HATOHOL_ASSERT(!m_ctx->currAsyncCb,
-	               "Async. process is already running.");
-	sendCmdGetMonitoringServerInfo();
-	m_ctx->currAsyncCb = _getMonitoringServerInfoAsyncCb;
-	m_ctx->currAsyncCbData = new AsyncCbData(this, arg);
+		Callback(HatoholArmPluginBase *obj,
+		         MonitoringServerInfo &_serverInfo)
+		: SyncCommand(obj),
+		  parseResult(false),
+		  serverInfo(_serverInfo)
+		{
+		}
+
+		virtual void onGotReply(
+		  const mlpl::SmartBuffer &replyBuf,
+		  const HapiCommandHeader &cmdHeader) override
+		{
+			SemaphorePoster poster(this);
+			parseResult =
+			  getObject()->parseReplyGetMonitoringServerInfo(
+			    serverInfo, replyBuf);
+			setSucceeded();
+		}
+	} *cb = new Callback(this, serverInfo);
+	Reaper<UsedCountable> reaper(cb, UsedCountable::unref);
+
+	sendCmdGetMonitoringServerInfo(cb);
+	cb->wait();
+	if (!cb->getSucceeded()) {
+		THROW_HATOHOL_EXCEPTION(
+		  "Failed to call HAPI_CMD_GET_TIMESTAMP_OF_LAST_TRIGGER\n");
+	}
+	return cb->parseResult;
 }
 
 SmartTime HatoholArmPluginBase::getTimestampOfLastTrigger(void)
 {
+	struct Callback : public SyncCommand {
+		timespec ts;
+
+		Callback(HatoholArmPluginBase *obj)
+		: SyncCommand(obj)
+		{
+		}
+
+		virtual void onGotReply(
+		  const mlpl::SmartBuffer &replyBuf,
+		  const HapiCommandHeader &cmdHeader) override
+		{
+			SemaphorePoster poster(this);
+			const HapiResTimestampOfLastTrigger *body =
+			  getObject()->getResponseBody
+			    <HapiResTimestampOfLastTrigger>(replyBuf);
+			ts.tv_sec  = LtoN(body->timestamp);
+			ts.tv_nsec = LtoN(body->nanosec);
+			setSucceeded();
+		}
+
+	} *cb = new Callback(this);
+	Reaper<UsedCountable> reaper(cb, UsedCountable::unref);
+
 	SmartBuffer cmdBuf;
 	setupCommandHeader<void>(
 	  cmdBuf, HAPI_CMD_GET_TIMESTAMP_OF_LAST_TRIGGER);
-	send(cmdBuf);
-	waitResponseAndCheckHeader();
-
-	const HapiResTimestampOfLastTrigger *body = 
-	  getResponseBody<HapiResTimestampOfLastTrigger>(m_ctx->responseBuf);
-	timespec ts;
-	ts.tv_sec  = LtoN(body->timestamp);
-	ts.tv_nsec = LtoN(body->nanosec);
-	return SmartTime(ts);
+	send(cmdBuf, cb);
+	cb->wait();
+	if (!cb->getSucceeded()) {
+		THROW_HATOHOL_EXCEPTION(
+		  "Failed to call HAPI_CMD_GET_TIMESTAMP_OF_LAST_TRIGGER\n");
+	}
+	return SmartTime(cb->ts);
 }
 
 EventIdType HatoholArmPluginBase::getLastEventId(void)
 {
+	struct Callback : public SyncCommand {
+		EventIdType eventId;
+
+		Callback(HatoholArmPluginBase *obj)
+		: SyncCommand(obj),
+		  eventId(INVALID_EVENT_ID)
+		{
+		}
+
+		virtual void onGotReply(
+		  const mlpl::SmartBuffer &replyBuf,
+		  const HapiCommandHeader &cmdHeader) override
+		{
+			SemaphorePoster poster(this);
+			const HapiResLastEventId *body =
+			  getObject()->getResponseBody
+			    <HapiResLastEventId>(replyBuf);
+			eventId = body->lastEventId;
+			setSucceeded();
+		}
+	} *cb = new Callback(this);
+	Reaper<UsedCountable> reaper(cb, UsedCountable::unref);
+
 	SmartBuffer cmdBuf;
 	setupCommandHeader<void>(cmdBuf, HAPI_CMD_GET_LAST_EVENT_ID);
-	send(cmdBuf);
-	waitResponseAndCheckHeader();
-
-	const HapiResLastEventId *body =
-	  getResponseBody<HapiResLastEventId>(m_ctx->responseBuf);
-	return body->lastEventId;
+	send(cmdBuf, cb);
+	cb->wait();
+	if (!cb->getSucceeded()) {
+		THROW_HATOHOL_EXCEPTION(
+		  "Failed to call HAPI_CMD_GET_LAST_EVENT_ID\n");
+	}
+	return cb->eventId;
 }
 
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void HatoholArmPluginBase::onGotResponse(
-  const HapiResponseHeader *header, SmartBuffer &resBuf)
-{
-	resBuf.handOver(m_ctx->responseBuf);
-	if (m_ctx->currAsyncCb) {
-		(*m_ctx->currAsyncCb)(m_ctx->currAsyncCbData);
-		m_ctx->currAsyncCb = NULL;
-		m_ctx->currAsyncCbData = NULL;
-		return;
-	}
-	m_ctx->replyWaitSem.post();
-}
-
-void HatoholArmPluginBase::onInitiated(void)
-{
-	m_ctx->waitMutex.lock();
-	if (!m_ctx->waitInitiatedAck) {
-		m_ctx->waitMutex.unlock();
-		return;
-	}
-
-	m_ctx->inResetForInitiated = true;
-	m_ctx->replyWaitSem.post();
-	m_ctx->waitMutex.unlock();
-	onPreWaitInitiatedAck();
-	m_ctx->initiatedAckSem.wait();
-	m_ctx->inResetForInitiated = false;
-	onPostWaitInitiatedAck();
-}
-
 void HatoholArmPluginBase::onReceivedTerminate(void)
 {
 	MLPL_INFO("Got the teminate command.\n");
 	exit(EXIT_SUCCESS);
 }
 
-void HatoholArmPluginBase::onPreWaitInitiatedAck(void)
-{
-}
-
-void HatoholArmPluginBase::onPostWaitInitiatedAck(void)
-{
-}
-
-void HatoholArmPluginBase::enableWaitInitiatedAck(const bool &enable)
-{
-	Reaper<MutexLock> unlocker(&m_ctx->waitMutex, MutexLock::unlock);
-	m_ctx->waitMutex.lock();
-	m_ctx->waitInitiatedAck = enable;
-	throwInitiatedExceptionIfNeeded();
-}
-
-void HatoholArmPluginBase::ackInitiated(void)
-{
-	m_ctx->initiatedAckSem.post();
-}
-
-void HatoholArmPluginBase::throwInitiatedExceptionIfNeeded(void)
-{
-	if (m_ctx->inResetForInitiated) {
-		m_ctx->inResetForInitiated = false;
-		throw HapInitiatedException();
-	}
-}
-
-void HatoholArmPluginBase::sendCmdGetMonitoringServerInfo(void)
+void HatoholArmPluginBase::sendCmdGetMonitoringServerInfo(
+  CommandCallbacks *callbacks)
 {
 	SmartBuffer cmdBuf;
 	setupCommandHeader<void>(
 	  cmdBuf, HAPI_CMD_GET_MONITORING_SERVER_INFO);
-	send(cmdBuf);
+	send(cmdBuf, callbacks);
 }
 
 bool HatoholArmPluginBase::parseReplyGetMonitoringServerInfo(
-  MonitoringServerInfo &serverInfo)
+  MonitoringServerInfo &serverInfo, const SmartBuffer &responseBuf)
 {
 	const HapiResMonitoringServerInfo *svInfo =
-	  getResponseBody<HapiResMonitoringServerInfo>(m_ctx->responseBuf);
+	  getResponseBody<HapiResMonitoringServerInfo>(responseBuf);
 	serverInfo.id   = LtoN(svInfo->serverId);
 	serverInfo.type = static_cast<MonitoringSystemType>(LtoN(svInfo->type));
 
 	const char *str;
-	str = getString(m_ctx->responseBuf, svInfo,
+	str = getString(responseBuf, svInfo,
 	                svInfo->hostNameOffset, svInfo->hostNameLength);
 	if (!str) {
 		MLPL_ERR("Broken packet: hostName.\n");
@@ -243,7 +268,7 @@ bool HatoholArmPluginBase::parseReplyGetMonitoringServerInfo(
 	}
 	serverInfo.hostName = str;
 
-	str = getString(m_ctx->responseBuf, svInfo,
+	str = getString(responseBuf, svInfo,
 	                svInfo->ipAddressOffset, svInfo->ipAddressLength);
 	if (!str) {
 		MLPL_ERR("Broken packet: ipAddress.\n");
@@ -251,7 +276,7 @@ bool HatoholArmPluginBase::parseReplyGetMonitoringServerInfo(
 	}
 	serverInfo.ipAddress = str;
 
-	str = getString(m_ctx->responseBuf, svInfo,
+	str = getString(responseBuf, svInfo,
 	                svInfo->nicknameOffset, svInfo->nicknameLength);
 	if (!str) {
 		MLPL_ERR("Broken packet: nickname.\n");
@@ -259,7 +284,7 @@ bool HatoholArmPluginBase::parseReplyGetMonitoringServerInfo(
 	}
 	serverInfo.nickname = str;
 
-	str = getString(m_ctx->responseBuf, svInfo,
+	str = getString(responseBuf, svInfo,
 	                svInfo->userNameOffset, svInfo->userNameLength);
 	if (!str) {
 		MLPL_ERR("Broken packet: userName.\n");
@@ -267,7 +292,7 @@ bool HatoholArmPluginBase::parseReplyGetMonitoringServerInfo(
 	}
 	serverInfo.userName = str;
 
-	str = getString(m_ctx->responseBuf, svInfo,
+	str = getString(responseBuf, svInfo,
 	                svInfo->passwordOffset, svInfo->passwordLength);
 	if (!str) {
 		MLPL_ERR("Broken packet: password.\n");
@@ -275,7 +300,7 @@ bool HatoholArmPluginBase::parseReplyGetMonitoringServerInfo(
 	}
 	serverInfo.password = str;
 
-	str = getString(m_ctx->responseBuf, svInfo,
+	str = getString(responseBuf, svInfo,
 	                svInfo->dbNameOffset, svInfo->dbNameLength);
 	if (!str) {
 		MLPL_ERR("Broken packet: dbName.\n");
@@ -288,57 +313,6 @@ bool HatoholArmPluginBase::parseReplyGetMonitoringServerInfo(
 	serverInfo.retryIntervalSec   = LtoN(svInfo->retryIntervalSec);
 
 	return true;
-}
-
-void HatoholArmPluginBase::_getMonitoringServerInfoAsyncCb(
-  HatoholArmPluginBase::AsyncCbData *data)
-{
-	GetMonitoringServerInfoAsyncArg *arg =
-	  static_cast<GetMonitoringServerInfoAsyncArg *>(data->priv);
-	data->obj->getMonitoringServerInfoAsyncCb(arg);
-	delete data;
-}
-
-void HatoholArmPluginBase::getMonitoringServerInfoAsyncCb(
-  HatoholArmPluginBase::GetMonitoringServerInfoAsyncArg *arg)
-{
-	bool succeeded = parseReplyGetMonitoringServerInfo(
-	                   arg->getMonitoringServerInfo());
-	arg->doneCb(succeeded);
-}
-
-void HatoholArmPluginBase::waitResponseAndCheckHeader(void)
-{
-	HATOHOL_ASSERT(!m_ctx->currAsyncCb,
-	               "Async. process is already running.");
-	sleepInitiatedExceptionThrowable(WAIT_INFINITE);
-
-	// To check the sainity of the header
-	getResponseHeader(m_ctx->responseBuf);
-}
-
-bool HatoholArmPluginBase::sleepInitiatedExceptionThrowable(size_t timeoutInMS)
-{
-	bool wakedUp = true;
-	if (timeoutInMS == WAIT_INFINITE) {
-		m_ctx->replyWaitSem.wait();
-	} else {
-		SimpleSemaphore::Status stat =
-		  m_ctx->replyWaitSem.timedWait(timeoutInMS);
-		HATOHOL_ASSERT(stat != SimpleSemaphore::STAT_ERROR_UNKNOWN,
-		               "timedWait() returns STAT_ERROR_UNKNOWN");
-		if (stat == SimpleSemaphore::STAT_TIMEDOUT)
-			wakedUp = false;
-	}
-	Reaper<MutexLock> unlocker(&m_ctx->waitMutex, MutexLock::unlock);
-	m_ctx->waitMutex.lock();
-	throwInitiatedExceptionIfNeeded();
-	return wakedUp;
-}
-
-void HatoholArmPluginBase::wake(void)
-{
-	m_ctx->replyWaitSem.post();
 }
 
 void HatoholArmPluginBase::sendTable(

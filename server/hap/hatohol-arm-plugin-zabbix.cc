@@ -22,8 +22,11 @@
 
 #include <HapZabbixAPI.h>
 #include <SimpleSemaphore.h>
+#include <MutexLock.h>
+#include "Utils.h"
 #include "HapProcess.h"
 
+using namespace std;
 using namespace mlpl;
 
 class HapProcessZabbixAPI : public HapProcess, public HapZabbixAPI {
@@ -33,39 +36,11 @@ public:
 	int mainLoopRun(void);
 
 protected:
-	gpointer hapMainThread(HatoholThreadArg *arg) override;
-
 	// called from HapZabbixAPI
-	void onPreWaitInitiatedAck(void) override;
-	void onPostWaitInitiatedAck(void) override;
-	void onReady(void) override;
+	void onReady(const MonitoringServerInfo &serverInfo) override;
 
-	/**
-	 * Wait for the callback of onReady.
-	 *
-	 * @return true if exit is requsted. Otherwise false is returned.
-	 */
-	bool waitOnReady(void);
-
-	/**
-	 * Get the MonitoringServerInfo from Hatohol and
-	 * do a basic setup with it. The obtained MonitoringServerInfo is
-	 * stored in PrivateContext.
-	 *
-	 * @return true if exit is requsted. Otherwise false is returned.
-	 */
-	bool initMonitoringServerInfo(void);
-
-	/**
-	 * Sleep for a specified time.
-	 *
-	 * @param sleepTimeInSec A sleep time.
-	 *
-	 * @return true if exit is requsted. Otherwise false is returned.
-	 */
-	bool sleepForMainThread(const int &sleepTimeInSec);
-
-	gpointer _hapMainThread(HatoholThreadArg *arg);
+	static gboolean acquisitionTimerCb(void *data);
+	void startAcquisition(void);
 	void acquireData(void);
 
 private:
@@ -78,15 +53,13 @@ private:
 // ---------------------------------------------------------------------------
 struct HapProcessZabbixAPI::PrivateContext {
 	MonitoringServerInfo serverInfo;
-	SimpleSemaphore      startSem;
-	SimpleSemaphore      mainThreadSem;
-	// TODO: set readyFlag false when the connection is lost.
-	AtomicValue<bool>    readyFlag;
+	MutexLock            lock;
+	guint                timerTag;
+	bool                 hasNewServerInfo;
 
 	PrivateContext(void)
-	: startSem(0),
-	  mainThreadSem(0),
-	  readyFlag(false)
+	: timerTag(INVALID_EVENT_ID),
+	  hasNewServerInfo(false)
 	{
 	}
 };
@@ -120,14 +93,7 @@ int HapProcessZabbixAPI::mainLoopRun(void)
 	if (clarg.queueAddress)
 		setQueueAddress(clarg.queueAddress);
 
-	// TODO: Consider the architecuture
-	// Current implementation using two threads is a little complicated.
-	// (especially the synchornization)
-	// How about using GLib Event loop instead of hapMainThread ?
-	enableWaitInitiatedAck();
-	ackInitiated(); // To pass the first initiation
 	HapZabbixAPI::start();
-	HapProcess::start();
 	g_main_loop_run(getGMainLoop());
 	return EXIT_SUCCESS;
 }
@@ -138,96 +104,68 @@ int HapProcessZabbixAPI::mainLoopRun(void)
 //
 // Method running on HapProcess's thread
 //
-gpointer HapProcessZabbixAPI::hapMainThread(HatoholThreadArg *arg)
+gboolean  HapProcessZabbixAPI::acquisitionTimerCb(void *data)
 {
-top:
-	m_ctx->startSem.wait(); // Wait for completion of initiation
-	gpointer ret = NULL;
-	try {
-		ret = _hapMainThread(arg);
-	} catch (const HapInitiatedException &e) {
-		m_ctx->readyFlag = false;
-		ackInitiated();
-		goto top;
-	} catch (...) {
-		m_ctx->startSem.post();
-		throw;
-	}
-	return ret;
+	HapProcessZabbixAPI *obj = static_cast<HapProcessZabbixAPI *>(data);
+	obj->m_ctx->timerTag = INVALID_EVENT_ID;
+	obj->startAcquisition();
+	return G_SOURCE_REMOVE;
 }
 
-gpointer HapProcessZabbixAPI::_hapMainThread(HatoholThreadArg *arg)
+void HapProcessZabbixAPI::startAcquisition(void)
 {
-	if (!m_ctx->readyFlag && waitOnReady())
-		return NULL;
-	clearAuthToken();
-	MLPL_INFO("Status: ready.\n");
-
-	// TODO: HapZabbixAPI get MonitoringServerInfo in onInitiated()
-	//       We should fix to use it to reduce the communication.
-	if (initMonitoringServerInfo())
-		return NULL;
-
-	bool shouldExit = false;
-	// TODO: this structure should be in the base class.
-	while (!shouldExit) {
-		try {
-			acquireData();
-		} catch (const HatoholException &e) {
-			getArmStatus().logFailure(e.getFancyMessage());
-			sendArmInfo(getArmStatus().getArmInfo());
-			throw;
+	if (m_ctx->timerTag != INVALID_EVENT_ID) {
+		// This condition may happen when unexpected initiation
+		// happens and then onReady() is called. In the case,
+		// we cancel the previous timer.
+		MLPL_INFO("Remove previously registered timer: %u\n",
+		          m_ctx->timerTag);
+		bool succeeded =
+		  Utils::removeEventSourceIfNeeded(m_ctx->timerTag);
+		if (!succeeded) {
+			MLPL_ERR("Failed to remove timer: %u\n",
+		                 m_ctx->timerTag);
 		}
-		getArmStatus().logSuccess();
-		sendArmInfo(getArmStatus().getArmInfo());
-		shouldExit =
-		  sleepForMainThread(m_ctx->serverInfo.pollingIntervalSec);
+		m_ctx->timerTag = INVALID_EVENT_ID;
 	}
-	return NULL;
-}
 
-bool HapProcessZabbixAPI::waitOnReady(void)
-{
-	const size_t waitTimeSec = 10 * 60;
-	bool shouldExit = false;
-	while (!shouldExit) {
-		shouldExit = sleepForMainThread(waitTimeSec);
-		if (m_ctx->readyFlag)
-			break;
-		else
-			MLPL_INFO("Waitting for the ready state.\n");
+	// copy the paramter and set server info if needed
+	m_ctx->lock.lock();
+	int pollingIntervalSec = m_ctx->serverInfo.pollingIntervalSec;
+	int retryIntervalSec   = m_ctx->serverInfo.retryIntervalSec;
+	if (m_ctx->hasNewServerInfo) {
+		setMonitoringServerInfo(m_ctx->serverInfo);
+		m_ctx->hasNewServerInfo = false;
 	}
-	return shouldExit;
-}
+	m_ctx->lock.unlock();
 
-bool HapProcessZabbixAPI::initMonitoringServerInfo(void)
-{
-	const size_t sleepTimeSec = 30;
-	while (true) {
-		bool succeeded = getMonitoringServerInfo(m_ctx->serverInfo);
-		if (succeeded)
-			break;
-		MLPL_INFO("Failed to get MonitoringServerInfo. "
-		          "Retry after %zd sec.\n",  sleepTimeSec);
-		if (sleepForMainThread(sleepTimeSec))
-			return true;
+	// try to acquisition
+	bool caughtException = false;
+	string exceptionName;
+	string exceptionMsg;
+	try {
+		acquireData();
+	} catch (const HatoholException &e) {
+		exceptionName = DEMANGLED_TYPE_NAME(e);
+		exceptionMsg  = e.getFancyMessage();
+		caughtException = true;
+	} catch (const exception &e) {
+		exceptionName = DEMANGLED_TYPE_NAME(e);
+		exceptionMsg  = e.what();
+		caughtException = true;
+	} catch (...) {
+		caughtException = true;
 	}
-	setMonitoringServerInfo(m_ctx->serverInfo);
-	setExceptionSleepTime(m_ctx->serverInfo.retryIntervalSec*1000);
-	return false;
-}
 
-bool HapProcessZabbixAPI::sleepForMainThread(const int &sleepTimeInSec)
-{
-	SimpleSemaphore::Status status =
-	  m_ctx->mainThreadSem.timedWait(sleepTimeInSec * 1000);
-	// TODO: Add a mechanism to exit
-	HATOHOL_ASSERT(
-	  status != SimpleSemaphore::STAT_ERROR_UNKNOWN,
-	  "Unexpected result: %d\n", status);
-	throwInitiatedExceptionIfNeeded();
-
-	return false;
+	// Set up a timer for next aquisition
+	guint intervalMSec = pollingIntervalSec * 1000;
+	if (caughtException) {
+		intervalMSec = retryIntervalSec * 1000;
+		const char *name = exceptionName.c_str() ? : "Unknown";
+		const char *msg  = exceptionMsg.c_str()  ? : "N/A";
+		MLPL_ERR("Caught an exception: (%s) %s\n", name, msg);
+	}
+	m_ctx->timerTag = g_timeout_add(intervalMSec, acquisitionTimerCb, this);
 }
 
 void HapProcessZabbixAPI::acquireData(void)
@@ -242,24 +180,20 @@ void HapProcessZabbixAPI::acquireData(void)
 //
 // Methods running on HapZabbixAPI's thread
 //
-void HapProcessZabbixAPI::onPreWaitInitiatedAck(void)
+void HapProcessZabbixAPI::onReady(const MonitoringServerInfo &serverInfo)
 {
-	m_ctx->mainThreadSem.post();
-}
-
-void HapProcessZabbixAPI::onPostWaitInitiatedAck(void)
-{
-	// If hapMainThread isn't in mainThreadSem.timedWait() when
-	// onPreWaitInitiatedAck() is called, the count of mainThreadSem
-	// overabounds. So we forecely reset here.
-	m_ctx->mainThreadSem.init(0);
-	m_ctx->startSem.post();
-}
-
-void HapProcessZabbixAPI::onReady(void)
-{
-	m_ctx->readyFlag = true;
-	m_ctx->mainThreadSem.post();
+	m_ctx->lock.lock();
+	m_ctx->serverInfo = serverInfo;
+	m_ctx->hasNewServerInfo = true;
+	m_ctx->lock.unlock();
+	struct NoName {
+		static void startAcquisition(HapProcessZabbixAPI *obj)
+		{
+			obj->startAcquisition();
+		}
+	};
+	Utils::executeOnGLibEventLoop<HapProcessZabbixAPI>(
+	  NoName::startAcquisition, this, ASYNC);
 }
 
 // ---------------------------------------------------------------------------

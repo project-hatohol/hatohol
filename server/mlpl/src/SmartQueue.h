@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -20,29 +20,92 @@
 #ifndef SmartQueue_h
 #define SmartQueue_h
 
+#include <MutexLock.h>
+#include <SimpleSemaphore.h>
+#include <Reaper.h>
 #include <deque>
-#include <pthread.h>
-#include <semaphore.h>
 
 namespace mlpl {
 
-class SmartQueueElement {
-};
-
+template<typename T>
 class SmartQueue {
 public:
-	SmartQueue(void);
-	virtual ~SmartQueue();
-	void push(SmartQueueElement *elem);
-	SmartQueueElement *pop(void);
+	SmartQueue(void)
+	{
+	}
+
+	virtual ~SmartQueue()
+	{
+	}
+
+	void push(T elem)
+	{
+		m_mutex.lock();
+		m_queue.push_back(elem);
+		m_mutex.unlock();
+		m_sem.post();
+	}
+
+	T pop(void)
+	{
+		m_sem.wait();
+		m_mutex.lock();
+		T elem = m_queue.front();
+		m_queue.pop_front();
+		m_mutex.unlock();
+		return elem;
+	}
+
+	/**
+	 * Pop an element and call the specified function with it for
+	 * all elements with in a lock.
+	 *
+	 * @tparam PrivType
+	 * A type name for the second argument of the callback function.
+	 *
+	 * @param func A callback function.
+	 * @param priv An arbitary pointer passed to the callback function.
+	 *
+	 */
+	template <typename PrivType>
+	void popAll(void (*func)(T elem, PrivType), PrivType priv)
+	{
+		mlpl::Reaper<mlpl::MutexLock>
+		  unlocker(&m_mutex, mlpl::MutexLock::unlock);
+		m_mutex.lock();
+		while (!m_queue.empty()) {
+			m_sem.wait();
+			(*func)(m_queue.front(), priv);
+			m_queue.pop_front();
+		}
+	}
+
+	/**
+	 * Pop an element only if there's an element.
+	 *
+	 * @param dest The popped value is stored to this variable.
+	 * @return true if an element is popped. Otherwise false.
+	 */
+	bool popIfNonEmpty(T &dest)
+	{
+		bool exist = false;
+		m_mutex.lock();
+		if (!m_queue.empty()) {
+			exist = true;
+			m_sem.wait();
+			dest = m_queue.front();
+			m_queue.pop_front();
+		}
+		m_mutex.unlock();
+		return exist;
+	}
 
 protected:
-	void sem_wait_sig_retry(sem_t *sem);
 
 private:
-	pthread_mutex_t m_mutex;
-	sem_t m_sem;
-	std::deque<SmartQueueElement *> m_queue;
+	mlpl::MutexLock       m_mutex;
+	mlpl::SimpleSemaphore m_sem;
+	std::deque<T>         m_queue;
 };
 
 } // namespace mlpl

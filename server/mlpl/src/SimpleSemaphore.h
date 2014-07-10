@@ -48,6 +48,8 @@ public:
 	 */
 	int post(void);
 
+	static void post(SimpleSemaphore *sem);
+
 	/**
 	 * Wait a semaphore.
 	 *

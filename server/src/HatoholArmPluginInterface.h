@@ -77,6 +77,8 @@ enum HapiResponseCode {
 	HAPI_RES_INVALID_HEADER,
 	HAPI_RES_UNKNOWN_CODE,
 	HAPI_RES_INVALID_ARG,
+	HAPI_RES_UNEXPECTED_SEQ_ID,
+	HAPI_RES_ERR_DESTRUCTED,
 	NUM_HAPI_CMD_RES
 };
 
@@ -214,6 +216,17 @@ public:
 	typedef void (HatoholArmPluginInterface::*CommandHandler)(
 	  const HapiCommandHeader *header);
 
+	class CommandCallbacks : public UsedCountable {
+	public:
+		virtual void onGotReply(const mlpl::SmartBuffer &replyBuf,
+		                        const HapiCommandHeader &cmdHeader);
+		virtual void onError(const HapiResponseCode &code,
+		                     const HapiCommandHeader &cmdHeader);
+	protected:
+		virtual ~CommandCallbacks();
+	};
+	typedef UsedCountablePtr<CommandCallbacks> CommandCallbacksPtr;
+
 	HatoholArmPluginInterface(
 	  const bool &workInServer = false);
 	virtual ~HatoholArmPluginInterface() override;
@@ -221,10 +234,23 @@ public:
 	virtual void exitSync(void) override;
 
 	void send(const std::string &message);
-	void send(const mlpl::SmartBuffer &smbuf);
+
+	/**
+	 * Send data to the broker's queue.
+	 *
+	 * @param smbuf Data to be sent.
+	 * @param callbacks
+	 * An instance including methods that are called back when the reply
+	 * comes or gets an error. If this paramter is NULL and the data type
+	 * is HAPI_MSG_COMMAND, the default callback handlers (mainly works to
+	 * keep the internal consistency) are created and used.
+	 */
+	void send(
+	  const mlpl::SmartBuffer &smbuf, CommandCallbacks *callbacks = NULL);
 
 	void reply(const mlpl::SmartBuffer &replyBuf);
 	void replyError(const HapiResponseCode &code);
+	void replyOk(void);
 
 	/**
 	 * Register a message receive callback method.
@@ -600,7 +626,7 @@ protected:
 	 * the body.
 	 */
 	template<class BodyType>
-	BodyType *getResponseBody(mlpl::SmartBuffer &resBuf,
+	BodyType *getResponseBody(const mlpl::SmartBuffer &resBuf,
 	                          const size_t &additionalSize = 0)
 	  throw(HatoholException)
 	{
@@ -625,7 +651,7 @@ protected:
 	 * the body.
 	 */
 	template<class BodyType>
-	BodyType *getCommandBody(mlpl::SmartBuffer &cmdBuf,
+	BodyType *getCommandBody(const mlpl::SmartBuffer &cmdBuf,
 	                         const size_t &additionalSize = 0)
 	  throw(HatoholException)
 	{
@@ -667,6 +693,8 @@ protected:
 	uint32_t getIncrementedSequenceId(void);
 	void setSequenceId(const uint32_t &sequenceId);
 	uint32_t getSequenceIdInProgress(void);
+
+	HapiMessageType getMessageType(const mlpl::SmartBuffer &smbuf);
 
 	/**
 	 * Get the received buffer that is currently being processed.

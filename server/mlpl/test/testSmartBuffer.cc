@@ -169,6 +169,16 @@ void test_getPointerWithType(void)
 	cppcut_assert_equal((uint32_t)0x06040200, *sbuf.getPointer<uint32_t>());
 }
 
+void test_getValue(void)
+{
+	SmartBuffer sbuf(10);
+	for (size_t i = 0; i < 10; i++)
+		sbuf.add8(2*i);
+	sbuf.resetIndex();
+	cppcut_assert_equal((char)0,  sbuf.getValue<char>()); // CURR_INDEX
+	cppcut_assert_equal((char)10, sbuf.getValue<char>(5));
+}
+
 void test_takeOver(void)
 {
 	static const size_t buflen = 5;

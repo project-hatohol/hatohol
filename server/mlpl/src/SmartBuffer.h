@@ -25,6 +25,8 @@
 
 namespace mlpl {
 
+static const size_t SMBUF_CURR_INDEX = SIZE_MAX;
+
 class SmartBufferException {
 };
 
@@ -121,18 +123,20 @@ public:
 	 *
 	 * @param index
 	 * An index of the buffer that is pointed by the returned value.
-	 * If this parameter is CURR_INDEX, the current index is used.
+	 * If this parameter is SMBUF_CURR_INDEX, the current index is used.
 	 *
 	 * @return A pointer of the type: T.
 	 */
-	static const size_t CURR_INDEX = SIZE_MAX;
-	template <typename T> T *getPointer(size_t index = CURR_INDEX) const {
-		size_t headIndex = (index == CURR_INDEX) ? m_index : index;
+	template <typename T>
+	T *getPointer(const size_t &index = SMBUF_CURR_INDEX) const {
+		size_t headIndex =
+		  (index == SMBUF_CURR_INDEX) ? m_index : index;
 		return reinterpret_cast<T *>(&m_buf[headIndex]);
 	}
 
-	template <typename T> T getValue(void) {
-		return *getPointer<T>();
+	template <typename T>
+	T getValue(const size_t &index = SMBUF_CURR_INDEX) const {
+		return *getPointer<T>(index);
 	}
 
 	template <typename T> T *getPointerAndIncIndex(void) {

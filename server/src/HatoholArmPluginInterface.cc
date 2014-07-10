@@ -21,6 +21,7 @@
 #include <MutexLock.h>
 #include <SmartBuffer.h>
 #include <SmartTime.h>
+#include <SmartQueue.h>
 #include <Reaper.h>
 #include <qpid/messaging/Address.h>
 #include <qpid/messaging/Connection.h>
@@ -50,6 +51,23 @@ enum InitiationState {
 	INIT_STAT_WAIT_FINISH,
 };
 
+struct ReplyWaiter {
+	// The used counter is incremented on the constructor and decremented
+	// when this object is deleted.
+	HatoholArmPluginInterface::CommandCallbacksPtr callbacksPtr;
+	HapiCommandHeader header;
+
+	ReplyWaiter(
+	  const SmartBuffer &smbuf,
+	  HatoholArmPluginInterface::CommandCallbacks *_callbacks)
+	: callbacksPtr(_callbacks)
+	{
+		const HapiCommandHeader *cmdHeader =
+		  smbuf.getPointer<HapiCommandHeader>(0);
+		header = *cmdHeader;
+	}
+};
+
 struct HatoholArmPluginInterface::PrivateContext {
 	HatoholArmPluginInterface *hapi;
 	bool       workInServer;
@@ -65,6 +83,7 @@ struct HatoholArmPluginInterface::PrivateContext {
 	string     receiverAddr;
 	uint32_t   sequenceId;
 	uint32_t   sequenceIdOfCurrCmd;
+	SmartQueue<ReplyWaiter *> replyWaiterQueue;
 
 	PrivateContext(HatoholArmPluginInterface *_hapi,
 	               const bool &_workInServer)
@@ -84,6 +103,7 @@ struct HatoholArmPluginInterface::PrivateContext {
 	virtual ~PrivateContext()
 	{
 		disconnect();
+		freeReplyWaiters();
 	}
 
 	void connect(void)
@@ -134,6 +154,20 @@ struct HatoholArmPluginInterface::PrivateContext {
 		}
 		connected = false;
 		hapi->onSessionChanged(NULL);
+	}
+
+	static void destroyReplyWaiter(ReplyWaiter *replyWaiter,
+	                               PrivateContext *ctx)
+	{
+		replyWaiter->callbacksPtr->onError(HAPI_RES_ERR_DESTRUCTED,
+		                                   replyWaiter->header);
+		delete replyWaiter;
+	}
+
+	void freeReplyWaiters(void)
+	{
+		replyWaiterQueue.popAll<PrivateContext *>(destroyReplyWaiter,
+	                                                  this);
 	}
 
 	void acknowledge(void)
@@ -198,6 +232,23 @@ private:
 };
 
 // ---------------------------------------------------------------------------
+// CommandCallbacks
+// ---------------------------------------------------------------------------
+void HatoholArmPluginInterface::CommandCallbacks::onGotReply(
+  const SmartBuffer &replyBuf, const HapiCommandHeader &cmdHeader)
+{
+}
+
+void HatoholArmPluginInterface::CommandCallbacks::onError(
+  const HapiResponseCode &code, const HapiCommandHeader &cmdHeader)
+{
+}
+
+HatoholArmPluginInterface::CommandCallbacks::~CommandCallbacks()
+{
+}
+
+// ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 HatoholArmPluginInterface::HatoholArmPluginInterface(const bool &workInServer)
@@ -221,8 +272,19 @@ void HatoholArmPluginInterface::send(const string &message)
 	m_ctx->sender.send(request);
 }
 
-void HatoholArmPluginInterface::send(const SmartBuffer &smbuf)
+void HatoholArmPluginInterface::send(
+  const SmartBuffer &smbuf, CommandCallbacks *callbacks)
 {
+	CommandCallbacksPtr callbacksPtr(callbacks);
+	if (!callbacks && (getMessageType(smbuf) == HAPI_MSG_COMMAND)) {
+		CommandCallbacks *cb = new CommandCallbacks();
+		callbacksPtr = CommandCallbacksPtr(cb, false);
+	}
+	if (callbacksPtr.hasData()) {
+		ReplyWaiter *replyWaiter = new ReplyWaiter(smbuf, callbacksPtr);
+		m_ctx->replyWaiterQueue.push(replyWaiter);
+	}
+
 	Message request;
 	request.setReplyTo(m_ctx->receiverAddr);
 	request.setContent(smbuf.getPointer<char>(0), smbuf.size());
@@ -250,6 +312,13 @@ void HatoholArmPluginInterface::replyError(const HapiResponseCode &code)
 	SmartBuffer resBuf;
 	setupResponseBuffer<void>(resBuf, 0, code);
 	reply(resBuf);
+}
+
+void HatoholArmPluginInterface::replyOk(void)
+{
+	SmartBuffer replyBuf;
+	setupResponseBuffer<void>(replyBuf);
+	reply(replyBuf);
 }
 
 void HatoholArmPluginInterface::exitSync(void)
@@ -628,7 +697,7 @@ gpointer HatoholArmPluginInterface::mainThread(HatoholThreadArg *arg)
 		onReceived(sbuf);
 		m_ctx->currMessage = NULL;
 		m_ctx->currBuffer  = NULL;
-		m_ctx->sequenceIdOfCurrCmd = SEQ_ID_UNKNOWN,
+		m_ctx->sequenceIdOfCurrCmd = SEQ_ID_UNKNOWN;
 		m_ctx->acknowledge();
 	};
 	m_ctx->disconnect();
@@ -641,6 +710,7 @@ void HatoholArmPluginInterface::onConnected(Connection &conn)
 
 void HatoholArmPluginInterface::onInitiated(void)
 {
+	m_ctx->freeReplyWaiters();
 }
 
 void HatoholArmPluginInterface::onSessionChanged(Session *session)
@@ -707,13 +777,23 @@ void HatoholArmPluginInterface::parseCommand(
 void HatoholArmPluginInterface::parseResponse(
   const HapiResponseHeader *header, mlpl::SmartBuffer &resBuf)
 {
-	if (header->sequenceId != m_ctx->sequenceId) {
-		MLPL_WARN("Got unexpected response: "
-		          "expect: %08" PRIx32 ", actual: %08" PRIx32 "\n", 
-		          m_ctx->sequenceId, header->sequenceId);
-		// TODO: Consider if we should call onGotError().
+	ReplyWaiter *replyWaiter = NULL;
+	uint32_t rcvSeqId = LtoN(header->sequenceId);
+	if (!m_ctx->replyWaiterQueue.popIfNonEmpty(replyWaiter)) {
+		MLPL_WARN("Got unexpected response: actual: %08" PRIx32 ", "
+		          "But threre's no reply waiter.\n", rcvSeqId);
 		return;
 	}
+	CppReaper<ReplyWaiter> replyWaiterDeleter(replyWaiter);
+	if (rcvSeqId != replyWaiter->header.sequenceId) {
+		MLPL_WARN("Got unexpected response: "
+		          "expect: %08" PRIx32 ", actual: %08" PRIx32 "\n", 
+		          replyWaiter->header.sequenceId, rcvSeqId);
+		replyWaiter->callbacksPtr->onError(HAPI_RES_UNEXPECTED_SEQ_ID,
+		                                   replyWaiter->header);
+		return;
+	}
+	replyWaiter->callbacksPtr->onGotReply(resBuf, replyWaiter->header);
 	onGotResponse(header, resBuf);
 }
 
@@ -884,6 +964,12 @@ void HatoholArmPluginInterface::setSequenceId(const uint32_t &sequenceId)
 uint32_t HatoholArmPluginInterface::getSequenceIdInProgress(void)
 {
 	return m_ctx->sequenceIdOfCurrCmd;
+}
+
+HapiMessageType HatoholArmPluginInterface::getMessageType(
+  const mlpl::SmartBuffer &smbuf)
+{
+	return static_cast<HapiMessageType>(LtoN(smbuf.getValue<uint16_t>(0)));
 }
 
 SmartBuffer *HatoholArmPluginInterface::getCurrBuffer(void)

@@ -100,42 +100,52 @@ void HapZabbixAPI::workOnEvents(void)
 	}
 }
 
-void HapZabbixAPI::onInitiated(void)
+void HapZabbixAPI::parseReplyGetMonitoringServerInfoOnInitiated(
+  MonitoringServerInfo &serverInfo, const SmartBuffer &replyBuf)
 {
-	struct Arg : public GetMonitoringServerInfoAsyncArg {
-		HapZabbixAPI *obj;
-		MonitoringServerInfo serverInfo;
-
-		Arg(HapZabbixAPI *_obj)
-		: GetMonitoringServerInfoAsyncArg(&serverInfo),
-		  obj(_obj)
-		{
-		}
-
-		virtual ~Arg()
-		{
-		}
-
-		virtual void doneCb(const bool &succeeded) override
-		{
-			if (succeeded) {
-				obj->setMonitoringServerInfo(serverInfo);
-			} else {
-				MLPL_ERR(
-				  "Failed to get monitoring server "
-				  "information. This process will try it when "
-				  "an initiation happens again.");
-			}
-			obj->onReady();
-			delete this;
-		}
-	};
-
-	HatoholArmPluginBase::onInitiated();
-	getMonitoringServerInfoAsync(new Arg(this));
+	if (parseReplyGetMonitoringServerInfo(serverInfo, replyBuf))
+		return;
+	THROW_HATOHOL_EXCEPTION(
+	  "Failed to parse the reply for monitoring server information.\n");
 }
 
-void HapZabbixAPI::onReady(void)
+void HapZabbixAPI::onInitiated(void)
+{
+	HatoholArmPluginBase::onInitiated();
+
+	struct Callback : public CommandCallbacks {
+		HapZabbixAPI *obj;
+
+		Callback(HapZabbixAPI *_obj)
+		: obj(_obj)
+		{
+		}
+
+		virtual void onGotReply(
+		  const SmartBuffer &replyBuf,
+		  const HapiCommandHeader &cmdHeader) override
+		{
+			MonitoringServerInfo serverInfo;
+			obj->parseReplyGetMonitoringServerInfoOnInitiated(
+			  serverInfo, replyBuf);
+			obj->setMonitoringServerInfo(serverInfo);
+			obj->onReady(serverInfo);
+		}
+
+		virtual void onError(
+		  const HapiResponseCode &code,
+		  const HapiCommandHeader &cmdHeader) override
+		{
+			THROW_HATOHOL_EXCEPTION(
+			  "Failed to get monitoring server information. "
+			  "This process will try it when an initiation "
+			  "happens again.\n");
+		}
+	} *cb = new Callback(this);
+	sendCmdGetMonitoringServerInfo(cb);
+}
+
+void HapZabbixAPI::onReady(const MonitoringServerInfo &serverInfo)
 {
 }
 
