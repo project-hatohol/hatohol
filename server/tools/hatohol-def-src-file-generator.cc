@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -51,7 +51,7 @@ do { \
 
 static const char *GPL_V2_OR_LATER_HEADER_C_STYLE =
 "/*\n"
-" * Copyright (C) 2013 Project Hatohol\n"
+" * Copyright (C) 2013-2014 Project Hatohol\n"
 " *\n"
 " * This file is part of Hatohol.\n"
 " *\n"
@@ -70,7 +70,7 @@ static const char *GPL_V2_OR_LATER_HEADER_C_STYLE =
 " */\n";
 
 static const char *GPL_V2_OR_LATER_HEADER_PLAIN =
-"  Copyright (C) 2013 Project Hatohol\n"
+"  Copyright (C) 2013-2014 Project Hatohol\n"
 "\n"
 "  This file is part of Hatohol.\n"
 "\n"
