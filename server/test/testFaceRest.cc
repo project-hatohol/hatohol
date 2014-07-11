@@ -1778,28 +1778,27 @@ void test_itemsJsonp(void)
 	assertItems("/item", "foo");
 }
 
-void test_actionsJsonp(void)
+void data_actionsJsonp(void)
 {
-	bool recreate = true;
-	bool loadData = true;
-	setupTestDBAction(recreate, loadData);
-	assertActions("/action", "foo");
+	gcut_add_datum("Normal actions",
+		       "type", G_TYPE_INT, ACTION_USER_DEFINED,
+		       NULL);
+	gcut_add_datum("IssueSenderAction",
+		       "type", G_TYPE_INT, ACTION_ISSUE_SENDER,
+		       NULL);
+	gcut_add_datum("All",
+		       "type", G_TYPE_INT, ACTION_ALL,
+		       NULL);
 }
 
-void test_getIssueSenderActions(void)
+void test_actionsJsonp(gconstpointer data)
 {
+	const ActionType actionType
+	  = static_cast<ActionType>(gcut_data_get_int(data, "type"));
 	bool recreate = true;
 	bool loadData = true;
 	setupTestDBAction(recreate, loadData);
-	assertActions("/action", "", ACTION_ISSUE_SENDER);
-}
-
-void test_getAllActions(void)
-{
-	bool recreate = true;
-	bool loadData = true;
-	setupTestDBAction(recreate, loadData);
-	assertActions("/action", "", ACTION_ALL);
+	assertActions("/action", "foo", actionType);
 }
 
 void test_addAction(void)
