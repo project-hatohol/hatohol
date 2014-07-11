@@ -752,22 +752,26 @@ static void _assertActionCondition(
 #define asssertActionCondition(PARSER, COND, MEMBER, BIT, T, EXPECT) \
 cut_trace(_assertActionCondition<T>(PARSER, COND, MEMBER, BIT, EXPECT))
 
-static void _assertActions(const string &path, const string &callbackName = "")
+static void _assertActions(const string &path, const string &callbackName = "",
+			   const ActionType actionType = ACTION_USER_DEFINED)
 {
 	setupUserDB();
 	startFaceRest();
 	RequestArg arg(path, callbackName);
+	arg.parameters["type"]
+	  = StringUtils::sprintf("%d", actionType);
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_USER);
 	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
 	assertValueInParser(g_parser, "numberOfActions",
-			    getNumberOfTestActions());
+			    getNumberOfTestActions(actionType));
 	assertStartObject(g_parser, "actions");
+	size_t idx = 0;
 	for (size_t i = 0; i < NumTestActionDef; i++) {
-		g_parser->startElement(i);
 		const ActionDef &actionDef = testActionDef[i];
-		if (actionDef.type == ACTION_ISSUE_SENDER)
+		if (filterOutAction(actionDef, actionType))
 			continue;
+		g_parser->startElement(idx++);
 		const ActionCondition &cond = actionDef.condition;
 		assertValueInParser(g_parser, "actionId", actionDef.id);
 
@@ -1780,6 +1784,22 @@ void test_actionsJsonp(void)
 	bool loadData = true;
 	setupTestDBAction(recreate, loadData);
 	assertActions("/action", "foo");
+}
+
+void test_getIssueSenderActions(void)
+{
+	bool recreate = true;
+	bool loadData = true;
+	setupTestDBAction(recreate, loadData);
+	assertActions("/action", "", ACTION_ISSUE_SENDER);
+}
+
+void test_getAllActions(void)
+{
+	bool recreate = true;
+	bool loadData = true;
+	setupTestDBAction(recreate, loadData);
+	assertActions("/action", "", ACTION_ALL);
 }
 
 void test_addAction(void)

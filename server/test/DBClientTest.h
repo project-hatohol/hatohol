@@ -131,6 +131,7 @@ size_t getNumberOfTestHostsWithStatus(
   const ServerIdType &serverId, const HostgroupIdType &hostgroupId,
   const bool &status, const UserIdType &userId = USER_ID_SYSTEM);
 
+bool filterOutAction(const ActionDef &actionDef, const ActionType &targetType);
 size_t getNumberOfTestActions(
   const ActionType &actionType = ACTION_USER_DEFINED);
 
