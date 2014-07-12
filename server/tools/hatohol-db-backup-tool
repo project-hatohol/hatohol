@@ -46,7 +46,10 @@ def dumpClientDB():
     subprocess.Popen(cmd, stdout=open("./hatohol_backupdb/hatohol_client.mysql", "w"))
 
 def dumpCacheDB(dir):
-    shutil.copytree(dir, "hatohol_backupdb/cache")
+    if (os.path.isdir(dir)):
+        shutil.copytree(dir, "hatohol_backupdb/cache")
+    else:
+        print "There is no directory."
 
 def createTmpDirectory():
     os.mkdir("hatohol_backupdb")
