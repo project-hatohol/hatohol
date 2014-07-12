@@ -118,8 +118,7 @@ struct HatoholArmPluginInterface::PrivateContext {
 		          workInServer ? "server" : "client",
 		          brokerUrl.c_str(), queueAddr.c_str());
 
-		connectionLock.lock();
-		Reaper<MutexLock> unlocker(&connectionLock, MutexLock::unlock);
+		AutoMutexLock autoMutex(&connectionLock);
 		connection = Connection(url, connectionOptions);
 		connection.open();
 		session = connection.createSession();
@@ -142,8 +141,7 @@ struct HatoholArmPluginInterface::PrivateContext {
 
 	void disconnect(void)
 	{
-		connectionLock.lock();
-		Reaper<MutexLock> unlocker(&connectionLock, MutexLock::unlock);
+		AutoMutexLock autoMutex(&connectionLock);
 		if (!connected)
 			return;
 		try {
@@ -172,8 +170,7 @@ struct HatoholArmPluginInterface::PrivateContext {
 
 	void acknowledge(void)
 	{
-		Reaper<MutexLock> unlocker(&connectionLock, MutexLock::unlock);
-		connectionLock.lock();
+		AutoMutexLock autoMutex(&connectionLock);
 		if (!connected)
 			return;
 		session.acknowledge();
