@@ -94,7 +94,7 @@ bool DataStoreManager::hasDataStore(uint32_t storeId)
 
 bool DataStoreManager::add(uint32_t storeId, DataStore *dataStore)
 {
-	AutoMutexLock autoMux(&m_ctx->mutex);
+	AutoMutexLock autoMutex(&m_ctx->mutex);
 	pair<DataStoreMapIterator, bool> result =
 	  m_ctx->dataStoreMap.insert
 	    (pair<uint32_t, DataStore *>(storeId, dataStore));
