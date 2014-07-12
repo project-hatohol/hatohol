@@ -22,13 +22,16 @@ import subprocess
 import shutil
 import os
 
+ConfigDBName = "hatohol"
+ClientDBName = "hatohol_client"
+
 def dumpConfigDB():
     cmd = []
     cmd.append("mysqldump")
     cmd.append("-u")
     cmd.append("hatohol")
     cmd.append("-phatohol")
-    cmd.append("hatohol")
+    cmd.append(ConfigDBName)
 
     subprocess.Popen(cmd, stdout=open("./hatohol_backupdb/hatohol.mysql", "w"))
 
@@ -38,7 +41,7 @@ def dumpClientDB():
     cmd.append("-u")
     cmd.append("hatohol")
     cmd.append("-phatohol")
-    cmd.append("hatohol_client")
+    cmd.append(ClientDBName)
 
     subprocess.Popen(cmd, stdout=open("./hatohol_backupdb/hatohol_client.mysql", "w"))
 
