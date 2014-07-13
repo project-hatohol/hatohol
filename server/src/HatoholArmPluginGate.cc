@@ -206,8 +206,7 @@ ArmBase &HatoholArmPluginGate::getArmBase(void)
 
 void HatoholArmPluginGate::exitSync(void)
 {
-	m_ctx->exitSyncLock.lock();
-	Reaper<MutexLock> unlocker(&m_ctx->exitSyncLock, MutexLock::unlock);
+	AutoMutexLock autoMutex(&m_ctx->exitSyncLock);
 	if (m_ctx->exitSyncDone)
 		return;
 	MLPL_INFO("HatoholArmPluginGate: [%d:%s]: requested to exit.\n",
