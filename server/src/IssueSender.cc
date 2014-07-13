@@ -179,8 +179,7 @@ void IssueSender::setRetryInterval(const unsigned int &msec)
 
 bool IssueSender::isIdling(void)
 {
-	m_ctx->queueLock.lock();
-	Reaper<MutexLock> unlocker(&m_ctx->queueLock, MutexLock::unlock);
+	AutoMutexLock autoMutex(&m_ctx->queueLock);
 	if (!m_ctx->queue.empty())
 		return false;
 	return !m_ctx->runningJob;
