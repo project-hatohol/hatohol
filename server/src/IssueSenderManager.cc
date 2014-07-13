@@ -35,8 +35,7 @@ struct IssueSenderManager::PrivateContext
 
 	~PrivateContext()
 	{
-		sendersLock.lock();
-		Reaper<MutexLock> unlocker(&sendersLock, MutexLock::unlock);
+		AutoMutexLock autoMutex(&sendersLock);
 		map<IssueTrackerIdType, IssueSender*>::iterator it;
 		for (it = sendersMap.begin(); it != sendersMap.end(); ++it) {
 			IssueSender *sender = it->second;
@@ -81,8 +80,7 @@ struct IssueSenderManager::PrivateContext
 
 	IssueSender *getSender(const IssueTrackerIdType &id)
 	{
-		sendersLock.lock();
-		Reaper<MutexLock> unlocker(&sendersLock, MutexLock::unlock);
+		AutoMutexLock autoMutex(&sendersLock);
 		if (sendersMap.find(id) != sendersMap.end())
 			return sendersMap[id];
 
@@ -130,8 +128,7 @@ IssueSenderManager::~IssueSenderManager()
 
 bool IssueSenderManager::isIdling(void)
 {
-	m_ctx->sendersLock.lock();
-	Reaper<MutexLock> unlocker(&m_ctx->sendersLock, MutexLock::unlock);
+	AutoMutexLock autoMutex(&m_ctx->sendersLock);
 
 	map<IssueTrackerIdType, IssueSender*>::iterator it
 	  = m_ctx->sendersMap.begin();
