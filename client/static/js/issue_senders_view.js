@@ -178,9 +178,9 @@ var IssueSendersView = function(userProfile) {
 
   function makeSeverityCompTypeLabel(compType) {
     switch(compType) {
-    case CMP_EQ:
+    case hatohol.CMP_EQ:
       return "=";
-    case CMP_EQ_GT:
+    case hatohol.CMP_EQ_GT:
       return ">=";
     default:
       return "INVALID: " + compType;
