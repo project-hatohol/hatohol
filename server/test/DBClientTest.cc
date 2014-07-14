@@ -1086,21 +1086,33 @@ size_t getNumberOfTestHostsWithStatus(
 	return hostIdSet.size();
 }
 
+bool filterOutAction(const ActionDef &actionDef, const ActionType &targetType)
+{
+	if (targetType == ACTION_ALL)
+		return false;
+
+	if (targetType == ACTION_USER_DEFINED) {
+		if (actionDef.type == ACTION_ISSUE_SENDER)
+			return true;
+		else
+			return false;
+	}
+
+	if (targetType >= NUM_ACTION_TYPES)
+		cut_fail("Invalid action type: %d\n", targetType);
+
+	if (actionDef.type != targetType)
+		return true;
+
+	return false;
+}
+
 size_t getNumberOfTestActions(const ActionType &actionType)
 {
 	size_t num = 0;
 	for (size_t i = 0; i < NumTestActionDef; ++i) {
-		if (actionType == ACTION_USER_DEFINED) {
-			if (testActionDef[i].type < ACTION_ISSUE_SENDER)
-				++num;
-		} else if (actionType == ACTION_ALL) {
+		if (!filterOutAction(testActionDef[i], actionType))
 			++num;
-		} else if (actionType < NUM_ACTION_TYPES) {
-			if (actionType == testActionDef[i].type)
-				++num;
-		} else {
-			cut_fail("Invalid action type: %d\n", actionType);
-		}
 	}
 	return num;
 }

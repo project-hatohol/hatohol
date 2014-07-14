@@ -752,22 +752,26 @@ static void _assertActionCondition(
 #define asssertActionCondition(PARSER, COND, MEMBER, BIT, T, EXPECT) \
 cut_trace(_assertActionCondition<T>(PARSER, COND, MEMBER, BIT, EXPECT))
 
-static void _assertActions(const string &path, const string &callbackName = "")
+static void _assertActions(const string &path, const string &callbackName = "",
+			   const ActionType actionType = ACTION_USER_DEFINED)
 {
 	setupUserDB();
 	startFaceRest();
 	RequestArg arg(path, callbackName);
+	arg.parameters["type"]
+	  = StringUtils::sprintf("%d", actionType);
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_USER);
 	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
 	assertValueInParser(g_parser, "numberOfActions",
-			    getNumberOfTestActions());
+			    getNumberOfTestActions(actionType));
 	assertStartObject(g_parser, "actions");
+	size_t idx = 0;
 	for (size_t i = 0; i < NumTestActionDef; i++) {
-		g_parser->startElement(i);
 		const ActionDef &actionDef = testActionDef[i];
-		if (actionDef.type == ACTION_ISSUE_SENDER)
+		if (filterOutAction(actionDef, actionType))
 			continue;
+		g_parser->startElement(idx++);
 		const ActionCondition &cond = actionDef.condition;
 		assertValueInParser(g_parser, "actionId", actionDef.id);
 
@@ -1774,12 +1778,27 @@ void test_itemsJsonp(void)
 	assertItems("/item", "foo");
 }
 
-void test_actionsJsonp(void)
+void data_actionsJsonp(void)
 {
+	gcut_add_datum("Normal actions",
+		       "type", G_TYPE_INT, ACTION_USER_DEFINED,
+		       NULL);
+	gcut_add_datum("IssueSenderAction",
+		       "type", G_TYPE_INT, ACTION_ISSUE_SENDER,
+		       NULL);
+	gcut_add_datum("All",
+		       "type", G_TYPE_INT, ACTION_ALL,
+		       NULL);
+}
+
+void test_actionsJsonp(gconstpointer data)
+{
+	const ActionType actionType
+	  = static_cast<ActionType>(gcut_data_get_int(data, "type"));
 	bool recreate = true;
 	bool loadData = true;
 	setupTestDBAction(recreate, loadData);
-	assertActions("/action", "foo");
+	assertActions("/action", "foo", actionType);
 }
 
 void test_addAction(void)

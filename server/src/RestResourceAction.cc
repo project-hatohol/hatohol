@@ -69,14 +69,31 @@ void RestResourceAction::handle(void)
 	}
 }
 
+static HatoholError parseQueryForGet(ActionsQueryOption &option,
+				     GHashTable *query)
+{
+	ActionType actionType = option.getActionType();
+	HatoholError err = getParam<ActionType>(query, "type", "%d",
+						actionType);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+	option.setActionType(actionType);
+
+	return HTERR_OK;
+}
+
 void RestResourceAction::handleGet(void)
 {
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-
-	ActionDefList actionList;
 	ActionsQueryOption option(m_dataQueryContextPtr);
-	HatoholError err =
-	  dataStore->getActionList(actionList, option);
+	HatoholError err = parseQueryForGet(option, m_query);
+	if (err != HTERR_OK) {
+		replyError(err);
+		return;
+	}
+
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	ActionDefList actionList;
+	err = dataStore->getActionList(actionList, option);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
