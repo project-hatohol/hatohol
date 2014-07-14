@@ -26,12 +26,8 @@ missing
 mlpl/mlpl.pc
 mlpl/touch
 src/hatohol
-src/*.o
-test/*.o
 test/zabbix-api-response-collector
 test/fixtures/FooTable.db
 test/fixtures/mkTestDB
 test/fixtures/testDatabase-hatohol.db
-test/fixtures/*.o
 tools/hatohol-config-db-creator
-tools/hatohol-config-db-creator.o
