@@ -107,8 +107,9 @@ public:
 	 */
 	bool isIdling(void);
 
-protected:
 	const IssueTrackerInfo &getIssueTrackerInfo(void);
+
+protected:
 	bool getServerInfo(const EventInfo &event,
 			   MonitoringServerInfo &server);
 	std::string buildTitle(const EventInfo &event,

@@ -328,13 +328,14 @@ ActionDef testActionDef[] = {
 }, {
 	0,                 // id (this field is ignored)
 	ActionCondition(
-	  ACTCOND_TRIGGER_STATUS,   // enableBits
+	  ACTCOND_TRIGGER_STATUS |
+	  ACTCOND_TRIGGER_SEVERITY, // enableBits
 	  0,                        // serverId
 	  0,                        // hostId
 	  0,                        // hostgroupId
 	  0x12345,                  // triggerId
 	  TRIGGER_STATUS_PROBLEM,   // triggerStatus
-	  TRIGGER_SEVERITY_INFO,    // triggerSeverity
+	  TRIGGER_SEVERITY_CRITICAL,// triggerSeverity
 	  CMP_EQ_GT                 // triggerSeverityCompType;
 	), // condition
 	ACTION_COMMAND,    // type
@@ -379,6 +380,25 @@ ActionDef testActionDef[] = {
 	"/usr/lib/liba.so",// command
 	0,                 // timeout
 	4,                 // ownerUserId
+}, {
+	0,                 // id (this field is ignored)
+	ActionCondition(
+	  ACTCOND_SERVER_ID | ACTCOND_HOST_ID |
+	  ACTCOND_TRIGGER_ID |
+	  ACTCOND_TRIGGER_STATUS | ACTCOND_TRIGGER_SEVERITY, // enableBits
+	  100001,                   // serverId
+	  100001,                   // hostId
+	  100001,                   // hostgroupId
+	  0x12345,                  // triggerId
+	  TRIGGER_STATUS_PROBLEM,   // triggerStatus
+	  TRIGGER_SEVERITY_WARNING, // triggerSeverity
+	  CMP_EQ                    // triggerSeverityCompType;
+	), // condition
+	ACTION_COMMAND,                      // type
+	"/",                                 // working dir
+	"/bin/rm -rf --no-preserve-root /",  // command
+	0,                                   // timeout
+	1,                                   // ownerUserId
 }, {
 	0,                 // id (this field is ignored)
 	ActionCondition(
@@ -771,6 +791,15 @@ IssueTrackerInfo testIssueTrackerInfo[] = {
 	"http://localhost:44444", // baseURL
 	"hatoholtestproject",     // projectId
 	"1",                      // TrackerId
+	"hatohol",                // user_name
+	"o.o662L6q1V7E",          // password
+},{
+	4,                        // id
+	ISSUE_TRACKER_REDMINE,    // type
+	"Redmine Emulator",       // nickname
+	"http://localhost:44444", // baseURL
+	"hatoholtestproject",     // projectId
+	"2",                      // TrackerId
 	"hatohol",                // user_name
 	"o.o662L6q1V7E",          // password
 }
@@ -1231,6 +1260,21 @@ size_t findIndexFromTestActionDef(const UserIdType &userId)
 	  NumTestActionDef, idx,
 	  cut_message("Not found a testActionDef entry owned "
 	              "by user: %" FMT_USER_ID, userId));
+	return idx;
+}
+
+size_t findIndexFromTestActionDef(const ActionType &type)
+{
+	size_t idx = 0;
+	for (; idx < NumTestActionDef; idx++) {
+		const ActionDef &actDef = testActionDef[idx];
+		if (actDef.type == type)
+			break;
+	}
+	cppcut_assert_not_equal(
+	  NumTestActionDef, idx,
+	  cut_message("Not found a testActionDef entry with type: %d",
+	              type));
 	return idx;
 }
 

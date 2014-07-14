@@ -78,11 +78,15 @@ struct IssueSenderManager::PrivateContext
 		return sender;
 	}
 
-	IssueSender *getSender(const IssueTrackerIdType &id)
+	IssueSender *getSender(const IssueTrackerIdType &id,
+			       bool autoCreate = true)
 	{
 		AutoMutexLock autoMutex(&sendersLock);
 		if (sendersMap.find(id) != sendersMap.end())
 			return sendersMap[id];
+
+		if (!autoCreate)
+			return NULL;
 
 		IssueSender *sender = createSender(id);
 		if (sender) {
@@ -140,3 +144,10 @@ bool IssueSenderManager::isIdling(void)
 
 	return true;
 }
+
+IssueSender *IssueSenderManager::getSender(const IssueTrackerIdType &id,
+					   bool autoCreate)
+{
+	return m_ctx->getSender(id, autoCreate);
+}
+

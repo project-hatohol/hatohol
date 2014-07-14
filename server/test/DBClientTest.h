@@ -156,6 +156,7 @@ bool isAuthorized(ServerHostGrpSetMap &authMap,
                   const HostIdType &hostId = ALL_HOSTS);
 
 size_t findIndexFromTestActionDef(const UserIdType &userId);
+size_t findIndexFromTestActionDef(const ActionType &type);
 
 /**
  * Get a set of Hostgroup ID for the test material.

@@ -608,6 +608,108 @@ void test_getTriggerActionListWithAllCondition(void)
 	assertEqual(testActionDef[idxTarget], actual);
 }
 
+static void _assertGetActionWithSeverity(const TriggerSeverityType &severity,
+					 const int expectedActionIdx)
+{
+	setupTestDBConfig();
+	test_addAction(); // save test data into DB.
+
+	// make an EventInfo instance for the test
+	EventInfo eventInfo;
+	const ActionDef &actionDef = testActionDef[expectedActionIdx];
+	const ActionCondition condTarget = actionDef.condition;
+	eventInfo.serverId  = condTarget.serverId ? : 1129;
+	eventInfo.id        = 1192;
+	eventInfo.time.tv_sec  = 1378339653;
+	eventInfo.time.tv_nsec = 6889;
+	eventInfo.type      = EVENT_TYPE_BAD;
+	eventInfo.triggerId = condTarget.triggerId ? : 1;
+	eventInfo.status    = (TriggerStatusType) condTarget.triggerStatus;
+	eventInfo.severity = severity;
+	eventInfo.hostId    = condTarget.hostId ? : 1;
+	eventInfo.hostName  = "foo";
+	eventInfo.brief     = "foo foo foo";
+
+	// get the list and check the number
+	DBClientAction dbAction;
+	ActionDefList actionDefList;
+	ActionsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetEventInfo(&eventInfo);
+
+	assertHatoholError(
+	  HTERR_OK,
+	  dbAction.getActionList(actionDefList, option));
+
+	if (expectedActionIdx < 0) {
+		cppcut_assert_equal((size_t)0, actionDefList.size());
+	} else {
+		cppcut_assert_equal((size_t)1, actionDefList.size());
+		// check the content
+		const ActionDef &actual = *actionDefList.begin();
+		g_print("\nexpect: %d, action id: %d\n", expectedActionIdx, actual.id);
+		assertEqual(testActionDef[expectedActionIdx], actual);
+	}
+}
+#define assertGetActionWithSeverity(S,E) \
+cut_trace(_assertGetActionWithSeverity(S,E))
+
+void test_getActionWithLessSeverityAgainstCmpEqGt(void)
+{
+	int targetActionIdx = 1;
+	int noActionIdx = -1;
+	ActionDef &targetAction = testActionDef[targetActionIdx];
+	assertGetActionWithSeverity(
+	  (TriggerSeverityType)(targetAction.condition.triggerSeverity - 1),
+	  noActionIdx);
+}
+
+void test_getActionWithEqualSeverityAgainstCmpEqGt(void)
+{
+	int targetActionIdx = 1;
+	ActionDef &targetAction = testActionDef[targetActionIdx];
+	assertGetActionWithSeverity(
+	  (TriggerSeverityType)targetAction.condition.triggerSeverity,
+	  targetActionIdx);
+}
+
+void test_getActionWithGreaterSeverityAgainstCmpEqGt(void)
+{
+	int targetActionIdx = 1;
+	ActionDef &targetAction = testActionDef[targetActionIdx];
+	assertGetActionWithSeverity(
+	  (TriggerSeverityType)(targetAction.condition.triggerSeverity + 1),
+	  targetActionIdx);
+}
+
+void test_getActionWithLessSeverityAgainstCmpEq(void)
+{
+	int targetActionIdx = 4;
+	int noActionIdx = -1;
+	ActionDef &targetAction = testActionDef[targetActionIdx];
+	assertGetActionWithSeverity(
+	  (TriggerSeverityType)(targetAction.condition.triggerSeverity - 1),
+	  noActionIdx);
+}
+
+void test_getActionWithEqualSeverityAgainstCmpEq(void)
+{
+	int targetActionIdx = 4;
+	ActionDef &targetAction = testActionDef[targetActionIdx];
+	assertGetActionWithSeverity(
+	  (TriggerSeverityType)targetAction.condition.triggerSeverity,
+	  targetActionIdx);
+}
+
+void test_getActionWithGreaterSeverityAgainstCmpEq(void)
+{
+	int targetActionIdx = 4;
+	int noActionIdx = -1;
+	ActionDef &targetAction = testActionDef[targetActionIdx];
+	assertGetActionWithSeverity(
+	  (TriggerSeverityType)(targetAction.condition.triggerSeverity + 1),
+	  noActionIdx);
+}
+
 void test_getActionListWithNormalUser(void)
 {
 	setupTestDBUserAndDBAction();
