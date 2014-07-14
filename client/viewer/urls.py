@@ -28,6 +28,7 @@ urlpatterns = patterns('',
     url(r'^ajax_events$', TemplateView.as_view(template_name='viewer/events_ajax.html')),
     url(r'^ajax_servers$', TemplateView.as_view(template_name='viewer/servers_ajax.html')),
     url(r'^ajax_actions$', TemplateView.as_view(template_name='viewer/actions_ajax.html')),
+    url(r'^ajax_issue_senders$', TemplateView.as_view(template_name='viewer/issue_senders_ajax.html')),
     url(r'^ajax_users$', TemplateView.as_view(template_name='viewer/users_ajax.html')),
     url(r'^ajax_hosts$', TemplateView.as_view(template_name='viewer/hosts_ajax.html')),
 )

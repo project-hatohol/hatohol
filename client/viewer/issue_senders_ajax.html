@@ -1,0 +1,84 @@
+{% extends "viewer/base_ajax.html" %}
+{% load i18n %}
+
+{% comment %}
+  Copyright (C) 2013-2014 Project Hatohol
+
+  This file is part of Hatohol.
+
+  Hatohol is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 2 of the License, or
+  (at your option) any later version.
+
+  Hatohol is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+{% endcomment %}
+
+{% block title %}
+{% trans "Issue senders" %}
+{% endblock %}
+
+{% block main %}
+<div id="main">
+  <h2>{% trans "Issue senders" %}</h2>
+
+  <form class="form-inline">
+    <div class="btn-toolbar" role="toolbar">
+      <button id="add-issue-sender-button" type="button" class="btn btn-default" style="display: none;">
+        <span class="glyphicon glyphicon-plus"></span>
+        {% trans "ADD" %}
+      </button>
+      <button id="delete-issue-sender-button" type="button" class="btn btn-default" style="display: none;" disabled>
+        <span class="glyphicon glyphicon-remove"></span>
+        {% trans "DELETE" %}
+      </button>
+    </div>
+  </form>
+  <div id="msgbox" title="Message Box">
+    <p id="msgbox-text"></p>
+  </div>
+
+  <form id="add-issue-sender-form", method="POST"> {% csrf_token %}
+  </form>
+
+  <table class="table table-condensed table-hover" id="table">
+    <thead>
+      <tr>
+        <th class="delete-selector" style="display:none;">  </th>
+        <th data-sort="int"> ID </th>
+        <th data-sort="string"> {% trans "Server" %} </th>
+        <th data-sort="string"> {% trans "Host Group" %} </th>
+        <th data-sort="int"> {% trans "Trigger" %} </th>
+        <th data-sort="string"> {% trans "Status" %} </th>
+        <th data-sort="string"> {% trans "Severity" %} </th>
+        <th data-sort="string"> {% trans "Command" %} </th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+</div>
+{% endblock %}
+
+{% block option %}
+  <script src="{{ STATIC_URL }}js/hatohol_add_action_dialog.js"></script>
+  <script src="{{ STATIC_URL }}js/hatohol_selector_dialog.js"></script>
+  <script src="{{ STATIC_URL }}js/hatohol_server_selector.js"></script>
+  <script src="{{ STATIC_URL }}js/hatohol_hostgroup_selector.js"></script>
+  <script src="{{ STATIC_URL }}js/hatohol_trigger_selector.js"></script>
+{% endblock %}
+
+{% block logic %}
+  <script src="{{ STATIC_URL }}js/issue_senders_view.js"></script>
+  <script type="text/javascript">
+    userProfile.addOnLoadCb(function() {
+      var view = new IssueSendersView(userProfile);
+    });
+  </script>
+{% endblock %}
