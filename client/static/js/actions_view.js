@@ -182,9 +182,9 @@ var ActionsView = function(userProfile) {
 
   function makeTypeLabel(type) {
     switch(type) {
-    case ACTION_COMMAND:
+    case hatohol.ACTION_COMMAND:
       return gettext("COMMAND");
-    case ACTION_RESIDENT:
+    case hatohol.ACTION_RESIDENT:
       return gettext("RESIDENT");
     default:
       return "INVALID: " + type;
