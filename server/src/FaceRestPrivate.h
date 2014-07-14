@@ -62,6 +62,7 @@ public:
 	void replyError(const HatoholError &hatoholError);
 	void replyError(const HatoholErrorCode &errorCode,
 			const std::string &optionMessage = "");
+	void replyHttpStatus(const guint &statusCode);
 	void replyJsonData(JsonBuilderAgent &agent);
 	void addServersMap(JsonBuilderAgent &agent,
 			   TriggerBriefMaps *triggerMaps = NULL,

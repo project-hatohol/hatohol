@@ -135,9 +135,7 @@ void RestResourceUser::handlerUser(void)
 		handlerDeleteUser();
 	} else {
 		MLPL_ERR("Unknown method: %s\n", m_message->method);
-		soup_message_set_status(m_message,
-		                        SOUP_STATUS_METHOD_NOT_ALLOWED);
-		m_replyIsPrepared = true;
+		replyHttpStatus(SOUP_STATUS_METHOD_NOT_ALLOWED);
 	}
 }
 
@@ -304,9 +302,7 @@ void RestResourceUser::handlerAccessInfo(void)
 		handlerDeleteAccessInfo();
 	} else {
 		MLPL_ERR("Unknown method: %s\n", m_message->method);
-		soup_message_set_status(m_message,
-		                        SOUP_STATUS_METHOD_NOT_ALLOWED);
-		m_replyIsPrepared = true;
+		replyHttpStatus(SOUP_STATUS_METHOD_NOT_ALLOWED);
 	}
 }
 
@@ -457,9 +453,7 @@ void RestResourceUser::handlerUserRole(void)
 		handlerDeleteUserRole();
 	} else {
 		MLPL_ERR("Unknown method: %s\n", m_message->method);
-		soup_message_set_status(m_message,
-		                        SOUP_STATUS_METHOD_NOT_ALLOWED);
-		m_replyIsPrepared = true;
+		replyHttpStatus(SOUP_STATUS_METHOD_NOT_ALLOWED);
 	}
 }
 

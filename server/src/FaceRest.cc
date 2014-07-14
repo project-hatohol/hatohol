@@ -893,6 +893,12 @@ void FaceRest::ResourceHandler::replyError(const HatoholError &hatoholError)
 	m_replyIsPrepared = true;
 }
 
+void FaceRest::ResourceHandler::replyHttpStatus(const guint &statusCode)
+{
+	soup_message_set_status(m_message, statusCode);
+	m_replyIsPrepared = true;
+}
+
 void FaceRest::ResourceHandler::replyJsonData(JsonBuilderAgent &agent)
 {
 	string response = agent.generate();
