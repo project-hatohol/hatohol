@@ -54,7 +54,7 @@ def dumpClientDB():
         stdout=open("./hatohol_backupdb/hatohol_client.mysql", "w"))
 
 
-def dumpCacheDB(dir):
+def copyCacheDB(dir):
     if (os.path.isdir(dir)):
         shutil.copytree(dir, "hatohol_backupdb/cache")
     else:
@@ -95,5 +95,5 @@ if (len(sys.argv) < 2):
 createTmpDirectory()
 dumpConfigDB()
 dumpClientDB()
-dumpCacheDB(sys.argv[1])
+copyCacheDB(sys.argv[1])
 createTarball()
