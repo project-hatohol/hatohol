@@ -25,6 +25,7 @@ import os
 ConfigDBName = "hatohol"
 ClientDBName = "hatohol_client"
 
+
 def dumpConfigDB():
     cmd = []
     cmd.append("mysqldump")
@@ -33,7 +34,10 @@ def dumpConfigDB():
     cmd.append("-phatohol")
     cmd.append(ConfigDBName)
 
-    subprocess.Popen(cmd, stdout=open("./hatohol_backupdb/hatohol.mysql", "w"))
+    subprocess.Popen(
+        cmd,
+        stdout=open("./hatohol_backupdb/hatohol.mysql", "w"))
+
 
 def dumpClientDB():
     cmd = []
@@ -43,7 +47,10 @@ def dumpClientDB():
     cmd.append("-phatohol")
     cmd.append(ClientDBName)
 
-    subprocess.Popen(cmd, stdout=open("./hatohol_backupdb/hatohol_client.mysql", "w"))
+    subprocess.Popen(
+        cmd,
+        stdout=open("./hatohol_backupdb/hatohol_client.mysql", "w"))
+
 
 def dumpCacheDB(dir):
     if (os.path.isdir(dir)):
@@ -51,11 +58,14 @@ def dumpCacheDB(dir):
     else:
         print "There is no directory."
 
+
 def createTmpDirectory():
     os.mkdir("hatohol_backupdb")
 
+
 def deleteTmpDirectory():
     shutil.rmtree("hatohol_backupdb")
+
 
 def createTarball():
     cmd = []
@@ -66,6 +76,7 @@ def createTarball():
 
     subprocess.call(cmd)
     deleteTmpDirectory()
+
 
 def showUsage():
     print "Usage:\n"
