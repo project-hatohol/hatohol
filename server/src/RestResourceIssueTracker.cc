@@ -52,7 +52,7 @@ void RestResourceIssueTracker::handle(void)
 		handleDelete();
 	} else {
 		MLPL_ERR("Unknown method: %s\n", m_message->method);
-		replyHTTPError(SOUP_STATUS_METHOD_NOT_ALLOWED);
+		replyHttpStatus(SOUP_STATUS_METHOD_NOT_ALLOWED);
 	}
 }
 
