@@ -24,14 +24,16 @@ import os
 
 ConfigDBName = "hatohol"
 ClientDBName = "hatohol_client"
+DBUser = "hatohol"
+DBPassword = "hatohol"
 
 
 def dumpConfigDB():
     cmd = []
     cmd.append("mysqldump")
     cmd.append("-u")
-    cmd.append("hatohol")
-    cmd.append("-phatohol")
+    cmd.append(DBUser)
+    cmd.append("-p%s" % DBPassword)
     cmd.append(ConfigDBName)
 
     subprocess.Popen(
@@ -43,8 +45,8 @@ def dumpClientDB():
     cmd = []
     cmd.append("mysqldump")
     cmd.append("-u")
-    cmd.append("hatohol")
-    cmd.append("-phatohol")
+    cmd.append(DBUser)
+    cmd.append("-p%s" % DBPassword)
     cmd.append(ClientDBName)
 
     subprocess.Popen(
