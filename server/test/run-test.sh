@@ -1,3 +1,5 @@
+#!/bin/sh
+
 unset LANG
 
 export PATH=../src/.libs:../mlpl/src/.libs:$PATH
