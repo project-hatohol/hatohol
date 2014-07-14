@@ -1,8 +1,10 @@
 *.la
 *.lo
+*.log
 *.o
 *.mo
 *.swp
+*.trs
 *.pyc
 *.pyo
 *.in
