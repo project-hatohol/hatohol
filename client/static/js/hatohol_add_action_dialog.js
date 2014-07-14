@@ -356,9 +356,8 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
   var div = $(makeMainDivHTML());
   return div;
 
-  function makeMainDivHTML() {
+  function makeTriggerConditionArea() {
     var s = "";
-    s += '<div id="add-action-div">'
     s += '<h3>' + gettext("Condition") + '</h3>'
     s += '<form class="form-inline">'
     s += '  <label>' + gettext("Server") + '</label>'
@@ -405,7 +404,11 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
     s += '    <option value="CMP_EQ_GT">' + gettext("Equal to or greater than") + '</option>'
     s += '  </select>'
     s += '</form>'
+    return s;
+  }
 
+  function makeExecutionParameterArea() {
+    var s = "";
     s += '<h3>' + gettext("Execution parameters") + '</h3>'
     s += '<form class="form-inline">'
     s += '  <label>' + gettext("Templates ") + '</label>'
@@ -433,6 +436,14 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
     s += '  <label for="inputWorkingDir">' + gettext("Execution directory") + '</label>'
     s += '  <input id="inputWorkingDir" type="text" value="" style="width:100%;">'
     s += '</form>'
+    return s;
+  }
+
+  function makeMainDivHTML() {
+    var s = "";
+    s += '<div id="add-action-div">'
+    s += makeTriggerConditionArea();
+    s += makeExecutionParameterArea();
     s += '</div>'
     return s;
   }
