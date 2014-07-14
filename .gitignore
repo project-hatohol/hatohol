@@ -15,10 +15,12 @@ Makefile.in
 aclocal.m4
 autom4te.cache/
 config.guess
+config.h
 config.log
 config.status
 config.sub
 configure
+compile
 depcomp
 install-sh
 libtool
@@ -33,3 +35,5 @@ test/fixtures/FooTable.db
 test/fixtures/mkTestDB
 test/fixtures/testDatabase-hatohol.db
 tools/hatohol-config-db-creator
+stamp-h1
+test-driver
