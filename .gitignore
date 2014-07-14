@@ -8,11 +8,8 @@
 *.in
 .deps/
 .libs/
-AUTHORS
-INSTALL
 Makefile
 Makefile.in
-NEWS
 aclocal.m4
 autom4te.cache/
 config.guess
@@ -38,4 +35,3 @@ test/fixtures/testDatabase-hatohol.db
 test/fixtures/*.o
 tools/hatohol-config-db-creator
 tools/hatohol-config-db-creator.o
-touch
