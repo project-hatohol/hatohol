@@ -1,3 +1,5 @@
+#!/bin/sh
+
 touch AUTHORS NEWS touch
 if [ ! -d m4 ]; then
   mkdir m4

@@ -1,3 +1,5 @@
+#!/bin/sh
+
 unset LANG
 
 export BASE_DIR="`dirname $0`"
