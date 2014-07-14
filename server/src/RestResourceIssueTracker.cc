@@ -51,11 +51,8 @@ void RestResourceIssueTracker::handle(void)
 	} else if (StringUtils::casecmp(m_message->method, "DELETE")) {
 		handleDelete();
 	} else {
-		// TODO: Move to parent class
 		MLPL_ERR("Unknown method: %s\n", m_message->method);
-		soup_message_set_status(m_message,
-					SOUP_STATUS_METHOD_NOT_ALLOWED);
-		m_replyIsPrepared = true;
+		replyHTTPError(SOUP_STATUS_METHOD_NOT_ALLOWED);
 	}
 }
 
