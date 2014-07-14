@@ -289,9 +289,9 @@ var HatoholAddActionDialog = function(addSucceededCb) {
     var compType = $("#selectTriggerSeverityCompType").val();
     switch(compType) {
     case "CMP_EQ":
-      return CMP_EQ;
+      return hatohol.CMP_EQ;
     case "CMP_EQ_GT":
-      return CMP_EQ_GT;
+      return hatohol.CMP_EQ_GT;
     default:
       alert("Unknown severity: " + severity);
     }
