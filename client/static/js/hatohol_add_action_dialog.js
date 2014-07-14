@@ -17,7 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var HatoholAddActionDialog = function(addSucceededCb) {
+var HatoholAddActionDialog = function(addSucceededCb, forIssueSender) {
   var self = this;
 
   var IDX_SELECTED_SERVER  = 0;
@@ -29,6 +29,8 @@ var HatoholAddActionDialog = function(addSucceededCb) {
   self.selectedId[IDX_SELECTED_HOST_GROUP] = null;
   self.selectedId[IDX_SELECTED_HOST]    = null;
   self.selectedId[IDX_SELECTED_TRIGGER] = null;
+
+  self.forIssueSender = !!forIssueSender;
 
   var dialogButtons = [{
     text: gettext("ADD"),
@@ -237,6 +239,9 @@ var HatoholAddActionDialog = function(addSucceededCb) {
   // General class methods
   //
   function getCommandType() {
+    if (self.forIssueSender)
+      return hatohol.ACTION_ISSUE_SENDER;
+
     var type = $("#selectType").val();
     switch(type) {
     case "ACTION_COMMAND":
@@ -353,6 +358,7 @@ HatoholAddActionDialog.prototype = Object.create(HatoholDialog.prototype);
 HatoholAddActionDialog.prototype.constructor = HatoholAddActionDialog;
 
 HatoholAddActionDialog.prototype.createMainElement = function() {
+  var self = this;
   var div = $(makeMainDivHTML());
   return div;
 
@@ -371,10 +377,12 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
     s += '    <option value="ANY">ANY</option>'
     s += '  </select>'
 
-    s += '  <label>' + gettext("Host") + '</label>'
-    s += '  <select id="selectHostId">'
-    s += '    <option value="ANY">ANY</option>'
-    s += '  </select>'
+    if (!self.forIssueSender) {
+      s += '  <label>' + gettext("Host") + '</label>'
+      s += '  <select id="selectHostId">'
+      s += '    <option value="ANY">ANY</option>'
+      s += '  </select>'
+    }
 
     s += '  <label>' + gettext("Trigger") + '</label>'
     s += '  <select id="selectTriggerId">'
@@ -439,11 +447,24 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
     return s;
   }
 
+  function makeIssueTrackerArea() {
+    var s = "";
+    // TODO: it's a temporal implementation
+    s += '<form class="form-inline">'
+    s += '  <label for="inputActionCommand">' + gettext("Issue tracker ID") + '</label>'
+    s += '  <input id="inputActionCommand" type="text" style="width:100%;" value="">'
+    s += '</form>'
+    return s;
+  }
+
   function makeMainDivHTML() {
     var s = "";
     s += '<div id="add-action-div">'
     s += makeTriggerConditionArea();
-    s += makeExecutionParameterArea();
+    if (self.forIssueSender)
+      s += makeIssueTrackerArea();
+    else
+      s += makeExecutionParameterArea();
     s += '</div>'
     return s;
   }
