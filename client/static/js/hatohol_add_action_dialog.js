@@ -240,9 +240,9 @@ var HatoholAddActionDialog = function(addSucceededCb) {
     var type = $("#selectType").val();
     switch(type) {
     case "ACTION_COMMAND":
-      return ACTION_COMMAND;
+      return hatohol.ACTION_COMMAND;
     case "ACTION_RESIDENT":
-      return ACTION_RESIDENT;
+      return hatohol.ACTION_RESIDENT;
     default:
       alert("Unknown command type: " + type);
     }
@@ -463,8 +463,8 @@ HatoholAddActionDialog.prototype.onAppendMainElement = function () {
 
   function applyCallback(type, commandDesc) {
     switch (type) {
-    case ACTION_COMMAND:
-    case ACTION_RESIDENT:
+    case hatohol.ACTION_COMMAND:
+    case hatohol.ACTION_RESIDENT:
       $("#selectType").val(type);
       break;
     default:
