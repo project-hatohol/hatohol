@@ -57,6 +57,7 @@ nobase_dist_hatohol_client_DATA = \
 	static/js/events_view.js \
 	static/js/servers_view.js \
 	static/js/actions_view.js \
+	static/js/issue_senders_view.js \
 	static/js/users_view.js \
 	static/js/hatohol_def.js \
 	static/js/hatohol_connector.js \
@@ -96,6 +97,7 @@ nobase_dist_hatohol_client_DATA = \
 	viewer/overview_items_ajax.html \
 	viewer/dashboard_ajax.html \
 	viewer/actions_ajax.html \
+	viewer/issue_senders_ajax.html \
 	viewer/users_ajax.html \
 	viewer/userconfig.py \
 	viewer/hosts_ajax.html \
