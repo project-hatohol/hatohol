@@ -49,7 +49,7 @@ var IssueSendersView = function(userProfile) {
   });
 
   $("#add-issue-sender-button").click(function() {
-    new HatoholAddActionDialog(addSucceededCb);
+    new HatoholAddActionDialog(addSucceededCb, true);
   });
 
   $("#delete-issue-sender-button").click(function() {
