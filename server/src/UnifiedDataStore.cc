@@ -614,6 +614,22 @@ void UnifiedDataStore::getServerConnStatusVector(
 	}
 }
 
+void UnifiedDataStore::getIssueTrackers(IssueTrackerInfoVect &issueTrackerVect,
+					IssueTrackerQueryOption &option)
+{
+	CacheServiceDBClient cache;
+	DBClientConfig *dbConfig = cache.getConfig();
+	dbConfig->getIssueTrackers(issueTrackerVect, option);
+}
+
+HatoholError UnifiedDataStore::addIssueTracker(
+  IssueTrackerInfo *issueTrackerInfo, const OperationPrivilege &privilege)
+{
+	CacheServiceDBClient cache;
+	DBClientConfig *dbConfig = cache.getConfig();
+	return dbConfig->addIssueTracker(issueTrackerInfo, privilege);
+}
+
 DataStoreVector UnifiedDataStore::getDataStoreVector(void)
 {
 	return m_ctx->getDataStoreVector();
