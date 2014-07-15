@@ -967,7 +967,7 @@ void _assertGetIssueTrackers(
 	for (size_t i = 0; i < NumTestIssueTrackerInfo; i++) {
 		IssueTrackerInfo &info = testIssueTrackerInfo[i];
 		assertAddIssueTrackerToDB(&info);
-		if (!privilege.has(OPPRVLG_GET_ALL_SERVER))
+		if (!privilege.has(OPPRVLG_GET_ALL_ISSUE_SENDER))
 			continue;
 		if (targetId != ALL_ISSUE_TRACKERS && targetId != info.id)
 			continue;
@@ -996,6 +996,14 @@ void test_getIssueTrackers(void)
 {
 	setupTestDBUser(true, true);
 	assertGetIssueTrackers(USER_ID_SYSTEM);
+}
+
+void test_getIssueTrackersWithoutPrivilege(void)
+{
+	setupTestDBUser(true, true);
+	UserIdType userIdWithoutPrivilege
+	  = findUserWithout(OPPRVLG_GET_ALL_ISSUE_SENDER);
+	assertGetIssueTrackers(userIdWithoutPrivilege);
 }
 
 void test_getIssueTrackersWithId(void)
