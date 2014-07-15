@@ -930,7 +930,7 @@ void test_addIssueTracker(void)
 void test_addIssueTrackerWithoutPrivilege(void)
 {
 	OperationPrivilegeFlag privilege = ALL_PRIVILEGES;
-	privilege &= ~(1 << OPPRVLG_CREATE_ISSUE_SENDER);
+	privilege &= ~(1 << OPPRVLG_CREATE_ISSUE_SETTING);
 	IssueTrackerInfo *testInfo = testIssueTrackerInfo;
 	assertAddIssueTracker(*testInfo, HTERR_NO_PRIVILEGE, privilege);
 }
@@ -967,7 +967,7 @@ void _assertGetIssueTrackers(
 	for (size_t i = 0; i < NumTestIssueTrackerInfo; i++) {
 		IssueTrackerInfo &info = testIssueTrackerInfo[i];
 		assertAddIssueTrackerToDB(&info);
-		if (!privilege.has(OPPRVLG_GET_ALL_ISSUE_SENDER))
+		if (!privilege.has(OPPRVLG_GET_ALL_ISSUE_SETTINGS))
 			continue;
 		if (targetId != ALL_ISSUE_TRACKERS && targetId != info.id)
 			continue;
@@ -1002,7 +1002,7 @@ void test_getIssueTrackersWithoutPrivilege(void)
 {
 	setupTestDBUser(true, true);
 	UserIdType userIdWithoutPrivilege
-	  = findUserWithout(OPPRVLG_GET_ALL_ISSUE_SENDER);
+	  = findUserWithout(OPPRVLG_GET_ALL_ISSUE_SETTINGS);
 	assertGetIssueTrackers(userIdWithoutPrivilege);
 }
 

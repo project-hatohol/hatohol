@@ -640,7 +640,7 @@ string IssueTrackerQueryOption::getCondition(void) const
 		return DBClientHatohol::getAlwaysFalseCondition();
 	}
 
-	if (userId != USER_ID_SYSTEM && !has(OPPRVLG_GET_ALL_ISSUE_SENDER))
+	if (userId != USER_ID_SYSTEM && !has(OPPRVLG_GET_ALL_ISSUE_SETTINGS))
 		return DBClientHatohol::getAlwaysFalseCondition();
 
 	if (m_ctx->targetId != ALL_ISSUE_TRACKERS) {
@@ -1103,7 +1103,7 @@ HatoholError validIssueTrackerInfo(const IssueTrackerInfo &issueTrackerInfo)
 HatoholError DBClientConfig::addIssueTracker(
   IssueTrackerInfo *issueTrackerInfo, const OperationPrivilege &privilege)
 {
-	if (!privilege.has(OPPRVLG_CREATE_ISSUE_SENDER))
+	if (!privilege.has(OPPRVLG_CREATE_ISSUE_SETTING))
 		return HatoholError(HTERR_NO_PRIVILEGE);
 
 	HatoholError err = validIssueTrackerInfo(*issueTrackerInfo);
