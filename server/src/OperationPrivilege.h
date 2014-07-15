@@ -79,6 +79,8 @@ public:
 	virtual ~OperationPrivilege();
 
 	const OperationPrivilegeFlag &getFlags(void) const;
+	void add(const OperationPrivilegeType &type);
+	void remove(const OperationPrivilegeType &type);
 	void setFlags(const OperationPrivilegeFlag &flags);
 	static OperationPrivilegeFlag makeFlag(
 	  const OperationPrivilegeType &type);

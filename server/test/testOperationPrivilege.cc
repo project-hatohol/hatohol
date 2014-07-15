@@ -109,6 +109,28 @@ void test_allPrivileges(void)
 	cppcut_assert_equal(true, privilege.has(OPPRVLG_CREATE_USER));
 }
 
+void test_add(void)
+{
+	OperationPrivilegeFlag initialFlags = 1 << OPPRVLG_CREATE_USER;
+	OperationPrivilegeFlag expectedFlags =
+	  (1 << OPPRVLG_CREATE_USER) | (1 << OPPRVLG_UPDATE_USER);
+	OperationPrivilege privilege(initialFlags);
+	cppcut_assert_equal(initialFlags, privilege.getFlags());
+	privilege.add(OPPRVLG_UPDATE_USER);
+	cppcut_assert_equal(expectedFlags, privilege.getFlags());
+}
+
+void test_remove(void)
+{
+	OperationPrivilegeFlag initialFlags =
+	  (1 << OPPRVLG_CREATE_USER) | (1 << OPPRVLG_UPDATE_USER);
+	OperationPrivilegeFlag expectedFlags = 1 << OPPRVLG_CREATE_USER;
+	OperationPrivilege privilege(initialFlags);
+	cppcut_assert_equal(initialFlags, privilege.getFlags());
+	privilege.remove(OPPRVLG_UPDATE_USER);
+	cppcut_assert_equal(expectedFlags, privilege.getFlags());
+}
+
 void test_setFlags(void)
 {
 	OperationPrivilegeFlag flags =
