@@ -262,7 +262,7 @@ void test_addTargetServerWithoutPrivilege(void)
 {
 	MonitoringServerInfo *testInfo = testServerInfo;
 	OperationPrivilegeFlag privilege = ALL_PRIVILEGES;
-	privilege &= ~(1 << OPPRVLG_CREATE_SERVER);
+	OperationPrivilege::removeFlag(privilege, OPPRVLG_CREATE_SERVER);
 	assertAddTargetServer(*testInfo, HTERR_NO_PRIVILEGE, privilege);
 }
 
@@ -930,7 +930,8 @@ void test_addIssueTracker(void)
 void test_addIssueTrackerWithoutPrivilege(void)
 {
 	OperationPrivilegeFlag privilege = ALL_PRIVILEGES;
-	privilege &= ~(1 << OPPRVLG_CREATE_ISSUE_SETTING);
+	OperationPrivilege::removeFlag(
+	  privilege, OPPRVLG_CREATE_ISSUE_SETTING);
 	IssueTrackerInfo *testInfo = testIssueTrackerInfo;
 	assertAddIssueTracker(*testInfo, HTERR_NO_PRIVILEGE, privilege);
 }
