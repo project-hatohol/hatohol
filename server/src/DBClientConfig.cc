@@ -1113,7 +1113,7 @@ HatoholError validIssueTrackerInfo(const IssueTrackerInfo &issueTrackerInfo)
 HatoholError DBClientConfig::addIssueTracker(
   IssueTrackerInfo *issueTrackerInfo, const OperationPrivilege &privilege)
 {
-	if (!privilege.has(OPPRVLG_CREATE_SERVER))
+	if (!privilege.has(OPPRVLG_CREATE_ISSUE_SENDER))
 		return HatoholError(HTERR_NO_PRIVILEGE);
 
 	HatoholError err = validIssueTrackerInfo(*issueTrackerInfo);

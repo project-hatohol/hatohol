@@ -927,6 +927,14 @@ void test_addIssueTracker(void)
 	assertAddIssueTracker(*testInfo, HTERR_OK);
 }
 
+void test_addIssueTrackerWithoutPrivilege(void)
+{
+	OperationPrivilegeFlag privilege = ALL_PRIVILEGES;
+	privilege &= ~(1 << OPPRVLG_CREATE_ISSUE_SENDER);
+	IssueTrackerInfo *testInfo = testIssueTrackerInfo;
+	assertAddIssueTracker(*testInfo, HTERR_NO_PRIVILEGE, privilege);
+}
+
 void test_addIssueTrackerWithEmptyLoction(void)
 {
 	IssueTrackerInfo testInfo = testIssueTrackerInfo[0];
