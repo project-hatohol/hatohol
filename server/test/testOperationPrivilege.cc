@@ -131,6 +131,24 @@ void test_remove(void)
 	cppcut_assert_equal(expectedFlags, privilege.getFlags());
 }
 
+void test_addFlag(void)
+{
+	OperationPrivilegeFlag flags = 1 << OPPRVLG_CREATE_USER;
+	OperationPrivilegeFlag expectedFlags =
+	  (1 << OPPRVLG_CREATE_USER) | (1 << OPPRVLG_UPDATE_USER);
+	OperationPrivilege::addFlag(flags, OPPRVLG_UPDATE_USER);
+	cppcut_assert_equal(expectedFlags, flags);
+}
+
+void test_removeFlag(void)
+{
+	OperationPrivilegeFlag flags =
+	  (1 << OPPRVLG_CREATE_USER) | (1 << OPPRVLG_UPDATE_USER);
+	OperationPrivilegeFlag expectedFlags = 1 << OPPRVLG_CREATE_USER;
+	OperationPrivilege::removeFlag(flags, OPPRVLG_UPDATE_USER);
+	cppcut_assert_equal(expectedFlags, flags);
+}
+
 void test_setFlags(void)
 {
 	OperationPrivilegeFlag flags =

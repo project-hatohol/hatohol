@@ -84,6 +84,12 @@ public:
 	void setFlags(const OperationPrivilegeFlag &flags);
 	static OperationPrivilegeFlag makeFlag(
 	  const OperationPrivilegeType &type);
+	static void addFlag(
+	  OperationPrivilegeFlag &flags,
+	  const OperationPrivilegeType &type);
+	static void removeFlag(
+	  OperationPrivilegeFlag &flags,
+	  const OperationPrivilegeType &type);
 	bool has(const OperationPrivilegeType &type) const;
 
 	bool operator==(const OperationPrivilege &rhs);
