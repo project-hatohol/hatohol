@@ -19,6 +19,7 @@
 
 #include "RestResourceIssueTracker.h"
 #include "DBClientConfig.h"
+#include "UnifiedDataStore.h"
 
 using namespace std;
 using namespace mlpl;
@@ -58,7 +59,29 @@ void RestResourceIssueTracker::handle(void)
 
 void RestResourceIssueTracker::handleGet(void)
 {
-	replyError(HTERR_NOT_IMPLEMENTED);
+	IssueTrackerQueryOption option(m_dataQueryContextPtr);
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	IssueTrackerInfoVect issueTrackers;
+	dataStore->getIssueTrackers(issueTrackers, option);
+
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, HTERR_OK);
+
+	IssueTrackerInfoVectIterator it = issueTrackers.begin();
+	agent.startArray("issueTrackers");
+	for (; it != issueTrackers.end(); ++it) {
+		agent.startObject();
+		agent.add("id", it->id);
+		agent.add("type", it->type);
+		agent.add("nickname", it->nickname);
+		agent.add("projectId", it->projectId);
+		agent.add("trackerId", it->trackerId);
+		agent.endObject();
+	}
+	agent.endArray();
+
+	agent.endObject();
 }
 
 void RestResourceIssueTracker::handlePost(void)
