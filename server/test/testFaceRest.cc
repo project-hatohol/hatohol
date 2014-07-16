@@ -32,7 +32,6 @@
 #include "SessionManager.h"
 #include "testDBClientHatohol.h"
 #include "HatoholArmPluginInterface.h"
-#include "RestResourceHost.h"
 using namespace std;
 using namespace mlpl;
 
