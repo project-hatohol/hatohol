@@ -396,6 +396,35 @@ ItemTablePtr ZabbixAPI::getEvents(uint64_t eventIdOffset, uint64_t eventIdTill)
 	return ItemTablePtr(tablePtr);
 }
 
+uint64_t ZabbixAPI::getFirstEventId(void)
+{
+	string strFirstEventId;
+	uint64_t firstEventId = 0;
+
+	SoupMessage *msg = queryFirstEventId();
+	if (!msg) {
+		MLPL_ERR("Failed to query first eventID.\n");
+		return 0;
+	}
+
+	JsonParserAgent parser(msg->response_body->data);
+	g_object_unref(msg);
+	if (parser.hasError()) {
+		THROW_DATA_STORE_EXCEPTION(
+		  "Failed to parser: %s", parser.getErrorMessage());
+	}
+	startObject(parser, "result");
+	startElement(parser, 0);
+
+	if (!parser.read("eventid", strFirstEventId))
+		THROW_DATA_STORE_EXCEPTION("Failed to read: eventid\n");
+
+	firstEventId = StringUtils::toUint64(strFirstEventId);
+	MLPL_DBG("FirstEventId: %" PRIu64 "\n", firstEventId);
+
+	return firstEventId;
+}
+
 uint64_t ZabbixAPI::getLastEventId(void)
 {
 	string strLastEventId;

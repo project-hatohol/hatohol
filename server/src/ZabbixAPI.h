@@ -145,6 +145,13 @@ protected:
 	ItemTablePtr getEvents(uint64_t eventIdOffset, uint64_t eventIdTill);
 
 	/**
+	 * Get the first event ID the target Zabbix server has.
+	 *
+	 * @return The last event ID.
+	 */
+	uint64_t getFirstEventId(void);
+
+	/**
 	 * Get the last event ID the target Zabbix server has.
 	 *
 	 * @return The last event ID.
