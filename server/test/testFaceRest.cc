@@ -52,41 +52,6 @@ static void _assertTestTriggerInfo(const TriggerInfo &triggerInfo)
 }
 #define assertTestTriggerInfo(T) cut_trace(_assertTestTriggerInfo(T))
 
-static void assertServersInParser(
-  JsonParserAgent *parser, bool shouldHaveAccountInfo = true)
-{
-	assertValueInParser(parser, "numberOfServers", NumTestServerInfo);
-	assertStartObject(parser, "servers");
-	for (size_t i = 0; i < NumTestServerInfo; i++) {
-		parser->startElement(i);
-		MonitoringServerInfo &svInfo = testServerInfo[i];
-		assertValueInParser(parser, "id",   svInfo.id);
-		assertValueInParser(parser, "type", svInfo.type);
-		assertValueInParser(parser, "hostName",  svInfo.hostName);
-		assertValueInParser(parser, "ipAddress", svInfo.ipAddress);
-		assertValueInParser(parser, "nickname",  svInfo.nickname);
-		assertValueInParser(parser, "port",  svInfo.port);
-		assertValueInParser(parser, "pollingInterval",
-				    svInfo.pollingIntervalSec);
-		assertValueInParser(parser, "retryInterval",
-				    svInfo.retryIntervalSec);
-		if (shouldHaveAccountInfo) {
-			assertValueInParser(parser, "userName",
-					    svInfo.userName);
-			assertValueInParser(parser, "password",
-					    svInfo.password);
-			assertValueInParser(parser, "dbName",
-					    svInfo.dbName);
-		} else {
-			assertNoValueInParser(parser, "userName");
-			assertNoValueInParser(parser, "password");
-			assertNoValueInParser(parser, "dbName");
-		}
-		parser->endElement();
-	}
-	parser->endObject();
-}
-
 static void assertHostsInParser(JsonParserAgent *parser,
                                 const ServerIdType &targetServerId,
                                 DataQueryContext *dqCtx)
@@ -194,18 +159,6 @@ static void _assertTestMode(const bool expectedMode = false,
 	assertValueInParser(g_parser, "testMode", expectedMode);
 }
 #define assertTestMode(E,...) cut_trace(_assertTestMode(E,##__VA_ARGS__))
-
-static void _assertServers(const string &path, const string &callbackName = "")
-{
-	setupUserDB();
-	startFaceRest();
-	RequestArg arg(path, callbackName);
-	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
-	g_parser = getResponseAsJsonParser(arg);
-	assertErrorCode(g_parser);
-	assertServersInParser(g_parser);
-}
-#define assertServers(P,...) cut_trace(_assertServers(P,##__VA_ARGS__))
 
 static void _assertHosts(const string &path, const string &callbackName = "",
                          const ServerIdType &serverId = ALL_SERVERS)
@@ -502,48 +455,8 @@ static void _assertActions(const string &path, const string &callbackName = "",
 }
 #define assertActions(P,...) cut_trace(_assertActions(P,##__VA_ARGS__))
 
-void _assertAddRecord(const StringMap &params, const string &url,
-                      const UserIdType &userId = INVALID_USER_ID,
-                      const HatoholErrorCode &expectCode = HTERR_OK,
-                      uint32_t expectedId = 1)
-{
-	startFaceRest();
-	RequestArg arg(url, "foo");
-	arg.parameters = params;
-	arg.request = "POST";
-	arg.userId = userId;
-	g_parser = getResponseAsJsonParser(arg);
-	assertErrorCode(g_parser, expectCode);
-	if (expectCode != HTERR_OK)
-		return;
-	assertValueInParser(g_parser, "id", expectedId);
-}
-
-void _assertUpdateRecord(const StringMap &params, const string &baseUrl,
-                         uint32_t targetId = 1,
-                         const UserIdType &userId = INVALID_USER_ID,
-                         const HatoholErrorCode &expectCode = HTERR_OK)
-{
-	startFaceRest();
-	string url;
-	uint32_t invalidId = -1;
-	if (targetId == invalidId)
-		url = baseUrl;
-	else
-		url = baseUrl + StringUtils::sprintf("/%" PRIu32, targetId);
-	RequestArg arg(url, "foo");
-	arg.parameters = params;
-	arg.request = "PUT";
-	arg.userId = userId;
-	g_parser = getResponseAsJsonParser(arg);
-	assertErrorCode(g_parser, expectCode);
-	if (expectCode != HTERR_OK)
-		return;
-	assertValueInParser(g_parser, "id", targetId);
-}
-
 #define assertAddAction(P, ...) \
-cut_trace(_assertAddRecord(P, "/action", ##__VA_ARGS__))
+cut_trace(_assertAddRecord(g_parser, P, "/action", ##__VA_ARGS__))
 
 void _assertLogin(const string &user, const string &password)
 {
@@ -617,7 +530,7 @@ static void _assertUsers(const string &path, const UserIdType &userId,
 #define assertUsers(P, U, ...) cut_trace(_assertUsers(P, U, ##__VA_ARGS__))
 
 #define assertAddUser(P, ...) \
-cut_trace(_assertAddRecord(P, "/user", ##__VA_ARGS__))
+cut_trace(_assertAddRecord(g_parser, P, "/user", ##__VA_ARGS__))
 
 void _assertAddUserWithSetup(const StringMap &params,
                              const HatoholErrorCode &expectCode)
@@ -631,7 +544,7 @@ void _assertAddUserWithSetup(const StringMap &params,
 #define assertAddUserWithSetup(P,C) cut_trace(_assertAddUserWithSetup(P,C))
 
 #define assertUpdateUser(P, ...) \
-cut_trace(_assertUpdateRecord(P, "/user", ##__VA_ARGS__))
+cut_trace(_assertUpdateRecord(g_parser, P, "/user", ##__VA_ARGS__))
 
 void _assertUpdateUserWithSetup(const StringMap &params,
                                 uint32_t targetUserId,
@@ -645,20 +558,6 @@ void _assertUpdateUserWithSetup(const StringMap &params,
 }
 #define assertUpdateUserWithSetup(P,U,C) \
 cut_trace(_assertUpdateUserWithSetup(P,U,C))
-
-#define assertAddServer(P, ...) \
-cut_trace(_assertAddRecord(P, "/server", ##__VA_ARGS__))
-
-void _assertAddServerWithSetup(const StringMap &params,
-			       const HatoholErrorCode &expectCode)
-{
-	const bool dbRecreate = true;
-	const bool loadTestDat = true;
-	setupTestDBUser(dbRecreate, loadTestDat);
-	const UserIdType userId = findUserWith(OPPRVLG_CREATE_SERVER);
-	assertAddServer(params, userId, expectCode, NumTestServerInfo + 1);
-}
-#define assertAddServerWithSetup(P,C) cut_trace(_assertAddServerWithSetup(P,C))
 
 static void setupTestMode(void)
 {
@@ -766,7 +665,7 @@ static void _assertAllowedServers(const string &path, const UserIdType &userId,
 #define assertAllowedServers(P,...) cut_trace(_assertAllowedServers(P,##__VA_ARGS__))
 
 #define assertAddAccessInfo(U, P, USER_ID, ...) \
-cut_trace(_assertAddRecord(P, U, USER_ID, ##__VA_ARGS__))
+cut_trace(_assertAddRecord(g_parser, P, U, USER_ID, ##__VA_ARGS__))
 
 void _assertAddAccessInfoWithCond(
   const string &serverId, const string &hostgroupId,
@@ -994,19 +893,6 @@ static void _assertServerConnStat(JsonParserAgent *parser)
 }
 #define assertServerConnStat(P) cut_trace(_assertServerConnStat(P))
 
-static void setupArmPluginInfo(
-  ArmPluginInfo &armPluginInfo, const MonitoringServerInfo &serverInfo)
-{
-	armPluginInfo.id = AUTO_INCREMENT_VALUE;
-	armPluginInfo.type = serverInfo.type;
-	const char *path =
-	  HatoholArmPluginInterface::getDefaultPluginPath(armPluginInfo.type);
-	armPluginInfo.path = path ? : "";
-	armPluginInfo.brokerUrl = "abc.example.com:22222";
-	armPluginInfo.staticQueueAddress = "";
-	armPluginInfo.serverId = serverInfo.id;
-}
-
 static void setupPostAction(void)
 {
 	bool recreate = true;
@@ -1132,243 +1018,6 @@ void test_testError(void)
 	RequestArg arg("/test/error");
 	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser, HTERR_ERROR_TEST);
-}
-
-void test_servers(void)
-{
-	assertServers("/server");
-}
-
-void test_serversJsonp(void)
-{
-	assertServers("/server", "foo");
-}
-
-void test_serversWithoutUpdatePrivilege(void)
-{
-	setupUserDB();
-	startFaceRest();
-	RequestArg arg("/server");
-	OperationPrivilegeFlag excludeFlags =
-	  (1 << OPPRVLG_UPDATE_ALL_SERVER) | (1 << OPPRVLG_UPDATE_SERVER);
-	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER, excludeFlags);
-	g_parser = getResponseAsJsonParser(arg);
-	assertErrorCode(g_parser);
-	bool shouldHaveAccountInfo = true;
-	assertServersInParser(g_parser, !shouldHaveAccountInfo);
-}
-
-static void serverInfo2StringMap(
-  const MonitoringServerInfo &src, StringMap &dest)
-{
-	dest["type"] = StringUtils::toString(src.type);
-	dest["hostName"] = src.hostName;
-	dest["ipAddress"] = src.ipAddress;
-	dest["nickname"] = src.nickname;
-	dest["port"] = StringUtils::toString(src.port);
-	dest["userName"] = src.userName;
-	dest["password"] = src.password;
-	dest["dbName"] = src.dbName;
-	dest["pollingInterval"]
-	  = StringUtils::toString(src.pollingIntervalSec);
-	dest["retryInterval"]
-	  = StringUtils::toString(src.retryIntervalSec);
-}
-
-void test_addServer(void)
-{
-	MonitoringServerInfo expected;
-	MonitoringServerInfo::initialize(expected);
-	expected.id = NumTestServerInfo + 1;
-	expected.type = MONITORING_SYSTEM_FAKE;
-
-	StringMap params;
-	serverInfo2StringMap(expected, params);
-	assertAddServerWithSetup(params, HTERR_OK);
-
-	// check the content in the DB
-	DBClientConfig dbConfig;
-	string statement = "select * from servers ";
-	statement += " order by id desc limit 1";
-	string expectedOutput = makeServerInfoOutput(expected);
-	assertDBContent(dbConfig.getDBAgent(), statement, expectedOutput);
-}
-
-void test_addServerWithHapiParams(void)
-{
-	MonitoringServerInfo expected;
-	MonitoringServerInfo::initialize(expected);
-	expected.id = NumTestServerInfo + 1;
-	expected.type = MONITORING_SYSTEM_HAPI_ZABBIX;
-
-	ArmPluginInfo armPluginInfo;
-	setupArmPluginInfo(armPluginInfo, expected);
-	armPluginInfo.id = 1; // We suppose all entries have been deleted
-
-	StringMap params;
-	serverInfo2StringMap(expected, params);
-	params["passiveMode"] = "false";
-	params["brokerUrl"] = armPluginInfo.brokerUrl;
-	assertAddServerWithSetup(params, HTERR_OK);
-
-	// check the content in the DB
-	DBClientConfig dbConfig;
-	string statement = "select * from arm_plugins";
-	statement += " order by id desc limit 1";
-	string expectedOutput = makeArmPluginInfoOutput(armPluginInfo);
-	assertDBContent(dbConfig.getDBAgent(), statement, expectedOutput);
-}
-
-void test_addServerWithoutNickname(void)
-{
-	MonitoringServerInfo serverInfo = testServerInfo[0];
-	StringMap params;
-	serverInfo2StringMap(serverInfo, params);
-	params.erase("nickname");
-	assertAddServerWithSetup(params, HTERR_NOT_FOUND_PARAMETER);
-
-	ServerIdSet serverIdSet;
-	assertServersInDB(serverIdSet);
-}
-
-void data_updateServer(void)
-{
-	gcut_add_datum("Test server 1", "index", G_TYPE_INT, 0, NULL);
-	gcut_add_datum("Test server 3", "index", G_TYPE_INT, 2, NULL);
-}
-
-void test_updateServer(gconstpointer data)
-{
-	startFaceRest();
-	bool dbRecreate = true;
-	bool loadTestData = true;
-	setupTestDBUser(dbRecreate, loadTestData);
-
-	// a copy is necessary not to change the source.
-	const int serverIndex = gcut_data_get_int(data, "index");
-	MonitoringServerInfo srcSvInfo = testServerInfo[serverIndex];
-	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
-	ArmPluginInfo *armPluginInfo = NULL;
-	assertHatoholError(
-	  HTERR_OK,
-	  uds->addTargetServer(srcSvInfo, *armPluginInfo,
-	                       OperationPrivilege(USER_ID_SYSTEM), false)
-	);
-
-	MonitoringServerInfo updateSvInfo = testServerInfo[1]; // make a copy;
-	const UserIdType userId = findUserWith(OPPRVLG_UPDATE_ALL_SERVER);
-	string url = StringUtils::sprintf("/server/%" FMT_SERVER_ID,
-	                                  srcSvInfo.id);
-	StringMap params;
-	serverInfo2StringMap(updateSvInfo, params);
-
-	// send a request
-	RequestArg arg(url);
-	arg.parameters = params;
-	arg.request = "PUT";
-	arg.userId = userId;
-	g_parser = getResponseAsJsonParser(arg);
-	assertErrorCode(g_parser);
-	assertValueInParser(g_parser, "id", srcSvInfo.id);
-
-	// check the content in the DB
-	DBClientConfig dbConfig;
-	string statement = StringUtils::sprintf(
-	                     "select * from servers where id=%d", srcSvInfo.id);
-	updateSvInfo.id = srcSvInfo.id;
- 	// TODO: serverInfo2StringMap() doesn't set dbName. Is this OK ?
-	updateSvInfo.dbName = srcSvInfo.dbName;
-	string expectedOutput = makeServerInfoOutput(updateSvInfo);
-	assertDBContent(dbConfig.getDBAgent(), statement, expectedOutput);
-}
-
-void test_updateServerWithArmPlugin(void)
-{
-	startFaceRest();
-	const bool dbRecreate = true;
-	const bool loadTestData = true;
-	setupTestDBUser(dbRecreate, loadTestData);
-
-	// a copy is necessary not to change the source.
-	MonitoringServerInfo serverInfo;
-	MonitoringServerInfo::initialize(serverInfo);
-	serverInfo.type = MONITORING_SYSTEM_HAPI_ZABBIX;
-	ArmPluginInfo armPluginInfo;
-	setupArmPluginInfo(armPluginInfo, serverInfo);
-	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
-	assertHatoholError(
-	  HTERR_OK,
-	  uds->addTargetServer(serverInfo, armPluginInfo,
-	                       OperationPrivilege(USER_ID_SYSTEM), false)
-	);
-
-	// Make an updated data
-	serverInfo.hostName = "ume.tree.com";
-	serverInfo.pollingIntervalSec = 30;
-	const UserIdType userId = findUserWith(OPPRVLG_UPDATE_ALL_SERVER);
-	string url = StringUtils::sprintf("/server/%" FMT_SERVER_ID,
-	                                  serverInfo.id);
-	StringMap params;
-	serverInfo2StringMap(serverInfo, params);
-	armPluginInfo.brokerUrl = "tosaken.dog.exmaple.com:3322";
-	armPluginInfo.staticQueueAddress = "address-for-cats";
-	params["brokerUrl"] = armPluginInfo.brokerUrl;
-	params["staticQueueAddress"] = armPluginInfo.staticQueueAddress;
-
-	// send a request
-	RequestArg arg(url);
-	arg.parameters = params;
-	arg.request = "PUT";
-	arg.userId = userId;
-	g_parser = getResponseAsJsonParser(arg);
-	assertErrorCode(g_parser);
-	assertValueInParser(g_parser, "id", serverInfo.id);
-
-	// check the content in the DB
-	DBClientConfig dbConfig;
-	string statement = StringUtils::sprintf(
-	  "SELECT * FROM servers WHERE id=%d", serverInfo.id);
-	// TODO: serverInfo2StringMap() doesn't set dbName. Is this OK ?
-	string expectedOutput = makeServerInfoOutput(serverInfo);
-	assertDBContent(dbConfig.getDBAgent(), statement, expectedOutput);
-
-	statement = "SELECT * FROM arm_plugins ORDER BY id DESC LIMIT 1";
-	expectedOutput = makeArmPluginInfoOutput(armPluginInfo);
-	assertDBContent(dbConfig.getDBAgent(), statement, expectedOutput);
-}
-
-void test_deleteServer(void)
-{
-	startFaceRest();
-	bool dbRecreate = true;
-	bool loadTestData = true;
-	setupTestDBUser(dbRecreate, loadTestData);
-	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
-	ArmPluginInfo *armPluginInfo = NULL;
-
-	// a copy is necessary not to change the source.
-	MonitoringServerInfo targetSvInfo = testServerInfo[0];
-
-	assertHatoholError(
-	  HTERR_OK,
-	  uds->addTargetServer(targetSvInfo, *armPluginInfo,
-	                       OperationPrivilege(USER_ID_SYSTEM), false)
-	);
-
-	const ServerIdType targetServerId = targetSvInfo.id;
-	const UserIdType userId = findUserWith(OPPRVLG_DELETE_SERVER);
-	string url = StringUtils::sprintf("/server/%" FMT_SERVER_ID,
-					  targetServerId);
-	RequestArg arg(url);
-	arg.request = "DELETE";
-	arg.userId = userId;
-	g_parser = getResponseAsJsonParser(arg);
-
-	// check the reply
-	assertErrorCode(g_parser);
-	ServerIdSet serverIdSet;
-	serverIdSet.insert(targetServerId);
-	assertServersInDB(serverIdSet);
 }
 
 void test_hosts(void)
@@ -2134,7 +1783,7 @@ void test_getUserRole(void)
 }
 
 #define assertAddUserRole(P, ...) \
-cut_trace(_assertAddRecord(P, "/user-role", ##__VA_ARGS__))
+cut_trace(_assertAddRecord(g_parser, P, "/user-role", ##__VA_ARGS__))
 
 void _assertAddUserRoleWithSetup(const StringMap &params,
 				 const HatoholErrorCode &expectCode,
@@ -2223,7 +1872,7 @@ void test_addUserRoleWithInvalidFlags(void)
 }
 
 #define assertUpdateUserRole(P, ...) \
-cut_trace(_assertUpdateRecord(P, "/user-role", ##__VA_ARGS__))
+cut_trace(_assertUpdateRecord(g_parser, P, "/user-role", ##__VA_ARGS__))
 
 void _assertUpdateUserRoleWithSetup(const StringMap &params,
 				    uint32_t targetUserRoleId,

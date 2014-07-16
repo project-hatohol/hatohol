@@ -22,6 +22,7 @@
 
 #include <string>
 #include "StringUtils.h"
+#include "Params.h"
 #include "JsonParserAgent.h"
 #include "HatoholError.h"
 
@@ -91,6 +92,17 @@ void _assertNullInParser(JsonParserAgent *parser, const std::string &member);
 void _assertErrorCode(JsonParserAgent *parser,
 		      const HatoholErrorCode &expectCode = HTERR_OK);
 #define assertErrorCode(P, ...) cut_trace(_assertErrorCode(P, ##__VA_ARGS__))
+
+void _assertAddRecord(JsonParserAgent *parser,
+                      const StringMap &params, const std::string &url,
+                      const UserIdType &userId = INVALID_USER_ID,
+                      const HatoholErrorCode &expectCode = HTERR_OK,
+                      uint32_t expectedId = 1);
+void _assertUpdateRecord(JsonParserAgent *parser,
+                         const StringMap &params, const std::string &baseUrl,
+                         uint32_t targetId = 1,
+                         const UserIdType &userId = INVALID_USER_ID,
+                         const HatoholErrorCode &expectCode = HTERR_OK);
 
 void getServerResponse(RequestArg &arg);
 JsonParserAgent *getResponseAsJsonParser(RequestArg &arg);

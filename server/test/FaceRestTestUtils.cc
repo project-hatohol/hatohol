@@ -334,3 +334,44 @@ void _assertErrorCode(JsonParserAgent *parser,
 	assertValueInParser(parser, "apiVersion", FaceRest::API_VERSION);
 	assertValueInParser(parser, "errorCode", expectCode);
 }
+
+void _assertAddRecord(JsonParserAgent *parser,
+                      const StringMap &params, const string &url,
+                      const UserIdType &userId,
+                      const HatoholErrorCode &expectCode,
+                      uint32_t expectedId)
+{
+	startFaceRest();
+	RequestArg arg(url, "foo");
+	arg.parameters = params;
+	arg.request = "POST";
+	arg.userId = userId;
+	parser = getResponseAsJsonParser(arg);
+	assertErrorCode(parser, expectCode);
+	if (expectCode != HTERR_OK)
+		return;
+	assertValueInParser(parser, "id", expectedId);
+}
+
+void _assertUpdateRecord(JsonParserAgent *parser,
+                         const StringMap &params, const string &baseUrl,
+                         uint32_t targetId, const UserIdType &userId,
+                         const HatoholErrorCode &expectCode)
+{
+	startFaceRest();
+	string url;
+	uint32_t invalidId = -1;
+	if (targetId == invalidId)
+		url = baseUrl;
+	else
+		url = baseUrl + StringUtils::sprintf("/%" PRIu32, targetId);
+	RequestArg arg(url, "foo");
+	arg.parameters = params;
+	arg.request = "PUT";
+	arg.userId = userId;
+	parser = getResponseAsJsonParser(arg);
+	assertErrorCode(parser, expectCode);
+	if (expectCode != HTERR_OK)
+		return;
+	assertValueInParser(parser, "id", targetId);
+}
