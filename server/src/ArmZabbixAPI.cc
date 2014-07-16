@@ -179,8 +179,8 @@ void ArmZabbixAPI::updateEvents(void)
 	//
 	while (dbLastEventId != serverLastEventId) {
 		if (dbLastEventId == DBClientZabbix::EVENT_ID_NOT_FOUND) {
-			eventIdOffset = 0;
-			eventIdTill = NUMBER_OF_GET_EVENT_PER_ONCE;
+			eventIdOffset = getFirstEventId();
+			eventIdTill = eventIdOffset + NUMBER_OF_GET_EVENT_PER_ONCE;
 		} else {
 			eventIdOffset = dbLastEventId + 1;
 			eventIdTill = dbLastEventId + NUMBER_OF_GET_EVENT_PER_ONCE;
