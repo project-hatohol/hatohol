@@ -162,7 +162,15 @@ struct RequestArg {
 	}
 };
 
-static void getSessionId(RequestArg &arg);
+static void getSessionId(RequestArg &arg)
+{
+	if (arg.userId == INVALID_USER_ID)
+		return;
+	SessionManager *sessionMgr = SessionManager::getInstance();
+	const string sessionId = sessionMgr->create(arg.userId);
+	arg.headers.push_back(makeSessionIdHeader(sessionId));
+}
+
 static bool parseStatusLine(RequestArg &arg, const gchar *line)
 {
 	bool succeeded = false;
@@ -871,15 +879,6 @@ void _assertLogin(const string &user, const string &password)
 	g_parser = getResponseAsJsonParser(arg);
 }
 #define assertLogin(U,P) cut_trace(_assertLogin(U,P))
-
-static void getSessionId(RequestArg &arg)
-{
-	if (arg.userId == INVALID_USER_ID)
-		return;
-	SessionManager *sessionMgr = SessionManager::getInstance();
-	const string sessionId = sessionMgr->create(arg.userId);
-	arg.headers.push_back(makeSessionIdHeader(sessionId));
-}
 
 static void _assertUser(JsonParserAgent *parser, const UserInfo &userInfo,
                         uint32_t expectUserId = 0)
