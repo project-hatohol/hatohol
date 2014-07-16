@@ -45,12 +45,12 @@ packages
 
     # yum groupinstall "Development Tools"
 
-You need registration of yum repository for install qpid-cpp-client-devel packages 
-by following command
+You need to register a yum repository for installing qpid-cpp-client-devel packages 
+by the following command
 
     # wget -P /etc/yum.repos.d/ http://project-hatohol.github.io/repo/hatohol.repo
 
-You can install sqlite3, MySQL and libsoup and others by following command:
+You can install sqlite3, MySQL and libsoup and others by the following command:
 
     # yum install sqlite-devel mysql-devel libsoup-devel libuuid-devel qpid-cpp-client-devel
 
