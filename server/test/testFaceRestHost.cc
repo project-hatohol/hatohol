@@ -18,19 +18,12 @@
  */
 
 #include <cppcutter.h>
-#include <MutexLock.h>
 #include "Hatohol.h"
 #include "FaceRest.h"
 #include "Helpers.h"
-#include "JsonParserAgent.h"
 #include "DBClientTest.h"
-#include "Params.h"
-#include "MultiLangTest.h"
-#include "CacheServiceDBClient.h"
 #include "UnifiedDataStore.h"
-#include "SessionManager.h"
 #include "testDBClientHatohol.h"
-#include "HatoholArmPluginInterface.h"
 #include "FaceRestTestUtils.h"
 using namespace std;
 using namespace mlpl;
