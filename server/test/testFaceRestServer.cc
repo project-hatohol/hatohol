@@ -114,6 +114,40 @@ void _assertAddServerWithSetup(const StringMap &params,
 }
 #define assertAddServerWithSetup(P,C) cut_trace(_assertAddServerWithSetup(P,C))
 
+static void _assertServerConnStat(JsonParserAgent *parser)
+{
+	// Make expected data
+	CacheServiceDBClient cache;
+	DBClientConfig *dbConfig = cache.getConfig();
+	ServerIdSet expectIdSet;
+	DataQueryContextPtr dqCtxPtr(new DataQueryContext(USER_ID_SYSTEM),
+	                             false);
+	dbConfig->getServerIdSet(expectIdSet, dqCtxPtr);
+	cppcut_assert_equal(true, expectIdSet.size() > 1);
+
+	// Check
+	const string initTimeStr = (string)SmartTime();
+	ServerIdSetIterator serverIdItr;
+	assertStartObject(parser, "serverConnStat");
+	while (!expectIdSet.empty()) {
+		serverIdItr = expectIdSet.begin();
+		const string serverIdStr = StringUtils::toString(*serverIdItr);
+		assertStartObject(parser, serverIdStr);
+		assertValueInParser(parser, "running", false);
+		assertValueInParser(parser, "status", ARM_WORK_STAT_INIT);
+		assertValueInParser(parser, "statUpdateTime",  initTimeStr);
+		assertValueInParser(parser, "lastSuccessTime", initTimeStr);
+		assertValueInParser(parser, "lastFailureTime", initTimeStr);
+		assertValueInParser(parser, "failureComment", string(""));
+		assertValueInParser(parser, "numUpdate",      0);
+		assertValueInParser(parser, "numFailure",     0);
+		parser->endObject(); // serverId
+		expectIdSet.erase(serverIdItr);
+	}
+	parser->endObject(); // serverConnStat
+}
+#define assertServerConnStat(P) cut_trace(_assertServerConnStat(P))
+
 void test_servers(void)
 {
 	assertServers("/server");
@@ -349,6 +383,20 @@ void test_deleteServer(void)
 	ServerIdSet serverIdSet;
 	serverIdSet.insert(targetServerId);
 	assertServersInDB(serverIdSet);
+}
+
+void test_getServerConnStat(void)
+{
+	startFaceRest();
+
+	setupUserDB();
+	UnifiedDataStore::getInstance()->start(false);
+
+	RequestArg arg("/server-conn-stat");
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	g_parser = getResponseAsJsonParser(arg);
+	assertErrorCode(g_parser);
+	assertServerConnStat(g_parser);
 }
 
 } // namespace testFaceRestServer
