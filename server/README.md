@@ -36,8 +36,8 @@ Required libraries
 - libqpidtypes1-dev
 - libqpidcommon2-dev
 
-### Example to install required libraries on CentOS 6.4
-> See also [this page](../doc/install/hatohol13.12-centos6.4.md)
+### Example to install required libraries on CentOS 6.5
+> See also [this page](https://github.com/project-hatohol/website/blob/master/contents/docs/install/14.06/ja/index.md)
 > to setup Hatohol for CentOS with the binary packages.
 
 First, you need to install development tools to build Hatohol and some required
@@ -45,9 +45,14 @@ packages
 
     # yum groupinstall "Development Tools"
 
-You can install sqlite3, MySQL and libsoup by following command:
+You need to register a yum repository for installing qpid-cpp-client-devel packages 
+by the following command
 
-    # yum install sqlite-devel mysql-devel libsoup-devel libuuid-devel
+    # wget -P /etc/yum.repos.d/ http://project-hatohol.github.io/repo/hatohol.repo
+
+You can install sqlite3, MySQL and libsoup and others by the following command:
+
+    # yum install sqlite-devel mysql-devel libsoup-devel libuuid-devel qpid-cpp-client-devel
 
 #### For json-glib, there are two ways to install.
 

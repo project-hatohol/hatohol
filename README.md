@@ -39,7 +39,7 @@ Supported monitoring software
 
 Supported platforms
 -----------------------------
-- CentOS 6.4 (x86\_64)
+- CentOS 6.5 (x86\_64)
 - Ubuntu Server 12.04.2 LTS (64-bit)
 - Ubuntu 13.04 (64-bit) [supported until the next Ubuntu release]
 
@@ -67,8 +67,8 @@ Other pages are being constructed.
 
 Installation
 ------------
-### Installation by RPM files (only for CentOS 6.4)
-The detailed document is [here](doc/install/hatohol13.12-centos6.4.md)
+### Installation by RPM files (only for CentOS 6.5)
+The detailed document is [here](https://github.com/project-hatohol/website/blob/master/contents/docs/install/14.06/ja/index.md)
 
 ### Installation by building needed applications
 - [Server installation](server/README.md)
