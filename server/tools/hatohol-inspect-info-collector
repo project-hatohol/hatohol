@@ -22,67 +22,67 @@ import subprocess
 import shutil
 import os
 
-ConfigDBName = "hatohol"
-ClientDBName = "hatohol_client"
-DBUser = "hatohol"
-DBPassword = "hatohol"
+ConfigDBName = 'hatohol'
+ClientDBName = 'hatohol_client'
+DBUser = 'hatohol'
+DBPassword = 'hatohol'
 
 
 def dump_config_db():
     cmd = []
-    cmd.append("mysqldump")
-    cmd.append("-u")
+    cmd.append('mysqldump')
+    cmd.append('-u')
     cmd.append(DBUser)
-    cmd.append("-p%s" % DBPassword)
+    cmd.append('-p%s' % DBPassword)
     cmd.append(ConfigDBName)
 
     subprocess.Popen(
         cmd,
-        stdout=open("./hatohol_backupdb/hatohol.mysql", "w"))
+        stdout=open('./hatohol_backupdb/hatohol.mysql', 'w'))
 
 
 def dump_client_db():
     cmd = []
-    cmd.append("mysqldump")
-    cmd.append("-u")
+    cmd.append('mysqldump')
+    cmd.append('-u')
     cmd.append(DBUser)
-    cmd.append("-p%s" % DBPassword)
+    cmd.append('-p%s' % DBPassword)
     cmd.append(ClientDBName)
 
     subprocess.Popen(
         cmd,
-        stdout=open("./hatohol_backupdb/hatohol_client.mysql", "w"))
+        stdout=open('./hatohol_backupdb/hatohol_client.mysql', 'w'))
 
 
 def copy_cache_db(dir):
     if (os.path.isdir(dir)):
-        shutil.copytree(dir, "hatohol_backupdb/cache")
+        shutil.copytree(dir, 'hatohol_backupdb/cache')
     else:
-        print "There is no directory."
+        print 'There is no directory.'
 
 
 def create_tmp_directory():
-    os.mkdir("hatohol_backupdb")
+    os.mkdir('hatohol_backupdb')
 
 
 def delete_tmp_directory():
-    shutil.rmtree("hatohol_backupdb")
+    shutil.rmtree('hatohol_backupdb')
 
 
 def create_tarball():
     cmd = []
-    cmd.append("tar")
-    cmd.append("zcvf")
-    cmd.append("hatohol_backupdb.tar.gz")
-    cmd.append("hatohol_backupdb")
+    cmd.append('tar')
+    cmd.append('zcvf')
+    cmd.append('hatohol_backupdb.tar.gz')
+    cmd.append('hatohol_backupdb')
 
     subprocess.call(cmd)
     delete_tmp_directory()
 
 
 def show_usage():
-    print "Usage:\n"
-    print "$ %s <Path of CacheDB>" % sys.argv[0]
+    print 'Usage:\n'
+    print '$ %s <Path of CacheDB>' % sys.argv[0]
 
 
 # ---------------
