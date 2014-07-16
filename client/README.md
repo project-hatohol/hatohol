@@ -30,7 +30,7 @@ Hatohol Client is written as PATH FREE. So you can place it anywhere.
 ### Install Required Libraries
 The following shows examples to install Required Packages.
 
-#### On CentOS 6.4
+#### On CentOS 6.5
 
     # yum install python-setuptools python-devel
     # easy_install pip
