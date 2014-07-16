@@ -28,7 +28,7 @@ DBUser = "hatohol"
 DBPassword = "hatohol"
 
 
-def dumpConfigDB():
+def dump_config_db():
     cmd = []
     cmd.append("mysqldump")
     cmd.append("-u")
@@ -41,7 +41,7 @@ def dumpConfigDB():
         stdout=open("./hatohol_backupdb/hatohol.mysql", "w"))
 
 
-def dumpClientDB():
+def dump_client_db():
     cmd = []
     cmd.append("mysqldump")
     cmd.append("-u")
@@ -54,22 +54,22 @@ def dumpClientDB():
         stdout=open("./hatohol_backupdb/hatohol_client.mysql", "w"))
 
 
-def copyCacheDB(dir):
+def copy_cache_db(dir):
     if (os.path.isdir(dir)):
         shutil.copytree(dir, "hatohol_backupdb/cache")
     else:
         print "There is no directory."
 
 
-def createTmpDirectory():
+def create_tmp_directory():
     os.mkdir("hatohol_backupdb")
 
 
-def deleteTmpDirectory():
+def delete_tmp_directory():
     shutil.rmtree("hatohol_backupdb")
 
 
-def createTarball():
+def create_tarball():
     cmd = []
     cmd.append("tar")
     cmd.append("zcvf")
@@ -77,10 +77,10 @@ def createTarball():
     cmd.append("hatohol_backupdb")
 
     subprocess.call(cmd)
-    deleteTmpDirectory()
+    delete_tmp_directory()
 
 
-def showUsage():
+def show_usage():
     print "Usage:\n"
     print "$ %s <Path of CacheDB>" % sys.argv[0]
 
@@ -89,11 +89,11 @@ def showUsage():
 # Main routine
 # ---------------
 if (len(sys.argv) < 2):
-    showUsage()
+    show_usage()
     quit()
 
-createTmpDirectory()
-dumpConfigDB()
-dumpClientDB()
-copyCacheDB(sys.argv[1])
-createTarball()
+create_tmp_directory()
+dump_config_db()
+dump_client_db()
+copy_cache_db(sys.argv[1])
+create_tarball()
