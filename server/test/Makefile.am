@@ -57,7 +57,8 @@ testHatohol_la_SOURCES = \
 	testFormulaElement.cc \
 	testSQLFromParser.cc testSQLWhereParser.cc \
 	testSQLColumnParser.cc \
-	testMySQLWorkerZabbix.cc testFaceRest.cc \
+	testMySQLWorkerZabbix.cc \
+	testFaceRest.cc testFaceRestNoInit.cc \
 	testSessionManager.cc \
 	testIssueSenderRedmine.cc \
 	testIssueSenderManager.cc \
