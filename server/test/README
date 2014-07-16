@@ -11,7 +11,7 @@ This way is a little slower than the way (3). However, this is easier,
 because no other settings are needed.
 
 (3) Put the DB of MySQL on tmpfs
-This way is fater than that of (2). However, it affects all
+This way is faster than that of (2). However, it affects all
 applications using MySQL. So you should use a virtual machine or
 environment such as LXC or KVM. Container based ways such as LXC are
 recommended because degradation of I/O performance of them is less than that
@@ -26,7 +26,7 @@ $ mysql_install_db
 
 3-3: Install the DB for NDOUtils
 
-If you already ndoutilsB for NDOUtils, you can copy by the mysqldump command.
+If you already ndoutils for NDOUtils, you can copy by the mysqldump command.
 mysqldump -u root ndoutils > ndoutils.sql (do before 3-1)
 mysqldump -u root ndoutils < ndoutils.sql (do after  3-2)
 
