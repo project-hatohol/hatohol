@@ -376,3 +376,15 @@ void _assertUpdateRecord(JsonParserAgent *parser,
 		return;
 	assertValueInParser(parser, "id", targetId);
 }
+
+void assertServersIdNameHashInParser(JsonParserAgent *parser)
+{
+	assertStartObject(parser, "servers");
+	for (size_t i = 0; i < NumTestServerInfo; i++) {
+		MonitoringServerInfo &svInfo = testServerInfo[i];
+		assertStartObject(parser, StringUtils::toString(svInfo.id));
+		assertValueInParser(parser, "name", svInfo.hostName);
+		parser->endObject();
+	}
+	parser->endObject();
+}

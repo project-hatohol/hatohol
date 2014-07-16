@@ -109,4 +109,6 @@ void _assertUpdateRecord(JsonParserAgent *parser,
                          const UserIdType &userId = INVALID_USER_ID,
                          const HatoholErrorCode &expectCode = HTERR_OK);
 
+void assertServersIdNameHashInParser(JsonParserAgent *parser);
+
 #endif // FaceRestTestUtils_h

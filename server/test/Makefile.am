@@ -59,6 +59,7 @@ testHatohol_la_SOURCES = \
 	testSQLColumnParser.cc \
 	testMySQLWorkerZabbix.cc \
 	testFaceRest.cc testFaceRestServer.cc testFaceRestUser.cc \
+	testFaceRestAction.cc \
 	testFaceRestNoInit.cc \
 	FaceRestTestUtils.cc FaceRestTestUtils.h \
 	testSessionManager.cc \
