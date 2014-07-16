@@ -25,7 +25,6 @@
 #include "JsonParserAgent.h"
 #include "DBClientTest.h"
 #include "Params.h"
-#include "ZabbixAPIEmulator.h"
 #include "SessionManager.h"
 #include "FaceRestTestUtils.h"
 using namespace std;

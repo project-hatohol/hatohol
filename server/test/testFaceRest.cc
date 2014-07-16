@@ -28,7 +28,6 @@
 #include "MultiLangTest.h"
 #include "CacheServiceDBClient.h"
 #include "UnifiedDataStore.h"
-#include "ZabbixAPIEmulator.h"
 #include "SessionManager.h"
 #include "testDBClientHatohol.h"
 #include "HatoholArmPluginInterface.h"
