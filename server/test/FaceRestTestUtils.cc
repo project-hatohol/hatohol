@@ -25,13 +25,8 @@
 #include "JsonParserAgent.h"
 #include "DBClientTest.h"
 #include "Params.h"
-#include "MultiLangTest.h"
-#include "CacheServiceDBClient.h"
-#include "UnifiedDataStore.h"
 #include "ZabbixAPIEmulator.h"
 #include "SessionManager.h"
-#include "testDBClientHatohol.h"
-#include "HatoholArmPluginInterface.h"
 #include "FaceRestTestUtils.h"
 using namespace std;
 using namespace mlpl;
