@@ -55,6 +55,7 @@ struct RequestArg {
 	}
 };
 
+void setupTestMode(void);
 void setupUserDB(void);
 void startFaceRest(void);
 void stopFaceRest(void);
