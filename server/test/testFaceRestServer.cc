@@ -34,6 +34,21 @@ namespace testFaceRestServer {
 
 static JsonParserAgent *g_parser = NULL;
 
+void cut_setup(void)
+{
+	hatoholInit();
+}
+
+void cut_teardown(void)
+{
+	stopFaceRest();
+
+	if (g_parser) {
+		delete g_parser;
+		g_parser = NULL;
+	}
+}
+
 static void setupArmPluginInfo(
   ArmPluginInfo &armPluginInfo, const MonitoringServerInfo &serverInfo)
 {
