@@ -221,6 +221,11 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 	ADD_LINE(s, langType, OPPRVLG_UPDATE_ALL_USER_ROLE);
 	ADD_LINE(s, langType, OPPRVLG_DELETE_ALL_USER_ROLE);
 
+	ADD_LINE(s, langType, OPPRVLG_CREATE_ISSUE_SETTING);
+	ADD_LINE(s, langType, OPPRVLG_UPDATE_ISSUE_SETTING);
+	ADD_LINE(s, langType, OPPRVLG_DELETE_ISSUE_SETTING);
+	ADD_LINE(s, langType, OPPRVLG_GET_ALL_ISSUE_SETTINGS);
+
 	ADD_LINE(s, langType, NUM_OPPRVLG);
 	APPEND(s, "\n");
 

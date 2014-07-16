@@ -33,6 +33,8 @@ const UserRoleIdSet EMPTY_USER_ROLE_ID_SET;
 // 2 -> 3:
 //   * NUM_OPPRVLG:16 -> 19
 //   * Add user_roles table
+// 3 -> 4:
+//   * NUM_OPPRVLG:19 -> 23
 const int   DBClientUser::USER_DB_VERSION = 3;
 
 const char *DBClientUser::DEFAULT_DB_NAME = DBClientConfig::DEFAULT_DB_NAME;
@@ -256,6 +258,10 @@ static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
 	}
 	if (oldVer <= 2) {
 		old_NUM_OPPRVLG = static_cast<OperationPrivilegeType>(16);
+		updateAdminPrivilege(dbAgent, old_NUM_OPPRVLG);
+	}
+	if (oldVer <= 3) {
+		old_NUM_OPPRVLG = static_cast<OperationPrivilegeType>(19);
 		updateAdminPrivilege(dbAgent, old_NUM_OPPRVLG);
 	}
 	return true;

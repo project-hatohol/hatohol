@@ -94,6 +94,7 @@ libhatohol_la_SOURCES = \
 	ResidentCommunicator.cc ResidentCommunicator.h \
 	RestResourceAction.cc RestResourceAction.h \
 	RestResourceHost.cc RestResourceHost.h \
+	RestResourceIssueTracker.cc RestResourceIssueTracker.h \
 	RestResourceServer.cc RestResourceServer.h \
 	RestResourceUser.cc RestResourceUser.h \
 	SessionManager.cc SessionManager.h \

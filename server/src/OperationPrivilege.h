@@ -58,6 +58,12 @@ enum OperationPrivilegeType
 	OPPRVLG_UPDATE_ALL_USER_ROLE,
 	OPPRVLG_DELETE_ALL_USER_ROLE,
 
+	// IssueTracker & IssueSender action
+	OPPRVLG_CREATE_ISSUE_SETTING,  // can create IssueTracker & IssueSender
+	OPPRVLG_UPDATE_ISSUE_SETTING,  // can update IssueTracker & IssueSender
+	OPPRVLG_DELETE_ISSUE_SETTING,  // can delete IssueTracker & IssueSender
+	OPPRVLG_GET_ALL_ISSUE_SETTINGS,// can get all IssueTracker & IssueSender
+
 	NUM_OPPRVLG,
 };
 
@@ -73,8 +79,16 @@ public:
 	virtual ~OperationPrivilege();
 
 	const OperationPrivilegeFlag &getFlags(void) const;
+	void add(const OperationPrivilegeType &type);
+	void remove(const OperationPrivilegeType &type);
 	void setFlags(const OperationPrivilegeFlag &flags);
 	static OperationPrivilegeFlag makeFlag(
+	  const OperationPrivilegeType &type);
+	static void addFlag(
+	  OperationPrivilegeFlag &flags,
+	  const OperationPrivilegeType &type);
+	static void removeFlag(
+	  OperationPrivilegeFlag &flags,
 	  const OperationPrivilegeType &type);
 	bool has(const OperationPrivilegeType &type) const;
 

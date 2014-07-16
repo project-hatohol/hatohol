@@ -109,9 +109,6 @@ public:
 
 	virtual std::string getCondition(void) const; //overrride
 
-protected:
-	bool hasPrivilegeCondition(std::string &condition) const;
-
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;

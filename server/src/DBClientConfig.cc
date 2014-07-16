@@ -631,36 +631,26 @@ void IssueTrackerQueryOption::setTargetId(const IssueTrackerIdType &targetId)
 	m_ctx->targetId = targetId;
 }
 
-bool IssueTrackerQueryOption::hasPrivilegeCondition(string &condition) const
+string IssueTrackerQueryOption::getCondition(void) const
 {
 	UserIdType userId = getUserId();
 
-	if (userId == USER_ID_SYSTEM || has(OPPRVLG_GET_ALL_SERVER)) {
-		const char *columnName					\
-		  = COLUMN_DEF_ISSUE_TRACKERS[IDX_ISSUE_TRACKERS_ID].columnName;
-		if (m_ctx->targetId != ALL_ISSUE_TRACKERS) {
-			condition = StringUtils::sprintf(
-				      "%s=%" FMT_ISSUE_TRACKER_ID,
-				      columnName, m_ctx->targetId);
-		}
-		return true;
-	}
-
 	if (userId == INVALID_USER_ID) {
 		MLPL_DBG("INVALID_USER_ID\n");
-		condition = DBClientHatohol::getAlwaysFalseCondition();
-		return true;
+		return DBClientHatohol::getAlwaysFalseCondition();
 	}
 
-	return false;
-}
+	if (userId != USER_ID_SYSTEM && !has(OPPRVLG_GET_ALL_ISSUE_SETTINGS))
+		return DBClientHatohol::getAlwaysFalseCondition();
 
-string IssueTrackerQueryOption::getCondition(void) const
-{
-	string condition;
-	if (hasPrivilegeCondition(condition))
-		return condition;
-	return condition;
+	if (m_ctx->targetId != ALL_ISSUE_TRACKERS) {
+		const char *columnName
+		  = COLUMN_DEF_ISSUE_TRACKERS[IDX_ISSUE_TRACKERS_ID].columnName;
+	        return StringUtils::sprintf("%s=%" FMT_ISSUE_TRACKER_ID,
+					    columnName, m_ctx->targetId);
+	}
+
+	return string();
 }
 
 // ---------------------------------------------------------------------------
@@ -1113,7 +1103,7 @@ HatoholError validIssueTrackerInfo(const IssueTrackerInfo &issueTrackerInfo)
 HatoholError DBClientConfig::addIssueTracker(
   IssueTrackerInfo *issueTrackerInfo, const OperationPrivilege &privilege)
 {
-	if (!privilege.has(OPPRVLG_CREATE_SERVER))
+	if (!privilege.has(OPPRVLG_CREATE_ISSUE_SETTING))
 		return HatoholError(HTERR_NO_PRIVILEGE);
 
 	HatoholError err = validIssueTrackerInfo(*issueTrackerInfo);

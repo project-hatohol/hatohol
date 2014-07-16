@@ -158,6 +158,12 @@ public:
 	void getServerConnStatusVector(ServerConnStatusVector &svConnStatVec,
 	                               DataQueryContext *dataQueryContext);
 
+	// IssueTracker
+	void getIssueTrackers(IssueTrackerInfoVect &issueTrackerVect,
+	                      IssueTrackerQueryOption &option);
+	HatoholError addIssueTracker(IssueTrackerInfo *issueTrackerInfo,
+				     const OperationPrivilege &privilege);
+
 	/**
 	 * get a vector of pointers of DataStore instance.
 	 * This method is a wrapper of DataStoreManager::getDataStoreManager().

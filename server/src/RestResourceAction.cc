@@ -63,9 +63,7 @@ void RestResourceAction::handle(void)
 		handleDelete();
 	} else {
 		MLPL_ERR("Unknown method: %s\n", m_message->method);
-		soup_message_set_status(m_message,
-					SOUP_STATUS_METHOD_NOT_ALLOWED);
-		m_replyIsPrepared = true;
+		replyHttpStatus(SOUP_STATUS_METHOD_NOT_ALLOWED);
 	}
 }
 
