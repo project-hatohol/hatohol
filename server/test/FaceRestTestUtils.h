@@ -60,6 +60,10 @@ void setupUserDB(void);
 void startFaceRest(void);
 void stopFaceRest(void);
 std::string makeSessionIdHeader(const std::string &sessionId);
+
+void getServerResponse(RequestArg &arg);
+JsonParserAgent *getResponseAsJsonParser(RequestArg &arg);
+
 void _assertValueInParser(JsonParserAgent *parser,
 			  const std::string &member,
 			  const bool expected);
@@ -104,8 +108,5 @@ void _assertUpdateRecord(JsonParserAgent *parser,
                          uint32_t targetId = 1,
                          const UserIdType &userId = INVALID_USER_ID,
                          const HatoholErrorCode &expectCode = HTERR_OK);
-
-void getServerResponse(RequestArg &arg);
-JsonParserAgent *getResponseAsJsonParser(RequestArg &arg);
 
 #endif // FaceRestTestUtils_h
