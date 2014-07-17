@@ -50,16 +50,6 @@ Set the environment variable like
 
 $ HATOHOL_EXCEPTION_STACK_TRACE=1 ./run-test.sh
 
-Hint: fix an error: accessing to MySQL
---------------------------------------
-On some distributions such as Ubuntu 14.04, unregistered users is not allowed
-to access MySQL's DBs even its names begins from test_*.
-The following command fixes the problem.
-
-    $ mysql -uroot
-    mysql> GRANT USAGE ON *.* TO ''@'localhost';
-    mysql> GRANT ALL PRIVILEGES ON `test\_%`.* TO ''@'localhost';
-
 Hint: fix an error: accessing to ndoutils on MySQL
 --------------------------------------------------
 The DB for ndoutils is created when NDOUtils package is installed.
