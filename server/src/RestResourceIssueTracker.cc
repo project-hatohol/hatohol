@@ -43,13 +43,13 @@ RestResourceIssueTracker::~RestResourceIssueTracker()
 
 void RestResourceIssueTracker::handle(void)
 {
-	if (StringUtils::casecmp(m_message->method, "GET")) {
+	if (httpMethodIs("GET")) {
 		handleGet();
-	} else if (StringUtils::casecmp(m_message->method, "POST")) {
+	} else if (httpMethodIs("POST")) {
 		handlePost();
-	} else if (StringUtils::casecmp(m_message->method, "PUT")) {
+	} else if (httpMethodIs("PUT")) {
 		handlePut();
-	} else if (StringUtils::casecmp(m_message->method, "DELETE")) {
+	} else if (httpMethodIs("DELETE")) {
 		handleDelete();
 	} else {
 		MLPL_ERR("Unknown method: %s\n", m_message->method);
