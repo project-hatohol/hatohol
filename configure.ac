@@ -25,7 +25,7 @@ AC_DEFINE_UNQUOTED(LIBEXECDIR, "`eval echo $libexecdir`", "Prefix for libexec di
 dnl **************************************************************
 dnl Optional C++ compiler flags
 dnl **************************************************************
-OPT_CXXFLAGS="-Wall -g3 -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS"
+OPT_CXXFLAGS="-Wall -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS"
 
 enable_debug_default=no
 AC_ARG_ENABLE([debug],
@@ -35,9 +35,9 @@ AC_ARG_ENABLE([debug],
   [enable_debug=$enable_debug_default])
 
 if test "$enable_debug" = "yes"; then
-  OPT_CXXFLAGS="$OPT_CXXFLAGS -O0"
+  CXXFLAGS="$CXXFLAGS -O0 -g3"
 else
-  OPT_CXXFLAGS="$OPT_CXXFLAGS -O2"
+  CXXFLAGS="$CXXFLAGS -O2 -g3"
 fi
 
 dnl **************************************************************
