@@ -20,6 +20,13 @@ if test x"$NO_MAKE" != x"yes"; then
     $MAKE -C $top_dir/ > /dev/null || exit 1
 fi
 
+tmpfs_dir=/dev/shm
+if test -z "$HATOHOL_DB_DIR" -a -d "$tmpfs_dir"; then
+    HATOHOL_DB_DIR="$tmpfs_dir/hatohol"
+    export HATOHOL_DB_DIR
+    mkdir -p "$HATOHOL_DB_DIR"
+fi
+
 if test -z "$CUTTER"; then
     CUTTER="`make -s -C $BASE_DIR echo-cutter`"
 fi
