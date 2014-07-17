@@ -314,6 +314,7 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 	// after the funtion concerned is added
 	agent.add("numberOfUsers", 0);
 	agent.add("numberOfOnlineUsers", 0);
+
 	DataQueryOption dataQueryOption(job->m_userId);
 	MonitoringServerStatus serverStatus;
 	serverStatus.serverId = svInfo.id;
