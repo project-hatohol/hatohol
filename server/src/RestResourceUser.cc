@@ -125,13 +125,13 @@ void RestResourceUser::handlerUser(void)
 	}
 
 	// handle "user" resource itself
-	if (StringUtils::casecmp(m_message->method, "GET")) {
+	if (httpMethodIs("GET")) {
 		handlerGetUser();
-	} else if (StringUtils::casecmp(m_message->method, "POST")) {
+	} else if (httpMethodIs("POST")) {
 		handlerPostUser();
-	} else if (StringUtils::casecmp(m_message->method, "PUT")) {
+	} else if (httpMethodIs("PUT")) {
 		handlerPutUser();
-	} else if (StringUtils::casecmp(m_message->method, "DELETE")) {
+	} else if (httpMethodIs("DELETE")) {
 		handlerDeleteUser();
 	} else {
 		MLPL_ERR("Unknown method: %s\n", m_message->method);
