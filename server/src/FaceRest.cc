@@ -42,6 +42,7 @@
 #include "HatoholArmPluginGate.h"
 #include "RestResourceAction.h"
 #include "RestResourceHost.h"
+#include "RestResourceIssueTracker.h"
 #include "RestResourceServer.h"
 #include "RestResourceUser.h"
 
@@ -387,6 +388,7 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	RestResourceServer::registerFactories(this);
 	RestResourceHost::registerFactories(this);
 	RestResourceAction::registerFactories(this);
+	RestResourceIssueTracker::registerFactories(this);
 
 	if (m_ctx->param)
 		m_ctx->param->setupDoneNotifyFunc();

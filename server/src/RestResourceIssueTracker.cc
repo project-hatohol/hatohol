@@ -82,6 +82,8 @@ void RestResourceIssueTracker::handleGet(void)
 	agent.endArray();
 
 	agent.endObject();
+
+	replyJsonData(agent);
 }
 
 void RestResourceIssueTracker::handlePost(void)
