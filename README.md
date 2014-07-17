@@ -28,7 +28,7 @@ Hatohol currently maintains the following information:
 
 
 Project Hatohol
------------------------------
+---------------
 Hatohol is an open source software developed and copyrighted by Project Hatohol.
 We welcome participation in all stages of our development (bug fixes, bug reports, feature requests/suggestions/discussion, functional improvement, etc.) 
 
@@ -38,7 +38,7 @@ Supported monitoring software
 - Nagios3 (with NDOUtils)
 
 Supported platforms
------------------------------
+-------------------
 - CentOS 6.5 (x86\_64)
 - Ubuntu Server 12.04.2 LTS (64-bit)
 - Ubuntu 13.04 (64-bit) [supported until the next Ubuntu release]
