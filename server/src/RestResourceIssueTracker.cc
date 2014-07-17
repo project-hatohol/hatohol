@@ -102,7 +102,8 @@ void RestResourceIssueTracker::handleGet(void)
 	char *value = (char *)g_hash_table_lookup(query, #PROPERTY);	      \
 	if (!value && !ALLOW_EMPTY)					      \
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, #PROPERTY);    \
-	STRUCT.PROPERTY = value ? : "";					      \
+	if (value)							      \
+		STRUCT.PROPERTY = value;				      \
 }
 
 static HatoholError parseIssueTrackerParameter(
