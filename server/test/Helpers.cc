@@ -785,7 +785,7 @@ void loadTestDBIssueTracker(void)
 	DBClientConfig dbConfig;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	for (size_t i = 0; i < NumTestIssueTrackerInfo; i++)
-		dbConfig.addIssueTracker(&testIssueTrackerInfo[i], privilege);
+		dbConfig.addIssueTracker(testIssueTrackerInfo[i], privilege);
 }
 
 void loadTestDBIssues(void)

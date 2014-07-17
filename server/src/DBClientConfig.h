@@ -199,7 +199,7 @@ public:
 	 *
 	 * @rerurn A HatoholError insntace.
 	 */
-	HatoholError addIssueTracker(IssueTrackerInfo *issueTrackerInfo,
+	HatoholError addIssueTracker(IssueTrackerInfo &issueTrackerInfo,
 				     const OperationPrivilege &privilege);
 
 	/**

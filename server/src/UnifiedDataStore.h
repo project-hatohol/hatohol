@@ -161,7 +161,7 @@ public:
 	// IssueTracker
 	void getIssueTrackers(IssueTrackerInfoVect &issueTrackerVect,
 	                      IssueTrackerQueryOption &option);
-	HatoholError addIssueTracker(IssueTrackerInfo *issueTrackerInfo,
+	HatoholError addIssueTracker(IssueTrackerInfo &issueTrackerInfo,
 				     const OperationPrivilege &privilege);
 
 	/**

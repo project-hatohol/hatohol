@@ -623,7 +623,7 @@ void UnifiedDataStore::getIssueTrackers(IssueTrackerInfoVect &issueTrackerVect,
 }
 
 HatoholError UnifiedDataStore::addIssueTracker(
-  IssueTrackerInfo *issueTrackerInfo, const OperationPrivilege &privilege)
+  IssueTrackerInfo &issueTrackerInfo, const OperationPrivilege &privilege)
 {
 	CacheServiceDBClient cache;
 	DBClientConfig *dbConfig = cache.getConfig();

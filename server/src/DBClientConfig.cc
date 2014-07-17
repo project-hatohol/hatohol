@@ -1101,28 +1101,28 @@ HatoholError validIssueTrackerInfo(const IssueTrackerInfo &issueTrackerInfo)
 }
 
 HatoholError DBClientConfig::addIssueTracker(
-  IssueTrackerInfo *issueTrackerInfo, const OperationPrivilege &privilege)
+  IssueTrackerInfo &issueTrackerInfo, const OperationPrivilege &privilege)
 {
 	if (!privilege.has(OPPRVLG_CREATE_ISSUE_SETTING))
 		return HatoholError(HTERR_NO_PRIVILEGE);
 
-	HatoholError err = validIssueTrackerInfo(*issueTrackerInfo);
+	HatoholError err = validIssueTrackerInfo(issueTrackerInfo);
 	if (err != HTERR_OK)
 		return err;
 
 	DBAgent::InsertArg arg(tableProfileIssueTrackers);
 	arg.add(AUTO_INCREMENT_VALUE);
-	arg.add(issueTrackerInfo->type);
-	arg.add(issueTrackerInfo->nickname);
-	arg.add(issueTrackerInfo->baseURL);
-	arg.add(issueTrackerInfo->projectId);
-	arg.add(issueTrackerInfo->trackerId);
-	arg.add(issueTrackerInfo->userName);
-	arg.add(issueTrackerInfo->password);
+	arg.add(issueTrackerInfo.type);
+	arg.add(issueTrackerInfo.nickname);
+	arg.add(issueTrackerInfo.baseURL);
+	arg.add(issueTrackerInfo.projectId);
+	arg.add(issueTrackerInfo.trackerId);
+	arg.add(issueTrackerInfo.userName);
+	arg.add(issueTrackerInfo.password);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		insert(arg);
-		issueTrackerInfo->id = getLastInsertId();
+		issueTrackerInfo.id = getLastInsertId();
 	} DBCLIENT_TRANSACTION_END();
 	return HTERR_OK;
 }

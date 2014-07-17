@@ -909,7 +909,7 @@ void _assertAddIssueTracker(
 {
 	DBClientConfig dbConfig;
 	HatoholError err;
-	err = dbConfig.addIssueTracker(&issueTrackerInfo, privilege);
+	err = dbConfig.addIssueTracker(issueTrackerInfo, privilege);
 	assertHatoholError(expectedErrorCode, err);
 
 	string expectedOut;
@@ -954,7 +954,7 @@ static void addIssueTracker(IssueTrackerInfo *info)
 {
 	DBClientConfig dbConfig;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	dbConfig.addIssueTracker(info, privilege);
+	dbConfig.addIssueTracker(*info, privilege);
 }
 #define assertAddIssueTrackerToDB(X) \
 cut_trace(_assertAddToDB<IssueTrackerInfo>(X, addIssueTracker))
