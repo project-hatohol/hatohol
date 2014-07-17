@@ -87,12 +87,22 @@ void RestResourceIssueTracker::handleGet(void)
 	replyJsonData(agent);
 }
 
-#define PARSE_STRING_VALUE(P)					    \
-{								    \
-	value = (char *)g_hash_table_lookup(query, #P);		    \
-	if (!value && !allowEmpty)				    \
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, #P); \
-	issueTrackerInfo.P = value; \
+#define PARSE_VALUE(STRUCT,PROPERTY,TYPE,ALLOW_EMPTY)			      \
+{									      \
+	HatoholError err = getParam<TYPE>(				      \
+		query, #PROPERTY, "%d", STRUCT.PROPERTY);		      \
+	if (err != HTERR_OK) {						      \
+		if (!ALLOW_EMPTY || err != HTERR_NOT_FOUND_PARAMETER)	      \
+			return err;					      \
+	}								      \
+}
+
+#define PARSE_STRING_VALUE(STRUCT,PROPERTY,ALLOW_EMPTY)			      \
+{									      \
+	char *value = (char *)g_hash_table_lookup(query, #PROPERTY);	      \
+	if (!value && !ALLOW_EMPTY)					      \
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, #PROPERTY);    \
+	STRUCT.PROPERTY = value ? : "";					      \
 }
 
 static HatoholError parseIssueTrackerParameter(
@@ -100,25 +110,14 @@ static HatoholError parseIssueTrackerParameter(
   const bool &forUpdate = false)
 {
 	const bool allowEmpty = forUpdate;
-	HatoholError err;
-	char *value;
 
-	// required properties
-	err = getParam<IssueTrackerType>(
-		query, "type", "%d", issueTrackerInfo.type);
-	if (err != HTERR_OK) {
-		if (!allowEmpty || err != HTERR_NOT_FOUND_PARAMETER)
-			return err;
-	}
-	PARSE_STRING_VALUE(nickname);
-	PARSE_STRING_VALUE(baseURL);
-	PARSE_STRING_VALUE(projectId);
-	PARSE_STRING_VALUE(userName);
-	PARSE_STRING_VALUE(password);
-
-	// optional
-	value = (char *)g_hash_table_lookup(query, "trackerId");
-	issueTrackerInfo.trackerId = value ? : "";
+	PARSE_VALUE(issueTrackerInfo, type, IssueTrackerType, allowEmpty);
+	PARSE_STRING_VALUE(issueTrackerInfo, nickname, allowEmpty);
+	PARSE_STRING_VALUE(issueTrackerInfo, baseURL, allowEmpty);
+	PARSE_STRING_VALUE(issueTrackerInfo, projectId, allowEmpty);
+	PARSE_STRING_VALUE(issueTrackerInfo, userName, allowEmpty);
+	PARSE_STRING_VALUE(issueTrackerInfo, password, allowEmpty);
+	PARSE_STRING_VALUE(issueTrackerInfo, trackerId, true);
 
 	return HatoholError(HTERR_OK);
 }
