@@ -60,7 +60,6 @@ testHatohol_la_SOURCES = \
 	testMySQLWorkerZabbix.cc \
 	testFaceRest.cc testFaceRestAction.cc testFaceRestHost.cc \
 	testFaceRestServer.cc testFaceRestUser.cc testFaceRestNoInit.cc \
-	FaceRestTestUtils.cc FaceRestTestUtils.h \
 	testSessionManager.cc \
 	testIssueSenderRedmine.cc \
 	testIssueSenderManager.cc \
@@ -88,6 +87,7 @@ residentTest_la_LIBADD  = libTest.la
 
 libTest_la_SOURCES = \
 	DataSamples.cc DataSamples.h \
+	FaceRestTestUtils.cc FaceRestTestUtils.h \
 	FormulaTestUtils.cc Helpers.cc DBAgentTest.cc DBClientTest.cc \
 	ZabbixAPITestUtils.cc ZabbixAPITestUtils.h \
 	HttpServerStub.cc ZabbixAPIEmulator.cc RedmineAPIEmulator.cc \
