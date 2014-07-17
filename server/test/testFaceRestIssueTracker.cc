@@ -64,6 +64,7 @@ static void _assertIssueTrackers(
 		assertValueInParser(g_parser, "id", tracker.id);
 		assertValueInParser(g_parser, "type", tracker.type);
 		assertValueInParser(g_parser, "nickname", tracker.nickname);
+		assertValueInParser(g_parser, "baseURL", tracker.baseURL);
 		assertValueInParser(g_parser, "projectId", tracker.projectId);
 		assertValueInParser(g_parser, "trackerId", tracker.trackerId);
 		g_parser->endElement();

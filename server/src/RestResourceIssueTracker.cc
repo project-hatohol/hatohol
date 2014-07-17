@@ -75,6 +75,7 @@ void RestResourceIssueTracker::handleGet(void)
 		agent.add("id", it->id);
 		agent.add("type", it->type);
 		agent.add("nickname", it->nickname);
+		agent.add("baseURL", it->baseURL);
 		agent.add("projectId", it->projectId);
 		agent.add("trackerId", it->trackerId);
 		agent.endObject();
