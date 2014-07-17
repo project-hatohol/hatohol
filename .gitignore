@@ -13,6 +13,7 @@
 .libs/
 Makefile
 Makefile.in
+/*.tar.bz2
 /aclocal.m4
 /autom4te.cache/
 /config.guess
@@ -24,6 +25,11 @@ Makefile.in
 /compile
 /client/hatohol/hatohol_def.py
 /client/static/js/hatohol_def.js
+/client/test/browser/expect.js
+/client/test/browser/mocha.css
+/client/test/browser/mocha.js
+/client/test/browser/sinon.js
+/client/test/node_modules
 /data/init.d/centos/hatohol.centos
 /data/init.d/debian/hatohol.debian
 /depcomp
@@ -43,8 +49,10 @@ Makefile.in
 /server/test/fixtures/mkTestDB
 /server/test/hapi-test-plugin
 /server/test/zabbix-api-response-collector
+/server/tools/build/
 /server/tools/hatohol-config-db-creator
 /server/tools/hatohol-def-src-file-generator
 /server/tools/hatohol/hatohol_def.py
+/server/tools/usr/
 /stamp-h1
 /test-driver
