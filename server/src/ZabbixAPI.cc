@@ -432,7 +432,7 @@ uint64_t ZabbixAPI::getLastEventId(void)
 
 	SoupMessage *msg = queryLastEventId();
 	if (!msg) {
-		MLPL_ERR("Failed to query eventID.\n");
+		MLPL_ERR("Failed to query last eventID.\n");
 		return 0;
 	}
 
