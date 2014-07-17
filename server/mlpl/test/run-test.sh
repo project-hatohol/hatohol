@@ -3,7 +3,7 @@
 unset LANG
 
 export BASE_DIR="`dirname $0`"
-top_dir="$BASE_DIR/.."
+top_dir="$BASE_DIR/../../.."
 top_dir="`cd $top_dir; pwd`"
 
 if test x"$NO_MAKE" != x"yes"; then
