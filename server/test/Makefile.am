@@ -60,7 +60,7 @@ testHatohol_la_SOURCES = \
 	testMySQLWorkerZabbix.cc \
 	testFaceRest.cc testFaceRestAction.cc testFaceRestHost.cc \
 	testFaceRestServer.cc testFaceRestUser.cc testFaceRestNoInit.cc \
-	testSessionManager.cc \
+	testFaceRestIssueTracker.cc testSessionManager.cc \
 	testIssueSenderRedmine.cc \
 	testIssueSenderManager.cc \
 	testItemData.cc testItemGroup.cc testItemGroupStream.cc \
