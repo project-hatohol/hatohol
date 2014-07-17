@@ -87,9 +87,66 @@ void RestResourceIssueTracker::handleGet(void)
 	replyJsonData(agent);
 }
 
+#define PARSE_STRING_VALUE(P)					    \
+{								    \
+	value = (char *)g_hash_table_lookup(query, #P);		    \
+	if (!value && !allowEmpty)				    \
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, #P); \
+	issueTrackerInfo.P = value; \
+}
+
+static HatoholError parseIssueTrackerParameter(
+  IssueTrackerInfo &issueTrackerInfo, GHashTable *query,
+  const bool &forUpdate = false)
+{
+	const bool allowEmpty = forUpdate;
+	HatoholError err;
+	char *value;
+
+	// required properties
+	err = getParam<IssueTrackerType>(
+		query, "type", "%d", issueTrackerInfo.type);
+	if (err != HTERR_OK) {
+		if (!allowEmpty || err != HTERR_NOT_FOUND_PARAMETER)
+			return err;
+	}
+	PARSE_STRING_VALUE(nickname);
+	PARSE_STRING_VALUE(baseURL);
+	PARSE_STRING_VALUE(projectId);
+	PARSE_STRING_VALUE(userName);
+	PARSE_STRING_VALUE(password);
+
+	// optional
+	value = (char *)g_hash_table_lookup(query, "trackerId");
+	issueTrackerInfo.trackerId = value ? : "";
+
+	return HatoholError(HTERR_OK);
+}
+
 void RestResourceIssueTracker::handlePost(void)
 {
-	replyError(HTERR_NOT_IMPLEMENTED);
+	IssueTrackerInfo issueTrackerInfo;
+	HatoholError err = parseIssueTrackerParameter(issueTrackerInfo,
+						      m_query);
+	if (err != HTERR_OK) {
+		replyError(err);
+		return;
+	}
+
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	err = dataStore->addIssueTracker(
+	  issueTrackerInfo, m_dataQueryContextPtr->getOperationPrivilege());
+	if (err != HTERR_OK) {
+		replyError(err);
+		return;
+	}
+
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, err);
+	agent.add("id", issueTrackerInfo.id);
+	agent.endObject();
+	replyJsonData(agent);
 }
 
 void RestResourceIssueTracker::handlePut(void)
