@@ -55,6 +55,7 @@ public:
 	void pauseResponse(void);
 	bool unpauseResponse(bool force = false);
 
+	bool httpMethodIs(const char *method);
 	std::string getResourceName(int nest = 0);
 	std::string getResourceIdString(int nest = 0);
 	uint64_t    getResourceId(int nest = 0);

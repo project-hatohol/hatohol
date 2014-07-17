@@ -816,6 +816,13 @@ bool FaceRest::ResourceHandler::unpauseResponse(bool force)
 	return true;
 }
 
+bool FaceRest::ResourceHandler::httpMethodIs(const char *method)
+{
+	if (!m_message)
+		return false;
+	return StringUtils::casecmp(m_message->method, method);
+}
+
 string FaceRest::ResourceHandler::getResourceName(int nest)
 {
 	size_t idx = nest * 2;
