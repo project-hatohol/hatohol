@@ -193,11 +193,13 @@ dnl **************************************************************
 AC_OUTPUT([
 Makefile
 hatohol.spec
+data/Makefile
 data/init.d/Makefile
 data/init.d/debian/hatohol.debian
 data/init.d/debian/Makefile
 data/init.d/centos/hatohol.centos
 data/init.d/centos/Makefile
+data/test/Makefile
 server/Makefile
 server/mlpl/Makefile
 server/mlpl/src/Makefile
