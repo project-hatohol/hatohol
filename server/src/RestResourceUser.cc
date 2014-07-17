@@ -294,11 +294,11 @@ void RestResourceUser::handlerDeleteUser(void)
 
 void RestResourceUser::handlerAccessInfo(void)
 {
-	if (StringUtils::casecmp(m_message->method, "GET")) {
+	if (httpMethodIs("GET")) {
 		handlerGetAccessInfo();
-	} else if (StringUtils::casecmp(m_message->method, "POST")) {
+	} else if (httpMethodIs("POST")) {
 		handlerPostAccessInfo();
-	} else if (StringUtils::casecmp(m_message->method, "DELETE")) {
+	} else if (httpMethodIs("DELETE")) {
 		handlerDeleteAccessInfo();
 	} else {
 		MLPL_ERR("Unknown method: %s\n", m_message->method);
@@ -443,13 +443,13 @@ void RestResourceUser::handlerDeleteAccessInfo(void)
 
 void RestResourceUser::handlerUserRole(void)
 {
-	if (StringUtils::casecmp(m_message->method, "GET")) {
+	if (httpMethodIs("GET")) {
 		handlerGetUserRole();
-	} else if (StringUtils::casecmp(m_message->method, "POST")) {
+	} else if (httpMethodIs("POST")) {
 		handlerPostUserRole();
-	} else if (StringUtils::casecmp(m_message->method, "PUT")) {
+	} else if (httpMethodIs("PUT")) {
 		handlerPutUserRole();
-	} else if (StringUtils::casecmp(m_message->method, "DELETE")) {
+	} else if (httpMethodIs("DELETE")) {
 		handlerDeleteUserRole();
 	} else {
 		MLPL_ERR("Unknown method: %s\n", m_message->method);
