@@ -86,6 +86,9 @@ void _assertAddIssueTrackerWithSetup(const StringMap &params,
 	const UserIdType userId = findUserWith(OPPRVLG_CREATE_ISSUE_SETTING);
 	assertAddIssueTracker(params, userId, expectCode,
 			      NumTestIssueTrackerInfo + 1);
+
+	if (expectCode != HTERR_OK)
+		return;
 }
 #define assertAddIssueTrackerWithSetup(P,C) \
   cut_trace(_assertAddIssueTrackerWithSetup(P,C))
@@ -138,6 +141,29 @@ void test_addIssueTrackerWithoutTrackerId(void)
 	string expect = makeIssueTrackerInfoOutput(issueTracker);
 	DBClientConfig dbConfig;
 	assertDBContent(dbConfig.getDBAgent(), statement, expect);
+}
+
+void test_addIssueTrackerWithInvalidType(void)
+{
+	IssueTrackerInfo issueTracker;
+	StringMap params;
+	createTestIssueTracker(issueTracker);
+	createPostData(issueTracker, params);
+	params["type"] = "9999";
+
+	assertAddIssueTrackerWithSetup(
+	  params, HTERR_INVALID_ISSUE_TRACKER_TYPE);
+}
+
+void test_addIssueTrackerWithoutNickname(void)
+{
+	IssueTrackerInfo issueTracker;
+	StringMap params;
+	createTestIssueTracker(issueTracker);
+	createPostData(issueTracker, params);
+	params.erase("nickname");
+
+	assertAddIssueTrackerWithSetup(params, HTERR_NOT_FOUND_PARAMETER);
 }
 
 } // namespace testFaceRestIssueTracker
