@@ -78,6 +78,8 @@ void RestResourceIssueTracker::handleGet(void)
 		agent.add("baseURL", it->baseURL);
 		agent.add("projectId", it->projectId);
 		agent.add("trackerId", it->trackerId);
+		if (option.has(OPPRVLG_UPDATE_ISSUE_SETTING))
+			agent.add("userName", it->userName);
 		agent.endObject();
 	}
 	agent.endArray();

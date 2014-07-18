@@ -58,6 +58,7 @@ static void _assertIssueTrackers(
 	startFaceRest();
 	RequestArg arg(path, callbackName);
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_ISSUE_SETTINGS);
+	OperationPrivilege privilege(arg.userId);
 	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
 	assertStartObject(g_parser, "issueTrackers");
@@ -70,6 +71,10 @@ static void _assertIssueTrackers(
 		assertValueInParser(g_parser, "baseURL", tracker.baseURL);
 		assertValueInParser(g_parser, "projectId", tracker.projectId);
 		assertValueInParser(g_parser, "trackerId", tracker.trackerId);
+		if (privilege.has(OPPRVLG_UPDATE_ISSUE_SETTING))
+			assertValueInParser(g_parser, "userName", tracker.userName);
+		else
+			assertNoValueInParser(g_parser, "userName");
 		g_parser->endElement();
 	}
 	g_parser->endObject();
