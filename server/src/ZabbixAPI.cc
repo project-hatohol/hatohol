@@ -414,6 +414,9 @@ uint64_t ZabbixAPI::getFirstEventId(void)
 		  "Failed to parser: %s", parser.getErrorMessage());
 	}
 	startObject(parser, "result");
+	if (parser.countElements() == 0)
+		return firstEventId;
+
 	startElement(parser, 0);
 
 	if (!parser.read("eventid", strFirstEventId))
@@ -443,6 +446,9 @@ uint64_t ZabbixAPI::getLastEventId(void)
 		  "Failed to parser: %s", parser.getErrorMessage());
 	}
 	startObject(parser, "result");
+	if (parser.countElements() == 0)
+		return lastEventId;
+
 	startElement(parser, 0);
 
 	if (!parser.read("eventid", strLastEventId))
