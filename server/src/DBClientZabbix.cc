@@ -2005,6 +2005,10 @@ uint64_t DBClientZabbix::getLastEventId(void)
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupStream itemGroupStream(*grpList.begin());
+
+	if (itemGroupStream.getItem()->isNull())
+		return EVENT_ID_NOT_FOUND;
+
 	return itemGroupStream.read<uint64_t>();
 }
 
