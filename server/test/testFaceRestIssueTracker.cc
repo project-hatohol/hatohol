@@ -95,23 +95,38 @@ void test_getIssueTracker()
 	assertIssueTrackers();
 }
 
-void test_addIssueTrackerWithoutTrackerId(void)
+static void createTestIssueTracker(IssueTrackerInfo &issueTracker)
 {
-	IssueTrackerInfo issueTracker;
+	issueTracker.id        = 0;
 	issueTracker.type      = ISSUE_TRACKER_REDMINE;
 	issueTracker.nickname  = "Redmine";
 	issueTracker.baseURL   = "http://example.com/redmine/";
 	issueTracker.projectId = "incidents";
+	issueTracker.trackerId = "";
 	issueTracker.userName  = "y@ru0";
 	issueTracker.password  = "w(^_^)d";
 
-	StringMap params;
+}
+
+static void createPostData(const IssueTrackerInfo &issueTracker,
+			   StringMap &params)
+{
+	params["id"]        = StringUtils::toString(issueTracker.id);
 	params["type"]      = StringUtils::toString((int)issueTracker.type);
 	params["nickname"]  = issueTracker.nickname;
 	params["baseURL"]   = issueTracker.baseURL;
 	params["projectId"] = issueTracker.projectId;
+	params["trackerId"] = issueTracker.trackerId;
 	params["userName"]  = issueTracker.userName;
 	params["password"]  = issueTracker.password;
+}
+
+void test_addIssueTrackerWithoutTrackerId(void)
+{
+	IssueTrackerInfo issueTracker;
+	StringMap params;
+	createTestIssueTracker(issueTracker);
+	createPostData(issueTracker, params);
 
 	assertAddIssueTrackerWithSetup(params, HTERR_OK);
 
