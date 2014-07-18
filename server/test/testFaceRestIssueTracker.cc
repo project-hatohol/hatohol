@@ -173,4 +173,53 @@ void test_addIssueTrackerWithoutPrivilege(void)
 	assertAddIssueTracker(params, userId, HTERR_NO_PRIVILEGE);
 }
 
+void test_deleteIssueTracker(void)
+{
+	startFaceRest();
+
+	const IssueTrackerIdType issueTrackerId = 1;
+	string url = StringUtils::sprintf(
+	  "/issue-tracker/%" FMT_ISSUE_TRACKER_ID, issueTrackerId);
+	RequestArg arg(url, "cbname");
+	arg.request = "DELETE";
+	arg.userId = findUserWith(OPPRVLG_DELETE_ISSUE_SETTING);
+	g_parser = getResponseAsJsonParser(arg);
+
+	assertErrorCode(g_parser);
+	IssueTrackerIdSet issueTrackerIdSet;
+	issueTrackerIdSet.insert(issueTrackerId);
+	assertIssueTrackersInDB(issueTrackerIdSet);
+}
+
+void test_deleteIssueTrackerWithoutId(void)
+{
+	startFaceRest();
+
+	const IssueTrackerIdType issueTrackerId = 1;
+	string url = StringUtils::sprintf("/issue-tracker");
+	RequestArg arg(url, "cbname");
+	arg.request = "DELETE";
+	arg.userId = findUserWith(OPPRVLG_DELETE_ISSUE_SETTING);
+	g_parser = getResponseAsJsonParser(arg);
+
+	assertErrorCode(g_parser, HTERR_NOT_FOUND_ID_IN_URL);
+	assertIssueTrackersInDB(EMPTY_ISSUE_TRACKER_ID_SET);
+}
+
+void test_deleteIssueTrackerWithoutPrivelge(void)
+{
+	startFaceRest();
+
+	const IssueTrackerIdType issueTrackerId = 1;
+	string url = StringUtils::sprintf(
+	  "/issue-tracker/%" FMT_ISSUE_TRACKER_ID, issueTrackerId);
+	RequestArg arg(url, "cbname");
+	arg.request = "DELETE";
+	arg.userId = findUserWithout(OPPRVLG_DELETE_ISSUE_SETTING);
+	g_parser = getResponseAsJsonParser(arg);
+
+	assertErrorCode(g_parser, HTERR_NO_PRIVILEGE);
+	assertIssueTrackersInDB(EMPTY_ISSUE_TRACKER_ID_SET);
+}
+
 } // namespace testFaceRestIssueTracker

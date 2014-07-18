@@ -158,7 +158,29 @@ void RestResourceIssueTracker::handlePut(void)
 
 void RestResourceIssueTracker::handleDelete(void)
 {
-	replyError(HTERR_NOT_IMPLEMENTED);
+	uint64_t issueTrackerId = getResourceId();
+	if (issueTrackerId == INVALID_ID) {
+		REPLY_ERROR(this, HTERR_NOT_FOUND_ID_IN_URL,
+		            "id: %s", getResourceIdString().c_str());
+		return;
+	}
+
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	HatoholError err =
+	  dataStore->deleteIssueTracker(
+	    issueTrackerId, m_dataQueryContextPtr->getOperationPrivilege());
+	if (err != HTERR_OK) {
+		replyError(err);
+		return;
+	}
+
+	// replay
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, err);
+	agent.add("id", issueTrackerId);
+	agent.endObject();
+	replyJsonData(agent);
 }
 
 RestResourceIssueTrackerFactory::RestResourceIssueTrackerFactory(
