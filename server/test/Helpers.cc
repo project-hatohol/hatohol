@@ -681,6 +681,24 @@ void _assertUserRolesInDB(const UserRoleIdSet &excludeUserRoleIdSet)
 	assertDBContent(cache.getUser()->getDBAgent(), statement, expect);
 }
 
+void _assertIssueTrackersInDB(const IssueTrackerIdSet &excludeServerIdSet)
+{
+	string statement = "select * from issue_trackers ";
+	statement += " ORDER BY id ASC";
+	string expect;
+	for (size_t i = 0; i < NumTestIssueTrackerInfo; i++) {
+		IssueTrackerIdType issueTrackerId = i + 1;
+		IssueTrackerInfo issueTrackerInfo = testIssueTrackerInfo[i];
+		issueTrackerInfo.id = issueTrackerId;
+		ServerIdSetIterator it = excludeServerIdSet.find(issueTrackerId);
+		if (it != excludeServerIdSet.end())
+			continue;
+		expect += makeIssueTrackerInfoOutput(issueTrackerInfo);
+	}
+	CacheServiceDBClient cache;
+	assertDBContent(cache.getConfig()->getDBAgent(), statement, expect);
+}
+
 static bool makeTestDB(MYSQL *mysql, const string &dbName)
 {
 	string query = "CREATE DATABASE ";

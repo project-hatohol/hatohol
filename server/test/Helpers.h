@@ -155,6 +155,9 @@ void _assertServersInDB(const ServerIdSet &excludeServerIdSet = EMPTY_SERVER_ID_
 void _assertArmPluginsInDB(const std::set<int> &excludeIdSet);
 #define assertArmPluginsInDB(E) cut_trace(_assertArmPluginsInDB(E))
 
+void _assertIssueTrackersInDB(const IssueTrackerIdSet &excludeIssueTrackerIdSet);
+#define assertIssueTrackersInDB(E) cut_trace(_assertIssueTrackersInDB(E))
+
 void _assertUsersInDB(const UserIdSet &excludeUserIdSet = EMPTY_USER_ID_SET);
 #define assertUsersInDB(E) cut_trace(_assertUsersInDB(E))
 
@@ -173,6 +176,7 @@ void setupTestDBUser(bool dbRecreate = true, bool loadTestDat = false);
 void loadTestDBTriggers(void);
 void loadTestDBEvents(void);
 void loadTestDBIssues(void);
+void loadTestDBIssueTracker(void);
 void loadTestDBServer(void);
 void loadTestDBAction(void);
 void loadTestDBUser(void);

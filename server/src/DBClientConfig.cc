@@ -40,6 +40,7 @@ const char *DBClientConfig::DEFAULT_USER_NAME = "hatohol";
 const char *DBClientConfig::DEFAULT_PASSWORD  = "hatohol";
 
 const ServerIdSet EMPTY_SERVER_ID_SET;
+const ServerIdSet EMPTY_ISSUE_TRACKER_ID_SET;
 static void operator>>(
   ItemGroupStream &itemGroupStream, MonitoringSystemType &monSysType)
 {
@@ -1163,6 +1164,25 @@ void DBClientConfig::getIssueTrackers(
 		itemGroupStream >> info.userName;
 		itemGroupStream >> info.password;
 	}
+}
+
+HatoholError DBClientConfig::deleteIssueTracker(
+  const IssueTrackerIdType &issueTrackerId,
+  const OperationPrivilege &privilege)
+{
+	if (!privilege.has(OPPRVLG_DELETE_ISSUE_SETTING))
+		return HatoholError(HTERR_NO_PRIVILEGE);
+
+	DBAgent::DeleteArg arg(tableProfileIssueTrackers);
+	const ColumnDef &colId
+	  = COLUMN_DEF_ISSUE_TRACKERS[IDX_ISSUE_TRACKERS_ID];
+	arg.condition = StringUtils::sprintf("%s=%" FMT_ISSUE_TRACKER_ID,
+	                                     colId.columnName, issueTrackerId);
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		deleteRows(arg);
+	} DBCLIENT_TRANSACTION_END();
+	return HTERR_OK;
 }
 
 // ---------------------------------------------------------------------------

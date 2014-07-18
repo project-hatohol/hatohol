@@ -1019,6 +1019,36 @@ void test_getIssueTrackersByInvalidUser(void)
 	assertGetIssueTrackers(INVALID_USER_ID);
 }
 
+void test_deleteIssueTracker(void)
+{
+	setupTestDBUser(true, true);
+	loadTestDBIssueTracker();
+	IssueTrackerIdType issueTrackerId = 1;
+	OperationPrivilege privilege(findUserWith(OPPRVLG_DELETE_ISSUE_SETTING));
+	DBClientConfig dbConfig;
+	HatoholError err = dbConfig.deleteIssueTracker(issueTrackerId,
+						       privilege);
+	assertHatoholError(HTERR_OK, err);
+
+	IssueTrackerIdSet issueTrackerIdSet;
+	issueTrackerIdSet.insert(issueTrackerId);
+	assertIssueTrackersInDB(issueTrackerIdSet);
+}
+
+void test_deleteIssueTrackerWithoutPrivilege(void)
+{
+	setupTestDBUser(true, true);
+	loadTestDBIssueTracker();
+	IssueTrackerIdType issueTrackerId = 1;
+	OperationPrivilege privilege;
+	DBClientConfig dbConfig;
+	HatoholError err = dbConfig.deleteIssueTracker(issueTrackerId,
+						       privilege);
+	assertHatoholError(HTERR_NO_PRIVILEGE, err);
+
+	assertIssueTrackersInDB(EMPTY_ISSUE_TRACKER_ID_SET);
+}
+
 } // namespace testDBClientConfig
 
 namespace testDBClientConfigDefault {

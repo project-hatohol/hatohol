@@ -202,6 +202,10 @@ public:
 	HatoholError addIssueTracker(IssueTrackerInfo &issueTrackerInfo,
 				     const OperationPrivilege &privilege);
 
+	HatoholError deleteIssueTracker(
+	  const IssueTrackerIdType &issueTrackerId,
+	  const OperationPrivilege &privilege);
+
 	/**
 	 * Get entries in the issue_trackers table.
 	 *
