@@ -36,6 +36,10 @@ static JsonParserAgent *g_parser = NULL;
 void cut_setup(void)
 {
 	hatoholInit();
+
+	const bool dbRecreate = true;
+	const bool loadTestDat = true;
+	setupTestDBUser(dbRecreate, loadTestDat);
 }
 
 void cut_teardown(void)
@@ -51,7 +55,6 @@ void cut_teardown(void)
 static void _assertIssueTrackers(
   const string &path = "/issue-tracker", const string &callbackName = "")
 {
-	setupUserDB();
 	startFaceRest();
 	RequestArg arg(path, callbackName);
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_USER);
@@ -78,20 +81,14 @@ cut_trace(_assertIssueTrackers(P,##__VA_ARGS__))
 cut_trace(_assertAddRecord(g_parser, P, "/issue-tracker", ##__VA_ARGS__))
 
 void _assertAddIssueTrackerWithSetup(const StringMap &params,
+				     const UserIdType &userId,
 				     const HatoholErrorCode &expectCode)
 {
-	const bool dbRecreate = true;
-	const bool loadTestDat = true;
-	setupTestDBUser(dbRecreate, loadTestDat);
-	const UserIdType userId = findUserWith(OPPRVLG_CREATE_ISSUE_SETTING);
 	assertAddIssueTracker(params, userId, expectCode,
 			      NumTestIssueTrackerInfo + 1);
-
-	if (expectCode != HTERR_OK)
-		return;
 }
-#define assertAddIssueTrackerWithSetup(P,C) \
-  cut_trace(_assertAddIssueTrackerWithSetup(P,C))
+#define assertAddIssueTrackerWithSetup(P,U,C) \
+cut_trace(_assertAddIssueTrackerWithSetup(P,U,C))
 
 void test_getIssueTracker()
 {
@@ -128,10 +125,11 @@ void test_addIssueTrackerWithoutTrackerId(void)
 {
 	IssueTrackerInfo issueTracker;
 	StringMap params;
+	UserIdType userId = findUserWith(OPPRVLG_CREATE_ISSUE_SETTING);
 	createTestIssueTracker(issueTracker);
 	createPostData(issueTracker, params);
 
-	assertAddIssueTrackerWithSetup(params, HTERR_OK);
+	assertAddIssueTrackerWithSetup(params, userId, HTERR_OK);
 
 	// check the content in the DB
 	string statement = "select * from ";
@@ -147,23 +145,38 @@ void test_addIssueTrackerWithInvalidType(void)
 {
 	IssueTrackerInfo issueTracker;
 	StringMap params;
+	UserIdType userId = findUserWith(OPPRVLG_CREATE_ISSUE_SETTING);
 	createTestIssueTracker(issueTracker);
 	createPostData(issueTracker, params);
 	params["type"] = "9999";
 
 	assertAddIssueTrackerWithSetup(
-	  params, HTERR_INVALID_ISSUE_TRACKER_TYPE);
+	  params, userId, HTERR_INVALID_ISSUE_TRACKER_TYPE);
 }
 
 void test_addIssueTrackerWithoutNickname(void)
 {
 	IssueTrackerInfo issueTracker;
 	StringMap params;
+	UserIdType userId = findUserWith(OPPRVLG_CREATE_ISSUE_SETTING);
 	createTestIssueTracker(issueTracker);
 	createPostData(issueTracker, params);
 	params.erase("nickname");
 
-	assertAddIssueTrackerWithSetup(params, HTERR_NOT_FOUND_PARAMETER);
+	assertAddIssueTrackerWithSetup(params, userId,
+				       HTERR_NOT_FOUND_PARAMETER);
+}
+
+void test_addIssueTrackerWithoutPrivilege(void)
+{
+	IssueTrackerInfo issueTracker;
+	StringMap params;
+	UserIdType userId = findUserWithout(OPPRVLG_CREATE_ISSUE_SETTING);
+	createTestIssueTracker(issueTracker);
+	createPostData(issueTracker, params);
+
+	assertAddIssueTrackerWithSetup(params, userId,
+				       HTERR_NO_PRIVILEGE);
 }
 
 } // namespace testFaceRestIssueTracker
