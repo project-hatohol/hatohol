@@ -23,7 +23,6 @@
 #include "ActionManager.h"
 #include "ActorCollector.h"
 #include "DBClientAction.h"
-#include "CacheServiceDBClient.h"
 #include "NamedPipe.h"
 #include "ResidentProtocol.h"
 #include "ResidentCommunicator.h"
@@ -594,17 +593,6 @@ static bool checkActionOwner(const ActionDef &actionDef)
 		// type. Access control will be realized only by privilege.
 		return (actionDef.ownerUserId == USER_ID_SYSTEM);
 	}
-
-	CacheServiceDBClient cache;
-	DBClientUser *dbUser = cache.getUser();
-	UserInfo userInfo;
-	if (!dbUser->getUserInfo(userInfo, actionDef.ownerUserId)) {
-		MLPL_INFO("Not found user: %" FMT_USER_ID ", "
-		          "action: %" FMT_ACTION_ID "\n",
-		          actionDef.ownerUserId, actionDef.id);
-		return false;
-	}
-
 	return true;
 }
 
