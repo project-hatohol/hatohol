@@ -113,20 +113,20 @@ static void createPostData(const IssueTrackerInfo &issueTracker,
 
 void test_addIssueTrackerWithoutTrackerId(void)
 {
+	const IssueTrackerIdType expectedId = NumTestIssueTrackerInfo + 1;
 	IssueTrackerInfo issueTracker;
 	StringMap params;
 	UserIdType userId = findUserWith(OPPRVLG_CREATE_ISSUE_SETTING);
 	createTestIssueTracker(issueTracker);
 	createPostData(issueTracker, params);
 
-	assertAddIssueTracker(params, userId, HTERR_OK,
-			      NumTestIssueTrackerInfo + 1);
+	assertAddIssueTracker(params, userId, HTERR_OK, expectedId);
 
 	// check the content in the DB
 	string statement = "select * from ";
 	statement += "issue_trackers";
 	statement += " order by id desc limit 1";
-	issueTracker.id = NumTestIssueTrackerInfo + 1;
+	issueTracker.id = expectedId;
 	string expect = makeIssueTrackerInfoOutput(issueTracker);
 	DBClientConfig dbConfig;
 	assertDBContent(dbConfig.getDBAgent(), statement, expect);
