@@ -1,47 +1,41 @@
 Speed-up technique of the test
 ------------------------------
-(1) HATOHOL_DB_DIR=/dev/shm (path on tmpfs)
-The above setting changes the DB path for SQLite3.
-It has effect only for DBAgentSQLite3 and the related classes.
-
-(2) HATOHOL_MYSQL_ENGINE_MEMORY=1
+(1) HATOHOL_MYSQL_ENGINE_MEMORY=1
 The above setting request MySQL to use a heap (memory) storage engine.
 It has effect only for DBAgentMySQL and the related classes.
-This way is a little slower than the way (3). However, this is easier,
+This way is a little slower than the way (2). However, this is easier,
 because no other settings are needed.
 
-(3) Put the DB of MySQL on tmpfs
-This way is faster than that of (2). However, it affects all
+(2) Put the DB of MySQL on tmpfs
+This way is faster than that of (1). However, it affects all
 applications using MySQL. So you should use a virtual machine or
 environment such as LXC or KVM. Container based ways such as LXC are
 recommended because degradation of I/O performance of them is less than that
 of fully virtualization ways.
 
-3-1: Edit /etc/mysql/my.cnf like
+2-1: Edit /etc/mysql/my.cnf like
 - datadir = /var/lib/mysql
 + datadir = /dev/shm/mysql
 
-3-2: Probably you need to execute the following command.
+2-2: Probably you need to execute the following command.
 $ mysql_install_db
 
-3-3: Install the DB for NDOUtils
+2-3: Install the DB for NDOUtils
 
 If you already ndoutils for NDOUtils, you can copy by the mysqldump command.
-mysqldump -u root ndoutils > ndoutils.sql (do before 3-1)
-mysqldump -u root ndoutils < ndoutils.sql (do after  3-2)
+mysqldump -u root ndoutils > ndoutils.sql (do before 2-1)
+mysqldump -u root ndoutils < ndoutils.sql (do after  2-2)
 
 ### You can use any combination of the above ways. For example,
 
-$ HATOHOL_DB_DIR=/dev/shm HATOHOL_MYSQL_ENGINE_MEMORY=1 ./run-test.sh
+$ HATOHOL_MYSQL_ENGINE_MEMORY=1 ./run-test.sh
 
 [Ref.]
 In my evironment (Core i7 860 + Mem 12GB + SATA HDD),
 they drastically improve the test speed.
 
-1240 sec. ->
-1033 sec. (with HATOHOL_DB_DIR=/dev/shm)
- 485 sec. (with HATOHOL_MYSQL_ENGINE_MEMORY=1)
- 264 sec. (with HATOHOL_DB_DIR=/dev/shm && HATOHOL_MYSQL_ENGINE_MEMORY=1)
+1033 sec. ->
+ 264 sec. (HATOHOL_MYSQL_ENGINE_MEMORY=1)
   28 sec. (with all the above ways)
 
 How to show the stack trace on an HatoholException
