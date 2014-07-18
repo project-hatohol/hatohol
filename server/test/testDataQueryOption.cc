@@ -272,6 +272,8 @@ void test_getDataQueryContextOfCopyConstructor(void)
 		cppcut_assert_equal(&dataQueryCtx0, &dataQueryCtx1);
 		cppcut_assert_equal(opt0.getUserId(), opt1.getUserId());
 		cppcut_assert_equal(2, dataQueryCtx0.getUsedCount());
+		cppcut_assert_equal(opt0.getTableNameAlways(),
+		                    opt1.getTableNameAlways());
 	}
 	cppcut_assert_equal(1, dataQueryCtx0.getUsedCount());
 }
