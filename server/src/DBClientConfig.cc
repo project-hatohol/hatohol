@@ -26,6 +26,7 @@
 #include "HatoholError.h"
 #include "Params.h"
 #include "ItemGroupStream.h"
+#include "SQLUtils.h"
 using namespace std;
 using namespace mlpl;
 
@@ -520,9 +521,17 @@ ServerQueryOption::~ServerQueryOption()
 		delete m_ctx;
 }
 
-static string serverIdCondition(const ServerIdType &serverId)
+static string serverIdCondition(
+  const ServerIdType &serverId, const bool &needTableName)
 {
-	const char *columnName = COLUMN_DEF_SERVERS[IDX_SERVERS_ID].columnName;
+	string columnNameStr;
+	if (needTableName) {
+		columnNameStr = SQLUtils::getFullName(COLUMN_DEF_SERVERS,
+		                                      IDX_SERVERS_ID);
+	}
+	const char *columnName = needTableName ?
+	                         columnNameStr.c_str() :
+	                         COLUMN_DEF_SERVERS[IDX_SERVERS_ID].columnName;
 	return StringUtils::sprintf("%s=%" FMT_SERVER_ID, columnName, serverId);
 }
 
@@ -531,8 +540,10 @@ bool ServerQueryOption::hasPrivilegeCondition(string &condition) const
 	UserIdType userId = getUserId();
 
 	if (userId == USER_ID_SYSTEM || has(OPPRVLG_GET_ALL_SERVER)) {
-		if (m_ctx->targetServerId != ALL_SERVERS)
-			condition = serverIdCondition(m_ctx->targetServerId);
+		if (m_ctx->targetServerId != ALL_SERVERS) {
+			condition = serverIdCondition(m_ctx->targetServerId,
+			                              getTableNameAlways());
+		}
 		return true;
 	}
 
@@ -573,7 +584,7 @@ string ServerQueryOption::getCondition(void) const
 	if (targetId != ALL_SERVERS &&
 	    srvHostGrpSetMap.find(targetId) != srvHostGrpSetMap.end())
 	{
-		return serverIdCondition(targetId);
+		return serverIdCondition(targetId, getTableNameAlways());
 	}
 
 	numServers = 0;
@@ -586,7 +597,7 @@ string ServerQueryOption::getCondition(void) const
 
 		if (!condition.empty())
 			condition += " OR ";
-		condition += serverIdCondition(serverId);
+		condition += serverIdCondition(serverId, getTableNameAlways());
 		++numServers;
 	}
 
@@ -961,7 +972,26 @@ void DBClientConfig::getTargetServers(
 	// The current query statement uses a little complicated where clause,
 	// for which the indexing mechanism may not be effective.
 
-	DBAgent::SelectExArg arg(tableProfileServers);
+	enum {
+		TBLIDX_SERVERS,
+		TBLIDX_ARM_PLUGINS,
+	};
+	const DBAgent::TableProfile *tableProfiles[] = {
+	  &tableProfileServers,
+	  &tableProfileArmPlugins,
+	};
+	const size_t numTableProfiles =
+	  sizeof(tableProfiles) / sizeof(DBAgent::TableProfile *);
+	DBAgent::SelectMultiTableArg arg(tableProfiles, numTableProfiles);
+
+	arg.tableField = StringUtils::sprintf(
+	  "%s LEFT JOIN %s ON %s=%s",
+	  TABLE_NAME_SERVERS, TABLE_NAME_ARM_PLUGINS,
+	  arg.getFullName(TBLIDX_SERVERS, IDX_SERVERS_ID).c_str(),
+	  arg.getFullName(TBLIDX_ARM_PLUGINS, IDX_ARM_PLUGINS_SERVER_ID).c_str());
+
+	// Columns
+	arg.setTable(TBLIDX_SERVERS);
 	arg.add(IDX_SERVERS_ID);
 	arg.add(IDX_SERVERS_TYPE);
 	arg.add(IDX_SERVERS_HOSTNAME);
@@ -973,6 +1003,16 @@ void DBClientConfig::getTargetServers(
 	arg.add(IDX_SERVERS_USER_NAME);
 	arg.add(IDX_SERVERS_PASSWORD);
 	arg.add(IDX_SERVERS_DB_NAME);
+
+	arg.setTable(TBLIDX_ARM_PLUGINS);
+	arg.add(IDX_ARM_PLUGINS_ID);
+	arg.add(IDX_ARM_PLUGINS_TYPE);
+	arg.add(IDX_ARM_PLUGINS_PATH);
+	arg.add(IDX_ARM_PLUGINS_BROKER_URL);
+	arg.add(IDX_ARM_PLUGINS_STATIC_QUEUE_ADDR);
+	arg.add(IDX_ARM_PLUGINS_SERVER_ID);
+
+	option.setTableNameAlways();
 	arg.condition = option.getCondition();
 
 	DBCLIENT_TRANSACTION_BEGIN() {
@@ -1005,14 +1045,17 @@ void DBClientConfig::getTargetServers(
 		itemGroupStream >> svInfo.password;
 		itemGroupStream >> svInfo.dbName;
 
-		// TODO: Should we do in the transaction ?
-		// and using LEFT JOIN is smart ?
-		if (armPluginInfoVect) {
-			ArmPluginInfo armPluginInfo;
-			if (!getArmPluginInfo(armPluginInfo, svInfo.id))
-				armPluginInfo.id = INVALID_ARM_PLUGIN_INFO_ID;
-			armPluginInfoVect->push_back(armPluginInfo);
-		}
+		// ArmPluginInfo
+		if (!armPluginInfoVect)
+			continue;
+
+		ArmPluginInfo armPluginInfo;
+		const ItemData *itemData = itemGroupStream.getItem();
+		if (itemData->isNull())
+			armPluginInfo.id = INVALID_ARM_PLUGIN_INFO_ID;
+		else
+			readArmPluginStream(itemGroupStream, armPluginInfo);
+		armPluginInfoVect->push_back(armPluginInfo);
 	}
 }
 
