@@ -80,16 +80,6 @@ cut_trace(_assertIssueTrackers(P,##__VA_ARGS__))
 #define assertAddIssueTracker(P, ...) \
 cut_trace(_assertAddRecord(g_parser, P, "/issue-tracker", ##__VA_ARGS__))
 
-void _assertAddIssueTrackerWithSetup(const StringMap &params,
-				     const UserIdType &userId,
-				     const HatoholErrorCode &expectCode)
-{
-	assertAddIssueTracker(params, userId, expectCode,
-			      NumTestIssueTrackerInfo + 1);
-}
-#define assertAddIssueTrackerWithSetup(P,U,C) \
-cut_trace(_assertAddIssueTrackerWithSetup(P,U,C))
-
 void test_getIssueTracker()
 {
 	assertIssueTrackers();
@@ -129,7 +119,8 @@ void test_addIssueTrackerWithoutTrackerId(void)
 	createTestIssueTracker(issueTracker);
 	createPostData(issueTracker, params);
 
-	assertAddIssueTrackerWithSetup(params, userId, HTERR_OK);
+	assertAddIssueTracker(params, userId, HTERR_OK,
+			      NumTestIssueTrackerInfo + 1);
 
 	// check the content in the DB
 	string statement = "select * from ";
@@ -150,8 +141,8 @@ void test_addIssueTrackerWithInvalidType(void)
 	createPostData(issueTracker, params);
 	params["type"] = "9999";
 
-	assertAddIssueTrackerWithSetup(
-	  params, userId, HTERR_INVALID_ISSUE_TRACKER_TYPE);
+	assertAddIssueTracker(params, userId,
+			      HTERR_INVALID_ISSUE_TRACKER_TYPE);
 }
 
 void test_addIssueTrackerWithoutNickname(void)
@@ -163,8 +154,7 @@ void test_addIssueTrackerWithoutNickname(void)
 	createPostData(issueTracker, params);
 	params.erase("nickname");
 
-	assertAddIssueTrackerWithSetup(params, userId,
-				       HTERR_NOT_FOUND_PARAMETER);
+	assertAddIssueTracker(params, userId, HTERR_NOT_FOUND_PARAMETER);
 }
 
 void test_addIssueTrackerWithoutPrivilege(void)
@@ -175,8 +165,7 @@ void test_addIssueTrackerWithoutPrivilege(void)
 	createTestIssueTracker(issueTracker);
 	createPostData(issueTracker, params);
 
-	assertAddIssueTrackerWithSetup(params, userId,
-				       HTERR_NO_PRIVILEGE);
+	assertAddIssueTracker(params, userId, HTERR_NO_PRIVILEGE);
 }
 
 } // namespace testFaceRestIssueTracker
