@@ -34,7 +34,7 @@ struct BriefElem {
 };
 
 const int DBClientZabbix::ZABBIX_DB_VERSION = 4;
-const uint64_t DBClientZabbix::EVENT_ID_NOT_FOUND = -1;
+const uint64_t DBClientZabbix::EVENT_ID_NOT_FOUND = 0;
 const int DBClientZabbix::TRIGGER_CHANGE_TIME_NOT_FOUND = -1;
 
 static const char *TABLE_NAME_TRIGGERS_RAW_2_0 = "triggers_raw_2_0";
