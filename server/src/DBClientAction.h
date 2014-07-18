@@ -27,6 +27,8 @@
 
 const static uint64_t INVALID_ACTION_LOG_ID = -1;
 
+const static guint ACTION_DELETE_INTERVAL = 3600000;
+
 enum ActionType {
 	ACTION_USER_DEFINED = -2, // COMMAND & RESIDENT
 	ACTION_ALL = -1,
@@ -361,6 +363,8 @@ public:
 	 */
 	bool isIssueSenderEnabled(void);
 
+	void deleteActionList(void);
+
 protected:
 	ItemDataNullFlagType getNullFlag(const ActionDef &actionDef,
 	                                 ActionConditionEnableFlag enableFlag);
@@ -379,6 +383,12 @@ protected:
 
 	HatoholError checkPrivilegeForDelete(
 	  const OperationPrivilege &privilege);
+
+	void getActionUser(UserIdList &userIdList);
+
+	static gboolean deleteActionListCyc(gpointer data);
+
+	static gboolean deleteActionFunction(gpointer data);
 
 private:
 	struct PrivateContext;

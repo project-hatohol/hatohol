@@ -17,7 +17,9 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Utils.h"
 #include "ConfigManager.h"
+#include "CacheServiceDBClient.h"
 #include "DBAgentFactory.h"
 #include "DBClientAction.h"
 #include "DBClientHatohol.h"
@@ -388,6 +390,11 @@ struct DBClientAction::PrivateContext
 	}
 };
 
+struct deleteTimerId{
+  guint timerId;
+};
+
+
 // ---------------------------------------------------------------------------
 // LogEndExecActionArg
 // ---------------------------------------------------------------------------
@@ -407,6 +414,11 @@ void DBClientAction::init(void)
 {
 	registerSetupInfo(
 	  DB_DOMAIN_ID_ACTION, DEFAULT_DB_NAME, &DB_ACTION_SETUP_FUNC_ARG);
+
+	deleteTimerId* deleteTimerId_p = new deleteTimerId;
+	deleteTimerId_p->timerId = g_timeout_add(ACTION_DELETE_INTERVAL, 
+						 (GSourceFunc)deleteActionFunction,
+						 deleteTimerId_p);
 }
 
 void DBClientAction::reset(void)
@@ -522,6 +534,12 @@ HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
 		select(arg);
 	} DBCLIENT_TRANSACTION_END();
 
+	UserIdList userIdList;
+	getActionUser(userIdList);
+
+	if(userIdList.empty())
+	        return HTERR_OK;
+
 	// convert a format of the query result.
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
@@ -563,7 +581,12 @@ HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
 		itemGroupStream >> actionDef.workingDir;
 		itemGroupStream >> actionDef.timeout;
 		itemGroupStream >> actionDef.ownerUserId;
+
+		UserIdType id = actionDef.ownerUserId;
+		if (userIdList.end() == userIdList.find(id))
+		        actionDefList.pop_back();
 	}
+
 	return HTERR_OK;
 }
 
@@ -616,6 +639,50 @@ HatoholError DBClientAction::deleteActions(const ActionIdList &idList,
 	}
 
 	return HTERR_OK;
+}
+
+void DBClientAction::deleteActionList()
+{
+        ActionIdList actionIdList;
+	uint64_t     actionId;
+
+	DBAgent::SelectExArg arg(tableProfileActions);
+	arg.add(IDX_ACTIONS_ACTION_ID);
+	arg.add(IDX_ACTIONS_OWNER_USER_ID);
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	UserIdList userIdList;
+	getActionUser(userIdList);
+
+	if(userIdList.empty())
+	        return;
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
+		ActionDef actionDef;
+
+		itemGroupStream >> actionId;
+		itemGroupStream >> actionDef.ownerUserId;
+
+		UserIdType id = actionDef.ownerUserId;
+		if (userIdList.end() == userIdList.find(id))
+		        actionIdList.push_back(actionId);
+	}
+	if(actionIdList.empty()){
+	        return;
+	}
+
+	OperationPrivilege privilege(OPPRVLG_DELETE_ALL_ACTION);
+	privilege.setUserId(USER_ID_SYSTEM);
+
+	deleteActions(actionIdList , privilege);
+
+	return;
 }
 
 uint64_t DBClientAction::createActionLog(
@@ -857,6 +924,37 @@ HatoholError DBClientAction::checkPrivilegeForDelete(
 		return HTERR_NO_PRIVILEGE;
 
 	return HTERR_OK;
+}
+
+void DBClientAction::getActionUser(UserIdList &userIdList)
+{
+	CacheServiceDBClient cache;
+	DBClientUser *dbUser = cache.getUser();
+	dbUser->getUserIdList(userIdList);
+
+	return;
+}
+
+gboolean DBClientAction::deleteActionListCyc(gpointer data)
+{
+        deleteTimerId* deleteTimerId_p = static_cast<deleteTimerId *>(data);
+	CacheServiceDBClient cache;
+	DBClientAction *delAction = cache.getAction();
+	delAction->deleteActionList();
+	deleteTimerId_p->timerId = g_timeout_add(ACTION_DELETE_INTERVAL, 
+						 (GSourceFunc)deleteActionFunction, 
+						 deleteTimerId_p);
+	return FALSE;
+}
+
+gboolean DBClientAction::deleteActionFunction(gpointer data)
+{
+        deleteTimerId* deleteTimerId_p = static_cast<deleteTimerId *>(data);
+	Utils::setGLibIdleEvent((GSourceFunc)deleteActionListCyc,
+				deleteTimerId_p,
+				NULL);
+	g_source_remove(deleteTimerId_p->timerId);
+	return FALSE;
 }
 
 // ---------------------------------------------------------------------------

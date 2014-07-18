@@ -76,6 +76,10 @@ typedef std::list<UserRoleInfo>          UserRoleInfoList;
 typedef UserRoleInfoList::iterator       UserRoleInfoListIterator;
 typedef UserRoleInfoList::const_iterator UserRoleInfoListConstIterator;
 
+typedef std::set<UserIdType>      UserIdList;
+typedef UserIdList::iterator       UserIdListIterator;
+typedef UserIdList::const_iterator UserIdListIConstterator;
+
 class UserQueryOption : public DataQueryOption {
 public:
 	UserQueryOption(UserIdType userId = INVALID_USER_ID);
@@ -254,6 +258,8 @@ public:
 	bool isAccessible(const ServerIdType &serverId,
 	                  const OperationPrivilege &privilege,
 	                  const bool &useTransaction = true);
+
+	void getUserIdList(UserIdList &userIdList);
 
 protected:
 	void getUserInfoList(UserInfoList &userInfoList,
