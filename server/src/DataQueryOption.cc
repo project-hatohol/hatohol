@@ -49,7 +49,8 @@ struct DataQueryOption::PrivateContext {
 	: maxNumber(NO_LIMIT),
 	  offset(0),
 	  dataQueryCtxPtr(dataQueryContext),
-	  dbTermCodec(NULL)
+	  dbTermCodec(NULL),
+	  tableNameAlways(false)
 	{
 	}
 

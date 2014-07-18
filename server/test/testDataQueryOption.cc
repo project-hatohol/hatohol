@@ -257,6 +257,7 @@ void test_getDataQueryContextOfConstructorWithDataQueryCtx(void)
 		                    &dataQueryCtxOpt);
 		cppcut_assert_equal(userId, opt.getUserId());
 		cppcut_assert_equal(2, dqCtxPtr->getUsedCount());
+		cppcut_assert_equal(false, opt.getTableNameAlways());
 	}
 	cppcut_assert_equal(1, dqCtxPtr->getUsedCount());
 }
