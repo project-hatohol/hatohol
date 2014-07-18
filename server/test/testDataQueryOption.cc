@@ -17,6 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <gcutter.h>
 #include <cppcutter.h>
 #include <cutter.h>
 
@@ -321,6 +322,26 @@ void test_setDBTermCodec(void)
 	DataQueryOption option;
 	option.setDBTermCodec(&dbTermCodec);
 	cppcut_assert_equal(&dbTermCodec, option.getDBTermCodec());
+}
+
+void test_getTableNameAlwaysDefault(void)
+{
+	DataQueryOption option;
+	cppcut_assert_equal(false, option.getTableNameAlways());
+}
+
+void data_setGetTableNameAlways(void)
+{
+	gcut_add_datum("Enabled",  "enable", G_TYPE_BOOLEAN, true, NULL);
+	gcut_add_datum("Disabled", "enable", G_TYPE_BOOLEAN, false, NULL);
+}
+
+void test_setGetTableNameAlways(gconstpointer data)
+{
+	DataQueryOption option;
+	const bool enable = gcut_data_get_boolean(data, "enable");
+	option.setTableNameAlways(enable);
+	cppcut_assert_equal(enable, option.getTableNameAlways());
 }
 
 } // namespace testDataQueryOption

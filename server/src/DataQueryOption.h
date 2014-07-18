@@ -147,6 +147,20 @@ public:
 	 */
 	virtual std::string getOrderBy(void) const;
 
+	/**
+	 * Set the flag always to use the table name.
+	 *
+	 * @param enable A flag to enable the feature.
+	 */
+	void setTableNameAlways(const bool &enable = true) const;
+
+	/**
+	 * Get the flag always to use the table name.
+	 *
+	 * @param enable A flag to enable the feature.
+	 */
+	bool getTableNameAlways(void) const;
+
 protected:
 	enum AddConditionType {
 		ADD_TYPE_AND,

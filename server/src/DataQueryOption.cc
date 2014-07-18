@@ -33,13 +33,15 @@ struct DataQueryOption::PrivateContext {
 	SortOrderList sortOrderList;
 	DataQueryContextPtr dataQueryCtxPtr; // The body is shared
 	const DBTermCodec *dbTermCodec;
+	bool               tableNameAlways;
 
 	// constuctor
 	PrivateContext(const UserIdType &userId)
 	: maxNumber(NO_LIMIT),
 	  offset(0),
 	  dataQueryCtxPtr(new DataQueryContext(userId), false),
-	  dbTermCodec(NULL)
+	  dbTermCodec(NULL),
+	  tableNameAlways(false)
 	{
 	}
 
@@ -217,6 +219,16 @@ std::string DataQueryOption::getOrderBy(void) const
 		}
 	}
 	return orderBy;
+}
+
+void DataQueryOption::setTableNameAlways(const bool &enable) const
+{
+	m_ctx->tableNameAlways = enable;
+}
+
+bool DataQueryOption::getTableNameAlways(void) const
+{
+	return m_ctx->tableNameAlways;
 }
 
 void DataQueryOption::setOffset(size_t offset)
