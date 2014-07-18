@@ -74,9 +74,55 @@ static void _assertIssueTrackers(
 #define assertIssueTrackers(P,...) \
 cut_trace(_assertIssueTrackers(P,##__VA_ARGS__))
 
+#define assertAddIssueTracker(P, ...) \
+cut_trace(_assertAddRecord(g_parser, P, "/issue-tracker", ##__VA_ARGS__))
+
+void _assertAddIssueTrackerWithSetup(const StringMap &params,
+				     const HatoholErrorCode &expectCode)
+{
+	const bool dbRecreate = true;
+	const bool loadTestDat = true;
+	setupTestDBUser(dbRecreate, loadTestDat);
+	const UserIdType userId = findUserWith(OPPRVLG_CREATE_ISSUE_SETTING);
+	assertAddIssueTracker(params, userId, expectCode,
+			      NumTestIssueTrackerInfo + 1);
+}
+#define assertAddIssueTrackerWithSetup(P,C) \
+  cut_trace(_assertAddIssueTrackerWithSetup(P,C))
+
 void test_getIssueTracker()
 {
 	assertIssueTrackers();
+}
+
+void test_addIssueTrackerWithoutTrackerId(void)
+{
+	IssueTrackerInfo issueTracker;
+	issueTracker.type      = ISSUE_TRACKER_REDMINE;
+	issueTracker.nickname  = "Redmine";
+	issueTracker.baseURL   = "http://example.com/redmine/";
+	issueTracker.projectId = "incidents";
+	issueTracker.userName  = "y@ru0";
+	issueTracker.password  = "w(^_^)d";
+
+	StringMap params;
+	params["type"]      = StringUtils::toString((int)issueTracker.type);
+	params["nickname"]  = issueTracker.nickname;
+	params["baseURL"]   = issueTracker.baseURL;
+	params["projectId"] = issueTracker.projectId;
+	params["userName"]  = issueTracker.userName;
+	params["password"]  = issueTracker.password;
+
+	assertAddIssueTrackerWithSetup(params, HTERR_OK);
+
+	// check the content in the DB
+	string statement = "select * from ";
+	statement += "issue_trackers";
+	statement += " order by id desc limit 1";
+	issueTracker.id = NumTestIssueTrackerInfo + 1;
+	string expect = makeIssueTrackerInfoOutput(issueTracker);
+	DBClientConfig dbConfig;
+	assertDBContent(dbConfig.getDBAgent(), statement, expect);
 }
 
 } // namespace testFaceRestIssueTracker
