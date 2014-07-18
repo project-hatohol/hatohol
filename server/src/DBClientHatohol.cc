@@ -18,7 +18,7 @@
  */
 
 #include <memory>
-#include <MutexLock.h>
+#include <Mutex.h>
 #include "DBAgentFactory.h"
 #include "DBClientHatohol.h"
 #include "DBClientUser.h"

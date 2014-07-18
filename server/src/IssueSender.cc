@@ -21,7 +21,7 @@
 #include "StringUtils.h"
 #include "LabelUtils.h"
 #include "CacheServiceDBClient.h"
-#include "MutexLock.h"
+#include <Mutex.h>
 #include "SimpleSemaphore.h"
 #include "Reaper.h"
 #include "AtomicValue.h"
@@ -58,7 +58,7 @@ struct IssueSender::PrivateContext
 {
 	IssueSender &sender;
 	IssueTrackerInfo issueTrackerInfo;
-	MutexLock queueLock;
+	Mutex            queueLock;
 	std::queue<Job*> queue;
 	AtomicValue<Job*> runningJob;
 	SimpleSemaphore jobSemaphore;
@@ -179,7 +179,7 @@ void IssueSender::setRetryInterval(const unsigned int &msec)
 
 bool IssueSender::isIdling(void)
 {
-	AutoMutexLock autoMutex(&m_ctx->queueLock);
+	AutoMutex autoMutex(&m_ctx->queueLock);
 	if (!m_ctx->queue.empty())
 		return false;
 	return !m_ctx->runningJob;

@@ -17,7 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <MutexLock.h>
+#include <Mutex.h>
 #include "DBClientZabbix.h"
 #include "ItemEnum.h"
 #include "Params.h"

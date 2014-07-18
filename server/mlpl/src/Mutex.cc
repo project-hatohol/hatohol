@@ -18,13 +18,13 @@
  */
 
 #include <errno.h>
-#include "MutexLock.h"
+#include "Mutex.h"
 #include "SmartTime.h"
 #include "Logger.h"
 
 using namespace mlpl;
 
-struct MutexLock::PrivateContext {
+struct Mutex::PrivateContext {
 	pthread_mutex_t lock;
 
 	PrivateContext(void)
@@ -41,24 +41,24 @@ struct MutexLock::PrivateContext {
 // ----------------------------------------------------------------------------
 // Public methods
 // ----------------------------------------------------------------------------
-MutexLock::MutexLock(void)
+Mutex::Mutex(void)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 }
 
-MutexLock::~MutexLock()
+Mutex::~Mutex()
 {
 	if (m_ctx)
 		delete m_ctx;
 }
 
-void MutexLock::lock(void)
+void Mutex::lock(void)
 {
 	pthread_mutex_lock(&m_ctx->lock);
 }
 
-MutexLock::Status MutexLock::timedlock(size_t timeoutInMSec)
+Mutex::Status Mutex::timedlock(size_t timeoutInMSec)
 {
 	SmartTime abs(SmartTime::INIT_CURR_TIME);
 	struct timespec waitTime;
@@ -78,31 +78,31 @@ MutexLock::Status MutexLock::timedlock(size_t timeoutInMSec)
 	return STAT_OK;
 }
 
-void MutexLock::unlock(void)
+void Mutex::unlock(void)
 {
 	pthread_mutex_unlock(&m_ctx->lock);
 }
 
-bool MutexLock::trylock(void)
+bool Mutex::trylock(void)
 {
 	return pthread_mutex_trylock(&m_ctx->lock) != EBUSY;
 }
 
-void MutexLock::unlock(MutexLock *lock)
+void Mutex::unlock(Mutex *lock)
 {
 	pthread_mutex_unlock(&lock->m_ctx->lock);
 }
 
 // ----------------------------------------------------------------------------
-// AutoMutexLock
+// AutoMutex
 // ----------------------------------------------------------------------------
-AutoMutexLock::AutoMutexLock(MutexLock *mutex)
+AutoMutex::AutoMutex(Mutex *mutex)
 : m_mutex(mutex)
 {
 	m_mutex->lock();
 }
 
-AutoMutexLock::~AutoMutexLock()
+AutoMutex::~AutoMutex()
 {
 	m_mutex->unlock();
 }

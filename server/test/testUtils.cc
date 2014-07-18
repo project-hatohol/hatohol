@@ -24,7 +24,7 @@
 #include <sys/types.h> 
 #include <syscall.h>
 #include <libsoup/soup.h>
-#include <MutexLock.h>
+#include <Mutex.h>
 #include "Hatohol.h"
 #include "Utils.h"
 #include "Helpers.h"
@@ -43,7 +43,7 @@ struct TestExecEvtLoop : public HatoholThreadBase {
 	bool quitLoop;
 	bool useFunctor;
 	SyncType syncType;
-	MutexLock mutex;
+	Mutex mutex;
 
 	TestExecEvtLoop(void)
 	: threadId(0),

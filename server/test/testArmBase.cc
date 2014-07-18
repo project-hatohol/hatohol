@@ -20,7 +20,7 @@
 #include <gcutter.h>
 #include <cppcutter.h>
 #include <AtomicValue.h>
-#include <MutexLock.h>
+#include <Mutex.h>
 #include "ArmBase.h"
 #include "Helpers.h"
 using namespace std;
@@ -93,7 +93,7 @@ void test_requestExitAndWait(void)
 {
 	struct Ctx {
 		AtomicValue<bool> called;
-		MutexLock         startLock;
+		Mutex             startLock;
 		bool              startLockUnlocked;
 
 		Ctx(void)
@@ -122,8 +122,8 @@ void test_requestExitAndWait(void)
 		void waitForFirstProc(void)
 		{
 			const size_t timeout = 5000; // ms
-			MutexLock::Status stat = startLock.timedlock(timeout);
-			cppcut_assert_equal(MutexLock::STAT_OK, stat);
+			Mutex::Status stat = startLock.timedlock(timeout);
+			cppcut_assert_equal(Mutex::STAT_OK, stat);
 		}
 	} ctx;
 

@@ -20,7 +20,7 @@
 #ifndef SmartQueue_h
 #define SmartQueue_h
 
-#include <MutexLock.h>
+#include <Mutex.h>
 #include <SimpleSemaphore.h>
 #include <Reaper.h>
 #include <deque>
@@ -70,8 +70,8 @@ public:
 	template <typename PrivType>
 	void popAll(void (*func)(T elem, PrivType), PrivType priv)
 	{
-		mlpl::Reaper<mlpl::MutexLock>
-		  unlocker(&m_mutex, mlpl::MutexLock::unlock);
+		mlpl::Reaper<mlpl::Mutex>
+		  unlocker(&m_mutex, mlpl::Mutex::unlock);
 		m_mutex.lock();
 		while (!m_queue.empty()) {
 			m_sem.wait();
@@ -103,7 +103,7 @@ public:
 protected:
 
 private:
-	mlpl::MutexLock       m_mutex;
+	mlpl::Mutex           m_mutex;
 	mlpl::SimpleSemaphore m_sem;
 	std::deque<T>         m_queue;
 };

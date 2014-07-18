@@ -18,7 +18,7 @@
  */
 
 #include <map>
-#include "MutexLock.h"
+#include <Mutex.h>
 #include "Reaper.h"
 #include "IssueSenderManager.h"
 #include "IssueSenderRedmine.h"
@@ -31,11 +31,11 @@ struct IssueSenderManager::PrivateContext
 {
 	static IssueSenderManager instance;
 	map<IssueTrackerIdType, IssueSender*> sendersMap;
-	MutexLock sendersLock;
+	Mutex sendersLock;
 
 	~PrivateContext()
 	{
-		AutoMutexLock autoMutex(&sendersLock);
+		AutoMutex autoMutex(&sendersLock);
 		map<IssueTrackerIdType, IssueSender*>::iterator it;
 		for (it = sendersMap.begin(); it != sendersMap.end(); ++it) {
 			IssueSender *sender = it->second;
@@ -81,7 +81,7 @@ struct IssueSenderManager::PrivateContext
 	IssueSender *getSender(const IssueTrackerIdType &id,
 			       bool autoCreate = true)
 	{
-		AutoMutexLock autoMutex(&sendersLock);
+		AutoMutex autoMutex(&sendersLock);
 		if (sendersMap.find(id) != sendersMap.end())
 			return sendersMap[id];
 
@@ -132,7 +132,7 @@ IssueSenderManager::~IssueSenderManager()
 
 bool IssueSenderManager::isIdling(void)
 {
-	AutoMutexLock autoMutex(&m_ctx->sendersLock);
+	AutoMutex autoMutex(&m_ctx->sendersLock);
 
 	map<IssueTrackerIdType, IssueSender*>::iterator it
 	  = m_ctx->sendersMap.begin();

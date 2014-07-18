@@ -23,7 +23,7 @@ using namespace mlpl;
 Synchronizer::Synchronizer(void)
 : m_mutex(NULL)
 {
-	m_mutex = new MutexLock();
+	m_mutex = new Mutex();
 }
 
 Synchronizer::~Synchronizer()
@@ -46,7 +46,7 @@ void Synchronizer::reset(void)
 {
 	if (m_mutex)
 		delete m_mutex;
-	m_mutex = new MutexLock();
+	m_mutex = new Mutex();
 }
 
 bool Synchronizer::trylock(void)
