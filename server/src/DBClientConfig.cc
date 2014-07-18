@@ -314,7 +314,7 @@ static const ColumnDef COLUMN_DEF_ARM_PLUGINS[] = {
 	"",                                // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_SERVERS,                // tableName
+	TABLE_NAME_ARM_PLUGINS,            // tableName
 	"serverId",                        // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
