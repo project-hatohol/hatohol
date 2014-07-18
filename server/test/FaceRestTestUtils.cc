@@ -333,7 +333,12 @@ void _assertErrorCode(JsonParserAgent *parser,
 		      const HatoholErrorCode &expectCode)
 {
 	assertValueInParser(parser, "apiVersion", FaceRest::API_VERSION);
-	assertValueInParser(parser, "errorCode", expectCode);
+	int64_t actualCode;
+	cppcut_assert_equal(true, parser->read("errorCode", actualCode));
+	HatoholError expected(expectCode);
+	HatoholError actual((HatoholErrorCode)actualCode);
+	cppcut_assert_equal(expected.getCodeName(), actual.getCodeName());
+	cppcut_assert_equal((int64_t)expectCode, actualCode);
 }
 
 void _assertAddRecord(JsonParserAgent *parser,
