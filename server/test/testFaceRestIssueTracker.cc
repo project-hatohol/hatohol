@@ -195,7 +195,6 @@ void test_deleteIssueTrackerWithoutId(void)
 {
 	startFaceRest();
 
-	const IssueTrackerIdType issueTrackerId = 1;
 	string url = StringUtils::sprintf("/issue-tracker");
 	RequestArg arg(url, "cbname");
 	arg.request = "DELETE";
