@@ -57,7 +57,7 @@ static void _assertIssueTrackers(
 {
 	startFaceRest();
 	RequestArg arg(path, callbackName);
-	arg.userId = findUserWith(OPPRVLG_GET_ALL_USER);
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_ISSUE_SETTINGS);
 	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
 	assertStartObject(g_parser, "issueTrackers");
