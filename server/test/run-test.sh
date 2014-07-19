@@ -13,21 +13,21 @@ top_dir="`cd $top_dir; pwd`"
 
 if test x"$NO_MAKE" != x"yes"; then
     if which gmake > /dev/null; then
-	MAKE=${MAKE:-"gmake"}
+        MAKE=${MAKE:-"gmake"}
     else
-	MAKE=${MAKE:-"make"}
+        MAKE=${MAKE:-"make"}
     fi
     MAKE_ARGS=
     case `uname` in
-	Linux)
-	    MAKE_ARGS="-j$(grep '^processor' /proc/cpuinfo | wc -l)"
-	    ;;
-	Darwin)
-	    MAKE_ARGS="-j$(/usr/sbin/sysctl -n hw.ncpu)"
-	    ;;
-	*)
-	    :
-	    ;;
+        Linux)
+            MAKE_ARGS="-j$(grep '^processor' /proc/cpuinfo | wc -l)"
+            ;;
+        Darwin)
+            MAKE_ARGS="-j$(/usr/sbin/sysctl -n hw.ncpu)"
+            ;;
+        *)
+            :
+            ;;
     esac
     $MAKE $MAKE_ARGS -C $top_dir/ > /dev/null || exit 1
 fi
