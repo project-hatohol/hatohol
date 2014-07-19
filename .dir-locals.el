@@ -1,4 +1,5 @@
 ((c-mode .   ((indent-tabs-mode . t)
               (c-basic-offset   . 8)))
  (c++-mode . ((indent-tabs-mode . t)
-              (c-basic-offset   . 8))))
+              (c-basic-offset   . 8)))
+ (sh-mode .  ((indent-tabs-mode . nil))))
