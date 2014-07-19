@@ -33,6 +33,8 @@ public:
 	ZabbixAPI(void);
 	virtual ~ZabbixAPI();
 
+	static const uint64_t EVENT_ID_NOT_FOUND;
+
 protected:
 	const static uint64_t UNLIMITED = -1;
 	void setMonitoringServerInfo(const MonitoringServerInfo &serverInfo);

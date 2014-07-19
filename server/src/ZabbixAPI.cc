@@ -31,6 +31,8 @@ using namespace mlpl;
 static const char *MIME_JSON_RPC = "application/json-rpc";
 static const guint DEFAULT_TIMEOUT = 60;
 
+const uint64_t ZabbixAPI::EVENT_ID_NOT_FOUND = -1;
+
 struct ZabbixAPI::PrivateContext {
 
 	string         uri;
@@ -415,7 +417,7 @@ uint64_t ZabbixAPI::getFirstEventId(void)
 	}
 	startObject(parser, "result");
 	if (parser.countElements() == 0)
-		return firstEventId;
+		return EVENT_ID_NOT_FOUND;
 
 	startElement(parser, 0);
 
@@ -447,7 +449,7 @@ uint64_t ZabbixAPI::getLastEventId(void)
 	}
 	startObject(parser, "result");
 	if (parser.countElements() == 0)
-		return lastEventId;
+		return EVENT_ID_NOT_FOUND;
 
 	startElement(parser, 0);
 
