@@ -35,7 +35,7 @@ public:
 	virtual ~DBClientJoinArg();
 
 	void addTable(const DBAgent::TableProfile &table, const JoinType &type,
-	              const size_t &index0, const size_t index1);
+	              const size_t &index0, const size_t &index1);
 	void add(const size_t &index);
 	const DBAgent::SelectExArg &getSelectExArg(void);
 

@@ -44,7 +44,7 @@ DBClientJoinArg::~DBClientJoinArg()
 
 void DBClientJoinArg::addTable(
   const DBAgent::TableProfile &table, const JoinType &type,
-  const size_t &index0, const size_t index1)
+  const size_t &index0, const size_t &index1)
 {
 	MLPL_BUG("Not implemneted yet: %s\n", __PRETTY_FUNCTION__);
 }
