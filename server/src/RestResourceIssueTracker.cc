@@ -168,7 +168,7 @@ void RestResourceIssueTracker::handlePut(void)
 	IssueTrackerQueryOption option(m_dataQueryContextPtr);
 	option.setTargetId(issueTrackerInfo.id);
 	dbConfig.getIssueTrackers(issueTrackers, option);
-	if (issueTrackers.size() != 1) {
+	if (issueTrackers.empty()) {
 		REPLY_ERROR(this, HTERR_NOT_FOUND_TARGET_RECORD,
 		            "id: %" FMT_ISSUE_TRACKER_ID, issueTrackerInfo.id);
 		return;
