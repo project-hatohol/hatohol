@@ -55,6 +55,23 @@ public:
 	 */
 	void addTable(const DBAgent::TableProfile &table, const JoinType &type,
 	              const size_t &index0, const size_t &index1);
+
+	/**
+	 * Add a table for the JOIN and the make the where clause like
+	 * the following .
+	 *
+	 * t0 JOIN t1 ON (t0.column0=t1.column1 AND t0.column2=t1.column3)
+	 *
+	 * @param table A tableProfile for the table placed at the right side.
+	 * @param type A join type.
+	 * @param index0 An index of the left table for the condition.
+	 * @param index1 An index of the right table for the condition.
+	 * @param index2 An index of the left table for the condition.
+	 * @param index3 An index of the right table for the condition.
+	 */
+	void addTable(const DBAgent::TableProfile &table, const JoinType &type,
+	              const size_t &index0, const size_t &index1,
+	              const size_t &index2, const size_t &index3);
 	/**
 	 * Add a column.
 	 *
@@ -68,6 +85,9 @@ public:
 
 protected:
 	static const char *getJoinOperatorString(const JoinType &type);
+	void addTableCommon(
+	  const DBAgent::TableProfile &table, const JoinType &type,
+	  const size_t &index0, const size_t &index1);
 
 private:
 	struct PrivateContext;

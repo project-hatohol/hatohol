@@ -54,6 +54,17 @@ static const ColumnDef COLUMN_DEF_TEST0[] = {
 },{
 	ITEM_ID_NOT_SET,                   // itemId
 	TEST_TABLE_NAME0,                  // tableName
+	"age",                             // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_IDX,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+},{
+	ITEM_ID_NOT_SET,                   // itemId
+	TEST_TABLE_NAME0,                  // tableName
 	"name",                            // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -67,6 +78,7 @@ static const ColumnDef COLUMN_DEF_TEST0[] = {
 
 enum {
 	IDX_TEST_TABLE0_ID,
+	IDX_TEST_TABLE0_AGE,
 	IDX_TEST_TABLE0_NAME,
 	NUM_IDX_TEST_TABLE0,
 };
@@ -100,12 +112,24 @@ static const ColumnDef COLUMN_DEF_TEST1[] = {
 	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+},{
+	ITEM_ID_NOT_SET,                   // itemId
+	TEST_TABLE_NAME1,                  // tableName
+	"my_age",                          // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_IDX,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 },
 };
 
 enum {
 	IDX_TEST_TABLE1_ID,
 	IDX_TEST_TABLE1_TBL0_ID,
+	IDX_TEST_TABLE1_MY_AGE,
 	NUM_IDX_TEST_TABLE1,
 };
 
@@ -168,6 +192,38 @@ void test_basicUse(void)
 	  TEST_TABLE_NAME0, TEST_TABLE_NAME1,
 	  getFullName(tableProfileTest0, IDX_TEST_TABLE0_ID).c_str(),
 	  getFullName(tableProfileTest1, IDX_TEST_TABLE1_TBL0_ID).c_str()
+	);
+	cppcut_assert_equal(expectTableField, exArg.tableField);
+
+	// columns
+	cppcut_assert_equal((size_t)2, exArg.statements.size());
+	cppcut_assert_equal(
+	  getFullName(tableProfileTest0, IDX_TEST_TABLE0_NAME),
+	  exArg.statements[0]);
+	cppcut_assert_equal(
+	  getFullName(tableProfileTest1, IDX_TEST_TABLE1_ID),
+	  exArg.statements[1]);
+}
+
+void test_useFourIndexes(void)
+{
+	DBClientJoinBuilder builder(tableProfileTest0);
+	builder.add(IDX_TEST_TABLE0_NAME);
+
+	builder.addTable(tableProfileTest1, DBClientJoinBuilder::INNER_JOIN,
+	  IDX_TEST_TABLE0_ID, IDX_TEST_TABLE1_TBL0_ID,
+	  IDX_TEST_TABLE0_AGE, IDX_TEST_TABLE1_MY_AGE);
+	builder.add(IDX_TEST_TABLE1_ID);
+
+	// check where clause
+	const DBAgent::SelectExArg &exArg = builder.getSelectExArg();
+	const string expectTableField = StringUtils::sprintf(
+	  "%s INNER JOIN %s ON (%s=%s AND %s=%s)",
+	  TEST_TABLE_NAME0, TEST_TABLE_NAME1,
+	  getFullName(tableProfileTest0, IDX_TEST_TABLE0_ID).c_str(),
+	  getFullName(tableProfileTest1, IDX_TEST_TABLE1_TBL0_ID).c_str(),
+	  getFullName(tableProfileTest0, IDX_TEST_TABLE0_AGE).c_str(),
+	  getFullName(tableProfileTest1, IDX_TEST_TABLE1_MY_AGE).c_str()
 	);
 	cppcut_assert_equal(expectTableField, exArg.tableField);
 
