@@ -27,6 +27,7 @@
 #include "Params.h"
 #include "ItemGroupStream.h"
 #include "SQLUtils.h"
+#include "DBClientJoinArg.h"
 using namespace std;
 using namespace mlpl;
 
@@ -972,26 +973,7 @@ void DBClientConfig::getTargetServers(
 	// The current query statement uses a little complicated where clause,
 	// for which the indexing mechanism may not be effective.
 
-	enum {
-		TBLIDX_SERVERS,
-		TBLIDX_ARM_PLUGINS,
-	};
-	const DBAgent::TableProfile *tableProfiles[] = {
-	  &tableProfileServers,
-	  &tableProfileArmPlugins,
-	};
-	const size_t numTableProfiles =
-	  sizeof(tableProfiles) / sizeof(DBAgent::TableProfile *);
-	DBAgent::SelectMultiTableArg arg(tableProfiles, numTableProfiles);
-
-	arg.tableField = StringUtils::sprintf(
-	  "%s LEFT JOIN %s ON %s=%s",
-	  TABLE_NAME_SERVERS, TABLE_NAME_ARM_PLUGINS,
-	  arg.getFullName(TBLIDX_SERVERS, IDX_SERVERS_ID).c_str(),
-	  arg.getFullName(TBLIDX_ARM_PLUGINS, IDX_ARM_PLUGINS_SERVER_ID).c_str());
-
-	// Columns
-	arg.setTable(TBLIDX_SERVERS);
+	DBClientJoinArg arg(tableProfileServers, &option);
 	arg.add(IDX_SERVERS_ID);
 	arg.add(IDX_SERVERS_TYPE);
 	arg.add(IDX_SERVERS_HOSTNAME);
@@ -1004,7 +986,8 @@ void DBClientConfig::getTargetServers(
 	arg.add(IDX_SERVERS_PASSWORD);
 	arg.add(IDX_SERVERS_DB_NAME);
 
-	arg.setTable(TBLIDX_ARM_PLUGINS);
+	arg.addTable(tableProfileArmPlugins, DBClientJoinArg::LEFT_JOIN,
+	             IDX_SERVERS_ID, IDX_ARM_PLUGINS_SERVER_ID);
 	arg.add(IDX_ARM_PLUGINS_ID);
 	arg.add(IDX_ARM_PLUGINS_TYPE);
 	arg.add(IDX_ARM_PLUGINS_PATH);
@@ -1012,21 +995,19 @@ void DBClientConfig::getTargetServers(
 	arg.add(IDX_ARM_PLUGINS_STATIC_QUEUE_ADDR);
 	arg.add(IDX_ARM_PLUGINS_SERVER_ID);
 
-	option.setTableNameAlways();
-	arg.condition = option.getCondition();
-
 	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
+		select(arg.getSelectExArg());
 	} DBCLIENT_TRANSACTION_END();
 
 	// check the result and copy
+	ItemTablePtr &dataTable = arg.getSelectExArg().dataTable;
 	if (armPluginInfoVect) {
 		const size_t reserveSize =
-		  armPluginInfoVect->size() + arg.dataTable->getNumberOfRows();
+		  armPluginInfoVect->size() + dataTable->getNumberOfRows();
 		armPluginInfoVect->reserve(reserveSize);
 	}
 
-	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	const ItemGroupList &grpList = dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
 		ItemGroupStream itemGroupStream(*itemGrpItr);
