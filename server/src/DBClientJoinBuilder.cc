@@ -116,7 +116,7 @@ void DBClientJoinBuilder::add(const size_t &columnIndex)
 	m_ctx->selectExArg.add(columnIndex);
 }
 
-const DBAgent::SelectExArg &DBClientJoinBuilder::getSelectExArg(void)
+DBAgent::SelectExArg &DBClientJoinBuilder::getSelectExArg(void)
 {
 	return m_ctx->selectExArg;
 }

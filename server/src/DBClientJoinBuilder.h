@@ -81,7 +81,7 @@ public:
 	 */
 	void add(const size_t &columnIndex);
 
-	const DBAgent::SelectExArg &getSelectExArg(void);
+	DBAgent::SelectExArg &getSelectExArg(void);
 
 protected:
 	static const char *getJoinOperatorString(const JoinType &type);
