@@ -986,6 +986,18 @@ void test_updateIssueTracker(void)
 	assertUpdateIssueTracker(issueTrackerInfo, HTERR_OK);
 }
 
+void test_updateIssueTrackerWithoutPrivilege(void)
+{
+	int targetId = 2;
+	IssueTrackerInfo issueTrackerInfo = testIssueTrackerInfo[0];
+	issueTrackerInfo.id = targetId;
+	OperationPrivilegeFlag privilege = ALL_PRIVILEGES;
+	OperationPrivilege::removeFlag(
+	  privilege, OPPRVLG_UPDATE_ISSUE_SETTING);
+	assertUpdateIssueTracker(
+	  issueTrackerInfo, HTERR_NO_PRIVILEGE, privilege);
+}
+
 static void addIssueTracker(IssueTrackerInfo *info)
 {
 	DBClientConfig dbConfig;
