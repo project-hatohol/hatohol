@@ -162,20 +162,6 @@ protected:
 	uint64_t getFirstOrLastEventId(const EventIdClass &type);
 
 	/**
-	 * Get the first event ID the target Zabbix server has.
-	 *
-	 * @return The last event ID.
-	 */
-	uint64_t getFirstEventId(void);
-
-	/**
-	 * Get the last event ID the target Zabbix server has.
-	 *
-	 * @return The last event ID.
-	 */
-	uint64_t getLastEventId(void);
-
-	/**
 	 * Get the triggers.
 	 *
 	 * @param requestSince
@@ -236,22 +222,6 @@ protected:
 	 * A SoupMessage object with the raw Zabbix servers's response.
 	 */
 	SoupMessage *queryFirstOrLastEventId(const EventIdClass &type);
-
-	/**
-	 * Get the first event ID the target Zabbix server has.
-	 *
-	 * @return
-	 * A SoupMessage object with the raw Zabbix servers's response.
-	 */
-	SoupMessage *queryFirstEventId(void);
-
-	/**
-	 * Get the last event ID the target Zabbix server has.
-	 *
-	 * @return
-	 * A SoupMessage object with the raw Zabbix servers's response.
-	 */
-	SoupMessage *queryLastEventId(void);
 
 	/**
 	 * Get the functions.

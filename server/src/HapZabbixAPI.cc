@@ -78,7 +78,7 @@ void HapZabbixAPI::workOnEvents(void)
 {
 	// TODO: Should we consider the case in which the last event in
 	// Zabbix server changes during the execution of the following loop ?
-	const uint64_t lastEventIdOfZbxSv = ZabbixAPI::getLastEventId();
+	const uint64_t lastEventIdOfZbxSv = ZabbixAPI::getFirstOrLastEventId(LAST_EVENT_ID);
 	// TOOD: we should exit immediately if the Zabbix server does not
 	// have any events at all.
 

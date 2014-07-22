@@ -436,70 +436,6 @@ uint64_t ZabbixAPI::getFirstOrLastEventId(const EventIdClass &type)
 	return returnValue;
 }
 
-uint64_t ZabbixAPI::getFirstEventId(void)
-{
-	string strFirstEventId;
-	uint64_t firstEventId = 0;
-
-	SoupMessage *msg = queryFirstEventId();
-	if (!msg) {
-		MLPL_ERR("Failed to query first eventID.\n");
-		return 0;
-	}
-
-	JsonParserAgent parser(msg->response_body->data);
-	g_object_unref(msg);
-	if (parser.hasError()) {
-		THROW_DATA_STORE_EXCEPTION(
-		  "Failed to parser: %s", parser.getErrorMessage());
-	}
-	startObject(parser, "result");
-	if (parser.countElements() == 0)
-		return EVENT_ID_NOT_FOUND;
-
-	startElement(parser, 0);
-
-	if (!parser.read("eventid", strFirstEventId))
-		THROW_DATA_STORE_EXCEPTION("Failed to read: eventid\n");
-
-	firstEventId = StringUtils::toUint64(strFirstEventId);
-	MLPL_DBG("FirstEventId: %" PRIu64 "\n", firstEventId);
-
-	return firstEventId;
-}
-
-uint64_t ZabbixAPI::getLastEventId(void)
-{
-	string strLastEventId;
-	uint64_t lastEventId = 0;
-
-	SoupMessage *msg = queryLastEventId();
-	if (!msg) {
-		MLPL_ERR("Failed to query last eventID.\n");
-		return 0;
-	}
-
-	JsonParserAgent parser(msg->response_body->data);
-	g_object_unref(msg);
-	if (parser.hasError()) {
-		THROW_DATA_STORE_EXCEPTION(
-		  "Failed to parser: %s", parser.getErrorMessage());
-	}
-	startObject(parser, "result");
-	if (parser.countElements() == 0)
-		return EVENT_ID_NOT_FOUND;
-
-	startElement(parser, 0);
-
-	if (!parser.read("eventid", strLastEventId))
-		THROW_DATA_STORE_EXCEPTION("Failed to read: eventid\n");
-
-	lastEventId = StringUtils::toUint64(strLastEventId);
-	MLPL_DBG("LastEventID: %" PRIu64 "\n", lastEventId);
-
-	return lastEventId;
-}
-
 SoupMessage *ZabbixAPI::queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill)
 {
 	JsonBuilderAgent agent;
@@ -539,48 +475,6 @@ SoupMessage *ZabbixAPI::queryFirstOrLastEventId(const EventIdClass &type)
 		agent.add("sortorder", "ASC");
 	else if (type == LAST_EVENT_ID)
 		agent.add("sortorder", "DESC");
-	agent.add("limit", 1);
-	agent.endObject(); //params
-
-	agent.add("auth", m_ctx->authToken);
-	agent.add("id", 1);
-	agent.endObject();
-
-	return queryCommon(agent);
-}
-
-SoupMessage *ZabbixAPI::queryFirstEventId(void)
-{
-	JsonBuilderAgent agent;
-	agent.startObject();
-	agent.add("jsonrpc", "2.0");
-	agent.add("method", "event.get");
-
-	agent.startObject("params");
-	agent.add("output", "shorten");
-	agent.add("sortfield", "eventid");
-	agent.add("sortorder", "ASC");
-	agent.add("limit", 1);
-	agent.endObject(); //params
-
-	agent.add("auth", m_ctx->authToken);
-	agent.add("id", 1);
-	agent.endObject();
-
-	return queryCommon(agent);
-}
-
-SoupMessage *ZabbixAPI::queryLastEventId(void)
-{
-	JsonBuilderAgent agent;
-	agent.startObject();
-	agent.add("jsonrpc", "2.0");
-	agent.add("method", "event.get");
-
-	agent.startObject("params");
-	agent.add("output", "shorten");
-	agent.add("sortfield", "eventid");
-	agent.add("sortorder", "DESC");
 	agent.add("limit", 1);
 	agent.endObject(); //params
 
