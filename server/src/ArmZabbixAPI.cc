@@ -175,6 +175,11 @@ void ArmZabbixAPI::updateEvents(void)
 	const uint64_t dbLastEventId = m_ctx->dbClientZabbix->getLastEventId();
 	uint64_t eventIdOffset = 0;
 
+	if (serverLastEventId == EVENT_ID_NOT_FOUND) {
+		MLPL_ERR("Last event id is not found\n");
+		return;
+	}
+
 	if (dbLastEventId == DBClientZabbix::EVENT_ID_NOT_FOUND) {
 		eventIdOffset = getFirstEventId();
 		if (eventIdOffset == EVENT_ID_NOT_FOUND) {
@@ -183,10 +188,6 @@ void ArmZabbixAPI::updateEvents(void)
 		}
 	} else {
 		eventIdOffset = dbLastEventId + 1;
-		if (serverLastEventId == EVENT_ID_NOT_FOUND) {
-			MLPL_ERR("Last event id is not found\n");
-			return;
-		}
 	}
 
 	while (eventIdOffset < serverLastEventId) {
