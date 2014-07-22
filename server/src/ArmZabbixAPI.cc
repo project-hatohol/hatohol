@@ -176,14 +176,14 @@ void ArmZabbixAPI::updateEvents(void)
 	uint64_t eventIdOffset = 0;
 
 	if (serverLastEventId == EVENT_ID_NOT_FOUND) {
-		MLPL_ERR("Last event id is not found\n");
+		MLPL_ERR("Last event ID is not found\n");
 		return;
 	}
 
 	if (dbLastEventId == DBClientZabbix::EVENT_ID_NOT_FOUND) {
 		eventIdOffset = getFirstEventId();
 		if (eventIdOffset == EVENT_ID_NOT_FOUND) {
-			MLPL_INFO("First event id is not found\n");
+			MLPL_INFO("First event ID is not found\n");
 			return;
 		}
 	} else {
