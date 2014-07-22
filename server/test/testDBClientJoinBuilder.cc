@@ -174,6 +174,7 @@ void test_constructorWithOption(void)
 	cppcut_assert_equal(&tableProfileTest0, exArg.tableProfile);
 	cppcut_assert_equal(true, exArg.useFullName);
 	cppcut_assert_equal(true, option.getTableNameAlways());
+	cppcut_assert_not_equal(string(""),        exArg.condition);
 	cppcut_assert_equal(option.getCondition(), exArg.condition);
 }
 
