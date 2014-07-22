@@ -398,7 +398,7 @@ ItemTablePtr ZabbixAPI::getEvents(uint64_t eventIdOffset, uint64_t eventIdTill)
 	return ItemTablePtr(tablePtr);
 }
 
-uint64_t ZabbixAPI::getFirstOrLastEventId(const EventIdSortType &type)
+uint64_t ZabbixAPI::getFirstOrLastEventId(const EventIdClassType &type)
 {
 	string strValue;
 	uint64_t returnValue = 0;
@@ -525,7 +525,7 @@ SoupMessage *ZabbixAPI::queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill)
 	return queryCommon(agent);
 }
 
-SoupMessage *ZabbixAPI::queryFirstOrLastEventId(const EventIdSortType &type)
+SoupMessage *ZabbixAPI::queryFirstOrLastEventId(const EventIdClassType &type)
 {
 	JsonBuilderAgent agent;
 	agent.startObject();
