@@ -19,6 +19,7 @@
 
 #include <gcutter.h>
 #include <cppcutter.h>
+#include "DBClient.h"
 #include "DBClientJoinArg.h"
 
 using namespace std;
@@ -131,6 +132,24 @@ void test_constructor(void)
 	const DBAgent::SelectExArg &exArg = arg.getSelectExArg();
 	cppcut_assert_equal(&tableProfileTest0, exArg.tableProfile);
 	cppcut_assert_equal(true, exArg.useFullName);
+}
+
+void test_constructorWithOption(void)
+{
+	class MyOption : public DataQueryOption {
+	public:
+		virtual string getCondition(void) const override
+		{
+			return "A=1";
+		}
+	} option;
+
+	DBClientJoinArg arg(tableProfileTest0, &option);
+	const DBAgent::SelectExArg &exArg = arg.getSelectExArg();
+	cppcut_assert_equal(&tableProfileTest0, exArg.tableProfile);
+	cppcut_assert_equal(true, exArg.useFullName);
+	cppcut_assert_equal(true, option.getTableNameAlways());
+	cppcut_assert_equal(option.getCondition(), exArg.condition);
 }
 
 void test_basicUse(void)

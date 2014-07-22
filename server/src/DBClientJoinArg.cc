@@ -60,6 +60,8 @@ DBClientJoinArg::DBClientJoinArg(
 
 	// TODO: we should take option.getFromClause() into account
 	m_ctx->selectExArg.tableField = table.name;
+	if (option)
+		m_ctx->selectExArg.condition = option->getCondition();
 }
 
 DBClientJoinArg::~DBClientJoinArg()
