@@ -21,6 +21,7 @@
 #include <cppcutter.h>
 #include "DBClient.h"
 #include "DBClientJoinBuilder.h"
+#include "HostResourceQueryOption.h"
 
 using namespace std;
 using namespace mlpl;
@@ -174,6 +175,41 @@ void test_constructorWithOption(void)
 	cppcut_assert_equal(true, exArg.useFullName);
 	cppcut_assert_equal(true, option.getTableNameAlways());
 	cppcut_assert_equal(option.getCondition(), exArg.condition);
+}
+
+void test_constructorWithHostResourceQueryOption(void)
+{
+	// Define synapse to pass the build. So the paramters are dummy and
+	// the object won't work well.
+	HostResourceQueryOption::Synapse
+	   synapse(tableProfileTest0, 0, 0, 0, 0, tableProfileTest1, 0, 0, 0);
+	class MyOption : public HostResourceQueryOption {
+	public:
+		MyOption(const Synapse &synapse)
+		: HostResourceQueryOption(synapse)
+		{
+		}
+
+		virtual string getFromClause(void) const override
+		{
+			return "t0 INNER JOIN t1 ON t0.c0=t1.c1";
+		}
+
+		virtual string getCondition(void) const override
+		{
+			return "A=1";
+		}
+	} option(synapse);
+
+	DBClientJoinBuilder builder(tableProfileTest0, &option);
+	const DBAgent::SelectExArg &exArg = builder.getSelectExArg();
+	cppcut_assert_equal(&tableProfileTest0, exArg.tableProfile);
+	cppcut_assert_equal(true, exArg.useFullName);
+	cppcut_assert_equal(true, option.getTableNameAlways());
+	cppcut_assert_not_equal(string(""),        exArg.condition);
+	cppcut_assert_equal(option.getCondition(), exArg.condition);
+	cppcut_assert_not_equal(string(""),         exArg.tableField);
+	cppcut_assert_equal(option.getFromClause(), exArg.tableField);
 }
 
 void test_basicUse(void)

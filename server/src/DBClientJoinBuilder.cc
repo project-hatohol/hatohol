@@ -20,6 +20,7 @@
 #include <StringUtils.h>
 #include <SQLUtils.h>
 #include "DBClientJoinBuilder.h"
+#include "HostResourceQueryOption.h"
 
 using namespace std;
 using namespace mlpl;
@@ -58,8 +59,13 @@ DBClientJoinBuilder::DBClientJoinBuilder(
 	if (option)
 		option->setTableNameAlways();
 
-	// TODO: we should take option.getFromClause() into account
-	m_ctx->selectExArg.tableField = table.name;
+	// TODO: consider more ligher way w/o a dynamic cast.
+	const HostResourceQueryOption *hrqOption =
+	  dynamic_cast<const HostResourceQueryOption *>(option);
+	if (hrqOption)
+		m_ctx->selectExArg.tableField = hrqOption->getFromClause();
+	else
+		m_ctx->selectExArg.tableField = table.name;
 	if (option)
 		m_ctx->selectExArg.condition = option->getCondition();
 }
