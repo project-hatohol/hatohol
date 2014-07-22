@@ -85,6 +85,9 @@ cut_trace(_assertIssueTrackers(P,##__VA_ARGS__))
 #define assertAddIssueTracker(P, ...) \
 cut_trace(_assertAddRecord(g_parser, P, "/issue-tracker", ##__VA_ARGS__))
 
+#define assertUpdateIssueTracker(P, ...) \
+cut_trace(_assertUpdateRecord(g_parser, P, "/issue-tracker", ##__VA_ARGS__))
+
 void test_getIssueTracker()
 {
 	assertIssueTrackers();
@@ -171,6 +174,26 @@ void test_addIssueTrackerWithoutPrivilege(void)
 	createPostData(issueTracker, params);
 
 	assertAddIssueTracker(params, userId, HTERR_NO_PRIVILEGE);
+}
+
+void test_updateIssueTracker(void)
+{
+	UserIdType userId = findUserWith(OPPRVLG_UPDATE_ISSUE_SETTING);
+	const IssueTrackerIdType targetId = 2;
+	IssueTrackerInfo issueTracker = testIssueTrackerInfo[targetId - 1];
+	issueTracker.id = targetId;
+	issueTracker.baseURL = "https://example.com/redmine/";
+	StringMap params;
+	createPostData(issueTracker, params);
+
+	assertUpdateIssueTracker(params, targetId, userId, HTERR_OK);
+
+	// check the content in the DB
+	string statement = StringUtils::sprintf(
+	  "select * from issue_trackers where id=%d", targetId);
+	string expect = makeIssueTrackerInfoOutput(issueTracker);
+	DBClientConfig dbConfig;
+	assertDBContent(dbConfig.getDBAgent(), statement, expect);
 }
 
 void test_deleteIssueTracker(void)

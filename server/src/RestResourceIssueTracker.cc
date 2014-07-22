@@ -153,7 +153,52 @@ void RestResourceIssueTracker::handlePost(void)
 
 void RestResourceIssueTracker::handlePut(void)
 {
-	replyError(HTERR_NOT_IMPLEMENTED);
+	uint64_t issueTrackerId = getResourceId();
+	if (issueTrackerId == INVALID_ID) {
+		REPLY_ERROR(this, HTERR_NOT_FOUND_ID_IN_URL,
+		            "id: %s", getResourceIdString().c_str());
+		return;
+	}
+
+	IssueTrackerInfo issueTrackerInfo;
+	issueTrackerInfo.id = issueTrackerId;
+
+	DBClientConfig dbConfig;
+	IssueTrackerInfoVect issueTrackers;
+	IssueTrackerQueryOption option(m_dataQueryContextPtr);
+	option.setTargetId(issueTrackerInfo.id);
+	dbConfig.getIssueTrackers(issueTrackers, option);
+	if (issueTrackers.size() != 1) {
+		REPLY_ERROR(this, HTERR_NOT_FOUND_TARGET_RECORD,
+		            "id: %" FMT_ISSUE_TRACKER_ID, issueTrackerInfo.id);
+		return;
+	}
+	issueTrackerInfo = issueTrackers[0];
+
+	bool allowEmpty = true;
+	HatoholError err = parseIssueTrackerParameter(issueTrackerInfo, m_query,
+						      allowEmpty);
+	if (err != HTERR_OK) {
+		replyError(err);
+		return;
+	}
+
+	// try to update
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	err = dataStore->updateIssueTracker(
+	  issueTrackerInfo, m_dataQueryContextPtr->getOperationPrivilege());
+	if (err != HTERR_OK) {
+		replyError(err);
+		return;
+	}
+
+	// make a response
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, err);
+	agent.add("id", issueTrackerInfo.id);
+	agent.endObject();
+	replyJsonData(agent);
 }
 
 void RestResourceIssueTracker::handleDelete(void)
