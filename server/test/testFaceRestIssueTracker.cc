@@ -88,6 +88,27 @@ cut_trace(_assertAddRecord(g_parser, P, "/issue-tracker", ##__VA_ARGS__))
 #define assertUpdateIssueTracker(P, ...) \
 cut_trace(_assertUpdateRecord(g_parser, P, "/issue-tracker", ##__VA_ARGS__))
 
+static void _assertIssueTrackerInDB(
+  const IssueTrackerInfo &expectedIssueTracker,
+  const IssueTrackerIdType &targetId = ALL_ISSUE_TRACKERS)
+{
+	string statement;
+
+	if (targetId == ALL_ISSUE_TRACKERS) {
+		statement = "select * from issue_trackers "
+			    "order by id desc limit 1";
+	} else {
+		statement = StringUtils::sprintf(
+			      "select * from issue_trackers where id=%"
+			      FMT_ISSUE_TRACKER_ID,
+			      targetId);
+	}
+	string expected = makeIssueTrackerInfoOutput(expectedIssueTracker);
+	DBClientConfig dbConfig;
+	assertDBContent(dbConfig.getDBAgent(), statement, expected);
+}
+#define assertIssueTrackerInDB(E, ...) cut_trace(_assertIssueTrackerInDB(E, ##__VA_ARGS__))
+
 void test_getIssueTracker()
 {
 	assertIssueTrackers();
@@ -129,15 +150,8 @@ void test_addIssueTrackerWithoutTrackerId(void)
 	createPostData(issueTracker, params);
 
 	assertAddIssueTracker(params, userId, HTERR_OK, expectedId);
-
-	// check the content in the DB
-	string statement = "select * from ";
-	statement += "issue_trackers";
-	statement += " order by id desc limit 1";
 	issueTracker.id = expectedId;
-	string expect = makeIssueTrackerInfoOutput(issueTracker);
-	DBClientConfig dbConfig;
-	assertDBContent(dbConfig.getDBAgent(), statement, expect);
+	assertIssueTrackerInDB(issueTracker);
 }
 
 void test_addIssueTrackerWithInvalidType(void)
@@ -187,13 +201,7 @@ void test_updateIssueTracker(void)
 	createPostData(issueTracker, params);
 
 	assertUpdateIssueTracker(params, targetId, userId, HTERR_OK);
-
-	// check the content in the DB
-	string statement = StringUtils::sprintf(
-	  "select * from issue_trackers where id=%d", targetId);
-	string expect = makeIssueTrackerInfoOutput(issueTracker);
-	DBClientConfig dbConfig;
-	assertDBContent(dbConfig.getDBAgent(), statement, expect);
+	assertIssueTrackerInDB(issueTracker, targetId);
 }
 
 void test_updateIssueTrackerWithoutAccountParams(void)
@@ -209,13 +217,7 @@ void test_updateIssueTrackerWithoutAccountParams(void)
 	params.erase("password");
 
 	assertUpdateIssueTracker(params, targetId, userId, HTERR_OK);
-
-	// check the content in the DB
-	string statement = StringUtils::sprintf(
-	  "select * from issue_trackers where id=%d", targetId);
-	string expect = makeIssueTrackerInfoOutput(issueTracker);
-	DBClientConfig dbConfig;
-	assertDBContent(dbConfig.getDBAgent(), statement, expect);
+	assertIssueTrackerInDB(issueTracker, targetId);
 }
 
 void test_updateIssueTrackerWithoutPrivilege(void)
@@ -233,14 +235,9 @@ void test_updateIssueTrackerWithoutPrivilege(void)
 		expectedCode = HTERR_NOT_FOUND_TARGET_RECORD;
 	assertUpdateIssueTracker(params, targetId, userId, expectedCode);
 
-	// check the content in the DB
-	string statement = StringUtils::sprintf(
-	  "select * from issue_trackers where id=%d", targetId);
 	IssueTrackerInfo expectedIssueTracker = testIssueTrackerInfo[targetId - 1];
 	expectedIssueTracker.id = targetId;
-	string expect = makeIssueTrackerInfoOutput(expectedIssueTracker);
-	DBClientConfig dbConfig;
-	assertDBContent(dbConfig.getDBAgent(), statement, expect);
+	assertIssueTrackerInDB(expectedIssueTracker, targetId);
 }
 
 void test_deleteIssueTracker(void)
