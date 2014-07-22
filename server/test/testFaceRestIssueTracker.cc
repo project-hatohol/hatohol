@@ -231,8 +231,7 @@ void test_updateIssueTrackerWithoutPrivilege(void)
 	HatoholErrorCode expectedCode = HTERR_NO_PRIVILEGE;
 	if (!(testUserInfo[userId - 1].flags & OPPRVLG_GET_ALL_ISSUE_SETTINGS))
 		expectedCode = HTERR_NOT_FOUND_TARGET_RECORD;
-	assertUpdateIssueTracker(
-	  params, targetId, userId, HTERR_NOT_FOUND_TARGET_RECORD);
+	assertUpdateIssueTracker(params, targetId, userId, expectedCode);
 
 	// check the content in the DB
 	string statement = StringUtils::sprintf(
