@@ -82,7 +82,7 @@ void DBClientJoinBuilder::addTable(
   const size_t &index0, const size_t &index1)
 {
 	const DBAgent::TableProfile &table0 = *m_ctx->selectExArg.tableProfile;
-	addTableCommon(table, type, index0, index1);
+	addTableCommon(table, type, table0, index0, index1);
 	m_ctx->selectExArg.tableField += StringUtils::sprintf(
 	  "%s=%s",
 	  SQLUtils::getFullName(table0.columnDefs, index0).c_str(),
@@ -91,24 +91,25 @@ void DBClientJoinBuilder::addTable(
 
 void DBClientJoinBuilder::addTable(
   const DBAgent::TableProfile &table, const JoinType &type,
-  const size_t &index0, const size_t &index1,
-  const size_t &index2, const size_t &index3)
+  const DBAgent::TableProfile &tableC0, const size_t &index0L,
+  const size_t &index0R,
+  const DBAgent::TableProfile &tableC1, const size_t &index1L,
+  const size_t &index1R)
 {
-	const DBAgent::TableProfile &table0 = *m_ctx->selectExArg.tableProfile;
 	HATOHOL_ASSERT(
-	  index2 < table0.numColumns,
-	  "Invalid column index2: %zd (%zd)", index2, table0.numColumns);
+	  index1L < tableC1.numColumns,
+	  "Invalid column index1L: %zd (%zd)", index1L, tableC1.numColumns);
 	HATOHOL_ASSERT(
-	  index3 < table.numColumns,
-	  "Invalid column index3: %zd (%zd)", index3, table.numColumns);
+	  index1R < table.numColumns,
+	  "Invalid column index1R: %zd (%zd)", index1R, table.numColumns);
 
-	addTableCommon(table, type, index0, index1);
+	addTableCommon(table, type, tableC0, index0L, index0R);
 	m_ctx->selectExArg.tableField += StringUtils::sprintf(
 	  "(%s=%s AND %s=%s)",
-	  SQLUtils::getFullName(table0.columnDefs, index0).c_str(),
-	  SQLUtils::getFullName(table.columnDefs,  index1).c_str(),
-	  SQLUtils::getFullName(table0.columnDefs, index2).c_str(),
-	  SQLUtils::getFullName(table.columnDefs,  index3).c_str());
+	  SQLUtils::getFullName(tableC0.columnDefs, index0L).c_str(),
+	  SQLUtils::getFullName(table.columnDefs,   index0R).c_str(),
+	  SQLUtils::getFullName(tableC1.columnDefs, index1L).c_str(),
+	  SQLUtils::getFullName(table.columnDefs,   index1R).c_str());
 }
 
 void DBClientJoinBuilder::add(const size_t &columnIndex)
@@ -134,15 +135,15 @@ const char *DBClientJoinBuilder::getJoinOperatorString(const JoinType &type)
 
 void DBClientJoinBuilder::addTableCommon(
   const DBAgent::TableProfile &table, const JoinType &type,
-  const size_t &index0, const size_t &index1)
+  const DBAgent::TableProfile &tableC0, const size_t &index0L,
+  const size_t &index0R)
 {
-	const DBAgent::TableProfile &table0 = *m_ctx->selectExArg.tableProfile;
 	HATOHOL_ASSERT(
-	  index0 < table0.numColumns,
-	  "Invalid column index0: %zd (%zd)", index0, table0.numColumns);
+	  index0L < tableC0.numColumns,
+	  "Invalid column index0L: %zd (%zd)", index0L, tableC0.numColumns);
 	HATOHOL_ASSERT(
-	  index1 < table.numColumns,
-	  "Invalid column index1: %zd (%zd)", index1, table.numColumns);
+	  index0R < table.numColumns,
+	  "Invalid column index0R: %zd (%zd)", index0R, table.numColumns);
 	const char *joinOperatorString = getJoinOperatorString(type);
 
 	m_ctx->selectExArg.tableProfile = &table;

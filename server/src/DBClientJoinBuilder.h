@@ -60,18 +60,23 @@ public:
 	 * Add a table for the JOIN and the make the where clause like
 	 * the following .
 	 *
-	 * t0 JOIN t1 ON (t0.column0=t1.column1 AND t0.column2=t1.column3)
+	 * t0 JOIN t1 ON (L0.column0L=t1.column0R AND L1.column1L=t1.column1R)
 	 *
 	 * @param table A tableProfile for the table placed at the right side.
 	 * @param type A join type.
-	 * @param index0 An index of the left table for the condition.
-	 * @param index1 An index of the right table for the condition.
-	 * @param index2 An index of the left table for the condition.
-	 * @param index3 An index of the right table for the condition.
+	 * @param tableC0 A table profile for the 1st LHS index.
+	 * @param index0L An index of the LHS of the 1st comparison.
+	 * @param index0R An index of the RHS of the 1st comparison.
+	 * @param tableC1 A table profile for the 1st LHS index.
+	 * @param index1L An index of the LHS of the 2nd comparison.
+	 * @param index1R An index of the RHS of the 2nd comparison.
 	 */
-	void addTable(const DBAgent::TableProfile &table, const JoinType &type,
-	              const size_t &index0, const size_t &index1,
-	              const size_t &index2, const size_t &index3);
+	void addTable(
+	  const DBAgent::TableProfile &table, const JoinType &type,
+	  const DBAgent::TableProfile &tableC0, const size_t &index0L,
+	  const size_t &index0R,
+	  const DBAgent::TableProfile &tableC1, const size_t &index1L,
+	  const size_t &index1R);
 	/**
 	 * Add a column.
 	 *
@@ -87,7 +92,8 @@ protected:
 	static const char *getJoinOperatorString(const JoinType &type);
 	void addTableCommon(
 	  const DBAgent::TableProfile &table, const JoinType &type,
-	  const size_t &index0, const size_t &index1);
+	  const DBAgent::TableProfile &tableC0, const size_t &index0L,
+	  const size_t &index0R);
 
 private:
 	struct PrivateContext;

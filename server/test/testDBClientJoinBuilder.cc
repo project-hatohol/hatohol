@@ -264,8 +264,8 @@ void test_useFourIndexes(void)
 	builder.add(IDX_TEST_TABLE0_NAME);
 
 	builder.addTable(tableProfileTest1, DBClientJoinBuilder::INNER_JOIN,
-	  IDX_TEST_TABLE0_ID, IDX_TEST_TABLE1_TBL0_ID,
-	  IDX_TEST_TABLE0_AGE, IDX_TEST_TABLE1_MY_AGE);
+	  tableProfileTest0, IDX_TEST_TABLE0_ID, IDX_TEST_TABLE1_TBL0_ID,
+	  tableProfileTest0, IDX_TEST_TABLE0_AGE, IDX_TEST_TABLE1_MY_AGE);
 	builder.add(IDX_TEST_TABLE1_ID);
 
 	// check where clause
