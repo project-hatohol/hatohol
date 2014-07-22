@@ -54,7 +54,7 @@ libhatohol_la_SOURCES = \
 	DBClientHatohol.cc DBClientHatohol.h \
 	DBClientUser.h DBClientUser.cc \
 	DBClientZabbix.cc DBClientZabbix.h \
-	DBClientJoinArg.cc DBClientJoinArg.h \
+	DBClientJoinBuilder.cc DBClientJoinBuilder.h \
 	DBTermCodec.h DBTermCodec.cc \
 	DataStore.cc DataStore.h \
 	DataStoreFactory.cc DataStoreFactory.h \

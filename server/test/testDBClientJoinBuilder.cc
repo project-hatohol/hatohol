@@ -20,12 +20,12 @@
 #include <gcutter.h>
 #include <cppcutter.h>
 #include "DBClient.h"
-#include "DBClientJoinArg.h"
+#include "DBClientJoinBuilder.h"
 
 using namespace std;
 using namespace mlpl;
 
-namespace testDBClientJoinArg {
+namespace testDBClientJoinBuilder {
 
 static string getFullName(const DBAgent::TableProfile &tableProfile,
                           const size_t &columnIndex)
@@ -115,7 +115,7 @@ const DBAgent::TableProfile tableProfileTest1(
   sizeof(COLUMN_DEF_TEST1), NUM_IDX_TEST_TABLE1
 );
 
-class DBClientJoinArgTest : public DBClientJoinArg {
+class DBClientJoinBuilderTest : public DBClientJoinBuilder {
 public:
 	static const char *callGetJoinOperatorString(const JoinType &type)
 	{
@@ -128,8 +128,8 @@ public:
 // ---------------------------------------------------------------------------
 void test_constructor(void)
 {
-	DBClientJoinArg arg(tableProfileTest0);
-	const DBAgent::SelectExArg &exArg = arg.getSelectExArg();
+	DBClientJoinBuilder builder(tableProfileTest0);
+	const DBAgent::SelectExArg &exArg = builder.getSelectExArg();
 	cppcut_assert_equal(&tableProfileTest0, exArg.tableProfile);
 	cppcut_assert_equal(true, exArg.useFullName);
 }
@@ -144,8 +144,8 @@ void test_constructorWithOption(void)
 		}
 	} option;
 
-	DBClientJoinArg arg(tableProfileTest0, &option);
-	const DBAgent::SelectExArg &exArg = arg.getSelectExArg();
+	DBClientJoinBuilder builder(tableProfileTest0, &option);
+	const DBAgent::SelectExArg &exArg = builder.getSelectExArg();
 	cppcut_assert_equal(&tableProfileTest0, exArg.tableProfile);
 	cppcut_assert_equal(true, exArg.useFullName);
 	cppcut_assert_equal(true, option.getTableNameAlways());
@@ -154,15 +154,15 @@ void test_constructorWithOption(void)
 
 void test_basicUse(void)
 {
-	DBClientJoinArg arg(tableProfileTest0);
-	arg.add(IDX_TEST_TABLE0_NAME);
+	DBClientJoinBuilder builder(tableProfileTest0);
+	builder.add(IDX_TEST_TABLE0_NAME);
 
-	arg.addTable(tableProfileTest1, DBClientJoinArg::INNER_JOIN,
+	builder.addTable(tableProfileTest1, DBClientJoinBuilder::INNER_JOIN,
 	  IDX_TEST_TABLE0_ID, IDX_TEST_TABLE1_TBL0_ID);
-	arg.add(IDX_TEST_TABLE1_ID);
+	builder.add(IDX_TEST_TABLE1_ID);
 
 	// check where clause
-	const DBAgent::SelectExArg &exArg = arg.getSelectExArg();
+	const DBAgent::SelectExArg &exArg = builder.getSelectExArg();
 	const string expectTableField = StringUtils::sprintf(
 	  "%s INNER JOIN %s ON %s=%s",
 	  TEST_TABLE_NAME0, TEST_TABLE_NAME1,
@@ -184,23 +184,23 @@ void test_basicUse(void)
 void data_getJoinOperatorString(void)
 {
 	gcut_add_datum("INNER JOIN",
-	               "type", G_TYPE_INT, DBClientJoinArg::INNER_JOIN,
+	               "type", G_TYPE_INT, DBClientJoinBuilder::INNER_JOIN,
 	               "expect", G_TYPE_STRING, "INNER JOIN", NULL);
 	gcut_add_datum("LEFT JOIN",
-	               "type", G_TYPE_INT, DBClientJoinArg::LEFT_JOIN,
+	               "type", G_TYPE_INT, DBClientJoinBuilder::LEFT_JOIN,
 	               "expect", G_TYPE_STRING, "LEFT JOIN", NULL);
 	gcut_add_datum("RIGHT JOIN",
-	               "type", G_TYPE_INT, DBClientJoinArg::RIGHT_JOIN,
+	               "type", G_TYPE_INT, DBClientJoinBuilder::RIGHT_JOIN,
 	               "expect", G_TYPE_STRING, "RIGHT JOIN", NULL);
 }
 
 void test_getJoinOperatorString(gconstpointer data)
 {
-	const DBClientJoinArg::JoinType type =
-	  static_cast<const DBClientJoinArg::JoinType>(gcut_data_get_int(data, "type"));
+	const DBClientJoinBuilder::JoinType type =
+	  static_cast<const DBClientJoinBuilder::JoinType>(gcut_data_get_int(data, "type"));
 	const char *expect = gcut_data_get_string(data, "expect");
 	cut_assert_equal_string(
-	  expect, DBClientJoinArgTest::callGetJoinOperatorString(type));
+	  expect, DBClientJoinBuilderTest::callGetJoinOperatorString(type));
 }
 
-} // namespace testDBClientJoinArg
+} // namespace testDBClientJoinBuilder

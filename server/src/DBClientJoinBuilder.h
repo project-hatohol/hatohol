@@ -23,7 +23,7 @@
 #include "DBAgent.h"
 #include "DataQueryOption.h"
 
-class DBClientJoinArg {
+class DBClientJoinBuilder {
 public:
 	enum JoinType {
 		INNER_JOIN,
@@ -38,9 +38,9 @@ public:
 	 * @param table A tableProfile for the most left table.
 	 * @param option A DataQueryOption for the query.
 	 */
-	DBClientJoinArg(const DBAgent::TableProfile &table,
-	                const DataQueryOption *option = NULL);
-	virtual ~DBClientJoinArg();
+	DBClientJoinBuilder(const DBAgent::TableProfile &table,
+	                    const DataQueryOption *option = NULL);
+	virtual ~DBClientJoinBuilder();
 
 	/**
 	 * Add a table for the JOIN and the make the where clause like

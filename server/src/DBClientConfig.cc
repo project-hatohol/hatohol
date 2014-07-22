@@ -27,7 +27,7 @@
 #include "Params.h"
 #include "ItemGroupStream.h"
 #include "SQLUtils.h"
-#include "DBClientJoinArg.h"
+#include "DBClientJoinBuilder.h"
 using namespace std;
 using namespace mlpl;
 
@@ -973,34 +973,34 @@ void DBClientConfig::getTargetServers(
 	// The current query statement uses a little complicated where clause,
 	// for which the indexing mechanism may not be effective.
 
-	DBClientJoinArg arg(tableProfileServers, &option);
-	arg.add(IDX_SERVERS_ID);
-	arg.add(IDX_SERVERS_TYPE);
-	arg.add(IDX_SERVERS_HOSTNAME);
-	arg.add(IDX_SERVERS_IP_ADDRESS);
-	arg.add(IDX_SERVERS_NICKNAME);
-	arg.add(IDX_SERVERS_PORT);
-	arg.add(IDX_SERVERS_POLLING_INTERVAL_SEC);
-	arg.add(IDX_SERVERS_RETRY_INTERVAL_SEC);
-	arg.add(IDX_SERVERS_USER_NAME);
-	arg.add(IDX_SERVERS_PASSWORD);
-	arg.add(IDX_SERVERS_DB_NAME);
+	DBClientJoinBuilder builder(tableProfileServers, &option);
+	builder.add(IDX_SERVERS_ID);
+	builder.add(IDX_SERVERS_TYPE);
+	builder.add(IDX_SERVERS_HOSTNAME);
+	builder.add(IDX_SERVERS_IP_ADDRESS);
+	builder.add(IDX_SERVERS_NICKNAME);
+	builder.add(IDX_SERVERS_PORT);
+	builder.add(IDX_SERVERS_POLLING_INTERVAL_SEC);
+	builder.add(IDX_SERVERS_RETRY_INTERVAL_SEC);
+	builder.add(IDX_SERVERS_USER_NAME);
+	builder.add(IDX_SERVERS_PASSWORD);
+	builder.add(IDX_SERVERS_DB_NAME);
 
-	arg.addTable(tableProfileArmPlugins, DBClientJoinArg::LEFT_JOIN,
-	             IDX_SERVERS_ID, IDX_ARM_PLUGINS_SERVER_ID);
-	arg.add(IDX_ARM_PLUGINS_ID);
-	arg.add(IDX_ARM_PLUGINS_TYPE);
-	arg.add(IDX_ARM_PLUGINS_PATH);
-	arg.add(IDX_ARM_PLUGINS_BROKER_URL);
-	arg.add(IDX_ARM_PLUGINS_STATIC_QUEUE_ADDR);
-	arg.add(IDX_ARM_PLUGINS_SERVER_ID);
+	builder.addTable(tableProfileArmPlugins, DBClientJoinBuilder::LEFT_JOIN,
+	                 IDX_SERVERS_ID, IDX_ARM_PLUGINS_SERVER_ID);
+	builder.add(IDX_ARM_PLUGINS_ID);
+	builder.add(IDX_ARM_PLUGINS_TYPE);
+	builder.add(IDX_ARM_PLUGINS_PATH);
+	builder.add(IDX_ARM_PLUGINS_BROKER_URL);
+	builder.add(IDX_ARM_PLUGINS_STATIC_QUEUE_ADDR);
+	builder.add(IDX_ARM_PLUGINS_SERVER_ID);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg.getSelectExArg());
+		select(builder.getSelectExArg());
 	} DBCLIENT_TRANSACTION_END();
 
 	// check the result and copy
-	ItemTablePtr &dataTable = arg.getSelectExArg().dataTable;
+	ItemTablePtr &dataTable = builder.getSelectExArg().dataTable;
 	if (armPluginInfoVect) {
 		const size_t reserveSize =
 		  armPluginInfoVect->size() + dataTable->getNumberOfRows();

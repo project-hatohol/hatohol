@@ -19,7 +19,7 @@
 
 #include <StringUtils.h>
 #include <SQLUtils.h>
-#include "DBClientJoinArg.h"
+#include "DBClientJoinBuilder.h"
 
 using namespace std;
 using namespace mlpl;
@@ -32,7 +32,7 @@ static const char *JOIN_OPERATORS[] = {
 static const size_t NUM_JOIN_OPERATORS = 
   sizeof(JOIN_OPERATORS) / sizeof(const char *);
 
-struct DBClientJoinArg::PrivateContext {
+struct DBClientJoinBuilder::PrivateContext {
 	DBAgent::SelectExArg selectExArg;
 	vector<const DBAgent::TableProfile *> tables;
 	const DataQueryOption *option;
@@ -50,7 +50,7 @@ struct DBClientJoinArg::PrivateContext {
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-DBClientJoinArg::DBClientJoinArg(
+DBClientJoinBuilder::DBClientJoinBuilder(
   const DBAgent::TableProfile &table, const DataQueryOption *option)
 : m_ctx(NULL)
 {
@@ -64,12 +64,12 @@ DBClientJoinArg::DBClientJoinArg(
 		m_ctx->selectExArg.condition = option->getCondition();
 }
 
-DBClientJoinArg::~DBClientJoinArg()
+DBClientJoinBuilder::~DBClientJoinBuilder()
 {
 	delete m_ctx;
 }
 
-void DBClientJoinArg::addTable(
+void DBClientJoinBuilder::addTable(
   const DBAgent::TableProfile &table, const JoinType &type,
   const size_t &index0, const size_t &index1)
 {
@@ -92,12 +92,12 @@ void DBClientJoinArg::addTable(
 	  SQLUtils::getFullName(table.columnDefs, index1).c_str());
 }
 
-void DBClientJoinArg::add(const size_t &columnIndex)
+void DBClientJoinBuilder::add(const size_t &columnIndex)
 {
 	m_ctx->selectExArg.add(columnIndex);
 }
 
-const DBAgent::SelectExArg &DBClientJoinArg::getSelectExArg(void)
+const DBAgent::SelectExArg &DBClientJoinBuilder::getSelectExArg(void)
 {
 	return m_ctx->selectExArg;
 }
@@ -105,7 +105,7 @@ const DBAgent::SelectExArg &DBClientJoinArg::getSelectExArg(void)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-const char *DBClientJoinArg::getJoinOperatorString(const JoinType &type)
+const char *DBClientJoinBuilder::getJoinOperatorString(const JoinType &type)
 {
 	HATOHOL_ASSERT(type < NUM_TYPE_JOIN, "Invalid join type: %d", type);
 	HATOHOL_ASSERT(type < NUM_JOIN_OPERATORS,
