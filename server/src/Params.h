@@ -120,6 +120,11 @@ typedef ServerIdSet::iterator       ServerIdSetIterator;
 typedef ServerIdSet::const_iterator ServerIdSetConstIterator;
 extern const ServerIdSet EMPTY_SERVER_ID_SET;
 
+typedef std::set<IssueTrackerIdType>      IssueTrackerIdSet;
+typedef IssueTrackerIdSet::iterator       IssueTrackerIdSetIterator;
+typedef IssueTrackerIdSet::const_iterator IssueTrackerIdSetConstIterator;
+extern const IssueTrackerIdSet EMPTY_ISSUE_TRACKER_ID_SET;
+
 typedef std::set<HostgroupIdType>           HostgroupIdSet;
 typedef HostgroupIdSet::iterator            HostgroupIdSetIterator;
 typedef HostgroupIdSet::const_iterator      HostgroupIdSetConstIterator;

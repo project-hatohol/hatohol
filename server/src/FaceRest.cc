@@ -42,6 +42,7 @@
 #include "HatoholArmPluginGate.h"
 #include "RestResourceAction.h"
 #include "RestResourceHost.h"
+#include "RestResourceIssueTracker.h"
 #include "RestResourceServer.h"
 #include "RestResourceUser.h"
 
@@ -387,6 +388,7 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	RestResourceServer::registerFactories(this);
 	RestResourceHost::registerFactories(this);
 	RestResourceAction::registerFactories(this);
+	RestResourceIssueTracker::registerFactories(this);
 
 	if (m_ctx->param)
 		m_ctx->param->setupDoneNotifyFunc();
@@ -814,6 +816,13 @@ bool FaceRest::ResourceHandler::unpauseResponse(bool force)
 	}
 
 	return true;
+}
+
+bool FaceRest::ResourceHandler::httpMethodIs(const char *method)
+{
+	if (!m_message)
+		return false;
+	return StringUtils::casecmp(m_message->method, method);
 }
 
 string FaceRest::ResourceHandler::getResourceName(int nest)

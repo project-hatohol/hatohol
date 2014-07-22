@@ -909,7 +909,7 @@ void _assertAddIssueTracker(
 {
 	DBClientConfig dbConfig;
 	HatoholError err;
-	err = dbConfig.addIssueTracker(&issueTrackerInfo, privilege);
+	err = dbConfig.addIssueTracker(issueTrackerInfo, privilege);
 	assertHatoholError(expectedErrorCode, err);
 
 	string expectedOut;
@@ -950,11 +950,69 @@ void test_addIssueTrackerWithInvalieType(void)
 	assertAddIssueTracker(testInfo, HTERR_INVALID_ISSUE_TRACKER_TYPE);
 }
 
+void _assertUpdateIssueTracker(
+  IssueTrackerInfo issueTrackerInfo, const HatoholErrorCode expectedErrorCode,
+  OperationPrivilege privilege = ALL_PRIVILEGES)
+{
+	loadTestDBIssueTracker();
+
+	int targetId = issueTrackerInfo.id;
+	int targetIdx = targetId - 1;
+
+	string expectedOut;
+	if (expectedErrorCode == HTERR_OK)
+		expectedOut = makeIssueTrackerInfoOutput(issueTrackerInfo);
+	else
+		expectedOut = makeIssueTrackerInfoOutput(testIssueTrackerInfo[targetIdx]);
+
+	DBClientConfig dbConfig;
+	HatoholError err;
+	err = dbConfig.updateIssueTracker(issueTrackerInfo, privilege);
+	assertHatoholError(expectedErrorCode, err);
+
+	string statement = StringUtils::sprintf(
+	                     "select * from issue_trackers where id=%d",
+			     targetId);
+	assertDBContent(dbConfig.getDBAgent(), statement, expectedOut);
+}
+#define assertUpdateIssueTracker(I,E,...) \
+cut_trace(_assertUpdateIssueTracker(I,E,##__VA_ARGS__))
+
+void test_updateIssueTracker(void)
+{
+	int targetId = 2;
+	IssueTrackerInfo issueTrackerInfo = testIssueTrackerInfo[0];
+	issueTrackerInfo.id = targetId;
+	assertUpdateIssueTracker(issueTrackerInfo, HTERR_OK);
+}
+
+void test_updateIssueTrackerWithoutPrivilege(void)
+{
+	int targetId = 2;
+	IssueTrackerInfo issueTrackerInfo = testIssueTrackerInfo[0];
+	issueTrackerInfo.id = targetId;
+	OperationPrivilegeFlag privilege = ALL_PRIVILEGES;
+	OperationPrivilege::removeFlag(
+	  privilege, OPPRVLG_UPDATE_ISSUE_SETTING);
+	assertUpdateIssueTracker(
+	  issueTrackerInfo, HTERR_NO_PRIVILEGE, privilege);
+}
+
+void test_updateIssueTrackerWithEmptyLoction(void)
+{
+	int targetId = 1;
+	IssueTrackerInfo issueTrackerInfo = testIssueTrackerInfo[targetId - 1];
+	issueTrackerInfo.id = targetId;
+	issueTrackerInfo.baseURL = string();
+	assertUpdateIssueTracker(
+	  issueTrackerInfo, HTERR_NO_ISSUE_TRACKER_LOCATION);
+}
+
 static void addIssueTracker(IssueTrackerInfo *info)
 {
 	DBClientConfig dbConfig;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	dbConfig.addIssueTracker(info, privilege);
+	dbConfig.addIssueTracker(*info, privilege);
 }
 #define assertAddIssueTrackerToDB(X) \
 cut_trace(_assertAddToDB<IssueTrackerInfo>(X, addIssueTracker))
@@ -1017,6 +1075,36 @@ void test_getIssueTrackersByInvalidUser(void)
 {
 	setupTestDBUser(true, true);
 	assertGetIssueTrackers(INVALID_USER_ID);
+}
+
+void test_deleteIssueTracker(void)
+{
+	setupTestDBUser(true, true);
+	loadTestDBIssueTracker();
+	IssueTrackerIdType issueTrackerId = 1;
+	OperationPrivilege privilege(findUserWith(OPPRVLG_DELETE_ISSUE_SETTING));
+	DBClientConfig dbConfig;
+	HatoholError err = dbConfig.deleteIssueTracker(issueTrackerId,
+						       privilege);
+	assertHatoholError(HTERR_OK, err);
+
+	IssueTrackerIdSet issueTrackerIdSet;
+	issueTrackerIdSet.insert(issueTrackerId);
+	assertIssueTrackersInDB(issueTrackerIdSet);
+}
+
+void test_deleteIssueTrackerWithoutPrivilege(void)
+{
+	setupTestDBUser(true, true);
+	loadTestDBIssueTracker();
+	IssueTrackerIdType issueTrackerId = 1;
+	OperationPrivilege privilege;
+	DBClientConfig dbConfig;
+	HatoholError err = dbConfig.deleteIssueTracker(issueTrackerId,
+						       privilege);
+	assertHatoholError(HTERR_NO_PRIVILEGE, err);
+
+	assertIssueTrackersInDB(EMPTY_ISSUE_TRACKER_ID_SET);
 }
 
 } // namespace testDBClientConfig

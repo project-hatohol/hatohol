@@ -693,7 +693,7 @@ static void registerIssueTrackers(DBClientConfig &dbConfig,
 	  = confValue.issueTrackerInfoVect.begin();
 	for (; it != confValue.issueTrackerInfoVect.end(); ++it) {
 		IssueTrackerInfo &issueTrackerInfo = *it;
-		HatoholError err = dbConfig.addIssueTracker(&issueTrackerInfo,
+		HatoholError err = dbConfig.addIssueTracker(issueTrackerInfo,
 							    privilege);
 		if (err != HTERR_OK) {
 			printf("Failed to add issue tracker: %s (code: %d)\n",

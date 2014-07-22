@@ -41,6 +41,7 @@ const char *DBClientConfig::DEFAULT_USER_NAME = "hatohol";
 const char *DBClientConfig::DEFAULT_PASSWORD  = "hatohol";
 
 const ServerIdSet EMPTY_SERVER_ID_SET;
+const ServerIdSet EMPTY_ISSUE_TRACKER_ID_SET;
 static void operator>>(
   ItemGroupStream &itemGroupStream, MonitoringSystemType &monSysType)
 {
@@ -1144,30 +1145,61 @@ HatoholError validIssueTrackerInfo(const IssueTrackerInfo &issueTrackerInfo)
 }
 
 HatoholError DBClientConfig::addIssueTracker(
-  IssueTrackerInfo *issueTrackerInfo, const OperationPrivilege &privilege)
+  IssueTrackerInfo &issueTrackerInfo, const OperationPrivilege &privilege)
 {
 	if (!privilege.has(OPPRVLG_CREATE_ISSUE_SETTING))
 		return HatoholError(HTERR_NO_PRIVILEGE);
 
-	HatoholError err = validIssueTrackerInfo(*issueTrackerInfo);
+	HatoholError err = validIssueTrackerInfo(issueTrackerInfo);
 	if (err != HTERR_OK)
 		return err;
 
 	DBAgent::InsertArg arg(tableProfileIssueTrackers);
 	arg.add(AUTO_INCREMENT_VALUE);
-	arg.add(issueTrackerInfo->type);
-	arg.add(issueTrackerInfo->nickname);
-	arg.add(issueTrackerInfo->baseURL);
-	arg.add(issueTrackerInfo->projectId);
-	arg.add(issueTrackerInfo->trackerId);
-	arg.add(issueTrackerInfo->userName);
-	arg.add(issueTrackerInfo->password);
+	arg.add(issueTrackerInfo.type);
+	arg.add(issueTrackerInfo.nickname);
+	arg.add(issueTrackerInfo.baseURL);
+	arg.add(issueTrackerInfo.projectId);
+	arg.add(issueTrackerInfo.trackerId);
+	arg.add(issueTrackerInfo.userName);
+	arg.add(issueTrackerInfo.password);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		insert(arg);
-		issueTrackerInfo->id = getLastInsertId();
+		issueTrackerInfo.id = getLastInsertId();
 	} DBCLIENT_TRANSACTION_END();
 	return HTERR_OK;
+}
+
+HatoholError DBClientConfig::updateIssueTracker(
+  IssueTrackerInfo &issueTrackerInfo, const OperationPrivilege &privilege)
+{
+	if (!privilege.has(OPPRVLG_UPDATE_ISSUE_SETTING))
+		return HatoholError(HTERR_NO_PRIVILEGE);
+
+	HatoholError err = validIssueTrackerInfo(issueTrackerInfo);
+	if (err != HTERR_OK)
+		return err;
+
+	DBAgent::UpdateArg arg(tableProfileIssueTrackers);
+	arg.add(IDX_ISSUE_TRACKERS_TYPE,       issueTrackerInfo.type);
+	arg.add(IDX_ISSUE_TRACKERS_NICKNAME,   issueTrackerInfo.nickname);
+	arg.add(IDX_ISSUE_TRACKERS_BASE_URL,   issueTrackerInfo.baseURL);
+	arg.add(IDX_ISSUE_TRACKERS_PROJECT_ID, issueTrackerInfo.projectId);
+	arg.add(IDX_ISSUE_TRACKERS_TRACKER_ID, issueTrackerInfo.trackerId);
+	arg.add(IDX_ISSUE_TRACKERS_USER_NAME,  issueTrackerInfo.userName);
+	arg.add(IDX_ISSUE_TRACKERS_PASSWORD,   issueTrackerInfo.password);
+	arg.condition = StringUtils::sprintf("id=%" FMT_ISSUE_TRACKER_ID,
+					     issueTrackerInfo.id);
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		if (!isRecordExisting(TABLE_NAME_ISSUE_TRACKERS, arg.condition)) {
+			err = HTERR_NOT_FOUND_TARGET_RECORD;
+		} else {
+			update(arg);
+		}
+	} DBCLIENT_TRANSACTION_END();
+	return err;
 }
 
 void DBClientConfig::getIssueTrackers(
@@ -1206,6 +1238,25 @@ void DBClientConfig::getIssueTrackers(
 		itemGroupStream >> info.userName;
 		itemGroupStream >> info.password;
 	}
+}
+
+HatoholError DBClientConfig::deleteIssueTracker(
+  const IssueTrackerIdType &issueTrackerId,
+  const OperationPrivilege &privilege)
+{
+	if (!privilege.has(OPPRVLG_DELETE_ISSUE_SETTING))
+		return HatoholError(HTERR_NO_PRIVILEGE);
+
+	DBAgent::DeleteArg arg(tableProfileIssueTrackers);
+	const ColumnDef &colId
+	  = COLUMN_DEF_ISSUE_TRACKERS[IDX_ISSUE_TRACKERS_ID];
+	arg.condition = StringUtils::sprintf("%s=%" FMT_ISSUE_TRACKER_ID,
+	                                     colId.columnName, issueTrackerId);
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		deleteRows(arg);
+	} DBCLIENT_TRANSACTION_END();
+	return HTERR_OK;
 }
 
 // ---------------------------------------------------------------------------

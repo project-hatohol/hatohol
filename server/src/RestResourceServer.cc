@@ -164,13 +164,13 @@ static void addServers(FaceRest::ResourceHandler *job, JsonBuilderAgent &agent,
 
 void RestResourceServer::handlerServer(void)
 {
-	if (StringUtils::casecmp(m_message->method, "GET")) {
+	if (httpMethodIs("GET")) {
 		handlerGetServer();
-	} else if (StringUtils::casecmp(m_message->method, "POST")) {
+	} else if (httpMethodIs("POST")) {
 		handlerPostServer();
-	} else if (StringUtils::casecmp(m_message->method, "PUT")) {
+	} else if (httpMethodIs("PUT")) {
 		handlerPutServer();
-	} else if (StringUtils::casecmp(m_message->method, "DELETE")) {
+	} else if (httpMethodIs("DELETE")) {
 		handlerDeleteServer();
 	} else {
 		MLPL_ERR("Unknown method: %s\n", m_message->method);

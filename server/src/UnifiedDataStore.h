@@ -161,8 +161,13 @@ public:
 	// IssueTracker
 	void getIssueTrackers(IssueTrackerInfoVect &issueTrackerVect,
 	                      IssueTrackerQueryOption &option);
-	HatoholError addIssueTracker(IssueTrackerInfo *issueTrackerInfo,
+	HatoholError addIssueTracker(IssueTrackerInfo &issueTrackerInfo,
 				     const OperationPrivilege &privilege);
+	HatoholError updateIssueTracker(IssueTrackerInfo &issueTrackerInfo,
+					const OperationPrivilege &privilege);
+	HatoholError deleteIssueTracker(
+	  const IssueTrackerIdType &issueTrackerId,
+	  const OperationPrivilege &privilege);
 
 	/**
 	 * get a vector of pointers of DataStore instance.

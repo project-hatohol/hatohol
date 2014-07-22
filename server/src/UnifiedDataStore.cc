@@ -623,11 +623,27 @@ void UnifiedDataStore::getIssueTrackers(IssueTrackerInfoVect &issueTrackerVect,
 }
 
 HatoholError UnifiedDataStore::addIssueTracker(
-  IssueTrackerInfo *issueTrackerInfo, const OperationPrivilege &privilege)
+  IssueTrackerInfo &issueTrackerInfo, const OperationPrivilege &privilege)
 {
 	CacheServiceDBClient cache;
 	DBClientConfig *dbConfig = cache.getConfig();
 	return dbConfig->addIssueTracker(issueTrackerInfo, privilege);
+}
+
+HatoholError UnifiedDataStore::updateIssueTracker(
+  IssueTrackerInfo &issueTrackerInfo, const OperationPrivilege &privilege)
+{
+	CacheServiceDBClient cache;
+	DBClientConfig *dbConfig = cache.getConfig();
+	return dbConfig->updateIssueTracker(issueTrackerInfo, privilege);
+}
+
+HatoholError UnifiedDataStore::deleteIssueTracker(
+  const IssueTrackerIdType &issueTrackerId, const OperationPrivilege &privilege)
+{
+	CacheServiceDBClient cache;
+	DBClientConfig *dbConfig = cache.getConfig();
+	return dbConfig->deleteIssueTracker(issueTrackerId, privilege);
 }
 
 DataStoreVector UnifiedDataStore::getDataStoreVector(void)
