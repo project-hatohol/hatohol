@@ -196,6 +196,54 @@ void test_updateIssueTracker(void)
 	assertDBContent(dbConfig.getDBAgent(), statement, expect);
 }
 
+void test_updateIssueTrackerWithoutAccountParams(void)
+{
+	UserIdType userId = findUserWith(OPPRVLG_UPDATE_ISSUE_SETTING);
+	const IssueTrackerIdType targetId = 2;
+	IssueTrackerInfo issueTracker = testIssueTrackerInfo[targetId - 1];
+	issueTracker.id = targetId;
+	issueTracker.baseURL = "https://example.com/redmine/";
+	StringMap params;
+	createPostData(issueTracker, params);
+	params.erase("userName");
+	params.erase("password");
+
+	assertUpdateIssueTracker(params, targetId, userId, HTERR_OK);
+
+	// check the content in the DB
+	string statement = StringUtils::sprintf(
+	  "select * from issue_trackers where id=%d", targetId);
+	string expect = makeIssueTrackerInfoOutput(issueTracker);
+	DBClientConfig dbConfig;
+	assertDBContent(dbConfig.getDBAgent(), statement, expect);
+}
+
+void test_updateIssueTrackerWithoutPrivilege(void)
+{
+	UserIdType userId = findUserWithout(OPPRVLG_UPDATE_ISSUE_SETTING);
+	const IssueTrackerIdType targetId = 2;
+	IssueTrackerInfo issueTracker = testIssueTrackerInfo[targetId - 1];
+	issueTracker.id = targetId;
+	issueTracker.baseURL = "https://example.com/redmine/";
+	StringMap params;
+	createPostData(issueTracker, params);
+
+	HatoholErrorCode expectedCode = HTERR_NO_PRIVILEGE;
+	if (!(testUserInfo[userId - 1].flags & OPPRVLG_GET_ALL_ISSUE_SETTINGS))
+		expectedCode = HTERR_NOT_FOUND_TARGET_RECORD;
+	assertUpdateIssueTracker(
+	  params, targetId, userId, HTERR_NOT_FOUND_TARGET_RECORD);
+
+	// check the content in the DB
+	string statement = StringUtils::sprintf(
+	  "select * from issue_trackers where id=%d", targetId);
+	IssueTrackerInfo expectedIssueTracker = testIssueTrackerInfo[targetId - 1];
+	expectedIssueTracker.id = targetId;
+	string expect = makeIssueTrackerInfoOutput(expectedIssueTracker);
+	DBClientConfig dbConfig;
+	assertDBContent(dbConfig.getDBAgent(), statement, expect);
+}
+
 void test_deleteIssueTracker(void)
 {
 	startFaceRest();
