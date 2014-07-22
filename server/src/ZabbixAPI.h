@@ -27,6 +27,11 @@
 #include "JsonBuilderAgent.h"
 #include "JsonParserAgent.h"
 
+enum EventIdSortType {
+	FIRST_EVENT_ID,
+	LAST_EVENT_ID
+};
+
 class ZabbixAPI
 {
 public:
