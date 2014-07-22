@@ -165,12 +165,6 @@ void ArmZabbixAPI::updateHosts(void)
 
 void ArmZabbixAPI::updateEvents(void)
 {
-	// TODO: Does this condition cause an infinite loop when
-	// the differerence between adjacent two events IDs is greater than
-	// NUMBER_OF_GET_EVENT_PER_ONCE ?
-	// In addition, if the server returns events whose ID is grater than
-	// dbLastEventId, an infinite loop will also occur.
-
 	const uint64_t serverLastEventId = getLocatedEventId(EVENT_ID_LAST);
 	if (serverLastEventId == EVENT_ID_NOT_FOUND) {
 		MLPL_ERR("Last event ID is not found\n");
