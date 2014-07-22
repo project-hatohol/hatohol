@@ -17,6 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <gcutter.h>
 #include <cppcutter.h>
 #include "DBClientJoinArg.h"
 
@@ -113,6 +114,14 @@ const DBAgent::TableProfile tableProfileTest1(
   sizeof(COLUMN_DEF_TEST1), NUM_IDX_TEST_TABLE1
 );
 
+class DBClientJoinArgTest : public DBClientJoinArg {
+public:
+	static const char *callGetJoinOperatorString(const JoinType &type)
+	{
+		return getJoinOperatorString(type);
+	}
+};
+
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
@@ -143,6 +152,28 @@ void test_basicUse(void)
 	cppcut_assert_equal(
 	  getFullName(tableProfileTest1, IDX_TEST_TABLE1_ID),
 	  exArg.statements[1]);
+}
+
+void data_getJoinOperatorString(void)
+{
+	gcut_add_datum("INNER JOIN",
+	               "type", G_TYPE_INT, DBClientJoinArg::INNER_JOIN,
+	               "expect", G_TYPE_STRING, "INNER JOIN", NULL);
+	gcut_add_datum("LEFT JOIN",
+	               "type", G_TYPE_INT, DBClientJoinArg::LEFT_JOIN,
+	               "expect", G_TYPE_STRING, "LEFT JOIN", NULL);
+	gcut_add_datum("RIGHT JOIN",
+	               "type", G_TYPE_INT, DBClientJoinArg::RIGHT_JOIN,
+	               "expect", G_TYPE_STRING, "RIGHT JOIN", NULL);
+}
+
+void test_getJoinOperatorString(gconstpointer data)
+{
+	const DBClientJoinArg::JoinType type =
+	  static_cast<const DBClientJoinArg::JoinType>(gcut_data_get_int(data, "type"));
+	const char *expect = gcut_data_get_string(data, "expect");
+	cut_assert_equal_string(
+	  expect, DBClientJoinArgTest::callGetJoinOperatorString(type));
 }
 
 } // namespace testDBClientJoinArg

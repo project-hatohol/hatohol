@@ -67,7 +67,7 @@ public:
 	const DBAgent::SelectExArg &getSelectExArg(void);
 
 protected:
-	const char *getJoinOperatorString(const JoinType &type);
+	static const char *getJoinOperatorString(const JoinType &type);
 
 private:
 	struct PrivateContext;
