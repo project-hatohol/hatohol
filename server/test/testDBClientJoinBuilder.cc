@@ -178,7 +178,13 @@ void test_constructorWithOption(void)
 	cppcut_assert_equal(option.getCondition(), exArg.condition);
 }
 
-void test_constructorWithHostResourceQueryOption(void)
+void data_constructorWithHostResourceQueryOption(void)
+{
+	gcut_add_datum("With hostgroup", "used", G_TYPE_BOOLEAN, TRUE, NULL);
+	gcut_add_datum("W/O  hostgroup", "used", G_TYPE_BOOLEAN, FALSE, NULL);
+}
+
+void test_constructorWithHostResourceQueryOption(gconstpointer data)
 {
 	// Define synapse to pass the build. So the paramters are dummy and
 	// the object won't work well.
@@ -186,8 +192,11 @@ void test_constructorWithHostResourceQueryOption(void)
 	   synapse(tableProfileTest0, 0, 0, 0, 0, tableProfileTest1, 0, 0, 0);
 	class MyOption : public HostResourceQueryOption {
 	public:
+		bool hostgroupIsUsed;
+
 		MyOption(const Synapse &synapse)
-		: HostResourceQueryOption(synapse)
+		: HostResourceQueryOption(synapse),
+		  hostgroupIsUsed(false)
 		{
 		}
 
@@ -200,7 +209,13 @@ void test_constructorWithHostResourceQueryOption(void)
 		{
 			return "A=1";
 		}
+
+		virtual bool isHostgroupUsed(void) const override
+		{
+			return hostgroupIsUsed;
+		}
 	} option(synapse);
+	option.hostgroupIsUsed = gcut_data_get_int(data, "used");
 
 	DBClientJoinBuilder builder(tableProfileTest0, &option);
 	const DBAgent::SelectExArg &exArg = builder.getSelectExArg();
@@ -211,6 +226,7 @@ void test_constructorWithHostResourceQueryOption(void)
 	cppcut_assert_equal(option.getCondition(), exArg.condition);
 	cppcut_assert_not_equal(string(""),         exArg.tableField);
 	cppcut_assert_equal(option.getFromClause(), exArg.tableField);
+	cppcut_assert_equal(option.hostgroupIsUsed, exArg.useDistinct);
 }
 
 void test_basicUse(void)

@@ -62,10 +62,12 @@ DBClientJoinBuilder::DBClientJoinBuilder(
 	// TODO: consider more ligher way w/o a dynamic cast.
 	const HostResourceQueryOption *hrqOption =
 	  dynamic_cast<const HostResourceQueryOption *>(option);
-	if (hrqOption)
+	if (hrqOption) {
 		m_ctx->selectExArg.tableField = hrqOption->getFromClause();
-	else
+		m_ctx->selectExArg.useDistinct = hrqOption->isHostgroupUsed();
+	} else {
 		m_ctx->selectExArg.tableField = table.name;
+	}
 	if (option)
 		m_ctx->selectExArg.condition = option->getCondition();
 }
