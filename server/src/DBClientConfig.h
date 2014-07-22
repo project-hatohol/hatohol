@@ -196,7 +196,7 @@ public:
 	 * Add issue tracker information.
 	 *
 	 * @param issueTrackerInfo A data to be saved.
-	 * @param privilege An OperationPrivilege instance.
+	 * @param privilege
 	 * An OperationPrivilege instance. You should set
 	 * OPPRVLG_CREATE_ISSUE_SETTING to execute this function successfully.
 	 *
@@ -209,7 +209,7 @@ public:
 	 * Update an issue tracker information.
 	 *
 	 * @param issueTrackerInfo A data to be updated.
-	 * @param privilege An OperationPrivilege instance.
+	 * @param privilege
 	 * An OperationPrivilege instance. You should set
 	 * OPPRVLG_UPDATE_ISSUE_SETTING to execute this function successfully.
 	 *
