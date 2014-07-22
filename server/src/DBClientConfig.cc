@@ -1146,7 +1146,8 @@ HatoholError DBClientConfig::updateIssueTracker(
 	arg.add(IDX_ISSUE_TRACKERS_TRACKER_ID, issueTrackerInfo.trackerId);
 	arg.add(IDX_ISSUE_TRACKERS_USER_NAME,  issueTrackerInfo.userName);
 	arg.add(IDX_ISSUE_TRACKERS_PASSWORD,   issueTrackerInfo.password);
-	arg.condition = StringUtils::sprintf("id=%u", issueTrackerInfo.id);
+	arg.condition = StringUtils::sprintf("id=%" FMT_ISSUE_TRACKER_ID,
+					     issueTrackerInfo.id);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		if (!isRecordExisting(TABLE_NAME_ISSUE_TRACKERS, arg.condition)) {
