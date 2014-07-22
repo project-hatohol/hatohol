@@ -196,6 +196,9 @@ public:
 	 * Add issue tracker information.
 	 *
 	 * @param issueTrackerInfo A data to be saved.
+	 * @param privilege An OperationPrivilege instance.
+	 * An OperationPrivilege instance. You should set
+	 * OPPRVLG_CREATE_ISSUE_SETTING to execute this function successfully.
 	 *
 	 * @rerurn A HatoholError insntace.
 	 */
@@ -206,12 +209,25 @@ public:
 	 * Update an issue tracker information.
 	 *
 	 * @param issueTrackerInfo A data to be updated.
+	 * @param privilege An OperationPrivilege instance.
+	 * An OperationPrivilege instance. You should set
+	 * OPPRVLG_UPDATE_ISSUE_SETTING to execute this function successfully.
 	 *
 	 * @rerurn A HatoholError insntace.
 	 */
 	HatoholError updateIssueTracker(IssueTrackerInfo &issueTrackerInfo,
 					const OperationPrivilege &privilege);
 
+	/**
+	 * Delete an issue tracker information.
+	 *
+	 * @param issueTrackerInfo A data to be deleted.
+	 * @param privilege
+	 * An OperationPrivilege instance. You should set
+	 * OPPRVLG_DELETE_ISSUE_SETTING to execute this function successfully.
+	 *
+	 * @rerurn A HatoholError insntace.
+	 */
 	HatoholError deleteIssueTracker(
 	  const IssueTrackerIdType &issueTrackerId,
 	  const OperationPrivilege &privilege);
