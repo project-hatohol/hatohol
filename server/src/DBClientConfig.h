@@ -202,6 +202,16 @@ public:
 	HatoholError addIssueTracker(IssueTrackerInfo &issueTrackerInfo,
 				     const OperationPrivilege &privilege);
 
+	/**
+	 * Update an issue tracker information.
+	 *
+	 * @param issueTrackerInfo A data to be updated.
+	 *
+	 * @rerurn A HatoholError insntace.
+	 */
+	HatoholError updateIssueTracker(IssueTrackerInfo &issueTrackerInfo,
+					const OperationPrivilege &privilege);
+
 	HatoholError deleteIssueTracker(
 	  const IssueTrackerIdType &issueTrackerId,
 	  const OperationPrivilege &privilege);

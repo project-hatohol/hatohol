@@ -1128,6 +1128,36 @@ HatoholError DBClientConfig::addIssueTracker(
 	return HTERR_OK;
 }
 
+HatoholError DBClientConfig::updateIssueTracker(
+  IssueTrackerInfo &issueTrackerInfo, const OperationPrivilege &privilege)
+{
+	if (!privilege.has(OPPRVLG_UPDATE_ISSUE_SETTING))
+		return HatoholError(HTERR_NO_PRIVILEGE);
+
+	HatoholError err = validIssueTrackerInfo(issueTrackerInfo);
+	if (err != HTERR_OK)
+		return err;
+
+	DBAgent::UpdateArg arg(tableProfileIssueTrackers);
+	arg.add(IDX_ISSUE_TRACKERS_TYPE,       issueTrackerInfo.type);
+	arg.add(IDX_ISSUE_TRACKERS_NICKNAME,   issueTrackerInfo.nickname);
+	arg.add(IDX_ISSUE_TRACKERS_BASE_URL,   issueTrackerInfo.baseURL);
+	arg.add(IDX_ISSUE_TRACKERS_PROJECT_ID, issueTrackerInfo.projectId);
+	arg.add(IDX_ISSUE_TRACKERS_TRACKER_ID, issueTrackerInfo.trackerId);
+	arg.add(IDX_ISSUE_TRACKERS_USER_NAME,  issueTrackerInfo.userName);
+	arg.add(IDX_ISSUE_TRACKERS_PASSWORD,   issueTrackerInfo.password);
+	arg.condition = StringUtils::sprintf("id=%u", issueTrackerInfo.id);
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		if (!isRecordExisting(TABLE_NAME_ISSUE_TRACKERS, arg.condition)) {
+			err = HTERR_NOT_FOUND_TARGET_RECORD;
+		} else {
+			update(arg);
+		}
+	} DBCLIENT_TRANSACTION_END();
+	return err;
+}
+
 void DBClientConfig::getIssueTrackers(
   IssueTrackerInfoVect &issueTrackerInfoVect,
   IssueTrackerQueryOption &option)

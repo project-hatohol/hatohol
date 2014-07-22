@@ -950,6 +950,42 @@ void test_addIssueTrackerWithInvalieType(void)
 	assertAddIssueTracker(testInfo, HTERR_INVALID_ISSUE_TRACKER_TYPE);
 }
 
+void _assertUpdateIssueTracker(
+  IssueTrackerInfo issueTrackerInfo, const HatoholErrorCode expectedErrorCode,
+  OperationPrivilege privilege = ALL_PRIVILEGES)
+{
+	loadTestDBIssueTracker();
+
+	int targetId = issueTrackerInfo.id;
+	int targetIdx = targetId - 1;
+
+	string expectedOut;
+	if (expectedErrorCode == HTERR_OK)
+		expectedOut = makeIssueTrackerInfoOutput(issueTrackerInfo);
+	else
+		expectedOut = makeIssueTrackerInfoOutput(testIssueTrackerInfo[targetIdx]);
+
+	DBClientConfig dbConfig;
+	HatoholError err;
+	err = dbConfig.updateIssueTracker(issueTrackerInfo, privilege);
+	assertHatoholError(expectedErrorCode, err);
+
+	string statement = StringUtils::sprintf(
+	                     "select * from issue_trackers where id=%d",
+			     targetId);
+	assertDBContent(dbConfig.getDBAgent(), statement, expectedOut);
+}
+#define assertUpdateIssueTracker(I,E,...) \
+cut_trace(_assertUpdateIssueTracker(I,E,##__VA_ARGS__))
+
+void test_updateIssueTracker(void)
+{
+	int targetId = 2;
+	IssueTrackerInfo issueTrackerInfo = testIssueTrackerInfo[0];
+	issueTrackerInfo.id = targetId;
+	assertUpdateIssueTracker(issueTrackerInfo, HTERR_OK);
+}
+
 static void addIssueTracker(IssueTrackerInfo *info)
 {
 	DBClientConfig dbConfig;
