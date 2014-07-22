@@ -21,6 +21,7 @@
 #define DBClientJoin_h
 
 #include "DBAgent.h"
+#include "DataQueryOption.h"
 
 class DBClientJoinArg {
 public:
@@ -31,13 +32,42 @@ public:
 		NUM_TYPE_JOIN,
 	};
 
-	DBClientJoinArg(const DBAgent::TableProfile &table);
+	/**
+	 * Constructor.
+	 *
+	 * @param table A tableProfile for the most left table.
+	 * @param option A DataQueryOption for the query.
+	 */
+	DBClientJoinArg(const DBAgent::TableProfile &table,
+	                const DataQueryOption *option = NULL);
 	virtual ~DBClientJoinArg();
 
+	/**
+	 * Add a table for the JOIN and the make the where clause like
+	 * the following .
+	 *
+	 * table0 JOIN table ON table0.column0=table1.column1
+	 *
+	 * @param table A tableProfile for the table placed at the right side.
+	 * @param type A join type.
+	 * @param index0 An index of the left table for the condition.
+	 * @param index1 An index of the right table for the condition.
+	 */
 	void addTable(const DBAgent::TableProfile &table, const JoinType &type,
 	              const size_t &index0, const size_t &index1);
-	void add(const size_t &index);
+	/**
+	 * Add a column.
+	 *
+	 * @param columnIndex
+	 * A column index of the table that is passed most recently in
+	 * either the constructor or addTable().
+	 */
+	void add(const size_t &columnIndex);
+
 	const DBAgent::SelectExArg &getSelectExArg(void);
+
+protected:
+	const char *getJoinOperatorString(const JoinType &type);
 
 private:
 	struct PrivateContext;
