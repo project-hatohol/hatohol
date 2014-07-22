@@ -487,6 +487,30 @@ SoupMessage *ZabbixAPI::queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill)
 	return queryCommon(agent);
 }
 
+SoupMessage *ZabbixAPI::queryFirstOrLastEventId(const EventIdSortType &type)
+{
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.add("jsonrpc", "2.0");
+	agent.add("method", "event.get");
+
+	agent.startObject("params");
+	agent.add("output", "shorten");
+	agent.add("sortfield", "eventid");
+	if (type == FIRST_EVENT_ID)
+		agent.add("sortorder", "ASC");
+	else if (type == LAST_EVENT_ID)
+		agent.add("sortorder", "DESC");
+	agent.add("limit", 1);
+	agent.endObject(); //params
+
+	agent.add("auth", m_ctx->authToken);
+	agent.add("id", 1);
+	agent.endObject();
+
+	return queryCommon(agent);
+}
+
 SoupMessage *ZabbixAPI::queryFirstEventId(void)
 {
 	JsonBuilderAgent agent;

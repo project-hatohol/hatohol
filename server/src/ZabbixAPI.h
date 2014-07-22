@@ -217,6 +217,17 @@ protected:
 	SoupMessage *queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill);
 
 	/**
+	 * Get the first or last event ID the target Zabbix server has.
+	 *
+	 * @param type
+	 * A type of EventIdSortType.
+	 *
+	 * @return
+	 * A SoupMessage object with the raw Zabbix servers's response.
+	 */
+	SoupMessage *queryFirstOrLastEventId(const EventIdSortType &type);
+
+	/**
 	 * Get the first event ID the target Zabbix server has.
 	 *
 	 * @return
