@@ -152,6 +152,16 @@ protected:
 	ItemTablePtr getEvents(uint64_t eventIdOffset, uint64_t eventIdTill);
 
 	/**
+	 * Get the first or last event id the target Zabbix server has.
+	 *
+	 * @param type
+	 * A type of EventIdSortType.
+	 *
+	 * @return The first or last event ID.
+	 */
+	uint64_t getFirstOrLastEventId(const EventIdSortType &type);
+
+	/**
 	 * Get the first event ID the target Zabbix server has.
 	 *
 	 * @return The last event ID.

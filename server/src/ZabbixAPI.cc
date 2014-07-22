@@ -398,6 +398,44 @@ ItemTablePtr ZabbixAPI::getEvents(uint64_t eventIdOffset, uint64_t eventIdTill)
 	return ItemTablePtr(tablePtr);
 }
 
+uint64_t ZabbixAPI::getFirstOrLastEventId(const EventIdSortType &type)
+{
+	string strValue;
+	uint64_t returnValue = 0;
+
+	SoupMessage *msg = queryFirstOrLastEventId(type);
+	if (!msg) {
+		if (type == FIRST_EVENT_ID)
+			MLPL_ERR("Failed to query first eventID.\n");
+		else if (type == LAST_EVENT_ID)
+			MLPL_ERR("Failed to query last eventID.\n");
+		return EVENT_ID_NOT_FOUND;
+	}
+
+	JsonParserAgent parser(msg->response_body->data);
+	g_object_unref(msg);
+	if (parser.hasError()) {
+		THROW_DATA_STORE_EXCEPTION(
+		  "Failed to parser: %s", parser.getErrorMessage());
+	}
+	startObject(parser, "result");
+	if (parser.countElements() == 0)
+		return EVENT_ID_NOT_FOUND;
+
+	startElement(parser, 0);
+
+	if (!parser.read("eventid", strValue))
+		THROW_DATA_STORE_EXCEPTION("Failed to read: eventid\n");
+
+	returnValue = StringUtils::toUint64(strValue);
+	if (type == FIRST_EVENT_ID)
+		MLPL_DBG("First event ID: %" PRIu64 "\n", returnValue);
+	else if (type == FIRST_EVENT_ID)
+		MLPL_DBG("Last event ID: %" PRIu64 "\n", returnValue);
+
+	return returnValue;
+}
+
 uint64_t ZabbixAPI::getFirstEventId(void)
 {
 	string strFirstEventId;
