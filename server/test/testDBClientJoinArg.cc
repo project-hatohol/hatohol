@@ -125,6 +125,14 @@ public:
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
+void test_constructor(void)
+{
+	DBClientJoinArg arg(tableProfileTest0);
+	const DBAgent::SelectExArg &exArg = arg.getSelectExArg();
+	cppcut_assert_equal(&tableProfileTest0, exArg.tableProfile);
+	cppcut_assert_equal(true, exArg.useFullName);
+}
+
 void test_basicUse(void)
 {
 	DBClientJoinArg arg(tableProfileTest0);
