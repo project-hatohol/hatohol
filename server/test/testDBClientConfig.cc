@@ -998,6 +998,16 @@ void test_updateIssueTrackerWithoutPrivilege(void)
 	  issueTrackerInfo, HTERR_NO_PRIVILEGE, privilege);
 }
 
+void test_updateIssueTrackerWithEmptyLoction(void)
+{
+	int targetId = 1;
+	IssueTrackerInfo issueTrackerInfo = testIssueTrackerInfo[targetId - 1];
+	issueTrackerInfo.id = targetId;
+	issueTrackerInfo.baseURL = string();
+	assertUpdateIssueTracker(
+	  issueTrackerInfo, HTERR_NO_ISSUE_TRACKER_LOCATION);
+}
+
 static void addIssueTracker(IssueTrackerInfo *info)
 {
 	DBClientConfig dbConfig;
