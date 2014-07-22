@@ -152,10 +152,10 @@ protected:
 	ItemTablePtr getEvents(uint64_t eventIdOffset, uint64_t eventIdTill);
 
 	/**
-	 * Get the first or last event id the target Zabbix server has.
+	 * Get the first or last event ID the target Zabbix server has.
 	 *
-	 * @param type
-	 * A type of EventIdClass.
+	 * @param location
+	 * A location of EventId.
 	 *
 	 * @return The first or last event ID.
 	 */
@@ -215,8 +215,8 @@ protected:
 	/**
 	 * Get the first or last event ID the target Zabbix server has.
 	 *
-	 * @param type
-	 * A type of EventIdClass.
+	 * @param location
+	 * A location of EventId.
 	 *
 	 * @return
 	 * A SoupMessage object with the raw Zabbix servers's response.
