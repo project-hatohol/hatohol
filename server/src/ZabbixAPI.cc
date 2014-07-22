@@ -398,16 +398,16 @@ ItemTablePtr ZabbixAPI::getEvents(uint64_t eventIdOffset, uint64_t eventIdTill)
 	return ItemTablePtr(tablePtr);
 }
 
-uint64_t ZabbixAPI::getFirstOrLastEventId(const EventIdClass &type)
+uint64_t ZabbixAPI::getLocatedEventId(const EventIdLocation &location)
 {
 	string strValue;
 	uint64_t returnValue = 0;
 
-	SoupMessage *msg = queryFirstOrLastEventId(type);
+	SoupMessage *msg = queryLocatedEventId(location);
 	if (!msg) {
-		if (type == FIRST_EVENT_ID)
+		if (location == EVENT_ID_FIRST)
 			MLPL_ERR("Failed to query first eventID.\n");
-		else if (type == LAST_EVENT_ID)
+		else if (location == EVENT_ID_LAST)
 			MLPL_ERR("Failed to query last eventID.\n");
 		return EVENT_ID_NOT_FOUND;
 	}
@@ -428,9 +428,9 @@ uint64_t ZabbixAPI::getFirstOrLastEventId(const EventIdClass &type)
 		THROW_DATA_STORE_EXCEPTION("Failed to read: eventid\n");
 
 	returnValue = StringUtils::toUint64(strValue);
-	if (type == FIRST_EVENT_ID)
+	if (location == EVENT_ID_FIRST)
 		MLPL_DBG("First event ID: %" PRIu64 "\n", returnValue);
-	else if (type == FIRST_EVENT_ID)
+	else if (location == EVENT_ID_FIRST)
 		MLPL_DBG("Last event ID: %" PRIu64 "\n", returnValue);
 
 	return returnValue;
@@ -461,7 +461,7 @@ SoupMessage *ZabbixAPI::queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill)
 	return queryCommon(agent);
 }
 
-SoupMessage *ZabbixAPI::queryFirstOrLastEventId(const EventIdClass &type)
+SoupMessage *ZabbixAPI::queryLocatedEventId(const EventIdLocation &location)
 {
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -471,9 +471,9 @@ SoupMessage *ZabbixAPI::queryFirstOrLastEventId(const EventIdClass &type)
 	agent.startObject("params");
 	agent.add("output", "shorten");
 	agent.add("sortfield", "eventid");
-	if (type == FIRST_EVENT_ID)
+	if (location == EVENT_ID_FIRST)
 		agent.add("sortorder", "ASC");
-	else if (type == LAST_EVENT_ID)
+	else if (location == EVENT_ID_LAST)
 		agent.add("sortorder", "DESC");
 	agent.add("limit", 1);
 	agent.endObject(); //params

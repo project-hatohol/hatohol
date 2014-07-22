@@ -139,7 +139,7 @@ void ZabbixAPITestee::callGetGroups(ItemTablePtr &groupsTablePtr)
 
 uint64_t ZabbixAPITestee::callGetLastEventId(void)
 {
-	return getFirstOrLastEventId(LAST_EVENT_ID);
+	return getLocatedEventId(EVENT_ID_LAST);
 }
 
 void ZabbixAPITestee::makeGroupsItemTable(ItemTablePtr &groupsTablePtr)
