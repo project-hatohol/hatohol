@@ -163,6 +163,8 @@ public:
 	                      IssueTrackerQueryOption &option);
 	HatoholError addIssueTracker(IssueTrackerInfo &issueTrackerInfo,
 				     const OperationPrivilege &privilege);
+	HatoholError updateIssueTracker(IssueTrackerInfo &issueTrackerInfo,
+					const OperationPrivilege &privilege);
 	HatoholError deleteIssueTracker(
 	  const IssueTrackerIdType &issueTrackerId,
 	  const OperationPrivilege &privilege);
