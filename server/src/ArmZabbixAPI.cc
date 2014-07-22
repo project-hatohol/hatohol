@@ -171,7 +171,7 @@ void ArmZabbixAPI::updateEvents(void)
 	// In addition, if the server returns events whose ID is grater than
 	// dbLastEventId, an infinite loop will also occur.
 
-	const uint64_t serverLastEventId = getLastEventId();
+	const uint64_t serverLastEventId = getFirstOrLastEventId(LAST_EVENT_ID);
 	if (serverLastEventId == EVENT_ID_NOT_FOUND) {
 		MLPL_ERR("Last event ID is not found\n");
 		return;
@@ -181,7 +181,7 @@ void ArmZabbixAPI::updateEvents(void)
 	uint64_t eventIdOffset = 0;
 
 	if (dbLastEventId == DBClientZabbix::EVENT_ID_NOT_FOUND) {
-		eventIdOffset = getFirstEventId();
+		eventIdOffset = getFirstOrLastEventId(FIRST_EVENT_ID);
 		if (eventIdOffset == EVENT_ID_NOT_FOUND) {
 			MLPL_INFO("First event ID is not found\n");
 			return;
