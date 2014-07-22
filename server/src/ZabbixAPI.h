@@ -155,7 +155,7 @@ protected:
 	 * Get the first or last event ID the target Zabbix server has.
 	 *
 	 * @param location
-	 * A location of EventId.
+	 * A location of event ID.
 	 *
 	 * @return The first or last event ID.
 	 */
@@ -216,7 +216,7 @@ protected:
 	 * Get the first or last event ID the target Zabbix server has.
 	 *
 	 * @param location
-	 * A location of EventId.
+	 * A location of event ID.
 	 *
 	 * @return
 	 * A SoupMessage object with the raw Zabbix servers's response.
