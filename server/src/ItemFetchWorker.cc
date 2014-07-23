@@ -65,8 +65,7 @@ ItemFetchWorker::ItemFetchWorker(void)
 
 ItemFetchWorker::~ItemFetchWorker()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 bool ItemFetchWorker::start(
