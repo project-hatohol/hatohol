@@ -112,8 +112,7 @@ HostResourceQueryOption::HostResourceQueryOption(
 
 HostResourceQueryOption::~HostResourceQueryOption()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 const char *HostResourceQueryOption::getPrimaryTableName(void) const
