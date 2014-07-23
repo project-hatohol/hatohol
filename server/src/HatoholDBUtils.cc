@@ -87,3 +87,30 @@ bool HatoholDBUtils::transformEventItemGroupToEventInfo
 
 	return true;
 }
+
+void HatoholDBUtils::transformGroupItemGroupToHostgroupInfo
+  (HostgroupInfo &groupInfo, const ItemGroup *groupItemGroup)
+{
+	groupInfo.id = AUTO_INCREMENT_VALUE;
+
+	ItemGroupStream itemGroupStream(groupItemGroup);
+
+	itemGroupStream.seek(ITEM_ID_ZBX_GROUPS_GROUPID);
+	itemGroupStream >> groupInfo.groupId;
+
+	itemGroupStream.seek(ITEM_ID_ZBX_GROUPS_NAME);
+	itemGroupStream >> groupInfo.groupName;
+}
+
+void HatoholDBUtils::transformGroupsToHatoholFormat
+  (HostgroupInfoList &groupInfoList, const ItemTablePtr groups, uint32_t serverId)
+{
+	const ItemGroupList &itemGroupList = groups->getItemGroupList();
+	ItemGroupListConstIterator it = itemGroupList.begin();
+	for (; it != itemGroupList.end(); ++it) {
+		HostgroupInfo groupInfo;
+		groupInfo.serverId = serverId;
+		transformGroupItemGroupToHostgroupInfo(groupInfo, *it);
+		groupInfoList.push_back(groupInfo);
+	}
+}

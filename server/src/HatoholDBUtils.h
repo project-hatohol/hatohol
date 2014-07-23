@@ -29,6 +29,11 @@ public:
 	  const ServerIdType &serverId);
 	static bool transformEventItemGroupToEventInfo(
 	  EventInfo &eventInfo, const ItemGroup *event);
+	static void transformGroupItemGroupToHostgroupInfo(
+	  HostgroupInfo &groupInfo, const ItemGroup *groupItemGroup);
+	static void transformGroupsToHatoholFormat(
+	  HostgroupInfoList &groupInfoList, const ItemTablePtr groups,
+	  uint32_t serverId);
 };
 
 #endif // HatoholDBUtils_h
