@@ -188,8 +188,7 @@ ItemGroup::~ItemGroup()
 		const ItemData *data = it->second;
 		data->unref();
 	}
-	if (m_groupType)
-		delete m_groupType;
+	delete m_groupType;
 }
 
 // ---------------------------------------------------------------------------
