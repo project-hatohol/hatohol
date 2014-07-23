@@ -421,8 +421,7 @@ struct ArmNagiosNDOUtils::PrivateContext
 
 	virtual ~PrivateContext()
 	{
-		if (dbAgent)
-			delete dbAgent;
+		delete dbAgent;
 	}
 
 	void connect(void)
@@ -454,8 +453,7 @@ ArmNagiosNDOUtils::ArmNagiosNDOUtils(const MonitoringServerInfo &serverInfo)
 ArmNagiosNDOUtils::~ArmNagiosNDOUtils()
 {
 	requestExitAndWait();
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 // ---------------------------------------------------------------------------
