@@ -1026,11 +1026,11 @@ string ActionsQueryOption::PrivateContext::getActionTypeAndOwnerCondition(void)
 	case ACTION_USER_DEFINED:
 		return getUserDefinedActionsCondition(ownerCondition);
 	case ACTION_ISSUE_SENDER:
-		if (!option->has(OPPRVLG_GET_ALL_ISSUE_SETTINGS))
-			return DBClientHatohol::getAlwaysFalseCondition();
-		else
+		if (option->has(OPPRVLG_GET_ALL_ISSUE_SETTINGS))
 			return StringUtils::sprintf("action_type=%d",
 						    (int)type);
+		else
+			return DBClientHatohol::getAlwaysFalseCondition();
 	default:
 		if (ownerCondition.empty())
 			return StringUtils::sprintf("action_type=%d",
