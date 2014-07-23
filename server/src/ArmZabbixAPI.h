@@ -56,7 +56,6 @@ protected:
 	void updateEvents(void);
 	void updateGroups(void);
 
-	void addApplicationsDataToDB(ItemTablePtr &applications);
 	void addHostsDataToDB(ItemTablePtr &hosts);
 
 	void makeHatoholTriggers(ItemTablePtr triggers);

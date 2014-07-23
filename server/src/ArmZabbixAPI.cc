@@ -165,10 +165,6 @@ void ArmZabbixAPI::updateGroups(void)
 	makeHatoholHostgroups(groupsTablePtr);
 }
 
-void ArmZabbixAPI::addApplicationsDataToDB(ItemTablePtr &applications)
-{
-}
-
 void ArmZabbixAPI::addHostsDataToDB(ItemTablePtr &hosts)
 {
 	makeHatoholHosts(hosts);
