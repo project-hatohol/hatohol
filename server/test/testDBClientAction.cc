@@ -376,13 +376,13 @@ void test_addActionWithoutPrivilege(void)
 	                   dbAction.addAction(actDef, privilege));
 }
 
-static ActionDef *findTestActionByType(ActionType type)
+static int findTestActionIdxByType(ActionType type)
 {
 	for (size_t i = 0; i < NumTestActionDef; i++) {
 		if (testActionDef[i].type == type)
-			return &testActionDef[i];
+			return i;
 	}
-	return NULL;
+	return -1;
 }
 
 void test_addIssueSenderActionByIssueSettingsAdmin(void)
@@ -395,9 +395,9 @@ void test_addIssueSenderActionByIssueSettingsAdmin(void)
 		= findUserWith(OPPRVLG_CREATE_ISSUE_SETTING, excludeFlags);
 	TestDBClientAction dbAction;
 	OperationPrivilege privilege(userId);
-	ActionDef &actDef = *findTestActionByType(ACTION_ISSUE_SENDER);
+	int idx = findTestActionIdxByType(ACTION_ISSUE_SENDER);
 	assertHatoholError(HTERR_OK,
-	                   dbAction.addAction(actDef, privilege));
+	                   dbAction.addAction(testActionDef[idx], privilege));
 }
 
 void test_addIssueSenderActionWithoutPrivilege(void)
@@ -410,9 +410,9 @@ void test_addIssueSenderActionWithoutPrivilege(void)
 		= findUserWith(OPPRVLG_CREATE_ACTION, excludeFlags);
 	TestDBClientAction dbAction;
 	OperationPrivilege privilege(userId);
-	ActionDef &actDef = *findTestActionByType(ACTION_ISSUE_SENDER);
+	int idx = findTestActionIdxByType(ACTION_ISSUE_SENDER);
 	assertHatoholError(HTERR_NO_PRIVILEGE,
-	                   dbAction.addAction(actDef, privilege));
+	                   dbAction.addAction(testActionDef[idx], privilege));
 }
 
 void test_deleteAction(void)
@@ -511,9 +511,9 @@ void test_deleteIssueSenderActionByIssueSettingsAdmin(void)
 	  = OperationPrivilege::makeFlag(OPPRVLG_DELETE_ACTION);
 	const UserIdType userId
 	  = findUserWith(OPPRVLG_DELETE_ISSUE_SETTING, excludeFlags);
-	ActionDef &targetActionDef = *findTestActionByType(ACTION_ISSUE_SENDER);
+	int targetActionId = findTestActionIdxByType(ACTION_ISSUE_SENDER) + 1;
 	ActionIdList idList;
-	idList.push_back(targetActionDef.id);
+	idList.push_back(targetActionId);
 	OperationPrivilege privilege(userId);
 	assertHatoholError(HTERR_OK,
 	                   dbAction.deleteActions(idList, privilege));
@@ -528,9 +528,9 @@ void test_deleteIssueSenderActionWithoutPrivilege(void)
 	  = OperationPrivilege::makeFlag(OPPRVLG_DELETE_ISSUE_SETTING);
 	const UserIdType userId
 	  = findUserWith(OPPRVLG_DELETE_ACTION, excludeFlags);
-	ActionDef &targetActionDef = *findTestActionByType(ACTION_ISSUE_SENDER);
+	int targetActionId = findTestActionIdxByType(ACTION_ISSUE_SENDER) + 1;
 	ActionIdList idList;
-	idList.push_back(targetActionDef.id);
+	idList.push_back(targetActionId);
 	OperationPrivilege privilege(userId);
 	assertHatoholError(HTERR_NO_PRIVILEGE,
 	                   dbAction.deleteActions(idList, privilege));

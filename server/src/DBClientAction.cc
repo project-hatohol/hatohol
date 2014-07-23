@@ -582,6 +582,37 @@ static string makeIdListCondition(const ActionIdList &idList)
 	return condition;
 }
 
+static string makeOwnerCondition(UserIdType userId)
+{
+	return StringUtils::sprintf(
+		 "%s=%" FMT_USER_ID,
+		 COLUMN_DEF_ACTIONS[IDX_ACTIONS_OWNER_USER_ID].columnName,
+		 userId);
+}
+
+static string makeUserDefinedActionsCondition(const string &ownerCondition)
+{
+	if (ownerCondition.empty())
+		return StringUtils::sprintf(
+			"(action_type>=0 AND action_type<%d)",
+			ACTION_ISSUE_SENDER);
+	else
+		return StringUtils::sprintf(
+			"(%s AND action_type>=0 AND action_type<%d)",
+			ownerCondition.c_str(), ACTION_ISSUE_SENDER);
+}
+
+static string makeConditionAllowedActionsForDelete(
+  const OperationPrivilege &privilege)
+{
+	string ownerCondition = makeOwnerCondition(privilege.getUserId());
+	string condition = makeUserDefinedActionsCondition(ownerCondition);
+	if (privilege.has(OPPRVLG_DELETE_ISSUE_SETTING))
+		condition += StringUtils::sprintf(" OR action_type=%d",
+						  ACTION_ISSUE_SENDER);
+	return condition;
+}
+
 HatoholError DBClientAction::deleteActions(const ActionIdList &idList,
                                            const OperationPrivilege &privilege)
 {
@@ -600,10 +631,9 @@ HatoholError DBClientAction::deleteActions(const ActionIdList &idList,
 	// In this point, the caller must have OPPRVLG_DELETE_ACTION,
 	// becase it is checked in checkPrivilegeForDelete().
 	if (!privilege.has(OPPRVLG_DELETE_ALL_ACTION)) {
-		arg.condition += StringUtils::sprintf(
-		  " AND %s=%" FMT_USER_ID,
-		  COLUMN_DEF_ACTIONS[IDX_ACTIONS_OWNER_USER_ID].columnName,
-		  privilege.getUserId());
+		if (!arg.condition.empty())
+			arg.condition += " AND ";
+		arg.condition = makeConditionAllowedActionsForDelete(privilege);
 	}
 
 	uint64_t numAffectedRows = 0;
@@ -874,16 +904,19 @@ HatoholError DBClientAction::checkPrivilegeForDelete(
 	if (userId == INVALID_USER_ID)
 		return HTERR_INVALID_USER;
 
-	if (!privilege.has(OPPRVLG_DELETE_ISSUE_SETTING)) {
-		// Check whether the idList includes ACTION_ISSUE_SENDER or not.
-		// TODO: It's not efficient.
-		ActionsQueryOption option(USER_ID_SYSTEM);
-		option.setActionIdList(idList);
-		option.setActionType(ACTION_ISSUE_SENDER);
-		ActionDefList actionDefList;
-		getActionList(actionDefList, option);
-		if (!actionDefList.empty())
-			return HTERR_NO_PRIVILEGE;
+	// Check whether the idList includes ACTION_ISSUE_SENDER or not.
+	// TODO: It's not efficient.
+	ActionsQueryOption option(USER_ID_SYSTEM);
+	option.setActionIdList(idList);
+	option.setActionType(ACTION_ISSUE_SENDER);
+	ActionDefList issueSenderList;
+	getActionList(issueSenderList, option);
+	bool canDeleteIssueSender = privilege.has(OPPRVLG_DELETE_ISSUE_SETTING);
+	if (!canDeleteIssueSender && !issueSenderList.empty())
+		return HTERR_NO_PRIVILEGE;
+	if (canDeleteIssueSender && idList.size() == issueSenderList.size()) {
+		// It includes only IssueSender type actions.
+		return HTERR_OK;
 	}
 
 	if (privilege.has(OPPRVLG_DELETE_ALL_ACTION))
@@ -1030,27 +1063,11 @@ const ActionIdList &ActionsQueryOption::getActionIdList(void)
 	return m_ctx->idList;
 }
 
-static string getUserDefinedActionsCondition(const string &ownerCondition)
-{
-	if (ownerCondition.empty())
-		return StringUtils::sprintf(
-			"(action_type>=0 AND action_type<%d)",
-			ACTION_ISSUE_SENDER);
-	else
-		return StringUtils::sprintf(
-			"(%s AND action_type>=0 AND action_type<%d)",
-			ownerCondition.c_str(), ACTION_ISSUE_SENDER);
-}
-
 string ActionsQueryOption::PrivateContext::getActionTypeAndOwnerCondition(void)
 {
 	string ownerCondition;
-	if (!option->has(OPPRVLG_GET_ALL_ACTION)) {
-		ownerCondition += StringUtils::sprintf(
-		  "%s=%" FMT_USER_ID,
-		  COLUMN_DEF_ACTIONS[IDX_ACTIONS_OWNER_USER_ID].columnName,
-		  option->getUserId());
-	}
+	if (!option->has(OPPRVLG_GET_ALL_ACTION))
+		ownerCondition += makeOwnerCondition(option->getUserId());
 
 	switch (type) {
 	case ACTION_ALL:
@@ -1062,7 +1079,7 @@ string ActionsQueryOption::PrivateContext::getActionTypeAndOwnerCondition(void)
 			return condition;
 		}
 
-		condition = getUserDefinedActionsCondition(ownerCondition);
+		condition = makeUserDefinedActionsCondition(ownerCondition);
 		if (option->has(OPPRVLG_GET_ALL_ISSUE_SETTINGS))
 			return StringUtils::sprintf(
 				 "(%s OR action_type=%d)",
@@ -1071,7 +1088,7 @@ string ActionsQueryOption::PrivateContext::getActionTypeAndOwnerCondition(void)
 			return condition;
 	}
 	case ACTION_USER_DEFINED:
-		return getUserDefinedActionsCondition(ownerCondition);
+		return makeUserDefinedActionsCondition(ownerCondition);
 	case ACTION_ISSUE_SENDER:
 		if (option->has(OPPRVLG_GET_ALL_ISSUE_SETTINGS))
 			return StringUtils::sprintf("action_type=%d",
