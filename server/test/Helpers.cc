@@ -1255,8 +1255,7 @@ LinesComparator::LinesComparator(void)
 
 LinesComparator::~LinesComparator()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 void LinesComparator::add(
