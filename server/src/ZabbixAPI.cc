@@ -31,6 +31,8 @@ using namespace mlpl;
 static const char *MIME_JSON_RPC = "application/json-rpc";
 static const guint DEFAULT_TIMEOUT = 60;
 
+const uint64_t ZabbixAPI::EVENT_ID_NOT_FOUND = -1;
+
 struct ZabbixAPI::PrivateContext {
 
 	string         uri;
@@ -396,15 +398,18 @@ ItemTablePtr ZabbixAPI::getEvents(uint64_t eventIdOffset, uint64_t eventIdTill)
 	return ItemTablePtr(tablePtr);
 }
 
-uint64_t ZabbixAPI::getLastEventId(void)
+uint64_t ZabbixAPI::getEndEventId(const bool &isFirst)
 {
-	string strLastEventId;
-	uint64_t lastEventId = 0;
+	string strValue;
+	uint64_t returnValue = 0;
 
-	SoupMessage *msg = queryLastEventId();
+	SoupMessage *msg = queryEndEventId(isFirst);
 	if (!msg) {
-		MLPL_ERR("Failed to query eventID.\n");
-		return 0;
+		if (isFirst)
+			MLPL_ERR("Failed to query first eventID.\n");
+		else
+			MLPL_ERR("Failed to query last eventID.\n");
+		return EVENT_ID_NOT_FOUND;
 	}
 
 	JsonParserAgent parser(msg->response_body->data);
@@ -414,15 +419,21 @@ uint64_t ZabbixAPI::getLastEventId(void)
 		  "Failed to parser: %s", parser.getErrorMessage());
 	}
 	startObject(parser, "result");
+	if (parser.countElements() == 0)
+		return EVENT_ID_NOT_FOUND;
+
 	startElement(parser, 0);
 
-	if (!parser.read("eventid", strLastEventId))
+	if (!parser.read("eventid", strValue))
 		THROW_DATA_STORE_EXCEPTION("Failed to read: eventid\n");
 
-	lastEventId = StringUtils::toUint64(strLastEventId);
-	MLPL_DBG("LastEventID: %" PRIu64 "\n", lastEventId);
+	returnValue = StringUtils::toUint64(strValue);
+	if (isFirst)
+		MLPL_DBG("First event ID: %" PRIu64 "\n", returnValue);
+	else
+		MLPL_DBG("Last event ID: %" PRIu64 "\n", returnValue);
 
-	return lastEventId;
+	return returnValue;
 }
 
 SoupMessage *ZabbixAPI::queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill)
@@ -450,7 +461,7 @@ SoupMessage *ZabbixAPI::queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill)
 	return queryCommon(agent);
 }
 
-SoupMessage *ZabbixAPI::queryLastEventId(void)
+SoupMessage *ZabbixAPI::queryEndEventId(const bool &isFirst)
 {
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -460,7 +471,10 @@ SoupMessage *ZabbixAPI::queryLastEventId(void)
 	agent.startObject("params");
 	agent.add("output", "shorten");
 	agent.add("sortfield", "eventid");
-	agent.add("sortorder", "DESC");
+	if (isFirst)
+		agent.add("sortorder", "ASC");
+	else
+		agent.add("sortorder", "DESC");
 	agent.add("limit", 1);
 	agent.endObject(); //params
 

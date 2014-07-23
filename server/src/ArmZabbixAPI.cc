@@ -165,31 +165,35 @@ void ArmZabbixAPI::updateHosts(void)
 
 void ArmZabbixAPI::updateEvents(void)
 {
-	uint64_t eventIdOffset, eventIdTill;
-	uint64_t dbLastEventId = m_ctx->dbClientZabbix->getLastEventId();
-	uint64_t serverLastEventId = getLastEventId();
-	ItemTablePtr tablePtr;
-	// TODO: Does this condition cause an infinite loop when
-	// the differerence between adjacent two events IDs is greater than
-	// NUMBER_OF_GET_EVENT_PER_ONCE ?
-	// In addition, if the server returns events whose ID is grater than
-	// dbLastEventId, an infinite loop will also occur.
-	//
-	// Ref: HapZabbixAPI::workOnEvents() uses a different collection way.
-	//
-	while (dbLastEventId != serverLastEventId) {
-		if (dbLastEventId == DBClientZabbix::EVENT_ID_NOT_FOUND) {
-			eventIdOffset = 0;
-			eventIdTill = NUMBER_OF_GET_EVENT_PER_ONCE;
-		} else {
-			eventIdOffset = dbLastEventId + 1;
-			eventIdTill = dbLastEventId + NUMBER_OF_GET_EVENT_PER_ONCE;
+	const uint64_t serverLastEventId = getEndEventId(false);
+	if (serverLastEventId == EVENT_ID_NOT_FOUND) {
+		MLPL_ERR("Last event ID is not found\n");
+		return;
+	}
+
+	const uint64_t dbLastEventId = m_ctx->dbClientZabbix->getLastEventId();
+	uint64_t eventIdOffset = 0;
+
+	if (dbLastEventId == DBClientZabbix::EVENT_ID_NOT_FOUND) {
+		eventIdOffset = getEndEventId(true);
+		if (eventIdOffset == EVENT_ID_NOT_FOUND) {
+			MLPL_INFO("First event ID is not found\n");
+			return;
 		}
-		tablePtr = getEvents(eventIdOffset, eventIdTill);
-		m_ctx->dbClientZabbix->addEventsRaw2_0(tablePtr);
-		makeHatoholEvents(tablePtr);
-		onGotNewEvents(tablePtr);
-		dbLastEventId = m_ctx->dbClientZabbix->getLastEventId();
+	} else {
+		eventIdOffset = dbLastEventId + 1;
+	}
+
+	while (eventIdOffset < serverLastEventId) {
+		const uint64_t eventIdTill =
+		  eventIdOffset + NUMBER_OF_GET_EVENT_PER_ONCE;
+		ItemTablePtr eventsTablePtr =
+		  getEvents(eventIdOffset, eventIdTill);
+		m_ctx->dbClientZabbix->addEventsRaw2_0(eventsTablePtr);
+		makeHatoholEvents(eventsTablePtr);
+		onGotNewEvents(eventsTablePtr);
+
+		eventIdOffset = eventIdTill;
 	}
 }
 

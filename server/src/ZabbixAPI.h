@@ -33,6 +33,8 @@ public:
 	ZabbixAPI(void);
 	virtual ~ZabbixAPI();
 
+	static const uint64_t EVENT_ID_NOT_FOUND;
+
 protected:
 	const static uint64_t UNLIMITED = -1;
 	void setMonitoringServerInfo(const MonitoringServerInfo &serverInfo);
@@ -145,11 +147,15 @@ protected:
 	ItemTablePtr getEvents(uint64_t eventIdOffset, uint64_t eventIdTill);
 
 	/**
-	 * Get the last event ID the target Zabbix server has.
+	 * Get the first or last event ID the target Zabbix server has.
 	 *
-	 * @return The last event ID.
+	 * @param isFirst
+	 * true if you want first event ID.
+	 * false if you want last event ID.
+	 *
+	 * @return The first or last event ID.
 	 */
-	uint64_t getLastEventId(void);
+	uint64_t getEndEventId(const bool &isFirst);
 
 	/**
 	 * Get the triggers.
@@ -203,12 +209,16 @@ protected:
 	SoupMessage *queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill);
 
 	/**
-	 * Get the last event ID the target Zabbix server has.
+	 * Get the first or last event ID the target Zabbix server has.
+	 *
+	 * @param isFirst
+	 * true if you want first event ID.
+	 * false if you want last event ID.
 	 *
 	 * @return
 	 * A SoupMessage object with the raw Zabbix servers's response.
 	 */
-	SoupMessage *queryLastEventId(void);
+	SoupMessage *queryEndEventId(const bool &isFirst);
 
 	/**
 	 * Get the functions.
