@@ -63,8 +63,7 @@ JSONParserAgent::JSONParserAgent(const string &data)
 
 JSONParserAgent::~JSONParserAgent()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 const char *JSONParserAgent::getErrorMessage(void)
