@@ -82,7 +82,7 @@ public:
 	 * The last change time of tringer in unix time. If there is no
 	 * trigger information, 0 is returned.
 	 */
-	mlpl::SmartTime getTimestampOfLastTrigger(const ServerIdType serverId);
+	mlpl::SmartTime getTimestampOfLastTrigger(const ServerIdType &serverId);
 
 	HatoholError getEventList(EventInfoList &eventList,
 	                          EventsQueryOption &option,
