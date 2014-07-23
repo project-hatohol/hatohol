@@ -76,10 +76,8 @@ ItemDataIndex::ItemDataIndex(ItemDataIndexType type)
 
 ItemDataIndex::~ItemDataIndex()
 {
-	if (m_index)
-		delete m_index;
-	if (m_multiIndex)
-		delete m_multiIndex;
+	delete m_index;
+	delete m_multiIndex;
 }
 
 ItemDataIndexType ItemDataIndex::getIndexType(void) const
