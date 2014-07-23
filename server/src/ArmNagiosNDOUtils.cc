@@ -391,14 +391,14 @@ static const DBAgent::TableProfile tableProfileStateHistory(
 // ---------------------------------------------------------------------------
 struct ArmNagiosNDOUtils::PrivateContext
 {
-	DBAgentMySQL   *dbAgent;
-	DBClientHatohol dbHatohol;
+	DBAgentMySQL        *dbAgent;
+	DBClientHatohol      dbHatohol;
 	DBClientJoinBuilder  selectTriggerBuilder;
 	DBClientJoinBuilder  selectEventBuilder;
 	DBClientJoinBuilder  selectItemBuilder;
-	DBAgent::SelectExArg         selectHostArg;
-	DBAgent::SelectExArg         selectHostgroupArg;
-	DBAgent::SelectExArg         selectHostgroupMembersArg;
+	DBAgent::SelectExArg selectHostArg;
+	DBAgent::SelectExArg selectHostgroupArg;
+	DBAgent::SelectExArg selectHostgroupMembersArg;
 	string               selectTriggerBaseCondition;
 	string               selectEventBaseCondition;
 	UnifiedDataStore    *dataStore;
