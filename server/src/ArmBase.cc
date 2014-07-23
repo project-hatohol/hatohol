@@ -134,8 +134,7 @@ ArmBase::~ArmBase()
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	MLPL_INFO("%s [%d:%s]: destruction: completed.\n",
 	          getName().c_str(), svInfo.id, svInfo.hostName.c_str());
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 void ArmBase::start(void)
