@@ -396,8 +396,19 @@ void test_addIssueSenderActionByIssueSettingsAdmin(void)
 	TestDBClientAction dbAction;
 	OperationPrivilege privilege(userId);
 	int idx = findTestActionIdxByType(ACTION_ISSUE_SENDER);
+	ActionIdType expectedId = 1;
+	ActionDef actionDef = testActionDef[idx];
+	actionDef.ownerUserId = userId;
 	assertHatoholError(HTERR_OK,
-	                   dbAction.addAction(testActionDef[idx], privilege));
+	                   dbAction.addAction(actionDef, privilege));
+
+	// check: The owner of ACTION_ISSUE_SENDER shoube be USER_ID_SYSTEM.
+	actionDef.id = expectedId;
+	string expect = StringUtils::sprintf("%" FMT_ACTION_ID "|%" FMT_USER_ID,
+	                                     1, USER_ID_SYSTEM);
+	string statement = "select action_id, owner_user_id from ";
+	statement += DBClientAction::getTableNameActions();
+	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }
 
 void test_addIssueSenderActionWithoutPrivilege(void)
