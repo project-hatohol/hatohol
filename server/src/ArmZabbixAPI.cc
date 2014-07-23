@@ -87,36 +87,6 @@ void ArmZabbixAPI::onGotNewEvents(const ItemTablePtr &itemPtr)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-template<typename T>
-void ArmZabbixAPI::updateOnlyNeededItem
-  (const ItemTable *primaryTable,
-   const ItemId pickupItemId, const ItemId checkItemId,
-   ArmZabbixAPI::DataGetter dataGetter,
-   DBClientZabbix::AbsentItemPicker absentItemPicker,
-   ArmZabbixAPI::TableSaver tableSaver)
-{
-	if (primaryTable->getNumberOfRows() == 0)
-		return;
-
-	// make a vector that has items used in the table.
-	vector<T> usedItemVector;
-	makeItemVector<T>(usedItemVector, primaryTable, pickupItemId);
-	if (usedItemVector.empty())
-		return;
-
-	// extract items that are not in the replication DB.
-	vector<T> absentItemVector;
-	if (absentItemVector.empty())
-		return;
-
-	// get needed data via ZABBIX API
-	ItemTablePtr tablePtr = (this->*dataGetter)(absentItemVector);
-	(this->*tableSaver)(tablePtr);
-
-	// check the result
-	checkObtainedItems<uint64_t>(tablePtr, absentItemVector, checkItemId);
-}
-
 ItemTablePtr ArmZabbixAPI::updateTriggers(void)
 {
 	int requestSince;
@@ -193,17 +163,6 @@ void ArmZabbixAPI::updateApplications(void)
 	// getHosts() tries to get all hosts when an empty vector is passed.
 	static const vector<uint64_t> appIdVector;
 	ItemTablePtr tablePtr = getApplications(appIdVector);
-}
-
-void ArmZabbixAPI::updateApplications(const ItemTable *items)
-{
-	updateOnlyNeededItem<uint64_t>(
-	  items,
-	  ITEM_ID_ZBX_ITEMS_APPLICATIONID,
-	  ITEM_ID_ZBX_APPLICATIONS_APPLICATIONID,
-	  &ArmZabbixAPI::getApplications,
-	  &DBClientZabbix::pickupAbsentApplcationIds,
-	  &ArmZabbixAPI::addApplicationsDataToDB);
 }
 
 void ArmZabbixAPI::updateGroups(void)
@@ -350,7 +309,6 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 			ItemTablePtr items = updateItems();
 			ItemTablePtr applications = getApplications(items);
 			makeHatoholItems(items, applications);
-			updateApplications(items);
 			return true;
 		}
 
@@ -377,7 +335,6 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 			ItemTablePtr items = updateItems();
 			ItemTablePtr applications = getApplications(items);
 			makeHatoholItems(items, applications);
-			updateApplications(items);
 		}
 	} catch (const DataStoreException &dse) {
 		MLPL_ERR("Error on update: %s\n", dse.what());

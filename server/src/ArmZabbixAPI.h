@@ -44,15 +44,6 @@ public:
 	virtual void onGotNewEvents(const ItemTablePtr &itemPtr);
 
 protected:
-
-	template<typename T>
-	void updateOnlyNeededItem(
-	  const ItemTable *primaryTable,
-	  const ItemId pickupItemId, const ItemId checkItemId,
-	  ArmZabbixAPI::DataGetter dataGetter,
-	  DBClientZabbix::AbsentItemPicker absentItemPicker,
-	  ArmZabbixAPI::TableSaver tableSaver);
-
 	ItemTablePtr updateTriggers(void);
 	void updateFunctions(void);
 	ItemTablePtr updateItems(void);
@@ -69,14 +60,6 @@ protected:
 	 * in the replica DB.
 	 */
 	void updateApplications(void);
-
-	/**
-	 * get applications with the specified IDs and save them
-	 * in the replica DB.
-	 * @param items
-	 * A pointer to ItableTable instance that is obtained by updateItems().
-	 */
-	void updateApplications(const ItemTable *items);
 
 	void updateGroups(void);
 
