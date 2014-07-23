@@ -230,8 +230,7 @@ UnifiedDataStore::UnifiedDataStore(void)
 
 UnifiedDataStore::~UnifiedDataStore()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 void UnifiedDataStore::reset(void)
