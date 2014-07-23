@@ -294,7 +294,7 @@ void ArmZabbixAPI::makeHatoholMapHostsHostgroups(ItemTablePtr hostsGroups)
 void ArmZabbixAPI::makeHatoholHosts(ItemTablePtr hosts)
 {
 	HostInfoList hostInfoList;
-	DBClientZabbix::transformHostsToHatoholFormat(hostInfoList, hosts,
+	HatoholDBUtils::transformHostsToHatoholFormat(hostInfoList, hosts,
 	                                              m_ctx->zabbixServerId);
 	m_ctx->dbClientHatohol.addHostInfoList(hostInfoList);
 }

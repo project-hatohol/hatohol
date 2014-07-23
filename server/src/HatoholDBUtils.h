@@ -41,6 +41,11 @@ public:
 	  HostgroupElementList &hostgroupElementList,
 	  const ItemTablePtr mapHostHostgroups,
 	  const ServerIdType &serverId);
+	static void transformHostsItemGroupToHatoholFormat(
+	  HostInfo &hostInfo, const ItemGroup *groupHosts);
+	static void transformHostsToHatoholFormat(
+	  HostInfoList &hostInfoList, const ItemTablePtr hosts,
+	  const ServerIdType &serverId);
 };
 
 #endif // HatoholDBUtils_h
