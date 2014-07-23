@@ -83,8 +83,7 @@ struct HatoholArmPluginTestPair : public HatoholArmPluginTestPairBase {
 
 	virtual ~HatoholArmPluginTestPair()
 	{
-		if (plugin)
-			delete plugin;
+		delete plugin;
 	}
 
 	static HatoholArmPluginGateTestPtr createHapgTest(
