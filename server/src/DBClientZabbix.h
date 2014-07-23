@@ -36,12 +36,6 @@ public:
 
 	static void init(void);
 	static DBDomainId getDBDomainId(const ServerIdType zabbixServerId);
-	static void transformItemsToHatoholFormat(ItemInfoList &eventInfoList,
-	                                          MonitoringServerStatus &serverStatus,
-	                                          const ItemTablePtr events);
-	static bool transformItemItemGroupToItemInfo(ItemInfo &itemInfo,
-	                                             const ItemGroup *item,
-	                                             DBClientZabbix &dbZabbix);
 
 	/**
 	 * create a DBClientZabbix instance.
@@ -94,19 +88,6 @@ public:
 protected:
 	static std::string getDBName(const ServerIdType zabbixServerId);
 	static void updateDBIfNeeded(DBAgent *dbAgent, int oldVer, void *data);
-	static std::string makeItemBrief(const ItemGroup *itemItemGroup);
-
-	/**
-	 * check if the given word is a variable (e.g. $1, $2, ...).
-	 * @params word.
-	 * A word to be checked.
-	 * @return 
-	 * A variable number if the given word is a variable. Otherwise
-	 * -1 is returned.
-	 */
-	static int  getItemVariable(const std::string &word);
-	static void extractItemKeys(mlpl::StringVector &params,
-	                            const std::string &key);
 
 	DBClientZabbix(const ServerIdType zabbixServerId);
 	void addItems(

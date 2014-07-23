@@ -28,11 +28,6 @@
 using namespace std;
 using namespace mlpl;
 
-struct BriefElem {
-	string word;
-	int    variableIndex;
-};
-
 const int DBClientZabbix::ZABBIX_DB_VERSION = 4;
 const uint64_t DBClientZabbix::EVENT_ID_NOT_FOUND = -1;
 const int DBClientZabbix::TRIGGER_CHANGE_TIME_NOT_FOUND = -1;
@@ -1782,68 +1777,6 @@ void DBClientZabbix::getEventsAsHatoholFormat(EventInfoList &eventInfoList)
 	}
 }
 
-bool DBClientZabbix::transformItemItemGroupToItemInfo
-  (ItemInfo &itemInfo, const ItemGroup *itemItemGroup, DBClientZabbix &dbZabbix)
-{
-	itemInfo.lastValueTime.tv_nsec = 0;
-	itemInfo.brief = makeItemBrief(itemItemGroup);
-
-	ItemGroupStream itemGroupStream(itemItemGroup);
-
-	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_ITEMID);
-	itemGroupStream >> itemInfo.id;
-
-	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_HOSTID);
-	itemGroupStream >> itemInfo.hostId;
-
-	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_LASTCLOCK),
-	itemGroupStream >> itemInfo.lastValueTime.tv_sec;
-	if (itemInfo.lastValueTime.tv_sec == 0) {
-		// We assume that the item in this case is a kind of
-		// template such as 'Incoming network traffic on {#IFNAME}'.
-		return false;
-	}
-
-	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_LASTVALUE);
-	itemGroupStream >> itemInfo.lastValue;
-
-	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_PREVVALUE);
-	itemGroupStream >> itemInfo.prevValue;
-
-	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_DELAY);
-	itemGroupStream >> itemInfo.delay;
-
-	uint64_t applicationId;
-	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_APPLICATIONID);
-	itemGroupStream >> applicationId;
-	itemInfo.itemGroupName = dbZabbix.getApplicationName(applicationId);
-
-	return true;
-}
-
-void DBClientZabbix::transformItemsToHatoholFormat(
-  ItemInfoList &itemInfoList, MonitoringServerStatus &serverStatus,
-  const ItemTablePtr items)
-{
-	DBClientZabbix dbZabbix(serverStatus.serverId);
-	const ItemGroupList &itemGroupList = items->getItemGroupList();
-	ItemGroupListConstIterator it = itemGroupList.begin();
-	for (; it != itemGroupList.end(); ++it) {
-		ItemInfo itemInfo;
-		itemInfo.serverId = serverStatus.serverId;
-		if (!transformItemItemGroupToItemInfo(itemInfo, *it, dbZabbix))
-			continue;
-		itemInfoList.push_back(itemInfo);
-	}
-
-	ItemInfoListConstIterator item_it = itemInfoList.begin();
-	serverStatus.nvps = 0.0;
-	for (; item_it != itemInfoList.end(); ++item_it) {
-		if ((*item_it).delay != 0)
-			serverStatus.nvps += 1.0/(*item_it).delay;
-	}
-}
-
 uint64_t DBClientZabbix::getLastEventId(void)
 {
 	const ColumnDef &columnDefEventId = 
@@ -1963,104 +1896,6 @@ void DBClientZabbix::updateDBIfNeeded(DBAgent *dbAgent, int oldVer, void *data)
 	THROW_HATOHOL_EXCEPTION(
 	  "Not implemented: %s, oldVer: %d, curr: %d, data: %p",
 	  __PRETTY_FUNCTION__, oldVer, DBClientZabbix::ZABBIX_DB_VERSION, data);
-}
-
-string DBClientZabbix::makeItemBrief(const ItemGroup *itemItemGroup)
-{
-	ItemGroupStream itemGroupStream(itemItemGroup);
-
-	// get items.name
-	string name;
-	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_NAME);
-	itemGroupStream >> name;
-	StringVector vect;
-	StringUtils::split(vect, name, ' ');
-
-	// summarize word and variables ($n : n = 1,2,3,..)
-	vector<BriefElem> briefElemVect;
-	for (size_t i = 0; i < vect.size(); i++) {
-		briefElemVect.push_back(BriefElem());
-		BriefElem &briefElem = briefElemVect.back();
-		briefElem.variableIndex = getItemVariable(vect[i]);
-		if (briefElem.variableIndex <= 0)
-			briefElem.word = vect[i];
-	}
-
-	// extract words to be replace
-	string itemKey;
-	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_KEY_);
-	itemGroupStream >> itemKey;
-
-	StringVector params;
-	extractItemKeys(params, itemKey);
-
-	// make a brief
-	string brief;
-	for (size_t i = 0; i < briefElemVect.size(); i++) {
-		BriefElem &briefElem = briefElemVect[i];
-		if (briefElem.variableIndex <= 0) {
-			brief += briefElem.word;
-		} else if (params.size() >= (size_t)briefElem.variableIndex) {
-			// normal case
-			brief += params[briefElem.variableIndex-1];
-		} else {
-			// error case
-			MLPL_WARN("Not found index: %d, %s, %s\n",
-			          briefElem.variableIndex,
-			          name.c_str(), itemKey.c_str());
-			brief += "<INTERNAL ERROR>";
-		}
-		if (i < briefElemVect.size()-1)
-			brief += " ";
-	}
-
-	return brief;
-}
-
-int DBClientZabbix::getItemVariable(const string &word)
-{
-	if (word.empty())
-		return -1;
-
-	// check the first '$'
-	const char *wordPtr = word.c_str();
-	if (wordPtr[0] != '$')
-		return -1;
-
-	// check if the remaining characters are all numbers.
-	int val = 0;
-	for (size_t idx = 1; wordPtr[idx]; idx++) {
-		val *= 10;
-		if (wordPtr[idx] < '0')
-			return -1;
-		if (wordPtr[idx] > '9')
-			return -1;
-		val += wordPtr[idx] - '0';
-	}
-	return val;
-}
-
-void DBClientZabbix::extractItemKeys(StringVector &params, const string &key)
-{
-	// find '['
-	size_t pos = key.find_first_of('[');
-	if (pos == string::npos)
-		return;
-
-	// we assume the last character is ']'
-	if (key[key.size()-1] != ']') {
-		MLPL_WARN("The last charater is not ']': %s", key.c_str());
-		return;
-	}
-
-	// split parameters
-	string paramString(key, pos+1, key.size()-pos-2);
-	if (paramString.empty()) {
-		params.push_back("");
-		return;
-	}
-	const bool doMerge = false;
-	StringUtils::split(params, paramString, ',', doMerge);
 }
 
 //

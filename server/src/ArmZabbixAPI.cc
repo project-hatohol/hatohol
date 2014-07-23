@@ -263,14 +263,14 @@ void ArmZabbixAPI::makeHatoholEvents(ItemTablePtr events)
 	m_ctx->dataStore->addEventList(eventInfoList);
 }
 
-void ArmZabbixAPI::makeHatoholItems(ItemTablePtr items)
+void ArmZabbixAPI::makeHatoholItems(
+  ItemTablePtr items, ItemTablePtr applications)
 {
 	ItemInfoList itemInfoList;
 	MonitoringServerStatus serverStatus;
 	serverStatus.serverId = m_ctx->zabbixServerId;
-	DBClientZabbix::transformItemsToHatoholFormat(itemInfoList,
-	                                              serverStatus,
-	                                              items);
+	HatoholDBUtils::transformItemsToHatoholFormat(
+	  itemInfoList, serverStatus, items, applications);
 	m_ctx->dbClientHatohol.addItemInfoList(itemInfoList);
 	m_ctx->dbClientHatohol.addMonitoringServerStatus(&serverStatus);
 }
@@ -355,8 +355,8 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 	{
 		if (getUpdateType() == UPDATE_ITEM_REQUEST) {
 			ItemTablePtr items = updateItems();
-			ItemTablePtr applicatioins = getApplications(items);
-			makeHatoholItems(items);
+			ItemTablePtr applications = getApplications(items);
+			makeHatoholItems(items, applications);
 			updateApplications(items);
 			return true;
 		}
@@ -382,8 +382,8 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 
 		if (!getCopyOnDemandEnabled()) {
 			ItemTablePtr items = updateItems();
-			ItemTablePtr applicatioins = getApplications(items);
-			makeHatoholItems(items);
+			ItemTablePtr applications = getApplications(items);
+			makeHatoholItems(items, applications);
 			updateApplications(items);
 		}
 	} catch (const DataStoreException &dse) {

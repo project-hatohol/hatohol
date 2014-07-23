@@ -46,6 +46,34 @@ public:
 	static void transformHostsToHatoholFormat(
 	  HostInfoList &hostInfoList, const ItemTablePtr hosts,
 	  const ServerIdType &serverId);
+	static void transformItemsToHatoholFormat(
+	  ItemInfoList &eventInfoList, MonitoringServerStatus &serverStatus,
+	  const ItemTablePtr items, const ItemTablePtr applications);
+
+protected:
+	typedef std::map<uint64_t, std::string> AppliationIdNameMap;
+	typedef AppliationIdNameMap::iterator   ApplicationIdNameMapIterator;
+	typedef AppliationIdNameMap::const_iterator
+	   ApplicationIdNameMapConstIterator;
+
+	static int getItemVariable(const std::string &word);
+
+	/**
+	 * check if the given word is a variable (e.g. $1, $2, ...).
+	 * @params word.
+	 * A word to be checked.
+	 * @return
+	 * A variable number if the given word is a variable. Otherwise
+	 * -1 is returned.
+	 */
+	static void extractItemKeys(mlpl::StringVector &params,
+	                            const std::string &key);
+
+	static std::string makeItemBrief(const ItemGroup *itemItemGroup);
+
+	static bool transformItemItemGroupToItemInfo(
+	  ItemInfo &itemInfo, const ItemGroup *item,
+	  const AppliationIdNameMap &appIdNameMap);
 };
 
 #endif // HatoholDBUtils_h

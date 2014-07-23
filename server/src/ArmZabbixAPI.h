@@ -85,7 +85,7 @@ protected:
 
 	void makeHatoholTriggers(void);
 	void makeHatoholEvents(ItemTablePtr events);
-	void makeHatoholItems(ItemTablePtr events);
+	void makeHatoholItems(ItemTablePtr items, ItemTablePtr applications);
 	void makeHatoholHostgroups(ItemTablePtr groups);
 	void makeHatoholMapHostsHostgroups(ItemTablePtr hostsGroups);
 	void makeHatoholHosts(ItemTablePtr hosts);

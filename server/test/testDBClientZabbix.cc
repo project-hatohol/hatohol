@@ -40,29 +40,6 @@ g_dbZabbix = DBClientZabbix::create(SVID);
 #define DELETE_DB_AND_DEFINE_DBCLIENT_ZABBIX_STDID() \
 DELETE_DB_AND_DEFINE_DBCLIENT_ZABBIX(TEST_ZABBIX_SERVER_ID, _dbPath)
 
-class DBClientZabbixTester : public DBClientZabbix {
-public:
-	static void extractItemKeys(StringVector &params, const string &key)
-	{
-		DBClientZabbix::extractItemKeys(params, key);
-	}
-
-	static int getItemVariable(const string &word) 
-	{
-		return DBClientZabbix::getItemVariable(word);
-	}
-
-	static void testMakeItemBrief(const string &name, const string &key,
-	                              const string &expected)
-	{
-		VariableItemGroupPtr itemGroup;
-		itemGroup->addNewItem(ITEM_ID_ZBX_ITEMS_NAME, name);
-		itemGroup->addNewItem(ITEM_ID_ZBX_ITEMS_KEY_, key);
-		cppcut_assert_equal(
-		  expected, DBClientZabbixTester::makeItemBrief(itemGroup));
-	}
-};
-
 static void _assertCreateTableZBX(int svId, const string &tableName)
 {
 	DELETE_DB_AND_DEFINE_DBCLIENT_ZABBIX(svId, dbPath);
@@ -287,97 +264,6 @@ void test_addApplicationsRaw2_0Insert(void)
 void test_addApplicationsRaw2_0Update(void)
 {
 	assertAddApplicationsRaw2_0(true);
-}
-
-void test_extractItemKeys(void)
-{
-	StringVector vect;
-	DBClientZabbixTester::extractItemKeys
-	  (vect, "vm.memory.size[available]");
-	assertStringVectorVA(vect, "available", NULL);
-}
-
-void test_extractItemKeysNoBracket(void)
-{
-	StringVector vect;
-	DBClientZabbixTester::extractItemKeys(vect, "system.uname");
-	assertStringVectorVA(vect, NULL);
-}
-
-void test_extractItemKeysNullParams(void)
-{
-	StringVector vect;
-	DBClientZabbixTester::extractItemKeys(vect, "proc.num[]");
-	assertStringVectorVA(vect, "", NULL);
-}
-
-void test_extractItemKeysTwo(void)
-{
-	StringVector vect;
-	DBClientZabbixTester::extractItemKeys(vect, "vfs.fs.size[/boot,free]");
-	assertStringVectorVA(vect, "/boot", "free", NULL);
-}
-
-void test_extractItemKeysWithEmptyParams(void)
-{
-	StringVector vect;
-	DBClientZabbixTester::extractItemKeys(vect, "proc.num[,,run]");
-	assertStringVectorVA(vect, "", "", "run", NULL);
-}
-
-void test_getItemVariable(void)
-{
-	cppcut_assert_equal(1, DBClientZabbixTester::getItemVariable("$1"));
-}
-
-void test_getItemVariableMultipleDigits(void)
-{
-	cppcut_assert_equal(123, DBClientZabbixTester::getItemVariable("$123"));
-}
-
-void test_getItemVariableWord(void)
-{
-	cppcut_assert_equal(-1, DBClientZabbixTester::getItemVariable("abc"));
-}
-
-void test_getItemVariableDoubleDollar(void)
-{
-	cppcut_assert_equal(-1, DBClientZabbixTester::getItemVariable("$$"));
-}
-
-void test_makeItemBrief(void)
-{
-	DBClientZabbixTester::testMakeItemBrief(
-	  "CPU $2 time", "system.cpu.util[,idle]",
-	  "CPU idle time");
-}
-
-void test_makeItemBriefOverNumVariable10(void)
-{
-	DBClientZabbixTester::testMakeItemBrief(
-	  "ABC $12", "foo[P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,P13]",
-	  "ABC P12");
-}
-
-void test_makeItemBriefTwoParam(void)
-{
-	DBClientZabbixTester::testMakeItemBrief(
-	  "Free disk space on $1", "vfs.fs.size[/,free]",
-	  "Free disk space on /");
-}
-
-void test_makeItemBriefTwoKeys(void)
-{
-	DBClientZabbixTester::testMakeItemBrief(
-	  "Zabbix $4 $2 processes, in %",
-	  "zabbix[process,unreachable poller,avg,busy]",
-	  "Zabbix busy unreachable poller processes, in %");
-}
-
-void test_makeItemBriefNoVariables(void)
-{
-	DBClientZabbixTester::testMakeItemBrief(
-	  "Host name", "system.hostname", "Host name");
 }
 
 } // testDBClientZabbix
