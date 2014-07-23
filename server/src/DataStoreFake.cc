@@ -45,8 +45,7 @@ DataStoreFake::DataStoreFake(
 
 DataStoreFake::~DataStoreFake()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 ArmBase &DataStoreFake::getArmBase(void)
