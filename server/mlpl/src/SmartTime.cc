@@ -82,8 +82,7 @@ SmartTime::SmartTime(const timespec &ts)
 
 SmartTime::~SmartTime()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 void SmartTime::setCurrTime(void)
