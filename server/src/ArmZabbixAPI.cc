@@ -83,16 +83,9 @@ void ArmZabbixAPI::onGotNewEvents(const ItemTablePtr &itemPtr)
 // ---------------------------------------------------------------------------
 ItemTablePtr ArmZabbixAPI::updateTriggers(void)
 {
-	int requestSince;
 	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
 	SmartTime last = uds->getTimestampOfLastTrigger(m_ctx->zabbixServerId);
-	int lastChange = last.getAsTimespec().tv_sec;
-
-	// TODO: to be considered that we may leak triggers.
-	if (lastChange == DBClientZabbix::TRIGGER_CHANGE_TIME_NOT_FOUND)
-		requestSince = 0;
-	else
-		requestSince = lastChange;
+	const int requestSince = last.getAsTimespec().tv_sec;
 	return getTrigger(requestSince);
 }
 
