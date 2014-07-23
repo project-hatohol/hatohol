@@ -876,7 +876,7 @@ struct ActionsQueryOption::PrivateContext {
 	}
 
 	static string makeConditionTemplate(void);
-	string getActionTypeCondition(void);
+	string getActionTypeAndOwnerCondition(void);
 };
 
 const string ActionsQueryOption::PrivateContext::conditionTemplate
@@ -983,23 +983,62 @@ const ActionType &ActionsQueryOption::getActionType(void)
 	return m_ctx->type;
 }
 
-string ActionsQueryOption::PrivateContext::getActionTypeCondition(void)
+static string getUserDefinedActionsCondition(const string &ownerCondition)
 {
+	if (ownerCondition.empty())
+		return StringUtils::sprintf(
+			"(action_type>=0 AND action_type<%d)",
+			ACTION_ISSUE_SENDER);
+	else
+		return StringUtils::sprintf(
+			"(%s AND action_type>=0 AND action_type<%d)",
+			ownerCondition.c_str(), ACTION_ISSUE_SENDER);
+}
+
+string ActionsQueryOption::PrivateContext::getActionTypeAndOwnerCondition(void)
+{
+	string ownerCondition;
+	if (!option->has(OPPRVLG_GET_ALL_ACTION)) {
+		ownerCondition += StringUtils::sprintf(
+		  "%s=%" FMT_USER_ID,
+		  COLUMN_DEF_ACTIONS[IDX_ACTIONS_OWNER_USER_ID].columnName,
+		  option->getUserId());
+	}
+
 	switch (type) {
 	case ACTION_ALL:
+	{
+		string condition;
+
+		if (option->has(OPPRVLG_GET_ALL_ISSUE_SETTINGS) &&
+		    ownerCondition.empty()) {
+			return condition;
+		}
+
+		condition = getUserDefinedActionsCondition(ownerCondition);
 		if (option->has(OPPRVLG_GET_ALL_ISSUE_SETTINGS))
-			return string();
-		// fall through
+			return StringUtils::sprintf(
+				 "(%s OR action_type=%d)",
+				 condition.c_str(), ACTION_ISSUE_SENDER);
+		else
+			return condition;
+	}
 	case ACTION_USER_DEFINED:
-		return StringUtils::sprintf(
-			 "(action_type>=0 AND action_type<%d)",
-			 ACTION_ISSUE_SENDER);
+		return getUserDefinedActionsCondition(ownerCondition);
 	case ACTION_ISSUE_SENDER:
 		if (!option->has(OPPRVLG_GET_ALL_ISSUE_SETTINGS))
 			return DBClientHatohol::getAlwaysFalseCondition();
-		// fall through
+		else
+			return StringUtils::sprintf("action_type=%d",
+						    (int)type);
 	default:
-		return StringUtils::sprintf("action_type=%d", (int)type);
+		if (ownerCondition.empty())
+			return StringUtils::sprintf("action_type=%d",
+						    (int)type);
+		else
+			return StringUtils::sprintf("(%s AND action_type=%d)",
+						    ownerCondition.c_str(),
+						    (int)type);
 	}
 }
 
@@ -1007,15 +1046,8 @@ string ActionsQueryOption::getCondition(void) const
 {
 	string cond;
 
-	if (!has(OPPRVLG_GET_ALL_ACTION)) {
-		cond += StringUtils::sprintf(
-		  "%s=%" FMT_USER_ID,
-		  COLUMN_DEF_ACTIONS[IDX_ACTIONS_OWNER_USER_ID].columnName,
-		  getUserId());
-	}
-
 	// filter by action type
-	string actionTypeCondition = m_ctx->getActionTypeCondition();
+	string actionTypeCondition = m_ctx->getActionTypeAndOwnerCondition();
 	if (!actionTypeCondition.empty()) {
 		if (!cond.empty())
 			cond += " AND ";

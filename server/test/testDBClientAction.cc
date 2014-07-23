@@ -206,7 +206,6 @@ void _assertGetActionList(
 	// pick up expected action IDs
 	ActionIdSet expectActionIdSet;
 	pickupActionIdsFromTestActionDef(expectActionIdSet, option, actionType);
-	cppcut_assert_not_equal((size_t)0, expectActionIdSet.size());
 
 	// check the result
 	cppcut_assert_equal(expectActionIdSet.size(), actionDefList.size());
@@ -757,6 +756,22 @@ void test_getActionListWithActionType(gconstpointer data)
 {
 	setupTestDBUserAndDBAction();
 	const UserIdType userId = findUserWith(OPPRVLG_GET_ALL_ACTION);
+	ActionType type = (ActionType)gcut_data_get_int(data, "type");
+	assertGetActionList(userId, type);
+}
+
+void data_getActionListByIssueSettingsAdmin(void)
+{
+	data_getActionListWithActionType();
+}
+
+void test_getActionListByIssueSettingsAdmin(gconstpointer data)
+{
+	setupTestDBUserAndDBAction();
+	const OperationPrivilegeFlag excludeFlags
+	  = OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_ACTION);
+	const UserIdType userId
+		= findUserWith(OPPRVLG_GET_ALL_ISSUE_SETTINGS, excludeFlags);
 	ActionType type = (ActionType)gcut_data_get_int(data, "type");
 	assertGetActionList(userId, type);
 }
