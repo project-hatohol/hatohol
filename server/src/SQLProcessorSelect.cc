@@ -578,8 +578,7 @@ SQLProcessorSelect::SQLProcessorSelect(const SQLProcessorSelect *parent,
 
 SQLProcessorSelect::~SQLProcessorSelect()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 bool SQLProcessorSelect::checkSelectedAllColumns
