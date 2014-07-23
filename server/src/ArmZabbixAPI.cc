@@ -31,11 +31,11 @@ using namespace mlpl;
 #include "JsonBuilderAgent.h"
 #include "DataStoreException.h"
 #include "ItemEnum.h"
-#include "DBClientZabbix.h"
 #include "DBClientHatohol.h"
 #include "UnifiedDataStore.h"
 #include "HatoholDBUtils.h"
 #include "HostInfoCache.h"
+#include "CacheServiceDBClient.h" // TODO: Remove
 
 using namespace std;
 
@@ -45,7 +45,6 @@ static const guint DEFAULT_IDLE_TIMEOUT = 60;
 struct ArmZabbixAPI::PrivateContext
 {
 	const ServerIdType zabbixServerId;
-	DBClientZabbix  *dbClientZabbix;
 	DBClientHatohol  dbClientHatohol;
 	UnifiedDataStore *dataStore;
 	HostInfoCache     hostInfoCache;
@@ -53,19 +52,10 @@ struct ArmZabbixAPI::PrivateContext
 	// constructors
 	PrivateContext(const MonitoringServerInfo &serverInfo)
 	: zabbixServerId(serverInfo.id),
-	  dbClientZabbix(NULL),
 	  dataStore(NULL)
 	{
-		dbClientZabbix = DBClientZabbix::create(serverInfo.id);
-
 		// TODO: use serverInfo.ipAddress if it is given.
 		dataStore = UnifiedDataStore::getInstance();
-	}
-
-	~PrivateContext()
-	{
-		if (dbClientZabbix)
-			delete dbClientZabbix;
 	}
 };
 
@@ -116,8 +106,6 @@ void ArmZabbixAPI::updateOnlyNeededItem
 
 	// extract items that are not in the replication DB.
 	vector<T> absentItemVector;
-	(m_ctx->dbClientZabbix->*absentItemPicker)(absentItemVector,
-	                                          usedItemVector);
 	if (absentItemVector.empty())
 		return;
 
@@ -132,28 +120,26 @@ void ArmZabbixAPI::updateOnlyNeededItem
 ItemTablePtr ArmZabbixAPI::updateTriggers(void)
 {
 	int requestSince;
-	int lastChange = m_ctx->dbClientZabbix->getTriggerLastChange();
+	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+	SmartTime last = uds->getTimestampOfLastTrigger(m_ctx->zabbixServerId);
+	int lastChange = last.getAsTimespec().tv_sec;
 
 	// TODO: to be considered that we may leak triggers.
 	if (lastChange == DBClientZabbix::TRIGGER_CHANGE_TIME_NOT_FOUND)
 		requestSince = 0;
 	else
 		requestSince = lastChange;
-	ItemTablePtr tablePtr = getTrigger(requestSince);
-	m_ctx->dbClientZabbix->addTriggersRaw2_0(tablePtr);
-	return tablePtr;
+	return getTrigger(requestSince);
 }
 
 void ArmZabbixAPI::updateFunctions(void)
 {
 	ItemTablePtr tablePtr = getFunctions();
-	m_ctx->dbClientZabbix->addFunctionsRaw2_0(tablePtr);
 }
 
 ItemTablePtr ArmZabbixAPI::updateItems(void)
 {
 	ItemTablePtr tablePtr = getItems();
-	m_ctx->dbClientZabbix->addItemsRaw2_0(tablePtr);
 	return tablePtr;
 }
 
@@ -162,7 +148,6 @@ void ArmZabbixAPI::updateHosts(void)
 	ItemTablePtr hostTablePtr, hostsGroupsTablePtr;
 	getHosts(hostTablePtr, hostsGroupsTablePtr);
 	addHostsDataToDB(hostTablePtr);
-	m_ctx->dbClientZabbix->addHostsGroupsRaw2_0(hostsGroupsTablePtr);
 	makeHatoholMapHostsHostgroups(hostsGroupsTablePtr);
 }
 
@@ -174,7 +159,11 @@ void ArmZabbixAPI::updateEvents(void)
 		return;
 	}
 
-	const uint64_t dbLastEventId = m_ctx->dbClientZabbix->getLastEventId();
+	// TODO: We prepare getLastEvent() in UnifiedDataStore
+	CacheServiceDBClient cache;
+	DBClientHatohol *dbHatohol = cache.getHatohol();
+	const uint64_t dbLastEventId =
+	  dbHatohol->getLastEventId(m_ctx->zabbixServerId);
 	uint64_t eventIdOffset = 0;
 
 	if (dbLastEventId == DBClientZabbix::EVENT_ID_NOT_FOUND) {
@@ -192,7 +181,6 @@ void ArmZabbixAPI::updateEvents(void)
 		  eventIdOffset + NUMBER_OF_GET_EVENT_PER_ONCE;
 		ItemTablePtr eventsTablePtr =
 		  getEvents(eventIdOffset, eventIdTill);
-		m_ctx->dbClientZabbix->addEventsRaw2_0(eventsTablePtr);
 		makeHatoholEvents(eventsTablePtr);
 		onGotNewEvents(eventsTablePtr);
 
@@ -205,7 +193,6 @@ void ArmZabbixAPI::updateApplications(void)
 	// getHosts() tries to get all hosts when an empty vector is passed.
 	static const vector<uint64_t> appIdVector;
 	ItemTablePtr tablePtr = getApplications(appIdVector);
-	m_ctx->dbClientZabbix->addApplicationsRaw2_0(tablePtr);
 }
 
 void ArmZabbixAPI::updateApplications(const ItemTable *items)
@@ -223,18 +210,15 @@ void ArmZabbixAPI::updateGroups(void)
 {
 	ItemTablePtr groupsTablePtr;
 	getGroups(groupsTablePtr);
-	m_ctx->dbClientZabbix->addGroupsRaw2_0(groupsTablePtr);
 	makeHatoholHostgroups(groupsTablePtr);
 }
 
 void ArmZabbixAPI::addApplicationsDataToDB(ItemTablePtr &applications)
 {
-	m_ctx->dbClientZabbix->addApplicationsRaw2_0(applications);
 }
 
 void ArmZabbixAPI::addHostsDataToDB(ItemTablePtr &hosts)
 {
-	m_ctx->dbClientZabbix->addHostsRaw2_0(hosts);
 	makeHatoholHosts(hosts);
 }
 
@@ -251,9 +235,6 @@ gpointer ArmZabbixAPI::mainThread(HatoholThreadArg *arg)
 
 void ArmZabbixAPI::makeHatoholTriggers(ItemTablePtr triggers)
 {
-	TriggerInfoList _triggerInfoList;
-	m_ctx->dbClientZabbix->getTriggersAsHatoholFormat(_triggerInfoList);
-
 	TriggerInfoList triggerInfoList;
 	HatoholDBUtils::transformTriggersToHatoholFormat(
 	  triggerInfoList, triggers, m_ctx->zabbixServerId,
