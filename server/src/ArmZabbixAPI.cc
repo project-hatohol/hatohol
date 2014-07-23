@@ -165,7 +165,7 @@ void ArmZabbixAPI::updateHosts(void)
 
 void ArmZabbixAPI::updateEvents(void)
 {
-	const uint64_t serverLastEventId = getLocatedEventId(EVENT_ID_LAST);
+	const uint64_t serverLastEventId = getEndEventId(false);
 	if (serverLastEventId == EVENT_ID_NOT_FOUND) {
 		MLPL_ERR("Last event ID is not found\n");
 		return;
@@ -175,7 +175,7 @@ void ArmZabbixAPI::updateEvents(void)
 	uint64_t eventIdOffset = 0;
 
 	if (dbLastEventId == DBClientZabbix::EVENT_ID_NOT_FOUND) {
-		eventIdOffset = getLocatedEventId(EVENT_ID_FIRST);
+		eventIdOffset = getEndEventId(true);
 		if (eventIdOffset == EVENT_ID_NOT_FOUND) {
 			MLPL_INFO("First event ID is not found\n");
 			return;

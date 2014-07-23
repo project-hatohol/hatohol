@@ -27,11 +27,6 @@
 #include "JsonBuilderAgent.h"
 #include "JsonParserAgent.h"
 
-enum EventIdLocation {
-	EVENT_ID_FIRST,
-	EVENT_ID_LAST
-};
-
 class ZabbixAPI
 {
 public:
@@ -154,12 +149,13 @@ protected:
 	/**
 	 * Get the first or last event ID the target Zabbix server has.
 	 *
-	 * @param location
-	 * A location of event ID.
+	 * @param isFirst
+	 * true if you want first event ID.
+	 * false if you want last event ID.
 	 *
 	 * @return The first or last event ID.
 	 */
-	uint64_t getLocatedEventId(const EventIdLocation &location);
+	uint64_t getEndEventId(const bool &isFirst);
 
 	/**
 	 * Get the triggers.
@@ -215,13 +211,14 @@ protected:
 	/**
 	 * Get the first or last event ID the target Zabbix server has.
 	 *
-	 * @param location
-	 * A location of event ID.
+	 * @param isFirst
+	 * true if you want first event ID.
+	 * false if you want last event ID.
 	 *
 	 * @return
 	 * A SoupMessage object with the raw Zabbix servers's response.
 	 */
-	SoupMessage *queryLocatedEventId(const EventIdLocation &location);
+	SoupMessage *queryEndEventId(const bool &isFirst);
 
 	/**
 	 * Get the functions.
