@@ -454,6 +454,10 @@ HatoholError DBClientAction::addAction(ActionDef &actionDef,
 	if (ownerUserId == USER_ID_SYSTEM)
 		ownerUserId = actionDef.ownerUserId;
 
+	// Owner of ACTION_ISSUE_SENDER is always USER_ID_SYSTEM
+	if (actionDef.type == ACTION_ISSUE_SENDER)
+		ownerUserId = USER_ID_SYSTEM;
+
 	DBAgent::InsertArg arg(tableProfileActions);
 	arg.add(AUTO_INCREMENT_VALUE);
 	arg.add(actionDef.condition.serverId,
