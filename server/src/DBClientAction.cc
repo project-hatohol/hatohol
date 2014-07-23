@@ -592,14 +592,15 @@ static string makeOwnerCondition(UserIdType userId)
 
 static string makeUserDefinedActionsCondition(const string &ownerCondition)
 {
-	if (ownerCondition.empty())
+	if (ownerCondition.empty()) {
 		return StringUtils::sprintf(
 			"(action_type>=0 AND action_type<%d)",
 			ACTION_ISSUE_SENDER);
-	else
+	} else {
 		return StringUtils::sprintf(
 			"(%s AND action_type>=0 AND action_type<%d)",
 			ownerCondition.c_str(), ACTION_ISSUE_SENDER);
+	}
 }
 
 static string makeConditionAllowedActionsForDelete(
@@ -607,9 +608,10 @@ static string makeConditionAllowedActionsForDelete(
 {
 	string ownerCondition = makeOwnerCondition(privilege.getUserId());
 	string condition = makeUserDefinedActionsCondition(ownerCondition);
-	if (privilege.has(OPPRVLG_DELETE_ISSUE_SETTING))
+	if (privilege.has(OPPRVLG_DELETE_ISSUE_SETTING)) {
 		condition += StringUtils::sprintf(" OR action_type=%d",
 						  ACTION_ISSUE_SENDER);
+	}
 	return condition;
 }
 
