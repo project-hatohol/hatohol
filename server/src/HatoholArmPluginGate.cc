@@ -36,7 +36,6 @@
 #include "ChildProcessManager.h"
 #include "StringUtils.h"
 #include "HostInfoCache.h"
-#include "DBClientZabbix.h" // deprecated
 #include "HatoholDBUtils.h"
 #include "UnifiedDataStore.h"
 
@@ -452,11 +451,6 @@ void HatoholArmPluginGate::cmdHandlerSendUpdatedTriggers(
 
 	cmdBuf->setIndex(sizeof(HapiCommandHeader));
 	ItemTablePtr tablePtr = createItemTable(*cmdBuf);
-
-	// We don't save trigger data to DBClientZabbix. Instead
-	// save the data to DBClientHatohol directly.
-	// Different from ArmZabbixAPI, our new design deprecates
-	// using DBClinetZabbix, because it hasn't worked usefully.
 
 	TriggerInfoList trigInfoList;
 	const ItemGroupList &trigGrpList = tablePtr->getItemGroupList();
