@@ -1030,7 +1030,7 @@ string ActionsQueryOption::PrivateContext::getActionTypeAndOwnerCondition(void)
 			return StringUtils::sprintf("action_type=%d",
 						    (int)type);
 		else
-			return DBClientHatohol::getAlwaysFalseCondition();
+			return DBClientAction::getAlwaysFalseCondition();
 	default:
 		if (ownerCondition.empty())
 			return StringUtils::sprintf("action_type=%d",
