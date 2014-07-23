@@ -69,10 +69,8 @@ void cut_teardown(void)
 {
 	stopFaceRest();
 
-	if (g_parser) {
-		delete g_parser;
-		g_parser = NULL;
-	}
+	delete g_parser;
+	g_parser = NULL;
 
 	if (g_localeInfo) {
 		if (!g_localeInfo->lcAll.empty())
