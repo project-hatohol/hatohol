@@ -129,8 +129,7 @@ SQLWhereParser::SQLWhereParser(void)
 
 SQLWhereParser::~SQLWhereParser()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 void SQLWhereParser::add(const string& word, const string &wordLower)
