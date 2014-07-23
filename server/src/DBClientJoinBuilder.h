@@ -60,6 +60,23 @@ public:
 	 * Add a table for the JOIN and the make the where clause like
 	 * the following .
 	 *
+	 * table0 JOIN table ON tableC.columnL=table.columnR
+	 *
+	 * @param table A tableProfile for the table placed at the right side.
+	 * @param type A join type.
+	 * @param tableC A table profile for the LHS index of the condition.
+	 * @param indexL An index of the left table for the condition.
+	 * @param indexR An index of the right table for the condition.
+	 */
+	void addTable(
+	  const DBAgent::TableProfile &table, const JoinType &type,
+	  const DBAgent::TableProfile &tableC, const size_t &indexL,
+	  const size_t &indexR);
+
+	/**
+	 * Add a table for the JOIN and the make the where clause like
+	 * the following .
+	 *
 	 * t0 JOIN t1 ON (L0.column0L=t1.column0R AND L1.column1L=t1.column1R)
 	 *
 	 * @param table A tableProfile for the table placed at the right side.

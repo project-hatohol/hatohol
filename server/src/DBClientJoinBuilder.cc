@@ -91,6 +91,18 @@ void DBClientJoinBuilder::addTable(
 
 void DBClientJoinBuilder::addTable(
   const DBAgent::TableProfile &table, const JoinType &type,
+  const DBAgent::TableProfile &tableC, const size_t &indexL,
+  const size_t &indexR)
+{
+	addTableCommon(table, type, tableC, indexL, indexR);
+	m_ctx->selectExArg.tableField += StringUtils::sprintf(
+	  "%s=%s",
+	  SQLUtils::getFullName(tableC.columnDefs, indexL).c_str(),
+	  SQLUtils::getFullName(table.columnDefs, indexR).c_str());
+}
+
+void DBClientJoinBuilder::addTable(
+  const DBAgent::TableProfile &table, const JoinType &type,
   const DBAgent::TableProfile &tableC0, const size_t &index0L,
   const size_t &index0R,
   const DBAgent::TableProfile &tableC1, const size_t &index1L,

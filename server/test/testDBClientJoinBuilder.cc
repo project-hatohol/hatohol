@@ -258,6 +258,35 @@ void test_basicUse(void)
 	  exArg.statements[1]);
 }
 
+void test_addTableWithTableC(void)
+{
+	DBClientJoinBuilder builder(tableProfileTest0);
+	builder.add(IDX_TEST_TABLE0_NAME);
+
+	builder.addTable(tableProfileTest1, DBClientJoinBuilder::INNER_JOIN,
+	  tableProfileTest0, IDX_TEST_TABLE0_ID, IDX_TEST_TABLE1_TBL0_ID);
+	builder.add(IDX_TEST_TABLE1_ID);
+
+	// check where clause
+	const DBAgent::SelectExArg &exArg = builder.getSelectExArg();
+	const string expectTableField = StringUtils::sprintf(
+	  "%s INNER JOIN %s ON %s=%s",
+	  TEST_TABLE_NAME0, TEST_TABLE_NAME1,
+	  getFullName(tableProfileTest0, IDX_TEST_TABLE0_ID).c_str(),
+	  getFullName(tableProfileTest1, IDX_TEST_TABLE1_TBL0_ID).c_str()
+	);
+	cppcut_assert_equal(expectTableField, exArg.tableField);
+
+	// columns
+	cppcut_assert_equal((size_t)2, exArg.statements.size());
+	cppcut_assert_equal(
+	  getFullName(tableProfileTest0, IDX_TEST_TABLE0_NAME),
+	  exArg.statements[0]);
+	cppcut_assert_equal(
+	  getFullName(tableProfileTest1, IDX_TEST_TABLE1_ID),
+	  exArg.statements[1]);
+}
+
 void test_useFourIndexes(void)
 {
 	DBClientJoinBuilder builder(tableProfileTest0);
