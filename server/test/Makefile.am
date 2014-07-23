@@ -40,6 +40,7 @@ testHatohol_la_SOURCES = \
 	testHatoholException.cc testSQLProcessorException.cc \
 	testHatoholThreadBase.cc \
 	testHostInfoCache.cc \
+	TestHostResourceQueryOption.h \
 	testHostResourceQueryOption.cc \
 	testHostResourceQueryOptionSubClasses.cc \
 	testDBAgent.cc \
@@ -110,7 +111,7 @@ zabbix_api_response_collector_SOURCES = zabbix-api-response-collector.cc
 zabbix_api_response_collector_LDFLAGS = -lstdc++
 zabbix_api_response_collector_LDADD = $(LIBS)
 
-hapi_test_plugin_SOURCES = hapi-test-plugin.cc
+hapi_test_plugin_SOURCES = hapi-test-plugin.cc hapi-test-plugin.h
 hapi_test_plugin_LDFLAGS = $(LIBS) -lqpidmessaging
 
 echo-cutter:
