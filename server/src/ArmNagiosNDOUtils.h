@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -35,7 +35,7 @@ public:
 	virtual ~ArmNagiosNDOUtils();
 
 protected:
-	void makeSelectTriggerArg(void);
+	void makeSelectTriggerBuilder(void);
 	void makeSelectEventArg(void);
 	void makeSelectItemArg(void);
 	void makeSelectHostArg(void);

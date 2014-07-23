@@ -23,6 +23,8 @@
 #include "Utils.h"
 #include "UnifiedDataStore.h"
 #include "ItemGroupStream.h"
+#include "DBClientJoinBuilder.h"
+#include "SQLUtils.h"
 using namespace std;
 using namespace mlpl;
 
@@ -387,14 +389,6 @@ static const DBAgent::TableProfile tableProfileStateHistory(
 // ---------------------------------------------------------------------------
 // Private context
 // ---------------------------------------------------------------------------
-static const DBAgent::TableProfile *tableProfilesTrig[] = {
-  &tableProfileServices,
-  &tableProfileServiceStatus,
-  &tableProfileHosts,
-};
-static const size_t numTableProfilesTrig =
-  sizeof(tableProfilesTrig) / sizeof(DBAgent::TableProfile *);
-
 static const DBAgent::TableProfile *tableProfilesEvent[] = {
   &tableProfileStateHistory,
   &tableProfileServices,
@@ -414,7 +408,7 @@ struct ArmNagiosNDOUtils::PrivateContext
 {
 	DBAgentMySQL   *dbAgent;
 	DBClientHatohol dbHatohol;
-	DBAgent::SelectMultiTableArg selectTriggerArg;
+	DBClientJoinBuilder  selectTriggerBuilder;
 	DBAgent::SelectMultiTableArg selectEventArg;
 	DBAgent::SelectMultiTableArg selectItemArg;
 	DBAgent::SelectExArg         selectHostArg;
@@ -428,7 +422,7 @@ struct ArmNagiosNDOUtils::PrivateContext
 	// methods
 	PrivateContext(const MonitoringServerInfo &_serverInfo)
 	: dbAgent(NULL),
-	  selectTriggerArg(tableProfilesTrig, numTableProfilesTrig),
+	  selectTriggerBuilder(tableProfileServices),
 	  selectEventArg(tableProfilesEvent, numTableProfilesEvent),
 	  selectItemArg(tableProfilesItem, numTableProfilesItem),
 	  selectHostArg(tableProfileHosts),
@@ -464,7 +458,7 @@ ArmNagiosNDOUtils::ArmNagiosNDOUtils(const MonitoringServerInfo &serverInfo)
   m_ctx(NULL)
 {
 	m_ctx = new PrivateContext(serverInfo);
-	makeSelectTriggerArg();
+	makeSelectTriggerBuilder();
 	makeSelectEventArg();
 	makeSelectItemArg();
 	makeSelectHostArg();
@@ -482,52 +476,30 @@ ArmNagiosNDOUtils::~ArmNagiosNDOUtils()
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void ArmNagiosNDOUtils::makeSelectTriggerArg(void)
+void ArmNagiosNDOUtils::makeSelectTriggerBuilder(void)
 {
-	enum {
-		TBLIDX_SERVICES,
-		TBLIDX_STATUS,
-		TBLIDX_HOSTS,
-	};
-
 	// TODO: Confirm what may be use using host_object_id.
-	DBAgent::SelectMultiTableArg &arg = m_ctx->selectTriggerArg;
-	arg.tableField = 
-	  StringUtils::sprintf(
-	    "%s "
-	    "inner join %s on %s=%s "
-	    "inner join %s on %s=%s",
-	    TABLE_NAME_SERVICES,
-	    TABLE_NAME_SERVICESTATUS,
-	    arg.getFullName(TBLIDX_SERVICES,
-                            IDX_SERVICES_SERVICE_OBJECT_ID).c_str(),
-	    arg.getFullName(TBLIDX_STATUS,
-                            IDX_SERVICESTATUS_SERVICE_OBJECT_ID).c_str(),
-	    TABLE_NAME_HOSTS,
-	    arg.getFullName(TBLIDX_SERVICES,
-                            IDX_SERVICES_HOST_OBJECT_ID).c_str(),
-	    arg.getFullName(TBLIDX_HOSTS,
-                            IDX_HOSTS_HOST_OBJECT_ID).c_str());
+	DBClientJoinBuilder &builder = m_ctx->selectTriggerBuilder;
+	builder.add(IDX_SERVICES_SERVICE_ID);
+	builder.add(IDX_SERVICESTATUS_OUTPUT);
 
-	arg.setTable(TBLIDX_SERVICES);
-	arg.add(IDX_SERVICES_SERVICE_ID);
+	builder.addTable(
+	  tableProfileServiceStatus, DBClientJoinBuilder::INNER_JOIN,
+	  IDX_SERVICES_SERVICE_OBJECT_ID, IDX_SERVICESTATUS_SERVICE_OBJECT_ID);
+	builder.add(IDX_SERVICESTATUS_CURRENT_STATE);
+	builder.add(IDX_SERVICESTATUS_STATUS_UPDATE_TIME);
 
-	arg.setTable(TBLIDX_STATUS);
-	arg.add(IDX_SERVICESTATUS_CURRENT_STATE);
-	arg.add(IDX_SERVICESTATUS_STATUS_UPDATE_TIME);
-
-	arg.setTable(TBLIDX_HOSTS);
-	arg.add(IDX_HOSTS_HOST_OBJECT_ID);
-	arg.add(IDX_HOSTS_DISPLAY_NAME);
-
-	arg.setTable(TBLIDX_STATUS);
-	arg.add(IDX_SERVICESTATUS_OUTPUT);
+	builder.addTable(
+	  tableProfileHosts, DBClientJoinBuilder::INNER_JOIN,
+	  IDX_SERVICESTATUS_SERVICE_OBJECT_ID, IDX_HOSTS_HOST_OBJECT_ID);
+	builder.add(IDX_HOSTS_HOST_OBJECT_ID);
+	builder.add(IDX_HOSTS_DISPLAY_NAME);
 
 	// contiditon
 	m_ctx->selectTriggerBaseCondition = StringUtils::sprintf(
 	  "%s>=",
-	  arg.getFullName(TBLIDX_STATUS,
-	                  IDX_SERVICESTATUS_STATUS_UPDATE_TIME).c_str());
+	  SQLUtils::getFullName(COLUMN_DEF_SERVICESTATUS,
+	                        IDX_SERVICESTATUS_STATUS_UPDATE_TIME).c_str());
 }
 
 void ArmNagiosNDOUtils::makeSelectEventArg(void)
@@ -637,8 +609,10 @@ void ArmNagiosNDOUtils::addConditionForTriggerQuery(void)
 	struct tm tm;
 	localtime_r(&lastUpdateTime, &tm);
 
-	m_ctx->selectTriggerArg.condition = m_ctx->selectTriggerBaseCondition;
-	m_ctx->selectTriggerArg.condition +=
+	DBAgent::SelectExArg &arg =
+	  m_ctx->selectTriggerBuilder.getSelectExArg();
+	arg.condition = m_ctx->selectTriggerBaseCondition;
+	arg.condition +=
 	   StringUtils::sprintf("'%04d-%02d-%02d %02d:%02d:%02d'",
 	                        1900+tm.tm_year, tm.tm_mon+1, tm.tm_mday,
 	                        tm.tm_hour, tm.tm_min, tm.tm_sec);
@@ -662,15 +636,15 @@ void ArmNagiosNDOUtils::getTrigger(void)
 	addConditionForTriggerQuery();
 
 	// TODO: should use transaction
-	m_ctx->dbAgent->select(m_ctx->selectTriggerArg);
-	size_t numTriggers =
-	   m_ctx->selectTriggerArg.dataTable->getNumberOfRows();
+	DBAgent::SelectExArg &arg =
+	  m_ctx->selectTriggerBuilder.getSelectExArg();
+	m_ctx->dbAgent->select(arg);
+	size_t numTriggers = arg.dataTable->getNumberOfRows();
 	MLPL_DBG("The number of triggers: %zd\n", numTriggers);
 
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	TriggerInfoList triggerInfoList;
-	const ItemGroupList &grpList =
-	  m_ctx->selectTriggerArg.dataTable->getItemGroupList();
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
 		int currentStatus;
@@ -680,6 +654,7 @@ void ArmNagiosNDOUtils::getTrigger(void)
 		trigInfo.lastChangeTime.tv_nsec = 0;
 
 		itemGroupStream >> trigInfo.id;      // service_id
+		itemGroupStream >> trigInfo.brief;   // output
 
 		// TODO: severity should not depend on the status.
 		// status and severity (current_status)
@@ -700,7 +675,6 @@ void ArmNagiosNDOUtils::getTrigger(void)
 		                                      //status_update_time
 		itemGroupStream >> trigInfo.hostId;   // host_id
 		itemGroupStream >> trigInfo.hostName; // hosts.display_name
-		itemGroupStream >> trigInfo.brief;    // output
 		triggerInfoList.push_back(trigInfo);
 	}
 	m_ctx->dbHatohol.addTriggerInfoList(triggerInfoList);
