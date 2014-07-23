@@ -88,8 +88,7 @@ ZabbixAPI::ZabbixAPI(void)
 
 ZabbixAPI::~ZabbixAPI()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 // ---------------------------------------------------------------------------
