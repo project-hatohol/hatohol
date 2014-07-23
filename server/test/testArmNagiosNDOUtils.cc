@@ -88,11 +88,9 @@ void cut_setup(void)
 
 void cut_teardown(void)
 {
-	if (g_armNagi) {
-		delete g_armNagi;
-		g_armNagi = NULL;
-		g_armNagiTestee = NULL;
-	}
+	delete g_armNagi;
+	g_armNagi = NULL;
+	g_armNagiTestee = NULL;
 }
 
 // ---------------------------------------------------------------------------
