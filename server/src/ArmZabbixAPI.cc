@@ -44,8 +44,8 @@ static const guint DEFAULT_IDLE_TIMEOUT = 60;
 struct ArmZabbixAPI::PrivateContext
 {
 	const ServerIdType zabbixServerId;
-	DBClientHatohol  dbClientHatohol;
-	HostInfoCache     hostInfoCache;
+	DBClientHatohol    dbClientHatohol;
+	HostInfoCache      hostInfoCache;
 
 	// constructors
 	PrivateContext(const MonitoringServerInfo &serverInfo)
