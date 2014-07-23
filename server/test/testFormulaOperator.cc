@@ -87,10 +87,8 @@ cut_trace(_assertFormulaComparatorEqualVal(V0, V1))
 void cut_teardown()
 {
 	for (int i = 0; i < NUM_ELEM_POOL; i++) {
-		if (g_elem[i]) {
-			delete g_elem[i];
-			g_elem[i] = NULL;
-		}
+		delete g_elem[i];
+		g_elem[i] = NULL;
 	}
 }
 
