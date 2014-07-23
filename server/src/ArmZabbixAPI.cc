@@ -45,16 +45,12 @@ struct ArmZabbixAPI::PrivateContext
 {
 	const ServerIdType zabbixServerId;
 	DBClientHatohol  dbClientHatohol;
-	UnifiedDataStore *dataStore;
 	HostInfoCache     hostInfoCache;
 
 	// constructors
 	PrivateContext(const MonitoringServerInfo &serverInfo)
-	: zabbixServerId(serverInfo.id),
-	  dataStore(NULL)
+	: zabbixServerId(serverInfo.id)
 	{
-		// TODO: use serverInfo.ipAddress if it is given.
-		dataStore = UnifiedDataStore::getInstance();
 	}
 };
 
@@ -194,7 +190,9 @@ void ArmZabbixAPI::makeHatoholEvents(ItemTablePtr events)
 	EventInfoList eventInfoList;
 	HatoholDBUtils::transformEventsToHatoholFormat(
 	  eventInfoList, events, m_ctx->zabbixServerId);
-	m_ctx->dataStore->addEventList(eventInfoList);
+
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	dataStore->addEventList(eventInfoList);
 }
 
 void ArmZabbixAPI::makeHatoholItems(
