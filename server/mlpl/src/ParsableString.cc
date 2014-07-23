@@ -43,8 +43,7 @@ SeparatorChecker::SeparatorChecker(const char *separators, bool allowAlter)
 
 SeparatorChecker::~SeparatorChecker()
 {
-	if (m_separatorArray)
-		delete [] m_separatorArray;
+	delete [] m_separatorArray;
 }
 
 bool SeparatorChecker::isSeparator(const char c)
@@ -109,8 +108,7 @@ SeparatorCheckerWithCounter::SeparatorCheckerWithCounter(const char *separators)
 
 SeparatorCheckerWithCounter::~SeparatorCheckerWithCounter()
 {
-	if (m_counter)
-		delete [] m_counter;
+	delete [] m_counter;
 }
 
 void SeparatorCheckerWithCounter::resetCounter(void)
@@ -184,10 +182,8 @@ SeparatorCheckerWithCallback::SeparatorCheckerWithCallback(const char *seps)
 
 SeparatorCheckerWithCallback::~SeparatorCheckerWithCallback()
 {
-	if (m_callbackArray)
-		delete [] m_callbackArray;
-	if (m_argArray)
-		delete [] m_argArray;
+	delete [] m_callbackArray;
+	delete [] m_argArray;
 }
 
 void SeparatorCheckerWithCallback::notifyPassedOnSeparator(const char c)
