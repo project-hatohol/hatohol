@@ -295,10 +295,8 @@ void cut_setup(void)
 
 void cut_teardown(void)
 {
-	if (g_testPushCtx) {
-		delete g_testPushCtx;
-		g_testPushCtx = NULL;
-	}
+	delete g_testPushCtx;
+	g_testPushCtx = NULL;
 	releaseDefaultContext();
 }
 
