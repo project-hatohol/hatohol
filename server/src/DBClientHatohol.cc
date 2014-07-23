@@ -1464,22 +1464,10 @@ DBClientHatohol::~DBClientHatohol()
 void DBClientHatohol::getHostInfoList(HostInfoList &hostInfoList,
 				      const HostsQueryOption &option)
 {
-	static const DBAgent::TableProfile *tableProfiles[] = {
-	  &tableProfileHosts,
-	  &tableProfileMapHostsHostgroups,
-	};
-	enum {
-		TBLIDX_HOSTS,
-		TBLIDX_MAP_HOSTS_HOSTGROUPS,
-	};
-	static const size_t numTableProfiles =
-	  sizeof(tableProfiles) / sizeof(DBAgent::TableProfile *);
-	DBAgent::SelectMultiTableArg arg(tableProfiles, numTableProfiles);
-
+	DBAgent::SelectExArg arg(tableProfileHosts);
 	arg.tableField = option.getFromClause();
 	arg.useDistinct = option.isHostgroupUsed();
-
-	arg.setTable(TBLIDX_HOSTS);
+	arg.useFullName = option.isHostgroupUsed();
 	arg.add(IDX_HOSTS_SERVER_ID);
 	arg.add(IDX_HOSTS_HOST_ID);
 	arg.add(IDX_HOSTS_HOST_NAME);
