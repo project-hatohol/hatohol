@@ -55,10 +55,8 @@ FormulaElement::FormulaElement(FormulaElementPriority priority, bool unary)
 
 FormulaElement::~FormulaElement()
 {
-	if (m_leftHand)
-		delete m_leftHand;
-	if (m_rightHand)
-		delete m_rightHand;
+	delete m_leftHand;
+	delete m_rightHand;
 }
 
 void FormulaElement::setLeftHand(FormulaElement *elem)
@@ -319,8 +317,7 @@ FormulaVariable::FormulaVariable(const string &name,
 
 FormulaVariable::~FormulaVariable()
 {
-	if (m_variableGetter)
-		delete m_variableGetter;
+	delete m_variableGetter;
 }
 
 ItemDataPtr FormulaVariable::evaluate(void)
