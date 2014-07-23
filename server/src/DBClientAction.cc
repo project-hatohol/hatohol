@@ -590,7 +590,7 @@ static string makeOwnerCondition(UserIdType userId)
 		 userId);
 }
 
-static string makeUserDefinedActionsCondition(const string &ownerCondition)
+static string makeUserActionsCondition(const string &ownerCondition)
 {
 	if (ownerCondition.empty()) {
 		return StringUtils::sprintf(
@@ -607,7 +607,7 @@ static string makeConditionAllowedActionsForDelete(
   const OperationPrivilege &privilege)
 {
 	string ownerCondition = makeOwnerCondition(privilege.getUserId());
-	string condition = makeUserDefinedActionsCondition(ownerCondition);
+	string condition = makeUserActionsCondition(ownerCondition);
 	if (privilege.has(OPPRVLG_DELETE_ISSUE_SETTING)) {
 		condition += StringUtils::sprintf(" OR action_type=%d",
 						  ACTION_ISSUE_SENDER);
@@ -1081,7 +1081,7 @@ string ActionsQueryOption::PrivateContext::getActionTypeAndOwnerCondition(void)
 			return condition;
 		}
 
-		condition = makeUserDefinedActionsCondition(ownerCondition);
+		condition = makeUserActionsCondition(ownerCondition);
 		if (option->has(OPPRVLG_GET_ALL_ISSUE_SETTINGS)) {
 			return StringUtils::sprintf(
 				 "(%s OR action_type=%d)",
@@ -1091,7 +1091,7 @@ string ActionsQueryOption::PrivateContext::getActionTypeAndOwnerCondition(void)
 		}
 	}
 	case ACTION_USER_DEFINED:
-		return makeUserDefinedActionsCondition(ownerCondition);
+		return makeUserActionsCondition(ownerCondition);
 	case ACTION_ISSUE_SENDER:
 		if (option->has(OPPRVLG_GET_ALL_ISSUE_SETTINGS)) {
 			return StringUtils::sprintf("action_type=%d",
