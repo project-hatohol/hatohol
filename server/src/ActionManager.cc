@@ -494,8 +494,7 @@ ActionManager::ActionManager(void)
 
 ActionManager::~ActionManager()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 static bool shouldSkipIssueSender(
