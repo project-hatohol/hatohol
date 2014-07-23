@@ -36,7 +36,7 @@ public:
 
 protected:
 	void makeSelectTriggerBuilder(void);
-	void makeSelectEventArg(void);
+	void makeSelectEventBuilder(void);
 	void makeSelectItemArg(void);
 	void makeSelectHostArg(void);
 	void makeSelectHostgroupArg(void);
