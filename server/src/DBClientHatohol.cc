@@ -1891,6 +1891,7 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 	DBAgent::SelectExArg arg(tableProfileItems);
 	arg.tableField = option.getFromClause();
 	arg.useDistinct = option.isHostgroupUsed();
+	arg.useFullName = option.isHostgroupUsed();
 	arg.add(IDX_ITEMS_SERVER_ID);
 	arg.add(IDX_ITEMS_ID);
 	arg.add(IDX_ITEMS_HOST_ID);
