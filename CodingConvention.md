@@ -68,4 +68,5 @@ String: Single quotation
 JavaScript
 ==========
 
+Indent: 2 spaces, no tabs.
 String: Single quotation
