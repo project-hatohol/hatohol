@@ -355,6 +355,7 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 	{
 		if (getUpdateType() == UPDATE_ITEM_REQUEST) {
 			ItemTablePtr items = updateItems();
+			ItemTablePtr applicatioins = getApplications(items);
 			makeHatoholItems(items);
 			updateApplications(items);
 			return true;
@@ -381,6 +382,7 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 
 		if (!getCopyOnDemandEnabled()) {
 			ItemTablePtr items = updateItems();
+			ItemTablePtr applicatioins = getApplications(items);
 			makeHatoholItems(items);
 			updateApplications(items);
 		}
