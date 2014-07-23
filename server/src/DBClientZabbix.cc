@@ -1844,37 +1844,6 @@ void DBClientZabbix::transformItemsToHatoholFormat(
 	}
 }
 
-void DBClientZabbix::transformHostsGroupsItemGroupToHatoholFormat
-  (HostgroupElement &hostgroupElement,
-   const ItemGroup *groupHostsGroups)
-{
-	hostgroupElement.id = AUTO_INCREMENT_VALUE;
-
-	ItemGroupStream itemGroupStream(groupHostsGroups);
-
-	itemGroupStream.seek(ITEM_ID_ZBX_HOSTS_GROUPS_HOSTID);
-	itemGroupStream >> hostgroupElement.hostId;
-
-	itemGroupStream.seek(ITEM_ID_ZBX_HOSTS_GROUPS_GROUPID);
-	itemGroupStream >> hostgroupElement.groupId;
-}
-
-void DBClientZabbix::transformHostsGroupsToHatoholFormat
-  (HostgroupElementList &hostgroupElementList,
-   const ItemTablePtr mapHostHostgroups,
-   uint32_t serverId)
-{
-	const ItemGroupList &itemGroupList = mapHostHostgroups->getItemGroupList();
-	ItemGroupListConstIterator it = itemGroupList.begin();
-	for (; it != itemGroupList.end(); ++it) {
-		HostgroupElement hostgroupElement;
-		hostgroupElement.serverId = serverId;
-		transformHostsGroupsItemGroupToHatoholFormat
-		  (hostgroupElement, *it);
-		hostgroupElementList.push_back(hostgroupElement);
-	}
-}
-
 void DBClientZabbix::transformHostsItemGroupToHatoholFormat
   (HostInfo &hostInfo, const ItemGroup *groupHosts)
 {

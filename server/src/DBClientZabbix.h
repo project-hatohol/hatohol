@@ -42,13 +42,6 @@ public:
 	static bool transformItemItemGroupToItemInfo(ItemInfo &itemInfo,
 	                                             const ItemGroup *item,
 	                                             DBClientZabbix &dbZabbix);
-	static void transformHostsGroupsItemGroupToHatoholFormat
-	  (HostgroupElement &hostgroupElement,
-	   const ItemGroup *groupHostsGroups);
-	static void transformHostsGroupsToHatoholFormat
-	  (HostgroupElementList &hostgroupElementList,
-	   const ItemTablePtr mapHostHostgroups,
-	   uint32_t serverId);
 	static void transformHostsItemGroupToHatoholFormat(HostInfo &hostInfo,
 	                                                   const ItemGroup *groupHosts);
 	static void transformHostsToHatoholFormat(HostInfoList &hostInfoList,

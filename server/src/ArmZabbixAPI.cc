@@ -286,9 +286,8 @@ void ArmZabbixAPI::makeHatoholHostgroups(ItemTablePtr groups)
 void ArmZabbixAPI::makeHatoholMapHostsHostgroups(ItemTablePtr hostsGroups)
 {
 	HostgroupElementList hostgroupElementList;
-	DBClientZabbix::transformHostsGroupsToHatoholFormat(hostgroupElementList,
-	                                                    hostsGroups,
-	                                                    m_ctx->zabbixServerId);
+	HatoholDBUtils::transformHostsGroupsToHatoholFormat(
+	  hostgroupElementList, hostsGroups, m_ctx->zabbixServerId);
 	m_ctx->dbClientHatohol.addHostgroupElementList(hostgroupElementList);
 }
 

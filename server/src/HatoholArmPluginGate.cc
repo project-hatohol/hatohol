@@ -544,13 +544,9 @@ void HatoholArmPluginGate::cmdHandlerSendHostgroupElements(
 	cmdBuf->setIndex(sizeof(HapiCommandHeader));
 	ItemTablePtr hostgroupElementTablePtr = createItemTable(*cmdBuf);
 
-	// We don't save host data to DBClientZabbix.
-	// See also the comment in cmdHandlerSendUpdatedTriggers().
-	// TODO: replace DBClientZabbix::transformHostsGroupsToHatoholFormat()
-	// with a similar helper function.
 	HostgroupElementList hostgroupElementList;
 	HostInfoList hostInfoList;
-	DBClientZabbix::transformHostsGroupsToHatoholFormat(
+	HatoholDBUtils::transformHostsGroupsToHatoholFormat(
 	  hostgroupElementList, hostgroupElementTablePtr, m_ctx->serverInfo.id);
 
 	CacheServiceDBClient cache;
