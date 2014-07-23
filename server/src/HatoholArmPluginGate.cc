@@ -225,8 +225,7 @@ void HatoholArmPluginGate::exitSync(void)
 HatoholArmPluginGate::~HatoholArmPluginGate()
 {
 	exitSync();
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 void HatoholArmPluginGate::onConnected(qpid::messaging::Connection &conn)
