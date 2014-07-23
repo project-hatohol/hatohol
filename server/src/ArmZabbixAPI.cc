@@ -122,7 +122,7 @@ void ArmZabbixAPI::updateEvents(void)
 	  m_ctx->dbClientHatohol.getLastEventId(m_ctx->zabbixServerId);
 	uint64_t eventIdOffset = 0;
 
-	if (dbLastEventId == DBClientZabbix::EVENT_ID_NOT_FOUND) {
+	if (dbLastEventId == EVENT_NOT_FOUND) {
 		eventIdOffset = getEndEventId(true);
 		if (eventIdOffset == EVENT_ID_NOT_FOUND) {
 			MLPL_INFO("First event ID is not found\n");
