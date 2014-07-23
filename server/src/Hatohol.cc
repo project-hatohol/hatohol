@@ -37,7 +37,6 @@ using namespace mlpl;
 #include "DBAgentMySQL.h"
 #include "DBClientConfig.h"
 #include "DBClientHatohol.h"
-#include "DBClientZabbix.h"
 #include "ActionManager.h"
 #include "ActorCollector.h"
 #include "DBClientAction.h"
@@ -61,7 +60,6 @@ static void init(const CommandLineArg &arg)
 	DBClientConfig::init(arg);
 	DBClientUser::init();
 	DBClientHatohol::init();
-	DBClientZabbix::init();
 	DBClientAction::init();
 
 	ItemData::init();

@@ -27,7 +27,6 @@
 #include "ArmZabbixAPI.h"
 #include "Helpers.h"
 #include "Synchronizer.h"
-#include "DBClientZabbix.h"
 #include "ConfigManager.h"
 #include "ItemTablePtr.h"
 #include "ItemTable.h"
@@ -368,7 +367,6 @@ static void _assertReceiveData(ArmZabbixAPITestee::GetTestType testType,
 	serverInfo.id = svId;
 	serverInfo.port = getTestPort();
 
-	deleteDBClientZabbixDB(svId);
 	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
 	g_apiEmulator.setAPIVersion(expectedVersion);
 	cppcut_assert_equal
@@ -508,7 +506,6 @@ void test_mainThreadOneProc()
 	MonitoringServerInfo serverInfo = g_defaultServerInfo;
 	serverInfo.id = svId;
 	serverInfo.port = getTestPort();
-	deleteDBClientZabbixDB(svId);
 	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
 	cppcut_assert_equal(true, armZbxApiTestee.testMainThreadOneProc());
 }
@@ -549,7 +546,6 @@ void test_setCopyOnDemandEnabled()
 MonitoringServerInfo setupServer(void)
 {
 	int svId = 1; // We should use one of testServerInfo
-	deleteDBClientZabbixDB(svId);
 	MonitoringServerInfo serverInfo = g_defaultServerInfo;
 	serverInfo.id = svId;
 	serverInfo.port = getTestPort();

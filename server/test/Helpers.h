@@ -94,14 +94,9 @@ std::string getFixturesDir(void);
 bool isVerboseMode(void);
 
 std::string deleteDBClientHatoholDB(void);
-std::string deleteDBClientZabbixDB(const ServerIdType serverId);
-
 std::string getDBPathForDBClientHatohol(void);
-std::string getDBPathForDBClientZabbix(const ServerIdType serverId);
 
 std::string execSqlite3ForDBClientHatohol(const std::string &statement);
-std::string execSqlite3ForDBClientZabbix(const ServerIdType serverId,
-                                         const std::string &statement);
 std::string execMySQL(const std::string &dbName, const std::string &statement,
                       bool showHeader = false);
 

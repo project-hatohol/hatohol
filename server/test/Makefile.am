@@ -49,7 +49,6 @@ testHatohol_la_SOURCES = \
 	testDBClientUtils.cc \
 	testDBClientConfig.cc \
 	testDBClientHatohol.cc testDBClientHatohol.h \
-	testDBClientZabbix.cc \
 	testDBClientAction.cc testDBClientUser.cc \
 	testDBTermCodec.cc \
 	testOperationPrivilege.cc \

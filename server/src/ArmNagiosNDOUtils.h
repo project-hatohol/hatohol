@@ -26,7 +26,6 @@
 #include "JsonParserAgent.h"
 #include "JsonBuilderAgent.h"
 #include "DBClientConfig.h"
-#include "DBClientZabbix.h"
 
 class ArmNagiosNDOUtils : public ArmBase
 {
