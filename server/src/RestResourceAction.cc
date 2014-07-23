@@ -168,7 +168,8 @@ void RestResourceAction::handlePost(void)
 		return;
 	}
 	if (!(actionDef.type == ACTION_COMMAND ||
-	      actionDef.type == ACTION_RESIDENT)) {
+	      actionDef.type == ACTION_RESIDENT ||
+	      actionDef.type == ACTION_ISSUE_SENDER)) {
 		REPLY_ERROR(this, HTERR_INVALID_PARAMETER,
 		            "type: %d", actionDef.type);
 		return;
