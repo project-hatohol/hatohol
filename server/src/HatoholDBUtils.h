@@ -33,7 +33,7 @@ public:
 	  HostgroupInfo &groupInfo, const ItemGroup *groupItemGroup);
 	static void transformGroupsToHatoholFormat(
 	  HostgroupInfoList &groupInfoList, const ItemTablePtr groups,
-	  uint32_t serverId);
+	  const ServerIdType &serverId);
 };
 
 #endif // HatoholDBUtils_h

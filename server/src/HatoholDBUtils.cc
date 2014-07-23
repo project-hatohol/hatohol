@@ -102,8 +102,9 @@ void HatoholDBUtils::transformGroupItemGroupToHostgroupInfo
 	itemGroupStream >> groupInfo.groupName;
 }
 
-void HatoholDBUtils::transformGroupsToHatoholFormat
-  (HostgroupInfoList &groupInfoList, const ItemTablePtr groups, uint32_t serverId)
+void HatoholDBUtils::transformGroupsToHatoholFormat(
+  HostgroupInfoList &groupInfoList, const ItemTablePtr groups,
+  const ServerIdType &serverId)
 {
 	const ItemGroupList &itemGroupList = groups->getItemGroupList();
 	ItemGroupListConstIterator it = itemGroupList.begin();
