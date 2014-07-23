@@ -63,8 +63,6 @@ protected:
 
 	void updateGroups(void);
 
-	void addHostsDataToDB(ItemTablePtr &hosts);
-
 	void makeHatoholTriggers(ItemTablePtr triggers);
 	void makeHatoholEvents(ItemTablePtr events);
 	void makeHatoholItems(ItemTablePtr items, ItemTablePtr applications);
@@ -75,10 +73,6 @@ protected:
 	template<typename T>
 	void makeItemVector(std::vector<T> &idVector,
 	                    const ItemTable *itemTable, const ItemId itemId);
-	template<typename T>
-	void checkObtainedItems(const ItemTable *obtainedItemTable,
-	                        const std::vector<T> &requestedItemVector,
-	                        const ItemId itemId);
 	uint64_t getMaximumNumberGetEventPerOnce(void);
 
 	// virtual methods

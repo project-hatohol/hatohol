@@ -116,7 +116,7 @@ void ArmZabbixAPI::updateHosts(void)
 {
 	ItemTablePtr hostTablePtr, hostsGroupsTablePtr;
 	getHosts(hostTablePtr, hostsGroupsTablePtr);
-	addHostsDataToDB(hostTablePtr);
+	makeHatoholHosts(hostTablePtr);
 	makeHatoholMapHostsHostgroups(hostsGroupsTablePtr);
 }
 
@@ -166,11 +166,6 @@ void ArmZabbixAPI::updateGroups(void)
 	ItemTablePtr groupsTablePtr;
 	getGroups(groupsTablePtr);
 	makeHatoholHostgroups(groupsTablePtr);
-}
-
-void ArmZabbixAPI::addHostsDataToDB(ItemTablePtr &hosts)
-{
-	makeHatoholHosts(hosts);
 }
 
 //
@@ -251,45 +246,6 @@ uint64_t ArmZabbixAPI::getMaximumNumberGetEventPerOnce(void)
 //
 // This function just shows a warning if there is missing host ID.
 //
-template<typename T>
-void ArmZabbixAPI::checkObtainedItems(const ItemTable *obtainedItemTable,
-                                      const vector<T> &requestedItemVector,
-                                      const ItemId itemId)
-{
-	size_t numRequested = requestedItemVector.size();
-	size_t numObtained = obtainedItemTable->getNumberOfRows();
-	if (numRequested != numObtained) {
-		MLPL_WARN("requested: %zd, obtained: %zd\n",
-		          numRequested, numObtained);
-	}
-
-	// make the set of obtained items
-	set<T> obtainedItemSet;
-	const ItemGroupList &grpList = obtainedItemTable->getItemGroupList();
-	ItemGroupListConstIterator it = grpList.begin();
-	for (; it != grpList.end(); ++it) {
-		const ItemData *itemData = (*it)->getItem(itemId);
-		const T &item = *itemData;
-		obtainedItemSet.insert(item);
-	}
-
-	// check the requested ID is in the obtained
-	for (size_t i = 0; i < numRequested; i++) {
-		const T &reqItem = requestedItemVector[i];
-		typename set<T>::iterator it = obtainedItemSet.find(reqItem);
-		if (it == obtainedItemSet.end()) {
-			ostringstream ss;
-			ss << reqItem;
-			MLPL_WARN(
-			  "Not found in the obtained items: %s "
-			  "(%" PRIu64 ")\n",
-		          ss.str().c_str(), itemId);
-		} else {
-			obtainedItemSet.erase(it);
-		}
-	}
-}
-
 bool ArmZabbixAPI::mainThreadOneProc(void)
 {
 	if (!updateAuthTokenIfNeeded())
