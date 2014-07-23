@@ -44,7 +44,7 @@ public:
 
 protected:
 	ItemTablePtr updateTriggers(void);
-	ItemTablePtr updateItems(void);
+	void updateItems(void);
 
 	/**
 	 * get all hosts in the ZABBIX server and save them in the Hatohol DB.

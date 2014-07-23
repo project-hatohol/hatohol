@@ -89,10 +89,11 @@ ItemTablePtr ArmZabbixAPI::updateTriggers(void)
 	return getTrigger(requestSince);
 }
 
-ItemTablePtr ArmZabbixAPI::updateItems(void)
+void ArmZabbixAPI::updateItems(void)
 {
-	ItemTablePtr tablePtr = getItems();
-	return tablePtr;
+	ItemTablePtr items = getItems();
+	ItemTablePtr applications = getApplications(items);
+	makeHatoholItems(items, applications);
 }
 
 void ArmZabbixAPI::updateHosts(void)
@@ -239,9 +240,7 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 	try
 	{
 		if (getUpdateType() == UPDATE_ITEM_REQUEST) {
-			ItemTablePtr items = updateItems();
-			ItemTablePtr applications = getApplications(items);
-			makeHatoholItems(items, applications);
+			updateItems();
 			return true;
 		}
 
@@ -257,11 +256,8 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 
 		updateEvents();
 
-		if (!getCopyOnDemandEnabled()) {
-			ItemTablePtr items = updateItems();
-			ItemTablePtr applications = getApplications(items);
-			makeHatoholItems(items, applications);
-		}
+		if (!getCopyOnDemandEnabled())
+			updateItems();
 	} catch (const DataStoreException &dse) {
 		MLPL_ERR("Error on update: %s\n", dse.what());
 		clearAuthToken();
