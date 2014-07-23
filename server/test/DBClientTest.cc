@@ -478,9 +478,12 @@ UserInfo testUserInfo[] = {
 	0,
 }, {
 	0,                         // id
-	"canGetIssueSenderAction", // name
+	"IssueSettingsAdmin",      // name
 	"cannotGetAllActions",     // password
-	OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_ISSUE_SETTINGS), // flags
+	(1 << OPPRVLG_GET_ALL_ISSUE_SETTINGS) |
+	(1 << OPPRVLG_CREATE_ISSUE_SETTING) |
+	(1 << OPPRVLG_UPDATE_ISSUE_SETTING) |
+	(1 << OPPRVLG_DELETE_ISSUE_SETTING), // flags
 }
 };
 const size_t NumTestUserInfo = sizeof(testUserInfo) / sizeof(UserInfo);
