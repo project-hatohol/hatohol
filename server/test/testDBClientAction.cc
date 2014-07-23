@@ -156,7 +156,7 @@ void _assertEqual(const ActionDef &expect, const ActionDef &actual)
 #define assertEqual(E,A) cut_trace(_assertEqual(E,A))
 
 static void pickupActionIdsFromTestActionDef(
-  ActionIdSet &actionIdSet, const UserIdType &ownerId,
+  ActionIdSet &actionIdSet, const UserIdType &expectedOwnerId,
   const ActionType &actionType = ACTION_USER_DEFINED)
 {
 	for (size_t i = 0; i < NumTestActionDef; i++) {
@@ -170,8 +170,10 @@ static void pickupActionIdsFromTestActionDef(
 			if (actDef.type != actionType)
 				continue;
 		}
-		if (ownerId != USER_ID_ANY && actDef.ownerUserId != ownerId)
+		if (expectedOwnerId != USER_ID_ANY &&
+		    actDef.ownerUserId != expectedOwnerId) {
 			continue;
+		}
 		const int expectedId = i + 1;
 		actionIdSet.insert(expectedId);
 	}
