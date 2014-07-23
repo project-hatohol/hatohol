@@ -865,12 +865,13 @@ HatoholError DBClientAction::checkPrivilegeForDelete(
 struct ActionsQueryOption::PrivateContext {
 	static const string conditionTemplate;
 
+	ActionsQueryOption *option;
 	// TODO: should have replica?
 	const EventInfo *eventInfo;
 	ActionType type;
 
-	PrivateContext()
-	: eventInfo(NULL), type(ACTION_USER_DEFINED)
+	PrivateContext(ActionsQueryOption *_option)
+	: option(_option), eventInfo(NULL), type(ACTION_USER_DEFINED)
 	{
 	}
 
@@ -941,19 +942,19 @@ string ActionsQueryOption::PrivateContext::makeConditionTemplate(void)
 ActionsQueryOption::ActionsQueryOption(const UserIdType &userId)
 : DataQueryOption(userId), m_ctx(NULL)
 {
-	m_ctx = new PrivateContext();
+	m_ctx = new PrivateContext(this);
 }
 
 ActionsQueryOption::ActionsQueryOption(DataQueryContext *dataQueryContext)
 : DataQueryOption(dataQueryContext), m_ctx(NULL)
 {
-	m_ctx = new PrivateContext();
+	m_ctx = new PrivateContext(this);
 }
 
 ActionsQueryOption::ActionsQueryOption(const ActionsQueryOption &src)
 : DataQueryOption(src), m_ctx(NULL)
 {
-	m_ctx = new PrivateContext();
+	m_ctx = new PrivateContext(this);
 	*m_ctx = *src.m_ctx;
 }
 
@@ -985,12 +986,18 @@ const ActionType &ActionsQueryOption::getActionType(void)
 string ActionsQueryOption::PrivateContext::getActionTypeCondition(void)
 {
 	switch (type) {
+	case ACTION_ALL:
+		if (option->has(OPPRVLG_GET_ALL_ISSUE_SETTINGS))
+			return string();
+		// fall through
 	case ACTION_USER_DEFINED:
 		return StringUtils::sprintf(
 			 "(action_type>=0 AND action_type<%d)",
 			 ACTION_ISSUE_SENDER);
-	case ACTION_ALL:
-		return string();
+	case ACTION_ISSUE_SENDER:
+		if (!option->has(OPPRVLG_GET_ALL_ISSUE_SETTINGS))
+			return DBClientHatohol::getAlwaysFalseCondition();
+		// fall through
 	default:
 		return StringUtils::sprintf("action_type=%d", (int)type);
 	}

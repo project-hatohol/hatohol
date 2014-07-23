@@ -156,21 +156,33 @@ void _assertEqual(const ActionDef &expect, const ActionDef &actual)
 #define assertEqual(E,A) cut_trace(_assertEqual(E,A))
 
 static void pickupActionIdsFromTestActionDef(
-  ActionIdSet &actionIdSet, const UserIdType &expectedOwnerId,
+  ActionIdSet &actionIdSet, const OperationPrivilege &privilege,
   const ActionType &actionType = ACTION_USER_DEFINED)
 {
+	UserIdType expectedOwnerId = privilege.getUserId();
+	if (privilege.has(OPPRVLG_GET_ALL_ACTION))
+		expectedOwnerId = USER_ID_ANY;
+
 	for (size_t i = 0; i < NumTestActionDef; i++) {
 		const ActionDef &actDef = testActionDef[i];
 		if (actionType == ACTION_USER_DEFINED) {
 			if (actDef.type >= ACTION_ISSUE_SENDER)
 				continue;
 		} else if (actionType == ACTION_ALL) {
-			// accept all actions
+			if (actDef.type == ACTION_ISSUE_SENDER &&
+			    !privilege.has(OPPRVLG_GET_ALL_ISSUE_SETTINGS)) {
+				continue;
+			}
 		} else {
 			if (actDef.type != actionType)
 				continue;
+			if (actDef.type == ACTION_ISSUE_SENDER &&
+			    !privilege.has(OPPRVLG_GET_ALL_ISSUE_SETTINGS)) {
+				continue;
+			}
 		}
-		if (expectedOwnerId != USER_ID_ANY &&
+		if (actDef.type != ACTION_ISSUE_SENDER &&
+		    expectedOwnerId != USER_ID_ANY &&
 		    actDef.ownerUserId != expectedOwnerId) {
 			continue;
 		}
@@ -180,7 +192,7 @@ static void pickupActionIdsFromTestActionDef(
 }
 
 void _assertGetActionList(
-  const UserIdType &operatorId, const UserIdType &expectedOwnerId,
+  const UserIdType &operatorId,
   const ActionType &actionType = ACTION_USER_DEFINED)
 {
 	ActionsQueryOption option(operatorId);
@@ -193,8 +205,7 @@ void _assertGetActionList(
 
 	// pick up expected action IDs
 	ActionIdSet expectActionIdSet;
-	pickupActionIdsFromTestActionDef(expectActionIdSet, expectedOwnerId,
-					 actionType);
+	pickupActionIdsFromTestActionDef(expectActionIdSet, option, actionType);
 	cppcut_assert_not_equal((size_t)0, expectActionIdSet.size());
 
 	// check the result
@@ -206,8 +217,8 @@ void _assertGetActionList(
 		expectActionIdSet.erase(it);
 	}
 }
-#define assertGetActionList(U,E, ...) \
-cut_trace(_assertGetActionList(U,E, ##__VA_ARGS__))
+#define assertGetActionList(U, ...) \
+cut_trace(_assertGetActionList(U, ##__VA_ARGS__))
 
 static bool g_existTestDB = false;
 static void setupHelperForTestDBUser(void)
@@ -716,14 +727,14 @@ void test_getActionListWithNormalUser(void)
 {
 	setupTestDBUserAndDBAction();
 	const UserIdType userId = findUserWithout(OPPRVLG_GET_ALL_ACTION);
-	assertGetActionList(userId, userId);
+	assertGetActionList(userId);
 }
 
 void test_getActionListWithUserHavingGetAllFlag(void)
 {
 	setupTestDBUserAndDBAction();
 	const UserIdType userId = findUserWith(OPPRVLG_GET_ALL_ACTION);
-	assertGetActionList(userId, USER_ID_ANY);
+	assertGetActionList(userId);
 }
 
 void data_actionType(void)
@@ -747,7 +758,7 @@ void test_getActionListWithActionType(gconstpointer data)
 	setupTestDBUserAndDBAction();
 	const UserIdType userId = findUserWith(OPPRVLG_GET_ALL_ACTION);
 	ActionType type = (ActionType)gcut_data_get_int(data, "type");
-	assertGetActionList(userId, USER_ID_ANY, type);
+	assertGetActionList(userId, type);
 }
 
 void test_parseIssueSenderCommand(void)
