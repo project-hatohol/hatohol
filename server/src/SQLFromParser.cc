@@ -69,10 +69,8 @@ struct SQLFromParser::PrivateContext {
 
 	~PrivateContext()
 	{
-		if (tableFormula)
-			delete tableFormula;
-		if (rightTableOfInnerJoin)
-			delete rightTableOfInnerJoin;
+		delete tableFormula;
+		delete rightTableOfInnerJoin;
 	}
 
 	void clearInnerJoinParts(void)
@@ -117,8 +115,7 @@ SQLFromParser::SQLFromParser(void)
 
 SQLFromParser::~SQLFromParser()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 SQLTableFormula *SQLFromParser::getTableFormula(void) const
