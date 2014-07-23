@@ -502,6 +502,40 @@ void test_deleteActionOfOthersWithoutPrivilege(void)
 	                   dbAction.deleteActions(idList, privilege));
 }
 
+void test_deleteIssueSenderActionByIssueSettingsAdmin(void)
+{
+	setupTestDBUserAndDBAction();
+	DBClientAction dbAction;
+
+	const OperationPrivilegeFlag excludeFlags
+	  = OperationPrivilege::makeFlag(OPPRVLG_DELETE_ACTION);
+	const UserIdType userId
+	  = findUserWith(OPPRVLG_DELETE_ISSUE_SETTING, excludeFlags);
+	ActionDef &targetActionDef = *findTestActionByType(ACTION_ISSUE_SENDER);
+	ActionIdList idList;
+	idList.push_back(targetActionDef.id);
+	OperationPrivilege privilege(userId);
+	assertHatoholError(HTERR_OK,
+	                   dbAction.deleteActions(idList, privilege));
+}
+
+void test_deleteIssueSenderActionWithoutPrivilege(void)
+{
+	setupTestDBUserAndDBAction();
+	DBClientAction dbAction;
+
+	const OperationPrivilegeFlag excludeFlags
+	  = OperationPrivilege::makeFlag(OPPRVLG_DELETE_ISSUE_SETTING);
+	const UserIdType userId
+	  = findUserWith(OPPRVLG_DELETE_ACTION, excludeFlags);
+	ActionDef &targetActionDef = *findTestActionByType(ACTION_ISSUE_SENDER);
+	ActionIdList idList;
+	idList.push_back(targetActionDef.id);
+	OperationPrivilege privilege(userId);
+	assertHatoholError(HTERR_NO_PRIVILEGE,
+	                   dbAction.deleteActions(idList, privilege));
+}
+
 void test_startExecAction(void)
 {
 	string expect;
