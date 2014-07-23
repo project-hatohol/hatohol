@@ -49,7 +49,7 @@ protected:
 	ItemTablePtr updateItems(void);
 
 	/**
-	 * get all hosts in the ZABBIX server and save them in the replica DB.
+	 * get all hosts in the ZABBIX server and save them in the Hatohol DB.
 	 */
 	void updateHosts(void);
 
