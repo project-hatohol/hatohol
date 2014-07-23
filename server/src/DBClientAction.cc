@@ -591,7 +591,7 @@ HatoholError DBClientAction::deleteActions(const ActionIdList &idList,
 	arg.condition += ")";
 
 	// In this point, the caller must have OPPRVLG_DELETE_ACTION,
-	// becase it is checked in checkPrevilegeForDelete().
+	// becase it is checked in checkPrivilegeForDelete().
 	if (!privilege.has(OPPRVLG_DELETE_ALL_ACTION)) {
 		arg.condition += StringUtils::sprintf(
 		  " AND %s=%" FMT_USER_ID,
