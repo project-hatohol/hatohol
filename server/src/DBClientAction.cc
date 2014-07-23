@@ -607,14 +607,27 @@ static string makeUserActionsCondition(const string &ownerCondition)
 	}
 }
 
-static string makeConditionAllowedActionsForDelete(
-  const OperationPrivilege &privilege)
+static string makeConditionForDelete(const ActionIdList &idList,
+				     const OperationPrivilege &privilege)
 {
-	string ownerCondition = makeOwnerCondition(privilege.getUserId());
-	string condition = makeUserActionsCondition(ownerCondition);
-	if (privilege.has(OPPRVLG_DELETE_ISSUE_SETTING)) {
-		condition += StringUtils::sprintf(" OR action_type=%d",
-						  ACTION_ISSUE_SENDER);
+	string condition = makeIdListCondition(idList);
+
+	// In this point, the caller must have OPPRVLG_DELETE_ACTION,
+	// becase it is checked in checkPrivilegeForDelete().
+	if (!privilege.has(OPPRVLG_DELETE_ALL_ACTION)) {
+		if (!condition.empty())
+			condition += " AND ";
+		string ownerCondition
+		  = makeOwnerCondition(privilege.getUserId());
+		string typeCondition = "(";
+		typeCondition += makeUserActionsCondition(ownerCondition);
+		if (privilege.has(OPPRVLG_DELETE_ISSUE_SETTING)) {
+			typeCondition +=
+			  StringUtils::sprintf(" OR action_type=%d",
+					       ACTION_ISSUE_SENDER);
+		}
+		typeCondition += ")";
+		condition += typeCondition;
 	}
 	return condition;
 }
@@ -632,15 +645,7 @@ HatoholError DBClientAction::deleteActions(const ActionIdList &idList,
 	}
 
 	DBAgent::DeleteArg arg(tableProfileActions);
-	arg.condition = makeIdListCondition(idList);
-
-	// In this point, the caller must have OPPRVLG_DELETE_ACTION,
-	// becase it is checked in checkPrivilegeForDelete().
-	if (!privilege.has(OPPRVLG_DELETE_ALL_ACTION)) {
-		if (!arg.condition.empty())
-			arg.condition += " AND ";
-		arg.condition = makeConditionAllowedActionsForDelete(privilege);
-	}
+	arg.condition = makeConditionForDelete(idList, privilege);
 
 	uint64_t numAffectedRows = 0;
 	DBCLIENT_TRANSACTION_BEGIN() {
