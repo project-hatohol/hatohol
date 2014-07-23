@@ -376,6 +376,45 @@ void test_addActionWithoutPrivilege(void)
 	                   dbAction.addAction(actDef, privilege));
 }
 
+static ActionDef *findTestActionByType(ActionType type)
+{
+	for (size_t i = 0; i < NumTestActionDef; i++) {
+		if (testActionDef[i].type == type)
+			return &testActionDef[i];
+	}
+	return NULL;
+}
+
+void test_addIssueSenderActionByIssueSettingsAdmin(void)
+{
+	setupHelperForTestDBUser();
+
+	const OperationPrivilegeFlag excludeFlags
+	  = OperationPrivilege::makeFlag(OPPRVLG_CREATE_ACTION);
+	const UserIdType userId
+		= findUserWith(OPPRVLG_CREATE_ISSUE_SETTING, excludeFlags);
+	TestDBClientAction dbAction;
+	OperationPrivilege privilege(userId);
+	ActionDef &actDef = *findTestActionByType(ACTION_ISSUE_SENDER);
+	assertHatoholError(HTERR_OK,
+	                   dbAction.addAction(actDef, privilege));
+}
+
+void test_addIssueSenderActionWithoutPrivilege(void)
+{
+	setupHelperForTestDBUser();
+
+	const OperationPrivilegeFlag excludeFlags
+	  = OperationPrivilege::makeFlag(OPPRVLG_CREATE_ISSUE_SETTING);
+	const UserIdType userId
+		= findUserWith(OPPRVLG_CREATE_ACTION, excludeFlags);
+	TestDBClientAction dbAction;
+	OperationPrivilege privilege(userId);
+	ActionDef &actDef = *findTestActionByType(ACTION_ISSUE_SENDER);
+	assertHatoholError(HTERR_NO_PRIVILEGE,
+	                   dbAction.addAction(actDef, privilege));
+}
+
 void test_deleteAction(void)
 {
 	setupTestDBUserAndDBAction();

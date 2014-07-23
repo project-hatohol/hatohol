@@ -479,11 +479,21 @@ UserInfo testUserInfo[] = {
 }, {
 	0,                         // id
 	"IssueSettingsAdmin",      // name
-	"cannotGetAllActions",     // password
+	"notActionsAdmin",         // password
 	(1 << OPPRVLG_GET_ALL_ISSUE_SETTINGS) |
 	(1 << OPPRVLG_CREATE_ISSUE_SETTING) |
 	(1 << OPPRVLG_UPDATE_ISSUE_SETTING) |
 	(1 << OPPRVLG_DELETE_ISSUE_SETTING), // flags
+}, {
+	0,                         // id
+	"ActionsAdmin",            // name
+	"notIssueSettingsAdmin",   // password
+	(1 << OPPRVLG_GET_ALL_ACTION) |
+	(1 << OPPRVLG_CREATE_ACTION) |
+	(1 << OPPRVLG_UPDATE_ALL_ACTION) |
+	(1 << OPPRVLG_UPDATE_ACTION) |
+	(1 << OPPRVLG_DELETE_ALL_ACTION) |
+	(1 << OPPRVLG_DELETE_ACTION), // flags
 }
 };
 const size_t NumTestUserInfo = sizeof(testUserInfo) / sizeof(UserInfo);
