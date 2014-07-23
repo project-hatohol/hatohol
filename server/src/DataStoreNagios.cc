@@ -45,8 +45,7 @@ DataStoreNagios::DataStoreNagios(
 
 DataStoreNagios::~DataStoreNagios()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 ArmBase &DataStoreNagios::getArmBase(void)
