@@ -677,7 +677,7 @@ void test_getColumnNameWithUseTableNameAlways(void)
 {
 	const size_t idx = IDX_TEST_TABLE_HOST_ID;
 	HostResourceQueryOption option(TEST_SYNAPSE);
-	option.useTableNameAlways();
+	option.setTableNameAlways();
 	string expect = TEST_PRIMARY_TABLE_NAME;
 	expect += ".";
 	expect += COLUMN_DEF_TEST[idx].columnName;

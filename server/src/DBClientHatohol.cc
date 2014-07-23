@@ -26,6 +26,7 @@
 #include "SQLUtils.h"
 #include "Params.h"
 #include "ItemGroupStream.h"
+#include "DBClientJoinBuilder.h"
 using namespace std;
 using namespace mlpl;
 
@@ -1463,22 +1464,10 @@ DBClientHatohol::~DBClientHatohol()
 void DBClientHatohol::getHostInfoList(HostInfoList &hostInfoList,
 				      const HostsQueryOption &option)
 {
-	static const DBAgent::TableProfile *tableProfiles[] = {
-	  &tableProfileHosts,
-	  &tableProfileMapHostsHostgroups,
-	};
-	enum {
-		TBLIDX_HOSTS,
-		TBLIDX_MAP_HOSTS_HOSTGROUPS,
-	};
-	static const size_t numTableProfiles =
-	  sizeof(tableProfiles) / sizeof(DBAgent::TableProfile *);
-	DBAgent::SelectMultiTableArg arg(tableProfiles, numTableProfiles);
-
+	DBAgent::SelectExArg arg(tableProfileHosts);
 	arg.tableField = option.getFromClause();
 	arg.useDistinct = option.isHostgroupUsed();
-
-	arg.setTable(TBLIDX_HOSTS);
+	arg.useFullName = option.isHostgroupUsed();
 	arg.add(IDX_HOSTS_SERVER_ID);
 	arg.add(IDX_HOSTS_HOST_ID);
 	arg.add(IDX_HOSTS_HOST_NAME);
@@ -1543,23 +1532,10 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	if (isAlwaysFalseCondition(condition))
 		return;
 
-	// select data
-	static const DBAgent::TableProfile *tableProfiles[] = {
-	  &tableProfileTriggers,
-	  &tableProfileMapHostsHostgroups,
-	};
-	enum {
-		TBLIDX_TRIGGERS,
-		TBLIDX_MAP_HOSTS_HOSTGROUPS,
-	};
-	static const size_t numTableProfiles =
-	  sizeof(tableProfiles) / sizeof(DBAgent::TableProfile *);
-	DBAgent::SelectMultiTableArg arg(tableProfiles, numTableProfiles);
-
+	DBAgent::SelectExArg arg(tableProfileTriggers);
 	arg.tableField = option.getFromClause();
 	arg.useDistinct = option.isHostgroupUsed();
-
-	arg.setTable(TBLIDX_TRIGGERS);
+	arg.useFullName = option.isHostgroupUsed();
 	arg.add(IDX_TRIGGERS_SERVER_ID);
 	arg.add(IDX_TRIGGERS_ID);
 	arg.add(IDX_TRIGGERS_STATUS);
@@ -1677,85 +1653,57 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
                                                const EventsQueryOption &option,
                                                IssueInfoVect *issueInfoVect)
 {
-	static const DBAgent::TableProfile *tableProfiles[] = {
-	  &tableProfileEvents,
-	  &tableProfileTriggers,
-	  &tableProfileIssues,
-	};
-	enum {
-		TBLIDX_EVENTS,
-		TBLIDX_TRIGGERS,
-		TBLIDX_ISSUES,
-	};
-	static const size_t numTableProfiles =
-	  sizeof(tableProfiles) / sizeof(DBAgent::TableProfile *);
-	DBAgent::SelectMultiTableArg arg(tableProfiles, numTableProfiles);
+	DBClientJoinBuilder builder(tableProfileEvents, &option);
+	builder.add(IDX_EVENTS_UNIFIED_ID);
+	builder.add(IDX_EVENTS_SERVER_ID);
+	builder.add(IDX_EVENTS_ID);
+	builder.add(IDX_EVENTS_TIME_SEC);
+	builder.add(IDX_EVENTS_TIME_NS);
+	builder.add(IDX_EVENTS_EVENT_TYPE);
+	builder.add(IDX_EVENTS_TRIGGER_ID);
 
-	option.useTableNameAlways();
-	arg.useDistinct = option.isHostgroupUsed();
-
-	// Tables
-	arg.tableField = option.getFromClause();
-	arg.tableField += StringUtils::sprintf(
-	  " INNER JOIN %s ON (%s=%s AND %s=%s)",
-	  TABLE_NAME_TRIGGERS,
-
-	  option.getColumnName(IDX_EVENTS_SERVER_ID).c_str(),
-	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_SERVER_ID).c_str(),
-
-	  option.getColumnName(IDX_EVENTS_TRIGGER_ID).c_str(),
-	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_ID).c_str());
+	builder.addTable(
+	  tableProfileTriggers, DBClientJoinBuilder::INNER_JOIN,
+	  tableProfileEvents, IDX_EVENTS_SERVER_ID, IDX_TRIGGERS_SERVER_ID,
+	  tableProfileEvents, IDX_EVENTS_TRIGGER_ID, IDX_TRIGGERS_ID);
+	builder.add(IDX_TRIGGERS_STATUS);
+	builder.add(IDX_TRIGGERS_SEVERITY);
+	builder.add(IDX_TRIGGERS_HOST_ID);
+	builder.add(IDX_TRIGGERS_HOSTNAME);
+	builder.add(IDX_TRIGGERS_BRIEF);
 
 	if (issueInfoVect) {
-		arg.tableField += StringUtils::sprintf(
-		  " LEFT JOIN %s ON (%s=%s AND %s=%s)",
-		  TABLE_NAME_ISSUES,
-		  option.getColumnName(IDX_EVENTS_SERVER_ID).c_str(),
-		  arg.getFullName(TBLIDX_ISSUES, IDX_ISSUES_SERVER_ID).c_str(),
-		  option.getColumnName(IDX_EVENTS_ID).c_str(),
-		  arg.getFullName(TBLIDX_ISSUES, IDX_ISSUES_EVENT_ID).c_str());
-	}
-
-	// Columns
-	arg.setTable(TBLIDX_EVENTS);
-	arg.add(IDX_EVENTS_UNIFIED_ID);
-	arg.add(IDX_EVENTS_SERVER_ID);
-	arg.add(IDX_EVENTS_ID);
-	arg.add(IDX_EVENTS_TIME_SEC);
-	arg.add(IDX_EVENTS_TIME_NS);
-	arg.add(IDX_EVENTS_EVENT_TYPE);
-	arg.add(IDX_EVENTS_TRIGGER_ID);
-
-	arg.setTable(TBLIDX_TRIGGERS);
-	arg.add(IDX_TRIGGERS_STATUS);
-	arg.add(IDX_TRIGGERS_SEVERITY);
-	arg.add(IDX_TRIGGERS_HOST_ID);
-	arg.add(IDX_TRIGGERS_HOSTNAME);
-	arg.add(IDX_TRIGGERS_BRIEF);
-
-	if (issueInfoVect) {
-		arg.setTable(TBLIDX_ISSUES);
-		arg.add(IDX_ISSUES_TRACKER_ID);
-		arg.add(IDX_ISSUES_IDENTIFIER);
-		arg.add(IDX_ISSUES_LOCATION);
-		arg.add(IDX_ISSUES_STATUS);
-		arg.add(IDX_ISSUES_ASSIGNEE);
-		arg.add(IDX_ISSUES_CREATED_AT_SEC);
-		arg.add(IDX_ISSUES_CREATED_AT_NS);
-		arg.add(IDX_ISSUES_UPDATED_AT_SEC);
-		arg.add(IDX_ISSUES_UPDATED_AT_NS);
+		builder.addTable(
+		  tableProfileIssues, DBClientJoinBuilder::LEFT_JOIN,
+		  tableProfileEvents, IDX_EVENTS_SERVER_ID,
+		  IDX_ISSUES_SERVER_ID,
+		  tableProfileEvents, IDX_EVENTS_ID, IDX_ISSUES_EVENT_ID);
+		builder.add(IDX_ISSUES_TRACKER_ID);
+		builder.add(IDX_ISSUES_IDENTIFIER);
+		builder.add(IDX_ISSUES_LOCATION);
+		builder.add(IDX_ISSUES_STATUS);
+		builder.add(IDX_ISSUES_ASSIGNEE);
+		builder.add(IDX_ISSUES_CREATED_AT_SEC);
+		builder.add(IDX_ISSUES_CREATED_AT_NS);
+		builder.add(IDX_ISSUES_UPDATED_AT_SEC);
+		builder.add(IDX_ISSUES_UPDATED_AT_NS);
 	}
 
 	// Condition
-	arg.condition = StringUtils::sprintf(
-	  "%s=%s", 
-	  arg.getFullName(TBLIDX_EVENTS, IDX_EVENTS_SERVER_ID).c_str(),
-	  arg.getFullName(TBLIDX_TRIGGERS, IDX_TRIGGERS_SERVER_ID).c_str());
+	DBAgent::SelectExArg &arg = builder.getSelectExArg();
 
-	string optCond = option.getCondition();
-
+	string optCond;
+	arg.condition.swap(optCond); // option.getCondition() must be set.
 	if (isAlwaysFalseCondition(optCond))
 		return HatoholError(HTERR_OK);
+
+	arg.condition = StringUtils::sprintf(
+	  "%s=%s",
+	  SQLUtils::getFullName(COLUMN_DEF_EVENTS,
+	                        IDX_EVENTS_SERVER_ID).c_str(),
+	  SQLUtils::getFullName(COLUMN_DEF_TRIGGERS,
+	                        IDX_TRIGGERS_SERVER_ID).c_str());
+
 	if (!optCond.empty()) {
 		arg.condition += " AND ";
 		arg.condition += optCond;
@@ -1927,22 +1875,10 @@ void DBClientHatohol::addItemInfoList(const ItemInfoList &itemInfoList)
 void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 				      const ItemsQueryOption &option)
 {
-	static const DBAgent::TableProfile *tableProfiles[] = {
-	  &tableProfileItems,
-	  &tableProfileMapHostsHostgroups,
-	};
-	enum {
-		TBLIDX_ITEMS,
-		TBLIDX_MAP_HOSTS_HOSTGROUPS,
-	};
-	static const size_t numTableProfiles =
-	  sizeof(tableProfiles) / sizeof(DBAgent::TableProfile *);
-	DBAgent::SelectMultiTableArg arg(tableProfiles, numTableProfiles);
-
+	DBAgent::SelectExArg arg(tableProfileItems);
 	arg.tableField = option.getFromClause();
 	arg.useDistinct = option.isHostgroupUsed();
-
-	arg.setTable(TBLIDX_ITEMS);
+	arg.useFullName = option.isHostgroupUsed();
 	arg.add(IDX_ITEMS_SERVER_ID);
 	arg.add(IDX_ITEMS_ID);
 	arg.add(IDX_ITEMS_HOST_ID);

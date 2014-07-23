@@ -207,11 +207,6 @@ bool HostResourceQueryOption::isHostgroupUsed(void) const
 	return m_ctx->targetHostgroupId != ALL_HOST_GROUPS;
 }
 
-void HostResourceQueryOption::useTableNameAlways(const bool &enable) const
-{
-	setTableNameAlways(enable);
-}
-
 string HostResourceQueryOption::getColumnName(const size_t &idx) const
 {
 	return getColumnNameCommon(m_ctx->synapse.tableProfile, idx);
