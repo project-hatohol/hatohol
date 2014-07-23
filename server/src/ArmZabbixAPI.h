@@ -54,6 +54,13 @@ protected:
 	void updateHosts(void);
 
 	void updateEvents(void);
+
+	/**
+	 * get all applications in the ZABBIX server and save them
+	 * in the replica DB.
+	 */
+	void updateApplications(void);
+
 	void updateGroups(void);
 
 	void addHostsDataToDB(ItemTablePtr &hosts);

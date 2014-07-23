@@ -158,6 +158,13 @@ void ArmZabbixAPI::updateEvents(void)
 	}
 }
 
+void ArmZabbixAPI::updateApplications(void)
+{
+	// getHosts() tries to get all hosts when an empty vector is passed.
+	static const vector<uint64_t> appIdVector;
+	ItemTablePtr tablePtr = getApplications(appIdVector);
+}
+
 void ArmZabbixAPI::updateGroups(void)
 {
 	ItemTablePtr groupsTablePtr;
