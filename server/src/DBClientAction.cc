@@ -585,7 +585,7 @@ static string makeIdListCondition(const ActionIdList &idList)
 HatoholError DBClientAction::deleteActions(const ActionIdList &idList,
                                            const OperationPrivilege &privilege)
 {
-	HatoholError err = checkPrivilegeForDelete(privilege);
+	HatoholError err = checkPrivilegeForDelete(privilege, idList);
 	if (err != HTERR_OK)
 		return err;
 
@@ -868,11 +868,23 @@ HatoholError DBClientAction::checkPrivilegeForAdd(
 }
 
 HatoholError DBClientAction::checkPrivilegeForDelete(
-  const OperationPrivilege &privilege)
+  const OperationPrivilege &privilege, const ActionIdList &idList)
 {
 	UserIdType userId = privilege.getUserId();
 	if (userId == INVALID_USER_ID)
 		return HTERR_INVALID_USER;
+
+	if (!privilege.has(OPPRVLG_DELETE_ISSUE_SETTING)) {
+		// Check whether the idList includes ACTION_ISSUE_SENDER or not.
+		// TODO: It's not efficient.
+		ActionsQueryOption option(USER_ID_SYSTEM);
+		option.setActionIdList(idList);
+		option.setActionType(ACTION_ISSUE_SENDER);
+		ActionDefList actionDefList;
+		getActionList(actionDefList, option);
+		if (!actionDefList.empty())
+			return HTERR_NO_PRIVILEGE;
+	}
 
 	if (privilege.has(OPPRVLG_DELETE_ALL_ACTION))
 		return HTERR_OK;

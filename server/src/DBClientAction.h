@@ -382,7 +382,7 @@ protected:
 	HatoholError checkPrivilegeForAdd(
 	  const OperationPrivilege &privilege, const ActionDef &actionDef);
 	HatoholError checkPrivilegeForDelete(
-	  const OperationPrivilege &privilege);
+	  const OperationPrivilege &privilege, const ActionIdList &idList);
 
 private:
 	struct PrivateContext;
