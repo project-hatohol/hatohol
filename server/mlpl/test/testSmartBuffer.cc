@@ -57,10 +57,8 @@ static void _assertEqual(
 
 void cut_teardown(void)
 {
-	if (g_sbuf) {
-		delete g_sbuf;
-		g_sbuf = NULL;
-	}
+	delete g_sbuf;
+	g_sbuf = NULL;
 }
 
 // ----------------------------------------------------------------------------
