@@ -1080,29 +1080,32 @@ string ActionsQueryOption::PrivateContext::getActionTypeAndOwnerCondition(void)
 		}
 
 		condition = makeUserDefinedActionsCondition(ownerCondition);
-		if (option->has(OPPRVLG_GET_ALL_ISSUE_SETTINGS))
+		if (option->has(OPPRVLG_GET_ALL_ISSUE_SETTINGS)) {
 			return StringUtils::sprintf(
 				 "(%s OR action_type=%d)",
 				 condition.c_str(), ACTION_ISSUE_SENDER);
-		else
+		} else {
 			return condition;
+		}
 	}
 	case ACTION_USER_DEFINED:
 		return makeUserDefinedActionsCondition(ownerCondition);
 	case ACTION_ISSUE_SENDER:
-		if (option->has(OPPRVLG_GET_ALL_ISSUE_SETTINGS))
+		if (option->has(OPPRVLG_GET_ALL_ISSUE_SETTINGS)) {
 			return StringUtils::sprintf("action_type=%d",
 						    (int)type);
-		else
+		} else {
 			return DBClientAction::getAlwaysFalseCondition();
+		}
 	default:
-		if (ownerCondition.empty())
+		if (ownerCondition.empty()) {
 			return StringUtils::sprintf("action_type=%d",
 						    (int)type);
-		else
+		} else {
 			return StringUtils::sprintf("(%s AND action_type=%d)",
 						    ownerCondition.c_str(),
 						    (int)type);
+		}
 	}
 }
 
