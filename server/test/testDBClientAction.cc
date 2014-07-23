@@ -156,7 +156,7 @@ void _assertEqual(const ActionDef &expect, const ActionDef &actual)
 #define assertEqual(E,A) cut_trace(_assertEqual(E,A))
 
 static void pickupActionIdsFromTestActionDef(
-  ActionIdSet &actionIdSet, const UserIdType &userId,
+  ActionIdSet &actionIdSet, const UserIdType &ownerId,
   const ActionType &actionType = ACTION_USER_DEFINED)
 {
 	for (size_t i = 0; i < NumTestActionDef; i++) {
@@ -170,7 +170,7 @@ static void pickupActionIdsFromTestActionDef(
 			if (actDef.type != actionType)
 				continue;
 		}
-		if (userId != USER_ID_ANY && actDef.ownerUserId != userId)
+		if (ownerId != USER_ID_ANY && actDef.ownerUserId != ownerId)
 			continue;
 		const int expectedId = i + 1;
 		actionIdSet.insert(expectedId);
@@ -178,10 +178,10 @@ static void pickupActionIdsFromTestActionDef(
 }
 
 void _assertGetActionList(
-  const UserIdType &userId, const UserIdType &expectUserId,
+  const UserIdType &operatorId, const UserIdType &expectedOwnerId,
   const ActionType &actionType = ACTION_USER_DEFINED)
 {
-	ActionsQueryOption option(userId);
+	ActionsQueryOption option(operatorId);
 	option.setActionType(actionType);
 
 	DBClientAction dbAction;
@@ -191,7 +191,7 @@ void _assertGetActionList(
 
 	// pick up expected action IDs
 	ActionIdSet expectActionIdSet;
-	pickupActionIdsFromTestActionDef(expectActionIdSet, expectUserId,
+	pickupActionIdsFromTestActionDef(expectActionIdSet, expectedOwnerId,
 					 actionType);
 	cppcut_assert_not_equal((size_t)0, expectActionIdSet.size());
 
