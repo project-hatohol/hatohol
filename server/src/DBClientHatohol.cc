@@ -1532,23 +1532,10 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	if (isAlwaysFalseCondition(condition))
 		return;
 
-	// select data
-	static const DBAgent::TableProfile *tableProfiles[] = {
-	  &tableProfileTriggers,
-	  &tableProfileMapHostsHostgroups,
-	};
-	enum {
-		TBLIDX_TRIGGERS,
-		TBLIDX_MAP_HOSTS_HOSTGROUPS,
-	};
-	static const size_t numTableProfiles =
-	  sizeof(tableProfiles) / sizeof(DBAgent::TableProfile *);
-	DBAgent::SelectMultiTableArg arg(tableProfiles, numTableProfiles);
-
+	DBAgent::SelectExArg arg(tableProfileTriggers);
 	arg.tableField = option.getFromClause();
 	arg.useDistinct = option.isHostgroupUsed();
-
-	arg.setTable(TBLIDX_TRIGGERS);
+	arg.useFullName = option.isHostgroupUsed();
 	arg.add(IDX_TRIGGERS_SERVER_ID);
 	arg.add(IDX_TRIGGERS_ID);
 	arg.add(IDX_TRIGGERS_STATUS);
