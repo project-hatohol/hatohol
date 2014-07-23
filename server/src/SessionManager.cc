@@ -99,10 +99,8 @@ size_t SessionManager::PrivateContext::defaultTimeout = INITIAL_TIMEOUT;
 // ---------------------------------------------------------------------------
 void SessionManager::reset(void)
 {
-	if (PrivateContext::instance) {
-		delete PrivateContext::instance;
-		PrivateContext::instance = NULL;
-	}
+	delete PrivateContext::instance;
+	PrivateContext::instance = NULL;
 
 	PrivateContext::defaultTimeout = INITIAL_TIMEOUT;
 	char *env = getenv(ENV_NAME_TIMEOUT);
@@ -209,8 +207,7 @@ SessionManager::SessionManager(void)
 
 SessionManager::~SessionManager()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 string SessionManager::generateSessionId(void)
