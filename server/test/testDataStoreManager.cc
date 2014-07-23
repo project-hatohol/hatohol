@@ -69,10 +69,8 @@ void cut_startup(void)
 
 void cut_teardown(void)
 {
-	if (g_dataStore) {
-		deleteDataStore(g_dataStore);
-		g_dataStore = NULL;
-	}
+	deleteDataStore(g_dataStore);
+	g_dataStore = NULL;
 }
 
 // ---------------------------------------------------------------------------
