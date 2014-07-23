@@ -64,7 +64,6 @@ typedef bool (ArmZabbixAPITestee::*ThreadOneProc)(void);
 public:
 	enum GetTestType {
 		GET_TEST_TYPE_TRIGGERS,
-		GET_TEST_TYPE_FUNCTIONS,
 		GET_TEST_TYPE_ITEMS,
 		GET_TEST_TYPE_HOSTS,
 		GET_TEST_TYPE_APPLICATIONS,
@@ -120,10 +119,6 @@ public:
 		if (type == GET_TEST_TYPE_TRIGGERS) {
 			succeeded =
 			  launch(&ArmZabbixAPITestee::threadOneProcTriggers,
-			         exitCbDefault, this);
-		} else if (type == GET_TEST_TYPE_FUNCTIONS) {
-			succeeded =
-			  launch(&ArmZabbixAPITestee::threadOneProcFunctions,
 			         exitCbDefault, this);
 		} else if (type == GET_TEST_TYPE_ITEMS) {
 			succeeded =
@@ -290,16 +285,6 @@ protected:
 		return true;
 	}
 
-	bool threadOneProcFunctions(void)
-	{
-		// updateTriggers() is neccessary before updateFunctions(),
-		// because 'function' information is obtained at the same time
-		// as a response of 'triggers.get' request.
-		updateTriggers();
-		updateFunctions();
-		return true;
-	}
-
 	bool threadOneProcItems(void)
 	{
 		updateItems();
@@ -451,11 +436,6 @@ void test_getTriggers_2_3_0(void)
 {
 	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_TRIGGERS,
 		      ZabbixAPIEmulator::API_VERSION_2_3_0);
-}
-
-void test_getFunctions(void)
-{
-	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_FUNCTIONS);
 }
 
 void test_getItems(void)

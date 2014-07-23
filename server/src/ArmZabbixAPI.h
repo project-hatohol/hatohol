@@ -45,7 +45,6 @@ public:
 
 protected:
 	ItemTablePtr updateTriggers(void);
-	void updateFunctions(void);
 	ItemTablePtr updateItems(void);
 
 	/**

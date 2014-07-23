@@ -96,11 +96,6 @@ ItemTablePtr ArmZabbixAPI::updateTriggers(void)
 	return getTrigger(requestSince);
 }
 
-void ArmZabbixAPI::updateFunctions(void)
-{
-	ItemTablePtr tablePtr = getFunctions();
-}
-
 ItemTablePtr ArmZabbixAPI::updateItems(void)
 {
 	ItemTablePtr tablePtr = getItems();
@@ -265,13 +260,6 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 		updateHosts();
 
 		updateGroups();
-		// Currently functions are no longer updated, because ZABBIX
-		// API can return host ID directly (If we use DBs as exactly
-		// the same as those in Zabbix Server, we have to join
-		// triggers, functions, and items to get the host ID).
-		//
-		// updateFunctions();
-
 		makeHatoholTriggers(triggers);
 
 		updateEvents();
