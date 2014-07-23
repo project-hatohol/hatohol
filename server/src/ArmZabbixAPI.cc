@@ -35,7 +35,6 @@ using namespace mlpl;
 #include "UnifiedDataStore.h"
 #include "HatoholDBUtils.h"
 #include "HostInfoCache.h"
-#include "CacheServiceDBClient.h" // TODO: Remove
 
 using namespace std;
 
@@ -129,11 +128,8 @@ void ArmZabbixAPI::updateEvents(void)
 		return;
 	}
 
-	// TODO: We prepare getLastEvent() in UnifiedDataStore
-	CacheServiceDBClient cache;
-	DBClientHatohol *dbHatohol = cache.getHatohol();
 	const uint64_t dbLastEventId =
-	  dbHatohol->getLastEventId(m_ctx->zabbixServerId);
+	  m_ctx->dbClientHatohol.getLastEventId(m_ctx->zabbixServerId);
 	uint64_t eventIdOffset = 0;
 
 	if (dbLastEventId == DBClientZabbix::EVENT_ID_NOT_FOUND) {
