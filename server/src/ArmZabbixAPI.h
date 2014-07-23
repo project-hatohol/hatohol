@@ -70,9 +70,6 @@ protected:
 	void makeHatoholMapHostsHostgroups(ItemTablePtr hostsGroups);
 	void makeHatoholHosts(ItemTablePtr hosts);
 
-	template<typename T>
-	void makeItemVector(std::vector<T> &idVector,
-	                    const ItemTable *itemTable, const ItemId itemId);
 	uint64_t getMaximumNumberGetEventPerOnce(void);
 
 	// virtual methods
