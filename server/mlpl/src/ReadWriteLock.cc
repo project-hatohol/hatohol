@@ -46,8 +46,7 @@ ReadWriteLock::ReadWriteLock(void)
 
 ReadWriteLock::~ReadWriteLock()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 void ReadWriteLock::readLock(void)
