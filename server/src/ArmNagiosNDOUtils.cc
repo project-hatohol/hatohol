@@ -389,20 +389,13 @@ static const DBAgent::TableProfile tableProfileStateHistory(
 // ---------------------------------------------------------------------------
 // Private context
 // ---------------------------------------------------------------------------
-static const DBAgent::TableProfile *tableProfilesItem[] = {
-  &tableProfileServices,
-  &tableProfileServiceStatus,
-};
-static const size_t numTableProfilesItem =
-  sizeof(tableProfilesItem) / sizeof(DBAgent::TableProfile *);
-
 struct ArmNagiosNDOUtils::PrivateContext
 {
 	DBAgentMySQL   *dbAgent;
 	DBClientHatohol dbHatohol;
 	DBClientJoinBuilder  selectTriggerBuilder;
 	DBClientJoinBuilder  selectEventBuilder;
-	DBAgent::SelectMultiTableArg selectItemArg;
+	DBClientJoinBuilder  selectItemBuilder;
 	DBAgent::SelectExArg         selectHostArg;
 	DBAgent::SelectExArg         selectHostgroupArg;
 	DBAgent::SelectExArg         selectHostgroupMembersArg;
@@ -416,7 +409,7 @@ struct ArmNagiosNDOUtils::PrivateContext
 	: dbAgent(NULL),
 	  selectTriggerBuilder(tableProfileServices),
 	  selectEventBuilder(tableProfileStateHistory),
-	  selectItemArg(tableProfilesItem, numTableProfilesItem),
+	  selectItemBuilder(tableProfileServices),
 	  selectHostArg(tableProfileHosts),
 	  selectHostgroupArg(tableProfileHostgroups),
 	  selectHostgroupMembersArg(tableProfileHostgroupMembers),
@@ -452,7 +445,7 @@ ArmNagiosNDOUtils::ArmNagiosNDOUtils(const MonitoringServerInfo &serverInfo)
 	m_ctx = new PrivateContext(serverInfo);
 	makeSelectTriggerBuilder();
 	makeSelectEventBuilder();
-	makeSelectItemArg();
+	makeSelectItemBuilder();
 	makeSelectHostArg();
 	makeSelectHostgroupArg();
 	makeSelectHostgroupMembersArg();
@@ -524,33 +517,18 @@ void ArmNagiosNDOUtils::makeSelectEventBuilder(void)
 	                        IDX_STATEHISTORY_STATEHISTORY_ID).c_str());
 }
 
-void ArmNagiosNDOUtils::makeSelectItemArg(void)
+void ArmNagiosNDOUtils::makeSelectItemBuilder(void)
 {
-	enum {
-		TBLIDX_SERVICES,
-		TBLIDX_STATUS,
-	};
+	DBClientJoinBuilder &builder = m_ctx->selectItemBuilder;
+	builder.add(IDX_SERVICES_SERVICE_ID);
+	builder.add(IDX_SERVICES_HOST_OBJECT_ID);
 
-	// TODO: Confirm what may be use using host_object_id.
-	DBAgent::SelectMultiTableArg &arg = m_ctx->selectItemArg;
-	arg.tableField =
-	  StringUtils::sprintf(
-	    "%s inner join %s on %s=%s",
-	    TABLE_NAME_SERVICES,
-	    TABLE_NAME_SERVICESTATUS,
-	    arg.getFullName(TBLIDX_SERVICES,
-	                    IDX_SERVICES_SERVICE_OBJECT_ID).c_str(),
-	    arg.getFullName(TBLIDX_STATUS,
-	                    IDX_SERVICESTATUS_SERVICE_OBJECT_ID).c_str());
-
-	arg.setTable(TBLIDX_SERVICES);
-	arg.add(IDX_SERVICES_SERVICE_ID);
-	arg.add(IDX_SERVICES_HOST_OBJECT_ID);
-
-	arg.setTable(TBLIDX_STATUS);
-	arg.add(IDX_SERVICESTATUS_CHECK_COMMAND);
-	arg.add(IDX_SERVICESTATUS_STATUS_UPDATE_TIME);
-	arg.add(IDX_SERVICESTATUS_OUTPUT);
+	builder.addTable(
+	  tableProfileServiceStatus, DBClientJoinBuilder::INNER_JOIN,
+	  IDX_SERVICES_SERVICE_OBJECT_ID, IDX_SERVICESTATUS_SERVICE_OBJECT_ID);
+	builder.add(IDX_SERVICESTATUS_CHECK_COMMAND);
+	builder.add(IDX_SERVICESTATUS_STATUS_UPDATE_TIME);
+	builder.add(IDX_SERVICESTATUS_OUTPUT);
 }
 
 void ArmNagiosNDOUtils::makeSelectHostArg(void)
@@ -706,15 +684,14 @@ void ArmNagiosNDOUtils::getEvent(void)
 void ArmNagiosNDOUtils::getItem(void)
 {
 	// TODO: should use transaction
-	m_ctx->dbAgent->select(m_ctx->selectItemArg);
-	size_t numItems =
-	   m_ctx->selectItemArg.dataTable->getNumberOfRows();
+	DBAgent::SelectExArg &arg = m_ctx->selectItemBuilder.getSelectExArg();
+	m_ctx->dbAgent->select(arg);
+	size_t numItems = arg.dataTable->getNumberOfRows();
 	MLPL_DBG("The number of items: %zd\n", numItems);
 
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	ItemInfoList itemInfoList;
-	const ItemGroupList &grpList =
-	  m_ctx->selectItemArg.dataTable->getItemGroupList();
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
 		ItemGroupStream itemGroupStream(*itemGrpItr);
