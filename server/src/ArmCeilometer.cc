@@ -42,8 +42,7 @@ ArmCeilometer::ArmCeilometer(const MonitoringServerInfo &serverInfo)
 ArmCeilometer::~ArmCeilometer()
 {
 	requestExitAndWait();
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 // ---------------------------------------------------------------------------
