@@ -73,7 +73,17 @@ public:
 
 	void getTriggerList(TriggerInfoList &triggerList,
 	                    const TriggersQueryOption &option);
+
+	/**
+	 * Get the last change time of the trigger that belongs to
+	 * the specified server
+	 * @param serverId A target server ID.
+	 * @return
+	 * The last change time of tringer in unix time. If there is no
+	 * trigger information, 0 is returned.
+	 */
 	mlpl::SmartTime getTimestampOfLastTrigger(const ServerIdType serverId);
+
 	HatoholError getEventList(EventInfoList &eventList,
 	                          EventsQueryOption &option,
 				  IssueInfoVect *issueVect = NULL);
