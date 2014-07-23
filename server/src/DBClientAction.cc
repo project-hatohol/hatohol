@@ -564,6 +564,24 @@ HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
 	return HTERR_OK;
 }
 
+static string makeIdListCondition(const ActionIdList &idList)
+{
+	string condition;
+	const ColumnDef &colId = COLUMN_DEF_ACTIONS[IDX_ACTIONS_ACTION_ID];
+	condition = StringUtils::sprintf("%s in (", colId.columnName);
+	ActionIdListConstIterator it = idList.begin();
+	while (true) {
+		const int id = *it;
+		condition += StringUtils::sprintf("%d", id);
+		++it;
+		if (it == idList.end())
+			break;
+		condition += ",";
+	}
+	condition += ")";
+	return condition;
+}
+
 HatoholError DBClientAction::deleteActions(const ActionIdList &idList,
                                            const OperationPrivilege &privilege)
 {
@@ -577,18 +595,7 @@ HatoholError DBClientAction::deleteActions(const ActionIdList &idList,
 	}
 
 	DBAgent::DeleteArg arg(tableProfileActions);
-	const ColumnDef &colId = COLUMN_DEF_ACTIONS[IDX_ACTIONS_ACTION_ID];
-	arg.condition = StringUtils::sprintf("%s in (", colId.columnName);
-	ActionIdListConstIterator it = idList.begin();
-	while (true) {
-		const int id = *it;
-		arg.condition += StringUtils::sprintf("%d", id);
-		++it;
-		if (it == idList.end())
-			break;
-		arg.condition += ",";
-	}
-	arg.condition += ")";
+	arg.condition = makeIdListCondition(idList);
 
 	// In this point, the caller must have OPPRVLG_DELETE_ACTION,
 	// becase it is checked in checkPrivilegeForDelete().
