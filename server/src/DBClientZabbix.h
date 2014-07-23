@@ -36,11 +36,6 @@ public:
 
 	static void init(void);
 	static DBDomainId getDBDomainId(const ServerIdType zabbixServerId);
-	static void transformEventsToHatoholFormat(
-	  EventInfoList &eventInfoList, const ItemTablePtr events,
-	  const ServerIdType &serverId);
-	static bool transformEventItemGroupToEventInfo(EventInfo &eventInfo,
-	                                               const ItemGroup *event);
 	static void transformItemsToHatoholFormat(ItemInfoList &eventInfoList,
 	                                          MonitoringServerStatus &serverStatus,
 	                                          const ItemTablePtr events);

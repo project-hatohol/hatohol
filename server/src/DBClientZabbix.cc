@@ -1782,66 +1782,6 @@ void DBClientZabbix::getEventsAsHatoholFormat(EventInfoList &eventInfoList)
 	}
 }
 
-bool DBClientZabbix::transformEventItemGroupToEventInfo
-  (EventInfo &eventInfo, const ItemGroup *eventItemGroup)
-{
-	ItemGroupStream itemGroupStream(eventItemGroup);
-
-	itemGroupStream.seek(ITEM_ID_ZBX_EVENTS_EVENTID);
-	itemGroupStream >> eventInfo.id;
-
-	itemGroupStream.seek(ITEM_ID_ZBX_EVENTS_OBJECT);
-	if (itemGroupStream.read<int>() != EVENT_OBJECT_TRIGGER)
-		return false;
-
-	itemGroupStream.seek(ITEM_ID_ZBX_EVENTS_OBJECTID);
-	itemGroupStream >> eventInfo.triggerId;
-
-	itemGroupStream.seek(ITEM_ID_ZBX_EVENTS_CLOCK);
-	itemGroupStream >> eventInfo.time.tv_sec;
-
-	itemGroupStream.seek(ITEM_ID_ZBX_EVENTS_VALUE);
-	itemGroupStream >> eventInfo.type;
-
-	itemGroupStream.seek(ITEM_ID_ZBX_EVENTS_NS);
-	itemGroupStream >> eventInfo.time.tv_nsec;
-
-	// Trigger's value. This can be transformed from Event's value
-	// This value is refered in ActionManager. So we set here.
-	switch (eventInfo.type) {
-	case EVENT_TYPE_GOOD:
-		eventInfo.status = TRIGGER_STATUS_OK;
-		break;
-	case EVENT_TYPE_BAD:
-		eventInfo.status = TRIGGER_STATUS_PROBLEM;
-		break;
-	case EVENT_TYPE_UNKNOWN:
-		eventInfo.status = TRIGGER_STATUS_UNKNOWN;
-		break;
-	default:
-		MLPL_ERR("Unknown type: %d\n", eventInfo.type);
-		eventInfo.status = TRIGGER_STATUS_UNKNOWN;
-	}
-
-	return true;
-}
-
-void DBClientZabbix::transformEventsToHatoholFormat
-  (EventInfoList &eventInfoList, const ItemTablePtr events,
-   const ServerIdType &serverId)
-{
-	const ItemGroupList &itemGroupList = events->getItemGroupList();
-	ItemGroupListConstIterator it = itemGroupList.begin();
-	for (; it != itemGroupList.end(); ++it) {
-		EventInfo eventInfo;
-		initEventInfo(eventInfo);
-		eventInfo.serverId = serverId;
-		if (!transformEventItemGroupToEventInfo(eventInfo, *it))
-			continue;
-		eventInfoList.push_back(eventInfo);
-	}
-}
-
 bool DBClientZabbix::transformItemItemGroupToItemInfo
   (ItemInfo &itemInfo, const ItemGroup *itemItemGroup, DBClientZabbix &dbZabbix)
 {

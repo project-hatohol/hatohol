@@ -37,6 +37,7 @@
 #include "StringUtils.h"
 #include "HostInfoCache.h"
 #include "DBClientZabbix.h" // deprecated
+#include "HatoholDBUtils.h"
 #include "UnifiedDataStore.h"
 
 using namespace std;
@@ -592,12 +593,8 @@ void HatoholArmPluginGate::cmdHandlerSendUpdatedEvents(
 	cmdBuf->setIndex(sizeof(HapiCommandHeader));
 	ItemTablePtr eventTablePtr = createItemTable(*cmdBuf);
 
-	// We don't save host data to DBClientZabbix.
-	// See also the comment in cmdHandlerSendUpdatedTriggers().
-	// TODO: replace DBClientZabbix::transformEventsToHatoholFormat()
-	// with a similar helper function.
 	EventInfoList eventInfoList;
-	DBClientZabbix::transformEventsToHatoholFormat(
+	HatoholDBUtils::transformEventsToHatoholFormat(
 	  eventInfoList, eventTablePtr, m_ctx->serverInfo.id);
 	UnifiedDataStore::getInstance()->addEventList(eventInfoList);
 

@@ -73,6 +73,7 @@ libhatohol_la_SOURCES = \
 	HostResourceQueryOption.cc HostResourceQueryOption.h \
 	HatoholArmPluginGate.cc HatoholArmPluginGate.h \
 	HatoholServer.cc \
+	HatoholDBUtils.cc HatoholDBUtils.h \
 	HostInfoCache.cc HostInfoCache.h \
 	IssueSender.cc IssueSender.h \
 	IssueSenderManager.cc IssueSenderManager.h \

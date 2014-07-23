@@ -34,6 +34,7 @@ using namespace mlpl;
 #include "DBClientZabbix.h"
 #include "DBClientHatohol.h"
 #include "UnifiedDataStore.h"
+#include "HatoholDBUtils.h"
 
 using namespace std;
 
@@ -257,8 +258,8 @@ void ArmZabbixAPI::makeHatoholTriggers(void)
 void ArmZabbixAPI::makeHatoholEvents(ItemTablePtr events)
 {
 	EventInfoList eventInfoList;
-	DBClientZabbix::transformEventsToHatoholFormat(eventInfoList, events,
-	                                               m_ctx->zabbixServerId);
+	HatoholDBUtils::transformEventsToHatoholFormat(
+	  eventInfoList, events, m_ctx->zabbixServerId);
 	m_ctx->dataStore->addEventList(eventInfoList);
 }
 
