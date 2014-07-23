@@ -21,9 +21,14 @@
 #define HatoholDBUtils_h
 
 #include "DBClientHatohol.h"
+#include "HostInfoCache.h"
 
 class HatoholDBUtils {
 public:
+	static void transformTriggersToHatoholFormat(
+	  TriggerInfoList &trigInfoList, const ItemTablePtr triggers,
+	  const ServerIdType &serverId, const HostInfoCache &hostInfoCache);
+
 	static void transformEventsToHatoholFormat(
 	  EventInfoList &eventInfoList, const ItemTablePtr events,
 	  const ServerIdType &serverId);

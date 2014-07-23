@@ -35,6 +35,7 @@ using namespace mlpl;
 #include "DBClientHatohol.h"
 #include "UnifiedDataStore.h"
 #include "HatoholDBUtils.h"
+#include "HostInfoCache.h"
 
 using namespace std;
 
@@ -47,6 +48,7 @@ struct ArmZabbixAPI::PrivateContext
 	DBClientZabbix  *dbClientZabbix;
 	DBClientHatohol  dbClientHatohol;
 	UnifiedDataStore *dataStore;
+	HostInfoCache     hostInfoCache;
 
 	// constructors
 	PrivateContext(const MonitoringServerInfo &serverInfo)
@@ -247,10 +249,15 @@ gpointer ArmZabbixAPI::mainThread(HatoholThreadArg *arg)
 	return ArmBase::mainThread(arg);
 }
 
-void ArmZabbixAPI::makeHatoholTriggers(void)
+void ArmZabbixAPI::makeHatoholTriggers(ItemTablePtr triggers)
 {
+	TriggerInfoList _triggerInfoList;
+	m_ctx->dbClientZabbix->getTriggersAsHatoholFormat(_triggerInfoList);
+
 	TriggerInfoList triggerInfoList;
-	m_ctx->dbClientZabbix->getTriggersAsHatoholFormat(triggerInfoList);
+	HatoholDBUtils::transformTriggersToHatoholFormat(
+	  triggerInfoList, triggers, m_ctx->zabbixServerId,
+	  m_ctx->hostInfoCache);
 	m_ctx->dbClientHatohol.setTriggerInfoList(triggerInfoList,
 	                                          m_ctx->zabbixServerId);
 }
@@ -297,6 +304,11 @@ void ArmZabbixAPI::makeHatoholHosts(ItemTablePtr hosts)
 	HatoholDBUtils::transformHostsToHatoholFormat(hostInfoList, hosts,
 	                                              m_ctx->zabbixServerId);
 	m_ctx->dbClientHatohol.addHostInfoList(hostInfoList);
+
+	// TODO: consider if DBClientHatohol should have the cache
+	HostInfoListConstIterator hostInfoItr = hostInfoList.begin();
+	for (; hostInfoItr != hostInfoList.end(); ++hostInfoItr)
+		m_ctx->hostInfoCache.update(*hostInfoItr);
 }
 
 uint64_t ArmZabbixAPI::getMaximumNumberGetEventPerOnce(void)
@@ -362,7 +374,7 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 		}
 
 		// get triggers
-		updateTriggers();
+		ItemTablePtr triggers = updateTriggers();
 
 		// TODO: Change retrieve interval.
 		//       Or, Hatohol gets in the event-driven.
@@ -376,7 +388,7 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 		//
 		// updateFunctions();
 
-		makeHatoholTriggers();
+		makeHatoholTriggers(triggers);
 
 		updateEvents();
 

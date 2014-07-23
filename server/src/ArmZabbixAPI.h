@@ -83,7 +83,7 @@ protected:
 	void addApplicationsDataToDB(ItemTablePtr &applications);
 	void addHostsDataToDB(ItemTablePtr &hosts);
 
-	void makeHatoholTriggers(void);
+	void makeHatoholTriggers(ItemTablePtr triggers);
 	void makeHatoholEvents(ItemTablePtr events);
 	void makeHatoholItems(ItemTablePtr items, ItemTablePtr applications);
 	void makeHatoholHostgroups(ItemTablePtr groups);
