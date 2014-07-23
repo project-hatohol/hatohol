@@ -27,22 +27,16 @@ public:
 	static void transformEventsToHatoholFormat(
 	  EventInfoList &eventInfoList, const ItemTablePtr events,
 	  const ServerIdType &serverId);
-	static bool transformEventItemGroupToEventInfo(
-	  EventInfo &eventInfo, const ItemGroup *event);
-	static void transformGroupItemGroupToHostgroupInfo(
-	  HostgroupInfo &groupInfo, const ItemGroup *groupItemGroup);
+
 	static void transformGroupsToHatoholFormat(
 	  HostgroupInfoList &groupInfoList, const ItemTablePtr groups,
 	  const ServerIdType &serverId);
-	static void transformHostsGroupsItemGroupToHatoholFormat(
-	  HostgroupElement &hostgroupElement,
-	  const ItemGroup *groupHostsGroups);
+
 	static void transformHostsGroupsToHatoholFormat(
 	  HostgroupElementList &hostgroupElementList,
 	  const ItemTablePtr mapHostHostgroups,
 	  const ServerIdType &serverId);
-	static void transformHostsItemGroupToHatoholFormat(
-	  HostInfo &hostInfo, const ItemGroup *groupHosts);
+
 	static void transformHostsToHatoholFormat(
 	  HostInfoList &hostInfoList, const ItemTablePtr hosts,
 	  const ServerIdType &serverId);
@@ -70,6 +64,19 @@ protected:
 	                            const std::string &key);
 
 	static std::string makeItemBrief(const ItemGroup *itemItemGroup);
+
+	static bool transformEventItemGroupToEventInfo(
+	  EventInfo &eventInfo, const ItemGroup *event);
+
+	static void transformGroupItemGroupToHostgroupInfo(
+	  HostgroupInfo &groupInfo, const ItemGroup *groupItemGroup);
+
+	static void transformHostsGroupsItemGroupToHatoholFormat(
+	  HostgroupElement &hostgroupElement,
+	  const ItemGroup *groupHostsGroups);
+
+	static void transformHostsItemGroupToHatoholFormat(
+	  HostInfo &hostInfo, const ItemGroup *groupHosts);
 
 	static bool transformItemItemGroupToItemInfo(
 	  ItemInfo &itemInfo, const ItemGroup *item,

@@ -54,64 +54,6 @@ void HatoholDBUtils::transformEventsToHatoholFormat(
 	}
 }
 
-bool HatoholDBUtils::transformEventItemGroupToEventInfo
-  (EventInfo &eventInfo, const ItemGroup *eventItemGroup)
-{
-	ItemGroupStream itemGroupStream(eventItemGroup);
-
-	itemGroupStream.seek(ITEM_ID_ZBX_EVENTS_EVENTID);
-	itemGroupStream >> eventInfo.id;
-
-	itemGroupStream.seek(ITEM_ID_ZBX_EVENTS_OBJECT);
-	if (itemGroupStream.read<int>() != EVENT_OBJECT_TRIGGER)
-		return false;
-
-	itemGroupStream.seek(ITEM_ID_ZBX_EVENTS_OBJECTID);
-	itemGroupStream >> eventInfo.triggerId;
-
-	itemGroupStream.seek(ITEM_ID_ZBX_EVENTS_CLOCK);
-	itemGroupStream >> eventInfo.time.tv_sec;
-
-	itemGroupStream.seek(ITEM_ID_ZBX_EVENTS_VALUE);
-	itemGroupStream >> eventInfo.type;
-
-	itemGroupStream.seek(ITEM_ID_ZBX_EVENTS_NS);
-	itemGroupStream >> eventInfo.time.tv_nsec;
-
-	// Trigger's value. This can be transformed from Event's value
-	// This value is refered in ActionManager. So we set here.
-	switch (eventInfo.type) {
-	case EVENT_TYPE_GOOD:
-		eventInfo.status = TRIGGER_STATUS_OK;
-		break;
-	case EVENT_TYPE_BAD:
-		eventInfo.status = TRIGGER_STATUS_PROBLEM;
-		break;
-	case EVENT_TYPE_UNKNOWN:
-		eventInfo.status = TRIGGER_STATUS_UNKNOWN;
-		break;
-	default:
-		MLPL_ERR("Unknown type: %d\n", eventInfo.type);
-		eventInfo.status = TRIGGER_STATUS_UNKNOWN;
-	}
-
-	return true;
-}
-
-void HatoholDBUtils::transformGroupItemGroupToHostgroupInfo
-  (HostgroupInfo &groupInfo, const ItemGroup *groupItemGroup)
-{
-	groupInfo.id = AUTO_INCREMENT_VALUE;
-
-	ItemGroupStream itemGroupStream(groupItemGroup);
-
-	itemGroupStream.seek(ITEM_ID_ZBX_GROUPS_GROUPID);
-	itemGroupStream >> groupInfo.groupId;
-
-	itemGroupStream.seek(ITEM_ID_ZBX_GROUPS_NAME);
-	itemGroupStream >> groupInfo.groupName;
-}
-
 void HatoholDBUtils::transformGroupsToHatoholFormat(
   HostgroupInfoList &groupInfoList, const ItemTablePtr groups,
   const ServerIdType &serverId)
@@ -124,20 +66,6 @@ void HatoholDBUtils::transformGroupsToHatoholFormat(
 		transformGroupItemGroupToHostgroupInfo(groupInfo, *it);
 		groupInfoList.push_back(groupInfo);
 	}
-}
-
-void HatoholDBUtils::transformHostsGroupsItemGroupToHatoholFormat(
-  HostgroupElement &hostgroupElement, const ItemGroup *groupHostsGroups)
-{
-	hostgroupElement.id = AUTO_INCREMENT_VALUE;
-
-	ItemGroupStream itemGroupStream(groupHostsGroups);
-
-	itemGroupStream.seek(ITEM_ID_ZBX_HOSTS_GROUPS_HOSTID);
-	itemGroupStream >> hostgroupElement.hostId;
-
-	itemGroupStream.seek(ITEM_ID_ZBX_HOSTS_GROUPS_GROUPID);
-	itemGroupStream >> hostgroupElement.groupId;
 }
 
 void HatoholDBUtils::transformHostsGroupsToHatoholFormat(
@@ -153,18 +81,6 @@ void HatoholDBUtils::transformHostsGroupsToHatoholFormat(
 		  (hostgroupElement, *it);
 		hostgroupElementList.push_back(hostgroupElement);
 	}
-}
-
-void HatoholDBUtils::transformHostsItemGroupToHatoholFormat(
-  HostInfo &hostInfo, const ItemGroup *groupHosts)
-{
-	ItemGroupStream itemGroupStream(groupHosts);
-
-	itemGroupStream.seek(ITEM_ID_ZBX_HOSTS_HOSTID);
-	itemGroupStream >> hostInfo.id;
-
-	itemGroupStream.seek(ITEM_ID_ZBX_HOSTS_NAME);
-	itemGroupStream >> hostInfo.hostName;
 }
 
 void HatoholDBUtils::transformHostsToHatoholFormat(
@@ -321,6 +237,90 @@ string HatoholDBUtils::makeItemBrief(const ItemGroup *itemItemGroup)
 	}
 
 	return brief;
+}
+
+bool HatoholDBUtils::transformEventItemGroupToEventInfo(
+  EventInfo &eventInfo, const ItemGroup *eventItemGroup)
+{
+	ItemGroupStream itemGroupStream(eventItemGroup);
+
+	itemGroupStream.seek(ITEM_ID_ZBX_EVENTS_EVENTID);
+	itemGroupStream >> eventInfo.id;
+
+	itemGroupStream.seek(ITEM_ID_ZBX_EVENTS_OBJECT);
+	if (itemGroupStream.read<int>() != EVENT_OBJECT_TRIGGER)
+		return false;
+
+	itemGroupStream.seek(ITEM_ID_ZBX_EVENTS_OBJECTID);
+	itemGroupStream >> eventInfo.triggerId;
+
+	itemGroupStream.seek(ITEM_ID_ZBX_EVENTS_CLOCK);
+	itemGroupStream >> eventInfo.time.tv_sec;
+
+	itemGroupStream.seek(ITEM_ID_ZBX_EVENTS_VALUE);
+	itemGroupStream >> eventInfo.type;
+
+	itemGroupStream.seek(ITEM_ID_ZBX_EVENTS_NS);
+	itemGroupStream >> eventInfo.time.tv_nsec;
+
+	// Trigger's value. This can be transformed from Event's value
+	// This value is refered in ActionManager. So we set here.
+	switch (eventInfo.type) {
+	case EVENT_TYPE_GOOD:
+		eventInfo.status = TRIGGER_STATUS_OK;
+		break;
+	case EVENT_TYPE_BAD:
+		eventInfo.status = TRIGGER_STATUS_PROBLEM;
+		break;
+	case EVENT_TYPE_UNKNOWN:
+		eventInfo.status = TRIGGER_STATUS_UNKNOWN;
+		break;
+	default:
+		MLPL_ERR("Unknown type: %d\n", eventInfo.type);
+		eventInfo.status = TRIGGER_STATUS_UNKNOWN;
+	}
+
+	return true;
+}
+
+void HatoholDBUtils::transformGroupItemGroupToHostgroupInfo(
+  HostgroupInfo &groupInfo, const ItemGroup *groupItemGroup)
+{
+	groupInfo.id = AUTO_INCREMENT_VALUE;
+
+	ItemGroupStream itemGroupStream(groupItemGroup);
+
+	itemGroupStream.seek(ITEM_ID_ZBX_GROUPS_GROUPID);
+	itemGroupStream >> groupInfo.groupId;
+
+	itemGroupStream.seek(ITEM_ID_ZBX_GROUPS_NAME);
+	itemGroupStream >> groupInfo.groupName;
+}
+
+void HatoholDBUtils::transformHostsGroupsItemGroupToHatoholFormat(
+  HostgroupElement &hostgroupElement, const ItemGroup *groupHostsGroups)
+{
+	hostgroupElement.id = AUTO_INCREMENT_VALUE;
+
+	ItemGroupStream itemGroupStream(groupHostsGroups);
+
+	itemGroupStream.seek(ITEM_ID_ZBX_HOSTS_GROUPS_HOSTID);
+	itemGroupStream >> hostgroupElement.hostId;
+
+	itemGroupStream.seek(ITEM_ID_ZBX_HOSTS_GROUPS_GROUPID);
+	itemGroupStream >> hostgroupElement.groupId;
+}
+
+void HatoholDBUtils::transformHostsItemGroupToHatoholFormat(
+  HostInfo &hostInfo, const ItemGroup *groupHosts)
+{
+	ItemGroupStream itemGroupStream(groupHosts);
+
+	itemGroupStream.seek(ITEM_ID_ZBX_HOSTS_HOSTID);
+	itemGroupStream >> hostInfo.id;
+
+	itemGroupStream.seek(ITEM_ID_ZBX_HOSTS_NAME);
+	itemGroupStream >> hostInfo.hostName;
 }
 
 bool HatoholDBUtils::transformItemItemGroupToItemInfo(
