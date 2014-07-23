@@ -59,8 +59,7 @@ EventSemaphore::EventSemaphore(const int &count)
 
 EventSemaphore::~EventSemaphore()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 int EventSemaphore::post(void)
