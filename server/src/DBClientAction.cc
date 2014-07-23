@@ -893,6 +893,7 @@ struct ActionsQueryOption::PrivateContext {
 	// TODO: should have replica?
 	const EventInfo *eventInfo;
 	ActionType type;
+	ActionIdList idList;
 
 	PrivateContext(ActionsQueryOption *_option)
 	: option(_option), eventInfo(NULL), type(ACTION_USER_DEFINED)
@@ -1007,6 +1008,16 @@ const ActionType &ActionsQueryOption::getActionType(void)
 	return m_ctx->type;
 }
 
+void ActionsQueryOption::setActionIdList(const ActionIdList &_idList)
+{
+	m_ctx->idList = _idList;
+}
+
+const ActionIdList &ActionsQueryOption::getActionIdList(void)
+{
+	return m_ctx->idList;
+}
+
 static string getUserDefinedActionsCondition(const string &ownerCondition)
 {
 	if (ownerCondition.empty())
@@ -1076,6 +1087,13 @@ string ActionsQueryOption::getCondition(void) const
 		if (!cond.empty())
 			cond += " AND ";
 		cond += actionTypeCondition;
+	}
+
+	// filter by ID list
+	if (!m_ctx->idList.empty()) {
+		if (!cond.empty())
+			cond += " AND ";
+		cond += makeIdListCondition(m_ctx->idList);
 	}
 
 	// filter by EventInfo

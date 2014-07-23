@@ -247,6 +247,8 @@ public:
 	const EventInfo *getTargetEventInfo(void) const;
 	void setActionType(const ActionType &type);
 	const ActionType &getActionType(void);
+	void setActionIdList(const ActionIdList &idList);
+	const ActionIdList &getActionIdList(void);
 
 	virtual std::string getCondition(void) const override;
 

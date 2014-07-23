@@ -984,4 +984,16 @@ void test_actionType(gconstpointer data)
 	cppcut_assert_equal(condition, option.getCondition());
 }
 
+void test_idList(void)
+{
+	ActionsQueryOption option(USER_ID_SYSTEM);
+	ActionIdList idList;
+	idList.push_back(2);
+	idList.push_back(7);
+	option.setActionIdList(idList);
+	string expected = "(action_type>=0 AND action_type<2)";
+	expected += " AND action_id in (2,7)";
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
 }
