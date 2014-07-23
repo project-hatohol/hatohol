@@ -273,8 +273,7 @@ FaceRest::~FaceRest()
 	}
 	MLPL_INFO("FaceRest: stop process: completed.\n");
 
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 void FaceRest::waitExit(void)
