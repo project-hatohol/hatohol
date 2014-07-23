@@ -466,17 +466,18 @@ void ArmNagiosNDOUtils::makeSelectTriggerBuilder(void)
 	// TODO: Confirm what may be use using host_object_id.
 	DBClientJoinBuilder &builder = m_ctx->selectTriggerBuilder;
 	builder.add(IDX_SERVICES_SERVICE_ID);
-	builder.add(IDX_SERVICESTATUS_OUTPUT);
 
 	builder.addTable(
 	  tableProfileServiceStatus, DBClientJoinBuilder::INNER_JOIN,
 	  IDX_SERVICES_SERVICE_OBJECT_ID, IDX_SERVICESTATUS_SERVICE_OBJECT_ID);
 	builder.add(IDX_SERVICESTATUS_CURRENT_STATE);
 	builder.add(IDX_SERVICESTATUS_STATUS_UPDATE_TIME);
+	builder.add(IDX_SERVICESTATUS_OUTPUT);
 
 	builder.addTable(
 	  tableProfileHosts, DBClientJoinBuilder::INNER_JOIN,
-	  IDX_SERVICESTATUS_SERVICE_OBJECT_ID, IDX_HOSTS_HOST_OBJECT_ID);
+	  tableProfileServices, IDX_SERVICES_HOST_OBJECT_ID,
+	  IDX_HOSTS_HOST_OBJECT_ID);
 	builder.add(IDX_HOSTS_HOST_OBJECT_ID);
 	builder.add(IDX_HOSTS_DISPLAY_NAME);
 
@@ -606,7 +607,6 @@ void ArmNagiosNDOUtils::getTrigger(void)
 		trigInfo.lastChangeTime.tv_nsec = 0;
 
 		itemGroupStream >> trigInfo.id;      // service_id
-		itemGroupStream >> trigInfo.brief;   // output
 
 		// TODO: severity should not depend on the status.
 		// status and severity (current_status)
@@ -625,6 +625,7 @@ void ArmNagiosNDOUtils::getTrigger(void)
 
 		itemGroupStream >> trigInfo.lastChangeTime.tv_sec;
 		                                      //status_update_time
+		itemGroupStream >> trigInfo.brief;    // output
 		itemGroupStream >> trigInfo.hostId;   // host_id
 		itemGroupStream >> trigInfo.hostName; // hosts.display_name
 		triggerInfoList.push_back(trigInfo);
