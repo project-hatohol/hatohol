@@ -1900,22 +1900,9 @@ void DBClientHatohol::addItemInfoList(const ItemInfoList &itemInfoList)
 void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 				      const ItemsQueryOption &option)
 {
-	static const DBAgent::TableProfile *tableProfiles[] = {
-	  &tableProfileItems,
-	  &tableProfileMapHostsHostgroups,
-	};
-	enum {
-		TBLIDX_ITEMS,
-		TBLIDX_MAP_HOSTS_HOSTGROUPS,
-	};
-	static const size_t numTableProfiles =
-	  sizeof(tableProfiles) / sizeof(DBAgent::TableProfile *);
-	DBAgent::SelectMultiTableArg arg(tableProfiles, numTableProfiles);
-
+	DBAgent::SelectExArg arg(tableProfileItems);
 	arg.tableField = option.getFromClause();
 	arg.useDistinct = option.isHostgroupUsed();
-
-	arg.setTable(TBLIDX_ITEMS);
 	arg.add(IDX_ITEMS_SERVER_ID);
 	arg.add(IDX_ITEMS_ID);
 	arg.add(IDX_ITEMS_HOST_ID);
