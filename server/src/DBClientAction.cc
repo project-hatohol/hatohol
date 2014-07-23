@@ -443,7 +443,7 @@ DBClientAction::~DBClientAction()
 HatoholError DBClientAction::addAction(ActionDef &actionDef,
                                        const OperationPrivilege &privilege)
 {
-	HatoholError err = checkPrivilegeForAdd(privilege);
+	HatoholError err = checkPrivilegeForAdd(privilege, actionDef);
 	if (err != HTERR_OK)
 		return err;
 
@@ -841,11 +841,18 @@ bool DBClientAction::getLog(ActionLog &actionLog, const string &condition)
 }
 
 HatoholError DBClientAction::checkPrivilegeForAdd(
-  const OperationPrivilege &privilege)
+  const OperationPrivilege &privilege, const ActionDef &actionDef)
 {
 	UserIdType userId = privilege.getUserId();
 	if (userId == INVALID_USER_ID)
 		return HTERR_INVALID_USER;
+
+	if (actionDef.type == ACTION_ISSUE_SENDER) {
+		if (privilege.has(OPPRVLG_CREATE_ISSUE_SETTING))
+			return HTERR_OK;
+		else
+			return HTERR_NO_PRIVILEGE;
+	}
 
 	if (!privilege.has(OPPRVLG_CREATE_ACTION))
 		return HTERR_NO_PRIVILEGE;
