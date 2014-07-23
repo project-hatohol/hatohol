@@ -443,18 +443,15 @@ DBClientAction::~DBClientAction()
 HatoholError DBClientAction::addAction(ActionDef &actionDef,
                                        const OperationPrivilege &privilege)
 {
-	UserIdType userId = privilege.getUserId();
-	if (userId == INVALID_USER_ID)
-		return HTERR_INVALID_USER;
-
-	if (!privilege.has(OPPRVLG_CREATE_ACTION))
-		return HTERR_NO_PRIVILEGE;
+	HatoholError err = checkPrivilegeForAdd(privilege);
+	if (err != HTERR_OK)
+		return err;
 
 	// Basically an owner is the caller. However, USER_ID_SYSTEM can
 	// create an action with any user ID. This is a mechanism for
 	// internal system management or a test.
-	UserIdType ownerUserId = userId;
-	if (userId == USER_ID_SYSTEM)
+	UserIdType ownerUserId = privilege.getUserId();
+	if (ownerUserId == USER_ID_SYSTEM)
 		ownerUserId = actionDef.ownerUserId;
 
 	DBAgent::InsertArg arg(tableProfileActions);
@@ -841,6 +838,19 @@ bool DBClientAction::getLog(ActionLog &actionLog, const string &condition)
 	itemGroupStream >> actionLog.exitCode;
 
 	return true;
+}
+
+HatoholError DBClientAction::checkPrivilegeForAdd(
+  const OperationPrivilege &privilege)
+{
+	UserIdType userId = privilege.getUserId();
+	if (userId == INVALID_USER_ID)
+		return HTERR_INVALID_USER;
+
+	if (!privilege.has(OPPRVLG_CREATE_ACTION))
+		return HTERR_NO_PRIVILEGE;
+
+	return HTERR_OK;
 }
 
 HatoholError DBClientAction::checkPrivilegeForDelete(

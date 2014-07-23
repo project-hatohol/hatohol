@@ -377,6 +377,8 @@ protected:
 	 */
 	bool getLog(ActionLog &actionLog, const std::string &condition);
 
+	HatoholError checkPrivilegeForAdd(
+	  const OperationPrivilege &privilege);
 	HatoholError checkPrivilegeForDelete(
 	  const OperationPrivilege &privilege);
 
