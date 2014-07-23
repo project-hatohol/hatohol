@@ -737,7 +737,7 @@ void test_getActionListWithUserHavingGetAllFlag(void)
 	assertGetActionList(userId);
 }
 
-void data_actionType(void)
+void data_getActionListWithActionType(void)
 {
 	gcut_add_datum("All",
 		       "type", G_TYPE_INT, (int)ACTION_ALL,

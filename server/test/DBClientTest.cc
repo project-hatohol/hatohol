@@ -476,6 +476,11 @@ UserInfo testUserInfo[] = {
 	"multipleAuthorizedGroups", // name
 	"5XUkuWUlqQs1s",            // password
 	0,
+}, {
+	0,                         // id
+	"canGetIssueSenderAction", // name
+	"cannotGetAllActions",     // password
+	OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_ISSUE_SETTINGS), // flags
 }
 };
 const size_t NumTestUserInfo = sizeof(testUserInfo) / sizeof(UserInfo);
