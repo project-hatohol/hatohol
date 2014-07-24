@@ -28,7 +28,7 @@
 #include "ResidentProtocol.h"
 #include "ResidentCommunicator.h"
 #include "ActionExecArgMaker.h"
-#include "MutexLock.h"
+#include "Mutex.h"
 #include "LabelUtils.h"
 #include "ConfigManager.h"
 #include "SmartTime.h"
@@ -90,14 +90,14 @@ struct SpawnPostprocCommandActionCtx {
 
 struct ResidentInfo :
    public ResidentPullHelper<ActionManager::ResidentNotifyInfo> {
-	static MutexLock residentMapLock;
+	static Mutex              residentMapLock;
 	static RunningResidentMap runningResidentMap;
 	ActionManager *actionManager;
 	const ActionDef actionDef;
 	pid_t           pid;
 	bool            inRunningResidentMap;
 
-	MutexLock           queueLock;
+	Mutex               queueLock;
 	ResidentNotifyQueue notifyQueue; // should be used with queueLock.
 	ResidentStatus      status;      // should be used with queueLock.
 
@@ -200,7 +200,7 @@ struct ResidentInfo :
 	}
 };
 
-MutexLock          ResidentInfo::residentMapLock;
+Mutex              ResidentInfo::residentMapLock;
 RunningResidentMap ResidentInfo::runningResidentMap;
 
 // ---------------------------------------------------------------------------
@@ -240,7 +240,7 @@ struct CommandActionContext {
 	// We must take locks with the following order to prevent a deadlock.
 	// (1) ActorCollector's lock: new ActorCollector::locker()
 	// (2) ActionManager::PrivateContext::lock
-	static MutexLock     lock;
+	static Mutex         lock;
 
 	static deque<WaitingCommandActionInfo *> waitingList;
 	static set<uint64_t> runningSet;  // key is logId
@@ -407,7 +407,7 @@ protected:
 	}
 };
 
-MutexLock CommandActionContext::lock;
+Mutex CommandActionContext::lock;
 deque<WaitingCommandActionInfo *>
   CommandActionContext::waitingList;
 set<size_t> CommandActionContext::reservedSet;

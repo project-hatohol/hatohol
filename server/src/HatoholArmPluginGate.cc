@@ -27,7 +27,7 @@
 #include <string>
 #include <cstring>
 #include <AtomicValue.h>
-#include <MutexLock.h>
+#include <Mutex.h>
 #include <Reaper.h>
 #include <SimpleSemaphore.h>
 #include "UnifiedDataStore.h"
@@ -81,7 +81,7 @@ struct HatoholArmPluginGate::PrivateContext
 	AtomicValue<GPid>    pid;
 	SimpleSemaphore      pluginTermSem;
 	HostInfoCache        hostInfoCache;
-	MutexLock            exitSyncLock;
+	Mutex                exitSyncLock;
 	bool                 exitSyncDone;
 
 	PrivateContext(const MonitoringServerInfo &_serverInfo,
@@ -206,7 +206,7 @@ ArmBase &HatoholArmPluginGate::getArmBase(void)
 
 void HatoholArmPluginGate::exitSync(void)
 {
-	AutoMutexLock autoMutex(&m_ctx->exitSyncLock);
+	AutoMutex autoMutex(&m_ctx->exitSyncLock);
 	if (m_ctx->exitSyncDone)
 		return;
 	MLPL_INFO("HatoholArmPluginGate: [%d:%s]: requested to exit.\n",

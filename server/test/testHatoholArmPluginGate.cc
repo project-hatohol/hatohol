@@ -20,7 +20,7 @@
 #include <cppcutter.h>
 #include <string>
 #include <qpid/messaging/Message.h>
-#include <MutexLock.h>
+#include <Mutex.h>
 #include <SimpleSemaphore.h>
 #include "HatoholArmPluginGate.h"
 #include "DBClientTest.h"

@@ -23,6 +23,8 @@
 #include "Utils.h"
 #include "UnifiedDataStore.h"
 #include "ItemGroupStream.h"
+#include "DBClientJoinBuilder.h"
+#include "SQLUtils.h"
 using namespace std;
 using namespace mlpl;
 
@@ -387,39 +389,16 @@ static const DBAgent::TableProfile tableProfileStateHistory(
 // ---------------------------------------------------------------------------
 // Private context
 // ---------------------------------------------------------------------------
-static const DBAgent::TableProfile *tableProfilesTrig[] = {
-  &tableProfileServices,
-  &tableProfileServiceStatus,
-  &tableProfileHosts,
-};
-static const size_t numTableProfilesTrig =
-  sizeof(tableProfilesTrig) / sizeof(DBAgent::TableProfile *);
-
-static const DBAgent::TableProfile *tableProfilesEvent[] = {
-  &tableProfileStateHistory,
-  &tableProfileServices,
-  &tableProfileHosts,
-};
-static const size_t numTableProfilesEvent =
-  sizeof(tableProfilesEvent) / sizeof(DBAgent::TableProfile *);
-
-static const DBAgent::TableProfile *tableProfilesItem[] = {
-  &tableProfileServices,
-  &tableProfileServiceStatus,
-};
-static const size_t numTableProfilesItem =
-  sizeof(tableProfilesItem) / sizeof(DBAgent::TableProfile *);
-
 struct ArmNagiosNDOUtils::PrivateContext
 {
-	DBAgentMySQL   *dbAgent;
-	DBClientHatohol dbHatohol;
-	DBAgent::SelectMultiTableArg selectTriggerArg;
-	DBAgent::SelectMultiTableArg selectEventArg;
-	DBAgent::SelectMultiTableArg selectItemArg;
-	DBAgent::SelectExArg         selectHostArg;
-	DBAgent::SelectExArg         selectHostgroupArg;
-	DBAgent::SelectExArg         selectHostgroupMembersArg;
+	DBAgentMySQL        *dbAgent;
+	DBClientHatohol      dbHatohol;
+	DBClientJoinBuilder  selectTriggerBuilder;
+	DBClientJoinBuilder  selectEventBuilder;
+	DBClientJoinBuilder  selectItemBuilder;
+	DBAgent::SelectExArg selectHostArg;
+	DBAgent::SelectExArg selectHostgroupArg;
+	DBAgent::SelectExArg selectHostgroupMembersArg;
 	string               selectTriggerBaseCondition;
 	string               selectEventBaseCondition;
 	UnifiedDataStore    *dataStore;
@@ -428,9 +407,9 @@ struct ArmNagiosNDOUtils::PrivateContext
 	// methods
 	PrivateContext(const MonitoringServerInfo &_serverInfo)
 	: dbAgent(NULL),
-	  selectTriggerArg(tableProfilesTrig, numTableProfilesTrig),
-	  selectEventArg(tableProfilesEvent, numTableProfilesEvent),
-	  selectItemArg(tableProfilesItem, numTableProfilesItem),
+	  selectTriggerBuilder(tableProfileServices),
+	  selectEventBuilder(tableProfileStateHistory),
+	  selectItemBuilder(tableProfileServices),
 	  selectHostArg(tableProfileHosts),
 	  selectHostgroupArg(tableProfileHostgroups),
 	  selectHostgroupMembersArg(tableProfileHostgroupMembers),
@@ -464,9 +443,9 @@ ArmNagiosNDOUtils::ArmNagiosNDOUtils(const MonitoringServerInfo &serverInfo)
   m_ctx(NULL)
 {
 	m_ctx = new PrivateContext(serverInfo);
-	makeSelectTriggerArg();
-	makeSelectEventArg();
-	makeSelectItemArg();
+	makeSelectTriggerBuilder();
+	makeSelectEventBuilder();
+	makeSelectItemBuilder();
 	makeSelectHostArg();
 	makeSelectHostgroupArg();
 	makeSelectHostgroupMembersArg();
@@ -482,130 +461,75 @@ ArmNagiosNDOUtils::~ArmNagiosNDOUtils()
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void ArmNagiosNDOUtils::makeSelectTriggerArg(void)
+void ArmNagiosNDOUtils::makeSelectTriggerBuilder(void)
 {
-	enum {
-		TBLIDX_SERVICES,
-		TBLIDX_STATUS,
-		TBLIDX_HOSTS,
-	};
-
 	// TODO: Confirm what may be use using host_object_id.
-	DBAgent::SelectMultiTableArg &arg = m_ctx->selectTriggerArg;
-	arg.tableField = 
-	  StringUtils::sprintf(
-	    "%s "
-	    "inner join %s on %s=%s "
-	    "inner join %s on %s=%s",
-	    TABLE_NAME_SERVICES,
-	    TABLE_NAME_SERVICESTATUS,
-	    arg.getFullName(TBLIDX_SERVICES,
-                            IDX_SERVICES_SERVICE_OBJECT_ID).c_str(),
-	    arg.getFullName(TBLIDX_STATUS,
-                            IDX_SERVICESTATUS_SERVICE_OBJECT_ID).c_str(),
-	    TABLE_NAME_HOSTS,
-	    arg.getFullName(TBLIDX_SERVICES,
-                            IDX_SERVICES_HOST_OBJECT_ID).c_str(),
-	    arg.getFullName(TBLIDX_HOSTS,
-                            IDX_HOSTS_HOST_OBJECT_ID).c_str());
+	DBClientJoinBuilder &builder = m_ctx->selectTriggerBuilder;
+	builder.add(IDX_SERVICES_SERVICE_ID);
 
-	arg.setTable(TBLIDX_SERVICES);
-	arg.add(IDX_SERVICES_SERVICE_ID);
+	builder.addTable(
+	  tableProfileServiceStatus, DBClientJoinBuilder::INNER_JOIN,
+	  IDX_SERVICES_SERVICE_OBJECT_ID, IDX_SERVICESTATUS_SERVICE_OBJECT_ID);
+	builder.add(IDX_SERVICESTATUS_CURRENT_STATE);
+	builder.add(IDX_SERVICESTATUS_STATUS_UPDATE_TIME);
+	builder.add(IDX_SERVICESTATUS_OUTPUT);
 
-	arg.setTable(TBLIDX_STATUS);
-	arg.add(IDX_SERVICESTATUS_CURRENT_STATE);
-	arg.add(IDX_SERVICESTATUS_STATUS_UPDATE_TIME);
-
-	arg.setTable(TBLIDX_HOSTS);
-	arg.add(IDX_HOSTS_HOST_OBJECT_ID);
-	arg.add(IDX_HOSTS_DISPLAY_NAME);
-
-	arg.setTable(TBLIDX_STATUS);
-	arg.add(IDX_SERVICESTATUS_OUTPUT);
+	builder.addTable(
+	  tableProfileHosts, DBClientJoinBuilder::INNER_JOIN,
+	  tableProfileServices, IDX_SERVICES_HOST_OBJECT_ID,
+	  IDX_HOSTS_HOST_OBJECT_ID);
+	builder.add(IDX_HOSTS_HOST_OBJECT_ID);
+	builder.add(IDX_HOSTS_DISPLAY_NAME);
 
 	// contiditon
 	m_ctx->selectTriggerBaseCondition = StringUtils::sprintf(
 	  "%s>=",
-	  arg.getFullName(TBLIDX_STATUS,
-	                  IDX_SERVICESTATUS_STATUS_UPDATE_TIME).c_str());
+	  SQLUtils::getFullName(COLUMN_DEF_SERVICESTATUS,
+	                        IDX_SERVICESTATUS_STATUS_UPDATE_TIME).c_str());
 }
 
-void ArmNagiosNDOUtils::makeSelectEventArg(void)
+void ArmNagiosNDOUtils::makeSelectEventBuilder(void)
 {
-	enum {
-		TBLIDX_HISTORY,
-		TBLIDX_SERVICES,
-		TBLIDX_HOSTS,
-	};
-
 	// TODO: Confirm what may be use using host_object_id.
-	DBAgent::SelectMultiTableArg &arg = m_ctx->selectEventArg;
-	arg.tableField = 
-	  StringUtils::sprintf(
-	    "%s "
-	    "inner join %s on %s=%s "
-	    "inner join %s on %s=%s",
-	    TABLE_NAME_STATEHISTORY,
-	    TABLE_NAME_SERVICES,
-	    arg.getFullName(TBLIDX_HISTORY, IDX_STATEHISTORY_OBJECT_ID).c_str(),
-	    arg.getFullName(TBLIDX_SERVICES,
-	                    IDX_SERVICES_SERVICE_OBJECT_ID).c_str(),
-	    TABLE_NAME_HOSTS,
-	    arg.getFullName(TBLIDX_SERVICES,
-	                    IDX_SERVICES_HOST_OBJECT_ID).c_str(),
-	    arg.getFullName(TBLIDX_HOSTS, IDX_HOSTS_HOST_OBJECT_ID).c_str());
+	DBClientJoinBuilder &builder = m_ctx->selectEventBuilder;
+	builder.add(IDX_STATEHISTORY_STATEHISTORY_ID);
+	builder.add(IDX_STATEHISTORY_STATE);
+	builder.add(IDX_STATEHISTORY_STATE_TIME);
+	builder.add(IDX_STATEHISTORY_OUTPUT);
 
-	arg.setTable(TBLIDX_HISTORY);
-	arg.add(IDX_STATEHISTORY_STATEHISTORY_ID);
-	arg.add(IDX_STATEHISTORY_STATE);
-	arg.add(IDX_STATEHISTORY_STATE_TIME);
+	builder.addTable(
+	  tableProfileServices, DBClientJoinBuilder::INNER_JOIN,
+	  IDX_STATEHISTORY_OBJECT_ID, IDX_SERVICES_SERVICE_OBJECT_ID);
+	builder.add(IDX_SERVICES_SERVICE_ID);
 
-	arg.setTable(TBLIDX_SERVICES);
-	arg.add(IDX_SERVICES_SERVICE_ID);
-
-	arg.setTable(TBLIDX_HOSTS);
-	arg.add(IDX_HOSTS_HOST_OBJECT_ID);
-	arg.add(IDX_HOSTS_DISPLAY_NAME);
-
-	arg.setTable(TBLIDX_HISTORY);
-	arg.add(IDX_STATEHISTORY_OUTPUT);
+	builder.addTable(
+	  tableProfileHosts, DBClientJoinBuilder::INNER_JOIN,
+	  IDX_SERVICES_HOST_OBJECT_ID, IDX_HOSTS_HOST_OBJECT_ID);
+	builder.add(IDX_HOSTS_HOST_OBJECT_ID);
+	builder.add(IDX_HOSTS_DISPLAY_NAME);
 
 	// contiditon
 	m_ctx->selectEventBaseCondition = StringUtils::sprintf(
 	  "%s=%d and %s>=",
-	  arg.getFullName(TBLIDX_HISTORY, IDX_STATEHISTORY_STATE_TYPE).c_str(),
+	  SQLUtils::getFullName(COLUMN_DEF_STATEHISTORY,
+	                        IDX_STATEHISTORY_STATE_TYPE).c_str(),
 	  HARD_STATE,
-	  arg.getFullName(TBLIDX_HISTORY,
-	                  IDX_STATEHISTORY_STATEHISTORY_ID).c_str());
+	  SQLUtils::getFullName(COLUMN_DEF_STATEHISTORY,
+	                        IDX_STATEHISTORY_STATEHISTORY_ID).c_str());
 }
 
-void ArmNagiosNDOUtils::makeSelectItemArg(void)
+void ArmNagiosNDOUtils::makeSelectItemBuilder(void)
 {
-	enum {
-		TBLIDX_SERVICES,
-		TBLIDX_STATUS,
-	};
+	DBClientJoinBuilder &builder = m_ctx->selectItemBuilder;
+	builder.add(IDX_SERVICES_SERVICE_ID);
+	builder.add(IDX_SERVICES_HOST_OBJECT_ID);
 
-	// TODO: Confirm what may be use using host_object_id.
-	DBAgent::SelectMultiTableArg &arg = m_ctx->selectItemArg;
-	arg.tableField =
-	  StringUtils::sprintf(
-	    "%s inner join %s on %s=%s",
-	    TABLE_NAME_SERVICES,
-	    TABLE_NAME_SERVICESTATUS,
-	    arg.getFullName(TBLIDX_SERVICES,
-	                    IDX_SERVICES_SERVICE_OBJECT_ID).c_str(),
-	    arg.getFullName(TBLIDX_STATUS,
-	                    IDX_SERVICESTATUS_SERVICE_OBJECT_ID).c_str());
-
-	arg.setTable(TBLIDX_SERVICES);
-	arg.add(IDX_SERVICES_SERVICE_ID);
-	arg.add(IDX_SERVICES_HOST_OBJECT_ID);
-
-	arg.setTable(TBLIDX_STATUS);
-	arg.add(IDX_SERVICESTATUS_CHECK_COMMAND);
-	arg.add(IDX_SERVICESTATUS_STATUS_UPDATE_TIME);
-	arg.add(IDX_SERVICESTATUS_OUTPUT);
+	builder.addTable(
+	  tableProfileServiceStatus, DBClientJoinBuilder::INNER_JOIN,
+	  IDX_SERVICES_SERVICE_OBJECT_ID, IDX_SERVICESTATUS_SERVICE_OBJECT_ID);
+	builder.add(IDX_SERVICESTATUS_CHECK_COMMAND);
+	builder.add(IDX_SERVICESTATUS_STATUS_UPDATE_TIME);
+	builder.add(IDX_SERVICESTATUS_OUTPUT);
 }
 
 void ArmNagiosNDOUtils::makeSelectHostArg(void)
@@ -637,8 +561,10 @@ void ArmNagiosNDOUtils::addConditionForTriggerQuery(void)
 	struct tm tm;
 	localtime_r(&lastUpdateTime, &tm);
 
-	m_ctx->selectTriggerArg.condition = m_ctx->selectTriggerBaseCondition;
-	m_ctx->selectTriggerArg.condition +=
+	DBAgent::SelectExArg &arg =
+	  m_ctx->selectTriggerBuilder.getSelectExArg();
+	arg.condition = m_ctx->selectTriggerBaseCondition;
+	arg.condition +=
 	   StringUtils::sprintf("'%04d-%02d-%02d %02d:%02d:%02d'",
 	                        1900+tm.tm_year, tm.tm_mon+1, tm.tm_mday,
 	                        tm.tm_hour, tm.tm_min, tm.tm_sec);
@@ -649,12 +575,13 @@ void ArmNagiosNDOUtils::addConditionForEventQuery(void)
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	uint64_t lastEventId = m_ctx->dbHatohol.getLastEventId(svInfo.id);
 	string cond;
-	m_ctx->selectEventArg.condition = m_ctx->selectEventBaseCondition;
+	DBAgent::SelectExArg &arg = m_ctx->selectEventBuilder.getSelectExArg();
+	arg.condition = m_ctx->selectEventBaseCondition;
 	if (lastEventId == EVENT_NOT_FOUND)
- 		cond = "0";
+		cond = "0";
 	else
- 		cond = StringUtils::sprintf("%" PRIu64, lastEventId+1);
-	m_ctx->selectEventArg.condition += cond;
+		cond = StringUtils::sprintf("%" PRIu64, lastEventId+1);
+	arg.condition += cond;
 }
 
 void ArmNagiosNDOUtils::getTrigger(void)
@@ -662,15 +589,15 @@ void ArmNagiosNDOUtils::getTrigger(void)
 	addConditionForTriggerQuery();
 
 	// TODO: should use transaction
-	m_ctx->dbAgent->select(m_ctx->selectTriggerArg);
-	size_t numTriggers =
-	   m_ctx->selectTriggerArg.dataTable->getNumberOfRows();
+	DBAgent::SelectExArg &arg =
+	  m_ctx->selectTriggerBuilder.getSelectExArg();
+	m_ctx->dbAgent->select(arg);
+	size_t numTriggers = arg.dataTable->getNumberOfRows();
 	MLPL_DBG("The number of triggers: %zd\n", numTriggers);
 
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	TriggerInfoList triggerInfoList;
-	const ItemGroupList &grpList =
-	  m_ctx->selectTriggerArg.dataTable->getItemGroupList();
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
 		int currentStatus;
@@ -698,9 +625,9 @@ void ArmNagiosNDOUtils::getTrigger(void)
 
 		itemGroupStream >> trigInfo.lastChangeTime.tv_sec;
 		                                      //status_update_time
+		itemGroupStream >> trigInfo.brief;    // output
 		itemGroupStream >> trigInfo.hostId;   // host_id
 		itemGroupStream >> trigInfo.hostName; // hosts.display_name
-		itemGroupStream >> trigInfo.brief;    // output
 		triggerInfoList.push_back(trigInfo);
 	}
 	m_ctx->dbHatohol.addTriggerInfoList(triggerInfoList);
@@ -711,16 +638,15 @@ void ArmNagiosNDOUtils::getEvent(void)
 	addConditionForEventQuery();
 
 	// TODO: should use transaction
-	m_ctx->dbAgent->select(m_ctx->selectEventArg);
-	size_t numEvents =
-	   m_ctx->selectEventArg.dataTable->getNumberOfRows();
+	DBAgent::SelectExArg &arg = m_ctx->selectEventBuilder.getSelectExArg();
+	m_ctx->dbAgent->select(arg);
+	size_t numEvents = arg.dataTable->getNumberOfRows();
 	MLPL_DBG("The number of events: %zd\n", numEvents);
 
 	// TODO: use addEventInfoList with the newly added data.
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	EventInfoList eventInfoList;
-	const ItemGroupList &grpList =
-	  m_ctx->selectEventArg.dataTable->getItemGroupList();
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
 		int state;
@@ -747,10 +673,10 @@ void ArmNagiosNDOUtils::getEvent(void)
 				eventInfo.severity = TRIGGER_SEVERITY_UNKNOWN;
 		}
 		itemGroupStream >> eventInfo.time.tv_sec; // state_time
+		itemGroupStream >> eventInfo.brief;       // output
 		itemGroupStream >> eventInfo.triggerId;   // service_id
 		itemGroupStream >> eventInfo.hostId;      // host_id
 		itemGroupStream >> eventInfo.hostName;    // hosts.display_name
-		itemGroupStream >> eventInfo.brief;       // output
 		eventInfoList.push_back(eventInfo);
 	}
 	m_ctx->dataStore->addEventList(eventInfoList);
@@ -759,15 +685,14 @@ void ArmNagiosNDOUtils::getEvent(void)
 void ArmNagiosNDOUtils::getItem(void)
 {
 	// TODO: should use transaction
-	m_ctx->dbAgent->select(m_ctx->selectItemArg);
-	size_t numItems =
-	   m_ctx->selectItemArg.dataTable->getNumberOfRows();
+	DBAgent::SelectExArg &arg = m_ctx->selectItemBuilder.getSelectExArg();
+	m_ctx->dbAgent->select(arg);
+	size_t numItems = arg.dataTable->getNumberOfRows();
 	MLPL_DBG("The number of items: %zd\n", numItems);
 
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	ItemInfoList itemInfoList;
-	const ItemGroupList &grpList =
-	  m_ctx->selectItemArg.dataTable->getItemGroupList();
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
 		ItemGroupStream itemGroupStream(*itemGrpItr);

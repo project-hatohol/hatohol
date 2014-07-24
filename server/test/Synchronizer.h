@@ -21,10 +21,10 @@
 #define Synchronizer_h
 
 #include <glib.h>
-#include <MutexLock.h>
+#include <Mutex.h>
 
 class Synchronizer {
-	mlpl::MutexLock *m_mutex;
+	mlpl::Mutex *m_mutex;
 public:
 	Synchronizer(void);
 	virtual ~Synchronizer();

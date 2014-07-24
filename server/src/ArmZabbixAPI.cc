@@ -18,7 +18,7 @@
  */
 
 #include <Logger.h>
-#include <MutexLock.h>
+#include <Mutex.h>
 using namespace mlpl;
 
 #include <sstream>

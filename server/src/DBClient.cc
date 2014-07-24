@@ -17,7 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <MutexLock.h>
+#include <Mutex.h>
 #include <Reaper.h>
 #include "DBClient.h"
 #include "DBAgentFactory.h"
@@ -67,7 +67,7 @@ static const DBAgent::TableProfile tableProfileDBClientVersion(
 // This structure instnace is created once every DB_DOMAIN_ID
 struct DBClient::DBSetupContext {
 	bool              initialized;
-	MutexLock         mutex;
+	Mutex             mutex;
 	string            dbName;
 	const DBSetupFuncArg *dbSetupFuncArg;
 	DBConnectInfo     connectInfo;

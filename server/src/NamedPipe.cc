@@ -30,7 +30,7 @@
 using namespace std;
 
 #include <SmartBuffer.h>
-#include <MutexLock.h>
+#include <Mutex.h>
 using namespace mlpl;
 
 #include "HatoholException.h"
@@ -115,7 +115,7 @@ struct NamedPipe::PrivateContext {
 	gpointer userCbData;
 	bool writeCbSet;
 	SmartBufferList writeBufList;
-	MutexLock writeBufListLock;
+	Mutex           writeBufListLock;
 	PullCallback  pullCb;
 	void         *pullCbPriv;
 	SmartBuffer   pullBuf;

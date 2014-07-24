@@ -18,7 +18,7 @@
  */
 
 #include <cstring>
-#include <MutexLock.h>
+#include <Mutex.h>
 #include <SmartBuffer.h>
 #include <SmartTime.h>
 #include <SmartQueue.h>
@@ -118,7 +118,7 @@ struct HatoholArmPluginInterface::PrivateContext {
 		          workInServer ? "server" : "client",
 		          brokerUrl.c_str(), queueAddr.c_str());
 
-		AutoMutexLock autoMutex(&connectionLock);
+		AutoMutex autoMutex(&connectionLock);
 		connection = Connection(url, connectionOptions);
 		connection.open();
 		session = connection.createSession();
@@ -141,7 +141,7 @@ struct HatoholArmPluginInterface::PrivateContext {
 
 	void disconnect(void)
 	{
-		AutoMutexLock autoMutex(&connectionLock);
+		AutoMutex autoMutex(&connectionLock);
 		if (!connected)
 			return;
 		try {
@@ -170,7 +170,7 @@ struct HatoholArmPluginInterface::PrivateContext {
 
 	void acknowledge(void)
 	{
-		AutoMutexLock autoMutex(&connectionLock);
+		AutoMutex autoMutex(&connectionLock);
 		if (!connected)
 			return;
 		session.acknowledge();
@@ -222,8 +222,8 @@ struct HatoholArmPluginInterface::PrivateContext {
 
 private:
 	bool       connected;
-	MutexLock  connectionLock;
-	mutable MutexLock generalLock;
+	Mutex      connectionLock;
+	mutable Mutex generalLock;
 	string     brokerUrl;
 	string     queueAddress;
 };

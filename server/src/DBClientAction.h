@@ -247,6 +247,8 @@ public:
 	const EventInfo *getTargetEventInfo(void) const;
 	void setActionType(const ActionType &type);
 	const ActionType &getActionType(void);
+	void setActionIdList(const ActionIdList &idList);
+	const ActionIdList &getActionIdList(void);
 
 	virtual std::string getCondition(void) const override;
 
@@ -377,8 +379,10 @@ protected:
 	 */
 	bool getLog(ActionLog &actionLog, const std::string &condition);
 
+	HatoholError checkPrivilegeForAdd(
+	  const OperationPrivilege &privilege, const ActionDef &actionDef);
 	HatoholError checkPrivilegeForDelete(
-	  const OperationPrivilege &privilege);
+	  const OperationPrivilege &privilege, const ActionIdList &idList);
 
 private:
 	struct PrivateContext;

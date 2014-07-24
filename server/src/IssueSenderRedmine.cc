@@ -20,7 +20,7 @@
 #include "IssueSenderRedmine.h"
 #include "JsonBuilderAgent.h"
 #include "JsonParserAgent.h"
-#include "MutexLock.h"
+#include <Mutex.h>
 #include <libsoup/soup.h>
 
 using namespace std;
@@ -28,7 +28,7 @@ using namespace mlpl;
 
 static const guint DEFAULT_TIMEOUT_SECONDS = 60;
 static const char *MIME_JSON = "application/json";
-static MutexLock soupSessionMutex;
+static Mutex soupSessionMutex;
 
 static SoupSession *getSoupSession(void)
 {

@@ -24,7 +24,7 @@
 #include <SimpleSemaphore.h>
 #include <SmartBuffer.h>
 #include <AtomicValue.h>
-#include <MutexLock.h>
+#include <Mutex.h>
 #include <qpid/messaging/Connection.h>
 #include "HatoholArmPluginInterface.h"
 
@@ -112,7 +112,7 @@ protected:
 
 private:
 	mlpl::SimpleSemaphore   m_rcvSem;
-	mlpl::MutexLock         m_lock;
+	mlpl::Mutex             m_lock;
 	std::string             m_message;
 	mlpl::AtomicValue<bool> m_msgIntercept;
 };

@@ -20,7 +20,7 @@
 #include <glib.h>
 #include <glib-object.h>
 #include <Logger.h>
-#include <MutexLock.h>
+#include <Mutex.h>
 #include <ReadWriteLock.h>
 #include <Reaper.h>
 #include <exception>
@@ -39,7 +39,7 @@ struct HatoholThreadBase::PrivateContext {
 	ExitCallbackInfoList      exitCbList;
 	SimpleSemaphore           semThreadStart;
 	SimpleSemaphore           semThreadExit;
-	MutexLock                 mutexForReexecSleep;
+	Mutex                     mutexForReexecSleep;
 	AtomicValue<bool>         exitRequested;
 
 	// methods
@@ -246,12 +246,12 @@ begin:
 		throw;
 	}
 	if (sleepTimeOrExit >= 0) {
-		MutexLock::Status status =
+		Mutex::Status status =
 		  obj->m_ctx->mutexForReexecSleep.timedlock(sleepTimeOrExit);
 
 		// The status is MutextLock::OK, cancelReexecSleep() should
 		// be called. In that case, we just return this method.
-		if (status == MutexLock::STAT_TIMEDOUT)
+		if (status == Mutex::STAT_TIMEDOUT)
 			goto begin;
 	}
 	return ret;

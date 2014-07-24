@@ -22,7 +22,7 @@ loggerTestee_SOURCES = loggerTestee.cc
 
 # Test cases
 testMLPL_la_SOURCES = \
-	testMutexLock.cc testReadWriteLock.cc \
+	testMutex.cc testReadWriteLock.cc \
 	testLogger.cc testStringUtils.cc testParsableString.cc \
 	testSmartBuffer.cc testReaper.cc testSmartTime.cc testSmartQueue.cc \
 	testAtomicValue.cc testSimpleSemaphore.cc testEventSemaphore.cc

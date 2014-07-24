@@ -46,7 +46,7 @@ public:
 
 	struct MainLoop {
 		GMainLoop *loop;
-		MutexLock  lock;
+		Mutex      lock;
 		guint      timerTag;
 
 		MainLoop(void)
@@ -220,8 +220,8 @@ void test_isStartedInitial(void)
 void test_isStarted(void)
 {
 	struct Priv {
-		MutexLock mutexThreadExit;
-		MutexLock mutexWaitRun;
+		Mutex mutexThreadExit;
+		Mutex mutexWaitRun;
 		static gpointer func(void *data) {
 			Priv *obj = static_cast<Priv *>(data);
 			obj->mutexWaitRun.unlock();

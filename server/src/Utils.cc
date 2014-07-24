@@ -19,7 +19,7 @@
 
 #include <StringUtils.h>
 #include <Logger.h>
-#include <MutexLock.h>
+#include <Mutex.h>
 #include <Reaper.h>
 using namespace mlpl;
 
@@ -281,7 +281,7 @@ void Utils::executeOnGLibEventLoop(
 	struct IdleTask {
 		void (*userFunc)(gpointer);
 		gpointer    userData;
-		MutexLock   mutex;
+		Mutex       mutex;
 		SyncType    syncType;
 
 		static gboolean callbackGate(gpointer data) {

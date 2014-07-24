@@ -18,7 +18,7 @@
  */
 
 #include <stdexcept>
-#include <MutexLock.h>
+#include <Mutex.h>
 #include <AtomicValue.h>
 #include <Reaper.h>
 #include "UnifiedDataStore.h"
@@ -86,7 +86,7 @@ struct UnifiedDataStore::PrivateContext
 	};
 
 	static UnifiedDataStore *instance;
-	static MutexLock         mutex;
+	static Mutex             mutex;
 
 	AtomicValue<bool>        isCopyOnDemandEnabled;
 	ItemFetchWorker          itemFetchWorker;
@@ -217,7 +217,7 @@ private:
 };
 
 UnifiedDataStore *UnifiedDataStore::PrivateContext::instance = NULL;
-MutexLock UnifiedDataStore::PrivateContext::mutex;
+Mutex             UnifiedDataStore::PrivateContext::mutex;
 
 // ---------------------------------------------------------------------------
 // Public static methods

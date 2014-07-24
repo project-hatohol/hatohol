@@ -369,7 +369,7 @@ void test_addActionInvalidType(void)
 {
 	setupUserDB();
 	StringMap params;
-	params["type"] = StringUtils::sprintf("%d", ACTION_RESIDENT+1);
+	params["type"] = StringUtils::sprintf("%d", NUM_ACTION_TYPES);
 	assertAddAction(params, findUserWith(OPPRVLG_CREATE_ACTION),
 	                HTERR_INVALID_PARAMETER);
 }

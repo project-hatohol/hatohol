@@ -18,7 +18,7 @@
  */
 
 #include <cppcutter.h>
-#include <MutexLock.h>
+#include <Mutex.h>
 #include "Hatohol.h"
 #include "FaceRest.h"
 #include "Helpers.h"
@@ -58,7 +58,7 @@ void setupUserDB(void)
 void startFaceRest(void)
 {
 	struct : public FaceRestParam {
-		MutexLock mutex;
+		Mutex mutex;
 		virtual void setupDoneNotifyFunc(void) 
 		{
 			mutex.unlock();
