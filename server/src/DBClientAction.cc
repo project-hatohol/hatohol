@@ -619,15 +619,13 @@ static string makeConditionForDelete(const ActionIdList &idList,
 			condition += " AND ";
 		string ownerCondition
 		  = makeOwnerCondition(privilege.getUserId());
-		string typeCondition = "(";
-		typeCondition += makeUserActionsCondition(ownerCondition);
+		condition += "(" + makeUserActionsCondition(ownerCondition);
 		if (privilege.has(OPPRVLG_DELETE_ISSUE_SETTING)) {
-			typeCondition +=
+			condition +=
 			  StringUtils::sprintf(" OR action_type=%d",
 					       ACTION_ISSUE_SENDER);
 		}
-		typeCondition += ")";
-		condition += typeCondition;
+		condition += ")";
 	}
 	return condition;
 }
