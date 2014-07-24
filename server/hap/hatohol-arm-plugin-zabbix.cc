@@ -163,9 +163,19 @@ void HapProcessZabbixAPI::startAcquisition(void)
 		intervalMSec = retryIntervalSec * 1000;
 		const char *name = exceptionName.c_str() ? : "Unknown";
 		const char *msg  = exceptionMsg.c_str()  ? : "N/A";
-		MLPL_ERR("Caught an exception: (%s) %s\n", name, msg);
+		string errMsg = StringUtils::sprintf(
+		  "Caught an exception: (%s) %s", name, msg);
+		MLPL_ERR("%s\n", errMsg.c_str());
+		getArmStatus().logFailure(errMsg);
 	}
 	m_ctx->timerTag = g_timeout_add(intervalMSec, acquisitionTimerCb, this);
+
+	// update ArmInfo
+	try {
+		sendArmInfo(getArmStatus().getArmInfo());
+	} catch (...) {
+		MLPL_ERR("Failed to send ArmInfo.\n");
+	}
 }
 
 void HapProcessZabbixAPI::acquireData(void)
@@ -175,6 +185,7 @@ void HapProcessZabbixAPI::acquireData(void)
 	workOnHostgroups();
 	workOnTriggers();
 	workOnEvents();
+	getArmStatus().logSuccess();
 }
 
 //
