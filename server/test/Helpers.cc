@@ -214,8 +214,8 @@ gboolean spawnSync(const string &commandLine, string &stdOut, string &stdErr,
 	GSpawnChildSetupFunc childSetup = NULL;
 	gpointer userData = NULL;
 	GPid childPid;
-	gint stdOutFd;
-	gint stdErrFd;
+	gint stdOutFd = -1;
+	gint stdErrFd = -1;;
 	gboolean ret =
 	  g_spawn_async_with_pipes(workingDir, argv, envp, flags,
 	                           childSetup, userData, &childPid,
@@ -230,6 +230,9 @@ gboolean spawnSync(const string &commandLine, string &stdOut, string &stdErr,
 
 	while (ctxStd.running && ctxErr.running)
 		g_main_context_iteration(NULL, TRUE);
+
+	close(stdOutFd);
+	close(stdErrFd);
 	return TRUE;
 }
 
