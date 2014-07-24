@@ -453,45 +453,8 @@ void HatoholArmPluginGate::cmdHandlerSendUpdatedTriggers(
 	ItemTablePtr tablePtr = createItemTable(*cmdBuf);
 
 	TriggerInfoList trigInfoList;
-	const ItemGroupList &trigGrpList = tablePtr->getItemGroupList();
-	ItemGroupListConstIterator trigGrpItr = trigGrpList.begin();
-	for (; trigGrpItr != trigGrpList.end(); ++trigGrpItr) {
-		ItemGroupStream trigGroupStream(*trigGrpItr);
-		TriggerInfo trigInfo;
-
-		trigInfo.serverId = m_ctx->serverInfo.id;
-
-		trigGroupStream.seek(ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
-		trigGroupStream >> trigInfo.id;
-
-		trigGroupStream.seek(ITEM_ID_ZBX_TRIGGERS_VALUE);
-		trigGroupStream >> trigInfo.status;
-
-		trigGroupStream.seek(ITEM_ID_ZBX_TRIGGERS_PRIORITY);
-		trigGroupStream >> trigInfo.severity;
-
-		trigGroupStream.seek(ITEM_ID_ZBX_TRIGGERS_LASTCHANGE);
-		trigGroupStream >> trigInfo.lastChangeTime.tv_sec;
-		trigInfo.lastChangeTime.tv_nsec = 0;
-
-		trigGroupStream.seek(ITEM_ID_ZBX_TRIGGERS_DESCRIPTION);
-		trigGroupStream >> trigInfo.brief;
-
-		trigGroupStream.seek(ITEM_ID_ZBX_TRIGGERS_HOSTID);
-		trigGroupStream >> trigInfo.hostId;
-
-		if (!m_ctx->hostInfoCache.getName(trigInfo.hostId,
-		                                  trigInfo.hostName)) {
-			MLPL_WARN(
-			  "Ignored a trigger whose host name was not found: "
-			  "server: %" FMT_SERVER_ID ", host: %" FMT_HOST_ID
-			  "\n",
-			  m_ctx->serverInfo.id, trigInfo.hostId);
-			continue;
-		}
-
-		trigInfoList.push_back(trigInfo);
-	}
+	HatoholDBUtils::transformTriggersToHatoholFormat(
+	  trigInfoList, tablePtr, m_ctx->serverInfo.id, m_ctx->hostInfoCache);
 
 	CacheServiceDBClient cache;
 	DBClientHatohol *dbHatohol = cache.getHatohol();

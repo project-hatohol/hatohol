@@ -42,7 +42,6 @@ void HatoholDBUtils::transformTriggersToHatoholFormat(
   TriggerInfoList &trigInfoList, const ItemTablePtr triggers,
   const ServerIdType &serverId, const HostInfoCache &hostInfoCache)
 {
-	// TODO: Use this method from HatoholArmPluginGate::cmdHandlerSendUpdatedTriggers().
 	const ItemGroupList &trigGrpList = triggers->getItemGroupList();
 	ItemGroupListConstIterator trigGrpItr = trigGrpList.begin();
 	for (; trigGrpItr != trigGrpList.end(); ++trigGrpItr) {
