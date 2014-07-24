@@ -321,22 +321,14 @@ bool spawnChildProcess(string magicNumber, GPid &childPid, const string &pidFile
 	  "../src/hatohol", "--config-db-server", "localhost",
 	   "--pid-file-path", pidFilePath.c_str(), NULL};
 	const gchar *envp[] = {"LD_LIBRARY_PATH=../src/.libs/", magicNumber.c_str(), NULL};
-	gint *stdOut = NULL;
-	gint *stdErr = NULL;;
 	GError *error;
 	gboolean succeeded;
 
-	succeeded = g_spawn_async_with_pipes(NULL,
+	succeeded = g_spawn_async(NULL,
 			const_cast<gchar**>(argv),
 			const_cast<gchar**>(envp),
 			G_SPAWN_DO_NOT_REAP_CHILD,
-			NULL,
-			NULL,
-			&childPid,
-			NULL,
-			stdOut, // NULL
-			stdErr, // NULL
-			&error);
+			NULL, NULL, &childPid, &error);
 
 	return succeeded == TRUE;
 }
