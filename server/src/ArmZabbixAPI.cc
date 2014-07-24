@@ -237,23 +237,16 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 	if (!updateAuthTokenIfNeeded())
 		return false;
 
-	try
-	{
+	try {
 		if (getUpdateType() == UPDATE_ITEM_REQUEST) {
 			updateItems();
 			return true;
 		}
 
-		// get triggers
 		ItemTablePtr triggers = updateTriggers();
-
-		// TODO: Change retrieve interval.
-		//       Or, Hatohol gets in the event-driven.
-		updateHosts();
-
+		updateHosts(); // TODO: Get it only when it's really needed.
 		updateGroups();
 		makeHatoholTriggers(triggers);
-
 		updateEvents();
 
 		if (!getCopyOnDemandEnabled())
