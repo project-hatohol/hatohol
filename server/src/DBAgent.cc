@@ -17,7 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <MutexLock.h>
+#include <Mutex.h>
 #include "SQLUtils.h"
 #include "DBAgent.h"
 #include "HatoholException.h"
@@ -75,7 +75,7 @@ const char *DBConnectInfo::getPassword(void) const
 
 struct DBAgent::PrivateContext
 {
-	static MutexLock           mutex;
+	static Mutex               mutex;
 	static DBSetupInfoMap      setupInfoMap;
 	static DBTermCodec         dbTermCodec;
 	DBDomainId dbDomainId;
@@ -97,7 +97,7 @@ struct DBAgent::PrivateContext
 	}
 };
 
-MutexLock      DBAgent::PrivateContext::mutex;
+Mutex          DBAgent::PrivateContext::mutex;
 DBSetupInfoMap DBAgent::PrivateContext::setupInfoMap;
 DBTermCodec    DBAgent::PrivateContext::dbTermCodec;
 

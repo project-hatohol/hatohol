@@ -25,16 +25,16 @@ using namespace std;
 #include <cutter.h>
 #include <cppcutter.h>
 
-#include "MutexLock.h"
+#include "Mutex.h"
 using namespace mlpl;
 
-namespace testMutexLock {
+namespace testMutex {
 
 static const int COUNT_MAX = 100;
 
 struct CounterThreadArg {
 	volatile int count;
-	MutexLock lock;
+	Mutex lock;
 };
 
 static void *counterThread(void *_arg)
@@ -51,12 +51,12 @@ static void *counterThread(void *_arg)
 // ---------------------------------------------------------------------------
 void test_make(void)
 {
-	MutexLock lock;
+	Mutex lock;
 }
 
 void test_lockUnlock(void)
 {
-	MutexLock lock;
+	Mutex lock;
 	lock.lock();
 	lock.unlock();
 }
@@ -79,7 +79,7 @@ void test_lockWait(void)
 
 void test_trylock(void)
 {
-	MutexLock lock;
+	Mutex lock;
 	lock.lock();
 	cppcut_assert_equal(false, lock.trylock()); 
 	lock.unlock();
@@ -89,33 +89,33 @@ void test_trylock(void)
 
 void test_timedlock(void)
 {
-	MutexLock lock;
-	cppcut_assert_equal(MutexLock::STAT_OK, lock.timedlock(1));
-	cppcut_assert_equal(MutexLock::STAT_TIMEDOUT, lock.timedlock(1));
+	Mutex lock;
+	cppcut_assert_equal(Mutex::STAT_OK, lock.timedlock(1));
+	cppcut_assert_equal(Mutex::STAT_TIMEDOUT, lock.timedlock(1));
 }
 
 void test_timedlockWithNormalLock(void)
 {
-	MutexLock lock;
+	Mutex lock;
 	lock.lock();
-	cppcut_assert_equal(MutexLock::STAT_TIMEDOUT, lock.timedlock(1));
+	cppcut_assert_equal(Mutex::STAT_TIMEDOUT, lock.timedlock(1));
 }
 
 void test_staticUnlock(void)
 {
-	MutexLock lock;
+	Mutex lock;
 	lock.lock();
-	MutexLock::unlock(&lock);
+	Mutex::unlock(&lock);
 }
 
-void test_autoMutexLock(void)
+void test_autoMutex(void)
 {
-	MutexLock lock;
+	Mutex lock;
 	{
-		AutoMutexLock autoLock(&lock);
+		AutoMutex autoLock(&lock);
 		cppcut_assert_equal(false, lock.trylock());
 	}
 	cppcut_assert_equal(true, lock.trylock());
 }
 
-} // namespace testMutexLock
+} // namespace testMutex

@@ -18,7 +18,7 @@
  */
 
 #include "DataStoreManager.h"
-#include <MutexLock.h>
+#include <Mutex.h>
 #include <Reaper.h>
 using namespace std;
 using namespace mlpl;
@@ -52,7 +52,7 @@ struct DataStoreManager::PrivateContext {
 	// Elements in dataStoreMap and dataStoreVector are the same.
 	// So it's only necessary to free elements in one.
 	DataStoreMap    dataStoreMap;
-	MutexLock mutex;
+	Mutex                  mutex;
 	DataStoreEventProcList eventProcList;
 	ReadWriteLock          eventProcListLock;
 };
@@ -94,7 +94,7 @@ bool DataStoreManager::hasDataStore(uint32_t storeId)
 
 bool DataStoreManager::add(uint32_t storeId, DataStore *dataStore)
 {
-	AutoMutexLock autoMutex(&m_ctx->mutex);
+	AutoMutex autoMutex(&m_ctx->mutex);
 	pair<DataStoreMapIterator, bool> result =
 	  m_ctx->dataStoreMap.insert
 	    (pair<uint32_t, DataStore *>(storeId, dataStore));

@@ -21,7 +21,7 @@
 #include "DBAgentFactory.h"
 #include "DBClientAction.h"
 #include "DBClientHatohol.h"
-#include "MutexLock.h"
+#include "Mutex.h"
 #include "ItemGroupStream.h"
 using namespace std;
 using namespace mlpl;

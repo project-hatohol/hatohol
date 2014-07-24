@@ -22,7 +22,7 @@
 
 #include <HapZabbixAPI.h>
 #include <SimpleSemaphore.h>
-#include <MutexLock.h>
+#include <Mutex.h>
 #include "Utils.h"
 #include "HapProcess.h"
 
@@ -53,7 +53,7 @@ private:
 // ---------------------------------------------------------------------------
 struct HapProcessZabbixAPI::PrivateContext {
 	MonitoringServerInfo serverInfo;
-	MutexLock            lock;
+	Mutex                lock;
 	guint                timerTag;
 	bool                 hasNewServerInfo;
 

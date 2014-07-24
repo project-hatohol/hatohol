@@ -23,7 +23,7 @@
 #include <cstring>
 #include <Logger.h>
 #include <Reaper.h>
-#include <MutexLock.h>
+#include <Mutex.h>
 #include <SmartTime.h>
 #include <AtomicValue.h>
 #include <errno.h>
@@ -82,7 +82,7 @@ static MimeTypeMap g_mimeTypeMap;
 struct FaceRest::PrivateContext {
 	struct MainThreadCleaner;
 	static bool         testMode;
-	static MutexLock    lock;
+	static Mutex        lock;
 	guint               port;
 	SoupServer         *soupServer;
 	GMainContext       *gMainCtx;
@@ -94,7 +94,7 @@ struct FaceRest::PrivateContext {
 	size_t           numPreLoadWorkers;
 	set<Worker *>    workers;
 	queue<ResourceHandler *> restJobQueue;
-	MutexLock        restJobLock;
+	Mutex            restJobLock;
 	sem_t            waitJobSemaphore;
 
 	PrivateContext(FaceRestParam *_param)
@@ -164,7 +164,7 @@ struct FaceRest::PrivateContext {
 };
 
 bool         FaceRest::PrivateContext::testMode = false;
-MutexLock    FaceRest::PrivateContext::lock;
+Mutex        FaceRest::PrivateContext::lock;
 
 class FaceRest::Worker : public HatoholThreadBase {
 public:

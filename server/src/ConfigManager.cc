@@ -21,7 +21,7 @@
 #include "config.h"
 #endif // HAVE_CONFIG_H
 
-#include <MutexLock.h>
+#include <Mutex.h>
 #include "ConfigManager.h"
 #include "DBClientConfig.h"
 using namespace std;
@@ -38,7 +38,7 @@ static int DEFAULT_ALLOWED_TIME_OF_ACTION_FOR_OLD_EVENTS
 static int DEFAULT_MAX_NUM_RUNNING_COMMAND_ACTION = 10;
 
 struct ConfigManager::PrivateContext {
-	static MutexLock      mutex;
+	static Mutex          mutex;
 	static ConfigManager *instance;
 	string                databaseDirectory;
 	static string         actionCommandDirectory;
@@ -56,7 +56,7 @@ struct ConfigManager::PrivateContext {
 	}
 };
 
-MutexLock      ConfigManager::PrivateContext::mutex;
+Mutex          ConfigManager::PrivateContext::mutex;
 ConfigManager *ConfigManager::PrivateContext::instance = NULL;
 string         ConfigManager::PrivateContext::actionCommandDirectory;
 string         ConfigManager::PrivateContext::residentYardDirectory;

@@ -19,7 +19,7 @@
 
 #include <cstdio>
 #include <SimpleSemaphore.h>
-#include <MutexLock.h>
+#include <Mutex.h>
 #include <Reaper.h>
 #include "HatoholArmPluginBase.h"
 

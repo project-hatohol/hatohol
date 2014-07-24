@@ -17,14 +17,14 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MutexLock_h
-#define MutexLock_h
+#ifndef Mutex_h
+#define Mutex_h
 
 #include <pthread.h>
 
 namespace mlpl {
 
-class MutexLock {
+class Mutex {
 public:
 	enum Status {
 		STAT_OK,
@@ -32,8 +32,8 @@ public:
 		STAT_ERROR_UNKNOWN,
 	};
 
-	MutexLock(void);
-	virtual ~MutexLock();
+	Mutex(void);
+	virtual ~Mutex();
 	void lock(void);
 	Status timedlock(size_t timeoutInMSec);
 	void unlock(void);
@@ -45,21 +45,21 @@ public:
 	 */
 	bool trylock(void);
 
-	static void unlock(MutexLock *lock);
+	static void unlock(Mutex *lock);
 
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
 };
 
-class AutoMutexLock {
+class AutoMutex {
 public:
-	AutoMutexLock(MutexLock *mutex);
-	virtual ~AutoMutexLock();
+	AutoMutex(Mutex *mutex);
+	virtual ~AutoMutex();
 private:
-	MutexLock *m_mutex;
+	Mutex *m_mutex;
 };
 
 } // namespace mlpl
 
-#endif // MutexLock_h
+#endif // Mutex_h

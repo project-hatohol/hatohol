@@ -22,7 +22,7 @@
 
 #include <cppcutter.h>
 #include <StringUtils.h>
-#include <MutexLock.h>
+#include <Mutex.h>
 #include <SmartTime.h>
 #include "ItemTable.h"
 #include "DBAgent.h"
@@ -302,7 +302,7 @@ private:
 	static const size_t TIMEOUT = 5000;
 	guint           m_timerTag;
 	GMainLoop      *m_loop;
-	mlpl::MutexLock m_lock;
+	mlpl::Mutex     m_lock;
 	GSourceFunc     m_timeoutCb;
 	gpointer        m_timeoutCbData;
 };

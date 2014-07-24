@@ -19,7 +19,7 @@
 
 #include <glib.h>
 
-#include <MutexLock.h>
+#include <Mutex.h>
 using namespace mlpl;
 
 #include "Hatohol.h"
@@ -47,7 +47,7 @@ using namespace mlpl;
 #include "UnifiedDataStore.h"
 #include "ChildProcessManager.h"
 
-static MutexLock mutex;
+static Mutex mutex;
 static bool initDone = false; 
 
 static void init(const CommandLineArg &arg)

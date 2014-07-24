@@ -19,7 +19,7 @@
 
 #include <map>
 #include <list>
-#include <MutexLock.h>
+#include <Mutex.h>
 #include "Params.h"
 #include "DBClient.h"
 #include "CacheServiceDBClient.h"
@@ -68,7 +68,7 @@ struct CacheLRU {
 struct CacheServiceDBClient::PrivateContext {
 	// This lock is for DBClientMapList. clientMap can be accessed w/o
 	// the lock because it is on the thread local storage.
-	static MutexLock lock;
+	static Mutex          lock;
 	static DBClientMapSet dbClientMapSet;
 	// TODO: The limitation of cahed objects is now WIP.
 	static size_t maxNumCacheMySQL;
@@ -143,7 +143,7 @@ struct CacheServiceDBClient::PrivateContext {
 	}
 };
 __thread DBClientMap *CacheServiceDBClient::PrivateContext::clientMap = NULL;
-MutexLock      CacheServiceDBClient::PrivateContext::lock;
+Mutex          CacheServiceDBClient::PrivateContext::lock;
 DBClientMapSet CacheServiceDBClient::PrivateContext::dbClientMapSet;
 size_t CacheServiceDBClient::PrivateContext::maxNumCacheMySQL
   = DEFAULT_MAX_NUM_CACHE_MYSQL;

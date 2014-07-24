@@ -26,7 +26,7 @@
 #include "ActorCollector.h"
 #include "DBClientAction.h"
 #include "Logger.h"
-#include "MutexLock.h"
+#include "Mutex.h"
 #include "SessionManager.h"
 #include "Reaper.h"
 #include "ChildProcessManager.h"
@@ -38,7 +38,7 @@ typedef WaitChildSet::iterator       WaitChildSetIterator;
 typedef WaitChildSet::const_iterator WaitChildSetConstIterator;
 
 struct ActorCollector::PrivateContext {
-	static MutexLock lock;
+	static Mutex        lock;
 	static WaitChildSet waitChildSet;
 
 	struct Locker
@@ -55,7 +55,7 @@ struct ActorCollector::PrivateContext {
 	};
 };
 
-MutexLock ActorCollector::PrivateContext::lock;
+Mutex        ActorCollector::PrivateContext::lock;
 WaitChildSet ActorCollector::PrivateContext::waitChildSet;
 
 struct ActorCollector::ActorContext {

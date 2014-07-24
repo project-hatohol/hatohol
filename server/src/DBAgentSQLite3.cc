@@ -22,7 +22,7 @@
 #include <stdarg.h>
 #include <inttypes.h>
 #include <gio/gio.h>
-#include <MutexLock.h>
+#include <Mutex.h>
 #include <Logger.h>
 using namespace std;
 using namespace mlpl;
@@ -55,7 +55,7 @@ typedef map<DBDomainId, string>     DBDomainIdPathMap;
 typedef DBDomainIdPathMap::iterator DBDomainIdPathMapIterator;
 
 struct DBAgentSQLite3::PrivateContext {
-	static MutexLock         mutex;
+	static Mutex             mutex;
 	static DBDomainIdPathMap domainIdPathMap;
 	static DBTermCodecSQLite3 dbTermCodec;
 
@@ -88,7 +88,7 @@ struct DBAgentSQLite3::PrivateContext {
 	}
 };
 
-MutexLock         DBAgentSQLite3::PrivateContext::mutex;
+Mutex             DBAgentSQLite3::PrivateContext::mutex;
 DBDomainIdPathMap DBAgentSQLite3::PrivateContext::domainIdPathMap;
 DBTermCodecSQLite3 DBAgentSQLite3::PrivateContext::dbTermCodec;
 

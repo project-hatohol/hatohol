@@ -22,7 +22,7 @@
 #include <uuid/uuid.h>
 #include "Logger.h"
 #include "SessionManager.h"
-#include "MutexLock.h"
+#include <Mutex.h>
 #include "ReadWriteLock.h"
 using namespace std;
 using namespace mlpl;
@@ -57,7 +57,7 @@ const size_t SessionManager::NO_TIMEOUT = 0;
 const char * SessionManager::ENV_NAME_TIMEOUT = "HATOHOL_SESSION_TIMEOUT";
 
 struct SessionManager::PrivateContext {
-	static MutexLock initLock;
+	static Mutex           initLock;
 	static SessionManager *instance;
 	static size_t defaultTimeout;
 
@@ -90,7 +90,7 @@ private:
 };
 
 SessionManager *SessionManager::PrivateContext::instance = NULL;
-MutexLock SessionManager::PrivateContext::initLock;
+Mutex           SessionManager::PrivateContext::initLock;
 size_t SessionManager::PrivateContext::defaultTimeout = INITIAL_TIMEOUT;
 
 
