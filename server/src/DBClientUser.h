@@ -76,9 +76,9 @@ typedef std::list<UserRoleInfo>          UserRoleInfoList;
 typedef UserRoleInfoList::iterator       UserRoleInfoListIterator;
 typedef UserRoleInfoList::const_iterator UserRoleInfoListConstIterator;
 
-typedef std::set<UserIdType>      UserIdList;
-typedef UserIdList::iterator       UserIdListIterator;
-typedef UserIdList::const_iterator UserIdListIConstterator;
+typedef std::set<UserIdType>      UserIdSet;
+typedef UserIdSet::iterator       UserIdSetIterator;
+typedef UserIdSet::const_iterator UserIdSetIConstterator;
 
 class UserQueryOption : public DataQueryOption {
 public:
@@ -259,7 +259,7 @@ public:
 	                  const OperationPrivilege &privilege,
 	                  const bool &useTransaction = true);
 
-	void getUserIdList(UserIdList &userIdList);
+	void getUserIdSet(UserIdSet &userIdSet);
 
 protected:
 	void getUserInfoList(UserInfoList &userInfoList,

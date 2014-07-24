@@ -276,6 +276,7 @@ public:
 
 	static void init(void);
 	static void reset(void);
+	static void stop(void);
 	static const char *getTableNameActions(void);
 	static const char *getTableNameActionLogs(void);
 
@@ -384,11 +385,13 @@ protected:
 	HatoholError checkPrivilegeForDelete(
 	  const OperationPrivilege &privilege);
 
-	void getActionUser(UserIdList &userIdList);
+	void getActionUser(UserIdSet &userIdSet);
 
 	static gboolean deleteActionListCyc(gpointer data);
 
 	static gboolean deleteActionFunction(gpointer data);
+
+	static void stopActionWaitItem(gpointer data);
 
 private:
 	struct PrivateContext;

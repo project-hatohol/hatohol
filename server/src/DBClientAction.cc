@@ -391,9 +391,10 @@ struct DBClientAction::PrivateContext
 };
 
 struct deleteTimerId{
-  guint timerId;
+	guint timerId;
+	guint eventId;
 };
-
+static deleteTimerId *deleteTimerIdPtr;
 
 // ---------------------------------------------------------------------------
 // LogEndExecActionArg
@@ -415,10 +416,11 @@ void DBClientAction::init(void)
 	registerSetupInfo(
 	  DB_DOMAIN_ID_ACTION, DEFAULT_DB_NAME, &DB_ACTION_SETUP_FUNC_ARG);
 
-	deleteTimerId* deleteTimerId_p = new deleteTimerId;
-	deleteTimerId_p->timerId = g_timeout_add(ACTION_DELETE_INTERVAL, 
+	deleteTimerIdPtr = new deleteTimerId;
+	deleteTimerIdPtr->eventId = INVALID_EVENT_ID;
+	deleteTimerIdPtr->timerId = g_timeout_add(ACTION_DELETE_INTERVAL, 
 						 (GSourceFunc)deleteActionFunction,
-						 deleteTimerId_p);
+						 deleteTimerIdPtr);
 }
 
 void DBClientAction::reset(void)
@@ -427,6 +429,11 @@ void DBClientAction::reset(void)
 	// for DBClientConfig. So we copy the connectInfo of it.
 	DBConnectInfo connInfo = getDBConnectInfo(DB_DOMAIN_ID_CONFIG);
 	setConnectInfo(DB_DOMAIN_ID_ACTION, connInfo);
+}
+
+void DBClientAction::stop(void)
+{
+	Utils::executeOnGLibEventLoop(stopActionWaitItem);
 }
 
 const char *DBClientAction::getTableNameActions(void)
@@ -534,10 +541,10 @@ HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
 		select(arg);
 	} DBCLIENT_TRANSACTION_END();
 
-	UserIdList userIdList;
-	getActionUser(userIdList);
+	UserIdSet userIdSet;
+	getActionUser(userIdSet);
 
-	if(userIdList.empty())
+	if(userIdSet.empty())
 	        return HTERR_OK;
 
 	// convert a format of the query result.
@@ -583,7 +590,7 @@ HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
 		itemGroupStream >> actionDef.ownerUserId;
 
 		UserIdType id = actionDef.ownerUserId;
-		if (userIdList.end() == userIdList.find(id))
+		if (userIdSet.end() == userIdSet.find(id))
 		        actionDefList.pop_back();
 	}
 
@@ -643,7 +650,7 @@ HatoholError DBClientAction::deleteActions(const ActionIdList &idList,
 
 void DBClientAction::deleteActionList()
 {
-        ActionIdList actionIdList;
+	ActionIdList actionIdList;
 	uint64_t     actionId;
 
 	DBAgent::SelectExArg arg(tableProfileActions);
@@ -654,10 +661,10 @@ void DBClientAction::deleteActionList()
 		select(arg);
 	} DBCLIENT_TRANSACTION_END();
 
-	UserIdList userIdList;
-	getActionUser(userIdList);
+	UserIdSet userIdSet;
+	getActionUser(userIdSet);
 
-	if(userIdList.empty())
+	if(userIdSet.empty())
 	        return;
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
@@ -670,7 +677,7 @@ void DBClientAction::deleteActionList()
 		itemGroupStream >> actionDef.ownerUserId;
 
 		UserIdType id = actionDef.ownerUserId;
-		if (userIdList.end() == userIdList.find(id))
+		if (userIdSet.end() == userIdSet.find(id))
 		        actionIdList.push_back(actionId);
 	}
 	if(actionIdList.empty()){
@@ -926,36 +933,47 @@ HatoholError DBClientAction::checkPrivilegeForDelete(
 	return HTERR_OK;
 }
 
-void DBClientAction::getActionUser(UserIdList &userIdList)
+void DBClientAction::getActionUser(UserIdSet &userIdSet)
 {
 	CacheServiceDBClient cache;
 	DBClientUser *dbUser = cache.getUser();
-	dbUser->getUserIdList(userIdList);
+	dbUser->getUserIdSet(userIdSet);
 
 	return;
 }
 
 gboolean DBClientAction::deleteActionListCyc(gpointer data)
 {
-        deleteTimerId* deleteTimerId_p = static_cast<deleteTimerId *>(data);
+	deleteTimerId *deleteTimerIdPtr = static_cast<deleteTimerId *>(data);
 	CacheServiceDBClient cache;
 	DBClientAction *delAction = cache.getAction();
 	delAction->deleteActionList();
-	deleteTimerId_p->timerId = g_timeout_add(ACTION_DELETE_INTERVAL, 
+	deleteTimerIdPtr->eventId = INVALID_EVENT_ID;
+	deleteTimerIdPtr->timerId = g_timeout_add(ACTION_DELETE_INTERVAL, 
 						 (GSourceFunc)deleteActionFunction, 
-						 deleteTimerId_p);
+						 deleteTimerIdPtr);
 	return FALSE;
 }
 
 gboolean DBClientAction::deleteActionFunction(gpointer data)
 {
-        deleteTimerId* deleteTimerId_p = static_cast<deleteTimerId *>(data);
-	Utils::setGLibIdleEvent((GSourceFunc)deleteActionListCyc,
-				deleteTimerId_p,
-				NULL);
-	g_source_remove(deleteTimerId_p->timerId);
-	return FALSE;
+	deleteTimerId *deleteTimerIdPtr = static_cast<deleteTimerId *>(data);
+	g_source_remove(deleteTimerIdPtr->timerId);
+	deleteTimerIdPtr->timerId = INVALID_EVENT_ID;
+	deleteTimerIdPtr->eventId = Utils::setGLibIdleEvent((GSourceFunc)deleteActionListCyc,
+	                                                    deleteTimerIdPtr);
+	return G_SOURCE_REMOVE;
 }
+
+
+void DBClientAction::stopActionWaitItem(gpointer data)
+{
+	if(deleteTimerIdPtr->timerId != INVALID_EVENT_ID)
+		g_source_remove(deleteTimerIdPtr->timerId);
+	if(deleteTimerIdPtr->eventId != INVALID_EVENT_ID)
+		g_source_remove(deleteTimerIdPtr->eventId);
+}
+
 
 // ---------------------------------------------------------------------------
 // ActionsQueryOption

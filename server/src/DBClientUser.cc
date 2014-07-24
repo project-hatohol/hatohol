@@ -743,7 +743,7 @@ bool DBClientUser::getUserInfo(UserInfo &userInfo, const UserIdType userId)
 	return true;
 }
 
-void DBClientUser::getUserIdList(UserIdList &userIdList)
+void DBClientUser::getUserIdSet(UserIdSet &userIdSet)
 {
         UserIdType   id;
 	UserInfoList userInfoList;
@@ -756,7 +756,7 @@ void DBClientUser::getUserIdList(UserIdList &userIdList)
 	for(; it != userInfoList.end();++it) {
 	        const UserInfo &userInfo = *it;
    	        id = userInfo.id;
-	        userIdList.insert(id);
+	        userIdSet.insert(id);
 	}
 }
 

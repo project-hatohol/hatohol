@@ -42,6 +42,7 @@ using namespace mlpl;
 #include "UnifiedDataStore.h"
 #include "DBClientConfig.h"
 #include "ActorCollector.h"
+#include "DBClientAction.h"
 
 static int pipefd[2];
 static const char *DEFAULT_PID_FILE_PATH = "/var/run/hatohol.pid";
@@ -72,8 +73,10 @@ gboolean exitFunc(GIOChannel *source, GIOCondition condition, gpointer data)
 {
 	MLPL_INFO("recieved stop request.\n");
 	ExecContext *ctx = static_cast<ExecContext *>(data);
+	DBClientAction *dbAction;
 
 	ctx->unifiedDataStore->stop();
+	dbAction->stop();
 	// TODO: implement
 	// ChildProcessManager::getInstance()->quit();
 
