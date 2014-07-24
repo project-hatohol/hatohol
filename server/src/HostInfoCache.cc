@@ -66,7 +66,7 @@ void HostInfoCache::update(const HostInfo &hostInfo)
 	m_ctx->lock.unlock();
 }
 
-bool HostInfoCache::getName(const HostIdType &id, string &name)
+bool HostInfoCache::getName(const HostIdType &id, string &name) const
 {
 	bool found = false;
 	m_ctx->lock.readLock();

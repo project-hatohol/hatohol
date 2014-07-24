@@ -304,7 +304,7 @@ void UnifiedDataStore::getTriggerList(TriggerInfoList &triggerList,
 }
 
 SmartTime UnifiedDataStore::getTimestampOfLastTrigger(
-  const ServerIdType serverId)
+  const ServerIdType &serverId)
 {
 	CacheServiceDBClient cache;
 	DBClientHatohol *dbHatohol = cache.getHatohol();

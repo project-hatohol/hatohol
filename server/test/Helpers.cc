@@ -22,7 +22,6 @@
 #include <unistd.h>
 #include <typeinfo>
 #include "Helpers.h"
-#include "DBClientZabbix.h"
 #include "DBClientConfig.h"
 #include "DBClientAction.h"
 #include "DBClientTest.h"
@@ -289,18 +288,6 @@ void deleteFileAndCheck(const string &path)
 	cut_assert_not_exist_path(path.c_str());
 }
 
-string getDBPathForDBClientZabbix(const ServerIdType serverId)
-{
-	struct callgate : public DBClientZabbix, public DBAgentSQLite3 {
-		static string getDBPath(const ServerIdType serverId) {
-			string dbName = getDBName(serverId);
-			string dbPath = makeDBPathFromName(dbName);
-			return dbPath;
-		}
-	};
-	return callgate::getDBPath(serverId);
-}
-
 string getDBPathForDBClientHatohol(void)
 {
 	struct callgate : public DBClientHatohol, public DBAgentSQLite3 {
@@ -318,13 +305,6 @@ string deleteDBClientHatoholDB(void)
 	return dbPath;
 }
 
-string deleteDBClientZabbixDB(const ServerIdType serverId)
-{
-	string dbPath = getDBPathForDBClientZabbix(serverId);
-	deleteFileAndCheck(dbPath);
-	return dbPath;
-}
-
 string execSqlite3ForDBClient(const string &dbPath, const string &statement)
 {
 	cut_assert_exist_path(dbPath.c_str());
@@ -338,13 +318,6 @@ string execSqlite3ForDBClient(const string &dbPath, const string &statement)
 string execSqlite3ForDBClientHatohol(const string &statement)
 {
 	string dbPath = getDBPathForDBClientHatohol();
-	return execSqlite3ForDBClient(dbPath, statement);
-}
-
-string execSqlite3ForDBClientZabbix(const ServerIdType serverId,
-                                    const string &statement)
-{
-	string dbPath = getDBPathForDBClientZabbix(serverId);
 	return execSqlite3ForDBClient(dbPath, statement);
 }
 

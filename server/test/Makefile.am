@@ -39,6 +39,7 @@ testHatohol_la_SOURCES = \
 	testHatoholError.cc \
 	testHatoholException.cc testSQLProcessorException.cc \
 	testHatoholThreadBase.cc \
+	testHatoholDBUtils.cc \
 	testHostInfoCache.cc \
 	testHostResourceQueryOption.cc \
 	testHostResourceQueryOptionSubClasses.cc \
@@ -48,7 +49,6 @@ testHatohol_la_SOURCES = \
 	testDBClientUtils.cc \
 	testDBClientConfig.cc \
 	testDBClientHatohol.cc testDBClientHatohol.h \
-	testDBClientZabbix.cc \
 	testDBClientAction.cc testDBClientUser.cc \
 	testDBClientJoinBuilder.cc \
 	testDBTermCodec.cc \

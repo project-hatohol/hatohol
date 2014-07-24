@@ -25,10 +25,8 @@
 #include "Hatohol.h"
 #include "ZabbixAPIEmulator.h"
 #include "ArmZabbixAPI.h"
-#include "ArmZabbixAPI-template.h"
 #include "Helpers.h"
 #include "Synchronizer.h"
-#include "DBClientZabbix.h"
 #include "ConfigManager.h"
 #include "ItemTablePtr.h"
 #include "ItemTable.h"
@@ -65,7 +63,6 @@ typedef bool (ArmZabbixAPITestee::*ThreadOneProc)(void);
 public:
 	enum GetTestType {
 		GET_TEST_TYPE_TRIGGERS,
-		GET_TEST_TYPE_FUNCTIONS,
 		GET_TEST_TYPE_ITEMS,
 		GET_TEST_TYPE_HOSTS,
 		GET_TEST_TYPE_APPLICATIONS,
@@ -121,10 +118,6 @@ public:
 		if (type == GET_TEST_TYPE_TRIGGERS) {
 			succeeded =
 			  launch(&ArmZabbixAPITestee::threadOneProcTriggers,
-			         exitCbDefault, this);
-		} else if (type == GET_TEST_TYPE_FUNCTIONS) {
-			succeeded =
-			  launch(&ArmZabbixAPITestee::threadOneProcFunctions,
 			         exitCbDefault, this);
 		} else if (type == GET_TEST_TYPE_ITEMS) {
 			succeeded =
@@ -234,36 +227,6 @@ public:
 		return ItemTablePtr(tablePtr);
 	}
 
-	void assertMakeItemVector(bool testNull = false)
-	{
-		// make test data and call the target method.
-		const ItemId pickupItemId = 1;
-		const size_t numTestData = 10;
-		vector<int> itemVector;
-		vector<int> expectedItemVector;
-		VariableItemTablePtr table;
-		for (size_t i = 0; i < numTestData; i++) {
-			VariableItemGroupPtr grp;
-			ItemInt *item = new ItemInt(pickupItemId, i);
-			if (testNull && i % 2 == 0)
-				item->setNull();
-			else
-				expectedItemVector.push_back(i);
-			grp->add(item, false);
-			table->add(grp);
-		}
-		makeItemVector<int>(itemVector, table, pickupItemId);
-		
-		// check
-		cppcut_assert_equal(expectedItemVector.size(),
-		                    itemVector.size());
-		for (size_t i = 0; i < expectedItemVector.size(); i++) {
-			int expected = expectedItemVector[i];
-			int actual = itemVector[i];
-			cppcut_assert_equal(expected, actual);
-		}
-	}
-
 protected:
 	static void exitCbDefault(void *)
 	{
@@ -318,16 +281,6 @@ protected:
 	bool threadOneProcTriggers(void)
 	{
 		updateTriggers();
-		return true;
-	}
-
-	bool threadOneProcFunctions(void)
-	{
-		// updateTriggers() is neccessary before updateFunctions(),
-		// because 'function' information is obtained at the same time
-		// as a response of 'triggers.get' request.
-		updateTriggers();
-		updateFunctions();
 		return true;
 	}
 
@@ -414,7 +367,6 @@ static void _assertReceiveData(ArmZabbixAPITestee::GetTestType testType,
 	serverInfo.id = svId;
 	serverInfo.port = getTestPort();
 
-	deleteDBClientZabbixDB(svId);
 	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
 	g_apiEmulator.setAPIVersion(expectedVersion);
 	cppcut_assert_equal
@@ -482,11 +434,6 @@ void test_getTriggers_2_3_0(void)
 {
 	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_TRIGGERS,
 		      ZabbixAPIEmulator::API_VERSION_2_3_0);
-}
-
-void test_getFunctions(void)
-{
-	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_FUNCTIONS);
 }
 
 void test_getItems(void)
@@ -559,7 +506,6 @@ void test_mainThreadOneProc()
 	MonitoringServerInfo serverInfo = g_defaultServerInfo;
 	serverInfo.id = svId;
 	serverInfo.port = getTestPort();
-	deleteDBClientZabbixDB(svId);
 	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
 	cppcut_assert_equal(true, armZbxApiTestee.testMainThreadOneProc());
 }
@@ -600,7 +546,6 @@ void test_setCopyOnDemandEnabled()
 MonitoringServerInfo setupServer(void)
 {
 	int svId = 1; // We should use one of testServerInfo
-	deleteDBClientZabbixDB(svId);
 	MonitoringServerInfo serverInfo = g_defaultServerInfo;
 	serverInfo.id = svId;
 	serverInfo.port = getTestPort();
@@ -713,18 +658,6 @@ void test_oneProcWithFetchItems()
 	cppcut_assert_equal(true, eventInfoList.empty());
 	cppcut_assert_equal(true, triggerInfoList.empty());
 	cppcut_assert_equal(false, itemInfoList.empty());
-}
-
-void test_makeItemVector(void)
-{
-	ArmZabbixAPITestee armZbxApiTestee(g_defaultServerInfo);
-	armZbxApiTestee.assertMakeItemVector();
-}
-
-void test_makeItemVectorWithNullValue(void)
-{
-	ArmZabbixAPITestee armZbxApiTestee(g_defaultServerInfo);
-	armZbxApiTestee.assertMakeItemVector(true);
 }
 
 void test_checkUsernamePassword(void)

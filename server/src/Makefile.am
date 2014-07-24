@@ -35,7 +35,6 @@ libhatohol_la_SOURCES = \
 	ArmBase.cc ArmBase.h \
 	ArmFake.cc ArmFake.h \
 	ArmNagiosNDOUtils.cc ArmNagiosNDOUtils.h \
-	ArmZabbixAPI-template.h \
 	ArmZabbixAPI.cc ArmZabbixAPI.h \
 	ArmCeilometer.cc ArmCeilometer.h \
 	ChildProcessManager.cc ChildProcessManager.h \
@@ -53,7 +52,6 @@ libhatohol_la_SOURCES = \
 	DBClientConfig.cc DBClientConfig.h \
 	DBClientHatohol.cc DBClientHatohol.h \
 	DBClientUser.h DBClientUser.cc \
-	DBClientZabbix.cc DBClientZabbix.h \
 	DBClientJoinBuilder.cc DBClientJoinBuilder.h \
 	DBTermCodec.h DBTermCodec.cc \
 	DataStore.cc DataStore.h \
@@ -74,6 +72,7 @@ libhatohol_la_SOURCES = \
 	HostResourceQueryOption.cc HostResourceQueryOption.h \
 	HatoholArmPluginGate.cc HatoholArmPluginGate.h \
 	HatoholServer.cc \
+	HatoholDBUtils.cc HatoholDBUtils.h \
 	HostInfoCache.cc HostInfoCache.h \
 	IssueSender.cc IssueSender.h \
 	IssueSenderManager.cc IssueSenderManager.h \

@@ -373,6 +373,19 @@ ItemTablePtr ZabbixAPI::getApplications(const vector<uint64_t> &appIdVector)
 	return ItemTablePtr(tablePtr);
 }
 
+ItemTablePtr ZabbixAPI::getApplications(ItemTablePtr items)
+{
+	vector<uint64_t> appIdVector;
+	const ItemGroupList &itemGroupList = items->getItemGroupList();
+	ItemGroupListConstIterator itemGrpIt = itemGroupList.begin();
+	for (; itemGrpIt != itemGroupList.end(); ++itemGrpIt) {
+		const ItemGroup *itemGrp = *itemGrpIt;
+		appIdVector.push_back(
+		  *itemGrp->getItem(ITEM_ID_ZBX_ITEMS_APPLICATIONID));
+	}
+	return getApplications(appIdVector);
+}
+
 ItemTablePtr ZabbixAPI::getEvents(uint64_t eventIdOffset, uint64_t eventIdTill)
 {
 	SoupMessage *msg = queryEvent(eventIdOffset, eventIdTill);

@@ -41,7 +41,7 @@ public:
 	 *
 	 * @return true if the host is found, or false.
 	 */
-	bool getName(const HostIdType &id, std::string &name);
+	bool getName(const HostIdType &id, std::string &name) const;
 
 private:
 	struct PrivateContext;

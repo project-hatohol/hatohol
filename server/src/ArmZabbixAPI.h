@@ -26,7 +26,6 @@
 #include "ItemTablePtr.h"
 #include "JsonBuilderAgent.h"
 #include "DBClientConfig.h"
-#include "DBClientZabbix.h"
 
 class ArmZabbixAPI : public ZabbixAPI, public ArmBase
 {
@@ -44,21 +43,11 @@ public:
 	virtual void onGotNewEvents(const ItemTablePtr &itemPtr);
 
 protected:
-
-	template<typename T>
-	void updateOnlyNeededItem(
-	  const ItemTable *primaryTable,
-	  const ItemId pickupItemId, const ItemId checkItemId,
-	  ArmZabbixAPI::DataGetter dataGetter,
-	  DBClientZabbix::AbsentItemPicker absentItemPicker,
-	  ArmZabbixAPI::TableSaver tableSaver);
-
 	ItemTablePtr updateTriggers(void);
-	void updateFunctions(void);
-	ItemTablePtr updateItems(void);
+	void updateItems(void);
 
 	/**
-	 * get all hosts in the ZABBIX server and save them in the replica DB.
+	 * get all hosts in the ZABBIX server and save them in the Hatohol DB.
 	 */
 	void updateHosts(void);
 
@@ -70,33 +59,15 @@ protected:
 	 */
 	void updateApplications(void);
 
-	/**
-	 * get applications with the specified IDs and save them
-	 * in the replica DB.
-	 * @param items
-	 * A pointer to ItableTable instance that is obtained by updateItems().
-	 */
-	void updateApplications(const ItemTable *items);
-
 	void updateGroups(void);
 
-	void addApplicationsDataToDB(ItemTablePtr &applications);
-	void addHostsDataToDB(ItemTablePtr &hosts);
-
-	void makeHatoholTriggers(void);
+	void makeHatoholTriggers(ItemTablePtr triggers);
 	void makeHatoholEvents(ItemTablePtr events);
-	void makeHatoholItems(ItemTablePtr events);
+	void makeHatoholItems(ItemTablePtr items, ItemTablePtr applications);
 	void makeHatoholHostgroups(ItemTablePtr groups);
 	void makeHatoholMapHostsHostgroups(ItemTablePtr hostsGroups);
 	void makeHatoholHosts(ItemTablePtr hosts);
 
-	template<typename T>
-	void makeItemVector(std::vector<T> &idVector,
-	                    const ItemTable *itemTable, const ItemId itemId);
-	template<typename T>
-	void checkObtainedItems(const ItemTable *obtainedItemTable,
-	                        const std::vector<T> &requestedItemVector,
-	                        const ItemId itemId);
 	uint64_t getMaximumNumberGetEventPerOnce(void);
 
 	// virtual methods

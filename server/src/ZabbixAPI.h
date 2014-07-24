@@ -132,6 +132,7 @@ protected:
 	 * @return The obtained triggers as an ItemTable format.
 	 */
 	ItemTablePtr getApplications(const std::vector<uint64_t> &appIdVector);
+	ItemTablePtr getApplications(ItemTablePtr items);
 
 	/**
 	 * Get the applications
