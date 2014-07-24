@@ -613,7 +613,7 @@ static string makeConditionForDelete(const ActionIdList &idList,
 	string condition = makeIdListCondition(idList);
 
 	// In this point, the caller must have OPPRVLG_DELETE_ACTION,
-	// becase it is checked in checkPrivilegeForDelete().
+	// because it is checked in checkPrivilegeForDelete().
 	if (!privilege.has(OPPRVLG_DELETE_ALL_ACTION)) {
 		if (!condition.empty())
 			condition += " AND ";
