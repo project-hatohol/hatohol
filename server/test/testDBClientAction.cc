@@ -753,7 +753,6 @@ static void _assertGetActionWithSeverity(const TriggerSeverityType &severity,
 		cppcut_assert_equal((size_t)1, actionDefList.size());
 		// check the content
 		const ActionDef &actual = *actionDefList.begin();
-		g_print("\nexpect: %d, action id: %d\n", expectedActionIdx, actual.id);
 		assertEqual(testActionDef[expectedActionIdx], actual);
 	}
 }
