@@ -243,7 +243,7 @@ string executeCommand(const string &commandLine)
 	string stdoutStr, stderrStr;
 	GError *error = NULL;
 
-	// g_spawn_sync families cannot be used for htohol tests.
+	// g_spawn_sync families cannot be used in the hatohol's test.
 	// Because they update the signal handler for SIGCHLD. As a result,
 	// Hatohol's SIGCHLD signal handler is ignored.
 	ret = spawnSync(commandLine, stdoutStr, stderrStr, &error);
