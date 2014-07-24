@@ -156,32 +156,46 @@ void _assertEqual(const ActionDef &expect, const ActionDef &actual)
 #define assertEqual(E,A) cut_trace(_assertEqual(E,A))
 
 static void pickupActionIdsFromTestActionDef(
-  ActionIdSet &actionIdSet, const UserIdType &userId,
+  ActionIdSet &actionIdSet, const OperationPrivilege &privilege,
   const ActionType &actionType = ACTION_USER_DEFINED)
 {
+	UserIdType expectedOwnerId = privilege.getUserId();
+	if (privilege.has(OPPRVLG_GET_ALL_ACTION))
+		expectedOwnerId = USER_ID_ANY;
+
 	for (size_t i = 0; i < NumTestActionDef; i++) {
 		const ActionDef &actDef = testActionDef[i];
 		if (actionType == ACTION_USER_DEFINED) {
 			if (actDef.type >= ACTION_ISSUE_SENDER)
 				continue;
 		} else if (actionType == ACTION_ALL) {
-			// accept all actions
+			if (actDef.type == ACTION_ISSUE_SENDER &&
+			    !privilege.has(OPPRVLG_GET_ALL_ISSUE_SETTINGS)) {
+				continue;
+			}
 		} else {
 			if (actDef.type != actionType)
 				continue;
+			if (actDef.type == ACTION_ISSUE_SENDER &&
+			    !privilege.has(OPPRVLG_GET_ALL_ISSUE_SETTINGS)) {
+				continue;
+			}
 		}
-		if (userId != USER_ID_ANY && actDef.ownerUserId != userId)
+		if (actDef.type != ACTION_ISSUE_SENDER &&
+		    expectedOwnerId != USER_ID_ANY &&
+		    actDef.ownerUserId != expectedOwnerId) {
 			continue;
+		}
 		const int expectedId = i + 1;
 		actionIdSet.insert(expectedId);
 	}
 }
 
 void _assertGetActionList(
-  const UserIdType &userId, const UserIdType &expectUserId,
+  const UserIdType &operatorId,
   const ActionType &actionType = ACTION_USER_DEFINED)
 {
-	ActionsQueryOption option(userId);
+	ActionsQueryOption option(operatorId);
 	option.setActionType(actionType);
 
 	DBClientAction dbAction;
@@ -191,9 +205,7 @@ void _assertGetActionList(
 
 	// pick up expected action IDs
 	ActionIdSet expectActionIdSet;
-	pickupActionIdsFromTestActionDef(expectActionIdSet, expectUserId,
-					 actionType);
-	cppcut_assert_not_equal((size_t)0, expectActionIdSet.size());
+	pickupActionIdsFromTestActionDef(expectActionIdSet, option, actionType);
 
 	// check the result
 	cppcut_assert_equal(expectActionIdSet.size(), actionDefList.size());
@@ -204,8 +216,8 @@ void _assertGetActionList(
 		expectActionIdSet.erase(it);
 	}
 }
-#define assertGetActionList(U,E, ...) \
-cut_trace(_assertGetActionList(U,E, ##__VA_ARGS__))
+#define assertGetActionList(U, ...) \
+cut_trace(_assertGetActionList(U, ##__VA_ARGS__))
 
 static bool g_existTestDB = false;
 static void setupHelperForTestDBUser(void)
@@ -273,6 +285,29 @@ static void _assertDeleteActions(const bool &deleteMyActions,
 	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }
 #define assertDeleteActions(D,T) cut_trace(_assertDeleteActions(D,T))
+
+static void assertActionIdsInDB(ActionIdList excludeIdList)
+{
+	set<ActionIdType> idSet;
+	ActionIdListIterator it;
+	for (it = excludeIdList.begin(); it != excludeIdList.end(); it++)
+		idSet.insert(*it);
+
+	string expect;
+	for (size_t i = 0; i < NumTestActionDef; i++) {
+		const int expectedId = i + 1;
+		if (idSet.find(expectedId) != idSet.end())
+			continue;
+		expect += StringUtils::sprintf("%d\n", expectedId);
+	}
+
+	string statement = "select action_id from ";
+	statement += DBClientAction::getTableNameActions();
+	statement += " order by action_id asc";
+	DBClientAction dbAction;
+	assertDBContent(dbAction.getDBAgent(), statement, expect);
+}
+#define assertActionsInDB(E) cut_trace(_assertActionsInDB(E))
 
 void cut_setup(void)
 {
@@ -364,6 +399,56 @@ void test_addActionWithoutPrivilege(void)
 	                   dbAction.addAction(actDef, privilege));
 }
 
+static int findTestActionIdxByType(ActionType type)
+{
+	for (size_t i = 0; i < NumTestActionDef; i++) {
+		if (testActionDef[i].type == type)
+			return i;
+	}
+	return -1;
+}
+
+void test_addIssueSenderActionByIssueSettingsAdmin(void)
+{
+	setupHelperForTestDBUser();
+
+	const OperationPrivilegeFlag excludeFlags
+	  = OperationPrivilege::makeFlag(OPPRVLG_CREATE_ACTION);
+	const UserIdType userId
+		= findUserWith(OPPRVLG_CREATE_ISSUE_SETTING, excludeFlags);
+	TestDBClientAction dbAction;
+	OperationPrivilege privilege(userId);
+	int idx = findTestActionIdxByType(ACTION_ISSUE_SENDER);
+	ActionIdType expectedId = 1;
+	ActionDef actionDef = testActionDef[idx];
+	actionDef.ownerUserId = userId;
+	assertHatoholError(HTERR_OK,
+	                   dbAction.addAction(actionDef, privilege));
+
+	// check: The owner of ACTION_ISSUE_SENDER shoube be USER_ID_SYSTEM.
+	actionDef.id = expectedId;
+	string expect = StringUtils::sprintf("%" FMT_ACTION_ID "|%" FMT_USER_ID,
+	                                     1, USER_ID_SYSTEM);
+	string statement = "select action_id, owner_user_id from ";
+	statement += DBClientAction::getTableNameActions();
+	assertDBContent(dbAction.getDBAgent(), statement, expect);
+}
+
+void test_addIssueSenderActionWithoutPrivilege(void)
+{
+	setupHelperForTestDBUser();
+
+	const OperationPrivilegeFlag excludeFlags
+	  = OperationPrivilege::makeFlag(OPPRVLG_CREATE_ISSUE_SETTING);
+	const UserIdType userId
+		= findUserWith(OPPRVLG_CREATE_ACTION, excludeFlags);
+	TestDBClientAction dbAction;
+	OperationPrivilege privilege(userId);
+	int idx = findTestActionIdxByType(ACTION_ISSUE_SENDER);
+	assertHatoholError(HTERR_NO_PRIVILEGE,
+	                   dbAction.addAction(testActionDef[idx], privilege));
+}
+
 void test_deleteAction(void)
 {
 	setupTestDBUserAndDBAction();
@@ -376,20 +461,7 @@ void test_deleteAction(void)
 	OperationPrivilege privilege(userId);
 	assertHatoholError(HTERR_OK,
 	                   dbAction.deleteActions(idList, privilege));
-
-	// check
-	string expect;
-	for (size_t i = 0; i < NumTestActionDef; i++) {
-		if (i == targetIdx)
-			continue;
-		const int expectedId = i + 1;
-		expect += StringUtils::sprintf("%d\n", expectedId);
-	}
-
-	string statement = "select action_id from ";
-	statement += DBClientAction::getTableNameActions();
-	statement += " order by action_id asc";
-	assertDBContent(dbAction.getDBAgent(), statement, expect);
+	assertActionIdsInDB(idList);
 }
 
 void test_deleteActionWithoutPrivilege(void)
@@ -448,6 +520,41 @@ void test_deleteActionOfOthersWithoutPrivilege(void)
 	idList.push_back(expectedId);
 	OperationPrivilege privilege(userId);
 	assertHatoholError(HTERR_DELETE_INCOMPLETE,
+	                   dbAction.deleteActions(idList, privilege));
+}
+
+void test_deleteIssueSenderActionByIssueSettingsAdmin(void)
+{
+	setupTestDBUserAndDBAction();
+	DBClientAction dbAction;
+
+	const OperationPrivilegeFlag excludeFlags
+	  = OperationPrivilege::makeFlag(OPPRVLG_DELETE_ACTION);
+	const UserIdType userId
+	  = findUserWith(OPPRVLG_DELETE_ISSUE_SETTING, excludeFlags);
+	int targetActionId = findTestActionIdxByType(ACTION_ISSUE_SENDER) + 1;
+	ActionIdList idList;
+	idList.push_back(targetActionId);
+	OperationPrivilege privilege(userId);
+	assertHatoholError(HTERR_OK,
+	                   dbAction.deleteActions(idList, privilege));
+	assertActionIdsInDB(idList);
+}
+
+void test_deleteIssueSenderActionWithoutPrivilege(void)
+{
+	setupTestDBUserAndDBAction();
+	DBClientAction dbAction;
+
+	const OperationPrivilegeFlag excludeFlags
+	  = OperationPrivilege::makeFlag(OPPRVLG_DELETE_ISSUE_SETTING);
+	const UserIdType userId
+	  = findUserWith(OPPRVLG_DELETE_ACTION, excludeFlags);
+	int targetActionId = findTestActionIdxByType(ACTION_ISSUE_SENDER) + 1;
+	ActionIdList idList;
+	idList.push_back(targetActionId);
+	OperationPrivilege privilege(userId);
+	assertHatoholError(HTERR_NO_PRIVILEGE,
 	                   dbAction.deleteActions(idList, privilege));
 }
 
@@ -714,17 +821,17 @@ void test_getActionListWithNormalUser(void)
 {
 	setupTestDBUserAndDBAction();
 	const UserIdType userId = findUserWithout(OPPRVLG_GET_ALL_ACTION);
-	assertGetActionList(userId, userId);
+	assertGetActionList(userId);
 }
 
 void test_getActionListWithUserHavingGetAllFlag(void)
 {
 	setupTestDBUserAndDBAction();
 	const UserIdType userId = findUserWith(OPPRVLG_GET_ALL_ACTION);
-	assertGetActionList(userId, USER_ID_ANY);
+	assertGetActionList(userId);
 }
 
-void data_actionType(void)
+void data_getActionListWithActionType(void)
 {
 	gcut_add_datum("All",
 		       "type", G_TYPE_INT, (int)ACTION_ALL,
@@ -745,7 +852,23 @@ void test_getActionListWithActionType(gconstpointer data)
 	setupTestDBUserAndDBAction();
 	const UserIdType userId = findUserWith(OPPRVLG_GET_ALL_ACTION);
 	ActionType type = (ActionType)gcut_data_get_int(data, "type");
-	assertGetActionList(userId, USER_ID_ANY, type);
+	assertGetActionList(userId, type);
+}
+
+void data_getActionListByIssueSettingsAdmin(void)
+{
+	data_getActionListWithActionType();
+}
+
+void test_getActionListByIssueSettingsAdmin(gconstpointer data)
+{
+	setupTestDBUserAndDBAction();
+	const OperationPrivilegeFlag excludeFlags
+	  = OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_ACTION);
+	const UserIdType userId
+		= findUserWith(OPPRVLG_GET_ALL_ISSUE_SETTINGS, excludeFlags);
+	ActionType type = (ActionType)gcut_data_get_int(data, "type");
+	assertGetActionList(userId, type);
 }
 
 void test_parseIssueSenderCommand(void)
@@ -826,7 +949,7 @@ void test_withoutUser(void)
 {
 	ActionsQueryOption option;
 	cppcut_assert_equal(
-	  string("owner_user_id=-1 AND (action_type>=0 AND action_type<2)"),
+	  string("(owner_user_id=-1 AND action_type>=0 AND action_type<2)"),
 	  option.getCondition());
 }
 
@@ -855,8 +978,8 @@ void test_withoutPrivilege(void)
 	ActionsQueryOption option(id);
 	string expected
 	  = StringUtils::sprintf(
-	    "owner_user_id=%" FMT_USER_ID
-	    " AND (action_type>=0 AND action_type<2)", id);
+	    "(owner_user_id=%" FMT_USER_ID
+	    " AND action_type>=0 AND action_type<2)", id);
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
@@ -869,8 +992,8 @@ void test_withEventInfo(void)
 	option.setTargetEventInfo(&event);
 	string expected
 	  = StringUtils::sprintf(
-	    "owner_user_id=%" FMT_USER_ID " AND "
-	    "(action_type>=0 AND action_type<2) AND "
+	    "(owner_user_id=%" FMT_USER_ID " AND "
+	    "action_type>=0 AND action_type<2) AND "
 	    "((server_id IS NULL) OR (server_id=%" FMT_SERVER_ID ")) AND "
 	    "((host_id IS NULL) OR (host_id=%" FMT_HOST_ID ")) AND "
 	    // test with empty hostgroups
@@ -915,6 +1038,18 @@ void test_actionType(gconstpointer data)
 	option.setActionType(type);
 	cppcut_assert_equal(type, option.getActionType());
 	cppcut_assert_equal(condition, option.getCondition());
+}
+
+void test_idList(void)
+{
+	ActionsQueryOption option(USER_ID_SYSTEM);
+	ActionIdList idList;
+	idList.push_back(2);
+	idList.push_back(7);
+	option.setActionIdList(idList);
+	string expected = "(action_type>=0 AND action_type<2)";
+	expected += " AND action_id in (2,7)";
+	cppcut_assert_equal(expected, option.getCondition());
 }
 
 }

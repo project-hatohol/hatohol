@@ -570,6 +570,8 @@ void _assertTimeIsNow(const SmartTime &smtime, double allowedError)
 void _assertHatoholError(const HatoholErrorCode &code,
                          const HatoholError &err)
 {
+	HatoholError expected(code);
+	cppcut_assert_equal(expected.getCodeName(), err.getCodeName());
 	cppcut_assert_equal(code, err.getCode());
 }
 
