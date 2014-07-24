@@ -364,7 +364,7 @@ public:
 	 */
 	bool isIssueSenderEnabled(void);
 
-	void deleteActionList(void);
+	void deleteNoUserActionList(void);
 
 protected:
 	ItemDataNullFlagType getNullFlag(const ActionDef &actionDef,
@@ -387,11 +387,11 @@ protected:
 
 	void getActionUser(UserIdSet &userIdSet);
 
-	static gboolean deleteActionListCyc(gpointer data);
+	static gboolean deleteNoUserActionsCyc(gpointer data);
 
-	static gboolean deleteActionFunction(gpointer data);
+	static gboolean delelteNoUserActions(gpointer data);
 
-	static void stopActionWaitItem(gpointer data);
+	static void stopIdleDeleteAction(gpointer data);
 
 private:
 	struct PrivateContext;
