@@ -73,10 +73,10 @@ gboolean exitFunc(GIOChannel *source, GIOCondition condition, gpointer data)
 {
 	MLPL_INFO("recieved stop request.\n");
 	ExecContext *ctx = static_cast<ExecContext *>(data);
-	DBClientAction *dbAction;
 
 	ctx->unifiedDataStore->stop();
-	dbAction->stop();
+	DBClientAction::stop();
+
 	// TODO: implement
 	// ChildProcessManager::getInstance()->quit();
 
