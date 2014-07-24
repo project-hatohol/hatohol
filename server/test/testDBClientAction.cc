@@ -286,6 +286,29 @@ static void _assertDeleteActions(const bool &deleteMyActions,
 }
 #define assertDeleteActions(D,T) cut_trace(_assertDeleteActions(D,T))
 
+static void assertActionIdsInDB(ActionIdList excludeIdList)
+{
+	set<ActionIdType> idSet;
+	ActionIdListIterator it;
+	for (it = excludeIdList.begin(); it != excludeIdList.end(); it++)
+		idSet.insert(*it);
+
+	string expect;
+	for (size_t i = 0; i < NumTestActionDef; i++) {
+		const int expectedId = i + 1;
+		if (idSet.find(expectedId) != idSet.end())
+			continue;
+		expect += StringUtils::sprintf("%d\n", expectedId);
+	}
+
+	string statement = "select action_id from ";
+	statement += DBClientAction::getTableNameActions();
+	statement += " order by action_id asc";
+	DBClientAction dbAction;
+	assertDBContent(dbAction.getDBAgent(), statement, expect);
+}
+#define assertActionsInDB(E) cut_trace(_assertActionsInDB(E))
+
 void cut_setup(void)
 {
 	hatoholInit();
@@ -438,20 +461,7 @@ void test_deleteAction(void)
 	OperationPrivilege privilege(userId);
 	assertHatoholError(HTERR_OK,
 	                   dbAction.deleteActions(idList, privilege));
-
-	// check
-	string expect;
-	for (size_t i = 0; i < NumTestActionDef; i++) {
-		if (i == targetIdx)
-			continue;
-		const int expectedId = i + 1;
-		expect += StringUtils::sprintf("%d\n", expectedId);
-	}
-
-	string statement = "select action_id from ";
-	statement += DBClientAction::getTableNameActions();
-	statement += " order by action_id asc";
-	assertDBContent(dbAction.getDBAgent(), statement, expect);
+	assertActionIdsInDB(idList);
 }
 
 void test_deleteActionWithoutPrivilege(void)
@@ -528,6 +538,7 @@ void test_deleteIssueSenderActionByIssueSettingsAdmin(void)
 	OperationPrivilege privilege(userId);
 	assertHatoholError(HTERR_OK,
 	                   dbAction.deleteActions(idList, privilege));
+	assertActionIdsInDB(idList);
 }
 
 void test_deleteIssueSenderActionWithoutPrivilege(void)
