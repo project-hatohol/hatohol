@@ -169,8 +169,7 @@ void ArmZabbixAPI::makeHatoholTriggers(ItemTablePtr triggers)
 	HatoholDBUtils::transformTriggersToHatoholFormat(
 	  triggerInfoList, triggers, m_ctx->zabbixServerId,
 	  m_ctx->hostInfoCache);
-	m_ctx->dbClientHatohol.setTriggerInfoList(triggerInfoList,
-	                                          m_ctx->zabbixServerId);
+	m_ctx->dbClientHatohol.addTriggerInfoList(triggerInfoList);
 }
 
 void ArmZabbixAPI::makeHatoholEvents(ItemTablePtr events)
