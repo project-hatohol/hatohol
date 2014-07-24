@@ -321,7 +321,8 @@ bool spawnChildProcess(string magicNumber, GPid &childPid, const string &pidFile
 	  "../src/hatohol", "--config-db-server", "localhost",
 	   "--pid-file-path", pidFilePath.c_str(), NULL};
 	const gchar *envp[] = {"LD_LIBRARY_PATH=../src/.libs/", magicNumber.c_str(), NULL};
-	gint stdOut, stdErr;
+	gint *stdOut = NULL;
+	gint *stdErr = NULL;;
 	GError *error;
 	gboolean succeeded;
 
@@ -333,8 +334,8 @@ bool spawnChildProcess(string magicNumber, GPid &childPid, const string &pidFile
 			NULL,
 			&childPid,
 			NULL,
-			&stdOut,
-			&stdErr,
+			stdOut, // NULL
+			stdErr, // NULL
 			&error);
 
 	return succeeded == TRUE;
