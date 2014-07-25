@@ -118,8 +118,7 @@ HatoholArmPluginBase::HatoholArmPluginBase(void)
 
 HatoholArmPluginBase::~HatoholArmPluginBase()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 bool HatoholArmPluginBase::getMonitoringServerInfo(

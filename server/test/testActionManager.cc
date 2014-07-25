@@ -850,10 +850,9 @@ void setup(void)
 
 void teardown(void)
 {
-	if (g_execCommandCtx) {
-		delete g_execCommandCtx;
-		g_execCommandCtx = NULL;
-	}
+	delete g_execCommandCtx;
+	g_execCommandCtx = NULL;
+
 	for (size_t i = 0; i < g_execCommandCtxVect.size(); i++)
 		deleteGlobalExecCommandCtx(i);
 	g_execCommandCtxVect.clear();

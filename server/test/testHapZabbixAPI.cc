@@ -111,8 +111,7 @@ void cut_startup(void)
 
 void cut_shutdown(void)
 {
-	if (g_apiEmulator)
-		delete g_apiEmulator;
+	delete g_apiEmulator;
 }
 
 void cut_setup(void)

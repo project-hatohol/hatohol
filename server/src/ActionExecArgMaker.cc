@@ -73,8 +73,7 @@ ActionExecArgMaker::ActionExecArgMaker()
 
 ActionExecArgMaker::~ActionExecArgMaker()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 void ActionExecArgMaker::makeExecArg(StringVector &argVect, const string &cmd)

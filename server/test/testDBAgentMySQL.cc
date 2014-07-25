@@ -429,10 +429,8 @@ void cut_setup(void)
 
 void cut_teardown(void)
 {
-	if (g_dbAgent) {
-		delete g_dbAgent;
-		g_dbAgent = NULL;
-	}
+	delete g_dbAgent;
+	g_dbAgent = NULL;
 }
 
 // ---------------------------------------------------------------------------

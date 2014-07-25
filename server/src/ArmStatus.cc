@@ -55,8 +55,7 @@ ArmStatus::ArmStatus(void)
 
 ArmStatus::~ArmStatus()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 ArmInfo ArmStatus::getArmInfo(void) const

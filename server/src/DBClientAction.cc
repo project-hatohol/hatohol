@@ -436,8 +436,7 @@ DBClientAction::DBClientAction(void)
 
 DBClientAction::~DBClientAction()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 HatoholError DBClientAction::addAction(ActionDef &actionDef,

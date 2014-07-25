@@ -53,11 +53,8 @@ ItemTable::ItemTable(const ItemTable &itemTable)
 	for (; it != itemTable.m_groupList.end(); ++it)
 		m_groupList.push_back(*it);
 
-	for (size_t i = 0; i < m_indexVector.size(); i++) {
-		ItemDataIndex *index = m_indexVector[i];
-		if (index)
-			delete index;
-	}
+	for (size_t i = 0; i < m_indexVector.size(); i++)
+		delete m_indexVector[i];
 }
 
 void ItemTable::add(ItemGroup *group, bool doRef)

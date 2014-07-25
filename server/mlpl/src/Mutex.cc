@@ -49,8 +49,7 @@ Mutex::Mutex(void)
 
 Mutex::~Mutex()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 void Mutex::lock(void)

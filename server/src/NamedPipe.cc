@@ -204,8 +204,7 @@ NamedPipe::NamedPipe(EndType endType)
 
 NamedPipe::~NamedPipe()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 bool NamedPipe::init(const string &name, GIOFunc iochCb, gpointer data)

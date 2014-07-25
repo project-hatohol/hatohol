@@ -295,8 +295,7 @@ UserQueryOption::UserQueryOption(DataQueryContext *dataQueryContext)
 
 UserQueryOption::~UserQueryOption()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 HatoholError UserQueryOption::setTargetName(const string &name)
@@ -371,8 +370,7 @@ AccessInfoQueryOption::AccessInfoQueryOption(DataQueryContext *dataQueryContext)
 
 AccessInfoQueryOption::~AccessInfoQueryOption()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 string AccessInfoQueryOption::getCondition(void) const
 {
@@ -428,8 +426,7 @@ UserRoleQueryOption::UserRoleQueryOption(DataQueryContext *dataQueryContext)
 
 UserRoleQueryOption::~UserRoleQueryOption()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 void UserRoleQueryOption::setTargetUserRoleId(UserRoleIdType userRoleId)
@@ -510,8 +507,7 @@ DBClientUser::DBClientUser(void)
 
 DBClientUser::~DBClientUser()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 HatoholError DBClientUser::addUserInfo(

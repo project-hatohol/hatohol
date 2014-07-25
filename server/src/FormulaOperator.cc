@@ -429,10 +429,8 @@ FormulaExists::FormulaExists(const string &statement,
 
 FormulaExists::~FormulaExists()
 {
-	if (m_processorSelect)
-		delete m_processorSelect;
-	if (m_selectInfo)
-		delete m_selectInfo;
+	delete m_processorSelect;
+	delete m_selectInfo;
 }
 
 const string &FormulaExists::getStatement(void) const

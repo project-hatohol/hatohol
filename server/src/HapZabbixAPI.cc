@@ -41,8 +41,7 @@ HapZabbixAPI::HapZabbixAPI(void)
 
 HapZabbixAPI::~HapZabbixAPI()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 // ---------------------------------------------------------------------------

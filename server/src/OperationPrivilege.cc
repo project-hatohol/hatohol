@@ -58,8 +58,7 @@ OperationPrivilege::OperationPrivilege(const OperationPrivilege &src)
 
 OperationPrivilege::~OperationPrivilege()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 const OperationPrivilegeFlag &OperationPrivilege::getFlags(void) const

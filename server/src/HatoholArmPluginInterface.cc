@@ -257,8 +257,7 @@ HatoholArmPluginInterface::HatoholArmPluginInterface(const bool &workInServer)
 HatoholArmPluginInterface::~HatoholArmPluginInterface()
 {
 	exitSync();
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 void HatoholArmPluginInterface::send(const string &message)
