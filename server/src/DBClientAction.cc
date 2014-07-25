@@ -590,7 +590,7 @@ HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
 		itemGroupStream >> actionDef.ownerUserId;
 
 		UserIdType id = actionDef.ownerUserId;
-		if (userIdSet.end() == userIdSet.find(id))
+		if (userIdSet.end() == userIdSet.find(id) && id != USER_ID_SYSTEM)
 		        actionDefList.pop_back();
 	}
 
@@ -719,7 +719,7 @@ void DBClientAction::deleteNoUserActionList()
 		itemGroupStream >> actionDef.ownerUserId;
 
 		UserIdType id = actionDef.ownerUserId;
-		if (userIdSet.end() == userIdSet.find(id))
+		if (userIdSet.end() == userIdSet.find(id) && id != USER_ID_SYSTEM)
 		        actionIdList.push_back(actionId);
 	}
 	if (actionIdList.empty()){
