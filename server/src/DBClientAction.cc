@@ -590,7 +590,7 @@ HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
 		itemGroupStream >> actionDef.ownerUserId;
 
 		UserIdType id = actionDef.ownerUserId;
-		if (userIdSet.end() == userIdSet.find(id) && id != USER_ID_SYSTEM)
+		if (!checkInvalidActionOwnerId(userIdSet,id))
 		        actionDefList.pop_back();
 	}
 
@@ -719,7 +719,7 @@ void DBClientAction::deleteNoUserActionList()
 		itemGroupStream >> actionDef.ownerUserId;
 
 		UserIdType id = actionDef.ownerUserId;
-		if (userIdSet.end() == userIdSet.find(id) && id != USER_ID_SYSTEM)
+		if (!checkInvalidActionOwnerId(userIdSet,id))
 		        actionIdList.push_back(actionId);
 	}
 	if (actionIdList.empty()){
@@ -1042,13 +1042,28 @@ gboolean DBClientAction::delelteNoUserActions(gpointer data)
 	return G_SOURCE_REMOVE;
 }
 
-
 void DBClientAction::stopIdleDeleteAction(gpointer data)
 {
 	if (delAction_ctx->idleTimerId != INVALID_EVENT_ID)
 		g_source_remove(delAction_ctx->idleTimerId);
 	if (delAction_ctx->idleEventId != INVALID_EVENT_ID)
 		g_source_remove(delAction_ctx->idleEventId);
+}
+
+bool DBClientAction::checkInvalidActionOwnerId(const UserIdSet &userIdSet,
+					       const UserIdType id)
+{
+	/*
+	 * determine whether Action Owner User ID is invalid or valid
+	 * if OwnerId is registration in the User tables -> true
+	 * if there is no registration in the User tables -> false
+	 * but , OwnerId is USER_ID_SYSTEM -> true
+	 */
+	if (userIdSet.end() == userIdSet.find(id)) {
+		if (id != USER_ID_SYSTEM)
+			return false;
+	}
+	return true;
 }
 
 
