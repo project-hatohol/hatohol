@@ -77,8 +77,7 @@ HapProcess::HapProcess(int argc, char *argv[])
 
 HapProcess::~HapProcess()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 void HapProcess::initGLib(void)

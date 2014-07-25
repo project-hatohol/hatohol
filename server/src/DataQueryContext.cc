@@ -40,15 +40,11 @@ struct DataQueryContext::PrivateContext {
 
 	void clear(void)
 	{
-		if (srvHostGrpSetMap) {
-			delete srvHostGrpSetMap;
-			srvHostGrpSetMap = NULL;
-		}
+		delete srvHostGrpSetMap;
+		srvHostGrpSetMap = NULL;
 
-		if (serverIdSet) {
-			delete serverIdSet;
-			serverIdSet = NULL;
-		}
+		delete serverIdSet;
+		serverIdSet = NULL;
 	}
 };
 
@@ -63,8 +59,7 @@ DataQueryContext::DataQueryContext(const UserIdType &userId)
 
 DataQueryContext::~DataQueryContext()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 void DataQueryContext::setUserId(const UserIdType &userId)

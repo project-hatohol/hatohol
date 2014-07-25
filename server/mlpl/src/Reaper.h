@@ -98,10 +98,8 @@ public:
 
 	virtual void reap(void) override
 	{
-		if (Reaper<T>::m_obj) {
-			delete Reaper<T>::m_obj;
-			Reaper<T>::m_obj = NULL;
-		}
+		delete Reaper<T>::m_obj;
+		Reaper<T>::m_obj = NULL;
 	}
 
 	bool set(T *obj)

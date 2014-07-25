@@ -346,8 +346,7 @@ DBAgent::DBAgent(DBDomainId domainId, bool skipSetup)
 
 DBAgent::~DBAgent()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 DBDomainId DBAgent::getDBDomainId(void) const

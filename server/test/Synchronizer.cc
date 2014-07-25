@@ -28,8 +28,7 @@ Synchronizer::Synchronizer(void)
 
 Synchronizer::~Synchronizer()
 {
-	if (m_mutex)
-		delete m_mutex;
+	delete m_mutex;
 }
 
 void Synchronizer::lock(void)
@@ -44,8 +43,7 @@ void Synchronizer::unlock(void)
 
 void Synchronizer::reset(void)
 {
-	if (m_mutex)
-		delete m_mutex;
+	delete m_mutex;
 	m_mutex = new Mutex();
 }
 

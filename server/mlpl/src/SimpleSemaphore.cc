@@ -67,8 +67,7 @@ SimpleSemaphore::SimpleSemaphore(const int &count)
 
 SimpleSemaphore::~SimpleSemaphore()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 int SimpleSemaphore::post(void)

@@ -93,8 +93,7 @@ DataQueryOption::DataQueryOption(const DataQueryOption &src)
 
 DataQueryOption::~DataQueryOption()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 static inline bool operator ==(

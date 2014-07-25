@@ -129,8 +129,7 @@ SQLProcessorInsert::SQLProcessorInsert
 
 SQLProcessorInsert::~SQLProcessorInsert()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 bool SQLProcessorInsert::insert(SQLInsertInfo &insertInfo)

@@ -1457,8 +1457,7 @@ DBClientHatohol::DBClientHatohol(void)
 
 DBClientHatohol::~DBClientHatohol()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 void DBClientHatohol::getHostInfoList(HostInfoList &hostInfoList,

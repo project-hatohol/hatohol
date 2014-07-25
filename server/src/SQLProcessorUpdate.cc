@@ -147,8 +147,7 @@ SQLProcessorUpdate::SQLProcessorUpdate
 
 SQLProcessorUpdate::~SQLProcessorUpdate()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 bool SQLProcessorUpdate::update(SQLUpdateInfo &updateInfo)

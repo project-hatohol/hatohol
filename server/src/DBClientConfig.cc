@@ -519,8 +519,7 @@ ServerQueryOption::ServerQueryOption(DataQueryContext *dataQueryContext)
 
 ServerQueryOption::~ServerQueryOption()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 static string serverIdCondition(
@@ -635,8 +634,7 @@ IssueTrackerQueryOption::IssueTrackerQueryOption(
 
 IssueTrackerQueryOption::~IssueTrackerQueryOption()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 void IssueTrackerQueryOption::setTargetId(const IssueTrackerIdType &targetId)
@@ -743,8 +741,7 @@ DBClientConfig::DBClientConfig(void)
 
 DBClientConfig::~DBClientConfig()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 string DBClientConfig::getDatabaseDir(void)

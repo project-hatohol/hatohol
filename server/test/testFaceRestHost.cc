@@ -497,10 +497,8 @@ void cut_teardown(void)
 {
 	stopFaceRest();
 
-	if (g_parser) {
-		delete g_parser;
-		g_parser = NULL;
-	}
+	delete g_parser;
+	g_parser = NULL;
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	dataStore->setCopyOnDemandEnabled(false);

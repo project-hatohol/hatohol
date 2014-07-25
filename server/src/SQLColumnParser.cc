@@ -60,8 +60,7 @@ SQLFormulaInfo::SQLFormulaInfo(void)
 
 SQLFormulaInfo::~SQLFormulaInfo()
 {
-	if (formula)
-		delete formula;
+	delete formula;
 }
 
 // ---------------------------------------------------------------------------
@@ -104,8 +103,7 @@ SQLColumnParser::~SQLColumnParser()
 {
 	for (size_t i = 0; i < m_formulaInfoVector.size(); i++)
 		delete m_formulaInfoVector[i];
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 void SQLColumnParser::add(const string &word, const string &wordLower)

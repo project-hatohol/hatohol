@@ -47,8 +47,7 @@ HostInfoCache::HostInfoCache(void)
 
 HostInfoCache::~HostInfoCache()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 void HostInfoCache::update(const HostInfo &hostInfo)

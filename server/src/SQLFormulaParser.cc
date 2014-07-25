@@ -104,10 +104,8 @@ SQLFormulaParser::SQLFormulaParser(void)
 
 SQLFormulaParser::~SQLFormulaParser()
 {
-	if (m_ctx)
-		delete m_ctx;
-	if (m_formula)
-		delete m_formula;
+	delete m_ctx;
+	delete m_formula;
 }
 
 void SQLFormulaParser::setColumnDataGetterFactory

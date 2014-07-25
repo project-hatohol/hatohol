@@ -351,8 +351,7 @@ static pid_t getInitPid(int pid)
 
 void cut_teardown(void)
 {
-	if (g_daemonizeValue != NULL)
-		delete g_daemonizeValue;
+	delete g_daemonizeValue;
 }
 
 void test_daemonize(void)

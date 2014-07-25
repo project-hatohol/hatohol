@@ -328,8 +328,7 @@ ChildProcessManager::ChildProcessManager(void)
 
 ChildProcessManager::~ChildProcessManager()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 gpointer ChildProcessManager::mainThread(HatoholThreadArg *arg)

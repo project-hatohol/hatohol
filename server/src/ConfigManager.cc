@@ -158,6 +158,5 @@ ConfigManager::ConfigManager(void)
 
 ConfigManager::~ConfigManager()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }

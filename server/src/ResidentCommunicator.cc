@@ -41,8 +41,7 @@ ResidentCommunicator::ResidentCommunicator(void)
 
 ResidentCommunicator::~ResidentCommunicator()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 int ResidentCommunicator::getPacketType(SmartBuffer &sbuf)

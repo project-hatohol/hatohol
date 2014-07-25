@@ -95,8 +95,7 @@ struct DBClient::PrivateContext {
 
 	virtual ~PrivateContext()
 	{
-		if (dbAgent)
-			delete dbAgent;
+		delete dbAgent;
 	}
 
 	static DBSetupContext *getDBSetupContext(DBDomainId domainId)
@@ -216,8 +215,7 @@ DBClient::DBClient(DBDomainId domainId)
 
 DBClient::~DBClient()
 {
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 DBAgent *DBClient::getDBAgent(void) const

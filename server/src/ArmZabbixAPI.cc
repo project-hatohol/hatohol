@@ -69,8 +69,7 @@ ArmZabbixAPI::ArmZabbixAPI(const MonitoringServerInfo &serverInfo)
 ArmZabbixAPI::~ArmZabbixAPI()
 {
 	requestExitAndWait();
-	if (m_ctx)
-		delete m_ctx;
+	delete m_ctx;
 }
 
 void ArmZabbixAPI::onGotNewEvents(const ItemTablePtr &itemPtr)
