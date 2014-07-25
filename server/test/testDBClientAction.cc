@@ -900,7 +900,7 @@ void test_issueSenderIsEnabled(void)
 
 void test_issueSenderIsNotEnabled(void)
 {
-	setupTestDBUserAndDBAction();
+	setupHelperForTestDBUser();
 	DBClientAction dbAction;
 	cppcut_assert_equal(false, dbAction.isIssueSenderEnabled());
 }
