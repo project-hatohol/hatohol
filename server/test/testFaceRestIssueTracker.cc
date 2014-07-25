@@ -21,7 +21,7 @@
 #include "Hatohol.h"
 #include "FaceRest.h"
 #include "Helpers.h"
-#include "JsonParserAgent.h"
+#include "JSONParserAgent.h"
 #include "DBClientTest.h"
 #include "MultiLangTest.h"
 #include "CacheServiceDBClient.h"
@@ -31,7 +31,7 @@ using namespace mlpl;
 
 namespace testFaceRestIssueTracker {
 
-static JsonParserAgent *g_parser = NULL;
+static JSONParserAgent *g_parser = NULL;
 
 void cut_setup(void)
 {
@@ -59,7 +59,7 @@ static void _assertIssueTrackers(
 	RequestArg arg(path, callbackName);
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_ISSUE_SETTINGS);
 	OperationPrivilege privilege(arg.userId);
-	g_parser = getResponseAsJsonParser(arg);
+	g_parser = getResponseAsJSONParser(arg);
 	assertErrorCode(g_parser);
 	assertStartObject(g_parser, "issueTrackers");
 	for (size_t i = 0; i < NumTestIssueTrackerInfo; i++) {
@@ -250,7 +250,7 @@ void test_deleteIssueTracker(void)
 	RequestArg arg(url, "cbname");
 	arg.request = "DELETE";
 	arg.userId = findUserWith(OPPRVLG_DELETE_ISSUE_SETTING);
-	g_parser = getResponseAsJsonParser(arg);
+	g_parser = getResponseAsJSONParser(arg);
 
 	assertErrorCode(g_parser);
 	IssueTrackerIdSet issueTrackerIdSet;
@@ -266,7 +266,7 @@ void test_deleteIssueTrackerWithoutId(void)
 	RequestArg arg(url, "cbname");
 	arg.request = "DELETE";
 	arg.userId = findUserWith(OPPRVLG_DELETE_ISSUE_SETTING);
-	g_parser = getResponseAsJsonParser(arg);
+	g_parser = getResponseAsJSONParser(arg);
 
 	assertErrorCode(g_parser, HTERR_NOT_FOUND_ID_IN_URL);
 	assertIssueTrackersInDB(EMPTY_ISSUE_TRACKER_ID_SET);
@@ -282,7 +282,7 @@ void test_deleteIssueTrackerWithoutPrivelge(void)
 	RequestArg arg(url, "cbname");
 	arg.request = "DELETE";
 	arg.userId = findUserWithout(OPPRVLG_DELETE_ISSUE_SETTING);
-	g_parser = getResponseAsJsonParser(arg);
+	g_parser = getResponseAsJSONParser(arg);
 
 	assertErrorCode(g_parser, HTERR_NO_PRIVILEGE);
 	assertIssueTrackersInDB(EMPTY_ISSUE_TRACKER_ID_SET);

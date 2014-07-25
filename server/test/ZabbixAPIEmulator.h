@@ -23,7 +23,7 @@
 #include <map>
 #include <glib.h>
 #include <libsoup/soup.h>
-#include "JsonParserAgent.h"
+#include "JSONParserAgent.h"
 #include "HttpServerStub.h"
 
 enum OperationMode {
@@ -66,7 +66,7 @@ public:
 
 protected:
 	virtual void setSoupHandlers(SoupServer *soupServer);
-	static void startObject(JsonParserAgent &parser,
+	static void startObject(JSONParserAgent &parser,
 	                        const std::string &name);
 	static void handlerAPI
 	  (SoupServer *server, SoupMessage *msg, const char *path,
@@ -87,8 +87,8 @@ protected:
 	void APIHandlerEventGet(APIHandlerArg &arg);
 	void APIHandlerApplicationGet(APIHandlerArg &arg);
 	void APIHandlerHostgroupGet(APIHandlerArg &arg);
-	void makeEventJsonData(const std::string &path);
-	std::string addJsonResponse(const std::string &slice,
+	void makeEventJSONData(const std::string &path);
+	std::string addJSONResponse(const std::string &slice,
 	                            APIHandlerArg &arg);
 	void parseEventGetParameter(APIHandlerArg &arg);
 	void loadTestEventsIfNeeded(APIHandlerArg &arg);

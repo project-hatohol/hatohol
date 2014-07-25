@@ -24,8 +24,8 @@
 #include <libsoup/soup.h>
 #include "MonitoringServerInfo.h"
 #include "ItemTablePtr.h"
-#include "JsonBuilderAgent.h"
-#include "JsonParserAgent.h"
+#include "JSONBuilderAgent.h"
+#include "JSONParserAgent.h"
 
 class ZabbixAPI
 {
@@ -231,45 +231,45 @@ protected:
 	 */
 	ItemTablePtr getFunctions(void);
 
-	SoupMessage *queryCommon(JsonBuilderAgent &agent);
+	SoupMessage *queryCommon(JSONBuilderAgent &agent);
 	SoupMessage *queryAPIVersion(void);
-	std::string getInitialJsonRequest(void);
+	std::string getInitialJSONRequest(void);
 	bool parseInitialResponse(SoupMessage *msg);
-	void startObject(JsonParserAgent &parser, const std::string &name);
-	void startElement(JsonParserAgent &parser, const int &index);
+	void startObject(JSONParserAgent &parser, const std::string &name);
+	void startElement(JSONParserAgent &parser, const int &index);
 
-	void getString(JsonParserAgent &parser, const std::string &name,
+	void getString(JSONParserAgent &parser, const std::string &name,
 	               std::string &value);
-	int pushInt(JsonParserAgent &parser, ItemGroup *itemGroup,
+	int pushInt(JSONParserAgent &parser, ItemGroup *itemGroup,
 	            const std::string &name, const ItemId &itemId);
-	uint64_t pushUint64(JsonParserAgent &parser, ItemGroup *itemGroup,
+	uint64_t pushUint64(JSONParserAgent &parser, ItemGroup *itemGroup,
 	                    const std::string &name, const ItemId &itemId);
-	std::string pushString(JsonParserAgent &parser, ItemGroup *itemGroup,
+	std::string pushString(JSONParserAgent &parser, ItemGroup *itemGroup,
 	                       const std::string &name, const ItemId &itemId);
 	void parseAndPushTriggerData(
-	  JsonParserAgent &parser,
+	  JSONParserAgent &parser,
 	  VariableItemTablePtr &tablePtr, const int &index);
 	void parseAndPushItemsData(
-	  JsonParserAgent &parser,
+	  JSONParserAgent &parser,
 	  VariableItemTablePtr &tablePtr, const int &index);
 	void parseAndPushHostsData(
-	  JsonParserAgent &parser,
+	  JSONParserAgent &parser,
 	  VariableItemTablePtr &tablePtr, const int &index);
 	void parseAndPushHostsGroupsData(
-	  JsonParserAgent &parser,
+	  JSONParserAgent &parser,
 	  VariableItemTablePtr &tablePtr, const int &index);
 	void parseAndPushGroupsData(
-	  JsonParserAgent &parser,
+	  JSONParserAgent &parser,
 	  VariableItemTablePtr &tablePtr, const int &index);
 	void parseAndPushApplicationsData(
-	  JsonParserAgent &parser,
+	  JSONParserAgent &parser,
 	  VariableItemTablePtr &tablePtr, const int &index);
 	void parseAndPushEventsData(
-	  JsonParserAgent &parser,
+	  JSONParserAgent &parser,
 	  VariableItemTablePtr &tablePtr, const int &index);
 
-	void pushTriggersHostid(JsonParserAgent &parser, ItemGroup *itemGroup);
-	void pushApplicationid(JsonParserAgent &parser, ItemGroup *itemGroup);
+	void pushTriggersHostid(JSONParserAgent &parser, ItemGroup *itemGroup);
+	void pushApplicationid(JSONParserAgent &parser, ItemGroup *itemGroup);
 
 private:
 	struct PrivateContext;

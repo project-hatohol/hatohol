@@ -70,7 +70,7 @@ testHatohol_la_SOURCES = \
 	testItemTablePtr.cc \
 	testItemDataUtils.cc \
 	testFormulaOperator.cc \
-	testJsonParserAgent.cc testJsonBuilderAgent.cc testUtils.cc \
+	testJSONParserAgent.cc testJSONBuilderAgent.cc testUtils.cc \
 	testNamedPipe.cc \
 	testArmBase.cc \
 	testArmZabbixAPI.cc testArmNagiosNDOUtils.cc \

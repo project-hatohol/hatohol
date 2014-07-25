@@ -26,12 +26,12 @@ FooTable.db: mkFooTable.sh
 
 EXTRA_DIST= \
 	$(noinst_SCRIPTS) \
-	testJson01.json \
-	testJson02.json \
-	testJson03.json \
-	testJson04.json \
-	testJson05.json \
-	testJson06.json \
+	testJSON01.json \
+	testJSON02.json \
+	testJSON03.json \
+	testJSON04.json \
+	testJSON05.json \
+	testJSON06.json \
 	zabbix-api-res-applications-003.json \
 	zabbix-api-res-events-002.json \
 	zabbix-api-res-hosts-001.json \

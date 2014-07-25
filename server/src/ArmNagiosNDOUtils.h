@@ -23,8 +23,8 @@
 #include <libsoup/soup.h>
 #include "ArmBase.h"
 #include "ItemTablePtr.h"
-#include "JsonParserAgent.h"
-#include "JsonBuilderAgent.h"
+#include "JSONParserAgent.h"
+#include "JSONBuilderAgent.h"
 #include "DBClientConfig.h"
 
 class ArmNagiosNDOUtils : public ArmBase

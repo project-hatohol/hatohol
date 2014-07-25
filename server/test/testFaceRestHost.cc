@@ -30,7 +30,7 @@ using namespace mlpl;
 
 namespace testFaceRestHost {
 
-static JsonParserAgent *g_parser = NULL;
+static JSONParserAgent *g_parser = NULL;
 
 static void _assertTestTriggerInfo(const TriggerInfo &triggerInfo)
 {
@@ -44,7 +44,7 @@ static void _assertTestTriggerInfo(const TriggerInfo &triggerInfo)
 }
 #define assertTestTriggerInfo(T) cut_trace(_assertTestTriggerInfo(T))
 
-static void assertHostsInParser(JsonParserAgent *parser,
+static void assertHostsInParser(JSONParserAgent *parser,
                                 const ServerIdType &targetServerId,
                                 DataQueryContext *dqCtx)
 {
@@ -96,7 +96,7 @@ static void assertHostsInParser(JsonParserAgent *parser,
 
 static void assertHostsIdNameHashInParser(TriggerInfo *triggers,
                                           size_t numberOfTriggers,
-                                          JsonParserAgent *parser)
+                                          JSONParserAgent *parser)
 {
 	assertStartObject(parser, "servers");
 	for (size_t i = 0; i < numberOfTriggers; i++) {
@@ -113,7 +113,7 @@ static void assertHostsIdNameHashInParser(TriggerInfo *triggers,
 }
 
 static void assertHostsIdNameHashInParser(
-  const vector<EventInfo *> &expectedRecords, JsonParserAgent *parser)
+  const vector<EventInfo *> &expectedRecords, JSONParserAgent *parser)
 {
 	assertStartObject(parser, "servers");
 	for (size_t i = 0; i < expectedRecords.size(); i++) {
@@ -142,7 +142,7 @@ static void _assertHosts(const string &path, const string &callbackName = "",
 	RequestArg arg(path, callbackName);
 	arg.parameters = queryMap;
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
-	g_parser = getResponseAsJsonParser(arg);
+	g_parser = getResponseAsJSONParser(arg);
 	assertErrorCode(g_parser);
 	DataQueryContextPtr dqCtxPtr(new DataQueryContext(arg.userId), false);
 	assertHostsInParser(g_parser, serverId, dqCtxPtr);
@@ -187,7 +187,7 @@ static void _assertTriggers(const string &path, const string &callbackName = "",
 	if (hostId != ALL_HOSTS)
 		queryMap["hostId"] = StringUtils::sprintf("%" PRIu64, hostId); 
 	arg.parameters = queryMap;
-	g_parser = getResponseAsJsonParser(arg);
+	g_parser = getResponseAsJSONParser(arg);
 
 	// Check the reply
 	assertErrorCode(g_parser);
@@ -236,7 +236,7 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 	// check json data
 	RequestArg arg(path, callbackName);
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
-	g_parser = getResponseAsJsonParser(arg);
+	g_parser = getResponseAsJSONParser(arg);
 	assertErrorCode(g_parser);
 	assertValueInParser(g_parser, "numberOfEvents",
 	                    eventsArg.expectedRecords.size());
@@ -287,7 +287,7 @@ static void _assertItems(const string &path, const string &callbackName = "")
 	RequestArg arg(path, callbackName);
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
 	DataQueryContextPtr dqCtxPtr(new DataQueryContext(arg.userId), false);
-	g_parser = getResponseAsJsonParser(arg);
+	g_parser = getResponseAsJSONParser(arg);
 	assertErrorCode(g_parser);
 
 	// NOTE: Items that belong to the servers that registered in the config
@@ -348,7 +348,7 @@ static void _assertItems(const string &path, const string &callbackName = "")
 }
 #define assertItems(P,...) cut_trace(_assertItems(P,##__VA_ARGS__))
 
-static void assertHostgroupsInParser(JsonParserAgent *parser,
+static void assertHostgroupsInParser(JSONParserAgent *parser,
                                      const ServerIdType &serverId,
                                      HostgroupIdSet &hostgroupIdSet)
 {
@@ -369,7 +369,7 @@ static void assertHostgroupsInParser(JsonParserAgent *parser,
 	parser->endObject();
 }
 
-static void assertHostStatusInParser(JsonParserAgent *parser,
+static void assertHostStatusInParser(JSONParserAgent *parser,
                                      const ServerIdType &serverId,
                                      const HostgroupIdSet &hostgroupIdSet)
 {
@@ -395,7 +395,7 @@ static void assertHostStatusInParser(JsonParserAgent *parser,
 }
 
 static void assertSystemStatusInParserEach(
-  JsonParserAgent *parser, const int &severityNum,
+  JSONParserAgent *parser, const int &severityNum,
   const ServerIdType &serverId, const HostgroupIdType &hostgroupId)
 {
 	const TriggerSeverityType severity = 
@@ -407,7 +407,7 @@ static void assertSystemStatusInParserEach(
 	assertValueInParser(parser, "numberOfTriggers", expectedTriggers);
 }
 
-static void assertSystemStatusInParser(JsonParserAgent *parser,
+static void assertSystemStatusInParser(JSONParserAgent *parser,
                                        const ServerIdType &serverId,
                                        const HostgroupIdSet &hostgroupIdSet)
 {
@@ -427,7 +427,7 @@ static void assertSystemStatusInParser(JsonParserAgent *parser,
 	parser->endObject();
 }
 
-static void _assertOverviewInParser(JsonParserAgent *parser, RequestArg &arg)
+static void _assertOverviewInParser(JSONParserAgent *parser, RequestArg &arg)
 {
 	assertValueInParser(parser, "numberOfServers", NumTestServerInfo);
 	assertStartObject(parser, "serverStatus");
@@ -511,7 +511,7 @@ void test_hosts(void)
 	assertHosts("/host");
 }
 
-void test_hostsJsonp(void)
+void test_hostsJSONP(void)
 {
 	assertHosts("/host", "foo");
 }
@@ -526,7 +526,7 @@ void test_triggers(void)
 	assertTriggers("/trigger");
 }
 
-void test_triggersJsonp(void)
+void test_triggersJSONP(void)
 {
 	assertTriggers("/trigger", "foo");
 }
@@ -549,7 +549,7 @@ void test_eventsWithIssues(void)
 	assertEvents("/event");
 }
 
-void test_eventsJsonp(void)
+void test_eventsJSONP(void)
 {
 	assertEvents("/event", "foo");
 }
@@ -578,7 +578,7 @@ void test_itemsAsyncWithNonExistentServers(void)
 	dataStore->stop();
 }
 
-void test_itemsJsonp(void)
+void test_itemsJSONP(void)
 {
 	assertItems("/item", "foo");
 }
@@ -590,7 +590,7 @@ void test_overview(void)
 	RequestArg arg("/overview");
 	// It's supposed to be a user with ID:2, who can access all hosts.
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
-	g_parser = getResponseAsJsonParser(arg);
+	g_parser = getResponseAsJSONParser(arg);
 	assertErrorCode(g_parser);
 	assertOverviewInParser(g_parser, arg);
 }

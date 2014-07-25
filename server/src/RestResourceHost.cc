@@ -272,7 +272,7 @@ static HatoholError parseItemParameter(ItemsQueryOption &option,
 }
 
 static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
-					  JsonBuilderAgent &agent,
+					  JSONBuilderAgent &agent,
 					  MonitoringServerInfo &svInfo,
 					  bool &serverIsGoodStatus)
 {
@@ -387,7 +387,7 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 	return HTERR_OK;
 }
 
-static HatoholError addOverview(FaceRest::ResourceHandler *job, JsonBuilderAgent &agent)
+static HatoholError addOverview(FaceRest::ResourceHandler *job, JSONBuilderAgent &agent)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	MonitoringServerInfoList monitoringServers;
@@ -419,7 +419,7 @@ static HatoholError addOverview(FaceRest::ResourceHandler *job, JsonBuilderAgent
 
 void RestResourceHost::handlerGetOverview(void)
 {
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	HatoholError err;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
@@ -430,10 +430,10 @@ void RestResourceHost::handlerGetOverview(void)
 	}
 	agent.endObject();
 
-	replyJsonData(agent);
+	replyJSONData(agent);
 }
 
-static void addHosts(FaceRest::ResourceHandler *job, JsonBuilderAgent &agent,
+static void addHosts(FaceRest::ResourceHandler *job, JSONBuilderAgent &agent,
                      const ServerIdType &targetServerId,
                      const HostgroupIdType &targetHostgroupId,
                      const HostIdType &targetHostId)
@@ -470,7 +470,7 @@ void RestResourceHost::handlerGetHost(void)
 		return;
 	}
 
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
 	addHosts(this, agent,
@@ -479,7 +479,7 @@ void RestResourceHost::handlerGetHost(void)
 		 option.getTargetHostId());
 	agent.endObject();
 
-	replyJsonData(agent);
+	replyJSONData(agent);
 }
 
 void RestResourceHost::handlerGetTrigger(void)
@@ -495,7 +495,7 @@ void RestResourceHost::handlerGetTrigger(void)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	dataStore->getTriggerList(triggerList, option);
 
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
 	agent.startArray("triggers");
@@ -520,7 +520,7 @@ void RestResourceHost::handlerGetTrigger(void)
 	addServersMap(agent, NULL, false);
 	agent.endObject();
 
-	replyJsonData(agent);
+	replyJSONData(agent);
 }
 
 static uint64_t getLastUnifiedEventId(FaceRest::ResourceHandler *job)
@@ -542,7 +542,7 @@ static uint64_t getLastUnifiedEventId(FaceRest::ResourceHandler *job)
 	return lastUnifiedId;
 }
 
-static void addIssue(FaceRest::ResourceHandler *job, JsonBuilderAgent &agent,
+static void addIssue(FaceRest::ResourceHandler *job, JSONBuilderAgent &agent,
 		     const IssueInfo &issue)
 {
 	agent.startObject("issue");
@@ -578,7 +578,7 @@ void RestResourceHost::handlerGetEvent(void)
 		return;
 	}
 
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
 	// TODO: should use transaction to avoid conflicting with event list
@@ -610,7 +610,7 @@ void RestResourceHost::handlerGetEvent(void)
 	addServersMap(agent, NULL, false);
 	agent.endObject();
 
-	replyJsonData(agent);
+	replyJSONData(agent);
 }
 
 struct GetItemClosure : Closure<RestResourceHost>
@@ -641,7 +641,7 @@ void RestResourceHost::replyGetItem(void)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	dataStore->getItemList(itemList, option);
 
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
 	agent.startArray("items");
@@ -666,7 +666,7 @@ void RestResourceHost::replyGetItem(void)
 	addServersMap(agent, NULL, false);
 	agent.endObject();
 
-	replyJsonData(agent);
+	replyJSONData(agent);
 }
 
 void RestResourceHost::itemFetchedCallback(ClosureBase *closure)
@@ -698,7 +698,7 @@ void RestResourceHost::handlerGetItem(void)
 }
 
 static void addHostsIsMemberOfGroup(
-  FaceRest::ResourceHandler *job, JsonBuilderAgent &agent,
+  FaceRest::ResourceHandler *job, JSONBuilderAgent &agent,
   uint64_t targetServerId, uint64_t targetGroupId)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
@@ -732,7 +732,7 @@ void RestResourceHost::handlerGetHostgroup(void)
 	HostgroupInfoList hostgroupInfoList;
 	err = dataStore->getHostgroupInfoList(hostgroupInfoList, option);
 
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, err);
 	agent.add("numberOfHostgroups", hostgroupInfoList.size());
@@ -753,7 +753,7 @@ void RestResourceHost::handlerGetHostgroup(void)
 	agent.endArray();
 	agent.endObject();
 
-	replyJsonData(agent);
+	replyJSONData(agent);
 }
 
 RestResourceHostFactory::RestResourceHostFactory(

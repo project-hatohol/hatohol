@@ -140,7 +140,7 @@ void RestResourceUser::handlerUser(void)
 }
 
 static void addUserRolesMap(
-  FaceRest::ResourceHandler *job, JsonBuilderAgent &agent)
+  FaceRest::ResourceHandler *job, JSONBuilderAgent &agent)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	UserRoleInfoList userRoleList;
@@ -174,7 +174,7 @@ void RestResourceUser::handlerGetUser(void)
 		option.queryOnlyMyself();
 	dataStore->getUserList(userList, option);
 
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
 	agent.add("numberOfUsers", userList.size());
@@ -192,7 +192,7 @@ void RestResourceUser::handlerGetUser(void)
 	addUserRolesMap(this, agent);
 	agent.endObject();
 
-	replyJsonData(agent);
+	replyJSONData(agent);
 }
 
 void RestResourceUser::handlerPostUser(void)
@@ -214,12 +214,12 @@ void RestResourceUser::handlerPostUser(void)
 	}
 
 	// make a response
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, err);
 	agent.add("id", userInfo.id);
 	agent.endObject();
-	replyJsonData(agent);
+	replyJSONData(agent);
 }
 
 void RestResourceUser::handlerPutUser(void)
@@ -257,12 +257,12 @@ void RestResourceUser::handlerPutUser(void)
 	}
 
 	// make a response
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, err);
 	agent.add("id", userInfo.id);
 	agent.endObject();
-	replyJsonData(agent);
+	replyJSONData(agent);
 }
 
 void RestResourceUser::handlerDeleteUser(void)
@@ -284,12 +284,12 @@ void RestResourceUser::handlerDeleteUser(void)
 	}
 
 	// replay
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, err);
 	agent.add("id", userId);
 	agent.endObject();
-	replyJsonData(agent);
+	replyJSONData(agent);
 }
 
 void RestResourceUser::handlerAccessInfo(void)
@@ -319,7 +319,7 @@ void RestResourceUser::handlerGetAccessInfo(void)
 		return;
 	}
 
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
 	ServerAccessInfoMapIterator it = serversMap.begin();
@@ -358,7 +358,7 @@ void RestResourceUser::handlerGetAccessInfo(void)
 
 	DBClientUser::destroyServerAccessInfoMap(serversMap);
 
-	replyJsonData(agent);
+	replyJSONData(agent);
 }
 
 void RestResourceUser::handlerPostAccessInfo(void)
@@ -405,12 +405,12 @@ void RestResourceUser::handlerPostAccessInfo(void)
 	}
 
 	// make a response
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, err);
 	agent.add("id", accessInfo.id);
 	agent.endObject();
-	replyJsonData(agent);
+	replyJSONData(agent);
 }
 
 void RestResourceUser::handlerDeleteAccessInfo(void)
@@ -433,12 +433,12 @@ void RestResourceUser::handlerDeleteAccessInfo(void)
 	}
 
 	// replay
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, err);
 	agent.add("id", id);
 	agent.endObject();
-	replyJsonData(agent);
+	replyJSONData(agent);
 }
 
 void RestResourceUser::handlerUserRole(void)
@@ -497,12 +497,12 @@ void RestResourceUser::handlerPutUserRole(void)
 	}
 
 	// make a response
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, err);
 	agent.add("id", userRoleInfo.id);
 	agent.endObject();
-	replyJsonData(agent);
+	replyJSONData(agent);
 }
 
 void RestResourceUser::handlerGetUserRole(void)
@@ -513,7 +513,7 @@ void RestResourceUser::handlerGetUserRole(void)
 	UserRoleQueryOption option(m_dataQueryContextPtr);
 	dataStore->getUserRoleList(userRoleList, option);
 
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
 	agent.add("numberOfUserRoles", userRoleList.size());
@@ -530,7 +530,7 @@ void RestResourceUser::handlerGetUserRole(void)
 	agent.endArray();
 	agent.endObject();
 
-	replyJsonData(agent);
+	replyJSONData(agent);
 }
 
 void RestResourceUser::handlerPostUserRole(void)
@@ -552,12 +552,12 @@ void RestResourceUser::handlerPostUserRole(void)
 	}
 
 	// make a response
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, err);
 	agent.add("id", userRoleInfo.id);
 	agent.endObject();
-	replyJsonData(agent);
+	replyJSONData(agent);
 }
 
 void RestResourceUser::handlerDeleteUserRole(void)
@@ -580,12 +580,12 @@ void RestResourceUser::handlerDeleteUserRole(void)
 	}
 
 	// replay
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, err);
 	agent.add("id", userRoleId);
 	agent.endObject();
-	replyJsonData(agent);
+	replyJSONData(agent);
 }
 
 HatoholError RestResourceUser::updateOrAddUser(GHashTable *query,

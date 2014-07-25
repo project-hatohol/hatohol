@@ -22,7 +22,7 @@
 
 #include <string>
 #include <libsoup/soup.h>
-#include "JsonParserAgent.h"
+#include "JSONParserAgent.h"
 
 class HttpServerStub {
 public:

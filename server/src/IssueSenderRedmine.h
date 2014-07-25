@@ -31,9 +31,9 @@ public:
 	virtual HatoholError send(const EventInfo &event) override;
 
 protected:
-	std::string buildJson(const EventInfo &event);
+	std::string buildJSON(const EventInfo &event);
 	std::string getProjectURL(void);
-	std::string getIssuesJsonURL(void);
+	std::string getIssuesJSONURL(void);
 	std::string getIssueURL(const std::string &id);
 	HatoholError parseResponse(IssueInfo &issueInfo,
 				   const std::string &response);

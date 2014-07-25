@@ -19,10 +19,10 @@
 
 #include <fstream>
 #include <cppcutter.h>
-#include "JsonParserAgent.h"
+#include "JSONParserAgent.h"
 using namespace std;
 
-namespace testJsonParserAgent {
+namespace testJSONParserAgent {
 
 void _assertReadFile(const string &fileName, string &output)
 {
@@ -35,7 +35,7 @@ void _assertReadFile(const string &fileName, string &output)
 }
 #define assertReadFile(X,Y) cut_trace(_assertReadFile(X,Y))
 
-template<typename T> void _assertReadWord(JsonParserAgent &parser,
+template<typename T> void _assertReadWord(JSONParserAgent &parser,
                      const string &name, const T &expect)
 {
 	T actual;
@@ -44,7 +44,7 @@ template<typename T> void _assertReadWord(JsonParserAgent &parser,
 }
 #define assertReadWord(Z,A,X,Y) cut_trace(_assertReadWord<Z>(A,X,Y))
 
-void _assertReadWordElement(JsonParserAgent &parser,
+void _assertReadWordElement(JSONParserAgent &parser,
                      int index, const string &expect)
 {
 	string actual;
@@ -56,7 +56,7 @@ void _assertReadWordElement(JsonParserAgent &parser,
 #define DEFINE_PARSER_AND_READ(PARSER, JSON_MATERIAL) \
 string _json; \
 assertReadFile(JSON_MATERIAL, _json); \
-JsonParserAgent parser(_json); \
+JSONParserAgent parser(_json); \
 cppcut_assert_equal(false, PARSER.hasError());
 
 
@@ -65,14 +65,14 @@ cppcut_assert_equal(false, PARSER.hasError());
 // -------------------------------------------------------------------------
 void test_parseString(void)
 {
-	DEFINE_PARSER_AND_READ(parser, "fixtures/testJson01.json");
+	DEFINE_PARSER_AND_READ(parser, "fixtures/testJSON01.json");
 	assertReadWord(string, parser, "name0", "string value");
 	assertReadWord(string, parser, "name1", "123");
 }
 
 void test_parseStringInObject(void)
 {
-	DEFINE_PARSER_AND_READ(parser, "fixtures/testJson02.json");
+	DEFINE_PARSER_AND_READ(parser, "fixtures/testJSON02.json");
 
 	cppcut_assert_equal(true, parser.startObject("object0"));
 	assertReadWord(string, parser, "food", "donuts");
@@ -85,7 +85,7 @@ void test_parseStringInObject(void)
 
 void test_parseStringInArray(void)
 {
-	DEFINE_PARSER_AND_READ(parser, "fixtures/testJson03.json");
+	DEFINE_PARSER_AND_READ(parser, "fixtures/testJSON03.json");
 
 	cppcut_assert_equal(true, parser.startObject("array0"));
 	cppcut_assert_equal(3u, parser.countElements());
@@ -97,7 +97,7 @@ void test_parseStringInArray(void)
 
 void test_parseStringInObjectInArray(void)
 {
-	DEFINE_PARSER_AND_READ(parser, "fixtures/testJson04.json");
+	DEFINE_PARSER_AND_READ(parser, "fixtures/testJSON04.json");
 
 	cppcut_assert_equal(true, parser.startObject("array0"));
 	cppcut_assert_equal(2u, parser.countElements());
@@ -117,7 +117,7 @@ void test_parseStringInObjectInArray(void)
 
 void test_checkParseSuccess(void)
 {
-	DEFINE_PARSER_AND_READ(parser, "fixtures/testJson05.json");
+	DEFINE_PARSER_AND_READ(parser, "fixtures/testJSON05.json");
 
 	assertReadWord(bool, parser, "valid", true);
 	assertReadWord(int64_t, parser, "id", 1);
@@ -132,7 +132,7 @@ void test_checkParseSuccess(void)
 
 void test_checkResultWhenTrueFalseTrue(void)
 {
-	DEFINE_PARSER_AND_READ(parser, "fixtures/testJson05.json");
+	DEFINE_PARSER_AND_READ(parser, "fixtures/testJSON05.json");
 	int64_t value;
 
 	assertReadWord(bool, parser, "valid", true);
@@ -148,7 +148,7 @@ void test_checkResultWhenTrueFalseTrue(void)
 
 void test_checkResultWhenFalseTrueFalse(void)
 {
-	DEFINE_PARSER_AND_READ(parser, "fixtures/testJson05.json");
+	DEFINE_PARSER_AND_READ(parser, "fixtures/testJSON05.json");
 	string value1;
 	bool value2;
 
@@ -165,7 +165,7 @@ void test_checkResultWhenFalseTrueFalse(void)
 
 void test_checkResultWhenFalseFalseTrue(void)
 {
-	DEFINE_PARSER_AND_READ(parser, "fixtures/testJson05.json");
+	DEFINE_PARSER_AND_READ(parser, "fixtures/testJSON05.json");
 	int64_t value1;
 	bool value2;
 
@@ -182,7 +182,7 @@ void test_checkResultWhenFalseFalseTrue(void)
 
 void test_checkIsMember(void)
 {
-	DEFINE_PARSER_AND_READ(parser, "fixtures/testJson06.json");
+	DEFINE_PARSER_AND_READ(parser, "fixtures/testJSON06.json");
 
 	cppcut_assert_equal(true, parser.isMember("name"));
 	cppcut_assert_equal(true, parser.isMember("prefecture"));
@@ -192,4 +192,4 @@ void test_checkIsMember(void)
 	cppcut_assert_equal(true, parser.isMember("greenwindows"));
 	parser.endObject();
 }
-} //namespace testJsonParserAgent
+} //namespace testJSONParserAgent

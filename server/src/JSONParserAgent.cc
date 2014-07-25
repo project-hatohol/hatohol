@@ -20,11 +20,11 @@
 #include <Logger.h>
 #include <string.h>
 #include <stdexcept>
-#include "JsonParserAgent.h"
+#include "JSONParserAgent.h"
 using namespace std;
 using namespace mlpl;
 
-struct JsonParserAgent::PrivateContext
+struct JSONParserAgent::PrivateContext
 {
 	JsonParser *parser;
 	JsonNode *currentNode;
@@ -55,31 +55,31 @@ struct JsonParserAgent::PrivateContext
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-JsonParserAgent::JsonParserAgent(const string &data)
+JSONParserAgent::JSONParserAgent(const string &data)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext(data);
 }
 
-JsonParserAgent::~JsonParserAgent()
+JSONParserAgent::~JSONParserAgent()
 {
 	if (m_ctx)
 		delete m_ctx;
 }
 
-const char *JsonParserAgent::getErrorMessage(void)
+const char *JSONParserAgent::getErrorMessage(void)
 {
 	if (!m_ctx->error)
 		return "No error";
 	return m_ctx->error->message;
 }
 
-bool JsonParserAgent::hasError(void)
+bool JSONParserAgent::hasError(void)
 {
 	return m_ctx->error != NULL;
 }
 
-bool JsonParserAgent::read(const string &member, bool &dest)
+bool JSONParserAgent::read(const string &member, bool &dest)
 {
 	internalCheck();
 	if (!startObject(member))
@@ -90,7 +90,7 @@ bool JsonParserAgent::read(const string &member, bool &dest)
 	return true;
 }
 
-bool JsonParserAgent::read(const string &member, int64_t &dest)
+bool JSONParserAgent::read(const string &member, int64_t &dest)
 {
 	internalCheck();
 	if (!startObject(member))
@@ -101,7 +101,7 @@ bool JsonParserAgent::read(const string &member, int64_t &dest)
 	return true;
 }
 
-bool JsonParserAgent::read(const string &member, string &dest)
+bool JSONParserAgent::read(const string &member, string &dest)
 {
 	internalCheck();
 	if (!startObject(member))
@@ -113,7 +113,7 @@ bool JsonParserAgent::read(const string &member, string &dest)
 	return true;
 }
 
-bool JsonParserAgent::read(int index, string &dest)
+bool JSONParserAgent::read(int index, string &dest)
 {
 	internalCheck();
 	if (!startElement(index))
@@ -125,7 +125,7 @@ bool JsonParserAgent::read(int index, string &dest)
 	return true;
 }
 
-bool JsonParserAgent::isNull(const string &member, bool &dest)
+bool JSONParserAgent::isNull(const string &member, bool &dest)
 {
 	internalCheck();
 	if (!startObject(member))
@@ -136,7 +136,7 @@ bool JsonParserAgent::isNull(const string &member, bool &dest)
 	return true;
 }
 
-bool JsonParserAgent::isMember(const string &member)
+bool JSONParserAgent::isMember(const string &member)
 {
 	JsonObject *object;
 
@@ -150,7 +150,7 @@ bool JsonParserAgent::isMember(const string &member)
 	return true;
 }
 
-bool JsonParserAgent::startObject(const string &member)
+bool JSONParserAgent::startObject(const string &member)
 {
 	JsonObject *object;
 
@@ -163,7 +163,7 @@ bool JsonParserAgent::startObject(const string &member)
 	return true;
 }
 
-void JsonParserAgent::endObject(void)
+void JSONParserAgent::endObject(void)
 {
 	JsonNode *tmp;
 
@@ -176,7 +176,7 @@ void JsonParserAgent::endObject(void)
 	m_ctx->previousNode = tmp;
 }
 
-bool JsonParserAgent::startElement(unsigned int index)
+bool JSONParserAgent::startElement(unsigned int index)
 {
 	switch (json_node_get_node_type(m_ctx->currentNode)) {
 	case JSON_NODE_ARRAY: {
@@ -219,12 +219,12 @@ bool JsonParserAgent::startElement(unsigned int index)
 	return true;
 }
 
-void JsonParserAgent::endElement(void)
+void JSONParserAgent::endElement(void)
 {
 	endObject();
 }
 
-unsigned int JsonParserAgent::countElements(void)
+unsigned int JSONParserAgent::countElements(void)
 {
 	return json_array_get_length(json_node_get_array(m_ctx->currentNode));
 }
@@ -232,7 +232,7 @@ unsigned int JsonParserAgent::countElements(void)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void JsonParserAgent::internalCheck(void)
+void JSONParserAgent::internalCheck(void)
 {
 	HATOHOL_ASSERT(m_ctx->currentNode, "CurrentNode: NULL");
 }

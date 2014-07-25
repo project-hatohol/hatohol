@@ -21,7 +21,7 @@
 #include "Hatohol.h"
 #include "FaceRest.h"
 #include "Helpers.h"
-#include "JsonParserAgent.h"
+#include "JSONParserAgent.h"
 #include "DBClientTest.h"
 #include "MultiLangTest.h"
 #include "CacheServiceDBClient.h"
@@ -32,7 +32,7 @@ using namespace mlpl;
 
 namespace testFaceRestAction {
 
-static JsonParserAgent *g_parser = NULL;
+static JSONParserAgent *g_parser = NULL;
 
 struct LocaleInfo {
 	string lcAll;
@@ -100,7 +100,7 @@ static void setupActionDB(void)
 
 template<typename T>
 static void _assertActionCondition(
-  JsonParserAgent *parser, const ActionCondition &cond,
+  JSONParserAgent *parser, const ActionCondition &cond,
    const string &member, ActionConditionEnableFlag bit, T expect)
 {
 	if (cond.isEnable(bit)) {
@@ -121,7 +121,7 @@ static void _assertActions(const string &path, const string &callbackName = "",
 	arg.parameters["type"]
 	  = StringUtils::sprintf("%d", actionType);
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_USER);
-	g_parser = getResponseAsJsonParser(arg);
+	g_parser = getResponseAsJSONParser(arg);
 	assertErrorCode(g_parser);
 	assertValueInParser(g_parser, "numberOfActions",
 			    getNumberOfTestActions(actionType));
@@ -177,7 +177,7 @@ static void _assertActions(const string &path, const string &callbackName = "",
 #define assertAddAction(P, ...) \
 cut_trace(_assertAddRecord(g_parser, P, "/action", ##__VA_ARGS__))
 
-void data_actionsJsonp(void)
+void data_actionsJSONP(void)
 {
 	gcut_add_datum("Normal actions",
 		       "type", G_TYPE_INT, ACTION_USER_DEFINED,
@@ -190,7 +190,7 @@ void data_actionsJsonp(void)
 		       NULL);
 }
 
-void test_actionsJsonp(gconstpointer data)
+void test_actionsJSONP(gconstpointer data)
 {
 	const ActionType actionType
 	  = static_cast<ActionType>(gcut_data_get_int(data, "type"));
@@ -385,7 +385,7 @@ void test_deleteAction(void)
 	RequestArg arg(url, "cbname");
 	arg.request = "DELETE";
 	arg.userId = findUserWith(OPPRVLG_DELETE_ACTION);
-	g_parser = getResponseAsJsonParser(arg);
+	g_parser = getResponseAsJSONParser(arg);
 
 	// check the reply
 	assertErrorCode(g_parser);

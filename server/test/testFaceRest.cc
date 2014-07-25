@@ -26,7 +26,7 @@ using namespace mlpl;
 
 namespace testFaceRest {
 
-static JsonParserAgent *g_parser = NULL;
+static JSONParserAgent *g_parser = NULL;
 
 void cut_setup(void)
 {
@@ -48,7 +48,7 @@ static void _assertTestMode(const bool expectedMode = false,
 {
 	startFaceRest();
 	RequestArg arg("/test");
-	g_parser = getResponseAsJsonParser(arg);
+	g_parser = getResponseAsJSONParser(arg);
 	assertErrorCode(g_parser);
 	assertValueInParser(g_parser, "testMode", expectedMode);
 }
@@ -92,7 +92,7 @@ void test_testPost(void)
 	RequestArg arg("/test", "cbname");
 	arg.parameters = parameters;
 	arg.request = "POST";
-	g_parser = getResponseAsJsonParser(arg);
+	g_parser = getResponseAsJSONParser(arg);
 	assertStartObject(g_parser, "queryData");
 	StringMapIterator it = parameters.begin();
 	for (; it != parameters.end(); ++it)
@@ -104,7 +104,7 @@ void test_testError(void)
 	setupTestMode();
 	startFaceRest();
 	RequestArg arg("/test/error");
-	g_parser = getResponseAsJsonParser(arg);
+	g_parser = getResponseAsJSONParser(arg);
 	assertErrorCode(g_parser, HTERR_ERROR_TEST);
 }
 

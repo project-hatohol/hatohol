@@ -31,7 +31,7 @@
 #include <semaphore.h>
 #include "FaceRest.h"
 #include "FaceRestPrivate.h"
-#include "JsonBuilderAgent.h"
+#include "JSONBuilderAgent.h"
 #include "HatoholException.h"
 #include "UnifiedDataStore.h"
 #include "DBClientUser.h"
@@ -512,7 +512,7 @@ void FaceRest::handlerHelloPage(ResourceHandler *job)
 
 void FaceRest::handlerTest(ResourceHandler *job)
 {
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	agent.startObject();
 	FaceRest::ResourceHandler::addHatoholError(
 	  agent, HatoholError(HTERR_OK));
@@ -534,7 +534,7 @@ void FaceRest::handlerTest(ResourceHandler *job)
 		}
 		agent.endObject(); // queryData
 		agent.endObject(); // top level
-		job->replyJsonData(agent);
+		job->replyJSONData(agent);
 		return;
 	}
 
@@ -558,7 +558,7 @@ void FaceRest::handlerTest(ResourceHandler *job)
 	}
 
 	agent.endObject();
-	job->replyJsonData(agent);
+	job->replyJSONData(agent);
 }
 
 void FaceRest::handlerLogin(ResourceHandler *job)
@@ -589,14 +589,14 @@ void FaceRest::handlerLogin(ResourceHandler *job)
 	SessionManager *sessionMgr = SessionManager::getInstance();
 	string sessionId = sessionMgr->create(userId);
 
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	agent.startObject();
 	FaceRest::ResourceHandler::addHatoholError(
 	  agent, HatoholError(HTERR_OK));
 	agent.add("sessionId", sessionId);
 	agent.endObject();
 
-	job->replyJsonData(agent);
+	job->replyJSONData(agent);
 }
 
 void FaceRest::handlerLogout(ResourceHandler *job)
@@ -607,13 +607,13 @@ void FaceRest::handlerLogout(ResourceHandler *job)
 		return;
 	}
 
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	agent.startObject();
 	FaceRest::ResourceHandler::addHatoholError(
 	  agent, HatoholError(HTERR_OK));
 	agent.endObject();
 
-	job->replyJsonData(agent);
+	job->replyJSONData(agent);
 }
 
 
@@ -680,7 +680,7 @@ GMainContext *FaceRest::ResourceHandler::getGMainContext(void)
 	return m_faceRest ? m_faceRest->getGMainContext() : NULL;
 }
 
-string FaceRest::ResourceHandler::getJsonpCallbackName(void)
+string FaceRest::ResourceHandler::getJSONPCallbackName(void)
 {
 	if (m_formatType != FORMAT_JSONP)
 		return "";
@@ -772,8 +772,8 @@ bool FaceRest::ResourceHandler::parseRequest(void)
 	  "Invalid formatType: %d, %s", m_formatType, m_path.c_str());
 	m_mimeType = mimeIt->second;
 
-	// jsonp callback name
-	m_jsonpCallbackName = getJsonpCallbackName();
+	// JSONP callback name
+	m_jsonpCallbackName = getJSONPCallbackName();
 
 	return true;
 }
@@ -859,7 +859,7 @@ void FaceRest::ResourceHandler::replyError(const HatoholErrorCode &errorCode,
 	replyError(hatoholError);
 }
 
-static string wrapForJsonp(const string &jsonBody,
+static string wrapForJSONP(const string &jsonBody,
 			   const string &callbackName)
 {
 	string jsonp = callbackName;
@@ -886,13 +886,13 @@ void FaceRest::ResourceHandler::replyError(const HatoholError &hatoholError)
 	}
 	MLPL_INFO("reply error: %s\n", error.c_str());
 
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, hatoholError);
 	agent.endObject();
 	string response = agent.generate();
 	if (!m_jsonpCallbackName.empty())
-		response = wrapForJsonp(response, m_jsonpCallbackName);
+		response = wrapForJSONP(response, m_jsonpCallbackName);
 	soup_message_headers_set_content_type(m_message->response_headers,
 	                                      MIME_JSON, NULL);
 	soup_message_body_append(m_message->response_body, SOUP_MEMORY_COPY,
@@ -908,11 +908,11 @@ void FaceRest::ResourceHandler::replyHttpStatus(const guint &statusCode)
 	m_replyIsPrepared = true;
 }
 
-void FaceRest::ResourceHandler::replyJsonData(JsonBuilderAgent &agent)
+void FaceRest::ResourceHandler::replyJSONData(JSONBuilderAgent &agent)
 {
 	string response = agent.generate();
 	if (!m_jsonpCallbackName.empty())
-		response = wrapForJsonp(response, m_jsonpCallbackName);
+		response = wrapForJSONP(response, m_jsonpCallbackName);
 	soup_message_headers_set_content_type(m_message->response_headers,
 	                                      m_mimeType, NULL);
 	soup_message_body_append(m_message->response_body, SOUP_MEMORY_COPY,
@@ -922,7 +922,7 @@ void FaceRest::ResourceHandler::replyJsonData(JsonBuilderAgent &agent)
 	m_replyIsPrepared = true;
 }
 
-void FaceRest::ResourceHandler::addHatoholError(JsonBuilderAgent &agent,
+void FaceRest::ResourceHandler::addHatoholError(JSONBuilderAgent &agent,
 						const HatoholError &err)
 {
 	agent.add("apiVersion", API_VERSION);
@@ -934,7 +934,7 @@ void FaceRest::ResourceHandler::addHatoholError(JsonBuilderAgent &agent,
 }
 
 static void addHostsMap(
-  FaceRest::ResourceHandler *job, JsonBuilderAgent &agent,
+  FaceRest::ResourceHandler *job, JSONBuilderAgent &agent,
   const MonitoringServerInfo &serverInfo)
 {
 	HostgroupIdType targetHostgroupId = ALL_HOST_GROUPS;
@@ -989,7 +989,7 @@ static string getTriggerBrief(
 
 static void addTriggersIdBriefHash(
   FaceRest::ResourceHandler *job,
-  JsonBuilderAgent &agent, const MonitoringServerInfo &serverInfo,
+  JSONBuilderAgent &agent, const MonitoringServerInfo &serverInfo,
   TriggerBriefMaps &triggerMaps, bool lookupTriggerBrief = false)
 {
 	TriggerBriefMaps::iterator server_it = triggerMaps.find(serverInfo.id);
@@ -1012,7 +1012,7 @@ static void addTriggersIdBriefHash(
 }
 
 HatoholError FaceRest::ResourceHandler::addHostgroupsMap(
-  JsonBuilderAgent &outputJson, const MonitoringServerInfo &serverInfo,
+  JSONBuilderAgent &outputJSON, const MonitoringServerInfo &serverInfo,
   HostgroupInfoList &hostgroupList)
 {
 	HostgroupsQueryOption option(m_dataQueryContextPtr);
@@ -1030,16 +1030,16 @@ HatoholError FaceRest::ResourceHandler::addHostgroupsMap(
 	HostgroupInfoListIterator it = hostgroupList.begin();
 	for (; it != hostgroupList.end(); ++it) {
 		const HostgroupInfo &hostgroupInfo = *it;
-		outputJson.startObject(
+		outputJSON.startObject(
 		  StringUtils::toString(hostgroupInfo.groupId));
-		outputJson.add("name", hostgroupInfo.groupName);
-		outputJson.endObject();
+		outputJSON.add("name", hostgroupInfo.groupName);
+		outputJSON.endObject();
 	}
 	return HTERR_OK;
 }
 
 void FaceRest::ResourceHandler::addServersMap(
-  JsonBuilderAgent &agent,
+  JSONBuilderAgent &agent,
   TriggerBriefMaps *triggerMaps, bool lookupTriggerBrief)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
