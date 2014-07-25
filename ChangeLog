@@ -1,3 +1,13 @@
+2014-07-23 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.09-1
+
+	[Server] Introduce the pagination feature to TriggersView and LatestView (#246)
+	[Server] Use auto mutex (#255)
+	[Server] Add more tests for action & issue sender (#256)
+	[Server] Add a new query option "type" to the rest resource "action" (#257)
+	[Server] Add operation privilege types for issue settings (#264)
+	[Server] Potential problem in HatoholArmPluginInterface (#242)
+	[Server] Can't get Event data (#252)
+
 2014-06-27 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.06-2
 
 	[Server] Support Zabbix 2.2 (#186)
