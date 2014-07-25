@@ -32,7 +32,7 @@ using namespace mlpl;
 
 namespace testFaceRestServer {
 
-static JsonParserAgent *g_parser = NULL;
+static JSONParserAgent *g_parser = NULL;
 
 void cut_setup(void)
 {
@@ -63,7 +63,7 @@ static void setupArmPluginInfo(
 }
 
 static void assertServersInParser(
-  JsonParserAgent *parser, bool shouldHaveAccountInfo = true)
+  JSONParserAgent *parser, bool shouldHaveAccountInfo = true)
 {
 	assertValueInParser(parser, "numberOfServers", NumTestServerInfo);
 	assertStartObject(parser, "servers");
@@ -103,7 +103,7 @@ static void _assertServers(const string &path, const string &callbackName = "")
 	startFaceRest();
 	RequestArg arg(path, callbackName);
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
-	g_parser = getResponseAsJsonParser(arg);
+	g_parser = getResponseAsJSONParser(arg);
 	assertErrorCode(g_parser);
 	assertServersInParser(g_parser);
 }
@@ -123,7 +123,7 @@ void _assertAddServerWithSetup(const StringMap &params,
 }
 #define assertAddServerWithSetup(P,C) cut_trace(_assertAddServerWithSetup(P,C))
 
-static void _assertServerConnStat(JsonParserAgent *parser)
+static void _assertServerConnStat(JSONParserAgent *parser)
 {
 	// Make expected data
 	CacheServiceDBClient cache;
@@ -162,7 +162,7 @@ void test_servers(void)
 	assertServers("/server");
 }
 
-void test_serversJsonp(void)
+void test_serversJSONP(void)
 {
 	assertServers("/server", "foo");
 }
@@ -175,7 +175,7 @@ void test_serversWithoutUpdatePrivilege(void)
 	OperationPrivilegeFlag excludeFlags =
 	  (1 << OPPRVLG_UPDATE_ALL_SERVER) | (1 << OPPRVLG_UPDATE_SERVER);
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER, excludeFlags);
-	g_parser = getResponseAsJsonParser(arg);
+	g_parser = getResponseAsJSONParser(arg);
 	assertErrorCode(g_parser);
 	bool shouldHaveAccountInfo = true;
 	assertServersInParser(g_parser, !shouldHaveAccountInfo);
@@ -290,7 +290,7 @@ void test_updateServer(gconstpointer data)
 	arg.parameters = params;
 	arg.request = "PUT";
 	arg.userId = userId;
-	g_parser = getResponseAsJsonParser(arg);
+	g_parser = getResponseAsJSONParser(arg);
 	assertErrorCode(g_parser);
 	assertValueInParser(g_parser, "id", srcSvInfo.id);
 
@@ -343,7 +343,7 @@ void test_updateServerWithArmPlugin(void)
 	arg.parameters = params;
 	arg.request = "PUT";
 	arg.userId = userId;
-	g_parser = getResponseAsJsonParser(arg);
+	g_parser = getResponseAsJSONParser(arg);
 	assertErrorCode(g_parser);
 	assertValueInParser(g_parser, "id", serverInfo.id);
 
@@ -385,7 +385,7 @@ void test_deleteServer(void)
 	RequestArg arg(url);
 	arg.request = "DELETE";
 	arg.userId = userId;
-	g_parser = getResponseAsJsonParser(arg);
+	g_parser = getResponseAsJSONParser(arg);
 
 	// check the reply
 	assertErrorCode(g_parser);
@@ -403,7 +403,7 @@ void test_getServerConnStat(void)
 
 	RequestArg arg("/server-conn-stat");
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
-	g_parser = getResponseAsJsonParser(arg);
+	g_parser = getResponseAsJSONParser(arg);
 	assertErrorCode(g_parser);
 	assertServerConnStat(g_parser);
 }

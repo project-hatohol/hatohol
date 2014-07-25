@@ -22,7 +22,7 @@
 
 #include <libsoup/soup.h>
 #include "FaceBase.h"
-#include "JsonBuilderAgent.h"
+#include "JSONBuilderAgent.h"
 #include "SmartTime.h"
 #include "Params.h"
 #include "HatoholError.h"

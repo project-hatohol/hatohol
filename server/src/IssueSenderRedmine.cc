@@ -18,8 +18,8 @@
  */
 
 #include "IssueSenderRedmine.h"
-#include "JsonBuilderAgent.h"
-#include "JsonParserAgent.h"
+#include "JSONBuilderAgent.h"
+#include "JSONParserAgent.h"
 #include <Mutex.h>
 #include <libsoup/soup.h>
 
@@ -98,7 +98,7 @@ string IssueSenderRedmine::getProjectURL(void)
 	return url;
 }
 
-string IssueSenderRedmine::getIssuesJsonURL(void)
+string IssueSenderRedmine::getIssuesJSONURL(void)
 {
 	string url = getProjectURL();
 	if (!StringUtils::hasSuffix(url, "/"))
@@ -118,7 +118,7 @@ string IssueSenderRedmine::getIssueURL(const string &id)
 	return url;
 }
 
-string IssueSenderRedmine::buildJson(const EventInfo &event)
+string IssueSenderRedmine::buildJSON(const EventInfo &event)
 {
 	MonitoringServerInfo serverInfo;
 	MonitoringServerInfo *server = NULL;
@@ -126,7 +126,7 @@ string IssueSenderRedmine::buildJson(const EventInfo &event)
 		server = &serverInfo;
 
 	const IssueTrackerInfo &trackerInfo = getIssueTrackerInfo();
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	agent.startObject();
 	agent.startObject("issue");
 	agent.add("subject", buildTitle(event, server));
@@ -169,7 +169,7 @@ void IssueSenderRedmine::PrivateContext::disconnectSessionSignals(void)
 HatoholError IssueSenderRedmine::parseResponse(
   IssueInfo &issueInfo, const string &response)
 {
-	JsonParserAgent agent(response);
+	JSONParserAgent agent(response);
 	if (agent.hasError()) {
 		MLPL_ERR("Failed to parse response.\n");
 		return HTERR_FAILED_TO_SEND_ISSUE;
@@ -233,7 +233,7 @@ HatoholError IssueSenderRedmine::buildIssueInfo(
 HatoholError IssueSenderRedmine::PrivateContext::parseErrorResponse(
   const string &response)
 {
-	JsonParserAgent agent(response);
+	JSONParserAgent agent(response);
 	if (!agent.startObject("errors")) {
 		MLPL_ERR("Failed to parse errors.\n");
 		return HTERR_FAILED_TO_SEND_ISSUE;
@@ -273,8 +273,8 @@ HatoholError IssueSenderRedmine::PrivateContext::handleSendError(
 
 HatoholError IssueSenderRedmine::send(const EventInfo &event)
 {
-	string url = getIssuesJsonURL();
-	string json = buildJson(event);
+	string url = getIssuesJSONURL();
+	string json = buildJSON(event);
 	SoupMessage *msg = soup_message_new(SOUP_METHOD_POST, url.c_str());
 	soup_message_headers_set_content_type(msg->request_headers,
 	                                      MIME_JSON, NULL);

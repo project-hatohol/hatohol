@@ -17,8 +17,8 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef JsonParserAgent_h
-#define JsonParserAgent_h
+#ifndef JSONParserAgent_h
+#define JSONParserAgent_h
 
 #include <string>
 #include <stdint.h>
@@ -26,11 +26,11 @@
 #include <json-glib/json-glib.h>
 #include "HatoholException.h"
 
-class JsonParserAgent
+class JSONParserAgent
 {
 public:
-	JsonParserAgent(const std::string &data);
-	virtual ~JsonParserAgent();
+	JSONParserAgent(const std::string &data);
+	virtual ~JSONParserAgent();
 	const char *getErrorMessage(void);
 	bool hasError(void);
 	bool read(const std::string &member, bool &dest);
@@ -67,4 +67,4 @@ private:
 	PrivateContext *m_ctx;
 };
 
-#endif // JsonParserAgent_h
+#endif // JSONParserAgent_h

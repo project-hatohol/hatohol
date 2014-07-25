@@ -64,15 +64,15 @@ public:
 	void replyError(const HatoholErrorCode &errorCode,
 			const std::string &optionMessage = "");
 	void replyHttpStatus(const guint &statusCode);
-	void replyJsonData(JsonBuilderAgent &agent);
-	void addServersMap(JsonBuilderAgent &agent,
+	void replyJSONData(JSONBuilderAgent &agent);
+	void addServersMap(JSONBuilderAgent &agent,
 			   TriggerBriefMaps *triggerMaps = NULL,
 			   bool lookupTriggerBrief = false);
-	HatoholError addHostgroupsMap(JsonBuilderAgent &outputJson,
+	HatoholError addHostgroupsMap(JSONBuilderAgent &outputJSON,
 				      const MonitoringServerInfo &serverInfo,
 				      HostgroupInfoList &hostgroupList /* out */);
 
-	static void addHatoholError(JsonBuilderAgent &agent,
+	static void addHatoholError(JSONBuilderAgent &agent,
 	                            const HatoholError &err);
 
 public:
@@ -98,7 +98,7 @@ public:
 
 protected:
 	bool parseRequest(void);
-	std::string getJsonpCallbackName(void);
+	std::string getJSONPCallbackName(void);
 	bool parseFormatType(void);
 };
 

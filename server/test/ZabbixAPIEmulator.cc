@@ -21,8 +21,8 @@
 #include <cstdio>
 #include <Logger.h>
 #include "ZabbixAPIEmulator.h"
-#include "JsonParserAgent.h"
-#include "JsonBuilderAgent.h"
+#include "JSONParserAgent.h"
+#include "JSONBuilderAgent.h"
 #include "HatoholException.h"
 #include "Helpers.h"
 using namespace std;
@@ -105,9 +105,9 @@ struct ZabbixAPIEmulator::PrivateContext {
 		slicedEventVector.clear();
 	}
 
-	void makeEventsJsonAscend(string &contents);
-	void makeEventsJsonDescend(string &contents);
-	string makeJsonString(const ZabbixAPIEvent &data);
+	void makeEventsJSONAscend(string &contents);
+	void makeEventsJSONDescend(string &contents);
+	string makeJSONString(const ZabbixAPIEvent &data);
 };
 
 // ---------------------------------------------------------------------------
@@ -169,7 +169,7 @@ void ZabbixAPIEmulator::setSoupHandlers(SoupServer *soupServer)
 	                        handlerAPI, this, NULL);
 }
 
-void ZabbixAPIEmulator::startObject(JsonParserAgent &parser,
+void ZabbixAPIEmulator::startObject(JSONParserAgent &parser,
                                     const string &name)
 {
 	if (!parser.startObject(name)) {
@@ -202,7 +202,7 @@ bool ZabbixAPIEmulator::hasParameter
 {
 	string request(arg.msg->request_body->data,
 	               arg.msg->request_body->length);
-	JsonParserAgent parser(request);
+	JSONParserAgent parser(request);
 	if (parser.hasError())
 		THROW_HATOHOL_EXCEPTION("Failed to parse: %s", request.c_str());
 	
@@ -234,7 +234,7 @@ void ZabbixAPIEmulator::handlerAPIDispatch(APIHandlerArg &arg)
 		return;
 	}
 
-	JsonParserAgent parser(arg.msg->request_body->data);
+	JSONParserAgent parser(arg.msg->request_body->data);
 	if (parser.hasError()) {
 		THROW_HATOHOL_EXCEPTION("Error in parsing: %s",
 		                      parser.getErrorMessage());
@@ -372,7 +372,7 @@ void ZabbixAPIEmulator::APIHandlerItemGet(APIHandlerArg &arg)
 	// check if selectApplications option is set
 	string request(arg.msg->request_body->data,
 	               arg.msg->request_body->length);
-	JsonParserAgent parser(request);
+	JSONParserAgent parser(request);
 	if (parser.hasError())
 		THROW_HATOHOL_EXCEPTION("Failed to parse: %s", request.c_str());
 	
@@ -433,7 +433,7 @@ void ZabbixAPIEmulator::APIHandlerHostgroupGet(APIHandlerArg &arg)
 	APIHandlerGetWithFile(arg, dataFileName);
 }
 
-void ZabbixAPIEmulator::PrivateContext::makeEventsJsonAscend(string &contents)
+void ZabbixAPIEmulator::PrivateContext::makeEventsJSONAscend(string &contents)
 {
 	if (paramEvent.limit == 0) {	// no limit
 		if (paramEvent.eventIdFrom == 0 &&
@@ -441,7 +441,7 @@ void ZabbixAPIEmulator::PrivateContext::makeEventsJsonAscend(string &contents)
 			ZabbixAPIEventMapIterator jit = zbxEventMap.begin();
 			for (; jit != zbxEventMap.end(); ++jit) {
 				const ZabbixAPIEvent &data = jit->second;
-				contents += makeJsonString(data);
+				contents += makeJSONString(data);
 			}
 		} else {	// range specification
 			ZabbixAPIEventMapIterator jit
@@ -450,7 +450,7 @@ void ZabbixAPIEmulator::PrivateContext::makeEventsJsonAscend(string &contents)
 			  = zbxEventMap.lower_bound(paramEvent.eventIdTill);
 			for (;jit != goalIterator; ++jit) {
 				const ZabbixAPIEvent &data = jit->second;
-				contents += makeJsonString(data);
+				contents += makeJSONString(data);
 			}
 		}
 	} else {
@@ -460,7 +460,7 @@ void ZabbixAPIEmulator::PrivateContext::makeEventsJsonAscend(string &contents)
 			for (int64_t i = 0; i < paramEvent.limit ||
 				     jit != zbxEventMap.end(); ++jit, i++) {
 				const ZabbixAPIEvent &data = jit->second;
-				contents += makeJsonString(data);
+				contents += makeJSONString(data);
 			}
 		} else {
 			ZabbixAPIEventMapIterator jit
@@ -471,13 +471,13 @@ void ZabbixAPIEmulator::PrivateContext::makeEventsJsonAscend(string &contents)
 				     jit != goalIterator ||
 				     jit != zbxEventMap.end(); ++jit, i++) {
 				const ZabbixAPIEvent &data = jit->second;
-				contents += makeJsonString(data);
+				contents += makeJSONString(data);
 			}
 		}
 	}
 }
 
-void ZabbixAPIEmulator::PrivateContext::makeEventsJsonDescend(string &contents)
+void ZabbixAPIEmulator::PrivateContext::makeEventsJSONDescend(string &contents)
 {
 	if (paramEvent.limit == 0) {	// no limit
 		if (paramEvent.eventIdFrom == 0 &&
@@ -486,7 +486,7 @@ void ZabbixAPIEmulator::PrivateContext::makeEventsJsonDescend(string &contents)
 			  = zbxEventMap.rbegin();
 			for (; rjit != zbxEventMap.rend(); ++rjit) {
 				const ZabbixAPIEvent &data = rjit->second;
-				contents += makeJsonString(data);
+				contents += makeJSONString(data);
 			}
 		} else {	// range specification
 			ZabbixAPIEventMapReverseIterator rjit(
@@ -495,7 +495,7 @@ void ZabbixAPIEmulator::PrivateContext::makeEventsJsonDescend(string &contents)
 			  zbxEventMap.lower_bound(paramEvent.eventIdFrom));
 			for (; rjit != goalIterator; ++rjit) {
 				const ZabbixAPIEvent &data = rjit->second;
-				contents += makeJsonString(data);
+				contents += makeJSONString(data);
 			}
 		}
 	} else {
@@ -508,7 +508,7 @@ void ZabbixAPIEmulator::PrivateContext::makeEventsJsonDescend(string &contents)
 			     ++rjit, i++)
 			{
 				const ZabbixAPIEvent &data = rjit->second;
-				contents += makeJsonString(data);
+				contents += makeJSONString(data);
 			}
 		} else {
 			ZabbixAPIEventMapReverseIterator rjit(
@@ -522,7 +522,7 @@ void ZabbixAPIEmulator::PrivateContext::makeEventsJsonDescend(string &contents)
 			     ++rjit, i++)
 			{
 				const ZabbixAPIEvent &data = rjit->second;
-				contents += makeJsonString(data);
+				contents += makeJSONString(data);
 			}
 		}
 	}
@@ -536,12 +536,12 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 
 	string contents;
 	if (m_ctx->paramEvent.sortOrder == "ASC") {
-		m_ctx->makeEventsJsonAscend(contents);
+		m_ctx->makeEventsJSONAscend(contents);
 	} else if (m_ctx->paramEvent.sortOrder == "DESC") {
-		m_ctx->makeEventsJsonDescend(contents);
+		m_ctx->makeEventsJSONDescend(contents);
 	}
 	contents.erase(contents.end() - 1);
-	string sendData = addJsonResponse(contents, arg);
+	string sendData = addJSONResponse(contents, arg);
 	gsize length = sendData.size();
 	soup_message_body_append(arg.msg->response_body, SOUP_MEMORY_COPY,
 	                         sendData.c_str(), length);
@@ -558,7 +558,7 @@ void ZabbixAPIEmulator::APIHandlerApplicationGet(APIHandlerArg &arg)
 	APIHandlerGetWithFile(arg, DATA_FILE);
 }
 
-void ZabbixAPIEmulator::makeEventJsonData(const string &path)
+void ZabbixAPIEmulator::makeEventJSONData(const string &path)
 {
 	static const char *EVENT_ELEMENT_NAMES[COUNT_ELEMENT_NAMES] = {
 	  "eventid", "source", "object", "objectid", "clock", "value",
@@ -570,7 +570,7 @@ void ZabbixAPIEmulator::makeEventJsonData(const string &path)
 	  g_file_get_contents(path.c_str(), &contents, NULL, NULL),
 	  "Failed to read file: %s", path.c_str());
 
-	JsonParserAgent parser(contents);
+	JSONParserAgent parser(contents);
 	g_free(contents);
 	HATOHOL_ASSERT(!parser.hasError(), "%s", parser.getErrorMessage());
 
@@ -603,7 +603,7 @@ void ZabbixAPIEmulator::makeEventJsonData(const string &path)
 	}
 }
 
-string ZabbixAPIEmulator::addJsonResponse(const string &slice,
+string ZabbixAPIEmulator::addJSONResponse(const string &slice,
                                             APIHandlerArg &arg)
 {
 	const char *fmt = 
@@ -613,7 +613,7 @@ string ZabbixAPIEmulator::addJsonResponse(const string &slice,
 
 void ZabbixAPIEmulator::parseEventGetParameter(APIHandlerArg &arg)
 {
-	JsonParserAgent parser(arg.msg->request_body->data);
+	JSONParserAgent parser(arg.msg->request_body->data);
 	if (parser.hasError()) {
 		THROW_HATOHOL_EXCEPTION("Error in parsing: %s",
 				      parser.getErrorMessage());
@@ -689,7 +689,7 @@ void ZabbixAPIEmulator::parseEventGetParameter(APIHandlerArg &arg)
 	}
 }
 
-string ZabbixAPIEmulator::PrivateContext::makeJsonString(
+string ZabbixAPIEmulator::PrivateContext::makeJSONString(
   const ZabbixAPIEvent &data)
 {
 	const char *fmt =
@@ -720,5 +720,5 @@ void ZabbixAPIEmulator::loadTestEventsIfNeeded(APIHandlerArg &arg)
 		return;
 	static const char *DATA_FILE = "zabbix-api-res-events-002.json";
 	string path = getFixturesDir() + DATA_FILE;
-	makeEventJsonData(path);
+	makeEventJSONData(path);
 }

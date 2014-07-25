@@ -43,7 +43,7 @@ RestResourceAction::~RestResourceAction()
 
 template <typename T>
 static void setActionCondition(
-  JsonBuilderAgent &agent, const ActionCondition &cond,
+  JSONBuilderAgent &agent, const ActionCondition &cond,
   const string &member, ActionConditionEnableFlag bit,
   T value)
 {
@@ -93,12 +93,12 @@ void RestResourceAction::handleGet(void)
 	ActionDefList actionList;
 	err = dataStore->getActionList(actionList, option);
 
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, err);
 	if (err != HTERR_OK) {
 		agent.endObject();
-		replyJsonData(agent);
+		replyJSONData(agent);
 		return;
 	}
 	agent.add("numberOfActions", actionList.size());
@@ -143,7 +143,7 @@ void RestResourceAction::handleGet(void)
 	addServersMap(agent, &triggerMaps, lookupTriggerBrief);
 	agent.endObject();
 
-	replyJsonData(agent);
+	replyJSONData(agent);
 }
 
 void RestResourceAction::handlePost(void)
@@ -287,12 +287,12 @@ void RestResourceAction::handlePost(void)
 	}
 
 	// make a response
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, err);
 	agent.add("id", actionDef.id);
 	agent.endObject();
-	replyJsonData(agent);
+	replyJSONData(agent);
 }
 
 void RestResourceAction::handleDelete(void)
@@ -316,12 +316,12 @@ void RestResourceAction::handleDelete(void)
 	}
 
 	// replay
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, err);
 	agent.add("id", actionId);
 	agent.endObject();
-	replyJsonData(agent);
+	replyJSONData(agent);
 }
 
 RestResourceActionFactory::RestResourceActionFactory(FaceRest *faceRest)

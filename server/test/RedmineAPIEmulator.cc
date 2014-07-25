@@ -23,8 +23,8 @@
 #include <set>
 #include <queue>
 #include "RedmineAPIEmulator.h"
-#include "JsonParserAgent.h"
-#include "JsonBuilderAgent.h"
+#include "JSONParserAgent.h"
+#include "JSONBuilderAgent.h"
 
 using namespace std;
 
@@ -99,9 +99,9 @@ string RedmineIssue::getTimeString(time_t time)
 	return string(timeString);
 }
 
-string RedmineIssue::toJson(void) const
+string RedmineIssue::toJSON(void) const
 {
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	agent.startObject();
 	agent.startObject("issue");
 	agent.add("id", id);
@@ -170,7 +170,7 @@ struct RedmineAPIEmulator::PrivateContext {
 				      const char *username,
 				      const char *password,
 				      gpointer user_data);
-	static void handlerIssuesJson(SoupServer *server, SoupMessage *msg,
+	static void handlerIssuesJSON(SoupServer *server, SoupMessage *msg,
 				      const char *path, GHashTable *query,
 				      SoupClientContext *client,
 				      gpointer user_data);
@@ -272,7 +272,7 @@ void RedmineAPIEmulator::setSoupHandlers(SoupServer *soupServer)
 
 	soup_server_add_handler(soupServer,
 				"/projects/hatoholtestproject/issues.json",
-				PrivateContext::handlerIssuesJson, this, NULL);
+				PrivateContext::handlerIssuesJSON, this, NULL);
 }
 
 typedef enum {
@@ -314,7 +314,7 @@ void RedmineAPIEmulator::PrivateContext::replyPostIssue(SoupMessage *msg)
 {
 	m_lastRequest.assign(msg->request_body->data,
 			     msg->request_body->length);
-	JsonParserAgent agent(m_lastRequest);
+	JSONParserAgent agent(m_lastRequest);
 
 	if (agent.hasError()) {
 		soup_message_set_status(
@@ -350,7 +350,7 @@ void RedmineAPIEmulator::PrivateContext::replyPostIssue(SoupMessage *msg)
 	if (errors.empty()) {
 		RedmineIssue issue(++m_issueId, subject, description,
 				   m_currentUser, trackerId);
-		m_lastResponse = issue.toJson();
+		m_lastResponse = issue.toJSON();
 		m_lastIssue = issue;
 		soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
 					 m_lastResponse.c_str(),
@@ -381,7 +381,7 @@ bool RedmineAPIEmulator::PrivateContext::handlerDummyResponse
 	return true;
 }
 
-void RedmineAPIEmulator::PrivateContext::handlerIssuesJson
+void RedmineAPIEmulator::PrivateContext::handlerIssuesJSON
   (SoupServer *server, SoupMessage *msg, const char *path, GHashTable *query,
    SoupClientContext *client, gpointer user_data)
 {

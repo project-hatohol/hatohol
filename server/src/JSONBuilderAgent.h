@@ -17,17 +17,17 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef JsonBuilderAgent_h
-#define JsonBuilderAgent_h
+#ifndef JSONBuilderAgent_h
+#define JSONBuilderAgent_h
 
 #include <string>
 #include <json-glib/json-glib.h>
 
-class JsonBuilderAgent
+class JSONBuilderAgent
 {
 public:
-	JsonBuilderAgent(void);
-	~JsonBuilderAgent();
+	JSONBuilderAgent(void);
+	~JSONBuilderAgent();
 	std::string generate(void);
 	void startObject(const char *member = NULL);
 	void startObject(const std::string &member);
@@ -45,4 +45,4 @@ private:
 	JsonBuilder *m_builder;
 };
 
-#endif // JsonBuilderAgent_h
+#endif // JSONBuilderAgent_h

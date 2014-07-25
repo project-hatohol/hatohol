@@ -24,7 +24,7 @@
 #include "LabelUtils.h"
 #include "DBClientTest.h"
 #include "Helpers.h"
-#include "JsonParserAgent.h"
+#include "JSONParserAgent.h"
 #include <cppcutter.h>
 #include <gcutter.h>
 
@@ -54,13 +54,13 @@ public:
 	{
 		return IssueSender::buildDescription(event, server);
 	}
-	string buildJson(const EventInfo &event)
+	string buildJSON(const EventInfo &event)
 	{
-		return IssueSenderRedmine::buildJson(event);
+		return IssueSenderRedmine::buildJSON(event);
 	}
-	string getIssuesJsonURL(void)
+	string getIssuesJSONURL(void)
 	{
-		return IssueSenderRedmine::getIssuesJsonURL();
+		return IssueSenderRedmine::getIssuesJSONURL();
 	}
 	HatoholError parseResponse(IssueInfo &issueInfo,const string &response)
 	{
@@ -85,7 +85,7 @@ void cut_teardown(void)
 	g_redmineEmulator.reset();
 }
 
-string expectedJson(const EventInfo &event)
+string expectedJSON(const EventInfo &event)
 {
 	MonitoringServerInfo &server = testServerInfo[event.serverId - 1];
 
@@ -143,31 +143,31 @@ string expectedJson(const EventInfo &event)
 	return expected;
 }
 
-void test_buildJson(void)
+void test_buildJSON(void)
 {
 	setupTestDBConfig(true, true);
 	IssueTrackerInfo tracker;
 	TestRedmineSender sender(tracker);
-	cppcut_assert_equal(expectedJson(testEventInfo[0]),
-			    sender.buildJson(testEventInfo[0]));
+	cppcut_assert_equal(expectedJSON(testEventInfo[0]),
+			    sender.buildJSON(testEventInfo[0]));
 }
 
-void test_getIssuesJsonURL(void)
+void test_getIssuesJSONURL(void)
 {
 	IssueTrackerInfo &tracker = testIssueTrackerInfo[0];
 	TestRedmineSender sender(tracker);
 	cppcut_assert_equal(
 	  string("http://localhost/projects/1/issues.json"),
-	  sender.getIssuesJsonURL());
+	  sender.getIssuesJSONURL());
 }
 
-void test_getIssuesJsonURLWithStringProjectId(void)
+void test_getIssuesJSONURLWithStringProjectId(void)
 {
 	IssueTrackerInfo &tracker = testIssueTrackerInfo[1];
 	TestRedmineSender sender(tracker);
 	cppcut_assert_equal(
 	  string("http://localhost/projects/hatohol/issues.json"),
-	  sender.getIssuesJsonURL());
+	  sender.getIssuesJSONURL());
 }
 
 static void makeExpectedIssueInfo(IssueInfo &issue,
@@ -203,7 +203,7 @@ void _assertSend(const HatoholErrorCode &expected,
 
 	// verify the reply
 	MonitoringServerInfo &server = testServerInfo[event.serverId - 1];
-	JsonParserAgent agent(g_redmineEmulator.getLastResponse());
+	JSONParserAgent agent(g_redmineEmulator.getLastResponse());
 	cppcut_assert_equal(true, agent.startObject("issue"));
 	string expectedDescription
 	  = StringUtils::sprintf("<pre>%s</pre>",
@@ -265,7 +265,7 @@ void test_parseResponse(void)
 	actual.serverId = expected.serverId;
 	actual.eventId = expected.eventId;
 	actual.triggerId = expected.triggerId;
-	HatoholError result = sender.parseResponse(actual, issue.toJson());
+	HatoholError result = sender.parseResponse(actual, issue.toJSON());
 	cppcut_assert_equal(HTERR_OK, result.getCode());
 	cppcut_assert_equal(makeIssueOutput(expected),
 			    makeIssueOutput(actual));

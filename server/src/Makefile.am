@@ -19,8 +19,8 @@ libhatohol_common_la_SOURCES = \
 	ItemGroupPtr.cc ItemGroupPtr.h \
 	ItemTable.cc ItemTable.h \
 	ItemTablePtr.cc ItemTablePtr.h \
-	JsonBuilderAgent.cc JsonBuilderAgent.h \
-	JsonParserAgent.cc JsonParserAgent.h \
+	JSONBuilderAgent.cc JSONBuilderAgent.h \
+	JSONParserAgent.cc JSONParserAgent.h \
 	MonitoringServerInfo.cc MonitoringServerInfo.h \
 	EndianConverter.h \
 	UsedCountable.cc UsedCountable.h \

@@ -53,7 +53,7 @@ struct RedmineIssue {
 	std::string getStartDate(void) const;
 	std::string getCreatedOn(void) const;
 	std::string getUpdatedOn(void) const;
-	std::string toJson(void) const;
+	std::string toJSON(void) const;
 
 	static std::string getDateString(time_t time);
 	static std::string getTimeString(time_t time);

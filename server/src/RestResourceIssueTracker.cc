@@ -64,7 +64,7 @@ void RestResourceIssueTracker::handleGet(void)
 	IssueTrackerInfoVect issueTrackers;
 	dataStore->getIssueTrackers(issueTrackers, option);
 
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, HTERR_OK);
 
@@ -86,7 +86,7 @@ void RestResourceIssueTracker::handleGet(void)
 
 	agent.endObject();
 
-	replyJsonData(agent);
+	replyJSONData(agent);
 }
 
 #define PARSE_VALUE(STRUCT,PROPERTY,TYPE,ALLOW_EMPTY)			      \
@@ -143,12 +143,12 @@ void RestResourceIssueTracker::handlePost(void)
 		return;
 	}
 
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, err);
 	agent.add("id", issueTrackerInfo.id);
 	agent.endObject();
-	replyJsonData(agent);
+	replyJSONData(agent);
 }
 
 void RestResourceIssueTracker::handlePut(void)
@@ -193,12 +193,12 @@ void RestResourceIssueTracker::handlePut(void)
 	}
 
 	// make a response
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, err);
 	agent.add("id", issueTrackerInfo.id);
 	agent.endObject();
-	replyJsonData(agent);
+	replyJSONData(agent);
 }
 
 void RestResourceIssueTracker::handleDelete(void)
@@ -220,12 +220,12 @@ void RestResourceIssueTracker::handleDelete(void)
 	}
 
 	// replay
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, err);
 	agent.add("id", issueTrackerId);
 	agent.endObject();
-	replyJsonData(agent);
+	replyJSONData(agent);
 }
 
 RestResourceIssueTrackerFactory::RestResourceIssueTrackerFactory(

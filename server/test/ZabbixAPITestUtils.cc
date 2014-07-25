@@ -149,7 +149,7 @@ void ZabbixAPITestee::makeGroupsItemTable(ItemTablePtr &groupsTablePtr)
 
 	string fixtureData;
 	getline(ifs, fixtureData);
-	JsonParserAgent parser(fixtureData);
+	JSONParserAgent parser(fixtureData);
 	cppcut_assert_equal(false, parser.hasError());
 	startObject(parser, "result");
 
@@ -170,7 +170,7 @@ void ZabbixAPITestee::makeMapHostsHostgroupsItemTable(
 
 	string fixtureData;
 	getline(ifs, fixtureData);
-	JsonParserAgent parser(fixtureData);
+	JSONParserAgent parser(fixtureData);
 	cppcut_assert_equal(false, parser.hasError());
 	startObject(parser, "result");
 

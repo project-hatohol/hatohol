@@ -20,7 +20,7 @@
 #include <cstdio>
 #include <string>
 #include <Reaper.h>
-#include "JsonParserAgent.h"
+#include "JSONParserAgent.h"
 #include "ZabbixAPI.h"
 #include "StringUtils.h"
 #include "DataStoreException.h"
@@ -114,7 +114,7 @@ const string &ZabbixAPI::getAPIVersion(void)
 		return m_ctx->apiVersion;
 	Reaper<void> msgReaper(msg, g_object_unref);
 
-	JsonParserAgent parser(msg->response_body->data);
+	JSONParserAgent parser(msg->response_body->data);
 	if (parser.hasError()) {
 		MLPL_ERR("Failed to parser: %s\n", parser.getErrorMessage());
 		return m_ctx->apiVersion;
@@ -172,7 +172,7 @@ bool ZabbixAPI::openSession(SoupMessage **msgPtr)
 	  soup_message_new(SOUP_METHOD_POST, m_ctx->uri.c_str());
 	soup_message_headers_set_content_type(msg->request_headers,
 	                                      MIME_JSON_RPC, NULL);
-	string request_body = getInitialJsonRequest();
+	string request_body = getInitialJSONRequest();
 	soup_message_body_append(msg->request_body, SOUP_MEMORY_TEMPORARY,
 	                         request_body.c_str(), request_body.size());
 	guint ret = soup_session_send_message(getSession(), msg);
@@ -246,7 +246,7 @@ ItemTablePtr ZabbixAPI::getTrigger(int requestSince)
 	if (!msg)
 		THROW_DATA_STORE_EXCEPTION("Failed to query triggers.");
 
-	JsonParserAgent parser(msg->response_body->data);
+	JSONParserAgent parser(msg->response_body->data);
 	if (parser.hasError()) {
 		g_object_unref(msg);
 		THROW_DATA_STORE_EXCEPTION(
@@ -275,7 +275,7 @@ ItemTablePtr ZabbixAPI::getItems(void)
 	if (!msg)
 		THROW_DATA_STORE_EXCEPTION("Failed to query items.");
 
-	JsonParserAgent parser(msg->response_body->data);
+	JSONParserAgent parser(msg->response_body->data);
 	g_object_unref(msg);
 	if (parser.hasError()) {
 		THROW_DATA_STORE_EXCEPTION(
@@ -301,7 +301,7 @@ void ZabbixAPI::getHosts(
 	if (!msg)
 		THROW_DATA_STORE_EXCEPTION("Failed to query hosts.");
 
-	JsonParserAgent parser(msg->response_body->data);
+	JSONParserAgent parser(msg->response_body->data);
 	g_object_unref(msg);
 	if (parser.hasError()) {
 		THROW_DATA_STORE_EXCEPTION(
@@ -330,7 +330,7 @@ void ZabbixAPI::getGroups(ItemTablePtr &groupsTablePtr)
 	if (!msg)
 		THROW_DATA_STORE_EXCEPTION("Failed to query groups.");
 
-	JsonParserAgent parser(msg->response_body->data);
+	JSONParserAgent parser(msg->response_body->data);
 	g_object_unref(msg);
 	if (parser.hasError()) {
 		THROW_DATA_STORE_EXCEPTION(
@@ -354,7 +354,7 @@ ItemTablePtr ZabbixAPI::getApplications(const vector<uint64_t> &appIdVector)
 	if (!msg)
 		THROW_DATA_STORE_EXCEPTION("Failed to query application.");
 
-	JsonParserAgent parser(msg->response_body->data);
+	JSONParserAgent parser(msg->response_body->data);
 	g_object_unref(msg);
 	if (parser.hasError()) {
 		THROW_DATA_STORE_EXCEPTION(
@@ -392,7 +392,7 @@ ItemTablePtr ZabbixAPI::getEvents(uint64_t eventIdOffset, uint64_t eventIdTill)
 	if (!msg)
 		THROW_DATA_STORE_EXCEPTION("Failed to query events.");
 
-	JsonParserAgent parser(msg->response_body->data);
+	JSONParserAgent parser(msg->response_body->data);
 	g_object_unref(msg);
 	if (parser.hasError()) {
 		THROW_DATA_STORE_EXCEPTION(
@@ -425,7 +425,7 @@ uint64_t ZabbixAPI::getEndEventId(const bool &isFirst)
 		return EVENT_ID_NOT_FOUND;
 	}
 
-	JsonParserAgent parser(msg->response_body->data);
+	JSONParserAgent parser(msg->response_body->data);
 	g_object_unref(msg);
 	if (parser.hasError()) {
 		THROW_DATA_STORE_EXCEPTION(
@@ -451,7 +451,7 @@ uint64_t ZabbixAPI::getEndEventId(const bool &isFirst)
 
 SoupMessage *ZabbixAPI::queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill)
 {
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
 	agent.add("method", "event.get");
@@ -476,7 +476,7 @@ SoupMessage *ZabbixAPI::queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill)
 
 SoupMessage *ZabbixAPI::queryEndEventId(const bool &isFirst)
 {
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
 	agent.add("method", "event.get");
@@ -500,7 +500,7 @@ SoupMessage *ZabbixAPI::queryEndEventId(const bool &isFirst)
 
 SoupMessage *ZabbixAPI::queryTrigger(int requestSince)
 {
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
 	agent.add("method", "trigger.get");
@@ -527,7 +527,7 @@ SoupMessage *ZabbixAPI::queryTrigger(int requestSince)
 
 SoupMessage *ZabbixAPI::queryItem(void)
 {
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
 	agent.add("method", "item.get");
@@ -547,7 +547,7 @@ SoupMessage *ZabbixAPI::queryItem(void)
 
 SoupMessage *ZabbixAPI::queryHost(void)
 {
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
 	agent.add("method", "host.get");
@@ -566,7 +566,7 @@ SoupMessage *ZabbixAPI::queryHost(void)
 
 SoupMessage *ZabbixAPI::queryGroup(void)
 {
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
 	agent.add("method", "hostgroup.get");
@@ -586,7 +586,7 @@ SoupMessage *ZabbixAPI::queryGroup(void)
 
 SoupMessage *ZabbixAPI::queryApplication(const vector<uint64_t> &appIdVector)
 {
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
 	agent.add("method", "application.get");
@@ -620,7 +620,7 @@ ItemTablePtr ZabbixAPI::getFunctions(void)
 	return ItemTablePtr(m_ctx->functionsTablePtr);
 }
 
-SoupMessage *ZabbixAPI::queryCommon(JsonBuilderAgent &agent)
+SoupMessage *ZabbixAPI::queryCommon(JSONBuilderAgent &agent)
 {
 	string request_body = agent.generate();
 	SoupMessage *msg = soup_message_new(SOUP_METHOD_POST, m_ctx->uri.c_str());
@@ -645,7 +645,7 @@ SoupMessage *ZabbixAPI::queryCommon(JsonBuilderAgent &agent)
 
 SoupMessage *ZabbixAPI::queryAPIVersion(void)
 {
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
 	agent.add("method", "apiinfo.version");
@@ -655,9 +655,9 @@ SoupMessage *ZabbixAPI::queryAPIVersion(void)
 	return queryCommon(agent);
 }
 
-string ZabbixAPI::getInitialJsonRequest(void)
+string ZabbixAPI::getInitialJSONRequest(void)
 {
-	JsonBuilderAgent agent;
+	JSONBuilderAgent agent;
 	agent.startObject();
 	agent.addNull("auth");
 	agent.add("method", "user.login");
@@ -676,7 +676,7 @@ string ZabbixAPI::getInitialJsonRequest(void)
 
 bool ZabbixAPI::parseInitialResponse(SoupMessage *msg)
 {
-	JsonParserAgent parser(msg->response_body->data);
+	JSONParserAgent parser(msg->response_body->data);
 	if (parser.hasError()) {
 		MLPL_ERR("Failed to parser: %s\n", parser.getErrorMessage());
 		return false;
@@ -690,7 +690,7 @@ bool ZabbixAPI::parseInitialResponse(SoupMessage *msg)
 	return true;
 }
 
-void ZabbixAPI::startObject(JsonParserAgent &parser, const string &name)
+void ZabbixAPI::startObject(JSONParserAgent &parser, const string &name)
 {
 	if (!parser.startObject(name)) {
 		THROW_DATA_STORE_EXCEPTION(
@@ -698,7 +698,7 @@ void ZabbixAPI::startObject(JsonParserAgent &parser, const string &name)
 	}
 }
 
-void ZabbixAPI::startElement(JsonParserAgent &parser, const int &index)
+void ZabbixAPI::startElement(JSONParserAgent &parser, const int &index)
 {
 	if (!parser.startElement(index)) {
 		THROW_DATA_STORE_EXCEPTION(
@@ -707,7 +707,7 @@ void ZabbixAPI::startElement(JsonParserAgent &parser, const int &index)
 }
 
 #if 0 // See the comment in parseAndPushTriggerData()
-void ArmZabbixAPI::pushFunctionsCache(JsonParserAgent &parser)
+void ArmZabbixAPI::pushFunctionsCache(JSONParserAgent &parser)
 {
 	startObject(parser, "functions");
 	int numFunctions = parser.countElements();
@@ -719,7 +719,7 @@ void ArmZabbixAPI::pushFunctionsCache(JsonParserAgent &parser)
 	parser.endObject();
 }
 
-void ArmZabbixAPI::pushFunctionsCacheOne(JsonParserAgent &parser,
+void ArmZabbixAPI::pushFunctionsCacheOne(JSONParserAgent &parser,
                                          ItemGroup *grp, int index)
 {
 	startElement(parser, index);
@@ -733,7 +733,7 @@ void ArmZabbixAPI::pushFunctionsCacheOne(JsonParserAgent &parser,
 }
 #endif
 
-void ZabbixAPI::getString(JsonParserAgent &parser, const string &name,
+void ZabbixAPI::getString(JSONParserAgent &parser, const string &name,
                           string &value)
 {
 	if (!parser.read(name.c_str(), value)) {
@@ -741,7 +741,7 @@ void ZabbixAPI::getString(JsonParserAgent &parser, const string &name,
 	}
 }
 
-int ZabbixAPI::pushInt(JsonParserAgent &parser, ItemGroup *itemGroup,
+int ZabbixAPI::pushInt(JSONParserAgent &parser, ItemGroup *itemGroup,
                        const string &name, const ItemId &itemId)
 {
 	string value;
@@ -751,7 +751,7 @@ int ZabbixAPI::pushInt(JsonParserAgent &parser, ItemGroup *itemGroup,
 	return valInt;
 }
 
-uint64_t ZabbixAPI::pushUint64(JsonParserAgent &parser, ItemGroup *itemGroup,
+uint64_t ZabbixAPI::pushUint64(JSONParserAgent &parser, ItemGroup *itemGroup,
                                const string &name, const ItemId &itemId)
 {
 	string value;
@@ -762,7 +762,7 @@ uint64_t ZabbixAPI::pushUint64(JsonParserAgent &parser, ItemGroup *itemGroup,
 	return valU64;
 }
 
-string ZabbixAPI::pushString(JsonParserAgent &parser, ItemGroup *itemGroup,
+string ZabbixAPI::pushString(JSONParserAgent &parser, ItemGroup *itemGroup,
                              const string &name, const ItemId &itemId)
 {
 	string value;
@@ -772,7 +772,7 @@ string ZabbixAPI::pushString(JsonParserAgent &parser, ItemGroup *itemGroup,
 }
 
 void ZabbixAPI::parseAndPushTriggerData(
-  JsonParserAgent &parser, VariableItemTablePtr &tablePtr, const int &index)
+  JSONParserAgent &parser, VariableItemTablePtr &tablePtr, const int &index)
 {
 	startElement(parser, index);
 	VariableItemGroupPtr grp;
@@ -814,7 +814,7 @@ void ZabbixAPI::parseAndPushTriggerData(
 }
 
 void ZabbixAPI::parseAndPushItemsData(
-  JsonParserAgent &parser, VariableItemTablePtr &tablePtr, const int &index)
+  JSONParserAgent &parser, VariableItemTablePtr &tablePtr, const int &index)
 {
 	startElement(parser, index);
 	VariableItemGroupPtr grp;
@@ -898,7 +898,7 @@ void ZabbixAPI::parseAndPushItemsData(
 }
 
 void ZabbixAPI::parseAndPushHostsData(
-  JsonParserAgent &parser, VariableItemTablePtr &tablePtr, const int &index)
+  JSONParserAgent &parser, VariableItemTablePtr &tablePtr, const int &index)
 {
 	startElement(parser, index);
 	VariableItemGroupPtr grp;
@@ -955,7 +955,7 @@ void ZabbixAPI::parseAndPushHostsData(
 }
 
 void ZabbixAPI::parseAndPushHostsGroupsData(
-  JsonParserAgent &parser, VariableItemTablePtr &tablePtr, const int &index)
+  JSONParserAgent &parser, VariableItemTablePtr &tablePtr, const int &index)
 {
 	startElement(parser, index);
 	startObject(parser, "groups");
@@ -982,7 +982,7 @@ void ZabbixAPI::parseAndPushHostsGroupsData(
 }
 
 void ZabbixAPI::parseAndPushGroupsData(
-  JsonParserAgent &parser, VariableItemTablePtr &tablePtr, const int &index)
+  JSONParserAgent &parser, VariableItemTablePtr &tablePtr, const int &index)
 {
 	startElement(parser, index);
 	VariableItemGroupPtr grp;
@@ -994,7 +994,7 @@ void ZabbixAPI::parseAndPushGroupsData(
 }
 
 void ZabbixAPI::parseAndPushApplicationsData(
-  JsonParserAgent &parser, VariableItemTablePtr &tablePtr, const int &index)
+  JSONParserAgent &parser, VariableItemTablePtr &tablePtr, const int &index)
 {
 	startElement(parser, index);
 	VariableItemGroupPtr grp;
@@ -1023,7 +1023,7 @@ void ZabbixAPI::parseAndPushApplicationsData(
 }
 
 void ZabbixAPI::parseAndPushEventsData(
-  JsonParserAgent &parser, VariableItemTablePtr &tablePtr, const int &index)
+  JSONParserAgent &parser, VariableItemTablePtr &tablePtr, const int &index)
 {
 	startElement(parser, index);
 	VariableItemGroupPtr grp;
@@ -1049,7 +1049,7 @@ void ZabbixAPI::parseAndPushEventsData(
 }
 
 
-void ZabbixAPI::pushTriggersHostid(JsonParserAgent &parser,
+void ZabbixAPI::pushTriggersHostid(JSONParserAgent &parser,
                                    ItemGroup *itemGroup)
 {
 	ItemId itemId = ITEM_ID_ZBX_TRIGGERS_HOSTID;
@@ -1069,7 +1069,7 @@ void ZabbixAPI::pushTriggersHostid(JsonParserAgent &parser,
 	parser.endObject();
 }
 
-void ZabbixAPI::pushApplicationid(JsonParserAgent &parser, ItemGroup *itemGroup)
+void ZabbixAPI::pushApplicationid(JSONParserAgent &parser, ItemGroup *itemGroup)
 {
 	ItemId itemId = ITEM_ID_ZBX_ITEMS_APPLICATIONID;
 	startObject(parser, "applications");

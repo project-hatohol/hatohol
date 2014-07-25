@@ -32,7 +32,7 @@
 #include "ItemTable.h"
 #include "ItemGroup.h"
 #include "ItemData.h"
-#include "JsonParserAgent.h"
+#include "JSONParserAgent.h"
 #include "DBClientAction.h"
 using namespace std;
 
@@ -170,9 +170,9 @@ public:
 		ArmZabbixAPI::setCopyOnDemandEnabled(enable);
 	}
 
-	string testInitialJsonRequest(void)
+	string testInitialJSONRequest(void)
 	{
-		return ArmZabbixAPI::getInitialJsonRequest();
+		return ArmZabbixAPI::getInitialJSONRequest();
 	}
 
 	string testAuthToken(void)
@@ -214,7 +214,7 @@ public:
 
 		string fixtureData;
 		getline(ifs, fixtureData);
-		JsonParserAgent parser(fixtureData);
+		JSONParserAgent parser(fixtureData);
 		cppcut_assert_equal(false, parser.hasError());
 		startObject(parser, "result");
 
@@ -663,7 +663,7 @@ void test_oneProcWithFetchItems()
 void test_checkUsernamePassword(void)
 {
 	ArmZabbixAPITestee armZbxApiTestee(g_defaultServerInfo);
-	JsonParserAgent parser(armZbxApiTestee.testInitialJsonRequest());
+	JSONParserAgent parser(armZbxApiTestee.testInitialJSONRequest());
 	string jsonUserName;
 	string jsonPassword;
 

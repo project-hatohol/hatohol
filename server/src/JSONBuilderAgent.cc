@@ -17,24 +17,24 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "JsonBuilderAgent.h"
+#include "JSONBuilderAgent.h"
 using namespace std;
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-JsonBuilderAgent::JsonBuilderAgent(void)
+JSONBuilderAgent::JSONBuilderAgent(void)
 {
 	m_builder = json_builder_new();
 }
 
-JsonBuilderAgent::~JsonBuilderAgent()
+JSONBuilderAgent::~JSONBuilderAgent()
 {
 	if (m_builder)
 		g_object_unref(m_builder);
 }
 
-string JsonBuilderAgent::generate(void)
+string JSONBuilderAgent::generate(void)
 {
 	JsonGenerator *generator = json_generator_new();
 	JsonNode *root = json_builder_get_root(m_builder);
@@ -50,64 +50,64 @@ string JsonBuilderAgent::generate(void)
 	return json_str;
 }
 
-void JsonBuilderAgent::startObject(const char *member)
+void JSONBuilderAgent::startObject(const char *member)
 {
 	if (member)
 		json_builder_set_member_name(m_builder, member);
 	json_builder_begin_object(m_builder);
 }
 
-void JsonBuilderAgent::startObject(const string &member)
+void JSONBuilderAgent::startObject(const string &member)
 {
         startObject(member.c_str());
 }
 
-void JsonBuilderAgent::endObject(void)
+void JSONBuilderAgent::endObject(void)
 {
 	json_builder_end_object(m_builder);
 }
 
-void JsonBuilderAgent::startArray(const string &member)
+void JSONBuilderAgent::startArray(const string &member)
 {
 	json_builder_set_member_name(m_builder, member.c_str());
 	json_builder_begin_array(m_builder);
 }
 
-void JsonBuilderAgent::endArray(void)
+void JSONBuilderAgent::endArray(void)
 {
 	json_builder_end_array(m_builder);
 }
 
-void JsonBuilderAgent::addNull(const string &member)
+void JSONBuilderAgent::addNull(const string &member)
 {
 	json_builder_set_member_name(m_builder, member.c_str());
 	json_builder_add_null_value(m_builder);
 }
 
-void JsonBuilderAgent::add(const string &member, const string &value)
+void JSONBuilderAgent::add(const string &member, const string &value)
 {
 	json_builder_set_member_name(m_builder, member.c_str());
 	json_builder_add_string_value(m_builder, value.c_str());
 }
 
-void JsonBuilderAgent::add(const string &member, gint64 value)
+void JSONBuilderAgent::add(const string &member, gint64 value)
 {
 	json_builder_set_member_name(m_builder, member.c_str());
 	json_builder_add_int_value(m_builder, value);
 }
 
-void JsonBuilderAgent::add(const gint64 value)
+void JSONBuilderAgent::add(const gint64 value)
 {
 	json_builder_add_int_value(m_builder, value);
 }
 
-void JsonBuilderAgent::addTrue(const string &member)
+void JSONBuilderAgent::addTrue(const string &member)
 {
 	json_builder_set_member_name(m_builder, member.c_str());
 	json_builder_add_boolean_value(m_builder, TRUE);
 }
 
-void JsonBuilderAgent::addFalse(const string &member)
+void JSONBuilderAgent::addFalse(const string &member)
 {
 	json_builder_set_member_name(m_builder, member.c_str());
 	json_builder_add_boolean_value(m_builder, FALSE);
