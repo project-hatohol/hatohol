@@ -56,7 +56,11 @@ var HatoholNavi = function(userProfile, currentPage) {
         },
         {
           title: gettext("Issue senders"),
-          href:  "ajax_issue_senders"
+          href:  "ajax_issue_senders",
+          flags: (1 << hatohol.OPPRVLG_CREATE_ISSUE_SETTING) |
+            (1 << hatohol.OPPRVLG_UPDATE_ISSUE_SETTING) |
+            (1 << hatohol.OPPRVLG_DELETE_ISSUE_SETTING) |
+            (1 << hatohol.OPPRVLG_GET_ALL_ISSUE_SETTINGS)
         },
         {
           title: gettext("Users"),
