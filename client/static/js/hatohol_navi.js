@@ -108,22 +108,26 @@ var HatoholNavi = function(userProfile, currentPage) {
       class: klass,
     })
   }
-  var item, children, child;
+  var item, children, child, dropDown;
 
   for (i = 0; i < menuItems.length; ++i) {
     item = createMenuItem(menuItems[i]);
+    if (!item)
+      continue;
+
     if (menuItems[i].children) {
       dropDown = $("<ul>", {
-	class: "dropdown-menu",
+        class: "dropdown-menu",
       });
       item.append(dropDown);
+
       children = menuItems[i].children;
       for (j = 0; j < children.length; j++) {
-	child = createMenuItem(children[j]);
-	dropDown.append(child);
+        child = createMenuItem(children[j]);
+        if (child)
+          dropDown.append(child);
       }
     }
-    if (item)
-      item.appendTo("ul.nav:first");
+    item.appendTo("ul.nav:first");
   };
 };
