@@ -41,6 +41,32 @@ var HatoholIssueTrackersEditor = function(params) {
       self.changedCallback();
   }
 
+  function deleteIssueTrackers() {
+    var deleteList = [], id;
+    var checkboxes = $(".issueTrackerSelectCheckbox");
+    $(this).dialog("close");
+    for (var i = 0; i < checkboxes.length; i++) {
+      if (!checkboxes[i].checked)
+        continue;
+      id = checkboxes[i].getAttribute("issueTrackerId");
+      deleteList.push(id);
+    }
+    new HatoholItemRemover({
+      id: deleteList,
+      type: "issue-trackers",
+      completionCallback: function() {
+        self.load();
+        self.changed = true;
+      }
+    });
+    hatoholInfoMsgBox(gettext("Deleting..."));
+  }
+
+  $("#deleteIssueTrackersButton").click(function() {
+    var msg = gettext("Are you sure to delete issue tracking servers?");
+    hatoholNoYesMsgBox(msg, deleteIssueTrackers);
+  });
+
   self.load();
 };
 
@@ -68,12 +94,29 @@ HatoholIssueTrackersEditor.prototype.load = function() {
 };
 
 HatoholIssueTrackersEditor.prototype.updateMainTable = function() {
+  var numSelected = 0;
+  var setupCheckboxes = function() {
+    $(".issueTrackerSelectCheckbox").change(function() {
+      var check = $(this).is(":checked");
+      var prevNumSelected = numSelected;
+      if (check)
+        numSelected += 1;
+      else
+        numSelected -= 1;
+      if (prevNumSelected == 0 && numSelected == 1)
+        $("#deleteIssueTrackersButton").attr("disabled", false);
+      else if (prevNumSelected == 1 && numSelected == 0)
+        $("#deleteIssueTrackersButton").attr("disabled", true);
+    });
+  };
+
   if (!this.issueTrackersData)
     return;
 
   var rows = this.generateTableRows(this.issueTrackersData);
   var tbody = $("#" + this.mainTableId + " tbody");
   tbody.empty().append(rows);
+  setupCheckboxes();
 };
 
 HatoholIssueTrackersEditor.prototype.generateMainTable = function() {
@@ -116,8 +159,8 @@ HatoholIssueTrackersEditor.prototype.generateTableRows = function(data) {
     '<tr>' +
     '<td class="deleteIssueTracker">' +
     '  <input type="checkbox" class="issueTrackerSelectCheckbox" ' +
-    '     issueTrackerId="' + escapeHTML(tracker.issueTrackerId) + '"></td>' +
-    '<td>' + escapeHTML(tracker.issueTrackerId) + '</td>' +
+    '     issueTrackerId="' + escapeHTML(tracker.id) + '"></td>' +
+    '<td>' + escapeHTML(tracker.id) + '</td>' +
     '<td>' + escapeHTML(tracker.nickname) + '</td>' +
     '<td>' + escapeHTML(tracker.baseURL) + '</td>' +
     '<td>' + escapeHTML(tracker.projectId) + '</td>' +
