@@ -23,9 +23,11 @@ var HatoholIssueTrackersEditor = function(params) {
     text: gettext("CLOSE"),
     click: closeButtonClickedCb
   }];
+  self.mainTableId = "issueTrackersEditorMainTable";
+  self.issueTrackersData = null;
 
   // call the constructor of the super class
-  var dialogAttrs = { width: "600" };
+  var dialogAttrs = { width: "700" };
   HatoholDialog.apply(
     this, ["issue-trackers-editor", gettext("EDIT ISSUE TRACKING SERVERS"),
            dialogButtons, dialogAttrs]);
@@ -38,10 +40,41 @@ var HatoholIssueTrackersEditor = function(params) {
     if (self.changed && self.changedCallback)
       self.changedCallback();
   }
+
+  self.load();
 };
 
 HatoholIssueTrackersEditor.prototype = Object.create(HatoholDialog.prototype);
 HatoholIssueTrackersEditor.prototype.constructor = HatoholIssueTrackersEditor;
+
+HatoholIssueTrackersEditor.prototype.load = function() {
+  var self = this;
+
+  new HatoholConnector({
+    url: "/issue-trackers",
+    request: "GET",
+    data: {},
+    replyCallback: function(issueTrackersData, parser) {
+      self.issueTrackersData = issueTrackersData;
+      self.updateMainTable();
+    },
+    parseErrorCallback: hatoholErrorMsgBoxForParser,
+    connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
+      var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
+                     XMLHttpRequest.statusText;
+      hatoholErrorMsgBox(errorMsg);
+    }
+  });
+};
+
+HatoholIssueTrackersEditor.prototype.updateMainTable = function() {
+  if (!this.issueTrackersData)
+    return;
+
+  var rows = this.generateTableRows(this.issueTrackersData);
+  var tbody = $("#" + this.mainTableId + " tbody");
+  tbody.empty().append(rows);
+};
 
 HatoholIssueTrackersEditor.prototype.generateMainTable = function() {
   var html =
@@ -62,11 +95,41 @@ HatoholIssueTrackersEditor.prototype.generateMainTable = function() {
   '      <th>' + gettext("Base URL") + '</th>' +
   '      <th>' + gettext("Project ID") + '</th>' +
   '      <th>' + gettext("Tracker ID") + '</th>' +
+  '      <th></th>' +
   '    </tr>' +
   '  </thead>' +
   '  <tbody></tbody>' +
   '</table>' +
   '</div>';
+  return html;
+};
+
+HatoholIssueTrackersEditor.prototype.generateTableRows = function(data) {
+  var html = '';
+  var tracker;
+
+  for (var i = 0; i < data.issueTrackers.length; i++) {
+    tracker = data.issueTrackers[i];
+    html +=
+    '<tr>' +
+    '<td class="deleteIssueTracker">' +
+    '  <input type="checkbox" class="issueTrackerSelectCheckbox" ' +
+    '     issueTrackerId="' + escapeHTML(tracker.issueTrackerId) + '"></td>' +
+    '<td>' + escapeHTML(tracker.issueTrackerId) + '</td>' +
+    '<td>' + escapeHTML(tracker.nickname) + '</td>' +
+    '<td>' + escapeHTML(tracker.baseURL) + '</td>' +
+    '<td>' + escapeHTML(tracker.projectId) + '</td>' +
+    '<td>' + escapeHTML(tracker.trackerId) + '</td>' +
+    '<td>' +
+    '<form class="form-inline" style="margin: 0">' +
+    '  <input id="editIssueTracker' + escapeHTML(tracker["id"]) + '"' +
+    '    type="button" class="btn btn-default editIssueTracker"' +
+    '    issueTrackerId="' + escapeHTML(tracker["id"]) + '"' +
+    '    value="' + gettext("Edit") + '" />' +
+    '</form>' +
+    '</td>' +
+    '</tr>';
+  }
   return html;
 };
 
