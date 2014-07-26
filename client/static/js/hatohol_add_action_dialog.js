@@ -17,7 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var HatoholAddActionDialog = function(addSucceededCb, forIssueSender) {
+var HatoholAddActionDialog = function(addSucceededCb, issueTrackers) {
   var self = this;
 
   var IDX_SELECTED_SERVER  = 0;
@@ -30,7 +30,8 @@ var HatoholAddActionDialog = function(addSucceededCb, forIssueSender) {
   self.selectedId[IDX_SELECTED_HOST]    = null;
   self.selectedId[IDX_SELECTED_TRIGGER] = null;
 
-  self.forIssueSender = !!forIssueSender;
+  self.issueTrackers = issueTrackers;
+  self.forIssueSender = !!issueTrackers;
 
   var dialogButtons = [{
     text: gettext("ADD"),
@@ -44,7 +45,9 @@ var HatoholAddActionDialog = function(addSucceededCb, forIssueSender) {
   HatoholDialog.apply(
     this, ["add-action-dialog", gettext("ADD ACTION"), dialogButtons]);
 
-  self.setAddButtonState(false);
+  setTimeout(function() {
+    self.setAddButtonState(!!self.getCommand());
+  }, 1);
 
   //
   // Dialog button handlers
@@ -317,7 +320,7 @@ var HatoholAddActionDialog = function(addSucceededCb, forIssueSender) {
         queryData.triggerId = triggerId;
       queryData.type = getCommandType();
       queryData.timeout = $("#inputTimeout").val();
-      queryData.command = $("#inputActionCommand").val();
+      queryData.command = self.getCommand();
       queryData.workingDirectory = $("#inputWorkingDir").val();
       queryData.triggerStatus   = getStatusValue();
       queryData.triggerSeverity = getSeverityValue();
@@ -344,7 +347,7 @@ var HatoholAddActionDialog = function(addSucceededCb, forIssueSender) {
   }
 
   function validateAddParameters() {
-    if ($("#inputActionCommand").val() == "") {
+    if (self.getCommand() == "") {
       hatoholErrorMsgBox(gettext("Command is empty!"));
       return false;
     }
@@ -447,11 +450,18 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
   }
 
   function makeIssueTrackerArea() {
-    var s = "";
+    var s = "", i, issueTracker;
     // TODO: it's a temporal implementation
-    s += '<form class="form-inline">'
-    s += '  <label for="inputActionCommand">' + gettext("Issue tracker ID") + '</label>'
-    s += '  <input id="inputActionCommand" type="text" style="width:100%;" value="">'
+    s += '<h3>' + gettext("Issue Tracking Server") + '</h3>';
+    s += '<form class="form-inline">';
+    s += '<select id="selectIssueTracker" style="width:10em">';
+    for (i = 0; i < self.issueTrackers.length; i++) {
+      issueTracker = self.issueTrackers[i];
+      s += '  <option value="' + issueTracker.id + '">' +
+	escapeHTML(issueTracker.id) + ": " +
+	escapeHTML(issueTracker.nickname) + '</option>';
+    }
+    s += '</select>';
     s += '</form>'
     return s;
   }
@@ -467,6 +477,13 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
     s += '</div>'
     return s;
   }
+}
+
+HatoholAddActionDialog.prototype.getCommand = function () {
+  if (this.forIssueSender)
+    return $("#selectIssueTracker").val();
+  else
+    return $("#inputActionCommand").val();
 }
 
 HatoholAddActionDialog.prototype.onAppendMainElement = function () {
