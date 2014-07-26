@@ -56,7 +56,11 @@ var IssueSendersView = function(userProfile) {
   });
 
   $("#edit-issue-trackers-button").click(function() {
-    new HatoholIssueTrackersEditor();
+    new HatoholIssueTrackersEditor({
+      changedCallback: function(issueTrackers) {
+	load();
+      }
+    });
   });
 
   function addSucceededCb() {
