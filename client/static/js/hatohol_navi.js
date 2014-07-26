@@ -55,6 +55,10 @@ var HatoholNavi = function(userProfile, currentPage) {
           href:  "ajax_actions"
         },
         {
+          title: gettext("Issue senders"),
+          href:  "ajax_issue_senders"
+        },
+        {
           title: gettext("Users"),
           href:  "ajax_users",
           flags: (1 << hatohol.OPPRVLG_CREATE_USER) |
