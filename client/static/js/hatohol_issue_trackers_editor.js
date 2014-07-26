@@ -43,7 +43,35 @@ var HatoholIssueTrackersEditor = function(params) {
 HatoholIssueTrackersEditor.prototype = Object.create(HatoholDialog.prototype);
 HatoholIssueTrackersEditor.prototype.constructor = HatoholIssueTrackersEditor;
 
+HatoholIssueTrackersEditor.prototype.generateMainTable = function() {
+  var html =
+  '<form class="form-inline">' +
+  '  <input id="addIssueTrackerButton" type="button" ' +
+  '    class="addIssueTracker form-control" value="' + gettext("ADD") + '" />' +
+  '  <input id="deleteIssueTrackersButton" type="button" disabled ' +
+  '    class="deleteIssueTracker form-control" value="' + gettext("DELETE") + '" />' +
+  '</form>' +
+  '<div class="ui-widget-content" style="overflow-y: auto; height: 200px">' +
+  '<table class="table table-condensed table-striped table-hover" id=' +
+  this.mainTableId + '>' +
+  '  <thead>' +
+  '    <tr>' +
+  '      <th class="deleteIssueTracker"> </th>' +
+  '      <th>' + gettext("ID") + '</th>' +
+  '      <th>' + gettext("Nickname") + '</th>' +
+  '      <th>' + gettext("Base URL") + '</th>' +
+  '      <th>' + gettext("Project ID") + '</th>' +
+  '      <th>' + gettext("Tracker ID") + '</th>' +
+  '    </tr>' +
+  '  </thead>' +
+  '  <tbody></tbody>' +
+  '</table>' +
+  '</div>';
+  return html;
+};
+
 HatoholIssueTrackersEditor.prototype.createMainElement = function() {
   var self = this;
-  return "";
+  var element = $(this.generateMainTable());
+  return element;
 };
