@@ -38,6 +38,10 @@
         <span class="glyphicon glyphicon-remove"></span>
         {% trans "DELETE" %}
       </button>
+      <button id="edit-issue-trackers-button" type="button" class="btn btn-default">
+        <span class="glyphicon glyphicon-cog"></span>
+        {% trans "EDIT ISSUE TRACKING SERVERS" %}
+      </button>
     </div>
   </form>
   <div id="msgbox" title="Message Box">
@@ -72,6 +76,7 @@
   <script src="{{ STATIC_URL }}js/hatohol_server_selector.js"></script>
   <script src="{{ STATIC_URL }}js/hatohol_hostgroup_selector.js"></script>
   <script src="{{ STATIC_URL }}js/hatohol_trigger_selector.js"></script>
+  <script src="{{ STATIC_URL }}js/hatohol_issue_trackers_editor.js"></script>
 {% endblock %}
 
 {% block logic %}
