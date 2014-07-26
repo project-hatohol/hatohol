@@ -269,7 +269,7 @@ var HatoholIssueTrackerEditor = function(params) {
 
   function makeQueryData() {
       var queryData = {};
-      queryData.type = 0;
+      queryData.type = hatohol.ISSUE_TRACKER_REDMINE;
       queryData.nickname = $("#editIssueTrackerNickname").val();
       queryData.baseURL = $("#editIssueTrackerBaseURL").val();
       queryData.projectId = $("#editIssueTrackerProjectId").val();
