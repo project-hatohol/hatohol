@@ -455,12 +455,16 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
     // TODO: it's a temporal implementation
     s += '<h3>' + gettext("Issue Tracking Server") + '</h3>';
     s += '<form class="form-inline">';
-    s += '<select id="selectIssueTracker" style="width:10em">';
+    s += '<select id="selectIssueTracker">';
     for (i = 0; i < self.issueTrackers.length; i++) {
       issueTracker = self.issueTrackers[i];
       s += '  <option value="' + issueTracker.id + '">' +
 	escapeHTML(issueTracker.id) + ": " +
-	escapeHTML(issueTracker.nickname) + '</option>';
+	escapeHTML(issueTracker.nickname) + " (" +
+	gettext("Project: ") + escapeHTML(issueTracker.projectId);
+      if (issueTracker.trackerId)
+	gettext(", Tracker: ") + escapeHTML(issueTracker.trackerId);
+      s += ')</option>';
     }
     s += '</select>';
     s += '</form>'
