@@ -44,20 +44,25 @@ var HatoholNavi = function(userProfile, currentPage) {
       href:  "ajax_events"
     },
     {
-      title: gettext("Servers"),
-      href:  "ajax_servers"
-    },
-    {
-      title: gettext("Actions"),
-      href:  "ajax_actions"
-    },
-    {
-      title: gettext("Users"),
-      href:  "ajax_users",
-      flags: (1 << hatohol.OPPRVLG_CREATE_USER) |
-             (1 << hatohol.OPPRVLG_UPDATE_USER) |
-             (1 << hatohol.OPPRVLG_DELETE_USER) |
-             (1 << hatohol.OPPRVLG_GET_ALL_USERS)
+      title: gettext("Settings"),
+      children: [
+        {
+          title: gettext("Servers"),
+          href:  "ajax_servers"
+        },
+        {
+          title: gettext("Actions"),
+          href:  "ajax_actions"
+        },
+        {
+          title: gettext("Users"),
+          href:  "ajax_users",
+          flags: (1 << hatohol.OPPRVLG_CREATE_USER) |
+            (1 << hatohol.OPPRVLG_UPDATE_USER) |
+            (1 << hatohol.OPPRVLG_DELETE_USER) |
+            (1 << hatohol.OPPRVLG_GET_ALL_USERS)
+        },
+      ]
     },
   ];
   var matchResults;
@@ -74,22 +79,47 @@ var HatoholNavi = function(userProfile, currentPage) {
       this.currentPage = location.pathname;
   }
 
-  for (i = 0; i < menuItems.length; ++i) {
-    if (menuItems[i].flags != undefined &&
-        !userProfile.hasFlags(menuItems[i].flags))
+  var createMenuItem = function(menuItem) {
+    if (menuItem.flags != undefined &&
+        !userProfile.hasFlags(menuItem.flags))
     {
-      continue;
+      return null;
     }
-    if (menuItems[i].href == this.currentPage) {
-      title = '<a>' + menuItems[i].title + '</a>';
+
+    if (menuItem.children) {
+      title = '<a href="#" class="dropdown-toggle" data-toggle="dropdown">' +
+        menuItem.title + '<span class="caret"></span>' + '</a>';
+      klass = 'dropdown';
+    } else if (menuItem.href == this.currentPage) {
+      title = '<a>' + menuItem.title + '</a>';
       klass = "active";
     } else {
-      title = '<a href=' + menuItems[i].href + '>' + menuItems[i].title + '</a>';
+      title = '<a href=' + menuItem.href + '>' +
+	menuItem.title + '</a>';
       klass = undefined;
     }
-    $("<li/>", {
+
+    return $("<li/>", {
       html: title,
       class: klass,
-    }).appendTo("ul.nav:first");
+    })
+  }
+  var item, children, child;
+
+  for (i = 0; i < menuItems.length; ++i) {
+    item = createMenuItem(menuItems[i]);
+    if (menuItems[i].children) {
+      dropDown = $("<ul>", {
+	class: "dropdown-menu",
+      });
+      item.append(dropDown);
+      children = menuItems[i].children;
+      for (j = 0; j < children.length; j++) {
+	child = createMenuItem(children[j]);
+	dropDown.append(child);
+      }
+    }
+    if (item)
+      item.appendTo("ul.nav:first");
   };
 };
