@@ -18,6 +18,7 @@
  */
 
 var HatoholNavi = function(userProfile, currentPage) {
+  var self = this;
   var i, title, klass;
   var menuItems = [
     {
@@ -98,7 +99,7 @@ var HatoholNavi = function(userProfile, currentPage) {
       title = '<a href="#" class="dropdown-toggle" data-toggle="dropdown">' +
         menuItem.title + '<span class="caret"></span>' + '</a>';
       klass = 'dropdown';
-    } else if (menuItem.href == this.currentPage) {
+    } else if (menuItem.href == self.currentPage) {
       title = '<a>' + menuItem.title + '</a>';
       klass = "active";
     } else {
