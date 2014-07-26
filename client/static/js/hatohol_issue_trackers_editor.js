@@ -265,5 +265,55 @@ HatoholIssueTrackerEditor.prototype = Object.create(HatoholDialog.prototype);
 HatoholIssueTrackerEditor.prototype.constructor = HatoholIssueTrackerEditor;
 
 HatoholIssueTrackerEditor.prototype.createMainElement = function() {
-  return "";
+  var html = '<div>';
+  var tracker = this.issueTracker;
+  var nickname = "", baseURL = "", projectId = "", trackerId = "";
+  var userName = "";
+
+  if (tracker) {
+    nickname = tracker.nickname;
+    baseURL = tracker.baseURL;
+    projectId = tracker.projectId;
+    trackerId = tracker.trackerId;
+    userName = tracker.userName;
+  }
+
+  html +=
+  '<label for="editIssueTrackerName">' + gettext("Nickname") + '</label>' +
+  '<br>' +
+  '<input id="editIssueTrackerName" type="text" ' +
+  '       value="' + escapeHTML(nickname) + '"' +
+  '       class="input-xlarge">' +
+  '<br>' +
+  '<label for="editIssueTrackerBaseURL">' + gettext("Base URL") + '</label>' +
+  '<br>' +
+  '<input id="editIssueTrackerBaseURL" type="text" ' +
+  '       value="' + escapeHTML(baseURL) + '"' +
+  '       class="input-xlarge">' +
+  '<br>' +
+  '<label for="editIssueTrackerProjectId">' + gettext("Project ID") + '</label>' +
+  '<br>' +
+  '<input id="editIssueTrackerProjectId" type="text" ' +
+  '       value="' + escapeHTML(projectId) + '"' +
+  '       class="input-xlarge">' +
+  '<br>' +
+  '<label for="editIssueTrackerProjectId">' + gettext("Tracker ID") + '</label>' +
+  '<br>' +
+  '<input id="editIssueTrackerTrackerId" type="text" ' +
+  '       value="' + escapeHTML(trackerId) + '"' +
+  '       class="input-xlarge">' +
+  '<br>' +
+  '<label for="editIssueTrackerUserName">' + gettext("User name") + '</label>' +
+  '<br>' +
+  '<input id="editIssueTrackerUserName" type="text" ' +
+  '       value="' + escapeHTML(userName) + '"' +
+  '       class="input-xlarge">' +
+  '<br>' +
+  '<label for="editIssueTrackerPassword">' + gettext("Password") + '</label>' +
+  '<br>' +
+  '<input id="editIssueTrackerPassword" type="text" ' +
+  '       class="input-xlarge">' +
+  '<br>';
+
+  return html;
 };
