@@ -268,15 +268,15 @@ var HatoholIssueTrackerEditor = function(params) {
   }
 
   function makeQueryData() {
-      var queryData = {};
-      queryData.type = $("#selectIssueTrackerType").val()
-      queryData.nickname = $("#editIssueTrackerNickname").val();
-      queryData.baseURL = $("#editIssueTrackerBaseURL").val();
-      queryData.projectId = $("#editIssueTrackerProjectId").val();
-      queryData.trackerId = $("#editIssueTrackerTrackerId").val();
-      queryData.userName = $("#editIssueTrackerUserName").val();
-      queryData.password = $("#editIssueTrackerPassword").val();
-      return queryData;
+    var queryData = {};
+    queryData.type = $("#selectIssueTrackerType").val()
+    queryData.nickname = $("#editIssueTrackerNickname").val();
+    queryData.baseURL = $("#editIssueTrackerBaseURL").val();
+    queryData.projectId = $("#editIssueTrackerProjectId").val();
+    queryData.trackerId = $("#editIssueTrackerTrackerId").val();
+    queryData.userName = $("#editIssueTrackerUserName").val();
+    queryData.password = $("#editIssueTrackerPassword").val();
+    return queryData;
   }
 
   function postIssueTracker() {
