@@ -56,7 +56,7 @@ var HatoholIssueTrackersEditor = function(params) {
     }
     new HatoholItemRemover({
       id: deleteList,
-      type: "issue-trackers",
+      type: "issue-tracker",
       completionCallback: function() {
         self.load();
         self.changed = true;
@@ -90,7 +90,7 @@ HatoholIssueTrackersEditor.prototype.load = function() {
   var self = this;
 
   new HatoholConnector({
-    url: "/issue-trackers",
+    url: "/issue-tracker",
     request: "GET",
     data: {},
     replyCallback: function(issueTrackersData, parser) {
