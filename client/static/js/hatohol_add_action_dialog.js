@@ -455,16 +455,6 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
     s += '<h3>' + gettext("Issue Tracking Server") + '</h3>';
     s += '<form class="form-inline">';
     s += '<select id="selectIssueTracker">';
-    for (i = 0; i < self.issueTrackers.length; i++) {
-      issueTracker = self.issueTrackers[i];
-      s += '  <option value="' + issueTracker.id + '">' +
-	escapeHTML(issueTracker.id) + ": " +
-	escapeHTML(issueTracker.nickname) + " (" +
-	gettext("Project: ") + escapeHTML(issueTracker.projectId);
-      if (issueTracker.trackerId)
-	gettext(", Tracker: ") + escapeHTML(issueTracker.trackerId);
-      s += ')</option>';
-    }
     s += '</select>';
     s += '</form>'
     return s;
@@ -488,6 +478,30 @@ HatoholAddActionDialog.prototype.getCommand = function () {
     return $("#selectIssueTracker").val();
   else
     return $("#inputActionCommand").val();
+}
+
+HatoholAddActionDialog.prototype.updateIssueTrackers = function (issueTrackers)
+{
+  var label, issueTraker;
+
+  if (!this.forIssueSender)
+    return;
+
+  $("#selectIssueTracker").empty();
+  for (i = 0; i < issueTrackers.length; i++) {
+    issueTracker = issueTrackers[i];
+    label = "" + issueTracker.id + ": " + issueTracker.nickname;
+    label += " ("  + issueTracker.projectId;
+    if (issueTracker.trackerId)
+      label += gettext(", Tracker: ") + issueTracker.trackerId;
+    label += ")";
+    $("#selectIssueTracker").append(
+      $("<option>", {
+        value: issueTracker.id,
+        text: label,
+      })
+    );
+  }
 }
 
 HatoholAddActionDialog.prototype.onAppendMainElement = function () {
@@ -523,6 +537,9 @@ HatoholAddActionDialog.prototype.onAppendMainElement = function () {
     else
       self.setAddButtonState(false);
   }
+
+  if (self.forIssueSender)
+    self.updateIssueTrackers(self.issueTrackers);
 }
 
 HatoholAddActionDialog.prototype.setAddButtonState = function(state) {
