@@ -155,6 +155,11 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 	ADD_LINE(s, langType, MONITORING_SYSTEM_UNKNOWN);
 	APPEND(s, "\n");
 
+	ADD_LINE(s, langType, ISSUE_TRACKER_UNKNOWN);
+	ADD_LINE(s, langType, ISSUE_TRACKER_FAKE);
+	ADD_LINE(s, langType, ISSUE_TRACKER_REDMINE);
+	APPEND(s, "\n");
+
 	//
 	// HaotholError
 	//
