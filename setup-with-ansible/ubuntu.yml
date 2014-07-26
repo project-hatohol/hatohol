@@ -1,0 +1,89 @@
+---
+  - name: install git
+    apt: name=git
+
+  - name: install g++
+    apt: name=g++
+
+  - name: install autotools-dev
+    apt: name=autotools-dev
+
+  - name: install libglib2.0-dev
+    apt: name=libglib2.0-dev
+
+  - name: install libsoup2.4-dev 
+    apt: name=libsoup2.4-dev 
+
+  - name: install libjson-glib-dev
+    apt: name=libjson-glib-dev
+
+  - name: install libsqlite3-dev
+    apt: name=libsqlite3-dev
+
+  - name: install sqlite3 (command line)
+    apt: name=sqlite3
+
+  - name: install uuid-dev
+    apt: name=uuid-dev
+
+  - name: install libmysqlclient-dev 
+    apt: name=libmysqlclient-dev 
+
+  - name: install ndoutils-nagios3-mysql
+    apt: name=ndoutils-nagios3-mysql
+
+  - name: install QPid dev packages
+    apt: name={{ item }}
+    with_items:
+      - libqpidmessaging2-dev
+      - libqpidtypes1-dev
+      - libqpidcommon2-dev
+
+  - name: install qpidd
+    apt: name=qpidd
+
+  - name: install curl
+    apt: name=curl
+
+  - name: install software-properties-common
+    apt: name=software-properties-common
+
+  - name: regsiter ppa repository for cutter
+    apt_repository: repo='ppa:cutter-testing-framework/ppa'
+
+  - name: install cutter-testing-framework
+    apt: name=cutter-testing-framework
+
+  - name: install python-pip
+    apt: name=python-pip
+
+  - name: install python-dev
+    apt: name=python-dev
+
+  - name: install npm
+    apt: name=npm
+
+  - name: install nodejs-legacy
+    apt: name=nodejs-legacy
+
+  - name: install mocha
+    npm: name=mocha global=yes
+
+  - name: install expect.js
+    npm: name=expect.js global=yes
+
+  - name: install sinon
+    npm: name=sinon global=yes
+
+  - name: install mocha-phantomjs
+    npm: name=mocha-phantomjs global=yes
+
+  - name: install phantomjs
+    npm: name=phantomjs global=yes
+
+  - name: install DJango 1.5.4
+    pip: name=django version=1.5.4
+
+  - name: install mysql-python
+    pip: name=mysql-python
+

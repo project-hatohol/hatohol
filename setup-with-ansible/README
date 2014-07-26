@@ -1,0 +1,11 @@
+* Make a hosts file like
+
+  $ cat hosts
+  [all]
+  192.168.10.1
+
+The IP address should be changed.
+
+* run
+
+  $ ansible-playbook -i hosts setup-hatohol-dev.yaml

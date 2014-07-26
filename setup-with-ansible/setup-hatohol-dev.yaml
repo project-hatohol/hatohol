@@ -1,0 +1,5 @@
+- hosts: targets
+  user: root
+  tasks:
+    - include: ubuntu.yml
+      when: ansible_distribution == "Ubuntu"
