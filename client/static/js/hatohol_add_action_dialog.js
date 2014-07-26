@@ -40,10 +40,12 @@ var HatoholAddActionDialog = function(addSucceededCb, issueTrackers) {
     text: gettext("CANCEL"),
     click: cancelButtonClickedCb,
   }];
+  var dialogAttrs = { width: "auto" };
 
   // call the constructor of the super class
   HatoholDialog.apply(
-    this, ["add-action-dialog", gettext("ADD ACTION"), dialogButtons]);
+    this, ["add-action-dialog", gettext("ADD ACTION"),
+           dialogButtons, dialogAttrs]);
 
   setTimeout(function() {
     self.setAddButtonState(!!self.getCommand());
