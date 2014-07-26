@@ -475,15 +475,14 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
   }
 }
 
-HatoholAddActionDialog.prototype.getCommand = function () {
+HatoholAddActionDialog.prototype.getCommand = function() {
   if (this.forIssueSender)
     return $("#selectIssueTracker").val();
   else
     return $("#inputActionCommand").val();
 }
 
-HatoholAddActionDialog.prototype.updateIssueTrackers = function (issueTrackers)
-{
+HatoholAddActionDialog.prototype.updateIssueTrackers = function(issueTrackers) {
   var label, issueTraker;
 
   if (!this.forIssueSender)
@@ -521,7 +520,7 @@ HatoholAddActionDialog.prototype.setupIssueTrackersEditor = function()
   changedCallback(self.issueTrackers);
 }
 
-HatoholAddActionDialog.prototype.onAppendMainElement = function () {
+HatoholAddActionDialog.prototype.onAppendMainElement = function() {
   var self = this;
 
   $("#actor-mail-dialog-button").click(function() {
