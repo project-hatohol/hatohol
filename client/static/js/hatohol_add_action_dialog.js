@@ -455,6 +455,9 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
     s += '<form class="form-inline">';
     s += '<select id="selectIssueTracker">';
     s += '</select>';
+    s += '<input id="editIssueTrackers" type="button" '
+    s += '       style="margin-left: 2px;" ';
+    s +='        value="' + gettext('EDIT') + '" />';
     s += '</form>'
     return s;
   }
@@ -503,6 +506,21 @@ HatoholAddActionDialog.prototype.updateIssueTrackers = function (issueTrackers)
   }
 }
 
+HatoholAddActionDialog.prototype.setupIssueTrackersEditor = function()
+{
+  var self = this;
+  var changedCallback = function(issueTrackers) {
+    self.issueTrackers = issueTrackers;
+    self.updateIssueTrackers(issueTrackers);
+  }
+  $("#editIssueTrackers").click(function() {
+    new HatoholIssueTrackersEditor({
+      changedCallback: changedCallback,
+    });
+  });
+  changedCallback(self.issueTrackers);
+}
+
 HatoholAddActionDialog.prototype.onAppendMainElement = function () {
   var self = this;
 
@@ -538,7 +556,7 @@ HatoholAddActionDialog.prototype.onAppendMainElement = function () {
   }
 
   if (self.forIssueSender)
-    self.updateIssueTrackers(self.issueTrackers);
+    self.setupIssueTrackersEditor();
 }
 
 HatoholAddActionDialog.prototype.setAddButtonState = function(state) {

@@ -27,6 +27,7 @@ var HatoholIssueTrackersEditor = function(params) {
     click: closeButtonClickedCb
   }];
   self.mainTableId = "issueTrackersEditorMainTable";
+  self.changedCallback = params.changedCallback;
   self.issueTrackersData = null;
 
   // call the constructor of the super class
@@ -41,7 +42,7 @@ var HatoholIssueTrackersEditor = function(params) {
   function closeButtonClickedCb() {
     self.closeDialog();
     if (self.changed && self.changedCallback)
-      self.changedCallback();
+      self.changedCallback(self.issueTrackersData.issueTrackers);
   }
 
   function deleteIssueTrackers() {
