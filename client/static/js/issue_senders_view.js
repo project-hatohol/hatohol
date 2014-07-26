@@ -46,7 +46,8 @@ var IssueSendersView = function(userProfile) {
   });
 
   $("#add-issue-sender-button").click(function() {
-    new HatoholAddActionDialog(addSucceededCb, true);
+    var issueTrackers = self.issueTrackersData.issueTrackers;
+    new HatoholAddActionDialog(addSucceededCb, issueTrackers);
   });
 
   $("#delete-issue-sender-button").click(function() {
