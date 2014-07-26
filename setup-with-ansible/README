@@ -1,10 +1,8 @@
-* Make a hosts file like
+* Make a file including IP addresses or host names to be set up. Any file name is OK. Here we name it 'hosts' like the following example.
 
   $ cat hosts
   [all]
   192.168.10.1
-
-The IP address should be changed.
 
 * run
 
