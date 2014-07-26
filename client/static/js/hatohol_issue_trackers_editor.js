@@ -304,6 +304,26 @@ var HatoholIssueTrackerEditor = function(params) {
   }
 
   function validateParameters() {
+    if ($("#editIssueTrackerNickname").val() == "") {
+      hatoholErrorMsgBox(gettext("Nickname is empty!"));
+      return false;
+    }
+
+    if ($("#editIssueTrackerBaseURL").val() == "") {
+      hatoholErrorMsgBox(gettext("Base URL is empty!"));
+      return false;
+    }
+
+    if ($("#editIssueTrackerProjectId").val() == "") {
+      hatoholErrorMsgBox(gettext("Project ID is empty!"));
+      return false;
+    }
+
+    if ($("#editIssueTrackerUserName").val() == "") {
+      hatoholErrorMsgBox(gettext("User name is empty!"));
+      return false;
+    }
+
     return true;
   }
 
