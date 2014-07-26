@@ -67,7 +67,6 @@ var HatoholIssueTrackersEditor = function(params) {
 
   $("#addIssueTrackerButton").click(function() {
     new HatoholIssueTrackerEditor({
-      operatorProfile: self.operatorProfile,
       succeededCallback: function() {
         self.load();
         self.changed = true;
@@ -107,6 +106,7 @@ HatoholIssueTrackersEditor.prototype.load = function() {
 };
 
 HatoholIssueTrackersEditor.prototype.updateMainTable = function() {
+  var self = this;
   var numSelected = 0;
   var setupCheckboxes = function() {
     $(".issueTrackerSelectCheckbox").change(function() {
@@ -122,6 +122,29 @@ HatoholIssueTrackersEditor.prototype.updateMainTable = function() {
         $("#deleteIssueTrackersButton").attr("disabled", true);
     });
   };
+  var setupEditButtons = function()
+  {
+    var issueTrackers = self.issueTrackersData.issueTrackers;
+    var issueTrackersMap = {};
+    var i, id;
+
+    for (i = 0; i < issueTrackers.length; ++i)
+      issueTrackersMap[issueTrackers[i]["id"]] = issueTrackers[i];
+
+    for (i = 0; i < issueTrackers.length; ++i) {
+      id = "#editIssueTracker" + issueTrackers[i]["id"];
+      $(id).click(function() {
+        var issueTrackerId = this.getAttribute("issueTrackerId");
+        new HatoholIssueTrackerEditor({
+          succeededCallback: function() {
+            self.load();
+            self.changed = true;
+          },
+          issueTracker: issueTrackersMap[issueTrackerId],
+        });
+      });
+    }
+  };
 
   if (!this.issueTrackersData)
     return;
@@ -130,6 +153,7 @@ HatoholIssueTrackersEditor.prototype.updateMainTable = function() {
   var tbody = $("#" + this.mainTableId + " tbody");
   tbody.empty().append(rows);
   setupCheckboxes();
+  setupEditButtons();
 };
 
 HatoholIssueTrackersEditor.prototype.generateMainTable = function() {
