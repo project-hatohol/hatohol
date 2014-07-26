@@ -230,6 +230,7 @@ var HatoholIssueTrackerEditor = function(params) {
   var self = this;
 
   self.issueTracker = params.issueTracker;
+  self.succeededCallback = params.succeededCallback;
   self.windowTitle = self.issueTracker ?
     gettext("EDIT ISSUE TRACKING SERVER") :
     gettext("ADD ISSUE TRACKING SERVER");
@@ -254,6 +255,56 @@ var HatoholIssueTrackerEditor = function(params) {
   // Dialog button handlers
   //
   function applyButtonClickedCb() {
+    if (validateParameters()) {
+      makeQueryData();
+      if (self.issueTracker)
+        hatoholInfoMsgBox(
+	  gettext("Now updating the issue tracking server ..."));
+      else
+        hatoholInfoMsgBox(
+	  gettext("Now creating an issue tracking server ..."));
+      postIssueTracker();
+    }
+  }
+
+  function makeQueryData() {
+      var queryData = {};
+      queryData.type = 0;
+      queryData.nickname = $("#editIssueTrackerNickname").val();
+      queryData.baseURL = $("#editIssueTrackerBaseURL").val();
+      queryData.projectId = $("#editIssueTrackerProjectId").val();
+      queryData.trackerId = $("#editIssueTrackerTrackerId").val();
+      queryData.userName = $("#editIssueTrackerUserName").val();
+      queryData.password = $("#editIssueTrackerPassword").val();
+      return queryData;
+  }
+
+  function postIssueTracker() {
+    var url = "/issue-tracker";
+    if (self.issueTracker)
+      url += "/" + self.issueTracker.id;
+    new HatoholConnector({
+      url: url,
+      request: self.issueTracker ? "PUT" : "POST",
+      data: makeQueryData(),
+      replyCallback: replyCallback,
+      parseErrorCallback: hatoholErrorMsgBoxForParser
+    });
+  }
+
+  function replyCallback(reply, parser) {
+    self.closeDialog();
+    if (self.issueTracker)
+      hatoholInfoMsgBox(gettext("Successfully updated."));
+    else
+      hatoholInfoMsgBox(gettext("Successfully created."));
+
+    if (self.succeededCallback)
+      self.succeededCallback();
+  }
+
+  function validateParameters() {
+    return true;
   }
 
   function cancelButtonClickedCb() {
@@ -279,9 +330,9 @@ HatoholIssueTrackerEditor.prototype.createMainElement = function() {
   }
 
   html +=
-  '<label for="editIssueTrackerName">' + gettext("Nickname") + '</label>' +
+  '<label for="editIssueTrackerNickname">' + gettext("Nickname") + '</label>' +
   '<br>' +
-  '<input id="editIssueTrackerName" type="text" ' +
+  '<input id="editIssueTrackerNickname" type="text" ' +
   '       value="' + escapeHTML(nickname) + '"' +
   '       class="input-xlarge">' +
   '<br>' +
