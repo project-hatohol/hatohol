@@ -306,6 +306,11 @@ var IssueSendersView = function(userProfile) {
       var issueTracker = self.issueTrackersMap[actionDef.command];
       var issueTrackerName = issueTracker ?
 	issueTracker.nickname : gettext("Unknown");
+
+      issueTrackerName += " (" + gettext("Project: ")  + issueTracker.projectId;
+      if (issueTracker.trackerId)
+	issueTrackerName += ", ", gettext("Tracker: ") + issueTracker.trackerId;
+      issueTrackerName += ")";
       s += "<td>" + issueTrackerName + "</td>";
 
       s += "</tr>";
