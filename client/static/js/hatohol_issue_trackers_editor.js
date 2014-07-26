@@ -30,7 +30,7 @@ var HatoholIssueTrackersEditor = function(params) {
   self.issueTrackersData = null;
 
   // call the constructor of the super class
-  var dialogAttrs = { width: "700" };
+  var dialogAttrs = { width: "800" };
   HatoholDialog.apply(
     this, ["issue-trackers-editor", gettext("EDIT ISSUE TRACKING SERVERS"),
            dialogButtons, dialogAttrs]);
@@ -173,6 +173,7 @@ HatoholIssueTrackersEditor.prototype.generateMainTable = function() {
   '    <tr>' +
   '      <th class="deleteIssueTracker"> </th>' +
   '      <th>' + gettext("ID") + '</th>' +
+  '      <th>' + gettext("Type") + '</th>' +
   '      <th>' + gettext("Nickname") + '</th>' +
   '      <th>' + gettext("Base URL") + '</th>' +
   '      <th>' + gettext("Project ID") + '</th>' +
@@ -188,16 +189,18 @@ HatoholIssueTrackersEditor.prototype.generateMainTable = function() {
 
 HatoholIssueTrackersEditor.prototype.generateTableRows = function(data) {
   var html = '';
-  var tracker;
+  var tracker, type;
 
   for (var i = 0; i < data.issueTrackers.length; i++) {
     tracker = data.issueTrackers[i];
+    type = tracker.type == 0 ? gettext("Redmine") : gettext("Unknown");
     html +=
     '<tr>' +
     '<td class="deleteIssueTracker">' +
     '  <input type="checkbox" class="issueTrackerSelectCheckbox" ' +
     '     issueTrackerId="' + escapeHTML(tracker.id) + '"></td>' +
     '<td>' + escapeHTML(tracker.id) + '</td>' +
+    '<td>' + type + '</td>' +
     '<td>' + escapeHTML(tracker.nickname) + '</td>' +
     '<td>' + escapeHTML(tracker.baseURL) + '</td>' +
     '<td>' + escapeHTML(tracker.projectId) + '</td>' +
