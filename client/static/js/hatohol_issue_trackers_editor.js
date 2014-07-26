@@ -269,7 +269,7 @@ var HatoholIssueTrackerEditor = function(params) {
 
   function makeQueryData() {
       var queryData = {};
-      queryData.type = hatohol.ISSUE_TRACKER_REDMINE;
+      queryData.type = $("#selectIssueTrackerType").val()
       queryData.nickname = $("#editIssueTrackerNickname").val();
       queryData.baseURL = $("#editIssueTrackerBaseURL").val();
       queryData.projectId = $("#editIssueTrackerProjectId").val();
@@ -350,6 +350,13 @@ HatoholIssueTrackerEditor.prototype.createMainElement = function() {
   }
 
   html +=
+  '<label>' + gettext("Issue tracker type") + '</label>' +
+  '<br>' +
+  '<select id="selectIssueTrackerType" style="width:10em">' +
+  '  <option value="' + hatohol.ISSUE_TRACKER_REDMINE + '">' +
+    gettext("Redmine") + '</option>' +
+  '</select>' +
+  '<br>' +
   '<label for="editIssueTrackerNickname">' + gettext("Nickname") + '</label>' +
   '<br>' +
   '<input id="editIssueTrackerNickname" type="text" ' +
