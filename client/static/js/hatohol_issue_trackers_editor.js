@@ -80,9 +80,11 @@ HatoholIssueTrackersEditor.prototype.generateMainTable = function() {
   var html =
   '<form class="form-inline">' +
   '  <input id="addIssueTrackerButton" type="button" ' +
-  '    class="addIssueTracker form-control" value="' + gettext("ADD") + '" />' +
+  '         class="addIssueTracker form-control"' +
+  '         value="' + gettext("ADD") + '" />' +
   '  <input id="deleteIssueTrackersButton" type="button" disabled ' +
-  '    class="deleteIssueTracker form-control" value="' + gettext("DELETE") + '" />' +
+  '         class="deleteIssueTracker form-control" ' +
+  '         value="' + gettext("DELETE") + '" />' +
   '</form>' +
   '<div class="ui-widget-content" style="overflow-y: auto; height: 200px">' +
   '<table class="table table-condensed table-striped table-hover" id=' +
