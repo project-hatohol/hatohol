@@ -22,6 +22,9 @@ var IssueSendersView = function(userProfile) {
   // Variables
   //
   var self = this;
+  self.issueSendersData = null;
+  self.issueTrackersData = null;
+  self.issueTrackersMap = null;
 
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
@@ -295,7 +298,10 @@ var IssueSendersView = function(userProfile) {
       s += "<td>" + severityCompLabel + " " + severityLabel + "</td>";
 
       var command = actionDef.command;
-      s += "<td>" + escapeHTML(command) + "</td>";
+      var issueTracker = self.issueTrackersMap[actionDef.command];
+      var issueTrackerName = issueTracker ?
+	issueTracker.nickname : gettext("Unknown");
+      s += "<td>" + issueTrackerName + "</td>";
 
       s += "</tr>";
     }
@@ -303,10 +309,25 @@ var IssueSendersView = function(userProfile) {
     return s;
   }
 
-  function updateCore(rawData) {
+  function parseIssueTrackers(issueTrackersData) {
+    var issueTrackers = issueTrackersData.issueTrackers;
+    var i, issueTrackersMap = {};
+    for (i = 0; i < issueTrackers.length; i++)
+      issueTrackersMap[issueTrackers[i].id] = issueTrackers[i];
+    return issueTrackersMap;
+  }
+
+  function onGotIssueTrackers(issueTrackersData) {
+    self.issueTrackersData = issueTrackersData;
+    self.issueTrackersMap = parseIssueTrackers(self.issueTrackersData);
     $("#table tbody").empty();
-    $("#table tbody").append(drawTableBody(rawData));
+    $("#table tbody").append(drawTableBody(self.issueSendersData));
     self.setupCheckboxForDelete($("#delete-issue-sender-button"));
+  }
+
+  function onGotIssueSenders(issueSendersData) {
+    self.issueSendersData = issueSendersData;
+    self.startConnection("issue-trackers", onGotIssueTrackers);
   }
 
   function getQuery() {
@@ -317,7 +338,7 @@ var IssueSendersView = function(userProfile) {
   };
 
   function load() {
-    self.startConnection(getQuery(), updateCore);
+    self.startConnection(getQuery(), onGotIssueSenders);
   }
 };
 
