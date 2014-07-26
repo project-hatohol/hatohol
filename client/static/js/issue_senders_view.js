@@ -51,6 +51,10 @@ var IssueSendersView = function(userProfile) {
     hatoholNoYesMsgBox(msg, deleteActions);
   });
 
+  $("#edit-issue-trackers-button").click(function() {
+    new HatoholIssueTrackersEditor();
+  });
+
   function addSucceededCb() {
     load();
   }
