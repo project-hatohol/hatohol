@@ -451,7 +451,6 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
 
   function makeIssueTrackerArea() {
     var s = "", i, issueTracker;
-    // TODO: it's a temporal implementation
     s += '<h3>' + gettext("Issue Tracking Server") + '</h3>';
     s += '<form class="form-inline">';
     s += '<select id="selectIssueTracker">';
