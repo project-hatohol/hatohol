@@ -353,7 +353,7 @@ HatoholIssueTrackerEditor.prototype.createMainElement = function() {
   }
 
   html +=
-  '<label>' + gettext("Issue tracker type") + '</label>' +
+  '<label>' + gettext("Type") + '</label>' +
   '<br>' +
   '<select id="selectIssueTrackerType" style="width:10em">' +
   '  <option value="' + hatohol.ISSUE_TRACKER_REDMINE + '">' +
