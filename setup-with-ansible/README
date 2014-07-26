@@ -4,6 +4,11 @@
   [targets]
   192.168.10.1
 
+If you set up the machine on itself, the following can be acceptable.
+
+  [targets]
+  localhost
+
 * run
 
   $ ansible-playbook -i hosts setup-hatohol-dev.yaml
