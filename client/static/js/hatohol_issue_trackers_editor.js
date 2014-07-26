@@ -278,7 +278,8 @@ var HatoholIssueTrackerEditor = function(params) {
     queryData.projectId = $("#editIssueTrackerProjectId").val();
     queryData.trackerId = $("#editIssueTrackerTrackerId").val();
     queryData.userName = $("#editIssueTrackerUserName").val();
-    queryData.password = $("#editIssueTrackerPassword").val();
+    if ($("#editPasswordCheckbox").is(":checked"))
+      queryData.password = $("#editIssueTrackerPassword").val();
     return queryData;
   }
 
@@ -390,6 +391,7 @@ HatoholIssueTrackerEditor.prototype.createMainElement = function() {
   '       value="' + escapeHTML(userName) + '"' +
   '       class="input-xlarge">' +
   '<br>' +
+  '<input type="checkbox" id="editPasswordCheckbox"> ' +
   '<label for="editIssueTrackerPassword">' + gettext("Password") + '</label>' +
   '<br>' +
   '<input id="editIssueTrackerPassword" type="text" ' +
@@ -397,4 +399,20 @@ HatoholIssueTrackerEditor.prototype.createMainElement = function() {
   '<br>';
 
   return html;
+};
+
+HatoholIssueTrackerEditor.prototype.onAppendMainElement = function () {
+  var editPassword = !this.issueTracker;
+  if (editPassword) {
+    $("#editPasswordCheckbox").hide();
+  } else {
+    $("#editPasswordCheckbox").show();
+  }
+  $("#editPasswordCheckbox").prop("checked", editPassword);
+  $("#editIssueTrackerPassword").attr("disabled", !editPassword);
+
+  $("#editPasswordCheckbox").change(function() {
+    var check = $(this).is(":checked");
+    $("#editIssueTrackerPassword").attr("disabled", !check);
+  });
 };
