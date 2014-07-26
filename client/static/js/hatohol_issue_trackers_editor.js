@@ -17,6 +17,9 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * HatoholIssueTrackersEditor
+ */
 var HatoholIssueTrackersEditor = function(params) {
   var self = this;
   var dialogButtons = [{
@@ -61,6 +64,16 @@ var HatoholIssueTrackersEditor = function(params) {
     });
     hatoholInfoMsgBox(gettext("Deleting..."));
   }
+
+  $("#addIssueTrackerButton").click(function() {
+    new HatoholIssueTrackerEditor({
+      operatorProfile: self.operatorProfile,
+      succeededCallback: function() {
+        self.load();
+        self.changed = true;
+      },
+    });
+  });
 
   $("#deleteIssueTrackersButton").click(function() {
     var msg = gettext("Are you sure to delete issue tracking servers?");
@@ -182,4 +195,51 @@ HatoholIssueTrackersEditor.prototype.createMainElement = function() {
   var self = this;
   var element = $(this.generateMainTable());
   return element;
+};
+
+
+
+/*
+ * HatoholIssueTrackerEditor
+ */
+var HatoholIssueTrackerEditor = function(params) {
+  var self = this;
+
+  self.issueTracker = params.issueTracker;
+  self.windowTitle = self.issueTracker ?
+    gettext("EDIT ISSUE TRACKING SERVER") :
+    gettext("ADD ISSUE TRACKING SERVER");
+  self.applyButtonTitle = self.issueTracker ?
+    gettext("APPLY") : gettext("ADD");
+
+  var dialogButtons = [{
+    text: self.applyButtonTitle,
+    click: applyButtonClickedCb
+  }, {
+    text: gettext("CANCEL"),
+    click: cancelButtonClickedCb
+  }];
+
+  // call the constructor of the super class
+  dialogAttrs = { width: "auto" };
+  HatoholDialog.apply(
+    this, ["issue-tracker-editor", self.windowTitle,
+           dialogButtons, dialogAttrs]);
+
+  //
+  // Dialog button handlers
+  //
+  function applyButtonClickedCb() {
+  }
+
+  function cancelButtonClickedCb() {
+    self.closeDialog();
+  }
+};
+
+HatoholIssueTrackerEditor.prototype = Object.create(HatoholDialog.prototype);
+HatoholIssueTrackerEditor.prototype.constructor = HatoholIssueTrackerEditor;
+
+HatoholIssueTrackerEditor.prototype.createMainElement = function() {
+  return "";
 };
