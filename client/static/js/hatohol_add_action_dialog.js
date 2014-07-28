@@ -497,7 +497,7 @@ HatoholAddActionDialog.prototype.updateIssueTrackers = function(issueTrackers) {
     label = "" + issueTracker.id + ": " + issueTracker.nickname;
     label += " (" + gettext("Project: ")  + issueTracker.projectId;
     if (issueTracker.trackerId)
-      label += ", ", gettext("Tracker: ") + issueTracker.trackerId;
+      label += ", " + gettext("Tracker: ") + issueTracker.trackerId;
     label += ")";
     $("#selectIssueTracker").append(
       $("<option>", {
