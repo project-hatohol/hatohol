@@ -227,7 +227,7 @@ var ActionsView = function(userProfile) {
       return makeNamelessHostgroupLabel(serverId, hostgroupId);
     var server = actionsPkt["servers"][serverId];
     if (!server)
-      return "ANY";
+      return makeNamelessHostgroupLabel(serverId, hostgroupId);
     var hostgroupArray = server["groups"];
     if (!hostgroupArray)
       return makeNamelessHostgroupLabel(serverId, hostgroupId);
@@ -249,7 +249,7 @@ var ActionsView = function(userProfile) {
       return makeNamelessHostLabel(serverId, hostId);
     var server = actionsPkt["servers"][serverId];
     if (!server)
-      return "ANY";
+      return makeNamelessHostLabel(serverId, hostId);
     var hostArray = server["hosts"];
     if (!hostArray)
       return makeNamelessHostLabel(serverId, hostId);
@@ -271,7 +271,7 @@ var ActionsView = function(userProfile) {
       return makeNamelessTriggerLabel(triggerId);
     var server = actionsPkt["servers"][serverId];
     if (!server)
-      return "ANY";
+      return makeNamelessTriggerLabel(triggerId);
     var triggerArray = server["triggers"];
     if (!triggerArray)
       return makeNamelessTriggerLabel(triggerId);
