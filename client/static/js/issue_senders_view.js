@@ -304,16 +304,17 @@ var IssueSendersView = function(userProfile) {
 
       var command = actionDef.command;
       var issueTracker = self.issueTrackersMap[actionDef.command];
-      var issueTrackerName = issueTracker ?
-	issueTracker.nickname : gettext("Unknown");
-
-      issueTrackerName += " (" + gettext("Project: ")  + issueTracker.projectId;
-      if (issueTracker.trackerId) {
-	issueTrackerName += ", ";
-	issueTrackerName += gettext("Tracker: ") + issueTracker.trackerId;
+      s += "<td>";
+      if (issueTracker) {
+        s += " (" + gettext("Project: ") + issueTracker.projectId;
+        if (issueTracker.trackerId) {
+          s += ", " + gettext("Tracker: ") + issueTracker.trackerId;
+        }
+        s += ")";
+      } else {
+        s += gettext("Unknown");
       }
-      issueTrackerName += ")";
-      s += "<td>" + issueTrackerName + "</td>";
+      s += "</td>";
 
       s += "</tr>";
     }
