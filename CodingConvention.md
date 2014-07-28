@@ -57,7 +57,7 @@ However, for classes that need performance, it is allowed to define private
 members in the heder file.
 
 ## Python
-Baisically follow PEP 8
+Basically follow PEP 8
 
 Indent: 4 spaces
 String: Single quotation
