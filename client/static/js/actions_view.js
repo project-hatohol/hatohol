@@ -208,7 +208,7 @@ var ActionsView = function(userProfile) {
   function getServerNameFromAction(actionsPkt, actionDef) {
     var serverId = actionDef["serverId"];
     if (!serverId)
-      return null;
+      return "ANY";
     var server = actionsPkt["servers"][serverId];
     if (!server)
       return makeNamelessServerLabel(serverId);
@@ -221,13 +221,13 @@ var ActionsView = function(userProfile) {
   function getHostgroupNameFromAction(actionsPkt, actionDef) {
     var hostgroupId = actionDef["hostgroupId"];
     if (!hostgroupId)
-      return null;
+      return "ANY";
     var serverId = actionDef["serverId"];
     if (!serverId)
       return makeNamelessHostgroupLabel(serverId, hostgroupId);
     var server = actionsPkt["servers"][serverId];
     if (!server)
-      return null;
+      return "ANY";
     var hostgroupArray = server["groups"];
     if (!hostgroupArray)
       return makeNamelessHostgroupLabel(serverId, hostgroupId);
@@ -243,13 +243,13 @@ var ActionsView = function(userProfile) {
   function getHostNameFromAction(actionsPkt, actionDef) {
     var hostId = actionDef["hostId"];
     if (!hostId)
-      return null;
+      return "ANY";
     var serverId = actionDef["serverId"];
     if (!serverId)
       return makeNamelessHostLabel(serverId, hostId);
     var server = actionsPkt["servers"][serverId];
     if (!server)
-      return null;
+      return "ANY";
     var hostArray = server["hosts"];
     if (!hostArray)
       return makeNamelessHostLabel(serverId, hostId);
@@ -265,13 +265,13 @@ var ActionsView = function(userProfile) {
   function getTriggerBriefFromAction(actionsPkt, actionDef) {
     var triggerId = actionDef["triggerId"];
     if (!triggerId)
-      return null;
+      return "ANY";
     var serverId = actionDef["serverId"];
     if (!serverId)
       return makeNamelessTriggerLabel(triggerId);
     var server = actionsPkt["servers"][serverId];
     if (!server)
-      return null;
+      return "ANY";
     var triggerArray = server["triggers"];
     if (!triggerArray)
       return makeNamelessTriggerLabel(triggerId);
@@ -301,23 +301,15 @@ var ActionsView = function(userProfile) {
       s += "<td>" + escapeHTML(actionDef.actionId) + "</td>";
 
       var serverName = getServerNameFromAction(actionsPkt, actionDef);
-      if (!serverName)
-        serverName = "ANY";
       s += "<td>" + escapeHTML(serverName) + "</td>";
 
       var hostName = getHostNameFromAction(actionsPkt, actionDef);
-      if (!hostName)
-        hostName = "ANY";
       s += "<td>" + escapeHTML(hostName)   + "</td>";
 
       var hostgroupName = getHostgroupNameFromAction(actionsPkt, actionDef);
-      if (!hostgroupName)
-        hostgroupName = "ANY";
       s += "<td>" + escapeHTML(hostgroupName) + "</td>";
 
       var triggerBrief = getTriggerBriefFromAction(actionsPkt, actionDef);
-      if (!triggerBrief)
-        triggerBrief = "ANY";
       s += "<td>" + escapeHTML(triggerBrief) + "</td>";
 
       var triggerStatus = actionDef.triggerStatus;
