@@ -205,7 +205,7 @@ var ActionsView = function(userProfile) {
   //
   // parser of received json data
   //
-  function getServerName(actionsPkt, actionDef) {
+  function getServerNameFromAction(actionsPkt, actionDef) {
     var serverId = actionDef["serverId"];
     if (!serverId)
       return null;
@@ -218,7 +218,7 @@ var ActionsView = function(userProfile) {
     return serverName;
   }
 
-  function getHostgroupName(actionsPkt, actionDef) {
+  function getHostgroupNameFromAction(actionsPkt, actionDef) {
     var hostgroupId = actionDef["hostgroupId"];
     if (!hostgroupId)
       return null;
@@ -240,7 +240,7 @@ var ActionsView = function(userProfile) {
     return hostgroupName;
   }
 
-  function getHostName(actionsPkt, actionDef) {
+  function getHostNameFromAction(actionsPkt, actionDef) {
     var hostId = actionDef["hostId"];
     if (!hostId)
       return null;
@@ -262,7 +262,7 @@ var ActionsView = function(userProfile) {
     return hostName;
   }
 
-  function getTriggerBrief(actionsPkt, actionDef) {
+  function getTriggerBriefFromAction(actionsPkt, actionDef) {
     var triggerId = actionDef["triggerId"];
     if (!triggerId)
       return null;
@@ -300,22 +300,22 @@ var ActionsView = function(userProfile) {
         "actionId='" + escapeHTML(actionDef.actionId) + "'></td>";
       s += "<td>" + escapeHTML(actionDef.actionId) + "</td>";
 
-      var serverName = getServerName(actionsPkt, actionDef);
+      var serverName = getServerNameFromAction(actionsPkt, actionDef);
       if (!serverName)
         serverName = "ANY";
       s += "<td>" + escapeHTML(serverName) + "</td>";
 
-      var hostName = getHostName(actionsPkt, actionDef);
+      var hostName = getHostNameFromAction(actionsPkt, actionDef);
       if (!hostName)
         hostName = "ANY";
       s += "<td>" + escapeHTML(hostName)   + "</td>";
 
-      var hostgroupName = getHostgroupName(actionsPkt, actionDef);
+      var hostgroupName = getHostgroupNameFromAction(actionsPkt, actionDef);
       if (!hostgroupName)
         hostgroupName = "ANY";
       s += "<td>" + escapeHTML(hostgroupName) + "</td>";
 
-      var triggerBrief = getTriggerBrief(actionsPkt, actionDef);
+      var triggerBrief = getTriggerBriefFromAction(actionsPkt, actionDef);
       if (!triggerBrief)
         triggerBrief = "ANY";
       s += "<td>" + escapeHTML(triggerBrief) + "</td>";
