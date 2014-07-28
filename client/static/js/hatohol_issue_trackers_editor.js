@@ -167,7 +167,7 @@ HatoholIssueTrackersEditor.prototype.generateMainTable = function() {
   '         class="deleteIssueTracker form-control" ' +
   '         value="' + gettext("DELETE") + '" />' +
   '</form>' +
-  '<div class="ui-widget-content" style="overflow-y: auto; height: 200px">' +
+  '<div class="ui-widget-content" style="overflow-y: auto;">' +
   '<table class="table table-condensed table-striped table-hover" id=' +
   this.mainTableId + '>' +
   '  <thead>' +
