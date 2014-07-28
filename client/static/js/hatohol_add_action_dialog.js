@@ -17,7 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var HatoholAddActionDialog = function(addSucceededCb, issueTrackers) {
+var HatoholAddActionDialog = function(changedCallback, issueTrackers) {
   var self = this;
 
   var IDX_SELECTED_SERVER  = 0;
@@ -30,6 +30,7 @@ var HatoholAddActionDialog = function(addSucceededCb, issueTrackers) {
   self.selectedId[IDX_SELECTED_HOST]    = null;
   self.selectedId[IDX_SELECTED_TRIGGER] = null;
 
+  self.changedCallback = changedCallback;
   self.issueTrackers = issueTrackers;
   self.forIssueSender = !!issueTrackers;
 
@@ -346,8 +347,8 @@ var HatoholAddActionDialog = function(addSucceededCb, issueTrackers) {
     self.closeDialog();
     hatoholInfoMsgBox(gettext("Successfully created."));
 
-    if (addSucceededCb)
-      addSucceededCb();
+    if (self.changedCallback)
+      self.changedCallback();
   }
 
   function validateAddParameters() {
@@ -514,6 +515,8 @@ HatoholAddActionDialog.prototype.setupIssueTrackersEditor = function()
   var changedCallback = function(issueTrackers) {
     self.issueTrackers = issueTrackers;
     self.updateIssueTrackers(issueTrackers);
+    if (self.changedCallback)
+      self.changedCallback();
   }
   $("#editIssueTrackers").click(function() {
     new HatoholIssueTrackersEditor({
