@@ -1304,6 +1304,7 @@ bool ActionUserIdSet::isValidActionOwnerId(const UserIdType id)
 	 * but , OwnerId is USER_ID_SYSTEM -> true
 	 */
 	if (find(id) == end())
-		return false;
+		if (id != USER_ID_SYSTEM)
+			return false;
 	return true;
 }
