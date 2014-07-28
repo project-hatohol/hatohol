@@ -592,6 +592,10 @@ static bool checkActionOwner(const ActionDef &actionDef)
 		// type. Access control will be realized only by privilege.
 		return (actionDef.ownerUserId == USER_ID_SYSTEM);
 	}
+	// USER_ID_SYSTEM is the only for the type ACTION_ISSUE_SENDER, 
+	// otherwise is false.
+	if (actionDef.ownerUserId == USER_ID_SYSTEM)
+		return false;
 	return true;
 }
 
