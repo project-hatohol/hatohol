@@ -34,6 +34,9 @@ var HatoholAddActionDialog = function(changedCallback, issueTrackers) {
   self.issueTrackers = issueTrackers;
   self.forIssueSender = !!issueTrackers;
 
+  self.windowTitle = self.forIssueSender ?
+    gettext("ADD ISSUE SENDER") : gettext("ADD ACTION");
+
   var dialogButtons = [{
     text: gettext("ADD"),
     click: addButtonClickedCb,
@@ -45,7 +48,7 @@ var HatoholAddActionDialog = function(changedCallback, issueTrackers) {
 
   // call the constructor of the super class
   HatoholDialog.apply(
-    this, ["add-action-dialog", gettext("ADD ACTION"),
+    this, ["add-action-dialog", self.windowTitle,
            dialogButtons, dialogAttrs]);
 
   setTimeout(function() {
