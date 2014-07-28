@@ -1,7 +1,7 @@
-C++ 
-====
-Naming
-------
+# Coding conventions
+
+## C++
+### Naming
 Variable: lower camel case.
 
 	domainName
@@ -14,9 +14,8 @@ File name: upper camel case
 Function argument:
 An input parameter shall be 'const TYPE &'.
 
-Standards & Libraries
----------------------
-### Using
+### Standards & Libraries
+#### Using
 - STL
   * Containers such as list, vector and map.
   * String (We use UTF-8. So wstring is not used)
@@ -26,15 +25,14 @@ Standards & Libraries
 - pthread
   * Actually features are wrapped by HatoholThreadBase class and MLPL (a library for Hatohol).
 
-### Not using
+#### Not using
 - Boost
 - C++11
 However, we'll begin to use features of C++11 in near future. Probably it is
 when we support CentOS7 (g++4.7) instead of CentOS6 (g++4.4) series.
 Of course, we can now use features supported by g++4.4.
 
-Others
-------
+### Others
 - Don't use 'using namespace' in a header file.
 - Use 'static const' instead of #define to define a constant.
 - Don't return const object such as 'const string func()'.
@@ -58,14 +56,12 @@ which is defined in the source (.cc) file.
 However, for classes that need performance, it is allowed to define private
 members in the heder file.
 
-Python
-======
+## Python
 Baisically follow PEP 8
 
 Indent: 4 spaces
 String: Single quotation
 
-JavaScript
-==========
+## JavaScript
 
 String: Single quotation
