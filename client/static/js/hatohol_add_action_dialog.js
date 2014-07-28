@@ -519,11 +519,15 @@ HatoholAddActionDialog.prototype.setupIssueTrackersEditor = function()
     self.updateIssueTrackers(issueTrackers);
     if (self.changedCallback)
       self.changedCallback();
+    self.setAddButtonState(!!self.getCommand());
   }
   $("#editIssueTrackers").click(function() {
     new HatoholIssueTrackersEditor({
       changedCallback: changedCallback,
     });
+  });
+  $("#selectIssueTracker").change(function() {
+    self.setAddButtonState(!!self.getCommand());
   });
   changedCallback(self.issueTrackers);
 }
