@@ -6,9 +6,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-06-24 19:26-0500\n"
-"PO-Revision-Date: 2014-06-06 13:17+0900\n"
-"Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
+"POT-Creation-Date: 2014-07-28 12:27+0900\n"
+"PO-Revision-Date: 2014-07-28 12:53+0900\n"
+"Last-Translator: Noriki Nakamura <noriki.nakamura@miraclelinux.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
@@ -29,12 +29,12 @@ msgstr "アクション削除"
 
 #: viewer/actions_ajax.html:55 viewer/dashboard_ajax.html:58
 #: viewer/dashboard_ajax.html.py:80 viewer/events_ajax.html:67
-#: viewer/latest_ajax.html:57 viewer/triggers_ajax.html:64
+#: viewer/latest_ajax.html:59 viewer/triggers_ajax.html:66
 msgid "Server"
 msgstr "サーバ"
 
 #: viewer/actions_ajax.html:56 viewer/events_ajax.html:69
-#: viewer/latest_ajax.html:58 viewer/triggers_ajax.html:72
+#: viewer/latest_ajax.html:60 viewer/triggers_ajax.html:74
 msgid "Host"
 msgstr "ホスト"
 
@@ -47,12 +47,12 @@ msgid "Trigger"
 msgstr "トリガー"
 
 #: viewer/actions_ajax.html:59 viewer/events_ajax.html:71
-#: viewer/triggers_ajax.html:66
+#: viewer/triggers_ajax.html:68
 msgid "Status"
 msgstr "ステータス"
 
 #: viewer/actions_ajax.html:60 viewer/events_ajax.html:72
-#: viewer/triggers_ajax.html:65
+#: viewer/triggers_ajax.html:67
 msgid "Severity"
 msgstr "深刻度"
 
@@ -97,6 +97,10 @@ msgstr "パスワード変更"
 msgid "Dashboard"
 msgstr "ダッシュボード"
 
+#: viewer/dashboard_ajax.html:35
+msgid "Global status"
+msgstr "グローバルステータス"
+
 #: viewer/dashboard_ajax.html:39
 msgid "Parameter"
 msgstr "パラメータ"
@@ -104,6 +108,10 @@ msgstr "パラメータ"
 #: viewer/dashboard_ajax.html:40
 msgid "Value"
 msgstr "値"
+
+#: viewer/dashboard_ajax.html:54
+msgid "System status"
+msgstr "システムステータス"
 
 #: viewer/dashboard_ajax.html:59 viewer/dashboard_ajax.html.py:81
 msgid "Group"
@@ -132,6 +140,10 @@ msgstr "情報"
 #: viewer/dashboard_ajax.html:65
 msgid "Not classified"
 msgstr "未分類"
+
+#: viewer/dashboard_ajax.html:76
+msgid "Host status"
+msgstr "ホストステータス"
 
 #: viewer/dashboard_ajax.html:82
 msgid "Without problems"
@@ -203,9 +215,13 @@ msgstr "時間"
 msgid "Brief"
 msgstr "説明"
 
-#: viewer/events_ajax.html:73 viewer/triggers_ajax.html:69
+#: viewer/events_ajax.html:73 viewer/triggers_ajax.html:71
 msgid "Duration"
 msgstr "継続時間"
+
+#: viewer/events_ajax.html:74
+msgid "Issue"
+msgstr ""
 
 #: viewer/events_ajax.html:87
 msgid "Latest events"
@@ -252,23 +268,27 @@ msgstr "最新データ"
 msgid "Application:"
 msgstr "アプリケーション:"
 
-#: viewer/latest_ajax.html:59
+#: viewer/latest_ajax.html:52
+msgid "# of items per page"
+msgstr "ページ毎のイベント数"
+
+#: viewer/latest_ajax.html:61
 msgid "Application"
 msgstr "アプリケーション"
 
-#: viewer/latest_ajax.html:60 viewer/triggers_ajax.html:73
+#: viewer/latest_ajax.html:62 viewer/triggers_ajax.html:75
 msgid "Name"
 msgstr "名前"
 
-#: viewer/latest_ajax.html:61
+#: viewer/latest_ajax.html:63
 msgid "Last check"
 msgstr "最新の変更"
 
-#: viewer/latest_ajax.html:62
+#: viewer/latest_ajax.html:64
 msgid "Last value"
 msgstr "最新の値"
 
-#: viewer/latest_ajax.html:63
+#: viewer/latest_ajax.html:65
 msgid "Previous value"
 msgstr "前回の値"
 
@@ -308,15 +328,19 @@ msgstr ""
 msgid "Triggers"
 msgstr "トリガー"
 
-#: viewer/triggers_ajax.html:67
+#: viewer/triggers_ajax.html:59
+msgid "# of triggers per page"
+msgstr "ページ毎のトリガー数"
+
+#: viewer/triggers_ajax.html:69
 msgid "Last change"
 msgstr "最新の変更"
 
-#: viewer/triggers_ajax.html:70
+#: viewer/triggers_ajax.html:72
 msgid "Acknowledged"
 msgstr "障害対応済"
 
-#: viewer/triggers_ajax.html:75
+#: viewer/triggers_ajax.html:77
 msgid "Comment"
 msgstr "コメント"
 
