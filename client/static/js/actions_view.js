@@ -209,6 +209,7 @@ var ActionsView = function(userProfile) {
     var serverId = actionDef["serverId"];
     if (!serverId)
       return "ANY";
+
     var server = actionsPkt["servers"][serverId];
     if (!server)
       return makeNamelessServerLabel(serverId);
@@ -219,12 +220,15 @@ var ActionsView = function(userProfile) {
   }
 
   function getHostgroupNameFromAction(actionsPkt, actionDef) {
-    var hostgroupId = actionDef["hostgroupId"];
-    if (!hostgroupId)
-      return "ANY";
     var serverId = actionDef["serverId"];
-    if (!serverId)
+    var hostgroupId = actionDef["hostgroupId"];
+    if (!serverId && !hostgroupId)
+      return "ANY";
+    if (!serverId) {
+      // TODO: It's an illegal condition. What should we do for it?
       return makeNamelessHostgroupLabel(serverId, hostgroupId);
+    }
+
     var server = actionsPkt["servers"][serverId];
     if (!server)
       return makeNamelessHostgroupLabel(serverId, hostgroupId);
@@ -241,12 +245,15 @@ var ActionsView = function(userProfile) {
   }
 
   function getHostNameFromAction(actionsPkt, actionDef) {
-    var hostId = actionDef["hostId"];
-    if (!hostId)
-      return "ANY";
     var serverId = actionDef["serverId"];
-    if (!serverId)
+    var hostId = actionDef["hostId"];
+    if (!serverId && !hostId)
+      return "ANY";
+    if (!serverId) {
+      // TODO: It's an illegal condition. What should we do for it?
       return makeNamelessHostLabel(serverId, hostId);
+    }
+
     var server = actionsPkt["servers"][serverId];
     if (!server)
       return makeNamelessHostLabel(serverId, hostId);
@@ -263,12 +270,15 @@ var ActionsView = function(userProfile) {
   }
 
   function getTriggerBriefFromAction(actionsPkt, actionDef) {
-    var triggerId = actionDef["triggerId"];
-    if (!triggerId)
-      return "ANY";
     var serverId = actionDef["serverId"];
-    if (!serverId)
+    var triggerId = actionDef["triggerId"];
+    if (!serverId && !triggerId)
+      return "ANY";
+    if (!serverId) {
+      // TODO: It's an illegal condition. What should we do for it?
       return makeNamelessTriggerLabel(triggerId);
+    }
+
     var server = actionsPkt["servers"][serverId];
     if (!server)
       return makeNamelessTriggerLabel(triggerId);
