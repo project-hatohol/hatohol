@@ -397,14 +397,18 @@ protected:
 
 	static void stopIdleDeleteAction(gpointer data);
 
-	static bool checkInvalidActionOwnerId(const UserIdSet &userIdSet,
-					      const UserIdType id);
-
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
 
 };
+
+class ActionUserIdSet : public UserIdSet {
+
+public:
+	bool isValidActionOwnerId(const UserIdType id);
+};
+
 
 #endif // DBClientAction_h
 
