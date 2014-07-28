@@ -22,6 +22,7 @@
 #include "DataStoreZabbix.h"
 #include "DataStoreNagios.h"
 #include "HatoholArmPluginGate.h"
+#include "HatoholArmPluginGateJSON.h"
 
 DataStore *DataStoreFactory::create(const MonitoringServerInfo &svInfo,
                                     const bool &autoStart)
@@ -39,6 +40,10 @@ DataStore *DataStoreFactory::create(const MonitoringServerInfo &svInfo,
 		if (autoStart)
 			gate->start();
                 return gate;
+	}
+	case MONITORING_SYSTEM_HAPI_JSON:
+	{
+		return new HatoholArmPluginGateJSON(svInfo, autoStart);
 	}
 	default:
 		MLPL_BUG("Invalid monitoring system: %d\n", svInfo.type);

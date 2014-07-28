@@ -32,6 +32,7 @@ libhatohol_la_SOURCES = \
 	ActionExecArgMaker.cc ActionExecArgMaker.h \
 	ActionManager.cc ActionManager.h \
 	ActorCollector.cc ActorCollector.h \
+	AMQPConsumer.cc AMQPConsumer.h \
 	ArmBase.cc ArmBase.h \
 	ArmFake.cc ArmFake.h \
 	ArmNagiosNDOUtils.cc ArmNagiosNDOUtils.h \
@@ -72,6 +73,7 @@ libhatohol_la_SOURCES = \
 	HatoholError.cc HatoholError.h \
 	HostResourceQueryOption.cc HostResourceQueryOption.h \
 	HatoholArmPluginGate.cc HatoholArmPluginGate.h \
+	HatoholArmPluginGateJSON.cc HatoholArmPluginGateJSON.h \
 	HatoholServer.cc \
 	HatoholDBUtils.cc HatoholDBUtils.h \
 	HostInfoCache.cc HostInfoCache.h \
@@ -118,12 +120,14 @@ AM_CXXFLAGS = \
 	$(OPT_CXXFLAGS) \
 	$(MLPL_CFLAGS) $(GLIB_CFLAGS) $(GTHREAD_CFLAGS) $(GIO_CFLAGS) \
 	$(LIBSOUP_CFLAGS) $(JSON_GLIB_CFLAGS) $(SQLITE3_CFLAGS) \
-	$(UUID_CFLAGS) $(MYSQL_CFLAGS) $(COVERAGE_CFLAGS)
+	$(UUID_CFLAGS) $(LIBRABBITMQ_CFLAGS) $(MYSQL_CFLAGS) \
+	$(COVERAGE_CFLAGS)
 
 AM_LDFLAGS = -lrt \
 	$(MLPL_LIBS) $(GLIB_LIBS) $(GTHREAD_LIBS) $(GIO_LIBS) \
 	$(LIBSOUP_LIBS) $(JSON_GLIB_LIBS) $(SQLITE3_LIBS) \
-	$(UUID_LIBS) $(MYSQL_LIBS) $(COVERAGE_LIBS)
+	$(UUID_LIBS) $(LIBRABBITMQ_LIBS) $(MYSQL_LIBS) \
+	$(COVERAGE_LIBS)
 
 libhatohol_la_LDFLAGS = $(AM_LDFLAGS)
 libhatohol_la_LIBADD = libhatohol-common.la
