@@ -35,7 +35,7 @@ const UserRoleIdSet EMPTY_USER_ROLE_ID_SET;
 //   * Add user_roles table
 // 3 -> 4:
 //   * NUM_OPPRVLG:19 -> 23
-const int   DBClientUser::USER_DB_VERSION = 3;
+const int   DBClientUser::USER_DB_VERSION = 4;
 
 const char *DBClientUser::DEFAULT_DB_NAME = DBClientConfig::DEFAULT_DB_NAME;
 const char *DBClientUser::TABLE_NAME_USERS = "users";
