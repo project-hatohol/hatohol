@@ -541,7 +541,7 @@ HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
 		select(arg);
 	} DBCLIENT_TRANSACTION_END();
 
-	UserIdSet userIdSet;
+	ActionUserIdSet userIdSet;
 	getActionUser(userIdSet);
 
 	if (userIdSet.empty())
@@ -590,7 +590,7 @@ HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
 		itemGroupStream >> actionDef.ownerUserId;
 
 		UserIdType id = actionDef.ownerUserId;
-		if (!checkInvalidActionOwnerId(userIdSet,id))
+		if (!userIdSet.isValidActionOwnerId(id))
 		        actionDefList.pop_back();
 	}
 
@@ -661,7 +661,7 @@ void DBClientAction::deleteNoUserActionList()
 		select(arg);
 	} DBCLIENT_TRANSACTION_END();
 
-	UserIdSet userIdSet;
+	ActionUserIdSet userIdSet;
 	getActionUser(userIdSet);
 
 	if (userIdSet.empty())
@@ -677,7 +677,7 @@ void DBClientAction::deleteNoUserActionList()
 		itemGroupStream >> actionDef.ownerUserId;
 
 		UserIdType id = actionDef.ownerUserId;
-		if (!checkInvalidActionOwnerId(userIdSet,id))
+		if (!userIdSet.isValidActionOwnerId(id))
 		        actionIdList.push_back(actionId);
 	}
 	if (actionIdList.empty()){
@@ -973,23 +973,6 @@ void DBClientAction::stopIdleDeleteAction(gpointer data)
 		g_source_remove(delAction_ctx->idleEventId);
 }
 
-bool DBClientAction::checkInvalidActionOwnerId(const UserIdSet &userIdSet,
-					       const UserIdType id)
-{
-	/*
-	 * determine whether Action Owner User ID is invalid or valid
-	 * if OwnerId is registration in the User tables -> true
-	 * if there is no registration in the User tables -> false
-	 * but , OwnerId is USER_ID_SYSTEM -> true
-	 */
-	if (userIdSet.end() == userIdSet.find(id)) {
-		if (id != USER_ID_SYSTEM)
-			return false;
-	}
-	return true;
-}
-
-
 // ---------------------------------------------------------------------------
 // ActionsQueryOption
 // ---------------------------------------------------------------------------
@@ -1185,4 +1168,21 @@ bool ActionDef::parseIssueSenderCommand(IssueTrackerIdType &trackerId) const
 {
 	int ret = sscanf(command.c_str(), "%" FMT_ISSUE_TRACKER_ID, &trackerId);
 	return ret == 1;
+}
+
+
+// ---------------------------------------------------------------------------
+// ActionUserIdSet
+// ---------------------------------------------------------------------------
+bool ActionUserIdSet::isValidActionOwnerId(const UserIdType id)
+{
+	/*
+	 * determine whether Action Owner User ID is invalid or valid
+	 * if OwnerId is registration in the User tables -> true
+	 * if there is no registration in the User tables -> false
+	 * but , OwnerId is USER_ID_SYSTEM -> true
+	 */
+	if (find(id) == end())
+		return false;
+	return true;
 }
