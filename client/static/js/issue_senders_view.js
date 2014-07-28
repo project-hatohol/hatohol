@@ -308,8 +308,10 @@ var IssueSendersView = function(userProfile) {
 	issueTracker.nickname : gettext("Unknown");
 
       issueTrackerName += " (" + gettext("Project: ")  + issueTracker.projectId;
-      if (issueTracker.trackerId)
-	issueTrackerName += ", ", gettext("Tracker: ") + issueTracker.trackerId;
+      if (issueTracker.trackerId) {
+	issueTrackerName += ", ";
+	issueTrackerName += gettext("Tracker: ") + issueTracker.trackerId;
+      }
       issueTrackerName += ")";
       s += "<td>" + issueTrackerName + "</td>";
 
