@@ -75,7 +75,7 @@ public:
 			m_timeout,
 			0
 		};
-		int flags = 0;
+		const int flags = 0;
 		amqp_rpc_reply_t reply = amqp_consume_message(m_connection,
 							      &m_envelope,
 							      &timeout,
@@ -177,10 +177,10 @@ private:
 			return false;
 		}
 
-		int status;
-		status = amqp_socket_open(m_socket, getHost(), getPort());
+		const int status =
+			amqp_socket_open(m_socket, getHost(), getPort());
 		if (status != AMQP_STATUS_OK) {
-			string context =
+			const string context =
 				StringUtils::sprintf("open socket: %s:%u",
 						     getHost(),
 						     getPort());
@@ -193,18 +193,20 @@ private:
 
 	bool login() {
 		const char *vhost = "/";
-		int heartbeat = 1;
-		amqp_rpc_reply_t reply = amqp_login(m_connection,
-						    vhost,
-						    AMQP_DEFAULT_MAX_CHANNELS,
-						    AMQP_DEFAULT_FRAME_SIZE,
-						    heartbeat,
-						    AMQP_SASL_METHOD_PLAIN,
-						    getUser(),
-						    getPassword());
+		const int heartbeat = 1;
+		const amqp_rpc_reply_t reply =
+			amqp_login(m_connection,
+				   vhost,
+				   AMQP_DEFAULT_MAX_CHANNELS,
+				   AMQP_DEFAULT_FRAME_SIZE,
+				   heartbeat,
+				   AMQP_SASL_METHOD_PLAIN,
+				   getUser(),
+				   getPassword());
 		if (reply.reply_type != AMQP_RESPONSE_NORMAL) {
-			string context = StringUtils::sprintf("login with <%s>",
-							      getUser());
+			const string context =
+				StringUtils::sprintf("login with <%s>",
+						     getUser());
 			logErrorResponse(context.c_str(), reply);
 			return false;
 		}
@@ -215,7 +217,7 @@ private:
 		amqp_channel_open_ok_t *response;
 		response = amqp_channel_open(m_connection, m_channel);
 		if (!response) {
-			amqp_rpc_reply_t reply =
+			const amqp_rpc_reply_t reply =
 				amqp_get_rpc_reply(m_connection);
 			logErrorResponse("open channel", reply);
 			return false;
@@ -224,24 +226,25 @@ private:
 	};
 
 	bool declareQueue() {
-		amqp_bytes_t queue = amqp_cstring_bytes(m_queueAddress.c_str());
+		const amqp_bytes_t queue =
+			amqp_cstring_bytes(m_queueAddress.c_str());
 		MLPL_INFO("Queue: <%s>\n", m_queueAddress.c_str());
-		amqp_boolean_t passive = false;
-		amqp_boolean_t durable = false;
-		amqp_boolean_t exclusive = false;
-		amqp_boolean_t auto_delete = false;
-		amqp_table_t arguments = amqp_empty_table;
-		amqp_queue_declare_ok_t *response;
-		response = amqp_queue_declare(m_connection,
-					      m_channel,
-					      queue,
-					      passive,
-					      durable,
-					      exclusive,
-					      auto_delete,
-					      arguments);
+		const amqp_boolean_t passive = false;
+		const amqp_boolean_t durable = false;
+		const amqp_boolean_t exclusive = false;
+		const amqp_boolean_t auto_delete = false;
+		const amqp_table_t arguments = amqp_empty_table;
+		const amqp_queue_declare_ok_t *response =
+			amqp_queue_declare(m_connection,
+					   m_channel,
+					   queue,
+					   passive,
+					   durable,
+					   exclusive,
+					   auto_delete,
+					   arguments);
 		if (!response) {
-			amqp_rpc_reply_t reply =
+			const amqp_rpc_reply_t reply =
 				amqp_get_rpc_reply(m_connection);
 			if (reply.reply_type != AMQP_RESPONSE_NORMAL) {
 				logErrorResponse("declare queue", reply);
@@ -252,13 +255,14 @@ private:
 	};
 
 	bool startConsuming() {
-		amqp_bytes_t queue = amqp_cstring_bytes(m_queueAddress.c_str());
-		amqp_bytes_t consumer_tag = amqp_empty_bytes;
-		amqp_boolean_t no_local = false;
-		amqp_boolean_t no_ack = true;
-		amqp_boolean_t exclusive = false;
-		amqp_table_t arguments = amqp_empty_table;
-		amqp_basic_consume_ok_t *response;
+		const amqp_bytes_t queue =
+			amqp_cstring_bytes(m_queueAddress.c_str());
+		const amqp_bytes_t consumer_tag = amqp_empty_bytes;
+		const amqp_boolean_t no_local = false;
+		const amqp_boolean_t no_ack = true;
+		const amqp_boolean_t exclusive = false;
+		const amqp_table_t arguments = amqp_empty_table;
+		const amqp_basic_consume_ok_t *response;
 		response = amqp_basic_consume(m_connection,
 					      m_channel,
 					      queue,
@@ -268,7 +272,7 @@ private:
 					      exclusive,
 					      arguments);
 		if (!response) {
-			amqp_rpc_reply_t reply =
+			const amqp_rpc_reply_t reply =
 				amqp_get_rpc_reply(m_connection);
 			if (reply.reply_type != AMQP_RESPONSE_NORMAL) {
 				logErrorResponse("start consuming", reply);
@@ -313,14 +317,13 @@ gpointer AMQPConsumer::mainThread(HatoholThreadArg *arg)
 
 	while (!isExitRequested()) {
 		amqp_envelope_t *envelope;
-		bool consumed;
-		consumed = connection.consume(envelope);
+		const bool consumed = connection.consume(envelope);
 		if (!consumed)
 			continue;
 
-		amqp_bytes_t *content_type =
+		const amqp_bytes_t *content_type =
 			&(envelope->message.properties.content_type);
-		amqp_bytes_t *body = &(envelope->message.body);
+		const amqp_bytes_t *body = &(envelope->message.body);
 		MLPL_INFO("message: <%.*s>/<%.*s>\n",
 			  static_cast<int>(content_type->len),
 			  static_cast<char *>(content_type->bytes),
