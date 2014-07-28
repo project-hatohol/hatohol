@@ -99,7 +99,7 @@ var IssueSendersView = function(userProfile) {
     var deleteList = [], i;
     for (i = 0; i < checkboxes.length; i++) {
       if (checkboxes[i].checked)
-	deleteList.push(checkboxes[i].getAttribute("actionId"));
+        deleteList.push(checkboxes[i].getAttribute("actionId"));
     }
     new HatoholItemRemover({
       id: deleteList,
