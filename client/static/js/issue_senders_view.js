@@ -47,7 +47,7 @@ var IssueSendersView = function(userProfile) {
 
   $("#add-issue-sender-button").click(function() {
     var issueTrackers = self.issueTrackersData.issueTrackers;
-    new HatoholAddActionDialog(addSucceededCb, issueTrackers);
+    new HatoholAddActionDialog(load, issueTrackers);
   });
 
   $("#delete-issue-sender-button").click(function() {
@@ -57,15 +57,9 @@ var IssueSendersView = function(userProfile) {
 
   $("#edit-issue-trackers-button").click(function() {
     new HatoholIssueTrackersEditor({
-      changedCallback: function(issueTrackers) {
-	load();
-      }
+      changedCallback: load,
     });
   });
-
-  function addSucceededCb() {
-    load();
-  }
 
   //
   // Commonly used functions from a dialog.
