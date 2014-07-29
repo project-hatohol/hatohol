@@ -27,8 +27,6 @@
 
 const static uint64_t INVALID_ACTION_LOG_ID = -1;
 
-const static guint ACTION_DELETE_INTERVAL = 3600000;
-
 enum ActionType {
 	ACTION_USER_DEFINED = -2, // COMMAND & RESIDENT
 	ACTION_ALL = -1,
@@ -366,7 +364,7 @@ public:
 	 */
 	bool isIssueSenderEnabled(void);
 
-	void deleteNoUserActionList(void);
+	void deleteNoOwnerActionList(void);
 
 protected:
 	ItemDataNullFlagType getNullFlag(const ActionDef &actionDef,
@@ -391,9 +389,9 @@ protected:
 
 	void getActionUser(UserIdSet &userIdSet);
 
-	static gboolean deleteNoUserActionsCyc(gpointer data);
+	static gboolean deleteNoOwnerActionsCyc(gpointer data);
 
-	static gboolean delelteNoUserActions(gpointer data);
+	static gboolean deleteNoOwnerActions(gpointer data);
 
 	static void stopIdleDeleteAction(gpointer data);
 
