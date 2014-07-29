@@ -164,22 +164,6 @@ var ActionsView = function(userProfile) {
   //
   // Functions for make the main view.
   //
-  function makeNamelessServerLabel(serverId) {
-    return "(ID:" + serverId + ")";
-  }
-
-  function makeNamelessHostgroupLabel(serverId, hostgroupId) {
-    return "(S" + serverId + "-G" + hostgroupId + ")";
-  }
-
-  function makeNamelessHostLabel(serverId, hostId) {
-    return "(S" + serverId + "-H" + hostId + ")";
-  }
-
-  function makeNamelessTriggerLabel(triggerId) {
-    return "(T" + triggerId + ")";
-  }
-
   function makeTypeLabel(type) {
     switch(type) {
     case ACTION_COMMAND:
@@ -209,89 +193,31 @@ var ActionsView = function(userProfile) {
     var serverId = actionDef["serverId"];
     if (!serverId)
       return "ANY";
-
-    var server = actionsPkt["servers"][serverId];
-    if (!server)
-      return makeNamelessServerLabel(serverId);
-    var serverName = actionsPkt["servers"][serverId]["name"];
-    if (!serverName)
-      return makeNamelessServerLabel(serverId);
-    return serverName;
+    return getServerName(actionsPkt["servers"][serverId], serverId);
   }
 
   function getHostgroupNameFromAction(actionsPkt, actionDef) {
     var serverId = actionDef["serverId"];
     var hostgroupId = actionDef["hostgroupId"];
-    if (!serverId && !hostgroupId)
+    if (!hostgroupId)
       return "ANY";
-    if (!serverId) {
-      // TODO: It's an illegal condition. What should we do for it?
-      return makeNamelessHostgroupLabel(serverId, hostgroupId);
-    }
-
-    var server = actionsPkt["servers"][serverId];
-    if (!server)
-      return makeNamelessHostgroupLabel(serverId, hostgroupId);
-    var hostgroupArray = server["groups"];
-    if (!hostgroupArray)
-      return makeNamelessHostgroupLabel(serverId, hostgroupId);
-    var hostgroup = hostgroupArray[hostgroupId];
-    if (!hostgroup)
-      return makeNamelessHostgroupLabel(serverId, hostgroupId);
-    var hostgroupName = hostgroup["name"];
-    if (!hostgroupName)
-      return makeNamelessHostgroupLabel(serverId, hostgroupId);
-    return hostgroupName;
+    return getHostgroupName(actionsPkt["servers"][serverId], hostgroupId);
   }
 
   function getHostNameFromAction(actionsPkt, actionDef) {
     var serverId = actionDef["serverId"];
     var hostId = actionDef["hostId"];
-    if (!serverId && !hostId)
+    if (!hostId)
       return "ANY";
-    if (!serverId) {
-      // TODO: It's an illegal condition. What should we do for it?
-      return makeNamelessHostLabel(serverId, hostId);
-    }
-
-    var server = actionsPkt["servers"][serverId];
-    if (!server)
-      return makeNamelessHostLabel(serverId, hostId);
-    var hostArray = server["hosts"];
-    if (!hostArray)
-      return makeNamelessHostLabel(serverId, hostId);
-    var host = hostArray[hostId];
-    if (!host)
-      return makeNamelessHostLabel(serverId, hostId);
-    var hostName = host["name"];
-    if (!hostName)
-      return makeNamelessHostLabel(serverId, hostId);
-    return hostName;
+    return getHostName(actionsPkt["servers"][serverId], hostId);
   }
 
   function getTriggerBriefFromAction(actionsPkt, actionDef) {
     var serverId = actionDef["serverId"];
     var triggerId = actionDef["triggerId"];
-    if (!serverId && !triggerId)
+    if (!triggerId)
       return "ANY";
-    if (!serverId) {
-      // TODO: It's an illegal condition. What should we do for it?
-      return makeNamelessTriggerLabel(triggerId);
-    }
-
-    var server = actionsPkt["servers"][serverId];
-    if (!server)
-      return makeNamelessTriggerLabel(triggerId);
-    var triggerArray = server["triggers"];
-    if (!triggerArray)
-      return makeNamelessTriggerLabel(triggerId);
-    var trigger = triggerArray[triggerId];
-    if (!trigger)
-      return makeNamelessTriggerLabel(triggerId);
-    var triggerBrief = trigger["brief"];
-    if (!triggerBrief)
-      return makeNamelessTriggerLabel(triggerId);
-    return triggerBrief;
+    return getTriggerBrief(actionsPkt["servers"][serverId], triggerId);
   }
 
   //
