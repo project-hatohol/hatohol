@@ -98,67 +98,20 @@ var ActionsView = function(userProfile) {
   //
   function deleteActions() {
     $(this).dialog("close");
-    var checkbox = $(".selectcheckbox");
-    var deletedIdArray = {count:0, total:0, errors:0};
-    for (var i = 0; i < checkbox.length; i++) {
-      if (!checkbox[i].checked)
-        continue;
-      var actionId = checkbox[i].getAttribute("actionId");
-      deletedIdArray[actionId] = true;
-      deletedIdArray.count++;
-      deletedIdArray.total++;
-      deleteOneAction(actionId, deletedIdArray);
+    var checkboxes = $(".selectcheckbox");
+    var deleteList = [], i;
+    for (i = 0; i < checkboxes.length; i++) {
+      if (checkboxes[i].checked)
+        deleteList.push(checkboxes[i].getAttribute("actionId"));
     }
-    hatoholInfoMsgBox(gettext("Deleting..."));
-  }
-
-  function deleteOneAction(id, deletedIdArray) {
-    new HatoholConnector({
-      url: '/action/' + id,
-      request: "DELETE",
-      context: deletedIdArray,
-      replyCallback: function(data, parser, context) {
-        parseDeleteActionResult(data, context);
-      },
-      connectErrorCallback: function(XMLHttpRequest,
-                                     textStatus, errorThrown) {
-        var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
-          XMLHttpRequest.statusText;
-        hatoholErrorMsgBox(errorMsg);
-        deletedIdArray.errors++;
-      },
-      completionCallback: function(context) {
-        compleOneDelAction(context);
-      },
+    new HatoholItemRemover({
+      id: deleteList,
+      type: "action",
+      completionCallback: function() {
+        load();
+      }
     });
-  }
-
-  function parseDeleteActionResult(data, deletedIdArray) {
-    if (!parseResult(data))
-      return;
-    if (!(data.id in deletedIdArray)) {
-      alert("Fatal Error: You should reload page.\nID: " + data.id +
-            " is not in deletedIdArray: " + deletedIdArray);
-      deletedIdArray.errors++;
-      return;
-    }
-    delete deletedIdArray[data.id];
-  }
-
-  function compleOneDelAction(deletedIdArray) {
-    deletedIdArray.count--;
-    var completed = deletedIdArray.total - deletedIdArray.count;
-    hatoholErrorMsgBox(gettext("Deleting...") + " " + completed +
-                       " / " + deletedIdArray.total);
-    if (deletedIdArray.count > 0)
-      return;
-
-    // close dialogs
-    hatoholInfoMsgBox(gettext("Completed. (Number of errors: ") +
-                      deletedIdArray.errors + ")");
-
-    // update the main view
-    self.startConnection('action', updateCore);
+    hatoholInfoMsgBox(gettext("Deleting..."));
   }
 
   //
@@ -365,6 +318,10 @@ var ActionsView = function(userProfile) {
     $("#table tbody").empty();
     $("#table tbody").append(drawTableBody(rawData));
     self.setupCheckboxForDelete($("#delete-action-button"));
+  }
+
+  function load() {
+    self.startConnection('action', updateCore);
   }
 };
 
