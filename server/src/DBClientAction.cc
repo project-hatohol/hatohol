@@ -31,6 +31,8 @@ using namespace mlpl;
 const char *TABLE_NAME_ACTIONS     = "actions";
 const char *TABLE_NAME_ACTION_LOGS = "action_logs";
 
+const static guint ACTION_DELETE_DEFAULT_INTERVAL = 3600000;
+
 // 8 -> 9: Add actions.onwer_user_id
 int DBClientAction::ACTION_DB_VERSION = 9;
 const char *DBClientAction::DEFAULT_DB_NAME = DBClientConfig::DEFAULT_DB_NAME;
@@ -390,11 +392,11 @@ struct DBClientAction::PrivateContext
 	}
 };
 
-struct deleteNoUserActionsContext {
-	guint idleTimerId;
+struct deleteNoOwnerActionsContext {
+	guint timerId;
 	guint idleEventId;
 };
-static deleteNoUserActionsContext *delAction_ctx = NULL;
+static deleteNoOwnerActionsContext *g_deleteActionCtx = NULL;
 
 // ---------------------------------------------------------------------------
 // LogEndExecActionArg
@@ -416,11 +418,11 @@ void DBClientAction::init(void)
 	registerSetupInfo(
 	  DB_DOMAIN_ID_ACTION, DEFAULT_DB_NAME, &DB_ACTION_SETUP_FUNC_ARG);
 
-	delAction_ctx = new deleteNoUserActionsContext;
-	delAction_ctx->idleEventId = INVALID_EVENT_ID;
-	delAction_ctx->idleTimerId = g_timeout_add(ACTION_DELETE_INTERVAL, 
-						   delelteNoUserActions,
-						   delAction_ctx);
+	g_deleteActionCtx = new deleteNoOwnerActionsContext;
+	g_deleteActionCtx->idleEventId = INVALID_EVENT_ID;
+	g_deleteActionCtx->timerId = g_timeout_add(ACTION_DELETE_DEFAULT_INTERVAL,
+	                                           deleteNoOwnerActions,
+	                                           g_deleteActionCtx);
 }
 
 void DBClientAction::reset(void)
@@ -552,8 +554,7 @@ HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
 		ItemGroupStream itemGroupStream(*itemGrpItr);
-		actionDefList.push_back(ActionDef());
-		ActionDef &actionDef = actionDefList.back();
+		ActionDef actionDef;
 
 		itemGroupStream >> actionDef.id;
 
@@ -589,9 +590,10 @@ HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
 		itemGroupStream >> actionDef.timeout;
 		itemGroupStream >> actionDef.ownerUserId;
 
-		UserIdType id = actionDef.ownerUserId;
-		if (!userIdSet.isValidActionOwnerId(id))
-		        actionDefList.pop_back();
+		const UserIdType id = actionDef.ownerUserId;
+		if (userIdSet.isValidActionOwnerId(id))
+			actionDefList.push_back(actionDef);
+		//actionDefList.pop_back();
 	}
 
 	return HTERR_OK;
@@ -648,10 +650,9 @@ HatoholError DBClientAction::deleteActions(const ActionIdList &idList,
 	return HTERR_OK;
 }
 
-void DBClientAction::deleteNoUserActionList()
+void DBClientAction::deleteNoOwnerActionList()
 {
 	ActionIdList actionIdList;
-	uint64_t     actionId;
 
 	DBAgent::SelectExArg arg(tableProfileActions);
 	arg.add(IDX_ACTIONS_ACTION_ID);
@@ -672,6 +673,7 @@ void DBClientAction::deleteNoUserActionList()
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
 		ItemGroupStream itemGroupStream(*itemGrpItr);
 		ActionDef actionDef;
+		uint64_t  actionId;
 
 		itemGroupStream >> actionId;
 		itemGroupStream >> actionDef.ownerUserId;
@@ -942,35 +944,34 @@ void DBClientAction::getActionUser(UserIdSet &userIdSet)
 	return;
 }
 
-gboolean DBClientAction::deleteNoUserActionsCyc(gpointer data)
+gboolean DBClientAction::deleteNoOwnerActionsCyc(gpointer data)
 {
-	deleteNoUserActionsContext *delAction_ctx = static_cast<deleteNoUserActionsContext *>(data);
+	deleteNoOwnerActionsContext *g_deleteActionCtx = static_cast<deleteNoOwnerActionsContext *>(data);
 	CacheServiceDBClient cache;
 	DBClientAction *delAction = cache.getAction();
-	delAction->deleteNoUserActionList();
-	delAction_ctx->idleEventId = INVALID_EVENT_ID;
-	delAction_ctx->idleTimerId = g_timeout_add(ACTION_DELETE_INTERVAL, 
-						   delelteNoUserActions,
-						   delAction_ctx);
-	return FALSE;
+	delAction->deleteNoOwnerActionList();
+	g_deleteActionCtx->idleEventId = INVALID_EVENT_ID;
+	g_deleteActionCtx->timerId = g_timeout_add(ACTION_DELETE_DEFAULT_INTERVAL, 
+	                                           deleteNoOwnerActions,
+	                                           g_deleteActionCtx);
+	return G_SOURCE_REMOVE;
 }
 
-gboolean DBClientAction::delelteNoUserActions(gpointer data)
+gboolean DBClientAction::deleteNoOwnerActions(gpointer data)
 {
-	deleteNoUserActionsContext *delAction_ctx = static_cast<deleteNoUserActionsContext *>(data);
-	g_source_remove(delAction_ctx->idleTimerId);
-	delAction_ctx->idleTimerId = INVALID_EVENT_ID;
-	delAction_ctx->idleEventId = Utils::setGLibIdleEvent(deleteNoUserActionsCyc,
-	                                                     delAction_ctx);
+	deleteNoOwnerActionsContext *g_deleteActionCtx = static_cast<deleteNoOwnerActionsContext *>(data);
+	g_deleteActionCtx->timerId = INVALID_EVENT_ID;
+	g_deleteActionCtx->idleEventId = Utils::setGLibIdleEvent(deleteNoOwnerActionsCyc,
+	                                                         g_deleteActionCtx);
 	return G_SOURCE_REMOVE;
 }
 
 void DBClientAction::stopIdleDeleteAction(gpointer data)
 {
-	if (delAction_ctx->idleTimerId != INVALID_EVENT_ID)
-		g_source_remove(delAction_ctx->idleTimerId);
-	if (delAction_ctx->idleEventId != INVALID_EVENT_ID)
-		g_source_remove(delAction_ctx->idleEventId);
+	if (g_deleteActionCtx->timerId != INVALID_EVENT_ID)
+		g_source_remove(g_deleteActionCtx->timerId);
+	if (g_deleteActionCtx->idleEventId != INVALID_EVENT_ID)
+		g_source_remove(g_deleteActionCtx->idleEventId);
 }
 
 // ---------------------------------------------------------------------------
@@ -1182,8 +1183,9 @@ bool ActionUserIdSet::isValidActionOwnerId(const UserIdType id)
 	 * if there is no registration in the User tables -> false
 	 * but , OwnerId is USER_ID_SYSTEM -> true
 	 */
-	if (find(id) == end())
+	if (find(id) == end()) {
 		if (id != USER_ID_SYSTEM)
 			return false;
+	}
 	return true;
 }
