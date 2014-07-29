@@ -595,7 +595,7 @@ static bool checkActionOwner(const ActionDef &actionDef)
 	}
 	// USER_ID_SYSTEM is the only for the type ACTION_ISSUE_SENDER,
 	// otherwise is false.
-	HATOHOL_ASSERT (actionDef.ownerUserId == USER_ID_SYSTEM,
+	HATOHOL_ASSERT (actionDef.ownerUserId != USER_ID_SYSTEM,
 	                "Invalid userid: %d\n", actionDef.ownerUserId );
 
 	return true;
