@@ -621,17 +621,17 @@ HatoholError DBClientUser::deleteUserInfo(
 	if (!privilege.has(OPPRVLG_DELETE_USER))
 		return HTERR_NO_PRIVILEGE;
 
-	DBAgent::DeleteArg arg_u(tableProfileUsers);
-	const ColumnDef &colId_u = COLUMN_DEF_USERS[IDX_USERS_ID];
-	arg_u.condition = StringUtils::sprintf("%s=%" FMT_USER_ID,
-					       colId_u.columnName, userId);
-	DBAgent::DeleteArg arg_a(tableProfileAccessList);
-	const ColumnDef &colId_a = COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID];
-	arg_a.condition = StringUtils::sprintf("%s=%" FMT_USER_ID,
-					       colId_a.columnName, userId);
+	DBAgent::DeleteArg argForUsers(tableProfileUsers);
+	const ColumnDef &colIdForUsers = COLUMN_DEF_USERS[IDX_USERS_ID];
+	argForUsers.condition = StringUtils::sprintf("%s=%" FMT_USER_ID,
+					       colIdForUsers.columnName, userId);
+	DBAgent::DeleteArg argForAccessList(tableProfileAccessList);
+	const ColumnDef &colIdForAccessList = COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID];
+	argForAccessList.condition = StringUtils::sprintf("%s=%" FMT_USER_ID,
+					       colIdForAccessList.columnName, userId);
 	DBCLIENT_TRANSACTION_BEGIN() {
-		deleteRows(arg_u);
-		deleteRows(arg_a);
+		deleteRows(argForUsers);
+		deleteRows(argForAccessList);
 	} DBCLIENT_TRANSACTION_END();
 	return HTERR_OK;
 }
@@ -747,18 +747,16 @@ bool DBClientUser::getUserInfo(UserInfo &userInfo, const UserIdType userId)
 
 void DBClientUser::getUserIdSet(UserIdSet &userIdSet)
 {
-        UserIdType   id;
 	UserInfoList userInfoList;
-	string       condition = "";
+	const string condition = "";
 
 	getUserInfoList(userInfoList, condition);
 	if (userInfoList.empty())
 		return;
 	UserInfoListIterator it = userInfoList.begin();
 	for(; it != userInfoList.end();++it) {
-	        const UserInfo &userInfo = *it;
-   	        id = userInfo.id;
-	        userIdSet.insert(id);
+		const UserInfo &userInfo = *it;
+		userIdSet.insert(userInfo.id);
 	}
 }
 
