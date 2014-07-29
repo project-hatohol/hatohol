@@ -35,7 +35,7 @@ var ActionsView = function(userProfile) {
       userProfile.hasFlag(hatohol.OPPRVLG_DELETE_ALL_ACTION)) {
     $("#delete-action-button").show();
   }
-  self.startConnection('action', updateCore);
+  load();
 
   //
   // Main view
@@ -49,17 +49,13 @@ var ActionsView = function(userProfile) {
   });
 
   $("#add-action-button").click(function() {
-    new HatoholAddActionDialog(addSucceededCb);
+    new HatoholAddActionDialog(load);
   });
 
   $("#delete-action-button").click(function() {
     var msg = gettext("Do you delete the selected items ?");
     hatoholNoYesMsgBox(msg, deleteActions);
   });
-
-  function addSucceededCb() {
-    self.startConnection('action', updateCore);
-  }
 
   //
   // Commonly used functions from a dialog.
