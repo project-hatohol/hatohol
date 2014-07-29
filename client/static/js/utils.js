@@ -169,7 +169,7 @@ function getHostgroupName(server, hostgroupId) {
     return gettext("Unknown") + " (ID: " + hostgroupId + ")";
   }
 
-  if (!server || !server["groups"] || !(hostroupId in server["groups"]))
+  if (!server || !server["groups"] || !(hostgroupId in server["groups"]))
     return getNamelessHostgroupName(hostgroupId);
 
   var hostgroupName = server["groups"][hostgroupId]["name"];

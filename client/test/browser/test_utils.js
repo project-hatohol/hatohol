@@ -129,4 +129,108 @@ describe('getMapsLocation', function() {
   });
 });
 
+describe('getServerName', function() {
+  it('with valid name', function() {
+      var server = { "name": "server" };
+      var serverId = 2;
+      expect(getServerName(server, serverId)).to.be("server");
+  });
+
+  it('with no server', function() {
+      var serverId = 2;
+      var expected = gettext("Unknown") + " (ID: " + serverId + ")";
+      expect(getServerName(undefined, serverId)).to.be(expected);
+  });
+
+  it('with no name', function() {
+      var serverId = 2;
+      var expected = gettext("Unknown") + " (ID: " + serverId + ")";
+      expect(getServerName({}, serverId)).to.be(expected);
+  });
+});
+
+describe('getHostName', function() {
+  it('with valid name', function() {
+      var server = {
+	  "name": "server",
+	  "hosts": {
+	      "2": {
+		  "name": "host"
+	      }
+	  }
+      };
+      var id = 2;
+      expect(getHostName(server, id)).to.be("host");
+  });
+
+  it('with no server', function() {
+      var id = 2;
+      var expected = gettext("Unknown") + " (ID: " + id + ")";
+      expect(getHostName(undefined, id)).to.be(expected);
+  });
+
+  it('with no host', function() {
+      var id = 2;
+      var expected = gettext("Unknown") + " (ID: " + id + ")";
+      var server = { "name": "server" };
+      expect(getHostName(server, id)).to.be(expected);
+  });
+});
+
+describe('getHostgroupName', function() {
+  it('with valid name', function() {
+      var server = {
+	  "name": "server",
+	  "groups": {
+	      "2": {
+		  "name": "hostgroup"
+	      }
+	  }
+      };
+      var id = 2;
+      expect(getHostgroupName(server, id)).to.be("hostgroup");
+  });
+
+  it('with no server', function() {
+      var id = 2;
+      var expected = gettext("Unknown") + " (ID: " + id + ")";
+      expect(getHostgroupName(undefined, id)).to.be(expected);
+  });
+
+  it('with no hostgroup', function() {
+      var id = 2;
+      var expected = gettext("Unknown") + " (ID: " + id + ")";
+      var server = { "name": "server" };
+      expect(getHostgroupName(server, id)).to.be(expected);
+  });
+});
+
+describe('getTriggerBrief', function() {
+  it('with valid name', function() {
+      var server = {
+	  "name": "server",
+	  "triggers": {
+	      "2": {
+		  "name": "trigger"
+	      }
+	  }
+      };
+      var id = 2;
+      expect(getTriggerBrief(server, id)).to.be("trigger");
+  });
+
+  it('with no server', function() {
+      var id = 2;
+      var expected = gettext("Unknown") + " (ID: " + id + ")";
+      expect(getTriggerBrief(undefined, id)).to.be(expected);
+  });
+
+  it('with no trigger', function() {
+      var id = 2;
+      var expected = gettext("Unknown") + " (ID: " + id + ")";
+      var server = { "name": "server" };
+      expect(getTriggerBrief(server, id)).to.be(expected);
+  });
+});
+
 });
