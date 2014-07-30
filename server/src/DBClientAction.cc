@@ -17,6 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <exception>
 #include "Utils.h"
 #include "ConfigManager.h"
 #include "CacheServiceDBClient.h"
@@ -948,7 +949,11 @@ gboolean DBClientAction::deleteNoOwnerActionsCyc(gpointer data)
 	deleteNoOwnerActionsContext *g_deleteActionCtx = static_cast<deleteNoOwnerActionsContext *>(data);
 	CacheServiceDBClient cache;
 	DBClientAction *delAction = cache.getAction();
-	delAction->deleteNoOwnerActionList();
+	try {
+		delAction->deleteNoOwnerActionList();
+	} catch (const exception &e) {
+		MLPL_ERR("Got Exception: %s\n", e.what());
+	}
 	g_deleteActionCtx->idleEventId = INVALID_EVENT_ID;
 	g_deleteActionCtx->timerId = g_timeout_add(DEFAULT_ACTION_DELETE_INTERVAL, 
 	                                           deleteNoOwnerActions,
