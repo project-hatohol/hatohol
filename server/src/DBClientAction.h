@@ -364,7 +364,7 @@ public:
 	 */
 	bool isIssueSenderEnabled(void);
 
-	void deleteNoOwnerActionList(void);
+	void deleteNoOwnerActions(void);
 
 protected:
 	ItemDataNullFlagType getNullFlag(const ActionDef &actionDef,
@@ -389,9 +389,9 @@ protected:
 
 	void getActionUser(UserIdSet &userIdSet);
 
-	static gboolean deleteNoOwnerActionsCyc(gpointer data);
+	static gboolean deleteNoOwnerActionsCycl(gpointer data);
 
-	static gboolean deleteNoOwnerActions(gpointer data);
+	static gboolean deleteNoOwnerActionsExec(gpointer data);
 
 	static void stopIdleDeleteAction(gpointer data);
 
