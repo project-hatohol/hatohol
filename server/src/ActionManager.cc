@@ -593,9 +593,8 @@ static bool checkActionOwner(const ActionDef &actionDef)
 		// type. Access control will be realized only by privilege.
 		return (actionDef.ownerUserId == USER_ID_SYSTEM);
 	}
-	HATOHOL_ASSERT (actionDef.ownerUserId != USER_ID_SYSTEM,
-	                "Invalid userid: %d\n", actionDef.ownerUserId );
-
+	HATOHOL_ASSERT(actionDef.ownerUserId != USER_ID_SYSTEM,
+	               "Invalid userid: %d\n", actionDef.ownerUserId);
 	return true;
 }
 
