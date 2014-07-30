@@ -355,49 +355,49 @@ HatoholIssueTrackerEditor.prototype.createMainElement = function() {
   }
 
   html +=
+  '<div>' +
   '<label>' + gettext("Type") + '</label>' +
-  '<br>' +
   '<select id="selectIssueTrackerType" style="width:10em">' +
   '  <option value="' + hatohol.ISSUE_TRACKER_REDMINE + '">' +
     gettext("Redmine") + '</option>' +
   '</select>' +
-  '<br>' +
+  '</div>' +
+  '<div>' +
   '<label for="editIssueTrackerNickname">' + gettext("Nickname") + '</label>' +
-  '<br>' +
   '<input id="editIssueTrackerNickname" type="text" ' +
   '       value="' + escapeHTML(nickname) + '"' +
-  '       class="input-xlarge">' +
-  '<br>' +
+  '       class="input-xlarge; aria-label=hoge; placeholder=hoge;">' +
+  '</div>' +
+  '<div>' +
   '<label for="editIssueTrackerBaseURL">' + gettext("Base URL") + '</label>' +
-  '<br>' +
   '<input id="editIssueTrackerBaseURL" type="text" ' +
   '       value="' + escapeHTML(baseURL) + '"' +
   '       class="input-xlarge">' +
-  '<br>' +
+  '</div>' +
+  '<div>' +
   '<label for="editIssueTrackerProjectId">' + gettext("Project ID") + '</label>' +
-  '<br>' +
   '<input id="editIssueTrackerProjectId" type="text" ' +
   '       value="' + escapeHTML(projectId) + '"' +
   '       class="input-xlarge">' +
-  '<br>' +
+  '</div>' +
+  '<div>' +
   '<label for="editIssueTrackerProjectId">' + gettext("Tracker ID") + '</label>' +
-  '<br>' +
   '<input id="editIssueTrackerTrackerId" type="text" ' +
   '       value="' + escapeHTML(trackerId) + '"' +
   '       class="input-xlarge">' +
-  '<br>' +
+  '</div>' +
+  '<div>' +
   '<label for="editIssueTrackerUserName">' + gettext("User name") + '</label>' +
-  '<br>' +
   '<input id="editIssueTrackerUserName" type="text" ' +
   '       value="' + escapeHTML(userName) + '"' +
   '       class="input-xlarge">' +
-  '<br>' +
-  '<input type="checkbox" id="editPasswordCheckbox"> ' +
+  '</div>' +
+  '<div>' +
   '<label for="editIssueTrackerPassword">' + gettext("Password") + '</label>' +
-  '<br>' +
   '<input id="editIssueTrackerPassword" type="text" ' +
   '       class="input-xlarge">' +
-  '<br>';
+  '<input type="checkbox" id="editPasswordCheckbox"> ' +
+  '</div>';
 
   return html;
 };
