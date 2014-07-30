@@ -366,7 +366,7 @@ HatoholIssueTrackerEditor.prototype.createMainElement = function() {
   '<label for="editIssueTrackerNickname">' + gettext("Nickname") + '</label>' +
   '<input id="editIssueTrackerNickname" type="text" ' +
   '       value="' + escapeHTML(nickname) + '"' +
-  '       class="input-xlarge; aria-label=hoge; placeholder=hoge;">' +
+  '       class="input-xlarge">' +
   '</div>' +
   '<div>' +
   '<label for="editIssueTrackerBaseURL">' + gettext("Base URL") + '</label>' +
