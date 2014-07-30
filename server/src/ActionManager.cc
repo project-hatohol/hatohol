@@ -593,8 +593,6 @@ static bool checkActionOwner(const ActionDef &actionDef)
 		// type. Access control will be realized only by privilege.
 		return (actionDef.ownerUserId == USER_ID_SYSTEM);
 	}
-	// The owner of the action should not be USER_ID_SYSTEM at this point.
-	// USER_ID_SYSTEM is used only for the issue sender.
 	HATOHOL_ASSERT(actionDef.ownerUserId != USER_ID_SYSTEM,
 	               "Invalid userid: %d\n", actionDef.ownerUserId);
 	return true;
