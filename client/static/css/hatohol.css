@@ -47,3 +47,15 @@ div.hatohol-pager {
   margin-right: 0.5em;
   text-align: right;
 }
+
+#issueTrackerEditor label
+{
+  width: 6em;
+  margin-right: 0.5em;
+  text-align: right;
+}
+
+#issueTrackerEditor input
+{
+  width: 80%;
+}

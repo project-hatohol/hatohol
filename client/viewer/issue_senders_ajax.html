@@ -28,6 +28,152 @@
 <div id="main">
   <h2>{% trans "Issue senders" %}</h2>
 
+<!-- issueTrackersEditor -->
+<div class="modal fade" id="issueTrackersEditor" tabindex="-1" role="dialog"
+     aria-labelledby="issueTrackersEditorLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">
+	  <span aria-hidden="true">&times;</span>
+	  <span class="sr-only">{% trans "Close" %}</span></button>
+        <h4 class="modal-title" id="issueTrackersEditorLabel">
+	  Edit issue tracking servers
+	</h4>
+      </div>
+      <div class="modal-body">
+
+
+	<form class="form-inline">
+	  <input id="addIssueTrackerButton" type="button"
+		 class="addIssueTracker form-control"
+		 value="{% trans "Add" %}" />
+	  <input id="deleteIssueTrackersButton" type="button" disabled
+		 class="deleteIssueTracker form-control"
+		 value="{% trans "Delete" %}" />
+	</form>
+	<div class="ui-widget-content" style="overflow-y: auto;">
+	  <table class="table table-condensed table-striped table-hover"
+		 id="issueTrackersEditorMainTable">
+	    <thead>
+	      <tr>
+		<th class="deleteIssueTracker"> </th>
+		<th> {% trans "ID" %} </th>
+		<th> {% trans "Type" %} </th>
+		<th> {% trans "Nickname" %} </th>
+		<th> {% trans "Base URL" %} </th>
+		<th> {% trans "Project ID" %} </th>
+		<th> {% trans "Tracker ID" %} </th>
+		<th></th>
+	      </tr>
+	    </thead>
+	    <tbody></tbody>
+	  </table>
+	</div>
+
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">
+	  Close
+	</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- End of issueTrackersEditor -->
+
+<!-- issueTrackerEditor -->
+<div class="modal fade" id="issueTrackerEditor" tabindex="-1" role="dialog"
+     aria-labelledby="issueTrackerEditorLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">
+	  <span aria-hidden="true">&times;</span>
+	  <span class="sr-only">{% trans "Close" %}</span></button>
+        <h4 class="modal-title" id="issueTrackerEditorLabel">
+	  Edit issue tracking server
+	</h4>
+      </div>
+      <div class="modal-body">
+
+	<div>
+	  <label> {% trans "Type" %} </label>
+	  <select id="selectIssueTrackerType" style="width:10em">
+	    <option value="0">
+	      {% trans "Redmine" %}
+	    </option>
+	  </select>
+	</div>
+
+	<div>
+	  <label for="editIssueTrackerNickname">
+	    {% trans "Nickname" %}
+	  </label>
+	  <input id="editIssueTrackerNickname" type="text"
+		 class="input-xlarge">
+	</div>
+	<div>
+	  <label for="editIssueTrackerBaseURL">
+	    {% trans "Base URL" %}
+	  </label>
+	  <input id="editIssueTrackerBaseURL" type="text"
+		 class="input-xlarge">
+	</div>
+	<div>
+	  <label for="editIssueTrackerProjectId">
+	    {% trans "Project ID" %}
+	  </label>
+	  <input id="editIssueTrackerProjectId" type="text"
+		 class="input-xlarge">
+	</div>
+	<div>
+	  <label for="editIssueTrackerProjectId">
+	    {% trans "Tracker ID" %}
+	  </label>
+	  <input id="editIssueTrackerTrackerId" type="text"
+		 class="input-xlarge">
+	</div>
+	<div>
+	  <label for="editIssueTrackerUserName">
+	    {% trans "User name" %}
+	  </label>
+	  <input id="editIssueTrackerUserName" type="text"
+		 class="input-xlarge">
+	</div>
+	<div>
+	  <label for="editIssueTrackerPassword">
+	    {% trans "Password" %}
+	  </label>
+	  <input id="editIssueTrackerPassword" type="text"
+		 class="input-xlarge">
+	  <input type="checkbox" id="editPasswordCheckbox">
+	</div>
+
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">
+	  Close
+	</button>
+	<button type="button" class="btn btn-primary"
+		id="saveIssueTrackerButton">
+	  Save
+	</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- End of issueTrackerEditor -->
+
+<button class="btn btn-default"
+	data-toggle="modal"
+        data-target="#issueTrackersEditor">
+  <span class="glyphicon glyphicon-cog"></span>
+  Edit issue tracking servers
+</button>
+
   <form class="form-inline">
     <div class="btn-toolbar" role="toolbar">
       <button id="add-issue-sender-button" type="button" class="btn btn-default">

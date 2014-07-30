@@ -22,28 +22,18 @@
  */
 var HatoholIssueTrackersEditor = function(params) {
   var self = this;
-  var dialogButtons = [{
-    text: gettext("CLOSE"),
-    click: closeButtonClickedCb
-  }];
+
   self.mainTableId = "issueTrackersEditorMainTable";
   self.changedCallback = params.changedCallback;
   self.issueTrackersData = null;
 
-  // call the constructor of the super class
-  var dialogAttrs = { width: "800" };
-  HatoholDialog.apply(
-    this, ["issue-trackers-editor", gettext("EDIT ISSUE TRACKING SERVERS"),
-           dialogButtons, dialogAttrs]);
-
   //
   // Dialog button handlers
   //
-  function closeButtonClickedCb() {
-    self.closeDialog();
+  $('#issueTrackersEditor').on('hide.bs.modal', function (e) {
     if (self.changed && self.changedCallback)
       self.changedCallback(self.issueTrackersData.issueTrackers);
-  }
+  });
 
   function deleteIssueTrackers() {
     var deleteList = [], id;
@@ -67,6 +57,7 @@ var HatoholIssueTrackersEditor = function(params) {
   }
 
   $("#addIssueTrackerButton").click(function() {
+    $("#issueTrackerEditor").modal("show");
     new HatoholIssueTrackerEditor({
       succeededCallback: function() {
         self.load();
@@ -82,9 +73,6 @@ var HatoholIssueTrackersEditor = function(params) {
 
   self.load();
 };
-
-HatoholIssueTrackersEditor.prototype = Object.create(HatoholDialog.prototype);
-HatoholIssueTrackersEditor.prototype.constructor = HatoholIssueTrackersEditor;
 
 HatoholIssueTrackersEditor.prototype.load = function() {
   var self = this;
@@ -136,6 +124,7 @@ HatoholIssueTrackersEditor.prototype.updateMainTable = function() {
       id = "#editIssueTracker" + issueTrackers[i]["id"];
       $(id).click(function() {
         var issueTrackerId = this.getAttribute("issueTrackerId");
+	$('#issueTrackerEditor').modal("show");
         new HatoholIssueTrackerEditor({
           succeededCallback: function() {
             self.load();
@@ -155,37 +144,6 @@ HatoholIssueTrackersEditor.prototype.updateMainTable = function() {
   tbody.empty().append(rows);
   setupCheckboxes();
   setupEditButtons();
-};
-
-HatoholIssueTrackersEditor.prototype.generateMainTable = function() {
-  var html =
-  '<form class="form-inline">' +
-  '  <input id="addIssueTrackerButton" type="button" ' +
-  '         class="addIssueTracker form-control"' +
-  '         value="' + gettext("ADD") + '" />' +
-  '  <input id="deleteIssueTrackersButton" type="button" disabled ' +
-  '         class="deleteIssueTracker form-control" ' +
-  '         value="' + gettext("DELETE") + '" />' +
-  '</form>' +
-  '<div class="ui-widget-content" style="overflow-y: auto;">' +
-  '<table class="table table-condensed table-striped table-hover" id=' +
-  this.mainTableId + '>' +
-  '  <thead>' +
-  '    <tr>' +
-  '      <th class="deleteIssueTracker"> </th>' +
-  '      <th>' + gettext("ID") + '</th>' +
-  '      <th>' + gettext("Type") + '</th>' +
-  '      <th>' + gettext("Nickname") + '</th>' +
-  '      <th>' + gettext("Base URL") + '</th>' +
-  '      <th>' + gettext("Project ID") + '</th>' +
-  '      <th>' + gettext("Tracker ID") + '</th>' +
-  '      <th></th>' +
-  '    </tr>' +
-  '  </thead>' +
-  '  <tbody></tbody>' +
-  '</table>' +
-  '</div>';
-  return html;
 };
 
 HatoholIssueTrackersEditor.prototype.generateTableRows = function(data) {
@@ -219,12 +177,6 @@ HatoholIssueTrackersEditor.prototype.generateTableRows = function(data) {
   return html;
 };
 
-HatoholIssueTrackersEditor.prototype.createMainElement = function() {
-  var self = this;
-  var element = $(this.generateMainTable());
-  return element;
-};
-
 
 
 /*
@@ -233,43 +185,24 @@ HatoholIssueTrackersEditor.prototype.createMainElement = function() {
 var HatoholIssueTrackerEditor = function(params) {
   var self = this;
 
-  self.issueTracker = params.issueTracker;
+  self.setIssueTracker(params.issueTracker);
   self.succeededCallback = params.succeededCallback;
   self.windowTitle = self.issueTracker ?
     gettext("EDIT ISSUE TRACKING SERVER") :
     gettext("ADD ISSUE TRACKING SERVER");
-  self.applyButtonTitle = self.issueTracker ?
-    gettext("APPLY") : gettext("ADD");
-
-  var dialogButtons = [{
-    text: self.applyButtonTitle,
-    click: applyButtonClickedCb
-  }, {
-    text: gettext("CANCEL"),
-    click: cancelButtonClickedCb
-  }];
-
-  // call the constructor of the super class
-  dialogAttrs = { width: "auto" };
-  HatoholDialog.apply(
-    this, ["issue-tracker-editor", self.windowTitle,
-           dialogButtons, dialogAttrs]);
 
   //
   // Dialog button handlers
   //
-  function applyButtonClickedCb() {
+  //function applyButtonClickedCb() {
+  $("#saveIssueTrackerButton").click(function() {
     if (validateParameters()) {
       makeQueryData();
-      if (self.issueTracker)
-        hatoholInfoMsgBox(
-	  gettext("Now updating the issue tracking server ..."));
-      else
-        hatoholInfoMsgBox(
-	  gettext("Now creating an issue tracking server ..."));
+      hatoholInfoMsgBox(
+	gettext("Now saving the issue tracking server ..."));
       postIssueTracker();
     }
-  }
+  });
 
   function makeQueryData() {
     var queryData = {};
@@ -298,7 +231,7 @@ var HatoholIssueTrackerEditor = function(params) {
   }
 
   function replyCallback(reply, parser) {
-    self.closeDialog();
+    $("#issueTrackerEditor").modal("hide");
     if (self.issueTracker)
       hatoholInfoMsgBox(gettext("Successfully updated."));
     else
@@ -337,69 +270,14 @@ var HatoholIssueTrackerEditor = function(params) {
   }
 };
 
-HatoholIssueTrackerEditor.prototype = Object.create(HatoholDialog.prototype);
-HatoholIssueTrackerEditor.prototype.constructor = HatoholIssueTrackerEditor;
+HatoholIssueTrackerEditor.prototype.setIssueTracker = function(tracker) {
+  this.issueTracker = tracker;
 
-HatoholIssueTrackerEditor.prototype.createMainElement = function() {
-  var html = '<div>';
-  var tracker = this.issueTracker;
-  var nickname = "", baseURL = "", projectId = "", trackerId = "";
-  var userName = "";
-
-  if (tracker) {
-    nickname = tracker.nickname;
-    baseURL = tracker.baseURL;
-    projectId = tracker.projectId;
-    trackerId = tracker.trackerId;
-    userName = tracker.userName;
-  }
-
-  html +=
-  '<div>' +
-  '<label>' + gettext("Type") + '</label>' +
-  '<select id="selectIssueTrackerType" style="width:10em">' +
-  '  <option value="' + hatohol.ISSUE_TRACKER_REDMINE + '">' +
-    gettext("Redmine") + '</option>' +
-  '</select>' +
-  '</div>' +
-  '<div>' +
-  '<label for="editIssueTrackerNickname">' + gettext("Nickname") + '</label>' +
-  '<input id="editIssueTrackerNickname" type="text" ' +
-  '       value="' + escapeHTML(nickname) + '"' +
-  '       class="input-xlarge">' +
-  '</div>' +
-  '<div>' +
-  '<label for="editIssueTrackerBaseURL">' + gettext("Base URL") + '</label>' +
-  '<input id="editIssueTrackerBaseURL" type="text" ' +
-  '       value="' + escapeHTML(baseURL) + '"' +
-  '       class="input-xlarge">' +
-  '</div>' +
-  '<div>' +
-  '<label for="editIssueTrackerProjectId">' + gettext("Project ID") + '</label>' +
-  '<input id="editIssueTrackerProjectId" type="text" ' +
-  '       value="' + escapeHTML(projectId) + '"' +
-  '       class="input-xlarge">' +
-  '</div>' +
-  '<div>' +
-  '<label for="editIssueTrackerProjectId">' + gettext("Tracker ID") + '</label>' +
-  '<input id="editIssueTrackerTrackerId" type="text" ' +
-  '       value="' + escapeHTML(trackerId) + '"' +
-  '       class="input-xlarge">' +
-  '</div>' +
-  '<div>' +
-  '<label for="editIssueTrackerUserName">' + gettext("User name") + '</label>' +
-  '<input id="editIssueTrackerUserName" type="text" ' +
-  '       value="' + escapeHTML(userName) + '"' +
-  '       class="input-xlarge">' +
-  '</div>' +
-  '<div>' +
-  '<label for="editIssueTrackerPassword">' + gettext("Password") + '</label>' +
-  '<input id="editIssueTrackerPassword" type="text" ' +
-  '       class="input-xlarge">' +
-  '<input type="checkbox" id="editPasswordCheckbox"> ' +
-  '</div>';
-
-  return html;
+  $("#editIssueTrackerNickname").val(tracker ? tracker.nickname : "");
+  $("#editIssueTrackerBaseURL").val(tracker ? tracker.baseURL : "");
+  $("#editIssueTrackerProjectId").val(tracker ? tracker.projectId : "");
+  $("#editIssueTrackerTrackerId").val(tracker ? tracker.trackerId : "");
+  $("#editIssueTrackerUserName").val(tracker ? tracker.userName : "");
 };
 
 HatoholIssueTrackerEditor.prototype.onAppendMainElement = function () {

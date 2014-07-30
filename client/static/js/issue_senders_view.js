@@ -61,6 +61,12 @@ var IssueSendersView = function(userProfile) {
     });
   });
 
+  $('#issueTrackersEditor').on('show.bs.modal', function (e) {
+    new HatoholIssueTrackersEditor({
+      changedCallback: load,
+    });
+  })
+
   //
   // Commonly used functions from a dialog.
   //
