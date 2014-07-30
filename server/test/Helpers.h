@@ -37,6 +37,9 @@
 #define DBCONTENT_MAGIC_CURR_DATETIME "#CURR_DATETIME#"
 #define DBCONTENT_MAGIC_NULL          "#NULL#"
 
+extern const char *TEST_DB_USER;
+extern const char *TEST_DB_PASSWORD;
+
 typedef std::pair<int,int>      IntIntPair;
 typedef std::vector<IntIntPair> IntIntPairVector;
 

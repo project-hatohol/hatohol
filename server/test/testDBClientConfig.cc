@@ -109,8 +109,6 @@ static string makeExpectedDBOutLine(
 	return s;
 }
 
-static const char *TEST_DB_USER = "hatohol_test_user";
-static const char *TEST_DB_PASSWORD = ""; // empty: No password is used
 void cut_setup(void)
 {
 	hatoholInit();
