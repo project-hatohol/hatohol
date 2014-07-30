@@ -593,7 +593,6 @@ HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
 		const UserIdType id = actionDef.ownerUserId;
 		if (userIdSet.isValidActionOwnerId(id))
 			actionDefList.push_back(actionDef);
-		//actionDefList.pop_back();
 	}
 
 	return HTERR_OK;
