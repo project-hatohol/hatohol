@@ -94,8 +94,9 @@ var HatoholAddActionDialog = function(addSucceededCb) {
       new HatoholHostSelector(self.selectedId[IDX_SELECTED_SERVER],
                               self.selectedId[IDX_SELECTED_HOST_GROUP],
                               hostSelectedCb);
-    } else
+    } else {
       setSelectedHostId(val);
+    }
   })
 
   $("#selectTriggerId").change(function() {
@@ -104,8 +105,9 @@ var HatoholAddActionDialog = function(addSucceededCb) {
       new HatoholTriggerSelector(self.selectedId[IDX_SELECTED_SERVER],
                                  self.selectedId[IDX_SELECTED_HOST],
                                  triggerSelectedCb);
-    } else
+    } else {
       setSelectedTriggerId(val);
+    }
   })
 
   function serverSelectedCb(serverInfo) {
@@ -378,7 +380,6 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
     s += '  <label>' + gettext("Trigger") + '</label>'
     s += '  <select id="selectTriggerId">'
     s += '    <option value="ANY">ANY</option>'
-    s += '    <option value="select">== ' + gettext("SELECT") + '==</option>'
     s += '  </select>'
     s += '</form>'
 
