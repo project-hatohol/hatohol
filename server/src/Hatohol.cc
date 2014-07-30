@@ -46,6 +46,7 @@ using namespace mlpl;
 #include "UnifiedDataStore.h"
 #include "ChildProcessManager.h"
 #include "DBCGroupRegular.h"
+#include "DBClientHost.h"
 
 static Mutex mutex;
 static bool initDone = false; 
@@ -62,6 +63,7 @@ static void init(const CommandLineArg &arg)
 	DBClientUser::init();
 	DBClientHatohol::init();
 	DBClientAction::init();
+	DBClientHost::init();
 
 	ItemData::init();
 	SQLUtils::init();

@@ -36,6 +36,7 @@ static const DBDomainId DB_DOMAIN_ID_CONFIG  = 0x0010;
 static const DBDomainId DB_DOMAIN_ID_ACTION  = 0x0018;
 static const DBDomainId DB_DOMAIN_ID_HATOHOL = 0x0020;
 static const DBDomainId DB_DOMAIN_ID_USERS   = 0x0030;
+static const DBDomainId DB_DOMAIN_ID_HOST    = 0x0040;
 static const DBDomainId DB_DOMAIN_ID_ZABBIX  = 0x00100000;
 // DBClintZabbix uses the number of domains by NUM_MAX_ZABBIX_SERVERS 
 // So the domain ID is occupied

@@ -53,6 +53,7 @@ libhatohol_la_SOURCES = \
 	DBClientAction.cc DBClientAction.h \
 	DBClientConfig.cc DBClientConfig.h \
 	DBClientHatohol.cc DBClientHatohol.h \
+	DBClientHost.cc DBClientHost.h \
 	DBClientUser.h DBClientUser.cc \
 	DBClientJoinBuilder.cc DBClientJoinBuilder.h \
 	DBTermCodec.h DBTermCodec.cc \
