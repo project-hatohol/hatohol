@@ -164,22 +164,6 @@ var ActionsView = function(userProfile) {
   //
   // Functions for make the main view.
   //
-  function makeNamelessServerLabel(serverId) {
-    return "(ID:" + serverId + ")";
-  }
-
-  function makeNamelessHostgroupLabel(serverId, hostgroupId) {
-    return "(S" + serverId + "-G" + hostgroupId + ")";
-  }
-
-  function makeNamelessHostLabel(serverId, hostId) {
-    return "(S" + serverId + "-H" + hostId + ")";
-  }
-
-  function makeNamelessTriggerLabel(triggerId) {
-    return "(T" + triggerId + ")";
-  }
-
   function makeTypeLabel(type) {
     switch(type) {
     case ACTION_COMMAND:
@@ -205,83 +189,35 @@ var ActionsView = function(userProfile) {
   //
   // parser of received json data
   //
-  function getServerName(actionsPkt, actionDef) {
+  function getServerNameFromAction(actionsPkt, actionDef) {
     var serverId = actionDef["serverId"];
     if (!serverId)
-      return null;
-    var server = actionsPkt["servers"][serverId];
-    if (!server)
-      return makeNamelessServerLabel(serverId);
-    var serverName = actionsPkt["servers"][serverId]["name"];
-    if (!serverName)
-      return makeNamelessServerLabel(serverId);
-    return serverName;
+      return "ANY";
+    return getServerName(actionsPkt["servers"][serverId], serverId);
   }
 
-  function getHostgroupName(actionsPkt, actionDef) {
+  function getHostgroupNameFromAction(actionsPkt, actionDef) {
+    var serverId = actionDef["serverId"];
     var hostgroupId = actionDef["hostgroupId"];
     if (!hostgroupId)
-      return null;
-    var serverId = actionDef["serverId"];
-    if (!serverId)
-      return makeNamelessHostgroupLabel(serverId, hostgroupId);
-    var server = actionsPkt["servers"][serverId];
-    if (!server)
-      return null;
-    var hostgroupArray = server["groups"];
-    if (!hostgroupArray)
-      return makeNamelessHostgroupLabel(serverId, hostgroupId);
-    var hostgroup = hostgroupArray[hostgroupId];
-    if (!hostgroup)
-      return makeNamelessHostgroupLabel(serverId, hostgroupId);
-    var hostgroupName = hostgroup["name"];
-    if (!hostgroupName)
-      return makeNamelessHostgroupLabel(serverId, hostgroupId);
-    return hostgroupName;
+      return "ANY";
+    return getHostgroupName(actionsPkt["servers"][serverId], hostgroupId);
   }
 
-  function getHostName(actionsPkt, actionDef) {
+  function getHostNameFromAction(actionsPkt, actionDef) {
+    var serverId = actionDef["serverId"];
     var hostId = actionDef["hostId"];
     if (!hostId)
-      return null;
-    var serverId = actionDef["serverId"];
-    if (!serverId)
-      return makeNamelessHostLabel(serverId, hostId);
-    var server = actionsPkt["servers"][serverId];
-    if (!server)
-      return null;
-    var hostArray = server["hosts"];
-    if (!hostArray)
-      return makeNamelessHostLabel(serverId, hostId);
-    var host = hostArray[hostId];
-    if (!host)
-      return makeNamelessHostLabel(serverId, hostId);
-    var hostName = host["name"];
-    if (!hostName)
-      return makeNamelessHostLabel(serverId, hostId);
-    return hostName;
+      return "ANY";
+    return getHostName(actionsPkt["servers"][serverId], hostId);
   }
 
-  function getTriggerBrief(actionsPkt, actionDef) {
+  function getTriggerBriefFromAction(actionsPkt, actionDef) {
+    var serverId = actionDef["serverId"];
     var triggerId = actionDef["triggerId"];
     if (!triggerId)
-      return null;
-    var serverId = actionDef["serverId"];
-    if (!serverId)
-      return makeNamelessTriggerLabel(triggerId);
-    var server = actionsPkt["servers"][serverId];
-    if (!server)
-      return null;
-    var triggerArray = server["triggers"];
-    if (!triggerArray)
-      return makeNamelessTriggerLabel(triggerId);
-    var trigger = triggerArray[triggerId];
-    if (!trigger)
-      return makeNamelessTriggerLabel(triggerId);
-    var triggerBrief = trigger["brief"];
-    if (!triggerBrief)
-      return makeNamelessTriggerLabel(triggerId);
-    return triggerBrief;
+      return "ANY";
+    return getTriggerBrief(actionsPkt["servers"][serverId], triggerId);
   }
 
   //
@@ -300,24 +236,16 @@ var ActionsView = function(userProfile) {
         "actionId='" + escapeHTML(actionDef.actionId) + "'></td>";
       s += "<td>" + escapeHTML(actionDef.actionId) + "</td>";
 
-      var serverName = getServerName(actionsPkt, actionDef);
-      if (!serverName)
-        serverName = "ANY";
+      var serverName = getServerNameFromAction(actionsPkt, actionDef);
       s += "<td>" + escapeHTML(serverName) + "</td>";
 
-      var hostName = getHostName(actionsPkt, actionDef);
-      if (!hostName)
-        hostName = "ANY";
+      var hostName = getHostNameFromAction(actionsPkt, actionDef);
       s += "<td>" + escapeHTML(hostName)   + "</td>";
 
-      var hostgroupName = getHostgroupName(actionsPkt, actionDef);
-      if (!hostgroupName)
-        hostgroupName = "ANY";
+      var hostgroupName = getHostgroupNameFromAction(actionsPkt, actionDef);
       s += "<td>" + escapeHTML(hostgroupName) + "</td>";
 
-      var triggerBrief = getTriggerBrief(actionsPkt, actionDef);
-      if (!triggerBrief)
-        triggerBrief = "ANY";
+      var triggerBrief = getTriggerBriefFromAction(actionsPkt, actionDef);
       s += "<td>" + escapeHTML(triggerBrief) + "</td>";
 
       var triggerStatus = actionDef.triggerStatus;

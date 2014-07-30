@@ -159,15 +159,54 @@ function getMapsLocation(server) {
 }
 
 function getServerName(server, serverId) {
-  if (!server)
-    return "Unknown:" + serverId;
+  if (!server || !server["name"])
+    return gettext("Unknown") + " (ID: " + serverId + ")";
   return server["name"];
 }
 
+function getHostgroupName(server, hostgroupId) {
+  var getNamelessHostgroupName = function(hostgroupId) {
+    return gettext("Unknown") + " (ID: " + hostgroupId + ")";
+  }
+
+  if (!server || !server["groups"] || !(hostgroupId in server["groups"]))
+    return getNamelessHostgroupName(hostgroupId);
+
+  var hostgroupName = server["groups"][hostgroupId]["name"];
+  if (!hostgroupName)
+    return getNamelessHostgroupName(hostgroupId);
+
+  return hostgroupName;
+}
+
 function getHostName(server, hostId) {
+  var getNamelessHostName = function(hostId) {
+    return gettext("Unknown") + " (ID: " + hostId + ")";
+  }
+
   if (!server || !server["hosts"] || !(hostId in server["hosts"]))
-    return "Unknown:" + hostId;
-  return server["hosts"][hostId]["name"];
+    return getNamelessHostName(hostId);
+
+  var hostName = server["hosts"][hostId]["name"];
+  if (!hostName)
+    return getNamelessHostName(hostId);
+
+  return hostName;
+}
+
+function getTriggerBrief(server, triggerId) {
+  var getNamelessTriggerName = function(triggerId) {
+    return gettext("Unknown") + " (ID: " + triggerId + ")";
+  }
+
+  if (!server || !server["triggers"] || !(triggerId in server["triggers"]))
+    return getNamelessTriggerName(triggerId);
+
+  var triggerName = server["triggers"][triggerId]["name"];
+  if (!triggerName)
+    return getNamelessTriggerName(triggerId);
+
+  return triggerName;
 }
 
 var escapeHTML = function(html) {
