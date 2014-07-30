@@ -171,6 +171,8 @@ void makeTestMySQLDBIfNeeded(const std::string &dbName, bool recreate = false);
 void setupTestDBConfig(bool dbRecreate = true, bool loadTestDat = false);
 void setupTestDBAction(bool dbRecreate = true, bool loadTestDat = false);
 void setupTestDBUser(bool dbRecreate = true, bool loadTestDat = false);
+void setupTestDBHost(const bool &dbRecreate = true,
+                     const bool &loadTestData = false);
 void loadTestDBTriggers(void);
 void loadTestDBEvents(void);
 void loadTestDBIssues(void);
