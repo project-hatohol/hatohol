@@ -422,7 +422,7 @@ void DBClientAction::init(void)
 	g_deleteActionCtx = new deleteNoOwnerActionsContext;
 	g_deleteActionCtx->idleEventId = INVALID_EVENT_ID;
 	g_deleteActionCtx->timerId = g_timeout_add(DEFAULT_ACTION_DELETE_INTERVAL,
-	                                           deleteNoOwnerActions,
+	                                           deleteNoOwnerActionsCycl,
 	                                           g_deleteActionCtx);
 }
 
@@ -650,7 +650,7 @@ HatoholError DBClientAction::deleteActions(const ActionIdList &idList,
 	return HTERR_OK;
 }
 
-void DBClientAction::deleteNoOwnerActionList()
+void DBClientAction::deleteNoOwnerActions()
 {
 	ActionIdList actionIdList;
 
@@ -944,28 +944,28 @@ void DBClientAction::getActionUser(UserIdSet &userIdSet)
 	return;
 }
 
-gboolean DBClientAction::deleteNoOwnerActionsCyc(gpointer data)
+gboolean DBClientAction::deleteNoOwnerActionsExec(gpointer data)
 {
 	deleteNoOwnerActionsContext *g_deleteActionCtx = static_cast<deleteNoOwnerActionsContext *>(data);
 	CacheServiceDBClient cache;
-	DBClientAction *delAction = cache.getAction();
+	DBClientAction *dbAction = cache.getAction();
 	try {
-		delAction->deleteNoOwnerActionList();
+		dbAction->deleteNoOwnerActions();
 	} catch (const exception &e) {
 		MLPL_ERR("Got Exception: %s\n", e.what());
 	}
 	g_deleteActionCtx->idleEventId = INVALID_EVENT_ID;
 	g_deleteActionCtx->timerId = g_timeout_add(DEFAULT_ACTION_DELETE_INTERVAL, 
-	                                           deleteNoOwnerActions,
+	                                           deleteNoOwnerActionsCycl,
 	                                           g_deleteActionCtx);
 	return G_SOURCE_REMOVE;
 }
 
-gboolean DBClientAction::deleteNoOwnerActions(gpointer data)
+gboolean DBClientAction::deleteNoOwnerActionsCycl(gpointer data)
 {
 	deleteNoOwnerActionsContext *g_deleteActionCtx = static_cast<deleteNoOwnerActionsContext *>(data);
 	g_deleteActionCtx->timerId = INVALID_EVENT_ID;
-	g_deleteActionCtx->idleEventId = Utils::setGLibIdleEvent(deleteNoOwnerActionsCyc,
+	g_deleteActionCtx->idleEventId = Utils::setGLibIdleEvent(deleteNoOwnerActionsExec,
 	                                                         g_deleteActionCtx);
 	return G_SOURCE_REMOVE;
 }
