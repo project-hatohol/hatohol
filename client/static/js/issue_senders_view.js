@@ -114,18 +114,6 @@ var IssueSendersView = function(userProfile) {
   //
   // Functions for make the main view.
   //
-  function makeNamelessServerLabel(serverId) {
-    return "(ID:" + serverId + ")";
-  }
-
-  function makeNamelessHostgroupLabel(serverId, hostgroupId) {
-    return "(S" + serverId + "-G" + hostgroupId + ")";
-  }
-
-  function makeNamelessTriggerLabel(triggerId) {
-    return "(T" + triggerId + ")";
-  }
-
   function makeSeverityCompTypeLabel(compType) {
     switch(compType) {
     case hatohol.CMP_EQ:
@@ -140,61 +128,27 @@ var IssueSendersView = function(userProfile) {
   //
   // parser of received json data
   //
-  function getServerName(actionsPkt, actionDef) {
+  function getServerNameFromAction(actionsPkt, actionDef) {
     var serverId = actionDef["serverId"];
     if (!serverId)
-      return null;
-    var server = actionsPkt["servers"][serverId];
-    if (!server)
-      return makeNamelessServerLabel(serverId);
-    var serverName = actionsPkt["servers"][serverId]["name"];
-    if (!serverName)
-      return makeNamelessServerLabel(serverId);
-    return serverName;
+      return "ANY";
+    return getServerName(actionsPkt["servers"][serverId], serverId);
   }
 
-  function getHostgroupName(actionsPkt, actionDef) {
+  function getHostgroupNameFromAction(actionsPkt, actionDef) {
+    var serverId = actionDef["serverId"];
     var hostgroupId = actionDef["hostgroupId"];
     if (!hostgroupId)
-      return null;
-    var serverId = actionDef["serverId"];
-    if (!serverId)
-      return makeNamelessHostgroupLabel(serverId, hostgroupId);
-    var server = actionsPkt["servers"][serverId];
-    if (!server)
-      return null;
-    var hostgroupArray = server["groups"];
-    if (!hostgroupArray)
-      return makeNamelessHostgroupLabel(serverId, hostgroupId);
-    var hostgroup = hostgroupArray[hostgroupId];
-    if (!hostgroup)
-      return makeNamelessHostgroupLabel(serverId, hostgroupId);
-    var hostgroupName = hostgroup["name"];
-    if (!hostgroupName)
-      return makeNamelessHostgroupLabel(serverId, hostgroupId);
-    return hostgroupName;
+      return "ANY";
+    return getHostgroupName(actionsPkt["servers"][serverId], hostgroupId);
   }
 
-  function getTriggerBrief(actionsPkt, actionDef) {
+  function getTriggerBriefFromAction(actionsPkt, actionDef) {
+    var serverId = actionDef["serverId"];
     var triggerId = actionDef["triggerId"];
     if (!triggerId)
-      return null;
-    var serverId = actionDef["serverId"];
-    if (!serverId)
-      return makeNamelessTriggerLabel(triggerId);
-    var server = actionsPkt["servers"][serverId];
-    if (!server)
-      return null;
-    var triggerArray = server["triggers"];
-    if (!triggerArray)
-      return makeNamelessTriggerLabel(triggerId);
-    var trigger = triggerArray[triggerId];
-    if (!trigger)
-      return makeNamelessTriggerLabel(triggerId);
-    var triggerBrief = trigger["brief"];
-    if (!triggerBrief)
-      return makeNamelessTriggerLabel(triggerId);
-    return triggerBrief;
+      return "ANY";
+    return getTriggerBrief(actionsPkt["servers"][serverId], triggerId);
   }
 
   //
@@ -213,19 +167,13 @@ var IssueSendersView = function(userProfile) {
         "actionId='" + escapeHTML(actionDef.actionId) + "'></td>";
       s += "<td>" + escapeHTML(actionDef.actionId) + "</td>";
 
-      var serverName = getServerName(actionsPkt, actionDef);
-      if (!serverName)
-        serverName = "ANY";
+      var serverName = getServerNameFromAction(actionsPkt, actionDef);
       s += "<td>" + escapeHTML(serverName) + "</td>";
 
-      var hostgroupName = getHostgroupName(actionsPkt, actionDef);
-      if (!hostgroupName)
-        hostgroupName = "ANY";
+      var hostgroupName = getHostgroupNameFromAction(actionsPkt, actionDef);
       s += "<td>" + escapeHTML(hostgroupName) + "</td>";
 
-      var triggerBrief = getTriggerBrief(actionsPkt, actionDef);
-      if (!triggerBrief)
-        triggerBrief = "ANY";
+      var triggerBrief = getTriggerBriefFromAction(actionsPkt, actionDef);
       s += "<td>" + escapeHTML(triggerBrief) + "</td>";
 
       var triggerStatus = actionDef.triggerStatus;
