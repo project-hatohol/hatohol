@@ -20,9 +20,11 @@
 #ifndef DBClientGroup_h
 #define DBClientGroup_h
 
-class DBClientGroup {
+#include "DBClient.h"
+
+class DBClientGroup : public DBClient {
 public:
-	DBClientGroup(void);
+	DBClientGroup(const DBDomainId &domainId);
 	virtual ~DBClientGroup(void);
 
 private:

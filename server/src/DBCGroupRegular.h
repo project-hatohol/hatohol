@@ -24,7 +24,11 @@
 
 class DBCGroupRegular : public DBClientGroup {
 public:
-	DBCGroupRegular(void);
+	static void registerSetupInfo(const DBDomainId &domainId,
+	                              const DBSetupFuncArg *dbSetupFuncArg);
+	static void reset(void);
+
+	DBCGroupRegular(const DBDomainId &domainId);
 	~DBCGroupRegular();
 
 private:

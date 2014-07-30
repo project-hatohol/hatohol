@@ -26,8 +26,9 @@ struct DBClientGroup::PrivateContext {
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-DBClientGroup::DBClientGroup(void)
-: m_ctx(NULL)
+DBClientGroup::DBClientGroup(const DBDomainId &domainId)
+: DBClient(domainId),
+  m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 }

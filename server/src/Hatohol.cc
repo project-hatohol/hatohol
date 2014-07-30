@@ -45,6 +45,7 @@ using namespace mlpl;
 #include "SessionManager.h"
 #include "UnifiedDataStore.h"
 #include "ChildProcessManager.h"
+#include "DBCGroupRegular.h"
 
 static Mutex mutex;
 static bool initDone = false; 
@@ -86,6 +87,7 @@ static void reset(const CommandLineArg &arg)
 
 	DBAgentSQLite3::reset();
 	DBClient::reset();
+	DBCGroupRegular::reset();
 	DBClientConfig::reset(); // must be after DBClient::reset()
 	DBClientUser::reset();
 	DBClientAction::reset(); // must be after DBClientConfig::reset()
