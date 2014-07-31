@@ -67,6 +67,12 @@ void test_hatoholAssertFail(void)
 // ---------------------------------------------------------------------------
 // Test cases for ExceptionCathable
 // ---------------------------------------------------------------------------
+static void setupDataForCatchException(void)
+{
+	gcut_add_datum("Not throw", "throw", G_TYPE_BOOLEAN, FALSE, NULL);
+	gcut_add_datum("Throw",     "throw", G_TYPE_BOOLEAN, TRUE,  NULL);
+}
+
 void data_catchHatoholException(void)
 {
 	gcut_add_datum("Not throw", "throw", G_TYPE_BOOLEAN, FALSE, NULL);
@@ -81,6 +87,26 @@ void test_catchHatoholException(gconstpointer data)
 		{
 			if (throwException)
 				THROW_HATOHOL_EXCEPTION("A test exception.");
+		}
+	} catcher;
+
+	catcher.throwException = gcut_data_get_boolean(data, "throw");
+	cppcut_assert_equal(catcher.throwException, catcher.exec());
+}
+
+void data_catchStdException(void)
+{
+	setupDataForCatchException();
+}
+
+void test_catchStdException(gconstpointer data)
+{
+	struct : public ExceptionCatchable {
+		bool throwException;
+		virtual void operator ()(void) override
+		{
+			if (throwException)
+				throw exception();
 		}
 	} catcher;
 
