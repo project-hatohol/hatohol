@@ -114,4 +114,24 @@ void test_catchStdException(gconstpointer data)
 	cppcut_assert_equal(catcher.throwException, catcher.exec());
 }
 
+void data_catchUnknownException(void)
+{
+	setupDataForCatchException();
+}
+
+void test_catchUnknownException(gconstpointer data)
+{
+	struct : public ExceptionCatchable {
+		bool throwException;
+		virtual void operator ()(void) override
+		{
+			if (throwException)
+				throw "Unknown exception";
+		}
+	} catcher;
+
+	catcher.throwException = gcut_data_get_boolean(data, "throw");
+	cppcut_assert_equal(catcher.throwException, catcher.exec());
+}
+
 } // namespace testHatoholException
