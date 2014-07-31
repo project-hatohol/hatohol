@@ -365,31 +365,26 @@ HatoholIssueTrackerEditor.prototype.createMainElement = function() {
   '<div>' +
   '<label for="editIssueTrackerNickname">' + gettext("Nickname") + '</label>' +
   '<input id="editIssueTrackerNickname" type="text" ' +
-  '       value="' + escapeHTML(nickname) + '"' +
   '       class="input-xlarge">' +
   '</div>' +
   '<div>' +
   '<label for="editIssueTrackerBaseURL">' + gettext("Base URL") + '</label>' +
   '<input id="editIssueTrackerBaseURL" type="text" ' +
-  '       value="' + escapeHTML(baseURL) + '"' +
   '       class="input-xlarge">' +
   '</div>' +
   '<div>' +
   '<label for="editIssueTrackerProjectId">' + gettext("Project ID") + '</label>' +
   '<input id="editIssueTrackerProjectId" type="text" ' +
-  '       value="' + escapeHTML(projectId) + '"' +
   '       class="input-xlarge">' +
   '</div>' +
   '<div>' +
   '<label for="editIssueTrackerProjectId">' + gettext("Tracker ID") + '</label>' +
   '<input id="editIssueTrackerTrackerId" type="text" ' +
-  '       value="' + escapeHTML(trackerId) + '"' +
   '       class="input-xlarge">' +
   '</div>' +
   '<div>' +
   '<label for="editIssueTrackerUserName">' + gettext("User name") + '</label>' +
   '<input id="editIssueTrackerUserName" type="text" ' +
-  '       value="' + escapeHTML(userName) + '"' +
   '       class="input-xlarge">' +
   '</div>' +
   '<div>' +
@@ -403,6 +398,11 @@ HatoholIssueTrackerEditor.prototype.createMainElement = function() {
 };
 
 HatoholIssueTrackerEditor.prototype.onAppendMainElement = function() {
+  this.setIssueTracker(this.issueTracker);
+  this.resetWidgetState();
+};
+
+HatoholIssueTrackerEditor.prototype.resetWidgetState = function() {
   var editPassword = !this.issueTracker;
   if (editPassword) {
     $("#editPasswordCheckbox").hide();
@@ -416,4 +416,15 @@ HatoholIssueTrackerEditor.prototype.onAppendMainElement = function() {
     var check = $(this).is(":checked");
     $("#editIssueTrackerPassword").attr("disabled", !check);
   });
+};
+
+HatoholIssueTrackerEditor.prototype.setIssueTracker = function(tracker) {
+  this.issueTracker = tracker;
+  $("#selectIssueTrackerType").val(tracker ? tracker.type : 0);
+  $("#editIssueTrackerNickname").val(tracker ? tracker.nickname : "");
+  $("#editIssueTrackerBaseURL").val(tracker ? tracker.baseURL : "");
+  $("#editIssueTrackerProjectId").val(tracker ? tracker.projectId : "");
+  $("#editIssueTrackerTrackerId").val(tracker ? tracker.trackerId : "");
+  $("#editIssueTrackerUserName").val(tracker ? tracker.userName : "");
+  $("#editIssueTrackerPassword").val("");
 };
