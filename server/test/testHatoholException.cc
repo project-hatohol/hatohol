@@ -75,8 +75,7 @@ static void setupDataForCatchException(void)
 
 void data_catchHatoholException(void)
 {
-	gcut_add_datum("Not throw", "throw", G_TYPE_BOOLEAN, FALSE, NULL);
-	gcut_add_datum("Throw", "throw", G_TYPE_BOOLEAN, TRUE, NULL);
+	setupDataForCatchException();
 }
 
 void test_catchHatoholException(gconstpointer data)
