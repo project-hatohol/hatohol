@@ -644,6 +644,7 @@ void test_endExecAction(void)
 void test_getTriggerActionList(void)
 {
 	setupTestDBConfig();
+	setupHelperForTestDBUser();
 	test_addAction(); // save test data into DB.
 
 	// make an EventInfo instance for the test
@@ -682,6 +683,7 @@ void test_getTriggerActionList(void)
 void test_getTriggerActionListWithAllCondition(void)
 {
 	setupTestDBConfig(true, true);
+	setupHelperForTestDBUser();
 	test_addAction(); // save test data into DB.
 
 	// make an EventInfo instance for the test
@@ -719,6 +721,8 @@ static void _assertGetActionWithSeverity(const TriggerSeverityType &severity,
 					 const int expectedActionIdx)
 {
 	setupTestDBConfig();
+	setupHelperForTestDBUser();
+
 	test_addAction(); // save test data into DB.
 
 	// make an EventInfo instance for the test
@@ -896,6 +900,7 @@ void test_issueSenderIsEnabled(void)
 
 void test_issueSenderIsNotEnabled(void)
 {
+	setupHelperForTestDBUser();
 	DBClientAction dbAction;
 	cppcut_assert_equal(false, dbAction.isIssueSenderEnabled());
 }

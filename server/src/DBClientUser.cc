@@ -621,12 +621,17 @@ HatoholError DBClientUser::deleteUserInfo(
 	if (!privilege.has(OPPRVLG_DELETE_USER))
 		return HTERR_NO_PRIVILEGE;
 
-	DBAgent::DeleteArg arg(tableProfileUsers);
-	const ColumnDef &colId = COLUMN_DEF_USERS[IDX_USERS_ID];
-	arg.condition = StringUtils::sprintf("%s=%" FMT_USER_ID,
-	                                     colId.columnName, userId);
+	DBAgent::DeleteArg argForUsers(tableProfileUsers);
+	const ColumnDef &colIdForUsers = COLUMN_DEF_USERS[IDX_USERS_ID];
+	argForUsers.condition = StringUtils::sprintf("%s=%" FMT_USER_ID,
+					       colIdForUsers.columnName, userId);
+	DBAgent::DeleteArg argForAccessList(tableProfileAccessList);
+	const ColumnDef &colIdForAccessList = COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID];
+	argForAccessList.condition = StringUtils::sprintf("%s=%" FMT_USER_ID,
+					       colIdForAccessList.columnName, userId);
 	DBCLIENT_TRANSACTION_BEGIN() {
-		deleteRows(arg);
+		deleteRows(argForUsers);
+		deleteRows(argForAccessList);
 	} DBCLIENT_TRANSACTION_END();
 	return HTERR_OK;
 }
@@ -738,6 +743,21 @@ bool DBClientUser::getUserInfo(UserInfo &userInfo, const UserIdType userId)
 	               userInfoList.size());
 	userInfo = *userInfoList.begin();
 	return true;
+}
+
+void DBClientUser::getUserIdSet(UserIdSet &userIdSet)
+{
+	UserInfoList userInfoList;
+	const string condition = "";
+
+	getUserInfoList(userInfoList, condition);
+	if (userInfoList.empty())
+		return;
+	UserInfoListIterator it = userInfoList.begin();
+	for(; it != userInfoList.end();++it) {
+		const UserInfo &userInfo = *it;
+		userIdSet.insert(userInfo.id);
+	}
 }
 
 void DBClientUser::getUserInfoList(UserInfoList &userInfoList,
