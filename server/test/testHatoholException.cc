@@ -17,7 +17,9 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <gcutter.h>
 #include <cppcutter.h>
+#include "Params.h"
 #include "HatoholException.h"
 #include "ExceptionTestUtils.h"
 using namespace std;
@@ -60,6 +62,30 @@ void test_hatoholAssertFail(void)
 		gotException = true;
 	}
 	cppcut_assert_equal(true, gotException);
+}
+
+// ---------------------------------------------------------------------------
+// Test cases for ExceptionCathable
+// ---------------------------------------------------------------------------
+void data_catchHatoholException(void)
+{
+	gcut_add_datum("Not throw", "throw", G_TYPE_BOOLEAN, FALSE, NULL);
+	gcut_add_datum("Throw", "throw", G_TYPE_BOOLEAN, TRUE, NULL);
+}
+
+void test_catchHatoholException(gconstpointer data)
+{
+	struct : public ExceptionCatchable {
+		bool throwException;
+		virtual void operator ()(void) override
+		{
+			if (throwException)
+				THROW_HATOHOL_EXCEPTION("A test exception.");
+		}
+	} catcher;
+
+	catcher.throwException = gcut_data_get_boolean(data, "throw");
+	cppcut_assert_equal(catcher.throwException, catcher.exec());
 }
 
 } // namespace testHatoholException
