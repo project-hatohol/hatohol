@@ -32,7 +32,7 @@ using namespace mlpl;
 const char *TABLE_NAME_ACTIONS     = "actions";
 const char *TABLE_NAME_ACTION_LOGS = "action_logs";
 
-const static guint DEFAULT_ACTION_DELETE_INTERVAL_MSEC = 3600 * 1000; // msec(1hour)
+const static guint DEFAULT_ACTION_DELETE_INTERVAL_MSEC = 3600 * 1000; // 1hour
 
 // 8 -> 9: Add actions.onwer_user_id
 int DBClientAction::ACTION_DB_VERSION = 9;
