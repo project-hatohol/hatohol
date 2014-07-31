@@ -32,7 +32,7 @@ using namespace mlpl;
 const char *TABLE_NAME_ACTIONS     = "actions";
 const char *TABLE_NAME_ACTION_LOGS = "action_logs";
 
-const static guint DEFAULT_ACTION_DELETE_INTERVAL = 3600 * 1000; // msec(1hour)
+const static guint DEFAULT_ACTION_DELETE_INTERVAL_MSEC = 3600 * 1000; // msec(1hour)
 
 // 8 -> 9: Add actions.onwer_user_id
 int DBClientAction::ACTION_DB_VERSION = 9;
@@ -421,7 +421,7 @@ void DBClientAction::init(void)
 
 	g_deleteActionCtx = new deleteNoOwnerActionsContext;
 	g_deleteActionCtx->idleEventId = INVALID_EVENT_ID;
-	g_deleteActionCtx->timerId = g_timeout_add(DEFAULT_ACTION_DELETE_INTERVAL,
+	g_deleteActionCtx->timerId = g_timeout_add(DEFAULT_ACTION_DELETE_INTERVAL_MSEC,
 	                                           deleteNoOwnerActionsCycl,
 	                                           g_deleteActionCtx);
 }
@@ -955,7 +955,7 @@ gboolean DBClientAction::deleteNoOwnerActionsExec(gpointer data)
 		MLPL_ERR("Got Exception: %s\n", e.what());
 	}
 	g_deleteActionCtx->idleEventId = INVALID_EVENT_ID;
-	g_deleteActionCtx->timerId = g_timeout_add(DEFAULT_ACTION_DELETE_INTERVAL, 
+	g_deleteActionCtx->timerId = g_timeout_add(DEFAULT_ACTION_DELETE_INTERVAL_MSEC, 
 	                                           deleteNoOwnerActionsCycl,
 	                                           g_deleteActionCtx);
 	return G_SOURCE_REMOVE;
