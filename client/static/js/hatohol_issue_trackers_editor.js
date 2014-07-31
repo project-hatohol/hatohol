@@ -389,7 +389,7 @@ HatoholIssueTrackerEditor.prototype.createMainElement = function() {
   '</div>' +
   '<div>' +
   '<label for="editIssueTrackerPassword">' + gettext("Password") + '</label>' +
-  '<input id="editIssueTrackerPassword" type="text" ' +
+  '<input id="editIssueTrackerPassword" type="password" ' +
   '       class="input-xlarge">' +
   '<input type="checkbox" id="editPasswordCheckbox"> ' +
   '</div>';
