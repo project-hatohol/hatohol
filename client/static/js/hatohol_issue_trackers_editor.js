@@ -278,6 +278,7 @@ HatoholIssueTrackerEditor.prototype.setIssueTracker = function(tracker) {
   $("#editIssueTrackerProjectId").val(tracker ? tracker.projectId : "");
   $("#editIssueTrackerTrackerId").val(tracker ? tracker.trackerId : "");
   $("#editIssueTrackerUserName").val(tracker ? tracker.userName : "");
+  $("#editIssueTrackerPassword").val("");
 };
 
 HatoholIssueTrackerEditor.prototype.onAppendMainElement = function () {
