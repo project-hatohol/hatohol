@@ -402,7 +402,7 @@ HatoholIssueTrackerEditor.prototype.createMainElement = function() {
   return html;
 };
 
-HatoholIssueTrackerEditor.prototype.onAppendMainElement = function () {
+HatoholIssueTrackerEditor.prototype.onAppendMainElement = function() {
   var editPassword = !this.issueTracker;
   if (editPassword) {
     $("#editPasswordCheckbox").hide();
