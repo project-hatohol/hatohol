@@ -33,6 +33,9 @@
 using namespace std;
 using namespace mlpl;
 
+const char *TEST_DB_USER = "hatohol_test_user";
+const char *TEST_DB_PASSWORD = ""; // empty: No password is used
+
 void _assertStringVector(const StringVector &expected,
                          const StringVector &actual)
 {
@@ -794,8 +797,6 @@ void loadTestDBIssues(void)
 void setupTestDBConfig(bool dbRecreate, bool loadTestData)
 {
 	static const char *TEST_DB_NAME = "test_config";
-	static const char *TEST_DB_USER = "hatohol_test_user";
-	static const char *TEST_DB_PASSWORD = ""; // empty: No password is used
 	DBClient::setDefaultDBParams(DB_DOMAIN_ID_CONFIG, TEST_DB_NAME,
 	                             TEST_DB_USER, TEST_DB_PASSWORD);
 	makeTestMySQLDBIfNeeded(TEST_DB_NAME, dbRecreate);
@@ -808,13 +809,22 @@ void setupTestDBConfig(bool dbRecreate, bool loadTestData)
 void setupTestDBAction(bool dbRecreate, bool loadTestData)
 {
 	static const char *TEST_DB_NAME = "test_action";
-	static const char *TEST_DB_USER = "hatohol_test_user";
-	static const char *TEST_DB_PASSWORD = ""; // empty: No password is used
 	DBClient::setDefaultDBParams(DB_DOMAIN_ID_ACTION, TEST_DB_NAME,
 	                             TEST_DB_USER, TEST_DB_PASSWORD);
 	makeTestMySQLDBIfNeeded(TEST_DB_NAME, dbRecreate);
 	if (loadTestData)
 		loadTestDBAction();
+}
+
+void setupTestDBHost(const bool &dbRecreate, const bool &loadTestData)
+{
+	static const char *TEST_DB_NAME = "test_dbc_regular";
+	DBClient::setDefaultDBParams(DB_DOMAIN_ID_HOST, TEST_DB_NAME,
+	                             TEST_DB_USER, TEST_DB_PASSWORD);
+	makeTestMySQLDBIfNeeded(TEST_DB_NAME, dbRecreate);
+	if (loadTestData)
+		HATOHOL_ASSERT(false, "Not implemented yet");
+		//loadTestDBAction();
 }
 
 void loadTestDBUser(void)
@@ -853,8 +863,6 @@ void loadTestDBUserRole(void)
 void setupTestDBUser(bool dbRecreate, bool loadTestData)
 {
 	static const char *TEST_DB_NAME = "test_db_user";
-	static const char *TEST_DB_USER = "hatohol_test_user";
-	static const char *TEST_DB_PASSWORD = ""; // empty: No password is used
 	DBClient::setDefaultDBParams(DB_DOMAIN_ID_USERS, TEST_DB_NAME,
 	                             TEST_DB_USER, TEST_DB_PASSWORD);
 	makeTestMySQLDBIfNeeded(TEST_DB_NAME, dbRecreate);
