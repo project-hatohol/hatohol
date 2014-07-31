@@ -255,6 +255,8 @@ public:
 	                  const OperationPrivilege &privilege,
 	                  const bool &useTransaction = true);
 
+	void getUserIdSet(UserIdSet &userIdSet);
+
 protected:
 	void getUserInfoList(UserInfoList &userInfoList,
 	                     const std::string &condition);

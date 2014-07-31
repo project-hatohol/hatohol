@@ -17,7 +17,10 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <exception>
+#include "Utils.h"
 #include "ConfigManager.h"
+#include "CacheServiceDBClient.h"
 #include "DBAgentFactory.h"
 #include "DBClientAction.h"
 #include "DBClientHatohol.h"
@@ -28,6 +31,8 @@ using namespace mlpl;
 
 const char *TABLE_NAME_ACTIONS     = "actions";
 const char *TABLE_NAME_ACTION_LOGS = "action_logs";
+
+const static guint DEFAULT_ACTION_DELETE_INTERVAL_MSEC = 3600 * 1000; // msec(1hour)
 
 // 8 -> 9: Add actions.onwer_user_id
 int DBClientAction::ACTION_DB_VERSION = 9;
@@ -388,6 +393,12 @@ struct DBClientAction::PrivateContext
 	}
 };
 
+struct deleteNoOwnerActionsContext {
+	guint timerId;
+	guint idleEventId;
+};
+static deleteNoOwnerActionsContext *g_deleteActionCtx = NULL;
+
 // ---------------------------------------------------------------------------
 // LogEndExecActionArg
 // ---------------------------------------------------------------------------
@@ -407,6 +418,12 @@ void DBClientAction::init(void)
 {
 	registerSetupInfo(
 	  DB_DOMAIN_ID_ACTION, DEFAULT_DB_NAME, &DB_ACTION_SETUP_FUNC_ARG);
+
+	g_deleteActionCtx = new deleteNoOwnerActionsContext;
+	g_deleteActionCtx->idleEventId = INVALID_EVENT_ID;
+	g_deleteActionCtx->timerId = g_timeout_add(DEFAULT_ACTION_DELETE_INTERVAL_MSEC,
+	                                           deleteNoOwnerActionsCycl,
+	                                           g_deleteActionCtx);
 }
 
 void DBClientAction::reset(void)
@@ -415,6 +432,11 @@ void DBClientAction::reset(void)
 	// for DBClientConfig. So we copy the connectInfo of it.
 	DBConnectInfo connInfo = getDBConnectInfo(DB_DOMAIN_ID_CONFIG);
 	setConnectInfo(DB_DOMAIN_ID_ACTION, connInfo);
+}
+
+void DBClientAction::stop(void)
+{
+	Utils::executeOnGLibEventLoop(stopIdleDeleteAction);
 }
 
 const char *DBClientAction::getTableNameActions(void)
@@ -522,13 +544,18 @@ HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
 		select(arg);
 	} DBCLIENT_TRANSACTION_END();
 
+	ActionUserIdSet userIdSet;
+	getActionUser(userIdSet);
+
+	if (userIdSet.empty())
+	        return HTERR_OK;
+
 	// convert a format of the query result.
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
 		ItemGroupStream itemGroupStream(*itemGrpItr);
-		actionDefList.push_back(ActionDef());
-		ActionDef &actionDef = actionDefList.back();
+		ActionDef actionDef;
 
 		itemGroupStream >> actionDef.id;
 
@@ -563,7 +590,12 @@ HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
 		itemGroupStream >> actionDef.workingDir;
 		itemGroupStream >> actionDef.timeout;
 		itemGroupStream >> actionDef.ownerUserId;
+
+		const UserIdType id = actionDef.ownerUserId;
+		if (userIdSet.isValidActionOwnerId(id))
+			actionDefList.push_back(actionDef);
 	}
+
 	return HTERR_OK;
 }
 
@@ -658,6 +690,50 @@ HatoholError DBClientAction::deleteActions(const ActionIdList &idList,
 	}
 
 	return HTERR_OK;
+}
+
+void DBClientAction::deleteNoOwnerActions()
+{
+	ActionIdList actionIdList;
+
+	DBAgent::SelectExArg arg(tableProfileActions);
+	arg.add(IDX_ACTIONS_ACTION_ID);
+	arg.add(IDX_ACTIONS_OWNER_USER_ID);
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	ActionUserIdSet userIdSet;
+	getActionUser(userIdSet);
+
+	if (userIdSet.empty())
+	        return;
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
+		ActionDef actionDef;
+		uint64_t  actionId;
+
+		itemGroupStream >> actionId;
+		itemGroupStream >> actionDef.ownerUserId;
+
+		UserIdType id = actionDef.ownerUserId;
+		if (!userIdSet.isValidActionOwnerId(id))
+		        actionIdList.push_back(actionId);
+	}
+	if (actionIdList.empty()){
+	        return;
+	}
+
+	OperationPrivilege privilege(OPPRVLG_DELETE_ALL_ACTION);
+	privilege.setUserId(USER_ID_SYSTEM);
+
+	deleteActions(actionIdList , privilege);
+
+	return;
 }
 
 uint64_t DBClientAction::createActionLog(
@@ -936,6 +1012,49 @@ HatoholError DBClientAction::checkPrivilegeForDelete(
 	return HTERR_OK;
 }
 
+void DBClientAction::getActionUser(UserIdSet &userIdSet)
+{
+	CacheServiceDBClient cache;
+	DBClientUser *dbUser = cache.getUser();
+	dbUser->getUserIdSet(userIdSet);
+
+	return;
+}
+
+gboolean DBClientAction::deleteNoOwnerActionsExec(gpointer data)
+{
+	deleteNoOwnerActionsContext *g_deleteActionCtx = static_cast<deleteNoOwnerActionsContext *>(data);
+	CacheServiceDBClient cache;
+	DBClientAction *dbAction = cache.getAction();
+	try {
+		dbAction->deleteNoOwnerActions();
+	} catch (const exception &e) {
+		MLPL_ERR("Got Exception: %s\n", e.what());
+	}
+	g_deleteActionCtx->idleEventId = INVALID_EVENT_ID;
+	g_deleteActionCtx->timerId = g_timeout_add(DEFAULT_ACTION_DELETE_INTERVAL_MSEC, 
+	                                           deleteNoOwnerActionsCycl,
+	                                           g_deleteActionCtx);
+	return G_SOURCE_REMOVE;
+}
+
+gboolean DBClientAction::deleteNoOwnerActionsCycl(gpointer data)
+{
+	deleteNoOwnerActionsContext *g_deleteActionCtx = static_cast<deleteNoOwnerActionsContext *>(data);
+	g_deleteActionCtx->timerId = INVALID_EVENT_ID;
+	g_deleteActionCtx->idleEventId = Utils::setGLibIdleEvent(deleteNoOwnerActionsExec,
+	                                                         g_deleteActionCtx);
+	return G_SOURCE_REMOVE;
+}
+
+void DBClientAction::stopIdleDeleteAction(gpointer data)
+{
+	if (g_deleteActionCtx->timerId != INVALID_EVENT_ID)
+		g_source_remove(g_deleteActionCtx->timerId);
+	if (g_deleteActionCtx->idleEventId != INVALID_EVENT_ID)
+		g_source_remove(g_deleteActionCtx->idleEventId);
+}
+
 // ---------------------------------------------------------------------------
 // ActionsQueryOption
 // ---------------------------------------------------------------------------
@@ -1175,4 +1294,23 @@ bool ActionDef::parseIssueSenderCommand(IssueTrackerIdType &trackerId) const
 {
 	int ret = sscanf(command.c_str(), "%" FMT_ISSUE_TRACKER_ID, &trackerId);
 	return ret == 1;
+}
+
+
+// ---------------------------------------------------------------------------
+// ActionUserIdSet
+// ---------------------------------------------------------------------------
+bool ActionUserIdSet::isValidActionOwnerId(const UserIdType id)
+{
+	/*
+	 * determine whether Action Owner User ID is invalid or valid
+	 * if OwnerId is registration in the User tables -> true
+	 * if there is no registration in the User tables -> false
+	 * but , OwnerId is USER_ID_SYSTEM -> true
+	 */
+	if (find(id) == end()) {
+		if (id != USER_ID_SYSTEM)
+			return false;
+	}
+	return true;
 }

@@ -1326,23 +1326,6 @@ void test_runAction(void)
 	assertRunAction(HTERR_OK, testActionDef[0], testEventInfo[0]);
 }
 
-void test_runActionWithNonExistingUser(void)
-{
-	// make a copy to overwrite ownerUserId
-	ActionDef actDef = testActionDef[0];
-	const UserIdType nonExistingUserId = NumTestUserInfo + 5;
-	actDef.ownerUserId = nonExistingUserId;
-	assertRunAction(HTERR_INVALID_USER, actDef, testEventInfo[0]);
-}
-
-void test_runActionWithSystemUser(void)
-{
-	// make a copy to overwrite ownerUserId
-	ActionDef actDef = testActionDef[0];
-	actDef.ownerUserId = USER_ID_SYSTEM;
-	assertRunAction(HTERR_INVALID_USER, actDef, testEventInfo[0]);
-}
-
 void test_runIssueSenderActionWithSystemUser(void)
 {
 	size_t idx = findIndexFromTestActionDef(ACTION_ISSUE_SENDER);
