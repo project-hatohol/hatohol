@@ -22,8 +22,12 @@ using namespace std;
 using namespace mlpl;
 
 static const char *TABLE_NAME_HOST_LIST = "host_list";
+static const char *TABLE_NAME_HOST_INFO = "host_info";
 
 const int DBClientHost::DB_VERSION = 1;
+
+const uint64_t NO_HYPERVISOR = -1;
+const size_t MAX_HOST_NAME_LENGTH =  255;
 
 static const ColumnDef COLUMN_DEF_HOST_LIST[] = {
 {
@@ -37,17 +41,92 @@ static const ColumnDef COLUMN_DEF_HOST_LIST[] = {
 	SQL_KEY_PRI,                       // keyType
 	0,                                 // flags
 	"",                                // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_HOST_LIST,              // tableName
+	"hypervisor_id",                   // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_IDX,                       // keyType
+	0,                                 // flags
+	"",                                // defaultValue
 },
 };
 
 enum {
-	IDX_HOST_LIST,
+	IDX_HOST_LIST_ID,
+	IDX_HOST_LIST_HYPERVISOR_ID,
 	NUM_IDX_HOST_LIST
 };
 
 static const DBAgent::TableProfile tableProfileHostList(
   TABLE_NAME_HOST_LIST, COLUMN_DEF_HOST_LIST,
   sizeof(COLUMN_DEF_HOST_LIST), NUM_IDX_HOST_LIST);
+
+// We manage multiple IP adresses and host naems for one host.
+// So the following are defined in the independent table.
+static const ColumnDef COLUMN_DEF_HOST_INFO[] = {
+{
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_HOST_INFO,              // tableName
+	"id",                              // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	0,                                 // flags
+	"",                                // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_HOST_INFO,              // tableName
+	"host_list_id",                    // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_IDX,                       // keyType
+	0,                                 // flags
+	"",                                // defaultValue
+}, {
+	// Both IPv4 and IPv6 can be saved
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_HOST_INFO,              // tableName
+	"ip_addr",                         // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	40,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"",                                // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_HOST_INFO,              // tableName
+	"name",                            // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	MAX_HOST_NAME_LENGTH,              // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"",                                // defaultValue
+},
+};
+
+enum {
+	IDX_HOST_INFO_ID,
+	IDX_HOST_INFO_HOST_LIST_ID,
+	IDX_HOST_INFO_IP_ADDR,
+	IDX_HOST_INFO_NAME,
+	NUM_IDX_HOST_INFO
+};
+
+static const DBAgent::TableProfile tableProfileHostInfo(
+  TABLE_NAME_HOST_INFO, COLUMN_DEF_HOST_INFO,
+  sizeof(COLUMN_DEF_HOST_INFO), NUM_IDX_HOST_INFO);
 
 struct DBClientHost::PrivateContext
 {
@@ -76,6 +155,8 @@ void DBClientHost::init(void)
 	static const DBSetupTableInfo DB_TABLE_INFO[] = {
 	{
 		&tableProfileHostList,
+	}, {
+		&tableProfileHostInfo,
 	}
 	};
 	static const size_t NUM_TABLE_INFO =
