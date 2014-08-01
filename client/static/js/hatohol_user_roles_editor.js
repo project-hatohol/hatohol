@@ -474,6 +474,26 @@ HatoholUserRoleEditor.prototype.hatoholPrivileges = [
     message: gettext("Delete all user roles"),
     category: gettext("User roles")
   },
+  {
+    flag: hatohol.OPPRVLG_CREATE_ISSUE_SETTING,
+    message: gettext("Create incident tracking settings"),
+    category: gettext("Incident tracking")
+  },
+  {
+    flag: hatohol.OPPRVLG_UPDATE_ISSUE_SETTING,
+    message: gettext("Update incident tracking settings"),
+    category: gettext("Incident tracking")
+  },
+  {
+    flag: hatohol.OPPRVLG_DELETE_ISSUE_SETTING,
+    message: gettext("Delete incident tracking settings"),
+    category: gettext("Incident tracking")
+  },
+  {
+    flag: hatohol.OPPRVLG_GET_ALL_ISSUE_SETTINGS,
+    message: gettext("Get all incident tracking settings"),
+    category: gettext("Incident tracking")
+  },
 ];
 
 HatoholUserRoleEditor.prototype.createMainElement = function() {
