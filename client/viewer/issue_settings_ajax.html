@@ -21,20 +21,20 @@
 {% endcomment %}
 
 {% block title %}
-{% trans "Issue senders" %} - {% trans "Hatohol" %}
+{% trans "Issue settings" %} - {% trans "Hatohol" %}
 {% endblock %}
 
 {% block main %}
 <div id="main">
-  <h2>{% trans "Issue senders" %}</h2>
+  <h2>{% trans "Issue settings" %}</h2>
 
   <form class="form-inline">
     <div class="btn-toolbar" role="toolbar">
-      <button id="add-issue-sender-button" type="button" class="btn btn-default">
+      <button id="add-issue-setting-button" type="button" class="btn btn-default">
         <span class="glyphicon glyphicon-plus"></span>
         {% trans "ADD" %}
       </button>
-      <button id="delete-issue-sender-button" type="button" class="btn btn-default" disabled>
+      <button id="delete-issue-setting-button" type="button" class="btn btn-default" disabled>
         <span class="glyphicon glyphicon-remove"></span>
         {% trans "DELETE" %}
       </button>
@@ -48,7 +48,7 @@
     <p id="msgbox-text"></p>
   </div>
 
-  <form id="add-issue-sender-form", method="POST"> {% csrf_token %}
+  <form id="add-issue-setting-form", method="POST"> {% csrf_token %}
   </form>
 
   <table class="table table-condensed table-hover" id="table">
@@ -80,10 +80,10 @@
 {% endblock %}
 
 {% block logic %}
-  <script src="{{ STATIC_URL }}js/issue_senders_view.js"></script>
+  <script src="{{ STATIC_URL }}js/issue_settings_view.js"></script>
   <script type="text/javascript">
     userProfile.addOnLoadCb(function() {
-      var view = new IssueSendersView(userProfile);
+      var view = new IssueSettingsView(userProfile);
     });
   </script>
 {% endblock %}

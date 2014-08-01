@@ -32,10 +32,10 @@ var HatoholAddActionDialog = function(changedCallback, issueTrackers) {
 
   self.changedCallback = changedCallback;
   self.issueTrackers = issueTrackers;
-  self.forIssueSender = !!issueTrackers;
+  self.forIssueSetting = !!issueTrackers;
 
-  self.windowTitle = self.forIssueSender ?
-    gettext("ADD ISSUE SENDER") : gettext("ADD ACTION");
+  self.windowTitle = self.forIssueSetting ?
+    gettext("ADD ISSUE SETTING") : gettext("ADD ACTION");
 
   var dialogButtons = [{
     text: gettext("ADD"),
@@ -248,7 +248,7 @@ var HatoholAddActionDialog = function(changedCallback, issueTrackers) {
   // General class methods
   //
   function getCommandType() {
-    if (self.forIssueSender)
+    if (self.forIssueSetting)
       return hatohol.ACTION_ISSUE_SENDER;
 
     var type = $("#selectType").val();
@@ -386,7 +386,7 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
     s += '    <option value="ANY">ANY</option>'
     s += '  </select>'
 
-    if (!self.forIssueSender) {
+    if (!self.forIssueSetting) {
       s += '  <label>' + gettext("Host") + '</label>'
       s += '  <select id="selectHostId">'
       s += '    <option value="ANY">ANY</option>'
@@ -473,7 +473,7 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
     var s = "";
     s += '<div id="add-action-div">'
     s += makeTriggerConditionArea();
-    if (self.forIssueSender)
+    if (self.forIssueSetting)
       s += makeIssueTrackerArea();
     else
       s += makeExecutionParameterArea();
@@ -483,7 +483,7 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
 }
 
 HatoholAddActionDialog.prototype.getCommand = function() {
-  if (this.forIssueSender)
+  if (this.forIssueSetting)
     return $("#selectIssueTracker").val();
   else
     return $("#inputActionCommand").val();
@@ -492,7 +492,7 @@ HatoholAddActionDialog.prototype.getCommand = function() {
 HatoholAddActionDialog.prototype.updateIssueTrackers = function(issueTrackers) {
   var label, issueTraker;
 
-  if (!this.forIssueSender)
+  if (!this.forIssueSetting)
     return;
 
   $("#selectIssueTracker").empty();
@@ -567,7 +567,7 @@ HatoholAddActionDialog.prototype.onAppendMainElement = function() {
       self.setAddButtonState(false);
   }
 
-  if (self.forIssueSender)
+  if (self.forIssueSetting)
     self.setupIssueTrackersEditor();
 }
 

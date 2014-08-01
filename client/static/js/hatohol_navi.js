@@ -56,8 +56,8 @@ var HatoholNavi = function(userProfile, currentPage) {
           href:  "ajax_actions"
         },
         {
-          title: gettext("Issue senders"),
-          href:  "ajax_issue_senders",
+          title: gettext("Issue settings"),
+          href:  "ajax_issue_settings",
           flags: (1 << hatohol.OPPRVLG_CREATE_ISSUE_SETTING) |
             (1 << hatohol.OPPRVLG_UPDATE_ISSUE_SETTING) |
             (1 << hatohol.OPPRVLG_DELETE_ISSUE_SETTING) |

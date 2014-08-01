@@ -17,12 +17,12 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var IssueSendersView = function(userProfile) {
+var IssueSettingsView = function(userProfile) {
   //
   // Variables
   //
   var self = this;
-  self.issueSendersData = null;
+  self.issueSettingsData = null;
   self.issueTrackersData = null;
   self.issueTrackersMap = null;
 
@@ -45,12 +45,12 @@ var IssueSendersView = function(userProfile) {
     th.eq(data.column).append("<i class='sort glyphicon glyphicon-arrow-" + icon +"'></i>");
   });
 
-  $("#add-issue-sender-button").click(function() {
+  $("#add-issue-setting-button").click(function() {
     var issueTrackers = self.issueTrackersData.issueTrackers;
     new HatoholAddActionDialog(load, issueTrackers);
   });
 
-  $("#delete-issue-sender-button").click(function() {
+  $("#delete-issue-setting-button").click(function() {
     var msg = gettext("Do you delete the selected items ?");
     hatoholNoYesMsgBox(msg, deleteActions);
   });
@@ -227,12 +227,12 @@ var IssueSendersView = function(userProfile) {
     self.issueTrackersData = issueTrackersData;
     self.issueTrackersMap = parseIssueTrackers(self.issueTrackersData);
     $("#table tbody").empty();
-    $("#table tbody").append(drawTableBody(self.issueSendersData));
-    self.setupCheckboxForDelete($("#delete-issue-sender-button"));
+    $("#table tbody").append(drawTableBody(self.issueSettingsData));
+    self.setupCheckboxForDelete($("#delete-issue-setting-button"));
   }
 
-  function onGotIssueSenders(issueSendersData) {
-    self.issueSendersData = issueSendersData;
+  function onGotIssueSettings(issueSettingsData) {
+    self.issueSettingsData = issueSettingsData;
     self.startConnection("issue-trackers", onGotIssueTrackers);
   }
 
@@ -244,9 +244,9 @@ var IssueSendersView = function(userProfile) {
   };
 
   function load() {
-    self.startConnection(getQuery(), onGotIssueSenders);
+    self.startConnection(getQuery(), onGotIssueSettings);
   }
 };
 
-IssueSendersView.prototype = Object.create(HatoholMonitoringView.prototype);
-IssueSendersView.prototype.constructor = IssueSendersView;
+IssueSettingsView.prototype = Object.create(HatoholMonitoringView.prototype);
+IssueSettingsView.prototype.constructor = IssueSettingsView;
