@@ -1023,7 +1023,7 @@ void DBClientAction::getActionUser(UserIdSet &userIdSet)
 
 gboolean DBClientAction::deleteNoOwnerActionsExec(gpointer data)
 {
-	deleteNoOwnerActionsContext *g_deleteActionCtx = static_cast<deleteNoOwnerActionsContext *>(data);
+	deleteNoOwnerActionsContext *deleteActionCtx = static_cast<deleteNoOwnerActionsContext *>(data);
 	CacheServiceDBClient cache;
 	DBClientAction *dbAction = cache.getAction();
 	try {
@@ -1031,19 +1031,19 @@ gboolean DBClientAction::deleteNoOwnerActionsExec(gpointer data)
 	} catch (const exception &e) {
 		MLPL_ERR("Got Exception: %s\n", e.what());
 	}
-	g_deleteActionCtx->idleEventId = INVALID_EVENT_ID;
-	g_deleteActionCtx->timerId = g_timeout_add(DEFAULT_ACTION_DELETE_INTERVAL_MSEC, 
-	                                           deleteNoOwnerActionsCycl,
-	                                           g_deleteActionCtx);
+	deleteActionCtx->idleEventId = INVALID_EVENT_ID;
+	deleteActionCtx->timerId = g_timeout_add(DEFAULT_ACTION_DELETE_INTERVAL_MSEC, 
+	                                         deleteNoOwnerActionsCycl,
+	                                         deleteActionCtx);
 	return G_SOURCE_REMOVE;
 }
 
 gboolean DBClientAction::deleteNoOwnerActionsCycl(gpointer data)
 {
-	deleteNoOwnerActionsContext *g_deleteActionCtx = static_cast<deleteNoOwnerActionsContext *>(data);
-	g_deleteActionCtx->timerId = INVALID_EVENT_ID;
-	g_deleteActionCtx->idleEventId = Utils::setGLibIdleEvent(deleteNoOwnerActionsExec,
-	                                                         g_deleteActionCtx);
+	deleteNoOwnerActionsContext *deleteActionCtx = static_cast<deleteNoOwnerActionsContext *>(data);
+	deleteActionCtx->timerId = INVALID_EVENT_ID;
+	deleteActionCtx->idleEventId = Utils::setGLibIdleEvent(deleteNoOwnerActionsExec,
+	                                                       deleteActionCtx);
 	return G_SOURCE_REMOVE;
 }
 
