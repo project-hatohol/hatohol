@@ -314,7 +314,7 @@ static void _assertDeteleNoOwnerActions()
 	statement += " order by action_id";
 	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }
-#define assertDeteleNoOwnerActionss() cut_trace(_assertDeteleNoOwnerActions())
+#define assertDeteleNoOwnerActions() cut_trace(_assertDeteleNoOwnerActions())
 
 static void assertActionIdsInDB(ActionIdList excludeIdList)
 {
@@ -532,7 +532,7 @@ void test_deleteActionOfOthers(void)
 
 void test_deleteNoOwnerAction(void)
 {
-	assertDeteleNoOwnerActionss();
+	assertDeteleNoOwnerActions();
 }
 
 void test_deleteActionOfOthersWithoutPrivilege(void)
