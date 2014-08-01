@@ -17,7 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var HatoholAddActionDialog = function(changedCallback, issueTrackers) {
+var HatoholAddActionDialog = function(changedCallback, incidentTrackers) {
   var self = this;
 
   var IDX_SELECTED_SERVER  = 0;
@@ -31,11 +31,11 @@ var HatoholAddActionDialog = function(changedCallback, issueTrackers) {
   self.selectedId[IDX_SELECTED_TRIGGER] = null;
 
   self.changedCallback = changedCallback;
-  self.issueTrackers = issueTrackers;
-  self.forIssueSetting = !!issueTrackers;
+  self.incidentTrackers = incidentTrackers;
+  self.forIncidentSetting = !!incidentTrackers;
 
-  self.windowTitle = self.forIssueSetting ?
-    gettext("ADD ISSUE TRACKING SETTING") : gettext("ADD ACTION");
+  self.windowTitle = self.forIncidentSetting ?
+    gettext("ADD INCIDENT TRACKING SETTING") : gettext("ADD ACTION");
 
   var dialogButtons = [{
     text: gettext("ADD"),
@@ -248,7 +248,7 @@ var HatoholAddActionDialog = function(changedCallback, issueTrackers) {
   // General class methods
   //
   function getCommandType() {
-    if (self.forIssueSetting)
+    if (self.forIncidentSetting)
       return hatohol.ACTION_ISSUE_SENDER;
 
     var type = $("#selectType").val();
@@ -386,7 +386,7 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
     s += '    <option value="ANY">ANY</option>'
     s += '  </select>'
 
-    if (!self.forIssueSetting) {
+    if (!self.forIncidentSetting) {
       s += '  <label>' + gettext("Host") + '</label>'
       s += '  <select id="selectHostId">'
       s += '    <option value="ANY">ANY</option>'
@@ -456,13 +456,13 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
     return s;
   }
 
-  function makeIssueTrackerArea() {
-    var s = "", i, issueTracker;
-    s += '<h3>' + gettext("Issue Tracking Server") + '</h3>';
+  function makeIncidentTrackerArea() {
+    var s = "", i, incidentTracker;
+    s += '<h3>' + gettext("Incident Tracking Server") + '</h3>';
     s += '<form class="form-inline">';
-    s += '<select id="selectIssueTracker">';
+    s += '<select id="selectIncidentTracker">';
     s += '</select>';
-    s += '<input id="editIssueTrackers" type="button" '
+    s += '<input id="editIncidentTrackers" type="button" '
     s += '       style="margin-left: 2px;" ';
     s +='        value="' + gettext('EDIT') + '" />';
     s += '</form>'
@@ -473,8 +473,8 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
     var s = "";
     s += '<div id="add-action-div">'
     s += makeTriggerConditionArea();
-    if (self.forIssueSetting)
-      s += makeIssueTrackerArea();
+    if (self.forIncidentSetting)
+      s += makeIncidentTrackerArea();
     else
       s += makeExecutionParameterArea();
     s += '</div>'
@@ -483,54 +483,54 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
 }
 
 HatoholAddActionDialog.prototype.getCommand = function() {
-  if (this.forIssueSetting)
-    return $("#selectIssueTracker").val();
+  if (this.forIncidentSetting)
+    return $("#selectIncidentTracker").val();
   else
     return $("#inputActionCommand").val();
 }
 
-HatoholAddActionDialog.prototype.updateIssueTrackers = function(issueTrackers) {
-  var label, issueTraker;
+HatoholAddActionDialog.prototype.updateIncidentTrackers = function(incidentTrackers) {
+  var label, incidentTraker;
 
-  if (!this.forIssueSetting)
+  if (!this.forIncidentSetting)
     return;
 
-  $("#selectIssueTracker").empty();
-  for (i = 0; i < issueTrackers.length; i++) {
-    issueTracker = issueTrackers[i];
-    label = "" + issueTracker.id + ": " + issueTracker.nickname;
-    label += " (" + gettext("Project: ")  + issueTracker.projectId;
-    if (issueTracker.trackerId)
-      label += ", " + gettext("Tracker: ") + issueTracker.trackerId;
+  $("#selectIncidentTracker").empty();
+  for (i = 0; i < incidentTrackers.length; i++) {
+    incidentTracker = incidentTrackers[i];
+    label = "" + incidentTracker.id + ": " + incidentTracker.nickname;
+    label += " (" + gettext("Project: ")  + incidentTracker.projectId;
+    if (incidentTracker.trackerId)
+      label += ", " + gettext("Tracker: ") + incidentTracker.trackerId;
     label += ")";
-    $("#selectIssueTracker").append(
+    $("#selectIncidentTracker").append(
       $("<option>", {
-        value: issueTracker.id,
+        value: incidentTracker.id,
         text: label,
       })
     );
   }
 }
 
-HatoholAddActionDialog.prototype.setupIssueTrackersEditor = function()
+HatoholAddActionDialog.prototype.setupIncidentTrackersEditor = function()
 {
   var self = this;
-  var changedCallback = function(issueTrackers) {
-    self.issueTrackers = issueTrackers;
-    self.updateIssueTrackers(issueTrackers);
+  var changedCallback = function(incidentTrackers) {
+    self.incidentTrackers = incidentTrackers;
+    self.updateIncidentTrackers(incidentTrackers);
     if (self.changedCallback)
       self.changedCallback();
     self.setAddButtonState(!!self.getCommand());
   }
-  $("#editIssueTrackers").click(function() {
-    new HatoholIssueTrackersEditor({
+  $("#editIncidentTrackers").click(function() {
+    new HatoholIncidentTrackersEditor({
       changedCallback: changedCallback,
     });
   });
-  $("#selectIssueTracker").change(function() {
+  $("#selectIncidentTracker").change(function() {
     self.setAddButtonState(!!self.getCommand());
   });
-  changedCallback(self.issueTrackers);
+  changedCallback(self.incidentTrackers);
 }
 
 HatoholAddActionDialog.prototype.onAppendMainElement = function() {
@@ -567,8 +567,8 @@ HatoholAddActionDialog.prototype.onAppendMainElement = function() {
       self.setAddButtonState(false);
   }
 
-  if (self.forIssueSetting)
-    self.setupIssueTrackersEditor();
+  if (self.forIncidentSetting)
+    self.setupIncidentTrackersEditor();
 }
 
 HatoholAddActionDialog.prototype.setAddButtonState = function(state) {

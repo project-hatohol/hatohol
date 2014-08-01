@@ -17,14 +17,14 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var IssueSettingsView = function(userProfile) {
+var IncidentSettingsView = function(userProfile) {
   //
   // Variables
   //
   var self = this;
-  self.issueSettingsData = null;
-  self.issueTrackersData = null;
-  self.issueTrackersMap = null;
+  self.incidentSettingsData = null;
+  self.incidentTrackersData = null;
+  self.incidentTrackersMap = null;
 
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
@@ -45,18 +45,18 @@ var IssueSettingsView = function(userProfile) {
     th.eq(data.column).append("<i class='sort glyphicon glyphicon-arrow-" + icon +"'></i>");
   });
 
-  $("#add-issue-setting-button").click(function() {
-    var issueTrackers = self.issueTrackersData.issueTrackers;
-    new HatoholAddActionDialog(load, issueTrackers);
+  $("#add-incident-setting-button").click(function() {
+    var incidentTrackers = self.incidentTrackersData.issueTrackers;
+    new HatoholAddActionDialog(load, incidentTrackers);
   });
 
-  $("#delete-issue-setting-button").click(function() {
+  $("#delete-incident-setting-button").click(function() {
     var msg = gettext("Do you delete the selected items ?");
     hatoholNoYesMsgBox(msg, deleteActions);
   });
 
-  $("#edit-issue-trackers-button").click(function() {
-    new HatoholIssueTrackersEditor({
+  $("#edit-incident-trackers-button").click(function() {
+    new HatoholIncidentTrackersEditor({
       changedCallback: load,
     });
   });
@@ -195,13 +195,13 @@ var IssueSettingsView = function(userProfile) {
       s += "<td>" + severityCompLabel + " " + severityLabel + "</td>";
 
       var command = actionDef.command;
-      var issueTracker = self.issueTrackersMap[actionDef.command];
+      var incidentTracker = self.incidentTrackersMap[actionDef.command];
       s += "<td>";
-      if (issueTracker) {
-	s += issueTracker.nickname;
-        s += " (" + gettext("Project: ") + issueTracker.projectId;
-        if (issueTracker.trackerId) {
-          s += ", " + gettext("Tracker: ") + issueTracker.trackerId;
+      if (incidentTracker) {
+	s += incidentTracker.nickname;
+        s += " (" + gettext("Project: ") + incidentTracker.projectId;
+        if (incidentTracker.trackerId) {
+          s += ", " + gettext("Tracker: ") + incidentTracker.trackerId;
         }
         s += ")";
       } else {
@@ -215,25 +215,25 @@ var IssueSettingsView = function(userProfile) {
     return s;
   }
 
-  function parseIssueTrackers(issueTrackersData) {
-    var issueTrackers = issueTrackersData.issueTrackers;
-    var i, issueTrackersMap = {};
-    for (i = 0; i < issueTrackers.length; i++)
-      issueTrackersMap[issueTrackers[i].id] = issueTrackers[i];
-    return issueTrackersMap;
+  function parseIncidentTrackers(incidentTrackersData) {
+    var incidentTrackers = incidentTrackersData.issueTrackers;
+    var i, incidentTrackersMap = {};
+    for (i = 0; i < incidentTrackers.length; i++)
+      incidentTrackersMap[incidentTrackers[i].id] = incidentTrackers[i];
+    return incidentTrackersMap;
   }
 
-  function onGotIssueTrackers(issueTrackersData) {
-    self.issueTrackersData = issueTrackersData;
-    self.issueTrackersMap = parseIssueTrackers(self.issueTrackersData);
+  function onGotIncidentTrackers(incidentTrackersData) {
+    self.incidentTrackersData = incidentTrackersData;
+    self.incidentTrackersMap = parseIncidentTrackers(self.incidentTrackersData);
     $("#table tbody").empty();
-    $("#table tbody").append(drawTableBody(self.issueSettingsData));
-    self.setupCheckboxForDelete($("#delete-issue-setting-button"));
+    $("#table tbody").append(drawTableBody(self.incidentSettingsData));
+    self.setupCheckboxForDelete($("#delete-incident-setting-button"));
   }
 
-  function onGotIssueSettings(issueSettingsData) {
-    self.issueSettingsData = issueSettingsData;
-    self.startConnection("issue-trackers", onGotIssueTrackers);
+  function onGotIncidentSettings(incidentSettingsData) {
+    self.incidentSettingsData = incidentSettingsData;
+    self.startConnection("issue-trackers", onGotIncidentTrackers);
   }
 
   function getQuery() {
@@ -244,9 +244,9 @@ var IssueSettingsView = function(userProfile) {
   };
 
   function load() {
-    self.startConnection(getQuery(), onGotIssueSettings);
+    self.startConnection(getQuery(), onGotIncidentSettings);
   }
 };
 
-IssueSettingsView.prototype = Object.create(HatoholMonitoringView.prototype);
-IssueSettingsView.prototype.constructor = IssueSettingsView;
+IncidentSettingsView.prototype = Object.create(HatoholMonitoringView.prototype);
+IncidentSettingsView.prototype.constructor = IncidentSettingsView;
