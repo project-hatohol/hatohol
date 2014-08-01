@@ -391,7 +391,7 @@ HatoholIssueTrackerEditor.prototype.createMainElement = function() {
   '<label for="editIssueTrackerPassword">' + gettext("Password") + '</label>' +
   '<input id="editIssueTrackerPassword" type="password" ' +
   '       class="input-xlarge">' +
-  '<input type="checkbox" id="editPasswordCheckbox"> ' +
+  '<input type="checkbox" id="editIssueTrackerPasswordCheckbox"> ' +
   '</div>';
 
   return html;
@@ -405,14 +405,14 @@ HatoholIssueTrackerEditor.prototype.onAppendMainElement = function() {
 HatoholIssueTrackerEditor.prototype.resetWidgetState = function() {
   var editPassword = !this.issueTracker;
   if (editPassword) {
-    $("#editPasswordCheckbox").hide();
+    $("#editIssueTrackerPasswordCheckbox").hide();
   } else {
-    $("#editPasswordCheckbox").show();
+    $("#editIssueTrackerPasswordCheckbox").show();
   }
-  $("#editPasswordCheckbox").prop("checked", editPassword);
+  $("#editIssueTrackerPasswordCheckbox").prop("checked", editPassword);
   $("#editIssueTrackerPassword").attr("disabled", !editPassword);
 
-  $("#editPasswordCheckbox").change(function() {
+  $("#editIssueTrackerPasswordCheckbox").change(function() {
     var check = $(this).is(":checked");
     $("#editIssueTrackerPassword").attr("disabled", !check);
   });
