@@ -35,7 +35,7 @@ var HatoholAddActionDialog = function(changedCallback, issueTrackers) {
   self.forIssueSetting = !!issueTrackers;
 
   self.windowTitle = self.forIssueSetting ?
-    gettext("ADD ISSUE SETTING") : gettext("ADD ACTION");
+    gettext("ADD ISSUE TRACKING SETTING") : gettext("ADD ACTION");
 
   var dialogButtons = [{
     text: gettext("ADD"),
