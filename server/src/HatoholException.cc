@@ -109,7 +109,7 @@ void HatoholException::setBrief(const string &brief)
 }
 
 // ---------------------------------------------------------------------------
-// ExceptionCatcher
+// ExceptionCatchable
 // ---------------------------------------------------------------------------
 bool ExceptionCatchable::exec(void)
 {
