@@ -23,6 +23,7 @@
 #include "Hatohol.h"
 #include "Params.h"
 #include "DBClientAction.h"
+#include "DBClientUser.h"
 #include "DBClientTest.h"
 #include "Helpers.h"
 using namespace std;
@@ -286,6 +287,35 @@ static void _assertDeleteActions(const bool &deleteMyActions,
 }
 #define assertDeleteActions(D,T) cut_trace(_assertDeleteActions(D,T))
 
+static void _assertDeteleNoOwnerActions()
+{
+	setupTestDBUserAndDBAction();
+	DBClientAction dbAction;
+	DBClientUser   dbUser;
+
+	const UserIdType targetId = 2;
+	string expect;
+	ActionIdList idList;
+	for (size_t i = 0; i < NumTestActionDef; i++) {
+		const ActionDef &actDef = testActionDef[i];
+		const int expectedId = i + 1;
+		if (actDef.ownerUserId != targetId)
+			expect += StringUtils::sprintf("%d\n", expectedId);
+	}
+
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	HatoholError err = dbUser.deleteUserInfo(targetId, privilege);
+
+	dbAction.deleteNoOwnerActions();
+
+	// check
+	string statement = "select action_id from ";
+	statement += DBClientAction::getTableNameActions();
+	statement += " order by action_id";
+	assertDBContent(dbAction.getDBAgent(), statement, expect);
+}
+#define assertDeteleNoOwnerActionss() cut_trace(_assertDeteleNoOwnerActions())
+
 static void assertActionIdsInDB(ActionIdList excludeIdList)
 {
 	set<ActionIdType> idSet;
@@ -498,6 +528,11 @@ void test_deleteActionOfOthers(void)
 {
 	const bool deleteMyActions = false;
 	assertDeleteActions(deleteMyActions, OPPRVLG_DELETE_ALL_ACTION);
+}
+
+void test_deleteNoOwnerAction(void)
+{
+	assertDeteleNoOwnerActionss();
 }
 
 void test_deleteActionOfOthersWithoutPrivilege(void)
