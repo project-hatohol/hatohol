@@ -1029,8 +1029,8 @@ gboolean DBClientAction::deleteNoOwnerActionsExec(gpointer data)
 			CacheServiceDBClient cache;
 			cache.getAction()->deleteNoOwnerActions();
 		}
-	} catchable;
-	catchable.exec();
+	} deleter;
+	deleter.exec();
 
 	deleteNoOwnerActionsContext *g_deleteActionCtx = static_cast<deleteNoOwnerActionsContext *>(data);
 	g_deleteActionCtx->idleEventId = INVALID_EVENT_ID;
