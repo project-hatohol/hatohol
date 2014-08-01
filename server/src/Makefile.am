@@ -117,16 +117,24 @@ libhatohol_la_SOURCES = \
 	SQLWhereParser.cc SQLWhereParser.h \
 	UnifiedDataStore.cc UnifiedDataStore.h
 
+if HAVE_LIBRABBITMQ
+libhatohol_la_SOURCES += \
+	AMQPConsumer.cc AMQPConsumer.h \
+	HatoholArmPluginGateJSON.cc HatoholArmPluginGateJSON.h
+endif
+
 AM_CXXFLAGS = \
 	$(OPT_CXXFLAGS) \
 	$(MLPL_CFLAGS) $(GLIB_CFLAGS) $(GTHREAD_CFLAGS) $(GIO_CFLAGS) \
 	$(LIBSOUP_CFLAGS) $(JSON_GLIB_CFLAGS) $(SQLITE3_CFLAGS) \
-	$(UUID_CFLAGS) $(MYSQL_CFLAGS) $(COVERAGE_CFLAGS)
+	$(UUID_CFLAGS) $(LIBRABBITMQ_CFLAGS) $(MYSQL_CFLAGS) \
+	$(COVERAGE_CFLAGS)
 
 AM_LDFLAGS = -lrt \
 	$(MLPL_LIBS) $(GLIB_LIBS) $(GTHREAD_LIBS) $(GIO_LIBS) \
 	$(LIBSOUP_LIBS) $(JSON_GLIB_LIBS) $(SQLITE3_LIBS) \
-	$(UUID_LIBS) $(MYSQL_LIBS) $(COVERAGE_LIBS)
+	$(UUID_LIBS) $(LIBRABBITMQ_LIBS) $(MYSQL_LIBS) \
+	$(COVERAGE_LIBS)
 
 libhatohol_la_LDFLAGS = $(AM_LDFLAGS)
 libhatohol_la_LIBADD = libhatohol-common.la
