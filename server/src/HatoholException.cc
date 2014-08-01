@@ -107,3 +107,40 @@ void HatoholException::setBrief(const string &brief)
 {
 	m_what = brief;
 }
+
+// ---------------------------------------------------------------------------
+// ExceptionCatchable
+// ---------------------------------------------------------------------------
+bool ExceptionCatchable::exec(void)
+{
+	bool caughtException = false;
+	try {
+		(*this)();
+	} catch (const HatoholException &e) {
+		onCaught(e);
+		caughtException = true;
+	} catch (const exception &e) {
+		onCaught(e);
+		caughtException = true;
+	} catch (...) {
+		onCaught();
+		caughtException = true;
+	}
+	return caughtException;
+}
+
+void ExceptionCatchable::onCaught(const HatoholException &e)
+{
+	MLPL_ERR("Got Hatohol exception: %s\n",
+	         e.getFancyMessage().c_str());
+}
+
+void ExceptionCatchable::onCaught(const exception &e)
+{
+	MLPL_ERR("Got exception: %s\n", e.what());
+}
+
+void ExceptionCatchable::onCaught(void)
+{
+	MLPL_ERR("Got unknown exception\n");
+}
