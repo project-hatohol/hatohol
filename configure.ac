@@ -78,7 +78,14 @@ dnl **************************************************************
 dnl Checks for librabbitmq
 dnl **************************************************************
 LIBRABBITMQ_REQUIRED=0.4.1
-PKG_CHECK_MODULES(LIBRABBITMQ, librabbitmq >= $LIBRABBITMQ_REQUIRED)
+PKG_CHECK_MODULES(LIBRABBITMQ,
+                  librabbitmq >= $LIBRABBITMQ_REQUIRED,
+                  [have_librabbitmq=yes],
+                  [have_librabbitmq=no])
+if test "$have_librabbitmq" = "yes"; then
+  AC_DEFINE(HAVE_LIBRABBITMQ, 1, [Define to 1 if you have librabbitmq])
+fi
+AM_CONDITIONAL([HAVE_LIBRABBITMQ], [test "$have_librabbitmq" = "yes"])
 
 dnl **************************************************************
 dnl Checks for MySQL

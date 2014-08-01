@@ -32,7 +32,6 @@ libhatohol_la_SOURCES = \
 	ActionExecArgMaker.cc ActionExecArgMaker.h \
 	ActionManager.cc ActionManager.h \
 	ActorCollector.cc ActorCollector.h \
-	AMQPConsumer.cc AMQPConsumer.h \
 	ArmBase.cc ArmBase.h \
 	ArmFake.cc ArmFake.h \
 	ArmNagiosNDOUtils.cc ArmNagiosNDOUtils.h \
@@ -73,7 +72,6 @@ libhatohol_la_SOURCES = \
 	HatoholError.cc HatoholError.h \
 	HostResourceQueryOption.cc HostResourceQueryOption.h \
 	HatoholArmPluginGate.cc HatoholArmPluginGate.h \
-	HatoholArmPluginGateJSON.cc HatoholArmPluginGateJSON.h \
 	HatoholServer.cc \
 	HatoholDBUtils.cc HatoholDBUtils.h \
 	HostInfoCache.cc HostInfoCache.h \
@@ -115,6 +113,12 @@ libhatohol_la_SOURCES = \
 	SQLUtils.cc SQLUtils.h \
 	SQLWhereParser.cc SQLWhereParser.h \
 	UnifiedDataStore.cc UnifiedDataStore.h
+
+if HAVE_LIBRABBITMQ
+libhatohol_la_SOURCES += \
+	AMQPConsumer.cc AMQPConsumer.h \
+	HatoholArmPluginGateJSON.cc HatoholArmPluginGateJSON.h
+endif
 
 AM_CXXFLAGS = \
 	$(OPT_CXXFLAGS) \

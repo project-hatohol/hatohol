@@ -17,12 +17,18 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
+
 #include "DataStoreFactory.h"
 #include "DataStoreFake.h"
 #include "DataStoreZabbix.h"
 #include "DataStoreNagios.h"
 #include "HatoholArmPluginGate.h"
+#ifdef HAVE_LIBRABBITMQ
 #include "HatoholArmPluginGateJSON.h"
+#endif
 
 DataStore *DataStoreFactory::create(const MonitoringServerInfo &svInfo,
                                     const bool &autoStart)
@@ -41,10 +47,12 @@ DataStore *DataStoreFactory::create(const MonitoringServerInfo &svInfo,
 			gate->start();
                 return gate;
 	}
+#ifdef HAVE_LIBRABBITMQ
 	case MONITORING_SYSTEM_HAPI_JSON:
 	{
 		return new HatoholArmPluginGateJSON(svInfo, autoStart);
 	}
+#endif
 	default:
 		MLPL_BUG("Invalid monitoring system: %d\n", svInfo.type);
 	}
