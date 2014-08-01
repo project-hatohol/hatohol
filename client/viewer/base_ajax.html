@@ -23,15 +23,13 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
+    <link href="{{ STATIC_URL }}images/favicon.ico" rel="shortcut icon" type="image/x-icon" />
     <link href="{{ STATIC_URL }}css.external/bootstrap.css" rel="stylesheet" media="screen"></link>
     <link href="{{ STATIC_URL }}css/hatohol.css" rel="stylesheet" media="screen"></link>
     <link href="{{ STATIC_URL }}css/zabbix.css" rel="stylesheet" media="screen"></link>
     <link href="{{ STATIC_URL }}css.external/themes/ui-lightness/jquery-ui.css" rel="stylesheet" media="screen"/>
-{% block refresh %}
-{% endblock %}
     <title>
-{% block title %}
-{% endblock %}
+      {% block title %}{% endblock %} - {% trans "Hatohol" %}
     </title>
   </head>
 
