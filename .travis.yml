@@ -6,7 +6,7 @@ compiler:
   - gcc
   - clang
 env:
-  - RUN_TEST="MLPL_LOGGER_LEVEL=WARN ./server/mlpl/test/run-test.sh"
+  - RUN_TEST="env MLPL_LOGGER_LEVEL=WARN ./server/mlpl/test/run-test.sh"
   - RUN_TEST="cd server/test && MLPL_LOGGER_LEVEL=WARN ./run-test.sh"
   - RUN_TEST="cd server/tools/test && MLPL_LOGGER_LEVEL=WARN ./run-test.sh"
   - RUN_TEST="cd client/test/python && ./run-test.sh"
