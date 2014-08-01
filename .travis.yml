@@ -30,4 +30,4 @@ before_script:
   - sudo chmod 777 /var/run
   - make -j`cat /proc/cpuinfo | grep ^processor| wc -l`
 script:
-  - $RUN_TEST
+  - echo $RUN_TEST; $RUN_TEST
