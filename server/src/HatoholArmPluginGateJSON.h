@@ -21,8 +21,6 @@
 #define HatoholArmPluginGateJSON_h
 
 #include "DataStore.h"
-#include "ArmFake.h"
-#include "AMQPConsumer.h"
 
 class HatoholArmPluginGateJSON : public DataStore {
 public:
@@ -35,10 +33,8 @@ protected:
 	virtual ~HatoholArmPluginGateJSON();
 
 private:
-	AMQPConsumer *m_consumer;
-	ArmFake m_armFake;
-
-	std::string generateBrokerAddress(const MonitoringServerInfo &serverInfo);
+	struct PrivateContext;
+	PrivateContext *m_ctx;
 };
 
 typedef UsedCountablePtr<HatoholArmPluginGateJSON> HatoholArmPluginGateJSONPtr;
