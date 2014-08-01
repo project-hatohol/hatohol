@@ -1023,14 +1023,16 @@ void DBClientAction::getActionUser(UserIdSet &userIdSet)
 
 gboolean DBClientAction::deleteNoOwnerActionsExec(gpointer data)
 {
+	struct : public ExceptionCatchable {
+		void operator ()(void) override
+		{
+			CacheServiceDBClient cache;
+			cache.getAction()->deleteNoOwnerActions();
+		}
+	} deleter;
+	deleter.exec();
+
 	deleteNoOwnerActionsContext *deleteActionCtx = static_cast<deleteNoOwnerActionsContext *>(data);
-	CacheServiceDBClient cache;
-	DBClientAction *dbAction = cache.getAction();
-	try {
-		dbAction->deleteNoOwnerActions();
-	} catch (const exception &e) {
-		MLPL_ERR("Got Exception: %s\n", e.what());
-	}
 	deleteActionCtx->idleEventId = INVALID_EVENT_ID;
 	deleteActionCtx->timerId = g_timeout_add(DEFAULT_ACTION_DELETE_INTERVAL_MSEC, 
 	                                         deleteNoOwnerActionsCycl,
