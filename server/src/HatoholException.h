@@ -78,4 +78,23 @@ do { \
 		THROW_HATOHOL_EXCEPTION("ASSERTION failed: [%s] : " FMT, #COND, ##__VA_ARGS__); \
 	} \
 } while (0)
+
+class ExceptionCatchable {
+public:
+	/**
+	 * Exectute this as a functor in the try-catch block.
+	 *
+	 * @return
+	 * true if the functor throws any exception.
+	 * Otherwise, false is returned.
+	 */
+	bool exec(void);
+
+protected:
+	virtual void operator ()(void) = 0;
+	virtual void onCaught(const HatoholException &e);
+	virtual void onCaught(const std::exception &e);
+	virtual void onCaught(void);
+};
+
 #endif // HatoholException_h
