@@ -312,6 +312,7 @@ gpointer AMQPConsumer::mainThread(HatoholThreadArg *arg)
 {
 	AMQPConnection connection(m_brokerUrl, m_queueAddress);
 	if (!connection.connect()) {
+		// TODO: Support reconnecting.
 		return NULL;
 	}
 
