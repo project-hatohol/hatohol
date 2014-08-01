@@ -567,8 +567,10 @@ HatoholAddActionDialog.prototype.onAppendMainElement = function() {
       self.setAddButtonState(false);
   }
 
-  if (self.forIncidentSetting)
+  if (self.forIncidentSetting) {
     self.setupIncidentTrackersEditor();
+    $("#selectTriggerStatus").val("TRIGGER_STATUS_PROBLEM");
+  }
 }
 
 HatoholAddActionDialog.prototype.setAddButtonState = function(state) {
