@@ -8,6 +8,12 @@
   - name: install autotools-dev
     apt: name=autotools-dev
 
+  - name: install autoconf
+    apt: name=autoconf
+
+  - name: install libtool
+    apt: name=libtool
+
   - name: install libglib2.0-dev
     apt: name=libglib2.0-dev
 
