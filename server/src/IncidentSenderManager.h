@@ -17,34 +17,34 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IssueSenderManager_h
-#define IssueSenderManager_h
+#ifndef IncidentSenderManager_h
+#define IncidentSenderManager_h
 
 #include "Params.h"
 #include "DBClientHatohol.h"
-#include "IssueSender.h"
+#include "IncidentSender.h"
 
-class IssueSenderManager
+class IncidentSenderManager
 {
 public:
-	static IssueSenderManager &getInstance(void);
+	static IncidentSenderManager &getInstance(void);
 
-	void queue(const IssueTrackerIdType &trackerId,
+	void queue(const IncidentTrackerIdType &trackerId,
 		   const EventInfo &info,
-		   IssueSender::StatusCallback callback = NULL,
+		   IncidentSender::StatusCallback callback = NULL,
 		   void *userData = NULL);
 	bool isIdling(void);
 
 protected:
-	IssueSenderManager(void);
-	virtual ~IssueSenderManager();
+	IncidentSenderManager(void);
+	virtual ~IncidentSenderManager();
 
-	IssueSender *getSender(const IssueTrackerIdType &id,
-			       bool autoCreate = false);
+	IncidentSender *getSender(const IncidentTrackerIdType &id,
+				  bool autoCreate = false);
 
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
 };
 
-#endif // IssuesSenderManager_h
+#endif // IncidentSenderManager_h

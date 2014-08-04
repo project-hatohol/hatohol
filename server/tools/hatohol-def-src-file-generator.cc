@@ -140,7 +140,7 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 	ADD_LINE(s, langType, ACTION_ALL);
 	ADD_LINE(s, langType, ACTION_COMMAND);
 	ADD_LINE(s, langType, ACTION_RESIDENT);
-	ADD_LINE(s, langType, ACTION_ISSUE_SENDER);
+	ADD_LINE(s, langType, ACTION_INCIDENT_SENDER);
 	APPEND(s, "\n");
 
 	ADD_LINE(s, langType, CMP_INVALID);
@@ -155,9 +155,9 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 	ADD_LINE(s, langType, MONITORING_SYSTEM_UNKNOWN);
 	APPEND(s, "\n");
 
-	ADD_LINE(s, langType, ISSUE_TRACKER_UNKNOWN);
-	ADD_LINE(s, langType, ISSUE_TRACKER_FAKE);
-	ADD_LINE(s, langType, ISSUE_TRACKER_REDMINE);
+	ADD_LINE(s, langType, INCIDENT_TRACKER_UNKNOWN);
+	ADD_LINE(s, langType, INCIDENT_TRACKER_FAKE);
+	ADD_LINE(s, langType, INCIDENT_TRACKER_REDMINE);
 	APPEND(s, "\n");
 
 	//
@@ -226,10 +226,10 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 	ADD_LINE(s, langType, OPPRVLG_UPDATE_ALL_USER_ROLE);
 	ADD_LINE(s, langType, OPPRVLG_DELETE_ALL_USER_ROLE);
 
-	ADD_LINE(s, langType, OPPRVLG_CREATE_ISSUE_SETTING);
-	ADD_LINE(s, langType, OPPRVLG_UPDATE_ISSUE_SETTING);
-	ADD_LINE(s, langType, OPPRVLG_DELETE_ISSUE_SETTING);
-	ADD_LINE(s, langType, OPPRVLG_GET_ALL_ISSUE_SETTINGS);
+	ADD_LINE(s, langType, OPPRVLG_CREATE_INCIDENT_SETTING);
+	ADD_LINE(s, langType, OPPRVLG_UPDATE_INCIDENT_SETTING);
+	ADD_LINE(s, langType, OPPRVLG_DELETE_INCIDENT_SETTING);
+	ADD_LINE(s, langType, OPPRVLG_GET_ALL_INCIDENT_SETTINGS);
 
 	ADD_LINE(s, langType, NUM_OPPRVLG);
 	APPEND(s, "\n");

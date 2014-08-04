@@ -542,11 +542,11 @@ static uint64_t getLastUnifiedEventId(FaceRest::ResourceHandler *job)
 	return lastUnifiedId;
 }
 
-static void addIssue(FaceRest::ResourceHandler *job, JSONBuilderAgent &agent,
-		     const IssueInfo &issue)
+static void addIncident(FaceRest::ResourceHandler *job, JSONBuilderAgent &agent,
+			const IncidentInfo &incident)
 {
-	agent.startObject("issue");
-	agent.add("location", issue.location);
+	agent.startObject("incident");
+	agent.add("location", incident.location);
 	// TODO: remaining properties will be added later
 	agent.endObject();
 }
@@ -563,13 +563,13 @@ void RestResourceHost::handlerGetEvent(void)
 		return;
 	}
 
-	bool addIssues = dataStore->isIssueSenderActionEnabled();
-	IssueInfoVect issueVect;
-	if (addIssues) {
-		err = dataStore->getEventList(eventList, option, &issueVect);
-		HATOHOL_ASSERT(eventList.size() == issueVect.size(),
-			       "eventList: %zd, issueVect: %zd\n",
-			       eventList.size(), issueVect.size());
+	bool addIncidents = dataStore->isIncidentSenderActionEnabled();
+	IncidentInfoVect incidentVect;
+	if (addIncidents) {
+		err = dataStore->getEventList(eventList, option, &incidentVect);
+		HATOHOL_ASSERT(eventList.size() == incidentVect.size(),
+			       "eventList: %zd, incidentVect: %zd\n",
+			       eventList.size(), incidentVect.size());
 	} else {
 		err = dataStore->getEventList(eventList, option);
 	}
@@ -583,10 +583,10 @@ void RestResourceHost::handlerGetEvent(void)
 	addHatoholError(agent, HatoholError(HTERR_OK));
 	// TODO: should use transaction to avoid conflicting with event list
 	agent.add("lastUnifiedEventId", getLastUnifiedEventId(this));
-	if (addIssues)
-		agent.addTrue("haveIssue");
+	if (addIncidents)
+		agent.addTrue("haveIncident");
 	else
-		agent.addFalse("haveIssue");
+		agent.addFalse("haveIncident");
 	agent.startArray("events");
 	EventInfoListIterator it = eventList.begin();
 	for (size_t i = 0; it != eventList.end(); ++i, ++it) {
@@ -601,8 +601,8 @@ void RestResourceHost::handlerGetEvent(void)
 		agent.add("severity",  eventInfo.severity);
 		agent.add("hostId",    eventInfo.hostId);
 		agent.add("brief",     eventInfo.brief);
-		if (addIssues)
-			addIssue(this, agent, issueVect[i]);
+		if (addIncidents)
+			addIncident(this, agent, incidentVect[i]);
 		agent.endObject();
 	}
 	agent.endArray();

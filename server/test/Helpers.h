@@ -105,10 +105,10 @@ std::string execMySQL(const std::string &dbName, const std::string &statement,
 
 std::string makeServerInfoOutput(const MonitoringServerInfo &serverInfo);
 std::string makeArmPluginInfoOutput(const ArmPluginInfo &armPluginInfo);
-std::string makeIssueTrackerInfoOutput(const IssueTrackerInfo &issueTrackerInfo);
+std::string makeIncidentTrackerInfoOutput(const IncidentTrackerInfo &incidentTrackerInfo);
 std::string makeUserRoleInfoOutput(const UserRoleInfo &userRoleInfo);
 std::string makeEventOutput(const EventInfo &eventInfo);
-std::string makeIssueOutput(const IssueInfo &issueInfo);
+std::string makeIncidentOutput(const IncidentInfo &incidentInfo);
 
 void _assertDatetime(int expectedClock, int actualClock);
 #define assertDatetime(E,A) cut_trace(_assertDatetime(E,A))
@@ -153,8 +153,8 @@ void _assertServersInDB(const ServerIdSet &excludeServerIdSet = EMPTY_SERVER_ID_
 void _assertArmPluginsInDB(const std::set<int> &excludeIdSet);
 #define assertArmPluginsInDB(E) cut_trace(_assertArmPluginsInDB(E))
 
-void _assertIssueTrackersInDB(const IssueTrackerIdSet &excludeIssueTrackerIdSet);
-#define assertIssueTrackersInDB(E) cut_trace(_assertIssueTrackersInDB(E))
+void _assertIncidentTrackersInDB(const IncidentTrackerIdSet &excludeIncidentTrackerIdSet);
+#define assertIncidentTrackersInDB(E) cut_trace(_assertIncidentTrackersInDB(E))
 
 void _assertUsersInDB(const UserIdSet &excludeUserIdSet = EMPTY_USER_ID_SET);
 #define assertUsersInDB(E) cut_trace(_assertUsersInDB(E))
@@ -175,8 +175,8 @@ void setupTestDBHost(const bool &dbRecreate = true,
                      const bool &loadTestData = false);
 void loadTestDBTriggers(void);
 void loadTestDBEvents(void);
-void loadTestDBIssues(void);
-void loadTestDBIssueTracker(void);
+void loadTestDBIncidents(void);
+void loadTestDBIncidentTracker(void);
 void loadTestDBServer(void);
 void loadTestDBAction(void);
 void loadTestDBUser(void);

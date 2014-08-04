@@ -20,7 +20,7 @@
 #include "Synchronizer.h"
 #include "RedmineAPIEmulator.h"
 #include "Hatohol.h"
-#include "IssueSenderRedmine.h"
+#include "IncidentSenderRedmine.h"
 #include "LabelUtils.h"
 #include "DBClientTest.h"
 #include "Helpers.h"
@@ -31,14 +31,14 @@
 using namespace std;
 using namespace mlpl;
 
-namespace testIssueSenderRedmine {
+namespace testIncidentSenderRedmine {
 
 static Synchronizer g_sync;
 
-class TestRedmineSender : public IssueSenderRedmine {
+class TestRedmineSender : public IncidentSenderRedmine {
 public:
-	TestRedmineSender(const IssueTrackerInfo &tracker)
-	: IssueSenderRedmine(tracker)
+	TestRedmineSender(const IncidentTrackerInfo &tracker)
+	: IncidentSenderRedmine(tracker)
 	{
 	}
 	virtual ~TestRedmineSender()
@@ -47,24 +47,24 @@ public:
 	string buildTitle(const EventInfo &event,
 			  const MonitoringServerInfo *server)
 	{
-		return IssueSender::buildTitle(event, server);
+		return IncidentSender::buildTitle(event, server);
 	}
 	string buildDescription(const EventInfo &event,
 				const MonitoringServerInfo *server)
 	{
-		return IssueSender::buildDescription(event, server);
+		return IncidentSender::buildDescription(event, server);
 	}
 	string buildJSON(const EventInfo &event)
 	{
-		return IssueSenderRedmine::buildJSON(event);
+		return IncidentSenderRedmine::buildJSON(event);
 	}
 	string getIssuesJSONURL(void)
 	{
-		return IssueSenderRedmine::getIssuesJSONURL();
+		return IncidentSenderRedmine::getIssuesJSONURL();
 	}
-	HatoholError parseResponse(IssueInfo &issueInfo,const string &response)
+	HatoholError parseResponse(IncidentInfo &incidentInfo,const string &response)
 	{
-		return IssueSenderRedmine::parseResponse(issueInfo, response);
+		return IncidentSenderRedmine::parseResponse(incidentInfo, response);
 	}
 };
 
@@ -146,7 +146,7 @@ string expectedJSON(const EventInfo &event)
 void test_buildJSON(void)
 {
 	setupTestDBConfig(true, true);
-	IssueTrackerInfo tracker;
+	IncidentTrackerInfo tracker;
 	TestRedmineSender sender(tracker);
 	cppcut_assert_equal(expectedJSON(testEventInfo[0]),
 			    sender.buildJSON(testEventInfo[0]));
@@ -154,7 +154,7 @@ void test_buildJSON(void)
 
 void test_getIssuesJSONURL(void)
 {
-	IssueTrackerInfo &tracker = testIssueTrackerInfo[0];
+	IncidentTrackerInfo &tracker = testIncidentTrackerInfo[0];
 	TestRedmineSender sender(tracker);
 	cppcut_assert_equal(
 	  string("http://localhost/projects/1/issues.json"),
@@ -163,33 +163,33 @@ void test_getIssuesJSONURL(void)
 
 void test_getIssuesJSONURLWithStringProjectId(void)
 {
-	IssueTrackerInfo &tracker = testIssueTrackerInfo[1];
+	IncidentTrackerInfo &tracker = testIncidentTrackerInfo[1];
 	TestRedmineSender sender(tracker);
 	cppcut_assert_equal(
 	  string("http://localhost/projects/hatohol/issues.json"),
 	  sender.getIssuesJSONURL());
 }
 
-static void makeExpectedIssueInfo(IssueInfo &issue,
-				  const IssueTrackerInfo &tracker,
-				  const EventInfo &event,
-				  const RedmineIssue &postedIssue)
+static void makeExpectedIncidentInfo(IncidentInfo &incident,
+				     const IncidentTrackerInfo &tracker,
+				     const EventInfo &event,
+				     const RedmineIssue &postedIssue)
 {
-	issue.serverId = event.serverId;
-	issue.eventId = event.id;
-	issue.triggerId = event.triggerId;
-	issue.trackerId = tracker.id;
-	issue.identifier = StringUtils::toString((int)postedIssue.id);
-	issue.location = tracker.baseURL + "/issues/" + issue.identifier;
-	issue.status = postedIssue.getStatusName();
-	issue.createdAt.tv_sec = postedIssue.createdOn;
-	issue.createdAt.tv_nsec = 0;
-	issue.updatedAt.tv_sec = postedIssue.updatedOn;
-	issue.updatedAt.tv_nsec = 0;
+	incident.serverId = event.serverId;
+	incident.eventId = event.id;
+	incident.triggerId = event.triggerId;
+	incident.trackerId = tracker.id;
+	incident.identifier = StringUtils::toString((int)postedIssue.id);
+	incident.location = tracker.baseURL + "/issues/" + incident.identifier;
+	incident.status = postedIssue.getStatusName();
+	incident.createdAt.tv_sec = postedIssue.createdOn;
+	incident.createdAt.tv_nsec = 0;
+	incident.updatedAt.tv_sec = postedIssue.updatedOn;
+	incident.updatedAt.tv_nsec = 0;
 }
 
 void _assertSend(const HatoholErrorCode &expected,
-		 const IssueTrackerInfo &tracker,
+		 const IncidentTrackerInfo &tracker,
 		 const EventInfo &event)
 {
 	setupTestDBConfig(true, true);
@@ -223,13 +223,13 @@ void _assertSend(const HatoholErrorCode &expected,
 	}
 
 	// verify the saved information
-	IssueInfo issue;
-	makeExpectedIssueInfo(issue, tracker, event,
-			      g_redmineEmulator.getLastIssue());
+	IncidentInfo incident;
+	makeExpectedIncidentInfo(incident, tracker, event,
+				 g_redmineEmulator.getLastIssue());
 	DBClientHatohol dbClientHatohol;
 	DBAgent *dbAgent = dbClientHatohol.getDBAgent();
-	string statement = "select * from issues;";
-	string expect = makeIssueOutput(issue);
+	string statement = "select * from incidents;";
+	string expect = makeIncidentOutput(incident);
 	assertDBContent(dbAgent, statement, expect);
 }
 #define assertSend(E,T,V) \
@@ -237,20 +237,20 @@ cut_trace(_assertSend(E,T,V))
 
 void test_send(void)
 {
-	assertSend(HTERR_OK, testIssueTrackerInfo[2], testEventInfo[0]);
+	assertSend(HTERR_OK, testIncidentTrackerInfo[2], testEventInfo[0]);
 }
 
 void test_sendWithUnknownTracker(void)
 {
-	IssueTrackerInfo tracker = testIssueTrackerInfo[2];
+	IncidentTrackerInfo tracker = testIncidentTrackerInfo[2];
 	tracker.trackerId = "100";
-	assertSend(HTERR_FAILED_TO_SEND_ISSUE, tracker, testEventInfo[0]);
+	assertSend(HTERR_FAILED_TO_SEND_INCIDENT, tracker, testEventInfo[0]);
 }
 
 void test_parseResponse(void)
 {
-	IssueTrackerInfo tracker = testIssueTrackerInfo[2];
-	IssueInfo expected = testIssueInfo[0], actual;
+	IncidentTrackerInfo tracker = testIncidentTrackerInfo[2];
+	IncidentInfo expected = testIncidentInfo[0], actual;
 	RedmineIssue issue;
 	issue.id = atoi(expected.identifier.c_str());
 	issue.trackerId = atoi(tracker.trackerId.c_str());
@@ -267,8 +267,8 @@ void test_parseResponse(void)
 	actual.triggerId = expected.triggerId;
 	HatoholError result = sender.parseResponse(actual, issue.toJSON());
 	cppcut_assert_equal(HTERR_OK, result.getCode());
-	cppcut_assert_equal(makeIssueOutput(expected),
-			    makeIssueOutput(actual));
+	cppcut_assert_equal(makeIncidentOutput(expected),
+			    makeIncidentOutput(actual));
 }
 
 struct CallbackData
@@ -284,18 +284,18 @@ struct CallbackData
 };
 
 static void statusCallback(const EventInfo &info,
-			   const IssueSender::JobStatus &status,
+			   const IncidentSender::JobStatus &status,
 			   void *userData)
 {
 	CallbackData *data = static_cast<CallbackData*>(userData);
 	switch (status) {
-	case IssueSender::JOB_RETRYING:
+	case IncidentSender::JOB_RETRYING:
 		data->errorsCount++;
 		break;
-	case IssueSender::JOB_SUCCEEDED:
+	case IncidentSender::JOB_SUCCEEDED:
 		data->succeeded = true;
 		break;
-	case IssueSender::JOB_FAILED:
+	case IncidentSender::JOB_FAILED:
 		data->failed = true;
 		break;
 	default:
@@ -306,7 +306,7 @@ static void statusCallback(const EventInfo &info,
 void _assertThread(size_t numErrors, bool shouldSuccess = true)
 {
 	setupTestDBConfig(true, true);
-	const IssueTrackerInfo tracker = testIssueTrackerInfo[2];
+	const IncidentTrackerInfo tracker = testIncidentTrackerInfo[2];
 	const EventInfo &event = testEventInfo[0];
 	TestRedmineSender sender(tracker);
 	CallbackData cbData;
@@ -330,14 +330,14 @@ void _assertThread(size_t numErrors, bool shouldSuccess = true)
 	// check the posted issue
 	string expect;
 	if (shouldSuccess) {
-		IssueInfo issue;
-		makeExpectedIssueInfo(issue, tracker, event,
-				      g_redmineEmulator.getLastIssue());
-		expect = makeIssueOutput(issue);
+		IncidentInfo incident;
+		makeExpectedIncidentInfo(incident, tracker, event,
+					 g_redmineEmulator.getLastIssue());
+		expect = makeIncidentOutput(incident);
 	}
 	DBClientHatohol dbClientHatohol;
 	DBAgent *dbAgent = dbClientHatohol.getDBAgent();
-	string statement = "select * from issues;";
+	string statement = "select * from incidents;";
 	assertDBContent(dbAgent, statement, expect);
 }
 #define assertThread(N, ...) \

@@ -42,7 +42,7 @@ var HatoholIncidentTrackersEditor = function(params) {
   function closeButtonClickedCb() {
     self.closeDialog();
     if (self.changed && self.changedCallback)
-      self.changedCallback(self.incidentTrackersData.issueTrackers);
+      self.changedCallback(self.incidentTrackersData.incidentTrackers);
   }
 
   function deleteIncidentTrackers() {
@@ -57,7 +57,7 @@ var HatoholIncidentTrackersEditor = function(params) {
     }
     new HatoholItemRemover({
       id: deleteList,
-      type: "issue-tracker",
+      type: "incident-tracker",
       completionCallback: function() {
         self.load();
         self.changed = true;
@@ -90,7 +90,7 @@ HatoholIncidentTrackersEditor.prototype.load = function() {
   var self = this;
 
   new HatoholConnector({
-    url: "/issue-tracker",
+    url: "/incident-tracker",
     request: "GET",
     data: {},
     replyCallback: function(incidentTrackersData, parser) {
@@ -125,7 +125,7 @@ HatoholIncidentTrackersEditor.prototype.updateMainTable = function() {
   };
   var setupEditButtons = function()
   {
-    var incidentTrackers = self.incidentTrackersData.issueTrackers;
+    var incidentTrackers = self.incidentTrackersData.incidentTrackers;
     var incidentTrackersMap = {};
     var i, id;
 
@@ -192,8 +192,8 @@ HatoholIncidentTrackersEditor.prototype.generateTableRows = function(data) {
   var html = '';
   var tracker, type;
 
-  for (var i = 0; i < data.issueTrackers.length; i++) {
-    tracker = data.issueTrackers[i];
+  for (var i = 0; i < data.incidentTrackers.length; i++) {
+    tracker = data.incidentTrackers[i];
     type = tracker.type == 0 ? gettext("Redmine") : gettext("Unknown");
     html +=
     '<tr>' +
@@ -285,7 +285,7 @@ var HatoholIncidentTrackerEditor = function(params) {
   }
 
   function postIncidentTracker() {
-    var url = "/issue-tracker";
+    var url = "/incident-tracker";
     if (self.incidentTracker)
       url += "/" + self.incidentTracker.id;
     new HatoholConnector({
@@ -358,7 +358,7 @@ HatoholIncidentTrackerEditor.prototype.createMainElement = function() {
   '<div>' +
   '<label>' + gettext("Type") + '</label>' +
   '<select id="selectIncidentTrackerType" style="width:10em">' +
-  '  <option value="' + hatohol.ISSUE_TRACKER_REDMINE + '">' +
+  '  <option value="' + hatohol.INCIDENT_TRACKER_REDMINE + '">' +
     gettext("Redmine") + '</option>' +
   '</select>' +
   '</div>' +

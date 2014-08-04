@@ -63,9 +63,9 @@ testHatohol_la_SOURCES = \
 	testMySQLWorkerZabbix.cc \
 	testFaceRest.cc testFaceRestAction.cc testFaceRestHost.cc \
 	testFaceRestServer.cc testFaceRestUser.cc testFaceRestNoInit.cc \
-	testFaceRestIssueTracker.cc testSessionManager.cc \
-	testIssueSenderRedmine.cc \
-	testIssueSenderManager.cc \
+	testFaceRestIncidentTracker.cc testSessionManager.cc \
+	testIncidentSenderRedmine.cc \
+	testIncidentSenderManager.cc \
 	testItemData.cc testItemGroup.cc testItemGroupStream.cc \
 	testItemDataPtr.cc testItemGroupType.cc testItemTable.cc \
 	testItemTablePtr.cc \

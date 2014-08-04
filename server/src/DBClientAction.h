@@ -32,7 +32,7 @@ enum ActionType {
 	ACTION_ALL = -1,
 	ACTION_COMMAND,
 	ACTION_RESIDENT,
-	ACTION_ISSUE_SENDER,
+	ACTION_INCIDENT_SENDER,
 	NUM_ACTION_TYPES,
 };
 
@@ -111,12 +111,12 @@ struct ActionDef {
 	// module path and options.
 	// Ex.) /usr/lib/foo.so -l -o 'IYH... oooo' ABC
 	//
-	// [IssueSender type action]
-	// IssueTrackerInfo ID & IssueSenderOption ID
-	// Format: IssueTrackerId[:IssueSenderOptionId]
-	//   Ex.) 3:17 (with IssueSenderOption)
-	//        3    (without IssueSenderOption)
-	// Note: IssueSenderOption isn't implemeneted yet
+	// [IncidentSender type action]
+	// IncidentTrackerInfo ID & IncidentSenderOption ID
+	// Format: IncidentTrackerId[:IncidentSenderOptionId]
+	//   Ex.) 3:17 (with IncidentSenderOption)
+	//        3    (without IncidentSenderOption)
+	// Note: IncidentSenderOption isn't implemeneted yet
 	//
 	// Note: A string: "-l -o 'IYH... oooo' ABC" is passed as an
 	// argument of module's init() function.
@@ -131,15 +131,16 @@ struct ActionDef {
 	UserIdType  ownerUserId;
 
 	/**
-	 * Parse "command" string for IssueSender type action.
+	 * Parse "command" string for IncidentSender type action.
 	 *
 	 * @param trackerId 
-	 * An ID of IssueTrackerInfo parsed from command string will be stored.
+	 * An ID of IncidentTrackerInfo parsed from command string will be
+	 * stored.
 	 *
 	 * @return true when succeeded to parse, otherwise false.
 	 *
 	 */
-	bool parseIssueSenderCommand(IssueTrackerIdType &trackerId) const;
+	bool parseIncidentSenderCommand(IncidentTrackerIdType &trackerId) const;
 };
 
 typedef std::list<ActionDef>          ActionDefList;
@@ -358,11 +359,11 @@ public:
 	            uint64_t eventId);
 
 	/**
-	 * Check whether IssueSender type action exists or not
+	 * Check whether IncidentSender type action exists or not
 	 *
-	 * @return true if IssueSender type action exists
+	 * @return true if IncidentSender type action exists
 	 */
-	bool isIssueSenderEnabled(void);
+	bool isIncidentSenderEnabled(void);
 
 	void deleteNoOwnerActions(void);
 

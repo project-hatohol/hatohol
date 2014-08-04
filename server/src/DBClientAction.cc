@@ -475,8 +475,8 @@ HatoholError DBClientAction::addAction(ActionDef &actionDef,
 	if (ownerUserId == USER_ID_SYSTEM)
 		ownerUserId = actionDef.ownerUserId;
 
-	// Owner of ACTION_ISSUE_SENDER is always USER_ID_SYSTEM
-	if (actionDef.type == ACTION_ISSUE_SENDER)
+	// Owner of ACTION_INCIDENT_SENDER is always USER_ID_SYSTEM
+	if (actionDef.type == ACTION_INCIDENT_SENDER)
 		ownerUserId = USER_ID_SYSTEM;
 
 	DBAgent::InsertArg arg(tableProfileActions);
@@ -630,11 +630,11 @@ static string makeUserActionsCondition(const string &ownerCondition)
 	if (ownerCondition.empty()) {
 		return StringUtils::sprintf(
 			"(action_type>=0 AND action_type<%d)",
-			ACTION_ISSUE_SENDER);
+			ACTION_INCIDENT_SENDER);
 	} else {
 		return StringUtils::sprintf(
 			"(%s AND action_type>=0 AND action_type<%d)",
-			ownerCondition.c_str(), ACTION_ISSUE_SENDER);
+			ownerCondition.c_str(), ACTION_INCIDENT_SENDER);
 	}
 }
 
@@ -651,10 +651,10 @@ static string makeConditionForDelete(const ActionIdList &idList,
 		string ownerCondition
 		  = makeOwnerCondition(privilege.getUserId());
 		condition += "(" + makeUserActionsCondition(ownerCondition);
-		if (privilege.has(OPPRVLG_DELETE_ISSUE_SETTING)) {
+		if (privilege.has(OPPRVLG_DELETE_INCIDENT_SETTING)) {
 			condition +=
 			  StringUtils::sprintf(" OR action_type=%d",
-					       ACTION_ISSUE_SENDER);
+					       ACTION_INCIDENT_SENDER);
 		}
 		condition += ")";
 	}
@@ -848,11 +848,11 @@ bool DBClientAction::getLog(ActionLog &actionLog,
 	return getLog(actionLog, condition);
 }
 
-bool DBClientAction::isIssueSenderEnabled(void)
+bool DBClientAction::isIncidentSenderEnabled(void)
 {
 	ActionDefList actionDefList;
 	ActionsQueryOption option(USER_ID_SYSTEM);
-	option.setActionType(ACTION_ISSUE_SENDER);
+	option.setActionType(ACTION_INCIDENT_SENDER);
 	option.setMaximumNumber(1);
 	getActionList(actionDefList, option);
 	return (actionDefList.size() == 1);
@@ -968,8 +968,8 @@ HatoholError DBClientAction::checkPrivilegeForAdd(
 	if (userId == INVALID_USER_ID)
 		return HTERR_INVALID_USER;
 
-	if (actionDef.type == ACTION_ISSUE_SENDER) {
-		if (privilege.has(OPPRVLG_CREATE_ISSUE_SETTING))
+	if (actionDef.type == ACTION_INCIDENT_SENDER) {
+		if (privilege.has(OPPRVLG_CREATE_INCIDENT_SETTING))
 			return HTERR_OK;
 		else
 			return HTERR_NO_PRIVILEGE;
@@ -988,18 +988,20 @@ HatoholError DBClientAction::checkPrivilegeForDelete(
 	if (userId == INVALID_USER_ID)
 		return HTERR_INVALID_USER;
 
-	// Check whether the idList includes ACTION_ISSUE_SENDER or not.
+	// Check whether the idList includes ACTION_INCIDENT_SENDER or not.
 	// TODO: It's not efficient.
 	ActionsQueryOption option(USER_ID_SYSTEM);
 	option.setActionIdList(idList);
-	option.setActionType(ACTION_ISSUE_SENDER);
-	ActionDefList issueSenderList;
-	getActionList(issueSenderList, option);
-	bool canDeleteIssueSender = privilege.has(OPPRVLG_DELETE_ISSUE_SETTING);
-	if (!canDeleteIssueSender && !issueSenderList.empty())
+	option.setActionType(ACTION_INCIDENT_SENDER);
+	ActionDefList incidentSenderList;
+	getActionList(incidentSenderList, option);
+	bool canDeleteIncidentSender
+	  = privilege.has(OPPRVLG_DELETE_INCIDENT_SETTING);
+	if (!canDeleteIncidentSender && !incidentSenderList.empty())
 		return HTERR_NO_PRIVILEGE;
-	if (canDeleteIssueSender && idList.size() == issueSenderList.size()) {
-		// It includes only IssueSender type actions.
+	if (canDeleteIncidentSender &&
+	    idList.size() == incidentSenderList.size()) {
+		// It includes only IncidentSender type actions.
 		return HTERR_OK;
 	}
 
@@ -1203,24 +1205,24 @@ string ActionsQueryOption::PrivateContext::getActionTypeAndOwnerCondition(void)
 	{
 		string condition;
 
-		if (option->has(OPPRVLG_GET_ALL_ISSUE_SETTINGS) &&
+		if (option->has(OPPRVLG_GET_ALL_INCIDENT_SETTINGS) &&
 		    ownerCondition.empty()) {
 			return condition;
 		}
 
 		condition = makeUserActionsCondition(ownerCondition);
-		if (option->has(OPPRVLG_GET_ALL_ISSUE_SETTINGS)) {
+		if (option->has(OPPRVLG_GET_ALL_INCIDENT_SETTINGS)) {
 			return StringUtils::sprintf(
 				 "(%s OR action_type=%d)",
-				 condition.c_str(), ACTION_ISSUE_SENDER);
+				 condition.c_str(), ACTION_INCIDENT_SENDER);
 		} else {
 			return condition;
 		}
 	}
 	case ACTION_USER_DEFINED:
 		return makeUserActionsCondition(ownerCondition);
-	case ACTION_ISSUE_SENDER:
-		if (option->has(OPPRVLG_GET_ALL_ISSUE_SETTINGS)) {
+	case ACTION_INCIDENT_SENDER:
+		if (option->has(OPPRVLG_GET_ALL_INCIDENT_SETTINGS)) {
 			return StringUtils::sprintf("action_type=%d",
 						    (int)type);
 		} else {
@@ -1292,9 +1294,9 @@ string ActionsQueryOption::getCondition(void) const
 	return cond;
 }
 
-bool ActionDef::parseIssueSenderCommand(IssueTrackerIdType &trackerId) const
+bool ActionDef::parseIncidentSenderCommand(IncidentTrackerIdType &trackerId) const
 {
-	int ret = sscanf(command.c_str(), "%" FMT_ISSUE_TRACKER_ID, &trackerId);
+	int ret = sscanf(command.c_str(), "%" FMT_INCIDENT_TRACKER_ID, &trackerId);
 	return ret == 1;
 }
 

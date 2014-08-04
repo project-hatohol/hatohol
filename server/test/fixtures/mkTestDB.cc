@@ -57,10 +57,10 @@ static void makeDBHatohol(const string &dbName)
 		dbHatohol.addMonitoringServerStatus(serverStatus);
 	}
 
-	// Issues
-	for (size_t i = 0; i < NumTestIssueInfo; i++) {
-		IssueInfo *issueInfo = &testIssueInfo[i];
-		dbHatohol.addIssueInfo(issueInfo);
+	// Incidents
+	for (size_t i = 0; i < NumTestIncidentInfo; i++) {
+		IncidentInfo *incidentInfo = &testIncidentInfo[i];
+		dbHatohol.addIncidentInfo(incidentInfo);
 	}
 }
 

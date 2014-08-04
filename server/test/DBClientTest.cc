@@ -430,11 +430,11 @@ ActionDef testActionDef[] = {
 	  TRIGGER_SEVERITY_CRITICAL,// triggerSeverity
 	  CMP_INVALID               // triggerSeverityCompType;
 	), // condition
-	ACTION_ISSUE_SENDER, // type
-	"",                  // working dir
-	"3",                 // command
-	0,                   // timeout
-	0,                   // ownerUserId
+	ACTION_INCIDENT_SENDER, // type
+	"",                     // working dir
+	"3",                    // command
+	0,                      // timeout
+	0,                      // ownerUserId
 },
 };
 
@@ -478,16 +478,16 @@ UserInfo testUserInfo[] = {
 	0,
 }, {
 	0,                         // id
-	"IssueSettingsAdmin",      // name
+	"IncidentSettingsAdmin",   // name
 	"notActionsAdmin",         // password
-	(1 << OPPRVLG_GET_ALL_ISSUE_SETTINGS) |
-	(1 << OPPRVLG_CREATE_ISSUE_SETTING) |
-	(1 << OPPRVLG_UPDATE_ISSUE_SETTING) |
-	(1 << OPPRVLG_DELETE_ISSUE_SETTING), // flags
+	(1 << OPPRVLG_GET_ALL_INCIDENT_SETTINGS) |
+	(1 << OPPRVLG_CREATE_INCIDENT_SETTING) |
+	(1 << OPPRVLG_UPDATE_INCIDENT_SETTING) |
+	(1 << OPPRVLG_DELETE_INCIDENT_SETTING), // flags
 }, {
 	0,                         // id
 	"ActionsAdmin",            // name
-	"notIssueSettingsAdmin",   // password
+	"notIncidentSettingsAdmin",// password
 	(1 << OPPRVLG_GET_ALL_ACTION) |
 	(1 << OPPRVLG_CREATE_ACTION) |
 	(1 << OPPRVLG_UPDATE_ALL_ACTION) |
@@ -783,10 +783,10 @@ ArmPluginInfo testArmPluginInfo[] = {
 };
 const size_t NumTestArmPluginInfo = sizeof(testArmPluginInfo) / sizeof(ArmPluginInfo);
 
-IssueTrackerInfo testIssueTrackerInfo[] = {
+IncidentTrackerInfo testIncidentTrackerInfo[] = {
 {
 	1,                        // id
-	ISSUE_TRACKER_REDMINE,    // type
+	INCIDENT_TRACKER_REDMINE, // type
 	"Numerical ID",           // nickname
 	"http://localhost",       // baseURL
 	"1",                      // projectId
@@ -795,7 +795,7 @@ IssueTrackerInfo testIssueTrackerInfo[] = {
 	"bar",                    // password
 },{
 	2,                        // id
-	ISSUE_TRACKER_REDMINE,    // type
+	INCIDENT_TRACKER_REDMINE, // type
 	"String project ID",      // nickname
 	"http://localhost",       // baseURL
 	"hatohol",                // projectId
@@ -804,7 +804,7 @@ IssueTrackerInfo testIssueTrackerInfo[] = {
 	"bar",                    // password
 },{
 	3,                        // id
-	ISSUE_TRACKER_REDMINE,    // type
+	INCIDENT_TRACKER_REDMINE, // type
 	"Redmine Emulator",       // nickname
 	"http://localhost:44444", // baseURL
 	"hatoholtestproject",     // projectId
@@ -813,7 +813,7 @@ IssueTrackerInfo testIssueTrackerInfo[] = {
 	"o.o662L6q1V7E",          // password
 },{
 	4,                        // id
-	ISSUE_TRACKER_REDMINE,    // type
+	INCIDENT_TRACKER_REDMINE, // type
 	"Redmine Emulator",       // nickname
 	"http://localhost:44444", // baseURL
 	"hatoholtestproject",     // projectId
@@ -822,9 +822,9 @@ IssueTrackerInfo testIssueTrackerInfo[] = {
 	"o.o662L6q1V7E",          // password
 }
 };
-size_t NumTestIssueTrackerInfo = sizeof(testIssueTrackerInfo) / sizeof(IssueTrackerInfo);
+size_t NumTestIncidentTrackerInfo = sizeof(testIncidentTrackerInfo) / sizeof(IncidentTrackerInfo);
 
-IssueInfo testIssueInfo[] = {
+IncidentInfo testIncidentInfo[] = {
 {
 	3,                        // trackerId
 	1,                        // serverId
@@ -838,7 +838,7 @@ IssueInfo testIssueInfo[] = {
 	{1362957260, 0},          // updatedAt
 }
 };
-size_t NumTestIssueInfo = sizeof(testIssueInfo) / sizeof(IssueInfo);
+size_t NumTestIncidentInfo = sizeof(testIncidentInfo) / sizeof(IncidentInfo);
 
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 {
@@ -1139,7 +1139,7 @@ bool filterOutAction(const ActionDef &actionDef, const ActionType &targetType)
 		return false;
 
 	if (targetType == ACTION_USER_DEFINED) {
-		if (actionDef.type == ACTION_ISSUE_SENDER)
+		if (actionDef.type == ACTION_INCIDENT_SENDER)
 			return true;
 		else
 			return false;
@@ -1332,19 +1332,19 @@ const ArmPluginInfo &getTestArmPluginInfo(const MonitoringSystemType &type)
 	return testArmPluginInfo[testArmPluginIndex];
 }
 
-string makeEventIssueMapKey(const EventInfo &eventInfo)
+string makeEventIncidentMapKey(const EventInfo &eventInfo)
 {
 	return StringUtils::sprintf("%" FMT_SERVER_ID ":%" FMT_EVENT_ID,
 				    eventInfo.serverId, eventInfo.id);
 }
 
-void makeEventIssueMap(map<string, IssueInfo*> &eventIssueMap)
+void makeEventIncidentMap(map<string, IncidentInfo*> &eventIncidentMap)
 {
-	for (size_t i = 0; i < NumTestIssueInfo; i++) {
+	for (size_t i = 0; i < NumTestIncidentInfo; i++) {
 		string key = StringUtils::sprintf(
 			       "%" FMT_SERVER_ID ":%" FMT_EVENT_ID,
-			       testIssueInfo[i].serverId,
-			       testIssueInfo[i].eventId);
-		eventIssueMap[key] = &testIssueInfo[i];
+			       testIncidentInfo[i].serverId,
+			       testIncidentInfo[i].eventId);
+		eventIncidentMap[key] = &testIncidentInfo[i];
 	}
 }

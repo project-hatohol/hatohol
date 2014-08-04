@@ -76,15 +76,15 @@ typedef uint64_t HostgroupIdType;
 typedef uint64_t HostIdType;
 #define FMT_HOST_ID PRIu64
 
-typedef int IssueTrackerIdType;
-#define FMT_ISSUE_TRACKER_ID "d"
+typedef int IncidentTrackerIdType;
+#define FMT_INCIDENT_TRACKER_ID "d"
 
 static const ServerIdType    INVALID_SERVER_ID = -2;
 static const ServerIdType    ALL_SERVERS       = -1;
 
 static const HostIdType      ALL_HOSTS   = -1;
 static const HostgroupIdType ALL_HOST_GROUPS = -1;
-static const IssueTrackerIdType ALL_ISSUE_TRACKERS = -1;
+static const IncidentTrackerIdType ALL_INCIDENT_TRACKERS = -1;
 
 static const UserIdType INVALID_USER_ID = -1;
 static const UserIdType USER_ID_ANY     = -2;
@@ -121,10 +121,10 @@ typedef ServerIdSet::iterator       ServerIdSetIterator;
 typedef ServerIdSet::const_iterator ServerIdSetConstIterator;
 extern const ServerIdSet EMPTY_SERVER_ID_SET;
 
-typedef std::set<IssueTrackerIdType>      IssueTrackerIdSet;
-typedef IssueTrackerIdSet::iterator       IssueTrackerIdSetIterator;
-typedef IssueTrackerIdSet::const_iterator IssueTrackerIdSetConstIterator;
-extern const IssueTrackerIdSet EMPTY_ISSUE_TRACKER_ID_SET;
+typedef std::set<IncidentTrackerIdType>      IncidentTrackerIdSet;
+typedef IncidentTrackerIdSet::iterator       IncidentTrackerIdSetIterator;
+typedef IncidentTrackerIdSet::const_iterator IncidentTrackerIdSetConstIterator;
+extern const IncidentTrackerIdSet EMPTY_INCIDENT_TRACKER_ID_SET;
 
 typedef std::set<HostgroupIdType>           HostgroupIdSet;
 typedef HostgroupIdSet::iterator            HostgroupIdSetIterator;

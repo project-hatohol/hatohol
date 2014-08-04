@@ -17,15 +17,15 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IssueSender_h
-#define IssueSender_h
+#ifndef IncidentSender_h
+#define IncidentSender_h
 
 #include "HatoholError.h"
 #include "DBClientConfig.h"
 #include "DBClientHatohol.h"
 #include "HatoholThreadBase.h"
 
-class IssueSender : public HatoholThreadBase
+class IncidentSender : public HatoholThreadBase
 {
 public:
 	typedef enum {
@@ -41,32 +41,32 @@ public:
 				       const JobStatus &status,
 				       void *userData);
 
-	IssueSender(const IssueTrackerInfo &tracker);
-	virtual ~IssueSender();
+	IncidentSender(const IncidentTrackerInfo &tracker);
+	virtual ~IncidentSender();
 
 	virtual void waitExit(void) override;
 
 	/**
-	 * Send an EventInfo as an issue to the specified issue tracking system
+	 * Send an EventInfo as an incident to the specified incident tracking system
 	 * synchronously. It will be done by the same thread with the caller.
 	 * You don't need start the thread by start() when you use this
 	 * function directly.
 	 *
 	 * @param event
-	 * An EventInfo to send as an issue.
+	 * An EventInfo to send as an incident.
 	 *
 	 * @return HTERR_OK on succeeded to send. Otherwise an error.
 	 */
 	virtual HatoholError send(const EventInfo &event) = 0;
 
 	/**
-	 * Queue an EventInfo to send it as an issue to the specified issue
-	 * tracking system asynchronously. Sending an issue will be done by a
+	 * Queue an EventInfo to send it as an incident to the specified incident
+	 * tracking system asynchronously. Sending an incident will be done by a
 	 * dedicated thread (it will call send() internally). You must start
 	 * the thread by calling start() before or after calling this function.
 	 *
 	 * @param event
-	 * An EventInfo to send as an issue.
+	 * An EventInfo to send as an incident.
 	 *
 	 * @param callback
 	 * A callback function which will be called when the status of
@@ -82,20 +82,20 @@ public:
 		   void *userData = NULL);
 
 	/**
-	 * Set max retry count of sending an issue on failing it.
+	 * Set max retry count of sending an incident on failing it.
 	 * It affects only to queue(). send() function never retry to send
 	 * automatically.
 	 *
 	 * @param limit
-	 * A max count of retrying to send an issue.
+	 * A max count of retrying to send an incident.
 	 */
 	void setRetryLimit(const size_t &limit);
 
 	/**
-	 * Set the interval time of retrying to send an issue
+	 * Set the interval time of retrying to send an incident
 	 *
 	 * @param msec
-	 * Interval time of retrying to send an issue [msec].
+	 * Interval time of retrying to send an incident [msec].
 	 */
 	void setRetryInterval(const unsigned int &msec);
 
@@ -107,7 +107,7 @@ public:
 	 */
 	bool isIdling(void);
 
-	const IssueTrackerInfo &getIssueTrackerInfo(void);
+	const IncidentTrackerInfo &getIncidentTrackerInfo(void);
 
 protected:
 	bool getServerInfo(const EventInfo &event,
@@ -125,5 +125,5 @@ private:
 	PrivateContext *m_ctx;
 };
 
-#endif // IssueSender_h
+#endif // IncidentSender_h
 

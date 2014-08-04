@@ -173,12 +173,12 @@ static void _assertGetEvents(AssertGetEventsArg &arg)
 {
 	DBClientHatohol dbHatohol;
 	arg.fixup();
-	IssueInfoVect *issueInfoVectPointer
-	  = arg.withIssueInfo ? &arg.actualIssueInfoVect : NULL;
+	IncidentInfoVect *incidentInfoVectPointer
+	  = arg.withIncidentInfo ? &arg.actualIncidentInfoVect : NULL;
 	assertHatoholError(
 	  arg.expectedErrorCode,
 	  dbHatohol.getEventInfoList(arg.actualRecordList, arg.option,
-				     issueInfoVectPointer));
+				     incidentInfoVectPointer));
 	if (arg.expectedErrorCode != HTERR_OK)
 		return;
 	arg.assert();
@@ -190,8 +190,8 @@ static void _assertGetEventsWithFilter(AssertGetEventsArg &arg)
 	// setup event data
 	void test_addEventInfoList(gconstpointer data);
 	test_addEventInfoList(arg.ddtParam);
-	if (arg.withIssueInfo)
-		loadTestDBIssues();
+	if (arg.withIncidentInfo)
+		loadTestDBIncidents();
 
 	assertGetEvents(arg);
 }
@@ -1317,29 +1317,29 @@ void test_getEventWithTriggerStatus(gconstpointer data)
 	assertGetEventsWithFilter(arg);
 }
 
-void data_getEventsWithIssueInfo(void)
+void data_getEventsWithIncidentInfo(void)
 {
 	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
-void test_getEventsWithIssueInfo(gconstpointer data)
+void test_getEventsWithIncidentInfo(gconstpointer data)
 {
 	AssertGetEventsArg arg(data);
-	arg.withIssueInfo = true;
+	arg.withIncidentInfo = true;
 	assertGetEventsWithFilter(arg);
 }
 
-void data_getEventsWithIssueInfoByAuthorizedUser(void)
+void data_getEventsWithIncidentInfoByAuthorizedUser(void)
 {
 	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
-void test_getEventsWithIssueInfoByAuthorizedUser(gconstpointer data)
+void test_getEventsWithIncidentInfoByAuthorizedUser(gconstpointer data)
 {
 	setupTestDBUser(true, true);
 	AssertGetEventsArg arg(data);
 	arg.userId = 5;
-	arg.withIssueInfo = true;
+	arg.withIncidentInfo = true;
 	assertGetEventsWithFilter(arg);
 }
 
@@ -1392,57 +1392,57 @@ void test_addHostInfo(void)
 	assertDBContent(dbAgent, statement, expect);
 }
 
-void test_addIssueInfo(void)
+void test_addIncidentInfo(void)
 {
 	DBClientHatohol dbClientHatohol;
 	DBAgent *dbAgent = dbClientHatohol.getDBAgent();
-	string statement = "select * from issues;";
+	string statement = "select * from incidents;";
 	string expect;
 
-	for (size_t i = 0; i < NumTestIssueInfo; i++) {
-		IssueInfo expectedIssueInfo = testIssueInfo[i];
-		expect += makeIssueOutput(expectedIssueInfo);
-		dbClientHatohol.addIssueInfo(&testIssueInfo[i]);
+	for (size_t i = 0; i < NumTestIncidentInfo; i++) {
+		IncidentInfo expectedIncidentInfo = testIncidentInfo[i];
+		expect += makeIncidentOutput(expectedIncidentInfo);
+		dbClientHatohol.addIncidentInfo(&testIncidentInfo[i]);
 	}
 	assertDBContent(dbAgent, statement, expect);
 }
 
-void test_updateIssueInfo(void)
+void test_updateIncidentInfo(void)
 {
 	DBClientHatohol dbClientHatohol;
 	DBAgent *dbAgent = dbClientHatohol.getDBAgent();
 
-	IssueInfo issueInfo = testIssueInfo[0];
-	dbClientHatohol.addIssueInfo(&issueInfo);
-	issueInfo.status = "Assigned";
-	issueInfo.assignee = "hikeshi";
-	issueInfo.updatedAt.tv_sec = time(NULL);
-	issueInfo.updatedAt.tv_nsec = 0;
-	dbClientHatohol.addIssueInfo(&issueInfo);
+	IncidentInfo incidentInfo = testIncidentInfo[0];
+	dbClientHatohol.addIncidentInfo(&incidentInfo);
+	incidentInfo.status = "Assigned";
+	incidentInfo.assignee = "hikeshi";
+	incidentInfo.updatedAt.tv_sec = time(NULL);
+	incidentInfo.updatedAt.tv_nsec = 0;
+	dbClientHatohol.addIncidentInfo(&incidentInfo);
 
-	string statement("select * from issues;");
-	string expect(makeIssueOutput(issueInfo));
+	string statement("select * from incidents;");
+	string expect(makeIncidentOutput(incidentInfo));
 	assertDBContent(dbAgent, statement, expect);
 }
 
-void test_getIssueInfo(void)
+void test_getIncidentInfo(void)
 {
 	DBClientHatohol dbClientHatohol;
-	IssueInfoVect issues;
-	IssuesQueryOption option(USER_ID_SYSTEM);
+	IncidentInfoVect incidents;
+	IncidentsQueryOption option(USER_ID_SYSTEM);
 	string expected, actual;
 
-	loadTestDBIssues();
-	for (size_t i = 0; i < NumTestIssueInfo; i++) {
-		IssueInfo expectedIssueInfo = testIssueInfo[i];
-		expected += makeIssueOutput(expectedIssueInfo);
+	loadTestDBIncidents();
+	for (size_t i = 0; i < NumTestIncidentInfo; i++) {
+		IncidentInfo expectedIncidentInfo = testIncidentInfo[i];
+		expected += makeIncidentOutput(expectedIncidentInfo);
 	}
 
-	dbClientHatohol.getIssueInfoVect(issues, option);
-	IssueInfoVectIterator it = issues.begin();
-	for (; it != issues.end(); ++it) {
-		IssueInfo &actualIssueInfo = *it;
-		actual += makeIssueOutput(actualIssueInfo);
+	dbClientHatohol.getIncidentInfoVect(incidents, option);
+	IncidentInfoVectIterator it = incidents.begin();
+	for (; it != incidents.end(); ++it) {
+		IncidentInfo &actualIncidentInfo = *it;
+		actual += makeIncidentOutput(actualIncidentInfo);
 	}
 
 	cppcut_assert_equal(expected, actual);

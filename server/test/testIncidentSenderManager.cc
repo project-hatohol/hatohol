@@ -19,7 +19,7 @@
 
 #include <cutter.h>
 #include <cppcutter.h>
-#include "IssueSenderManager.h"
+#include "IncidentSenderManager.h"
 #include "Hatohol.h"
 #include "Helpers.h"
 #include "DBClientTest.h"
@@ -27,19 +27,19 @@
 
 using namespace std;
 
-namespace testIssueSenderManager {
+namespace testIncidentSenderManager {
 
-class TestIssueSenderManager : public IssueSenderManager
+class TestIncidentSenderManager : public IncidentSenderManager
 {
 public:
 	// Enable to create a object to test destructor
-	TestIssueSenderManager(void)
+	TestIncidentSenderManager(void)
 	{
 	}
 
-	IssueSender *getSender(const IssueTrackerIdType &id)
+	IncidentSender *getSender(const IncidentTrackerIdType &id)
 	{
-		return IssueSenderManager::getSender(id);
+		return IncidentSenderManager::getSender(id);
 	}
 };
 
@@ -58,19 +58,19 @@ void cut_teardown(void)
 
 void test_instanceIsSingleton(void)
 {
-	IssueSenderManager &manager1 = IssueSenderManager::getInstance();
-	IssueSenderManager &manager2 = IssueSenderManager::getInstance();
+	IncidentSenderManager &manager1 = IncidentSenderManager::getInstance();
+	IncidentSenderManager &manager2 = IncidentSenderManager::getInstance();
 	cppcut_assert_equal(&manager1, &manager2);
 }
 
 static void statusCallback(const EventInfo &info,
-			   const IssueSender::JobStatus &status,
+			   const IncidentSender::JobStatus &status,
 			   void *userData)
 {
 	bool *succeeded = static_cast<bool*>(userData);
 
 	switch (status) {
-	case IssueSender::JOB_SUCCEEDED:
+	case IncidentSender::JOB_SUCCEEDED:
 		*succeeded = true;
 		break;
 	default:
@@ -78,13 +78,13 @@ static void statusCallback(const EventInfo &info,
 	}
 }
 
-void test_sendRedmineIssue(void)
+void test_sendRedmineIncident(void)
 {
 	setupTestDBConfig(true, true);
-	IssueTrackerIdType trackerId = 3;
-	IssueTrackerInfo &tracker = testIssueTrackerInfo[trackerId - 1];
+	IncidentTrackerIdType trackerId = 3;
+	IncidentTrackerInfo &tracker = testIncidentTrackerInfo[trackerId - 1];
 	g_redmineEmulator.addUser(tracker.userName, tracker.password);
-	TestIssueSenderManager manager;
+	TestIncidentSenderManager manager;
 	bool succeeded = false;
 	manager.queue(trackerId, testEventInfo[0],
 		      statusCallback, (void*)&succeeded);
@@ -98,13 +98,13 @@ void test_sendRedmineIssue(void)
 void test_createMultiThreads(void)
 {
 	setupTestDBConfig(true, true);
-	IssueTrackerIdType trackerId1 = 3;
-	IssueTrackerIdType trackerId2 = 4;
-	IssueTrackerInfo &tracker1 = testIssueTrackerInfo[trackerId1 - 1];
-	IssueTrackerInfo &tracker2 = testIssueTrackerInfo[trackerId2 - 1];
+	IncidentTrackerIdType trackerId1 = 3;
+	IncidentTrackerIdType trackerId2 = 4;
+	IncidentTrackerInfo &tracker1 = testIncidentTrackerInfo[trackerId1 - 1];
+	IncidentTrackerInfo &tracker2 = testIncidentTrackerInfo[trackerId2 - 1];
 	g_redmineEmulator.addUser(tracker1.userName, tracker1.password);
 	g_redmineEmulator.addUser(tracker2.userName, tracker2.password);
-	TestIssueSenderManager manager;
+	TestIncidentSenderManager manager;
 	bool succeeded1 = false;
 	bool succeeded2 = false;
 	manager.queue(trackerId1, testEventInfo[0],
@@ -116,11 +116,11 @@ void test_createMultiThreads(void)
 	const string &json = g_redmineEmulator.getLastResponse();
 	cppcut_assert_equal(true, succeeded1 && succeeded2);
 	cppcut_assert_equal(false, json.empty());
-	IssueSender *sender1 = manager.getSender(trackerId1);
-	IssueSender *sender2 = manager.getSender(trackerId2);
+	IncidentSender *sender1 = manager.getSender(trackerId1);
+	IncidentSender *sender2 = manager.getSender(trackerId2);
 	cppcut_assert_equal(true, sender1 && sender2);
-	cppcut_assert_equal(trackerId1, sender1->getIssueTrackerInfo().id);
-	cppcut_assert_equal(trackerId2, sender2->getIssueTrackerInfo().id);
+	cppcut_assert_equal(trackerId1, sender1->getIncidentTrackerInfo().id);
+	cppcut_assert_equal(trackerId2, sender2->getIncidentTrackerInfo().id);
 }
 
-} // namespace testIssueSenderManager
+} // namespace testIncidentSenderManager

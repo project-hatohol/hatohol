@@ -46,7 +46,7 @@ var IncidentSettingsView = function(userProfile) {
   });
 
   $("#add-incident-setting-button").click(function() {
-    var incidentTrackers = self.incidentTrackersData.issueTrackers;
+    var incidentTrackers = self.incidentTrackersData.incidentTrackers;
     new HatoholAddActionDialog(load, incidentTrackers);
   });
 
@@ -216,7 +216,7 @@ var IncidentSettingsView = function(userProfile) {
   }
 
   function parseIncidentTrackers(incidentTrackersData) {
-    var incidentTrackers = incidentTrackersData.issueTrackers;
+    var incidentTrackers = incidentTrackersData.incidentTrackers;
     var i, incidentTrackersMap = {};
     for (i = 0; i < incidentTrackers.length; i++)
       incidentTrackersMap[incidentTrackers[i].id] = incidentTrackers[i];
@@ -233,12 +233,12 @@ var IncidentSettingsView = function(userProfile) {
 
   function onGotIncidentSettings(incidentSettingsData) {
     self.incidentSettingsData = incidentSettingsData;
-    self.startConnection("issue-trackers", onGotIncidentTrackers);
+    self.startConnection("incident-trackers", onGotIncidentTrackers);
   }
 
   function getQuery() {
     var query = {
-      type: hatohol.ACTION_ISSUE_SENDER,
+      type: hatohol.ACTION_INCIDENT_SENDER,
     };
     return 'action?' + $.param(query);
   };

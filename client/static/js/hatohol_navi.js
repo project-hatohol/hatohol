@@ -58,10 +58,10 @@ var HatoholNavi = function(userProfile, currentPage) {
         {
           title: gettext("Incident tracking settings"),
           href:  "ajax_incident_settings",
-          flags: (1 << hatohol.OPPRVLG_CREATE_ISSUE_SETTING) |
-            (1 << hatohol.OPPRVLG_UPDATE_ISSUE_SETTING) |
-            (1 << hatohol.OPPRVLG_DELETE_ISSUE_SETTING) |
-            (1 << hatohol.OPPRVLG_GET_ALL_ISSUE_SETTINGS)
+          flags: (1 << hatohol.OPPRVLG_CREATE_INCIDENT_SETTING) |
+            (1 << hatohol.OPPRVLG_UPDATE_INCIDENT_SETTING) |
+            (1 << hatohol.OPPRVLG_DELETE_INCIDENT_SETTING) |
+            (1 << hatohol.OPPRVLG_GET_ALL_INCIDENT_SETTINGS)
         },
         {
           title: gettext("Users"),

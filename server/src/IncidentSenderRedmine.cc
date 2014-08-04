@@ -17,7 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "IssueSenderRedmine.h"
+#include "IncidentSenderRedmine.h"
 #include "JSONBuilderAgent.h"
 #include "JSONParserAgent.h"
 #include <Mutex.h>
@@ -42,9 +42,9 @@ static SoupSession *getSoupSession(void)
 	return session;
 }
 
-struct IssueSenderRedmine::PrivateContext
+struct IncidentSenderRedmine::PrivateContext
 {
-	PrivateContext(IssueSenderRedmine &sender)
+	PrivateContext(IncidentSenderRedmine &sender)
 	: m_sender(sender), m_session(getSoupSession())
 	{
 		connectSessionSignals();
@@ -65,24 +65,24 @@ struct IssueSenderRedmine::PrivateContext
 	HatoholError handleSendError(int soupStatus,
 				     const string &response);
 
-	IssueSenderRedmine &m_sender;
+	IncidentSenderRedmine &m_sender;
 	SoupSession *m_session;
 };
 
-IssueSenderRedmine::IssueSenderRedmine(const IssueTrackerInfo &tracker)
-: IssueSender(tracker), m_ctx(NULL)
+IncidentSenderRedmine::IncidentSenderRedmine(const IncidentTrackerInfo &tracker)
+: IncidentSender(tracker), m_ctx(NULL)
 {
 	m_ctx = new PrivateContext(*this);
 }
 
-IssueSenderRedmine::~IssueSenderRedmine()
+IncidentSenderRedmine::~IncidentSenderRedmine()
 {
 	delete m_ctx;
 }
 
-string IssueSenderRedmine::getProjectURL(void)
+string IncidentSenderRedmine::getProjectURL(void)
 {
-	const IssueTrackerInfo &trackerInfo = getIssueTrackerInfo();
+	const IncidentTrackerInfo &trackerInfo = getIncidentTrackerInfo();
 	string url = trackerInfo.baseURL;
 	if (!StringUtils::hasSuffix(url, "/"))
 		url += "/";
@@ -98,7 +98,7 @@ string IssueSenderRedmine::getProjectURL(void)
 	return url;
 }
 
-string IssueSenderRedmine::getIssuesJSONURL(void)
+string IncidentSenderRedmine::getIssuesJSONURL(void)
 {
 	string url = getProjectURL();
 	if (!StringUtils::hasSuffix(url, "/"))
@@ -107,9 +107,9 @@ string IssueSenderRedmine::getIssuesJSONURL(void)
 	return url;
 }
 
-string IssueSenderRedmine::getIssueURL(const string &id)
+string IncidentSenderRedmine::getIssuesURL(const string &id)
 {
-	const IssueTrackerInfo &trackerInfo = getIssueTrackerInfo();
+	const IncidentTrackerInfo &trackerInfo = getIncidentTrackerInfo();
 	string url = trackerInfo.baseURL;
 	if (!StringUtils::hasSuffix(url, "/"))
 		url += "/";
@@ -118,14 +118,14 @@ string IssueSenderRedmine::getIssueURL(const string &id)
 	return url;
 }
 
-string IssueSenderRedmine::buildJSON(const EventInfo &event)
+string IncidentSenderRedmine::buildJSON(const EventInfo &event)
 {
 	MonitoringServerInfo serverInfo;
 	MonitoringServerInfo *server = NULL;
 	if (getServerInfo(event, serverInfo))
 		server = &serverInfo;
 
-	const IssueTrackerInfo &trackerInfo = getIssueTrackerInfo();
+	const IncidentTrackerInfo &trackerInfo = getIncidentTrackerInfo();
 	JSONBuilderAgent agent;
 	agent.startObject();
 	agent.startObject("issue");
@@ -141,24 +141,24 @@ string IssueSenderRedmine::buildJSON(const EventInfo &event)
 	return agent.generate();
 }
 
-void IssueSenderRedmine::PrivateContext::authenticateCallback(
+void IncidentSenderRedmine::PrivateContext::authenticateCallback(
   SoupSession *session, SoupMessage *msg, SoupAuth *auth, gboolean retrying,
   gpointer user_data)
 {
-	IssueSenderRedmine *sender
-	  = reinterpret_cast<IssueSenderRedmine*>(user_data);
-	const IssueTrackerInfo &tracker = sender->getIssueTrackerInfo();
+	IncidentSenderRedmine *sender
+	  = reinterpret_cast<IncidentSenderRedmine*>(user_data);
+	const IncidentTrackerInfo &tracker = sender->getIncidentTrackerInfo();
 	soup_auth_authenticate(
 	  auth, tracker.userName.c_str(), tracker.password.c_str());
 }
 
-void IssueSenderRedmine::PrivateContext::connectSessionSignals(void)
+void IncidentSenderRedmine::PrivateContext::connectSessionSignals(void)
 {
 	g_signal_connect(m_session, "authenticate",
 			 G_CALLBACK(authenticateCallback), &this->m_sender);
 }
 
-void IssueSenderRedmine::PrivateContext::disconnectSessionSignals(void)
+void IncidentSenderRedmine::PrivateContext::disconnectSessionSignals(void)
 {
 	g_signal_handlers_disconnect_by_func(
 	  m_session,
@@ -166,13 +166,13 @@ void IssueSenderRedmine::PrivateContext::disconnectSessionSignals(void)
 	  &this->m_sender);
 }
 
-HatoholError IssueSenderRedmine::parseResponse(
-  IssueInfo &issueInfo, const string &response)
+HatoholError IncidentSenderRedmine::parseResponse(
+  IncidentInfo &incidentInfo, const string &response)
 {
 	JSONParserAgent agent(response);
 	if (agent.hasError()) {
 		MLPL_ERR("Failed to parse response.\n");
-		return HTERR_FAILED_TO_SEND_ISSUE;
+		return HTERR_FAILED_TO_SEND_INCIDENT;
 	}
 
 	if (!agent.isMember("issue"))
@@ -181,19 +181,19 @@ HatoholError IssueSenderRedmine::parseResponse(
 	agent.startObject("issue");
 	int64_t issueId = 0;
 	if (!agent.read("id", issueId) || issueId == 0) {
-		MLPL_ERR("Failed to parse Issue ID.\n");
-		return HTERR_FAILED_TO_SEND_ISSUE;
+		MLPL_ERR("Failed to parse Incident ID.\n");
+		return HTERR_FAILED_TO_SEND_INCIDENT;
 	}
-	issueInfo.identifier = StringUtils::toString((uint64_t)issueId);
-	issueInfo.location = getIssueURL(issueInfo.identifier);
+	incidentInfo.identifier = StringUtils::toString((uint64_t)issueId);
+	incidentInfo.location = getIssuesURL(incidentInfo.identifier);
 
 	agent.startObject("status");
-	agent.read("name", issueInfo.status);
+	agent.read("name", incidentInfo.status);
 	agent.endObject();
 
 	if (agent.isMember("assigned_to")) {
 		agent.startObject("assigned_to");
-		agent.read("name", issueInfo.assignee);
+		agent.read("name", incidentInfo.assignee);
 		agent.endObject();
 	}
 
@@ -202,46 +202,46 @@ HatoholError IssueSenderRedmine::parseResponse(
 
 	agent.read("created_on", timeString);
 	if (g_time_val_from_iso8601(timeString.c_str(), &_time))
-		issueInfo.createdAt.tv_sec = _time.tv_sec;
+		incidentInfo.createdAt.tv_sec = _time.tv_sec;
 	else
-		issueInfo.createdAt.tv_sec = 0;
-	issueInfo.createdAt.tv_nsec = 0;
+		incidentInfo.createdAt.tv_sec = 0;
+	incidentInfo.createdAt.tv_nsec = 0;
 
 	agent.read("updated_on", timeString);
 	if (g_time_val_from_iso8601(timeString.c_str(), &_time))
-		issueInfo.updatedAt.tv_sec = _time.tv_sec;
+		incidentInfo.updatedAt.tv_sec = _time.tv_sec;
 	else
-		issueInfo.updatedAt.tv_sec = 0;
-	issueInfo.updatedAt.tv_nsec = 0;
+		incidentInfo.updatedAt.tv_sec = 0;
+	incidentInfo.updatedAt.tv_nsec = 0;
 
 	agent.endObject();
 
 	return HTERR_OK;
 }
 
-HatoholError IssueSenderRedmine::buildIssueInfo(
-  IssueInfo &issueInfo, const string &response, const EventInfo &event)
+HatoholError IncidentSenderRedmine::buildIncidentInfo(
+  IncidentInfo &incidentInfo, const string &response, const EventInfo &event)
 {
-	const IssueTrackerInfo &tracker = getIssueTrackerInfo();
-	issueInfo.trackerId = tracker.id;
-	issueInfo.serverId = event.serverId;
-	issueInfo.eventId = event.id;
-	issueInfo.triggerId = event.triggerId;
-	return parseResponse(issueInfo, response);
+	const IncidentTrackerInfo &tracker = getIncidentTrackerInfo();
+	incidentInfo.trackerId = tracker.id;
+	incidentInfo.serverId = event.serverId;
+	incidentInfo.eventId = event.id;
+	incidentInfo.triggerId = event.triggerId;
+	return parseResponse(incidentInfo, response);
 }
 
-HatoholError IssueSenderRedmine::PrivateContext::parseErrorResponse(
+HatoholError IncidentSenderRedmine::PrivateContext::parseErrorResponse(
   const string &response)
 {
 	JSONParserAgent agent(response);
 	if (!agent.startObject("errors")) {
 		MLPL_ERR("Failed to parse errors.\n");
-		return HTERR_FAILED_TO_SEND_ISSUE;
+		return HTERR_FAILED_TO_SEND_INCIDENT;
 	}
 
 	int numErrors = agent.countElements();
 	if (numErrors <= 0)
-		return HTERR_FAILED_TO_SEND_ISSUE;
+		return HTERR_FAILED_TO_SEND_INCIDENT;
 
 	string message = "Redmine errors:\n";
 	for (int i = 0; i < numErrors; i++) {
@@ -251,10 +251,10 @@ HatoholError IssueSenderRedmine::PrivateContext::parseErrorResponse(
 	}
 	MLPL_ERR("%s", message.c_str());
 
-	return HTERR_FAILED_TO_SEND_ISSUE;
+	return HTERR_FAILED_TO_SEND_INCIDENT;
 }
 
-HatoholError IssueSenderRedmine::PrivateContext::handleSendError(
+HatoholError IncidentSenderRedmine::PrivateContext::handleSendError(
   int soupStatus, const string &response)
 {
 	if (SOUP_STATUS_IS_TRANSPORT_ERROR(soupStatus)) {
@@ -268,10 +268,10 @@ HatoholError IssueSenderRedmine::PrivateContext::handleSendError(
 	if (soupStatus == SOUP_STATUS_UNPROCESSABLE_ENTITY)
 		return parseErrorResponse(response);
 	else
-		return HTERR_FAILED_TO_SEND_ISSUE;
+		return HTERR_FAILED_TO_SEND_INCIDENT;
 }
 
-HatoholError IssueSenderRedmine::send(const EventInfo &event)
+HatoholError IncidentSenderRedmine::send(const EventInfo &event)
 {
 	string url = getIssuesJSONURL();
 	string json = buildJSON(event);
@@ -287,11 +287,11 @@ HatoholError IssueSenderRedmine::send(const EventInfo &event)
 	if (!SOUP_STATUS_IS_SUCCESSFUL(sendResult))
 		return m_ctx->handleSendError(sendResult, response);
 
-	IssueInfo issueInfo;
-	HatoholError result = buildIssueInfo(issueInfo, response, event);
+	IncidentInfo incidentInfo;
+	HatoholError result = buildIncidentInfo(incidentInfo, response, event);
 	if (result == HTERR_OK) {
 		DBClientHatohol dbHatohol;
-		dbHatohol.addIssueInfo(&issueInfo);
+		dbHatohol.addIncidentInfo(&incidentInfo);
 	}
 
 	return result;

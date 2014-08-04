@@ -243,8 +243,8 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 	assertValueInParser(g_parser, "lastUnifiedEventId",
 	                    eventsArg.expectedRecords.size());
 	DBClientAction dbAction;
-	bool shouldHaveIssue = dbAction.isIssueSenderEnabled();
-	assertValueInParser(g_parser, "haveIssue", shouldHaveIssue);
+	bool shouldHaveIncident = dbAction.isIncidentSenderEnabled();
+	assertValueInParser(g_parser, "haveIncident", shouldHaveIncident);
 
 	assertStartObject(g_parser, "events");
 	vector<EventInfo*>::reverse_iterator it
@@ -262,15 +262,15 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 		assertValueInParser(g_parser, "severity",  eventInfo.severity);
 		assertValueInParser(g_parser, "hostId",    eventInfo.hostId);
 		assertValueInParser(g_parser, "brief",     eventInfo.brief);
-		if (shouldHaveIssue) {
-			assertStartObject(g_parser, "issue");
-			IssueInfo issue
-			  = eventsArg.getExpectedIssueInfo(eventInfo);
+		if (shouldHaveIncident) {
+			assertStartObject(g_parser, "incident");
+			IncidentInfo incident
+			  = eventsArg.getExpectedIncidentInfo(eventInfo);
 			assertValueInParser(g_parser, "location",
-					    issue.location);
+					    incident.location);
 			g_parser->endElement();
 		} else {
-			assertNoValueInParser(g_parser, "issue");
+			assertNoValueInParser(g_parser, "incident");
 		}
 		g_parser->endElement();
 	}
@@ -486,7 +486,7 @@ void cut_setup(void)
 {
 	hatoholInit();
 
-	// Make sure to clear actions on intial state because the issue object
+	// Make sure to clear actions on intial state because the incident object
 	// in an event object depends on them.
 	bool recreate = true;
 	bool loadData = false;
@@ -540,9 +540,9 @@ void test_events(void)
 	assertEvents("/event");
 }
 
-void test_eventsWithIssues(void)
+void test_eventsWithIncidents(void)
 {
-	 // issue info will be added when a IssueSender action exists
+	 // incident info will be added when a IncidentSender action exists
 	setupActionDB();
 	assertEvents("/event");
 }

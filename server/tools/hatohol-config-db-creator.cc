@@ -46,8 +46,8 @@ struct ConfigValue {
 	int                      faceRestPort;
 	MonitoringServerInfoList serverInfoList;
 	UserInfoList             userInfoList;
-	IssueTrackerInfoVect     issueTrackerInfoVect;
-	ActionDefList            issueSenderActionList;
+	IncidentTrackerInfoVect  incidentTrackerInfoVect;
+	ActionDefList            incidentSenderActionList;
 	
 	// constructor
 	ConfigValue(void)
@@ -196,12 +196,12 @@ static bool parseUserConfigLine(ParsableString &parsable,
 	return true;
 }
 
-static bool parseIssueTrackerConfigLine(ParsableString &parsable,
-					IssueTrackerInfoVect &trackersVect,
-					size_t lineNo)
+static bool parseIncidentTrackerConfigLine(
+  ParsableString &parsable, IncidentTrackerInfoVect &trackersVect,
+  size_t lineNo)
 {
 	string word;
-	IssueTrackerInfo trackerInfo;
+	IncidentTrackerInfo trackerInfo;
 	bool succeeded;
 
 	trackerInfo.id = 0;
@@ -211,11 +211,11 @@ static bool parseIssueTrackerConfigLine(ParsableString &parsable,
 	succeeded = parseInt(parsable, type, lineNo);
 	if (!succeeded)
 		return false;
-	if (type < 0 || type >= NUM_ISSUE_TRACKERS) {
-		fprintf(stderr, "Invalid issue tracker type: %d\n", type);
+	if (type < 0 || type >= NUM_INCIDENT_TRACKERS) {
+		fprintf(stderr, "Invalid incident tracker type: %d\n", type);
 		return false;
 	}
-	trackerInfo.type = static_cast<IssueTrackerType>(type);
+	trackerInfo.type = static_cast<IncidentTrackerType>(type);
 
 	// nickname
 	if (!extractString(parsable, word, lineNo))
@@ -253,8 +253,8 @@ static bool parseIssueTrackerConfigLine(ParsableString &parsable,
 	return true;
 }
 
-static bool parseIssueSenderActionConfigLine(
-  ParsableString &parsable, ActionDefList &issueSenderActionList,
+static bool parseIncidentSenderActionConfigLine(
+  ParsableString &parsable, ActionDefList &incidentSenderActionList,
   size_t lineNo)
 {
 	ActionDef action;
@@ -262,15 +262,15 @@ static bool parseIssueSenderActionConfigLine(
 	bool succeeded;
 
 	action.id = 0;
-	action.type = ACTION_ISSUE_SENDER;
+	action.type = ACTION_INCIDENT_SENDER;
 	action.timeout = 0;
 	action.ownerUserId = USER_ID_SYSTEM;
 
-	int issueTrackerId;
-	succeeded = parseInt(parsable, issueTrackerId, lineNo);
+	int incidentTrackerId;
+	succeeded = parseInt(parsable, incidentTrackerId, lineNo);
 	if (!succeeded)
 		return false;
-	action.command = StringUtils::toString(issueTrackerId);
+	action.command = StringUtils::toString(incidentTrackerId);
 
 	int serverId;
 	succeeded = parseInt(parsable, serverId, lineNo);
@@ -314,7 +314,7 @@ static bool parseIssueSenderActionConfigLine(
 	cond.triggerStatus = TRIGGER_STATUS_PROBLEM;
 	cond.triggerSeverityCompType = CMP_EQ_GT;
 
-	issueSenderActionList.push_back(action);
+	incidentSenderActionList.push_back(action);
 
 	return true;
 }
@@ -371,14 +371,14 @@ static bool readConfigFile(const string &configFilePath, ConfigValue &confValue)
 			if (!parseUserConfigLine(
 			       parsable, confValue.userInfoList, lineNo))
 				return false;
-		} else if (element == "issueTracker") {
-			if (!parseIssueTrackerConfigLine(
-			       parsable, confValue.issueTrackerInfoVect,
+		} else if (element == "incidentTracker") {
+			if (!parseIncidentTrackerConfigLine(
+			       parsable, confValue.incidentTrackerInfoVect,
 			       lineNo))
 				return false;
-		} else if (element == "issueSenderAction") {
-			if (!parseIssueSenderActionConfigLine(
-			       parsable, confValue.issueSenderActionList,
+		} else if (element == "incidentSenderAction") {
+			if (!parseIncidentSenderActionConfigLine(
+			       parsable, confValue.incidentSenderActionList,
 			       lineNo))
 				return false;
 		} else {
@@ -685,50 +685,52 @@ static void registerUsers(ConfigValue &confValue)
 	}
 }
 
-static void registerIssueTrackers(DBClientConfig &dbConfig,
-				  ConfigValue &confValue)
+static void registerIncidentTrackers(DBClientConfig &dbConfig,
+				     ConfigValue &confValue)
 {
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	IssueTrackerInfoVectIterator it
-	  = confValue.issueTrackerInfoVect.begin();
-	for (; it != confValue.issueTrackerInfoVect.end(); ++it) {
-		IssueTrackerInfo &issueTrackerInfo = *it;
-		HatoholError err = dbConfig.addIssueTracker(issueTrackerInfo,
-							    privilege);
+	IncidentTrackerInfoVectIterator it
+	  = confValue.incidentTrackerInfoVect.begin();
+	for (; it != confValue.incidentTrackerInfoVect.end(); ++it) {
+		IncidentTrackerInfo &incidentTrackerInfo = *it;
+		HatoholError err = dbConfig.addIncidentTracker(
+				     incidentTrackerInfo,
+				     privilege);
 		if (err != HTERR_OK) {
-			printf("Failed to add issue tracker: %s (code: %d)\n",
-			       issueTrackerInfo.nickname.c_str(),
+			printf("Failed to add incident tracker: "
+			       "%s (code: %d)\n",
+			       incidentTrackerInfo.nickname.c_str(),
 			       err.getCode());
 		}
-		printf("ISSUE TRACKER: ID: %" FMT_ISSUE_TRACKER_ID ","
+		printf("INCIDENT TRACKER: ID: %" FMT_INCIDENT_TRACKER_ID ","
 		       " TYPE: %d, NICKNAME: %s, BASEURL: %s, PROJECTID: %s,"
 		       " TRACKERID: %s, USERNAME: %s, PASSWORD: %s\n",
-		       issueTrackerInfo.id, issueTrackerInfo.type,
-		       issueTrackerInfo.nickname.c_str(),
-		       issueTrackerInfo.baseURL.c_str(),
-		       issueTrackerInfo.projectId.c_str(),
-		       issueTrackerInfo.trackerId.c_str(),
-		       issueTrackerInfo.userName.c_str(),
-		       issueTrackerInfo.password.c_str());
+		       incidentTrackerInfo.id, incidentTrackerInfo.type,
+		       incidentTrackerInfo.nickname.c_str(),
+		       incidentTrackerInfo.baseURL.c_str(),
+		       incidentTrackerInfo.projectId.c_str(),
+		       incidentTrackerInfo.trackerId.c_str(),
+		       incidentTrackerInfo.userName.c_str(),
+		       incidentTrackerInfo.password.c_str());
 	}
 }
 
-static void registerIssueSenderActions(ConfigValue &confValue)
+static void registerIncidentSenderActions(ConfigValue &confValue)
 {
 	DBClientAction dbAction;
 	OperationPrivilege privilege(USER_ID_SYSTEM);
-	ActionDefListIterator it = confValue.issueSenderActionList.begin();
+	ActionDefListIterator it = confValue.incidentSenderActionList.begin();
 	size_t idx = 1;
-	for (; it != confValue.issueSenderActionList.end(); ++it) {
+	for (; it != confValue.incidentSenderActionList.end(); ++it) {
 		ActionDef &action = *it;
 		HatoholError err = dbAction.addAction(action, privilege);
 		if (err != HTERR_OK) {
-			printf("Failed to add issue sender action: "
+			printf("Failed to add incident sender action: "
 			       "%zd (code: %d %s)\n",
 			       idx, err.getCode(), err.getCodeName().c_str());
 		}
 		++idx;
-		printf("ISSUE SENDER ACTION: ID: %" FMT_ACTION_ID "\n",
+		printf("INCIDENT SENDER ACTION: ID: %" FMT_ACTION_ID "\n",
 		       action.id);
 	}
 }
@@ -773,8 +775,8 @@ int main(int argc, char *argv[])
 
 	registerServers(dbConfig, confValue);
 	registerUsers(confValue);
-	registerIssueTrackers(dbConfig, confValue);
-	registerIssueSenderActions(confValue);
+	registerIncidentTrackers(dbConfig, confValue);
+	registerIncidentSenderActions(confValue);
 
 	return EXIT_SUCCESS;
 }

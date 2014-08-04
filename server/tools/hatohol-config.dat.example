@@ -21,17 +21,17 @@ user: guest, guest,   guest
 
 
 #
-# Example config for issue tracking system
+# Example config for incident tracking system
 #
 
-# issueTracker: TYPE (0: Redmine), Nickname, Base URL, Project Name, Issue Tracker ID (numeric, cab be empty), User name, Password
+# incidentTracker: TYPE (0: Redmine), Nickname, Base URL, Project Name, Incident Tracker ID (numeric, cab be empty), User name, Password
 
-#issueTracker: 0, Redmine, http://redmine.localdomain, incidents, , admin, admin
+#incidentTracker: 0, Redmine, http://redmine.localdomain, incidents, , admin, admin
 
 
-# issueSenderAction: Issue Tracker ID, Monitoring Server ID, Hostgroup ID, Trigger Severity
+# incidentSenderAction: Incident Tracker ID, Monitoring Server ID, Hostgroup ID, Trigger Severity
 #
-# "Issue Tracker ID" & "Monitoring Server ID" will begin from 1 and be
+# "Incident Tracker ID" & "Monitoring Server ID" will begin from 1 and be
 # incremented sequentially. "Hostgroup ID" is assigned by each monitoring
 # server, therefor you should find it on each system's UI.
 # You can put "-1" for "Monitoring Server ID" and "Hostgroup ID" to choose all
@@ -45,4 +45,4 @@ user: guest, guest,   guest
 #   4: CRITICAL  ("High" in Zabbix)
 #   5: EMERGENCY ("Disaster" in Zabbix)
 
-#issueSenderAction: 1, -1, -1, 3
+#incidentSenderAction: 1, -1, -1, 3

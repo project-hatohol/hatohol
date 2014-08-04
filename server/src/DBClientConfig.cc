@@ -34,7 +34,7 @@ using namespace mlpl;
 static const char *TABLE_NAME_SYSTEM  = "system";
 static const char *TABLE_NAME_SERVERS = "servers";
 static const char *TABLE_NAME_ARM_PLUGINS = "arm_plugins";
-static const char *TABLE_NAME_ISSUE_TRACKERS = "issue_trackers";
+static const char *TABLE_NAME_INCIDENT_TRACKERS = "incident_trackers";
 
 int DBClientConfig::CONFIG_DB_VERSION = 9;
 const char *DBClientConfig::DEFAULT_DB_NAME = "hatohol";
@@ -42,7 +42,7 @@ const char *DBClientConfig::DEFAULT_USER_NAME = "hatohol";
 const char *DBClientConfig::DEFAULT_PASSWORD  = "hatohol";
 
 const ServerIdSet EMPTY_SERVER_ID_SET;
-const ServerIdSet EMPTY_ISSUE_TRACKER_ID_SET;
+const ServerIdSet EMPTY_INCIDENT_TRACKER_ID_SET;
 static void operator>>(
   ItemGroupStream &itemGroupStream, MonitoringSystemType &monSysType)
 {
@@ -50,9 +50,9 @@ static void operator>>(
 }
 
 static void operator>>(
-  ItemGroupStream &itemGroupStream, IssueTrackerType &issueTrackerType)
+  ItemGroupStream &itemGroupStream, IncidentTrackerType &incidentTrackerType)
 {
-       issueTrackerType = itemGroupStream.read<int, IssueTrackerType>();
+       incidentTrackerType = itemGroupStream.read<int, IncidentTrackerType>();
 }
 
 static const ColumnDef COLUMN_DEF_SYSTEM[] = {
@@ -343,10 +343,10 @@ static const DBAgent::TableProfile tableProfileArmPlugins(
   TABLE_NAME_ARM_PLUGINS, COLUMN_DEF_ARM_PLUGINS,
   sizeof(COLUMN_DEF_ARM_PLUGINS), NUM_IDX_ARM_PLUGINS);
 
-static const ColumnDef COLUMN_DEF_ISSUE_TRACKERS[] = {
+static const ColumnDef COLUMN_DEF_INCIDENT_TRACKERS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ISSUE_TRACKERS,         // tableName
+	TABLE_NAME_INCIDENT_TRACKERS,      // tableName
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -357,7 +357,7 @@ static const ColumnDef COLUMN_DEF_ISSUE_TRACKERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ISSUE_TRACKERS,         // tableName
+	TABLE_NAME_INCIDENT_TRACKERS,      // tableName
 	"type",                            // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -368,7 +368,7 @@ static const ColumnDef COLUMN_DEF_ISSUE_TRACKERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ISSUE_TRACKERS,         // tableName
+	TABLE_NAME_INCIDENT_TRACKERS,      // tableName
 	"nickname",                        // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -379,7 +379,7 @@ static const ColumnDef COLUMN_DEF_ISSUE_TRACKERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ISSUE_TRACKERS,         // tableName
+	TABLE_NAME_INCIDENT_TRACKERS,      // tableName
 	"base_url",                        // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -390,7 +390,7 @@ static const ColumnDef COLUMN_DEF_ISSUE_TRACKERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ISSUE_TRACKERS,         // tableName
+	TABLE_NAME_INCIDENT_TRACKERS,      // tableName
 	"project_id",                      // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -401,7 +401,7 @@ static const ColumnDef COLUMN_DEF_ISSUE_TRACKERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ISSUE_TRACKERS,         // tableName
+	TABLE_NAME_INCIDENT_TRACKERS,      // tableName
 	"tracker_id",                      // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -412,7 +412,7 @@ static const ColumnDef COLUMN_DEF_ISSUE_TRACKERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ISSUE_TRACKERS,         // tableName
+	TABLE_NAME_INCIDENT_TRACKERS,      // tableName
 	"user_name",                       // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -423,7 +423,7 @@ static const ColumnDef COLUMN_DEF_ISSUE_TRACKERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ISSUE_TRACKERS,         // tableName
+	TABLE_NAME_INCIDENT_TRACKERS,      // tableName
 	"password",                        // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -436,20 +436,20 @@ static const ColumnDef COLUMN_DEF_ISSUE_TRACKERS[] = {
 };
 
 enum {
-	IDX_ISSUE_TRACKERS_ID,
-	IDX_ISSUE_TRACKERS_TYPE,
-	IDX_ISSUE_TRACKERS_NICKNAME,
-	IDX_ISSUE_TRACKERS_BASE_URL,
-	IDX_ISSUE_TRACKERS_PROJECT_ID,
-	IDX_ISSUE_TRACKERS_TRACKER_ID,
-	IDX_ISSUE_TRACKERS_USER_NAME,
-	IDX_ISSUE_TRACKERS_PASSWORD,
-	NUM_IDX_ISSUE_TRACKERS,
+	IDX_INCIDENT_TRACKERS_ID,
+	IDX_INCIDENT_TRACKERS_TYPE,
+	IDX_INCIDENT_TRACKERS_NICKNAME,
+	IDX_INCIDENT_TRACKERS_BASE_URL,
+	IDX_INCIDENT_TRACKERS_PROJECT_ID,
+	IDX_INCIDENT_TRACKERS_TRACKER_ID,
+	IDX_INCIDENT_TRACKERS_USER_NAME,
+	IDX_INCIDENT_TRACKERS_PASSWORD,
+	NUM_IDX_INCIDENT_TRACKERS,
 };
 
-static const DBAgent::TableProfile tableProfileIssueTrackers(
-  TABLE_NAME_ISSUE_TRACKERS, COLUMN_DEF_ISSUE_TRACKERS,
-  sizeof(COLUMN_DEF_ISSUE_TRACKERS), NUM_IDX_ISSUE_TRACKERS);
+static const DBAgent::TableProfile tableProfileIncidentTrackers(
+  TABLE_NAME_INCIDENT_TRACKERS, COLUMN_DEF_INCIDENT_TRACKERS,
+  sizeof(COLUMN_DEF_INCIDENT_TRACKERS), NUM_IDX_INCIDENT_TRACKERS);
 
 struct DBClientConfig::PrivateContext
 {
@@ -608,23 +608,23 @@ string ServerQueryOption::getCondition(void) const
 }
 
 // ---------------------------------------------------------------------------
-// IssueTrackerQueryOption
+// IncidentTrackerQueryOption
 // ---------------------------------------------------------------------------
-struct IssueTrackerQueryOption::PrivateContext {
-	IssueTrackerIdType targetId;
+struct IncidentTrackerQueryOption::PrivateContext {
+	IncidentTrackerIdType targetId;
 	PrivateContext(void)
-	: targetId(ALL_ISSUE_TRACKERS)
+	: targetId(ALL_INCIDENT_TRACKERS)
 	{
 	}
 };
 
-IssueTrackerQueryOption::IssueTrackerQueryOption(const UserIdType &userId)
+IncidentTrackerQueryOption::IncidentTrackerQueryOption(const UserIdType &userId)
 : DataQueryOption(userId), m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 }
 
-IssueTrackerQueryOption::IssueTrackerQueryOption(
+IncidentTrackerQueryOption::IncidentTrackerQueryOption(
   DataQueryContext *dataQueryContext)
 : DataQueryOption(dataQueryContext),
   m_ctx(NULL)
@@ -632,17 +632,18 @@ IssueTrackerQueryOption::IssueTrackerQueryOption(
 	m_ctx = new PrivateContext();
 }
 
-IssueTrackerQueryOption::~IssueTrackerQueryOption()
+IncidentTrackerQueryOption::~IncidentTrackerQueryOption()
 {
 	delete m_ctx;
 }
 
-void IssueTrackerQueryOption::setTargetId(const IssueTrackerIdType &targetId)
+void IncidentTrackerQueryOption::setTargetId(
+  const IncidentTrackerIdType &targetId)
 {
 	m_ctx->targetId = targetId;
 }
 
-string IssueTrackerQueryOption::getCondition(void) const
+string IncidentTrackerQueryOption::getCondition(void) const
 {
 	UserIdType userId = getUserId();
 
@@ -651,13 +652,13 @@ string IssueTrackerQueryOption::getCondition(void) const
 		return DBClientHatohol::getAlwaysFalseCondition();
 	}
 
-	if (userId != USER_ID_SYSTEM && !has(OPPRVLG_GET_ALL_ISSUE_SETTINGS))
+	if (userId != USER_ID_SYSTEM && !has(OPPRVLG_GET_ALL_INCIDENT_SETTINGS))
 		return DBClientHatohol::getAlwaysFalseCondition();
 
-	if (m_ctx->targetId != ALL_ISSUE_TRACKERS) {
+	if (m_ctx->targetId != ALL_INCIDENT_TRACKERS) {
 		const char *columnName
-		  = COLUMN_DEF_ISSUE_TRACKERS[IDX_ISSUE_TRACKERS_ID].columnName;
-	        return StringUtils::sprintf("%s=%" FMT_ISSUE_TRACKER_ID,
+		  = COLUMN_DEF_INCIDENT_TRACKERS[IDX_INCIDENT_TRACKERS_ID].columnName;
+	        return StringUtils::sprintf("%s=%" FMT_INCIDENT_TRACKER_ID,
 					    columnName, m_ctx->targetId);
 	}
 
@@ -682,7 +683,7 @@ void DBClientConfig::init(const CommandLineArg &cmdArg)
 	}, {
 		&tableProfileArmPlugins,
 	}, {
-		&tableProfileIssueTrackers,
+		&tableProfileIncidentTrackers,
 	}
 	};
 	static const size_t NUM_TABLE_INFO =
@@ -1112,66 +1113,67 @@ HatoholError DBClientConfig::saveArmPluginInfo(ArmPluginInfo &armPluginInfo)
 	return err;
 }
 
-HatoholError validIssueTrackerInfo(const IssueTrackerInfo &issueTrackerInfo)
+HatoholError validIncidentTrackerInfo(
+  const IncidentTrackerInfo &incidentTrackerInfo)
 {
-	if (issueTrackerInfo.type <= ISSUE_TRACKER_UNKNOWN ||
-	    issueTrackerInfo.type >= NUM_ISSUE_TRACKERS)
-		return HTERR_INVALID_ISSUE_TRACKER_TYPE;
-	if (issueTrackerInfo.baseURL.empty())
-		return HTERR_NO_ISSUE_TRACKER_LOCATION;
+	if (incidentTrackerInfo.type <= INCIDENT_TRACKER_UNKNOWN ||
+	    incidentTrackerInfo.type >= NUM_INCIDENT_TRACKERS)
+		return HTERR_INVALID_INCIDENT_TRACKER_TYPE;
+	if (incidentTrackerInfo.baseURL.empty())
+		return HTERR_NO_INCIDENT_TRACKER_LOCATION;
 	return HTERR_OK;
 }
 
-HatoholError DBClientConfig::addIssueTracker(
-  IssueTrackerInfo &issueTrackerInfo, const OperationPrivilege &privilege)
+HatoholError DBClientConfig::addIncidentTracker(
+  IncidentTrackerInfo &incidentTrackerInfo, const OperationPrivilege &privilege)
 {
-	if (!privilege.has(OPPRVLG_CREATE_ISSUE_SETTING))
+	if (!privilege.has(OPPRVLG_CREATE_INCIDENT_SETTING))
 		return HatoholError(HTERR_NO_PRIVILEGE);
 
-	HatoholError err = validIssueTrackerInfo(issueTrackerInfo);
+	HatoholError err = validIncidentTrackerInfo(incidentTrackerInfo);
 	if (err != HTERR_OK)
 		return err;
 
-	DBAgent::InsertArg arg(tableProfileIssueTrackers);
+	DBAgent::InsertArg arg(tableProfileIncidentTrackers);
 	arg.add(AUTO_INCREMENT_VALUE);
-	arg.add(issueTrackerInfo.type);
-	arg.add(issueTrackerInfo.nickname);
-	arg.add(issueTrackerInfo.baseURL);
-	arg.add(issueTrackerInfo.projectId);
-	arg.add(issueTrackerInfo.trackerId);
-	arg.add(issueTrackerInfo.userName);
-	arg.add(issueTrackerInfo.password);
+	arg.add(incidentTrackerInfo.type);
+	arg.add(incidentTrackerInfo.nickname);
+	arg.add(incidentTrackerInfo.baseURL);
+	arg.add(incidentTrackerInfo.projectId);
+	arg.add(incidentTrackerInfo.trackerId);
+	arg.add(incidentTrackerInfo.userName);
+	arg.add(incidentTrackerInfo.password);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		insert(arg);
-		issueTrackerInfo.id = getLastInsertId();
+		incidentTrackerInfo.id = getLastInsertId();
 	} DBCLIENT_TRANSACTION_END();
 	return HTERR_OK;
 }
 
-HatoholError DBClientConfig::updateIssueTracker(
-  IssueTrackerInfo &issueTrackerInfo, const OperationPrivilege &privilege)
+HatoholError DBClientConfig::updateIncidentTracker(
+  IncidentTrackerInfo &incidentTrackerInfo, const OperationPrivilege &privilege)
 {
-	if (!privilege.has(OPPRVLG_UPDATE_ISSUE_SETTING))
+	if (!privilege.has(OPPRVLG_UPDATE_INCIDENT_SETTING))
 		return HatoholError(HTERR_NO_PRIVILEGE);
 
-	HatoholError err = validIssueTrackerInfo(issueTrackerInfo);
+	HatoholError err = validIncidentTrackerInfo(incidentTrackerInfo);
 	if (err != HTERR_OK)
 		return err;
 
-	DBAgent::UpdateArg arg(tableProfileIssueTrackers);
-	arg.add(IDX_ISSUE_TRACKERS_TYPE,       issueTrackerInfo.type);
-	arg.add(IDX_ISSUE_TRACKERS_NICKNAME,   issueTrackerInfo.nickname);
-	arg.add(IDX_ISSUE_TRACKERS_BASE_URL,   issueTrackerInfo.baseURL);
-	arg.add(IDX_ISSUE_TRACKERS_PROJECT_ID, issueTrackerInfo.projectId);
-	arg.add(IDX_ISSUE_TRACKERS_TRACKER_ID, issueTrackerInfo.trackerId);
-	arg.add(IDX_ISSUE_TRACKERS_USER_NAME,  issueTrackerInfo.userName);
-	arg.add(IDX_ISSUE_TRACKERS_PASSWORD,   issueTrackerInfo.password);
-	arg.condition = StringUtils::sprintf("id=%" FMT_ISSUE_TRACKER_ID,
-					     issueTrackerInfo.id);
+	DBAgent::UpdateArg arg(tableProfileIncidentTrackers);
+	arg.add(IDX_INCIDENT_TRACKERS_TYPE,       incidentTrackerInfo.type);
+	arg.add(IDX_INCIDENT_TRACKERS_NICKNAME,   incidentTrackerInfo.nickname);
+	arg.add(IDX_INCIDENT_TRACKERS_BASE_URL,   incidentTrackerInfo.baseURL);
+	arg.add(IDX_INCIDENT_TRACKERS_PROJECT_ID, incidentTrackerInfo.projectId);
+	arg.add(IDX_INCIDENT_TRACKERS_TRACKER_ID, incidentTrackerInfo.trackerId);
+	arg.add(IDX_INCIDENT_TRACKERS_USER_NAME,  incidentTrackerInfo.userName);
+	arg.add(IDX_INCIDENT_TRACKERS_PASSWORD,   incidentTrackerInfo.password);
+	arg.condition = StringUtils::sprintf("id=%" FMT_INCIDENT_TRACKER_ID,
+					     incidentTrackerInfo.id);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
-		if (!isRecordExisting(TABLE_NAME_ISSUE_TRACKERS, arg.condition)) {
+		if (!isRecordExisting(TABLE_NAME_INCIDENT_TRACKERS, arg.condition)) {
 			err = HTERR_NOT_FOUND_TARGET_RECORD;
 		} else {
 			update(arg);
@@ -1180,19 +1182,19 @@ HatoholError DBClientConfig::updateIssueTracker(
 	return err;
 }
 
-void DBClientConfig::getIssueTrackers(
-  IssueTrackerInfoVect &issueTrackerInfoVect,
-  IssueTrackerQueryOption &option)
+void DBClientConfig::getIncidentTrackers(
+  IncidentTrackerInfoVect &incidentTrackerInfoVect,
+  IncidentTrackerQueryOption &option)
 {
-	DBAgent::SelectExArg arg(tableProfileIssueTrackers);
-	arg.add(IDX_ISSUE_TRACKERS_ID);
-	arg.add(IDX_ISSUE_TRACKERS_TYPE);
-	arg.add(IDX_ISSUE_TRACKERS_NICKNAME);
-	arg.add(IDX_ISSUE_TRACKERS_BASE_URL);
-	arg.add(IDX_ISSUE_TRACKERS_PROJECT_ID);
-	arg.add(IDX_ISSUE_TRACKERS_TRACKER_ID);
-	arg.add(IDX_ISSUE_TRACKERS_USER_NAME);
-	arg.add(IDX_ISSUE_TRACKERS_PASSWORD);
+	DBAgent::SelectExArg arg(tableProfileIncidentTrackers);
+	arg.add(IDX_INCIDENT_TRACKERS_ID);
+	arg.add(IDX_INCIDENT_TRACKERS_TYPE);
+	arg.add(IDX_INCIDENT_TRACKERS_NICKNAME);
+	arg.add(IDX_INCIDENT_TRACKERS_BASE_URL);
+	arg.add(IDX_INCIDENT_TRACKERS_PROJECT_ID);
+	arg.add(IDX_INCIDENT_TRACKERS_TRACKER_ID);
+	arg.add(IDX_INCIDENT_TRACKERS_USER_NAME);
+	arg.add(IDX_INCIDENT_TRACKERS_PASSWORD);
 	arg.condition = option.getCondition();
 
 	DBCLIENT_TRANSACTION_BEGIN() {
@@ -1204,8 +1206,8 @@ void DBClientConfig::getIssueTrackers(
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
 		ItemGroupStream itemGroupStream(*itemGrpItr);
-		issueTrackerInfoVect.push_back(IssueTrackerInfo());
-		IssueTrackerInfo &info = issueTrackerInfoVect.back();
+		incidentTrackerInfoVect.push_back(IncidentTrackerInfo());
+		IncidentTrackerInfo &info = incidentTrackerInfoVect.back();
 
 		itemGroupStream >> info.id;
 		itemGroupStream >> info.type;
@@ -1218,18 +1220,18 @@ void DBClientConfig::getIssueTrackers(
 	}
 }
 
-HatoholError DBClientConfig::deleteIssueTracker(
-  const IssueTrackerIdType &issueTrackerId,
+HatoholError DBClientConfig::deleteIncidentTracker(
+  const IncidentTrackerIdType &incidentTrackerId,
   const OperationPrivilege &privilege)
 {
-	if (!privilege.has(OPPRVLG_DELETE_ISSUE_SETTING))
+	if (!privilege.has(OPPRVLG_DELETE_INCIDENT_SETTING))
 		return HatoholError(HTERR_NO_PRIVILEGE);
 
-	DBAgent::DeleteArg arg(tableProfileIssueTrackers);
+	DBAgent::DeleteArg arg(tableProfileIncidentTrackers);
 	const ColumnDef &colId
-	  = COLUMN_DEF_ISSUE_TRACKERS[IDX_ISSUE_TRACKERS_ID];
-	arg.condition = StringUtils::sprintf("%s=%" FMT_ISSUE_TRACKER_ID,
-	                                     colId.columnName, issueTrackerId);
+	  = COLUMN_DEF_INCIDENT_TRACKERS[IDX_INCIDENT_TRACKERS_ID];
+	arg.condition = StringUtils::sprintf("%s=%" FMT_INCIDENT_TRACKER_ID,
+	                                     colId.columnName, incidentTrackerId);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		deleteRows(arg);

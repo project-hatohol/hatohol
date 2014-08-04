@@ -158,8 +158,8 @@ typedef std::list<MonitoringServerStatus> MonitoringServerStatusList;
 typedef MonitoringServerStatusList::iterator MonitoringServerStatusListIterator;
 typedef MonitoringServerStatusList::const_iterator MonitoringServerStatusListConstIterator;
 
-struct IssueInfo {
-	IssueTrackerIdType trackerId;
+struct IncidentInfo {
+	IncidentTrackerIdType trackerId;
 	ServerIdType       serverId;
 	EventIdType        eventId;
 	TriggerIdType      triggerId;
@@ -171,9 +171,9 @@ struct IssueInfo {
 	mlpl::Time         updatedAt;
 };
 
-typedef std::vector<IssueInfo>        IssueInfoVect;
-typedef IssueInfoVect::iterator       IssueInfoVectIterator;
-typedef IssueInfoVect::const_iterator IssueInfoVectConstIterator;
+typedef std::vector<IncidentInfo>        IncidentInfoVect;
+typedef IncidentInfoVect::iterator       IncidentInfoVectIterator;
+typedef IncidentInfoVect::const_iterator IncidentInfoVectConstIterator;
 
 class EventsQueryOption : public HostResourceQueryOption {
 public:
@@ -265,10 +265,10 @@ public:
 	HostgroupElementQueryOption(DataQueryContext *dataQueryContext);
 };
 
-class IssuesQueryOption : public DataQueryOption {
+class IncidentsQueryOption : public DataQueryOption {
 public:
-	IssuesQueryOption(const UserIdType &userId = INVALID_USER_ID);
-	IssuesQueryOption(DataQueryContext *dataQueryContext);
+	IncidentsQueryOption(const UserIdType &userId = INVALID_USER_ID);
+	IncidentsQueryOption(DataQueryContext *dataQueryContext);
 };
 
 class DBClientHatohol : public DBClient {
@@ -284,7 +284,7 @@ public:
 	static const char *TABLE_NAME_HOSTGROUPS;
 	static const char *TABLE_NAME_MAP_HOSTS_HOSTGROUPS;
 	static const char *TABLE_NAME_SERVERS;
-	static const char *TABLE_NAME_ISSUES;
+	static const char *TABLE_NAME_INCIDENTS;
 
 	DBClientHatohol(void);
 	virtual ~DBClientHatohol();
@@ -328,7 +328,7 @@ public:
 	void addEventInfoList(const EventInfoList &eventInfoList);
 	HatoholError getEventInfoList(EventInfoList &eventInfoList,
 	                              const EventsQueryOption &option,
-				      IssueInfoVect *issueInfoVect = NULL);
+				      IncidentInfoVect *incidentInfoVect = NULL);
 	void setEventInfoList(const EventInfoList &eventInfoList,
 	                      const ServerIdType &serverId);
 
@@ -393,9 +393,9 @@ public:
 	void pickupAbsentHostIds(std::vector<uint64_t> &absentHostIdVector,
 	                         const std::vector<uint64_t> &hostIdVector);
 
-	void addIssueInfo(IssueInfo *issueInfo);
-	HatoholError getIssueInfoVect(IssueInfoVect &issueInfoVect,
-				      const IssuesQueryOption &option);
+	void addIncidentInfo(IncidentInfo *incidentInfo);
+	HatoholError getIncidentInfoVect(IncidentInfoVect &incidentInfoVect,
+				      const IncidentsQueryOption &option);
 
 protected:
 	void addTriggerInfoWithoutTransaction(const TriggerInfo &triggerInfo);
@@ -407,7 +407,8 @@ protected:
 	void addHostInfoWithoutTransaction(const HostInfo &hostInfo);
 	void addMonitoringServerStatusWithoutTransaction(
 	  const MonitoringServerStatus &serverStatus);
-	void addIssueInfoWithoutTransaction(const IssueInfo &issueInfo);
+	void addIncidentInfoWithoutTransaction(
+	  const IncidentInfo &incidentInfo);
 	size_t getNumberOfTriggers(const TriggersQueryOption &option,
 				   const std::string &additionalCondition);
 

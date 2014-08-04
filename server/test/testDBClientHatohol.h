@@ -186,15 +186,15 @@ struct AssertGetEventsArg
 	TriggerSeverityType minSeverity;
 	TriggerStatusType triggerStatus;
 	std::map<const EventInfo *, uint64_t> idMap;
-	IssueInfoVect actualIssueInfoVect;
-	bool withIssueInfo;
-	std::map<std::string, IssueInfo*> eventIssueMap;
+	IncidentInfoVect actualIncidentInfoVect;
+	bool withIncidentInfo;
+	std::map<std::string, IncidentInfo*> eventIncidentMap;
 
 	AssertGetEventsArg(gconstpointer ddtParam)
 	: limitOfUnifiedId(0), sortType(EventsQueryOption::SORT_UNIFIED_ID),
 	  minSeverity(TRIGGER_SEVERITY_UNKNOWN),
 	  triggerStatus(TRIGGER_STATUS_ALL),
-	  withIssueInfo(false)
+	  withIncidentInfo(false)
 	{
 		fixtures = testEventInfo;
 		numberOfFixtures = NumTestEventInfo;
@@ -273,7 +273,7 @@ struct AssertGetEventsArg
 				  expectedRecords.end(),
 				  lessTime());
 
-		makeEventIssueMap(eventIssueMap);
+		makeEventIncidentMap(eventIncidentMap);
 	}
 
 	virtual HostIdType getHostId(const EventInfo &info) const override
@@ -286,21 +286,21 @@ struct AssertGetEventsArg
 		return makeEventOutput(eventInfo);
 	}
 
-	IssueInfo getExpectedIssueInfo(EventInfo &event) {
-		std::string key = makeEventIssueMapKey(event);
-		if (eventIssueMap.find(key) == eventIssueMap.end()) {
-			IssueInfo issue;
-			issue.trackerId = 0;
-			issue.serverId  = event.serverId;
-			issue.eventId   = event.id;
-			issue.triggerId = event.triggerId;
-			issue.createdAt.tv_sec  = 0;
-			issue.createdAt.tv_nsec = 0;
-			issue.updatedAt.tv_sec  = 0;
-			issue.updatedAt.tv_nsec = 0;
-			return issue;
+	IncidentInfo getExpectedIncidentInfo(EventInfo &event) {
+		std::string key = makeEventIncidentMapKey(event);
+		if (eventIncidentMap.find(key) == eventIncidentMap.end()) {
+			IncidentInfo incident;
+			incident.trackerId = 0;
+			incident.serverId  = event.serverId;
+			incident.eventId   = event.id;
+			incident.triggerId = event.triggerId;
+			incident.createdAt.tv_sec  = 0;
+			incident.createdAt.tv_nsec = 0;
+			incident.updatedAt.tv_sec  = 0;
+			incident.updatedAt.tv_nsec = 0;
+			return incident;
 		} else {
-			return *eventIssueMap[key];
+			return *eventIncidentMap[key];
 		}
 	}
 
@@ -308,20 +308,23 @@ struct AssertGetEventsArg
 	{
 		AssertGetHostResourceArg<EventInfo, EventsQueryOption>::assert();
 
-		if (!withIssueInfo)
+		if (!withIncidentInfo)
 			return;
 
 		cppcut_assert_equal(actualRecordList.size(),
-				    actualIssueInfoVect.size());
+				    actualIncidentInfoVect.size());
 
 		EventInfoListIterator eventIt = actualRecordList.begin();
-		IssueInfoVectIterator issueIt = actualIssueInfoVect.begin();
-		IssueInfoVectIterator issueEndIt = actualIssueInfoVect.end();
+		IncidentInfoVectIterator incidentIt
+		  = actualIncidentInfoVect.begin();
+		IncidentInfoVectIterator incidentEndIt
+		  = actualIncidentInfoVect.end();
 		std::string expected, actual;
-		for (; issueIt != issueEndIt; issueIt++, eventIt++) {
-			IssueInfo issue = getExpectedIssueInfo(*eventIt);
-			expected += makeIssueOutput(issue);
-			actual += makeIssueOutput(*issueIt);
+		for (; incidentIt != incidentEndIt; incidentIt++, eventIt++) {
+			IncidentInfo incident
+			  = getExpectedIncidentInfo(*eventIt);
+			expected += makeIncidentOutput(incident);
+			actual += makeIncidentOutput(*incidentIt);
 		}
 		cppcut_assert_equal(expected, actual);
 	}

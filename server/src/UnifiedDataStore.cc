@@ -314,10 +314,10 @@ SmartTime UnifiedDataStore::getTimestampOfLastTrigger(
 
 HatoholError UnifiedDataStore::getEventList(EventInfoList &eventList,
 					    EventsQueryOption &option,
-					    IssueInfoVect *issueVect)
+					    IncidentInfoVect *incidentVect)
 {
 	DBClientHatohol dbHatohol;
-	return dbHatohol.getEventInfoList(eventList, option, issueVect);
+	return dbHatohol.getEventInfoList(eventList, option, incidentVect);
 }
 
 void UnifiedDataStore::getItemList(ItemInfoList &itemList,
@@ -362,10 +362,10 @@ HatoholError UnifiedDataStore::deleteActionList(
 	return dbAction.deleteActions(actionIdList, privilege);
 }
 
-bool UnifiedDataStore::isIssueSenderActionEnabled(void)
+bool UnifiedDataStore::isIncidentSenderActionEnabled(void)
 {
 	DBClientAction dbAction;
-	return dbAction.isIssueSenderEnabled();
+	return dbAction.isIncidentSenderEnabled();
 }
 
 HatoholError UnifiedDataStore::getHostgroupInfoList
@@ -613,36 +613,38 @@ void UnifiedDataStore::getServerConnStatusVector(
 	}
 }
 
-void UnifiedDataStore::getIssueTrackers(IssueTrackerInfoVect &issueTrackerVect,
-					IssueTrackerQueryOption &option)
+void UnifiedDataStore::getIncidentTrackers(
+  IncidentTrackerInfoVect &incidentTrackerVect,
+  IncidentTrackerQueryOption &option)
 {
 	CacheServiceDBClient cache;
 	DBClientConfig *dbConfig = cache.getConfig();
-	dbConfig->getIssueTrackers(issueTrackerVect, option);
+	dbConfig->getIncidentTrackers(incidentTrackerVect, option);
 }
 
-HatoholError UnifiedDataStore::addIssueTracker(
-  IssueTrackerInfo &issueTrackerInfo, const OperationPrivilege &privilege)
+HatoholError UnifiedDataStore::addIncidentTracker(
+  IncidentTrackerInfo &incidentTrackerInfo, const OperationPrivilege &privilege)
 {
 	CacheServiceDBClient cache;
 	DBClientConfig *dbConfig = cache.getConfig();
-	return dbConfig->addIssueTracker(issueTrackerInfo, privilege);
+	return dbConfig->addIncidentTracker(incidentTrackerInfo, privilege);
 }
 
-HatoholError UnifiedDataStore::updateIssueTracker(
-  IssueTrackerInfo &issueTrackerInfo, const OperationPrivilege &privilege)
+HatoholError UnifiedDataStore::updateIncidentTracker(
+  IncidentTrackerInfo &incidentTrackerInfo, const OperationPrivilege &privilege)
 {
 	CacheServiceDBClient cache;
 	DBClientConfig *dbConfig = cache.getConfig();
-	return dbConfig->updateIssueTracker(issueTrackerInfo, privilege);
+	return dbConfig->updateIncidentTracker(incidentTrackerInfo, privilege);
 }
 
-HatoholError UnifiedDataStore::deleteIssueTracker(
-  const IssueTrackerIdType &issueTrackerId, const OperationPrivilege &privilege)
+HatoholError UnifiedDataStore::deleteIncidentTracker(
+  const IncidentTrackerIdType &incidentTrackerId,
+  const OperationPrivilege &privilege)
 {
 	CacheServiceDBClient cache;
 	DBClientConfig *dbConfig = cache.getConfig();
-	return dbConfig->deleteIssueTracker(issueTrackerId, privilege);
+	return dbConfig->deleteIncidentTracker(incidentTrackerId, privilege);
 }
 
 DataStoreVector UnifiedDataStore::getDataStoreVector(void)

@@ -180,8 +180,8 @@ void data_actionsJSONP(void)
 	gcut_add_datum("Normal actions",
 		       "type", G_TYPE_INT, ACTION_USER_DEFINED,
 		       NULL);
-	gcut_add_datum("IssueSenderAction",
-		       "type", G_TYPE_INT, ACTION_ISSUE_SENDER,
+	gcut_add_datum("IncidentSenderAction",
+		       "type", G_TYPE_INT, ACTION_INCIDENT_SENDER,
 		       NULL);
 	gcut_add_datum("All",
 		       "type", G_TYPE_INT, ACTION_ALL,

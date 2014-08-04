@@ -38,7 +38,7 @@ const char *DBClientHatohol::TABLE_NAME_HOSTGROUPS = "hostgroups";
 const char *DBClientHatohol::TABLE_NAME_MAP_HOSTS_HOSTGROUPS
                                                    = "map_hosts_hostgroups";
 const char *DBClientHatohol::TABLE_NAME_SERVERS    = "servers";
-const char *DBClientHatohol::TABLE_NAME_ISSUES     = "issues";
+const char *DBClientHatohol::TABLE_NAME_INCIDENTS  = "incidents";
 
 const int         DBClientHatohol::HATOHOL_DB_VERSION = 4;
 const char       *DBClientHatohol::DEFAULT_DB_NAME = "hatohol";
@@ -670,10 +670,10 @@ static const DBAgent::TableProfile tableProfileServers(
   DBClientHatohol::TABLE_NAME_SERVERS, COLUMN_DEF_SERVERS,
   sizeof(COLUMN_DEF_SERVERS), NUM_IDX_SERVERS);
 
-static const ColumnDef COLUMN_DEF_ISSUES[] = {
+static const ColumnDef COLUMN_DEF_INCIDENTS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
-	DBClientHatohol::TABLE_NAME_ISSUES, // tableName
+	DBClientHatohol::TABLE_NAME_INCIDENTS, // tableName
 	"tracker_id",                      // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -684,7 +684,7 @@ static const ColumnDef COLUMN_DEF_ISSUES[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	DBClientHatohol::TABLE_NAME_ISSUES, // tableName
+	DBClientHatohol::TABLE_NAME_INCIDENTS, // tableName
 	"server_id",                       // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -695,7 +695,7 @@ static const ColumnDef COLUMN_DEF_ISSUES[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	DBClientHatohol::TABLE_NAME_ISSUES, // tableName
+	DBClientHatohol::TABLE_NAME_INCIDENTS, // tableName
 	"event_id",                        // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -706,7 +706,7 @@ static const ColumnDef COLUMN_DEF_ISSUES[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	DBClientHatohol::TABLE_NAME_ISSUES,// tableName
+	DBClientHatohol::TABLE_NAME_INCIDENTS,// tableName
 	"trigger_id",                      // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -717,7 +717,7 @@ static const ColumnDef COLUMN_DEF_ISSUES[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	DBClientHatohol::TABLE_NAME_ISSUES, // tableName
+	DBClientHatohol::TABLE_NAME_INCIDENTS, // tableName
 	"identifier",                      // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -728,7 +728,7 @@ static const ColumnDef COLUMN_DEF_ISSUES[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	DBClientHatohol::TABLE_NAME_ISSUES, // tableName
+	DBClientHatohol::TABLE_NAME_INCIDENTS, // tableName
 	"location",                        // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -739,7 +739,7 @@ static const ColumnDef COLUMN_DEF_ISSUES[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	DBClientHatohol::TABLE_NAME_ISSUES, // tableName
+	DBClientHatohol::TABLE_NAME_INCIDENTS, // tableName
 	"status",                          // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -750,7 +750,7 @@ static const ColumnDef COLUMN_DEF_ISSUES[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	DBClientHatohol::TABLE_NAME_ISSUES, // tableName
+	DBClientHatohol::TABLE_NAME_INCIDENTS, // tableName
 	"assignee",                        // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -761,7 +761,7 @@ static const ColumnDef COLUMN_DEF_ISSUES[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	DBClientHatohol::TABLE_NAME_ISSUES, // tableName
+	DBClientHatohol::TABLE_NAME_INCIDENTS, // tableName
 	"created_at_sec",                  // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -772,7 +772,7 @@ static const ColumnDef COLUMN_DEF_ISSUES[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	DBClientHatohol::TABLE_NAME_ISSUES,// tableName
+	DBClientHatohol::TABLE_NAME_INCIDENTS,// tableName
 	"created_at_ns",                   // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -783,7 +783,7 @@ static const ColumnDef COLUMN_DEF_ISSUES[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	DBClientHatohol::TABLE_NAME_ISSUES,// tableName
+	DBClientHatohol::TABLE_NAME_INCIDENTS,// tableName
 	"updated_at_sec",                  // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -794,7 +794,7 @@ static const ColumnDef COLUMN_DEF_ISSUES[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	DBClientHatohol::TABLE_NAME_ISSUES,// tableName
+	DBClientHatohol::TABLE_NAME_INCIDENTS,// tableName
 	"updated_at_ns",                   // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -807,24 +807,24 @@ static const ColumnDef COLUMN_DEF_ISSUES[] = {
 };
 
 enum {
-	IDX_ISSUES_TRACKER_ID,
-	IDX_ISSUES_SERVER_ID,
-	IDX_ISSUES_EVENT_ID,
-	IDX_ISSUES_TRIGGER_ID,
-	IDX_ISSUES_IDENTIFIER,
-	IDX_ISSUES_LOCATION,
-	IDX_ISSUES_STATUS,
-	IDX_ISSUES_ASSIGNEE,
-	IDX_ISSUES_CREATED_AT_SEC,
-	IDX_ISSUES_CREATED_AT_NS,
-	IDX_ISSUES_UPDATED_AT_SEC,
-	IDX_ISSUES_UPDATED_AT_NS,
-	NUM_IDX_ISSUES,
+	IDX_INCIDENTS_TRACKER_ID,
+	IDX_INCIDENTS_SERVER_ID,
+	IDX_INCIDENTS_EVENT_ID,
+	IDX_INCIDENTS_TRIGGER_ID,
+	IDX_INCIDENTS_IDENTIFIER,
+	IDX_INCIDENTS_LOCATION,
+	IDX_INCIDENTS_STATUS,
+	IDX_INCIDENTS_ASSIGNEE,
+	IDX_INCIDENTS_CREATED_AT_SEC,
+	IDX_INCIDENTS_CREATED_AT_NS,
+	IDX_INCIDENTS_UPDATED_AT_SEC,
+	IDX_INCIDENTS_UPDATED_AT_NS,
+	NUM_IDX_INCIDENTS,
 };
 
-static const DBAgent::TableProfile tableProfileIssues(
-  DBClientHatohol::TABLE_NAME_ISSUES, COLUMN_DEF_ISSUES,
-  sizeof(COLUMN_DEF_ISSUES), NUM_IDX_ISSUES);
+static const DBAgent::TableProfile tableProfileIncidents(
+  DBClientHatohol::TABLE_NAME_INCIDENTS, COLUMN_DEF_INCIDENTS,
+  sizeof(COLUMN_DEF_INCIDENTS), NUM_IDX_INCIDENTS);
 
 // Trigger
 static const int columnIndexesTrigUniqId[] = {
@@ -893,14 +893,14 @@ static const DBAgent::IndexDef indexDefsMapHostsHostgroups[] = {
   {NULL}
 };
 
-// Issues
-static const int columnIndexesIssuesUniqId[] = {
-  IDX_ISSUES_SERVER_ID, IDX_ISSUES_EVENT_ID, DBAgent::IndexDef::END,
+// Incidents
+static const int columnIndexesIncidentsUniqId[] = {
+  IDX_INCIDENTS_SERVER_ID, IDX_INCIDENTS_EVENT_ID, DBAgent::IndexDef::END,
 };
 
-static const DBAgent::IndexDef indexDefsIssues[] = {
-  {"IssuesEventId", &tableProfileIssues,
-   (const int *)columnIndexesIssuesUniqId, true},
+static const DBAgent::IndexDef indexDefsIncidents[] = {
+  {"IncidentsEventId", &tableProfileIncidents,
+   (const int *)columnIndexesIncidentsUniqId, true},
   {NULL}
 };
 
@@ -926,8 +926,8 @@ static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
 }, {
 	&tableProfileServers,
 }, {
-	&tableProfileIssues,
-	(const DBAgent::IndexDef *)&indexDefsIssues,
+	&tableProfileIncidents,
+	(const DBAgent::IndexDef *)&indexDefsIncidents,
 }
 };
 
@@ -1427,14 +1427,14 @@ HostgroupElementQueryOption::HostgroupElementQueryOption(
 }
 
 //
-// IssuesQueryOption
+// IncidentsQueryOption
 //
-IssuesQueryOption::IssuesQueryOption(const UserIdType &userId)
+IncidentsQueryOption::IncidentsQueryOption(const UserIdType &userId)
 : DataQueryOption(userId)
 {
 }
 
-IssuesQueryOption::IssuesQueryOption(DataQueryContext *dataQueryContext)
+IncidentsQueryOption::IncidentsQueryOption(DataQueryContext *dataQueryContext)
 : DataQueryOption(dataQueryContext)
 {
 }
@@ -1648,9 +1648,9 @@ void DBClientHatohol::addEventInfoList(const EventInfoList &eventInfoList)
 	} DBCLIENT_TRANSACTION_END();
 }
 
-HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
-                                               const EventsQueryOption &option,
-                                               IssueInfoVect *issueInfoVect)
+HatoholError DBClientHatohol::getEventInfoList(
+  EventInfoList &eventInfoList, const EventsQueryOption &option,
+  IncidentInfoVect *incidentInfoVect)
 {
 	DBClientJoinBuilder builder(tableProfileEvents, &option);
 	builder.add(IDX_EVENTS_UNIFIED_ID);
@@ -1671,21 +1671,21 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	builder.add(IDX_TRIGGERS_HOSTNAME);
 	builder.add(IDX_TRIGGERS_BRIEF);
 
-	if (issueInfoVect) {
+	if (incidentInfoVect) {
 		builder.addTable(
-		  tableProfileIssues, DBClientJoinBuilder::LEFT_JOIN,
+		  tableProfileIncidents, DBClientJoinBuilder::LEFT_JOIN,
 		  tableProfileEvents, IDX_EVENTS_SERVER_ID,
-		  IDX_ISSUES_SERVER_ID,
-		  tableProfileEvents, IDX_EVENTS_ID, IDX_ISSUES_EVENT_ID);
-		builder.add(IDX_ISSUES_TRACKER_ID);
-		builder.add(IDX_ISSUES_IDENTIFIER);
-		builder.add(IDX_ISSUES_LOCATION);
-		builder.add(IDX_ISSUES_STATUS);
-		builder.add(IDX_ISSUES_ASSIGNEE);
-		builder.add(IDX_ISSUES_CREATED_AT_SEC);
-		builder.add(IDX_ISSUES_CREATED_AT_NS);
-		builder.add(IDX_ISSUES_UPDATED_AT_SEC);
-		builder.add(IDX_ISSUES_UPDATED_AT_NS);
+		  IDX_INCIDENTS_SERVER_ID,
+		  tableProfileEvents, IDX_EVENTS_ID, IDX_INCIDENTS_EVENT_ID);
+		builder.add(IDX_INCIDENTS_TRACKER_ID);
+		builder.add(IDX_INCIDENTS_IDENTIFIER);
+		builder.add(IDX_INCIDENTS_LOCATION);
+		builder.add(IDX_INCIDENTS_STATUS);
+		builder.add(IDX_INCIDENTS_ASSIGNEE);
+		builder.add(IDX_INCIDENTS_CREATED_AT_SEC);
+		builder.add(IDX_INCIDENTS_CREATED_AT_NS);
+		builder.add(IDX_INCIDENTS_UPDATED_AT_SEC);
+		builder.add(IDX_INCIDENTS_UPDATED_AT_NS);
 	}
 
 	// Condition
@@ -1743,21 +1743,21 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 		itemGroupStream >> eventInfo.hostName;
 		itemGroupStream >> eventInfo.brief;
 
-		if (issueInfoVect) {
-			issueInfoVect->push_back(IssueInfo());
-			IssueInfo &issueInfo = issueInfoVect->back();
-			itemGroupStream >> issueInfo.trackerId;
-			itemGroupStream >> issueInfo.identifier;
-			itemGroupStream >> issueInfo.location;
-			itemGroupStream >> issueInfo.status;
-			itemGroupStream >> issueInfo.assignee;
-			itemGroupStream >> issueInfo.createdAt.tv_sec;
-			itemGroupStream >> issueInfo.createdAt.tv_nsec;
-			itemGroupStream >> issueInfo.updatedAt.tv_sec;
-			itemGroupStream >> issueInfo.updatedAt.tv_nsec;
-			issueInfo.serverId  = eventInfo.serverId;
-			issueInfo.eventId   = eventInfo.id;
-			issueInfo.triggerId = eventInfo.triggerId;
+		if (incidentInfoVect) {
+			incidentInfoVect->push_back(IncidentInfo());
+			IncidentInfo &incidentInfo = incidentInfoVect->back();
+			itemGroupStream >> incidentInfo.trackerId;
+			itemGroupStream >> incidentInfo.identifier;
+			itemGroupStream >> incidentInfo.location;
+			itemGroupStream >> incidentInfo.status;
+			itemGroupStream >> incidentInfo.assignee;
+			itemGroupStream >> incidentInfo.createdAt.tv_sec;
+			itemGroupStream >> incidentInfo.createdAt.tv_nsec;
+			itemGroupStream >> incidentInfo.updatedAt.tv_sec;
+			itemGroupStream >> incidentInfo.updatedAt.tv_nsec;
+			incidentInfo.serverId  = eventInfo.serverId;
+			incidentInfo.eventId   = eventInfo.id;
+			incidentInfo.triggerId = eventInfo.triggerId;
 		}
 	}
 	return HatoholError(HTERR_OK);
@@ -1944,11 +1944,11 @@ size_t DBClientHatohol::getNumberOfTriggers(
 		// this case, we should distinguish duplicated records. Althogh
 		// we have to use 2 columns (server ID and trigger ID) to do
 		// it, count() function doesn't accept multiple arguments.
-		// To avoid this issue we concat server ID and trigger ID.
+		// To avoid this incident we concat server ID and trigger ID.
 
 		// TODO: The statement depends on SQL implementations.
 		// We should remove this code after we improve the hostgroups
-		// issue by using sub query (github issue #168).
+		// incident by using sub query (github incident #168).
 		stmt = StringUtils::sprintf(
 		  "count(distinct %s || ',' || %s)",
 		  option.getColumnName(IDX_TRIGGERS_SERVER_ID).c_str(),
@@ -2074,7 +2074,7 @@ size_t DBClientHatohol::getNumberOfItems(
 	DBAgent::SelectExArg arg(tableProfileTriggers);
 	string stmt = "count(*)";
 	if (option.isHostgroupUsed()) {
-		// TODO: It has a same issue with getNumberOfTriggers();
+		// TODO: It has a same incident with getNumberOfTriggers();
 		stmt = StringUtils::sprintf(
 		  "count(distinct %s || ',' || %s)",
 		  option.getColumnName(IDX_ITEMS_SERVER_ID).c_str(),
@@ -2151,18 +2151,18 @@ void DBClientHatohol::pickupAbsentHostIds(vector<uint64_t> &absentHostIdVector,
 	} DBCLIENT_TRANSACTION_END();
 }
 
-void DBClientHatohol::addIssueInfo(IssueInfo *issueInfo)
+void DBClientHatohol::addIncidentInfo(IncidentInfo *incidentInfo)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
-		addIssueInfoWithoutTransaction(*issueInfo);
+		addIncidentInfoWithoutTransaction(*incidentInfo);
 	} DBCLIENT_TRANSACTION_END();
 }
 
-HatoholError DBClientHatohol::getIssueInfoVect(
-  IssueInfoVect &issueInfoVect, const IssuesQueryOption &option)
+HatoholError DBClientHatohol::getIncidentInfoVect(
+  IncidentInfoVect &incidentInfoVect, const IncidentsQueryOption &option)
 {
-	DBAgent::SelectExArg arg(tableProfileIssues);
-	for (int i = 0; i < NUM_IDX_ISSUES; i++)
+	DBAgent::SelectExArg arg(tableProfileIncidents);
+	for (int i = 0; i < NUM_IDX_INCIDENTS; i++)
 		arg.add(i);
 
 	// condition
@@ -2188,20 +2188,20 @@ HatoholError DBClientHatohol::getIssueInfoVect(
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
 		ItemGroupStream itemGroupStream(*itemGrpItr);
-		issueInfoVect.push_back(IssueInfo());
-		IssueInfo &issueInfo = issueInfoVect.back();
-		itemGroupStream >> issueInfo.trackerId;
-		itemGroupStream >> issueInfo.serverId;
-		itemGroupStream >> issueInfo.eventId;
-		itemGroupStream >> issueInfo.triggerId;
-		itemGroupStream >> issueInfo.identifier;
-		itemGroupStream >> issueInfo.location;
-		itemGroupStream >> issueInfo.status;
-		itemGroupStream >> issueInfo.assignee;
-		itemGroupStream >> issueInfo.createdAt.tv_sec;
-		itemGroupStream >> issueInfo.createdAt.tv_nsec;
-		itemGroupStream >> issueInfo.updatedAt.tv_sec;
-		itemGroupStream >> issueInfo.updatedAt.tv_nsec;
+		incidentInfoVect.push_back(IncidentInfo());
+		IncidentInfo &incidentInfo = incidentInfoVect.back();
+		itemGroupStream >> incidentInfo.trackerId;
+		itemGroupStream >> incidentInfo.serverId;
+		itemGroupStream >> incidentInfo.eventId;
+		itemGroupStream >> incidentInfo.triggerId;
+		itemGroupStream >> incidentInfo.identifier;
+		itemGroupStream >> incidentInfo.location;
+		itemGroupStream >> incidentInfo.status;
+		itemGroupStream >> incidentInfo.assignee;
+		itemGroupStream >> incidentInfo.createdAt.tv_sec;
+		itemGroupStream >> incidentInfo.createdAt.tv_nsec;
+		itemGroupStream >> incidentInfo.updatedAt.tv_sec;
+		itemGroupStream >> incidentInfo.updatedAt.tv_nsec;
 	}
 
 	return HatoholError(HTERR_OK);
@@ -2414,42 +2414,55 @@ void DBClientHatohol::addMonitoringServerStatusWithoutTransaction(
 	}
 }
 
-void DBClientHatohol::addIssueInfoWithoutTransaction(const IssueInfo &issueInfo)
+void DBClientHatohol::addIncidentInfoWithoutTransaction(
+  const IncidentInfo &incidentInfo)
 {
 	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
 	string condition = StringUtils::sprintf(
 	  "server_id=%s AND event_id=%s",
-	  dbTermCodec->enc(issueInfo.serverId).c_str(),
-	  dbTermCodec->enc(issueInfo.eventId).c_str());
-	if (!isRecordExisting(TABLE_NAME_ISSUES, condition)) {
-		DBAgent::InsertArg arg(tableProfileIssues);
-		arg.add(issueInfo.trackerId);
-		arg.add(issueInfo.serverId);
-		arg.add(issueInfo.eventId);
-		arg.add(issueInfo.triggerId);
-		arg.add(issueInfo.identifier);
-		arg.add(issueInfo.location);
-		arg.add(issueInfo.status);
-		arg.add(issueInfo.assignee);
-		arg.add(issueInfo.createdAt.tv_sec);
-		arg.add(issueInfo.createdAt.tv_nsec);
-		arg.add(issueInfo.updatedAt.tv_sec);
-		arg.add(issueInfo.updatedAt.tv_nsec);
+	  dbTermCodec->enc(incidentInfo.serverId).c_str(),
+	  dbTermCodec->enc(incidentInfo.eventId).c_str());
+	if (!isRecordExisting(TABLE_NAME_INCIDENTS, condition)) {
+		DBAgent::InsertArg arg(tableProfileIncidents);
+		arg.add(incidentInfo.trackerId);
+		arg.add(incidentInfo.serverId);
+		arg.add(incidentInfo.eventId);
+		arg.add(incidentInfo.triggerId);
+		arg.add(incidentInfo.identifier);
+		arg.add(incidentInfo.location);
+		arg.add(incidentInfo.status);
+		arg.add(incidentInfo.assignee);
+		arg.add(incidentInfo.createdAt.tv_sec);
+		arg.add(incidentInfo.createdAt.tv_nsec);
+		arg.add(incidentInfo.updatedAt.tv_sec);
+		arg.add(incidentInfo.updatedAt.tv_nsec);
 		insert(arg);
 	} else {
-		DBAgent::UpdateArg arg(tableProfileIssues);
-		arg.add(IDX_ISSUES_TRACKER_ID,     issueInfo.trackerId);
-		arg.add(IDX_ISSUES_SERVER_ID,      issueInfo.serverId);
-		arg.add(IDX_ISSUES_EVENT_ID,       issueInfo.eventId);
-		arg.add(IDX_ISSUES_TRIGGER_ID,     issueInfo.triggerId);
-		arg.add(IDX_ISSUES_IDENTIFIER,     issueInfo.identifier);
-		arg.add(IDX_ISSUES_LOCATION,       issueInfo.location);
-		arg.add(IDX_ISSUES_STATUS,         issueInfo.status);
-		arg.add(IDX_ISSUES_ASSIGNEE,       issueInfo.assignee);
-		arg.add(IDX_ISSUES_CREATED_AT_SEC, issueInfo.createdAt.tv_sec);
-		arg.add(IDX_ISSUES_CREATED_AT_NS,  issueInfo.createdAt.tv_nsec);
-		arg.add(IDX_ISSUES_UPDATED_AT_SEC, issueInfo.updatedAt.tv_sec);
-		arg.add(IDX_ISSUES_UPDATED_AT_NS,  issueInfo.updatedAt.tv_nsec);
+		DBAgent::UpdateArg arg(tableProfileIncidents);
+		arg.add(IDX_INCIDENTS_TRACKER_ID,
+			incidentInfo.trackerId);
+		arg.add(IDX_INCIDENTS_SERVER_ID,
+			incidentInfo.serverId);
+		arg.add(IDX_INCIDENTS_EVENT_ID,
+			incidentInfo.eventId);
+		arg.add(IDX_INCIDENTS_TRIGGER_ID,
+			incidentInfo.triggerId);
+		arg.add(IDX_INCIDENTS_IDENTIFIER,
+			incidentInfo.identifier);
+		arg.add(IDX_INCIDENTS_LOCATION,
+			incidentInfo.location);
+		arg.add(IDX_INCIDENTS_STATUS,
+			incidentInfo.status);
+		arg.add(IDX_INCIDENTS_ASSIGNEE,
+			incidentInfo.assignee);
+		arg.add(IDX_INCIDENTS_CREATED_AT_SEC,
+			incidentInfo.createdAt.tv_sec);
+		arg.add(IDX_INCIDENTS_CREATED_AT_NS,
+			incidentInfo.createdAt.tv_nsec);
+		arg.add(IDX_INCIDENTS_UPDATED_AT_SEC,
+			incidentInfo.updatedAt.tv_sec);
+		arg.add(IDX_INCIDENTS_UPDATED_AT_NS,
+			incidentInfo.updatedAt.tv_nsec);
 		arg.condition = condition;
 		update(arg);
 	}
