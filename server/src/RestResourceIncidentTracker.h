@@ -17,17 +17,17 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef RestResourceIssueTracker_h
-#define RestResourceIssueTracker_h
+#ifndef RestResourceIncidentTracker_h
+#define RestResourceIncidentTracker_h
 
 #include "FaceRestPrivate.h"
 
-struct RestResourceIssueTracker : public FaceRest::ResourceHandler
+struct RestResourceIncidentTracker : public FaceRest::ResourceHandler
 {
 	static void registerFactories(FaceRest *faceRest);
 
-	RestResourceIssueTracker(FaceRest *faceRest);
-	virtual ~RestResourceIssueTracker();
+	RestResourceIncidentTracker(FaceRest *faceRest);
+	virtual ~RestResourceIncidentTracker();
 
 	virtual void handle(void) override;
 
@@ -36,13 +36,14 @@ struct RestResourceIssueTracker : public FaceRest::ResourceHandler
 	void handlePost(void);
 	void handleDelete(void);
 
-	static const char *pathForIssueTracker;
+	static const char *pathForIncidentTracker;
 };
 
-struct RestResourceIssueTrackerFactory : public FaceRest::ResourceHandlerFactory
+struct RestResourceIncidentTrackerFactory
+: public FaceRest::ResourceHandlerFactory
 {
-	RestResourceIssueTrackerFactory(FaceRest *faceRest);
+	RestResourceIncidentTrackerFactory(FaceRest *faceRest);
 	virtual FaceRest::ResourceHandler *createHandler(void) override;
 };
 
-#endif // RestResourceIssueTracker_h
+#endif // RestResourceIncidentTracker_h

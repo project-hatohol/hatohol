@@ -167,22 +167,22 @@ static void pickupActionIdsFromTestActionDef(
 	for (size_t i = 0; i < NumTestActionDef; i++) {
 		const ActionDef &actDef = testActionDef[i];
 		if (actionType == ACTION_USER_DEFINED) {
-			if (actDef.type >= ACTION_ISSUE_SENDER)
+			if (actDef.type >= ACTION_INCIDENT_SENDER)
 				continue;
 		} else if (actionType == ACTION_ALL) {
-			if (actDef.type == ACTION_ISSUE_SENDER &&
-			    !privilege.has(OPPRVLG_GET_ALL_ISSUE_SETTINGS)) {
+			if (actDef.type == ACTION_INCIDENT_SENDER &&
+			    !privilege.has(OPPRVLG_GET_ALL_INCIDENT_SETTINGS)) {
 				continue;
 			}
 		} else {
 			if (actDef.type != actionType)
 				continue;
-			if (actDef.type == ACTION_ISSUE_SENDER &&
-			    !privilege.has(OPPRVLG_GET_ALL_ISSUE_SETTINGS)) {
+			if (actDef.type == ACTION_INCIDENT_SENDER &&
+			    !privilege.has(OPPRVLG_GET_ALL_INCIDENT_SETTINGS)) {
 				continue;
 			}
 		}
-		if (actDef.type != ACTION_ISSUE_SENDER &&
+		if (actDef.type != ACTION_INCIDENT_SENDER &&
 		    expectedOwnerId != USER_ID_ANY &&
 		    actDef.ownerUserId != expectedOwnerId) {
 			continue;
@@ -438,24 +438,24 @@ static int findTestActionIdxByType(ActionType type)
 	return -1;
 }
 
-void test_addIssueSenderActionByIssueSettingsAdmin(void)
+void test_addIncidentSenderActionByIncidentSettingsAdmin(void)
 {
 	setupHelperForTestDBUser();
 
 	const OperationPrivilegeFlag excludeFlags
 	  = OperationPrivilege::makeFlag(OPPRVLG_CREATE_ACTION);
 	const UserIdType userId
-		= findUserWith(OPPRVLG_CREATE_ISSUE_SETTING, excludeFlags);
+		= findUserWith(OPPRVLG_CREATE_INCIDENT_SETTING, excludeFlags);
 	TestDBClientAction dbAction;
 	OperationPrivilege privilege(userId);
-	int idx = findTestActionIdxByType(ACTION_ISSUE_SENDER);
+	int idx = findTestActionIdxByType(ACTION_INCIDENT_SENDER);
 	ActionIdType expectedId = 1;
 	ActionDef actionDef = testActionDef[idx];
 	actionDef.ownerUserId = userId;
 	assertHatoholError(HTERR_OK,
 	                   dbAction.addAction(actionDef, privilege));
 
-	// check: The owner of ACTION_ISSUE_SENDER shoube be USER_ID_SYSTEM.
+	// check: The owner of ACTION_INCIDENT_SENDER shoube be USER_ID_SYSTEM.
 	actionDef.id = expectedId;
 	string expect = StringUtils::sprintf("%" FMT_ACTION_ID "|%" FMT_USER_ID,
 	                                     1, USER_ID_SYSTEM);
@@ -464,17 +464,17 @@ void test_addIssueSenderActionByIssueSettingsAdmin(void)
 	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }
 
-void test_addIssueSenderActionWithoutPrivilege(void)
+void test_addIncidentSenderActionWithoutPrivilege(void)
 {
 	setupHelperForTestDBUser();
 
 	const OperationPrivilegeFlag excludeFlags
-	  = OperationPrivilege::makeFlag(OPPRVLG_CREATE_ISSUE_SETTING);
+	  = OperationPrivilege::makeFlag(OPPRVLG_CREATE_INCIDENT_SETTING);
 	const UserIdType userId
 		= findUserWith(OPPRVLG_CREATE_ACTION, excludeFlags);
 	TestDBClientAction dbAction;
 	OperationPrivilege privilege(userId);
-	int idx = findTestActionIdxByType(ACTION_ISSUE_SENDER);
+	int idx = findTestActionIdxByType(ACTION_INCIDENT_SENDER);
 	assertHatoholError(HTERR_NO_PRIVILEGE,
 	                   dbAction.addAction(testActionDef[idx], privilege));
 }
@@ -558,7 +558,7 @@ void test_deleteActionOfOthersWithoutPrivilege(void)
 	                   dbAction.deleteActions(idList, privilege));
 }
 
-void test_deleteIssueSenderActionByIssueSettingsAdmin(void)
+void test_deleteIncidentSenderActionByIncidentSettingsAdmin(void)
 {
 	setupTestDBUserAndDBAction();
 	DBClientAction dbAction;
@@ -566,8 +566,9 @@ void test_deleteIssueSenderActionByIssueSettingsAdmin(void)
 	const OperationPrivilegeFlag excludeFlags
 	  = OperationPrivilege::makeFlag(OPPRVLG_DELETE_ACTION);
 	const UserIdType userId
-	  = findUserWith(OPPRVLG_DELETE_ISSUE_SETTING, excludeFlags);
-	int targetActionId = findTestActionIdxByType(ACTION_ISSUE_SENDER) + 1;
+	  = findUserWith(OPPRVLG_DELETE_INCIDENT_SETTING, excludeFlags);
+	int targetActionId
+	  = findTestActionIdxByType(ACTION_INCIDENT_SENDER) + 1;
 	ActionIdList idList;
 	idList.push_back(targetActionId);
 	OperationPrivilege privilege(userId);
@@ -576,16 +577,17 @@ void test_deleteIssueSenderActionByIssueSettingsAdmin(void)
 	assertActionIdsInDB(idList);
 }
 
-void test_deleteIssueSenderActionWithoutPrivilege(void)
+void test_deleteIncidentSenderActionWithoutPrivilege(void)
 {
 	setupTestDBUserAndDBAction();
 	DBClientAction dbAction;
 
 	const OperationPrivilegeFlag excludeFlags
-	  = OperationPrivilege::makeFlag(OPPRVLG_DELETE_ISSUE_SETTING);
+	  = OperationPrivilege::makeFlag(OPPRVLG_DELETE_INCIDENT_SETTING);
 	const UserIdType userId
 	  = findUserWith(OPPRVLG_DELETE_ACTION, excludeFlags);
-	int targetActionId = findTestActionIdxByType(ACTION_ISSUE_SENDER) + 1;
+	int targetActionId
+	  = findTestActionIdxByType(ACTION_INCIDENT_SENDER) + 1;
 	ActionIdList idList;
 	idList.push_back(targetActionId);
 	OperationPrivilege privilege(userId);
@@ -605,7 +607,7 @@ void test_startExecAction(void)
 			status = ACTLOG_STAT_STARTED;
 		else if (actDef.type == ACTION_RESIDENT)
 			status = ACTLOG_STAT_LAUNCHING_RESIDENT;
-		else if (actDef.type == ACTION_ISSUE_SENDER) {
+		else if (actDef.type == ACTION_INCIDENT_SENDER) {
 			// TODO: Not implemented yet
 			continue;
 		} else {
@@ -880,8 +882,8 @@ void data_getActionListWithActionType(void)
 	gcut_add_datum("Resident",
 		       "type", G_TYPE_INT, (int)ACTION_RESIDENT,
 		       NULL);
-	gcut_add_datum("IssueSender",
-		       "type", G_TYPE_INT, (int)ACTION_ISSUE_SENDER,
+	gcut_add_datum("IncidentSender",
+		       "type", G_TYPE_INT, (int)ACTION_INCIDENT_SENDER,
 		       NULL);
 }
 
@@ -893,51 +895,52 @@ void test_getActionListWithActionType(gconstpointer data)
 	assertGetActionList(userId, type);
 }
 
-void data_getActionListByIssueSettingsAdmin(void)
+void data_getActionListByIncidentSettingsAdmin(void)
 {
 	data_getActionListWithActionType();
 }
 
-void test_getActionListByIssueSettingsAdmin(gconstpointer data)
+void test_getActionListByIncidentSettingsAdmin(gconstpointer data)
 {
 	setupTestDBUserAndDBAction();
 	const OperationPrivilegeFlag excludeFlags
 	  = OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_ACTION);
 	const UserIdType userId
-		= findUserWith(OPPRVLG_GET_ALL_ISSUE_SETTINGS, excludeFlags);
+		= findUserWith(OPPRVLG_GET_ALL_INCIDENT_SETTINGS, excludeFlags);
 	ActionType type = (ActionType)gcut_data_get_int(data, "type");
 	assertGetActionList(userId, type);
 }
 
-void test_parseIssueSenderCommand(void)
+void test_parseIncidentSenderCommand(void)
 {
 	ActionDef action;
 	action.command = "3";
-	IssueTrackerIdType trackerId;
-	cppcut_assert_equal(true, action.parseIssueSenderCommand(trackerId));
+	IncidentTrackerIdType trackerId;
+	cppcut_assert_equal(true, action.parseIncidentSenderCommand(trackerId));
 	cppcut_assert_equal(3, trackerId);
 }
 
-void test_parseInvalidIssueSenderCommand(void)
+void test_parseInvalidIncidentSenderCommand(void)
 {
 	ActionDef action;
 	action.command = "hoge3";
-	IssueTrackerIdType trackerId;
-	cppcut_assert_equal(false, action.parseIssueSenderCommand(trackerId));
+	IncidentTrackerIdType trackerId;
+	cppcut_assert_equal(false,
+			    action.parseIncidentSenderCommand(trackerId));
 }
 
-void test_issueSenderIsEnabled(void)
+void test_incidentSenderIsEnabled(void)
 {
 	setupTestDBUserAndDBAction();
 	DBClientAction dbAction;
-	cppcut_assert_equal(true, dbAction.isIssueSenderEnabled());
+	cppcut_assert_equal(true, dbAction.isIncidentSenderEnabled());
 }
 
-void test_issueSenderIsNotEnabled(void)
+void test_incidentSenderIsNotEnabled(void)
 {
 	setupHelperForTestDBUser();
 	DBClientAction dbAction;
-	cppcut_assert_equal(false, dbAction.isIssueSenderEnabled());
+	cppcut_assert_equal(false, dbAction.isIncidentSenderEnabled());
 }
 
 } // namespace testDBClientAction
@@ -1061,8 +1064,8 @@ void data_actionType(void)
 		       "type", G_TYPE_INT, (int)ACTION_RESIDENT,
 		       "condition", G_TYPE_STRING, "action_type=1",
 		       NULL);
-	gcut_add_datum("IssueSender",
-		       "type", G_TYPE_INT, (int)ACTION_ISSUE_SENDER,
+	gcut_add_datum("IncidentSender",
+		       "type", G_TYPE_INT, (int)ACTION_INCIDENT_SENDER,
 		       "condition", G_TYPE_STRING, "action_type=2",
 		       NULL);
 }

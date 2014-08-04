@@ -475,22 +475,22 @@ HatoholUserRoleEditor.prototype.hatoholPrivileges = [
     category: gettext("User roles")
   },
   {
-    flag: hatohol.OPPRVLG_CREATE_ISSUE_SETTING,
+    flag: hatohol.OPPRVLG_CREATE_INCIDENT_SETTING,
     message: gettext("Create incident tracking settings"),
     category: gettext("Incident tracking")
   },
   {
-    flag: hatohol.OPPRVLG_UPDATE_ISSUE_SETTING,
+    flag: hatohol.OPPRVLG_UPDATE_INCIDENT_SETTING,
     message: gettext("Update incident tracking settings"),
     category: gettext("Incident tracking")
   },
   {
-    flag: hatohol.OPPRVLG_DELETE_ISSUE_SETTING,
+    flag: hatohol.OPPRVLG_DELETE_INCIDENT_SETTING,
     message: gettext("Delete incident tracking settings"),
     category: gettext("Incident tracking")
   },
   {
-    flag: hatohol.OPPRVLG_GET_ALL_ISSUE_SETTINGS,
+    flag: hatohol.OPPRVLG_GET_ALL_INCIDENT_SETTINGS,
     message: gettext("Get all incident tracking settings"),
     category: gettext("Incident tracking")
   },

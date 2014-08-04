@@ -78,9 +78,9 @@ libhatohol_la_SOURCES = \
 	HatoholServer.cc \
 	HatoholDBUtils.cc HatoholDBUtils.h \
 	HostInfoCache.cc HostInfoCache.h \
-	IssueSender.cc IssueSender.h \
-	IssueSenderManager.cc IssueSenderManager.h \
-	IssueSenderRedmine.cc IssueSenderRedmine.h \
+	IncidentSender.cc IncidentSender.h \
+	IncidentSenderManager.cc IncidentSenderManager.h \
+	IncidentSenderRedmine.cc IncidentSenderRedmine.h \
 	ItemData.cc ItemData.h \
 	ItemDataPtr.h \
 	ItemEnum.h \
@@ -98,7 +98,7 @@ libhatohol_la_SOURCES = \
 	ResidentCommunicator.cc ResidentCommunicator.h \
 	RestResourceAction.cc RestResourceAction.h \
 	RestResourceHost.cc RestResourceHost.h \
-	RestResourceIssueTracker.cc RestResourceIssueTracker.h \
+	RestResourceIncidentTracker.cc RestResourceIncidentTracker.h \
 	RestResourceServer.cc RestResourceServer.h \
 	RestResourceUser.cc RestResourceUser.h \
 	SessionManager.cc SessionManager.h \

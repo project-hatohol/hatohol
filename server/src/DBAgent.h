@@ -207,6 +207,8 @@ public:
 	virtual void select(const SelectExArg &selectExArg) = 0;
 	virtual void deleteRows(const DeleteArg &deleteArg) = 0;
 	virtual void addColumns(const AddColumnsArg &addColumnsArg) = 0;
+	virtual void renameTable(const std::string &sourceName,
+				 const std::string &destName) = 0;
 	virtual uint64_t getLastInsertId(void) = 0;
 	virtual uint64_t getNumberOfAffectedRows(void) = 0;
 
@@ -254,6 +256,9 @@ protected:
 	                                        const ItemData *itemData);
 	static std::string makeUpdateStatement(const UpdateArg &updateArg);
 	static std::string makeDeleteStatement(const DeleteArg &deleteArg);
+	static std::string makeRenameTableStatement(
+	  const std::string &srcName,
+	  const std::string &destName);
 	static std::string makeDatetimeString(int datetime);
 
 	virtual std::string

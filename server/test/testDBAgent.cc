@@ -360,6 +360,7 @@ private:
 	virtual void select(const SelectExArg &selectExArg) {}
 	virtual void deleteRows(const DeleteArg &deleteArg) {}
 	virtual void addColumns(const AddColumnsArg &addColumnsArg) {}
+	virtual void renameTable(const string &srcName, const string &destName) {}
 
 	virtual uint64_t getLastInsertId(void)
 	{

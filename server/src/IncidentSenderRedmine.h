@@ -17,16 +17,16 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IssueSenderRedmine_h
-#define IssueSenderRedmine_h
+#ifndef IncidentSenderRedmine_h
+#define IncidentSenderRedmine_h
 
-#include "IssueSender.h"
+#include "IncidentSender.h"
 
-class IssueSenderRedmine : public IssueSender
+class IncidentSenderRedmine : public IncidentSender
 {
 public:
-	IssueSenderRedmine(const IssueTrackerInfo &tracker);
-	virtual ~IssueSenderRedmine();
+	IncidentSenderRedmine(const IncidentTrackerInfo &tracker);
+	virtual ~IncidentSenderRedmine();
 
 	virtual HatoholError send(const EventInfo &event) override;
 
@@ -34,16 +34,16 @@ protected:
 	std::string buildJSON(const EventInfo &event);
 	std::string getProjectURL(void);
 	std::string getIssuesJSONURL(void);
-	std::string getIssueURL(const std::string &id);
-	HatoholError parseResponse(IssueInfo &issueInfo,
+	std::string getIssuesURL(const std::string &id);
+	HatoholError parseResponse(IncidentInfo &incidentInfo,
 				   const std::string &response);
-	HatoholError buildIssueInfo(IssueInfo &issueInfo,
-				    const std::string &response,
-				    const EventInfo &event);
+	HatoholError buildIncidentInfo(IncidentInfo &incidentInfo,
+				       const std::string &response,
+				       const EventInfo &event);
 
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
 };
 
-#endif // IssueSenderRedmine_h
+#endif // IncidentSenderRedmine_h

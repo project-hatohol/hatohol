@@ -409,19 +409,19 @@ std::string makeArmPluginInfoOutput(const ArmPluginInfo &armPluginInfo)
 	return expectedOut;
 }
 
-string makeIssueTrackerInfoOutput(const IssueTrackerInfo &issueTrackerInfo)
+string makeIncidentTrackerInfoOutput(const IncidentTrackerInfo &incidentTrackerInfo)
 {
 	string expectedOut =
 	  mlpl::StringUtils::sprintf(
-	    "%" FMT_ISSUE_TRACKER_ID "|%d|%s|%s|%s|%s|%s|%s\n",
-	    issueTrackerInfo.id,
-	    issueTrackerInfo.type,
-	    issueTrackerInfo.nickname.c_str(),
-	    issueTrackerInfo.baseURL.c_str(),
-	    issueTrackerInfo.projectId.c_str(),
-	    issueTrackerInfo.trackerId.c_str(),
-	    issueTrackerInfo.userName.c_str(),
-	    issueTrackerInfo.password.c_str());
+	    "%" FMT_INCIDENT_TRACKER_ID "|%d|%s|%s|%s|%s|%s|%s\n",
+	    incidentTrackerInfo.id,
+	    incidentTrackerInfo.type,
+	    incidentTrackerInfo.nickname.c_str(),
+	    incidentTrackerInfo.baseURL.c_str(),
+	    incidentTrackerInfo.projectId.c_str(),
+	    incidentTrackerInfo.trackerId.c_str(),
+	    incidentTrackerInfo.userName.c_str(),
+	    incidentTrackerInfo.password.c_str());
 	return expectedOut;
 }
 
@@ -447,25 +447,25 @@ string makeEventOutput(const EventInfo &eventInfo)
 	return output;
 }
 
-string makeIssueOutput(const IssueInfo &issueInfo)
+string makeIncidentOutput(const IncidentInfo &incidentInfo)
 {
 	string output =
 	  mlpl::StringUtils::sprintf(
-	    "%" FMT_ISSUE_TRACKER_ID "|%" FMT_SERVER_ID "|%" FMT_EVENT_ID
+	    "%" FMT_INCIDENT_TRACKER_ID "|%" FMT_SERVER_ID "|%" FMT_EVENT_ID
 	    "|%" FMT_TRIGGER_ID "|%s|%s|%s|%s"
 	    "|%" PRIu64 "|%" PRIu64 "|%" PRIu64 "|%" PRIu64 "\n",
-	    issueInfo.trackerId,
-	    issueInfo.serverId,
-	    issueInfo.eventId,
-	    issueInfo.triggerId,
-	    issueInfo.identifier.c_str(),
-	    issueInfo.location.c_str(),
-	    issueInfo.status.c_str(),
-	    issueInfo.assignee.c_str(),
-	    issueInfo.createdAt.tv_sec,
-	    issueInfo.createdAt.tv_nsec,
-	    issueInfo.updatedAt.tv_sec,
-	    issueInfo.updatedAt.tv_nsec);
+	    incidentInfo.trackerId,
+	    incidentInfo.serverId,
+	    incidentInfo.eventId,
+	    incidentInfo.triggerId,
+	    incidentInfo.identifier.c_str(),
+	    incidentInfo.location.c_str(),
+	    incidentInfo.status.c_str(),
+	    incidentInfo.assignee.c_str(),
+	    incidentInfo.createdAt.tv_sec,
+	    incidentInfo.createdAt.tv_nsec,
+	    incidentInfo.updatedAt.tv_sec,
+	    incidentInfo.updatedAt.tv_nsec);
 	return output;
 }
 
@@ -662,19 +662,21 @@ void _assertUserRolesInDB(const UserRoleIdSet &excludeUserRoleIdSet)
 	assertDBContent(cache.getUser()->getDBAgent(), statement, expect);
 }
 
-void _assertIssueTrackersInDB(const IssueTrackerIdSet &excludeServerIdSet)
+void _assertIncidentTrackersInDB(const IncidentTrackerIdSet &excludeServerIdSet)
 {
-	string statement = "select * from issue_trackers ";
+	string statement = "select * from incident_trackers ";
 	statement += " ORDER BY id ASC";
 	string expect;
-	for (size_t i = 0; i < NumTestIssueTrackerInfo; i++) {
-		IssueTrackerIdType issueTrackerId = i + 1;
-		IssueTrackerInfo issueTrackerInfo = testIssueTrackerInfo[i];
-		issueTrackerInfo.id = issueTrackerId;
-		ServerIdSetIterator it = excludeServerIdSet.find(issueTrackerId);
+	for (size_t i = 0; i < NumTestIncidentTrackerInfo; i++) {
+		IncidentTrackerIdType incidentTrackerId = i + 1;
+		IncidentTrackerInfo incidentTrackerInfo
+		  = testIncidentTrackerInfo[i];
+		incidentTrackerInfo.id = incidentTrackerId;
+		ServerIdSetIterator it
+		  = excludeServerIdSet.find(incidentTrackerId);
 		if (it != excludeServerIdSet.end())
 			continue;
-		expect += makeIssueTrackerInfoOutput(issueTrackerInfo);
+		expect += makeIncidentTrackerInfoOutput(incidentTrackerInfo);
 	}
 	CacheServiceDBClient cache;
 	assertDBContent(cache.getConfig()->getDBAgent(), statement, expect);
@@ -779,19 +781,20 @@ void loadTestDBEvents(void)
 		dbHatohol.addEventInfo(&testEventInfo[i]);
 }
 
-void loadTestDBIssueTracker(void)
+void loadTestDBIncidentTracker(void)
 {
 	DBClientConfig dbConfig;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	for (size_t i = 0; i < NumTestIssueTrackerInfo; i++)
-		dbConfig.addIssueTracker(testIssueTrackerInfo[i], privilege);
+	for (size_t i = 0; i < NumTestIncidentTrackerInfo; i++)
+		dbConfig.addIncidentTracker(testIncidentTrackerInfo[i],
+					    privilege);
 }
 
-void loadTestDBIssues(void)
+void loadTestDBIncidents(void)
 {
 	DBClientHatohol dbHatohol;
-	for (size_t i = 0; i < NumTestIssueInfo; i++)
-		dbHatohol.addIssueInfo(&testIssueInfo[i]);
+	for (size_t i = 0; i < NumTestIncidentInfo; i++)
+		dbHatohol.addIncidentInfo(&testIncidentInfo[i]);
 }
 
 void setupTestDBConfig(bool dbRecreate, bool loadTestData)
@@ -802,7 +805,7 @@ void setupTestDBConfig(bool dbRecreate, bool loadTestData)
 	makeTestMySQLDBIfNeeded(TEST_DB_NAME, dbRecreate);
 	if (loadTestData) {
 		loadTestDBServer();
-		loadTestDBIssueTracker();
+		loadTestDBIncidentTracker();
 	}
 }
 

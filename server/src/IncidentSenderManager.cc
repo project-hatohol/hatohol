@@ -20,66 +20,66 @@
 #include <map>
 #include <Mutex.h>
 #include "Reaper.h"
-#include "IssueSenderManager.h"
-#include "IssueSenderRedmine.h"
+#include "IncidentSenderManager.h"
+#include "IncidentSenderRedmine.h"
 #include "CacheServiceDBClient.h"
 
 using namespace std;
 using namespace mlpl;
 
-struct IssueSenderManager::PrivateContext
+struct IncidentSenderManager::PrivateContext
 {
-	static IssueSenderManager instance;
-	map<IssueTrackerIdType, IssueSender*> sendersMap;
+	static IncidentSenderManager instance;
+	map<IncidentTrackerIdType, IncidentSender*> sendersMap;
 	Mutex sendersLock;
 
 	~PrivateContext()
 	{
 		AutoMutex autoMutex(&sendersLock);
-		map<IssueTrackerIdType, IssueSender*>::iterator it;
+		map<IncidentTrackerIdType, IncidentSender*>::iterator it;
 		for (it = sendersMap.begin(); it != sendersMap.end(); ++it) {
-			IssueSender *sender = it->second;
+			IncidentSender *sender = it->second;
 			delete sender;
 		}
 		sendersMap.clear();
 	}
 
-	IssueSender *createSender(const IssueTrackerIdType &id)
+	IncidentSender *createSender(const IncidentTrackerIdType &id)
 	{
 		CacheServiceDBClient cache;
 		DBClientConfig *dbConfig = cache.getConfig();
-		IssueTrackerInfoVect issueTrackerVect;
-		IssueTrackerQueryOption option(USER_ID_SYSTEM);
+		IncidentTrackerInfoVect incidentTrackerVect;
+		IncidentTrackerQueryOption option(USER_ID_SYSTEM);
 		option.setTargetId(id);
-		dbConfig->getIssueTrackers(issueTrackerVect, option);
+		dbConfig->getIncidentTrackers(incidentTrackerVect, option);
 
-		if (issueTrackerVect.size() <= 0) {
-			MLPL_ERR("Not found IssueTrackerInfo: %"
-				 FMT_ISSUE_TRACKER_ID "\n", id);
+		if (incidentTrackerVect.size() <= 0) {
+			MLPL_ERR("Not found IncidentTrackerInfo: %"
+				 FMT_INCIDENT_TRACKER_ID "\n", id);
 			return NULL;
 		}
-		if (issueTrackerVect.size() > 1) {
-			MLPL_ERR("Too many IssueTrackerInfo for ID:%"
-				 FMT_ISSUE_TRACKER_ID "\n", id);
+		if (incidentTrackerVect.size() > 1) {
+			MLPL_ERR("Too many IncidentTrackerInfo for ID:%"
+				 FMT_INCIDENT_TRACKER_ID "\n", id);
 			return NULL;
 		}
 
-		IssueTrackerInfo &tracker = *issueTrackerVect.begin();
-		IssueSender *sender = NULL;
+		IncidentTrackerInfo &tracker = *incidentTrackerVect.begin();
+		IncidentSender *sender = NULL;
 		switch (tracker.type) {
-		case ISSUE_TRACKER_REDMINE:
-			sender = new IssueSenderRedmine(tracker);
+		case INCIDENT_TRACKER_REDMINE:
+			sender = new IncidentSenderRedmine(tracker);
 			break;
 		default:
-			MLPL_ERR("Invalid IssueTracker type: %d\n",
+			MLPL_ERR("Invalid IncidentTracker type: %d\n",
 				 tracker.type);
 			break;
 		}
 		return sender;
 	}
 
-	IssueSender *getSender(const IssueTrackerIdType &id,
-			       bool autoCreate = true)
+	IncidentSender *getSender(const IncidentTrackerIdType &id,
+				  bool autoCreate = true)
 	{
 		AutoMutex autoMutex(&sendersLock);
 		if (sendersMap.find(id) != sendersMap.end())
@@ -88,7 +88,7 @@ struct IssueSenderManager::PrivateContext
 		if (!autoCreate)
 			return NULL;
 
-		IssueSender *sender = createSender(id);
+		IncidentSender *sender = createSender(id);
 		if (sender) {
 			sendersMap[id] = sender;
 			sender->start();
@@ -98,20 +98,20 @@ struct IssueSenderManager::PrivateContext
 	}
 };
 
-IssueSenderManager IssueSenderManager::PrivateContext::instance;
+IncidentSenderManager IncidentSenderManager::PrivateContext::instance;
 
-IssueSenderManager &IssueSenderManager::getInstance(void)
+IncidentSenderManager &IncidentSenderManager::getInstance(void)
 {
 	return PrivateContext::instance;
 }
 
-void IssueSenderManager::queue(
-  const IssueTrackerIdType &trackerId, const EventInfo &eventInfo,
-  IssueSender::StatusCallback callback, void *userData)
+void IncidentSenderManager::queue(
+  const IncidentTrackerIdType &trackerId, const EventInfo &eventInfo,
+  IncidentSender::StatusCallback callback, void *userData)
 {
-	IssueSender *sender = m_ctx->getSender(trackerId);
+	IncidentSender *sender = m_ctx->getSender(trackerId);
 	if (!sender) {
-		MLPL_ERR("Failed to queue sending an issue"
+		MLPL_ERR("Failed to queue sending an incident"
 			 " for the event: %" FMT_EVENT_ID "\n",
 			 eventInfo.id);
 		return;
@@ -119,25 +119,25 @@ void IssueSenderManager::queue(
 	sender->queue(eventInfo, callback, userData);
 }
 
-IssueSenderManager::IssueSenderManager(void)
+IncidentSenderManager::IncidentSenderManager(void)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 }
 
-IssueSenderManager::~IssueSenderManager()
+IncidentSenderManager::~IncidentSenderManager()
 {
 	delete m_ctx;
 }
 
-bool IssueSenderManager::isIdling(void)
+bool IncidentSenderManager::isIdling(void)
 {
 	AutoMutex autoMutex(&m_ctx->sendersLock);
 
-	map<IssueTrackerIdType, IssueSender*>::iterator it
+	map<IncidentTrackerIdType, IncidentSender*>::iterator it
 	  = m_ctx->sendersMap.begin();
 	for (; it != m_ctx->sendersMap.end(); ++it) {
-		IssueSender *sender = it->second;
+		IncidentSender *sender = it->second;
 		if (!sender->isIdling())
 			return false;
 	}
@@ -145,8 +145,8 @@ bool IssueSenderManager::isIdling(void)
 	return true;
 }
 
-IssueSender *IssueSenderManager::getSender(const IssueTrackerIdType &id,
-					   bool autoCreate)
+IncidentSender *IncidentSenderManager::getSender(
+  const IncidentTrackerIdType &id, bool autoCreate)
 {
 	return m_ctx->getSender(id, autoCreate);
 }

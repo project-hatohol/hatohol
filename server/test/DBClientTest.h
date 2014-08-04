@@ -79,11 +79,11 @@ extern const size_t NumTestUserRoleInfo;
 extern ArmPluginInfo testArmPluginInfo[];
 extern const size_t NumTestArmPluginInfo;
 
-extern IssueTrackerInfo testIssueTrackerInfo[];
-extern size_t NumTestIssueTrackerInfo;
+extern IncidentTrackerInfo testIncidentTrackerInfo[];
+extern size_t NumTestIncidentTrackerInfo;
 
-extern IssueInfo testIssueInfo[];
-extern size_t NumTestIssueInfo;
+extern IncidentInfo testIncidentInfo[];
+extern size_t NumTestIncidentInfo;
 
 /**
  * get the test trigger data indexes whose serverId and hostId are 
@@ -148,8 +148,8 @@ void makeServerAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
 			     UserIdType userId);
 void makeServerHostGrpSetMap(ServerHostGrpSetMap &map,
                              const UserIdType &userId);
-std::string makeEventIssueMapKey(const EventInfo &eventInfo);
-void makeEventIssueMap(std::map<std::string, IssueInfo*> &eventIssueMap);
+std::string makeEventIncidentMapKey(const EventInfo &eventInfo);
+void makeEventIncidentMap(std::map<std::string, IncidentInfo*> &eventIncidentMap);
 bool isAuthorized(ServerHostGrpSetMap &authMap,
                   const UserIdType &userId,
                   const ServerIdType &serverId,

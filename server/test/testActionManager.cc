@@ -36,7 +36,7 @@
 #include "DBClientTest.h"
 #include "ConfigManager.h"
 #include "SessionManager.h"
-#include "IssueSenderManager.h"
+#include "IncidentSenderManager.h"
 using namespace std;
 using namespace mlpl;
 
@@ -1326,35 +1326,35 @@ void test_runAction(void)
 	assertRunAction(HTERR_OK, testActionDef[0], testEventInfo[0]);
 }
 
-void test_runIssueSenderActionWithSystemUser(void)
+void test_runIncidentSenderActionWithSystemUser(void)
 {
-	size_t idx = findIndexFromTestActionDef(ACTION_ISSUE_SENDER);
+	size_t idx = findIndexFromTestActionDef(ACTION_INCIDENT_SENDER);
 	// make a copy to overwrite ownerUserId
 	ActionDef actDef = testActionDef[idx];
 	actDef.ownerUserId = USER_ID_SYSTEM;
-	actDef.command = "Don't run actual IssueSender.";
+	actDef.command = "Don't run actual IncidentSender.";
 	assertRunAction(HTERR_OK, actDef, testEventInfo[0]);
 }
 
-void test_runIssueSenderActionWithExistingUser(void)
+void test_runIncidentSenderActionWithExistingUser(void)
 {
-	size_t idx = findIndexFromTestActionDef(ACTION_ISSUE_SENDER);
+	size_t idx = findIndexFromTestActionDef(ACTION_INCIDENT_SENDER);
 	// make a copy to overwrite ownerUserId
 	ActionDef actDef = testActionDef[idx];
 	const UserIdType existingUserId = NumTestUserInfo - 1;
 	actDef.ownerUserId = existingUserId;
-	actDef.command = "Don't run actual IssueSender.";
+	actDef.command = "Don't run actual IncidentSender.";
 	assertRunAction(HTERR_INVALID_USER, actDef, testEventInfo[0]);
 }
 
-void test_runIssueSenderActionWithNonExistingUser(void)
+void test_runIncidentSenderActionWithNonExistingUser(void)
 {
-	size_t idx = findIndexFromTestActionDef(ACTION_ISSUE_SENDER);
+	size_t idx = findIndexFromTestActionDef(ACTION_INCIDENT_SENDER);
 	// make a copy to overwrite ownerUserId
 	ActionDef actDef = testActionDef[idx];
 	const UserIdType nonExistingUserId = NumTestUserInfo + 5;
 	actDef.ownerUserId = nonExistingUserId;
-	actDef.command = "Don't run actual IssueSender.";
+	actDef.command = "Don't run actual IncidentSender.";
 	assertRunAction(HTERR_INVALID_USER, actDef, testEventInfo[0]);
 }
 

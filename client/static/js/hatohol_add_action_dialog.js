@@ -249,7 +249,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers) {
   //
   function getCommandType() {
     if (self.forIncidentSetting)
-      return hatohol.ACTION_ISSUE_SENDER;
+      return hatohol.ACTION_INCIDENT_SENDER;
 
     var type = $("#selectType").val();
     switch(type) {

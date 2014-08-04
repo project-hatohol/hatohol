@@ -24,16 +24,16 @@
 #include "DBClientHatohol.h"
 #include "MonitoringServerInfo.h"
 
-enum IssueTrackerType {
-	ISSUE_TRACKER_UNKNOWN = -2,
-	ISSUE_TRACKER_FAKE    = -1,
-	ISSUE_TRACKER_REDMINE,
-	NUM_ISSUE_TRACKERS,
+enum IncidentTrackerType {
+	INCIDENT_TRACKER_UNKNOWN = -2,
+	INCIDENT_TRACKER_FAKE    = -1,
+	INCIDENT_TRACKER_REDMINE,
+	NUM_INCIDENT_TRACKERS,
 };
 
-struct IssueTrackerInfo {
-	IssueTrackerIdType id;
-	IssueTrackerType   type;
+struct IncidentTrackerInfo {
+	IncidentTrackerIdType id;
+	IncidentTrackerType   type;
 	std::string nickname;
 	std::string baseURL;
 	std::string projectId;
@@ -42,9 +42,9 @@ struct IssueTrackerInfo {
 	std::string password;
 };
 
-typedef std::vector<IssueTrackerInfo>        IssueTrackerInfoVect;
-typedef IssueTrackerInfoVect::iterator       IssueTrackerInfoVectIterator;
-typedef IssueTrackerInfoVect::const_iterator IssueTrackerInfoVectConstIterator;
+typedef std::vector<IncidentTrackerInfo>        IncidentTrackerInfoVect;
+typedef IncidentTrackerInfoVect::iterator       IncidentTrackerInfoVectIterator;
+typedef IncidentTrackerInfoVect::const_iterator IncidentTrackerInfoVectConstIterator;
 
 struct ArmPluginInfo {
 	int id;
@@ -99,13 +99,13 @@ private:
 	PrivateContext *m_ctx;
 };
 
-class IssueTrackerQueryOption : public DataQueryOption {
+class IncidentTrackerQueryOption : public DataQueryOption {
 public:
-	IssueTrackerQueryOption(const UserIdType &userId = INVALID_USER_ID);
-	IssueTrackerQueryOption(DataQueryContext *dataQueryContext);
-	virtual ~IssueTrackerQueryOption();
+	IncidentTrackerQueryOption(const UserIdType &userId = INVALID_USER_ID);
+	IncidentTrackerQueryOption(DataQueryContext *dataQueryContext);
+	virtual ~IncidentTrackerQueryOption();
 
-	void setTargetId(const IssueTrackerIdType &targetId);
+	void setTargetId(const IncidentTrackerIdType &targetId);
 
 	virtual std::string getCondition(void) const; //overrride
 
@@ -193,55 +193,60 @@ public:
 
 
 	/**
-	 * Add issue tracker information.
+	 * Add incident tracker information.
 	 *
-	 * @param issueTrackerInfo A data to be saved.
+	 * @param incidentTrackerInfo A data to be saved.
 	 * @param privilege
 	 * An OperationPrivilege instance. You should set
-	 * OPPRVLG_CREATE_ISSUE_SETTING to execute this function successfully.
+	 * OPPRVLG_CREATE_INCIDENT_SETTING to execute this function
+	 * successfully.
 	 *
 	 * @rerurn A HatoholError insntace.
 	 */
-	HatoholError addIssueTracker(IssueTrackerInfo &issueTrackerInfo,
-				     const OperationPrivilege &privilege);
-
-	/**
-	 * Update an issue tracker information.
-	 *
-	 * @param issueTrackerInfo A data to be updated.
-	 * @param privilege
-	 * An OperationPrivilege instance. You should set
-	 * OPPRVLG_UPDATE_ISSUE_SETTING to execute this function successfully.
-	 *
-	 * @rerurn A HatoholError insntace.
-	 */
-	HatoholError updateIssueTracker(IssueTrackerInfo &issueTrackerInfo,
-					const OperationPrivilege &privilege);
-
-	/**
-	 * Delete an issue tracker information.
-	 *
-	 * @param issueTrackerInfo A data to be deleted.
-	 * @param privilege
-	 * An OperationPrivilege instance. You should set
-	 * OPPRVLG_DELETE_ISSUE_SETTING to execute this function successfully.
-	 *
-	 * @rerurn A HatoholError insntace.
-	 */
-	HatoholError deleteIssueTracker(
-	  const IssueTrackerIdType &issueTrackerId,
+	HatoholError addIncidentTracker(
+	  IncidentTrackerInfo &incidentTrackerInfo,
 	  const OperationPrivilege &privilege);
 
 	/**
-	 * Get entries in the issue_trackers table.
+	 * Update an incident tracker information.
 	 *
-	 * @param issueTrackerVect
+	 * @param incidentTrackerInfo A data to be updated.
+	 * @param privilege
+	 * An OperationPrivilege instance. You should set
+	 * OPPRVLG_UPDATE_INCIDENT_SETTING to execute this function
+	 * successfully.
+	 *
+	 * @rerurn A HatoholError insntace.
+	 */
+	HatoholError updateIncidentTracker(
+	  IncidentTrackerInfo &incidentTrackerInfo,
+	  const OperationPrivilege &privilege);
+
+	/**
+	 * Delete an incident tracker information.
+	 *
+	 * @param incidentTrackerInfo A data to be deleted.
+	 * @param privilege
+	 * An OperationPrivilege instance. You should set
+	 * OPPRVLG_DELETE_INCIDENT_SETTING to execute this function
+	 * successfully.
+	 *
+	 * @rerurn A HatoholError insntace.
+	 */
+	HatoholError deleteIncidentTracker(
+	  const IncidentTrackerIdType &incidentTrackerId,
+	  const OperationPrivilege &privilege);
+
+	/**
+	 * Get entries in the incident_trackers table.
+	 *
+	 * @param incidentTrackerVect
 	 * The obtained data is added to this variable.
 	 * @param option
 	 * Options for the query
 	 */
-	void getIssueTrackers(IssueTrackerInfoVect &issueTrackerVect,
-	                      IssueTrackerQueryOption &option);
+	void getIncidentTrackers(IncidentTrackerInfoVect &incidentTrackerVect,
+				 IncidentTrackerQueryOption &option);
 
 protected:
 	static bool parseCommandLineArgument(const CommandLineArg &cmdArg);

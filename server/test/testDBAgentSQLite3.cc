@@ -70,8 +70,14 @@ public:
 		idx++;
 
 		// table schema
-		expected = StringUtils::sprintf("CREATE TABLE %s(",
-		                                tableProfile.name);
+		if (StringUtils::hasPrefix(outVec[idx], "CREATE TABLE \"")) {
+			// need double quote around table name for this case
+			expected = StringUtils::sprintf("CREATE TABLE \"%s\"(",
+							tableProfile.name);
+		} else {
+			expected = StringUtils::sprintf("CREATE TABLE %s(",
+							tableProfile.name);
+		}
 		for (size_t i = 0; i < tableProfile.numColumns; i++) {
 			const ColumnDef &columnDef = tableProfile.columnDefs[i];
 
@@ -519,6 +525,12 @@ void test_delete(void)
 {
 	DBAgentSQLite3 dbAgent;
 	dbAgentTestDelete(dbAgent, dbAgentChecker);
+}
+
+void test_renameTable(void)
+{
+	DBAgentSQLite3 dbAgent;
+	dbAgentTestRenameTable(dbAgent, dbAgentChecker);
 }
 
 void test_isTableExisting(void)

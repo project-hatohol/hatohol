@@ -34,7 +34,7 @@
 #include "SessionManager.h"
 #include "Reaper.h"
 #include "ChildProcessManager.h"
-#include "IssueSenderManager.h"
+#include "IncidentSenderManager.h"
 
 using namespace std;
 using namespace mlpl;
@@ -496,21 +496,21 @@ ActionManager::~ActionManager()
 	delete m_ctx;
 }
 
-static bool shouldSkipIssueSender(
-  ActionIdType &issueSenderActionId, const ActionDef &actionDef,
+static bool shouldSkipIncidentSender(
+  ActionIdType &incidentSenderActionId, const ActionDef &actionDef,
   const EventInfo &eventInfo)
 {
-	if (actionDef.type != ACTION_ISSUE_SENDER)
+	if (actionDef.type != ACTION_INCIDENT_SENDER)
 		return false;
 
-	if (issueSenderActionId > 0) {
-		MLPL_DBG("Skip IssueSenderAction:%" FMT_ACTION_ID " for "
+	if (incidentSenderActionId > 0) {
+		MLPL_DBG("Skip IncidentSenderAction:%" FMT_ACTION_ID " for "
 			 "Trigger:%" FMT_TRIGGER_ID " because "
-			 "IssueSenderAction:%" FMT_ACTION_ID " has "
+			 "IncidentSenderAction:%" FMT_ACTION_ID " has "
 			 "higher priority.",
 			 actionDef.id, eventInfo.triggerId,
-			 issueSenderActionId);
-		issueSenderActionId = actionDef.id;
+			 incidentSenderActionId);
+		incidentSenderActionId = actionDef.id;
 		return true;
 	}
 
@@ -529,15 +529,16 @@ void ActionManager::checkEvents(const EventInfoList &eventList)
 		if (shouldSkipByLog(eventInfo, dbAction))
 			continue;
 		ActionsQueryOption option(USER_ID_SYSTEM);
-		// TODO: sort IssueSender type actions by priority
+		// TODO: sort IncidentSender type actions by priority
 		option.setActionType(ACTION_ALL);
 		option.setTargetEventInfo(&eventInfo);
 		dbAction.getActionList(actionDefList, option);
 		ActionDefListIterator actIt = actionDefList.begin();
-		ActionIdType issueSenderActionId = 0;
+		ActionIdType incidentSenderActionId = 0;
 		for (; actIt != actionDefList.end(); ++actIt) {
-			bool skip = shouldSkipIssueSender(issueSenderActionId,
-							  *actIt, eventInfo);
+			bool skip = shouldSkipIncidentSender(
+				      incidentSenderActionId,
+				      *actIt, eventInfo);
 			if (!skip)
 				runAction(*actIt, eventInfo, dbAction);
 		}
@@ -587,7 +588,7 @@ bool ActionManager::shouldSkipByLog(const EventInfo &eventInfo,
 
 static bool checkActionOwner(const ActionDef &actionDef)
 {
-	if (actionDef.type == ACTION_ISSUE_SENDER) {
+	if (actionDef.type == ACTION_INCIDENT_SENDER) {
 		// We will not introduce the ownership concept for this action
 		// type. Access control will be realized only by privilege.
 		return (actionDef.ownerUserId == USER_ID_SYSTEM);
@@ -611,8 +612,8 @@ HatoholError ActionManager::runAction(const ActionDef &actionDef,
 		execCommandAction(actionDef, eventInfo, dbAction);
 	} else if (actionDef.type == ACTION_RESIDENT) {
 		execResidentAction(actionDef, eventInfo, dbAction);
-	} else if (actionDef.type == ACTION_ISSUE_SENDER) {
-		execIssueSenderAction(actionDef, eventInfo, dbAction);
+	} else if (actionDef.type == ACTION_INCIDENT_SENDER) {
+		execIncidentSenderAction(actionDef, eventInfo, dbAction);
 	} else {
 		HATOHOL_ASSERT(true, "Unknown type: %d\n", actionDef.type);
 	}
@@ -1294,10 +1295,10 @@ void ActionManager::notifyEvent(ResidentInfo *residentInfo,
 
 /*
  * executed on the following thread(s)
- * - IssueSender thread
+ * - IncidentSender thread
  */
-static void onIssueSenderJobStatusChanged(
-  const EventInfo &info, const IssueSender::JobStatus &status,
+static void onIncidentSenderJobStatusChanged(
+  const EventInfo &info, const IncidentSender::JobStatus &status,
   void *userData)
 {
 	DBClientAction::LogEndExecActionArg *logArg
@@ -1305,17 +1306,17 @@ static void onIssueSenderJobStatusChanged(
 	bool completed = false;
 
 	switch (status) {
-	case IssueSender::JOB_STARTED:
+	case IncidentSender::JOB_STARTED:
 	{
 		DBClientAction dbAction;
 		dbAction.updateLogStatusToStart(logArg->logId);
 		break;
 	}
-	case IssueSender::JOB_SUCCEEDED:
+	case IncidentSender::JOB_SUCCEEDED:
 		logArg->status = ACTLOG_STAT_SUCCEEDED;
 		completed = true;
 		break;
-	case IssueSender::JOB_FAILED:
+	case IncidentSender::JOB_FAILED:
 		logArg->status = ACTLOG_STAT_FAILED;
 		// TODO: add more detailed failure code
 		logArg->failureCode = ACTLOG_EXECFAIL_EXEC_FAILURE;
@@ -1337,28 +1338,29 @@ static void onIssueSenderJobStatusChanged(
  * - Threads that call checkEvents()
  *     [from runAction()]
  */
-void ActionManager::execIssueSenderAction(const ActionDef &actionDef,
-					  const EventInfo &eventInfo,
-					  DBClientAction &dbAction)
+void ActionManager::execIncidentSenderAction(const ActionDef &actionDef,
+					     const EventInfo &eventInfo,
+					     DBClientAction &dbAction)
 {
-	HATOHOL_ASSERT(actionDef.type == ACTION_ISSUE_SENDER,
+	HATOHOL_ASSERT(actionDef.type == ACTION_INCIDENT_SENDER,
 	               "Invalid type: %d\n", actionDef.type);
 
-	IssueTrackerIdType trackerId;
-	bool succeeded = actionDef.parseIssueSenderCommand(trackerId);
+	IncidentTrackerIdType trackerId;
+	bool succeeded = actionDef.parseIncidentSenderCommand(trackerId);
 	if (!succeeded) {
-		MLPL_ERR("Invalid IssueSender command: %s\n",
+		MLPL_ERR("Invalid IncidentSender command: %s\n",
 			 actionDef.command.c_str());
 		return;
 	}
-	IssueSenderManager &senderManager = IssueSenderManager::getInstance();
+	IncidentSenderManager &senderManager
+	  = IncidentSenderManager::getInstance();
 	DBClientAction::LogEndExecActionArg *logArg
 	  = new DBClientAction::LogEndExecActionArg();
 	logArg->logId = dbAction.createActionLog(actionDef, eventInfo,
 						 ACTLOG_EXECFAIL_NONE,
 						 ACTLOG_STAT_QUEUING);
 	senderManager.queue(trackerId, eventInfo,
-			    onIssueSenderJobStatusChanged, logArg);
+			    onIncidentSenderJobStatusChanged, logArg);
 }
 
 /*

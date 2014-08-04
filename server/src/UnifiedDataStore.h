@@ -86,7 +86,7 @@ public:
 
 	HatoholError getEventList(EventInfoList &eventList,
 	                          EventsQueryOption &option,
-				  IssueInfoVect *issueVect = NULL);
+				  IncidentInfoVect *incidentVect = NULL);
 	void getItemList(ItemInfoList &itemList,
 	                 const ItemsQueryOption &option,
 	                 bool fetchItemsSynchronously = false);
@@ -111,7 +111,7 @@ public:
 	                       const OperationPrivilege &privilege);
 	HatoholError deleteActionList(const ActionIdList &actionIdList,
 	                              const OperationPrivilege &privilege);
-	bool isIssueSenderActionEnabled(void);
+	bool isIncidentSenderActionEnabled(void);
 
 	size_t getNumberOfBadTriggers(const TriggersQueryOption &option,
 				      TriggerSeverityType severity);
@@ -168,15 +168,18 @@ public:
 	void getServerConnStatusVector(ServerConnStatusVector &svConnStatVec,
 	                               DataQueryContext *dataQueryContext);
 
-	// IssueTracker
-	void getIssueTrackers(IssueTrackerInfoVect &issueTrackerVect,
-	                      IssueTrackerQueryOption &option);
-	HatoholError addIssueTracker(IssueTrackerInfo &issueTrackerInfo,
-				     const OperationPrivilege &privilege);
-	HatoholError updateIssueTracker(IssueTrackerInfo &issueTrackerInfo,
-					const OperationPrivilege &privilege);
-	HatoholError deleteIssueTracker(
-	  const IssueTrackerIdType &issueTrackerId,
+	// IncidentTracker
+	void getIncidentTrackers(
+	  IncidentTrackerInfoVect &incidentTrackerVect,
+	  IncidentTrackerQueryOption &option);
+	HatoholError addIncidentTracker(
+	  IncidentTrackerInfo &incidentTrackerInfo,
+	  const OperationPrivilege &privilege);
+	HatoholError updateIncidentTracker(
+	  IncidentTrackerInfo &incidentTrackerInfo,
+	  const OperationPrivilege &privilege);
+	HatoholError deleteIncidentTracker(
+	  const IncidentTrackerIdType &incidentTrackerId,
 	  const OperationPrivilege &privilege);
 
 	/**

@@ -630,6 +630,12 @@ void test_addColumns(void)
 	dbAgentTestAddColumns(*g_dbAgent, dbAgentChecker);
 }
 
+void test_renameTable(void)
+{
+	createGlobalDBAgent();
+	dbAgentTestRenameTable(*g_dbAgent, dbAgentChecker);
+}
+
 void test_isTableExisting(void)
 {
 	createGlobalDBAgent();

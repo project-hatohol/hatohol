@@ -58,11 +58,11 @@ enum OperationPrivilegeType
 	OPPRVLG_UPDATE_ALL_USER_ROLE,
 	OPPRVLG_DELETE_ALL_USER_ROLE,
 
-	// IssueTracker & IssueSender action
-	OPPRVLG_CREATE_ISSUE_SETTING,  // can create IssueTracker & IssueSender
-	OPPRVLG_UPDATE_ISSUE_SETTING,  // can update IssueTracker & IssueSender
-	OPPRVLG_DELETE_ISSUE_SETTING,  // can delete IssueTracker & IssueSender
-	OPPRVLG_GET_ALL_ISSUE_SETTINGS,// can get all IssueTracker & IssueSender
+	// IncidentTracker & IncidentSender action
+	OPPRVLG_CREATE_INCIDENT_SETTING,  // can create IncidentTracker & IncidentSender
+	OPPRVLG_UPDATE_INCIDENT_SETTING,  // can update IncidentTracker & IncidentSender
+	OPPRVLG_DELETE_INCIDENT_SETTING,  // can delete IncidentTracker & IncidentSender
+	OPPRVLG_GET_ALL_INCIDENT_SETTINGS,// can get all IncidentTracker & IncidentSender
 
 	NUM_OPPRVLG,
 };
