@@ -112,7 +112,7 @@ void IssueSenderManager::queue(
 	IssueSender *sender = m_ctx->getSender(trackerId);
 	if (!sender) {
 		MLPL_ERR("Failed to queue sending an issue"
-			 " for the event: %" FMT_EVENT_ID,
+			 " for the event: %" FMT_EVENT_ID "\n",
 			 eventInfo.id);
 		return;
 	}
