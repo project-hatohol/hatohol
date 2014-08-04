@@ -40,3 +40,10 @@ div.hatohol-pager {
   padding: 2px;
   height: 1.8em;
 }
+
+#incident-tracker-editor label
+{
+  width: 6em;
+  margin-right: 0.5em;
+  text-align: right;
+}

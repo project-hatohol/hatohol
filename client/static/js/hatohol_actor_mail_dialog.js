@@ -109,7 +109,7 @@ HatoholActorMailDialog.prototype.okButtonClicked = function() {
   if (smtpServer)
     commandDesc += " --smtp-server " + smtpServer;
 
-  this.applyCallback(ACTION_COMMAND, commandDesc);
+  this.applyCallback(hatohol.ACTION_COMMAND, commandDesc);
   this.closeDialog();
 };
 

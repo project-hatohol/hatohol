@@ -17,11 +17,14 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var ActionsView = function(userProfile) {
+var IncidentSettingsView = function(userProfile) {
   //
   // Variables
   //
   var self = this;
+  self.incidentSettingsData = null;
+  self.incidentTrackersData = null;
+  self.incidentTrackersMap = null;
 
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
@@ -29,12 +32,6 @@ var ActionsView = function(userProfile) {
   //
   // main code
   //
-  if (userProfile.hasFlag(hatohol.OPPRVLG_CREATE_ACTION))
-    $("#add-action-button").show();
-  if (userProfile.hasFlag(hatohol.OPPRVLG_DELETE_ACTION) ||
-      userProfile.hasFlag(hatohol.OPPRVLG_DELETE_ALL_ACTION)) {
-    $("#delete-action-button").show();
-  }
   load();
 
   //
@@ -48,13 +45,20 @@ var ActionsView = function(userProfile) {
     th.eq(data.column).append("<i class='sort glyphicon glyphicon-arrow-" + icon +"'></i>");
   });
 
-  $("#add-action-button").click(function() {
-    new HatoholAddActionDialog(load);
+  $("#add-incident-setting-button").click(function() {
+    var incidentTrackers = self.incidentTrackersData.issueTrackers;
+    new HatoholAddActionDialog(load, incidentTrackers);
   });
 
-  $("#delete-action-button").click(function() {
+  $("#delete-incident-setting-button").click(function() {
     var msg = gettext("Do you delete the selected items ?");
     hatoholNoYesMsgBox(msg, deleteActions);
+  });
+
+  $("#edit-incident-trackers-button").click(function() {
+    new HatoholIncidentTrackersEditor({
+      changedCallback: load,
+    });
   });
 
   //
@@ -89,9 +93,6 @@ var ActionsView = function(userProfile) {
     return true;
   }
 
-  //
-  // delete-action dialog
-  //
   function deleteActions() {
     $(this).dialog("close");
     var checkboxes = $(".selectcheckbox");
@@ -113,17 +114,6 @@ var ActionsView = function(userProfile) {
   //
   // Functions for make the main view.
   //
-  function makeTypeLabel(type) {
-    switch(type) {
-    case hatohol.ACTION_COMMAND:
-      return gettext("COMMAND");
-    case hatohol.ACTION_RESIDENT:
-      return gettext("RESIDENT");
-    default:
-      return "INVALID: " + type;
-    }
-  }
-
   function makeSeverityCompTypeLabel(compType) {
     switch(compType) {
     case hatohol.CMP_EQ:
@@ -153,14 +143,6 @@ var ActionsView = function(userProfile) {
     return getHostgroupName(actionsPkt["servers"][serverId], hostgroupId);
   }
 
-  function getHostNameFromAction(actionsPkt, actionDef) {
-    var serverId = actionDef["serverId"];
-    var hostId = actionDef["hostId"];
-    if (!hostId)
-      return "ANY";
-    return getHostName(actionsPkt["servers"][serverId], hostId);
-  }
-
   function getTriggerBriefFromAction(actionsPkt, actionDef) {
     var serverId = actionDef["serverId"];
     var triggerId = actionDef["triggerId"];
@@ -180,16 +162,13 @@ var ActionsView = function(userProfile) {
     for (x = 0; x < actionsPkt["actions"].length; ++x) {
       var actionDef = actionsPkt["actions"][x];
       s += "<tr>";
-      s += "<td class='delete-selector' style='display:none;'>";
+      s += "<td class='delete-selector'>";
       s += "<input type='checkbox' class='selectcheckbox' " +
         "actionId='" + escapeHTML(actionDef.actionId) + "'></td>";
       s += "<td>" + escapeHTML(actionDef.actionId) + "</td>";
 
       var serverName = getServerNameFromAction(actionsPkt, actionDef);
       s += "<td>" + escapeHTML(serverName) + "</td>";
-
-      var hostName = getHostNameFromAction(actionsPkt, actionDef);
-      s += "<td>" + escapeHTML(hostName)   + "</td>";
 
       var hostgroupName = getHostgroupNameFromAction(actionsPkt, actionDef);
       s += "<td>" + escapeHTML(hostgroupName) + "</td>";
@@ -215,22 +194,20 @@ var ActionsView = function(userProfile) {
 
       s += "<td>" + severityCompLabel + " " + severityLabel + "</td>";
 
-      var type = actionDef.type;
-      var typeLabel = makeTypeLabel(type);
-      s += "<td>" + typeLabel + "</td>";
-
-      var workingDir = actionDef.workingDirectory;
-      if (!workingDir)
-        workingDir = "N/A";
-      s += "<td>" + escapeHTML(workingDir) + "</td>";
-
       var command = actionDef.command;
-      s += "<td>" + escapeHTML(command) + "</td>";
-
-      var timeout = actionDef.timeout;
-      if (timeout == 0)
-        timeout = gettext("No limit");
-      s += "<td>" + escapeHTML(timeout) + "</td>";
+      var incidentTracker = self.incidentTrackersMap[actionDef.command];
+      s += "<td>";
+      if (incidentTracker) {
+	s += incidentTracker.nickname;
+        s += " (" + gettext("Project: ") + incidentTracker.projectId;
+        if (incidentTracker.trackerId) {
+          s += ", " + gettext("Tracker: ") + incidentTracker.trackerId;
+        }
+        s += ")";
+      } else {
+        s += gettext("Unknown");
+      }
+      s += "</td>";
 
       s += "</tr>";
     }
@@ -238,16 +215,38 @@ var ActionsView = function(userProfile) {
     return s;
   }
 
-  function updateCore(rawData) {
-    $("#table tbody").empty();
-    $("#table tbody").append(drawTableBody(rawData));
-    self.setupCheckboxForDelete($("#delete-action-button"));
+  function parseIncidentTrackers(incidentTrackersData) {
+    var incidentTrackers = incidentTrackersData.issueTrackers;
+    var i, incidentTrackersMap = {};
+    for (i = 0; i < incidentTrackers.length; i++)
+      incidentTrackersMap[incidentTrackers[i].id] = incidentTrackers[i];
+    return incidentTrackersMap;
   }
 
+  function onGotIncidentTrackers(incidentTrackersData) {
+    self.incidentTrackersData = incidentTrackersData;
+    self.incidentTrackersMap = parseIncidentTrackers(self.incidentTrackersData);
+    $("#table tbody").empty();
+    $("#table tbody").append(drawTableBody(self.incidentSettingsData));
+    self.setupCheckboxForDelete($("#delete-incident-setting-button"));
+  }
+
+  function onGotIncidentSettings(incidentSettingsData) {
+    self.incidentSettingsData = incidentSettingsData;
+    self.startConnection("issue-trackers", onGotIncidentTrackers);
+  }
+
+  function getQuery() {
+    var query = {
+      type: hatohol.ACTION_ISSUE_SENDER,
+    };
+    return 'action?' + $.param(query);
+  };
+
   function load() {
-    self.startConnection('action', updateCore);
+    self.startConnection(getQuery(), onGotIncidentSettings);
   }
 };
 
-ActionsView.prototype = Object.create(HatoholMonitoringView.prototype);
-ActionsView.prototype.constructor = ActionsView;
+IncidentSettingsView.prototype = Object.create(HatoholMonitoringView.prototype);
+IncidentSettingsView.prototype.constructor = IncidentSettingsView;

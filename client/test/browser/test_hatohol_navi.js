@@ -49,16 +49,23 @@ describe('HatoholNavi', function() {
       gettext('Triggers') + '</a></li>';
     expected += '<li><a href="ajax_events">' +
       gettext('Events') + '</a></li>';
+    expected += '<li class="dropdown">';
+    expected += '<a href="#" class="dropdown-toggle" data-toggle="dropdown">' +
+      'Settings<span class="caret"></span></a>';
+    expected += '<ul class="dropdown-menu">';
     expected += '<li><a href="ajax_servers">' +
       gettext('Servers') + '</a></li>';
     expected += '<li><a href="ajax_actions">' +
       gettext('Actions') + '</a></li>';
+    expected += '</ul></li>';
+
     expect($("ul.nav")[0].innerHTML).to.be(expected);
   });
 
   it('with a current page argument', function() {
     var nav = new HatoholNavi(guestUser, "ajax_latest");
     var expected = '';
+
     expected += '<li><a href="ajax_dashboard">' +
       gettext('Dashboard') + '</a></li>';
     expected += '<li><a href="ajax_overview_triggers">' +
@@ -71,10 +78,16 @@ describe('HatoholNavi', function() {
       gettext('Triggers') + '</a></li>';
     expected += '<li><a href="ajax_events">' +
       gettext('Events') + '</a></li>';
+    expected += '<li class="dropdown">';
+    expected += '<a href="#" class="dropdown-toggle" data-toggle="dropdown">' +
+      'Settings<span class="caret"></span></a>';
+    expected += '<ul class="dropdown-menu">';
     expected += '<li><a href="ajax_servers">' +
       gettext('Servers') + '</a></li>';
     expected += '<li><a href="ajax_actions">' +
       gettext('Actions') + '</a></li>';
+    expected += '</ul></li>';
+
     expect($("ul.nav")[0].innerHTML).to.be(expected);
   });
 });
