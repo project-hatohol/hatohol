@@ -607,6 +607,22 @@ void dbAgentTestAddColumns(DBAgent &dbAgent, DBAgentChecker &checker)
 	checker.assertTable(tableProfileTest);
 }
 
+void dbAgentTestRenameTable(DBAgent &dbAgent, DBAgentChecker &checker)
+{
+	static const DBAgent::TableProfile tableProfileSrc(
+	  "test_table_src", COLUMN_DEF_TEST,
+	  sizeof(COLUMN_DEF_TEST), NUM_COLUMNS_TEST);
+	static const DBAgent::TableProfile tableProfileDest(
+	  "test_table_dest", COLUMN_DEF_TEST,
+	  sizeof(COLUMN_DEF_TEST), NUM_COLUMNS_TEST);
+
+	dbAgent.createTable(tableProfileSrc);
+	checker.assertTable(tableProfileSrc);
+
+	dbAgent.renameTable(tableProfileSrc.name, tableProfileDest.name);
+	checker.assertTable(tableProfileDest);
+}
+
 void dbAgentTestIsTableExisting(DBAgent &dbAgent, DBAgentChecker &checker)
 {
 	cppcut_assert_equal(false, dbAgent.isTableExisting(TABLE_NAME_TEST));

@@ -493,6 +493,12 @@ void DBAgentMySQL::addColumns(const AddColumnsArg &addColumnsArg)
 	execSql(query);
 }
 
+void DBAgentMySQL::renameTable(const string &srcName, const string &destName)
+{
+	string query = makeRenameTableStatement(srcName, destName);
+	execSql(query);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

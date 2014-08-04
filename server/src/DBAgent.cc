@@ -565,6 +565,14 @@ string DBAgent::makeDeleteStatement(const DeleteArg &deleteArg)
 	return statement;
 }
 
+string DBAgent::makeRenameTableStatement(const string &srcName,
+					 const string &destName)
+{
+	return StringUtils::sprintf("ALTER TABLE %s RENAME TO %s",
+				    srcName.c_str(),
+				    destName.c_str());
+}
+
 string DBAgent::makeDatetimeString(int datetime)
 {
 	time_t clock;

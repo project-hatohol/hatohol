@@ -682,6 +682,12 @@ void DBAgentSQLite3::addColumns(const AddColumnsArg &addColumnsArg)
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 }
 
+void DBAgentSQLite3::renameTable(const string &srcName, const string &destName)
+{
+	string query = makeRenameTableStatement(srcName, destName);
+	execSql(query);
+}
+
 const DBTermCodec *DBAgentSQLite3::getDBTermCodec(void) const
 {
 	return &m_ctx->dbTermCodec;
