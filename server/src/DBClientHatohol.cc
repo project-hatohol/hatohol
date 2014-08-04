@@ -40,8 +40,8 @@ const char *DBClientHatohol::TABLE_NAME_MAP_HOSTS_HOSTGROUPS
 const char *DBClientHatohol::TABLE_NAME_SERVERS    = "servers";
 const char *DBClientHatohol::TABLE_NAME_INCIDENTS  = "incidents";
 
-const int         DBClientHatohol::HATOHOL_DB_VERSION = 4;
-const char       *DBClientHatohol::DEFAULT_DB_NAME = "hatohol";
+const int   DBClientHatohol::HATOHOL_DB_VERSION = 5;
+const char *DBClientHatohol::DEFAULT_DB_NAME = "hatohol";
 
 void operator>>(ItemGroupStream &itemGroupStream, TriggerStatusType &rhs)
 {
@@ -934,10 +934,13 @@ static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
 static const size_t NUM_TABLE_INFO =
 sizeof(DB_TABLE_INFO) / sizeof(DBClient::DBSetupTableInfo);
 
+static bool updateDB(DBAgent *dbAgent, int oldVer, void *data);
+
 static const DBClient::DBSetupFuncArg DB_SETUP_FUNC_ARG = {
 	DBClientHatohol::HATOHOL_DB_VERSION,
 	NUM_TABLE_INFO,
 	DB_TABLE_INFO,
+	&updateDB,
 };
 
 struct DBClientHatohol::PrivateContext
@@ -2529,4 +2532,16 @@ HatoholError DBClientHatohol::getHostgroupElementList
 	}
 
 	return HTERR_OK;
+}
+
+static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
+{
+	if (oldVer == 4) {
+		const string oldTableName = "issues";
+		if (dbAgent->isTableExisting(oldTableName)) {
+			dbAgent->renameTable(
+			  oldTableName, DBClientHatohol::TABLE_NAME_INCIDENTS);
+		}
+	}
+	return true;
 }

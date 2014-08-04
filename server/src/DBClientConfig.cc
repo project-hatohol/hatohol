@@ -36,7 +36,7 @@ static const char *TABLE_NAME_SERVERS = "servers";
 static const char *TABLE_NAME_ARM_PLUGINS = "arm_plugins";
 static const char *TABLE_NAME_INCIDENT_TRACKERS = "incident_trackers";
 
-int DBClientConfig::CONFIG_DB_VERSION = 9;
+int DBClientConfig::CONFIG_DB_VERSION = 10;
 const char *DBClientConfig::DEFAULT_DB_NAME = "hatohol";
 const char *DBClientConfig::DEFAULT_USER_NAME = "hatohol";
 const char *DBClientConfig::DEFAULT_PASSWORD  = "hatohol";
@@ -478,6 +478,12 @@ static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
 		DBAgent::UpdateArg arg(tableProfileSystem);
 		arg.add(IDX_SYSTEM_ENABLE_COPY_ON_DEMAND, 1);
 		dbAgent->update(arg);
+	}
+	if (oldVer == 9) {
+		const string oldTableName = "issue_trackers";
+		if (dbAgent->isTableExisting(oldTableName))
+			dbAgent->renameTable(oldTableName,
+					     TABLE_NAME_INCIDENT_TRACKERS);
 	}
 	return true;
 }
