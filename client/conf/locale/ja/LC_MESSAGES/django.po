@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-07-28 12:27+0900\n"
-"PO-Revision-Date: 2014-07-28 12:53+0900\n"
+"POT-Creation-Date: 2014-08-04 03:31-0500\n"
+"PO-Revision-Date: 2014-08-04 17:09+0900\n"
 "Last-Translator: Noriki Nakamura <noriki.nakamura@miraclelinux.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -29,7 +29,8 @@ msgstr "アクション削除"
 
 #: viewer/actions_ajax.html:55 viewer/dashboard_ajax.html:58
 #: viewer/dashboard_ajax.html.py:80 viewer/events_ajax.html:67
-#: viewer/latest_ajax.html:59 viewer/triggers_ajax.html:66
+#: viewer/incident_settings_ajax.html:59 viewer/latest_ajax.html:59
+#: viewer/triggers_ajax.html:66
 msgid "Server"
 msgstr "サーバ"
 
@@ -38,21 +39,21 @@ msgstr "サーバ"
 msgid "Host"
 msgstr "ホスト"
 
-#: viewer/actions_ajax.html:57
+#: viewer/actions_ajax.html:57 viewer/incident_settings_ajax.html:60
 msgid "Host Group"
 msgstr "ホストグループ"
 
-#: viewer/actions_ajax.html:58
+#: viewer/actions_ajax.html:58 viewer/incident_settings_ajax.html:61
 msgid "Trigger"
 msgstr "トリガー"
 
 #: viewer/actions_ajax.html:59 viewer/events_ajax.html:71
-#: viewer/triggers_ajax.html:68
+#: viewer/incident_settings_ajax.html:62 viewer/triggers_ajax.html:68
 msgid "Status"
 msgstr "ステータス"
 
 #: viewer/actions_ajax.html:60 viewer/events_ajax.html:72
-#: viewer/triggers_ajax.html:67
+#: viewer/incident_settings_ajax.html:63 viewer/triggers_ajax.html:67
 msgid "Severity"
 msgstr "深刻度"
 
@@ -73,23 +74,23 @@ msgstr "コマンド"
 msgid "Time-out (sec)"
 msgstr "タイムアウト (秒)"
 
-#: viewer/base_ajax.html:41
+#: viewer/base_ajax.html:32 viewer/base_ajax.html.py:39
 msgid "Hatohol"
 msgstr "Hatohol"
 
-#: viewer/base_ajax.html:48
+#: viewer/base_ajax.html:46
 msgid "PREPARE"
 msgstr "準備中"
 
-#: viewer/base_ajax.html:57
+#: viewer/base_ajax.html:55
 msgid "Not logged in"
 msgstr "未ログイン"
 
-#: viewer/base_ajax.html:62
+#: viewer/base_ajax.html:60
 msgid "Logout"
 msgstr "ログアウト"
 
-#: viewer/base_ajax.html:66
+#: viewer/base_ajax.html:64
 msgid "Change password"
 msgstr "パスワード変更"
 
@@ -220,8 +221,8 @@ msgid "Duration"
 msgstr "継続時間"
 
 #: viewer/events_ajax.html:74
-msgid "Issue"
-msgstr ""
+msgid "Incident"
+msgstr "インシデント"
 
 #: viewer/events_ajax.html:87
 msgid "Latest events"
@@ -259,6 +260,26 @@ msgstr "ニックネーム"
 #: viewer/servers_ajax.html:60
 msgid "Maps"
 msgstr "マップ"
+
+#: viewer/incident_settings_ajax.html:24 viewer/incident_settings_ajax.html:29
+msgid "Incident tracking settings"
+msgstr "インシデント管理設定"
+
+#: viewer/incident_settings_ajax.html:35
+msgid "ADD"
+msgstr "追加"
+
+#: viewer/incident_settings_ajax.html:39
+msgid "DELETE"
+msgstr "削除"
+
+#: viewer/incident_settings_ajax.html:43
+msgid "EDIT INCIDENT TRACKING SERVERS"
+msgstr "インシデント管理サーバ編集"
+
+#: viewer/incident_settings_ajax.html:64
+msgid "Incident Tracking Server"
+msgstr "インシデント管理サーバ"
 
 #: viewer/latest_ajax.html:24 viewer/latest_ajax.html.py:29
 msgid "Latest data"
