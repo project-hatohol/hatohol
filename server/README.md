@@ -5,6 +5,27 @@ Hatohol acquires the monitoring data from multiple monitoring software,
 consolidates them, serves the data with the format that is independent of
 the specific monitoring software in various way.
 
+## Table of Contents
+
+- [Hatohol Server](#user-content-hatohol-server)
+	- [Supported monitoring software](#user-content-supported-monitoring-software)
+	- [Supported output method](#user-content-supported-output-method)
+	- [Supported platforms](#user-content-supported-platforms)
+	- [Required libraries](#user-content-required-libraries)
+		- [Example to install required libraries on CentOS 6.5](#user-content-example-to-install-required-libraries-on-centos-65)
+			- [For json-glib, there are two ways to install.](#user-content-for-json-glib-there-are-two-ways-to-install)
+				- [One is to use json-glib RPM package built by Project Hatohol.](#user-content-one-is-to-use-json-glib-rpm-package-built-by-project-hatohol)
+				- [The other is to install it from the source tar ball like below.](#user-content-the-other-is-to-install-it-from-the-source-tar-ball-like-below)
+		- [Example to install required libraries on ubuntu 14.04](#user-content-example-to-install-required-libraries-on-ubuntu-1404)
+	- [How to build Hatohol](#user-content-how-to-build-hatohol)
+	- [How to start](#user-content-how-to-start)
+	- [How to stop](#user-content-how-to-stop)
+	- [How to set the port number of REST service](#user-content-how-to-set-the-port-number-of-rest-service)
+	- [Trouble Shooting](#user-content-trouble-shooting)
+		- [Hatohol shows "Failed to get" and doesn't acquire information](#user-content-hatohol-shows-failed-to-get-and-doesnt-acquire-information)
+	- [Tips to configure Nagios NDOUtils](#user-content-tips-to-configure-nagios-ndoutils)
+	- [API Reference Manual for REST service](#user-content-api-reference-manual-for-rest-service)
+
 ## Supported monitoring software
 - ZABBIX 2.0
 - Nagios3 (with NDOUtils)
