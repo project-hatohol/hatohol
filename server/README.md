@@ -5,23 +5,19 @@ Hatohol acquires the monitoring data from multiple monitoring software,
 consolidates them, serves the data with the format that is independent of
 the specific monitoring software in various way.
 
-Supported monitoring software
------------------------------
+## Supported monitoring software
 - ZABBIX 2.0
 - Nagios3 (with NDOUtils)
 
-Supported output method
-------------------------
+## Supported output method
 - REST
 
-Supported platforms
--------------------
+## Supported platforms
 - CentOS 6.5 (x86\_64)
 - Ubuntu Server 14.04LTS (64-bit)
 - Ubuntu 14.04 (64-bit) [supported until the next ubuntu release]
 
-Required libraries
-------------------
+## Required libraries
 - sqlite3 >= 3.6.0 (https://www.sqlite.org/)
 - MySQL
 - libsoup >= 2.22 (https://live.gnome.org/LibSoup)
@@ -97,8 +93,7 @@ installing by following commands:
 
     $ sudo apt-get install automake g++ libtool libsoup2.4-dev libjson-glib-dev libsqlite3-dev libmysqlclient-dev mysql-server sqlite3 uuid-dev qpidd libqpidmessaging2-dev libqpidtypes1-dev libqpidcommon2-dev
 
-How to build Hatohol
---------------------
+## How to build Hatohol
 First, you need to install required libraries.  
 Then run the following commands to install Hatohol:
 
@@ -109,8 +104,7 @@ Then run the following commands to install Hatohol:
     # make install
     # /sbin/ldconfig
 
-How to start
-------------
+## How to start
 (0.1) Run MySQL server for storing configuration.
 
 (0.2) Set QPid's setting
@@ -163,8 +157,7 @@ created in /tmp.
 including HATOHOL version on http://[hostname]:[RestPort]/hello.html.
   Ex.) `http://localhost:33194/hello.html`
 
-How to stop
------------
+## How to stop
 Send one of the following signals to hatohol process.
 
 - SIGTERM
@@ -176,8 +169,7 @@ Ex.)
 
     $ pkill hatohol
 
-How to set the port number of REST service
-------------------------------------------
+## How to set the port number of REST service
 (1) If the command line option --face-rest-port is specified, it is used.
 
 Ex.)
@@ -188,8 +180,7 @@ Ex.)
 
 (3) Otherwise the default port: 33194 is used.
 
-Trouble Shooting
-----------------
+## Trouble Shooting
 ### Hatohol shows "Failed to get" and doesn't acquire information
 - Check if your servers are correctly registered to Hatohol's database.
 You can verify them by checking the result from http://localhost:33194/servers.json.
@@ -197,8 +188,7 @@ You can verify them by checking the result from http://localhost:33194/servers.j
 is empty, no servers are registered in the database. If you can see other unexpected
 results, check it too.
 
-Tips to configure Nagios NDOUtils
----------------------------------
+## Tips to configure Nagios NDOUtils
 In the following steps, it is asummed that the nagios server,
 ndoutils (ndo2db), and DB (MySQL) are on the same computer.
 
@@ -238,8 +228,7 @@ In ubuntu 13.04, edit of ENABLE_NDOUTILS variable in /etc/default/ndoutils
 
 See also [this install document](../doc/misc/nagios-setup-cent6.md) if you use CentOS.
 
-API Reference Manual for REST service
--------------------------------------
+## API Reference Manual for REST service
 The API reference manual can be created as below.
 
     $ cd <Top directory of the Hatohol source repository>
