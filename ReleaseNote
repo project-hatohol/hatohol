@@ -18,6 +18,13 @@
 	[Server] The basic implementation of the plugin mechanism for 'Arm' (#171)
 	[Server] Fix wrong number of bad hosts & triggers of a server (#236)
 
+	Authors of these codes in this version are following people. Thanks!
+	- Jumpei Ogawa
+	- Kazuhiro Yamato
+	- Noriki Nakamura
+	- Takuro Ashie
+	- YOSHIFUJI Hideaki
+
 2014-03-28 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.03
 
 	[Server][Client] Support Host group  (#27)
