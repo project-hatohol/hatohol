@@ -1,4 +1,4 @@
-2014-07-23 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.09-1
+2014-07-23 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.09alpha
 
 	[Server] Introduce the pagination feature to TriggersView and LatestView (#246)
 	[Server] Use auto mutex (#255)
@@ -8,7 +8,7 @@
 	[Server] Potential problem in HatoholArmPluginInterface (#242)
 	[Server] Can't get Event data (#252)
 
-2014-06-27 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.06-2
+2014-06-27 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.06
 
 	[Server] Support Zabbix 2.2 (#186)
 	[Client][utils] Check existence of hostId at getHostName() (#185)
@@ -18,7 +18,7 @@
 	[Server] The basic implementation of the plugin mechanism for 'Arm' (#171)
 	[Server] Fix wrong number of bad hosts & triggers of a server (#236)
 
-2014-03-28 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.03-4
+2014-03-28 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.03
 
 	[Server][Client] Support Host group  (#27)
 	[Server] Add user role (#92)
@@ -50,7 +50,7 @@
 	[Client] Trggers page isn't updated automatically (#152)
 	[Client] Delete button is still enabled after the deletion finishes. (#159)
 
-2013-12-27 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 13.12-1
+2013-12-27 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 13.12
 
 	[Client] Automatic update of content in web pages. (#8)
 	[Client] messages in multiple languages should be supported (#10)
