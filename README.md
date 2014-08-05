@@ -66,8 +66,8 @@ The detailed document is [here](https://github.com/project-hatohol/website/blob/
 - [Server installation](server/README.md)
 - [Client (Web UI server) installation](client/README.md)
 
-### Upgrade by RPM files from ver.0.1 to ver.13.12(only for CentOS 6.4)
-The detailed document is [here](doc/upgrade/hatohol13.12-from0.1-centos6.4.md)
+### Upgrade by RPM files from ver.14.03 to ver.14.06(only for CentOS 6.5)
+The detailed document is [here](https://github.com/project-hatohol/website/blob/master/contents/docs/upgrade/14.06/ja/index.md) (Sorry, Japanese version only...)
 
 ## Plans
 See [Milestone](https://github.com/project-hatohol/hatohol/issues/milestones)
