@@ -115,7 +115,7 @@ dnl **************************************************************
 dnl Flag setting for MLPL
 dnl **************************************************************
 MLPL_CFLAGS=-I\${abs_top_srcdir}/server/mlpl/src
-MLPL_LIBS=\${abs_top_srcdir}/server/mlpl/src/libmlpl.la
+MLPL_LIBS=\${top_builddir}/server/mlpl/src/libmlpl.la
 
 AC_SUBST(MLPL_CFLAGS)
 AC_SUBST(MLPL_LIBS)
