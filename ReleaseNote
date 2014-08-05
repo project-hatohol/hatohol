@@ -50,6 +50,15 @@
 	[Client] Trggers page isn't updated automatically (#152)
 	[Client] Delete button is still enabled after the deletion finishes. (#159)
 
+	Authors of these codes in this version are following people. Thanks!
+	- HAYASHI Kentaro
+	- Jumpei Ogawa
+	- Kazuhiro Yamato
+	- Noriki Nakamura
+	- Shinya Abe
+	- Takuro Ashie
+	- teruo-oshida
+
 2013-12-27 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 13.12
 
 	[Client] Automatic update of content in web pages. (#8)
