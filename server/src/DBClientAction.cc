@@ -60,7 +60,7 @@ public:
 class ActionValidator {
 public:
 	ActionValidator();
-	bool isValid(ActionDef &actionDef);
+	bool isValid(const ActionDef &actionDef);
 	bool noValid(void);
 
 private:
@@ -1333,7 +1333,7 @@ ActionValidator::ActionValidator()
 	ActionUserIdSet::get(m_userIdSet);
 }
 
-bool ActionValidator::isValid(ActionDef &actionDef)
+bool ActionValidator::isValid(const ActionDef &actionDef)
 {
 	if (!m_userIdSet.isValidActionOwnerId(actionDef.ownerUserId))
 		return false;
