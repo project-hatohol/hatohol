@@ -32,13 +32,6 @@ using namespace mlpl;
 const char *TABLE_NAME_ACTIONS     = "actions";
 const char *TABLE_NAME_ACTION_LOGS = "action_logs";
 
-class ActionUserIdSet : public UserIdSet {
-public:
-	bool isValidActionOwnerId(const UserIdType id);
-
-	static void get(UserIdSet &userIdSet);
-};
-
 const static guint DEFAULT_ACTION_DELETE_INTERVAL_MSEC = 3600 * 1000; // 1hour
 
 // 8 -> 9: Add actions.onwer_user_id
@@ -56,6 +49,13 @@ static void operator>>(
 {
 	actionType = itemGroupStream.read<int, ActionType>();
 }
+
+class ActionUserIdSet : public UserIdSet {
+public:
+	bool isValidActionOwnerId(const UserIdType id);
+
+	static void get(UserIdSet &userIdSet);
+};
 
 static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 {
