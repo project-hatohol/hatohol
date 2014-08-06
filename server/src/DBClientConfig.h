@@ -46,6 +46,8 @@ typedef std::vector<IncidentTrackerInfo>        IncidentTrackerInfoVect;
 typedef IncidentTrackerInfoVect::iterator       IncidentTrackerInfoVectIterator;
 typedef IncidentTrackerInfoVect::const_iterator IncidentTrackerInfoVectConstIterator;
 
+typedef std::set<IncidentTrackerIdType>         IncidentTrackerIdSet;
+
 struct ArmPluginInfo {
 	int id;
 	MonitoringSystemType type;
@@ -247,6 +249,9 @@ public:
 	 */
 	void getIncidentTrackers(IncidentTrackerInfoVect &incidentTrackerVect,
 				 IncidentTrackerQueryOption &option);
+
+	void getIncidentTrackerIdSet(
+	  IncidentTrackerIdSet &incidentTrackerIdSet);
 
 protected:
 	static bool parseCommandLineArgument(const CommandLineArg &cmdArg);

@@ -1245,6 +1245,22 @@ HatoholError DBClientConfig::deleteIncidentTracker(
 	return HTERR_OK;
 }
 
+void DBClientConfig::getIncidentTrackerIdSet(
+  IncidentTrackerIdSet &incidentTrackerIdSet)
+{
+	IncidentTrackerInfoVect incidentTrackersVect;
+	IncidentTrackerQueryOption option(USER_ID_SYSTEM);
+
+	getIncidentTrackers(incidentTrackersVect, option);
+	if (incidentTrackersVect.empty())
+		return;
+	IncidentTrackerInfoVectIterator it = incidentTrackersVect.begin();
+	for(; it != incidentTrackersVect.end();++it) {
+		const IncidentTrackerInfo &incidentTrackerInfo = *it;
+		incidentTrackerIdSet.insert(incidentTrackerInfo.id);
+	}
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
