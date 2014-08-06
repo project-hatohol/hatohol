@@ -248,7 +248,7 @@ static void updateAdminPrivilege(DBAgent *dbAgent,
 	dbAgent->update(arg);
 }
 
-static void createUserForInit(
+static void createInitialUser(
   DBAgent *dbAgent, const string &username, const string &password,
   const OperationPrivilegeFlag &flags)
 {
@@ -269,8 +269,8 @@ static void createUserForInit(
 
 static void tableUserInitializer(DBAgent *dbAgent, void *data)
 {
-	createUserForInit(dbAgent, "admin", "hatohol", ALL_PRIVILEGES);
-	createUserForInit(dbAgent, "guest", "guest", 0);
+	createInitialUser(dbAgent, "admin", "hatohol", ALL_PRIVILEGES);
+	createInitialUser(dbAgent, "guest", "guest", 0);
 }
 
 static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
