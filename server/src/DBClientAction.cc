@@ -415,11 +415,11 @@ struct DBClientAction::PrivateContext
 	}
 };
 
-struct deleteNoOwnerActionsContext {
+struct deleteInvalidActionsContext {
 	guint timerId;
 	guint idleEventId;
 };
-static deleteNoOwnerActionsContext *g_deleteActionCtx = NULL;
+static deleteInvalidActionsContext *g_deleteActionCtx = NULL;
 
 // ---------------------------------------------------------------------------
 // LogEndExecActionArg
@@ -441,10 +441,10 @@ void DBClientAction::init(void)
 	registerSetupInfo(
 	  DB_DOMAIN_ID_ACTION, DEFAULT_DB_NAME, &DB_ACTION_SETUP_FUNC_ARG);
 
-	g_deleteActionCtx = new deleteNoOwnerActionsContext;
+	g_deleteActionCtx = new deleteInvalidActionsContext;
 	g_deleteActionCtx->idleEventId = INVALID_EVENT_ID;
 	g_deleteActionCtx->timerId = g_timeout_add(DEFAULT_ACTION_DELETE_INTERVAL_MSEC,
-	                                           deleteNoOwnerActionsCycl,
+	                                           deleteInvalidActionsCycl,
 	                                           g_deleteActionCtx);
 }
 
@@ -711,7 +711,7 @@ HatoholError DBClientAction::deleteActions(const ActionIdList &idList,
 	return HTERR_OK;
 }
 
-void DBClientAction::deleteNoOwnerActions()
+void DBClientAction::deleteInvalidActions()
 {
 	ActionIdList actionIdList;
 
@@ -1027,30 +1027,30 @@ HatoholError DBClientAction::checkPrivilegeForDelete(
 	return HTERR_OK;
 }
 
-gboolean DBClientAction::deleteNoOwnerActionsExec(gpointer data)
+gboolean DBClientAction::deleteInvalidActionsExec(gpointer data)
 {
 	struct : public ExceptionCatchable {
 		void operator ()(void) override
 		{
 			CacheServiceDBClient cache;
-			cache.getAction()->deleteNoOwnerActions();
+			cache.getAction()->deleteInvalidActions();
 		}
 	} deleter;
 	deleter.exec();
 
-	deleteNoOwnerActionsContext *deleteActionCtx = static_cast<deleteNoOwnerActionsContext *>(data);
+	deleteInvalidActionsContext *deleteActionCtx = static_cast<deleteInvalidActionsContext *>(data);
 	deleteActionCtx->idleEventId = INVALID_EVENT_ID;
 	deleteActionCtx->timerId = g_timeout_add(DEFAULT_ACTION_DELETE_INTERVAL_MSEC, 
-	                                         deleteNoOwnerActionsCycl,
+	                                         deleteInvalidActionsCycl,
 	                                         deleteActionCtx);
 	return G_SOURCE_REMOVE;
 }
 
-gboolean DBClientAction::deleteNoOwnerActionsCycl(gpointer data)
+gboolean DBClientAction::deleteInvalidActionsCycl(gpointer data)
 {
-	deleteNoOwnerActionsContext *deleteActionCtx = static_cast<deleteNoOwnerActionsContext *>(data);
+	deleteInvalidActionsContext *deleteActionCtx = static_cast<deleteInvalidActionsContext *>(data);
 	deleteActionCtx->timerId = INVALID_EVENT_ID;
-	deleteActionCtx->idleEventId = Utils::setGLibIdleEvent(deleteNoOwnerActionsExec,
+	deleteActionCtx->idleEventId = Utils::setGLibIdleEvent(deleteInvalidActionsExec,
 	                                                       deleteActionCtx);
 	return G_SOURCE_REMOVE;
 }

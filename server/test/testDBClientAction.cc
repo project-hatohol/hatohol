@@ -287,7 +287,7 @@ static void _assertDeleteActions(const bool &deleteMyActions,
 }
 #define assertDeleteActions(D,T) cut_trace(_assertDeleteActions(D,T))
 
-static void _assertDeteleNoOwnerActions()
+static void _assertDeteleInvalidActions()
 {
 	setupTestDBUserAndDBAction();
 	DBClientAction dbAction;
@@ -306,7 +306,7 @@ static void _assertDeteleNoOwnerActions()
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	HatoholError err = dbUser.deleteUserInfo(targetId, privilege);
 
-	dbAction.deleteNoOwnerActions();
+	dbAction.deleteInvalidActions();
 
 	// check
 	string statement = "select action_id from ";
@@ -314,7 +314,7 @@ static void _assertDeteleNoOwnerActions()
 	statement += " order by action_id";
 	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }
-#define assertDeteleNoOwnerActions() cut_trace(_assertDeteleNoOwnerActions())
+#define assertDeteleInvalidActions() cut_trace(_assertDeteleInvalidActions())
 
 static void assertActionIdsInDB(ActionIdList excludeIdList)
 {
@@ -531,9 +531,9 @@ void test_deleteActionOfOthers(void)
 	assertDeleteActions(deleteMyActions, OPPRVLG_DELETE_ALL_ACTION);
 }
 
-void test_deleteNoOwnerAction(void)
+void test_deleteInvalidAction(void)
 {
-	assertDeteleNoOwnerActions();
+	assertDeteleInvalidActions();
 }
 
 void test_deleteActionOfOthersWithoutPrivilege(void)

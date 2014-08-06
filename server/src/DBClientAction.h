@@ -365,7 +365,7 @@ public:
 	 */
 	bool isIncidentSenderEnabled(void);
 
-	void deleteNoOwnerActions(void);
+	void deleteInvalidActions(void);
 
 protected:
 	ItemDataNullFlagType getNullFlag(const ActionDef &actionDef,
@@ -388,9 +388,9 @@ protected:
 	HatoholError checkPrivilegeForDelete(
 	  const OperationPrivilege &privilege, const ActionIdList &idList);
 
-	static gboolean deleteNoOwnerActionsCycl(gpointer data);
+	static gboolean deleteInvalidActionsCycl(gpointer data);
 
-	static gboolean deleteNoOwnerActionsExec(gpointer data);
+	static gboolean deleteInvalidActionsExec(gpointer data);
 
 	static void stopIdleDeleteAction(gpointer data);
 
