@@ -57,6 +57,16 @@ public:
 	static void get(UserIdSet &userIdSet);
 };
 
+class ActionValidator {
+public:
+	ActionValidator();
+	bool isValid(ActionDef &actionDef);
+	bool noValid(void);
+
+private:
+	ActionUserIdSet m_userIdSet;
+};
+
 static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
@@ -551,10 +561,8 @@ HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
 		select(arg);
 	} DBCLIENT_TRANSACTION_END();
 
-	ActionUserIdSet userIdSet;
-	ActionUserIdSet::get(userIdSet);
-
-	if (userIdSet.empty())
+	ActionValidator validator;
+	if (validator.noValid())
 	        return HTERR_OK;
 
 	// convert a format of the query result.
@@ -598,8 +606,7 @@ HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
 		itemGroupStream >> actionDef.timeout;
 		itemGroupStream >> actionDef.ownerUserId;
 
-		const UserIdType id = actionDef.ownerUserId;
-		if (userIdSet.isValidActionOwnerId(id))
+		if (validator.isValid(actionDef))
 			actionDefList.push_back(actionDef);
 	}
 
@@ -711,10 +718,8 @@ void DBClientAction::deleteNoOwnerActions()
 		select(arg);
 	} DBCLIENT_TRANSACTION_END();
 
-	ActionUserIdSet userIdSet;
-	ActionUserIdSet::get(userIdSet);
-
-	if (userIdSet.empty())
+	ActionValidator validator;
+	if (validator.noValid())
 	        return;
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
@@ -727,8 +732,7 @@ void DBClientAction::deleteNoOwnerActions()
 		itemGroupStream >> actionId;
 		itemGroupStream >> actionDef.ownerUserId;
 
-		UserIdType id = actionDef.ownerUserId;
-		if (!userIdSet.isValidActionOwnerId(id))
+		if (validator.isValid(actionDef))
 		        actionIdList.push_back(actionId);
 	}
 	if (actionIdList.empty())
@@ -1319,4 +1323,25 @@ void ActionUserIdSet::get(UserIdSet &userIdSet)
 	CacheServiceDBClient cache;
 	DBClientUser *dbUser = cache.getUser();
 	dbUser->getUserIdSet(userIdSet);
+}
+
+// ---------------------------------------------------------------------------
+// ActionValidator
+// ---------------------------------------------------------------------------
+ActionValidator::ActionValidator()
+{
+	ActionUserIdSet::get(m_userIdSet);
+}
+
+bool ActionValidator::isValid(ActionDef &actionDef)
+{
+	if (!m_userIdSet.isValidActionOwnerId(actionDef.ownerUserId))
+		return false;
+	// TODO: check issue tracker
+	return true;
+}
+
+bool ActionValidator::noValid(void)
+{
+	return m_userIdSet.empty();
 }
