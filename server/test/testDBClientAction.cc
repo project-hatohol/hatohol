@@ -343,6 +343,7 @@ void cut_setup(void)
 {
 	hatoholInit();
 	deleteDBClientHatoholDB();
+	setupTestDBConfig(true, true);
 	setupTestDBAction();
 }
 
@@ -680,7 +681,6 @@ void test_endExecAction(void)
 
 void test_getTriggerActionList(void)
 {
-	setupTestDBConfig();
 	setupHelperForTestDBUser();
 	test_addAction(); // save test data into DB.
 
@@ -719,7 +719,6 @@ void test_getTriggerActionList(void)
 
 void test_getTriggerActionListWithAllCondition(void)
 {
-	setupTestDBConfig(true, true);
 	setupHelperForTestDBUser();
 	test_addAction(); // save test data into DB.
 
@@ -757,7 +756,6 @@ void test_getTriggerActionListWithAllCondition(void)
 static void _assertGetActionWithSeverity(const TriggerSeverityType &severity,
 					 const int expectedActionIdx)
 {
-	setupTestDBConfig();
 	setupHelperForTestDBUser();
 
 	test_addAction(); // save test data into DB.

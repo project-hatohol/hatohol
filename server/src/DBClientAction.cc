@@ -23,6 +23,7 @@
 #include "CacheServiceDBClient.h"
 #include "DBAgentFactory.h"
 #include "DBClientAction.h"
+#include "DBClientConfig.h"
 #include "DBClientHatohol.h"
 #include "Mutex.h"
 #include "ItemGroupStream.h"
@@ -63,8 +64,12 @@ public:
 	bool isValid(const ActionDef &actionDef);
 	bool noValid(void);
 
+protected:
+	bool isValidIncidentTracker(const ActionDef &actionDef);
+
 private:
-	ActionUserIdSet m_userIdSet;
+	ActionUserIdSet      m_userIdSet;
+	IncidentTrackerIdSet m_incidentTrackerIdSet;
 };
 
 static const ColumnDef COLUMN_DEF_ACTIONS[] = {
@@ -1331,13 +1336,29 @@ void ActionUserIdSet::get(UserIdSet &userIdSet)
 ActionValidator::ActionValidator()
 {
 	ActionUserIdSet::get(m_userIdSet);
+
+	CacheServiceDBClient cache;
+	DBClientConfig *dbConfig = cache.getConfig();
+	dbConfig->getIncidentTrackerIdSet(m_incidentTrackerIdSet);
+}
+
+bool ActionValidator::isValidIncidentTracker(const ActionDef &actionDef)
+{
+	IncidentTrackerIdSet &trackers = m_incidentTrackerIdSet;
+	IncidentTrackerIdType trackerId;
+	if (!actionDef.parseIncidentSenderCommand(trackerId))
+		return false;
+	return trackers.find(trackerId) != trackers.end();
 }
 
 bool ActionValidator::isValid(const ActionDef &actionDef)
 {
 	if (!m_userIdSet.isValidActionOwnerId(actionDef.ownerUserId))
 		return false;
-	// TODO: check issue tracker
+	if (actionDef.type == ACTION_INCIDENT_SENDER) {
+		if (!isValidIncidentTracker(actionDef))
+			return false;
+	}
 	return true;
 }
 
