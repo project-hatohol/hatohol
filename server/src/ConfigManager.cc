@@ -24,6 +24,7 @@
 #include <Mutex.h>
 #include "ConfigManager.h"
 #include "DBClientConfig.h"
+#include "Reaper.h"
 using namespace std;
 using namespace mlpl;
 
@@ -40,6 +41,7 @@ static int DEFAULT_MAX_NUM_RUNNING_COMMAND_ACTION = 10;
 struct ConfigManager::PrivateContext {
 	static Mutex          mutex;
 	static ConfigManager *instance;
+	string                confFilePath;
 	string                databaseDirectory;
 	static string         actionCommandDirectory;
 	static string         residentYardDirectory;
@@ -54,6 +56,32 @@ struct ConfigManager::PrivateContext {
 	{
 		mutex.unlock();
 	}
+
+	bool loadConfFile(const string &path)
+	{
+		if (path.empty())
+			return false;
+
+		GKeyFile *keyFile = g_key_file_new();
+		if (!keyFile) {
+			MLPL_CRIT("Failed to call g_key_file_new().\n");
+			return false;
+		}
+		Reaper<GKeyFile> keyFileReaper(keyFile, g_key_file_unref);
+
+		GError *error = NULL;
+		gboolean succeeded =
+		  g_key_file_load_from_file(keyFile, path.c_str(),
+		                            G_KEY_FILE_NONE, &error);
+		if (!succeeded) {
+			MLPL_DBG("Failed to load config file: %s (%s)\n",
+			         path.c_str(),
+			         error ? error->message : "Unknown reason");
+			return false;
+		}
+
+		return true;
+	}
 };
 
 Mutex          ConfigManager::PrivateContext::mutex;
@@ -66,6 +94,11 @@ string         ConfigManager::PrivateContext::residentYardDirectory;
 // ---------------------------------------------------------------------------
 void ConfigManager::reset(void)
 {
+	delete PrivateContext::instance;
+	PrivateContext::instance = NULL;
+	ConfigManager *confMgr = getInstance();
+	confMgr->loadConfFile();
+
 	PrivateContext::actionCommandDirectory =
 	  StringUtils::sprintf("%s/%s/action", LIBEXECDIR, PACKAGE);
 	PrivateContext::residentYardDirectory = string(PREFIX"/sbin");
@@ -141,6 +174,28 @@ void ConfigManager::setResidentYardDirectory(const string &dir)
 	PrivateContext::unlock();
 }
 
+// ---------------------------------------------------------------------------
+// Protected methods
+// ---------------------------------------------------------------------------
+void ConfigManager::loadConfFile(void)
+{
+	vector<string> confFiles;
+	confFiles.push_back(m_ctx->confFilePath.c_str());
+
+	char *systemWideConfFile =
+	   g_build_filename(SYSCONFDIR, PACKAGE_NAME, "hatohol.conf", NULL);
+	confFiles.push_back(systemWideConfFile);
+	g_free(systemWideConfFile);
+
+	for (size_t i = 0; i < confFiles.size(); i++) {
+		const bool succeeded = m_ctx->loadConfFile(confFiles[i]);
+		if (!succeeded)
+			continue;
+		MLPL_INFO("Use configuration file: %s\n",
+		          confFiles[i].c_str());
+		break;
+	}
+}
 
 // ---------------------------------------------------------------------------
 // Private methods

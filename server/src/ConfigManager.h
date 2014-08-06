@@ -57,6 +57,9 @@ public:
 	static std::string getResidentYardDirectory(void);
 	static void setResidentYardDirectory(const std::string &dir);
 
+protected:
+	void loadConfFile(void);
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
