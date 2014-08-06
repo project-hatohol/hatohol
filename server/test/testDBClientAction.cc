@@ -287,7 +287,7 @@ static void _assertDeleteActions(const bool &deleteMyActions,
 }
 #define assertDeleteActions(D,T) cut_trace(_assertDeleteActions(D,T))
 
-static void _assertDeteleInvalidActions()
+static void _assertDeleteNoOwnerActions()
 {
 	setupTestDBUserAndDBAction();
 	DBClientAction dbAction;
@@ -314,7 +314,7 @@ static void _assertDeteleInvalidActions()
 	statement += " order by action_id";
 	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }
-#define assertDeteleInvalidActions() cut_trace(_assertDeteleInvalidActions())
+#define assertDeleteNoOwnerActions() cut_trace(_assertDeleteNoOwnerActions())
 
 static void assertActionIdsInDB(ActionIdList excludeIdList)
 {
@@ -531,9 +531,9 @@ void test_deleteActionOfOthers(void)
 	assertDeleteActions(deleteMyActions, OPPRVLG_DELETE_ALL_ACTION);
 }
 
-void test_deleteInvalidAction(void)
+void test_deleteNoOwnerAction(void)
 {
-	assertDeteleInvalidActions();
+	assertDeleteNoOwnerActions();
 }
 
 void test_deleteActionOfOthersWithoutPrivilege(void)
