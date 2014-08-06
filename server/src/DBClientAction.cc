@@ -724,9 +724,8 @@ void DBClientAction::deleteNoOwnerActions()
 		if (!userIdSet.isValidActionOwnerId(id))
 		        actionIdList.push_back(actionId);
 	}
-	if (actionIdList.empty()){
+	if (actionIdList.empty())
 	        return;
-	}
 
 	OperationPrivilege privilege(OPPRVLG_DELETE_ALL_ACTION);
 	privilege.setUserId(USER_ID_SYSTEM);
