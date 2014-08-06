@@ -732,8 +732,6 @@ void DBClientAction::deleteNoOwnerActions()
 	privilege.setUserId(USER_ID_SYSTEM);
 
 	deleteActions(actionIdList , privilege);
-
-	return;
 }
 
 uint64_t DBClientAction::createActionLog(
@@ -1019,8 +1017,6 @@ void DBClientAction::getActionUser(UserIdSet &userIdSet)
 	CacheServiceDBClient cache;
 	DBClientUser *dbUser = cache.getUser();
 	dbUser->getUserIdSet(userIdSet);
-
-	return;
 }
 
 gboolean DBClientAction::deleteNoOwnerActionsExec(gpointer data)
