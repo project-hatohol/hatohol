@@ -731,7 +731,7 @@ void DBClientAction::deleteNoOwnerActions()
 	OperationPrivilege privilege(OPPRVLG_DELETE_ALL_ACTION);
 	privilege.setUserId(USER_ID_SYSTEM);
 
-	deleteActions(actionIdList , privilege);
+	deleteActions(actionIdList, privilege);
 }
 
 uint64_t DBClientAction::createActionLog(
