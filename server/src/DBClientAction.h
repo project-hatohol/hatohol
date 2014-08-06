@@ -388,8 +388,6 @@ protected:
 	HatoholError checkPrivilegeForDelete(
 	  const OperationPrivilege &privilege, const ActionIdList &idList);
 
-	void getActionUser(UserIdSet &userIdSet);
-
 	static gboolean deleteNoOwnerActionsCycl(gpointer data);
 
 	static gboolean deleteNoOwnerActionsExec(gpointer data);
@@ -401,13 +399,6 @@ private:
 	PrivateContext *m_ctx;
 
 };
-
-class ActionUserIdSet : public UserIdSet {
-
-public:
-	bool isValidActionOwnerId(const UserIdType id);
-};
-
 
 #endif // DBClientAction_h
 

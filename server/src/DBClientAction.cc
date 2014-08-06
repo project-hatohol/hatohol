@@ -32,6 +32,13 @@ using namespace mlpl;
 const char *TABLE_NAME_ACTIONS     = "actions";
 const char *TABLE_NAME_ACTION_LOGS = "action_logs";
 
+class ActionUserIdSet : public UserIdSet {
+public:
+	bool isValidActionOwnerId(const UserIdType id);
+
+	static void get(UserIdSet &userIdSet);
+};
+
 const static guint DEFAULT_ACTION_DELETE_INTERVAL_MSEC = 3600 * 1000; // 1hour
 
 // 8 -> 9: Add actions.onwer_user_id
@@ -545,7 +552,7 @@ HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
 	} DBCLIENT_TRANSACTION_END();
 
 	ActionUserIdSet userIdSet;
-	getActionUser(userIdSet);
+	ActionUserIdSet::get(userIdSet);
 
 	if (userIdSet.empty())
 	        return HTERR_OK;
@@ -705,7 +712,7 @@ void DBClientAction::deleteNoOwnerActions()
 	} DBCLIENT_TRANSACTION_END();
 
 	ActionUserIdSet userIdSet;
-	getActionUser(userIdSet);
+	ActionUserIdSet::get(userIdSet);
 
 	if (userIdSet.empty())
 	        return;
@@ -1011,13 +1018,6 @@ HatoholError DBClientAction::checkPrivilegeForDelete(
 	return HTERR_OK;
 }
 
-void DBClientAction::getActionUser(UserIdSet &userIdSet)
-{
-	CacheServiceDBClient cache;
-	DBClientUser *dbUser = cache.getUser();
-	dbUser->getUserIdSet(userIdSet);
-}
-
 gboolean DBClientAction::deleteNoOwnerActionsExec(gpointer data)
 {
 	struct : public ExceptionCatchable {
@@ -1312,4 +1312,11 @@ bool ActionUserIdSet::isValidActionOwnerId(const UserIdType id)
 			return false;
 	}
 	return true;
+}
+
+void ActionUserIdSet::get(UserIdSet &userIdSet)
+{
+	CacheServiceDBClient cache;
+	DBClientUser *dbUser = cache.getUser();
+	dbUser->getUserIdSet(userIdSet);
 }
