@@ -132,16 +132,18 @@ NOTE: You have to restart qpidd after you edit /etc/qpid/qpiid.acl.
 
 Tips:
 - If root password of the MySQL server is not set, -p option is not needed.
-- The default create-db.sql sets 'hatohol'/'hatohol' as the user/password of
-the DB. If you change them, copy create-db.sql to the any directory,
+- The default create-db.sql sets 'hatohol'/'hatohol' as user/password of
+the DB. If you change them, copy create-db.sql,
 replace them in GRANT line, and use it as an input of the mysql command.
+- If Hatohol server and MySQL server are executed on different machines.
+You have to replace 'localhost' in the GRANT line with the machine name or
+the IP address that runs Hatohol server.
 
-For example, user/password are 'myuser'/'mypasswd',
+For example, user/password are 'myuser'/'mypasswd' and the IP address of
+Hatohol server is 192.168.10.50.
 
-    GRANT ALL PRIVILEGES ON hatohol.* TO myuser@localhost IDENTIFIED BY 'mypasswd';
+    GRANT ALL PRIVILEGES ON hatohol.* TO myuser@"192.168.10.50" IDENTIFIED BY 'mypasswd';
 
-- If Hatohol server and MySQL server are running on different machines.
-You have to replace 'localhost' in the GRANT line with machine name that runs Hatohol server.
 
 (2) Prepare the data base directory
 
