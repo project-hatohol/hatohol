@@ -732,7 +732,7 @@ void DBClientAction::deleteNoOwnerActions()
 		itemGroupStream >> actionId;
 		itemGroupStream >> actionDef.ownerUserId;
 
-		if (validator.isValid(actionDef))
+		if (!validator.isValid(actionDef))
 		        actionIdList.push_back(actionId);
 	}
 	if (actionIdList.empty())
