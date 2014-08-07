@@ -1358,4 +1358,35 @@ void test_runIncidentSenderActionWithNonExistingUser(void)
 	assertRunAction(HTERR_INVALID_USER, actDef, testEventInfo[0]);
 }
 
+void test_checkEventsWithMultipleIncidentSender(void)
+{
+	// prepare two incident sender actions
+	setupTestDBAction();
+	ActionIdType expectedActionId = 1;
+	DBClientAction dbAction;
+	ActionDef &actDef = testActionDef[NumTestActionDef - 1];
+	OperationPrivilege privilege(USER_ID_SYSTEM);
+	dbAction.addAction(actDef, privilege);
+	dbAction.addAction(actDef, privilege);
+
+	// prepare an event
+	EventInfo event = testEventInfo[0];
+	event.time.tv_sec = time(NULL);
+	EventInfoList eventList;
+	eventList.push_back(event);
+
+	// run actions
+	TestActionManager actionManager;
+	actionManager.checkEvents(eventList);
+
+	// check action log
+	string expected
+		= StringUtils::sprintf("%" FMT_ACTION_ID "|%d",
+				       expectedActionId, ACTLOG_STAT_QUEUING);
+	string statement = "select action_id,status from ";
+	statement += DBClientAction::getTableNameActionLogs();
+	statement += " order by action_log_id";
+	assertDBContent(dbAction.getDBAgent(), statement, expected);
+}
+
 } // namespace testActionManager
