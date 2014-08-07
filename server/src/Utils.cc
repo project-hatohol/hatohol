@@ -153,25 +153,23 @@ string Utils::getExtension(const string &path)
 
 string Utils::getSelfExeDir(void)
 {
-	char buf[PATH_MAX+1];
-	ssize_t bytesRead = readlink("/proc/self/exe", buf, PATH_MAX);
+	char buf[PATH_MAX];
+	void *p;
+	ssize_t bytesRead = readlink("/proc/self/exe", buf, sizeof(buf));
+
 	if (bytesRead == -1) {
 		THROW_HATOHOL_EXCEPTION(
 		  "Failed to readlink(\"/proc/self/exe\"): %s",
 		  strerror(errno));
 	}
-	// readlink() doesn't add a NULL terminator and the constructor of string()
-	// needs it.
-	buf[bytesRead] = '\0';
-
-	int i;
-	for (i = bytesRead - 2; i > 0; i--) {
-		if (buf[i] == '/')
-			break;
+	p = memrchr(buf, '/', bytesRead);
+	if (!p) {
+		// I don't think this could happen.
+		THROW_HATOHOL_EXCEPTION(
+		  "readlink(\"/proc/self/exe\") points to non-absolute path."
+		);
 	}
-	if (i < 1)
-		return "/";
-	return string(buf, 0, i);
+	return p != buf ? string(buf, (char *)p - buf) : "/";
 }
 
 string Utils::getStringFromGIOCondition(GIOCondition condition)
