@@ -38,13 +38,13 @@ static int DEFAULT_ALLOWED_TIME_OF_ACTION_FOR_OLD_EVENTS
 
 static int DEFAULT_MAX_NUM_RUNNING_COMMAND_ACTION = 10;
 
-struct OptionValues {
+struct CommandLineOptions {
 	gchar    *pidFilePath;
 	gchar    *dbServer;
 	gboolean  foreground;
 	gboolean  testMode;
 
-	OptionValues(void)
+	CommandLineOptions(void)
 	: pidFilePath(NULL),
 	  dbServer(NULL),
 	  foreground(FALSE),
@@ -52,7 +52,7 @@ struct OptionValues {
 	{
 	}
 
-	virtual ~OptionValues()
+	virtual ~CommandLineOptions()
 	{
 		clear();
 	}
@@ -69,7 +69,7 @@ struct OptionValues {
 		testMode   = FALSE;
 	}
 };
-static OptionValues g_optionValues;
+static CommandLineOptions g_cmdLineOpts;
 
 struct ConfigManager::PrivateContext {
 	static Mutex          mutex;
@@ -145,13 +145,13 @@ struct ConfigManager::PrivateContext {
 		return true;
 	}
 
-	void reflectOptionValues(const OptionValues &optVal)
+	void reflectCommandLineOptions(const CommandLineOptions &cmdLineOpts)
 	{
-		if (optVal.dbServer)
-			parseDBServer(optVal.dbServer);
-		if (optVal.foreground)
+		if (cmdLineOpts.dbServer)
+			parseDBServer(cmdLineOpts.dbServer);
+		if (cmdLineOpts.foreground)
 			foreground = true;
-		if (optVal.testMode)
+		if (cmdLineOpts.testMode)
 			testMode = true;
 	}
 };
@@ -164,16 +164,16 @@ ConfigManager *ConfigManager::PrivateContext::instance = NULL;
 // ---------------------------------------------------------------------------
 bool ConfigManager::parseCommandLine(gint *argc, gchar ***argv)
 {
-	OptionValues *optVal = &g_optionValues;
+	CommandLineOptions *cmdLineOpts = &g_cmdLineOpts;
 	static GOptionEntry entries[] = {
 		{"pid-file-path", 'p', 0, G_OPTION_ARG_STRING,
-		 &optVal->pidFilePath, "Pid file path", NULL},
+		 &cmdLineOpts->pidFilePath, "Pid file path", NULL},
 		{"foreground", 'f', 0, G_OPTION_ARG_NONE,
-		 &optVal->foreground, "Run as a foreground process", NULL},
+		 &cmdLineOpts->foreground, "Run as a foreground process", NULL},
 		{"test-mode", 't', 0, G_OPTION_ARG_NONE,
-		 &optVal->testMode, "Run in a test mode", NULL},
+		 &cmdLineOpts->testMode, "Run in a test mode", NULL},
 		{"config-db-server", 'c', 0, G_OPTION_ARG_STRING,
-		 &optVal->dbServer, "Database server", NULL},
+		 &cmdLineOpts->dbServer, "Database server", NULL},
 		{ NULL }
 	};
 
@@ -188,13 +188,13 @@ bool ConfigManager::parseCommandLine(gint *argc, gchar ***argv)
 	}
 
 	// refect the options to the call before the reset() is called.
-	getInstance()->m_ctx->reflectOptionValues(g_optionValues);
+	getInstance()->m_ctx->reflectCommandLineOptions(g_cmdLineOpts);
 	return true;
 }
 
 void ConfigManager::clearParseCommandLineResult(void)
 {
-	g_optionValues.clear();
+	g_cmdLineOpts.clear();
 }
 
 void ConfigManager::reset(void)
@@ -209,7 +209,7 @@ void ConfigManager::reset(void)
 	confMgr->m_ctx->residentYardDirectory = string(PREFIX"/sbin");
 
 	// override by the command line options if needed
-	confMgr->m_ctx->reflectOptionValues(g_optionValues);
+	confMgr->m_ctx->reflectCommandLineOptions(g_cmdLineOpts);
 }
 
 ConfigManager *ConfigManager::getInstance(void)
