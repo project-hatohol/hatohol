@@ -65,8 +65,14 @@ struct ConfigManager::Impl {
 	string                databaseDirectory;
 	string                actionCommandDirectory;
 	string                residentYardDirectory;
+	bool                  foreground;
 
 	// methods
+	Impl(void)
+	: foreground(false)
+	{
+	}
+
 	static void lock(void)
 	{
 		mutex.lock();
@@ -146,6 +152,12 @@ void ConfigManager::reset(void)
 	confMgr->m_impl->actionCommandDirectory =
 	  StringUtils::sprintf("%s/%s/action", LIBEXECDIR, PACKAGE);
 	confMgr->m_impl->residentYardDirectory = string(PREFIX"/sbin");
+
+	// override by the command line options if needed
+	OptionValues *optVal = &g_optionValues;
+	Impl *impl = confMgr->m_impl.get();
+	if (optVal->foreground)
+		impl->foreground = true;
 }
 
 ConfigManager *ConfigManager::getInstance(void)
@@ -176,6 +188,11 @@ const string &ConfigManager::getDatabaseDirectory(void) const
 size_t ConfigManager::getNumberOfPreservedReplicaGeneration(void) const
 {
 	return DEFAULT_NUM_PRESERVED_REPLICA_GENERATION;
+}
+
+bool ConfigManager::isForegroundProcess(void) const
+{
+	return m_impl->foreground;
 }
 
 int ConfigManager::getAllowedTimeOfActionForOldEvents(void)

@@ -38,6 +38,8 @@ public:
 	const std::string &getDatabaseDirectory(void) const;
 	size_t getNumberOfPreservedReplicaGeneration(void) const;
 
+	bool isForegroundProcess(void) const;
+
 	/**
 	 * Get the time to ignore an action for old events.
 	 * The events that are older than Tc - Ts shall be ignored, where
