@@ -287,34 +287,23 @@ static void _assertDeleteActions(const bool &deleteMyActions,
 }
 #define assertDeleteActions(D,T) cut_trace(_assertDeleteActions(D,T))
 
-static void _assertDeleteNoOwnerActions()
+static void _assertDeleteInvalidActions(ActionIdList &expectedIdList)
 {
-	setupTestDBUserAndDBAction();
+	ActionIdList::iterator it = expectedIdList.begin();
+	string expected;
+	for (; it != expectedIdList.end(); ++it)
+		expected += StringUtils::sprintf("%d\n", *it);
+
 	DBClientAction dbAction;
-	DBClientUser   dbUser;
-
-	const UserIdType targetId = 2;
-	string expect;
-	ActionIdList idList;
-	for (size_t i = 0; i < NumTestActionDef; i++) {
-		const ActionDef &actDef = testActionDef[i];
-		const int expectedId = i + 1;
-		if (actDef.ownerUserId != targetId)
-			expect += StringUtils::sprintf("%d\n", expectedId);
-	}
-
-	OperationPrivilege privilege(ALL_PRIVILEGES);
-	HatoholError err = dbUser.deleteUserInfo(targetId, privilege);
-
 	dbAction.deleteInvalidActions();
 
 	// check
 	string statement = "select action_id from ";
 	statement += DBClientAction::getTableNameActions();
 	statement += " order by action_id";
-	assertDBContent(dbAction.getDBAgent(), statement, expect);
+	assertDBContent(dbAction.getDBAgent(), statement, expected);
 }
-#define assertDeleteNoOwnerActions() cut_trace(_assertDeleteNoOwnerActions())
+#define assertDeleteInvalidActions(E) cut_trace(_assertDeleteInvalidActions(E))
 
 static void assertActionIdsInDB(ActionIdList excludeIdList)
 {
@@ -533,7 +522,50 @@ void test_deleteActionOfOthers(void)
 
 void test_deleteNoOwnerAction(void)
 {
-	assertDeleteNoOwnerActions();
+	setupTestDBUserAndDBAction();
+
+	const UserIdType targetId = 2;
+	ActionIdList idList;
+	for (size_t i = 0; i < NumTestActionDef; i++) {
+		const ActionDef &actDef = testActionDef[i];
+		const int expectedId = i + 1;
+		if (actDef.ownerUserId != targetId)
+			idList.push_back(expectedId);
+	}
+
+	DBClientUser dbUser;
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	HatoholError err = dbUser.deleteUserInfo(targetId, privilege);
+	assertHatoholError(HTERR_OK, err);
+
+	assertDeleteInvalidActions(idList);
+}
+
+void test_deleteNoIncidentTrackerAction(void)
+{
+	setupTestDBUserAndDBAction();
+
+	const IncidentTrackerIdType targetId = 2;
+	ActionIdList idList;
+	for (size_t i = 0; i < NumTestActionDef; i++) {
+		const ActionDef &actDef = testActionDef[i];
+		const int expectedId = i + 1;
+		if (actDef.type == ACTION_INCIDENT_SENDER) {
+			IncidentTrackerIdType trackerId;
+			if (!actDef.parseIncidentSenderCommand(trackerId))
+				continue;
+			if (trackerId == targetId)
+				continue;
+		}
+		idList.push_back(expectedId);
+	}
+
+	DBClientConfig dbConfig;
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	HatoholError err = dbConfig.deleteIncidentTracker(targetId, privilege);
+	assertHatoholError(HTERR_OK, err);
+
+	assertDeleteInvalidActions(idList);
 }
 
 void test_deleteActionOfOthersWithoutPrivilege(void)
