@@ -287,24 +287,6 @@ static void _assertDeleteActions(const bool &deleteMyActions,
 }
 #define assertDeleteActions(D,T) cut_trace(_assertDeleteActions(D,T))
 
-static void _assertDeleteInvalidActions(ActionIdList &expectedIdList)
-{
-	ActionIdList::iterator it = expectedIdList.begin();
-	string expected;
-	for (; it != expectedIdList.end(); ++it)
-		expected += StringUtils::sprintf("%d\n", *it);
-
-	DBClientAction dbAction;
-	dbAction.deleteInvalidActions();
-
-	// check
-	string statement = "select action_id from ";
-	statement += DBClientAction::getTableNameActions();
-	statement += " order by action_id";
-	assertDBContent(dbAction.getDBAgent(), statement, expected);
-}
-#define assertDeleteInvalidActions(E) cut_trace(_assertDeleteInvalidActions(E))
-
 static void assertActionIdsInDB(ActionIdList excludeIdList)
 {
 	set<ActionIdType> idSet;
@@ -525,12 +507,12 @@ void test_deleteNoOwnerAction(void)
 	setupTestDBUserAndDBAction();
 
 	const UserIdType targetId = 2;
-	ActionIdList idList;
+	ActionIdList excludeIdList;
 	for (size_t i = 0; i < NumTestActionDef; i++) {
 		const ActionDef &actDef = testActionDef[i];
-		const int expectedId = i + 1;
-		if (actDef.ownerUserId != targetId)
-			idList.push_back(expectedId);
+		const int actionId = i + 1;
+		if (actDef.ownerUserId == targetId)
+			excludeIdList.push_back(actionId);
 	}
 
 	DBClientUser dbUser;
@@ -538,7 +520,10 @@ void test_deleteNoOwnerAction(void)
 	HatoholError err = dbUser.deleteUserInfo(targetId, privilege);
 	assertHatoholError(HTERR_OK, err);
 
-	assertDeleteInvalidActions(idList);
+	DBClientAction dbAction;
+	dbAction.deleteInvalidActions();
+
+	assertActionIdsInDB(excludeIdList);
 }
 
 void test_deleteNoIncidentTrackerAction(void)
@@ -546,18 +531,16 @@ void test_deleteNoIncidentTrackerAction(void)
 	setupTestDBUserAndDBAction();
 
 	const IncidentTrackerIdType targetId = 2;
-	ActionIdList idList;
+	ActionIdList excludeIdList;
 	for (size_t i = 0; i < NumTestActionDef; i++) {
 		const ActionDef &actDef = testActionDef[i];
-		const int expectedId = i + 1;
-		if (actDef.type == ACTION_INCIDENT_SENDER) {
-			IncidentTrackerIdType trackerId;
-			if (!actDef.parseIncidentSenderCommand(trackerId))
-				continue;
-			if (trackerId == targetId)
-				continue;
-		}
-		idList.push_back(expectedId);
+		if (actDef.type != ACTION_INCIDENT_SENDER)
+			continue;
+		const int actionId = i + 1;
+		IncidentTrackerIdType trackerId;
+		bool succeeded = actDef.parseIncidentSenderCommand(trackerId);
+		if (!succeeded || trackerId == targetId)
+			excludeIdList.push_back(actionId);
 	}
 
 	DBClientConfig dbConfig;
@@ -565,7 +548,10 @@ void test_deleteNoIncidentTrackerAction(void)
 	HatoholError err = dbConfig.deleteIncidentTracker(targetId, privilege);
 	assertHatoholError(HTERR_OK, err);
 
-	assertDeleteInvalidActions(idList);
+	DBClientAction dbAction;
+	dbAction.deleteInvalidActions();
+
+	assertActionIdsInDB(excludeIdList);
 }
 
 void test_deleteActionOfOthersWithoutPrivilege(void)
