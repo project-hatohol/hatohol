@@ -120,6 +120,7 @@ libhatohol_la_SOURCES = \
 if HAVE_LIBRABBITMQ
 libhatohol_la_SOURCES += \
 	AMQPConsumer.cc AMQPConsumer.h \
+	AMQPMessageHandler.cc AMQPMessageHandler.h \
 	HatoholArmPluginGateJSON.cc HatoholArmPluginGateJSON.h
 endif
 

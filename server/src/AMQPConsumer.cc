@@ -18,6 +18,7 @@
  */
 
 #include "AMQPConsumer.h"
+#include "AMQPMessageHandler.h"
 #include <Logger.h>
 #include <StringUtils.h>
 #include <amqp_tcp_socket.h>
@@ -298,9 +299,11 @@ private:
 };
 
 AMQPConsumer::AMQPConsumer(const string &brokerUrl,
-			   const string &queueAddress)
+			   const string &queueAddress,
+			   AMQPMessageHandler *handler)
 : m_brokerUrl(brokerUrl),
-  m_queueAddress(queueAddress)
+  m_queueAddress(queueAddress),
+  m_handler(handler)
 {
 }
 
@@ -322,14 +325,7 @@ gpointer AMQPConsumer::mainThread(HatoholThreadArg *arg)
 		if (!consumed)
 			continue;
 
-		const amqp_bytes_t *content_type =
-			&(envelope->message.properties.content_type);
-		const amqp_bytes_t *body = &(envelope->message.body);
-		MLPL_INFO("message: <%.*s>/<%.*s>\n",
-			  static_cast<int>(content_type->len),
-			  static_cast<char *>(content_type->bytes),
-			  static_cast<int>(body->len),
-			  static_cast<char *>(body->bytes));
+		m_handler->handle(envelope);
 	}
 	return NULL;
 }
