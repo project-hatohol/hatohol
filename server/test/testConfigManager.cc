@@ -25,6 +25,34 @@ using namespace std;;
 
 namespace testConfigManager {
 
+struct CommandArgHelper
+{
+	vector<const char *> args;
+
+	CommandArgHelper(void)
+	{
+		*this << "command-name";
+	}
+
+	virtual ~CommandArgHelper()
+	{
+		ConfigManager::clearParseCommandLineResult();
+	}
+
+	void activate(void)
+	{
+		gchar **argv = (gchar **)&args[0];
+		gint argc = args.size();
+		ConfigManager::parseCommandLine(&argc, &argv);
+		ConfigManager::reset();
+	}
+
+	void operator <<(const char *word)
+	{
+		args.push_back(word);
+	}
+};
+
 void cut_setup(void)
 {
 	hatoholInit();
@@ -111,6 +139,14 @@ void test_parseConfigServerWithPort(void)
 void test_parseTestModeDefault(void)
 {
 	cppcut_assert_equal(false, ConfigManager::getInstance()->isTestMode());
+}
+
+void test_parseTestModeEnabled(void)
+{
+	CommandArgHelper cmds;
+	cmds << "--test-mode";
+	cmds.activate();
+	cppcut_assert_equal(true, ConfigManager::getInstance()->isTestMode());
 }
 
 } // namespace testConfigManager
