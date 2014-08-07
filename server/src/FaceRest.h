@@ -48,8 +48,6 @@ public:
 	static const int DEFAULT_NUM_WORKERS;
 
 	static void init(void);
-	static void reset(const CommandLineArg &arg);
-	static bool isTestMode(void);
 
 	FaceRest(CommandLineArg &cmdArg, FaceRestParam *param = NULL);
 	virtual ~FaceRest();

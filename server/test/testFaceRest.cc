@@ -21,6 +21,7 @@
 #include "Hatohol.h"
 #include "FaceRest.h"
 #include "FaceRestTestUtils.h"
+#include "Helpers.h"
 using namespace std;
 using namespace mlpl;
 
@@ -41,47 +42,12 @@ void cut_teardown(void)
 	g_parser = NULL;
 }
 
-static void _assertTestMode(const bool expectedMode = false,
-                            const string &callbackName = "")
-{
-	startFaceRest();
-	RequestArg arg("/test");
-	g_parser = getResponseAsJSONParser(arg);
-	assertErrorCode(g_parser);
-	assertValueInParser(g_parser, "testMode", expectedMode);
-}
-#define assertTestMode(E,...) cut_trace(_assertTestMode(E,##__VA_ARGS__))
-
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
-void test_isTestModeDefault(void)
-{
-	cppcut_assert_equal(false, FaceRest::isTestMode());
-	assertTestMode(false);
-}
-
-void test_isTestModeSet(void)
-{
-	CommandLineArg arg;
-	arg.push_back("--test-mode");
-	hatoholInit(&arg);
-	cppcut_assert_equal(true, FaceRest::isTestMode());
-	assertTestMode(true);
-}
-
-void test_isTestModeReset(void)
-{
-	test_isTestModeSet();
-	cut_teardown();
-	hatoholInit();
-	cppcut_assert_equal(false, FaceRest::isTestMode());
-	assertTestMode(false);
-}
-
 void test_testPost(void)
 {
-	setupTestMode();
+	TestModeStone stone;
 	startFaceRest();
 	StringMap parameters;
 	parameters["AB"] = "Foo Goo N2";
@@ -99,7 +65,7 @@ void test_testPost(void)
 
 void test_testError(void)
 {
-	setupTestMode();
+	TestModeStone stone;
 	startFaceRest();
 	RequestArg arg("/test/error");
 	g_parser = getResponseAsJSONParser(arg);

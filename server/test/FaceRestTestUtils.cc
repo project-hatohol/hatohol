@@ -37,13 +37,6 @@ static StringMap    emptyStringMap;
 static StringVector emptyStringVector;
 static FaceRest *g_faceRest = NULL;
 
-void setupTestMode(void)
-{
-	CommandLineArg arg;
-	arg.push_back("--test-mode");
-	hatoholInit(&arg);
-}
-
 void setupUserDB(void)
 {
 	const bool dbRecreate = true;

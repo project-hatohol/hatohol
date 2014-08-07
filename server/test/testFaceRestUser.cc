@@ -136,7 +136,7 @@ static void _assertUpdateAddUserMissing(
   const StringMap &parameters,
   const HatoholErrorCode expectErrorCode = HTERR_NOT_FOUND_PARAMETER)
 {
-	setupTestMode();
+	TestModeStone stone;
 	startFaceRest();
 	RequestArg arg("/test/user", "cbname");
 	arg.parameters = parameters;
@@ -149,7 +149,7 @@ cut_trace(_assertUpdateAddUserMissing(P, ##__VA_ARGS__))
 
 static void _assertUpdateOrAddUser(const string &name)
 {
-	setupTestMode();
+	TestModeStone stone;
 	startFaceRest();
 
 	const bool dbRecreate = true;

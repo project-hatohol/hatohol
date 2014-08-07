@@ -1375,3 +1375,9 @@ void CommandArgHelper::operator <<(const char *word)
 {
 	args.push_back(word);
 }
+
+TestModeStone::TestModeStone(void)
+{
+	m_cmdArgHelper << "--test-mode";
+	m_cmdArgHelper.activate();
+}
