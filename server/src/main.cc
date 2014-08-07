@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -98,17 +98,6 @@ static void setupGizmoForExit(gpointer data)
 	g_io_add_watch(ioch, G_IO_HUP, exitFunc, data);
 }
 
-static bool isForegroundOptionIncluded(CommandLineArg &cmdArg)
-{
-	for (size_t i = 0; i < cmdArg.size(); i++) {
-		string &arg = cmdArg[i];
-		if (arg == "--foreground")
-			return true;
-	}
-
-	return false;
-}
-
 static string getPidFilePath(const CommandLineArg &arg)
 {
 	for (size_t idx = 0; idx < arg.size(); idx++) {
@@ -159,7 +148,9 @@ int mainRoutine(int argc, char *argv[])
 	CommandLineArg cmdArg;
 	for (int i = 1; i < argc; i++)
 		cmdArg.push_back(argv[i]);
-	if (!isForegroundOptionIncluded(cmdArg)){
+	if (!ConfigManager::parseCommandLine(&argc, &argv))
+		return EXIT_FAILURE;
+	if (!ConfigManager::getInstance()->isForegroundProcess()) {
 		if (!daemonize(cmdArg)) {
 			MLPL_ERR("Can't start daemon process\n");
 			return EXIT_FAILURE;
