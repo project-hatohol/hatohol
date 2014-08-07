@@ -63,6 +63,8 @@ public:
 	std::string getResidentYardDirectory(void);
 	void setResidentYardDirectory(const std::string &dir);
 
+	bool isTestMode(void) const;
+
 protected:
 	void loadConfFile(void);
 
