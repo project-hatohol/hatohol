@@ -84,7 +84,6 @@ static void reset(const CommandLineArg &arg)
 	CacheServiceDBClient::reset();
 
 	UnifiedDataStore::getInstance()->reset();
-	FaceRest::reset(arg);
 }
 
 void hatoholInit(const CommandLineArg *arg)

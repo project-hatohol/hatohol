@@ -317,4 +317,16 @@ struct CommandArgHelper
 	void operator <<(const char *word);
 };
 
+/**
+ * Set test mode while this class's instance is alive.
+ * The state is reset when the instance is deleted.
+ */
+class TestModeStone
+{
+public:
+	TestModeStone(void);
+private:
+	CommandArgHelper m_cmdArgHelper;
+};
+
 #endif // Helpers_h
