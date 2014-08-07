@@ -172,7 +172,7 @@ void ConfigManager::setResidentYardDirectory(const string &dir)
 void ConfigManager::loadConfFile(void)
 {
 	vector<string> confFiles;
-	confFiles.push_back(m_ctx->confFilePath.c_str());
+	confFiles.push_back(m_ctx->confFilePath);
 
 	char *systemWideConfFile =
 	   g_build_filename(SYSCONFDIR, PACKAGE_NAME, "hatohol.conf", NULL);
