@@ -66,10 +66,14 @@ struct ConfigManager::PrivateContext {
 	string                actionCommandDirectory;
 	string                residentYardDirectory;
 	bool                  foreground;
+	string                dbServerAddress;
+	int                   dbServerPort;
 
 	// methods
 	PrivateContext(void)
-	: foreground(false)
+	: foreground(false),
+	  dbServerAddress("localhost"),
+	  dbServerPort(0)
 	{
 	}
 
@@ -193,6 +197,16 @@ size_t ConfigManager::getNumberOfPreservedReplicaGeneration(void) const
 bool ConfigManager::isForegroundProcess(void) const
 {
 	return m_ctx->foreground;
+}
+
+string ConfigManager::getDBServerAddress(void) const
+{
+	return m_ctx->dbServerAddress;
+}
+
+int ConfigManager::getDBServerPort(void) const
+{
+	return m_ctx->dbServerPort;
 }
 
 int ConfigManager::getAllowedTimeOfActionForOldEvents(void)

@@ -39,6 +39,8 @@ public:
 	size_t getNumberOfPreservedReplicaGeneration(void) const;
 
 	bool isForegroundProcess(void) const;
+	std::string getDBServerAddress(void) const;
+	int getDBServerPort(void) const;
 
 	/**
 	 * Get the time to ignore an action for old events.
