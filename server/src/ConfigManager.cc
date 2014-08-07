@@ -94,6 +94,7 @@ struct ConfigManager::PrivateContext {
 			MLPL_DBG("Failed to load config file: %s (%s)\n",
 			         path.c_str(),
 			         error ? error->message : "Unknown reason");
+			g_error_free(error);
 			return false;
 		}
 
