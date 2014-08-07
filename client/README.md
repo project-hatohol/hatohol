@@ -6,19 +6,18 @@ on Django.
 
 ## Table of Contents
 
-- [Hatohol Client](#user-content-hatohol-client)
-	- [Required software and settings](#user-content-required-software-and-settings)
-	- [Containing modules](#user-content-containing-modules)
-	- [How to setup](#user-content-how-to-setup)
-		- [Install Hatohol Client](#user-content-install-hatohol-client)
-		- [Install Required Libraries](#user-content-install-required-libraries)
-			- [On CentOS 6.5](#user-content-on-centos-65)
-			- [On Ubuntu 12.04 and 14.04](#user-content-on-ubuntu-1204-and-1404)
-		- [Create the database](#user-content-create-the-database)
-		- [Create the database and the tables](#user-content-create-the-database-and-the-tables)
-	- [How to run](#user-content-how-to-run)
-	- [Hints](#user-content-hints)
-		- [How to set a Hatohol server address and the port](#user-content-how-to-set-a-hatohol-server-address-and-the-port)
+- [Required software and settings](#user-content-required-software-and-settings)
+- [Containing modules](#user-content-containing-modules)
+- [How to setup](#user-content-how-to-setup)
+	- [Install Hatohol Client](#user-content-install-hatohol-client)
+	- [Install Required Libraries](#user-content-install-required-libraries)
+		- [On CentOS 6.5](#user-content-on-centos-65)
+		- [On Ubuntu 12.04 and 14.04](#user-content-on-ubuntu-1204-and-1404)
+	- [Create the database](#user-content-create-the-database)
+	- [Create the database and the tables](#user-content-create-the-database-and-the-tables)
+- [How to run](#user-content-how-to-run)
+- [Hints](#user-content-hints)
+	- [How to set a Hatohol server address and the port](#user-content-how-to-set-a-hatohol-server-address-and-the-port)
 
 ## Required software and settings
 - Python 2.6
