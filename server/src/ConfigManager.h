@@ -52,10 +52,10 @@ public:
 
 	int getMaxNumberOfRunningCommandAction(void);
 
-	static std::string getActionCommandDirectory(void);
-	static void setActionCommandDirectory(const std::string &dir);
-	static std::string getResidentYardDirectory(void);
-	static void setResidentYardDirectory(const std::string &dir);
+	std::string getActionCommandDirectory(void);
+	void setActionCommandDirectory(const std::string &dir);
+	std::string getResidentYardDirectory(void);
+	void setResidentYardDirectory(const std::string &dir);
 
 protected:
 	void loadConfFile(void);

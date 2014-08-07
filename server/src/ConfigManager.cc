@@ -43,8 +43,8 @@ struct ConfigManager::PrivateContext {
 	static ConfigManager *instance;
 	string                confFilePath;
 	string                databaseDirectory;
-	static string         actionCommandDirectory;
-	static string         residentYardDirectory;
+	string                actionCommandDirectory;
+	string                residentYardDirectory;
 
 	// methods
 	static void lock(void)
@@ -86,8 +86,6 @@ struct ConfigManager::PrivateContext {
 
 Mutex          ConfigManager::PrivateContext::mutex;
 ConfigManager *ConfigManager::PrivateContext::instance = NULL;
-string         ConfigManager::PrivateContext::actionCommandDirectory;
-string         ConfigManager::PrivateContext::residentYardDirectory;
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -99,9 +97,9 @@ void ConfigManager::reset(void)
 	ConfigManager *confMgr = getInstance();
 	confMgr->loadConfFile();
 
-	PrivateContext::actionCommandDirectory =
+	confMgr->m_ctx->actionCommandDirectory =
 	  StringUtils::sprintf("%s/%s/action", LIBEXECDIR, PACKAGE);
-	PrivateContext::residentYardDirectory = string(PREFIX"/sbin");
+	confMgr->m_ctx->residentYardDirectory = string(PREFIX"/sbin");
 }
 
 ConfigManager *ConfigManager::getInstance(void)
@@ -146,32 +144,26 @@ int ConfigManager::getMaxNumberOfRunningCommandAction(void)
 
 string ConfigManager::getActionCommandDirectory(void)
 {
-	PrivateContext::lock();
-	string dir = PrivateContext::actionCommandDirectory;
-	PrivateContext::unlock();
-	return dir;
+	AutoMutex autoLock(&m_ctx->mutex);
+	return m_ctx->actionCommandDirectory;
 }
 
 void ConfigManager::setActionCommandDirectory(const string &dir)
 {
-	PrivateContext::lock();
-	PrivateContext::actionCommandDirectory = dir;
-	PrivateContext::unlock();
+	AutoMutex autoLock(&m_ctx->mutex);
+	m_ctx->actionCommandDirectory = dir;
 }
 
 string ConfigManager::getResidentYardDirectory(void)
 {
-	PrivateContext::lock();
-	string dir = PrivateContext::residentYardDirectory;
-	PrivateContext::unlock();
-	return dir;
+	AutoMutex autoLock(&m_ctx->mutex);
+	return m_ctx->residentYardDirectory;
 }
 
 void ConfigManager::setResidentYardDirectory(const string &dir)
 {
-	PrivateContext::lock();
-	PrivateContext::residentYardDirectory = dir;
-	PrivateContext::unlock();
+	AutoMutex autoLock(&m_ctx->mutex);
+	m_ctx->residentYardDirectory = dir;
 }
 
 // ---------------------------------------------------------------------------

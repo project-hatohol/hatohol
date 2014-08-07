@@ -840,11 +840,11 @@ void setup(void)
 {
 	hatoholInit();
 	acquireDefaultContext();
-	ConfigManager::setActionCommandDirectory(get_current_dir_name());
+	ConfigManager::getInstance()->setActionCommandDirectory(get_current_dir_name());
 
 	string residentYardDir = get_current_dir_name();
 	residentYardDir += "/../src/.libs";
-	ConfigManager::setResidentYardDirectory(residentYardDir);
+	ConfigManager::getInstance()->setResidentYardDirectory(residentYardDir);
 	setupTestDBAction();
 }
 

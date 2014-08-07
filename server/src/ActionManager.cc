@@ -836,7 +836,8 @@ void ActionManager::execCommandActionCore(
 void ActionManager::addCommandDirectory(string &path)
 {
 	// add the action command directory
-	string absPath = ConfigManager::getActionCommandDirectory();
+	string absPath =
+	  ConfigManager::getInstance()->getActionCommandDirectory();
 	absPath += "/";
 	absPath += path;
 	path = absPath;
@@ -1196,7 +1197,8 @@ ResidentInfo *ActionManager::launchResidentActionYard
 		return NULL;
 	}
 
-	string absPath = ConfigManager::getResidentYardDirectory();
+	string absPath =
+	  ConfigManager::getInstance()->getResidentYardDirectory();
 	absPath += "/hatohol-resident-yard";
 	const gchar *argv[] = {
 	  absPath.c_str(),
