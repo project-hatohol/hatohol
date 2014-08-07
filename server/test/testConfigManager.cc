@@ -92,4 +92,20 @@ void test_parseConfigServer(void)
 	cppcut_assert_equal(0, confMgr->getDBServerPort());
 }
 
+void test_parseConfigServerWithPort(void)
+{
+	vector<const char *> args;
+	args.push_back("command-name");
+	args.push_back("--config-db-server");
+	args.push_back("umi.example.com:3333");
+	gchar **argv = (gchar **)&args[0];
+	gint argc = args.size();
+	ConfigManager::parseCommandLine(&argc, &argv);
+	ConfigManager::reset();
+	ConfigManager *confMgr = ConfigManager::getInstance();
+	cppcut_assert_equal(string("umi.example.com"),
+	                    confMgr->getDBServerAddress());
+	cppcut_assert_equal(3333, confMgr->getDBServerPort());
+}
+
 } // namespace testConfigManager
