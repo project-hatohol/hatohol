@@ -27,17 +27,6 @@
 using namespace std;
 using namespace mlpl;
 
-struct TestDBClientConfig : public DBClientConfig {
-
-	static bool callParseCommandLineArgument(const CommandLineArg &cmdArg)
-	{
-		bool ret = parseCommandLineArgument(cmdArg);
-		// Some of the parameters in the above are effective on reset().
-		TestDBClientConfig::reset();
-		return ret;
-	}
-};
-
 namespace testDBClientConfig {
 
 void _assertGetHostAddress
@@ -114,13 +103,6 @@ void cut_setup(void)
 	hatoholInit();
 	bool dbRecreate = true;
 	setupTestDBConfig(dbRecreate);
-}
-
-void cut_teardown(void)
-{
-	// This commands resets the server address and the port.
-	CommandLineArg cmdArg;
-	TestDBClientConfig::callParseCommandLineArgument(cmdArg);
 }
 
 // ---------------------------------------------------------------------------
@@ -623,34 +605,6 @@ void test_setGetFaceRestPort(void)
 	DBClientConfig dbConfig;
 	dbConfig.setFaceRestPort(portNumber);
 	cppcut_assert_equal(portNumber, dbConfig.getFaceRestPort());
-}
-
-void test_parseArgConfigDBServer(void)
-{
-	const string serverName = "cat.example.com";
-	CommandLineArg arg;
-	arg.push_back("--config-db-server");
-	arg.push_back(serverName);
-	cppcut_assert_equal(
-	  true, TestDBClientConfig::callParseCommandLineArgument(arg));
-	DBConnectInfo connInfo =
-	   DBClient::getDBConnectInfo(DB_DOMAIN_ID_CONFIG);
-	cppcut_assert_equal(serverName, connInfo.host);
-}
-
-void test_parseArgConfigDBServerWithPort(void)
-{
-	const string serverName = "cat.example.com";
-	const size_t port = 1027;
-	CommandLineArg arg;
-	arg.push_back("--config-db-server");
-	arg.push_back(StringUtils::sprintf("%s:%zd", serverName.c_str(), port));
-	cppcut_assert_equal(
-	  true, TestDBClientConfig::callParseCommandLineArgument(arg));
-	DBConnectInfo connInfo =
-	   DBClient::getDBConnectInfo(DB_DOMAIN_ID_CONFIG);
-	cppcut_assert_equal(serverName, connInfo.host);
-	cppcut_assert_equal(port, connInfo.port);
 }
 
 void test_isCopyOnDemandEnabledDefault(void)

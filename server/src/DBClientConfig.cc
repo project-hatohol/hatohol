@@ -23,6 +23,7 @@
 #include "DBAgentFactory.h"
 #include "DBClientConfig.h"
 #include "CacheServiceDBClient.h"
+#include "ConfigManager.h"
 #include "HatoholError.h"
 #include "Params.h"
 #include "ItemGroupStream.h"
@@ -453,8 +454,6 @@ static const DBAgent::TableProfile tableProfileIncidentTrackers(
 
 struct DBClientConfig::PrivateContext
 {
-	static DBConnectInfo connInfo;
-
 	PrivateContext(void)
 	{
 	}
@@ -463,7 +462,6 @@ struct DBClientConfig::PrivateContext
 	{
 	}
 };
-DBConnectInfo DBClientConfig::PrivateContext::connInfo;
 
 static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
 {
@@ -674,7 +672,7 @@ string IncidentTrackerQueryOption::getCondition(void) const
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-void DBClientConfig::init(const CommandLineArg &cmdArg)
+void DBClientConfig::init(void)
 {
 	//
 	// set database info
@@ -704,14 +702,14 @@ void DBClientConfig::init(const CommandLineArg &cmdArg)
 
 	registerSetupInfo(
 	  DB_DOMAIN_ID_CONFIG, DEFAULT_DB_NAME, &DB_SETUP_FUNC_ARG);
-
-	if (!parseCommandLineArgument(cmdArg))
-		THROW_HATOHOL_EXCEPTION("Failed to parse argument.");
 }
 
 void DBClientConfig::reset(void)
 {
-	DBConnectInfo &connInfo = PrivateContext::connInfo;
+	ConfigManager *confMgr = ConfigManager::getInstance();
+	DBConnectInfo connInfo;
+	connInfo.host = confMgr->getDBServerAddress();
+	connInfo.port = confMgr->getDBServerPort();
 	connInfo.user = DEFAULT_USER_NAME;
 	connInfo.password = DEFAULT_PASSWORD;
 	connInfo.dbName = DEFAULT_DB_NAME;
@@ -1248,32 +1246,6 @@ HatoholError DBClientConfig::deleteIncidentTracker(
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-bool DBClientConfig::parseCommandLineArgument(const CommandLineArg &cmdArg)
-{
-	DBConnectInfo &connInfo = PrivateContext::connInfo;
-	connInfo.reset();
-	string dbServer;
-	for (size_t i = 0; i < cmdArg.size(); i++) {
-		const string &arg = cmdArg[i];
-		if (arg == "--config-db-server") {
-			if (i == cmdArg.size()-1) {
-				MLPL_ERR(
-				  "--config-db-server needs an argument.\n");
-				return false;
-			}
-			i++;
-			dbServer = cmdArg[i];
-		}
-	}
-
-	if (!dbServer.empty()) {
-		if (!parseDBServer(dbServer, connInfo.host, connInfo.port))
-			return false;
-	}
-
-	return true;
-}
-
 void DBClientConfig::tableInitializerSystem(DBAgent *dbAgent, void *data)
 {
 	const ColumnDef &columnDefDatabaseDir =
@@ -1289,24 +1261,6 @@ void DBClientConfig::tableInitializerSystem(DBAgent *dbAgent, void *data)
 	arg.add(atoi(columnDefFaceRestPort.defaultValue));
 	arg.add(atoi(columnDefEnableCopyOnDemand.defaultValue));
 	dbAgent->insert(arg);
-}
-
-bool DBClientConfig::parseDBServer(const string &dbServer,
-                                   string &host, size_t &port)
-{
-	size_t posColon = dbServer.find(":");
-	if (posColon == string::npos) {
-		host = dbServer;
-		return true;
-	}
-	if (posColon == dbServer.size() - 1) {
-		MLPL_ERR("A column must not be the tail: %s\n",
-		         dbServer.c_str());
-		return false;
-	}
-	host = string(dbServer, 0, posColon);
-	port = atoi(&dbServer.c_str()[posColon+1]);
-	return true;
 }
 
 bool DBClientConfig::canUpdateTargetServer(

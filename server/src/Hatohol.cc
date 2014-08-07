@@ -59,7 +59,7 @@ static void init(const CommandLineArg &arg)
 
 	DBAgentSQLite3::init();
 	DBAgentMySQL::init();
-	DBClientConfig::init(arg);
+	DBClientConfig::init();
 	DBClientUser::init();
 	DBClientHatohol::init();
 	DBClientAction::init();
