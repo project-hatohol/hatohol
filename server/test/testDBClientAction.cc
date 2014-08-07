@@ -194,7 +194,8 @@ static void pickupActionIdsFromTestActionDef(
 
 void _assertGetActionList(
   const UserIdType &operatorId,
-  const ActionType &actionType = ACTION_USER_DEFINED)
+  const ActionType &actionType = ACTION_USER_DEFINED,
+  const ActionIdSet *excludeIdSet = NULL)
 {
 	ActionsQueryOption option(operatorId);
 	option.setActionType(actionType);
@@ -212,6 +213,11 @@ void _assertGetActionList(
 	cppcut_assert_equal(expectActionIdSet.size(), actionDefList.size());
 	ActionDefListIterator actionDef = actionDefList.begin();
 	for (; actionDef != actionDefList.end(); ++actionDef) {
+		if (excludeIdSet &&
+		    excludeIdSet->find(actionDef->id) != excludeIdSet->end()) {
+			g_print("exclude\n");
+			continue;
+		}
 		ActionIdSetIterator it = expectActionIdSet.find(actionDef->id);
 		cppcut_assert_equal(true, it != expectActionIdSet.end());
 		expectActionIdSet.erase(it);
@@ -909,6 +915,33 @@ void test_getActionListWithActionType(gconstpointer data)
 	const UserIdType userId = findUserWith(OPPRVLG_GET_ALL_ACTION);
 	ActionType type = (ActionType)gcut_data_get_int(data, "type");
 	assertGetActionList(userId, type);
+}
+
+void test_getActionListWithNoIncidentTracker(void)
+{
+	setupTestDBUserAndDBAction();
+
+	const IncidentTrackerIdType targetId = 2;
+	ActionIdSet excludeIdSet;
+	for (size_t i = 0; i < NumTestActionDef; i++) {
+		const ActionDef &actDef = testActionDef[i];
+		if (actDef.type != ACTION_INCIDENT_SENDER)
+			continue;
+		const int actionId = i + 1;
+		IncidentTrackerIdType trackerId;
+		bool succeeded = actDef.parseIncidentSenderCommand(trackerId);
+		if (!succeeded || trackerId == targetId)
+			excludeIdSet.insert(actionId);
+	}
+
+	DBClientConfig dbConfig;
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	HatoholError err = dbConfig.deleteIncidentTracker(targetId, privilege);
+	assertHatoholError(HTERR_OK, err);
+
+	const UserIdType userId
+	  = findUserWith(OPPRVLG_GET_ALL_INCIDENT_SETTINGS);
+	assertGetActionList(userId, ACTION_INCIDENT_SENDER, &excludeIdSet);
 }
 
 void data_getActionListByIncidentSettingsAdmin(void)
