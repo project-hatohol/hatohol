@@ -31,11 +31,6 @@ void cut_setup(void)
 	hatoholInit();
 }
 
-void cut_teardown(void)
-{
-	ConfigManager::clearParseCommandLineResult();
-}
-
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
