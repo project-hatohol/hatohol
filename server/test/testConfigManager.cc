@@ -64,4 +64,11 @@ void test_setResidentYardDirectory(void)
 	  exampleDir, ConfigManager::getInstance()->getResidentYardDirectory());
 }
 
+void test_parseConfigServerDefault(void)
+{
+	ConfigManager *confMgr = ConfigManager::getInstance();
+	cppcut_assert_equal(string("localhost"), confMgr->getDBServerAddress());
+	cppcut_assert_equal(0, confMgr->getDBServerPort());
+}
+
 } // namespace testConfigManager
