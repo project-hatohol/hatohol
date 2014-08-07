@@ -30,6 +30,7 @@ public:
 	static ConfigManager *getInstance(void);
 	static int ALLOW_ACTION_FOR_ALL_OLD_EVENTS;
 
+	static bool parseCommandLine(gint *argc, gchar ***argv);
 	static void reset(void);
 
 	void getTargetServers(MonitoringServerInfoList &monitoringServers,
