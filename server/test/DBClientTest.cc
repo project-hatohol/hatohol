@@ -435,23 +435,6 @@ ActionDef testActionDef[] = {
 	"3",                    // command
 	0,                      // timeout
 	0,                      // ownerUserId
-}, {
-	0,                      // id (this field is ignored)
-	ActionCondition(
-	  0,                        // enableBits
-	  0,                        // serverId
-	  0,                        // hostId
-	  0,                        // hostgroupId
-	  0,                        // triggerId
-	  TRIGGER_STATUS_PROBLEM,   // triggerStatus
-	  TRIGGER_SEVERITY_CRITICAL,// triggerSeverity
-	  CMP_EQ_GT                 // triggerSeverityCompType;
-	), // condition
-	ACTION_INCIDENT_SENDER, // type
-	"",                     // working dir
-	"3",                    // command
-	0,                      // timeout
-	0,                      // ownerUserId
 },
 };
 

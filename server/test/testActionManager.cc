@@ -1362,9 +1362,26 @@ void test_checkEventsWithMultipleIncidentSender(void)
 {
 	// prepare two incident sender actions
 	setupTestDBAction();
+	ActionDef actDef = {
+	  0,                      // id (this field is ignored)
+	  ActionCondition(
+	    ACTCOND_TRIGGER_STATUS | ACTCOND_TRIGGER_SEVERITY, // enableBits
+	    0,                        // serverId
+	    0,                        // hostId
+	    0,                        // hostgroupId
+	    0,                        // triggerId
+	    TRIGGER_STATUS_PROBLEM,   // triggerStatus
+	    TRIGGER_SEVERITY_INFO,    // triggerSeverity
+	    CMP_EQ_GT                 // triggerSeverityCompType;
+	  ), // condition
+	  ACTION_INCIDENT_SENDER, // type
+	  "",                     // working dir
+	  "3",                    // command
+	  0,                      // timeout
+	  0,                      // ownerUserId
+	};
 	ActionIdType expectedActionId = 1;
 	DBClientAction dbAction;
-	ActionDef &actDef = testActionDef[NumTestActionDef - 1];
 	OperationPrivilege privilege(USER_ID_SYSTEM);
 	dbAction.addAction(actDef, privilege);
 	dbAction.addAction(actDef, privilege);
