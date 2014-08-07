@@ -52,8 +52,18 @@ struct OptionValues {
 
 	virtual ~OptionValues()
 	{
+		clear();
+	}
+
+	void clear(void)
+	{
 		g_free(pidFilePath);
+		pidFilePath = NULL;
+
 		g_free(dbServer);
+		dbServer = NULL;
+
+		foreground = FALSE;
 	}
 };
 static OptionValues g_optionValues;
@@ -85,6 +95,22 @@ struct ConfigManager::PrivateContext {
 	static void unlock(void)
 	{
 		mutex.unlock();
+	}
+
+	void parseDBServer(const string &dbServer)
+	{
+		const size_t posColon = dbServer.find(":");
+		if (posColon == string::npos) {
+			dbServerAddress = dbServer;
+			return;
+		}
+		if (posColon == dbServer.size() - 1) {
+			MLPL_ERR("A column must not be the tail: %s\n",
+			         dbServer.c_str());
+			return;
+		}
+		dbServerAddress = string(dbServer, 0, posColon);
+		dbServerPort = atoi(&dbServer.c_str()[posColon+1]);
 	}
 
 	bool loadConfFile(const string &path)
@@ -146,6 +172,11 @@ bool ConfigManager::parseCommandLine(gint *argc, gchar ***argv)
 	return true;
 }
 
+void ConfigManager::clearParseCommandLineResult(void)
+{
+	g_optionValues.clear();
+}
+
 void ConfigManager::reset(void)
 {
 	delete PrivateContext::instance;
@@ -160,6 +191,8 @@ void ConfigManager::reset(void)
 	// override by the command line options if needed
 	OptionValues *optVal = &g_optionValues;
 	PrivateContext *ctx = confMgr->m_ctx;
+	if (optVal->dbServer)
+		ctx->parseDBServer(optVal->dbServer);
 	if (optVal->foreground)
 		ctx->foreground = true;
 }

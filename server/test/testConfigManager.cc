@@ -30,6 +30,11 @@ void cut_setup(void)
 	hatoholInit();
 }
 
+void cut_teardown(void)
+{
+	ConfigManager::clearParseCommandLineResult();
+}
+
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
@@ -68,6 +73,22 @@ void test_parseConfigServerDefault(void)
 {
 	ConfigManager *confMgr = ConfigManager::getInstance();
 	cppcut_assert_equal(string("localhost"), confMgr->getDBServerAddress());
+	cppcut_assert_equal(0, confMgr->getDBServerPort());
+}
+
+void test_parseConfigServer(void)
+{
+	vector<const char *> args;
+	args.push_back("command-name");
+	args.push_back("--config-db-server");
+	args.push_back("umi.example.com");
+	gchar **argv = (gchar **)&args[0];
+	gint argc = args.size();
+	ConfigManager::parseCommandLine(&argc, &argv);
+	ConfigManager::reset();
+	ConfigManager *confMgr = ConfigManager::getInstance();
+	cppcut_assert_equal(string("umi.example.com"),
+	                    confMgr->getDBServerAddress());
 	cppcut_assert_equal(0, confMgr->getDBServerPort());
 }
 
