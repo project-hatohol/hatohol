@@ -17,27 +17,19 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AMQPConsumer_h
-#define AMQPConsumer_h
+#ifndef AMQPMessageHandler_h
+#define AMQPMessageHandler_h
 
-#include "HatoholThreadBase.h"
+#include <amqp.h>
 
-class AMQPMessageHandler;
+#include "Params.h"
 
-class AMQPConsumer : public HatoholThreadBase {
+class AMQPMessageHandler {
 public:
-	AMQPConsumer(const std::string &brokerUrl,
-		     const std::string &queueAddress,
-		     AMQPMessageHandler *handler);
-	virtual ~AMQPConsumer();
+	AMQPMessageHandler();
+	virtual ~AMQPMessageHandler();
 
-protected:
-	virtual gpointer mainThread(HatoholThreadArg *arg) override;
-
-private:
-	std::string m_brokerUrl;
-	std::string m_queueAddress;
-	AMQPMessageHandler *m_handler;
+	virtual bool handle(const amqp_envelope_t *envelope) override;
 };
 
-#endif // AMQPConsumer_h
+#endif // AMQPMessageHandler_h

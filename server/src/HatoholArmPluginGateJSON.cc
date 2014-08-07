@@ -22,19 +22,39 @@
 #include "UnifiedDataStore.h"
 #include "ArmFake.h"
 #include "AMQPConsumer.h"
+#include "AMQPMessageHandler.h"
 
 using namespace std;
 using namespace mlpl;
 
 static const string DEFAULT_BROKER_URL = "localhost:5672";
 
+class AMQPJSONMessageHandler : public AMQPMessageHandler
+{
+public:
+	bool handle(const amqp_envelope_t *envelope)
+	{
+		const amqp_bytes_t *content_type =
+			&(envelope->message.properties.content_type);
+		const amqp_bytes_t *body = &(envelope->message.body);
+		MLPL_INFO("message: <%.*s>/<%.*s>\n",
+			  static_cast<int>(content_type->len),
+			  static_cast<char *>(content_type->bytes),
+			  static_cast<int>(body->len),
+			  static_cast<char *>(body->bytes));
+		return true;
+	};
+};
+
 struct HatoholArmPluginGateJSON::PrivateContext
 {
 	AMQPConsumer *m_consumer;
+	AMQPJSONMessageHandler *m_handler;
 	ArmFake m_armFake;
 
 	PrivateContext(const MonitoringServerInfo &serverInfo)
 	: m_consumer(NULL),
+	  m_handler(NULL),
 	  m_armFake(serverInfo)
 	{
 		CacheServiceDBClient cache;
@@ -57,15 +77,19 @@ struct HatoholArmPluginGateJSON::PrivateContext
 		else
 			queueAddress = armPluginInfo.staticQueueAddress;
 
-		m_consumer = new AMQPConsumer(brokerUrl, queueAddress);
+		m_handler = new AMQPJSONMessageHandler();
+		m_consumer = new AMQPConsumer(brokerUrl,
+					      queueAddress,
+					      m_handler);
 	}
 
 	~PrivateContext()
 	{
-		if (!m_consumer)
-			return;
-		m_consumer->exitSync();
-		delete m_consumer;
+		if (m_consumer) {
+			m_consumer->exitSync();
+			delete m_consumer;
+		}
+		delete m_handler;
 	}
 
 	void start(void)
