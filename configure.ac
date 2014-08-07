@@ -234,6 +234,7 @@ server/mlpl/mlpl.pc
 server/src/Makefile
 server/hap/Makefile
 server/tools/Makefile
+server/data/Makefile
 server/test/Makefile
 server/test/fixtures/Makefile
 client/Makefile

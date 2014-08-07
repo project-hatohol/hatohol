@@ -248,6 +248,31 @@ static void updateAdminPrivilege(DBAgent *dbAgent,
 	dbAgent->update(arg);
 }
 
+static void createInitialUser(
+  DBAgent *dbAgent, const string &username, const string &password,
+  const OperationPrivilegeFlag &flags)
+{
+	DBAgent::InsertArg arg(tableProfileUsers);
+	arg.add(AUTO_INCREMENT_VALUE);
+	arg.add(username);
+	arg.add(Utils::sha256(password));
+	arg.add(flags);
+
+	try {
+		dbAgent->insert(arg);
+	} catch (...) {
+		MLPL_CRIT("Failed to create user: %s\n", username.c_str());
+		return;
+	}
+	MLPL_INFO("Created an initial user: %s\n", username.c_str());
+}
+
+static void tableUserInitializer(DBAgent *dbAgent, void *data)
+{
+	createInitialUser(dbAgent, "admin", "hatohol", ALL_PRIVILEGES);
+	createInitialUser(dbAgent, "guest", "guest", 0);
+}
+
 static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
 {
 	static OperationPrivilegeType old_NUM_OPPRVLG;
@@ -459,6 +484,8 @@ void DBClientUser::init(void)
 	static const DBSetupTableInfo DB_TABLE_INFO[] = {
 	{
 		&tableProfileUsers,
+		NULL,
+		tableUserInitializer,
 	}, {
 		&tableProfileAccessList,
 	}, {
