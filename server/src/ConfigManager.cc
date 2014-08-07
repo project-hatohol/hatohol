@@ -38,6 +38,23 @@ static int DEFAULT_ALLOWED_TIME_OF_ACTION_FOR_OLD_EVENTS
 
 static int DEFAULT_MAX_NUM_RUNNING_COMMAND_ACTION = 10;
 
+struct OptionValues {
+	gchar    *pidFilePath;
+	gboolean  foreground;
+
+	OptionValues(void)
+	: pidFilePath(NULL),
+	  foreground(FALSE)
+	{
+	}
+
+	virtual ~OptionValues()
+	{
+		g_free(pidFilePath);
+	}
+};
+static OptionValues g_optionValues;
+
 struct ConfigManager::PrivateContext {
 	static Mutex          mutex;
 	static ConfigManager *instance;
@@ -90,6 +107,29 @@ ConfigManager *ConfigManager::PrivateContext::instance = NULL;
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
+bool ConfigManager::parseCommandLine(gint *argc, gchar ***argv)
+{
+	OptionValues *optVal = &g_optionValues;
+	static GOptionEntry entries[] = {
+		{"pid-file-path", 'p', 0, G_OPTION_ARG_STRING,
+		 &optVal->pidFilePath, "Pid file path", NULL},
+		{"foreground", 'f', 0, G_OPTION_ARG_NONE,
+		 &optVal->foreground, "Run as a foreground process", NULL},
+		{ NULL }
+	};
+
+	GOptionContext *optCtx = g_option_context_new(NULL);
+	g_option_context_add_main_entries(optCtx, entries, NULL);
+	GError *error = NULL;
+	if (!g_option_context_parse(optCtx, argc, argv, &error)) {
+		MLPL_ERR("Failed to parse command line argment. (%s)\n",
+		         error ? error->message : "Unknown reason");
+		g_error_free(error);
+		return false;
+	}
+	return true;
+}
+
 void ConfigManager::reset(void)
 {
 	delete PrivateContext::instance;

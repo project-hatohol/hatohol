@@ -43,6 +43,7 @@ using namespace mlpl;
 #include "DBClientConfig.h"
 #include "ActorCollector.h"
 #include "DBClientAction.h"
+#include "ConfigManager.h"
 
 static int pipefd[2];
 static const char *DEFAULT_PID_FILE_PATH = "/var/run/hatohol.pid";
