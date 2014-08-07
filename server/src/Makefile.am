@@ -64,8 +64,6 @@ libhatohol_la_SOURCES = \
 	DataStoreNagios.cc DataStoreNagios.h \
 	DataStoreZabbix.cc DataStoreZabbix.h \
 	FaceBase.cc FaceBase.h \
-	FaceMySQL.cc FaceMySQL.h \
-	FaceMySQLWorker.cc FaceMySQLWorker.h \
 	FaceRest.cc FaceRest.h \
 	FaceRestPrivate.h \
 	FormulaElement.cc FormulaElement.h \

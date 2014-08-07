@@ -30,7 +30,6 @@ using namespace mlpl;
 #include "SQLProcessorSelect.h"
 #include "SQLProcessorInsert.h"
 #include "SQLProcessorUpdate.h"
-#include "FaceMySQLWorker.h"
 #include "FaceRest.h"
 #include "HatoholException.h"
 #include "DBAgentSQLite3.h"
@@ -71,7 +70,6 @@ static void init(const CommandLineArg &arg)
 	SQLColumnParser::init(); // must be put after SQLFormulaParser::init()
 	SQLWhereParser::init();  // must be put after SQLFormulaParser::init()
 	SQLFromParser::init();
-	FaceMySQLWorker::init();
 	SQLProcessorSelect::init();
 	SQLProcessorInsert::init();
 	SQLProcessorUpdate::init();
