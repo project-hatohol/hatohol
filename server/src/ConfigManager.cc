@@ -42,11 +42,13 @@ struct OptionValues {
 	gchar    *pidFilePath;
 	gchar    *dbServer;
 	gboolean  foreground;
+	gboolean  testMode;
 
 	OptionValues(void)
 	: pidFilePath(NULL),
 	  dbServer(NULL),
-	  foreground(FALSE)
+	  foreground(FALSE),
+	  testMode(FALSE)
 	{
 	}
 
@@ -64,6 +66,7 @@ struct OptionValues {
 		dbServer = NULL;
 
 		foreground = FALSE;
+		testMode   = FALSE;
 	}
 };
 static OptionValues g_optionValues;
@@ -155,6 +158,8 @@ bool ConfigManager::parseCommandLine(gint *argc, gchar ***argv)
 		 &optVal->pidFilePath, "Pid file path", NULL},
 		{"foreground", 'f', 0, G_OPTION_ARG_NONE,
 		 &optVal->foreground, "Run as a foreground process", NULL},
+		{"test-mode", 't', 0, G_OPTION_ARG_NONE,
+		 &optVal->testMode, "Run in a test mode", NULL},
 		{"config-db-server", 'c', 0, G_OPTION_ARG_STRING,
 		 &optVal->dbServer, "Database server", NULL},
 		{ NULL }
