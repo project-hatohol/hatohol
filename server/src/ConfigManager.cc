@@ -187,7 +187,8 @@ bool ConfigManager::parseCommandLine(gint *argc, gchar ***argv)
 		return false;
 	}
 
-	// refect the options to the call before the reset() is called.
+	// refect options so that ConfigManager can returns them
+	// even before reset() is called.
 	getInstance()->m_ctx->reflectCommandLineOptions(g_cmdLineOpts);
 	return true;
 }
