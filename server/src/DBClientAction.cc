@@ -62,7 +62,6 @@ class ActionValidator {
 public:
 	ActionValidator();
 	bool isValid(const ActionDef &actionDef);
-	bool noValid(void);
 
 protected:
 	bool isValidIncidentTracker(const ActionDef &actionDef);
@@ -566,11 +565,8 @@ HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
 		select(arg);
 	} DBCLIENT_TRANSACTION_END();
 
-	ActionValidator validator;
-	if (validator.noValid())
-	        return HTERR_OK;
-
 	// convert a format of the query result.
+	ActionValidator validator;
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
@@ -724,9 +720,6 @@ void DBClientAction::deleteInvalidActions()
 	} DBCLIENT_TRANSACTION_END();
 
 	ActionValidator validator;
-	if (validator.noValid())
-	        return;
-
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
@@ -1360,9 +1353,4 @@ bool ActionValidator::isValid(const ActionDef &actionDef)
 			return false;
 	}
 	return true;
-}
-
-bool ActionValidator::noValid(void)
-{
-	return m_userIdSet.empty();
 }
