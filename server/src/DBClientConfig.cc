@@ -773,19 +773,6 @@ void DBClientConfig::setDatabaseDir(const string &dir)
 	} DBCLIENT_TRANSACTION_END();
 }
 
-bool DBClientConfig::isFaceMySQLEnabled(void)
-{
-	DBAgent::SelectArg arg(tableProfileSystem);
-	arg.columnIndexes.push_back(IDX_SYSTEM_ENABLE_FACE_MYSQL);
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
-	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	HATOHOL_ASSERT(!grpList.empty(), "Obtained Table: empty");
-	ItemGroupStream itemGroupStream(*grpList.begin());
-	return itemGroupStream.read<int>();
-}
-
 int  DBClientConfig::getFaceRestPort(void)
 {
 	DBAgent::SelectArg arg(tableProfileSystem);

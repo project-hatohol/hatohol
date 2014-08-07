@@ -129,7 +129,6 @@ public:
 
 	std::string getDatabaseDir(void);
 	void setDatabaseDir(const std::string &dir);
-	bool isFaceMySQLEnabled(void);
 	int  getFaceRestPort(void);
 	void setFaceRestPort(int port);
 	bool isCopyOnDemandEnabled(void);
