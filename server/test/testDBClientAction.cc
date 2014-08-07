@@ -215,7 +215,6 @@ void _assertGetActionList(
 	for (; actionDef != actionDefList.end(); ++actionDef) {
 		if (excludeIdSet &&
 		    excludeIdSet->find(actionDef->id) != excludeIdSet->end()) {
-			g_print("exclude\n");
 			continue;
 		}
 		ActionIdSetIterator it = expectActionIdSet.find(actionDef->id);
