@@ -108,4 +108,9 @@ void test_parseConfigServerWithPort(void)
 	cppcut_assert_equal(3333, confMgr->getDBServerPort());
 }
 
+void test_parseTestModeDefault(void)
+{
+	cppcut_assert_equal(false, ConfigManager::getInstance()->isTestMode());
+}
+
 } // namespace testConfigManager

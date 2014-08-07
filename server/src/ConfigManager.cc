@@ -81,12 +81,14 @@ struct ConfigManager::PrivateContext {
 	bool                  foreground;
 	string                dbServerAddress;
 	int                   dbServerPort;
+	bool                  testMode;
 
 	// methods
 	PrivateContext(void)
 	: foreground(false),
 	  dbServerAddress("localhost"),
-	  dbServerPort(0)
+	  dbServerPort(0),
+	  testMode(false)
 	{
 	}
 
@@ -200,6 +202,8 @@ void ConfigManager::reset(void)
 		ctx->parseDBServer(optVal->dbServer);
 	if (optVal->foreground)
 		ctx->foreground = true;
+	if (optVal->testMode)
+		ctx->testMode = true;
 }
 
 ConfigManager *ConfigManager::getInstance(void)
@@ -279,6 +283,11 @@ void ConfigManager::setResidentYardDirectory(const string &dir)
 {
 	AutoMutex autoLock(&m_ctx->mutex);
 	m_ctx->residentYardDirectory = dir;
+}
+
+bool ConfigManager::isTestMode(void) const
+{
+	return m_ctx->testMode;
 }
 
 // ---------------------------------------------------------------------------
