@@ -209,7 +209,7 @@ void ConfigManager::reset(void)
 	confMgr->m_ctx->residentYardDirectory = string(PREFIX"/sbin");
 
 	// override by the command line options if needed
-	confMgr->m_ctx->reflectOptionValues(g_optionValues);;
+	confMgr->m_ctx->reflectOptionValues(g_optionValues);
 }
 
 ConfigManager *ConfigManager::getInstance(void)
