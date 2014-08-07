@@ -40,10 +40,12 @@ static int DEFAULT_MAX_NUM_RUNNING_COMMAND_ACTION = 10;
 
 struct OptionValues {
 	gchar    *pidFilePath;
+	gchar    *dbServer;
 	gboolean  foreground;
 
 	OptionValues(void)
 	: pidFilePath(NULL),
+	  dbServer(NULL),
 	  foreground(FALSE)
 	{
 	}
@@ -51,6 +53,7 @@ struct OptionValues {
 	virtual ~OptionValues()
 	{
 		g_free(pidFilePath);
+		g_free(dbServer);
 	}
 };
 static OptionValues g_optionValues;
@@ -116,6 +119,8 @@ bool ConfigManager::parseCommandLine(gint *argc, gchar ***argv)
 		 &optVal->pidFilePath, "Pid file path", NULL},
 		{"foreground", 'f', 0, G_OPTION_ARG_NONE,
 		 &optVal->foreground, "Run as a foreground process", NULL},
+		{"config-db-server", 'c', 0, G_OPTION_ARG_STRING,
+		 &optVal->dbServer, "Database server", NULL},
 		{ NULL }
 	};
 
