@@ -21,37 +21,10 @@
 #include "config.h"
 #include "ConfigManager.h"
 #include "Hatohol.h"
+#include "Helpers.h"
 using namespace std;;
 
 namespace testConfigManager {
-
-struct CommandArgHelper
-{
-	vector<const char *> args;
-
-	CommandArgHelper(void)
-	{
-		*this << "command-name";
-	}
-
-	virtual ~CommandArgHelper()
-	{
-		ConfigManager::clearParseCommandLineResult();
-	}
-
-	void activate(void)
-	{
-		gchar **argv = (gchar **)&args[0];
-		gint argc = args.size();
-		ConfigManager::parseCommandLine(&argc, &argv);
-		ConfigManager::reset();
-	}
-
-	void operator <<(const char *word)
-	{
-		args.push_back(word);
-	}
-};
 
 void cut_setup(void)
 {
