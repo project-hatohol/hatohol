@@ -510,9 +510,10 @@ static bool shouldSkipIncidentSender(
 			 "higher priority.",
 			 actionDef.id, eventInfo.triggerId,
 			 incidentSenderActionId);
-		incidentSenderActionId = actionDef.id;
 		return true;
 	}
+
+	incidentSenderActionId = actionDef.id;
 
 	return false;
 }
