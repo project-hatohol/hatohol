@@ -37,30 +37,31 @@ void test_getActionCommandDirectory(void)
 {
 	string expect = LIBEXECDIR "/" PACKAGE "/action";
 	cppcut_assert_equal(
-	  expect, ConfigManager::getActionCommandDirectory());
+	  expect, ConfigManager::getInstance()->getActionCommandDirectory());
 }
 
 void test_setActionCommandDirectory(void)
 {
 	string exampleDir = "/usr/hoge/example/dog";
-	ConfigManager::setActionCommandDirectory(exampleDir);
+	ConfigManager::getInstance()->setActionCommandDirectory(exampleDir);
 	cppcut_assert_equal(
-	  exampleDir, ConfigManager::getActionCommandDirectory());
+	  exampleDir,
+	  ConfigManager::getInstance()->getActionCommandDirectory());
 }
 
 void test_getResidentYardDirectory(void)
 {
 	string expect = PREFIX "/sbin";
 	cppcut_assert_equal(
-	  expect, ConfigManager::getResidentYardDirectory());
+	  expect, ConfigManager::getInstance()->getResidentYardDirectory());
 }
 
 void test_setResidentYardDirectory(void)
 {
 	string exampleDir = "/usr/hoge/example/dog";
-	ConfigManager::setResidentYardDirectory(exampleDir);
+	ConfigManager::getInstance()->setResidentYardDirectory(exampleDir);
 	cppcut_assert_equal(
-	  exampleDir, ConfigManager::getResidentYardDirectory());
+	  exampleDir, ConfigManager::getInstance()->getResidentYardDirectory());
 }
 
 } // namespace testConfigManager

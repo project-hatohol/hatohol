@@ -43,8 +43,8 @@ struct ConfigManager::Impl {
 	static ConfigManager *instance;
 	string                confFilePath;
 	string                databaseDirectory;
-	static string         actionCommandDirectory;
-	static string         residentYardDirectory;
+	string                actionCommandDirectory;
+	string                residentYardDirectory;
 
 	// methods
 	static void lock(void)
@@ -86,8 +86,6 @@ struct ConfigManager::Impl {
 
 Mutex          ConfigManager::Impl::mutex;
 ConfigManager *ConfigManager::Impl::instance = NULL;
-string         ConfigManager::Impl::actionCommandDirectory;
-string         ConfigManager::Impl::residentYardDirectory;
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -99,9 +97,9 @@ void ConfigManager::reset(void)
 	ConfigManager *confMgr = getInstance();
 	confMgr->loadConfFile();
 
-	Impl::actionCommandDirectory =
+	confMgr->m_impl->actionCommandDirectory =
 	  StringUtils::sprintf("%s/%s/action", LIBEXECDIR, PACKAGE);
-	Impl::residentYardDirectory = string(PREFIX"/sbin");
+	confMgr->m_impl->residentYardDirectory = string(PREFIX"/sbin");
 }
 
 ConfigManager *ConfigManager::getInstance(void)
@@ -146,32 +144,26 @@ int ConfigManager::getMaxNumberOfRunningCommandAction(void)
 
 string ConfigManager::getActionCommandDirectory(void)
 {
-	Impl::lock();
-	string dir = Impl::actionCommandDirectory;
-	Impl::unlock();
-	return dir;
+	AutoMutex autoLock(&m_impl->mutex);
+	return m_impl->actionCommandDirectory;
 }
 
 void ConfigManager::setActionCommandDirectory(const string &dir)
 {
-	Impl::lock();
-	Impl::actionCommandDirectory = dir;
-	Impl::unlock();
+	AutoMutex autoLock(&m_impl->mutex);
+	m_impl->actionCommandDirectory = dir;
 }
 
 string ConfigManager::getResidentYardDirectory(void)
 {
-	Impl::lock();
-	string dir = Impl::residentYardDirectory;
-	Impl::unlock();
-	return dir;
+	AutoMutex autoLock(&m_impl->mutex);
+	return m_impl->residentYardDirectory;
 }
 
 void ConfigManager::setResidentYardDirectory(const string &dir)
 {
-	Impl::lock();
-	Impl::residentYardDirectory = dir;
-	Impl::unlock();
+	AutoMutex autoLock(&m_impl->mutex);
+	m_impl->residentYardDirectory = dir;
 }
 
 // ---------------------------------------------------------------------------
