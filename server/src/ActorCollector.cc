@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -40,19 +40,6 @@ typedef WaitChildSet::const_iterator WaitChildSetConstIterator;
 struct ActorCollector::PrivateContext {
 	static Mutex        lock;
 	static WaitChildSet waitChildSet;
-
-	struct Locker
-	{
-		Locker(void)
-		{
-			lock.lock();
-		}
-
-		virtual ~Locker()
-		{
-			lock.unlock();
-		}
-	};
 };
 
 Mutex        ActorCollector::PrivateContext::lock;
@@ -118,7 +105,7 @@ ActorInfo::~ActorInfo()
 void ActorCollector::reset(void)
 {
 	ChildProcessManager::getInstance()->reset();
-	PrivateContext::Locker locker;
+	AutoMutex autoMutex(&PrivateContext::lock);
 	HATOHOL_ASSERT(PrivateContext::waitChildSet.empty(),
 	               "waitChildSet is not empty (%zd).",
 	               PrivateContext::waitChildSet.size());
@@ -177,7 +164,7 @@ HatoholError ActorCollector::debut(Profile &profile)
 
 void ActorCollector::addActor(ActorInfo *actorInfo)
 {
-	PrivateContext::Locker locker;
+	AutoMutex autoMutex(&PrivateContext::lock);
 	pair<WaitChildSetIterator, bool> result =
 	  PrivateContext::waitChildSet.insert
 	    (pair<pid_t, ActorInfo *>(actorInfo->pid, actorInfo));
@@ -194,33 +181,30 @@ void ActorCollector::addActor(ActorInfo *actorInfo)
 bool ActorCollector::isWatching(pid_t pid)
 {
 	bool found = false;
-	PrivateContext::lock.lock();
+	AutoMutex autoMutex(&PrivateContext::lock);
 	WaitChildSetIterator it = PrivateContext::waitChildSet.find(pid);
 	if (it != PrivateContext::waitChildSet.end())
 		found = true;
-	PrivateContext::lock.unlock();
 	return found;
 }
 
 void ActorCollector::setDontLog(pid_t pid)
 {
 	bool found = false;
-	PrivateContext::lock.lock();
+	AutoMutex autoMutex(&PrivateContext::lock);
 	WaitChildSetIterator it = PrivateContext::waitChildSet.find(pid);
 	if (it != PrivateContext::waitChildSet.end()) {
 		it->second->dontLog = true;
 		found = true;
 	}
-	PrivateContext::lock.unlock();
 	if (!found)
 		MLPL_WARN("Not found pid: %d for setDontLog().\n", pid);
 }
 
 size_t ActorCollector::getNumberOfWaitingActors(void)
 {
-	PrivateContext::lock.lock();
+	AutoMutex autoMutex(&PrivateContext::lock);
 	size_t num = PrivateContext::waitChildSet.size();
-	PrivateContext::lock.unlock();
 	return num;
 }
 
@@ -282,7 +266,7 @@ void ActorCollector::postCollectedProc(ActorContext &actorCtx)
 void ActorCollector::cleanupChildInfo(const pid_t &pid)
 {
 	// Remove actorInfo from waitChildSet
-	PrivateContext::Locker locker;
+	AutoMutex autoMutex(&PrivateContext::lock);
 	WaitChildSetIterator it =
 	  PrivateContext::waitChildSet.find(pid);
 	ActorInfo *actorInfo = it->second;
