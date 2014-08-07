@@ -23,6 +23,7 @@
 #include "CacheServiceDBClient.h"
 #include "DBAgentFactory.h"
 #include "DBClientAction.h"
+#include "DBClientConfig.h"
 #include "DBClientHatohol.h"
 #include "Mutex.h"
 #include "ItemGroupStream.h"
@@ -49,6 +50,26 @@ static void operator>>(
 {
 	actionType = itemGroupStream.read<int, ActionType>();
 }
+
+class ActionUserIdSet : public UserIdSet {
+public:
+	bool isValidActionOwnerId(const UserIdType id);
+
+	static void get(UserIdSet &userIdSet);
+};
+
+class ActionValidator {
+public:
+	ActionValidator();
+	bool isValid(const ActionDef &actionDef);
+
+protected:
+	bool isValidIncidentTracker(const ActionDef &actionDef);
+
+private:
+	ActionUserIdSet      m_userIdSet;
+	IncidentTrackerIdSet m_incidentTrackerIdSet;
+};
 
 static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 {
@@ -393,11 +414,11 @@ struct DBClientAction::PrivateContext
 	}
 };
 
-struct deleteNoOwnerActionsContext {
+struct deleteInvalidActionsContext {
 	guint timerId;
 	guint idleEventId;
 };
-static deleteNoOwnerActionsContext *g_deleteActionCtx = NULL;
+static deleteInvalidActionsContext *g_deleteActionCtx = NULL;
 
 // ---------------------------------------------------------------------------
 // LogEndExecActionArg
@@ -419,10 +440,10 @@ void DBClientAction::init(void)
 	registerSetupInfo(
 	  DB_DOMAIN_ID_ACTION, DEFAULT_DB_NAME, &DB_ACTION_SETUP_FUNC_ARG);
 
-	g_deleteActionCtx = new deleteNoOwnerActionsContext;
+	g_deleteActionCtx = new deleteInvalidActionsContext;
 	g_deleteActionCtx->idleEventId = INVALID_EVENT_ID;
 	g_deleteActionCtx->timerId = g_timeout_add(DEFAULT_ACTION_DELETE_INTERVAL_MSEC,
-	                                           deleteNoOwnerActionsCycl,
+	                                           deleteInvalidActionsCycl,
 	                                           g_deleteActionCtx);
 }
 
@@ -544,13 +565,8 @@ HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
 		select(arg);
 	} DBCLIENT_TRANSACTION_END();
 
-	ActionUserIdSet userIdSet;
-	getActionUser(userIdSet);
-
-	if (userIdSet.empty())
-	        return HTERR_OK;
-
 	// convert a format of the query result.
+	ActionValidator validator;
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
@@ -591,8 +607,7 @@ HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
 		itemGroupStream >> actionDef.timeout;
 		itemGroupStream >> actionDef.ownerUserId;
 
-		const UserIdType id = actionDef.ownerUserId;
-		if (userIdSet.isValidActionOwnerId(id))
+		if (validator.isValid(actionDef))
 			actionDefList.push_back(actionDef);
 	}
 
@@ -692,7 +707,7 @@ HatoholError DBClientAction::deleteActions(const ActionIdList &idList,
 	return HTERR_OK;
 }
 
-void DBClientAction::deleteNoOwnerActions()
+void DBClientAction::deleteInvalidActions()
 {
 	ActionIdList actionIdList;
 
@@ -704,12 +719,7 @@ void DBClientAction::deleteNoOwnerActions()
 		select(arg);
 	} DBCLIENT_TRANSACTION_END();
 
-	ActionUserIdSet userIdSet;
-	getActionUser(userIdSet);
-
-	if (userIdSet.empty())
-	        return;
-
+	ActionValidator validator;
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
@@ -720,8 +730,7 @@ void DBClientAction::deleteNoOwnerActions()
 		itemGroupStream >> actionId;
 		itemGroupStream >> actionDef.ownerUserId;
 
-		UserIdType id = actionDef.ownerUserId;
-		if (!userIdSet.isValidActionOwnerId(id))
+		if (!validator.isValid(actionDef))
 		        actionIdList.push_back(actionId);
 	}
 	if (actionIdList.empty())
@@ -1011,37 +1020,30 @@ HatoholError DBClientAction::checkPrivilegeForDelete(
 	return HTERR_OK;
 }
 
-void DBClientAction::getActionUser(UserIdSet &userIdSet)
-{
-	CacheServiceDBClient cache;
-	DBClientUser *dbUser = cache.getUser();
-	dbUser->getUserIdSet(userIdSet);
-}
-
-gboolean DBClientAction::deleteNoOwnerActionsExec(gpointer data)
+gboolean DBClientAction::deleteInvalidActionsExec(gpointer data)
 {
 	struct : public ExceptionCatchable {
 		void operator ()(void) override
 		{
 			CacheServiceDBClient cache;
-			cache.getAction()->deleteNoOwnerActions();
+			cache.getAction()->deleteInvalidActions();
 		}
 	} deleter;
 	deleter.exec();
 
-	deleteNoOwnerActionsContext *deleteActionCtx = static_cast<deleteNoOwnerActionsContext *>(data);
+	deleteInvalidActionsContext *deleteActionCtx = static_cast<deleteInvalidActionsContext *>(data);
 	deleteActionCtx->idleEventId = INVALID_EVENT_ID;
 	deleteActionCtx->timerId = g_timeout_add(DEFAULT_ACTION_DELETE_INTERVAL_MSEC, 
-	                                         deleteNoOwnerActionsCycl,
+	                                         deleteInvalidActionsCycl,
 	                                         deleteActionCtx);
 	return G_SOURCE_REMOVE;
 }
 
-gboolean DBClientAction::deleteNoOwnerActionsCycl(gpointer data)
+gboolean DBClientAction::deleteInvalidActionsCycl(gpointer data)
 {
-	deleteNoOwnerActionsContext *deleteActionCtx = static_cast<deleteNoOwnerActionsContext *>(data);
+	deleteInvalidActionsContext *deleteActionCtx = static_cast<deleteInvalidActionsContext *>(data);
 	deleteActionCtx->timerId = INVALID_EVENT_ID;
-	deleteActionCtx->idleEventId = Utils::setGLibIdleEvent(deleteNoOwnerActionsExec,
+	deleteActionCtx->idleEventId = Utils::setGLibIdleEvent(deleteInvalidActionsExec,
 	                                                       deleteActionCtx);
 	return G_SOURCE_REMOVE;
 }
@@ -1309,6 +1311,45 @@ bool ActionUserIdSet::isValidActionOwnerId(const UserIdType id)
 	 */
 	if (find(id) == end()) {
 		if (id != USER_ID_SYSTEM)
+			return false;
+	}
+	return true;
+}
+
+void ActionUserIdSet::get(UserIdSet &userIdSet)
+{
+	CacheServiceDBClient cache;
+	DBClientUser *dbUser = cache.getUser();
+	dbUser->getUserIdSet(userIdSet);
+}
+
+// ---------------------------------------------------------------------------
+// ActionValidator
+// ---------------------------------------------------------------------------
+ActionValidator::ActionValidator()
+{
+	ActionUserIdSet::get(m_userIdSet);
+
+	CacheServiceDBClient cache;
+	DBClientConfig *dbConfig = cache.getConfig();
+	dbConfig->getIncidentTrackerIdSet(m_incidentTrackerIdSet);
+}
+
+bool ActionValidator::isValidIncidentTracker(const ActionDef &actionDef)
+{
+	IncidentTrackerIdSet &trackers = m_incidentTrackerIdSet;
+	IncidentTrackerIdType trackerId;
+	if (!actionDef.parseIncidentSenderCommand(trackerId))
+		return false;
+	return trackers.find(trackerId) != trackers.end();
+}
+
+bool ActionValidator::isValid(const ActionDef &actionDef)
+{
+	if (!m_userIdSet.isValidActionOwnerId(actionDef.ownerUserId))
+		return false;
+	if (actionDef.type == ACTION_INCIDENT_SENDER) {
+		if (!isValidIncidentTracker(actionDef))
 			return false;
 	}
 	return true;
