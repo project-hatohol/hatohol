@@ -217,7 +217,7 @@ void ConfigManager::reset(void)
 		impl->foreground = true;
 	if (optVal->testMode)
 		impl->testMode = true;
-	confMgr->m_impl->reflectOptionValues(g_optionValues);;
+	confMgr->m_impl->reflectOptionValues(g_optionValues);
 }
 
 ConfigManager *ConfigManager::getInstance(void)
