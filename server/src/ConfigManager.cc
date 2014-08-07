@@ -144,6 +144,16 @@ struct ConfigManager::PrivateContext {
 
 		return true;
 	}
+
+	void reflectOptionValues(const OptionValues &optVal)
+	{
+		if (optVal.dbServer)
+			parseDBServer(optVal.dbServer);
+		if (optVal.foreground)
+			foreground = true;
+		if (optVal.testMode)
+			testMode = true;
+	}
 };
 
 Mutex          ConfigManager::PrivateContext::mutex;
@@ -176,6 +186,9 @@ bool ConfigManager::parseCommandLine(gint *argc, gchar ***argv)
 		g_error_free(error);
 		return false;
 	}
+
+	// refect the options to the call before the reset() is called.
+	getInstance()->m_ctx->reflectOptionValues(g_optionValues);
 	return true;
 }
 
@@ -196,14 +209,7 @@ void ConfigManager::reset(void)
 	confMgr->m_ctx->residentYardDirectory = string(PREFIX"/sbin");
 
 	// override by the command line options if needed
-	OptionValues *optVal = &g_optionValues;
-	PrivateContext *ctx = confMgr->m_ctx;
-	if (optVal->dbServer)
-		ctx->parseDBServer(optVal->dbServer);
-	if (optVal->foreground)
-		ctx->foreground = true;
-	if (optVal->testMode)
-		ctx->testMode = true;
+	confMgr->m_ctx->reflectOptionValues(g_optionValues);;
 }
 
 ConfigManager *ConfigManager::getInstance(void)
