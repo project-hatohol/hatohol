@@ -31,6 +31,7 @@ public:
 	static int ALLOW_ACTION_FOR_ALL_OLD_EVENTS;
 
 	static bool parseCommandLine(gint *argc, gchar ***argv);
+	static void clearParseCommandLineResult(void);
 	static void reset(void);
 
 	void getTargetServers(MonitoringServerInfoList &monitoringServers,
