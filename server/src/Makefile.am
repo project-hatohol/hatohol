@@ -66,9 +66,6 @@ libhatohol_la_SOURCES = \
 	FaceBase.cc FaceBase.h \
 	FaceRest.cc FaceRest.h \
 	FaceRestPrivate.h \
-	FormulaElement.cc FormulaElement.h \
-	FormulaFunction.cc FormulaFunction.h \
-	FormulaOperator.cc FormulaOperator.h \
 	Hatohol.cc Hatohol.h \
 	HatoholError.cc HatoholError.h \
 	HostResourceQueryOption.cc HostResourceQueryOption.h \
@@ -90,8 +87,6 @@ libhatohol_la_SOURCES = \
 	NamedPipe.cc NamedPipe.h \
 	OperationPrivilege.cc OperationPrivilege.h \
 	Params.h \
-	PrimaryCondition.cc PrimaryCondition.h \
-	PrimaryConditionPicker.cc PrimaryConditionPicker.h \
 	ResidentProtocol.h \
 	ResidentCommunicator.cc ResidentCommunicator.h \
 	RestResourceAction.cc RestResourceAction.h \
@@ -100,19 +95,8 @@ libhatohol_la_SOURCES = \
 	RestResourceServer.cc RestResourceServer.h \
 	RestResourceUser.cc RestResourceUser.h \
 	SessionManager.cc SessionManager.h \
-	SQLColumnParser.cc SQLColumnParser.h \
-	SQLFormulaParser.cc SQLFormulaParser.h \
-	SQLFromParser.cc SQLFromParser.h \
-	SQLProcessor.cc SQLProcessor.h \
-	SQLProcessorException.cc SQLProcessorException.h \
-	SQLProcessorFactory.cc SQLProcessorFactory.h \
-	SQLProcessorInsert.cc SQLProcessorInsert.h \
-	SQLProcessorSelect.cc SQLProcessorSelect.h \
-	SQLProcessorTypes.cc SQLProcessorTypes.h \
-	SQLProcessorUpdate.cc SQLProcessorUpdate.h \
-	SQLTableFormula.cc SQLTableFormula.h \
+	SQLProcessorTypes.h \
 	SQLUtils.cc SQLUtils.h \
-	SQLWhereParser.cc SQLWhereParser.h \
 	UnifiedDataStore.cc UnifiedDataStore.h
 
 if HAVE_LIBRABBITMQ

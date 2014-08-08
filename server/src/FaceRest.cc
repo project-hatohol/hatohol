@@ -21,6 +21,7 @@
 #endif // HAVE_CONFIG_H
 
 #include <cstring>
+#include <queue>
 #include <Logger.h>
 #include <Reaper.h>
 #include <Mutex.h>
