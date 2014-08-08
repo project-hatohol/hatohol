@@ -111,9 +111,10 @@ enum {
 	NUM_IDX_SYSTEM,
 };
 
-static const DBAgent::TableProfile tableProfileSystem(
-  TABLE_NAME_SYSTEM, COLUMN_DEF_SYSTEM,
-  sizeof(COLUMN_DEF_SYSTEM), NUM_IDX_SYSTEM);
+static const DBAgent::TableProfile tableProfileSystem =
+  DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_SYSTEM,
+			    COLUMN_DEF_SYSTEM,
+			    NUM_IDX_SYSTEM);
 
 static const ColumnDef COLUMN_DEF_SERVERS[] = {
 {
@@ -255,9 +256,10 @@ enum {
 	NUM_IDX_SERVERS,
 };
 
-static const DBAgent::TableProfile tableProfileServers(
-  TABLE_NAME_SERVERS, COLUMN_DEF_SERVERS,
-  sizeof(COLUMN_DEF_SERVERS), NUM_IDX_SERVERS);
+static const DBAgent::TableProfile tableProfileServers =
+  DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_SERVERS,
+			    COLUMN_DEF_SERVERS,
+			    NUM_IDX_SERVERS);
 
 static const ColumnDef COLUMN_DEF_ARM_PLUGINS[] = {
 {
@@ -339,9 +341,10 @@ enum {
 	NUM_IDX_ARM_PLUGINS,
 };
 
-static const DBAgent::TableProfile tableProfileArmPlugins(
-  TABLE_NAME_ARM_PLUGINS, COLUMN_DEF_ARM_PLUGINS,
-  sizeof(COLUMN_DEF_ARM_PLUGINS), NUM_IDX_ARM_PLUGINS);
+static const DBAgent::TableProfile tableProfileArmPlugins =
+  DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_ARM_PLUGINS,
+			    COLUMN_DEF_ARM_PLUGINS,
+			    NUM_IDX_ARM_PLUGINS);
 
 static const ColumnDef COLUMN_DEF_INCIDENT_TRACKERS[] = {
 {
@@ -447,9 +450,10 @@ enum {
 	NUM_IDX_INCIDENT_TRACKERS,
 };
 
-static const DBAgent::TableProfile tableProfileIncidentTrackers(
-  TABLE_NAME_INCIDENT_TRACKERS, COLUMN_DEF_INCIDENT_TRACKERS,
-  sizeof(COLUMN_DEF_INCIDENT_TRACKERS), NUM_IDX_INCIDENT_TRACKERS);
+static const DBAgent::TableProfile tableProfileIncidentTrackers =
+  DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_INCIDENT_TRACKERS,
+			    COLUMN_DEF_INCIDENT_TRACKERS,
+			    NUM_IDX_INCIDENT_TRACKERS);
 
 struct DBClientConfig::Impl
 {
