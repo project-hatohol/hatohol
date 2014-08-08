@@ -150,7 +150,8 @@ int mainRoutine(int argc, char *argv[])
 		cmdArg.push_back(argv[i]);
 	if (!ConfigManager::parseCommandLine(&argc, &argv))
 		return EXIT_FAILURE;
-	if (!ConfigManager::getInstance()->isForegroundProcess()) {
+	ConfigManager *confMgr = ConfigManager::getInstance();
+	if (!confMgr->isForegroundProcess()) {
 		if (!daemonize(cmdArg)) {
 			MLPL_ERR("Can't start daemon process\n");
 			return EXIT_FAILURE;
@@ -182,7 +183,6 @@ int mainRoutine(int argc, char *argv[])
 	rest.start();
 
 	ctx.unifiedDataStore = UnifiedDataStore::getInstance();
-	ConfigManager *confMgr = ConfigManager::getInstance();
 	bool enableCopyOnDemand = true;
 	ConfigManager::ConfigState state = confMgr->getCopyOnDemand();
 	if (state == ConfigManager::ENABLE)
