@@ -94,7 +94,7 @@ enum {
 const size_t NUM_COLUMNS_TEST = sizeof(COLUMN_DEF_TEST) / sizeof(ColumnDef);
 const DBAgent::TableProfile tableProfileTest(
   TEST_PRIMARY_TABLE_NAME, COLUMN_DEF_TEST,
-  sizeof(COLUMN_DEF_TEST), NUM_IDX_TEST_TABLE
+  NUM_IDX_TEST_TABLE
 );
 
 static const char *TEST_HGRP_TABLE_NAME = "test_hgrp_table_name";
@@ -158,7 +158,7 @@ const size_t NUM_COLUMNS_HGRP_TEST =
   sizeof(COLUMN_DEF_TEST_HGRP) / sizeof(ColumnDef);
 const DBAgent::TableProfile tableProfileTestHGrp(
   TEST_HGRP_TABLE_NAME, COLUMN_DEF_TEST_HGRP,
-  sizeof(COLUMN_DEF_TEST_HGRP), NUM_IDX_TEST_HGRP_TABLE
+  NUM_IDX_TEST_HGRP_TABLE
 );
 
 static const HostResourceQueryOption::Synapse TEST_SYNAPSE(

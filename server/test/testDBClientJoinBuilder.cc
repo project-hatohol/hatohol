@@ -87,7 +87,7 @@ enum {
 const size_t NUM_COLUMNS_TEST0 = sizeof(COLUMN_DEF_TEST0) / sizeof(ColumnDef);
 const DBAgent::TableProfile tableProfileTest0(
   TEST_TABLE_NAME0, COLUMN_DEF_TEST0,
-  sizeof(COLUMN_DEF_TEST0), NUM_IDX_TEST_TABLE0
+  NUM_IDX_TEST_TABLE0
 );
 
 static const ColumnDef COLUMN_DEF_TEST1[] = {
@@ -137,7 +137,7 @@ enum {
 const size_t NUM_COLUMNS_TEST1 = sizeof(COLUMN_DEF_TEST1) / sizeof(ColumnDef);
 const DBAgent::TableProfile tableProfileTest1(
   TEST_TABLE_NAME1, COLUMN_DEF_TEST1,
-  sizeof(COLUMN_DEF_TEST1), NUM_IDX_TEST_TABLE1
+  NUM_IDX_TEST_TABLE1
 );
 
 class DBClientJoinBuilderTest : public DBClientJoinBuilder {

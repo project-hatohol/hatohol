@@ -106,16 +106,11 @@ DBTermCodec    DBAgent::Impl::dbTermCodec;
 // ---------------------------------------------------------------------------
 DBAgent::TableProfile::TableProfile(
   const char *_name,  const ColumnDef *_columnDefs,
-  const size_t &columnDefSize, const size_t &numIndexes)
+  const size_t &numIndexes)
 : name(_name),
   columnDefs(_columnDefs),
-  numColumns(columnDefSize/sizeof(ColumnDef))
+  numColumns(numIndexes)
 {
-	HATOHOL_ASSERT(
-	  numColumns == numIndexes,
-	  "tableName: %s, Invalid number of elements: numColumns (%zd), "
-	  "numIndexes(%zd)",
-	  name, numColumns, numIndexes);
 }
 
 // ---------------------------------------------------------------------------
