@@ -43,18 +43,6 @@ public:
 	static std::string getFullName(const ColumnDef *columnDefs,
 	                               const size_t &index);
 
-	/**
-	 * create ItemDataPtr from a string.
-	 *
-	 * @columnDef A pointer of ColumnDef object.
-	 * @value A string of the value.
-	 * @return An ItemDataPtr that refers an ItemData object on success.
-	 *         When an error, the returned ItemDataPtr doesn't
-	 *         have a reference (i.e. hasData() returns falase).
-	 */
-	static ItemDataPtr createItemData(const ColumnDef *columnDef,
-	                                  const std::string &value);
-
 	static ItemDataPtr createFromString(const char *str,
 	                                    SQLColumnType type);
 
