@@ -109,4 +109,31 @@ void test_parseTestModeEnabled(void)
 	cppcut_assert_equal(true, ConfigManager::getInstance()->isTestMode());
 }
 
+void test_parseCopyOnDemandDefault(void)
+{
+	cppcut_assert_equal(
+	  ConfigManager::UNKNOWN,
+	  ConfigManager::getInstance()->getCopyOnDemand());
+}
+
+void test_parseEnableCopyOnDemand(void)
+{
+	CommandArgHelper cmds;
+	cmds << "--enable-copy-on-demand";
+	cmds.activate();
+	cppcut_assert_equal(
+	  ConfigManager::ENABLE,
+	  ConfigManager::getInstance()->getCopyOnDemand());
+}
+
+void test_parseDisableCopyOnDemand(void)
+{
+	CommandArgHelper cmds;
+	cmds << "--disable-copy-on-demand";
+	cmds.activate();
+	cppcut_assert_equal(
+	  ConfigManager::DISABLE,
+	  ConfigManager::getInstance()->getCopyOnDemand());
+}
+
 } // namespace testConfigManager
