@@ -106,7 +106,7 @@ uint64_t Utils::getCurrTimeAsMicroSecond(void)
 
 bool Utils::isValidPort(int port, bool showErrorMsg)
 {
-	if (port < 0 || port > 65536) {
+	if (port < 0 || port >= 65536) {
 		if (showErrorMsg)
 			MLPL_ERR("invalid port: %d\n", port);
 		return false;
