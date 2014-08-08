@@ -61,9 +61,10 @@ enum {
 	NUM_IDX_HOST_LIST
 };
 
-static const DBAgent::TableProfile tableProfileHostList(
-  TABLE_NAME_HOST_LIST, COLUMN_DEF_HOST_LIST,
-  sizeof(COLUMN_DEF_HOST_LIST), NUM_IDX_HOST_LIST);
+static const DBAgent::TableProfile tableProfileHostList =
+  DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_HOST_LIST,
+			    COLUMN_DEF_HOST_LIST,
+			    NUM_IDX_HOST_LIST);
 
 // We manage multiple IP adresses and host naems for one host.
 // So the following are defined in the independent table.
@@ -124,9 +125,10 @@ enum {
 	NUM_IDX_HOST_INFO
 };
 
-static const DBAgent::TableProfile tableProfileHostInfo(
-  TABLE_NAME_HOST_INFO, COLUMN_DEF_HOST_INFO,
-  sizeof(COLUMN_DEF_HOST_INFO), NUM_IDX_HOST_INFO);
+static const DBAgent::TableProfile tableProfileHostInfo =
+  DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_HOST_INFO,
+			    COLUMN_DEF_HOST_INFO,
+			    NUM_IDX_HOST_INFO);
 
 struct DBClientHost::Impl
 {
