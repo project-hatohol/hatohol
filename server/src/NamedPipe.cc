@@ -197,14 +197,12 @@ struct NamedPipe::Impl {
 // Public methods
 // ---------------------------------------------------------------------------
 NamedPipe::NamedPipe(EndType endType)
-: m_impl(NULL)
+: m_impl(new Impl(endType, this))
 {
-	m_impl = new Impl(endType, this);
 }
 
 NamedPipe::~NamedPipe()
 {
-	delete m_impl;
 }
 
 bool NamedPipe::init(const string &name, GIOFunc iochCb, gpointer data)
@@ -309,7 +307,7 @@ gboolean NamedPipe::writeCb(GIOChannel *source, GIOCondition condition,
                             gpointer data)
 {
 	NamedPipe *obj = static_cast<NamedPipe *>(data);
-	Impl *impl = obj->m_impl;
+	Impl *impl = obj->m_impl.get();
 	gboolean continueEventCb = FALSE;
 
 	impl->writeBufListLock.lock();
@@ -350,7 +348,7 @@ gboolean NamedPipe::writeErrorCb(GIOChannel *source, GIOCondition condition,
                                  gpointer data)
 {
 	NamedPipe *obj = static_cast<NamedPipe *>(data);
-	Impl *impl = obj->m_impl;
+	Impl *impl = obj->m_impl.get();
 	HATOHOL_ASSERT(impl->userCb,
 	               "Pull callback is not registered. cond: %x, impl: %p",
 	               condition, impl);
@@ -362,7 +360,7 @@ gboolean NamedPipe::readCb(GIOChannel *source, GIOCondition condition,
                            gpointer data)
 {
 	NamedPipe *obj = static_cast<NamedPipe *>(data);
-	Impl *impl = obj->m_impl;
+	Impl *impl = obj->m_impl.get();
 	HATOHOL_ASSERT(impl->pullCb,
 	               "Pull callback is not registered. cond: %x, impl: %p",
 	               condition, impl);
@@ -401,7 +399,7 @@ gboolean NamedPipe::readErrorCb(GIOChannel *source, GIOCondition condition,
                                 gpointer data)
 {
 	NamedPipe *obj = static_cast<NamedPipe *>(data);
-	Impl *impl = obj->m_impl;
+	Impl *impl = obj->m_impl.get();
 	HATOHOL_ASSERT(impl->userCb,
 	               "Pull callback is not registered. cond: %x, impl: %p",
 	               condition, impl);

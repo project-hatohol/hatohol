@@ -90,7 +90,7 @@ public:
 
 private:
 	struct Impl;
-	Impl *m_impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 class AccessInfoQueryOption : public DataQueryOption {
@@ -107,7 +107,7 @@ public:
 
 private:
 	struct Impl;
-	Impl *m_impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 class UserRoleQueryOption : public DataQueryOption {
@@ -124,7 +124,7 @@ public:
 
 private:
 	struct Impl;
-	Impl *m_impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 class DBClientUser : public DBClient {
@@ -265,7 +265,7 @@ protected:
 
 private:
 	struct Impl;
-	Impl *m_impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 #endif // DBClientUser_h

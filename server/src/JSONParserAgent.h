@@ -21,9 +21,11 @@
 #define JSONParserAgent_h
 
 #include <string>
+#include <memory>
 #include <stdint.h>
 #include <glib.h>
 #include <json-glib/json-glib.h>
+#include "Params.h"
 #include "HatoholException.h"
 
 class JSONParserAgent
@@ -64,7 +66,7 @@ protected:
 
 private:
 	struct Impl;
-	Impl *m_impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 #endif // JSONParserAgent_h

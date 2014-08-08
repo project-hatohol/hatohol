@@ -249,15 +249,13 @@ HatoholArmPluginInterface::CommandCallbacks::~CommandCallbacks()
 // Public methods
 // ---------------------------------------------------------------------------
 HatoholArmPluginInterface::HatoholArmPluginInterface(const bool &workInServer)
-: m_impl(NULL)
+: m_impl(new Impl(this, workInServer))
 {
-	m_impl = new Impl(this, workInServer);
 }
 
 HatoholArmPluginInterface::~HatoholArmPluginInterface()
 {
 	exitSync();
-	delete m_impl;
 }
 
 void HatoholArmPluginInterface::send(const string &message)

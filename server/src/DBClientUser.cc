@@ -306,21 +306,18 @@ struct UserQueryOption::Impl {
 };
 
 UserQueryOption::UserQueryOption(UserIdType userId)
-: DataQueryOption(userId), m_impl(NULL)
+: DataQueryOption(userId), m_impl(new Impl())
 {
-	m_impl = new Impl();
 }
 
 UserQueryOption::UserQueryOption(DataQueryContext *dataQueryContext)
 : DataQueryOption(dataQueryContext),
-  m_impl(NULL)
+  m_impl(new Impl())
 {
-	m_impl = new Impl();
 }
 
 UserQueryOption::~UserQueryOption()
 {
-	delete m_impl;
 }
 
 HatoholError UserQueryOption::setTargetName(const string &name)
@@ -381,21 +378,19 @@ struct AccessInfoQueryOption::Impl {
 };
 
 AccessInfoQueryOption::AccessInfoQueryOption(UserIdType userId)
-: DataQueryOption(userId), m_impl(NULL)
+: DataQueryOption(userId),
+  m_impl(new Impl())
 {
-	m_impl = new Impl();
 }
 
 AccessInfoQueryOption::AccessInfoQueryOption(DataQueryContext *dataQueryContext)
 : DataQueryOption(dataQueryContext),
-  m_impl(NULL)
+  m_impl(new Impl())
 {
-	m_impl = new Impl();
 }
 
 AccessInfoQueryOption::~AccessInfoQueryOption()
 {
-	delete m_impl;
 }
 string AccessInfoQueryOption::getCondition(void) const
 {
@@ -437,21 +432,19 @@ struct UserRoleQueryOption::Impl {
 };
 
 UserRoleQueryOption::UserRoleQueryOption(UserIdType userId)
-: DataQueryOption(userId), m_impl(NULL)
+: DataQueryOption(userId),
+  m_impl(new Impl())
 {
-	m_impl = new Impl();
 }
 
 UserRoleQueryOption::UserRoleQueryOption(DataQueryContext *dataQueryContext)
 : DataQueryOption(dataQueryContext),
-  m_impl(NULL)
+  m_impl(new Impl())
 {
-	m_impl = new Impl();
 }
 
 UserRoleQueryOption::~UserRoleQueryOption()
 {
-	delete m_impl;
 }
 
 void UserRoleQueryOption::setTargetUserRoleId(UserRoleIdType userRoleId)
@@ -527,14 +520,12 @@ void DBClientUser::reset(void)
 
 DBClientUser::DBClientUser(void)
 : DBClient(DB_DOMAIN_ID_USERS),
-  m_impl(NULL)
+  m_impl(new Impl())
 {
-	m_impl = new Impl();
 }
 
 DBClientUser::~DBClientUser()
 {
-	delete m_impl;
 }
 
 HatoholError DBClientUser::addUserInfo(

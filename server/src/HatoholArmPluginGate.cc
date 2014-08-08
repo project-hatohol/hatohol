@@ -119,10 +119,8 @@ const string HatoholArmPluginGate::PassivePluginQuasiPath = "#PASSIVE_PLUGIN#";
 HatoholArmPluginGate::HatoholArmPluginGate(
   const MonitoringServerInfo &serverInfo)
 : HatoholArmPluginInterface(true),
-  m_impl(NULL)
+  m_impl(new Impl(serverInfo, this))
 {
-	m_impl = new Impl(serverInfo, this);
-
 	CacheServiceDBClient cache;
 	const ServerIdType &serverId = m_impl->serverInfo.id;
 	DBClientConfig *dbConfig = cache.getConfig();
@@ -225,7 +223,6 @@ void HatoholArmPluginGate::exitSync(void)
 HatoholArmPluginGate::~HatoholArmPluginGate()
 {
 	exitSync();
-	delete m_impl;
 }
 
 void HatoholArmPluginGate::onConnected(qpid::messaging::Connection &conn)

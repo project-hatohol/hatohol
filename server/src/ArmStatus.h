@@ -21,7 +21,10 @@
 #define ArmStatus_h
 
 #include <string>
+#include <memory>
 #include <SmartTime.h>
+
+#include "Params.h"
 
 enum ArmWorkingStatus {
 	ARM_WORK_STAT_INIT,
@@ -71,7 +74,7 @@ protected:
 
 private:
 	struct Impl;
-	Impl *m_impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 #endif // ArmStatus_h

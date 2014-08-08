@@ -20,6 +20,8 @@
 #ifndef ActionManager_h
 #define ActionManager_h
 
+#include <memory>
+#include "Params.h"
 #include "SmartBuffer.h"
 #include "DBClientAction.h"
 #include "ActorCollector.h"
@@ -245,7 +247,7 @@ protected:
 
 private:
 	struct ActorProfile;
-	Impl *m_impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 #endif // ActionManager_h

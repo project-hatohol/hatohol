@@ -173,13 +173,11 @@ void DBClientHost::init(void)
 
 DBClientHost::DBClientHost(void)
 : DBCGroupRegular(DB_DOMAIN_ID_HOST),
-  m_impl(NULL)
+  m_impl(new Impl())
 {
-	m_impl = new Impl();
 }
 
 DBClientHost::~DBClientHost()
 {
-	delete m_impl;
 }
 

@@ -34,15 +34,13 @@ struct ArmCeilometer::Impl
 // ---------------------------------------------------------------------------
 ArmCeilometer::ArmCeilometer(const MonitoringServerInfo &serverInfo)
 : ArmBase("ArmCeilometer", serverInfo),
-  m_impl(NULL)
+  m_impl(new Impl())
 {
-	m_impl = new Impl();
 }
 
 ArmCeilometer::~ArmCeilometer()
 {
 	requestExitAndWait();
-	delete m_impl;
 }
 
 // ---------------------------------------------------------------------------

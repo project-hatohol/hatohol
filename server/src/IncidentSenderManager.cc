@@ -120,14 +120,12 @@ void IncidentSenderManager::queue(
 }
 
 IncidentSenderManager::IncidentSenderManager(void)
-: m_impl(NULL)
+: m_impl(new Impl())
 {
-	m_impl = new Impl();
 }
 
 IncidentSenderManager::~IncidentSenderManager()
 {
-	delete m_impl;
 }
 
 bool IncidentSenderManager::isIdling(void)

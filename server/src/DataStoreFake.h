@@ -33,7 +33,7 @@ public:
 	virtual void setCopyOnDemandEnable(bool enable) override;
 private:
 	struct Impl;
-	Impl *m_impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 #endif // DataStoreFake_h

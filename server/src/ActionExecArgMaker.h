@@ -20,6 +20,8 @@
 #ifndef ActionExecArgMaker_h
 #define ActionExecArgMaker_h
 
+#include <memory>
+#include "Params.h"
 #include "StringUtils.h"
 
 class ActionExecArgMaker
@@ -38,7 +40,7 @@ protected:
 	static void separatorCallback(const char sep, Impl *impl);
 
 private:
-	Impl *m_impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 #endif // ActionExecArgMaker_h

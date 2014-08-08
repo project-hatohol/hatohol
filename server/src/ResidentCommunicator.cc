@@ -34,14 +34,12 @@ struct ResidentCommunicator::Impl {
 // Public methods
 // ---------------------------------------------------------------------------
 ResidentCommunicator::ResidentCommunicator(void)
-: m_impl(NULL)
+: m_impl(new Impl())
 {
-	m_impl = new Impl();
 }
 
 ResidentCommunicator::~ResidentCommunicator()
 {
-	delete m_impl;
 }
 
 int ResidentCommunicator::getPacketType(SmartBuffer &sbuf)

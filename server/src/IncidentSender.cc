@@ -142,16 +142,14 @@ struct IncidentSender::Impl
 };
 
 IncidentSender::IncidentSender(const IncidentTrackerInfo &tracker)
-: m_impl(NULL)
+: m_impl(new Impl(*this))
 {
-	m_impl = new Impl(*this);
 	m_impl->incidentTrackerInfo = tracker;
 }
 
 IncidentSender::~IncidentSender()
 {
 	exitSync();
-	delete m_impl;
 }
 
 void IncidentSender::waitExit(void)

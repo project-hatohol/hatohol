@@ -245,10 +245,8 @@ bool FaceRest::isTestMode(void)
 }
 
 FaceRest::FaceRest(CommandLineArg &cmdArg, FaceRestParam *param)
-: m_impl(NULL)
+: m_impl(new Impl(param))
 {
-	m_impl = new Impl(param);
-
 	DBClientConfig dbConfig;
 	int port = dbConfig.getFaceRestPort();
 	if (port != 0 && Utils::isValidPort(port))
@@ -273,8 +271,6 @@ FaceRest::~FaceRest()
 		g_object_unref(m_impl->soupServer);
 	}
 	MLPL_INFO("FaceRest: stop process: completed.\n");
-
-	delete m_impl;
 }
 
 void FaceRest::waitExit(void)
@@ -362,7 +358,7 @@ void FaceRest::stopWorkers(void)
 
 gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 {
-	Impl::MainThreadCleaner cleaner(m_impl);
+	Impl::MainThreadCleaner cleaner(m_impl.get());
 	Reaper<Impl::MainThreadCleaner>
 	   reaper(&cleaner, Impl::MainThreadCleaner::callgate);
 

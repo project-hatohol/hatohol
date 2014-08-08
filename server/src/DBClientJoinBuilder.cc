@@ -53,9 +53,8 @@ struct DBClientJoinBuilder::Impl {
 // ---------------------------------------------------------------------------
 DBClientJoinBuilder::DBClientJoinBuilder(
   const DBAgent::TableProfile &table, const DataQueryOption *option)
-: m_impl(NULL)
+: m_impl(new Impl(table, option))
 {
-	m_impl = new Impl(table, option);
 	if (option)
 		option->setTableNameAlways();
 
@@ -74,7 +73,6 @@ DBClientJoinBuilder::DBClientJoinBuilder(
 
 DBClientJoinBuilder::~DBClientJoinBuilder()
 {
-	delete m_impl;
 }
 
 void DBClientJoinBuilder::addTable(

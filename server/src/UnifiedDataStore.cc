@@ -223,14 +223,12 @@ Mutex             UnifiedDataStore::Impl::mutex;
 // Public static methods
 // ---------------------------------------------------------------------------
 UnifiedDataStore::UnifiedDataStore(void)
-: m_impl(NULL)
+: m_impl(new Impl())
 {
-	m_impl = new Impl();
 }
 
 UnifiedDataStore::~UnifiedDataStore()
 {
-	delete m_impl;
 }
 
 void UnifiedDataStore::reset(void)

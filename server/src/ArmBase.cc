@@ -124,9 +124,8 @@ struct ArmBase::Impl
 // ---------------------------------------------------------------------------
 ArmBase::ArmBase(
   const string &name, const MonitoringServerInfo &serverInfo)
-: m_impl(NULL)
+: m_impl(new Impl(name, serverInfo))
 {
-	m_impl = new Impl(name, serverInfo);
 }
 
 ArmBase::~ArmBase()
@@ -134,7 +133,6 @@ ArmBase::~ArmBase()
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	MLPL_INFO("%s [%d:%s]: destruction: completed.\n",
 	          getName().c_str(), svInfo.id, svInfo.hostName.c_str());
-	delete m_impl;
 }
 
 void ArmBase::start(void)

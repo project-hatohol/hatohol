@@ -40,14 +40,12 @@ struct HostInfoCache::Impl
 // Public methods
 // ---------------------------------------------------------------------------
 HostInfoCache::HostInfoCache(void)
-: m_impl(NULL)
+: m_impl(new Impl())
 {
-	m_impl = new Impl();
 }
 
 HostInfoCache::~HostInfoCache()
 {
-	delete m_impl;
 }
 
 void HostInfoCache::update(const HostInfo &hostInfo)

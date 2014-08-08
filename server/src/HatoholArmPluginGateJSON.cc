@@ -265,5 +265,4 @@ ArmBase &HatoholArmPluginGateJSON::getArmBase(void)
 // ---------------------------------------------------------------------------
 HatoholArmPluginGateJSON::~HatoholArmPluginGateJSON()
 {
-	delete m_impl;
 }

@@ -59,13 +59,11 @@ void DBCGroupRegular::reset(void)
 
 DBCGroupRegular::DBCGroupRegular(const DBDomainId &domainId)
 : DBClientGroup(domainId),
-  m_impl(NULL)
+  m_impl(new Impl())
 {
-	m_impl = new Impl();
 }
 
 DBCGroupRegular::~DBCGroupRegular()
 {
-	delete m_impl;
 }
 

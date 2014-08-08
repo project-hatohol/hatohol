@@ -60,20 +60,18 @@ struct ActionExecArgMaker::Impl {
 // Public methods
 // ---------------------------------------------------------------------------
 ActionExecArgMaker::ActionExecArgMaker()
-: m_impl(NULL)
+: m_impl(new Impl())
 {
-	m_impl = new Impl();
 	m_impl->separator.setCallbackTempl<Impl>
-	  (' ', separatorCallback, m_impl);
+	  (' ', separatorCallback, m_impl.get());
 	m_impl->separator.setCallbackTempl<Impl>
-	  ('\'', separatorCallback, m_impl);
+	  ('\'', separatorCallback, m_impl.get());
 	m_impl->separator.setCallbackTempl<Impl>
-	  ('\\', separatorCallback, m_impl);
+	  ('\\', separatorCallback, m_impl.get());
 }
 
 ActionExecArgMaker::~ActionExecArgMaker()
 {
-	delete m_impl;
 }
 
 void ActionExecArgMaker::makeExecArg(StringVector &argVect, const string &cmd)

@@ -74,26 +74,22 @@ DataQueryOption::SortOrder::SortOrder(
 }
 
 DataQueryOption::DataQueryOption(const UserIdType &userId)
-: m_impl(NULL)
+: m_impl(new Impl(userId))
 {
-	m_impl = new Impl(userId);
 }
 
 DataQueryOption::DataQueryOption(DataQueryContext *dataQueryContext)
-: m_impl(NULL)
+: m_impl(new Impl(dataQueryContext))
 {
-	m_impl = new Impl(dataQueryContext);
 }
 
 DataQueryOption::DataQueryOption(const DataQueryOption &src)
-: m_impl(NULL)
+: m_impl(new Impl(src))
 {
-	m_impl = new Impl(src);
 }
 
 DataQueryOption::~DataQueryOption()
 {
-	delete m_impl;
 }
 
 static inline bool operator ==(

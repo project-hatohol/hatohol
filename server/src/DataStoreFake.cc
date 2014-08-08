@@ -36,16 +36,14 @@ struct DataStoreFake::Impl
 // ---------------------------------------------------------------------------
 DataStoreFake::DataStoreFake(
   const MonitoringServerInfo &serverInfo, const bool &autoStart)
-: m_impl(NULL)
+: m_impl(new Impl(serverInfo))
 {
-	m_impl = new Impl(serverInfo);
 	if (autoStart)
 		m_impl->armFake.start();
 }
 
 DataStoreFake::~DataStoreFake()
 {
-	delete m_impl;
 }
 
 ArmBase &DataStoreFake::getArmBase(void)

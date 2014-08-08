@@ -28,13 +28,11 @@ struct DBClientGroup::Impl {
 // ---------------------------------------------------------------------------
 DBClientGroup::DBClientGroup(const DBDomainId &domainId)
 : DBClient(domainId),
-  m_impl(NULL)
+  m_impl(new Impl())
 {
-	m_impl = new Impl();
 }
 
 DBClientGroup::~DBClientGroup()
 {
-	delete m_impl;
 }
 

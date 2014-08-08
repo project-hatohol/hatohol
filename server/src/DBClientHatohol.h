@@ -204,7 +204,7 @@ public:
 
 private:
 	struct Impl;
-	Impl *m_impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 class TriggersQueryOption : public HostResourceQueryOption {
@@ -225,7 +225,7 @@ public:
 
 private:
 	struct Impl;
-	Impl *m_impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 class ItemsQueryOption : public HostResourceQueryOption {
@@ -244,7 +244,7 @@ public:
 
 private:
 	struct Impl;
-	Impl *m_impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 class HostsQueryOption : public HostResourceQueryOption {
@@ -415,7 +415,7 @@ protected:
 
 private:
 	struct Impl;
-	Impl *m_impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 void operator>>(ItemGroupStream &itemGroupStream, TriggerStatusType &rhs);

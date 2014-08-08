@@ -37,28 +37,25 @@ struct OperationPrivilege::Impl {
 // Public methods
 // ---------------------------------------------------------------------------
 OperationPrivilege::OperationPrivilege(const UserIdType &userId)
-: m_impl(NULL)
+: m_impl(new Impl())
 {
-	m_impl = new Impl();
 	setUserId(userId);
 }
 
 OperationPrivilege::OperationPrivilege(const OperationPrivilegeFlag &flags)
-: m_impl(NULL)
+: m_impl(new Impl())
 {
-	m_impl = new Impl();
 	m_impl->flags = flags;
 }
 
 OperationPrivilege::OperationPrivilege(const OperationPrivilege &src)
+: m_impl(new Impl())
 {
-	m_impl = new Impl();
 	*m_impl = *src.m_impl;
 }
 
 OperationPrivilege::~OperationPrivilege()
 {
-	delete m_impl;
 }
 
 const OperationPrivilegeFlag &OperationPrivilege::getFlags(void) const

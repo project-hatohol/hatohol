@@ -56,14 +56,12 @@ struct JSONParserAgent::Impl
 // Public methods
 // ---------------------------------------------------------------------------
 JSONParserAgent::JSONParserAgent(const string &data)
-: m_impl(NULL)
+: m_impl(new Impl(data))
 {
-	m_impl = new Impl(data);
 }
 
 JSONParserAgent::~JSONParserAgent()
 {
-	delete m_impl;
 }
 
 const char *JSONParserAgent::getErrorMessage(void)

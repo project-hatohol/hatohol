@@ -103,9 +103,8 @@ struct HatoholArmPluginBase::Impl {
 // Public methods
 // ---------------------------------------------------------------------------
 HatoholArmPluginBase::HatoholArmPluginBase(void)
-: m_impl(NULL)
+: m_impl(new Impl())
 {
-	m_impl = new Impl();
 	const char *env = getenv(ENV_NAME_QUEUE_ADDR);
 	if (env)
 		setQueueAddress(env);
@@ -118,7 +117,6 @@ HatoholArmPluginBase::HatoholArmPluginBase(void)
 
 HatoholArmPluginBase::~HatoholArmPluginBase()
 {
-	delete m_impl;
 }
 
 bool HatoholArmPluginBase::getMonitoringServerInfo(

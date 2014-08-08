@@ -200,14 +200,12 @@ const size_t SessionManager::getDefaultTimeout(void)
 // Protected methods
 // ---------------------------------------------------------------------------
 SessionManager::SessionManager(void)
-: m_impl(NULL)
+: m_impl(new Impl())
 {
-	m_impl = new Impl();
 }
 
 SessionManager::~SessionManager()
 {
-	delete m_impl;
 }
 
 string SessionManager::generateSessionId(void)
@@ -223,7 +221,7 @@ string SessionManager::generateSessionId(void)
 
 void SessionManager::updateTimer(Session *session)
 {
-	Impl *impl = session->sessionMgr->m_impl;
+	Impl *impl = session->sessionMgr->m_impl.get();
 	Utils::removeGSourceIfNeeded(session->timerId);
 
 	if (session->timeout) {

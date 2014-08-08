@@ -60,16 +60,14 @@ class connectionException : public HatoholException {};
 // ---------------------------------------------------------------------------
 ArmZabbixAPI::ArmZabbixAPI(const MonitoringServerInfo &serverInfo)
 : ArmBase("ArmZabbixAPI", serverInfo),
-  m_impl(NULL)
+  m_impl(new Impl(serverInfo))
 {
 	setMonitoringServerInfo(serverInfo);
-	m_impl = new Impl(serverInfo);
 }
 
 ArmZabbixAPI::~ArmZabbixAPI()
 {
 	requestExitAndWait();
-	delete m_impl;
 }
 
 void ArmZabbixAPI::onGotNewEvents(const ItemTablePtr &itemPtr)

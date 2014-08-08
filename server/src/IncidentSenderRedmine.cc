@@ -70,14 +70,13 @@ struct IncidentSenderRedmine::Impl
 };
 
 IncidentSenderRedmine::IncidentSenderRedmine(const IncidentTrackerInfo &tracker)
-: IncidentSender(tracker), m_impl(NULL)
+: IncidentSender(tracker),
+  m_impl(new Impl(*this))
 {
-	m_impl = new Impl(*this);
 }
 
 IncidentSenderRedmine::~IncidentSenderRedmine()
 {
-	delete m_impl;
 }
 
 string IncidentSenderRedmine::getProjectURL(void)

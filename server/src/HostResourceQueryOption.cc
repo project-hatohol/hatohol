@@ -90,29 +90,28 @@ const DBTermCodec *HostResourceQueryOption::Impl::dbTermCodec =
 // ---------------------------------------------------------------------------
 HostResourceQueryOption::HostResourceQueryOption(
   const Synapse &synapse, const UserIdType &userId)
-: DataQueryOption(userId)
+: DataQueryOption(userId),
+  m_impl(new Impl(synapse))
 {
-	m_impl = new Impl(synapse);
 }
 
 HostResourceQueryOption::HostResourceQueryOption(
   const Synapse &synapse, DataQueryContext *dataQueryContext)
-: DataQueryOption(dataQueryContext)
+: DataQueryOption(dataQueryContext),
+  m_impl(new Impl(synapse))
 {
-	m_impl = new Impl(synapse);
 }
 
 HostResourceQueryOption::HostResourceQueryOption(
   const HostResourceQueryOption &src)
-: DataQueryOption(src)
+: DataQueryOption(src),
+  m_impl(new Impl(src.m_impl->synapse))
 {
-	m_impl = new Impl(src.m_impl->synapse);
 	*m_impl = *src.m_impl;
 }
 
 HostResourceQueryOption::~HostResourceQueryOption()
 {
-	delete m_impl;
 }
 
 const char *HostResourceQueryOption::getPrimaryTableName(void) const

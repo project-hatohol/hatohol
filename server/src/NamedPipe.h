@@ -21,7 +21,9 @@
 #define NamedPipe_h
 
 #include <string>
+#include <memory>
 #include <glib.h>
+#include "Params.h"
 #include "SmartBuffer.h"
 
 class NamedPipe {
@@ -178,7 +180,7 @@ protected:
 
 private:
 	struct Impl;
-	Impl *m_impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 #endif // NamedPipe_h

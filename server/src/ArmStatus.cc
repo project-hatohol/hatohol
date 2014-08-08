@@ -48,14 +48,12 @@ struct ArmStatus::Impl {
 // Public methods
 // ---------------------------------------------------------------------------
 ArmStatus::ArmStatus(void)
-: m_impl(NULL)
+: m_impl(new Impl())
 {
-	m_impl = new Impl();
 }
 
 ArmStatus::~ArmStatus()
 {
-	delete m_impl;
 }
 
 ArmInfo ArmStatus::getArmInfo(void) const

@@ -439,9 +439,8 @@ struct ArmNagiosNDOUtils::Impl
 // ---------------------------------------------------------------------------
 ArmNagiosNDOUtils::ArmNagiosNDOUtils(const MonitoringServerInfo &serverInfo)
 : ArmBase("ArmNagiosNDOUtils", serverInfo),
-  m_impl(NULL)
+  m_impl(new Impl(serverInfo))
 {
-	m_impl = new Impl(serverInfo);
 	makeSelectTriggerBuilder();
 	makeSelectEventBuilder();
 	makeSelectItemBuilder();
@@ -453,7 +452,6 @@ ArmNagiosNDOUtils::ArmNagiosNDOUtils(const MonitoringServerInfo &serverInfo)
 ArmNagiosNDOUtils::~ArmNagiosNDOUtils()
 {
 	requestExitAndWait();
-	delete m_impl;
 }
 
 // ---------------------------------------------------------------------------

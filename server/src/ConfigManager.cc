@@ -146,9 +146,8 @@ void ConfigManager::setResidentYardDirectory(const string &dir)
 // Private methods
 // ---------------------------------------------------------------------------
 ConfigManager::ConfigManager(void)
-: m_impl(NULL)
+: m_impl(new Impl())
 {
-	m_impl = new Impl();
 	const char *envDBDir = getenv(HATOHOL_DB_DIR_ENV_VAR_NAME);
 	if (envDBDir)
 		m_impl->databaseDirectory = envDBDir;
@@ -158,5 +157,4 @@ ConfigManager::ConfigManager(void)
 
 ConfigManager::~ConfigManager()
 {
-	delete m_impl;
 }

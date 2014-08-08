@@ -36,16 +36,14 @@ struct DataStoreNagios::Impl
 // ---------------------------------------------------------------------------
 DataStoreNagios::DataStoreNagios(
   const MonitoringServerInfo &serverInfo, const bool &autoStart)
-: m_impl(NULL)
+: m_impl(new Impl(serverInfo))
 {
-	m_impl = new Impl(serverInfo);
 	if (autoStart)
 		m_impl->armNDO.start();
 }
 
 DataStoreNagios::~DataStoreNagios()
 {
-	delete m_impl;
 }
 
 ArmBase &DataStoreNagios::getArmBase(void)

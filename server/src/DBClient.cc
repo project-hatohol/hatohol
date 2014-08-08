@@ -188,10 +188,8 @@ DBConnectInfo DBClient::getDBConnectInfo(DBDomainId domainId)
 
 // non static method
 DBClient::DBClient(DBDomainId domainId)
-: m_impl(NULL)
+: m_impl(new Impl())
 {
-	m_impl = new Impl();
-
 	DBSetupContext *setupCtx = Impl::getDBSetupContext(domainId);
 	if (!setupCtx->initialized) {
 		// The setup function: dbSetupFunc() is called from
@@ -215,7 +213,6 @@ DBClient::DBClient(DBDomainId domainId)
 
 DBClient::~DBClient()
 {
-	delete m_impl;
 }
 
 DBAgent *DBClient::getDBAgent(void) const

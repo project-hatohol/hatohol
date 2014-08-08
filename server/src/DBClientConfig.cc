@@ -511,21 +511,19 @@ struct ServerQueryOption::Impl {
 };
 
 ServerQueryOption::ServerQueryOption(const UserIdType &userId)
-: DataQueryOption(userId), m_impl(NULL)
+: DataQueryOption(userId),
+  m_impl(new Impl())
 {
-	m_impl = new Impl();
 }
 
 ServerQueryOption::ServerQueryOption(DataQueryContext *dataQueryContext)
 : DataQueryOption(dataQueryContext),
-  m_impl(NULL)
+  m_impl(new Impl())
 {
-	m_impl = new Impl();
 }
 
 ServerQueryOption::~ServerQueryOption()
 {
-	delete m_impl;
 }
 
 static string serverIdCondition(
@@ -625,22 +623,20 @@ struct IncidentTrackerQueryOption::Impl {
 };
 
 IncidentTrackerQueryOption::IncidentTrackerQueryOption(const UserIdType &userId)
-: DataQueryOption(userId), m_impl(NULL)
+: DataQueryOption(userId),
+  m_impl(new Impl())
 {
-	m_impl = new Impl();
 }
 
 IncidentTrackerQueryOption::IncidentTrackerQueryOption(
   DataQueryContext *dataQueryContext)
 : DataQueryOption(dataQueryContext),
-  m_impl(NULL)
+  m_impl(new Impl())
 {
-	m_impl = new Impl();
 }
 
 IncidentTrackerQueryOption::~IncidentTrackerQueryOption()
 {
-	delete m_impl;
 }
 
 void IncidentTrackerQueryOption::setTargetId(
@@ -741,14 +737,12 @@ bool DBClientConfig::isHatoholArmPlugin(const MonitoringSystemType &type)
 
 DBClientConfig::DBClientConfig(void)
 : DBClient(DB_DOMAIN_ID_CONFIG),
-  m_impl(NULL)
+  m_impl(new Impl())
 {
-	m_impl = new Impl();
 }
 
 DBClientConfig::~DBClientConfig()
 {
-	delete m_impl;
 }
 
 string DBClientConfig::getDatabaseDir(void)

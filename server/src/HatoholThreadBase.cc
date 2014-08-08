@@ -98,15 +98,13 @@ struct HatoholThreadBase::Impl {
 // Public methods
 // ---------------------------------------------------------------------------
 HatoholThreadBase::HatoholThreadBase(void)
-: m_impl(NULL)
+: m_impl(new Impl())
 {
-	m_impl = new Impl();
 }
 
 HatoholThreadBase::~HatoholThreadBase()
 {
 	waitExit();
-	delete m_impl;
 }
 
 void HatoholThreadBase::start(bool autoDeleteObject, void *userData)

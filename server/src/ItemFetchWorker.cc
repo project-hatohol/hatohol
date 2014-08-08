@@ -58,14 +58,12 @@ const timespec ItemFetchWorker::Impl::minUpdateInterval = {10, 0};
 // Public methods
 // ---------------------------------------------------------------------------
 ItemFetchWorker::ItemFetchWorker(void)
-: m_impl(NULL)
+: m_impl(new Impl())
 {
-	m_impl = new Impl();
 }
 
 ItemFetchWorker::~ItemFetchWorker()
 {
-	delete m_impl;
 }
 
 bool ItemFetchWorker::start(

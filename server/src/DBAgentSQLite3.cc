@@ -68,6 +68,17 @@ struct DBAgentSQLite3::Impl {
 	{
 	}
 
+	~Impl(void)
+	{
+		if (!db)
+			return;
+		int result = sqlite3_close(db);
+		if (result != SQLITE_OK) {
+			// Should we throw an exception ?
+			MLPL_ERR("Failed to close sqlite: %d\n", result);
+		}
+	}
+
 	static void lock(void)
 	{
 		mutex.lock();
@@ -167,9 +178,8 @@ const DBTermCodec *DBAgentSQLite3::getDBTermCodecStatic(void)
 DBAgentSQLite3::DBAgentSQLite3(const string &dbName,
                                DBDomainId domainId, bool skipSetup)
 : DBAgent(domainId, skipSetup),
-  m_impl(NULL)
+  m_impl(new Impl())
 {
-	m_impl = new Impl();
 	if (!dbName.empty() && !Impl::isDBPathDefined(domainId)) {
 		string dbPath = makeDBPathFromName(dbName);
 		const bool allowOverwrite = false;
@@ -181,18 +191,6 @@ DBAgentSQLite3::DBAgentSQLite3(const string &dbName,
 
 DBAgentSQLite3::~DBAgentSQLite3()
 {
-	if (!m_impl)
-		return;
-
-	if (m_impl->db) {
-		int result = sqlite3_close(m_impl->db);
-		if (result != SQLITE_OK) {
-			// Should we throw an exception ?
-			MLPL_ERR("Failed to close sqlite: %d\n", result);
-		}
-	}
-
-	delete m_impl;
 }
 
 void DBAgentSQLite3::getIndexes(vector<IndexStruct> &indexStructVect,

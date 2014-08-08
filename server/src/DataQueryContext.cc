@@ -52,14 +52,12 @@ struct DataQueryContext::Impl {
 // Public methods
 // ---------------------------------------------------------------------------
 DataQueryContext::DataQueryContext(const UserIdType &userId)
-: m_impl(NULL)
+: m_impl(new Impl(userId))
 {
-	m_impl = new Impl(userId);
 }
 
 DataQueryContext::~DataQueryContext()
 {
-	delete m_impl;
 }
 
 void DataQueryContext::setUserId(const UserIdType &userId)

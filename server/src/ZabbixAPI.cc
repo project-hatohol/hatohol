@@ -81,14 +81,12 @@ struct ZabbixAPI::Impl {
 // Public methods
 // ---------------------------------------------------------------------------
 ZabbixAPI::ZabbixAPI(void)
-: m_impl(NULL)
+: m_impl(new Impl())
 {
-	m_impl = new Impl();
 }
 
 ZabbixAPI::~ZabbixAPI()
 {
-	delete m_impl;
 }
 
 // ---------------------------------------------------------------------------

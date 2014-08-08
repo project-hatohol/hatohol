@@ -321,14 +321,12 @@ HatoholError ChildProcessManager::create(CreateArg &arg)
 // Protected methods
 // ---------------------------------------------------------------------------
 ChildProcessManager::ChildProcessManager(void)
-: m_impl(NULL)
+: m_impl(new Impl())
 {
-	m_impl = new Impl();
 }
 
 ChildProcessManager::~ChildProcessManager()
 {
-	delete m_impl;
 }
 
 gpointer ChildProcessManager::mainThread(HatoholThreadArg *arg)

@@ -486,14 +486,12 @@ void ActionManager::reset(void)
 }
 
 ActionManager::ActionManager(void)
-: m_impl(NULL)
+: m_impl(new Impl())
 {
-	m_impl = new Impl();
 }
 
 ActionManager::~ActionManager()
 {
-	delete m_impl;
 }
 
 static bool shouldSkipIncidentSender(

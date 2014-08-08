@@ -61,14 +61,13 @@ struct DataStoreManager::Impl {
 // Public methods
 // ---------------------------------------------------------------------------
 DataStoreManager::DataStoreManager(void)
+: m_impl(new Impl)
 {
-	m_impl = new Impl;
 }
 
 DataStoreManager::~DataStoreManager()
 {
 	closeAllStores();
-	delete m_impl;
 }
 
 void DataStoreManager::passCommandLineArg(const CommandLineArg &cmdArg)

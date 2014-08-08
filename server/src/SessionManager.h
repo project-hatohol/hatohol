@@ -21,6 +21,7 @@
 #define SessionManager_h
 
 #include <string>
+#include <memory>
 #include <map>
 #include "Params.h"
 #include "SmartTime.h"
@@ -121,7 +122,7 @@ protected:
 
 private:
 	struct Impl;
-	Impl *m_impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 #endif // SessionManager_h

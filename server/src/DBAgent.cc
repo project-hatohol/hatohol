@@ -317,9 +317,8 @@ void DBAgent::addSetupFunction(DBDomainId domainId,
 }
 
 DBAgent::DBAgent(DBDomainId domainId, bool skipSetup)
-: m_impl(NULL)
+: m_impl(new Impl(domainId))
 {
-	m_impl = new Impl(domainId);
 	if (skipSetup)
 		return;
 
@@ -346,7 +345,6 @@ DBAgent::DBAgent(DBDomainId domainId, bool skipSetup)
 
 DBAgent::~DBAgent()
 {
-	delete m_impl;
 }
 
 DBDomainId DBAgent::getDBDomainId(void) const

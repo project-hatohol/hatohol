@@ -472,14 +472,12 @@ const char *DBClientAction::getTableNameActionLogs(void)
 
 DBClientAction::DBClientAction(void)
 : DBClient(DB_DOMAIN_ID_ACTION),
-  m_impl(NULL)
+  m_impl(new Impl())
 {
-	m_impl = new Impl();
 }
 
 DBClientAction::~DBClientAction()
 {
-	delete m_impl;
 }
 
 HatoholError DBClientAction::addAction(ActionDef &actionDef,
@@ -1141,27 +1139,23 @@ string ActionsQueryOption::Impl::makeConditionTemplate(void)
 }
 
 ActionsQueryOption::ActionsQueryOption(const UserIdType &userId)
-: DataQueryOption(userId), m_impl(NULL)
+: DataQueryOption(userId), m_impl(new Impl(this))
 {
-	m_impl = new Impl(this);
 }
 
 ActionsQueryOption::ActionsQueryOption(DataQueryContext *dataQueryContext)
-: DataQueryOption(dataQueryContext), m_impl(NULL)
+: DataQueryOption(dataQueryContext), m_impl(new Impl(this))
 {
-	m_impl = new Impl(this);
 }
 
 ActionsQueryOption::ActionsQueryOption(const ActionsQueryOption &src)
-: DataQueryOption(src), m_impl(NULL)
+: DataQueryOption(src), m_impl(new Impl(this))
 {
-	m_impl = new Impl(this);
 	*m_impl = *src.m_impl;
 }
 
 ActionsQueryOption::~ActionsQueryOption()
 {
-	delete m_impl;
 }
 
 void ActionsQueryOption::setTargetEventInfo(const EventInfo *eventInfo)

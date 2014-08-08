@@ -47,6 +47,13 @@ struct DBAgentMySQL::Impl {
 	  inTransaction(false)
 	{
 	}
+
+	~Impl(void)
+	{
+		if (connected) {
+			mysql_close(&mysql);
+		}
+	}
 	
 	bool shouldRetry(unsigned int errorNumber)
 	{
@@ -75,10 +82,8 @@ DBAgentMySQL::DBAgentMySQL(const char *db, const char *user, const char *passwd,
                            const char *host, unsigned int port,
                            DBDomainId domainId, bool skipSetup)
 : DBAgent(domainId, skipSetup),
-  m_impl(NULL)
+  m_impl(new Impl())
 {
-	m_impl = new Impl();
-
 	m_impl->dbName   = db     ? : "";
 	m_impl->user     = user   ? : "";
 	m_impl->password = passwd ? : "";
@@ -93,10 +98,6 @@ DBAgentMySQL::DBAgentMySQL(const char *db, const char *user, const char *passwd,
 
 DBAgentMySQL::~DBAgentMySQL()
 {
-	if (m_impl) {
-		mysql_close(&m_impl->mysql);
-		delete m_impl;
-	}
 }
 
 string DBAgentMySQL::getDBName(void) const

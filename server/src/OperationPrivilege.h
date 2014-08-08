@@ -21,6 +21,7 @@
 #define OperationPrivilege_h
 
 #include <string>
+#include <memory>
 #include "Params.h"
 
 enum OperationPrivilegeType
@@ -99,7 +100,7 @@ public:
 
 private:
 	struct Impl;
-	Impl *m_impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 const static OperationPrivilegeFlag ALL_PRIVILEGES = 

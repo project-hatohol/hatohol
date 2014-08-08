@@ -1004,28 +1004,26 @@ struct EventsQueryOption::Impl {
 };
 
 EventsQueryOption::EventsQueryOption(const UserIdType &userId)
-: HostResourceQueryOption(synapseEventsQueryOption, userId), m_impl(NULL)
+: HostResourceQueryOption(synapseEventsQueryOption, userId),
+  m_impl(new Impl())
 {
-	m_impl = new Impl();
 }
 
 EventsQueryOption::EventsQueryOption(DataQueryContext *dataQueryContext)
 : HostResourceQueryOption(synapseEventsQueryOption, dataQueryContext),
-  m_impl(NULL)
+  m_impl(new Impl())
 {
-	m_impl = new Impl();
 }
 
 EventsQueryOption::EventsQueryOption(const EventsQueryOption &src)
-: HostResourceQueryOption(src), m_impl(NULL)
+: HostResourceQueryOption(src),
+  m_impl(new Impl())
 {
-	m_impl = new Impl();
 	*m_impl = *src.m_impl;
 }
 
 EventsQueryOption::~EventsQueryOption()
 {
-	delete m_impl;
 }
 
 string EventsQueryOption::getCondition(void) const
@@ -1173,28 +1171,26 @@ struct TriggersQueryOption::Impl {
 };
 
 TriggersQueryOption::TriggersQueryOption(const UserIdType &userId)
-: HostResourceQueryOption(synapseTriggersQueryOption, userId), m_impl(NULL)
+: HostResourceQueryOption(synapseTriggersQueryOption, userId),
+  m_impl(new Impl())
 {
-	m_impl = new Impl();
 }
 
 TriggersQueryOption::TriggersQueryOption(DataQueryContext *dataQueryContext)
 : HostResourceQueryOption(synapseTriggersQueryOption, dataQueryContext),
-  m_impl(NULL)
+  m_impl(new Impl())
 {
-	m_impl = new Impl();
 }
 
 TriggersQueryOption::TriggersQueryOption(const TriggersQueryOption &src)
-: HostResourceQueryOption(src), m_impl(NULL)
+: HostResourceQueryOption(src),
+  m_impl(new Impl())
 {
-	m_impl = new Impl();
 	*m_impl = *src.m_impl;
 }
 
 TriggersQueryOption::~TriggersQueryOption()
 {
-	delete m_impl;
 }
 
 string TriggersQueryOption::getCondition(void) const
@@ -1289,28 +1285,26 @@ struct ItemsQueryOption::Impl {
 };
 
 ItemsQueryOption::ItemsQueryOption(const UserIdType &userId)
-: HostResourceQueryOption(synapseItemsQueryOption, userId), m_impl(NULL)
+: HostResourceQueryOption(synapseItemsQueryOption, userId),
+  m_impl(new Impl())
 {
-	m_impl = new Impl();
 }
 
 ItemsQueryOption::ItemsQueryOption(DataQueryContext *dataQueryContext)
 : HostResourceQueryOption(synapseItemsQueryOption, dataQueryContext),
-  m_impl(NULL)
+  m_impl(new Impl())
 {
-	m_impl = new Impl();
 }
 
 ItemsQueryOption::ItemsQueryOption(const ItemsQueryOption &src)
-: HostResourceQueryOption(src), m_impl(NULL)
+: HostResourceQueryOption(src),
+  m_impl(new Impl())
 {
-	m_impl = new Impl();
 	*m_impl = *src.m_impl;
 }
 
 ItemsQueryOption::~ItemsQueryOption()
 {
-	delete m_impl;
 }
 
 string ItemsQueryOption::getCondition(void) const
@@ -1453,14 +1447,12 @@ void DBClientHatohol::init(void)
 
 DBClientHatohol::DBClientHatohol(void)
 : DBClient(DB_DOMAIN_ID_HATOHOL),
-  m_impl(NULL)
+  m_impl(new Impl())
 {
-	m_impl = new Impl();
 }
 
 DBClientHatohol::~DBClientHatohol()
 {
-	delete m_impl;
 }
 
 void DBClientHatohol::getHostInfoList(HostInfoList &hostInfoList,

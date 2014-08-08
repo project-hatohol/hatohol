@@ -21,6 +21,7 @@
 #define DataQueryOption_h
 
 #include <string>
+#include <memory>
 #include <list>
 #include "Params.h"
 #include "DataQueryContext.h"
@@ -191,7 +192,7 @@ protected:
 
 private:
 	struct Impl;
-	Impl *m_impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 #endif // DataQueryOption_h
