@@ -141,8 +141,8 @@ void test_parseDisableCopyOnDemand(void)
 
 void test_parseFaceRestPortDefault(void)
 {
-	cppcut_assert_equal(ConfigManager::DEFAULT_FACE_REST_PORT,
-	                    ConfigManager::getInstance()->getFaceRestPort());
+	cppcut_assert_equal(
+	 0, ConfigManager::getInstance()->getFaceRestPort());
 }
 
 void test_parseFaceRestPort(void)
@@ -170,8 +170,8 @@ void test_parseFaceRestPortWithInvalValue(gconstpointer data)
 	cmds << "--face-rest-port";
 	cmds << portStr.c_str();
 	cmds.activate();
-	cppcut_assert_equal(ConfigManager::DEFAULT_FACE_REST_PORT,
-	                    ConfigManager::getInstance()->getFaceRestPort());
+	cppcut_assert_equal(
+	 0, ConfigManager::getInstance()->getFaceRestPort());
 }
 
 } // namespace testConfigManager

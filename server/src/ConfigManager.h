@@ -35,7 +35,6 @@ public:
 	static const char *HATOHOL_DB_DIR_ENV_VAR_NAME;
 	static ConfigManager *getInstance(void);
 	static int ALLOW_ACTION_FOR_ALL_OLD_EVENTS;
-	static const int DEFAULT_FACE_REST_PORT;
 
 	static bool parseCommandLine(gint *argc, gchar ***argv);
 	static void clearParseCommandLineResult(void);
@@ -72,6 +71,15 @@ public:
 
 	bool isTestMode(void) const;
 	ConfigState getCopyOnDemand(void) const;
+
+	/**
+	 * Get the port for FaceRest.
+	 *
+	 * @retrun
+	 * The returned value is decided as below.
+	 * If --face-rest-port is specified, it is returned.
+	 * Otherwise, 0 is returned.
+	 */
 	int getFaceRestPort(void) const;
 
 protected:
