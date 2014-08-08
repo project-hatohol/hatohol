@@ -21,7 +21,6 @@
 #define SQLProcessorTypes_h
 
 #include <list>
-#include "ParsableString.h"
 #include "ItemTablePtr.h"
 
 enum SQLColumnType {
@@ -33,15 +32,6 @@ enum SQLColumnType {
 	SQL_COLUMN_TYPE_DOUBLE,
 	SQL_COLUMN_TYPE_DATETIME,
 	NUM_SQL_COLUMN_TYPES,
-};
-
-enum SQLJoinType {
-	SQL_JOIN_TYPE_UNKNOWN,
-	SQL_JOIN_TYPE_INNER,
-	SQL_JOIN_TYPE_LEFT_OUTER,
-	SQL_JOIN_TYPE_RIGHT_OUTER,
-	SQL_JOIN_TYPE_FULL_OUTER,
-	SQL_JOIN_TYPE_CROSS,
 };
 
 enum SQLKeyType {
@@ -59,20 +49,6 @@ enum SQLSubQueryMode {
 
 enum SQLColumnFlags {
 	SQL_COLUMN_FLAG_AUTO_INC = (1 << 0),
-};
-
-struct SQLProcessorInfo {
-	// input statement
-	mlpl::ParsableString  statement;
-
-	// error information
-	std::string           errorMessage;
-
-	//
-	// constructor and destructor
-	//
-	SQLProcessorInfo(const mlpl::ParsableString &_statement);
-	virtual ~SQLProcessorInfo();
 };
 
 struct ColumnDef {
@@ -94,64 +70,5 @@ struct ColumnDef {
 typedef std::list<ColumnDef>          ColumnDefList;
 typedef ColumnDefList::iterator       ColumnDefListIterator;
 typedef ColumnDefList::const_iterator ColumnDefListConstIterator;
-
-struct ColumnAccessInfo {
-	int         index;
-	ColumnDef *columnDef;
-};
-typedef std::map<std::string, ColumnAccessInfo> ColumnNameAccessInfoMap;
-typedef ColumnNameAccessInfoMap::iterator
-  ColumnNameAccessInfoMapIterator;
-typedef ColumnNameAccessInfoMap::const_iterator
-  ColumnNameAccessInfoMapConstIterator;
-
-typedef ItemTablePtr (*SQLTableGetFunc)(void);
-
-struct SQLTableStaticInfo {
-	int                     tableId;
-	const char             *tableName;
-	SQLTableGetFunc         tableGetFunc;
-	const ColumnDefList     columnDefList;
-	std::vector<ItemDataIndexType> indexTypeVector;
-
-	// The value (ColumnDefinition *) points an instance in
-	// 'columnDefList' in this struct.
-	// So we must not explicitly free it.
-	ColumnNameAccessInfoMap columnAccessInfoMap;
-};
-
-typedef std::map<std::string, const SQLTableStaticInfo *>
-  TableNameStaticInfoMap;
-typedef TableNameStaticInfoMap::iterator TableNameStaticInfoMapIterator;
-
-typedef std::map<ItemGroupId, const SQLTableStaticInfo *>
-  ItemGroupIdStaticInfoMap;
-typedef ItemGroupIdStaticInfoMap::iterator ItemGroupIdStaticInfoMapIterator;
-
-class SQLColumnIndexResoveler {
-public:
-	virtual int getIndex(const std::string &tableName,
-	                     const std::string &columnName) const = 0;
-	virtual size_t getNumberOfColumns(const std::string &tableName) const = 0;
-};
-
-class SQLProcessorSelect;
-class SQLProcessorSelectFactory {
-public:
-	virtual SQLProcessorSelect *create(SQLSubQueryMode subQueryMode) = 0;
-};
-
-struct SQLProcessorSelectShareInfo {
-	SQLProcessorSelectFactory  &processorSelectFactory;
-	const mlpl::ParsableString *statement;
-	bool                        allowSectionParserChange;
-
-	// methods
-	SQLProcessorSelectShareInfo(SQLProcessorSelectFactory &selectFactory);
-	void clear(void);
-};
-
-class SQLFoundRowOnJoinException {
-};
 
 #endif // SQLProcessorTypes_h
