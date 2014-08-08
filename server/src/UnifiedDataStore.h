@@ -45,7 +45,6 @@ public:
 	void reset(void);
 
 	static UnifiedDataStore *getInstance(void);
-	void parseCommandLineArgument(CommandLineArg &cmdArg);
 
 	/**
 	 * Start all virtual data stores.

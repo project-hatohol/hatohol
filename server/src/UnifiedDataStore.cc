@@ -238,17 +238,6 @@ void UnifiedDataStore::reset(void)
 	stop();
 }
 
-void UnifiedDataStore::parseCommandLineArgument(CommandLineArg &cmdArg)
-{
-	for (size_t i = 0; i < cmdArg.size(); i++) {
-		string &cmd = cmdArg[i];
-		if (cmd == "--enable-copy-on-demand")
-			setCopyOnDemandEnabled(true);
-		else if (cmd == "--disable-copy-on-demand")
-			setCopyOnDemandEnabled(false);
-	}
-}
-
 UnifiedDataStore *UnifiedDataStore::getInstance(void)
 {
 	if (PrivateContext::instance)
