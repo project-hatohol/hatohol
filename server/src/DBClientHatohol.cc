@@ -174,9 +174,10 @@ enum {
 	NUM_IDX_TRIGGERS,
 };
 
-static const DBAgent::TableProfile tableProfileTriggers(
-  DBClientHatohol::TABLE_NAME_TRIGGERS, COLUMN_DEF_TRIGGERS,
-  sizeof(COLUMN_DEF_TRIGGERS), NUM_IDX_TRIGGERS);
+static const DBAgent::TableProfile tableProfileTriggers =
+  DBAGENT_TABLEPROFILE_INIT(DBClientHatohol::TABLE_NAME_TRIGGERS,
+			    COLUMN_DEF_TRIGGERS,
+			    NUM_IDX_TRIGGERS);
 
 static const ColumnDef COLUMN_DEF_EVENTS[] = {
 {
@@ -330,9 +331,10 @@ enum {
 	NUM_IDX_EVENTS,
 };
 
-static const DBAgent::TableProfile tableProfileEvents(
-  DBClientHatohol::TABLE_NAME_EVENTS, COLUMN_DEF_EVENTS,
-  sizeof(COLUMN_DEF_EVENTS), NUM_IDX_EVENTS);
+static const DBAgent::TableProfile tableProfileEvents =
+  DBAGENT_TABLEPROFILE_INIT(DBClientHatohol::TABLE_NAME_EVENTS,
+			    COLUMN_DEF_EVENTS,
+			    NUM_IDX_EVENTS);
 
 static const ColumnDef COLUMN_DEF_ITEMS[] = {
 {
@@ -450,9 +452,10 @@ enum {
 	NUM_IDX_ITEMS,
 };
 
-static const DBAgent::TableProfile tableProfileItems(
-  DBClientHatohol::TABLE_NAME_ITEMS, COLUMN_DEF_ITEMS,
-  sizeof(COLUMN_DEF_ITEMS), NUM_IDX_ITEMS);
+static const DBAgent::TableProfile tableProfileItems =
+  DBAGENT_TABLEPROFILE_INIT(DBClientHatohol::TABLE_NAME_ITEMS,
+			    COLUMN_DEF_ITEMS,
+			    NUM_IDX_ITEMS);
 
 static const ColumnDef COLUMN_DEF_HOSTS[] = {
 {
@@ -509,9 +512,10 @@ enum {
 	NUM_IDX_HOSTS,
 };
 
-static const DBAgent::TableProfile tableProfileHosts(
-  DBClientHatohol::TABLE_NAME_HOSTS, COLUMN_DEF_HOSTS,
-  sizeof(COLUMN_DEF_HOSTS), NUM_IDX_HOSTS);
+static const DBAgent::TableProfile tableProfileHosts =
+  DBAGENT_TABLEPROFILE_INIT(DBClientHatohol::TABLE_NAME_HOSTS,
+			    COLUMN_DEF_HOSTS,
+			    NUM_IDX_HOSTS);
 
 static const ColumnDef COLUMN_DEF_HOSTGROUPS[] = {
 {
@@ -569,9 +573,10 @@ enum {
 	NUM_IDX_HOSTGROUPS,
 };
 
-static const DBAgent::TableProfile tableProfileHostgroups(
-  DBClientHatohol::TABLE_NAME_HOSTGROUPS, COLUMN_DEF_HOSTGROUPS,
-  sizeof(COLUMN_DEF_HOSTGROUPS), NUM_IDX_HOSTGROUPS);
+static const DBAgent::TableProfile tableProfileHostgroups =
+  DBAGENT_TABLEPROFILE_INIT(DBClientHatohol::TABLE_NAME_HOSTGROUPS,
+			    COLUMN_DEF_HOSTGROUPS,
+			    NUM_IDX_HOSTGROUPS);
 
 static const ColumnDef COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[] = {
 {
@@ -629,10 +634,10 @@ enum {
 	NUM_IDX_MAP_HOSTS_HOSTGROUPS,
 };
 
-static const DBAgent::TableProfile tableProfileMapHostsHostgroups(
-  DBClientHatohol::TABLE_NAME_MAP_HOSTS_HOSTGROUPS,
-  COLUMN_DEF_MAP_HOSTS_HOSTGROUPS,
-  sizeof(COLUMN_DEF_MAP_HOSTS_HOSTGROUPS), NUM_IDX_MAP_HOSTS_HOSTGROUPS);
+static const DBAgent::TableProfile tableProfileMapHostsHostgroups =
+  DBAGENT_TABLEPROFILE_INIT(DBClientHatohol::TABLE_NAME_MAP_HOSTS_HOSTGROUPS,
+			    COLUMN_DEF_MAP_HOSTS_HOSTGROUPS,
+			    NUM_IDX_MAP_HOSTS_HOSTGROUPS);
 
 static const ColumnDef COLUMN_DEF_SERVERS[] = {
 {
@@ -666,9 +671,10 @@ enum {
 	NUM_IDX_SERVERS,
 };
 
-static const DBAgent::TableProfile tableProfileServers(
-  DBClientHatohol::TABLE_NAME_SERVERS, COLUMN_DEF_SERVERS,
-  sizeof(COLUMN_DEF_SERVERS), NUM_IDX_SERVERS);
+static const DBAgent::TableProfile tableProfileServers =
+  DBAGENT_TABLEPROFILE_INIT(DBClientHatohol::TABLE_NAME_SERVERS,
+			    COLUMN_DEF_SERVERS,
+			    NUM_IDX_SERVERS);
 
 static const ColumnDef COLUMN_DEF_INCIDENTS[] = {
 {
@@ -822,9 +828,10 @@ enum {
 	NUM_IDX_INCIDENTS,
 };
 
-static const DBAgent::TableProfile tableProfileIncidents(
-  DBClientHatohol::TABLE_NAME_INCIDENTS, COLUMN_DEF_INCIDENTS,
-  sizeof(COLUMN_DEF_INCIDENTS), NUM_IDX_INCIDENTS);
+static const DBAgent::TableProfile tableProfileIncidents =
+  DBAGENT_TABLEPROFILE_INIT(DBClientHatohol::TABLE_NAME_INCIDENTS,
+			    COLUMN_DEF_INCIDENTS,
+			    NUM_IDX_INCIDENTS);
 
 // Trigger
 static const int columnIndexesTrigUniqId[] = {
