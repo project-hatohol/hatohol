@@ -100,14 +100,15 @@ string IncidentSenderRedmine::getProjectURL(void)
 
 string IncidentSenderRedmine::getIssuesJSONURL(void)
 {
-	string url = getProjectURL();
+	const IncidentTrackerInfo &trackerInfo = getIncidentTrackerInfo();
+	string url = trackerInfo.baseURL;
 	if (!StringUtils::hasSuffix(url, "/"))
 		url += "/";
 	url += "issues.json";
 	return url;
 }
 
-string IncidentSenderRedmine::getIssuesURL(const string &id)
+string IncidentSenderRedmine::getIssueURL(const string &id)
 {
 	const IncidentTrackerInfo &trackerInfo = getIncidentTrackerInfo();
 	string url = trackerInfo.baseURL;
@@ -130,6 +131,7 @@ string IncidentSenderRedmine::buildJSON(const EventInfo &event)
 	agent.startObject();
 	agent.startObject("issue");
 	agent.add("subject", buildTitle(event, server));
+	agent.add("project_id", trackerInfo.projectId);
 	if (!trackerInfo.trackerId.empty())
 		agent.add("tracker_id", trackerInfo.trackerId);
 	string description = "<pre>";
@@ -185,7 +187,7 @@ HatoholError IncidentSenderRedmine::parseResponse(
 		return HTERR_FAILED_TO_SEND_INCIDENT;
 	}
 	incidentInfo.identifier = StringUtils::toString((uint64_t)issueId);
-	incidentInfo.location = getIssuesURL(incidentInfo.identifier);
+	incidentInfo.location = getIssueURL(incidentInfo.identifier);
 
 	agent.startObject("status");
 	agent.read("name", incidentInfo.status);

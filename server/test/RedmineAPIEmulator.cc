@@ -271,7 +271,7 @@ void RedmineAPIEmulator::setSoupHandlers(SoupServer *soupServer)
 	g_object_unref(domain);
 
 	soup_server_add_handler(soupServer,
-				"/projects/hatoholtestproject/issues.json",
+				"/issues.json",
 				PrivateContext::handlerIssuesJSON, this, NULL);
 }
 
@@ -331,6 +331,11 @@ void RedmineAPIEmulator::PrivateContext::replyPostIssue(SoupMessage *msg)
 
 		agent.read("description", description);
 
+		bool hasProjectId = agent.read("project_id", trackerIdString);
+		if (!hasProjectId) {
+			soup_message_set_status(msg, SOUP_STATUS_NOT_FOUND);
+			return;
+		}
 		bool hasTrackerId = agent.read("tracker_id", trackerIdString);
 		if (hasTrackerId) {
 			trackerId = getTrackerId(trackerIdString);
