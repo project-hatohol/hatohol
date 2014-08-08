@@ -40,7 +40,6 @@ static const size_t DEFAULT_NUM_PRESERVED_REPLICA_GENERATION = 3;
 int ConfigManager::ALLOW_ACTION_FOR_ALL_OLD_EVENTS;
 static int DEFAULT_ALLOWED_TIME_OF_ACTION_FOR_OLD_EVENTS
   = 60 * 60 * 24; // 24 hours
-const int ConfigManager::DEFAULT_FACE_REST_PORT = 33194;
 
 static int DEFAULT_MAX_NUM_RUNNING_COMMAND_ACTION = 10;
 
@@ -133,7 +132,7 @@ struct ConfigManager::Impl {
 	  dbServerPort(0),
 	  testMode(false),
 	  copyOnDemand(UNKNOWN),
-	  faceRestPort(DEFAULT_FACE_REST_PORT)
+	  faceRestPort(0)
 	{
 	}
 
