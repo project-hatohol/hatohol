@@ -35,6 +35,7 @@ public:
 	static const char *HATOHOL_DB_DIR_ENV_VAR_NAME;
 	static ConfigManager *getInstance(void);
 	static int ALLOW_ACTION_FOR_ALL_OLD_EVENTS;
+	static const char *DEFAULT_PID_FILE_PATH;
 
 	static bool parseCommandLine(gint *argc, gchar ***argv);
 	static void clearParseCommandLineResult(void);
@@ -89,6 +90,8 @@ public:
 	 * Otherwise, 0 is returned.
 	 */
 	int getFaceRestPort(void) const;
+
+	std::string getPidFilePath(void) const;
 
 protected:
 	void loadConfFile(void);

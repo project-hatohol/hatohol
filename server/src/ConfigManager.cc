@@ -40,6 +40,7 @@ static const size_t DEFAULT_NUM_PRESERVED_REPLICA_GENERATION = 3;
 int ConfigManager::ALLOW_ACTION_FOR_ALL_OLD_EVENTS;
 static int DEFAULT_ALLOWED_TIME_OF_ACTION_FOR_OLD_EVENTS
   = 60 * 60 * 24; // 24 hours
+const char *ConfigManager::DEFAULT_PID_FILE_PATH = "/var/run/hatohol.pid";
 
 static int DEFAULT_MAX_NUM_RUNNING_COMMAND_ACTION = 10;
 
@@ -124,6 +125,7 @@ struct ConfigManager::PrivateContext {
 	bool                  testMode;
 	ConfigState           copyOnDemand;
 	int                   faceRestPort;
+	string                pidFilePath;
 
 	// methods
 	PrivateContext(void)
@@ -132,7 +134,8 @@ struct ConfigManager::PrivateContext {
 	  dbServerPort(0),
 	  testMode(false),
 	  copyOnDemand(UNKNOWN),
-	  faceRestPort(0)
+	  faceRestPort(0),
+	  pidFilePath(DEFAULT_PID_FILE_PATH)
 	{
 	}
 
@@ -203,6 +206,8 @@ struct ConfigManager::PrivateContext {
 			copyOnDemand = DISABLE;
 		if (cmdLineOpts.faceRestPort)
 			faceRestPort = cmdLineOpts.faceRestPort;
+		if (cmdLineOpts.pidFilePath)
+			pidFilePath = cmdLineOpts.pidFilePath;
 	}
 };
 
@@ -369,6 +374,11 @@ ConfigManager::ConfigState ConfigManager::getCopyOnDemand(void) const
 int ConfigManager::getFaceRestPort(void) const
 {
 	return m_ctx->faceRestPort;
+}
+
+string ConfigManager::getPidFilePath(void) const
+{
+	return m_ctx->pidFilePath;
 }
 
 // ---------------------------------------------------------------------------
