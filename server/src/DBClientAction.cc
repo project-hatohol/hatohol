@@ -859,9 +859,12 @@ bool DBClientAction::isIncidentSenderEnabled(void)
 	ActionDefList actionDefList;
 	ActionsQueryOption option(USER_ID_SYSTEM);
 	option.setActionType(ACTION_INCIDENT_SENDER);
-	option.setMaximumNumber(1);
+	// TODO: We have to fix the validator in getActionList() to re-enable
+	//       the following line because the validator may drop the action
+	//       after fetching it from DB.
+	//option.setMaximumNumber(1);
 	getActionList(actionDefList, option);
-	return (actionDefList.size() == 1);
+	return (actionDefList.size() > 0);
 }
 
 // ---------------------------------------------------------------------------
