@@ -70,14 +70,22 @@ public:
 	void setResidentYardDirectory(const std::string &dir);
 
 	bool isTestMode(void) const;
+
+	/**
+	 * Get the flag for copy-on-demand of items.
+	 *
+	 * @retrun
+	 * If --enable-copy-on-deman is specified, ENABLE is returned.
+	 * If --disable-copy-on-deman is specified, DISABLE is returned.
+	 * Otherwise, UNKNOWN is returned.
+	 */
 	ConfigState getCopyOnDemand(void) const;
 
 	/**
 	 * Get the port for FaceRest.
 	 *
 	 * @retrun
-	 * The returned value is decided as below.
-	 * If --face-rest-port is specified, it is returned.
+	 * If --face-rest-port <PORT> is specified, it is returned.
 	 * Otherwise, 0 is returned.
 	 */
 	int getFaceRestPort(void) const;
