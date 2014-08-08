@@ -37,6 +37,7 @@
 #include "ConfigManager.h"
 #include "SessionManager.h"
 #include "IncidentSenderManager.h"
+#include "RedmineAPIEmulator.h"
 using namespace std;
 using namespace mlpl;
 
@@ -1362,6 +1363,7 @@ void test_checkEventsWithMultipleIncidentSender(void)
 {
 	// prepare two incident sender actions
 	setupTestDBConfig(true, true);
+	setupTestDBUser();
 	setupTestDBAction();
 	ActionDef actDef = {
 	  0,                      // id (this field is ignored)
@@ -1394,8 +1396,18 @@ void test_checkEventsWithMultipleIncidentSender(void)
 	eventList.push_back(event);
 
 	// run actions
+	// TODO: we shoud prepare stub of IncidentSenderManager
+	if (!g_redmineEmulator.isRunning())
+		g_redmineEmulator.start(EMULATOR_PORT);
+	IncidentTrackerInfo &tracker = testIncidentTrackerInfo[2];
+	g_redmineEmulator.addUser(tracker.userName, tracker.password);
+
 	TestActionManager actionManager;
 	actionManager.checkEvents(eventList);
+
+	IncidentSenderManager &manager = IncidentSenderManager::getInstance();
+	while (!manager.isIdling())
+		usleep(100 * 1000);
 
 	// check action log
 	string expected
