@@ -1399,9 +1399,8 @@ void test_checkEventsWithMultipleIncidentSender(void)
 
 	// check action log
 	string expected
-		= StringUtils::sprintf("%" FMT_ACTION_ID "|%d",
-				       expectedActionId, ACTLOG_STAT_QUEUING);
-	string statement = "select action_id,status from ";
+		= StringUtils::sprintf("%" FMT_ACTION_ID, expectedActionId);
+	string statement = "select action_id from ";
 	statement += DBClientAction::getTableNameActionLogs();
 	statement += " order by action_log_id";
 	assertDBContent(dbAction.getDBAgent(), statement, expected);
