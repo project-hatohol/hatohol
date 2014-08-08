@@ -100,7 +100,8 @@ string IncidentSenderRedmine::getProjectURL(void)
 
 string IncidentSenderRedmine::getIssuesJSONURL(void)
 {
-	string url = getProjectURL();
+	const IncidentTrackerInfo &trackerInfo = getIncidentTrackerInfo();
+	string url = trackerInfo.baseURL;
 	if (!StringUtils::hasSuffix(url, "/"))
 		url += "/";
 	url += "issues.json";
@@ -130,6 +131,7 @@ string IncidentSenderRedmine::buildJSON(const EventInfo &event)
 	agent.startObject();
 	agent.startObject("issue");
 	agent.add("subject", buildTitle(event, server));
+	agent.add("project_id", trackerInfo.projectId);
 	if (!trackerInfo.trackerId.empty())
 		agent.add("tracker_id", trackerInfo.trackerId);
 	string description = "<pre>";
