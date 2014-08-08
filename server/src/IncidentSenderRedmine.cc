@@ -107,7 +107,7 @@ string IncidentSenderRedmine::getIssuesJSONURL(void)
 	return url;
 }
 
-string IncidentSenderRedmine::getIssuesURL(const string &id)
+string IncidentSenderRedmine::getIssueURL(const string &id)
 {
 	const IncidentTrackerInfo &trackerInfo = getIncidentTrackerInfo();
 	string url = trackerInfo.baseURL;
@@ -185,7 +185,7 @@ HatoholError IncidentSenderRedmine::parseResponse(
 		return HTERR_FAILED_TO_SEND_INCIDENT;
 	}
 	incidentInfo.identifier = StringUtils::toString((uint64_t)issueId);
-	incidentInfo.location = getIssuesURL(incidentInfo.identifier);
+	incidentInfo.location = getIssueURL(incidentInfo.identifier);
 
 	agent.startObject("status");
 	agent.read("name", incidentInfo.status);
