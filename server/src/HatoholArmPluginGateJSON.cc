@@ -17,6 +17,9 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cmath>
+#include <json-glib/json-glib.h>
+
 #include "HatoholArmPluginGateJSON.h"
 #include "CacheServiceDBClient.h"
 #include "UnifiedDataStore.h"
@@ -32,18 +35,150 @@ static const string DEFAULT_BROKER_URL = "localhost:5672";
 class AMQPJSONMessageHandler : public AMQPMessageHandler
 {
 public:
+	AMQPJSONMessageHandler(const MonitoringServerInfo &serverInfo)
+	: m_serverInfo(serverInfo)
+	{
+	}
+
 	bool handle(const amqp_envelope_t *envelope)
 	{
 		const amqp_bytes_t *content_type =
 			&(envelope->message.properties.content_type);
+		// TODO: check content-type
 		const amqp_bytes_t *body = &(envelope->message.body);
-		MLPL_INFO("message: <%.*s>/<%.*s>\n",
-			  static_cast<int>(content_type->len),
-			  static_cast<char *>(content_type->bytes),
-			  static_cast<int>(body->len),
-			  static_cast<char *>(body->bytes));
+
+		MLPL_DBG("message: <%.*s>/<%.*s>\n",
+			 static_cast<int>(content_type->len),
+			 static_cast<char *>(content_type->bytes),
+			 static_cast<int>(body->len),
+			 static_cast<char *>(body->bytes));
+
+		JsonParser *parser = json_parser_new();
+		GError *error = NULL;
+		if (json_parser_load_from_data(parser,
+					       static_cast<char *>(body->bytes),
+					       static_cast<int>(body->len),
+					       &error)) {
+			process(json_parser_get_root(parser));
+		} else {
+			g_error_free(error);
+		}
+		g_object_unref(parser);
 		return true;
-	};
+	}
+
+private:
+	MonitoringServerInfo m_serverInfo;
+
+	bool validateObjectMember(const gchar *context,
+				  JsonObject *object,
+				  const gchar *name,
+				  GType expectedValueType)
+	{
+		JsonNode *memberNode = json_object_get_member(object, name);
+		if (!memberNode) {
+			MLPL_ERR("%s.%s must exist\n", context, name);
+			return false;
+		}
+
+		GType valueType = json_node_get_value_type(memberNode);
+		if (valueType != expectedValueType) {
+			MLPL_ERR("%s.%s must be %s: %s\n",
+				 context,
+				 name,
+				 g_type_name(expectedValueType),
+				 g_type_name(valueType));
+			return false;
+		}
+
+		return true;
+	}
+
+	bool validateMessage(JsonNode *root)
+	{
+		if (json_node_get_node_type(root) != JSON_NODE_OBJECT) {
+			MLPL_ERR("JSON message must be an object");
+			return false;
+		}
+
+		JsonObject *rootObject = json_node_get_object(root);
+		if (!validateObjectMember("{root}", rootObject, "type",
+					  G_TYPE_STRING))
+			return false;
+		if (!validateObjectMember("{root}", rootObject, "body",
+					  JSON_TYPE_OBJECT))
+			return false;
+
+		return true;
+	}
+
+	void process(JsonNode *root)
+	{
+		if (!validateMessage(root))
+			return;
+
+		JsonObject *rootObject = json_node_get_object(root);
+		const gchar *type =
+			json_object_get_string_member(rootObject, "type");
+		if (string(type) != "event") {
+			MLPL_ERR("{root}.type must be \"event\" for now\n");
+			return;
+		}
+
+		JsonNode *bodyNode = json_object_get_member(rootObject, "body");
+		JsonObject *body = json_node_get_object(bodyNode);
+		processEventMessage(body);
+	}
+
+	bool validateBodyMember(JsonObject *body,
+				const gchar *name,
+				GType expectedValueType)
+	{
+		return validateObjectMember("body", body, name,
+					    expectedValueType);
+	}
+
+	bool validateEventBody(JsonObject *body)
+	{
+		if (!validateBodyMember(body, "id", G_TYPE_INT64))
+			return false;
+		if (!validateBodyMember(body, "timestamp", G_TYPE_DOUBLE))
+			return false;
+		if (!validateBodyMember(body, "hostName", G_TYPE_STRING))
+			return false;
+		if (!validateBodyMember(body, "message", G_TYPE_STRING))
+			return false;
+		return true;
+	}
+
+	long secondToNanoSecond(gdouble second)
+	{
+		return second * 1000000000;
+	}
+
+	void processEventMessage(JsonObject *body)
+	{
+		if (!validateEventBody(body))
+		    return;
+
+		EventInfoList eventInfoList;
+		EventInfo eventInfo;
+		initEventInfo(eventInfo);
+		eventInfo.serverId = m_serverInfo.id;
+		eventInfo.id = json_object_get_int_member(body, "id");
+		gdouble timestamp =
+			json_object_get_double_member(body, "timestamp");
+		eventInfo.time.tv_sec = static_cast<time_t>(timestamp);
+		eventInfo.time.tv_nsec =
+			secondToNanoSecond(fmod(timestamp, 1.0));
+		eventInfo.type = EVENT_TYPE_BAD;
+		eventInfo.hostName =
+			json_object_get_string_member(body, "hostName");
+		eventInfo.brief =
+			json_object_get_string_member(body, "message");
+		eventInfoList.push_back(eventInfo);
+		UnifiedDataStore::getInstance()->addEventList(eventInfoList);
+	}
 };
 
 struct HatoholArmPluginGateJSON::PrivateContext
@@ -77,7 +212,7 @@ struct HatoholArmPluginGateJSON::PrivateContext
 		else
 			queueAddress = armPluginInfo.staticQueueAddress;
 
-		m_handler = new AMQPJSONMessageHandler();
+		m_handler = new AMQPJSONMessageHandler(serverInfo);
 		m_consumer = new AMQPConsumer(brokerUrl,
 					      queueAddress,
 					      m_handler);
