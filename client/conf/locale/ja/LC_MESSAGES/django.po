@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-08-04 03:31-0500\n"
-"PO-Revision-Date: 2014-08-04 17:09+0900\n"
+"PO-Revision-Date: 2014-08-08 12:47+0900\n"
 "Last-Translator: Noriki Nakamura <noriki.nakamura@miraclelinux.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -291,7 +291,7 @@ msgstr "アプリケーション:"
 
 #: viewer/latest_ajax.html:52
 msgid "# of items per page"
-msgstr "ページ毎のイベント数"
+msgstr "ページ毎のアイテム数"
 
 #: viewer/latest_ajax.html:61
 msgid "Application"
