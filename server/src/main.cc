@@ -179,7 +179,7 @@ int mainRoutine(int argc, char *argv[])
 	// start REST server
 	// 'rest' is on a stack. The destructor of it will be automatically
 	// called at the end of this function.
-	FaceRest rest(cmdArg);
+	FaceRest rest;
 	rest.start();
 
 	ctx.unifiedDataStore = UnifiedDataStore::getInstance();

@@ -64,10 +64,12 @@ void startFaceRest(void)
 
 	defineDBPath(DB_DOMAIN_ID_HATOHOL, dbPathHatohol);
 
-	CommandLineArg arg;
-	arg.push_back("--face-rest-port");
-	arg.push_back(StringUtils::sprintf("%u", TEST_PORT));
-	g_faceRest = new FaceRest(arg, &param);
+	string portStr = StringUtils::sprintf("%u", TEST_PORT);
+	CommandArgHelper cmdLine;
+	cmdLine << "--face-rest-port";
+	cmdLine << portStr.c_str();
+	cmdLine.activate();
+	g_faceRest = new FaceRest(&param);
 	g_faceRest->setNumberOfPreLoadWorkers(1);
 
 	param.mutex.lock();

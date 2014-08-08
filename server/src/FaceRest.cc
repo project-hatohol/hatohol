@@ -224,21 +224,21 @@ void FaceRest::init(void)
 	g_mimeTypeMap[FORMAT_JSONP] = MIME_JAVASCRIPT;
 }
 
-FaceRest::FaceRest(CommandLineArg &cmdArg, FaceRestParam *param)
+FaceRest::FaceRest(FaceRestParam *param)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext(param);
 
-	DBClientConfig dbConfig;
-	int port = dbConfig.getFaceRestPort();
-	if (port != 0 && Utils::isValidPort(port))
+	int port = ConfigManager::getInstance()->getFaceRestPort();
+	if (port) {
 		m_ctx->port = port;
-
-	for (size_t i = 0; i < cmdArg.size(); i++) {
-		string &cmd = cmdArg[i];
-		if (cmd == "--face-rest-port")
-			i = parseCmdArgPort(cmdArg, i);
+	} else {
+		DBClientConfig dbConfig;
+		int port = dbConfig.getFaceRestPort();
+		if (port != 0 && Utils::isValidPort(port))
+			m_ctx->port = port;
 	}
+
 	MLPL_INFO("started face-rest, port: %d\n", m_ctx->port);
 }
 
