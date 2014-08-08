@@ -50,6 +50,10 @@ struct DBConnectInfo {
 typedef void (*DBSetupFunc)(DBDomainId domainId, void *data);
 static const DBDomainId DEFAULT_DB_DOMAIN_ID = 0;
 
+// Initialize DBAgent::TableProfile
+#define DBAGENT_TABLEPROFILE_INIT(name,coldefs,numcols)	\
+	DBAgent::TableProfile(name, coldefs, sizeof(coldefs), numcols)
+
 class DBAgent {
 public:
 	struct TableProfile {
