@@ -943,13 +943,13 @@ static const DBClient::DBSetupFuncArg DB_SETUP_FUNC_ARG = {
 	&updateDB,
 };
 
-struct DBClientHatohol::PrivateContext
+struct DBClientHatohol::Impl
 {
-	PrivateContext(void)
+	Impl(void)
 	{
 	}
 
-	virtual ~PrivateContext()
+	virtual ~Impl()
 	{
 	}
 };
@@ -986,14 +986,14 @@ static const HostResourceQueryOption::Synapse synapseEventsQueryOption(
   IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
   IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
 
-struct EventsQueryOption::PrivateContext {
+struct EventsQueryOption::Impl {
 	uint64_t limitOfUnifiedId;
 	SortType sortType;
 	SortDirection sortDirection;
 	TriggerSeverityType minSeverity;
 	TriggerStatusType triggerStatus;
 
-	PrivateContext()
+	Impl()
 	: limitOfUnifiedId(NO_LIMIT),
 	  sortType(SORT_UNIFIED_ID),
 	  sortDirection(SORT_DONT_CARE),
@@ -1004,28 +1004,26 @@ struct EventsQueryOption::PrivateContext {
 };
 
 EventsQueryOption::EventsQueryOption(const UserIdType &userId)
-: HostResourceQueryOption(synapseEventsQueryOption, userId), m_ctx(NULL)
+: HostResourceQueryOption(synapseEventsQueryOption, userId),
+  m_impl(new Impl())
 {
-	m_ctx = new PrivateContext();
 }
 
 EventsQueryOption::EventsQueryOption(DataQueryContext *dataQueryContext)
 : HostResourceQueryOption(synapseEventsQueryOption, dataQueryContext),
-  m_ctx(NULL)
+  m_impl(new Impl())
 {
-	m_ctx = new PrivateContext();
 }
 
 EventsQueryOption::EventsQueryOption(const EventsQueryOption &src)
-: HostResourceQueryOption(src), m_ctx(NULL)
+: HostResourceQueryOption(src),
+  m_impl(new Impl())
 {
-	m_ctx = new PrivateContext();
-	*m_ctx = *src.m_ctx;
+	*m_impl = *src.m_impl;
 }
 
 EventsQueryOption::~EventsQueryOption()
 {
-	delete m_ctx;
 }
 
 string EventsQueryOption::getCondition(void) const
@@ -1035,16 +1033,16 @@ string EventsQueryOption::getCondition(void) const
 	if (DBClient::isAlwaysFalseCondition(condition))
 		return condition;
 
-	if (m_ctx->limitOfUnifiedId) {
+	if (m_impl->limitOfUnifiedId) {
 		if (!condition.empty())
 			condition += " AND ";
 		condition += StringUtils::sprintf(
 			"%s<=%" PRIu64,
 			getColumnName(IDX_EVENTS_UNIFIED_ID).c_str(),
-			m_ctx->limitOfUnifiedId);
+			m_impl->limitOfUnifiedId);
 	}
 
-	if (m_ctx->minSeverity != TRIGGER_SEVERITY_UNKNOWN) {
+	if (m_impl->minSeverity != TRIGGER_SEVERITY_UNKNOWN) {
 		if (!condition.empty())
 			condition += " AND ";
 		// Use triggers table because events tables doesn't contain
@@ -1053,10 +1051,10 @@ string EventsQueryOption::getCondition(void) const
 			"%s.%s>=%d",
 			DBClientHatohol::TABLE_NAME_TRIGGERS,
 			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SEVERITY].columnName,
-			m_ctx->minSeverity);
+			m_impl->minSeverity);
 	}
 
-	if (m_ctx->triggerStatus != TRIGGER_STATUS_ALL) {
+	if (m_impl->triggerStatus != TRIGGER_STATUS_ALL) {
 		if (!condition.empty())
 			condition += " AND ";
 		// Use events table because triggers table doesn't contain past
@@ -1064,7 +1062,7 @@ string EventsQueryOption::getCondition(void) const
 		condition += StringUtils::sprintf(
 			"%s=%d",
 			getColumnName(IDX_EVENTS_STATUS).c_str(),
-			m_ctx->triggerStatus);
+			m_impl->triggerStatus);
 	}
 
 	return condition;
@@ -1072,19 +1070,19 @@ string EventsQueryOption::getCondition(void) const
 
 void EventsQueryOption::setLimitOfUnifiedId(const uint64_t &unifiedId)
 {
-	m_ctx->limitOfUnifiedId = unifiedId;
+	m_impl->limitOfUnifiedId = unifiedId;
 }
 
 uint64_t EventsQueryOption::getLimitOfUnifiedId(void) const
 {
-	return m_ctx->limitOfUnifiedId;
+	return m_impl->limitOfUnifiedId;
 }
 
 void EventsQueryOption::setSortType(
   const SortType &type, const SortDirection &direction)
 {
-	m_ctx->sortType = type;
-	m_ctx->sortDirection = direction;
+	m_impl->sortType = type;
+	m_impl->sortDirection = direction;
 
 	switch (type) {
 	case SORT_UNIFIED_ID:
@@ -1120,32 +1118,32 @@ void EventsQueryOption::setSortType(
 
 EventsQueryOption::SortType EventsQueryOption::getSortType(void) const
 {
-	return m_ctx->sortType;
+	return m_impl->sortType;
 }
 
 DataQueryOption::SortDirection EventsQueryOption::getSortDirection(void) const
 {
-	return m_ctx->sortDirection;
+	return m_impl->sortDirection;
 }
 
 void EventsQueryOption::setMinimumSeverity(const TriggerSeverityType &severity)
 {
-	m_ctx->minSeverity = severity;
+	m_impl->minSeverity = severity;
 }
 
 TriggerSeverityType EventsQueryOption::getMinimumSeverity(void) const
 {
-	return m_ctx->minSeverity;
+	return m_impl->minSeverity;
 }
 
 void EventsQueryOption::setTriggerStatus(const TriggerStatusType &status)
 {
-	m_ctx->triggerStatus = status;
+	m_impl->triggerStatus = status;
 }
 
 TriggerStatusType EventsQueryOption::getTriggerStatus(void) const
 {
-	return m_ctx->triggerStatus;
+	return m_impl->triggerStatus;
 }
 
 //
@@ -1159,12 +1157,12 @@ static const HostResourceQueryOption::Synapse synapseTriggersQueryOption(
   IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
   IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
 
-struct TriggersQueryOption::PrivateContext {
+struct TriggersQueryOption::Impl {
 	TriggerIdType targetId;
 	TriggerSeverityType minSeverity;
 	TriggerStatusType triggerStatus;
 
-	PrivateContext()
+	Impl()
 	: targetId(ALL_TRIGGERS),
 	  minSeverity(TRIGGER_SEVERITY_UNKNOWN),
 	  triggerStatus(TRIGGER_STATUS_ALL)
@@ -1173,28 +1171,26 @@ struct TriggersQueryOption::PrivateContext {
 };
 
 TriggersQueryOption::TriggersQueryOption(const UserIdType &userId)
-: HostResourceQueryOption(synapseTriggersQueryOption, userId), m_ctx(NULL)
+: HostResourceQueryOption(synapseTriggersQueryOption, userId),
+  m_impl(new Impl())
 {
-	m_ctx = new PrivateContext();
 }
 
 TriggersQueryOption::TriggersQueryOption(DataQueryContext *dataQueryContext)
 : HostResourceQueryOption(synapseTriggersQueryOption, dataQueryContext),
-  m_ctx(NULL)
+  m_impl(new Impl())
 {
-	m_ctx = new PrivateContext();
 }
 
 TriggersQueryOption::TriggersQueryOption(const TriggersQueryOption &src)
-: HostResourceQueryOption(src), m_ctx(NULL)
+: HostResourceQueryOption(src),
+  m_impl(new Impl())
 {
-	m_ctx = new PrivateContext();
-	*m_ctx = *src.m_ctx;
+	*m_impl = *src.m_impl;
 }
 
 TriggersQueryOption::~TriggersQueryOption()
 {
-	delete m_ctx;
 }
 
 string TriggersQueryOption::getCondition(void) const
@@ -1204,7 +1200,7 @@ string TriggersQueryOption::getCondition(void) const
 	if (DBClient::isAlwaysFalseCondition(condition))
 		return condition;
 
-	if (m_ctx->targetId != ALL_TRIGGERS) {
+	if (m_impl->targetId != ALL_TRIGGERS) {
 		const DBTermCodec *dbTermCodec = getDBTermCodec();
 		if (!condition.empty())
 			condition += " AND ";
@@ -1212,27 +1208,27 @@ string TriggersQueryOption::getCondition(void) const
 			"%s.%s=%s",
 			DBClientHatohol::TABLE_NAME_TRIGGERS,
 			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID].columnName,
-			dbTermCodec->enc(m_ctx->targetId).c_str());
+			dbTermCodec->enc(m_impl->targetId).c_str());
 	}
 
-	if (m_ctx->minSeverity != TRIGGER_SEVERITY_UNKNOWN) {
+	if (m_impl->minSeverity != TRIGGER_SEVERITY_UNKNOWN) {
 		if (!condition.empty())
 			condition += " AND ";
 		condition += StringUtils::sprintf(
 			"%s.%s>=%d",
 			DBClientHatohol::TABLE_NAME_TRIGGERS,
 			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SEVERITY].columnName,
-			m_ctx->minSeverity);
+			m_impl->minSeverity);
 	}
 
-	if (m_ctx->triggerStatus != TRIGGER_STATUS_ALL) {
+	if (m_impl->triggerStatus != TRIGGER_STATUS_ALL) {
 		if (!condition.empty())
 			condition += " AND ";
 		condition += StringUtils::sprintf(
 			"%s.%s=%d",
 			DBClientHatohol::TABLE_NAME_TRIGGERS,
 			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_STATUS].columnName,
-			m_ctx->triggerStatus);
+			m_impl->triggerStatus);
 	}
 
 	return condition;
@@ -1240,32 +1236,32 @@ string TriggersQueryOption::getCondition(void) const
 
 void TriggersQueryOption::setTargetId(const TriggerIdType &id)
 {
-	m_ctx->targetId = id;
+	m_impl->targetId = id;
 }
 
 TriggerIdType TriggersQueryOption::getTargetId(void) const
 {
-	return m_ctx->targetId;
+	return m_impl->targetId;
 }
 
 void TriggersQueryOption::setMinimumSeverity(const TriggerSeverityType &severity)
 {
-	m_ctx->minSeverity = severity;
+	m_impl->minSeverity = severity;
 }
 
 TriggerSeverityType TriggersQueryOption::getMinimumSeverity(void) const
 {
-	return m_ctx->minSeverity;
+	return m_impl->minSeverity;
 }
 
 void TriggersQueryOption::setTriggerStatus(const TriggerStatusType &status)
 {
-	m_ctx->triggerStatus = status;
+	m_impl->triggerStatus = status;
 }
 
 TriggerStatusType TriggersQueryOption::getTriggerStatus(void) const
 {
-	return m_ctx->triggerStatus;
+	return m_impl->triggerStatus;
 }
 
 //
@@ -1278,39 +1274,37 @@ static const HostResourceQueryOption::Synapse synapseItemsQueryOption(
   IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
   IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
 
-struct ItemsQueryOption::PrivateContext {
+struct ItemsQueryOption::Impl {
 	ItemIdType targetId;
 	string itemGroupName;
 
-	PrivateContext()
+	Impl()
 	: targetId(ALL_ITEMS)
 	{
 	}
 };
 
 ItemsQueryOption::ItemsQueryOption(const UserIdType &userId)
-: HostResourceQueryOption(synapseItemsQueryOption, userId), m_ctx(NULL)
+: HostResourceQueryOption(synapseItemsQueryOption, userId),
+  m_impl(new Impl())
 {
-	m_ctx = new PrivateContext();
 }
 
 ItemsQueryOption::ItemsQueryOption(DataQueryContext *dataQueryContext)
 : HostResourceQueryOption(synapseItemsQueryOption, dataQueryContext),
-  m_ctx(NULL)
+  m_impl(new Impl())
 {
-	m_ctx = new PrivateContext();
 }
 
 ItemsQueryOption::ItemsQueryOption(const ItemsQueryOption &src)
-: HostResourceQueryOption(src), m_ctx(NULL)
+: HostResourceQueryOption(src),
+  m_impl(new Impl())
 {
-	m_ctx = new PrivateContext();
-	*m_ctx = *src.m_ctx;
+	*m_impl = *src.m_impl;
 }
 
 ItemsQueryOption::~ItemsQueryOption()
 {
-	delete m_ctx;
 }
 
 string ItemsQueryOption::getCondition(void) const
@@ -1320,7 +1314,7 @@ string ItemsQueryOption::getCondition(void) const
 	if (DBClient::isAlwaysFalseCondition(condition))
 		return condition;
 
-	if (m_ctx->targetId != ALL_ITEMS) {
+	if (m_impl->targetId != ALL_ITEMS) {
 		const DBTermCodec *dbTermCodec = getDBTermCodec();
 		if (!condition.empty())
 			condition += " AND ";
@@ -1328,13 +1322,13 @@ string ItemsQueryOption::getCondition(void) const
 			"%s.%s=%s",
 			DBClientHatohol::TABLE_NAME_ITEMS,
 			COLUMN_DEF_ITEMS[IDX_ITEMS_ID].columnName,
-			dbTermCodec->enc(m_ctx->targetId).c_str());
+			dbTermCodec->enc(m_impl->targetId).c_str());
 	}
 
-	if (!m_ctx->itemGroupName.empty()) {
+	if (!m_impl->itemGroupName.empty()) {
 		if (!condition.empty())
 			condition += " AND ";
-		string escaped = StringUtils::replace(m_ctx->itemGroupName,
+		string escaped = StringUtils::replace(m_impl->itemGroupName,
 						      "'", "''");
 		condition += StringUtils::sprintf(
 			"%s.%s='%s'",
@@ -1348,22 +1342,22 @@ string ItemsQueryOption::getCondition(void) const
 
 void ItemsQueryOption::setTargetId(const ItemIdType &id)
 {
-	m_ctx->targetId = id;
+	m_impl->targetId = id;
 }
 
 ItemIdType ItemsQueryOption::getTargetId(void) const
 {
-	return m_ctx->targetId;
+	return m_impl->targetId;
 }
 
 void ItemsQueryOption::setTargetItemGroupName(const string &itemGroupName)
 {
-	m_ctx->itemGroupName = itemGroupName;
+	m_impl->itemGroupName = itemGroupName;
 }
 
 const string &ItemsQueryOption::getTargetItemGroupName(void)
 {
-	return m_ctx->itemGroupName;
+	return m_impl->itemGroupName;
 }
 
 //
@@ -1453,14 +1447,12 @@ void DBClientHatohol::init(void)
 
 DBClientHatohol::DBClientHatohol(void)
 : DBClient(DB_DOMAIN_ID_HATOHOL),
-  m_ctx(NULL)
+  m_impl(new Impl())
 {
-	m_ctx = new PrivateContext();
 }
 
 DBClientHatohol::~DBClientHatohol()
 {
-	delete m_ctx;
 }
 
 void DBClientHatohol::getHostInfoList(HostInfoList &hostInfoList,

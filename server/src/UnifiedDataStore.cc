@@ -54,17 +54,17 @@ static ArmInfo getArmInfo(DataStore *dataStore)
 // ---------------------------------------------------------------------------
 // UnifiedDataStore
 // ---------------------------------------------------------------------------
-struct UnifiedDataStore::PrivateContext
+struct UnifiedDataStore::Impl
 {
 	struct UnifiedDataStoreEventProc : public DataStoreEventProc
 	{
-		PrivateContext *ctx;
+		Impl *impl;
 		const AtomicValue<bool> &enableCopyOnDemand;
 
 		UnifiedDataStoreEventProc(
-		  PrivateContext *_ctx,
+		  Impl *_impl,
 		  const AtomicValue<bool> &copyOnDemand)
-		: ctx(_ctx),
+		: impl(_impl),
 		  enableCopyOnDemand(copyOnDemand)
 		{
 		}
@@ -76,12 +76,12 @@ struct UnifiedDataStore::PrivateContext
 		virtual void onAdded(DataStore *dataStore) override
 		{
 			dataStore->setCopyOnDemandEnable(enableCopyOnDemand);
-			ctx->addToDataStoreMap(dataStore);
+			impl->addToDataStoreMap(dataStore);
 		}
 
 		virtual void onRemoved(DataStore *dataStore) override
 		{
-			ctx->removeFromDataStoreMap(dataStore);
+			impl->removeFromDataStoreMap(dataStore);
 		}
 	};
 
@@ -91,12 +91,12 @@ struct UnifiedDataStore::PrivateContext
 	AtomicValue<bool>        isCopyOnDemandEnabled;
 	ItemFetchWorker          itemFetchWorker;
 
-	PrivateContext()
+	Impl()
 	: isCopyOnDemandEnabled(false)
 	{ 
 		// TODO: When should the object be freed ?
 		UnifiedDataStoreEventProc *evtProc =
-		  new PrivateContext::UnifiedDataStoreEventProc(
+		  new Impl::UnifiedDataStoreEventProc(
 		    this, isCopyOnDemandEnabled);
 		dataStoreManager.registEventProc(evtProc);
 	};
@@ -216,21 +216,19 @@ private:
 	DataStoreManager         dataStoreManager;
 };
 
-UnifiedDataStore *UnifiedDataStore::PrivateContext::instance = NULL;
-Mutex             UnifiedDataStore::PrivateContext::mutex;
+UnifiedDataStore *UnifiedDataStore::Impl::instance = NULL;
+Mutex             UnifiedDataStore::Impl::mutex;
 
 // ---------------------------------------------------------------------------
 // Public static methods
 // ---------------------------------------------------------------------------
 UnifiedDataStore::UnifiedDataStore(void)
-: m_ctx(NULL)
+: m_impl(new Impl())
 {
-	m_ctx = new PrivateContext();
 }
 
 UnifiedDataStore::~UnifiedDataStore()
 {
-	delete m_ctx;
 }
 
 void UnifiedDataStore::reset(void)
@@ -251,15 +249,15 @@ void UnifiedDataStore::parseCommandLineArgument(CommandLineArg &cmdArg)
 
 UnifiedDataStore *UnifiedDataStore::getInstance(void)
 {
-	if (PrivateContext::instance)
-		return PrivateContext::instance;
+	if (Impl::instance)
+		return Impl::instance;
 
-	PrivateContext::mutex.lock();
-	if (!PrivateContext::instance)
-		PrivateContext::instance = new UnifiedDataStore();
-	PrivateContext::mutex.unlock();
+	Impl::mutex.lock();
+	if (!Impl::instance)
+		Impl::instance = new UnifiedDataStore();
+	Impl::mutex.unlock();
 
-	return PrivateContext::instance;
+	return Impl::instance;
 }
 
 void UnifiedDataStore::start(const bool &autoRun)
@@ -273,26 +271,26 @@ void UnifiedDataStore::start(const bool &autoRun)
 	MonitoringServerInfoListConstIterator svInfoItr
 	  = monitoringServers.begin();
 	for (; svInfoItr != monitoringServers.end(); ++svInfoItr)
-		m_ctx->startDataStore(*svInfoItr, autoRun);
+		m_impl->startDataStore(*svInfoItr, autoRun);
 }
 
 void UnifiedDataStore::stop(void)
 {
-	m_ctx->stopAllDataStores();
+	m_impl->stopAllDataStores();
 }
 
 void UnifiedDataStore::fetchItems(const ServerIdType &targetServerId)
 {
 	if (!getCopyOnDemandEnabled())
 		return;
-	if (!m_ctx->itemFetchWorker.updateIsNeeded())
+	if (!m_impl->itemFetchWorker.updateIsNeeded())
 		return;
 
-	bool started = m_ctx->itemFetchWorker.start(targetServerId, NULL);
+	bool started = m_impl->itemFetchWorker.start(targetServerId, NULL);
 	if (!started)
 		return;
 
-	m_ctx->itemFetchWorker.waitCompletion();
+	m_impl->itemFetchWorker.waitCompletion();
 }
 
 void UnifiedDataStore::getTriggerList(TriggerInfoList &triggerList,
@@ -335,10 +333,10 @@ bool UnifiedDataStore::fetchItemsAsync(ClosureBase *closure,
 {
 	if (!getCopyOnDemandEnabled())
 		return false;
-	if (!m_ctx->itemFetchWorker.updateIsNeeded())
+	if (!m_impl->itemFetchWorker.updateIsNeeded())
 		return false;
 
-	return m_ctx->itemFetchWorker.start(targetServerId, closure);
+	return m_impl->itemFetchWorker.start(targetServerId, closure);
 }
 
 void UnifiedDataStore::getHostList(HostInfoList &hostInfoList,
@@ -427,12 +425,12 @@ HatoholError UnifiedDataStore::getNumberOfMonitoredItemsPerSecond(
 
 bool UnifiedDataStore::getCopyOnDemandEnabled(void) const
 {
-	return m_ctx->isCopyOnDemandEnabled;
+	return m_impl->isCopyOnDemandEnabled;
 }
 
 void UnifiedDataStore::setCopyOnDemandEnabled(bool enable)
 {
-	m_ctx->isCopyOnDemandEnabled = enable;
+	m_impl->isCopyOnDemandEnabled = enable;
 }
 
 HatoholError UnifiedDataStore::addAction(ActionDef &actionDef,
@@ -559,7 +557,7 @@ HatoholError UnifiedDataStore::addTargetServer(
 	if (err != HTERR_OK)
 		return err;
 
-	return m_ctx->startDataStore(svInfo, autoRun);
+	return m_impl->startDataStore(svInfo, autoRun);
 }
 
 HatoholError UnifiedDataStore::updateTargetServer(
@@ -574,10 +572,10 @@ HatoholError UnifiedDataStore::updateTargetServer(
 		return err;
 
 	bool isRunning = false;
-	err = m_ctx->stopDataStore(svInfo.id, &isRunning);
+	err = m_impl->stopDataStore(svInfo.id, &isRunning);
 	if (err != HTERR_OK)
 		return err;
-	return m_ctx->startDataStore(svInfo, isRunning);
+	return m_impl->startDataStore(svInfo, isRunning);
 }
 
 HatoholError UnifiedDataStore::deleteTargetServer(
@@ -589,7 +587,7 @@ HatoholError UnifiedDataStore::deleteTargetServer(
 	if (err != HTERR_OK)
 		return err;
 
-	return m_ctx->stopDataStore(serverId);
+	return m_impl->stopDataStore(serverId);
 }
 
 void UnifiedDataStore::getServerConnStatusVector(
@@ -649,12 +647,12 @@ HatoholError UnifiedDataStore::deleteIncidentTracker(
 
 DataStoreVector UnifiedDataStore::getDataStoreVector(void)
 {
-	return m_ctx->getDataStoreVector();
+	return m_impl->getDataStoreVector();
 }
 
 DataStorePtr UnifiedDataStore::getDataStore(const ServerIdType &serverId)
 {
-	return m_ctx->getDataStore(serverId);
+	return m_impl->getDataStore(serverId);
 }
 
 // ---------------------------------------------------------------------------

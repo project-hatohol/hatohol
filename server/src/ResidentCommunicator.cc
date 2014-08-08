@@ -26,7 +26,7 @@ using namespace mlpl;
 
 #include "ResidentCommunicator.h"
 
-struct ResidentCommunicator::PrivateContext {
+struct ResidentCommunicator::Impl {
 	SmartBuffer sbuf;
 };
 
@@ -34,14 +34,12 @@ struct ResidentCommunicator::PrivateContext {
 // Public methods
 // ---------------------------------------------------------------------------
 ResidentCommunicator::ResidentCommunicator(void)
-: m_ctx(NULL)
+: m_impl(new Impl())
 {
-	m_ctx = new PrivateContext();
 }
 
 ResidentCommunicator::~ResidentCommunicator()
 {
-	delete m_ctx;
 }
 
 int ResidentCommunicator::getPacketType(SmartBuffer &sbuf)
@@ -55,44 +53,44 @@ int ResidentCommunicator::getPacketType(SmartBuffer &sbuf)
 
 SmartBuffer &ResidentCommunicator::getBuffer(void)
 {
-	return m_ctx->sbuf;
+	return m_impl->sbuf;
 }
 
 void ResidentCommunicator::setHeader(uint32_t bodySize, uint16_t type)
 {
 	size_t bufSize = RESIDENT_PROTO_HEADER_LEN + bodySize;
-	m_ctx->sbuf.ensureRemainingSize(bufSize);
-	m_ctx->sbuf.resetIndexDeep();
-	m_ctx->sbuf.add32(bodySize);
-	m_ctx->sbuf.add16(type);
+	m_impl->sbuf.ensureRemainingSize(bufSize);
+	m_impl->sbuf.resetIndexDeep();
+	m_impl->sbuf.add32(bodySize);
+	m_impl->sbuf.add16(type);
 }
 
 void ResidentCommunicator::push(NamedPipe &namedPipe)
 {
-	namedPipe.push(m_ctx->sbuf);
+	namedPipe.push(m_impl->sbuf);
 }
 
 void ResidentCommunicator::addModulePath(const string &modulePath)
 {
 	size_t len = modulePath.size();
-	m_ctx->sbuf.add16(len);
-	memcpy(m_ctx->sbuf.getPointer<void>(), modulePath.c_str(), len);
-	m_ctx->sbuf.incIndex(len);
+	m_impl->sbuf.add16(len);
+	memcpy(m_impl->sbuf.getPointer<void>(), modulePath.c_str(), len);
+	m_impl->sbuf.incIndex(len);
 }
 
 void ResidentCommunicator::addModuleOption(const std::string &moduleOption)
 {
 	size_t len = moduleOption.size();
-	m_ctx->sbuf.add16(len);
-	memcpy(m_ctx->sbuf.getPointer<void>(), moduleOption.c_str(), len);
-	m_ctx->sbuf.incIndex(len);
+	m_impl->sbuf.add16(len);
+	memcpy(m_impl->sbuf.getPointer<void>(), moduleOption.c_str(), len);
+	m_impl->sbuf.incIndex(len);
 }
 
 void ResidentCommunicator::setModuleLoaded(uint32_t code)
 {
 	setHeader(RESIDENT_PROTO_MODULE_LOADED_CODE_LEN,
 	          RESIDENT_PROTO_PKT_TYPE_MODULE_LOADED);
-	m_ctx->sbuf.add32(code);
+	m_impl->sbuf.add32(code);
 }
 
 void ResidentCommunicator::setNotifyEventBody(
@@ -101,22 +99,22 @@ void ResidentCommunicator::setNotifyEventBody(
 {
 	setHeader(RESIDENT_PROTO_EVENT_BODY_LEN,
 	          RESIDENT_PROTO_PKT_TYPE_NOTIFY_EVENT);
-	m_ctx->sbuf.add32(actionId);
-	m_ctx->sbuf.add32(eventInfo.serverId);
-	m_ctx->sbuf.add64(eventInfo.hostId);
-	m_ctx->sbuf.add64(eventInfo.time.tv_sec);
-	m_ctx->sbuf.add32(eventInfo.time.tv_nsec);
-	m_ctx->sbuf.add64(eventInfo.id); // Event ID
-	m_ctx->sbuf.add16(eventInfo.type);
-	m_ctx->sbuf.add64(eventInfo.triggerId);
-	m_ctx->sbuf.add16(eventInfo.status);
-	m_ctx->sbuf.add16(eventInfo.severity);
-	m_ctx->sbuf.add(sessionId.c_str(), HATOHOL_SESSION_ID_LEN);
+	m_impl->sbuf.add32(actionId);
+	m_impl->sbuf.add32(eventInfo.serverId);
+	m_impl->sbuf.add64(eventInfo.hostId);
+	m_impl->sbuf.add64(eventInfo.time.tv_sec);
+	m_impl->sbuf.add32(eventInfo.time.tv_nsec);
+	m_impl->sbuf.add64(eventInfo.id); // Event ID
+	m_impl->sbuf.add16(eventInfo.type);
+	m_impl->sbuf.add64(eventInfo.triggerId);
+	m_impl->sbuf.add16(eventInfo.status);
+	m_impl->sbuf.add16(eventInfo.severity);
+	m_impl->sbuf.add(sessionId.c_str(), HATOHOL_SESSION_ID_LEN);
 }
 
 void ResidentCommunicator::setNotifyEventAck(uint32_t resultCode)
 {
 	setHeader(RESIDENT_PROTO_EVENT_ACK_CODE_LEN,
 	          RESIDENT_PROTO_PKT_TYPE_NOTIFY_EVENT_ACK);
-	m_ctx->sbuf.add32(resultCode);
+	m_impl->sbuf.add32(resultCode);
 }

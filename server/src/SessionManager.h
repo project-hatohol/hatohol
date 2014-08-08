@@ -21,6 +21,7 @@
 #define SessionManager_h
 
 #include <string>
+#include <memory>
 #include <map>
 #include "Params.h"
 #include "SmartTime.h"
@@ -120,8 +121,8 @@ protected:
 	static gboolean timerCb(gpointer data);
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 #endif // SessionManager_h

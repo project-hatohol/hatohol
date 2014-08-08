@@ -229,11 +229,11 @@ ServerAccessInfoMap::~ServerAccessInfoMap()
 	}
 }
 
-struct DBClientUser::PrivateContext {
+struct DBClientUser::Impl {
 	static bool validUsernameChars[UINT8_MAX+1];
 };
 
-bool DBClientUser::PrivateContext::validUsernameChars[UINT8_MAX+1];
+bool DBClientUser::Impl::validUsernameChars[UINT8_MAX+1];
 
 static void updateAdminPrivilege(DBAgent *dbAgent,
 				 const OperationPrivilegeType old_NUM_OPPRVLG)
@@ -295,32 +295,29 @@ static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
 // ---------------------------------------------------------------------------
 // UserQueryOption
 // ---------------------------------------------------------------------------
-struct UserQueryOption::PrivateContext {
+struct UserQueryOption::Impl {
 	bool   onlyMyself;
 	string targetName;
 
-	PrivateContext(void)
+	Impl(void)
 	: onlyMyself(false)
 	{
 	}
 };
 
 UserQueryOption::UserQueryOption(UserIdType userId)
-: DataQueryOption(userId), m_ctx(NULL)
+: DataQueryOption(userId), m_impl(new Impl())
 {
-	m_ctx = new PrivateContext();
 }
 
 UserQueryOption::UserQueryOption(DataQueryContext *dataQueryContext)
 : DataQueryOption(dataQueryContext),
-  m_ctx(NULL)
+  m_impl(new Impl())
 {
-	m_ctx = new PrivateContext();
 }
 
 UserQueryOption::~UserQueryOption()
 {
-	delete m_ctx;
 }
 
 HatoholError UserQueryOption::setTargetName(const string &name)
@@ -328,13 +325,13 @@ HatoholError UserQueryOption::setTargetName(const string &name)
 	HatoholError err = DBClientUser::isValidUserName(name);
 	if (err != HTERR_OK)
 		return err;
-	m_ctx->targetName = name;
+	m_impl->targetName = name;
 	return HatoholError(HTERR_OK);
 }
 
 void UserQueryOption::queryOnlyMyself(void)
 {
-	m_ctx->onlyMyself = true;
+	m_impl->onlyMyself = true;
 }
 
 string UserQueryOption::getCondition(void) const
@@ -346,18 +343,18 @@ string UserQueryOption::getCondition(void) const
 	}
 
 	string condition;
-	if (!has(OPPRVLG_GET_ALL_USER) || m_ctx->onlyMyself) {
+	if (!has(OPPRVLG_GET_ALL_USER) || m_impl->onlyMyself) {
 		condition = StringUtils::sprintf("%s=%" FMT_USER_ID,
 		  COLUMN_DEF_USERS[IDX_USERS_ID].columnName, userId);
 	}
 
-	if (!m_ctx->targetName.empty()) {
+	if (!m_impl->targetName.empty()) {
 		// The validity of 'targetName' has been checked in
 		// setTargetName().
 		string nameCond =
 		  StringUtils::sprintf("%s='%s'",
 		    COLUMN_DEF_USERS[IDX_USERS_NAME].columnName,
-		   m_ctx->targetName.c_str());
+		   m_impl->targetName.c_str());
 		if (condition.empty()) {
 			condition = nameCond;
 		} else {
@@ -371,31 +368,29 @@ string UserQueryOption::getCondition(void) const
 // ---------------------------------------------------------------------------
 // AccessInfoQueryOption
 // ---------------------------------------------------------------------------
-struct AccessInfoQueryOption::PrivateContext {
+struct AccessInfoQueryOption::Impl {
 	UserIdType queryUserId;
 
-	PrivateContext(void)
+	Impl(void)
 	: queryUserId(INVALID_USER_ID)
 	{
 	}
 };
 
 AccessInfoQueryOption::AccessInfoQueryOption(UserIdType userId)
-: DataQueryOption(userId), m_ctx(NULL)
+: DataQueryOption(userId),
+  m_impl(new Impl())
 {
-	m_ctx = new PrivateContext();
 }
 
 AccessInfoQueryOption::AccessInfoQueryOption(DataQueryContext *dataQueryContext)
 : DataQueryOption(dataQueryContext),
-  m_ctx(NULL)
+  m_impl(new Impl())
 {
-	m_ctx = new PrivateContext();
 }
 
 AccessInfoQueryOption::~AccessInfoQueryOption()
 {
-	delete m_ctx;
 }
 string AccessInfoQueryOption::getCondition(void) const
 {
@@ -405,7 +400,7 @@ string AccessInfoQueryOption::getCondition(void) const
 		return DBClientUser::getAlwaysFalseCondition();
 	}
 
-	if (!has(OPPRVLG_GET_ALL_USER) && getUserId() != m_ctx->queryUserId) {
+	if (!has(OPPRVLG_GET_ALL_USER) && getUserId() != m_impl->queryUserId) {
 		return DBClientUser::getAlwaysFalseCondition();
 	}
 
@@ -416,62 +411,60 @@ string AccessInfoQueryOption::getCondition(void) const
 
 void AccessInfoQueryOption::setTargetUserId(UserIdType userId)
 {
-	m_ctx->queryUserId = userId;
+	m_impl->queryUserId = userId;
 }
 
 UserIdType AccessInfoQueryOption::getTargetUserId(void) const
 {
-	return m_ctx->queryUserId;
+	return m_impl->queryUserId;
 }
 
 // ---------------------------------------------------------------------------
 // UserRoleQueryOption
 // ---------------------------------------------------------------------------
-struct UserRoleQueryOption::PrivateContext {
+struct UserRoleQueryOption::Impl {
 	UserRoleIdType targetUserRoleId;
 
-	PrivateContext(void)
+	Impl(void)
 	: targetUserRoleId(INVALID_USER_ROLE_ID)
 	{
 	}
 };
 
 UserRoleQueryOption::UserRoleQueryOption(UserIdType userId)
-: DataQueryOption(userId), m_ctx(NULL)
+: DataQueryOption(userId),
+  m_impl(new Impl())
 {
-	m_ctx = new PrivateContext();
 }
 
 UserRoleQueryOption::UserRoleQueryOption(DataQueryContext *dataQueryContext)
 : DataQueryOption(dataQueryContext),
-  m_ctx(NULL)
+  m_impl(new Impl())
 {
-	m_ctx = new PrivateContext();
 }
 
 UserRoleQueryOption::~UserRoleQueryOption()
 {
-	delete m_ctx;
 }
 
 void UserRoleQueryOption::setTargetUserRoleId(UserRoleIdType userRoleId)
 {
-	m_ctx->targetUserRoleId = userRoleId;
+	m_impl->targetUserRoleId = userRoleId;
 }
 
 UserRoleIdType UserRoleQueryOption::getTargetUserRoleId(void) const
 {
-	return m_ctx->targetUserRoleId;
+	return m_impl->targetUserRoleId;
 }
 
 string UserRoleQueryOption::getCondition(void) const
 {
 	string condition;
 
-	if (m_ctx->targetUserRoleId != INVALID_USER_ROLE_ID)
+	if (m_impl->targetUserRoleId != INVALID_USER_ROLE_ID)
 		condition = StringUtils::sprintf("%s=%" FMT_USER_ROLE_ID,
 		  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_ID].columnName,
-		  m_ctx->targetUserRoleId);
+		  m_impl->targetUserRoleId);
 
 	return condition;
 }
@@ -507,15 +500,15 @@ void DBClientUser::init(void)
 
 	// set valid characters for the user name
 	for (uint8_t c = 'A'; c <= 'Z'; c++)
-		PrivateContext::validUsernameChars[c] = true;
+		Impl::validUsernameChars[c] = true;
 	for (uint8_t c = 'a'; c <= 'z'; c++)
-		PrivateContext::validUsernameChars[c] = true;
+		Impl::validUsernameChars[c] = true;
 	for (uint8_t c = '0'; c <= '9'; c++)
-		PrivateContext::validUsernameChars[c] = true;
-	PrivateContext::validUsernameChars['.'] = true;
-	PrivateContext::validUsernameChars['-'] = true;
-	PrivateContext::validUsernameChars['_'] = true;
-	PrivateContext::validUsernameChars['@'] = true;
+		Impl::validUsernameChars[c] = true;
+	Impl::validUsernameChars['.'] = true;
+	Impl::validUsernameChars['-'] = true;
+	Impl::validUsernameChars['_'] = true;
+	Impl::validUsernameChars['@'] = true;
 }
 
 void DBClientUser::reset(void)
@@ -527,14 +520,12 @@ void DBClientUser::reset(void)
 
 DBClientUser::DBClientUser(void)
 : DBClient(DB_DOMAIN_ID_USERS),
-  m_ctx(NULL)
+  m_impl(new Impl())
 {
-	m_ctx = new PrivateContext();
 }
 
 DBClientUser::~DBClientUser()
 {
-	delete m_ctx;
 }
 
 HatoholError DBClientUser::addUserInfo(
@@ -1035,7 +1026,7 @@ HatoholError DBClientUser::isValidUserName(const string &name)
 		return HTERR_TOO_LONG_USER_NAME;
 	for (const char *p = name.c_str(); *p; p++) {
 		uint8_t idx = *p;
-		if (!PrivateContext::validUsernameChars[idx])
+		if (!Impl::validUsernameChars[idx])
 			return HTERR_INVALID_CHAR;
 	}
 	return HTERR_OK;

@@ -88,8 +88,8 @@ protected:
 	  const ArmWorkingStatus &status = ARM_WORK_STAT_FAILURE);
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 typedef std::vector<ArmBase *>        ArmBaseVector;

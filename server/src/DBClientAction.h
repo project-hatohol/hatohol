@@ -254,8 +254,8 @@ public:
 	virtual std::string getCondition(void) const override;
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 class DBClientAction : public DBClient {
@@ -395,8 +395,8 @@ protected:
 	static void stopIdleDeleteAction(gpointer data);
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
 
 };
 

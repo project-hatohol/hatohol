@@ -272,8 +272,8 @@ protected:
 	void pushApplicationid(JSONParserAgent &parser, ItemGroup *itemGroup);
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 #endif // ZabbixAPI_h

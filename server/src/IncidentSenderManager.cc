@@ -27,13 +27,13 @@
 using namespace std;
 using namespace mlpl;
 
-struct IncidentSenderManager::PrivateContext
+struct IncidentSenderManager::Impl
 {
 	static IncidentSenderManager instance;
 	map<IncidentTrackerIdType, IncidentSender*> sendersMap;
 	Mutex sendersLock;
 
-	~PrivateContext()
+	~Impl()
 	{
 		AutoMutex autoMutex(&sendersLock);
 		map<IncidentTrackerIdType, IncidentSender*>::iterator it;
@@ -98,18 +98,18 @@ struct IncidentSenderManager::PrivateContext
 	}
 };
 
-IncidentSenderManager IncidentSenderManager::PrivateContext::instance;
+IncidentSenderManager IncidentSenderManager::Impl::instance;
 
 IncidentSenderManager &IncidentSenderManager::getInstance(void)
 {
-	return PrivateContext::instance;
+	return Impl::instance;
 }
 
 void IncidentSenderManager::queue(
   const IncidentTrackerIdType &trackerId, const EventInfo &eventInfo,
   IncidentSender::StatusCallback callback, void *userData)
 {
-	IncidentSender *sender = m_ctx->getSender(trackerId);
+	IncidentSender *sender = m_impl->getSender(trackerId);
 	if (!sender) {
 		MLPL_ERR("Failed to queue sending an incident"
 			 " for the event: %" FMT_EVENT_ID "\n",
@@ -120,23 +120,21 @@ void IncidentSenderManager::queue(
 }
 
 IncidentSenderManager::IncidentSenderManager(void)
-: m_ctx(NULL)
+: m_impl(new Impl())
 {
-	m_ctx = new PrivateContext();
 }
 
 IncidentSenderManager::~IncidentSenderManager()
 {
-	delete m_ctx;
 }
 
 bool IncidentSenderManager::isIdling(void)
 {
-	AutoMutex autoMutex(&m_ctx->sendersLock);
+	AutoMutex autoMutex(&m_impl->sendersLock);
 
 	map<IncidentTrackerIdType, IncidentSender*>::iterator it
-	  = m_ctx->sendersMap.begin();
-	for (; it != m_ctx->sendersMap.end(); ++it) {
+	  = m_impl->sendersMap.begin();
+	for (; it != m_impl->sendersMap.end(); ++it) {
 		IncidentSender *sender = it->second;
 		if (!sender->isIdling())
 			return false;
@@ -148,6 +146,6 @@ bool IncidentSenderManager::isIdling(void)
 IncidentSender *IncidentSenderManager::getSender(
   const IncidentTrackerIdType &id, bool autoCreate)
 {
-	return m_ctx->getSender(id, autoCreate);
+	return m_impl->getSender(id, autoCreate);
 }
 

@@ -20,6 +20,8 @@
 #ifndef ActionManager_h
 #define ActionManager_h
 
+#include <memory>
+#include "Params.h"
 #include "SmartBuffer.h"
 #include "DBClientAction.h"
 #include "ActorCollector.h"
@@ -31,7 +33,7 @@ struct ResidentInfo;
 class ActionManager
 {
 private:
-	struct PrivateContext;
+	struct Impl;
 
 public:
 	static const char *NUM_COMMNAD_ACTION_EVENT_ARG_MAGIC;
@@ -245,7 +247,7 @@ protected:
 
 private:
 	struct ActorProfile;
-	PrivateContext *m_ctx;
+	std::unique_ptr<Impl> m_impl;
 };
 
 #endif // ActionManager_h

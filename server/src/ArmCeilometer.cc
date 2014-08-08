@@ -25,7 +25,7 @@ using namespace mlpl;
 // ---------------------------------------------------------------------------
 // Private context
 // ---------------------------------------------------------------------------
-struct ArmCeilometer::PrivateContext
+struct ArmCeilometer::Impl
 {
 };
 
@@ -34,15 +34,13 @@ struct ArmCeilometer::PrivateContext
 // ---------------------------------------------------------------------------
 ArmCeilometer::ArmCeilometer(const MonitoringServerInfo &serverInfo)
 : ArmBase("ArmCeilometer", serverInfo),
-  m_ctx(NULL)
+  m_impl(new Impl())
 {
-	m_ctx = new PrivateContext();
 }
 
 ArmCeilometer::~ArmCeilometer()
 {
 	requestExitAndWait();
-	delete m_ctx;
 }
 
 // ---------------------------------------------------------------------------

@@ -68,7 +68,7 @@ struct ReplyWaiter {
 	}
 };
 
-struct HatoholArmPluginInterface::PrivateContext {
+struct HatoholArmPluginInterface::Impl {
 	HatoholArmPluginInterface *hapi;
 	bool       workInServer;
 	Connection connection;
@@ -85,7 +85,7 @@ struct HatoholArmPluginInterface::PrivateContext {
 	uint32_t   sequenceIdOfCurrCmd;
 	SmartQueue<ReplyWaiter *> replyWaiterQueue;
 
-	PrivateContext(HatoholArmPluginInterface *_hapi,
+	Impl(HatoholArmPluginInterface *_hapi,
 	               const bool &_workInServer)
 	: hapi(_hapi),
 	  workInServer(_workInServer),
@@ -100,7 +100,7 @@ struct HatoholArmPluginInterface::PrivateContext {
 	{
 	}
 
-	virtual ~PrivateContext()
+	virtual ~Impl()
 	{
 		disconnect();
 		freeReplyWaiters();
@@ -155,7 +155,7 @@ struct HatoholArmPluginInterface::PrivateContext {
 	}
 
 	static void destroyReplyWaiter(ReplyWaiter *replyWaiter,
-	                               PrivateContext *ctx)
+	                               Impl *impl)
 	{
 		replyWaiter->callbacksPtr->onError(HAPI_RES_ERR_DESTRUCTED,
 		                                   replyWaiter->header);
@@ -164,7 +164,7 @@ struct HatoholArmPluginInterface::PrivateContext {
 
 	void freeReplyWaiters(void)
 	{
-		replyWaiterQueue.popAll<PrivateContext *>(destroyReplyWaiter,
+		replyWaiterQueue.popAll<Impl *>(destroyReplyWaiter,
 	                                                  this);
 	}
 
@@ -249,23 +249,21 @@ HatoholArmPluginInterface::CommandCallbacks::~CommandCallbacks()
 // Public methods
 // ---------------------------------------------------------------------------
 HatoholArmPluginInterface::HatoholArmPluginInterface(const bool &workInServer)
-: m_ctx(NULL)
+: m_impl(new Impl(this, workInServer))
 {
-	m_ctx = new PrivateContext(this, workInServer);
 }
 
 HatoholArmPluginInterface::~HatoholArmPluginInterface()
 {
 	exitSync();
-	delete m_ctx;
 }
 
 void HatoholArmPluginInterface::send(const string &message)
 {
 	Message request;
-	request.setReplyTo(m_ctx->receiverAddr);
+	request.setReplyTo(m_impl->receiverAddr);
 	request.setContent(message);
-	m_ctx->sender.send(request);
+	m_impl->sender.send(request);
 }
 
 void HatoholArmPluginInterface::send(
@@ -278,28 +276,28 @@ void HatoholArmPluginInterface::send(
 	}
 	if (callbacksPtr.hasData()) {
 		ReplyWaiter *replyWaiter = new ReplyWaiter(smbuf, callbacksPtr);
-		m_ctx->replyWaiterQueue.push(replyWaiter);
+		m_impl->replyWaiterQueue.push(replyWaiter);
 	}
 
 	Message request;
-	request.setReplyTo(m_ctx->receiverAddr);
+	request.setReplyTo(m_impl->receiverAddr);
 	request.setContent(smbuf.getPointer<char>(0), smbuf.size());
-	m_ctx->sender.send(request);
+	m_impl->sender.send(request);
 }
 
 void HatoholArmPluginInterface::reply(const mlpl::SmartBuffer &replyBuf)
 {
-	HATOHOL_ASSERT(m_ctx->currMessage,
+	HATOHOL_ASSERT(m_impl->currMessage,
 	               "This object doesn't have a current message.\n");
-	const Address& address = m_ctx->currMessage->getReplyTo();
+	const Address& address = m_impl->currMessage->getReplyTo();
 	if (!address) {
 		MLPL_ERR("No return address.\n");
-		m_ctx->session.reject(*m_ctx->currMessage);
+		m_impl->session.reject(*m_impl->currMessage);
 		return;
 	}
 	Message reply;
 	reply.setContent(replyBuf.getPointer<char>(0), replyBuf.size());
-	Sender sender = m_ctx->session.createSender(address);
+	Sender sender = m_impl->session.createSender(address);
 	sender.send(reply);
 }
 
@@ -320,14 +318,14 @@ void HatoholArmPluginInterface::replyOk(void)
 void HatoholArmPluginInterface::exitSync(void)
 {
 	requestExit();
-	m_ctx->disconnect();
+	m_impl->disconnect();
 	HatoholThreadBase::exitSync();
 }
 
 void HatoholArmPluginInterface::registerCommandHandler(
   const HapiCommandCode &code, CommandHandler handler)
 {
-	m_ctx->receiveHandlerMap[code] = handler;
+	m_impl->receiveHandlerMap[code] = handler;
 }
 
 const char *HatoholArmPluginInterface::getString(
@@ -652,22 +650,22 @@ const char *HatoholArmPluginInterface::getDefaultPluginPath(
 
 string HatoholArmPluginInterface::getBrokerUrl(void) const
 {
-	return m_ctx->getBrokerUrl();
+	return m_impl->getBrokerUrl();
 }
 
 void HatoholArmPluginInterface::setBrokerUrl(const string &brokerUrl)
 {
-	m_ctx->setBrokerUrl(brokerUrl);
+	m_impl->setBrokerUrl(brokerUrl);
 }
 
 string HatoholArmPluginInterface::getQueueAddress(void) const
 {
-	return m_ctx->getQueueAddress();
+	return m_impl->getQueueAddress();
 }
 
 void HatoholArmPluginInterface::setQueueAddress(const string &queueAddr)
 {
-	return m_ctx->setQueueAddress(queueAddr);
+	return m_impl->setQueueAddress(queueAddr);
 }
 
 // ---------------------------------------------------------------------------
@@ -675,28 +673,28 @@ void HatoholArmPluginInterface::setQueueAddress(const string &queueAddr)
 // ---------------------------------------------------------------------------
 gpointer HatoholArmPluginInterface::mainThread(HatoholThreadArg *arg)
 {
-	m_ctx->connect();
-	if (m_ctx->workInServer)
+	m_impl->connect();
+	if (m_impl->workInServer)
 		sendInitiationPacket();
 	else
 		sendInitiationRequest();
 	while (!isExitRequested()) {
 		Message message;
-		m_ctx->receiver.fetch(message);
+		m_impl->receiver.fetch(message);
 		if (isExitRequested())
 			break;
 		SmartBuffer sbuf;
 		load(sbuf, message);
 		sbuf.resetIndex();
-		m_ctx->currMessage = &message;
-		m_ctx->currBuffer  = &sbuf;
+		m_impl->currMessage = &message;
+		m_impl->currBuffer  = &sbuf;
 		onReceived(sbuf);
-		m_ctx->currMessage = NULL;
-		m_ctx->currBuffer  = NULL;
-		m_ctx->sequenceIdOfCurrCmd = SEQ_ID_UNKNOWN;
-		m_ctx->acknowledge();
+		m_impl->currMessage = NULL;
+		m_impl->currBuffer  = NULL;
+		m_impl->sequenceIdOfCurrCmd = SEQ_ID_UNKNOWN;
+		m_impl->acknowledge();
 	};
-	m_ctx->disconnect();
+	m_impl->disconnect();
 	return NULL;
 }
 
@@ -706,7 +704,7 @@ void HatoholArmPluginInterface::onConnected(Connection &conn)
 
 void HatoholArmPluginInterface::onInitiated(void)
 {
-	m_ctx->freeReplyWaiters();
+	m_impl->freeReplyWaiters();
 }
 
 void HatoholArmPluginInterface::onSessionChanged(Session *session)
@@ -715,7 +713,7 @@ void HatoholArmPluginInterface::onSessionChanged(Session *session)
 
 void HatoholArmPluginInterface::onReceived(mlpl::SmartBuffer &smbuf)
 {
-	if (m_ctx->initState != INIT_STAT_DONE) {
+	if (m_impl->initState != INIT_STAT_DONE) {
 		initiation(smbuf);
 		return;
 	}
@@ -733,18 +731,18 @@ void HatoholArmPluginInterface::onReceived(mlpl::SmartBuffer &smbuf)
 		initiation(smbuf);
 		break;
 	case HAPI_MSG_INITIATION_REQUEST:
-		if (!m_ctx->workInServer) {
+		if (!m_impl->workInServer) {
 			MLPL_WARN(
 			  "Ignore HAPI_MSG_INITIATION_REQUEST received in "
 			  "the client side.\n");
 			break;
 		}
-		m_ctx->resetInitiation();
+		m_impl->resetInitiation();
 		sendInitiationPacket();
 		break;
 	case HAPI_MSG_COMMAND:
 		header = smbuf.getPointer<HapiCommandHeader>();
-		m_ctx->sequenceIdOfCurrCmd = LtoN(header->sequenceId);
+		m_impl->sequenceIdOfCurrCmd = LtoN(header->sequenceId);
 		parseCommand(header, smbuf);
 		break;
 	case HAPI_MSG_RESPONSE:
@@ -760,8 +758,8 @@ void HatoholArmPluginInterface::parseCommand(
   const HapiCommandHeader *header, mlpl::SmartBuffer &cmdBuf)
 {
 	CommandHandlerMapConstIterator it =
-	  m_ctx->receiveHandlerMap.find(header->code);
-	if (it == m_ctx->receiveHandlerMap.end()) {
+	  m_impl->receiveHandlerMap.find(header->code);
+	if (it == m_impl->receiveHandlerMap.end()) {
 		replyError(HAPI_RES_UNKNOWN_CODE);
 		return;
 	}
@@ -775,7 +773,7 @@ void HatoholArmPluginInterface::parseResponse(
 {
 	ReplyWaiter *replyWaiter = NULL;
 	uint32_t rcvSeqId = LtoN(header->sequenceId);
-	if (!m_ctx->replyWaiterQueue.popIfNonEmpty(replyWaiter)) {
+	if (!m_impl->replyWaiterQueue.popIfNonEmpty(replyWaiter)) {
 		MLPL_WARN("Got unexpected response: actual: %08" PRIx32 ", "
 		          "But threre's no reply waiter.\n", rcvSeqId);
 		return;
@@ -818,15 +816,15 @@ void HatoholArmPluginInterface::sendInitiationPacket(void)
 	// TODO: improve the quality of random
 	SmartTime stime(SmartTime::INIT_CURR_TIME);
 	srandom(stime.getAsTimespec().tv_nsec);
-	m_ctx->initiationKey = ((double)random() / RAND_MAX) * UINT64_MAX;
-	initPkt->key = NtoL(m_ctx->initiationKey);
+	m_impl->initiationKey = ((double)random() / RAND_MAX) * UINT64_MAX;
+	initPkt->key = NtoL(m_impl->initiationKey);
 	send(pktBuf);
-	m_ctx->initState = INIT_STAT_WAIT_RES;
+	m_impl->initState = INIT_STAT_WAIT_RES;
 }
 
 void HatoholArmPluginInterface::sendInitiationRequest(void)
 {
-	m_ctx->resetInitiation();
+	m_impl->resetInitiation();
 	SmartBuffer pktBuf(sizeof(HapiInitiationPacket));
 	HapiInitiationPacket *initPkt =
 	  pktBuf.getPointer<HapiInitiationPacket>(0);
@@ -841,12 +839,12 @@ void HatoholArmPluginInterface::initiation(const mlpl::SmartBuffer &sbuf)
 	if (bufferSize != sizeof(HapiInitiationPacket)) {
 		MLPL_INFO("[Init] Drop a message: size: %zd.\n",
 		          bufferSize);
-		m_ctx->resetInitiation();
+		m_impl->resetInitiation();
 		return;
 	}
 	HapiInitiationPacket *initPkt =
 	  sbuf.getPointer<HapiInitiationPacket>(0);
-	if (m_ctx->workInServer) {
+	if (m_impl->workInServer) {
 		waitInitiationResponse(initPkt);
 	} else {
 		if (initPkt->type == HAPI_MSG_INITIATION) {
@@ -856,7 +854,7 @@ void HatoholArmPluginInterface::initiation(const mlpl::SmartBuffer &sbuf)
 		} else {
 			MLPL_INFO("[Init] Drop a message: type: %d.\n",
 			          initPkt->type);
-			m_ctx->resetInitiation();
+			m_impl->resetInitiation();
 		}
 	}
 }
@@ -867,14 +865,14 @@ void HatoholArmPluginInterface::waitInitiationResponse(
 	if (initPkt->type != HAPI_MSG_INITIATION_RESPONSE) {
 		MLPL_INFO("[Init] Drop a message: type: %d (expect: %d).\n",
 		          initPkt->type, HAPI_MSG_INITIATION_RESPONSE);
-		m_ctx->resetInitiation();
+		m_impl->resetInitiation();
 		return;
 	}
-	if (initPkt->key != m_ctx->initiationKey) {
+	if (initPkt->key != m_impl->initiationKey) {
 		MLPL_INFO("[Init] Ignore unexpected key: %" PRIx64
 		          " (expect: %" PRIx64 ").\n",
-		          initPkt->key, m_ctx->initiationKey);
-		m_ctx->resetInitiation();
+		          initPkt->key, m_impl->initiationKey);
+		m_impl->resetInitiation();
 		return;
 	}
 
@@ -883,9 +881,9 @@ void HatoholArmPluginInterface::waitInitiationResponse(
 	HapiInitiationPacket *initFin =
 	  finBuf.getPointer<HapiInitiationPacket>(0);
 	initFin->type = NtoL(HAPI_MSG_INITIATION_FINISH);
-	initFin->key = NtoL(m_ctx->initiationKey);
+	initFin->key = NtoL(m_impl->initiationKey);
 	send(finBuf);
-	m_ctx->completeInitiation();
+	m_impl->completeInitiation();
 }
 
 void HatoholArmPluginInterface::replyInitiationPacket(
@@ -895,32 +893,32 @@ void HatoholArmPluginInterface::replyInitiationPacket(
 	HapiInitiationPacket *initRes =
 	  resBuf.getPointer<HapiInitiationPacket>(0);
 
-	m_ctx->initiationKey = LtoN(initPkt->key);
+	m_impl->initiationKey = LtoN(initPkt->key);
 	initRes->type = NtoL(HAPI_MSG_INITIATION_RESPONSE);
-	initRes->key = NtoL(m_ctx->initiationKey);
+	initRes->key = NtoL(m_impl->initiationKey);
 	reply(resBuf);
-	m_ctx->initState = INIT_STAT_WAIT_FINISH;
+	m_impl->initState = INIT_STAT_WAIT_FINISH;
 }
 
 void HatoholArmPluginInterface::finishInitiation(
   const HapiInitiationPacket *initPkt)
 {
-	if (m_ctx->initState != INIT_STAT_WAIT_FINISH) {
+	if (m_impl->initState != INIT_STAT_WAIT_FINISH) {
 		MLPL_INFO("[Init] Ingnore HAPI_MSG_INITIATION_FINISH. "
-		          "state: %d.\n",  m_ctx->initState);
-		m_ctx->resetInitiation();
+		          "state: %d.\n",  m_impl->initState);
+		m_impl->resetInitiation();
 		return;
 	}
 
 	uint64_t receivedKey = LtoN(initPkt->key);
-	if (receivedKey != m_ctx->initiationKey) {
+	if (receivedKey != m_impl->initiationKey) {
 		MLPL_INFO("[Init] Unmatch initiation key: 1st: %" PRIx64
 		          ", 2nd: %" PRIx64 ".\n",
-		          m_ctx->initiationKey, receivedKey);
-		m_ctx->resetInitiation();
+		          m_impl->initiationKey, receivedKey);
+		m_impl->resetInitiation();
 		return;
 	}
-	m_ctx->completeInitiation();
+	m_impl->completeInitiation();
 }
 
 void HatoholArmPluginInterface::load(SmartBuffer &sbuf, const Message &message)
@@ -946,20 +944,20 @@ const HapiResponseHeader *HatoholArmPluginInterface::getResponseHeader(
 
 uint32_t HatoholArmPluginInterface::getIncrementedSequenceId(void)
 {
-	m_ctx->sequenceId++;
-	if (m_ctx->sequenceId > SEQ_ID_MAX)
-		m_ctx->sequenceId = 0;
-	return m_ctx->sequenceId;
+	m_impl->sequenceId++;
+	if (m_impl->sequenceId > SEQ_ID_MAX)
+		m_impl->sequenceId = 0;
+	return m_impl->sequenceId;
 }
 
 void HatoholArmPluginInterface::setSequenceId(const uint32_t &sequenceId)
 {
-	m_ctx->sequenceId = sequenceId;
+	m_impl->sequenceId = sequenceId;
 }
 
 uint32_t HatoholArmPluginInterface::getSequenceIdInProgress(void)
 {
-	return m_ctx->sequenceIdOfCurrCmd;
+	return m_impl->sequenceIdOfCurrCmd;
 }
 
 HapiMessageType HatoholArmPluginInterface::getMessageType(
@@ -970,7 +968,7 @@ HapiMessageType HatoholArmPluginInterface::getMessageType(
 
 SmartBuffer *HatoholArmPluginInterface::getCurrBuffer(void)
 {
-	return m_ctx->currBuffer;
+	return m_impl->currBuffer;
 }
 
 void HatoholArmPluginInterface::dumpBuffer(

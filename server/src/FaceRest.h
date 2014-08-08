@@ -86,8 +86,8 @@ protected:
 	static void handlerLogout(ResourceHandler *job);
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
 
 	static const char *pathForTest;
 	static const char *pathForLogin;

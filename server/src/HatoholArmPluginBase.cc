@@ -96,16 +96,15 @@ private:
 
 };
 
-struct HatoholArmPluginBase::PrivateContext {
+struct HatoholArmPluginBase::Impl {
 };
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 HatoholArmPluginBase::HatoholArmPluginBase(void)
-: m_ctx(NULL)
+: m_impl(new Impl())
 {
-	m_ctx = new PrivateContext();
 	const char *env = getenv(ENV_NAME_QUEUE_ADDR);
 	if (env)
 		setQueueAddress(env);
@@ -118,7 +117,6 @@ HatoholArmPluginBase::HatoholArmPluginBase(void)
 
 HatoholArmPluginBase::~HatoholArmPluginBase()
 {
-	delete m_ctx;
 }
 
 bool HatoholArmPluginBase::getMonitoringServerInfo(

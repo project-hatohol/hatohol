@@ -33,12 +33,12 @@ static const char *JOIN_OPERATORS[] = {
 static const size_t NUM_JOIN_OPERATORS = 
   sizeof(JOIN_OPERATORS) / sizeof(const char *);
 
-struct DBClientJoinBuilder::PrivateContext {
+struct DBClientJoinBuilder::Impl {
 	DBAgent::SelectExArg selectExArg;
 	vector<const DBAgent::TableProfile *> tables;
 	const DataQueryOption *option;
 
-	PrivateContext(
+	Impl(
 	  const DBAgent::TableProfile &table, const DataQueryOption *_option)
 	: selectExArg(table),
 	  option(_option)
@@ -53,9 +53,8 @@ struct DBClientJoinBuilder::PrivateContext {
 // ---------------------------------------------------------------------------
 DBClientJoinBuilder::DBClientJoinBuilder(
   const DBAgent::TableProfile &table, const DataQueryOption *option)
-: m_ctx(NULL)
+: m_impl(new Impl(table, option))
 {
-	m_ctx = new PrivateContext(table, option);
 	if (option)
 		option->setTableNameAlways();
 
@@ -63,27 +62,26 @@ DBClientJoinBuilder::DBClientJoinBuilder(
 	const HostResourceQueryOption *hrqOption =
 	  dynamic_cast<const HostResourceQueryOption *>(option);
 	if (hrqOption) {
-		m_ctx->selectExArg.tableField = hrqOption->getFromClause();
-		m_ctx->selectExArg.useDistinct = hrqOption->isHostgroupUsed();
+		m_impl->selectExArg.tableField = hrqOption->getFromClause();
+		m_impl->selectExArg.useDistinct = hrqOption->isHostgroupUsed();
 	} else {
-		m_ctx->selectExArg.tableField = table.name;
+		m_impl->selectExArg.tableField = table.name;
 	}
 	if (option)
-		m_ctx->selectExArg.condition = option->getCondition();
+		m_impl->selectExArg.condition = option->getCondition();
 }
 
 DBClientJoinBuilder::~DBClientJoinBuilder()
 {
-	delete m_ctx;
 }
 
 void DBClientJoinBuilder::addTable(
   const DBAgent::TableProfile &table, const JoinType &type,
   const size_t &index0, const size_t &index1)
 {
-	const DBAgent::TableProfile &table0 = *m_ctx->selectExArg.tableProfile;
+	const DBAgent::TableProfile &table0 = *m_impl->selectExArg.tableProfile;
 	addTableCommon(table, type, table0, index0, index1);
-	m_ctx->selectExArg.tableField += StringUtils::sprintf(
+	m_impl->selectExArg.tableField += StringUtils::sprintf(
 	  "%s=%s",
 	  SQLUtils::getFullName(table0.columnDefs, index0).c_str(),
 	  SQLUtils::getFullName(table.columnDefs, index1).c_str());
@@ -95,7 +93,7 @@ void DBClientJoinBuilder::addTable(
   const size_t &indexR)
 {
 	addTableCommon(table, type, tableC, indexL, indexR);
-	m_ctx->selectExArg.tableField += StringUtils::sprintf(
+	m_impl->selectExArg.tableField += StringUtils::sprintf(
 	  "%s=%s",
 	  SQLUtils::getFullName(tableC.columnDefs, indexL).c_str(),
 	  SQLUtils::getFullName(table.columnDefs, indexR).c_str());
@@ -116,7 +114,7 @@ void DBClientJoinBuilder::addTable(
 	  "Invalid column index1R: %zd (%zd)", index1R, table.numColumns);
 
 	addTableCommon(table, type, tableC0, index0L, index0R);
-	m_ctx->selectExArg.tableField += StringUtils::sprintf(
+	m_impl->selectExArg.tableField += StringUtils::sprintf(
 	  "(%s=%s AND %s=%s)",
 	  SQLUtils::getFullName(tableC0.columnDefs, index0L).c_str(),
 	  SQLUtils::getFullName(table.columnDefs,   index0R).c_str(),
@@ -126,12 +124,12 @@ void DBClientJoinBuilder::addTable(
 
 void DBClientJoinBuilder::add(const size_t &columnIndex)
 {
-	m_ctx->selectExArg.add(columnIndex);
+	m_impl->selectExArg.add(columnIndex);
 }
 
 DBAgent::SelectExArg &DBClientJoinBuilder::getSelectExArg(void)
 {
-	return m_ctx->selectExArg;
+	return m_impl->selectExArg;
 }
 
 // ---------------------------------------------------------------------------
@@ -158,9 +156,9 @@ void DBClientJoinBuilder::addTableCommon(
 	  "Invalid column index0R: %zd (%zd)", index0R, table.numColumns);
 	const char *joinOperatorString = getJoinOperatorString(type);
 
-	m_ctx->selectExArg.tableProfile = &table;
-	m_ctx->tables.push_back(&table);
+	m_impl->selectExArg.tableProfile = &table;
+	m_impl->tables.push_back(&table);
 
-	m_ctx->selectExArg.tableField += StringUtils::sprintf(
+	m_impl->selectExArg.tableField += StringUtils::sprintf(
 	  " %s %s ON ", joinOperatorString, table.name);
 }

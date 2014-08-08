@@ -48,7 +48,7 @@ void DataStoreEventProc::onRemoved(DataStore *dataStore)
 // ---------------------------------------------------------------------------
 // DataStoreManager
 // ---------------------------------------------------------------------------
-struct DataStoreManager::PrivateContext {
+struct DataStoreManager::Impl {
 	// Elements in dataStoreMap and dataStoreVector are the same.
 	// So it's only necessary to free elements in one.
 	DataStoreMap    dataStoreMap;
@@ -61,14 +61,13 @@ struct DataStoreManager::PrivateContext {
 // Public methods
 // ---------------------------------------------------------------------------
 DataStoreManager::DataStoreManager(void)
+: m_impl(new Impl)
 {
-	m_ctx = new PrivateContext;
 }
 
 DataStoreManager::~DataStoreManager()
 {
 	closeAllStores();
-	delete m_ctx;
 }
 
 void DataStoreManager::passCommandLineArg(const CommandLineArg &cmdArg)
@@ -77,25 +76,25 @@ void DataStoreManager::passCommandLineArg(const CommandLineArg &cmdArg)
 
 void DataStoreManager::registEventProc(DataStoreEventProc *eventProc)
 {
-	m_ctx->eventProcListLock.writeLock();
-	m_ctx->eventProcList.push_back(eventProc);
-	m_ctx->eventProcListLock.unlock();
+	m_impl->eventProcListLock.writeLock();
+	m_impl->eventProcList.push_back(eventProc);
+	m_impl->eventProcListLock.unlock();
 }
 
 bool DataStoreManager::hasDataStore(uint32_t storeId)
 {
-	m_ctx->mutex.lock();
+	m_impl->mutex.lock();
 	bool found =
-	   m_ctx->dataStoreMap.find(storeId) != m_ctx->dataStoreMap.end();
-	m_ctx->mutex.unlock();
+	   m_impl->dataStoreMap.find(storeId) != m_impl->dataStoreMap.end();
+	m_impl->mutex.unlock();
 	return found;
 }
 
 bool DataStoreManager::add(uint32_t storeId, DataStore *dataStore)
 {
-	AutoMutex autoMutex(&m_ctx->mutex);
+	AutoMutex autoMutex(&m_impl->mutex);
 	pair<DataStoreMapIterator, bool> result =
-	  m_ctx->dataStoreMap.insert
+	  m_impl->dataStoreMap.insert
 	    (pair<uint32_t, DataStore *>(storeId, dataStore));
 
 	const bool successed = result.second;
@@ -112,13 +111,13 @@ void DataStoreManager::remove(uint32_t storeId)
 {
 	DataStore *dataStore = NULL;
 
-	m_ctx->mutex.lock();
-	DataStoreMapIterator it = m_ctx->dataStoreMap.find(storeId);
-	if (it != m_ctx->dataStoreMap.end()) {
+	m_impl->mutex.lock();
+	DataStoreMapIterator it = m_impl->dataStoreMap.find(storeId);
+	if (it != m_impl->dataStoreMap.end()) {
 		dataStore = it->second;
-		m_ctx->dataStoreMap.erase(it);
+		m_impl->dataStoreMap.erase(it);
 	}
-	m_ctx->mutex.unlock();
+	m_impl->mutex.unlock();
 
 	if (!dataStore) {
 		MLPL_WARN("Not found: storeId: %" PRIu32 "\n", storeId);
@@ -132,24 +131,24 @@ void DataStoreManager::remove(uint32_t storeId)
 
 DataStoreVector DataStoreManager::getDataStoreVector(void)
 {
-	m_ctx->mutex.lock();
+	m_impl->mutex.lock();
 	DataStoreVector dataStoreVector;
-	DataStoreMapIterator it = m_ctx->dataStoreMap.begin();
-	for (; it != m_ctx->dataStoreMap.end(); ++it) {
+	DataStoreMapIterator it = m_impl->dataStoreMap.begin();
+	for (; it != m_impl->dataStoreMap.end(); ++it) {
 		DataStore *dataStore = it->second;
 		dataStore->ref();
 		dataStoreVector.push_back(dataStore);
 	}
-	m_ctx->mutex.unlock();
+	m_impl->mutex.unlock();
 
 	return dataStoreVector;
 }
 
 size_t DataStoreManager::getNumberOfDataStores(void) const
 {
-	m_ctx->mutex.lock();
-	size_t num = m_ctx->dataStoreMap.size();
-	m_ctx->mutex.unlock();
+	m_impl->mutex.lock();
+	size_t num = m_impl->dataStoreMap.size();
+	m_impl->mutex.unlock();
 	return num;
 }
 
@@ -158,33 +157,33 @@ size_t DataStoreManager::getNumberOfDataStores(void) const
 // ---------------------------------------------------------------------------
 void DataStoreManager::closeAllStores(void)
 {
-	m_ctx->mutex.lock();
-	DataStoreMapIterator it = m_ctx->dataStoreMap.begin();
-	for (; it != m_ctx->dataStoreMap.end(); ++it) {
+	m_impl->mutex.lock();
+	DataStoreMapIterator it = m_impl->dataStoreMap.begin();
+	for (; it != m_impl->dataStoreMap.end(); ++it) {
 		DataStore *dataStore = it->second;
 		callRemovedHandlers(dataStore);
 		dataStore->unref();
 	}
-	m_ctx->dataStoreMap.clear();
-	m_ctx->mutex.unlock();
+	m_impl->dataStoreMap.clear();
+	m_impl->mutex.unlock();
 }
 
 void DataStoreManager::callAddedHandlers(DataStore *dataStore)
 {
-	m_ctx->eventProcListLock.readLock();
-	Reaper<ReadWriteLock> unlocker(&m_ctx->eventProcListLock,
+	m_impl->eventProcListLock.readLock();
+	Reaper<ReadWriteLock> unlocker(&m_impl->eventProcListLock,
 	                               ReadWriteLock::unlock);
-	DataStoreEventProcListIterator evtProc = m_ctx->eventProcList.begin();
-	for (; evtProc != m_ctx->eventProcList.end(); ++evtProc)
+	DataStoreEventProcListIterator evtProc = m_impl->eventProcList.begin();
+	for (; evtProc != m_impl->eventProcList.end(); ++evtProc)
 		(*evtProc)->onAdded(dataStore);
 }
 
 void DataStoreManager::callRemovedHandlers(DataStore *dataStore)
 {
-	m_ctx->eventProcListLock.readLock();
-	Reaper<ReadWriteLock> unlocker(&m_ctx->eventProcListLock,
+	m_impl->eventProcListLock.readLock();
+	Reaper<ReadWriteLock> unlocker(&m_impl->eventProcListLock,
 	                               ReadWriteLock::unlock);
-	DataStoreEventProcListIterator evtProc = m_ctx->eventProcList.begin();
-	for (; evtProc != m_ctx->eventProcList.end(); ++evtProc)
+	DataStoreEventProcListIterator evtProc = m_impl->eventProcList.begin();
+	for (; evtProc != m_impl->eventProcList.end(); ++evtProc)
 		(*evtProc)->onRemoved(dataStore);
 }

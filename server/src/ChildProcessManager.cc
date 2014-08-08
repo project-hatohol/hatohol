@@ -70,7 +70,7 @@ typedef map<pid_t, ChildInfo *>  ChildMap;
 typedef ChildMap::iterator       ChildMapIterator;
 typedef ChildMap::const_iterator ChildMapConstIterator;
 
-struct ChildProcessManager::PrivateContext {
+struct ChildProcessManager::Impl {
 	static ChildProcessManager *instance;
 	static ReadWriteLock        instanceLock;
 
@@ -80,7 +80,7 @@ struct ChildProcessManager::PrivateContext {
 	ReadWriteLock childrenMapLock;
 	ChildMap      childrenMap;
 
-	PrivateContext(void)
+	Impl(void)
 	: resetRequest(false),
 	  resetSem(0)
 	{
@@ -88,7 +88,7 @@ struct ChildProcessManager::PrivateContext {
 		               "Failed to call sem_init(): %d\n", errno);
 	}
 
-	virtual ~PrivateContext(void)
+	virtual ~Impl(void)
 	{
 		// TODO: wait all children
 	}
@@ -140,8 +140,8 @@ private:
 	sem_t         waitChildSem;
 };
 
-ChildProcessManager *ChildProcessManager::PrivateContext::instance = NULL;
-ReadWriteLock        ChildProcessManager::PrivateContext::instanceLock;
+ChildProcessManager *ChildProcessManager::Impl::instance = NULL;
+ReadWriteLock        ChildProcessManager::Impl::instanceLock;
 
 // ---------------------------------------------------------------------------
 // EventCallback
@@ -193,19 +193,19 @@ void ChildProcessManager::CreateArg::addFlag(const GSpawnFlags &flag)
 // ---------------------------------------------------------------------------
 ChildProcessManager *ChildProcessManager::getInstance(void)
 {
-	PrivateContext::instanceLock.readLock();
-	bool hasInstance = PrivateContext::instance;
-	PrivateContext::instanceLock.unlock();
+	Impl::instanceLock.readLock();
+	bool hasInstance = Impl::instance;
+	Impl::instanceLock.unlock();
 	if (hasInstance)
-		return PrivateContext::instance;
+		return Impl::instance;
 
-	PrivateContext::instanceLock.writeLock();
-	if (!PrivateContext::instance) {
-		PrivateContext::instance = new ChildProcessManager();
-		PrivateContext::instance->start();
+	Impl::instanceLock.writeLock();
+	if (!Impl::instance) {
+		Impl::instance = new ChildProcessManager();
+		Impl::instance->start();
 	}
-	PrivateContext::instanceLock.unlock();
-	return PrivateContext::instance;
+	Impl::instanceLock.unlock();
+	return Impl::instance;
 }
 
 void ChildProcessManager::reset(void)
@@ -241,20 +241,20 @@ void ChildProcessManager::reset(void)
 		}
 	};
 
-	m_ctx->resetRequest = true;
-	m_ctx->postWaitChildSem();
+	m_impl->resetRequest = true;
+	m_impl->postWaitChildSem();
 
 	// We send SIGKILL to unblock waitid().
-	m_ctx->childrenMapLock.readLock();
-	ChildMapIterator childInfoItr = m_ctx->childrenMap.begin();
-	for (; childInfoItr != m_ctx->childrenMap.end(); ++childInfoItr) {
+	m_impl->childrenMapLock.readLock();
+	ChildMapIterator childInfoItr = m_impl->childrenMap.begin();
+	for (; childInfoItr != m_impl->childrenMap.end(); ++childInfoItr) {
 		ChildInfo *childInfo = childInfoItr->second;
 		childInfo->sendKill();
 	}
-	m_ctx->childrenMapLock.unlock();
+	m_impl->childrenMapLock.unlock();
 
 	// Wait for completion of reset.
-	ResetContext resetCtx(m_ctx->resetSem);
+	ResetContext resetCtx(m_impl->resetSem);
 	g_main_loop_run(resetCtx.loop);
 }
 
@@ -282,7 +282,7 @@ HatoholError ChildProcessManager::create(CreateArg &arg)
 		envp[i] = arg.envs[i].c_str();
 	envp[numEnv] = NULL;
 
-	m_ctx->childrenMapLock.writeLock();
+	m_impl->childrenMapLock.writeLock();
 	gboolean succeeded =
 	  g_spawn_async(workingDir, (gchar **)argv,
 	                arg.envs.empty() ? NULL : (gchar **)envp,
@@ -290,7 +290,7 @@ HatoholError ChildProcessManager::create(CreateArg &arg)
 	if (arg.eventCb)
 		arg.eventCb->onExecuted(succeeded, error);
 	if (!succeeded) {
-		m_ctx->childrenMapLock.unlock();
+		m_impl->childrenMapLock.unlock();
 		string reason = "<Unknown reason>";
 		if (error) {
 			reason = error->message;
@@ -304,15 +304,15 @@ HatoholError ChildProcessManager::create(CreateArg &arg)
 	ChildInfo *childInfo = new ChildInfo(arg.pid, arg.eventCb);
 
 	pair<ChildMapIterator, bool> result =
-	  m_ctx->childrenMap.insert(pair<
+	  m_impl->childrenMap.insert(pair<
 	    pid_t, ChildInfo *>(arg.pid, childInfo));
-	m_ctx->childrenMapLock.unlock();
+	m_impl->childrenMapLock.unlock();
 	if (!result.second) {
 		// TODO: Recovery
 		HATOHOL_ASSERT(true,
 		  "The previous data might still remain: %d\n", arg.pid);
 	}
-	m_ctx->postWaitChildSem();
+	m_impl->postWaitChildSem();
 
 	return HTERR_OK;
 }
@@ -321,22 +321,20 @@ HatoholError ChildProcessManager::create(CreateArg &arg)
 // Protected methods
 // ---------------------------------------------------------------------------
 ChildProcessManager::ChildProcessManager(void)
-: m_ctx(NULL)
+: m_impl(new Impl())
 {
-	m_ctx = new PrivateContext();
 }
 
 ChildProcessManager::~ChildProcessManager()
 {
-	delete m_ctx;
 }
 
 gpointer ChildProcessManager::mainThread(HatoholThreadArg *arg)
 {
 	while (true) {
-		m_ctx->waitWaitChildSem();
-		if (m_ctx->resetRequest) {
-			m_ctx->resetOnCollectThread();
+		m_impl->waitWaitChildSem();
+		if (m_impl->resetRequest) {
+			m_impl->resetOnCollectThread();
 			continue;
 		}
 
@@ -374,15 +372,15 @@ void ChildProcessManager::collected(const siginfo_t *siginfo)
 
 	// We use Reaper, because an exectpion might happen in onCollcted().
 	Reaper<ReadWriteLock> unlocker(
-	  &m_ctx->childrenMapLock, ReadWriteLock::unlock);
-	m_ctx->childrenMapLock.writeLock();
+	  &m_impl->childrenMapLock, ReadWriteLock::unlock);
+	m_impl->childrenMapLock.writeLock();
 
-	ChildMapIterator it = m_ctx->childrenMap.find(siginfo->si_pid);
-	if (it != m_ctx->childrenMap.end())
+	ChildMapIterator it = m_impl->childrenMap.find(siginfo->si_pid);
+	if (it != m_impl->childrenMap.end())
 		childInfo = it->second;
 	if (!childInfo) {
 		unlocker.reap();
-		m_ctx->postWaitChildSem();
+		m_impl->postWaitChildSem();
 		MLPL_INFO("Collected unwatched child: %d\n", siginfo->si_pid);
 		return;
 	}
@@ -391,12 +389,12 @@ void ChildProcessManager::collected(const siginfo_t *siginfo)
 
 	if (childInfo->eventCb) {
 		if (!isDead(siginfo)) { // Ex. SIGSTOP
-			m_ctx->postWaitChildSem();
+			m_impl->postWaitChildSem();
 			return;
 		}
 		childInfo->eventCb->onCollected(siginfo);
 	}
-	m_ctx->childrenMap.erase(it);
+	m_impl->childrenMap.erase(it);
 	unlocker.reap();
 	if (childInfo->eventCb)
 		childInfo->eventCb->onFinalized();

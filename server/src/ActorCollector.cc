@@ -37,13 +37,13 @@ typedef map<pid_t, ActorInfo *>      WaitChildSet;
 typedef WaitChildSet::iterator       WaitChildSetIterator;
 typedef WaitChildSet::const_iterator WaitChildSetConstIterator;
 
-struct ActorCollector::PrivateContext {
+struct ActorCollector::Impl {
 	static Mutex        lock;
 	static WaitChildSet waitChildSet;
 };
 
-Mutex        ActorCollector::PrivateContext::lock;
-WaitChildSet ActorCollector::PrivateContext::waitChildSet;
+Mutex        ActorCollector::Impl::lock;
+WaitChildSet ActorCollector::Impl::waitChildSet;
 
 struct ActorCollector::ActorContext {
 	ActorInfo *actorInfo;
@@ -105,10 +105,10 @@ ActorInfo::~ActorInfo()
 void ActorCollector::reset(void)
 {
 	ChildProcessManager::getInstance()->reset();
-	AutoMutex autoMutex(&PrivateContext::lock);
-	HATOHOL_ASSERT(PrivateContext::waitChildSet.empty(),
+	AutoMutex autoMutex(&Impl::lock);
+	HATOHOL_ASSERT(Impl::waitChildSet.empty(),
 	               "waitChildSet is not empty (%zd).",
-	               PrivateContext::waitChildSet.size());
+	               Impl::waitChildSet.size());
 }
 
 HatoholError ActorCollector::debut(Profile &profile)
@@ -164,9 +164,9 @@ HatoholError ActorCollector::debut(Profile &profile)
 
 void ActorCollector::addActor(ActorInfo *actorInfo)
 {
-	AutoMutex autoMutex(&PrivateContext::lock);
+	AutoMutex autoMutex(&Impl::lock);
 	pair<WaitChildSetIterator, bool> result =
-	  PrivateContext::waitChildSet.insert
+	  Impl::waitChildSet.insert
 	    (pair<pid_t, ActorInfo *>(actorInfo->pid, actorInfo));
 	if (!result.second) {
 		MLPL_BUG("pid: %d (logId: %" PRIu64 ") is already regstered.\n",
@@ -181,9 +181,9 @@ void ActorCollector::addActor(ActorInfo *actorInfo)
 bool ActorCollector::isWatching(pid_t pid)
 {
 	bool found = false;
-	AutoMutex autoMutex(&PrivateContext::lock);
-	WaitChildSetIterator it = PrivateContext::waitChildSet.find(pid);
-	if (it != PrivateContext::waitChildSet.end())
+	AutoMutex autoMutex(&Impl::lock);
+	WaitChildSetIterator it = Impl::waitChildSet.find(pid);
+	if (it != Impl::waitChildSet.end())
 		found = true;
 	return found;
 }
@@ -191,9 +191,9 @@ bool ActorCollector::isWatching(pid_t pid)
 void ActorCollector::setDontLog(pid_t pid)
 {
 	bool found = false;
-	AutoMutex autoMutex(&PrivateContext::lock);
-	WaitChildSetIterator it = PrivateContext::waitChildSet.find(pid);
-	if (it != PrivateContext::waitChildSet.end()) {
+	AutoMutex autoMutex(&Impl::lock);
+	WaitChildSetIterator it = Impl::waitChildSet.find(pid);
+	if (it != Impl::waitChildSet.end()) {
 		it->second->dontLog = true;
 		found = true;
 	}
@@ -203,8 +203,8 @@ void ActorCollector::setDontLog(pid_t pid)
 
 size_t ActorCollector::getNumberOfWaitingActors(void)
 {
-	AutoMutex autoMutex(&PrivateContext::lock);
-	size_t num = PrivateContext::waitChildSet.size();
+	AutoMutex autoMutex(&Impl::lock);
+	size_t num = Impl::waitChildSet.size();
 	return num;
 }
 
@@ -266,13 +266,13 @@ void ActorCollector::postCollectedProc(ActorContext &actorCtx)
 void ActorCollector::cleanupChildInfo(const pid_t &pid)
 {
 	// Remove actorInfo from waitChildSet
-	AutoMutex autoMutex(&PrivateContext::lock);
+	AutoMutex autoMutex(&Impl::lock);
 	WaitChildSetIterator it =
-	  PrivateContext::waitChildSet.find(pid);
+	  Impl::waitChildSet.find(pid);
 	ActorInfo *actorInfo = it->second;
-	HATOHOL_ASSERT(it != PrivateContext::waitChildSet.end(),
+	HATOHOL_ASSERT(it != Impl::waitChildSet.end(),
 	               "Not found: pid: %d\n", actorInfo->pid);
-	PrivateContext::waitChildSet.erase(it);
+	Impl::waitChildSet.erase(it);
 	
 	// ActionManager::commandActionTimeoutCb() may be running on the
 	// default GLib event loop. So we delete actorInfo on that.

@@ -32,8 +32,8 @@ public:
 	virtual ArmBase &getArmBase(void);
 	virtual void setCopyOnDemandEnable(bool enable);
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 #endif // DataStoreNagios_h

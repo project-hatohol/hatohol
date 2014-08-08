@@ -71,17 +71,17 @@ static void setupSignalHandlerForExit(int signo)
 gboolean exitFunc(GIOChannel *source, GIOCondition condition, gpointer data)
 {
 	MLPL_INFO("recieved stop request.\n");
-	ExecContext *ctx = static_cast<ExecContext *>(data);
+	ExecContext *impl = static_cast<ExecContext *>(data);
 
-	ctx->unifiedDataStore->stop();
+	impl->unifiedDataStore->stop();
 	DBClientAction::stop();
 
 	// TODO: implement
 	// ChildProcessManager::getInstance()->quit();
 
-	// Because this function is beeing called, ctx->loop must have valid
-	// value even if a signal is received before ctx->loop is created.
-	g_main_loop_quit(ctx->loop);
+	// Because this function is beeing called, impl->loop must have valid
+	// value even if a signal is received before impl->loop is created.
+	g_main_loop_quit(impl->loop);
 
 	return FALSE;
 }

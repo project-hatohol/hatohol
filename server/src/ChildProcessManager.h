@@ -120,8 +120,8 @@ protected:
 	void collected(const siginfo_t *siginfo);
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 #endif // ChildProcessManager_h

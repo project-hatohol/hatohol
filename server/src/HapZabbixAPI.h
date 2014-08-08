@@ -20,7 +20,9 @@
 #ifndef HapZabbixAPI_h
 #define HapZabbixAPI_h
 
+#include <memory>
 #include <SmartTime.h>
+#include "Params.h"
 #include "ZabbixAPI.h"
 #include "HatoholArmPluginBase.h"
 
@@ -43,8 +45,8 @@ protected:
 	virtual void onGotNewEvents(ItemTablePtr eventsTablePtr);
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 #endif // HapZabbixAPI_h

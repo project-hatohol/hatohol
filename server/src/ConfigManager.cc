@@ -37,7 +37,7 @@ static int DEFAULT_ALLOWED_TIME_OF_ACTION_FOR_OLD_EVENTS
 
 static int DEFAULT_MAX_NUM_RUNNING_COMMAND_ACTION = 10;
 
-struct ConfigManager::PrivateContext {
+struct ConfigManager::Impl {
 	static Mutex          mutex;
 	static ConfigManager *instance;
 	string                databaseDirectory;
@@ -56,32 +56,32 @@ struct ConfigManager::PrivateContext {
 	}
 };
 
-Mutex          ConfigManager::PrivateContext::mutex;
-ConfigManager *ConfigManager::PrivateContext::instance = NULL;
-string         ConfigManager::PrivateContext::actionCommandDirectory;
-string         ConfigManager::PrivateContext::residentYardDirectory;
+Mutex          ConfigManager::Impl::mutex;
+ConfigManager *ConfigManager::Impl::instance = NULL;
+string         ConfigManager::Impl::actionCommandDirectory;
+string         ConfigManager::Impl::residentYardDirectory;
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 void ConfigManager::reset(void)
 {
-	PrivateContext::actionCommandDirectory =
+	Impl::actionCommandDirectory =
 	  StringUtils::sprintf("%s/%s/action", LIBEXECDIR, PACKAGE);
-	PrivateContext::residentYardDirectory = string(PREFIX"/sbin");
+	Impl::residentYardDirectory = string(PREFIX"/sbin");
 }
 
 ConfigManager *ConfigManager::getInstance(void)
 {
-	if (PrivateContext::instance)
-		return PrivateContext::instance;
+	if (Impl::instance)
+		return Impl::instance;
 
-	PrivateContext::lock();
-	if (!PrivateContext::instance)
-		PrivateContext::instance = new ConfigManager();
-	PrivateContext::unlock();
+	Impl::lock();
+	if (!Impl::instance)
+		Impl::instance = new ConfigManager();
+	Impl::unlock();
 
-	return PrivateContext::instance;
+	return Impl::instance;
 }
 
 void ConfigManager::getTargetServers
@@ -93,7 +93,7 @@ void ConfigManager::getTargetServers
 
 const string &ConfigManager::getDatabaseDirectory(void) const
 {
-	return m_ctx->databaseDirectory;
+	return m_impl->databaseDirectory;
 }
 
 size_t ConfigManager::getNumberOfPreservedReplicaGeneration(void) const
@@ -113,32 +113,32 @@ int ConfigManager::getMaxNumberOfRunningCommandAction(void)
 
 string ConfigManager::getActionCommandDirectory(void)
 {
-	PrivateContext::lock();
-	string dir = PrivateContext::actionCommandDirectory;
-	PrivateContext::unlock();
+	Impl::lock();
+	string dir = Impl::actionCommandDirectory;
+	Impl::unlock();
 	return dir;
 }
 
 void ConfigManager::setActionCommandDirectory(const string &dir)
 {
-	PrivateContext::lock();
-	PrivateContext::actionCommandDirectory = dir;
-	PrivateContext::unlock();
+	Impl::lock();
+	Impl::actionCommandDirectory = dir;
+	Impl::unlock();
 }
 
 string ConfigManager::getResidentYardDirectory(void)
 {
-	PrivateContext::lock();
-	string dir = PrivateContext::residentYardDirectory;
-	PrivateContext::unlock();
+	Impl::lock();
+	string dir = Impl::residentYardDirectory;
+	Impl::unlock();
 	return dir;
 }
 
 void ConfigManager::setResidentYardDirectory(const string &dir)
 {
-	PrivateContext::lock();
-	PrivateContext::residentYardDirectory = dir;
-	PrivateContext::unlock();
+	Impl::lock();
+	Impl::residentYardDirectory = dir;
+	Impl::unlock();
 }
 
 
@@ -146,17 +146,15 @@ void ConfigManager::setResidentYardDirectory(const string &dir)
 // Private methods
 // ---------------------------------------------------------------------------
 ConfigManager::ConfigManager(void)
-: m_ctx(NULL)
+: m_impl(new Impl())
 {
-	m_ctx = new PrivateContext();
 	const char *envDBDir = getenv(HATOHOL_DB_DIR_ENV_VAR_NAME);
 	if (envDBDir)
-		m_ctx->databaseDirectory = envDBDir;
+		m_impl->databaseDirectory = envDBDir;
 	else
-		m_ctx->databaseDirectory = DEFAULT_DATABASE_DIR;
+		m_impl->databaseDirectory = DEFAULT_DATABASE_DIR;
 }
 
 ConfigManager::~ConfigManager()
 {
-	delete m_ctx;
 }
