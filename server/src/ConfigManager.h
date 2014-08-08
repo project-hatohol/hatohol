@@ -35,6 +35,7 @@ public:
 	static const char *HATOHOL_DB_DIR_ENV_VAR_NAME;
 	static ConfigManager *getInstance(void);
 	static int ALLOW_ACTION_FOR_ALL_OLD_EVENTS;
+	static const int DEFAULT_FACE_REST_PORT;
 
 	static bool parseCommandLine(gint *argc, gchar ***argv);
 	static void clearParseCommandLineResult(void);
@@ -71,6 +72,7 @@ public:
 
 	bool isTestMode(void) const;
 	ConfigState getCopyOnDemand(void) const;
+	int getFaceRestPort(void) const;
 
 protected:
 	void loadConfFile(void);
