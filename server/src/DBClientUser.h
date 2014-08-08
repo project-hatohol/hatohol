@@ -139,6 +139,7 @@ public:
 	static const size_t MAX_USER_ROLE_NAME_LENGTH;
 	static void init(void);
 	static void reset(void);
+	static bool setTestMode(bool enable = true);
 
 	DBClientUser(void);
 	virtual ~DBClientUser();

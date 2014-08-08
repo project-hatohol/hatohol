@@ -36,6 +36,8 @@ using namespace mlpl;
 const char *TEST_DB_USER = "hatohol_test_user";
 const char *TEST_DB_PASSWORD = ""; // empty: No password is used
 
+static bool testMode = DBClientUser::setTestMode();
+
 void _assertStringVector(const StringVector &expected,
                          const StringVector &actual)
 {
