@@ -46,7 +46,6 @@ using namespace mlpl;
 #include "ConfigManager.h"
 
 static int pipefd[2];
-static const char *DEFAULT_PID_FILE_PATH = "/var/run/hatohol.pid";
 
 struct ExecContext {
 	UnifiedDataStore *unifiedDataStore;
@@ -98,23 +97,11 @@ static void setupGizmoForExit(gpointer data)
 	g_io_add_watch(ioch, G_IO_HUP, exitFunc, data);
 }
 
-static string getPidFilePath(const CommandLineArg &arg)
-{
-	for (size_t idx = 0; idx < arg.size(); idx++) {
-		const string word = arg[idx];
-		if (word != "--pid-file-path")
-			continue;
-		HATOHOL_ASSERT(idx < arg.size() - 1,
-		  "--pid-file-path is specified, but not the path is given.");
-		return arg[idx+1];
-	}
-	return DEFAULT_PID_FILE_PATH;
-}
-
-static bool daemonize(const CommandLineArg &arg)
+static bool daemonize(void)
 {
 	pid_t pid;
-	string pidFilePath = getPidFilePath(arg);
+	string pidFilePath =
+	  ConfigManager::getInstance()->getPidFilePath();
 	FILE *pid_file;
 	pid_file = fopen(pidFilePath.c_str(), "w+");
 
@@ -152,7 +139,7 @@ int mainRoutine(int argc, char *argv[])
 		return EXIT_FAILURE;
 	ConfigManager *confMgr = ConfigManager::getInstance();
 	if (!confMgr->isForegroundProcess()) {
-		if (!daemonize(cmdArg)) {
+		if (!daemonize()) {
 			MLPL_ERR("Can't start daemon process\n");
 			return EXIT_FAILURE;
 		}
