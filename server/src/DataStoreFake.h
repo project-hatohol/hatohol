@@ -32,8 +32,8 @@ public:
 	virtual ArmBase &getArmBase(void) override;
 	virtual void setCopyOnDemandEnable(bool enable) override;
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	Impl *m_impl;
 };
 
 #endif // DataStoreFake_h

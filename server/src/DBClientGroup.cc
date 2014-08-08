@@ -20,7 +20,7 @@
 #include <cstdio>
 #include "DBClientGroup.h"
 
-struct DBClientGroup::PrivateContext {
+struct DBClientGroup::Impl {
 };
 
 // ---------------------------------------------------------------------------
@@ -28,13 +28,13 @@ struct DBClientGroup::PrivateContext {
 // ---------------------------------------------------------------------------
 DBClientGroup::DBClientGroup(const DBDomainId &domainId)
 : DBClient(domainId),
-  m_ctx(NULL)
+  m_impl(NULL)
 {
-	m_ctx = new PrivateContext();
+	m_impl = new Impl();
 }
 
 DBClientGroup::~DBClientGroup()
 {
-	delete m_ctx;
+	delete m_impl;
 }
 

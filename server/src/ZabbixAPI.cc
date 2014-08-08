@@ -33,7 +33,7 @@ static const guint DEFAULT_TIMEOUT = 60;
 
 const uint64_t ZabbixAPI::EVENT_ID_NOT_FOUND = -1;
 
-struct ZabbixAPI::PrivateContext {
+struct ZabbixAPI::Impl {
 
 	string         uri;
 	string         username;
@@ -49,7 +49,7 @@ struct ZabbixAPI::PrivateContext {
 	VariableItemTablePtr functionsTablePtr;
 
 	// constructors and destructor
-	PrivateContext(void)
+	Impl(void)
 	: apiVersionMajor(0),
 	  apiVersionMinor(0),
 	  apiVersionMicro(0),
@@ -58,7 +58,7 @@ struct ZabbixAPI::PrivateContext {
 	{
 	}
 
-	virtual ~PrivateContext()
+	virtual ~Impl()
 	{
 		if (session)
 			g_object_unref(session);
@@ -81,14 +81,14 @@ struct ZabbixAPI::PrivateContext {
 // Public methods
 // ---------------------------------------------------------------------------
 ZabbixAPI::ZabbixAPI(void)
-: m_ctx(NULL)
+: m_impl(NULL)
 {
-	m_ctx = new PrivateContext();
+	m_impl = new Impl();
 }
 
 ZabbixAPI::~ZabbixAPI()
 {
-	delete m_ctx;
+	delete m_impl;
 }
 
 // ---------------------------------------------------------------------------
@@ -96,7 +96,7 @@ ZabbixAPI::~ZabbixAPI()
 // ---------------------------------------------------------------------------
 void ZabbixAPI::setMonitoringServerInfo(const MonitoringServerInfo &serverInfo)
 {
-	m_ctx->setMonitoringServerInfo(serverInfo);
+	m_impl->setMonitoringServerInfo(serverInfo);
 }
 
 void ZabbixAPI::onUpdatedAuthToken(const string &authToken)
@@ -105,58 +105,58 @@ void ZabbixAPI::onUpdatedAuthToken(const string &authToken)
 
 const string &ZabbixAPI::getAPIVersion(void)
 {
-	if (!m_ctx->apiVersion.empty())
-		return m_ctx->apiVersion;
+	if (!m_impl->apiVersion.empty())
+		return m_impl->apiVersion;
 
 	SoupMessage *msg = queryAPIVersion();
 	if (!msg)
-		return m_ctx->apiVersion;
+		return m_impl->apiVersion;
 	Reaper<void> msgReaper(msg, g_object_unref);
 
 	JSONParserAgent parser(msg->response_body->data);
 	if (parser.hasError()) {
 		MLPL_ERR("Failed to parser: %s\n", parser.getErrorMessage());
-		return m_ctx->apiVersion;
+		return m_impl->apiVersion;
 	}
 
-	if (parser.read("result", m_ctx->apiVersion)) {
+	if (parser.read("result", m_impl->apiVersion)) {
 		MLPL_DBG("Zabbix API version: %s\n",
-		         m_ctx->apiVersion.c_str());
+		         m_impl->apiVersion.c_str());
 	} else {
 		MLPL_ERR("Failed to read API version\n");
 	}
 
-	if (!m_ctx->apiVersion.empty()) {
+	if (!m_impl->apiVersion.empty()) {
 		StringList list;
-		StringUtils::split(list, m_ctx->apiVersion, '.');
+		StringUtils::split(list, m_impl->apiVersion, '.');
 		StringListIterator it = list.begin();
 		for (size_t i = 0; it != list.end(); ++i, ++it) {
 			const string &str = *it;
 			if (i == 0)
-				m_ctx->apiVersionMajor = atoi(str.c_str());
+				m_impl->apiVersionMajor = atoi(str.c_str());
 			else if (i == 1)
-				m_ctx->apiVersionMinor = atoi(str.c_str());
+				m_impl->apiVersionMinor = atoi(str.c_str());
 			else if (i == 2)
-				m_ctx->apiVersionMicro = atoi(str.c_str());
+				m_impl->apiVersionMicro = atoi(str.c_str());
 			else
 				break;
 		}
 	}
-	return m_ctx->apiVersion;
+	return m_impl->apiVersion;
 }
 
 bool ZabbixAPI::checkAPIVersion(int major, int minor, int micro)
 {
 	getAPIVersion();
 
-	if (m_ctx->apiVersionMajor > major)
+	if (m_impl->apiVersionMajor > major)
 		return true;
-	if (m_ctx->apiVersionMajor == major &&
-	    m_ctx->apiVersionMinor >  minor)
+	if (m_impl->apiVersionMajor == major &&
+	    m_impl->apiVersionMinor >  minor)
 		return true;
-	if (m_ctx->apiVersionMajor == major &&
-	    m_ctx->apiVersionMinor == minor &&
-	    m_ctx->apiVersionMicro >= micro)
+	if (m_impl->apiVersionMajor == major &&
+	    m_impl->apiVersionMinor == minor &&
+	    m_impl->apiVersionMicro >= micro)
 		return true;
 	return false;
 }
@@ -168,7 +168,7 @@ bool ZabbixAPI::openSession(SoupMessage **msgPtr)
 		return false;
 
 	SoupMessage *msg =
-	  soup_message_new(SOUP_METHOD_POST, m_ctx->uri.c_str());
+	  soup_message_new(SOUP_METHOD_POST, m_impl->uri.c_str());
 	soup_message_headers_set_content_type(msg->request_headers,
 	                                      MIME_JSON_RPC, NULL);
 	string request_body = getInitialJSONRequest();
@@ -178,7 +178,7 @@ bool ZabbixAPI::openSession(SoupMessage **msgPtr)
 	if (ret != SOUP_STATUS_OK) {
 		g_object_unref(msg);
 		MLPL_ERR("Failed to get: code: %d: %s\n",
-	                 ret, m_ctx->uri.c_str());
+	                 ret, m_impl->uri.c_str());
 		return false;
 	}
 	MLPL_DBG("body: %" G_GOFFSET_FORMAT ", %s\n",
@@ -188,7 +188,7 @@ bool ZabbixAPI::openSession(SoupMessage **msgPtr)
 		g_object_unref(msg);
 		return false;
 	}
-	MLPL_DBG("authToken: %s\n", m_ctx->authToken.c_str());
+	MLPL_DBG("authToken: %s\n", m_impl->authToken.c_str());
 
 	// copy the SoupMessage object if msgPtr is not NULL.
 	if (msgPtr)
@@ -205,23 +205,23 @@ SoupSession *ZabbixAPI::getSession(void)
 	// NOTE: current implementaion is not MT-safe.
 	//       If we have to use this function from multiple threads,
 	//       it is only necessary to prepare sessions by thread.
-	if (!m_ctx->session)
-		m_ctx->session = soup_session_sync_new_with_options(
+	if (!m_impl->session)
+		m_impl->session = soup_session_sync_new_with_options(
 			SOUP_SESSION_TIMEOUT,      DEFAULT_TIMEOUT,
 			//FIXME: Sometimes it causes crash (issue #98)
 			//SOUP_SESSION_IDLE_TIMEOUT, DEFAULT_IDLE_TIMEOUT,
 			NULL);
-	return m_ctx->session;
+	return m_impl->session;
 }
 
 bool ZabbixAPI::updateAuthTokenIfNeeded(void)
 {
-	if (m_ctx->authToken.empty()) {
+	if (m_impl->authToken.empty()) {
 		MLPL_DBG("authToken is empty\n");
 		if (!openSession())
 			return false;
 	}
-	MLPL_DBG("authToken: %s\n", m_ctx->authToken.c_str());
+	MLPL_DBG("authToken: %s\n", m_impl->authToken.c_str());
 
 	return true;
 }
@@ -230,13 +230,13 @@ string ZabbixAPI::getAuthToken(void)
 {
 	// This function is used in the test class.
 	updateAuthTokenIfNeeded();
-	return m_ctx->authToken;
+	return m_impl->authToken;
 }
 
 void ZabbixAPI::clearAuthToken(void)
 {
-	m_ctx->authToken.clear();
-	onUpdatedAuthToken(m_ctx->authToken);
+	m_impl->authToken.clear();
+	onUpdatedAuthToken(m_impl->authToken);
 }
 
 ItemTablePtr ZabbixAPI::getTrigger(int requestSince)
@@ -260,11 +260,11 @@ ItemTablePtr ZabbixAPI::getTrigger(int requestSince)
 	if (numTriggers < 1)
 		return ItemTablePtr(tablePtr);
 
-	m_ctx->gotTriggers = false;
-	m_ctx->functionsTablePtr = VariableItemTablePtr();
+	m_impl->gotTriggers = false;
+	m_impl->functionsTablePtr = VariableItemTablePtr();
 	for (int i = 0; i < numTriggers; i++)
 		parseAndPushTriggerData(parser, tablePtr, i);
-	m_ctx->gotTriggers = true;
+	m_impl->gotTriggers = true;
 	return ItemTablePtr(tablePtr);
 }
 
@@ -466,7 +466,7 @@ SoupMessage *ZabbixAPI::queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill)
 	}
 	agent.endObject(); // params
 
-	agent.add("auth", m_ctx->authToken);
+	agent.add("auth", m_impl->authToken);
 	agent.add("id", 1);
 	agent.endObject();
 
@@ -490,7 +490,7 @@ SoupMessage *ZabbixAPI::queryEndEventId(const bool &isFirst)
 	agent.add("limit", 1);
 	agent.endObject(); //params
 
-	agent.add("auth", m_ctx->authToken);
+	agent.add("auth", m_impl->authToken);
 	agent.add("id", 1);
 	agent.endObject();
 
@@ -517,7 +517,7 @@ SoupMessage *ZabbixAPI::queryTrigger(int requestSince)
 	agent.addTrue("active");
 	agent.endObject();
 
-	agent.add("auth", m_ctx->authToken);
+	agent.add("auth", m_impl->authToken);
 	agent.add("id", 1);
 	agent.endObject();
 
@@ -537,7 +537,7 @@ SoupMessage *ZabbixAPI::queryItem(void)
 	agent.addTrue("monitored");
 	agent.endObject(); // params
 
-	agent.add("auth", m_ctx->authToken);
+	agent.add("auth", m_impl->authToken);
 	agent.add("id", 1);
 	agent.endObject();
 
@@ -556,7 +556,7 @@ SoupMessage *ZabbixAPI::queryHost(void)
 	agent.add("selectGroups", "refer");
 	agent.endObject(); // params
 
-	agent.add("auth", m_ctx->authToken);
+	agent.add("auth", m_impl->authToken);
 	agent.add("id", 1);
 	agent.endObject();
 
@@ -576,7 +576,7 @@ SoupMessage *ZabbixAPI::queryGroup(void)
 	agent.add("selectHosts", "refer");
 	agent.endObject(); //params
 
-	agent.add("auth", m_ctx->authToken);
+	agent.add("auth", m_impl->authToken);
 	agent.add("id", 1);
 	agent.endObject();
 
@@ -601,7 +601,7 @@ SoupMessage *ZabbixAPI::queryApplication(const vector<uint64_t> &appIdVector)
 	}
 	agent.endObject(); // params
 
-	agent.add("auth", m_ctx->authToken);
+	agent.add("auth", m_impl->authToken);
 	agent.add("id", 1);
 	agent.endObject();
 
@@ -611,21 +611,21 @@ SoupMessage *ZabbixAPI::queryApplication(const vector<uint64_t> &appIdVector)
 
 ItemTablePtr ZabbixAPI::getFunctions(void)
 {
-	if (!m_ctx->gotTriggers) {
+	if (!m_impl->gotTriggers) {
 		THROW_DATA_STORE_EXCEPTION(
 		  "Cache for 'functions' is empty. 'triggers' may not have "
 		  "been retrieved.");
 	}
-	return ItemTablePtr(m_ctx->functionsTablePtr);
+	return ItemTablePtr(m_impl->functionsTablePtr);
 }
 
 SoupMessage *ZabbixAPI::queryCommon(JSONBuilderAgent &agent)
 {
 	string request_body = agent.generate();
-	SoupMessage *msg = soup_message_new(SOUP_METHOD_POST, m_ctx->uri.c_str());
+	SoupMessage *msg = soup_message_new(SOUP_METHOD_POST, m_impl->uri.c_str());
 	if (!msg) {
 		MLPL_ERR("Failed to call: soup_message_new: uri: %s\n",
-		         m_ctx->uri.c_str());
+		         m_impl->uri.c_str());
 		return NULL;
 	}
 	soup_message_headers_set_content_type(msg->request_headers,
@@ -636,7 +636,7 @@ SoupMessage *ZabbixAPI::queryCommon(JSONBuilderAgent &agent)
 	if (ret != SOUP_STATUS_OK) {
 		g_object_unref(msg);
 		MLPL_ERR("Failed to get: code: %d: %s\n",
-	                 ret, m_ctx->uri.c_str());
+	                 ret, m_impl->uri.c_str());
 		return NULL;
 	}
 	return msg;
@@ -663,8 +663,8 @@ string ZabbixAPI::getInitialJSONRequest(void)
 	agent.add("id", 1);
 
 	agent.startObject("params");
-	agent.add("user", m_ctx->username);
-	agent.add("password", m_ctx->password);
+	agent.add("user", m_impl->username);
+	agent.add("password", m_impl->password);
 	agent.endObject();
 
 	agent.add("jsonrpc", "2.0");
@@ -681,11 +681,11 @@ bool ZabbixAPI::parseInitialResponse(SoupMessage *msg)
 		return false;
 	}
 
-	if (!parser.read("result", m_ctx->authToken)) {
+	if (!parser.read("result", m_impl->authToken)) {
 		MLPL_ERR("Failed to read: result\n");
 		return false;
 	}
-	onUpdatedAuthToken(m_ctx->authToken);
+	onUpdatedAuthToken(m_impl->authToken);
 	return true;
 }
 
@@ -713,7 +713,7 @@ void ArmZabbixAPI::pushFunctionsCache(JSONParserAgent &parser)
 	for (int i = 0; i < numFunctions; i++) {
 		VariableItemGroupPtr itemGroup;
 		pushFunctionsCacheOne(parser, itemGroup, i);
-		m_ctx->functionsTablePtr->add(itemGroup);
+		m_impl->functionsTablePtr->add(itemGroup);
 	}
 	parser.endObject();
 }
@@ -725,7 +725,7 @@ void ArmZabbixAPI::pushFunctionsCacheOne(JSONParserAgent &parser,
 	pushUint64(parser, grp, "functionid", ITEM_ID_ZBX_FUNCTIONS_FUNCTIONID);
 	pushUint64(parser, grp, "itemid",     ITEM_ID_ZBX_FUNCTIONS_ITEMID);
 	grp->add(new ItemUint64(ITEM_ID_ZBX_FUNCTIONS_TRIGGERID,
-	                        m_ctx->triggerid), false);
+	                        m_impl->triggerid), false);
 	pushString(parser, grp, "function",   ITEM_ID_ZBX_FUNCTIONS_FUNCTION);
 	pushString(parser, grp, "parameter",  ITEM_ID_ZBX_FUNCTIONS_PARAMETER);
 	parser.endElement();

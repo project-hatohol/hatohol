@@ -58,8 +58,8 @@ public:
 	static void setResidentYardDirectory(const std::string &dir);
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	Impl *m_impl;
 
 	// Constructor and destructor
 	ConfigManager(void);

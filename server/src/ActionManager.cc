@@ -238,7 +238,7 @@ struct WaitingCommandActionInfo {
 struct CommandActionContext {
 	// We must take locks with the following order to prevent a deadlock.
 	// (1) ActorCollector's lock: new ActorCollector::locker()
-	// (2) ActionManager::PrivateContext::lock
+	// (2) ActionManager::Impl::lock
 	static Mutex         lock;
 
 	static deque<WaitingCommandActionInfo *> waitingList;
@@ -446,12 +446,12 @@ private:
 	uint64_t         m_logId;
 };
 
-struct ActionManager::PrivateContext {
+struct ActionManager::Impl {
 	static string pathForAction;
 	static string ldLibraryPathForAction;
 };
-string ActionManager::PrivateContext::pathForAction;
-string ActionManager::PrivateContext::ldLibraryPathForAction;
+string ActionManager::Impl::pathForAction;
+string ActionManager::Impl::ldLibraryPathForAction;
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -466,8 +466,8 @@ const char *ActionManager::ENV_NAME_SESSION_ID = "HATOHOL_SESSION_ID";
 
 void ActionManager::reset(void)
 {
-	setupPathForAction(PrivateContext::pathForAction,
-	                   PrivateContext::ldLibraryPathForAction);
+	setupPathForAction(Impl::pathForAction,
+	                   Impl::ldLibraryPathForAction);
 
 	// The following deletion has naturally no effect at the start of
 	// Hatohol. This is mainly for the test.
@@ -486,14 +486,14 @@ void ActionManager::reset(void)
 }
 
 ActionManager::ActionManager(void)
-: m_ctx(NULL)
+: m_impl(NULL)
 {
-	m_ctx = new PrivateContext();
+	m_impl = new Impl();
 }
 
 ActionManager::~ActionManager()
 {
-	delete m_ctx;
+	delete m_impl;
 }
 
 static bool shouldSkipIncidentSender(
@@ -709,8 +709,8 @@ bool ActionManager::spawn(
 		actorProf.args.push_back(*argv);
 
 	// make envp with HATOHOL_SESSION_ID
-	actorProf.envs.push_back(PrivateContext::pathForAction);
-	actorProf.envs.push_back(PrivateContext::ldLibraryPathForAction);
+	actorProf.envs.push_back(Impl::pathForAction);
+	actorProf.envs.push_back(Impl::ldLibraryPathForAction);
 	actorProf.envs.push_back(
 	  makeSessionIdEnv(actionDef, actorProf.actorInfo->sessionId));
 

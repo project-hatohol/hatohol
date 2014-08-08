@@ -73,7 +73,7 @@ const char *DBConnectInfo::getPassword(void) const
 	return password.c_str();
 }
 
-struct DBAgent::PrivateContext
+struct DBAgent::Impl
 {
 	static Mutex               mutex;
 	static DBSetupInfoMap      setupInfoMap;
@@ -81,7 +81,7 @@ struct DBAgent::PrivateContext
 	DBDomainId dbDomainId;
 
 	// methods
-	PrivateContext(DBDomainId domainId)
+	Impl(DBDomainId domainId)
 	: dbDomainId(domainId)
 	{
 	}
@@ -97,9 +97,9 @@ struct DBAgent::PrivateContext
 	}
 };
 
-Mutex          DBAgent::PrivateContext::mutex;
-DBSetupInfoMap DBAgent::PrivateContext::setupInfoMap;
-DBTermCodec    DBAgent::PrivateContext::dbTermCodec;
+Mutex          DBAgent::Impl::mutex;
+DBSetupInfoMap DBAgent::Impl::setupInfoMap;
+DBTermCodec    DBAgent::Impl::dbTermCodec;
 
 // ---------------------------------------------------------------------------
 // DBAgent::TableProfile
@@ -310,22 +310,22 @@ void DBAgent::addSetupFunction(DBDomainId domainId,
 	DBSetupInfo setupInfo;
 	setupInfo.func = setupFunc;
 	setupInfo.data = data;
-	PrivateContext::lock();
-	PrivateContext::setupInfoMap.insert
+	Impl::lock();
+	Impl::setupInfoMap.insert
 	  (pair<DBDomainId, DBSetupInfo>(domainId, setupInfo));
-	PrivateContext::unlock();
+	Impl::unlock();
 }
 
 DBAgent::DBAgent(DBDomainId domainId, bool skipSetup)
-: m_ctx(NULL)
+: m_impl(NULL)
 {
-	m_ctx = new PrivateContext(domainId);
+	m_impl = new Impl(domainId);
 	if (skipSetup)
 		return;
 
-	PrivateContext::lock();
+	Impl::lock();
 	pair<DBSetupInfoMapIterator, DBSetupInfoMapIterator> matchedRange = 
-	  PrivateContext::setupInfoMap.equal_range(domainId);
+	  Impl::setupInfoMap.equal_range(domainId);
 	DBSetupInfoMapIterator it = matchedRange.first;
 	for (; it != matchedRange.second; ++it) {
 		DBSetupInfo &setupInfo = it->second;
@@ -335,23 +335,23 @@ DBAgent::DBAgent(DBDomainId domainId, bool skipSetup)
 			(*setupFunc)(domainId, data);
 		} catch (...) {
 			// Note: contetns in DBSetupInfoMap remains.
-			PrivateContext::unlock();
+			Impl::unlock();
 			throw;
 		}
 	}
-	PrivateContext::setupInfoMap.erase
+	Impl::setupInfoMap.erase
 	  (matchedRange.first, matchedRange.second);
-	PrivateContext::unlock();
+	Impl::unlock();
 }
 
 DBAgent::~DBAgent()
 {
-	delete m_ctx;
+	delete m_impl;
 }
 
 DBDomainId DBAgent::getDBDomainId(void) const
 {
-	return m_ctx->dbDomainId;
+	return m_impl->dbDomainId;
 }
 
 void DBAgent::fixupIndexes(
@@ -631,7 +631,7 @@ bool DBAgent::updateIfExistElseInsert(
 
 const DBTermCodec *DBAgent::getDBTermCodec(void) const
 {
-	return &m_ctx->dbTermCodec;
+	return &m_impl->dbTermCodec;
 }
 
 void DBAgent::createIndex(const IndexDef &indexDef)
@@ -639,12 +639,12 @@ void DBAgent::createIndex(const IndexDef &indexDef)
 	execSql(makeCreateIndexStatement(indexDef));
 	MLPL_INFO("Created index: %s (table: %s), DID: %d\n",
 	          indexDef.name, indexDef.tableProfile->name,
-	          m_ctx->dbDomainId);
+	          m_impl->dbDomainId);
 }
 
 void DBAgent::dropIndex(const std::string &name, const std::string &tableName)
 {
 	execSql(makeDropIndexStatement(name, tableName));
 	MLPL_INFO("Deleted index: %s (table: %s), DID: %d\n",
-	          name.c_str(), tableName.c_str(), m_ctx->dbDomainId);
+	          name.c_str(), tableName.c_str(), m_impl->dbDomainId);
 }

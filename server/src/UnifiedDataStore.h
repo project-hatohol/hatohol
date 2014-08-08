@@ -207,8 +207,8 @@ protected:
 	void fetchItems(const ServerIdType &targetServerId = ALL_SERVERS);
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	Impl *m_impl;
 };
 
 #endif // UnifiedDataStore_h

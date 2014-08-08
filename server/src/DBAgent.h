@@ -276,8 +276,8 @@ protected:
 	  const TableProfile &tableProfile) = 0;
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	Impl *m_impl;
 };
 
 #endif // DBAgent_h

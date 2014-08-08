@@ -105,7 +105,7 @@ protected:
 	static void cleanupChildInfo(const pid_t &pid);
 
 private:
-	struct PrivateContext;
+	struct Impl;
 };
 
 #endif // ActorCollector_h

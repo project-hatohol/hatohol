@@ -203,8 +203,8 @@ public:
 	TriggerStatusType getTriggerStatus(void) const;
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	Impl *m_impl;
 };
 
 class TriggersQueryOption : public HostResourceQueryOption {
@@ -224,8 +224,8 @@ public:
 	TriggerStatusType getTriggerStatus(void) const;
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	Impl *m_impl;
 };
 
 class ItemsQueryOption : public HostResourceQueryOption {
@@ -243,8 +243,8 @@ public:
 	const std::string &getTargetItemGroupName(void);
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	Impl *m_impl;
 };
 
 class HostsQueryOption : public HostResourceQueryOption {
@@ -414,8 +414,8 @@ protected:
 
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	Impl *m_impl;
 };
 
 void operator>>(ItemGroupStream &itemGroupStream, TriggerStatusType &rhs);

@@ -98,8 +98,8 @@ public:
 	UserIdType getUserId(void) const;
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	Impl *m_impl;
 };
 
 const static OperationPrivilegeFlag ALL_PRIVILEGES = 

@@ -166,8 +166,8 @@ protected:
 	bool isHostgroupEnumerationInCondition(void) const;
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	Impl *m_impl;
 };
 
 #endif // HostResourceQueryOption_h

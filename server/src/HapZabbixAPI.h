@@ -43,8 +43,8 @@ protected:
 	virtual void onGotNewEvents(ItemTablePtr eventsTablePtr);
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	Impl *m_impl;
 };
 
 #endif // HapZabbixAPI_h

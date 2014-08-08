@@ -44,8 +44,8 @@ public:
 	bool getName(const HostIdType &id, std::string &name) const;
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	Impl *m_impl;
 };
 
 #endif // HostInfoCache_h

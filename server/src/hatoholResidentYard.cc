@@ -38,7 +38,7 @@
 using namespace std;
 using namespace mlpl;
 
-struct PrivateContext : public ResidentPullHelper<PrivateContext> {
+struct Impl : public ResidentPullHelper<Impl> {
 	GMainLoop *loop;
 	NamedPipe pipeRd;
 	NamedPipe pipeWr;
@@ -46,7 +46,7 @@ struct PrivateContext : public ResidentPullHelper<PrivateContext> {
 	void *moduleHandle;
 	ResidentModule *module;
 
-	PrivateContext(void)
+	Impl(void)
 	: loop(NULL),
 	  pipeRd(NamedPipe::END_TYPE_SLAVE_READ),
 	  pipeWr(NamedPipe::END_TYPE_SLAVE_WRITE),
@@ -56,7 +56,7 @@ struct PrivateContext : public ResidentPullHelper<PrivateContext> {
 		initResidentPullHelper(&pipeRd, this);
 	}
 
-	virtual ~PrivateContext()
+	virtual ~Impl()
 	{
 		if (loop)
 			g_main_loop_unref(loop);
@@ -67,35 +67,35 @@ struct PrivateContext : public ResidentPullHelper<PrivateContext> {
 	}
 };
 
-static void requestQuit(PrivateContext *ctx, int exitCode = EXIT_FAILURE)
+static void requestQuit(Impl *impl, int exitCode = EXIT_FAILURE)
 {
-	ctx->exitCode = exitCode;
-	g_main_loop_quit(ctx->loop);
+	impl->exitCode = exitCode;
+	g_main_loop_quit(impl->loop);
 }
 
 static gboolean readPipeCb
   (GIOChannel *source, GIOCondition condition, gpointer data)
 {
-	PrivateContext *ctx = static_cast<PrivateContext *>(data);
+	Impl *impl = static_cast<Impl *>(data);
 	MLPL_ERR("Error: condition: %x\n", condition);
-	requestQuit(ctx);
+	requestQuit(impl);
 	return TRUE;
 }
 
 static gboolean writePipeCb
   (GIOChannel *source, GIOCondition condition, gpointer data)
 {
-	PrivateContext *ctx = static_cast<PrivateContext *>(data);
+	Impl *impl = static_cast<Impl *>(data);
 	MLPL_ERR("Error: condition: %x\n", condition);
-	requestQuit(ctx);
+	requestQuit(impl);
 	return TRUE;
 }
 
 static void eventCb(GIOStatus stat, SmartBuffer &sbuf, size_t size,
-                    PrivateContext *ctx);
+                    Impl *impl);
 
 static void gotNotifyEventBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
-                                 size_t size, PrivateContext *ctx)
+                                 size_t size, Impl *impl)
 {
 	ResidentNotifyEventArg arg;
 	arg.actionId        = *sbuf.getPointerAndIncIndex<uint32_t>();
@@ -113,52 +113,52 @@ static void gotNotifyEventBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	sbuf.incIndex(HATOHOL_SESSION_ID_LEN);
 
 	// call a user action
-	uint32_t resultCode = (*ctx->module->notifyEvent)(&arg);
+	uint32_t resultCode = (*impl->module->notifyEvent)(&arg);
 	ResidentCommunicator comm;
 	comm.setNotifyEventAck(resultCode);
-	comm.push(ctx->pipeWr);
+	comm.push(impl->pipeWr);
 
 	// request to get the envet
-	ctx->pullHeader(eventCb);
+	impl->pullHeader(eventCb);
 }
 
 static void eventCb(GIOStatus stat, SmartBuffer &sbuf, size_t size,
-                    PrivateContext *ctx)
+                    Impl *impl)
 {
 	if (stat != G_IO_STATUS_NORMAL) {
 		MLPL_ERR("Error: status: %x\n", stat);
-		requestQuit(ctx);
+		requestQuit(impl);
 		return;
 	}
 
 	int pktType = ResidentCommunicator::getPacketType(sbuf);
 	if (pktType == RESIDENT_PROTO_PKT_TYPE_NOTIFY_EVENT) {
 		// request to get the body
-		ctx->pullData(RESIDENT_PROTO_EVENT_BODY_LEN,
+		impl->pullData(RESIDENT_PROTO_EVENT_BODY_LEN,
 		              gotNotifyEventBodyCb);
 	} else {
 		MLPL_ERR("Unexpected packet: %d\n", pktType);
-		requestQuit(ctx);
+		requestQuit(impl);
 		return;
 	}
 }
 
-static void sendLaunched(PrivateContext *ctx)
+static void sendLaunched(Impl *impl)
 {
 	ResidentCommunicator comm;
 	comm.setHeader(0, RESIDENT_PROTO_PKT_TYPE_LAUNCHED);
-	comm.push(ctx->pipeWr);
+	comm.push(impl->pipeWr);
 }
 
-static void sendModuleLoaded(PrivateContext *ctx, uint32_t code)
+static void sendModuleLoaded(Impl *impl, uint32_t code)
 {
 	ResidentCommunicator comm;
 	comm.setModuleLoaded(code);
-	comm.push(ctx->pipeWr);
+	comm.push(impl->pipeWr);
 }
 
 static void getParametersBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
-                                size_t size, PrivateContext *ctx)
+                                size_t size, Impl *impl)
 {
 	if (stat != G_IO_STATUS_NORMAL) {
 		MLPL_ERR("Error: status: %x\n", stat);
@@ -175,44 +175,44 @@ static void getParametersBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	sbuf.incIndex(moduleOptionLen);
 
 	// open the module
-	ctx->moduleHandle = dlopen(modulePath.c_str(), RTLD_LAZY);
-	if (!ctx->moduleHandle) {
+	impl->moduleHandle = dlopen(modulePath.c_str(), RTLD_LAZY);
+	if (!impl->moduleHandle) {
 		MLPL_ERR("Failed to load module: %p, %s\n",
 		         modulePath.c_str(), dlerror());
 		sendModuleLoaded(
-		  ctx, RESIDENT_PROTO_MODULE_LOADED_CODE_FAIL_DLOPEN);
+		  impl, RESIDENT_PROTO_MODULE_LOADED_CODE_FAIL_DLOPEN);
 		return;
 	}
 
 	// get the address of the information structure
 	dlerror(); // Clear any existing error
-	ctx->module = (ResidentModule *)
-	  dlsym(ctx->moduleHandle, RESIDENT_MODULE_SYMBOL_STR);
+	impl->module = (ResidentModule *)
+	  dlsym(impl->moduleHandle, RESIDENT_MODULE_SYMBOL_STR);
 	char *error;
 	if ((error = dlerror()) != NULL) { MLPL_ERR("Failed to load symbol: %s, %s\n",
 		         RESIDENT_MODULE_SYMBOL_STR, error);
 		sendModuleLoaded(
-		  ctx, RESIDENT_PROTO_MODULE_LOADED_CODE_NOT_FOUND_MOD_SYMBOL);
+		  impl, RESIDENT_PROTO_MODULE_LOADED_CODE_NOT_FOUND_MOD_SYMBOL);
 		return;
 	}
 
 	// check the module version
-	if (ctx->module->moduleVersion != RESIDENT_MODULE_VERSION) {
+	if (impl->module->moduleVersion != RESIDENT_MODULE_VERSION) {
 		MLPL_ERR("Module version unmatched: %" PRIu16 ", "
 		         "expected: %" PRIu16 "\n",
-		         ctx->module->moduleVersion, RESIDENT_MODULE_VERSION);
+		         impl->module->moduleVersion, RESIDENT_MODULE_VERSION);
 		sendModuleLoaded(
-		  ctx, RESIDENT_PROTO_MODULE_LOADED_CODE_MOD_VER_INVALID);
+		  impl, RESIDENT_PROTO_MODULE_LOADED_CODE_MOD_VER_INVALID);
 		return;
 	}
 
 	// check init
-	if (ctx->module->init) {
-		uint32_t result = (*ctx->module->init)(moduleOption.c_str());
+	if (impl->module->init) {
+		uint32_t result = (*impl->module->init)(moduleOption.c_str());
 		if (result != RESIDENT_MOD_INIT_OK) {
 			MLPL_ERR("Failed to initialize: %" PRIu32 "\n", result);
 			sendModuleLoaded(
-			  ctx, RESIDENT_PROTO_MODULE_LOADED_CODE_INIT_FAILURE);
+			  impl, RESIDENT_PROTO_MODULE_LOADED_CODE_INIT_FAILURE);
 			return;
 		}
 	} else if (!moduleOption.empty()) {
@@ -221,10 +221,10 @@ static void getParametersBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	}
 
 	// check functions
-	if (!ctx->module->notifyEvent) {
+	if (!impl->module->notifyEvent) {
 		MLPL_ERR("notify Event handler is NULL\n");
 		sendModuleLoaded(
-		  ctx,
+		  impl,
 		  RESIDENT_PROTO_MODULE_LOADED_CODE_NOT_FOUND_NOTIFY_EVENT);
 		return;
 	}
@@ -232,14 +232,14 @@ static void getParametersBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	MLPL_INFO("Loaded a resident module: %s\n", modulePath.c_str());
 
 	// send a completion notify
-	sendModuleLoaded(ctx, RESIDENT_PROTO_MODULE_LOADED_CODE_SUCCESS);
+	sendModuleLoaded(impl, RESIDENT_PROTO_MODULE_LOADED_CODE_SUCCESS);
 
 	// request to get the envet
-	ctx->pullHeader(eventCb);
+	impl->pullHeader(eventCb);
 }
 
 static void getParametersCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
-                            size_t size, PrivateContext *ctx)
+                            size_t size, Impl *impl)
 {
 	if (stat != G_IO_STATUS_NORMAL) {
 		MLPL_ERR("Error: status: %x\n", stat);
@@ -255,17 +255,17 @@ static void getParametersCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 		MLPL_ERR("Invalid packet type: %" PRIu16 ", "
 		         "expect: %" PRIu16 "\n", pktType,
 		         RESIDENT_PROTO_PKT_TYPE_LAUNCHED);
-		requestQuit(ctx);
+		requestQuit(impl);
 		return;
 	}
 
 	// request to get the body
-	ctx->pullData(bodyLen, getParametersBodyCb);
+	impl->pullData(bodyLen, getParametersBodyCb);
 }
 
-static void setupGetParametersCb(PrivateContext *ctx)
+static void setupGetParametersCb(Impl *impl)
 {
-	ctx->pullHeader(getParametersCb);
+	impl->pullHeader(getParametersCb);
 }
 
 int mainRoutine(int argc, char *argv[])
@@ -278,7 +278,7 @@ int mainRoutine(int argc, char *argv[])
 #endif // GLIB_VERSION_2_32 
 
 	hatoholInit();
-	PrivateContext ctx;
+	Impl impl;
 	MLPL_INFO("started hatohol-resident-yard: ver. %s\n", PACKAGE_VERSION);
 
 	// open pipes
@@ -288,19 +288,19 @@ int mainRoutine(int argc, char *argv[])
 	}
 	const char *pipeName = argv[1];
 	MLPL_INFO("PIPE name: %s\n", pipeName);
-	if (!ctx.pipeRd.init(pipeName,readPipeCb, &ctx))
+	if (!impl.pipeRd.init(pipeName,readPipeCb, &impl))
 		return EXIT_FAILURE;
-	if (!ctx.pipeWr.init(pipeName, writePipeCb, &ctx))
+	if (!impl.pipeWr.init(pipeName, writePipeCb, &impl))
 		return EXIT_FAILURE;
 
-	sendLaunched(&ctx);
-	setupGetParametersCb(&ctx);
+	sendLaunched(&impl);
+	setupGetParametersCb(&impl);
 
 	// main loop of GLIB
-	ctx.loop = g_main_loop_new(NULL, FALSE);
-	g_main_loop_run(ctx.loop);
+	impl.loop = g_main_loop_new(NULL, FALSE);
+	g_main_loop_run(impl.loop);
 
-	return ctx.exitCode;
+	return impl.exitCode;
 }
 
 int main(int argc, char *argv[])

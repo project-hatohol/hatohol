@@ -31,7 +31,7 @@ struct ResidentInfo;
 class ActionManager
 {
 private:
-	struct PrivateContext;
+	struct Impl;
 
 public:
 	static const char *NUM_COMMNAD_ACTION_EVENT_ARG_MAGIC;
@@ -245,7 +245,7 @@ protected:
 
 private:
 	struct ActorProfile;
-	PrivateContext *m_ctx;
+	Impl *m_impl;
 };
 
 #endif // ActionManager_h

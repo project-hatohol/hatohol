@@ -104,7 +104,7 @@ struct TimeoutInfo {
 	}
 };
 
-struct NamedPipe::PrivateContext {
+struct NamedPipe::Impl {
 	int fd;
 	string path;
 	EndType endType;
@@ -123,7 +123,7 @@ struct NamedPipe::PrivateContext {
 	size_t        pullRemainingSize;
 	TimeoutInfo   timeoutInfo;
 
-	PrivateContext(EndType _endType, NamedPipe *namedPipe)
+	Impl(EndType _endType, NamedPipe *namedPipe)
 	: fd(-1),
 	  endType(_endType),
 	  ioch(NULL),
@@ -139,7 +139,7 @@ struct NamedPipe::PrivateContext {
 	{
 	}
 
-	virtual ~PrivateContext()
+	virtual ~Impl()
 	{
 		Utils::removeEventSourceIfNeeded(iochEvtId);
 		Utils::removeEventSourceIfNeeded(iochDataEvtId);
@@ -197,14 +197,14 @@ struct NamedPipe::PrivateContext {
 // Public methods
 // ---------------------------------------------------------------------------
 NamedPipe::NamedPipe(EndType endType)
-: m_ctx(NULL)
+: m_impl(NULL)
 {
-	m_ctx = new PrivateContext(endType, this);
+	m_impl = new Impl(endType, this);
 }
 
 NamedPipe::~NamedPipe()
 {
-	delete m_ctx;
+	delete m_impl;
 }
 
 bool NamedPipe::init(const string &name, GIOFunc iochCb, gpointer data)
@@ -212,14 +212,14 @@ bool NamedPipe::init(const string &name, GIOFunc iochCb, gpointer data)
 	if (!openPipe(name))
 		return false;
 
-	m_ctx->ioch = g_io_channel_unix_new(m_ctx->fd);
-	if (!m_ctx->ioch) {
+	m_impl->ioch = g_io_channel_unix_new(m_impl->fd);
+	if (!m_impl->ioch) {
 		MLPL_ERR("Failed to call g_io_channel_unix_new: %d\n",
-		         m_ctx->fd);
+		         m_impl->fd);
 		return false;
 	}
 	GError *error = NULL;
-	GIOStatus stat = g_io_channel_set_encoding(m_ctx->ioch, NULL, &error);
+	GIOStatus stat = g_io_channel_set_encoding(m_impl->ioch, NULL, &error);
 	if (stat != G_IO_STATUS_NORMAL) {
 		MLPL_ERR("Failed to call g_io_channel_set_encoding: "
 		         "%d, %s\n", stat,
@@ -229,32 +229,32 @@ bool NamedPipe::init(const string &name, GIOFunc iochCb, gpointer data)
 
 	GIOFunc cbFunc = NULL;
 	GIOCondition cond = (GIOCondition)0;
-	if (m_ctx->endType == END_TYPE_MASTER_READ
-	    || m_ctx->endType == END_TYPE_SLAVE_READ) {
+	if (m_impl->endType == END_TYPE_MASTER_READ
+	    || m_impl->endType == END_TYPE_SLAVE_READ) {
 		cbFunc = readErrorCb;
 		cond = (GIOCondition)(G_IO_PRI|G_IO_ERR|G_IO_HUP|G_IO_NVAL);
 	}
-	else if (m_ctx->endType == END_TYPE_MASTER_WRITE
-	         || m_ctx->endType == END_TYPE_SLAVE_WRITE) {
+	else if (m_impl->endType == END_TYPE_MASTER_WRITE
+	         || m_impl->endType == END_TYPE_SLAVE_WRITE) {
 		cbFunc = writeErrorCb;
 		cond = (GIOCondition)(G_IO_ERR|G_IO_HUP|G_IO_NVAL);
 	}
-	m_ctx->iochEvtId = g_io_add_watch(m_ctx->ioch, cond, cbFunc, this);
+	m_impl->iochEvtId = g_io_add_watch(m_impl->ioch, cond, cbFunc, this);
 
-	m_ctx->userCb = iochCb;
-	m_ctx->userCbData = data;
+	m_impl->userCb = iochCb;
+	m_impl->userCbData = data;
 
 	return true;
 }
 
 int NamedPipe::getFd(void) const
 {
-	return m_ctx->fd;
+	return m_impl->fd;
 }
 
 const string &NamedPipe::getPath(void) const
 {
-	return m_ctx->path;
+	return m_impl->path;
 }
 
 void NamedPipe::push(SmartBuffer &buf)
@@ -262,44 +262,44 @@ void NamedPipe::push(SmartBuffer &buf)
 	// <<Note>>
 	// This function is possibly called from threads other than
 	// the main thread (that is executing the GLIB's event loop).
-	HATOHOL_ASSERT(m_ctx->endType == END_TYPE_MASTER_WRITE
-	               || m_ctx->endType == END_TYPE_SLAVE_WRITE,
+	HATOHOL_ASSERT(m_impl->endType == END_TYPE_MASTER_WRITE
+	               || m_impl->endType == END_TYPE_SLAVE_WRITE,
 	               "push() can be called only by writers: %d\n",
-	               m_ctx->endType);
+	               m_impl->endType);
 	buf.resetIndex();
-	m_ctx->writeBufListLock.lock();
-	m_ctx->writeBufList.push_back(buf.takeOver());
+	m_impl->writeBufListLock.lock();
+	m_impl->writeBufList.push_back(buf.takeOver());
 	enableWriteCbIfNeeded();
-	m_ctx->timeoutInfo.setTimeoutIfNeeded();
-	m_ctx->writeBufListLock.unlock();
+	m_impl->timeoutInfo.setTimeoutIfNeeded();
+	m_impl->writeBufListLock.unlock();
 }
 
 void NamedPipe::pull(size_t size, PullCallback callback, void *priv)
 {
-	HATOHOL_ASSERT(!m_ctx->pullCb, "Pull callback is not NULL.");
-	m_ctx->pullRequestSize = size;
-	m_ctx->pullRemainingSize = size;
-	m_ctx->pullCb = callback;
-	m_ctx->pullCbPriv = priv;
-	m_ctx->pullBuf.ensureRemainingSize(size);
-	m_ctx->pullBuf.resetIndex();
+	HATOHOL_ASSERT(!m_impl->pullCb, "Pull callback is not NULL.");
+	m_impl->pullRequestSize = size;
+	m_impl->pullRemainingSize = size;
+	m_impl->pullCb = callback;
+	m_impl->pullCbPriv = priv;
+	m_impl->pullBuf.ensureRemainingSize(size);
+	m_impl->pullBuf.resetIndex();
 	enableReadCb();
-	m_ctx->timeoutInfo.setTimeoutIfNeeded();
+	m_impl->timeoutInfo.setTimeoutIfNeeded();
 }
 
 void NamedPipe::setTimeout(unsigned int timeout,
                            TimeoutCallback timeoutCb, void *priv)
 {
-	Utils::removeEventSourceIfNeeded(m_ctx->timeoutInfo.tag);
+	Utils::removeEventSourceIfNeeded(m_impl->timeoutInfo.tag);
 	if (timeout == 0)
 		return;
 	if (!timeoutCb) {
 		MLPL_ERR("Timeout callback is NULL\n");
 		return;
 	}
-	m_ctx->timeoutInfo.value  = timeout;
-	m_ctx->timeoutInfo.cbFunc = timeoutCb;
-	m_ctx->timeoutInfo.priv   = priv;
+	m_impl->timeoutInfo.value  = timeout;
+	m_impl->timeoutInfo.cbFunc = timeoutCb;
+	m_impl->timeoutInfo.priv   = priv;
 }
 
 // ---------------------------------------------------------------------------
@@ -309,28 +309,28 @@ gboolean NamedPipe::writeCb(GIOChannel *source, GIOCondition condition,
                             gpointer data)
 {
 	NamedPipe *obj = static_cast<NamedPipe *>(data);
-	PrivateContext *ctx = obj->m_ctx;
+	Impl *impl = obj->m_impl;
 	gboolean continueEventCb = FALSE;
 
-	ctx->writeBufListLock.lock();
-	gint currOutEvtId = ctx->iochDataEvtId;
-	ctx->iochDataEvtId = INVALID_EVENT_ID;
-	if (ctx->writeBufList.empty()) {
+	impl->writeBufListLock.lock();
+	gint currOutEvtId = impl->iochDataEvtId;
+	impl->iochDataEvtId = INVALID_EVENT_ID;
+	if (impl->writeBufList.empty()) {
 		MLPL_BUG("writeCB was called. "
 		         "However, write buffer list is empty.\n");
 	}
-	while (!ctx->writeBufList.empty()) {
-		SmartBufferListIterator it = ctx->writeBufList.begin();
+	while (!impl->writeBufList.empty()) {
+		SmartBufferListIterator it = impl->writeBufList.begin();
 		bool fullyWritten = false;
 		if (!obj->writeBuf(**it, fullyWritten))
 			break;
 		if (fullyWritten) {
-			ctx->deleteWriteBufHead();
-			ctx->timeoutInfo.removeTimeout();
+			impl->deleteWriteBufHead();
+			impl->timeoutInfo.removeTimeout();
 		} else {
 			// This function will be called back again
 			// when the pipe is available.
-			ctx->iochDataEvtId = currOutEvtId;
+			impl->iochDataEvtId = currOutEvtId;
 			continueEventCb = TRUE;
 
 			// If this is the first chunk for each push request,
@@ -338,11 +338,11 @@ gboolean NamedPipe::writeCb(GIOChannel *source, GIOCondition condition,
 			// function. Otherwise, the timeout is expected to
 			// be already set. In that case, the following function
 			// won't update the timer,
-			ctx->timeoutInfo.setTimeoutIfNeeded();
+			impl->timeoutInfo.setTimeoutIfNeeded();
 			break;
 		}
 	}
-	ctx->writeBufListLock.unlock();
+	impl->writeBufListLock.unlock();
 	return continueEventCb;
 }
 
@@ -350,47 +350,47 @@ gboolean NamedPipe::writeErrorCb(GIOChannel *source, GIOCondition condition,
                                  gpointer data)
 {
 	NamedPipe *obj = static_cast<NamedPipe *>(data);
-	PrivateContext *ctx = obj->m_ctx;
-	HATOHOL_ASSERT(ctx->userCb,
-	               "Pull callback is not registered. cond: %x, ctx: %p",
-	               condition, ctx);
-	ctx->iochEvtId = INVALID_EVENT_ID;
-	return (*ctx->userCb)(source, condition, ctx->userCbData);
+	Impl *impl = obj->m_impl;
+	HATOHOL_ASSERT(impl->userCb,
+	               "Pull callback is not registered. cond: %x, impl: %p",
+	               condition, impl);
+	impl->iochEvtId = INVALID_EVENT_ID;
+	return (*impl->userCb)(source, condition, impl->userCbData);
 }
 
 gboolean NamedPipe::readCb(GIOChannel *source, GIOCondition condition,
                            gpointer data)
 {
 	NamedPipe *obj = static_cast<NamedPipe *>(data);
-	PrivateContext *ctx = obj->m_ctx;
-	HATOHOL_ASSERT(ctx->pullCb,
-	               "Pull callback is not registered. cond: %x, ctx: %p",
-	               condition, ctx);
+	Impl *impl = obj->m_impl;
+	HATOHOL_ASSERT(impl->pullCb,
+	               "Pull callback is not registered. cond: %x, impl: %p",
+	               condition, impl);
 
 	gsize bytesRead;
 	GError *error = NULL;
-	gchar *buf = ctx->pullBuf.getPointer<gchar>();
+	gchar *buf = impl->pullBuf.getPointer<gchar>();
 	GIOStatus stat = g_io_channel_read_chars(source, buf,
-	                                         ctx->pullRemainingSize,
+	                                         impl->pullRemainingSize,
 	                                         &bytesRead, &error);
 	if (!obj->checkGIOStatus(stat, error)) {
-		ctx->timeoutInfo.removeTimeout();
-		ctx->callPullCb(stat);
-		ctx->iochDataEvtId = INVALID_EVENT_ID;
+		impl->timeoutInfo.removeTimeout();
+		impl->callPullCb(stat);
+		impl->iochDataEvtId = INVALID_EVENT_ID;
 		return FALSE;
 	}
 	
-	ctx->pullRemainingSize -= bytesRead;
-	if (ctx->pullRemainingSize == 0) {
-		ctx->iochDataEvtId = INVALID_EVENT_ID;
+	impl->pullRemainingSize -= bytesRead;
+	if (impl->pullRemainingSize == 0) {
+		impl->iochDataEvtId = INVALID_EVENT_ID;
 
 		// backup the current callback function
-		PullCallback callback = ctx->pullCb;
+		PullCallback callback = impl->pullCb;
 
 		// We set NULL to avoid HATOHOL_ASSERTION in pull() from
 		// invoking when the pull() is called in the callback.
-		ctx->pullCb = NULL;
-		ctx->callPullCb(stat, callback);
+		impl->pullCb = NULL;
+		impl->callPullCb(stat, callback);
 		return FALSE;
 	}
 
@@ -401,19 +401,19 @@ gboolean NamedPipe::readErrorCb(GIOChannel *source, GIOCondition condition,
                                 gpointer data)
 {
 	NamedPipe *obj = static_cast<NamedPipe *>(data);
-	PrivateContext *ctx = obj->m_ctx;
-	HATOHOL_ASSERT(ctx->userCb,
-	               "Pull callback is not registered. cond: %x, ctx: %p",
-	               condition, ctx);
-	ctx->iochEvtId = INVALID_EVENT_ID;
-	return (*ctx->userCb)(source, condition, ctx->userCbData);
+	Impl *impl = obj->m_impl;
+	HATOHOL_ASSERT(impl->userCb,
+	               "Pull callback is not registered. cond: %x, impl: %p",
+	               condition, impl);
+	impl->iochEvtId = INVALID_EVENT_ID;
+	return (*impl->userCb)(source, condition, impl->userCbData);
 }
 
 bool NamedPipe::openPipe(const string &name)
 {
-	HATOHOL_ASSERT(m_ctx->fd == -1,
+	HATOHOL_ASSERT(m_impl->fd == -1,
 	               "FD must be -1 (%d). NamedPipe::open() is possibly "
-	               "called multiple times.\n", m_ctx->fd);
+	               "called multiple times.\n", m_impl->fd);
 	if (!makeBasedirIfNeeded(BASE_DIR))
 		return false;
 
@@ -428,7 +428,7 @@ bool NamedPipe::openPipe(const string &name)
 	// NOTE:
 	// The behavior of O_RDWR for the pipe is not specified in POSIX.
 	// It works without blocking on Linux.
-	switch (m_ctx->endType) {
+	switch (m_impl->endType) {
 	case END_TYPE_MASTER_READ:
 		suffix = 0;
 		openFlag = O_RDONLY|O_NONBLOCK;
@@ -448,28 +448,28 @@ bool NamedPipe::openPipe(const string &name)
 		openFlag = O_WRONLY|O_NONBLOCK;
 		break;
 	default:
-		HATOHOL_ASSERT(false, "Invalid endType: %d\n", m_ctx->endType);
+		HATOHOL_ASSERT(false, "Invalid endType: %d\n", m_impl->endType);
 	}
-	m_ctx->path = StringUtils::sprintf("%s/%s-%d",
+	m_impl->path = StringUtils::sprintf("%s/%s-%d",
 	                                   BASE_DIR, name.c_str(), suffix);
 	if (recreate) {
-		if (!deleteFileIfExists(m_ctx->path))
+		if (!deleteFileIfExists(m_impl->path))
 			return false;
-		if (mkfifo(m_ctx->path.c_str(), FIFO_MODE) == -1) { 
+		if (mkfifo(m_impl->path.c_str(), FIFO_MODE) == -1) { 
 			MLPL_ERR("Failed to make FIFO: %s, %s\n",
-			         m_ctx->path.c_str(), strerror(errno));
+			         m_impl->path.c_str(), strerror(errno));
 			return false;
 		}
 	}
 
 	// open the fifo
 retry:
-	m_ctx->fd = open(m_ctx->path.c_str(), openFlag);
-	if (m_ctx->fd == -1) {
+	m_impl->fd = open(m_impl->path.c_str(), openFlag);
+	if (m_impl->fd == -1) {
 		if (errno == EINTR)
 			goto retry;
 		MLPL_ERR("Failed to open: %s, %s\n",
-		         m_ctx->path.c_str(), strerror(errno));
+		         m_impl->path.c_str(), strerror(errno));
 		return false;
 	}
 
@@ -484,12 +484,12 @@ bool NamedPipe::writeBuf(SmartBuffer &buf, bool &fullyWritten, bool flush)
 	gsize bytesWritten;
 	GError *error = NULL;
 	GIOStatus stat =
-	  g_io_channel_write_chars(m_ctx->ioch, dataPtr, count,
+	  g_io_channel_write_chars(m_impl->ioch, dataPtr, count,
 	                           &bytesWritten, &error);
 	if (!checkGIOStatus(stat, error))
 		return false;
 	if (flush) {
-		stat = g_io_channel_flush(m_ctx->ioch, &error);
+		stat = g_io_channel_flush(m_impl->ioch, &error);
 		if (!checkGIOStatus(stat, error))
 			return false;
 	}
@@ -502,17 +502,17 @@ bool NamedPipe::writeBuf(SmartBuffer &buf, bool &fullyWritten, bool flush)
 void NamedPipe::enableWriteCbIfNeeded(void)
 {
 	// We assume that this function is called
-	// with the lock of m_ctx->writeBufListLock.
-	if (m_ctx->iochDataEvtId != INVALID_EVENT_ID)
+	// with the lock of m_impl->writeBufListLock.
+	if (m_impl->iochDataEvtId != INVALID_EVENT_ID)
 		return;
 	GIOCondition cond = G_IO_OUT;
-	m_ctx->iochDataEvtId = g_io_add_watch(m_ctx->ioch, cond, writeCb, this);
+	m_impl->iochDataEvtId = g_io_add_watch(m_impl->ioch, cond, writeCb, this);
 }
 
 void NamedPipe::enableReadCb(void)
 {
 	GIOCondition cond = G_IO_IN;
-	m_ctx->iochDataEvtId = g_io_add_watch(m_ctx->ioch, cond, readCb, this);
+	m_impl->iochDataEvtId = g_io_add_watch(m_impl->ioch, cond, readCb, this);
 }
 
 bool NamedPipe::isExistingDir(const string &dirname, bool &hasError)

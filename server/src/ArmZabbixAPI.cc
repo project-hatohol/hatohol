@@ -40,14 +40,14 @@ using namespace std;
 static const uint64_t NUMBER_OF_GET_EVENT_PER_ONCE  = 1000;
 static const guint DEFAULT_IDLE_TIMEOUT = 60;
 
-struct ArmZabbixAPI::PrivateContext
+struct ArmZabbixAPI::Impl
 {
 	const ServerIdType zabbixServerId;
 	DBClientHatohol    dbClientHatohol;
 	HostInfoCache      hostInfoCache;
 
 	// constructors
-	PrivateContext(const MonitoringServerInfo &serverInfo)
+	Impl(const MonitoringServerInfo &serverInfo)
 	: zabbixServerId(serverInfo.id)
 	{
 	}
@@ -60,16 +60,16 @@ class connectionException : public HatoholException {};
 // ---------------------------------------------------------------------------
 ArmZabbixAPI::ArmZabbixAPI(const MonitoringServerInfo &serverInfo)
 : ArmBase("ArmZabbixAPI", serverInfo),
-  m_ctx(NULL)
+  m_impl(NULL)
 {
 	setMonitoringServerInfo(serverInfo);
-	m_ctx = new PrivateContext(serverInfo);
+	m_impl = new Impl(serverInfo);
 }
 
 ArmZabbixAPI::~ArmZabbixAPI()
 {
 	requestExitAndWait();
-	delete m_ctx;
+	delete m_impl;
 }
 
 void ArmZabbixAPI::onGotNewEvents(const ItemTablePtr &itemPtr)
@@ -83,7 +83,7 @@ void ArmZabbixAPI::onGotNewEvents(const ItemTablePtr &itemPtr)
 ItemTablePtr ArmZabbixAPI::updateTriggers(void)
 {
 	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
-	SmartTime last = uds->getTimestampOfLastTrigger(m_ctx->zabbixServerId);
+	SmartTime last = uds->getTimestampOfLastTrigger(m_impl->zabbixServerId);
 	const int requestSince = last.getAsTimespec().tv_sec;
 	return getTrigger(requestSince);
 }
@@ -112,7 +112,7 @@ void ArmZabbixAPI::updateEvents(void)
 	}
 
 	const uint64_t dbLastEventId =
-	  m_ctx->dbClientHatohol.getLastEventId(m_ctx->zabbixServerId);
+	  m_impl->dbClientHatohol.getLastEventId(m_impl->zabbixServerId);
 	uint64_t eventIdOffset = 0;
 
 	if (dbLastEventId == EVENT_NOT_FOUND) {
@@ -166,16 +166,16 @@ void ArmZabbixAPI::makeHatoholTriggers(ItemTablePtr triggers)
 {
 	TriggerInfoList triggerInfoList;
 	HatoholDBUtils::transformTriggersToHatoholFormat(
-	  triggerInfoList, triggers, m_ctx->zabbixServerId,
-	  m_ctx->hostInfoCache);
-	m_ctx->dbClientHatohol.addTriggerInfoList(triggerInfoList);
+	  triggerInfoList, triggers, m_impl->zabbixServerId,
+	  m_impl->hostInfoCache);
+	m_impl->dbClientHatohol.addTriggerInfoList(triggerInfoList);
 }
 
 void ArmZabbixAPI::makeHatoholEvents(ItemTablePtr events)
 {
 	EventInfoList eventInfoList;
 	HatoholDBUtils::transformEventsToHatoholFormat(
-	  eventInfoList, events, m_ctx->zabbixServerId);
+	  eventInfoList, events, m_impl->zabbixServerId);
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	dataStore->addEventList(eventInfoList);
@@ -186,40 +186,40 @@ void ArmZabbixAPI::makeHatoholItems(
 {
 	ItemInfoList itemInfoList;
 	MonitoringServerStatus serverStatus;
-	serverStatus.serverId = m_ctx->zabbixServerId;
+	serverStatus.serverId = m_impl->zabbixServerId;
 	HatoholDBUtils::transformItemsToHatoholFormat(
 	  itemInfoList, serverStatus, items, applications);
-	m_ctx->dbClientHatohol.addItemInfoList(itemInfoList);
-	m_ctx->dbClientHatohol.addMonitoringServerStatus(&serverStatus);
+	m_impl->dbClientHatohol.addItemInfoList(itemInfoList);
+	m_impl->dbClientHatohol.addMonitoringServerStatus(&serverStatus);
 }
 
 void ArmZabbixAPI::makeHatoholHostgroups(ItemTablePtr groups)
 {
 	HostgroupInfoList groupInfoList;
 	HatoholDBUtils::transformGroupsToHatoholFormat(groupInfoList, groups,
-	                                               m_ctx->zabbixServerId);
-	m_ctx->dbClientHatohol.addHostgroupInfoList(groupInfoList);
+	                                               m_impl->zabbixServerId);
+	m_impl->dbClientHatohol.addHostgroupInfoList(groupInfoList);
 }
 
 void ArmZabbixAPI::makeHatoholMapHostsHostgroups(ItemTablePtr hostsGroups)
 {
 	HostgroupElementList hostgroupElementList;
 	HatoholDBUtils::transformHostsGroupsToHatoholFormat(
-	  hostgroupElementList, hostsGroups, m_ctx->zabbixServerId);
-	m_ctx->dbClientHatohol.addHostgroupElementList(hostgroupElementList);
+	  hostgroupElementList, hostsGroups, m_impl->zabbixServerId);
+	m_impl->dbClientHatohol.addHostgroupElementList(hostgroupElementList);
 }
 
 void ArmZabbixAPI::makeHatoholHosts(ItemTablePtr hosts)
 {
 	HostInfoList hostInfoList;
 	HatoholDBUtils::transformHostsToHatoholFormat(hostInfoList, hosts,
-	                                              m_ctx->zabbixServerId);
-	m_ctx->dbClientHatohol.addHostInfoList(hostInfoList);
+	                                              m_impl->zabbixServerId);
+	m_impl->dbClientHatohol.addHostInfoList(hostInfoList);
 
 	// TODO: consider if DBClientHatohol should have the cache
 	HostInfoListConstIterator hostInfoItr = hostInfoList.begin();
 	for (; hostInfoItr != hostInfoList.end(); ++hostInfoItr)
-		m_ctx->hostInfoCache.update(*hostInfoItr);
+		m_impl->hostInfoCache.update(*hostInfoItr);
 }
 
 uint64_t ArmZabbixAPI::getMaximumNumberGetEventPerOnce(void)

@@ -177,8 +177,8 @@ protected:
 	bool checkGIOStatus(GIOStatus stat, GError *error);
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	Impl *m_impl;
 };
 
 #endif // NamedPipe_h

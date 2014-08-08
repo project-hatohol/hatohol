@@ -21,11 +21,11 @@
 
 #include <cstdio>
 
-struct DataStoreFake::PrivateContext
+struct DataStoreFake::Impl
 {
 	ArmFake  armFake;
 
-	PrivateContext(const MonitoringServerInfo &serverInfo)
+	Impl(const MonitoringServerInfo &serverInfo)
 	: armFake(serverInfo)
 	{
 	}
@@ -36,26 +36,26 @@ struct DataStoreFake::PrivateContext
 // ---------------------------------------------------------------------------
 DataStoreFake::DataStoreFake(
   const MonitoringServerInfo &serverInfo, const bool &autoStart)
-: m_ctx(NULL)
+: m_impl(NULL)
 {
-	m_ctx = new PrivateContext(serverInfo);
+	m_impl = new Impl(serverInfo);
 	if (autoStart)
-		m_ctx->armFake.start();
+		m_impl->armFake.start();
 }
 
 DataStoreFake::~DataStoreFake()
 {
-	delete m_ctx;
+	delete m_impl;
 }
 
 ArmBase &DataStoreFake::getArmBase(void)
 {
-	return m_ctx->armFake;
+	return m_impl->armFake;
 }
 
 void DataStoreFake::setCopyOnDemandEnable(bool enable)
 {
-	m_ctx->armFake.setCopyOnDemandEnabled(enable);
+	m_impl->armFake.setCopyOnDemandEnabled(enable);
 }
 
 // ---------------------------------------------------------------------------

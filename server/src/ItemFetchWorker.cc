@@ -28,7 +28,7 @@
 using namespace std;
 using namespace mlpl;
 
-struct ItemFetchWorker::PrivateContext
+struct ItemFetchWorker::Impl
 {
 	const static size_t      maxRunningArms    = 8;
 	const static timespec    minUpdateInterval;
@@ -40,32 +40,32 @@ struct ItemFetchWorker::PrivateContext
 	sem_t           updatedSemaphore;
 	Signal          itemFetchedSignal;
 
-	PrivateContext(void)
+	Impl(void)
 	: remainingArmsCount(0)
 	{
 		sem_init(&updatedSemaphore, 0, 0);
 	}
 
-	virtual ~PrivateContext()
+	virtual ~Impl()
 	{
 		sem_destroy(&updatedSemaphore);
 	};
 };
 
-const timespec ItemFetchWorker::PrivateContext::minUpdateInterval = {10, 0};
+const timespec ItemFetchWorker::Impl::minUpdateInterval = {10, 0};
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 ItemFetchWorker::ItemFetchWorker(void)
-: m_ctx(NULL)
+: m_impl(NULL)
 {
-	m_ctx = new PrivateContext();
+	m_impl = new Impl();
 }
 
 ItemFetchWorker::~ItemFetchWorker()
 {
-	delete m_ctx;
+	delete m_impl;
 }
 
 bool ItemFetchWorker::start(
@@ -77,10 +77,10 @@ bool ItemFetchWorker::start(
 	if (allDataStores.empty())
 		return false;
 
-	m_ctx->rwlock.writeLock();
+	m_impl->rwlock.writeLock();
 	if (closure)
-		m_ctx->itemFetchedSignal.connect(closure);
-	m_ctx->remainingArmsCount = allDataStores.size();
+		m_impl->itemFetchedSignal.connect(closure);
+	m_impl->remainingArmsCount = allDataStores.size();
 	for (size_t i = 0; i < allDataStores.size(); i++) {
 		DataStore *dataStore = allDataStores[i];
 
@@ -93,38 +93,38 @@ bool ItemFetchWorker::start(
 			shouldWake = false;
 
 		if (!shouldWake) {
-			m_ctx->remainingArmsCount--;
+			m_impl->remainingArmsCount--;
 			dataStore->unref();
 			continue;
 		}
 
-		if (i < PrivateContext::maxRunningArms)
+		if (i < Impl::maxRunningArms)
 			wakeArm(dataStore);
 		else
-			m_ctx->updateArmsQueue.push_back(dataStore);
+			m_impl->updateArmsQueue.push_back(dataStore);
 	}
 
-	bool started = m_ctx->remainingArmsCount > 0;
-	m_ctx->rwlock.unlock();
+	bool started = m_impl->remainingArmsCount > 0;
+	m_impl->rwlock.unlock();
 
 	return started;
 }
 
 bool ItemFetchWorker::updateIsNeeded(void)
 {
-	m_ctx->rwlock.readLock();
-	Reaper<ReadWriteLock> lockReaper(&m_ctx->rwlock, ReadWriteLock::unlock);
+	m_impl->rwlock.readLock();
+	Reaper<ReadWriteLock> lockReaper(&m_impl->rwlock, ReadWriteLock::unlock);
 
-	if (m_ctx->remainingArmsCount > 0)
+	if (m_impl->remainingArmsCount > 0)
 		return false;
 
 	SmartTime currTime(SmartTime::INIT_CURR_TIME);
-	return currTime >= m_ctx->nextAllowedUpdateTime;
+	return currTime >= m_impl->nextAllowedUpdateTime;
 }
 
 void ItemFetchWorker::waitCompletion(void)
 {
-	if (sem_wait(&m_ctx->updatedSemaphore) == -1)
+	if (sem_wait(&m_impl->updatedSemaphore) == -1)
 		MLPL_ERR("Failed to call sem_wait: %d\n", errno);
 }
 
@@ -133,25 +133,25 @@ void ItemFetchWorker::waitCompletion(void)
 // ---------------------------------------------------------------------------
 void ItemFetchWorker::updatedCallback(ClosureBase *closure)
 {
-	m_ctx->rwlock.writeLock();
-	Reaper<ReadWriteLock> lockReaper(&m_ctx->rwlock, ReadWriteLock::unlock);
+	m_impl->rwlock.writeLock();
+	Reaper<ReadWriteLock> lockReaper(&m_impl->rwlock, ReadWriteLock::unlock);
 
-	DataStoreVector &updateArmsQueue = m_ctx->updateArmsQueue;
+	DataStoreVector &updateArmsQueue = m_impl->updateArmsQueue;
 	if (!updateArmsQueue.empty()) {
 		wakeArm(updateArmsQueue.front());
 		updateArmsQueue.erase(updateArmsQueue.begin());
 	}
 
-	m_ctx->remainingArmsCount--;
-	if (m_ctx->remainingArmsCount > 0)
+	m_impl->remainingArmsCount--;
+	if (m_impl->remainingArmsCount > 0)
 		return;
 
-	if (sem_post(&m_ctx->updatedSemaphore) == -1)
+	if (sem_post(&m_impl->updatedSemaphore) == -1)
 		MLPL_ERR("Failed to call sem_post: %d\n", errno);
-	m_ctx->nextAllowedUpdateTime.setCurrTime();
-	m_ctx->nextAllowedUpdateTime += m_ctx->minUpdateInterval;
-	m_ctx->itemFetchedSignal();
-	m_ctx->itemFetchedSignal.clear();
+	m_impl->nextAllowedUpdateTime.setCurrTime();
+	m_impl->nextAllowedUpdateTime += m_impl->minUpdateInterval;
+	m_impl->itemFetchedSignal();
+	m_impl->itemFetchedSignal.clear();
 }
 
 void ItemFetchWorker::wakeArm(DataStore *dataStore)
@@ -160,8 +160,8 @@ void ItemFetchWorker::wakeArm(DataStore *dataStore)
 	{
 		DataStore *dataStore;
 
-		ClosureWithDataStore(ItemFetchWorker *ctx, DataStore *ds)
-		: Closure<ItemFetchWorker>(ctx,
+		ClosureWithDataStore(ItemFetchWorker *impl, DataStore *ds)
+		: Closure<ItemFetchWorker>(impl,
 		                           &ItemFetchWorker::updatedCallback),
 		  dataStore(ds)
 		{

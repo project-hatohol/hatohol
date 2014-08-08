@@ -181,13 +181,13 @@ private:
 	}
 };
 
-struct HatoholArmPluginGateJSON::PrivateContext
+struct HatoholArmPluginGateJSON::Impl
 {
 	AMQPConsumer *m_consumer;
 	AMQPJSONMessageHandler *m_handler;
 	ArmFake m_armFake;
 
-	PrivateContext(const MonitoringServerInfo &serverInfo)
+	Impl(const MonitoringServerInfo &serverInfo)
 	: m_consumer(NULL),
 	  m_handler(NULL),
 	  m_armFake(serverInfo)
@@ -218,7 +218,7 @@ struct HatoholArmPluginGateJSON::PrivateContext
 					      m_handler);
 	}
 
-	~PrivateContext()
+	~Impl()
 	{
 		if (m_consumer) {
 			m_consumer->exitSync();
@@ -248,16 +248,16 @@ private:
 HatoholArmPluginGateJSON::HatoholArmPluginGateJSON(
   const MonitoringServerInfo &serverInfo,
   const bool &autoStart)
-: m_ctx(new PrivateContext(serverInfo))
+: m_impl(new Impl(serverInfo))
 {
 	if (autoStart) {
-		m_ctx->start();
+		m_impl->start();
 	}
 }
 
 ArmBase &HatoholArmPluginGateJSON::getArmBase(void)
 {
-	return m_ctx->m_armFake;
+	return m_impl->m_armFake;
 }
 
 // ---------------------------------------------------------------------------
@@ -265,5 +265,5 @@ ArmBase &HatoholArmPluginGateJSON::getArmBase(void)
 // ---------------------------------------------------------------------------
 HatoholArmPluginGateJSON::~HatoholArmPluginGateJSON()
 {
-	delete m_ctx;
+	delete m_impl;
 }

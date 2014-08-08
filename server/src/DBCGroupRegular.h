@@ -32,8 +32,8 @@ public:
 	~DBCGroupRegular();
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	Impl *m_impl;
 };
 
 #endif // DBClientHost_h

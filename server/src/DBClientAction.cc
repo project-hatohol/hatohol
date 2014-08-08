@@ -403,13 +403,13 @@ static const DBClient::DBSetupFuncArg DB_ACTION_SETUP_FUNC_ARG = {
 	&updateDB,
 };
 
-struct DBClientAction::PrivateContext
+struct DBClientAction::Impl
 {
-	PrivateContext(void)
+	Impl(void)
 	{
 	}
 
-	virtual ~PrivateContext()
+	virtual ~Impl()
 	{
 	}
 };
@@ -472,14 +472,14 @@ const char *DBClientAction::getTableNameActionLogs(void)
 
 DBClientAction::DBClientAction(void)
 : DBClient(DB_DOMAIN_ID_ACTION),
-  m_ctx(NULL)
+  m_impl(NULL)
 {
-	m_ctx = new PrivateContext();
+	m_impl = new Impl();
 }
 
 DBClientAction::~DBClientAction()
 {
-	delete m_ctx;
+	delete m_impl;
 }
 
 HatoholError DBClientAction::addAction(ActionDef &actionDef,
@@ -1062,7 +1062,7 @@ void DBClientAction::stopIdleDeleteAction(gpointer data)
 // ---------------------------------------------------------------------------
 // ActionsQueryOption
 // ---------------------------------------------------------------------------
-struct ActionsQueryOption::PrivateContext {
+struct ActionsQueryOption::Impl {
 	static const string conditionTemplate;
 
 	ActionsQueryOption *option;
@@ -1071,7 +1071,7 @@ struct ActionsQueryOption::PrivateContext {
 	ActionType type;
 	ActionIdList idList;
 
-	PrivateContext(ActionsQueryOption *_option)
+	Impl(ActionsQueryOption *_option)
 	: option(_option), eventInfo(NULL), type(ACTION_USER_DEFINED)
 	{
 	}
@@ -1080,10 +1080,10 @@ struct ActionsQueryOption::PrivateContext {
 	string getActionTypeAndOwnerCondition(void);
 };
 
-const string ActionsQueryOption::PrivateContext::conditionTemplate
+const string ActionsQueryOption::Impl::conditionTemplate
   = makeConditionTemplate();
 
-string ActionsQueryOption::PrivateContext::makeConditionTemplate(void)
+string ActionsQueryOption::Impl::makeConditionTemplate(void)
 {
 	string cond;
 
@@ -1141,60 +1141,60 @@ string ActionsQueryOption::PrivateContext::makeConditionTemplate(void)
 }
 
 ActionsQueryOption::ActionsQueryOption(const UserIdType &userId)
-: DataQueryOption(userId), m_ctx(NULL)
+: DataQueryOption(userId), m_impl(NULL)
 {
-	m_ctx = new PrivateContext(this);
+	m_impl = new Impl(this);
 }
 
 ActionsQueryOption::ActionsQueryOption(DataQueryContext *dataQueryContext)
-: DataQueryOption(dataQueryContext), m_ctx(NULL)
+: DataQueryOption(dataQueryContext), m_impl(NULL)
 {
-	m_ctx = new PrivateContext(this);
+	m_impl = new Impl(this);
 }
 
 ActionsQueryOption::ActionsQueryOption(const ActionsQueryOption &src)
-: DataQueryOption(src), m_ctx(NULL)
+: DataQueryOption(src), m_impl(NULL)
 {
-	m_ctx = new PrivateContext(this);
-	*m_ctx = *src.m_ctx;
+	m_impl = new Impl(this);
+	*m_impl = *src.m_impl;
 }
 
 ActionsQueryOption::~ActionsQueryOption()
 {
-	delete m_ctx;
+	delete m_impl;
 }
 
 void ActionsQueryOption::setTargetEventInfo(const EventInfo *eventInfo)
 {
-	m_ctx->eventInfo = eventInfo;
+	m_impl->eventInfo = eventInfo;
 }
 
 const EventInfo *ActionsQueryOption::getTargetEventInfo(void) const
 {
-	return m_ctx->eventInfo;
+	return m_impl->eventInfo;
 }
 
 void ActionsQueryOption::setActionType(const ActionType &type)
 {
-	m_ctx->type = type;
+	m_impl->type = type;
 }
 
 const ActionType &ActionsQueryOption::getActionType(void)
 {
-	return m_ctx->type;
+	return m_impl->type;
 }
 
 void ActionsQueryOption::setActionIdList(const ActionIdList &_idList)
 {
-	m_ctx->idList = _idList;
+	m_impl->idList = _idList;
 }
 
 const ActionIdList &ActionsQueryOption::getActionIdList(void)
 {
-	return m_ctx->idList;
+	return m_impl->idList;
 }
 
-string ActionsQueryOption::PrivateContext::getActionTypeAndOwnerCondition(void)
+string ActionsQueryOption::Impl::getActionTypeAndOwnerCondition(void)
 {
 	string ownerCondition;
 	if (!option->has(OPPRVLG_GET_ALL_ACTION))
@@ -1245,7 +1245,7 @@ string ActionsQueryOption::getCondition(void) const
 	string cond;
 
 	// filter by action type
-	string actionTypeCondition = m_ctx->getActionTypeAndOwnerCondition();
+	string actionTypeCondition = m_impl->getActionTypeAndOwnerCondition();
 	if (!actionTypeCondition.empty()) {
 		if (!cond.empty())
 			cond += " AND ";
@@ -1253,18 +1253,18 @@ string ActionsQueryOption::getCondition(void) const
 	}
 
 	// filter by ID list
-	if (!m_ctx->idList.empty()) {
+	if (!m_impl->idList.empty()) {
 		if (!cond.empty())
 			cond += " AND ";
-		cond += makeIdListCondition(m_ctx->idList);
+		cond += makeIdListCondition(m_impl->idList);
 	}
 
 	// filter by EventInfo
-	const EventInfo *eventInfo = m_ctx->eventInfo;
+	const EventInfo *eventInfo = m_impl->eventInfo;
 	if (!eventInfo)
 		return cond;
 
-	HATOHOL_ASSERT(!m_ctx->conditionTemplate.empty(),
+	HATOHOL_ASSERT(!m_impl->conditionTemplate.empty(),
 	               "ActionDef condition template is empty.");
 	TriggerInfo triggerInfo;
 	// TODO: eventInfo should always be filled before this function
@@ -1283,7 +1283,7 @@ string ActionsQueryOption::getCondition(void) const
 	  triggerInfo.serverId, triggerInfo.hostId);
 	if (!cond.empty())
 		cond += " AND ";
-	cond += StringUtils::sprintf(m_ctx->conditionTemplate.c_str(),
+	cond += StringUtils::sprintf(m_impl->conditionTemplate.c_str(),
 	                       eventInfo->serverId,
 	                       triggerInfo.hostId,
 	                       hostgroupIdList.c_str(),

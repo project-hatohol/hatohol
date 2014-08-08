@@ -56,7 +56,7 @@ const size_t SessionManager::DEFAULT_TIMEOUT = -1;
 const size_t SessionManager::NO_TIMEOUT = 0;
 const char * SessionManager::ENV_NAME_TIMEOUT = "HATOHOL_SESSION_TIMEOUT";
 
-struct SessionManager::PrivateContext {
+struct SessionManager::Impl {
 	static Mutex           initLock;
 	static SessionManager *instance;
 	static size_t defaultTimeout;
@@ -64,7 +64,7 @@ struct SessionManager::PrivateContext {
 	ReadWriteLock rwlock;
 	SessionIdMap  sessionIdMap;
 
-	virtual ~PrivateContext() {
+	virtual ~Impl() {
 		rwlock.writeLock();
 		SessionIdMapIterator it = sessionIdMap.begin();
 		for (; it != sessionIdMap.end(); ++it) {
@@ -89,9 +89,9 @@ private:
 	}
 };
 
-SessionManager *SessionManager::PrivateContext::instance = NULL;
-Mutex           SessionManager::PrivateContext::initLock;
-size_t SessionManager::PrivateContext::defaultTimeout = INITIAL_TIMEOUT;
+SessionManager *SessionManager::Impl::instance = NULL;
+Mutex           SessionManager::Impl::initLock;
+size_t SessionManager::Impl::defaultTimeout = INITIAL_TIMEOUT;
 
 
 // ---------------------------------------------------------------------------
@@ -99,10 +99,10 @@ size_t SessionManager::PrivateContext::defaultTimeout = INITIAL_TIMEOUT;
 // ---------------------------------------------------------------------------
 void SessionManager::reset(void)
 {
-	delete PrivateContext::instance;
-	PrivateContext::instance = NULL;
+	delete Impl::instance;
+	Impl::instance = NULL;
 
-	PrivateContext::defaultTimeout = INITIAL_TIMEOUT;
+	Impl::defaultTimeout = INITIAL_TIMEOUT;
 	char *env = getenv(ENV_NAME_TIMEOUT);
 	if (env) {
 		size_t timeout = 0;
@@ -110,20 +110,20 @@ void SessionManager::reset(void)
 			MLPL_ERR("Invalid value: %s. Use the default timeout\n",
 			         env);
 		} else {
-			PrivateContext::defaultTimeout = timeout;
+			Impl::defaultTimeout = timeout;
 		}
 		MLPL_INFO("Default session timeout: %zd (sec)\n",
-		          PrivateContext::defaultTimeout);
+		          Impl::defaultTimeout);
 	}
 }
 
 SessionManager *SessionManager::getInstance(void)
 {
-	PrivateContext::initLock.lock();
-	if (!PrivateContext::instance)
-		PrivateContext::instance = new SessionManager();
-	PrivateContext::initLock.unlock();
-	return PrivateContext::instance;
+	Impl::initLock.lock();
+	if (!Impl::instance)
+		Impl::instance = new SessionManager();
+	Impl::initLock.unlock();
+	return Impl::instance;
 }
 
 string SessionManager::create(const UserIdType &userId, const size_t &timeout)
@@ -133,7 +133,7 @@ string SessionManager::create(const UserIdType &userId, const size_t &timeout)
 	session->id = generateSessionId();
 	session->sessionMgr = this;
 	if (timeout == DEFAULT_TIMEOUT)
-		session->timeout =  m_ctx->defaultTimeout;
+		session->timeout =  m_impl->defaultTimeout;
 	else
 		session->timeout = timeout;
 	updateTimer(session);
@@ -143,9 +143,9 @@ string SessionManager::create(const UserIdType &userId, const size_t &timeout)
 SessionPtr SessionManager::getSession(const string &sessionId)
 {
 	Session *session = NULL;
-	m_ctx->rwlock.readLock();
-	SessionIdMapIterator it = m_ctx->sessionIdMap.find(sessionId);
-	if (it != m_ctx->sessionIdMap.end())
+	m_impl->rwlock.readLock();
+	SessionIdMapIterator it = m_impl->sessionIdMap.find(sessionId);
+	if (it != m_impl->sessionIdMap.end())
 		session = it->second;
 
 	// Making sessionPtr inside the lock is important. It icrements the
@@ -154,7 +154,7 @@ SessionPtr SessionManager::getSession(const string &sessionId)
 	// is not deleted.
 	SessionPtr sessionPtr(session);
 
-	m_ctx->rwlock.unlock();
+	m_impl->rwlock.unlock();
 
 	// Update the timer on the GLib event loop so that updateTimer() and
 	// timerCb() can be executed exclusively.
@@ -167,13 +167,13 @@ SessionPtr SessionManager::getSession(const string &sessionId)
 bool SessionManager::remove(const string &sessionId)
 {
 	Session *session = NULL;
-	m_ctx->rwlock.writeLock();
-	SessionIdMapIterator it = m_ctx->sessionIdMap.find(sessionId);
-	if (it != m_ctx->sessionIdMap.end()) {
+	m_impl->rwlock.writeLock();
+	SessionIdMapIterator it = m_impl->sessionIdMap.find(sessionId);
+	if (it != m_impl->sessionIdMap.end()) {
 		session = it->second;
-		m_ctx->sessionIdMap.erase(it);
+		m_impl->sessionIdMap.erase(it);
 	}
-	m_ctx->rwlock.unlock();
+	m_impl->rwlock.unlock();
 	if (!session)
 		return false;
 	session->unref();
@@ -182,32 +182,32 @@ bool SessionManager::remove(const string &sessionId)
 
 const SessionIdMap &SessionManager::getSessionIdMap(void)
 {
-	m_ctx->rwlock.readLock();
-	return m_ctx->sessionIdMap;
+	m_impl->rwlock.readLock();
+	return m_impl->sessionIdMap;
 }
 
 void SessionManager::releaseSessionIdMap(void)
 {
-	m_ctx->rwlock.unlock();
+	m_impl->rwlock.unlock();
 }
 
 const size_t SessionManager::getDefaultTimeout(void)
 {
-	return PrivateContext::defaultTimeout;
+	return Impl::defaultTimeout;
 }
 
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
 SessionManager::SessionManager(void)
-: m_ctx(NULL)
+: m_impl(NULL)
 {
-	m_ctx = new PrivateContext();
+	m_impl = new Impl();
 }
 
 SessionManager::~SessionManager()
 {
-	delete m_ctx;
+	delete m_impl;
 }
 
 string SessionManager::generateSessionId(void)
@@ -223,7 +223,7 @@ string SessionManager::generateSessionId(void)
 
 void SessionManager::updateTimer(Session *session)
 {
-	PrivateContext *ctx = session->sessionMgr->m_ctx;
+	Impl *impl = session->sessionMgr->m_impl;
 	Utils::removeGSourceIfNeeded(session->timerId);
 
 	if (session->timeout) {
@@ -232,13 +232,13 @@ void SessionManager::updateTimer(Session *session)
 	}
 	session->lastAccessTime.setCurrTime();
 
-	// If timerCb() is called between 'm_ctx->rwlock.unlock()' and
+	// If timerCb() is called between 'm_impl->rwlock.unlock()' and
 	// this function running on another thread, the session is
 	// removed from sessionIdMap. So we have to insert session
 	// into sessionIdMap every time.
-	ctx->rwlock.writeLock();
-	ctx->sessionIdMap[session->id] = session;
-	ctx->rwlock.unlock();
+	impl->rwlock.writeLock();
+	impl->sessionIdMap[session->id] = session;
+	impl->rwlock.unlock();
 };
 
 gboolean SessionManager::timerCb(gpointer data)

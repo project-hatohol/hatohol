@@ -51,7 +51,7 @@ private:
 	 */
 	static void *operator new(size_t) {return NULL;}
 
-	struct PrivateContext;
+	struct Impl;
 
 	template <class T> T *get(DBDomainId domainId);
 };

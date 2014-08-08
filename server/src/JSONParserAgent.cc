@@ -24,14 +24,14 @@
 using namespace std;
 using namespace mlpl;
 
-struct JSONParserAgent::PrivateContext
+struct JSONParserAgent::Impl
 {
 	JsonParser *parser;
 	JsonNode *currentNode;
 	JsonNode *previousNode;
 	GError *error;
 
-	PrivateContext(const string &data)
+	Impl(const string &data)
 	: parser(NULL),
 	  currentNode(NULL),
 	  previousNode(NULL),
@@ -43,7 +43,7 @@ struct JSONParserAgent::PrivateContext
 		currentNode = json_parser_get_root(parser);
 	}
 
-	virtual ~PrivateContext()
+	virtual ~Impl()
 	{
 		if (error)
 			g_error_free(error);
@@ -56,26 +56,26 @@ struct JSONParserAgent::PrivateContext
 // Public methods
 // ---------------------------------------------------------------------------
 JSONParserAgent::JSONParserAgent(const string &data)
-: m_ctx(NULL)
+: m_impl(NULL)
 {
-	m_ctx = new PrivateContext(data);
+	m_impl = new Impl(data);
 }
 
 JSONParserAgent::~JSONParserAgent()
 {
-	delete m_ctx;
+	delete m_impl;
 }
 
 const char *JSONParserAgent::getErrorMessage(void)
 {
-	if (!m_ctx->error)
+	if (!m_impl->error)
 		return "No error";
-	return m_ctx->error->message;
+	return m_impl->error->message;
 }
 
 bool JSONParserAgent::hasError(void)
 {
-	return m_ctx->error != NULL;
+	return m_impl->error != NULL;
 }
 
 bool JSONParserAgent::read(const string &member, bool &dest)
@@ -84,7 +84,7 @@ bool JSONParserAgent::read(const string &member, bool &dest)
 	if (!startObject(member))
 		return false;
 
-	dest = json_node_get_boolean(m_ctx->currentNode);
+	dest = json_node_get_boolean(m_impl->currentNode);
 	endObject();
 	return true;
 }
@@ -95,7 +95,7 @@ bool JSONParserAgent::read(const string &member, int64_t &dest)
 	if (!startObject(member))
 		return false;
 
-	dest = json_node_get_int(m_ctx->currentNode);
+	dest = json_node_get_int(m_impl->currentNode);
 	endObject();
 	return true;
 }
@@ -106,7 +106,7 @@ bool JSONParserAgent::read(const string &member, string &dest)
 	if (!startObject(member))
 		return false;
 
-	const gchar *str = json_node_get_string(m_ctx->currentNode);
+	const gchar *str = json_node_get_string(m_impl->currentNode);
 	dest = str ? str : "";
 	endObject();
 	return true;
@@ -118,7 +118,7 @@ bool JSONParserAgent::read(int index, string &dest)
 	if (!startElement(index))
 		return false;
 
-	const gchar *str = json_node_get_string(m_ctx->currentNode);
+	const gchar *str = json_node_get_string(m_impl->currentNode);
 	dest = str ? str : "";
 	endElement();
 	return true;
@@ -130,7 +130,7 @@ bool JSONParserAgent::isNull(const string &member, bool &dest)
 	if (!startObject(member))
 		return false;
 
-	dest = JSON_NODE_HOLDS_NULL(m_ctx->currentNode);
+	dest = JSON_NODE_HOLDS_NULL(m_impl->currentNode);
 	endObject();
 	return true;
 }
@@ -139,7 +139,7 @@ bool JSONParserAgent::isMember(const string &member)
 {
 	JsonObject *object;
 
-	object = json_node_get_object(m_ctx->currentNode);
+	object = json_node_get_object(m_impl->currentNode);
 	if(!json_object_has_member(object, member.c_str())) {
 		MLPL_DBG("The member '%s' is not defined in the current node.\n",
 				member.c_str());
@@ -156,9 +156,9 @@ bool JSONParserAgent::startObject(const string &member)
 	if (!isMember(member))
 		return false;
 
-	object = json_node_get_object(m_ctx->currentNode);
-	m_ctx->previousNode = m_ctx->currentNode;
-	m_ctx->currentNode = json_object_get_member(object, member.c_str());
+	object = json_node_get_object(m_impl->currentNode);
+	m_impl->previousNode = m_impl->currentNode;
+	m_impl->currentNode = json_object_get_member(object, member.c_str());
 	return true;
 }
 
@@ -166,20 +166,20 @@ void JSONParserAgent::endObject(void)
 {
 	JsonNode *tmp;
 
-	if (m_ctx->previousNode != NULL)
-		tmp = json_node_get_parent(m_ctx->previousNode);
+	if (m_impl->previousNode != NULL)
+		tmp = json_node_get_parent(m_impl->previousNode);
 	else
 		tmp = NULL;
 
-	m_ctx->currentNode = m_ctx->previousNode;
-	m_ctx->previousNode = tmp;
+	m_impl->currentNode = m_impl->previousNode;
+	m_impl->previousNode = tmp;
 }
 
 bool JSONParserAgent::startElement(unsigned int index)
 {
-	switch (json_node_get_node_type(m_ctx->currentNode)) {
+	switch (json_node_get_node_type(m_impl->currentNode)) {
 	case JSON_NODE_ARRAY: {
-		JsonArray * array = json_node_get_array(m_ctx->currentNode);
+		JsonArray * array = json_node_get_array(m_impl->currentNode);
 
 		if (index >= json_array_get_length(array)) {
 			MLPL_DBG("The index '%d' is greater than the size of "
@@ -187,12 +187,12 @@ bool JSONParserAgent::startElement(unsigned int index)
 			return false;
 		}
 
-		m_ctx->previousNode = m_ctx->currentNode;
-		m_ctx->currentNode = json_array_get_element(array, index);
+		m_impl->previousNode = m_impl->currentNode;
+		m_impl->currentNode = json_array_get_element(array, index);
 	}
 	break;
 	case JSON_NODE_OBJECT: {
-		JsonObject *object = json_node_get_object(m_ctx->currentNode);
+		JsonObject *object = json_node_get_object(m_impl->currentNode);
 		GList *members;
 		const gchar *name;
 
@@ -202,10 +202,10 @@ bool JSONParserAgent::startElement(unsigned int index)
 			return false;
 		}
 
-		m_ctx->previousNode = m_ctx->currentNode;
+		m_impl->previousNode = m_impl->currentNode;
 		members = json_object_get_members(object);
 		name = static_cast<gchar *>(g_list_nth_data(members, index));
-		m_ctx->currentNode = json_object_get_member(object, name);
+		m_impl->currentNode = json_object_get_member(object, name);
 
 		g_list_free(members);
 	}
@@ -225,7 +225,7 @@ void JSONParserAgent::endElement(void)
 
 unsigned int JSONParserAgent::countElements(void)
 {
-	return json_array_get_length(json_node_get_array(m_ctx->currentNode));
+	return json_array_get_length(json_node_get_array(m_impl->currentNode));
 }
 
 // ---------------------------------------------------------------------------
@@ -233,5 +233,5 @@ unsigned int JSONParserAgent::countElements(void)
 // ---------------------------------------------------------------------------
 void JSONParserAgent::internalCheck(void)
 {
-	HATOHOL_ASSERT(m_ctx->currentNode, "CurrentNode: NULL");
+	HATOHOL_ASSERT(m_impl->currentNode, "CurrentNode: NULL");
 }

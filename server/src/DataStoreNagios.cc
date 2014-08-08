@@ -21,11 +21,11 @@
 
 #include <cstdio>
 
-struct DataStoreNagios::PrivateContext
+struct DataStoreNagios::Impl
 {
 	ArmNagiosNDOUtils  armNDO;
 
-	PrivateContext(const MonitoringServerInfo &serverInfo)
+	Impl(const MonitoringServerInfo &serverInfo)
 	: armNDO(serverInfo)
 	{
 	}
@@ -36,26 +36,26 @@ struct DataStoreNagios::PrivateContext
 // ---------------------------------------------------------------------------
 DataStoreNagios::DataStoreNagios(
   const MonitoringServerInfo &serverInfo, const bool &autoStart)
-: m_ctx(NULL)
+: m_impl(NULL)
 {
-	m_ctx = new PrivateContext(serverInfo);
+	m_impl = new Impl(serverInfo);
 	if (autoStart)
-		m_ctx->armNDO.start();
+		m_impl->armNDO.start();
 }
 
 DataStoreNagios::~DataStoreNagios()
 {
-	delete m_ctx;
+	delete m_impl;
 }
 
 ArmBase &DataStoreNagios::getArmBase(void)
 {
-	return m_ctx->armNDO;
+	return m_impl->armNDO;
 }
 
 void DataStoreNagios::setCopyOnDemandEnable(bool enable)
 {
-	m_ctx->armNDO.setCopyOnDemandEnabled(enable);
+	m_impl->armNDO.setCopyOnDemandEnabled(enable);
 }
 
 // ---------------------------------------------------------------------------

@@ -121,8 +121,8 @@ protected:
 
 private:
 	struct Job;
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	Impl *m_impl;
 };
 
 #endif // IncidentSender_h

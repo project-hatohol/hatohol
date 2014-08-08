@@ -451,19 +451,19 @@ static const DBAgent::TableProfile tableProfileIncidentTrackers(
   TABLE_NAME_INCIDENT_TRACKERS, COLUMN_DEF_INCIDENT_TRACKERS,
   sizeof(COLUMN_DEF_INCIDENT_TRACKERS), NUM_IDX_INCIDENT_TRACKERS);
 
-struct DBClientConfig::PrivateContext
+struct DBClientConfig::Impl
 {
 	static DBConnectInfo connInfo;
 
-	PrivateContext(void)
+	Impl(void)
 	{
 	}
 
-	virtual ~PrivateContext()
+	virtual ~Impl()
 	{
 	}
 };
-DBConnectInfo DBClientConfig::PrivateContext::connInfo;
+DBConnectInfo DBClientConfig::Impl::connInfo;
 
 static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
 {
@@ -501,31 +501,31 @@ void ArmPluginInfo::initialize(ArmPluginInfo &armPluginInfo)
 // ---------------------------------------------------------------------------
 // ServerQueryOption
 // ---------------------------------------------------------------------------
-struct ServerQueryOption::PrivateContext {
+struct ServerQueryOption::Impl {
 	ServerIdType targetServerId;
 
-	PrivateContext(void)
+	Impl(void)
 	: targetServerId(ALL_SERVERS)
 	{
 	}
 };
 
 ServerQueryOption::ServerQueryOption(const UserIdType &userId)
-: DataQueryOption(userId), m_ctx(NULL)
+: DataQueryOption(userId), m_impl(NULL)
 {
-	m_ctx = new PrivateContext();
+	m_impl = new Impl();
 }
 
 ServerQueryOption::ServerQueryOption(DataQueryContext *dataQueryContext)
 : DataQueryOption(dataQueryContext),
-  m_ctx(NULL)
+  m_impl(NULL)
 {
-	m_ctx = new PrivateContext();
+	m_impl = new Impl();
 }
 
 ServerQueryOption::~ServerQueryOption()
 {
-	delete m_ctx;
+	delete m_impl;
 }
 
 static string serverIdCondition(
@@ -547,8 +547,8 @@ bool ServerQueryOption::hasPrivilegeCondition(string &condition) const
 	UserIdType userId = getUserId();
 
 	if (userId == USER_ID_SYSTEM || has(OPPRVLG_GET_ALL_SERVER)) {
-		if (m_ctx->targetServerId != ALL_SERVERS) {
-			condition = serverIdCondition(m_ctx->targetServerId,
+		if (m_impl->targetServerId != ALL_SERVERS) {
+			condition = serverIdCondition(m_impl->targetServerId,
 			                              getTableNameAlways());
 		}
 		return true;
@@ -565,13 +565,13 @@ bool ServerQueryOption::hasPrivilegeCondition(string &condition) const
 
 void ServerQueryOption::setTargetServerId(const ServerIdType &serverId)
 {
-	m_ctx->targetServerId = serverId;
+	m_impl->targetServerId = serverId;
 }
 
 string ServerQueryOption::getCondition(void) const
 {
 	string condition;
-	ServerIdType targetId = m_ctx->targetServerId;
+	ServerIdType targetId = m_impl->targetServerId;
 
 	if (hasPrivilegeCondition(condition))
 		return condition;
@@ -616,37 +616,37 @@ string ServerQueryOption::getCondition(void) const
 // ---------------------------------------------------------------------------
 // IncidentTrackerQueryOption
 // ---------------------------------------------------------------------------
-struct IncidentTrackerQueryOption::PrivateContext {
+struct IncidentTrackerQueryOption::Impl {
 	IncidentTrackerIdType targetId;
-	PrivateContext(void)
+	Impl(void)
 	: targetId(ALL_INCIDENT_TRACKERS)
 	{
 	}
 };
 
 IncidentTrackerQueryOption::IncidentTrackerQueryOption(const UserIdType &userId)
-: DataQueryOption(userId), m_ctx(NULL)
+: DataQueryOption(userId), m_impl(NULL)
 {
-	m_ctx = new PrivateContext();
+	m_impl = new Impl();
 }
 
 IncidentTrackerQueryOption::IncidentTrackerQueryOption(
   DataQueryContext *dataQueryContext)
 : DataQueryOption(dataQueryContext),
-  m_ctx(NULL)
+  m_impl(NULL)
 {
-	m_ctx = new PrivateContext();
+	m_impl = new Impl();
 }
 
 IncidentTrackerQueryOption::~IncidentTrackerQueryOption()
 {
-	delete m_ctx;
+	delete m_impl;
 }
 
 void IncidentTrackerQueryOption::setTargetId(
   const IncidentTrackerIdType &targetId)
 {
-	m_ctx->targetId = targetId;
+	m_impl->targetId = targetId;
 }
 
 string IncidentTrackerQueryOption::getCondition(void) const
@@ -661,11 +661,11 @@ string IncidentTrackerQueryOption::getCondition(void) const
 	if (userId != USER_ID_SYSTEM && !has(OPPRVLG_GET_ALL_INCIDENT_SETTINGS))
 		return DBClientHatohol::getAlwaysFalseCondition();
 
-	if (m_ctx->targetId != ALL_INCIDENT_TRACKERS) {
+	if (m_impl->targetId != ALL_INCIDENT_TRACKERS) {
 		const char *columnName
 		  = COLUMN_DEF_INCIDENT_TRACKERS[IDX_INCIDENT_TRACKERS_ID].columnName;
 	        return StringUtils::sprintf("%s=%" FMT_INCIDENT_TRACKER_ID,
-					    columnName, m_ctx->targetId);
+					    columnName, m_impl->targetId);
 	}
 
 	return string();
@@ -711,7 +711,7 @@ void DBClientConfig::init(const CommandLineArg &cmdArg)
 
 void DBClientConfig::reset(void)
 {
-	DBConnectInfo &connInfo = PrivateContext::connInfo;
+	DBConnectInfo &connInfo = Impl::connInfo;
 	connInfo.user = DEFAULT_USER_NAME;
 	connInfo.password = DEFAULT_PASSWORD;
 	connInfo.dbName = DEFAULT_DB_NAME;
@@ -741,14 +741,14 @@ bool DBClientConfig::isHatoholArmPlugin(const MonitoringSystemType &type)
 
 DBClientConfig::DBClientConfig(void)
 : DBClient(DB_DOMAIN_ID_CONFIG),
-  m_ctx(NULL)
+  m_impl(NULL)
 {
-	m_ctx = new PrivateContext();
+	m_impl = new Impl();
 }
 
 DBClientConfig::~DBClientConfig()
 {
-	delete m_ctx;
+	delete m_impl;
 }
 
 string DBClientConfig::getDatabaseDir(void)
@@ -1253,7 +1253,7 @@ void DBClientConfig::getIncidentTrackerIdSet(
 // ---------------------------------------------------------------------------
 bool DBClientConfig::parseCommandLineArgument(const CommandLineArg &cmdArg)
 {
-	DBConnectInfo &connInfo = PrivateContext::connInfo;
+	DBConnectInfo &connInfo = Impl::connInfo;
 	connInfo.reset();
 	string dbServer;
 	for (size_t i = 0; i < cmdArg.size(); i++) {

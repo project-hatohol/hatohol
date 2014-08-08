@@ -54,7 +54,7 @@ string STR_NAME; \
 typedef map<DBDomainId, string>     DBDomainIdPathMap;
 typedef DBDomainIdPathMap::iterator DBDomainIdPathMapIterator;
 
-struct DBAgentSQLite3::PrivateContext {
+struct DBAgentSQLite3::Impl {
 	static Mutex             mutex;
 	static DBDomainIdPathMap domainIdPathMap;
 	static DBTermCodecSQLite3 dbTermCodec;
@@ -63,7 +63,7 @@ struct DBAgentSQLite3::PrivateContext {
 	sqlite3      *db;
 
 	// methods
-	PrivateContext(void)
+	Impl(void)
 	: db(NULL)
 	{
 	}
@@ -88,9 +88,9 @@ struct DBAgentSQLite3::PrivateContext {
 	}
 };
 
-Mutex             DBAgentSQLite3::PrivateContext::mutex;
-DBDomainIdPathMap DBAgentSQLite3::PrivateContext::domainIdPathMap;
-DBTermCodecSQLite3 DBAgentSQLite3::PrivateContext::dbTermCodec;
+Mutex             DBAgentSQLite3::Impl::mutex;
+DBDomainIdPathMap DBAgentSQLite3::Impl::domainIdPathMap;
+DBTermCodecSQLite3 DBAgentSQLite3::Impl::dbTermCodec;
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -113,29 +113,29 @@ void DBAgentSQLite3::init(void)
 
 void DBAgentSQLite3::reset(void)
 {
-	PrivateContext::domainIdPathMap.clear();
+	Impl::domainIdPathMap.clear();
 }
 
 bool DBAgentSQLite3::defineDBPath(DBDomainId domainId, const string &path,
                                   bool allowOverwrite)
 {
 	bool ret = true;
-	PrivateContext::lock();
+	Impl::lock();
 	DBDomainIdPathMapIterator it =
-	  PrivateContext::domainIdPathMap.find(domainId);
-	if (it != PrivateContext::domainIdPathMap.end()) {
+	  Impl::domainIdPathMap.find(domainId);
+	if (it != Impl::domainIdPathMap.end()) {
 		if (allowOverwrite)
 			it->second = path;
 		else
 			ret = false;
-		PrivateContext::unlock();
+		Impl::unlock();
 		return ret;
 	}
 
 	pair<DBDomainIdPathMapIterator, bool> result =
-	  PrivateContext::domainIdPathMap.insert
+	  Impl::domainIdPathMap.insert
 	    (pair<DBDomainId, string>(domainId, path));
-	PrivateContext::unlock();
+	Impl::unlock();
 
 	HATOHOL_ASSERT(result.second,
 	  "Failed to insert. Probably domain id (%u) is duplicated", domainId);
@@ -145,54 +145,54 @@ bool DBAgentSQLite3::defineDBPath(DBDomainId domainId, const string &path,
 string &DBAgentSQLite3::getDBPath(DBDomainId domainId)
 {
 	string dbPath;
-	PrivateContext::lock();
+	Impl::lock();
 	DBDomainIdPathMapIterator it =
-	   PrivateContext::domainIdPathMap.find(domainId);
-	if (it == PrivateContext::domainIdPathMap.end()) {
+	   Impl::domainIdPathMap.find(domainId);
+	if (it == Impl::domainIdPathMap.end()) {
 		string path = getDefaultDBPath(domainId);
 		pair<DBDomainIdPathMapIterator, bool> result =
-		  PrivateContext::domainIdPathMap.insert
+		  Impl::domainIdPathMap.insert
 		    (pair<DBDomainId,string>(domainId, path));
 		it = result.first;
 	}
-	PrivateContext::unlock();
+	Impl::unlock();
 	return it->second;
 }
 
 const DBTermCodec *DBAgentSQLite3::getDBTermCodecStatic(void)
 {
-	return &PrivateContext::dbTermCodec;
+	return &Impl::dbTermCodec;
 }
 
 DBAgentSQLite3::DBAgentSQLite3(const string &dbName,
                                DBDomainId domainId, bool skipSetup)
 : DBAgent(domainId, skipSetup),
-  m_ctx(NULL)
+  m_impl(NULL)
 {
-	m_ctx = new PrivateContext();
-	if (!dbName.empty() && !PrivateContext::isDBPathDefined(domainId)) {
+	m_impl = new Impl();
+	if (!dbName.empty() && !Impl::isDBPathDefined(domainId)) {
 		string dbPath = makeDBPathFromName(dbName);
 		const bool allowOverwrite = false;
 		defineDBPath(domainId, dbPath, allowOverwrite);
 	}
-	m_ctx->dbPath = getDBPath(domainId);
+	m_impl->dbPath = getDBPath(domainId);
 	openDatabase();
 }
 
 DBAgentSQLite3::~DBAgentSQLite3()
 {
-	if (!m_ctx)
+	if (!m_impl)
 		return;
 
-	if (m_ctx->db) {
-		int result = sqlite3_close(m_ctx->db);
+	if (m_impl->db) {
+		int result = sqlite3_close(m_impl->db);
 		if (result != SQLITE_OK) {
 			// Should we throw an exception ?
 			MLPL_ERR("Failed to close sqlite: %d\n", result);
 		}
 	}
 
-	delete m_ctx;
+	delete m_impl;
 }
 
 void DBAgentSQLite3::getIndexes(vector<IndexStruct> &indexStructVect,
@@ -205,7 +205,7 @@ void DBAgentSQLite3::getIndexes(vector<IndexStruct> &indexStructVect,
 
 	sqlite3_stmt *stmt;
 	int result;
-	result = sqlite3_prepare(m_ctx->db, query.c_str(), query.size(),
+	result = sqlite3_prepare(m_impl->db, query.c_str(), query.size(),
 	                         &stmt, NULL);
 	if (result != SQLITE_OK) {
 		sqlite3_finalize(stmt);
@@ -230,8 +230,8 @@ void DBAgentSQLite3::getIndexes(vector<IndexStruct> &indexStructVect,
 
 bool DBAgentSQLite3::isTableExisting(const string &tableName)
 {
-	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
-	return isTableExisting(m_ctx->db, tableName);
+	HATOHOL_ASSERT(m_impl->db, "m_impl->db is NULL");
+	return isTableExisting(m_impl->db, tableName);
 }
 
 bool DBAgentSQLite3::isRecordExisting(const string &tableName,
@@ -242,7 +242,7 @@ bool DBAgentSQLite3::isRecordExisting(const string &tableName,
 	string query = StringUtils::sprintf(
 	                 "SELECT * FROM %s WHERE %s",
 	                 tableName.c_str(), condition.c_str());
-	result = sqlite3_prepare(m_ctx->db, query.c_str(), query.size(),
+	result = sqlite3_prepare(m_impl->db, query.c_str(), query.size(),
 	                         &stmt, NULL);
 	if (result != SQLITE_OK) {
 		sqlite3_finalize(stmt);
@@ -266,74 +266,74 @@ bool DBAgentSQLite3::isRecordExisting(const string &tableName,
 
 void DBAgentSQLite3::begin(void)
 {
-	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
-	_execSql(m_ctx->db, "BEGIN IMMEDIATE");
+	HATOHOL_ASSERT(m_impl->db, "m_impl->db is NULL");
+	_execSql(m_impl->db, "BEGIN IMMEDIATE");
 }
 
 void DBAgentSQLite3::commit(void)
 {
-	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
-	_execSql(m_ctx->db, "COMMIT");
+	HATOHOL_ASSERT(m_impl->db, "m_impl->db is NULL");
+	_execSql(m_impl->db, "COMMIT");
 }
 
 void DBAgentSQLite3::rollback(void)
 {
-	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
-	_execSql(m_ctx->db, "ROLLBACK");
+	HATOHOL_ASSERT(m_impl->db, "m_impl->db is NULL");
+	_execSql(m_impl->db, "ROLLBACK");
 }
 
 void DBAgentSQLite3::execSql(const string &sql)
 {
-	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
-	_execSql(m_ctx->db, sql);
+	HATOHOL_ASSERT(m_impl->db, "m_impl->db is NULL");
+	_execSql(m_impl->db, sql);
 }
 
 void DBAgentSQLite3::createTable(const TableProfile &tableProfile)
 {
-	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
-	createTable(m_ctx->db, tableProfile);
+	HATOHOL_ASSERT(m_impl->db, "m_impl->db is NULL");
+	createTable(m_impl->db, tableProfile);
 }
 
 void DBAgentSQLite3::insert(const DBAgent::InsertArg &insertArg)
 {
-	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
-	insert(m_ctx->db, insertArg);
+	HATOHOL_ASSERT(m_impl->db, "m_impl->db is NULL");
+	insert(m_impl->db, insertArg);
 }
 
 void DBAgentSQLite3::update(const UpdateArg &updateArg)
 {
-	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
-	update(m_ctx->db, updateArg);
+	HATOHOL_ASSERT(m_impl->db, "m_impl->db is NULL");
+	update(m_impl->db, updateArg);
 }
 
 void DBAgentSQLite3::select(const SelectArg &selectArg)
 {
-	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
-	select(m_ctx->db, selectArg);
+	HATOHOL_ASSERT(m_impl->db, "m_impl->db is NULL");
+	select(m_impl->db, selectArg);
 }
 
 void DBAgentSQLite3::select(const SelectExArg &selectExArg)
 {
-	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
-	select(m_ctx->db, selectExArg);
+	HATOHOL_ASSERT(m_impl->db, "m_impl->db is NULL");
+	select(m_impl->db, selectExArg);
 }
 
 void DBAgentSQLite3::deleteRows(const DeleteArg &deleteArg)
 {
-	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
-	deleteRows(m_ctx->db, deleteArg);
+	HATOHOL_ASSERT(m_impl->db, "m_impl->db is NULL");
+	deleteRows(m_impl->db, deleteArg);
 }
 
 uint64_t DBAgentSQLite3::getLastInsertId(void)
 {
-	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
-	return getLastInsertId(m_ctx->db);
+	HATOHOL_ASSERT(m_impl->db, "m_impl->db is NULL");
+	return getLastInsertId(m_impl->db);
 }
 
 uint64_t DBAgentSQLite3::getNumberOfAffectedRows(void)
 {
-	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
-	return getNumberOfAffectedRows(m_ctx->db);
+	HATOHOL_ASSERT(m_impl->db, "m_impl->db is NULL");
+	return getNumberOfAffectedRows(m_impl->db);
 }
 
 // ---------------------------------------------------------------------------
@@ -690,7 +690,7 @@ void DBAgentSQLite3::renameTable(const string &srcName, const string &destName)
 
 const DBTermCodec *DBAgentSQLite3::getDBTermCodec(void) const
 {
-	return &m_ctx->dbTermCodec;
+	return &m_impl->dbTermCodec;
 }
 
 void DBAgentSQLite3::selectGetValuesIteration(const SelectArg &selectArg,
@@ -847,7 +847,7 @@ void DBAgentSQLite3::getIndexInfoVect(
 
 string DBAgentSQLite3::getDBPath(void) const
 {
-	return m_ctx->dbPath;
+	return m_impl->dbPath;
 }
 
 //
@@ -855,11 +855,11 @@ string DBAgentSQLite3::getDBPath(void) const
 //
 void DBAgentSQLite3::openDatabase(void)
 {
-	if (m_ctx->db)
+	if (m_impl->db)
 		return;
 
-	HATOHOL_ASSERT(!m_ctx->dbPath.empty(), "dbPath is empty.");
-	m_ctx->db = openDatabase(m_ctx->dbPath);
+	HATOHOL_ASSERT(!m_impl->dbPath.empty(), "dbPath is empty.");
+	m_impl->db = openDatabase(m_impl->dbPath);
 }
 
 void DBAgentSQLite3::execSql(const char *fmt, ...)
@@ -868,5 +868,5 @@ void DBAgentSQLite3::execSql(const char *fmt, ...)
 	MAKE_SQL_STATEMENT_FROM_VAARG(fmt, sql);
 
 	// execute the query
-	_execSql(m_ctx->db, sql);
+	_execSql(m_impl->db, sql);
 }

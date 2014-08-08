@@ -65,7 +65,7 @@ struct CacheLRU {
 	}
 };
 
-struct CacheServiceDBClient::PrivateContext {
+struct CacheServiceDBClient::Impl {
 	// This lock is for DBClientMapList. clientMap can be accessed w/o
 	// the lock because it is on the thread local storage.
 	static Mutex          lock;
@@ -144,12 +144,12 @@ struct CacheServiceDBClient::PrivateContext {
 		clientMap = NULL;
 	}
 };
-__thread DBClientMap *CacheServiceDBClient::PrivateContext::clientMap = NULL;
-Mutex          CacheServiceDBClient::PrivateContext::lock;
-DBClientMapSet CacheServiceDBClient::PrivateContext::dbClientMapSet;
-size_t CacheServiceDBClient::PrivateContext::maxNumCacheMySQL
+__thread DBClientMap *CacheServiceDBClient::Impl::clientMap = NULL;
+Mutex          CacheServiceDBClient::Impl::lock;
+DBClientMapSet CacheServiceDBClient::Impl::dbClientMapSet;
+size_t CacheServiceDBClient::Impl::maxNumCacheMySQL
   = DEFAULT_MAX_NUM_CACHE_MYSQL;
-size_t CacheServiceDBClient::PrivateContext::maxNumCacheSQLite3
+size_t CacheServiceDBClient::Impl::maxNumCacheSQLite3
   = DEFAULT_MAX_NUM_CACHE_SQLITE3;
 
 // ---------------------------------------------------------------------------
@@ -157,19 +157,19 @@ size_t CacheServiceDBClient::PrivateContext::maxNumCacheSQLite3
 // ---------------------------------------------------------------------------
 void CacheServiceDBClient::reset(void)
 {
-	PrivateContext::reset();
+	Impl::reset();
 }
 
 void CacheServiceDBClient::cleanup(void)
 {
-	PrivateContext::cleanup();
+	Impl::cleanup();
 }
 
 size_t CacheServiceDBClient::getNumberOfDBClientMaps(void)
 {
-	PrivateContext::lock.lock();
-	size_t num = PrivateContext::dbClientMapSet.size();
-	PrivateContext::lock.unlock();
+	Impl::lock.lock();
+	size_t num = Impl::dbClientMapSet.size();
+	Impl::lock.unlock();
 	return num;
 }
 
@@ -206,7 +206,7 @@ DBClientAction *CacheServiceDBClient::getAction(void)
 template <class T>
 T *CacheServiceDBClient::get(DBDomainId domainId)
 {
-	DBClient *dbClient = PrivateContext::get(domainId);
+	DBClient *dbClient = Impl::get(domainId);
 	// Here we use static_cast, although this is downcast.
 	// Sub class other than that correspoinding to domainId is
 	// never returned from the above get() according to the design.

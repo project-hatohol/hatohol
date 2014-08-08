@@ -40,8 +40,8 @@ protected:
 	void wakeArm(DataStore *dataStore);
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	Impl *m_impl;
 };
 
 #endif // ItemFetchWorker_h

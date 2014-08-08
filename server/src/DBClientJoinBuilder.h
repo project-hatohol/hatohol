@@ -113,8 +113,8 @@ protected:
 	  const size_t &index0R);
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	Impl *m_impl;
 };
 
 #endif // DBClientJoin_h

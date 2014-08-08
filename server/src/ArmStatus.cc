@@ -39,7 +39,7 @@ ArmInfo::ArmInfo(void)
 // ---------------------------------------------------------------------------
 // Private context
 // ---------------------------------------------------------------------------
-struct ArmStatus::PrivateContext {
+struct ArmStatus::Impl {
 	ReadWriteLock rwlock;
 	ArmInfo       armInfo;
 };
@@ -48,61 +48,61 @@ struct ArmStatus::PrivateContext {
 // Public methods
 // ---------------------------------------------------------------------------
 ArmStatus::ArmStatus(void)
-: m_ctx(NULL)
+: m_impl(NULL)
 {
-	m_ctx = new PrivateContext();
+	m_impl = new Impl();
 }
 
 ArmStatus::~ArmStatus()
 {
-	delete m_ctx;
+	delete m_impl;
 }
 
 ArmInfo ArmStatus::getArmInfo(void) const
 {
 	// This method returns a copy for MT-safe.
 	ArmInfo armInfo;
-	m_ctx->rwlock.readLock();
-	armInfo = m_ctx->armInfo;
-	m_ctx->rwlock.unlock();
+	m_impl->rwlock.readLock();
+	armInfo = m_impl->armInfo;
+	m_impl->rwlock.unlock();
 	return armInfo;
 }
 
 void ArmStatus::setRunningStatus(const bool &running)
 {
-	m_ctx->rwlock.writeLock();
-	m_ctx->armInfo.running = running;
-	m_ctx->rwlock.unlock();
+	m_impl->rwlock.writeLock();
+	m_impl->armInfo.running = running;
+	m_impl->rwlock.unlock();
 }
 
 void ArmStatus::logSuccess(void)
 {
-	m_ctx->rwlock.writeLock();
-	m_ctx->armInfo.stat = ARM_WORK_STAT_OK;
-	m_ctx->armInfo.statUpdateTime.setCurrTime();
-	m_ctx->armInfo.lastSuccessTime = m_ctx->armInfo.statUpdateTime;
-	m_ctx->armInfo.numUpdate++;
-	m_ctx->rwlock.unlock();
+	m_impl->rwlock.writeLock();
+	m_impl->armInfo.stat = ARM_WORK_STAT_OK;
+	m_impl->armInfo.statUpdateTime.setCurrTime();
+	m_impl->armInfo.lastSuccessTime = m_impl->armInfo.statUpdateTime;
+	m_impl->armInfo.numUpdate++;
+	m_impl->rwlock.unlock();
 }
 
 void ArmStatus::logFailure(const string &comment,
                            const ArmWorkingStatus &status)
 {
-	m_ctx->rwlock.writeLock();
-	m_ctx->armInfo.stat = status;
-	m_ctx->armInfo.statUpdateTime.setCurrTime();
-	m_ctx->armInfo.lastFailureTime = m_ctx->armInfo.statUpdateTime;
-	m_ctx->armInfo.failureComment = comment;
-	m_ctx->armInfo.numUpdate++;
-	m_ctx->armInfo.numFailure++;
-	m_ctx->rwlock.unlock();
+	m_impl->rwlock.writeLock();
+	m_impl->armInfo.stat = status;
+	m_impl->armInfo.statUpdateTime.setCurrTime();
+	m_impl->armInfo.lastFailureTime = m_impl->armInfo.statUpdateTime;
+	m_impl->armInfo.failureComment = comment;
+	m_impl->armInfo.numUpdate++;
+	m_impl->armInfo.numFailure++;
+	m_impl->rwlock.unlock();
 }
 
 void ArmStatus::setArmInfo(const ArmInfo &armInfo)
 {
-	m_ctx->rwlock.writeLock();
-	m_ctx->armInfo = armInfo;
-	m_ctx->rwlock.unlock();
+	m_impl->rwlock.writeLock();
+	m_impl->armInfo = armInfo;
+	m_impl->rwlock.unlock();
 }
 
 // ---------------------------------------------------------------------------

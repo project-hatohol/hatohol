@@ -45,8 +45,8 @@ protected:
 	virtual ~DataQueryContext();
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	Impl *m_impl;
 };
 
 typedef UsedCountablePtr<DataQueryContext> DataQueryContextPtr;

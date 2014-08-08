@@ -87,8 +87,8 @@ protected:
 	  const TableProfile &tableProfile) override;
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	Impl *m_impl;
 };
 
 #endif // DBAgentMySQL_h

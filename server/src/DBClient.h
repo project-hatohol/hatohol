@@ -144,8 +144,8 @@ protected:
 	  const ItemGroup *itemGroup, const DBAgent::TableProfile &tableProfile,
 	  size_t targetIndex);
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	Impl *m_impl;
 };
 
 #define DBCLIENT_TRANSACTION_BEGIN() \

@@ -80,7 +80,7 @@ typedef map<FormatType, const char *> MimeTypeMap;
 typedef MimeTypeMap::iterator   MimeTypeMapIterator;
 static MimeTypeMap g_mimeTypeMap;
 
-struct FaceRest::PrivateContext {
+struct FaceRest::Impl {
 	struct MainThreadCleaner;
 	static bool         testMode;
 	static Mutex        lock;
@@ -98,7 +98,7 @@ struct FaceRest::PrivateContext {
 	Mutex            restJobLock;
 	sem_t            waitJobSemaphore;
 
-	PrivateContext(FaceRestParam *_param)
+	Impl(FaceRestParam *_param)
 	: port(DEFAULT_PORT),
 	  soupServer(NULL),
 	  gMainCtx(NULL),
@@ -111,7 +111,7 @@ struct FaceRest::PrivateContext {
 		sem_init(&waitJobSemaphore, 0, 0);
 	}
 
-	~PrivateContext()
+	~Impl()
 	{
 		g_main_context_unref(gMainCtx);
 		sem_destroy(&waitJobSemaphore);
@@ -164,8 +164,8 @@ struct FaceRest::PrivateContext {
 	}
 };
 
-bool         FaceRest::PrivateContext::testMode = false;
-Mutex        FaceRest::PrivateContext::lock;
+bool         FaceRest::Impl::testMode = false;
+Mutex        FaceRest::Impl::lock;
 
 class FaceRest::Worker : public HatoholThreadBase {
 public:
@@ -201,8 +201,8 @@ protected:
 private:
 	ResourceHandler *waitNextJob(void)
 	{
-		while (m_faceRest->m_ctx->waitJob()) {
-			ResourceHandler *job = m_faceRest->m_ctx->popJob();
+		while (m_faceRest->m_impl->waitJob()) {
+			ResourceHandler *job = m_faceRest->m_impl->popJob();
 			if (job)
 				return job;
 		}
@@ -236,30 +236,30 @@ void FaceRest::reset(const CommandLineArg &arg)
 
 	if (foundTestMode)
 		MLPL_INFO("Run as a test mode.\n");
-	PrivateContext::testMode = foundTestMode;
+	Impl::testMode = foundTestMode;
 }
 
 bool FaceRest::isTestMode(void)
 {
-	return PrivateContext::testMode;
+	return Impl::testMode;
 }
 
 FaceRest::FaceRest(CommandLineArg &cmdArg, FaceRestParam *param)
-: m_ctx(NULL)
+: m_impl(NULL)
 {
-	m_ctx = new PrivateContext(param);
+	m_impl = new Impl(param);
 
 	DBClientConfig dbConfig;
 	int port = dbConfig.getFaceRestPort();
 	if (port != 0 && Utils::isValidPort(port))
-		m_ctx->port = port;
+		m_impl->port = port;
 
 	for (size_t i = 0; i < cmdArg.size(); i++) {
 		string &cmd = cmdArg[i];
 		if (cmd == "--face-rest-port")
 			i = parseCmdArgPort(cmdArg, i);
 	}
-	MLPL_INFO("started face-rest, port: %d\n", m_ctx->port);
+	MLPL_INFO("started face-rest, port: %d\n", m_impl->port);
 }
 
 FaceRest::~FaceRest()
@@ -267,20 +267,20 @@ FaceRest::~FaceRest()
 	waitExit();
 
 	MLPL_INFO("FaceRest: stop process: started.\n");
-	if (m_ctx->soupServer) {
-		SoupSocket *sock = soup_server_get_listener(m_ctx->soupServer);
+	if (m_impl->soupServer) {
+		SoupSocket *sock = soup_server_get_listener(m_impl->soupServer);
 		soup_socket_disconnect(sock);
-		g_object_unref(m_ctx->soupServer);
+		g_object_unref(m_impl->soupServer);
 	}
 	MLPL_INFO("FaceRest: stop process: completed.\n");
 
-	delete m_ctx;
+	delete m_impl;
 }
 
 void FaceRest::waitExit(void)
 {
 	if (isStarted()) {
-		m_ctx->quitRequest.set(true);
+		m_impl->quitRequest.set(true);
 
 		// To return g_main_context_iteration() in mainThread()
 		struct IterAlarm {
@@ -288,7 +288,7 @@ void FaceRest::waitExit(void)
 				return G_SOURCE_REMOVE;
 			}
 		};
-		Utils::setGLibIdleEvent(IterAlarm::task, NULL, m_ctx->gMainCtx);
+		Utils::setGLibIdleEvent(IterAlarm::task, NULL, m_impl->gMainCtx);
 	}
 
 	HatoholThreadBase::waitExit();
@@ -296,24 +296,24 @@ void FaceRest::waitExit(void)
 
 void FaceRest::setNumberOfPreLoadWorkers(size_t num)
 {
-	m_ctx->numPreLoadWorkers = num;
+	m_impl->numPreLoadWorkers = num;
 }
 
 void FaceRest::addResourceHandlerFactory(const char *path,
 					 ResourceHandlerFactory *factory)
 {
-	m_ctx->addHandler(path, factory);
+	m_impl->addHandler(path, factory);
 }
 
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-struct FaceRest::PrivateContext::MainThreadCleaner {
-	PrivateContext *ctx;
+struct FaceRest::Impl::MainThreadCleaner {
+	Impl *impl;
 	bool running;
 
-	MainThreadCleaner(PrivateContext *_ctx)
-	: ctx(_ctx),
+	MainThreadCleaner(Impl *_impl)
+	: impl(_impl),
 	  running(false)
 	{
 	}
@@ -325,32 +325,32 @@ struct FaceRest::PrivateContext::MainThreadCleaner {
 
 	void run(void)
 	{
-		if (ctx->soupServer && running)
-			soup_server_quit(ctx->soupServer);
+		if (impl->soupServer && running)
+			soup_server_quit(impl->soupServer);
 	}
 };
 
 bool FaceRest::isAsyncMode(void)
 {
-	return m_ctx->asyncMode;
+	return m_impl->asyncMode;
 }
 
 void FaceRest::startWorkers(void)
 {
-	for (size_t i = 0; i < m_ctx->numPreLoadWorkers; i++) {
+	for (size_t i = 0; i < m_impl->numPreLoadWorkers; i++) {
 		Worker *worker = new Worker(this);
 		worker->start();
-		m_ctx->workers.insert(worker);
+		m_impl->workers.insert(worker);
 	}
 }
 
 void FaceRest::stopWorkers(void)
 {
-	set<Worker *> &workers = m_ctx->workers;
+	set<Worker *> &workers = m_impl->workers;
 	set<Worker *>::iterator it;
 	for (it = workers.begin(); it != workers.end(); ++it) {
 		// to break Worker::waitNextJob()
-		sem_post(&m_ctx->waitJobSemaphore);
+		sem_post(&m_impl->waitJobSemaphore);
 	}
 	for (it = workers.begin(); it != workers.end(); ++it) {
 		Worker *worker = *it;
@@ -362,27 +362,27 @@ void FaceRest::stopWorkers(void)
 
 gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 {
-	PrivateContext::MainThreadCleaner cleaner(m_ctx);
-	Reaper<PrivateContext::MainThreadCleaner>
-	   reaper(&cleaner, PrivateContext::MainThreadCleaner::callgate);
+	Impl::MainThreadCleaner cleaner(m_impl);
+	Reaper<Impl::MainThreadCleaner>
+	   reaper(&cleaner, Impl::MainThreadCleaner::callgate);
 
-	m_ctx->soupServer = soup_server_new(SOUP_SERVER_PORT, m_ctx->port,
+	m_impl->soupServer = soup_server_new(SOUP_SERVER_PORT, m_impl->port,
 	                                    SOUP_SERVER_ASYNC_CONTEXT,
-	                                    m_ctx->gMainCtx, NULL);
+	                                    m_impl->gMainCtx, NULL);
 	if (errno == EADDRINUSE)
-		MLPL_ERR("%s", Utils::getUsingPortInfo(m_ctx->port).c_str());
-	HATOHOL_ASSERT(m_ctx->soupServer,
+		MLPL_ERR("%s", Utils::getUsingPortInfo(m_impl->port).c_str());
+	HATOHOL_ASSERT(m_impl->soupServer,
 	               "failed: soup_server_new: %u, errno: %d\n",
-	               m_ctx->port, errno);
-	soup_server_add_handler(m_ctx->soupServer, NULL,
+	               m_impl->port, errno);
+	soup_server_add_handler(m_impl->soupServer, NULL,
 	                        handlerDefault, this, NULL);
-	m_ctx->addHandler("/hello.html",
+	m_impl->addHandler("/hello.html",
 			  new ResourceHandlerFactory(this, &handlerHelloPage));
-	m_ctx->addHandler(pathForTest,
+	m_impl->addHandler(pathForTest,
 			  new ResourceHandlerFactory(this, handlerTest));
-	m_ctx->addHandler(pathForLogin,
+	m_impl->addHandler(pathForLogin,
 			  new ResourceHandlerFactory(this, handlerLogin));
-	m_ctx->addHandler(pathForLogout,
+	m_impl->addHandler(pathForLogout,
 			  new ResourceHandlerFactory(this, handlerLogout));
 	RestResourceUser::registerFactories(this);
 	RestResourceServer::registerFactories(this);
@@ -390,16 +390,16 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	RestResourceAction::registerFactories(this);
 	RestResourceIncidentTracker::registerFactories(this);
 
-	if (m_ctx->param)
-		m_ctx->param->setupDoneNotifyFunc();
-	soup_server_run_async(m_ctx->soupServer);
+	if (m_impl->param)
+		m_impl->param->setupDoneNotifyFunc();
+	soup_server_run_async(m_impl->soupServer);
 	cleaner.running = true;
 
 	if (isAsyncMode())
 		startWorkers();
 
-	while (!m_ctx->quitRequest.get())
-		g_main_context_iteration(m_ctx->gMainCtx, TRUE);
+	while (!m_impl->quitRequest.get())
+		g_main_context_iteration(m_impl->gMainCtx, TRUE);
 
 	if (isAsyncMode())
 		stopWorkers();
@@ -410,12 +410,12 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 
 SoupServer *FaceRest::getSoupServer(void)
 {
-	return m_ctx->soupServer;
+	return m_impl->soupServer;
 }
 
 GMainContext *FaceRest::getGMainContext(void)
 {
-	return m_ctx->gMainCtx;
+	return m_impl->gMainCtx;
 }
 
 size_t FaceRest::parseCmdArgPort(CommandLineArg &cmdArg, size_t idx)
@@ -433,7 +433,7 @@ size_t FaceRest::parseCmdArgPort(CommandLineArg &cmdArg, size_t idx)
 		return idx;
 	}
 
-	m_ctx->port = port;
+	m_impl->port = port;
 	return idx;
 }
 
@@ -455,7 +455,7 @@ static void copyHashTable (gpointer key, gpointer data, gpointer user_data)
 			    g_strdup(static_cast<gchar*>(data)));
 }
 
-void FaceRest::PrivateContext::queueRestJob
+void FaceRest::Impl::queueRestJob
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *_query, SoupClientContext *client, gpointer user_data)
 {
@@ -487,7 +487,7 @@ void FaceRest::PrivateContext::queueRestJob
 	job->pauseResponse();
 
 	if (face->isAsyncMode()) {
-		face->m_ctx->pushJob(job);
+		face->m_impl->pushJob(job);
 	} else {
 		job->handleInTryBlock();
 		job->unpauseResponse();
@@ -516,7 +516,7 @@ void FaceRest::handlerTest(ResourceHandler *job)
 	agent.startObject();
 	FaceRest::ResourceHandler::addHatoholError(
 	  agent, HatoholError(HTERR_OK));
-	if (PrivateContext::testMode)
+	if (Impl::testMode)
 		agent.addTrue("testMode");
 	else
 		agent.addFalse("testMode");
@@ -729,7 +729,7 @@ bool FaceRest::ResourceHandler::parseRequest(void)
 	bool notFoundSessionId = true;
 	if (m_sessionId.empty()) {
 		if (m_path == pathForLogin ||
-		    PrivateContext::isTestPath(m_path)) {
+		    Impl::isTestPath(m_path)) {
 			m_userId = INVALID_USER_ID;
 			notFoundSessionId = false;
 		}
@@ -790,10 +790,10 @@ struct UnpauseContext {
 
 static gboolean idleUnpause(gpointer data)
 {
-	UnpauseContext *ctx = static_cast<UnpauseContext *>(data);
-	soup_server_unpause_message(ctx->server,
-				    ctx->message);
-	delete ctx;
+	UnpauseContext *impl = static_cast<UnpauseContext *>(data);
+	soup_server_unpause_message(impl->server,
+				    impl->message);
+	delete impl;
 	return FALSE;
 }
 

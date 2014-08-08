@@ -79,7 +79,7 @@ struct DBClient::DBSetupContext {
 	}
 };
 
-struct DBClient::PrivateContext {
+struct DBClient::Impl {
 
 	DBAgent                 *dbAgent;
 
@@ -88,12 +88,12 @@ struct DBClient::PrivateContext {
 
 	static const string      alwaysFalseCondition;
 
-	PrivateContext(void)
+	Impl(void)
 	: dbAgent(NULL)
 	{
 	}
 
-	virtual ~PrivateContext()
+	virtual ~Impl()
 	{
 		delete dbAgent;
 	}
@@ -146,9 +146,9 @@ struct DBClient::PrivateContext {
 };
 
 DBClient::DBSetupContextMap
-  DBClient::PrivateContext::dbSetupCtxMap;
-ReadWriteLock DBClient::PrivateContext::dbSetupCtxMapLock;
-const string DBClient::PrivateContext::alwaysFalseCondition = "0";
+  DBClient::Impl::dbSetupCtxMap;
+ReadWriteLock DBClient::Impl::dbSetupCtxMapLock;
+const string DBClient::Impl::alwaysFalseCondition = "0";
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -158,14 +158,14 @@ const string DBClient::PrivateContext::alwaysFalseCondition = "0";
 void DBClient::reset(void)
 {
 	// We assume that this function is called in the test.
-	PrivateContext::clearInitializedFlag();
+	Impl::clearInitializedFlag();
 }
 
 void DBClient::setDefaultDBParams(
   DBDomainId domainId,
   const string &dbName, const string &user, const string &password)
 {
-	DBSetupContext *setupCtx = PrivateContext::getDBSetupContext(domainId);
+	DBSetupContext *setupCtx = Impl::getDBSetupContext(domainId);
 	setupCtx->connectInfo.dbName   = dbName;
 	setupCtx->connectInfo.user     = user;
 	setupCtx->connectInfo.password = password;
@@ -180,7 +180,7 @@ void DBClient::setDefaultDBParams(
 
 DBConnectInfo DBClient::getDBConnectInfo(DBDomainId domainId)
 {
-	DBSetupContext *setupCtx = PrivateContext::getDBSetupContext(domainId);
+	DBSetupContext *setupCtx = Impl::getDBSetupContext(domainId);
 	DBConnectInfo connInfo = setupCtx->connectInfo;
 	setupCtx->mutex.unlock();
 	return connInfo; // we return the copy
@@ -188,18 +188,18 @@ DBConnectInfo DBClient::getDBConnectInfo(DBDomainId domainId)
 
 // non static method
 DBClient::DBClient(DBDomainId domainId)
-: m_ctx(NULL)
+: m_impl(NULL)
 {
-	m_ctx = new PrivateContext();
+	m_impl = new Impl();
 
-	DBSetupContext *setupCtx = PrivateContext::getDBSetupContext(domainId);
+	DBSetupContext *setupCtx = Impl::getDBSetupContext(domainId);
 	if (!setupCtx->initialized) {
 		// The setup function: dbSetupFunc() is called from
 		// the creation of DBAgent instance below.
 		DBAgent::addSetupFunction(
 		  domainId, dbSetupFunc, (void *)setupCtx);
 		bool skipSetup = false;
-		m_ctx->dbAgent =
+		m_impl->dbAgent =
 		  DBAgentFactory::create(domainId, setupCtx->dbName,
 		                         skipSetup, &setupCtx->connectInfo);
 		setupCtx->initialized = true;
@@ -207,7 +207,7 @@ DBClient::DBClient(DBDomainId domainId)
 	} else {
 		setupCtx->mutex.unlock();
 		bool skipSetup = true;
-		m_ctx->dbAgent =
+		m_impl->dbAgent =
 		  DBAgentFactory::create(domainId, setupCtx->dbName,
 		                         skipSetup, &setupCtx->connectInfo);
 	}
@@ -215,22 +215,22 @@ DBClient::DBClient(DBDomainId domainId)
 
 DBClient::~DBClient()
 {
-	delete m_ctx;
+	delete m_impl;
 }
 
 DBAgent *DBClient::getDBAgent(void) const
 {
-	return m_ctx->dbAgent;
+	return m_impl->dbAgent;
 }
 
 const std::string &DBClient::getAlwaysFalseCondition(void)
 {
-	return PrivateContext::alwaysFalseCondition;
+	return Impl::alwaysFalseCondition;
 }
 
 bool DBClient::isAlwaysFalseCondition(const std::string &condition)
 {
-	return PrivateContext::alwaysFalseCondition == condition;
+	return Impl::alwaysFalseCondition == condition;
 }
 
 // ---------------------------------------------------------------------------
@@ -242,13 +242,13 @@ void DBClient::registerSetupInfo(
   DBDomainId domainId, const string &dbName,
   const DBSetupFuncArg *dbSetupFuncArg)
 {
-	PrivateContext::registerSetupInfo(domainId, dbName, dbSetupFuncArg);
+	Impl::registerSetupInfo(domainId, dbName, dbSetupFuncArg);
 }
 
 void DBClient::setConnectInfo(
   DBDomainId domainId, const DBConnectInfo &connectInfo)
 {
-	DBSetupContext *setupCtx = PrivateContext::getDBSetupContext(domainId);
+	DBSetupContext *setupCtx = Impl::getDBSetupContext(domainId);
 	setupCtx->connectInfo = connectInfo;
 	setupCtx->mutex.unlock();
 }

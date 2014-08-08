@@ -29,7 +29,7 @@ static const size_t DEFAULT_NUM_RETRY = 5;
 static const size_t RETRY_INTERVAL[DEFAULT_NUM_RETRY] = {
   0, 10, 60, 60, 60 };
 
-struct DBAgentMySQL::PrivateContext {
+struct DBAgentMySQL::Impl {
 	static string engineStr;
 	static set<unsigned int> retryErrorSet;
 	MYSQL mysql;
@@ -41,7 +41,7 @@ struct DBAgentMySQL::PrivateContext {
 	unsigned int port;
 	bool inTransaction;
 
-	PrivateContext(void)
+	Impl(void)
 	: connected(false),
 	  port(0),
 	  inTransaction(false)
@@ -54,8 +54,8 @@ struct DBAgentMySQL::PrivateContext {
 	}
 };
 
-string DBAgentMySQL::PrivateContext::engineStr;
-set<unsigned int> DBAgentMySQL::PrivateContext::retryErrorSet;
+string DBAgentMySQL::Impl::engineStr;
+set<unsigned int> DBAgentMySQL::Impl::retryErrorSet;
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -65,58 +65,58 @@ void DBAgentMySQL::init(void)
 	char *env = getenv("HATOHOL_MYSQL_ENGINE_MEMORY");
 	if (env && atoi(env) == 1) {
 		MLPL_INFO("Use memory engine\n");
-		PrivateContext::engineStr = " ENGINE=MEMORY";
+		Impl::engineStr = " ENGINE=MEMORY";
 	}
 
-	PrivateContext::retryErrorSet.insert(CR_SERVER_GONE_ERROR);
+	Impl::retryErrorSet.insert(CR_SERVER_GONE_ERROR);
 }
 
 DBAgentMySQL::DBAgentMySQL(const char *db, const char *user, const char *passwd,
                            const char *host, unsigned int port,
                            DBDomainId domainId, bool skipSetup)
 : DBAgent(domainId, skipSetup),
-  m_ctx(NULL)
+  m_impl(NULL)
 {
-	m_ctx = new PrivateContext();
+	m_impl = new Impl();
 
-	m_ctx->dbName   = db     ? : "";
-	m_ctx->user     = user   ? : "";
-	m_ctx->password = passwd ? : "";
-	m_ctx->host     = host   ? : "";
-	m_ctx->port     = port;
+	m_impl->dbName   = db     ? : "";
+	m_impl->user     = user   ? : "";
+	m_impl->password = passwd ? : "";
+	m_impl->host     = host   ? : "";
+	m_impl->port     = port;
 	connect();
-	if (!m_ctx->connected) {
+	if (!m_impl->connected) {
 		THROW_HATOHOL_EXCEPTION("Failed to connect to MySQL: %s: %s\n",
-		                      db, mysql_error(&m_ctx->mysql));
+		                      db, mysql_error(&m_impl->mysql));
 	}
 }
 
 DBAgentMySQL::~DBAgentMySQL()
 {
-	if (m_ctx) {
-		mysql_close(&m_ctx->mysql);
-		delete m_ctx;
+	if (m_impl) {
+		mysql_close(&m_impl->mysql);
+		delete m_impl;
 	}
 }
 
 string DBAgentMySQL::getDBName(void) const
 {
-	return m_ctx->dbName;
+	return m_impl->dbName;
 }
 
 void DBAgentMySQL::getIndexes(std::vector<IndexStruct> &indexStructVect,
                               const std::string &tableName)
 {
-	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
+	HATOHOL_ASSERT(m_impl->connected, "Not connected.");
 	string query =
 	  StringUtils::sprintf("SHOW INDEX FROM %s", tableName.c_str());
 	execSql(query);
 
-	MYSQL_RES *result = mysql_store_result(&m_ctx->mysql);
+	MYSQL_RES *result = mysql_store_result(&m_impl->mysql);
 	if (!result) {
 		THROW_HATOHOL_EXCEPTION(
 		  "Failed to call mysql_store_result: %s\n",
-		  mysql_error(&m_ctx->mysql));
+		  mysql_error(&m_impl->mysql));
 	}
 
 	indexStructVect.reserve(mysql_num_rows(result));
@@ -136,18 +136,18 @@ void DBAgentMySQL::getIndexes(std::vector<IndexStruct> &indexStructVect,
 
 bool DBAgentMySQL::isTableExisting(const string &tableName)
 {
-	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
+	HATOHOL_ASSERT(m_impl->connected, "Not connected.");
 	string query =
 	  StringUtils::sprintf(
 	    "SHOW TABLES FROM %s LIKE '%s'",
 	    getDBName().c_str(), tableName.c_str());
 	execSql(query);
 
-	MYSQL_RES *result = mysql_store_result(&m_ctx->mysql);
+	MYSQL_RES *result = mysql_store_result(&m_impl->mysql);
 	if (!result) {
 		THROW_HATOHOL_EXCEPTION(
 		  "Failed to call mysql_store_result: %s\n",
-		  mysql_error(&m_ctx->mysql));
+		  mysql_error(&m_impl->mysql));
 	}
 
 	MYSQL_ROW row;
@@ -164,18 +164,18 @@ bool DBAgentMySQL::isTableExisting(const string &tableName)
 bool DBAgentMySQL::isRecordExisting(const string &tableName,
                                     const string &condition)
 {
-	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
+	HATOHOL_ASSERT(m_impl->connected, "Not connected.");
 	string query =
 	  StringUtils::sprintf(
 	    "SELECT * FROM %s WHERE %s",
 	    tableName.c_str(), condition.c_str());
 	execSql(query);
 
-	MYSQL_RES *result = mysql_store_result(&m_ctx->mysql);
+	MYSQL_RES *result = mysql_store_result(&m_impl->mysql);
 	if (!result) {
 		THROW_HATOHOL_EXCEPTION(
 		  "Failed to call mysql_store_result: %s\n",
-		  mysql_error(&m_ctx->mysql));
+		  mysql_error(&m_impl->mysql));
 	}
 
 	MYSQL_ROW row;
@@ -192,24 +192,24 @@ bool DBAgentMySQL::isRecordExisting(const string &tableName,
 void DBAgentMySQL::begin(void)
 {
 	execSql("START TRANSACTION");
-	m_ctx->inTransaction = true;
+	m_impl->inTransaction = true;
 }
 
 void DBAgentMySQL::commit(void)
 {
 	execSql("COMMIT");
-	m_ctx->inTransaction = false;
+	m_impl->inTransaction = false;
 }
 
 void DBAgentMySQL::rollback(void)
 {
 	execSql("ROLLBACK");
-	m_ctx->inTransaction = false;
+	m_impl->inTransaction = false;
 }
 
 void DBAgentMySQL::execSql(const string &statement)
 {
-	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
+	HATOHOL_ASSERT(m_impl->connected, "Not connected.");
 	queryWithRetry(statement);
 }
 
@@ -273,7 +273,7 @@ static string getColumnDefinitionQuery(const ColumnDef &columnDef)
 
 void DBAgentMySQL::createTable(const TableProfile &tableProfile)
 {
-	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
+	HATOHOL_ASSERT(m_impl->connected, "Not connected.");
 	string query = StringUtils::sprintf("CREATE TABLE %s (",
 	                                    tableProfile.name);
 	
@@ -289,8 +289,8 @@ void DBAgentMySQL::createTable(const TableProfile &tableProfile)
 			query += ",";
 	}
 	query += ")";
-	if (!m_ctx->engineStr.empty())
-		query += m_ctx->engineStr;
+	if (!m_impl->engineStr.empty())
+		query += m_impl->engineStr;
 
 	execSql(query);
 }
@@ -298,7 +298,7 @@ void DBAgentMySQL::createTable(const TableProfile &tableProfile)
 void DBAgentMySQL::insert(const DBAgent::InsertArg &insertArg)
 {
 	const size_t numColumns = insertArg.tableProfile.numColumns;
-	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
+	HATOHOL_ASSERT(m_impl->connected, "Not connected.");
 	HATOHOL_ASSERT(numColumns == insertArg.row->getNumberOfItems(),
 	               "numColumn: %zd != row: %zd",
 	               numColumns, insertArg.row->getNumberOfItems());
@@ -337,7 +337,7 @@ void DBAgentMySQL::insert(const DBAgent::InsertArg &insertArg)
 		{ // bracket is used to avoid an error: jump to case label
 			string src =  itemData->getString();
 			char *escaped = new char[src.size() * 2 + 1]; 
-			mysql_real_escape_string(&m_ctx->mysql, escaped,
+			mysql_real_escape_string(&m_impl->mysql, escaped,
 			                         src.c_str(), src.size());
 			query += "'";
 			query += escaped,
@@ -362,22 +362,22 @@ void DBAgentMySQL::insert(const DBAgent::InsertArg &insertArg)
 
 void DBAgentMySQL::update(const UpdateArg &updateArg)
 {
-	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
+	HATOHOL_ASSERT(m_impl->connected, "Not connected.");
 	string sql = makeUpdateStatement(updateArg);
 	execSql(sql);
 }
 
 void DBAgentMySQL::select(const DBAgent::SelectArg &selectArg)
 {
-	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
+	HATOHOL_ASSERT(m_impl->connected, "Not connected.");
 
 	string query = makeSelectStatement(selectArg);
 	execSql(query);
 
-	MYSQL_RES *result = mysql_store_result(&m_ctx->mysql);
+	MYSQL_RES *result = mysql_store_result(&m_impl->mysql);
 	if (!result) {
 		THROW_HATOHOL_EXCEPTION("Failed to call mysql_store_result: %s\n",
-		                      mysql_error(&m_ctx->mysql));
+		                      mysql_error(&m_impl->mysql));
 	}
 
 	MYSQL_ROW row;
@@ -401,15 +401,15 @@ void DBAgentMySQL::select(const DBAgent::SelectArg &selectArg)
 
 void DBAgentMySQL::select(const SelectExArg &selectExArg)
 {
-	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
+	HATOHOL_ASSERT(m_impl->connected, "Not connected.");
 
 	string query = makeSelectStatement(selectExArg);
 	execSql(query);
 
-	MYSQL_RES *result = mysql_store_result(&m_ctx->mysql);
+	MYSQL_RES *result = mysql_store_result(&m_impl->mysql);
 	if (!result) {
 		THROW_HATOHOL_EXCEPTION("Failed to call mysql_store_result: %s\n",
-		                      mysql_error(&m_ctx->mysql));
+		                      mysql_error(&m_impl->mysql));
 	}
 
 	MYSQL_ROW row;
@@ -440,20 +440,20 @@ void DBAgentMySQL::select(const SelectExArg &selectExArg)
 
 void DBAgentMySQL::deleteRows(const DeleteArg &deleteArg)
 {
-	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
+	HATOHOL_ASSERT(m_impl->connected, "Not connected.");
 	string query = makeDeleteStatement(deleteArg);
 	execSql(query);
 }
 
 uint64_t DBAgentMySQL::getLastInsertId(void)
 {
-	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
+	HATOHOL_ASSERT(m_impl->connected, "Not connected.");
 	execSql("SELECT LAST_INSERT_ID()");
-	MYSQL_RES *result = mysql_store_result(&m_ctx->mysql);
+	MYSQL_RES *result = mysql_store_result(&m_impl->mysql);
 	if (!result) {
 		THROW_HATOHOL_EXCEPTION(
 		  "Failed to call mysql_store_result: %s\n",
-		  mysql_error(&m_ctx->mysql));
+		  mysql_error(&m_impl->mysql));
 	}
 	MYSQL_ROW row = mysql_fetch_row(result);
 	HATOHOL_ASSERT(row, "Failed to call mysql_fetch_row.");
@@ -465,8 +465,8 @@ uint64_t DBAgentMySQL::getLastInsertId(void)
 
 uint64_t DBAgentMySQL::getNumberOfAffectedRows(void)
 {
-	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
-	my_ulonglong num = mysql_affected_rows(&m_ctx->mysql);
+	HATOHOL_ASSERT(m_impl->connected, "Not connected.");
+	my_ulonglong num = mysql_affected_rows(&m_impl->mysql);
 	// According to the referece manual, mysql_affected_rows()
 	// doesn't return an error.
 	//   http://dev.mysql.com/doc/refman/5.1/en/mysql-affected-rows.html
@@ -511,22 +511,22 @@ void DBAgentMySQL::connect(void)
 {
 	const char *unixSocket = NULL;
 	unsigned long clientFlag = 0;
-	const char *host   = getCStringOrNullIfEmpty(m_ctx->host);
-	const char *user   = getCStringOrNullIfEmpty(m_ctx->user);
-	const char *passwd = getCStringOrNullIfEmpty(m_ctx->password);
-	const char *db     = getCStringOrNullIfEmpty(m_ctx->dbName);
-	mysql_init(&m_ctx->mysql);
-	MYSQL *result = mysql_real_connect(&m_ctx->mysql, host, user, passwd,
-	                                   db, m_ctx->port,
+	const char *host   = getCStringOrNullIfEmpty(m_impl->host);
+	const char *user   = getCStringOrNullIfEmpty(m_impl->user);
+	const char *passwd = getCStringOrNullIfEmpty(m_impl->password);
+	const char *db     = getCStringOrNullIfEmpty(m_impl->dbName);
+	mysql_init(&m_impl->mysql);
+	MYSQL *result = mysql_real_connect(&m_impl->mysql, host, user, passwd,
+	                                   db, m_impl->port,
 	                                   unixSocket, clientFlag);
 	if (!result) {
 		MLPL_ERR("Failed to connect to MySQL: %s: (error: %u, "
 		         "Domain ID: 0x%x) %s\n",
-		         db, mysql_errno(&m_ctx->mysql), getDBDomainId(),
-		         mysql_error(&m_ctx->mysql));
+		         db, mysql_errno(&m_impl->mysql), getDBDomainId(),
+		         mysql_error(&m_impl->mysql));
 	}
-	m_ctx->connected = result;
-	m_ctx->inTransaction = false;
+	m_impl->connected = result;
+	m_impl->inTransaction = false;
 }
 
 void DBAgentMySQL::sleepAndReconnect(unsigned int sleepTimeSec)
@@ -541,8 +541,8 @@ void DBAgentMySQL::sleepAndReconnect(unsigned int sleepTimeSec)
 		sleepTimeSec = sleep(sleepTimeSec);
 	}
 
-	mysql_close(&m_ctx->mysql);
-	m_ctx->connected = false;
+	mysql_close(&m_impl->mysql);
+	m_impl->connected = false;
 	connect();
 }
 
@@ -551,21 +551,21 @@ void DBAgentMySQL::queryWithRetry(const string &statement)
 	unsigned int errorNumber = 0;
 	size_t numRetry = DEFAULT_NUM_RETRY;
 	for (size_t i = 0; i < numRetry; i++) {
-		if (mysql_query(&m_ctx->mysql, statement.c_str()) == 0) {
+		if (mysql_query(&m_impl->mysql, statement.c_str()) == 0) {
 			if (i >= 1) {
 				MLPL_INFO("Recoverd: %s (retry #%zd).\n",
 				          statement.c_str(), i);
 			}
 			return;
 		}
-		errorNumber = mysql_errno(&m_ctx->mysql);
-		if (!m_ctx->shouldRetry(errorNumber))
+		errorNumber = mysql_errno(&m_impl->mysql);
+		if (!m_impl->shouldRetry(errorNumber))
 			break;
-		if (m_ctx->inTransaction)
+		if (m_impl->inTransaction)
 			break;
 		MLPL_ERR("Failed to query: %s: (%u) %s.\n",
 		         statement.c_str(), errorNumber,
-		         mysql_error(&m_ctx->mysql));
+		         mysql_error(&m_impl->mysql));
 		if (i == numRetry - 1)
 			break;
 
@@ -576,14 +576,14 @@ void DBAgentMySQL::queryWithRetry(const string &statement)
 			MLPL_INFO("Try to connect after %zd sec. (%zd/%zd)\n",
 			          sleepTimeSec, i+1, numRetry);
 			sleepAndReconnect(sleepTimeSec);
-			if (m_ctx->connected)
+			if (m_impl->connected)
 				break;
 		}
 	}
 
 	THROW_HATOHOL_EXCEPTION("Failed to query: %s: (%u) %s\n",
 	                        statement.c_str(), errorNumber,
-	                        mysql_error(&m_ctx->mysql));
+	                        mysql_error(&m_impl->mysql));
 }
 
 string DBAgentMySQL::makeCreateIndexStatement(const IndexDef &indexDef)

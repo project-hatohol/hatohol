@@ -22,7 +22,7 @@
 using namespace std;
 using namespace mlpl;
 
-struct ActionExecArgMaker::PrivateContext {
+struct ActionExecArgMaker::Impl {
 
 	// member for a command line parsing
 	SeparatorCheckerWithCallback separator;
@@ -31,7 +31,7 @@ struct ActionExecArgMaker::PrivateContext {
 	string currWord;
 	StringVector *argVect;
 
-	PrivateContext(void)
+	Impl(void)
 	: separator(" '\\"),
 	  inQuot(false),
 	  byBackSlash(false),
@@ -60,32 +60,32 @@ struct ActionExecArgMaker::PrivateContext {
 // Public methods
 // ---------------------------------------------------------------------------
 ActionExecArgMaker::ActionExecArgMaker()
-: m_ctx(NULL)
+: m_impl(NULL)
 {
-	m_ctx = new PrivateContext();
-	m_ctx->separator.setCallbackTempl<PrivateContext>
-	  (' ', separatorCallback, m_ctx);
-	m_ctx->separator.setCallbackTempl<PrivateContext>
-	  ('\'', separatorCallback, m_ctx);
-	m_ctx->separator.setCallbackTempl<PrivateContext>
-	  ('\\', separatorCallback, m_ctx);
+	m_impl = new Impl();
+	m_impl->separator.setCallbackTempl<Impl>
+	  (' ', separatorCallback, m_impl);
+	m_impl->separator.setCallbackTempl<Impl>
+	  ('\'', separatorCallback, m_impl);
+	m_impl->separator.setCallbackTempl<Impl>
+	  ('\\', separatorCallback, m_impl);
 }
 
 ActionExecArgMaker::~ActionExecArgMaker()
 {
-	delete m_ctx;
+	delete m_impl;
 }
 
 void ActionExecArgMaker::makeExecArg(StringVector &argVect, const string &cmd)
 {
-	m_ctx->resetParser(&argVect);
+	m_impl->resetParser(&argVect);
 	ParsableString parsable(cmd);
 	while (!parsable.finished()) {
-		string word = parsable.readWord(m_ctx->separator);
-		m_ctx->currWord += word;
-		m_ctx->byBackSlash = false;
+		string word = parsable.readWord(m_impl->separator);
+		m_impl->currWord += word;
+		m_impl->byBackSlash = false;
 	}
-	m_ctx->pushbackCurrWord();
+	m_impl->pushbackCurrWord();
 }
 
 void ActionExecArgMaker::parseResidentCommand(
@@ -106,24 +106,24 @@ void ActionExecArgMaker::parseResidentCommand(
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void ActionExecArgMaker::separatorCallback(const char sep, PrivateContext *ctx)
+void ActionExecArgMaker::separatorCallback(const char sep, Impl *impl)
 {
 	if (sep == ' ') {
-		if (ctx->inQuot)
-			ctx->currWord += ' ';
+		if (impl->inQuot)
+			impl->currWord += ' ';
 		else
-			ctx->pushbackCurrWord();
-		ctx->byBackSlash = false;
+			impl->pushbackCurrWord();
+		impl->byBackSlash = false;
 	} else if (sep == '\'') {
-		if (ctx->byBackSlash)
-			ctx->currWord += "'";
+		if (impl->byBackSlash)
+			impl->currWord += "'";
 		else
-			ctx->inQuot = !ctx->inQuot;
-		ctx->byBackSlash = false;
+			impl->inQuot = !impl->inQuot;
+		impl->byBackSlash = false;
 	} else if (sep == '\\') {
-		if (ctx->byBackSlash)
-			ctx->currWord += '\\';
-		ctx->byBackSlash = !ctx->byBackSlash;
+		if (impl->byBackSlash)
+			impl->currWord += '\\';
+		impl->byBackSlash = !impl->byBackSlash;
 	}
 }
 

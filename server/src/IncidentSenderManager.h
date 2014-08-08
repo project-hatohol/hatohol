@@ -43,8 +43,8 @@ protected:
 				  bool autoCreate = false);
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	Impl *m_impl;
 };
 
 #endif // IncidentSenderManager_h

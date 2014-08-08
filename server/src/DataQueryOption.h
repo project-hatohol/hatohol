@@ -190,8 +190,8 @@ protected:
 	                         const bool &useParenthesis = false);
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	Impl *m_impl;
 };
 
 #endif // DataQueryOption_h

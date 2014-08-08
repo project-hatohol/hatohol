@@ -25,7 +25,7 @@
 class ActionExecArgMaker
 {
 private:
-	struct PrivateContext;
+	struct Impl;
 
 public:
 	ActionExecArgMaker(void);
@@ -35,10 +35,10 @@ public:
 	  const std::string &command, std::string &path, std::string &option);
 
 protected:
-	static void separatorCallback(const char sep, PrivateContext *ctx);
+	static void separatorCallback(const char sep, Impl *impl);
 
 private:
-	PrivateContext *m_ctx;
+	Impl *m_impl;
 };
 
 #endif // ActionExecArgMaker_h

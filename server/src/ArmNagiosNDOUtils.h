@@ -55,8 +55,8 @@ protected:
 	virtual bool mainThreadOneProc(void);
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	Impl *m_impl;
 };
 
 #endif // ArmNagiosNDOUtils_h
