@@ -26,6 +26,12 @@
 
 class ConfigManager {
 public:
+	enum ConfigState {
+		DISABLE,
+		ENABLE,
+		UNKNOWN,
+	};
+
 	static const char *HATOHOL_DB_DIR_ENV_VAR_NAME;
 	static ConfigManager *getInstance(void);
 	static int ALLOW_ACTION_FOR_ALL_OLD_EVENTS;
@@ -64,6 +70,7 @@ public:
 	void setResidentYardDirectory(const std::string &dir);
 
 	bool isTestMode(void) const;
+	ConfigState getCopyOnDemand(void) const;
 
 protected:
 	void loadConfFile(void);

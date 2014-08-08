@@ -43,12 +43,16 @@ struct CommandLineOptions {
 	gchar    *dbServer;
 	gboolean  foreground;
 	gboolean  testMode;
+	gboolean  enableCopyOnDemand;
+	gboolean  disableCopyOnDemand;
 
 	CommandLineOptions(void)
 	: pidFilePath(NULL),
 	  dbServer(NULL),
 	  foreground(FALSE),
-	  testMode(FALSE)
+	  testMode(FALSE),
+	  enableCopyOnDemand(FALSE),
+	  disableCopyOnDemand(FALSE)
 	{
 	}
 
@@ -67,6 +71,9 @@ struct CommandLineOptions {
 
 		foreground = FALSE;
 		testMode   = FALSE;
+
+		enableCopyOnDemand = FALSE;
+		disableCopyOnDemand = FALSE;
 	}
 };
 static CommandLineOptions g_cmdLineOpts;
@@ -82,13 +89,15 @@ struct ConfigManager::PrivateContext {
 	string                dbServerAddress;
 	int                   dbServerPort;
 	bool                  testMode;
+	ConfigState           copyOnDemand;
 
 	// methods
 	PrivateContext(void)
 	: foreground(false),
 	  dbServerAddress("localhost"),
 	  dbServerPort(0),
-	  testMode(false)
+	  testMode(false),
+	  copyOnDemand(UNKNOWN)
 	{
 	}
 
@@ -153,6 +162,10 @@ struct ConfigManager::PrivateContext {
 			foreground = true;
 		if (cmdLineOpts.testMode)
 			testMode = true;
+		if (cmdLineOpts.enableCopyOnDemand)
+			copyOnDemand = ENABLE;
+		if (cmdLineOpts.disableCopyOnDemand)
+			copyOnDemand = DISABLE;
 	}
 };
 
@@ -174,6 +187,12 @@ bool ConfigManager::parseCommandLine(gint *argc, gchar ***argv)
 		 &cmdLineOpts->testMode, "Run in a test mode", NULL},
 		{"config-db-server", 'c', 0, G_OPTION_ARG_STRING,
 		 &cmdLineOpts->dbServer, "Database server", NULL},
+		{"enable-copy-on-demand", 'd', 0, G_OPTION_ARG_NONE,
+		 &cmdLineOpts->enableCopyOnDemand,
+		 "Current monitoring values are obtained on demand.", NULL},
+		{"disable-copy-on-demand", 'd', 0, G_OPTION_ARG_NONE,
+		 &cmdLineOpts->disableCopyOnDemand,
+		 "Current monitoring values are obtained periodically.", NULL},
 		{ NULL }
 	};
 
@@ -295,6 +314,11 @@ void ConfigManager::setResidentYardDirectory(const string &dir)
 bool ConfigManager::isTestMode(void) const
 {
 	return m_ctx->testMode;
+}
+
+ConfigManager::ConfigState ConfigManager::getCopyOnDemand(void) const
+{
+	return m_ctx->copyOnDemand;
 }
 
 // ---------------------------------------------------------------------------
