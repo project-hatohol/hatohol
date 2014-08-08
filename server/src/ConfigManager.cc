@@ -28,6 +28,11 @@
 using namespace std;
 using namespace mlpl;
 
+enum {
+	CONF_MGR_ERROR_NULL,
+	CONF_MGR_ERROR_INVALID_PORT,
+};
+
 const char *ConfigManager::HATOHOL_DB_DIR_ENV_VAR_NAME = "HATOHOL_DB_DIR";
 static const char *DEFAULT_DATABASE_DIR = "/tmp";
 static const size_t DEFAULT_NUM_PRESERVED_REPLICA_GENERATION = 3;
@@ -35,6 +40,7 @@ static const size_t DEFAULT_NUM_PRESERVED_REPLICA_GENERATION = 3;
 int ConfigManager::ALLOW_ACTION_FOR_ALL_OLD_EVENTS;
 static int DEFAULT_ALLOWED_TIME_OF_ACTION_FOR_OLD_EVENTS
   = 60 * 60 * 24; // 24 hours
+const int ConfigManager::DEFAULT_FACE_REST_PORT = 33194;
 
 static int DEFAULT_MAX_NUM_RUNNING_COMMAND_ACTION = 10;
 
@@ -45,6 +51,7 @@ struct CommandLineOptions {
 	gboolean  testMode;
 	gboolean  enableCopyOnDemand;
 	gboolean  disableCopyOnDemand;
+	gint      faceRestPort;
 
 	CommandLineOptions(void)
 	: pidFilePath(NULL),
@@ -52,7 +59,8 @@ struct CommandLineOptions {
 	  foreground(FALSE),
 	  testMode(FALSE),
 	  enableCopyOnDemand(FALSE),
-	  disableCopyOnDemand(FALSE)
+	  disableCopyOnDemand(FALSE),
+	  faceRestPort(0)
 	{
 	}
 
@@ -74,6 +82,32 @@ struct CommandLineOptions {
 
 		enableCopyOnDemand = FALSE;
 		disableCopyOnDemand = FALSE;
+
+		faceRestPort = 0;
+	}
+
+	static gboolean parseFaceRestPort(
+	  const gchar *option_name, const gchar *value,
+	  gpointer data, GError **error)
+	{
+		GQuark quak =
+		  g_quark_from_static_string("config-manager-quark");
+		CommandLineOptions *obj =
+		  static_cast<CommandLineOptions *>(data);
+		if (!value) {
+			g_set_error(error, quak, CONF_MGR_ERROR_NULL,
+			            "value is NULL.");
+			return FALSE;
+		}
+		int port = atoi(value);
+		if (!Utils::isValidPort(port, false)) {
+			g_set_error(error, quak, CONF_MGR_ERROR_INVALID_PORT,
+			            "value: %s, %d.", value, port);
+			return FALSE;
+		}
+
+		obj->faceRestPort = port;
+		return TRUE;
 	}
 };
 static CommandLineOptions g_cmdLineOpts;
@@ -90,6 +124,7 @@ struct ConfigManager::Impl {
 	int                   dbServerPort;
 	bool                  testMode;
 	ConfigState           copyOnDemand;
+	int                   faceRestPort;
 
 	// methods
 	Impl(void)
@@ -97,7 +132,8 @@ struct ConfigManager::Impl {
 	  dbServerAddress("localhost"),
 	  dbServerPort(0),
 	  testMode(false),
-	  copyOnDemand(UNKNOWN)
+	  copyOnDemand(UNKNOWN),
+	  faceRestPort(DEFAULT_FACE_REST_PORT)
 	{
 	}
 
@@ -166,6 +202,8 @@ struct ConfigManager::Impl {
 			copyOnDemand = ENABLE;
 		if (cmdLineOpts.disableCopyOnDemand)
 			copyOnDemand = DISABLE;
+		if (cmdLineOpts.faceRestPort)
+			faceRestPort = cmdLineOpts.faceRestPort;
 	}
 };
 
@@ -193,10 +231,18 @@ bool ConfigManager::parseCommandLine(gint *argc, gchar ***argv)
 		{"disable-copy-on-demand", 'd', 0, G_OPTION_ARG_NONE,
 		 &cmdLineOpts->disableCopyOnDemand,
 		 "Current monitoring values are obtained periodically.", NULL},
+		{"face-rest-port", 'r', 0, G_OPTION_ARG_CALLBACK,
+		 (gpointer)CommandLineOptions::parseFaceRestPort,
+		 "Port of FaceRest", NULL},
 		{ NULL }
 	};
 
 	GOptionContext *optCtx = g_option_context_new(NULL);
+	GOptionGroup *optGrp = g_option_group_new(
+	  "ConfigManager", "ConfigManager group", "ConfigManager",
+	  cmdLineOpts, NULL);
+	g_option_context_set_main_group(optCtx, optGrp);
+	//g_option_context_add_group(optCtx, optGrp);
 	g_option_context_add_main_entries(optCtx, entries, NULL);
 	GError *error = NULL;
 	if (!g_option_context_parse(optCtx, argc, argv, &error)) {
@@ -327,6 +373,11 @@ bool ConfigManager::isTestMode(void) const
 ConfigManager::ConfigState ConfigManager::getCopyOnDemand(void) const
 {
 	return m_ctx->copyOnDemand;
+}
+
+int ConfigManager::getFaceRestPort(void) const
+{
+	return m_ctx->faceRestPort;
 }
 
 // ---------------------------------------------------------------------------
