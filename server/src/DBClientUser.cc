@@ -50,6 +50,8 @@ static const char *TABLE_NAME_ACCESS_LIST =
 static const char *TABLE_NAME_USER_ROLES =
   DBClientUser::TABLE_NAME_USER_ROLES;
 
+static bool g_testMode = false;
+
 static const ColumnDef COLUMN_DEF_USERS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
@@ -478,7 +480,7 @@ void DBClientUser::init(void)
 	{
 		&tableProfileUsers,
 		NULL,
-		tableUserInitializer,
+		g_testMode ? NULL : tableUserInitializer,
 	}, {
 		&tableProfileAccessList,
 	}, {
@@ -516,6 +518,12 @@ void DBClientUser::reset(void)
 	// We share the connection information with CONFIG.
 	DBConnectInfo connInfo = getDBConnectInfo(DB_DOMAIN_ID_CONFIG);
 	setConnectInfo(DB_DOMAIN_ID_USERS, connInfo);
+}
+
+bool DBClientUser::setTestMode(bool enable)
+{
+	g_testMode = enable;
+	return g_testMode;
 }
 
 DBClientUser::DBClientUser(void)
@@ -1131,4 +1139,3 @@ void DBClientUser::getUserInfoList(UserInfoList &userInfoList,
 		userInfoList.push_back(userInfo);
 	}
 }
-
