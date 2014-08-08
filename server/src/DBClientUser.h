@@ -89,8 +89,8 @@ public:
 	virtual std::string getCondition(void) const;
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 class AccessInfoQueryOption : public DataQueryOption {
@@ -106,8 +106,8 @@ public:
 	UserIdType getTargetUserId(void) const;
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 class UserRoleQueryOption : public DataQueryOption {
@@ -123,8 +123,8 @@ public:
 	virtual std::string getCondition(void) const;
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 class DBClientUser : public DBClient {
@@ -139,6 +139,7 @@ public:
 	static const size_t MAX_USER_ROLE_NAME_LENGTH;
 	static void init(void);
 	static void reset(void);
+	static bool setTestMode(bool enable = true);
 
 	DBClientUser(void);
 	virtual ~DBClientUser();
@@ -264,8 +265,8 @@ protected:
 	  UserInfo &userInfo, const OperationPrivilege &privilege);
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 #endif // DBClientUser_h

@@ -5,15 +5,7 @@ server_dir=$topdir/server
 client_dir=$topdir/client
 export LD_LIBRARY_PATH=$server_dir/mlpl/src/.libs:$server_dir/src/.libs
 
-expect -c "
-set timeout 30
-spawn $server_dir/tools/hatohol-config-db-creator $topdir/test/hatohol-config.dat
-expect \"Please input the root password for the above server.\\\"(If you've not set the root password, just push enter)\"
-send \"\n\"
-expect \"The database: hatohol will be dropped. Are you OK? (yes/no)\"
-send \"yes\n\"
-interact
-"
+mysql -uroot < $server_dir/data/create-db.sql
 error_code=$?
 if [ $error_code -ne 0 ]; then
   exit $error_code

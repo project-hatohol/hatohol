@@ -20,7 +20,6 @@
 #include <cstring>
 #include "SQLUtils.h"
 #include "SQLProcessorTypes.h"
-#include "SQLProcessorException.h"
 #include "HatoholException.h"
 using namespace std;
 using namespace mlpl;
@@ -60,97 +59,6 @@ string SQLUtils::getFullName(const ColumnDef *columnDefs, const size_t &index)
 	fullName += ".";
 	fullName += def.columnName;
 	return fullName;
-}
-
-const ColumnAccessInfo &
-SQLUtils::getColumnAccessInfo(const string &columnName,
-                              const SQLTableStaticInfo *tableStaticInfo)
-{
-	ColumnNameAccessInfoMapConstIterator it =
-	  tableStaticInfo->columnAccessInfoMap.find(columnName);
-	if (it == tableStaticInfo->columnAccessInfoMap.end()) {
-		THROW_SQL_PROCESSOR_EXCEPTION(
-		  "Not found: column: %s from table: %s",
-		  columnName.c_str(), tableStaticInfo->tableName);
-	}
-	const ColumnAccessInfo &accessInfo = it->second;
-	return accessInfo;
-}
-
-int SQLUtils::getColumnIndex(const string &columnName,
-                             const SQLTableStaticInfo *tableStaticInfo)
-{
-	const ColumnAccessInfo &accessInfo =
-	  getColumnAccessInfo(columnName, tableStaticInfo);
-	return accessInfo.index;
-}
-
-const ColumnDef * SQLUtils::getColumnDef
-  (const string &columnName, const SQLTableStaticInfo *tableStaticInfo)
-{
-	const ColumnAccessInfo &accessInfo =
-	  getColumnAccessInfo(columnName, tableStaticInfo);
-	return accessInfo.columnDef;
-}
-
-ItemDataPtr SQLUtils::createDefaultItemData(const ColumnDef *columnDef)
-{
-	string msg;
-	TRMSG(msg, "Not implemented: %s\n", __PRETTY_FUNCTION__);
-	throw HatoholException(msg);
-	return ItemDataPtr();
-}
-
-ItemDataPtr SQLUtils::createItemData(const ColumnDef *columnDef,
-                                     const string &value)
-{
-	if (columnDef->type >= NUM_SQL_COLUMN_TYPES) {
-		THROW_HATOHOL_EXCEPTION(
-		  "columnDef->type: illegal value: %d, table: %s, column: %s",
-		  columnDef->type, columnDef->tableName, columnDef->columnName);
-	}
-	return (*m_itemDataCreators[columnDef->type])(columnDef, value.c_str());
-}
-
-ItemDataPtr SQLUtils::getItemDataFromItemGroupWithColumnName
-  (const string &columnName, const SQLTableStaticInfo *tableStaticInfo,
-   const ItemGroup *itemGroup)
-{
-	const ColumnDef *columnDef = getColumnDef(columnName, tableStaticInfo);
-	if (!columnDef)
-		return ItemDataPtr();
-	ItemId itemId = columnDef->itemId;
-	ItemDataPtr dataPtr = itemGroup->getItem(itemId);
-	if (!dataPtr) {
-		MLPL_DBG("Not found: item: %s (%" PRIu_ITEM "), "
-		         "table: %s\n",
-		         columnName.c_str(), itemId,
-		         tableStaticInfo->tableName);
-		return ItemDataPtr();
-	}
-	return dataPtr;
-}
-
-void SQLUtils::decomposeTableAndColumn(const string &fieldName,
-                                       string &tableName, string &columnName,
-                                       bool allowNoTableName)
-{
-	size_t dotPosition = fieldName.find(".");
-	if (dotPosition == string::npos) {
-		if (allowNoTableName) {
-			columnName = fieldName;
-			return;
-		}
-		THROW_SQL_PROCESSOR_EXCEPTION(
-		  "'dot' is not found in join field: %s", fieldName.c_str());
-	}
-	if (dotPosition == 0 || dotPosition == fieldName.size() - 1) {
-		THROW_SQL_PROCESSOR_EXCEPTION(
-		  "The position of 'dot' is invalid: %s (%zd)",
-		  fieldName.c_str(), dotPosition);
-	}
-	tableName = string(fieldName, 0, dotPosition);
-	columnName = string(fieldName, dotPosition + 1);
 }
 
 ItemDataPtr SQLUtils::createFromString(const char *str, SQLColumnType type)
@@ -293,24 +201,4 @@ ItemDataPtr SQLUtils::creatorDatetime(const ColumnDef *columnDef,
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 	return ItemDataPtr();
-}
-
-// ---------------------------------------------------------------------------
-// ItemDataCaster
-// ---------------------------------------------------------------------------
-const ItemInt *ItemDataCaster<SQL_COLUMN_TYPE_INT>::cast(const ItemData *item)
-{
-	return ItemDataCasterBase<SQL_COLUMN_TYPE_INT>::cast<ItemInt>(item);
-}
-
-const ItemUint64 *
-ItemDataCaster<SQL_COLUMN_TYPE_BIGUINT>::cast(const ItemData *item)
-{
-	return ItemDataCasterBase<SQL_COLUMN_TYPE_BIGUINT>::cast<ItemUint64>(item);
-}
-
-const ItemString *
-ItemDataCaster<SQL_COLUMN_TYPE_VARCHAR>::cast(const ItemData *item)
-{
-	return ItemDataCasterBase<SQL_COLUMN_TYPE_VARCHAR>::cast<ItemString>(item);
 }

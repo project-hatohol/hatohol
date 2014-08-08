@@ -30,7 +30,7 @@ using namespace mlpl;
 typedef map<HostIdType, string> HostIdNameMap;
 typedef HostIdNameMap::iterator HostIdNameMapIterator;
 
-struct HostInfoCache::PrivateContext
+struct HostInfoCache::Impl
 {
 	ReadWriteLock lock;
 	HostIdNameMap hostIdNameMap;
@@ -40,41 +40,39 @@ struct HostInfoCache::PrivateContext
 // Public methods
 // ---------------------------------------------------------------------------
 HostInfoCache::HostInfoCache(void)
-: m_ctx(NULL)
+: m_impl(new Impl())
 {
-	m_ctx = new PrivateContext();
 }
 
 HostInfoCache::~HostInfoCache()
 {
-	delete m_ctx;
 }
 
 void HostInfoCache::update(const HostInfo &hostInfo)
 {
 	bool doUpdate = true;
-	m_ctx->lock.writeLock();
-	HostIdNameMapIterator it = m_ctx->hostIdNameMap.find(hostInfo.id);
-	if (it != m_ctx->hostIdNameMap.end()) {
+	m_impl->lock.writeLock();
+	HostIdNameMapIterator it = m_impl->hostIdNameMap.find(hostInfo.id);
+	if (it != m_impl->hostIdNameMap.end()) {
 		const string &hostName = it->second;
 		if (hostName == hostInfo.hostName)
 			doUpdate = false;
 	}
 	if (doUpdate)
-		m_ctx->hostIdNameMap[hostInfo.id] = hostInfo.hostName;;
-	m_ctx->lock.unlock();
+		m_impl->hostIdNameMap[hostInfo.id] = hostInfo.hostName;;
+	m_impl->lock.unlock();
 }
 
 bool HostInfoCache::getName(const HostIdType &id, string &name) const
 {
 	bool found = false;
-	m_ctx->lock.readLock();
-	HostIdNameMapIterator it = m_ctx->hostIdNameMap.find(id);
-	if (it != m_ctx->hostIdNameMap.end()) {
+	m_impl->lock.readLock();
+	HostIdNameMapIterator it = m_impl->hostIdNameMap.find(id);
+	if (it != m_impl->hostIdNameMap.end()) {
 		name = it->second;
 		found = true;
 	}
-	m_ctx->lock.unlock();
+	m_impl->lock.unlock();
 	return found;
 }
 

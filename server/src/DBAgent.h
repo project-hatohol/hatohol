@@ -21,6 +21,7 @@
 #define DBAgent_h
 
 #include <string>
+#include <memory>
 #include <glib.h>
 #include <stdint.h>
 #include "Params.h"
@@ -276,8 +277,8 @@ protected:
 	  const TableProfile &tableProfile) = 0;
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 #endif // DBAgent_h

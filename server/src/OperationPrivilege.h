@@ -21,6 +21,7 @@
 #define OperationPrivilege_h
 
 #include <string>
+#include <memory>
 #include "Params.h"
 
 enum OperationPrivilegeType
@@ -98,8 +99,8 @@ public:
 	UserIdType getUserId(void) const;
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 const static OperationPrivilegeFlag ALL_PRIVILEGES = 

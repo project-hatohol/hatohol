@@ -42,14 +42,14 @@ static SoupSession *getSoupSession(void)
 	return session;
 }
 
-struct IncidentSenderRedmine::PrivateContext
+struct IncidentSenderRedmine::Impl
 {
-	PrivateContext(IncidentSenderRedmine &sender)
+	Impl(IncidentSenderRedmine &sender)
 	: m_sender(sender), m_session(getSoupSession())
 	{
 		connectSessionSignals();
 	}
-	virtual ~PrivateContext()
+	virtual ~Impl()
 	{
 		disconnectSessionSignals();
 	}
@@ -70,14 +70,13 @@ struct IncidentSenderRedmine::PrivateContext
 };
 
 IncidentSenderRedmine::IncidentSenderRedmine(const IncidentTrackerInfo &tracker)
-: IncidentSender(tracker), m_ctx(NULL)
+: IncidentSender(tracker),
+  m_impl(new Impl(*this))
 {
-	m_ctx = new PrivateContext(*this);
 }
 
 IncidentSenderRedmine::~IncidentSenderRedmine()
 {
-	delete m_ctx;
 }
 
 string IncidentSenderRedmine::getProjectURL(void)
@@ -100,14 +99,15 @@ string IncidentSenderRedmine::getProjectURL(void)
 
 string IncidentSenderRedmine::getIssuesJSONURL(void)
 {
-	string url = getProjectURL();
+	const IncidentTrackerInfo &trackerInfo = getIncidentTrackerInfo();
+	string url = trackerInfo.baseURL;
 	if (!StringUtils::hasSuffix(url, "/"))
 		url += "/";
 	url += "issues.json";
 	return url;
 }
 
-string IncidentSenderRedmine::getIssuesURL(const string &id)
+string IncidentSenderRedmine::getIssueURL(const string &id)
 {
 	const IncidentTrackerInfo &trackerInfo = getIncidentTrackerInfo();
 	string url = trackerInfo.baseURL;
@@ -130,6 +130,7 @@ string IncidentSenderRedmine::buildJSON(const EventInfo &event)
 	agent.startObject();
 	agent.startObject("issue");
 	agent.add("subject", buildTitle(event, server));
+	agent.add("project_id", trackerInfo.projectId);
 	if (!trackerInfo.trackerId.empty())
 		agent.add("tracker_id", trackerInfo.trackerId);
 	string description = "<pre>";
@@ -141,7 +142,7 @@ string IncidentSenderRedmine::buildJSON(const EventInfo &event)
 	return agent.generate();
 }
 
-void IncidentSenderRedmine::PrivateContext::authenticateCallback(
+void IncidentSenderRedmine::Impl::authenticateCallback(
   SoupSession *session, SoupMessage *msg, SoupAuth *auth, gboolean retrying,
   gpointer user_data)
 {
@@ -152,13 +153,13 @@ void IncidentSenderRedmine::PrivateContext::authenticateCallback(
 	  auth, tracker.userName.c_str(), tracker.password.c_str());
 }
 
-void IncidentSenderRedmine::PrivateContext::connectSessionSignals(void)
+void IncidentSenderRedmine::Impl::connectSessionSignals(void)
 {
 	g_signal_connect(m_session, "authenticate",
 			 G_CALLBACK(authenticateCallback), &this->m_sender);
 }
 
-void IncidentSenderRedmine::PrivateContext::disconnectSessionSignals(void)
+void IncidentSenderRedmine::Impl::disconnectSessionSignals(void)
 {
 	g_signal_handlers_disconnect_by_func(
 	  m_session,
@@ -176,7 +177,7 @@ HatoholError IncidentSenderRedmine::parseResponse(
 	}
 
 	if (!agent.isMember("issue"))
-		return m_ctx->parseErrorResponse(response);
+		return m_impl->parseErrorResponse(response);
 
 	agent.startObject("issue");
 	int64_t issueId = 0;
@@ -185,7 +186,7 @@ HatoholError IncidentSenderRedmine::parseResponse(
 		return HTERR_FAILED_TO_SEND_INCIDENT;
 	}
 	incidentInfo.identifier = StringUtils::toString((uint64_t)issueId);
-	incidentInfo.location = getIssuesURL(incidentInfo.identifier);
+	incidentInfo.location = getIssueURL(incidentInfo.identifier);
 
 	agent.startObject("status");
 	agent.read("name", incidentInfo.status);
@@ -230,7 +231,7 @@ HatoholError IncidentSenderRedmine::buildIncidentInfo(
 	return parseResponse(incidentInfo, response);
 }
 
-HatoholError IncidentSenderRedmine::PrivateContext::parseErrorResponse(
+HatoholError IncidentSenderRedmine::Impl::parseErrorResponse(
   const string &response)
 {
 	JSONParserAgent agent(response);
@@ -254,7 +255,7 @@ HatoholError IncidentSenderRedmine::PrivateContext::parseErrorResponse(
 	return HTERR_FAILED_TO_SEND_INCIDENT;
 }
 
-HatoholError IncidentSenderRedmine::PrivateContext::handleSendError(
+HatoholError IncidentSenderRedmine::Impl::handleSendError(
   int soupStatus, const string &response)
 {
 	if (SOUP_STATUS_IS_TRANSPORT_ERROR(soupStatus)) {
@@ -280,12 +281,12 @@ HatoholError IncidentSenderRedmine::send(const EventInfo &event)
 	                                      MIME_JSON, NULL);
 	soup_message_body_append(msg->request_body, SOUP_MEMORY_TEMPORARY,
 	                         json.c_str(), json.size());
-	guint sendResult = soup_session_send_message(m_ctx->m_session, msg);
+	guint sendResult = soup_session_send_message(m_impl->m_session, msg);
 	string response(msg->response_body->data, msg->response_body->length);
 	g_object_unref(msg);
 
 	if (!SOUP_STATUS_IS_SUCCESSFUL(sendResult))
-		return m_ctx->handleSendError(sendResult, response);
+		return m_impl->handleSendError(sendResult, response);
 
 	IncidentInfo incidentInfo;
 	HatoholError result = buildIncidentInfo(incidentInfo, response, event);

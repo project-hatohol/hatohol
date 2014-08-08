@@ -20,12 +20,14 @@
 #ifndef ActionExecArgMaker_h
 #define ActionExecArgMaker_h
 
+#include <memory>
+#include "Params.h"
 #include "StringUtils.h"
 
 class ActionExecArgMaker
 {
 private:
-	struct PrivateContext;
+	struct Impl;
 
 public:
 	ActionExecArgMaker(void);
@@ -35,10 +37,10 @@ public:
 	  const std::string &command, std::string &path, std::string &option);
 
 protected:
-	static void separatorCallback(const char sep, PrivateContext *ctx);
+	static void separatorCallback(const char sep, Impl *impl);
 
 private:
-	PrivateContext *m_ctx;
+	std::unique_ptr<Impl> m_impl;
 };
 
 #endif // ActionExecArgMaker_h

@@ -37,7 +37,7 @@ testHatohol_la_SOURCES = \
 	testHatoholArmPluginBase.cc \
 	testHapProcess.cc testHapZabbixAPI.cc \
 	testHatoholError.cc \
-	testHatoholException.cc testSQLProcessorException.cc \
+	testHatoholException.cc \
 	testHatoholThreadBase.cc \
 	testHatoholDBUtils.cc \
 	testHostInfoCache.cc \
@@ -55,11 +55,7 @@ testHatohol_la_SOURCES = \
 	testDBClientJoinBuilder.cc \
 	testDBTermCodec.cc \
 	testOperationPrivilege.cc \
-	testSQLUtils.cc testSQLProcessor.cc \
-	testSQLProcessorInsert.cc testSQLProcessorUpdate.cc \
-	testFormulaElement.cc \
-	testSQLFromParser.cc testSQLWhereParser.cc \
-	testSQLColumnParser.cc \
+	testSQLUtils.cc \
 	testMySQLWorkerZabbix.cc \
 	testFaceRest.cc testFaceRestAction.cc testFaceRestHost.cc \
 	testFaceRestServer.cc testFaceRestUser.cc testFaceRestNoInit.cc \
@@ -70,7 +66,6 @@ testHatohol_la_SOURCES = \
 	testItemDataPtr.cc testItemGroupType.cc testItemTable.cc \
 	testItemTablePtr.cc \
 	testItemDataUtils.cc \
-	testFormulaOperator.cc \
 	testJSONParserAgent.cc testJSONBuilderAgent.cc testUtils.cc \
 	testNamedPipe.cc \
 	testArmBase.cc \
@@ -91,11 +86,11 @@ residentTest_la_LIBADD  = libTest.la
 libTest_la_SOURCES = \
 	DataSamples.cc DataSamples.h \
 	FaceRestTestUtils.cc FaceRestTestUtils.h \
-	FormulaTestUtils.cc Helpers.cc DBAgentTest.cc DBClientTest.cc \
+	Helpers.cc DBAgentTest.cc DBClientTest.cc \
 	ZabbixAPITestUtils.cc ZabbixAPITestUtils.h \
 	HttpServerStub.cc ZabbixAPIEmulator.cc RedmineAPIEmulator.cc \
 	Synchronizer.cc \
-	FormulaTestUtils.h Helpers.h DBAgentTest.h DBClientTest.h \
+	Helpers.h DBAgentTest.h DBClientTest.h \
 	HttpServerStub.h ZabbixAPIEmulator.h RedmineAPIEmulator.h \
 	Synchronizer.h \
 	ExceptionTestUtils.h AssertJoin.h \

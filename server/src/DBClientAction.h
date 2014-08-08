@@ -254,8 +254,8 @@ public:
 	virtual std::string getCondition(void) const override;
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 class DBClientAction : public DBClient {
@@ -365,7 +365,7 @@ public:
 	 */
 	bool isIncidentSenderEnabled(void);
 
-	void deleteNoOwnerActions(void);
+	void deleteInvalidActions(void);
 
 protected:
 	ItemDataNullFlagType getNullFlag(const ActionDef &actionDef,
@@ -388,26 +388,17 @@ protected:
 	HatoholError checkPrivilegeForDelete(
 	  const OperationPrivilege &privilege, const ActionIdList &idList);
 
-	void getActionUser(UserIdSet &userIdSet);
+	static gboolean deleteInvalidActionsCycl(gpointer data);
 
-	static gboolean deleteNoOwnerActionsCycl(gpointer data);
-
-	static gboolean deleteNoOwnerActionsExec(gpointer data);
+	static gboolean deleteInvalidActionsExec(gpointer data);
 
 	static void stopIdleDeleteAction(gpointer data);
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
 
 };
-
-class ActionUserIdSet : public UserIdSet {
-
-public:
-	bool isValidActionOwnerId(const UserIdType id);
-};
-
 
 #endif // DBClientAction_h
 

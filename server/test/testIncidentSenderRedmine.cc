@@ -85,7 +85,7 @@ void cut_teardown(void)
 	g_redmineEmulator.reset();
 }
 
-string expectedJSON(const EventInfo &event)
+string expectedJSON(const EventInfo &event, const IncidentTrackerInfo &tracker)
 {
 	MonitoringServerInfo &server = testServerInfo[event.serverId - 1];
 
@@ -99,6 +99,7 @@ string expectedJSON(const EventInfo &event)
 	  StringUtils::sprintf(
 	    "{\"issue\":{"
 	    "\"subject\":\"[%s %s] %s\","
+	    "\"project_id\":\"%s\","
 	    "\"description\":\""
 	    "<pre>"
 	    "Server ID: %" FMT_SERVER_ID "\\n"
@@ -123,6 +124,8 @@ string expectedJSON(const EventInfo &event)
 	    server.getDisplayName().c_str(),
 	    event.hostName.c_str(),
 	    event.brief.c_str(),
+	    // projectId
+	    tracker.projectId.c_str(),
 	    // description
 	    server.id,
 	    server.hostName.c_str(),
@@ -147,8 +150,9 @@ void test_buildJSON(void)
 {
 	setupTestDBConfig(true, true);
 	IncidentTrackerInfo tracker;
+	tracker.projectId = "hatoholtest";
 	TestRedmineSender sender(tracker);
-	cppcut_assert_equal(expectedJSON(testEventInfo[0]),
+	cppcut_assert_equal(expectedJSON(testEventInfo[0], tracker),
 			    sender.buildJSON(testEventInfo[0]));
 }
 
@@ -157,16 +161,7 @@ void test_getIssuesJSONURL(void)
 	IncidentTrackerInfo &tracker = testIncidentTrackerInfo[0];
 	TestRedmineSender sender(tracker);
 	cppcut_assert_equal(
-	  string("http://localhost/projects/1/issues.json"),
-	  sender.getIssuesJSONURL());
-}
-
-void test_getIssuesJSONURLWithStringProjectId(void)
-{
-	IncidentTrackerInfo &tracker = testIncidentTrackerInfo[1];
-	TestRedmineSender sender(tracker);
-	cppcut_assert_equal(
-	  string("http://localhost/projects/hatohol/issues.json"),
+	  string("http://localhost/issues.json"),
 	  sender.getIssuesJSONURL());
 }
 

@@ -73,8 +73,8 @@ protected:
 	void cmdHandlerTerminate(const HapiCommandHeader *header);
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 #endif // HatoholArmPluginBase_h

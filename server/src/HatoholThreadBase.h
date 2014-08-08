@@ -21,8 +21,11 @@
 #define HatoholThreadBase_h
 
 #include <list>
+#include <memory>
 #include <glib.h>
 #include <Utils.h>
+
+#include "Params.h"
 
 class HatoholThreadBase;
 
@@ -97,8 +100,8 @@ protected:
 	void cancelReexecSleep(void);
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
 
 	static void threadCleanup(HatoholThreadArg *arg);
 	static gpointer threadStarter(gpointer data);

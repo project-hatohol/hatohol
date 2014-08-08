@@ -33,8 +33,8 @@ protected:
 	virtual ~HatoholArmPluginGateJSON();
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 typedef UsedCountablePtr<HatoholArmPluginGateJSON> HatoholArmPluginGateJSONPtr;

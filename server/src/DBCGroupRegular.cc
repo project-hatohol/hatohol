@@ -27,7 +27,7 @@ const char *DEFAULT_DB_NAME = "hatohol";
 const char *DEFAULT_USER_NAME = "hatohol";
 const char *DEFAULT_PASSWORD  = "hatohol";
 
-struct DBCGroupRegular::PrivateContext {
+struct DBCGroupRegular::Impl {
 };
 
 // ---------------------------------------------------------------------------
@@ -59,13 +59,11 @@ void DBCGroupRegular::reset(void)
 
 DBCGroupRegular::DBCGroupRegular(const DBDomainId &domainId)
 : DBClientGroup(domainId),
-  m_ctx(NULL)
+  m_impl(new Impl())
 {
-	m_ctx = new PrivateContext();
 }
 
 DBCGroupRegular::~DBCGroupRegular()
 {
-	delete m_ctx;
 }
 

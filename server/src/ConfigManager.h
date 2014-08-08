@@ -97,8 +97,8 @@ protected:
 	void loadConfFile(void);
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
 
 	// Constructor and destructor
 	ConfigManager(void);

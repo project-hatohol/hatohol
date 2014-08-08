@@ -389,7 +389,7 @@ static const DBAgent::TableProfile tableProfileStateHistory(
 // ---------------------------------------------------------------------------
 // Private context
 // ---------------------------------------------------------------------------
-struct ArmNagiosNDOUtils::PrivateContext
+struct ArmNagiosNDOUtils::Impl
 {
 	DBAgentMySQL        *dbAgent;
 	DBClientHatohol      dbHatohol;
@@ -405,7 +405,7 @@ struct ArmNagiosNDOUtils::PrivateContext
 	MonitoringServerInfo serverInfo;
 
 	// methods
-	PrivateContext(const MonitoringServerInfo &_serverInfo)
+	Impl(const MonitoringServerInfo &_serverInfo)
 	: dbAgent(NULL),
 	  selectTriggerBuilder(tableProfileServices),
 	  selectEventBuilder(tableProfileStateHistory),
@@ -419,7 +419,7 @@ struct ArmNagiosNDOUtils::PrivateContext
 		dataStore = UnifiedDataStore::getInstance();
 	}
 
-	virtual ~PrivateContext()
+	virtual ~Impl()
 	{
 		delete dbAgent;
 	}
@@ -439,9 +439,8 @@ struct ArmNagiosNDOUtils::PrivateContext
 // ---------------------------------------------------------------------------
 ArmNagiosNDOUtils::ArmNagiosNDOUtils(const MonitoringServerInfo &serverInfo)
 : ArmBase("ArmNagiosNDOUtils", serverInfo),
-  m_ctx(NULL)
+  m_impl(new Impl(serverInfo))
 {
-	m_ctx = new PrivateContext(serverInfo);
 	makeSelectTriggerBuilder();
 	makeSelectEventBuilder();
 	makeSelectItemBuilder();
@@ -453,7 +452,6 @@ ArmNagiosNDOUtils::ArmNagiosNDOUtils(const MonitoringServerInfo &serverInfo)
 ArmNagiosNDOUtils::~ArmNagiosNDOUtils()
 {
 	requestExitAndWait();
-	delete m_ctx;
 }
 
 // ---------------------------------------------------------------------------
@@ -462,7 +460,7 @@ ArmNagiosNDOUtils::~ArmNagiosNDOUtils()
 void ArmNagiosNDOUtils::makeSelectTriggerBuilder(void)
 {
 	// TODO: Confirm what may be use using host_object_id.
-	DBClientJoinBuilder &builder = m_ctx->selectTriggerBuilder;
+	DBClientJoinBuilder &builder = m_impl->selectTriggerBuilder;
 	builder.add(IDX_SERVICES_SERVICE_ID);
 
 	builder.addTable(
@@ -480,7 +478,7 @@ void ArmNagiosNDOUtils::makeSelectTriggerBuilder(void)
 	builder.add(IDX_HOSTS_DISPLAY_NAME);
 
 	// contiditon
-	m_ctx->selectTriggerBaseCondition = StringUtils::sprintf(
+	m_impl->selectTriggerBaseCondition = StringUtils::sprintf(
 	  "%s>=",
 	  SQLUtils::getFullName(COLUMN_DEF_SERVICESTATUS,
 	                        IDX_SERVICESTATUS_STATUS_UPDATE_TIME).c_str());
@@ -489,7 +487,7 @@ void ArmNagiosNDOUtils::makeSelectTriggerBuilder(void)
 void ArmNagiosNDOUtils::makeSelectEventBuilder(void)
 {
 	// TODO: Confirm what may be use using host_object_id.
-	DBClientJoinBuilder &builder = m_ctx->selectEventBuilder;
+	DBClientJoinBuilder &builder = m_impl->selectEventBuilder;
 	builder.add(IDX_STATEHISTORY_STATEHISTORY_ID);
 	builder.add(IDX_STATEHISTORY_STATE);
 	builder.add(IDX_STATEHISTORY_STATE_TIME);
@@ -507,7 +505,7 @@ void ArmNagiosNDOUtils::makeSelectEventBuilder(void)
 	builder.add(IDX_HOSTS_DISPLAY_NAME);
 
 	// contiditon
-	m_ctx->selectEventBaseCondition = StringUtils::sprintf(
+	m_impl->selectEventBaseCondition = StringUtils::sprintf(
 	  "%s=%d and %s>=",
 	  SQLUtils::getFullName(COLUMN_DEF_STATEHISTORY,
 	                        IDX_STATEHISTORY_STATE_TYPE).c_str(),
@@ -518,7 +516,7 @@ void ArmNagiosNDOUtils::makeSelectEventBuilder(void)
 
 void ArmNagiosNDOUtils::makeSelectItemBuilder(void)
 {
-	DBClientJoinBuilder &builder = m_ctx->selectItemBuilder;
+	DBClientJoinBuilder &builder = m_impl->selectItemBuilder;
 	builder.add(IDX_SERVICES_SERVICE_ID);
 	builder.add(IDX_SERVICES_HOST_OBJECT_ID);
 
@@ -532,21 +530,21 @@ void ArmNagiosNDOUtils::makeSelectItemBuilder(void)
 
 void ArmNagiosNDOUtils::makeSelectHostArg(void)
 {
-	DBAgent::SelectExArg &arg = m_ctx->selectHostArg;
+	DBAgent::SelectExArg &arg = m_impl->selectHostArg;
 	arg.add(IDX_HOSTS_HOST_OBJECT_ID);
 	arg.add(IDX_HOSTS_DISPLAY_NAME);
 }
 
 void ArmNagiosNDOUtils::makeSelectHostgroupArg(void)
 {
-	DBAgent::SelectExArg &arg = m_ctx->selectHostgroupArg;
+	DBAgent::SelectExArg &arg = m_impl->selectHostgroupArg;
 	arg.add(IDX_HOSTGROUPS_HOSTGROUP_ID);
 	arg.add(IDX_HOSTGROUPS_ALIAS);
 }
 
 void ArmNagiosNDOUtils::makeSelectHostgroupMembersArg(void)
 {
-	DBAgent::SelectExArg &arg = m_ctx->selectHostgroupMembersArg;
+	DBAgent::SelectExArg &arg = m_impl->selectHostgroupMembersArg;
 	arg.add(IDX_HOSTGROUP_MEMBERS_HOSTGROUP_ID);
 	arg.add(IDX_HOSTGROUP_MEMBERS_HOST_OBJECT_ID);
 }
@@ -555,13 +553,13 @@ void ArmNagiosNDOUtils::addConditionForTriggerQuery(void)
 {
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	time_t lastUpdateTime =
-	   m_ctx->dbHatohol.getLastChangeTimeOfTrigger(svInfo.id);
+	   m_impl->dbHatohol.getLastChangeTimeOfTrigger(svInfo.id);
 	struct tm tm;
 	localtime_r(&lastUpdateTime, &tm);
 
 	DBAgent::SelectExArg &arg =
-	  m_ctx->selectTriggerBuilder.getSelectExArg();
-	arg.condition = m_ctx->selectTriggerBaseCondition;
+	  m_impl->selectTriggerBuilder.getSelectExArg();
+	arg.condition = m_impl->selectTriggerBaseCondition;
 	arg.condition +=
 	   StringUtils::sprintf("'%04d-%02d-%02d %02d:%02d:%02d'",
 	                        1900+tm.tm_year, tm.tm_mon+1, tm.tm_mday,
@@ -571,10 +569,10 @@ void ArmNagiosNDOUtils::addConditionForTriggerQuery(void)
 void ArmNagiosNDOUtils::addConditionForEventQuery(void)
 {
 	const MonitoringServerInfo &svInfo = getServerInfo();
-	uint64_t lastEventId = m_ctx->dbHatohol.getLastEventId(svInfo.id);
+	uint64_t lastEventId = m_impl->dbHatohol.getLastEventId(svInfo.id);
 	string cond;
-	DBAgent::SelectExArg &arg = m_ctx->selectEventBuilder.getSelectExArg();
-	arg.condition = m_ctx->selectEventBaseCondition;
+	DBAgent::SelectExArg &arg = m_impl->selectEventBuilder.getSelectExArg();
+	arg.condition = m_impl->selectEventBaseCondition;
 	if (lastEventId == EVENT_NOT_FOUND)
 		cond = "0";
 	else
@@ -588,8 +586,8 @@ void ArmNagiosNDOUtils::getTrigger(void)
 
 	// TODO: should use transaction
 	DBAgent::SelectExArg &arg =
-	  m_ctx->selectTriggerBuilder.getSelectExArg();
-	m_ctx->dbAgent->select(arg);
+	  m_impl->selectTriggerBuilder.getSelectExArg();
+	m_impl->dbAgent->select(arg);
 	size_t numTriggers = arg.dataTable->getNumberOfRows();
 	MLPL_DBG("The number of triggers: %zd\n", numTriggers);
 
@@ -628,7 +626,7 @@ void ArmNagiosNDOUtils::getTrigger(void)
 		itemGroupStream >> trigInfo.hostName; // hosts.display_name
 		triggerInfoList.push_back(trigInfo);
 	}
-	m_ctx->dbHatohol.addTriggerInfoList(triggerInfoList);
+	m_impl->dbHatohol.addTriggerInfoList(triggerInfoList);
 }
 
 void ArmNagiosNDOUtils::getEvent(void)
@@ -636,8 +634,8 @@ void ArmNagiosNDOUtils::getEvent(void)
 	addConditionForEventQuery();
 
 	// TODO: should use transaction
-	DBAgent::SelectExArg &arg = m_ctx->selectEventBuilder.getSelectExArg();
-	m_ctx->dbAgent->select(arg);
+	DBAgent::SelectExArg &arg = m_impl->selectEventBuilder.getSelectExArg();
+	m_impl->dbAgent->select(arg);
 	size_t numEvents = arg.dataTable->getNumberOfRows();
 	MLPL_DBG("The number of events: %zd\n", numEvents);
 
@@ -677,14 +675,14 @@ void ArmNagiosNDOUtils::getEvent(void)
 		itemGroupStream >> eventInfo.hostName;    // hosts.display_name
 		eventInfoList.push_back(eventInfo);
 	}
-	m_ctx->dataStore->addEventList(eventInfoList);
+	m_impl->dataStore->addEventList(eventInfoList);
 }
 
 void ArmNagiosNDOUtils::getItem(void)
 {
 	// TODO: should use transaction
-	DBAgent::SelectExArg &arg = m_ctx->selectItemBuilder.getSelectExArg();
-	m_ctx->dbAgent->select(arg);
+	DBAgent::SelectExArg &arg = m_impl->selectItemBuilder.getSelectExArg();
+	m_impl->dbAgent->select(arg);
 	size_t numItems = arg.dataTable->getNumberOfRows();
 	MLPL_DBG("The number of items: %zd\n", numItems);
 
@@ -712,21 +710,21 @@ void ArmNagiosNDOUtils::getItem(void)
 
 		itemInfoList.push_back(itemInfo);
 	}
-	m_ctx->dbHatohol.addItemInfoList(itemInfoList);
+	m_impl->dbHatohol.addItemInfoList(itemInfoList);
 }
 
 void ArmNagiosNDOUtils::getHost(void)
 {
 	// TODO: should use transaction
-	m_ctx->dbAgent->select(m_ctx->selectHostArg);
+	m_impl->dbAgent->select(m_impl->selectHostArg);
 	size_t numHosts =
-	  m_ctx->selectHostArg.dataTable->getNumberOfRows();
+	  m_impl->selectHostArg.dataTable->getNumberOfRows();
 	MLPL_DBG("The number of hosts: %zd\n", numHosts);
 
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	HostInfoList hostInfoList;
 	const ItemGroupList &grpList =
-	  m_ctx->selectHostArg.dataTable->getItemGroupList();
+	  m_impl->selectHostArg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
 		ItemGroupStream itemGroupStream(*itemGrpItr);
@@ -736,21 +734,21 @@ void ArmNagiosNDOUtils::getHost(void)
 		itemGroupStream >> hostInfo.hostName;
 		hostInfoList.push_back(hostInfo);
 	}
-	m_ctx->dbHatohol.addHostInfoList(hostInfoList);
+	m_impl->dbHatohol.addHostInfoList(hostInfoList);
 }
 
 void ArmNagiosNDOUtils::getHostgroup(void)
 {
 	// TODO: should use transaction
-	m_ctx->dbAgent->select(m_ctx->selectHostgroupArg);
+	m_impl->dbAgent->select(m_impl->selectHostgroupArg);
 	size_t numHostgroups =
-	  m_ctx->selectHostgroupArg.dataTable->getNumberOfRows();
+	  m_impl->selectHostgroupArg.dataTable->getNumberOfRows();
 	MLPL_DBG("The number of hostgroups: %zd\n", numHostgroups);
 
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	HostgroupInfoList hostgroupInfoList;
 	const ItemGroupList &grpList =
-	  m_ctx->selectHostgroupArg.dataTable->getItemGroupList();
+	  m_impl->selectHostgroupArg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
 		ItemGroupStream itemGroupStream(*itemGrpItr);
@@ -761,21 +759,21 @@ void ArmNagiosNDOUtils::getHostgroup(void)
 		itemGroupStream >> hostgroupInfo.groupName;
 		hostgroupInfoList.push_back(hostgroupInfo);
 	}
-	m_ctx->dbHatohol.addHostgroupInfoList(hostgroupInfoList);
+	m_impl->dbHatohol.addHostgroupInfoList(hostgroupInfoList);
 }
 
 void ArmNagiosNDOUtils::getHostgroupMembers(void)
 {
 	// TODO: should use transaction
-	m_ctx->dbAgent->select(m_ctx->selectHostgroupMembersArg);
+	m_impl->dbAgent->select(m_impl->selectHostgroupMembersArg);
 	size_t numHostgroupMembers =
-	  m_ctx->selectHostgroupMembersArg.dataTable->getNumberOfRows();
+	  m_impl->selectHostgroupMembersArg.dataTable->getNumberOfRows();
 	MLPL_DBG("The number of hostgroupMembers: %zd\n", numHostgroupMembers);
 
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	HostgroupElementList hostgroupElementList;
 	const ItemGroupList &grpList =
-	  m_ctx->selectHostgroupMembersArg.dataTable->getItemGroupList();
+	  m_impl->selectHostgroupMembersArg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
 		ItemGroupStream itemGroupStream(*itemGrpItr);
@@ -786,12 +784,12 @@ void ArmNagiosNDOUtils::getHostgroupMembers(void)
 		itemGroupStream >> hostgroupElement.hostId;
 		hostgroupElementList.push_back(hostgroupElement);
 	}
-	m_ctx->dbHatohol.addHostgroupElementList(hostgroupElementList);
+	m_impl->dbHatohol.addHostgroupElementList(hostgroupElementList);
 }
 
 void ArmNagiosNDOUtils::connect(void)
 {
-	m_ctx->connect();
+	m_impl->connect();
 }
 
 gpointer ArmNagiosNDOUtils::mainThread(HatoholThreadArg *arg)

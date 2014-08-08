@@ -24,8 +24,8 @@ using namespace mlpl;
 
 static const uint64_t NUMBER_OF_GET_EVENT_PER_ONCE  = 1000;
 
-struct HapZabbixAPI::PrivateContext {
-	PrivateContext(void)
+struct HapZabbixAPI::Impl {
+	Impl(void)
 	{
 	}
 };
@@ -34,14 +34,12 @@ struct HapZabbixAPI::PrivateContext {
 // Public methods
 // ---------------------------------------------------------------------------
 HapZabbixAPI::HapZabbixAPI(void)
-: m_ctx(NULL)
+: m_impl(new Impl())
 {
-	m_ctx = new PrivateContext();
 }
 
 HapZabbixAPI::~HapZabbixAPI()
 {
-	delete m_ctx;
 }
 
 // ---------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -17,25 +17,19 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SQLProcessorException_h
-#define SQLProcessorException_h
+#ifndef AMQPMessageHandler_h
+#define AMQPMessageHandler_h
 
-#include "HatoholException.h"
+#include <amqp.h>
 
-class SQLProcessorException : public HatoholException
-{
+#include "Params.h"
+
+class AMQPMessageHandler {
 public:
-	explicit SQLProcessorException(const std::string &brief,
-	                               const char *sourceFileName = "",
-	                               int lineNumber = UNKNOWN_LINE_NUMBER);
-	virtual ~SQLProcessorException() _HATOHOL_NOEXCEPT;
-private:
+	AMQPMessageHandler();
+	virtual ~AMQPMessageHandler();
+
+	virtual bool handle(const amqp_envelope_t *envelope) override;
 };
 
-#define THROW_SQL_PROCESSOR_EXCEPTION(FMT, ...) \
-do { \
-	std::string msg = mlpl::StringUtils::sprintf(FMT, ##__VA_ARGS__); \
-	throw SQLProcessorException(msg, __FILE__, __LINE__); \
-} while (0)
-
-#endif // SQLProcessorException_h
+#endif // AMQPMessageHandler_h

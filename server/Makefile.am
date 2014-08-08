@@ -1,1 +1,1 @@
-SUBDIRS = mlpl src hap tools test
+SUBDIRS = mlpl src hap tools test data

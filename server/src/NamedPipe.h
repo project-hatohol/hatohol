@@ -21,7 +21,9 @@
 #define NamedPipe_h
 
 #include <string>
+#include <memory>
 #include <glib.h>
+#include "Params.h"
 #include "SmartBuffer.h"
 
 class NamedPipe {
@@ -177,8 +179,8 @@ protected:
 	bool checkGIOStatus(GIOStatus stat, GError *error);
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 #endif // NamedPipe_h

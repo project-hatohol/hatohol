@@ -32,8 +32,8 @@ public:
 	virtual ~DBClientHost();
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 #endif // DBClientHost_h

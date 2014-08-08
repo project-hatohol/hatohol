@@ -26,11 +26,6 @@ using namespace mlpl;
 #include "Utils.h"
 #include "ConfigManager.h"
 #include "SQLUtils.h"
-#include "SQLProcessorFactory.h"
-#include "SQLProcessorSelect.h"
-#include "SQLProcessorInsert.h"
-#include "SQLProcessorUpdate.h"
-#include "FaceMySQLWorker.h"
 #include "FaceRest.h"
 #include "HatoholException.h"
 #include "DBAgentSQLite3.h"
@@ -67,15 +62,6 @@ static void init(const CommandLineArg &arg)
 
 	ItemData::init();
 	SQLUtils::init();
-	SQLFormulaParser::init();
-	SQLColumnParser::init(); // must be put after SQLFormulaParser::init()
-	SQLWhereParser::init();  // must be put after SQLFormulaParser::init()
-	SQLFromParser::init();
-	FaceMySQLWorker::init();
-	SQLProcessorSelect::init();
-	SQLProcessorInsert::init();
-	SQLProcessorUpdate::init();
-	SQLProcessorFactory::init();
 
 	FaceRest::init();
 }

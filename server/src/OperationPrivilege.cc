@@ -22,11 +22,11 @@
 #include "CacheServiceDBClient.h"
 using namespace mlpl;
 
-struct OperationPrivilege::PrivateContext {
+struct OperationPrivilege::Impl {
 	UserIdType userId;
 	uint64_t flags;
 
-	PrivateContext(void)
+	Impl(void)
 	: userId(INVALID_USER_ID),
 	  flags(0)
 	{
@@ -37,33 +37,30 @@ struct OperationPrivilege::PrivateContext {
 // Public methods
 // ---------------------------------------------------------------------------
 OperationPrivilege::OperationPrivilege(const UserIdType &userId)
-: m_ctx(NULL)
+: m_impl(new Impl())
 {
-	m_ctx = new PrivateContext();
 	setUserId(userId);
 }
 
 OperationPrivilege::OperationPrivilege(const OperationPrivilegeFlag &flags)
-: m_ctx(NULL)
+: m_impl(new Impl())
 {
-	m_ctx = new PrivateContext();
-	m_ctx->flags = flags;
+	m_impl->flags = flags;
 }
 
 OperationPrivilege::OperationPrivilege(const OperationPrivilege &src)
+: m_impl(new Impl())
 {
-	m_ctx = new PrivateContext();
-	*m_ctx = *src.m_ctx;
+	*m_impl = *src.m_impl;
 }
 
 OperationPrivilege::~OperationPrivilege()
 {
-	delete m_ctx;
 }
 
 const OperationPrivilegeFlag &OperationPrivilege::getFlags(void) const
 {
-	return m_ctx->flags;
+	return m_impl->flags;
 }
 
 void OperationPrivilege::addFlag(OperationPrivilegeFlag &flags,
@@ -80,17 +77,17 @@ void OperationPrivilege::removeFlag(OperationPrivilegeFlag &flags,
 
 void OperationPrivilege::add(const OperationPrivilegeType &type)
 {
-	addFlag(m_ctx->flags, type);
+	addFlag(m_impl->flags, type);
 }
 
 void OperationPrivilege::remove(const OperationPrivilegeType &type)
 {
-	removeFlag(m_ctx->flags, type);
+	removeFlag(m_impl->flags, type);
 }
 
 void OperationPrivilege::setFlags(const OperationPrivilegeFlag &flags)
 {
-	m_ctx->flags = flags;
+	m_impl->flags = flags;
 }
 
 OperationPrivilegeFlag OperationPrivilege::makeFlag(
@@ -102,27 +99,27 @@ OperationPrivilegeFlag OperationPrivilege::makeFlag(
 bool OperationPrivilege::has(const OperationPrivilegeType &type) const
 {
 	const OperationPrivilegeFlag flag = makeFlag(type);
-	return (m_ctx->flags & flag);
+	return (m_impl->flags & flag);
 }
 
 bool OperationPrivilege::operator==(const OperationPrivilege &rhs)
 {
-	if (m_ctx->userId != rhs.m_ctx->userId)
+	if (m_impl->userId != rhs.m_impl->userId)
 		return false;
-	if (m_ctx->flags != rhs.m_ctx->flags)
+	if (m_impl->flags != rhs.m_impl->flags)
 		return false;
 	return true;
 }
 
 void OperationPrivilege::setUserId(const UserIdType &userId)
 {
-	m_ctx->userId = userId;
-	m_ctx->flags = 0;
+	m_impl->userId = userId;
+	m_impl->flags = 0;
 
-	if (m_ctx->userId == INVALID_USER_ID)
+	if (m_impl->userId == INVALID_USER_ID)
 		return;
 
-	if (m_ctx->userId == USER_ID_SYSTEM) {
+	if (m_impl->userId == USER_ID_SYSTEM) {
 		setFlags(ALL_PRIVILEGES);
 		return;
 	}
@@ -132,7 +129,7 @@ void OperationPrivilege::setUserId(const UserIdType &userId)
 	if (!cache.getUser()->getUserInfo(userInfo, userId)) {
 		MLPL_ERR("Failed to getUserInfo(): userId: "
 		         "%" FMT_USER_ID "\n", userId);
-		m_ctx->userId = INVALID_USER_ID;
+		m_impl->userId = INVALID_USER_ID;
 		return;
 	}
 	setFlags(userInfo.flags);
@@ -140,5 +137,5 @@ void OperationPrivilege::setUserId(const UserIdType &userId)
 
 UserIdType OperationPrivilege::getUserId(void) const
 {
-	return m_ctx->userId;
+	return m_impl->userId;
 }

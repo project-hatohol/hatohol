@@ -21,19 +21,19 @@
 #include "DataQueryContext.h"
 #include "CacheServiceDBClient.h"
 
-struct DataQueryContext::PrivateContext {
+struct DataQueryContext::Impl {
 	OperationPrivilege   privilege;
 	ServerHostGrpSetMap *srvHostGrpSetMap;
 	ServerIdSet         *serverIdSet;
 
-	PrivateContext(const UserIdType &userId)
+	Impl(const UserIdType &userId)
 	: privilege(userId),
 	  srvHostGrpSetMap(NULL),
 	  serverIdSet(NULL)
 	{
 	}
 
-	virtual ~PrivateContext()
+	virtual ~Impl()
 	{
 		clear();
 	}
@@ -52,59 +52,57 @@ struct DataQueryContext::PrivateContext {
 // Public methods
 // ---------------------------------------------------------------------------
 DataQueryContext::DataQueryContext(const UserIdType &userId)
-: m_ctx(NULL)
+: m_impl(new Impl(userId))
 {
-	m_ctx = new PrivateContext(userId);
 }
 
 DataQueryContext::~DataQueryContext()
 {
-	delete m_ctx;
 }
 
 void DataQueryContext::setUserId(const UserIdType &userId)
 {
-	m_ctx->privilege.setUserId(userId);
-	m_ctx->clear();
+	m_impl->privilege.setUserId(userId);
+	m_impl->clear();
 }
 
 void DataQueryContext::setFlags(const OperationPrivilegeFlag &flags)
 {
-	m_ctx->privilege.setFlags(flags);
-	m_ctx->clear();
+	m_impl->privilege.setFlags(flags);
+	m_impl->clear();
 }
 
 const OperationPrivilege &DataQueryContext::getOperationPrivilege(void) const
 {
-	return m_ctx->privilege;
+	return m_impl->privilege;
 }
 
 const ServerHostGrpSetMap &DataQueryContext::getServerHostGrpSetMap(void)
 {
-	if (!m_ctx->srvHostGrpSetMap) {
-		m_ctx->srvHostGrpSetMap = new ServerHostGrpSetMap();
+	if (!m_impl->srvHostGrpSetMap) {
+		m_impl->srvHostGrpSetMap = new ServerHostGrpSetMap();
 		CacheServiceDBClient cache;
 		DBClientUser *dbUser = cache.getUser();
-		dbUser->getServerHostGrpSetMap(*m_ctx->srvHostGrpSetMap,
-		                               m_ctx->privilege.getUserId());
+		dbUser->getServerHostGrpSetMap(*m_impl->srvHostGrpSetMap,
+		                               m_impl->privilege.getUserId());
 	}
-	return *m_ctx->srvHostGrpSetMap;
+	return *m_impl->srvHostGrpSetMap;
 }
 
 bool DataQueryContext::isValidServer(const ServerIdType &serverId)
 {
 	const ServerIdSet &svIdSet = getValidServerIdSet();
-	return svIdSet.find(serverId) != m_ctx->serverIdSet->end();
+	return svIdSet.find(serverId) != m_impl->serverIdSet->end();
 }
 
 const ServerIdSet &DataQueryContext::getValidServerIdSet(void)
 {
-	if (!m_ctx->serverIdSet) {
-		m_ctx->serverIdSet = new ServerIdSet();
+	if (!m_impl->serverIdSet) {
+		m_impl->serverIdSet = new ServerIdSet();
 		CacheServiceDBClient cache;
 		DBClientConfig *dbConfig = cache.getConfig();
-		dbConfig->getServerIdSet(*m_ctx->serverIdSet, this);
+		dbConfig->getServerIdSet(*m_impl->serverIdSet, this);
 	}
-	return *m_ctx->serverIdSet;
+	return *m_impl->serverIdSet;
 }
 

@@ -128,13 +128,13 @@ static const DBAgent::TableProfile tableProfileHostInfo(
   TABLE_NAME_HOST_INFO, COLUMN_DEF_HOST_INFO,
   sizeof(COLUMN_DEF_HOST_INFO), NUM_IDX_HOST_INFO);
 
-struct DBClientHost::PrivateContext
+struct DBClientHost::Impl
 {
-	PrivateContext(void)
+	Impl(void)
 	{
 	}
 
-	virtual ~PrivateContext()
+	virtual ~Impl()
 	{
 	}
 };
@@ -173,13 +173,11 @@ void DBClientHost::init(void)
 
 DBClientHost::DBClientHost(void)
 : DBCGroupRegular(DB_DOMAIN_ID_HOST),
-  m_ctx(NULL)
+  m_impl(new Impl())
 {
-	m_ctx = new PrivateContext();
 }
 
 DBClientHost::~DBClientHost()
 {
-	delete m_ctx;
 }
 

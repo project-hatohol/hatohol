@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -17,29 +17,17 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cppcutter.h>
-#include "SQLProcessorException.h"
-#include "ExceptionTestUtils.h"
-using namespace std;
+#include "AMQPMessageHandler.h"
 
-namespace testSQLProcessorException {
-
-// ---------------------------------------------------------------------------
-// Test cases
-// ---------------------------------------------------------------------------
-void test_throw(void)
+AMQPMessageHandler::AMQPMessageHandler()
 {
-	assertThrow(SQLProcessorException, SQLProcessorException);
 }
 
-void test_throwAsHatoholException(void)
+AMQPMessageHandler::~AMQPMessageHandler()
 {
-	assertThrow(SQLProcessorException, HatoholException);
 }
 
-void test_throwAsException(void)
+bool AMQPMessageHandler::handle(const amqp_envelope_t *envelope)
 {
-	assertThrow(SQLProcessorException, exception);
+	return true;
 }
-
-} // namespace testSQLProcessorException

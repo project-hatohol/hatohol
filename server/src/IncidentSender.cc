@@ -54,7 +54,7 @@ struct IncidentSender::Job
 	}
 };
 
-struct IncidentSender::PrivateContext
+struct IncidentSender::Impl
 {
 	IncidentSender &sender;
 	IncidentTrackerInfo incidentTrackerInfo;
@@ -65,14 +65,14 @@ struct IncidentSender::PrivateContext
 	size_t retryLimit;
 	unsigned int retryIntervalMSec;
 
-	PrivateContext(IncidentSender &_sender)
+	Impl(IncidentSender &_sender)
 	: sender(_sender), runningJob(NULL), jobSemaphore(0),
 	  retryLimit(DEFAULT_RETRY_LIMIT),
 	  retryIntervalMSec(DEFAULT_RETRY_INTERVAL_MSEC)
 	{
 	}
  
-	~PrivateContext()
+	~Impl()
 	{
 		queueLock.lock();
 		while (!queue.empty()) {
@@ -142,21 +142,19 @@ struct IncidentSender::PrivateContext
 };
 
 IncidentSender::IncidentSender(const IncidentTrackerInfo &tracker)
-: m_ctx(NULL)
+: m_impl(new Impl(*this))
 {
-	m_ctx = new PrivateContext(*this);
-	m_ctx->incidentTrackerInfo = tracker;
+	m_impl->incidentTrackerInfo = tracker;
 }
 
 IncidentSender::~IncidentSender()
 {
 	exitSync();
-	delete m_ctx;
 }
 
 void IncidentSender::waitExit(void)
 {
-	m_ctx->jobSemaphore.post();
+	m_impl->jobSemaphore.post();
 	HatoholThreadBase::waitExit();
 }
 
@@ -164,30 +162,30 @@ void IncidentSender::queue(const EventInfo &eventInfo,
 			   StatusCallback callback, void *userData)
 {
 	Job *job = new Job(eventInfo, callback, userData);
-	m_ctx->pushJob(job);
+	m_impl->pushJob(job);
 }
 
 void IncidentSender::setRetryLimit(const size_t &limit)
 {
-	m_ctx->retryLimit = limit;
+	m_impl->retryLimit = limit;
 }
 
 void IncidentSender::setRetryInterval(const unsigned int &msec)
 {
-	m_ctx->retryIntervalMSec = msec;
+	m_impl->retryIntervalMSec = msec;
 }
 
 bool IncidentSender::isIdling(void)
 {
-	AutoMutex autoMutex(&m_ctx->queueLock);
-	if (!m_ctx->queue.empty())
+	AutoMutex autoMutex(&m_impl->queueLock);
+	if (!m_impl->queue.empty())
 		return false;
-	return !m_ctx->runningJob;
+	return !m_impl->runningJob;
 }
 
 const IncidentTrackerInfo &IncidentSender::getIncidentTrackerInfo(void)
 {
-	return m_ctx->incidentTrackerInfo;
+	return m_impl->incidentTrackerInfo;
 }
 
 bool IncidentSender::getServerInfo(const EventInfo &event,
@@ -275,14 +273,14 @@ string IncidentSender::buildDescription(const EventInfo &event,
 
 gpointer IncidentSender::mainThread(HatoholThreadArg *arg)
 {
-	const IncidentTrackerInfo &tracker = m_ctx->incidentTrackerInfo;
+	const IncidentTrackerInfo &tracker = m_impl->incidentTrackerInfo;
 	Job *job;
 	MLPL_INFO("Start IncidentSender thread for %" FMT_INCIDENT_TRACKER_ID ":%s\n",
 		  tracker.id, tracker.nickname.c_str());
-	while ((job = m_ctx->waitNextJob())) {
+	while ((job = m_impl->waitNextJob())) {
 		if (!isExitRequested())
-			m_ctx->trySend(*job);
-		m_ctx->runningJob = NULL;
+			m_impl->trySend(*job);
+		m_impl->runningJob = NULL;
 		delete job;
 	}
 	MLPL_INFO("Exited IncidentSender thread for %" FMT_INCIDENT_TRACKER_ID ":%s\n",

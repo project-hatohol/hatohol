@@ -28,7 +28,7 @@
 using namespace std;
 using namespace mlpl;
 
-struct ArmBase::PrivateContext
+struct ArmBase::Impl
 {
 	string               name;
 	MonitoringServerInfo serverInfo; // we have the copy.
@@ -42,7 +42,7 @@ struct ArmBase::PrivateContext
 	string               lastFailureComment;
 	ArmWorkingStatus     lastFailureStatus;
 
-	PrivateContext(const string &_name,
+	Impl(const string &_name,
 	               const MonitoringServerInfo &_serverInfo)
 	: name(_name),
 	  serverInfo(_serverInfo),
@@ -58,7 +58,7 @@ struct ArmBase::PrivateContext
 		lastPollingTime.tv_nsec = 0;
 	}
 
-	virtual ~PrivateContext()
+	virtual ~Impl()
 	{
 		if (sem_destroy(&sleepSemaphore) != 0)
 			MLPL_ERR("Failed to call sem_destroy(): %d\n", errno);
@@ -124,9 +124,8 @@ struct ArmBase::PrivateContext
 // ---------------------------------------------------------------------------
 ArmBase::ArmBase(
   const string &name, const MonitoringServerInfo &serverInfo)
-: m_ctx(NULL)
+: m_impl(new Impl(name, serverInfo))
 {
-	m_ctx = new PrivateContext(name, serverInfo);
 }
 
 ArmBase::~ArmBase()
@@ -134,19 +133,18 @@ ArmBase::~ArmBase()
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	MLPL_INFO("%s [%d:%s]: destruction: completed.\n",
 	          getName().c_str(), svInfo.id, svInfo.hostName.c_str());
-	delete m_ctx;
 }
 
 void ArmBase::start(void)
 {
 	HatoholThreadBase::start();
-	m_ctx->armStatus.setRunningStatus(true);
+	m_impl->armStatus.setRunningStatus(true);
 }
 
 void ArmBase::waitExit(void)
 {
 	HatoholThreadBase::waitExit();
-	m_ctx->armStatus.setRunningStatus(false);
+	m_impl->armStatus.setRunningStatus(false);
 }
 
 bool ArmBase::isFetchItemsSupported(void) const
@@ -157,29 +155,29 @@ bool ArmBase::isFetchItemsSupported(void) const
 void ArmBase::fetchItems(ClosureBase *closure)
 {
 	setUpdateType(UPDATE_ITEM_REQUEST);
-	m_ctx->updatedSignal.connect(closure);
-	if (sem_post(&m_ctx->sleepSemaphore) == -1)
+	m_impl->updatedSignal.connect(closure);
+	if (sem_post(&m_impl->sleepSemaphore) == -1)
 		MLPL_ERR("Failed to call sem_post: %d\n", errno);
 }
 
 void ArmBase::setPollingInterval(int sec)
 {
-	m_ctx->serverInfo.pollingIntervalSec = sec;
+	m_impl->serverInfo.pollingIntervalSec = sec;
 }
 
 int ArmBase::getPollingInterval(void) const
 {
-	return m_ctx->serverInfo.pollingIntervalSec;
+	return m_impl->serverInfo.pollingIntervalSec;
 }
 
 int ArmBase::getRetryInterval(void) const
 {
-	return m_ctx->serverInfo.retryIntervalSec;
+	return m_impl->serverInfo.retryIntervalSec;
 }
 
 const string &ArmBase::getName(void) const
 {
-	return m_ctx->name;
+	return m_impl->name;
 }
 
 // ---------------------------------------------------------------------------
@@ -199,26 +197,26 @@ void ArmBase::requestExitAndWait(void)
 
 bool ArmBase::hasExitRequest(void) const
 {
-	return m_ctx->exitRequest;
+	return m_impl->exitRequest;
 }
 
 void ArmBase::requestExit(void)
 {
-	m_ctx->exitRequest = true;
+	m_impl->exitRequest = true;
 
 	// to return immediately from the waiting.
-	if (sem_post(&m_ctx->sleepSemaphore) == -1)
+	if (sem_post(&m_impl->sleepSemaphore) == -1)
 		MLPL_ERR("Failed to call sem_post: %d\n", errno);
 }
 
 const MonitoringServerInfo &ArmBase::getServerInfo(void) const
 {
-	return m_ctx->serverInfo;
+	return m_impl->serverInfo;
 }
 
 const ArmStatus &ArmBase::getArmStatus(void) const
 {
-	return m_ctx->armStatus;
+	return m_impl->armStatus;
 }
 
 void ArmBase::sleepInterruptible(int sleepTime)
@@ -232,7 +230,7 @@ void ArmBase::sleepInterruptible(int sleepTime)
 	}
 	ts.tv_sec += sleepTime;
 retry:
-	int result = sem_timedwait(&m_ctx->sleepSemaphore, &ts);
+	int result = sem_timedwait(&m_impl->sleepSemaphore, &ts);
 	if (result == -1) {
 		if (errno == ETIMEDOUT)
 			; // This is normal case
@@ -246,42 +244,42 @@ retry:
 
 ArmBase::UpdateType ArmBase::getUpdateType(void) const
 {
-	return m_ctx->getUpdateType();
+	return m_impl->getUpdateType();
 }
 
 void ArmBase::setUpdateType(UpdateType updateType)
 {
-	m_ctx->setUpdateType(updateType);
+	m_impl->setUpdateType(updateType);
 }
 
 bool ArmBase::getCopyOnDemandEnabled(void) const
 {
-	return m_ctx->isCopyOnDemandEnabled;
+	return m_impl->isCopyOnDemandEnabled;
 }
 
 void ArmBase::setCopyOnDemandEnabled(bool enable)
 {
-	m_ctx->isCopyOnDemandEnabled = enable;
+	m_impl->isCopyOnDemandEnabled = enable;
 }
 
 gpointer ArmBase::mainThread(HatoholThreadArg *arg)
 {
 	while (!hasExitRequest()) {
-		int sleepTime = m_ctx->getSecondsToNextPolling();
+		int sleepTime = m_impl->getSecondsToNextPolling();
 		if (mainThreadOneProc()) {
-			m_ctx->armStatus.logSuccess();
+			m_impl->armStatus.logSuccess();
 		} else {
 			sleepTime = getRetryInterval();
-			m_ctx->armStatus.logFailure(m_ctx->lastFailureComment,
-			                            m_ctx->lastFailureStatus);
-			m_ctx->lastFailureComment.clear();
-			m_ctx->lastFailureStatus = ARM_WORK_STAT_FAILURE;
+			m_impl->armStatus.logFailure(m_impl->lastFailureComment,
+			                            m_impl->lastFailureStatus);
+			m_impl->lastFailureComment.clear();
+			m_impl->lastFailureStatus = ARM_WORK_STAT_FAILURE;
 		}
 
-		m_ctx->stampLastPollingTime();
-		m_ctx->setUpdateType(UPDATE_POLLING);
-		m_ctx->updatedSignal();
-		m_ctx->updatedSignal.clear();
+		m_impl->stampLastPollingTime();
+		m_impl->setUpdateType(UPDATE_POLLING);
+		m_impl->updatedSignal();
+		m_impl->updatedSignal.clear();
 
 		if (hasExitRequest())
 			break;
@@ -292,12 +290,12 @@ gpointer ArmBase::mainThread(HatoholThreadArg *arg)
 
 void ArmBase::getArmStatus(ArmStatus *&armStatus)
 {
-	armStatus = &m_ctx->armStatus;
+	armStatus = &m_impl->armStatus;
 }
 
 void ArmBase::setFailureInfo(const std::string &comment,
                              const ArmWorkingStatus &status)
 {
-	m_ctx->lastFailureComment = comment;
-	m_ctx->lastFailureStatus = status;
+	m_impl->lastFailureComment = comment;
+	m_impl->lastFailureStatus = status;
 }

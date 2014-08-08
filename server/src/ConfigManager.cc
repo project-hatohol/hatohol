@@ -112,7 +112,7 @@ struct CommandLineOptions {
 };
 static CommandLineOptions g_cmdLineOpts;
 
-struct ConfigManager::PrivateContext {
+struct ConfigManager::Impl {
 	static Mutex          mutex;
 	static ConfigManager *instance;
 	string                confFilePath;
@@ -128,7 +128,7 @@ struct ConfigManager::PrivateContext {
 	string                pidFilePath;
 
 	// methods
-	PrivateContext(void)
+	Impl(void)
 	: foreground(false),
 	  dbServerAddress("localhost"),
 	  dbServerPort(0),
@@ -211,8 +211,8 @@ struct ConfigManager::PrivateContext {
 	}
 };
 
-Mutex          ConfigManager::PrivateContext::mutex;
-ConfigManager *ConfigManager::PrivateContext::instance = NULL;
+Mutex          ConfigManager::Impl::mutex;
+ConfigManager *ConfigManager::Impl::instance = NULL;
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -258,7 +258,7 @@ bool ConfigManager::parseCommandLine(gint *argc, gchar ***argv)
 
 	// refect options so that ConfigManager can return them
 	// even before reset() is called.
-	getInstance()->m_ctx->reflectCommandLineOptions(g_cmdLineOpts);
+	getInstance()->m_impl->reflectCommandLineOptions(g_cmdLineOpts);
 	return true;
 }
 
@@ -269,30 +269,30 @@ void ConfigManager::clearParseCommandLineResult(void)
 
 void ConfigManager::reset(void)
 {
-	delete PrivateContext::instance;
-	PrivateContext::instance = NULL;
+	delete Impl::instance;
+	Impl::instance = NULL;
 	ConfigManager *confMgr = getInstance();
 	confMgr->loadConfFile();
 
-	confMgr->m_ctx->actionCommandDirectory =
+	confMgr->m_impl->actionCommandDirectory =
 	  StringUtils::sprintf("%s/%s/action", LIBEXECDIR, PACKAGE);
-	confMgr->m_ctx->residentYardDirectory = string(PREFIX"/sbin");
+	confMgr->m_impl->residentYardDirectory = string(PREFIX"/sbin");
 
 	// override by the command line options if needed
-	confMgr->m_ctx->reflectCommandLineOptions(g_cmdLineOpts);
+	confMgr->m_impl->reflectCommandLineOptions(g_cmdLineOpts);
 }
 
 ConfigManager *ConfigManager::getInstance(void)
 {
-	if (PrivateContext::instance)
-		return PrivateContext::instance;
+	if (Impl::instance)
+		return Impl::instance;
 
-	PrivateContext::lock();
-	if (!PrivateContext::instance)
-		PrivateContext::instance = new ConfigManager();
-	PrivateContext::unlock();
+	Impl::lock();
+	if (!Impl::instance)
+		Impl::instance = new ConfigManager();
+	Impl::unlock();
 
-	return PrivateContext::instance;
+	return Impl::instance;
 }
 
 void ConfigManager::getTargetServers
@@ -304,7 +304,7 @@ void ConfigManager::getTargetServers
 
 const string &ConfigManager::getDatabaseDirectory(void) const
 {
-	return m_ctx->databaseDirectory;
+	return m_impl->databaseDirectory;
 }
 
 size_t ConfigManager::getNumberOfPreservedReplicaGeneration(void) const
@@ -314,17 +314,17 @@ size_t ConfigManager::getNumberOfPreservedReplicaGeneration(void) const
 
 bool ConfigManager::isForegroundProcess(void) const
 {
-	return m_ctx->foreground;
+	return m_impl->foreground;
 }
 
 string ConfigManager::getDBServerAddress(void) const
 {
-	return m_ctx->dbServerAddress;
+	return m_impl->dbServerAddress;
 }
 
 int ConfigManager::getDBServerPort(void) const
 {
-	return m_ctx->dbServerPort;
+	return m_impl->dbServerPort;
 }
 
 int ConfigManager::getAllowedTimeOfActionForOldEvents(void)
@@ -339,46 +339,46 @@ int ConfigManager::getMaxNumberOfRunningCommandAction(void)
 
 string ConfigManager::getActionCommandDirectory(void)
 {
-	AutoMutex autoLock(&m_ctx->mutex);
-	return m_ctx->actionCommandDirectory;
+	AutoMutex autoLock(&m_impl->mutex);
+	return m_impl->actionCommandDirectory;
 }
 
 void ConfigManager::setActionCommandDirectory(const string &dir)
 {
-	AutoMutex autoLock(&m_ctx->mutex);
-	m_ctx->actionCommandDirectory = dir;
+	AutoMutex autoLock(&m_impl->mutex);
+	m_impl->actionCommandDirectory = dir;
 }
 
 string ConfigManager::getResidentYardDirectory(void)
 {
-	AutoMutex autoLock(&m_ctx->mutex);
-	return m_ctx->residentYardDirectory;
+	AutoMutex autoLock(&m_impl->mutex);
+	return m_impl->residentYardDirectory;
 }
 
 void ConfigManager::setResidentYardDirectory(const string &dir)
 {
-	AutoMutex autoLock(&m_ctx->mutex);
-	m_ctx->residentYardDirectory = dir;
+	AutoMutex autoLock(&m_impl->mutex);
+	m_impl->residentYardDirectory = dir;
 }
 
 bool ConfigManager::isTestMode(void) const
 {
-	return m_ctx->testMode;
+	return m_impl->testMode;
 }
 
 ConfigManager::ConfigState ConfigManager::getCopyOnDemand(void) const
 {
-	return m_ctx->copyOnDemand;
+	return m_impl->copyOnDemand;
 }
 
 int ConfigManager::getFaceRestPort(void) const
 {
-	return m_ctx->faceRestPort;
+	return m_impl->faceRestPort;
 }
 
 string ConfigManager::getPidFilePath(void) const
 {
-	return m_ctx->pidFilePath;
+	return m_impl->pidFilePath;
 }
 
 // ---------------------------------------------------------------------------
@@ -387,7 +387,7 @@ string ConfigManager::getPidFilePath(void) const
 void ConfigManager::loadConfFile(void)
 {
 	vector<string> confFiles;
-	confFiles.push_back(m_ctx->confFilePath);
+	confFiles.push_back(m_impl->confFilePath);
 
 	char *systemWideConfFile =
 	   g_build_filename(SYSCONFDIR, PACKAGE_NAME, "hatohol.conf", NULL);
@@ -395,7 +395,7 @@ void ConfigManager::loadConfFile(void)
 	g_free(systemWideConfFile);
 
 	for (size_t i = 0; i < confFiles.size(); i++) {
-		const bool succeeded = m_ctx->loadConfFile(confFiles[i]);
+		const bool succeeded = m_impl->loadConfFile(confFiles[i]);
 		if (!succeeded)
 			continue;
 		MLPL_INFO("Use configuration file: %s\n",
@@ -408,17 +408,15 @@ void ConfigManager::loadConfFile(void)
 // Private methods
 // ---------------------------------------------------------------------------
 ConfigManager::ConfigManager(void)
-: m_ctx(NULL)
+: m_impl(new Impl())
 {
-	m_ctx = new PrivateContext();
 	const char *envDBDir = getenv(HATOHOL_DB_DIR_ENV_VAR_NAME);
 	if (envDBDir)
-		m_ctx->databaseDirectory = envDBDir;
+		m_impl->databaseDirectory = envDBDir;
 	else
-		m_ctx->databaseDirectory = DEFAULT_DATABASE_DIR;
+		m_impl->databaseDirectory = DEFAULT_DATABASE_DIR;
 }
 
 ConfigManager::~ConfigManager()
 {
-	delete m_ctx;
 }

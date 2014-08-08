@@ -46,6 +46,8 @@ typedef std::vector<IncidentTrackerInfo>        IncidentTrackerInfoVect;
 typedef IncidentTrackerInfoVect::iterator       IncidentTrackerInfoVectIterator;
 typedef IncidentTrackerInfoVect::const_iterator IncidentTrackerInfoVectConstIterator;
 
+typedef std::set<IncidentTrackerIdType>         IncidentTrackerIdSet;
+
 struct ArmPluginInfo {
 	int id;
 	MonitoringSystemType type;
@@ -95,8 +97,8 @@ protected:
 	bool hasPrivilegeCondition(std::string &condition) const;
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 class IncidentTrackerQueryOption : public DataQueryOption {
@@ -110,8 +112,8 @@ public:
 	virtual std::string getCondition(void) const; //overrride
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 class DBClientConfig : public DBClient {
@@ -129,7 +131,6 @@ public:
 
 	std::string getDatabaseDir(void);
 	void setDatabaseDir(const std::string &dir);
-	bool isFaceMySQLEnabled(void);
 	int  getFaceRestPort(void);
 	void setFaceRestPort(int port);
 	bool isCopyOnDemandEnabled(void);
@@ -248,6 +249,9 @@ public:
 	void getIncidentTrackers(IncidentTrackerInfoVect &incidentTrackerVect,
 				 IncidentTrackerQueryOption &option);
 
+	void getIncidentTrackerIdSet(
+	  IncidentTrackerIdSet &incidentTrackerIdSet);
+
 protected:
 	static void tableInitializerSystem(DBAgent *dbAgent, void *data);
 	static bool canUpdateTargetServer(
@@ -277,8 +281,8 @@ protected:
 	void deleteArmPluginInfoWithoutTransaction(const std::string &condition);
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
 
 };
 

@@ -70,7 +70,7 @@ public:
 	}
 };
 
-struct HatoholArmPluginGate::PrivateContext
+struct HatoholArmPluginGate::Impl
 {
 	// We have a copy. The access to the object is MT-safe.
 	const MonitoringServerInfo serverInfo;
@@ -84,7 +84,7 @@ struct HatoholArmPluginGate::PrivateContext
 	Mutex                exitSyncLock;
 	bool                 exitSyncDone;
 
-	PrivateContext(const MonitoringServerInfo &_serverInfo,
+	Impl(const MonitoringServerInfo &_serverInfo,
 	               HatoholArmPluginGate *_hapg)
 	: serverInfo(_serverInfo),
 	  armBase(_serverInfo),
@@ -119,26 +119,24 @@ const string HatoholArmPluginGate::PassivePluginQuasiPath = "#PASSIVE_PLUGIN#";
 HatoholArmPluginGate::HatoholArmPluginGate(
   const MonitoringServerInfo &serverInfo)
 : HatoholArmPluginInterface(true),
-  m_ctx(NULL)
+  m_impl(new Impl(serverInfo, this))
 {
-	m_ctx = new PrivateContext(serverInfo, this);
-
 	CacheServiceDBClient cache;
-	const ServerIdType &serverId = m_ctx->serverInfo.id;
+	const ServerIdType &serverId = m_impl->serverInfo.id;
 	DBClientConfig *dbConfig = cache.getConfig();
-	if (!dbConfig->getArmPluginInfo(m_ctx->armPluginInfo, serverId)) {
+	if (!dbConfig->getArmPluginInfo(m_impl->armPluginInfo, serverId)) {
 		MLPL_ERR("Failed to get ArmPluginInfo: serverId: %d\n",
 		         serverId);
 		return;
 	}
-	if (!m_ctx->armPluginInfo.brokerUrl.empty())
-		setBrokerUrl(m_ctx->armPluginInfo.brokerUrl);
+	if (!m_impl->armPluginInfo.brokerUrl.empty())
+		setBrokerUrl(m_impl->armPluginInfo.brokerUrl);
 
 	string address;
-	if (!m_ctx->armPluginInfo.staticQueueAddress.empty())
-		address = m_ctx->armPluginInfo.staticQueueAddress;
+	if (!m_impl->armPluginInfo.staticQueueAddress.empty())
+		address = m_impl->armPluginInfo.staticQueueAddress;
 	else
-		address = generateBrokerAddress(m_ctx->serverInfo);
+		address = generateBrokerAddress(m_impl->serverInfo);
 	setQueueAddress(address);
 
 	registerCommandHandler(
@@ -189,34 +187,34 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 
 void HatoholArmPluginGate::start(void)
 {
-	m_ctx->armStatus.setRunningStatus(true);
+	m_impl->armStatus.setRunningStatus(true);
 	HatoholArmPluginInterface::start();
 }
 
 const ArmStatus &HatoholArmPluginGate::getArmStatus(void) const
 {
-	return m_ctx->armStatus;
+	return m_impl->armStatus;
 }
 
 // TODO: remove this method
 ArmBase &HatoholArmPluginGate::getArmBase(void)
 {
-	return m_ctx->armBase;
+	return m_impl->armBase;
 }
 
 void HatoholArmPluginGate::exitSync(void)
 {
-	AutoMutex autoMutex(&m_ctx->exitSyncLock);
-	if (m_ctx->exitSyncDone)
+	AutoMutex autoMutex(&m_impl->exitSyncLock);
+	if (m_impl->exitSyncDone)
 		return;
 	MLPL_INFO("HatoholArmPluginGate: [%d:%s]: requested to exit.\n",
-	          m_ctx->serverInfo.id, m_ctx->serverInfo.hostName.c_str());
+	          m_impl->serverInfo.id, m_impl->serverInfo.hostName.c_str());
 	terminatePluginSync();
 	HatoholArmPluginInterface::exitSync();
-	m_ctx->armStatus.setRunningStatus(false);
+	m_impl->armStatus.setRunningStatus(false);
 	MLPL_INFO("  => [%d:%s]: done.\n",
-	          m_ctx->serverInfo.id, m_ctx->serverInfo.hostName.c_str());
-	m_ctx->exitSyncDone = true;
+	          m_impl->serverInfo.id, m_impl->serverInfo.hostName.c_str());
+	m_impl->exitSyncDone = true;
 }
 
 // ---------------------------------------------------------------------------
@@ -225,26 +223,25 @@ void HatoholArmPluginGate::exitSync(void)
 HatoholArmPluginGate::~HatoholArmPluginGate()
 {
 	exitSync();
-	delete m_ctx;
 }
 
 void HatoholArmPluginGate::onConnected(qpid::messaging::Connection &conn)
 {
-	if (m_ctx->pid)
+	if (m_impl->pid)
 		return;
 
 	// TODO: Check the type.
-	if (m_ctx->armPluginInfo.path == PassivePluginQuasiPath) {
+	if (m_impl->armPluginInfo.path == PassivePluginQuasiPath) {
 		MLPL_INFO("Started: passive plugin (%d) %s\n",
-		          m_ctx->armPluginInfo.type,
-		          m_ctx->armPluginInfo.path.c_str());
-		onLaunchedProcess(true, m_ctx->armPluginInfo);
+		          m_impl->armPluginInfo.type,
+		          m_impl->armPluginInfo.path.c_str());
+		onLaunchedProcess(true, m_impl->armPluginInfo);
 		return;
 	}
 
 	// launch a plugin process
-	bool succeeded = launchPluginProcess(m_ctx->armPluginInfo);
-	onLaunchedProcess(succeeded, m_ctx->armPluginInfo);
+	bool succeeded = launchPluginProcess(m_impl->armPluginInfo);
+	onLaunchedProcess(succeeded, m_impl->armPluginInfo);
 }
 
 int HatoholArmPluginGate::onCaughtException(const exception &e)
@@ -261,21 +258,21 @@ void HatoholArmPluginGate::onLaunchedProcess(
 
 void HatoholArmPluginGate::onTerminated(const siginfo_t *siginfo)
 {
-	m_ctx->pid = 0;
-	m_ctx->pluginTermSem.post();
+	m_impl->pid = 0;
+	m_impl->pluginTermSem.post();
 }
 
 void HatoholArmPluginGate::terminatePluginSync(void)
 {
 	// If the the plugin is a passive type, it will naturally return at
 	// the following condition.
-	if (!m_ctx->pid)
+	if (!m_impl->pid)
 		return;
 
 	// Send the teminate command.
 	sendTerminateCommand();
 	size_t timeoutMSec = TIMEOUT_PLUGIN_TERM_CMD_MS;
-	if (m_ctx->waitTermPlugin(timeoutMSec))
+	if (m_impl->waitTermPlugin(timeoutMSec))
 		return;
 	size_t elapsedTime = timeoutMSec;
 
@@ -283,11 +280,11 @@ void HatoholArmPluginGate::terminatePluginSync(void)
 	timeoutMSec = TIMEOUT_PLUGIN_TERM_SIGKILL_MS - elapsedTime;
 	MLPL_INFO("Send SIGTERM to the plugin and wait for %zd sec.\n",
 	          timeoutMSec/1000);
-	if (kill(m_ctx->pid, SIGTERM) == -1) {
+	if (kill(m_impl->pid, SIGTERM) == -1) {
 		MLPL_ERR("Failed to send SIGTERM, pid: %d, errno: %d\n",
-		         (int)m_ctx->pid, errno);
+		         (int)m_impl->pid, errno);
 	}
-	if (m_ctx->waitTermPlugin(timeoutMSec))
+	if (m_impl->waitTermPlugin(timeoutMSec))
 		return;
 	elapsedTime += timeoutMSec;
 
@@ -295,17 +292,17 @@ void HatoholArmPluginGate::terminatePluginSync(void)
 	timeoutMSec = TIMEOUT_PLUGIN_TERM_SIGKILL_MS - elapsedTime;
 	MLPL_INFO("Send SIGKILL to the plugin and wait for %zd sec.\n",
 	          timeoutMSec/1000);
-	if (kill(m_ctx->pid, SIGKILL) == -1) {
+	if (kill(m_impl->pid, SIGKILL) == -1) {
 		MLPL_ERR("Failed to send SIGKILL, pid: %d, errno: %d\n",
-		         (int)m_ctx->pid, errno);
+		         (int)m_impl->pid, errno);
 	}
-	if (m_ctx->waitTermPlugin(timeoutMSec))
+	if (m_impl->waitTermPlugin(timeoutMSec))
 		return;
 	elapsedTime += timeoutMSec;
 
 	MLPL_WARN(
 	  "The plugin (%d) hasn't terminated within a timeout. Ignore it.\n",
-	  (int)m_ctx->pid);
+	  (int)m_impl->pid);
 }
 
 bool HatoholArmPluginGate::launchPluginProcess(
@@ -346,7 +343,7 @@ bool HatoholArmPluginGate::launchPluginProcess(
 	arg.eventCb = eventCb;
 	arg.envs.push_back(StringUtils::sprintf(
 	  "%s=%s", ENV_NAME_QUEUE_ADDR,
-	           generateBrokerAddress(m_ctx->serverInfo).c_str()));
+	           generateBrokerAddress(m_impl->serverInfo).c_str()));
 	ChildProcessManager::getInstance()->create(arg);
 	if (!eventCb->succeededInCreation) {
 		MLPL_ERR("Failed to execute: (%d) %s\n",
@@ -354,7 +351,7 @@ bool HatoholArmPluginGate::launchPluginProcess(
 		return false;
 	}
 
-	m_ctx->pid = arg.pid;
+	m_impl->pid = arg.pid;
 	MLPL_INFO("Started: plugin (%d) %s\n",
 	          armPluginInfo.type, armPluginInfo.path.c_str());
 	return true;
@@ -378,7 +375,7 @@ void HatoholArmPluginGate::cmdHandlerGetMonitoringServerInfo(
   const HapiCommandHeader *header)
 {
 	SmartBuffer resBuf;
-	const MonitoringServerInfo &svInfo = m_ctx->serverInfo;
+	const MonitoringServerInfo &svInfo = m_impl->serverInfo;
 
 	const size_t lenHostName  = svInfo.hostName.size();
 	const size_t lenIpAddress = svInfo.ipAddress.size();
@@ -423,7 +420,7 @@ void HatoholArmPluginGate::cmdHandlerGetTimestampOfLastTrigger(
 	HapiResTimestampOfLastTrigger *body =
 	  setupResponseBuffer<HapiResTimestampOfLastTrigger>(resBuf);
 	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
-	SmartTime last = uds->getTimestampOfLastTrigger(m_ctx->serverInfo.id);
+	SmartTime last = uds->getTimestampOfLastTrigger(m_impl->serverInfo.id);
 	const timespec &lastTimespec = last.getAsTimespec();
 	body->timestamp = NtoL(lastTimespec.tv_sec);
 	body->nanosec   = NtoL(lastTimespec.tv_nsec);
@@ -438,7 +435,7 @@ void HatoholArmPluginGate::cmdHandlerGetLastEventId(
 	  setupResponseBuffer<HapiResLastEventId>(resBuf);
 	CacheServiceDBClient cache;
 	DBClientHatohol *dbHatohol = cache.getHatohol();
-	body->lastEventId = dbHatohol->getLastEventId(m_ctx->serverInfo.id);
+	body->lastEventId = dbHatohol->getLastEventId(m_impl->serverInfo.id);
 	reply(resBuf);
 }
 
@@ -453,7 +450,7 @@ void HatoholArmPluginGate::cmdHandlerSendUpdatedTriggers(
 
 	TriggerInfoList trigInfoList;
 	HatoholDBUtils::transformTriggersToHatoholFormat(
-	  trigInfoList, tablePtr, m_ctx->serverInfo.id, m_ctx->hostInfoCache);
+	  trigInfoList, tablePtr, m_impl->serverInfo.id, m_impl->hostInfoCache);
 
 	CacheServiceDBClient cache;
 	DBClientHatohol *dbHatohol = cache.getHatohol();
@@ -473,7 +470,7 @@ void HatoholArmPluginGate::cmdHandlerSendHosts(
 
 	HostInfoList hostInfoList;
 	HatoholDBUtils::transformHostsToHatoholFormat(
-	  hostInfoList, hostTablePtr, m_ctx->serverInfo.id);
+	  hostInfoList, hostTablePtr, m_impl->serverInfo.id);
 
 	CacheServiceDBClient cache;
 	DBClientHatohol *dbHatohol = cache.getHatohol();
@@ -482,7 +479,7 @@ void HatoholArmPluginGate::cmdHandlerSendHosts(
 	// TODO: consider if DBClientHatohol should have the cache
 	HostInfoListConstIterator hostInfoItr = hostInfoList.begin();
 	for (; hostInfoItr != hostInfoList.end(); ++hostInfoItr)
-		m_ctx->hostInfoCache.update(*hostInfoItr);
+		m_impl->hostInfoCache.update(*hostInfoItr);
 
 	replyOk();
 }
@@ -499,7 +496,7 @@ void HatoholArmPluginGate::cmdHandlerSendHostgroupElements(
 	HostgroupElementList hostgroupElementList;
 	HostInfoList hostInfoList;
 	HatoholDBUtils::transformHostsGroupsToHatoholFormat(
-	  hostgroupElementList, hostgroupElementTablePtr, m_ctx->serverInfo.id);
+	  hostgroupElementList, hostgroupElementTablePtr, m_impl->serverInfo.id);
 
 	CacheServiceDBClient cache;
 	DBClientHatohol *dbHatohol = cache.getHatohol();
@@ -519,7 +516,7 @@ void HatoholArmPluginGate::cmdHandlerSendHostgroups(
 
 	HostgroupInfoList hostgroupInfoList;
 	HatoholDBUtils::transformGroupsToHatoholFormat(
-	  hostgroupInfoList, hostgroupTablePtr, m_ctx->serverInfo.id);
+	  hostgroupInfoList, hostgroupTablePtr, m_impl->serverInfo.id);
 
 	CacheServiceDBClient cache;
 	DBClientHatohol *dbHatohol = cache.getHatohol();
@@ -539,7 +536,7 @@ void HatoholArmPluginGate::cmdHandlerSendUpdatedEvents(
 
 	EventInfoList eventInfoList;
 	HatoholDBUtils::transformEventsToHatoholFormat(
-	  eventInfoList, eventTablePtr, m_ctx->serverInfo.id);
+	  eventInfoList, eventTablePtr, m_impl->serverInfo.id);
 	UnifiedDataStore::getInstance()->addEventList(eventInfoList);
 
 	replyOk();
@@ -557,7 +554,7 @@ void HatoholArmPluginGate::cmdHandlerSendArmInfo(
 	// We use running status in this side, because this is used for
 	// the decision of restart of dataStore in UnifiedDataStore when
 	// the Parameter of monitoring server is changed.
-	armInfo.running = m_ctx->armStatus.getArmInfo().running;
+	armInfo.running = m_impl->armStatus.getArmInfo().running;
 	//armInfo.running = LtoN(body->running);
 
 	armInfo.stat    = static_cast<ArmWorkingStatus>(LtoN(body->stat));
@@ -580,7 +577,7 @@ void HatoholArmPluginGate::cmdHandlerSendArmInfo(
 	armInfo.failureComment = getString(*cmdBuf, body,
 	                                   body->failureCommentOffset,
 	                                   body->failureCommentLength);
-	m_ctx->armStatus.setArmInfo(armInfo);
+	m_impl->armStatus.setArmInfo(armInfo);
 
 	replyOk();
 }

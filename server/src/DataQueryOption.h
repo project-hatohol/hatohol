@@ -21,6 +21,7 @@
 #define DataQueryOption_h
 
 #include <string>
+#include <memory>
 #include <list>
 #include "Params.h"
 #include "DataQueryContext.h"
@@ -190,8 +191,8 @@ protected:
 	                         const bool &useParenthesis = false);
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 #endif // DataQueryOption_h

@@ -33,7 +33,7 @@
 using namespace std;
 using namespace mlpl;
 
-struct HatoholThreadBase::PrivateContext {
+struct HatoholThreadBase::Impl {
 	AtomicValue<GThread *>    thread;
 	ReadWriteLock rwlock;
 	ExitCallbackInfoList      exitCbList;
@@ -43,7 +43,7 @@ struct HatoholThreadBase::PrivateContext {
 	AtomicValue<bool>         exitRequested;
 
 	// methods
-	PrivateContext(void)
+	Impl(void)
 	: thread(NULL),
 	  semThreadStart(0),
 	  exitRequested(false)
@@ -51,7 +51,7 @@ struct HatoholThreadBase::PrivateContext {
 		mutexForReexecSleep.lock();
 	}
 
-	virtual ~PrivateContext()
+	virtual ~Impl()
 	{
 		if (thread) {
 #ifdef GLIB_VERSION_2_32
@@ -98,15 +98,13 @@ struct HatoholThreadBase::PrivateContext {
 // Public methods
 // ---------------------------------------------------------------------------
 HatoholThreadBase::HatoholThreadBase(void)
-: m_ctx(NULL)
+: m_impl(new Impl())
 {
-	m_ctx = new PrivateContext();
 }
 
 HatoholThreadBase::~HatoholThreadBase()
 {
 	waitExit();
-	delete m_ctx;
 }
 
 void HatoholThreadBase::start(bool autoDeleteObject, void *userData)
@@ -116,26 +114,26 @@ void HatoholThreadBase::start(bool autoDeleteObject, void *userData)
 	arg->userData = userData;
 	arg->autoDeleteObject = autoDeleteObject;
 	GError *error = NULL;
-	m_ctx->thread =
+	m_impl->thread =
 #ifdef GLIB_VERSION_2_32
 	  g_thread_try_new("HatoholThread", threadStarter, arg, &error);
 #else
 	  g_thread_create(threadStarter, arg, TRUE, &error);
 #endif // GLIB_VERSION_2_32
-	if (m_ctx->thread == NULL) {
+	if (m_impl->thread == NULL) {
 		MLPL_ERR("Failed to call g_thread_try_new: %s\n",
 		         error->message);
 		g_error_free(error);
 	}
-	m_ctx->waitThreadStarted();
+	m_impl->waitThreadStarted();
 }
 
 void HatoholThreadBase::waitExit(void)
 {
-	m_ctx->semThreadExit.wait();
+	m_impl->semThreadExit.wait();
 
 	// Enable to call this method more than once
-	m_ctx->semThreadExit.post();
+	m_impl->semThreadExit.post();
 }
 
 void HatoholThreadBase::addExitCallback(ExitCallbackFunc func, void *data)
@@ -144,19 +142,19 @@ void HatoholThreadBase::addExitCallback(ExitCallbackFunc func, void *data)
 	exitInfo.func = func;
 	exitInfo.data = data;
 
-	m_ctx->write_lock();
-	m_ctx->exitCbList.push_back(exitInfo);
-	m_ctx->write_unlock();
+	m_impl->write_lock();
+	m_impl->exitCbList.push_back(exitInfo);
+	m_impl->write_unlock();
 }
 
 bool HatoholThreadBase::isStarted(void) const
 {
-	return m_ctx->thread;
+	return m_impl->thread;
 }
 
 bool HatoholThreadBase::isExitRequested(void) const
 {
-	return m_ctx->exitRequested;
+	return m_impl->exitRequested;
 }
 
 void HatoholThreadBase::exitSync(void)
@@ -171,13 +169,13 @@ void HatoholThreadBase::exitSync(void)
 // ---------------------------------------------------------------------------
 void HatoholThreadBase::doExitCallback(void)
 {
-	m_ctx->read_lock();
-	ExitCallbackInfoListIterator it = m_ctx->exitCbList.begin();
-	for (; it != m_ctx->exitCbList.end(); ++it) {
+	m_impl->read_lock();
+	ExitCallbackInfoListIterator it = m_impl->exitCbList.begin();
+	for (; it != m_impl->exitCbList.end(); ++it) {
 		ExitCallbackInfo &exitInfo = *it;
 		(*exitInfo.func)(exitInfo.data);
 	}
-	m_ctx->read_unlock();
+	m_impl->read_unlock();
 }
 
 int HatoholThreadBase::onCaughtException(const std::exception &e)
@@ -187,12 +185,12 @@ int HatoholThreadBase::onCaughtException(const std::exception &e)
 
 void HatoholThreadBase::requestExit(void)
 {
-	m_ctx->exitRequested = true;
+	m_impl->exitRequested = true;
 }
 
 void HatoholThreadBase::cancelReexecSleep(void)
 {
-	m_ctx->mutexForReexecSleep.unlock();
+	m_impl->mutexForReexecSleep.unlock();
 }
 
 // ---------------------------------------------------------------------------
@@ -211,8 +209,8 @@ void HatoholThreadBase::threadCleanup(HatoholThreadArg *arg)
 {
 	arg->obj->doExitCallback();
 	hatoholThreadCleanup(arg);
-	arg->obj->m_ctx->thread = NULL;
-	arg->obj->m_ctx->semThreadExit.post();
+	arg->obj->m_impl->thread = NULL;
+	arg->obj->m_impl->semThreadExit.post();
 	if (arg->autoDeleteObject)
 		delete arg->obj;
 	delete arg;
@@ -228,7 +226,7 @@ gpointer HatoholThreadBase::threadStarter(gpointer data)
 	Reaper<HatoholThreadArg> threadCleaner(arg, threadCleanup);
 
 	HatoholThreadBase *obj = arg->obj;
-	obj->m_ctx->notifyThreadStarted();
+	obj->m_impl->notifyThreadStarted();
 
 begin:
 	int sleepTimeOrExit = EXIT_THREAD;
@@ -246,7 +244,7 @@ begin:
 	}
 	if (sleepTimeOrExit >= 0) {
 		Mutex::Status status =
-		  obj->m_ctx->mutexForReexecSleep.timedlock(sleepTimeOrExit);
+		  obj->m_impl->mutexForReexecSleep.timedlock(sleepTimeOrExit);
 
 		// The status is MutextLock::OK, cancelReexecSleep() should
 		// be called. In that case, we just return this method.
