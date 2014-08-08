@@ -371,12 +371,12 @@ bool ConfigManager::isTestMode(void) const
 
 ConfigManager::ConfigState ConfigManager::getCopyOnDemand(void) const
 {
-	return m_ctx->copyOnDemand;
+	return m_impl->copyOnDemand;
 }
 
 int ConfigManager::getFaceRestPort(void) const
 {
-	return m_ctx->faceRestPort;
+	return m_impl->faceRestPort;
 }
 
 // ---------------------------------------------------------------------------

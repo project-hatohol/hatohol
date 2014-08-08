@@ -49,7 +49,7 @@ public:
 
 	static void init(void);
 
-	FaceRest(CommandLineArg &cmdArg, FaceRestParam *param = NULL);
+	FaceRest(FaceRestParam *param = NULL);
 	virtual ~FaceRest();
 	virtual void waitExit(void) override;
 	virtual void setNumberOfPreLoadWorkers(size_t num);
