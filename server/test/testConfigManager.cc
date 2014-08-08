@@ -174,4 +174,22 @@ void test_parseFaceRestPortWithInvalValue(gconstpointer data)
 	 0, ConfigManager::getInstance()->getFaceRestPort());
 }
 
+void test_parsePidFilePathDefault(void)
+{
+	cppcut_assert_equal(
+	  string(ConfigManager::DEFAULT_PID_FILE_PATH),
+	  ConfigManager::getInstance()->getPidFilePath());
+}
+
+void test_parsePidFilePath(void)
+{
+	CommandArgHelper cmds;
+	cmds << "--pid-file-path";
+	cmds << "/tmp/hoge/foo.x";
+	cmds.activate();
+	cppcut_assert_equal(
+	  string("/tmp/hoge/foo.x"),
+	  ConfigManager::getInstance()->getPidFilePath());
+}
+
 } // namespace testConfigManager
