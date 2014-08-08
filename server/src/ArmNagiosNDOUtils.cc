@@ -101,9 +101,10 @@ enum {
 	NUM_IDX_SERVICES,
 };
 
-static const DBAgent::TableProfile tableProfileServices(
-  TABLE_NAME_SERVICES, COLUMN_DEF_SERVICES,
-  sizeof(COLUMN_DEF_SERVICES), NUM_IDX_SERVICES);
+static const DBAgent::TableProfile tableProfileServices =
+  DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_SERVICES,
+			    COLUMN_DEF_SERVICES,
+			    NUM_IDX_SERVICES);
 
 // Definitions: nagios_servicestatus
 static const ColumnDef COLUMN_DEF_SERVICESTATUS[] = {
@@ -174,9 +175,10 @@ enum {
 	NUM_IDX_SERVICESTATUS,
 };
 
-static const DBAgent::TableProfile tableProfileServiceStatus(
-  TABLE_NAME_SERVICESTATUS, COLUMN_DEF_SERVICESTATUS,
-  sizeof(COLUMN_DEF_SERVICESTATUS), NUM_IDX_SERVICESTATUS);
+static const DBAgent::TableProfile tableProfileServiceStatus =
+  DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_SERVICESTATUS,
+			    COLUMN_DEF_SERVICESTATUS,
+			    NUM_IDX_SERVICESTATUS);
 
 // Definitions: nagios_hosts
 static const ColumnDef COLUMN_DEF_HOSTS[] = {
@@ -223,9 +225,10 @@ enum {
 	NUM_IDX_HOSTS,
 };
 
-static const DBAgent::TableProfile tableProfileHosts(
-  TABLE_NAME_HOSTS, COLUMN_DEF_HOSTS,
-  sizeof(COLUMN_DEF_HOSTS), NUM_IDX_HOSTS);
+static const DBAgent::TableProfile tableProfileHosts =
+  DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_HOSTS,
+			    COLUMN_DEF_HOSTS,
+			    NUM_IDX_HOSTS);
 
 // Definitions: nagios_hostgroups
 static const ColumnDef COLUMN_DEF_HOSTGROUPS[] = {
@@ -260,9 +263,10 @@ enum {
 	NUM_IDX_HOSTGROUPS,
 };
 
-static const DBAgent::TableProfile tableProfileHostgroups(
-  TABLE_NAME_HOSTGROUPS, COLUMN_DEF_HOSTGROUPS,
-  sizeof(COLUMN_DEF_HOSTGROUPS), NUM_IDX_HOSTGROUPS);
+static const DBAgent::TableProfile tableProfileHostgroups =
+  DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_HOSTGROUPS,
+			    COLUMN_DEF_HOSTGROUPS,
+			    NUM_IDX_HOSTGROUPS);
 
 // Definitions: nagios_hostgroup_members
 static const ColumnDef COLUMN_DEF_HOSTGROUP_MEMBERS[] = {
@@ -297,9 +301,10 @@ enum {
 	NUM_IDX_HOSTGROUP_MEMBERS,
 };
 
-static const DBAgent::TableProfile tableProfileHostgroupMembers(
-  TABLE_NAME_HOSTGROUP_MEMBERS, COLUMN_DEF_HOSTGROUP_MEMBERS,
-  sizeof(COLUMN_DEF_HOSTGROUP_MEMBERS), NUM_IDX_HOSTGROUP_MEMBERS);
+static const DBAgent::TableProfile tableProfileHostgroupMembers =
+  DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_HOSTGROUP_MEMBERS,
+			    COLUMN_DEF_HOSTGROUP_MEMBERS,
+			    NUM_IDX_HOSTGROUP_MEMBERS);
 
 // Definitions: nagios_statehistory
 static const ColumnDef COLUMN_DEF_STATEHISTORY[] = {
@@ -382,9 +387,10 @@ enum {
 	NUM_IDX_STATEHISTORY,
 };
 
-static const DBAgent::TableProfile tableProfileStateHistory(
-  TABLE_NAME_STATEHISTORY, COLUMN_DEF_STATEHISTORY,
-  sizeof(COLUMN_DEF_STATEHISTORY), NUM_IDX_STATEHISTORY);
+static const DBAgent::TableProfile tableProfileStateHistory =
+  DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_STATEHISTORY,
+			    COLUMN_DEF_STATEHISTORY,
+			    NUM_IDX_STATEHISTORY);
 
 // ---------------------------------------------------------------------------
 // Private context
