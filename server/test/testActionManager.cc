@@ -1361,6 +1361,7 @@ void test_runIncidentSenderActionWithNonExistingUser(void)
 void test_checkEventsWithMultipleIncidentSender(void)
 {
 	// prepare two incident sender actions
+	setupTestDBConfig(true, true);
 	setupTestDBAction();
 	ActionDef actDef = {
 	  0,                      // id (this field is ignored)
