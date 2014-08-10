@@ -636,9 +636,6 @@ void data_getDefaultPluginPath(void)
 	               "type", G_TYPE_INT, (int)MONITORING_SYSTEM_HAPI_NAGIOS,
 	               "expect", G_TYPE_STRING, "hatohol-arm-plugin-nagios",
 	               NULL);
-	cppcut_assert_equal((int)NUM_MONITORING_SYSTEMS,
-	                    (int)MONITORING_SYSTEM_HAPI_NAGIOS + 1,
-	                    cut_message("Probably missing test data."));
 }
 
 void test_getDefaultPluginPath(gconstpointer data)

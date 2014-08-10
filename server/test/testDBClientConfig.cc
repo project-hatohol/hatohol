@@ -707,9 +707,6 @@ void data_isHatoholArmPlugin(void)
 	gcut_add_datum("MONITORING_SYSTEM_HAPI_NAGIOS",
 	               "data", G_TYPE_INT, (int)MONITORING_SYSTEM_HAPI_NAGIOS,
 	               "expect", G_TYPE_BOOLEAN, TRUE, NULL);
-	cppcut_assert_equal((int)NUM_MONITORING_SYSTEMS,
-	                    (int)MONITORING_SYSTEM_HAPI_NAGIOS + 1,
-	                    cut_message("Probably missing test data."));
 }
 
 void test_isHatoholArmPlugin(gconstpointer data)
