@@ -62,7 +62,6 @@ HatoholLoginDialog.prototype.onAppendMainElement = function () {
 
   var self = this;
   var validUserName = false;
-  var validPassword = false;
 
   $("#inputUserName").keyup(function() {
     validUserName = !!$("#inputUserName").val();
@@ -74,18 +73,8 @@ HatoholLoginDialog.prototype.onAppendMainElement = function () {
     fixupAddButtonState();
   });
 
-  $("#inputPassword").keyup(function() {
-    validPassword = !!$("#inputPassword").val();
-    fixupAddButtonState();
-  });
-
-  $("#inputPassword").change(function() {
-    validPassword = !!$("#inputPassword").val();
-    fixupAddButtonState();
-  });
-
   function fixupAddButtonState() {
-    var state = (validUserName && validPassword);
+    var state = validUserName;
     var btn = $('#loginFormSubmit');
     if (state) {
       btn.removeAttr("disabled");
