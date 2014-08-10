@@ -69,7 +69,17 @@ HatoholLoginDialog.prototype.onAppendMainElement = function () {
     fixupAddButtonState();
   });
 
+  $("#inputUserName").change(function() {
+    validUserName = !!$("#inputUserName").val();
+    fixupAddButtonState();
+  });
+
   $("#inputPassword").keyup(function() {
+    validPassword = !!$("#inputPassword").val();
+    fixupAddButtonState();
+  });
+
+  $("#inputPassword").change(function() {
     validPassword = !!$("#inputPassword").val();
     fixupAddButtonState();
   });
