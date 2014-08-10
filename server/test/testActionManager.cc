@@ -1383,7 +1383,6 @@ void test_checkEventsWithMultipleIncidentSender(void)
 	  0,                      // timeout
 	  0,                      // ownerUserId
 	};
-	ActionIdType expectedActionId = 1;
 	DBClientAction dbAction;
 	OperationPrivilege privilege(USER_ID_SYSTEM);
 	dbAction.addAction(actDef, privilege);
@@ -1394,6 +1393,21 @@ void test_checkEventsWithMultipleIncidentSender(void)
 	event.time.tv_sec = time(NULL);
 	EventInfoList eventList;
 	eventList.push_back(event);
+
+	// We get the first entry of the action list that is obtained by
+	// DBClientAction::getActionList(). It changes depending on the
+	// storage engine. For example, HATOHOL_MYSQL_ENGINE_MEMORY=1
+	// is set, the first entry may be different from that w/o it.
+	//
+	// However, this way is not the best. The expected action ID
+	// may change when the implementation of Hatohol server is modified.
+	ActionDefList actionDefList;
+	ActionsQueryOption option(USER_ID_SYSTEM);
+	option.setActionType(ACTION_ALL);
+	option.setTargetEventInfo(&event);
+	dbAction.getActionList(actionDefList, option);
+	cppcut_assert_equal(false, actionDefList.empty());
+	const ActionIdType expectedActionId = actionDefList.begin()->id;
 
 	// run actions
 	// TODO: we shoud prepare stub of IncidentSenderManager
