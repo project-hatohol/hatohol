@@ -20,26 +20,16 @@
 var HatoholLoginDialog = function(readyCallback) {
   var self = this;
   self.readyCallback = readyCallback;
-  self.buttonName = gettext("Login");
 
-  var dialogButtons = [{
-    text: self.buttonName,
-    click: function() { loginButtonClicked(); },
-  }];
+  // We use an own login button that calls submit() of a form tag
+  // to make browsers remeber a user name and the password.
+  var dialogButtons = [];
 
   // call the constructor of the super class
   var id = "hatohol_login_dialog";
   var title = gettext("Login");
   var dialogAttr = { width: "auto" };
   HatoholDialog.apply(this, [id, title, dialogButtons, dialogAttr]);
-
-  self.setButtonState(self.buttonName, false);
-
-  function loginButtonClicked() {
-    var user = $("#inputUserName").val();
-    var password = $("#inputPassword").val();
-    readyCallback(user, password);
-  }
 }
 
 //
@@ -54,10 +44,16 @@ HatoholLoginDialog.prototype.createMainElement = function() {
 
   function makeMainDivHTML(initParams) {
     var s = '';
+    s += '<form method="POST" id="loginForm">';
     s += '<label for="inputUserName">' + gettext("User name") + '</label><br>';
     s += '<input id="inputUserName" type="text" value="" class="input-xlarge"><br>';
     s += '<label for="inputPassword">' + gettext("Password") + '</label><br>';
     s += '<input id="inputPassword" type="password" value="" class="input-xlarge"><br>';
+    s += '<div align="center">';
+    s += '  <br>';
+    s += '  <input type="submit" id="loginFormSubmit" value="' + gettext("Login") + '"/>';
+    s += '</div>';
+    s += '</form>';
     return s;
   }
 }
@@ -66,22 +62,35 @@ HatoholLoginDialog.prototype.onAppendMainElement = function () {
 
   var self = this;
   var validUserName = false;
-  var validPassword = false;
 
   $("#inputUserName").keyup(function() {
     validUserName = !!$("#inputUserName").val();
     fixupAddButtonState();
   });
 
-  $("#inputPassword").keyup(function() {
-    validPassword = !!$("#inputPassword").val();
+  $("#inputUserName").change(function() {
+    validUserName = !!$("#inputUserName").val();
     fixupAddButtonState();
   });
 
   function fixupAddButtonState() {
-    var state = (validUserName && validPassword);
-    self.setButtonState(self.buttonName, state);
+    var state = validUserName;
+    var btn = $('#loginFormSubmit');
+    if (state) {
+      btn.removeAttr("disabled");
+      btn.removeClass("ui-state-disabled");
+    } else {
+      btn.attr("disabled", "disable");
+      btn.addClass("ui-state-disabled");
+    }
   }
+
+  $('#loginForm').submit(function() {
+    var user = $("#inputUserName").val();
+    var password = $("#inputPassword").val();
+    self.readyCallback(user, password);
+    return false;
+  });
 }
 
 //
