@@ -227,5 +227,7 @@ do { \
 #define TYPE_NAME(X)            typeid(X).name()
 #define DEMANGLED_TYPE_NAME(X)  Utils::demangle(TYPE_NAME(X)).c_str()
 
+#define ARRAY_SIZE(a)	(sizeof(a)/sizeof(a[0]))
+
 #endif // Utils_h
 
