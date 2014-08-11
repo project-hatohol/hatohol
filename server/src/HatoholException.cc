@@ -40,9 +40,15 @@ void HatoholException::init(void)
 
 HatoholException::HatoholException(
   const string &brief, const string &sourceFileName, const int &lineNumber)
+{
+	HatoholException(HTERR_UNINITIALIZED, brief, sourceFileName, lineNumber);
+}
+HatoholException::HatoholException(
+  const HatoholErrorCode errCode, const string &brief, const string &sourceFileName, const int &lineNumber)
 : m_what(brief),
   m_sourceFileName(sourceFileName),
-  m_lineNumber(lineNumber)
+  m_lineNumber(lineNumber),
+  m_errCode(errCode)
 {
 	MLPL_DBG("HatoholException: <%s:%d> %s\n", sourceFileName.c_str(), lineNumber,
 	         brief.c_str());
@@ -93,6 +99,11 @@ int HatoholException::getLineNumber(void) const
 const string &HatoholException::getStackTrace(void) const
 {
 	return m_stackTrace;
+}
+
+HatoholErrorCode HatoholException::getErrCode(void) const
+{
+	return m_errCode;
 }
 
 // ---------------------------------------------------------------------------
