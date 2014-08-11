@@ -24,6 +24,7 @@
 #include <StringUtils.h>
 #include <exception>
 #include <string>
+#include "HatoholError.h"
 
 #ifdef _GLIBCXX_USE_NOEXCEPT
 #define _HATOHOL_NOEXCEPT _GLIBCXX_USE_NOEXCEPT
@@ -38,12 +39,18 @@ class HatoholException : public std::exception
 public:
 	static void init(void);
 
+	explicit HatoholException(const HatoholErrorCode errCode,
+	                          const std::string &brief,
+	                          const std::string &sourceFileName = "",
+	                          const int &lineNumber = UNKNOWN_LINE_NUMBER);
 	explicit HatoholException(const std::string &brief,
 	                          const std::string &sourceFileName = "",
 	                          const int &lineNumber = UNKNOWN_LINE_NUMBER);
 	virtual ~HatoholException() _HATOHOL_NOEXCEPT;
 	virtual const char* what() const _HATOHOL_NOEXCEPT;
 	virtual std::string getFancyMessage(void) const;
+
+	HatoholErrorCode getErrCode() const;
 
 	const std::string &getSourceFileName(void) const;
 	int getLineNumber(void) const;
@@ -63,6 +70,7 @@ private:
 	std::string m_sourceFileName;
 	int         m_lineNumber;
 	std::string m_stackTrace;
+	HatoholErrorCode m_errCode;
 };
 
 #define THROW_HATOHOL_EXCEPTION(FMT, ...) \
@@ -110,6 +118,14 @@ _buildExpect<size_t, true>(size_t exp)
  */
 #define HATOHOL_BUILD_ASSERT(cond)	\
 	((void)HATOHOL_BUILD_EXPECT(!!(cond), 1))
+
+#define THROW_HATOHOL_EXCEPTION_WITHERR(ERR_CODE, FMT, ...) \
+do { \
+        throw HatoholException( \
+	  ERR_CODE, \
+          mlpl::StringUtils::sprintf(FMT, ##__VA_ARGS__), \
+	  __FILE__, __LINE__); \
+ } while (0)
 
 class ExceptionCatchable {
 public:
