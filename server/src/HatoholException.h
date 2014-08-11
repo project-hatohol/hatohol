@@ -79,6 +79,21 @@ do { \
 	} \
 } while (0)
 
+/*
+ * HATOHOL_BUILD_EXPECT(exp,val) emits build failure if
+ * compile-time constant expression exp is not equal to val.
+ * Otherwise, it returns val.
+ */
+#define HATOHOL_BUILD_EXPECT(exp,val)	\
+	((val) - 1 + sizeof(char[1 - 2 * !((exp) == (val))]))
+
+/*
+ * HATOHOL_BUILD_ASSERT(cond) emits build failure if compile-time
+ * constant expression cond is false.
+ */
+#define HATOHOL_BUILD_ASSERT(cond)	\
+	((void)HATOHOL_BUILD_EXPECT(!!(cond), 1))
+
 class ExceptionCatchable {
 public:
 	/**

@@ -34,30 +34,15 @@ public:
 	{
 		const char *name = "foo bar";
 		TableProfile tblProf(name, m_testColumnDefs,
-		                     sizeof(m_testColumnDefs),
 		                     m_numTestColumns);
 		cppcut_assert_equal(name, tblProf.name);
 		cppcut_assert_equal(m_testColumnDefs, tblProf.columnDefs);
 		cppcut_assert_equal(m_numTestColumns, tblProf.numColumns);
 	}
 
-	void assertCreateTableProfileWithInvalidNumIndexes(void)
-	{
-		bool gotException = false;
-		try {
-			TableProfile tblProf("name", m_testColumnDefs,
-			                     sizeof(m_testColumnDefs),
-			                     m_numTestColumns+1);
-		} catch (const HatoholException &e) {
-			gotException = true;
-		}
-		cppcut_assert_equal(true, gotException);
-	}
-
 	void assertCreateUpdateArg(void)
 	{
 		TableProfile tblProf("name", m_testColumnDefs,
-		                     sizeof(m_testColumnDefs),
 		                     m_numTestColumns);
 		UpdateArg arg(tblProf);
 		cppcut_assert_equal(&tblProf, &arg.tableProfile);
@@ -68,7 +53,6 @@ public:
 	void assertCreateInsertArg(void)
 	{
 		TableProfile tblProf("name", m_testColumnDefs,
-		                     sizeof(m_testColumnDefs),
 		                     m_numTestColumns);
 		InsertArg arg(tblProf);
 		cppcut_assert_equal(&tblProf, &arg.tableProfile);
@@ -78,7 +62,6 @@ public:
 	void assertCreateSelectArg(void)
 	{
 		TableProfile tblProf("name", m_testColumnDefs,
-		                     sizeof(m_testColumnDefs),
 		                     m_numTestColumns);
 		SelectArg arg(tblProf);
 		cppcut_assert_equal(&tblProf, &arg.tableProfile);
@@ -90,7 +73,6 @@ public:
 	void assertSelectArgAdd(void)
 	{
 		TableProfile tblProf("name", m_testColumnDefs,
-		                     sizeof(m_testColumnDefs),
 		                     m_numTestColumns);
 		SelectArg arg(tblProf);
 		cppcut_assert_equal(true, arg.columnIndexes.empty());
@@ -106,7 +88,6 @@ public:
 	void assertCreateSelectExArg(void)
 	{
 		TableProfile tblProf("name", m_testColumnDefs,
-		                     sizeof(m_testColumnDefs),
 		                     m_numTestColumns);
 		SelectExArg arg(tblProf);
 		cppcut_assert_equal(&tblProf, arg.tableProfile);
@@ -253,7 +234,6 @@ public:
 	void assertCreateDeleteArg(void)
 	{
 		TableProfile tblProf("name", m_testColumnDefs,
-		                     sizeof(m_testColumnDefs),
 		                     m_numTestColumns);
 		DeleteArg arg(tblProf);
 		cppcut_assert_equal(&tblProf, &arg.tableProfile);
@@ -264,7 +244,6 @@ public:
 	void assertInsertArgAdd(const T *vals, const size_t &numVals)
 	{
 		TableProfile tblProf("name", m_testColumnDefs,
-		                     sizeof(m_testColumnDefs),
 		                     m_numTestColumns);
 		InsertArg arg(tblProf);
 		for (size_t i = 0; i < numVals; i++) {
@@ -296,7 +275,6 @@ public:
 	void assertUpdateArgAdd(const T *vals, const size_t &numVals)
 	{
 		TableProfile tblProf("name", m_testColumnDefs,
-		                     sizeof(m_testColumnDefs),
 		                     m_numTestColumns);
 		UpdateArg arg(tblProf);
 		for (size_t i = 0; i < numVals; i++)
@@ -406,12 +384,6 @@ void test_createTableProfile(void)
 {
 	TestDBAgent dbAgent;
 	dbAgent.assertCreateTableProfile();
-}
-
-void test_createTableProfileWithIvalidNumIndexes(void)
-{
-	TestDBAgent dbAgent;
-	dbAgent.assertCreateTableProfileWithInvalidNumIndexes();
 }
 
 void test_createInsertArg(void)

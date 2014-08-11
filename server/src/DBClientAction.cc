@@ -235,9 +235,10 @@ enum {
 	NUM_IDX_ACTIONS,
 };
 
-static const DBAgent::TableProfile tableProfileActions(
-  TABLE_NAME_ACTIONS, COLUMN_DEF_ACTIONS,
-  sizeof(COLUMN_DEF_ACTIONS), NUM_IDX_ACTIONS);
+static const DBAgent::TableProfile tableProfileActions =
+  DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_ACTIONS,
+			    COLUMN_DEF_ACTIONS,
+			    NUM_IDX_ACTIONS);
 
 static const ColumnDef COLUMN_DEF_ACTION_LOGS[] = {
 {
@@ -364,9 +365,10 @@ static const ColumnDef COLUMN_DEF_ACTION_LOGS[] = {
 },
 };
 
-static const DBAgent::TableProfile tableProfileActionLogs(
-  TABLE_NAME_ACTION_LOGS, COLUMN_DEF_ACTION_LOGS,
-  sizeof(COLUMN_DEF_ACTION_LOGS), NUM_IDX_ACTION_LOGS);
+static const DBAgent::TableProfile tableProfileActionLogs =
+  DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_ACTION_LOGS,
+			    COLUMN_DEF_ACTION_LOGS,
+			    NUM_IDX_ACTION_LOGS);
 
 static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
 {

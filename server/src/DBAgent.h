@@ -50,6 +50,14 @@ struct DBConnectInfo {
 typedef void (*DBSetupFunc)(DBDomainId domainId, void *data);
 static const DBDomainId DEFAULT_DB_DOMAIN_ID = 0;
 
+// Initialize DBAgent::TableProfile
+// Note: Compile fails if number of coldefs does not match numcols.
+#define DBAGENT_TABLEPROFILE_INIT(name,coldefs,numcols)			\
+	DBAgent::TableProfile(name, coldefs,				\
+			     HATOHOL_BUILD_EXPECT(ARRAY_SIZE(coldefs), 	\
+						  numcols)	\
+	)
+
 class DBAgent {
 public:
 	struct TableProfile {
@@ -58,7 +66,6 @@ public:
 		const size_t        numColumns;
 
 		TableProfile(const char *name,  const ColumnDef *columnDefs,
-		             const size_t &columnDefSize,
 		             const size_t &numIndexes);
 	};
 

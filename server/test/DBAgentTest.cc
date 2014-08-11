@@ -109,7 +109,7 @@ const size_t NUM_COLUMNS_TEST = sizeof(COLUMN_DEF_TEST) / sizeof(ColumnDef);
 
 const DBAgent::TableProfile tableProfileTest(
   TABLE_NAME_TEST, COLUMN_DEF_TEST,
-  sizeof(COLUMN_DEF_TEST), NUM_IDX_TEST_TABLE
+  NUM_IDX_TEST_TABLE
 );
 
 const size_t NUM_TEST_DATA = 3;
@@ -155,7 +155,7 @@ enum {
 
 const DBAgent::TableProfile tableProfileTestAutoInc(
   TABLE_NAME_TEST_AUTO_INC, COLUMN_DEF_TEST_AUTO_INC,
-  sizeof(COLUMN_DEF_TEST_AUTO_INC), NUM_IDX_TEST_TABLE_AUTO_INC
+  NUM_IDX_TEST_TABLE_AUTO_INC
 );
 
 static ItemDataNullFlagType calcNullFlag(set<size_t> *nullIndexes, size_t idx)
@@ -590,10 +590,10 @@ void dbAgentTestAddColumns(DBAgent &dbAgent, DBAgentChecker &checker)
 	  NUM_COLUMNS_TEST - numColumnsOfTable0;
 	static const DBAgent::TableProfile tableProfile0(
 	  "test_table", COLUMN_DEF_TEST,
-	  sizeof(ColumnDef) * numColumnsOfTable0, numColumnsOfTable0);
+	  numColumnsOfTable0);
 	static const DBAgent::TableProfile tableProfile1(
 	  "test_table", &COLUMN_DEF_TEST[numColumnsOfTable0],
-	  sizeof(ColumnDef) * numColumnsOfTable1, numColumnsOfTable1);
+	  numColumnsOfTable1);
 
 	// A table with the first two columns of'tableProfileTest' is created.
 	dbAgent.createTable(tableProfile0);
@@ -611,10 +611,10 @@ void dbAgentTestRenameTable(DBAgent &dbAgent, DBAgentChecker &checker)
 {
 	static const DBAgent::TableProfile tableProfileSrc(
 	  "test_table_src", COLUMN_DEF_TEST,
-	  sizeof(COLUMN_DEF_TEST), NUM_COLUMNS_TEST);
+	  NUM_COLUMNS_TEST);
 	static const DBAgent::TableProfile tableProfileDest(
 	  "test_table_dest", COLUMN_DEF_TEST,
-	  sizeof(COLUMN_DEF_TEST), NUM_COLUMNS_TEST);
+	  NUM_COLUMNS_TEST);
 
 	dbAgent.createTable(tableProfileSrc);
 	checker.assertTable(tableProfileSrc);

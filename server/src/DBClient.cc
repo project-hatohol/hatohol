@@ -60,9 +60,10 @@ enum {
 	NUM_IDX_DBCLIENT,
 };
 
-static const DBAgent::TableProfile tableProfileDBClientVersion(
-  TABLE_NAME_DBCLIENT_VERSION, COLUMN_DEF_DBCLIENT_VERSION,
-  sizeof(COLUMN_DEF_DBCLIENT_VERSION), NUM_IDX_DBCLIENT);
+static const DBAgent::TableProfile tableProfileDBClientVersion =
+  DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_DBCLIENT_VERSION,
+			    COLUMN_DEF_DBCLIENT_VERSION,
+			    NUM_IDX_DBCLIENT);
 
 // This structure instnace is created once every DB_DOMAIN_ID
 struct DBClient::DBSetupContext {
