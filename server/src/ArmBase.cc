@@ -24,6 +24,8 @@
 #include <AtomicValue.h>
 #include "ArmBase.h"
 #include "HatoholException.h"
+#include "DBClientHatohol.h"
+#include "UnifiedDataStore.h"
 
 using namespace std;
 using namespace mlpl;
@@ -41,6 +43,8 @@ struct ArmBase::Impl
 	ArmStatus            armStatus;
 	string               lastFailureComment;
 	ArmWorkingStatus     lastFailureStatus;
+
+	DBClientHatohol      dbClientHatohol;
 
 	Impl(const string &_name,
 	               const MonitoringServerInfo &_serverInfo)
@@ -262,12 +266,69 @@ void ArmBase::setCopyOnDemandEnabled(bool enable)
 	m_impl->isCopyOnDemandEnabled = enable;
 }
 
+void ArmBase::setServerConnectStaus(bool enable)
+{
+	const MonitoringServerInfo &svInfo = getServerInfo();
+	
+	TriggerInfoList triggerInfoList;
+	TriggerInfo triggerInfo;
+
+	triggerInfo.serverId = svInfo.id;
+	clock_gettime(CLOCK_REALTIME,&triggerInfo.lastChangeTime);
+	triggerInfo.hostId = svInfo.id;
+	triggerInfo.hostName = svInfo.hostName.c_str();
+	if (enable){
+		triggerInfo.status = TRIGGER_STATUS_OK;
+		triggerInfo.severity = TRIGGER_SEVERITY_INFO;
+		triggerInfo.id = DISCONNECT_SERVER_TRIGGERID_OK;
+		triggerInfo.brief = StringUtils::sprintf("Connection to %s was successful.",
+		                                         svInfo.hostName.c_str());
+	}
+	else {
+		triggerInfo.status = TRIGGER_STATUS_PROBLEM;
+		triggerInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
+		triggerInfo.id = DISCONNECT_SERVER_TRIGGERID_NG;
+		triggerInfo.brief = StringUtils::sprintf("Connection failed to %s",
+		                                         svInfo.hostName.c_str());
+	}
+	triggerInfoList.push_back(triggerInfo);
+	
+	EventInfoList eventInfoList;
+	EventInfo eventInfo;
+
+	eventInfo.serverId = svInfo.id;
+	eventInfo.id = DISCONNECT_SERVER_EVENTID_TYPE;
+	clock_gettime(CLOCK_REALTIME,&eventInfo.time);
+	eventInfo.hostId = svInfo.id;
+
+	if (enable){
+		eventInfo.type = EVENT_TYPE_GOOD;
+		eventInfo.triggerId = DISCONNECT_SERVER_TRIGGERID_OK;
+		eventInfo.severity = TRIGGER_SEVERITY_INFO;
+		eventInfo.status = TRIGGER_STATUS_OK;
+	}
+	else {
+		eventInfo.type = EVENT_TYPE_BAD;
+		eventInfo.triggerId = DISCONNECT_SERVER_TRIGGERID_NG;
+		eventInfo.status = TRIGGER_STATUS_PROBLEM;
+		eventInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
+	}
+	eventInfoList.push_back(eventInfo);
+
+	m_impl->dbClientHatohol.addTriggerInfoList(triggerInfoList);
+	
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	dataStore->addEventList(eventInfoList);
+}
+
 gpointer ArmBase::mainThread(HatoholThreadArg *arg)
 {
+	ArmWorkingStatus beforeFailureStatus = ARM_WORK_STAT_OK;
 	while (!hasExitRequest()) {
 		int sleepTime = m_impl->getSecondsToNextPolling();
 		if (mainThreadOneProc()) {
 			m_impl->armStatus.logSuccess();
+			m_impl->lastFailureStatus = ARM_WORK_STAT_OK;
 		} else {
 			sleepTime = getRetryInterval();
 			m_impl->armStatus.logFailure(m_impl->lastFailureComment,
@@ -275,6 +336,13 @@ gpointer ArmBase::mainThread(HatoholThreadArg *arg)
 			m_impl->lastFailureComment.clear();
 			m_impl->lastFailureStatus = ARM_WORK_STAT_FAILURE;
 		}
+		if (beforeFailureStatus != m_impl->lastFailureStatus){
+			if ( m_impl->lastFailureStatus == ARM_WORK_STAT_OK )
+				setServerConnectStaus(true);
+			else
+				setServerConnectStaus(false);
+		}
+		beforeFailureStatus = m_impl->lastFailureStatus;
 
 		m_impl->stampLastPollingTime();
 		m_impl->setUpdateType(UPDATE_POLLING);
