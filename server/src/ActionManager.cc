@@ -23,6 +23,7 @@
 #include "ActionManager.h"
 #include "ActorCollector.h"
 #include "DBTablesAction.h"
+#include "DBClientHatohol.h"
 #include "NamedPipe.h"
 #include "ResidentProtocol.h"
 #include "ResidentCommunicator.h"
@@ -580,6 +581,8 @@ bool ActionManager::shouldSkipByLog(const EventInfo &eventInfo,
 {
 	ActionLog actionLog;
 	bool found;
+	if ( eventInfo.id == DISCONNECT_SERVER_EVENTID_TYPE)
+		return false;
 	found = dbAction.getLog(actionLog, eventInfo.serverId, eventInfo.id);
 	// TODO: We shouldn't skip if status is ACTLOG_STAT_QUEUING.
 	return found;

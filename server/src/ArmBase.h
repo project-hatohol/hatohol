@@ -57,6 +57,7 @@ public:
 
 	const std::string &getName(void) const;
 
+	void setServerConnectStaus(bool enable);
 
 protected:
 	/**
