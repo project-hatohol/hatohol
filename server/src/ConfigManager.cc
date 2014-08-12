@@ -124,7 +124,7 @@ struct ConfigManager::Impl {
 	int                   dbServerPort;
 	bool                  testMode;
 	ConfigState           copyOnDemand;
-	int                   faceRestPort;
+	AtomicValue<int>      faceRestPort;
 	string                pidFilePath;
 
 	// methods
@@ -385,6 +385,11 @@ ConfigManager::ConfigState ConfigManager::getCopyOnDemand(void) const
 int ConfigManager::getFaceRestPort(void) const
 {
 	return m_impl->faceRestPort;
+}
+
+void ConfigManager::setFaceRestPort(const int &port)
+{
+	m_impl->faceRestPort = port;
 }
 
 string ConfigManager::getPidFilePath(void) const

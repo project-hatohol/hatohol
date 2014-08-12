@@ -192,4 +192,12 @@ void test_parsePidFilePath(void)
 	  ConfigManager::getInstance()->getPidFilePath());
 }
 
+void test_setFaceRestPort(void)
+{
+	const int port = 2323;
+	ConfigManager::getInstance()->setFaceRestPort(port);
+	cppcut_assert_equal(port,
+	                    ConfigManager::getInstance()->getFaceRestPort());
+}
+
 } // namespace testConfigManager

@@ -91,6 +91,8 @@ public:
 	 */
 	int getFaceRestPort(void) const;
 
+	void setFaceRestPort(const int &port);
+
 	std::string getPidFilePath(void) const;
 
 protected:
