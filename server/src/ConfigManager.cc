@@ -229,7 +229,7 @@ bool ConfigManager::parseCommandLine(gint *argc, gchar ***argv)
 		 &cmdLineOpts->testMode, "Run in a test mode", NULL},
 		{"config-db-server", 'c', 0, G_OPTION_ARG_STRING,
 		 &cmdLineOpts->dbServer, "Database server", NULL},
-		{"enable-copy-on-demand", 'd', 0, G_OPTION_ARG_NONE,
+		{"enable-copy-on-demand", 'e', 0, G_OPTION_ARG_NONE,
 		 &cmdLineOpts->enableCopyOnDemand,
 		 "Current monitoring values are obtained on demand.", NULL},
 		{"disable-copy-on-demand", 'd', 0, G_OPTION_ARG_NONE,
