@@ -181,14 +181,19 @@ struct ConfigManager::Impl {
 		gboolean succeeded =
 		  g_key_file_load_from_file(keyFile, path.c_str(),
 		                            G_KEY_FILE_NONE, &error);
-		if (!succeeded) {
-			MLPL_DBG("Failed to load config file: %s (%s)\n",
-			         path.c_str(), error->message);
-			g_error_free(error);
+		if (succeeded)
+			return true;
+
+		Reaper<GError> errorFree(error, g_error_free);
+		if (error->domain == G_FILE_ERROR &&
+		    error->code == G_FILE_ERROR_NOENT) {
+			MLPL_DBG("Not found: %s\n", path.c_str());
 			return false;
 		}
 
-		return true;
+		MLPL_ERR("Failed to load config file: %s (%s)\n",
+		         path.c_str(), error->message);
+		return false;
 	}
 
 	void reflectCommandLineOptions(const CommandLineOptions &cmdLineOpts)
