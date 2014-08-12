@@ -252,7 +252,6 @@ bool ConfigManager::parseCommandLine(gint *argc, gchar ***argv)
 	  "ConfigManager", "ConfigManager group", "ConfigManager",
 	  cmdLineOpts, NULL);
 	g_option_context_set_main_group(optCtx, optGrp);
-	//g_option_context_add_group(optCtx, optGrp);
 	g_option_context_add_main_entries(optCtx, entries, NULL);
 	GError *error = NULL;
 	if (!g_option_context_parse(optCtx, argc, argv, &error)) {
