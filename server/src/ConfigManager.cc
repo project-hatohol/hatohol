@@ -290,14 +290,6 @@ void ConfigManager::reset(void)
 	confMgr->m_impl->residentYardDirectory = string(PREFIX"/sbin");
 
 	// override by the command line options if needed
-	CommandLineOptions *optVal = &g_cmdLineOpts;
-	Impl *impl = confMgr->m_impl.get();
-	if (optVal->dbServer)
-		impl->parseDBServer(optVal->dbServer);
-	if (optVal->foreground)
-		impl->foreground = true;
-	if (optVal->testMode)
-		impl->testMode = true;
 	confMgr->m_impl->reflectCommandLineOptions(g_cmdLineOpts);
 }
 
