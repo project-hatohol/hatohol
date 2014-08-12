@@ -13,7 +13,7 @@ http://www.hatohol.org/
 - [Installation](#user-content-installation)
 	- [Installation by RPM files (only for CentOS 6.5)](#user-content-installation-by-rpm-files-only-for-centos-65)
 	- [Installation by building needed applications](#user-content-installation-by-building-needed-applications)
-- [Upgrade by RPM files from ver.14.03 to ver.14.06(only for CentOS 6.5)](#user-content-upgrade-by-rpm-files-from-ver1403-to-ver1406only-for-centos-65)
+	- [Upgrade by RPM files from ver.14.03 to ver.14.06(only for CentOS 6.5)](#user-content-upgrade-by-rpm-files-from-ver1403-to-ver1406only-for-centos-65)
 - [Plans](#user-content-plans)
 - [Mailing Lists](#user-content-mailing-lists)
 
