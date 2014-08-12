@@ -119,7 +119,7 @@ _buildExpect<size_t, true>(size_t exp)
 #define HATOHOL_BUILD_ASSERT(cond)	\
 	((void)HATOHOL_BUILD_EXPECT(!!(cond), 1))
 
-#define THROW_HATOHOL_EXCEPTION_WITH_ERRORCODE(ERROR_CODE, FMT, ...) \
+#define THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(ERROR_CODE, FMT, ...) \
 do { \
         throw HatoholException( \
 	  ERROR_CODE, \
