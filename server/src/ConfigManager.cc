@@ -44,74 +44,71 @@ const char *ConfigManager::DEFAULT_PID_FILE_PATH = LOCALSTATEDIR "run/hatohol.pi
 
 static int DEFAULT_MAX_NUM_RUNNING_COMMAND_ACTION = 10;
 
-struct CommandLineOptions {
-	gchar    *pidFilePath;
-	gchar    *dbServer;
-	gboolean  foreground;
-	gboolean  testMode;
-	gboolean  enableCopyOnDemand;
-	gboolean  disableCopyOnDemand;
-	gint      faceRestPort;
-
-	CommandLineOptions(void)
-	: pidFilePath(NULL),
-	  dbServer(NULL),
-	  foreground(FALSE),
-	  testMode(FALSE),
-	  enableCopyOnDemand(FALSE),
-	  disableCopyOnDemand(FALSE),
-	  faceRestPort(-1)
-	{
+static gboolean parseFaceRestPort(
+  const gchar *option_name, const gchar *value,
+  gpointer data, GError **error)
+{
+	GQuark quark =
+	  g_quark_from_static_string("config-manager-quark");
+	CommandLineOptions *obj =
+	  static_cast<CommandLineOptions *>(data);
+	if (!value) {
+		g_set_error(error, quark, CONF_MGR_ERROR_NULL,
+		            "value is NULL.");
+		return FALSE;
+	}
+	int port = atoi(value);
+	if (!Utils::isValidPort(port, false)) {
+		g_set_error(error, quark, CONF_MGR_ERROR_INVALID_PORT,
+		            "value: %s, %d.", value, port);
+		return FALSE;
 	}
 
-	virtual ~CommandLineOptions()
-	{
-		clear();
-	}
+	obj->faceRestPort = port;
+	return TRUE;
+}
 
-	void clear(void)
-	{
-		g_free(pidFilePath);
-		pidFilePath = NULL;
+// ---------------------------------------------------------------------------
+// CommandLineOptions
+// ---------------------------------------------------------------------------
+CommandLineOptions::CommandLineOptions(void)
+: pidFilePath(NULL),
+  dbServer(NULL),
+  foreground(FALSE),
+  testMode(FALSE),
+  enableCopyOnDemand(FALSE),
+  disableCopyOnDemand(FALSE),
+  faceRestPort(-1)
+{
+}
 
-		g_free(dbServer);
-		dbServer = NULL;
+CommandLineOptions::~CommandLineOptions()
+{
+	clear();
+}
 
-		foreground = FALSE;
-		testMode   = FALSE;
+void CommandLineOptions::clear(void)
+{
+	g_free(pidFilePath);
+	pidFilePath = NULL;
 
-		enableCopyOnDemand = FALSE;
-		disableCopyOnDemand = FALSE;
+	g_free(dbServer);
+	dbServer = NULL;
 
-		faceRestPort = -1;
-	}
+	foreground = FALSE;
+	testMode   = FALSE;
 
-	static gboolean parseFaceRestPort(
-	  const gchar *option_name, const gchar *value,
-	  gpointer data, GError **error)
-	{
-		GQuark quark =
-		  g_quark_from_static_string("config-manager-quark");
-		CommandLineOptions *obj =
-		  static_cast<CommandLineOptions *>(data);
-		if (!value) {
-			g_set_error(error, quark, CONF_MGR_ERROR_NULL,
-			            "value is NULL.");
-			return FALSE;
-		}
-		int port = atoi(value);
-		if (!Utils::isValidPort(port, false)) {
-			g_set_error(error, quark, CONF_MGR_ERROR_INVALID_PORT,
-			            "value: %s, %d.", value, port);
-			return FALSE;
-		}
+	enableCopyOnDemand = FALSE;
+	disableCopyOnDemand = FALSE;
 
-		obj->faceRestPort = port;
-		return TRUE;
-	}
-};
+	faceRestPort = -1;
+}
+
 static CommandLineOptions g_cmdLineOpts;
 
+// ---------------------------------------------------------------------------
+// ConfigManager::Impl
+// ---------------------------------------------------------------------------
 struct ConfigManager::Impl {
 	static Mutex          mutex;
 	static ConfigManager *instance;
@@ -246,8 +243,7 @@ bool ConfigManager::parseCommandLine(gint *argc, gchar ***argv)
 		 &cmdLineOpts->disableCopyOnDemand,
 		 "Current monitoring values are obtained periodically.", NULL},
 		{"face-rest-port",
-		 'r', 0, G_OPTION_ARG_CALLBACK,
-		 (gpointer)CommandLineOptions::parseFaceRestPort,
+		 'r', 0, G_OPTION_ARG_CALLBACK, (gpointer)parseFaceRestPort,
 		 "Port of FaceRest", NULL},
 		{ NULL }
 	};

@@ -24,6 +24,20 @@
 #include <stdint.h>
 #include "DBClientConfig.h"
 
+struct CommandLineOptions {
+	gchar    *pidFilePath;
+	gchar    *dbServer;
+	gboolean  foreground;
+	gboolean  testMode;
+	gboolean  enableCopyOnDemand;
+	gboolean  disableCopyOnDemand;
+	gint      faceRestPort;
+
+	CommandLineOptions(void);
+	virtual ~CommandLineOptions();
+	void clear(void);
+};
+
 class ConfigManager {
 public:
 	enum ConfigState {
