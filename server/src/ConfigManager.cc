@@ -183,8 +183,7 @@ struct ConfigManager::Impl {
 		                            G_KEY_FILE_NONE, &error);
 		if (!succeeded) {
 			MLPL_DBG("Failed to load config file: %s (%s)\n",
-			         path.c_str(),
-			         error ? error->message : "Unknown reason");
+			         path.c_str(), error->message);
 			g_error_free(error);
 			return false;
 		}
