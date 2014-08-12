@@ -26,6 +26,8 @@
 #include "ItemTablePtr.h"
 #include "JSONBuilderAgent.h"
 #include "JSONParserAgent.h"
+#include "HatoholError.h"
+
 
 class ZabbixAPI
 {
@@ -167,7 +169,7 @@ protected:
 	 * @return
 	 * A SoupMessage object with the raw Zabbix servers's response.
 	 */
-	SoupMessage *queryTrigger(int requestSince = 0);
+	SoupMessage *queryTrigger(HatoholError *querRet, int requestSince = 0);
 
 	/**
 	 * Get the triggers.
@@ -175,7 +177,7 @@ protected:
 	 * @return
 	 * A SoupMessage object with the raw Zabbix servers's response.
 	 */
-	SoupMessage *queryItem(void);
+	SoupMessage *queryItem(HatoholError *querRet);
 
 	/**
 	 * Get the hosts.
@@ -183,7 +185,7 @@ protected:
 	 * @return
 	 * A SoupMessage object with the raw Zabbix servers's response.
 	 */
-	SoupMessage *queryHost(void);
+	SoupMessage *queryHost(HatoholError *querRet);
 
 	/**
 	 * Get the groups.
@@ -191,7 +193,7 @@ protected:
 	 * @return
 	 * A SoupMessage object with the raw Zabbix servers's response.
 	 */
-	SoupMessage *queryGroup(void);
+	SoupMessage *queryGroup(HatoholError *querRet);
 
 	/**
 	 * Get the applications.
@@ -199,7 +201,8 @@ protected:
 	 * @return
 	 * A SoupMessage object with the raw Zabbix servers's response.
 	 */
-	SoupMessage *queryApplication(const std::vector<uint64_t> &appIdVector);
+	SoupMessage *queryApplication(const std::vector<uint64_t> &appIdVector,
+				      HatoholError *uerRet);
 
 	/**
 	 * Get the events.
@@ -207,7 +210,8 @@ protected:
 	 * @return
 	 * A SoupMessage object with the raw Zabbix servers's response.
 	 */
-	SoupMessage *queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill);
+	SoupMessage *queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill,
+				HatoholError *querRet);
 
 	/**
 	 * Get the first or last event ID the target Zabbix server has.
@@ -219,7 +223,7 @@ protected:
 	 * @return
 	 * A SoupMessage object with the raw Zabbix servers's response.
 	 */
-	SoupMessage *queryEndEventId(const bool &isFirst);
+	SoupMessage *queryEndEventId(const bool &isFirst, HatoholError *querRet);
 
 	/**
 	 * Get the functions.
@@ -231,8 +235,8 @@ protected:
 	 */
 	ItemTablePtr getFunctions(void);
 
-	SoupMessage *queryCommon(JSONBuilderAgent &agent);
-	SoupMessage *queryAPIVersion(void);
+	SoupMessage *queryCommon(JSONBuilderAgent &agent, HatoholError *querRet);
+	SoupMessage *queryAPIVersion(HatoholError *querRet);
 	std::string getInitialJSONRequest(void);
 	bool parseInitialResponse(SoupMessage *msg);
 	void startObject(JSONParserAgent &parser, const std::string &name);

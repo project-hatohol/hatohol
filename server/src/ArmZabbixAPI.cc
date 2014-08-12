@@ -247,8 +247,12 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 
 		if (!getCopyOnDemandEnabled())
 			updateItems();
-	} catch (const DataStoreException &dse) {
-		MLPL_ERR("Error on update: %s\n", dse.what());
+	} catch (const HatoholException &he) {
+		if (he.getErrCode() == HTERR_FAILED_CONNECT_DISCONNECT){
+			MLPL_ERR("Error Connection: %s %d\n", he.what(), he.getErrCode());
+		}else{
+			MLPL_ERR("Error on update: %s %d\n", he.what(), he.getErrCode());
+		}
 		clearAuthToken();
 		return false;
 	}
