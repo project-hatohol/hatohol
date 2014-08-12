@@ -74,8 +74,12 @@ testHatohol_la_SOURCES = \
 	testUsedCountable.cc \
 	testUnifiedDataStore.cc testMain.cc \
 	testZabbixAPI.cc \
-	test_hatohol-arm-plugin-zabbix.cc \
+	test_hatohol-arm-plugin-zabbix.cc
+
+if HAVE_LIBRABBITMQ
+testHatohol_la_SOURCES += \
 	testGateJSONEventMessage.cc
+endif
 
 testHatohol_la_LDFLAGS = $(AM_LDFLAGS) $(LIBS) ../hap/libhapprocess.la
 testHatohol_la_LIBADD = libTest.la
