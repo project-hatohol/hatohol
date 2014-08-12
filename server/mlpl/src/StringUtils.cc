@@ -56,10 +56,8 @@ static void splitTemplate(T &strings, const string &target,
 }
 
 // ---------------------------------------------------------------------------
-// Public Methods
+// Public Functions
 // ---------------------------------------------------------------------------
-const string StringUtils::EMPTY_STRING;
-
 void StringUtils::split(StringList &stringList, const string &target,
                         const char separator, bool doMerge)
 {
