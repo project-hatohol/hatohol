@@ -60,7 +60,7 @@ struct CommandLineOptions {
 	  testMode(FALSE),
 	  enableCopyOnDemand(FALSE),
 	  disableCopyOnDemand(FALSE),
-	  faceRestPort(0)
+	  faceRestPort(-1)
 	{
 	}
 
@@ -83,7 +83,7 @@ struct CommandLineOptions {
 		enableCopyOnDemand = FALSE;
 		disableCopyOnDemand = FALSE;
 
-		faceRestPort = 0;
+		faceRestPort = -1;
 	}
 
 	static gboolean parseFaceRestPort(
@@ -208,7 +208,7 @@ struct ConfigManager::Impl {
 			copyOnDemand = ENABLE;
 		if (cmdLineOpts.disableCopyOnDemand)
 			copyOnDemand = DISABLE;
-		if (cmdLineOpts.faceRestPort)
+		if (cmdLineOpts.faceRestPort >= 0)
 			faceRestPort = cmdLineOpts.faceRestPort;
 		if (cmdLineOpts.pidFilePath)
 			pidFilePath = cmdLineOpts.pidFilePath;
