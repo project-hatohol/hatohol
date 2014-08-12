@@ -798,11 +798,11 @@ bool ArmNagiosNDOUtils::mainThreadOneProc(void)
 			if (!getCopyOnDemandEnabled())
 				getItem();
 		}
-	} catch (const HatoholException &dse) {
-		if (dse.getErrCode() == HTERR_FAILED_CONNECT_DISCONNECT){
-			MLPL_ERR("Error Connection: %s %d\n", dse.what(), dse.getErrCode());
+	} catch (const HatoholException &he) {
+		if (he.getErrCode() == HTERR_FAILED_CONNECT_DISCONNECT){
+			MLPL_ERR("Error Connection: %s %d\n", he.what(), he.getErrCode());
 		} else {
-			MLPL_ERR("Got exception: %s\n", dse.what());
+			MLPL_ERR("Got exception: %s\n", he.what());
 		}
 		return false;
 	} catch (const exception &e) {
