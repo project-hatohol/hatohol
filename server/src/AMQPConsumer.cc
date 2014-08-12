@@ -43,14 +43,14 @@ public:
 	  m_channel(1),
 	  m_envelope()
 	{
-	};
+	}
 
 	~AMQPConnection()
 	{
 		soup_uri_free(m_brokerUrl);
 		amqp_destroy_envelope(&m_envelope);
 		disposeConnection();
-	};
+	}
 
 	bool connect()
 	{
@@ -66,9 +66,10 @@ public:
 		if (!startConsuming())
 			return false;
 		return true;
-	};
+	}
 
-	bool consume(amqp_envelope_t *&envelope) {
+	bool consume(amqp_envelope_t *&envelope)
+	{
 		amqp_maybe_release_buffers(m_connection);
 		amqp_destroy_envelope(&m_envelope);
 
@@ -96,7 +97,7 @@ public:
 
 		envelope = &m_envelope;
 		return true;
-	};
+	}
 
 
 private:
@@ -108,49 +109,57 @@ private:
 	amqp_channel_t m_channel;
 	amqp_envelope_t m_envelope;
 
-	string buildURL(const string brokerUrl) {
+	string buildURL(const string brokerUrl)
+	{
 		return string("amqp://") + brokerUrl;
 	};
 
-	const char *getHost() {
+	const char *getHost()
+	{
 		return soup_uri_get_host(m_brokerUrl);
 	};
 
-	guint getPort() {
+	guint getPort()
+	{
 		return soup_uri_get_port(m_brokerUrl);
 	};
 
-	const char *getUser() {
+	const char *getUser()
+	{
 		const char *user;
 		user = soup_uri_get_user(m_brokerUrl);
 		if (!user) {
 			user = DEFAULT_USER;
 		}
 		return user;
-	};
+	}
 
-	const char *getPassword() {
+	const char *getPassword()
+	{
 		const char *password;
 		password = soup_uri_get_password(m_brokerUrl);
 		if (!password) {
 			password = DEFAULT_PASSWORD;
 		}
 		return password;
-	};
+	}
 
-	void logErrorResponse(const char *context, int status) {
+	void logErrorResponse(const char *context, int status)
+	{
 		logErrorResponse(context, static_cast<amqp_status_enum>(status));
-	};
+	}
 
-	void logErrorResponse(const char *context, amqp_status_enum status) {
+	void logErrorResponse(const char *context, amqp_status_enum status)
+	{
 		if (status == AMQP_STATUS_OK)
 			return;
 		// TODO: stringify status
 		MLPL_ERR("failed to %s: %x\n", context, status);
-	};
+	}
 
 	void logErrorResponse(const char *context,
-			      const amqp_rpc_reply_t &reply) {
+			      const amqp_rpc_reply_t &reply)
+	{
 		switch (reply.reply_type) {
 		case AMQP_RESPONSE_NORMAL:
 			break;
@@ -169,9 +178,10 @@ private:
 			break;
 		}
 		return;
-	};
+	}
 
-	bool openSocket() {
+	bool openSocket()
+	{
 		m_socket = amqp_tcp_socket_new(m_connection);
 		if (!m_socket) {
 			MLPL_ERR("failed to create TCP socket\n");
@@ -192,7 +202,8 @@ private:
 		return true;
 	};
 
-	bool login() {
+	bool login()
+	{
 		const char *vhost = "/";
 		const int heartbeat = 1;
 		const amqp_rpc_reply_t reply =
@@ -212,9 +223,10 @@ private:
 			return false;
 		}
 		return true;
-	};
+	}
 
-	bool openChannel() {
+	bool openChannel()
+	{
 		amqp_channel_open_ok_t *response;
 		response = amqp_channel_open(m_connection, m_channel);
 		if (!response) {
@@ -224,9 +236,10 @@ private:
 			return false;
 		}
 		return true;
-	};
+	}
 
-	bool declareQueue() {
+	bool declareQueue()
+	{
 		const amqp_bytes_t queue =
 			amqp_cstring_bytes(m_queueAddress.c_str());
 		MLPL_INFO("Queue: <%s>\n", m_queueAddress.c_str());
@@ -253,9 +266,10 @@ private:
 			}
 		}
 		return true;
-	};
+	}
 
-	bool startConsuming() {
+	bool startConsuming()
+	{
 		const amqp_bytes_t queue =
 			amqp_cstring_bytes(m_queueAddress.c_str());
 		const amqp_bytes_t consumer_tag = amqp_empty_bytes;
@@ -281,9 +295,10 @@ private:
 			}
 		}
 		return true;
-	};
+	}
 
-	void disposeConnection() {
+	void disposeConnection()
+	{
 		if (!m_connection)
 			return;
 
@@ -295,7 +310,7 @@ private:
 						       AMQP_REPLY_SUCCESS));
 		logErrorResponse("destroy connection",
 				 amqp_destroy_connection(m_connection));
-	};
+	}
 };
 
 AMQPConsumer::AMQPConsumer(const string &brokerUrl,
