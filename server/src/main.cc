@@ -49,6 +49,7 @@ static int pipefd[2];
 struct ExecContext {
 	UnifiedDataStore *unifiedDataStore;
 	GMainLoop *loop;
+	CommandLineOptions cmdLineOpts;
 };
 
 static void signalHandlerToExit(int signo, siginfo_t *info, void *arg)
@@ -131,7 +132,8 @@ int mainRoutine(int argc, char *argv[])
 #endif // GLIB_VERSION_2_32 
 
 	// parse command line arguemnt
-	if (!ConfigManager::parseCommandLine(&argc, &argv))
+	ExecContext ctx;
+	if (!ConfigManager::parseCommandLine(&argc, &argv, &ctx.cmdLineOpts))
 		return EXIT_FAILURE;
 	ConfigManager *confMgr = ConfigManager::getInstance();
 	if (!confMgr->isForegroundProcess()) {
@@ -141,11 +143,10 @@ int mainRoutine(int argc, char *argv[])
 		}
 	}
 
-	hatoholInit();
+	hatoholInit(&ctx.cmdLineOpts);
 	MLPL_INFO("started hatohol server: ver. %s\n", PACKAGE_VERSION);
 
 	// setup signal handlers for exit
-	ExecContext ctx;
 	setupGizmoForExit(&ctx);
 	setupSignalHandlerForExit(SIGTERM);
 	setupSignalHandlerForExit(SIGINT);

@@ -312,7 +312,6 @@ struct CommandArgHelper
 	std::vector<const char *> args;
 
 	CommandArgHelper(void);
-	virtual ~CommandArgHelper();
 	void activate(void);
 	void operator <<(const char *word);
 };

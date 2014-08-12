@@ -34,8 +34,6 @@ struct CommandLineOptions {
 	gint      faceRestPort;
 
 	CommandLineOptions(void);
-	virtual ~CommandLineOptions();
-	void clear(void);
 };
 
 class ConfigManager {
@@ -51,9 +49,20 @@ public:
 	static int ALLOW_ACTION_FOR_ALL_OLD_EVENTS;
 	static const char *DEFAULT_PID_FILE_PATH;
 
-	static bool parseCommandLine(gint *argc, gchar ***argv);
-	static void clearParseCommandLineResult(void);
-	static void reset(void);
+	/**
+	 * Parse the argument.
+	 *
+	 * @param argc A pointer to argc.
+	 * @param argv A pointer to argv.
+	 * @param cmdLineOpt
+	 * The parsed result is stored in this instance.
+	 *
+	 * @return true if the parse succees. Otherwise false is returned.
+	 */
+	static bool parseCommandLine(gint *argc, gchar ***argv,
+	                             CommandLineOptions *cmdLineOpt);
+
+	static void reset(const CommandLineOptions *cmdLineOpt = NULL);
 
 	void getTargetServers(MonitoringServerInfoList &monitoringServers,
 	                      ServerQueryOption &option);

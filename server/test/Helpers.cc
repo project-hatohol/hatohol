@@ -1360,17 +1360,13 @@ CommandArgHelper::CommandArgHelper(void)
 	*this << "command-name";
 }
 
-CommandArgHelper::~CommandArgHelper()
-{
-	ConfigManager::clearParseCommandLineResult();
-}
-
 void CommandArgHelper::activate(void)
 {
 	gchar **argv = (gchar **)&args[0];
 	gint argc = args.size();
-	ConfigManager::parseCommandLine(&argc, &argv);
-	ConfigManager::reset();
+	CommandLineOptions cmdLineOpts;
+	ConfigManager::parseCommandLine(&argc, (gchar ***)&argv, &cmdLineOpts);
+	ConfigManager::reset(&cmdLineOpts);
 }
 
 void CommandArgHelper::operator <<(const char *word)

@@ -82,30 +82,6 @@ CommandLineOptions::CommandLineOptions(void)
 {
 }
 
-CommandLineOptions::~CommandLineOptions()
-{
-	clear();
-}
-
-void CommandLineOptions::clear(void)
-{
-	g_free(pidFilePath);
-	pidFilePath = NULL;
-
-	g_free(dbServer);
-	dbServer = NULL;
-
-	foreground = FALSE;
-	testMode   = FALSE;
-
-	enableCopyOnDemand = FALSE;
-	disableCopyOnDemand = FALSE;
-
-	faceRestPort = -1;
-}
-
-static CommandLineOptions g_cmdLineOpts;
-
 // ---------------------------------------------------------------------------
 // ConfigManager::Impl
 // ---------------------------------------------------------------------------
@@ -218,10 +194,10 @@ ConfigManager *ConfigManager::Impl::instance = NULL;
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-bool ConfigManager::parseCommandLine(gint *argc, gchar ***argv)
+bool ConfigManager::parseCommandLine(gint *argc, gchar ***argv,
+                                     CommandLineOptions *cmdLineOpts)
 {
-	CommandLineOptions *cmdLineOpts = &g_cmdLineOpts;
-	static GOptionEntry entries[] = {
+	GOptionEntry entries[] = {
 		{"pid-file-path",
 		 'p', 0, G_OPTION_ARG_STRING,
 		 &cmdLineOpts->pidFilePath, "Pid file path", NULL},
@@ -265,16 +241,11 @@ bool ConfigManager::parseCommandLine(gint *argc, gchar ***argv)
 
 	// reflect options so that ConfigManager can return them
 	// even before reset() is called.
-	getInstance()->m_impl->reflectCommandLineOptions(g_cmdLineOpts);
+	getInstance()->m_impl->reflectCommandLineOptions(*cmdLineOpts);
 	return true;
 }
 
-void ConfigManager::clearParseCommandLineResult(void)
-{
-	g_cmdLineOpts.clear();
-}
-
-void ConfigManager::reset(void)
+void ConfigManager::reset(const CommandLineOptions *cmdLineOpts)
 {
 	delete Impl::instance;
 	Impl::instance = NULL;
@@ -286,7 +257,13 @@ void ConfigManager::reset(void)
 	confMgr->m_impl->residentYardDirectory = string(PREFIX"/sbin");
 
 	// override by the command line options if needed
-	confMgr->m_impl->reflectCommandLineOptions(g_cmdLineOpts);
+	unique_ptr<const CommandLineOptions> localOpts;
+	if (!cmdLineOpts) {
+		localOpts = unique_ptr<const CommandLineOptions>(
+		  new CommandLineOptions());
+		cmdLineOpts = localOpts.get();
+	}
+	confMgr->m_impl->reflectCommandLineOptions(*cmdLineOpts);
 }
 
 ConfigManager *ConfigManager::getInstance(void)

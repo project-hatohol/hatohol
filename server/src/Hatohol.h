@@ -21,8 +21,9 @@
 #define Hatohol_h
 
 #include "Utils.h"
+#include "ConfigManager.h"
 
-void hatoholInit(void);
+void hatoholInit(const CommandLineOptions *cmdLineOpts = NULL);
 
 #endif // Hatohol_h
 

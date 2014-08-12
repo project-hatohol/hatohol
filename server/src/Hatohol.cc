@@ -66,12 +66,12 @@ static void init(void)
 	FaceRest::init();
 }
 
-static void reset(void)
+static void reset(const CommandLineOptions *cmdLineOpts)
 {
 	ChildProcessManager::getInstance()->reset();
 	ActorCollector::reset();
 	SessionManager::reset();
-	ConfigManager::reset();
+	ConfigManager::reset(cmdLineOpts);
 
 	DBAgentSQLite3::reset();
 	DBClient::reset();
@@ -86,13 +86,13 @@ static void reset(void)
 	UnifiedDataStore::getInstance()->reset();
 }
 
-void hatoholInit(void)
+void hatoholInit(const CommandLineOptions *cmdLineOpts)
 {
 	mutex.lock();
 	if (!initDone) {
 		init();
 		initDone = true;
 	}
-	reset();
+	reset(cmdLineOpts);
 	mutex.unlock();
 }
