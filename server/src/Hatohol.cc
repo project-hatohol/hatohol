@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -46,7 +46,7 @@ using namespace mlpl;
 static Mutex mutex;
 static bool initDone = false; 
 
-static void init(const CommandLineArg &arg)
+static void init(void)
 {
 	Utils::init();
 	HatoholError::init();
@@ -66,7 +66,7 @@ static void init(const CommandLineArg &arg)
 	FaceRest::init();
 }
 
-static void reset(const CommandLineArg &arg)
+static void reset(void)
 {
 	ChildProcessManager::getInstance()->reset();
 	ActorCollector::reset();
@@ -86,16 +86,13 @@ static void reset(const CommandLineArg &arg)
 	UnifiedDataStore::getInstance()->reset();
 }
 
-void hatoholInit(const CommandLineArg *arg)
+void hatoholInit(void)
 {
-	CommandLineArg emptyArg;
-	if (!arg)
-		arg = &emptyArg;
 	mutex.lock();
 	if (!initDone) {
-		init(*arg);
+		init();
 		initDone = true;
 	}
-	reset(*arg);
+	reset();
 	mutex.unlock();
 }

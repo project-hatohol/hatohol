@@ -39,7 +39,6 @@ class DataStoreManager {
 public:
 	DataStoreManager(void);
 	virtual ~DataStoreManager();
-	virtual void passCommandLineArg(const CommandLineArg &cmdArg);
 
 	/**
 	 * regist an event handler.

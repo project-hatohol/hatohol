@@ -70,10 +70,6 @@ DataStoreManager::~DataStoreManager()
 	closeAllStores();
 }
 
-void DataStoreManager::passCommandLineArg(const CommandLineArg &cmdArg)
-{
-}
-
 void DataStoreManager::registEventProc(DataStoreEventProc *eventProc)
 {
 	m_impl->eventProcListLock.writeLock();

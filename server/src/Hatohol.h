@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -22,7 +22,7 @@
 
 #include "Utils.h"
 
-void hatoholInit(const CommandLineArg *arg = NULL);
+void hatoholInit(void);
 
 #endif // Hatohol_h
 

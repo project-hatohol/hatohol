@@ -395,25 +395,6 @@ GMainContext *FaceRest::getGMainContext(void)
 	return m_impl->gMainCtx;
 }
 
-size_t FaceRest::parseCmdArgPort(CommandLineArg &cmdArg, size_t idx)
-{
-	if (idx == cmdArg.size() - 1) {
-		MLPL_ERR("needs port number.");
-		return idx;
-	}
-
-	idx++;
-	string &port_str = cmdArg[idx];
-	int port = atoi(port_str.c_str());
-	if (!Utils::isValidPort(port, false)) {
-		MLPL_ERR("invalid port: %s, %d\n", port_str.c_str(), port);
-		return idx;
-	}
-
-	m_impl->port = port;
-	return idx;
-}
-
 // handlers
 void FaceRest::handlerDefault(SoupServer *server, SoupMessage *msg,
                               const char *path, GHashTable *query,

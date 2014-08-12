@@ -131,9 +131,6 @@ int mainRoutine(int argc, char *argv[])
 #endif // GLIB_VERSION_2_32 
 
 	// parse command line arguemnt
-	CommandLineArg cmdArg;
-	for (int i = 1; i < argc; i++)
-		cmdArg.push_back(argv[i]);
 	if (!ConfigManager::parseCommandLine(&argc, &argv))
 		return EXIT_FAILURE;
 	ConfigManager *confMgr = ConfigManager::getInstance();
@@ -144,7 +141,7 @@ int mainRoutine(int argc, char *argv[])
 		}
 	}
 
-	hatoholInit(&cmdArg);
+	hatoholInit();
 	MLPL_INFO("started hatohol server: ver. %s\n", PACKAGE_VERSION);
 
 	// setup signal handlers for exit
