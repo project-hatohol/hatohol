@@ -107,8 +107,8 @@ const string &ZabbixAPI::getAPIVersion(void)
 	if (!m_impl->apiVersion.empty())
 		return m_impl->apiVersion;
 
-	HatoholError querRet;
-	SoupMessage *msg = queryAPIVersion(&querRet);
+	HatoholError queryRet;
+	SoupMessage *msg = queryAPIVersion(&queryRet);
 	if (!msg)
 		return m_impl->apiVersion;
 	Reaper<void> msgReaper(msg, g_object_unref);
@@ -241,17 +241,17 @@ void ZabbixAPI::clearAuthToken(void)
 
 ItemTablePtr ZabbixAPI::getTrigger(int requestSince)
 {
-	HatoholError querRet;
-	SoupMessage *msg = queryTrigger(&querRet, requestSince);
+	HatoholError queryRet;
+	SoupMessage *msg = queryTrigger(&queryRet, requestSince);
 	if (!msg){
-		if ( querRet == HTERR_FAILED_CONNECT_INTERNAL_ERROR )
+		if ( queryRet == HTERR_FAILED_CONNECT_INTERNAL_ERROR )
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
 			  HTERR_FAILED_CONNECT_INTERNAL_ERROR,
 			  "Failed to query triggers.");
 		else
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
 			  HTERR_FAILED_CONNECT_DISCONNECT,
-			  "%s",querRet.getMessage().c_str());
+			  "%s",queryRet.getMessage().c_str());
 	}
 	JSONParserAgent parser(msg->response_body->data);
 	if (parser.hasError()) {
@@ -279,17 +279,17 @@ ItemTablePtr ZabbixAPI::getTrigger(int requestSince)
 
 ItemTablePtr ZabbixAPI::getItems(void)
 {
-	HatoholError querRet;
-	SoupMessage *msg = queryItem(&querRet);
+	HatoholError queryRet;
+	SoupMessage *msg = queryItem(&queryRet);
 	if (!msg){
-		if ( querRet == HTERR_FAILED_CONNECT_INTERNAL_ERROR )
+		if ( queryRet == HTERR_FAILED_CONNECT_INTERNAL_ERROR )
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
 			  HTERR_FAILED_CONNECT_INTERNAL_ERROR,
 			  "Failed to query items.");
 		else
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
 			  HTERR_FAILED_CONNECT_DISCONNECT,
-			  "%s",querRet.getMessage().c_str());
+			  "%s",queryRet.getMessage().c_str());
 	}
 	JSONParserAgent parser(msg->response_body->data);
 	g_object_unref(msg);
@@ -314,17 +314,17 @@ ItemTablePtr ZabbixAPI::getItems(void)
 void ZabbixAPI::getHosts(
   ItemTablePtr &hostsTablePtr, ItemTablePtr &hostsGroupsTablePtr)
 {
-	HatoholError querRet;
-	SoupMessage *msg = queryHost(&querRet);
+	HatoholError queryRet;
+	SoupMessage *msg = queryHost(&queryRet);
 	if (!msg){
-		if ( querRet == HTERR_FAILED_CONNECT_INTERNAL_ERROR )
+		if ( queryRet == HTERR_FAILED_CONNECT_INTERNAL_ERROR )
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
 			  HTERR_FAILED_CONNECT_INTERNAL_ERROR,
 			  "Failed to query hosts.");
 		else
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
 			  HTERR_FAILED_CONNECT_DISCONNECT,
-			  "%s",querRet.getMessage().c_str());
+			  "%s",queryRet.getMessage().c_str());
 	}
 	JSONParserAgent parser(msg->response_body->data);
 	g_object_unref(msg);
@@ -352,17 +352,17 @@ void ZabbixAPI::getHosts(
 
 void ZabbixAPI::getGroups(ItemTablePtr &groupsTablePtr)
 {
-	HatoholError querRet;
-	SoupMessage *msg = queryGroup(&querRet);
+	HatoholError queryRet;
+	SoupMessage *msg = queryGroup(&queryRet);
 	if (!msg){
-		if ( querRet == HTERR_FAILED_CONNECT_INTERNAL_ERROR )
+		if ( queryRet == HTERR_FAILED_CONNECT_INTERNAL_ERROR )
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
 			  HTERR_FAILED_CONNECT_INTERNAL_ERROR,
 			  "Failed to query groups.");
 		else
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
 			  HTERR_FAILED_CONNECT_DISCONNECT,
-			  "%s",querRet.getMessage().c_str());
+			  "%s",queryRet.getMessage().c_str());
 	}
 	JSONParserAgent parser(msg->response_body->data);
 	g_object_unref(msg);
@@ -385,17 +385,17 @@ void ZabbixAPI::getGroups(ItemTablePtr &groupsTablePtr)
 
 ItemTablePtr ZabbixAPI::getApplications(const vector<uint64_t> &appIdVector)
 {
-	HatoholError querRet;
-	SoupMessage *msg = queryApplication(appIdVector, &querRet);
+	HatoholError queryRet;
+	SoupMessage *msg = queryApplication(appIdVector, &queryRet);
 	if (!msg){
-		if ( querRet == HTERR_FAILED_CONNECT_INTERNAL_ERROR )
+		if ( queryRet == HTERR_FAILED_CONNECT_INTERNAL_ERROR )
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
 			  HTERR_FAILED_CONNECT_INTERNAL_ERROR,
 			  "Failed to query application.");
 		else
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
 			  HTERR_FAILED_CONNECT_DISCONNECT,
-			  "%s",querRet.getMessage().c_str());
+			  "%s",queryRet.getMessage().c_str());
 	}
 	JSONParserAgent parser(msg->response_body->data);
 	g_object_unref(msg);
@@ -432,17 +432,17 @@ ItemTablePtr ZabbixAPI::getApplications(ItemTablePtr items)
 
 ItemTablePtr ZabbixAPI::getEvents(uint64_t eventIdOffset, uint64_t eventIdTill)
 {
-	HatoholError querRet;
-	SoupMessage *msg = queryEvent(eventIdOffset, eventIdTill, &querRet);
+	HatoholError queryRet;
+	SoupMessage *msg = queryEvent(eventIdOffset, eventIdTill, &queryRet);
 	if (!msg){
-		if ( querRet == HTERR_FAILED_CONNECT_INTERNAL_ERROR )
+		if ( queryRet == HTERR_FAILED_CONNECT_INTERNAL_ERROR )
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
 			  HTERR_FAILED_CONNECT_INTERNAL_ERROR,
 			  "Failed to query events.");
 		else
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
 			  HTERR_FAILED_CONNECT_DISCONNECT,
-			  "%s",querRet.getMessage().c_str());
+			  "%s",queryRet.getMessage().c_str());
 	}
 	JSONParserAgent parser(msg->response_body->data);
 	g_object_unref(msg);
@@ -469,8 +469,8 @@ uint64_t ZabbixAPI::getEndEventId(const bool &isFirst)
 	string strValue;
 	uint64_t returnValue = 0;
 
-	HatoholError querRet;
-	SoupMessage *msg = queryEndEventId(isFirst, &querRet);
+	HatoholError queryRet;
+	SoupMessage *msg = queryEndEventId(isFirst, &queryRet);
 	if (!msg) {
 		if (isFirst)
 			MLPL_ERR("Failed to query first eventID.\n");
@@ -507,7 +507,7 @@ uint64_t ZabbixAPI::getEndEventId(const bool &isFirst)
 }
 
 SoupMessage *ZabbixAPI::queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill,
-				   HatoholError *querRet)
+				   HatoholError *queryRet)
 {
 	JSONBuilderAgent agent;
 	agent.startObject();
@@ -529,10 +529,10 @@ SoupMessage *ZabbixAPI::queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill,
 	agent.add("id", 1);
 	agent.endObject();
 
-	return queryCommon(agent, querRet);
+	return queryCommon(agent, queryRet);
 }
 
-SoupMessage *ZabbixAPI::queryEndEventId(const bool &isFirst, HatoholError *querRet)
+SoupMessage *ZabbixAPI::queryEndEventId(const bool &isFirst, HatoholError *queryRet)
 {
 	JSONBuilderAgent agent;
 	agent.startObject();
@@ -553,10 +553,10 @@ SoupMessage *ZabbixAPI::queryEndEventId(const bool &isFirst, HatoholError *querR
 	agent.add("id", 1);
 	agent.endObject();
 
-	return queryCommon(agent, querRet);
+	return queryCommon(agent, queryRet);
 }
 
-SoupMessage *ZabbixAPI::queryTrigger(HatoholError *querRet, int requestSince)
+SoupMessage *ZabbixAPI::queryTrigger(HatoholError *queryRet, int requestSince)
 {
 	JSONBuilderAgent agent;
 	agent.startObject();
@@ -580,10 +580,10 @@ SoupMessage *ZabbixAPI::queryTrigger(HatoholError *querRet, int requestSince)
 	agent.add("id", 1);
 	agent.endObject();
 
-	return queryCommon(agent, querRet);
+	return queryCommon(agent, queryRet);
 }
 
-SoupMessage *ZabbixAPI::queryItem(HatoholError *querRet)
+SoupMessage *ZabbixAPI::queryItem(HatoholError *queryRet)
 {
 	JSONBuilderAgent agent;
 	agent.startObject();
@@ -600,10 +600,10 @@ SoupMessage *ZabbixAPI::queryItem(HatoholError *querRet)
 	agent.add("id", 1);
 	agent.endObject();
 
-	return queryCommon(agent, querRet);
+	return queryCommon(agent, queryRet);
 }
 
-SoupMessage *ZabbixAPI::queryHost(HatoholError *querRet)
+SoupMessage *ZabbixAPI::queryHost(HatoholError *queryRet)
 {
 	JSONBuilderAgent agent;
 	agent.startObject();
@@ -619,10 +619,10 @@ SoupMessage *ZabbixAPI::queryHost(HatoholError *querRet)
 	agent.add("id", 1);
 	agent.endObject();
 
-	return queryCommon(agent, querRet);
+	return queryCommon(agent, queryRet);
 }
 
-SoupMessage *ZabbixAPI::queryGroup(HatoholError *querRet)
+SoupMessage *ZabbixAPI::queryGroup(HatoholError *queryRet)
 {
 	JSONBuilderAgent agent;
 	agent.startObject();
@@ -639,11 +639,11 @@ SoupMessage *ZabbixAPI::queryGroup(HatoholError *querRet)
 	agent.add("id", 1);
 	agent.endObject();
 
-	return queryCommon(agent, querRet);
+	return queryCommon(agent, queryRet);
 }
 
 SoupMessage *ZabbixAPI::queryApplication(const vector<uint64_t> &appIdVector,
-					 HatoholError *querRet)
+					 HatoholError *queryRet)
 {
 	JSONBuilderAgent agent;
 	agent.startObject();
@@ -665,7 +665,7 @@ SoupMessage *ZabbixAPI::queryApplication(const vector<uint64_t> &appIdVector,
 	agent.add("id", 1);
 	agent.endObject();
 
-	return queryCommon(agent, querRet);
+	return queryCommon(agent, queryRet);
 }
 
 
@@ -680,14 +680,14 @@ ItemTablePtr ZabbixAPI::getFunctions(void)
 	return ItemTablePtr(m_impl->functionsTablePtr);
 }
 
-SoupMessage *ZabbixAPI::queryCommon(JSONBuilderAgent &agent, HatoholError *querRet)
+SoupMessage *ZabbixAPI::queryCommon(JSONBuilderAgent &agent, HatoholError *queryRet)
 {
 	string request_body = agent.generate();
 	SoupMessage *msg = soup_message_new(SOUP_METHOD_POST, m_impl->uri.c_str());
 	if (!msg) {
 		MLPL_ERR("Failed to call: soup_message_new: uri: %s\n",
 		         m_impl->uri.c_str());
-		*querRet = HTERR_FAILED_CONNECT_INTERNAL_ERROR;
+		*queryRet = HTERR_FAILED_CONNECT_INTERNAL_ERROR;
 		return NULL;
 	}
 	soup_message_headers_set_content_type(msg->request_headers,
@@ -699,14 +699,14 @@ SoupMessage *ZabbixAPI::queryCommon(JSONBuilderAgent &agent, HatoholError *querR
 		g_object_unref(msg);
 		MLPL_ERR("Failed to get: code: %d: %s\n",
 	                 ret, m_impl->uri.c_str());
-		*querRet = HTERR_FAILED_CONNECT_DISCONNECT;
+		*queryRet = HTERR_FAILED_CONNECT_DISCONNECT;
 		return NULL;
 	}
-	*querRet = HTERR_OK;
+	*queryRet = HTERR_OK;
 	return msg;
 }
 
-SoupMessage *ZabbixAPI::queryAPIVersion(HatoholError *querRet)
+SoupMessage *ZabbixAPI::queryAPIVersion(HatoholError *queryRet)
 {
 	JSONBuilderAgent agent;
 	agent.startObject();
@@ -715,7 +715,7 @@ SoupMessage *ZabbixAPI::queryAPIVersion(HatoholError *querRet)
 	agent.add("id", 1);
 	agent.endObject();
 
-	return queryCommon(agent,querRet);
+	return queryCommon(agent,queryRet);
 }
 
 string ZabbixAPI::getInitialJSONRequest(void)
