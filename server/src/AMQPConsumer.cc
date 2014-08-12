@@ -40,7 +40,7 @@ public:
 	  m_timeout(DEFAULT_TIMEOUT),
 	  m_connection(NULL),
 	  m_socket(NULL),
-	  m_channel(1),
+	  m_channel(0),
 	  m_envelope()
 	{
 	}
@@ -55,17 +55,17 @@ public:
 	bool connect()
 	{
 		m_connection = amqp_new_connection();
-		if (!openSocket())
+		if (initializeConnection()) {
+			return true;
+		} else {
+			disposeConnection();
 			return false;
-		if (!login())
-			return false;
-		if (!openChannel())
-			return false;
-		if (!declareQueue())
-			return false;
-		if (!startConsuming())
-			return false;
-		return true;
+		}
+	}
+
+	bool isConnected()
+	{
+		return m_connection;
 	}
 
 	bool consume(amqp_envelope_t *&envelope)
@@ -88,10 +88,12 @@ public:
 		case AMQP_RESPONSE_LIBRARY_EXCEPTION:
 			if (reply.library_error != AMQP_STATUS_TIMEOUT) {
 				logErrorResponse("consume message", reply);
+				disposeConnection();
 			}
 			return false;
 		default:
 			logErrorResponse("consume message", reply);
+			disposeConnection();
 			return false;
 		}
 
@@ -180,6 +182,21 @@ private:
 		return;
 	}
 
+	bool initializeConnection()
+	{
+		if (!openSocket())
+			return false;
+		if (!login())
+			return false;
+		if (!openChannel())
+			return false;
+		if (!declareQueue())
+			return false;
+		if (!startConsuming())
+			return false;
+		return true;
+	};
+
 	bool openSocket()
 	{
 		m_socket = amqp_tcp_socket_new(m_connection);
@@ -228,11 +245,13 @@ private:
 	bool openChannel()
 	{
 		amqp_channel_open_ok_t *response;
+		m_channel = 1;
 		response = amqp_channel_open(m_connection, m_channel);
 		if (!response) {
 			const amqp_rpc_reply_t reply =
 				amqp_get_rpc_reply(m_connection);
 			logErrorResponse("open channel", reply);
+			m_channel = 0;
 			return false;
 		}
 		return true;
@@ -302,14 +321,34 @@ private:
 		if (!m_connection)
 			return;
 
+		disposeChannel();
+		disposeSocket();
+		logErrorResponse("destroy connection",
+				 amqp_destroy_connection(m_connection));
+
+		m_connection = NULL;
+	};
+
+	void disposeChannel()
+	{
+		if (m_channel == 0)
+			return;
+
 		logErrorResponse("close channel",
 				 amqp_channel_close(m_connection, m_channel,
 						    AMQP_REPLY_SUCCESS));
+		m_channel = 0;
+	}
+
+	void disposeSocket()
+	{
+		if (!m_socket)
+			return;
+
 		logErrorResponse("close connection",
 				 amqp_connection_close(m_connection,
 						       AMQP_REPLY_SUCCESS));
-		logErrorResponse("destroy connection",
-				 amqp_destroy_connection(m_connection));
+		m_socket = NULL;
 	}
 };
 
@@ -329,12 +368,16 @@ AMQPConsumer::~AMQPConsumer()
 gpointer AMQPConsumer::mainThread(HatoholThreadArg *arg)
 {
 	AMQPConnection connection(m_brokerUrl, m_queueAddress);
-	if (!connection.connect()) {
-		// TODO: Support reconnecting.
-		return NULL;
-	}
-
 	while (!isExitRequested()) {
+		if (!connection.isConnected()) {
+			connection.connect();
+		}
+
+		if (!connection.isConnected()) {
+			sleep(1); // TODO: Make retry interval customizable
+			continue;
+		}
+
 		amqp_envelope_t *envelope;
 		const bool consumed = connection.consume(envelope);
 		if (!consumed)
