@@ -235,8 +235,13 @@ HatoholError IncidentSenderRedmine::Impl::parseErrorResponse(
   const string &response)
 {
 	JSONParserAgent agent(response);
+	if (agent.hasError()) {
+		MLPL_ERR("Failed to parse error response: %s\n",
+			 agent.getErrorMessage());
+		return HTERR_FAILED_TO_SEND_INCIDENT;
+	}
 	if (!agent.startObject("errors")) {
-		MLPL_ERR("Failed to parse errors.\n");
+		MLPL_ERR("Failed to parse errors: %s\n", response.c_str());
 		return HTERR_FAILED_TO_SEND_INCIDENT;
 	}
 
@@ -251,6 +256,7 @@ HatoholError IncidentSenderRedmine::Impl::parseErrorResponse(
 		message += StringUtils::sprintf("    * %s\n", error.c_str());
 	}
 	MLPL_ERR("%s", message.c_str());
+	agent.endObject();
 
 	return HTERR_FAILED_TO_SEND_INCIDENT;
 }
@@ -258,6 +264,8 @@ HatoholError IncidentSenderRedmine::Impl::parseErrorResponse(
 HatoholError IncidentSenderRedmine::Impl::handleSendError(
   int soupStatus, const string &response)
 {
+	string url = m_sender.getIssuesJSONURL();
+	MLPL_ERR("Failed to send an issue to %s\n", url.c_str());
 	if (SOUP_STATUS_IS_TRANSPORT_ERROR(soupStatus)) {
 		MLPL_ERR("Transport error: %d %s\n",
 			 soupStatus, soup_status_get_phrase(soupStatus));
