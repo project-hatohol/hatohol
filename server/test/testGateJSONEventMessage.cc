@@ -27,6 +27,32 @@ using namespace mlpl;
 
 namespace testGateJSONEventMessage {
 
+GateJSONEventMessage *parseRaw(JsonParser *parser, const string &json)
+{
+	GError *error = NULL;
+	json_parser_load_from_data(parser,
+				   json.c_str(),
+				   json.length(),
+				   &error);
+	gcut_assert_error(error);
+
+	JsonNode *root;
+	root = json_parser_get_root(parser);
+	return new GateJSONEventMessage(root);
+}
+
+const GList *convertStringListToGList(StringList &strings)
+{
+	StringListIterator it = strings.begin();
+	GList *stringList = NULL;
+	for (; it != strings.end(); ++it) {
+		string &element = *it;
+		char *copiedElement = g_strdup(element.c_str());
+		stringList = g_list_append(stringList, copiedElement);
+	}
+	return gcut_take_list(stringList, g_free);
+}
+
 namespace validate {
 	JsonParser *parser;
 	GateJSONEventMessage *message;
@@ -48,31 +74,12 @@ namespace validate {
 
 	void parse(const string &json)
 	{
-		GError *error = NULL;
-		json_parser_load_from_data(parser,
-					   json.c_str(),
-					   json.length(),
-					   &error);
-		gcut_assert_error(error);
-
-		JsonNode *root;
-		root = json_parser_get_root(parser);
-		message = new GateJSONEventMessage(root);
+		message = parseRaw(parser, json);
 	}
 
 	const GList *getErrorList()
 	{
-		StringListIterator it = errors->begin();
-		GList *errorList = NULL;
-		for (; it != errors->end(); ++it) {
-			string &message = *it;
-			const char *copiedMessage =
-				cut_take_strdup(message.c_str());
-			errorList =
-				g_list_append(errorList,
-					      const_cast<char *>(copiedMessage));
-		}
-		return gcut_take_list(errorList, NULL);
+		return convertStringListToGList(*errors);
 	}
 
 	void _assertValidate(const GList *expectedErrorList,
@@ -220,6 +227,77 @@ namespace validate {
 			       "}\n");
 	}
 #undef assertValidate
+}
+
+namespace getters {
+	JsonParser *parser;
+	GateJSONEventMessage *message;
+
+	void parse(const string &json)
+	{
+		GError *error = NULL;
+		json_parser_load_from_data(parser,
+					   json.c_str(),
+					   json.length(),
+					   &error);
+		gcut_assert_error(error);
+
+		JsonNode *root;
+		root = json_parser_get_root(parser);
+		message = new GateJSONEventMessage(root);
+
+		StringList errors;
+		message->validate(errors);
+		const GList *errorList = convertStringListToGList(errors);
+		gcut_assert_equal_list_string(NULL, errorList);
+	}
+
+	void cut_setup(void)
+	{
+		parser = json_parser_new();
+		message = NULL;
+
+		parse("{\n"
+		      "  \"type\": \"event\",\n"
+		      "  \"body\": {\n"
+		      "    \"id\":        1,\n"
+		      "    \"timestamp\": 1407824772.939664125,\n"
+		      "    \"hostName\":  \"www.example.com\",\n"
+		      "    \"content\":   \"Error!\"\n"
+		      "  }\n"
+		      "}\n");
+	}
+
+	void cut_teardown(void)
+	{
+		delete message;
+		g_object_unref(parser);
+	}
+
+	void test_getID()
+	{
+		cppcut_assert_equal(static_cast<int64_t>(1),
+				    message->getID());
+	}
+
+	void test_getTimestamp()
+	{
+		timespec timestamp = message->getTimestamp();
+		cppcut_assert_equal(static_cast<time_t>(1407824772),
+				    timestamp.tv_sec);
+		cppcut_assert_equal(static_cast<long>(939664125),
+				    timestamp.tv_nsec);
+	}
+
+	void test_getHostName()
+	{
+		cppcut_assert_equal("www.example.com", message->getHostName());
+	}
+
+	void test_getContent()
+	{
+		cppcut_assert_equal("Error!", message->getContent());
+	}
 }
 
 } // namespace testGateJSONEventMessage
