@@ -90,18 +90,18 @@ struct CommandLineOptions {
 	  const gchar *option_name, const gchar *value,
 	  gpointer data, GError **error)
 	{
-		GQuark quak =
+		GQuark quark =
 		  g_quark_from_static_string("config-manager-quark");
 		CommandLineOptions *obj =
 		  static_cast<CommandLineOptions *>(data);
 		if (!value) {
-			g_set_error(error, quak, CONF_MGR_ERROR_NULL,
+			g_set_error(error, quark, CONF_MGR_ERROR_NULL,
 			            "value is NULL.");
 			return FALSE;
 		}
 		int port = atoi(value);
 		if (!Utils::isValidPort(port, false)) {
-			g_set_error(error, quak, CONF_MGR_ERROR_INVALID_PORT,
+			g_set_error(error, quark, CONF_MGR_ERROR_INVALID_PORT,
 			            "value: %s, %d.", value, port);
 			return FALSE;
 		}
