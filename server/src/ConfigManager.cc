@@ -386,7 +386,7 @@ int ConfigManager::getFaceRestPort(void) const
 
 string ConfigManager::getPidFilePath(void) const
 {
-	return m_ctx->pidFilePath;
+	return m_impl->pidFilePath;
 }
 
 // ---------------------------------------------------------------------------
