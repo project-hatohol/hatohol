@@ -262,7 +262,8 @@ bool ConfigManager::parseCommandLine(gint *argc, gchar ***argv)
 	if (!g_option_context_parse(optCtx, argc, argv, &error)) {
 		MLPL_ERR("Failed to parse command line argment. (%s)\n",
 		         error ? error->message : "Unknown reason");
-		g_error_free(error);
+		if (error)
+			g_error_free(error);
 		return false;
 	}
 
