@@ -29,40 +29,38 @@
 
 namespace mlpl {
 
-class StringUtils;
 typedef std::list<std::string> StringList;
 typedef std::vector<std::string> StringVector;
 typedef StringList::iterator StringListIterator;
 typedef StringVector::iterator StringVectorIterator;
 
-class StringUtils {
-public:
-	static const std::string EMPTY_STRING;
+namespace StringUtils {
+	const std::string EMPTY_STRING;
 
-	static const size_t SPRINTF_BUF_ON_STACK_LENGTH = 0x400;
-	static void split(StringList &stringList, const std::string &target,
-	                  const char separator, bool doMerge = true);
-	static void split(StringVector &stringVector, const std::string &target,
-	                  const char separator, bool doMerget = true);
-	static std::string &getAt(StringList &stringList, size_t index);
-	static bool casecmp(const char *str1, const char *str2);
-	static bool casecmp(const std::string &str1, const char *str2);
-	static bool casecmp(const char *str1, const std::string &str2);
-	static bool casecmp(const std::string &str1, const std::string &str2);
-	static bool hasPrefix(const std::string &str,
-	                      const std::string &prefix,
-			      bool caseSensitive = true);
-	static bool hasSuffix(const std::string &str,
-	                      const std::string &suffix,
-			      bool caseSensitive = true);
-	static std::string sprintf(const char *fmt, ...) __attribute__((__format__ (__printf__, 1, 2)));
-	static std::string vsprintf(const char *fmt, va_list ap);
-	static bool isNumber(const char *str, bool *isFloat = NULL);
-	static bool isNumber(const std::string &str, bool *isFloat = NULL);
-	static std::string toString(int number);
-	static std::string toString(uint64_t number);
-	static std::string toLower(std::string str);
-	static std::string stripBothEndsSpaces(const std::string &str);
+	const size_t SPRINTF_BUF_ON_STACK_LENGTH = 0x400;
+	void split(StringList &stringList, const std::string &target,
+		   const char separator, bool doMerge = true);
+	void split(StringVector &stringVector, const std::string &target,
+		   const char separator, bool doMerget = true);
+	std::string &getAt(StringList &stringList, size_t index);
+	bool casecmp(const char *str1, const char *str2);
+	bool casecmp(const std::string &str1, const char *str2);
+	bool casecmp(const char *str1, const std::string &str2);
+	bool casecmp(const std::string &str1, const std::string &str2);
+	bool hasPrefix(const std::string &str,
+		       const std::string &prefix,
+		       bool caseSensitive = true);
+	bool hasSuffix(const std::string &str,
+		       const std::string &suffix,
+		       bool caseSensitive = true);
+	std::string sprintf(const char *fmt, ...) __attribute__((__format__ (__printf__, 1, 2)));
+	std::string vsprintf(const char *fmt, va_list ap);
+	bool isNumber(const char *str, bool *isFloat = NULL);
+	bool isNumber(const std::string &str, bool *isFloat = NULL);
+	std::string toString(int number);
+	std::string toString(uint64_t number);
+	std::string toLower(std::string str);
+	std::string stripBothEndsSpaces(const std::string &str);
 
 	/**
 	 * Convert a decimal number string to uint64_t.
@@ -71,7 +69,7 @@ public:
 	 *
 	 * @return the converted number.
 	 */
-	static uint64_t toUint64(const std::string &numStr);
+	uint64_t toUint64(const std::string &numStr);
 
 	/**
 	 * Erase specified characters in a string.
@@ -95,8 +93,8 @@ public:
 	 * returned.
 	 *
 	 */
-	static std::string eraseChars(const std::string &source,
-	                              const std::string &eraseChars);
+	std::string eraseChars(const std::string &source,
+			       const std::string &eraseChars);
 	/**
 	 * Replace specified characters with a word.
 	 *
@@ -123,9 +121,9 @@ public:
 	 * returned.
 	 *
 	 */
-	static std::string replace(const std::string &source,
-	                           const std::string &targetChars,
-	                           const std::string &newWord);
+	std::string replace(const std::string &source,
+			    const std::string &targetChars,
+			    const std::string &newWord);
 };
 
 } // namespace mlpl
