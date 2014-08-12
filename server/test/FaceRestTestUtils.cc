@@ -27,6 +27,7 @@
 #include "Params.h"
 #include "SessionManager.h"
 #include "FaceRestTestUtils.h"
+#include "ConfigManager.h"
 using namespace std;
 using namespace mlpl;
 
@@ -64,11 +65,7 @@ void startFaceRest(void)
 
 	defineDBPath(DB_DOMAIN_ID_HATOHOL, dbPathHatohol);
 
-	string portStr = StringUtils::sprintf("%u", TEST_PORT);
-	CommandArgHelper cmdLine;
-	cmdLine << "--face-rest-port";
-	cmdLine << portStr.c_str();
-	cmdLine.activate();
+	ConfigManager::getInstance()->setFaceRestPort(TEST_PORT);
 	g_faceRest = new FaceRest(&param);
 	g_faceRest->setNumberOfPreLoadWorkers(1);
 
