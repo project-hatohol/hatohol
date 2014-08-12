@@ -43,14 +43,14 @@ public:
 	  m_channel(1),
 	  m_envelope()
 	{
-	};
+	}
 
 	~AMQPConnection()
 	{
 		soup_uri_free(m_brokerUrl);
 		amqp_destroy_envelope(&m_envelope);
 		disposeConnection();
-	};
+	}
 
 	bool connect()
 	{
@@ -66,7 +66,7 @@ public:
 		if (!startConsuming())
 			return false;
 		return true;
-	};
+	}
 
 	bool consume(amqp_envelope_t *&envelope) {
 		amqp_maybe_release_buffers(m_connection);
@@ -96,7 +96,7 @@ public:
 
 		envelope = &m_envelope;
 		return true;
-	};
+	}
 
 
 private:
@@ -127,7 +127,7 @@ private:
 			user = DEFAULT_USER;
 		}
 		return user;
-	};
+	}
 
 	const char *getPassword() {
 		const char *password;
@@ -136,18 +136,18 @@ private:
 			password = DEFAULT_PASSWORD;
 		}
 		return password;
-	};
+	}
 
 	void logErrorResponse(const char *context, int status) {
 		logErrorResponse(context, static_cast<amqp_status_enum>(status));
-	};
+	}
 
 	void logErrorResponse(const char *context, amqp_status_enum status) {
 		if (status == AMQP_STATUS_OK)
 			return;
 		// TODO: stringify status
 		MLPL_ERR("failed to %s: %x\n", context, status);
-	};
+	}
 
 	void logErrorResponse(const char *context,
 			      const amqp_rpc_reply_t &reply) {
@@ -169,7 +169,7 @@ private:
 			break;
 		}
 		return;
-	};
+	}
 
 	bool openSocket() {
 		m_socket = amqp_tcp_socket_new(m_connection);
@@ -212,7 +212,7 @@ private:
 			return false;
 		}
 		return true;
-	};
+	}
 
 	bool openChannel() {
 		amqp_channel_open_ok_t *response;
@@ -224,7 +224,7 @@ private:
 			return false;
 		}
 		return true;
-	};
+	}
 
 	bool declareQueue() {
 		const amqp_bytes_t queue =
@@ -253,7 +253,7 @@ private:
 			}
 		}
 		return true;
-	};
+	}
 
 	bool startConsuming() {
 		const amqp_bytes_t queue =
@@ -281,7 +281,7 @@ private:
 			}
 		}
 		return true;
-	};
+	}
 
 	void disposeConnection() {
 		if (!m_connection)
@@ -295,7 +295,7 @@ private:
 						       AMQP_REPLY_SUCCESS));
 		logErrorResponse("destroy connection",
 				 amqp_destroy_connection(m_connection));
-	};
+	}
 };
 
 AMQPConsumer::AMQPConsumer(const string &brokerUrl,
