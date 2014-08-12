@@ -54,7 +54,7 @@ static void init(const CommandLineArg &arg)
 
 	DBAgentSQLite3::init();
 	DBAgentMySQL::init();
-	DBClientConfig::init(arg);
+	DBClientConfig::init();
 	DBClientUser::init();
 	DBClientHatohol::init();
 	DBClientAction::init();
@@ -84,7 +84,6 @@ static void reset(const CommandLineArg &arg)
 	CacheServiceDBClient::reset();
 
 	UnifiedDataStore::getInstance()->reset();
-	FaceRest::reset(arg);
 }
 
 void hatoholInit(const CommandLineArg *arg)

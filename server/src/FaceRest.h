@@ -48,10 +48,8 @@ public:
 	static const int DEFAULT_NUM_WORKERS;
 
 	static void init(void);
-	static void reset(const CommandLineArg &arg);
-	static bool isTestMode(void);
 
-	FaceRest(CommandLineArg &cmdArg, FaceRestParam *param = NULL);
+	FaceRest(FaceRestParam *param = NULL);
 	virtual ~FaceRest();
 	virtual void waitExit(void) override;
 	virtual void setNumberOfPreLoadWorkers(size_t num);

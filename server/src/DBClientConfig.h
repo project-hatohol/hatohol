@@ -122,7 +122,7 @@ public:
 	static const char *DEFAULT_DB_NAME;
 	static const char *DEFAULT_USER_NAME;
 	static const char *DEFAULT_PASSWORD;
-	static void init(const CommandLineArg &cmdArg);
+	static void init(void);
 	static void reset(void);
 	static bool isHatoholArmPlugin(const MonitoringSystemType &type);
 
@@ -253,11 +253,7 @@ public:
 	  IncidentTrackerIdSet &incidentTrackerIdSet);
 
 protected:
-	static bool parseCommandLineArgument(const CommandLineArg &cmdArg);
 	static void tableInitializerSystem(DBAgent *dbAgent, void *data);
-	static bool parseDBServer(const std::string &dbServer,
-	                          std::string &host, size_t &port);
-
 	static bool canUpdateTargetServer(
 	  MonitoringServerInfo *monitoringServerInfo,
 	  const OperationPrivilege &privilege);
