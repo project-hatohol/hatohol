@@ -25,6 +25,7 @@
 #include "ItemGroupStream.h"
 #include "DBClientJoinBuilder.h"
 #include "SQLUtils.h"
+#include "HatoholException.h"
 using namespace std;
 using namespace mlpl;
 
@@ -797,6 +798,13 @@ bool ArmNagiosNDOUtils::mainThreadOneProc(void)
 			if (!getCopyOnDemandEnabled())
 				getItem();
 		}
+	} catch (const HatoholException &dse) {
+		if (dse.getErrCode() == HTERR_FAILED_CONNECT_DISCONNECT){
+			MLPL_ERR("Error Connection: %s %d\n", dse.what(), dse.getErrCode());
+		} else {
+			MLPL_ERR("Got exception: %s\n", dse.what());
+		}
+		return false;
 	} catch (const exception &e) {
 		MLPL_ERR("Got exception: %s\n", e.what());
 		return false;
