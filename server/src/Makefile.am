@@ -103,6 +103,7 @@ if HAVE_LIBRABBITMQ
 libhatohol_la_SOURCES += \
 	AMQPConsumer.cc AMQPConsumer.h \
 	AMQPMessageHandler.cc AMQPMessageHandler.h \
+	GateJSONEventMessage.cc GateJSONEventMessage.h \
 	HatoholArmPluginGateJSON.cc HatoholArmPluginGateJSON.h
 endif
 
