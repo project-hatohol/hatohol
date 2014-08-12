@@ -3,6 +3,20 @@
 日本語のHatoholウェブサイトを開設しました。以下のホームページをご覧ください。
 http://www.hatohol.org/
 
+## Table of Contents
+- [Overview](#user-content-overview)
+- [Project Hatohol](#user-content-project-hatohol)
+- [Supported monitoring software](#user-content-supported-monitoring-software)
+- [Supported platforms](#user-content-supported-platforms)
+- [Basic architecture](#user-content-basic-architecture)
+- [Screenshots](#user-content-screenshots)
+- [Installation](#user-content-installation)
+	- [Installation by RPM files (only for CentOS 6.5)](#user-content-installation-by-rpm-files-only-for-centos-65)
+	- [Installation by building needed applications](#user-content-installation-by-building-needed-applications)
+	- [Upgrade by RPM files from ver.14.03 to ver.14.06(only for CentOS 6.5)](#user-content-upgrade-by-rpm-files-from-ver1403-to-ver1406only-for-centos-65)
+- [Plans](#user-content-plans)
+- [Mailing Lists](#user-content-mailing-lists)
+
 ## Overview
 Hatohol consolidates monitoring data from any number of running monitoring systems on one screen. This feature enables
 the integration of monitoring centers, even when these centers are in different places or are being monitored by 
@@ -66,8 +80,8 @@ The detailed document is [here](https://github.com/project-hatohol/website/blob/
 - [Server installation](server/README.md)
 - [Client (Web UI server) installation](client/README.md)
 
-### Upgrade by RPM files from ver.0.1 to ver.13.12(only for CentOS 6.4)
-The detailed document is [here](doc/upgrade/hatohol13.12-from0.1-centos6.4.md)
+### Upgrade by RPM files from ver.14.03 to ver.14.06(only for CentOS 6.5)
+The detailed document is [here](https://github.com/project-hatohol/website/blob/master/contents/docs/upgrade/14.06/ja/index.md) (Sorry, Japanese version only...)
 
 ## Plans
 See [Milestone](https://github.com/project-hatohol/hatohol/issues/milestones)
