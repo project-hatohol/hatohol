@@ -277,17 +277,16 @@ void ArmBase::setServerConnectStaus(bool enable)
 	clock_gettime(CLOCK_REALTIME,&triggerInfo.lastChangeTime);
 	triggerInfo.hostId = svInfo.id;
 	triggerInfo.hostName = svInfo.hostName.c_str();
+	triggerInfo.id = DISCONNECT_SERVER_TRIGGERID_NG;
 	if (enable){
 		triggerInfo.status = TRIGGER_STATUS_OK;
 		triggerInfo.severity = TRIGGER_SEVERITY_INFO;
-		triggerInfo.id = DISCONNECT_SERVER_TRIGGERID_OK;
 		triggerInfo.brief = StringUtils::sprintf("Connection to %s was successful.",
 		                                         svInfo.hostName.c_str());
 	}
 	else {
 		triggerInfo.status = TRIGGER_STATUS_PROBLEM;
 		triggerInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
-		triggerInfo.id = DISCONNECT_SERVER_TRIGGERID_NG;
 		triggerInfo.brief = StringUtils::sprintf("Connection failed to %s",
 		                                         svInfo.hostName.c_str());
 	}
@@ -300,16 +299,15 @@ void ArmBase::setServerConnectStaus(bool enable)
 	eventInfo.id = DISCONNECT_SERVER_EVENTID_TYPE;
 	clock_gettime(CLOCK_REALTIME,&eventInfo.time);
 	eventInfo.hostId = svInfo.id;
+	eventInfo.triggerId = DISCONNECT_SERVER_TRIGGERID_NG;
 
 	if (enable){
 		eventInfo.type = EVENT_TYPE_GOOD;
-		eventInfo.triggerId = DISCONNECT_SERVER_TRIGGERID_OK;
-		eventInfo.severity = TRIGGER_SEVERITY_INFO;
 		eventInfo.status = TRIGGER_STATUS_OK;
+		eventInfo.severity = TRIGGER_SEVERITY_INFO;
 	}
 	else {
 		eventInfo.type = EVENT_TYPE_BAD;
-		eventInfo.triggerId = DISCONNECT_SERVER_TRIGGERID_NG;
 		eventInfo.status = TRIGGER_STATUS_PROBLEM;
 		eventInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
 	}
