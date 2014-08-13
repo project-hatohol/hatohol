@@ -18,7 +18,7 @@
 	[Server] The basic implementation of the plugin mechanism for 'Arm' (#171)
 	[Server] Fix wrong number of bad hosts & triggers of a server (#236)
 
-	Contributors in this version are following people. Thanks!
+	Contributors to this release. Thank you very much.
 	- Jumpei Ogawa
 	- Kazuhiro Yamato
 	- Noriki Nakamura
@@ -57,7 +57,7 @@
 	[Client] Trggers page isn't updated automatically (#152)
 	[Client] Delete button is still enabled after the deletion finishes. (#159)
 
-	Contributors in this version are following people. Thanks!
+	Contributors to this release. Thank you very much.
 	- HAYASHI Kentaro
 	- Jumpei Ogawa
 	- Kazuhiro Yamato
