@@ -252,39 +252,21 @@ namespace getters {
 	JsonParser *parser;
 	GateJSONEventMessage *message;
 
-	void parse(const string &json)
-	{
-		GError *error = NULL;
-		json_parser_load_from_data(parser,
-					   json.c_str(),
-					   json.length(),
-					   &error);
-		gcut_assert_error(error);
-
-		JsonNode *root;
-		root = json_parser_get_root(parser);
-		message = new GateJSONEventMessage(root);
-
-		StringList errors;
-		message->validate(errors);
-		const GList *errorList = convertStringListToGList(errors);
-		gcut_assert_equal_list_string(NULL, errorList);
-	}
-
 	void cut_setup(void)
 	{
 		parser = json_parser_new();
 		message = NULL;
 
-		parse("{\n"
-		      "  \"type\": \"event\",\n"
-		      "  \"body\": {\n"
-		      "    \"id\":        1,\n"
-		      "    \"timestamp\": 1407824772.939664125,\n"
-		      "    \"hostName\":  \"www.example.com\",\n"
-		      "    \"content\":   \"Error!\"\n"
-		      "  }\n"
-		      "}\n");
+		message = parseRaw(parser,
+				   "{\n"
+				   "  \"type\": \"event\",\n"
+				   "  \"body\": {\n"
+				   "    \"id\":        1,\n"
+				   "    \"timestamp\": 1407824772.939664125,\n"
+				   "    \"hostName\":  \"www.example.com\",\n"
+				   "    \"content\":   \"Error!\"\n"
+				   "  }\n"
+				   "}\n");
 	}
 
 	void cut_teardown(void)
@@ -299,15 +281,6 @@ namespace getters {
 				    message->getID());
 	}
 
-	void test_getTimestamp()
-	{
-		timespec timestamp = message->getTimestamp();
-		cppcut_assert_equal(static_cast<time_t>(1407824772),
-				    timestamp.tv_sec);
-		cppcut_assert_equal(static_cast<long>(939664125),
-				    timestamp.tv_nsec);
-	}
-
 	void test_getHostName()
 	{
 		cppcut_assert_equal("www.example.com", message->getHostName());
@@ -316,6 +289,63 @@ namespace getters {
 	void test_getContent()
 	{
 		cppcut_assert_equal("Error!", message->getContent());
+	}
+}
+
+namespace timestampGetter {
+	JsonParser *parser;
+	GateJSONEventMessage *message;
+
+	void cut_setup(void)
+	{
+		parser = json_parser_new();
+		message = NULL;
+	}
+
+	void cut_teardown(void)
+	{
+		delete message;
+		g_object_unref(parser);
+	}
+
+	void test_double()
+	{
+		const char *json =
+			"{\n"
+			"  \"type\": \"event\",\n"
+			"  \"body\": {\n"
+			"    \"id\":        1,\n"
+			"    \"timestamp\": 1407824772.939664125,\n"
+			"    \"hostName\":  \"www.example.com\",\n"
+			"    \"content\":   \"Error!\"\n"
+			"  }\n"
+			"}\n";
+		message = parseRaw(parser, json);
+		timespec timestamp = message->getTimestamp();
+		cppcut_assert_equal(static_cast<time_t>(1407824772),
+				    timestamp.tv_sec);
+		cppcut_assert_equal(static_cast<long>(939664125),
+				    timestamp.tv_nsec);
+	}
+
+	void test_iso8601String()
+	{
+		const char *json =
+			"{\n"
+			"  \"type\": \"event\",\n"
+			"  \"body\": {\n"
+			"    \"id\":        1,\n"
+			"    \"timestamp\": \"2014-08-12T06:26:12.939664Z\",\n"
+			"    \"hostName\":  \"www.example.com\",\n"
+			"    \"content\":   \"Error!\"\n"
+			"  }\n"
+			"}\n";
+		message = parseRaw(parser, json);
+		timespec timestamp = message->getTimestamp();
+		cppcut_assert_equal(static_cast<time_t>(1407824772),
+				    timestamp.tv_sec);
+		cppcut_assert_equal(static_cast<long>(939664000),
+				    timestamp.tv_nsec);
 	}
 }
 

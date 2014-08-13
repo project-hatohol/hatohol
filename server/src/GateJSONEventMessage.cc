@@ -60,12 +60,25 @@ struct GateJSONEventMessage::Impl
 
 	timespec getTimestamp()
 	{
-		gdouble rawTimestamp =
-			json_object_get_double_member(getBody(), "timestamp");
 		timespec timestamp;
-		timestamp.tv_sec = static_cast<time_t>(rawTimestamp);
-		timestamp.tv_nsec =
-			secondToNanoSecond(fmod(rawTimestamp, 1.0));
+		JsonNode *timestampNode =
+			json_object_get_member(getBody(), "timestamp");
+		GType type = json_node_get_value_type(timestampNode);
+		if (type == G_TYPE_DOUBLE) {
+			gdouble rawTimestamp =
+				json_node_get_double(timestampNode);
+			timestamp.tv_sec = static_cast<time_t>(rawTimestamp);
+			timestamp.tv_nsec =
+				secondToNanoSecond(fmod(rawTimestamp, 1.0));
+		} else {
+			const gchar *rawTimestamp =
+				json_node_get_string(timestampNode);
+			GTimeVal timeValue;
+			g_time_val_from_iso8601(rawTimestamp, &timeValue);
+			timestamp.tv_sec = timeValue.tv_sec;
+			timestamp.tv_nsec =
+				microSecondToNanoSecond(timeValue.tv_usec);
+		}
 		return timestamp;
 	}
 
@@ -95,6 +108,11 @@ private:
 	long secondToNanoSecond(gdouble second)
 	{
 		return second * 1000000000;
+	}
+
+	long microSecondToNanoSecond(long microSecond)
+	{
+		return microSecond * 1000;
 	}
 
 	void addError(StringList &errors,
