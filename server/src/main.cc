@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -42,13 +42,14 @@ using namespace mlpl;
 #include "DBClientConfig.h"
 #include "ActorCollector.h"
 #include "DBClientAction.h"
+#include "ConfigManager.h"
 
 static int pipefd[2];
-static const char *DEFAULT_PID_FILE_PATH = "/var/run/hatohol.pid";
 
 struct ExecContext {
 	UnifiedDataStore *unifiedDataStore;
 	GMainLoop *loop;
+	CommandLineOptions cmdLineOpts;
 };
 
 static void signalHandlerToExit(int signo, siginfo_t *info, void *arg)
@@ -96,34 +97,11 @@ static void setupGizmoForExit(gpointer data)
 	g_io_add_watch(ioch, G_IO_HUP, exitFunc, data);
 }
 
-static bool isForegroundOptionIncluded(CommandLineArg &cmdArg)
-{
-	for (size_t i = 0; i < cmdArg.size(); i++) {
-		string &arg = cmdArg[i];
-		if (arg == "--foreground")
-			return true;
-	}
-
-	return false;
-}
-
-static string getPidFilePath(const CommandLineArg &arg)
-{
-	for (size_t idx = 0; idx < arg.size(); idx++) {
-		const string word = arg[idx];
-		if (word != "--pid-file-path")
-			continue;
-		HATOHOL_ASSERT(idx < arg.size() - 1,
-		  "--pid-file-path is specified, but not the path is given.");
-		return arg[idx+1];
-	}
-	return DEFAULT_PID_FILE_PATH;
-}
-
-static bool daemonize(const CommandLineArg &arg)
+static bool daemonize(void)
 {
 	pid_t pid;
-	string pidFilePath = getPidFilePath(arg);
+	string pidFilePath =
+	  ConfigManager::getInstance()->getPidFilePath();
 	FILE *pid_file;
 	pid_file = fopen(pidFilePath.c_str(), "w+");
 
@@ -154,21 +132,21 @@ int mainRoutine(int argc, char *argv[])
 #endif // GLIB_VERSION_2_32 
 
 	// parse command line arguemnt
-	CommandLineArg cmdArg;
-	for (int i = 1; i < argc; i++)
-		cmdArg.push_back(argv[i]);
-	if (!isForegroundOptionIncluded(cmdArg)){
-		if (!daemonize(cmdArg)) {
+	ExecContext ctx;
+	if (!ConfigManager::parseCommandLine(&argc, &argv, &ctx.cmdLineOpts))
+		return EXIT_FAILURE;
+	ConfigManager *confMgr = ConfigManager::getInstance();
+	if (!confMgr->isForegroundProcess()) {
+		if (!daemonize()) {
 			MLPL_ERR("Can't start daemon process\n");
 			return EXIT_FAILURE;
 		}
 	}
 
-	hatoholInit(&cmdArg);
+	hatoholInit(&ctx.cmdLineOpts);
 	MLPL_INFO("started hatohol server: ver. %s\n", PACKAGE_VERSION);
 
 	// setup signal handlers for exit
-	ExecContext ctx;
 	setupGizmoForExit(&ctx);
 	setupSignalHandlerForExit(SIGTERM);
 	setupSignalHandlerForExit(SIGINT);
@@ -180,13 +158,19 @@ int mainRoutine(int argc, char *argv[])
 	// start REST server
 	// 'rest' is on a stack. The destructor of it will be automatically
 	// called at the end of this function.
-	FaceRest rest(cmdArg);
+	FaceRest rest;
 	rest.start();
 
 	ctx.unifiedDataStore = UnifiedDataStore::getInstance();
-	ctx.unifiedDataStore->setCopyOnDemandEnabled(
-	  dbConfig.isCopyOnDemandEnabled());
-	ctx.unifiedDataStore->parseCommandLineArgument(cmdArg);
+	bool enableCopyOnDemand = true;
+	ConfigManager::ConfigState state = confMgr->getCopyOnDemand();
+	if (state == ConfigManager::ENABLE)
+		enableCopyOnDemand = true;
+	else if (state == ConfigManager::DISABLE)
+		enableCopyOnDemand = false;
+	else
+		enableCopyOnDemand = dbConfig.isCopyOnDemandEnabled();
+	ctx.unifiedDataStore->setCopyOnDemandEnabled(enableCopyOnDemand);
 	ctx.unifiedDataStore->start();
 
 	// main loop of GLIB

@@ -46,6 +46,7 @@
 #include "RestResourceIncidentTracker.h"
 #include "RestResourceServer.h"
 #include "RestResourceUser.h"
+#include "ConfigManager.h"
 
 using namespace std;
 using namespace mlpl;
@@ -64,9 +65,9 @@ static const char *MIME_HTML = "text/html";
 static const char *MIME_JSON = "application/json";
 static const char *MIME_JAVASCRIPT = "text/javascript";
 
-#define RETURN_IF_NOT_TEST_MODE(JOB) \
+#define RETURN_IF_NOT_TEST_MODE(TEST_MODE, JOB) \
 do { \
-	if (!isTestMode()) { \
+	if (!TEST_MODE) { \
 		JOB->replyError(HTERR_NOT_TEST_MODE); \
 		return; \
 	}\
@@ -82,7 +83,6 @@ static MimeTypeMap g_mimeTypeMap;
 
 struct FaceRest::Impl {
 	struct MainThreadCleaner;
-	static bool         testMode;
 	static Mutex        lock;
 	guint               port;
 	SoupServer         *soupServer;
@@ -164,7 +164,6 @@ struct FaceRest::Impl {
 	}
 };
 
-bool         FaceRest::Impl::testMode = false;
 Mutex        FaceRest::Impl::lock;
 
 class FaceRest::Worker : public HatoholThreadBase {
@@ -226,37 +225,19 @@ void FaceRest::init(void)
 	g_mimeTypeMap[FORMAT_JSONP] = MIME_JAVASCRIPT;
 }
 
-void FaceRest::reset(const CommandLineArg &arg)
-{
-	bool foundTestMode = false;
-	for (size_t i = 0; i < arg.size(); i++) {
-		if (arg[i] == "--test-mode")
-			foundTestMode = true;
-	}
-
-	if (foundTestMode)
-		MLPL_INFO("Run as a test mode.\n");
-	Impl::testMode = foundTestMode;
-}
-
-bool FaceRest::isTestMode(void)
-{
-	return Impl::testMode;
-}
-
-FaceRest::FaceRest(CommandLineArg &cmdArg, FaceRestParam *param)
+FaceRest::FaceRest(FaceRestParam *param)
 : m_impl(new Impl(param))
 {
-	DBClientConfig dbConfig;
-	int port = dbConfig.getFaceRestPort();
-	if (port != 0 && Utils::isValidPort(port))
+	int port = ConfigManager::getInstance()->getFaceRestPort();
+	if (port) {
 		m_impl->port = port;
-
-	for (size_t i = 0; i < cmdArg.size(); i++) {
-		string &cmd = cmdArg[i];
-		if (cmd == "--face-rest-port")
-			i = parseCmdArgPort(cmdArg, i);
+	} else {
+		DBClientConfig dbConfig;
+		int port = dbConfig.getFaceRestPort();
+		if (port != 0 && Utils::isValidPort(port))
+			m_impl->port = port;
 	}
+
 	MLPL_INFO("started face-rest, port: %d\n", m_impl->port);
 }
 
@@ -414,25 +395,6 @@ GMainContext *FaceRest::getGMainContext(void)
 	return m_impl->gMainCtx;
 }
 
-size_t FaceRest::parseCmdArgPort(CommandLineArg &cmdArg, size_t idx)
-{
-	if (idx == cmdArg.size() - 1) {
-		MLPL_ERR("needs port number.");
-		return idx;
-	}
-
-	idx++;
-	string &port_str = cmdArg[idx];
-	int port = atoi(port_str.c_str());
-	if (!Utils::isValidPort(port, false)) {
-		MLPL_ERR("invalid port: %s, %d\n", port_str.c_str(), port);
-		return idx;
-	}
-
-	m_impl->port = port;
-	return idx;
-}
-
 // handlers
 void FaceRest::handlerDefault(SoupServer *server, SoupMessage *msg,
                               const char *path, GHashTable *query,
@@ -512,7 +474,8 @@ void FaceRest::handlerTest(ResourceHandler *job)
 	agent.startObject();
 	FaceRest::ResourceHandler::addHatoholError(
 	  agent, HatoholError(HTERR_OK));
-	if (Impl::testMode)
+	const bool testMode = ConfigManager::getInstance()->isTestMode();
+	if (testMode)
 		agent.addTrue("testMode");
 	else
 		agent.addFalse("testMode");
@@ -543,7 +506,7 @@ void FaceRest::handlerTest(ResourceHandler *job)
 	if (string(job->m_path) == "/test/user" &&
 	    string(job->m_message->method) == "POST")
 	{
-		RETURN_IF_NOT_TEST_MODE(job);
+		RETURN_IF_NOT_TEST_MODE(testMode, job);
 		UserQueryOption option(USER_ID_SYSTEM);
 		HatoholError err
 		  = RestResourceUser::updateOrAddUser(job->m_query, option);

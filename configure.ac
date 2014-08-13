@@ -17,6 +17,16 @@ if test x"$prefix" = x"NONE"; then
 fi
 AC_DEFINE_UNQUOTED(PREFIX, "$prefix", "Prefix for install directory")
 
+if test x"$sysconfdir" = x"NONE"; then
+    sysconfdir=$ac_default_sysconfdir
+fi
+AC_DEFINE_UNQUOTED(SYSCONFDIR, "`eval echo $sysconfdir`", "Data directory.")
+
+if test x"$localstatedir" = x"NONE"; then
+    runstatedir=$ac_default_localstatedir
+fi
+AC_DEFINE_UNQUOTED(LOCALSTATEDIR, "`eval echo $localstatedir`", "Local state directory.")
+
 if test x"$exec_prefix" = x"NONE"; then
     exec_prefix=$prefix
 fi

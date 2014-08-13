@@ -27,6 +27,7 @@
 #include "Params.h"
 #include "SessionManager.h"
 #include "FaceRestTestUtils.h"
+#include "ConfigManager.h"
 using namespace std;
 using namespace mlpl;
 
@@ -36,13 +37,6 @@ static const char *TEST_DB_HATOHOL_NAME = "testDatabase-hatohol.db";
 static StringMap    emptyStringMap;
 static StringVector emptyStringVector;
 static FaceRest *g_faceRest = NULL;
-
-void setupTestMode(void)
-{
-	CommandLineArg arg;
-	arg.push_back("--test-mode");
-	hatoholInit(&arg);
-}
 
 void setupUserDB(void)
 {
@@ -71,10 +65,8 @@ void startFaceRest(void)
 
 	defineDBPath(DB_DOMAIN_ID_HATOHOL, dbPathHatohol);
 
-	CommandLineArg arg;
-	arg.push_back("--face-rest-port");
-	arg.push_back(StringUtils::sprintf("%u", TEST_PORT));
-	g_faceRest = new FaceRest(arg, &param);
+	ConfigManager::getInstance()->setFaceRestPort(TEST_PORT);
+	g_faceRest = new FaceRest(&param);
 	g_faceRest->setNumberOfPreLoadWorkers(1);
 
 	param.mutex.lock();

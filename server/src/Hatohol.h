@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -21,8 +21,9 @@
 #define Hatohol_h
 
 #include "Utils.h"
+#include "ConfigManager.h"
 
-void hatoholInit(const CommandLineArg *arg = NULL);
+void hatoholInit(const CommandLineOptions *cmdLineOpts = NULL);
 
 #endif // Hatohol_h
 

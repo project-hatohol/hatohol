@@ -30,6 +30,7 @@
 #include "CacheServiceDBClient.h"
 #include "SQLUtils.h"
 #include "Reaper.h"
+#include "ConfigManager.h"
 using namespace std;
 using namespace mlpl;
 
@@ -1349,4 +1350,32 @@ gboolean GMainLoopAgent::timedOut(gpointer data)
 	obj->m_timerTag = 0;
 	cut_fail("Timed out");
 	return G_SOURCE_REMOVE;
+}
+
+// ---------------------------------------------------------------------------
+// CommandArgHelper
+// ---------------------------------------------------------------------------
+CommandArgHelper::CommandArgHelper(void)
+{
+	*this << "command-name";
+}
+
+void CommandArgHelper::activate(void)
+{
+	gchar **argv = (gchar **)&args[0];
+	gint argc = args.size();
+	CommandLineOptions cmdLineOpts;
+	ConfigManager::parseCommandLine(&argc, (gchar ***)&argv, &cmdLineOpts);
+	ConfigManager::reset(&cmdLineOpts);
+}
+
+void CommandArgHelper::operator <<(const char *word)
+{
+	args.push_back(word);
+}
+
+TestModeStone::TestModeStone(void)
+{
+	m_cmdArgHelper << "--test-mode";
+	m_cmdArgHelper.activate();
 }

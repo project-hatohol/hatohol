@@ -36,8 +36,6 @@
 
 class FormulaElement;
 
-typedef std::vector<std::string> CommandLineArg;
-
 static const guint INVALID_EVENT_ID = -1;
 
 class Utils {

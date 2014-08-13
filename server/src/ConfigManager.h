@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -24,18 +24,54 @@
 #include <stdint.h>
 #include "DBClientConfig.h"
 
+struct CommandLineOptions {
+	gchar    *pidFilePath;
+	gchar    *dbServer;
+	gboolean  foreground;
+	gboolean  testMode;
+	gboolean  enableCopyOnDemand;
+	gboolean  disableCopyOnDemand;
+	gint      faceRestPort;
+
+	CommandLineOptions(void);
+};
+
 class ConfigManager {
 public:
+	enum ConfigState {
+		DISABLE,
+		ENABLE,
+		UNKNOWN,
+	};
+
 	static const char *HATOHOL_DB_DIR_ENV_VAR_NAME;
 	static ConfigManager *getInstance(void);
 	static int ALLOW_ACTION_FOR_ALL_OLD_EVENTS;
+	static const char *DEFAULT_PID_FILE_PATH;
 
-	static void reset(void);
+	/**
+	 * Parse the argument.
+	 *
+	 * @param argc A pointer to argc.
+	 * @param argv A pointer to argv.
+	 * @param cmdLineOpt
+	 * The parsed result is stored in this instance.
+	 *
+	 * @return true if the parse succees. Otherwise false is returned.
+	 */
+	static bool parseCommandLine(gint *argc, gchar ***argv,
+	                             CommandLineOptions *cmdLineOpt);
+
+	static void reset(const CommandLineOptions *cmdLineOpt = NULL);
 
 	void getTargetServers(MonitoringServerInfoList &monitoringServers,
 	                      ServerQueryOption &option);
 	const std::string &getDatabaseDirectory(void) const;
 	size_t getNumberOfPreservedReplicaGeneration(void) const;
+
+	bool isForegroundProcess(void) const;
+	std::string getDBServerAddress(void) const;
+	int getDBServerPort(void) const;
 
 	/**
 	 * Get the time to ignore an action for old events.
@@ -52,10 +88,38 @@ public:
 
 	int getMaxNumberOfRunningCommandAction(void);
 
-	static std::string getActionCommandDirectory(void);
-	static void setActionCommandDirectory(const std::string &dir);
-	static std::string getResidentYardDirectory(void);
-	static void setResidentYardDirectory(const std::string &dir);
+	std::string getActionCommandDirectory(void);
+	void setActionCommandDirectory(const std::string &dir);
+	std::string getResidentYardDirectory(void);
+	void setResidentYardDirectory(const std::string &dir);
+
+	bool isTestMode(void) const;
+
+	/**
+	 * Get the flag for copy-on-demand of items.
+	 *
+	 * @retrun
+	 * If --enable-copy-on-deman is specified, ENABLE is returned.
+	 * If --disable-copy-on-deman is specified, DISABLE is returned.
+	 * Otherwise, UNKNOWN is returned.
+	 */
+	ConfigState getCopyOnDemand(void) const;
+
+	/**
+	 * Get the port for FaceRest.
+	 *
+	 * @retrun
+	 * If --face-rest-port <PORT> is specified, it is returned.
+	 * Otherwise, 0 is returned.
+	 */
+	int getFaceRestPort(void) const;
+
+	void setFaceRestPort(const int &port);
+
+	std::string getPidFilePath(void) const;
+
+protected:
+	void loadConfFile(void);
 
 private:
 	struct Impl;

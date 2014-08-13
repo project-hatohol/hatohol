@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -46,7 +46,7 @@ using namespace mlpl;
 static Mutex mutex;
 static bool initDone = false; 
 
-static void init(const CommandLineArg &arg)
+static void init(void)
 {
 	Utils::init();
 	HatoholError::init();
@@ -54,7 +54,7 @@ static void init(const CommandLineArg &arg)
 
 	DBAgentSQLite3::init();
 	DBAgentMySQL::init();
-	DBClientConfig::init(arg);
+	DBClientConfig::init();
 	DBClientUser::init();
 	DBClientHatohol::init();
 	DBClientAction::init();
@@ -66,12 +66,12 @@ static void init(const CommandLineArg &arg)
 	FaceRest::init();
 }
 
-static void reset(const CommandLineArg &arg)
+static void reset(const CommandLineOptions *cmdLineOpts)
 {
 	ChildProcessManager::getInstance()->reset();
 	ActorCollector::reset();
 	SessionManager::reset();
-	ConfigManager::reset();
+	ConfigManager::reset(cmdLineOpts);
 
 	DBAgentSQLite3::reset();
 	DBClient::reset();
@@ -84,19 +84,15 @@ static void reset(const CommandLineArg &arg)
 	CacheServiceDBClient::reset();
 
 	UnifiedDataStore::getInstance()->reset();
-	FaceRest::reset(arg);
 }
 
-void hatoholInit(const CommandLineArg *arg)
+void hatoholInit(const CommandLineOptions *cmdLineOpts)
 {
-	CommandLineArg emptyArg;
-	if (!arg)
-		arg = &emptyArg;
 	mutex.lock();
 	if (!initDone) {
-		init(*arg);
+		init();
 		initDone = true;
 	}
-	reset(*arg);
+	reset(cmdLineOpts);
 	mutex.unlock();
 }
