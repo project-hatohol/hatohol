@@ -82,10 +82,27 @@ do { \
 /*
  * HATOHOL_BUILD_EXPECT(exp,val) emits build failure if
  * compile-time constant expression exp is not equal to val.
- * Otherwise, it returns val.
+ * Otherwise, it just returns exp itself.
  */
+template<typename T>
+struct _BuildError; // The body is not defined to cause an build error
+
+template <typename T, bool COND>
+inline T _buildExpect(T exp)
+{
+	_BuildError<T>("The used value is invalid (unexpected) or the matched specialized template method is not defined.");
+	return exp;
+}
+
+template<>
+inline long unsigned int
+_buildExpect<long unsigned int, true>(long unsigned int exp)
+{
+	return exp;
+}
+
 #define HATOHOL_BUILD_EXPECT(exp,val)	\
-	((val) - 1 + sizeof(char[1 - 2 * !((exp) == (val))]))
+	_buildExpect<__typeof__(exp), (exp == val)>(exp)
 
 /*
  * HATOHOL_BUILD_ASSERT(cond) emits build failure if compile-time
