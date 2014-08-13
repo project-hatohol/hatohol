@@ -80,8 +80,7 @@ typedef std::list<TriggerInfo>          TriggerInfoList;
 typedef TriggerInfoList::iterator       TriggerInfoListIterator;
 typedef TriggerInfoList::const_iterator TriggerInfoListConstIterator;
 
-static const TriggerIdType DISCONNECT_SERVER_TRIGGERID_OK = 0xF0000001;
-static const TriggerIdType DISCONNECT_SERVER_TRIGGERID_NG = 0xF0000002;
+static const TriggerIdType DISCONNECT_SERVER_TRIGGERID_NG = 0xF0000001;
 
 enum EventType {
 	EVENT_TYPE_GOOD,
