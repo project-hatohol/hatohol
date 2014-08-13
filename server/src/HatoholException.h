@@ -82,7 +82,7 @@ do { \
 /*
  * HATOHOL_BUILD_EXPECT(exp,val) emits build failure if
  * compile-time constant expression exp is not equal to val.
- * Otherwise, it returns val.
+ * Otherwise, it just returns exp itself.
  */
 template<typename T>
 struct _BuildError; // The body is not defined to cause an build error
