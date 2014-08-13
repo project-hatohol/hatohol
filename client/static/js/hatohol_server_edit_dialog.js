@@ -111,7 +111,8 @@ var HatoholServerEditDialog = function(params) {
 
     if (type != hatohol.MONITORING_SYSTEM_ZABBIX &&
         type != hatohol.MONITORING_SYSTEM_NAGIOS &&
-        type != hatohol.MONITORING_SYSTEM_HAPI_ZABBIX)
+        type != hatohol.MONITORING_SYSTEM_HAPI_ZABBIX &&
+        type != hatohol.MONITORING_SYSTEM_HAPI_JSON)
     {
       hatoholErrorMsgBox(gettext("Invalid Server type!"));
       return false;
@@ -177,6 +178,8 @@ HatoholServerEditDialog.prototype.createMainElement = function() {
       gettext("Nagios") + '</option>';
     s += '    <option value="' + hatohol.MONITORING_SYSTEM_HAPI_ZABBIX +'">' +
       gettext("Zabbix") + " (HAPI) [" + gettext("experimental") + "]" + '</option>';
+    s += '    <option value="' + hatohol.MONITORING_SYSTEM_HAPI_JSON +'">' +
+      gettext("JSON") + " (HAPI) [" + gettext("experimental") + "]" + '</option>';
     s += '  </select>';
     s += '</form>';
     s += '<form class="form-inline">';
@@ -247,7 +250,8 @@ HatoholServerEditDialog.prototype.onAppendMainElement = function () {
     } else if (type == hatohol.MONITORING_SYSTEM_NAGIOS) {
       self.setDBNameTextState(true);
       self.setHapiParamState(false);
-    } else if (type == hatohol.MONITORING_SYSTEM_HAPI_ZABBIX) {
+    } else if (type == hatohol.MONITORING_SYSTEM_HAPI_ZABBIX ||
+               type == hatohol.MONITORING_SYSTEM_HAPI_JSON) {
       self.setDBNameTextState(false);
       self.setHapiParamState(true);
     }
@@ -365,6 +369,7 @@ HatoholServerEditDialog.prototype.setServer = function(server) {
   $("#inputStaticQueueAddr").val(server.staticQueueAddress);
 
   this.setDBNameTextState(server.type == hatohol.MONITORING_SYSTEM_NAGIOS);
-  this.setHapiParamState(server.type == hatohol.MONITORING_SYSTEM_HAPI_ZABBIX);
+  this.setHapiParamState(server.type == hatohol.MONITORING_SYSTEM_HAPI_ZABBIX ||
+                         server.type == hatohol.MONITORING_SYSTEM_HAPI_JSON);
   this.fixupApplyButtonState();
 };

@@ -734,6 +734,8 @@ bool DBClientConfig::isHatoholArmPlugin(const MonitoringSystemType &type)
 		return true;
 	else if (type == MONITORING_SYSTEM_HAPI_NAGIOS)
 		return true;
+	else if (type == MONITORING_SYSTEM_HAPI_JSON)
+		return true;
 	return false;
 }
 
@@ -1333,7 +1335,8 @@ HatoholError DBClientConfig::preprocForSaveArmPlguinInfo(
 HatoholError DBClientConfig::preprocForSaveArmPlguinInfo(
   const ArmPluginInfo &armPluginInfo, string &condition)
 {
-	if (armPluginInfo.path.empty())
+	if (armPluginInfo.type != MONITORING_SYSTEM_HAPI_JSON &&
+	    armPluginInfo.path.empty())
 		return HTERR_INVALID_ARM_PLUGIN_PATH;
 	if (armPluginInfo.type < MONITORING_SYSTEM_HAPI_ZABBIX) {
 		MLPL_ERR("Invalid type: %d\n", armPluginInfo.type);
