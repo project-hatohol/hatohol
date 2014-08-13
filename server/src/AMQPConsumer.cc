@@ -118,17 +118,17 @@ private:
 	string buildURL(const string brokerUrl)
 	{
 		return string("amqp://") + brokerUrl;
-	};
+	}
 
 	const char *getHost()
 	{
 		return soup_uri_get_host(m_brokerUrl);
-	};
+	}
 
 	guint getPort()
 	{
 		return soup_uri_get_port(m_brokerUrl);
-	};
+	}
 
 	const char *getUser()
 	{
@@ -199,7 +199,7 @@ private:
 		if (!startConsuming())
 			return false;
 		return true;
-	};
+	}
 
 	bool openSocket()
 	{
@@ -221,7 +221,7 @@ private:
 		}
 
 		return true;
-	};
+	}
 
 	bool login()
 	{
@@ -331,7 +331,7 @@ private:
 				 amqp_destroy_connection(m_connection));
 
 		m_connection = NULL;
-	};
+	}
 
 	void disposeChannel()
 	{
