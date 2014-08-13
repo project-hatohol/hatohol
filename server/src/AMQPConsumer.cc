@@ -43,6 +43,10 @@ public:
 	  m_channel(0),
 	  m_envelope()
 	{
+		MLPL_INFO("Broker URL: <%s://%s:%d>\n",
+			  soup_uri_get_scheme(m_brokerUrl),
+			  soup_uri_get_host(m_brokerUrl),
+			  soup_uri_get_port(m_brokerUrl));
 	}
 
 	~AMQPConnection()
