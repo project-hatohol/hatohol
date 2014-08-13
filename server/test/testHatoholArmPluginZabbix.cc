@@ -23,7 +23,7 @@
 #include "HatoholArmPluginGateTest.h"
 #include "ChildProcessManager.h"
 
-namespace test_hatohol_arm_plugin_zabbix {
+namespace testHatoholArmPluginZabbix {
 
 void cut_setup(void)
 {
@@ -55,4 +55,4 @@ void test_launch(void)
 	pluginGate->assertWaitInitiated();
 }
 
-} // namespace test_hatohol_arm_plugin_zabbix
+} // namespace testHatoholArmPluginZabbix
