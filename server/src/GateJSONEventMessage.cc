@@ -108,11 +108,10 @@ private:
 		va_end(ap);
 	}
 
-	bool validateObjectMember(StringList &errors,
-				  const gchar *context,
-				  JsonObject *object,
-				  const gchar *name,
-				  GType expectedValueType)
+	bool validateObjectMemberExistence(StringList &errors,
+					   const gchar *context,
+					   JsonObject *object,
+					   const gchar *name)
 	{
 		JsonNode *memberNode = json_object_get_member(object, name);
 		if (!memberNode) {
@@ -120,6 +119,21 @@ private:
 			return false;
 		}
 
+		return true;
+
+	}
+
+	bool validateObjectMember(StringList &errors,
+				  const gchar *context,
+				  JsonObject *object,
+				  const gchar *name,
+				  GType expectedValueType)
+	{
+		if (!validateObjectMemberExistence(errors, context, object, name)) {
+			return false;
+		}
+		
+		JsonNode *memberNode = json_object_get_member(object, name);
 		GType valueType = json_node_get_value_type(memberNode);
 		if (valueType != expectedValueType) {
 			JsonGenerator *generator = json_generator_new();
@@ -132,6 +146,52 @@ private:
 				 name,
 				 g_type_name(expectedValueType),
 				 g_type_name(valueType),
+				 memberJSON);
+			g_free(memberJSON);
+			return false;
+		}
+
+		return true;
+	}
+
+	bool isValidTimeNode(JsonNode *node)
+	{
+		GType valueType = json_node_get_value_type(node);
+		if (valueType == G_TYPE_DOUBLE) {
+			return true;
+		}
+
+		if (valueType == G_TYPE_STRING) {
+			const gchar *nodeValue = json_node_get_string(node);
+			GTimeVal timeValue;
+			return g_time_val_from_iso8601(nodeValue, &timeValue);
+		}
+
+		return false;
+	}
+
+	bool validateObjectMemberTime(StringList &errors,
+				      const gchar *context,
+				      JsonObject *object,
+				      const gchar *name)
+	{
+		if (!validateObjectMemberExistence(errors, context, object, name)) {
+			return false;
+		}
+
+		JsonNode *memberNode = json_object_get_member(object, name);
+		if (!isValidTimeNode(memberNode)) {
+			JsonGenerator *generator = json_generator_new();
+			json_generator_set_root(generator, memberNode);
+			gchar *memberJSON =
+				json_generator_to_data(generator, NULL);
+			addError(errors,
+				 "%s.%s must be "
+				 "UNIX time in double or "
+				 "ISO 8601 string: "
+				 "<%s>",
+				 context,
+				 name,
 				 memberJSON);
 			g_free(memberJSON);
 			return false;
@@ -174,12 +234,18 @@ private:
 					    expectedValueType);
 	}
 
+	bool validateBodyMemberTime(StringList &errors,
+				    JsonObject *body,
+				    const gchar *name)
+	{
+		return validateObjectMemberTime(errors, "$.body", body, name);
+	}
+
 	bool validateEventBody(StringList &errors, JsonObject *body)
 	{
 		if (!validateBodyMember(errors, body, "id", G_TYPE_INT64))
 			return false;
-		if (!validateBodyMember(errors, body,
-					"timestamp", G_TYPE_DOUBLE))
+		if (!validateBodyMemberTime(errors, body, "timestamp"))
 			return false;
 		if (!validateBodyMember(errors, body, "hostName", G_TYPE_STRING))
 			return false;

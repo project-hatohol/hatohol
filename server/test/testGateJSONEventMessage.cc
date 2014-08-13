@@ -197,6 +197,25 @@ namespace validate {
 			       "}\n");
 	}
 
+	void test_invalidTimestamp(void)
+	{
+		assertValidate(gcut_take_new_list_string(
+				       "$.body.timestamp must be "
+				       "UNIX time in double or "
+				       "ISO 8601 string: "
+				       "<\"invalid timestamp\">",
+				       NULL),
+			       "{\n"
+			       "  \"type\": \"event\"\n,"
+			       "  \"body\": {\n"
+			       "    \"id\":        1,\n"
+			       "    \"timestamp\": \"invalid timestamp\",\n"
+			       "    \"hostName\":  \"www.example.com\",\n"
+			       "    \"content\":   \"Error!\"\n"
+			       "  }\n"
+			       "}\n");
+	}
+
 	void test_noHostname(void)
 	{
 		assertValidate(gcut_take_new_list_string(
