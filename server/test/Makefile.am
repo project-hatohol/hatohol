@@ -74,7 +74,7 @@ testHatohol_la_SOURCES = \
 	testUsedCountable.cc \
 	testUnifiedDataStore.cc testMain.cc \
 	testZabbixAPI.cc \
-	test_hatohol-arm-plugin-zabbix.cc
+	testHatoholArmPluginZabbix.cc
 
 if HAVE_LIBRABBITMQ
 testHatohol_la_SOURCES += \
