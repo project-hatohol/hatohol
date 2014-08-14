@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -49,7 +49,7 @@ private:
 	 * only as a stack variable. The following as a private makes it
 	 * impossible to allocate an instance with a 'new' operator.
 	 */
-	static void *operator new(size_t) {return NULL;}
+	static void *operator new(size_t);
 
 	struct Impl;
 
