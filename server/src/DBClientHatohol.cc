@@ -1664,7 +1664,7 @@ HatoholError DBClientHatohol::getEventInfoList(
 	builder.add(IDX_EVENTS_TRIGGER_ID);
 
 	builder.addTable(
-	  tableProfileTriggers, DBClientJoinBuilder::INNER_JOIN,
+	  tableProfileTriggers, DBClientJoinBuilder::LEFT_JOIN,
 	  tableProfileEvents, IDX_EVENTS_SERVER_ID, IDX_TRIGGERS_SERVER_ID,
 	  tableProfileEvents, IDX_EVENTS_TRIGGER_ID, IDX_TRIGGERS_ID);
 	builder.add(IDX_TRIGGERS_STATUS);
@@ -1698,17 +1698,7 @@ HatoholError DBClientHatohol::getEventInfoList(
 	if (isAlwaysFalseCondition(optCond))
 		return HatoholError(HTERR_OK);
 
-	arg.condition = StringUtils::sprintf(
-	  "%s=%s",
-	  SQLUtils::getFullName(COLUMN_DEF_EVENTS,
-	                        IDX_EVENTS_SERVER_ID).c_str(),
-	  SQLUtils::getFullName(COLUMN_DEF_TRIGGERS,
-	                        IDX_TRIGGERS_SERVER_ID).c_str());
-
-	if (!optCond.empty()) {
-		arg.condition += " AND ";
-		arg.condition += optCond;
-	}
+	arg.condition = optCond;
 
 	// Order By
 	arg.orderBy = option.getOrderBy();
