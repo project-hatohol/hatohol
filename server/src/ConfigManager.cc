@@ -148,7 +148,7 @@ struct ConfigManager::Impl {
 			MLPL_CRIT("Failed to call g_key_file_new().\n");
 			return false;
 		}
-		Reaper<GKeyFile> keyFileReaper(keyFile, g_key_file_unref);
+		Reaper<GKeyFile> keyFileReaper(keyFile, g_key_file_free);
 
 		GError *error = NULL;
 		gboolean succeeded =
