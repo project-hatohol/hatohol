@@ -60,12 +60,25 @@ struct GateJSONEventMessage::Impl
 
 	timespec getTimestamp()
 	{
-		gdouble rawTimestamp =
-			json_object_get_double_member(getBody(), "timestamp");
 		timespec timestamp;
-		timestamp.tv_sec = static_cast<time_t>(rawTimestamp);
-		timestamp.tv_nsec =
-			secondToNanoSecond(fmod(rawTimestamp, 1.0));
+		JsonNode *timestampNode =
+			json_object_get_member(getBody(), "timestamp");
+		GType type = json_node_get_value_type(timestampNode);
+		if (type == G_TYPE_DOUBLE) {
+			gdouble rawTimestamp =
+				json_node_get_double(timestampNode);
+			timestamp.tv_sec = static_cast<time_t>(rawTimestamp);
+			timestamp.tv_nsec =
+				secondToNanoSecond(fmod(rawTimestamp, 1.0));
+		} else {
+			const gchar *rawTimestamp =
+				json_node_get_string(timestampNode);
+			GTimeVal timeValue;
+			g_time_val_from_iso8601(rawTimestamp, &timeValue);
+			timestamp.tv_sec = timeValue.tv_sec;
+			timestamp.tv_nsec =
+				microSecondToNanoSecond(timeValue.tv_usec);
+		}
 		return timestamp;
 	}
 
@@ -97,6 +110,11 @@ private:
 		return second * 1000000000;
 	}
 
+	long microSecondToNanoSecond(long microSecond)
+	{
+		return microSecond * 1000;
+	}
+
 	void addError(StringList &errors,
 		      const char *format,
 		      ...)
@@ -108,11 +126,10 @@ private:
 		va_end(ap);
 	}
 
-	bool validateObjectMember(StringList &errors,
-				  const gchar *context,
-				  JsonObject *object,
-				  const gchar *name,
-				  GType expectedValueType)
+	bool validateObjectMemberExistence(StringList &errors,
+					   const gchar *context,
+					   JsonObject *object,
+					   const gchar *name)
 	{
 		JsonNode *memberNode = json_object_get_member(object, name);
 		if (!memberNode) {
@@ -120,6 +137,21 @@ private:
 			return false;
 		}
 
+		return true;
+
+	}
+
+	bool validateObjectMember(StringList &errors,
+				  const gchar *context,
+				  JsonObject *object,
+				  const gchar *name,
+				  GType expectedValueType)
+	{
+		if (!validateObjectMemberExistence(errors, context, object, name)) {
+			return false;
+		}
+		
+		JsonNode *memberNode = json_object_get_member(object, name);
 		GType valueType = json_node_get_value_type(memberNode);
 		if (valueType != expectedValueType) {
 			JsonGenerator *generator = json_generator_new();
@@ -132,6 +164,52 @@ private:
 				 name,
 				 g_type_name(expectedValueType),
 				 g_type_name(valueType),
+				 memberJSON);
+			g_free(memberJSON);
+			return false;
+		}
+
+		return true;
+	}
+
+	bool isValidTimeNode(JsonNode *node)
+	{
+		GType valueType = json_node_get_value_type(node);
+		if (valueType == G_TYPE_DOUBLE) {
+			return true;
+		}
+
+		if (valueType == G_TYPE_STRING) {
+			const gchar *nodeValue = json_node_get_string(node);
+			GTimeVal timeValue;
+			return g_time_val_from_iso8601(nodeValue, &timeValue);
+		}
+
+		return false;
+	}
+
+	bool validateObjectMemberTime(StringList &errors,
+				      const gchar *context,
+				      JsonObject *object,
+				      const gchar *name)
+	{
+		if (!validateObjectMemberExistence(errors, context, object, name)) {
+			return false;
+		}
+
+		JsonNode *memberNode = json_object_get_member(object, name);
+		if (!isValidTimeNode(memberNode)) {
+			JsonGenerator *generator = json_generator_new();
+			json_generator_set_root(generator, memberNode);
+			gchar *memberJSON =
+				json_generator_to_data(generator, NULL);
+			addError(errors,
+				 "%s.%s must be "
+				 "UNIX time in double or "
+				 "ISO 8601 string: "
+				 "<%s>",
+				 context,
+				 name,
 				 memberJSON);
 			g_free(memberJSON);
 			return false;
@@ -174,12 +252,18 @@ private:
 					    expectedValueType);
 	}
 
+	bool validateBodyMemberTime(StringList &errors,
+				    JsonObject *body,
+				    const gchar *name)
+	{
+		return validateObjectMemberTime(errors, "$.body", body, name);
+	}
+
 	bool validateEventBody(StringList &errors, JsonObject *body)
 	{
 		if (!validateBodyMember(errors, body, "id", G_TYPE_INT64))
 			return false;
-		if (!validateBodyMember(errors, body,
-					"timestamp", G_TYPE_DOUBLE))
+		if (!validateBodyMemberTime(errors, body, "timestamp"))
 			return false;
 		if (!validateBodyMember(errors, body, "hostName", G_TYPE_STRING))
 			return false;
