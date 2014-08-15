@@ -535,7 +535,7 @@ void DBAgentSQLite3::insert(sqlite3 *db, const DBAgent::InsertArg &insertArg)
 
 	// make a SQL statement
 	string sql = "INSERT ";
-	if (insertArg.upsert)
+	if (insertArg.upsertOnDuplicate)
 		sql += "OR REPLACE ";
 	sql += "INTO ";
 	sql += insertArg.tableProfile.name;

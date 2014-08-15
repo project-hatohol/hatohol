@@ -360,18 +360,18 @@ void DBAgentMySQL::insert(const DBAgent::InsertArg &insertArg)
 		  insertArg.tableProfile.columnDefs[i];
 		if (i > 0) {
 			query += ",";
-			if (insertArg.upsert)
+			if (insertArg.upsertOnDuplicate)
 				upsertOpt += ",";
 		}
 		string value = valueMaker(insertArg, i, &m_impl->mysql);
 		query += value;
-		if (insertArg.upsert) {
+		if (insertArg.upsertOnDuplicate) {
 			upsertOpt += sprintf("%s=%s", columnDef.columnName,
 			                     value.c_str());
 		}
 	}
 	query += ")";
-	if (insertArg.upsert) {
+	if (insertArg.upsertOnDuplicate) {
 		query += " ON DUPLICATE KEY UPDATE ";
 		query += upsertOpt;
 	}

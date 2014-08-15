@@ -169,11 +169,11 @@ static ItemDataNullFlagType calcNullFlag(set<size_t> *nullIndexes, size_t idx)
 
 struct CheckInsertExArg {
 	set<size_t> *nullIndexes;
-	bool         upsert;
+	bool         upsertOnDuplicate;
 
 	CheckInsertExArg(void)
 	: nullIndexes(NULL),
-	  upsert(false)
+	  upsertOnDuplicate(false)
 	{
 	}
 };
@@ -194,7 +194,7 @@ static void checkInsert(DBAgent &dbAgent, DBAgentChecker &checker,
 	arg.row->addNewItem(height, calcNullFlag(nullIndexes, idx++));
 	arg.row->addNewItem(CURR_DATETIME, calcNullFlag(nullIndexes, idx++));
 	if (exarg)
-		arg.upsert = exarg->upsert;
+		arg.upsertOnDuplicate = exarg->upsertOnDuplicate;
 	dbAgent.insert(arg);
 	checker.assertExistingRecord(id, age, name, height, CURR_DATETIME,
 	                             NUM_COLUMNS_TEST, COLUMN_DEF_TEST,
@@ -360,7 +360,7 @@ void dbAgentTestUpsert(DBAgent &dbAgent, DBAgentChecker &checker)
 	CheckInsertExArg exarg;
 	AGE = 33;
 	HEIGHT = 172.5;
-	exarg.upsert = true;
+	exarg.upsertOnDuplicate = true;
 	checkInsert(dbAgent, checker, ID, AGE, NAME, HEIGHT, &exarg);
 }
 
