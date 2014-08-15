@@ -455,6 +455,12 @@ void test_insertNull(void)
 	dbAgentTestInsertNull(dbAgent, dbAgentChecker);
 }
 
+void test_upsert(void)
+{
+	DBAgentSQLite3 dbAgent;
+	dbAgentTestUpsert(dbAgent, dbAgentChecker);
+}
+
 void test_update(void)
 {
 	DBAgentSQLite3 dbAgent;
