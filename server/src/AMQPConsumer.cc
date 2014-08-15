@@ -19,7 +19,6 @@
 
 #include "AMQPConsumer.h"
 #include "AMQPMessageHandler.h"
-#include <cstring>
 #include <Logger.h>
 #include <StringUtils.h>
 #include <amqp_tcp_socket.h>
@@ -118,9 +117,7 @@ private:
 
 	bool havePrefix(const string &target, const string &prefix)
 	{
-		return strncmp(target.c_str(),
-			       prefix.c_str(),
-			       prefix.length()) == 0;
+		return target.compare(0, prefix.length(), prefix) == 0;
 	}
 
 	string buildURL(const string &brokerUrl)
