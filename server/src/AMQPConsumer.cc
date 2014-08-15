@@ -19,6 +19,7 @@
 
 #include "AMQPConsumer.h"
 #include "AMQPMessageHandler.h"
+#include <cstring>
 #include <Logger.h>
 #include <StringUtils.h>
 #include <amqp_tcp_socket.h>
@@ -115,8 +116,19 @@ private:
 	amqp_channel_t m_channel;
 	amqp_envelope_t m_envelope;
 
-	string buildURL(const string brokerUrl)
+	bool havePrefix(const string &target, const string &prefix)
 	{
+		return strncmp(target.c_str(),
+			       prefix.c_str(),
+			       prefix.length()) == 0;
+	}
+
+	string buildURL(const string &brokerUrl)
+	{
+		if (havePrefix(brokerUrl, "amqp://"))
+			return brokerUrl;
+		if (havePrefix(brokerUrl, "amqps://"))
+			return brokerUrl;
 		return string("amqp://") + brokerUrl;
 	}
 
