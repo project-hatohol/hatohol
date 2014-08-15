@@ -95,7 +95,7 @@ public:
 	struct InsertArg {
 		const TableProfile   &tableProfile;
 		VariableItemGroupPtr  row;
-		const int            *upsertIndexes;
+		bool                  upsert;
 
 		InsertArg(const TableProfile &tableProfile);
 		void add(const int         &val,

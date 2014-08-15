@@ -344,6 +344,7 @@ void DBAgentMySQL::insert(const DBAgent::InsertArg &insertArg)
 	               "numColumn: %zd != row: %zd",
 	               numColumns, insertArg.row->getNumberOfItems());
 
+	string upsertOpt;
 	string query = StringUtils::sprintf("INSERT INTO %s (",
 	                                    insertArg.tableProfile.name);
 	for (size_t i = 0; i < numColumns; i++) {
@@ -355,30 +356,25 @@ void DBAgentMySQL::insert(const DBAgent::InsertArg &insertArg)
 	}
 	query += ") VALUES (";
 	for (size_t i = 0; i < numColumns; i++) {
-		if (i > 0)
+		const ColumnDef &columnDef =
+		  insertArg.tableProfile.columnDefs[i];
+		if (i > 0) {
 			query += ",";
-		query += valueMaker(insertArg, i, &m_impl->mysql);
-	}
-	query += ")";
-
-	if (insertArg.upsertIndexes) {
-		query += " ON DUPLICATE KEY UPDATE ";
-		const int *idxPtr = insertArg.upsertIndexes;
-		bool first = true;
-		for (; *idxPtr >= 0; ++idxPtr) {
-			const ColumnDef &columnDef =
-			  insertArg.tableProfile.columnDefs[*idxPtr];
-			if (first)
-				first = false;
-			else
-				query += ",";
-			string val = valueMaker(insertArg, *idxPtr,
-			                        &m_impl->mysql);
-			query += sprintf("%s=%s",
-			                 columnDef.columnName, val.c_str());
+			if (insertArg.upsert)
+				upsertOpt += ",";
+		}
+		string value = valueMaker(insertArg, i, &m_impl->mysql);
+		query += value;
+		if (insertArg.upsert) {
+			upsertOpt += sprintf("%s=%s", columnDef.columnName,
+			                     value.c_str());
 		}
 	}
-
+	query += ")";
+	if (insertArg.upsert) {
+		query += " ON DUPLICATE KEY UPDATE ";
+		query += upsertOpt;
+	}
 	execSql(query);
 }
 
