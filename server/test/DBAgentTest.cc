@@ -358,6 +358,8 @@ void dbAgentTestUpsert(DBAgent &dbAgent, DBAgentChecker &checker)
 	checkInsert(dbAgent, checker, ID, AGE, NAME, HEIGHT);
 
 	CheckInsertExArg exarg;
+	AGE = 33;
+	HEIGHT = 172.5;
 	exarg.upsert = true;
 	checkInsert(dbAgent, checker, ID, AGE, NAME, HEIGHT, &exarg);
 }
