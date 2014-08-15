@@ -115,8 +115,17 @@ private:
 	amqp_channel_t m_channel;
 	amqp_envelope_t m_envelope;
 
-	string buildURL(const string brokerUrl)
+	bool havePrefix(const string &target, const string &prefix)
 	{
+		return target.compare(0, prefix.length(), prefix) == 0;
+	}
+
+	string buildURL(const string &brokerUrl)
+	{
+		if (havePrefix(brokerUrl, "amqp://"))
+			return brokerUrl;
+		if (havePrefix(brokerUrl, "amqps://"))
+			return brokerUrl;
 		return string("amqp://") + brokerUrl;
 	}
 
