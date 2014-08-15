@@ -552,6 +552,12 @@ void test_insertNull(void)
 	dbAgentTestInsertNull(*g_dbAgent, dbAgentChecker);
 }
 
+void test_upsert(void)
+{
+	createGlobalDBAgent();
+	dbAgentTestUpsert(*g_dbAgent, dbAgentChecker);
+}
+
 void test_update(void)
 {
 	createGlobalDBAgent();

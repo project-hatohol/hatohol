@@ -534,7 +534,10 @@ void DBAgentSQLite3::insert(sqlite3 *db, const DBAgent::InsertArg &insertArg)
 	               numColumns, insertArg.tableProfile.numColumns);
 
 	// make a SQL statement
-	string sql = "INSERT INTO ";
+	string sql = "INSERT ";
+	if (insertArg.upsertOnDuplicate)
+		sql += "OR REPLACE ";
+	sql += "INTO ";
 	sql += insertArg.tableProfile.name;
 	sql += " VALUES (";
 	for (size_t i = 0; i < numColumns; i++) {

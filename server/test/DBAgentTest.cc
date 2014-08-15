@@ -167,10 +167,25 @@ static ItemDataNullFlagType calcNullFlag(set<size_t> *nullIndexes, size_t idx)
 	return ITEM_DATA_NULL;
 }
 
+struct CheckInsertExArg {
+	set<size_t> *nullIndexes;
+	bool         upsertOnDuplicate;
+
+	CheckInsertExArg(void)
+	: nullIndexes(NULL),
+	  upsertOnDuplicate(false)
+	{
+	}
+};
+
 static void checkInsert(DBAgent &dbAgent, DBAgentChecker &checker,
                         uint64_t id, int age, const char *name, double height,
-                        set<size_t> *nullIndexes = NULL)
+                        CheckInsertExArg *exarg = NULL)
 {
+	set<size_t> *nullIndexes = NULL;
+	if (exarg)
+		nullIndexes = exarg->nullIndexes;
+
 	DBAgent::InsertArg arg(tableProfileTest);
 	size_t idx = 0;
 	arg.row->addNewItem(id, calcNullFlag(nullIndexes, idx++));
@@ -178,8 +193,9 @@ static void checkInsert(DBAgent &dbAgent, DBAgentChecker &checker,
 	arg.row->addNewItem(name, calcNullFlag(nullIndexes, idx++));
 	arg.row->addNewItem(height, calcNullFlag(nullIndexes, idx++));
 	arg.row->addNewItem(CURR_DATETIME, calcNullFlag(nullIndexes, idx++));
+	if (exarg)
+		arg.upsertOnDuplicate = exarg->upsertOnDuplicate;
 	dbAgent.insert(arg);
-
 	checker.assertExistingRecord(id, age, name, height, CURR_DATETIME,
 	                             NUM_COLUMNS_TEST, COLUMN_DEF_TEST,
 	                             nullIndexes);
@@ -324,7 +340,28 @@ void dbAgentTestInsertNull(DBAgent &dbAgent, DBAgentChecker &checker)
 	set<size_t> nullIndexes;
 	nullIndexes.insert(IDX_TEST_TABLE_AGE);
 	nullIndexes.insert(IDX_TEST_TABLE_HEIGHT);
-	checkInsert(dbAgent, checker, ID, AGE, NAME, HEIGHT, &nullIndexes);
+	CheckInsertExArg exarg;
+	exarg.nullIndexes = &nullIndexes;
+	checkInsert(dbAgent, checker, ID, AGE, NAME, HEIGHT, &exarg);
+}
+
+void dbAgentTestUpsert(DBAgent &dbAgent, DBAgentChecker &checker)
+{
+	// create table
+	dbAgentTestCreateTable(dbAgent, checker);
+
+	// insert a row
+	const uint64_t ID = 1;
+	int AGE = 14;
+	const char *NAME = "rei";
+	double HEIGHT = 158.2;
+	checkInsert(dbAgent, checker, ID, AGE, NAME, HEIGHT);
+
+	CheckInsertExArg exarg;
+	AGE = 33;
+	HEIGHT = 172.5;
+	exarg.upsertOnDuplicate = true;
+	checkInsert(dbAgent, checker, ID, AGE, NAME, HEIGHT, &exarg);
 }
 
 void dbAgentTestUpdate(DBAgent &dbAgent, DBAgentChecker &checker)

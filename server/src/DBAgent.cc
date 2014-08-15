@@ -127,7 +127,8 @@ DBAgent::RowElement::RowElement(const size_t &index, const ItemData *itemData,
 // DBAgent::InsertArg
 // ---------------------------------------------------------------------------
 DBAgent::InsertArg::InsertArg(const TableProfile &profile)
-: tableProfile(profile)
+: tableProfile(profile),
+  upsertOnDuplicate(false)
 {
 }
 
