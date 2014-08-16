@@ -19,23 +19,21 @@
 
 #include "AMQPConsumer.h"
 #include "AMQPMessageHandler.h"
+#include <unistd.h>
 #include <Logger.h>
 #include <StringUtils.h>
 #include <amqp_tcp_socket.h>
-#include <libsoup/soup.h>
 
 using namespace std;
 using namespace mlpl;
 
 static const time_t  DEFAULT_TIMEOUT  = 1;
-static const char   *DEFAULT_USER     = "guest";
-static const char   *DEFAULT_PASSWORD = "guest";
 
 class AMQPConnection {
 public:
 	AMQPConnection(const string &brokerUrl,
 		       const string &queueAddress)
-	: m_brokerUrl(soup_uri_new(buildURL(brokerUrl).c_str())),
+	: m_connectionInfo(),
 	  m_queueAddress(queueAddress),
 	  m_timeout(DEFAULT_TIMEOUT),
 	  m_connection(NULL),
@@ -43,15 +41,29 @@ public:
 	  m_channel(0),
 	  m_envelope()
 	{
-		MLPL_INFO("Broker URL: <%s://%s:%d>\n",
-			  soup_uri_get_scheme(m_brokerUrl),
-			  soup_uri_get_host(m_brokerUrl),
-			  soup_uri_get_port(m_brokerUrl));
+		amqp_default_connection_info(&m_connectionInfo);
+		int status = amqp_parse_url(const_cast<char *>(buildURL(brokerUrl).c_str()),
+					    &m_connectionInfo);
+		if (status == AMQP_STATUS_OK) {
+			const char *scheme;
+			if (m_connectionInfo.ssl) {
+				scheme = "amqps";
+			} else {
+				scheme = "amqp";
+			}
+			MLPL_INFO("Broker URL: <%s://%s:%d>\n",
+				  scheme,
+				  m_connectionInfo.host,
+				  m_connectionInfo.port);
+		} else {
+			MLPL_ERR("Bad broker URL: %s: <%s>\n",
+				 amqp_error_string2(status),
+				 brokerUrl.c_str());
+		}
 	}
 
 	~AMQPConnection()
 	{
-		soup_uri_free(m_brokerUrl);
 		amqp_destroy_envelope(&m_envelope);
 		disposeConnection();
 	}
@@ -107,7 +119,7 @@ public:
 
 
 private:
-	SoupURI *m_brokerUrl;
+	struct amqp_connection_info m_connectionInfo;
 	string m_queueAddress;
 	time_t m_timeout;
 	amqp_connection_state_t m_connection;
@@ -131,32 +143,22 @@ private:
 
 	const char *getHost()
 	{
-		return soup_uri_get_host(m_brokerUrl);
+		return m_connectionInfo.host;
 	}
 
 	guint getPort()
 	{
-		return soup_uri_get_port(m_brokerUrl);
+		return m_connectionInfo.port;
 	}
 
 	const char *getUser()
 	{
-		const char *user;
-		user = soup_uri_get_user(m_brokerUrl);
-		if (!user) {
-			user = DEFAULT_USER;
-		}
-		return user;
+		return m_connectionInfo.user;
 	}
 
 	const char *getPassword()
 	{
-		const char *password;
-		password = soup_uri_get_password(m_brokerUrl);
-		if (!password) {
-			password = DEFAULT_PASSWORD;
-		}
-		return password;
+		return m_connectionInfo.password;
 	}
 
 	void logErrorResponse(const char *context, int status)
