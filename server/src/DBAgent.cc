@@ -298,6 +298,18 @@ DBAgent::AddColumnsArg::AddColumnsArg(const TableProfile &profile)
 }
 
 // ---------------------------------------------------------------------------
+// TransactionProc
+// ---------------------------------------------------------------------------
+bool DBAgent::TransactionProc::preproc(DBAgent &dbAgent)
+{
+	return true;
+}
+
+void DBAgent::TransactionProc::postproc(DBAgent &dbAgent)
+{
+}
+
+// ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 void DBAgent::addSetupFunction(DBDomainId domainId,
@@ -411,6 +423,52 @@ void DBAgent::fixupIndexes(
 		dropIndex(indexInfo.name, indexInfo.tableName);
 		ctx.indexSqlInfoMap.erase(it);
 	}
+}
+
+void DBAgent::transaction(TransactionProc &proc)
+{
+	if (!proc.preproc(*this))
+		return;
+	begin();
+	try {
+		proc(*this);
+	} catch(...) {
+		rollback();
+		throw;
+	};
+	commit();
+	proc.postproc(*this);
+}
+
+template <typename T>
+struct TrxInsert : public DBAgent::TransactionProc {
+	const DBAgent::InsertArg &arg;
+	T *id;
+
+	TrxInsert(const DBAgent::InsertArg &_arg, T *_id)
+	: arg(_arg),
+	  id(_id)
+	{
+	}
+
+	void operator ()(DBAgent &dbAgent) override
+	{
+		dbAgent.insert(arg);
+		if (id)
+			*id = dbAgent.getLastInsertId();
+	}
+};
+
+void DBAgent::transaction(const InsertArg &arg, int *id)
+{
+	TrxInsert<int> trx(arg, id);
+	transaction(trx);
+}
+
+void DBAgent::transaction(const InsertArg &arg, uint64_t *id)
+{
+	TrxInsert<uint64_t> trx(arg, id);
+	transaction(trx);
 }
 
 // ---------------------------------------------------------------------------

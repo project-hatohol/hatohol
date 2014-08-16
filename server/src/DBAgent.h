@@ -258,6 +258,73 @@ public:
 
 	virtual const DBTermCodec *getDBTermCodec(void) const;
 
+	struct TransactionProc {
+		/**
+		 * This method is called before the transaction.
+		 * @return
+		 * If false is returned, transaction() immediately returns
+		 * without doing a transaction and calling postproc().
+		 */
+		virtual bool preproc(DBAgent &dbAgent);
+
+		/**
+		 * This method is called after the transaction.
+		 */
+		virtual void postproc(DBAgent &dbAgent);
+
+		virtual void operator ()(DBAgent &dbAgent) = 0;
+	};
+
+	void transaction(TransactionProc &proc);
+
+	template <typename T, void (DBAgent::*OPERATION)(const T &)>
+	void _transaction(T &arg)
+	{
+		struct TrxProc : public DBAgent::TransactionProc {
+			T &arg;
+			TrxProc(T &_arg)
+			: arg(_arg)
+			{
+			}
+	
+			void operator ()(DBAgent &dbAgent) override
+			{
+				(dbAgent.*OPERATION)(arg);
+			}
+		} trx(arg);
+		transaction(trx);
+	}
+
+	void transaction(const SelectArg &arg)
+	{
+		_transaction<const SelectArg, &DBAgent::select>(arg);
+	}
+
+	void transaction(const SelectExArg &arg)
+	{
+		_transaction<const SelectExArg, &DBAgent::select>(arg);
+	}
+
+	void transaction(const UpdateArg &arg)
+	{
+		_transaction<const UpdateArg, &DBAgent::update>(arg);
+	}
+
+	void transaction(const DeleteArg &arg)
+	{
+		_transaction<const DeleteArg, &DBAgent::deleteRows>(arg);
+	}
+
+	/**
+	 * Insert rows in transaction.
+	 *
+	 * @param arg An InsertArg instance.
+	 * @param id
+	 * If this is not NULL, the lastly inserted row ID is returned.
+	 */
+	void transaction(const InsertArg &arg, int *id = NULL);
+	void transaction(const InsertArg &arg, uint64_t *id = NULL);
+
 protected:
 	static std::string makeSelectStatement(const SelectArg &selectArg);
 	static std::string makeSelectStatement(const SelectExArg &selectExArg);
