@@ -162,11 +162,27 @@ static ItemDataNullFlagType calcNullFlag(set<size_t> *nullIndexes, size_t idx)
 	return ITEM_DATA_NULL;
 }
 
-struct CheckInsertExArg {
+struct TestValues {
+	uint64_t     id;
+	int          age;
+	const char  *name;
+	double       height;
+
+	TestValues(void)
+	: id(-1),
+	  age(-1),
+	  name(NULL),
+	  height(0)
+	{
+	}
+};
+
+struct CheckInsertParam {
+	TestValues   val;
 	set<size_t> *nullIndexes;
 	bool         upsertOnDuplicate;
 
-	CheckInsertExArg(void)
+	CheckInsertParam(void)
 	: nullIndexes(NULL),
 	  upsertOnDuplicate(false)
 	{
@@ -174,26 +190,23 @@ struct CheckInsertExArg {
 };
 
 static void checkInsert(DBAgent &dbAgent, DBAgentChecker &checker,
-                        uint64_t id, int age, const char *name, double height,
-                        CheckInsertExArg *exarg = NULL)
+                        const CheckInsertParam &param)
 {
-	set<size_t> *nullIndexes = NULL;
-	if (exarg)
-		nullIndexes = exarg->nullIndexes;
-
+	set<size_t> *nullIndexes = param.nullIndexes;
 	DBAgent::InsertArg arg(tableProfileTest);
 	size_t idx = 0;
-	arg.row->addNewItem(id, calcNullFlag(nullIndexes, idx++));
-	arg.row->addNewItem(age, calcNullFlag(nullIndexes, idx++));
-	arg.row->addNewItem(name, calcNullFlag(nullIndexes, idx++));
-	arg.row->addNewItem(height, calcNullFlag(nullIndexes, idx++));
+	arg.row->addNewItem(param.val.id,     calcNullFlag(nullIndexes, idx++));
+	arg.row->addNewItem(param.val.age,    calcNullFlag(nullIndexes, idx++));
+	arg.row->addNewItem(param.val.name,   calcNullFlag(nullIndexes, idx++));
+	arg.row->addNewItem(param.val.height, calcNullFlag(nullIndexes, idx++));
 	arg.row->addNewItem(CURR_DATETIME, calcNullFlag(nullIndexes, idx++));
-	if (exarg)
-		arg.upsertOnDuplicate = exarg->upsertOnDuplicate;
+	arg.upsertOnDuplicate = param.upsertOnDuplicate;
 	dbAgent.insert(arg);
-	checker.assertExistingRecord(id, age, name, height, CURR_DATETIME,
-	                             NUM_COLUMNS_TEST, COLUMN_DEF_TEST,
-	                             nullIndexes);
+
+	const TestValues *expect = &param.val;
+	checker.assertExistingRecord(
+	  expect->id, expect->age, expect->name, expect->height, CURR_DATETIME,
+	  NUM_COLUMNS_TEST, COLUMN_DEF_TEST, nullIndexes);
 }
 
 static void checkUpdate(DBAgent &dbAgent, DBAgentChecker &checker,
@@ -304,12 +317,12 @@ void dbAgentTestInsert(DBAgent &dbAgent, DBAgentChecker &checker)
 	dbAgentTestCreateTable(dbAgent, checker);
 
 	// insert a row
-	const uint64_t ID = 1;
-	const int AGE = 14;
-	const char *NAME = "rei";
-	const double HEIGHT = 158.2;
-
-	checkInsert(dbAgent, checker, ID, AGE, NAME, HEIGHT);
+	CheckInsertParam param;
+	param.val.id     = 1;
+	param.val.age    = 14;
+	param.val.name   = "rei";
+	param.val.height = 158.2;
+	checkInsert(dbAgent, checker, param);
 }
 
 void dbAgentTestInsertUint64
@@ -319,11 +332,12 @@ void dbAgentTestInsertUint64
 	dbAgentTestCreateTable(dbAgent, checker);
 
 	// insert a row
-	const int AGE = 14;
-	const char *NAME = "rei";
-	const double HEIGHT = 158.2;
-
-	checkInsert(dbAgent, checker, id, AGE, NAME, HEIGHT);
+	CheckInsertParam param;
+	param.val.id     = id;
+	param.val.age    = 14;
+	param.val.name   = "rei";
+	param.val.height = 158.2;
+	checkInsert(dbAgent, checker, param);
 }
 
 void dbAgentTestInsertNull(DBAgent &dbAgent, DBAgentChecker &checker)
@@ -332,16 +346,18 @@ void dbAgentTestInsertNull(DBAgent &dbAgent, DBAgentChecker &checker)
 	dbAgentTestCreateTable(dbAgent, checker);
 
 	// insert a row
-	const uint64_t ID = 999;
-	const int AGE = 0;       // we set NULL for this column
-	const char *NAME = "taro";
-	const double HEIGHT = 0; // we set NULL for this column
+	CheckInsertParam param;
+	param.val.id     = 999;
+	param.val.age    = 0; // we set NULL for this column later
+	param.val.name   = "rei";
+	param.val.height = 0; // we set NULL for this column later
+
 	set<size_t> nullIndexes;
 	nullIndexes.insert(IDX_TEST_TABLE_AGE);
 	nullIndexes.insert(IDX_TEST_TABLE_HEIGHT);
-	CheckInsertExArg exarg;
-	exarg.nullIndexes = &nullIndexes;
-	checkInsert(dbAgent, checker, ID, AGE, NAME, HEIGHT, &exarg);
+	param.nullIndexes = &nullIndexes;
+
+	checkInsert(dbAgent, checker, param);
 }
 
 void dbAgentTestUpsert(DBAgent &dbAgent, DBAgentChecker &checker)
@@ -350,17 +366,17 @@ void dbAgentTestUpsert(DBAgent &dbAgent, DBAgentChecker &checker)
 	dbAgentTestCreateTable(dbAgent, checker);
 
 	// insert a row
-	const uint64_t ID = 1;
-	int AGE = 14;
-	const char *NAME = "rei";
-	double HEIGHT = 158.2;
-	checkInsert(dbAgent, checker, ID, AGE, NAME, HEIGHT);
+	CheckInsertParam param;
+	param.val.id     = 1;
+	param.val.age    = 14;
+	param.val.name   = "rei";
+	param.val.height = 158.2;
+	checkInsert(dbAgent, checker, param);
 
-	CheckInsertExArg exarg;
-	AGE = 33;
-	HEIGHT = 172.5;
-	exarg.upsertOnDuplicate = true;
-	checkInsert(dbAgent, checker, ID, AGE, NAME, HEIGHT, &exarg);
+	param.val.age    = 33;
+	param.val.height = 172.5;
+	param.upsertOnDuplicate = true;
+	checkInsert(dbAgent, checker, param);
 }
 
 void dbAgentTestUpdate(DBAgent &dbAgent, DBAgentChecker &checker)
@@ -389,8 +405,12 @@ void dbAgentTestUpdateCondition(DBAgent &dbAgent, DBAgentChecker &checker)
 
 	// insert the first and the second rows
 	for (size_t  i = 0; i < NUM_DATA - 1; i++) {
-		checkInsert(dbAgent, checker,
-		            ID[i], AGE[i], NAME[i], HEIGHT[i]);
+		CheckInsertParam param;
+		param.val.id     = ID[i];
+		param.val.age    = AGE[i];
+		param.val.name   = NAME[i];
+		param.val.height = HEIGHT[i];
+		checkInsert(dbAgent, checker, param);
 	}
 
 	// update the second row
@@ -590,8 +610,12 @@ void dbAgentTestDelete(DBAgent &dbAgent, DBAgentChecker &checker)
 	const char *NAME[NUM_TEST]    = {"rei", "mio", "azusa"};
 	const double HEIGHT[NUM_TEST] = {158.2, 165.3, 155.2};
 	for (size_t i = 0; i < NUM_TEST; i++) {
-		checkInsert(dbAgent, checker,
-		            ID[i], AGE[i], NAME[i], HEIGHT[i]);
+		CheckInsertParam param;
+		param.val.id     = ID[i];
+		param.val.age    = AGE[i];
+		param.val.name   = NAME[i];
+		param.val.height = HEIGHT[i];
+		checkInsert(dbAgent, checker, param);
 	}
 
 	// delete
