@@ -868,7 +868,7 @@ static const DBAgent::IndexDef indexDefsItems[] = {
 
 // Hosts
 static const int columnIndexesHostsUniqId[] = {
-  IDX_HOSTS_SERVER_ID, IDX_HOSTS_ID, DBAgent::IndexDef::END,
+  IDX_HOSTS_SERVER_ID, IDX_HOSTS_HOST_ID, DBAgent::IndexDef::END,
 };
 
 static const DBAgent::IndexDef indexDefsHosts[] = {
