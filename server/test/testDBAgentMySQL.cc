@@ -558,6 +558,12 @@ void test_upsert(void)
 	dbAgentTestUpsert(*g_dbAgent, dbAgentChecker);
 }
 
+void test_upsertWithPrimaryKeyAutoInc(void)
+{
+	createGlobalDBAgent();
+	dbAgentTestUpsertWithPrimaryKeyAutoInc(*g_dbAgent, dbAgentChecker);
+}
+
 void test_update(void)
 {
 	createGlobalDBAgent();
