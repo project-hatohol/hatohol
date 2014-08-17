@@ -35,7 +35,7 @@ ArmFake::~ArmFake()
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-bool ArmFake::mainThreadOneProc(void)
+ArmBase::OneProcEndType ArmFake::mainThreadOneProc(void)
 {
-	return true;
+	return COLLECT_OK;
 }

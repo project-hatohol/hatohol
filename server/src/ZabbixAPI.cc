@@ -257,7 +257,7 @@ ItemTablePtr ZabbixAPI::getTrigger(int requestSince)
 	if (parser.hasError()) {
 		g_object_unref(msg);
 		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
-		  HTERR_FAILED_CONNECT_INTERNAL_ERROR,
+		  HTERR_FAILED_CONNECT_PARSER_ERROR,
 		  "Failed to parser: %s", parser.getErrorMessage());
 	}
 	g_object_unref(msg);
@@ -295,7 +295,7 @@ ItemTablePtr ZabbixAPI::getItems(void)
 	g_object_unref(msg);
 	if (parser.hasError()) {
 		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
-		  HTERR_FAILED_CONNECT_INTERNAL_ERROR,
+		  HTERR_FAILED_CONNECT_PARSER_ERROR,
 		  "Failed to parser: %s", parser.getErrorMessage());
 	}
 	startObject(parser, "result");
@@ -330,7 +330,7 @@ void ZabbixAPI::getHosts(
 	g_object_unref(msg);
 	if (parser.hasError()) {
 		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
-		  HTERR_FAILED_CONNECT_INTERNAL_ERROR,
+		  HTERR_FAILED_CONNECT_PARSER_ERROR,
 		  "Failed to parser: %s", parser.getErrorMessage());
 	}
 	startObject(parser, "result");
@@ -368,7 +368,7 @@ void ZabbixAPI::getGroups(ItemTablePtr &groupsTablePtr)
 	g_object_unref(msg);
 	if (parser.hasError()) {
 		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
-		  HTERR_FAILED_CONNECT_INTERNAL_ERROR,
+		  HTERR_FAILED_CONNECT_PARSER_ERROR,
 		  "Failed to parser: %s", parser.getErrorMessage());
 	}
 	startObject(parser, "result");
@@ -401,7 +401,7 @@ ItemTablePtr ZabbixAPI::getApplications(const vector<uint64_t> &appIdVector)
 	g_object_unref(msg);
 	if (parser.hasError()) {
 		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
-		  HTERR_FAILED_CONNECT_INTERNAL_ERROR,
+		  HTERR_FAILED_CONNECT_PARSER_ERROR,
 		  "Failed to parser: %s", parser.getErrorMessage());
 	}
 	startObject(parser, "result");
@@ -448,7 +448,7 @@ ItemTablePtr ZabbixAPI::getEvents(uint64_t eventIdOffset, uint64_t eventIdTill)
 	g_object_unref(msg);
 	if (parser.hasError()) {
 		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
-		  HTERR_FAILED_CONNECT_INTERNAL_ERROR,
+		  HTERR_FAILED_CONNECT_PARSER_ERROR,
 		  "Failed to parser: %s", parser.getErrorMessage());
 	}
 	startObject(parser, "result");
@@ -483,7 +483,7 @@ uint64_t ZabbixAPI::getEndEventId(const bool &isFirst)
 	g_object_unref(msg);
 	if (parser.hasError()) {
 		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
-		  HTERR_FAILED_CONNECT_INTERNAL_ERROR,
+		  HTERR_FAILED_CONNECT_PARSER_ERROR,
 		  "Failed to parser: %s", parser.getErrorMessage());
 	}
 	startObject(parser, "result");
@@ -494,7 +494,7 @@ uint64_t ZabbixAPI::getEndEventId(const bool &isFirst)
 
 	if (!parser.read("eventid", strValue))
 		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
-		  HTERR_FAILED_CONNECT_INTERNAL_ERROR,
+		  HTERR_FAILED_CONNECT_PARSER_ERROR,
 		  "Failed to read: eventid\n");
 
 	returnValue = StringUtils::toUint64(strValue);
@@ -757,7 +757,7 @@ void ZabbixAPI::startObject(JSONParserAgent &parser, const string &name)
 {
 	if (!parser.startObject(name)) {
 		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
-		 HTERR_FAILED_CONNECT_INTERNAL_ERROR,
+		 HTERR_FAILED_CONNECT_PARSER_ERROR,
 		  "Failed to read object: %s", name.c_str());
 	}
 }
@@ -766,7 +766,7 @@ void ZabbixAPI::startElement(JSONParserAgent &parser, const int &index)
 {
 	if (!parser.startElement(index)) {
 		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
-		  HTERR_FAILED_CONNECT_INTERNAL_ERROR,
+		  HTERR_FAILED_CONNECT_PARSER_ERROR,
 		  "Failed to start element: %d",index);
 	}
 }
@@ -803,7 +803,7 @@ void ZabbixAPI::getString(JSONParserAgent &parser, const string &name,
 {
 	if (!parser.read(name.c_str(), value)) {
 		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
-		  HTERR_FAILED_CONNECT_INTERNAL_ERROR,
+		  HTERR_FAILED_CONNECT_PARSER_ERROR,
 		  "Failed to read: %s", name.c_str());
 	}
 }

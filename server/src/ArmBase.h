@@ -34,6 +34,20 @@ public:
 		UPDATE_ITEM_REQUEST,
 	} UpdateType;
 
+	typedef enum {
+		COLLECT_NG_PERSER_ERROR = 0,
+		COLLECT_NG_DISCONNECT,
+		COLLECT_NG_INTERNAL_ERROR,
+		COLLECT_NG_KIND_NUM,
+		COLLECT_OK,
+	} OneProcEndType;
+
+	struct oneProcEndTrigger {
+		TriggerStatusType statusType;
+		TriggerIdType triggerId;
+		std::string msg;
+	};
+
 public:
 	ArmBase(const std::string &name,
 	        const MonitoringServerInfo &serverInfo);
@@ -57,8 +71,9 @@ public:
 
 	const std::string &getName(void) const;
 
-	void setServerConnectStaus(bool enable);
+	void setServerConnectStaus(bool enable,OneProcEndType type);
 
+	void setUseTrigger(OneProcEndType type);
 protected:
 	/**
 	 * Request to exit the thread and wait for the complition.
@@ -78,7 +93,7 @@ protected:
 	gpointer mainThread(HatoholThreadArg *arg);
 
 	// virtual methods defined in this class
-	virtual bool mainThreadOneProc(void) = 0;
+	virtual OneProcEndType mainThreadOneProc(void) = 0;
 
 	UpdateType getUpdateType(void) const;
 	void       setUpdateType(UpdateType updateType);
@@ -87,6 +102,11 @@ protected:
 	void setFailureInfo(
 	  const std::string &comment,
 	  const ArmWorkingStatus &status = ARM_WORK_STAT_FAILURE);
+	
+	void createTriggerInfo(int i,TriggerInfoList &triggerInfoList);
+	void createEventInfo(int i,EventInfoList &eventInfoList);
+	void setInitialTrrigerStaus(void);
+	void setInitialTrrigerTable(void);
 
 private:
 	struct Impl;
