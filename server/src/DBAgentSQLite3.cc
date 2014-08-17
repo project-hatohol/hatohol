@@ -535,8 +535,6 @@ void DBAgentSQLite3::insert(sqlite3 *db, const DBAgent::InsertArg &insertArg)
 
 	// make a SQL statement
 	string sql = "INSERT ";
-	if (insertArg.upsertOnDuplicate)
-		sql += "OR REPLACE ";
 	sql += "INTO ";
 	sql += insertArg.tableProfile.name;
 	sql += " VALUES (";
@@ -565,6 +563,19 @@ void DBAgentSQLite3::insert(sqlite3 *db, const DBAgent::InsertArg &insertArg)
 	// exectute the SQL statement
 	char *errmsg;
 	int result = sqlite3_exec(db, sql.c_str(), NULL, NULL, &errmsg);
+	if (insertArg.upsertOnDuplicate && result == SQLITE_CONSTRAINT) {
+		// Using 'OR REPLACE', we cannot keep the value in
+		// an auto-incremented column since SQLite3 once deletes
+		// the duplicated row.
+		// So we try to update here if 'insert' fails due to
+		// primary or unique key constraint.
+		int extErrCode = sqlite3_extended_errcode(db);
+		if (extErrCode == SQLITE_CONSTRAINT_PRIMARYKEY ||
+		    extErrCode == SQLITE_CONSTRAINT_UNIQUE) {
+			update(db, insertArg);
+			return;
+		}
+	}
 	if (result != SQLITE_OK) {
 		string err = errmsg;
 		sqlite3_free(errmsg);
@@ -586,6 +597,20 @@ void DBAgentSQLite3::update(sqlite3 *db, const UpdateArg &updateArg)
 		THROW_HATOHOL_EXCEPTION("Failed to exec: %d, %s, %s",
 		                      result, err.c_str(), sql.c_str());
 	}
+}
+
+void DBAgentSQLite3::update(sqlite3 *db, const DBAgent::InsertArg &insertArg)
+{
+	const DBAgent::TableProfile &tableProfile = insertArg.tableProfile;
+	DBAgent::UpdateArg arg(tableProfile);
+	for (size_t i = 0; i < tableProfile.numColumns; i++) {
+		if (tableProfile.columnDefs[i].keyType == SQL_KEY_PRI)
+			continue;
+		// TODO: add a method: arg.add(idx, ItemGroupPtr);
+		arg.rows.push_back(
+		  new RowElement(i, insertArg.row->getItemAt(i), true));
+	}
+	update(db, arg);
 }
 
 void DBAgentSQLite3::select(sqlite3 *db, const SelectArg &selectArg)
