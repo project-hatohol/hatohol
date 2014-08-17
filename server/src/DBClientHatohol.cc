@@ -2221,41 +2221,21 @@ void DBClientHatohol::addTriggerInfoWithoutTransaction(
 
 void DBClientHatohol::addEventInfoWithoutTransaction(const EventInfo &eventInfo)
 {
-	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
-	string condition = StringUtils::sprintf(
-	  "server_id=%s AND id=%s",
-	  dbTermCodec->enc(eventInfo.serverId).c_str(),
-	  dbTermCodec->enc(eventInfo.id).c_str());
-	if (!isRecordExisting(TABLE_NAME_EVENTS, condition)) {
-		DBAgent::InsertArg arg(tableProfileEvents);
-		arg.add(AUTO_INCREMENT_VALUE_U64);
-		arg.add(eventInfo.serverId);
-		arg.add(eventInfo.id);
-		arg.add(eventInfo.time.tv_sec); 
-		arg.add(eventInfo.time.tv_nsec); 
-		arg.add(eventInfo.type);
-		arg.add(eventInfo.triggerId);
-		arg.add(eventInfo.status);
-		arg.add(eventInfo.severity);
-		arg.add(eventInfo.hostId);
-		arg.add(eventInfo.hostName);
-		arg.add(eventInfo.brief);
-		insert(arg);
-	} else {
-		DBAgent::UpdateArg arg(tableProfileEvents);
-		arg.add(IDX_EVENTS_SERVER_ID,  eventInfo.serverId);
-		arg.add(IDX_EVENTS_TIME_SEC,   eventInfo.time.tv_sec);
-		arg.add(IDX_EVENTS_TIME_NS,    eventInfo.time.tv_nsec);
-		arg.add(IDX_EVENTS_EVENT_TYPE, eventInfo.type);
-		arg.add(IDX_EVENTS_TRIGGER_ID, eventInfo.triggerId);
-		arg.add(IDX_EVENTS_STATUS,     eventInfo.status);
-		arg.add(IDX_EVENTS_SEVERITY,   eventInfo.severity);
-		arg.add(IDX_EVENTS_HOST_ID,    eventInfo.hostId);
-		arg.add(IDX_EVENTS_HOST_NAME,  eventInfo.hostName);
-		arg.add(IDX_EVENTS_BRIEF,      eventInfo.brief);
-		arg.condition = condition;
-		update(arg);
-	}
+	DBAgent::InsertArg arg(tableProfileEvents);
+	arg.add(AUTO_INCREMENT_VALUE_U64);
+	arg.add(eventInfo.serverId);
+	arg.add(eventInfo.id);
+	arg.add(eventInfo.time.tv_sec);
+	arg.add(eventInfo.time.tv_nsec);
+	arg.add(eventInfo.type);
+	arg.add(eventInfo.triggerId);
+	arg.add(eventInfo.status);
+	arg.add(eventInfo.severity);
+	arg.add(eventInfo.hostId);
+	arg.add(eventInfo.hostName);
+	arg.add(eventInfo.brief);
+	arg.upsertOnDuplicate = true;
+	insert(arg);
 }
 
 void DBClientHatohol::addItemInfoWithoutTransaction(const ItemInfo &itemInfo)
