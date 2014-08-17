@@ -2257,26 +2257,13 @@ void DBClientHatohol::addItemInfoWithoutTransaction(const ItemInfo &itemInfo)
 void DBClientHatohol::addHostgroupInfoWithoutTransaction(
   const HostgroupInfo &groupInfo)
 {
-	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
-	string condition = StringUtils::sprintf(
-	  "server_id=%s AND host_group_id=%s",
-	  dbTermCodec->enc(groupInfo.serverId).c_str(),
-	  dbTermCodec->enc(groupInfo.groupId).c_str());
-	if (!isRecordExisting(TABLE_NAME_HOSTGROUPS, condition)) {
-		DBAgent::InsertArg arg(tableProfileHostgroups);
-		arg.add(groupInfo.id);
-		arg.add(groupInfo.serverId);
-		arg.add(groupInfo.groupId);
-		arg.add(groupInfo.groupName);
-		insert(arg);
-	} else {
-		DBAgent::UpdateArg arg(tableProfileHostgroups);
-		arg.add(IDX_HOSTGROUPS_SERVER_ID,  groupInfo.serverId);
-		arg.add(IDX_HOSTGROUPS_GROUP_ID,   groupInfo.groupId);
-		arg.add(IDX_HOSTGROUPS_GROUP_NAME, groupInfo.groupName);
-		arg.condition = condition;
-		update(arg);
-	}
+	DBAgent::InsertArg arg(tableProfileHostgroups);
+	arg.add(groupInfo.id);
+	arg.add(groupInfo.serverId);
+	arg.add(groupInfo.groupId);
+	arg.add(groupInfo.groupName);
+	arg.upsertOnDuplicate = true;
+	insert(arg);
 }
 
 void DBClientHatohol::addHostgroupElementWithoutTransaction(
