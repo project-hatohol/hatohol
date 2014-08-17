@@ -81,6 +81,8 @@ typedef TriggerInfoList::iterator       TriggerInfoListIterator;
 typedef TriggerInfoList::const_iterator TriggerInfoListConstIterator;
 
 static const TriggerIdType DISCONNECT_SERVER_TRIGGERID_NG = 0xF0000001;
+static const TriggerIdType INTERNAL_ERROR_SERVER_TRIGGERID_NG = 0xF0000002;
+static const TriggerIdType PARSER_ERROR_SERVER_TRIGGERID_NG = 0xF0000003;
 
 enum EventType {
 	EVENT_TYPE_GOOD,

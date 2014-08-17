@@ -132,6 +132,8 @@ void HatoholError::init(void)
 		   "Failed connection to server due to disconnect.");
 	DEFINE_ERR(FAILED_CONNECT_INTERNAL_ERROR,
 		   "Failed connection to server due to internal error.");
+	DEFINE_ERR(FAILED_CONNECT_PARSER_ERROR,
+		   "Failed connection to server due to message parse error.");
 
 	// OTHER
 	DEFINE_ERR(ERROR_TEST,

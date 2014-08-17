@@ -52,7 +52,7 @@ protected:
 
 	// virtual methods
 	virtual gpointer mainThread(HatoholThreadArg *arg);
-	virtual bool mainThreadOneProc(void);
+	virtual OneProcEndType mainThreadOneProc(void);
 
 private:
 	struct Impl;
