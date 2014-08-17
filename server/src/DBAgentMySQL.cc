@@ -338,6 +338,7 @@ void DBAgentMySQL::insert(const DBAgent::InsertArg &insertArg)
 		}
 	} valueMaker;
 
+	// TODO: Move to MLPL.
 	class SeparatorInserter {
 	public:
 		SeparatorInserter(const char *separator)
@@ -371,14 +372,13 @@ void DBAgentMySQL::insert(const DBAgent::InsertArg &insertArg)
 	               "numColumn: %zd != row: %zd",
 	               numColumns, insertArg.row->getNumberOfItems());
 
+	SeparatorInserter commaInserter(",");
 	string query = StringUtils::sprintf("INSERT INTO %s (",
 	                                    insertArg.tableProfile.name);
 	for (size_t i = 0; i < numColumns; i++) {
-		const ColumnDef &columnDef =
-		  insertArg.tableProfile.columnDefs[i];
+		const ColumnDef &columnDef = insertArg.tableProfile.columnDefs[i];
+		commaInserter(query);
 		query += columnDef.columnName;
-		if (i < numColumns -1)
-			query += ",";
 	}
 
 	vector<string> values;
@@ -404,7 +404,7 @@ void DBAgentMySQL::insert(const DBAgent::InsertArg &insertArg)
 	updateParams[updateParamIdx].column = NULL;
 
 	query += ") VALUES (";
-	SeparatorInserter commaInserter(",");
+	commaInserter.reset();
 	for (size_t i = 0; i < values.size(); i++) {
 		commaInserter(query);
 		query += values[i];
