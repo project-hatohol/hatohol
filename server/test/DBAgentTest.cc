@@ -139,12 +139,24 @@ static const ColumnDef COLUMN_DEF_TEST_AUTO_INC[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+},{
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_TEST_AUTO_INC,          // tableName
+	"name",                            // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_UNI,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 }
 };
 
 enum {
 	IDX_TEST_TABLE_AUTO_INC_ID,
 	IDX_TEST_TABLE_AUTO_INC_VAL,
+	IDX_TEST_TABLE_AUTO_INC_NAME,
 	NUM_IDX_TEST_TABLE_AUTO_INC,
 };
 
@@ -729,12 +741,13 @@ static void createTestTableAutoInc(DBAgent &dbAgent, DBAgentChecker &checker)
 	checker.assertTable(tableProfileTestAutoInc);
 }
 
-static void insertRowToTestTableAutoInc(DBAgent &dbAgent,
-                                        DBAgentChecker &checker, int val)
+static void insertRowToTestTableAutoInc(
+  DBAgent &dbAgent, DBAgentChecker &checker, int val, const char *name)
 {
 	DBAgent::InsertArg arg(tableProfileTestAutoInc);
 	arg.row->addNewItem(AUTO_INCREMENT_VALUE, ITEM_DATA_NULL);
 	arg.row->addNewItem(val);
+	arg.row->addNewItem(name);
 	dbAgent.insert(arg);
 }
 
@@ -752,7 +765,7 @@ static void deleteRowFromTestTableAutoInc(DBAgent &dbAgent,
 void dbAgentTestAutoIncrement(DBAgent &dbAgent, DBAgentChecker &checker)
 {
 	createTestTableAutoInc(dbAgent, checker);
-	insertRowToTestTableAutoInc(dbAgent, checker, 0);
+	insertRowToTestTableAutoInc(dbAgent, checker, 0, "taro");
 	uint64_t expectedId = 1;
 	cppcut_assert_equal(expectedId, dbAgent.getLastInsertId());
 }
@@ -762,7 +775,7 @@ void dbAgentTestAutoIncrementWithDel(DBAgent &dbAgent, DBAgentChecker &checker)
 	dbAgentTestAutoIncrement(dbAgent, checker);
 
 	// add a new record
-	insertRowToTestTableAutoInc(dbAgent, checker, 10);
+	insertRowToTestTableAutoInc(dbAgent, checker, 10, "jiro");
 	uint64_t expectedId = 2;
 	cppcut_assert_equal(expectedId, dbAgent.getLastInsertId());
 
@@ -770,7 +783,7 @@ void dbAgentTestAutoIncrementWithDel(DBAgent &dbAgent, DBAgentChecker &checker)
 	deleteRowFromTestTableAutoInc(dbAgent, checker, expectedId);
 
 	// we expected the incremented ID 
-	insertRowToTestTableAutoInc(dbAgent, checker, 20);
+	insertRowToTestTableAutoInc(dbAgent, checker, 20, "subro");
 	expectedId++;
 	cppcut_assert_equal(expectedId, dbAgent.getLastInsertId());
 
@@ -856,7 +869,7 @@ void dbAgentGetLastInsertId(DBAgent &dbAgent, DBAgentChecker &checker)
 	static const size_t NUM_REPEAT = 3;
 	for (uint64_t id = 1; id < NUM_REPEAT; id++) {
 		int val = id * 3;
-		insertRowToTestTableAutoInc(dbAgent, checker, val);
+		insertRowToTestTableAutoInc(dbAgent, checker, val, "hanako");
 		cppcut_assert_equal(id, dbAgent.getLastInsertId());
 	}
 }
