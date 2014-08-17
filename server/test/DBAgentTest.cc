@@ -186,11 +186,14 @@ struct TestValues {
 
 struct CheckInsertParam {
 	TestValues   val;
+	bool         useExpectValues;
+	TestValues   expectValues;
 	set<size_t> *nullIndexes;
 	bool         upsertOnDuplicate;
 
 	CheckInsertParam(void)
-	: nullIndexes(NULL),
+	: useExpectValues(false),
+	  nullIndexes(NULL),
 	  upsertOnDuplicate(false)
 	{
 	}
@@ -211,6 +214,8 @@ static void checkInsert(DBAgent &dbAgent, DBAgentChecker &checker,
 	dbAgent.insert(arg);
 
 	const TestValues *expect = &param.val;
+	if (param.useExpectValues)
+		expect = &param.expectValues;
 	checker.assertExistingRecord(
 	  expect->id, expect->age, expect->name, expect->height, CURR_DATETIME,
 	  NUM_COLUMNS_TEST, COLUMN_DEF_TEST, nullIndexes);
@@ -384,6 +389,32 @@ void dbAgentTestUpsert(DBAgent &dbAgent, DBAgentChecker &checker)
 	param.val.age    = 33;
 	param.val.height = 172.5;
 	param.upsertOnDuplicate = true;
+	checkInsert(dbAgent, checker, param);
+}
+
+void dbAgentTestUpsertWithPrimaryKeyAutoInc(
+  DBAgent &dbAgent, DBAgentChecker &checker)
+{
+	// create table
+	dbAgentTestCreateTable(dbAgent, checker);
+
+	// insert a row
+	CheckInsertParam param;
+	param.val.id     = 1;
+	param.val.age    = 14;
+	param.val.name   = "rei";
+	param.val.height = 158.2;
+	checkInsert(dbAgent, checker, param);
+
+	// name (unique key) is not changed. So the index will be duplicated.
+	param.val.id     = AUTO_INCREMENT_VALUE; // primary key
+	param.val.age    = 33;
+	param.val.height = 172.5;
+	param.upsertOnDuplicate = true;
+
+	param.useExpectValues = true;
+	param.expectValues = param.val;
+	param.expectValues.id = 1; // The previos value should be kept.
 	checkInsert(dbAgent, checker, param);
 }
 
