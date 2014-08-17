@@ -2240,39 +2240,18 @@ void DBClientHatohol::addEventInfoWithoutTransaction(const EventInfo &eventInfo)
 
 void DBClientHatohol::addItemInfoWithoutTransaction(const ItemInfo &itemInfo)
 {
-	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
-	string condition = StringUtils::sprintf(
-	  "server_id=%s AND id=%s",
-	  dbTermCodec->enc(itemInfo.serverId).c_str(),
-	  dbTermCodec->enc(itemInfo.id).c_str());
-	if (!isRecordExisting(TABLE_NAME_ITEMS, condition)) {
-		DBAgent::InsertArg arg(tableProfileItems);
-		arg.add(itemInfo.serverId);
-		arg.add(itemInfo.id);
-		arg.add(itemInfo.hostId);
-		arg.add(itemInfo.brief);
-		arg.add(itemInfo.lastValueTime.tv_sec); 
-		arg.add(itemInfo.lastValueTime.tv_nsec); 
-		arg.add(itemInfo.lastValue);
-		arg.add(itemInfo.prevValue);
-		arg.add(itemInfo.itemGroupName);
-		insert(arg);
-	} else {
-		DBAgent::UpdateArg arg(tableProfileItems);
-		arg.add(IDX_ITEMS_SERVER_ID,  itemInfo.serverId);
-		arg.add(IDX_ITEMS_ID,         itemInfo.id);
-		arg.add(IDX_ITEMS_HOST_ID,    itemInfo.hostId);
-		arg.add(IDX_ITEMS_BRIEF,      itemInfo.brief);
-		arg.add(IDX_ITEMS_LAST_VALUE_TIME_SEC,
-		        itemInfo.lastValueTime.tv_sec);
-		arg.add(IDX_ITEMS_LAST_VALUE_TIME_NS,
-		        itemInfo.lastValueTime.tv_nsec); 
-		arg.add(IDX_ITEMS_LAST_VALUE, itemInfo.lastValue);
-		arg.add(IDX_ITEMS_PREV_VALUE, itemInfo.prevValue);
-		arg.add(IDX_ITEMS_ITEM_GROUP_NAME, itemInfo.itemGroupName);
-		arg.condition = condition;
-		update(arg);
-	}
+	DBAgent::InsertArg arg(tableProfileItems);
+	arg.add(itemInfo.serverId);
+	arg.add(itemInfo.id);
+	arg.add(itemInfo.hostId);
+	arg.add(itemInfo.brief);
+	arg.add(itemInfo.lastValueTime.tv_sec);
+	arg.add(itemInfo.lastValueTime.tv_nsec);
+	arg.add(itemInfo.lastValue);
+	arg.add(itemInfo.prevValue);
+	arg.add(itemInfo.itemGroupName);
+	arg.upsertOnDuplicate = true;
+	insert(arg);
 }
 
 void DBClientHatohol::addHostgroupInfoWithoutTransaction(
