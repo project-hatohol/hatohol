@@ -460,6 +460,12 @@ void test_upsert(void)
 	dbAgentTestUpsert(dbAgent, dbAgentChecker);
 }
 
+void test_upsertWithPrimaryKeyAutoInc(void)
+{
+	DBAgentSQLite3 dbAgent;
+	dbAgentTestUpsertWithPrimaryKeyAutoInc(dbAgent, dbAgentChecker);
+}
+
 void test_update(void)
 {
 	DBAgentSQLite3 dbAgent;
