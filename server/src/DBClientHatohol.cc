@@ -2202,42 +2202,21 @@ HatoholError DBClientHatohol::getIncidentInfoVect(
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-// TODO: Use DBAgent::updateIfExistElseInsert() for these methods.
 void DBClientHatohol::addTriggerInfoWithoutTransaction(
   const TriggerInfo &triggerInfo)
 {
-	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
-	string condition = StringUtils::sprintf(
-	  "server_id=%s AND id=%s",
-	    dbTermCodec->enc(triggerInfo.serverId).c_str(),
-	    dbTermCodec->enc(triggerInfo.id).c_str());
-	if (!isRecordExisting(TABLE_NAME_TRIGGERS, condition)) {
-		DBAgent::InsertArg arg(tableProfileTriggers);
-		arg.add(triggerInfo.serverId);
-		arg.add(triggerInfo.id);
-		arg.add(triggerInfo.status);
-		arg.add(triggerInfo.severity),
-		arg.add(triggerInfo.lastChangeTime.tv_sec); 
-		arg.add(triggerInfo.lastChangeTime.tv_nsec); 
-		arg.add(triggerInfo.hostId);
-		arg.add(triggerInfo.hostName);
-		arg.add(triggerInfo.brief);
-		insert(arg);
-	} else {
-		DBAgent::UpdateArg arg(tableProfileTriggers);
-		arg.add(IDX_TRIGGERS_SERVER_ID, triggerInfo.serverId);
-		arg.add(IDX_TRIGGERS_STATUS,    triggerInfo.status);
-		arg.add(IDX_TRIGGERS_SEVERITY,  triggerInfo.severity);
-		arg.add(IDX_TRIGGERS_LAST_CHANGE_TIME_SEC,
-		        triggerInfo.lastChangeTime.tv_sec);
-		arg.add(IDX_TRIGGERS_LAST_CHANGE_TIME_NS,
-		        triggerInfo.lastChangeTime.tv_nsec);
-		arg.add(IDX_TRIGGERS_HOST_ID,   triggerInfo.hostId);
-		arg.add(IDX_TRIGGERS_HOSTNAME,  triggerInfo.hostName);
-		arg.add(IDX_TRIGGERS_BRIEF,     triggerInfo.brief);
-		arg.condition = condition;
-		update(arg);
-	}
+	DBAgent::InsertArg arg(tableProfileTriggers);
+	arg.add(triggerInfo.serverId);
+	arg.add(triggerInfo.id);
+	arg.add(triggerInfo.status);
+	arg.add(triggerInfo.severity),
+	arg.add(triggerInfo.lastChangeTime.tv_sec);
+	arg.add(triggerInfo.lastChangeTime.tv_nsec);
+	arg.add(triggerInfo.hostId);
+	arg.add(triggerInfo.hostName);
+	arg.add(triggerInfo.brief);
+	arg.upsertOnDuplicate = true;
+	insert(arg);
 }
 
 void DBClientHatohol::addEventInfoWithoutTransaction(const EventInfo &eventInfo)
