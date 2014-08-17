@@ -244,6 +244,7 @@ void dbAgentTestCreateTable(DBAgent &dbAgent, DBAgentChecker &checker)
 {
 	dbAgent.createTable(tableProfileTest);
 	checker.assertTable(tableProfileTest);
+	dbAgent.fixupIndexes(tableProfileTest, NULL);
 }
 
 void dbAgentDataMakeCreateIndexStatement(void)
