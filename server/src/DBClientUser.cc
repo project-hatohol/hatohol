@@ -1004,7 +1004,31 @@ HatoholError DBClientUser::updateUserRoleInfo(
 		return HTERR_USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST;
 	}
 
-	DBAgent::UpdateArg arg(tableProfileUserRoles);
+	struct TrxProc : public DBAgent::TransactionProc {
+		HatoholError       err;
+		DBAgent::UpdateArg arg;
+		string             dupChkCond;
+
+		TrxProc(void)
+		: arg(tableProfileUserRoles)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			const char *tbl = arg.tableProfile.name;
+			if (!dbAgent.isRecordExisting(tbl, arg.condition)) {
+				err = HTERR_NOT_FOUND_TARGET_RECORD;
+			} else if (dbAgent.isRecordExisting(tbl, dupChkCond)) {
+				err = HTERR_USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST;
+			} else {
+				dbAgent.update(arg);
+				err = HTERR_OK;
+			}
+		}
+	} trx;
+
+	DBAgent::UpdateArg &arg = trx.arg;
 	arg.add(IDX_USER_ROLES_NAME, userRoleInfo.name);
 	arg.add(IDX_USER_ROLES_FLAGS, userRoleInfo.flags);
 
@@ -1012,7 +1036,7 @@ HatoholError DBClientUser::updateUserRoleInfo(
 	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_ID].columnName,
 	  userRoleInfo.id);
 
-	string dupCheckCond = StringUtils::sprintf(
+	trx.dupChkCond = StringUtils::sprintf(
 	  "((%s='%s' or %s=%" FMT_OPPRVLG ") and %s<>%" FMT_USER_ROLE_ID ")",
 	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_NAME].columnName,
 	  StringUtils::replace(userRoleInfo.name, "'", "''").c_str(),
@@ -1021,18 +1045,8 @@ HatoholError DBClientUser::updateUserRoleInfo(
 	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_ID].columnName,
 	  userRoleInfo.id);
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		const char *tableName = arg.tableProfile.name;
-		if (!isRecordExisting(tableName, arg.condition)) {
-			err = HTERR_NOT_FOUND_TARGET_RECORD;
-		} else if (isRecordExisting(tableName, dupCheckCond)) {
-			err = HTERR_USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST;
-		} else {
-			update(arg);
-			err = HTERR_OK;
-		}
-	} DBCLIENT_TRANSACTION_END();
-	return err;
+	getDBAgent().transaction(trx);
+	return trx.err;
 }
 
 HatoholError DBClientUser::deleteUserRoleInfo(
