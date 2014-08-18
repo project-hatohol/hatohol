@@ -34,9 +34,9 @@ public:
 	{
 	}
 
-	virtual bool mainThreadOneProc(void) override
+	virtual OneProcEndType mainThreadOneProc(void) override
 	{
-		return true;
+		return COLLECT_OK;
 	}
 };
 

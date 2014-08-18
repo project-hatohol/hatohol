@@ -147,7 +147,10 @@ public:
 		// the thread of ArmZabbixAPI. The exit callback (that unlock
 		// mutex in ArmZabbixAPI) is never called. So we explicitly
 		// call exitCallbackFunc() here to unlock the mutex;
-		return ArmZabbixAPI::mainThreadOneProc();
+		OneProcEndType oneProcEndType = ArmZabbixAPI::mainThreadOneProc();
+		if (oneProcEndType == COLLECT_OK)
+			return true;
+		return false;
 	}
 
 	UpdateType testGetUpdateType(void)
@@ -309,22 +312,22 @@ protected:
 	}
 
 	// virtual function
-	bool mainThreadOneProc(void)
+	OneProcEndType mainThreadOneProc(void)
 	{
 		if (!openSession()) {
 			requestExit();
-			return false;
+			return COLLECT_NG_INTERNAL_ERROR;
 		}
 		if (!(this->*m_threadOneProc)()) {
 			requestExit();
-			return false;
+			return COLLECT_NG_INTERNAL_ERROR;
 		}
 		m_countThreadOneProc++;
 		if (m_countThreadOneProc++ >= m_repeatThreadOneProc) {
 			m_result = true;
 			requestExit();
 		}
-		return true;
+		return COLLECT_OK;
 	}
 
 private:
