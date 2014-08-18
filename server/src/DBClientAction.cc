@@ -23,7 +23,7 @@
 #include "CacheServiceDBClient.h"
 #include "DBAgentFactory.h"
 #include "DBClientAction.h"
-#include "DBTablesConfig.h"
+#include "DBClientConfig.h"
 #include "DBClientHatohol.h"
 #include "Mutex.h"
 #include "ItemGroupStream.h"
@@ -37,7 +37,7 @@ const static guint DEFAULT_ACTION_DELETE_INTERVAL_MSEC = 3600 * 1000; // 1hour
 
 // 8 -> 9: Add actions.onwer_user_id
 int DBClientAction::ACTION_DB_VERSION = 9;
-const char *DBClientAction::DEFAULT_DB_NAME = DBTablesConfig::DEFAULT_DB_NAME;
+const char *DBClientAction::DEFAULT_DB_NAME = DBClientConfig::DEFAULT_DB_NAME;
 
 static void operator>>(
   ItemGroupStream &itemGroupStream, ComparisonType &compType)
@@ -452,7 +452,7 @@ void DBClientAction::init(void)
 void DBClientAction::reset(void)
 {
 	// Now we assume that a DB server for this class is the same as that
-	// for DBTablesConfig. So we copy the connectInfo of it.
+	// for DBClientConfig. So we copy the connectInfo of it.
 	DBConnectInfo connInfo = getDBConnectInfo(DB_DOMAIN_ID_CONFIG);
 	setConnectInfo(DB_DOMAIN_ID_ACTION, connInfo);
 }
@@ -1330,7 +1330,7 @@ ActionValidator::ActionValidator()
 	ActionUserIdSet::get(m_userIdSet);
 
 	CacheServiceDBClient cache;
-	DBTablesConfig *dbConfig = cache.getConfig();
+	DBClientConfig *dbConfig = cache.getConfig();
 	dbConfig->getIncidentTrackerIdSet(m_incidentTrackerIdSet);
 }
 

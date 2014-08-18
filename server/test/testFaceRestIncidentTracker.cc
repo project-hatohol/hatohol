@@ -105,7 +105,7 @@ static void _assertIncidentTrackerInDB(
 	}
 	string expected = makeIncidentTrackerInfoOutput(
 			    expectedIncidentTracker);
-	DBTablesConfig dbConfig;
+	DBClientConfig dbConfig;
 	assertDBContent(dbConfig.getDBAgent(), statement, expected);
 }
 #define assertIncidentTrackerInDB(E, ...) \

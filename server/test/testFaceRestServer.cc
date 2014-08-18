@@ -125,7 +125,7 @@ static void _assertServerConnStat(JSONParserAgent *parser)
 {
 	// Make expected data
 	CacheServiceDBClient cache;
-	DBTablesConfig *dbConfig = cache.getConfig();
+	DBClientConfig *dbConfig = cache.getConfig();
 	ServerIdSet expectIdSet;
 	DataQueryContextPtr dqCtxPtr(new DataQueryContext(USER_ID_SYSTEM),
 	                             false);
@@ -208,7 +208,7 @@ void test_addServer(void)
 	assertAddServerWithSetup(params, HTERR_OK);
 
 	// check the content in the DB
-	DBTablesConfig dbConfig;
+	DBClientConfig dbConfig;
 	string statement = "select * from servers ";
 	statement += " order by id desc limit 1";
 	string expectedOutput = makeServerInfoOutput(expected);
@@ -233,7 +233,7 @@ void test_addServerWithHapiParams(void)
 	assertAddServerWithSetup(params, HTERR_OK);
 
 	// check the content in the DB
-	DBTablesConfig dbConfig;
+	DBClientConfig dbConfig;
 	string statement = "select * from arm_plugins";
 	statement += " order by id desc limit 1";
 	string expectedOutput = makeArmPluginInfoOutput(armPluginInfo);
@@ -293,7 +293,7 @@ void test_updateServer(gconstpointer data)
 	assertValueInParser(g_parser, "id", srcSvInfo.id);
 
 	// check the content in the DB
-	DBTablesConfig dbConfig;
+	DBClientConfig dbConfig;
 	string statement = StringUtils::sprintf(
 	                     "select * from servers where id=%d", srcSvInfo.id);
 	updateSvInfo.id = srcSvInfo.id;
@@ -346,7 +346,7 @@ void test_updateServerWithArmPlugin(void)
 	assertValueInParser(g_parser, "id", serverInfo.id);
 
 	// check the content in the DB
-	DBTablesConfig dbConfig;
+	DBClientConfig dbConfig;
 	string statement = StringUtils::sprintf(
 	  "SELECT * FROM servers WHERE id=%d", serverInfo.id);
 	// TODO: serverInfo2StringMap() doesn't set dbName. Is this OK ?

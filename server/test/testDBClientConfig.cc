@@ -20,14 +20,14 @@
 #include <cppcutter.h>
 #include <gcutter.h>
 #include "Hatohol.h"
-#include "DBTablesConfig.h"
+#include "DBClientConfig.h"
 #include "ConfigManager.h"
 #include "Helpers.h"
 #include "DBClientTest.h"
 using namespace std;
 using namespace mlpl;
 
-namespace testDBTablesConfig {
+namespace testDBClientConfig {
 
 void _assertGetHostAddress
   (const string &ipAddr, const string &hostName, const char *expectValue,
@@ -61,7 +61,7 @@ void _assertArmPluginInfo(
 
 static void addTargetServer(MonitoringServerInfo *serverInfo)
 {
-	DBTablesConfig dbConfig;
+	DBClientConfig dbConfig;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	dbConfig.addTargetServer(serverInfo, privilege);
 }
@@ -110,7 +110,7 @@ void cut_setup(void)
 // ---------------------------------------------------------------------------
 void test_dbDomainId(void)
 {
-	DBTablesConfig dbConfig;
+	DBClientConfig dbConfig;
 	cppcut_assert_equal(DB_DOMAIN_ID_CONFIG,
 	                    dbConfig.getDBAgent()->getDBDomainId());
 }
@@ -171,21 +171,21 @@ void test_createDB(void)
 {
 	// create an instance
 	// Tables in the DB will be automatically created.
-	DBTablesConfig dbConfig;
+	DBClientConfig dbConfig;
 
 	// check the version
 	string statement = "select * from _dbclient_version";
 	string expect =
 	  StringUtils::sprintf(
 	    "%d|%d\n", DB_DOMAIN_ID_CONFIG,
-	               DBTablesConfig::CONFIG_DB_VERSION);
+	               DBClientConfig::CONFIG_DB_VERSION);
 	assertDBContent(dbConfig.getDBAgent(), statement, expect);
 }
 
 void test_createTableSystem(void)
 {
 	const string tableName = "system";
-	DBTablesConfig dbConfig;
+	DBClientConfig dbConfig;
 	assertCreateTable(dbConfig.getDBAgent(), tableName);
 	
 	// check content
@@ -205,7 +205,7 @@ void test_createTableSystem(void)
 void test_createTableServers(void)
 {
 	const string tableName = "servers";
-	DBTablesConfig dbConfig;
+	DBClientConfig dbConfig;
 	assertCreateTable(dbConfig.getDBAgent(), tableName);
 
 	// check content
@@ -218,7 +218,7 @@ void _assertAddTargetServer(
   MonitoringServerInfo serverInfo, const HatoholErrorCode expectedErrorCode,
   OperationPrivilege privilege = ALL_PRIVILEGES)
 {
-	DBTablesConfig dbConfig;
+	DBClientConfig dbConfig;
 	HatoholError err;
 	err = dbConfig.addTargetServer(&serverInfo, privilege);
 	assertHatoholError(expectedErrorCode, err);
@@ -369,7 +369,7 @@ void _assertUpdateTargetServer(
 	else
 		expectedOut = makeServerInfoOutput(testServerInfo[targetIdx]);
 
-	DBTablesConfig dbConfig;
+	DBClientConfig dbConfig;
 	HatoholError err;
 	err = dbConfig.updateTargetServer(&serverInfo, privilege);
 	assertHatoholError(expectedErrorCode, err);
@@ -428,7 +428,7 @@ void test_deleteTargetServer(gconstpointer data)
 		loadTestDBArmPlugin();
 	ServerIdType targetServerId = 1;
 	OperationPrivilege privilege(findUserWith(OPPRVLG_DELETE_ALL_SERVER));
-	DBTablesConfig dbConfig;
+	DBClientConfig dbConfig;
 	HatoholError err = dbConfig.deleteTargetServer(targetServerId,
 						       privilege);
 	assertHatoholError(HTERR_OK, err);
@@ -453,7 +453,7 @@ void test_deleteTargetServerWithoutPrivilege(void)
 	loadTestDBServer();
 	ServerIdType targetServerId = 1;
 	OperationPrivilege privilege;
-	DBTablesConfig dbConfig;
+	DBClientConfig dbConfig;
 	HatoholError err = dbConfig.deleteTargetServer(targetServerId,
 						       privilege);
 	assertHatoholError(HTERR_NO_PRIVILEGE, err);
@@ -485,7 +485,7 @@ void _assertGetTargetServers(
 
 	MonitoringServerInfoList actual;
 	ServerQueryOption option(userId);
-	DBTablesConfig dbConfig;
+	DBClientConfig dbConfig;
 	dbConfig.getTargetServers(actual, option, armPluginInfoVect);
 	cppcut_assert_equal(expected.size(), actual.size());
 
@@ -516,7 +516,7 @@ static void _assertGetServerIdSet(const UserIdType &userId)
 
 	ServerIdSet actualIdSet;
 	DataQueryContextPtr dqCtxPtr(new DataQueryContext(userId), false);
-	DBTablesConfig dbConfig;
+	DBClientConfig dbConfig;
 	dbConfig.getServerIdSet(actualIdSet, dqCtxPtr);
 	cppcut_assert_equal(expectIdSet.size(), actualIdSet.size());
 
@@ -594,7 +594,7 @@ void test_getServerIdSet(gconstpointer data)
 void test_setGetDatabaseDir(void)
 {
 	const string databaseDir = "/dir1/dir2";
-	DBTablesConfig dbConfig;
+	DBClientConfig dbConfig;
 	dbConfig.setDatabaseDir(databaseDir);
 	cppcut_assert_equal(databaseDir, dbConfig.getDatabaseDir());
 }
@@ -602,14 +602,14 @@ void test_setGetDatabaseDir(void)
 void test_setGetFaceRestPort(void)
 {
 	const int portNumber = 501;
-	DBTablesConfig dbConfig;
+	DBClientConfig dbConfig;
 	dbConfig.setFaceRestPort(portNumber);
 	cppcut_assert_equal(portNumber, dbConfig.getFaceRestPort());
 }
 
 void test_isCopyOnDemandEnabledDefault(void)
 {
-	DBTablesConfig dbConfig;
+	DBClientConfig dbConfig;
 	cut_assert_true(dbConfig.isCopyOnDemandEnabled());
 }
 
@@ -713,7 +713,7 @@ void test_isHatoholArmPlugin(gconstpointer data)
 {
 	const bool expect = gcut_data_get_boolean(data, "expect");
 	const bool actual =
-	  DBTablesConfig::isHatoholArmPlugin(
+	  DBClientConfig::isHatoholArmPlugin(
 	    (MonitoringSystemType)gcut_data_get_int(data, "data"));
 	cppcut_assert_equal(expect, actual);
 }
@@ -723,7 +723,7 @@ void test_getArmPluginInfo(void)
 	setupTestDBConfig();
 	loadTestDBArmPlugin();
 	ArmPluginInfoVect armPluginInfoVect;
-	DBTablesConfig dbConfig;
+	DBClientConfig dbConfig;
 	dbConfig.getArmPluginInfo(armPluginInfoVect);
 
 	// check
@@ -742,7 +742,7 @@ void test_getArmPluginInfoWithType(void)
 	setupTestDBConfig();
 	loadTestDBServer();
 	loadTestDBArmPlugin();
-	DBTablesConfig dbConfig;
+	DBClientConfig dbConfig;
 	const int targetIdx = 0;
 	const ArmPluginInfo &expect = testArmPluginInfo[targetIdx];
 	ArmPluginInfo armPluginInfo;
@@ -756,7 +756,7 @@ void test_getArmPluginInfoWithTypeFail(void)
 {
 	setupTestDBConfig();
 	loadTestDBArmPlugin();
-	DBTablesConfig dbConfig;
+	DBClientConfig dbConfig;
 	ArmPluginInfo armPluginInfo;
 	MonitoringSystemType invalidType =
 	  static_cast<MonitoringSystemType>(NUM_MONITORING_SYSTEMS + 3);
@@ -773,7 +773,7 @@ void test_saveArmPluginInfo(void)
 void test_saveArmPluginInfoWithInvalidType(void)
 {
 	setupTestDBConfig();
-	DBTablesConfig dbConfig;
+	DBClientConfig dbConfig;
 	ArmPluginInfo armPluginInfo = testArmPluginInfo[0];
 	armPluginInfo.type = MONITORING_SYSTEM_NAGIOS;
 	assertHatoholError(HTERR_INVALID_ARM_PLUGIN_TYPE,
@@ -783,7 +783,7 @@ void test_saveArmPluginInfoWithInvalidType(void)
 void test_saveArmPluginInfoWithNoPath(void)
 {
 	setupTestDBConfig();
-	DBTablesConfig dbConfig;
+	DBClientConfig dbConfig;
 	ArmPluginInfo armPluginInfo = testArmPluginInfo[0];
 	armPluginInfo.path = "";
 	assertHatoholError(HTERR_INVALID_ARM_PLUGIN_PATH,
@@ -795,7 +795,7 @@ void test_saveArmPluginInfoInvalidId(void)
 	setupTestDBConfig();
 	loadTestDBArmPlugin();
 
-	DBTablesConfig dbConfig;
+	DBClientConfig dbConfig;
 	ArmPluginInfo armPluginInfo = testArmPluginInfo[0];
 	armPluginInfo.id = NumTestArmPluginInfo + 100;
 	HatoholError err = dbConfig.saveArmPluginInfo(armPluginInfo);
@@ -807,7 +807,7 @@ void test_saveArmPluginInfoUpdate(void)
 	setupTestDBConfig();
 	loadTestDBArmPlugin();
 
-	DBTablesConfig dbConfig;
+	DBClientConfig dbConfig;
 	const size_t targetIdx = 1;
 	ArmPluginInfo armPluginInfo = testArmPluginInfo[targetIdx];
 	armPluginInfo.id = targetIdx + 1;
@@ -856,7 +856,7 @@ void _assertAddIncidentTracker(
   const HatoholErrorCode expectedErrorCode,
   OperationPrivilege privilege = ALL_PRIVILEGES)
 {
-	DBTablesConfig dbConfig;
+	DBClientConfig dbConfig;
 	HatoholError err;
 	err = dbConfig.addIncidentTracker(incidentTrackerInfo, privilege);
 	assertHatoholError(expectedErrorCode, err);
@@ -918,7 +918,7 @@ void _assertUpdateIncidentTracker(
 		expectedOut = makeIncidentTrackerInfoOutput(
 				testIncidentTrackerInfo[targetIdx]);
 
-	DBTablesConfig dbConfig;
+	DBClientConfig dbConfig;
 	HatoholError err;
 	err = dbConfig.updateIncidentTracker(incidentTrackerInfo, privilege);
 	assertHatoholError(expectedErrorCode, err);
@@ -964,7 +964,7 @@ void test_updateIncidentTrackerWithEmptyLoction(void)
 
 static void addIncidentTracker(IncidentTrackerInfo *info)
 {
-	DBTablesConfig dbConfig;
+	DBClientConfig dbConfig;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	dbConfig.addIncidentTracker(*info, privilege);
 }
@@ -992,7 +992,7 @@ void _assertGetIncidentTrackers(
 	IncidentTrackerQueryOption option(userId);
 	if (targetId != ALL_INCIDENT_TRACKERS)
 		option.setTargetId(targetId);
-	DBTablesConfig dbConfig;
+	DBClientConfig dbConfig;
 	dbConfig.getIncidentTrackers(actual, option);
 	cppcut_assert_equal(expectedSize, actual.size());
 
@@ -1039,7 +1039,7 @@ void test_deleteIncidentTracker(void)
 	IncidentTrackerIdType incidentTrackerId = 1;
 	OperationPrivilege privilege(
 	  findUserWith(OPPRVLG_DELETE_INCIDENT_SETTING));
-	DBTablesConfig dbConfig;
+	DBClientConfig dbConfig;
 	HatoholError err = dbConfig.deleteIncidentTracker(incidentTrackerId,
 							  privilege);
 	assertHatoholError(HTERR_OK, err);
@@ -1055,7 +1055,7 @@ void test_deleteIncidentTrackerWithoutPrivilege(void)
 	loadTestDBIncidentTracker();
 	IncidentTrackerIdType incidentTrackerId = 1;
 	OperationPrivilege privilege;
-	DBTablesConfig dbConfig;
+	DBClientConfig dbConfig;
 	HatoholError err = dbConfig.deleteIncidentTracker(incidentTrackerId,
 							  privilege);
 	assertHatoholError(HTERR_NO_PRIVILEGE, err);
@@ -1063,9 +1063,9 @@ void test_deleteIncidentTrackerWithoutPrivilege(void)
 	assertIncidentTrackersInDB(EMPTY_INCIDENT_TRACKER_ID_SET);
 }
 
-} // namespace testDBTablesConfig
+} // namespace testDBClientConfig
 
-namespace testDBTablesConfigDefault {
+namespace testDBClientConfigDefault {
 
 void cut_setup(void)
 {
@@ -1076,7 +1076,7 @@ void test_databaseName(void)
 {
 	DBConnectInfo connInfo =
 	  DBClient::getDBConnectInfo(DB_DOMAIN_ID_CONFIG);
-	cppcut_assert_equal(string(DBTablesConfig::DEFAULT_DB_NAME),
+	cppcut_assert_equal(string(DBClientConfig::DEFAULT_DB_NAME),
 	                    connInfo.dbName);
 }
 
@@ -1084,7 +1084,7 @@ void test_databaseUser(void)
 {
 	DBConnectInfo connInfo =
 	  DBClient::getDBConnectInfo(DB_DOMAIN_ID_CONFIG);
-	cppcut_assert_equal(string(DBTablesConfig::DEFAULT_USER_NAME),
+	cppcut_assert_equal(string(DBClientConfig::DEFAULT_USER_NAME),
 	                    connInfo.user);
 }
 
@@ -1092,8 +1092,8 @@ void test_databasePassword(void)
 {
 	DBConnectInfo connInfo =
 	  DBClient::getDBConnectInfo(DB_DOMAIN_ID_CONFIG);
-	cppcut_assert_equal(string(DBTablesConfig::DEFAULT_USER_NAME),
+	cppcut_assert_equal(string(DBClientConfig::DEFAULT_USER_NAME),
 	                    connInfo.user);
 }
 
-} // namespace testDBTablesConfigDefault
+} // namespace testDBClientConfigDefault

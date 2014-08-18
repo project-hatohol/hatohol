@@ -36,7 +36,7 @@
 #include "HatoholException.h"
 #include "UnifiedDataStore.h"
 #include "DBClientUser.h"
-#include "DBTablesConfig.h"
+#include "DBClientConfig.h"
 #include "SessionManager.h"
 #include "CacheServiceDBClient.h"
 #include "HatoholArmPluginInterface.h"
@@ -232,7 +232,7 @@ FaceRest::FaceRest(FaceRestParam *param)
 	if (port) {
 		m_impl->port = port;
 	} else {
-		DBTablesConfig dbConfig;
+		DBClientConfig dbConfig;
 		int port = dbConfig.getFaceRestPort();
 		if (port != 0 && Utils::isValidPort(port))
 			m_impl->port = port;
