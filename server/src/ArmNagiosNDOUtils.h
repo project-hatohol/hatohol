@@ -25,7 +25,7 @@
 #include "ItemTablePtr.h"
 #include "JSONParserAgent.h"
 #include "JSONBuilderAgent.h"
-#include "DBClientConfig.h"
+#include "DBTablesConfig.h"
 
 class ArmNagiosNDOUtils : public ArmBase
 {

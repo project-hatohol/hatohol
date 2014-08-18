@@ -22,7 +22,7 @@
 
 #include <glib.h>
 #include <stdint.h>
-#include "DBClientConfig.h"
+#include "DBTablesConfig.h"
 
 struct CommandLineOptions {
 	gchar    *pidFilePath;

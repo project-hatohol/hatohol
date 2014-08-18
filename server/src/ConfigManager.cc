@@ -23,7 +23,7 @@
 
 #include <Mutex.h>
 #include "ConfigManager.h"
-#include "DBClientConfig.h"
+#include "DBTablesConfig.h"
 #include "Reaper.h"
 using namespace std;
 using namespace mlpl;
@@ -282,7 +282,7 @@ ConfigManager *ConfigManager::getInstance(void)
 void ConfigManager::getTargetServers
   (MonitoringServerInfoList &monitoringServers, ServerQueryOption &option)
 {
-	DBClientConfig dbConfig;
+	DBTablesConfig dbConfig;
 	dbConfig.getTargetServers(monitoringServers, option);
 }
 

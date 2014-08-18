@@ -21,7 +21,7 @@
 #define IncidentSender_h
 
 #include "HatoholError.h"
-#include "DBClientConfig.h"
+#include "DBTablesConfig.h"
 #include "DBClientHatohol.h"
 #include "HatoholThreadBase.h"
 
