@@ -2293,6 +2293,7 @@ void DBClientHatohol::addHostInfoWithoutTransaction(const HostInfo &hostInfo)
 	arg.add(hostInfo.serverId);
 	arg.add(hostInfo.id);
 	arg.add(hostInfo.hostName);
+	arg.upsertOnDuplicate = true;
 	insert(arg);
 }
 
