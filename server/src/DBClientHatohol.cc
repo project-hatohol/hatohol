@@ -2299,21 +2299,11 @@ void DBClientHatohol::addHostInfoWithoutTransaction(const HostInfo &hostInfo)
 void DBClientHatohol::addMonitoringServerStatusWithoutTransaction(
   const MonitoringServerStatus &serverStatus)
 {
-	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
-	string condition = StringUtils::sprintf(
-	  "id=%s", dbTermCodec->enc(serverStatus.serverId).c_str());
-	if (!isRecordExisting(DBClientHatohol::TABLE_NAME_SERVERS, condition)) {
-		DBAgent::InsertArg arg(tableProfileServers);
-		arg.add(serverStatus.serverId);
-		arg.add(serverStatus.nvps);
-		insert(arg);
-	} else {
-		DBAgent::UpdateArg arg(tableProfileServers);
-		arg.add(IDX_SERVERS_ID,   serverStatus.serverId);
-		arg.add(IDX_SERVERS_NVPS, serverStatus.nvps);
-		arg.condition = condition;
-		update(arg);
-	}
+	DBAgent::InsertArg arg(tableProfileServers);
+	arg.add(serverStatus.serverId);
+	arg.add(serverStatus.nvps);
+	arg.upsertOnDuplicate = true;
+	insert(arg);
 }
 
 void DBClientHatohol::addIncidentInfoWithoutTransaction(
