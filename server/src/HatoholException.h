@@ -95,8 +95,8 @@ inline T _buildExpect(T exp)
 }
 
 template<>
-inline long unsigned int
-_buildExpect<long unsigned int, true>(long unsigned int exp)
+inline size_t
+_buildExpect<size_t, true>(size_t exp)
 {
 	return exp;
 }
