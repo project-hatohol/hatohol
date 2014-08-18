@@ -551,7 +551,7 @@ void test_makeSelectStatementDistinct(void)
 	dbAgent.assertMakeSelectStatementDistinct(true);
 }
 
-void test_transaction(void)
+void test_runTransaction(void)
 {
 	struct : DBAgent::TransactionProc {
 		bool called;
@@ -562,11 +562,11 @@ void test_transaction(void)
 	} trx;
 	trx.called = false;
 	TestDBAgent dbAgent;
-	dbAgent.transaction(trx);
+	dbAgent.runTransaction(trx);
 	cppcut_assert_equal(true, trx.called);
 }
 
-void test_transactionPrePostproc(void)
+void test_runTransactionPrePostproc(void)
 {
 	struct : DBAgent::TransactionProc {
 		bool preprocRet;
@@ -592,17 +592,17 @@ void test_transactionPrePostproc(void)
 	TestDBAgent dbAgent;
 
 	trx.preprocRet = false;
-	dbAgent.transaction(trx);
+	dbAgent.runTransaction(trx);
 	cppcut_assert_equal(false, trx.called);
 	cppcut_assert_equal(false, trx.calledPostproc);
 
 	trx.preprocRet = true;
-	dbAgent.transaction(trx);
+	dbAgent.runTransaction(trx);
 	cppcut_assert_equal(true, trx.called);
 	cppcut_assert_equal(true, trx.calledPostproc);
 }
 
-void test_transactionCatchException(void)
+void test_runTransactionCatchException(void)
 {
 	struct : DBAgent::TransactionProc {
 		void operator ()(DBAgent &dbAgent) override
@@ -614,7 +614,7 @@ void test_transactionCatchException(void)
 	bool caughtException = false;
 	try {
 		TestDBAgent dbAgent;
-		dbAgent.transaction(trx);
+		dbAgent.runTransaction(trx);
 	} catch (...) {
 		caughtException = true;
 	}

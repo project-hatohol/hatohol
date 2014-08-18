@@ -425,7 +425,7 @@ void DBAgent::fixupIndexes(
 	}
 }
 
-void DBAgent::transaction(TransactionProc &proc)
+void DBAgent::runTransaction(TransactionProc &proc)
 {
 	if (!proc.preproc(*this))
 		return;
@@ -459,16 +459,16 @@ struct TrxInsert : public DBAgent::TransactionProc {
 	}
 };
 
-void DBAgent::transaction(const InsertArg &arg, int *id)
+void DBAgent::runTransaction(const InsertArg &arg, int *id)
 {
 	TrxInsert<int> trx(arg, id);
-	transaction(trx);
+	runTransaction(trx);
 }
 
-void DBAgent::transaction(const InsertArg &arg, uint64_t *id)
+void DBAgent::runTransaction(const InsertArg &arg, uint64_t *id)
 {
 	TrxInsert<uint64_t> trx(arg, id);
-	transaction(trx);
+	runTransaction(trx);
 }
 
 // ---------------------------------------------------------------------------
