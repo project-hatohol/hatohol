@@ -526,6 +526,22 @@ void DBAgentSQLite3::createTable(sqlite3 *db, const TableProfile &tableProfile)
 	}
 }
 
+static bool isPrimaryOrUniqueKeyDuplicated(sqlite3 *db)
+{
+#if !defined(SQLITE_CONSTRAINT_PRIMARYKEY) || !defined(SQLITE_CONSTRAINT_UNIQUE)
+// This is just pass the build. For example, for TravisCI (12.04)
+#warning "SQLITE_CONSTRAINT_PRIMARYKEY and/or SQLITE_CONSTRAINT_UNIQUE: not defined. This program may not work properly."
+	return true;
+#else
+	int extErrCode = sqlite3_extended_errcode(db);
+	if (extErrCode == SQLITE_CONSTRAINT_PRIMARYKEY ||
+	    extErrCode == SQLITE_CONSTRAINT_UNIQUE) {
+		return true;
+	}
+	return false;
+#endif
+}
+
 void DBAgentSQLite3::insert(sqlite3 *db, const DBAgent::InsertArg &insertArg)
 {
 	size_t numColumns = insertArg.row->getNumberOfItems();
@@ -569,11 +585,9 @@ void DBAgentSQLite3::insert(sqlite3 *db, const DBAgent::InsertArg &insertArg)
 		// the duplicated row.
 		// So we try to update here if 'insert' fails due to
 		// primary or unique key constraint.
-		int extErrCode = sqlite3_extended_errcode(db);
-		if (extErrCode == SQLITE_CONSTRAINT_PRIMARYKEY ||
-		    extErrCode == SQLITE_CONSTRAINT_UNIQUE) {
+		if (isPrimaryOrUniqueKeyDuplicated(db)) {
 			update(db, insertArg);
-			return;
+			return ;
 		}
 	}
 	if (result != SQLITE_OK) {
