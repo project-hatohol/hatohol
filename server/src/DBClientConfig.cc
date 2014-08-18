@@ -974,17 +974,28 @@ HatoholError DBClientConfig::deleteTargetServer(
 	if (!canDeleteTargetServer(serverId, privilege))
 		return HatoholError(HTERR_NO_PRIVILEGE);
 
-	DBAgent::DeleteArg arg(tableProfileServers);
-	const ColumnDef &colId = COLUMN_DEF_SERVERS[IDX_SERVERS_ID];
-	arg.condition = StringUtils::sprintf("%s=%" FMT_SERVER_ID,
-	                                     colId.columnName, serverId);
-	string delCondForArmPlugin;
-	preprocForDeleteArmPluginInfo(serverId, delCondForArmPlugin);
+	struct TrxProc : public DBAgent::TransactionProc {
+		DBAgent::DeleteArg argArmPlugins;
+		DBAgent::DeleteArg argServers;
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		deleteArmPluginInfoWithoutTransaction(delCondForArmPlugin);
-		deleteRows(arg);
-	} DBCLIENT_TRANSACTION_END();
+		TrxProc(void)
+		: argArmPlugins(tableProfileArmPlugins),
+		  argServers(tableProfileServers)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			dbAgent.deleteRows(argArmPlugins);
+			dbAgent.deleteRows(argServers);
+		}
+	} trx;
+	trx.argServers.condition =
+	   StringUtils::sprintf("%s=%" FMT_SERVER_ID,
+	                        COLUMN_DEF_SERVERS[IDX_SERVERS_ID].columnName,
+	                        serverId);
+	preprocForDeleteArmPluginInfo(serverId, trx.argArmPlugins.condition);
+	getDBAgent().transaction(trx);
 	return HTERR_OK;
 }
 
