@@ -2288,27 +2288,12 @@ void DBClientHatohol::addHostgroupElementWithoutTransaction(
 
 void DBClientHatohol::addHostInfoWithoutTransaction(const HostInfo &hostInfo)
 {
-	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
-	string condition = StringUtils::sprintf(
-	  "server_id=%s AND host_id=%s",
-	  dbTermCodec->enc(hostInfo.serverId).c_str(),
-	  dbTermCodec->enc(hostInfo.id).c_str());
-
-	if (!isRecordExisting(TABLE_NAME_HOSTS, condition)) {
-		DBAgent::InsertArg arg(tableProfileHosts);
-		arg.add(AUTO_INCREMENT_VALUE);
-		arg.add(hostInfo.serverId);
-		arg.add(hostInfo.id);
-		arg.add(hostInfo.hostName);
-		insert(arg);
-	} else {
-		DBAgent::UpdateArg arg(tableProfileHosts);
-		arg.add(IDX_HOSTS_SERVER_ID, hostInfo.serverId);
-		arg.add(IDX_HOSTS_HOST_ID,   hostInfo.id);
-		arg.add(IDX_HOSTS_HOST_NAME, hostInfo.hostName);
-		arg.condition = condition;
-		update(arg);
-	}
+	DBAgent::InsertArg arg(tableProfileHosts);
+	arg.add(AUTO_INCREMENT_VALUE);
+	arg.add(hostInfo.serverId);
+	arg.add(hostInfo.id);
+	arg.add(hostInfo.hostName);
+	insert(arg);
 }
 
 void DBClientHatohol::addMonitoringServerStatusWithoutTransaction(
