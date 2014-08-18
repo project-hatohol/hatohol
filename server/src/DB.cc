@@ -96,7 +96,7 @@ struct DB::Impl {
 
 		if (!setupCtx.initialized) {
 			SetupProc setup;
-			dbAgent->transaction(setup);
+			dbAgent->runTransaction(setup);
 			setupCtx.initialized = true;
 		}
 	}
