@@ -22,7 +22,7 @@
 
 #include <string>
 #include "HatoholThreadBase.h"
-#include "DBClientConfig.h"
+#include "DBTablesConfig.h"
 #include "ArmStatus.h"
 #include "Closure.h"
 

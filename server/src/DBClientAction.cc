@@ -23,7 +23,7 @@
 #include "CacheServiceDBClient.h"
 #include "DBAgentFactory.h"
 #include "DBClientAction.h"
-#include "DBClientConfig.h"
+#include "DBTablesConfig.h"
 #include "DBClientHatohol.h"
 #include "Mutex.h"
 #include "ItemGroupStream.h"

@@ -23,7 +23,7 @@
 
 #include <Mutex.h>
 #include "ConfigManager.h"
-#include "DBClientConfig.h"
+#include "DBTablesConfig.h"
 #include "Reaper.h"
 using namespace std;
 using namespace mlpl;

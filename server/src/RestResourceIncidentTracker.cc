@@ -18,7 +18,7 @@
  */
 
 #include "RestResourceIncidentTracker.h"
-#include "DBClientConfig.h"
+#include "DBTablesConfig.h"
 #include "UnifiedDataStore.h"
 
 using namespace std;

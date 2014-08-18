@@ -22,7 +22,7 @@
 #include <unistd.h>
 #include <typeinfo>
 #include "Helpers.h"
-#include "DBClientConfig.h"
+#include "DBTablesConfig.h"
 #include "DBClientAction.h"
 #include "DBClientTest.h"
 #include "DBAgentSQLite3.h"

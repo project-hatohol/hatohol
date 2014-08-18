@@ -49,7 +49,7 @@ testHatohol_la_SOURCES = \
 	testDB.cc \
 	testDBClient.cc \
 	testDBClientUtils.cc \
-	testDBClientConfig.cc \
+	testDBTablesConfig.cc \
 	testDBClientHatohol.cc testDBClientHatohol.h \
 	testDBClientAction.cc testDBClientUser.cc \
 	testDBClientHost.cc \

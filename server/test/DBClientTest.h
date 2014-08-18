@@ -23,7 +23,7 @@
 #include <map>
 #include <set>
 #include <SmartTime.h>
-#include "DBClientConfig.h"
+#include "DBTablesConfig.h"
 #include "DBClientHatohol.h"
 #include "DBClientAction.h"
 #include "DBClientUser.h"

@@ -30,7 +30,7 @@ using namespace mlpl;
 #include "HatoholException.h"
 #include "DBAgentSQLite3.h"
 #include "DBAgentMySQL.h"
-#include "DBClientConfig.h"
+#include "DBTablesConfig.h"
 #include "DBClientHatohol.h"
 #include "ActionManager.h"
 #include "ActorCollector.h"

@@ -39,7 +39,7 @@ using namespace mlpl;
 #include "Utils.h"
 #include "FaceRest.h"
 #include "UnifiedDataStore.h"
-#include "DBClientConfig.h"
+#include "DBTablesConfig.h"
 #include "ActorCollector.h"
 #include "DBClientAction.h"
 #include "ConfigManager.h"
