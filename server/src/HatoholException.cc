@@ -44,6 +44,8 @@ HatoholException::HatoholException(
   m_sourceFileName(sourceFileName),
   m_lineNumber(lineNumber)
 {
+	MLPL_DBG("HatoholException: <%s:%d> %s\n", sourceFileName.c_str(), lineNumber,
+	         brief.c_str());
 	if (m_saveStackTrace)
 		saveStackTrace();
 }
