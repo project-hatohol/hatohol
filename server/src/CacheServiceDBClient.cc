@@ -94,7 +94,7 @@ struct CacheServiceDBClient::Impl {
 		else if (domainId == DB_DOMAIN_ID_USERS)
 			dbClient = new DBClientUser();
 		else if (domainId == DB_DOMAIN_ID_CONFIG)
-			dbClient = new DBClientConfig();
+			dbClient = new DBTablesConfig();
 		else if (domainId == DB_DOMAIN_ID_ACTION)
 			dbClient = new DBClientAction();
 		HATOHOL_ASSERT(dbClient,
@@ -191,9 +191,9 @@ DBClientUser *CacheServiceDBClient::getUser(void)
 	return get<DBClientUser>(DB_DOMAIN_ID_USERS);
 }
 
-DBClientConfig *CacheServiceDBClient::getConfig(void)
+DBTablesConfig *CacheServiceDBClient::getConfig(void)
 {
-	return get<DBClientConfig>(DB_DOMAIN_ID_CONFIG);
+	return get<DBTablesConfig>(DB_DOMAIN_ID_CONFIG);
 }
 
 DBClientAction *CacheServiceDBClient::getAction(void)

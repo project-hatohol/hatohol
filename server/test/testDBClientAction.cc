@@ -548,7 +548,7 @@ void test_deleteNoIncidentTrackerAction(void)
 			excludeIdList.push_back(actionId);
 	}
 
-	DBClientConfig dbConfig;
+	DBTablesConfig dbConfig;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	HatoholError err = dbConfig.deleteIncidentTracker(targetId, privilege);
 	assertHatoholError(HTERR_OK, err);
@@ -933,7 +933,7 @@ void test_getActionListWithNoIncidentTracker(void)
 			excludeIdSet.insert(actionId);
 	}
 
-	DBClientConfig dbConfig;
+	DBTablesConfig dbConfig;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	HatoholError err = dbConfig.deleteIncidentTracker(targetId, privilege);
 	assertHatoholError(HTERR_OK, err);
@@ -1004,7 +1004,7 @@ void test_databaseName(void)
 {
 	DBConnectInfo connInfo =
 	  DBClient::getDBConnectInfo(DB_DOMAIN_ID_ACTION);
-	cppcut_assert_equal(string(DBClientConfig::DEFAULT_DB_NAME),
+	cppcut_assert_equal(string(DBTablesConfig::DEFAULT_DB_NAME),
 	                    connInfo.dbName);
 }
 
@@ -1012,7 +1012,7 @@ void test_databaseUser(void)
 {
 	DBConnectInfo connInfo =
 	  DBClient::getDBConnectInfo(DB_DOMAIN_ID_ACTION);
-	cppcut_assert_equal(string(DBClientConfig::DEFAULT_USER_NAME),
+	cppcut_assert_equal(string(DBTablesConfig::DEFAULT_USER_NAME),
 	                    connInfo.user);
 }
 
@@ -1020,7 +1020,7 @@ void test_databasePassword(void)
 {
 	DBConnectInfo connInfo =
 	  DBClient::getDBConnectInfo(DB_DOMAIN_ID_ACTION);
-	cppcut_assert_equal(string(DBClientConfig::DEFAULT_USER_NAME),
+	cppcut_assert_equal(string(DBTablesConfig::DEFAULT_USER_NAME),
 	                    connInfo.user);
 }
 

@@ -40,7 +40,7 @@ public:
 	virtual ~CacheServiceDBClient();
 	DBClientHatohol *getHatohol(void);
 	DBClientUser    *getUser(void);
-	DBClientConfig  *getConfig(void);
+	DBTablesConfig  *getConfig(void);
 	DBClientAction  *getAction(void);
 
 private:

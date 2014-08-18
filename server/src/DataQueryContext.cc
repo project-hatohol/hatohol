@@ -100,7 +100,7 @@ const ServerIdSet &DataQueryContext::getValidServerIdSet(void)
 	if (!m_impl->serverIdSet) {
 		m_impl->serverIdSet = new ServerIdSet();
 		CacheServiceDBClient cache;
-		DBClientConfig *dbConfig = cache.getConfig();
+		DBTablesConfig *dbConfig = cache.getConfig();
 		dbConfig->getServerIdSet(*m_impl->serverIdSet, this);
 	}
 	return *m_impl->serverIdSet;

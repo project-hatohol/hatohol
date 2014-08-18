@@ -154,7 +154,7 @@ int mainRoutine(int argc, char *argv[])
 	setupSignalHandlerForExit(SIGUSR1);
 
 	// setup configuration database
-	DBClientConfig dbConfig;
+	DBTablesConfig dbConfig;
 	// start REST server
 	// 'rest' is on a stack. The destructor of it will be automatically
 	// called at the end of this function.

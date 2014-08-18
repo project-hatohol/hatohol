@@ -37,10 +37,10 @@ static const char *TABLE_NAME_SERVERS = "servers";
 static const char *TABLE_NAME_ARM_PLUGINS = "arm_plugins";
 static const char *TABLE_NAME_INCIDENT_TRACKERS = "incident_trackers";
 
-int DBClientConfig::CONFIG_DB_VERSION = 10;
-const char *DBClientConfig::DEFAULT_DB_NAME = "hatohol";
-const char *DBClientConfig::DEFAULT_USER_NAME = "hatohol";
-const char *DBClientConfig::DEFAULT_PASSWORD  = "hatohol";
+int DBTablesConfig::CONFIG_DB_VERSION = 10;
+const char *DBTablesConfig::DEFAULT_DB_NAME = "hatohol";
+const char *DBTablesConfig::DEFAULT_USER_NAME = "hatohol";
+const char *DBTablesConfig::DEFAULT_PASSWORD  = "hatohol";
 
 const ServerIdSet EMPTY_SERVER_ID_SET;
 const ServerIdSet EMPTY_INCIDENT_TRACKER_ID_SET;
@@ -456,7 +456,7 @@ static const DBAgent::TableProfile tableProfileIncidentTrackers =
 			    COLUMN_DEF_INCIDENT_TRACKERS,
 			    NUM_IDX_INCIDENT_TRACKERS);
 
-struct DBClientConfig::Impl
+struct DBTablesConfig::Impl
 {
 	Impl(void)
 	{
@@ -672,7 +672,7 @@ string IncidentTrackerQueryOption::getCondition(void) const
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-void DBClientConfig::init(void)
+void DBTablesConfig::init(void)
 {
 	//
 	// set database info
@@ -704,7 +704,7 @@ void DBClientConfig::init(void)
 	  DB_DOMAIN_ID_CONFIG, DEFAULT_DB_NAME, &DB_SETUP_FUNC_ARG);
 }
 
-void DBClientConfig::reset(void)
+void DBTablesConfig::reset(void)
 {
 	ConfigManager *confMgr = ConfigManager::getInstance();
 	DBConnectInfo connInfo;
@@ -728,7 +728,7 @@ void DBClientConfig::reset(void)
 	setConnectInfo(DB_DOMAIN_ID_CONFIG, connInfo);
 }
 
-bool DBClientConfig::isHatoholArmPlugin(const MonitoringSystemType &type)
+bool DBTablesConfig::isHatoholArmPlugin(const MonitoringSystemType &type)
 {
 	if (type == MONITORING_SYSTEM_HAPI_ZABBIX)
 		return true;
@@ -739,17 +739,17 @@ bool DBClientConfig::isHatoholArmPlugin(const MonitoringSystemType &type)
 	return false;
 }
 
-DBClientConfig::DBClientConfig(void)
+DBTablesConfig::DBTablesConfig(void)
 : DBClient(DB_DOMAIN_ID_CONFIG),
   m_impl(new Impl())
 {
 }
 
-DBClientConfig::~DBClientConfig()
+DBTablesConfig::~DBTablesConfig()
 {
 }
 
-string DBClientConfig::getDatabaseDir(void)
+string DBTablesConfig::getDatabaseDir(void)
 {
 	DBAgent::SelectArg arg(tableProfileSystem);
 	arg.columnIndexes.push_back(IDX_SYSTEM_DATABASE_DIR);
@@ -762,7 +762,7 @@ string DBClientConfig::getDatabaseDir(void)
 	return itemGroupStream.read<string>();
 }
 
-void DBClientConfig::setDatabaseDir(const string &dir)
+void DBTablesConfig::setDatabaseDir(const string &dir)
 {
 	DBAgent::UpdateArg arg(tableProfileSystem);
 	arg.add(IDX_SYSTEM_DATABASE_DIR, dir);
@@ -771,7 +771,7 @@ void DBClientConfig::setDatabaseDir(const string &dir)
 	} DBCLIENT_TRANSACTION_END();
 }
 
-int  DBClientConfig::getFaceRestPort(void)
+int  DBTablesConfig::getFaceRestPort(void)
 {
 	DBAgent::SelectArg arg(tableProfileSystem);
 	arg.columnIndexes.push_back(IDX_SYSTEM_FACE_REST_PORT);
@@ -784,7 +784,7 @@ int  DBClientConfig::getFaceRestPort(void)
 	return itemGroupStream.read<int>();
 }
 
-void DBClientConfig::setFaceRestPort(int port)
+void DBTablesConfig::setFaceRestPort(int port)
 {
 	DBAgent::UpdateArg arg(tableProfileSystem);
 	arg.add(IDX_SYSTEM_FACE_REST_PORT, port);
@@ -793,7 +793,7 @@ void DBClientConfig::setFaceRestPort(int port)
 	} DBCLIENT_TRANSACTION_END();
 }
 
-bool DBClientConfig::isCopyOnDemandEnabled(void)
+bool DBTablesConfig::isCopyOnDemandEnabled(void)
 {
 	DBAgent::SelectArg arg(tableProfileSystem);
 	arg.columnIndexes.push_back(IDX_SYSTEM_ENABLE_COPY_ON_DEMAND);
@@ -833,7 +833,7 @@ HatoholError validServerInfo(const MonitoringServerInfo &serverInfo)
 	return HTERR_OK;
 }
 
-HatoholError DBClientConfig::addTargetServer(
+HatoholError DBTablesConfig::addTargetServer(
   MonitoringServerInfo *monitoringServerInfo,
   const OperationPrivilege &privilege,
   ArmPluginInfo *armPluginInfo)
@@ -881,7 +881,7 @@ HatoholError DBClientConfig::addTargetServer(
 	return err;
 }
 
-HatoholError DBClientConfig::updateTargetServer(
+HatoholError DBTablesConfig::updateTargetServer(
   MonitoringServerInfo *monitoringServerInfo,
   const OperationPrivilege &privilege, ArmPluginInfo *armPluginInfo)
 {
@@ -930,7 +930,7 @@ HatoholError DBClientConfig::updateTargetServer(
 	return err;
 }
 
-HatoholError DBClientConfig::deleteTargetServer(
+HatoholError DBTablesConfig::deleteTargetServer(
   const ServerIdType &serverId,
   const OperationPrivilege &privilege)
 {
@@ -951,7 +951,7 @@ HatoholError DBClientConfig::deleteTargetServer(
 	return HTERR_OK;
 }
 
-void DBClientConfig::getTargetServers(
+void DBTablesConfig::getTargetServers(
   MonitoringServerInfoList &monitoringServers, ServerQueryOption &option,
   ArmPluginInfoVect *armPluginInfoVect)
 {
@@ -1030,7 +1030,7 @@ void DBClientConfig::getTargetServers(
 	}
 }
 
-void DBClientConfig::getServerIdSet(ServerIdSet &serverIdSet,
+void DBTablesConfig::getServerIdSet(ServerIdSet &serverIdSet,
                                     DataQueryContext *dataQueryContext)
 {
 	// TODO: We'd better use the access_list table with a query like
@@ -1054,7 +1054,7 @@ void DBClientConfig::getServerIdSet(ServerIdSet &serverIdSet,
 	}
 }
 
-void DBClientConfig::getArmPluginInfo(ArmPluginInfoVect &armPluginVect)
+void DBTablesConfig::getArmPluginInfo(ArmPluginInfoVect &armPluginVect)
 {
 	DBAgent::SelectExArg arg(tableProfileArmPlugins);
 	selectArmPluginInfo(arg);
@@ -1071,7 +1071,7 @@ void DBClientConfig::getArmPluginInfo(ArmPluginInfoVect &armPluginVect)
 	}
 }
 
-bool DBClientConfig::getArmPluginInfo(ArmPluginInfo &armPluginInfo,
+bool DBTablesConfig::getArmPluginInfo(ArmPluginInfo &armPluginInfo,
                                       const ServerIdType &serverId)
 {
 	DBAgent::SelectExArg arg(tableProfileArmPlugins);
@@ -1089,7 +1089,7 @@ bool DBClientConfig::getArmPluginInfo(ArmPluginInfo &armPluginInfo,
 	return true;
 }
 
-HatoholError DBClientConfig::saveArmPluginInfo(ArmPluginInfo &armPluginInfo)
+HatoholError DBTablesConfig::saveArmPluginInfo(ArmPluginInfo &armPluginInfo)
 {
 	string condition;
 	HatoholError err = preprocForSaveArmPlguinInfo(armPluginInfo,
@@ -1115,7 +1115,7 @@ HatoholError validIncidentTrackerInfo(
 	return HTERR_OK;
 }
 
-HatoholError DBClientConfig::addIncidentTracker(
+HatoholError DBTablesConfig::addIncidentTracker(
   IncidentTrackerInfo &incidentTrackerInfo, const OperationPrivilege &privilege)
 {
 	if (!privilege.has(OPPRVLG_CREATE_INCIDENT_SETTING))
@@ -1142,7 +1142,7 @@ HatoholError DBClientConfig::addIncidentTracker(
 	return HTERR_OK;
 }
 
-HatoholError DBClientConfig::updateIncidentTracker(
+HatoholError DBTablesConfig::updateIncidentTracker(
   IncidentTrackerInfo &incidentTrackerInfo, const OperationPrivilege &privilege)
 {
 	if (!privilege.has(OPPRVLG_UPDATE_INCIDENT_SETTING))
@@ -1173,7 +1173,7 @@ HatoholError DBClientConfig::updateIncidentTracker(
 	return err;
 }
 
-void DBClientConfig::getIncidentTrackers(
+void DBTablesConfig::getIncidentTrackers(
   IncidentTrackerInfoVect &incidentTrackerInfoVect,
   IncidentTrackerQueryOption &option)
 {
@@ -1211,7 +1211,7 @@ void DBClientConfig::getIncidentTrackers(
 	}
 }
 
-HatoholError DBClientConfig::deleteIncidentTracker(
+HatoholError DBTablesConfig::deleteIncidentTracker(
   const IncidentTrackerIdType &incidentTrackerId,
   const OperationPrivilege &privilege)
 {
@@ -1230,7 +1230,7 @@ HatoholError DBClientConfig::deleteIncidentTracker(
 	return HTERR_OK;
 }
 
-void DBClientConfig::getIncidentTrackerIdSet(
+void DBTablesConfig::getIncidentTrackerIdSet(
   IncidentTrackerIdSet &incidentTrackerIdSet)
 {
 	IncidentTrackerInfoVect incidentTrackersVect;
@@ -1249,7 +1249,7 @@ void DBClientConfig::getIncidentTrackerIdSet(
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void DBClientConfig::tableInitializerSystem(DBAgent *dbAgent, void *data)
+void DBTablesConfig::tableInitializerSystem(DBAgent *dbAgent, void *data)
 {
 	const ColumnDef &columnDefDatabaseDir =
 	  COLUMN_DEF_SYSTEM[IDX_SYSTEM_DATABASE_DIR];
@@ -1266,7 +1266,7 @@ void DBClientConfig::tableInitializerSystem(DBAgent *dbAgent, void *data)
 	dbAgent->insert(arg);
 }
 
-bool DBClientConfig::canUpdateTargetServer(
+bool DBTablesConfig::canUpdateTargetServer(
   MonitoringServerInfo *monitoringServerInfo,
   const OperationPrivilege &privilege)
 {
@@ -1281,7 +1281,7 @@ bool DBClientConfig::canUpdateTargetServer(
 	return dbUser->isAccessible(monitoringServerInfo->id, privilege, false);
 }
 
-bool DBClientConfig::canDeleteTargetServer(
+bool DBTablesConfig::canDeleteTargetServer(
   const ServerIdType &serverId, const OperationPrivilege &privilege)
 {
 	if (privilege.has(OPPRVLG_DELETE_ALL_SERVER))
@@ -1295,7 +1295,7 @@ bool DBClientConfig::canDeleteTargetServer(
 	return dbUser->isAccessible(serverId, privilege);
 }
 
-void DBClientConfig::selectArmPluginInfo(DBAgent::SelectExArg &arg)
+void DBTablesConfig::selectArmPluginInfo(DBAgent::SelectExArg &arg)
 {
 	arg.add(IDX_ARM_PLUGINS_ID);
 	arg.add(IDX_ARM_PLUGINS_TYPE);
@@ -1309,7 +1309,7 @@ void DBClientConfig::selectArmPluginInfo(DBAgent::SelectExArg &arg)
 	} DBCLIENT_TRANSACTION_END();
 }
 
-void DBClientConfig::readArmPluginStream(
+void DBTablesConfig::readArmPluginStream(
   ItemGroupStream &itemGroupStream, ArmPluginInfo &armPluginInfo)
 {
 	itemGroupStream >> armPluginInfo.id;
@@ -1320,7 +1320,7 @@ void DBClientConfig::readArmPluginStream(
 	itemGroupStream >> armPluginInfo.serverId;
 }
 
-HatoholError DBClientConfig::preprocForSaveArmPlguinInfo(
+HatoholError DBTablesConfig::preprocForSaveArmPlguinInfo(
   const MonitoringServerInfo &serverInfo,
   const ArmPluginInfo &armPluginInfo, string &condition)
 {
@@ -1332,7 +1332,7 @@ HatoholError DBClientConfig::preprocForSaveArmPlguinInfo(
 	return preprocForSaveArmPlguinInfo(armPluginInfo, condition);
 }
 
-HatoholError DBClientConfig::preprocForSaveArmPlguinInfo(
+HatoholError DBTablesConfig::preprocForSaveArmPlguinInfo(
   const ArmPluginInfo &armPluginInfo, string &condition)
 {
 	if (armPluginInfo.type != MONITORING_SYSTEM_HAPI_JSON &&
@@ -1350,7 +1350,7 @@ HatoholError DBClientConfig::preprocForSaveArmPlguinInfo(
 	return HTERR_OK;
 }
 
-HatoholError DBClientConfig::saveArmPluginInfoWithoutTransaction(
+HatoholError DBTablesConfig::saveArmPluginInfoWithoutTransaction(
   ArmPluginInfo &armPluginInfo, const string &condition)
 {
 	if (armPluginInfo.id != AUTO_INCREMENT_VALUE &&
@@ -1381,7 +1381,7 @@ HatoholError DBClientConfig::saveArmPluginInfoWithoutTransaction(
 	return HTERR_OK;
 }
 
-void DBClientConfig::preprocForDeleteArmPluginInfo(
+void DBTablesConfig::preprocForDeleteArmPluginInfo(
   const ServerIdType &serverId, std::string &condition)
 {
 	condition = StringUtils::sprintf(
@@ -1390,7 +1390,7 @@ void DBClientConfig::preprocForDeleteArmPluginInfo(
 	  serverId);
 }
 
-HatoholError DBClientConfig::saveArmPluginInfoIfNeededWithoutTransaction(
+HatoholError DBTablesConfig::saveArmPluginInfoIfNeededWithoutTransaction(
   ArmPluginInfo &armPluginInfo, const std::string &condition)
 {
 	if (condition.empty())
@@ -1398,7 +1398,7 @@ HatoholError DBClientConfig::saveArmPluginInfoIfNeededWithoutTransaction(
 	return saveArmPluginInfoWithoutTransaction(armPluginInfo, condition);
 }
 
-void DBClientConfig::deleteArmPluginInfoWithoutTransaction(
+void DBTablesConfig::deleteArmPluginInfoWithoutTransaction(
   const std::string &condition)
 {
 	DBAgent::DeleteArg arg(tableProfileArmPlugins);

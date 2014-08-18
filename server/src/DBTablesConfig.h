@@ -17,8 +17,8 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DBClientConfig_h
-#define DBClientConfig_h
+#ifndef DBTablesConfig_h
+#define DBTablesConfig_h
 
 #include "DBClient.h"
 #include "DBClientHatohol.h"
@@ -116,7 +116,7 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-class DBClientConfig : public DBClient {
+class DBTablesConfig : public DBClient {
 public:
 	static int CONFIG_DB_VERSION;
 	static const char *DEFAULT_DB_NAME;
@@ -126,8 +126,8 @@ public:
 	static void reset(void);
 	static bool isHatoholArmPlugin(const MonitoringSystemType &type);
 
-	DBClientConfig(void);
-	virtual ~DBClientConfig();
+	DBTablesConfig(void);
+	virtual ~DBTablesConfig();
 
 	std::string getDatabaseDir(void);
 	void setDatabaseDir(const std::string &dir);
@@ -286,4 +286,4 @@ private:
 
 };
 
-#endif // DBClientConfig_h
+#endif // DBTablesConfig_h
