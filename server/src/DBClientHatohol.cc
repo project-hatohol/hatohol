@@ -2309,55 +2309,21 @@ void DBClientHatohol::addMonitoringServerStatusWithoutTransaction(
 void DBClientHatohol::addIncidentInfoWithoutTransaction(
   const IncidentInfo &incidentInfo)
 {
-	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
-	string condition = StringUtils::sprintf(
-	  "server_id=%s AND event_id=%s",
-	  dbTermCodec->enc(incidentInfo.serverId).c_str(),
-	  dbTermCodec->enc(incidentInfo.eventId).c_str());
-	if (!isRecordExisting(TABLE_NAME_INCIDENTS, condition)) {
-		DBAgent::InsertArg arg(tableProfileIncidents);
-		arg.add(incidentInfo.trackerId);
-		arg.add(incidentInfo.serverId);
-		arg.add(incidentInfo.eventId);
-		arg.add(incidentInfo.triggerId);
-		arg.add(incidentInfo.identifier);
-		arg.add(incidentInfo.location);
-		arg.add(incidentInfo.status);
-		arg.add(incidentInfo.assignee);
-		arg.add(incidentInfo.createdAt.tv_sec);
-		arg.add(incidentInfo.createdAt.tv_nsec);
-		arg.add(incidentInfo.updatedAt.tv_sec);
-		arg.add(incidentInfo.updatedAt.tv_nsec);
-		insert(arg);
-	} else {
-		DBAgent::UpdateArg arg(tableProfileIncidents);
-		arg.add(IDX_INCIDENTS_TRACKER_ID,
-			incidentInfo.trackerId);
-		arg.add(IDX_INCIDENTS_SERVER_ID,
-			incidentInfo.serverId);
-		arg.add(IDX_INCIDENTS_EVENT_ID,
-			incidentInfo.eventId);
-		arg.add(IDX_INCIDENTS_TRIGGER_ID,
-			incidentInfo.triggerId);
-		arg.add(IDX_INCIDENTS_IDENTIFIER,
-			incidentInfo.identifier);
-		arg.add(IDX_INCIDENTS_LOCATION,
-			incidentInfo.location);
-		arg.add(IDX_INCIDENTS_STATUS,
-			incidentInfo.status);
-		arg.add(IDX_INCIDENTS_ASSIGNEE,
-			incidentInfo.assignee);
-		arg.add(IDX_INCIDENTS_CREATED_AT_SEC,
-			incidentInfo.createdAt.tv_sec);
-		arg.add(IDX_INCIDENTS_CREATED_AT_NS,
-			incidentInfo.createdAt.tv_nsec);
-		arg.add(IDX_INCIDENTS_UPDATED_AT_SEC,
-			incidentInfo.updatedAt.tv_sec);
-		arg.add(IDX_INCIDENTS_UPDATED_AT_NS,
-			incidentInfo.updatedAt.tv_nsec);
-		arg.condition = condition;
-		update(arg);
-	}
+	DBAgent::InsertArg arg(tableProfileIncidents);
+	arg.add(incidentInfo.trackerId);
+	arg.add(incidentInfo.serverId);
+	arg.add(incidentInfo.eventId);
+	arg.add(incidentInfo.triggerId);
+	arg.add(incidentInfo.identifier);
+	arg.add(incidentInfo.location);
+	arg.add(incidentInfo.status);
+	arg.add(incidentInfo.assignee);
+	arg.add(incidentInfo.createdAt.tv_sec);
+	arg.add(incidentInfo.createdAt.tv_nsec);
+	arg.add(incidentInfo.updatedAt.tv_sec);
+	arg.add(incidentInfo.updatedAt.tv_nsec);
+	arg.upsertOnDuplicate = true;
+	insert(arg);
 }
 
 HatoholError DBClientHatohol::getHostgroupInfoList
