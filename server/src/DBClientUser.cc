@@ -683,21 +683,32 @@ HatoholError DBClientUser::updateUserInfo(
 HatoholError DBClientUser::deleteUserInfo(
   const UserIdType userId, const OperationPrivilege &privilege)
 {
+	using mlpl::StringUtils::sprintf;
 	if (!privilege.has(OPPRVLG_DELETE_USER))
 		return HTERR_NO_PRIVILEGE;
 
-	DBAgent::DeleteArg argForUsers(tableProfileUsers);
-	const ColumnDef &colIdForUsers = COLUMN_DEF_USERS[IDX_USERS_ID];
-	argForUsers.condition = StringUtils::sprintf("%s=%" FMT_USER_ID,
-					       colIdForUsers.columnName, userId);
-	DBAgent::DeleteArg argForAccessList(tableProfileAccessList);
-	const ColumnDef &colIdForAccessList = COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID];
-	argForAccessList.condition = StringUtils::sprintf("%s=%" FMT_USER_ID,
-					       colIdForAccessList.columnName, userId);
-	DBCLIENT_TRANSACTION_BEGIN() {
-		deleteRows(argForUsers);
-		deleteRows(argForAccessList);
-	} DBCLIENT_TRANSACTION_END();
+	struct TrxProc : public DBAgent::TransactionProc {
+		DBAgent::DeleteArg argForUsers;
+		DBAgent::DeleteArg argForAccessList;
+
+		TrxProc(const UserIdType &userId)
+		: argForUsers(tableProfileUsers),
+		 argForAccessList(tableProfileAccessList)
+		{
+			argForUsers.condition = sprintf("%s=%" FMT_USER_ID,
+			  COLUMN_DEF_USERS[IDX_USERS_ID].columnName, userId);
+			argForAccessList.condition = sprintf("%s=%" FMT_USER_ID,
+			  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID].columnName,
+			  userId);
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			dbAgent.deleteRows(argForUsers);
+			dbAgent.deleteRows(argForAccessList);
+		}
+	} trx(userId);
+	getDBAgent().transaction(trx);
 	return HTERR_OK;
 }
 
