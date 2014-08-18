@@ -140,6 +140,7 @@ public:
 		void add(const size_t &columnIndex, const double      &val);
 		void add(const size_t &columnIndex, const std::string &val);
 		void add(const size_t &columnIndex, const time_t      &val);
+		void add(const size_t &columnIndex, const ItemGroup   *grp);
 	};
 
 	struct SelectArg {
