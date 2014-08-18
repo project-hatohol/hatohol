@@ -753,9 +753,8 @@ string DBClientConfig::getDatabaseDir(void)
 {
 	DBAgent::SelectArg arg(tableProfileSystem);
 	arg.columnIndexes.push_back(IDX_SYSTEM_DATABASE_DIR);
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(arg);
+
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	HATOHOL_ASSERT(!grpList.empty(), "Obtained Table: empty");
 	ItemGroupStream itemGroupStream(*grpList.begin());
@@ -766,18 +765,15 @@ void DBClientConfig::setDatabaseDir(const string &dir)
 {
 	DBAgent::UpdateArg arg(tableProfileSystem);
 	arg.add(IDX_SYSTEM_DATABASE_DIR, dir);
-	DBCLIENT_TRANSACTION_BEGIN() {
-		update(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().update(arg);
 }
 
 int  DBClientConfig::getFaceRestPort(void)
 {
 	DBAgent::SelectArg arg(tableProfileSystem);
 	arg.columnIndexes.push_back(IDX_SYSTEM_FACE_REST_PORT);
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(arg);
+
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	HATOHOL_ASSERT(!grpList.empty(), "Obtained Table: empty");
 	ItemGroupStream itemGroupStream(*grpList.begin());
@@ -788,18 +784,15 @@ void DBClientConfig::setFaceRestPort(int port)
 {
 	DBAgent::UpdateArg arg(tableProfileSystem);
 	arg.add(IDX_SYSTEM_FACE_REST_PORT, port);
-	DBCLIENT_TRANSACTION_BEGIN() {
-		update(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(arg);
 }
 
 bool DBClientConfig::isCopyOnDemandEnabled(void)
 {
 	DBAgent::SelectArg arg(tableProfileSystem);
 	arg.columnIndexes.push_back(IDX_SYSTEM_ENABLE_COPY_ON_DEMAND);
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(arg);
+
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	HATOHOL_ASSERT(!grpList.empty(), "Obtained Table: empty");
 	ItemGroupStream itemGroupStream(*grpList.begin());
@@ -985,9 +978,7 @@ void DBClientConfig::getTargetServers(
 	builder.add(IDX_ARM_PLUGINS_STATIC_QUEUE_ADDR);
 	builder.add(IDX_ARM_PLUGINS_SERVER_ID);
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(builder.getSelectExArg());
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(builder.getSelectExArg());
 
 	// check the result and copy
 	ItemTablePtr &dataTable = builder.getSelectExArg().dataTable;
@@ -1041,9 +1032,7 @@ void DBClientConfig::getServerIdSet(ServerIdSet &serverIdSet,
 	arg.add(IDX_SERVERS_ID);
 	arg.condition = option.getCondition();
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(arg);
 
 	// check the result and copy
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
@@ -1188,9 +1177,7 @@ void DBClientConfig::getIncidentTrackers(
 	arg.add(IDX_INCIDENT_TRACKERS_PASSWORD);
 	arg.condition = option.getCondition();
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(arg);
 
 	// check the result and copy
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
@@ -1304,9 +1291,7 @@ void DBClientConfig::selectArmPluginInfo(DBAgent::SelectExArg &arg)
 	arg.add(IDX_ARM_PLUGINS_STATIC_QUEUE_ADDR);
 	arg.add(IDX_ARM_PLUGINS_SERVER_ID);
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(arg);
 }
 
 void DBClientConfig::readArmPluginStream(

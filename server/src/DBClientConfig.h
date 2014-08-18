@@ -284,6 +284,12 @@ private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;
 
+	// This is a temporary mesurement. We'll replace the base class with DBTables,
+	// which provides the method that returns a reference.
+	DBAgent &getDBAgent(void)
+	{
+		return *DBClient::getDBAgent();
+	}
 };
 
 #endif // DBClientConfig_h
