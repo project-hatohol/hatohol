@@ -1135,17 +1135,34 @@ bool DBClientConfig::getArmPluginInfo(ArmPluginInfo &armPluginInfo,
 
 HatoholError DBClientConfig::saveArmPluginInfo(ArmPluginInfo &armPluginInfo)
 {
-	string condition;
-	HatoholError err = preprocForSaveArmPlguinInfo(armPluginInfo,
-	                                               condition);
-	if (err != HTERR_OK)
-		return err;
+	struct TrxProc : public DBAgent::TransactionProc {
+		HatoholError    err;
+		string          condition;
+		DBClientConfig *obj;
+		ArmPluginInfo  &armPluginInfo;
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		err = saveArmPluginInfoWithoutTransaction(armPluginInfo,
-		                                          condition);
-	} DBCLIENT_TRANSACTION_END();
-	return err;
+		TrxProc(DBClientConfig *_obj,
+		        ArmPluginInfo  &_armPluginInfo)
+		: obj(_obj),
+		  armPluginInfo(_armPluginInfo)
+		{
+		}
+
+		bool preproc(DBAgent &dbAgent) override
+		{
+			err = obj->preprocForSaveArmPlguinInfo(armPluginInfo,
+			                                       condition);
+			return (err == HTERR_OK);
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			err = obj->saveArmPluginInfoWithoutTransaction(
+			        armPluginInfo, condition);
+		}
+	} trx(this, armPluginInfo);
+	getDBAgent().transaction(trx);
+	return trx.err;
 }
 
 HatoholError validIncidentTrackerInfo(
