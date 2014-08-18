@@ -952,7 +952,8 @@ void dbAgentGetLastInsertId(DBAgent &dbAgent, DBAgentChecker &checker)
 	for (uint64_t id = 1; id < NUM_REPEAT; id++) {
 		int val = id * 3;
 		insertRowToTestTableAutoInc(
-		  dbAgent, checker, val, sprintf("hanako.%"PRIu64, id).c_str());
+		  dbAgent, checker, val,
+		  sprintf("hanako.%" PRIu64, id).c_str());
 		cppcut_assert_equal(id, dbAgent.getLastInsertId());
 	}
 }
