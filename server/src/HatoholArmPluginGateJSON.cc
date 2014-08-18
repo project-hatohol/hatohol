@@ -160,7 +160,7 @@ struct HatoholArmPluginGateJSON::Impl
 private:
 	string generateBrokerAddress(const MonitoringServerInfo &serverInfo)
 	{
-		return StringUtils::sprintf("hatohol.gate.%" FMT_SERVER_ID,
+		return StringUtils::sprintf("gate.%" FMT_SERVER_ID,
 					    serverInfo.id);
 	}
 };
