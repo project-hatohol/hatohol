@@ -45,4 +45,16 @@ void test_basicFeature(void)
 	cppcut_assert_equal(string("ABC,DOG!,"), str);
 }
 
+void test_clear(void)
+{
+	string str = "ABC";
+	SeparatorInjector sepInj(",");
+	sepInj(str);
+	cppcut_assert_equal(string("ABC"), str);
+
+	sepInj.clear();
+	sepInj(str);
+	cppcut_assert_equal(string("ABC"), str);
+}
+
 } // namespace testSeparatorInejector
