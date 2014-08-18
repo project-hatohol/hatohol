@@ -838,40 +838,61 @@ HatoholError DBClientConfig::addTargetServer(
 	if (err != HTERR_OK)
 		return err;
 
-	DBAgent::InsertArg arg(tableProfileServers);
-	arg.add(AUTO_INCREMENT_VALUE);
-	arg.add(monitoringServerInfo->type);
-	arg.add(monitoringServerInfo->hostName);
-	arg.add(monitoringServerInfo->ipAddress);
-	arg.add(monitoringServerInfo->nickname);
-	arg.add(monitoringServerInfo->port);
-	arg.add(monitoringServerInfo->pollingIntervalSec);
-	arg.add(monitoringServerInfo->retryIntervalSec);
-	arg.add(monitoringServerInfo->userName);
-	arg.add(monitoringServerInfo->password);
-	arg.add(monitoringServerInfo->dbName);
+	struct TrxProc : public DBAgent::TransactionProc {
+		HatoholError              err;
+		DBAgent::InsertArg        arg;
+		string                    condForHap;
+		DBClientConfig           *obj;
+		MonitoringServerInfo     &monitoringServerInfo;
+		ArmPluginInfo            &armPluginInfo;
 
-	string condForHap;
-	err = preprocForSaveArmPlguinInfo(*monitoringServerInfo,
-	                                  *armPluginInfo, condForHap);
-	if (err != HTERR_OK)
-		return err;
-
-	DBCLIENT_TRANSACTION_BEGIN() {
-		insert(arg);
-		monitoringServerInfo->id = getLastInsertId();
-		// TODO: Add AccessInfo for the server to enable the operator to
-		// access to it
-		if (!condForHap.empty())
-			armPluginInfo->serverId = monitoringServerInfo->id;
-		err = saveArmPluginInfoIfNeededWithoutTransaction(
-		        *armPluginInfo, condForHap);
-		if (err != HTERR_OK) {
-			rollback();
-			return err;
+		TrxProc(DBClientConfig       *_obj,
+		        MonitoringServerInfo &_monitoringServerInfo,
+		        ArmPluginInfo        &_armPluginInfo)
+		: arg(tableProfileServers),
+		  obj(_obj),
+		  monitoringServerInfo(_monitoringServerInfo),
+		  armPluginInfo(_armPluginInfo)
+		{
+			arg.add(AUTO_INCREMENT_VALUE);
+			arg.add(monitoringServerInfo.type);
+			arg.add(monitoringServerInfo.hostName);
+			arg.add(monitoringServerInfo.ipAddress);
+			arg.add(monitoringServerInfo.nickname);
+			arg.add(monitoringServerInfo.port);
+			arg.add(monitoringServerInfo.pollingIntervalSec);
+			arg.add(monitoringServerInfo.retryIntervalSec);
+			arg.add(monitoringServerInfo.userName);
+			arg.add(monitoringServerInfo.password);
+			arg.add(monitoringServerInfo.dbName);
 		}
-	} DBCLIENT_TRANSACTION_END();
-	return err;
+
+		bool preproc(DBAgent &dbAgent) override
+		{
+			err = obj->preprocForSaveArmPlguinInfo(
+			        monitoringServerInfo,
+			        armPluginInfo, condForHap);
+			return (err == HTERR_OK);
+		}
+		
+		void operator ()(DBAgent &dbAgent) override
+		{
+			dbAgent.insert(arg);
+			monitoringServerInfo.id = dbAgent.getLastInsertId();
+			// TODO: Add AccessInfo for the server to enable
+			// the operator to access to it
+			if (!condForHap.empty()) {
+				armPluginInfo.serverId =
+				  monitoringServerInfo.id;
+			}
+			err = obj->saveArmPluginInfoIfNeededWithoutTransaction(
+			        armPluginInfo, condForHap);
+			if (err != HTERR_OK)
+				dbAgent.rollback();
+		}
+	} trx(this, *monitoringServerInfo, *armPluginInfo);
+	getDBAgent().transaction(trx);
+	return trx.err;
 }
 
 HatoholError DBClientConfig::updateTargetServer(
