@@ -47,7 +47,7 @@ struct IncidentSenderManager::Impl
 	IncidentSender *createSender(const IncidentTrackerIdType &id)
 	{
 		CacheServiceDBClient cache;
-		DBTablesConfig *dbConfig = cache.getConfig();
+		DBClientConfig *dbConfig = cache.getConfig();
 		IncidentTrackerInfoVect incidentTrackerVect;
 		IncidentTrackerQueryOption option(USER_ID_SYSTEM);
 		option.setTargetId(id);

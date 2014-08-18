@@ -39,7 +39,7 @@ using namespace mlpl;
 #include "Utils.h"
 #include "FaceRest.h"
 #include "UnifiedDataStore.h"
-#include "DBTablesConfig.h"
+#include "DBClientConfig.h"
 #include "ActorCollector.h"
 #include "DBClientAction.h"
 #include "ConfigManager.h"
@@ -154,7 +154,7 @@ int mainRoutine(int argc, char *argv[])
 	setupSignalHandlerForExit(SIGUSR1);
 
 	// setup configuration database
-	DBTablesConfig dbConfig;
+	DBClientConfig dbConfig;
 	// start REST server
 	// 'rest' is on a stack. The destructor of it will be automatically
 	// called at the end of this function.

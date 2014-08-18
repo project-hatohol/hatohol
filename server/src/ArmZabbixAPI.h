@@ -25,7 +25,7 @@
 #include "ArmBase.h"
 #include "ItemTablePtr.h"
 #include "JSONBuilderAgent.h"
-#include "DBTablesConfig.h"
+#include "DBClientConfig.h"
 
 class ArmZabbixAPI : public ZabbixAPI, public ArmBase
 {

@@ -30,7 +30,7 @@ using namespace mlpl;
 #include "HatoholException.h"
 #include "DBAgentSQLite3.h"
 #include "DBAgentMySQL.h"
-#include "DBTablesConfig.h"
+#include "DBClientConfig.h"
 #include "DBClientHatohol.h"
 #include "ActionManager.h"
 #include "ActorCollector.h"
@@ -54,7 +54,7 @@ static void init(void)
 
 	DBAgentSQLite3::init();
 	DBAgentMySQL::init();
-	DBTablesConfig::init();
+	DBClientConfig::init();
 	DBClientUser::init();
 	DBClientHatohol::init();
 	DBClientAction::init();
@@ -76,9 +76,9 @@ static void reset(const CommandLineOptions *cmdLineOpts)
 	DBAgentSQLite3::reset();
 	DBClient::reset();
 	DBCGroupRegular::reset();
-	DBTablesConfig::reset(); // must be after DBClient::reset()
+	DBClientConfig::reset(); // must be after DBClient::reset()
 	DBClientUser::reset();
-	DBClientAction::reset(); // must be after DBTablesConfig::reset()
+	DBClientAction::reset(); // must be after DBClientConfig::reset()
 
 	ActionManager::reset();
 	CacheServiceDBClient::reset();

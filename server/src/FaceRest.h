@@ -26,7 +26,7 @@
 #include "SmartTime.h"
 #include "Params.h"
 #include "HatoholError.h"
-#include "DBTablesConfig.h"
+#include "DBClientConfig.h"
 #include "DBClientUser.h"
 #include "DBClientHatohol.h"
 #include "Closure.h"

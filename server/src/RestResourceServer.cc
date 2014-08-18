@@ -312,14 +312,14 @@ static HatoholError parseServerParameter(
 	//
 	// HAPI's parameters
 	//
-	if (!DBTablesConfig::isHatoholArmPlugin(svInfo.type))
+	if (!DBClientConfig::isHatoholArmPlugin(svInfo.type))
 		return HTERR_OK;
 
 	if (!forUpdate) {
 		armPluginInfo.id = AUTO_INCREMENT_VALUE;
 		// The proper sever ID will be set later when the DB record
 		// of the concerned MonitoringServerInfo is created in
-		// DBTablesConfig::addTargetServer()
+		// DBClientConfig::addTargetServer()
 		armPluginInfo.serverId = INVALID_SERVER_ID;
 	}
 	armPluginInfo.type = svInfo.type;
@@ -415,7 +415,7 @@ void RestResourceServer::handlerPutServer(void)
 	// for privilege is needed for getting information. We've already
 	// checked it above. So it's not absolutely necessary.
 	CacheServiceDBClient cache;
-	DBTablesConfig *dbConfig = cache.getConfig();
+	DBClientConfig *dbConfig = cache.getConfig();
 	dbConfig->getArmPluginInfo(armPluginInfo, serverId);
 
 	// check the request
