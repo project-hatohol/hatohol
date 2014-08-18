@@ -29,7 +29,7 @@
 #include "DBClient.h"
 #include "HatoholError.h"
 #include "OperationPrivilege.h"
-#include "DBClientConfig.h"
+#include "DBTablesConfig.h"
 #include "DBClientHatohol.h"
 #include "DBClientAction.h"
 #include "ArmStatus.h"

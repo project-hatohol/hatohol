@@ -36,7 +36,7 @@
 #include "HatoholException.h"
 #include "UnifiedDataStore.h"
 #include "DBClientUser.h"
-#include "DBClientConfig.h"
+#include "DBTablesConfig.h"
 #include "SessionManager.h"
 #include "CacheServiceDBClient.h"
 #include "HatoholArmPluginInterface.h"

@@ -20,7 +20,7 @@
 #include <cppcutter.h>
 #include <gcutter.h>
 #include "Hatohol.h"
-#include "DBClientConfig.h"
+#include "DBTablesConfig.h"
 #include "ConfigManager.h"
 #include "Helpers.h"
 #include "DBClientTest.h"

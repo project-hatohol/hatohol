@@ -22,7 +22,7 @@
 
 #include "DBClientHatohol.h"
 #include "DBClientUser.h"
-#include "DBClientConfig.h"
+#include "DBTablesConfig.h"
 #include "DBClientAction.h"
 
 class CacheServiceDBClient

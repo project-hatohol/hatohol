@@ -23,7 +23,7 @@
 #include <Reaper.h>
 #include "UnifiedDataStore.h"
 #include "DBClientAction.h"
-#include "DBClientConfig.h"
+#include "DBTablesConfig.h"
 #include "DataStoreManager.h"
 #include "ActionManager.h"
 #include "CacheServiceDBClient.h"

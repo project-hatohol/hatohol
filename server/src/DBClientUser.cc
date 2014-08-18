@@ -19,7 +19,7 @@
 
 #include <stdint.h>
 #include "DBClientUser.h"
-#include "DBClientConfig.h"
+#include "DBTablesConfig.h"
 #include "ItemGroupStream.h"
 using namespace std;
 using namespace mlpl;
