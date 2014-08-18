@@ -868,7 +868,7 @@ static const DBAgent::IndexDef indexDefsItems[] = {
 
 // Hosts
 static const int columnIndexesHostsUniqId[] = {
-  IDX_HOSTS_SERVER_ID, IDX_HOSTS_ID, DBAgent::IndexDef::END,
+  IDX_HOSTS_SERVER_ID, IDX_HOSTS_HOST_ID, DBAgent::IndexDef::END,
 };
 
 static const DBAgent::IndexDef indexDefsHosts[] = {
@@ -2202,143 +2202,68 @@ HatoholError DBClientHatohol::getIncidentInfoVect(
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-// TODO: Use DBAgent::updateIfExistElseInsert() for these methods.
 void DBClientHatohol::addTriggerInfoWithoutTransaction(
   const TriggerInfo &triggerInfo)
 {
-	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
-	string condition = StringUtils::sprintf(
-	  "server_id=%s AND id=%s",
-	    dbTermCodec->enc(triggerInfo.serverId).c_str(),
-	    dbTermCodec->enc(triggerInfo.id).c_str());
-	if (!isRecordExisting(TABLE_NAME_TRIGGERS, condition)) {
-		DBAgent::InsertArg arg(tableProfileTriggers);
-		arg.add(triggerInfo.serverId);
-		arg.add(triggerInfo.id);
-		arg.add(triggerInfo.status);
-		arg.add(triggerInfo.severity),
-		arg.add(triggerInfo.lastChangeTime.tv_sec); 
-		arg.add(triggerInfo.lastChangeTime.tv_nsec); 
-		arg.add(triggerInfo.hostId);
-		arg.add(triggerInfo.hostName);
-		arg.add(triggerInfo.brief);
-		insert(arg);
-	} else {
-		DBAgent::UpdateArg arg(tableProfileTriggers);
-		arg.add(IDX_TRIGGERS_SERVER_ID, triggerInfo.serverId);
-		arg.add(IDX_TRIGGERS_STATUS,    triggerInfo.status);
-		arg.add(IDX_TRIGGERS_SEVERITY,  triggerInfo.severity);
-		arg.add(IDX_TRIGGERS_LAST_CHANGE_TIME_SEC,
-		        triggerInfo.lastChangeTime.tv_sec);
-		arg.add(IDX_TRIGGERS_LAST_CHANGE_TIME_NS,
-		        triggerInfo.lastChangeTime.tv_nsec);
-		arg.add(IDX_TRIGGERS_HOST_ID,   triggerInfo.hostId);
-		arg.add(IDX_TRIGGERS_HOSTNAME,  triggerInfo.hostName);
-		arg.add(IDX_TRIGGERS_BRIEF,     triggerInfo.brief);
-		arg.condition = condition;
-		update(arg);
-	}
+	DBAgent::InsertArg arg(tableProfileTriggers);
+	arg.add(triggerInfo.serverId);
+	arg.add(triggerInfo.id);
+	arg.add(triggerInfo.status);
+	arg.add(triggerInfo.severity),
+	arg.add(triggerInfo.lastChangeTime.tv_sec);
+	arg.add(triggerInfo.lastChangeTime.tv_nsec);
+	arg.add(triggerInfo.hostId);
+	arg.add(triggerInfo.hostName);
+	arg.add(triggerInfo.brief);
+	arg.upsertOnDuplicate = true;
+	insert(arg);
 }
 
 void DBClientHatohol::addEventInfoWithoutTransaction(const EventInfo &eventInfo)
 {
-	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
-	string condition = StringUtils::sprintf(
-	  "server_id=%s AND id=%s",
-	  dbTermCodec->enc(eventInfo.serverId).c_str(),
-	  dbTermCodec->enc(eventInfo.id).c_str());
-	if (!isRecordExisting(TABLE_NAME_EVENTS, condition)) {
-		DBAgent::InsertArg arg(tableProfileEvents);
-		arg.add(AUTO_INCREMENT_VALUE_U64);
-		arg.add(eventInfo.serverId);
-		arg.add(eventInfo.id);
-		arg.add(eventInfo.time.tv_sec); 
-		arg.add(eventInfo.time.tv_nsec); 
-		arg.add(eventInfo.type);
-		arg.add(eventInfo.triggerId);
-		arg.add(eventInfo.status);
-		arg.add(eventInfo.severity);
-		arg.add(eventInfo.hostId);
-		arg.add(eventInfo.hostName);
-		arg.add(eventInfo.brief);
-		insert(arg);
-	} else {
-		DBAgent::UpdateArg arg(tableProfileEvents);
-		arg.add(IDX_EVENTS_SERVER_ID,  eventInfo.serverId);
-		arg.add(IDX_EVENTS_TIME_SEC,   eventInfo.time.tv_sec);
-		arg.add(IDX_EVENTS_TIME_NS,    eventInfo.time.tv_nsec);
-		arg.add(IDX_EVENTS_EVENT_TYPE, eventInfo.type);
-		arg.add(IDX_EVENTS_TRIGGER_ID, eventInfo.triggerId);
-		arg.add(IDX_EVENTS_STATUS,     eventInfo.status);
-		arg.add(IDX_EVENTS_SEVERITY,   eventInfo.severity);
-		arg.add(IDX_EVENTS_HOST_ID,    eventInfo.hostId);
-		arg.add(IDX_EVENTS_HOST_NAME,  eventInfo.hostName);
-		arg.add(IDX_EVENTS_BRIEF,      eventInfo.brief);
-		arg.condition = condition;
-		update(arg);
-	}
+	DBAgent::InsertArg arg(tableProfileEvents);
+	arg.add(AUTO_INCREMENT_VALUE_U64);
+	arg.add(eventInfo.serverId);
+	arg.add(eventInfo.id);
+	arg.add(eventInfo.time.tv_sec);
+	arg.add(eventInfo.time.tv_nsec);
+	arg.add(eventInfo.type);
+	arg.add(eventInfo.triggerId);
+	arg.add(eventInfo.status);
+	arg.add(eventInfo.severity);
+	arg.add(eventInfo.hostId);
+	arg.add(eventInfo.hostName);
+	arg.add(eventInfo.brief);
+	arg.upsertOnDuplicate = true;
+	insert(arg);
 }
 
 void DBClientHatohol::addItemInfoWithoutTransaction(const ItemInfo &itemInfo)
 {
-	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
-	string condition = StringUtils::sprintf(
-	  "server_id=%s AND id=%s",
-	  dbTermCodec->enc(itemInfo.serverId).c_str(),
-	  dbTermCodec->enc(itemInfo.id).c_str());
-	if (!isRecordExisting(TABLE_NAME_ITEMS, condition)) {
-		DBAgent::InsertArg arg(tableProfileItems);
-		arg.add(itemInfo.serverId);
-		arg.add(itemInfo.id);
-		arg.add(itemInfo.hostId);
-		arg.add(itemInfo.brief);
-		arg.add(itemInfo.lastValueTime.tv_sec); 
-		arg.add(itemInfo.lastValueTime.tv_nsec); 
-		arg.add(itemInfo.lastValue);
-		arg.add(itemInfo.prevValue);
-		arg.add(itemInfo.itemGroupName);
-		insert(arg);
-	} else {
-		DBAgent::UpdateArg arg(tableProfileItems);
-		arg.add(IDX_ITEMS_SERVER_ID,  itemInfo.serverId);
-		arg.add(IDX_ITEMS_ID,         itemInfo.id);
-		arg.add(IDX_ITEMS_HOST_ID,    itemInfo.hostId);
-		arg.add(IDX_ITEMS_BRIEF,      itemInfo.brief);
-		arg.add(IDX_ITEMS_LAST_VALUE_TIME_SEC,
-		        itemInfo.lastValueTime.tv_sec);
-		arg.add(IDX_ITEMS_LAST_VALUE_TIME_NS,
-		        itemInfo.lastValueTime.tv_nsec); 
-		arg.add(IDX_ITEMS_LAST_VALUE, itemInfo.lastValue);
-		arg.add(IDX_ITEMS_PREV_VALUE, itemInfo.prevValue);
-		arg.add(IDX_ITEMS_ITEM_GROUP_NAME, itemInfo.itemGroupName);
-		arg.condition = condition;
-		update(arg);
-	}
+	DBAgent::InsertArg arg(tableProfileItems);
+	arg.add(itemInfo.serverId);
+	arg.add(itemInfo.id);
+	arg.add(itemInfo.hostId);
+	arg.add(itemInfo.brief);
+	arg.add(itemInfo.lastValueTime.tv_sec);
+	arg.add(itemInfo.lastValueTime.tv_nsec);
+	arg.add(itemInfo.lastValue);
+	arg.add(itemInfo.prevValue);
+	arg.add(itemInfo.itemGroupName);
+	arg.upsertOnDuplicate = true;
+	insert(arg);
 }
 
 void DBClientHatohol::addHostgroupInfoWithoutTransaction(
   const HostgroupInfo &groupInfo)
 {
-	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
-	string condition = StringUtils::sprintf(
-	  "server_id=%s AND host_group_id=%s",
-	  dbTermCodec->enc(groupInfo.serverId).c_str(),
-	  dbTermCodec->enc(groupInfo.groupId).c_str());
-	if (!isRecordExisting(TABLE_NAME_HOSTGROUPS, condition)) {
-		DBAgent::InsertArg arg(tableProfileHostgroups);
-		arg.add(groupInfo.id);
-		arg.add(groupInfo.serverId);
-		arg.add(groupInfo.groupId);
-		arg.add(groupInfo.groupName);
-		insert(arg);
-	} else {
-		DBAgent::UpdateArg arg(tableProfileHostgroups);
-		arg.add(IDX_HOSTGROUPS_SERVER_ID,  groupInfo.serverId);
-		arg.add(IDX_HOSTGROUPS_GROUP_ID,   groupInfo.groupId);
-		arg.add(IDX_HOSTGROUPS_GROUP_NAME, groupInfo.groupName);
-		arg.condition = condition;
-		update(arg);
-	}
+	DBAgent::InsertArg arg(tableProfileHostgroups);
+	arg.add(groupInfo.id);
+	arg.add(groupInfo.serverId);
+	arg.add(groupInfo.groupId);
+	arg.add(groupInfo.groupName);
+	arg.upsertOnDuplicate = true;
+	insert(arg);
 }
 
 void DBClientHatohol::addHostgroupElementWithoutTransaction(
@@ -2363,101 +2288,43 @@ void DBClientHatohol::addHostgroupElementWithoutTransaction(
 
 void DBClientHatohol::addHostInfoWithoutTransaction(const HostInfo &hostInfo)
 {
-	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
-	string condition = StringUtils::sprintf(
-	  "server_id=%s AND host_id=%s",
-	  dbTermCodec->enc(hostInfo.serverId).c_str(),
-	  dbTermCodec->enc(hostInfo.id).c_str());
-
-	if (!isRecordExisting(TABLE_NAME_HOSTS, condition)) {
-		DBAgent::InsertArg arg(tableProfileHosts);
-		arg.add(AUTO_INCREMENT_VALUE);
-		arg.add(hostInfo.serverId);
-		arg.add(hostInfo.id);
-		arg.add(hostInfo.hostName);
-		insert(arg);
-	} else {
-		DBAgent::UpdateArg arg(tableProfileHosts);
-		arg.add(IDX_HOSTS_SERVER_ID, hostInfo.serverId);
-		arg.add(IDX_HOSTS_HOST_ID,   hostInfo.id);
-		arg.add(IDX_HOSTS_HOST_NAME, hostInfo.hostName);
-		arg.condition = condition;
-		update(arg);
-	}
+	DBAgent::InsertArg arg(tableProfileHosts);
+	arg.add(AUTO_INCREMENT_VALUE);
+	arg.add(hostInfo.serverId);
+	arg.add(hostInfo.id);
+	arg.add(hostInfo.hostName);
+	arg.upsertOnDuplicate = true;
+	insert(arg);
 }
 
 void DBClientHatohol::addMonitoringServerStatusWithoutTransaction(
   const MonitoringServerStatus &serverStatus)
 {
-	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
-	string condition = StringUtils::sprintf(
-	  "id=%s", dbTermCodec->enc(serverStatus.serverId).c_str());
-	if (!isRecordExisting(DBClientHatohol::TABLE_NAME_SERVERS, condition)) {
-		DBAgent::InsertArg arg(tableProfileServers);
-		arg.add(serverStatus.serverId);
-		arg.add(serverStatus.nvps);
-		insert(arg);
-	} else {
-		DBAgent::UpdateArg arg(tableProfileServers);
-		arg.add(IDX_SERVERS_ID,   serverStatus.serverId);
-		arg.add(IDX_SERVERS_NVPS, serverStatus.nvps);
-		arg.condition = condition;
-		update(arg);
-	}
+	DBAgent::InsertArg arg(tableProfileServers);
+	arg.add(serverStatus.serverId);
+	arg.add(serverStatus.nvps);
+	arg.upsertOnDuplicate = true;
+	insert(arg);
 }
 
 void DBClientHatohol::addIncidentInfoWithoutTransaction(
   const IncidentInfo &incidentInfo)
 {
-	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
-	string condition = StringUtils::sprintf(
-	  "server_id=%s AND event_id=%s",
-	  dbTermCodec->enc(incidentInfo.serverId).c_str(),
-	  dbTermCodec->enc(incidentInfo.eventId).c_str());
-	if (!isRecordExisting(TABLE_NAME_INCIDENTS, condition)) {
-		DBAgent::InsertArg arg(tableProfileIncidents);
-		arg.add(incidentInfo.trackerId);
-		arg.add(incidentInfo.serverId);
-		arg.add(incidentInfo.eventId);
-		arg.add(incidentInfo.triggerId);
-		arg.add(incidentInfo.identifier);
-		arg.add(incidentInfo.location);
-		arg.add(incidentInfo.status);
-		arg.add(incidentInfo.assignee);
-		arg.add(incidentInfo.createdAt.tv_sec);
-		arg.add(incidentInfo.createdAt.tv_nsec);
-		arg.add(incidentInfo.updatedAt.tv_sec);
-		arg.add(incidentInfo.updatedAt.tv_nsec);
-		insert(arg);
-	} else {
-		DBAgent::UpdateArg arg(tableProfileIncidents);
-		arg.add(IDX_INCIDENTS_TRACKER_ID,
-			incidentInfo.trackerId);
-		arg.add(IDX_INCIDENTS_SERVER_ID,
-			incidentInfo.serverId);
-		arg.add(IDX_INCIDENTS_EVENT_ID,
-			incidentInfo.eventId);
-		arg.add(IDX_INCIDENTS_TRIGGER_ID,
-			incidentInfo.triggerId);
-		arg.add(IDX_INCIDENTS_IDENTIFIER,
-			incidentInfo.identifier);
-		arg.add(IDX_INCIDENTS_LOCATION,
-			incidentInfo.location);
-		arg.add(IDX_INCIDENTS_STATUS,
-			incidentInfo.status);
-		arg.add(IDX_INCIDENTS_ASSIGNEE,
-			incidentInfo.assignee);
-		arg.add(IDX_INCIDENTS_CREATED_AT_SEC,
-			incidentInfo.createdAt.tv_sec);
-		arg.add(IDX_INCIDENTS_CREATED_AT_NS,
-			incidentInfo.createdAt.tv_nsec);
-		arg.add(IDX_INCIDENTS_UPDATED_AT_SEC,
-			incidentInfo.updatedAt.tv_sec);
-		arg.add(IDX_INCIDENTS_UPDATED_AT_NS,
-			incidentInfo.updatedAt.tv_nsec);
-		arg.condition = condition;
-		update(arg);
-	}
+	DBAgent::InsertArg arg(tableProfileIncidents);
+	arg.add(incidentInfo.trackerId);
+	arg.add(incidentInfo.serverId);
+	arg.add(incidentInfo.eventId);
+	arg.add(incidentInfo.triggerId);
+	arg.add(incidentInfo.identifier);
+	arg.add(incidentInfo.location);
+	arg.add(incidentInfo.status);
+	arg.add(incidentInfo.assignee);
+	arg.add(incidentInfo.createdAt.tv_sec);
+	arg.add(incidentInfo.createdAt.tv_nsec);
+	arg.add(incidentInfo.updatedAt.tv_sec);
+	arg.add(incidentInfo.updatedAt.tv_nsec);
+	arg.upsertOnDuplicate = true;
+	insert(arg);
 }
 
 HatoholError DBClientHatohol::getHostgroupInfoList
