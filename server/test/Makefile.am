@@ -46,6 +46,7 @@ testHatohol_la_SOURCES = \
 	testHostResourceQueryOptionSubClasses.cc \
 	testDBAgent.cc \
 	testDBAgentSQLite3.cc testDBAgentMySQL.cc \
+	testDB.cc \
 	testDBClient.cc \
 	testDBClientUtils.cc \
 	testDBClientConfig.cc \
@@ -90,6 +91,7 @@ residentTest_la_LIBADD  = libTest.la
 
 libTest_la_SOURCES = \
 	DataSamples.cc DataSamples.h \
+	DBTest.cc DBTest.h \
 	FaceRestTestUtils.cc FaceRestTestUtils.h \
 	Helpers.cc DBAgentTest.cc DBClientTest.cc \
 	ZabbixAPITestUtils.cc ZabbixAPITestUtils.h \
