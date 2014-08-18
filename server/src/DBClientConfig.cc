@@ -1210,7 +1210,28 @@ HatoholError DBClientConfig::updateIncidentTracker(
 	if (err != HTERR_OK)
 		return err;
 
-	DBAgent::UpdateArg arg(tableProfileIncidentTrackers);
+	struct TrxProc : public DBAgent::TransactionProc {
+		HatoholError err;
+		DBAgent::UpdateArg arg;
+
+		TrxProc(void)
+		: arg(tableProfileIncidentTrackers)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			if (!dbAgent.isRecordExisting(
+			       TABLE_NAME_INCIDENT_TRACKERS, arg.condition)) {
+				err = HTERR_NOT_FOUND_TARGET_RECORD;
+				return;
+			}
+			dbAgent.update(arg);
+			err = HTERR_OK;
+		}
+	} trx;
+
+	DBAgent::UpdateArg &arg = trx.arg;
 	arg.add(IDX_INCIDENT_TRACKERS_TYPE,       incidentTrackerInfo.type);
 	arg.add(IDX_INCIDENT_TRACKERS_NICKNAME,   incidentTrackerInfo.nickname);
 	arg.add(IDX_INCIDENT_TRACKERS_BASE_URL,   incidentTrackerInfo.baseURL);
@@ -1219,16 +1240,9 @@ HatoholError DBClientConfig::updateIncidentTracker(
 	arg.add(IDX_INCIDENT_TRACKERS_USER_NAME,  incidentTrackerInfo.userName);
 	arg.add(IDX_INCIDENT_TRACKERS_PASSWORD,   incidentTrackerInfo.password);
 	arg.condition = StringUtils::sprintf("id=%" FMT_INCIDENT_TRACKER_ID,
-					     incidentTrackerInfo.id);
-
-	DBCLIENT_TRANSACTION_BEGIN() {
-		if (!isRecordExisting(TABLE_NAME_INCIDENT_TRACKERS, arg.condition)) {
-			err = HTERR_NOT_FOUND_TARGET_RECORD;
-		} else {
-			update(arg);
-		}
-	} DBCLIENT_TRANSACTION_END();
-	return err;
+	                                     incidentTrackerInfo.id);
+	getDBAgent().transaction(trx);
+	return trx.err;
 }
 
 void DBClientConfig::getIncidentTrackers(
