@@ -51,7 +51,7 @@ void _assertUserInfoInDB(UserInfo &userInfo)
 	    userInfo.id, userInfo.name.c_str(),
 	    Utils::sha256(userInfo.password).c_str(), userInfo.flags);
 	DBClientUser dbUser;
-	assertDBContent(dbUser.getDBAgent(), statement, expect);
+	assertDBContent(&dbUser.getDBAgent(), statement, expect);
 }
 #define assertUserInfoInDB(I) cut_trace(_assertUserInfoInDB(I))
 
@@ -351,7 +351,7 @@ void test_dbDomainId(void)
 {
 	DBClientUser dbUser;
 	cppcut_assert_equal(DB_DOMAIN_ID_USERS,
-	                    dbUser.getDBAgent()->getDBDomainId());
+	                    dbUser.getDBAgent().getDBDomainId());
 }
 
 void test_createDB(void)
@@ -365,7 +365,7 @@ void test_createDB(void)
 	string expect =
 	  StringUtils::sprintf(
 	    "%d|%d\n", DB_DOMAIN_ID_USERS, DBClientUser::USER_DB_VERSION);
-	assertDBContent(dbUser.getDBAgent(), statement, expect);
+	assertDBContent(&dbUser.getDBAgent(), statement, expect);
 }
 
 void test_addUser(void)

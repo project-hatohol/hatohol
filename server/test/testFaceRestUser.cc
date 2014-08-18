@@ -176,7 +176,7 @@ static void _assertUpdateOrAddUser(const string &name)
 	  Utils::sha256( parameters["password"]).c_str(),
 	  parameters["flags"].c_str());
 	CacheServiceDBClient cache;
-	assertDBContent(cache.getUser()->getDBAgent(), statement, expect);
+	assertDBContent(&cache.getUser()->getDBAgent(), statement, expect);
 }
 #define assertUpdateOrAddUser(U) cut_trace(_assertUpdateOrAddUser(U))
 
@@ -260,7 +260,7 @@ void _assertAddAccessInfoWithCond(
 	  "%" FMT_ACCESS_INFO_ID "|%" FMT_USER_ID "|%s|%s\n",
 	  expectedId, targetUserId, serverId.c_str(),
 	  expectHostgroupId.c_str());
-	assertDBContent(dbUser.getDBAgent(), statement, expect);
+	assertDBContent(&dbUser.getDBAgent(), statement, expect);
 }
 #define assertAddAccessInfoWithCond(SVID, HGRP_ID, ...) \
 cut_trace(_assertAddAccessInfoWithCond(SVID, HGRP_ID, ##__VA_ARGS__))
@@ -420,7 +420,7 @@ void test_addUser(void)
 	const int expectedId = NumTestUserInfo + 1;
 	string expect = StringUtils::sprintf("%d|%s|%s|%" FMT_OPPRVLG,
 	  expectedId, user.c_str(), Utils::sha256(password).c_str(), flags);
-	assertDBContent(dbUser.getDBAgent(), statement, expect);
+	assertDBContent(&dbUser.getDBAgent(), statement, expect);
 }
 
 void test_updateUser(void)
@@ -443,7 +443,7 @@ void test_updateUser(void)
 	                     DBClientUser::TABLE_NAME_USERS, targetId);
 	string expect = StringUtils::sprintf("%d|%s|%s|%" FMT_OPPRVLG,
 	  targetId, user.c_str(), Utils::sha256(password).c_str(), flags);
-	assertDBContent(dbUser.getDBAgent(), statement, expect);
+	assertDBContent(&dbUser.getDBAgent(), statement, expect);
 }
 
 void test_updateUserWithoutFlags(void)
@@ -465,7 +465,7 @@ void test_updateUserWithoutFlags(void)
 	                     DBClientUser::TABLE_NAME_USERS, targetId);
 	string expect = StringUtils::sprintf("%d|%s|%s|%" FMT_OPPRVLG,
 	  targetId, user.c_str(), Utils::sha256(password).c_str(), flags);
-	assertDBContent(dbUser.getDBAgent(), statement, expect);
+	assertDBContent(&dbUser.getDBAgent(), statement, expect);
 }
 
 void test_updateUserWithInvalidFlags(void)
@@ -501,7 +501,7 @@ void test_updateUserWithoutPassword(void)
 	string expect = StringUtils::sprintf("%d|%s|%s|%" FMT_OPPRVLG,
 	  targetId, user.c_str(),
 	  Utils::sha256(expectedPassword).c_str(), flags);
-	assertDBContent(dbUser.getDBAgent(), statement, expect);
+	assertDBContent(&dbUser.getDBAgent(), statement, expect);
 }
 
 void test_updateUserWithoutUserId(void)
