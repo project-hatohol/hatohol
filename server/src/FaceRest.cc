@@ -232,7 +232,7 @@ FaceRest::FaceRest(FaceRestParam *param)
 	if (port) {
 		m_impl->port = port;
 	} else {
-		DBClientConfig dbConfig;
+		DBTablesConfig dbConfig;
 		int port = dbConfig.getFaceRestPort();
 		if (port != 0 && Utils::isValidPort(port))
 			m_impl->port = port;

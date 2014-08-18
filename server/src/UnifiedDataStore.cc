@@ -252,7 +252,7 @@ UnifiedDataStore *UnifiedDataStore::getInstance(void)
 void UnifiedDataStore::start(const bool &autoRun)
 {
 	CacheServiceDBClient cache;
-	DBClientConfig *dbConfig = cache.getConfig();
+	DBTablesConfig *dbConfig = cache.getConfig();
 	MonitoringServerInfoList monitoringServers;
 	ServerQueryOption option(USER_ID_SYSTEM);
 	dbConfig->getTargetServers(monitoringServers, option);
@@ -530,7 +530,7 @@ void UnifiedDataStore::getTargetServers(
   ArmPluginInfoVect *armPluginInfoVect)
 {
 	CacheServiceDBClient cache;
-	DBClientConfig *dbConfig = cache.getConfig();
+	DBTablesConfig *dbConfig = cache.getConfig();
 	dbConfig->getTargetServers(monitoringServers, option,
 	                           armPluginInfoVect);
 }
@@ -540,7 +540,7 @@ HatoholError UnifiedDataStore::addTargetServer(
   const OperationPrivilege &privilege, const bool &autoRun)
 {
 	CacheServiceDBClient cache;
-	DBClientConfig *dbConfig = cache.getConfig();
+	DBTablesConfig *dbConfig = cache.getConfig();
 	HatoholError err = dbConfig->addTargetServer(&svInfo, privilege,
 	                                             &armPluginInfo);
 	if (err != HTERR_OK)
@@ -554,7 +554,7 @@ HatoholError UnifiedDataStore::updateTargetServer(
   const OperationPrivilege &privilege)
 {
 	CacheServiceDBClient cache;
-	DBClientConfig *dbConfig = cache.getConfig();
+	DBTablesConfig *dbConfig = cache.getConfig();
 	HatoholError err = dbConfig->updateTargetServer(&svInfo, privilege,
 	                                                &armPluginInfo);
 	if (err != HTERR_OK)
@@ -571,7 +571,7 @@ HatoholError UnifiedDataStore::deleteTargetServer(
   const ServerIdType &serverId, const OperationPrivilege &privilege)
 {
 	CacheServiceDBClient cache;
-	DBClientConfig *dbConfig = cache.getConfig();
+	DBTablesConfig *dbConfig = cache.getConfig();
 	HatoholError err = dbConfig->deleteTargetServer(serverId, privilege);
 	if (err != HTERR_OK)
 		return err;
@@ -583,7 +583,7 @@ void UnifiedDataStore::getServerConnStatusVector(
   ServerConnStatusVector &svConnStatVec, DataQueryContext *dataQueryContext)
 {
 	CacheServiceDBClient cache;
-	DBClientConfig *dbConfig = cache.getConfig();
+	DBTablesConfig *dbConfig = cache.getConfig();
 	ServerIdSet serverIdSet;
 	dbConfig->getServerIdSet(serverIdSet, dataQueryContext);
 	svConnStatVec.reserve(serverIdSet.size());
@@ -605,7 +605,7 @@ void UnifiedDataStore::getIncidentTrackers(
   IncidentTrackerQueryOption &option)
 {
 	CacheServiceDBClient cache;
-	DBClientConfig *dbConfig = cache.getConfig();
+	DBTablesConfig *dbConfig = cache.getConfig();
 	dbConfig->getIncidentTrackers(incidentTrackerVect, option);
 }
 
@@ -613,7 +613,7 @@ HatoholError UnifiedDataStore::addIncidentTracker(
   IncidentTrackerInfo &incidentTrackerInfo, const OperationPrivilege &privilege)
 {
 	CacheServiceDBClient cache;
-	DBClientConfig *dbConfig = cache.getConfig();
+	DBTablesConfig *dbConfig = cache.getConfig();
 	return dbConfig->addIncidentTracker(incidentTrackerInfo, privilege);
 }
 
@@ -621,7 +621,7 @@ HatoholError UnifiedDataStore::updateIncidentTracker(
   IncidentTrackerInfo &incidentTrackerInfo, const OperationPrivilege &privilege)
 {
 	CacheServiceDBClient cache;
-	DBClientConfig *dbConfig = cache.getConfig();
+	DBTablesConfig *dbConfig = cache.getConfig();
 	return dbConfig->updateIncidentTracker(incidentTrackerInfo, privilege);
 }
 
@@ -630,7 +630,7 @@ HatoholError UnifiedDataStore::deleteIncidentTracker(
   const OperationPrivilege &privilege)
 {
 	CacheServiceDBClient cache;
-	DBClientConfig *dbConfig = cache.getConfig();
+	DBTablesConfig *dbConfig = cache.getConfig();
 	return dbConfig->deleteIncidentTracker(incidentTrackerId, privilege);
 }
 

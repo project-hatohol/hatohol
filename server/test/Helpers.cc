@@ -762,7 +762,7 @@ exit:
 
 void loadTestDBServer(void)
 {
-	DBClientConfig dbConfig;
+	DBTablesConfig dbConfig;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	for (size_t i = 0; i < NumTestServerInfo; i++)
 		dbConfig.addTargetServer(&testServerInfo[i], privilege);
@@ -786,7 +786,7 @@ void loadTestDBEvents(void)
 
 void loadTestDBIncidentTracker(void)
 {
-	DBClientConfig dbConfig;
+	DBTablesConfig dbConfig;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	for (size_t i = 0; i < NumTestIncidentTrackerInfo; i++)
 		dbConfig.addIncidentTracker(testIncidentTrackerInfo[i],
@@ -881,7 +881,7 @@ void setupTestDBUser(bool dbRecreate, bool loadTestData)
 
 void loadTestDBArmPlugin(void)
 {
-	DBClientConfig dbConfig;
+	DBTablesConfig dbConfig;
 	for (size_t i = 0; i < NumTestArmPluginInfo; i++) {
 		// Make a copy since armPluginInfo.id will be set.
 		ArmPluginInfo armPluginInfo = testArmPluginInfo[i];

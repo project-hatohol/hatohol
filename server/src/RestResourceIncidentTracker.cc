@@ -165,7 +165,7 @@ void RestResourceIncidentTracker::handlePut(void)
 	IncidentTrackerInfo incidentTrackerInfo;
 	incidentTrackerInfo.id = incidentTrackerId;
 
-	DBClientConfig dbConfig;
+	DBTablesConfig dbConfig;
 	IncidentTrackerInfoVect incidentTrackers;
 	IncidentTrackerQueryOption option(m_dataQueryContextPtr);
 	option.setTargetId(incidentTrackerInfo.id);

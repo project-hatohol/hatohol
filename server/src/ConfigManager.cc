@@ -282,7 +282,7 @@ ConfigManager *ConfigManager::getInstance(void)
 void ConfigManager::getTargetServers
   (MonitoringServerInfoList &monitoringServers, ServerQueryOption &option)
 {
-	DBClientConfig dbConfig;
+	DBTablesConfig dbConfig;
 	dbConfig.getTargetServers(monitoringServers, option);
 }
 

@@ -192,7 +192,7 @@ bool IncidentSender::getServerInfo(const EventInfo &event,
 				MonitoringServerInfo &server)
 {
 	CacheServiceDBClient cache;
-	DBClientConfig *dbConfig = cache.getConfig();
+	DBTablesConfig *dbConfig = cache.getConfig();
 	ServerQueryOption option(USER_ID_SYSTEM);
 	option.setTargetServerId(event.serverId);
 	MonitoringServerInfoList servers;

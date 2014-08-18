@@ -123,7 +123,7 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 {
 	CacheServiceDBClient cache;
 	const ServerIdType &serverId = m_impl->serverInfo.id;
-	DBClientConfig *dbConfig = cache.getConfig();
+	DBTablesConfig *dbConfig = cache.getConfig();
 	if (!dbConfig->getArmPluginInfo(m_impl->armPluginInfo, serverId)) {
 		MLPL_ERR("Failed to get ArmPluginInfo: serverId: %d\n",
 		         serverId);
