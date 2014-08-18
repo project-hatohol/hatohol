@@ -201,6 +201,12 @@ void DBAgent::UpdateArg::add(const size_t &columnIndex, const time_t &val)
 	rows.push_back(new RowElement(columnIndex, new ItemInt(val), false));
 }
 
+void DBAgent::UpdateArg::add(const size_t &columnIndex, const ItemGroup *grp)
+{
+	rows.push_back(new RowElement(columnIndex,
+	                              grp->getItemAt(columnIndex), true));
+}
+
 // ---------------------------------------------------------------------------
 // DBAgent::SelectArg
 // ---------------------------------------------------------------------------

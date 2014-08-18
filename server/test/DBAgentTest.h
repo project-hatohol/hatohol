@@ -104,6 +104,8 @@ void dbAgentTestInsertUint64
   (DBAgent &dbAgent, DBAgentChecker &checker, uint64_t id);
 void dbAgentTestInsertNull(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestUpsert(DBAgent &dbAgent, DBAgentChecker &checker);
+void dbAgentTestUpsertWithPrimaryKeyAutoInc(
+  DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestUpdate(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestUpdateCondition(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestSelect(DBAgent &dbAgent);

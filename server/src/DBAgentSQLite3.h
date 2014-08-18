@@ -98,6 +98,7 @@ protected:
 	static void createTable(sqlite3 *db, const TableProfile &tableProfile);
 	static void insert(sqlite3 *db, const InsertArg &insertArg);
 	static void update(sqlite3 *db, const UpdateArg &updateArg);
+	static void update(sqlite3 *db, const InsertArg &updateArg);
 	static void select(sqlite3 *db, const SelectArg &selectArg);
 	static void select(sqlite3 *db, const SelectExArg &selectExArg);
 	static void deleteRows(sqlite3 *db, const DeleteArg &deleteArg);

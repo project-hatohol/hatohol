@@ -338,42 +338,87 @@ void DBAgentMySQL::insert(const DBAgent::InsertArg &insertArg)
 		}
 	} valueMaker;
 
+	// TODO: Move to MLPL.
+	class SeparatorInserter {
+	public:
+		SeparatorInserter(const char *separator)
+		: m_separator(separator),
+		  m_first(true)
+		{
+		}
+
+		void operator ()(string &str)
+		{
+			if (m_first) {
+				m_first = false;
+				return;
+			}
+			str += m_separator;
+		}
+
+		void reset(void)
+		{
+			m_first = true;
+		}
+
+	private:
+		const char *m_separator;
+		bool        m_first;
+	};
+
 	const size_t numColumns = insertArg.tableProfile.numColumns;
 	HATOHOL_ASSERT(m_impl->connected, "Not connected.");
 	HATOHOL_ASSERT(numColumns == insertArg.row->getNumberOfItems(),
 	               "numColumn: %zd != row: %zd",
 	               numColumns, insertArg.row->getNumberOfItems());
 
-	string upsertOpt;
+	SeparatorInserter commaInserter(",");
 	string query = StringUtils::sprintf("INSERT INTO %s (",
 	                                    insertArg.tableProfile.name);
 	for (size_t i = 0; i < numColumns; i++) {
-		const ColumnDef &columnDef =
-		  insertArg.tableProfile.columnDefs[i];
+		const ColumnDef &columnDef = insertArg.tableProfile.columnDefs[i];
+		commaInserter(query);
 		query += columnDef.columnName;
-		if (i < numColumns -1)
-			query += ",";
 	}
-	query += ") VALUES (";
+
+	vector<string> values;
+	values.reserve(numColumns);
+	struct UpdateParam {
+		const char *column;
+		const char *value;
+	} updateParams[numColumns+1]; // To improve performance, we just having pointers.
+	size_t updateParamIdx = 0;
+
 	for (size_t i = 0; i < numColumns; i++) {
-		const ColumnDef &columnDef =
-		  insertArg.tableProfile.columnDefs[i];
-		if (i > 0) {
-			query += ",";
-			if (insertArg.upsertOnDuplicate)
-				upsertOpt += ",";
-		}
-		string value = valueMaker(insertArg, i, &m_impl->mysql);
-		query += value;
-		if (insertArg.upsertOnDuplicate) {
-			upsertOpt += sprintf("%s=%s", columnDef.columnName,
-			                     value.c_str());
-		}
+		const ColumnDef &columnDef = insertArg.tableProfile.columnDefs[i];
+		values.push_back(valueMaker(insertArg, i, &m_impl->mysql));
+		if (!insertArg.upsertOnDuplicate)
+			continue;
+
+		if (columnDef.keyType == SQL_KEY_PRI)
+			continue;
+		updateParams[updateParamIdx].column = columnDef.columnName;
+		updateParams[updateParamIdx].value  = values.back().c_str();
+		updateParamIdx++;
+	}
+	updateParams[updateParamIdx].column = NULL;
+
+	query += ") VALUES (";
+	commaInserter.reset();
+	for (size_t i = 0; i < values.size(); i++) {
+		commaInserter(query);
+		query += values[i];
 	}
 	query += ")";
+
 	if (insertArg.upsertOnDuplicate) {
 		query += " ON DUPLICATE KEY UPDATE ";
-		query += upsertOpt;
+		commaInserter.reset();
+		UpdateParam *updateParam = updateParams;
+		for (; updateParam->column; updateParam++) {
+			commaInserter(query);
+			query += sprintf("%s=%s", updateParam->column, updateParam->value);
+		}
 	}
 	execSql(query);
 }
