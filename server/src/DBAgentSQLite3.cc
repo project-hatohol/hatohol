@@ -606,9 +606,7 @@ void DBAgentSQLite3::update(sqlite3 *db, const DBAgent::InsertArg &insertArg)
 	for (size_t i = 0; i < tableProfile.numColumns; i++) {
 		if (tableProfile.columnDefs[i].keyType == SQL_KEY_PRI)
 			continue;
-		// TODO: add a method: arg.add(idx, ItemGroupPtr);
-		arg.rows.push_back(
-		  new RowElement(i, insertArg.row->getItemAt(i), true));
+		arg.add(i, insertArg.row);
 	}
 	update(db, arg);
 }
