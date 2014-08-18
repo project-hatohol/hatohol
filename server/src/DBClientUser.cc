@@ -677,9 +677,7 @@ UserIdType DBClientUser::getUserId(const string &user, const string &password)
 	arg.add(IDX_USERS_PASSWORD);
 	arg.condition = StringUtils::sprintf("%s='%s'",
 	  COLUMN_DEF_USERS[IDX_USERS_NAME].columnName, user.c_str());
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	if (grpList.empty())
@@ -718,9 +716,7 @@ HatoholError DBClientUser::addAccessInfo(AccessInfo &accessInfo,
 	  accessInfo.serverId,
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_HOST_GROUP_ID].columnName,
 	  accessInfo.hostgroupId);
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(selarg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(selarg);
 
 	const ItemGroupList &grpList = selarg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator it = grpList.begin();
@@ -737,10 +733,7 @@ HatoholError DBClientUser::addAccessInfo(AccessInfo &accessInfo,
 	arg.add(accessInfo.serverId);
 	arg.add(accessInfo.hostgroupId);
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		insert(arg);
-		accessInfo.id = getLastInsertId();
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(arg, &accessInfo.id);
 	return HTERR_OK;
 }
 
@@ -754,9 +747,7 @@ HatoholError DBClientUser::deleteAccessInfo(const AccessInfoIdType id,
 	const ColumnDef &colId = COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_ID];
 	arg.condition = StringUtils::sprintf("%s=%" FMT_ACCESS_INFO_ID,
 	                                     colId.columnName, id);
-	DBCLIENT_TRANSACTION_BEGIN() {
-		deleteRows(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(arg);
 	return HTERR_OK;
 }
 
@@ -808,9 +799,7 @@ HatoholError DBClientUser::getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMa
 	if (isAlwaysFalseCondition(arg.condition))
 		return HTERR_NO_PRIVILEGE;
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
@@ -873,9 +862,7 @@ void DBClientUser::getServerHostGrpSetMap(
 	arg.add(IDX_ACCESS_LIST_HOST_GROUP_ID);
 	arg.condition = StringUtils::sprintf("%s=%" FMT_USER_ID,
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID].columnName, userId);
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
@@ -998,9 +985,7 @@ HatoholError DBClientUser::deleteUserRoleInfo(
 	const ColumnDef &colId = COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_ID];
 	arg.condition = StringUtils::sprintf("%s=%" FMT_USER_ROLE_ID,
 	                                     colId.columnName, userRoleId);
-	DBCLIENT_TRANSACTION_BEGIN() {
-		deleteRows(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(arg);
 	return HTERR_OK;
 }
 
@@ -1013,9 +998,7 @@ void DBClientUser::getUserRoleInfoList(UserRoleInfoList &userRoleInfoList,
 	arg.add(IDX_USER_ROLES_FLAGS);
 	arg.condition = option.getCondition();
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
@@ -1096,9 +1079,7 @@ bool DBClientUser::isAccessible(const ServerIdType &serverId,
 	arg.condition = condition;
 
 	if (useTransaction) {
-		DBCLIENT_TRANSACTION_BEGIN() {
-			select(arg);
-		} DBCLIENT_TRANSACTION_END();
+		getDBAgent().transaction(arg);
 	} else {
 		select(arg);
 	}
@@ -1126,9 +1107,7 @@ void DBClientUser::getUserInfoList(UserInfoList &userInfoList,
 	arg.add(IDX_USERS_FLAGS);
 	arg.condition = condition;
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
