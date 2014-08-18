@@ -1,6 +1,7 @@
 lib_LTLIBRARIES = libmlpl.la
 libmlpl_la_SOURCES = \
 	Mutex.cc ReadWriteLock.cc SimpleSemaphore.cc EventSemaphore.cc \
+	SeparatorInjector.cc \
 	SmartBuffer.cc Logger.cc StringUtils.cc \
 	ParsableString.cc SmartTime.cc
  
@@ -13,5 +14,6 @@ includedir = $(prefix)/include/mlpl
 include_HEADERS = \
 	AtomicValue.h \
 	Mutex.h ReadWriteLock.h SimpleSemaphore.h EventSemaphore.h \
+	SeparatorInjector.h \
 	SmartBuffer.h Logger.h StringUtils.h SmartQueue.h ParsableString.h \
 	SmartTime.h Reaper.h

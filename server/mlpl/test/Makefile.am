@@ -24,6 +24,7 @@ loggerTestee_SOURCES = loggerTestee.cc
 testMLPL_la_SOURCES = \
 	testMutex.cc testReadWriteLock.cc \
 	testLogger.cc testStringUtils.cc testParsableString.cc \
+	testSeparatorInjector.cc \
 	testSmartBuffer.cc testReaper.cc testSmartTime.cc testSmartQueue.cc \
 	testAtomicValue.cc testSimpleSemaphore.cc testEventSemaphore.cc
 
