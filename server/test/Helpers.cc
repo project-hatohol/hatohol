@@ -539,6 +539,35 @@ void _assertCreateTable(DBAgent *dbAgent, const string &tableName)
 	assertExist(tableName, output);
 }
 
+void _assertExistIndex(DBAgent &dbAgent, const std::string &tableName,
+                       const std::string &indexName, const size_t &numColumns)
+{
+	string output;
+	const type_info &tid = typeid(dbAgent);
+	if (tid == typeid(DBAgentMySQL)) {
+		DBAgentMySQL &dba = dynamic_cast<DBAgentMySQL &>(dbAgent);
+		string dbName = dba.getDBName();
+		const string statement = StringUtils::sprintf(
+		  "SHOW INDEX FROM %s where Key_name='%s';",
+		  tableName.c_str(), indexName.c_str());
+		output = execMySQL(dbName, statement);
+		StringVector lines;
+		StringUtils::split(lines, output, '\n'); 
+		cppcut_assert_equal(numColumns, lines.size());
+	} else {
+		cut_fail("Unkown type: %s", DEMANGLED_TYPE_NAME(dbAgent));
+	}
+}
+
+void _assertDBTablesVersion(DBAgent &dbAgent, const DBTablesId &tablesId,
+                            const int &dbVersion)
+{
+	string expect = StringUtils::sprintf("%d|%d", tablesId, dbVersion);
+	string statement = StringUtils::sprintf(
+	  "SELECT * FROM _tables_version where tables_id=%d", tablesId);
+	assertDBContent(&dbAgent, statement, expect);
+}
+
 void _assertTimeIsNow(const SmartTime &smtime, double allowedError)
 {
 	SmartTime diff(SmartTime::INIT_CURR_TIME);

@@ -50,6 +50,7 @@ libhatohol_la_SOURCES = \
 	DBClient.cc DBClient.h \
 	DBClientGroup.cc DBClientGroup.h \
 	DB.cc DB.h \
+	DBTables.cc DBTables.h \
 	DBCGroupRegular.cc DBCGroupRegular.h \
 	DBClientAction.cc DBClientAction.h \
 	DBClientConfig.cc DBClientConfig.h \

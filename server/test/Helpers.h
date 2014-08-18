@@ -126,6 +126,17 @@ void _assertCreateTable(DBAgent *dbAgent, const std::string &tableName);
 #define assertCreateTable(DBAGENT,TBL_NAME) \
 cut_trace(_assertCreateTable(DBAGENT,TBL_NAME))
 
+void _assertExistIndex(
+  DBAgent &dbAgent, const std::string &tableName, const std::string &indexName,
+  const size_t &numColumns = 1);
+#define assertExistIndex(DBAGENT, TBL_NAME, IDX_NAME, ...) \
+cut_trace(_assertExistIndex(DBAGENT, TBL_NAME, IDX_NAME, ##__VA_ARGS__))
+
+void _assertDBTablesVersion(DBAgent &dbAgent, const DBTablesId &tablesId,
+                            const int &dbVersion);
+#define assertDBTablesVersion(DBAGENT, TABLES_ID, DB_VERSION) \
+cut_trace(_assertDBTablesVersion(DBAGENT, TABLES_ID, DB_VERSION))
+
 void _assertTimeIsNow(const mlpl::SmartTime &smtime, double allowedError = 1);
 #define assertTimeIsNow(ST, ...) cut_trace(_assertTimeIsNow(ST, ##__VA_ARGS__))
 

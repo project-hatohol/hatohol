@@ -32,6 +32,7 @@
 #endif
 
 typedef int DBDomainId;
+typedef int DBTablesId;
 
 static const DBDomainId DB_DOMAIN_ID_CONFIG  = 0x0010;
 static const DBDomainId DB_DOMAIN_ID_ACTION  = 0x0018;
