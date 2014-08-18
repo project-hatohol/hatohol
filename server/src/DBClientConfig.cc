@@ -1124,10 +1124,7 @@ HatoholError DBClientConfig::addIncidentTracker(
 	arg.add(incidentTrackerInfo.userName);
 	arg.add(incidentTrackerInfo.password);
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		insert(arg);
-		incidentTrackerInfo.id = getLastInsertId();
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(arg, &incidentTrackerInfo.id);
 	return HTERR_OK;
 }
 
@@ -1211,9 +1208,7 @@ HatoholError DBClientConfig::deleteIncidentTracker(
 	arg.condition = StringUtils::sprintf("%s=%" FMT_INCIDENT_TRACKER_ID,
 	                                     colId.columnName, incidentTrackerId);
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		deleteRows(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(arg);
 	return HTERR_OK;
 }
 
