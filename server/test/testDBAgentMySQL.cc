@@ -34,10 +34,10 @@ DBAgentMySQL *g_dbAgent = NULL;
 
 static string getEngine(const string &dbName, const string &tableName)
 {
-	string sql =
-	  "SELECT ENGINE FROM information_schema.TABLES where TABLE_NAME='";
-	sql += tableName;
-	sql += "';";
+	string sql = StringUtils::sprintf(
+	  "SELECT ENGINE FROM information_schema.TABLES "
+	  "where TABLE_SCHEMA='%s' AND TABLE_NAME='%s';",
+	  dbName.c_str(), tableName.c_str());
 	string output = execMySQL(dbName, sql);
 	StringVector words;
 	StringUtils::split(words, output, '\n');
