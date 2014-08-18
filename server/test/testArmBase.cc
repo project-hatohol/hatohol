@@ -68,11 +68,16 @@ public:
 	}
 
 protected:
-	virtual bool mainThreadOneProc(void) override
+	virtual OneProcEndType mainThreadOneProc(void) override
 	{
-		if (m_oneProcHook)
-			return (*m_oneProcHook)(m_oneProcHookData);
-		return true;
+		if (m_oneProcHook){
+			bool ret = (*m_oneProcHook)(m_oneProcHookData);
+			if (ret)
+				return COLLECT_OK;
+			else
+				return COLLECT_NG_INTERNAL_ERROR;
+		}
+		return COLLECT_OK;
 	}
 };
 
