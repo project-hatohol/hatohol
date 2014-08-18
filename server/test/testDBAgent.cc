@@ -551,4 +551,75 @@ void test_makeSelectStatementDistinct(void)
 	dbAgent.assertMakeSelectStatementDistinct(true);
 }
 
+void test_transaction(void)
+{
+	struct : DBAgent::TransactionProc {
+		bool called;
+		void operator ()(DBAgent &dbAgent) override
+		{
+			called = true;
+		}
+	} trx;
+	trx.called = false;
+	TestDBAgent dbAgent;
+	dbAgent.transaction(trx);
+	cppcut_assert_equal(true, trx.called);
+}
+
+void test_transactionPrePostproc(void)
+{
+	struct : DBAgent::TransactionProc {
+		bool preprocRet;
+		bool called;
+		bool calledPostproc;
+		bool preproc(DBAgent &dbAgent) override
+		{
+			return preprocRet;
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			called = true;
+		}
+
+		void postproc(DBAgent &dbAgent) override
+		{
+			calledPostproc = true;
+		}
+	} trx;
+	trx.called = false;
+	trx.calledPostproc = false;
+	TestDBAgent dbAgent;
+
+	trx.preprocRet = false;
+	dbAgent.transaction(trx);
+	cppcut_assert_equal(false, trx.called);
+	cppcut_assert_equal(false, trx.calledPostproc);
+
+	trx.preprocRet = true;
+	dbAgent.transaction(trx);
+	cppcut_assert_equal(true, trx.called);
+	cppcut_assert_equal(true, trx.calledPostproc);
+}
+
+void test_transactionCatchException(void)
+{
+	struct : DBAgent::TransactionProc {
+		void operator ()(DBAgent &dbAgent) override
+		{
+			throw "Test exception";
+		}
+	} trx;
+
+	bool caughtException = false;
+	try {
+		TestDBAgent dbAgent;
+		dbAgent.transaction(trx);
+	} catch (...) {
+		caughtException = true;
+	}
+	cppcut_assert_equal(true, caughtException);
+}
+
+
 } // namespace testDBAgent
