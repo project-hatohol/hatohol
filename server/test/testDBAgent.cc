@@ -621,5 +621,20 @@ void test_transactionCatchException(void)
 	cppcut_assert_equal(true, caughtException);
 }
 
+namespace testTableProfile
+{
+	void test_getFullColumnName(void)
+	{
+		using StringUtils::sprintf;
+		size_t index = 1;
+		const char *tableName = TABLE_NAME_TEST;
+		const char *columnName = COLUMN_DEF_TEST[index].columnName;
+		DBAgent::TableProfile profile(tableName,
+					      COLUMN_DEF_TEST,
+					      tableProfileTest.numColumns);
+		cppcut_assert_equal(sprintf("%s.%s", tableName, columnName),
+				    profile.getFullColumnName(index));
+	}
+}
 
 } // namespace testDBAgent

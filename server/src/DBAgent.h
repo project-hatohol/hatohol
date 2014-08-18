@@ -67,6 +67,18 @@ public:
 
 		TableProfile(const char *name,  const ColumnDef *columnDefs,
 		             const size_t &numIndexes);
+
+		/**
+		 * Get a full name of a column.
+		 *
+		 * E.g. If table name is 'tbl' and a column name is 'name',
+		 * 'tbl.name' is returned.
+		 *
+		 * @param index      An index of the target column.
+		 *
+		 * @return A full name of the specified column.
+		 */
+		std::string getFullColumnName(const size_t &index) const;
 	};
 
 	struct IndexDef {

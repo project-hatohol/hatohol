@@ -486,8 +486,7 @@ void ArmNagiosNDOUtils::makeSelectTriggerBuilder(void)
 	// contiditon
 	m_impl->selectTriggerBaseCondition = StringUtils::sprintf(
 	  "%s>=",
-	  SQLUtils::getFullName(COLUMN_DEF_SERVICESTATUS,
-	                        IDX_SERVICESTATUS_STATUS_UPDATE_TIME).c_str());
+	  tableProfileServiceStatus.getFullColumnName(IDX_SERVICESTATUS_STATUS_UPDATE_TIME).c_str());
 }
 
 void ArmNagiosNDOUtils::makeSelectEventBuilder(void)
@@ -513,11 +512,9 @@ void ArmNagiosNDOUtils::makeSelectEventBuilder(void)
 	// contiditon
 	m_impl->selectEventBaseCondition = StringUtils::sprintf(
 	  "%s=%d and %s>=",
-	  SQLUtils::getFullName(COLUMN_DEF_STATEHISTORY,
-	                        IDX_STATEHISTORY_STATE_TYPE).c_str(),
+	  tableProfileStateHistory.getFullColumnName(IDX_STATEHISTORY_STATE_TYPE).c_str(),
 	  HARD_STATE,
-	  SQLUtils::getFullName(COLUMN_DEF_STATEHISTORY,
-	                        IDX_STATEHISTORY_STATEHISTORY_ID).c_str());
+	  tableProfileStateHistory.getFullColumnName(IDX_STATEHISTORY_STATEHISTORY_ID).c_str());
 }
 
 void ArmNagiosNDOUtils::makeSelectItemBuilder(void)

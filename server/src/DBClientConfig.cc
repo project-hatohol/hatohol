@@ -533,8 +533,8 @@ static string serverIdCondition(
 {
 	string columnNameStr;
 	if (needTableName) {
-		columnNameStr = SQLUtils::getFullName(COLUMN_DEF_SERVERS,
-		                                      IDX_SERVERS_ID);
+		columnNameStr =
+			tableProfileServers.getFullColumnName(IDX_SERVERS_ID);
 	}
 	const char *columnName = needTableName ?
 	                         columnNameStr.c_str() :
