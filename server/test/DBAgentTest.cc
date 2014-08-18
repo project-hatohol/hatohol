@@ -209,13 +209,13 @@ struct TestAutoIncValues {
 
 struct CheckInsertParamBase {
 	virtual void fillRows(DBAgent::InsertArg &arg) = 0;
-	virtual void assertExistingRecord(DBAgentChecker &checker) = 0;
+	virtual void check(DBAgent &dbAgent, DBAgentChecker &checker) = 0;
 	virtual const DBAgent::TableProfile &getTableProfile(void) = 0;
 	virtual bool getUpsertOnDuplicate(void) = 0;
 };
 
 template<typename DATA_TYPE>
-struct CheckInsertParamTempl : CheckInsertParamBase {
+struct CheckInsertParamTempl : public CheckInsertParamBase {
 	DATA_TYPE    val;
 	bool         useExpectValues;
 	DATA_TYPE    expectValues;
@@ -257,7 +257,7 @@ struct CheckInsertParam : public CheckInsertParamTempl<TestValues> {
 		                    calcNullFlag(nullIndexes, idx++));
 	}
 
-	void assertExistingRecord(DBAgentChecker &checker) override
+	void check(DBAgent &dbAgent, DBAgentChecker &checker) override
 	{
 		const TestValues *expect = getExpectData();
 		checker.assertExistingRecord(
@@ -272,6 +272,23 @@ struct CheckInsertParam : public CheckInsertParamTempl<TestValues> {
 	}
 };
 
+struct CheckInsertParamAutoInc :
+   public CheckInsertParamTempl<TestAutoIncValues> {
+
+	void fillRows(DBAgent::InsertArg &arg) override
+	{
+		size_t idx = 0;
+		arg.row->addNewItem(val.id,   calcNullFlag(nullIndexes, idx++));
+		arg.row->addNewItem(val.val,  calcNullFlag(nullIndexes, idx++));
+		arg.row->addNewItem(val.name, calcNullFlag(nullIndexes, idx++));
+	}
+
+	const DBAgent::TableProfile &getTableProfile(void) override
+	{
+		return tableProfileTestAutoInc;
+	}
+};
+
 static void checkInsert(DBAgent &dbAgent, DBAgentChecker &checker,
                         CheckInsertParamBase &param)
 {
@@ -279,7 +296,7 @@ static void checkInsert(DBAgent &dbAgent, DBAgentChecker &checker,
 	param.fillRows(arg);
 	arg.upsertOnDuplicate = param.getUpsertOnDuplicate();
 	dbAgent.insert(arg);
-	param.assertExistingRecord(checker);
+	param.check(dbAgent, checker);
 }
 
 static void checkUpdate(DBAgent &dbAgent, DBAgentChecker &checker,
@@ -298,6 +315,13 @@ static void checkUpdate(DBAgent &dbAgent, DBAgentChecker &checker,
 
 	checker.assertExistingRecord(id, age, name, height, CURR_DATETIME,
 	                             NUM_COLUMNS_TEST, COLUMN_DEF_TEST);
+}
+
+static void createTestTableAutoInc(DBAgent &dbAgent, DBAgentChecker &checker)
+{
+	dbAgent.createTable(tableProfileTestAutoInc);
+	checker.assertTable(tableProfileTestAutoInc);
+	dbAgent.fixupIndexes(tableProfileTestAutoInc, NULL);
 }
 
 void dbAgentTestExecSql(DBAgent &dbAgent, DBAgentChecker &checker)
@@ -452,26 +476,31 @@ void dbAgentTestUpsert(DBAgent &dbAgent, DBAgentChecker &checker)
 void dbAgentTestUpsertWithPrimaryKeyAutoInc(
   DBAgent &dbAgent, DBAgentChecker &checker)
 {
+	struct : public CheckInsertParamAutoInc {
+		void check(DBAgent &dbAgent, DBAgentChecker &checker) override
+		{
+			const string statement = StringUtils::sprintf(
+			  "SELECT * from  %s", getTableProfile().name);
+			const string expect = StringUtils::sprintf(
+			  "1|%d|%s", val.val, val.name);
+			assertDBContent(&dbAgent, statement, expect);
+		}
+	} param;
+
 	// create table
-	dbAgentTestCreateTable(dbAgent, checker);
+	createTestTableAutoInc(dbAgent, checker);
 
 	// insert a row
-	CheckInsertParam param;
-	param.val.id     = 1;
-	param.val.age    = 14;
+	param.val.id     = AUTO_INCREMENT_VALUE; // primary key
+	param.val.val    = -3;
 	param.val.name   = "rei";
-	param.val.height = 158.2;
 	checkInsert(dbAgent, checker, param);
 
 	// name (unique key) is not changed. So the index will be duplicated.
 	param.val.id     = AUTO_INCREMENT_VALUE; // primary key
-	param.val.age    = 33;
-	param.val.height = 172.5;
-	param.upsertOnDuplicate = true;
+	param.val.val    = 223;
 
-	param.useExpectValues = true;
-	param.expectValues = param.val;
-	param.expectValues.id = 1; // The previos value should be kept.
+	param.upsertOnDuplicate = true;
 	checkInsert(dbAgent, checker, param);
 }
 
@@ -784,13 +813,6 @@ void dbAgentTestIsTableExisting(DBAgent &dbAgent, DBAgentChecker &checker)
 	cppcut_assert_equal(false, dbAgent.isTableExisting(TABLE_NAME_TEST));
 	dbAgentTestCreateTable(dbAgent, checker);
 	cppcut_assert_equal(true, dbAgent.isTableExisting(TABLE_NAME_TEST));
-}
-
-static void createTestTableAutoInc(DBAgent &dbAgent, DBAgentChecker &checker)
-{
-	dbAgent.createTable(tableProfileTestAutoInc);
-	checker.assertTable(tableProfileTestAutoInc);
-	dbAgent.fixupIndexes(tableProfileTestAutoInc, NULL);
 }
 
 static void insertRowToTestTableAutoInc(
