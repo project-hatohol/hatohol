@@ -301,6 +301,14 @@ void ArmBase::setInitialTrrigerTable(void)
 void ArmBase::setInitialTrrigerStaus(void)
 {
 	const MonitoringServerInfo &svInfo = getServerInfo();
+
+	HostInfo hostInfo;
+	hostInfo.serverId = svInfo.id;
+	hostInfo.id = NOTIFICATIN_FAILUER_SERVERID_SELF;
+	hostInfo.hostName = 
+		StringUtils::sprintf("%s_SELF",svInfo.hostName.c_str());
+	m_impl->dbClientHatohol.addHostInfo(&hostInfo);
+
 	TriggerInfo triggerInfo;
 	TriggerInfoList triggerInfoList;
 
@@ -308,10 +316,11 @@ void ArmBase::setInitialTrrigerStaus(void)
 		if (TRIGGER_STATUS_UNKNOWN == m_impl->oneProcTriggerTable[i].statusType){
 			triggerInfo.serverId = svInfo.id; 
 			clock_gettime(CLOCK_REALTIME,&triggerInfo.lastChangeTime);
-			triggerInfo.hostId = svInfo.id;
-			triggerInfo.hostName = svInfo.hostName.c_str();
+			triggerInfo.hostId = NOTIFICATIN_FAILUER_SERVERID_SELF;
+			triggerInfo.hostName = 
+				StringUtils::sprintf("%s_SELF",svInfo.hostName.c_str());
 			triggerInfo.id = m_impl->oneProcTriggerTable[i].triggerId;
-			triggerInfo.status = TRIGGER_STATUS_OK;
+			triggerInfo.status = TRIGGER_STATUS_UNKNOWN;
 			triggerInfo.severity = TRIGGER_SEVERITY_INFO;
 			triggerInfo.brief = m_impl->oneProcTriggerTable[i].msg;
 		
@@ -328,8 +337,9 @@ void ArmBase::createTriggerInfo(int i,TriggerInfoList &triggerInfoList)
 
 	triggerInfo.serverId = svInfo.id;
 	clock_gettime(CLOCK_REALTIME,&triggerInfo.lastChangeTime);
-	triggerInfo.hostId = svInfo.id;
-	triggerInfo.hostName = svInfo.hostName.c_str();
+	triggerInfo.hostId = NOTIFICATIN_FAILUER_SERVERID_SELF;
+	triggerInfo.hostName = 
+		StringUtils::sprintf("%s_SELF",svInfo.hostName.c_str());
 	triggerInfo.id = m_impl->oneProcTriggerTable[i].triggerId;
 	triggerInfo.brief = m_impl->oneProcTriggerTable[i].msg;
 	triggerInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
@@ -346,7 +356,7 @@ void ArmBase::createEventInfo(int i,EventInfoList &eventInfoList)
 	eventInfo.serverId = svInfo.id;
 	eventInfo.id = DISCONNECT_SERVER_EVENTID_TYPE;
 	clock_gettime(CLOCK_REALTIME,&eventInfo.time);
-	eventInfo.hostId = svInfo.id;
+	eventInfo.hostId = NOTIFICATIN_FAILUER_SERVERID_SELF;
 	eventInfo.triggerId = m_impl->oneProcTriggerTable[i].triggerId;
 	eventInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
 	eventInfo.status = m_impl->oneProcTriggerTable[i].statusType;
@@ -428,7 +438,6 @@ gpointer ArmBase::mainThread(HatoholThreadArg *arg)
 		}
 		if (beforeFailureStatus == ARM_WORK_STAT_INIT ){
 			setInitialTrrigerStaus();
-			beforeFailureStatus = ARM_WORK_STAT_OK;
 		}
 		if ( m_impl->lastFailureStatus != ARM_WORK_STAT_OK ){
 			setServerConnectStaus(false,oneProcEndType);
