@@ -555,25 +555,44 @@ HatoholError DBClientUser::addUserInfo(
 	if (err != HTERR_OK)
 		return err;
 
-	DBAgent::InsertArg arg(tableProfileUsers);
-	arg.add(AUTO_INCREMENT_VALUE);
-	arg.add(userInfo.name);
-	arg.add(Utils::sha256(userInfo.password));
-	arg.add(userInfo.flags);
+	struct TrxProc : public DBAgent::TransactionProc {
+		HatoholError err;
+		string dupCheckCond;
+		DBAgent::InsertArg arg;
+		UserInfo &userInfo;
 
-	string dupCheckCond = StringUtils::sprintf("%s='%s'",
-	  COLUMN_DEF_USERS[IDX_USERS_NAME].columnName, userInfo.name.c_str());
-
-	DBCLIENT_TRANSACTION_BEGIN() {
-		if (isRecordExisting(TABLE_NAME_USERS, dupCheckCond)) {
-			err = HTERR_USER_NAME_EXIST;
-		} else {
-			insert(arg);
-			userInfo.id = getLastInsertId();
-			err = HTERR_OK;
+		TrxProc(UserInfo &_userInfo)
+		: arg(tableProfileUsers),
+		  userInfo(_userInfo)
+		{
 		}
-	} DBCLIENT_TRANSACTION_END();
-	return err;
+
+		bool preproc(DBAgent &dbAgent) override
+		{
+			arg.add(AUTO_INCREMENT_VALUE);
+			arg.add(userInfo.name);
+			arg.add(Utils::sha256(userInfo.password));
+			arg.add(userInfo.flags);
+			dupCheckCond = StringUtils::sprintf("%s='%s'",
+			  COLUMN_DEF_USERS[IDX_USERS_NAME].columnName,
+			  userInfo.name.c_str());
+			return true;
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			if (dbAgent.isRecordExisting(TABLE_NAME_USERS,
+			                             dupCheckCond)) {
+				err = HTERR_USER_NAME_EXIST;
+			} else {
+				dbAgent.insert(arg);
+				userInfo.id = dbAgent.getLastInsertId();
+				err = HTERR_OK;
+			}
+		}
+	} trx(userInfo);
+	getDBAgent().transaction(trx);
+	return trx.err;
 }
 
 HatoholError DBClientUser::hasPrivilegeForUpdateUserInfo(
