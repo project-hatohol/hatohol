@@ -950,28 +950,41 @@ HatoholError DBClientUser::addUserRoleInfo(UserRoleInfo &userRoleInfo,
 		return HTERR_USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST;
 	}
 
-	DBAgent::InsertArg arg(tableProfileUserRoles);
-	arg.add(AUTO_INCREMENT_VALUE);
-	arg.add(userRoleInfo.name);
-	arg.add(userRoleInfo.flags);
+	struct TrxProc : public DBAgent::TransactionProc {
+		HatoholError       err;
+		DBAgent::InsertArg arg;
+		string             dupChkCond;
+		UserRoleInfo      &userRoleInfo;
 
-	string dupCheckCond = StringUtils::sprintf(
+		TrxProc(UserRoleInfo &_userRoleInfo)
+		: arg(tableProfileUserRoles),
+		  userRoleInfo(_userRoleInfo)
+		{
+			arg.add(AUTO_INCREMENT_VALUE);
+			arg.add(userRoleInfo.name);
+			arg.add(userRoleInfo.flags);
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			if (dbAgent.isRecordExisting(TABLE_NAME_USER_ROLES,
+			                             dupChkCond)) {
+				err = HTERR_USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST;
+				return;
+			}
+			dbAgent.insert(arg);
+			userRoleInfo.id = dbAgent.getLastInsertId();
+			err = HTERR_OK;
+		}
+	} trx(userRoleInfo);
+	trx.dupChkCond = StringUtils::sprintf(
 	  "(%s='%s' or %s=%" FMT_OPPRVLG ")",
 	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_NAME].columnName,
 	  StringUtils::replace(userRoleInfo.name, "'", "''").c_str(),
 	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_FLAGS].columnName,
 	  userRoleInfo.flags);
-
-	DBCLIENT_TRANSACTION_BEGIN() {
-		if (isRecordExisting(TABLE_NAME_USER_ROLES, dupCheckCond)) {
-			err = HTERR_USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST;
-		} else {
-			insert(arg);
-			userRoleInfo.id = getLastInsertId();
-			err = HTERR_OK;
-		}
-	} DBCLIENT_TRANSACTION_END();
-	return err;
+	getDBAgent().transaction(trx);
+	return trx.err;
 }
 
 HatoholError DBClientUser::updateUserRoleInfo(
