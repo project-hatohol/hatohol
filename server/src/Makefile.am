@@ -51,6 +51,7 @@ libhatohol_la_SOURCES = \
 	DBClientGroup.cc DBClientGroup.h \
 	DB.cc DB.h \
 	DBHatohol.cc DBHatohol.h \
+	DBTables.cc DBTables.h \
 	DBCGroupRegular.cc DBCGroupRegular.h \
 	DBClientAction.cc DBClientAction.h \
 	DBTablesConfig.cc DBTablesConfig.h \
