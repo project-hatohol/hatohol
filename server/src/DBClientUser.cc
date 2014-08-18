@@ -632,35 +632,52 @@ HatoholError DBClientUser::updateUserInfo(
 	if (err != HTERR_OK)
 		return err;
 
-	DBAgent::UpdateArg arg(tableProfileUsers);
+	struct TrxProc : public DBAgent::TransactionProc {
+		HatoholError err;
+		string dupCheckCond;
+		DBAgent::UpdateArg arg;
+		UserInfo &userInfo;
 
-	arg.add(IDX_USERS_NAME, userInfo.name);
-	if (!userInfo.password.empty())
-		arg.add(IDX_USERS_PASSWORD, Utils::sha256(userInfo.password));
-	arg.add(IDX_USERS_FLAGS, userInfo.flags);
+		TrxProc(UserInfo &_userInfo)
+		: arg(tableProfileUsers),
+		  userInfo(_userInfo)
+		{
+			arg.add(IDX_USERS_NAME, userInfo.name);
+			if (!userInfo.password.empty()) {
+				arg.add(IDX_USERS_PASSWORD,
+				        Utils::sha256(userInfo.password));
+			}
+			arg.add(IDX_USERS_FLAGS, userInfo.flags);
 
-	arg.condition = StringUtils::sprintf("%s=%" FMT_USER_ID,
-	  COLUMN_DEF_USERS[IDX_USERS_ID].columnName, userInfo.id);
+			arg.condition = StringUtils::sprintf("%s=%" FMT_USER_ID,
+			  COLUMN_DEF_USERS[IDX_USERS_ID].columnName,
+			  userInfo.id);
 
-	string dupCheckCond = StringUtils::sprintf(
-	  "(%s='%s' and %s<>%" FMT_USER_ID ")",
-	  COLUMN_DEF_USERS[IDX_USERS_NAME].columnName,
-	  userInfo.name.c_str(),
-	  COLUMN_DEF_USERS[IDX_USERS_ID].columnName,
-	  userInfo.id);
-
-	DBCLIENT_TRANSACTION_BEGIN() {
-		const char *tableName = arg.tableProfile.name;
-		if (!isRecordExisting(tableName, arg.condition)) {
-			err = HTERR_NOT_FOUND_TARGET_RECORD;
-		} else if (isRecordExisting(tableName, dupCheckCond)) {
-			err = HTERR_USER_NAME_EXIST;
-		} else {
-			update(arg);
-			err = HTERR_OK;
+			dupCheckCond = StringUtils::sprintf(
+			  "(%s='%s' and %s<>%" FMT_USER_ID ")",
+			  COLUMN_DEF_USERS[IDX_USERS_NAME].columnName,
+			  userInfo.name.c_str(),
+			  COLUMN_DEF_USERS[IDX_USERS_ID].columnName,
+			  userInfo.id);
 		}
-	} DBCLIENT_TRANSACTION_END();
-	return err;
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			const char *tableName = arg.tableProfile.name;
+			if (!dbAgent.isRecordExisting(tableName,
+			                              arg.condition)) {
+				err = HTERR_NOT_FOUND_TARGET_RECORD;
+			} else if (dbAgent.isRecordExisting(tableName,
+			                                    dupCheckCond)) {
+				err = HTERR_USER_NAME_EXIST;
+			} else {
+				dbAgent.update(arg);
+				err = HTERR_OK;
+			}
+		}
+	} trx(userInfo);
+	getDBAgent().transaction(trx);
+	return trx.err;
 }
 
 HatoholError DBClientUser::deleteUserInfo(
