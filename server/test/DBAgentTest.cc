@@ -196,41 +196,92 @@ struct TestValues {
 	}
 };
 
-struct CheckInsertParam {
-	TestValues   val;
+struct TestAutoIncValues {
+	int          id;
+	int          val;
+	const char  *name;
+
+	TestAutoIncValues(void)
+	: id(-1),
+	  val(-1),
+	  name(NULL)
+	{
+	}
+};
+
+struct CheckInsertParamBase {
+	virtual void fillRows(DBAgent::InsertArg &arg) = 0;
+	virtual void assertExistingRecord(DBAgentChecker &checker) = 0;
+	virtual const DBAgent::TableProfile &getTableProfile(void) = 0;
+	virtual bool getUpsertOnDuplicate(void) = 0;
+};
+
+template<typename DATA_TYPE>
+struct CheckInsertParamTempl : CheckInsertParamBase {
+	DATA_TYPE    val;
 	bool         useExpectValues;
-	TestValues   expectValues;
+	DATA_TYPE    expectValues;
 	set<size_t> *nullIndexes;
 	bool         upsertOnDuplicate;
 
-	CheckInsertParam(void)
+	CheckInsertParamTempl(void)
 	: useExpectValues(false),
 	  nullIndexes(NULL),
 	  upsertOnDuplicate(false)
 	{
 	}
+
+	const DATA_TYPE *getExpectData(void)
+	{
+		const TestValues *expect = &val;
+		if (useExpectValues)
+			expect = &expectValues;
+		return expect;
+	}
+
+	bool getUpsertOnDuplicate(void)
+	{
+		return upsertOnDuplicate;
+	}
+};
+
+struct CheckInsertParam : public CheckInsertParamTempl<TestValues> {
+
+	void fillRows(DBAgent::InsertArg &arg) override
+	{
+		size_t idx = 0;
+		arg.row->addNewItem(val.id,   calcNullFlag(nullIndexes, idx++));
+		arg.row->addNewItem(val.age,  calcNullFlag(nullIndexes, idx++));
+		arg.row->addNewItem(val.name, calcNullFlag(nullIndexes, idx++));
+		arg.row->addNewItem(val.height,
+		                    calcNullFlag(nullIndexes, idx++));
+		arg.row->addNewItem(CURR_DATETIME,
+		                    calcNullFlag(nullIndexes, idx++));
+	}
+
+	void assertExistingRecord(DBAgentChecker &checker) override
+	{
+		const TestValues *expect = getExpectData();
+		checker.assertExistingRecord(
+		  expect->id, expect->age, expect->name, expect->height,
+		  CURR_DATETIME,
+		  NUM_COLUMNS_TEST, COLUMN_DEF_TEST, nullIndexes);
+	}
+
+	const DBAgent::TableProfile &getTableProfile(void) override
+	{
+		return tableProfileTest;
+	}
 };
 
 static void checkInsert(DBAgent &dbAgent, DBAgentChecker &checker,
-                        const CheckInsertParam &param)
+                        CheckInsertParamBase &param)
 {
-	set<size_t> *nullIndexes = param.nullIndexes;
-	DBAgent::InsertArg arg(tableProfileTest);
-	size_t idx = 0;
-	arg.row->addNewItem(param.val.id,     calcNullFlag(nullIndexes, idx++));
-	arg.row->addNewItem(param.val.age,    calcNullFlag(nullIndexes, idx++));
-	arg.row->addNewItem(param.val.name,   calcNullFlag(nullIndexes, idx++));
-	arg.row->addNewItem(param.val.height, calcNullFlag(nullIndexes, idx++));
-	arg.row->addNewItem(CURR_DATETIME, calcNullFlag(nullIndexes, idx++));
-	arg.upsertOnDuplicate = param.upsertOnDuplicate;
+	DBAgent::InsertArg arg(param.getTableProfile());
+	param.fillRows(arg);
+	arg.upsertOnDuplicate = param.getUpsertOnDuplicate();
 	dbAgent.insert(arg);
-
-	const TestValues *expect = &param.val;
-	if (param.useExpectValues)
-		expect = &param.expectValues;
-	checker.assertExistingRecord(
-	  expect->id, expect->age, expect->name, expect->height, CURR_DATETIME,
-	  NUM_COLUMNS_TEST, COLUMN_DEF_TEST, nullIndexes);
+	param.assertExistingRecord(checker);
 }
 
 static void checkUpdate(DBAgent &dbAgent, DBAgentChecker &checker,
@@ -745,6 +796,7 @@ static void createTestTableAutoInc(DBAgent &dbAgent, DBAgentChecker &checker)
 {
 	dbAgent.createTable(tableProfileTestAutoInc);
 	checker.assertTable(tableProfileTestAutoInc);
+	dbAgent.fixupIndexes(tableProfileTestAutoInc, NULL);
 }
 
 static void insertRowToTestTableAutoInc(
@@ -870,12 +922,15 @@ void dbAgentUpdateIfExistEleseInsert(DBAgent &dbAgent, DBAgentChecker &checker)
 
 void dbAgentGetLastInsertId(DBAgent &dbAgent, DBAgentChecker &checker)
 {
+	using mlpl::StringUtils::sprintf;
+
 	// create table
 	createTestTableAutoInc(dbAgent, checker);
 	static const size_t NUM_REPEAT = 3;
 	for (uint64_t id = 1; id < NUM_REPEAT; id++) {
 		int val = id * 3;
-		insertRowToTestTableAutoInc(dbAgent, checker, val, "hanako");
+		insertRowToTestTableAutoInc(
+		  dbAgent, checker, val, sprintf("hanako.%"PRIu64, id).c_str());
 		cppcut_assert_equal(id, dbAgent.getLastInsertId());
 	}
 }
