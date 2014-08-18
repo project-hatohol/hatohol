@@ -112,7 +112,7 @@ void test_dbDomainId(void)
 {
 	DBClientConfig dbConfig;
 	cppcut_assert_equal(DB_DOMAIN_ID_CONFIG,
-	                    dbConfig.getDBAgent()->getDBDomainId());
+	                    dbConfig.getDBAgent().getDBDomainId());
 }
 
 void test_setDefaultDBParams(void)
@@ -179,14 +179,14 @@ void test_createDB(void)
 	  StringUtils::sprintf(
 	    "%d|%d\n", DB_DOMAIN_ID_CONFIG,
 	               DBClientConfig::CONFIG_DB_VERSION);
-	assertDBContent(dbConfig.getDBAgent(), statement, expect);
+	assertDBContent(&dbConfig.getDBAgent(), statement, expect);
 }
 
 void test_createTableSystem(void)
 {
 	const string tableName = "system";
 	DBClientConfig dbConfig;
-	assertCreateTable(dbConfig.getDBAgent(), tableName);
+	assertCreateTable(&dbConfig.getDBAgent(), tableName);
 	
 	// check content
 	string statement = "select * from " + tableName;
@@ -199,19 +199,19 @@ void test_createTableSystem(void)
 	                        expectedDatabasePath,
 	                        expectedEnableFaceMySQL, expectedFaceRestPort,
 	                        expectedEnableCopyOnDemand);
-	assertDBContent(dbConfig.getDBAgent(), statement, expectedOut);
+	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOut);
 }
 
 void test_createTableServers(void)
 {
 	const string tableName = "servers";
 	DBClientConfig dbConfig;
-	assertCreateTable(dbConfig.getDBAgent(), tableName);
+	assertCreateTable(&dbConfig.getDBAgent(), tableName);
 
 	// check content
 	string statement = "select * from " + tableName;
 	string expectedOut = ""; // currently no data
-	assertDBContent(dbConfig.getDBAgent(), statement, expectedOut);
+	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOut);
 }
 
 void _assertAddTargetServer(
@@ -227,7 +227,7 @@ void _assertAddTargetServer(
 	if (expectedErrorCode == HTERR_OK)
 		expectedOut = makeServerInfoOutput(serverInfo);
 	string statement("select * from servers");
-	assertDBContent(dbConfig.getDBAgent(), statement, expectedOut);
+	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOut);
 }
 #define assertAddTargetServer(I,E,...) \
 cut_trace(_assertAddTargetServer(I,E,##__VA_ARGS__))
@@ -377,7 +377,7 @@ void _assertUpdateTargetServer(
 	string statement = StringUtils::sprintf(
 	                     "select * from servers where id=%d",
 			     targetId);
-	assertDBContent(dbConfig.getDBAgent(), statement, expectedOut);
+	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOut);
 }
 #define assertUpdateTargetServer(I,E,...) \
 cut_trace(_assertUpdateTargetServer(I,E,##__VA_ARGS__))
@@ -829,7 +829,7 @@ void test_saveArmPluginInfoUpdate(void)
 		if (i < NumTestArmPluginInfo - 1)
 			expect += "\n";
 	}
-	assertDBContent(dbConfig.getDBAgent(), statement, expect);
+	assertDBContent(&dbConfig.getDBAgent(), statement, expect);
 }
 
 void test_incidentTrackerQueryOptionForAdmin(void)
@@ -866,7 +866,7 @@ void _assertAddIncidentTracker(
 		expectedOut = makeIncidentTrackerInfoOutput(
 				incidentTrackerInfo);
 	string statement("select * from incident_trackers");
-	assertDBContent(dbConfig.getDBAgent(), statement, expectedOut);
+	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOut);
 }
 #define assertAddIncidentTracker(I,E,...) \
 cut_trace(_assertAddIncidentTracker(I,E,##__VA_ARGS__))
@@ -926,7 +926,7 @@ void _assertUpdateIncidentTracker(
 	string statement = StringUtils::sprintf(
 	                     "select * from incident_trackers where id=%d",
 			     targetId);
-	assertDBContent(dbConfig.getDBAgent(), statement, expectedOut);
+	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOut);
 }
 #define assertUpdateIncidentTracker(I,E,...) \
 cut_trace(_assertUpdateIncidentTracker(I,E,##__VA_ARGS__))

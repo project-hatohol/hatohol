@@ -212,7 +212,7 @@ void test_addServer(void)
 	string statement = "select * from servers ";
 	statement += " order by id desc limit 1";
 	string expectedOutput = makeServerInfoOutput(expected);
-	assertDBContent(dbConfig.getDBAgent(), statement, expectedOutput);
+	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOutput);
 }
 
 void test_addServerWithHapiParams(void)
@@ -237,7 +237,7 @@ void test_addServerWithHapiParams(void)
 	string statement = "select * from arm_plugins";
 	statement += " order by id desc limit 1";
 	string expectedOutput = makeArmPluginInfoOutput(armPluginInfo);
-	assertDBContent(dbConfig.getDBAgent(), statement, expectedOutput);
+	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOutput);
 }
 
 void test_addServerWithoutNickname(void)
@@ -300,7 +300,7 @@ void test_updateServer(gconstpointer data)
  	// TODO: serverInfo2StringMap() doesn't set dbName. Is this OK ?
 	updateSvInfo.dbName = srcSvInfo.dbName;
 	string expectedOutput = makeServerInfoOutput(updateSvInfo);
-	assertDBContent(dbConfig.getDBAgent(), statement, expectedOutput);
+	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOutput);
 }
 
 void test_updateServerWithArmPlugin(void)
@@ -351,11 +351,11 @@ void test_updateServerWithArmPlugin(void)
 	  "SELECT * FROM servers WHERE id=%d", serverInfo.id);
 	// TODO: serverInfo2StringMap() doesn't set dbName. Is this OK ?
 	string expectedOutput = makeServerInfoOutput(serverInfo);
-	assertDBContent(dbConfig.getDBAgent(), statement, expectedOutput);
+	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOutput);
 
 	statement = "SELECT * FROM arm_plugins ORDER BY id DESC LIMIT 1";
 	expectedOutput = makeArmPluginInfoOutput(armPluginInfo);
-	assertDBContent(dbConfig.getDBAgent(), statement, expectedOutput);
+	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOutput);
 }
 
 void test_deleteServer(void)
