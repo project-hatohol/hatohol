@@ -56,12 +56,13 @@ The following shows examples to install Required Packages.
 
 
 ### Create the database
+    $ mysql -u root -p
+    Enter password:(input password)
 
-    > CREATE DATABASE hatohol_client;
-    > GRANT ALL PRIVILEGES ON hatohol_client.* TO hatohol@localhost IDENTIFIED BY 'hatohol';
+    mysql> CREATE DATABASE hatohol_client;
+    mysql> GRANT ALL PRIVILEGES ON hatohol_client.* TO hatohol@localhost IDENTIFIED BY 'hatohol';
 
 ### Create the database and the tables
-
     $ ./manage.py syncdb
 
 ## How to run
