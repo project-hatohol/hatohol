@@ -934,8 +934,10 @@ HatoholError DBClientConfig::updateTargetServer(
 
 		void operator ()(DBAgent &dbAgent) override
 		{
-			if (!dbAgent.isRecordExisting(TABLE_NAME_SERVERS,
-			                              arg.condition)) {
+			bool hasRecord = dbAgent.isRecordExisting(
+					   TABLE_NAME_SERVERS,
+					   arg.condition);
+			if (!hasRecord) {
 				err = HTERR_NOT_FOUND_TARGET_RECORD;
 				return;
 			}
@@ -1221,8 +1223,10 @@ HatoholError DBClientConfig::updateIncidentTracker(
 
 		void operator ()(DBAgent &dbAgent) override
 		{
-			if (!dbAgent.isRecordExisting(
-			       TABLE_NAME_INCIDENT_TRACKERS, arg.condition)) {
+			bool hasRecord = dbAgent.isRecordExisting(
+					   TABLE_NAME_INCIDENT_TRACKERS,
+					   arg.condition);
+			if (!hasRecord) {
 				err = HTERR_NOT_FOUND_TARGET_RECORD;
 				return;
 			}
