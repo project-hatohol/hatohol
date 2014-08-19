@@ -47,6 +47,7 @@ testHatohol_la_SOURCES = \
 	testDBAgent.cc \
 	testDBAgentSQLite3.cc testDBAgentMySQL.cc \
 	testDB.cc \
+	testDBTables.cc \
 	testDBClient.cc \
 	testDBClientUtils.cc \
 	testDBTablesConfig.cc \
