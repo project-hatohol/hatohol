@@ -185,7 +185,7 @@ including HATOHOL version on http://[hostname]:[RestPort]/hello.html.
   Ex.) `http://localhost:33194/hello.html`
 
 (3)` If you want to use your PID setting, you execute the following command.
-$ HATOHOL_DB_DIR=/var/lib/hatohol hatohol --config-db-server localhost --pid-file-path /(any path of your)/my-hatohol.pid
+    $ HATOHOL_DB_DIR=/var/lib/hatohol hatohol --config-db-server localhost --pid-file-path /(any path of your)/my-hatohol.pid
 
 ## How to stop
 Send one of the following signals to hatohol process.
