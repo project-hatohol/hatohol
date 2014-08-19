@@ -57,13 +57,13 @@ The following shows examples to install Required Packages.
 
 ### Create the database
     $ mysql -u root -p
-    Enter password:(input password)
+    Enter password:(input root password)
 
     mysql> CREATE DATABASE hatohol_client;
     mysql> GRANT ALL PRIVILEGES ON hatohol_client.* TO hatohol@localhost IDENTIFIED BY 'hatohol';
 
 ### Create the database and the tables
-You must change the current directory to "/client" in /Hatohol folder.
+You must change the current directory to "/client" in /Hatohol directory.
 
     $ ./manage.py syncdb
 
@@ -71,7 +71,7 @@ You must change the current directory to "/client" in /Hatohol folder.
 Hatohol Client is a standard Django project. So you can run it on any WSGI
 compliant application server.
 
-You must change the current directory to "/client" in /Hatohol folder.
+You must change the current directory to "/client" in /Hatohol directory.
 
 Alternatively you can run with a runserver sub-command of Django's manage.py.
 
