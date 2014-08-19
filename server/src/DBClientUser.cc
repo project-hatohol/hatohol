@@ -579,10 +579,15 @@ HatoholError DBClientUser::addUserInfo(
 			return true;
 		}
 
+		bool hasRecord(DBAgent &dbAgent)
+		{
+			return dbAgent.isRecordExisting(TABLE_NAME_USERS,
+							dupCheckCond);
+		}
+
 		void operator ()(DBAgent &dbAgent) override
 		{
-			if (dbAgent.isRecordExisting(TABLE_NAME_USERS,
-			                             dupCheckCond)) {
+			if (hasRecord(dbAgent)) {
 				err = HTERR_USER_NAME_EXIST;
 			} else {
 				dbAgent.insert(arg);
@@ -661,14 +666,17 @@ HatoholError DBClientUser::updateUserInfo(
 			  userInfo.id);
 		}
 
+		bool hasRecord(DBAgent &dbAgent, const string &condition)
+		{
+			return dbAgent.isRecordExisting(arg.tableProfile.name,
+							condition);
+		}
+
 		void operator ()(DBAgent &dbAgent) override
 		{
-			const char *tableName = arg.tableProfile.name;
-			if (!dbAgent.isRecordExisting(tableName,
-			                              arg.condition)) {
+			if (!hasRecord(dbAgent, arg.condition)) {
 				err = HTERR_NOT_FOUND_TARGET_RECORD;
-			} else if (dbAgent.isRecordExisting(tableName,
-			                                    dupCheckCond)) {
+			} else if (hasRecord(dbAgent, dupCheckCond)) {
 				err = HTERR_USER_NAME_EXIST;
 			} else {
 				dbAgent.update(arg);
@@ -965,10 +973,15 @@ HatoholError DBClientUser::addUserRoleInfo(UserRoleInfo &userRoleInfo,
 			arg.add(userRoleInfo.flags);
 		}
 
+		bool hasRecord(DBAgent &dbAgent)
+		{
+			return dbAgent.isRecordExisting(TABLE_NAME_USER_ROLES,
+							dupChkCond);
+		}
+
 		void operator ()(DBAgent &dbAgent) override
 		{
-			if (dbAgent.isRecordExisting(TABLE_NAME_USER_ROLES,
-			                             dupChkCond)) {
+			if (hasRecord(dbAgent)) {
 				err = HTERR_USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST;
 				return;
 			}
@@ -1014,12 +1027,18 @@ HatoholError DBClientUser::updateUserRoleInfo(
 		{
 		}
 
+		bool hasRecord(DBAgent &dbAgent, const string &condition)
+		{
+			return dbAgent.isRecordExisting(arg.tableProfile.name,
+							condition);
+		}
+
 		void operator ()(DBAgent &dbAgent) override
 		{
 			const char *tbl = arg.tableProfile.name;
-			if (!dbAgent.isRecordExisting(tbl, arg.condition)) {
+			if (!hasRecord(dbAgent, arg.condition)) {
 				err = HTERR_NOT_FOUND_TARGET_RECORD;
-			} else if (dbAgent.isRecordExisting(tbl, dupChkCond)) {
+			} else if (hasRecord(dbAgent, dupChkCond)) {
 				err = HTERR_USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST;
 			} else {
 				dbAgent.update(arg);
