@@ -439,16 +439,16 @@ string HostResourceQueryOption::getFromClauseWithHostgroup(void) const
 string HostResourceQueryOption::getColumnNameCommon(
   const DBAgent::TableProfile &tableProfile, const size_t &idx) const
 {
-	const ColumnDef *columnDefs = tableProfile.columnDefs;
 	HATOHOL_ASSERT(idx < tableProfile.numColumns,
 	               "idx: %zd, numColumns: %zd, table: %s",
 	               idx, tableProfile.numColumns, tableProfile.name);
 	string name;
 	if (getTableNameAlways() || isHostgroupUsed()) {
-		name += columnDefs[idx].tableName;
-		name += ".";
+		name = tableProfile.getFullColumnName(idx);
+	} else {
+		const ColumnDef *columnDefs = tableProfile.columnDefs;
+		name = columnDefs[idx].columnName;
 	}
-	name += columnDefs[idx].columnName;
 	return name;
 }
 
