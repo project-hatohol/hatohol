@@ -643,21 +643,13 @@ void test_getColumnName(void)
 	                           option.getColumnName(idx));
 }
 
-void data_getColumnNameWithTableName(void)
-{
-	gcut_add_datum("The same table name", "idx", G_TYPE_INT,
-	               IDX_TEST_TABLE_HOST_ID, NULL);
-	gcut_add_datum("Different table name", "idx", G_TYPE_INT,
-	               IDX_TEST_TABLE_FLOWER, NULL);
-}
-
-void test_getColumnNameWithTableName(gconstpointer data)
+void test_getColumnNameWithTableName(void)
 {
 	setupTestDBUser(true, true);
-	const size_t idx = gcut_data_get_boolean(data, "idx");
+	const size_t idx = IDX_TEST_TABLE_HOST_ID;
 	HostResourceQueryOption option(TEST_SYNAPSE);
 	option.setTargetHostgroupId(5);
-	string expect = COLUMN_DEF_TEST[idx].tableName;
+	string expect = TEST_PRIMARY_TABLE_NAME;
 	expect += ".";
 	expect += COLUMN_DEF_TEST[idx].columnName;
 	cppcut_assert_equal(expect, option.getColumnName(idx));
