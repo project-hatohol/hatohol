@@ -124,7 +124,7 @@ _buildExpect<bool, true>(bool exp)
  * constant expression cond is false.
  */
 #define HATOHOL_BUILD_ASSERT(cond)	\
-	((void)HATOHOL_BUILD_EXPECT(!!(cond), 1))
+	((void)HATOHOL_BUILD_EXPECT(!!(cond), true))
 
 #define THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(ERROR_CODE, FMT, ...) \
 do { \
