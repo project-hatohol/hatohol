@@ -842,11 +842,11 @@ HatoholError DBTablesConfig::addTargetServer(
 		HatoholError              err;
 		DBAgent::InsertArg        arg;
 		string                    condForHap;
-		DBClientConfig           *obj;
+		DBTablesConfig           *obj;
 		MonitoringServerInfo     &monitoringServerInfo;
 		ArmPluginInfo            &armPluginInfo;
 
-		TrxProc(DBClientConfig       *_obj,
+		TrxProc(DBTablesConfig       *_obj,
 		        MonitoringServerInfo &_monitoringServerInfo,
 		        ArmPluginInfo        &_armPluginInfo)
 		: arg(tableProfileServers),
@@ -910,11 +910,11 @@ HatoholError DBTablesConfig::updateTargetServer(
 		HatoholError              err;
 		DBAgent::UpdateArg        arg;
 		string                    condForHap;
-		DBClientConfig           *obj;
+		DBTablesConfig           *obj;
 		MonitoringServerInfo     &monitoringServerInfo;
 		ArmPluginInfo            &armPluginInfo;
 
-		TrxProc(DBClientConfig       *_obj,
+		TrxProc(DBTablesConfig       *_obj,
 		        MonitoringServerInfo &_monitoringServerInfo,
 		        ArmPluginInfo        &_armPluginInfo)
 		: arg(tableProfileServers),
@@ -1142,10 +1142,10 @@ HatoholError DBTablesConfig::saveArmPluginInfo(ArmPluginInfo &armPluginInfo)
 	struct TrxProc : public DBAgent::TransactionProc {
 		HatoholError    err;
 		string          condition;
-		DBClientConfig *obj;
+		DBTablesConfig *obj;
 		ArmPluginInfo  &armPluginInfo;
 
-		TrxProc(DBClientConfig *_obj,
+		TrxProc(DBTablesConfig *_obj,
 		        ArmPluginInfo  &_armPluginInfo)
 		: obj(_obj),
 		  armPluginInfo(_armPluginInfo)
