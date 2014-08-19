@@ -73,7 +73,7 @@ void test_createIndex(void)
 	static const int columnIndexes[] = {
 	  IDX_TEST_TABLE_AGE, IDX_TEST_TABLE_NAME, DBAgent::IndexDef::END};
 	static const DBAgent::IndexDef indexDef[] = {
-		{"index_age_name", &tableProfileTest, columnIndexes, false},
+		{"index_age_name", columnIndexes, false},
 		{NULL}
 	};
 
