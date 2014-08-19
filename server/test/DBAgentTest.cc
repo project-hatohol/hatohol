@@ -32,9 +32,11 @@ public:
 	}
 
 	virtual string
-	makeCreateIndexStatement(const IndexDef &indexDef) // orvierride
+	makeCreateIndexStatement(const TableProfile &tableProfile,
+	                         const IndexDef &indexDef) override
 	{
-		return DBAgent::makeCreateIndexStatement(indexDef);
+		return DBAgent::makeCreateIndexStatement(tableProfile,
+		                                         indexDef);
 	}
 
 	virtual string
@@ -245,13 +247,12 @@ void dbAgentTestMakeCreateIndexStatement(
 	  IDX_TEST_TABLE_AGE, IDX_TEST_TABLE_NAME, IDX_TEST_TABLE_HEIGHT,
 	  DBAgent::IndexDef::END
 	};
-	DBAgent::IndexDef indexDef = {
-	  "testIndex", &tableProfileTest, columnIndexes, isUnique
-	};
+	DBAgent::IndexDef indexDef = { "testIndex", columnIndexes, isUnique };
 	TestDBAgent *testAgent = static_cast<TestDBAgent *>(&dbAgent);
 
-	string sql = testAgent->makeCreateIndexStatement(indexDef);
-	checker.assertMakeCreateIndexStatement(sql, indexDef);
+	string sql = testAgent->makeCreateIndexStatement(tableProfileTest,
+	                                                 indexDef);
+	checker.assertMakeCreateIndexStatement(sql, tableProfileTest, indexDef);
 }
 
 void dbAgentTestMakeDropIndexStatement(
@@ -280,10 +281,10 @@ void dbAgentTestFixupIndexes(DBAgent &dbAgent, DBAgentChecker &checker)
 	};
 
 	const DBAgent::IndexDef indexDefArray[] = {
-	  {"testIndex",        &tableProfileTest, columnIndexes0, false},
-	  {"testUniqIndex",    &tableProfileTest, columnIndexes1, true},
-	  {"testSingleColumn", &tableProfileTest, columnIndexes2, false},
-	  {NULL, &tableProfileTest, NULL, false},
+	  {"testIndex",        columnIndexes0, false},
+	  {"testUniqIndex",    columnIndexes1, true},
+	  {"testSingleColumn", columnIndexes2, false},
+	  {NULL, NULL, false},
 	};
 
 	dbAgent.createTable(tableProfileTest);
@@ -292,8 +293,8 @@ void dbAgentTestFixupIndexes(DBAgent &dbAgent, DBAgentChecker &checker)
 
 	// check the drop
 	const DBAgent::IndexDef indexDefArrayForDrop[] = {
-	  {"testUniqIndex",    &tableProfileTest, columnIndexes1, true},
-	  {NULL, &tableProfileTest, NULL, false},
+	  {"testUniqIndex",    columnIndexes1, true},
+	  {NULL, NULL, false},
 	};
 	dbAgent.fixupIndexes(tableProfileTest, indexDefArrayForDrop);
 	checker.assertFixupIndexes(tableProfileTest, indexDefArrayForDrop);

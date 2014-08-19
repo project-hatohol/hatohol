@@ -197,10 +197,11 @@ public:
 	}
 
 	virtual void assertMakeCreateIndexStatement(
-	  const std::string sql, const DBAgent::IndexDef &indexDef) override
+	  const std::string sql, const DBAgent::TableProfile &tableProfile,
+	  const DBAgent::IndexDef &indexDef) override
 	{
 		const string expect = makeExpectedCreateIndexStatement(
-		  *indexDef.tableProfile, indexDef);
+		  tableProfile, indexDef);
 		cppcut_assert_equal(expect, sql);
 	}
 

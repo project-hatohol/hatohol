@@ -58,6 +58,9 @@ void operator>>(ItemGroupStream &itemGroupStream, EventType &rhs)
 	rhs = itemGroupStream.read<int, EventType>();
 }
 
+// ----------------------------------------------------------------------------
+// Table: triggers
+// ----------------------------------------------------------------------------
 static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
@@ -174,11 +177,24 @@ enum {
 	NUM_IDX_TRIGGERS,
 };
 
+static const int columnIndexesTrigUniqId[] = {
+  IDX_TRIGGERS_SERVER_ID, IDX_TRIGGERS_ID, DBAgent::IndexDef::END,
+};
+
+static const DBAgent::IndexDef indexDefsTriggers[] = {
+  {"TrigUniqId", (const int *)columnIndexesTrigUniqId, true},
+  {NULL}
+};
+
 static const DBAgent::TableProfile tableProfileTriggers =
   DBAGENT_TABLEPROFILE_INIT(DBClientHatohol::TABLE_NAME_TRIGGERS,
 			    COLUMN_DEF_TRIGGERS,
-			    NUM_IDX_TRIGGERS);
+			    NUM_IDX_TRIGGERS,
+			    indexDefsTriggers);
 
+// ----------------------------------------------------------------------------
+// Table: events
+// ----------------------------------------------------------------------------
 static const ColumnDef COLUMN_DEF_EVENTS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
@@ -331,11 +347,24 @@ enum {
 	NUM_IDX_EVENTS,
 };
 
+static const int columnIndexesEventsUniqId[] = {
+  IDX_EVENTS_SERVER_ID, IDX_EVENTS_ID, DBAgent::IndexDef::END,
+};
+
+static const DBAgent::IndexDef indexDefsEvents[] = {
+  {"EventsUniqId", (const int *)columnIndexesEventsUniqId, true},
+  {NULL}
+};
+
 static const DBAgent::TableProfile tableProfileEvents =
   DBAGENT_TABLEPROFILE_INIT(DBClientHatohol::TABLE_NAME_EVENTS,
 			    COLUMN_DEF_EVENTS,
-			    NUM_IDX_EVENTS);
+			    NUM_IDX_EVENTS,
+			    indexDefsEvents);
 
+// ----------------------------------------------------------------------------
+// Table: items
+// ----------------------------------------------------------------------------
 static const ColumnDef COLUMN_DEF_ITEMS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
@@ -452,11 +481,24 @@ enum {
 	NUM_IDX_ITEMS,
 };
 
+static const int columnIndexesItemsUniqId[] = {
+  IDX_ITEMS_SERVER_ID, IDX_ITEMS_ID, DBAgent::IndexDef::END,
+};
+
+static const DBAgent::IndexDef indexDefsItems[] = {
+  {"ItemsUniqId", (const int *)columnIndexesItemsUniqId, true},
+  {NULL}
+};
+
 static const DBAgent::TableProfile tableProfileItems =
   DBAGENT_TABLEPROFILE_INIT(DBClientHatohol::TABLE_NAME_ITEMS,
 			    COLUMN_DEF_ITEMS,
-			    NUM_IDX_ITEMS);
+			    NUM_IDX_ITEMS,
+			    indexDefsItems);
 
+// ----------------------------------------------------------------------------
+// Table: hosts
+// ----------------------------------------------------------------------------
 static const ColumnDef COLUMN_DEF_HOSTS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
@@ -512,11 +554,24 @@ enum {
 	NUM_IDX_HOSTS,
 };
 
+static const int columnIndexesHostsUniqId[] = {
+  IDX_HOSTS_SERVER_ID, IDX_HOSTS_HOST_ID, DBAgent::IndexDef::END,
+};
+
+static const DBAgent::IndexDef indexDefsHosts[] = {
+  {"HostsUniqId", (const int *)columnIndexesHostsUniqId, true},
+  {NULL}
+};
+
 static const DBAgent::TableProfile tableProfileHosts =
   DBAGENT_TABLEPROFILE_INIT(DBClientHatohol::TABLE_NAME_HOSTS,
 			    COLUMN_DEF_HOSTS,
-			    NUM_IDX_HOSTS);
+			    NUM_IDX_HOSTS,
+			    indexDefsHosts);
 
+// ----------------------------------------------------------------------------
+// Table: hostgroups
+// ----------------------------------------------------------------------------
 static const ColumnDef COLUMN_DEF_HOSTGROUPS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
@@ -573,11 +628,24 @@ enum {
 	NUM_IDX_HOSTGROUPS,
 };
 
+static const int columnIndexesHostgroupsUniqId[] = {
+  IDX_HOSTGROUPS_SERVER_ID, IDX_HOSTGROUPS_GROUP_ID, DBAgent::IndexDef::END,
+};
+
+static const DBAgent::IndexDef indexDefsHostgroups[] = {
+  {"HostgroupsUniqId", (const int *)columnIndexesHostgroupsUniqId, true},
+  {NULL}
+};
+
 static const DBAgent::TableProfile tableProfileHostgroups =
   DBAGENT_TABLEPROFILE_INIT(DBClientHatohol::TABLE_NAME_HOSTGROUPS,
 			    COLUMN_DEF_HOSTGROUPS,
-			    NUM_IDX_HOSTGROUPS);
+			    NUM_IDX_HOSTGROUPS,
+			    indexDefsHostgroups);
 
+// ----------------------------------------------------------------------------
+// Table: map_hosts_hostgroups
+// ----------------------------------------------------------------------------
 static const ColumnDef COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
@@ -634,11 +702,26 @@ enum {
 	NUM_IDX_MAP_HOSTS_HOSTGROUPS,
 };
 
+static const int columnIndexesMapHostsHostgroupsUniqId[] = {
+  IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_ID,
+  DBAgent::IndexDef::END,
+};
+
+static const DBAgent::IndexDef indexDefsMapHostsHostgroups[] = {
+  {"MapHostsHostgroupsUniqId",
+   (const int *)columnIndexesMapHostsHostgroupsUniqId, true},
+  {NULL}
+};
+
 static const DBAgent::TableProfile tableProfileMapHostsHostgroups =
   DBAGENT_TABLEPROFILE_INIT(DBClientHatohol::TABLE_NAME_MAP_HOSTS_HOSTGROUPS,
 			    COLUMN_DEF_MAP_HOSTS_HOSTGROUPS,
-			    NUM_IDX_MAP_HOSTS_HOSTGROUPS);
+			    NUM_IDX_MAP_HOSTS_HOSTGROUPS,
+			    indexDefsMapHostsHostgroups);
 
+// ----------------------------------------------------------------------------
+// Table: servers
+// ----------------------------------------------------------------------------
 static const ColumnDef COLUMN_DEF_SERVERS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
@@ -676,6 +759,9 @@ static const DBAgent::TableProfile tableProfileServers =
 			    COLUMN_DEF_SERVERS,
 			    NUM_IDX_SERVERS);
 
+// ----------------------------------------------------------------------------
+// Table: incidents
+// ----------------------------------------------------------------------------
 static const ColumnDef COLUMN_DEF_INCIDENTS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
@@ -828,113 +914,38 @@ enum {
 	NUM_IDX_INCIDENTS,
 };
 
-static const DBAgent::TableProfile tableProfileIncidents =
-  DBAGENT_TABLEPROFILE_INIT(DBClientHatohol::TABLE_NAME_INCIDENTS,
-			    COLUMN_DEF_INCIDENTS,
-			    NUM_IDX_INCIDENTS);
-
-// Trigger
-static const int columnIndexesTrigUniqId[] = {
-  IDX_TRIGGERS_SERVER_ID, IDX_TRIGGERS_ID, DBAgent::IndexDef::END,
-};
-
-static const DBAgent::IndexDef indexDefsTriggers[] = {
-  {"TrigUniqId", &tableProfileTriggers,
-   (const int *)columnIndexesTrigUniqId, true},
-  {NULL}
-};
-
-// Events
-static const int columnIndexesEventsUniqId[] = {
-  IDX_EVENTS_SERVER_ID, IDX_EVENTS_ID, DBAgent::IndexDef::END,
-};
-
-static const DBAgent::IndexDef indexDefsEvents[] = {
-  {"EventsUniqId", &tableProfileEvents,
-   (const int *)columnIndexesEventsUniqId, true},
-  {NULL}
-};
-
-// Items
-static const int columnIndexesItemsUniqId[] = {
-  IDX_ITEMS_SERVER_ID, IDX_ITEMS_ID, DBAgent::IndexDef::END,
-};
-
-static const DBAgent::IndexDef indexDefsItems[] = {
-  {"ItemsUniqId", &tableProfileItems,
-   (const int *)columnIndexesItemsUniqId, true},
-  {NULL}
-};
-
-// Hosts
-static const int columnIndexesHostsUniqId[] = {
-  IDX_HOSTS_SERVER_ID, IDX_HOSTS_HOST_ID, DBAgent::IndexDef::END,
-};
-
-static const DBAgent::IndexDef indexDefsHosts[] = {
-  {"HostsUniqId", &tableProfileHosts,
-   (const int *)columnIndexesHostsUniqId, true},
-  {NULL}
-};
-
-// Hostgroups
-static const int columnIndexesHostgroupsUniqId[] = {
-  IDX_HOSTGROUPS_SERVER_ID, IDX_HOSTGROUPS_GROUP_ID, DBAgent::IndexDef::END,
-};
-
-static const DBAgent::IndexDef indexDefsHostgroups[] = {
-  {"HostgroupsUniqId", &tableProfileHostgroups,
-   (const int *)columnIndexesHostgroupsUniqId, true},
-  {NULL}
-};
-
-// MapHostsHostgroups
-static const int columnIndexesMapHostsHostgroupsUniqId[] = {
-  IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_ID,
-  DBAgent::IndexDef::END,
-};
-
-static const DBAgent::IndexDef indexDefsMapHostsHostgroups[] = {
-  {"MapHostsHostgroupsUniqId", &tableProfileMapHostsHostgroups,
-   (const int *)columnIndexesMapHostsHostgroupsUniqId, true},
-  {NULL}
-};
-
-// Incidents
 static const int columnIndexesIncidentsUniqId[] = {
   IDX_INCIDENTS_SERVER_ID, IDX_INCIDENTS_EVENT_ID, DBAgent::IndexDef::END,
 };
 
 static const DBAgent::IndexDef indexDefsIncidents[] = {
-  {"IncidentsEventId", &tableProfileIncidents,
-   (const int *)columnIndexesIncidentsUniqId, true},
+  {"IncidentsEventId", (const int *)columnIndexesIncidentsUniqId, true},
   {NULL}
 };
+
+static const DBAgent::TableProfile tableProfileIncidents =
+  DBAGENT_TABLEPROFILE_INIT(DBClientHatohol::TABLE_NAME_INCIDENTS,
+			    COLUMN_DEF_INCIDENTS,
+			    NUM_IDX_INCIDENTS,
+			    indexDefsIncidents);
 
 static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
 {
 	&tableProfileTriggers,
-	(const DBAgent::IndexDef *)&indexDefsTriggers,
 }, {
 	&tableProfileEvents,
-	(const DBAgent::IndexDef *)&indexDefsEvents,
 }, {
 	&tableProfileItems,
-	(const DBAgent::IndexDef *)&indexDefsItems,
 }, {
 	&tableProfileHosts,
-	(const DBAgent::IndexDef *)&indexDefsHosts,
 }, {
 	&tableProfileHostgroups,
-	(const DBAgent::IndexDef *)&indexDefsHostgroups,
 }, {
 	&tableProfileMapHostsHostgroups,
-	(const DBAgent::IndexDef *)&indexDefsMapHostsHostgroups,
 }, {
 	&tableProfileServers,
 }, {
 	&tableProfileIncidents,
-	(const DBAgent::IndexDef *)&indexDefsIncidents,
 }
 };
 

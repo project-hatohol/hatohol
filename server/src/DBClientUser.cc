@@ -482,7 +482,6 @@ void DBClientUser::init(void)
 	static const DBSetupTableInfo DB_TABLE_INFO[] = {
 	{
 		&tableProfileUsers,
-		NULL,
 		g_testMode ? NULL : tableUserInitializer,
 	}, {
 		&tableProfileAccessList,
