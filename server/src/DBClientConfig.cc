@@ -765,7 +765,7 @@ void DBClientConfig::setDatabaseDir(const string &dir)
 {
 	DBAgent::UpdateArg arg(tableProfileSystem);
 	arg.add(IDX_SYSTEM_DATABASE_DIR, dir);
-	getDBAgent().update(arg);
+	getDBAgent().transaction(arg);
 }
 
 int  DBClientConfig::getFaceRestPort(void)
