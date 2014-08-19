@@ -612,7 +612,7 @@ void _assertUsersInDB(const UserIdSet &excludeUserIdSet)
 		  userInfo.flags);
 	}
 	CacheServiceDBClient cache;
-	assertDBContent(cache.getUser()->getDBAgent(), statement, expect);
+	assertDBContent(&cache.getUser()->getDBAgent(), statement, expect);
 }
 
 void _assertAccessInfoInDB(const AccessInfoIdSet &excludeAccessInfoIdSet)
@@ -631,7 +631,7 @@ void _assertAccessInfoInDB(const AccessInfoIdSet &excludeAccessInfoIdSet)
 		  id, accessInfo.userId, accessInfo.serverId, accessInfo.hostgroupId);
 	}
 	CacheServiceDBClient cache;
-	assertDBContent(cache.getUser()->getDBAgent(), statement, expect);
+	assertDBContent(&cache.getUser()->getDBAgent(), statement, expect);
 }
 
 void _assertUserRoleInfoInDB(UserRoleInfo &userRoleInfo) 
@@ -642,7 +642,7 @@ void _assertUserRoleInfoInDB(UserRoleInfo &userRoleInfo)
 			     userRoleInfo.id);
 	string expect = makeUserRoleInfoOutput(userRoleInfo);
 	DBClientUser dbUser;
-	assertDBContent(dbUser.getDBAgent(), statement, expect);
+	assertDBContent(&dbUser.getDBAgent(), statement, expect);
 }
 #define assertUserRoleInfoInDB(I) cut_trace(_assertUserRoleInfoInDB(I))
 
@@ -662,7 +662,7 @@ void _assertUserRolesInDB(const UserRoleIdSet &excludeUserRoleIdSet)
 		expect += makeUserRoleInfoOutput(userRoleInfo);
 	}
 	CacheServiceDBClient cache;
-	assertDBContent(cache.getUser()->getDBAgent(), statement, expect);
+	assertDBContent(&cache.getUser()->getDBAgent(), statement, expect);
 }
 
 void _assertIncidentTrackersInDB(const IncidentTrackerIdSet &excludeServerIdSet)

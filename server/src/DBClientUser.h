@@ -141,6 +141,13 @@ public:
 	static void reset(void);
 	static bool setTestMode(bool enable = true);
 
+	// This is a temporary method. We'll repalce the base class with DBTables,
+	// which provides getDBAgent() that returns a reference.
+	DBAgent &getDBAgent(void)
+	{
+		return *DBClient::getDBAgent();
+	}
+
 	DBClientUser(void);
 	virtual ~DBClientUser();
 

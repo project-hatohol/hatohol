@@ -555,25 +555,49 @@ HatoholError DBClientUser::addUserInfo(
 	if (err != HTERR_OK)
 		return err;
 
-	DBAgent::InsertArg arg(tableProfileUsers);
-	arg.add(AUTO_INCREMENT_VALUE);
-	arg.add(userInfo.name);
-	arg.add(Utils::sha256(userInfo.password));
-	arg.add(userInfo.flags);
+	struct TrxProc : public DBAgent::TransactionProc {
+		HatoholError err;
+		string dupCheckCond;
+		DBAgent::InsertArg arg;
+		UserInfo &userInfo;
 
-	string dupCheckCond = StringUtils::sprintf("%s='%s'",
-	  COLUMN_DEF_USERS[IDX_USERS_NAME].columnName, userInfo.name.c_str());
-
-	DBCLIENT_TRANSACTION_BEGIN() {
-		if (isRecordExisting(TABLE_NAME_USERS, dupCheckCond)) {
-			err = HTERR_USER_NAME_EXIST;
-		} else {
-			insert(arg);
-			userInfo.id = getLastInsertId();
-			err = HTERR_OK;
+		TrxProc(UserInfo &_userInfo)
+		: arg(tableProfileUsers),
+		  userInfo(_userInfo)
+		{
 		}
-	} DBCLIENT_TRANSACTION_END();
-	return err;
+
+		bool preproc(DBAgent &dbAgent) override
+		{
+			arg.add(AUTO_INCREMENT_VALUE);
+			arg.add(userInfo.name);
+			arg.add(Utils::sha256(userInfo.password));
+			arg.add(userInfo.flags);
+			dupCheckCond = StringUtils::sprintf("%s='%s'",
+			  COLUMN_DEF_USERS[IDX_USERS_NAME].columnName,
+			  userInfo.name.c_str());
+			return true;
+		}
+
+		bool hasRecord(DBAgent &dbAgent)
+		{
+			return dbAgent.isRecordExisting(TABLE_NAME_USERS,
+							dupCheckCond);
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			if (hasRecord(dbAgent)) {
+				err = HTERR_USER_NAME_EXIST;
+			} else {
+				dbAgent.insert(arg);
+				userInfo.id = dbAgent.getLastInsertId();
+				err = HTERR_OK;
+			}
+		}
+	} trx(userInfo);
+	getDBAgent().transaction(trx);
+	return trx.err;
 }
 
 HatoholError DBClientUser::hasPrivilegeForUpdateUserInfo(
@@ -613,55 +637,86 @@ HatoholError DBClientUser::updateUserInfo(
 	if (err != HTERR_OK)
 		return err;
 
-	DBAgent::UpdateArg arg(tableProfileUsers);
+	struct TrxProc : public DBAgent::TransactionProc {
+		HatoholError err;
+		string dupCheckCond;
+		DBAgent::UpdateArg arg;
+		UserInfo &userInfo;
 
-	arg.add(IDX_USERS_NAME, userInfo.name);
-	if (!userInfo.password.empty())
-		arg.add(IDX_USERS_PASSWORD, Utils::sha256(userInfo.password));
-	arg.add(IDX_USERS_FLAGS, userInfo.flags);
+		TrxProc(UserInfo &_userInfo)
+		: arg(tableProfileUsers),
+		  userInfo(_userInfo)
+		{
+			arg.add(IDX_USERS_NAME, userInfo.name);
+			if (!userInfo.password.empty()) {
+				arg.add(IDX_USERS_PASSWORD,
+				        Utils::sha256(userInfo.password));
+			}
+			arg.add(IDX_USERS_FLAGS, userInfo.flags);
 
-	arg.condition = StringUtils::sprintf("%s=%" FMT_USER_ID,
-	  COLUMN_DEF_USERS[IDX_USERS_ID].columnName, userInfo.id);
+			arg.condition = StringUtils::sprintf("%s=%" FMT_USER_ID,
+			  COLUMN_DEF_USERS[IDX_USERS_ID].columnName,
+			  userInfo.id);
 
-	string dupCheckCond = StringUtils::sprintf(
-	  "(%s='%s' and %s<>%" FMT_USER_ID ")",
-	  COLUMN_DEF_USERS[IDX_USERS_NAME].columnName,
-	  userInfo.name.c_str(),
-	  COLUMN_DEF_USERS[IDX_USERS_ID].columnName,
-	  userInfo.id);
-
-	DBCLIENT_TRANSACTION_BEGIN() {
-		const char *tableName = arg.tableProfile.name;
-		if (!isRecordExisting(tableName, arg.condition)) {
-			err = HTERR_NOT_FOUND_TARGET_RECORD;
-		} else if (isRecordExisting(tableName, dupCheckCond)) {
-			err = HTERR_USER_NAME_EXIST;
-		} else {
-			update(arg);
-			err = HTERR_OK;
+			dupCheckCond = StringUtils::sprintf(
+			  "(%s='%s' and %s<>%" FMT_USER_ID ")",
+			  COLUMN_DEF_USERS[IDX_USERS_NAME].columnName,
+			  userInfo.name.c_str(),
+			  COLUMN_DEF_USERS[IDX_USERS_ID].columnName,
+			  userInfo.id);
 		}
-	} DBCLIENT_TRANSACTION_END();
-	return err;
+
+		bool hasRecord(DBAgent &dbAgent, const string &condition)
+		{
+			return dbAgent.isRecordExisting(arg.tableProfile.name,
+							condition);
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			if (!hasRecord(dbAgent, arg.condition)) {
+				err = HTERR_NOT_FOUND_TARGET_RECORD;
+			} else if (hasRecord(dbAgent, dupCheckCond)) {
+				err = HTERR_USER_NAME_EXIST;
+			} else {
+				dbAgent.update(arg);
+				err = HTERR_OK;
+			}
+		}
+	} trx(userInfo);
+	getDBAgent().transaction(trx);
+	return trx.err;
 }
 
 HatoholError DBClientUser::deleteUserInfo(
   const UserIdType userId, const OperationPrivilege &privilege)
 {
+	using mlpl::StringUtils::sprintf;
 	if (!privilege.has(OPPRVLG_DELETE_USER))
 		return HTERR_NO_PRIVILEGE;
 
-	DBAgent::DeleteArg argForUsers(tableProfileUsers);
-	const ColumnDef &colIdForUsers = COLUMN_DEF_USERS[IDX_USERS_ID];
-	argForUsers.condition = StringUtils::sprintf("%s=%" FMT_USER_ID,
-					       colIdForUsers.columnName, userId);
-	DBAgent::DeleteArg argForAccessList(tableProfileAccessList);
-	const ColumnDef &colIdForAccessList = COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID];
-	argForAccessList.condition = StringUtils::sprintf("%s=%" FMT_USER_ID,
-					       colIdForAccessList.columnName, userId);
-	DBCLIENT_TRANSACTION_BEGIN() {
-		deleteRows(argForUsers);
-		deleteRows(argForAccessList);
-	} DBCLIENT_TRANSACTION_END();
+	struct TrxProc : public DBAgent::TransactionProc {
+		DBAgent::DeleteArg argForUsers;
+		DBAgent::DeleteArg argForAccessList;
+
+		TrxProc(const UserIdType &userId)
+		: argForUsers(tableProfileUsers),
+		 argForAccessList(tableProfileAccessList)
+		{
+			argForUsers.condition = sprintf("%s=%" FMT_USER_ID,
+			  COLUMN_DEF_USERS[IDX_USERS_ID].columnName, userId);
+			argForAccessList.condition = sprintf("%s=%" FMT_USER_ID,
+			  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID].columnName,
+			  userId);
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			dbAgent.deleteRows(argForUsers);
+			dbAgent.deleteRows(argForAccessList);
+		}
+	} trx(userId);
+	getDBAgent().transaction(trx);
 	return HTERR_OK;
 }
 
@@ -677,9 +732,7 @@ UserIdType DBClientUser::getUserId(const string &user, const string &password)
 	arg.add(IDX_USERS_PASSWORD);
 	arg.condition = StringUtils::sprintf("%s='%s'",
 	  COLUMN_DEF_USERS[IDX_USERS_NAME].columnName, user.c_str());
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	if (grpList.empty())
@@ -718,9 +771,7 @@ HatoholError DBClientUser::addAccessInfo(AccessInfo &accessInfo,
 	  accessInfo.serverId,
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_HOST_GROUP_ID].columnName,
 	  accessInfo.hostgroupId);
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(selarg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(selarg);
 
 	const ItemGroupList &grpList = selarg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator it = grpList.begin();
@@ -737,10 +788,7 @@ HatoholError DBClientUser::addAccessInfo(AccessInfo &accessInfo,
 	arg.add(accessInfo.serverId);
 	arg.add(accessInfo.hostgroupId);
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		insert(arg);
-		accessInfo.id = getLastInsertId();
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(arg, &accessInfo.id);
 	return HTERR_OK;
 }
 
@@ -754,9 +802,7 @@ HatoholError DBClientUser::deleteAccessInfo(const AccessInfoIdType id,
 	const ColumnDef &colId = COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_ID];
 	arg.condition = StringUtils::sprintf("%s=%" FMT_ACCESS_INFO_ID,
 	                                     colId.columnName, id);
-	DBCLIENT_TRANSACTION_BEGIN() {
-		deleteRows(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(arg);
 	return HTERR_OK;
 }
 
@@ -808,9 +854,7 @@ HatoholError DBClientUser::getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMa
 	if (isAlwaysFalseCondition(arg.condition))
 		return HTERR_NO_PRIVILEGE;
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
@@ -873,9 +917,7 @@ void DBClientUser::getServerHostGrpSetMap(
 	arg.add(IDX_ACCESS_LIST_HOST_GROUP_ID);
 	arg.condition = StringUtils::sprintf("%s=%" FMT_USER_ID,
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID].columnName, userId);
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
@@ -916,28 +958,46 @@ HatoholError DBClientUser::addUserRoleInfo(UserRoleInfo &userRoleInfo,
 		return HTERR_USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST;
 	}
 
-	DBAgent::InsertArg arg(tableProfileUserRoles);
-	arg.add(AUTO_INCREMENT_VALUE);
-	arg.add(userRoleInfo.name);
-	arg.add(userRoleInfo.flags);
+	struct TrxProc : public DBAgent::TransactionProc {
+		HatoholError       err;
+		DBAgent::InsertArg arg;
+		string             dupChkCond;
+		UserRoleInfo      &userRoleInfo;
 
-	string dupCheckCond = StringUtils::sprintf(
+		TrxProc(UserRoleInfo &_userRoleInfo)
+		: arg(tableProfileUserRoles),
+		  userRoleInfo(_userRoleInfo)
+		{
+			arg.add(AUTO_INCREMENT_VALUE);
+			arg.add(userRoleInfo.name);
+			arg.add(userRoleInfo.flags);
+		}
+
+		bool hasRecord(DBAgent &dbAgent)
+		{
+			return dbAgent.isRecordExisting(TABLE_NAME_USER_ROLES,
+							dupChkCond);
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			if (hasRecord(dbAgent)) {
+				err = HTERR_USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST;
+				return;
+			}
+			dbAgent.insert(arg);
+			userRoleInfo.id = dbAgent.getLastInsertId();
+			err = HTERR_OK;
+		}
+	} trx(userRoleInfo);
+	trx.dupChkCond = StringUtils::sprintf(
 	  "(%s='%s' or %s=%" FMT_OPPRVLG ")",
 	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_NAME].columnName,
 	  StringUtils::replace(userRoleInfo.name, "'", "''").c_str(),
 	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_FLAGS].columnName,
 	  userRoleInfo.flags);
-
-	DBCLIENT_TRANSACTION_BEGIN() {
-		if (isRecordExisting(TABLE_NAME_USER_ROLES, dupCheckCond)) {
-			err = HTERR_USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST;
-		} else {
-			insert(arg);
-			userRoleInfo.id = getLastInsertId();
-			err = HTERR_OK;
-		}
-	} DBCLIENT_TRANSACTION_END();
-	return err;
+	getDBAgent().transaction(trx);
+	return trx.err;
 }
 
 HatoholError DBClientUser::updateUserRoleInfo(
@@ -957,7 +1017,36 @@ HatoholError DBClientUser::updateUserRoleInfo(
 		return HTERR_USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST;
 	}
 
-	DBAgent::UpdateArg arg(tableProfileUserRoles);
+	struct TrxProc : public DBAgent::TransactionProc {
+		HatoholError       err;
+		DBAgent::UpdateArg arg;
+		string             dupChkCond;
+
+		TrxProc(void)
+		: arg(tableProfileUserRoles)
+		{
+		}
+
+		bool hasRecord(DBAgent &dbAgent, const string &condition)
+		{
+			return dbAgent.isRecordExisting(arg.tableProfile.name,
+							condition);
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			if (!hasRecord(dbAgent, arg.condition)) {
+				err = HTERR_NOT_FOUND_TARGET_RECORD;
+			} else if (hasRecord(dbAgent, dupChkCond)) {
+				err = HTERR_USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST;
+			} else {
+				dbAgent.update(arg);
+				err = HTERR_OK;
+			}
+		}
+	} trx;
+
+	DBAgent::UpdateArg &arg = trx.arg;
 	arg.add(IDX_USER_ROLES_NAME, userRoleInfo.name);
 	arg.add(IDX_USER_ROLES_FLAGS, userRoleInfo.flags);
 
@@ -965,7 +1054,7 @@ HatoholError DBClientUser::updateUserRoleInfo(
 	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_ID].columnName,
 	  userRoleInfo.id);
 
-	string dupCheckCond = StringUtils::sprintf(
+	trx.dupChkCond = StringUtils::sprintf(
 	  "((%s='%s' or %s=%" FMT_OPPRVLG ") and %s<>%" FMT_USER_ROLE_ID ")",
 	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_NAME].columnName,
 	  StringUtils::replace(userRoleInfo.name, "'", "''").c_str(),
@@ -974,18 +1063,8 @@ HatoholError DBClientUser::updateUserRoleInfo(
 	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_ID].columnName,
 	  userRoleInfo.id);
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		const char *tableName = arg.tableProfile.name;
-		if (!isRecordExisting(tableName, arg.condition)) {
-			err = HTERR_NOT_FOUND_TARGET_RECORD;
-		} else if (isRecordExisting(tableName, dupCheckCond)) {
-			err = HTERR_USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST;
-		} else {
-			update(arg);
-			err = HTERR_OK;
-		}
-	} DBCLIENT_TRANSACTION_END();
-	return err;
+	getDBAgent().transaction(trx);
+	return trx.err;
 }
 
 HatoholError DBClientUser::deleteUserRoleInfo(
@@ -998,9 +1077,7 @@ HatoholError DBClientUser::deleteUserRoleInfo(
 	const ColumnDef &colId = COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_ID];
 	arg.condition = StringUtils::sprintf("%s=%" FMT_USER_ROLE_ID,
 	                                     colId.columnName, userRoleId);
-	DBCLIENT_TRANSACTION_BEGIN() {
-		deleteRows(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(arg);
 	return HTERR_OK;
 }
 
@@ -1013,9 +1090,7 @@ void DBClientUser::getUserRoleInfoList(UserRoleInfoList &userRoleInfoList,
 	arg.add(IDX_USER_ROLES_FLAGS);
 	arg.condition = option.getCondition();
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
@@ -1096,9 +1171,7 @@ bool DBClientUser::isAccessible(const ServerIdType &serverId,
 	arg.condition = condition;
 
 	if (useTransaction) {
-		DBCLIENT_TRANSACTION_BEGIN() {
-			select(arg);
-		} DBCLIENT_TRANSACTION_END();
+		getDBAgent().transaction(arg);
 	} else {
 		select(arg);
 	}
@@ -1126,9 +1199,7 @@ void DBClientUser::getUserInfoList(UserInfoList &userInfoList,
 	arg.add(IDX_USERS_FLAGS);
 	arg.condition = condition;
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
