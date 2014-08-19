@@ -272,25 +272,25 @@ public:
 
 	struct TransactionProc {
 		/**
-		 * This method is called before the transaction.
+		 * This method is called before the runTransaction.
 		 * @return
-		 * If false is returned, transaction() immediately returns
-		 * without doing a transaction and calling postproc().
+		 * If false is returned, runTransaction() immediately returns
+		 * without doing a runTransaction and calling postproc().
 		 */
 		virtual bool preproc(DBAgent &dbAgent);
 
 		/**
-		 * This method is called after the transaction.
+		 * This method is called after the runTransaction.
 		 */
 		virtual void postproc(DBAgent &dbAgent);
 
 		virtual void operator ()(DBAgent &dbAgent) = 0;
 	};
 
-	void transaction(TransactionProc &proc);
+	void runTransaction(TransactionProc &proc);
 
 	template <typename T, void (DBAgent::*OPERATION)(const T &)>
-	void _transaction(T &arg)
+	void _runTransaction(T &arg)
 	{
 		struct TrxProc : public DBAgent::TransactionProc {
 			T &arg;
@@ -304,38 +304,38 @@ public:
 				(dbAgent.*OPERATION)(arg);
 			}
 		} trx(arg);
-		transaction(trx);
+		runTransaction(trx);
 	}
 
-	void transaction(const SelectArg &arg)
+	void runTransaction(const SelectArg &arg)
 	{
-		_transaction<const SelectArg, &DBAgent::select>(arg);
+		_runTransaction<const SelectArg, &DBAgent::select>(arg);
 	}
 
-	void transaction(const SelectExArg &arg)
+	void runTransaction(const SelectExArg &arg)
 	{
-		_transaction<const SelectExArg, &DBAgent::select>(arg);
+		_runTransaction<const SelectExArg, &DBAgent::select>(arg);
 	}
 
-	void transaction(const UpdateArg &arg)
+	void runTransaction(const UpdateArg &arg)
 	{
-		_transaction<const UpdateArg, &DBAgent::update>(arg);
+		_runTransaction<const UpdateArg, &DBAgent::update>(arg);
 	}
 
-	void transaction(const DeleteArg &arg)
+	void runTransaction(const DeleteArg &arg)
 	{
-		_transaction<const DeleteArg, &DBAgent::deleteRows>(arg);
+		_runTransaction<const DeleteArg, &DBAgent::deleteRows>(arg);
 	}
 
 	/**
-	 * Insert rows in transaction.
+	 * Insert rows in runTransaction.
 	 *
 	 * @param arg An InsertArg instance.
 	 * @param id
 	 * If this is not NULL, the lastly inserted row ID is returned.
 	 */
-	void transaction(const InsertArg &arg, int *id = NULL);
-	void transaction(const InsertArg &arg, uint64_t *id = NULL);
+	void runTransaction(const InsertArg &arg, int *id = NULL);
+	void runTransaction(const InsertArg &arg, uint64_t *id = NULL);
 
 protected:
 	static std::string makeSelectStatement(const SelectArg &selectArg);

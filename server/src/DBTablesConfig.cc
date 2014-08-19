@@ -753,7 +753,7 @@ string DBTablesConfig::getDatabaseDir(void)
 {
 	DBAgent::SelectArg arg(tableProfileSystem);
 	arg.columnIndexes.push_back(IDX_SYSTEM_DATABASE_DIR);
-	getDBAgent().transaction(arg);
+	getDBAgent().runTransaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	HATOHOL_ASSERT(!grpList.empty(), "Obtained Table: empty");
@@ -765,14 +765,14 @@ void DBTablesConfig::setDatabaseDir(const string &dir)
 {
 	DBAgent::UpdateArg arg(tableProfileSystem);
 	arg.add(IDX_SYSTEM_DATABASE_DIR, dir);
-	getDBAgent().transaction(arg);
+	getDBAgent().runTransaction(arg);
 }
 
 int  DBTablesConfig::getFaceRestPort(void)
 {
 	DBAgent::SelectArg arg(tableProfileSystem);
 	arg.columnIndexes.push_back(IDX_SYSTEM_FACE_REST_PORT);
-	getDBAgent().transaction(arg);
+	getDBAgent().runTransaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	HATOHOL_ASSERT(!grpList.empty(), "Obtained Table: empty");
@@ -784,14 +784,14 @@ void DBTablesConfig::setFaceRestPort(int port)
 {
 	DBAgent::UpdateArg arg(tableProfileSystem);
 	arg.add(IDX_SYSTEM_FACE_REST_PORT, port);
-	getDBAgent().transaction(arg);
+	getDBAgent().runTransaction(arg);
 }
 
 bool DBTablesConfig::isCopyOnDemandEnabled(void)
 {
 	DBAgent::SelectArg arg(tableProfileSystem);
 	arg.columnIndexes.push_back(IDX_SYSTEM_ENABLE_COPY_ON_DEMAND);
-	getDBAgent().transaction(arg);
+	getDBAgent().runTransaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	HATOHOL_ASSERT(!grpList.empty(), "Obtained Table: empty");
@@ -891,7 +891,7 @@ HatoholError DBTablesConfig::addTargetServer(
 				dbAgent.rollback();
 		}
 	} trx(this, *monitoringServerInfo, *armPluginInfo);
-	getDBAgent().transaction(trx);
+	getDBAgent().runTransaction(trx);
 	return trx.err;
 }
 
@@ -967,7 +967,7 @@ HatoholError DBTablesConfig::updateTargetServer(
 	trx.arg.condition =
 	   StringUtils::sprintf("id=%u", monitoringServerInfo->id);
 
-	getDBAgent().transaction(trx);
+	getDBAgent().runTransaction(trx);
 	return trx.err;
 }
 
@@ -999,7 +999,7 @@ HatoholError DBTablesConfig::deleteTargetServer(
 	                        COLUMN_DEF_SERVERS[IDX_SERVERS_ID].columnName,
 	                        serverId);
 	preprocForDeleteArmPluginInfo(serverId, trx.argArmPlugins.condition);
-	getDBAgent().transaction(trx);
+	getDBAgent().runTransaction(trx);
 	return HTERR_OK;
 }
 
@@ -1037,7 +1037,7 @@ void DBTablesConfig::getTargetServers(
 	builder.add(IDX_ARM_PLUGINS_STATIC_QUEUE_ADDR);
 	builder.add(IDX_ARM_PLUGINS_SERVER_ID);
 
-	getDBAgent().transaction(builder.getSelectExArg());
+	getDBAgent().runTransaction(builder.getSelectExArg());
 
 	// check the result and copy
 	ItemTablePtr &dataTable = builder.getSelectExArg().dataTable;
@@ -1091,7 +1091,7 @@ void DBTablesConfig::getServerIdSet(ServerIdSet &serverIdSet,
 	arg.add(IDX_SERVERS_ID);
 	arg.condition = option.getCondition();
 
-	getDBAgent().transaction(arg);
+	getDBAgent().runTransaction(arg);
 
 	// check the result and copy
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
@@ -1165,7 +1165,7 @@ HatoholError DBTablesConfig::saveArmPluginInfo(ArmPluginInfo &armPluginInfo)
 			        armPluginInfo, condition);
 		}
 	} trx(this, armPluginInfo);
-	getDBAgent().transaction(trx);
+	getDBAgent().runTransaction(trx);
 	return trx.err;
 }
 
@@ -1200,7 +1200,7 @@ HatoholError DBTablesConfig::addIncidentTracker(
 	arg.add(incidentTrackerInfo.userName);
 	arg.add(incidentTrackerInfo.password);
 
-	getDBAgent().transaction(arg, &incidentTrackerInfo.id);
+	getDBAgent().runTransaction(arg, &incidentTrackerInfo.id);
 	return HTERR_OK;
 }
 
@@ -1251,7 +1251,7 @@ HatoholError DBTablesConfig::updateIncidentTracker(
 	arg.add(IDX_INCIDENT_TRACKERS_PASSWORD,   incidentTrackerInfo.password);
 	arg.condition = StringUtils::sprintf("id=%" FMT_INCIDENT_TRACKER_ID,
 	                                     incidentTrackerInfo.id);
-	getDBAgent().transaction(trx);
+	getDBAgent().runTransaction(trx);
 	return trx.err;
 }
 
@@ -1270,7 +1270,7 @@ void DBTablesConfig::getIncidentTrackers(
 	arg.add(IDX_INCIDENT_TRACKERS_PASSWORD);
 	arg.condition = option.getCondition();
 
-	getDBAgent().transaction(arg);
+	getDBAgent().runTransaction(arg);
 
 	// check the result and copy
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
@@ -1304,7 +1304,7 @@ HatoholError DBTablesConfig::deleteIncidentTracker(
 	arg.condition = StringUtils::sprintf("%s=%" FMT_INCIDENT_TRACKER_ID,
 	                                     colId.columnName, incidentTrackerId);
 
-	getDBAgent().transaction(arg);
+	getDBAgent().runTransaction(arg);
 	return HTERR_OK;
 }
 
@@ -1382,7 +1382,7 @@ void DBTablesConfig::selectArmPluginInfo(DBAgent::SelectExArg &arg)
 	arg.add(IDX_ARM_PLUGINS_STATIC_QUEUE_ADDR);
 	arg.add(IDX_ARM_PLUGINS_SERVER_ID);
 
-	getDBAgent().transaction(arg);
+	getDBAgent().runTransaction(arg);
 }
 
 void DBTablesConfig::readArmPluginStream(
