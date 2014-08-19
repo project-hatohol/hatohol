@@ -753,9 +753,8 @@ string DBClientConfig::getDatabaseDir(void)
 {
 	DBAgent::SelectArg arg(tableProfileSystem);
 	arg.columnIndexes.push_back(IDX_SYSTEM_DATABASE_DIR);
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(arg);
+
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	HATOHOL_ASSERT(!grpList.empty(), "Obtained Table: empty");
 	ItemGroupStream itemGroupStream(*grpList.begin());
@@ -766,18 +765,15 @@ void DBClientConfig::setDatabaseDir(const string &dir)
 {
 	DBAgent::UpdateArg arg(tableProfileSystem);
 	arg.add(IDX_SYSTEM_DATABASE_DIR, dir);
-	DBCLIENT_TRANSACTION_BEGIN() {
-		update(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(arg);
 }
 
 int  DBClientConfig::getFaceRestPort(void)
 {
 	DBAgent::SelectArg arg(tableProfileSystem);
 	arg.columnIndexes.push_back(IDX_SYSTEM_FACE_REST_PORT);
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(arg);
+
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	HATOHOL_ASSERT(!grpList.empty(), "Obtained Table: empty");
 	ItemGroupStream itemGroupStream(*grpList.begin());
@@ -788,18 +784,15 @@ void DBClientConfig::setFaceRestPort(int port)
 {
 	DBAgent::UpdateArg arg(tableProfileSystem);
 	arg.add(IDX_SYSTEM_FACE_REST_PORT, port);
-	DBCLIENT_TRANSACTION_BEGIN() {
-		update(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(arg);
 }
 
 bool DBClientConfig::isCopyOnDemandEnabled(void)
 {
 	DBAgent::SelectArg arg(tableProfileSystem);
 	arg.columnIndexes.push_back(IDX_SYSTEM_ENABLE_COPY_ON_DEMAND);
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(arg);
+
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	HATOHOL_ASSERT(!grpList.empty(), "Obtained Table: empty");
 	ItemGroupStream itemGroupStream(*grpList.begin());
@@ -845,40 +838,61 @@ HatoholError DBClientConfig::addTargetServer(
 	if (err != HTERR_OK)
 		return err;
 
-	DBAgent::InsertArg arg(tableProfileServers);
-	arg.add(AUTO_INCREMENT_VALUE);
-	arg.add(monitoringServerInfo->type);
-	arg.add(monitoringServerInfo->hostName);
-	arg.add(monitoringServerInfo->ipAddress);
-	arg.add(monitoringServerInfo->nickname);
-	arg.add(monitoringServerInfo->port);
-	arg.add(monitoringServerInfo->pollingIntervalSec);
-	arg.add(monitoringServerInfo->retryIntervalSec);
-	arg.add(monitoringServerInfo->userName);
-	arg.add(monitoringServerInfo->password);
-	arg.add(monitoringServerInfo->dbName);
+	struct TrxProc : public DBAgent::TransactionProc {
+		HatoholError              err;
+		DBAgent::InsertArg        arg;
+		string                    condForHap;
+		DBClientConfig           *obj;
+		MonitoringServerInfo     &monitoringServerInfo;
+		ArmPluginInfo            &armPluginInfo;
 
-	string condForHap;
-	err = preprocForSaveArmPlguinInfo(*monitoringServerInfo,
-	                                  *armPluginInfo, condForHap);
-	if (err != HTERR_OK)
-		return err;
-
-	DBCLIENT_TRANSACTION_BEGIN() {
-		insert(arg);
-		monitoringServerInfo->id = getLastInsertId();
-		// TODO: Add AccessInfo for the server to enable the operator to
-		// access to it
-		if (!condForHap.empty())
-			armPluginInfo->serverId = monitoringServerInfo->id;
-		err = saveArmPluginInfoIfNeededWithoutTransaction(
-		        *armPluginInfo, condForHap);
-		if (err != HTERR_OK) {
-			rollback();
-			return err;
+		TrxProc(DBClientConfig       *_obj,
+		        MonitoringServerInfo &_monitoringServerInfo,
+		        ArmPluginInfo        &_armPluginInfo)
+		: arg(tableProfileServers),
+		  obj(_obj),
+		  monitoringServerInfo(_monitoringServerInfo),
+		  armPluginInfo(_armPluginInfo)
+		{
+			arg.add(AUTO_INCREMENT_VALUE);
+			arg.add(monitoringServerInfo.type);
+			arg.add(monitoringServerInfo.hostName);
+			arg.add(monitoringServerInfo.ipAddress);
+			arg.add(monitoringServerInfo.nickname);
+			arg.add(monitoringServerInfo.port);
+			arg.add(monitoringServerInfo.pollingIntervalSec);
+			arg.add(monitoringServerInfo.retryIntervalSec);
+			arg.add(monitoringServerInfo.userName);
+			arg.add(monitoringServerInfo.password);
+			arg.add(monitoringServerInfo.dbName);
 		}
-	} DBCLIENT_TRANSACTION_END();
-	return err;
+
+		bool preproc(DBAgent &dbAgent) override
+		{
+			err = obj->preprocForSaveArmPlguinInfo(
+			        monitoringServerInfo,
+			        armPluginInfo, condForHap);
+			return (err == HTERR_OK);
+		}
+		
+		void operator ()(DBAgent &dbAgent) override
+		{
+			dbAgent.insert(arg);
+			monitoringServerInfo.id = dbAgent.getLastInsertId();
+			// TODO: Add AccessInfo for the server to enable
+			// the operator to access to it
+			if (!condForHap.empty()) {
+				armPluginInfo.serverId =
+				  monitoringServerInfo.id;
+			}
+			err = obj->saveArmPluginInfoIfNeededWithoutTransaction(
+			        armPluginInfo, condForHap);
+			if (err != HTERR_OK)
+				dbAgent.rollback();
+		}
+	} trx(this, *monitoringServerInfo, *armPluginInfo);
+	getDBAgent().transaction(trx);
+	return trx.err;
 }
 
 HatoholError DBClientConfig::updateTargetServer(
@@ -892,42 +906,69 @@ HatoholError DBClientConfig::updateTargetServer(
 	if (err != HTERR_OK)
 		return err;
 
-	DBAgent::UpdateArg arg(tableProfileServers);
-	arg.add(IDX_SERVERS_TYPE,       monitoringServerInfo->type);
-	arg.add(IDX_SERVERS_HOSTNAME,   monitoringServerInfo->hostName);
-	arg.add(IDX_SERVERS_IP_ADDRESS, monitoringServerInfo->ipAddress);
-	arg.add(IDX_SERVERS_NICKNAME,   monitoringServerInfo->nickname);
-	arg.add(IDX_SERVERS_PORT,       monitoringServerInfo->port);
-	arg.add(IDX_SERVERS_POLLING_INTERVAL_SEC,
-	        monitoringServerInfo->pollingIntervalSec);
-	arg.add(IDX_SERVERS_RETRY_INTERVAL_SEC,
-	        monitoringServerInfo->retryIntervalSec);
-	arg.add(IDX_SERVERS_USER_NAME,  monitoringServerInfo->userName);
-	arg.add(IDX_SERVERS_PASSWORD,   monitoringServerInfo->password);
-	arg.add(IDX_SERVERS_DB_NAME,    monitoringServerInfo->dbName);
-	arg.condition = StringUtils::sprintf("id=%u", monitoringServerInfo->id);
+	struct TrxProc : public DBAgent::TransactionProc {
+		HatoholError              err;
+		DBAgent::UpdateArg        arg;
+		string                    condForHap;
+		DBClientConfig           *obj;
+		MonitoringServerInfo     &monitoringServerInfo;
+		ArmPluginInfo            &armPluginInfo;
 
-	string condForHap;
-	err = preprocForSaveArmPlguinInfo(*monitoringServerInfo,
-	                                  *armPluginInfo, condForHap);
-	if (err != HTERR_OK)
-		return err;
-
-	DBCLIENT_TRANSACTION_BEGIN() {
-		if (!isRecordExisting(TABLE_NAME_SERVERS, arg.condition)) {
-			err = HTERR_NOT_FOUND_TARGET_RECORD;
-		} else {
-			update(arg);
-			err = saveArmPluginInfoIfNeededWithoutTransaction(
-			        *armPluginInfo, condForHap);
-			if (err != HTERR_OK) {
-				rollback();
-				return err;
-			}
-			err = HTERR_OK;
+		TrxProc(DBClientConfig       *_obj,
+		        MonitoringServerInfo &_monitoringServerInfo,
+		        ArmPluginInfo        &_armPluginInfo)
+		: arg(tableProfileServers),
+		  obj(_obj),
+		  monitoringServerInfo(_monitoringServerInfo),
+		  armPluginInfo(_armPluginInfo)
+		{
 		}
-	} DBCLIENT_TRANSACTION_END();
-	return err;
+
+		bool preproc(DBAgent &dbAgent) override
+		{
+			err = obj->preprocForSaveArmPlguinInfo(
+			        monitoringServerInfo,
+			        armPluginInfo, condForHap);
+			return (err == HTERR_OK);
+		}
+
+		bool hasRecord(DBAgent &dbAgent) {
+			return dbAgent.isRecordExisting(TABLE_NAME_SERVERS,
+							arg.condition);
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			if (!hasRecord(dbAgent)) {
+				err = HTERR_NOT_FOUND_TARGET_RECORD;
+				return;
+			}
+
+			dbAgent.update(arg);
+			err = obj->saveArmPluginInfoIfNeededWithoutTransaction(
+			        armPluginInfo, condForHap);
+			if (err != HTERR_OK)
+				dbAgent.rollback();
+		}
+	} trx(this, *monitoringServerInfo, *armPluginInfo);
+
+	trx.arg.add(IDX_SERVERS_TYPE,       monitoringServerInfo->type);
+	trx.arg.add(IDX_SERVERS_HOSTNAME,   monitoringServerInfo->hostName);
+	trx.arg.add(IDX_SERVERS_IP_ADDRESS, monitoringServerInfo->ipAddress);
+	trx.arg.add(IDX_SERVERS_NICKNAME,   monitoringServerInfo->nickname);
+	trx.arg.add(IDX_SERVERS_PORT,       monitoringServerInfo->port);
+	trx.arg.add(IDX_SERVERS_POLLING_INTERVAL_SEC,
+	            monitoringServerInfo->pollingIntervalSec);
+	trx.arg.add(IDX_SERVERS_RETRY_INTERVAL_SEC,
+	            monitoringServerInfo->retryIntervalSec);
+	trx.arg.add(IDX_SERVERS_USER_NAME,  monitoringServerInfo->userName);
+	trx.arg.add(IDX_SERVERS_PASSWORD,   monitoringServerInfo->password);
+	trx.arg.add(IDX_SERVERS_DB_NAME,    monitoringServerInfo->dbName);
+	trx.arg.condition =
+	   StringUtils::sprintf("id=%u", monitoringServerInfo->id);
+
+	getDBAgent().transaction(trx);
+	return trx.err;
 }
 
 HatoholError DBClientConfig::deleteTargetServer(
@@ -937,17 +978,28 @@ HatoholError DBClientConfig::deleteTargetServer(
 	if (!canDeleteTargetServer(serverId, privilege))
 		return HatoholError(HTERR_NO_PRIVILEGE);
 
-	DBAgent::DeleteArg arg(tableProfileServers);
-	const ColumnDef &colId = COLUMN_DEF_SERVERS[IDX_SERVERS_ID];
-	arg.condition = StringUtils::sprintf("%s=%" FMT_SERVER_ID,
-	                                     colId.columnName, serverId);
-	string delCondForArmPlugin;
-	preprocForDeleteArmPluginInfo(serverId, delCondForArmPlugin);
+	struct TrxProc : public DBAgent::TransactionProc {
+		DBAgent::DeleteArg argArmPlugins;
+		DBAgent::DeleteArg argServers;
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		deleteArmPluginInfoWithoutTransaction(delCondForArmPlugin);
-		deleteRows(arg);
-	} DBCLIENT_TRANSACTION_END();
+		TrxProc(void)
+		: argArmPlugins(tableProfileArmPlugins),
+		  argServers(tableProfileServers)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			dbAgent.deleteRows(argArmPlugins);
+			dbAgent.deleteRows(argServers);
+		}
+	} trx;
+	trx.argServers.condition =
+	   StringUtils::sprintf("%s=%" FMT_SERVER_ID,
+	                        COLUMN_DEF_SERVERS[IDX_SERVERS_ID].columnName,
+	                        serverId);
+	preprocForDeleteArmPluginInfo(serverId, trx.argArmPlugins.condition);
+	getDBAgent().transaction(trx);
 	return HTERR_OK;
 }
 
@@ -985,9 +1037,7 @@ void DBClientConfig::getTargetServers(
 	builder.add(IDX_ARM_PLUGINS_STATIC_QUEUE_ADDR);
 	builder.add(IDX_ARM_PLUGINS_SERVER_ID);
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(builder.getSelectExArg());
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(builder.getSelectExArg());
 
 	// check the result and copy
 	ItemTablePtr &dataTable = builder.getSelectExArg().dataTable;
@@ -1041,9 +1091,7 @@ void DBClientConfig::getServerIdSet(ServerIdSet &serverIdSet,
 	arg.add(IDX_SERVERS_ID);
 	arg.condition = option.getCondition();
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(arg);
 
 	// check the result and copy
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
@@ -1091,17 +1139,34 @@ bool DBClientConfig::getArmPluginInfo(ArmPluginInfo &armPluginInfo,
 
 HatoholError DBClientConfig::saveArmPluginInfo(ArmPluginInfo &armPluginInfo)
 {
-	string condition;
-	HatoholError err = preprocForSaveArmPlguinInfo(armPluginInfo,
-	                                               condition);
-	if (err != HTERR_OK)
-		return err;
+	struct TrxProc : public DBAgent::TransactionProc {
+		HatoholError    err;
+		string          condition;
+		DBClientConfig *obj;
+		ArmPluginInfo  &armPluginInfo;
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		err = saveArmPluginInfoWithoutTransaction(armPluginInfo,
-		                                          condition);
-	} DBCLIENT_TRANSACTION_END();
-	return err;
+		TrxProc(DBClientConfig *_obj,
+		        ArmPluginInfo  &_armPluginInfo)
+		: obj(_obj),
+		  armPluginInfo(_armPluginInfo)
+		{
+		}
+
+		bool preproc(DBAgent &dbAgent) override
+		{
+			err = obj->preprocForSaveArmPlguinInfo(armPluginInfo,
+			                                       condition);
+			return (err == HTERR_OK);
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			err = obj->saveArmPluginInfoWithoutTransaction(
+			        armPluginInfo, condition);
+		}
+	} trx(this, armPluginInfo);
+	getDBAgent().transaction(trx);
+	return trx.err;
 }
 
 HatoholError validIncidentTrackerInfo(
@@ -1135,10 +1200,7 @@ HatoholError DBClientConfig::addIncidentTracker(
 	arg.add(incidentTrackerInfo.userName);
 	arg.add(incidentTrackerInfo.password);
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		insert(arg);
-		incidentTrackerInfo.id = getLastInsertId();
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(arg, &incidentTrackerInfo.id);
 	return HTERR_OK;
 }
 
@@ -1152,7 +1214,34 @@ HatoholError DBClientConfig::updateIncidentTracker(
 	if (err != HTERR_OK)
 		return err;
 
-	DBAgent::UpdateArg arg(tableProfileIncidentTrackers);
+	struct TrxProc : public DBAgent::TransactionProc {
+		HatoholError err;
+		DBAgent::UpdateArg arg;
+
+		TrxProc(void)
+		: arg(tableProfileIncidentTrackers)
+		{
+		}
+
+		bool hasRecord(DBAgent &dbAgent)
+		{
+			return dbAgent.isRecordExisting(
+				 TABLE_NAME_INCIDENT_TRACKERS,
+				 arg.condition);
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			if (!hasRecord(dbAgent)) {
+				err = HTERR_NOT_FOUND_TARGET_RECORD;
+				return;
+			}
+			dbAgent.update(arg);
+			err = HTERR_OK;
+		}
+	} trx;
+
+	DBAgent::UpdateArg &arg = trx.arg;
 	arg.add(IDX_INCIDENT_TRACKERS_TYPE,       incidentTrackerInfo.type);
 	arg.add(IDX_INCIDENT_TRACKERS_NICKNAME,   incidentTrackerInfo.nickname);
 	arg.add(IDX_INCIDENT_TRACKERS_BASE_URL,   incidentTrackerInfo.baseURL);
@@ -1161,16 +1250,9 @@ HatoholError DBClientConfig::updateIncidentTracker(
 	arg.add(IDX_INCIDENT_TRACKERS_USER_NAME,  incidentTrackerInfo.userName);
 	arg.add(IDX_INCIDENT_TRACKERS_PASSWORD,   incidentTrackerInfo.password);
 	arg.condition = StringUtils::sprintf("id=%" FMT_INCIDENT_TRACKER_ID,
-					     incidentTrackerInfo.id);
-
-	DBCLIENT_TRANSACTION_BEGIN() {
-		if (!isRecordExisting(TABLE_NAME_INCIDENT_TRACKERS, arg.condition)) {
-			err = HTERR_NOT_FOUND_TARGET_RECORD;
-		} else {
-			update(arg);
-		}
-	} DBCLIENT_TRANSACTION_END();
-	return err;
+	                                     incidentTrackerInfo.id);
+	getDBAgent().transaction(trx);
+	return trx.err;
 }
 
 void DBClientConfig::getIncidentTrackers(
@@ -1188,9 +1270,7 @@ void DBClientConfig::getIncidentTrackers(
 	arg.add(IDX_INCIDENT_TRACKERS_PASSWORD);
 	arg.condition = option.getCondition();
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(arg);
 
 	// check the result and copy
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
@@ -1224,9 +1304,7 @@ HatoholError DBClientConfig::deleteIncidentTracker(
 	arg.condition = StringUtils::sprintf("%s=%" FMT_INCIDENT_TRACKER_ID,
 	                                     colId.columnName, incidentTrackerId);
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		deleteRows(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(arg);
 	return HTERR_OK;
 }
 
@@ -1304,9 +1382,7 @@ void DBClientConfig::selectArmPluginInfo(DBAgent::SelectExArg &arg)
 	arg.add(IDX_ARM_PLUGINS_STATIC_QUEUE_ADDR);
 	arg.add(IDX_ARM_PLUGINS_SERVER_ID);
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().transaction(arg);
 }
 
 void DBClientConfig::readArmPluginStream(
