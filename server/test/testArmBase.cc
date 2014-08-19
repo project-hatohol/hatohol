@@ -71,8 +71,8 @@ protected:
 	virtual OneProcEndType mainThreadOneProc(void) override
 	{
 		if (m_oneProcHook){
-			bool ret = (*m_oneProcHook)(m_oneProcHookData);
-			if (ret)
+			bool succeeded = (*m_oneProcHook)(m_oneProcHookData);
+			if (succeeded)
 				return COLLECT_OK;
 			else
 				return COLLECT_NG_INTERNAL_ERROR;
