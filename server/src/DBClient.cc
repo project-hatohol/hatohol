@@ -382,7 +382,7 @@ void DBClient::dbSetupFunc(DBDomainId domainId, void *data)
 		const DBSetupTableInfo &tableInfo =
 		  setupFuncArg->tableInfoArray[i];
 		rawDBAgent->fixupIndexes(*tableInfo.profile,
-		                         tableInfo.indexDefArray);
+		                         tableInfo.profile->indexDefArray);
 	}
 
 	// Call extra initalizers only for the created tables

@@ -56,7 +56,8 @@ public:
 
 	// create and drop of index
 	virtual void assertMakeCreateIndexStatement(
-	  const std::string sql, const DBAgent::IndexDef &indexDef) = 0;
+	  const std::string sql, const DBAgent::TableProfile &tableProfile,
+	  const DBAgent::IndexDef &indexDef) = 0;
 	virtual void assertMakeDropIndexStatement(
 	  const std::string sql,
 	  const std::string &name, const std::string &tableName) = 0;
