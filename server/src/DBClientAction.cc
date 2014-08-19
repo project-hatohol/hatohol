@@ -522,11 +522,7 @@ HatoholError DBClientAction::addAction(ActionDef &actionDef,
 	arg.add(actionDef.timeout);
 	arg.add(ownerUserId);
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		insert(arg);
-		actionDef.id = getLastInsertId();
-	} DBCLIENT_TRANSACTION_END();
-
+	getDBAgent().runTransaction(arg, &actionDef.id);
 	return HTERR_OK;
 }
 
@@ -561,9 +557,7 @@ HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
 	if (!arg.limit && arg.offset)
 		return HTERR_OFFSET_WITHOUT_LIMIT;
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().runTransaction(arg);
 
 	// convert a format of the query result.
 	ActionValidator validator;
@@ -688,21 +682,32 @@ HatoholError DBClientAction::deleteActions(const ActionIdList &idList,
 		return HTERR_INVALID_PARAMETER;
 	}
 
-	DBAgent::DeleteArg arg(tableProfileActions);
-	arg.condition = makeConditionForDelete(idList, privilege);
+	struct TrxProc : public DBAgent::TransactionProc {
+		DBAgent::DeleteArg arg;
+		uint64_t numAffectedRows;
 
-	uint64_t numAffectedRows = 0;
-	DBCLIENT_TRANSACTION_BEGIN() {
-		deleteRows(arg);
-		numAffectedRows = getDBAgent()->getNumberOfAffectedRows();
-	} DBCLIENT_TRANSACTION_END();
+		TrxProc (void)
+		: arg(tableProfileActions),
+		  numAffectedRows(0)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			dbAgent.deleteRows(arg);
+			numAffectedRows = dbAgent.getNumberOfAffectedRows();
+		}
+	} trx;
+	trx.arg.condition = makeConditionForDelete(idList, privilege);
+	getDBAgent().runTransaction(trx);
 
 	// Check the result
-	if (numAffectedRows != idList.size()) {
+	if (trx.numAffectedRows != idList.size()) {
 		MLPL_ERR("affectedRows: %" PRIu64 ", idList.size(): %zd\n",
-		         numAffectedRows, idList.size());
+		         trx.numAffectedRows, idList.size());
 		return HTERR_DELETE_INCOMPLETE;
 	}
+
 
 	return HTERR_OK;
 }
@@ -715,9 +720,7 @@ void DBClientAction::deleteInvalidActions()
 	arg.add(IDX_ACTIONS_ACTION_ID);
 	arg.add(IDX_ACTIONS_OWNER_USER_ID);
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().runTransaction(arg);
 
 	ActionValidator validator;
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
@@ -784,10 +787,7 @@ uint64_t DBClientAction::createActionLog(
 	arg.row->addNewItem(eventInfo.id);
 
 	uint64_t logId;
-	DBCLIENT_TRANSACTION_BEGIN() {
-		insert(arg);
-		logId = getLastInsertId();
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().runTransaction(arg, &logId);
 	return logId;
 }
 
@@ -812,9 +812,7 @@ void DBClientAction::logEndExecAction(const LogEndExecActionArg &logArg)
 	if (!(logArg.nullFlags & ACTLOG_FLAG_EXIT_CODE))
 		arg.add(IDX_ACTION_LOGS_EXIT_CODE, logArg.exitCode);
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		update(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().runTransaction(arg);
 }
 
 void DBClientAction::updateLogStatusToStart(uint64_t logId)
@@ -828,9 +826,7 @@ void DBClientAction::updateLogStatusToStart(uint64_t logId)
 	arg.add(IDX_ACTION_LOGS_STATUS, ACTLOG_STAT_STARTED);
 	arg.add(IDX_ACTION_LOGS_START_TIME, CURR_DATETIME);
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		update(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().runTransaction(arg);
 }
 
 bool DBClientAction::getLog(ActionLog &actionLog, uint64_t logId)
@@ -925,9 +921,7 @@ bool DBClientAction::getLog(ActionLog &actionLog, const string &condition)
 	arg.add(IDX_ACTION_LOGS_EXEC_FAILURE_CODE);
 	arg.add(IDX_ACTION_LOGS_EXIT_CODE);
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().runTransaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	size_t numGrpList = grpList.size();

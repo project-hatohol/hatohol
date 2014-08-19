@@ -1429,7 +1429,7 @@ void test_checkEventsWithMultipleIncidentSender(void)
 	string statement = "select action_id from ";
 	statement += DBClientAction::getTableNameActionLogs();
 	statement += " order by action_log_id";
-	assertDBContent(dbAction.getDBAgent(), statement, expected);
+	assertDBContent(&dbAction.getDBAgent(), statement, expected);
 }
 
 } // namespace testActionManager

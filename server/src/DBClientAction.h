@@ -281,6 +281,13 @@ public:
 	static const char *getTableNameActions(void);
 	static const char *getTableNameActionLogs(void);
 
+	// This is a temporary mesurement. We'll replace the base class with DBTables,
+	// which provides the method that returns a reference.
+	DBAgent &getDBAgent(void)
+	{
+		return *DBClient::getDBAgent();
+	}
+
 	DBClientAction(void);
 	virtual ~DBClientAction();
 	HatoholError addAction(ActionDef &actionDef,
