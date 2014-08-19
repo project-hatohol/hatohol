@@ -140,7 +140,7 @@ Example of /etc/qpid/qpidd.acl
 
 NOTE: You have to restart qpidd after you edit /etc/qpid/qpiid.acl.
 
-(0.3) Create directory to save PID file.
+(0.3) Create a directory to save a PID file.
 
     # mkdir -p /usr/local/var/run
 
@@ -170,6 +170,9 @@ decide the direcory for the DBs and make it if necessary.
 
 Ex.) `mkdir /var/lib/hatohol`
 
+
+If you use a default setting you execute (3) method.
+But if you want to use your PID file, you execute (3)` method.
 (3) start hatohol process
 
     $ HATOHOL_DB_DIR=<directory preapred in step (2)> hatohol --config-db-server <Config DB Server:[port]>
@@ -185,8 +188,7 @@ created in /tmp.
 including HATOHOL version on http://[hostname]:[RestPort]/hello.html.
   Ex.) `http://localhost:33194/hello.html`
 
-(3)` If you want to use your PID setting, you execute the following command.
-
+(3)`
     $ HATOHOL_DB_DIR=/var/lib/hatohol hatohol --config-db-server localhost --pid-file-path /(any path of your)/my-hatohol.pid
 
 ## How to stop
