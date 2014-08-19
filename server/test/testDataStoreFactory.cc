@@ -20,7 +20,7 @@
 #include <cppcutter.h>
 #include <gcutter.h>
 #include "Hatohol.h"
-#include "DBClientConfig.h"
+#include "DBTablesConfig.h"
 #include "DataStoreFactory.h"
 #include "DataStoreFake.h"
 #include "DataStoreZabbix.h"

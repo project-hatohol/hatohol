@@ -23,7 +23,7 @@
 #include <sstream>
 #include "Hatohol.h"
 #include "DBClientHatohol.h"
-#include "DBClientConfig.h"
+#include "DBTablesConfig.h"
 #include "ActionManager.h"
 #include "HatoholError.h"
 #include "FaceRest.h"
