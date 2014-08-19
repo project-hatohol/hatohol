@@ -57,7 +57,7 @@ The following shows examples to install Required Packages.
 
 ### Create the database
     $ mysql -u root -p
-    Enter password:(input root password)
+    Enter password:(input password)
 
     mysql> CREATE DATABASE hatohol_client;
     mysql> GRANT ALL PRIVILEGES ON hatohol_client.* TO hatohol@localhost IDENTIFIED BY 'hatohol';
