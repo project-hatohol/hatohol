@@ -140,6 +140,9 @@ Example of /etc/qpid/qpidd.acl
 
 NOTE: You have to restart qpidd after you edit /etc/qpid/qpiid.acl.
 
+(0.3) Create folder
+> # mkdir -p /usr/local/var/run
+
 (1) Setup database of MySQL
 
   $ mysql -uroot -p < /usr/local/share/hatohol/sql/create-db.sql
@@ -158,7 +161,6 @@ For example, user/password are 'myuser'/'mypasswd' and the IP address of
 Hatohol server is 192.168.10.50.
 
     GRANT ALL PRIVILEGES ON hatohol.* TO myuser@"192.168.10.50" IDENTIFIED BY 'mypasswd';
-
 
 (2) Prepare the data base directory
 
@@ -181,6 +183,9 @@ created in /tmp.
 * When the process successfully starts, hatohol reply the HTML message
 including HATOHOL version on http://[hostname]:[RestPort]/hello.html.
   Ex.) `http://localhost:33194/hello.html`
+
+(3)` If you want to use your PID setting, you execute the following command.
+$ HATOHOL_DB_DIR=/var/lib/hatohol hatohol --config-db-server localhost --pid-file-path /(any path of your)/my-hatohol.pid
 
 ## How to stop
 Send one of the following signals to hatohol process.
