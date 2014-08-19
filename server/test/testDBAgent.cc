@@ -356,7 +356,8 @@ private:
 	}
 
 	virtual string
-	makeCreateIndexStatement(const IndexDef &indexDef) override
+	makeCreateIndexStatement(const TableProfile &tableProfile,
+	                         const IndexDef &indexDef) override
 	{
 		return "";
 	}

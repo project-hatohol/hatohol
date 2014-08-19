@@ -118,7 +118,8 @@ protected:
 
 	// virtual methods
 	virtual std::string
-	makeCreateIndexStatement(const IndexDef &indexDef) override;
+	  makeCreateIndexStatement(const TableProfile &tableProfile,
+	                           const IndexDef &indexDef) override;
 
 	virtual std::string
 	makeDropIndexStatement(const std::string &name,

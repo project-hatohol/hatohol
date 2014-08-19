@@ -174,11 +174,6 @@ enum {
 	NUM_IDX_TRIGGERS,
 };
 
-static const DBAgent::TableProfile tableProfileTriggers =
-  DBAGENT_TABLEPROFILE_INIT(DBClientHatohol::TABLE_NAME_TRIGGERS,
-			    COLUMN_DEF_TRIGGERS,
-			    NUM_IDX_TRIGGERS);
-
 static const ColumnDef COLUMN_DEF_EVENTS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
@@ -839,10 +834,14 @@ static const int columnIndexesTrigUniqId[] = {
 };
 
 static const DBAgent::IndexDef indexDefsTriggers[] = {
-  {"TrigUniqId", &tableProfileTriggers,
-   (const int *)columnIndexesTrigUniqId, true},
+  {"TrigUniqId", (const int *)columnIndexesTrigUniqId, true},
   {NULL}
 };
+
+static const DBAgent::TableProfile tableProfileTriggers =
+  DBAGENT_TABLEPROFILE_INIT(DBClientHatohol::TABLE_NAME_TRIGGERS,
+			    COLUMN_DEF_TRIGGERS,
+			    NUM_IDX_TRIGGERS);
 
 // Events
 static const int columnIndexesEventsUniqId[] = {
@@ -850,8 +849,7 @@ static const int columnIndexesEventsUniqId[] = {
 };
 
 static const DBAgent::IndexDef indexDefsEvents[] = {
-  {"EventsUniqId", &tableProfileEvents,
-   (const int *)columnIndexesEventsUniqId, true},
+  {"EventsUniqId", (const int *)columnIndexesEventsUniqId, true},
   {NULL}
 };
 
@@ -861,8 +859,7 @@ static const int columnIndexesItemsUniqId[] = {
 };
 
 static const DBAgent::IndexDef indexDefsItems[] = {
-  {"ItemsUniqId", &tableProfileItems,
-   (const int *)columnIndexesItemsUniqId, true},
+  {"ItemsUniqId", (const int *)columnIndexesItemsUniqId, true},
   {NULL}
 };
 
@@ -872,8 +869,7 @@ static const int columnIndexesHostsUniqId[] = {
 };
 
 static const DBAgent::IndexDef indexDefsHosts[] = {
-  {"HostsUniqId", &tableProfileHosts,
-   (const int *)columnIndexesHostsUniqId, true},
+  {"HostsUniqId", (const int *)columnIndexesHostsUniqId, true},
   {NULL}
 };
 
@@ -883,8 +879,7 @@ static const int columnIndexesHostgroupsUniqId[] = {
 };
 
 static const DBAgent::IndexDef indexDefsHostgroups[] = {
-  {"HostgroupsUniqId", &tableProfileHostgroups,
-   (const int *)columnIndexesHostgroupsUniqId, true},
+  {"HostgroupsUniqId", (const int *)columnIndexesHostgroupsUniqId, true},
   {NULL}
 };
 
@@ -895,7 +890,7 @@ static const int columnIndexesMapHostsHostgroupsUniqId[] = {
 };
 
 static const DBAgent::IndexDef indexDefsMapHostsHostgroups[] = {
-  {"MapHostsHostgroupsUniqId", &tableProfileMapHostsHostgroups,
+  {"MapHostsHostgroupsUniqId",
    (const int *)columnIndexesMapHostsHostgroupsUniqId, true},
   {NULL}
 };
@@ -906,8 +901,7 @@ static const int columnIndexesIncidentsUniqId[] = {
 };
 
 static const DBAgent::IndexDef indexDefsIncidents[] = {
-  {"IncidentsEventId", &tableProfileIncidents,
-   (const int *)columnIndexesIncidentsUniqId, true},
+  {"IncidentsEventId", (const int *)columnIndexesIncidentsUniqId, true},
   {NULL}
 };
 

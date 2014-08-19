@@ -106,10 +106,11 @@ DBTermCodec    DBAgent::Impl::dbTermCodec;
 // ---------------------------------------------------------------------------
 DBAgent::TableProfile::TableProfile(
   const char *_name,  const ColumnDef *_columnDefs,
-  const size_t &numIndexes)
+  const size_t &numIndexes, const IndexDef *_indexDefArray)
 : name(_name),
   columnDefs(_columnDefs),
-  numColumns(numIndexes)
+  numColumns(numIndexes),
+  indexDefArray(_indexDefArray)
 {
 }
 
@@ -378,16 +379,17 @@ void DBAgent::fixupIndexes(
 		DBAgent        *obj;
 		IndexSqlInfoMap indexSqlInfoMap;
 
-		void proc(const IndexDef &indexDef)
+		void proc(const TableProfile &tableProfile,
+		          const IndexDef &indexDef)
 		{
 			const string sql =
-			  obj->makeCreateIndexStatement(indexDef);
+			  obj->makeCreateIndexStatement(tableProfile, indexDef);
 			IndexSqlInfoMapIterator it = indexSqlInfoMap.find(sql);
 			if (it != indexSqlInfoMap.end()) {
 				indexSqlInfoMap.erase(it);
 				return;
 			}
-			obj->createIndex(indexDef);
+			obj->createIndex(tableProfile, indexDef);
 		}
 	} ctx;
 	ctx.obj = this;
@@ -414,15 +416,15 @@ void DBAgent::fixupIndexes(
 		}
 		const int columnIndexes[] = {(int)i, IndexDef::END};
 		const IndexDef indexDef = {
-		  columnDef.columnName, &tableProfile, columnIndexes, isUnique
+		  columnDef.columnName, columnIndexes, isUnique
 		};
-		ctx.proc(indexDef);
+		ctx.proc(tableProfile, indexDef);
 	}
 
 	// Create needed indexes with IndexesDef
 	const IndexDef *indexDefPtr = indexDefArray;
 	for (; indexDefPtr && indexDefPtr->name; indexDefPtr++)
-		ctx.proc(*indexDefPtr);
+		ctx.proc(tableProfile, *indexDefPtr);
 
 	// Drop remaining (unnecessary) indexes
 	while (!ctx.indexSqlInfoMap.empty()) {
@@ -694,11 +696,12 @@ const DBTermCodec *DBAgent::getDBTermCodec(void) const
 	return &m_impl->dbTermCodec;
 }
 
-void DBAgent::createIndex(const IndexDef &indexDef)
+void DBAgent::createIndex(const TableProfile &tableProfile,
+                          const IndexDef &indexDef)
 {
-	execSql(makeCreateIndexStatement(indexDef));
+	execSql(makeCreateIndexStatement(tableProfile, indexDef));
 	MLPL_INFO("Created index: %s (table: %s), DID: %d\n",
-	          indexDef.name, indexDef.tableProfile->name,
+	          indexDef.name, tableProfile.name,
 	          m_impl->dbDomainId);
 }
 

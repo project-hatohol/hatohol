@@ -605,17 +605,18 @@ void DBAgentMySQL::queryWithRetry(const string &statement)
 	                        mysql_error(&m_impl->mysql));
 }
 
-string DBAgentMySQL::makeCreateIndexStatement(const IndexDef &indexDef)
+string DBAgentMySQL::makeCreateIndexStatement(const TableProfile &tableProfile,
+                                              const IndexDef &indexDef)
 {
 	string sql = StringUtils::sprintf(
 	  "CREATE %sINDEX %s ON %s (",
 	  indexDef.isUnique ? "UNIQUE " : "",
-	  indexDef.name, indexDef.tableProfile->name);
+	  indexDef.name, tableProfile.name);
 
 	const int *columnIdxPtr = indexDef.columnIndexes;
 	while (true) {
 		const ColumnDef &columnDef =
-		  indexDef.tableProfile->columnDefs[*columnIdxPtr];
+		  tableProfile.columnDefs[*columnIdxPtr];
 		sql += columnDef.columnName;
 
 		// get the next column index and check if it's the end.
@@ -699,9 +700,9 @@ void DBAgentMySQL::getIndexInfoVect(vector<IndexInfo> &indexInfoVect,
 		idxInfo.tableName = firstElem.table;
 
 		const IndexDef indexDef = {
-		  idxInfo.name.c_str(), &tableProfile, columnIndexes, isUnique
+		  idxInfo.name.c_str(), columnIndexes, isUnique
 		};
-		idxInfo.sql = makeCreateIndexStatement(indexDef);
+		idxInfo.sql = makeCreateIndexStatement(tableProfile, indexDef);
 		indexInfoVect.push_back(idxInfo);
 	}
 }
