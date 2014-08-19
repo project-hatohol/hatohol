@@ -35,7 +35,7 @@ maintained by [joequery]
 ## How to setup
 > See also [this page](https://github.com/project-hatohol/website/blob/master/contents/docs/install/14.06/ja/index.md)
 > to setup Hatohol for CentOS with the binary packages.
-> (This file is Japanese version only.)
+> (Only Japanese explaination is provided.)
 
 ### Install Hatohol Client
 Hatohol Client is written as PATH FREE. So you can place it anywhere.
@@ -63,7 +63,7 @@ The following shows examples to install Required Packages.
     mysql> GRANT ALL PRIVILEGES ON hatohol_client.* TO hatohol@localhost IDENTIFIED BY 'hatohol';
 
 ### Create the database and the tables
-You must change the current directory to "/client" in /Hatohol directory.
+you must change the current directory to "client" under the top directory that download sources.
 
     $ ./manage.py syncdb
 
@@ -71,7 +71,7 @@ You must change the current directory to "/client" in /Hatohol directory.
 Hatohol Client is a standard Django project. So you can run it on any WSGI
 compliant application server.
 
-You must change the current directory to "/client" in /Hatohol directory.
+you must change the current directory to "client" under the top directory that download sources.
 
 Alternatively you can run with a runserver sub-command of Django's manage.py.
 
