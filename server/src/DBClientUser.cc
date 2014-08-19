@@ -1035,7 +1035,6 @@ HatoholError DBClientUser::updateUserRoleInfo(
 
 		void operator ()(DBAgent &dbAgent) override
 		{
-			const char *tbl = arg.tableProfile.name;
 			if (!hasRecord(dbAgent, arg.condition)) {
 				err = HTERR_NOT_FOUND_TARGET_RECORD;
 			} else if (hasRecord(dbAgent, dupChkCond)) {
