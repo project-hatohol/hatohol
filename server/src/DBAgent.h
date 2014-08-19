@@ -52,21 +52,31 @@ static const DBDomainId DEFAULT_DB_DOMAIN_ID = 0;
 
 // Initialize DBAgent::TableProfile
 // Note: Compile fails if number of coldefs does not match numcols.
-#define DBAGENT_TABLEPROFILE_INIT(name,coldefs,numcols)			\
-	DBAgent::TableProfile(name, coldefs,				\
-			     HATOHOL_BUILD_EXPECT(ARRAY_SIZE(coldefs), 	\
-						  numcols)	\
-	)
+#define DBAGENT_TABLEPROFILE_INIT(name, coldefs, numcols, ...)          \
+	DBAgent::TableProfile(                                          \
+		name, coldefs,                                          \
+		HATOHOL_BUILD_EXPECT(ARRAY_SIZE(coldefs), numcols),     \
+		##__VA_ARGS__)
 
 class DBAgent {
 public:
+	struct IndexDef {
+		static const int    END = -1;
+
+		const char         *name;
+		const int          *columnIndexes; // Last element must be END.
+		bool                isUnique;
+	};
+
 	struct TableProfile {
 		const char         *name;
 		const ColumnDef    *columnDefs;
 		const size_t        numColumns;
+		const IndexDef     *indexDefArray;
 
 		TableProfile(const char *name,  const ColumnDef *columnDefs,
-		             const size_t &numIndexes);
+		             const size_t &numIndexes,
+		             const IndexDef *indexDefArray = NULL);
 
 		/**
 		 * Get a full name of a column.
@@ -79,15 +89,6 @@ public:
 		 * @return A full name of the specified column.
 		 */
 		std::string getFullColumnName(const size_t &index) const;
-	};
-
-	struct IndexDef {
-		static const int    END = -1;
-
-		const char         *name;
-		const TableProfile *tableProfile;
-		const int          *columnIndexes; // Last element must be END.
-		bool                isUnique;
 	};
 
 	struct IndexInfo {
@@ -350,8 +351,10 @@ protected:
 	static std::string makeDatetimeString(int datetime);
 
 	virtual std::string
-	makeCreateIndexStatement(const IndexDef &indexDef) = 0;
-	virtual void createIndex(const IndexDef &indexDef);
+	  makeCreateIndexStatement(const TableProfile &tableProfile,
+	                           const IndexDef &indexDef) = 0;
+	virtual void createIndex(const TableProfile &tableProfile,
+	                         const IndexDef &indexDef);
 
 	virtual std::string
 	makeDropIndexStatement(const std::string &name,

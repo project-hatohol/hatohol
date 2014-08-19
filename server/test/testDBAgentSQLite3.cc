@@ -122,10 +122,11 @@ public:
 	}
 
 	virtual void assertMakeCreateIndexStatement(
-	  const std::string sql, const DBAgent::IndexDef &indexDef) override
+	  const std::string sql, const DBAgent::TableProfile &tableProfile,
+	  const DBAgent::IndexDef &indexDef) override
 	{
 		const string expect = makeExpectedCreateIndexStatement(
-		  *indexDef.tableProfile, indexDef);
+		  tableProfile, indexDef);
 		cppcut_assert_equal(expect, sql);
 	}
 
@@ -160,8 +161,7 @@ public:
 			const int columnIndexes[] = {
 			  (int)i, DBAgent::IndexDef::END};
 			const DBAgent::IndexDef indexDef = {
-			  columnDef.columnName, &tableProfile, columnIndexes,
-			  isUnique};
+			  columnDef.columnName, columnIndexes, isUnique};
 			string line = makeExpectedCreateIndexStatement(
 			                tableProfile, indexDef);
 			expectLines.push_back(line);
