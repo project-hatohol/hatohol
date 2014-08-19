@@ -373,11 +373,6 @@ void ArmBase::setServerConnectStaus(bool enable,OneProcEndType type)
 	TriggerInfoList triggerInfoList;
 	EventInfoList eventInfoList;
 
-	if (!enable) {
-		if (m_impl->oneProcTriggerTable[type].statusType == TRIGGER_STATUS_PROBLEM)
-			return;
-	}
-
 	if (enable){
 		for (int i=0;i<COLLECT_NG_KIND_NUM;i++){
 			if (m_impl->oneProcTriggerTable[i].statusType == TRIGGER_STATUS_PROBLEM ){
@@ -391,6 +386,9 @@ void ArmBase::setServerConnectStaus(bool enable,OneProcEndType type)
 		}
 	}
 	else {
+		if (m_impl->oneProcTriggerTable[type].statusType == TRIGGER_STATUS_PROBLEM)
+			return;
+
 		m_impl->oneProcTriggerTable[type].statusType = TRIGGER_STATUS_PROBLEM;
 		createTriggerInfo(static_cast<int>(type),triggerInfoList);
 		createEventInfo(static_cast<int>(type),eventInfoList);
@@ -405,7 +403,6 @@ void ArmBase::setServerConnectStaus(bool enable,OneProcEndType type)
 				createTriggerInfo(i,triggerInfoList);
 			}
 		}
-		
 		for (int i=0;i<type;i++){
 			if (m_impl->oneProcTriggerTable[i].statusType == TRIGGER_STATUS_OK){
 				m_impl->oneProcTriggerTable[i].statusType = TRIGGER_STATUS_UNKNOWN;
@@ -414,10 +411,12 @@ void ArmBase::setServerConnectStaus(bool enable,OneProcEndType type)
 		}
 	}
 
-	m_impl->dbClientHatohol.addTriggerInfoList(triggerInfoList);
-	
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	dataStore->addEventList(eventInfoList);
+	if (!triggerInfoList.empty())
+		m_impl->dbClientHatohol.addTriggerInfoList(triggerInfoList);
+	if (!eventInfoList.empty()){
+		UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+		dataStore->addEventList(eventInfoList);
+	}
 }
 
 gpointer ArmBase::mainThread(HatoholThreadArg *arg)
