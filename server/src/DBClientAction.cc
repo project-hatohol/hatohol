@@ -708,7 +708,6 @@ HatoholError DBClientAction::deleteActions(const ActionIdList &idList,
 		return HTERR_DELETE_INCOMPLETE;
 	}
 
-
 	return HTERR_OK;
 }
 
