@@ -49,7 +49,7 @@ struct DBTables::Impl {
 		AutoMutex(&setupInfo.lock);
 		if (!setupInfo.initialized) {
 			SetupProc setup(this, setupInfo);
-			dbAgent.transaction(setup);
+			dbAgent.runTransaction(setup);
 			setupInfo.initialized = true;
 		}
 	}
