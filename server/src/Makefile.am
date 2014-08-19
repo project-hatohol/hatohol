@@ -55,9 +55,9 @@ libhatohol_la_SOURCES = \
 	DBCGroupRegular.cc DBCGroupRegular.h \
 	DBClientAction.cc DBClientAction.h \
 	DBTablesConfig.cc DBTablesConfig.h \
+	DBTablesUser.cc DBTablesUser.h \
 	DBClientHatohol.cc DBClientHatohol.h \
 	DBClientHost.cc DBClientHost.h \
-	DBClientUser.h DBClientUser.cc \
 	DBClientJoinBuilder.cc DBClientJoinBuilder.h \
 	DBTermCodec.h DBTermCodec.cc \
 	DataStore.cc DataStore.h \

@@ -18,7 +18,7 @@
  */
 
 #include <stdint.h>
-#include "DBClientUser.h"
+#include "DBTablesUser.h"
 #include "DBTablesConfig.h"
 #include "ItemGroupStream.h"
 using namespace std;

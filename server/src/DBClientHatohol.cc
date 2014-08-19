@@ -21,7 +21,7 @@
 #include <Mutex.h>
 #include "DBAgentFactory.h"
 #include "DBClientHatohol.h"
-#include "DBClientUser.h"
+#include "DBTablesUser.h"
 #include "CacheServiceDBClient.h"
 #include "SQLUtils.h"
 #include "Params.h"

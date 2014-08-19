@@ -35,7 +35,7 @@
 #include "JSONBuilderAgent.h"
 #include "HatoholException.h"
 #include "UnifiedDataStore.h"
-#include "DBClientUser.h"
+#include "DBTablesUser.h"
 #include "DBTablesConfig.h"
 #include "SessionManager.h"
 #include "CacheServiceDBClient.h"

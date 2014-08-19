@@ -26,7 +26,7 @@
 #include "DBTablesConfig.h"
 #include "DBClientHatohol.h"
 #include "DBClientAction.h"
-#include "DBClientUser.h"
+#include "DBTablesUser.h"
 
 typedef std::set<uint64_t>  HostIdSet;
 typedef HostIdSet::iterator HostIdSetIterator;

@@ -21,7 +21,7 @@
 #include <cppcutter.h>
 #include <cutter.h>
 #include "Helpers.h"
-#include "DBClientUser.h"
+#include "DBTablesUser.h"
 #include "DBClientTest.h"
 #include "Helpers.h"
 #include "Hatohol.h"

@@ -21,7 +21,7 @@
 #define CacheServiceDBClient_h
 
 #include "DBClientHatohol.h"
-#include "DBClientUser.h"
+#include "DBTablesUser.h"
 #include "DBTablesConfig.h"
 #include "DBClientAction.h"
 

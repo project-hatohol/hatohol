@@ -23,7 +23,7 @@
 #include "Hatohol.h"
 #include "Params.h"
 #include "DBClientAction.h"
-#include "DBClientUser.h"
+#include "DBTablesUser.h"
 #include "DBClientTest.h"
 #include "Helpers.h"
 using namespace std;
