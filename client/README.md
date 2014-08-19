@@ -33,8 +33,9 @@ maintained by [joequery]
 (http://joequery.github.io/Stupid-Table-Plugin/)
 
 ## How to setup
-> See also [this page](../doc/install/hatohol13.12-centos6.4.md)
+> See also [this page](https://github.com/project-hatohol/website/blob/master/contents/docs/install/14.06/ja/index.md)
 > to setup Hatohol for CentOS with the binary packages.
+(Only Japanese explaination is provided.) 
 
 ### Install Hatohol Client
 Hatohol Client is written as PATH FREE. So you can place it anywhere.
