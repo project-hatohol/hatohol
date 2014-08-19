@@ -932,27 +932,20 @@ static const DBAgent::TableProfile tableProfileIncidents =
 static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
 {
 	&tableProfileTriggers,
-	(const DBAgent::IndexDef *)&indexDefsTriggers,
 }, {
 	&tableProfileEvents,
-	(const DBAgent::IndexDef *)&indexDefsEvents,
 }, {
 	&tableProfileItems,
-	(const DBAgent::IndexDef *)&indexDefsItems,
 }, {
 	&tableProfileHosts,
-	(const DBAgent::IndexDef *)&indexDefsHosts,
 }, {
 	&tableProfileHostgroups,
-	(const DBAgent::IndexDef *)&indexDefsHostgroups,
 }, {
 	&tableProfileMapHostsHostgroups,
-	(const DBAgent::IndexDef *)&indexDefsMapHostsHostgroups,
 }, {
 	&tableProfileServers,
 }, {
 	&tableProfileIncidents,
-	(const DBAgent::IndexDef *)&indexDefsIncidents,
 }
 };
 

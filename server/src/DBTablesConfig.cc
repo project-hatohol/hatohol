@@ -680,7 +680,6 @@ void DBTablesConfig::init(void)
 	static const DBSetupTableInfo DB_TABLE_INFO[] = {
 	{
 		&tableProfileSystem,
-		NULL,
 		tableInitializerSystem,
 	}, {
 		&tableProfileServers,
