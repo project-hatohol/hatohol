@@ -223,7 +223,7 @@ void test_addAction(void)
 	expect += command;
 	expect += "||0"; /* workingDirectory and timeout */
 	expect += StringUtils::sprintf("|%" FMT_USER_ID, userId);
-	assertDBContent(dbAction.getDBAgent(), statement, expect);
+	assertDBContent(&dbAction.getDBAgent(), statement, expect);
 }
 
 void test_addActionParameterFull(void)
@@ -276,7 +276,7 @@ void test_addActionParameterFull(void)
 	expect += workingDir;
 	expect += "|";
 	expect += StringUtils::sprintf("%d|%" FMT_USER_ID, timeout, userId);
-	assertDBContent(dbAction.getDBAgent(), statement, expect);
+	assertDBContent(&dbAction.getDBAgent(), statement, expect);
 }
 
 void test_addActionParameterOver32bit(void)
@@ -305,7 +305,7 @@ void test_addActionParameterOver32bit(void)
 	string expect;
 	expect += StringUtils::sprintf("%" PRIu64 "|%" PRIu64 "|%" PRIu64,
 	  hostId, hostgroupId, triggerId);
-	assertDBContent(dbAction.getDBAgent(), statement, expect);
+	assertDBContent(&dbAction.getDBAgent(), statement, expect);
 }
 
 void test_addActionComplicatedCommand(void)
@@ -324,7 +324,7 @@ void test_addActionComplicatedCommand(void)
 	DBClientAction dbAction;
 	string statement = "select command from ";
 	statement += DBClientAction::getTableNameActions();
-	assertDBContent(dbAction.getDBAgent(), statement, command);
+	assertDBContent(&dbAction.getDBAgent(), statement, command);
 }
 
 void test_addActionCommandWithJapanese(void)
@@ -343,7 +343,7 @@ void test_addActionCommandWithJapanese(void)
 	DBClientAction dbAction;
 	string statement = "select command from ";
 	statement += DBClientAction::getTableNameActions();
-	assertDBContent(dbAction.getDBAgent(), statement, command);
+	assertDBContent(&dbAction.getDBAgent(), statement, command);
 }
 
 void test_addActionWithoutType(void)
@@ -400,7 +400,7 @@ void test_deleteAction(void)
 	statement += DBClientAction::getTableNameActions();
 	statement += " order by action_id asc";
 	DBClientAction dbAction;
-	assertDBContent(dbAction.getDBAgent(), statement, expect);
+	assertDBContent(&dbAction.getDBAgent(), statement, expect);
 }
 
 } // namespace testFaceRestAction

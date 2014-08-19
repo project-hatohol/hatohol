@@ -288,7 +288,7 @@ static void _assertDeleteActions(const bool &deleteMyActions,
 	string statement = "select action_id from ";
 	statement += DBClientAction::getTableNameActions();
 	statement += " order by action_id";
-	assertDBContent(dbAction.getDBAgent(), statement, expect);
+	assertDBContent(&dbAction.getDBAgent(), statement, expect);
 }
 #define assertDeleteActions(D,T) cut_trace(_assertDeleteActions(D,T))
 
@@ -311,7 +311,7 @@ static void assertActionIdsInDB(ActionIdList excludeIdList)
 	statement += DBClientAction::getTableNameActions();
 	statement += " order by action_id asc";
 	DBClientAction dbAction;
-	assertDBContent(dbAction.getDBAgent(), statement, expect);
+	assertDBContent(&dbAction.getDBAgent(), statement, expect);
 }
 #define assertActionsInDB(E) cut_trace(_assertActionsInDB(E))
 
@@ -340,7 +340,7 @@ void test_dbDomainId(void)
 {
 	DBClientAction dbAction;
 	cppcut_assert_equal(DB_DOMAIN_ID_ACTION,
-	                    dbAction.getDBAgent()->getDBDomainId());
+	                    dbAction.getDBAgent().getDBDomainId());
 }
 
 void test_addAction(void)
@@ -362,7 +362,7 @@ void test_addAction(void)
 		string statement = "select * from ";
 		statement += DBClientAction::getTableNameActions();
 		expect += makeExpectedString(actDef, expectedId);
-		assertDBContent(dbAction.getDBAgent(), statement, expect);
+		assertDBContent(&dbAction.getDBAgent(), statement, expect);
 	}
 }
 
@@ -391,7 +391,7 @@ void test_addActionAndCheckOwner(void)
 	                                     actionId, userId);
 	string statement = "select action_id, owner_user_id from ";
 	statement += DBClientAction::getTableNameActions();
-	assertDBContent(dbAction.getDBAgent(), statement, expect);
+	assertDBContent(&dbAction.getDBAgent(), statement, expect);
 }
 
 void test_addActionWithoutPrivilege(void)
@@ -438,7 +438,7 @@ void test_addIncidentSenderActionByIncidentSettingsAdmin(void)
 	                                     1, USER_ID_SYSTEM);
 	string statement = "select action_id, owner_user_id from ";
 	statement += DBClientAction::getTableNameActions();
-	assertDBContent(dbAction.getDBAgent(), statement, expect);
+	assertDBContent(&dbAction.getDBAgent(), statement, expect);
 }
 
 void test_addIncidentSenderActionWithoutPrivilege(void)
@@ -648,7 +648,7 @@ void test_startExecAction(void)
 		statement += DBClientAction::getTableNameActionLogs();
 		expect += makeExpectedLogString(actDef, eventInfo,
 		                                expectedId, status);
-		assertDBContent(dbAction.getDBAgent(), statement, expect);
+		assertDBContent(&dbAction.getDBAgent(), statement, expect);
 	}
 }
 
@@ -669,7 +669,7 @@ void test_startExecActionWithExecFailure(void)
 	  makeExpectedLogString(actDef, eventInfo, expectedId,
 	                        ACTLOG_STAT_FAILED,
 	                        ACTLOG_EXECFAIL_EXEC_FAILURE);
-	assertDBContent(dbAction.getDBAgent(), statement, expect);
+	assertDBContent(&dbAction.getDBAgent(), statement, expect);
 }
 
 void test_endExecAction(void)
@@ -686,7 +686,7 @@ void test_endExecAction(void)
 	// make action logs
 	string statement = "select * from action_logs";
 	test_startExecAction();
-	string rows = execSQL(dbAction.getDBAgent(), statement);
+	string rows = execSQL(&dbAction.getDBAgent(), statement);
 	StringVector rowVector;
 	StringUtils::split(rowVector, rows, '\n');
 	cppcut_assert_equal(getNumberOfTestActions(), rowVector.size());
@@ -699,7 +699,7 @@ void test_endExecAction(void)
 	   makeExpectedEndLogString(rowVector[targetIdx], logArg);
 	rowVector[targetIdx] = expectedLine;
 	string expect = joinStringVector(rowVector, "\n");
-	assertDBContent(dbAction.getDBAgent(), statement, expect);
+	assertDBContent(&dbAction.getDBAgent(), statement, expect);
 }
 
 void test_getTriggerActionList(void)
