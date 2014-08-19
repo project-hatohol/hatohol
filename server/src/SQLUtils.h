@@ -29,20 +29,6 @@ public:
 
 	static void init(void);
 
-	/**
-	 * Get a full name of a column.
-	 *
-	 * E.g. If table name is 'tbl' and a column name is 'name',
-	 * 'tbl.name' is returned.
-	 *
-	 * @param columnDefs A pointer of a ColumnDef array.
-	 * @param index      An index of the target column.
-	 *
-	 * @return A full name of the specified column.
-	 */
-	static std::string getFullName(const ColumnDef *columnDefs,
-	                               const size_t &index);
-
 	static ItemDataPtr createFromString(const char *str,
 	                                    SQLColumnType type);
 

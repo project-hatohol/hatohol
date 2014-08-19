@@ -83,8 +83,8 @@ void DBClientJoinBuilder::addTable(
 	addTableCommon(table, type, table0, index0, index1);
 	m_impl->selectExArg.tableField += StringUtils::sprintf(
 	  "%s=%s",
-	  SQLUtils::getFullName(table0.columnDefs, index0).c_str(),
-	  SQLUtils::getFullName(table.columnDefs, index1).c_str());
+	  table0.getFullColumnName(index0).c_str(),
+	  table.getFullColumnName(index1).c_str());
 }
 
 void DBClientJoinBuilder::addTable(
@@ -95,8 +95,8 @@ void DBClientJoinBuilder::addTable(
 	addTableCommon(table, type, tableC, indexL, indexR);
 	m_impl->selectExArg.tableField += StringUtils::sprintf(
 	  "%s=%s",
-	  SQLUtils::getFullName(tableC.columnDefs, indexL).c_str(),
-	  SQLUtils::getFullName(table.columnDefs, indexR).c_str());
+	  tableC.getFullColumnName(indexL).c_str(),
+	  table.getFullColumnName(indexR).c_str());
 }
 
 void DBClientJoinBuilder::addTable(
@@ -116,10 +116,10 @@ void DBClientJoinBuilder::addTable(
 	addTableCommon(table, type, tableC0, index0L, index0R);
 	m_impl->selectExArg.tableField += StringUtils::sprintf(
 	  "(%s=%s AND %s=%s)",
-	  SQLUtils::getFullName(tableC0.columnDefs, index0L).c_str(),
-	  SQLUtils::getFullName(table.columnDefs,   index0R).c_str(),
-	  SQLUtils::getFullName(tableC1.columnDefs, index1L).c_str(),
-	  SQLUtils::getFullName(table.columnDefs,   index1R).c_str());
+	  tableC0.getFullColumnName(index0L).c_str(),
+	  table.getFullColumnName(index0R).c_str(),
+	  tableC1.getFullColumnName(index1L).c_str(),
+	  table.getFullColumnName(index1R).c_str());
 }
 
 void DBClientJoinBuilder::add(const size_t &columnIndex)

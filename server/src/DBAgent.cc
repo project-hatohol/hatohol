@@ -113,6 +113,15 @@ DBAgent::TableProfile::TableProfile(
 {
 }
 
+std::string DBAgent::TableProfile::getFullColumnName(const size_t &index) const
+{
+	const ColumnDef &def = columnDefs[index];
+	string fullName = name;
+	fullName += ".";
+	fullName += def.columnName;
+	return fullName;
+}
+
 // ---------------------------------------------------------------------------
 // DBAgent::RowElement
 // ---------------------------------------------------------------------------
@@ -231,8 +240,7 @@ void DBAgent::SelectExArg::add(const size_t &columnIndex)
 	string statement;
 	const ColumnDef &columnDef = tableProfile->columnDefs[columnIndex];
 	if (useFullName) {
-		statement = SQLUtils::getFullName(tableProfile->columnDefs,
-		                                  columnIndex);
+		statement = tableProfile->getFullColumnName(columnIndex);
 	} else {
 		statement = columnDef.columnName;
 	}
@@ -278,7 +286,7 @@ string DBAgent::SelectMultiTableArg::getFullName(const size_t &tableIndex,
 	               "tableIndex (%zd) >= numTables (%zd)",
 	               tableIndex, numTables);
 	const TableProfile *profile = profiles[tableIndex];
-	return SQLUtils::getFullName(profile->columnDefs, columnIndex);
+	return profile->getFullColumnName(columnIndex);
 }
 
 // ---------------------------------------------------------------------------

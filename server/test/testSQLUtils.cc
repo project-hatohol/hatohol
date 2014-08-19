@@ -54,17 +54,6 @@ static ColumnDef testDefChar = {
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
-void test_getFullName(void)
-{
-	const size_t index = 1;
-	string actual = SQLUtils::getFullName(COLUMN_DEF_TEST, index);
-
-	const ColumnDef &def = COLUMN_DEF_TEST[index];
-	string expect =
-	  StringUtils::sprintf("%s.%s", def.tableName, def.columnName);
-	cppcut_assert_equal(expect, actual);
-}
-
 void test_createFromStringInt(void)
 {
 	int val = 5;
