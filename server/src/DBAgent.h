@@ -338,7 +338,7 @@ public:
 	void runTransaction(const InsertArg &arg, int *id = NULL);
 	void runTransaction(const InsertArg &arg, uint64_t *id = NULL);
 
-	static bool isValueAutoIncrement(
+	static bool isAutoIncrementValue(
 	  const ItemData *item, const size_t &idx);
 
 protected:
