@@ -74,6 +74,9 @@ public:
 		const size_t        numColumns;
 		const IndexDef     *indexDefArray;
 
+		// The following members are initialized in the constructor
+		std::vector<int>    uniqueKeyColumnIndexes;
+
 		TableProfile(const char *name,  const ColumnDef *columnDefs,
 		             const size_t &numIndexes,
 		             const IndexDef *indexDefArray = NULL);
@@ -334,6 +337,9 @@ public:
 	 */
 	void runTransaction(const InsertArg &arg, int *id = NULL);
 	void runTransaction(const InsertArg &arg, uint64_t *id = NULL);
+
+	static bool isValueAutoIncrement(
+	  const ItemData *item, const size_t &idx);
 
 protected:
 	static std::string makeSelectStatement(const SelectArg &selectArg);
