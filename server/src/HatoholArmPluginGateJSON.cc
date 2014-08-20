@@ -116,7 +116,7 @@ struct HatoholArmPluginGateJSON::Impl
 	  m_armFake(serverInfo)
 	{
 		CacheServiceDBClient cache;
-		DBClientConfig *dbConfig = cache.getConfig();
+		DBTablesConfig *dbConfig = cache.getConfig();
 		const ServerIdType &serverId = serverInfo.id;
 		ArmPluginInfo armPluginInfo;
 		if (!dbConfig->getArmPluginInfo(armPluginInfo, serverId)) {
