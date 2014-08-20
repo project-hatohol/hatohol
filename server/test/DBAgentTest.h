@@ -70,7 +70,7 @@ public:
 	               const ColumnDef *columnDefs,
 	               const std::set<size_t> *nullIndexes = NULL) = 0;
 	virtual void getIDStringVector(const DBAgent::TableProfile &tableProfile,
-				       size_t columnIdIdx,
+				       const size_t &columnIdIdx,
 	                               std::vector<std::string> &actualIds) = 0;
 
 	static void createTable(DBAgent &dbAgent);

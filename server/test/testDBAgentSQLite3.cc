@@ -220,7 +220,7 @@ public:
 	}
 
 	virtual void getIDStringVector(const DBAgent::TableProfile &tableProfile,
-				       size_t columnIdIdx,
+				       const size_t &columnIdIdx,
 	                               vector<string> &actualIds) override
 	{
 		const ColumnDef &columnDefId =
