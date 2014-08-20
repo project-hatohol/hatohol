@@ -91,7 +91,7 @@ struct CacheServiceDBClient::Impl {
 		DBClient *dbClient = NULL;
 		if (domainId == DB_DOMAIN_ID_HATOHOL)
 			dbClient = new DBClientHatohol();
-		else if (domainId == DB_DOMAIN_ID_USERS)
+		else if (domainId == DB_TABLES_ID_USER)
 			dbClient = new DBTablesUser();
 		else if (domainId == DB_DOMAIN_ID_CONFIG)
 			dbClient = new DBTablesConfig();
@@ -188,7 +188,7 @@ DBClientHatohol *CacheServiceDBClient::getHatohol(void)
 
 DBTablesUser *CacheServiceDBClient::getUser(void)
 {
-	return get<DBTablesUser>(DB_DOMAIN_ID_USERS);
+	return get<DBTablesUser>(DB_TABLES_ID_USER);
 }
 
 DBTablesConfig *CacheServiceDBClient::getConfig(void)

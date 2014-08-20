@@ -489,7 +489,7 @@ void DBTablesUser::init(void)
 	};
 
 	registerSetupInfo(
-	  DB_DOMAIN_ID_USERS, DEFAULT_DB_NAME, &DB_SETUP_FUNC_ARG);
+	  DB_TABLES_ID_USER, DEFAULT_DB_NAME, &DB_SETUP_FUNC_ARG);
 
 	// set valid characters for the user name
 	for (uint8_t c = 'A'; c <= 'Z'; c++)
@@ -508,7 +508,7 @@ void DBTablesUser::reset(void)
 {
 	// We share the connection information with CONFIG.
 	DBConnectInfo connInfo = getDBConnectInfo(DB_DOMAIN_ID_CONFIG);
-	setConnectInfo(DB_DOMAIN_ID_USERS, connInfo);
+	setConnectInfo(DB_TABLES_ID_USER, connInfo);
 }
 
 bool DBTablesUser::setTestMode(bool enable)
@@ -518,7 +518,7 @@ bool DBTablesUser::setTestMode(bool enable)
 }
 
 DBTablesUser::DBTablesUser(void)
-: DBClient(DB_DOMAIN_ID_USERS),
+: DBClient(DB_TABLES_ID_USER),
   m_impl(new Impl())
 {
 }

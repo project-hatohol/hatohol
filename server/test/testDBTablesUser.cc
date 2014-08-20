@@ -350,7 +350,7 @@ void cut_teardown(void)
 void test_dbDomainId(void)
 {
 	DBTablesUser dbUser;
-	cppcut_assert_equal(DB_DOMAIN_ID_USERS,
+	cppcut_assert_equal(DB_TABLES_ID_USER,
 	                    dbUser.getDBAgent().getDBDomainId());
 }
 
@@ -364,7 +364,7 @@ void test_createDB(void)
 	string statement = "select * from _dbclient_version";
 	string expect =
 	  StringUtils::sprintf(
-	    "%d|%d\n", DB_DOMAIN_ID_USERS, DBTablesUser::USER_DB_VERSION);
+	    "%d|%d\n", DB_TABLES_ID_USER, DBTablesUser::USER_DB_VERSION);
 	assertDBContent(&dbUser.getDBAgent(), statement, expect);
 }
 
