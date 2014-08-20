@@ -86,6 +86,7 @@ void cut_setup(void)
 {
 	hatoholInit();
 	deleteDBClientHatoholDB();
+	setupTestDBConfig(true, true);
 	setupTestDBUser(true, true);
 	setupTestDBAction(true, true);
 }
