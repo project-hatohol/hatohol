@@ -170,10 +170,7 @@ decide the direcory for the DBs and make it if necessary.
 
 Ex.) `mkdir /var/lib/hatohol`
 
-
-If you use a default setting, you execute step (3a).
-But if you want to use your PID file, you execute step (3b).
-(3a) start hatohol process
+(3) start hatohol process
 
     $ HATOHOL_DB_DIR=<directory preapred in step (2)> hatohol --config-db-server <Config DB Server:[port]>
 
@@ -187,9 +184,6 @@ created in /tmp.
 * When the process successfully starts, hatohol reply the HTML message
 including HATOHOL version on http://[hostname]:[RestPort]/hello.html.
   Ex.) `http://localhost:33194/hello.html`
-
-(3b)
-    $ HATOHOL_DB_DIR=/var/lib/hatohol hatohol --config-db-server localhost --pid-file-path /(any path of your)/my-hatohol.pid
 
 ## How to stop
 Send one of the following signals to hatohol process.
