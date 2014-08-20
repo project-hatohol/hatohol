@@ -588,7 +588,7 @@ void DBAgentSQLite3::insert(sqlite3 *db, const DBAgent::InsertArg &insertArg)
 		// primary or unique key constraint.
 		if (isPrimaryOrUniqueKeyDuplicated(db)) {
 			update(db, insertArg);
-			return ;
+			return;
 		}
 	}
 	if (result != SQLITE_OK) {
