@@ -34,7 +34,7 @@ HostResourceQueryOption::Synapse::Synapse(
   const size_t &_selfIdColumnIdx,
   const size_t &_serverIdColumnIdx,
   const size_t &_hostIdColumnIdx,
-  const size_t &_hostgroupIdColumnIdx,
+  const bool &_needToJoinHostgroup,
   const DBAgent::TableProfile &_hostgroupMapTableProfile,
   const size_t &_hostgroupMapServerIdColumnIdx,
   const size_t &_hostgroupMapHostIdColumnIdx,
@@ -43,7 +43,7 @@ HostResourceQueryOption::Synapse::Synapse(
   selfIdColumnIdx(_selfIdColumnIdx),
   serverIdColumnIdx(_serverIdColumnIdx),
   hostIdColumnIdx(_hostIdColumnIdx),
-  hostgroupIdColumnIdx(_hostgroupIdColumnIdx),
+  needToJoinHostgroup(_needToJoinHostgroup),
   hostgroupMapTableProfile(_hostgroupMapTableProfile),
   hostgroupMapServerIdColumnIdx(_hostgroupMapServerIdColumnIdx),
   hostgroupMapHostIdColumnIdx(_hostgroupMapHostIdColumnIdx),
@@ -198,7 +198,7 @@ string HostResourceQueryOption::getFromClause(void) const
 bool HostResourceQueryOption::isHostgroupUsed(void) const
 {
 	const Synapse &synapse = m_impl->synapse;
-	if (synapse.hostgroupIdColumnIdx != INVALID_COLUMN_IDX)
+	if (!synapse.needToJoinHostgroup)
 		return false;
 	if (isHostgroupEnumerationInCondition())
 		return true;
