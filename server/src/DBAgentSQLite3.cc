@@ -530,8 +530,20 @@ void DBAgentSQLite3::createTable(sqlite3 *db, const TableProfile &tableProfile)
 static bool isPrimaryOrUniqueKeyDuplicated(sqlite3 *db)
 {
 #if !defined(SQLITE_CONSTRAINT_PRIMARYKEY) || !defined(SQLITE_CONSTRAINT_UNIQUE)
-// This is just pass the build. For example, for TravisCI (12.04)
-#warning "SQLITE_CONSTRAINT_PRIMARYKEY and/or SQLITE_CONSTRAINT_UNIQUE: not defined. This program may not work properly."
+	//
+	// We suppose that there's no problem when the extra code check is
+	// skipped because we think the following scenario when other
+	// constraint errors happen.
+	//
+	// NOT NULL: The UPDATE statement subsequent of the INSERT that
+	// caused a constraint error will also fails due to the same reason.
+	//
+	// CHECK: Currently Hatohol don't use the feature. So it's not assumed
+	// to occur that.
+	//
+	// However, we conservatively check the extra error code
+	// if it's available.
+	//
 	return true;
 #else
 	int extErrCode = sqlite3_extended_errcode(db);
