@@ -189,7 +189,10 @@ void test_constructorWithHostResourceQueryOption(gconstpointer data)
 	// Define synapse to pass the build. So the paramters are dummy and
 	// the object won't work well.
 	HostResourceQueryOption::Synapse
-	   synapse(tableProfileTest0, 0, 0, 0, 0, tableProfileTest1, 0, 0, 0);
+	   synapse(tableProfileTest0, 0, 0,
+		   tableProfileTest0, 0,
+		   true,
+		   tableProfileTest1, 0, 0, 0);
 	class MyOption : public HostResourceQueryOption {
 	public:
 		bool hostgroupIsUsed;

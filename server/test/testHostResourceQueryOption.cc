@@ -163,7 +163,8 @@ const DBAgent::TableProfile tableProfileTestHGrp(
 
 static const HostResourceQueryOption::Synapse TEST_SYNAPSE(
   tableProfileTest,
-  IDX_TEST_TABLE_ID, IDX_TEST_TABLE_SERVER_ID, IDX_TEST_TABLE_HOST_ID,
+  IDX_TEST_TABLE_ID, IDX_TEST_TABLE_SERVER_ID,
+  tableProfileTest, IDX_TEST_TABLE_HOST_ID,
   true,
   tableProfileTestHGrp,
   IDX_TEST_HGRP_TABLE_SERVER_ID, IDX_TEST_HGRP_TABLE_HOST_ID,
@@ -172,7 +173,8 @@ static const HostResourceQueryOption::Synapse TEST_SYNAPSE(
 static const HostResourceQueryOption::Synapse TEST_SYNAPSE_HGRP(
   tableProfileTestHGrp,
   IDX_TEST_HGRP_TABLE_ID, IDX_TEST_HGRP_TABLE_SERVER_ID,
-  IDX_TEST_HGRP_TABLE_HOST_ID, false,
+  tableProfileTestHGrp, IDX_TEST_HGRP_TABLE_HOST_ID,
+  false,
   tableProfileTestHGrp,
   IDX_TEST_HGRP_TABLE_SERVER_ID, IDX_TEST_HGRP_TABLE_HOST_ID,
   IDX_TEST_HGRP_TABLE_HOST_GROUP_ID);

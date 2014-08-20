@@ -31,7 +31,10 @@ public:
 		const DBAgent::TableProfile &tableProfile;
 		const size_t                 selfIdColumnIdx;
 		const size_t                 serverIdColumnIdx;
+
+		const DBAgent::TableProfile &hostTableProfile;
 		const size_t                 hostIdColumnIdx;
+
 		const bool                   needToJoinHostgroup;
 
 		const DBAgent::TableProfile &hostgroupMapTableProfile;
@@ -42,6 +45,7 @@ public:
 		Synapse(const DBAgent::TableProfile &tableProfile,
 		     const size_t &selfIdColumnIdx,
 		     const size_t &serverIdColumnIdx,
+		     const DBAgent::TableProfile &hostTableProfile,
 		     const size_t &hostIdColumnIdx,
 		     const bool &needToJoinHostgroup,
 		     const DBAgent::TableProfile &hostgroupMapTableProfile,
@@ -92,6 +96,15 @@ public:
 	 * @return A column name.
 	 */
 	virtual std::string getColumnName(const size_t &idx) const;
+
+	/**
+	 * Get a hostgroup column name of the specified index.
+	 * If a target host group is specified or useTableNameAlways(),
+	 * the returned form has the table name suc as tableName.colunName.
+	 *
+	 * @return A column name.
+	 */
+	virtual std::string getHostColumnName(const size_t &idx) const;
 
 	/**
 	 * Get a hostgroup column name of the specified index.

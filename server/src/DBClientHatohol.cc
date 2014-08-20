@@ -998,8 +998,9 @@ void initEventInfo(EventInfo &eventInfo)
 //
 static const HostResourceQueryOption::Synapse synapseEventsQueryOption(
   tableProfileEvents,
-  IDX_EVENTS_UNIFIED_ID, IDX_EVENTS_SERVER_ID, IDX_EVENTS_HOST_ID,
-  true,
+  IDX_EVENTS_UNIFIED_ID, IDX_EVENTS_SERVER_ID,
+  tableProfileTriggers,
+  IDX_TRIGGERS_HOST_ID, true,
   tableProfileMapHostsHostgroups,
   IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
   IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
@@ -1169,7 +1170,9 @@ TriggerStatusType EventsQueryOption::getTriggerStatus(void) const
 //
 static const HostResourceQueryOption::Synapse synapseTriggersQueryOption(
   tableProfileTriggers,
-  IDX_TRIGGERS_ID, IDX_TRIGGERS_SERVER_ID, IDX_TRIGGERS_HOST_ID,
+  IDX_TRIGGERS_ID, IDX_TRIGGERS_SERVER_ID,
+  tableProfileTriggers,
+  IDX_TRIGGERS_HOST_ID,
   true,
   tableProfileMapHostsHostgroups,
   IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
@@ -1286,7 +1289,8 @@ TriggerStatusType TriggersQueryOption::getTriggerStatus(void) const
 // ItemsQueryOption
 //
 static const HostResourceQueryOption::Synapse synapseItemsQueryOption(
-  tableProfileItems, IDX_ITEMS_ID, IDX_ITEMS_SERVER_ID, IDX_ITEMS_HOST_ID,
+  tableProfileItems, IDX_ITEMS_ID, IDX_ITEMS_SERVER_ID,
+  tableProfileItems, IDX_ITEMS_HOST_ID,
   true,
   tableProfileMapHostsHostgroups,
   IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
@@ -1382,7 +1386,8 @@ const string &ItemsQueryOption::getTargetItemGroupName(void)
 // HostsQueryOption
 //
 static const HostResourceQueryOption::Synapse synapseHostsQueryOption(
-  tableProfileHosts, IDX_HOSTS_ID, IDX_HOSTS_SERVER_ID, IDX_HOSTS_HOST_ID,
+  tableProfileHosts, IDX_HOSTS_ID, IDX_HOSTS_SERVER_ID,
+  tableProfileHosts, IDX_HOSTS_HOST_ID,
   true,
   tableProfileMapHostsHostgroups,
   IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
@@ -1403,7 +1408,9 @@ HostsQueryOption::HostsQueryOption(DataQueryContext *dataQueryContext)
 //
 static const HostResourceQueryOption::Synapse synapseHostgroupsQueryOption(
   tableProfileHostgroups,
-  IDX_HOSTGROUPS_GROUP_ID, IDX_HOSTGROUPS_SERVER_ID, INVALID_COLUMN_IDX,
+  IDX_HOSTGROUPS_GROUP_ID, IDX_HOSTGROUPS_SERVER_ID,
+  tableProfileHostgroups,
+  INVALID_COLUMN_IDX,
   false,
   tableProfileMapHostsHostgroups,
   IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
@@ -1425,6 +1432,7 @@ HostgroupsQueryOption::HostgroupsQueryOption(DataQueryContext *dataQueryContext)
 static const HostResourceQueryOption::Synapse synapseHostgroupElementQueryOption(
   tableProfileMapHostsHostgroups,
   IDX_MAP_HOSTS_HOSTGROUPS_ID, IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID,
+  tableProfileMapHostsHostgroups,
   IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID, false,
   tableProfileMapHostsHostgroups,
   IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
