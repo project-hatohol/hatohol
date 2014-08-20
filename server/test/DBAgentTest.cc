@@ -139,12 +139,23 @@ static const ColumnDef COLUMN_DEF_TEST_AUTO_INC[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+},{
+	ITEM_ID_NOT_SET,                   // itemId
+	"name",                            // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_UNI,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 }
 };
 
 enum {
 	IDX_TEST_TABLE_AUTO_INC_ID,
 	IDX_TEST_TABLE_AUTO_INC_VAL,
+	IDX_TEST_TABLE_AUTO_INC_NAME,
 	NUM_IDX_TEST_TABLE_AUTO_INC,
 };
 
@@ -162,38 +173,124 @@ static ItemDataNullFlagType calcNullFlag(set<size_t> *nullIndexes, size_t idx)
 	return ITEM_DATA_NULL;
 }
 
-struct CheckInsertExArg {
-	set<size_t> *nullIndexes;
-	bool         upsertOnDuplicate;
+struct TestValues {
+	uint64_t     id;
+	int          age;
+	const char  *name;
+	double       height;
 
-	CheckInsertExArg(void)
-	: nullIndexes(NULL),
-	  upsertOnDuplicate(false)
+	TestValues(void)
+	: id(-1),
+	  age(-1),
+	  name(NULL),
+	  height(0)
 	{
 	}
 };
 
-static void checkInsert(DBAgent &dbAgent, DBAgentChecker &checker,
-                        uint64_t id, int age, const char *name, double height,
-                        CheckInsertExArg *exarg = NULL)
-{
-	set<size_t> *nullIndexes = NULL;
-	if (exarg)
-		nullIndexes = exarg->nullIndexes;
+struct TestAutoIncValues {
+	int          id;
+	int          val;
+	const char  *name;
 
-	DBAgent::InsertArg arg(tableProfileTest);
-	size_t idx = 0;
-	arg.row->addNewItem(id, calcNullFlag(nullIndexes, idx++));
-	arg.row->addNewItem(age, calcNullFlag(nullIndexes, idx++));
-	arg.row->addNewItem(name, calcNullFlag(nullIndexes, idx++));
-	arg.row->addNewItem(height, calcNullFlag(nullIndexes, idx++));
-	arg.row->addNewItem(CURR_DATETIME, calcNullFlag(nullIndexes, idx++));
-	if (exarg)
-		arg.upsertOnDuplicate = exarg->upsertOnDuplicate;
+	TestAutoIncValues(void)
+	: id(-1),
+	  val(-1),
+	  name(NULL)
+	{
+	}
+};
+
+struct CheckInsertParamBase {
+	virtual void fillRows(DBAgent::InsertArg &arg) = 0;
+	virtual void check(DBAgent &dbAgent, DBAgentChecker &checker) = 0;
+	virtual const DBAgent::TableProfile &getTableProfile(void) = 0;
+	virtual bool getUpsertOnDuplicate(void) = 0;
+};
+
+template<typename DATA_TYPE>
+struct CheckInsertParamTempl : public CheckInsertParamBase {
+	DATA_TYPE    val;
+	bool         useExpectValues;
+	DATA_TYPE    expectValues;
+	set<size_t> *nullIndexes;
+	bool         upsertOnDuplicate;
+
+	CheckInsertParamTempl(void)
+	: useExpectValues(false),
+	  nullIndexes(NULL),
+	  upsertOnDuplicate(false)
+	{
+	}
+
+	const DATA_TYPE *getExpectData(void)
+	{
+		const TestValues *expect = &val;
+		if (useExpectValues)
+			expect = &expectValues;
+		return expect;
+	}
+
+	bool getUpsertOnDuplicate(void)
+	{
+		return upsertOnDuplicate;
+	}
+};
+
+struct CheckInsertParam : public CheckInsertParamTempl<TestValues> {
+
+	void fillRows(DBAgent::InsertArg &arg) override
+	{
+		size_t idx = 0;
+		arg.row->addNewItem(val.id,   calcNullFlag(nullIndexes, idx++));
+		arg.row->addNewItem(val.age,  calcNullFlag(nullIndexes, idx++));
+		arg.row->addNewItem(val.name, calcNullFlag(nullIndexes, idx++));
+		arg.row->addNewItem(val.height,
+		                    calcNullFlag(nullIndexes, idx++));
+		arg.row->addNewItem(CURR_DATETIME,
+		                    calcNullFlag(nullIndexes, idx++));
+	}
+
+	void check(DBAgent &dbAgent, DBAgentChecker &checker) override
+	{
+		const TestValues *expect = getExpectData();
+		checker.assertExistingRecord(
+		  expect->id, expect->age, expect->name, expect->height,
+		  CURR_DATETIME,
+		  NUM_COLUMNS_TEST, COLUMN_DEF_TEST, nullIndexes);
+	}
+
+	const DBAgent::TableProfile &getTableProfile(void) override
+	{
+		return tableProfileTest;
+	}
+};
+
+struct CheckInsertParamAutoInc :
+   public CheckInsertParamTempl<TestAutoIncValues> {
+
+	void fillRows(DBAgent::InsertArg &arg) override
+	{
+		size_t idx = 0;
+		arg.row->addNewItem(val.id,   calcNullFlag(nullIndexes, idx++));
+		arg.row->addNewItem(val.val,  calcNullFlag(nullIndexes, idx++));
+		arg.row->addNewItem(val.name, calcNullFlag(nullIndexes, idx++));
+	}
+
+	const DBAgent::TableProfile &getTableProfile(void) override
+	{
+		return tableProfileTestAutoInc;
+	}
+};
+
+static void checkInsert(DBAgent &dbAgent, DBAgentChecker &checker,
+                        CheckInsertParamBase &param)
+{
+	DBAgent::InsertArg arg(param.getTableProfile());
+	param.fillRows(arg);
+	arg.upsertOnDuplicate = param.getUpsertOnDuplicate();
 	dbAgent.insert(arg);
-	checker.assertExistingRecord(id, age, name, height, CURR_DATETIME,
-	                             NUM_COLUMNS_TEST, COLUMN_DEF_TEST,
-	                             nullIndexes);
+	param.check(dbAgent, checker);
 }
 
 static void checkUpdate(DBAgent &dbAgent, DBAgentChecker &checker,
@@ -214,6 +311,13 @@ static void checkUpdate(DBAgent &dbAgent, DBAgentChecker &checker,
 	                             NUM_COLUMNS_TEST, COLUMN_DEF_TEST);
 }
 
+static void createTestTableAutoInc(DBAgent &dbAgent, DBAgentChecker &checker)
+{
+	dbAgent.createTable(tableProfileTestAutoInc);
+	checker.assertTable(tableProfileTestAutoInc);
+	dbAgent.fixupIndexes(tableProfileTestAutoInc);
+}
+
 void dbAgentTestExecSql(DBAgent &dbAgent, DBAgentChecker &checker)
 {
 	dbAgent.execSql("BEGIN");
@@ -224,6 +328,7 @@ void dbAgentTestCreateTable(DBAgent &dbAgent, DBAgentChecker &checker)
 {
 	dbAgent.createTable(tableProfileTest);
 	checker.assertTable(tableProfileTest);
+	dbAgent.fixupIndexes(tableProfileTest);
 }
 
 void dbAgentDataMakeCreateIndexStatement(void)
@@ -304,12 +409,12 @@ void dbAgentTestInsert(DBAgent &dbAgent, DBAgentChecker &checker)
 	dbAgentTestCreateTable(dbAgent, checker);
 
 	// insert a row
-	const uint64_t ID = 1;
-	const int AGE = 14;
-	const char *NAME = "rei";
-	const double HEIGHT = 158.2;
-
-	checkInsert(dbAgent, checker, ID, AGE, NAME, HEIGHT);
+	CheckInsertParam param;
+	param.val.id     = 1;
+	param.val.age    = 14;
+	param.val.name   = "rei";
+	param.val.height = 158.2;
+	checkInsert(dbAgent, checker, param);
 }
 
 void dbAgentTestInsertUint64
@@ -319,11 +424,12 @@ void dbAgentTestInsertUint64
 	dbAgentTestCreateTable(dbAgent, checker);
 
 	// insert a row
-	const int AGE = 14;
-	const char *NAME = "rei";
-	const double HEIGHT = 158.2;
-
-	checkInsert(dbAgent, checker, id, AGE, NAME, HEIGHT);
+	CheckInsertParam param;
+	param.val.id     = id;
+	param.val.age    = 14;
+	param.val.name   = "rei";
+	param.val.height = 158.2;
+	checkInsert(dbAgent, checker, param);
 }
 
 void dbAgentTestInsertNull(DBAgent &dbAgent, DBAgentChecker &checker)
@@ -332,16 +438,18 @@ void dbAgentTestInsertNull(DBAgent &dbAgent, DBAgentChecker &checker)
 	dbAgentTestCreateTable(dbAgent, checker);
 
 	// insert a row
-	const uint64_t ID = 999;
-	const int AGE = 0;       // we set NULL for this column
-	const char *NAME = "taro";
-	const double HEIGHT = 0; // we set NULL for this column
+	CheckInsertParam param;
+	param.val.id     = 999;
+	param.val.age    = 0; // we set NULL for this column later
+	param.val.name   = "rei";
+	param.val.height = 0; // we set NULL for this column later
+
 	set<size_t> nullIndexes;
 	nullIndexes.insert(IDX_TEST_TABLE_AGE);
 	nullIndexes.insert(IDX_TEST_TABLE_HEIGHT);
-	CheckInsertExArg exarg;
-	exarg.nullIndexes = &nullIndexes;
-	checkInsert(dbAgent, checker, ID, AGE, NAME, HEIGHT, &exarg);
+	param.nullIndexes = &nullIndexes;
+
+	checkInsert(dbAgent, checker, param);
 }
 
 void dbAgentTestUpsert(DBAgent &dbAgent, DBAgentChecker &checker)
@@ -350,17 +458,48 @@ void dbAgentTestUpsert(DBAgent &dbAgent, DBAgentChecker &checker)
 	dbAgentTestCreateTable(dbAgent, checker);
 
 	// insert a row
-	const uint64_t ID = 1;
-	int AGE = 14;
-	const char *NAME = "rei";
-	double HEIGHT = 158.2;
-	checkInsert(dbAgent, checker, ID, AGE, NAME, HEIGHT);
+	CheckInsertParam param;
+	param.val.id     = 1;
+	param.val.age    = 14;
+	param.val.name   = "rei";
+	param.val.height = 158.2;
+	checkInsert(dbAgent, checker, param);
 
-	CheckInsertExArg exarg;
-	AGE = 33;
-	HEIGHT = 172.5;
-	exarg.upsertOnDuplicate = true;
-	checkInsert(dbAgent, checker, ID, AGE, NAME, HEIGHT, &exarg);
+	param.val.age    = 33;
+	param.val.height = 172.5;
+	param.upsertOnDuplicate = true;
+	checkInsert(dbAgent, checker, param);
+}
+
+void dbAgentTestUpsertWithPrimaryKeyAutoInc(
+  DBAgent &dbAgent, DBAgentChecker &checker)
+{
+	struct : public CheckInsertParamAutoInc {
+		void check(DBAgent &dbAgent, DBAgentChecker &checker) override
+		{
+			const string statement = StringUtils::sprintf(
+			  "SELECT * from  %s", getTableProfile().name);
+			const string expect = StringUtils::sprintf(
+			  "1|%d|%s", val.val, val.name);
+			assertDBContent(&dbAgent, statement, expect);
+		}
+	} param;
+
+	// create table
+	createTestTableAutoInc(dbAgent, checker);
+
+	// insert a row
+	param.val.id     = AUTO_INCREMENT_VALUE; // primary key
+	param.val.val    = -3;
+	param.val.name   = "rei";
+	checkInsert(dbAgent, checker, param);
+
+	// name (unique key) is not changed. So the index will be duplicated.
+	param.val.id     = AUTO_INCREMENT_VALUE; // primary key
+	param.val.val    = 223;
+
+	param.upsertOnDuplicate = true;
+	checkInsert(dbAgent, checker, param);
 }
 
 void dbAgentTestUpdate(DBAgent &dbAgent, DBAgentChecker &checker)
@@ -389,8 +528,12 @@ void dbAgentTestUpdateCondition(DBAgent &dbAgent, DBAgentChecker &checker)
 
 	// insert the first and the second rows
 	for (size_t  i = 0; i < NUM_DATA - 1; i++) {
-		checkInsert(dbAgent, checker,
-		            ID[i], AGE[i], NAME[i], HEIGHT[i]);
+		CheckInsertParam param;
+		param.val.id     = ID[i];
+		param.val.age    = AGE[i];
+		param.val.name   = NAME[i];
+		param.val.height = HEIGHT[i];
+		checkInsert(dbAgent, checker, param);
 	}
 
 	// update the second row
@@ -590,8 +733,12 @@ void dbAgentTestDelete(DBAgent &dbAgent, DBAgentChecker &checker)
 	const char *NAME[NUM_TEST]    = {"rei", "mio", "azusa"};
 	const double HEIGHT[NUM_TEST] = {158.2, 165.3, 155.2};
 	for (size_t i = 0; i < NUM_TEST; i++) {
-		checkInsert(dbAgent, checker,
-		            ID[i], AGE[i], NAME[i], HEIGHT[i]);
+		CheckInsertParam param;
+		param.val.id     = ID[i];
+		param.val.age    = AGE[i];
+		param.val.name   = NAME[i];
+		param.val.height = HEIGHT[i];
+		checkInsert(dbAgent, checker, param);
 	}
 
 	// delete
@@ -667,18 +814,13 @@ void dbAgentTestIsTableExisting(DBAgent &dbAgent, DBAgentChecker &checker)
 	cppcut_assert_equal(true, dbAgent.isTableExisting(TABLE_NAME_TEST));
 }
 
-static void createTestTableAutoInc(DBAgent &dbAgent, DBAgentChecker &checker)
-{
-	dbAgent.createTable(tableProfileTestAutoInc);
-	checker.assertTable(tableProfileTestAutoInc);
-}
-
-static void insertRowToTestTableAutoInc(DBAgent &dbAgent,
-                                        DBAgentChecker &checker, int val)
+static void insertRowToTestTableAutoInc(
+  DBAgent &dbAgent, DBAgentChecker &checker, int val, const char *name)
 {
 	DBAgent::InsertArg arg(tableProfileTestAutoInc);
 	arg.row->addNewItem(AUTO_INCREMENT_VALUE, ITEM_DATA_NULL);
 	arg.row->addNewItem(val);
+	arg.row->addNewItem(name);
 	dbAgent.insert(arg);
 }
 
@@ -696,7 +838,7 @@ static void deleteRowFromTestTableAutoInc(DBAgent &dbAgent,
 void dbAgentTestAutoIncrement(DBAgent &dbAgent, DBAgentChecker &checker)
 {
 	createTestTableAutoInc(dbAgent, checker);
-	insertRowToTestTableAutoInc(dbAgent, checker, 0);
+	insertRowToTestTableAutoInc(dbAgent, checker, 0, "taro");
 	uint64_t expectedId = 1;
 	cppcut_assert_equal(expectedId, dbAgent.getLastInsertId());
 }
@@ -706,7 +848,7 @@ void dbAgentTestAutoIncrementWithDel(DBAgent &dbAgent, DBAgentChecker &checker)
 	dbAgentTestAutoIncrement(dbAgent, checker);
 
 	// add a new record
-	insertRowToTestTableAutoInc(dbAgent, checker, 10);
+	insertRowToTestTableAutoInc(dbAgent, checker, 10, "jiro");
 	uint64_t expectedId = 2;
 	cppcut_assert_equal(expectedId, dbAgent.getLastInsertId());
 
@@ -714,7 +856,7 @@ void dbAgentTestAutoIncrementWithDel(DBAgent &dbAgent, DBAgentChecker &checker)
 	deleteRowFromTestTableAutoInc(dbAgent, checker, expectedId);
 
 	// we expected the incremented ID 
-	insertRowToTestTableAutoInc(dbAgent, checker, 20);
+	insertRowToTestTableAutoInc(dbAgent, checker, 20, "subro");
 	expectedId++;
 	cppcut_assert_equal(expectedId, dbAgent.getLastInsertId());
 
@@ -795,12 +937,16 @@ void dbAgentUpdateIfExistEleseInsert(DBAgent &dbAgent, DBAgentChecker &checker)
 
 void dbAgentGetLastInsertId(DBAgent &dbAgent, DBAgentChecker &checker)
 {
+	using mlpl::StringUtils::sprintf;
+
 	// create table
 	createTestTableAutoInc(dbAgent, checker);
 	static const size_t NUM_REPEAT = 3;
 	for (uint64_t id = 1; id < NUM_REPEAT; id++) {
 		int val = id * 3;
-		insertRowToTestTableAutoInc(dbAgent, checker, val);
+		insertRowToTestTableAutoInc(
+		  dbAgent, checker, val,
+		  sprintf("hanako.%" PRIu64, id).c_str());
 		cppcut_assert_equal(id, dbAgent.getLastInsertId());
 	}
 }

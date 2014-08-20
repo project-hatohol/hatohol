@@ -24,6 +24,7 @@
 #include <gio/gio.h>
 #include <Mutex.h>
 #include <Logger.h>
+#include <SeparatorInjector.h>
 using namespace std;
 using namespace mlpl;
 
@@ -526,6 +527,22 @@ void DBAgentSQLite3::createTable(sqlite3 *db, const TableProfile &tableProfile)
 	}
 }
 
+static bool isPrimaryOrUniqueKeyDuplicated(sqlite3 *db)
+{
+#if !defined(SQLITE_CONSTRAINT_PRIMARYKEY) || !defined(SQLITE_CONSTRAINT_UNIQUE)
+// This is just pass the build. For example, for TravisCI (12.04)
+#warning "SQLITE_CONSTRAINT_PRIMARYKEY and/or SQLITE_CONSTRAINT_UNIQUE: not defined. This program may not work properly."
+	return true;
+#else
+	int extErrCode = sqlite3_extended_errcode(db);
+	if (extErrCode == SQLITE_CONSTRAINT_PRIMARYKEY ||
+	    extErrCode == SQLITE_CONSTRAINT_UNIQUE) {
+		return true;
+	}
+	return false;
+#endif
+}
+
 void DBAgentSQLite3::insert(sqlite3 *db, const DBAgent::InsertArg &insertArg)
 {
 	size_t numColumns = insertArg.row->getNumberOfItems();
@@ -535,8 +552,6 @@ void DBAgentSQLite3::insert(sqlite3 *db, const DBAgent::InsertArg &insertArg)
 
 	// make a SQL statement
 	string sql = "INSERT ";
-	if (insertArg.upsertOnDuplicate)
-		sql += "OR REPLACE ";
 	sql += "INTO ";
 	sql += insertArg.tableProfile.name;
 	sql += " VALUES (";
@@ -565,6 +580,17 @@ void DBAgentSQLite3::insert(sqlite3 *db, const DBAgent::InsertArg &insertArg)
 	// exectute the SQL statement
 	char *errmsg;
 	int result = sqlite3_exec(db, sql.c_str(), NULL, NULL, &errmsg);
+	if (insertArg.upsertOnDuplicate && result == SQLITE_CONSTRAINT) {
+		// Using 'OR REPLACE', we cannot keep the value in
+		// an auto-incremented column since SQLite3 once deletes
+		// the duplicated row.
+		// So we try to update here if 'insert' fails due to
+		// primary or unique key constraint.
+		if (isPrimaryOrUniqueKeyDuplicated(db)) {
+			update(db, insertArg);
+			return;
+		}
+	}
 	if (result != SQLITE_OK) {
 		string err = errmsg;
 		sqlite3_free(errmsg);
@@ -586,6 +612,60 @@ void DBAgentSQLite3::update(sqlite3 *db, const UpdateArg &updateArg)
 		THROW_HATOHOL_EXCEPTION("Failed to exec: %d, %s, %s",
 		                      result, err.c_str(), sql.c_str());
 	}
+}
+
+void DBAgentSQLite3::update(sqlite3 *db, const DBAgent::InsertArg &insertArg)
+{
+	struct {
+		string operator()(
+		  const DBAgent::TableProfile &tableProfile,
+		  const ItemGroup *itemGroupPtr, const int &idx)
+		{
+			using StringUtils::sprintf;
+			const ColumnDef *columnDef;
+			const ItemData  *itemData;
+			string columnName, valStr;
+
+			columnDef = &tableProfile.columnDefs[idx];
+			itemData = itemGroupPtr->getItemAt(idx);
+			valStr = getColumnValueString(columnDef, itemData);
+			return sprintf("%s=%s", columnDef->columnName,
+			                        valStr.c_str());
+		}
+	} makeKeyValueEquation;
+
+	const DBAgent::TableProfile &tableProfile = insertArg.tableProfile;
+	DBAgent::UpdateArg arg(tableProfile);
+	bool primaryKeyIsAutoIncVal = false;
+	int  primaryKeyColumnIndex = -1;
+	for (size_t i = 0; i < tableProfile.numColumns; i++) {
+		if (tableProfile.columnDefs[i].keyType == SQL_KEY_PRI) {
+			const ItemData *item = insertArg.row->getItemAt(i);
+			primaryKeyIsAutoIncVal = isAutoIncrementValue(item);
+			primaryKeyColumnIndex = i;
+			if (primaryKeyIsAutoIncVal)
+				continue;
+		}
+		arg.add(i, insertArg.row);
+	}
+
+	string cond;
+	if (primaryKeyIsAutoIncVal || primaryKeyColumnIndex == -1) {
+		SeparatorInjector andInjector(" AND ");
+		for (size_t i = 0;
+		     i < tableProfile.uniqueKeyColumnIndexes.size(); i++) {
+			const int idx = tableProfile.uniqueKeyColumnIndexes[i];
+			andInjector(cond);
+			cond += makeKeyValueEquation(tableProfile,
+			                             insertArg.row, idx);
+		}
+	} else if (primaryKeyColumnIndex >= 0) {
+		cond = makeKeyValueEquation(tableProfile, insertArg.row,
+		                            primaryKeyColumnIndex);
+	}
+	arg.condition = cond;
+
+	update(db, arg);
 }
 
 void DBAgentSQLite3::select(sqlite3 *db, const SelectArg &selectArg)

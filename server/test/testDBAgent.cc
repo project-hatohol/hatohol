@@ -541,6 +541,36 @@ void test_updateArgAddTime_t(void)
 	dbAgent.assertUpdateArgAdd<time_t, int>(vals, numVals);
 }
 
+void test_updateArgAddItemGroup(void)
+{
+	// NOTE: We want to use dbAgent.assertUpdateArgAdd().
+	// However, it's hard to extend the method so it can do this test.
+	TestDBAgent dbAgent;
+	VariableItemGroupPtr group(new ItemGroup(), false);
+	ItemData *itemDataArr[] = {
+		group->addNewItem(1),
+		group->addNewItem(3),
+		group->addNewItem(5),
+	};
+
+	const size_t targetIndex = 1;
+	ItemData *itemData = itemDataArr[targetIndex];
+	cppcut_assert_equal(1, itemData->getUsedCount());
+	{
+		DBAgent::UpdateArg arg(tableProfileTest);
+		arg.add(targetIndex, group);
+
+		// check
+		const DBAgent::RowElement *elem = arg.rows[0];
+		const ItemData *elemData =
+		  static_cast<const ItemData *>(elem->dataPtr);
+		cppcut_assert_equal(itemData, elemData);
+		cppcut_assert_equal(targetIndex, elem->columnIndex);
+		cppcut_assert_equal(2, elemData->getUsedCount());
+	}
+	cppcut_assert_equal(1, itemData->getUsedCount());
+}
+
 void test_makeSelectStatementDistinct(void)
 {
 	TestDBAgent dbAgent;

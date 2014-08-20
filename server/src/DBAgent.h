@@ -74,6 +74,9 @@ public:
 		const size_t        numColumns;
 		const IndexDef     *indexDefArray;
 
+		// The following members are initialized in the constructor
+		std::vector<int>    uniqueKeyColumnIndexes;
+
 		TableProfile(const char *name,  const ColumnDef *columnDefs,
 		             const size_t &numIndexes,
 		             const IndexDef *indexDefArray = NULL);
@@ -140,6 +143,7 @@ public:
 		void add(const size_t &columnIndex, const double      &val);
 		void add(const size_t &columnIndex, const std::string &val);
 		void add(const size_t &columnIndex, const time_t      &val);
+		void add(const size_t &columnIndex, const ItemGroup   *grp);
 	};
 
 	struct SelectArg {
@@ -333,6 +337,8 @@ public:
 	 */
 	void runTransaction(const InsertArg &arg, int *id = NULL);
 	void runTransaction(const InsertArg &arg, uint64_t *id = NULL);
+
+	static bool isAutoIncrementValue(const ItemData *item);
 
 protected:
 	static std::string makeSelectStatement(const SelectArg &selectArg);
