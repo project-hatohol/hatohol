@@ -696,7 +696,7 @@ void test_getHostgroupColumnNameWithTableName(gconstpointer data)
 		option.setTargetHostgroupId(5);
 	string expect;
 	if (useHostgroup) {
-		expect = COLUMN_DEF_TEST_HGRP[idx].tableName;
+		expect = TEST_HGRP_TABLE_NAME;
 		expect += ".";
 	}
 	expect += COLUMN_DEF_TEST_HGRP[idx].columnName;
