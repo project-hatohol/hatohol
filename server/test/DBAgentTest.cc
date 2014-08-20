@@ -141,7 +141,6 @@ static const ColumnDef COLUMN_DEF_TEST_AUTO_INC[] = {
 	NULL,                              // defaultValue
 },{
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_TEST_AUTO_INC,          // tableName
 	"name",                            // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
