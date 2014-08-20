@@ -62,8 +62,7 @@ public:
 	  const std::string sql,
 	  const std::string &name, const std::string &tableName) = 0;
 	virtual void assertFixupIndexes(
-	  const DBAgent::TableProfile &tableProfile,
-	  const DBAgent::IndexDef *indexDefArray) = 0;
+	  const DBAgent::TableProfile &tableProfile) = 0;
 
 	virtual void assertExistingRecord(
 	               uint64_t id, int age, const char *name, double height,

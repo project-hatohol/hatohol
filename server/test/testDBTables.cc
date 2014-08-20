@@ -70,17 +70,20 @@ void test_createTable(void)
 
 void test_createIndex(void)
 {
+	// We make a copy to update TableProfile::indexDefArray
+	DBAgent::TableProfile tableProfile = tableProfileTest;
+
 	static const int columnIndexes[] = {
 	  IDX_TEST_TABLE_AGE, IDX_TEST_TABLE_NAME, DBAgent::IndexDef::END};
 	static const DBAgent::IndexDef indexDef[] = {
 		{"index_age_name", columnIndexes, false},
 		{NULL}
 	};
+	tableProfile.indexDefArray = indexDef;
 
 	static const DBTables::TableSetupInfo TABLE_INFO[] = {
 	{
-		&tableProfileTest,
-		indexDef,
+		&tableProfile,
 	},
 	};
 
@@ -95,7 +98,7 @@ void test_createIndex(void)
 	TestDB::setup();
 	TestDB testDB;
 	TestDBTables tables(testDB.getDBAgent(), SETUP_INFO);
-	assertExistIndex(testDB.getDBAgent(), tableProfileTest.name,
+	assertExistIndex(testDB.getDBAgent(), tableProfile.name,
 	                 "index_age_name", 2);
 	cppcut_assert_equal(true, SETUP_INFO.initialized);
 }
@@ -119,7 +122,6 @@ void test_tableInitializer(void)
 	const DBTables::TableSetupInfo TABLE_INFO[] = {
 	{
 		&tableProfileTest,
-		NULL,
 		Gizmo::initializer,
 		&gizmo,
 	},

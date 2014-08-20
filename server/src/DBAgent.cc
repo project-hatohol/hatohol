@@ -369,8 +369,7 @@ DBDomainId DBAgent::getDBDomainId(void) const
 	return m_impl->dbDomainId;
 }
 
-void DBAgent::fixupIndexes(
-  const TableProfile &tableProfile, const IndexDef *indexDefArray)
+void DBAgent::fixupIndexes(const TableProfile &tableProfile)
 {
 	typedef map<string, IndexInfo *>  IndexSqlInfoMap;
 	typedef IndexSqlInfoMap::iterator IndexSqlInfoMapIterator;
@@ -422,7 +421,7 @@ void DBAgent::fixupIndexes(
 	}
 
 	// Create needed indexes with IndexesDef
-	const IndexDef *indexDefPtr = indexDefArray;
+	const IndexDef *indexDefPtr = tableProfile.indexDefArray;
 	for (; indexDefPtr && indexDefPtr->name; indexDefPtr++)
 		ctx.proc(tableProfile, *indexDefPtr);
 
