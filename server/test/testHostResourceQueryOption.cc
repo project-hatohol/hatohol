@@ -34,11 +34,9 @@ using namespace mlpl;
 namespace testHostResourceQueryOption {
 
 static const char *TEST_PRIMARY_TABLE_NAME = "test_table_name";
-static const char *TEST_ALT_TABLE_NAME     = "test_alt_table";
 static const ColumnDef COLUMN_DEF_TEST[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
-	TEST_PRIMARY_TABLE_NAME,           // tableName
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -49,7 +47,6 @@ static const ColumnDef COLUMN_DEF_TEST[] = {
 	NULL,                              // defaultValue
 },{
 	ITEM_ID_NOT_SET,                   // itemId
-	TEST_PRIMARY_TABLE_NAME,           // tableName
 	"server_id",                       // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -60,7 +57,6 @@ static const ColumnDef COLUMN_DEF_TEST[] = {
 	NULL,                              // defaultValue
 },{
 	ITEM_ID_NOT_SET,                   // itemId
-	TEST_PRIMARY_TABLE_NAME,           // tableName
 	"host_id",                         // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -71,7 +67,6 @@ static const ColumnDef COLUMN_DEF_TEST[] = {
 	NULL,                              // defaultValue
 },{
 	ITEM_ID_NOT_SET,                   // itemId
-	TEST_ALT_TABLE_NAME,               // tableName
 	"flower",                          // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -101,7 +96,6 @@ static const char *TEST_HGRP_TABLE_NAME = "test_hgrp_table_name";
 static const ColumnDef COLUMN_DEF_TEST_HGRP[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
-	TEST_HGRP_TABLE_NAME,              // tableName
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -112,7 +106,6 @@ static const ColumnDef COLUMN_DEF_TEST_HGRP[] = {
 	NULL,                              // defaultValue
 },{
 	ITEM_ID_NOT_SET,                   // itemId
-	TEST_HGRP_TABLE_NAME,              // tableName
 	"server_id",                       // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -123,7 +116,6 @@ static const ColumnDef COLUMN_DEF_TEST_HGRP[] = {
 	NULL,                              // defaultValue
 },{
 	ITEM_ID_NOT_SET,                   // itemId
-	TEST_HGRP_TABLE_NAME,              // tableName
 	"host_id",                         // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -134,7 +126,6 @@ static const ColumnDef COLUMN_DEF_TEST_HGRP[] = {
 	NULL,                              // defaultValue
 },{
 	ITEM_ID_NOT_SET,                   // itemId
-	TEST_HGRP_TABLE_NAME,              // tableName
 	"host_group_id",                   // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength

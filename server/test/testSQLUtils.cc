@@ -28,26 +28,25 @@ using namespace mlpl;
 namespace testSQLUtils {
 
 static ItemId testItemId = 1;
-static const char *testTableName = "TestTable";
 static const char *testColumnName = "TestTable";
 
 static ColumnDef testDefInt = {
-	testItemId, testTableName, testColumnName,
+	testItemId, testColumnName,
 	SQL_COLUMN_TYPE_INT, 11, 0
 };
 
 static ColumnDef testDefBiguint = {
-	testItemId, testTableName, testColumnName,
+	testItemId, testColumnName,
 	SQL_COLUMN_TYPE_BIGUINT, 20, 0
 };
 
 static ColumnDef testDefVarchar = {
-	testItemId, testTableName, testColumnName,
+	testItemId, testColumnName,
 	SQL_COLUMN_TYPE_VARCHAR, 30, 0
 };
 
 static ColumnDef testDefChar = {
-	testItemId, testTableName, testColumnName,
+	testItemId, testColumnName,
 	SQL_COLUMN_TYPE_CHAR, 8, 0
 };
 

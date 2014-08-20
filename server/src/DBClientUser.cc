@@ -55,7 +55,6 @@ static bool g_testMode = false;
 static const ColumnDef COLUMN_DEF_USERS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_USERS,                  // tableName
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -66,7 +65,6 @@ static const ColumnDef COLUMN_DEF_USERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_USERS,                  // tableName
 	"name",                            // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -77,7 +75,6 @@ static const ColumnDef COLUMN_DEF_USERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_USERS,                  // tableName
 	"password",                        // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -88,7 +85,6 @@ static const ColumnDef COLUMN_DEF_USERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_USERS,                  // tableName
 	"flags",                           // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -116,7 +112,6 @@ static const DBAgent::TableProfile tableProfileUsers =
 static const ColumnDef COLUMN_DEF_ACCESS_LIST[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ACCESS_LIST,            // tableName
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -127,7 +122,6 @@ static const ColumnDef COLUMN_DEF_ACCESS_LIST[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ACCESS_LIST,            // tableName
 	"user_id",                         // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -138,7 +132,6 @@ static const ColumnDef COLUMN_DEF_ACCESS_LIST[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ACCESS_LIST,            // tableName
 	"server_id",                       // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -149,7 +142,6 @@ static const ColumnDef COLUMN_DEF_ACCESS_LIST[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ACCESS_LIST,            // tableName
 	"host_group_id",                   // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -177,7 +169,6 @@ static const DBAgent::TableProfile tableProfileAccessList =
 static const ColumnDef COLUMN_DEF_USER_ROLES[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_USER_ROLES,             // tableName
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -188,7 +179,6 @@ static const ColumnDef COLUMN_DEF_USER_ROLES[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_USER_ROLES,             // tableName
 	"name",                            // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -199,7 +189,6 @@ static const ColumnDef COLUMN_DEF_USER_ROLES[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_USER_ROLES,             // tableName
 	"flags",                           // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength

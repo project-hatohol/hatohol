@@ -59,7 +59,6 @@ static void operator>>(
 static const ColumnDef COLUMN_DEF_SYSTEM[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_SYSTEM,                 // tableName
 	"database_dir",                    // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -70,7 +69,6 @@ static const ColumnDef COLUMN_DEF_SYSTEM[] = {
 	"",                                // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_SYSTEM,                 // tableName
 	"enable_face_mysql",               // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -81,7 +79,6 @@ static const ColumnDef COLUMN_DEF_SYSTEM[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_SYSTEM,                 // tableName
 	"face_rest_port",                  // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -92,7 +89,6 @@ static const ColumnDef COLUMN_DEF_SYSTEM[] = {
 	"0",                               // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_SYSTEM,                 // tableName
 	"enable_copy_on_demand",           // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -120,7 +116,6 @@ static const DBAgent::TableProfile tableProfileSystem =
 static const ColumnDef COLUMN_DEF_SERVERS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_SERVERS,                // tableName
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -131,7 +126,6 @@ static const ColumnDef COLUMN_DEF_SERVERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_SERVERS,                // tableName
 	"type",                            // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -142,7 +136,6 @@ static const ColumnDef COLUMN_DEF_SERVERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_SERVERS,                // tableName
 	"hostname",                        // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -153,7 +146,6 @@ static const ColumnDef COLUMN_DEF_SERVERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_SERVERS,                // tableName
 	"ip_address",                      // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -164,7 +156,6 @@ static const ColumnDef COLUMN_DEF_SERVERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_SERVERS,                // tableName
 	"nickname",                        // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -175,7 +166,6 @@ static const ColumnDef COLUMN_DEF_SERVERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_SERVERS,                // tableName
 	"port",                            // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -186,7 +176,6 @@ static const ColumnDef COLUMN_DEF_SERVERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_SERVERS,                // tableName
 	"polling_interval_sec",            // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -197,7 +186,6 @@ static const ColumnDef COLUMN_DEF_SERVERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_SERVERS,                // tableName
 	"retry_interval_sec",              // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -208,7 +196,6 @@ static const ColumnDef COLUMN_DEF_SERVERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_SERVERS,                // tableName
 	"user_name",                       // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -219,7 +206,6 @@ static const ColumnDef COLUMN_DEF_SERVERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_SERVERS,                // tableName
 	"password",                        // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -230,7 +216,6 @@ static const ColumnDef COLUMN_DEF_SERVERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_SERVERS,                // tableName
 	"db_name",                         // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -265,7 +250,6 @@ static const DBAgent::TableProfile tableProfileServers =
 static const ColumnDef COLUMN_DEF_ARM_PLUGINS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ARM_PLUGINS,            // tableName
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -276,7 +260,6 @@ static const ColumnDef COLUMN_DEF_ARM_PLUGINS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ARM_PLUGINS,            // tableName
 	"type", // server.type             // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -287,7 +270,6 @@ static const ColumnDef COLUMN_DEF_ARM_PLUGINS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ARM_PLUGINS,            // tableName
 	"path",                            // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -298,7 +280,6 @@ static const ColumnDef COLUMN_DEF_ARM_PLUGINS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ARM_PLUGINS,            // tableName
 	"broker_url",                      // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	4095,                               // columnLength
@@ -309,7 +290,6 @@ static const ColumnDef COLUMN_DEF_ARM_PLUGINS[] = {
 	"",                                // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ARM_PLUGINS,            // tableName
 	"static_queue_addr",               // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -320,7 +300,6 @@ static const ColumnDef COLUMN_DEF_ARM_PLUGINS[] = {
 	"",                                // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ARM_PLUGINS,            // tableName
 	"serverId",                        // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -350,7 +329,6 @@ static const DBAgent::TableProfile tableProfileArmPlugins =
 static const ColumnDef COLUMN_DEF_INCIDENT_TRACKERS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_INCIDENT_TRACKERS,      // tableName
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -361,7 +339,6 @@ static const ColumnDef COLUMN_DEF_INCIDENT_TRACKERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_INCIDENT_TRACKERS,      // tableName
 	"type",                            // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -372,7 +349,6 @@ static const ColumnDef COLUMN_DEF_INCIDENT_TRACKERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_INCIDENT_TRACKERS,      // tableName
 	"nickname",                        // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -383,7 +359,6 @@ static const ColumnDef COLUMN_DEF_INCIDENT_TRACKERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_INCIDENT_TRACKERS,      // tableName
 	"base_url",                        // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -394,7 +369,6 @@ static const ColumnDef COLUMN_DEF_INCIDENT_TRACKERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_INCIDENT_TRACKERS,      // tableName
 	"project_id",                      // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -405,7 +379,6 @@ static const ColumnDef COLUMN_DEF_INCIDENT_TRACKERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_INCIDENT_TRACKERS,      // tableName
 	"tracker_id",                      // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -416,7 +389,6 @@ static const ColumnDef COLUMN_DEF_INCIDENT_TRACKERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_INCIDENT_TRACKERS,      // tableName
 	"user_name",                       // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -427,7 +399,6 @@ static const ColumnDef COLUMN_DEF_INCIDENT_TRACKERS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_INCIDENT_TRACKERS,      // tableName
 	"password",                        // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength

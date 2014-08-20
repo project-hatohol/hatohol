@@ -51,7 +51,6 @@ const char *TABLE_NAME_TEST = "test_table";
 const ColumnDef COLUMN_DEF_TEST[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_TEST,                   // tableName
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -62,7 +61,6 @@ const ColumnDef COLUMN_DEF_TEST[] = {
 	NULL,                              // defaultValue
 },{
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_TEST,                   // tableName
 	"age",                             // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -73,7 +71,6 @@ const ColumnDef COLUMN_DEF_TEST[] = {
 	NULL,                              // defaultValue
 },{
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_TEST,                   // tableName
 	"name",                            // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -84,7 +81,6 @@ const ColumnDef COLUMN_DEF_TEST[] = {
 	NULL,                              // defaultValue
 },{
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_TEST,                   // tableName
 	"height",                          // columnName
 	SQL_COLUMN_TYPE_DOUBLE,            // type
 	15,                                // columnLength
@@ -95,7 +91,6 @@ const ColumnDef COLUMN_DEF_TEST[] = {
 	NULL,                              // defaultValue
 },{
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_TEST,                   // tableName
 	"time",                            // columnName
 	SQL_COLUMN_TYPE_DATETIME,          // type
 	0,                                 // columnLength
@@ -126,7 +121,6 @@ const char *TABLE_NAME_TEST_AUTO_INC = "test_table_auto_inc";
 static const ColumnDef COLUMN_DEF_TEST_AUTO_INC[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_TEST_AUTO_INC,          // tableName
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -137,7 +131,6 @@ static const ColumnDef COLUMN_DEF_TEST_AUTO_INC[] = {
 	NULL,                              // defaultValue
 },{
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_TEST_AUTO_INC,          // tableName
 	"val",                             // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
