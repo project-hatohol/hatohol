@@ -1201,7 +1201,7 @@ void _assertFileContent(const string &expect, const string &path)
 		// reason is unknown, we try to read repeatedly in order to
 		// avoid the failure.
 		g_free(contents);
-		usleep(10 * 1000 * 1000); // 10ms
+		usleep(10 * 1000); // 10ms
 		SmartTime elapsed(SmartTime::INIT_CURR_TIME);
 		elapsed -= startTime;
 		cppcut_assert_equal(true, elapsed.getAsSec() < TIMEOUT_SEC);
