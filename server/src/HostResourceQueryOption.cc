@@ -212,12 +212,6 @@ string HostResourceQueryOption::getColumnName(const size_t &idx) const
 	return getColumnNameCommon(m_impl->synapse.tableProfile, idx);
 }
 
-string HostResourceQueryOption::getHostColumnName(const size_t &idx) const
-{
-	return getColumnNameCommon(m_impl->synapse.hostTableProfile,
-	                           idx);
-}
-
 string HostResourceQueryOption::getHostgroupColumnName(const size_t &idx) const
 {
 	return getColumnNameCommon(m_impl->synapse.hostgroupMapTableProfile,
@@ -287,7 +281,8 @@ string HostResourceQueryOption::getHostgroupIdColumnName(void) const
 
 string HostResourceQueryOption::getHostIdColumnName(void) const
 {
-	return getHostColumnName(m_impl->synapse.hostIdColumnIdx);
+	return getColumnNameCommon(m_impl->synapse.hostTableProfile,
+	                           m_impl->synapse.hostIdColumnIdx);
 }
 
 string HostResourceQueryOption::makeConditionHostgroup(

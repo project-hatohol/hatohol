@@ -104,15 +104,6 @@ public:
 	 *
 	 * @return A column name.
 	 */
-	virtual std::string getHostColumnName(const size_t &idx) const;
-
-	/**
-	 * Get a hostgroup column name of the specified index.
-	 * If a target host group is specified or useTableNameAlways(),
-	 * the returned form has the table name suc as tableName.colunName.
-	 *
-	 * @return A column name.
-	 */
 	virtual std::string getHostgroupColumnName(const size_t &idx) const;
 
 
