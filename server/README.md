@@ -140,7 +140,8 @@ Example of /etc/qpid/qpidd.acl
 
 NOTE: You have to restart qpidd after you edit /etc/qpid/qpiid.acl.
 
-(0.3) Create folder
+(0.3) Create a directory to save a PID file.
+
 > # mkdir -p /usr/local/var/run
 
 (1) Setup database of MySQL
