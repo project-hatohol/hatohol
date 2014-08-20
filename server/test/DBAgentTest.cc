@@ -316,7 +316,7 @@ static void createTestTableAutoInc(DBAgent &dbAgent, DBAgentChecker &checker)
 {
 	dbAgent.createTable(tableProfileTestAutoInc);
 	checker.assertTable(tableProfileTestAutoInc);
-	dbAgent.fixupIndexes(tableProfileTestAutoInc, NULL);
+	dbAgent.fixupIndexes(tableProfileTestAutoInc);
 }
 
 void dbAgentTestExecSql(DBAgent &dbAgent, DBAgentChecker &checker)
@@ -329,7 +329,7 @@ void dbAgentTestCreateTable(DBAgent &dbAgent, DBAgentChecker &checker)
 {
 	dbAgent.createTable(tableProfileTest);
 	checker.assertTable(tableProfileTest);
-	dbAgent.fixupIndexes(tableProfileTest, NULL);
+	dbAgent.fixupIndexes(tableProfileTest);
 }
 
 void dbAgentDataMakeCreateIndexStatement(void)
