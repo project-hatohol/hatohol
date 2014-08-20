@@ -21,6 +21,7 @@
 #include <cppcutter.h>
 #include <AtomicValue.h>
 #include <Mutex.h>
+#include "Hatohol.h"
 #include "ArmBase.h"
 #include "Helpers.h"
 using namespace std;
@@ -80,6 +81,14 @@ protected:
 		return COLLECT_OK;
 	}
 };
+
+void cut_setup(void)
+{
+	hatoholInit();
+	deleteDBClientHatoholDB();
+	setupTestDBUser(true, true);
+	setupTestDBAction(true, true);
+}
 
 // ---------------------------------------------------------------------------
 // Test cases
@@ -204,7 +213,6 @@ void test_statusLog(gconstpointer data)
 
 	} ctx;
 
-	setupTestDBAction(true, true);
 	ctx.result = gcut_data_get_boolean(data, "result");
 	ctx.setComment = false;
 	if (!ctx.result)
