@@ -35,7 +35,6 @@ public:
 
 	struct TableSetupInfo {
 		const DBAgent::TableProfile *profile;
-		const DBAgent::IndexDef     *indexDefArray;
 		CreateTableInitializer       initializer;
 		void                        *initializerData;
 	};

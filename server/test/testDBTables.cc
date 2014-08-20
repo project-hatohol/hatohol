@@ -84,7 +84,6 @@ void test_createIndex(void)
 	static const DBTables::TableSetupInfo TABLE_INFO[] = {
 	{
 		&tableProfile,
-		indexDef,
 	},
 	};
 
@@ -99,8 +98,6 @@ void test_createIndex(void)
 	TestDB::setup();
 	TestDB testDB;
 	TestDBTables tables(testDB.getDBAgent(), SETUP_INFO);
-	// TODO: Remove the following one line after TableSetupInfo::IndexDefArray
-	testDB.getDBAgent().fixupIndexes(tableProfile);
 	assertExistIndex(testDB.getDBAgent(), tableProfile.name,
 	                 "index_age_name", 2);
 	cppcut_assert_equal(true, SETUP_INFO.initialized);
@@ -125,7 +122,6 @@ void test_tableInitializer(void)
 	const DBTables::TableSetupInfo TABLE_INFO[] = {
 	{
 		&tableProfileTest,
-		NULL,
 		Gizmo::initializer,
 		&gizmo,
 	},
