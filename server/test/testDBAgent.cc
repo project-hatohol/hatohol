@@ -546,11 +546,11 @@ void test_updateArgAddItemGroup(void)
 	// NOTE: We want to use dbAgent.assertUpdateArgAdd().
 	// However, it's hard to extend the method so it can do this test.
 	TestDBAgent dbAgent;
-	VariableItemGroupPtr grp(new ItemGroup(), false);
+	VariableItemGroupPtr group(new ItemGroup(), false);
 	ItemData *itemDataArr[] = {
-		grp->addNewItem(1),
-		grp->addNewItem(3),
-		grp->addNewItem(5),
+		group->addNewItem(1),
+		group->addNewItem(3),
+		group->addNewItem(5),
 	};
 
 	const size_t targetIndex = 1;
@@ -558,7 +558,7 @@ void test_updateArgAddItemGroup(void)
 	cppcut_assert_equal(1, itemData->getUsedCount());
 	{
 		DBAgent::UpdateArg arg(tableProfileTest);
-		arg.add(targetIndex, grp);
+		arg.add(targetIndex, group);
 
 		// check
 		const DBAgent::RowElement *elem = arg.rows[0];
