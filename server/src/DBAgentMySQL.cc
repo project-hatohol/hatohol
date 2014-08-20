@@ -21,6 +21,7 @@
 #include <unistd.h>
 #include "DBAgentMySQL.h"
 #include "SQLUtils.h"
+#include "SeparatorInjector.h"
 #include "Params.h"
 using namespace std;
 using namespace mlpl;
@@ -338,46 +339,18 @@ void DBAgentMySQL::insert(const DBAgent::InsertArg &insertArg)
 		}
 	} valueMaker;
 
-	// TODO: Move to MLPL.
-	class SeparatorInserter {
-	public:
-		SeparatorInserter(const char *separator)
-		: m_separator(separator),
-		  m_first(true)
-		{
-		}
-
-		void operator ()(string &str)
-		{
-			if (m_first) {
-				m_first = false;
-				return;
-			}
-			str += m_separator;
-		}
-
-		void reset(void)
-		{
-			m_first = true;
-		}
-
-	private:
-		const char *m_separator;
-		bool        m_first;
-	};
-
 	const size_t numColumns = insertArg.tableProfile.numColumns;
 	HATOHOL_ASSERT(m_impl->connected, "Not connected.");
 	HATOHOL_ASSERT(numColumns == insertArg.row->getNumberOfItems(),
 	               "numColumn: %zd != row: %zd",
 	               numColumns, insertArg.row->getNumberOfItems());
 
-	SeparatorInserter commaInserter(",");
+	SeparatorInjector commaInjector(",");
 	string query = StringUtils::sprintf("INSERT INTO %s (",
 	                                    insertArg.tableProfile.name);
 	for (size_t i = 0; i < numColumns; i++) {
 		const ColumnDef &columnDef = insertArg.tableProfile.columnDefs[i];
-		commaInserter(query);
+		commaInjector(query);
 		query += columnDef.columnName;
 	}
 
@@ -404,19 +377,19 @@ void DBAgentMySQL::insert(const DBAgent::InsertArg &insertArg)
 	updateParams[updateParamIdx].column = NULL;
 
 	query += ") VALUES (";
-	commaInserter.reset();
+	commaInjector.clear();
 	for (size_t i = 0; i < values.size(); i++) {
-		commaInserter(query);
+		commaInjector(query);
 		query += values[i];
 	}
 	query += ")";
 
 	if (insertArg.upsertOnDuplicate) {
 		query += " ON DUPLICATE KEY UPDATE ";
-		commaInserter.reset();
+		commaInjector.clear();
 		UpdateParam *updateParam = updateParams;
 		for (; updateParam->column; updateParam++) {
-			commaInserter(query);
+			commaInjector(query);
 			query += sprintf("%s=%s", updateParam->column, updateParam->value);
 		}
 	}
