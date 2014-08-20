@@ -21,6 +21,7 @@
 #include "SQLUtils.h"
 #include "DBAgent.h"
 #include "HatoholException.h"
+#include "SeparatorInjector.h"
 using namespace std;
 using namespace mlpl;
 
@@ -112,6 +113,30 @@ DBAgent::TableProfile::TableProfile(
   numColumns(numIndexes),
   indexDefArray(_indexDefArray)
 {
+	// We assume there's one (combined) unique key at most every table.
+	// This limited is in order to realize upsert on SQLite3.
+	size_t numUniqueKeys = 0;
+	for (size_t i = 0; i < numIndexes; i++) {
+		const ColumnDef &columnDef = columnDefs[i];
+		if (columnDef.keyType != SQL_KEY_UNI)
+			continue;
+		numUniqueKeys++;
+		uniqueKeyColumnIndexes.push_back(i);
+	}
+
+	const IndexDef *indexDef = indexDefArray;
+	for (; indexDef && indexDef->name; indexDef++) {
+		if (!indexDef->isUnique)
+			continue;
+		numUniqueKeys++;
+		const int *columnIdx = indexDef->columnIndexes;
+		for (; *columnIdx != IndexDef::END; columnIdx++)
+			uniqueKeyColumnIndexes.push_back(*columnIdx);
+	}
+
+	HATOHOL_ASSERT(numUniqueKeys <= 1,
+	               "The number of unqiue keys must be 0 or 1: %zd\n",
+	               numUniqueKeys);
 }
 
 std::string DBAgent::TableProfile::getFullColumnName(const size_t &index) const
@@ -484,6 +509,19 @@ void DBAgent::runTransaction(const InsertArg &arg, uint64_t *id)
 {
 	TrxInsert<uint64_t> trx(arg, id);
 	runTransaction(trx);
+}
+
+bool DBAgent::isValueAutoIncrement(const ItemData *item, const size_t &idx)
+{
+	const ItemDataType type = item->getItemType();
+	if (type == ITEM_TYPE_INT) {
+		const int &val = static_cast<const int &>(*item);
+		return (val == AUTO_INCREMENT_VALUE);
+	 } else if (type == ITEM_TYPE_UINT64) {
+		const uint64_t &val = static_cast<const uint64_t &>(*item);
+		return (val == AUTO_INCREMENT_VALUE_U64);
+	}
+	return false;
 }
 
 // ---------------------------------------------------------------------------

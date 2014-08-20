@@ -24,6 +24,7 @@
 #include <gio/gio.h>
 #include <Mutex.h>
 #include <Logger.h>
+#include <SeparatorInjector.h>
 using namespace std;
 using namespace mlpl;
 
@@ -615,13 +616,55 @@ void DBAgentSQLite3::update(sqlite3 *db, const UpdateArg &updateArg)
 
 void DBAgentSQLite3::update(sqlite3 *db, const DBAgent::InsertArg &insertArg)
 {
+	struct {
+		string operator()(
+		  const DBAgent::TableProfile &tableProfile,
+		  const ItemGroup *itemGroupPtr, const int &idx)
+		{
+			using StringUtils::sprintf;
+			const ColumnDef *columnDef;
+			const ItemData  *itemData;
+			string columnName, valStr;
+
+			columnDef = &tableProfile.columnDefs[idx];
+			itemData = itemGroupPtr->getItemAt(idx);
+			valStr = getColumnValueString(columnDef, itemData);
+			return sprintf("%s=%s", columnDef->columnName,
+			                        valStr.c_str());
+		}
+	} makeKeyValueEquation;
+
 	const DBAgent::TableProfile &tableProfile = insertArg.tableProfile;
 	DBAgent::UpdateArg arg(tableProfile);
+	bool primaryKeyIsAutoIncVal = false;
+	int  primaryKeyColumnIndex = -1;
 	for (size_t i = 0; i < tableProfile.numColumns; i++) {
-		if (tableProfile.columnDefs[i].keyType == SQL_KEY_PRI)
-			continue;
+		if (tableProfile.columnDefs[i].keyType == SQL_KEY_PRI) {
+			const ItemData *item = insertArg.row->getItemAt(i);
+			primaryKeyIsAutoIncVal = isValueAutoIncrement(item, i);
+			primaryKeyColumnIndex = i;
+			if (primaryKeyIsAutoIncVal)
+				continue;
+		}
 		arg.add(i, insertArg.row);
 	}
+
+	string cond;
+	if (primaryKeyIsAutoIncVal || primaryKeyColumnIndex == -1) {
+		SeparatorInjector andInjector(" AND ");
+		for (size_t i = 0;
+		     i < tableProfile.uniqueKeyColumnIndexes.size(); i++) {
+			const int idx = tableProfile.uniqueKeyColumnIndexes[i];
+			andInjector(cond);
+			cond += makeKeyValueEquation(tableProfile,
+			                             insertArg.row, idx);
+		}
+	} else if (primaryKeyColumnIndex >= 0) {
+		cond = makeKeyValueEquation(tableProfile, insertArg.row,
+		                            primaryKeyColumnIndex);
+	}
+	arg.condition = cond;
+
 	update(db, arg);
 }
 
