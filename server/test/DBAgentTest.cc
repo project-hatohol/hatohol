@@ -611,8 +611,9 @@ void dbAgentTestDelete(DBAgent &dbAgent, DBAgentChecker &checker)
 
 	// check
 	vector<string> actualIds;
-	const ColumnDef &columnDefId = COLUMN_DEF_TEST[IDX_TEST_TABLE_ID];
-	checker.getIDStringVector(columnDefId, actualIds);
+	checker.getIDStringVector(tableProfileTest,
+				  IDX_TEST_TABLE_ID,
+				  actualIds);
 	size_t matchCount = 0;
 	for (size_t i = 0; i < NUM_TEST; i++) {
 		if (AGE[i] < thresAge)

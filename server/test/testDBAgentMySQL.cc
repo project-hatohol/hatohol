@@ -285,13 +285,16 @@ public:
 		comp.assert(false);
 	}
 
-	virtual void getIDStringVector(const ColumnDef &columnDefId,
+	virtual void getIDStringVector(const DBAgent::TableProfile &tableProfile,
+				       size_t columnIdIdx,
 	                               vector<string> &actualIds) override
 	{
+		const ColumnDef &columnDefId =
+			tableProfile.columnDefs[columnIdIdx];
 		string sql =
 		  StringUtils::sprintf(
 		    "SELECT %s FROM %s ORDER BY %s ASC",
-		    columnDefId.columnName, columnDefId.tableName, 
+		    columnDefId.columnName, tableProfile.name,
 		    columnDefId.columnName);
 		string output = execMySQL(TEST_DB_NAME, sql, false);
 		StringUtils::split(actualIds, output, '\n');
