@@ -267,6 +267,9 @@ void dbAgentTestMakeDropIndexStatement(
 
 void dbAgentTestFixupIndexes(DBAgent &dbAgent, DBAgentChecker &checker)
 {
+	// We make a copy to update a pointer of the indexDefArray
+	DBAgent::TableProfile tableProfile = tableProfileTest;
+
 	const int columnIndexes0[] = {
 	  IDX_TEST_TABLE_AGE, IDX_TEST_TABLE_NAME, IDX_TEST_TABLE_HEIGHT,
 	  DBAgent::IndexDef::END
@@ -287,17 +290,19 @@ void dbAgentTestFixupIndexes(DBAgent &dbAgent, DBAgentChecker &checker)
 	  {NULL, NULL, false},
 	};
 
-	dbAgent.createTable(tableProfileTest);
-	dbAgent.fixupIndexes(tableProfileTest, indexDefArray);
-	checker.assertFixupIndexes(tableProfileTest, indexDefArray);
+	tableProfile.indexDefArray = indexDefArray;
+	dbAgent.createTable(tableProfile);
+	dbAgent.fixupIndexes(tableProfile);
+	checker.assertFixupIndexes(tableProfile);
 
 	// check the drop
 	const DBAgent::IndexDef indexDefArrayForDrop[] = {
 	  {"testUniqIndex",    columnIndexes1, true},
 	  {NULL, NULL, false},
 	};
-	dbAgent.fixupIndexes(tableProfileTest, indexDefArrayForDrop);
-	checker.assertFixupIndexes(tableProfileTest, indexDefArrayForDrop);
+	tableProfile.indexDefArray = indexDefArrayForDrop;
+	dbAgent.fixupIndexes(tableProfile);
+	checker.assertFixupIndexes(tableProfile);
 }
 
 void dbAgentTestInsert(DBAgent &dbAgent, DBAgentChecker &checker)

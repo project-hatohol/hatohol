@@ -140,8 +140,7 @@ public:
 	}
 
 	virtual void assertFixupIndexes(
-	  const DBAgent::TableProfile &tableProfile,
-	  const DBAgent::IndexDef *indexDefArray) override
+	  const DBAgent::TableProfile &tableProfile) override
 	{
 		vector<string> expectLines;
 
@@ -168,7 +167,7 @@ public:
 		}
 
 		// from IndexDefArray
-		const DBAgent::IndexDef *indexDef = indexDefArray;
+		const DBAgent::IndexDef *indexDef = tableProfile.indexDefArray;
 		for (; indexDef->name != NULL; indexDef++) {
 			string line = makeExpectedCreateIndexStatement(
 			                tableProfile, *indexDef);

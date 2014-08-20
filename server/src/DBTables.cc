@@ -82,8 +82,7 @@ struct DBTables::Impl {
 		for (size_t i = 0; i < setupInfo.numTableInfo; i++) {
 			const TableSetupInfo &tableInfo =
 			  setupInfo.tableInfoArray[i];
-			dbAgent.fixupIndexes(*tableInfo.profile,
-			                     tableInfo.indexDefArray);
+			dbAgent.fixupIndexes(*tableInfo.profile);
 		}
 
 		// Call initalizers only for the created tables

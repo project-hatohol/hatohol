@@ -240,12 +240,8 @@ public:
 	 * @param tableProfile
 	 * A TableProfile structure concerned with the indexes to be created.
 	 *
-	 * @param indexesDefArray
-	 * An array of IndexDef. A member: 'name' of the final element shall
-	 * be NULL for a mark of the termination.
 	 */
-	virtual void fixupIndexes(const TableProfile &tableProfile,
-	                          const IndexDef *indexDefArray);
+	virtual void fixupIndexes(const TableProfile &tableProfile);
 
 	/**
 	 * Update a record if there is the record with the same value in the

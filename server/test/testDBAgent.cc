@@ -350,11 +350,6 @@ private:
 		return 0;
 	}
 
-	virtual void fixupIndexes(const TableProfile &tableProfile,
-	                          const IndexDef *indexDefArray) override
-	{
-	}
-
 	virtual string
 	makeCreateIndexStatement(const TableProfile &tableProfile,
 	                         const IndexDef &indexDef) override
