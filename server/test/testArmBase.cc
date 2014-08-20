@@ -204,6 +204,7 @@ void test_statusLog(gconstpointer data)
 
 	} ctx;
 
+	setupTestDBAction(true, true);
 	ctx.result = gcut_data_get_boolean(data, "result");
 	ctx.setComment = false;
 	if (!ctx.result)
