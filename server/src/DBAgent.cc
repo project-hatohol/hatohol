@@ -511,7 +511,7 @@ void DBAgent::runTransaction(const InsertArg &arg, uint64_t *id)
 	runTransaction(trx);
 }
 
-bool DBAgent::isAutoIncrementValue(const ItemData *item, const size_t &idx)
+bool DBAgent::isAutoIncrementValue(const ItemData *item)
 {
 	const ItemDataType type = item->getItemType();
 	if (type == ITEM_TYPE_INT) {

@@ -641,7 +641,7 @@ void DBAgentSQLite3::update(sqlite3 *db, const DBAgent::InsertArg &insertArg)
 	for (size_t i = 0; i < tableProfile.numColumns; i++) {
 		if (tableProfile.columnDefs[i].keyType == SQL_KEY_PRI) {
 			const ItemData *item = insertArg.row->getItemAt(i);
-			primaryKeyIsAutoIncVal = isAutoIncrementValue(item, i);
+			primaryKeyIsAutoIncVal = isAutoIncrementValue(item);
 			primaryKeyColumnIndex = i;
 			if (primaryKeyIsAutoIncVal)
 				continue;
