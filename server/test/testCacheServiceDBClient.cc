@@ -214,7 +214,7 @@ void test_getHatohol(void)
 void test_getUser(void)
 {
 	CacheServiceDBClient cache;
-	assertType(DBClientUser, cache.getUser());
+	assertType(DBTablesUser, cache.getUser());
 }
 
 #if 0

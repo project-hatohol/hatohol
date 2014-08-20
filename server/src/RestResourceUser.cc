@@ -232,7 +232,7 @@ void RestResourceUser::handlerPutUser(void)
 		return;
 	}
 
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	bool exist = dbUser.getUserInfo(userInfo, userInfo.id);
 	if (!exist) {
 		REPLY_ERROR(this, HTERR_NOT_FOUND_TARGET_RECORD,
@@ -356,7 +356,7 @@ void RestResourceUser::handlerGetAccessInfo(void)
 	agent.endObject();
 	agent.endObject();
 
-	DBClientUser::destroyServerAccessInfoMap(serversMap);
+	DBTablesUser::destroyServerAccessInfoMap(serversMap);
 
 	replyJSONData(agent);
 }

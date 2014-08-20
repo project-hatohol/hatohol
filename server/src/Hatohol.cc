@@ -55,7 +55,7 @@ static void init(void)
 	DBAgentSQLite3::init();
 	DBAgentMySQL::init();
 	DBTablesConfig::init();
-	DBClientUser::init();
+	DBTablesUser::init();
 	DBClientHatohol::init();
 	DBClientAction::init();
 	DBClientHost::init();
@@ -77,7 +77,7 @@ static void reset(const CommandLineOptions *cmdLineOpts)
 	DBClient::reset();
 	DBCGroupRegular::reset();
 	DBTablesConfig::reset(); // must be after DBClient::reset()
-	DBClientUser::reset();
+	DBTablesUser::reset();
 	DBClientAction::reset(); // must be after DBTablesConfig::reset()
 
 	ActionManager::reset();

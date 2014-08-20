@@ -520,7 +520,7 @@ void test_deleteNoOwnerAction(void)
 			excludeIdList.push_back(actionId);
 	}
 
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	HatoholError err = dbUser.deleteUserInfo(targetId, privilege);
 	assertHatoholError(HTERR_OK, err);

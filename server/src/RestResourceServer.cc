@@ -65,7 +65,7 @@ static bool canUpdateServer(
         if (!privilege.has(OPPRVLG_UPDATE_SERVER))
                 return false;
         CacheServiceDBClient cache;
-        DBClientUser *dbUser = cache.getUser();
+        DBTablesUser *dbUser = cache.getUser();
         return dbUser->isAccessible(serverInfo.id, privilege);
 }
 
