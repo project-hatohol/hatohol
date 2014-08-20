@@ -69,7 +69,8 @@ public:
 	               int datetime, size_t numColumns,
 	               const ColumnDef *columnDefs,
 	               const std::set<size_t> *nullIndexes = NULL) = 0;
-	virtual void getIDStringVector(const ColumnDef &columnDefId,
+	virtual void getIDStringVector(const DBAgent::TableProfile &tableProfile,
+				       const size_t &columnIdIdx,
 	                               std::vector<std::string> &actualIds) = 0;
 
 	static void createTable(DBAgent &dbAgent);

@@ -60,7 +60,6 @@ enum
 static const ColumnDef COLUMN_DEF_SERVICES[] = {
 {
 	ITEM_ID_NAGIOS_SERVICES_SERVICE_ID,// itemId
-	TABLE_NAME_SERVICES,               // tableName
 	"service_id",                      // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -71,7 +70,6 @@ static const ColumnDef COLUMN_DEF_SERVICES[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NAGIOS_SERVICES_HOST_OBJECT_ID, // itemId
-	TABLE_NAME_SERVICES,               // tableName
 	"host_object_id",                  // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -82,7 +80,6 @@ static const ColumnDef COLUMN_DEF_SERVICES[] = {
 	"0",                               // defaultValue
 }, {
 	ITEM_ID_NAGIOS_SERVICES_SERVICE_OBJECT_ID, // itemId
-	TABLE_NAME_SERVICES,               // tableName
 	"service_object_id",               // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -110,7 +107,6 @@ static const DBAgent::TableProfile tableProfileServices =
 static const ColumnDef COLUMN_DEF_SERVICESTATUS[] = {
 {
 	ITEM_ID_NAGIOS_SERVICESTATUS_SERVICE_OBJECT_ID, // itemId
-	TABLE_NAME_SERVICESTATUS,          // tableName
 	"service_object_id",               // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -121,7 +117,6 @@ static const ColumnDef COLUMN_DEF_SERVICESTATUS[] = {
 	"0",                               // defaultValue
 }, {
 	ITEM_ID_NAGIOS_SERVICESTATUS_STATUS_UPDATE_TIME, // itemId
-	TABLE_NAME_SERVICESTATUS,          // tableName
 	"status_update_time",              // columnName
 	SQL_COLUMN_TYPE_DATETIME,          // type
 	0,                                 // columnLength
@@ -132,7 +127,6 @@ static const ColumnDef COLUMN_DEF_SERVICESTATUS[] = {
 	"0",                               // defaultValue
 }, {
 	ITEM_ID_NAGIOS_SERVICESTATUS_OUTPUT, // itemId
-	TABLE_NAME_SERVICESTATUS,          // tableName
 	"output",                          // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -143,7 +137,6 @@ static const ColumnDef COLUMN_DEF_SERVICESTATUS[] = {
 	"",                                // defaultValue
 }, {
 	ITEM_ID_NAGIOS_SERVICESTATUS_CURRENT_STATE, // itemId
-	TABLE_NAME_SERVICESTATUS,          // tableName
 	"current_state",                   // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	6,                                 // columnLength
@@ -154,7 +147,6 @@ static const ColumnDef COLUMN_DEF_SERVICESTATUS[] = {
 	"0",                               // defaultValue
 }, {
 	ITEM_ID_NAGIOS_SERVICESTATUS_CHECK_COMMAND, // itemId
-	TABLE_NAME_SERVICESTATUS,          // tableName
 	"check_command",                   // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -184,7 +176,6 @@ static const DBAgent::TableProfile tableProfileServiceStatus =
 static const ColumnDef COLUMN_DEF_HOSTS[] = {
 {
 	ITEM_ID_NAGIOS_HOSTS_HOST_ID,      // itemId
-	TABLE_NAME_HOSTS,                  // tableName
 	"host_id",                         // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -195,7 +186,6 @@ static const ColumnDef COLUMN_DEF_HOSTS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NAGIOS_HOSTS_HOST_OBJECT_ID, // itemId
-	TABLE_NAME_HOSTS,                  // tableName
 	"host_object_id",                  // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -206,7 +196,6 @@ static const ColumnDef COLUMN_DEF_HOSTS[] = {
 	"0",                               // defaultValue
 }, {
 	ITEM_ID_NAGIOS_HOSTS_DISPLAY_NAME,// itemId
-	TABLE_NAME_HOSTS,                  // tableName
 	"display_name",                    // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	64,                                // columnLength
@@ -234,7 +223,6 @@ static const DBAgent::TableProfile tableProfileHosts =
 static const ColumnDef COLUMN_DEF_HOSTGROUPS[] = {
 {
 	ITEM_ID_NAGIOS_HOSTGROUPS_HOSTGROUP_ID, // itemId
-	TABLE_NAME_HOSTGROUPS,                  // tableName
 	"hostgroup_id",                         // columnName
 	SQL_COLUMN_TYPE_INT,                    // type
 	11,                                     // columnLength
@@ -245,7 +233,6 @@ static const ColumnDef COLUMN_DEF_HOSTGROUPS[] = {
 	NULL,                                   // defaultValue
 }, {
 	ITEM_ID_NAGIOS_HOSTGROUPS_ALIAS,        // itemId
-	TABLE_NAME_HOSTGROUPS,                  // tableName
 	"alias",                                // columnName
 	SQL_COLUMN_TYPE_VARCHAR,                // type
 	255,                                    // columnLength
@@ -272,7 +259,6 @@ static const DBAgent::TableProfile tableProfileHostgroups =
 static const ColumnDef COLUMN_DEF_HOSTGROUP_MEMBERS[] = {
 {
 	ITEM_ID_NAGIOS_HOSTGROUP_MEMBERS_HOST_OBJECT_ID, // itemId
-	TABLE_NAME_HOSTGROUP_MEMBERS,                    // tableName
 	"host_object_id",                                // columnName
 	SQL_COLUMN_TYPE_INT,                             // type
 	11,                                              // columnLength
@@ -283,7 +269,6 @@ static const ColumnDef COLUMN_DEF_HOSTGROUP_MEMBERS[] = {
 	NULL,                                            // defaultValue
 }, {
 	ITEM_ID_NAGIOS_HOSTGROUP_MEMBERS_HOSTGROUP_ID,   // itemId
-	TABLE_NAME_HOSTGROUP_MEMBERS,                    // tableName
 	"hostgroup_id",                                  // columnName
 	SQL_COLUMN_TYPE_INT,                             // type
 	11,                                              // columnLength
@@ -310,7 +295,6 @@ static const DBAgent::TableProfile tableProfileHostgroupMembers =
 static const ColumnDef COLUMN_DEF_STATEHISTORY[] = {
 {
 	ITEM_ID_NAGIOS_STATEHISTORY_STATEHISTORY_ID, // itemId
-	TABLE_NAME_STATEHISTORY,           // tableName
 	"statehistory_id",                 // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -321,7 +305,6 @@ static const ColumnDef COLUMN_DEF_STATEHISTORY[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NAGIOS_STATEHISTORY_STATE_TIME, // itemId
-	TABLE_NAME_STATEHISTORY,           // tableName
 	"state_time",                      // columnName
 	SQL_COLUMN_TYPE_DATETIME,          // type
 	0,                                 // columnLength
@@ -332,7 +315,6 @@ static const ColumnDef COLUMN_DEF_STATEHISTORY[] = {
 	"0",                               // defaultValue
 }, {
 	ITEM_ID_NAGIOS_STATEHISTORY_OBJECT_ID, // itemId
-	TABLE_NAME_STATEHISTORY,           // tableName
 	"object_id",                       // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -343,7 +325,6 @@ static const ColumnDef COLUMN_DEF_STATEHISTORY[] = {
 	"0",                               // defaultValue
 }, {
 	ITEM_ID_NAGIOS_STATEHISTORY_STATE, // itemId
-	TABLE_NAME_STATEHISTORY,           // tableName
 	"state",                           // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -354,7 +335,6 @@ static const ColumnDef COLUMN_DEF_STATEHISTORY[] = {
 	"0",                               // defaultValue
 }, {
 	ITEM_ID_NAGIOS_STATEHISTORY_STATE_TYPE, // itemId
-	TABLE_NAME_STATEHISTORY,           // tableName
 	"state_type",                      // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -365,7 +345,6 @@ static const ColumnDef COLUMN_DEF_STATEHISTORY[] = {
 	"0",                               // defaultValue
 }, {
 	ITEM_ID_NAGIOS_STATEHISTORY_OUTPUT, // itemId
-	TABLE_NAME_STATEHISTORY,           // tableName
 	"output",                          // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength

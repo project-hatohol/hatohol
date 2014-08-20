@@ -33,6 +33,7 @@ HostResourceQueryOption::Synapse::Synapse(
   const DBAgent::TableProfile &_tableProfile,
   const size_t &_selfIdColumnIdx,
   const size_t &_serverIdColumnIdx,
+  const DBAgent::TableProfile &_hostTableProfile,
   const size_t &_hostIdColumnIdx,
   const bool &_needToJoinHostgroup,
   const DBAgent::TableProfile &_hostgroupMapTableProfile,
@@ -42,6 +43,7 @@ HostResourceQueryOption::Synapse::Synapse(
 : tableProfile(_tableProfile),
   selfIdColumnIdx(_selfIdColumnIdx),
   serverIdColumnIdx(_serverIdColumnIdx),
+  hostTableProfile(_hostTableProfile),
   hostIdColumnIdx(_hostIdColumnIdx),
   needToJoinHostgroup(_needToJoinHostgroup),
   hostgroupMapTableProfile(_hostgroupMapTableProfile),
@@ -279,7 +281,8 @@ string HostResourceQueryOption::getHostgroupIdColumnName(void) const
 
 string HostResourceQueryOption::getHostIdColumnName(void) const
 {
-	return getColumnName(m_impl->synapse.hostIdColumnIdx);
+	return getColumnNameCommon(m_impl->synapse.hostTableProfile,
+	                           m_impl->synapse.hostIdColumnIdx);
 }
 
 string HostResourceQueryOption::makeConditionHostgroup(
@@ -439,16 +442,16 @@ string HostResourceQueryOption::getFromClauseWithHostgroup(void) const
 string HostResourceQueryOption::getColumnNameCommon(
   const DBAgent::TableProfile &tableProfile, const size_t &idx) const
 {
-	const ColumnDef *columnDefs = tableProfile.columnDefs;
 	HATOHOL_ASSERT(idx < tableProfile.numColumns,
 	               "idx: %zd, numColumns: %zd, table: %s",
 	               idx, tableProfile.numColumns, tableProfile.name);
 	string name;
 	if (getTableNameAlways() || isHostgroupUsed()) {
-		name += columnDefs[idx].tableName;
-		name += ".";
+		name = tableProfile.getFullColumnName(idx);
+	} else {
+		const ColumnDef *columnDefs = tableProfile.columnDefs;
+		name = columnDefs[idx].columnName;
 	}
-	name += columnDefs[idx].columnName;
 	return name;
 }
 

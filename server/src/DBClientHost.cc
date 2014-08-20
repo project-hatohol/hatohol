@@ -32,7 +32,6 @@ const size_t MAX_HOST_NAME_LENGTH =  255;
 static const ColumnDef COLUMN_DEF_HOST_LIST[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_HOST_LIST,              // tableName
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -43,7 +42,6 @@ static const ColumnDef COLUMN_DEF_HOST_LIST[] = {
 	"",                                // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_HOST_LIST,              // tableName
 	"hypervisor_id",                   // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -71,7 +69,6 @@ static const DBAgent::TableProfile tableProfileHostList =
 static const ColumnDef COLUMN_DEF_HOST_INFO[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_HOST_INFO,              // tableName
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -82,7 +79,6 @@ static const ColumnDef COLUMN_DEF_HOST_INFO[] = {
 	"",                                // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_HOST_INFO,              // tableName
 	"host_list_id",                    // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -94,7 +90,6 @@ static const ColumnDef COLUMN_DEF_HOST_INFO[] = {
 }, {
 	// Both IPv4 and IPv6 can be saved
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_HOST_INFO,              // tableName
 	"ip_addr",                         // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	40,                                // columnLength
@@ -105,7 +100,6 @@ static const ColumnDef COLUMN_DEF_HOST_INFO[] = {
 	"",                                // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_HOST_INFO,              // tableName
 	"name",                            // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	MAX_HOST_NAME_LENGTH,              // columnLength

@@ -219,9 +219,12 @@ public:
 		   "%" PRId64);
 	}
 
-	virtual void getIDStringVector(const ColumnDef &columnDefId,
+	virtual void getIDStringVector(const DBAgent::TableProfile &tableProfile,
+				       const size_t &columnIdIdx,
 	                               vector<string> &actualIds) override
 	{
+		const ColumnDef &columnDefId =
+			tableProfile.columnDefs[columnIdIdx];
 		cut_assert_exist_path(g_dbPath.c_str());
 		string cmd =
 		  StringUtils::sprintf(

@@ -34,11 +34,9 @@ using namespace mlpl;
 namespace testHostResourceQueryOption {
 
 static const char *TEST_PRIMARY_TABLE_NAME = "test_table_name";
-static const char *TEST_ALT_TABLE_NAME     = "test_alt_table";
 static const ColumnDef COLUMN_DEF_TEST[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
-	TEST_PRIMARY_TABLE_NAME,           // tableName
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -49,7 +47,6 @@ static const ColumnDef COLUMN_DEF_TEST[] = {
 	NULL,                              // defaultValue
 },{
 	ITEM_ID_NOT_SET,                   // itemId
-	TEST_PRIMARY_TABLE_NAME,           // tableName
 	"server_id",                       // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -60,7 +57,6 @@ static const ColumnDef COLUMN_DEF_TEST[] = {
 	NULL,                              // defaultValue
 },{
 	ITEM_ID_NOT_SET,                   // itemId
-	TEST_PRIMARY_TABLE_NAME,           // tableName
 	"host_id",                         // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -71,7 +67,6 @@ static const ColumnDef COLUMN_DEF_TEST[] = {
 	NULL,                              // defaultValue
 },{
 	ITEM_ID_NOT_SET,                   // itemId
-	TEST_ALT_TABLE_NAME,               // tableName
 	"flower",                          // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -101,7 +96,6 @@ static const char *TEST_HGRP_TABLE_NAME = "test_hgrp_table_name";
 static const ColumnDef COLUMN_DEF_TEST_HGRP[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
-	TEST_HGRP_TABLE_NAME,              // tableName
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -112,7 +106,6 @@ static const ColumnDef COLUMN_DEF_TEST_HGRP[] = {
 	NULL,                              // defaultValue
 },{
 	ITEM_ID_NOT_SET,                   // itemId
-	TEST_HGRP_TABLE_NAME,              // tableName
 	"server_id",                       // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -123,7 +116,6 @@ static const ColumnDef COLUMN_DEF_TEST_HGRP[] = {
 	NULL,                              // defaultValue
 },{
 	ITEM_ID_NOT_SET,                   // itemId
-	TEST_HGRP_TABLE_NAME,              // tableName
 	"host_id",                         // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -134,7 +126,6 @@ static const ColumnDef COLUMN_DEF_TEST_HGRP[] = {
 	NULL,                              // defaultValue
 },{
 	ITEM_ID_NOT_SET,                   // itemId
-	TEST_HGRP_TABLE_NAME,              // tableName
 	"host_group_id",                   // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -163,7 +154,8 @@ const DBAgent::TableProfile tableProfileTestHGrp(
 
 static const HostResourceQueryOption::Synapse TEST_SYNAPSE(
   tableProfileTest,
-  IDX_TEST_TABLE_ID, IDX_TEST_TABLE_SERVER_ID, IDX_TEST_TABLE_HOST_ID,
+  IDX_TEST_TABLE_ID, IDX_TEST_TABLE_SERVER_ID,
+  tableProfileTest, IDX_TEST_TABLE_HOST_ID,
   true,
   tableProfileTestHGrp,
   IDX_TEST_HGRP_TABLE_SERVER_ID, IDX_TEST_HGRP_TABLE_HOST_ID,
@@ -172,7 +164,8 @@ static const HostResourceQueryOption::Synapse TEST_SYNAPSE(
 static const HostResourceQueryOption::Synapse TEST_SYNAPSE_HGRP(
   tableProfileTestHGrp,
   IDX_TEST_HGRP_TABLE_ID, IDX_TEST_HGRP_TABLE_SERVER_ID,
-  IDX_TEST_HGRP_TABLE_HOST_ID, false,
+  tableProfileTestHGrp, IDX_TEST_HGRP_TABLE_HOST_ID,
+  false,
   tableProfileTestHGrp,
   IDX_TEST_HGRP_TABLE_SERVER_ID, IDX_TEST_HGRP_TABLE_HOST_ID,
   IDX_TEST_HGRP_TABLE_HOST_GROUP_ID);
@@ -641,21 +634,13 @@ void test_getColumnName(void)
 	                           option.getColumnName(idx));
 }
 
-void data_getColumnNameWithTableName(void)
-{
-	gcut_add_datum("The same table name", "idx", G_TYPE_INT,
-	               IDX_TEST_TABLE_HOST_ID, NULL);
-	gcut_add_datum("Different table name", "idx", G_TYPE_INT,
-	               IDX_TEST_TABLE_FLOWER, NULL);
-}
-
-void test_getColumnNameWithTableName(gconstpointer data)
+void test_getColumnNameWithTableName(void)
 {
 	setupTestDBUser(true, true);
-	const size_t idx = gcut_data_get_boolean(data, "idx");
+	const size_t idx = IDX_TEST_TABLE_HOST_ID;
 	HostResourceQueryOption option(TEST_SYNAPSE);
 	option.setTargetHostgroupId(5);
-	string expect = COLUMN_DEF_TEST[idx].tableName;
+	string expect = TEST_PRIMARY_TABLE_NAME;
 	expect += ".";
 	expect += COLUMN_DEF_TEST[idx].columnName;
 	cppcut_assert_equal(expect, option.getColumnName(idx));
@@ -702,7 +687,7 @@ void test_getHostgroupColumnNameWithTableName(gconstpointer data)
 		option.setTargetHostgroupId(5);
 	string expect;
 	if (useHostgroup) {
-		expect = COLUMN_DEF_TEST_HGRP[idx].tableName;
+		expect = TEST_HGRP_TABLE_NAME;
 		expect += ".";
 	}
 	expect += COLUMN_DEF_TEST_HGRP[idx].columnName;

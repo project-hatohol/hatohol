@@ -74,7 +74,6 @@ private:
 static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ACTIONS,                // tableName
 	"action_id",                       // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -85,7 +84,6 @@ static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ACTIONS,                // tableName
 	"server_id",                       // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -96,7 +94,6 @@ static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ACTIONS,                // tableName
 	"host_id",                         // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -107,7 +104,6 @@ static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ACTIONS,                // tableName
 	"host_group_id",                   // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -118,7 +114,6 @@ static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ACTIONS,                // tableName
 	"trigger_id",                      // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -129,7 +124,6 @@ static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ACTIONS,                // tableName
 	"trigger_status",                  // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -140,7 +134,6 @@ static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ACTIONS,                // tableName
 	"trigger_severity",                // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -151,7 +144,6 @@ static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ACTIONS,                // tableName
 	"trigger_severity_comp_type",      // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -162,7 +154,6 @@ static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ACTIONS,                // tableName
 	"action_type",                     // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -173,7 +164,6 @@ static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ACTIONS,                // tableName
 	"command",                         // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -184,7 +174,6 @@ static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ACTIONS,                // tableName
 	"working_dir",                     // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -195,7 +184,6 @@ static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ACTIONS,                // tableName
 	"timeout",                         // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -206,7 +194,6 @@ static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ACTIONS,                // tableName
 	"owner_user_id",                   // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -243,7 +230,6 @@ static const DBAgent::TableProfile tableProfileActions =
 static const ColumnDef COLUMN_DEF_ACTION_LOGS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ACTION_LOGS,            // tableName
 	"action_log_id",                   // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -254,7 +240,6 @@ static const ColumnDef COLUMN_DEF_ACTION_LOGS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ACTION_LOGS,            // tableName
 	"action_id",                       // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -265,7 +250,6 @@ static const ColumnDef COLUMN_DEF_ACTION_LOGS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ACTION_LOGS,            // tableName
 	"status",                          // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -276,7 +260,6 @@ static const ColumnDef COLUMN_DEF_ACTION_LOGS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ACTION_LOGS,            // tableName
 	"starter_id",                      // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -287,7 +270,6 @@ static const ColumnDef COLUMN_DEF_ACTION_LOGS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ACTION_LOGS,            // tableName
 	"queuing_time",                    // columnName
 	SQL_COLUMN_TYPE_DATETIME,          // type
 	0,                                 // columnLength
@@ -298,7 +280,6 @@ static const ColumnDef COLUMN_DEF_ACTION_LOGS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ACTION_LOGS,            // tableName
 	"start_time",                      // columnName
 	SQL_COLUMN_TYPE_DATETIME,          // type
 	0,                                 // columnLength
@@ -309,7 +290,6 @@ static const ColumnDef COLUMN_DEF_ACTION_LOGS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ACTION_LOGS,            // tableName
 	"end_time",                        // columnName
 	SQL_COLUMN_TYPE_DATETIME,          // type
 	0,                                 // columnLength
@@ -320,7 +300,6 @@ static const ColumnDef COLUMN_DEF_ACTION_LOGS[] = {
 	"0",                               // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ACTION_LOGS,            // tableName
 	"exec_failure_code",               // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -331,7 +310,6 @@ static const ColumnDef COLUMN_DEF_ACTION_LOGS[] = {
 	"0",                               // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ACTION_LOGS,            // tableName
 	"exit_code",                       // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -342,7 +320,6 @@ static const ColumnDef COLUMN_DEF_ACTION_LOGS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ACTION_LOGS,            // tableName
 	"server_id",                       // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -353,7 +330,6 @@ static const ColumnDef COLUMN_DEF_ACTION_LOGS[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_ACTION_LOGS,            // tableName
 	"event_id",                        // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength

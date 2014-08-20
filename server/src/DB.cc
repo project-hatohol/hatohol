@@ -32,7 +32,6 @@ static const ColumnDef COLUMN_DEF_TABLES_VERSION[] = {
 {
 	// This column has the schema version for '_dbclient' table.
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_TABLES_VERSION,         // tableName
 	"tables_id",                       // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -44,7 +43,6 @@ static const ColumnDef COLUMN_DEF_TABLES_VERSION[] = {
 }, {
 	// This column has the schema version for the sub class's table.
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_TABLES_VERSION,         // tableName
 	"version",                         // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength

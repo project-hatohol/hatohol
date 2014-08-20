@@ -32,7 +32,7 @@ static string getFullName(const DBAgent::TableProfile &tableProfile,
                           const size_t &columnIndex)
 {
 	string name = StringUtils::sprintf("%s.%s",
-	   tableProfile.columnDefs[columnIndex].tableName,
+	   tableProfile.name,
 	   tableProfile.columnDefs[columnIndex].columnName);
 	return name;
 }
@@ -43,7 +43,6 @@ static const char *TEST_TABLE_NAME1 = "test_table1";
 static const ColumnDef COLUMN_DEF_TEST0[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
-	TEST_TABLE_NAME0,                  // tableName
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -54,7 +53,6 @@ static const ColumnDef COLUMN_DEF_TEST0[] = {
 	NULL,                              // defaultValue
 },{
 	ITEM_ID_NOT_SET,                   // itemId
-	TEST_TABLE_NAME0,                  // tableName
 	"age",                             // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -65,7 +63,6 @@ static const ColumnDef COLUMN_DEF_TEST0[] = {
 	NULL,                              // defaultValue
 },{
 	ITEM_ID_NOT_SET,                   // itemId
-	TEST_TABLE_NAME0,                  // tableName
 	"name",                            // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -93,7 +90,6 @@ const DBAgent::TableProfile tableProfileTest0(
 static const ColumnDef COLUMN_DEF_TEST1[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
-	TEST_TABLE_NAME1,                  // tableName
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -104,7 +100,6 @@ static const ColumnDef COLUMN_DEF_TEST1[] = {
 	NULL,                              // defaultValue
 },{
 	ITEM_ID_NOT_SET,                   // itemId
-	TEST_TABLE_NAME1,                  // tableName
 	"tbl0_id",                         // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -115,7 +110,6 @@ static const ColumnDef COLUMN_DEF_TEST1[] = {
 	NULL,                              // defaultValue
 },{
 	ITEM_ID_NOT_SET,                   // itemId
-	TEST_TABLE_NAME1,                  // tableName
 	"my_age",                          // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -189,7 +183,10 @@ void test_constructorWithHostResourceQueryOption(gconstpointer data)
 	// Define synapse to pass the build. So the paramters are dummy and
 	// the object won't work well.
 	HostResourceQueryOption::Synapse
-	   synapse(tableProfileTest0, 0, 0, 0, 0, tableProfileTest1, 0, 0, 0);
+	   synapse(tableProfileTest0, 0, 0,
+		   tableProfileTest0, 0,
+		   true,
+		   tableProfileTest1, 0, 0, 0);
 	class MyOption : public HostResourceQueryOption {
 	public:
 		bool hostgroupIsUsed;

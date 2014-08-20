@@ -31,7 +31,10 @@ public:
 		const DBAgent::TableProfile &tableProfile;
 		const size_t                 selfIdColumnIdx;
 		const size_t                 serverIdColumnIdx;
+
+		const DBAgent::TableProfile &hostTableProfile;
 		const size_t                 hostIdColumnIdx;
+
 		const bool                   needToJoinHostgroup;
 
 		const DBAgent::TableProfile &hostgroupMapTableProfile;
@@ -42,6 +45,7 @@ public:
 		Synapse(const DBAgent::TableProfile &tableProfile,
 		     const size_t &selfIdColumnIdx,
 		     const size_t &serverIdColumnIdx,
+		     const DBAgent::TableProfile &hostTableProfile,
 		     const size_t &hostIdColumnIdx,
 		     const bool &needToJoinHostgroup,
 		     const DBAgent::TableProfile &hostgroupMapTableProfile,
