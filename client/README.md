@@ -33,8 +33,9 @@ maintained by [joequery]
 (http://joequery.github.io/Stupid-Table-Plugin/)
 
 ## How to setup
-> See also [this page](../doc/install/hatohol13.12-centos6.4.md)
+> See also [this page](https://github.com/project-hatohol/website/blob/master/contents/docs/install/14.06/ja/index.md)
 > to setup Hatohol for CentOS with the binary packages.
+> (Only Japanese explaination is provided.)
 
 ### Install Hatohol Client
 Hatohol Client is written as PATH FREE. So you can place it anywhere.
@@ -55,17 +56,22 @@ The following shows examples to install Required Packages.
 
 
 ### Create the database
+    $ mysql -u root -p
+    Enter password:(input password)
 
-    > CREATE DATABASE hatohol_client;
-    > GRANT ALL PRIVILEGES ON hatohol_client.* TO hatohol@localhost IDENTIFIED BY 'hatohol';
+    mysql> CREATE DATABASE hatohol_client;
+    mysql> GRANT ALL PRIVILEGES ON hatohol_client.* TO hatohol@localhost IDENTIFIED BY 'hatohol';
 
 ### Create the database and the tables
+You must change the current directory to "client" under the top directory.
 
     $ ./manage.py syncdb
 
 ## How to run
 Hatohol Client is a standard Django project. So you can run it on any WSGI
 compliant application server.
+
+You must change the current directory to "client" under the top directory.
 
 Alternatively you can run with a runserver sub-command of Django's manage.py.
 
