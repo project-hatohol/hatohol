@@ -21,6 +21,7 @@
 #include <unistd.h>
 #include "DBAgentMySQL.h"
 #include "SQLUtils.h"
+#include "SeparatorInjector.h"
 #include "Params.h"
 using namespace std;
 using namespace mlpl;
@@ -344,36 +345,53 @@ void DBAgentMySQL::insert(const DBAgent::InsertArg &insertArg)
 	               "numColumn: %zd != row: %zd",
 	               numColumns, insertArg.row->getNumberOfItems());
 
-	string upsertOpt;
+	SeparatorInjector commaInjector(",");
 	string query = StringUtils::sprintf("INSERT INTO %s (",
 	                                    insertArg.tableProfile.name);
 	for (size_t i = 0; i < numColumns; i++) {
-		const ColumnDef &columnDef =
-		  insertArg.tableProfile.columnDefs[i];
+		const ColumnDef &columnDef = insertArg.tableProfile.columnDefs[i];
+		commaInjector(query);
 		query += columnDef.columnName;
-		if (i < numColumns -1)
-			query += ",";
 	}
-	query += ") VALUES (";
+
+	vector<string> values;
+	values.reserve(numColumns);
+	struct UpdateParam {
+		const char *column;
+		const char *value;
+	} updateParams[numColumns+1]; // To improve performance, we just having pointers.
+	size_t updateParamIdx = 0;
+
 	for (size_t i = 0; i < numColumns; i++) {
-		const ColumnDef &columnDef =
-		  insertArg.tableProfile.columnDefs[i];
-		if (i > 0) {
-			query += ",";
-			if (insertArg.upsertOnDuplicate)
-				upsertOpt += ",";
-		}
-		string value = valueMaker(insertArg, i, &m_impl->mysql);
-		query += value;
-		if (insertArg.upsertOnDuplicate) {
-			upsertOpt += sprintf("%s=%s", columnDef.columnName,
-			                     value.c_str());
-		}
+		const ColumnDef &columnDef = insertArg.tableProfile.columnDefs[i];
+		values.push_back(valueMaker(insertArg, i, &m_impl->mysql));
+		if (!insertArg.upsertOnDuplicate)
+			continue;
+
+		if (columnDef.keyType == SQL_KEY_PRI)
+			continue;
+		updateParams[updateParamIdx].column = columnDef.columnName;
+		updateParams[updateParamIdx].value  = values.back().c_str();
+		updateParamIdx++;
+	}
+	updateParams[updateParamIdx].column = NULL;
+
+	query += ") VALUES (";
+	commaInjector.clear();
+	for (size_t i = 0; i < values.size(); i++) {
+		commaInjector(query);
+		query += values[i];
 	}
 	query += ")";
+
 	if (insertArg.upsertOnDuplicate) {
 		query += " ON DUPLICATE KEY UPDATE ";
-		query += upsertOpt;
+		commaInjector.clear();
+		UpdateParam *updateParam = updateParams;
+		for (; updateParam->column; updateParam++) {
+			commaInjector(query);
+			query += sprintf("%s=%s", updateParam->column, updateParam->value);
+		}
 	}
 	execSql(query);
 }
