@@ -121,7 +121,7 @@ public:
 			  tableProfileTest.columnDefs[i];
 			const string &actualStmt = arg.statements[i];
 			if (useFullName) {
-				expectStmt = columnDef.tableName;
+				expectStmt = tableProfileTest.name;
 				expectStmt += ".";
 			}
 			expectStmt += columnDef.columnName;
@@ -192,7 +192,7 @@ public:
 		const ColumnDef *def = &tableProfileTest.columnDefs[columnIdx];
 		cppcut_assert_equal(
 		  StringUtils::sprintf("%s.%s",
-		                       def->tableName, def->columnName),
+		                       tableProfileTest.name, def->columnName),
 		  arg.statements[0]);
 		cppcut_assert_equal(def->type, arg.columnTypes[0]);
 
@@ -207,7 +207,8 @@ public:
 		def = &tableProfileTestAutoInc.columnDefs[columnIdx];
 		cppcut_assert_equal(
 		  StringUtils::sprintf("%s.%s",
-		                       def->tableName, def->columnName),
+		                       tableProfileTestAutoInc.name,
+				       def->columnName),
 		  arg.statements[1]);
 		cppcut_assert_equal(def->type, arg.columnTypes[1]);
 	}

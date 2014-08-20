@@ -32,7 +32,7 @@ static string getFullName(const DBAgent::TableProfile &tableProfile,
                           const size_t &columnIndex)
 {
 	string name = StringUtils::sprintf("%s.%s",
-	   tableProfile.columnDefs[columnIndex].tableName,
+	   tableProfile.name,
 	   tableProfile.columnDefs[columnIndex].columnName);
 	return name;
 }
