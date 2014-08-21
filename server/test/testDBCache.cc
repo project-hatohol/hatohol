@@ -218,7 +218,7 @@ void test_getMonitoring(void)
 void test_getUser(void)
 {
 	DBCache cache;
-	assertType(DBTablesUser, cache.getUser());
+	assertType(DBTablesUser, &cache.getUser());
 }
 
 #if 0

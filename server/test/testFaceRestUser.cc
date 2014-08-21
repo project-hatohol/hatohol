@@ -176,7 +176,7 @@ static void _assertUpdateOrAddUser(const string &name)
 	  Utils::sha256( parameters["password"]).c_str(),
 	  parameters["flags"].c_str());
 	DBCache cache;
-	assertDBContent(&cache.getUser()->getDBAgent(), statement, expect);
+	assertDBContent(&cache.getUser().getDBAgent(), statement, expect);
 }
 #define assertUpdateOrAddUser(U) cut_trace(_assertUpdateOrAddUser(U))
 

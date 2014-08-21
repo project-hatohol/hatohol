@@ -181,15 +181,16 @@ DBCache::~DBCache()
 {
 }
 
-DBTablesUser *DBCache::getUser(void)
-{
-	return get<DBTablesUser>(DB_TABLES_ID_USER);
-}
-
 DBTablesConfig &DBCache::getConfig(void)
 {
 	return *get<DBTablesConfig>(DB_DOMAIN_ID_CONFIG);
 }
+
+DBTablesUser &DBCache::getUser(void)
+{
+	return *get<DBTablesUser>(DB_TABLES_ID_USER);
+}
+
 
 DBTablesAction *DBCache::getAction(void)
 {

@@ -641,7 +641,7 @@ void _assertUsersInDB(const UserIdSet &excludeUserIdSet)
 		  userInfo.flags);
 	}
 	DBCache cache;
-	assertDBContent(&cache.getUser()->getDBAgent(), statement, expect);
+	assertDBContent(&cache.getUser().getDBAgent(), statement, expect);
 }
 
 void _assertAccessInfoInDB(const AccessInfoIdSet &excludeAccessInfoIdSet)
@@ -660,7 +660,7 @@ void _assertAccessInfoInDB(const AccessInfoIdSet &excludeAccessInfoIdSet)
 		  id, accessInfo.userId, accessInfo.serverId, accessInfo.hostgroupId);
 	}
 	DBCache cache;
-	assertDBContent(&cache.getUser()->getDBAgent(), statement, expect);
+	assertDBContent(&cache.getUser().getDBAgent(), statement, expect);
 }
 
 void _assertUserRoleInfoInDB(UserRoleInfo &userRoleInfo) 
@@ -691,7 +691,7 @@ void _assertUserRolesInDB(const UserRoleIdSet &excludeUserRoleIdSet)
 		expect += makeUserRoleInfoOutput(userRoleInfo);
 	}
 	DBCache cache;
-	assertDBContent(&cache.getUser()->getDBAgent(), statement, expect);
+	assertDBContent(&cache.getUser().getDBAgent(), statement, expect);
 }
 
 void _assertIncidentTrackersInDB(const IncidentTrackerIdSet &excludeServerIdSet)
@@ -1110,10 +1110,10 @@ void defineDBPath(DBDomainId domainId, const string &dbPath)
 UserIdType searchMaxTestUserId(void)
 {
 	DBCache cache;
-	DBTablesUser *dbUser = cache.getUser();
+	DBTablesUser &dbUser = cache.getUser();
 	UserInfoList userInfoList;
 	UserQueryOption option(USER_ID_SYSTEM);
-	dbUser->getUserInfoList(userInfoList, option);
+	dbUser.getUserInfoList(userInfoList, option);
 	cppcut_assert_equal(false, userInfoList.empty());
 
 	UserIdType userId = 0;
@@ -1133,10 +1133,10 @@ static UserIdType findUserCommon(const OperationPrivilegeType &type,
 	OperationPrivilegeFlag flag = OperationPrivilege::makeFlag(type);
 
 	DBCache cache;
-	DBTablesUser *dbUser = cache.getUser();
+	DBTablesUser &dbUser = cache.getUser();
 	UserInfoList userInfoList;
 	UserQueryOption option(USER_ID_SYSTEM);
-	dbUser->getUserInfoList(userInfoList, option);
+	dbUser.getUserInfoList(userInfoList, option);
 	cppcut_assert_equal(false, userInfoList.empty());
 
 	UserInfoListIterator userInfo = userInfoList.begin();

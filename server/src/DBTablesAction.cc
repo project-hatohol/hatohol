@@ -1287,8 +1287,8 @@ bool ActionUserIdSet::isValidActionOwnerId(const UserIdType id)
 void ActionUserIdSet::get(UserIdSet &userIdSet)
 {
 	DBCache cache;
-	DBTablesUser *dbUser = cache.getUser();
-	dbUser->getUserIdSet(userIdSet);
+	DBTablesUser &dbUser = cache.getUser();
+	dbUser.getUserIdSet(userIdSet);
 }
 
 // ---------------------------------------------------------------------------

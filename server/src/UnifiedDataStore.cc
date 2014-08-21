@@ -441,88 +441,88 @@ void UnifiedDataStore::getUserList(UserInfoList &userList,
                                    const UserQueryOption &option)
 {
 	DBCache cache;
-	DBTablesUser *dbUser = cache.getUser();
-	dbUser->getUserInfoList(userList, option);
+	DBTablesUser &dbUser = cache.getUser();
+	dbUser.getUserInfoList(userList, option);
 }
 
 HatoholError UnifiedDataStore::addUser(
   UserInfo &userInfo, const OperationPrivilege &privilege)
 {
 	DBCache cache;
-	DBTablesUser *dbUser = cache.getUser();
-	return dbUser->addUserInfo(userInfo, privilege);
+	DBTablesUser &dbUser = cache.getUser();
+	return dbUser.addUserInfo(userInfo, privilege);
 }
 
 HatoholError UnifiedDataStore::updateUser(
   UserInfo &userInfo, const OperationPrivilege &privilege)
 {
 	DBCache cache;
-	DBTablesUser *dbUser = cache.getUser();
-	return dbUser->updateUserInfo(userInfo, privilege);
+	DBTablesUser &dbUser = cache.getUser();
+	return dbUser.updateUserInfo(userInfo, privilege);
 }
 
 HatoholError UnifiedDataStore::deleteUser(
   UserIdType userId, const OperationPrivilege &privilege)
 {
 	DBCache cache;
-	DBTablesUser *dbUser = cache.getUser();
-	return dbUser->deleteUserInfo(userId, privilege);
+	DBTablesUser &dbUser = cache.getUser();
+	return dbUser.deleteUserInfo(userId, privilege);
 }
 
 HatoholError UnifiedDataStore::getAccessInfoMap(
   ServerAccessInfoMap &srvAccessInfoMap, const AccessInfoQueryOption &option)
 {
 	DBCache cache;
-	DBTablesUser *dbUser = cache.getUser();
-	return dbUser->getAccessInfoMap(srvAccessInfoMap, option);
+	DBTablesUser &dbUser = cache.getUser();
+	return dbUser.getAccessInfoMap(srvAccessInfoMap, option);
 }
 
 HatoholError UnifiedDataStore::addAccessInfo(
   AccessInfo &userInfo, const OperationPrivilege &privilege)
 {
 	DBCache cache;
-	DBTablesUser *dbUser = cache.getUser();
-	return dbUser->addAccessInfo(userInfo, privilege);
+	DBTablesUser &dbUser = cache.getUser();
+	return dbUser.addAccessInfo(userInfo, privilege);
 }
 
 HatoholError UnifiedDataStore::deleteAccessInfo(
   AccessInfoIdType id, const OperationPrivilege &privilege)
 {
 	DBCache cache;
-	DBTablesUser *dbUser = cache.getUser();
-	return dbUser->deleteAccessInfo(id, privilege);
+	DBTablesUser &dbUser = cache.getUser();
+	return dbUser.deleteAccessInfo(id, privilege);
 }
 
 void UnifiedDataStore::getUserRoleList(UserRoleInfoList &userRoleList,
 				       const UserRoleQueryOption &option)
 {
 	DBCache cache;
-	DBTablesUser *dbUser = cache.getUser();
-	dbUser->getUserRoleInfoList(userRoleList, option);
+	DBTablesUser &dbUser = cache.getUser();
+	dbUser.getUserRoleInfoList(userRoleList, option);
 }
 
 HatoholError UnifiedDataStore::addUserRole(
   UserRoleInfo &userRoleInfo, const OperationPrivilege &privilege)
 {
 	DBCache cache;
-	DBTablesUser *dbUser = cache.getUser();
-	return dbUser->addUserRoleInfo(userRoleInfo, privilege);
+	DBTablesUser &dbUser = cache.getUser();
+	return dbUser.addUserRoleInfo(userRoleInfo, privilege);
 }
 
 HatoholError UnifiedDataStore::updateUserRole(
   UserRoleInfo &userRoleInfo, const OperationPrivilege &privilege)
 {
 	DBCache cache;
-	DBTablesUser *dbUser = cache.getUser();
-	return dbUser->updateUserRoleInfo(userRoleInfo, privilege);
+	DBTablesUser &dbUser = cache.getUser();
+	return dbUser.updateUserRoleInfo(userRoleInfo, privilege);
 }
 
 HatoholError UnifiedDataStore::deleteUserRole(
   UserRoleIdType userRoleId, const OperationPrivilege &privilege)
 {
 	DBCache cache;
-	DBTablesUser *dbUser = cache.getUser();
-	return dbUser->deleteUserRoleInfo(userRoleId, privilege);
+	DBTablesUser &dbUser = cache.getUser();
+	return dbUser.deleteUserRoleInfo(userRoleId, privilege);
 }
 
 void UnifiedDataStore::getTargetServers(

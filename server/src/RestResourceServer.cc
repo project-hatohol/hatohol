@@ -65,8 +65,8 @@ static bool canUpdateServer(
         if (!privilege.has(OPPRVLG_UPDATE_SERVER))
                 return false;
         DBCache cache;
-        DBTablesUser *dbUser = cache.getUser();
-        return dbUser->isAccessible(serverInfo.id, privilege);
+        DBTablesUser &dbUser = cache.getUser();
+        return dbUser.isAccessible(serverInfo.id, privilege);
 }
 
 static void addNumberOfAllowedHostgroups(UnifiedDataStore *dataStore,

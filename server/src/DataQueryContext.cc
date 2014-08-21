@@ -82,9 +82,9 @@ const ServerHostGrpSetMap &DataQueryContext::getServerHostGrpSetMap(void)
 	if (!m_impl->srvHostGrpSetMap) {
 		m_impl->srvHostGrpSetMap = new ServerHostGrpSetMap();
 		DBCache cache;
-		DBTablesUser *dbUser = cache.getUser();
-		dbUser->getServerHostGrpSetMap(*m_impl->srvHostGrpSetMap,
-		                               m_impl->privilege.getUserId());
+		DBTablesUser &dbUser = cache.getUser();
+		dbUser.getServerHostGrpSetMap(*m_impl->srvHostGrpSetMap,
+		                              m_impl->privilege.getUserId());
 	}
 	return *m_impl->srvHostGrpSetMap;
 }

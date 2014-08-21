@@ -126,7 +126,7 @@ void OperationPrivilege::setUserId(const UserIdType &userId)
 
 	UserInfo userInfo;
 	DBCache cache;
-	if (!cache.getUser()->getUserInfo(userInfo, userId)) {
+	if (!cache.getUser().getUserInfo(userInfo, userId)) {
 		MLPL_ERR("Failed to getUserInfo(): userId: "
 		         "%" FMT_USER_ID "\n", userId);
 		m_impl->userId = INVALID_USER_ID;

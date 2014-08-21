@@ -223,7 +223,7 @@ void _assertIsAccessible(const bool useAllServers = false)
 	loadTestDBUser();
 	loadTestDBAccessList();
 	DBCache cache;
-	DBTablesUser *dbUser = cache.getUser();
+	DBTablesUser &dbUser = cache.getUser();
 
 	// search the User ID and Server ID
 	ServerIdType serverId = 0;
@@ -249,11 +249,11 @@ void _assertIsAccessible(const bool useAllServers = false)
 
 	OperationPrivilege privilege;
 	privilege.setUserId(userId);
-	cppcut_assert_equal(true, dbUser->isAccessible(serverId, privilege));
+	cppcut_assert_equal(true, dbUser.isAccessible(serverId, privilege));
 
 	// invalid user
 	privilege.setUserId(INVALID_USER_ID);
-	cppcut_assert_equal(false, dbUser->isAccessible(serverId, privilege));
+	cppcut_assert_equal(false, dbUser.isAccessible(serverId, privilege));
 }
 #define assertIsAccessible(...) cut_trace(_assertIsAccessible(__VA_ARGS__))
 
@@ -968,7 +968,7 @@ void test_isAccessibleFalse(void)
 	loadTestDBUser();
 	loadTestDBAccessList();
 	DBCache cache;
-	DBTablesUser *dbUser = cache.getUser();
+	DBTablesUser &dbUser = cache.getUser();
 
 	// search for nonexisting User ID and Server ID
 	ServerIdType serverId = 0;
@@ -983,7 +983,7 @@ void test_isAccessibleFalse(void)
 	}
 	OperationPrivilege privilege;
 	privilege.setUserId(userId);
-	cppcut_assert_equal(false, dbUser->isAccessible(serverId, privilege));
+	cppcut_assert_equal(false, dbUser.isAccessible(serverId, privilege));
 }
 
 void test_constructorOfUserQueryOptionFromDataQueryContext(void)

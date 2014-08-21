@@ -549,9 +549,9 @@ string ServerQueryOption::getCondition(void) const
 
 	// check allowed servers
 	DBCache cache;
-	DBTablesUser *dbUser = cache.getUser();
+	DBTablesUser &dbUser = cache.getUser();
 	ServerHostGrpSetMap srvHostGrpSetMap;
-	dbUser->getServerHostGrpSetMap(srvHostGrpSetMap, getUserId());
+	dbUser.getServerHostGrpSetMap(srvHostGrpSetMap, getUserId());
 
 	size_t numServers = srvHostGrpSetMap.size();
 	if (numServers == 0) {
@@ -1325,8 +1325,8 @@ bool DBTablesConfig::canUpdateTargetServer(
 		return false;
 
 	DBCache cache;
-	DBTablesUser *dbUser = cache.getUser();
-	return dbUser->isAccessible(monitoringServerInfo->id, privilege, false);
+	DBTablesUser &dbUser = cache.getUser();
+	return dbUser.isAccessible(monitoringServerInfo->id, privilege, false);
 }
 
 bool DBTablesConfig::canDeleteTargetServer(
@@ -1339,8 +1339,8 @@ bool DBTablesConfig::canDeleteTargetServer(
 		return false;
 
 	DBCache cache;
-	DBTablesUser *dbUser = cache.getUser();
-	return dbUser->isAccessible(serverId, privilege);
+	DBTablesUser &dbUser = cache.getUser();
+	return dbUser.isAccessible(serverId, privilege);
 }
 
 void DBTablesConfig::selectArmPluginInfo(DBAgent::SelectExArg &arg)
