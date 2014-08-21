@@ -415,6 +415,7 @@ HatoholIncidentTrackerEditor.prototype.resetWidgetState = function() {
       $("#editIncidentTrackerPasswordCheckbox").show();
     }
   } else {
+    $("label[for=editIncidentTrackerUserName]").text(gettext("API Key"));
     $("#editIncidentTrackerPasswordArea").hide();
   }
   $("#editIncidentTrackerPasswordCheckbox").prop("checked", editPassword);
