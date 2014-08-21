@@ -272,7 +272,7 @@ struct CommandActionContext {
 	 *
 	 * @param actionDef A reference of ActionDef.
 	 * @param eventInfo A reference of EventInfo.
-	 * @param dbAction  A reference of DBClientAction.
+	 * @param dbAction  A reference of DBTablesAction.
 	 * @param argVect   A vector that has command line components.
 	 *
 	 * @return
@@ -281,7 +281,7 @@ struct CommandActionContext {
 	 */
 	static WaitingCommandActionInfo *reserve(
 	  size_t &reservationId, const ActionDef &actionDef,
-	  const EventInfo &eventInfo, DBClientAction &dbAction,
+	  const EventInfo &eventInfo, DBTablesAction &dbAction,
 	  const StringVector &argVect)
 	{
 		WaitingCommandActionInfo *waitCmdInfo = NULL;
@@ -362,7 +362,7 @@ struct CommandActionContext {
 protected:
 	static WaitingCommandActionInfo *insertToWaitingCommandActionList(
 	  const ActionDef &actionDef, const EventInfo &eventInfo,
-	  DBClientAction &dbAction, const StringVector &argVect)
+	  DBTablesAction &dbAction, const StringVector &argVect)
 	{
 		// This function assumes that 'lock' is being locked.
 		WaitingCommandActionInfo *waitCmdInfo =
@@ -518,7 +518,7 @@ static bool shouldSkipIncidentSender(
 
 void ActionManager::checkEvents(const EventInfoList &eventList)
 {
-	DBClientAction dbAction;
+	DBTablesAction dbAction;
 	EventInfoListConstIterator it = eventList.begin();
 	for (; it != eventList.end(); ++it) {
 		ActionDefList actionDefList;
@@ -576,7 +576,7 @@ bool ActionManager::shouldSkipByTime(const EventInfo &eventInfo)
 }
 
 bool ActionManager::shouldSkipByLog(const EventInfo &eventInfo,
-                                    DBClientAction &dbAction)
+                                    DBTablesAction &dbAction)
 {
 	ActionLog actionLog;
 	bool found;
@@ -599,7 +599,7 @@ static bool checkActionOwner(const ActionDef &actionDef)
 
 HatoholError ActionManager::runAction(const ActionDef &actionDef,
                                       const EventInfo &_eventInfo,
-                                      DBClientAction &dbAction)
+                                      DBTablesAction &dbAction)
 {
 	EventInfo eventInfo(_eventInfo);
 	fillTriggerInfoInEventInfo(eventInfo);
@@ -631,14 +631,14 @@ struct ActionManager::ActorProfile : public ActorCollector::Profile {
 
 	const ActionDef &actionDef;
 	const EventInfo &eventInfo;
-	DBClientAction  &dbAction;
+	DBTablesAction  &dbAction;
 	SpawnPostproc    postproc;
 	void            *postprocPriv;
 	WaitingCommandActionInfo *waitCmdInfo;
 	ActorInfo                *actorInfo;
 
 	ActorProfile(const ActionDef &_actionDef, const EventInfo &_eventInfo,
-	             DBClientAction  &_dbAction,
+	             DBTablesAction  &_dbAction,
 	             SpawnPostproc _postproc, void *_postprocPriv)
 	: actionDef(_actionDef),
 	  eventInfo(_eventInfo),
@@ -697,7 +697,7 @@ struct ActionManager::ActorProfile : public ActorCollector::Profile {
 
 bool ActionManager::spawn(
   const ActionDef &actionDef, const EventInfo &eventInfo,
-  DBClientAction &dbAction, const gchar **argv,
+  DBTablesAction &dbAction, const gchar **argv,
   SpawnPostproc postproc, void *postprocPriv)
 {
 	ActorProfile actorProf(actionDef, eventInfo, dbAction,
@@ -731,7 +731,7 @@ bool ActionManager::spawn(
  */
 void ActionManager::execCommandAction(const ActionDef &actionDef,
                                       const EventInfo &eventInfo,
-                                      DBClientAction &dbAction,
+                                      DBTablesAction &dbAction,
                                       ActorInfo *_actorInfo)
 {
 	HATOHOL_ASSERT(actionDef.type == ACTION_COMMAND,
@@ -819,7 +819,7 @@ void ActionManager::spawnPostprocCommandAction(ActorInfo *actorInfo,
  */
 void ActionManager::execCommandActionCore(
   const ActionDef &actionDef, const EventInfo &eventInfo,
-  DBClientAction &dbAction, void *postprocCtx,
+  DBTablesAction &dbAction, void *postprocCtx,
   const StringVector &argVect)
 {
 	const gchar *argv[argVect.size()+1];
@@ -849,7 +849,7 @@ void ActionManager::addCommandDirectory(string &path)
  */
 void ActionManager::execResidentAction(const ActionDef &actionDef,
                                        const EventInfo &eventInfo,
-                                       DBClientAction &dbAction,
+                                       DBTablesAction &dbAction,
                                        ActorInfo *_actorInfo)
 {
 	HATOHOL_ASSERT(actionDef.type == ACTION_RESIDENT,
@@ -863,7 +863,7 @@ void ActionManager::execResidentAction(const ActionDef &actionDef,
 		ResidentInfo::residentMapLock.unlock();
 
 		// queue ResidentNotifyInfo and try to notify
-		DBClientAction dbAction;
+		DBTablesAction dbAction;
 		ResidentNotifyInfo *notifyInfo =
 		   new ResidentNotifyInfo(residentInfo);
 		notifyInfo->eventInfo = eventInfo; // just copy
@@ -1061,12 +1061,12 @@ void ActionManager::gotNotifyEventAckCb(GIOStatus stat, SmartBuffer &sbuf,
 	// log the end of action
 	HATOHOL_ASSERT(notifyInfo->logId != INVALID_ACTION_LOG_ID,
 	               "log ID: %" PRIx64, notifyInfo->logId);
-	DBClientAction::LogEndExecActionArg logArg;
+	DBTablesAction::LogEndExecActionArg logArg;
 	logArg.logId = notifyInfo->logId;
 	logArg.status = ACTLOG_STAT_SUCCEEDED,
 	logArg.exitCode = resultCode;
 
-	DBClientAction dbAction;
+	DBTablesAction dbAction;
 	dbAction.logEndExecAction(logArg);
 
 	// remove the notifyInfo 
@@ -1106,8 +1106,8 @@ void ActionManager::sendParameters(ResidentInfo *residentInfo)
  */
 gboolean ActionManager::commandActionTimeoutCb(gpointer data)
 {
-	DBClientAction dbAction;
-	DBClientAction::LogEndExecActionArg logArg;
+	DBTablesAction dbAction;
+	DBTablesAction::LogEndExecActionArg logArg;
 	ActorInfo *actorInfo = static_cast<ActorInfo *>(data);
 
 	// update an action log
@@ -1187,7 +1187,7 @@ void ActionManager::spawnPostprocResidentAction(ActorInfo *actorInfo,
  */
 ResidentInfo *ActionManager::launchResidentActionYard
   (const ActionDef &actionDef, const EventInfo &eventInfo,
-   DBClientAction &dbAction, ActorInfo *actorInfoCopy)
+   DBTablesAction &dbAction, ActorInfo *actorInfoCopy)
 {
 	// make a ResidentInfo instance.
 	ResidentInfo *residentInfo = new ResidentInfo(this, actionDef);
@@ -1288,7 +1288,7 @@ void ActionManager::notifyEvent(ResidentInfo *residentInfo,
 	                       gotNotifyEventAckCb);
 
 	// create or update an action log
-	DBClientAction dbAction;
+	DBTablesAction dbAction;
 	HATOHOL_ASSERT(notifyInfo->logId != INVALID_ACTION_LOG_ID,
 	               "An action log ID is not set.");
 	dbAction.updateLogStatusToStart(notifyInfo->logId);
@@ -1302,14 +1302,14 @@ static void onIncidentSenderJobStatusChanged(
   const EventInfo &info, const IncidentSender::JobStatus &status,
   void *userData)
 {
-	DBClientAction::LogEndExecActionArg *logArg
-	  = static_cast<DBClientAction::LogEndExecActionArg *>(userData);
+	DBTablesAction::LogEndExecActionArg *logArg
+	  = static_cast<DBTablesAction::LogEndExecActionArg *>(userData);
 	bool completed = false;
 
 	switch (status) {
 	case IncidentSender::JOB_STARTED:
 	{
-		DBClientAction dbAction;
+		DBTablesAction dbAction;
 		dbAction.updateLogStatusToStart(logArg->logId);
 		break;
 	}
@@ -1328,7 +1328,7 @@ static void onIncidentSenderJobStatusChanged(
 	}
 
 	if (completed) {
-		DBClientAction dbAction;
+		DBTablesAction dbAction;
 		dbAction.logEndExecAction(*logArg);
 		delete logArg;
 	}
@@ -1341,7 +1341,7 @@ static void onIncidentSenderJobStatusChanged(
  */
 void ActionManager::execIncidentSenderAction(const ActionDef &actionDef,
 					     const EventInfo &eventInfo,
-					     DBClientAction &dbAction)
+					     DBTablesAction &dbAction)
 {
 	HATOHOL_ASSERT(actionDef.type == ACTION_INCIDENT_SENDER,
 	               "Invalid type: %d\n", actionDef.type);
@@ -1355,8 +1355,8 @@ void ActionManager::execIncidentSenderAction(const ActionDef &actionDef,
 	}
 	IncidentSenderManager &senderManager
 	  = IncidentSenderManager::getInstance();
-	DBClientAction::LogEndExecActionArg *logArg
-	  = new DBClientAction::LogEndExecActionArg();
+	DBTablesAction::LogEndExecActionArg *logArg
+	  = new DBTablesAction::LogEndExecActionArg();
 	logArg->logId = dbAction.createActionLog(actionDef, eventInfo,
 						 ACTLOG_EXECFAIL_NONE,
 						 ACTLOG_STAT_QUEUING);
@@ -1402,7 +1402,7 @@ void ActionManager::commandActorCollectedCb(const ActorInfo *actorInfo)
  */
 void ActionManager::commandActorPostCollectedCb(const ActorInfo *actorInfo)
 {
-	DBClientAction dbAction;
+	DBTablesAction dbAction;
 	WaitingCommandActionInfo *waitCmdInfo =
 	  static_cast<WaitingCommandActionInfo *>(actorInfo->collectedCbPriv);
 	
@@ -1481,12 +1481,12 @@ void ActionManager::closeResident(ResidentInfo *residentInfo)
 void ActionManager::closeResident(ResidentNotifyInfo *notifyInfo,
                                   ActionLogExecFailureCode failureCode)
 {
-	DBClientAction::LogEndExecActionArg logArg;
+	DBTablesAction::LogEndExecActionArg logArg;
 	logArg.logId = notifyInfo->logId;
 	logArg.status = ACTLOG_STAT_FAILED;
 	logArg.failureCode = failureCode;
 	logArg.exitCode = 0;
-	DBClientAction dbAction;
+	DBTablesAction dbAction;
 	dbAction.logEndExecAction(logArg);
 
 	// remove this notifyInfo from the queue in the parent ResidentInfo
@@ -1508,7 +1508,7 @@ void ActionManager::closeResident(ResidentNotifyInfo *notifyInfo,
  */
 void ActionManager::postProcSpawnFailure(
   const ActionDef &actionDef, const EventInfo &eventInfo,
-  DBClientAction &dbAction, ActorInfo *actorInfo,
+  DBTablesAction &dbAction, ActorInfo *actorInfo,
   uint64_t *logId, const GError *error, bool logUpdateFlag)
 {
 	// make an action log
@@ -1520,7 +1520,7 @@ void ActionManager::postProcSpawnFailure(
 		  dbAction.createActionLog(actionDef, eventInfo, failureCode);
 	} else {
 		actorInfo->logId = *logId;
-		DBClientAction::LogEndExecActionArg logArg;
+		DBTablesAction::LogEndExecActionArg logArg;
 		logArg.logId = *logId;
 		logArg.status = ACTLOG_STAT_FAILED;
 		logArg.failureCode = failureCode;

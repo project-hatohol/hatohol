@@ -921,7 +921,7 @@ void loadTestDBArmPlugin(void)
 
 void loadTestDBAction(void)
 {
-	DBClientAction dbAction;
+	DBTablesAction dbAction;
 	OperationPrivilege privilege(USER_ID_SYSTEM);
 	for (size_t i = 0; i < NumTestActionDef; i++)
 		dbAction.addAction(testActionDef[i], privilege);

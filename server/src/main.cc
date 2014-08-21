@@ -75,7 +75,7 @@ gboolean exitFunc(GIOChannel *source, GIOCondition condition, gpointer data)
 	ExecContext *impl = static_cast<ExecContext *>(data);
 
 	impl->unifiedDataStore->stop();
-	DBClientAction::stop();
+	DBTablesAction::stop();
 
 	// TODO: implement
 	// ChildProcessManager::getInstance()->quit();

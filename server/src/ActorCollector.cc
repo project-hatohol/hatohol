@@ -47,7 +47,7 @@ WaitChildSet ActorCollector::Impl::waitChildSet;
 
 struct ActorCollector::ActorContext {
 	ActorInfo *actorInfo;
-	DBClientAction::LogEndExecActionArg logArg;
+	DBTablesAction::LogEndExecActionArg logArg;
 
 	ActorContext(void)
 	: actorInfo(NULL)
@@ -211,7 +211,7 @@ size_t ActorCollector::getNumberOfWaitingActors(void)
 void ActorCollector::notifyChildSiginfo(
   const siginfo_t *info, ActorContext &actorCtx)
 {
-	DBClientAction::LogEndExecActionArg &logArg = actorCtx.logArg;
+	DBTablesAction::LogEndExecActionArg &logArg = actorCtx.logArg;
 
 	ChildSigInfo childSigInfo;
 	childSigInfo.pid      = info->si_pid;
@@ -248,10 +248,10 @@ void ActorCollector::notifyChildSiginfo(
 void ActorCollector::postCollectedProc(ActorContext &actorCtx)
 {
 	ActorInfo *actorInfo = actorCtx.actorInfo;
-	DBClientAction::LogEndExecActionArg &logArg = actorCtx.logArg;
+	DBTablesAction::LogEndExecActionArg &logArg = actorCtx.logArg;
 	// log the action result if needed
 	if (!actorInfo->dontLog) {
-		DBClientAction dbAction;
+		DBTablesAction dbAction;
 		logArg.logId = actorInfo->logId;
 		dbAction.logEndExecAction(logArg);
 	}

@@ -242,7 +242,7 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 	                    eventsArg.expectedRecords.size());
 	assertValueInParser(g_parser, "lastUnifiedEventId",
 	                    eventsArg.expectedRecords.size());
-	DBClientAction dbAction;
+	DBTablesAction dbAction;
 	bool shouldHaveIncident = dbAction.isIncidentSenderEnabled();
 	assertValueInParser(g_parser, "haveIncident", shouldHaveIncident);
 

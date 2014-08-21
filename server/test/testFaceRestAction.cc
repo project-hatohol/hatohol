@@ -212,9 +212,9 @@ void test_addAction(void)
 	assertAddAction(params, userId);
 
 	// check the content in the DB
-	DBClientAction dbAction;
+	DBTablesAction dbAction;
 	string statement = "select * from ";
-	statement += DBClientAction::getTableNameActions();
+	statement += DBTablesAction::getTableNameActions();
 	string expect;
 	int expectedId = 1;
 	expect += StringUtils::sprintf("%d|", expectedId);
@@ -260,9 +260,9 @@ void test_addActionParameterFull(void)
 	assertAddAction(params, userId);
 
 	// check the content in the DB
-	DBClientAction dbAction;
+	DBTablesAction dbAction;
 	string statement = "select * from ";
-	statement += DBClientAction::getTableNameActions();
+	statement += DBTablesAction::getTableNameActions();
 	string expect;
 	int expectedId = 1;
 	expect += StringUtils::sprintf("%d|%d|", expectedId, serverId);
@@ -299,9 +299,9 @@ void test_addActionParameterOver32bit(void)
 	assertAddAction(params, userId);
 
 	// check the content in the DB
-	DBClientAction dbAction;
+	DBTablesAction dbAction;
 	string statement = "select host_id, host_group_id, trigger_id from ";
-	statement += DBClientAction::getTableNameActions();
+	statement += DBTablesAction::getTableNameActions();
 	string expect;
 	expect += StringUtils::sprintf("%" PRIu64 "|%" PRIu64 "|%" PRIu64,
 	  hostId, hostgroupId, triggerId);
@@ -321,9 +321,9 @@ void test_addActionComplicatedCommand(void)
 	assertAddAction(params, findUserWith(OPPRVLG_CREATE_ACTION));
 
 	// check the content in the DB
-	DBClientAction dbAction;
+	DBTablesAction dbAction;
 	string statement = "select command from ";
-	statement += DBClientAction::getTableNameActions();
+	statement += DBTablesAction::getTableNameActions();
 	assertDBContent(&dbAction.getDBAgent(), statement, command);
 }
 
@@ -340,9 +340,9 @@ void test_addActionCommandWithJapanese(void)
 	assertAddAction(params, findUserWith(OPPRVLG_CREATE_ACTION));
 
 	// check the content in the DB
-	DBClientAction dbAction;
+	DBTablesAction dbAction;
 	string statement = "select command from ";
-	statement += DBClientAction::getTableNameActions();
+	statement += DBTablesAction::getTableNameActions();
 	assertDBContent(&dbAction.getDBAgent(), statement, command);
 }
 
@@ -397,9 +397,9 @@ void test_deleteAction(void)
 		expect += StringUtils::sprintf("%d\n", expectedId);
 	}
 	string statement = "select action_id from ";
-	statement += DBClientAction::getTableNameActions();
+	statement += DBTablesAction::getTableNameActions();
 	statement += " order by action_id asc";
-	DBClientAction dbAction;
+	DBTablesAction dbAction;
 	assertDBContent(&dbAction.getDBAgent(), statement, expect);
 }
 

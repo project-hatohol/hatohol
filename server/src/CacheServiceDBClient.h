@@ -41,7 +41,7 @@ public:
 	DBClientHatohol *getHatohol(void);
 	DBTablesUser    *getUser(void);
 	DBTablesConfig  *getConfig(void);
-	DBClientAction  *getAction(void);
+	DBTablesAction  *getAction(void);
 
 private:
 	/**

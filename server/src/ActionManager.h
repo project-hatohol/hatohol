@@ -105,17 +105,17 @@ protected:
 	                                    gpointer data);
 	bool shouldSkipByTime(const EventInfo &eventInfo);
 	bool shouldSkipByLog(const EventInfo &eventInfo,
-	                     DBClientAction &dbAction);
+	                     DBTablesAction &dbAction);
 	HatoholError runAction(const ActionDef &actionDef,
 	                       const EventInfo &eventInfo,
-	                       DBClientAction &dbAction);
+	                       DBTablesAction &dbAction);
 
 	/**
 	 * Spawn an actor.
 	 *
 	 * @param actionDef An ActionDef instance.
 	 * @param eventInfo An EventInfo instance.
-	 * @param dbAgent   An DBClientAction instance.
+	 * @param dbAgent   An DBTablesAction instance.
 	 *
 	 * @param argv
 	 * An argument array for the command to be spawned. The first element
@@ -135,7 +135,7 @@ protected:
 	 */
 	static bool spawn(const ActionDef &actionDef,
 	                  const EventInfo &eventInfo,
-	                  DBClientAction &dbAction, const gchar **argv,
+	                  DBTablesAction &dbAction, const gchar **argv,
 	                  SpawnPostproc postproc, void *postprocPriv);
 
 	/**
@@ -148,7 +148,7 @@ protected:
 	 * An EventInfo instance concerned with the action.
 	 *
 	 * @param dbAgent
-	 * An DBClientAction instance.
+	 * An DBTablesAction instance.
 	 *
 	 * @param actorInfo
 	 * If this parameter is not NULL, information about the executed
@@ -157,12 +157,12 @@ protected:
 	 */
 	void execCommandAction(const ActionDef &actionDef,
 	                       const EventInfo &eventInfo,
-	                       DBClientAction &dbAction,
+	                       DBTablesAction &dbAction,
 	                       ActorInfo *actorInfo = NULL);
 
 	static void execCommandActionCore(
 	  const ActionDef &actionDef, const EventInfo &eventInfo,
-	  DBClientAction &dbAction, void *postprocCtx,
+	  DBTablesAction &dbAction, void *postprocCtx,
 	  const mlpl::StringVector &argVect);
 	
 	static void addCommandDirectory(std::string &path);
@@ -177,7 +177,7 @@ protected:
 	 * An EventInfo instance concerned with the action.
 	 *
 	 * @param dbAgent
-	 * An DBClientAction instance.
+	 * An DBTablesAction instance.
 	 *
 	 * @param actorInfo
 	 * If this parameter is not NULL, information about the executed
@@ -186,12 +186,12 @@ protected:
 	 */
 	void execResidentAction(const ActionDef &actionDef,
 	                        const EventInfo &eventInfo,
-	                        DBClientAction &dbAction,
+	                        DBTablesAction &dbAction,
 	                        ActorInfo *actorInfo = NULL);
 
 	ResidentInfo *launchResidentActionYard(const ActionDef &actionDef,
 	                                       const EventInfo &eventInfo,
-	                                       DBClientAction &dbAction,
+	                                       DBTablesAction &dbAction,
 	                                       ActorInfo *actorInfoCopy);
 	/**
 	 * notify hatohol-resident-yard of an event only when it is idle and
@@ -219,7 +219,7 @@ protected:
 
 	void execIncidentSenderAction(const ActionDef &actionDef,
 				      const EventInfo &eventInfo,
-				      DBClientAction &dbAction);
+				      DBTablesAction &dbAction);
 
 	static void commandActorCollectedCb(const ActorInfo *actorInfo);
 	static void commandActorPostCollectedCb(const ActorInfo *actorInfo);
@@ -237,7 +237,7 @@ protected:
 
 	static void postProcSpawnFailure(
 	  const ActionDef &actionDef, const EventInfo &eventInfo,
-	  DBClientAction &dbAction, ActorInfo *actorInfo,
+	  DBTablesAction &dbAction, ActorInfo *actorInfo,
 	  uint64_t *logId, const GError *error, bool logUpdateFlag);
 
 	void fillTriggerInfoInEventInfo(EventInfo &eventInfo);
