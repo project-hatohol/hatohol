@@ -403,6 +403,9 @@ void cut_setup(void)
 
 	setupTestDB();
 	loadTestDBTablesConfig();
+	loadTestDBTablesUser();
+	loadTestDBAction();
+
 }
 
 void cut_teardown(void)
