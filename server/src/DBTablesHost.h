@@ -20,16 +20,19 @@
 #ifndef DBTablesHost_h
 #define DBTablesHost_h
 
-#include "DBCGroupRegular.h"
+#include "DBTables.h"
 
-class DBTablesHost : public DBCGroupRegular {
+class DBTablesHost : public DBTables {
 public:
-	static const int DB_VERSION;
+	static const int TABLES_VERSION;
 
-	static void init(void);
+	static void reset(void);
 
-	DBTablesHost(void);
+	DBTablesHost(DBAgent &dbAgent);
 	virtual ~DBTablesHost();
+
+protected:
+	static SetupInfo &getSetupInfo(void);
 
 private:
 	struct Impl;

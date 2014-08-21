@@ -20,7 +20,7 @@
 #include "DBHatohol.h"
 #include "ConfigManager.h"
 #include "DBTablesConfig.h"
-// #include "DBTablesHost.h" 
+#include "DBTablesHost.h" 
 // #include "DBTablesUser.h"
 // #include "DBTablesAction.h"
 
@@ -31,9 +31,6 @@ static const char *DEFAULT_USER_NAME = "hatohol";
 static const char *DEFAULT_PASSWORD  = "hatohol";
 
 // These are stub to pass the build
-class DBTablesHost {
-};
-
 class DBTablesAction {
 };
 
@@ -51,7 +48,7 @@ struct DBHatohol::Impl {
 
 	Impl(DBAgent &dbAgent)
 	: dbTablesConfig(/*dbAgent*/),
-	  dbTablesHost(/*dbAgent*/),
+	  dbTablesHost(dbAgent),
 	  dbTablesUser(/*dbAgent*/),
 	  dbTablesAction(/*dbAgent*/),
 	  dbTablesMonitor(/*dbAgent*/)

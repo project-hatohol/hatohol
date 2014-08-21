@@ -58,7 +58,6 @@ static void init(void)
 	DBTablesUser::init();
 	DBTablesMonitoring::init();
 	DBTablesAction::init();
-	DBTablesHost::init();
 
 	ItemData::init();
 	SQLUtils::init();
@@ -79,6 +78,7 @@ static void reset(const CommandLineOptions *cmdLineOpts)
 	DBTablesConfig::reset(); // must be after DBClient::reset()
 	DBTablesUser::reset();
 	DBTablesAction::reset(); // must be after DBTablesConfig::reset()
+	DBTablesHost::reset();   // must be after DBHatohol::reset()
 
 	ActionManager::reset();
 	CacheServiceDBClient::reset();
