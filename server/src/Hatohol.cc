@@ -40,7 +40,6 @@ using namespace mlpl;
 #include "SessionManager.h"
 #include "UnifiedDataStore.h"
 #include "ChildProcessManager.h"
-#include "DBCGroupRegular.h"
 #include "DBTablesHost.h"
 
 static Mutex mutex;
@@ -74,7 +73,6 @@ static void reset(const CommandLineOptions *cmdLineOpts)
 
 	DBAgentSQLite3::reset();
 	DBClient::reset();
-	DBCGroupRegular::reset();
 	DBTablesConfig::reset(); // must be after DBClient::reset()
 	DBTablesUser::reset();
 	DBTablesAction::reset(); // must be after DBTablesConfig::reset()
