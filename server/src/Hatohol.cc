@@ -72,6 +72,7 @@ static void reset(const CommandLineOptions *cmdLineOpts)
 	ConfigManager::reset(cmdLineOpts);
 
 	DBAgentSQLite3::reset();
+	DBHatohol::reset();
 	DBClient::reset();
 	DBTablesConfig::reset(); // must be after DBClient::reset()
 	DBTablesUser::reset();
