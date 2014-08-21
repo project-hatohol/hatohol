@@ -38,7 +38,7 @@
 #include "SessionManager.h"
 #include "IncidentSenderManager.h"
 #include "RedmineAPIEmulator.h"
-#include "DBCache.h"
+#include "ThreadLocalDBCache.h"
 using namespace std;
 using namespace mlpl;
 
@@ -49,7 +49,7 @@ public:
 	                            const EventInfo &eventInfo,
 	                           ActorInfo *actorInfo = NULL)
 	{
-		DBCache cache;
+		ThreadLocalDBCache cache;
 		DBTablesAction &dbAction = cache.getAction();
 		execCommandAction(actionDef, eventInfo, dbAction, actorInfo);
 	}
@@ -58,7 +58,7 @@ public:
 	                            const EventInfo &eventInfo,
 	                            ActorInfo *actorInfo = NULL)
 	{
-		DBCache cache;
+		ThreadLocalDBCache cache;
 		DBTablesAction &dbAction = cache.getAction();
 		execResidentAction(actionDef, eventInfo, dbAction, actorInfo);
 	}
@@ -70,7 +70,7 @@ public:
 
 	bool callShouldSkipByLog(const EventInfo &eventInfo)
 	{
-		DBCache cache;
+		ThreadLocalDBCache cache;
 		DBTablesAction &dbAction = cache.getAction();
 		return shouldSkipByLog(eventInfo, dbAction);
 	}
@@ -462,7 +462,7 @@ void _assertActionLogJustAfterExec(
 	if (!(expectedNullFlags & ACTLOG_STAT_QUEUING))
 		expectQueuingTime = CURR_DATETIME;
 
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	cppcut_assert_equal(
 	  true, cache.getAction().getLog(ctx->actionLog, ctx->actorInfo.logId));
 	assertActionLog(
@@ -506,7 +506,7 @@ cut_trace(_assertActionLogJustAfterExec(CTX, ##__VA_ARGS__))
 void _assertWaitForChangeActionLogStatus(ExecCommandContext *ctx,
                                          ActionLogStatus currStatus)
 {
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	DBTablesAction &dbAction = cache.getAction();
 	do {
 		g_main_context_iteration(NULL, FALSE);
@@ -576,7 +576,7 @@ void _assertActionLogForFailure(ExecCommandContext *ctx, int failureCode,
   int expectedNullFlags = ACTLOG_FLAG_QUEUING_TIME|ACTLOG_FLAG_EXIT_CODE,
   int expectedExitCode = 0)
 {
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	DBTablesAction &dbAction = cache.getAction();
 	cppcut_assert_equal(
 	  true, dbAction.getLog(ctx->actionLog, ctx->actorInfo.logId));
@@ -764,7 +764,7 @@ static void _assertWaitRemoveWatching(ExecCommandContext *ctx)
 
 static void _assertShouldSkipByLog(bool EvenEventNotLog)
 {
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	DBTablesAction &dbAction = cache.getAction();
 
 	// make a test data;
@@ -1101,7 +1101,7 @@ void test_execResidentActionWithWrongPath(void)
 
 	// reconfirm the action log. This confirms that the log is not
 	// updated in ActorCollector::checkExitProcess().
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	cppcut_assert_equal(
 	  true, cache.getAction().getLog(ctx->actionLog, ctx->actorInfo.logId));
 	assertActionLog(
@@ -1325,7 +1325,7 @@ static void _assertRunAction(
 	setupTestDBUser(true, true);
 	setupTestDBConfig(true, true);
 
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	DBTablesAction &dbAction = cache.getAction();
 	TestActionManager actMgr;
 	HatoholError err = actMgr.callRunAction(actDef, eventInfo, dbAction);
@@ -1396,7 +1396,7 @@ void test_checkEventsWithMultipleIncidentSender(void)
 	  0,                      // ownerUserId
 	};
 
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	DBTablesAction &dbAction = cache.getAction();
 	OperationPrivilege privilege(USER_ID_SYSTEM);
 	dbAction.addAction(actDef, privilege);

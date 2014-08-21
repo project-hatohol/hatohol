@@ -22,7 +22,7 @@
 #include "Reaper.h"
 #include "IncidentSenderManager.h"
 #include "IncidentSenderRedmine.h"
-#include "DBCache.h"
+#include "ThreadLocalDBCache.h"
 
 using namespace std;
 using namespace mlpl;
@@ -46,7 +46,7 @@ struct IncidentSenderManager::Impl
 
 	IncidentSender *createSender(const IncidentTrackerIdType &id)
 	{
-		DBCache cache;
+		ThreadLocalDBCache cache;
 		DBTablesConfig &dbConfig = cache.getConfig();
 		IncidentTrackerInfoVect incidentTrackerVect;
 		IncidentTrackerQueryOption option(USER_ID_SYSTEM);

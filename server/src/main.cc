@@ -43,7 +43,7 @@ using namespace mlpl;
 #include "ActorCollector.h"
 #include "DBTablesAction.h"
 #include "ConfigManager.h"
-#include "DBCache.h"
+#include "ThreadLocalDBCache.h"
 
 static int pipefd[2];
 
@@ -155,7 +155,7 @@ int mainRoutine(int argc, char *argv[])
 	setupSignalHandlerForExit(SIGUSR1);
 
 	// setup configuration database
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	// start REST server
 	// 'rest' is on a stack. The destructor of it will be automatically
 	// called at the end of this function.

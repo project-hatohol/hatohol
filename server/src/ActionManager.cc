@@ -35,7 +35,7 @@
 #include "Reaper.h"
 #include "ChildProcessManager.h"
 #include "IncidentSenderManager.h"
-#include "DBCache.h"
+#include "ThreadLocalDBCache.h"
 
 using namespace std;
 using namespace mlpl;
@@ -519,7 +519,7 @@ static bool shouldSkipIncidentSender(
 
 void ActionManager::checkEvents(const EventInfoList &eventList)
 {
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	DBTablesAction &dbAction = cache.getAction();
 	EventInfoListConstIterator it = eventList.begin();
 	for (; it != eventList.end(); ++it) {
@@ -657,7 +657,7 @@ struct ActionManager::ActorProfile : public ActorCollector::Profile {
 		  (actionDef.type == ACTION_COMMAND) ?
 		    ACTLOG_STAT_STARTED : ACTLOG_STAT_LAUNCHING_RESIDENT;
 
-		DBCache cache;
+		ThreadLocalDBCache cache;
 		DBTablesAction &dbAction = cache.getAction();
 		if (waitCmdInfo) {
 			// A waiting command action has the log ID.
@@ -690,7 +690,7 @@ struct ActionManager::ActorProfile : public ActorCollector::Profile {
 			logUpdateFlag = true;
 		}
 
-		DBCache cache;
+		ThreadLocalDBCache cache;
 		DBTablesAction &dbAction = cache.getAction();
 		postProcSpawnFailure(actionDef, eventInfo, dbAction, actorInfo,
 		                     &logId, error, logUpdateFlag);
@@ -1070,7 +1070,7 @@ void ActionManager::gotNotifyEventAckCb(GIOStatus stat, SmartBuffer &sbuf,
 	logArg.status = ACTLOG_STAT_SUCCEEDED,
 	logArg.exitCode = resultCode;
 
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	cache.getAction().logEndExecAction(logArg);
 
 	// remove the notifyInfo 
@@ -1118,7 +1118,7 @@ gboolean ActionManager::commandActionTimeoutCb(gpointer data)
 	logArg.status = ACTLOG_STAT_FAILED;
 	logArg.failureCode = ACTLOG_EXECFAIL_KILLED_TIMEOUT;
 	logArg.exitCode = 0;
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	cache.getAction().logEndExecAction(logArg);
 	ActorCollector::setDontLog(actorInfo->pid);
 	kill(actorInfo->pid, SIGKILL);
@@ -1294,7 +1294,7 @@ void ActionManager::notifyEvent(ResidentInfo *residentInfo,
 	// create or update an action log
 	HATOHOL_ASSERT(notifyInfo->logId != INVALID_ACTION_LOG_ID,
 	               "An action log ID is not set.");
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	cache.getAction().updateLogStatusToStart(notifyInfo->logId);
 }
 
@@ -1310,7 +1310,7 @@ static void onIncidentSenderJobStatusChanged(
 	  = static_cast<DBTablesAction::LogEndExecActionArg *>(userData);
 	bool completed = false;
 
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	DBTablesAction &dbAction = cache.getAction();
 	switch (status) {
 	case IncidentSender::JOB_STARTED:
@@ -1413,7 +1413,7 @@ void ActionManager::commandActorPostCollectedCb(const ActorInfo *actorInfo)
 	postprocCtx.actorInfoCopy = NULL;
 	postprocCtx.reservationId = waitCmdInfo->reservationId;
 	postprocCtx.waitCmdInfo = waitCmdInfo;
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	execCommandActionCore(waitCmdInfo->actionDef, waitCmdInfo->eventInfo,
 	                      cache.getAction(),
 	                      &postprocCtx, waitCmdInfo->argVect);
@@ -1491,7 +1491,7 @@ void ActionManager::closeResident(ResidentNotifyInfo *notifyInfo,
 	logArg.status = ACTLOG_STAT_FAILED;
 	logArg.failureCode = failureCode;
 	logArg.exitCode = 0;
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	cache.getAction().logEndExecAction(logArg);
 
 	// remove this notifyInfo from the queue in the parent ResidentInfo

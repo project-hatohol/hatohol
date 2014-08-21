@@ -22,7 +22,7 @@
 #include <Mutex.h>
 #include "Params.h"
 #include "DBClient.h"
-#include "DBCache.h"
+#include "ThreadLocalDBCache.h"
 using namespace std;
 using namespace mlpl;
 
@@ -61,7 +61,7 @@ typedef DBList::iterator   DBListIterator;
 typedef map<DB *, DBListIterator> DBListItrMap;
 typedef DBListItrMap::iterator    DBListItrMapIterator;
 
-struct DBCacheLRU {
+struct ThreadLocalDBCacheLRU {
 	DBList       list;
 	DBListItrMap map;
 
@@ -99,7 +99,7 @@ struct ThreadContext {
 typedef set<ThreadContext *>       ThreadContextSet;
 typedef ThreadContextSet::iterator ThreadContextSetIterator;
 
-struct DBCache::Impl {
+struct ThreadLocalDBCache::Impl {
 	// This lock is for DBClientMapList. clientMap can be accessed w/o
 	// the lock because it is on the thread local storage.
 	static DBClientMapSet dbClientMapSet;   // TODO: remove
@@ -111,7 +111,7 @@ struct DBCache::Impl {
 
 	static Mutex                   lock;
 	static ThreadContextSet        ctxSet;
-	static DBCacheLRU              dbCacheLRU;
+	static ThreadLocalDBCacheLRU              dbCacheLRU;
 	static __thread ThreadContext *ctx;
 
 	static DBClient *get(DBDomainId domainId) // TODO: remove
@@ -217,47 +217,47 @@ struct DBCache::Impl {
 };
 
 // TODO: These two static members are removed after DBClient is deleted.
-__thread DBClientMap *DBCache::Impl::clientMap = NULL;
-DBClientMapSet DBCache::Impl::dbClientMapSet;
+__thread DBClientMap *ThreadLocalDBCache::Impl::clientMap = NULL;
+DBClientMapSet ThreadLocalDBCache::Impl::dbClientMapSet;
 
-size_t DBCache::Impl::maxNumCacheMySQL
+size_t ThreadLocalDBCache::Impl::maxNumCacheMySQL
   = DEFAULT_MAX_NUM_CACHE_MYSQL;
-size_t DBCache::Impl::maxNumCacheSQLite3
+size_t ThreadLocalDBCache::Impl::maxNumCacheSQLite3
   = DEFAULT_MAX_NUM_CACHE_SQLITE3;
 
-Mutex                   DBCache::Impl::lock;
-ThreadContextSet        DBCache::Impl::ctxSet;
-DBCacheLRU              DBCache::Impl::dbCacheLRU;
-__thread ThreadContext *DBCache::Impl::ctx = NULL;
+Mutex                   ThreadLocalDBCache::Impl::lock;
+ThreadContextSet        ThreadLocalDBCache::Impl::ctxSet;
+ThreadLocalDBCacheLRU              ThreadLocalDBCache::Impl::dbCacheLRU;
+__thread ThreadContext *ThreadLocalDBCache::Impl::ctx = NULL;
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-void DBCache::reset(void)
+void ThreadLocalDBCache::reset(void)
 {
 	Impl::reset();
 }
 
-void DBCache::cleanup(void)
+void ThreadLocalDBCache::cleanup(void)
 {
 	Impl::cleanup();
 }
 
-size_t DBCache::getNumberOfDBClientMaps(void)
+size_t ThreadLocalDBCache::getNumberOfDBClientMaps(void)
 {
 	AutoMutex autoMutex(&Impl::lock);
 	return Impl::dbCacheLRU.list.size();
 }
 
-DBCache::DBCache(void)
+ThreadLocalDBCache::ThreadLocalDBCache(void)
 {
 }
 
-DBCache::~DBCache()
+ThreadLocalDBCache::~ThreadLocalDBCache()
 {
 }
 
-DBHatohol &DBCache::getDBHatohol(void)
+DBHatohol &ThreadLocalDBCache::getDBHatohol(void)
 {
 	ThreadContext *ctx = Impl::getContext();
 	if (!ctx->dbHatohol)
@@ -266,23 +266,22 @@ DBHatohol &DBCache::getDBHatohol(void)
 	return *ctx->dbHatohol;
 }
 
-DBTablesConfig &DBCache::getConfig(void)
+DBTablesConfig &ThreadLocalDBCache::getConfig(void)
 {
 	return *get<DBTablesConfig>(DB_DOMAIN_ID_CONFIG);
 }
 
-DBTablesUser &DBCache::getUser(void)
+DBTablesUser &ThreadLocalDBCache::getUser(void)
 {
 	return *get<DBTablesUser>(DB_TABLES_ID_USER);
 }
 
-
-DBTablesAction &DBCache::getAction(void)
+DBTablesAction &ThreadLocalDBCache::getAction(void)
 {
 	return *get<DBTablesAction>(DB_TABLES_ID_ACTION);
 }
 
-DBTablesMonitoring *DBCache::getMonitoring(void)
+DBTablesMonitoring *ThreadLocalDBCache::getMonitoring(void)
 {
 	return get<DBTablesMonitoring>(DB_TABLES_ID_MONITORING);
 }
@@ -291,7 +290,7 @@ DBTablesMonitoring *DBCache::getMonitoring(void)
 // Private methods
 // ---------------------------------------------------------------------------
 template <class T>
-T *DBCache::get(DBDomainId domainId)
+T *ThreadLocalDBCache::get(DBDomainId domainId)
 {
 	DBClient *dbClient = Impl::get(domainId);
 	// Here we use static_cast, although this is downcast.

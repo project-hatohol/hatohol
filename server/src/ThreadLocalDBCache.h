@@ -17,8 +17,8 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DBCache_h
-#define DBCache_h
+#ifndef ThreadLocalDBCache_h
+#define ThreadLocalDBCache_h
 
 #include "DBTablesMonitoring.h"
 #include "DBTablesUser.h"
@@ -26,7 +26,7 @@
 #include "DBTablesAction.h"
 #include "DBHatohol.h"
 
-class DBCache
+class ThreadLocalDBCache
 {
 public:
 	static void reset(void);
@@ -37,8 +37,8 @@ public:
 	static void cleanup(void);
 	static size_t getNumberOfDBClientMaps(void);
 
-	DBCache(void);
-	virtual ~DBCache();
+	ThreadLocalDBCache(void);
+	virtual ~ThreadLocalDBCache();
 
 	DBHatohol       &getDBHatohol(void);
 
@@ -60,4 +60,4 @@ private:
 	template <class T> T *get(DBDomainId domainId);
 };
 
-#endif // DBCache_h
+#endif // ThreadLocalDBCache_h

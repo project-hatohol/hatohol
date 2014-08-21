@@ -38,7 +38,7 @@
 #include "DBTablesUser.h"
 #include "DBTablesConfig.h"
 #include "SessionManager.h"
-#include "DBCache.h"
+#include "ThreadLocalDBCache.h"
 #include "HatoholArmPluginInterface.h"
 #include "HatoholArmPluginGate.h"
 #include "RestResourceAction.h"
@@ -232,7 +232,7 @@ FaceRest::FaceRest(FaceRestParam *param)
 	if (port) {
 		m_impl->port = port;
 	} else {
-		DBCache cache;
+		ThreadLocalDBCache cache;
 		int port = cache.getConfig().getFaceRestPort();
 		if (port != 0 && Utils::isValidPort(port))
 			m_impl->port = port;
@@ -536,7 +536,7 @@ void FaceRest::handlerLogin(ResourceHandler *job)
 		return;
 	}
 
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	UserIdType userId = cache.getUser().getUserId(user, password);
 	if (userId == INVALID_USER_ID) {
 		MLPL_INFO("Failed to authenticate: Client: %s, User: %s.\n",

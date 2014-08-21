@@ -30,7 +30,7 @@
 #include "SessionManager.h"
 #include "Reaper.h"
 #include "ChildProcessManager.h"
-#include "DBCache.h"
+#include "ThreadLocalDBCache.h"
 using namespace std;
 using namespace mlpl;
 
@@ -253,7 +253,7 @@ void ActorCollector::postCollectedProc(ActorContext &actorCtx)
 	// log the action result if needed
 	if (!actorInfo->dontLog) {
 		logArg.logId = actorInfo->logId;
-		DBCache cache;
+		ThreadLocalDBCache cache;
 		cache.getAction().logEndExecAction(logArg);
 	}
 

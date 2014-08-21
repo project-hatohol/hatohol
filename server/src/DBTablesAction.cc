@@ -20,7 +20,7 @@
 #include <exception>
 #include "Utils.h"
 #include "ConfigManager.h"
-#include "DBCache.h"
+#include "ThreadLocalDBCache.h"
 #include "DBAgentFactory.h"
 #include "DBTablesAction.h"
 #include "DBTablesConfig.h"
@@ -997,7 +997,7 @@ gboolean DBTablesAction::deleteInvalidActionsExec(gpointer data)
 	struct : public ExceptionCatchable {
 		void operator ()(void) override
 		{
-			DBCache cache;
+			ThreadLocalDBCache cache;
 			cache.getAction().deleteInvalidActions();
 		}
 	} deleter;
@@ -1286,7 +1286,7 @@ bool ActionUserIdSet::isValidActionOwnerId(const UserIdType id)
 
 void ActionUserIdSet::get(UserIdSet &userIdSet)
 {
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	DBTablesUser &dbUser = cache.getUser();
 	dbUser.getUserIdSet(userIdSet);
 }
@@ -1298,7 +1298,7 @@ ActionValidator::ActionValidator()
 {
 	ActionUserIdSet::get(m_userIdSet);
 
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
 	dbConfig.getIncidentTrackerIdSet(m_incidentTrackerIdSet);
 }

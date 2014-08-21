@@ -32,7 +32,7 @@
 #include <SimpleSemaphore.h>
 #include "UnifiedDataStore.h"
 #include "HatoholArmPluginGate.h"
-#include "DBCache.h"
+#include "ThreadLocalDBCache.h"
 #include "ChildProcessManager.h"
 #include "StringUtils.h"
 #include "HostInfoCache.h"
@@ -121,7 +121,7 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 : HatoholArmPluginInterface(true),
   m_impl(new Impl(serverInfo, this))
 {
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	const ServerIdType &serverId = m_impl->serverInfo.id;
 	DBTablesConfig &dbConfig = cache.getConfig();
 	if (!dbConfig.getArmPluginInfo(m_impl->armPluginInfo, serverId)) {
@@ -433,7 +433,7 @@ void HatoholArmPluginGate::cmdHandlerGetLastEventId(
 	SmartBuffer resBuf;
 	HapiResLastEventId *body =
 	  setupResponseBuffer<HapiResLastEventId>(resBuf);
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	DBTablesMonitoring *dbMonitoring = cache.getMonitoring();
 	body->lastEventId = dbMonitoring->getLastEventId(m_impl->serverInfo.id);
 	reply(resBuf);
@@ -452,7 +452,7 @@ void HatoholArmPluginGate::cmdHandlerSendUpdatedTriggers(
 	HatoholDBUtils::transformTriggersToHatoholFormat(
 	  trigInfoList, tablePtr, m_impl->serverInfo.id, m_impl->hostInfoCache);
 
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	DBTablesMonitoring *dbMonitoring = cache.getMonitoring();
 	dbMonitoring->addTriggerInfoList(trigInfoList);
 
@@ -472,7 +472,7 @@ void HatoholArmPluginGate::cmdHandlerSendHosts(
 	HatoholDBUtils::transformHostsToHatoholFormat(
 	  hostInfoList, hostTablePtr, m_impl->serverInfo.id);
 
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	DBTablesMonitoring *dbMonitoring = cache.getMonitoring();
 	dbMonitoring->addHostInfoList(hostInfoList);
 
@@ -498,7 +498,7 @@ void HatoholArmPluginGate::cmdHandlerSendHostgroupElements(
 	HatoholDBUtils::transformHostsGroupsToHatoholFormat(
 	  hostgroupElementList, hostgroupElementTablePtr, m_impl->serverInfo.id);
 
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	DBTablesMonitoring *dbMonitoring = cache.getMonitoring();
 	dbMonitoring->addHostgroupElementList(hostgroupElementList);
 
@@ -518,7 +518,7 @@ void HatoholArmPluginGate::cmdHandlerSendHostgroups(
 	HatoholDBUtils::transformGroupsToHatoholFormat(
 	  hostgroupInfoList, hostgroupTablePtr, m_impl->serverInfo.id);
 
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	DBTablesMonitoring *dbMonitoring = cache.getMonitoring();
 	dbMonitoring->addHostgroupInfoList(hostgroupInfoList);
 

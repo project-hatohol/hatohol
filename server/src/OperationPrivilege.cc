@@ -19,7 +19,7 @@
 
 #include "OperationPrivilege.h"
 #include "DBTablesUser.h"
-#include "DBCache.h"
+#include "ThreadLocalDBCache.h"
 using namespace mlpl;
 
 struct OperationPrivilege::Impl {
@@ -125,7 +125,7 @@ void OperationPrivilege::setUserId(const UserIdType &userId)
 	}
 
 	UserInfo userInfo;
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	if (!cache.getUser().getUserInfo(userInfo, userId)) {
 		MLPL_ERR("Failed to getUserInfo(): userId: "
 		         "%" FMT_USER_ID "\n", userId);

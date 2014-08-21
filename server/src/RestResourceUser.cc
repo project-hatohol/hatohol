@@ -19,7 +19,7 @@
 
 #include "RestResourceUser.h"
 #include "UnifiedDataStore.h"
-#include "DBCache.h"
+#include "ThreadLocalDBCache.h"
 
 using namespace std;
 using namespace mlpl;
@@ -233,7 +233,7 @@ void RestResourceUser::handlerPutUser(void)
 		return;
 	}
 
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	bool exist = cache.getUser().getUserInfo(userInfo, userInfo.id);
 	if (!exist) {
 		REPLY_ERROR(this, HTERR_NOT_FOUND_TARGET_RECORD,

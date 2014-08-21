@@ -25,7 +25,7 @@
 #include "DBClientTest.h"
 #include "MultiLangTest.h"
 #include "testDBTablesMonitoring.h"
-#include "DBCache.h"
+#include "ThreadLocalDBCache.h"
 #include "FaceRestTestUtils.h"
 using namespace std;
 using namespace mlpl;
@@ -222,7 +222,7 @@ void test_addAction(void)
 	expect += command;
 	expect += "||0"; /* workingDirectory and timeout */
 	expect += StringUtils::sprintf("|%" FMT_USER_ID, userId);
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	assertDBContent(&cache.getAction().getDBAgent(), statement, expect);
 }
 
@@ -275,7 +275,7 @@ void test_addActionParameterFull(void)
 	expect += workingDir;
 	expect += "|";
 	expect += StringUtils::sprintf("%d|%" FMT_USER_ID, timeout, userId);
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	assertDBContent(&cache.getAction().getDBAgent(), statement, expect);
 }
 
@@ -304,7 +304,7 @@ void test_addActionParameterOver32bit(void)
 	string expect;
 	expect += StringUtils::sprintf("%" PRIu64 "|%" PRIu64 "|%" PRIu64,
 	  hostId, hostgroupId, triggerId);
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	assertDBContent(&cache.getAction().getDBAgent(), statement, expect);
 }
 
@@ -323,7 +323,7 @@ void test_addActionComplicatedCommand(void)
 	// check the content in the DB
 	string statement = "select command from ";
 	statement += DBTablesAction::getTableNameActions();
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	assertDBContent(&cache.getAction().getDBAgent(), statement, command);
 }
 
@@ -342,7 +342,7 @@ void test_addActionCommandWithJapanese(void)
 	// check the content in the DB
 	string statement = "select command from ";
 	statement += DBTablesAction::getTableNameActions();
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	assertDBContent(&cache.getAction().getDBAgent(), statement, command);
 }
 
@@ -399,7 +399,7 @@ void test_deleteAction(void)
 	string statement = "select action_id from ";
 	statement += DBTablesAction::getTableNameActions();
 	statement += " order by action_id asc";
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	assertDBContent(&cache.getAction().getDBAgent(), statement, expect);
 }
 

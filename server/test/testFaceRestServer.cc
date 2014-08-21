@@ -23,7 +23,7 @@
 #include "FaceRest.h"
 #include "Helpers.h"
 #include "DBClientTest.h"
-#include "DBCache.h"
+#include "ThreadLocalDBCache.h"
 #include "UnifiedDataStore.h"
 #include "HatoholArmPluginInterface.h"
 #include "FaceRestTestUtils.h"
@@ -124,7 +124,7 @@ void _assertAddServerWithSetup(const StringMap &params,
 static void _assertServerConnStat(JSONParserAgent *parser)
 {
 	// Make expected data
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
 	ServerIdSet expectIdSet;
 	DataQueryContextPtr dqCtxPtr(new DataQueryContext(USER_ID_SYSTEM),
@@ -208,7 +208,7 @@ void test_addServer(void)
 	assertAddServerWithSetup(params, HTERR_OK);
 
 	// check the content in the DB
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
 	string statement = "select * from servers ";
 	statement += " order by id desc limit 1";
@@ -234,7 +234,7 @@ void test_addServerWithHapiParams(void)
 	assertAddServerWithSetup(params, HTERR_OK);
 
 	// check the content in the DB
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
 	string statement = "select * from arm_plugins";
 	statement += " order by id desc limit 1";
@@ -295,7 +295,7 @@ void test_updateServer(gconstpointer data)
 	assertValueInParser(g_parser, "id", srcSvInfo.id);
 
 	// check the content in the DB
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
 	string statement = StringUtils::sprintf(
 	                     "select * from servers where id=%d", srcSvInfo.id);
@@ -349,7 +349,7 @@ void test_updateServerWithArmPlugin(void)
 	assertValueInParser(g_parser, "id", serverInfo.id);
 
 	// check the content in the DB
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
 	string statement = StringUtils::sprintf(
 	  "SELECT * FROM servers WHERE id=%d", serverInfo.id);

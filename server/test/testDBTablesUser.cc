@@ -25,7 +25,7 @@
 #include "DBClientTest.h"
 #include "Helpers.h"
 #include "Hatohol.h"
-#include "DBCache.h"
+#include "ThreadLocalDBCache.h"
 using namespace std;
 using namespace mlpl;
 
@@ -222,7 +222,7 @@ void _assertIsAccessible(const bool useAllServers = false)
 {
 	loadTestDBUser();
 	loadTestDBAccessList();
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	DBTablesUser &dbUser = cache.getUser();
 
 	// search the User ID and Server ID
@@ -967,7 +967,7 @@ void test_isAccessibleFalse(void)
 {
 	loadTestDBUser();
 	loadTestDBAccessList();
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	DBTablesUser &dbUser = cache.getUser();
 
 	// search for nonexisting User ID and Server ID

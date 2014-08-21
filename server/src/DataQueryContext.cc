@@ -19,7 +19,7 @@
 
 #include <cstdio>
 #include "DataQueryContext.h"
-#include "DBCache.h"
+#include "ThreadLocalDBCache.h"
 
 struct DataQueryContext::Impl {
 	OperationPrivilege   privilege;
@@ -81,7 +81,7 @@ const ServerHostGrpSetMap &DataQueryContext::getServerHostGrpSetMap(void)
 {
 	if (!m_impl->srvHostGrpSetMap) {
 		m_impl->srvHostGrpSetMap = new ServerHostGrpSetMap();
-		DBCache cache;
+		ThreadLocalDBCache cache;
 		DBTablesUser &dbUser = cache.getUser();
 		dbUser.getServerHostGrpSetMap(*m_impl->srvHostGrpSetMap,
 		                              m_impl->privilege.getUserId());
@@ -99,7 +99,7 @@ const ServerIdSet &DataQueryContext::getValidServerIdSet(void)
 {
 	if (!m_impl->serverIdSet) {
 		m_impl->serverIdSet = new ServerIdSet();
-		DBCache cache;
+		ThreadLocalDBCache cache;
 		DBTablesConfig &dbConfig = cache.getConfig();
 		dbConfig.getServerIdSet(*m_impl->serverIdSet, this);
 	}

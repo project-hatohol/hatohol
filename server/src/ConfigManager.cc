@@ -25,7 +25,7 @@
 #include "ConfigManager.h"
 #include "DBTablesConfig.h"
 #include "Reaper.h"
-#include "DBCache.h"
+#include "ThreadLocalDBCache.h"
 using namespace std;
 using namespace mlpl;
 
@@ -283,7 +283,7 @@ ConfigManager *ConfigManager::getInstance(void)
 void ConfigManager::getTargetServers
   (MonitoringServerInfoList &monitoringServers, ServerQueryOption &option)
 {
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	cache.getConfig().getTargetServers(monitoringServers, option);
 }
 

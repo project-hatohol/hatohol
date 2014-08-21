@@ -22,7 +22,7 @@
 #include <Mutex.h>
 #include "DBAgentFactory.h"
 #include "DBTablesConfig.h"
-#include "DBCache.h"
+#include "ThreadLocalDBCache.h"
 #include "ConfigManager.h"
 #include "HatoholError.h"
 #include "Params.h"
@@ -548,7 +548,7 @@ string ServerQueryOption::getCondition(void) const
 		return condition;
 
 	// check allowed servers
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	DBTablesUser &dbUser = cache.getUser();
 	ServerHostGrpSetMap srvHostGrpSetMap;
 	dbUser.getServerHostGrpSetMap(srvHostGrpSetMap, getUserId());
@@ -1324,7 +1324,7 @@ bool DBTablesConfig::canUpdateTargetServer(
 	if (!privilege.has(OPPRVLG_UPDATE_SERVER))
 		return false;
 
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	DBTablesUser &dbUser = cache.getUser();
 	return dbUser.isAccessible(monitoringServerInfo->id, privilege, false);
 }
@@ -1338,7 +1338,7 @@ bool DBTablesConfig::canDeleteTargetServer(
 	if (!privilege.has(OPPRVLG_DELETE_SERVER))
 		return false;
 
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	DBTablesUser &dbUser = cache.getUser();
 	return dbUser.isAccessible(serverId, privilege);
 }

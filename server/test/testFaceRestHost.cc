@@ -25,7 +25,7 @@
 #include "UnifiedDataStore.h"
 #include "testDBTablesMonitoring.h"
 #include "FaceRestTestUtils.h"
-#include "DBCache.h"
+#include "ThreadLocalDBCache.h"
 using namespace std;
 using namespace mlpl;
 
@@ -243,7 +243,7 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 	                    eventsArg.expectedRecords.size());
 	assertValueInParser(g_parser, "lastUnifiedEventId",
 	                    eventsArg.expectedRecords.size());
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	bool shouldHaveIncident = cache.getAction().isIncidentSenderEnabled();
 	assertValueInParser(g_parser, "haveIncident", shouldHaveIncident);
 

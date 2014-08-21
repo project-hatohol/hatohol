@@ -21,13 +21,13 @@
 #include <errno.h>
 #include <cppcutter.h>
 #include "Hatohol.h"
-#include "DBCache.h"
+#include "ThreadLocalDBCache.h"
 #include "HatoholThreadBase.h"
 #include "Helpers.h"
 using namespace std;
 using namespace mlpl;
 
-namespace testDBCache {
+namespace testThreadLocalDBCache {
 
 class TestCacheServiceThread : public HatoholThreadBase {
 
@@ -78,7 +78,7 @@ protected:
 			m_requestSem.wait();
 			if (m_exitRequest)
 				break;
-			DBCache cache;
+			ThreadLocalDBCache cache;
 			m_dbHatohol = &cache.getDBHatohol();
 			m_completSem.post();
 		}
@@ -177,9 +177,9 @@ void test_cleanupOnThreadExit(void)
 	// Some thread may be running with the cache when this test is executed
 	// So the number of the cached DB may not be zero. We have to
 	// take into account it.
-	size_t numCached0 = DBCache::getNumberOfDBClientMaps();
+	size_t numCached0 = ThreadLocalDBCache::getNumberOfDBClientMaps();
 	test_hasInstanceByThread();
-	size_t numCached = DBCache::getNumberOfDBClientMaps();
+	size_t numCached = ThreadLocalDBCache::getNumberOfDBClientMaps();
 	cppcut_assert_equal(g_threads.size() + numCached0, numCached);
 	for (size_t i = 0; i < g_threads.size(); i++) {
 		TestCacheServiceThread *thr = g_threads[i];
@@ -187,7 +187,7 @@ void test_cleanupOnThreadExit(void)
 		g_threads[i] = NULL;
 		cppcut_assert_equal(true, hasError);
 		size_t newNumCached =
-		  DBCache::getNumberOfDBClientMaps();
+		  ThreadLocalDBCache::getNumberOfDBClientMaps();
 		cppcut_assert_equal(numCached - 1, newNumCached);
 		numCached = newNumCached;
 	}
@@ -195,13 +195,13 @@ void test_cleanupOnThreadExit(void)
 
 void test_getMonitoring(void)
 {
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	assertType(DBTablesMonitoring, cache.getMonitoring());
 }
 
 void test_getUser(void)
 {
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	assertType(DBTablesUser, &cache.getUser());
 }
 
@@ -213,8 +213,8 @@ void test_getUser(void)
 // expects a failure ?
 void test_new(void)
 {
-	DBCache *cache = new DBCache();
+	ThreadLocalDBCache *cache = new DBCache();
 }
 #endif
 
-} // namespace testDBCache
+} // namespace testThreadLocalDBCache

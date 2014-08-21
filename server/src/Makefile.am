@@ -39,7 +39,7 @@ libhatohol_la_SOURCES = \
 	ArmCeilometer.cc ArmCeilometer.h \
 	ChildProcessManager.cc ChildProcessManager.h \
 	Closure.cc Closure.h \
-	DBCache.cc DBCache.h \
+	ThreadLocalDBCache.cc ThreadLocalDBCache.h \
 	ConfigManager.cc ConfigManager.h \
 	DataQueryContext.cc DataQueryContext.h \
 	DataQueryOption.cc DataQueryOption.h \

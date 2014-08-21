@@ -20,7 +20,7 @@
 #include "RestResourceIncidentTracker.h"
 #include "DBTablesConfig.h"
 #include "UnifiedDataStore.h"
-#include "DBCache.h"
+#include "ThreadLocalDBCache.h"
 
 using namespace std;
 using namespace mlpl;
@@ -169,7 +169,7 @@ void RestResourceIncidentTracker::handlePut(void)
 	IncidentTrackerInfoVect incidentTrackers;
 	IncidentTrackerQueryOption option(m_dataQueryContextPtr);
 	option.setTargetId(incidentTrackerInfo.id);
-	DBCache cache;
+	ThreadLocalDBCache cache;
 	cache.getConfig().getIncidentTrackers(incidentTrackers, option);
 	if (incidentTrackers.empty()) {
 		REPLY_ERROR(this, HTERR_NOT_FOUND_TARGET_RECORD,
