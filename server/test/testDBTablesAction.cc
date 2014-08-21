@@ -26,6 +26,7 @@
 #include "DBTablesAction.h"
 #include "DBClientTest.h"
 #include "Helpers.h"
+#include "DBCache.h"
 using namespace std;
 using namespace mlpl;
 
@@ -548,7 +549,8 @@ void test_deleteNoIncidentTrackerAction(void)
 			excludeIdList.push_back(actionId);
 	}
 
-	DBTablesConfig dbConfig;
+	DBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	HatoholError err = dbConfig.deleteIncidentTracker(targetId, privilege);
 	assertHatoholError(HTERR_OK, err);
@@ -933,7 +935,8 @@ void test_getActionListWithNoIncidentTracker(void)
 			excludeIdSet.insert(actionId);
 	}
 
-	DBTablesConfig dbConfig;
+	DBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	HatoholError err = dbConfig.deleteIncidentTracker(targetId, privilege);
 	assertHatoholError(HTERR_OK, err);

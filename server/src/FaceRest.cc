@@ -232,8 +232,8 @@ FaceRest::FaceRest(FaceRestParam *param)
 	if (port) {
 		m_impl->port = port;
 	} else {
-		DBTablesConfig dbConfig;
-		int port = dbConfig.getFaceRestPort();
+		DBCache cache;
+		int port = cache.getConfig().getFaceRestPort();
 		if (port != 0 && Utils::isValidPort(port))
 			m_impl->port = port;
 	}

@@ -43,6 +43,7 @@ using namespace mlpl;
 #include "ActorCollector.h"
 #include "DBTablesAction.h"
 #include "ConfigManager.h"
+#include "DBCache.h"
 
 static int pipefd[2];
 
@@ -154,7 +155,7 @@ int mainRoutine(int argc, char *argv[])
 	setupSignalHandlerForExit(SIGUSR1);
 
 	// setup configuration database
-	DBTablesConfig dbConfig;
+	DBCache cache;
 	// start REST server
 	// 'rest' is on a stack. The destructor of it will be automatically
 	// called at the end of this function.
@@ -169,7 +170,7 @@ int mainRoutine(int argc, char *argv[])
 	else if (state == ConfigManager::DISABLE)
 		enableCopyOnDemand = false;
 	else
-		enableCopyOnDemand = dbConfig.isCopyOnDemandEnabled();
+		enableCopyOnDemand = cache.getConfig().isCopyOnDemandEnabled();
 	ctx.unifiedDataStore->setCopyOnDemandEnabled(enableCopyOnDemand);
 	ctx.unifiedDataStore->start();
 

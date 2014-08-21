@@ -105,8 +105,8 @@ static void _assertIncidentTrackerInDB(
 	}
 	string expected = makeIncidentTrackerInfoOutput(
 			    expectedIncidentTracker);
-	DBTablesConfig dbConfig;
-	assertDBContent(&dbConfig.getDBAgent(), statement, expected);
+	DBCache cache;
+	assertDBContent(&cache.getConfig().getDBAgent(), statement, expected);
 }
 #define assertIncidentTrackerInDB(E, ...) \
 cut_trace(_assertIncidentTrackerInDB(E, ##__VA_ARGS__))
