@@ -35,6 +35,7 @@
 #include "JSONParserAgent.h"
 #include "DBTablesAction.h"
 #include "ThreadLocalDBCache.h"
+#include "DBTablesTest.h"
 using namespace std;
 
 namespace testArmZabbixAPI {

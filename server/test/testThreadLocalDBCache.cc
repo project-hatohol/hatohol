@@ -24,6 +24,7 @@
 #include "ThreadLocalDBCache.h"
 #include "HatoholThreadBase.h"
 #include "Helpers.h"
+#include "DBTablesTest.h"
 using namespace std;
 using namespace mlpl;
 

@@ -22,6 +22,7 @@
 #include "DataQueryContext.h"
 #include "Hatohol.h"
 #include "Helpers.h"
+#include "DBTablesTest.h"
 
 namespace testDataQueryContext {
 

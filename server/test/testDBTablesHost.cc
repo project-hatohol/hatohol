@@ -18,6 +18,7 @@
  */
 
 #include <cppcutter.h>
+#include "DBTablesTest.h"
 #include "DBHatohol.h"
 #include "DBTablesHost.h"
 #include "Hatohol.h"

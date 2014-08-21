@@ -28,6 +28,7 @@
 #include "HatoholArmPluginGate.h"
 #include "Helpers.h"
 #include "Reaper.h"
+#include "DBTablesTest.h"
 
 using namespace std;
 using namespace mlpl;

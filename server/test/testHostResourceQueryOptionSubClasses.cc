@@ -25,6 +25,7 @@
 #include "TestHostResourceQueryOption.h"
 #include "DBTablesMonitoring.h"
 #include "Helpers.h"
+#include "DBTablesTest.h"
 
 using namespace std;
 using namespace mlpl;

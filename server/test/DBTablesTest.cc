@@ -19,7 +19,9 @@
 
 #include <cutter.h>
 #include <cppcutter.h>
+#include "Helpers.h"
 #include "DBTablesTest.h"
+#include "ThreadLocalDBCache.h"
 using namespace std;
 using namespace mlpl;
 
@@ -1348,3 +1350,157 @@ void makeEventIncidentMap(map<string, IncidentInfo*> &eventIncidentMap)
 		eventIncidentMap[key] = &testIncidentInfo[i];
 	}
 }
+
+// ---------------------------------------------------------------------------
+// Setup methods
+// ---------------------------------------------------------------------------
+const char *TEST_DB_USER = "hatohol_test_user";
+const char *TEST_DB_PASSWORD = ""; // empty: No password is used
+
+void setupTestDBConfig(bool dbRecreate, bool loadTestData)
+{
+	static const char *TEST_DB_NAME = "test_config";
+	DBClient::setDefaultDBParams(DB_DOMAIN_ID_CONFIG, TEST_DB_NAME,
+	                             TEST_DB_USER, TEST_DB_PASSWORD);
+	makeTestMySQLDBIfNeeded(TEST_DB_NAME, dbRecreate);
+	if (loadTestData) {
+		loadTestDBServer();
+		loadTestDBIncidentTracker();
+	}
+}
+
+void setupTestDBUser(bool dbRecreate, bool loadTestData)
+{
+	static const char *TEST_DB_NAME = "test_db_user";
+	DBClient::setDefaultDBParams(DB_TABLES_ID_USER, TEST_DB_NAME,
+	                             TEST_DB_USER, TEST_DB_PASSWORD);
+	makeTestMySQLDBIfNeeded(TEST_DB_NAME, dbRecreate);
+	if (loadTestData) {
+		loadTestDBUser();
+		loadTestDBAccessList();
+		loadTestDBUserRole();
+	}
+}
+
+void setupTestDBAction(bool dbRecreate, bool loadTestData)
+{
+	static const char *TEST_DB_NAME = "test_action";
+	DBClient::setDefaultDBParams(DB_TABLES_ID_ACTION, TEST_DB_NAME,
+	                             TEST_DB_USER, TEST_DB_PASSWORD);
+	makeTestMySQLDBIfNeeded(TEST_DB_NAME, dbRecreate);
+	if (loadTestData)
+		loadTestDBAction();
+}
+
+void setupTestDBHost(const bool &dbRecreate, const bool &loadTestData)
+{
+	static const char *TEST_DB_NAME = "test_dbc_regular";
+	DBClient::setDefaultDBParams(DB_TABLES_ID_HOST, TEST_DB_NAME,
+	                             TEST_DB_USER, TEST_DB_PASSWORD);
+	makeTestMySQLDBIfNeeded(TEST_DB_NAME, dbRecreate);
+	if (loadTestData)
+		HATOHOL_ASSERT(false, "Not implemented yet");
+}
+
+void loadTestDBServer(void)
+{
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	for (size_t i = 0; i < NumTestServerInfo; i++)
+		dbConfig.addTargetServer(&testServerInfo[i], privilege);
+}
+
+void loadTestDBUser(void)
+{
+	ThreadLocalDBCache cache;
+	DBTablesUser &dbUser = cache.getUser();
+	HatoholError err;
+	OperationPrivilege opePrivilege(ALL_PRIVILEGES);
+	for (size_t i = 0; i < NumTestUserInfo; i++) {
+		err = dbUser.addUserInfo(testUserInfo[i], opePrivilege);
+		assertHatoholError(HTERR_OK, err);
+	}
+}
+
+void loadTestDBUserRole(void)
+{
+	ThreadLocalDBCache cache;
+	DBTablesUser &dbUser = cache.getUser();
+	HatoholError err;
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	for (size_t i = 0; i < NumTestUserRoleInfo; i++) {
+		err = dbUser.addUserRoleInfo(testUserRoleInfo[i], privilege);
+		assertHatoholError(HTERR_OK, err);
+	}
+}
+
+void loadTestDBAccessList(void)
+{
+	ThreadLocalDBCache cache;
+	DBTablesUser &dbUser = cache.getUser();
+	HatoholError err;
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	for (size_t i = 0; i < NumTestAccessInfo; i++) {
+		err = dbUser.addAccessInfo(testAccessInfo[i], privilege);
+		assertHatoholError(HTERR_OK, err);
+	}
+}
+
+void loadTestDBArmPlugin(void)
+{
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
+	for (size_t i = 0; i < NumTestArmPluginInfo; i++) {
+		// Make a copy since armPluginInfo.id will be set.
+		ArmPluginInfo armPluginInfo = testArmPluginInfo[i];
+		HatoholError err = dbConfig.saveArmPluginInfo(armPluginInfo);
+		assertHatoholError(HTERR_OK, err);
+	}
+}
+
+void loadTestDBTriggers(void)
+{
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	for (size_t i = 0; i < NumTestTriggerInfo; i++)
+		dbMonitoring.addTriggerInfo(&testTriggerInfo[i]);
+}
+
+void loadTestDBEvents(void)
+{
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	for (size_t i = 0; i < NumTestEventInfo; i++)
+		dbMonitoring.addEventInfo(&testEventInfo[i]);
+}
+
+void loadTestDBAction(void)
+{
+	ThreadLocalDBCache cache;
+	DBTablesAction &dbAction = cache.getAction();
+	OperationPrivilege privilege(USER_ID_SYSTEM);
+	for (size_t i = 0; i < NumTestActionDef; i++)
+		dbAction.addAction(testActionDef[i], privilege);
+}
+
+void loadTestDBIncidents(void)
+{
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	for (size_t i = 0; i < NumTestIncidentInfo; i++)
+		dbMonitoring.addIncidentInfo(&testIncidentInfo[i]);
+}
+
+void loadTestDBIncidentTracker(void)
+{
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	for (size_t i = 0; i < NumTestIncidentTrackerInfo; i++)
+		dbConfig.addIncidentTracker(testIncidentTrackerInfo[i],
+					    privilege);
+}
+
