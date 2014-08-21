@@ -1551,12 +1551,12 @@ void ActionManager::postProcSpawnFailure(
 
 void ActionManager::fillTriggerInfoInEventInfo(EventInfo &eventInfo)
 {
-	DBClientHatohol dbHatohol;
+	DBTablesMonitoring dbMonitoring;
 	TriggerInfo triggerInfo;
 	TriggersQueryOption option(USER_ID_SYSTEM);
 	option.setTargetServerId(eventInfo.serverId);
 	option.setTargetId(eventInfo.triggerId);
-	bool succedded = dbHatohol.getTriggerInfo(triggerInfo, option);
+	bool succedded = dbMonitoring.getTriggerInfo(triggerInfo, option);
 	if (succedded) {
 		eventInfo.severity = triggerInfo.severity;
 		eventInfo.hostId   = triggerInfo.hostId;

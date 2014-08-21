@@ -377,7 +377,7 @@ static const DBAgent::TableProfile tableProfileStateHistory =
 struct ArmNagiosNDOUtils::Impl
 {
 	DBAgentMySQL        *dbAgent;
-	DBClientHatohol      dbHatohol;
+	DBTablesMonitoring   dbMonitoring;
 	DBClientJoinBuilder  selectTriggerBuilder;
 	DBClientJoinBuilder  selectEventBuilder;
 	DBClientJoinBuilder  selectItemBuilder;
@@ -535,7 +535,7 @@ void ArmNagiosNDOUtils::addConditionForTriggerQuery(void)
 {
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	time_t lastUpdateTime =
-	   m_impl->dbHatohol.getLastChangeTimeOfTrigger(svInfo.id);
+	   m_impl->dbMonitoring.getLastChangeTimeOfTrigger(svInfo.id);
 	struct tm tm;
 	localtime_r(&lastUpdateTime, &tm);
 
@@ -551,7 +551,7 @@ void ArmNagiosNDOUtils::addConditionForTriggerQuery(void)
 void ArmNagiosNDOUtils::addConditionForEventQuery(void)
 {
 	const MonitoringServerInfo &svInfo = getServerInfo();
-	uint64_t lastEventId = m_impl->dbHatohol.getLastEventId(svInfo.id);
+	uint64_t lastEventId = m_impl->dbMonitoring.getLastEventId(svInfo.id);
 	string cond;
 	DBAgent::SelectExArg &arg = m_impl->selectEventBuilder.getSelectExArg();
 	arg.condition = m_impl->selectEventBaseCondition;
@@ -608,7 +608,7 @@ void ArmNagiosNDOUtils::getTrigger(void)
 		itemGroupStream >> trigInfo.hostName; // hosts.display_name
 		triggerInfoList.push_back(trigInfo);
 	}
-	m_impl->dbHatohol.addTriggerInfoList(triggerInfoList);
+	m_impl->dbMonitoring.addTriggerInfoList(triggerInfoList);
 }
 
 void ArmNagiosNDOUtils::getEvent(void)
@@ -692,7 +692,7 @@ void ArmNagiosNDOUtils::getItem(void)
 
 		itemInfoList.push_back(itemInfo);
 	}
-	m_impl->dbHatohol.addItemInfoList(itemInfoList);
+	m_impl->dbMonitoring.addItemInfoList(itemInfoList);
 }
 
 void ArmNagiosNDOUtils::getHost(void)
@@ -716,7 +716,7 @@ void ArmNagiosNDOUtils::getHost(void)
 		itemGroupStream >> hostInfo.hostName;
 		hostInfoList.push_back(hostInfo);
 	}
-	m_impl->dbHatohol.addHostInfoList(hostInfoList);
+	m_impl->dbMonitoring.addHostInfoList(hostInfoList);
 }
 
 void ArmNagiosNDOUtils::getHostgroup(void)
@@ -741,7 +741,7 @@ void ArmNagiosNDOUtils::getHostgroup(void)
 		itemGroupStream >> hostgroupInfo.groupName;
 		hostgroupInfoList.push_back(hostgroupInfo);
 	}
-	m_impl->dbHatohol.addHostgroupInfoList(hostgroupInfoList);
+	m_impl->dbMonitoring.addHostgroupInfoList(hostgroupInfoList);
 }
 
 void ArmNagiosNDOUtils::getHostgroupMembers(void)
@@ -766,7 +766,7 @@ void ArmNagiosNDOUtils::getHostgroupMembers(void)
 		itemGroupStream >> hostgroupElement.hostId;
 		hostgroupElementList.push_back(hostgroupElement);
 	}
-	m_impl->dbHatohol.addHostgroupElementList(hostgroupElementList);
+	m_impl->dbMonitoring.addHostgroupElementList(hostgroupElementList);
 }
 
 void ArmNagiosNDOUtils::connect(void)

@@ -13,54 +13,54 @@ typedef void (*DBMaker)(const string &dbName);
 static void makeDBHatohol(const string &dbName)
 {
 	DBAgentSQLite3::defineDBPath(DB_TABLES_ID_MONITORING, dbName);
-	DBClientHatohol dbHatohol;
+	DBTablesMonitoring dbMonitoring;
 
 	// Triggers
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
 		TriggerInfo *trigInfo = &testTriggerInfo[i];
-		dbHatohol.addTriggerInfo(trigInfo);
+		dbMonitoring.addTriggerInfo(trigInfo);
 	} 
 
 	// Events
 	for (size_t i = 0; i < NumTestEventInfo; i++) {
 		EventInfo *eventInfo = &testEventInfo[i];
-		dbHatohol.addEventInfo(eventInfo);
+		dbMonitoring.addEventInfo(eventInfo);
 	} 
 
 	// Items
 	for (size_t i = 0; i < NumTestItemInfo; i++) {
 		ItemInfo *itemInfo = &testItemInfo[i];
-		dbHatohol.addItemInfo(itemInfo);
+		dbMonitoring.addItemInfo(itemInfo);
 	} 
 
 	// Hosts
 	for (size_t i = 0; i < NumTestHostInfo; i++) {
 		HostInfo *hostInfo = &testHostInfo[i];
-		dbHatohol.addHostInfo(hostInfo);
+		dbMonitoring.addHostInfo(hostInfo);
 	}
 
 	// Hostgroups
 	for (size_t i = 0; i < NumTestHostgroupInfo; i++) {
 		HostgroupInfo *hostgroupInfo = &testHostgroupInfo[i];
-		dbHatohol.addHostgroupInfo(hostgroupInfo);
+		dbMonitoring.addHostgroupInfo(hostgroupInfo);
 	}
 
 	// HostgroupElements
 	for (size_t i = 0; i < NumTestHostgroupElement; i++) {
 		HostgroupElement *hostgroupElement = &testHostgroupElement[i];
-		dbHatohol.addHostgroupElement(hostgroupElement);
+		dbMonitoring.addHostgroupElement(hostgroupElement);
 	}
 
 	// MonitoringServerStatus
 	for (size_t i = 0; i < NumTestServerStatus; i++) {
 		MonitoringServerStatus *serverStatus = &testServerStatus[i];
-		dbHatohol.addMonitoringServerStatus(serverStatus);
+		dbMonitoring.addMonitoringServerStatus(serverStatus);
 	}
 
 	// Incidents
 	for (size_t i = 0; i < NumTestIncidentInfo; i++) {
 		IncidentInfo *incidentInfo = &testIncidentInfo[i];
-		dbHatohol.addIncidentInfo(incidentInfo);
+		dbMonitoring.addIncidentInfo(incidentInfo);
 	}
 }
 

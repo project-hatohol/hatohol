@@ -434,8 +434,8 @@ void HatoholArmPluginGate::cmdHandlerGetLastEventId(
 	HapiResLastEventId *body =
 	  setupResponseBuffer<HapiResLastEventId>(resBuf);
 	CacheServiceDBClient cache;
-	DBClientHatohol *dbHatohol = cache.getHatohol();
-	body->lastEventId = dbHatohol->getLastEventId(m_impl->serverInfo.id);
+	DBTablesMonitoring *dbMonitoring = cache.getMonitoring();
+	body->lastEventId = dbMonitoring->getLastEventId(m_impl->serverInfo.id);
 	reply(resBuf);
 }
 
@@ -453,8 +453,8 @@ void HatoholArmPluginGate::cmdHandlerSendUpdatedTriggers(
 	  trigInfoList, tablePtr, m_impl->serverInfo.id, m_impl->hostInfoCache);
 
 	CacheServiceDBClient cache;
-	DBClientHatohol *dbHatohol = cache.getHatohol();
-	dbHatohol->addTriggerInfoList(trigInfoList);
+	DBTablesMonitoring *dbMonitoring = cache.getMonitoring();
+	dbMonitoring->addTriggerInfoList(trigInfoList);
 
 	replyOk();
 }
@@ -473,8 +473,8 @@ void HatoholArmPluginGate::cmdHandlerSendHosts(
 	  hostInfoList, hostTablePtr, m_impl->serverInfo.id);
 
 	CacheServiceDBClient cache;
-	DBClientHatohol *dbHatohol = cache.getHatohol();
-	dbHatohol->addHostInfoList(hostInfoList);
+	DBTablesMonitoring *dbMonitoring = cache.getMonitoring();
+	dbMonitoring->addHostInfoList(hostInfoList);
 
 	// TODO: consider if DBClientHatohol should have the cache
 	HostInfoListConstIterator hostInfoItr = hostInfoList.begin();
@@ -499,8 +499,8 @@ void HatoholArmPluginGate::cmdHandlerSendHostgroupElements(
 	  hostgroupElementList, hostgroupElementTablePtr, m_impl->serverInfo.id);
 
 	CacheServiceDBClient cache;
-	DBClientHatohol *dbHatohol = cache.getHatohol();
-	dbHatohol->addHostgroupElementList(hostgroupElementList);
+	DBTablesMonitoring *dbMonitoring = cache.getMonitoring();
+	dbMonitoring->addHostgroupElementList(hostgroupElementList);
 
 	replyOk();
 }
@@ -519,8 +519,8 @@ void HatoholArmPluginGate::cmdHandlerSendHostgroups(
 	  hostgroupInfoList, hostgroupTablePtr, m_impl->serverInfo.id);
 
 	CacheServiceDBClient cache;
-	DBClientHatohol *dbHatohol = cache.getHatohol();
-	dbHatohol->addHostgroupInfoList(hostgroupInfoList);
+	DBTablesMonitoring *dbMonitoring = cache.getMonitoring();
+	dbMonitoring->addHostgroupInfoList(hostgroupInfoList);
 
 	replyOk();
 }

@@ -17,8 +17,8 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DBClientHatohol_h
-#define DBClientHatohol_h
+#ifndef DBTablesMonitoring_h
+#define DBTablesMonitoring_h
 
 #include <list>
 #include "DBClient.h"
@@ -271,7 +271,7 @@ public:
 	IncidentsQueryOption(DataQueryContext *dataQueryContext);
 };
 
-class DBClientHatohol : public DBClient {
+class DBTablesMonitoring : public DBClient {
 public:
 	static const int         HATOHOL_DB_VERSION;
 	static const char       *DEFAULT_DB_NAME;
@@ -286,8 +286,8 @@ public:
 	static const char *TABLE_NAME_SERVERS;
 	static const char *TABLE_NAME_INCIDENTS;
 
-	DBClientHatohol(void);
-	virtual ~DBClientHatohol();
+	DBTablesMonitoring(void);
+	virtual ~DBTablesMonitoring();
 
 	void getHostInfoList(HostInfoList &hostInfoList,
 			     const HostsQueryOption &option);
@@ -422,4 +422,4 @@ void operator>>(ItemGroupStream &itemGroupStream, TriggerStatusType &rhs);
 void operator>>(ItemGroupStream &itemGroupStream, TriggerSeverityType &rhs);
 void operator>>(ItemGroupStream &itemGroupStream, EventType &rhs);
 
-#endif // DBClientHatohol_h
+#endif // DBTablesMonitoring_h

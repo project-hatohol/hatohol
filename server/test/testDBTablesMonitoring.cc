@@ -33,7 +33,7 @@
 using namespace std;
 using namespace mlpl;
 
-namespace testDBClientHatohol {
+namespace testDBTablesMonitoring {
 
 static const string serverIdColumnName = "server_id";
 static const string hostgroupIdColumnName = "host_group_id";
@@ -41,8 +41,8 @@ static const string hostIdColumnName = "host_id";
 
 static void addTriggerInfo(TriggerInfo *triggerInfo)
 {
-	DBClientHatohol dbHatohol;
-	dbHatohol.addTriggerInfo(triggerInfo);
+	DBTablesMonitoring dbMonitoring;
+	dbMonitoring.addTriggerInfo(triggerInfo);
 }
 #define assertAddTriggerToDB(X) \
 cut_trace(_assertAddToDB<TriggerInfo>(X, addTriggerInfo))
@@ -65,24 +65,24 @@ static string makeTriggerOutput(const TriggerInfo &triggerInfo)
 
 static void addHostgroupInfo(HostgroupInfo *hostgroupInfo)
 {
-	DBClientHatohol dbHatohol;
-	dbHatohol.addHostgroupInfo(hostgroupInfo);
+	DBTablesMonitoring dbMonitoring;
+	dbMonitoring.addHostgroupInfo(hostgroupInfo);
 }
 #define assertAddHostgroupInfoToDB(X) \
 cut_trace(_assertAddToDB<HostgroupInfo>(X, addHostgroupInfo))
 
 static void addHostgroupElement(HostgroupElement *hostgroupElement)
 {
-	DBClientHatohol dbHatohol;
-	dbHatohol.addHostgroupElement(hostgroupElement);
+	DBTablesMonitoring dbMonitoring;
+	dbMonitoring.addHostgroupElement(hostgroupElement);
 }
 #define assertAddHostgroupElementToDB(X) \
 cut_trace(_assertAddToDB<HostgroupElement>(X, addHostgroupElement))
 
 static void addHostInfoList(HostInfo *hostInfo)
 {
-	DBClientHatohol dbHatohol;
-	dbHatohol.addHostInfo(hostInfo);
+	DBTablesMonitoring dbMonitoring;
+	dbMonitoring.addHostInfo(hostInfo);
 }
 #define assertAddHostInfoToDB(X) \
 cut_trace(_assertAddToDB<HostInfo>(X, addHostInfoList))
@@ -110,9 +110,9 @@ struct AssertGetTriggersArg
 
 static void _assertGetTriggers(AssertGetTriggersArg &arg)
 {
-	DBClientHatohol dbHatohol;
+	DBTablesMonitoring dbMonitoring;
 	arg.fixup();
-	dbHatohol.getTriggerInfoList(arg.actualRecordList, arg.option);
+	dbMonitoring.getTriggerInfoList(arg.actualRecordList, arg.option);
 	arg.assert();
 }
 #define assertGetTriggers(A) cut_trace(_assertGetTriggers(A))
@@ -171,13 +171,13 @@ cut_trace(_assertGetTriggerInfoList(DDT_PARAM, SERVER_ID, ##__VA_ARGS__))
 
 static void _assertGetEvents(AssertGetEventsArg &arg)
 {
-	DBClientHatohol dbHatohol;
+	DBTablesMonitoring dbMonitoring;
 	arg.fixup();
 	IncidentInfoVect *incidentInfoVectPointer
 	  = arg.withIncidentInfo ? &arg.actualIncidentInfoVect : NULL;
 	assertHatoholError(
 	  arg.expectedErrorCode,
-	  dbHatohol.getEventInfoList(arg.actualRecordList, arg.option,
+	  dbMonitoring.getEventInfoList(arg.actualRecordList, arg.option,
 				     incidentInfoVectPointer));
 	if (arg.expectedErrorCode != HTERR_OK)
 		return;
@@ -266,9 +266,9 @@ struct AssertGetItemsArg
 
 static void _assertGetItems(AssertGetItemsArg &arg)
 {
-	DBClientHatohol dbHatohol;
+	DBTablesMonitoring dbMonitoring;
 	arg.fixup();
-	dbHatohol.getItemInfoList(arg.actualRecordList, arg.option);
+	dbMonitoring.getItemInfoList(arg.actualRecordList, arg.option);
 	arg.assert();
 }
 #define assertGetItems(A) cut_trace(_assertGetItems(A))
@@ -288,29 +288,29 @@ static void _assertGetNumberOfItems(AssertGetItemsArg &arg)
 	void test_addItemInfoList(gconstpointer data);
 	test_addItemInfoList(arg.ddtParam);
 	arg.fixup();
-	DBClientHatohol dbHatohol;
+	DBTablesMonitoring dbMonitoring;
 	cppcut_assert_equal(arg.expectedRecords.size(),
-			    dbHatohol.getNumberOfItems(arg.option));
+			    dbMonitoring.getNumberOfItems(arg.option));
 }
 #define assertGetNumberOfItems(A) cut_trace(_assertGetNumberOfItems(A))
 
 void _assertItemInfoList(gconstpointer data, uint32_t serverId)
 {
-	DBClientHatohol dbHatohol;
+	DBTablesMonitoring dbMonitoring;
 	ItemInfoList itemInfoList;
 	for (size_t i = 0; i < NumTestItemInfo; i++)
 		itemInfoList.push_back(testItemInfo[i]);
-	dbHatohol.addItemInfoList(itemInfoList);
+	dbMonitoring.addItemInfoList(itemInfoList);
 
 	HostgroupElementList hostgroupElementList;
 	for (size_t i = 0; i < NumTestHostgroupElement; i++)
 		hostgroupElementList.push_back(testHostgroupElement[i]);
-	dbHatohol.addHostgroupElementList(hostgroupElementList);
+	dbMonitoring.addHostgroupElementList(hostgroupElementList);
 
 	HostgroupInfoList hostgroupInfoList;
 	for (size_t i = 0; i < NumTestHostgroupInfo; i++)
 		hostgroupInfoList.push_back(testHostgroupInfo[i]);
-	dbHatohol.addHostgroupInfoList(hostgroupInfoList);
+	dbMonitoring.addHostgroupInfoList(hostgroupInfoList);
 
 	AssertGetItemsArg arg(data);
 	arg.targetServerId = serverId;
@@ -356,9 +356,9 @@ static void _assertGetHosts(AssertGetHostsArg &arg)
 	setupTestHostInfoDB();
 	setupTestHostgroupElementDB();
 
-	DBClientHatohol dbHatohol;
+	DBTablesMonitoring dbMonitoring;
 	arg.fixup();
-	dbHatohol.getHostInfoList(arg.actualRecordList, arg.option);
+	dbMonitoring.getHostInfoList(arg.actualRecordList, arg.option);
 	arg.assert();
 }
 #define assertGetHosts(A) cut_trace(_assertGetHosts(A))
@@ -372,7 +372,7 @@ static void _assertGetNumberOfHostsWithUserAndStatus(UserIdType userId, bool sta
 	//       Hatohol support it.
 	const HostgroupIdType hostgroupId = ALL_HOST_GROUPS;
 
-	DBClientHatohol dbHatohol;
+	DBTablesMonitoring dbMonitoring;
 	int expected = getNumberOfTestHostsWithStatus(serverId, hostgroupId,
 	                                              status, userId);
 	int actual;
@@ -381,9 +381,9 @@ static void _assertGetNumberOfHostsWithUserAndStatus(UserIdType userId, bool sta
 	option.setTargetHostgroupId(hostgroupId);
 
 	if (status)
-		actual  = dbHatohol.getNumberOfGoodHosts(option);
+		actual  = dbMonitoring.getNumberOfGoodHosts(option);
 	else
-		actual  = dbHatohol.getNumberOfBadHosts(option);
+		actual  = dbMonitoring.getNumberOfBadHosts(option);
 	cppcut_assert_equal(expected, actual);
 }
 #define assertGetNumberOfHostsWithUserAndStatus(U, ST) \
@@ -470,15 +470,15 @@ void test_createDB(void)
 	string dbPath = getDBPathForDBClientHatohol();
 
 	// create an instance (the database will be automatically created)
-	DBClientHatohol dbHatohol;
+	DBTablesMonitoring dbMonitoring;
 	cut_assert_exist_path(dbPath.c_str());
 
 	// check the version
 	string statement = "select * from _dbclient_version";
 	string output = execSqlite3ForDBClientHatohol(statement);
-	string expectedOut = StringUtils::sprintf
-	                       ("%d|%d\n", DB_TABLES_ID_MONITORING,
-	                                   DBClientHatohol::HATOHOL_DB_VERSION);
+	string expectedOut = StringUtils::sprintf("%d|%d\n",
+	                       DB_TABLES_ID_MONITORING,
+	                       DBTablesMonitoring::HATOHOL_DB_VERSION);
 	cppcut_assert_equal(expectedOut, output);
 }
 
@@ -486,7 +486,7 @@ void test_createTableTrigger(void)
 {
 	const string tableName = "triggers";
 	string dbPath = getDBPathForDBClientHatohol();
-	DBClientHatohol dbHatohol;
+	DBTablesMonitoring dbMonitoring;
 	string command = "sqlite3 " + dbPath + " \".table\"";
 	assertExist(tableName, executeCommand(command));
 
@@ -521,12 +521,12 @@ void test_getTriggerInfo(void)
 	int targetIdx = 2;
 	TriggerInfo &targetTriggerInfo = testTriggerInfo[targetIdx];
 	TriggerInfo triggerInfo;
-	DBClientHatohol dbHatohol;
+	DBTablesMonitoring dbMonitoring;
 	TriggersQueryOption option(USER_ID_SYSTEM);
 	option.setTargetServerId(targetTriggerInfo.serverId);
 	option.setTargetId(targetTriggerInfo.id);
 	cppcut_assert_equal(true,
-	   dbHatohol.getTriggerInfo(triggerInfo, option));
+	   dbMonitoring.getTriggerInfo(triggerInfo, option));
 	assertTriggerInfo(targetTriggerInfo, triggerInfo);
 }
 
@@ -537,11 +537,11 @@ void test_getTriggerInfoNotFound(void)
 	const UserIdType invalidSvId = -1;
 	const TriggerIdType invalidTrigId = -1;
 	TriggerInfo triggerInfo;
-	DBClientHatohol dbHatohol;
+	DBTablesMonitoring dbMonitoring;
 	TriggersQueryOption option(invalidSvId);
 	option.setTargetId(invalidTrigId);
 	cppcut_assert_equal(false,
-	                    dbHatohol.getTriggerInfo(triggerInfo, option));
+	                    dbMonitoring.getTriggerInfo(triggerInfo, option));
 }
 
 void data_getTriggerInfoList(void)
@@ -584,22 +584,22 @@ void data_setTriggerInfoList(void)
 
 void test_setTriggerInfoList(gconstpointer data)
 {
-	DBClientHatohol dbHatohol;
+	DBTablesMonitoring dbMonitoring;
 	TriggerInfoList triggerInfoList;
 	for (size_t i = 0; i < NumTestTriggerInfo; i++)
 		triggerInfoList.push_back(testTriggerInfo[i]);
 	const ServerIdType serverId = testTriggerInfo[0].serverId;
-	dbHatohol.setTriggerInfoList(triggerInfoList, serverId);
+	dbMonitoring.setTriggerInfoList(triggerInfoList, serverId);
 
 	HostgroupElementList hostgroupElementList;
 	for (size_t i = 0; i < NumTestHostgroupElement; i++)
 		hostgroupElementList.push_back(testHostgroupElement[i]);
-	dbHatohol.addHostgroupElementList(hostgroupElementList);
+	dbMonitoring.addHostgroupElementList(hostgroupElementList);
 
 	HostgroupInfoList hostgroupInfoList;
 	for (size_t i = 0; i < NumTestHostgroupInfo; i++)
 		hostgroupInfoList.push_back(testHostgroupInfo[i]);
-	dbHatohol.addHostgroupInfoList(hostgroupInfoList);
+	dbMonitoring.addHostgroupInfoList(hostgroupInfoList);
 
 	AssertGetTriggersArg arg(data);
 	assertGetTriggers(arg);
@@ -613,32 +613,32 @@ void data_addTriggerInfoList(void)
 void test_addTriggerInfoList(gconstpointer data)
 {
 	size_t i;
-	DBClientHatohol dbHatohol;
+	DBTablesMonitoring dbMonitoring;
 
 	// First call
 	size_t numFirstAdd = NumTestTriggerInfo / 2;
 	TriggerInfoList triggerInfoList0;
 	for (i = 0; i < numFirstAdd; i++)
 		triggerInfoList0.push_back(testTriggerInfo[i]);
-	dbHatohol.addTriggerInfoList(triggerInfoList0);
+	dbMonitoring.addTriggerInfoList(triggerInfoList0);
 
 	// Second call
 	TriggerInfoList triggerInfoList1;
 	for (; i < NumTestTriggerInfo; i++)
 		triggerInfoList1.push_back(testTriggerInfo[i]);
-	dbHatohol.addTriggerInfoList(triggerInfoList1);
+	dbMonitoring.addTriggerInfoList(triggerInfoList1);
 
 	// Add HostgroupElement
 	HostgroupElementList hostgroupElementList;
 	for (size_t j = 0; j < NumTestHostgroupElement; j++)
 		hostgroupElementList.push_back(testHostgroupElement[j]);
-	dbHatohol.addHostgroupElementList(hostgroupElementList);
+	dbMonitoring.addHostgroupElementList(hostgroupElementList);
 
 	// Add HostgroupInfo
 	HostgroupInfoList hostgroupInfoList;
 	for (size_t j = 0; j < NumTestHostgroupInfo; j++)
 		hostgroupInfoList.push_back(testHostgroupInfo[j]);
-	dbHatohol.addHostgroupInfoList(hostgroupInfoList);
+	dbMonitoring.addHostgroupInfoList(hostgroupInfoList);
 
 	// Check
 	AssertGetTriggersArg arg(data);
@@ -712,21 +712,21 @@ void data_addItemInfoList(void)
 
 void test_addItemInfoList(gconstpointer data)
 {
-	DBClientHatohol dbHatohol;
+	DBTablesMonitoring dbMonitoring;
 	ItemInfoList itemInfoList;
 	for (size_t i = 0; i < NumTestItemInfo; i++)
 		itemInfoList.push_back(testItemInfo[i]);
-	dbHatohol.addItemInfoList(itemInfoList);
+	dbMonitoring.addItemInfoList(itemInfoList);
 
 	HostgroupElementList hostgroupElementList;
 	for (size_t i = 0; i < NumTestHostgroupElement; i++)
 		hostgroupElementList.push_back(testHostgroupElement[i]);
-	dbHatohol.addHostgroupElementList(hostgroupElementList);
+	dbMonitoring.addHostgroupElementList(hostgroupElementList);
 
 	HostgroupInfoList hostgroupInfoList;
 	for (size_t i = 0; i < NumTestHostgroupInfo; i++)
 		hostgroupInfoList.push_back(testHostgroupInfo[i]);
-	dbHatohol.addHostgroupInfoList(hostgroupInfoList);
+	dbMonitoring.addHostgroupInfoList(hostgroupInfoList);
 
 	AssertGetItemsArg arg(data);
 	assertGetItems(arg);
@@ -843,17 +843,17 @@ void data_addEventInfoList(void)
 
 void test_addEventInfoList(gconstpointer data)
 {
-	// DBClientHatohol internally joins the trigger table and the event table.
+	// DBTablesMonitoring internally joins the trigger table and the event table.
 	// So we also have to add trigger data.
 	// When the internal join is removed, the following line will not be
 	// needed.
 	test_setTriggerInfoList(data);
 
-	DBClientHatohol dbHatohol;
+	DBTablesMonitoring dbMonitoring;
 	EventInfoList eventInfoList;
 	for (size_t i = 0; i < NumTestEventInfo; i++)
 		eventInfoList.push_back(testEventInfo[i]);
-	dbHatohol.addEventInfoList(eventInfoList);
+	dbMonitoring.addEventInfoList(eventInfoList);
 
 	AssertGetEventsArg arg(data);
 	assertGetEvents(arg);
@@ -867,10 +867,10 @@ void data_getLastEventId(void)
 void test_getLastEventId(gconstpointer data)
 {
 	test_addEventInfoList(data);
-	DBClientHatohol dbHatohol;
+	DBTablesMonitoring dbMonitoring;
 	const ServerIdType serverid = 3;
 	cppcut_assert_equal(findLastEventId(serverid),
-	                    dbHatohol.getLastEventId(serverid));
+	                    dbMonitoring.getLastEventId(serverid));
 }
 
 void data_getHostInfoList(void)
@@ -949,12 +949,12 @@ void test_getNumberOfTriggers(gconstpointer data)
 	const HostgroupIdType hostgroupId =
 	  gcut_data_get_int(data, "hostgroupId");
 
-	DBClientHatohol dbHatohol;
+	DBTablesMonitoring dbMonitoring;
 	TriggersQueryOption option(USER_ID_SYSTEM);
 	option.setTargetServerId(targetServerId);
 	option.setTargetHostgroupId(hostgroupId);
 	cppcut_assert_equal(
-	  dbHatohol.getNumberOfTriggers(option),
+	  dbMonitoring.getNumberOfTriggers(option),
 	  getNumberOfTestTriggers(targetServerId, hostgroupId),
 	  cut_message("sv: %" FMT_SERVER_ID ", hostgroup: %" FMT_HOST_GROUP_ID,
 		      targetServerId, hostgroupId));
@@ -969,13 +969,13 @@ void test_getNumberOfTriggersForMultipleAuthorizedHostgroups(void)
 	const ServerIdType targetServerId = testTriggerInfo[0].serverId;
 	const HostgroupIdType hostgroupId = ALL_HOST_GROUPS;
 
-	DBClientHatohol dbHatohol;
+	DBTablesMonitoring dbMonitoring;
 	TriggersQueryOption option(userIdWithMultipleAuthorizedHostgroups);
 	option.setTargetServerId(targetServerId);
 	option.setTargetHostgroupId(hostgroupId);
 
 	cppcut_assert_equal(
-	  dbHatohol.getNumberOfTriggers(option),
+	  dbMonitoring.getNumberOfTriggers(option),
 	  getNumberOfTestTriggers(targetServerId, hostgroupId));
 }
 
@@ -984,7 +984,7 @@ void data_getNumberOfTriggersBySeverity(void)
 	prepareDataForAllHostgroupIds();
 }
 
-void _assertGetNumberOfTriggers(DBClientHatohol &dbHatohol,
+void _assertGetNumberOfTriggers(DBTablesMonitoring &dbMonitoring,
 				const ServerIdType &serverId,
 				const HostgroupIdType &hostgroupId,
 				const TriggerSeverityType &severity)
@@ -993,7 +993,7 @@ void _assertGetNumberOfTriggers(DBClientHatohol &dbHatohol,
 	option.setTargetServerId(serverId);
 	option.setTargetHostgroupId(hostgroupId);
 	const size_t actual =
-	  dbHatohol.getNumberOfBadTriggers(option, severity);
+	  dbMonitoring.getNumberOfBadTriggers(option, severity);
 	const size_t expect = getNumberOfTestTriggers(
 	  serverId, hostgroupId, severity);
 	cppcut_assert_equal(expect, actual,
@@ -1015,12 +1015,12 @@ void test_getNumberOfTriggersBySeverity(gconstpointer data)
 	const HostgroupIdType hostgroupId =
 	  gcut_data_get_int(data, "hostgroupId");
 
-	DBClientHatohol dbHatohol;
+	DBTablesMonitoring dbMonitoring;
 	for (int i = 0; i < NUM_TRIGGER_SEVERITY; i++) {
 		const TriggerSeverityType severity
 		  = static_cast<TriggerSeverityType>(i);
 		assertGetNumberOfTriggers(
-		  dbHatohol, targetServerId, hostgroupId, severity);
+		  dbMonitoring, targetServerId, hostgroupId, severity);
 	}
 }
 
@@ -1038,8 +1038,8 @@ void test_getNumberOfAllBadTriggers(gconstpointer data)
 	const HostgroupIdType hostgroupId =
 	  gcut_data_get_int(data, "hostgroupId");
 
-	DBClientHatohol dbHatohol;
-	assertGetNumberOfTriggers(dbHatohol, targetServerId, hostgroupId,
+	DBTablesMonitoring dbMonitoring;
+	assertGetNumberOfTriggers(dbMonitoring, targetServerId, hostgroupId,
 				  TRIGGER_SEVERITY_ALL);
 }
 
@@ -1053,7 +1053,7 @@ void test_getNumberOfTriggersBySeverityWithoutPriviledge(void)
 	//       Hatohol support it.
 	//uint64_t hostgroupId = 0;
 
-	DBClientHatohol dbHatohol;
+	DBTablesMonitoring dbMonitoring;
 	for (int i = 0; i < NUM_TRIGGER_SEVERITY; i++) {
 		TriggersQueryOption option;
 		option.setTargetServerId(targetServerId);
@@ -1061,7 +1061,7 @@ void test_getNumberOfTriggersBySeverityWithoutPriviledge(void)
 		//option.setTargetHostgroupId(hostgroupId);
 		TriggerSeverityType severity = (TriggerSeverityType)i;
 		size_t actual
-		  = dbHatohol.getNumberOfBadTriggers(option, severity);
+		  = dbMonitoring.getNumberOfBadTriggers(option, severity);
 		size_t expected = 0;
 		cppcut_assert_equal(expected, actual,
 		                    cut_message("severity: %d", i));
@@ -1345,9 +1345,9 @@ void test_getEventsWithIncidentInfoByAuthorizedUser(gconstpointer data)
 
 void test_addHostgroupInfo(void)
 {
-	DBClientHatohol dbClientHatohol;
+	DBTablesMonitoring dbMonitoring;
 	HostgroupInfoList hostgroupInfoList;
-	DBAgent *dbAgent = dbClientHatohol.getDBAgent();
+	DBAgent *dbAgent = dbMonitoring.getDBAgent();
 	string statement = "select * from hostgroups;";
 	string expect;
 
@@ -1355,15 +1355,15 @@ void test_addHostgroupInfo(void)
 		hostgroupInfoList.push_back(testHostgroupInfo[i]);
 		expect += makeHostgroupsOutput(testHostgroupInfo[i], i);
 	}
-	dbClientHatohol.addHostgroupInfoList(hostgroupInfoList);
+	dbMonitoring.addHostgroupInfoList(hostgroupInfoList);
 	assertDBContent(dbAgent, statement, expect);
 }
 
 void test_addHostgroupElement(void)
 {
-	DBClientHatohol dbClientHatohol;
+	DBTablesMonitoring dbMonitoring;
 	HostgroupElementList hostgroupElementList;
-	DBAgent *dbAgent = dbClientHatohol.getDBAgent();
+	DBAgent *dbAgent = dbMonitoring.getDBAgent();
 	string statement = "select * from map_hosts_hostgroups";
 	string expect;
 
@@ -1372,15 +1372,15 @@ void test_addHostgroupElement(void)
 		expect += makeMapHostsHostgroupsOutput(
 		            testHostgroupElement[i], i);
 	}
-	dbClientHatohol.addHostgroupElementList(hostgroupElementList);
+	dbMonitoring.addHostgroupElementList(hostgroupElementList);
 	assertDBContent(dbAgent, statement, expect);
 }
 
 void test_addHostInfo(void)
 {
-	DBClientHatohol dbClientHatohol;
+	DBTablesMonitoring dbMonitoring;
 	HostInfoList hostInfoList;
-	DBAgent *dbAgent = dbClientHatohol.getDBAgent();
+	DBAgent *dbAgent = dbMonitoring.getDBAgent();
 	string statement = "select * from hosts;";
 	string expect;
 
@@ -1388,37 +1388,37 @@ void test_addHostInfo(void)
 		hostInfoList.push_back(testHostInfo[i]);
 		expect += makeHostsOutput(testHostInfo[i], i);
 	}
-	dbClientHatohol.addHostInfoList(hostInfoList);
+	dbMonitoring.addHostInfoList(hostInfoList);
 	assertDBContent(dbAgent, statement, expect);
 }
 
 void test_addIncidentInfo(void)
 {
-	DBClientHatohol dbClientHatohol;
-	DBAgent *dbAgent = dbClientHatohol.getDBAgent();
+	DBTablesMonitoring dbMonitoring;
+	DBAgent *dbAgent = dbMonitoring.getDBAgent();
 	string statement = "select * from incidents;";
 	string expect;
 
 	for (size_t i = 0; i < NumTestIncidentInfo; i++) {
 		IncidentInfo expectedIncidentInfo = testIncidentInfo[i];
 		expect += makeIncidentOutput(expectedIncidentInfo);
-		dbClientHatohol.addIncidentInfo(&testIncidentInfo[i]);
+		dbMonitoring.addIncidentInfo(&testIncidentInfo[i]);
 	}
 	assertDBContent(dbAgent, statement, expect);
 }
 
 void test_updateIncidentInfo(void)
 {
-	DBClientHatohol dbClientHatohol;
-	DBAgent *dbAgent = dbClientHatohol.getDBAgent();
+	DBTablesMonitoring dbMonitoring;
+	DBAgent *dbAgent = dbMonitoring.getDBAgent();
 
 	IncidentInfo incidentInfo = testIncidentInfo[0];
-	dbClientHatohol.addIncidentInfo(&incidentInfo);
+	dbMonitoring.addIncidentInfo(&incidentInfo);
 	incidentInfo.status = "Assigned";
 	incidentInfo.assignee = "hikeshi";
 	incidentInfo.updatedAt.tv_sec = time(NULL);
 	incidentInfo.updatedAt.tv_nsec = 0;
-	dbClientHatohol.addIncidentInfo(&incidentInfo);
+	dbMonitoring.addIncidentInfo(&incidentInfo);
 
 	string statement("select * from incidents;");
 	string expect(makeIncidentOutput(incidentInfo));
@@ -1427,7 +1427,7 @@ void test_updateIncidentInfo(void)
 
 void test_getIncidentInfo(void)
 {
-	DBClientHatohol dbClientHatohol;
+	DBTablesMonitoring dbMonitoring;
 	IncidentInfoVect incidents;
 	IncidentsQueryOption option(USER_ID_SYSTEM);
 	string expected, actual;
@@ -1438,7 +1438,7 @@ void test_getIncidentInfo(void)
 		expected += makeIncidentOutput(expectedIncidentInfo);
 	}
 
-	dbClientHatohol.getIncidentInfoVect(incidents, option);
+	dbMonitoring.getIncidentInfoVect(incidents, option);
 	IncidentInfoVectIterator it = incidents.begin();
 	for (; it != incidents.end(); ++it) {
 		IncidentInfo &actualIncidentInfo = *it;
@@ -1448,4 +1448,4 @@ void test_getIncidentInfo(void)
 	cppcut_assert_equal(expected, actual);
 }
 
-} // namespace testDBClientHatohol
+} // namespace testDBTablesMonitoring

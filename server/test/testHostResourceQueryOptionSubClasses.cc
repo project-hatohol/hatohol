@@ -56,17 +56,17 @@ void _assertPrimaryTableName(const HostResourceQueryOption &option)
 	const type_info &typeinfo = typeid(option);
 	string expectedTableName;
 	if (typeinfo == typeid(EventsQueryOption))
-		expectedTableName = DBClientHatohol::TABLE_NAME_EVENTS;
+		expectedTableName = DBTablesMonitoring::TABLE_NAME_EVENTS;
 	else if (typeinfo == typeid(TriggersQueryOption))
-		expectedTableName = DBClientHatohol::TABLE_NAME_TRIGGERS;
+		expectedTableName = DBTablesMonitoring::TABLE_NAME_TRIGGERS;
 	else if (typeinfo == typeid(ItemsQueryOption))
-		expectedTableName = DBClientHatohol::TABLE_NAME_ITEMS;
+		expectedTableName = DBTablesMonitoring::TABLE_NAME_ITEMS;
 	else if (typeinfo == typeid(HostsQueryOption))
-		expectedTableName = DBClientHatohol::TABLE_NAME_HOSTS;
+		expectedTableName = DBTablesMonitoring::TABLE_NAME_HOSTS;
 	else if (typeinfo == typeid(HostgroupsQueryOption))
-		expectedTableName = DBClientHatohol::TABLE_NAME_HOSTGROUPS;
+		expectedTableName = DBTablesMonitoring::TABLE_NAME_HOSTGROUPS;
 	else if (typeinfo == typeid(HostgroupElementQueryOption))
-		expectedTableName = DBClientHatohol::TABLE_NAME_MAP_HOSTS_HOSTGROUPS;
+		expectedTableName = DBTablesMonitoring::TABLE_NAME_MAP_HOSTS_HOSTGROUPS;
 	else
 		cut_fail("Unknown type name: %s\n", typeinfo.name());
 }
@@ -415,9 +415,9 @@ void test_eventQueryOptionGetServerIdColumnName(gconstpointer data)
 	option.setTargetHostId(32);
 	string expect = StringUtils::sprintf(
 	                  "%s.%s=26 AND %s.%s=32 AND %s.%s=48",
-			  DBClientHatohol::TABLE_NAME_EVENTS,
+			  DBTablesMonitoring::TABLE_NAME_EVENTS,
 			  serverIdColumnName.c_str(),
-			  DBClientHatohol::TABLE_NAME_TRIGGERS,
+			  DBTablesMonitoring::TABLE_NAME_TRIGGERS,
 			  hostIdColumnName.c_str(),
 			  hostgroupTableAlias.c_str(),
 			  hostgroupIdColumnName.c_str());

@@ -557,7 +557,7 @@ void test_oneProcWithoutFetchItems()
 	ArmZabbixAPITestee armZbxApiTestee(setupServer());
 	armZbxApiTestee.testMainThreadOneProc();
 
-	DBClientHatohol db;
+	DBTablesMonitoring dbMonitoring;
 	EventInfoList eventInfoList;
 	TriggerInfoList triggerInfoList;
 	ItemInfoList itemInfoList;
@@ -570,12 +570,13 @@ void test_oneProcWithoutFetchItems()
 	HostgroupsQueryOption hostgroupsQueryOption(USER_ID_SYSTEM);
 	HostgroupElementQueryOption hostgroupElementQueryOption(USER_ID_SYSTEM);
 
-	db.getEventInfoList(eventInfoList, eventsQueryOption);
-	db.getTriggerInfoList(triggerInfoList, triggersQueryOption);
-	db.getItemInfoList(itemInfoList, itemsQueryOption);
-	db.getHostgroupInfoList(hostgroupInfoList, hostgroupsQueryOption);
-	db.getHostgroupElementList(hostgroupElementList,
-	                           hostgroupElementQueryOption);
+	dbMonitoring.getEventInfoList(eventInfoList, eventsQueryOption);
+	dbMonitoring.getTriggerInfoList(triggerInfoList, triggersQueryOption);
+	dbMonitoring.getItemInfoList(itemInfoList, itemsQueryOption);
+	dbMonitoring.getHostgroupInfoList(hostgroupInfoList,
+	                                  hostgroupsQueryOption);
+	dbMonitoring.getHostgroupElementList(hostgroupElementList,
+	                                     hostgroupElementQueryOption);
 
 	// FIXME: should check contents
 	cppcut_assert_equal(false, hostgroupInfoList.empty());
@@ -592,7 +593,7 @@ void test_oneProcWithCopyOnDemandEnabled()
 	armZbxApiTestee.testSetCopyOnDemandEnabled(true);
 	armZbxApiTestee.testMainThreadOneProc();
 
-	DBClientHatohol db;
+	DBTablesMonitoring dbMonitoring;
 	EventInfoList eventInfoList;
 	TriggerInfoList triggerInfoList;
 	ItemInfoList itemInfoList;
@@ -605,12 +606,13 @@ void test_oneProcWithCopyOnDemandEnabled()
 	HostgroupsQueryOption hostgroupsQueryOption(USER_ID_SYSTEM);
 	HostgroupElementQueryOption hostgroupElementQueryOption(USER_ID_SYSTEM);
 
-	db.getEventInfoList(eventInfoList, eventsQueryOption);
-	db.getTriggerInfoList(triggerInfoList, triggersQueryOption);
-	db.getItemInfoList(itemInfoList, itemsQueryOption);
-	db.getHostgroupInfoList(hostgroupInfoList, hostgroupsQueryOption);
-	db.getHostgroupElementList(hostgroupElementList,
-	                           hostgroupElementQueryOption);
+	dbMonitoring.getEventInfoList(eventInfoList, eventsQueryOption);
+	dbMonitoring.getTriggerInfoList(triggerInfoList, triggersQueryOption);
+	dbMonitoring.getItemInfoList(itemInfoList, itemsQueryOption);
+	dbMonitoring.getHostgroupInfoList(hostgroupInfoList,
+	                                  hostgroupsQueryOption);
+	dbMonitoring.getHostgroupElementList(hostgroupElementList,
+	                                     hostgroupElementQueryOption);
 
 	// FIXME: should check contents
 	cppcut_assert_equal(false, hostgroupInfoList.empty());
@@ -631,7 +633,7 @@ void test_oneProcWithFetchItems()
 	// needs information about hostgroup.
 	armZbxApiTestee.callUpdateGroupInformation();
 
-	DBClientHatohol db;
+	DBTablesMonitoring dbMonitoring;
 	EventInfoList eventInfoList;
 	TriggerInfoList triggerInfoList;
 	ItemInfoList itemInfoList;
@@ -644,12 +646,13 @@ void test_oneProcWithFetchItems()
 	HostgroupsQueryOption hostgroupsQueryOption(USER_ID_SYSTEM);
 	HostgroupElementQueryOption hostgroupElementQueryOption(USER_ID_SYSTEM);
 
-	db.getEventInfoList(eventInfoList, eventsQueryOption);
-	db.getTriggerInfoList(triggerInfoList, triggersQueryOption);
-	db.getItemInfoList(itemInfoList, itemsQueryOption);
-	db.getHostgroupInfoList(hostgroupInfoList, hostgroupsQueryOption);
-	db.getHostgroupElementList(hostgroupElementList,
-	                           hostgroupElementQueryOption);
+	dbMonitoring.getEventInfoList(eventInfoList, eventsQueryOption);
+	dbMonitoring.getTriggerInfoList(triggerInfoList, triggersQueryOption);
+	dbMonitoring.getItemInfoList(itemInfoList, itemsQueryOption);
+	dbMonitoring.getHostgroupInfoList(hostgroupInfoList,
+	                                  hostgroupsQueryOption);
+	dbMonitoring.getHostgroupElementList(hostgroupElementList,
+	                                     hostgroupElementQueryOption);
 
 	// FIXME: should check contents
 	cppcut_assert_equal(false, hostgroupInfoList.empty());

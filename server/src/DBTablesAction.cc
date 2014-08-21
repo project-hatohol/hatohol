@@ -853,22 +853,22 @@ ItemDataNullFlagType DBTablesAction::getNullFlag
 static void takeTriggerInfo(TriggerInfo &triggerInfo,
   const ServerIdType &serverId, const TriggerIdType &triggerId)
 {
-	DBClientHatohol dbClientHatohol;
+	DBTablesMonitoring dbMonitoring;
 	TriggersQueryOption option(USER_ID_SYSTEM);
 	option.setTargetServerId(serverId);
 	option.setTargetId(triggerId);
-	dbClientHatohol.getTriggerInfo(triggerInfo, option);
+	dbMonitoring.getTriggerInfo(triggerInfo, option);
 }
 
 static void getHostgroupIdStringList(string &stringHostgroupId,
   const ServerIdType &serverId, const HostIdType &hostId)
 {
-	DBClientHatohol dbClientHatohol;
+	DBTablesMonitoring dbMonitoring;
 	HostgroupElementList hostgroupElementList;
 	HostgroupElementQueryOption option(USER_ID_SYSTEM);
 	option.setTargetServerId(serverId);
 	option.setTargetHostId(hostId);
-	dbClientHatohol.getHostgroupElementList(hostgroupElementList,option);
+	dbMonitoring.getHostgroupElementList(hostgroupElementList,option);
 
 	HostgroupElementListIterator it = hostgroupElementList.begin();
 	for(; it != hostgroupElementList.end(); ++it) {

@@ -299,7 +299,7 @@ void deleteFileAndCheck(const string &path)
 
 string getDBPathForDBClientHatohol(void)
 {
-	struct callgate : public DBClientHatohol, public DBAgentSQLite3 {
+	struct callgate : public DBTablesMonitoring, public DBAgentSQLite3 {
 		static string getDBPath(void) {
 			return makeDBPathFromName(DEFAULT_DB_NAME);
 		}
@@ -799,34 +799,35 @@ void loadTestDBServer(void)
 
 void loadTestDBTriggers(void)
 {
-	DBClientHatohol dbHatohol;
+	DBTablesMonitoring dbMonitoring;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	for (size_t i = 0; i < NumTestTriggerInfo; i++)
-		dbHatohol.addTriggerInfo(&testTriggerInfo[i]);
+		dbMonitoring.addTriggerInfo(&testTriggerInfo[i]);
 }
 
 void loadTestDBEvents(void)
 {
-	DBClientHatohol dbHatohol;
+	DBTablesMonitoring dbMonitoring;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	for (size_t i = 0; i < NumTestEventInfo; i++)
-		dbHatohol.addEventInfo(&testEventInfo[i]);
+		dbMonitoring.addEventInfo(&testEventInfo[i]);
 }
 
 void loadTestDBIncidentTracker(void)
 {
 	DBTablesConfig dbConfig;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	for (size_t i = 0; i < NumTestIncidentTrackerInfo; i++)
+	for (size_t i = 0; i < NumTestIncidentTrackerInfo; i++) {
 		dbConfig.addIncidentTracker(testIncidentTrackerInfo[i],
-					    privilege);
+		                            privilege);
+	}
 }
 
 void loadTestDBIncidents(void)
 {
-	DBClientHatohol dbHatohol;
+	DBTablesMonitoring dbMonitoring;
 	for (size_t i = 0; i < NumTestIncidentInfo; i++)
-		dbHatohol.addIncidentInfo(&testIncidentInfo[i]);
+		dbMonitoring.addIncidentInfo(&testIncidentInfo[i]);
 }
 
 void setupTestDBConfig(bool dbRecreate, bool loadTestData)

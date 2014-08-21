@@ -56,7 +56,7 @@ static void init(void)
 	DBAgentMySQL::init();
 	DBTablesConfig::init();
 	DBTablesUser::init();
-	DBClientHatohol::init();
+	DBTablesMonitoring::init();
 	DBTablesAction::init();
 	DBClientHost::init();
 

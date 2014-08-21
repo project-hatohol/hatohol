@@ -299,8 +299,8 @@ HatoholError IncidentSenderRedmine::send(const EventInfo &event)
 	IncidentInfo incidentInfo;
 	HatoholError result = buildIncidentInfo(incidentInfo, response, event);
 	if (result == HTERR_OK) {
-		DBClientHatohol dbHatohol;
-		dbHatohol.addIncidentInfo(&incidentInfo);
+		DBTablesMonitoring dbMonitoring;
+		dbMonitoring.addIncidentInfo(&incidentInfo);
 	}
 
 	return result;

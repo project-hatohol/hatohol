@@ -38,10 +38,10 @@ public:
 
 	CacheServiceDBClient(void);
 	virtual ~CacheServiceDBClient();
-	DBClientHatohol *getHatohol(void);
 	DBTablesUser    *getUser(void);
 	DBTablesConfig  *getConfig(void);
 	DBTablesAction  *getAction(void);
+	DBTablesMonitoring *getMonitoring(void);
 
 private:
 	/**
