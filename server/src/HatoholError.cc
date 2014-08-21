@@ -43,11 +43,11 @@ void HatoholError::init(void)
 	DEFINE_ERR(INVALID_USER,
 		   "Invalid user.");
 
-	// DBClientConfig
+	// DBClient
 	DEFINE_ERR(NOT_FOUND_TARGET_RECORD,
 		   "Not found target record.");
 
-	// DBClientConfig
+	// DBTablesConfig
 	DEFINE_ERR(INVALID_MONITORING_SYSTEM_TYPE,
 		   "Invalid monitoring system type.");
 	DEFINE_ERR(INVALID_PORT_NUMBER,
@@ -63,7 +63,7 @@ void HatoholError::init(void)
 	DEFINE_ERR(NO_INCIDENT_TRACKER_LOCATION,
 		   "NO incident tracker location.");
 
-	// DBClientUser
+	// DBTablesUser
 	DEFINE_ERR(EMPTY_USER_NAME,
 		   "Empty user name.");
 	DEFINE_ERR(TOO_LONG_USER_NAME,
