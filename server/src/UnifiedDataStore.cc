@@ -26,7 +26,7 @@
 #include "DBTablesConfig.h"
 #include "DataStoreManager.h"
 #include "ActionManager.h"
-#include "CacheServiceDBClient.h"
+#include "DBCache.h"
 #include "ItemFetchWorker.h"
 #include "DataStoreFactory.h"
 #include "HatoholArmPluginGate.h" // TODO: remove after dynamic_cast is deleted

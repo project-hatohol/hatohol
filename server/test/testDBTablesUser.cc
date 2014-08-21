@@ -25,7 +25,7 @@
 #include "DBClientTest.h"
 #include "Helpers.h"
 #include "Hatohol.h"
-#include "CacheServiceDBClient.h"
+#include "DBCache.h"
 using namespace std;
 using namespace mlpl;
 

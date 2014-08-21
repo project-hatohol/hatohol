@@ -36,7 +36,7 @@ using namespace mlpl;
 #include "ActorCollector.h"
 #include "DBTablesUser.h"
 #include "DBTablesAction.h"
-#include "CacheServiceDBClient.h"
+#include "DBCache.h"
 #include "SessionManager.h"
 #include "UnifiedDataStore.h"
 #include "ChildProcessManager.h"

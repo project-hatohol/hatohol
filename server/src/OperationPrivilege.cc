@@ -19,7 +19,7 @@
 
 #include "OperationPrivilege.h"
 #include "DBTablesUser.h"
-#include "CacheServiceDBClient.h"
+#include "DBCache.h"
 using namespace mlpl;
 
 struct OperationPrivilege::Impl {

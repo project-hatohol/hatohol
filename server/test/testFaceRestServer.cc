@@ -23,7 +23,7 @@
 #include "FaceRest.h"
 #include "Helpers.h"
 #include "DBClientTest.h"
-#include "CacheServiceDBClient.h"
+#include "DBCache.h"
 #include "UnifiedDataStore.h"
 #include "HatoholArmPluginInterface.h"
 #include "FaceRestTestUtils.h"

@@ -18,7 +18,7 @@
  */
 
 #include "RestResourceServer.h"
-#include "CacheServiceDBClient.h"
+#include "DBCache.h"
 #include "UnifiedDataStore.h"
 #include "HatoholArmPluginInterface.h"
 #include "HatoholArmPluginGate.h"

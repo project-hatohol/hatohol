@@ -22,7 +22,7 @@
 #include "Reaper.h"
 #include "IncidentSenderManager.h"
 #include "IncidentSenderRedmine.h"
-#include "CacheServiceDBClient.h"
+#include "DBCache.h"
 
 using namespace std;
 using namespace mlpl;

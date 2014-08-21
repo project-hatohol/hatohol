@@ -22,7 +22,7 @@
 #include <Mutex.h>
 #include "Params.h"
 #include "DBClient.h"
-#include "CacheServiceDBClient.h"
+#include "DBCache.h"
 using namespace std;
 using namespace mlpl;
 

@@ -19,7 +19,7 @@
 
 #include <cstdio>
 #include "DataQueryContext.h"
-#include "CacheServiceDBClient.h"
+#include "DBCache.h"
 
 struct DataQueryContext::Impl {
 	OperationPrivilege   privilege;

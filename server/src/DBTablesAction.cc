@@ -20,7 +20,7 @@
 #include <exception>
 #include "Utils.h"
 #include "ConfigManager.h"
-#include "CacheServiceDBClient.h"
+#include "DBCache.h"
 #include "DBAgentFactory.h"
 #include "DBTablesAction.h"
 #include "DBTablesConfig.h"

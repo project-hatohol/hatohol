@@ -32,7 +32,7 @@
 #include <SimpleSemaphore.h>
 #include "UnifiedDataStore.h"
 #include "HatoholArmPluginGate.h"
-#include "CacheServiceDBClient.h"
+#include "DBCache.h"
 #include "ChildProcessManager.h"
 #include "StringUtils.h"
 #include "HostInfoCache.h"

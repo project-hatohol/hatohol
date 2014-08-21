@@ -21,7 +21,7 @@
 #include <errno.h>
 #include <cppcutter.h>
 #include "Hatohol.h"
-#include "CacheServiceDBClient.h"
+#include "DBCache.h"
 #include "HatoholThreadBase.h"
 #include "Helpers.h"
 using namespace std;

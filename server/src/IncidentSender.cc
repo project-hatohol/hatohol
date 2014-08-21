@@ -20,7 +20,7 @@
 #include "IncidentSender.h"
 #include "StringUtils.h"
 #include "LabelUtils.h"
-#include "CacheServiceDBClient.h"
+#include "DBCache.h"
 #include <Mutex.h>
 #include "SimpleSemaphore.h"
 #include "Reaper.h"

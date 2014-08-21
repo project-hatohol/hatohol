@@ -24,8 +24,8 @@
 #include "JSONParserAgent.h"
 #include "DBClientTest.h"
 #include "MultiLangTest.h"
-#include "CacheServiceDBClient.h"
 #include "testDBTablesMonitoring.h"
+#include "DBCache.h"
 #include "FaceRestTestUtils.h"
 using namespace std;
 using namespace mlpl;

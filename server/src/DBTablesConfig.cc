@@ -22,7 +22,7 @@
 #include <Mutex.h>
 #include "DBAgentFactory.h"
 #include "DBTablesConfig.h"
-#include "CacheServiceDBClient.h"
+#include "DBCache.h"
 #include "ConfigManager.h"
 #include "HatoholError.h"
 #include "Params.h"

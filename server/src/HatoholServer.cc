@@ -18,7 +18,7 @@
  */
 
 #include "HatoholThreadBase.h"
-#include "CacheServiceDBClient.h"
+#include "DBCache.h"
 
 void hatoholThreadCleanup(HatoholThreadArg *arg)
 {

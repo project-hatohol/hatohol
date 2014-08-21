@@ -38,7 +38,7 @@
 #include "DBTablesUser.h"
 #include "DBTablesConfig.h"
 #include "SessionManager.h"
-#include "CacheServiceDBClient.h"
+#include "DBCache.h"
 #include "HatoholArmPluginInterface.h"
 #include "HatoholArmPluginGate.h"
 #include "RestResourceAction.h"

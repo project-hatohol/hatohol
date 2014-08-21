@@ -27,7 +27,7 @@
 #include "DBClientTest.h"
 #include "DBAgentSQLite3.h"
 #include "DBAgentMySQL.h"
-#include "CacheServiceDBClient.h"
+#include "DBCache.h"
 #include "SQLUtils.h"
 #include "Reaper.h"
 #include "ConfigManager.h"
