@@ -12,7 +12,7 @@ typedef void (*DBMaker)(const string &dbName);
 
 static void makeDBHatohol(const string &dbName)
 {
-	DBAgentSQLite3::defineDBPath(DB_TABLES_ID_MONITOR, dbName);
+	DBAgentSQLite3::defineDBPath(DB_TABLES_ID_MONITORING, dbName);
 	DBClientHatohol dbHatohol;
 
 	// Triggers
