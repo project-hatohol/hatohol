@@ -121,7 +121,7 @@ static HatoholError parseIncidentTrackerParameter(
 	PARSE_STRING_VALUE(incidentTrackerInfo, baseURL, allowEmpty);
 	PARSE_STRING_VALUE(incidentTrackerInfo, projectId, allowEmpty);
 	PARSE_STRING_VALUE(incidentTrackerInfo, userName, allowEmpty);
-	PARSE_STRING_VALUE(incidentTrackerInfo, password, allowEmpty);
+	PARSE_STRING_VALUE(incidentTrackerInfo, password, true);
 	PARSE_STRING_VALUE(incidentTrackerInfo, trackerId, true);
 
 	return HatoholError(HTERR_OK);
