@@ -1185,11 +1185,27 @@ string getSyslogTail(size_t numLines)
 
 void _assertFileContent(const string &expect, const string &path)
 {
-	gchar *contents;
+	static const int TIMEOUT_SEC = 5;
+	gchar *contents = NULL;
 	gsize length;
 	GError *error = NULL;
-	g_file_get_contents(path.c_str(), &contents, &length, &error);
-	gcut_assert_error(error);
+	SmartTime startTime(SmartTime::INIT_CURR_TIME);
+	while (true) {
+		g_file_get_contents(path.c_str(), &contents, &length, &error);
+		gcut_assert_error(error);
+		if (length > 0)
+			break;
+
+		// Some tests such as test_createWithEnv() sometimes fails
+		// due to empty of file contents. Although the clear
+		// reason is unknown, we try to read repeatedly in order to
+		// avoid the failure.
+		g_free(contents);
+		usleep(10 * 1000); // 10ms
+		SmartTime elapsed(SmartTime::INIT_CURR_TIME);
+		elapsed -= startTime;
+		cppcut_assert_equal(true, elapsed.getAsSec() < TIMEOUT_SEC);
+	}
 	Reaper<void> reaper(contents, g_free);
 	cut_assert_equal_memory(expect.c_str(), expect.size(),
 	                        contents, length);
