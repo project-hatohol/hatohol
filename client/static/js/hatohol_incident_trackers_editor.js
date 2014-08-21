@@ -387,7 +387,7 @@ HatoholIncidentTrackerEditor.prototype.createMainElement = function() {
   '<input id="editIncidentTrackerUserName" type="text" ' +
   '       class="input-xlarge">' +
   '</div>' +
-  '<div>' +
+  '<div id="editIncidentTrackerPasswordArea">' +
   '<label for="editIncidentTrackerPassword">' + gettext("Password") + '</label>' +
   '<input id="editIncidentTrackerPassword" type="password" ' +
   '       class="input-xlarge">' +
@@ -403,11 +403,19 @@ HatoholIncidentTrackerEditor.prototype.onAppendMainElement = function() {
 };
 
 HatoholIncidentTrackerEditor.prototype.resetWidgetState = function() {
-  var editPassword = !this.incidentTracker;
-  if (editPassword) {
-    $("#editIncidentTrackerPasswordCheckbox").hide();
+  // We always use API key for Redmine, and we support only Redmine at this
+  // time. So we don't need the password entry.
+  var editPassword = false;
+  var showPasswordEntry = false;
+  if (showPasswordEntry) {
+    $("#editIncidentTrackerPasswordArea").show();
+    if (editPassword) {
+      $("#editIncidentTrackerPasswordCheckbox").hide();
+    } else {
+      $("#editIncidentTrackerPasswordCheckbox").show();
+    }
   } else {
-    $("#editIncidentTrackerPasswordCheckbox").show();
+    $("#editIncidentTrackerPasswordArea").hide();
   }
   $("#editIncidentTrackerPasswordCheckbox").prop("checked", editPassword);
   $("#editIncidentTrackerPassword").attr("disabled", !editPassword);
