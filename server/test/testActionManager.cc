@@ -43,7 +43,7 @@ using namespace mlpl;
 
 class TestActionManager : public ActionManager
 {
-	DBClientAction m_dbAction;
+	DBTablesAction m_dbAction;
 public:
 	void callExecCommandAction(const ActionDef &actionDef,
 	                            const EventInfo &eventInfo,
@@ -81,7 +81,7 @@ public:
 
 	HatoholError callRunAction(const ActionDef &actionDef,
 	                           const EventInfo &eventInfo,
-	                           DBClientAction &dbAction)
+	                           DBTablesAction &dbAction)
 	{
 		return runAction(actionDef, eventInfo, dbAction);
 	}
@@ -98,7 +98,7 @@ struct ExecCommandContext : public ResidentPullHelper<ExecCommandContext> {
 	ActorInfo actorInfo;
 	ActionDef actDef;
 	ActionLog actionLog;
-	DBClientAction dbAction;
+	DBTablesAction dbAction;
 	size_t timeout;
 	string pipeName;
 	NamedPipe pipeRd, pipeWr;
@@ -755,7 +755,7 @@ static void _assertWaitRemoveWatching(ExecCommandContext *ctx)
 
 static void _assertShouldSkipByLog(bool EvenEventNotLog)
 {
-	DBClientAction dbAction;
+	DBTablesAction dbAction;
 
 	// make a test data;
 	TestActionManager actMgr;
@@ -763,7 +763,7 @@ static void _assertShouldSkipByLog(bool EvenEventNotLog)
 	actDef.id = 102;
 	actDef.type = ACTION_COMMAND;
 	actDef.timeout = 0;
-	DBClientAction::LogEndExecActionArg logArg;
+	DBTablesAction::LogEndExecActionArg logArg;
 	logArg.status = ACTLOG_STAT_SUCCEEDED;
 	logArg.exitCode = 0;
 	logArg.failureCode = ACTLOG_EXECFAIL_NONE;
@@ -1314,7 +1314,7 @@ static void _assertRunAction(
 	setupTestDBUser(true, true);
 	setupTestDBConfig(true, true);
 
-	DBClientAction dbAction;
+	DBTablesAction dbAction;
 	TestActionManager actMgr;
 	HatoholError err = actMgr.callRunAction(actDef, eventInfo, dbAction);
 	assertHatoholError(expectedErrorCode, err);
@@ -1383,7 +1383,7 @@ void test_checkEventsWithMultipleIncidentSender(void)
 	  0,                      // timeout
 	  0,                      // ownerUserId
 	};
-	DBClientAction dbAction;
+	DBTablesAction dbAction;
 	OperationPrivilege privilege(USER_ID_SYSTEM);
 	dbAction.addAction(actDef, privilege);
 	dbAction.addAction(actDef, privilege);
@@ -1395,7 +1395,7 @@ void test_checkEventsWithMultipleIncidentSender(void)
 	eventList.push_back(event);
 
 	// We get the first entry of the action list that is obtained by
-	// DBClientAction::getActionList(). It changes depending on the
+	// DBTablesAction::getActionList(). It changes depending on the
 	// storage engine. For example, HATOHOL_MYSQL_ENGINE_MEMORY=1
 	// is set, the first entry may be different from that w/o it.
 	//
@@ -1427,7 +1427,7 @@ void test_checkEventsWithMultipleIncidentSender(void)
 	string expected
 		= StringUtils::sprintf("%" FMT_ACTION_ID, expectedActionId);
 	string statement = "select action_id from ";
-	statement += DBClientAction::getTableNameActionLogs();
+	statement += DBTablesAction::getTableNameActionLogs();
 	statement += " order by action_log_id";
 	assertDBContent(&dbAction.getDBAgent(), statement, expected);
 }

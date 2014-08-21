@@ -23,7 +23,7 @@
 #include <typeinfo>
 #include "Helpers.h"
 #include "DBTablesConfig.h"
-#include "DBClientAction.h"
+#include "DBTablesAction.h"
 #include "DBClientTest.h"
 #include "DBAgentSQLite3.h"
 #include "DBAgentMySQL.h"
@@ -844,7 +844,7 @@ void setupTestDBConfig(bool dbRecreate, bool loadTestData)
 void setupTestDBAction(bool dbRecreate, bool loadTestData)
 {
 	static const char *TEST_DB_NAME = "test_action";
-	DBClient::setDefaultDBParams(DB_DOMAIN_ID_ACTION, TEST_DB_NAME,
+	DBClient::setDefaultDBParams(DB_TABLES_ID_ACTION, TEST_DB_NAME,
 	                             TEST_DB_USER, TEST_DB_PASSWORD);
 	makeTestMySQLDBIfNeeded(TEST_DB_NAME, dbRecreate);
 	if (loadTestData)
@@ -921,7 +921,7 @@ void loadTestDBArmPlugin(void)
 
 void loadTestDBAction(void)
 {
-	DBClientAction dbAction;
+	DBTablesAction dbAction;
 	OperationPrivilege privilege(USER_ID_SYSTEM);
 	for (size_t i = 0; i < NumTestActionDef; i++)
 		dbAction.addAction(testActionDef[i], privilege);

@@ -34,8 +34,8 @@ using namespace mlpl;
 #include "DBClientHatohol.h"
 #include "ActionManager.h"
 #include "ActorCollector.h"
-#include "DBClientAction.h"
 #include "DBTablesUser.h"
+#include "DBTablesAction.h"
 #include "CacheServiceDBClient.h"
 #include "SessionManager.h"
 #include "UnifiedDataStore.h"
@@ -57,7 +57,7 @@ static void init(void)
 	DBTablesConfig::init();
 	DBTablesUser::init();
 	DBClientHatohol::init();
-	DBClientAction::init();
+	DBTablesAction::init();
 	DBClientHost::init();
 
 	ItemData::init();
@@ -78,7 +78,7 @@ static void reset(const CommandLineOptions *cmdLineOpts)
 	DBCGroupRegular::reset();
 	DBTablesConfig::reset(); // must be after DBClient::reset()
 	DBTablesUser::reset();
-	DBClientAction::reset(); // must be after DBTablesConfig::reset()
+	DBTablesAction::reset(); // must be after DBTablesConfig::reset()
 
 	ActionManager::reset();
 	CacheServiceDBClient::reset();

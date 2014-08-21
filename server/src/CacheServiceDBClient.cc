@@ -95,8 +95,8 @@ struct CacheServiceDBClient::Impl {
 			dbClient = new DBTablesUser();
 		else if (domainId == DB_DOMAIN_ID_CONFIG)
 			dbClient = new DBTablesConfig();
-		else if (domainId == DB_DOMAIN_ID_ACTION)
-			dbClient = new DBClientAction();
+		else if (domainId == DB_TABLES_ID_ACTION)
+			dbClient = new DBTablesAction();
 		HATOHOL_ASSERT(dbClient,
 		               "ptr is NULL. domainId: %d\n", domainId);
 		clientMap->insert(
@@ -196,9 +196,9 @@ DBTablesConfig *CacheServiceDBClient::getConfig(void)
 	return get<DBTablesConfig>(DB_DOMAIN_ID_CONFIG);
 }
 
-DBClientAction *CacheServiceDBClient::getAction(void)
+DBTablesAction *CacheServiceDBClient::getAction(void)
 {
-	return get<DBClientAction>(DB_DOMAIN_ID_CONFIG);
+	return get<DBTablesAction>(DB_DOMAIN_ID_CONFIG);
 }
 // ---------------------------------------------------------------------------
 // Private methods

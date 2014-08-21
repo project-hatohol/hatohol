@@ -31,7 +31,7 @@
 #include "OperationPrivilege.h"
 #include "DBTablesConfig.h"
 #include "DBClientHatohol.h"
-#include "DBClientAction.h"
+#include "DBTablesAction.h"
 #include "ArmStatus.h"
 
 #define DBCONTENT_MAGIC_CURR_DATETIME "#CURR_DATETIME#"

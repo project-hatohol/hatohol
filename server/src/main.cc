@@ -41,7 +41,7 @@ using namespace mlpl;
 #include "UnifiedDataStore.h"
 #include "DBTablesConfig.h"
 #include "ActorCollector.h"
-#include "DBClientAction.h"
+#include "DBTablesAction.h"
 #include "ConfigManager.h"
 
 static int pipefd[2];
@@ -75,7 +75,7 @@ gboolean exitFunc(GIOChannel *source, GIOCondition condition, gpointer data)
 	ExecContext *impl = static_cast<ExecContext *>(data);
 
 	impl->unifiedDataStore->stop();
-	DBClientAction::stop();
+	DBTablesAction::stop();
 
 	// TODO: implement
 	// ChildProcessManager::getInstance()->quit();

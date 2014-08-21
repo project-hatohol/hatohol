@@ -22,7 +22,7 @@
 #include <AtomicValue.h>
 #include <Reaper.h>
 #include "UnifiedDataStore.h"
-#include "DBClientAction.h"
+#include "DBTablesAction.h"
 #include "DBTablesConfig.h"
 #include "DataStoreManager.h"
 #include "ActionManager.h"
@@ -338,20 +338,20 @@ void UnifiedDataStore::getHostList(HostInfoList &hostInfoList,
 HatoholError UnifiedDataStore::getActionList(
   ActionDefList &actionList, const ActionsQueryOption &option)
 {
-	DBClientAction dbAction;
+	DBTablesAction dbAction;
 	return dbAction.getActionList(actionList, option);
 }
 
 HatoholError UnifiedDataStore::deleteActionList(
   const ActionIdList &actionIdList, const OperationPrivilege &privilege)
 {
-	DBClientAction dbAction;
+	DBTablesAction dbAction;
 	return dbAction.deleteActions(actionIdList, privilege);
 }
 
 bool UnifiedDataStore::isIncidentSenderActionEnabled(void)
 {
-	DBClientAction dbAction;
+	DBTablesAction dbAction;
 	return dbAction.isIncidentSenderEnabled();
 }
 
@@ -425,7 +425,7 @@ void UnifiedDataStore::setCopyOnDemandEnabled(bool enable)
 HatoholError UnifiedDataStore::addAction(ActionDef &actionDef,
                                          const OperationPrivilege &privilege)
 {
-	DBClientAction dbAction;
+	DBTablesAction dbAction;
 	return dbAction.addAction(actionDef, privilege);
 }
 

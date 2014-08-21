@@ -22,7 +22,7 @@
 #include "ConfigManager.h"
 #include "CacheServiceDBClient.h"
 #include "DBAgentFactory.h"
-#include "DBClientAction.h"
+#include "DBTablesAction.h"
 #include "DBTablesConfig.h"
 #include "DBClientHatohol.h"
 #include "Mutex.h"
@@ -36,8 +36,8 @@ const char *TABLE_NAME_ACTION_LOGS = "action_logs";
 const static guint DEFAULT_ACTION_DELETE_INTERVAL_MSEC = 3600 * 1000; // 1hour
 
 // 8 -> 9: Add actions.onwer_user_id
-int DBClientAction::ACTION_DB_VERSION = 9;
-const char *DBClientAction::DEFAULT_DB_NAME = DBTablesConfig::DEFAULT_DB_NAME;
+int DBTablesAction::ACTION_DB_VERSION = 9;
+const char *DBTablesAction::DEFAULT_DB_NAME = DBTablesConfig::DEFAULT_DB_NAME;
 
 static void operator>>(
   ItemGroupStream &itemGroupStream, ComparisonType &compType)
@@ -375,13 +375,13 @@ static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
 }
 
 static const DBClient::DBSetupFuncArg DB_ACTION_SETUP_FUNC_ARG = {
-	DBClientAction::ACTION_DB_VERSION,
+	DBTablesAction::ACTION_DB_VERSION,
 	NUM_TABLE_INFO,
 	DB_TABLE_INFO,
 	&updateDB,
 };
 
-struct DBClientAction::Impl
+struct DBTablesAction::Impl
 {
 	Impl(void)
 	{
@@ -401,7 +401,7 @@ static deleteInvalidActionsContext *g_deleteActionCtx = NULL;
 // ---------------------------------------------------------------------------
 // LogEndExecActionArg
 // ---------------------------------------------------------------------------
-DBClientAction::LogEndExecActionArg::LogEndExecActionArg(void)
+DBTablesAction::LogEndExecActionArg::LogEndExecActionArg(void)
 : logId(INVALID_ACTION_LOG_ID),
   status(ACTLOG_STAT_INVALID),
   exitCode(0),
@@ -413,10 +413,10 @@ DBClientAction::LogEndExecActionArg::LogEndExecActionArg(void)
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-void DBClientAction::init(void)
+void DBTablesAction::init(void)
 {
 	registerSetupInfo(
-	  DB_DOMAIN_ID_ACTION, DEFAULT_DB_NAME, &DB_ACTION_SETUP_FUNC_ARG);
+	  DB_TABLES_ID_ACTION, DEFAULT_DB_NAME, &DB_ACTION_SETUP_FUNC_ARG);
 
 	g_deleteActionCtx = new deleteInvalidActionsContext;
 	g_deleteActionCtx->idleEventId = INVALID_EVENT_ID;
@@ -425,40 +425,40 @@ void DBClientAction::init(void)
 	                                           g_deleteActionCtx);
 }
 
-void DBClientAction::reset(void)
+void DBTablesAction::reset(void)
 {
 	// Now we assume that a DB server for this class is the same as that
 	// for DBTablesConfig. So we copy the connectInfo of it.
 	DBConnectInfo connInfo = getDBConnectInfo(DB_DOMAIN_ID_CONFIG);
-	setConnectInfo(DB_DOMAIN_ID_ACTION, connInfo);
+	setConnectInfo(DB_TABLES_ID_ACTION, connInfo);
 }
 
-void DBClientAction::stop(void)
+void DBTablesAction::stop(void)
 {
 	Utils::executeOnGLibEventLoop(stopIdleDeleteAction);
 }
 
-const char *DBClientAction::getTableNameActions(void)
+const char *DBTablesAction::getTableNameActions(void)
 {
 	return TABLE_NAME_ACTIONS;
 }
 
-const char *DBClientAction::getTableNameActionLogs(void)
+const char *DBTablesAction::getTableNameActionLogs(void)
 {
 	return TABLE_NAME_ACTION_LOGS;
 }
 
-DBClientAction::DBClientAction(void)
-: DBClient(DB_DOMAIN_ID_ACTION),
+DBTablesAction::DBTablesAction(void)
+: DBClient(DB_TABLES_ID_ACTION),
   m_impl(new Impl())
 {
 }
 
-DBClientAction::~DBClientAction()
+DBTablesAction::~DBTablesAction()
 {
 }
 
-HatoholError DBClientAction::addAction(ActionDef &actionDef,
+HatoholError DBTablesAction::addAction(ActionDef &actionDef,
                                        const OperationPrivilege &privilege)
 {
 	HatoholError err = checkPrivilegeForAdd(privilege, actionDef);
@@ -502,7 +502,7 @@ HatoholError DBClientAction::addAction(ActionDef &actionDef,
 	return HTERR_OK;
 }
 
-HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
+HatoholError DBTablesAction::getActionList(ActionDefList &actionDefList,
 					   const ActionsQueryOption &option)
 {
 	DBAgent::SelectExArg arg(tableProfileActions);
@@ -646,7 +646,7 @@ static string makeConditionForDelete(const ActionIdList &idList,
 	return condition;
 }
 
-HatoholError DBClientAction::deleteActions(const ActionIdList &idList,
+HatoholError DBTablesAction::deleteActions(const ActionIdList &idList,
                                            const OperationPrivilege &privilege)
 {
 	HatoholError err = checkPrivilegeForDelete(privilege, idList);
@@ -687,7 +687,7 @@ HatoholError DBClientAction::deleteActions(const ActionIdList &idList,
 	return HTERR_OK;
 }
 
-void DBClientAction::deleteInvalidActions()
+void DBTablesAction::deleteInvalidActions()
 {
 	ActionIdList actionIdList;
 
@@ -720,7 +720,7 @@ void DBClientAction::deleteInvalidActions()
 	deleteActions(actionIdList, privilege);
 }
 
-uint64_t DBClientAction::createActionLog(
+uint64_t DBTablesAction::createActionLog(
   const ActionDef &actionDef, const EventInfo &eventInfo,
   ActionLogExecFailureCode failureCode, ActionLogStatus initialStatus)
 {
@@ -766,7 +766,7 @@ uint64_t DBClientAction::createActionLog(
 	return logId;
 }
 
-void DBClientAction::logEndExecAction(const LogEndExecActionArg &logArg)
+void DBTablesAction::logEndExecAction(const LogEndExecActionArg &logArg)
 {
 	DBAgent::UpdateArg arg(tableProfileActionLogs);
 
@@ -790,7 +790,7 @@ void DBClientAction::logEndExecAction(const LogEndExecActionArg &logArg)
 	getDBAgent().runTransaction(arg);
 }
 
-void DBClientAction::updateLogStatusToStart(uint64_t logId)
+void DBTablesAction::updateLogStatusToStart(uint64_t logId)
 {
 	DBAgent::UpdateArg arg(tableProfileActionLogs);
 
@@ -804,7 +804,7 @@ void DBClientAction::updateLogStatusToStart(uint64_t logId)
 	getDBAgent().runTransaction(arg);
 }
 
-bool DBClientAction::getLog(ActionLog &actionLog, uint64_t logId)
+bool DBTablesAction::getLog(ActionLog &actionLog, uint64_t logId)
 {
 	const ColumnDef *def = COLUMN_DEF_ACTION_LOGS;
 	const char *idColName = def[IDX_ACTION_LOGS_ACTION_LOG_ID].columnName;
@@ -813,7 +813,7 @@ bool DBClientAction::getLog(ActionLog &actionLog, uint64_t logId)
 	return getLog(actionLog, condition);
 }
 
-bool DBClientAction::getLog(ActionLog &actionLog,
+bool DBTablesAction::getLog(ActionLog &actionLog,
                             const ServerIdType &serverId, uint64_t eventId)
 {
 	const ColumnDef *def = COLUMN_DEF_ACTION_LOGS;
@@ -825,7 +825,7 @@ bool DBClientAction::getLog(ActionLog &actionLog,
 	return getLog(actionLog, condition);
 }
 
-bool DBClientAction::isIncidentSenderEnabled(void)
+bool DBTablesAction::isIncidentSenderEnabled(void)
 {
 	ActionDefList actionDefList;
 	ActionsQueryOption option(USER_ID_SYSTEM);
@@ -841,7 +841,7 @@ bool DBClientAction::isIncidentSenderEnabled(void)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-ItemDataNullFlagType DBClientAction::getNullFlag
+ItemDataNullFlagType DBTablesAction::getNullFlag
   (const ActionDef &actionDef, ActionConditionEnableFlag enableFlag)
 {
 	if (actionDef.condition.isEnable(enableFlag))
@@ -882,7 +882,7 @@ static void getHostgroupIdStringList(string &stringHostgroupId,
 		stringHostgroupId = "0";
 }
 
-bool DBClientAction::getLog(ActionLog &actionLog, const string &condition)
+bool DBTablesAction::getLog(ActionLog &actionLog, const string &condition)
 {
 	DBAgent::SelectExArg arg(tableProfileActionLogs);
 	arg.condition = condition;
@@ -939,7 +939,7 @@ bool DBClientAction::getLog(ActionLog &actionLog, const string &condition)
 	return true;
 }
 
-HatoholError DBClientAction::checkPrivilegeForAdd(
+HatoholError DBTablesAction::checkPrivilegeForAdd(
   const OperationPrivilege &privilege, const ActionDef &actionDef)
 {
 	UserIdType userId = privilege.getUserId();
@@ -959,7 +959,7 @@ HatoholError DBClientAction::checkPrivilegeForAdd(
 	return HTERR_OK;
 }
 
-HatoholError DBClientAction::checkPrivilegeForDelete(
+HatoholError DBTablesAction::checkPrivilegeForDelete(
   const OperationPrivilege &privilege, const ActionIdList &idList)
 {
 	UserIdType userId = privilege.getUserId();
@@ -992,7 +992,7 @@ HatoholError DBClientAction::checkPrivilegeForDelete(
 	return HTERR_OK;
 }
 
-gboolean DBClientAction::deleteInvalidActionsExec(gpointer data)
+gboolean DBTablesAction::deleteInvalidActionsExec(gpointer data)
 {
 	struct : public ExceptionCatchable {
 		void operator ()(void) override
@@ -1011,7 +1011,7 @@ gboolean DBClientAction::deleteInvalidActionsExec(gpointer data)
 	return G_SOURCE_REMOVE;
 }
 
-gboolean DBClientAction::deleteInvalidActionsCycl(gpointer data)
+gboolean DBTablesAction::deleteInvalidActionsCycl(gpointer data)
 {
 	deleteInvalidActionsContext *deleteActionCtx = static_cast<deleteInvalidActionsContext *>(data);
 	deleteActionCtx->timerId = INVALID_EVENT_ID;
@@ -1020,7 +1020,7 @@ gboolean DBClientAction::deleteInvalidActionsCycl(gpointer data)
 	return G_SOURCE_REMOVE;
 }
 
-void DBClientAction::stopIdleDeleteAction(gpointer data)
+void DBTablesAction::stopIdleDeleteAction(gpointer data)
 {
 	if (g_deleteActionCtx->timerId != INVALID_EVENT_ID)
 		g_source_remove(g_deleteActionCtx->timerId);
@@ -1191,7 +1191,7 @@ string ActionsQueryOption::Impl::getActionTypeAndOwnerCondition(void)
 			return StringUtils::sprintf("action_type=%d",
 						    (int)type);
 		} else {
-			return DBClientAction::getAlwaysFalseCondition();
+			return DBTablesAction::getAlwaysFalseCondition();
 		}
 	default:
 		if (ownerCondition.empty()) {

@@ -17,8 +17,8 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DBClientAction_h
-#define DBClientAction_h
+#ifndef DBTablesAction_h
+#define DBTablesAction_h
 
 #include <string>
 #include "DBClientHatohol.h"
@@ -258,7 +258,7 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-class DBClientAction : public DBClient {
+class DBTablesAction : public DBClient {
 
 public:
 	struct LogEndExecActionArg {
@@ -288,8 +288,8 @@ public:
 		return *DBClient::getDBAgent();
 	}
 
-	DBClientAction(void);
-	virtual ~DBClientAction();
+	DBTablesAction(void);
+	virtual ~DBTablesAction();
 	HatoholError addAction(ActionDef &actionDef,
 	                       const OperationPrivilege &privilege);
 	HatoholError getActionList(ActionDefList &actionDefList,
@@ -407,5 +407,5 @@ private:
 
 };
 
-#endif // DBClientAction_h
+#endif // DBTablesAction_h
 

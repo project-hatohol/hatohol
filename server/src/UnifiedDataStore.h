@@ -22,7 +22,7 @@
 
 #include "ArmBase.h"
 #include "DBClientHatohol.h"
-#include "DBClientAction.h"
+#include "DBTablesAction.h"
 #include "DBTablesConfig.h"
 #include "Utils.h"
 #include "Closure.h"
