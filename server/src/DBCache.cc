@@ -192,9 +192,9 @@ DBTablesUser &DBCache::getUser(void)
 }
 
 
-DBTablesAction *DBCache::getAction(void)
+DBTablesAction &DBCache::getAction(void)
 {
-	return get<DBTablesAction>(DB_DOMAIN_ID_CONFIG);
+	return *get<DBTablesAction>(DB_DOMAIN_ID_CONFIG);
 }
 
 DBTablesMonitoring *DBCache::getMonitoring(void)

@@ -998,7 +998,7 @@ gboolean DBTablesAction::deleteInvalidActionsExec(gpointer data)
 		void operator ()(void) override
 		{
 			DBCache cache;
-			cache.getAction()->deleteInvalidActions();
+			cache.getAction().deleteInvalidActions();
 		}
 	} deleter;
 	deleter.exec();

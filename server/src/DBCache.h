@@ -40,7 +40,7 @@ public:
 	virtual ~DBCache();
 	DBTablesConfig  &getConfig(void);
 	DBTablesUser    &getUser(void);
-	DBTablesAction  *getAction(void);
+	DBTablesAction  &getAction(void);
 	DBTablesMonitoring *getMonitoring(void);
 
 private:
