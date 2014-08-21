@@ -23,7 +23,7 @@
 #include "Helpers.h"
 #include "DBClientTest.h"
 #include "UnifiedDataStore.h"
-#include "testDBClientHatohol.h"
+#include "testDBTablesMonitoring.h"
 #include "FaceRestTestUtils.h"
 using namespace std;
 using namespace mlpl;

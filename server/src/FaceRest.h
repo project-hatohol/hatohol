@@ -28,7 +28,7 @@
 #include "HatoholError.h"
 #include "DBTablesConfig.h"
 #include "DBTablesUser.h"
-#include "DBClientHatohol.h"
+#include "DBTablesMonitoring.h"
 #include "Closure.h"
 #include "Utils.h"
 

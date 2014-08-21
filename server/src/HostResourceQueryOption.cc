@@ -19,7 +19,7 @@
 
 #include "Params.h"
 #include "HostResourceQueryOption.h"
-#include "DBClientHatohol.h"
+#include "DBTablesMonitoring.h"
 #include "DBAgentSQLite3.h" // TODO: Shouldn't use explicitly
 using namespace std;
 using namespace mlpl;

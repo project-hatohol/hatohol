@@ -23,7 +23,7 @@
 #include "Hatohol.h"
 #include "HostResourceQueryOption.h"
 #include "TestHostResourceQueryOption.h"
-#include "DBClientHatohol.h"
+#include "DBTablesMonitoring.h"
 #include "Helpers.h"
 #include "DBClientTest.h"
 #include "DBAgentSQLite3.h"

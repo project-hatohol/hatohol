@@ -21,12 +21,12 @@
 #include <cutter.h>
 #include <gcutter.h>
 #include "Hatohol.h"
-#include "DBClientHatohol.h"
+#include "DBTablesMonitoring.h"
 #include "Helpers.h"
 #include "DBClientTest.h"
 #include "Params.h"
 #include "CacheServiceDBClient.h"
-#include "testDBClientHatohol.h"
+#include "testDBTablesMonitoring.h"
 #include <algorithm>
 #include "TestHostResourceQueryOption.h"
 

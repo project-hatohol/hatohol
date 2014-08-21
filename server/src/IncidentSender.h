@@ -22,7 +22,7 @@
 
 #include "HatoholError.h"
 #include "DBTablesConfig.h"
-#include "DBClientHatohol.h"
+#include "DBTablesMonitoring.h"
 #include "HatoholThreadBase.h"
 
 class IncidentSender : public HatoholThreadBase

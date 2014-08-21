@@ -30,7 +30,7 @@ using namespace mlpl;
 #include "JSONBuilderAgent.h"
 #include "DataStoreException.h"
 #include "ItemEnum.h"
-#include "DBClientHatohol.h"
+#include "DBTablesMonitoring.h"
 #include "UnifiedDataStore.h"
 #include "HatoholDBUtils.h"
 #include "HostInfoCache.h"

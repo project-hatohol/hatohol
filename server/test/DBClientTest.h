@@ -24,7 +24,7 @@
 #include <set>
 #include <SmartTime.h>
 #include "DBTablesConfig.h"
-#include "DBClientHatohol.h"
+#include "DBTablesMonitoring.h"
 #include "DBTablesUser.h"
 #include "DBTablesAction.h"
 

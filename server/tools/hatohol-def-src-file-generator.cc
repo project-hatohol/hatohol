@@ -22,7 +22,7 @@
 #include <string>
 #include <sstream>
 #include "Hatohol.h"
-#include "DBClientHatohol.h"
+#include "DBTablesMonitoring.h"
 #include "DBTablesConfig.h"
 #include "ActionManager.h"
 #include "HatoholError.h"

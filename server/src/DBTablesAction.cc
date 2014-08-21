@@ -24,7 +24,7 @@
 #include "DBAgentFactory.h"
 #include "DBTablesAction.h"
 #include "DBTablesConfig.h"
-#include "DBClientHatohol.h"
+#include "DBTablesMonitoring.h"
 #include "Mutex.h"
 #include "ItemGroupStream.h"
 using namespace std;

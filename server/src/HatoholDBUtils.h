@@ -20,7 +20,7 @@
 #ifndef HatoholDBUtils_h
 #define HatoholDBUtils_h
 
-#include "DBClientHatohol.h"
+#include "DBTablesMonitoring.h"
 #include "HostInfoCache.h"
 
 class HatoholDBUtils {

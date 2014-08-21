@@ -25,7 +25,7 @@
 #include "DBClientTest.h"
 #include "MultiLangTest.h"
 #include "CacheServiceDBClient.h"
-#include "testDBClientHatohol.h"
+#include "testDBTablesMonitoring.h"
 #include "FaceRestTestUtils.h"
 using namespace std;
 using namespace mlpl;

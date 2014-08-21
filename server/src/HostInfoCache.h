@@ -21,7 +21,7 @@
 #define HostInfoCache_h
 
 #include <string>
-#include "DBClientHatohol.h"
+#include "DBTablesMonitoring.h"
 
 /**
  * Currently This class has only the ID and the name. In addition,

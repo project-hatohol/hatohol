@@ -4,7 +4,7 @@
 #include "Hatohol.h"
 #include "DBClientTest.h"
 #include "DBAgentSQLite3.h"
-#include "DBClientHatohol.h"
+#include "DBTablesMonitoring.h"
 #include "ConfigManager.h"
 using namespace std;
 

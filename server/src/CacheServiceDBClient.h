@@ -20,7 +20,7 @@
 #ifndef CacheServiceDBClient_h
 #define CacheServiceDBClient_h
 
-#include "DBClientHatohol.h"
+#include "DBTablesMonitoring.h"
 #include "DBTablesUser.h"
 #include "DBTablesConfig.h"
 #include "DBTablesAction.h"
