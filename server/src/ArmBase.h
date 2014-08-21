@@ -106,7 +106,7 @@ protected:
 	void createTriggerInfo(int i,TriggerInfoList &triggerInfoList);
 	void createEventInfo(int i,EventInfoList &eventInfoList);
 	void setInitialTrrigerStaus(void);
-	void setInitialTrrigerTable(void);
+	void setInitialTriggerTable(void);
 
 private:
 	struct Impl;
