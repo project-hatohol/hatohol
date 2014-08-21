@@ -55,5 +55,6 @@ Makefile.in
 /server/tools/hatohol-def-src-file-generator
 /server/tools/hatohol/hatohol_def.py
 /server/tools/usr/
+/server/benchmark/bench-string-join
 /stamp-h1
 /test-driver
