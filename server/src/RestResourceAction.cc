@@ -18,7 +18,7 @@
  */
 
 #include "RestResourceAction.h"
-#include "DBClientAction.h"
+#include "DBTablesAction.h"
 #include "UnifiedDataStore.h"
 
 using namespace std;

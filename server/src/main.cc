@@ -41,7 +41,7 @@ using namespace mlpl;
 #include "UnifiedDataStore.h"
 #include "DBTablesConfig.h"
 #include "ActorCollector.h"
-#include "DBClientAction.h"
+#include "DBTablesAction.h"
 #include "ConfigManager.h"
 
 static int pipefd[2];

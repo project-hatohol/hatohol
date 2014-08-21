@@ -22,7 +22,7 @@
 #include <errno.h>
 #include "ActionManager.h"
 #include "ActorCollector.h"
-#include "DBClientAction.h"
+#include "DBTablesAction.h"
 #include "NamedPipe.h"
 #include "ResidentProtocol.h"
 #include "ResidentCommunicator.h"

@@ -25,7 +25,7 @@
 #include "ResidentProtocol.h"
 #include "NamedPipe.h"
 #include "HatoholException.h"
-#include "DBClientAction.h"
+#include "DBTablesAction.h"
 
 class ResidentCommunicator {
 public:

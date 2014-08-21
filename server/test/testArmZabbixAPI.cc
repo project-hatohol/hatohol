@@ -33,7 +33,7 @@
 #include "ItemGroup.h"
 #include "ItemData.h"
 #include "JSONParserAgent.h"
-#include "DBClientAction.h"
+#include "DBTablesAction.h"
 using namespace std;
 
 namespace testArmZabbixAPI {

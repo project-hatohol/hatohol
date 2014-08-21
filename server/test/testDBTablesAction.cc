@@ -22,8 +22,13 @@
 #include <gcutter.h>
 #include "Hatohol.h"
 #include "Params.h"
+<<<<<<< HEAD:server/test/testDBClientAction.cc
 #include "DBClientAction.h"
 #include "DBTablesUser.h"
+=======
+#include "DBTablesAction.h"
+#include "DBClientUser.h"
+>>>>>>> [DBClientAction] Change the file names related with DBClientAction.:server/test/testDBTablesAction.cc
 #include "DBClientTest.h"
 #include "Helpers.h"
 using namespace std;

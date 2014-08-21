@@ -22,7 +22,7 @@
 #include "ConfigManager.h"
 #include "CacheServiceDBClient.h"
 #include "DBAgentFactory.h"
-#include "DBClientAction.h"
+#include "DBTablesAction.h"
 #include "DBTablesConfig.h"
 #include "DBClientHatohol.h"
 #include "Mutex.h"

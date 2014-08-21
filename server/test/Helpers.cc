@@ -23,7 +23,7 @@
 #include <typeinfo>
 #include "Helpers.h"
 #include "DBTablesConfig.h"
-#include "DBClientAction.h"
+#include "DBTablesAction.h"
 #include "DBClientTest.h"
 #include "DBAgentSQLite3.h"
 #include "DBAgentMySQL.h"

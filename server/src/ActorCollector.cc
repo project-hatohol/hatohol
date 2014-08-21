@@ -24,7 +24,7 @@
 #include <errno.h>
 #include <cstring>
 #include "ActorCollector.h"
-#include "DBClientAction.h"
+#include "DBTablesAction.h"
 #include "Logger.h"
 #include "Mutex.h"
 #include "SessionManager.h"

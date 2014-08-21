@@ -23,7 +23,7 @@
 #include <memory>
 #include "Params.h"
 #include "SmartBuffer.h"
-#include "DBClientAction.h"
+#include "DBTablesAction.h"
 #include "ActorCollector.h"
 #include "NamedPipe.h"
 #include "StringUtils.h"

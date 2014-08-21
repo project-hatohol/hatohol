@@ -25,8 +25,8 @@
 #include <SmartTime.h>
 #include "DBTablesConfig.h"
 #include "DBClientHatohol.h"
-#include "DBClientAction.h"
 #include "DBTablesUser.h"
+#include "DBTablesAction.h"
 
 typedef std::set<uint64_t>  HostIdSet;
 typedef HostIdSet::iterator HostIdSetIterator;
