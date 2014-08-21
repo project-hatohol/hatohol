@@ -24,6 +24,8 @@
 #include <AtomicValue.h>
 #include "ArmBase.h"
 #include "HatoholException.h"
+#include "DBClientHatohol.h"
+#include "UnifiedDataStore.h"
 
 using namespace std;
 using namespace mlpl;
@@ -41,6 +43,10 @@ struct ArmBase::Impl
 	ArmStatus            armStatus;
 	string               lastFailureComment;
 	ArmWorkingStatus     lastFailureStatus;
+
+	DBClientHatohol      dbClientHatohol;
+
+	oneProcEndTrigger    oneProcTriggerTable[COLLECT_NG_KIND_NUM];
 
 	Impl(const string &_name,
 	               const MonitoringServerInfo &_serverInfo)
@@ -126,6 +132,7 @@ ArmBase::ArmBase(
   const string &name, const MonitoringServerInfo &serverInfo)
 : m_impl(new Impl(name, serverInfo))
 {
+	setInitialTriggerTable();
 }
 
 ArmBase::~ArmBase()
@@ -262,12 +269,165 @@ void ArmBase::setCopyOnDemandEnabled(bool enable)
 	m_impl->isCopyOnDemandEnabled = enable;
 }
 
+void ArmBase::setUseTrigger(OneProcEndType type)
+{
+	m_impl->oneProcTriggerTable[type].statusType = TRIGGER_STATUS_UNKNOWN;
+}
+
+void ArmBase::setInitialTriggerTable(void)
+{
+	m_impl->oneProcTriggerTable[COLLECT_NG_PERSER_ERROR].statusType =
+		TRIGGER_STATUS_ALL;
+	m_impl->oneProcTriggerTable[COLLECT_NG_PERSER_ERROR].triggerId =
+		PARSER_ERROR_SERVER_TRIGGERID_NG;
+	m_impl->oneProcTriggerTable[COLLECT_NG_PERSER_ERROR].msg = 
+		"Connection failure due to parse error";
+
+	m_impl->oneProcTriggerTable[COLLECT_NG_DISCONNECT].statusType = 
+		TRIGGER_STATUS_ALL;
+	m_impl->oneProcTriggerTable[COLLECT_NG_DISCONNECT].triggerId = 
+		DISCONNECT_SERVER_TRIGGERID_NG;
+	m_impl->oneProcTriggerTable[COLLECT_NG_DISCONNECT].msg = 
+		"Connection failure due to disconnection";
+
+	m_impl->oneProcTriggerTable[COLLECT_NG_INTERNAL_ERROR].statusType =
+		TRIGGER_STATUS_ALL;
+	m_impl->oneProcTriggerTable[COLLECT_NG_INTERNAL_ERROR].triggerId =
+		INTERNAL_ERROR_SERVER_TRIGGERID_NG;
+	m_impl->oneProcTriggerTable[COLLECT_NG_INTERNAL_ERROR].msg = 
+		"Connection failure due to internal error";
+}
+
+void ArmBase::setInitialTrrigerStaus(void)
+{
+	const MonitoringServerInfo &svInfo = getServerInfo();
+
+	HostInfo hostInfo;
+	hostInfo.serverId = svInfo.id;
+	hostInfo.id = MONITORING_SERVER_SELF_ID;
+	hostInfo.hostName = 
+		StringUtils::sprintf("%s_SELF", svInfo.hostName.c_str());
+	m_impl->dbClientHatohol.addHostInfo(&hostInfo);
+
+	TriggerInfo triggerInfo;
+	TriggerInfoList triggerInfoList;
+
+	for (int i = 0; i < COLLECT_NG_KIND_NUM; i++) {
+		if (TRIGGER_STATUS_UNKNOWN == m_impl->oneProcTriggerTable[i].statusType) {
+			triggerInfo.serverId = svInfo.id; 
+			clock_gettime(CLOCK_REALTIME, &triggerInfo.lastChangeTime);
+			triggerInfo.hostId = MONITORING_SERVER_SELF_ID;
+			triggerInfo.hostName = 
+				StringUtils::sprintf("%s_SELF", svInfo.hostName.c_str());
+			triggerInfo.id = m_impl->oneProcTriggerTable[i].triggerId;
+			triggerInfo.status = TRIGGER_STATUS_UNKNOWN;
+			triggerInfo.severity = TRIGGER_SEVERITY_INFO;
+			triggerInfo.brief = m_impl->oneProcTriggerTable[i].msg;
+		
+			triggerInfoList.push_back(triggerInfo);
+		}
+	}
+	m_impl->dbClientHatohol.addTriggerInfoList(triggerInfoList);
+}
+
+void ArmBase::createTriggerInfo(int i, TriggerInfoList &triggerInfoList)
+{
+	const MonitoringServerInfo &svInfo = getServerInfo();
+	TriggerInfo triggerInfo;
+
+	triggerInfo.serverId = svInfo.id;
+	clock_gettime(CLOCK_REALTIME, &triggerInfo.lastChangeTime);
+	triggerInfo.hostId = MONITORING_SERVER_SELF_ID;
+	triggerInfo.hostName = 
+		StringUtils::sprintf("%s_SELF", svInfo.hostName.c_str());
+	triggerInfo.id = m_impl->oneProcTriggerTable[i].triggerId;
+	triggerInfo.brief = m_impl->oneProcTriggerTable[i].msg;
+	triggerInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
+	triggerInfo.status = m_impl->oneProcTriggerTable[i].statusType;
+
+	triggerInfoList.push_back(triggerInfo);
+}
+
+void ArmBase::createEventInfo(int i, EventInfoList &eventInfoList)
+{
+	const MonitoringServerInfo &svInfo = getServerInfo();
+	EventInfo eventInfo;
+
+	eventInfo.serverId = svInfo.id;
+	eventInfo.id = DISCONNECT_SERVER_EVENTID_TYPE;
+	clock_gettime(CLOCK_REALTIME, &eventInfo.time);
+	eventInfo.hostId = MONITORING_SERVER_SELF_ID;
+	eventInfo.triggerId = m_impl->oneProcTriggerTable[i].triggerId;
+	eventInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
+	eventInfo.status = m_impl->oneProcTriggerTable[i].statusType;
+	if (m_impl->oneProcTriggerTable[i].statusType == TRIGGER_STATUS_OK) {
+		eventInfo.type = EVENT_TYPE_GOOD;
+	} else {
+		eventInfo.type = EVENT_TYPE_BAD;
+	}
+	eventInfoList.push_back(eventInfo);
+}
+
+void ArmBase::setServerConnectStaus(bool enable, OneProcEndType type)
+{
+	TriggerInfoList triggerInfoList;
+	EventInfoList eventInfoList;
+
+	if (enable) {
+		for (int i = 0; i < COLLECT_NG_KIND_NUM; i++) {
+			if (m_impl->oneProcTriggerTable[i].statusType == TRIGGER_STATUS_PROBLEM) {
+				m_impl->oneProcTriggerTable[i].statusType = TRIGGER_STATUS_OK;
+				createTriggerInfo(i, triggerInfoList);
+				createEventInfo(i, eventInfoList);
+			} else if (m_impl->oneProcTriggerTable[i].statusType == TRIGGER_STATUS_UNKNOWN) {
+				m_impl->oneProcTriggerTable[i].statusType = TRIGGER_STATUS_OK;
+				createTriggerInfo(i, triggerInfoList);
+			}				
+		}
+	}
+	else {
+		if (m_impl->oneProcTriggerTable[type].statusType == TRIGGER_STATUS_PROBLEM)
+			return;
+
+		m_impl->oneProcTriggerTable[type].statusType = TRIGGER_STATUS_PROBLEM;
+		createTriggerInfo(static_cast<int>(type), triggerInfoList);
+		createEventInfo(static_cast<int>(type), eventInfoList);
+
+		for (int i = static_cast<int>(type) + 1; i < COLLECT_NG_KIND_NUM; i++) {
+			if (m_impl->oneProcTriggerTable[i].statusType == TRIGGER_STATUS_PROBLEM) {
+				m_impl->oneProcTriggerTable[i].statusType = TRIGGER_STATUS_OK;
+				createTriggerInfo(i, triggerInfoList);
+				createEventInfo(i, eventInfoList);
+			} else if (m_impl->oneProcTriggerTable[i].statusType == TRIGGER_STATUS_UNKNOWN) {
+				m_impl->oneProcTriggerTable[i].statusType = TRIGGER_STATUS_OK;
+				createTriggerInfo(i, triggerInfoList);
+			}
+		}
+		for (int i = 0; i < type; i++) {
+			if (m_impl->oneProcTriggerTable[i].statusType == TRIGGER_STATUS_OK) {
+				m_impl->oneProcTriggerTable[i].statusType = TRIGGER_STATUS_UNKNOWN;
+				createTriggerInfo(i, triggerInfoList);
+			}
+		}
+	}
+
+	if (!triggerInfoList.empty())
+		m_impl->dbClientHatohol.addTriggerInfoList(triggerInfoList);
+	if (!eventInfoList.empty()) {
+		UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+		dataStore->addEventList(eventInfoList);
+	}
+}
+
 gpointer ArmBase::mainThread(HatoholThreadArg *arg)
 {
+	ArmWorkingStatus beforeFailureStatus = ARM_WORK_STAT_INIT;
 	while (!hasExitRequest()) {
 		int sleepTime = m_impl->getSecondsToNextPolling();
-		if (mainThreadOneProc()) {
+		OneProcEndType oneProcEndType = mainThreadOneProc();
+		if (oneProcEndType == COLLECT_OK) {
 			m_impl->armStatus.logSuccess();
+			m_impl->lastFailureStatus = ARM_WORK_STAT_OK;
 		} else {
 			sleepTime = getRetryInterval();
 			m_impl->armStatus.logFailure(m_impl->lastFailureComment,
@@ -275,6 +435,16 @@ gpointer ArmBase::mainThread(HatoholThreadArg *arg)
 			m_impl->lastFailureComment.clear();
 			m_impl->lastFailureStatus = ARM_WORK_STAT_FAILURE;
 		}
+		if (beforeFailureStatus == ARM_WORK_STAT_INIT) {
+			setInitialTrrigerStaus();
+		}
+		if (m_impl->lastFailureStatus != ARM_WORK_STAT_OK) {
+			setServerConnectStaus(false, oneProcEndType);
+		} else {
+			if (beforeFailureStatus != m_impl->lastFailureStatus)
+				setServerConnectStaus(true, oneProcEndType);
+		}
+		beforeFailureStatus = m_impl->lastFailureStatus;
 
 		m_impl->stampLastPollingTime();
 		m_impl->setUpdateType(UPDATE_POLLING);

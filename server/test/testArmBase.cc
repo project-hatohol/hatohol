@@ -21,6 +21,7 @@
 #include <cppcutter.h>
 #include <AtomicValue.h>
 #include <Mutex.h>
+#include "Hatohol.h"
 #include "ArmBase.h"
 #include "Helpers.h"
 using namespace std;
@@ -68,13 +69,27 @@ public:
 	}
 
 protected:
-	virtual bool mainThreadOneProc(void) override
+	virtual OneProcEndType mainThreadOneProc(void) override
 	{
-		if (m_oneProcHook)
-			return (*m_oneProcHook)(m_oneProcHookData);
-		return true;
+		if (m_oneProcHook){
+			bool succeeded = (*m_oneProcHook)(m_oneProcHookData);
+			if (succeeded)
+				return COLLECT_OK;
+			else
+				return COLLECT_NG_INTERNAL_ERROR;
+		}
+		return COLLECT_OK;
 	}
 };
+
+void cut_setup(void)
+{
+	hatoholInit();
+	deleteDBClientHatoholDB();
+	setupTestDBConfig(true, true);
+	setupTestDBUser(true, true);
+	setupTestDBAction(true, true);
+}
 
 // ---------------------------------------------------------------------------
 // Test cases

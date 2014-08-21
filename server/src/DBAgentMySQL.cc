@@ -92,8 +92,10 @@ DBAgentMySQL::DBAgentMySQL(const char *db, const char *user, const char *passwd,
 	m_impl->port     = port;
 	connect();
 	if (!m_impl->connected) {
-		THROW_HATOHOL_EXCEPTION("Failed to connect to MySQL: %s: %s\n",
-		                      db, mysql_error(&m_impl->mysql));
+		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
+		  HTERR_FAILED_CONNECT_DISCONNECT,
+		  "Failed to connect to MySQL: %s: %s\n", 
+		  db, mysql_error(&m_impl->mysql));
 	}
 }
 
@@ -617,10 +619,17 @@ void DBAgentMySQL::queryWithRetry(const string &statement)
 				break;
 		}
 	}
-
-	THROW_HATOHOL_EXCEPTION("Failed to query: %s: (%u) %s\n",
-	                        statement.c_str(), errorNumber,
-	                        mysql_error(&m_impl->mysql));
+	if (errorNumber == CR_SERVER_GONE_ERROR || errorNumber == CR_SERVER_LOST ) {
+		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
+		  HTERR_FAILED_CONNECT_DISCONNECT,
+		  "Failed to connect to MySQL: %s: (%u) %s\n",
+		  m_impl->dbName.c_str(), errorNumber,
+		  mysql_error(&m_impl->mysql));
+	} else {
+		THROW_HATOHOL_EXCEPTION("Failed to query: %s: (%u) %s\n",
+					statement.c_str(), errorNumber,
+					mysql_error(&m_impl->mysql));
+	}
 }
 
 string DBAgentMySQL::makeCreateIndexStatement(const TableProfile &tableProfile,

@@ -80,6 +80,12 @@ typedef std::list<TriggerInfo>          TriggerInfoList;
 typedef TriggerInfoList::iterator       TriggerInfoListIterator;
 typedef TriggerInfoList::const_iterator TriggerInfoListConstIterator;
 
+static const TriggerIdType DISCONNECT_SERVER_TRIGGERID_NG = 0xF0000001;
+static const TriggerIdType INTERNAL_ERROR_SERVER_TRIGGERID_NG = 0xF0000002;
+static const TriggerIdType PARSER_ERROR_SERVER_TRIGGERID_NG = 0xF0000003;
+
+static const HostIdType MONITORING_SERVER_SELF_ID = 0xFFFFFFFF;
+
 enum EventType {
 	EVENT_TYPE_GOOD,
 	EVENT_TYPE_BAD,
@@ -110,6 +116,8 @@ void initEventInfo(EventInfo &eventInfo);
 typedef std::list<EventInfo>          EventInfoList;
 typedef EventInfoList::iterator       EventInfoListIterator;
 typedef EventInfoList::const_iterator EventInfoListConstIterator;
+
+static const EventIdType DISCONNECT_SERVER_EVENTID_TYPE = 0;
 
 struct ItemInfo {
 	ServerIdType        serverId;

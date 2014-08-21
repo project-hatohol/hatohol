@@ -127,6 +127,14 @@ void HatoholError::init(void)
 	DEFINE_ERR(FAILED_TO_SEND_INCIDENT,
 		   "Failed to send an incident to an incident tracker.");
 
+	// ArmConnectionFailure
+	DEFINE_ERR(FAILED_CONNECT_DISCONNECT,
+		   "Failed connection to server due to disconnect.");
+	DEFINE_ERR(FAILED_CONNECT_INTERNAL_ERROR,
+		   "Failed connection to server due to internal error.");
+	DEFINE_ERR(FAILED_CONNECT_PARSER_ERROR,
+		   "Failed connection to server due to message parse error.");
+
 	// OTHER
 	DEFINE_ERR(ERROR_TEST,
 		   "Error test.");

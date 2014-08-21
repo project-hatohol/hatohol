@@ -57,11 +57,11 @@ public:
 	{
 	}
 
-	virtual bool mainThreadOneProc(void) override
+	virtual OneProcEndType mainThreadOneProc(void) override
 	{
 		// This method is never called because nobody calls start().
 		// Just written to pass the build.
-		return true;
+		return COLLECT_OK;
 	}
 
 	virtual bool isFetchItemsSupported(void) const override

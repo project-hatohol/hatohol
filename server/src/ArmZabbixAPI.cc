@@ -157,6 +157,9 @@ gpointer ArmZabbixAPI::mainThread(HatoholThreadArg *arg)
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	MLPL_INFO("started: ArmZabbixAPI (server: %s)\n",
 	          svInfo.hostName.c_str());
+	ArmBase::setUseTrigger(COLLECT_NG_PERSER_ERROR);
+	ArmBase::setUseTrigger(COLLECT_NG_DISCONNECT);
+	ArmBase::setUseTrigger(COLLECT_NG_INTERNAL_ERROR);
 	return ArmBase::mainThread(arg);
 }
 
@@ -228,15 +231,15 @@ uint64_t ArmZabbixAPI::getMaximumNumberGetEventPerOnce(void)
 //
 // This function just shows a warning if there is missing host ID.
 //
-bool ArmZabbixAPI::mainThreadOneProc(void)
+ArmBase::OneProcEndType ArmZabbixAPI::mainThreadOneProc(void)
 {
 	if (!updateAuthTokenIfNeeded())
-		return false;
+		return COLLECT_NG_DISCONNECT;
 
 	try {
 		if (getUpdateType() == UPDATE_ITEM_REQUEST) {
 			updateItems();
-			return true;
+			return COLLECT_OK;
 		}
 
 		ItemTablePtr triggers = updateTriggers();
@@ -247,13 +250,20 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 
 		if (!getCopyOnDemandEnabled())
 			updateItems();
-	} catch (const DataStoreException &dse) {
-		MLPL_ERR("Error on update: %s\n", dse.what());
+	} catch (const HatoholException &he) {
 		clearAuthToken();
-		return false;
+		if (he.getErrCode() == HTERR_FAILED_CONNECT_DISCONNECT){
+			MLPL_ERR("Error Connection: %s %d\n", he.what(), he.getErrCode());
+			return COLLECT_NG_DISCONNECT;
+		}else if (he.getErrCode() == HTERR_FAILED_CONNECT_PARSER_ERROR){
+			MLPL_ERR("Error Message parse: %s %d\n", he.what(), he.getErrCode());
+			return COLLECT_NG_PERSER_ERROR;
+		}
+		MLPL_ERR("Error on update: %s %d\n", he.what(), he.getErrCode());
+		return COLLECT_NG_INTERNAL_ERROR;;
 	}
 
-	return true;
+	return COLLECT_OK;
 }
 
 // ---------------------------------------------------------------------------

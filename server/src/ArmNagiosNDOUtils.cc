@@ -25,6 +25,7 @@
 #include "ItemGroupStream.h"
 #include "DBClientJoinBuilder.h"
 #include "SQLUtils.h"
+#include "HatoholException.h"
 using namespace std;
 using namespace mlpl;
 
@@ -780,10 +781,12 @@ gpointer ArmNagiosNDOUtils::mainThread(HatoholThreadArg *arg)
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	MLPL_INFO("started: ArmNagiosNDOUtils (server: %s)\n",
 	          svInfo.hostName.c_str());
+	ArmBase::setUseTrigger(COLLECT_NG_DISCONNECT);
+	ArmBase::setUseTrigger(COLLECT_NG_INTERNAL_ERROR);
 	return ArmBase::mainThread(arg);
 }
 
-bool ArmNagiosNDOUtils::mainThreadOneProc(void)
+ArmBase::OneProcEndType ArmNagiosNDOUtils::mainThreadOneProc(void)
 {
 	try {
 		if (getUpdateType() == UPDATE_ITEM_REQUEST) {
@@ -797,10 +800,18 @@ bool ArmNagiosNDOUtils::mainThreadOneProc(void)
 			if (!getCopyOnDemandEnabled())
 				getItem();
 		}
+	} catch (const HatoholException &he) {
+		if (he.getErrCode() == HTERR_FAILED_CONNECT_DISCONNECT){
+			MLPL_ERR("Error Connection: %s %d\n", he.what(), he.getErrCode());
+			return COLLECT_NG_DISCONNECT;
+		} else {
+			MLPL_ERR("Got exception: %s\n", he.what());
+			return COLLECT_NG_INTERNAL_ERROR;
+		}
 	} catch (const exception &e) {
 		MLPL_ERR("Got exception: %s\n", e.what());
-		return false;
+		return COLLECT_NG_INTERNAL_ERROR;
 	}
-	return true;
+	return COLLECT_OK;
 }
 

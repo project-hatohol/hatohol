@@ -11,6 +11,7 @@ libhatohol_common_la_SOURCES = \
 	HatoholArmPluginInterface.cc HatoholArmPluginInterface.h \
 	HatoholArmPluginBase.cc HatoholArmPluginBase.h \
 	HatoholException.cc HatoholException.h \
+	HatoholError.cc HatoholError.h \
 	HapZabbixAPI.cc HapZabbixAPI.h \
 	ItemData.cc ItemData.h \
 	ItemDataUtils.cc ItemDataUtils.h \
@@ -70,7 +71,6 @@ libhatohol_la_SOURCES = \
 	FaceRest.cc FaceRest.h \
 	FaceRestPrivate.h \
 	Hatohol.cc Hatohol.h \
-	HatoholError.cc HatoholError.h \
 	HostResourceQueryOption.cc HostResourceQueryOption.h \
 	HatoholArmPluginGate.cc HatoholArmPluginGate.h \
 	HatoholServer.cc \

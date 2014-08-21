@@ -44,6 +44,17 @@ HatoholException::HatoholException(
   m_sourceFileName(sourceFileName),
   m_lineNumber(lineNumber)
 {
+	if (m_saveStackTrace)
+		saveStackTrace();
+}
+
+HatoholException::HatoholException(
+  const HatoholErrorCode errCode, const string &brief, const string &sourceFileName, const int &lineNumber)
+: m_what(brief),
+  m_sourceFileName(sourceFileName),
+  m_lineNumber(lineNumber),
+  m_errCode(errCode)
+{
 	MLPL_DBG("HatoholException: <%s:%d> %s\n", sourceFileName.c_str(), lineNumber,
 	         brief.c_str());
 	if (m_saveStackTrace)
@@ -93,6 +104,11 @@ int HatoholException::getLineNumber(void) const
 const string &HatoholException::getStackTrace(void) const
 {
 	return m_stackTrace;
+}
+
+HatoholErrorCode HatoholException::getErrCode(void) const
+{
+	return m_errCode;
 }
 
 // ---------------------------------------------------------------------------
