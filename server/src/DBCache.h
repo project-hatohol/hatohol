@@ -24,6 +24,7 @@
 #include "DBTablesUser.h"
 #include "DBTablesConfig.h"
 #include "DBTablesAction.h"
+#include "DBHatohol.h"
 
 class DBCache
 {
@@ -38,6 +39,9 @@ public:
 
 	DBCache(void);
 	virtual ~DBCache();
+
+	DBHatohol       &getDBHatohol(void);
+
 	DBTablesConfig  &getConfig(void);
 	DBTablesUser    &getUser(void);
 	DBTablesAction  &getAction(void);

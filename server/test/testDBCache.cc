@@ -31,7 +31,7 @@ namespace testDBCache {
 
 class TestCacheServiceThread : public HatoholThreadBase {
 
-	DBTablesMonitoring *m_dbMonitoring;
+	DBHatohol       *m_dbHatohol;
 	sem_t            m_requestSem;
 	sem_t            m_completSem;
 	bool             m_hasError;
@@ -39,7 +39,7 @@ class TestCacheServiceThread : public HatoholThreadBase {
 
 public:
 	TestCacheServiceThread(void)
-	: m_dbMonitoring(NULL),
+	: m_dbHatohol(NULL),
 	  m_hasError(false),
 	  m_exitRequest(false)
 	{
@@ -49,11 +49,11 @@ public:
 		                    cut_message("errno: %d", errno));
 	}
 
-	DBTablesMonitoring *callGetHatohol(void)
+	DBHatohol *callGetHatohol(void)
 	{
 		postSem(&m_requestSem);
 		waitSem(&m_completSem);
-		return m_dbMonitoring;
+		return m_dbHatohol;
 	}
 
 	bool hasError(void)
@@ -61,9 +61,9 @@ public:
 		return m_hasError;
 	}
 
-	DBTablesMonitoring *getPrevDBCHatohol(void)
+	DBHatohol *getPrevDBCHatohol(void)
 	{
-		return m_dbMonitoring;
+		return m_dbHatohol;
 	}
 
 	virtual void stop(void)
@@ -107,7 +107,7 @@ protected:
 			if (m_exitRequest)
 				break;
 			DBCache cache;
-			m_dbMonitoring = cache.getMonitoring();
+			m_dbHatohol = &cache.getDBHatohol();
 			if (!postSem(&m_completSem))
 				break;
 		}
@@ -137,10 +137,23 @@ static void _assertType(DBClient *dbClient)
 
 static vector<TestCacheServiceThread *> g_threads;
 
+// This is temporary. We will make the same function in DBTablesTest. Then this
+// will be removed.
+static void setupTestDBHatohol(void)
+{
+	static const char *TEST_DB_NAME = "test_db_hatohol";
+	DBHatohol::setDefaultDBParams(TEST_DB_NAME,
+	                              TEST_DB_USER, TEST_DB_PASSWORD);
+	const bool dbRecreate = true;
+	makeTestMySQLDBIfNeeded(TEST_DB_NAME, dbRecreate);
+	setupTestDBConfig();
+}
+
 void cut_setup(void)
 {
 	hatoholInit();
-	setupTestDBUser();
+	setupTestDBUser(); // TODO: remove after setTestDBHatohol() implements the setup for DBTablesUser
+	setupTestDBHatohol();
 }
 
 void cut_teardown(void)
@@ -162,16 +175,16 @@ void cut_teardown(void)
 // ---------------------------------------------------------------------------
 void test_hasInstanceByThread(void)
 {
-	typedef set<DBTablesMonitoring *>       DBTablesMonitoringSet;
-	typedef DBTablesMonitoringSet::iterator DBTablesMonitoringSetIterator;
+	typedef set<DBHatohol *>       DBHatoholSet;
+	typedef DBHatoholSet::iterator DBHatoholSetIterator;
 	const size_t numTestThread = 3;
-	set<DBTablesMonitoring *> dbClientAddrs;
+	set<DBHatohol *> dbAddrs;
 	for (size_t i = 0; i < numTestThread; i++) {
 		TestCacheServiceThread *thr = new TestCacheServiceThread();
 		g_threads.push_back(thr);
 		thr->start();
-		pair<DBTablesMonitoringSetIterator, bool> result = 
-		  dbClientAddrs.insert(thr->callGetHatohol());
+		pair<DBHatoholSetIterator, bool> result =
+		  dbAddrs.insert(thr->callGetHatohol());
 		cppcut_assert_equal(true, result.second,
 		                    cut_message("i: %zd\n", i));
 	}
@@ -182,8 +195,8 @@ void test_ensureCached(void)
 	test_hasInstanceByThread();
 	for (size_t i = 0; i < g_threads.size(); i++) {
 		TestCacheServiceThread *thr = g_threads[i];
-		DBTablesMonitoring *prevDBCHatohol = thr->getPrevDBCHatohol();
-		DBTablesMonitoring *newDBCHatohol = thr->callGetHatohol();
+		DBHatohol *prevDBCHatohol = thr->getPrevDBCHatohol();
+		DBHatohol *newDBCHatohol = thr->callGetHatohol();
 		cppcut_assert_equal(prevDBCHatohol, newDBCHatohol);
 	}
 }
@@ -202,7 +215,7 @@ void test_cleanupOnThreadExit(void)
 		bool hasError = deleteTestCacheServiceThread(thr);
 		g_threads[i] = NULL;
 		cppcut_assert_equal(true, hasError);
-		size_t newNumCached = 
+		size_t newNumCached =
 		  DBCache::getNumberOfDBClientMaps();
 		cppcut_assert_equal(numCached - 1, newNumCached);
 		numCached = newNumCached;
