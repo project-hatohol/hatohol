@@ -25,7 +25,7 @@
 #include "Params.h"
 #include "UnifiedDataStore.h"
 #include "Reaper.h"
-#include "DBClientTest.h"
+#include "DBTablesTest.h"
 #include "LabelUtils.h"
 #include "Helpers.h"
 using namespace std;

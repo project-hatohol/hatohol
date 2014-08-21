@@ -19,7 +19,7 @@
 
 #include <cutter.h>
 #include <cppcutter.h>
-#include "DBClientTest.h"
+#include "DBTablesTest.h"
 using namespace std;
 using namespace mlpl;
 

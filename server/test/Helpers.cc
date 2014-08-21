@@ -24,7 +24,7 @@
 #include "Helpers.h"
 #include "DBTablesConfig.h"
 #include "DBTablesAction.h"
-#include "DBClientTest.h"
+#include "DBTablesTest.h"
 #include "DBAgentSQLite3.h"
 #include "DBAgentMySQL.h"
 #include "ThreadLocalDBCache.h"

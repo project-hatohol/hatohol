@@ -23,7 +23,7 @@
 #include "HatoholArmPluginBase.h"
 #include "HatoholArmPluginGateTest.h"
 #include "HatoholArmPluginTestPair.h"
-#include "DBClientTest.h"
+#include "DBTablesTest.h"
 #include "Helpers.h"
 
 using namespace std;

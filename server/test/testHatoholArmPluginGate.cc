@@ -23,7 +23,7 @@
 #include <Mutex.h>
 #include <SimpleSemaphore.h>
 #include "HatoholArmPluginGate.h"
-#include "DBClientTest.h"
+#include "DBTablesTest.h"
 #include "Helpers.h"
 #include "Hatohol.h"
 #include "hapi-test-plugin.h"

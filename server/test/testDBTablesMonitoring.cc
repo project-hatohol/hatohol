@@ -23,7 +23,7 @@
 #include "Hatohol.h"
 #include "DBTablesMonitoring.h"
 #include "Helpers.h"
-#include "DBClientTest.h"
+#include "DBTablesTest.h"
 #include "Params.h"
 #include "ThreadLocalDBCache.h"
 #include "testDBTablesMonitoring.h"

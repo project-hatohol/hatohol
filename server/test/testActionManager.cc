@@ -33,7 +33,7 @@
 #include "ResidentCommunicator.h"
 #include "NamedPipe.h"
 #include "residentTest.h"
-#include "DBClientTest.h"
+#include "DBTablesTest.h"
 #include "ConfigManager.h"
 #include "SessionManager.h"
 #include "IncidentSenderManager.h"

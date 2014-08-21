@@ -23,7 +23,7 @@
 #include "FaceRest.h"
 #include "Helpers.h"
 #include "JSONParserAgent.h"
-#include "DBClientTest.h"
+#include "DBTablesTest.h"
 #include "Params.h"
 #include "SessionManager.h"
 #include "FaceRestTestUtils.h"

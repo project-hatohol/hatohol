@@ -24,7 +24,7 @@
 #include "Hatohol.h"
 #include "DataQueryOption.h"
 #include "DBTablesUser.h"
-#include "DBClientTest.h"
+#include "DBTablesTest.h"
 #include "Helpers.h"
 using namespace std;;
 

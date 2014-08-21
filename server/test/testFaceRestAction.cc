@@ -22,7 +22,7 @@
 #include "FaceRest.h"
 #include "Helpers.h"
 #include "JSONParserAgent.h"
-#include "DBClientTest.h"
+#include "DBTablesTest.h"
 #include "MultiLangTest.h"
 #include "testDBTablesMonitoring.h"
 #include "ThreadLocalDBCache.h"

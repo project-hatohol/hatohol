@@ -22,7 +22,7 @@
 #include <cutter.h>
 #include "Helpers.h"
 #include "DBTablesUser.h"
-#include "DBClientTest.h"
+#include "DBTablesTest.h"
 #include "Helpers.h"
 #include "Hatohol.h"
 #include "ThreadLocalDBCache.h"

@@ -24,7 +24,7 @@
 #include "Params.h"
 #include "DBTablesUser.h"
 #include "DBTablesAction.h"
-#include "DBClientTest.h"
+#include "DBTablesTest.h"
 #include "Helpers.h"
 #include "ThreadLocalDBCache.h"
 using namespace std;

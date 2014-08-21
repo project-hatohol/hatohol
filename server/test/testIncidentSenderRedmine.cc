@@ -22,7 +22,7 @@
 #include "Hatohol.h"
 #include "IncidentSenderRedmine.h"
 #include "LabelUtils.h"
-#include "DBClientTest.h"
+#include "DBTablesTest.h"
 #include "Helpers.h"
 #include "JSONParserAgent.h"
 #include "ThreadLocalDBCache.h"

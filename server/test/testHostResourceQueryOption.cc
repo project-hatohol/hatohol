@@ -25,7 +25,7 @@
 #include "TestHostResourceQueryOption.h"
 #include "DBTablesMonitoring.h"
 #include "Helpers.h"
-#include "DBClientTest.h"
+#include "DBTablesTest.h"
 #include "DBAgentSQLite3.h"
 #include "ThreadLocalDBCache.h"
 

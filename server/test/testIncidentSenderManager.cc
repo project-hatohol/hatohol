@@ -22,7 +22,7 @@
 #include "IncidentSenderManager.h"
 #include "Hatohol.h"
 #include "Helpers.h"
-#include "DBClientTest.h"
+#include "DBTablesTest.h"
 #include "RedmineAPIEmulator.h"
 
 using namespace std;

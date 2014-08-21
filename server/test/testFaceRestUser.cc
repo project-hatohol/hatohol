@@ -21,7 +21,7 @@
 #include "Hatohol.h"
 #include "FaceRest.h"
 #include "Helpers.h"
-#include "DBClientTest.h"
+#include "DBTablesTest.h"
 #include "ThreadLocalDBCache.h"
 #include "UnifiedDataStore.h"
 #include "SessionManager.h"

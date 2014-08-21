@@ -23,7 +23,7 @@
 #include "DBTablesConfig.h"
 #include "ConfigManager.h"
 #include "Helpers.h"
-#include "DBClientTest.h"
+#include "DBTablesTest.h"
 using namespace std;
 using namespace mlpl;
 
