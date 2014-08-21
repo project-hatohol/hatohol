@@ -17,23 +17,23 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DBClientHost_h
-#define DBClientHost_h
+#ifndef DBTablesHost_h
+#define DBTablesHost_h
 
 #include "DBCGroupRegular.h"
 
-class DBClientHost : public DBCGroupRegular {
+class DBTablesHost : public DBCGroupRegular {
 public:
 	static const int DB_VERSION;
 
 	static void init(void);
 
-	DBClientHost(void);
-	virtual ~DBClientHost();
+	DBTablesHost(void);
+	virtual ~DBTablesHost();
 
 private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // DBClientHost_h
+#endif // DBTablesHost_h

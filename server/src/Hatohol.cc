@@ -58,7 +58,7 @@ static void init(void)
 	DBTablesUser::init();
 	DBTablesMonitoring::init();
 	DBTablesAction::init();
-	DBClientHost::init();
+	DBTablesHost::init();
 
 	ItemData::init();
 	SQLUtils::init();

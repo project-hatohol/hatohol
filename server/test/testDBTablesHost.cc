@@ -24,7 +24,7 @@
 using namespace std;
 using namespace mlpl;
 
-namespace testDBClientHost {
+namespace testDBTablesHost {
 
 void cut_setup(void)
 {
@@ -38,7 +38,7 @@ void cut_setup(void)
 // ---------------------------------------------------------------------------
 void test_dbDomainId(void)
 {
-	DBClientHost dbHost;
+	DBTablesHost dbHost;
 	DBAgent *dbAgent = dbHost.getDBAgent();
 	cppcut_assert_not_null(dbAgent);
 	cppcut_assert_equal(DB_TABLES_ID_HOST, dbAgent->getDBDomainId());
@@ -52,4 +52,4 @@ void test_setDefaultDBParams(void)
 	cppcut_assert_equal(string(TEST_DB_PASSWORD), connInfo.password);
 }
 
-} // namespace testDBClientHost
+} // namespace testDBTablesHost

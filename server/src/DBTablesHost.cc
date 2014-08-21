@@ -24,7 +24,7 @@ using namespace mlpl;
 static const char *TABLE_NAME_HOST_LIST = "host_list";
 static const char *TABLE_NAME_HOST_INFO = "host_info";
 
-const int DBClientHost::DB_VERSION = 1;
+const int DBTablesHost::DB_VERSION = 1;
 
 const uint64_t NO_HYPERVISOR = -1;
 const size_t MAX_HOST_NAME_LENGTH =  255;
@@ -124,7 +124,7 @@ static const DBAgent::TableProfile tableProfileHostInfo =
 			    COLUMN_DEF_HOST_INFO,
 			    NUM_IDX_HOST_INFO);
 
-struct DBClientHost::Impl
+struct DBTablesHost::Impl
 {
 	Impl(void)
 	{
@@ -143,7 +143,7 @@ static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-void DBClientHost::init(void)
+void DBTablesHost::init(void)
 {
 	//
 	// set database info
@@ -167,13 +167,13 @@ void DBClientHost::init(void)
 	registerSetupInfo(DB_TABLES_ID_HOST, &DB_SETUP_FUNC_ARG);
 }
 
-DBClientHost::DBClientHost(void)
+DBTablesHost::DBTablesHost(void)
 : DBCGroupRegular(DB_TABLES_ID_HOST),
   m_impl(new Impl())
 {
 }
 
-DBClientHost::~DBClientHost()
+DBTablesHost::~DBTablesHost()
 {
 }
 
