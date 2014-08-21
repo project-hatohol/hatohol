@@ -402,6 +402,7 @@ void cut_setup(void)
 	deleteDBClientHatoholDB();
 	setupTestDBConfig(true, true);
 	setupTestDBAction();
+	setupTestDBUser();
 }
 
 void cut_teardown(void)
