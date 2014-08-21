@@ -408,6 +408,7 @@ HatoholIncidentTrackerEditor.prototype.resetWidgetState = function() {
   var editPassword = false;
   var showPasswordEntry = false;
   if (showPasswordEntry) {
+    $("label[for=editIncidentTrackerUserName]").text(gettext("User name"));
     $("#editIncidentTrackerPasswordArea").show();
     if (editPassword) {
       $("#editIncidentTrackerPasswordCheckbox").hide();
