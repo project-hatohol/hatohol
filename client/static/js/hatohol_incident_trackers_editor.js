@@ -403,8 +403,8 @@ HatoholIncidentTrackerEditor.prototype.onAppendMainElement = function() {
 };
 
 HatoholIncidentTrackerEditor.prototype.resetWidgetState = function() {
-  // We always use API key for Redmine, and we support only Redmine at this
-  // time. So we don't need the password entry.
+  // We always use API key for Redmine, and we're currently supporting only
+  // Redmine. So we don't need the password entry at this time.
   var editPassword = false;
   var showPasswordEntry = false;
   if (showPasswordEntry) {
