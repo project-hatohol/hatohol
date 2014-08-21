@@ -30,6 +30,7 @@
 #include "SessionManager.h"
 #include "Reaper.h"
 #include "ChildProcessManager.h"
+#include "DBCache.h"
 using namespace std;
 using namespace mlpl;
 
@@ -251,9 +252,9 @@ void ActorCollector::postCollectedProc(ActorContext &actorCtx)
 	DBTablesAction::LogEndExecActionArg &logArg = actorCtx.logArg;
 	// log the action result if needed
 	if (!actorInfo->dontLog) {
-		DBTablesAction dbAction;
 		logArg.logId = actorInfo->logId;
-		dbAction.logEndExecAction(logArg);
+		DBCache cache;
+		cache.getAction().logEndExecAction(logArg);
 	}
 
 	// execute the callback function without the lock

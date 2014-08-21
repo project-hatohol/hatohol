@@ -338,21 +338,21 @@ void UnifiedDataStore::getHostList(HostInfoList &hostInfoList,
 HatoholError UnifiedDataStore::getActionList(
   ActionDefList &actionList, const ActionsQueryOption &option)
 {
-	DBTablesAction dbAction;
-	return dbAction.getActionList(actionList, option);
+	DBCache cache;
+	return cache.getAction().getActionList(actionList, option);
 }
 
 HatoholError UnifiedDataStore::deleteActionList(
   const ActionIdList &actionIdList, const OperationPrivilege &privilege)
 {
-	DBTablesAction dbAction;
-	return dbAction.deleteActions(actionIdList, privilege);
+	DBCache cache;
+	return cache.getAction().deleteActions(actionIdList, privilege);
 }
 
 bool UnifiedDataStore::isIncidentSenderActionEnabled(void)
 {
-	DBTablesAction dbAction;
-	return dbAction.isIncidentSenderEnabled();
+	DBCache cache;
+	return cache.getAction().isIncidentSenderEnabled();
 }
 
 HatoholError UnifiedDataStore::getHostgroupInfoList
@@ -425,8 +425,8 @@ void UnifiedDataStore::setCopyOnDemandEnabled(bool enable)
 HatoholError UnifiedDataStore::addAction(ActionDef &actionDef,
                                          const OperationPrivilege &privilege)
 {
-	DBTablesAction dbAction;
-	return dbAction.addAction(actionDef, privilege);
+	DBCache cache;
+	return cache.getAction().addAction(actionDef, privilege);
 }
 
 void UnifiedDataStore::addEventList(const EventInfoList &eventList)

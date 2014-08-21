@@ -928,7 +928,8 @@ void loadTestDBArmPlugin(void)
 
 void loadTestDBAction(void)
 {
-	DBTablesAction dbAction;
+	DBCache cache;
+	DBTablesAction &dbAction = cache.getAction();
 	OperationPrivilege privilege(USER_ID_SYSTEM);
 	for (size_t i = 0; i < NumTestActionDef; i++)
 		dbAction.addAction(testActionDef[i], privilege);
