@@ -536,8 +536,8 @@ void FaceRest::handlerLogin(ResourceHandler *job)
 		return;
 	}
 
-	DBTablesUser dbUser;
-	UserIdType userId = dbUser.getUserId(user, password);
+	DBCache cache;
+	UserIdType userId = cache.getUser().getUserId(user, password);
 	if (userId == INVALID_USER_ID) {
 		MLPL_INFO("Failed to authenticate: Client: %s, User: %s.\n",
 			  soup_client_context_get_host(job->m_client), user);

@@ -19,6 +19,7 @@
 
 #include "RestResourceUser.h"
 #include "UnifiedDataStore.h"
+#include "DBCache.h"
 
 using namespace std;
 using namespace mlpl;
@@ -232,8 +233,8 @@ void RestResourceUser::handlerPutUser(void)
 		return;
 	}
 
-	DBTablesUser dbUser;
-	bool exist = dbUser.getUserInfo(userInfo, userInfo.id);
+	DBCache cache;
+	bool exist = cache.getUser().getUserInfo(userInfo, userInfo.id);
 	if (!exist) {
 		REPLY_ERROR(this, HTERR_NOT_FOUND_TARGET_RECORD,
 		            "id: %" FMT_USER_ID, userInfo.id);

@@ -670,8 +670,8 @@ void _assertUserRoleInfoInDB(UserRoleInfo &userRoleInfo)
 	                     DBTablesUser::TABLE_NAME_USER_ROLES,
 			     userRoleInfo.id);
 	string expect = makeUserRoleInfoOutput(userRoleInfo);
-	DBTablesUser dbUser;
-	assertDBContent(&dbUser.getDBAgent(), statement, expect);
+	DBCache cache;
+	assertDBContent(&cache.getUser().getDBAgent(), statement, expect);
 }
 #define assertUserRoleInfoInDB(I) cut_trace(_assertUserRoleInfoInDB(I))
 
@@ -867,7 +867,8 @@ void setupTestDBHost(const bool &dbRecreate, const bool &loadTestData)
 
 void loadTestDBUser(void)
 {
-	DBTablesUser dbUser;
+	DBCache cache;
+	DBTablesUser &dbUser = cache.getUser();
 	HatoholError err;
 	OperationPrivilege opePrivilege(ALL_PRIVILEGES);
 	for (size_t i = 0; i < NumTestUserInfo; i++) {
@@ -878,7 +879,8 @@ void loadTestDBUser(void)
 
 void loadTestDBAccessList(void)
 {
-	DBTablesUser dbUser;
+	DBCache cache;
+	DBTablesUser &dbUser = cache.getUser();
 	HatoholError err;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	for (size_t i = 0; i < NumTestAccessInfo; i++) {
@@ -889,7 +891,8 @@ void loadTestDBAccessList(void)
 
 void loadTestDBUserRole(void)
 {
-	DBTablesUser dbUser;
+	DBCache cache;
+	DBTablesUser &dbUser = cache.getUser();
 	HatoholError err;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	for (size_t i = 0; i < NumTestUserRoleInfo; i++) {

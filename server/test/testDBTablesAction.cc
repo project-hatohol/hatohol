@@ -521,9 +521,9 @@ void test_deleteNoOwnerAction(void)
 			excludeIdList.push_back(actionId);
 	}
 
-	DBTablesUser dbUser;
+	DBCache cache;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	HatoholError err = dbUser.deleteUserInfo(targetId, privilege);
+	HatoholError err = cache.getUser().deleteUserInfo(targetId, privilege);
 	assertHatoholError(HTERR_OK, err);
 
 	DBTablesAction dbAction;
