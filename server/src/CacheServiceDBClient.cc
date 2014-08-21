@@ -95,7 +95,7 @@ struct CacheServiceDBClient::Impl {
 			dbClient = new DBTablesUser();
 		else if (domainId == DB_DOMAIN_ID_CONFIG)
 			dbClient = new DBTablesConfig();
-		else if (domainId == DB_DOMAIN_ID_ACTION)
+		else if (domainId == DB_TABLES_ID_ACTION)
 			dbClient = new DBClientAction();
 		HATOHOL_ASSERT(dbClient,
 		               "ptr is NULL. domainId: %d\n", domainId);

@@ -844,7 +844,7 @@ void setupTestDBConfig(bool dbRecreate, bool loadTestData)
 void setupTestDBAction(bool dbRecreate, bool loadTestData)
 {
 	static const char *TEST_DB_NAME = "test_action";
-	DBClient::setDefaultDBParams(DB_DOMAIN_ID_ACTION, TEST_DB_NAME,
+	DBClient::setDefaultDBParams(DB_TABLES_ID_ACTION, TEST_DB_NAME,
 	                             TEST_DB_USER, TEST_DB_PASSWORD);
 	makeTestMySQLDBIfNeeded(TEST_DB_NAME, dbRecreate);
 	if (loadTestData)

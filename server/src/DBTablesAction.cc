@@ -416,7 +416,7 @@ DBClientAction::LogEndExecActionArg::LogEndExecActionArg(void)
 void DBClientAction::init(void)
 {
 	registerSetupInfo(
-	  DB_DOMAIN_ID_ACTION, DEFAULT_DB_NAME, &DB_ACTION_SETUP_FUNC_ARG);
+	  DB_TABLES_ID_ACTION, DEFAULT_DB_NAME, &DB_ACTION_SETUP_FUNC_ARG);
 
 	g_deleteActionCtx = new deleteInvalidActionsContext;
 	g_deleteActionCtx->idleEventId = INVALID_EVENT_ID;
@@ -430,7 +430,7 @@ void DBClientAction::reset(void)
 	// Now we assume that a DB server for this class is the same as that
 	// for DBTablesConfig. So we copy the connectInfo of it.
 	DBConnectInfo connInfo = getDBConnectInfo(DB_DOMAIN_ID_CONFIG);
-	setConnectInfo(DB_DOMAIN_ID_ACTION, connInfo);
+	setConnectInfo(DB_TABLES_ID_ACTION, connInfo);
 }
 
 void DBClientAction::stop(void)
@@ -449,7 +449,7 @@ const char *DBClientAction::getTableNameActionLogs(void)
 }
 
 DBClientAction::DBClientAction(void)
-: DBClient(DB_DOMAIN_ID_ACTION),
+: DBClient(DB_TABLES_ID_ACTION),
   m_impl(new Impl())
 {
 }

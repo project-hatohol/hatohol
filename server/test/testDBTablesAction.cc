@@ -22,13 +22,8 @@
 #include <gcutter.h>
 #include "Hatohol.h"
 #include "Params.h"
-<<<<<<< HEAD:server/test/testDBClientAction.cc
-#include "DBClientAction.h"
 #include "DBTablesUser.h"
-=======
 #include "DBTablesAction.h"
-#include "DBClientUser.h"
->>>>>>> [DBClientAction] Change the file names related with DBClientAction.:server/test/testDBTablesAction.cc
 #include "DBClientTest.h"
 #include "Helpers.h"
 using namespace std;
@@ -344,7 +339,7 @@ void cut_teardown(void)
 void test_dbDomainId(void)
 {
 	DBClientAction dbAction;
-	cppcut_assert_equal(DB_DOMAIN_ID_ACTION,
+	cppcut_assert_equal(DB_TABLES_ID_ACTION,
 	                    dbAction.getDBAgent().getDBDomainId());
 }
 
@@ -1008,7 +1003,7 @@ void cut_setup(void)
 void test_databaseName(void)
 {
 	DBConnectInfo connInfo =
-	  DBClient::getDBConnectInfo(DB_DOMAIN_ID_ACTION);
+	  DBClient::getDBConnectInfo(DB_TABLES_ID_ACTION);
 	cppcut_assert_equal(string(DBTablesConfig::DEFAULT_DB_NAME),
 	                    connInfo.dbName);
 }
@@ -1016,7 +1011,7 @@ void test_databaseName(void)
 void test_databaseUser(void)
 {
 	DBConnectInfo connInfo =
-	  DBClient::getDBConnectInfo(DB_DOMAIN_ID_ACTION);
+	  DBClient::getDBConnectInfo(DB_TABLES_ID_ACTION);
 	cppcut_assert_equal(string(DBTablesConfig::DEFAULT_USER_NAME),
 	                    connInfo.user);
 }
@@ -1024,7 +1019,7 @@ void test_databaseUser(void)
 void test_databasePassword(void)
 {
 	DBConnectInfo connInfo =
-	  DBClient::getDBConnectInfo(DB_DOMAIN_ID_ACTION);
+	  DBClient::getDBConnectInfo(DB_TABLES_ID_ACTION);
 	cppcut_assert_equal(string(DBTablesConfig::DEFAULT_USER_NAME),
 	                    connInfo.user);
 }
