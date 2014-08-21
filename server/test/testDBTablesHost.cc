@@ -41,13 +41,13 @@ void test_dbDomainId(void)
 	DBClientHost dbHost;
 	DBAgent *dbAgent = dbHost.getDBAgent();
 	cppcut_assert_not_null(dbAgent);
-	cppcut_assert_equal(DB_DOMAIN_ID_HOST, dbAgent->getDBDomainId());
+	cppcut_assert_equal(DB_TABLES_ID_HOST, dbAgent->getDBDomainId());
 }
 
 void test_setDefaultDBParams(void)
 {
 	DBConnectInfo connInfo =
-	  DBClient::getDBConnectInfo(DB_DOMAIN_ID_HOST);
+	  DBClient::getDBConnectInfo(DB_TABLES_ID_HOST);
 	cppcut_assert_equal(string(TEST_DB_USER), connInfo.user);
 	cppcut_assert_equal(string(TEST_DB_PASSWORD), connInfo.password);
 }

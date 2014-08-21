@@ -164,11 +164,11 @@ void DBClientHost::init(void)
 		DB_TABLE_INFO,
 		&updateDB,
 	};
-	registerSetupInfo(DB_DOMAIN_ID_HOST, &DB_SETUP_FUNC_ARG);
+	registerSetupInfo(DB_TABLES_ID_HOST, &DB_SETUP_FUNC_ARG);
 }
 
 DBClientHost::DBClientHost(void)
-: DBCGroupRegular(DB_DOMAIN_ID_HOST),
+: DBCGroupRegular(DB_TABLES_ID_HOST),
   m_impl(new Impl())
 {
 }
