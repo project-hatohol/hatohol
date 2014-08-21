@@ -19,7 +19,7 @@
 
 #include <cppcutter.h>
 #include "Hatohol.h"
-#include "DBClientHost.h"
+#include "DBTablesHost.h"
 #include "Helpers.h"
 using namespace std;
 using namespace mlpl;

@@ -17,7 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DBClientHost.h"
+#include "DBTablesHost.h"
 using namespace std;
 using namespace mlpl;
 

@@ -57,7 +57,7 @@ libhatohol_la_SOURCES = \
 	DBTablesConfig.cc DBTablesConfig.h \
 	DBTablesUser.cc DBTablesUser.h \
 	DBTablesMonitoring.cc DBTablesMonitroring.h \
-	DBClientHost.cc DBClientHost.h \
+	DBTablesHost.cc DBTablesHost.h \
 	DBClientJoinBuilder.cc DBClientJoinBuilder.h \
 	DBTermCodec.h DBTermCodec.cc \
 	DataStore.cc DataStore.h \
