@@ -222,7 +222,7 @@ void _assertIsAccessible(const bool useAllServers = false)
 {
 	loadTestDBUser();
 	loadTestDBAccessList();
-	CacheServiceDBClient cache;
+	DBCache cache;
 	DBTablesUser *dbUser = cache.getUser();
 
 	// search the User ID and Server ID
@@ -967,7 +967,7 @@ void test_isAccessibleFalse(void)
 {
 	loadTestDBUser();
 	loadTestDBAccessList();
-	CacheServiceDBClient cache;
+	DBCache cache;
 	DBTablesUser *dbUser = cache.getUser();
 
 	// search for nonexisting User ID and Server ID

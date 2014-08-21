@@ -22,6 +22,6 @@
 
 void hatoholThreadCleanup(HatoholThreadArg *arg)
 {
-	CacheServiceDBClient::cleanup();
+	DBCache::cleanup();
 }
 

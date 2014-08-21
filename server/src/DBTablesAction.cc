@@ -997,7 +997,7 @@ gboolean DBTablesAction::deleteInvalidActionsExec(gpointer data)
 	struct : public ExceptionCatchable {
 		void operator ()(void) override
 		{
-			CacheServiceDBClient cache;
+			DBCache cache;
 			cache.getAction()->deleteInvalidActions();
 		}
 	} deleter;
@@ -1286,7 +1286,7 @@ bool ActionUserIdSet::isValidActionOwnerId(const UserIdType id)
 
 void ActionUserIdSet::get(UserIdSet &userIdSet)
 {
-	CacheServiceDBClient cache;
+	DBCache cache;
 	DBTablesUser *dbUser = cache.getUser();
 	dbUser->getUserIdSet(userIdSet);
 }
@@ -1298,7 +1298,7 @@ ActionValidator::ActionValidator()
 {
 	ActionUserIdSet::get(m_userIdSet);
 
-	CacheServiceDBClient cache;
+	DBCache cache;
 	DBTablesConfig *dbConfig = cache.getConfig();
 	dbConfig->getIncidentTrackerIdSet(m_incidentTrackerIdSet);
 }

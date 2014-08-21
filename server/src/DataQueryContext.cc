@@ -81,7 +81,7 @@ const ServerHostGrpSetMap &DataQueryContext::getServerHostGrpSetMap(void)
 {
 	if (!m_impl->srvHostGrpSetMap) {
 		m_impl->srvHostGrpSetMap = new ServerHostGrpSetMap();
-		CacheServiceDBClient cache;
+		DBCache cache;
 		DBTablesUser *dbUser = cache.getUser();
 		dbUser->getServerHostGrpSetMap(*m_impl->srvHostGrpSetMap,
 		                               m_impl->privilege.getUserId());
@@ -99,7 +99,7 @@ const ServerIdSet &DataQueryContext::getValidServerIdSet(void)
 {
 	if (!m_impl->serverIdSet) {
 		m_impl->serverIdSet = new ServerIdSet();
-		CacheServiceDBClient cache;
+		DBCache cache;
 		DBTablesConfig *dbConfig = cache.getConfig();
 		dbConfig->getServerIdSet(*m_impl->serverIdSet, this);
 	}

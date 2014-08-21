@@ -191,7 +191,7 @@ const IncidentTrackerInfo &IncidentSender::getIncidentTrackerInfo(void)
 bool IncidentSender::getServerInfo(const EventInfo &event,
 				MonitoringServerInfo &server)
 {
-	CacheServiceDBClient cache;
+	DBCache cache;
 	DBTablesConfig *dbConfig = cache.getConfig();
 	ServerQueryOption option(USER_ID_SYSTEM);
 	option.setTargetServerId(event.serverId);

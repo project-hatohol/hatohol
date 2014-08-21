@@ -124,7 +124,7 @@ void _assertAddServerWithSetup(const StringMap &params,
 static void _assertServerConnStat(JSONParserAgent *parser)
 {
 	// Make expected data
-	CacheServiceDBClient cache;
+	DBCache cache;
 	DBTablesConfig *dbConfig = cache.getConfig();
 	ServerIdSet expectIdSet;
 	DataQueryContextPtr dqCtxPtr(new DataQueryContext(USER_ID_SYSTEM),

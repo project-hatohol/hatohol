@@ -65,7 +65,7 @@ struct CacheLRU {
 	}
 };
 
-struct CacheServiceDBClient::Impl {
+struct DBCache::Impl {
 	// This lock is for DBClientMapList. clientMap can be accessed w/o
 	// the lock because it is on the thread local storage.
 	static Mutex          lock;
@@ -144,28 +144,28 @@ struct CacheServiceDBClient::Impl {
 		clientMap = NULL;
 	}
 };
-__thread DBClientMap *CacheServiceDBClient::Impl::clientMap = NULL;
-Mutex          CacheServiceDBClient::Impl::lock;
-DBClientMapSet CacheServiceDBClient::Impl::dbClientMapSet;
-size_t CacheServiceDBClient::Impl::maxNumCacheMySQL
+__thread DBClientMap *DBCache::Impl::clientMap = NULL;
+Mutex          DBCache::Impl::lock;
+DBClientMapSet DBCache::Impl::dbClientMapSet;
+size_t DBCache::Impl::maxNumCacheMySQL
   = DEFAULT_MAX_NUM_CACHE_MYSQL;
-size_t CacheServiceDBClient::Impl::maxNumCacheSQLite3
+size_t DBCache::Impl::maxNumCacheSQLite3
   = DEFAULT_MAX_NUM_CACHE_SQLITE3;
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-void CacheServiceDBClient::reset(void)
+void DBCache::reset(void)
 {
 	Impl::reset();
 }
 
-void CacheServiceDBClient::cleanup(void)
+void DBCache::cleanup(void)
 {
 	Impl::cleanup();
 }
 
-size_t CacheServiceDBClient::getNumberOfDBClientMaps(void)
+size_t DBCache::getNumberOfDBClientMaps(void)
 {
 	Impl::lock.lock();
 	size_t num = Impl::dbClientMapSet.size();
@@ -173,30 +173,30 @@ size_t CacheServiceDBClient::getNumberOfDBClientMaps(void)
 	return num;
 }
 
-CacheServiceDBClient::CacheServiceDBClient(void)
+DBCache::DBCache(void)
 {
 }
 
-CacheServiceDBClient::~CacheServiceDBClient()
+DBCache::~DBCache()
 {
 }
 
-DBTablesUser *CacheServiceDBClient::getUser(void)
+DBTablesUser *DBCache::getUser(void)
 {
 	return get<DBTablesUser>(DB_TABLES_ID_USER);
 }
 
-DBTablesConfig *CacheServiceDBClient::getConfig(void)
+DBTablesConfig *DBCache::getConfig(void)
 {
 	return get<DBTablesConfig>(DB_DOMAIN_ID_CONFIG);
 }
 
-DBTablesAction *CacheServiceDBClient::getAction(void)
+DBTablesAction *DBCache::getAction(void)
 {
 	return get<DBTablesAction>(DB_DOMAIN_ID_CONFIG);
 }
 
-DBTablesMonitoring *CacheServiceDBClient::getMonitoring(void)
+DBTablesMonitoring *DBCache::getMonitoring(void)
 {
 	return get<DBTablesMonitoring>(DB_TABLES_ID_MONITORING);
 }
@@ -205,7 +205,7 @@ DBTablesMonitoring *CacheServiceDBClient::getMonitoring(void)
 // Private methods
 // ---------------------------------------------------------------------------
 template <class T>
-T *CacheServiceDBClient::get(DBDomainId domainId)
+T *DBCache::get(DBDomainId domainId)
 {
 	DBClient *dbClient = Impl::get(domainId);
 	// Here we use static_cast, although this is downcast.

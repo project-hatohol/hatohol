@@ -548,7 +548,7 @@ string ServerQueryOption::getCondition(void) const
 		return condition;
 
 	// check allowed servers
-	CacheServiceDBClient cache;
+	DBCache cache;
 	DBTablesUser *dbUser = cache.getUser();
 	ServerHostGrpSetMap srvHostGrpSetMap;
 	dbUser->getServerHostGrpSetMap(srvHostGrpSetMap, getUserId());
@@ -1324,7 +1324,7 @@ bool DBTablesConfig::canUpdateTargetServer(
 	if (!privilege.has(OPPRVLG_UPDATE_SERVER))
 		return false;
 
-	CacheServiceDBClient cache;
+	DBCache cache;
 	DBTablesUser *dbUser = cache.getUser();
 	return dbUser->isAccessible(monitoringServerInfo->id, privilege, false);
 }
@@ -1338,7 +1338,7 @@ bool DBTablesConfig::canDeleteTargetServer(
 	if (!privilege.has(OPPRVLG_DELETE_SERVER))
 		return false;
 
-	CacheServiceDBClient cache;
+	DBCache cache;
 	DBTablesUser *dbUser = cache.getUser();
 	return dbUser->isAccessible(serverId, privilege);
 }

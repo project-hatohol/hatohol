@@ -17,15 +17,15 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CacheServiceDBClient_h
-#define CacheServiceDBClient_h
+#ifndef DBCache_h
+#define DBCache_h
 
 #include "DBTablesMonitoring.h"
 #include "DBTablesUser.h"
 #include "DBTablesConfig.h"
 #include "DBTablesAction.h"
 
-class CacheServiceDBClient
+class DBCache
 {
 public:
 	static void reset(void);
@@ -36,8 +36,8 @@ public:
 	static void cleanup(void);
 	static size_t getNumberOfDBClientMaps(void);
 
-	CacheServiceDBClient(void);
-	virtual ~CacheServiceDBClient();
+	DBCache(void);
+	virtual ~DBCache();
 	DBTablesUser    *getUser(void);
 	DBTablesConfig  *getConfig(void);
 	DBTablesAction  *getAction(void);
@@ -56,4 +56,4 @@ private:
 	template <class T> T *get(DBDomainId domainId);
 };
 
-#endif // CacheServiceDBClient_h
+#endif // DBCache_h

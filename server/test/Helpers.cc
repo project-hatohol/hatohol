@@ -601,7 +601,7 @@ void _assertServersInDB(const ServerIdSet &excludeServerIdSet)
 			continue;
 		expect += makeServerInfoOutput(serverInfo);
 	}
-	CacheServiceDBClient cache;
+	DBCache cache;
 	assertDBContent(&cache.getConfig()->getDBAgent(), statement, expect);
 }
 
@@ -619,7 +619,7 @@ void _assertArmPluginsInDB(const set<int> &excludeIdSet)
 			continue;
 		expect += makeArmPluginInfoOutput(armPluginInfo);
 	}
-	CacheServiceDBClient cache;
+	DBCache cache;
 	assertDBContent(&cache.getConfig()->getDBAgent(), statement, expect);
 }
 
@@ -640,7 +640,7 @@ void _assertUsersInDB(const UserIdSet &excludeUserIdSet)
 		  Utils::sha256(userInfo.password).c_str(),
 		  userInfo.flags);
 	}
-	CacheServiceDBClient cache;
+	DBCache cache;
 	assertDBContent(&cache.getUser()->getDBAgent(), statement, expect);
 }
 
@@ -659,7 +659,7 @@ void _assertAccessInfoInDB(const AccessInfoIdSet &excludeAccessInfoIdSet)
 		  "%" FMT_ACCESS_INFO_ID "|%" FMT_USER_ID "|%d|%" PRIu64 "\n",
 		  id, accessInfo.userId, accessInfo.serverId, accessInfo.hostgroupId);
 	}
-	CacheServiceDBClient cache;
+	DBCache cache;
 	assertDBContent(&cache.getUser()->getDBAgent(), statement, expect);
 }
 
@@ -690,7 +690,7 @@ void _assertUserRolesInDB(const UserRoleIdSet &excludeUserRoleIdSet)
 		userRoleInfo.id = userRoleId;
 		expect += makeUserRoleInfoOutput(userRoleInfo);
 	}
-	CacheServiceDBClient cache;
+	DBCache cache;
 	assertDBContent(&cache.getUser()->getDBAgent(), statement, expect);
 }
 
@@ -710,7 +710,7 @@ void _assertIncidentTrackersInDB(const IncidentTrackerIdSet &excludeServerIdSet)
 			continue;
 		expect += makeIncidentTrackerInfoOutput(incidentTrackerInfo);
 	}
-	CacheServiceDBClient cache;
+	DBCache cache;
 	assertDBContent(&cache.getConfig()->getDBAgent(), statement, expect);
 }
 
@@ -1109,7 +1109,7 @@ void defineDBPath(DBDomainId domainId, const string &dbPath)
 
 UserIdType searchMaxTestUserId(void)
 {
-	CacheServiceDBClient cache;
+	DBCache cache;
 	DBTablesUser *dbUser = cache.getUser();
 	UserInfoList userInfoList;
 	UserQueryOption option(USER_ID_SYSTEM);
@@ -1132,7 +1132,7 @@ static UserIdType findUserCommon(const OperationPrivilegeType &type,
 	UserIdType userId = INVALID_USER_ID;
 	OperationPrivilegeFlag flag = OperationPrivilege::makeFlag(type);
 
-	CacheServiceDBClient cache;
+	DBCache cache;
 	DBTablesUser *dbUser = cache.getUser();
 	UserInfoList userInfoList;
 	UserQueryOption option(USER_ID_SYSTEM);

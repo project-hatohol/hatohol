@@ -27,7 +27,7 @@
 using namespace std;
 using namespace mlpl;
 
-namespace testCacheServiceDBClient {
+namespace testDBCache {
 
 class TestCacheServiceThread : public HatoholThreadBase {
 
@@ -106,7 +106,7 @@ protected:
 			waitSem(&m_requestSem);
 			if (m_exitRequest)
 				break;
-			CacheServiceDBClient cache;
+			DBCache cache;
 			m_dbMonitoring = cache.getMonitoring();
 			if (!postSem(&m_completSem))
 				break;
@@ -193,9 +193,9 @@ void test_cleanupOnThreadExit(void)
 	// Some thread may be running with the cache when this test is executed
 	// So the number of the cached DB may not be zero. We have to
 	// take into account it.
-	size_t numCached0 = CacheServiceDBClient::getNumberOfDBClientMaps();
+	size_t numCached0 = DBCache::getNumberOfDBClientMaps();
 	test_hasInstanceByThread();
-	size_t numCached = CacheServiceDBClient::getNumberOfDBClientMaps();
+	size_t numCached = DBCache::getNumberOfDBClientMaps();
 	cppcut_assert_equal(g_threads.size() + numCached0, numCached);
 	for (size_t i = 0; i < g_threads.size(); i++) {
 		TestCacheServiceThread *thr = g_threads[i];
@@ -203,7 +203,7 @@ void test_cleanupOnThreadExit(void)
 		g_threads[i] = NULL;
 		cppcut_assert_equal(true, hasError);
 		size_t newNumCached = 
-		  CacheServiceDBClient::getNumberOfDBClientMaps();
+		  DBCache::getNumberOfDBClientMaps();
 		cppcut_assert_equal(numCached - 1, newNumCached);
 		numCached = newNumCached;
 	}
@@ -211,13 +211,13 @@ void test_cleanupOnThreadExit(void)
 
 void test_getMonitoring(void)
 {
-	CacheServiceDBClient cache;
+	DBCache cache;
 	assertType(DBTablesMonitoring, cache.getMonitoring());
 }
 
 void test_getUser(void)
 {
-	CacheServiceDBClient cache;
+	DBCache cache;
 	assertType(DBTablesUser, cache.getUser());
 }
 
@@ -229,8 +229,8 @@ void test_getUser(void)
 // expects a failure ?
 void test_new(void)
 {
-	CacheServiceDBClient *cache = new CacheServiceDBClient();
+	DBCache *cache = new DBCache();
 }
 #endif
 
-} // namespace testCacheServiceDBClient
+} // namespace testDBCache

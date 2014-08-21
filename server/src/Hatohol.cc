@@ -79,7 +79,7 @@ static void reset(const CommandLineOptions *cmdLineOpts)
 	DBTablesHost::reset();   // must be after DBHatohol::reset()
 
 	ActionManager::reset();
-	CacheServiceDBClient::reset();
+	DBCache::reset();
 
 	UnifiedDataStore::getInstance()->reset();
 }
