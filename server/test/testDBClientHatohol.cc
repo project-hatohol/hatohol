@@ -477,7 +477,7 @@ void test_createDB(void)
 	string statement = "select * from _dbclient_version";
 	string output = execSqlite3ForDBClientHatohol(statement);
 	string expectedOut = StringUtils::sprintf
-	                       ("%d|%d\n", DB_DOMAIN_ID_HATOHOL,
+	                       ("%d|%d\n", DB_TABLES_ID_MONITORING,
 	                                   DBClientHatohol::HATOHOL_DB_VERSION);
 	cppcut_assert_equal(expectedOut, output);
 }

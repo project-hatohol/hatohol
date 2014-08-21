@@ -1412,11 +1412,11 @@ IncidentsQueryOption::IncidentsQueryOption(DataQueryContext *dataQueryContext)
 void DBClientHatohol::init(void)
 {
 	registerSetupInfo(
-	  DB_DOMAIN_ID_HATOHOL, DEFAULT_DB_NAME, &DB_SETUP_FUNC_ARG);
+	  DB_TABLES_ID_MONITORING, DEFAULT_DB_NAME, &DB_SETUP_FUNC_ARG);
 }
 
 DBClientHatohol::DBClientHatohol(void)
-: DBClient(DB_DOMAIN_ID_HATOHOL),
+: DBClient(DB_TABLES_ID_MONITORING),
   m_impl(new Impl())
 {
 }
