@@ -135,7 +135,7 @@ void cut_setup(void)
 	                                     "fixtures",
 	                                     "testDatabase-hatohol.db",
 	                                     NULL);
- 	defineDBPath(DB_DOMAIN_ID_HATOHOL, dbPath);
+	defineDBPath(DB_TABLES_ID_MONITOR, dbPath);
 	setupTestDBConfig(true, true);
 }
 

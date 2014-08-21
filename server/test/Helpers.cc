@@ -1101,9 +1101,9 @@ void releaseDefaultContext(void)
 
 void defineDBPath(DBDomainId domainId, const string &dbPath)
 {
-	if (domainId != DB_DOMAIN_ID_HATOHOL)
+	if (domainId != DB_TABLES_ID_MONITOR)
 		cut_fail("Cannot set a domain ID for %d\n", domainId);
-	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_HATOHOL, dbPath);
+	DBAgentSQLite3::defineDBPath(DB_TABLES_ID_MONITOR, dbPath);
 }
 
 UserIdType searchMaxTestUserId(void)

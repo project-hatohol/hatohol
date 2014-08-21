@@ -63,7 +63,7 @@ void startFaceRest(void)
 	bool dbRecreate = true, loadTestData = true;
 	setupTestDBConfig(dbRecreate, loadTestData);
 
-	defineDBPath(DB_DOMAIN_ID_HATOHOL, dbPathHatohol);
+	defineDBPath(DB_TABLES_ID_MONITOR, dbPathHatohol);
 
 	ConfigManager::getInstance()->setFaceRestPort(TEST_PORT);
 	g_faceRest = new FaceRest(&param);
