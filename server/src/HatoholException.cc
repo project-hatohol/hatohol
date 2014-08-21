@@ -40,9 +40,14 @@ void HatoholException::init(void)
 
 HatoholException::HatoholException(
   const string &brief, const string &sourceFileName, const int &lineNumber)
+: m_what(brief),
+  m_sourceFileName(sourceFileName),
+  m_lineNumber(lineNumber)
 {
-	HatoholException(HTERR_UNINITIALIZED, brief, sourceFileName, lineNumber);
+	if (m_saveStackTrace)
+		saveStackTrace();
 }
+
 HatoholException::HatoholException(
   const HatoholErrorCode errCode, const string &brief, const string &sourceFileName, const int &lineNumber)
 : m_what(brief),
