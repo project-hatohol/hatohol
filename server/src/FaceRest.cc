@@ -35,7 +35,7 @@
 #include "JSONBuilderAgent.h"
 #include "HatoholException.h"
 #include "UnifiedDataStore.h"
-#include "DBClientUser.h"
+#include "DBTablesUser.h"
 #include "DBTablesConfig.h"
 #include "SessionManager.h"
 #include "CacheServiceDBClient.h"
@@ -536,7 +536,7 @@ void FaceRest::handlerLogin(ResourceHandler *job)
 		return;
 	}
 
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	UserIdType userId = dbUser.getUserId(user, password);
 	if (userId == INVALID_USER_ID) {
 		MLPL_INFO("Failed to authenticate: Client: %s, User: %s.\n",

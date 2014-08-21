@@ -18,7 +18,7 @@
  */
 
 #include "OperationPrivilege.h"
-#include "DBClientUser.h"
+#include "DBTablesUser.h"
 #include "CacheServiceDBClient.h"
 using namespace mlpl;
 

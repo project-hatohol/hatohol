@@ -18,7 +18,7 @@
  */
 
 #include <stdint.h>
-#include "DBClientUser.h"
+#include "DBTablesUser.h"
 #include "DBTablesConfig.h"
 #include "ItemGroupStream.h"
 using namespace std;
@@ -35,20 +35,20 @@ const UserRoleIdSet EMPTY_USER_ROLE_ID_SET;
 //   * Add user_roles table
 // 3 -> 4:
 //   * NUM_OPPRVLG:19 -> 23
-const int   DBClientUser::USER_DB_VERSION = 4;
+const int   DBTablesUser::USER_DB_VERSION = 4;
 
-const char *DBClientUser::DEFAULT_DB_NAME = DBTablesConfig::DEFAULT_DB_NAME;
-const char *DBClientUser::TABLE_NAME_USERS = "users";
-const char *DBClientUser::TABLE_NAME_ACCESS_LIST = "access_list";
-const char *DBClientUser::TABLE_NAME_USER_ROLES = "user_roles";
-const size_t DBClientUser::MAX_USER_NAME_LENGTH = 128;
-const size_t DBClientUser::MAX_PASSWORD_LENGTH = 128;
-const size_t DBClientUser::MAX_USER_ROLE_NAME_LENGTH = 128;
-static const char *TABLE_NAME_USERS = DBClientUser::TABLE_NAME_USERS;
+const char *DBTablesUser::DEFAULT_DB_NAME = DBTablesConfig::DEFAULT_DB_NAME;
+const char *DBTablesUser::TABLE_NAME_USERS = "users";
+const char *DBTablesUser::TABLE_NAME_ACCESS_LIST = "access_list";
+const char *DBTablesUser::TABLE_NAME_USER_ROLES = "user_roles";
+const size_t DBTablesUser::MAX_USER_NAME_LENGTH = 128;
+const size_t DBTablesUser::MAX_PASSWORD_LENGTH = 128;
+const size_t DBTablesUser::MAX_USER_ROLE_NAME_LENGTH = 128;
+static const char *TABLE_NAME_USERS = DBTablesUser::TABLE_NAME_USERS;
 static const char *TABLE_NAME_ACCESS_LIST =
-  DBClientUser::TABLE_NAME_ACCESS_LIST;
+  DBTablesUser::TABLE_NAME_ACCESS_LIST;
 static const char *TABLE_NAME_USER_ROLES =
-  DBClientUser::TABLE_NAME_USER_ROLES;
+  DBTablesUser::TABLE_NAME_USER_ROLES;
 
 static bool g_testMode = false;
 
@@ -105,7 +105,7 @@ enum {
 };
 
 static const DBAgent::TableProfile tableProfileUsers =
-  DBAGENT_TABLEPROFILE_INIT(DBClientUser::TABLE_NAME_USERS,
+  DBAGENT_TABLEPROFILE_INIT(DBTablesUser::TABLE_NAME_USERS,
 			    COLUMN_DEF_USERS,
 			    NUM_IDX_USERS);
 
@@ -162,7 +162,7 @@ enum {
 };
 
 static const DBAgent::TableProfile tableProfileAccessList =
-  DBAGENT_TABLEPROFILE_INIT(DBClientUser::TABLE_NAME_ACCESS_LIST,
+  DBAGENT_TABLEPROFILE_INIT(DBTablesUser::TABLE_NAME_ACCESS_LIST,
 			    COLUMN_DEF_ACCESS_LIST,
 			    NUM_IDX_ACCESS_LIST);
 
@@ -208,7 +208,7 @@ enum {
 };
 
 static const DBAgent::TableProfile tableProfileUserRoles =
-  DBAGENT_TABLEPROFILE_INIT(DBClientUser::TABLE_NAME_USER_ROLES,
+  DBAGENT_TABLEPROFILE_INIT(DBTablesUser::TABLE_NAME_USER_ROLES,
 			    COLUMN_DEF_USER_ROLES,
 			    NUM_IDX_USER_ROLES);
 
@@ -223,11 +223,11 @@ ServerAccessInfoMap::~ServerAccessInfoMap()
 	}
 }
 
-struct DBClientUser::Impl {
+struct DBTablesUser::Impl {
 	static bool validUsernameChars[UINT8_MAX+1];
 };
 
-bool DBClientUser::Impl::validUsernameChars[UINT8_MAX+1];
+bool DBTablesUser::Impl::validUsernameChars[UINT8_MAX+1];
 
 static void updateAdminPrivilege(DBAgent *dbAgent,
 				 const OperationPrivilegeType old_NUM_OPPRVLG)
@@ -316,7 +316,7 @@ UserQueryOption::~UserQueryOption()
 
 HatoholError UserQueryOption::setTargetName(const string &name)
 {
-	HatoholError err = DBClientUser::isValidUserName(name);
+	HatoholError err = DBTablesUser::isValidUserName(name);
 	if (err != HTERR_OK)
 		return err;
 	m_impl->targetName = name;
@@ -333,7 +333,7 @@ string UserQueryOption::getCondition(void) const
 	UserIdType userId = getUserId();
 	if (userId == INVALID_USER_ID) {
 		MLPL_WARN("INVALID_USER_ID\n");
-		return DBClientUser::getAlwaysFalseCondition();
+		return DBTablesUser::getAlwaysFalseCondition();
 	}
 
 	string condition;
@@ -391,11 +391,11 @@ string AccessInfoQueryOption::getCondition(void) const
 	UserIdType userId = getUserId();
 	if (userId == INVALID_USER_ID) {
 		MLPL_WARN("INVALID_USER_ID\n");
-		return DBClientUser::getAlwaysFalseCondition();
+		return DBTablesUser::getAlwaysFalseCondition();
 	}
 
 	if (!has(OPPRVLG_GET_ALL_USER) && getUserId() != m_impl->queryUserId) {
-		return DBClientUser::getAlwaysFalseCondition();
+		return DBTablesUser::getAlwaysFalseCondition();
 	}
 
 	return StringUtils::sprintf("%s=%" FMT_USER_ID,
@@ -466,7 +466,7 @@ string UserRoleQueryOption::getCondition(void) const
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-void DBClientUser::init(void)
+void DBTablesUser::init(void)
 {
 	static const DBSetupTableInfo DB_TABLE_INFO[] = {
 	{
@@ -489,7 +489,7 @@ void DBClientUser::init(void)
 	};
 
 	registerSetupInfo(
-	  DB_DOMAIN_ID_USERS, DEFAULT_DB_NAME, &DB_SETUP_FUNC_ARG);
+	  DB_TABLES_ID_USER, DEFAULT_DB_NAME, &DB_SETUP_FUNC_ARG);
 
 	// set valid characters for the user name
 	for (uint8_t c = 'A'; c <= 'Z'; c++)
@@ -504,30 +504,30 @@ void DBClientUser::init(void)
 	Impl::validUsernameChars['@'] = true;
 }
 
-void DBClientUser::reset(void)
+void DBTablesUser::reset(void)
 {
 	// We share the connection information with CONFIG.
 	DBConnectInfo connInfo = getDBConnectInfo(DB_DOMAIN_ID_CONFIG);
-	setConnectInfo(DB_DOMAIN_ID_USERS, connInfo);
+	setConnectInfo(DB_TABLES_ID_USER, connInfo);
 }
 
-bool DBClientUser::setTestMode(bool enable)
+bool DBTablesUser::setTestMode(bool enable)
 {
 	g_testMode = enable;
 	return g_testMode;
 }
 
-DBClientUser::DBClientUser(void)
-: DBClient(DB_DOMAIN_ID_USERS),
+DBTablesUser::DBTablesUser(void)
+: DBClient(DB_TABLES_ID_USER),
   m_impl(new Impl())
 {
 }
 
-DBClientUser::~DBClientUser()
+DBTablesUser::~DBTablesUser()
 {
 }
 
-HatoholError DBClientUser::addUserInfo(
+HatoholError DBTablesUser::addUserInfo(
   UserInfo &userInfo, const OperationPrivilege &privilege)
 {
 	HatoholError err;
@@ -588,7 +588,7 @@ HatoholError DBClientUser::addUserInfo(
 	return trx.err;
 }
 
-HatoholError DBClientUser::hasPrivilegeForUpdateUserInfo(
+HatoholError DBTablesUser::hasPrivilegeForUpdateUserInfo(
   UserInfo &userInfo, const OperationPrivilege &privilege)
 {
 	if (privilege.has(OPPRVLG_UPDATE_USER))
@@ -609,7 +609,7 @@ HatoholError DBClientUser::hasPrivilegeForUpdateUserInfo(
 	return HTERR_NO_PRIVILEGE;
 }
 
-HatoholError DBClientUser::updateUserInfo(
+HatoholError DBTablesUser::updateUserInfo(
   UserInfo &userInfo, const OperationPrivilege &privilege)
 {
 	HatoholError err = hasPrivilegeForUpdateUserInfo(userInfo, privilege);
@@ -676,7 +676,7 @@ HatoholError DBClientUser::updateUserInfo(
 	return trx.err;
 }
 
-HatoholError DBClientUser::deleteUserInfo(
+HatoholError DBTablesUser::deleteUserInfo(
   const UserIdType userId, const OperationPrivilege &privilege)
 {
 	using mlpl::StringUtils::sprintf;
@@ -708,7 +708,7 @@ HatoholError DBClientUser::deleteUserInfo(
 	return HTERR_OK;
 }
 
-UserIdType DBClientUser::getUserId(const string &user, const string &password)
+UserIdType DBTablesUser::getUserId(const string &user, const string &password)
 {
 	if (isValidUserName(user) != HTERR_OK)
 		return INVALID_USER_ID;
@@ -739,7 +739,7 @@ UserIdType DBClientUser::getUserId(const string &user, const string &password)
 	return userId;
 }
 
-HatoholError DBClientUser::addAccessInfo(AccessInfo &accessInfo,
+HatoholError DBTablesUser::addAccessInfo(AccessInfo &accessInfo,
 					 const OperationPrivilege &privilege)
 {
 	if (!privilege.has(OPPRVLG_UPDATE_USER))
@@ -780,7 +780,7 @@ HatoholError DBClientUser::addAccessInfo(AccessInfo &accessInfo,
 	return HTERR_OK;
 }
 
-HatoholError DBClientUser::deleteAccessInfo(const AccessInfoIdType id,
+HatoholError DBTablesUser::deleteAccessInfo(const AccessInfoIdType id,
 					    const OperationPrivilege &privilege)
 {
 	if (!privilege.has(OPPRVLG_UPDATE_USER))
@@ -794,7 +794,7 @@ HatoholError DBClientUser::deleteAccessInfo(const AccessInfoIdType id,
 	return HTERR_OK;
 }
 
-bool DBClientUser::getUserInfo(UserInfo &userInfo, const UserIdType userId)
+bool DBTablesUser::getUserInfo(UserInfo &userInfo, const UserIdType userId)
 {
 	UserInfoList userInfoList;
 	string condition = StringUtils::sprintf("%s='%" FMT_USER_ID "'",
@@ -808,7 +808,7 @@ bool DBClientUser::getUserInfo(UserInfo &userInfo, const UserIdType userId)
 	return true;
 }
 
-void DBClientUser::getUserIdSet(UserIdSet &userIdSet)
+void DBTablesUser::getUserIdSet(UserIdSet &userIdSet)
 {
 	UserInfoList userInfoList;
 	const string condition = "";
@@ -823,13 +823,13 @@ void DBClientUser::getUserIdSet(UserIdSet &userIdSet)
 	}
 }
 
-void DBClientUser::getUserInfoList(UserInfoList &userInfoList,
+void DBTablesUser::getUserInfoList(UserInfoList &userInfoList,
                                    const UserQueryOption &option)
 {
 	getUserInfoList(userInfoList, option.getCondition());
 }
 
-HatoholError DBClientUser::getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
+HatoholError DBTablesUser::getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
 					    const AccessInfoQueryOption &option)
 {
 	DBAgent::SelectExArg arg(tableProfileAccessList);
@@ -882,7 +882,7 @@ HatoholError DBClientUser::getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMa
 	return HTERR_OK;
 }
 
-void DBClientUser::destroyServerAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap)
+void DBTablesUser::destroyServerAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap)
 {
 	ServerAccessInfoMapIterator it = srvAccessInfoMap.begin();
 	for (; it != srvAccessInfoMap.end(); ++it) {
@@ -897,7 +897,7 @@ void DBClientUser::destroyServerAccessInfoMap(ServerAccessInfoMap &srvAccessInfo
 	srvAccessInfoMap.clear();
 }
 
-void DBClientUser::getServerHostGrpSetMap(
+void DBTablesUser::getServerHostGrpSetMap(
   ServerHostGrpSetMap &srvHostGrpSetMap, const UserIdType &userId)
 {
 	DBAgent::SelectExArg arg(tableProfileAccessList);
@@ -929,7 +929,7 @@ void DBClientUser::getServerHostGrpSetMap(
 	}
 }
 
-HatoholError DBClientUser::addUserRoleInfo(UserRoleInfo &userRoleInfo,
+HatoholError DBTablesUser::addUserRoleInfo(UserRoleInfo &userRoleInfo,
 					   const OperationPrivilege &privilege)
 {
 	HatoholError err;
@@ -988,7 +988,7 @@ HatoholError DBClientUser::addUserRoleInfo(UserRoleInfo &userRoleInfo,
 	return trx.err;
 }
 
-HatoholError DBClientUser::updateUserRoleInfo(
+HatoholError DBTablesUser::updateUserRoleInfo(
   UserRoleInfo &userRoleInfo, const OperationPrivilege &privilege)
 {
 	HatoholError err;
@@ -1055,7 +1055,7 @@ HatoholError DBClientUser::updateUserRoleInfo(
 	return trx.err;
 }
 
-HatoholError DBClientUser::deleteUserRoleInfo(
+HatoholError DBTablesUser::deleteUserRoleInfo(
   const UserRoleIdType userRoleId, const OperationPrivilege &privilege)
 {
 	if (!privilege.has(OPPRVLG_DELETE_ALL_USER_ROLE))
@@ -1069,7 +1069,7 @@ HatoholError DBClientUser::deleteUserRoleInfo(
 	return HTERR_OK;
 }
 
-void DBClientUser::getUserRoleInfoList(UserRoleInfoList &userRoleInfoList,
+void DBTablesUser::getUserRoleInfoList(UserRoleInfoList &userRoleInfoList,
 				       const UserRoleQueryOption &option)
 {
 	DBAgent::SelectExArg arg(tableProfileUserRoles);
@@ -1092,7 +1092,7 @@ void DBClientUser::getUserRoleInfoList(UserRoleInfoList &userRoleInfoList,
 	}
 }
 
-HatoholError DBClientUser::isValidUserName(const string &name)
+HatoholError DBTablesUser::isValidUserName(const string &name)
 {
 	if (name.empty())
 		return HTERR_EMPTY_USER_NAME;
@@ -1106,7 +1106,7 @@ HatoholError DBClientUser::isValidUserName(const string &name)
 	return HTERR_OK;
 }
 
-HatoholError DBClientUser::isValidPassword(const string &password)
+HatoholError DBTablesUser::isValidPassword(const string &password)
 {
 	if (password.empty())
 		return HTERR_EMPTY_PASSWORD;
@@ -1115,14 +1115,14 @@ HatoholError DBClientUser::isValidPassword(const string &password)
 	return HTERR_OK;
 }
 
-HatoholError DBClientUser::isValidFlags(const OperationPrivilegeFlag flags)
+HatoholError DBTablesUser::isValidFlags(const OperationPrivilegeFlag flags)
 {
 	if (flags >= OperationPrivilege::makeFlag(NUM_OPPRVLG))
 		return HTERR_INVALID_PRIVILEGE_FLAGS;
 	return HTERR_OK;
 }
 
-HatoholError DBClientUser::isValidUserRoleName(const string &name)
+HatoholError DBTablesUser::isValidUserRoleName(const string &name)
 {
 	if (name.empty())
 		return HTERR_EMPTY_USER_ROLE_NAME;
@@ -1131,7 +1131,7 @@ HatoholError DBClientUser::isValidUserRoleName(const string &name)
 	return HTERR_OK;
 }
 
-bool DBClientUser::isAccessible(const ServerIdType &serverId,
+bool DBTablesUser::isAccessible(const ServerIdType &serverId,
                                 const OperationPrivilege &privilege,
                                 const bool &useTransaction)
 {
@@ -1174,7 +1174,7 @@ bool DBClientUser::isAccessible(const ServerIdType &serverId,
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void DBClientUser::getUserInfoList(UserInfoList &userInfoList,
+void DBTablesUser::getUserInfoList(UserInfoList &userInfoList,
                                    const string &condition)
 {
 	if (isAlwaysFalseCondition(condition))

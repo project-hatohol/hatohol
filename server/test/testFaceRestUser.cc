@@ -170,7 +170,7 @@ static void _assertUpdateOrAddUser(const string &name)
 	// check the data in the DB
 	string statement = StringUtils::sprintf(
 	  "select name,password,flags from %s where name='%s'",
-	  DBClientUser::TABLE_NAME_USERS, name.c_str());
+	  DBTablesUser::TABLE_NAME_USERS, name.c_str());
 	string expect = StringUtils::sprintf("%s|%s|%s",
 	  parameters["name"].c_str(),
 	  Utils::sha256( parameters["password"]).c_str(),
@@ -226,7 +226,7 @@ static void _assertAllowedServers(const string &path, const UserIdType &userId,
 		g_parser->endObject();
 	}
 	g_parser->endObject();
-	DBClientUser::destroyServerAccessInfoMap(srvAccessInfoMap);
+	DBTablesUser::destroyServerAccessInfoMap(srvAccessInfoMap);
 }
 #define assertAllowedServers(P,...) cut_trace(_assertAllowedServers(P,##__VA_ARGS__))
 
@@ -250,9 +250,9 @@ void _assertAddAccessInfoWithCond(
 	assertAddAccessInfo(url, params, userId, HTERR_OK);
 
 	// check the content in the DB
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	string statement = "select * from ";
-	statement += DBClientUser::TABLE_NAME_ACCESS_LIST;
+	statement += DBTablesUser::TABLE_NAME_ACCESS_LIST;
 	int expectedId = 1;
 	if (expectHostgroupId.empty())
 		expectHostgroupId = hostgroupId;
@@ -413,9 +413,9 @@ void test_addUser(void)
 	assertAddUserWithSetup(params, HTERR_OK);
 
 	// check the content in the DB
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	string statement = "select * from ";
-	statement += DBClientUser::TABLE_NAME_USERS;
+	statement += DBTablesUser::TABLE_NAME_USERS;
 	statement += " order by id desc limit 1";
 	const int expectedId = NumTestUserInfo + 1;
 	string expect = StringUtils::sprintf("%d|%s|%s|%" FMT_OPPRVLG,
@@ -437,10 +437,10 @@ void test_updateUser(void)
 	assertUpdateUserWithSetup(params, targetId, HTERR_OK);
 
 	// check the content in the DB
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	string statement = StringUtils::sprintf(
 	                     "select * from %s where id=%d",
-	                     DBClientUser::TABLE_NAME_USERS, targetId);
+	                     DBTablesUser::TABLE_NAME_USERS, targetId);
 	string expect = StringUtils::sprintf("%d|%s|%s|%" FMT_OPPRVLG,
 	  targetId, user.c_str(), Utils::sha256(password).c_str(), flags);
 	assertDBContent(&dbUser.getDBAgent(), statement, expect);
@@ -459,10 +459,10 @@ void test_updateUserWithoutFlags(void)
 	assertUpdateUserWithSetup(params, targetId, HTERR_OK);
 
 	// check the content in the DB
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	string statement = StringUtils::sprintf(
 	                     "select * from %s where id=%d",
-	                     DBClientUser::TABLE_NAME_USERS, targetId);
+	                     DBTablesUser::TABLE_NAME_USERS, targetId);
 	string expect = StringUtils::sprintf("%d|%s|%s|%" FMT_OPPRVLG,
 	  targetId, user.c_str(), Utils::sha256(password).c_str(), flags);
 	assertDBContent(&dbUser.getDBAgent(), statement, expect);
@@ -494,10 +494,10 @@ void test_updateUserWithoutPassword(void)
 	assertUpdateUserWithSetup(params, targetId, HTERR_OK);
 
 	// check the content in the DB
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	string statement = StringUtils::sprintf(
 	                     "select * from %s where id=%d",
-	                     DBClientUser::TABLE_NAME_USERS, targetId);
+	                     DBTablesUser::TABLE_NAME_USERS, targetId);
 	string expect = StringUtils::sprintf("%d|%s|%s|%" FMT_OPPRVLG,
 	  targetId, user.c_str(),
 	  Utils::sha256(expectedPassword).c_str(), flags);

@@ -31,13 +31,13 @@
 #define unique_ptr auto_ptr
 #endif
 
-typedef int DBDomainId;
+typedef int DBDomainId; // TODO: remove after all the DBClient and the sub classes are removed.
 typedef int DBTablesId;
 
 static const DBDomainId DB_DOMAIN_ID_CONFIG  = 0x0010;
 static const DBDomainId DB_DOMAIN_ID_ACTION  = 0x0018;
 static const DBDomainId DB_DOMAIN_ID_HATOHOL = 0x0020;
-static const DBDomainId DB_DOMAIN_ID_USERS   = 0x0030;
+static const DBTablesId DB_TABLES_ID_USER    = 0x0030;
 static const DBDomainId DB_DOMAIN_ID_HOST    = 0x0040;
 static const DBDomainId DB_DOMAIN_ID_NONE    = -1;
 

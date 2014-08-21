@@ -17,8 +17,8 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DBClientUser_h
-#define DBClientUser_h
+#ifndef DBTablesUser_h
+#define DBTablesUser_h
 
 #include <list>
 #include <map>
@@ -127,7 +127,7 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-class DBClientUser : public DBClient {
+class DBTablesUser : public DBClient {
 public:
 	static const int   USER_DB_VERSION;
 	static const char *DEFAULT_DB_NAME;
@@ -148,8 +148,8 @@ public:
 		return *DBClient::getDBAgent();
 	}
 
-	DBClientUser(void);
-	virtual ~DBClientUser();
+	DBTablesUser(void);
+	virtual ~DBTablesUser();
 
 	/**
 	 * Add user information to DB.
@@ -276,4 +276,4 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // DBClientUser_h
+#endif // DBTablesUser_h

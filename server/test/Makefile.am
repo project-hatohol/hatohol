@@ -50,9 +50,9 @@ testHatohol_la_SOURCES = \
 	testDBTables.cc \
 	testDBClient.cc \
 	testDBClientUtils.cc \
-	testDBTablesConfig.cc \
+	testDBTablesConfig.cc testDBTablesUser.cc \
 	testDBClientHatohol.cc testDBClientHatohol.h \
-	testDBClientAction.cc testDBClientUser.cc \
+	testDBClientAction.cc \
 	testDBClientHost.cc \
 	testDBClientJoinBuilder.cc \
 	testDBTermCodec.cc \

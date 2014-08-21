@@ -27,7 +27,7 @@
 #include "Params.h"
 #include "HatoholError.h"
 #include "DBTablesConfig.h"
-#include "DBClientUser.h"
+#include "DBTablesUser.h"
 #include "DBClientHatohol.h"
 #include "Closure.h"
 #include "Utils.h"

@@ -34,9 +34,6 @@ static const char *DEFAULT_PASSWORD  = "hatohol";
 class DBTablesHost {
 };
 
-class DBTablesUser {
-};
-
 class DBTablesAction {
 };
 

@@ -48,7 +48,7 @@ void test_getServerHostGrpSetMap(void)
 	const ServerHostGrpSetMap &setMap = dqctx->getServerHostGrpSetMap();
 
 	// We only confirm the returned value has a valid address.
-	// The sanity of the content shall be checked in testDBClientUser.
+	// The sanity of the content shall be checked in testDBTablesUser.
 	cppcut_assert_not_null(&setMap);
 }
 
@@ -58,7 +58,7 @@ void test_getValidServerIdSet(void)
 	const ServerIdSet &svIdSet = dqctx->getValidServerIdSet();
 
 	// We only confirm the returned value has a valid address.
-	// The sanity of the content shall be checked in testDBClientConfig.
+	// The sanity of the content shall be checked in testDBTablesConfig.
 	cppcut_assert_not_null(&svIdSet);
 }
 

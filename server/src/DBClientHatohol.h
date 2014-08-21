@@ -23,7 +23,7 @@
 #include <list>
 #include "DBClient.h"
 #include "DataQueryOption.h"
-#include "DBClientUser.h"
+#include "DBTablesUser.h"
 #include "ItemGroupStream.h"
 #include "HostResourceQueryOption.h"
 #include "SmartTime.h"

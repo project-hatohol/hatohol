@@ -21,7 +21,7 @@
 #define CacheServiceDBClient_h
 
 #include "DBClientHatohol.h"
-#include "DBClientUser.h"
+#include "DBTablesUser.h"
 #include "DBTablesConfig.h"
 #include "DBClientAction.h"
 
@@ -39,7 +39,7 @@ public:
 	CacheServiceDBClient(void);
 	virtual ~CacheServiceDBClient();
 	DBClientHatohol *getHatohol(void);
-	DBClientUser    *getUser(void);
+	DBTablesUser    *getUser(void);
 	DBTablesConfig  *getConfig(void);
 	DBClientAction  *getAction(void);
 

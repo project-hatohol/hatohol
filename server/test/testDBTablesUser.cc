@@ -21,7 +21,7 @@
 #include <cppcutter.h>
 #include <cutter.h>
 #include "Helpers.h"
-#include "DBClientUser.h"
+#include "DBTablesUser.h"
 #include "DBClientTest.h"
 #include "Helpers.h"
 #include "Hatohol.h"
@@ -29,7 +29,7 @@
 using namespace std;
 using namespace mlpl;
 
-namespace testDBClientUser {
+namespace testDBTablesUser {
 
 static void _assertUserInfo(const UserInfo &expect, const UserInfo &actual)
 {
@@ -44,13 +44,13 @@ void _assertUserInfoInDB(UserInfo &userInfo)
 {
 	string statement = StringUtils::sprintf(
 	                     "select * from %s where id=%d",
-	                     DBClientUser::TABLE_NAME_USERS, userInfo.id);
+	                     DBTablesUser::TABLE_NAME_USERS, userInfo.id);
 	string expect =
 	  StringUtils::sprintf(
 	    "%" FMT_USER_ID "|%s|%s|%" PRIu64 "\n",
 	    userInfo.id, userInfo.name.c_str(),
 	    Utils::sha256(userInfo.password).c_str(), userInfo.flags);
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	assertDBContent(&dbUser.getDBAgent(), statement, expect);
 }
 #define assertUserInfoInDB(I) cut_trace(_assertUserInfoInDB(I))
@@ -170,7 +170,7 @@ static void _assertGetUserInfo(const OperationPrivilegeFlag flags,
 	UserQueryOption option;
 	const UserInfo userInfo = findFirstTestUserInfoByFlag(flags);
 	option.setUserId(userInfo.id);
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	dbUser.getUserInfoList(userInfoList, option);
 	cppcut_assert_equal(expectedNumUser, userInfoList.size());
 	UserInfoListIterator it = userInfoList.begin();
@@ -208,7 +208,7 @@ void _assertGetUserInfoListWithTargetName(
 	option.setTargetName(targetUserInfo.name);
 
 	UserInfoList userInfoList;
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	dbUser.getUserInfoList(userInfoList, option);
 	cppcut_assert_equal(expectNumList, userInfoList.size());
 	if (expectNumList == 0)
@@ -223,7 +223,7 @@ void _assertIsAccessible(const bool useAllServers = false)
 	loadTestDBUser();
 	loadTestDBAccessList();
 	CacheServiceDBClient cache;
-	DBClientUser *dbUser = cache.getUser();
+	DBTablesUser *dbUser = cache.getUser();
 
 	// search the User ID and Server ID
 	ServerIdType serverId = 0;
@@ -269,7 +269,7 @@ static void _assertGetUserRoleInfo(
 	option.setUserId(userInfo.id);
 	if (targetUserRoleId != INVALID_USER_ROLE_ID)
 		option.setTargetUserRoleId(targetUserRoleId);
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	dbUser.getUserRoleInfoList(userRoleInfoList, option);
 	string expected, actual;
 	for (size_t i = 0; i < NumTestUserRoleInfo; i++) {
@@ -349,8 +349,8 @@ void cut_teardown(void)
 // ---------------------------------------------------------------------------
 void test_dbDomainId(void)
 {
-	DBClientUser dbUser;
-	cppcut_assert_equal(DB_DOMAIN_ID_USERS,
+	DBTablesUser dbUser;
+	cppcut_assert_equal(DB_TABLES_ID_USER,
 	                    dbUser.getDBAgent().getDBDomainId());
 }
 
@@ -358,20 +358,20 @@ void test_createDB(void)
 {
 	// create an instance
 	// Tables in the DB will be automatically created.
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 
 	// check the version
 	string statement = "select * from _dbclient_version";
 	string expect =
 	  StringUtils::sprintf(
-	    "%d|%d\n", DB_DOMAIN_ID_USERS, DBClientUser::USER_DB_VERSION);
+	    "%d|%d\n", DB_TABLES_ID_USER, DBTablesUser::USER_DB_VERSION);
 	assertDBContent(&dbUser.getDBAgent(), statement, expect);
 }
 
 void test_addUser(void)
 {
 	loadTestDBUser();
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	assertUsersInDB();
 }
 
@@ -379,7 +379,7 @@ void test_addUserDuplicate(void)
 {
 	loadTestDBUser();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	UserInfo &userInfo = testUserInfo[1];
 	assertHatoholError(HTERR_USER_NAME_EXIST,
 	                   dbUser.addUserInfo(userInfo, privilege));
@@ -390,8 +390,8 @@ void test_addUserWithLongName(void)
 {
 	loadTestDBUser();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	DBClientUser dbUser;
-	const size_t limitLength = DBClientUser::MAX_USER_NAME_LENGTH;
+	DBTablesUser dbUser;
+	const size_t limitLength = DBTablesUser::MAX_USER_NAME_LENGTH;
 	UserInfo userInfo = testUserInfo[1];
 	for (size_t i = 0; userInfo.name.size() <= limitLength; i++)
 		userInfo.name += "A";
@@ -404,7 +404,7 @@ void test_addUserWithInvalidFlags(void)
 {
 	loadTestDBUser();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	UserInfo userInfo = testUserInfo[1];
 	userInfo.name = "Crasher";
 	userInfo.flags = ALL_PRIVILEGES + 1;
@@ -419,7 +419,7 @@ void test_addUserWithoutPrivilege(void)
 	OperationPrivilegeFlag flags = ALL_PRIVILEGES;
 	flags &= ~(1 << OPPRVLG_CREATE_USER);
 	OperationPrivilege privilege(flags);
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	UserInfo userInfo = testUserInfo[1];
 	userInfo.name = "UniqueName-9srne7tskrgo";
 	assertHatoholError(HTERR_NO_PRIVILEGE,
@@ -430,7 +430,7 @@ void test_addUserWithoutPrivilege(void)
 void test_updateUser(void)
 {
 	UserInfo userInfo = setupForUpdate();
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	OperationPrivilege
 	   privilege(OperationPrivilege::makeFlag(OPPRVLG_UPDATE_USER));
 	HatoholError err = dbUser.updateUserInfo(userInfo, privilege);
@@ -450,7 +450,7 @@ void test_updateUserWithExistingUserName(void)
 	userInfo.id = targetIdx + 1;
 	userInfo.name = testUserInfo[targetIdx + 1].name;
 	userInfo.password.clear();
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	OperationPrivilege
 	   privilege(OperationPrivilege::makeFlag(OPPRVLG_UPDATE_USER));
 	HatoholError err = dbUser.updateUserInfo(userInfo, privilege);
@@ -468,7 +468,7 @@ void test_updateUserWithEmptyPassword(void)
 	UserInfo userInfo = setupForUpdate(targetIndex);
 	string expectedPassword = testUserInfo[targetIndex].password;
 	userInfo.password.clear();
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	OperationPrivilege
 	   privilege(OperationPrivilege::makeFlag(OPPRVLG_UPDATE_USER));
 	HatoholError err = dbUser.updateUserInfo(userInfo, privilege);
@@ -481,7 +481,7 @@ void test_updateUserWithEmptyPassword(void)
 
 void test_updateUserWithoutPrivilege(void)
 {
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	const size_t targetIndex = 1;
 	UserInfo expectedUserInfo = testUserInfo[targetIndex];
 	expectedUserInfo.id = targetIndex + 1;
@@ -497,7 +497,7 @@ void test_updateUserWithoutPrivilege(void)
 void test_updateUserPasswordByOwner(void)
 {
 	loadTestDBUser();
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	const size_t targetIndex = 0;
 	const size_t targetUserId = targetIndex + 1;
 	UserInfo expectedUserInfo = testUserInfo[targetIndex];
@@ -516,7 +516,7 @@ void test_updateUserPasswordByOwner(void)
 void test_updateUserPasswordByNonOwner(void)
 {
 	loadTestDBUser();
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	const size_t targetIndex = 0;
 	const size_t targetUserId = targetIndex + 1;
 	const size_t operatorUserId = 3;
@@ -535,7 +535,7 @@ void test_updateUserPasswordByNonOwner(void)
 
 void test_updateNonExistUser(void)
 {
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	UserInfo userInfo = setupForUpdate();
 	userInfo.id = NumTestUserInfo + 5;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
@@ -546,7 +546,7 @@ void test_updateNonExistUser(void)
 void test_deleteUser(void)
 {
 	loadTestDBUser();
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	const UserIdType targetId = 2;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	HatoholError err = dbUser.deleteUserInfo(targetId, privilege);
@@ -561,7 +561,7 @@ void test_deleteUser(void)
 void test_deleteUserWithoutPrivilege(void)
 {
 	loadTestDBUser();
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	const UserIdType targetId = 2;
 	OperationPrivilege privilege;
 	HatoholError err = dbUser.deleteUserInfo(targetId, privilege);
@@ -575,7 +575,7 @@ void test_getUserId(void)
 {
 	loadTestDBUser();
 	const int targetIdx = 1;
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	UserIdType userId = dbUser.getUserId(testUserInfo[targetIdx].name,
 	                                     testUserInfo[targetIdx].password);
 	cppcut_assert_equal(targetIdx+1, userId);
@@ -585,7 +585,7 @@ void test_getUserIdWrongUserPassword(void)
 {
 	loadTestDBUser();
 	const int targetIdx = 1;
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	UserIdType userId = dbUser.getUserId(testUserInfo[targetIdx-1].name,
 	                                     testUserInfo[targetIdx].password);
 	cppcut_assert_equal(INVALID_USER_ID, userId);
@@ -594,7 +594,7 @@ void test_getUserIdWrongUserPassword(void)
 void test_getUserIdWithSQLInjection(void)
 {
 	loadTestDBUser();
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	string name = "a' OR 1 OR name='a";
 	string password = testUserInfo[0].password;
 	UserIdType userId = dbUser.getUserId(name, password);
@@ -604,7 +604,7 @@ void test_getUserIdWithSQLInjection(void)
 void test_getUserIdFromEmptyDB(void)
 {
 	const int targetIdx = 1;
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	UserIdType userId = dbUser.getUserId(testUserInfo[targetIdx].name,
 	                                     testUserInfo[targetIdx].password);
 	cppcut_assert_equal(INVALID_USER_ID, userId);
@@ -613,7 +613,7 @@ void test_getUserIdFromEmptyDB(void)
 void test_getUserIdWithEmptyUsername(void)
 {
 	loadTestDBUser();
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	UserIdType userId = dbUser.getUserId("", "foo");
 	cppcut_assert_equal(INVALID_USER_ID, userId);
 }
@@ -621,7 +621,7 @@ void test_getUserIdWithEmptyUsername(void)
 void test_getUserIdWithEmptyPasword(void)
 {
 	loadTestDBUser();
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	UserIdType userId = dbUser.getUserId("fff", "");
 	cppcut_assert_equal(INVALID_USER_ID, userId);
 }
@@ -629,13 +629,13 @@ void test_getUserIdWithEmptyPasword(void)
 void test_addAccessList(void)
 {
 	loadTestDBAccessList();
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	assertAccessInfoInDB();
 }
 
 void test_addAccessListWithoutUpdateUserPrivilege(void)
 {
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	HatoholError err;
 	OperationPrivilege privilege;
 	err = dbUser.addAccessInfo(testAccessInfo[0], privilege);
@@ -650,7 +650,7 @@ void test_addAccessListWithoutUpdateUserPrivilege(void)
 void test_deleteAccessInfo(void)
 {
 	loadTestDBAccessList();
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	const AccessInfoIdType targetId = 2;
 	OperationPrivilege privilege;
 	privilege.setFlags((OperationPrivilege::makeFlag(OPPRVLG_UPDATE_USER)));
@@ -665,7 +665,7 @@ void test_deleteAccessInfo(void)
 void test_deleteAccessWithoutUpdateUserPrivilege(void)
 {
 	loadTestDBAccessList();
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	const AccessInfoIdType targetId = 2;
 	OperationPrivilege privilege;
 	HatoholError err = dbUser.deleteAccessInfo(targetId, privilege);
@@ -677,7 +677,7 @@ void test_deleteAccessWithoutUpdateUserPrivilege(void)
 void test_getUserInfo(void)
 {
 	loadTestDBUser();
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 
 	const size_t targetIdx = 2;
 	const UserIdType targetUserId = targetIdx + 1;
@@ -691,7 +691,7 @@ void test_getUserInfo(void)
 void test_getUserInfoWithNonExistId(void)
 {
 	loadTestDBUser();
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	UserInfo userInfo;
 	UserIdType nonexistId = NumTestUserInfo + 5;
 	cppcut_assert_equal(false, dbUser.getUserInfo(userInfo, nonexistId));
@@ -716,7 +716,7 @@ void test_getUserInfoListByUserWithGetAllUsersFlag(void)
 
 void test_getUserInfoListWithNonExistUser(void)
 {
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	UserQueryOption option;
 	UserIdType nonexistId = NumTestUserInfo + 5;
 	option.setUserId(nonexistId);
@@ -757,7 +757,7 @@ void test_getUserInfoListWithOtherNameWithoutPrivileges(void)
 void test_getUserInfoListOnlyMyself(void)
 {
 	loadTestDBUser();
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	UserQueryOption option;
 	option.queryOnlyMyself();
 	static const UserIdType userId = 2;
@@ -770,7 +770,7 @@ void test_getUserInfoListOnlyMyself(void)
 
 void test_getServerAccessInfoMap(void)
 {
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	UserIdIndexMap userIdIndexMap;
 	setupWithUserIdIndexMap(userIdIndexMap);
 	UserIdIndexMapIterator it = userIdIndexMap.begin();
@@ -782,13 +782,13 @@ void test_getServerAccessInfoMap(void)
 							     option);
 		cppcut_assert_equal(HTERR_OK, error.getCode());
 		assertServerAccessInfoMap(it->second, srvAccessInfoMap);
-		DBClientUser::destroyServerAccessInfoMap(srvAccessInfoMap);
+		DBTablesUser::destroyServerAccessInfoMap(srvAccessInfoMap);
 	}
 }
 
 void test_getServerAccessInfoMapByOwner(void)
 {
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	UserIdIndexMap userIdIndexMap;
 	loadTestDBUser();
 	setupWithUserIdIndexMap(userIdIndexMap);
@@ -801,13 +801,13 @@ void test_getServerAccessInfoMapByOwner(void)
 							     option);
 		cppcut_assert_equal(HTERR_OK, error.getCode());
 		assertServerAccessInfoMap(it->second, srvAccessInfoMap);
-		DBClientUser::destroyServerAccessInfoMap(srvAccessInfoMap);
+		DBTablesUser::destroyServerAccessInfoMap(srvAccessInfoMap);
 	}
 }
 
 void test_getServerAccessInfoMapByNonOwner(void)
 {
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	UserIdIndexMap userIdIndexMap;
 	loadTestDBUser();
 	setupWithUserIdIndexMap(userIdIndexMap);
@@ -823,13 +823,13 @@ void test_getServerAccessInfoMapByNonOwner(void)
 							     option);
 		cppcut_assert_equal(HTERR_NO_PRIVILEGE, error.getCode());
 		cut_assert_true(srvAccessInfoMap.empty());
-		DBClientUser::destroyServerAccessInfoMap(srvAccessInfoMap);
+		DBTablesUser::destroyServerAccessInfoMap(srvAccessInfoMap);
 	}
 }
 
 void test_getServerAccessInfoMapByAdminUser(void)
 {
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	UserIdIndexMap userIdIndexMap;
 	loadTestDBUser();
 	setupWithUserIdIndexMap(userIdIndexMap);
@@ -844,13 +844,13 @@ void test_getServerAccessInfoMapByAdminUser(void)
 							     option);
 		cppcut_assert_equal(HTERR_OK, error.getCode());
 		assertServerAccessInfoMap(it->second, srvAccessInfoMap);
-		DBClientUser::destroyServerAccessInfoMap(srvAccessInfoMap);
+		DBTablesUser::destroyServerAccessInfoMap(srvAccessInfoMap);
 	}
 }
 
 void test_getServerHostGrpSetMap(void)
 {
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	UserIdIndexMap userIdIndexMap;
 	setupWithUserIdIndexMap(userIdIndexMap);
 	UserIdIndexMapIterator it = userIdIndexMap.begin();
@@ -865,19 +865,19 @@ void test_getServerHostGrpSetMap(void)
 void test_isValidUserName(void)
 {
 	assertHatoholError(HTERR_OK,
-	                    DBClientUser::isValidUserName("CAPITAL"));
+	                    DBTablesUser::isValidUserName("CAPITAL"));
 	assertHatoholError(HTERR_OK,
-	                    DBClientUser::isValidUserName("small"));
+	                    DBTablesUser::isValidUserName("small"));
 	assertHatoholError(HTERR_OK,
-	                    DBClientUser::isValidUserName("Camel"));
+	                    DBTablesUser::isValidUserName("Camel"));
 	assertHatoholError(HTERR_OK,
-	                    DBClientUser::isValidUserName("sna_ke"));
+	                    DBTablesUser::isValidUserName("sna_ke"));
 	assertHatoholError(HTERR_OK,
-	                    DBClientUser::isValidUserName("sna-ke"));
+	                    DBTablesUser::isValidUserName("sna-ke"));
 	assertHatoholError(HTERR_OK,
-	                    DBClientUser::isValidUserName("sna.ke"));
+	                    DBTablesUser::isValidUserName("sna.ke"));
 	assertHatoholError(HTERR_OK,
-	                    DBClientUser::isValidUserName("Ab9@ho.com"));
+	                    DBTablesUser::isValidUserName("Ab9@ho.com"));
 }
 
 void test_isValidUserNameWithInvalidChars(void)
@@ -893,49 +893,49 @@ void test_isValidUserNameWithInvalidChars(void)
 			continue;
 		string name = StringUtils::sprintf("AB%cxy", i);
 		assertHatoholError(HTERR_INVALID_CHAR,
-		                   DBClientUser::isValidUserName(name));
+		                   DBTablesUser::isValidUserName(name));
 	}
 }
 
 void test_isValidUserNameWithEmptyString(void)
 {
 	assertHatoholError(HTERR_EMPTY_USER_NAME,
-	                   DBClientUser::isValidUserName(""));
+	                   DBTablesUser::isValidUserName(""));
 }
 
 void test_isValidUserNameLongUserName(void)
 {
 	string name;
-	for (size_t i = 0; i < DBClientUser::MAX_USER_NAME_LENGTH; i++)
+	for (size_t i = 0; i < DBTablesUser::MAX_USER_NAME_LENGTH; i++)
 		name += "A";
-	assertHatoholError(HTERR_OK, DBClientUser::isValidUserName(name));
+	assertHatoholError(HTERR_OK, DBTablesUser::isValidUserName(name));
 	name += "A";
 	assertHatoholError(HTERR_TOO_LONG_USER_NAME,
-	                   DBClientUser::isValidUserName(name));
+	                   DBTablesUser::isValidUserName(name));
 }
 
 void test_isValidPasswordWithLongPassword(void)
 {
 	string password;
-	for (size_t i = 0; i < DBClientUser::MAX_PASSWORD_LENGTH; i++)
+	for (size_t i = 0; i < DBTablesUser::MAX_PASSWORD_LENGTH; i++)
 		password += "A";
-	assertHatoholError(HTERR_OK, DBClientUser::isValidPassword(password));
+	assertHatoholError(HTERR_OK, DBTablesUser::isValidPassword(password));
 	password += "A";
 	assertHatoholError(HTERR_TOO_LONG_PASSWORD,
-	                   DBClientUser::isValidPassword(password));
+	                   DBTablesUser::isValidPassword(password));
 }
 
 void test_isValidPasswordWithEmptyPassword(void)
 {
 	assertHatoholError(HTERR_EMPTY_PASSWORD,
-	                    DBClientUser::isValidPassword(""));
+	                    DBTablesUser::isValidPassword(""));
 }
 
 void test_isValidFlagsAllValidBits(void)
 {
 	OperationPrivilegeFlag flags =
 	  OperationPrivilege::makeFlag(NUM_OPPRVLG) - 1;
-	assertHatoholError(HTERR_OK, DBClientUser::isValidFlags(flags));
+	assertHatoholError(HTERR_OK, DBTablesUser::isValidFlags(flags));
 }
 
 void test_isValidFlagsExceededBit(void)
@@ -943,13 +943,13 @@ void test_isValidFlagsExceededBit(void)
 	OperationPrivilegeFlag flags =
 	  OperationPrivilege::makeFlag(NUM_OPPRVLG);
 	assertHatoholError(HTERR_INVALID_PRIVILEGE_FLAGS,
-	                   DBClientUser::isValidFlags(flags));
+	                   DBTablesUser::isValidFlags(flags));
 }
 
 void test_isValidFlagsNone(void)
 {
 	OperationPrivilegeFlag flags = 0;
-	assertHatoholError(HTERR_OK, DBClientUser::isValidFlags(flags));
+	assertHatoholError(HTERR_OK, DBTablesUser::isValidFlags(flags));
 }
 
 void test_isAccessible(void)
@@ -968,7 +968,7 @@ void test_isAccessibleFalse(void)
 	loadTestDBUser();
 	loadTestDBAccessList();
 	CacheServiceDBClient cache;
-	DBClientUser *dbUser = cache.getUser();
+	DBTablesUser *dbUser = cache.getUser();
 
 	// search for nonexisting User ID and Server ID
 	ServerIdType serverId = 0;
@@ -1004,7 +1004,7 @@ void test_constructorOfUserRoleQueryOptionFromDataQueryContext(void)
 void test_addUserRole(void)
 {
 	loadTestDBUserRole();
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	assertUserRolesInDB();
 }
 
@@ -1012,7 +1012,7 @@ void test_addUserRoleWithDuplicatedName(void)
 {
 	loadTestDBUserRole();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	UserRoleInfo userRoleInfo = testUserRoleInfo[1];
 	userRoleInfo.flags
 	  = OperationPrivilege::makeFlag(OPPRVLG_DELETE_ACTION);
@@ -1025,7 +1025,7 @@ void test_addUserRoleWithDuplicatedFlags(void)
 {
 	loadTestDBUserRole();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	UserRoleInfo userRoleInfo = testUserRoleInfo[1];
 	userRoleInfo.name = "Unique name kea#osemrnscs+";
 	assertHatoholError(HTERR_USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST,
@@ -1037,7 +1037,7 @@ void test_addUserRoleWithAllPrivilegeFlags(void)
 {
 	loadTestDBUserRole();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	UserRoleInfo userRoleInfo = testUserRoleInfo[1];
 	userRoleInfo.name = "Unique name kea#osemrnscs+";
 	userRoleInfo.flags = ALL_PRIVILEGES;
@@ -1050,7 +1050,7 @@ void test_addUserRoleWithNonePrivilegeFlags(void)
 {
 	loadTestDBUserRole();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	UserRoleInfo userRoleInfo = testUserRoleInfo[1];
 	userRoleInfo.name = "Unique name kea#osemrnscs+";
 	userRoleInfo.flags = NONE_PRIVILEGE;
@@ -1063,8 +1063,8 @@ void test_addUserRoleWithLongName(void)
 {
 	loadTestDBUserRole();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	DBClientUser dbUser;
-	const size_t limitLength = DBClientUser::MAX_USER_ROLE_NAME_LENGTH;
+	DBTablesUser dbUser;
+	const size_t limitLength = DBTablesUser::MAX_USER_ROLE_NAME_LENGTH;
 	UserRoleInfo userRoleInfo = testUserRoleInfo[1];
 	for (size_t i = 0; userRoleInfo.name.size() <= limitLength; i++)
 		userRoleInfo.name += "A";
@@ -1077,7 +1077,7 @@ void test_addUserRoleWithInvalidFlags(void)
 {
 	loadTestDBUserRole();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	UserRoleInfo userRoleInfo;
 	userRoleInfo.id = 0;
 	userRoleInfo.name = "Crasher";
@@ -1091,7 +1091,7 @@ void test_addUserRoleWithEmptyUserName(void)
 {
 	loadTestDBUserRole();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	UserRoleInfo userRoleInfo;
 	userRoleInfo.id = 0;
 	userRoleInfo.flags = ALL_PRIVILEGES;
@@ -1106,7 +1106,7 @@ void test_addUserRoleWithoutPrivilege(void)
 	OperationPrivilegeFlag flags = ALL_PRIVILEGES;
 	flags &= ~(1 << OPPRVLG_CREATE_USER_ROLE);
 	OperationPrivilege privilege(flags);
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	UserRoleInfo &userRoleInfo = testUserRoleInfo[1];
 	assertHatoholError(HTERR_NO_PRIVILEGE,
 	                   dbUser.addUserRoleInfo(userRoleInfo, privilege));
@@ -1116,18 +1116,18 @@ void test_addUserRoleWithoutPrivilege(void)
 void test_isValidUserRoleName(void)
 {
 	string name;
-	for (size_t i = 0; i < DBClientUser::MAX_USER_ROLE_NAME_LENGTH; i++)
+	for (size_t i = 0; i < DBTablesUser::MAX_USER_ROLE_NAME_LENGTH; i++)
 		name += "A";
-	assertHatoholError(HTERR_OK, DBClientUser::isValidUserRoleName(name));
+	assertHatoholError(HTERR_OK, DBTablesUser::isValidUserRoleName(name));
 }
 
 void test_isValidUserRoleNameWithLongName(void)
 {
 	string name;
-	for (size_t i = 0; i <= DBClientUser::MAX_USER_ROLE_NAME_LENGTH; i++)
+	for (size_t i = 0; i <= DBTablesUser::MAX_USER_ROLE_NAME_LENGTH; i++)
 		name += "A";
 	assertHatoholError(HTERR_TOO_LONG_USER_ROLE_NAME,
-	                   DBClientUser::isValidUserRoleName(name));
+	                   DBTablesUser::isValidUserRoleName(name));
 }
 
 void test_getUserRoleInfoList(void)
@@ -1150,7 +1150,7 @@ void test_getUserRoleInfoListWithNoPrivilege(void)
 void test_updateUserRole(void)
 {
 	UserRoleInfo userRoleInfo = setupUserRoleInfoForUpdate();
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	OperationPrivilege privilege(
 	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_ALL_USER_ROLE));
 	HatoholError err = dbUser.updateUserRoleInfo(userRoleInfo, privilege);
@@ -1162,7 +1162,7 @@ void test_updateUserRole(void)
 void test_updateUserRoleWithoutPrivilege(void)
 {
 	UserRoleInfo userRoleInfo = setupUserRoleInfoForUpdate();
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	OperationPrivilegeFlag flags = ALL_PRIVILEGES;
 	flags &= ~OperationPrivilege::makeFlag(OPPRVLG_UPDATE_ALL_USER_ROLE);
 	OperationPrivilege privilege(flags);
@@ -1177,7 +1177,7 @@ void test_updateUserRoleWithExistingName(void)
 	size_t targetIndex = 1;
 	UserRoleInfo userRoleInfo = setupUserRoleInfoForUpdate(targetIndex);
 	userRoleInfo.name = testUserRoleInfo[targetIndex + 1].name;
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	OperationPrivilege privilege(
 	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_ALL_USER_ROLE));
 	HatoholError err = dbUser.updateUserRoleInfo(userRoleInfo, privilege);
@@ -1191,7 +1191,7 @@ void test_updateUserRoleWithExistingFlags(void)
 	size_t targetIndex = 1;
 	UserRoleInfo userRoleInfo = setupUserRoleInfoForUpdate(targetIndex);
 	userRoleInfo.flags = testUserRoleInfo[targetIndex + 1].flags;
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	OperationPrivilege privilege(
 	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_ALL_USER_ROLE));
 	HatoholError err = dbUser.updateUserRoleInfo(userRoleInfo, privilege);
@@ -1205,7 +1205,7 @@ void test_updateUserRoleWithAllPrivilegeFlags(void)
 	size_t targetIndex = 1;
 	UserRoleInfo userRoleInfo = setupUserRoleInfoForUpdate(targetIndex);
 	userRoleInfo.flags = ALL_PRIVILEGES;
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	OperationPrivilege privilege(
 	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_ALL_USER_ROLE));
 	HatoholError err = dbUser.updateUserRoleInfo(userRoleInfo, privilege);
@@ -1219,7 +1219,7 @@ void test_updateUserRoleWithNonePrivilegeFlags(void)
 	size_t targetIndex = 1;
 	UserRoleInfo userRoleInfo = setupUserRoleInfoForUpdate(targetIndex);
 	userRoleInfo.flags = NONE_PRIVILEGE;
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	OperationPrivilege privilege(
 	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_ALL_USER_ROLE));
 	HatoholError err = dbUser.updateUserRoleInfo(userRoleInfo, privilege);
@@ -1233,7 +1233,7 @@ void test_updateUserRoleWithEmptyName(void)
 	size_t targetIndex = 1;
 	UserRoleInfo userRoleInfo = setupUserRoleInfoForUpdate(targetIndex);
 	userRoleInfo.name = "";
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	OperationPrivilege privilege(
 	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_ALL_USER_ROLE));
 	HatoholError err = dbUser.updateUserRoleInfo(userRoleInfo, privilege);
@@ -1247,7 +1247,7 @@ void test_updateUserRoleWithInvalidFlags(void)
 	size_t targetIndex = 1;
 	UserRoleInfo userRoleInfo = setupUserRoleInfoForUpdate(targetIndex);
 	userRoleInfo.flags = ALL_PRIVILEGES + 1;
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	OperationPrivilege privilege(
 	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_ALL_USER_ROLE));
 	HatoholError err = dbUser.updateUserRoleInfo(userRoleInfo, privilege);
@@ -1259,7 +1259,7 @@ void test_updateUserRoleWithInvalidFlags(void)
 void test_deleteUserRole(void)
 {
 	loadTestDBUserRole();
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	const UserRoleIdType targetId = 2;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	HatoholError err = dbUser.deleteUserRoleInfo(targetId, privilege);
@@ -1273,7 +1273,7 @@ void test_deleteUserRole(void)
 void test_deleteUserRoleWithoutPrivilege(void)
 {
 	loadTestDBUserRole();
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	const UserRoleIdType targetId = 2;
 	OperationPrivilege privilege;
 	HatoholError err = dbUser.deleteUserRoleInfo(targetId, privilege);
@@ -1282,4 +1282,4 @@ void test_deleteUserRoleWithoutPrivilege(void)
 	assertUserRolesInDB();
 }
 
-} // namespace testDBClientUser
+} // namespace testDBTablesUser

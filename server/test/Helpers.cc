@@ -37,7 +37,7 @@ using namespace mlpl;
 const char *TEST_DB_USER = "hatohol_test_user";
 const char *TEST_DB_PASSWORD = ""; // empty: No password is used
 
-static bool testMode = DBClientUser::setTestMode();
+static bool testMode = DBTablesUser::setTestMode();
 
 void _assertStringVector(const StringVector &expected,
                          const StringVector &actual)
@@ -626,7 +626,7 @@ void _assertArmPluginsInDB(const set<int> &excludeIdSet)
 void _assertUsersInDB(const UserIdSet &excludeUserIdSet)
 {
 	string statement = "select * from ";
-	statement += DBClientUser::TABLE_NAME_USERS;
+	statement += DBTablesUser::TABLE_NAME_USERS;
 	statement += " ORDER BY id ASC";
 	string expect;
 	for (size_t i = 0; i < NumTestUserInfo; i++) {
@@ -647,7 +647,7 @@ void _assertUsersInDB(const UserIdSet &excludeUserIdSet)
 void _assertAccessInfoInDB(const AccessInfoIdSet &excludeAccessInfoIdSet)
 {
 	string statement = "select * from ";
-	statement += DBClientUser::TABLE_NAME_ACCESS_LIST;
+	statement += DBTablesUser::TABLE_NAME_ACCESS_LIST;
 	statement += " ORDER BY id ASC";
 	string expect;
 	for (size_t i = 0; i < NumTestAccessInfo; i++) {
@@ -667,10 +667,10 @@ void _assertUserRoleInfoInDB(UserRoleInfo &userRoleInfo)
 {
 	string statement = StringUtils::sprintf(
 	                     "select * from %s where id=%d",
-	                     DBClientUser::TABLE_NAME_USER_ROLES,
+	                     DBTablesUser::TABLE_NAME_USER_ROLES,
 			     userRoleInfo.id);
 	string expect = makeUserRoleInfoOutput(userRoleInfo);
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	assertDBContent(&dbUser.getDBAgent(), statement, expect);
 }
 #define assertUserRoleInfoInDB(I) cut_trace(_assertUserRoleInfoInDB(I))
@@ -678,7 +678,7 @@ void _assertUserRoleInfoInDB(UserRoleInfo &userRoleInfo)
 void _assertUserRolesInDB(const UserRoleIdSet &excludeUserRoleIdSet)
 {
 	string statement = "select * from ";
-	statement += DBClientUser::TABLE_NAME_USER_ROLES;
+	statement += DBTablesUser::TABLE_NAME_USER_ROLES;
 	statement += " ORDER BY id ASC";
 	string expect;
 	for (size_t i = 0; i < NumTestUserRoleInfo; i++) {
@@ -864,7 +864,7 @@ void setupTestDBHost(const bool &dbRecreate, const bool &loadTestData)
 
 void loadTestDBUser(void)
 {
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	HatoholError err;
 	OperationPrivilege opePrivilege(ALL_PRIVILEGES);
 	for (size_t i = 0; i < NumTestUserInfo; i++) {
@@ -875,7 +875,7 @@ void loadTestDBUser(void)
 
 void loadTestDBAccessList(void)
 {
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	HatoholError err;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	for (size_t i = 0; i < NumTestAccessInfo; i++) {
@@ -886,7 +886,7 @@ void loadTestDBAccessList(void)
 
 void loadTestDBUserRole(void)
 {
-	DBClientUser dbUser;
+	DBTablesUser dbUser;
 	HatoholError err;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	for (size_t i = 0; i < NumTestUserRoleInfo; i++) {
@@ -898,7 +898,7 @@ void loadTestDBUserRole(void)
 void setupTestDBUser(bool dbRecreate, bool loadTestData)
 {
 	static const char *TEST_DB_NAME = "test_db_user";
-	DBClient::setDefaultDBParams(DB_DOMAIN_ID_USERS, TEST_DB_NAME,
+	DBClient::setDefaultDBParams(DB_TABLES_ID_USER, TEST_DB_NAME,
 	                             TEST_DB_USER, TEST_DB_PASSWORD);
 	makeTestMySQLDBIfNeeded(TEST_DB_NAME, dbRecreate);
 	if (loadTestData) {
@@ -1109,7 +1109,7 @@ void defineDBPath(DBDomainId domainId, const string &dbPath)
 UserIdType searchMaxTestUserId(void)
 {
 	CacheServiceDBClient cache;
-	DBClientUser *dbUser = cache.getUser();
+	DBTablesUser *dbUser = cache.getUser();
 	UserInfoList userInfoList;
 	UserQueryOption option(USER_ID_SYSTEM);
 	dbUser->getUserInfoList(userInfoList, option);
@@ -1132,7 +1132,7 @@ static UserIdType findUserCommon(const OperationPrivilegeType &type,
 	OperationPrivilegeFlag flag = OperationPrivilege::makeFlag(type);
 
 	CacheServiceDBClient cache;
-	DBClientUser *dbUser = cache.getUser();
+	DBTablesUser *dbUser = cache.getUser();
 	UserInfoList userInfoList;
 	UserQueryOption option(USER_ID_SYSTEM);
 	dbUser->getUserInfoList(userInfoList, option);
