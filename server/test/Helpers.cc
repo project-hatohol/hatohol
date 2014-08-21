@@ -602,7 +602,7 @@ void _assertServersInDB(const ServerIdSet &excludeServerIdSet)
 		expect += makeServerInfoOutput(serverInfo);
 	}
 	DBCache cache;
-	assertDBContent(&cache.getConfig()->getDBAgent(), statement, expect);
+	assertDBContent(&cache.getConfig().getDBAgent(), statement, expect);
 }
 
 void _assertArmPluginsInDB(const set<int> &excludeIdSet)
@@ -620,7 +620,7 @@ void _assertArmPluginsInDB(const set<int> &excludeIdSet)
 		expect += makeArmPluginInfoOutput(armPluginInfo);
 	}
 	DBCache cache;
-	assertDBContent(&cache.getConfig()->getDBAgent(), statement, expect);
+	assertDBContent(&cache.getConfig().getDBAgent(), statement, expect);
 }
 
 void _assertUsersInDB(const UserIdSet &excludeUserIdSet)
@@ -711,7 +711,7 @@ void _assertIncidentTrackersInDB(const IncidentTrackerIdSet &excludeServerIdSet)
 		expect += makeIncidentTrackerInfoOutput(incidentTrackerInfo);
 	}
 	DBCache cache;
-	assertDBContent(&cache.getConfig()->getDBAgent(), statement, expect);
+	assertDBContent(&cache.getConfig().getDBAgent(), statement, expect);
 }
 
 static bool makeTestDB(MYSQL *mysql, const string &dbName)

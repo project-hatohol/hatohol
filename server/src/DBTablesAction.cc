@@ -1299,8 +1299,8 @@ ActionValidator::ActionValidator()
 	ActionUserIdSet::get(m_userIdSet);
 
 	DBCache cache;
-	DBTablesConfig *dbConfig = cache.getConfig();
-	dbConfig->getIncidentTrackerIdSet(m_incidentTrackerIdSet);
+	DBTablesConfig &dbConfig = cache.getConfig();
+	dbConfig.getIncidentTrackerIdSet(m_incidentTrackerIdSet);
 }
 
 bool ActionValidator::isValidIncidentTracker(const ActionDef &actionDef)

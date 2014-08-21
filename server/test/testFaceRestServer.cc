@@ -125,11 +125,11 @@ static void _assertServerConnStat(JSONParserAgent *parser)
 {
 	// Make expected data
 	DBCache cache;
-	DBTablesConfig *dbConfig = cache.getConfig();
+	DBTablesConfig &dbConfig = cache.getConfig();
 	ServerIdSet expectIdSet;
 	DataQueryContextPtr dqCtxPtr(new DataQueryContext(USER_ID_SYSTEM),
 	                             false);
-	dbConfig->getServerIdSet(expectIdSet, dqCtxPtr);
+	dbConfig.getServerIdSet(expectIdSet, dqCtxPtr);
 	cppcut_assert_equal(true, expectIdSet.size() > 1);
 
 	// Check

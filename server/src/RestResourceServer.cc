@@ -415,8 +415,8 @@ void RestResourceServer::handlerPutServer(void)
 	// for privilege is needed for getting information. We've already
 	// checked it above. So it's not absolutely necessary.
 	DBCache cache;
-	DBTablesConfig *dbConfig = cache.getConfig();
-	dbConfig->getArmPluginInfo(armPluginInfo, serverId);
+	DBTablesConfig &dbConfig = cache.getConfig();
+	dbConfig.getArmPluginInfo(armPluginInfo, serverId);
 
 	// check the request
 	bool allowEmpty = true;

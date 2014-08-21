@@ -192,11 +192,11 @@ bool IncidentSender::getServerInfo(const EventInfo &event,
 				MonitoringServerInfo &server)
 {
 	DBCache cache;
-	DBTablesConfig *dbConfig = cache.getConfig();
+	DBTablesConfig &dbConfig = cache.getConfig();
 	ServerQueryOption option(USER_ID_SYSTEM);
 	option.setTargetServerId(event.serverId);
 	MonitoringServerInfoList servers;
-	dbConfig->getTargetServers(servers, option);
+	dbConfig.getTargetServers(servers, option);
 	if (servers.empty())
 		return false;
 	server = *(servers.begin());
