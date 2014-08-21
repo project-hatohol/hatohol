@@ -23,7 +23,7 @@
 #include "Hatohol.h"
 #include "HostResourceQueryOption.h"
 #include "TestHostResourceQueryOption.h"
-#include "DBClientHatohol.h"
+#include "DBTablesMonitoring.h"
 #include "Helpers.h"
 #include "DBClientTest.h"
 #include "DBAgentSQLite3.h"
@@ -218,7 +218,7 @@ static string makeExpectedConditionForUser(
 		return "";
 	}
 	if (it == userIdIndexMap.end())
-		return DBClientHatohol::getAlwaysFalseCondition();
+		return DBTablesMonitoring::getAlwaysFalseCondition();
 
 	ServerHostGrpSetMap srvHostGrpSetMap;
 	const set<int> &indexes = it->second;
@@ -328,7 +328,7 @@ void test_makeConditionServerWithEmptyIdSet(void)
 	ServerIdSet svIdSet;
 	string actual = TestHostResourceQueryOption::callMakeConditionServer(
 	                  svIdSet, "meet");
-	cppcut_assert_equal(DBClientHatohol::getAlwaysFalseCondition(), actual);
+	cppcut_assert_equal(DBTablesMonitoring::getAlwaysFalseCondition(), actual);
 }
 
 void test_defaultValueOfFilterForDataOfDefunctServers(void)
@@ -356,7 +356,7 @@ void test_setGetOfFilterForDataOfDefunctServers(gconstpointer data)
 void test_makeConditionEmpty(void)
 {
 	ServerHostGrpSetMap srvHostGrpSetMap;
-	string expect = DBClientHatohol::getAlwaysFalseCondition();
+	string expect = DBTablesMonitoring::getAlwaysFalseCondition();
 	assertMakeCondition(srvHostGrpSetMap, expect);
 }
 
@@ -550,7 +550,7 @@ void test_makeSelectConditionNoneUser(void)
 	setupTestDBUser(true, true);
 	HostResourceQueryOption option(TEST_SYNAPSE);
 	string actual = option.getCondition();
-	string expect = DBClientHatohol::getAlwaysFalseCondition();
+	string expect = DBTablesMonitoring::getAlwaysFalseCondition();
 	cppcut_assert_equal(actual, expect);
 }
 
@@ -697,8 +697,8 @@ void test_getHostgroupColumnNameWithTableName(gconstpointer data)
 void test_getDBTermCodec(void)
 {
 	HostResourceQueryOption option(TEST_SYNAPSE);
-	DBClientHatohol dbHatohol;
-	cppcut_assert_equal(typeid(*dbHatohol.getDBAgent()->getDBTermCodec()),
+	DBTablesMonitoring dbMonitoring;
+	cppcut_assert_equal(typeid(*dbMonitoring.getDBAgent()->getDBTermCodec()),
 	                    typeid(*option.getDBTermCodec()));
 }
 

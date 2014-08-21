@@ -21,7 +21,7 @@
 #define LabelUtils_h
 
 #include <string>
-#include "DBClientHatohol.h"
+#include "DBTablesMonitoring.h"
 
 class LabelUtils {
 public:

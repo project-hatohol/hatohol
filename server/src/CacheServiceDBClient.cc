@@ -90,7 +90,7 @@ struct CacheServiceDBClient::Impl {
 			return it->second;
 		DBClient *dbClient = NULL;
 		if (domainId == DB_TABLES_ID_MONITORING)
-			dbClient = new DBClientHatohol();
+			dbClient = new DBTablesMonitoring();
 		else if (domainId == DB_TABLES_ID_USER)
 			dbClient = new DBTablesUser();
 		else if (domainId == DB_DOMAIN_ID_CONFIG)
@@ -181,11 +181,6 @@ CacheServiceDBClient::~CacheServiceDBClient()
 {
 }
 
-DBClientHatohol *CacheServiceDBClient::getHatohol(void)
-{
-	return get<DBClientHatohol>(DB_TABLES_ID_MONITORING);
-}
-
 DBTablesUser *CacheServiceDBClient::getUser(void)
 {
 	return get<DBTablesUser>(DB_TABLES_ID_USER);
@@ -200,6 +195,12 @@ DBTablesAction *CacheServiceDBClient::getAction(void)
 {
 	return get<DBTablesAction>(DB_DOMAIN_ID_CONFIG);
 }
+
+DBTablesMonitoring *CacheServiceDBClient::getMonitoring(void)
+{
+	return get<DBTablesMonitoring>(DB_TABLES_ID_MONITORING);
+}
+
 // ---------------------------------------------------------------------------
 // Private methods
 // ---------------------------------------------------------------------------

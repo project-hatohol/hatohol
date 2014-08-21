@@ -21,7 +21,7 @@
 #define IncidentSenderManager_h
 
 #include "Params.h"
-#include "DBClientHatohol.h"
+#include "DBTablesMonitoring.h"
 #include "IncidentSender.h"
 
 class IncidentSenderManager

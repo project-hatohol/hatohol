@@ -21,7 +21,7 @@
 #define DBTablesConfig_h
 
 #include "DBClient.h"
-#include "DBClientHatohol.h"
+#include "DBTablesMonitoring.h"
 #include "MonitoringServerInfo.h"
 
 enum IncidentTrackerType {

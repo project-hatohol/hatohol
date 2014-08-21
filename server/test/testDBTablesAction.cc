@@ -236,16 +236,16 @@ static void setupHelperForTestDBUser(void)
 
 static void setupTestTriggerInfo(void)
 {
-	DBClientHatohol dbClientHatohol;
+	DBTablesMonitoring dbMonitoring;
 	for (size_t i = 0; i < NumTestTriggerInfo; i++)
-		dbClientHatohol.addTriggerInfo(&testTriggerInfo[i]);
+		dbMonitoring.addTriggerInfo(&testTriggerInfo[i]);
 }
 
 static void setupTestHostgroupElement(void)
 {
-	DBClientHatohol dbClientHatohol;
+	DBTablesMonitoring dbMonitoring;
 	for (size_t i = 0; i < NumTestHostgroupElement; i++)
-		dbClientHatohol.addHostgroupElement(&testHostgroupElement[i]);
+		dbMonitoring.addHostgroupElement(&testHostgroupElement[i]);
 }
 
 void test_addAction(void);

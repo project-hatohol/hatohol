@@ -221,8 +221,8 @@ void _assertSend(const HatoholErrorCode &expected,
 	IncidentInfo incident;
 	makeExpectedIncidentInfo(incident, tracker, event,
 				 g_redmineEmulator.getLastIssue());
-	DBClientHatohol dbClientHatohol;
-	DBAgent *dbAgent = dbClientHatohol.getDBAgent();
+	DBTablesMonitoring dbMonitoring;
+	DBAgent *dbAgent = dbMonitoring.getDBAgent();
 	string statement = "select * from incidents;";
 	string expect = makeIncidentOutput(incident);
 	assertDBContent(dbAgent, statement, expect);
@@ -330,8 +330,8 @@ void _assertThread(size_t numErrors, bool shouldSuccess = true)
 					 g_redmineEmulator.getLastIssue());
 		expect = makeIncidentOutput(incident);
 	}
-	DBClientHatohol dbClientHatohol;
-	DBAgent *dbAgent = dbClientHatohol.getDBAgent();
+	DBTablesMonitoring dbMonitoring;
+	DBAgent *dbAgent = dbMonitoring.getDBAgent();
 	string statement = "select * from incidents;";
 	assertDBContent(dbAgent, statement, expect);
 }

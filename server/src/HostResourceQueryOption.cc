@@ -19,7 +19,7 @@
 
 #include "Params.h"
 #include "HostResourceQueryOption.h"
-#include "DBClientHatohol.h"
+#include "DBTablesMonitoring.h"
 #include "DBAgentSQLite3.h" // TODO: Shouldn't use explicitly
 using namespace std;
 using namespace mlpl;
@@ -167,7 +167,7 @@ string HostResourceQueryOption::getCondition(void) const
 
 	if (userId == INVALID_USER_ID) {
 		MLPL_DBG("INVALID_USER_ID\n");
-		return DBClientHatohol::getAlwaysFalseCondition();
+		return DBTablesMonitoring::getAlwaysFalseCondition();
 	}
 
 	// If the subclass doesn't have a valid hostIdColumnIdx,
@@ -308,7 +308,7 @@ string HostResourceQueryOption::makeConditionServer(
   const ServerIdSet &serverIdSet, const std::string &serverIdColumnName)
 {
 	if (serverIdSet.empty())
-		return DBClientHatohol::getAlwaysFalseCondition();
+		return DBTablesMonitoring::getAlwaysFalseCondition();
 
 	string condition = StringUtils::sprintf(
 	  "%s IN (", serverIdColumnName.c_str());
@@ -372,13 +372,13 @@ string HostResourceQueryOption::makeCondition(
 	size_t numServers = srvHostGrpSetMap.size();
 	if (numServers == 0) {
 		MLPL_DBG("No allowed server\n");
-		return DBClientHatohol::getAlwaysFalseCondition();
+		return DBTablesMonitoring::getAlwaysFalseCondition();
 	}
 
 	if (targetServerId != ALL_SERVERS &&
 	    srvHostGrpSetMap.find(targetServerId) == srvHostGrpSetMap.end())
 	{
-		return DBClientHatohol::getAlwaysFalseCondition();
+		return DBTablesMonitoring::getAlwaysFalseCondition();
 	}
 
 	numServers = 0;

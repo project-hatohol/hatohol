@@ -31,7 +31,7 @@ using namespace mlpl;
 #include "DBAgentSQLite3.h"
 #include "DBAgentMySQL.h"
 #include "DBTablesConfig.h"
-#include "DBClientHatohol.h"
+#include "DBTablesMonitoring.h"
 #include "ActionManager.h"
 #include "ActorCollector.h"
 #include "DBTablesUser.h"
@@ -56,7 +56,7 @@ static void init(void)
 	DBAgentMySQL::init();
 	DBTablesConfig::init();
 	DBTablesUser::init();
-	DBClientHatohol::init();
+	DBTablesMonitoring::init();
 	DBTablesAction::init();
 	DBClientHost::init();
 

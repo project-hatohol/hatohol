@@ -285,17 +285,17 @@ void UnifiedDataStore::fetchItems(const ServerIdType &targetServerId)
 void UnifiedDataStore::getTriggerList(TriggerInfoList &triggerList,
 				      const TriggersQueryOption &option)
 {
-	DBClientHatohol dbHatohol;
-	dbHatohol.getTriggerInfoList(triggerList, option);
+	DBTablesMonitoring dbMonitoring;
+	dbMonitoring.getTriggerInfoList(triggerList, option);
 }
 
 SmartTime UnifiedDataStore::getTimestampOfLastTrigger(
   const ServerIdType &serverId)
 {
 	CacheServiceDBClient cache;
-	DBClientHatohol *dbHatohol = cache.getHatohol();
+	DBTablesMonitoring *dbMonitoring = cache.getMonitoring();
 	const timespec ts =
-	  {dbHatohol->getLastChangeTimeOfTrigger(serverId), 0};
+	  {dbMonitoring->getLastChangeTimeOfTrigger(serverId), 0};
 	return SmartTime(ts);
 }
 
@@ -303,8 +303,8 @@ HatoholError UnifiedDataStore::getEventList(EventInfoList &eventList,
 					    EventsQueryOption &option,
 					    IncidentInfoVect *incidentVect)
 {
-	DBClientHatohol dbHatohol;
-	return dbHatohol.getEventInfoList(eventList, option, incidentVect);
+	DBTablesMonitoring dbMonitoring;
+	return dbMonitoring.getEventInfoList(eventList, option, incidentVect);
 }
 
 void UnifiedDataStore::getItemList(ItemInfoList &itemList,
@@ -313,8 +313,8 @@ void UnifiedDataStore::getItemList(ItemInfoList &itemList,
 {
 	if (fetchItemsSynchronously)
 		fetchItems(option.getTargetServerId());
-	DBClientHatohol dbHatohol;
-	dbHatohol.getItemInfoList(itemList, option);
+	DBTablesMonitoring dbMonitoring;
+	dbMonitoring.getItemInfoList(itemList, option);
 }
 
 bool UnifiedDataStore::fetchItemsAsync(ClosureBase *closure,
@@ -331,8 +331,8 @@ bool UnifiedDataStore::fetchItemsAsync(ClosureBase *closure,
 void UnifiedDataStore::getHostList(HostInfoList &hostInfoList,
 				   const HostsQueryOption &option)
 {
-	DBClientHatohol dbHatohol;
-	dbHatohol.getHostInfoList(hostInfoList, option);
+	DBTablesMonitoring dbMonitoring;
+	dbMonitoring.getHostInfoList(hostInfoList, option);
 }
 
 HatoholError UnifiedDataStore::getActionList(
@@ -358,42 +358,42 @@ bool UnifiedDataStore::isIncidentSenderActionEnabled(void)
 HatoholError UnifiedDataStore::getHostgroupInfoList
   (HostgroupInfoList &hostgroupInfoList, const HostgroupsQueryOption &option)
 {
-	DBClientHatohol dbClientHatohol;
-	return dbClientHatohol.getHostgroupInfoList(hostgroupInfoList,option);
+	DBTablesMonitoring dbMonitoring;
+	return dbMonitoring.getHostgroupInfoList(hostgroupInfoList,option);
 }
 
 HatoholError UnifiedDataStore::getHostgroupElementList(
   HostgroupElementList &hostgroupElementList,
   const HostgroupElementQueryOption &option)
 {
-	DBClientHatohol dbClientHatohol;
-	return dbClientHatohol.getHostgroupElementList(hostgroupElementList,
-	                                               option);
+	DBTablesMonitoring dbMonitoring;
+	return dbMonitoring.getHostgroupElementList(hostgroupElementList,
+	                                            option);
 }
 
 size_t UnifiedDataStore::getNumberOfBadTriggers(
   const TriggersQueryOption &option, TriggerSeverityType severity)
 {
-	DBClientHatohol dbHatohol;
-	return dbHatohol.getNumberOfBadTriggers(option, severity);
+	DBTablesMonitoring dbMonitoring;
+	return dbMonitoring.getNumberOfBadTriggers(option, severity);
 }
 
 size_t UnifiedDataStore::getNumberOfTriggers(const TriggersQueryOption &option)
 {
-	DBClientHatohol dbHatohol;
-	return dbHatohol.getNumberOfTriggers(option);
+	DBTablesMonitoring dbMonitoring;
+	return dbMonitoring.getNumberOfTriggers(option);
 }
 
 size_t UnifiedDataStore::getNumberOfGoodHosts(const TriggersQueryOption &option)
 {
-	DBClientHatohol dbHatohol;
-	return dbHatohol.getNumberOfGoodHosts(option);
+	DBTablesMonitoring dbMonitoring;
+	return dbMonitoring.getNumberOfGoodHosts(option);
 }
 
 size_t UnifiedDataStore::getNumberOfBadHosts(const TriggersQueryOption &option)
 {
-	DBClientHatohol dbHatohol;
-	return dbHatohol.getNumberOfBadHosts(option);
+	DBTablesMonitoring dbMonitoring;
+	return dbMonitoring.getNumberOfBadHosts(option);
 }
 
 size_t UnifiedDataStore::getNumberOfItems(const ItemsQueryOption &option,
@@ -401,15 +401,15 @@ size_t UnifiedDataStore::getNumberOfItems(const ItemsQueryOption &option,
 {
 	if (fetchItemsSynchronously)
 		fetchItems(option.getTargetServerId());
-	DBClientHatohol dbHatohol;
-	return dbHatohol.getNumberOfItems(option);
+	DBTablesMonitoring dbMonitoring;
+	return dbMonitoring.getNumberOfItems(option);
 }
 
 HatoholError UnifiedDataStore::getNumberOfMonitoredItemsPerSecond(
   const DataQueryOption &option, MonitoringServerStatus &serverStatus)
 {
-	DBClientHatohol dbHatohol;
-	return dbHatohol.getNumberOfMonitoredItemsPerSecond(option, serverStatus);
+	DBTablesMonitoring dbMonitoring;
+	return dbMonitoring.getNumberOfMonitoredItemsPerSecond(option, serverStatus);
 }
 
 bool UnifiedDataStore::getCopyOnDemandEnabled(void) const
@@ -431,10 +431,10 @@ HatoholError UnifiedDataStore::addAction(ActionDef &actionDef,
 
 void UnifiedDataStore::addEventList(const EventInfoList &eventList)
 {
-	DBClientHatohol dbHatohol;
+	DBTablesMonitoring dbMonitoring;
 	ActionManager actionManager;
 	actionManager.checkEvents(eventList);
-	dbHatohol.addEventInfoList(eventList);
+	dbMonitoring.addEventInfoList(eventList);
 }
 
 void UnifiedDataStore::getUserList(UserInfoList &userList,

@@ -21,7 +21,7 @@
 #define DBTablesAction_h
 
 #include <string>
-#include "DBClientHatohol.h"
+#include "DBTablesMonitoring.h"
 #include "DBClient.h"
 #include "Params.h"
 

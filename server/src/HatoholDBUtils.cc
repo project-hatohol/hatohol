@@ -18,7 +18,7 @@
  */
 
 #include "HatoholDBUtils.h"
-#include "DBClientHatohol.h"
+#include "DBTablesMonitoring.h"
 
 using namespace std;
 using namespace mlpl;

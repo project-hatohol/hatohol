@@ -30,7 +30,7 @@ using namespace mlpl;
 #include "JSONBuilderAgent.h"
 #include "DataStoreException.h"
 #include "ItemEnum.h"
-#include "DBClientHatohol.h"
+#include "DBTablesMonitoring.h"
 #include "UnifiedDataStore.h"
 #include "HatoholDBUtils.h"
 #include "HostInfoCache.h"
@@ -43,7 +43,7 @@ static const guint DEFAULT_IDLE_TIMEOUT = 60;
 struct ArmZabbixAPI::Impl
 {
 	const ServerIdType zabbixServerId;
-	DBClientHatohol    dbClientHatohol;
+	DBTablesMonitoring dbMonitoring;
 	HostInfoCache      hostInfoCache;
 
 	// constructors
@@ -110,7 +110,7 @@ void ArmZabbixAPI::updateEvents(void)
 	}
 
 	const uint64_t dbLastEventId =
-	  m_impl->dbClientHatohol.getLastEventId(m_impl->zabbixServerId);
+	  m_impl->dbMonitoring.getLastEventId(m_impl->zabbixServerId);
 	uint64_t eventIdOffset = 0;
 
 	if (dbLastEventId == EVENT_NOT_FOUND) {
@@ -166,7 +166,7 @@ void ArmZabbixAPI::makeHatoholTriggers(ItemTablePtr triggers)
 	HatoholDBUtils::transformTriggersToHatoholFormat(
 	  triggerInfoList, triggers, m_impl->zabbixServerId,
 	  m_impl->hostInfoCache);
-	m_impl->dbClientHatohol.addTriggerInfoList(triggerInfoList);
+	m_impl->dbMonitoring.addTriggerInfoList(triggerInfoList);
 }
 
 void ArmZabbixAPI::makeHatoholEvents(ItemTablePtr events)
@@ -187,8 +187,8 @@ void ArmZabbixAPI::makeHatoholItems(
 	serverStatus.serverId = m_impl->zabbixServerId;
 	HatoholDBUtils::transformItemsToHatoholFormat(
 	  itemInfoList, serverStatus, items, applications);
-	m_impl->dbClientHatohol.addItemInfoList(itemInfoList);
-	m_impl->dbClientHatohol.addMonitoringServerStatus(&serverStatus);
+	m_impl->dbMonitoring.addItemInfoList(itemInfoList);
+	m_impl->dbMonitoring.addMonitoringServerStatus(&serverStatus);
 }
 
 void ArmZabbixAPI::makeHatoholHostgroups(ItemTablePtr groups)
@@ -196,7 +196,7 @@ void ArmZabbixAPI::makeHatoholHostgroups(ItemTablePtr groups)
 	HostgroupInfoList groupInfoList;
 	HatoholDBUtils::transformGroupsToHatoholFormat(groupInfoList, groups,
 	                                               m_impl->zabbixServerId);
-	m_impl->dbClientHatohol.addHostgroupInfoList(groupInfoList);
+	m_impl->dbMonitoring.addHostgroupInfoList(groupInfoList);
 }
 
 void ArmZabbixAPI::makeHatoholMapHostsHostgroups(ItemTablePtr hostsGroups)
@@ -204,7 +204,7 @@ void ArmZabbixAPI::makeHatoholMapHostsHostgroups(ItemTablePtr hostsGroups)
 	HostgroupElementList hostgroupElementList;
 	HatoholDBUtils::transformHostsGroupsToHatoholFormat(
 	  hostgroupElementList, hostsGroups, m_impl->zabbixServerId);
-	m_impl->dbClientHatohol.addHostgroupElementList(hostgroupElementList);
+	m_impl->dbMonitoring.addHostgroupElementList(hostgroupElementList);
 }
 
 void ArmZabbixAPI::makeHatoholHosts(ItemTablePtr hosts)
@@ -212,7 +212,7 @@ void ArmZabbixAPI::makeHatoholHosts(ItemTablePtr hosts)
 	HostInfoList hostInfoList;
 	HatoholDBUtils::transformHostsToHatoholFormat(hostInfoList, hosts,
 	                                              m_impl->zabbixServerId);
-	m_impl->dbClientHatohol.addHostInfoList(hostInfoList);
+	m_impl->dbMonitoring.addHostInfoList(hostInfoList);
 
 	// TODO: consider if DBClientHatohol should have the cache
 	HostInfoListConstIterator hostInfoItr = hostInfoList.begin();

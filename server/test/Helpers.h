@@ -30,7 +30,7 @@
 #include "HatoholError.h"
 #include "OperationPrivilege.h"
 #include "DBTablesConfig.h"
-#include "DBClientHatohol.h"
+#include "DBTablesMonitoring.h"
 #include "DBTablesAction.h"
 #include "ArmStatus.h"
 

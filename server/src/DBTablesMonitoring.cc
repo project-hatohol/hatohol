@@ -20,7 +20,7 @@
 #include <memory>
 #include <Mutex.h>
 #include "DBAgentFactory.h"
-#include "DBClientHatohol.h"
+#include "DBTablesMonitoring.h"
 #include "DBTablesUser.h"
 #include "CacheServiceDBClient.h"
 #include "SQLUtils.h"
@@ -30,18 +30,18 @@
 using namespace std;
 using namespace mlpl;
 
-const char *DBClientHatohol::TABLE_NAME_TRIGGERS   = "triggers";
-const char *DBClientHatohol::TABLE_NAME_EVENTS     = "events";
-const char *DBClientHatohol::TABLE_NAME_ITEMS      = "items";
-const char *DBClientHatohol::TABLE_NAME_HOSTS      = "hosts";
-const char *DBClientHatohol::TABLE_NAME_HOSTGROUPS = "hostgroups";
-const char *DBClientHatohol::TABLE_NAME_MAP_HOSTS_HOSTGROUPS
+const char *DBTablesMonitoring::TABLE_NAME_TRIGGERS   = "triggers";
+const char *DBTablesMonitoring::TABLE_NAME_EVENTS     = "events";
+const char *DBTablesMonitoring::TABLE_NAME_ITEMS      = "items";
+const char *DBTablesMonitoring::TABLE_NAME_HOSTS      = "hosts";
+const char *DBTablesMonitoring::TABLE_NAME_HOSTGROUPS = "hostgroups";
+const char *DBTablesMonitoring::TABLE_NAME_MAP_HOSTS_HOSTGROUPS
                                                    = "map_hosts_hostgroups";
-const char *DBClientHatohol::TABLE_NAME_SERVERS    = "servers";
-const char *DBClientHatohol::TABLE_NAME_INCIDENTS  = "incidents";
+const char *DBTablesMonitoring::TABLE_NAME_SERVERS    = "servers";
+const char *DBTablesMonitoring::TABLE_NAME_INCIDENTS  = "incidents";
 
-const int   DBClientHatohol::HATOHOL_DB_VERSION = 5;
-const char *DBClientHatohol::DEFAULT_DB_NAME = "hatohol";
+const int   DBTablesMonitoring::HATOHOL_DB_VERSION = 5;
+const char *DBTablesMonitoring::DEFAULT_DB_NAME = "hatohol";
 
 void operator>>(ItemGroupStream &itemGroupStream, TriggerStatusType &rhs)
 {
@@ -178,7 +178,7 @@ static const DBAgent::IndexDef indexDefsTriggers[] = {
 };
 
 static const DBAgent::TableProfile tableProfileTriggers =
-  DBAGENT_TABLEPROFILE_INIT(DBClientHatohol::TABLE_NAME_TRIGGERS,
+  DBAGENT_TABLEPROFILE_INIT(DBTablesMonitoring::TABLE_NAME_TRIGGERS,
 			    COLUMN_DEF_TRIGGERS,
 			    NUM_IDX_TRIGGERS,
 			    indexDefsTriggers);
@@ -336,7 +336,7 @@ static const DBAgent::IndexDef indexDefsEvents[] = {
 };
 
 static const DBAgent::TableProfile tableProfileEvents =
-  DBAGENT_TABLEPROFILE_INIT(DBClientHatohol::TABLE_NAME_EVENTS,
+  DBAGENT_TABLEPROFILE_INIT(DBTablesMonitoring::TABLE_NAME_EVENTS,
 			    COLUMN_DEF_EVENTS,
 			    NUM_IDX_EVENTS,
 			    indexDefsEvents);
@@ -461,7 +461,7 @@ static const DBAgent::IndexDef indexDefsItems[] = {
 };
 
 static const DBAgent::TableProfile tableProfileItems =
-  DBAGENT_TABLEPROFILE_INIT(DBClientHatohol::TABLE_NAME_ITEMS,
+  DBAGENT_TABLEPROFILE_INIT(DBTablesMonitoring::TABLE_NAME_ITEMS,
 			    COLUMN_DEF_ITEMS,
 			    NUM_IDX_ITEMS,
 			    indexDefsItems);
@@ -530,7 +530,7 @@ static const DBAgent::IndexDef indexDefsHosts[] = {
 };
 
 static const DBAgent::TableProfile tableProfileHosts =
-  DBAGENT_TABLEPROFILE_INIT(DBClientHatohol::TABLE_NAME_HOSTS,
+  DBAGENT_TABLEPROFILE_INIT(DBTablesMonitoring::TABLE_NAME_HOSTS,
 			    COLUMN_DEF_HOSTS,
 			    NUM_IDX_HOSTS,
 			    indexDefsHosts);
@@ -600,7 +600,7 @@ static const DBAgent::IndexDef indexDefsHostgroups[] = {
 };
 
 static const DBAgent::TableProfile tableProfileHostgroups =
-  DBAGENT_TABLEPROFILE_INIT(DBClientHatohol::TABLE_NAME_HOSTGROUPS,
+  DBAGENT_TABLEPROFILE_INIT(DBTablesMonitoring::TABLE_NAME_HOSTGROUPS,
 			    COLUMN_DEF_HOSTGROUPS,
 			    NUM_IDX_HOSTGROUPS,
 			    indexDefsHostgroups);
@@ -672,7 +672,7 @@ static const DBAgent::IndexDef indexDefsMapHostsHostgroups[] = {
 };
 
 static const DBAgent::TableProfile tableProfileMapHostsHostgroups =
-  DBAGENT_TABLEPROFILE_INIT(DBClientHatohol::TABLE_NAME_MAP_HOSTS_HOSTGROUPS,
+  DBAGENT_TABLEPROFILE_INIT(DBTablesMonitoring::TABLE_NAME_MAP_HOSTS_HOSTGROUPS,
 			    COLUMN_DEF_MAP_HOSTS_HOSTGROUPS,
 			    NUM_IDX_MAP_HOSTS_HOSTGROUPS,
 			    indexDefsMapHostsHostgroups);
@@ -711,7 +711,7 @@ enum {
 };
 
 static const DBAgent::TableProfile tableProfileServers =
-  DBAGENT_TABLEPROFILE_INIT(DBClientHatohol::TABLE_NAME_SERVERS,
+  DBAGENT_TABLEPROFILE_INIT(DBTablesMonitoring::TABLE_NAME_SERVERS,
 			    COLUMN_DEF_SERVERS,
 			    NUM_IDX_SERVERS);
 
@@ -868,7 +868,7 @@ static const DBAgent::IndexDef indexDefsIncidents[] = {
 };
 
 static const DBAgent::TableProfile tableProfileIncidents =
-  DBAGENT_TABLEPROFILE_INIT(DBClientHatohol::TABLE_NAME_INCIDENTS,
+  DBAGENT_TABLEPROFILE_INIT(DBTablesMonitoring::TABLE_NAME_INCIDENTS,
 			    COLUMN_DEF_INCIDENTS,
 			    NUM_IDX_INCIDENTS,
 			    indexDefsIncidents);
@@ -899,13 +899,13 @@ sizeof(DB_TABLE_INFO) / sizeof(DBClient::DBSetupTableInfo);
 static bool updateDB(DBAgent *dbAgent, int oldVer, void *data);
 
 static const DBClient::DBSetupFuncArg DB_SETUP_FUNC_ARG = {
-	DBClientHatohol::HATOHOL_DB_VERSION,
+	DBTablesMonitoring::HATOHOL_DB_VERSION,
 	NUM_TABLE_INFO,
 	DB_TABLE_INFO,
 	&updateDB,
 };
 
-struct DBClientHatohol::Impl
+struct DBTablesMonitoring::Impl
 {
 	Impl(void)
 	{
@@ -1012,7 +1012,7 @@ string EventsQueryOption::getCondition(void) const
 		// correct severity.
 		condition += StringUtils::sprintf(
 			"%s.%s>=%d",
-			DBClientHatohol::TABLE_NAME_TRIGGERS,
+			DBTablesMonitoring::TABLE_NAME_TRIGGERS,
 			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SEVERITY].columnName,
 			m_impl->minSeverity);
 	}
@@ -1171,7 +1171,7 @@ string TriggersQueryOption::getCondition(void) const
 			condition += " AND ";
 		condition += StringUtils::sprintf(
 			"%s.%s=%s",
-			DBClientHatohol::TABLE_NAME_TRIGGERS,
+			DBTablesMonitoring::TABLE_NAME_TRIGGERS,
 			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID].columnName,
 			dbTermCodec->enc(m_impl->targetId).c_str());
 	}
@@ -1181,7 +1181,7 @@ string TriggersQueryOption::getCondition(void) const
 			condition += " AND ";
 		condition += StringUtils::sprintf(
 			"%s.%s>=%d",
-			DBClientHatohol::TABLE_NAME_TRIGGERS,
+			DBTablesMonitoring::TABLE_NAME_TRIGGERS,
 			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SEVERITY].columnName,
 			m_impl->minSeverity);
 	}
@@ -1191,7 +1191,7 @@ string TriggersQueryOption::getCondition(void) const
 			condition += " AND ";
 		condition += StringUtils::sprintf(
 			"%s.%s=%d",
-			DBClientHatohol::TABLE_NAME_TRIGGERS,
+			DBTablesMonitoring::TABLE_NAME_TRIGGERS,
 			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_STATUS].columnName,
 			m_impl->triggerStatus);
 	}
@@ -1286,7 +1286,7 @@ string ItemsQueryOption::getCondition(void) const
 			condition += " AND ";
 		condition += StringUtils::sprintf(
 			"%s.%s=%s",
-			DBClientHatohol::TABLE_NAME_ITEMS,
+			DBTablesMonitoring::TABLE_NAME_ITEMS,
 			COLUMN_DEF_ITEMS[IDX_ITEMS_ID].columnName,
 			dbTermCodec->enc(m_impl->targetId).c_str());
 	}
@@ -1298,7 +1298,7 @@ string ItemsQueryOption::getCondition(void) const
 						      "'", "''");
 		condition += StringUtils::sprintf(
 			"%s.%s='%s'",
-			DBClientHatohol::TABLE_NAME_ITEMS,
+			DBTablesMonitoring::TABLE_NAME_ITEMS,
 			COLUMN_DEF_ITEMS[IDX_ITEMS_ITEM_GROUP_NAME].columnName,
 			escaped.c_str());
 	}
@@ -1409,23 +1409,23 @@ IncidentsQueryOption::IncidentsQueryOption(DataQueryContext *dataQueryContext)
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-void DBClientHatohol::init(void)
+void DBTablesMonitoring::init(void)
 {
 	registerSetupInfo(
 	  DB_TABLES_ID_MONITORING, DEFAULT_DB_NAME, &DB_SETUP_FUNC_ARG);
 }
 
-DBClientHatohol::DBClientHatohol(void)
+DBTablesMonitoring::DBTablesMonitoring(void)
 : DBClient(DB_TABLES_ID_MONITORING),
   m_impl(new Impl())
 {
 }
 
-DBClientHatohol::~DBClientHatohol()
+DBTablesMonitoring::~DBTablesMonitoring()
 {
 }
 
-void DBClientHatohol::getHostInfoList(HostInfoList &hostInfoList,
+void DBTablesMonitoring::getHostInfoList(HostInfoList &hostInfoList,
 				      const HostsQueryOption &option)
 {
 	DBAgent::SelectExArg arg(tableProfileHosts);
@@ -1456,14 +1456,14 @@ void DBClientHatohol::getHostInfoList(HostInfoList &hostInfoList,
 	}
 }
 
-void DBClientHatohol::addTriggerInfo(TriggerInfo *triggerInfo)
+void DBTablesMonitoring::addTriggerInfo(TriggerInfo *triggerInfo)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
 		addTriggerInfoWithoutTransaction(*triggerInfo);
 	} DBCLIENT_TRANSACTION_END();
 }
 
-void DBClientHatohol::addTriggerInfoList(const TriggerInfoList &triggerInfoList)
+void DBTablesMonitoring::addTriggerInfoList(const TriggerInfoList &triggerInfoList)
 {
 	TriggerInfoListConstIterator it = triggerInfoList.begin();
 	DBCLIENT_TRANSACTION_BEGIN() {
@@ -1472,7 +1472,7 @@ void DBClientHatohol::addTriggerInfoList(const TriggerInfoList &triggerInfoList)
 	} DBCLIENT_TRANSACTION_END();
 }
 
-bool DBClientHatohol::getTriggerInfo(TriggerInfo &triggerInfo,
+bool DBTablesMonitoring::getTriggerInfo(TriggerInfo &triggerInfo,
                                      const TriggersQueryOption &option)
 {
 	TriggerInfoList triggerInfoList;
@@ -1488,7 +1488,7 @@ bool DBClientHatohol::getTriggerInfo(TriggerInfo &triggerInfo,
 	return true;
 }
 
-void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
+void DBTablesMonitoring::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 					 const TriggersQueryOption &option)
 {
 	// build a condition
@@ -1547,7 +1547,7 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	}
 }
 
-void DBClientHatohol::setTriggerInfoList(const TriggerInfoList &triggerInfoList,
+void DBTablesMonitoring::setTriggerInfoList(const TriggerInfoList &triggerInfoList,
                                          const ServerIdType &serverId)
 {
 	// TODO: This way is too rough and inefficient.
@@ -1567,7 +1567,7 @@ void DBClientHatohol::setTriggerInfoList(const TriggerInfoList &triggerInfoList,
 	} DBCLIENT_TRANSACTION_END();
 }
 
-int DBClientHatohol::getLastChangeTimeOfTrigger(const ServerIdType &serverId)
+int DBTablesMonitoring::getLastChangeTimeOfTrigger(const ServerIdType &serverId)
 {
 	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
 	DBAgent::SelectExArg arg(tableProfileTriggers);
@@ -1597,14 +1597,14 @@ int DBClientHatohol::getLastChangeTimeOfTrigger(const ServerIdType &serverId)
 	return itemGroupStream.read<int>();
 }
 
-void DBClientHatohol::addEventInfo(EventInfo *eventInfo)
+void DBTablesMonitoring::addEventInfo(EventInfo *eventInfo)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
 		addEventInfoWithoutTransaction(*eventInfo);
 	} DBCLIENT_TRANSACTION_END();
 }
 
-void DBClientHatohol::addEventInfoList(const EventInfoList &eventInfoList)
+void DBTablesMonitoring::addEventInfoList(const EventInfoList &eventInfoList)
 {
 	EventInfoListConstIterator it = eventInfoList.begin();
 	DBCLIENT_TRANSACTION_BEGIN() {
@@ -1613,7 +1613,7 @@ void DBClientHatohol::addEventInfoList(const EventInfoList &eventInfoList)
 	} DBCLIENT_TRANSACTION_END();
 }
 
-HatoholError DBClientHatohol::getEventInfoList(
+HatoholError DBTablesMonitoring::getEventInfoList(
   EventInfoList &eventInfoList, const EventsQueryOption &option,
   IncidentInfoVect *incidentInfoVect)
 {
@@ -1718,7 +1718,7 @@ HatoholError DBClientHatohol::getEventInfoList(
 	return HatoholError(HTERR_OK);
 }
 
-void DBClientHatohol::setEventInfoList(const EventInfoList &eventInfoList,
+void DBTablesMonitoring::setEventInfoList(const EventInfoList &eventInfoList,
                                        const ServerIdType &serverId)
 {
 	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
@@ -1736,14 +1736,14 @@ void DBClientHatohol::setEventInfoList(const EventInfoList &eventInfoList,
 	} DBCLIENT_TRANSACTION_END();
 }
 
-void DBClientHatohol::addHostgroupInfo(HostgroupInfo *groupInfo)
+void DBTablesMonitoring::addHostgroupInfo(HostgroupInfo *groupInfo)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
 		addHostgroupInfoWithoutTransaction(*groupInfo);
 	} DBCLIENT_TRANSACTION_END();
 }
 
-void DBClientHatohol::addHostgroupInfoList(const HostgroupInfoList &groupInfoList)
+void DBTablesMonitoring::addHostgroupInfoList(const HostgroupInfoList &groupInfoList)
 {
 	HostgroupInfoListConstIterator it = groupInfoList.begin();
 	DBCLIENT_TRANSACTION_BEGIN() {
@@ -1752,7 +1752,7 @@ void DBClientHatohol::addHostgroupInfoList(const HostgroupInfoList &groupInfoLis
 	} DBCLIENT_TRANSACTION_END();
 }
 
-void DBClientHatohol::addHostgroupElement
+void DBTablesMonitoring::addHostgroupElement
   (HostgroupElement *hostgroupElement)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
@@ -1760,7 +1760,7 @@ void DBClientHatohol::addHostgroupElement
 	} DBCLIENT_TRANSACTION_END();
 }
 
-void DBClientHatohol::addHostgroupElementList
+void DBTablesMonitoring::addHostgroupElementList
   (const HostgroupElementList &hostgroupElementList)
 {
 	HostgroupElementListConstIterator it = hostgroupElementList.begin();
@@ -1770,14 +1770,14 @@ void DBClientHatohol::addHostgroupElementList
 	} DBCLIENT_TRANSACTION_END();
 }
 
-void DBClientHatohol::addHostInfo(HostInfo *hostInfo)
+void DBTablesMonitoring::addHostInfo(HostInfo *hostInfo)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
 		addHostInfoWithoutTransaction(*hostInfo);
 	} DBCLIENT_TRANSACTION_END();
 }
 
-void DBClientHatohol::addHostInfoList(const HostInfoList &hostInfoList)
+void DBTablesMonitoring::addHostInfoList(const HostInfoList &hostInfoList)
 {
 	HostInfoListConstIterator it = hostInfoList.begin();
 	DBCLIENT_TRANSACTION_BEGIN() {
@@ -1786,7 +1786,7 @@ void DBClientHatohol::addHostInfoList(const HostInfoList &hostInfoList)
 	} DBCLIENT_TRANSACTION_END();
 }
 
-uint64_t DBClientHatohol::getLastEventId(const ServerIdType &serverId)
+uint64_t DBTablesMonitoring::getLastEventId(const ServerIdType &serverId)
 {
 	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
 	DBAgent::SelectExArg arg(tableProfileEvents);
@@ -1810,14 +1810,14 @@ uint64_t DBClientHatohol::getLastEventId(const ServerIdType &serverId)
 	return itemGroupStream.read<uint64_t>();
 }
 
-void DBClientHatohol::addItemInfo(ItemInfo *itemInfo)
+void DBTablesMonitoring::addItemInfo(ItemInfo *itemInfo)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
 		addItemInfoWithoutTransaction(*itemInfo);
 	} DBCLIENT_TRANSACTION_END();
 }
 
-void DBClientHatohol::addItemInfoList(const ItemInfoList &itemInfoList)
+void DBTablesMonitoring::addItemInfoList(const ItemInfoList &itemInfoList)
 {
 	ItemInfoListConstIterator it = itemInfoList.begin();
 	DBCLIENT_TRANSACTION_BEGIN() {
@@ -1826,7 +1826,7 @@ void DBClientHatohol::addItemInfoList(const ItemInfoList &itemInfoList)
 	} DBCLIENT_TRANSACTION_END();
 }
 
-void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
+void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
 				      const ItemsQueryOption &option)
 {
 	DBAgent::SelectExArg arg(tableProfileItems);
@@ -1881,7 +1881,7 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 	}
 }
 
-void DBClientHatohol::addMonitoringServerStatus(
+void DBTablesMonitoring::addMonitoringServerStatus(
   MonitoringServerStatus *serverStatus)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
@@ -1889,7 +1889,7 @@ void DBClientHatohol::addMonitoringServerStatus(
 	} DBCLIENT_TRANSACTION_END();
 }
 
-size_t DBClientHatohol::getNumberOfTriggers(
+size_t DBTablesMonitoring::getNumberOfTriggers(
   const TriggersQueryOption &option, const std::string &additionalCondition)
 {
 	DBAgent::SelectExArg arg(tableProfileTriggers);
@@ -1931,7 +1931,7 @@ size_t DBClientHatohol::getNumberOfTriggers(
 	return itemGroupStream.read<int>();
 }
 
-size_t DBClientHatohol::getNumberOfBadTriggers(
+size_t DBTablesMonitoring::getNumberOfBadTriggers(
   const TriggersQueryOption &option, TriggerSeverityType severity)
 {
 	string additionalCondition;
@@ -1954,12 +1954,12 @@ size_t DBClientHatohol::getNumberOfBadTriggers(
 	return getNumberOfTriggers(option, additionalCondition);
 }
 
-size_t DBClientHatohol::getNumberOfTriggers(const TriggersQueryOption &option)
+size_t DBTablesMonitoring::getNumberOfTriggers(const TriggersQueryOption &option)
 {
 	return getNumberOfTriggers(option, string());
 }
 
-size_t DBClientHatohol::getNumberOfHosts(const TriggersQueryOption &option)
+size_t DBTablesMonitoring::getNumberOfHosts(const TriggersQueryOption &option)
 {
 	// TODO: consider if we can use hosts table.
 	DBAgent::SelectExArg arg(tableProfileTriggers);
@@ -1983,7 +1983,7 @@ size_t DBClientHatohol::getNumberOfHosts(const TriggersQueryOption &option)
 	return itemGroupStream.read<int>();
 }
 
-size_t DBClientHatohol::getNumberOfGoodHosts(const TriggersQueryOption &option)
+size_t DBTablesMonitoring::getNumberOfGoodHosts(const TriggersQueryOption &option)
 {
 	size_t numTotalHost = getNumberOfHosts(option);
 	size_t numBadHosts = getNumberOfBadHosts(option);
@@ -1993,7 +1993,7 @@ size_t DBClientHatohol::getNumberOfGoodHosts(const TriggersQueryOption &option)
 	return numTotalHost - numBadHosts;
 }
 
-size_t DBClientHatohol::getNumberOfBadHosts(const TriggersQueryOption &option)
+size_t DBTablesMonitoring::getNumberOfBadHosts(const TriggersQueryOption &option)
 {
 	DBAgent::SelectExArg arg(tableProfileTriggers);
 	string stmt =
@@ -2023,7 +2023,7 @@ size_t DBClientHatohol::getNumberOfBadHosts(const TriggersQueryOption &option)
 	return itemGroupStream.read<int>();
 }
 
-size_t DBClientHatohol::getNumberOfItems(
+size_t DBTablesMonitoring::getNumberOfItems(
   const ItemsQueryOption &option)
 {
 	DBAgent::SelectExArg arg(tableProfileTriggers);
@@ -2052,7 +2052,7 @@ size_t DBClientHatohol::getNumberOfItems(
 	return itemGroupStream.read<int>();
 }
 
-HatoholError DBClientHatohol::getNumberOfMonitoredItemsPerSecond
+HatoholError DBTablesMonitoring::getNumberOfMonitoredItemsPerSecond
   (const DataQueryOption &option, MonitoringServerStatus &serverStatus)
 {
 	serverStatus.nvps = 0.0;
@@ -2087,7 +2087,7 @@ HatoholError DBClientHatohol::getNumberOfMonitoredItemsPerSecond
 	return HatoholError(HTERR_OK);
 }
 
-void DBClientHatohol::pickupAbsentHostIds(vector<uint64_t> &absentHostIdVector,
+void DBTablesMonitoring::pickupAbsentHostIds(vector<uint64_t> &absentHostIdVector,
                          const vector<uint64_t> &hostIdVector)
 {
 	string condition;
@@ -2106,14 +2106,14 @@ void DBClientHatohol::pickupAbsentHostIds(vector<uint64_t> &absentHostIdVector,
 	} DBCLIENT_TRANSACTION_END();
 }
 
-void DBClientHatohol::addIncidentInfo(IncidentInfo *incidentInfo)
+void DBTablesMonitoring::addIncidentInfo(IncidentInfo *incidentInfo)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
 		addIncidentInfoWithoutTransaction(*incidentInfo);
 	} DBCLIENT_TRANSACTION_END();
 }
 
-HatoholError DBClientHatohol::getIncidentInfoVect(
+HatoholError DBTablesMonitoring::getIncidentInfoVect(
   IncidentInfoVect &incidentInfoVect, const IncidentsQueryOption &option)
 {
 	DBAgent::SelectExArg arg(tableProfileIncidents);
@@ -2165,7 +2165,7 @@ HatoholError DBClientHatohol::getIncidentInfoVect(
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void DBClientHatohol::addTriggerInfoWithoutTransaction(
+void DBTablesMonitoring::addTriggerInfoWithoutTransaction(
   const TriggerInfo &triggerInfo)
 {
 	DBAgent::InsertArg arg(tableProfileTriggers);
@@ -2182,7 +2182,7 @@ void DBClientHatohol::addTriggerInfoWithoutTransaction(
 	insert(arg);
 }
 
-void DBClientHatohol::addEventInfoWithoutTransaction(const EventInfo &eventInfo)
+void DBTablesMonitoring::addEventInfoWithoutTransaction(const EventInfo &eventInfo)
 {
 	DBAgent::InsertArg arg(tableProfileEvents);
 	arg.add(AUTO_INCREMENT_VALUE_U64);
@@ -2201,7 +2201,7 @@ void DBClientHatohol::addEventInfoWithoutTransaction(const EventInfo &eventInfo)
 	insert(arg);
 }
 
-void DBClientHatohol::addItemInfoWithoutTransaction(const ItemInfo &itemInfo)
+void DBTablesMonitoring::addItemInfoWithoutTransaction(const ItemInfo &itemInfo)
 {
 	DBAgent::InsertArg arg(tableProfileItems);
 	arg.add(itemInfo.serverId);
@@ -2217,7 +2217,7 @@ void DBClientHatohol::addItemInfoWithoutTransaction(const ItemInfo &itemInfo)
 	insert(arg);
 }
 
-void DBClientHatohol::addHostgroupInfoWithoutTransaction(
+void DBTablesMonitoring::addHostgroupInfoWithoutTransaction(
   const HostgroupInfo &groupInfo)
 {
 	DBAgent::InsertArg arg(tableProfileHostgroups);
@@ -2229,7 +2229,7 @@ void DBClientHatohol::addHostgroupInfoWithoutTransaction(
 	insert(arg);
 }
 
-void DBClientHatohol::addHostgroupElementWithoutTransaction(
+void DBTablesMonitoring::addHostgroupElementWithoutTransaction(
   const HostgroupElement &hostgroupElement)
 {
 	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
@@ -2249,7 +2249,7 @@ void DBClientHatohol::addHostgroupElementWithoutTransaction(
 	}
 }
 
-void DBClientHatohol::addHostInfoWithoutTransaction(const HostInfo &hostInfo)
+void DBTablesMonitoring::addHostInfoWithoutTransaction(const HostInfo &hostInfo)
 {
 	DBAgent::InsertArg arg(tableProfileHosts);
 	arg.add(AUTO_INCREMENT_VALUE);
@@ -2260,7 +2260,7 @@ void DBClientHatohol::addHostInfoWithoutTransaction(const HostInfo &hostInfo)
 	insert(arg);
 }
 
-void DBClientHatohol::addMonitoringServerStatusWithoutTransaction(
+void DBTablesMonitoring::addMonitoringServerStatusWithoutTransaction(
   const MonitoringServerStatus &serverStatus)
 {
 	DBAgent::InsertArg arg(tableProfileServers);
@@ -2270,7 +2270,7 @@ void DBClientHatohol::addMonitoringServerStatusWithoutTransaction(
 	insert(arg);
 }
 
-void DBClientHatohol::addIncidentInfoWithoutTransaction(
+void DBTablesMonitoring::addIncidentInfoWithoutTransaction(
   const IncidentInfo &incidentInfo)
 {
 	DBAgent::InsertArg arg(tableProfileIncidents);
@@ -2290,7 +2290,7 @@ void DBClientHatohol::addIncidentInfoWithoutTransaction(
 	insert(arg);
 }
 
-HatoholError DBClientHatohol::getHostgroupInfoList
+HatoholError DBTablesMonitoring::getHostgroupInfoList
   (HostgroupInfoList &hostgroupInfoList, const HostgroupsQueryOption &option)
 {
 	DBAgent::SelectExArg arg(tableProfileHostgroups);
@@ -2323,7 +2323,7 @@ HatoholError DBClientHatohol::getHostgroupInfoList
 // TODO: In this implementation, behavior of this function is inefficient.
 //       Because this function returns unnecessary informations.
 //       Add a new function which returns only hostgroupId.
-HatoholError DBClientHatohol::getHostgroupElementList
+HatoholError DBTablesMonitoring::getHostgroupElementList
   (HostgroupElementList &hostgroupElementList,
    const HostgroupElementQueryOption &option)
 {
@@ -2359,7 +2359,7 @@ static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
 		const string oldTableName = "issues";
 		if (dbAgent->isTableExisting(oldTableName)) {
 			dbAgent->renameTable(
-			  oldTableName, DBClientHatohol::TABLE_NAME_INCIDENTS);
+			  oldTableName, DBTablesMonitoring::TABLE_NAME_INCIDENTS);
 		}
 	}
 	return true;
