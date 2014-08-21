@@ -309,6 +309,8 @@ var HatoholIncidentTrackerEditor = function(params) {
   }
 
   function validateParameters() {
+    var label;
+
     if ($("#editIncidentTrackerNickname").val() == "") {
       hatoholErrorMsgBox(gettext("Nickname is empty!"));
       return false;
@@ -325,7 +327,8 @@ var HatoholIncidentTrackerEditor = function(params) {
     }
 
     if ($("#editIncidentTrackerUserName").val() == "") {
-      hatoholErrorMsgBox(gettext("User name is empty!"));
+      label = $("label[for=editIncidentTrackerUserName]").text();
+      hatoholErrorMsgBox(label + gettext(" is empty!"));
       return false;
     }
 
