@@ -17,7 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <semaphore.h>
+#include <SimpleSemaphore.h>
 #include <errno.h>
 #include <cppcutter.h>
 #include "Hatohol.h"
@@ -32,27 +32,25 @@ namespace testDBCache {
 class TestCacheServiceThread : public HatoholThreadBase {
 
 	DBHatohol       *m_dbHatohol;
-	sem_t            m_requestSem;
-	sem_t            m_completSem;
+	SimpleSemaphore  m_requestSem;
+	SimpleSemaphore  m_completSem;
 	bool             m_hasError;
 	bool             m_exitRequest;
 
 public:
 	TestCacheServiceThread(void)
 	: m_dbHatohol(NULL),
+	  m_requestSem(0),
+	  m_completSem(0),
 	  m_hasError(false),
 	  m_exitRequest(false)
 	{
-		cppcut_assert_equal(0, sem_init(&m_requestSem, 0, 0),
-		                    cut_message("errno: %d", errno));
-		cppcut_assert_equal(0, sem_init(&m_completSem, 0, 0),
-		                    cut_message("errno: %d", errno));
 	}
 
 	DBHatohol *callGetHatohol(void)
 	{
-		postSem(&m_requestSem);
-		waitSem(&m_completSem);
+		m_requestSem.post();
+		m_completSem.wait();
 		return m_dbHatohol;
 	}
 
@@ -69,47 +67,20 @@ public:
 	virtual void stop(void)
 	{
 		m_exitRequest = true;
-		postSem(&m_requestSem);
+		m_requestSem.post();
 		HatoholThreadBase::waitExit();
 	}
 
 protected:
-	bool postSem(sem_t *sem)
-	{
-		int ret = sem_post(sem);
-		if (ret == -1) {
-			MLPL_ERR("Failed to call sem_post(): %d\n", errno);
-			m_hasError = true;
-			return false;
-		}
-		return true;
-	}
-
-	void waitSem(sem_t *sem)
-	{
-		while (true) {
-			int ret = sem_wait(sem);
-			if (ret == -1 && errno == EINTR)
-				continue;
-			if (ret == -1) {
-				MLPL_ERR("Failed to call sem_wait(): %d\n",
-				         errno);
-				m_hasError = true;
-			}
-			break;
-		}
-	}
-
 	virtual gpointer mainThread(HatoholThreadArg *arg)
 	{
 		while (true) {
-			waitSem(&m_requestSem);
+			m_requestSem.wait();
 			if (m_exitRequest)
 				break;
 			DBCache cache;
 			m_dbHatohol = &cache.getDBHatohol();
-			if (!postSem(&m_completSem))
-				break;
+			m_completSem.post();
 		}
 		return NULL;
 	}
