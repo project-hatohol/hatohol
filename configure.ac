@@ -247,6 +247,7 @@ server/tools/Makefile
 server/data/Makefile
 server/test/Makefile
 server/test/fixtures/Makefile
+server/benchmark/Makefile
 client/Makefile
 client/test/Makefile
 ])
