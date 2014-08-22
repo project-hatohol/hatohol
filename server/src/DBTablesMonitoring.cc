@@ -37,7 +37,7 @@ const char *DBTablesMonitoring::TABLE_NAME_HOSTS      = "hosts";
 const char *DBTablesMonitoring::TABLE_NAME_HOSTGROUPS = "hostgroups";
 const char *DBTablesMonitoring::TABLE_NAME_MAP_HOSTS_HOSTGROUPS
                                                    = "map_hosts_hostgroups";
-const char *DBTablesMonitoring::TABLE_NAME_SERVERS    = "servers";
+const char *DBTablesMonitoring::TABLE_NAME_SERVER_STATUS = "server_status";
 const char *DBTablesMonitoring::TABLE_NAME_INCIDENTS  = "incidents";
 
 const int   DBTablesMonitoring::HATOHOL_DB_VERSION = 5;
@@ -678,7 +678,7 @@ static const DBAgent::TableProfile tableProfileMapHostsHostgroups =
 			    indexDefsMapHostsHostgroups);
 
 // ----------------------------------------------------------------------------
-// Table: servers
+// Table: server_status
 // ----------------------------------------------------------------------------
 static const ColumnDef COLUMN_DEF_SERVERS[] = {
 {
@@ -711,7 +711,7 @@ enum {
 };
 
 static const DBAgent::TableProfile tableProfileServers =
-  DBAGENT_TABLEPROFILE_INIT(DBTablesMonitoring::TABLE_NAME_SERVERS,
+  DBAGENT_TABLEPROFILE_INIT(DBTablesMonitoring::TABLE_NAME_SERVER_STATUS,
 			    COLUMN_DEF_SERVERS,
 			    NUM_IDX_SERVERS);
 
