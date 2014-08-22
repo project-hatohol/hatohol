@@ -252,7 +252,7 @@ ArmBase::OneProcEndType ArmZabbixAPI::mainThreadOneProc(void)
 			updateItems();
 	} catch (const HatoholException &he) {
 		clearAuthToken();
-		if (he.getErrCode() == HTERR_FAILED_DISCONNECT_ZABBIX) {
+		if (he.getErrCode() == HTERR_FAILED_CONNECT_ZABBIX) {
 			MLPL_ERR("Error Connection: %s %d\n", he.what(), he.getErrCode());
 			return COLLECT_NG_DISCONNECT;
 		} else if (he.getErrCode() == HTERR_FAILED_PARSER_ERROR) {

@@ -80,9 +80,10 @@ typedef std::list<TriggerInfo>          TriggerInfoList;
 typedef TriggerInfoList::iterator       TriggerInfoListIterator;
 typedef TriggerInfoList::const_iterator TriggerInfoListConstIterator;
 
-static const TriggerIdType DISCONNECT_SERVER_TRIGGERID_NG = 0xF0000001;
-static const TriggerIdType INTERNAL_ERROR_SERVER_TRIGGERID_NG = 0xF0000002;
-static const TriggerIdType PARSER_ERROR_SERVER_TRIGGERID_NG = 0xF0000003;
+static const TriggerIdType FAILED_CONNECT_ZABBIX_TRIGGERID = 0xF0000001;
+static const TriggerIdType FAILED_CONNECT_MYSQL_TRIGGERID = 0xF0000002;
+static const TriggerIdType FAILED_INTERNAL_ERROR_TRIGGERID = 0xF0000003;
+static const TriggerIdType FAILED_PARSER_ERROR_TRIGGERID = 0xF0000004;
 
 static const HostIdType MONITORING_SERVER_SELF_ID = 0xFFFFFFFF;
 

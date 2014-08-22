@@ -128,10 +128,10 @@ void HatoholError::init(void)
 		   "Failed to send an incident to an incident tracker.");
 
 	// ArmConnectionFailure
-	DEFINE_ERR(FAILED_DISCONNECT_ZABBIX,
-		   "Failed in connecting to zabbix server.");
-	DEFINE_ERR(FAILED_DISCONNECT_NAGIOS,
-		   "Failed in connecting to nagios server.");
+	DEFINE_ERR(FAILED_CONNECT_ZABBIX,
+		   "Failed in connecting to zabbix.");
+	DEFINE_ERR(FAILED_CONNECT_MYSQL,
+		   "Failed in connecting to mysql.");
 	DEFINE_ERR(FAILED_INTERNAL_ERROR,
 		   "Failed in executing to system call.");
 	DEFINE_ERR(FAILED_PARSER_ERROR,
