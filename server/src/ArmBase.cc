@@ -46,7 +46,7 @@ struct ArmBase::Impl
 
 	DBClientHatohol      dbClientHatohol;
 
-	oneProcEndTrigger    oneProcTriggerTable[COLLECT_NG_KIND_NUM];
+	oneProcEndTrigger    oneProcTriggerTable[NUM_COLLECT_NG_KIND];
 
 	Impl(const string &_name,
 	               const MonitoringServerInfo &_serverInfo)
@@ -312,7 +312,7 @@ void ArmBase::setInitialTrrigerStaus(void)
 	TriggerInfo triggerInfo;
 	TriggerInfoList triggerInfoList;
 
-	for (int i = 0; i < COLLECT_NG_KIND_NUM; i++) {
+	for (int i = 0; i < NUM_COLLECT_NG_KIND; i++) {
 		if (TRIGGER_STATUS_UNKNOWN == m_impl->oneProcTriggerTable[i].statusType) {
 			triggerInfo.serverId = svInfo.id; 
 			clock_gettime(CLOCK_REALTIME, &triggerInfo.lastChangeTime);
@@ -374,7 +374,7 @@ void ArmBase::setServerConnectStaus(bool enable, OneProcEndType type)
 	EventInfoList eventInfoList;
 
 	if (enable) {
-		for (int i = 0; i < COLLECT_NG_KIND_NUM; i++) {
+		for (int i = 0; i < NUM_COLLECT_NG_KIND; i++) {
 			if (m_impl->oneProcTriggerTable[i].statusType == TRIGGER_STATUS_PROBLEM) {
 				m_impl->oneProcTriggerTable[i].statusType = TRIGGER_STATUS_OK;
 				createTriggerInfo(i, triggerInfoList);
@@ -393,7 +393,7 @@ void ArmBase::setServerConnectStaus(bool enable, OneProcEndType type)
 		createTriggerInfo(static_cast<int>(type), triggerInfoList);
 		createEventInfo(static_cast<int>(type), eventInfoList);
 
-		for (int i = static_cast<int>(type) + 1; i < COLLECT_NG_KIND_NUM; i++) {
+		for (int i = static_cast<int>(type) + 1; i < NUM_COLLECT_NG_KIND; i++) {
 			if (m_impl->oneProcTriggerTable[i].statusType == TRIGGER_STATUS_PROBLEM) {
 				m_impl->oneProcTriggerTable[i].statusType = TRIGGER_STATUS_OK;
 				createTriggerInfo(i, triggerInfoList);
