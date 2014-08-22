@@ -32,12 +32,6 @@ template<> ItemTablePtr::UsedCountablePtr(void)
 }
 
 ItemTablePtr
-leftOuterJoin(const ItemTablePtr &tablePtr0, const ItemTablePtr &tablePtr1)
-{
-	return ItemTablePtr(tablePtr0->leftOuterJoin(tablePtr1), false);
-}
-
-ItemTablePtr
 rightOuterJoin(const ItemTablePtr &tablePtr0, const ItemTablePtr &tablePtr1)
 {
 	return ItemTablePtr(tablePtr0->rightOuterJoin(tablePtr1), false);
