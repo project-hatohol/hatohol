@@ -237,14 +237,16 @@ static void setupHelperForTestDBUser(void)
 
 static void setupTestTriggerInfo(void)
 {
-	DBTablesMonitoring dbMonitoring;
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	for (size_t i = 0; i < NumTestTriggerInfo; i++)
 		dbMonitoring.addTriggerInfo(&testTriggerInfo[i]);
 }
 
 static void setupTestHostgroupElement(void)
 {
-	DBTablesMonitoring dbMonitoring;
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	for (size_t i = 0; i < NumTestHostgroupElement; i++)
 		dbMonitoring.addHostgroupElement(&testHostgroupElement[i]);
 }

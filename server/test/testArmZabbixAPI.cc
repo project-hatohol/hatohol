@@ -34,6 +34,7 @@
 #include "ItemData.h"
 #include "JSONParserAgent.h"
 #include "DBTablesAction.h"
+#include "ThreadLocalDBCache.h"
 using namespace std;
 
 namespace testArmZabbixAPI {
@@ -557,7 +558,8 @@ void test_oneProcWithoutFetchItems()
 	ArmZabbixAPITestee armZbxApiTestee(setupServer());
 	armZbxApiTestee.testMainThreadOneProc();
 
-	DBTablesMonitoring dbMonitoring;
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	EventInfoList eventInfoList;
 	TriggerInfoList triggerInfoList;
 	ItemInfoList itemInfoList;
@@ -593,7 +595,8 @@ void test_oneProcWithCopyOnDemandEnabled()
 	armZbxApiTestee.testSetCopyOnDemandEnabled(true);
 	armZbxApiTestee.testMainThreadOneProc();
 
-	DBTablesMonitoring dbMonitoring;
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	EventInfoList eventInfoList;
 	TriggerInfoList triggerInfoList;
 	ItemInfoList itemInfoList;
@@ -633,7 +636,8 @@ void test_oneProcWithFetchItems()
 	// needs information about hostgroup.
 	armZbxApiTestee.callUpdateGroupInformation();
 
-	DBTablesMonitoring dbMonitoring;
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	EventInfoList eventInfoList;
 	TriggerInfoList triggerInfoList;
 	ItemInfoList itemInfoList;

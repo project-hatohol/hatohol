@@ -27,6 +27,7 @@
 #include "Helpers.h"
 #include "DBClientTest.h"
 #include "DBAgentSQLite3.h"
+#include "ThreadLocalDBCache.h"
 
 using namespace std;
 using namespace mlpl;
@@ -697,7 +698,8 @@ void test_getHostgroupColumnNameWithTableName(gconstpointer data)
 void test_getDBTermCodec(void)
 {
 	HostResourceQueryOption option(TEST_SYNAPSE);
-	DBTablesMonitoring dbMonitoring;
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	cppcut_assert_equal(typeid(*dbMonitoring.getDBAgent()->getDBTermCodec()),
 	                    typeid(*option.getDBTermCodec()));
 }

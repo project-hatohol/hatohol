@@ -1556,7 +1556,8 @@ void ActionManager::postProcSpawnFailure(
 
 void ActionManager::fillTriggerInfoInEventInfo(EventInfo &eventInfo)
 {
-	DBTablesMonitoring dbMonitoring;
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	TriggerInfo triggerInfo;
 	TriggersQueryOption option(USER_ID_SYSTEM);
 	option.setTargetServerId(eventInfo.serverId);

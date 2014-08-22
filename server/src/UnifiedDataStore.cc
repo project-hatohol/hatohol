@@ -285,8 +285,8 @@ void UnifiedDataStore::fetchItems(const ServerIdType &targetServerId)
 void UnifiedDataStore::getTriggerList(TriggerInfoList &triggerList,
 				      const TriggersQueryOption &option)
 {
-	DBTablesMonitoring dbMonitoring;
-	dbMonitoring.getTriggerInfoList(triggerList, option);
+	ThreadLocalDBCache cache;
+	cache.getMonitoring().getTriggerInfoList(triggerList, option);
 }
 
 SmartTime UnifiedDataStore::getTimestampOfLastTrigger(
@@ -303,7 +303,8 @@ HatoholError UnifiedDataStore::getEventList(EventInfoList &eventList,
 					    EventsQueryOption &option,
 					    IncidentInfoVect *incidentVect)
 {
-	DBTablesMonitoring dbMonitoring;
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	return dbMonitoring.getEventInfoList(eventList, option, incidentVect);
 }
 
@@ -313,8 +314,8 @@ void UnifiedDataStore::getItemList(ItemInfoList &itemList,
 {
 	if (fetchItemsSynchronously)
 		fetchItems(option.getTargetServerId());
-	DBTablesMonitoring dbMonitoring;
-	dbMonitoring.getItemInfoList(itemList, option);
+	ThreadLocalDBCache cache;
+	cache.getMonitoring().getItemInfoList(itemList, option);
 }
 
 bool UnifiedDataStore::fetchItemsAsync(ClosureBase *closure,
@@ -331,8 +332,8 @@ bool UnifiedDataStore::fetchItemsAsync(ClosureBase *closure,
 void UnifiedDataStore::getHostList(HostInfoList &hostInfoList,
 				   const HostsQueryOption &option)
 {
-	DBTablesMonitoring dbMonitoring;
-	dbMonitoring.getHostInfoList(hostInfoList, option);
+	ThreadLocalDBCache cache;
+	cache.getMonitoring().getHostInfoList(hostInfoList, option);
 }
 
 HatoholError UnifiedDataStore::getActionList(
@@ -358,7 +359,8 @@ bool UnifiedDataStore::isIncidentSenderActionEnabled(void)
 HatoholError UnifiedDataStore::getHostgroupInfoList
   (HostgroupInfoList &hostgroupInfoList, const HostgroupsQueryOption &option)
 {
-	DBTablesMonitoring dbMonitoring;
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	return dbMonitoring.getHostgroupInfoList(hostgroupInfoList,option);
 }
 
@@ -366,7 +368,8 @@ HatoholError UnifiedDataStore::getHostgroupElementList(
   HostgroupElementList &hostgroupElementList,
   const HostgroupElementQueryOption &option)
 {
-	DBTablesMonitoring dbMonitoring;
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	return dbMonitoring.getHostgroupElementList(hostgroupElementList,
 	                                            option);
 }
@@ -374,26 +377,27 @@ HatoholError UnifiedDataStore::getHostgroupElementList(
 size_t UnifiedDataStore::getNumberOfBadTriggers(
   const TriggersQueryOption &option, TriggerSeverityType severity)
 {
-	DBTablesMonitoring dbMonitoring;
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	return dbMonitoring.getNumberOfBadTriggers(option, severity);
 }
 
 size_t UnifiedDataStore::getNumberOfTriggers(const TriggersQueryOption &option)
 {
-	DBTablesMonitoring dbMonitoring;
-	return dbMonitoring.getNumberOfTriggers(option);
+	ThreadLocalDBCache cache;
+	return cache.getMonitoring().getNumberOfTriggers(option);
 }
 
 size_t UnifiedDataStore::getNumberOfGoodHosts(const TriggersQueryOption &option)
 {
-	DBTablesMonitoring dbMonitoring;
-	return dbMonitoring.getNumberOfGoodHosts(option);
+	ThreadLocalDBCache cache;
+	return cache.getMonitoring().getNumberOfGoodHosts(option);
 }
 
 size_t UnifiedDataStore::getNumberOfBadHosts(const TriggersQueryOption &option)
 {
-	DBTablesMonitoring dbMonitoring;
-	return dbMonitoring.getNumberOfBadHosts(option);
+	ThreadLocalDBCache cache;
+	return cache.getMonitoring().getNumberOfBadHosts(option);
 }
 
 size_t UnifiedDataStore::getNumberOfItems(const ItemsQueryOption &option,
@@ -401,14 +405,15 @@ size_t UnifiedDataStore::getNumberOfItems(const ItemsQueryOption &option,
 {
 	if (fetchItemsSynchronously)
 		fetchItems(option.getTargetServerId());
-	DBTablesMonitoring dbMonitoring;
-	return dbMonitoring.getNumberOfItems(option);
+	ThreadLocalDBCache cache;
+	return cache.getMonitoring().getNumberOfItems(option);
 }
 
 HatoholError UnifiedDataStore::getNumberOfMonitoredItemsPerSecond(
   const DataQueryOption &option, MonitoringServerStatus &serverStatus)
 {
-	DBTablesMonitoring dbMonitoring;
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	return dbMonitoring.getNumberOfMonitoredItemsPerSecond(option, serverStatus);
 }
 
@@ -431,10 +436,10 @@ HatoholError UnifiedDataStore::addAction(ActionDef &actionDef,
 
 void UnifiedDataStore::addEventList(const EventInfoList &eventList)
 {
-	DBTablesMonitoring dbMonitoring;
+	ThreadLocalDBCache cache;
 	ActionManager actionManager;
 	actionManager.checkEvents(eventList);
-	dbMonitoring.addEventInfoList(eventList);
+	cache.getMonitoring().addEventInfoList(eventList);
 }
 
 void UnifiedDataStore::getUserList(UserInfoList &userList,

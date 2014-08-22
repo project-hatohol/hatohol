@@ -25,6 +25,7 @@
 #include "DBClientTest.h"
 #include "Helpers.h"
 #include "JSONParserAgent.h"
+#include "ThreadLocalDBCache.h"
 #include <cppcutter.h>
 #include <gcutter.h>
 
@@ -221,8 +222,8 @@ void _assertSend(const HatoholErrorCode &expected,
 	IncidentInfo incident;
 	makeExpectedIncidentInfo(incident, tracker, event,
 				 g_redmineEmulator.getLastIssue());
-	DBTablesMonitoring dbMonitoring;
-	DBAgent *dbAgent = dbMonitoring.getDBAgent();
+	ThreadLocalDBCache cache;
+	DBAgent *dbAgent = cache.getMonitoring().getDBAgent();
 	string statement = "select * from incidents;";
 	string expect = makeIncidentOutput(incident);
 	assertDBContent(dbAgent, statement, expect);
@@ -330,8 +331,8 @@ void _assertThread(size_t numErrors, bool shouldSuccess = true)
 					 g_redmineEmulator.getLastIssue());
 		expect = makeIncidentOutput(incident);
 	}
-	DBTablesMonitoring dbMonitoring;
-	DBAgent *dbAgent = dbMonitoring.getDBAgent();
+	ThreadLocalDBCache cache;
+	DBAgent *dbAgent = cache.getMonitoring().getDBAgent();
 	string statement = "select * from incidents;";
 	assertDBContent(dbAgent, statement, expect);
 }

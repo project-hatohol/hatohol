@@ -800,7 +800,8 @@ void loadTestDBServer(void)
 
 void loadTestDBTriggers(void)
 {
-	DBTablesMonitoring dbMonitoring;
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	for (size_t i = 0; i < NumTestTriggerInfo; i++)
 		dbMonitoring.addTriggerInfo(&testTriggerInfo[i]);
@@ -808,7 +809,8 @@ void loadTestDBTriggers(void)
 
 void loadTestDBEvents(void)
 {
-	DBTablesMonitoring dbMonitoring;
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	for (size_t i = 0; i < NumTestEventInfo; i++)
 		dbMonitoring.addEventInfo(&testEventInfo[i]);
@@ -827,7 +829,8 @@ void loadTestDBIncidentTracker(void)
 
 void loadTestDBIncidents(void)
 {
-	DBTablesMonitoring dbMonitoring;
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	for (size_t i = 0; i < NumTestIncidentInfo; i++)
 		dbMonitoring.addIncidentInfo(&testIncidentInfo[i]);
 }
