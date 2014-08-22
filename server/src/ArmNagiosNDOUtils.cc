@@ -801,7 +801,7 @@ ArmBase::OneProcEndType ArmNagiosNDOUtils::mainThreadOneProc(void)
 				getItem();
 		}
 	} catch (const HatoholException &he) {
-		if (he.getErrCode() == HTERR_FAILED_CONNECT_DISCONNECT) {
+		if (he.getErrCode() == HTERR_FAILED_DISCONNECT_NAGIOS) {
 			MLPL_ERR("Error Connection: %s %d\n", he.what(), he.getErrCode());
 			return COLLECT_NG_DISCONNECT;
 		} else {
