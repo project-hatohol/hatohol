@@ -351,9 +351,9 @@ private:
 	}
 };
 
-AMQPConsumer::AMQPConsumer(const AMQPConnectionInfo &info,
+AMQPConsumer::AMQPConsumer(const AMQPConnectionInfo &connectionInfo,
 			   AMQPMessageHandler *handler)
-: m_info(info),
+: m_connectionInfo(connectionInfo),
   m_handler(handler)
 {
 }
@@ -364,7 +364,7 @@ AMQPConsumer::~AMQPConsumer()
 
 gpointer AMQPConsumer::mainThread(HatoholThreadArg *arg)
 {
-	AMQPConnection connection(m_info);
+	AMQPConnection connection(m_connectionInfo);
 	while (!isExitRequested()) {
 		if (!connection.isConnected()) {
 			connection.connect();
