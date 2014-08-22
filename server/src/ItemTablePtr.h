@@ -33,10 +33,6 @@ typedef std::list<ItemTablePtr>::iterator       ItemTablePtrListIterator;
 typedef std::list<ItemTablePtr>::const_iterator ItemTablePtrListConstIterator;
 
 ItemTablePtr
-innerJoin     (const ItemTablePtr &tablePtr0, const ItemTablePtr &tablePtr1,
-               size_t indexLeftJoinColumn, size_t indexRightJoinColumn);
-
-ItemTablePtr
 leftOuterJoin (const ItemTablePtr &tablePtr0, const ItemTablePtr &tablePtr1);
 
 ItemTablePtr
