@@ -22,7 +22,7 @@
 #include <Mutex.h>
 #include "DBAgentFactory.h"
 #include "DBTablesConfig.h"
-#include "CacheServiceDBClient.h"
+#include "ThreadLocalDBCache.h"
 #include "ConfigManager.h"
 #include "HatoholError.h"
 #include "Params.h"
@@ -548,10 +548,10 @@ string ServerQueryOption::getCondition(void) const
 		return condition;
 
 	// check allowed servers
-	CacheServiceDBClient cache;
-	DBTablesUser *dbUser = cache.getUser();
+	ThreadLocalDBCache cache;
+	DBTablesUser &dbUser = cache.getUser();
 	ServerHostGrpSetMap srvHostGrpSetMap;
-	dbUser->getServerHostGrpSetMap(srvHostGrpSetMap, getUserId());
+	dbUser.getServerHostGrpSetMap(srvHostGrpSetMap, getUserId());
 
 	size_t numServers = srvHostGrpSetMap.size();
 	if (numServers == 0) {
@@ -1324,9 +1324,9 @@ bool DBTablesConfig::canUpdateTargetServer(
 	if (!privilege.has(OPPRVLG_UPDATE_SERVER))
 		return false;
 
-	CacheServiceDBClient cache;
-	DBTablesUser *dbUser = cache.getUser();
-	return dbUser->isAccessible(monitoringServerInfo->id, privilege, false);
+	ThreadLocalDBCache cache;
+	DBTablesUser &dbUser = cache.getUser();
+	return dbUser.isAccessible(monitoringServerInfo->id, privilege, false);
 }
 
 bool DBTablesConfig::canDeleteTargetServer(
@@ -1338,9 +1338,9 @@ bool DBTablesConfig::canDeleteTargetServer(
 	if (!privilege.has(OPPRVLG_DELETE_SERVER))
 		return false;
 
-	CacheServiceDBClient cache;
-	DBTablesUser *dbUser = cache.getUser();
-	return dbUser->isAccessible(serverId, privilege);
+	ThreadLocalDBCache cache;
+	DBTablesUser &dbUser = cache.getUser();
+	return dbUser.isAccessible(serverId, privilege);
 }
 
 void DBTablesConfig::selectArmPluginInfo(DBAgent::SelectExArg &arg)

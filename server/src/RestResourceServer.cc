@@ -18,7 +18,7 @@
  */
 
 #include "RestResourceServer.h"
-#include "CacheServiceDBClient.h"
+#include "ThreadLocalDBCache.h"
 #include "UnifiedDataStore.h"
 #include "HatoholArmPluginInterface.h"
 #include "HatoholArmPluginGate.h"
@@ -64,9 +64,9 @@ static bool canUpdateServer(
                 return true;
         if (!privilege.has(OPPRVLG_UPDATE_SERVER))
                 return false;
-        CacheServiceDBClient cache;
-        DBTablesUser *dbUser = cache.getUser();
-        return dbUser->isAccessible(serverInfo.id, privilege);
+        ThreadLocalDBCache cache;
+        DBTablesUser &dbUser = cache.getUser();
+        return dbUser.isAccessible(serverInfo.id, privilege);
 }
 
 static void addNumberOfAllowedHostgroups(UnifiedDataStore *dataStore,
@@ -414,9 +414,9 @@ void RestResourceServer::handlerPutServer(void)
 	// TODO: Use unified data store and consider wethere the 'option'
 	// for privilege is needed for getting information. We've already
 	// checked it above. So it's not absolutely necessary.
-	CacheServiceDBClient cache;
-	DBTablesConfig *dbConfig = cache.getConfig();
-	dbConfig->getArmPluginInfo(armPluginInfo, serverId);
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
+	dbConfig.getArmPluginInfo(armPluginInfo, serverId);
 
 	// check the request
 	bool allowEmpty = true;

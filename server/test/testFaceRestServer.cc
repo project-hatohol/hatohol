@@ -23,7 +23,7 @@
 #include "FaceRest.h"
 #include "Helpers.h"
 #include "DBClientTest.h"
-#include "CacheServiceDBClient.h"
+#include "ThreadLocalDBCache.h"
 #include "UnifiedDataStore.h"
 #include "HatoholArmPluginInterface.h"
 #include "FaceRestTestUtils.h"
@@ -124,12 +124,12 @@ void _assertAddServerWithSetup(const StringMap &params,
 static void _assertServerConnStat(JSONParserAgent *parser)
 {
 	// Make expected data
-	CacheServiceDBClient cache;
-	DBTablesConfig *dbConfig = cache.getConfig();
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
 	ServerIdSet expectIdSet;
 	DataQueryContextPtr dqCtxPtr(new DataQueryContext(USER_ID_SYSTEM),
 	                             false);
-	dbConfig->getServerIdSet(expectIdSet, dqCtxPtr);
+	dbConfig.getServerIdSet(expectIdSet, dqCtxPtr);
 	cppcut_assert_equal(true, expectIdSet.size() > 1);
 
 	// Check
@@ -208,7 +208,8 @@ void test_addServer(void)
 	assertAddServerWithSetup(params, HTERR_OK);
 
 	// check the content in the DB
-	DBTablesConfig dbConfig;
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
 	string statement = "select * from servers ";
 	statement += " order by id desc limit 1";
 	string expectedOutput = makeServerInfoOutput(expected);
@@ -233,7 +234,8 @@ void test_addServerWithHapiParams(void)
 	assertAddServerWithSetup(params, HTERR_OK);
 
 	// check the content in the DB
-	DBTablesConfig dbConfig;
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
 	string statement = "select * from arm_plugins";
 	statement += " order by id desc limit 1";
 	string expectedOutput = makeArmPluginInfoOutput(armPluginInfo);
@@ -293,7 +295,8 @@ void test_updateServer(gconstpointer data)
 	assertValueInParser(g_parser, "id", srcSvInfo.id);
 
 	// check the content in the DB
-	DBTablesConfig dbConfig;
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
 	string statement = StringUtils::sprintf(
 	                     "select * from servers where id=%d", srcSvInfo.id);
 	updateSvInfo.id = srcSvInfo.id;
@@ -346,7 +349,8 @@ void test_updateServerWithArmPlugin(void)
 	assertValueInParser(g_parser, "id", serverInfo.id);
 
 	// check the content in the DB
-	DBTablesConfig dbConfig;
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
 	string statement = StringUtils::sprintf(
 	  "SELECT * FROM servers WHERE id=%d", serverInfo.id);
 	// TODO: serverInfo2StringMap() doesn't set dbName. Is this OK ?

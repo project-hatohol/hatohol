@@ -27,7 +27,7 @@
 #include "DBClientTest.h"
 #include "DBAgentSQLite3.h"
 #include "DBAgentMySQL.h"
-#include "CacheServiceDBClient.h"
+#include "ThreadLocalDBCache.h"
 #include "SQLUtils.h"
 #include "Reaper.h"
 #include "ConfigManager.h"
@@ -601,8 +601,8 @@ void _assertServersInDB(const ServerIdSet &excludeServerIdSet)
 			continue;
 		expect += makeServerInfoOutput(serverInfo);
 	}
-	CacheServiceDBClient cache;
-	assertDBContent(&cache.getConfig()->getDBAgent(), statement, expect);
+	ThreadLocalDBCache cache;
+	assertDBContent(&cache.getConfig().getDBAgent(), statement, expect);
 }
 
 void _assertArmPluginsInDB(const set<int> &excludeIdSet)
@@ -619,8 +619,8 @@ void _assertArmPluginsInDB(const set<int> &excludeIdSet)
 			continue;
 		expect += makeArmPluginInfoOutput(armPluginInfo);
 	}
-	CacheServiceDBClient cache;
-	assertDBContent(&cache.getConfig()->getDBAgent(), statement, expect);
+	ThreadLocalDBCache cache;
+	assertDBContent(&cache.getConfig().getDBAgent(), statement, expect);
 }
 
 void _assertUsersInDB(const UserIdSet &excludeUserIdSet)
@@ -640,8 +640,8 @@ void _assertUsersInDB(const UserIdSet &excludeUserIdSet)
 		  Utils::sha256(userInfo.password).c_str(),
 		  userInfo.flags);
 	}
-	CacheServiceDBClient cache;
-	assertDBContent(&cache.getUser()->getDBAgent(), statement, expect);
+	ThreadLocalDBCache cache;
+	assertDBContent(&cache.getUser().getDBAgent(), statement, expect);
 }
 
 void _assertAccessInfoInDB(const AccessInfoIdSet &excludeAccessInfoIdSet)
@@ -659,8 +659,8 @@ void _assertAccessInfoInDB(const AccessInfoIdSet &excludeAccessInfoIdSet)
 		  "%" FMT_ACCESS_INFO_ID "|%" FMT_USER_ID "|%d|%" PRIu64 "\n",
 		  id, accessInfo.userId, accessInfo.serverId, accessInfo.hostgroupId);
 	}
-	CacheServiceDBClient cache;
-	assertDBContent(&cache.getUser()->getDBAgent(), statement, expect);
+	ThreadLocalDBCache cache;
+	assertDBContent(&cache.getUser().getDBAgent(), statement, expect);
 }
 
 void _assertUserRoleInfoInDB(UserRoleInfo &userRoleInfo) 
@@ -670,8 +670,8 @@ void _assertUserRoleInfoInDB(UserRoleInfo &userRoleInfo)
 	                     DBTablesUser::TABLE_NAME_USER_ROLES,
 			     userRoleInfo.id);
 	string expect = makeUserRoleInfoOutput(userRoleInfo);
-	DBTablesUser dbUser;
-	assertDBContent(&dbUser.getDBAgent(), statement, expect);
+	ThreadLocalDBCache cache;
+	assertDBContent(&cache.getUser().getDBAgent(), statement, expect);
 }
 #define assertUserRoleInfoInDB(I) cut_trace(_assertUserRoleInfoInDB(I))
 
@@ -690,8 +690,8 @@ void _assertUserRolesInDB(const UserRoleIdSet &excludeUserRoleIdSet)
 		userRoleInfo.id = userRoleId;
 		expect += makeUserRoleInfoOutput(userRoleInfo);
 	}
-	CacheServiceDBClient cache;
-	assertDBContent(&cache.getUser()->getDBAgent(), statement, expect);
+	ThreadLocalDBCache cache;
+	assertDBContent(&cache.getUser().getDBAgent(), statement, expect);
 }
 
 void _assertIncidentTrackersInDB(const IncidentTrackerIdSet &excludeServerIdSet)
@@ -710,8 +710,8 @@ void _assertIncidentTrackersInDB(const IncidentTrackerIdSet &excludeServerIdSet)
 			continue;
 		expect += makeIncidentTrackerInfoOutput(incidentTrackerInfo);
 	}
-	CacheServiceDBClient cache;
-	assertDBContent(&cache.getConfig()->getDBAgent(), statement, expect);
+	ThreadLocalDBCache cache;
+	assertDBContent(&cache.getConfig().getDBAgent(), statement, expect);
 }
 
 static bool makeTestDB(MYSQL *mysql, const string &dbName)
@@ -791,7 +791,8 @@ exit:
 
 void loadTestDBServer(void)
 {
-	DBTablesConfig dbConfig;
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	for (size_t i = 0; i < NumTestServerInfo; i++)
 		dbConfig.addTargetServer(&testServerInfo[i], privilege);
@@ -799,7 +800,8 @@ void loadTestDBServer(void)
 
 void loadTestDBTriggers(void)
 {
-	DBTablesMonitoring dbMonitoring;
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	for (size_t i = 0; i < NumTestTriggerInfo; i++)
 		dbMonitoring.addTriggerInfo(&testTriggerInfo[i]);
@@ -807,7 +809,8 @@ void loadTestDBTriggers(void)
 
 void loadTestDBEvents(void)
 {
-	DBTablesMonitoring dbMonitoring;
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	for (size_t i = 0; i < NumTestEventInfo; i++)
 		dbMonitoring.addEventInfo(&testEventInfo[i]);
@@ -815,7 +818,8 @@ void loadTestDBEvents(void)
 
 void loadTestDBIncidentTracker(void)
 {
-	DBTablesConfig dbConfig;
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	for (size_t i = 0; i < NumTestIncidentTrackerInfo; i++) {
 		dbConfig.addIncidentTracker(testIncidentTrackerInfo[i],
@@ -825,7 +829,8 @@ void loadTestDBIncidentTracker(void)
 
 void loadTestDBIncidents(void)
 {
-	DBTablesMonitoring dbMonitoring;
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	for (size_t i = 0; i < NumTestIncidentInfo; i++)
 		dbMonitoring.addIncidentInfo(&testIncidentInfo[i]);
 }
@@ -865,7 +870,8 @@ void setupTestDBHost(const bool &dbRecreate, const bool &loadTestData)
 
 void loadTestDBUser(void)
 {
-	DBTablesUser dbUser;
+	ThreadLocalDBCache cache;
+	DBTablesUser &dbUser = cache.getUser();
 	HatoholError err;
 	OperationPrivilege opePrivilege(ALL_PRIVILEGES);
 	for (size_t i = 0; i < NumTestUserInfo; i++) {
@@ -876,7 +882,8 @@ void loadTestDBUser(void)
 
 void loadTestDBAccessList(void)
 {
-	DBTablesUser dbUser;
+	ThreadLocalDBCache cache;
+	DBTablesUser &dbUser = cache.getUser();
 	HatoholError err;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	for (size_t i = 0; i < NumTestAccessInfo; i++) {
@@ -887,7 +894,8 @@ void loadTestDBAccessList(void)
 
 void loadTestDBUserRole(void)
 {
-	DBTablesUser dbUser;
+	ThreadLocalDBCache cache;
+	DBTablesUser &dbUser = cache.getUser();
 	HatoholError err;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	for (size_t i = 0; i < NumTestUserRoleInfo; i++) {
@@ -911,7 +919,8 @@ void setupTestDBUser(bool dbRecreate, bool loadTestData)
 
 void loadTestDBArmPlugin(void)
 {
-	DBTablesConfig dbConfig;
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
 	for (size_t i = 0; i < NumTestArmPluginInfo; i++) {
 		// Make a copy since armPluginInfo.id will be set.
 		ArmPluginInfo armPluginInfo = testArmPluginInfo[i];
@@ -922,7 +931,8 @@ void loadTestDBArmPlugin(void)
 
 void loadTestDBAction(void)
 {
-	DBTablesAction dbAction;
+	ThreadLocalDBCache cache;
+	DBTablesAction &dbAction = cache.getAction();
 	OperationPrivilege privilege(USER_ID_SYSTEM);
 	for (size_t i = 0; i < NumTestActionDef; i++)
 		dbAction.addAction(testActionDef[i], privilege);
@@ -1109,11 +1119,11 @@ void defineDBPath(DBDomainId domainId, const string &dbPath)
 
 UserIdType searchMaxTestUserId(void)
 {
-	CacheServiceDBClient cache;
-	DBTablesUser *dbUser = cache.getUser();
+	ThreadLocalDBCache cache;
+	DBTablesUser &dbUser = cache.getUser();
 	UserInfoList userInfoList;
 	UserQueryOption option(USER_ID_SYSTEM);
-	dbUser->getUserInfoList(userInfoList, option);
+	dbUser.getUserInfoList(userInfoList, option);
 	cppcut_assert_equal(false, userInfoList.empty());
 
 	UserIdType userId = 0;
@@ -1132,11 +1142,11 @@ static UserIdType findUserCommon(const OperationPrivilegeType &type,
 	UserIdType userId = INVALID_USER_ID;
 	OperationPrivilegeFlag flag = OperationPrivilege::makeFlag(type);
 
-	CacheServiceDBClient cache;
-	DBTablesUser *dbUser = cache.getUser();
+	ThreadLocalDBCache cache;
+	DBTablesUser &dbUser = cache.getUser();
 	UserInfoList userInfoList;
 	UserQueryOption option(USER_ID_SYSTEM);
-	dbUser->getUserInfoList(userInfoList, option);
+	dbUser.getUserInfoList(userInfoList, option);
 	cppcut_assert_equal(false, userInfoList.empty());
 
 	UserInfoListIterator userInfo = userInfoList.begin();

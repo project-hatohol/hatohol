@@ -20,6 +20,7 @@
 #include "IncidentSenderRedmine.h"
 #include "JSONBuilderAgent.h"
 #include "JSONParserAgent.h"
+#include "ThreadLocalDBCache.h"
 #include <Mutex.h>
 #include <libsoup/soup.h>
 
@@ -299,8 +300,8 @@ HatoholError IncidentSenderRedmine::send(const EventInfo &event)
 	IncidentInfo incidentInfo;
 	HatoholError result = buildIncidentInfo(incidentInfo, response, event);
 	if (result == HTERR_OK) {
-		DBTablesMonitoring dbMonitoring;
-		dbMonitoring.addIncidentInfo(&incidentInfo);
+		ThreadLocalDBCache cache;
+		cache.getMonitoring().addIncidentInfo(&incidentInfo);
 	}
 
 	return result;

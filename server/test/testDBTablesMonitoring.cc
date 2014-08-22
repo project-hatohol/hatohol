@@ -25,7 +25,7 @@
 #include "Helpers.h"
 #include "DBClientTest.h"
 #include "Params.h"
-#include "CacheServiceDBClient.h"
+#include "ThreadLocalDBCache.h"
 #include "testDBTablesMonitoring.h"
 #include <algorithm>
 #include "TestHostResourceQueryOption.h"

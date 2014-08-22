@@ -34,6 +34,7 @@ using namespace mlpl;
 #include "UnifiedDataStore.h"
 #include "HatoholDBUtils.h"
 #include "HostInfoCache.h"
+#include "ThreadLocalDBCache.h"
 
 using namespace std;
 
@@ -43,12 +44,14 @@ static const guint DEFAULT_IDLE_TIMEOUT = 60;
 struct ArmZabbixAPI::Impl
 {
 	const ServerIdType zabbixServerId;
-	DBTablesMonitoring dbMonitoring;
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring;
 	HostInfoCache      hostInfoCache;
 
 	// constructors
 	Impl(const MonitoringServerInfo &serverInfo)
-	: zabbixServerId(serverInfo.id)
+	: zabbixServerId(serverInfo.id),
+	  dbMonitoring(cache.getMonitoring())
 	{
 	}
 };

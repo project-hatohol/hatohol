@@ -26,7 +26,7 @@
 #include "DBTablesConfig.h"
 #include "DataStoreManager.h"
 #include "ActionManager.h"
-#include "CacheServiceDBClient.h"
+#include "ThreadLocalDBCache.h"
 #include "ItemFetchWorker.h"
 #include "DataStoreFactory.h"
 #include "HatoholArmPluginGate.h" // TODO: remove after dynamic_cast is deleted
@@ -251,11 +251,11 @@ UnifiedDataStore *UnifiedDataStore::getInstance(void)
 
 void UnifiedDataStore::start(const bool &autoRun)
 {
-	CacheServiceDBClient cache;
-	DBTablesConfig *dbConfig = cache.getConfig();
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
 	MonitoringServerInfoList monitoringServers;
 	ServerQueryOption option(USER_ID_SYSTEM);
-	dbConfig->getTargetServers(monitoringServers, option);
+	dbConfig.getTargetServers(monitoringServers, option);
 
 	MonitoringServerInfoListConstIterator svInfoItr
 	  = monitoringServers.begin();
@@ -285,17 +285,17 @@ void UnifiedDataStore::fetchItems(const ServerIdType &targetServerId)
 void UnifiedDataStore::getTriggerList(TriggerInfoList &triggerList,
 				      const TriggersQueryOption &option)
 {
-	DBTablesMonitoring dbMonitoring;
-	dbMonitoring.getTriggerInfoList(triggerList, option);
+	ThreadLocalDBCache cache;
+	cache.getMonitoring().getTriggerInfoList(triggerList, option);
 }
 
 SmartTime UnifiedDataStore::getTimestampOfLastTrigger(
   const ServerIdType &serverId)
 {
-	CacheServiceDBClient cache;
-	DBTablesMonitoring *dbMonitoring = cache.getMonitoring();
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	const timespec ts =
-	  {dbMonitoring->getLastChangeTimeOfTrigger(serverId), 0};
+	  {dbMonitoring.getLastChangeTimeOfTrigger(serverId), 0};
 	return SmartTime(ts);
 }
 
@@ -303,7 +303,8 @@ HatoholError UnifiedDataStore::getEventList(EventInfoList &eventList,
 					    EventsQueryOption &option,
 					    IncidentInfoVect *incidentVect)
 {
-	DBTablesMonitoring dbMonitoring;
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	return dbMonitoring.getEventInfoList(eventList, option, incidentVect);
 }
 
@@ -313,8 +314,8 @@ void UnifiedDataStore::getItemList(ItemInfoList &itemList,
 {
 	if (fetchItemsSynchronously)
 		fetchItems(option.getTargetServerId());
-	DBTablesMonitoring dbMonitoring;
-	dbMonitoring.getItemInfoList(itemList, option);
+	ThreadLocalDBCache cache;
+	cache.getMonitoring().getItemInfoList(itemList, option);
 }
 
 bool UnifiedDataStore::fetchItemsAsync(ClosureBase *closure,
@@ -331,34 +332,35 @@ bool UnifiedDataStore::fetchItemsAsync(ClosureBase *closure,
 void UnifiedDataStore::getHostList(HostInfoList &hostInfoList,
 				   const HostsQueryOption &option)
 {
-	DBTablesMonitoring dbMonitoring;
-	dbMonitoring.getHostInfoList(hostInfoList, option);
+	ThreadLocalDBCache cache;
+	cache.getMonitoring().getHostInfoList(hostInfoList, option);
 }
 
 HatoholError UnifiedDataStore::getActionList(
   ActionDefList &actionList, const ActionsQueryOption &option)
 {
-	DBTablesAction dbAction;
-	return dbAction.getActionList(actionList, option);
+	ThreadLocalDBCache cache;
+	return cache.getAction().getActionList(actionList, option);
 }
 
 HatoholError UnifiedDataStore::deleteActionList(
   const ActionIdList &actionIdList, const OperationPrivilege &privilege)
 {
-	DBTablesAction dbAction;
-	return dbAction.deleteActions(actionIdList, privilege);
+	ThreadLocalDBCache cache;
+	return cache.getAction().deleteActions(actionIdList, privilege);
 }
 
 bool UnifiedDataStore::isIncidentSenderActionEnabled(void)
 {
-	DBTablesAction dbAction;
-	return dbAction.isIncidentSenderEnabled();
+	ThreadLocalDBCache cache;
+	return cache.getAction().isIncidentSenderEnabled();
 }
 
 HatoholError UnifiedDataStore::getHostgroupInfoList
   (HostgroupInfoList &hostgroupInfoList, const HostgroupsQueryOption &option)
 {
-	DBTablesMonitoring dbMonitoring;
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	return dbMonitoring.getHostgroupInfoList(hostgroupInfoList,option);
 }
 
@@ -366,7 +368,8 @@ HatoholError UnifiedDataStore::getHostgroupElementList(
   HostgroupElementList &hostgroupElementList,
   const HostgroupElementQueryOption &option)
 {
-	DBTablesMonitoring dbMonitoring;
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	return dbMonitoring.getHostgroupElementList(hostgroupElementList,
 	                                            option);
 }
@@ -374,26 +377,27 @@ HatoholError UnifiedDataStore::getHostgroupElementList(
 size_t UnifiedDataStore::getNumberOfBadTriggers(
   const TriggersQueryOption &option, TriggerSeverityType severity)
 {
-	DBTablesMonitoring dbMonitoring;
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	return dbMonitoring.getNumberOfBadTriggers(option, severity);
 }
 
 size_t UnifiedDataStore::getNumberOfTriggers(const TriggersQueryOption &option)
 {
-	DBTablesMonitoring dbMonitoring;
-	return dbMonitoring.getNumberOfTriggers(option);
+	ThreadLocalDBCache cache;
+	return cache.getMonitoring().getNumberOfTriggers(option);
 }
 
 size_t UnifiedDataStore::getNumberOfGoodHosts(const TriggersQueryOption &option)
 {
-	DBTablesMonitoring dbMonitoring;
-	return dbMonitoring.getNumberOfGoodHosts(option);
+	ThreadLocalDBCache cache;
+	return cache.getMonitoring().getNumberOfGoodHosts(option);
 }
 
 size_t UnifiedDataStore::getNumberOfBadHosts(const TriggersQueryOption &option)
 {
-	DBTablesMonitoring dbMonitoring;
-	return dbMonitoring.getNumberOfBadHosts(option);
+	ThreadLocalDBCache cache;
+	return cache.getMonitoring().getNumberOfBadHosts(option);
 }
 
 size_t UnifiedDataStore::getNumberOfItems(const ItemsQueryOption &option,
@@ -401,14 +405,15 @@ size_t UnifiedDataStore::getNumberOfItems(const ItemsQueryOption &option,
 {
 	if (fetchItemsSynchronously)
 		fetchItems(option.getTargetServerId());
-	DBTablesMonitoring dbMonitoring;
-	return dbMonitoring.getNumberOfItems(option);
+	ThreadLocalDBCache cache;
+	return cache.getMonitoring().getNumberOfItems(option);
 }
 
 HatoholError UnifiedDataStore::getNumberOfMonitoredItemsPerSecond(
   const DataQueryOption &option, MonitoringServerStatus &serverStatus)
 {
-	DBTablesMonitoring dbMonitoring;
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	return dbMonitoring.getNumberOfMonitoredItemsPerSecond(option, serverStatus);
 }
 
@@ -425,113 +430,113 @@ void UnifiedDataStore::setCopyOnDemandEnabled(bool enable)
 HatoholError UnifiedDataStore::addAction(ActionDef &actionDef,
                                          const OperationPrivilege &privilege)
 {
-	DBTablesAction dbAction;
-	return dbAction.addAction(actionDef, privilege);
+	ThreadLocalDBCache cache;
+	return cache.getAction().addAction(actionDef, privilege);
 }
 
 void UnifiedDataStore::addEventList(const EventInfoList &eventList)
 {
-	DBTablesMonitoring dbMonitoring;
+	ThreadLocalDBCache cache;
 	ActionManager actionManager;
 	actionManager.checkEvents(eventList);
-	dbMonitoring.addEventInfoList(eventList);
+	cache.getMonitoring().addEventInfoList(eventList);
 }
 
 void UnifiedDataStore::getUserList(UserInfoList &userList,
                                    const UserQueryOption &option)
 {
-	CacheServiceDBClient cache;
-	DBTablesUser *dbUser = cache.getUser();
-	dbUser->getUserInfoList(userList, option);
+	ThreadLocalDBCache cache;
+	DBTablesUser &dbUser = cache.getUser();
+	dbUser.getUserInfoList(userList, option);
 }
 
 HatoholError UnifiedDataStore::addUser(
   UserInfo &userInfo, const OperationPrivilege &privilege)
 {
-	CacheServiceDBClient cache;
-	DBTablesUser *dbUser = cache.getUser();
-	return dbUser->addUserInfo(userInfo, privilege);
+	ThreadLocalDBCache cache;
+	DBTablesUser &dbUser = cache.getUser();
+	return dbUser.addUserInfo(userInfo, privilege);
 }
 
 HatoholError UnifiedDataStore::updateUser(
   UserInfo &userInfo, const OperationPrivilege &privilege)
 {
-	CacheServiceDBClient cache;
-	DBTablesUser *dbUser = cache.getUser();
-	return dbUser->updateUserInfo(userInfo, privilege);
+	ThreadLocalDBCache cache;
+	DBTablesUser &dbUser = cache.getUser();
+	return dbUser.updateUserInfo(userInfo, privilege);
 }
 
 HatoholError UnifiedDataStore::deleteUser(
   UserIdType userId, const OperationPrivilege &privilege)
 {
-	CacheServiceDBClient cache;
-	DBTablesUser *dbUser = cache.getUser();
-	return dbUser->deleteUserInfo(userId, privilege);
+	ThreadLocalDBCache cache;
+	DBTablesUser &dbUser = cache.getUser();
+	return dbUser.deleteUserInfo(userId, privilege);
 }
 
 HatoholError UnifiedDataStore::getAccessInfoMap(
   ServerAccessInfoMap &srvAccessInfoMap, const AccessInfoQueryOption &option)
 {
-	CacheServiceDBClient cache;
-	DBTablesUser *dbUser = cache.getUser();
-	return dbUser->getAccessInfoMap(srvAccessInfoMap, option);
+	ThreadLocalDBCache cache;
+	DBTablesUser &dbUser = cache.getUser();
+	return dbUser.getAccessInfoMap(srvAccessInfoMap, option);
 }
 
 HatoholError UnifiedDataStore::addAccessInfo(
   AccessInfo &userInfo, const OperationPrivilege &privilege)
 {
-	CacheServiceDBClient cache;
-	DBTablesUser *dbUser = cache.getUser();
-	return dbUser->addAccessInfo(userInfo, privilege);
+	ThreadLocalDBCache cache;
+	DBTablesUser &dbUser = cache.getUser();
+	return dbUser.addAccessInfo(userInfo, privilege);
 }
 
 HatoholError UnifiedDataStore::deleteAccessInfo(
   AccessInfoIdType id, const OperationPrivilege &privilege)
 {
-	CacheServiceDBClient cache;
-	DBTablesUser *dbUser = cache.getUser();
-	return dbUser->deleteAccessInfo(id, privilege);
+	ThreadLocalDBCache cache;
+	DBTablesUser &dbUser = cache.getUser();
+	return dbUser.deleteAccessInfo(id, privilege);
 }
 
 void UnifiedDataStore::getUserRoleList(UserRoleInfoList &userRoleList,
 				       const UserRoleQueryOption &option)
 {
-	CacheServiceDBClient cache;
-	DBTablesUser *dbUser = cache.getUser();
-	dbUser->getUserRoleInfoList(userRoleList, option);
+	ThreadLocalDBCache cache;
+	DBTablesUser &dbUser = cache.getUser();
+	dbUser.getUserRoleInfoList(userRoleList, option);
 }
 
 HatoholError UnifiedDataStore::addUserRole(
   UserRoleInfo &userRoleInfo, const OperationPrivilege &privilege)
 {
-	CacheServiceDBClient cache;
-	DBTablesUser *dbUser = cache.getUser();
-	return dbUser->addUserRoleInfo(userRoleInfo, privilege);
+	ThreadLocalDBCache cache;
+	DBTablesUser &dbUser = cache.getUser();
+	return dbUser.addUserRoleInfo(userRoleInfo, privilege);
 }
 
 HatoholError UnifiedDataStore::updateUserRole(
   UserRoleInfo &userRoleInfo, const OperationPrivilege &privilege)
 {
-	CacheServiceDBClient cache;
-	DBTablesUser *dbUser = cache.getUser();
-	return dbUser->updateUserRoleInfo(userRoleInfo, privilege);
+	ThreadLocalDBCache cache;
+	DBTablesUser &dbUser = cache.getUser();
+	return dbUser.updateUserRoleInfo(userRoleInfo, privilege);
 }
 
 HatoholError UnifiedDataStore::deleteUserRole(
   UserRoleIdType userRoleId, const OperationPrivilege &privilege)
 {
-	CacheServiceDBClient cache;
-	DBTablesUser *dbUser = cache.getUser();
-	return dbUser->deleteUserRoleInfo(userRoleId, privilege);
+	ThreadLocalDBCache cache;
+	DBTablesUser &dbUser = cache.getUser();
+	return dbUser.deleteUserRoleInfo(userRoleId, privilege);
 }
 
 void UnifiedDataStore::getTargetServers(
   MonitoringServerInfoList &monitoringServers, ServerQueryOption &option,
   ArmPluginInfoVect *armPluginInfoVect)
 {
-	CacheServiceDBClient cache;
-	DBTablesConfig *dbConfig = cache.getConfig();
-	dbConfig->getTargetServers(monitoringServers, option,
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
+	dbConfig.getTargetServers(monitoringServers, option,
 	                           armPluginInfoVect);
 }
 
@@ -539,9 +544,9 @@ HatoholError UnifiedDataStore::addTargetServer(
   MonitoringServerInfo &svInfo, ArmPluginInfo &armPluginInfo,
   const OperationPrivilege &privilege, const bool &autoRun)
 {
-	CacheServiceDBClient cache;
-	DBTablesConfig *dbConfig = cache.getConfig();
-	HatoholError err = dbConfig->addTargetServer(&svInfo, privilege,
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
+	HatoholError err = dbConfig.addTargetServer(&svInfo, privilege,
 	                                             &armPluginInfo);
 	if (err != HTERR_OK)
 		return err;
@@ -553,9 +558,9 @@ HatoholError UnifiedDataStore::updateTargetServer(
   MonitoringServerInfo &svInfo, ArmPluginInfo &armPluginInfo,
   const OperationPrivilege &privilege)
 {
-	CacheServiceDBClient cache;
-	DBTablesConfig *dbConfig = cache.getConfig();
-	HatoholError err = dbConfig->updateTargetServer(&svInfo, privilege,
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
+	HatoholError err = dbConfig.updateTargetServer(&svInfo, privilege,
 	                                                &armPluginInfo);
 	if (err != HTERR_OK)
 		return err;
@@ -570,9 +575,9 @@ HatoholError UnifiedDataStore::updateTargetServer(
 HatoholError UnifiedDataStore::deleteTargetServer(
   const ServerIdType &serverId, const OperationPrivilege &privilege)
 {
-	CacheServiceDBClient cache;
-	DBTablesConfig *dbConfig = cache.getConfig();
-	HatoholError err = dbConfig->deleteTargetServer(serverId, privilege);
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
+	HatoholError err = dbConfig.deleteTargetServer(serverId, privilege);
 	if (err != HTERR_OK)
 		return err;
 
@@ -582,10 +587,10 @@ HatoholError UnifiedDataStore::deleteTargetServer(
 void UnifiedDataStore::getServerConnStatusVector(
   ServerConnStatusVector &svConnStatVec, DataQueryContext *dataQueryContext)
 {
-	CacheServiceDBClient cache;
-	DBTablesConfig *dbConfig = cache.getConfig();
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
 	ServerIdSet serverIdSet;
-	dbConfig->getServerIdSet(serverIdSet, dataQueryContext);
+	dbConfig.getServerIdSet(serverIdSet, dataQueryContext);
 	svConnStatVec.reserve(serverIdSet.size());
 
 	ServerIdSetIterator serverIdItr = serverIdSet.begin();
@@ -604,34 +609,34 @@ void UnifiedDataStore::getIncidentTrackers(
   IncidentTrackerInfoVect &incidentTrackerVect,
   IncidentTrackerQueryOption &option)
 {
-	CacheServiceDBClient cache;
-	DBTablesConfig *dbConfig = cache.getConfig();
-	dbConfig->getIncidentTrackers(incidentTrackerVect, option);
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
+	dbConfig.getIncidentTrackers(incidentTrackerVect, option);
 }
 
 HatoholError UnifiedDataStore::addIncidentTracker(
   IncidentTrackerInfo &incidentTrackerInfo, const OperationPrivilege &privilege)
 {
-	CacheServiceDBClient cache;
-	DBTablesConfig *dbConfig = cache.getConfig();
-	return dbConfig->addIncidentTracker(incidentTrackerInfo, privilege);
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
+	return dbConfig.addIncidentTracker(incidentTrackerInfo, privilege);
 }
 
 HatoholError UnifiedDataStore::updateIncidentTracker(
   IncidentTrackerInfo &incidentTrackerInfo, const OperationPrivilege &privilege)
 {
-	CacheServiceDBClient cache;
-	DBTablesConfig *dbConfig = cache.getConfig();
-	return dbConfig->updateIncidentTracker(incidentTrackerInfo, privilege);
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
+	return dbConfig.updateIncidentTracker(incidentTrackerInfo, privilege);
 }
 
 HatoholError UnifiedDataStore::deleteIncidentTracker(
   const IncidentTrackerIdType &incidentTrackerId,
   const OperationPrivilege &privilege)
 {
-	CacheServiceDBClient cache;
-	DBTablesConfig *dbConfig = cache.getConfig();
-	return dbConfig->deleteIncidentTracker(incidentTrackerId, privilege);
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
+	return dbConfig.deleteIncidentTracker(incidentTrackerId, privilege);
 }
 
 DataStoreVector UnifiedDataStore::getDataStoreVector(void)

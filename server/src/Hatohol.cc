@@ -36,7 +36,7 @@ using namespace mlpl;
 #include "ActorCollector.h"
 #include "DBTablesUser.h"
 #include "DBTablesAction.h"
-#include "CacheServiceDBClient.h"
+#include "ThreadLocalDBCache.h"
 #include "SessionManager.h"
 #include "UnifiedDataStore.h"
 #include "ChildProcessManager.h"
@@ -72,6 +72,7 @@ static void reset(const CommandLineOptions *cmdLineOpts)
 	ConfigManager::reset(cmdLineOpts);
 
 	DBAgentSQLite3::reset();
+	DBHatohol::reset();
 	DBClient::reset();
 	DBTablesConfig::reset(); // must be after DBClient::reset()
 	DBTablesUser::reset();
@@ -79,7 +80,7 @@ static void reset(const CommandLineOptions *cmdLineOpts)
 	DBTablesHost::reset();   // must be after DBHatohol::reset()
 
 	ActionManager::reset();
-	CacheServiceDBClient::reset();
+	ThreadLocalDBCache::reset();
 
 	UnifiedDataStore::getInstance()->reset();
 }

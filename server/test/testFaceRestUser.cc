@@ -22,7 +22,7 @@
 #include "FaceRest.h"
 #include "Helpers.h"
 #include "DBClientTest.h"
-#include "CacheServiceDBClient.h"
+#include "ThreadLocalDBCache.h"
 #include "UnifiedDataStore.h"
 #include "SessionManager.h"
 #include "FaceRestTestUtils.h"
@@ -175,8 +175,8 @@ static void _assertUpdateOrAddUser(const string &name)
 	  parameters["name"].c_str(),
 	  Utils::sha256( parameters["password"]).c_str(),
 	  parameters["flags"].c_str());
-	CacheServiceDBClient cache;
-	assertDBContent(&cache.getUser()->getDBAgent(), statement, expect);
+	ThreadLocalDBCache cache;
+	assertDBContent(&cache.getUser().getDBAgent(), statement, expect);
 }
 #define assertUpdateOrAddUser(U) cut_trace(_assertUpdateOrAddUser(U))
 

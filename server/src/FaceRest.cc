@@ -38,7 +38,7 @@
 #include "DBTablesUser.h"
 #include "DBTablesConfig.h"
 #include "SessionManager.h"
-#include "CacheServiceDBClient.h"
+#include "ThreadLocalDBCache.h"
 #include "HatoholArmPluginInterface.h"
 #include "HatoholArmPluginGate.h"
 #include "RestResourceAction.h"
@@ -232,8 +232,8 @@ FaceRest::FaceRest(FaceRestParam *param)
 	if (port) {
 		m_impl->port = port;
 	} else {
-		DBTablesConfig dbConfig;
-		int port = dbConfig.getFaceRestPort();
+		ThreadLocalDBCache cache;
+		int port = cache.getConfig().getFaceRestPort();
 		if (port != 0 && Utils::isValidPort(port))
 			m_impl->port = port;
 	}
@@ -536,8 +536,8 @@ void FaceRest::handlerLogin(ResourceHandler *job)
 		return;
 	}
 
-	DBTablesUser dbUser;
-	UserIdType userId = dbUser.getUserId(user, password);
+	ThreadLocalDBCache cache;
+	UserIdType userId = cache.getUser().getUserId(user, password);
 	if (userId == INVALID_USER_ID) {
 		MLPL_INFO("Failed to authenticate: Client: %s, User: %s.\n",
 			  soup_client_context_get_host(job->m_client), user);

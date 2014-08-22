@@ -20,7 +20,7 @@
 #include <exception>
 #include "Utils.h"
 #include "ConfigManager.h"
-#include "CacheServiceDBClient.h"
+#include "ThreadLocalDBCache.h"
 #include "DBAgentFactory.h"
 #include "DBTablesAction.h"
 #include "DBTablesConfig.h"
@@ -853,22 +853,23 @@ ItemDataNullFlagType DBTablesAction::getNullFlag
 static void takeTriggerInfo(TriggerInfo &triggerInfo,
   const ServerIdType &serverId, const TriggerIdType &triggerId)
 {
-	DBTablesMonitoring dbMonitoring;
+	ThreadLocalDBCache cache;
 	TriggersQueryOption option(USER_ID_SYSTEM);
 	option.setTargetServerId(serverId);
 	option.setTargetId(triggerId);
-	dbMonitoring.getTriggerInfo(triggerInfo, option);
+	cache.getMonitoring().getTriggerInfo(triggerInfo, option);
 }
 
 static void getHostgroupIdStringList(string &stringHostgroupId,
   const ServerIdType &serverId, const HostIdType &hostId)
 {
-	DBTablesMonitoring dbMonitoring;
+	ThreadLocalDBCache cache;
 	HostgroupElementList hostgroupElementList;
 	HostgroupElementQueryOption option(USER_ID_SYSTEM);
 	option.setTargetServerId(serverId);
 	option.setTargetHostId(hostId);
-	dbMonitoring.getHostgroupElementList(hostgroupElementList,option);
+	cache.getMonitoring().getHostgroupElementList(hostgroupElementList,
+	                                              option);
 
 	HostgroupElementListIterator it = hostgroupElementList.begin();
 	for(; it != hostgroupElementList.end(); ++it) {
@@ -997,8 +998,8 @@ gboolean DBTablesAction::deleteInvalidActionsExec(gpointer data)
 	struct : public ExceptionCatchable {
 		void operator ()(void) override
 		{
-			CacheServiceDBClient cache;
-			cache.getAction()->deleteInvalidActions();
+			ThreadLocalDBCache cache;
+			cache.getAction().deleteInvalidActions();
 		}
 	} deleter;
 	deleter.exec();
@@ -1286,9 +1287,9 @@ bool ActionUserIdSet::isValidActionOwnerId(const UserIdType id)
 
 void ActionUserIdSet::get(UserIdSet &userIdSet)
 {
-	CacheServiceDBClient cache;
-	DBTablesUser *dbUser = cache.getUser();
-	dbUser->getUserIdSet(userIdSet);
+	ThreadLocalDBCache cache;
+	DBTablesUser &dbUser = cache.getUser();
+	dbUser.getUserIdSet(userIdSet);
 }
 
 // ---------------------------------------------------------------------------
@@ -1298,9 +1299,9 @@ ActionValidator::ActionValidator()
 {
 	ActionUserIdSet::get(m_userIdSet);
 
-	CacheServiceDBClient cache;
-	DBTablesConfig *dbConfig = cache.getConfig();
-	dbConfig->getIncidentTrackerIdSet(m_incidentTrackerIdSet);
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
+	dbConfig.getIncidentTrackerIdSet(m_incidentTrackerIdSet);
 }
 
 bool ActionValidator::isValidIncidentTracker(const ActionDef &actionDef)

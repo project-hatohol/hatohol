@@ -22,7 +22,7 @@
 #include <Mutex.h>
 #include "Params.h"
 #include "DBClient.h"
-#include "CacheServiceDBClient.h"
+#include "ThreadLocalDBCache.h"
 using namespace std;
 using namespace mlpl;
 
@@ -40,6 +40,8 @@ static const size_t DEFAULT_MAX_NUM_CACHE_MYSQL = 100;
 // use a file descriptor). So we cannot have the instances unlimitedly.
 static const size_t DEFAULT_MAX_NUM_CACHE_SQLITE3 = 100;
 
+// --------------------------------------------------------------------------
+// TODO: These two static members are removed after DBClient is deleted.
 typedef map<DBDomainId, DBClient *> DBClientMap;
 typedef DBClientMap::iterator   DBClientMapIterator;
 
@@ -51,32 +53,68 @@ typedef DBClientList::iterator DBClientListIterator;
 
 typedef map<DBClient *, DBClientListIterator> DBClientListItrMap;
 typedef DBClientListItrMap::iterator          DBClientListItrMapIterator;
+// --------------------------------------------------------------------------
 
-struct CacheLRU {
-	DBClientList       list;
-	DBClientListItrMap map;
+typedef list<DB *>         DBList;
+typedef DBList::iterator   DBListIterator;
 
-	void touch(DBClient *dbClient)
+typedef map<DB *, DBListIterator> DBListItrMap;
+typedef DBListItrMap::iterator    DBListItrMapIterator;
+
+struct ThreadLocalDBCacheLRU {
+	DBList       list;
+	DBListItrMap map;
+
+	void touch(DB *db)
 	{
-		DBClientListItrMapIterator it = map.find(dbClient);
+		DBListItrMapIterator it = map.find(db);
 		if (it != map.end())
 			list.erase(it->second);
-		map[dbClient] = list.insert(list.begin(), dbClient);
+		map[db] = list.insert(list.begin(), db);
+	}
+
+	void erase(DB *db)
+	{
+		DBListItrMapIterator it = map.find(db);
+		HATOHOL_ASSERT(it != map.end(), "Not found. db: %p", db);
+		list.erase(it->second);
+		map.erase(it);
 	}
 };
 
-struct CacheServiceDBClient::Impl {
+struct ThreadContext {
+	DBHatohol   *dbHatohol;
+
+	ThreadContext(void)
+	: dbHatohol(NULL)
+	{
+	}
+
+	virtual ~ThreadContext()
+	{
+		delete dbHatohol;
+	}
+};
+
+typedef set<ThreadContext *>       ThreadContextSet;
+typedef ThreadContextSet::iterator ThreadContextSetIterator;
+
+struct ThreadLocalDBCache::Impl {
 	// This lock is for DBClientMapList. clientMap can be accessed w/o
 	// the lock because it is on the thread local storage.
-	static Mutex          lock;
-	static DBClientMapSet dbClientMapSet;
+	static DBClientMapSet dbClientMapSet;   // TODO: remove
 	// TODO: The limitation of cahed objects is now WIP.
 	static size_t maxNumCacheMySQL;
 	static size_t maxNumCacheSQLite3;
 
-	static __thread DBClientMap *clientMap;
+	static __thread DBClientMap *clientMap; // TODO: remove
 
-	static DBClient *get(DBDomainId domainId)
+	static Mutex                   lock;
+	static ThreadContextSet        ctxSet;
+	static ThreadLocalDBCacheLRU              dbCacheLRU;
+	static __thread ThreadContext *ctx;
+
+	static DBClient *get(DBDomainId domainId) // TODO: remove
 	{
 		if (!clientMap) {
 			clientMap = new DBClientMap();
@@ -105,6 +143,16 @@ struct CacheServiceDBClient::Impl {
 		return dbClient;
 	}
 
+	static ThreadContext *getContext(void)
+	{
+		AutoMutex autoMutex(&lock);
+		if (!ctx) {
+			ctx = new ThreadContext();
+			ctxSet.insert(ctx);
+		}
+		return ctx;
+	}
+
 	static void reset(void)
 	{
 		// This only free the DBClientMap instance of the current
@@ -119,7 +167,13 @@ struct CacheServiceDBClient::Impl {
 		cleanup();
 	}
 
-	static void deleteDBClientMap(DBClientMap *dbClientMap)
+	static void insert(DB *db)
+	{
+		AutoMutex autoMutex(&lock);
+		dbCacheLRU.touch(db);
+	}
+
+	static void deleteDBClientMap(DBClientMap *dbClientMap) // TODO: remove
 	{
 		DBClientMapIterator it = dbClientMap->begin();
 		for (; it != dbClientMap->end(); ++it)
@@ -130,6 +184,9 @@ struct CacheServiceDBClient::Impl {
 
 	static void cleanup(void)
 	{
+		_cleanup();
+
+		// TODO: remove the following lines
 		if (!clientMap)
 			return;
 		lock.lock();
@@ -143,69 +200,97 @@ struct CacheServiceDBClient::Impl {
 		deleteDBClientMap(clientMap);
 		clientMap = NULL;
 	}
+
+	static void _cleanup(void)
+	{
+		if (!ctx)
+			return;
+		AutoMutex autoMutex(&lock);
+		ThreadContextSetIterator it = ctxSet.find(ctx);
+		const bool found = (it != ctxSet.end());
+		HATOHOL_ASSERT(found, "Failed to found: ctx: %p\n", ctx);
+		ctxSet.erase(it);
+		dbCacheLRU.erase(ctx->dbHatohol);
+		delete ctx;
+		ctx = NULL;
+	}
 };
-__thread DBClientMap *CacheServiceDBClient::Impl::clientMap = NULL;
-Mutex          CacheServiceDBClient::Impl::lock;
-DBClientMapSet CacheServiceDBClient::Impl::dbClientMapSet;
-size_t CacheServiceDBClient::Impl::maxNumCacheMySQL
+
+// TODO: These two static members are removed after DBClient is deleted.
+__thread DBClientMap *ThreadLocalDBCache::Impl::clientMap = NULL;
+DBClientMapSet ThreadLocalDBCache::Impl::dbClientMapSet;
+
+size_t ThreadLocalDBCache::Impl::maxNumCacheMySQL
   = DEFAULT_MAX_NUM_CACHE_MYSQL;
-size_t CacheServiceDBClient::Impl::maxNumCacheSQLite3
+size_t ThreadLocalDBCache::Impl::maxNumCacheSQLite3
   = DEFAULT_MAX_NUM_CACHE_SQLITE3;
+
+Mutex                   ThreadLocalDBCache::Impl::lock;
+ThreadContextSet        ThreadLocalDBCache::Impl::ctxSet;
+ThreadLocalDBCacheLRU              ThreadLocalDBCache::Impl::dbCacheLRU;
+__thread ThreadContext *ThreadLocalDBCache::Impl::ctx = NULL;
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-void CacheServiceDBClient::reset(void)
+void ThreadLocalDBCache::reset(void)
 {
 	Impl::reset();
 }
 
-void CacheServiceDBClient::cleanup(void)
+void ThreadLocalDBCache::cleanup(void)
 {
 	Impl::cleanup();
 }
 
-size_t CacheServiceDBClient::getNumberOfDBClientMaps(void)
+size_t ThreadLocalDBCache::getNumberOfDBClientMaps(void)
 {
-	Impl::lock.lock();
-	size_t num = Impl::dbClientMapSet.size();
-	Impl::lock.unlock();
-	return num;
+	AutoMutex autoMutex(&Impl::lock);
+	return Impl::dbCacheLRU.list.size();
 }
 
-CacheServiceDBClient::CacheServiceDBClient(void)
-{
-}
-
-CacheServiceDBClient::~CacheServiceDBClient()
+ThreadLocalDBCache::ThreadLocalDBCache(void)
 {
 }
 
-DBTablesUser *CacheServiceDBClient::getUser(void)
+ThreadLocalDBCache::~ThreadLocalDBCache()
 {
-	return get<DBTablesUser>(DB_TABLES_ID_USER);
 }
 
-DBTablesConfig *CacheServiceDBClient::getConfig(void)
+DBHatohol &ThreadLocalDBCache::getDBHatohol(void)
 {
-	return get<DBTablesConfig>(DB_DOMAIN_ID_CONFIG);
+	ThreadContext *ctx = Impl::getContext();
+	if (!ctx->dbHatohol)
+		ctx->dbHatohol = new DBHatohol();
+	Impl::insert(ctx->dbHatohol);
+	return *ctx->dbHatohol;
 }
 
-DBTablesAction *CacheServiceDBClient::getAction(void)
+DBTablesConfig &ThreadLocalDBCache::getConfig(void)
 {
-	return get<DBTablesAction>(DB_DOMAIN_ID_CONFIG);
+	return *get<DBTablesConfig>(DB_DOMAIN_ID_CONFIG);
 }
 
-DBTablesMonitoring *CacheServiceDBClient::getMonitoring(void)
+DBTablesUser &ThreadLocalDBCache::getUser(void)
 {
-	return get<DBTablesMonitoring>(DB_TABLES_ID_MONITORING);
+	return *get<DBTablesUser>(DB_TABLES_ID_USER);
+}
+
+DBTablesAction &ThreadLocalDBCache::getAction(void)
+{
+	return *get<DBTablesAction>(DB_TABLES_ID_ACTION);
+}
+
+DBTablesMonitoring &ThreadLocalDBCache::getMonitoring(void)
+{
+	return *get<DBTablesMonitoring>(DB_TABLES_ID_MONITORING);
 }
 
 // ---------------------------------------------------------------------------
 // Private methods
 // ---------------------------------------------------------------------------
 template <class T>
-T *CacheServiceDBClient::get(DBDomainId domainId)
+T *ThreadLocalDBCache::get(DBDomainId domainId)
 {
 	DBClient *dbClient = Impl::get(domainId);
 	// Here we use static_cast, although this is downcast.

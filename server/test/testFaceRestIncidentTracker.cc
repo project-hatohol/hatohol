@@ -24,7 +24,7 @@
 #include "JSONParserAgent.h"
 #include "DBClientTest.h"
 #include "MultiLangTest.h"
-#include "CacheServiceDBClient.h"
+#include "ThreadLocalDBCache.h"
 #include "FaceRestTestUtils.h"
 using namespace std;
 using namespace mlpl;
@@ -105,8 +105,8 @@ static void _assertIncidentTrackerInDB(
 	}
 	string expected = makeIncidentTrackerInfoOutput(
 			    expectedIncidentTracker);
-	DBTablesConfig dbConfig;
-	assertDBContent(&dbConfig.getDBAgent(), statement, expected);
+	ThreadLocalDBCache cache;
+	assertDBContent(&cache.getConfig().getDBAgent(), statement, expected);
 }
 #define assertIncidentTrackerInDB(E, ...) \
 cut_trace(_assertIncidentTrackerInDB(E, ##__VA_ARGS__))

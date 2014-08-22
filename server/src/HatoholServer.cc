@@ -18,10 +18,10 @@
  */
 
 #include "HatoholThreadBase.h"
-#include "CacheServiceDBClient.h"
+#include "ThreadLocalDBCache.h"
 
 void hatoholThreadCleanup(HatoholThreadArg *arg)
 {
-	CacheServiceDBClient::cleanup();
+	ThreadLocalDBCache::cleanup();
 }
 

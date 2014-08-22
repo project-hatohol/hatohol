@@ -20,7 +20,7 @@
 #include "IncidentSender.h"
 #include "StringUtils.h"
 #include "LabelUtils.h"
-#include "CacheServiceDBClient.h"
+#include "ThreadLocalDBCache.h"
 #include <Mutex.h>
 #include "SimpleSemaphore.h"
 #include "Reaper.h"
@@ -191,12 +191,12 @@ const IncidentTrackerInfo &IncidentSender::getIncidentTrackerInfo(void)
 bool IncidentSender::getServerInfo(const EventInfo &event,
 				MonitoringServerInfo &server)
 {
-	CacheServiceDBClient cache;
-	DBTablesConfig *dbConfig = cache.getConfig();
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
 	ServerQueryOption option(USER_ID_SYSTEM);
 	option.setTargetServerId(event.serverId);
 	MonitoringServerInfoList servers;
-	dbConfig->getTargetServers(servers, option);
+	dbConfig.getTargetServers(servers, option);
 	if (servers.empty())
 		return false;
 	server = *(servers.begin());

@@ -32,7 +32,7 @@
 #include <SimpleSemaphore.h>
 #include "UnifiedDataStore.h"
 #include "HatoholArmPluginGate.h"
-#include "CacheServiceDBClient.h"
+#include "ThreadLocalDBCache.h"
 #include "ChildProcessManager.h"
 #include "StringUtils.h"
 #include "HostInfoCache.h"
@@ -121,10 +121,10 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 : HatoholArmPluginInterface(true),
   m_impl(new Impl(serverInfo, this))
 {
-	CacheServiceDBClient cache;
+	ThreadLocalDBCache cache;
 	const ServerIdType &serverId = m_impl->serverInfo.id;
-	DBTablesConfig *dbConfig = cache.getConfig();
-	if (!dbConfig->getArmPluginInfo(m_impl->armPluginInfo, serverId)) {
+	DBTablesConfig &dbConfig = cache.getConfig();
+	if (!dbConfig.getArmPluginInfo(m_impl->armPluginInfo, serverId)) {
 		MLPL_ERR("Failed to get ArmPluginInfo: serverId: %d\n",
 		         serverId);
 		return;
@@ -433,9 +433,9 @@ void HatoholArmPluginGate::cmdHandlerGetLastEventId(
 	SmartBuffer resBuf;
 	HapiResLastEventId *body =
 	  setupResponseBuffer<HapiResLastEventId>(resBuf);
-	CacheServiceDBClient cache;
-	DBTablesMonitoring *dbMonitoring = cache.getMonitoring();
-	body->lastEventId = dbMonitoring->getLastEventId(m_impl->serverInfo.id);
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	body->lastEventId = dbMonitoring.getLastEventId(m_impl->serverInfo.id);
 	reply(resBuf);
 }
 
@@ -452,9 +452,9 @@ void HatoholArmPluginGate::cmdHandlerSendUpdatedTriggers(
 	HatoholDBUtils::transformTriggersToHatoholFormat(
 	  trigInfoList, tablePtr, m_impl->serverInfo.id, m_impl->hostInfoCache);
 
-	CacheServiceDBClient cache;
-	DBTablesMonitoring *dbMonitoring = cache.getMonitoring();
-	dbMonitoring->addTriggerInfoList(trigInfoList);
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	dbMonitoring.addTriggerInfoList(trigInfoList);
 
 	replyOk();
 }
@@ -472,9 +472,9 @@ void HatoholArmPluginGate::cmdHandlerSendHosts(
 	HatoholDBUtils::transformHostsToHatoholFormat(
 	  hostInfoList, hostTablePtr, m_impl->serverInfo.id);
 
-	CacheServiceDBClient cache;
-	DBTablesMonitoring *dbMonitoring = cache.getMonitoring();
-	dbMonitoring->addHostInfoList(hostInfoList);
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	dbMonitoring.addHostInfoList(hostInfoList);
 
 	// TODO: consider if DBClientHatohol should have the cache
 	HostInfoListConstIterator hostInfoItr = hostInfoList.begin();
@@ -498,9 +498,9 @@ void HatoholArmPluginGate::cmdHandlerSendHostgroupElements(
 	HatoholDBUtils::transformHostsGroupsToHatoholFormat(
 	  hostgroupElementList, hostgroupElementTablePtr, m_impl->serverInfo.id);
 
-	CacheServiceDBClient cache;
-	DBTablesMonitoring *dbMonitoring = cache.getMonitoring();
-	dbMonitoring->addHostgroupElementList(hostgroupElementList);
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	dbMonitoring.addHostgroupElementList(hostgroupElementList);
 
 	replyOk();
 }
@@ -518,9 +518,9 @@ void HatoholArmPluginGate::cmdHandlerSendHostgroups(
 	HatoholDBUtils::transformGroupsToHatoholFormat(
 	  hostgroupInfoList, hostgroupTablePtr, m_impl->serverInfo.id);
 
-	CacheServiceDBClient cache;
-	DBTablesMonitoring *dbMonitoring = cache.getMonitoring();
-	dbMonitoring->addHostgroupInfoList(hostgroupInfoList);
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	dbMonitoring.addHostgroupInfoList(hostgroupInfoList);
 
 	replyOk();
 }

@@ -26,6 +26,7 @@
 #include "DBTablesAction.h"
 #include "DBClientTest.h"
 #include "Helpers.h"
+#include "ThreadLocalDBCache.h"
 using namespace std;
 using namespace mlpl;
 
@@ -236,14 +237,16 @@ static void setupHelperForTestDBUser(void)
 
 static void setupTestTriggerInfo(void)
 {
-	DBTablesMonitoring dbMonitoring;
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	for (size_t i = 0; i < NumTestTriggerInfo; i++)
 		dbMonitoring.addTriggerInfo(&testTriggerInfo[i]);
 }
 
 static void setupTestHostgroupElement(void)
 {
-	DBTablesMonitoring dbMonitoring;
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	for (size_t i = 0; i < NumTestHostgroupElement; i++)
 		dbMonitoring.addHostgroupElement(&testHostgroupElement[i]);
 }
@@ -520,9 +523,9 @@ void test_deleteNoOwnerAction(void)
 			excludeIdList.push_back(actionId);
 	}
 
-	DBTablesUser dbUser;
+	ThreadLocalDBCache cache;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	HatoholError err = dbUser.deleteUserInfo(targetId, privilege);
+	HatoholError err = cache.getUser().deleteUserInfo(targetId, privilege);
 	assertHatoholError(HTERR_OK, err);
 
 	DBTablesAction dbAction;
@@ -548,7 +551,8 @@ void test_deleteNoIncidentTrackerAction(void)
 			excludeIdList.push_back(actionId);
 	}
 
-	DBTablesConfig dbConfig;
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	HatoholError err = dbConfig.deleteIncidentTracker(targetId, privilege);
 	assertHatoholError(HTERR_OK, err);
@@ -933,7 +937,8 @@ void test_getActionListWithNoIncidentTracker(void)
 			excludeIdSet.insert(actionId);
 	}
 
-	DBTablesConfig dbConfig;
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	HatoholError err = dbConfig.deleteIncidentTracker(targetId, privilege);
 	assertHatoholError(HTERR_OK, err);

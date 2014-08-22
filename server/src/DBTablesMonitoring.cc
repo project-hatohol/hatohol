@@ -22,7 +22,7 @@
 #include "DBAgentFactory.h"
 #include "DBTablesMonitoring.h"
 #include "DBTablesUser.h"
-#include "CacheServiceDBClient.h"
+#include "ThreadLocalDBCache.h"
 #include "SQLUtils.h"
 #include "Params.h"
 #include "ItemGroupStream.h"

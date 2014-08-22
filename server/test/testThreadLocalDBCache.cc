@@ -17,43 +17,41 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <semaphore.h>
+#include <SimpleSemaphore.h>
 #include <errno.h>
 #include <cppcutter.h>
 #include "Hatohol.h"
-#include "CacheServiceDBClient.h"
+#include "ThreadLocalDBCache.h"
 #include "HatoholThreadBase.h"
 #include "Helpers.h"
 using namespace std;
 using namespace mlpl;
 
-namespace testCacheServiceDBClient {
+namespace testThreadLocalDBCache {
 
 class TestCacheServiceThread : public HatoholThreadBase {
 
-	DBTablesMonitoring *m_dbMonitoring;
-	sem_t            m_requestSem;
-	sem_t            m_completSem;
+	DBHatohol       *m_dbHatohol;
+	SimpleSemaphore  m_requestSem;
+	SimpleSemaphore  m_completSem;
 	bool             m_hasError;
 	bool             m_exitRequest;
 
 public:
 	TestCacheServiceThread(void)
-	: m_dbMonitoring(NULL),
+	: m_dbHatohol(NULL),
+	  m_requestSem(0),
+	  m_completSem(0),
 	  m_hasError(false),
 	  m_exitRequest(false)
 	{
-		cppcut_assert_equal(0, sem_init(&m_requestSem, 0, 0),
-		                    cut_message("errno: %d", errno));
-		cppcut_assert_equal(0, sem_init(&m_completSem, 0, 0),
-		                    cut_message("errno: %d", errno));
 	}
 
-	DBTablesMonitoring *callGetHatohol(void)
+	DBHatohol *callGetHatohol(void)
 	{
-		postSem(&m_requestSem);
-		waitSem(&m_completSem);
-		return m_dbMonitoring;
+		m_requestSem.post();
+		m_completSem.wait();
+		return m_dbHatohol;
 	}
 
 	bool hasError(void)
@@ -61,55 +59,28 @@ public:
 		return m_hasError;
 	}
 
-	DBTablesMonitoring *getPrevDBCHatohol(void)
+	DBHatohol *getPrevDBCHatohol(void)
 	{
-		return m_dbMonitoring;
+		return m_dbHatohol;
 	}
 
 	virtual void stop(void)
 	{
 		m_exitRequest = true;
-		postSem(&m_requestSem);
+		m_requestSem.post();
 		HatoholThreadBase::waitExit();
 	}
 
 protected:
-	bool postSem(sem_t *sem)
-	{
-		int ret = sem_post(sem);
-		if (ret == -1) {
-			MLPL_ERR("Failed to call sem_post(): %d\n", errno);
-			m_hasError = true;
-			return false;
-		}
-		return true;
-	}
-
-	void waitSem(sem_t *sem)
-	{
-		while (true) {
-			int ret = sem_wait(sem);
-			if (ret == -1 && errno == EINTR)
-				continue;
-			if (ret == -1) {
-				MLPL_ERR("Failed to call sem_wait(): %d\n",
-				         errno);
-				m_hasError = true;
-			}
-			break;
-		}
-	}
-
 	virtual gpointer mainThread(HatoholThreadArg *arg)
 	{
 		while (true) {
-			waitSem(&m_requestSem);
+			m_requestSem.wait();
 			if (m_exitRequest)
 				break;
-			CacheServiceDBClient cache;
-			m_dbMonitoring = cache.getMonitoring();
-			if (!postSem(&m_completSem))
-				break;
+			ThreadLocalDBCache cache;
+			m_dbHatohol = &cache.getDBHatohol();
+			m_completSem.post();
 		}
 		return NULL;
 	}
@@ -137,10 +108,23 @@ static void _assertType(DBClient *dbClient)
 
 static vector<TestCacheServiceThread *> g_threads;
 
+// This is temporary. We will make the same function in DBTablesTest. Then this
+// will be removed.
+static void setupTestDBHatohol(void)
+{
+	static const char *TEST_DB_NAME = "test_db_hatohol";
+	DBHatohol::setDefaultDBParams(TEST_DB_NAME,
+	                              TEST_DB_USER, TEST_DB_PASSWORD);
+	const bool dbRecreate = true;
+	makeTestMySQLDBIfNeeded(TEST_DB_NAME, dbRecreate);
+	setupTestDBConfig();
+}
+
 void cut_setup(void)
 {
 	hatoholInit();
-	setupTestDBUser();
+	setupTestDBUser(); // TODO: remove after setTestDBHatohol() implements the setup for DBTablesUser
+	setupTestDBHatohol();
 }
 
 void cut_teardown(void)
@@ -162,16 +146,16 @@ void cut_teardown(void)
 // ---------------------------------------------------------------------------
 void test_hasInstanceByThread(void)
 {
-	typedef set<DBTablesMonitoring *>       DBTablesMonitoringSet;
-	typedef DBTablesMonitoringSet::iterator DBTablesMonitoringSetIterator;
+	typedef set<DBHatohol *>       DBHatoholSet;
+	typedef DBHatoholSet::iterator DBHatoholSetIterator;
 	const size_t numTestThread = 3;
-	set<DBTablesMonitoring *> dbClientAddrs;
+	set<DBHatohol *> dbAddrs;
 	for (size_t i = 0; i < numTestThread; i++) {
 		TestCacheServiceThread *thr = new TestCacheServiceThread();
 		g_threads.push_back(thr);
 		thr->start();
-		pair<DBTablesMonitoringSetIterator, bool> result = 
-		  dbClientAddrs.insert(thr->callGetHatohol());
+		pair<DBHatoholSetIterator, bool> result =
+		  dbAddrs.insert(thr->callGetHatohol());
 		cppcut_assert_equal(true, result.second,
 		                    cut_message("i: %zd\n", i));
 	}
@@ -182,8 +166,8 @@ void test_ensureCached(void)
 	test_hasInstanceByThread();
 	for (size_t i = 0; i < g_threads.size(); i++) {
 		TestCacheServiceThread *thr = g_threads[i];
-		DBTablesMonitoring *prevDBCHatohol = thr->getPrevDBCHatohol();
-		DBTablesMonitoring *newDBCHatohol = thr->callGetHatohol();
+		DBHatohol *prevDBCHatohol = thr->getPrevDBCHatohol();
+		DBHatohol *newDBCHatohol = thr->callGetHatohol();
 		cppcut_assert_equal(prevDBCHatohol, newDBCHatohol);
 	}
 }
@@ -193,17 +177,17 @@ void test_cleanupOnThreadExit(void)
 	// Some thread may be running with the cache when this test is executed
 	// So the number of the cached DB may not be zero. We have to
 	// take into account it.
-	size_t numCached0 = CacheServiceDBClient::getNumberOfDBClientMaps();
+	size_t numCached0 = ThreadLocalDBCache::getNumberOfDBClientMaps();
 	test_hasInstanceByThread();
-	size_t numCached = CacheServiceDBClient::getNumberOfDBClientMaps();
+	size_t numCached = ThreadLocalDBCache::getNumberOfDBClientMaps();
 	cppcut_assert_equal(g_threads.size() + numCached0, numCached);
 	for (size_t i = 0; i < g_threads.size(); i++) {
 		TestCacheServiceThread *thr = g_threads[i];
 		bool hasError = deleteTestCacheServiceThread(thr);
 		g_threads[i] = NULL;
 		cppcut_assert_equal(true, hasError);
-		size_t newNumCached = 
-		  CacheServiceDBClient::getNumberOfDBClientMaps();
+		size_t newNumCached =
+		  ThreadLocalDBCache::getNumberOfDBClientMaps();
 		cppcut_assert_equal(numCached - 1, newNumCached);
 		numCached = newNumCached;
 	}
@@ -211,14 +195,14 @@ void test_cleanupOnThreadExit(void)
 
 void test_getMonitoring(void)
 {
-	CacheServiceDBClient cache;
-	assertType(DBTablesMonitoring, cache.getMonitoring());
+	ThreadLocalDBCache cache;
+	assertType(DBTablesMonitoring, &cache.getMonitoring());
 }
 
 void test_getUser(void)
 {
-	CacheServiceDBClient cache;
-	assertType(DBTablesUser, cache.getUser());
+	ThreadLocalDBCache cache;
+	assertType(DBTablesUser, &cache.getUser());
 }
 
 #if 0
@@ -229,8 +213,8 @@ void test_getUser(void)
 // expects a failure ?
 void test_new(void)
 {
-	CacheServiceDBClient *cache = new CacheServiceDBClient();
+	ThreadLocalDBCache *cache = new DBCache();
 }
 #endif
 
-} // namespace testCacheServiceDBClient
+} // namespace testThreadLocalDBCache
