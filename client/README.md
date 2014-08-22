@@ -35,7 +35,7 @@ maintained by [joequery]
 ## How to setup
 > See also [this page](https://github.com/project-hatohol/website/blob/master/contents/docs/install/14.06/ja/index.md)
 > to setup Hatohol for CentOS with the binary packages.
-(Only Japanese explaination is provided.) 
+(Only Japanese explanation is provided.) 
 
 ### Install Hatohol Client
 Hatohol Client is written as PATH FREE. So you can place it anywhere.
