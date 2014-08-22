@@ -39,13 +39,6 @@ namespace testDBTablesAction {
 	DBTablesAction &VAR_NAME = _dbHatohol.getAction();
 	***/
 
-struct TestDBTablesAction : public DBTablesAction {
-	uint64_t callGetLastInsertId(void)
-	{
-		return getLastInsertId();
-	}
-};
-
 static string makeExpectedString(const ActionDef &actDef, int expectedId)
 {
 	const ActionCondition &cond = actDef.condition;
