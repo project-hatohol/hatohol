@@ -279,21 +279,21 @@ void ArmBase::setInitialTriggerTable(void)
 	m_impl->ArmResultTriggerTable[COLLECT_NG_PERSER_ERROR].statusType =
 		TRIGGER_STATUS_ALL;
 	m_impl->ArmResultTriggerTable[COLLECT_NG_PERSER_ERROR].triggerId =
-		PARSER_ERROR_SERVER_TRIGGERID_NG;
+		FAILED_PARSER_ERROR_TRIGGERID;
 	m_impl->ArmResultTriggerTable[COLLECT_NG_PERSER_ERROR].msg = 
 		"Connection failure due to parse error";
 
 	m_impl->ArmResultTriggerTable[COLLECT_NG_DISCONNECT].statusType = 
 		TRIGGER_STATUS_ALL;
 	m_impl->ArmResultTriggerTable[COLLECT_NG_DISCONNECT].triggerId = 
-		DISCONNECT_SERVER_TRIGGERID_NG;
+		FAILED_CONNECT_ZABBIX_TRIGGERID;
 	m_impl->ArmResultTriggerTable[COLLECT_NG_DISCONNECT].msg = 
 		"Connection failure due to disconnection";
 
 	m_impl->ArmResultTriggerTable[COLLECT_NG_INTERNAL_ERROR].statusType =
 		TRIGGER_STATUS_ALL;
 	m_impl->ArmResultTriggerTable[COLLECT_NG_INTERNAL_ERROR].triggerId =
-		INTERNAL_ERROR_SERVER_TRIGGERID_NG;
+		FAILED_INTERNAL_ERROR_TRIGGERID;
 	m_impl->ArmResultTriggerTable[COLLECT_NG_INTERNAL_ERROR].msg = 
 		"Connection failure due to internal error";
 }

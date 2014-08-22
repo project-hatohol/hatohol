@@ -250,7 +250,7 @@ ItemTablePtr ZabbixAPI::getTrigger(int requestSince)
 			  "Failed to query triggers.");
 		else
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
-			  HTERR_FAILED_DISCONNECT_ZABBIX,
+			  HTERR_FAILED_CONNECT_ZABBIX,
 			  "%s", queryRet.getMessage().c_str());
 	}
 	JSONParserAgent parser(msg->response_body->data);
@@ -288,7 +288,7 @@ ItemTablePtr ZabbixAPI::getItems(void)
 			  "Failed to query items.");
 		else
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
-			  HTERR_FAILED_DISCONNECT_ZABBIX,
+			  HTERR_FAILED_CONNECT_ZABBIX,
 			  "%s", queryRet.getMessage().c_str());
 	}
 	JSONParserAgent parser(msg->response_body->data);
@@ -323,7 +323,7 @@ void ZabbixAPI::getHosts(
 			  "Failed to query hosts.");
 		else
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
-			  HTERR_FAILED_DISCONNECT_ZABBIX,
+			  HTERR_FAILED_CONNECT_ZABBIX,
 			  "%s", queryRet.getMessage().c_str());
 	}
 	JSONParserAgent parser(msg->response_body->data);
@@ -361,7 +361,7 @@ void ZabbixAPI::getGroups(ItemTablePtr &groupsTablePtr)
 			  "Failed to query groups.");
 		else
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
-			  HTERR_FAILED_DISCONNECT_ZABBIX,
+			  HTERR_FAILED_CONNECT_ZABBIX,
 			  "%s", queryRet.getMessage().c_str());
 	}
 	JSONParserAgent parser(msg->response_body->data);
@@ -394,7 +394,7 @@ ItemTablePtr ZabbixAPI::getApplications(const vector<uint64_t> &appIdVector)
 			  "Failed to query application.");
 		else
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
-			  HTERR_FAILED_DISCONNECT_ZABBIX,
+			  HTERR_FAILED_CONNECT_ZABBIX,
 			  "%s", queryRet.getMessage().c_str());
 	}
 	JSONParserAgent parser(msg->response_body->data);
@@ -441,7 +441,7 @@ ItemTablePtr ZabbixAPI::getEvents(uint64_t eventIdFrom, uint64_t eventIdTill)
 			  "Failed to query events.");
 		else
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
-			  HTERR_FAILED_DISCONNECT_ZABBIX,
+			  HTERR_FAILED_CONNECT_ZABBIX,
 			  "%s", queryRet.getMessage().c_str());
 	}
 	JSONParserAgent parser(msg->response_body->data);
@@ -699,7 +699,7 @@ SoupMessage *ZabbixAPI::queryCommon(JSONBuilderAgent &agent, HatoholError &query
 		g_object_unref(msg);
 		MLPL_ERR("Failed to get: code: %d: %s\n",
 	                 ret, m_impl->uri.c_str());
-		queryRet = HTERR_FAILED_DISCONNECT_ZABBIX;
+		queryRet = HTERR_FAILED_CONNECT_ZABBIX;
 		return NULL;
 	}
 	queryRet = HTERR_OK;
