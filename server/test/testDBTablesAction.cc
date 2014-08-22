@@ -32,13 +32,6 @@ using namespace mlpl;
 
 namespace testDBTablesAction {
 
-struct TestDBTablesAction : public DBTablesAction {
-	uint64_t callGetLastInsertId(void)
-	{
-		return getLastInsertId();
-	}
-};
-
 static string makeExpectedString(const ActionDef &actDef, int expectedId)
 {
 	const ActionCondition &cond = actDef.condition;
@@ -383,7 +376,7 @@ void test_addActionAndCheckOwner(void)
 	setupHelperForTestDBUser();
 
 	const UserIdType userId = findUserWith(OPPRVLG_CREATE_ACTION);
-	TestDBTablesAction dbAction;
+	DBTablesAction dbAction;
 	OperationPrivilege privilege(userId);
 	ActionDef &actDef = testActionDef[0];
 	assertHatoholError(HTERR_OK, dbAction.addAction(actDef, privilege));
@@ -402,7 +395,7 @@ void test_addActionWithoutPrivilege(void)
 	setupHelperForTestDBUser();
 
 	const UserIdType userId = findUserWithout(OPPRVLG_CREATE_ACTION);
-	TestDBTablesAction dbAction;
+	DBTablesAction dbAction;
 	OperationPrivilege privilege(userId);
 	ActionDef &actDef = testActionDef[0];
 	assertHatoholError(HTERR_NO_PRIVILEGE,
@@ -426,7 +419,7 @@ void test_addIncidentSenderActionByIncidentSettingsAdmin(void)
 	  = OperationPrivilege::makeFlag(OPPRVLG_CREATE_ACTION);
 	const UserIdType userId
 		= findUserWith(OPPRVLG_CREATE_INCIDENT_SETTING, excludeFlags);
-	TestDBTablesAction dbAction;
+	DBTablesAction dbAction;
 	OperationPrivilege privilege(userId);
 	int idx = findTestActionIdxByType(ACTION_INCIDENT_SENDER);
 	ActionIdType expectedId = 1;
@@ -452,7 +445,7 @@ void test_addIncidentSenderActionWithoutPrivilege(void)
 	  = OperationPrivilege::makeFlag(OPPRVLG_CREATE_INCIDENT_SETTING);
 	const UserIdType userId
 		= findUserWith(OPPRVLG_CREATE_ACTION, excludeFlags);
-	TestDBTablesAction dbAction;
+	DBTablesAction dbAction;
 	OperationPrivilege privilege(userId);
 	int idx = findTestActionIdxByType(ACTION_INCIDENT_SENDER);
 	assertHatoholError(HTERR_NO_PRIVILEGE,
