@@ -293,9 +293,9 @@ SmartTime UnifiedDataStore::getTimestampOfLastTrigger(
   const ServerIdType &serverId)
 {
 	ThreadLocalDBCache cache;
-	DBTablesMonitoring *dbMonitoring = cache.getMonitoring();
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	const timespec ts =
-	  {dbMonitoring->getLastChangeTimeOfTrigger(serverId), 0};
+	  {dbMonitoring.getLastChangeTimeOfTrigger(serverId), 0};
 	return SmartTime(ts);
 }
 

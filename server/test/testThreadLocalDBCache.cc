@@ -196,7 +196,7 @@ void test_cleanupOnThreadExit(void)
 void test_getMonitoring(void)
 {
 	ThreadLocalDBCache cache;
-	assertType(DBTablesMonitoring, cache.getMonitoring());
+	assertType(DBTablesMonitoring, &cache.getMonitoring());
 }
 
 void test_getUser(void)

@@ -281,9 +281,9 @@ DBTablesAction &ThreadLocalDBCache::getAction(void)
 	return *get<DBTablesAction>(DB_TABLES_ID_ACTION);
 }
 
-DBTablesMonitoring *ThreadLocalDBCache::getMonitoring(void)
+DBTablesMonitoring &ThreadLocalDBCache::getMonitoring(void)
 {
-	return get<DBTablesMonitoring>(DB_TABLES_ID_MONITORING);
+	return *get<DBTablesMonitoring>(DB_TABLES_ID_MONITORING);
 }
 
 // ---------------------------------------------------------------------------
