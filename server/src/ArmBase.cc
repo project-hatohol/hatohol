@@ -354,7 +354,7 @@ void ArmBase::createEventInfo(int i, EventInfoList &eventInfoList)
 	EventInfo eventInfo;
 
 	eventInfo.serverId = svInfo.id;
-	eventInfo.id = DISCONNECT_SERVER_EVENTID_TYPE;
+	eventInfo.id = DISCONNECT_SERVER_EVENT_ID;
 	clock_gettime(CLOCK_REALTIME, &eventInfo.time);
 	eventInfo.hostId = MONITORING_SERVER_SELF_ID;
 	eventInfo.triggerId = m_impl->oneProcTriggerTable[i].triggerId;

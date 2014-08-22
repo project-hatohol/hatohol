@@ -117,7 +117,7 @@ typedef std::list<EventInfo>          EventInfoList;
 typedef EventInfoList::iterator       EventInfoListIterator;
 typedef EventInfoList::const_iterator EventInfoListConstIterator;
 
-static const EventIdType DISCONNECT_SERVER_EVENTID_TYPE = 0;
+static const EventIdType DISCONNECT_SERVER_EVENT_ID = 0;
 
 struct ItemInfo {
 	ServerIdType        serverId;
