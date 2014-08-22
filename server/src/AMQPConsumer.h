@@ -22,12 +22,12 @@
 
 #include "HatoholThreadBase.h"
 
+class AMQPConnectionInfo;
 class AMQPMessageHandler;
 
 class AMQPConsumer : public HatoholThreadBase {
 public:
-	AMQPConsumer(const std::string &brokerUrl,
-		     const std::string &queueAddress,
+	AMQPConsumer(const AMQPConnectionInfo &info,
 		     AMQPMessageHandler *handler);
 	virtual ~AMQPConsumer();
 
@@ -35,8 +35,7 @@ protected:
 	virtual gpointer mainThread(HatoholThreadArg *arg) override;
 
 private:
-	std::string m_brokerUrl;
-	std::string m_queueAddress;
+	const AMQPConnectionInfo &m_info;
 	AMQPMessageHandler *m_handler;
 };
 

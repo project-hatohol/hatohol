@@ -26,13 +26,12 @@
 #include "UnifiedDataStore.h"
 #include "ArmFake.h"
 #include "AMQPConsumer.h"
+#include "AMQPConnectionInfo.h"
 #include "AMQPMessageHandler.h"
 #include "GateJSONEventMessage.h"
 
 using namespace std;
 using namespace mlpl;
-
-static const string DEFAULT_BROKER_URL = "localhost:5672";
 
 class AMQPJSONMessageHandler : public AMQPMessageHandler
 {
@@ -106,12 +105,14 @@ private:
 
 struct HatoholArmPluginGateJSON::Impl
 {
+	AMQPConnectionInfo m_connectionInfo;
 	AMQPConsumer *m_consumer;
 	AMQPJSONMessageHandler *m_handler;
 	ArmFake m_armFake;
 
 	Impl(const MonitoringServerInfo &serverInfo)
-	: m_consumer(NULL),
+	: m_connectionInfo(),
+	  m_consumer(NULL),
 	  m_handler(NULL),
 	  m_armFake(serverInfo)
 	{
@@ -125,20 +126,18 @@ struct HatoholArmPluginGateJSON::Impl
 			return;
 		}
 
-		string brokerUrl(armPluginInfo.brokerUrl);
-		if (brokerUrl.empty())
-			brokerUrl = DEFAULT_BROKER_URL;
+		if (!armPluginInfo.brokerUrl.empty())
+			m_connectionInfo.setURL(armPluginInfo.brokerUrl);
 
-		string queueAddress;
+		string queueName;
 		if (armPluginInfo.staticQueueAddress.empty())
-			queueAddress = generateBrokerAddress(serverInfo);
+			queueName = generateQueueName(serverInfo);
 		else
-			queueAddress = armPluginInfo.staticQueueAddress;
+			queueName = armPluginInfo.staticQueueAddress;
+		m_connectionInfo.setQueueName(queueName);
 
 		m_handler = new AMQPJSONMessageHandler(serverInfo);
-		m_consumer = new AMQPConsumer(brokerUrl,
-					      queueAddress,
-					      m_handler);
+		m_consumer = new AMQPConsumer(m_connectionInfo, m_handler);
 	}
 
 	~Impl()
@@ -158,7 +157,7 @@ struct HatoholArmPluginGateJSON::Impl
 	}
 
 private:
-	string generateBrokerAddress(const MonitoringServerInfo &serverInfo)
+	string generateQueueName(const MonitoringServerInfo &serverInfo)
 	{
 		return StringUtils::sprintf("gate.%" FMT_SERVER_ID,
 					    serverInfo.id);
