@@ -202,7 +202,7 @@ protected:
 	 * A SoupMessage object with the raw Zabbix servers's response.
 	 */
 	SoupMessage *queryApplication(const std::vector<uint64_t> &appIdVector,
-				      HatoholError *uerRet);
+				      HatoholError *queryRet);
 
 	/**
 	 * Get the events.

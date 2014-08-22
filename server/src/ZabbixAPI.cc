@@ -251,7 +251,7 @@ ItemTablePtr ZabbixAPI::getTrigger(int requestSince)
 		else
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
 			  HTERR_FAILED_CONNECT_DISCONNECT,
-			  "%s",queryRet.getMessage().c_str());
+			  "%s", queryRet.getMessage().c_str());
 	}
 	JSONParserAgent parser(msg->response_body->data);
 	if (parser.hasError()) {
@@ -289,7 +289,7 @@ ItemTablePtr ZabbixAPI::getItems(void)
 		else
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
 			  HTERR_FAILED_CONNECT_DISCONNECT,
-			  "%s",queryRet.getMessage().c_str());
+			  "%s", queryRet.getMessage().c_str());
 	}
 	JSONParserAgent parser(msg->response_body->data);
 	g_object_unref(msg);
@@ -324,7 +324,7 @@ void ZabbixAPI::getHosts(
 		else
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
 			  HTERR_FAILED_CONNECT_DISCONNECT,
-			  "%s",queryRet.getMessage().c_str());
+			  "%s", queryRet.getMessage().c_str());
 	}
 	JSONParserAgent parser(msg->response_body->data);
 	g_object_unref(msg);
@@ -362,7 +362,7 @@ void ZabbixAPI::getGroups(ItemTablePtr &groupsTablePtr)
 		else
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
 			  HTERR_FAILED_CONNECT_DISCONNECT,
-			  "%s",queryRet.getMessage().c_str());
+			  "%s", queryRet.getMessage().c_str());
 	}
 	JSONParserAgent parser(msg->response_body->data);
 	g_object_unref(msg);
@@ -395,7 +395,7 @@ ItemTablePtr ZabbixAPI::getApplications(const vector<uint64_t> &appIdVector)
 		else
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
 			  HTERR_FAILED_CONNECT_DISCONNECT,
-			  "%s",queryRet.getMessage().c_str());
+			  "%s", queryRet.getMessage().c_str());
 	}
 	JSONParserAgent parser(msg->response_body->data);
 	g_object_unref(msg);
@@ -442,7 +442,7 @@ ItemTablePtr ZabbixAPI::getEvents(uint64_t eventIdOffset, uint64_t eventIdTill)
 		else
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
 			  HTERR_FAILED_CONNECT_DISCONNECT,
-			  "%s",queryRet.getMessage().c_str());
+			  "%s", queryRet.getMessage().c_str());
 	}
 	JSONParserAgent parser(msg->response_body->data);
 	g_object_unref(msg);
