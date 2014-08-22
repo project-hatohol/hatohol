@@ -169,7 +169,7 @@ protected:
 	 * @return
 	 * A SoupMessage object with the raw Zabbix servers's response.
 	 */
-	SoupMessage *queryTrigger(HatoholError *queryRet, int requestSince = 0);
+	SoupMessage *queryTrigger(HatoholError &queryRet, int requestSince = 0);
 
 	/**
 	 * Get the triggers.
@@ -177,7 +177,7 @@ protected:
 	 * @return
 	 * A SoupMessage object with the raw Zabbix servers's response.
 	 */
-	SoupMessage *queryItem(HatoholError *queryRet);
+	SoupMessage *queryItem(HatoholError &queryRet);
 
 	/**
 	 * Get the hosts.
@@ -185,7 +185,7 @@ protected:
 	 * @return
 	 * A SoupMessage object with the raw Zabbix servers's response.
 	 */
-	SoupMessage *queryHost(HatoholError *queryRet);
+	SoupMessage *queryHost(HatoholError &queryRet);
 
 	/**
 	 * Get the groups.
@@ -193,7 +193,7 @@ protected:
 	 * @return
 	 * A SoupMessage object with the raw Zabbix servers's response.
 	 */
-	SoupMessage *queryGroup(HatoholError *queryRet);
+	SoupMessage *queryGroup(HatoholError &queryRet);
 
 	/**
 	 * Get the applications.
@@ -202,7 +202,7 @@ protected:
 	 * A SoupMessage object with the raw Zabbix servers's response.
 	 */
 	SoupMessage *queryApplication(const std::vector<uint64_t> &appIdVector,
-				      HatoholError *queryRet);
+				      HatoholError &queryRet);
 
 	/**
 	 * Get the events.
@@ -211,7 +211,7 @@ protected:
 	 * A SoupMessage object with the raw Zabbix servers's response.
 	 */
 	SoupMessage *queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill,
-				HatoholError *queryRet);
+				HatoholError &queryRet);
 
 	/**
 	 * Get the first or last event ID the target Zabbix server has.
@@ -223,7 +223,7 @@ protected:
 	 * @return
 	 * A SoupMessage object with the raw Zabbix servers's response.
 	 */
-	SoupMessage *queryEndEventId(const bool &isFirst, HatoholError *queryRet);
+	SoupMessage *queryEndEventId(const bool &isFirst, HatoholError &queryRet);
 
 	/**
 	 * Get the functions.
@@ -235,8 +235,8 @@ protected:
 	 */
 	ItemTablePtr getFunctions(void);
 
-	SoupMessage *queryCommon(JSONBuilderAgent &agent, HatoholError *queryRet);
-	SoupMessage *queryAPIVersion(HatoholError *queryRet);
+	SoupMessage *queryCommon(JSONBuilderAgent &agent, HatoholError &queryRet);
+	SoupMessage *queryAPIVersion(HatoholError &queryRet);
 	std::string getInitialJSONRequest(void);
 	bool parseInitialResponse(SoupMessage *msg);
 	void startObject(JSONParserAgent &parser, const std::string &name);

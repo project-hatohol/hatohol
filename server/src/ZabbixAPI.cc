@@ -108,7 +108,7 @@ const string &ZabbixAPI::getAPIVersion(void)
 		return m_impl->apiVersion;
 
 	HatoholError queryRet;
-	SoupMessage *msg = queryAPIVersion(&queryRet);
+	SoupMessage *msg = queryAPIVersion(queryRet);
 	if (!msg)
 		return m_impl->apiVersion;
 	Reaper<void> msgReaper(msg, g_object_unref);
@@ -242,7 +242,7 @@ void ZabbixAPI::clearAuthToken(void)
 ItemTablePtr ZabbixAPI::getTrigger(int requestSince)
 {
 	HatoholError queryRet;
-	SoupMessage *msg = queryTrigger(&queryRet, requestSince);
+	SoupMessage *msg = queryTrigger(queryRet, requestSince);
 	if (!msg){
 		if ( queryRet == HTERR_FAILED_INTERNAL_ERROR )
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
@@ -280,7 +280,7 @@ ItemTablePtr ZabbixAPI::getTrigger(int requestSince)
 ItemTablePtr ZabbixAPI::getItems(void)
 {
 	HatoholError queryRet;
-	SoupMessage *msg = queryItem(&queryRet);
+	SoupMessage *msg = queryItem(queryRet);
 	if (!msg){
 		if ( queryRet == HTERR_FAILED_INTERNAL_ERROR )
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
@@ -315,7 +315,7 @@ void ZabbixAPI::getHosts(
   ItemTablePtr &hostsTablePtr, ItemTablePtr &hostsGroupsTablePtr)
 {
 	HatoholError queryRet;
-	SoupMessage *msg = queryHost(&queryRet);
+	SoupMessage *msg = queryHost(queryRet);
 	if (!msg){
 		if ( queryRet == HTERR_FAILED_INTERNAL_ERROR )
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
@@ -353,7 +353,7 @@ void ZabbixAPI::getHosts(
 void ZabbixAPI::getGroups(ItemTablePtr &groupsTablePtr)
 {
 	HatoholError queryRet;
-	SoupMessage *msg = queryGroup(&queryRet);
+	SoupMessage *msg = queryGroup(queryRet);
 	if (!msg){
 		if ( queryRet == HTERR_FAILED_INTERNAL_ERROR )
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
@@ -386,7 +386,7 @@ void ZabbixAPI::getGroups(ItemTablePtr &groupsTablePtr)
 ItemTablePtr ZabbixAPI::getApplications(const vector<uint64_t> &appIdVector)
 {
 	HatoholError queryRet;
-	SoupMessage *msg = queryApplication(appIdVector, &queryRet);
+	SoupMessage *msg = queryApplication(appIdVector, queryRet);
 	if (!msg){
 		if ( queryRet == HTERR_FAILED_INTERNAL_ERROR )
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
@@ -433,7 +433,7 @@ ItemTablePtr ZabbixAPI::getApplications(ItemTablePtr items)
 ItemTablePtr ZabbixAPI::getEvents(uint64_t eventIdFrom, uint64_t eventIdTill)
 {
 	HatoholError queryRet;
-	SoupMessage *msg = queryEvent(eventIdOffset, eventIdTill, &queryRet);
+	SoupMessage *msg = queryEvent(eventIdOffset, eventIdTill, queryRet);
 	if (!msg){
 		if ( queryRet == HTERR_FAILED_INTERNAL_ERROR )
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
@@ -470,7 +470,7 @@ uint64_t ZabbixAPI::getEndEventId(const bool &isFirst)
 	uint64_t returnValue = 0;
 
 	HatoholError queryRet;
-	SoupMessage *msg = queryEndEventId(isFirst, &queryRet);
+	SoupMessage *msg = queryEndEventId(isFirst, queryRet);
 	if (!msg) {
 		if (isFirst)
 			MLPL_ERR("Failed to query first eventID.\n");
@@ -507,7 +507,7 @@ uint64_t ZabbixAPI::getEndEventId(const bool &isFirst)
 }
 
 SoupMessage *ZabbixAPI::queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill,
-				   HatoholError *queryRet)
+				   HatoholError &queryRet)
 {
 	JSONBuilderAgent agent;
 	agent.startObject();
@@ -532,7 +532,7 @@ SoupMessage *ZabbixAPI::queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill,
 	return queryCommon(agent, queryRet);
 }
 
-SoupMessage *ZabbixAPI::queryEndEventId(const bool &isFirst, HatoholError *queryRet)
+SoupMessage *ZabbixAPI::queryEndEventId(const bool &isFirst, HatoholError &queryRet)
 {
 	JSONBuilderAgent agent;
 	agent.startObject();
@@ -556,7 +556,7 @@ SoupMessage *ZabbixAPI::queryEndEventId(const bool &isFirst, HatoholError *query
 	return queryCommon(agent, queryRet);
 }
 
-SoupMessage *ZabbixAPI::queryTrigger(HatoholError *queryRet, int requestSince)
+SoupMessage *ZabbixAPI::queryTrigger(HatoholError &queryRet, int requestSince)
 {
 	JSONBuilderAgent agent;
 	agent.startObject();
@@ -583,7 +583,7 @@ SoupMessage *ZabbixAPI::queryTrigger(HatoholError *queryRet, int requestSince)
 	return queryCommon(agent, queryRet);
 }
 
-SoupMessage *ZabbixAPI::queryItem(HatoholError *queryRet)
+SoupMessage *ZabbixAPI::queryItem(HatoholError &queryRet)
 {
 	JSONBuilderAgent agent;
 	agent.startObject();
@@ -603,7 +603,7 @@ SoupMessage *ZabbixAPI::queryItem(HatoholError *queryRet)
 	return queryCommon(agent, queryRet);
 }
 
-SoupMessage *ZabbixAPI::queryHost(HatoholError *queryRet)
+SoupMessage *ZabbixAPI::queryHost(HatoholError &queryRet)
 {
 	JSONBuilderAgent agent;
 	agent.startObject();
@@ -622,7 +622,7 @@ SoupMessage *ZabbixAPI::queryHost(HatoholError *queryRet)
 	return queryCommon(agent, queryRet);
 }
 
-SoupMessage *ZabbixAPI::queryGroup(HatoholError *queryRet)
+SoupMessage *ZabbixAPI::queryGroup(HatoholError &queryRet)
 {
 	JSONBuilderAgent agent;
 	agent.startObject();
@@ -643,7 +643,7 @@ SoupMessage *ZabbixAPI::queryGroup(HatoholError *queryRet)
 }
 
 SoupMessage *ZabbixAPI::queryApplication(const vector<uint64_t> &appIdVector,
-					 HatoholError *queryRet)
+					 HatoholError &queryRet)
 {
 	JSONBuilderAgent agent;
 	agent.startObject();
@@ -680,14 +680,14 @@ ItemTablePtr ZabbixAPI::getFunctions(void)
 	return ItemTablePtr(m_impl->functionsTablePtr);
 }
 
-SoupMessage *ZabbixAPI::queryCommon(JSONBuilderAgent &agent, HatoholError *queryRet)
+SoupMessage *ZabbixAPI::queryCommon(JSONBuilderAgent &agent, HatoholError &queryRet)
 {
 	string request_body = agent.generate();
 	SoupMessage *msg = soup_message_new(SOUP_METHOD_POST, m_impl->uri.c_str());
 	if (!msg) {
 		MLPL_ERR("Failed to call: soup_message_new: uri: %s\n",
 		         m_impl->uri.c_str());
-		*queryRet = HTERR_FAILED_INTERNAL_ERROR;
+		queryRet = HTERR_FAILED_INTERNAL_ERROR;
 		return NULL;
 	}
 	soup_message_headers_set_content_type(msg->request_headers,
@@ -699,14 +699,14 @@ SoupMessage *ZabbixAPI::queryCommon(JSONBuilderAgent &agent, HatoholError *query
 		g_object_unref(msg);
 		MLPL_ERR("Failed to get: code: %d: %s\n",
 	                 ret, m_impl->uri.c_str());
-		*queryRet = HTERR_FAILED_CONNECT_DISCONNECT;
+		queryRet = HTERR_FAILED_CONNECT_DISCONNECT;
 		return NULL;
 	}
-	*queryRet = HTERR_OK;
+	queryRet = HTERR_OK;
 	return msg;
 }
 
-SoupMessage *ZabbixAPI::queryAPIVersion(HatoholError *queryRet)
+SoupMessage *ZabbixAPI::queryAPIVersion(HatoholError &queryRet)
 {
 	JSONBuilderAgent agent;
 	agent.startObject();
@@ -715,7 +715,7 @@ SoupMessage *ZabbixAPI::queryAPIVersion(HatoholError *queryRet)
 	agent.add("id", 1);
 	agent.endObject();
 
-	return queryCommon(agent,queryRet);
+	return queryCommon(agent, queryRet);
 }
 
 string ZabbixAPI::getInitialJSONRequest(void)
