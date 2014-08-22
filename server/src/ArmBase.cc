@@ -269,7 +269,7 @@ void ArmBase::setCopyOnDemandEnabled(bool enable)
 	m_impl->isCopyOnDemandEnabled = enable;
 }
 
-void ArmBase::setUseTrigger(OneProcEndType type)
+void ArmBase::registerAvailableTrigger(OneProcEndType type)
 {
 	m_impl->ArmResultTriggerTable[type].statusType = TRIGGER_STATUS_UNKNOWN;
 }
