@@ -36,7 +36,8 @@ public:
 
 	typedef enum {
 		COLLECT_NG_PERSER_ERROR = 0,
-		COLLECT_NG_DISCONNECT,
+		COLLECT_NG_DISCONNECT_ZABBIX,
+		COLLECT_NG_DISCONNECT_NAGIOS,
 		COLLECT_NG_INTERNAL_ERROR,
 		NUM_COLLECT_NG_KIND,
 		COLLECT_OK,
@@ -73,7 +74,9 @@ public:
 
 	void setServerConnectStaus(bool enable,OneProcEndType type);
 
-	void registerAvailableTrigger(const OneProcEndType type);
+	void registerAvailableTrigger(const OneProcEndType type,
+				      const TriggerIdType  trrigerId,
+				      const HatoholError   hatholError);
 protected:
 	/**
 	 * Request to exit the thread and wait for the complition.

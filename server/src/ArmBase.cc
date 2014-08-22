@@ -269,33 +269,21 @@ void ArmBase::setCopyOnDemandEnabled(bool enable)
 	m_impl->isCopyOnDemandEnabled = enable;
 }
 
-void ArmBase::registerAvailableTrigger(OneProcEndType type)
+void ArmBase::registerAvailableTrigger(OneProcEndType type,
+				       TriggerIdType  trrigerId,
+				       HatoholError   hatoholError)
 {
 	m_impl->ArmResultTriggerTable[type].statusType = TRIGGER_STATUS_UNKNOWN;
+	m_impl->ArmResultTriggerTable[type].triggerId = trrigerId;
+	m_impl->ArmResultTriggerTable[type].msg = hatoholError.getMessage().c_str();
 }
 
 void ArmBase::setInitialTriggerTable(void)
 {
-	m_impl->ArmResultTriggerTable[COLLECT_NG_PERSER_ERROR].statusType =
-		TRIGGER_STATUS_ALL;
-	m_impl->ArmResultTriggerTable[COLLECT_NG_PERSER_ERROR].triggerId =
-		FAILED_PARSER_ERROR_TRIGGERID;
-	m_impl->ArmResultTriggerTable[COLLECT_NG_PERSER_ERROR].msg = 
-		"Connection failure due to parse error";
-
-	m_impl->ArmResultTriggerTable[COLLECT_NG_DISCONNECT].statusType = 
-		TRIGGER_STATUS_ALL;
-	m_impl->ArmResultTriggerTable[COLLECT_NG_DISCONNECT].triggerId = 
-		FAILED_CONNECT_ZABBIX_TRIGGERID;
-	m_impl->ArmResultTriggerTable[COLLECT_NG_DISCONNECT].msg = 
-		"Connection failure due to disconnection";
-
-	m_impl->ArmResultTriggerTable[COLLECT_NG_INTERNAL_ERROR].statusType =
-		TRIGGER_STATUS_ALL;
-	m_impl->ArmResultTriggerTable[COLLECT_NG_INTERNAL_ERROR].triggerId =
-		FAILED_INTERNAL_ERROR_TRIGGERID;
-	m_impl->ArmResultTriggerTable[COLLECT_NG_INTERNAL_ERROR].msg = 
-		"Connection failure due to internal error";
+	for ( int i = 0; i < NUM_COLLECT_NG_KIND; i++) {
+		m_impl->ArmResultTriggerTable[i].statusType =
+			TRIGGER_STATUS_ALL;
+	}
 }
 
 void ArmBase::setInitialTrrigerStaus(void)
