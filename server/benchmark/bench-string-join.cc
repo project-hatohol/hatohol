@@ -248,7 +248,6 @@ main(int argc, char **argv)
 
 		virtual void run(void) {
 			string all;
-			all.reserve(3 * lookupTotalLength(", ", m_elements));
 			all += join(", ", m_elements);
 			all += join(", ", m_elements);
 			all += join(", ", m_elements);
