@@ -30,9 +30,3 @@ template<> ItemTablePtr::UsedCountablePtr(void)
 {
 	m_data = new ItemTable();
 }
-
-ItemTablePtr
-crossJoin(const ItemTablePtr &tablePtr0, const ItemTablePtr &tablePtr1)
-{
-	return ItemTablePtr(tablePtr0->crossJoin(tablePtr1), false);
-}
