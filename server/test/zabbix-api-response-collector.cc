@@ -118,8 +118,8 @@ bool ZabbixAPIResponseCollector::commandFuncTrigger(CommandContext &ctx)
 	if (!commandFuncOpenSilent(ctx))
 		return false;
 
-	HatoholError querRet;
-	SoupMessage *msg = queryTrigger(&querRet);
+	HatoholError queryRet;
+	SoupMessage *msg = queryTrigger(&queryRet);
 	if (!msg)
 		return false;
 	printf("%s\n", msg->response_body->data);
@@ -132,8 +132,8 @@ bool ZabbixAPIResponseCollector::commandFuncItem(CommandContext &ctx)
 	if (!commandFuncOpenSilent(ctx))
 		return false;
 
-	HatoholError querRet;
-	SoupMessage *msg = queryItem(&querRet);
+	HatoholError queryRet;
+	SoupMessage *msg = queryItem(&queryRet);
 	if (!msg)
 		return false;
 	printf("%s\n", msg->response_body->data);
@@ -146,8 +146,8 @@ bool ZabbixAPIResponseCollector::commandFuncHost(CommandContext &ctx)
 	if (!commandFuncOpenSilent(ctx))
 		return false;
 
-	HatoholError querRet;
-	SoupMessage *msg = queryHost(&querRet);
+	HatoholError queryRet;
+	SoupMessage *msg = queryHost(&queryRet);
 	if (!msg)
 		return false;
 	printf("%s\n", msg->response_body->data);
@@ -160,8 +160,8 @@ bool ZabbixAPIResponseCollector::commandFuncEvent(CommandContext &ctx)
 	if (!commandFuncOpenSilent(ctx))
 		return false;
 
-	HatoholError querRet;
-	SoupMessage *msg = queryEvent(0, UNLIMITED, &querRet);
+	HatoholError queryRet;
+	SoupMessage *msg = queryEvent(0, UNLIMITED, &queryRet);
 	if (!msg)
 		return false;
 	printf("%s\n", msg->response_body->data);
@@ -175,8 +175,8 @@ bool ZabbixAPIResponseCollector::commandFuncApplication(CommandContext &ctx)
 		return false;
 
 	vector<uint64_t> hostIds; // empty means all hosts.
-	HatoholError querRet;
-	SoupMessage *msg = queryApplication(hostIds, &querRet);
+	HatoholError queryRet;
+	SoupMessage *msg = queryApplication(hostIds, &queryRet);
 	if (!msg)
 		return false;
 	printf("%s\n", msg->response_body->data);
