@@ -248,10 +248,10 @@ ArmBase::OneProcEndType ArmZabbixAPI::mainThreadOneProc(void)
 			updateItems();
 	} catch (const HatoholException &he) {
 		clearAuthToken();
-		if (he.getErrCode() == HTERR_FAILED_CONNECT_DISCONNECT){
+		if (he.getErrCode() == HTERR_FAILED_CONNECT_DISCONNECT) {
 			MLPL_ERR("Error Connection: %s %d\n", he.what(), he.getErrCode());
 			return COLLECT_NG_DISCONNECT;
-		}else if (he.getErrCode() == HTERR_FAILED_CONNECT_PARSER_ERROR){
+		} else if (he.getErrCode() == HTERR_FAILED_CONNECT_PARSER_ERROR) {
 			MLPL_ERR("Error Message parse: %s %d\n", he.what(), he.getErrCode());
 			return COLLECT_NG_PERSER_ERROR;
 		}
