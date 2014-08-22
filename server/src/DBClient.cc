@@ -28,8 +28,6 @@ static const char *TABLE_NAME_DBCLIENT_VERSION = "_dbclient_version";
 
 static const ColumnDef COLUMN_DEF_DBCLIENT_VERSION[] = {
 {
-	// This column has the schema version for '_dbclient' table.
-	ITEM_ID_NOT_SET,                   // itemId
 	"domain_id",                       // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -39,8 +37,6 @@ static const ColumnDef COLUMN_DEF_DBCLIENT_VERSION[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	// This column has the schema version for the sub class's table.
-	ITEM_ID_NOT_SET,                   // itemId
 	"version",                         // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength

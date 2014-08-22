@@ -27,29 +27,6 @@ using namespace mlpl;
 
 namespace testSQLUtils {
 
-static ItemId testItemId = 1;
-static const char *testColumnName = "TestTable";
-
-static ColumnDef testDefInt = {
-	testItemId, testColumnName,
-	SQL_COLUMN_TYPE_INT, 11, 0
-};
-
-static ColumnDef testDefBiguint = {
-	testItemId, testColumnName,
-	SQL_COLUMN_TYPE_BIGUINT, 20, 0
-};
-
-static ColumnDef testDefVarchar = {
-	testItemId, testColumnName,
-	SQL_COLUMN_TYPE_VARCHAR, 30, 0
-};
-
-static ColumnDef testDefChar = {
-	testItemId, testColumnName,
-	SQL_COLUMN_TYPE_CHAR, 8, 0
-};
-
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------

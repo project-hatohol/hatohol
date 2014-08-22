@@ -52,7 +52,6 @@ enum SQLColumnFlags {
 };
 
 struct ColumnDef {
-	ItemId         itemId;
 	const char    *columnName;
 	SQLColumnType  type;
 	size_t         columnLength;

@@ -30,8 +30,6 @@ static const DBDomainId JUNK_DID = -1; // TODO: should be removed from DBAgent
 
 static const ColumnDef COLUMN_DEF_TABLES_VERSION[] = {
 {
-	// This column has the schema version for '_dbclient' table.
-	ITEM_ID_NOT_SET,                   // itemId
 	"tables_id",                       // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -41,8 +39,6 @@ static const ColumnDef COLUMN_DEF_TABLES_VERSION[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	// This column has the schema version for the sub class's table.
-	ITEM_ID_NOT_SET,                   // itemId
 	"version",                         // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
