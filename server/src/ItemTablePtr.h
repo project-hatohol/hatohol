@@ -33,9 +33,6 @@ typedef std::list<ItemTablePtr>::iterator       ItemTablePtrListIterator;
 typedef std::list<ItemTablePtr>::const_iterator ItemTablePtrListConstIterator;
 
 ItemTablePtr
-fullOuterJoin (const ItemTablePtr &tablePtr0, const ItemTablePtr &tablePtr1);
-
-ItemTablePtr
 crossJoin     (const ItemTablePtr &tablePtr0, const ItemTablePtr &tablePtr1);
 
 template<> VariableItemTablePtr::UsedCountablePtr(void);
