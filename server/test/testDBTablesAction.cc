@@ -387,7 +387,7 @@ void test_addActionAndCheckOwner(void)
 	OperationPrivilege privilege(userId);
 	ActionDef &actDef = testActionDef[0];
 	assertHatoholError(HTERR_OK, dbAction.addAction(actDef, privilege));
-	ActionIdType actionId = dbAction.callGetLastInsertId();
+	ActionIdType actionId = dbAction.getDBAgent().getLastInsertId();
 
 	// check
 	string expect = StringUtils::sprintf("%" FMT_ACTION_ID "|%" FMT_USER_ID,
