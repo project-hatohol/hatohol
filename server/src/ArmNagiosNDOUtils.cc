@@ -760,8 +760,12 @@ gpointer ArmNagiosNDOUtils::mainThread(HatoholThreadArg *arg)
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	MLPL_INFO("started: ArmNagiosNDOUtils (server: %s)\n",
 	          svInfo.hostName.c_str());
-	ArmBase::registerAvailableTrigger(COLLECT_NG_DISCONNECT);
-	ArmBase::registerAvailableTrigger(COLLECT_NG_INTERNAL_ERROR);
+	ArmBase::registerAvailableTrigger(COLLECT_NG_DISCONNECT_NAGIOS,
+					  FAILED_CONNECT_MYSQL_TRIGGERID,
+					  HTERR_FAILED_CONNECT_MYSQL);
+	ArmBase::registerAvailableTrigger(COLLECT_NG_INTERNAL_ERROR,
+					  FAILED_INTERNAL_ERROR_TRIGGERID,
+					  HTERR_FAILED_INTERNAL_ERROR);
 	return ArmBase::mainThread(arg);
 }
 
@@ -782,7 +786,7 @@ ArmBase::OneProcEndType ArmNagiosNDOUtils::mainThreadOneProc(void)
 	} catch (const HatoholException &he) {
 		if (he.getErrCode() == HTERR_FAILED_CONNECT_MYSQL) {
 			MLPL_ERR("Error Connection: %s %d\n", he.what(), he.getErrCode());
-			return COLLECT_NG_DISCONNECT;
+			return COLLECT_NG_DISCONNECT_NAGIOS;
 		} else {
 			MLPL_ERR("Got exception: %s\n", he.what());
 			return COLLECT_NG_INTERNAL_ERROR;
