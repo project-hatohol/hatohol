@@ -526,10 +526,12 @@ void ActionManager::checkEvents(const EventInfoList &eventList)
 	for (; it != eventList.end(); ++it) {
 		ActionDefList actionDefList;
 		const EventInfo &eventInfo = *it;
-		if (shouldSkipByTime(eventInfo))
-			continue;
-		if (shouldSkipByLog(eventInfo, dbAction))
-			continue;
+		if (eventInfo.id != DISCONNECT_SERVER_EVENT_ID) {
+			if (shouldSkipByTime(eventInfo))
+				continue;
+			if (shouldSkipByLog(eventInfo, dbAction))
+				continue;
+		}
 		ActionsQueryOption option(USER_ID_SYSTEM);
 		// TODO: sort IncidentSender type actions by priority
 		option.setActionType(ACTION_ALL);
@@ -583,8 +585,6 @@ bool ActionManager::shouldSkipByLog(const EventInfo &eventInfo,
 {
 	ActionLog actionLog;
 	bool found;
-	if (eventInfo.id == DISCONNECT_SERVER_EVENT_ID)
-		return false;
 	found = dbAction.getLog(actionLog, eventInfo.serverId, eventInfo.id);
 	// TODO: We shouldn't skip if status is ACTLOG_STAT_QUEUING.
 	return found;
