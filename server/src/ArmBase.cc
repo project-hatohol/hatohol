@@ -46,7 +46,7 @@ struct ArmBase::Impl
 
 	DBClientHatohol      dbClientHatohol;
 
-	oneProcEndTrigger    oneProcTriggerTable[NUM_COLLECT_NG_KIND];
+	ArmResultTriggerInfo ArmResultTriggerTable[NUM_COLLECT_NG_KIND];
 
 	Impl(const string &_name,
 	               const MonitoringServerInfo &_serverInfo)
@@ -271,30 +271,30 @@ void ArmBase::setCopyOnDemandEnabled(bool enable)
 
 void ArmBase::setUseTrigger(OneProcEndType type)
 {
-	m_impl->oneProcTriggerTable[type].statusType = TRIGGER_STATUS_UNKNOWN;
+	m_impl->ArmResultTriggerTable[type].statusType = TRIGGER_STATUS_UNKNOWN;
 }
 
 void ArmBase::setInitialTriggerTable(void)
 {
-	m_impl->oneProcTriggerTable[COLLECT_NG_PERSER_ERROR].statusType =
+	m_impl->ArmResultTriggerTable[COLLECT_NG_PERSER_ERROR].statusType =
 		TRIGGER_STATUS_ALL;
-	m_impl->oneProcTriggerTable[COLLECT_NG_PERSER_ERROR].triggerId =
+	m_impl->ArmResultTriggerTable[COLLECT_NG_PERSER_ERROR].triggerId =
 		PARSER_ERROR_SERVER_TRIGGERID_NG;
-	m_impl->oneProcTriggerTable[COLLECT_NG_PERSER_ERROR].msg = 
+	m_impl->ArmResultTriggerTable[COLLECT_NG_PERSER_ERROR].msg = 
 		"Connection failure due to parse error";
 
-	m_impl->oneProcTriggerTable[COLLECT_NG_DISCONNECT].statusType = 
+	m_impl->ArmResultTriggerTable[COLLECT_NG_DISCONNECT].statusType = 
 		TRIGGER_STATUS_ALL;
-	m_impl->oneProcTriggerTable[COLLECT_NG_DISCONNECT].triggerId = 
+	m_impl->ArmResultTriggerTable[COLLECT_NG_DISCONNECT].triggerId = 
 		DISCONNECT_SERVER_TRIGGERID_NG;
-	m_impl->oneProcTriggerTable[COLLECT_NG_DISCONNECT].msg = 
+	m_impl->ArmResultTriggerTable[COLLECT_NG_DISCONNECT].msg = 
 		"Connection failure due to disconnection";
 
-	m_impl->oneProcTriggerTable[COLLECT_NG_INTERNAL_ERROR].statusType =
+	m_impl->ArmResultTriggerTable[COLLECT_NG_INTERNAL_ERROR].statusType =
 		TRIGGER_STATUS_ALL;
-	m_impl->oneProcTriggerTable[COLLECT_NG_INTERNAL_ERROR].triggerId =
+	m_impl->ArmResultTriggerTable[COLLECT_NG_INTERNAL_ERROR].triggerId =
 		INTERNAL_ERROR_SERVER_TRIGGERID_NG;
-	m_impl->oneProcTriggerTable[COLLECT_NG_INTERNAL_ERROR].msg = 
+	m_impl->ArmResultTriggerTable[COLLECT_NG_INTERNAL_ERROR].msg = 
 		"Connection failure due to internal error";
 }
 
@@ -313,16 +313,17 @@ void ArmBase::setInitialTrrigerStaus(void)
 	TriggerInfoList triggerInfoList;
 
 	for (int i = 0; i < NUM_COLLECT_NG_KIND; i++) {
-		if (TRIGGER_STATUS_UNKNOWN == m_impl->oneProcTriggerTable[i].statusType) {
+		ArmResultTriggerInfo &trgInfo = m_impl->ArmResultTriggerTable[i];
+		if (TRIGGER_STATUS_UNKNOWN == trgInfo.statusType) {
 			triggerInfo.serverId = svInfo.id; 
 			clock_gettime(CLOCK_REALTIME, &triggerInfo.lastChangeTime);
 			triggerInfo.hostId = MONITORING_SERVER_SELF_ID;
 			triggerInfo.hostName = 
 				StringUtils::sprintf("%s_SELF", svInfo.hostName.c_str());
-			triggerInfo.id = m_impl->oneProcTriggerTable[i].triggerId;
+			triggerInfo.id = trgInfo.triggerId;
 			triggerInfo.status = TRIGGER_STATUS_UNKNOWN;
 			triggerInfo.severity = TRIGGER_SEVERITY_INFO;
-			triggerInfo.brief = m_impl->oneProcTriggerTable[i].msg;
+			triggerInfo.brief = trgInfo.msg;
 		
 			triggerInfoList.push_back(triggerInfo);
 		}
@@ -330,7 +331,8 @@ void ArmBase::setInitialTrrigerStaus(void)
 	m_impl->dbClientHatohol.addTriggerInfoList(triggerInfoList);
 }
 
-void ArmBase::createTriggerInfo(int i, TriggerInfoList &triggerInfoList)
+void ArmBase::createTriggerInfo(const ArmResultTriggerInfo &resTrigger,
+				TriggerInfoList &triggerInfoList)
 {
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	TriggerInfo triggerInfo;
@@ -340,15 +342,16 @@ void ArmBase::createTriggerInfo(int i, TriggerInfoList &triggerInfoList)
 	triggerInfo.hostId = MONITORING_SERVER_SELF_ID;
 	triggerInfo.hostName = 
 		StringUtils::sprintf("%s_SELF", svInfo.hostName.c_str());
-	triggerInfo.id = m_impl->oneProcTriggerTable[i].triggerId;
-	triggerInfo.brief = m_impl->oneProcTriggerTable[i].msg;
+	triggerInfo.id = resTrigger.triggerId;
+	triggerInfo.brief = resTrigger.msg;
 	triggerInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
-	triggerInfo.status = m_impl->oneProcTriggerTable[i].statusType;
+	triggerInfo.status = resTrigger.statusType;
 
 	triggerInfoList.push_back(triggerInfo);
 }
 
-void ArmBase::createEventInfo(int i, EventInfoList &eventInfoList)
+void ArmBase::createEventInfo(const ArmResultTriggerInfo &resTrigger,
+			      EventInfoList &eventInfoList)
 {
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	EventInfo eventInfo;
@@ -357,10 +360,10 @@ void ArmBase::createEventInfo(int i, EventInfoList &eventInfoList)
 	eventInfo.id = DISCONNECT_SERVER_EVENT_ID;
 	clock_gettime(CLOCK_REALTIME, &eventInfo.time);
 	eventInfo.hostId = MONITORING_SERVER_SELF_ID;
-	eventInfo.triggerId = m_impl->oneProcTriggerTable[i].triggerId;
+	eventInfo.triggerId = resTrigger.triggerId;
 	eventInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
-	eventInfo.status = m_impl->oneProcTriggerTable[i].statusType;
-	if (m_impl->oneProcTriggerTable[i].statusType == TRIGGER_STATUS_OK) {
+	eventInfo.status = resTrigger.statusType;
+	if (resTrigger.statusType == TRIGGER_STATUS_OK) {
 		eventInfo.type = EVENT_TYPE_GOOD;
 	} else {
 		eventInfo.type = EVENT_TYPE_BAD;
@@ -375,38 +378,41 @@ void ArmBase::setServerConnectStaus(bool enable, OneProcEndType type)
 
 	if (enable) {
 		for (int i = 0; i < NUM_COLLECT_NG_KIND; i++) {
-			if (m_impl->oneProcTriggerTable[i].statusType == TRIGGER_STATUS_PROBLEM) {
-				m_impl->oneProcTriggerTable[i].statusType = TRIGGER_STATUS_OK;
-				createTriggerInfo(i, triggerInfoList);
-				createEventInfo(i, eventInfoList);
-			} else if (m_impl->oneProcTriggerTable[i].statusType == TRIGGER_STATUS_UNKNOWN) {
-				m_impl->oneProcTriggerTable[i].statusType = TRIGGER_STATUS_OK;
-				createTriggerInfo(i, triggerInfoList);
+			ArmResultTriggerInfo &trgInfo = m_impl->ArmResultTriggerTable[i];
+			if (trgInfo.statusType == TRIGGER_STATUS_PROBLEM) {
+				trgInfo.statusType = TRIGGER_STATUS_OK;
+				createTriggerInfo(trgInfo, triggerInfoList);
+				createEventInfo(trgInfo, eventInfoList);
+			} else if (trgInfo.statusType == TRIGGER_STATUS_UNKNOWN) {
+				trgInfo.statusType = TRIGGER_STATUS_OK;
+				createTriggerInfo(trgInfo, triggerInfoList);
 			}				
 		}
 	}
 	else {
-		if (m_impl->oneProcTriggerTable[type].statusType == TRIGGER_STATUS_PROBLEM)
+		if (m_impl->ArmResultTriggerTable[type].statusType == TRIGGER_STATUS_PROBLEM)
 			return;
 
-		m_impl->oneProcTriggerTable[type].statusType = TRIGGER_STATUS_PROBLEM;
-		createTriggerInfo(static_cast<int>(type), triggerInfoList);
-		createEventInfo(static_cast<int>(type), eventInfoList);
+		m_impl->ArmResultTriggerTable[type].statusType = TRIGGER_STATUS_PROBLEM;
+		createTriggerInfo(m_impl->ArmResultTriggerTable[type], triggerInfoList);
+		createEventInfo(m_impl->ArmResultTriggerTable[type], eventInfoList);
 
 		for (int i = static_cast<int>(type) + 1; i < NUM_COLLECT_NG_KIND; i++) {
-			if (m_impl->oneProcTriggerTable[i].statusType == TRIGGER_STATUS_PROBLEM) {
-				m_impl->oneProcTriggerTable[i].statusType = TRIGGER_STATUS_OK;
-				createTriggerInfo(i, triggerInfoList);
-				createEventInfo(i, eventInfoList);
-			} else if (m_impl->oneProcTriggerTable[i].statusType == TRIGGER_STATUS_UNKNOWN) {
-				m_impl->oneProcTriggerTable[i].statusType = TRIGGER_STATUS_OK;
-				createTriggerInfo(i, triggerInfoList);
+			ArmResultTriggerInfo &trgInfo = m_impl->ArmResultTriggerTable[i];
+			if (trgInfo.statusType == TRIGGER_STATUS_PROBLEM) {
+				trgInfo.statusType = TRIGGER_STATUS_OK;
+				createTriggerInfo(trgInfo, triggerInfoList);
+				createEventInfo(trgInfo, eventInfoList);
+			} else if (trgInfo.statusType == TRIGGER_STATUS_UNKNOWN) {
+				trgInfo.statusType = TRIGGER_STATUS_OK;
+				createTriggerInfo(trgInfo, triggerInfoList);
 			}
 		}
 		for (int i = 0; i < type; i++) {
-			if (m_impl->oneProcTriggerTable[i].statusType == TRIGGER_STATUS_OK) {
-				m_impl->oneProcTriggerTable[i].statusType = TRIGGER_STATUS_UNKNOWN;
-				createTriggerInfo(i, triggerInfoList);
+			ArmResultTriggerInfo &trgInfo = m_impl->ArmResultTriggerTable[i];
+			if (trgInfo.statusType == TRIGGER_STATUS_OK) {
+				trgInfo.statusType = TRIGGER_STATUS_UNKNOWN;
+				createTriggerInfo(trgInfo, triggerInfoList);
 			}
 		}
 	}

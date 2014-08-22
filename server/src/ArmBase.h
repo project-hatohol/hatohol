@@ -42,7 +42,7 @@ public:
 		COLLECT_OK,
 	} OneProcEndType;
 
-	struct oneProcEndTrigger {
+	struct ArmResultTriggerInfo {
 		TriggerStatusType statusType;
 		TriggerIdType triggerId;
 		std::string msg;
@@ -103,8 +103,10 @@ protected:
 	  const std::string &comment,
 	  const ArmWorkingStatus &status = ARM_WORK_STAT_FAILURE);
 	
-	void createTriggerInfo(int i,TriggerInfoList &triggerInfoList);
-	void createEventInfo(int i,EventInfoList &eventInfoList);
+	void createTriggerInfo(const ArmResultTriggerInfo &resTrigger,
+			       TriggerInfoList &triggerInfoList);
+	void createEventInfo(const ArmResultTriggerInfo &resTrigger,
+			     EventInfoList &eventInfoList);
 	void setInitialTrrigerStaus(void);
 	void setInitialTriggerTable(void);
 
