@@ -157,9 +157,9 @@ gpointer ArmZabbixAPI::mainThread(HatoholThreadArg *arg)
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	MLPL_INFO("started: ArmZabbixAPI (server: %s)\n",
 	          svInfo.hostName.c_str());
-	ArmBase::setUseTrigger(COLLECT_NG_PERSER_ERROR);
-	ArmBase::setUseTrigger(COLLECT_NG_DISCONNECT);
-	ArmBase::setUseTrigger(COLLECT_NG_INTERNAL_ERROR);
+	ArmBase::registerAvailableTrigger(COLLECT_NG_PERSER_ERROR);
+	ArmBase::registerAvailableTrigger(COLLECT_NG_DISCONNECT);
+	ArmBase::registerAvailableTrigger(COLLECT_NG_INTERNAL_ERROR);
 	return ArmBase::mainThread(arg);
 }
 

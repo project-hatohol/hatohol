@@ -73,7 +73,7 @@ public:
 
 	void setServerConnectStaus(bool enable,OneProcEndType type);
 
-	void setUseTrigger(OneProcEndType type);
+	void registerAvailableTrigger(const OneProcEndType type);
 protected:
 	/**
 	 * Request to exit the thread and wait for the complition.
