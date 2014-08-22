@@ -43,7 +43,7 @@ struct BenchmarkItem {
 	virtual void setup(void) {
 	}
 	virtual void run(void) {
-	};
+	}
 	virtual void teardown(void) {
 	}
 };
