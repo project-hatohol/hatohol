@@ -93,7 +93,7 @@ DBAgentMySQL::DBAgentMySQL(const char *db, const char *user, const char *passwd,
 	connect();
 	if (!m_impl->connected) {
 		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
-		  HTERR_FAILED_CONNECT_DISCONNECT,
+		  HTERR_FAILED_DISCONNECT_NAGIOS,
 		  "Failed to connect to MySQL: %s: %s\n", 
 		  db, mysql_error(&m_impl->mysql));
 	}
@@ -621,7 +621,7 @@ void DBAgentMySQL::queryWithRetry(const string &statement)
 	}
 	if (errorNumber == CR_SERVER_GONE_ERROR || errorNumber == CR_SERVER_LOST ) {
 		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
-		  HTERR_FAILED_CONNECT_DISCONNECT,
+		  HTERR_FAILED_DISCONNECT_NAGIOS,
 		  "Failed to connect to MySQL: %s: (%u) %s\n",
 		  m_impl->dbName.c_str(), errorNumber,
 		  mysql_error(&m_impl->mysql));
