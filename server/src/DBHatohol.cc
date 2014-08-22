@@ -20,7 +20,7 @@
 #include "DBHatohol.h"
 #include "ConfigManager.h"
 #include "DBTablesConfig.h"
-// #include "DBTablesHost.h" 
+#include "DBTablesHost.h" 
 // #include "DBTablesUser.h"
 // #include "DBTablesAction.h"
 
@@ -31,9 +31,6 @@ static const char *DEFAULT_USER_NAME = "hatohol";
 static const char *DEFAULT_PASSWORD  = "hatohol";
 
 // These are stub to pass the build
-class DBTablesHost {
-};
-
 class DBTablesAction {
 };
 
@@ -43,16 +40,16 @@ class DBTablesMonitor {
 struct DBHatohol::Impl {
 	static SetupContext setupCtx;
 
-	DBTablesConfig  dbTablesConfig;
+	//DBTablesConfig  dbTablesConfig;
 	DBTablesHost    dbTablesHost;
-	DBTablesUser    dbTablesUser;
+	//DBTablesUser    dbTablesUser;
 	DBTablesAction  dbTablesAction;
 	DBTablesMonitor dbTablesMonitor;
 
 	Impl(DBAgent &dbAgent)
-	: dbTablesConfig(/*dbAgent*/),
-	  dbTablesHost(/*dbAgent*/),
-	  dbTablesUser(/*dbAgent*/),
+	: //dbTablesConfig(/*dbAgent*/),
+	  dbTablesHost(dbAgent),
+	  //dbTablesUser(/*dbAgent*/),
 	  dbTablesAction(/*dbAgent*/),
 	  dbTablesMonitor(/*dbAgent*/)
 	{
@@ -99,7 +96,8 @@ DBHatohol::~DBHatohol()
 
 DBTablesConfig &DBHatohol::getDBTablesConfig(void)
 {
-	return m_impl->dbTablesConfig;
+	return *((DBTablesConfig *)NULL); // Temporariliy disabled
+	//return m_impl->dbTablesConfig;
 }
 
 DBTablesHost &DBHatohol::getDBTablesHost(void)
@@ -109,7 +107,8 @@ DBTablesHost &DBHatohol::getDBTablesHost(void)
 
 DBTablesUser &DBHatohol::getDBTablesUser(void)
 {
-	return m_impl->dbTablesUser;
+	return *((DBTablesUser *)NULL); // Temporariliy disabled
+	//return m_impl->dbTablesUser;
 }
 
 DBTablesAction &DBHatohol::getDBTablesAction(void)

@@ -17,14 +17,14 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DBClientHost.h"
+#include "DBTablesHost.h"
 using namespace std;
 using namespace mlpl;
 
 static const char *TABLE_NAME_HOST_LIST = "host_list";
 static const char *TABLE_NAME_HOST_INFO = "host_info";
 
-const int DBClientHost::DB_VERSION = 1;
+const int DBTablesHost::TABLES_VERSION = 1;
 
 const uint64_t NO_HYPERVISOR = -1;
 const size_t MAX_HOST_NAME_LENGTH =  255;
@@ -124,7 +124,7 @@ static const DBAgent::TableProfile tableProfileHostInfo =
 			    COLUMN_DEF_HOST_INFO,
 			    NUM_IDX_HOST_INFO);
 
-struct DBClientHost::Impl
+struct DBTablesHost::Impl
 {
 	Impl(void)
 	{
@@ -135,7 +135,7 @@ struct DBClientHost::Impl
 	}
 };
 
-static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
+static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
 {
 	return true;
 }
@@ -143,12 +143,30 @@ static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-void DBClientHost::init(void)
+void DBTablesHost::reset(void)
+{
+	getSetupInfo().initialized = false;
+}
+
+DBTablesHost::DBTablesHost(DBAgent &dbAgent)
+: DBTables(dbAgent, getSetupInfo()),
+  m_impl(new Impl())
+{
+}
+
+DBTablesHost::~DBTablesHost()
+{
+}
+
+// ---------------------------------------------------------------------------
+// Protected methods
+// ---------------------------------------------------------------------------
+DBTables::SetupInfo &DBTablesHost::getSetupInfo(void)
 {
 	//
 	// set database info
 	//
-	static const DBSetupTableInfo DB_TABLE_INFO[] = {
+	static const TableSetupInfo TABLE_INFO[] = {
 	{
 		&tableProfileHostList,
 	}, {
@@ -156,24 +174,15 @@ void DBClientHost::init(void)
 	}
 	};
 	static const size_t NUM_TABLE_INFO =
-	  sizeof(DB_TABLE_INFO) / sizeof(DBSetupTableInfo);
+	  sizeof(TABLE_INFO) / sizeof(TableSetupInfo);
 
-	static const DBSetupFuncArg DB_SETUP_FUNC_ARG = {
-		DB_VERSION,
+	static SetupInfo SETUP_INFO = {
+		DB_TABLES_ID_HOST,
+		TABLES_VERSION,
 		NUM_TABLE_INFO,
-		DB_TABLE_INFO,
+		TABLE_INFO,
 		&updateDB,
 	};
-	registerSetupInfo(DB_DOMAIN_ID_HOST, &DB_SETUP_FUNC_ARG);
-}
-
-DBClientHost::DBClientHost(void)
-: DBCGroupRegular(DB_DOMAIN_ID_HOST),
-  m_impl(new Impl())
-{
-}
-
-DBClientHost::~DBClientHost()
-{
+	return SETUP_INFO;
 }
 

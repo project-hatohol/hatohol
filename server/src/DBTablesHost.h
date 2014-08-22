@@ -17,19 +17,26 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DBClientGroup_h
-#define DBClientGroup_h
+#ifndef DBTablesHost_h
+#define DBTablesHost_h
 
-#include "DBClient.h"
+#include "DBTables.h"
 
-class DBClientGroup : public DBClient {
+class DBTablesHost : public DBTables {
 public:
-	DBClientGroup(const DBDomainId &domainId);
-	virtual ~DBClientGroup(void);
+	static const int TABLES_VERSION;
+
+	static void reset(void);
+
+	DBTablesHost(DBAgent &dbAgent);
+	virtual ~DBTablesHost();
+
+protected:
+	static SetupInfo &getSetupInfo(void);
 
 private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // DBClientGroup_h
+#endif // DBTablesHost_h

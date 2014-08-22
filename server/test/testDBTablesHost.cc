@@ -18,38 +18,43 @@
  */
 
 #include <cppcutter.h>
+#include "DBHatohol.h"
+#include "DBTablesHost.h"
 #include "Hatohol.h"
-#include "DBClientHost.h"
 #include "Helpers.h"
 using namespace std;
 using namespace mlpl;
 
-namespace testDBClientHost {
+namespace testDBTablesHost {
+
+// This is temporary, I will make the setup function with the same name in
+// DBClientTest. Then this method should be removed.
+static void setupTestDBHatohol(void)
+{
+	setupTestDBConfig();
+	static const char *TEST_DB_NAME = "test_db_hatohol";
+	DBHatohol::setDefaultDBParams(TEST_DB_NAME,
+	                              TEST_DB_USER, TEST_DB_PASSWORD);
+	const bool dbRecreate = true;
+	makeTestMySQLDBIfNeeded(TEST_DB_NAME, dbRecreate);
+}
 
 void cut_setup(void)
 {
 	hatoholInit();
-	const bool dbRecreate = true;
-	setupTestDBHost(dbRecreate);
+	setupTestDBHatohol();
 }
 
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
-void test_dbDomainId(void)
+void test_tablesVersion(void)
 {
-	DBClientHost dbHost;
-	DBAgent *dbAgent = dbHost.getDBAgent();
-	cppcut_assert_not_null(dbAgent);
-	cppcut_assert_equal(DB_DOMAIN_ID_HOST, dbAgent->getDBDomainId());
+	DBHatohol dbHatohol;
+	DBTablesHost &dbHost = dbHatohol.getDBTablesHost();
+	cppcut_assert_not_null(&dbHost);
+	assertDBTablesVersion(dbHatohol.getDBAgent(),
+	                      DB_TABLES_ID_HOST, DBTablesHost::TABLES_VERSION);
 }
 
-void test_setDefaultDBParams(void)
-{
-	DBConnectInfo connInfo =
-	  DBClient::getDBConnectInfo(DB_DOMAIN_ID_HOST);
-	cppcut_assert_equal(string(TEST_DB_USER), connInfo.user);
-	cppcut_assert_equal(string(TEST_DB_PASSWORD), connInfo.password);
-}
-
-} // namespace testDBClientHost
+} // namespace testDBTablesHost
