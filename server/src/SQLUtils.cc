@@ -24,34 +24,9 @@
 using namespace std;
 using namespace mlpl;
 
-SQLUtils::ItemDataCreator SQLUtils::m_itemDataCreators[] =
-{
-	&SQLUtils::creatorItemInt,
-	&SQLUtils::creatorItemBiguint,
-	&SQLUtils::creatorVarchar,
-	&SQLUtils::creatorChar,
-	&SQLUtils::creatorVarchar, // SQL_COLUMN_TYPE_TEXT
-	&SQLUtils::creatorDouble,
-	&SQLUtils::creatorDatetime
-};
-
-size_t SQLUtils::m_numItemDataCreators
-  = sizeof(m_itemDataCreators)/sizeof(SQLUtils::ItemDataCreator);
-
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-void SQLUtils::init(void)
-{
-	// check
-	if (m_numItemDataCreators != NUM_SQL_COLUMN_TYPES) {
-		THROW_HATOHOL_EXCEPTION(
-		  "The number of m_itemDataCreator is wrong: "
-		  "expected/acutual: %d/%zd",
-		  NUM_SQL_COLUMN_TYPES, m_numItemDataCreators);
-	}
-}
-
 ItemDataPtr SQLUtils::createFromString(const char *str, SQLColumnType type)
 {
 	ItemData *itemData = NULL;
@@ -119,77 +94,4 @@ ItemDataPtr SQLUtils::createFromString(const char *str, SQLColumnType type)
 		THROW_HATOHOL_EXCEPTION("Unknown column type: %d\n", type);
 	}
 	return itemData;
-}
-
-// ---------------------------------------------------------------------------
-// Protected methods
-// ---------------------------------------------------------------------------
-ItemDataPtr SQLUtils::creatorItemInt(const ColumnDef *columnDef,
-                                     const char *value)
-{
-	bool isFloat;
-	if (!StringUtils::isNumber(value, &isFloat)) {
-		MLPL_DBG("Not number: %s\n", value);
-		return ItemDataPtr();
-	}
-	if (isFloat) {
-		MLPL_WARN("Floating point is specified. "
-		          "Precision may be lost: %s\n", value);
-	}
-	ItemId itemId = columnDef->itemId;
-	return ItemDataPtr(new ItemInt(itemId, atoi(value)), false);
-}
-
-ItemDataPtr SQLUtils::creatorItemBiguint(const ColumnDef *columnDef,
-                                         const char *value)
-{
-	bool isFloat;
-	if (!StringUtils::isNumber(value, &isFloat)) {
-		MLPL_DBG("Not number: %s\n", value);
-		return ItemDataPtr();
-	}
-	if (isFloat) {
-		MLPL_WARN("Floating point is specified. "
-		          "Precision may be lost: %s\n", value);
-	}
-	uint64_t valUint64;
-	if (sscanf(value, "%" PRIu64, &valUint64) != 1) {
-		MLPL_DBG("Not number: %s\n", value);
-		return ItemDataPtr();
-	}
-	ItemId itemId = columnDef->itemId;
-	return ItemDataPtr(new ItemUint64(itemId, valUint64), false);
-}
-
-ItemDataPtr SQLUtils::creatorVarchar(const ColumnDef *columnDef,
-                                     const char *value)
-{
-	ItemId itemId = columnDef->itemId;
-	return ItemDataPtr(new ItemString(itemId, value), false);
-}
-
-ItemDataPtr SQLUtils::creatorChar(const ColumnDef *columnDef,
-                                  const char *value)
-{
-	ItemId itemId = columnDef->itemId;
-	return ItemDataPtr(new ItemString(itemId, value), false);
-}
-
-ItemDataPtr SQLUtils::creatorDouble(const ColumnDef *columnDef,
-                                    const char *value)
-{
-	bool isFloat;
-	if (!StringUtils::isNumber(value, &isFloat)) {
-		MLPL_DBG("Not number: %s\n", value);
-		return ItemDataPtr();
-	}
-	ItemId itemId = columnDef->itemId;
-	return ItemDataPtr(new ItemDouble(itemId, atof(value)), false);
-}
-
-ItemDataPtr SQLUtils::creatorDatetime(const ColumnDef *columnDef,
-                                      const char *value)
-{
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return ItemDataPtr();
 }

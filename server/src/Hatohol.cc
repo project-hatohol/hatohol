@@ -25,7 +25,6 @@ using namespace mlpl;
 #include "Hatohol.h"
 #include "Utils.h"
 #include "ConfigManager.h"
-#include "SQLUtils.h"
 #include "FaceRest.h"
 #include "HatoholException.h"
 #include "DBAgentSQLite3.h"
@@ -59,7 +58,6 @@ static void init(void)
 	DBTablesAction::init();
 
 	ItemData::init();
-	SQLUtils::init();
 
 	FaceRest::init();
 }
