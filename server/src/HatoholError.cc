@@ -133,7 +133,7 @@ void HatoholError::init(void)
 	DEFINE_ERR(FAILED_CONNECT_MYSQL,
 		   "Failed in connecting to mysql.");
 	DEFINE_ERR(FAILED_INTERNAL_ERROR,
-		   "Failed in executing to system call.");
+		   "Failed in executing of system call.");
 	DEFINE_ERR(FAILED_PARSER_ERROR,
 		   "Failed to parse the received message.");
 
