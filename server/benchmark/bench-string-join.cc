@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <glib.h>
 #include <iostream>
+#include <cstring>
 #include <StringUtils.h>
 #include <SeparatorInjector.h>
 #include <Params.h>
@@ -237,6 +238,54 @@ main(int argc, char **argv)
 		StringList &m_elements;
 	} stringJoinBenchmarkItem(n, elements);
 	reporter.registerItem(stringJoinBenchmarkItem);
+
+	struct StringFastJoinBenchmarkItem : public BenchmarkItem {
+		StringFastJoinBenchmarkItem(int n, StringList &elements)
+		: BenchmarkItem("string::fast_join", n),
+		  m_elements(elements)
+		{
+		}
+
+		virtual void run(void) {
+			string all;
+			all.reserve(3 * lookupTotalLength(", ", m_elements));
+			all += join(", ", m_elements);
+			all += join(", ", m_elements);
+			all += join(", ", m_elements);
+		}
+
+		size_t lookupTotalLength(const char *separator, StringList &elements) {
+			size_t length = 0;
+			for (StringListIterator it = elements.begin();
+			     it != elements.end();
+			     ++it) {
+				length += it->size();
+			}
+			length += (elements.size() - 1) * strlen(separator) * 2;
+			return length;
+		}
+
+		string join(const char *separator, StringList &elements) {
+			string joined;
+			joined.reserve(lookupTotalLength(separator, elements));
+			bool first = false;
+			for (StringListIterator it = elements.begin();
+			     it != elements.end();
+			     ++it) {
+				if (first) {
+					first = false;
+				} else {
+					joined += separator;
+				}
+				std::string &element = *it;
+				joined += element;
+			}
+			return joined;
+		}
+
+		StringList &m_elements;
+	} stringFastJoinBenchmarkItem(n, elements);
+	reporter.registerItem(stringFastJoinBenchmarkItem);
 
 	struct SeparatorInjectorBenchmarkItem : public BenchmarkItem {
 		SeparatorInjectorBenchmarkItem(int n, StringList &elements)
