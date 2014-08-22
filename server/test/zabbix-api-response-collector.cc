@@ -161,7 +161,7 @@ bool ZabbixAPIResponseCollector::commandFuncEvent(CommandContext &ctx)
 		return false;
 
 	HatoholError querRet;
-	SoupMessage *msg = queryEvent(0, UNLIMITED,&querRet);
+	SoupMessage *msg = queryEvent(0, UNLIMITED, &querRet);
 	if (!msg)
 		return false;
 	printf("%s\n", msg->response_body->data);
@@ -176,7 +176,7 @@ bool ZabbixAPIResponseCollector::commandFuncApplication(CommandContext &ctx)
 
 	vector<uint64_t> hostIds; // empty means all hosts.
 	HatoholError querRet;
-	SoupMessage *msg = queryApplication(hostIds,&querRet);
+	SoupMessage *msg = queryApplication(hostIds, &querRet);
 	if (!msg)
 		return false;
 	printf("%s\n", msg->response_body->data);
