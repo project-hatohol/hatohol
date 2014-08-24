@@ -244,9 +244,9 @@ ItemTablePtr ZabbixAPI::getTrigger(int requestSince)
 	HatoholError queryRet;
 	SoupMessage *msg = queryTrigger(&queryRet, requestSince);
 	if (!msg){
-		if ( queryRet == HTERR_FAILED_CONNECT_INTERNAL_ERROR )
+		if ( queryRet == HTERR_FAILED_INTERNAL_ERROR )
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
-			  HTERR_FAILED_CONNECT_INTERNAL_ERROR,
+			  HTERR_FAILED_INTERNAL_ERROR,
 			  "Failed to query triggers.");
 		else
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
@@ -257,7 +257,7 @@ ItemTablePtr ZabbixAPI::getTrigger(int requestSince)
 	if (parser.hasError()) {
 		g_object_unref(msg);
 		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
-		  HTERR_FAILED_CONNECT_PARSER_ERROR,
+		  HTERR_FAILED_PARSER_ERROR,
 		  "Failed to parser: %s", parser.getErrorMessage());
 	}
 	g_object_unref(msg);
@@ -282,9 +282,9 @@ ItemTablePtr ZabbixAPI::getItems(void)
 	HatoholError queryRet;
 	SoupMessage *msg = queryItem(&queryRet);
 	if (!msg){
-		if ( queryRet == HTERR_FAILED_CONNECT_INTERNAL_ERROR )
+		if ( queryRet == HTERR_FAILED_INTERNAL_ERROR )
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
-			  HTERR_FAILED_CONNECT_INTERNAL_ERROR,
+			  HTERR_FAILED_INTERNAL_ERROR,
 			  "Failed to query items.");
 		else
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
@@ -295,7 +295,7 @@ ItemTablePtr ZabbixAPI::getItems(void)
 	g_object_unref(msg);
 	if (parser.hasError()) {
 		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
-		  HTERR_FAILED_CONNECT_PARSER_ERROR,
+		  HTERR_FAILED_PARSER_ERROR,
 		  "Failed to parser: %s", parser.getErrorMessage());
 	}
 	startObject(parser, "result");
@@ -317,9 +317,9 @@ void ZabbixAPI::getHosts(
 	HatoholError queryRet;
 	SoupMessage *msg = queryHost(&queryRet);
 	if (!msg){
-		if ( queryRet == HTERR_FAILED_CONNECT_INTERNAL_ERROR )
+		if ( queryRet == HTERR_FAILED_INTERNAL_ERROR )
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
-			  HTERR_FAILED_CONNECT_INTERNAL_ERROR,
+			  HTERR_FAILED_INTERNAL_ERROR,
 			  "Failed to query hosts.");
 		else
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
@@ -330,7 +330,7 @@ void ZabbixAPI::getHosts(
 	g_object_unref(msg);
 	if (parser.hasError()) {
 		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
-		  HTERR_FAILED_CONNECT_PARSER_ERROR,
+		  HTERR_FAILED_PARSER_ERROR,
 		  "Failed to parser: %s", parser.getErrorMessage());
 	}
 	startObject(parser, "result");
@@ -355,9 +355,9 @@ void ZabbixAPI::getGroups(ItemTablePtr &groupsTablePtr)
 	HatoholError queryRet;
 	SoupMessage *msg = queryGroup(&queryRet);
 	if (!msg){
-		if ( queryRet == HTERR_FAILED_CONNECT_INTERNAL_ERROR )
+		if ( queryRet == HTERR_FAILED_INTERNAL_ERROR )
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
-			  HTERR_FAILED_CONNECT_INTERNAL_ERROR,
+			  HTERR_FAILED_INTERNAL_ERROR,
 			  "Failed to query groups.");
 		else
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
@@ -368,7 +368,7 @@ void ZabbixAPI::getGroups(ItemTablePtr &groupsTablePtr)
 	g_object_unref(msg);
 	if (parser.hasError()) {
 		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
-		  HTERR_FAILED_CONNECT_PARSER_ERROR,
+		  HTERR_FAILED_PARSER_ERROR,
 		  "Failed to parser: %s", parser.getErrorMessage());
 	}
 	startObject(parser, "result");
@@ -388,9 +388,9 @@ ItemTablePtr ZabbixAPI::getApplications(const vector<uint64_t> &appIdVector)
 	HatoholError queryRet;
 	SoupMessage *msg = queryApplication(appIdVector, &queryRet);
 	if (!msg){
-		if ( queryRet == HTERR_FAILED_CONNECT_INTERNAL_ERROR )
+		if ( queryRet == HTERR_FAILED_INTERNAL_ERROR )
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
-			  HTERR_FAILED_CONNECT_INTERNAL_ERROR,
+			  HTERR_FAILED_INTERNAL_ERROR,
 			  "Failed to query application.");
 		else
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
@@ -401,7 +401,7 @@ ItemTablePtr ZabbixAPI::getApplications(const vector<uint64_t> &appIdVector)
 	g_object_unref(msg);
 	if (parser.hasError()) {
 		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
-		  HTERR_FAILED_CONNECT_PARSER_ERROR,
+		  HTERR_FAILED_PARSER_ERROR,
 		  "Failed to parser: %s", parser.getErrorMessage());
 	}
 	startObject(parser, "result");
@@ -435,9 +435,9 @@ ItemTablePtr ZabbixAPI::getEvents(uint64_t eventIdFrom, uint64_t eventIdTill)
 	HatoholError queryRet;
 	SoupMessage *msg = queryEvent(eventIdOffset, eventIdTill, &queryRet);
 	if (!msg){
-		if ( queryRet == HTERR_FAILED_CONNECT_INTERNAL_ERROR )
+		if ( queryRet == HTERR_FAILED_INTERNAL_ERROR )
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
-			  HTERR_FAILED_CONNECT_INTERNAL_ERROR,
+			  HTERR_FAILED_INTERNAL_ERROR,
 			  "Failed to query events.");
 		else
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
@@ -448,7 +448,7 @@ ItemTablePtr ZabbixAPI::getEvents(uint64_t eventIdFrom, uint64_t eventIdTill)
 	g_object_unref(msg);
 	if (parser.hasError()) {
 		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
-		  HTERR_FAILED_CONNECT_PARSER_ERROR,
+		  HTERR_FAILED_PARSER_ERROR,
 		  "Failed to parser: %s", parser.getErrorMessage());
 	}
 	startObject(parser, "result");
@@ -483,7 +483,7 @@ uint64_t ZabbixAPI::getEndEventId(const bool &isFirst)
 	g_object_unref(msg);
 	if (parser.hasError()) {
 		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
-		  HTERR_FAILED_CONNECT_PARSER_ERROR,
+		  HTERR_FAILED_PARSER_ERROR,
 		  "Failed to parser: %s", parser.getErrorMessage());
 	}
 	startObject(parser, "result");
@@ -494,7 +494,7 @@ uint64_t ZabbixAPI::getEndEventId(const bool &isFirst)
 
 	if (!parser.read("eventid", strValue))
 		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
-		  HTERR_FAILED_CONNECT_PARSER_ERROR,
+		  HTERR_FAILED_PARSER_ERROR,
 		  "Failed to read: eventid\n");
 
 	returnValue = StringUtils::toUint64(strValue);
@@ -673,7 +673,7 @@ ItemTablePtr ZabbixAPI::getFunctions(void)
 {
 	if (!m_impl->gotTriggers) {
 		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
-		  HTERR_FAILED_CONNECT_INTERNAL_ERROR,
+		  HTERR_FAILED_INTERNAL_ERROR,
 		  "Cache for 'functions' is empty. 'triggers' may not have "
 		  "been retrieved.");
 	}
@@ -687,7 +687,7 @@ SoupMessage *ZabbixAPI::queryCommon(JSONBuilderAgent &agent, HatoholError *query
 	if (!msg) {
 		MLPL_ERR("Failed to call: soup_message_new: uri: %s\n",
 		         m_impl->uri.c_str());
-		*queryRet = HTERR_FAILED_CONNECT_INTERNAL_ERROR;
+		*queryRet = HTERR_FAILED_INTERNAL_ERROR;
 		return NULL;
 	}
 	soup_message_headers_set_content_type(msg->request_headers,
@@ -757,7 +757,7 @@ void ZabbixAPI::startObject(JSONParserAgent &parser, const string &name)
 {
 	if (!parser.startObject(name)) {
 		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
-		 HTERR_FAILED_CONNECT_PARSER_ERROR,
+		 HTERR_FAILED_PARSER_ERROR,
 		  "Failed to read object: %s", name.c_str());
 	}
 }
@@ -766,7 +766,7 @@ void ZabbixAPI::startElement(JSONParserAgent &parser, const int &index)
 {
 	if (!parser.startElement(index)) {
 		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
-		  HTERR_FAILED_CONNECT_PARSER_ERROR,
+		  HTERR_FAILED_PARSER_ERROR,
 		  "Failed to start element: %d",index);
 	}
 }
@@ -803,7 +803,7 @@ void ZabbixAPI::getString(JSONParserAgent &parser, const string &name,
 {
 	if (!parser.read(name.c_str(), value)) {
 		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
-		  HTERR_FAILED_CONNECT_PARSER_ERROR,
+		  HTERR_FAILED_PARSER_ERROR,
 		  "Failed to read: %s", name.c_str());
 	}
 }
