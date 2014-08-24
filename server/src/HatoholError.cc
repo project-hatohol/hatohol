@@ -129,11 +129,11 @@ void HatoholError::init(void)
 
 	// ArmConnectionFailure
 	DEFINE_ERR(FAILED_CONNECT_DISCONNECT,
-		   "Failed connection to server due to disconnect.");
-	DEFINE_ERR(FAILED_CONNECT_INTERNAL_ERROR,
-		   "Failed connection to server due to internal error.");
-	DEFINE_ERR(FAILED_CONNECT_PARSER_ERROR,
-		   "Failed connection to server due to message parse error.");
+		   "Failed in connecting to server.");
+	DEFINE_ERR(FAILED_INTERNAL_ERROR,
+		   "Failed in executing to system call.");
+	DEFINE_ERR(FAILED_PARSER_ERROR,
+		   "Failed to parse the received message.");
 
 	// OTHER
 	DEFINE_ERR(ERROR_TEST,
