@@ -20,6 +20,7 @@
 #include <string>
 #include <amqp.h>
 #include <Logger.h>
+#include <StringUtils.h>
 #include "AMQPConnectionInfo.h"
 
 static const char  *DEFAULT_URL     = "amqp://localhost";
@@ -61,16 +62,13 @@ struct AMQPConnectionInfo::Impl {
 	time_t m_timeout;
 
 private:
-	bool havePrefix(const string &target, const string &prefix)
-	{
-		return target.compare(0, prefix.length(), prefix) == 0;
-	}
-
 	string normalizeURL(const string &URL)
 	{
-		if (havePrefix(URL, "amqp://"))
+		using StringUtils::hasPrefix;
+
+		if (hasPrefix(URL, "amqp://"))
 			return URL;
-		if (havePrefix(URL, "amqps://"))
+		if (hasPrefix(URL, "amqps://"))
 			return URL;
 		return string("amqp://") + URL;
 	}
