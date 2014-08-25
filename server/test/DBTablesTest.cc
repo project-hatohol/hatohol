@@ -1446,6 +1446,13 @@ void loadTestDBTablesConfig(void)
 	loadTestDBIncidentTracker();
 }
 
+void loadTestDBTablesUser(void)
+{
+	loadTestDBUser();
+	loadTestDBAccessList();
+	loadTestDBUserRole();
+}
+
 void loadTestDBServer(void)
 {
 	ThreadLocalDBCache cache;

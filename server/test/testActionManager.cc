@@ -851,13 +851,13 @@ static void clearEnvString(const string &envName, string &str)
 void cut_setup(void)
 {
 	hatoholInit();
+	setupTestDB();
 	acquireDefaultContext();
 	ConfigManager::getInstance()->setActionCommandDirectory(get_current_dir_name());
 
 	string residentYardDir = get_current_dir_name();
 	residentYardDir += "/../src/.libs";
 	ConfigManager::getInstance()->setResidentYardDirectory(residentYardDir);
-	setupTestDBAction();
 }
 
 void cut_teardown(void)
@@ -1322,8 +1322,8 @@ static void _assertRunAction(
  const HatoholErrorCode expectedErrorCode, const ActionDef &actDef,
  const EventInfo &eventInfo)
 {
-	setupTestDBUser(true, true);
-	setupTestDBConfig(true, true);
+	loadTestDBTablesConfig();
+	loadTestDBTablesUser();
 
 	ThreadLocalDBCache cache;
 	DBTablesAction &dbAction = cache.getAction();
@@ -1374,9 +1374,8 @@ void test_runIncidentSenderActionWithNonExistingUser(void)
 void test_checkEventsWithMultipleIncidentSender(void)
 {
 	// prepare two incident sender actions
-	setupTestDBConfig(true, true);
-	setupTestDBUser();
-	setupTestDBAction();
+	loadTestDBTablesConfig();
+
 	ActionDef actDef = {
 	  0,                      // id (this field is ignored)
 	  ActionCondition(

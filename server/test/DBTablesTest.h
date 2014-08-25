@@ -187,6 +187,7 @@ void setupTestDBHost(const bool &dbRecreate = true,
                      const bool &loadTestData = false);
 
 void loadTestDBTablesConfig(void);
+void loadTestDBTablesUser(void);
 
 void loadTestDBServer(void);
 void loadTestDBUser(void);
