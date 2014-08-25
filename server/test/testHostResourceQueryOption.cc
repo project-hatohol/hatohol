@@ -32,8 +32,6 @@
 using namespace std;
 using namespace mlpl;
 
-namespace testHostResourceQueryOption {
-
 static const char *TEST_PRIMARY_TABLE_NAME = "test_table_name";
 static const ColumnDef COLUMN_DEF_TEST[] = {
 {
@@ -189,6 +187,8 @@ static void _assertMakeCondition(
 #define assertMakeCondition(M, ...) \
   cut_trace(_assertMakeCondition(M, ##__VA_ARGS__))
 
+namespace testHostResourceQueryOption {
+
 static string makeExpectedConditionForUser(
   UserIdType userId, OperationPrivilegeFlag flags)
 {
@@ -244,6 +244,192 @@ void cut_setup(void)
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
+void data_makeSelectConditionUserAdmin(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_makeSelectConditionUserAdmin(gconstpointer data)
+{
+	setupTestDBConfig(true, true);
+	HostResourceQueryOption option(TEST_SYNAPSE, USER_ID_SYSTEM);
+	string expect = "";
+	fixupForFilteringDefunctServer(data, expect, option);
+	string actual = option.getCondition();
+	cppcut_assert_equal(actual, expect);
+}
+
+void data_makeSelectConditionAllEvents(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_makeSelectConditionAllEvents(gconstpointer data)
+{
+	setupTestDBConfig(true, true);
+	HostResourceQueryOption option(TEST_SYNAPSE);
+	option.setFlags(OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_SERVER));
+	string expect = "";
+	fixupForFilteringDefunctServer(data, expect, option);
+	string actual = option.getCondition();
+	cppcut_assert_equal(actual, expect);
+}
+
+void test_makeSelectConditionNoneUser(void)
+{
+	setupTestDBConfig(true, true);
+	setupTestDBUser(true, true);
+	HostResourceQueryOption option(TEST_SYNAPSE);
+	string actual = option.getCondition();
+	string expect = DBTablesMonitoring::getAlwaysFalseCondition();
+	cppcut_assert_equal(actual, expect);
+}
+
+void data_makeSelectCondition(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_makeSelectCondition(gconstpointer data)
+{
+	const bool filterForDataOfDefunctSv =
+	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
+	setupTestDBConfig(true, true);
+	setupTestDBUser(true, true);
+	HostResourceQueryOption option(TEST_SYNAPSE);
+	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
+	for (size_t i = 0; i < NumTestUserInfo; i++) {
+		UserIdType userId = i + 1;
+		option.setUserId(userId);
+		string actual = option.getCondition();
+		string expect = makeExpectedConditionForUser(
+		                  userId, testUserInfo[i].flags);
+		if (filterForDataOfDefunctSv)
+			insertValidServerCond(expect, option);
+		cppcut_assert_equal(expect, actual);
+	}
+}
+
+void test_getFromClauseWithAllHostgroup(void)
+{
+	setupTestDBUser(true, true);
+	HostResourceQueryOption option(TEST_SYNAPSE);
+	cppcut_assert_equal(string(TEST_PRIMARY_TABLE_NAME),
+	                    option.getFromClause());
+}
+
+void test_getFromClauseWithSpecificHostgroup(void)
+{
+	setupTestDBUser(true, true);
+	HostResourceQueryOption option(TEST_SYNAPSE);
+	option.setTargetHostgroupId(5);
+	const string expect = 
+	  "test_table_name INNER JOIN test_hgrp_table_name ON "
+	  "((test_table_name.server_id=test_hgrp_table_name.server_id) AND "
+	  "(test_table_name.host_id=test_hgrp_table_name.host_id))";
+	cppcut_assert_equal(expect, option.getFromClause());
+}
+
+void data_isHostgroupUsed(void)
+{
+	gcut_add_datum("Not use hostgroup", "useHostgroup",
+	               G_TYPE_BOOLEAN, FALSE, NULL);
+	gcut_add_datum("Use hostgroup", "useHostgroup",
+	               G_TYPE_BOOLEAN, TRUE, NULL);
+}
+
+void test_isHostgroupUsed(gconstpointer data)
+{
+	setupTestDBUser(true, true);
+	const bool useHostgroup = gcut_data_get_boolean(data, "useHostgroup");
+	HostResourceQueryOption option(TEST_SYNAPSE);
+	if (useHostgroup)
+		option.setTargetHostgroupId(5);
+	cppcut_assert_equal(useHostgroup, option.isHostgroupUsed());
+}
+
+void test_isHostgroupUsedForHostgroupTable(void)
+{
+	setupTestDBUser(true, true);
+	HostResourceQueryOption option(TEST_SYNAPSE_HGRP);
+	option.setTargetHostgroupId(5);
+	// It shall always be false.
+	cppcut_assert_equal(false, option.isHostgroupUsed());
+}
+
+void test_getColumnName(void)
+{
+	setupTestDBUser(true, true);
+	const size_t idx = IDX_TEST_TABLE_HOST_ID;
+	HostResourceQueryOption option(TEST_SYNAPSE);
+	cppcut_assert_equal(string(COLUMN_DEF_TEST[idx].columnName),
+	                           option.getColumnName(idx));
+}
+
+void test_getColumnNameWithTableName(void)
+{
+	setupTestDBUser(true, true);
+	const size_t idx = IDX_TEST_TABLE_HOST_ID;
+	HostResourceQueryOption option(TEST_SYNAPSE);
+	option.setTargetHostgroupId(5);
+	string expect = TEST_PRIMARY_TABLE_NAME;
+	expect += ".";
+	expect += COLUMN_DEF_TEST[idx].columnName;
+	cppcut_assert_equal(expect, option.getColumnName(idx));
+}
+
+void test_getColumnNameFull(void)
+{
+	setupTestDBUser(true, true);
+	const size_t idx = IDX_TEST_TABLE_HOST_ID;
+	HostResourceQueryOption option(TEST_SYNAPSE);
+	option.setTargetHostgroupId(5);
+	string expect = TEST_PRIMARY_TABLE_NAME;
+	expect += ".";
+	expect += COLUMN_DEF_TEST[idx].columnName;
+	cppcut_assert_equal(expect, option.getColumnName(idx));
+}
+
+void test_getColumnNameWithUseTableNameAlways(void)
+{
+	const size_t idx = IDX_TEST_TABLE_HOST_ID;
+	HostResourceQueryOption option(TEST_SYNAPSE);
+	option.setTableNameAlways();
+	string expect = TEST_PRIMARY_TABLE_NAME;
+	expect += ".";
+	expect += COLUMN_DEF_TEST[idx].columnName;
+	cppcut_assert_equal(expect, option.getColumnName(idx));
+}
+
+void data_getHostgroupColumnNameWithTableName(void)
+{
+	gcut_add_datum("Not use hostgroup", "useHostgroup",
+	               G_TYPE_BOOLEAN, FALSE, NULL);
+	gcut_add_datum("Use hostgroup", "useHostgroup",
+	               G_TYPE_BOOLEAN, TRUE, NULL);
+}
+
+void test_getHostgroupColumnNameWithTableName(gconstpointer data)
+{
+	setupTestDBUser(true, true);
+	const bool useHostgroup = gcut_data_get_boolean(data, "useHostgroup");
+	const size_t idx = IDX_TEST_HGRP_TABLE_SERVER_ID;
+	HostResourceQueryOption option(TEST_SYNAPSE);
+	if (useHostgroup)
+		option.setTargetHostgroupId(5);
+	string expect;
+	if (useHostgroup) {
+		expect = TEST_HGRP_TABLE_NAME;
+		expect += ".";
+	}
+	expect += COLUMN_DEF_TEST_HGRP[idx].columnName;
+	cppcut_assert_equal(expect, option.getHostgroupColumnName(idx));
+}
+
+} // namespace testHostResourceQueryOption
+
+namespace testHostResourceQueryOptionWithoutDBSetup {
+
 void test_constructorDataQueryContext(void)
 {
 	const UserIdType userId = USER_ID_SYSTEM;
@@ -271,13 +457,6 @@ void test_copyConstructor(void)
 			            opt0.getDataQueryContext().getUsedCount());
 	}
 	cppcut_assert_equal(1, opt0.getDataQueryContext().getUsedCount());
-}
-
-void test_getPrimaryTableName(void)
-{
-	HostResourceQueryOption option(TEST_SYNAPSE);
-	cppcut_assert_equal(TEST_PRIMARY_TABLE_NAME,
-	                    option.getPrimaryTableName());
 }
 
 void test_makeConditionServer(void)
@@ -322,6 +501,13 @@ void test_makeConditionServerWithEmptyIdSet(void)
 	string actual = TestHostResourceQueryOption::callMakeConditionServer(
 	                  svIdSet, "meet");
 	cppcut_assert_equal(DBTablesMonitoring::getAlwaysFalseCondition(), actual);
+}
+
+void test_getPrimaryTableName(void)
+{
+	HostResourceQueryOption option(TEST_SYNAPSE);
+	cppcut_assert_equal(TEST_PRIMARY_TABLE_NAME,
+	                    option.getPrimaryTableName());
 }
 
 void test_defaultValueOfFilterForDataOfDefunctServers(void)
@@ -507,188 +693,6 @@ void test_makeConditionComplicated(void)
 	assertMakeCondition(srvHostGrpSetMap, expect);
 }
 
-void data_makeSelectConditionUserAdmin(void)
-{
-	prepareTestDataForFilterForDataOfDefunctServers();
-}
-
-void test_makeSelectConditionUserAdmin(gconstpointer data)
-{
-	setupTestDBConfig(true, true);
-	HostResourceQueryOption option(TEST_SYNAPSE, USER_ID_SYSTEM);
-	string expect = "";
-	fixupForFilteringDefunctServer(data, expect, option);
-	string actual = option.getCondition();
-	cppcut_assert_equal(actual, expect);
-}
-
-void data_makeSelectConditionAllEvents(void)
-{
-	prepareTestDataForFilterForDataOfDefunctServers();
-}
-
-void test_makeSelectConditionAllEvents(gconstpointer data)
-{
-	setupTestDBConfig(true, true);
-	HostResourceQueryOption option(TEST_SYNAPSE);
-	option.setFlags(OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_SERVER));
-	string expect = "";
-	fixupForFilteringDefunctServer(data, expect, option);
-	string actual = option.getCondition();
-	cppcut_assert_equal(actual, expect);
-}
-
-void test_makeSelectConditionNoneUser(void)
-{
-	setupTestDBConfig(true, true);
-	setupTestDBUser(true, true);
-	HostResourceQueryOption option(TEST_SYNAPSE);
-	string actual = option.getCondition();
-	string expect = DBTablesMonitoring::getAlwaysFalseCondition();
-	cppcut_assert_equal(actual, expect);
-}
-
-void data_makeSelectCondition(void)
-{
-	prepareTestDataForFilterForDataOfDefunctServers();
-}
-
-void test_makeSelectCondition(gconstpointer data)
-{
-	const bool filterForDataOfDefunctSv =
-	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
-	setupTestDBConfig(true, true);
-	setupTestDBUser(true, true);
-	HostResourceQueryOption option(TEST_SYNAPSE);
-	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
-	for (size_t i = 0; i < NumTestUserInfo; i++) {
-		UserIdType userId = i + 1;
-		option.setUserId(userId);
-		string actual = option.getCondition();
-		string expect = makeExpectedConditionForUser(
-		                  userId, testUserInfo[i].flags);
-		if (filterForDataOfDefunctSv)
-			insertValidServerCond(expect, option);
-		cppcut_assert_equal(expect, actual);
-	}
-}
-
-void test_getFromClauseWithAllHostgroup(void)
-{
-	setupTestDBUser(true, true);
-	HostResourceQueryOption option(TEST_SYNAPSE);
-	cppcut_assert_equal(string(TEST_PRIMARY_TABLE_NAME),
-	                    option.getFromClause());
-}
-
-void test_getFromClauseWithSpecificHostgroup(void)
-{
-	setupTestDBUser(true, true);
-	HostResourceQueryOption option(TEST_SYNAPSE);
-	option.setTargetHostgroupId(5);
-	const string expect = 
-	  "test_table_name INNER JOIN test_hgrp_table_name ON "
-	  "((test_table_name.server_id=test_hgrp_table_name.server_id) AND "
-	  "(test_table_name.host_id=test_hgrp_table_name.host_id))";
-	cppcut_assert_equal(expect, option.getFromClause());
-}
-
-void data_isHostgroupUsed(void)
-{
-	gcut_add_datum("Not use hostgroup", "useHostgroup",
-	               G_TYPE_BOOLEAN, FALSE, NULL);
-	gcut_add_datum("Use hostgroup", "useHostgroup",
-	               G_TYPE_BOOLEAN, TRUE, NULL);
-}
-
-void test_isHostgroupUsed(gconstpointer data)
-{
-	setupTestDBUser(true, true);
-	const bool useHostgroup = gcut_data_get_boolean(data, "useHostgroup");
-	HostResourceQueryOption option(TEST_SYNAPSE);
-	if (useHostgroup)
-		option.setTargetHostgroupId(5);
-	cppcut_assert_equal(useHostgroup, option.isHostgroupUsed());
-}
-
-void test_isHostgroupUsedForHostgroupTable(void)
-{
-	setupTestDBUser(true, true);
-	HostResourceQueryOption option(TEST_SYNAPSE_HGRP);
-	option.setTargetHostgroupId(5);
-	// It shall always be false.
-	cppcut_assert_equal(false, option.isHostgroupUsed());
-}
-
-void test_getColumnName(void)
-{
-	setupTestDBUser(true, true);
-	const size_t idx = IDX_TEST_TABLE_HOST_ID;
-	HostResourceQueryOption option(TEST_SYNAPSE);
-	cppcut_assert_equal(string(COLUMN_DEF_TEST[idx].columnName),
-	                           option.getColumnName(idx));
-}
-
-void test_getColumnNameWithTableName(void)
-{
-	setupTestDBUser(true, true);
-	const size_t idx = IDX_TEST_TABLE_HOST_ID;
-	HostResourceQueryOption option(TEST_SYNAPSE);
-	option.setTargetHostgroupId(5);
-	string expect = TEST_PRIMARY_TABLE_NAME;
-	expect += ".";
-	expect += COLUMN_DEF_TEST[idx].columnName;
-	cppcut_assert_equal(expect, option.getColumnName(idx));
-}
-
-void test_getColumnNameFull(void)
-{
-	setupTestDBUser(true, true);
-	const size_t idx = IDX_TEST_TABLE_HOST_ID;
-	HostResourceQueryOption option(TEST_SYNAPSE);
-	option.setTargetHostgroupId(5);
-	string expect = TEST_PRIMARY_TABLE_NAME;
-	expect += ".";
-	expect += COLUMN_DEF_TEST[idx].columnName;
-	cppcut_assert_equal(expect, option.getColumnName(idx));
-}
-
-void test_getColumnNameWithUseTableNameAlways(void)
-{
-	const size_t idx = IDX_TEST_TABLE_HOST_ID;
-	HostResourceQueryOption option(TEST_SYNAPSE);
-	option.setTableNameAlways();
-	string expect = TEST_PRIMARY_TABLE_NAME;
-	expect += ".";
-	expect += COLUMN_DEF_TEST[idx].columnName;
-	cppcut_assert_equal(expect, option.getColumnName(idx));
-}
-
-void data_getHostgroupColumnNameWithTableName(void)
-{
-	gcut_add_datum("Not use hostgroup", "useHostgroup",
-	               G_TYPE_BOOLEAN, FALSE, NULL);
-	gcut_add_datum("Use hostgroup", "useHostgroup",
-	               G_TYPE_BOOLEAN, TRUE, NULL);
-}
-
-void test_getHostgroupColumnNameWithTableName(gconstpointer data)
-{
-	setupTestDBUser(true, true);
-	const bool useHostgroup = gcut_data_get_boolean(data, "useHostgroup");
-	const size_t idx = IDX_TEST_HGRP_TABLE_SERVER_ID;
-	HostResourceQueryOption option(TEST_SYNAPSE);
-	if (useHostgroup)
-		option.setTargetHostgroupId(5);
-	string expect;
-	if (useHostgroup) {
-		expect = TEST_HGRP_TABLE_NAME;
-		expect += ".";
-	}
-	expect += COLUMN_DEF_TEST_HGRP[idx].columnName;
-	cppcut_assert_equal(expect, option.getHostgroupColumnName(idx));
-}
-
 void test_getDBTermCodec(void)
 {
 	HostResourceQueryOption option(TEST_SYNAPSE);
@@ -698,4 +702,4 @@ void test_getDBTermCodec(void)
 	                    typeid(*option.getDBTermCodec()));
 }
 
-} // namespace testHostResourceQueryOption
+} // namespace testHostResourceQueryOptionWithoutDBSetup
