@@ -45,6 +45,15 @@ public:
 	time_t getTimeout(void) const;
 	void setTimeout(const time_t &timeout);
 
+	const std::string &getTLSCertificatePath(void) const;
+	void setTLSCertificatePath(const std::string &path);
+
+	const std::string &getTLSKeyPath(void) const;
+	void setTLSKeyPath(const std::string &path);
+
+	const std::string &getTLSCACertificatePath(void) const;
+	void setTLSCACertificatePath(const std::string &path);
+
 private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;

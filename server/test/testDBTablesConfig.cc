@@ -95,13 +95,16 @@ static string makeExpectedDBOutLine(
   const size_t &idx, const ArmPluginInfo &armPluginInfo)
 {
 	string s = StringUtils::sprintf(
-	  "%zd|%d|%s|%s|%s|%" FMT_SERVER_ID,
+	  "%zd|%d|%s|%s|%s|%" FMT_SERVER_ID "|%s|%s|%s",
 	  (idx + 1), // armPluginInfo.id
 	  armPluginInfo.type,
 	  armPluginInfo.path.c_str(),
 	  armPluginInfo.brokerUrl.c_str(),
 	  armPluginInfo.staticQueueAddress.c_str(),
-	  armPluginInfo.serverId);
+	  armPluginInfo.serverId,
+	  armPluginInfo.tlsCertificatePath.c_str(),
+	  armPluginInfo.tlsKeyPath.c_str(),
+	  armPluginInfo.tlsCACertificatePath.c_str());
 	return s;
 }
 

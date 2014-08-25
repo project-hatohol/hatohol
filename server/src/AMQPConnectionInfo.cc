@@ -60,6 +60,9 @@ struct AMQPConnectionInfo::Impl {
 	amqp_connection_info m_parsedURL;
 	string m_queueName;
 	time_t m_timeout;
+	string m_tlsCertificatePath;
+	string m_tlsKeyPath;
+	string m_tlsCACertificatePath;
 
 private:
 	string normalizeURL(const string &URL)
@@ -141,5 +144,35 @@ time_t AMQPConnectionInfo::getTimeout(void) const
 void AMQPConnectionInfo::setTimeout(const time_t &timeout)
 {
 	m_impl->m_timeout = timeout;
+}
+
+const string &AMQPConnectionInfo::getTLSCertificatePath(void) const
+{
+	return m_impl->m_tlsCertificatePath;
+}
+
+void AMQPConnectionInfo::setTLSCertificatePath(const string &path)
+{
+	m_impl->m_tlsCertificatePath = path;
+}
+
+const string &AMQPConnectionInfo::getTLSKeyPath(void) const
+{
+	return m_impl->m_tlsKeyPath;
+}
+
+void AMQPConnectionInfo::setTLSKeyPath(const string &path)
+{
+	m_impl->m_tlsKeyPath = path;
+}
+
+const string &AMQPConnectionInfo::getTLSCACertificatePath(void) const
+{
+	return m_impl->m_tlsCACertificatePath;
+}
+
+void AMQPConnectionInfo::setTLSCACertificatePath(const string &path)
+{
+	m_impl->m_tlsCACertificatePath = path;
 }
 
