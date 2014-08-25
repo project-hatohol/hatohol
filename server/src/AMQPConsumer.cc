@@ -154,8 +154,10 @@ private:
 	{
 		if (status == AMQP_STATUS_OK)
 			return;
-		// TODO: stringify status
-		MLPL_ERR("failed to %s: %x\n", context, status);
+		MLPL_ERR("failed to %s: %d: %s\n",
+			 context,
+			 status,
+			 amqp_error_string2(status));
 	}
 
 	void logErrorResponse(const char *context,
