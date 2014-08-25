@@ -42,7 +42,6 @@ static const char *TEST_TABLE_NAME1 = "test_table1";
 
 static const ColumnDef COLUMN_DEF_TEST0[] = {
 {
-	ITEM_ID_NOT_SET,                   // itemId
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -52,7 +51,6 @@ static const ColumnDef COLUMN_DEF_TEST0[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 },{
-	ITEM_ID_NOT_SET,                   // itemId
 	"age",                             // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -62,7 +60,6 @@ static const ColumnDef COLUMN_DEF_TEST0[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 },{
-	ITEM_ID_NOT_SET,                   // itemId
 	"name",                            // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -89,7 +86,6 @@ const DBAgent::TableProfile tableProfileTest0(
 
 static const ColumnDef COLUMN_DEF_TEST1[] = {
 {
-	ITEM_ID_NOT_SET,                   // itemId
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -99,7 +95,6 @@ static const ColumnDef COLUMN_DEF_TEST1[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 },{
-	ITEM_ID_NOT_SET,                   // itemId
 	"tbl0_id",                         // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -109,7 +104,6 @@ static const ColumnDef COLUMN_DEF_TEST1[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 },{
-	ITEM_ID_NOT_SET,                   // itemId
 	"my_age",                          // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength

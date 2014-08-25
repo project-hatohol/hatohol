@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -25,33 +25,8 @@
 
 class SQLUtils {
 public:
-	static const int COLUMN_NOT_FOUND = -1;
-
-	static void init(void);
-
 	static ItemDataPtr createFromString(const char *str,
 	                                    SQLColumnType type);
-
-protected:
-	typedef ItemDataPtr (*ItemDataCreator)
-	  (const ColumnDef *columnDef, const char *value);
-	
-	static ItemDataPtr creatorItemInt
-	  (const ColumnDef *columnDef, const char *value);
-	static ItemDataPtr creatorItemBiguint
-	  (const ColumnDef *columnDef, const char *value);
-	static ItemDataPtr creatorVarchar
-	  (const ColumnDef *columnDef, const char *value);
-	static ItemDataPtr creatorChar
-	  (const ColumnDef *columnDef, const char *value);
-	static ItemDataPtr creatorDouble
-	  (const ColumnDef *columnDef, const char *value);
-	static ItemDataPtr creatorDatetime
-	  (const ColumnDef *columnDef, const char *value);
-
-private:
-	static ItemDataCreator m_itemDataCreators[];
-	static size_t          m_numItemDataCreators;
 };
 
 #endif // SQLUtils_h

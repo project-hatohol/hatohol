@@ -63,7 +63,6 @@ void operator>>(ItemGroupStream &itemGroupStream, EventType &rhs)
 // ----------------------------------------------------------------------------
 static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 {
-	ITEM_ID_NOT_SET,                   // itemId
 	"server_id",                       // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -73,7 +72,6 @@ static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -83,7 +81,6 @@ static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"status",                          // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -93,7 +90,6 @@ static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"severity",                        // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -103,7 +99,6 @@ static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"last_change_time_sec",            // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -113,7 +108,6 @@ static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"last_change_time_ns",             // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -123,7 +117,6 @@ static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"host_id",                         // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -133,7 +126,6 @@ static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"hostname",                        // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -143,7 +135,6 @@ static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"brief",                           // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -188,7 +179,6 @@ static const DBAgent::TableProfile tableProfileTriggers =
 // ----------------------------------------------------------------------------
 static const ColumnDef COLUMN_DEF_EVENTS[] = {
 {
-	ITEM_ID_NOT_SET,                   // itemId
 	"unified_id",                      // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -198,7 +188,6 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	SQL_COLUMN_FLAG_AUTO_INC,          // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"server_id",                       // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -208,7 +197,6 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -218,7 +206,6 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"time_sec",                        // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -228,7 +215,6 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"time_ns",                         // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -238,7 +224,6 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"event_value",                     // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -248,7 +233,6 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"trigger_id",                      // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -258,7 +242,6 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"status",                          // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -268,7 +251,6 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"severity",                        // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -278,7 +260,6 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"host_id",                         // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -288,7 +269,6 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"hostname",                        // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -298,7 +278,6 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"brief",                           // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -346,7 +325,6 @@ static const DBAgent::TableProfile tableProfileEvents =
 // ----------------------------------------------------------------------------
 static const ColumnDef COLUMN_DEF_ITEMS[] = {
 {
-	ITEM_ID_NOT_SET,                   // itemId
 	"server_id",                       // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -356,7 +334,6 @@ static const ColumnDef COLUMN_DEF_ITEMS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -366,7 +343,6 @@ static const ColumnDef COLUMN_DEF_ITEMS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"host_id",                         // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -376,7 +352,6 @@ static const ColumnDef COLUMN_DEF_ITEMS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"brief",                           // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -386,7 +361,6 @@ static const ColumnDef COLUMN_DEF_ITEMS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"last_value_time_sec",             // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -396,7 +370,6 @@ static const ColumnDef COLUMN_DEF_ITEMS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"last_value_time_ns",              // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -406,7 +379,6 @@ static const ColumnDef COLUMN_DEF_ITEMS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"last_value",                      // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -416,7 +388,6 @@ static const ColumnDef COLUMN_DEF_ITEMS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"prev_value",                      // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -426,7 +397,6 @@ static const ColumnDef COLUMN_DEF_ITEMS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"item_group_name",                 // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -471,7 +441,6 @@ static const DBAgent::TableProfile tableProfileItems =
 // ----------------------------------------------------------------------------
 static const ColumnDef COLUMN_DEF_HOSTS[] = {
 {
-	ITEM_ID_NOT_SET,                   // itemId
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -481,7 +450,6 @@ static const ColumnDef COLUMN_DEF_HOSTS[] = {
 	SQL_COLUMN_FLAG_AUTO_INC,          // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"server_id",                       // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -491,7 +459,6 @@ static const ColumnDef COLUMN_DEF_HOSTS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"host_id",                         // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -501,7 +468,6 @@ static const ColumnDef COLUMN_DEF_HOSTS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"host_name",                       // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -540,7 +506,6 @@ static const DBAgent::TableProfile tableProfileHosts =
 // ----------------------------------------------------------------------------
 static const ColumnDef COLUMN_DEF_HOSTGROUPS[] = {
 {
-	ITEM_ID_NOT_SET,                   // itemId
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -550,7 +515,6 @@ static const ColumnDef COLUMN_DEF_HOSTGROUPS[] = {
 	SQL_COLUMN_FLAG_AUTO_INC,          // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"server_id",                       // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -560,7 +524,6 @@ static const ColumnDef COLUMN_DEF_HOSTGROUPS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"host_group_id",                   // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -570,7 +533,6 @@ static const ColumnDef COLUMN_DEF_HOSTGROUPS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"group_name",                      // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -610,7 +572,6 @@ static const DBAgent::TableProfile tableProfileHostgroups =
 // ----------------------------------------------------------------------------
 static const ColumnDef COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[] = {
 {
-	ITEM_ID_NOT_SET,                   // itemId
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -620,7 +581,6 @@ static const ColumnDef COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[] = {
 	SQL_COLUMN_FLAG_AUTO_INC,          // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"server_id",                       // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -630,7 +590,6 @@ static const ColumnDef COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"host_id",                         // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -640,7 +599,6 @@ static const ColumnDef COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"host_group_id",                   // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -682,7 +640,6 @@ static const DBAgent::TableProfile tableProfileMapHostsHostgroups =
 // ----------------------------------------------------------------------------
 static const ColumnDef COLUMN_DEF_SERVERS[] = {
 {
-	ITEM_ID_NOT_SET,                   // itemId
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -692,7 +649,6 @@ static const ColumnDef COLUMN_DEF_SERVERS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"nvps",                            // columnName
 	SQL_COLUMN_TYPE_DOUBLE,            // type
 	15,                                // columnLength
@@ -720,7 +676,6 @@ static const DBAgent::TableProfile tableProfileServers =
 // ----------------------------------------------------------------------------
 static const ColumnDef COLUMN_DEF_INCIDENTS[] = {
 {
-	ITEM_ID_NOT_SET,                   // itemId
 	"tracker_id",                      // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -730,7 +685,6 @@ static const ColumnDef COLUMN_DEF_INCIDENTS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"server_id",                       // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -740,7 +694,6 @@ static const ColumnDef COLUMN_DEF_INCIDENTS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"event_id",                        // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -750,7 +703,6 @@ static const ColumnDef COLUMN_DEF_INCIDENTS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"trigger_id",                      // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -760,7 +712,6 @@ static const ColumnDef COLUMN_DEF_INCIDENTS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"identifier",                      // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -770,7 +721,6 @@ static const ColumnDef COLUMN_DEF_INCIDENTS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"location",                        // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -780,7 +730,6 @@ static const ColumnDef COLUMN_DEF_INCIDENTS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"status",                          // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -790,7 +739,6 @@ static const ColumnDef COLUMN_DEF_INCIDENTS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"assignee",                        // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -800,7 +748,6 @@ static const ColumnDef COLUMN_DEF_INCIDENTS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"created_at_sec",                  // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -810,7 +757,6 @@ static const ColumnDef COLUMN_DEF_INCIDENTS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"created_at_ns",                   // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -820,7 +766,6 @@ static const ColumnDef COLUMN_DEF_INCIDENTS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"updated_at_sec",                  // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -830,7 +775,6 @@ static const ColumnDef COLUMN_DEF_INCIDENTS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
 	"updated_at_ns",                   // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
