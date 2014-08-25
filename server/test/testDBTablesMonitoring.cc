@@ -488,10 +488,7 @@ void test_createDB(void)
 void test_createTableTrigger(void)
 {
 	const string tableName = "triggers";
-	string dbPath = getDBPathForDBClientHatohol();
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
-	string command = "sqlite3 " + dbPath + " \".table\"";
-	assertExist(tableName, executeCommand(command));
 
 	// check content
 	string statement = "select * from " + tableName;
