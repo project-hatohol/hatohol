@@ -84,7 +84,7 @@ static void createGlobalInstance(void)
 void cut_setup(void)
 {
 	hatoholInit();
-	setupTestDBAction();
+	setupTestDB();
 }
 
 void cut_teardown(void)
