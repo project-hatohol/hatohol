@@ -111,8 +111,7 @@ static string makeExpectedDBOutLine(
 void cut_setup(void)
 {
 	hatoholInit();
-	bool dbRecreate = true;
-	setupTestDBConfig(dbRecreate);
+	setupTestDB();
 }
 
 // ---------------------------------------------------------------------------
@@ -431,11 +430,13 @@ void data_deleteTargetServer(void)
 
 void test_deleteTargetServer(gconstpointer data)
 {
-	const bool withArmPlugin = gcut_data_get_boolean(data, "withArmPlugin");
-	setupTestDBUser(true, true);
+	loadTestDBTablesUser();
 	loadTestDBServer();
+
+	const bool withArmPlugin = gcut_data_get_boolean(data, "withArmPlugin");
 	if (withArmPlugin)
 		loadTestDBArmPlugin();
+
 	ServerIdType targetServerId = 1;
 	OperationPrivilege privilege(findUserWith(OPPRVLG_DELETE_ALL_SERVER));
 	DECLARE_DBTABLES_CONFIG(dbConfig);
@@ -459,8 +460,9 @@ void test_deleteTargetServer(gconstpointer data)
 
 void test_deleteTargetServerWithoutPrivilege(void)
 {
-	setupTestDBUser(true, true);
+	loadTestDBTablesUser();
 	loadTestDBServer();
+
 	ServerIdType targetServerId = 1;
 	OperationPrivilege privilege;
 	DECLARE_DBTABLES_CONFIG(dbConfig);
@@ -544,8 +546,9 @@ void data_getTargetServers(void)
 
 void test_getTargetServers(gconstpointer data)
 {
+	loadTestDBTablesUser();
+
 	UserIdType userId = gcut_data_get_int(data, "userId");
-	setupTestDBUser(true, true);
 	assertGetTargetServers(userId);
 }
 
@@ -557,11 +560,11 @@ void test_getTargetServersByInvalidUser(void)
 
 void test_getTargetServersWithArmPlugin(void)
 {
-	const UserIdType userId = USER_ID_SYSTEM;
 	// loadTestDBServer() is not needed. data server data is added in
 	// prepareGetServer().
 	loadTestDBArmPlugin();
 
+	const UserIdType userId = USER_ID_SYSTEM;
 	ArmPluginInfoVect armPluginInfoVect;
 	MonitoringServerInfoList serverInfoList;
 	assertGetTargetServers(userId, &armPluginInfoVect, &serverInfoList);
@@ -596,8 +599,9 @@ void data_getServerIdSet(void)
 
 void test_getServerIdSet(gconstpointer data)
 {
+	loadTestDBTablesUser();
+
 	const UserIdType userId = gcut_data_get_int(data, "userId");
-	setupTestDBUser(true, true);
 	assertGetServerIdSet(userId);
 }
 
@@ -675,7 +679,8 @@ static string makeExpectedCondition(UserIdType userId)
 
 void test_serverQueryOptionForGuestUser(void)
 {
-	setupTestDBUser(true, true);
+	loadTestDBTablesUser();
+
 	UserIdType userId = 3;
 	ServerQueryOption option(userId);
 	cppcut_assert_equal(makeExpectedCondition(userId),
@@ -684,7 +689,8 @@ void test_serverQueryOptionForGuestUser(void)
 
 void test_serverQueryOptionForGuestUserWithTarget(void)
 {
-	setupTestDBUser(true, true);
+	loadTestDBTablesUser();
+
 	UserIdType userId = 3;
 	uint32_t serverId = 2;
 	ServerQueryOption option(userId);
@@ -696,7 +702,8 @@ void test_serverQueryOptionForGuestUserWithTarget(void)
 
 void test_serverQueryOptionConstructorTakingDataQueryContext(void)
 {
-	setupTestDBUser(true, true);
+	loadTestDBTablesUser();
+
 	const UserIdType &userId = 5;
 	DataQueryContextPtr dqCtxPtr(new DataQueryContext(userId), false);
 	ServerQueryOption option(dqCtxPtr);
@@ -730,8 +737,8 @@ void test_isHatoholArmPlugin(gconstpointer data)
 
 void test_getArmPluginInfo(void)
 {
-	setupTestDBConfig();
 	loadTestDBArmPlugin();
+
 	ArmPluginInfoVect armPluginInfoVect;
 	DECLARE_DBTABLES_CONFIG(dbConfig);
 	dbConfig.getArmPluginInfo(armPluginInfoVect);
@@ -749,9 +756,9 @@ void test_getArmPluginInfo(void)
 
 void test_getArmPluginInfoWithType(void)
 {
-	setupTestDBConfig();
 	loadTestDBServer();
 	loadTestDBArmPlugin();
+
 	DECLARE_DBTABLES_CONFIG(dbConfig);
 	const int targetIdx = 0;
 	const ArmPluginInfo &expect = testArmPluginInfo[targetIdx];
@@ -764,8 +771,8 @@ void test_getArmPluginInfoWithType(void)
 
 void test_getArmPluginInfoWithTypeFail(void)
 {
-	setupTestDBConfig();
 	loadTestDBArmPlugin();
+
 	DECLARE_DBTABLES_CONFIG(dbConfig);
 	ArmPluginInfo armPluginInfo;
 	MonitoringSystemType invalidType =
@@ -776,13 +783,11 @@ void test_getArmPluginInfoWithTypeFail(void)
 
 void test_saveArmPluginInfo(void)
 {
-	setupTestDBConfig();
 	loadTestDBArmPlugin();
 }
 
 void test_saveArmPluginInfoWithInvalidType(void)
 {
-	setupTestDBConfig();
 	DECLARE_DBTABLES_CONFIG(dbConfig);
 	ArmPluginInfo armPluginInfo = testArmPluginInfo[0];
 	armPluginInfo.type = MONITORING_SYSTEM_NAGIOS;
@@ -792,7 +797,6 @@ void test_saveArmPluginInfoWithInvalidType(void)
 
 void test_saveArmPluginInfoWithNoPath(void)
 {
-	setupTestDBConfig();
 	DECLARE_DBTABLES_CONFIG(dbConfig);
 	ArmPluginInfo armPluginInfo = testArmPluginInfo[0];
 	armPluginInfo.path = "";
@@ -802,7 +806,6 @@ void test_saveArmPluginInfoWithNoPath(void)
 
 void test_saveArmPluginInfoInvalidId(void)
 {
-	setupTestDBConfig();
 	loadTestDBArmPlugin();
 
 	DECLARE_DBTABLES_CONFIG(dbConfig);
@@ -814,7 +817,6 @@ void test_saveArmPluginInfoInvalidId(void)
 
 void test_saveArmPluginInfoUpdate(void)
 {
-	setupTestDBConfig();
 	loadTestDBArmPlugin();
 
 	DECLARE_DBTABLES_CONFIG(dbConfig);
@@ -1017,13 +1019,15 @@ void _assertGetIncidentTrackers(
 
 void test_getIncidentTrackers(void)
 {
-	setupTestDBUser(true, true);
+	loadTestDBTablesUser();
+
 	assertGetIncidentTrackers(USER_ID_SYSTEM);
 }
 
 void test_getIncidentTrackersWithoutPrivilege(void)
 {
-	setupTestDBUser(true, true);
+	loadTestDBTablesUser();
+
 	UserIdType userIdWithoutPrivilege
 	  = findUserWithout(OPPRVLG_GET_ALL_INCIDENT_SETTINGS);
 	assertGetIncidentTrackers(userIdWithoutPrivilege);
@@ -1031,21 +1035,24 @@ void test_getIncidentTrackersWithoutPrivilege(void)
 
 void test_getIncidentTrackersWithId(void)
 {
-	setupTestDBUser(true, true);
+	loadTestDBTablesUser();
+
 	assertGetIncidentTrackers(USER_ID_SYSTEM,
 				  NumTestIncidentTrackerInfo - 1);
 }
 
 void test_getIncidentTrackersByInvalidUser(void)
 {
-	setupTestDBUser(true, true);
+	loadTestDBTablesUser();
+
 	assertGetIncidentTrackers(INVALID_USER_ID);
 }
 
 void test_deleteIncidentTracker(void)
 {
-	setupTestDBUser(true, true);
+	loadTestDBTablesUser();
 	loadTestDBIncidentTracker();
+
 	IncidentTrackerIdType incidentTrackerId = 1;
 	OperationPrivilege privilege(
 	  findUserWith(OPPRVLG_DELETE_INCIDENT_SETTING));
@@ -1061,8 +1068,9 @@ void test_deleteIncidentTracker(void)
 
 void test_deleteIncidentTrackerWithoutPrivilege(void)
 {
-	setupTestDBUser(true, true);
+	loadTestDBTablesUser();
 	loadTestDBIncidentTracker();
+
 	IncidentTrackerIdType incidentTrackerId = 1;
 	OperationPrivilege privilege;
 	DECLARE_DBTABLES_CONFIG(dbConfig);
