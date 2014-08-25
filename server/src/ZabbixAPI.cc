@@ -439,9 +439,9 @@ uint64_t ZabbixAPI::getEndEventId(const bool &isFirst)
 
 	returnValue = StringUtils::toUint64(strValue);
 	if (isFirst)
-		MLPL_DBG("The first event ID on server side: %" PRIu64 "\n", returnValue);
+		MLPL_DBG("The first event ID on monitoring server side: %" PRIu64 "\n", returnValue);
 	else
-		MLPL_DBG("The last event ID on server side: %" PRIu64 "\n", returnValue);
+		MLPL_DBG("The last event ID on monitoring server side: %" PRIu64 "\n", returnValue);
 
 	return returnValue;
 }
