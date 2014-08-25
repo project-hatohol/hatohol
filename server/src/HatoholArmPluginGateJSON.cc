@@ -22,7 +22,7 @@
 #include <StringUtils.h>
 
 #include "HatoholArmPluginGateJSON.h"
-#include "CacheServiceDBClient.h"
+#include "ThreadLocalDBCache.h"
 #include "UnifiedDataStore.h"
 #include "ArmFake.h"
 #include "AMQPConsumer.h"
@@ -116,11 +116,11 @@ struct HatoholArmPluginGateJSON::Impl
 	  m_handler(NULL),
 	  m_armFake(serverInfo)
 	{
-		CacheServiceDBClient cache;
-		DBTablesConfig *dbConfig = cache.getConfig();
+		ThreadLocalDBCache cache;
+		DBTablesConfig &dbConfig = cache.getConfig();
 		const ServerIdType &serverId = serverInfo.id;
 		ArmPluginInfo armPluginInfo;
-		if (!dbConfig->getArmPluginInfo(armPluginInfo, serverId)) {
+		if (!dbConfig.getArmPluginInfo(armPluginInfo, serverId)) {
 			MLPL_ERR("Failed to get ArmPluginInfo: serverId: %d\n",
 				 serverId);
 			return;
