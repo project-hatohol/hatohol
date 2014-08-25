@@ -316,7 +316,7 @@ protected:
 	{
 		if (!openSession()) {
 			requestExit();
-			return COLLECT_NG_DISCONNECT;
+			return COLLECT_NG_DISCONNECT_ZABBIX;
 		}
 		if (!(this->*m_threadOneProc)()) {
 			requestExit();
