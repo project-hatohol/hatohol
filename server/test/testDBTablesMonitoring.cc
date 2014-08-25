@@ -499,18 +499,16 @@ void test_createTableTrigger(void)
 
 void test_addTriggerInfo(void)
 {
-	string dbPath = getDBPathForDBClientHatohol();
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 
 	// added a record
 	TriggerInfo *testInfo = testTriggerInfo;
 	assertAddTriggerToDB(testInfo);
 
 	// confirm with the command line tool
-	string cmd = StringUtils::sprintf(
-	               "sqlite3 %s \"select * from triggers\"", dbPath.c_str());
-	string result = executeCommand(cmd);
+	string sql = StringUtils::sprintf("SELECT * from triggers");
 	string expectedOut = makeTriggerOutput(*testInfo);
-	cppcut_assert_equal(expectedOut, result);
+	assertDBContent(dbMonitoring.getDBAgent(), sql, expectedOut);
 }
 
 void test_getTriggerInfo(void)
