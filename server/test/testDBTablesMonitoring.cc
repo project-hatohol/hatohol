@@ -134,13 +134,6 @@ static void _assertGetTriggersWithFilter(AssertGetTriggersArg &arg)
 #define assertGetTriggersWithFilter(ARG) \
 cut_trace(_assertGetTriggersWithFilter(ARG))
 
-static void _setupTestTriggerDB(void)
-{
-	for (size_t i = 0; i < NumTestTriggerInfo; i++)
-		assertAddTriggerToDB(&testTriggerInfo[i]);
-}
-#define setupTestTriggerDB() cut_trace(_setupTestTriggerDB())
-
 static void _setupTestHostgroupInfoDB(void)
 {
 	for (size_t i = 0; i < NumTestHostgroupInfo; i++)
@@ -165,7 +158,7 @@ static void _setupTestHostInfoDB(void)
 static void _assertGetTriggerInfoList(
   gconstpointer ddtParam, uint32_t serverId, uint64_t hostId = ALL_HOSTS)
 {
-	setupTestTriggerDB();
+	loadTestDBTriggers();
 	setupTestHostgroupElementDB();
 	setupTestHostgroupInfoDB();
 	AssertGetTriggersArg arg(ddtParam);
@@ -372,7 +365,7 @@ static void _assertGetHosts(AssertGetHostsArg &arg)
 
 static void _assertGetNumberOfHostsWithUserAndStatus(UserIdType userId, bool status)
 {
-	setupTestTriggerDB();
+	loadTestDBTriggers();
 
 	const ServerIdType serverId = testTriggerInfo[0].serverId;
 	// TODO: should give the appropriate host group ID after
@@ -513,7 +506,7 @@ void test_addTriggerInfo(void)
 
 void test_getTriggerInfo(void)
 {
-	setupTestTriggerDB();
+	loadTestDBTriggers();
 	setupTestHostgroupElementDB();
 	setupTestHostgroupInfoDB();
 	int targetIdx = 2;
@@ -530,7 +523,7 @@ void test_getTriggerInfo(void)
 
 void test_getTriggerInfoNotFound(void)
 {
-	setupTestTriggerDB();
+	loadTestDBTriggers();
 	setupTestDBUser(true, true);
 	const UserIdType invalidSvId = -1;
 	const TriggerIdType invalidTrigId = -1;
@@ -940,7 +933,7 @@ void data_getNumberOfTriggers(void)
 
 void test_getNumberOfTriggers(gconstpointer data)
 {
-	setupTestTriggerDB();
+	loadTestDBTriggers();
 	setupTestHostgroupElementDB();
 
 	const ServerIdType targetServerId = testTriggerInfo[0].serverId;
@@ -961,7 +954,7 @@ void test_getNumberOfTriggers(gconstpointer data)
 void test_getNumberOfTriggersForMultipleAuthorizedHostgroups(void)
 {
 	setupTestDBUser(true, true);
-	setupTestTriggerDB();
+	loadTestDBTriggers();
 	setupTestHostgroupElementDB();
 
 	const ServerIdType targetServerId = testTriggerInfo[0].serverId;
@@ -1006,7 +999,7 @@ cut_trace(_assertGetNumberOfTriggers(D,S,H,V))
 
 void test_getNumberOfTriggersBySeverity(gconstpointer data)
 {
-	setupTestTriggerDB();
+	loadTestDBTriggers();
 	setupTestHostgroupElementDB();
 
 	const ServerIdType targetServerId = testTriggerInfo[0].serverId;
@@ -1029,7 +1022,7 @@ void data_getNumberOfAllBadTriggers(void)
 
 void test_getNumberOfAllBadTriggers(gconstpointer data)
 {
-	setupTestTriggerDB();
+	loadTestDBTriggers();
 	setupTestHostgroupElementDB();
 
 	const ServerIdType targetServerId = testTriggerInfo[0].serverId;
@@ -1043,7 +1036,7 @@ void test_getNumberOfAllBadTriggers(gconstpointer data)
 
 void test_getNumberOfTriggersBySeverityWithoutPriviledge(void)
 {
-	setupTestTriggerDB();
+	loadTestDBTriggers();
 	setupTestDBUser(true, true);
 
 	const ServerIdType targetServerId = testTriggerInfo[0].serverId;
