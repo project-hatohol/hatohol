@@ -287,7 +287,37 @@ static const ColumnDef COLUMN_DEF_ARM_PLUGINS[] = {
 	SQL_KEY_UNI,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
-}
+}, {
+	"tls_certificate_path",            // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	// The same as Linux's PATH_MAX without nul
+	4095,                              // columnLength
+	0,                                 // decFracLength
+	true,                              // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	"tls_key_path",                    // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	// The same as Linux's PATH_MAX without nul
+	4095,                              // columnLength
+	0,                                 // decFracLength
+	true,                              // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	"tls_ca_certificate_path",         // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	// The same as Linux's PATH_MAX without nul
+	4095,                              // columnLength
+	0,                                 // decFracLength
+	true,                              // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+},
 };
 
 enum {
@@ -297,6 +327,9 @@ enum {
 	IDX_ARM_PLUGINS_BROKER_URL,
 	IDX_ARM_PLUGINS_STATIC_QUEUE_ADDR,
 	IDX_ARM_PLUGINS_SERVER_ID,
+	IDX_ARM_PLUGINS_TLS_CERTIFICATE_PATH,
+	IDX_ARM_PLUGINS_TLS_KEY_PATH,
+	IDX_ARM_PLUGINS_TLS_CA_CERTIFICATE_PATH,
 	NUM_IDX_ARM_PLUGINS,
 };
 
@@ -977,6 +1010,9 @@ void DBTablesConfig::getTargetServers(
 	builder.add(IDX_ARM_PLUGINS_BROKER_URL);
 	builder.add(IDX_ARM_PLUGINS_STATIC_QUEUE_ADDR);
 	builder.add(IDX_ARM_PLUGINS_SERVER_ID);
+	builder.add(IDX_ARM_PLUGINS_TLS_CERTIFICATE_PATH);
+	builder.add(IDX_ARM_PLUGINS_TLS_KEY_PATH);
+	builder.add(IDX_ARM_PLUGINS_TLS_CA_CERTIFICATE_PATH);
 
 	getDBAgent().runTransaction(builder.getSelectExArg());
 
@@ -1322,6 +1358,9 @@ void DBTablesConfig::selectArmPluginInfo(DBAgent::SelectExArg &arg)
 	arg.add(IDX_ARM_PLUGINS_BROKER_URL);
 	arg.add(IDX_ARM_PLUGINS_STATIC_QUEUE_ADDR);
 	arg.add(IDX_ARM_PLUGINS_SERVER_ID);
+	arg.add(IDX_ARM_PLUGINS_TLS_CERTIFICATE_PATH);
+	arg.add(IDX_ARM_PLUGINS_TLS_KEY_PATH);
+	arg.add(IDX_ARM_PLUGINS_TLS_CA_CERTIFICATE_PATH);
 
 	getDBAgent().runTransaction(arg);
 }
@@ -1335,6 +1374,9 @@ void DBTablesConfig::readArmPluginStream(
 	itemGroupStream >> armPluginInfo.brokerUrl;
 	itemGroupStream >> armPluginInfo.staticQueueAddress;
 	itemGroupStream >> armPluginInfo.serverId;
+	itemGroupStream >> armPluginInfo.tlsCertificatePath;
+	itemGroupStream >> armPluginInfo.tlsKeyPath;
+	itemGroupStream >> armPluginInfo.tlsCACertificatePath;
 }
 
 HatoholError DBTablesConfig::preprocForSaveArmPlguinInfo(
@@ -1382,6 +1424,12 @@ HatoholError DBTablesConfig::saveArmPluginInfoWithoutTransaction(
 		        armPluginInfo.staticQueueAddress);
 		arg.add(IDX_ARM_PLUGINS_SERVER_ID,
 		        armPluginInfo.serverId);
+		arg.add(IDX_ARM_PLUGINS_TLS_CERTIFICATE_PATH,
+		        armPluginInfo.tlsCertificatePath);
+		arg.add(IDX_ARM_PLUGINS_TLS_KEY_PATH,
+		        armPluginInfo.tlsKeyPath);
+		arg.add(IDX_ARM_PLUGINS_TLS_CA_CERTIFICATE_PATH,
+		        armPluginInfo.tlsCACertificatePath);
 		arg.condition = condition;
 		update(arg);
 	} else {
@@ -1392,6 +1440,9 @@ HatoholError DBTablesConfig::saveArmPluginInfoWithoutTransaction(
 		arg.add(armPluginInfo.brokerUrl);
 		arg.add(armPluginInfo.staticQueueAddress);
 		arg.add(armPluginInfo.serverId);
+		arg.add(armPluginInfo.tlsCertificatePath);
+		arg.add(armPluginInfo.tlsKeyPath);
+		arg.add(armPluginInfo.tlsCACertificatePath);
 		insert(arg);
 		armPluginInfo.id = getLastInsertId();
 	}

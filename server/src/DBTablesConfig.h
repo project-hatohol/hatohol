@@ -72,6 +72,10 @@ struct ArmPluginInfo {
 	 */
 	ServerIdType serverId;
 
+	std::string tlsCertificatePath;
+	std::string tlsKeyPath;
+	std::string tlsCACertificatePath;
+
 	static void initialize(ArmPluginInfo &armPluginInfo);
 };
 
