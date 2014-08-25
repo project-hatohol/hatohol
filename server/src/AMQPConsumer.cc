@@ -18,6 +18,7 @@
  */
 
 #include "AMQPConsumer.h"
+#include "AMQPConnectionInfo.h"
 #include "AMQPMessageHandler.h"
 #include <unistd.h>
 #include <Logger.h>
@@ -31,35 +32,15 @@ static const time_t  DEFAULT_TIMEOUT  = 1;
 
 class AMQPConnection {
 public:
-	AMQPConnection(const string &brokerUrl,
-		       const string &queueAddress)
-	: m_connectionInfo(),
-	  m_queueAddress(queueAddress),
-	  m_timeout(DEFAULT_TIMEOUT),
+	AMQPConnection(const AMQPConnectionInfo &info)
+	: m_info(info),
 	  m_connection(NULL),
 	  m_socket(NULL),
 	  m_channel(0),
 	  m_envelope()
 	{
-		amqp_default_connection_info(&m_connectionInfo);
-		int status = amqp_parse_url(const_cast<char *>(buildURL(brokerUrl).c_str()),
-					    &m_connectionInfo);
-		if (status == AMQP_STATUS_OK) {
-			const char *scheme;
-			if (m_connectionInfo.ssl) {
-				scheme = "amqps";
-			} else {
-				scheme = "amqp";
-			}
-			MLPL_INFO("Broker URL: <%s://%s:%d>\n",
-				  scheme,
-				  m_connectionInfo.host,
-				  m_connectionInfo.port);
-		} else {
-			MLPL_ERR("Bad broker URL: %s: <%s>\n",
-				 amqp_error_string2(status),
-				 brokerUrl.c_str());
-		}
+		MLPL_INFO("Broker URL: <%s://%s:%d>\n",
+			  getScheme(), getHost(), getPort());
 	}
 
 	~AMQPConnection()
@@ -90,7 +71,7 @@ public:
 		amqp_destroy_envelope(&m_envelope);
 
 		struct timeval timeout = {
-			m_timeout,
+			getTimeout(),
 			0
 		};
 		const int flags = 0;
@@ -119,46 +100,49 @@ public:
 
 
 private:
-	struct amqp_connection_info m_connectionInfo;
-	string m_queueAddress;
-	time_t m_timeout;
+	const AMQPConnectionInfo &m_info;
 	amqp_connection_state_t m_connection;
 	amqp_socket_t *m_socket;
 	amqp_channel_t m_channel;
 	amqp_envelope_t m_envelope;
 
-	bool havePrefix(const string &target, const string &prefix)
+	const char *getScheme(void)
 	{
-		return target.compare(0, prefix.length(), prefix) == 0;
-	}
-
-	string buildURL(const string &brokerUrl)
-	{
-		if (havePrefix(brokerUrl, "amqp://"))
-			return brokerUrl;
-		if (havePrefix(brokerUrl, "amqps://"))
-			return brokerUrl;
-		return string("amqp://") + brokerUrl;
+		if (m_info.useTLS()) {
+			return "amqps";
+		} else {
+			return "amqp";
+		}
 	}
 
 	const char *getHost()
 	{
-		return m_connectionInfo.host;
+		return m_info.getHost();
 	}
 
 	guint getPort()
 	{
-		return m_connectionInfo.port;
+		return m_info.getPort();
 	}
 
 	const char *getUser()
 	{
-		return m_connectionInfo.user;
+		return m_info.getUser();
 	}
 
 	const char *getPassword()
 	{
-		return m_connectionInfo.password;
+		return m_info.getPassword();
+	}
+
+	const string &getQueueName()
+	{
+		return m_info.getQueueName();
+	}
+
+	time_t getTimeout(void)
+	{
+		return m_info.getTimeout();
 	}
 
 	void logErrorResponse(const char *context, int status)
@@ -274,9 +258,9 @@ private:
 
 	bool declareQueue()
 	{
-		const amqp_bytes_t queue =
-			amqp_cstring_bytes(m_queueAddress.c_str());
-		MLPL_INFO("Queue: <%s>\n", m_queueAddress.c_str());
+		const string &queueName = getQueueName();
+		const amqp_bytes_t queue = amqp_cstring_bytes(queueName.c_str());
+		MLPL_INFO("Queue: <%s>\n", queueName.c_str());
 		const amqp_boolean_t passive = false;
 		const amqp_boolean_t durable = false;
 		const amqp_boolean_t exclusive = false;
@@ -305,7 +289,7 @@ private:
 	bool startConsuming()
 	{
 		const amqp_bytes_t queue =
-			amqp_cstring_bytes(m_queueAddress.c_str());
+			amqp_cstring_bytes(getQueueName().c_str());
 		const amqp_bytes_t consumer_tag = amqp_empty_bytes;
 		const amqp_boolean_t no_local = false;
 		const amqp_boolean_t no_ack = true;
@@ -367,11 +351,9 @@ private:
 	}
 };
 
-AMQPConsumer::AMQPConsumer(const string &brokerUrl,
-			   const string &queueAddress,
+AMQPConsumer::AMQPConsumer(const AMQPConnectionInfo &connectionInfo,
 			   AMQPMessageHandler *handler)
-: m_brokerUrl(brokerUrl),
-  m_queueAddress(queueAddress),
+: m_connectionInfo(connectionInfo),
   m_handler(handler)
 {
 }
@@ -382,7 +364,7 @@ AMQPConsumer::~AMQPConsumer()
 
 gpointer AMQPConsumer::mainThread(HatoholThreadArg *arg)
 {
-	AMQPConnection connection(m_brokerUrl, m_queueAddress);
+	AMQPConnection connection(m_connectionInfo);
 	while (!isExitRequested()) {
 		if (!connection.isConnected()) {
 			connection.connect();
