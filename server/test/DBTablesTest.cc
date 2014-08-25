@@ -1528,6 +1528,15 @@ void loadTestDBEvents(void)
 		dbMonitoring.addEventInfo(&testEventInfo[i]);
 }
 
+void loadTestDBItems(void)
+{
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	for (size_t i = 0; i < NumTestItemInfo; i++)
+		dbMonitoring.addItemInfo(&testItemInfo[i]);
+}
+
 void loadTestDBAction(void)
 {
 	ThreadLocalDBCache cache;

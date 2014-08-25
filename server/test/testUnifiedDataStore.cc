@@ -131,12 +131,9 @@ static void assertLines(
 void cut_setup(void)
 {
 	hatoholInit();
-	const gchar *dbPath = cut_build_path(cut_get_test_directory(),
-	                                     "fixtures",
-	                                     "testDatabase-hatohol.db",
-	                                     NULL);
-	defineDBPath(DB_TABLES_ID_MONITORING, dbPath);
-	setupTestDBConfig(true, true);
+
+	setupTestDB();
+	loadTestDBTablesConfig();
 }
 
 // ---------------------------------------------------------------------------
@@ -156,6 +153,8 @@ void data_getTriggerList(void)
 
 void test_getTriggerList(gconstpointer data)
 {
+	loadTestDBTriggers();
+
 	const bool filterForDataOfDefunctSv =
 	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
 	vector<string> expectedStrVec;
@@ -179,6 +178,9 @@ void data_getEventList(void)
 
 void test_getEventList(gconstpointer data)
 {
+	loadTestDBTriggers();
+	loadTestDBEvents();
+
 	const bool filterForDataOfDefunctSv =
 	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
 	vector<string> expectedStrVec;
@@ -202,6 +204,8 @@ void data_getItemList(void)
 
 void test_getItemList(gconstpointer data)
 {
+	loadTestDBItems();
+
 	const bool filterForDataOfDefunctSv =
 	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
 	ItemsQueryOption option(USER_ID_SYSTEM);
