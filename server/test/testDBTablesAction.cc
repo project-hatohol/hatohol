@@ -321,9 +321,8 @@ static void assertActionIdsInDB(ActionIdList excludeIdList)
 void cut_setup(void)
 {
 	hatoholInit();
-	deleteDBClientHatoholDB();
-	setupTestDBConfig(true, true);
-	setupTestDBAction();
+	setupTestDB();
+	loadTestDBTablesConfig();
 }
 
 void cut_teardown(void)
@@ -1036,8 +1035,8 @@ namespace testActionsQueryOption {
 void cut_setup(void)
 {
 	hatoholInit();
-	deleteDBClientHatoholDB();
-	setupTestDBConfig(true, true);
+	setupTestDB();
+	loadTestDBTablesConfig();
 }
 
 void test_withoutUser(void)
