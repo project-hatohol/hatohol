@@ -32,12 +32,12 @@ using namespace mlpl;
 
 namespace testDBTablesAction {
 
-struct TestDBTablesAction : public DBTablesAction {
-	uint64_t callGetLastInsertId(void)
-	{
-		return getLastInsertId();
-	}
-};
+#define DECLARE_DBTABLES_ACTION(VAR_NAME) \
+	DBTablesAction VAR_NAME;
+	/*** After DBTablesAction inherits DBTables, we use the following way.
+	DBHatohol _dbHatohol; \
+	DBTablesAction &VAR_NAME = _dbHatohol.getAction();
+	***/
 
 static string makeExpectedString(const ActionDef &actDef, int expectedId)
 {
@@ -201,7 +201,7 @@ void _assertGetActionList(
 	ActionsQueryOption option(operatorId);
 	option.setActionType(actionType);
 
-	DBTablesAction dbAction;
+	DECLARE_DBTABLES_ACTION(dbAction);
 	ActionDefList actionDefList;
 	assertHatoholError(HTERR_OK,
 	                   dbAction.getActionList(actionDefList, option));
@@ -263,7 +263,7 @@ static void _assertDeleteActions(const bool &deleteMyActions,
                                  const OperationPrivilegeType &type)
 {
 	setupTestDBUserAndDBAction();
-	DBTablesAction dbAction;
+	DECLARE_DBTABLES_ACTION(dbAction);
 
 	const UserIdType userId = findUserWith(type);
 	string expect;
@@ -313,7 +313,7 @@ static void assertActionIdsInDB(ActionIdList excludeIdList)
 	string statement = "select action_id from ";
 	statement += DBTablesAction::getTableNameActions();
 	statement += " order by action_id asc";
-	DBTablesAction dbAction;
+	DECLARE_DBTABLES_ACTION(dbAction);
 	assertDBContent(&dbAction.getDBAgent(), statement, expect);
 }
 #define assertActionsInDB(E) cut_trace(_assertActionsInDB(E))
@@ -341,7 +341,7 @@ void cut_teardown(void)
 // ---------------------------------------------------------------------------
 void test_dbDomainId(void)
 {
-	DBTablesAction dbAction;
+	DECLARE_DBTABLES_ACTION(dbAction);
 	cppcut_assert_equal(DB_TABLES_ID_ACTION,
 	                    dbAction.getDBAgent().getDBDomainId());
 }
@@ -351,7 +351,7 @@ void test_addAction(void)
 	setupTestTriggerInfo();
 	setupTestHostgroupElement();
 
-	DBTablesAction dbAction;
+	DECLARE_DBTABLES_ACTION(dbAction);
 	string expect;
 	OperationPrivilege privilege(USER_ID_SYSTEM);
 	for (size_t i = 0; i < NumTestActionDef; i++) {
@@ -371,7 +371,7 @@ void test_addAction(void)
 
 void test_addActionByInvalidUser(void)
 {
-	DBTablesAction dbAction;
+	DECLARE_DBTABLES_ACTION(dbAction);
 	OperationPrivilege privilege(INVALID_USER_ID);
 	ActionDef &actDef = testActionDef[0];
 	assertHatoholError(HTERR_INVALID_USER,
@@ -383,11 +383,11 @@ void test_addActionAndCheckOwner(void)
 	setupHelperForTestDBUser();
 
 	const UserIdType userId = findUserWith(OPPRVLG_CREATE_ACTION);
-	TestDBTablesAction dbAction;
+	DECLARE_DBTABLES_ACTION(dbAction);
 	OperationPrivilege privilege(userId);
 	ActionDef &actDef = testActionDef[0];
 	assertHatoholError(HTERR_OK, dbAction.addAction(actDef, privilege));
-	ActionIdType actionId = dbAction.callGetLastInsertId();
+	ActionIdType actionId = dbAction.getDBAgent().getLastInsertId();
 
 	// check
 	string expect = StringUtils::sprintf("%" FMT_ACTION_ID "|%" FMT_USER_ID,
@@ -402,7 +402,7 @@ void test_addActionWithoutPrivilege(void)
 	setupHelperForTestDBUser();
 
 	const UserIdType userId = findUserWithout(OPPRVLG_CREATE_ACTION);
-	TestDBTablesAction dbAction;
+	DECLARE_DBTABLES_ACTION(dbAction);
 	OperationPrivilege privilege(userId);
 	ActionDef &actDef = testActionDef[0];
 	assertHatoholError(HTERR_NO_PRIVILEGE,
@@ -426,7 +426,7 @@ void test_addIncidentSenderActionByIncidentSettingsAdmin(void)
 	  = OperationPrivilege::makeFlag(OPPRVLG_CREATE_ACTION);
 	const UserIdType userId
 		= findUserWith(OPPRVLG_CREATE_INCIDENT_SETTING, excludeFlags);
-	TestDBTablesAction dbAction;
+	DECLARE_DBTABLES_ACTION(dbAction);
 	OperationPrivilege privilege(userId);
 	int idx = findTestActionIdxByType(ACTION_INCIDENT_SENDER);
 	ActionIdType expectedId = 1;
@@ -452,7 +452,7 @@ void test_addIncidentSenderActionWithoutPrivilege(void)
 	  = OperationPrivilege::makeFlag(OPPRVLG_CREATE_INCIDENT_SETTING);
 	const UserIdType userId
 		= findUserWith(OPPRVLG_CREATE_ACTION, excludeFlags);
-	TestDBTablesAction dbAction;
+	DECLARE_DBTABLES_ACTION(dbAction);
 	OperationPrivilege privilege(userId);
 	int idx = findTestActionIdxByType(ACTION_INCIDENT_SENDER);
 	assertHatoholError(HTERR_NO_PRIVILEGE,
@@ -462,7 +462,7 @@ void test_addIncidentSenderActionWithoutPrivilege(void)
 void test_deleteAction(void)
 {
 	setupTestDBUserAndDBAction();
-	DBTablesAction dbAction;
+	DECLARE_DBTABLES_ACTION(dbAction);
 
 	const UserIdType userId = findUserWith(OPPRVLG_DELETE_ACTION);
 	const size_t targetIdx = findIndexFromTestActionDef(userId);
@@ -477,7 +477,7 @@ void test_deleteAction(void)
 void test_deleteActionWithoutPrivilege(void)
 {
 	setupTestDBUserAndDBAction();
-	DBTablesAction dbAction;
+	DECLARE_DBTABLES_ACTION(dbAction);
 
 	const UserIdType userId = findUserWithout(OPPRVLG_DELETE_ACTION);
 	const size_t targetIdx = findIndexFromTestActionDef(userId);
@@ -492,7 +492,7 @@ void test_deleteActionWithoutPrivilege(void)
 void test_deleteActionByInvalidUser(void)
 {
 	ActionIdList idList;
-	DBTablesAction dbAction;
+	DECLARE_DBTABLES_ACTION(dbAction);
 	OperationPrivilege privilege(INVALID_USER_ID);
 	assertHatoholError(HTERR_INVALID_USER,
 	                   dbAction.deleteActions(idList, privilege));
@@ -528,7 +528,7 @@ void test_deleteNoOwnerAction(void)
 	HatoholError err = cache.getUser().deleteUserInfo(targetId, privilege);
 	assertHatoholError(HTERR_OK, err);
 
-	DBTablesAction dbAction;
+	DECLARE_DBTABLES_ACTION(dbAction);
 	dbAction.deleteInvalidActions();
 
 	assertActionIdsInDB(excludeIdList);
@@ -557,7 +557,7 @@ void test_deleteNoIncidentTrackerAction(void)
 	HatoholError err = dbConfig.deleteIncidentTracker(targetId, privilege);
 	assertHatoholError(HTERR_OK, err);
 
-	DBTablesAction dbAction;
+	DECLARE_DBTABLES_ACTION(dbAction);
 	dbAction.deleteInvalidActions();
 
 	assertActionIdsInDB(excludeIdList);
@@ -566,7 +566,7 @@ void test_deleteNoIncidentTrackerAction(void)
 void test_deleteActionOfOthersWithoutPrivilege(void)
 {
 	setupTestDBUserAndDBAction();
-	DBTablesAction dbAction;
+	DECLARE_DBTABLES_ACTION(dbAction);
 
 	const OperationPrivilegeFlag excludeFlags
 	  = OperationPrivilege::makeFlag(OPPRVLG_DELETE_ALL_ACTION);
@@ -589,7 +589,7 @@ void test_deleteActionOfOthersWithoutPrivilege(void)
 void test_deleteIncidentSenderActionByIncidentSettingsAdmin(void)
 {
 	setupTestDBUserAndDBAction();
-	DBTablesAction dbAction;
+	DECLARE_DBTABLES_ACTION(dbAction);
 
 	const OperationPrivilegeFlag excludeFlags
 	  = OperationPrivilege::makeFlag(OPPRVLG_DELETE_ACTION);
@@ -608,7 +608,7 @@ void test_deleteIncidentSenderActionByIncidentSettingsAdmin(void)
 void test_deleteIncidentSenderActionWithoutPrivilege(void)
 {
 	setupTestDBUserAndDBAction();
-	DBTablesAction dbAction;
+	DECLARE_DBTABLES_ACTION(dbAction);
 
 	const OperationPrivilegeFlag excludeFlags
 	  = OperationPrivilege::makeFlag(OPPRVLG_DELETE_INCIDENT_SETTING);
@@ -626,7 +626,7 @@ void test_deleteIncidentSenderActionWithoutPrivilege(void)
 void test_startExecAction(void)
 {
 	string expect;
-	DBTablesAction dbAction;
+	DECLARE_DBTABLES_ACTION(dbAction);
 	EventInfo &eventInfo = testEventInfo[0];
 	for (size_t i = 0; i < NumTestActionDef; i++) {
 		const ActionDef &actDef = testActionDef[i];
@@ -659,7 +659,7 @@ void test_startExecAction(void)
 void test_startExecActionWithExecFailure(void)
 {
 	string expect;
-	DBTablesAction dbAction;
+	DECLARE_DBTABLES_ACTION(dbAction);
 	EventInfo &eventInfo = testEventInfo[0];
 	size_t targetIdx = 1;
 	const ActionDef &actDef = testActionDef[targetIdx];
@@ -680,7 +680,7 @@ void test_endExecAction(void)
 {
 	size_t targetIdx = 1;
 	int    exitCode = 21;
-	DBTablesAction dbAction;
+	DECLARE_DBTABLES_ACTION(dbAction);
 
 	DBTablesAction::LogEndExecActionArg logArg;
 	logArg.logId = targetIdx + 1;
@@ -730,7 +730,7 @@ void test_getTriggerActionList(void)
 	eventInfo.brief     = "foo foo foo";
 
 	// get the list and check the number
-	DBTablesAction dbAction;
+	DECLARE_DBTABLES_ACTION(dbAction);
 	ActionDefList actionDefList;
 	ActionsQueryOption option(USER_ID_SYSTEM);
 	option.setTargetEventInfo(&eventInfo);
@@ -766,7 +766,7 @@ void test_getTriggerActionListWithAllCondition(void)
 	eventInfo.brief     = "foo foo foo";
 
 	// get the list and check the number
-	DBTablesAction dbAction;
+	DECLARE_DBTABLES_ACTION(dbAction);
 	ActionDefList actionDefList;
 	ActionsQueryOption option(USER_ID_SYSTEM);
 	option.setTargetEventInfo(&eventInfo);
@@ -804,7 +804,7 @@ static void _assertGetActionWithSeverity(const TriggerSeverityType &severity,
 	eventInfo.brief     = "foo foo foo";
 
 	// get the list and check the number
-	DBTablesAction dbAction;
+	DECLARE_DBTABLES_ACTION(dbAction);
 	ActionDefList actionDefList;
 	ActionsQueryOption option(USER_ID_SYSTEM);
 	option.setTargetEventInfo(&eventInfo);
@@ -985,14 +985,14 @@ void test_parseInvalidIncidentSenderCommand(void)
 void test_incidentSenderIsEnabled(void)
 {
 	setupTestDBUserAndDBAction();
-	DBTablesAction dbAction;
+	DECLARE_DBTABLES_ACTION(dbAction);
 	cppcut_assert_equal(true, dbAction.isIncidentSenderEnabled());
 }
 
 void test_incidentSenderIsNotEnabled(void)
 {
 	setupHelperForTestDBUser();
-	DBTablesAction dbAction;
+	DECLARE_DBTABLES_ACTION(dbAction);
 	cppcut_assert_equal(false, dbAction.isIncidentSenderEnabled());
 }
 
