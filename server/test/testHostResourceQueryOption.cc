@@ -239,6 +239,9 @@ static string makeExpectedConditionForUser(
 void cut_setup(void)
 {
 	hatoholInit();
+	setupTestDB();
+	loadTestDBTablesConfig();
+	loadTestDBTablesUser();
 }
 
 // ---------------------------------------------------------------------------
@@ -251,7 +254,6 @@ void data_makeSelectConditionUserAdmin(void)
 
 void test_makeSelectConditionUserAdmin(gconstpointer data)
 {
-	setupTestDBConfig(true, true);
 	HostResourceQueryOption option(TEST_SYNAPSE, USER_ID_SYSTEM);
 	string expect = "";
 	fixupForFilteringDefunctServer(data, expect, option);
@@ -266,7 +268,6 @@ void data_makeSelectConditionAllEvents(void)
 
 void test_makeSelectConditionAllEvents(gconstpointer data)
 {
-	setupTestDBConfig(true, true);
 	HostResourceQueryOption option(TEST_SYNAPSE);
 	option.setFlags(OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_SERVER));
 	string expect = "";
@@ -277,8 +278,6 @@ void test_makeSelectConditionAllEvents(gconstpointer data)
 
 void test_makeSelectConditionNoneUser(void)
 {
-	setupTestDBConfig(true, true);
-	setupTestDBUser(true, true);
 	HostResourceQueryOption option(TEST_SYNAPSE);
 	string actual = option.getCondition();
 	string expect = DBTablesMonitoring::getAlwaysFalseCondition();
@@ -294,8 +293,6 @@ void test_makeSelectCondition(gconstpointer data)
 {
 	const bool filterForDataOfDefunctSv =
 	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
-	setupTestDBConfig(true, true);
-	setupTestDBUser(true, true);
 	HostResourceQueryOption option(TEST_SYNAPSE);
 	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	for (size_t i = 0; i < NumTestUserInfo; i++) {
@@ -312,7 +309,6 @@ void test_makeSelectCondition(gconstpointer data)
 
 void test_getFromClauseWithAllHostgroup(void)
 {
-	setupTestDBUser(true, true);
 	HostResourceQueryOption option(TEST_SYNAPSE);
 	cppcut_assert_equal(string(TEST_PRIMARY_TABLE_NAME),
 	                    option.getFromClause());
@@ -320,7 +316,6 @@ void test_getFromClauseWithAllHostgroup(void)
 
 void test_getFromClauseWithSpecificHostgroup(void)
 {
-	setupTestDBUser(true, true);
 	HostResourceQueryOption option(TEST_SYNAPSE);
 	option.setTargetHostgroupId(5);
 	const string expect = 
@@ -340,7 +335,6 @@ void data_isHostgroupUsed(void)
 
 void test_isHostgroupUsed(gconstpointer data)
 {
-	setupTestDBUser(true, true);
 	const bool useHostgroup = gcut_data_get_boolean(data, "useHostgroup");
 	HostResourceQueryOption option(TEST_SYNAPSE);
 	if (useHostgroup)
@@ -350,7 +344,6 @@ void test_isHostgroupUsed(gconstpointer data)
 
 void test_isHostgroupUsedForHostgroupTable(void)
 {
-	setupTestDBUser(true, true);
 	HostResourceQueryOption option(TEST_SYNAPSE_HGRP);
 	option.setTargetHostgroupId(5);
 	// It shall always be false.
@@ -359,7 +352,6 @@ void test_isHostgroupUsedForHostgroupTable(void)
 
 void test_getColumnName(void)
 {
-	setupTestDBUser(true, true);
 	const size_t idx = IDX_TEST_TABLE_HOST_ID;
 	HostResourceQueryOption option(TEST_SYNAPSE);
 	cppcut_assert_equal(string(COLUMN_DEF_TEST[idx].columnName),
@@ -368,7 +360,6 @@ void test_getColumnName(void)
 
 void test_getColumnNameWithTableName(void)
 {
-	setupTestDBUser(true, true);
 	const size_t idx = IDX_TEST_TABLE_HOST_ID;
 	HostResourceQueryOption option(TEST_SYNAPSE);
 	option.setTargetHostgroupId(5);
@@ -380,7 +371,6 @@ void test_getColumnNameWithTableName(void)
 
 void test_getColumnNameFull(void)
 {
-	setupTestDBUser(true, true);
 	const size_t idx = IDX_TEST_TABLE_HOST_ID;
 	HostResourceQueryOption option(TEST_SYNAPSE);
 	option.setTargetHostgroupId(5);
@@ -411,7 +401,6 @@ void data_getHostgroupColumnNameWithTableName(void)
 
 void test_getHostgroupColumnNameWithTableName(gconstpointer data)
 {
-	setupTestDBUser(true, true);
 	const bool useHostgroup = gcut_data_get_boolean(data, "useHostgroup");
 	const size_t idx = IDX_TEST_HGRP_TABLE_SERVER_ID;
 	HostResourceQueryOption option(TEST_SYNAPSE);
