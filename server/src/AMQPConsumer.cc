@@ -24,6 +24,7 @@
 #include <Logger.h>
 #include <StringUtils.h>
 #include <amqp_tcp_socket.h>
+#include <amqp_ssl_socket.h>
 
 using namespace std;
 using namespace mlpl;
@@ -36,6 +37,7 @@ public:
 	: m_info(info),
 	  m_connection(NULL),
 	  m_socket(NULL),
+	  m_socketOpened(false),
 	  m_channel(0),
 	  m_envelope()
 	{
@@ -103,6 +105,7 @@ private:
 	const AMQPConnectionInfo &m_info;
 	amqp_connection_state_t m_connection;
 	amqp_socket_t *m_socket;
+	bool m_socketOpened;
 	amqp_channel_t m_channel;
 	amqp_envelope_t m_envelope;
 
@@ -143,6 +146,21 @@ private:
 	time_t getTimeout(void)
 	{
 		return m_info.getTimeout();
+	}
+
+	const string &getTLSCertificatePath(void)
+	{
+		return m_info.getTLSCertificatePath();
+	}
+
+	const string &getTLSKeyPath(void)
+	{
+		return m_info.getTLSKeyPath();
+	}
+
+	const string &getTLSCACertificatePath(void)
+	{
+		return m_info.getTLSCACertificatePath();
 	}
 
 	void logErrorResponse(const char *context, int status)
@@ -198,10 +216,14 @@ private:
 
 	bool openSocket()
 	{
-		m_socket = amqp_tcp_socket_new(m_connection);
-		if (!m_socket) {
-			MLPL_ERR("failed to create TCP socket\n");
-			return false;
+		if (m_info.useTLS()) {
+			if (!createTLSSocket()) {
+				return false;
+			}
+		} else {
+			if (!createPlainSocket()) {
+				return false;
+			}
 		}
 
 		const int status =
@@ -215,6 +237,72 @@ private:
 			return false;
 		}
 
+		m_socketOpened = true;
+		return true;
+	}
+
+	bool createTLSSocket(void)
+	{
+		m_socket = amqp_ssl_socket_new(m_connection);
+		if (!m_socket) {
+			MLPL_ERR("failed to create TLS socket\n");
+			return false;
+		}
+
+		if (!setTLSKey()) {
+			return false;
+		}
+		if (!setTLSCACertificate()) {
+			return false;
+		}
+
+		return true;
+	}
+
+	bool setTLSKey(void)
+	{
+		const int status =
+			amqp_ssl_socket_set_key(
+				m_socket,
+				getTLSCertificatePath().c_str(),
+				getTLSKeyPath().c_str());
+		if (status != AMQP_STATUS_OK) {
+			using StringUtils::sprintf;
+			const string context =
+				sprintf("set client certificate to SSL socket: "
+					"<%s>:<%s>",
+					getTLSCertificatePath().c_str(),
+					getTLSKeyPath().c_str());
+			logErrorResponse(context.c_str(), status);
+			return false;
+		}
+		return true;
+	}
+
+	bool setTLSCACertificate(void)
+	{
+		const int status =
+			amqp_ssl_socket_set_cacert(
+				m_socket,
+				getTLSCACertificatePath().c_str());
+		if (status != AMQP_STATUS_OK) {
+			using StringUtils::sprintf;
+			const string context =
+				sprintf("set CA certificate to SSL socket: <%s>",
+					getTLSCACertificatePath().c_str());
+			logErrorResponse(context.c_str(), status);
+			return false;
+		}
+		return true;
+	}
+
+	bool createPlainSocket(void)
+	{
+		m_socket = amqp_tcp_socket_new(m_connection);
+		if (!m_socket) {
+			MLPL_ERR("failed to create TCP socket\n");
+			return false;
+		}
 		return true;
 	}
 
@@ -325,6 +413,7 @@ private:
 		logErrorResponse("destroy connection",
 				 amqp_destroy_connection(m_connection));
 
+		m_socket = NULL;
 		m_connection = NULL;
 	}
 
@@ -341,13 +430,13 @@ private:
 
 	void disposeSocket()
 	{
-		if (!m_socket)
+		if (!m_socketOpened)
 			return;
 
 		logErrorResponse("close connection",
 				 amqp_connection_close(m_connection,
 						       AMQP_REPLY_SUCCESS));
-		m_socket = NULL;
+		m_socketOpened = false;
 	}
 };
 

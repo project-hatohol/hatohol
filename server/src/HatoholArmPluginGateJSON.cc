@@ -136,6 +136,13 @@ struct HatoholArmPluginGateJSON::Impl
 			queueName = armPluginInfo.staticQueueAddress;
 		m_connectionInfo.setQueueName(queueName);
 
+		m_connectionInfo.setTLSCertificatePath(
+			armPluginInfo.tlsCertificatePath);
+		m_connectionInfo.setTLSKeyPath(
+			armPluginInfo.tlsKeyPath);
+		m_connectionInfo.setTLSCACertificatePath(
+			armPluginInfo.tlsCACertificatePath);
+
 		m_handler = new AMQPJSONMessageHandler(serverInfo);
 		m_consumer = new AMQPConsumer(m_connectionInfo, m_handler);
 	}
