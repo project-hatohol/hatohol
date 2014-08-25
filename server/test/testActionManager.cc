@@ -842,6 +842,7 @@ static void clearEnvString(const string &envName, string &str)
 		return;
 
 	const int overwrite = 1;
+	errno = 0;
 	setenv(envName.c_str(), str.c_str(), overwrite);
 	cut_assert_errno();
 	str.clear();
@@ -899,6 +900,7 @@ void test_setupPathForAction(void)
 	const string testPath = "/usr/bin:/bin:/usr/sbin:/bin:/opt/bin";
 	const string testLdLibPath = "/usr/lib:/lib:/opt/lib";
 
+	errno = 0;
 	setenv(ActionManager::ENV_NAME_PATH_FOR_ACTION,
 	       testPath.c_str(), overwrite);
 	cut_assert_errno();
