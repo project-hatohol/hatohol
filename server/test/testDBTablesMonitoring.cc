@@ -459,6 +459,7 @@ void cut_setup(void)
 	hatoholInit();
 	setupTestDB();
 	loadTestDBTablesConfig();
+	loadTestDBTablesUser();
 }
 
 // ---------------------------------------------------------------------------
@@ -524,7 +525,7 @@ void test_getTriggerInfo(void)
 void test_getTriggerInfoNotFound(void)
 {
 	loadTestDBTriggers();
-	setupTestDBUser(true, true);
+
 	const UserIdType invalidSvId = -1;
 	const TriggerIdType invalidTrigId = -1;
 	TriggerInfo triggerInfo;
@@ -643,7 +644,6 @@ void data_getTriggerWithOneAuthorizedServer(void)
 
 void test_getTriggerWithOneAuthorizedServer(gconstpointer data)
 {
-	setupTestDBUser(true, true);
 	AssertGetTriggersArg arg(data);
 	arg.userId = 5;
 	assertGetTriggersWithFilter(arg);
@@ -656,7 +656,6 @@ void data_getTriggerWithNoAuthorizedServer(void)
 
 void test_getTriggerWithNoAuthorizedServer(gconstpointer data)
 {
-	setupTestDBUser(true, true);
 	AssertGetTriggersArg arg(data);
 	arg.userId = 4;
 	assertGetTriggersWithFilter(arg);
@@ -669,7 +668,6 @@ void data_getTriggerWithInvalidUserId(void)
 
 void test_getTriggerWithInvalidUserId(gconstpointer data)
 {
-	setupTestDBUser(true, true);
 	AssertGetTriggersArg arg(data);
 	arg.userId = INVALID_USER_ID;
 	assertGetTriggersWithFilter(arg);
@@ -730,7 +728,6 @@ void data_getItemsWithOneAuthorizedServer(gconstpointer data)
 
 void test_getItemsWithOneAuthorizedServer(gconstpointer data)
 {
-	setupTestDBUser(true, true);
 	AssertGetItemsArg arg(data);
 	arg.userId = 5;
 	assertGetItemsWithFilter(arg);
@@ -743,7 +740,6 @@ void data_getItemWithNoAuthorizedServer(void)
 
 void test_getItemWithNoAuthorizedServer(gconstpointer data)
 {
-	setupTestDBUser(true, true);
 	AssertGetItemsArg arg(data);
 	arg.userId = 4;
 	assertGetItemsWithFilter(arg);
@@ -756,7 +752,6 @@ void data_getItemWithInvalidUserId(void)
 
 void test_getItemWithInvalidUserId(gconstpointer data)
 {
-	setupTestDBUser(true, true);
 	AssertGetItemsArg arg(data);
 	arg.userId = INVALID_USER_ID;
 	assertGetItemsWithFilter(arg);
@@ -769,7 +764,6 @@ void data_getItemWithItemGroupName(void)
 
 void test_getItemWithItemGroupName(gconstpointer data)
 {
-	setupTestDBUser(true, true);
 	AssertGetItemsArg arg(data);
 	arg.itemGroupName = "City";
 	assertGetItemsWithFilter(arg);
@@ -782,7 +776,6 @@ void data_getNumberOfItemsWithOneAuthorizedServer(gconstpointer data)
 
 void test_getNumberOfItemsWithOneAuthorizedServer(gconstpointer data)
 {
-	setupTestDBUser(true, true);
 	AssertGetItemsArg arg(data);
 	arg.userId = 5;
 	assertGetNumberOfItems(arg);
@@ -795,7 +788,6 @@ void data_getNumberOfItemWithNoAuthorizedServer(void)
 
 void test_getNumberOfItemWithNoAuthorizedServer(gconstpointer data)
 {
-	setupTestDBUser(true, true);
 	AssertGetItemsArg arg(data);
 	arg.userId = 4;
 	assertGetNumberOfItems(arg);
@@ -808,7 +800,6 @@ void data_getNumberOfItemWithInvalidUserId(void)
 
 void test_getNumberOfItemWithInvalidUserId(gconstpointer data)
 {
-	setupTestDBUser(true, true);
 	AssertGetItemsArg arg(data);
 	arg.userId = INVALID_USER_ID;
 	assertGetNumberOfItems(arg);
@@ -821,7 +812,6 @@ void data_getNumberOfItemsWithItemGroupName(void)
 
 void test_getNumberOfItemsWithItemGroupName(gconstpointer data)
 {
-	setupTestDBUser(true, true);
 	AssertGetItemsArg arg(data);
 	arg.itemGroupName = "City";
 	assertGetNumberOfItems(arg);
@@ -894,7 +884,6 @@ void data_getHostInfoListWithNoAuthorizedServer(void)
 
 void test_getHostInfoListWithNoAuthorizedServer(gconstpointer data)
 {
-	setupTestDBUser(true, true);
 	AssertGetHostsArg arg(data);
 	arg.userId = 4;
 	assertGetHosts(arg);
@@ -907,7 +896,6 @@ void data_getHostInfoListWithOneAuthorizedServer(gconstpointer data)
 
 void test_getHostInfoListWithOneAuthorizedServer(gconstpointer data)
 {
-	setupTestDBUser(true, true);
 	AssertGetHostsArg arg(data);
 	arg.userId = 5;
 	assertGetHosts(arg);
@@ -920,7 +908,6 @@ void data_getHostInfoListWithUserWhoCanAccessSomeHostgroups(void)
 
 void test_getHostInfoListWithUserWhoCanAccessSomeHostgroups(gpointer data)
 {
-	setupTestDBUser(true, true);
 	AssertGetHostsArg arg(data);
 	arg.userId = 3;
 	assertGetHosts(arg);
@@ -953,7 +940,6 @@ void test_getNumberOfTriggers(gconstpointer data)
 
 void test_getNumberOfTriggersForMultipleAuthorizedHostgroups(void)
 {
-	setupTestDBUser(true, true);
 	loadTestDBTriggers();
 	setupTestHostgroupElementDB();
 
@@ -1037,7 +1023,6 @@ void test_getNumberOfAllBadTriggers(gconstpointer data)
 void test_getNumberOfTriggersBySeverityWithoutPriviledge(void)
 {
 	loadTestDBTriggers();
-	setupTestDBUser(true, true);
 
 	const ServerIdType targetServerId = testTriggerInfo[0].serverId;
 	// TODO: should give the appropriate host group ID after
@@ -1071,28 +1056,24 @@ void test_getNumberOfBadHosts(void)
 
 void test_getNumberOfGoodHostsWithNoAuthorizedServer(void)
 {
-	setupTestDBUser(true, true);
 	UserIdType userId = 4;
 	assertGetNumberOfHostsWithUserAndStatus(userId, true);
 }
 
 void test_getNumberOfBadHostsWithNoAuthorizedServer(void)
 {
-	setupTestDBUser(true, true);
 	UserIdType userId = 4;
 	assertGetNumberOfHostsWithUserAndStatus(userId, false);
 }
 
 void test_getNumberOfGoodHostsWithOneAuthorizedServer(void)
 {
-	setupTestDBUser(true, true);
 	UserIdType userId = 5;
 	assertGetNumberOfHostsWithUserAndStatus(userId, true);
 }
 
 void test_getNumberOfBadHostsWithOneAuthorizedServer(void)
 {
-	setupTestDBUser(true, true);
 	UserIdType userId = 5;
 	assertGetNumberOfHostsWithUserAndStatus(userId, false);
 }
@@ -1252,7 +1233,6 @@ void data_getEventWithOneAuthorizedServer(void)
 
 void test_getEventWithOneAuthorizedServer(gconstpointer data)
 {
-	setupTestDBUser(true, true);
 	AssertGetEventsArg arg(data);
 	arg.userId = 5;
 	assertGetEventsWithFilter(arg);
@@ -1265,7 +1245,6 @@ void data_getEventWithNoAuthorizedServer(void)
 
 void test_getEventWithNoAuthorizedServer(gconstpointer data)
 {
-	setupTestDBUser(true, true);
 	AssertGetEventsArg arg(data);
 	arg.userId = 4;
 	assertGetEventsWithFilter(arg);
@@ -1278,7 +1257,6 @@ void data_getEventWithInvalidUserId(gconstpointer data)
 
 void test_getEventWithInvalidUserId(gconstpointer data)
 {
-	setupTestDBUser(true, true);
 	AssertGetEventsArg arg(data);
 	arg.userId = INVALID_USER_ID;
 	assertGetEventsWithFilter(arg);
@@ -1327,7 +1305,6 @@ void data_getEventsWithIncidentInfoByAuthorizedUser(void)
 
 void test_getEventsWithIncidentInfoByAuthorizedUser(gconstpointer data)
 {
-	setupTestDBUser(true, true);
 	AssertGetEventsArg arg(data);
 	arg.userId = 5;
 	arg.withIncidentInfo = true;
