@@ -117,6 +117,7 @@ void cut_shutdown(void)
 void cut_setup(void)
 {
 	hatoholInit();
+	setupTestDB();
 	if (!g_apiEmulator->isRunning())
 		g_apiEmulator->start(EMULATOR_PORT);
 	else
@@ -133,7 +134,6 @@ void cut_teardown(void)
 // ---------------------------------------------------------------------------
 void test_getHostsAndTriggers(void)
 {
-	deleteDBClientHatoholDB();
 	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
 	arg.serverIpAddr = "127.0.0.1";
 	arg.serverPort   = EMULATOR_PORT;
@@ -165,7 +165,6 @@ void test_getHostgroups(void)
 	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
 	arg.serverIpAddr = "127.0.0.1";
 	arg.serverPort   = EMULATOR_PORT;
-	deleteDBClientHatoholDB();
 	HatoholArmPluginTestPair<HapZabbixAPITest> pair(arg);
 
 	pair.plugin->assertWaitReady();
@@ -182,7 +181,6 @@ void test_getEvents(void)
 	arg.serverIpAddr = "127.0.0.1";
 	arg.serverPort   = EMULATOR_PORT;
 	setupTestDBAction();
-	deleteDBClientHatoholDB();
 	HatoholArmPluginTestPair<HapZabbixAPITest> pair(arg);
 
 	pair.plugin->assertWaitReady();
