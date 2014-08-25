@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -19,6 +19,7 @@
 
 #include <cutter.h>
 #include <cppcutter.h>
+#include <unistd.h>
 #include "Helpers.h"
 #include "DBTablesTest.h"
 #include "ThreadLocalDBCache.h"
@@ -1356,6 +1357,32 @@ void makeEventIncidentMap(map<string, IncidentInfo*> &eventIncidentMap)
 // ---------------------------------------------------------------------------
 const char *TEST_DB_USER = "hatohol_test_user";
 const char *TEST_DB_PASSWORD = ""; // empty: No password is used
+
+void setupTestDBHatohol(void)
+{
+	static const char *TEST_DB_NAME = "test_db_hatohol";
+	DBHatohol::setDefaultDBParams(TEST_DB_NAME,
+	                              TEST_DB_USER, TEST_DB_PASSWORD);
+	const bool dbRecreate = true;
+	makeTestMySQLDBIfNeeded(TEST_DB_NAME, dbRecreate);
+
+	// Only when we use SQLite3 for DBTablesHatoho,
+	// the following line should be enabled.
+	deleteDBClientHatoholDB();
+}
+
+static void deleteFileAndCheck(const string &path)
+{
+	unlink(path.c_str());
+	cut_assert_not_exist_path(path.c_str());
+}
+
+string deleteDBClientHatoholDB(void)
+{
+	string dbPath = getDBPathForDBClientHatohol();
+	deleteFileAndCheck(dbPath);
+	return dbPath;
+}
 
 void setupTestDBConfig(bool dbRecreate, bool loadTestData)
 {

@@ -288,12 +288,6 @@ bool isVerboseMode(void)
 	return verboseMode;
 }
 
-void deleteFileAndCheck(const string &path)
-{
-	unlink(path.c_str());
-	cut_assert_not_exist_path(path.c_str());
-}
-
 string getDBPathForDBClientHatohol(void)
 {
 	struct callgate : public DBTablesMonitoring, public DBAgentSQLite3 {
@@ -302,13 +296,6 @@ string getDBPathForDBClientHatohol(void)
 		}
 	};
 	return callgate::getDBPath();
-}
-
-string deleteDBClientHatoholDB(void)
-{
-	string dbPath = getDBPathForDBClientHatohol();
-	deleteFileAndCheck(dbPath);
-	return dbPath;
 }
 
 string execSqlite3ForDBClient(const string &dbPath, const string &statement)

@@ -96,7 +96,6 @@ std::string executeCommand(const std::string &commandLine);
 std::string getFixturesDir(void);
 bool isVerboseMode(void);
 
-std::string deleteDBClientHatoholDB(void);
 std::string getDBPathForDBClientHatohol(void);
 
 std::string execSqlite3ForDBClientHatohol(const std::string &statement);
