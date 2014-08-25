@@ -593,7 +593,7 @@ void test_getFromClauseWithSpecificHostgroup(void)
 	cppcut_assert_equal(expect, option.getFromClause());
 }
 
-void data_isJoinNeeded(void)
+void data_isHostgroupUsed(void)
 {
 	gcut_add_datum("Not use hostgroup", "useHostgroup",
 	               G_TYPE_BOOLEAN, FALSE, NULL);
@@ -603,6 +603,7 @@ void data_isJoinNeeded(void)
 
 void test_isHostgroupUsed(gconstpointer data)
 {
+	setupTestDBUser(true, true);
 	const bool useHostgroup = gcut_data_get_boolean(data, "useHostgroup");
 	HostResourceQueryOption option(TEST_SYNAPSE);
 	if (useHostgroup)
