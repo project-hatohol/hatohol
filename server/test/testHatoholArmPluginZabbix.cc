@@ -28,6 +28,7 @@ namespace testHatoholArmPluginZabbix {
 void cut_setup(void)
 {
 	hatoholInit();
+	setupTestDB();
 }
 
 void cut_teardown(void)
@@ -40,10 +41,10 @@ void cut_teardown(void)
 // ---------------------------------------------------------------------------
 void test_launch(void)
 {
+	loadTestDBArmPlugin();
+
 	HapgTestCtx ctx;
 	ctx.useDefaultReceivedHandler = true;
-	setupTestDBConfig();
-	loadTestDBArmPlugin();
 	MonitoringServerInfo serverInfo;
 	initServerInfo(serverInfo);
 	serverInfo.type = MONITORING_SYSTEM_HAPI_ZABBIX;
