@@ -888,11 +888,9 @@ void test_setupPathForAction(void)
 {
 	// backup the original environemnt variables
 	char *env = getenv(ActionManager::ENV_NAME_PATH_FOR_ACTION);
-	cut_assert_errno();
 	if (env)
 		g_pathForAction = env;
 	env = getenv(ActionManager::ENV_NAME_LD_LIBRARY_PATH_FOR_ACTION);
-	cut_assert_errno();
 	if (env)
 		g_ldLibraryPathForAction = env;
 
