@@ -38,6 +38,7 @@ static StringMap    emptyStringMap;
 static StringVector emptyStringVector;
 static FaceRest *g_faceRest = NULL;
 
+// TODO: remove
 void setupUserDB(void)
 {
 	const bool dbRecreate = true;

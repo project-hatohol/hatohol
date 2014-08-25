@@ -133,8 +133,8 @@ static void assertHostsIdNameHashInParser(
 static void _assertHosts(const string &path, const string &callbackName = "",
                          const ServerIdType &serverId = ALL_SERVERS)
 {
-	setupUserDB();
 	startFaceRest();
+
 	StringMap queryMap;
 	if (serverId != ALL_SERVERS) {
 		queryMap["serverId"] =
@@ -154,7 +154,6 @@ static void _assertTriggers(const string &path, const string &callbackName = "",
                             const ServerIdType &serverId = ALL_SERVERS,
                             uint64_t hostId = ALL_HOSTS)
 {
-	setupUserDB();
 	startFaceRest();
 
 	RequestArg arg(path, callbackName);
@@ -223,7 +222,6 @@ static void _assertTriggers(const string &path, const string &callbackName = "",
 
 static void _assertEvents(const string &path, const string &callbackName = "")
 {
-	setupUserDB();
 	startFaceRest();
 
 	// build expected data
@@ -283,8 +281,8 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 
 static void _assertItems(const string &path, const string &callbackName = "")
 {
-	setupUserDB();
 	startFaceRest();
+
 	RequestArg arg(path, callbackName);
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
 	DataQueryContextPtr dqCtxPtr(new DataQueryContext(arg.userId), false);
@@ -476,22 +474,11 @@ static void _assertOverviewInParser(JSONParserAgent *parser, RequestArg &arg)
 }
 #define assertOverviewInParser(P,A) cut_trace(_assertOverviewInParser(P,A))
 
-static void setupActionDB(void)
-{
-	bool recreate = true;
-	bool loadData = true;
-	setupTestDBAction(recreate, loadData);
-}
-
 void cut_setup(void)
 {
 	hatoholInit();
-
-	// Make sure to clear actions on intial state because the incident object
-	// in an event object depends on them.
-	bool recreate = true;
-	bool loadData = false;
-	setupTestDBAction(recreate, loadData);
+	setupTestDB();
+	loadTestDBUser();
 }
 
 void cut_teardown(void)
@@ -544,7 +531,8 @@ void test_events(void)
 void test_eventsWithIncidents(void)
 {
 	 // incident info will be added when a IncidentSender action exists
-	setupActionDB();
+	loadTestDBAction();
+
 	assertEvents("/event");
 }
 
@@ -584,8 +572,8 @@ void test_itemsJSONP(void)
 
 void test_overview(void)
 {
-	setupUserDB();
 	startFaceRest();
+
 	RequestArg arg("/overview");
 	// It's supposed to be a user with ID:2, who can access all hosts.
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
