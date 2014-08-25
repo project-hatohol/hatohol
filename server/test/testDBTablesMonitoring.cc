@@ -35,13 +35,20 @@ using namespace mlpl;
 
 namespace testDBTablesMonitoring {
 
+#define DECLARE_DBTABLES_MONITORING(VAR_NAME) \
+	DBTablesMonitoring VAR_NAME;
+	/*** After DBTablesMonitoring inherits DBTables, we use the following way.
+	DBHatohol _dbHatohol; \
+	DBTablesMonitoring &VAR_NAME = _dbHatohol.getMonitoring();
+	***/
+
 static const string serverIdColumnName = "server_id";
 static const string hostgroupIdColumnName = "host_group_id";
 static const string hostIdColumnName = "host_id";
 
 static void addTriggerInfo(TriggerInfo *triggerInfo)
 {
-	DBTablesMonitoring dbMonitoring;
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	dbMonitoring.addTriggerInfo(triggerInfo);
 }
 #define assertAddTriggerToDB(X) \
@@ -65,7 +72,7 @@ static string makeTriggerOutput(const TriggerInfo &triggerInfo)
 
 static void addHostgroupInfo(HostgroupInfo *hostgroupInfo)
 {
-	DBTablesMonitoring dbMonitoring;
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	dbMonitoring.addHostgroupInfo(hostgroupInfo);
 }
 #define assertAddHostgroupInfoToDB(X) \
@@ -73,7 +80,7 @@ cut_trace(_assertAddToDB<HostgroupInfo>(X, addHostgroupInfo))
 
 static void addHostgroupElement(HostgroupElement *hostgroupElement)
 {
-	DBTablesMonitoring dbMonitoring;
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	dbMonitoring.addHostgroupElement(hostgroupElement);
 }
 #define assertAddHostgroupElementToDB(X) \
@@ -81,7 +88,7 @@ cut_trace(_assertAddToDB<HostgroupElement>(X, addHostgroupElement))
 
 static void addHostInfoList(HostInfo *hostInfo)
 {
-	DBTablesMonitoring dbMonitoring;
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	dbMonitoring.addHostInfo(hostInfo);
 }
 #define assertAddHostInfoToDB(X) \
@@ -110,7 +117,7 @@ struct AssertGetTriggersArg
 
 static void _assertGetTriggers(AssertGetTriggersArg &arg)
 {
-	DBTablesMonitoring dbMonitoring;
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	arg.fixup();
 	dbMonitoring.getTriggerInfoList(arg.actualRecordList, arg.option);
 	arg.assert();
@@ -171,7 +178,7 @@ cut_trace(_assertGetTriggerInfoList(DDT_PARAM, SERVER_ID, ##__VA_ARGS__))
 
 static void _assertGetEvents(AssertGetEventsArg &arg)
 {
-	DBTablesMonitoring dbMonitoring;
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	arg.fixup();
 	IncidentInfoVect *incidentInfoVectPointer
 	  = arg.withIncidentInfo ? &arg.actualIncidentInfoVect : NULL;
@@ -266,7 +273,7 @@ struct AssertGetItemsArg
 
 static void _assertGetItems(AssertGetItemsArg &arg)
 {
-	DBTablesMonitoring dbMonitoring;
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	arg.fixup();
 	dbMonitoring.getItemInfoList(arg.actualRecordList, arg.option);
 	arg.assert();
@@ -288,7 +295,7 @@ static void _assertGetNumberOfItems(AssertGetItemsArg &arg)
 	void test_addItemInfoList(gconstpointer data);
 	test_addItemInfoList(arg.ddtParam);
 	arg.fixup();
-	DBTablesMonitoring dbMonitoring;
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	cppcut_assert_equal(arg.expectedRecords.size(),
 			    dbMonitoring.getNumberOfItems(arg.option));
 }
@@ -296,7 +303,7 @@ static void _assertGetNumberOfItems(AssertGetItemsArg &arg)
 
 void _assertItemInfoList(gconstpointer data, uint32_t serverId)
 {
-	DBTablesMonitoring dbMonitoring;
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	ItemInfoList itemInfoList;
 	for (size_t i = 0; i < NumTestItemInfo; i++)
 		itemInfoList.push_back(testItemInfo[i]);
@@ -356,7 +363,7 @@ static void _assertGetHosts(AssertGetHostsArg &arg)
 	setupTestHostInfoDB();
 	setupTestHostgroupElementDB();
 
-	DBTablesMonitoring dbMonitoring;
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	arg.fixup();
 	dbMonitoring.getHostInfoList(arg.actualRecordList, arg.option);
 	arg.assert();
@@ -372,7 +379,7 @@ static void _assertGetNumberOfHostsWithUserAndStatus(UserIdType userId, bool sta
 	//       Hatohol support it.
 	const HostgroupIdType hostgroupId = ALL_HOST_GROUPS;
 
-	DBTablesMonitoring dbMonitoring;
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	int expected = getNumberOfTestHostsWithStatus(serverId, hostgroupId,
 	                                              status, userId);
 	int actual;
@@ -470,7 +477,7 @@ void test_createDB(void)
 	string dbPath = getDBPathForDBClientHatohol();
 
 	// create an instance (the database will be automatically created)
-	DBTablesMonitoring dbMonitoring;
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	cut_assert_exist_path(dbPath.c_str());
 
 	// check the version
@@ -486,7 +493,7 @@ void test_createTableTrigger(void)
 {
 	const string tableName = "triggers";
 	string dbPath = getDBPathForDBClientHatohol();
-	DBTablesMonitoring dbMonitoring;
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	string command = "sqlite3 " + dbPath + " \".table\"";
 	assertExist(tableName, executeCommand(command));
 
@@ -521,7 +528,7 @@ void test_getTriggerInfo(void)
 	int targetIdx = 2;
 	TriggerInfo &targetTriggerInfo = testTriggerInfo[targetIdx];
 	TriggerInfo triggerInfo;
-	DBTablesMonitoring dbMonitoring;
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	TriggersQueryOption option(USER_ID_SYSTEM);
 	option.setTargetServerId(targetTriggerInfo.serverId);
 	option.setTargetId(targetTriggerInfo.id);
@@ -537,7 +544,7 @@ void test_getTriggerInfoNotFound(void)
 	const UserIdType invalidSvId = -1;
 	const TriggerIdType invalidTrigId = -1;
 	TriggerInfo triggerInfo;
-	DBTablesMonitoring dbMonitoring;
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	TriggersQueryOption option(invalidSvId);
 	option.setTargetId(invalidTrigId);
 	cppcut_assert_equal(false,
@@ -584,7 +591,7 @@ void data_setTriggerInfoList(void)
 
 void test_setTriggerInfoList(gconstpointer data)
 {
-	DBTablesMonitoring dbMonitoring;
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	TriggerInfoList triggerInfoList;
 	for (size_t i = 0; i < NumTestTriggerInfo; i++)
 		triggerInfoList.push_back(testTriggerInfo[i]);
@@ -613,7 +620,7 @@ void data_addTriggerInfoList(void)
 void test_addTriggerInfoList(gconstpointer data)
 {
 	size_t i;
-	DBTablesMonitoring dbMonitoring;
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 
 	// First call
 	size_t numFirstAdd = NumTestTriggerInfo / 2;
@@ -712,7 +719,7 @@ void data_addItemInfoList(void)
 
 void test_addItemInfoList(gconstpointer data)
 {
-	DBTablesMonitoring dbMonitoring;
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	ItemInfoList itemInfoList;
 	for (size_t i = 0; i < NumTestItemInfo; i++)
 		itemInfoList.push_back(testItemInfo[i]);
@@ -849,7 +856,7 @@ void test_addEventInfoList(gconstpointer data)
 	// needed.
 	test_setTriggerInfoList(data);
 
-	DBTablesMonitoring dbMonitoring;
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	EventInfoList eventInfoList;
 	for (size_t i = 0; i < NumTestEventInfo; i++)
 		eventInfoList.push_back(testEventInfo[i]);
@@ -867,7 +874,7 @@ void data_getLastEventId(void)
 void test_getLastEventId(gconstpointer data)
 {
 	test_addEventInfoList(data);
-	DBTablesMonitoring dbMonitoring;
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	const ServerIdType serverid = 3;
 	cppcut_assert_equal(findLastEventId(serverid),
 	                    dbMonitoring.getLastEventId(serverid));
@@ -949,7 +956,7 @@ void test_getNumberOfTriggers(gconstpointer data)
 	const HostgroupIdType hostgroupId =
 	  gcut_data_get_int(data, "hostgroupId");
 
-	DBTablesMonitoring dbMonitoring;
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	TriggersQueryOption option(USER_ID_SYSTEM);
 	option.setTargetServerId(targetServerId);
 	option.setTargetHostgroupId(hostgroupId);
@@ -969,7 +976,7 @@ void test_getNumberOfTriggersForMultipleAuthorizedHostgroups(void)
 	const ServerIdType targetServerId = testTriggerInfo[0].serverId;
 	const HostgroupIdType hostgroupId = ALL_HOST_GROUPS;
 
-	DBTablesMonitoring dbMonitoring;
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	TriggersQueryOption option(userIdWithMultipleAuthorizedHostgroups);
 	option.setTargetServerId(targetServerId);
 	option.setTargetHostgroupId(hostgroupId);
@@ -1015,7 +1022,7 @@ void test_getNumberOfTriggersBySeverity(gconstpointer data)
 	const HostgroupIdType hostgroupId =
 	  gcut_data_get_int(data, "hostgroupId");
 
-	DBTablesMonitoring dbMonitoring;
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	for (int i = 0; i < NUM_TRIGGER_SEVERITY; i++) {
 		const TriggerSeverityType severity
 		  = static_cast<TriggerSeverityType>(i);
@@ -1038,7 +1045,7 @@ void test_getNumberOfAllBadTriggers(gconstpointer data)
 	const HostgroupIdType hostgroupId =
 	  gcut_data_get_int(data, "hostgroupId");
 
-	DBTablesMonitoring dbMonitoring;
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	assertGetNumberOfTriggers(dbMonitoring, targetServerId, hostgroupId,
 				  TRIGGER_SEVERITY_ALL);
 }
@@ -1053,7 +1060,7 @@ void test_getNumberOfTriggersBySeverityWithoutPriviledge(void)
 	//       Hatohol support it.
 	//uint64_t hostgroupId = 0;
 
-	DBTablesMonitoring dbMonitoring;
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	for (int i = 0; i < NUM_TRIGGER_SEVERITY; i++) {
 		TriggersQueryOption option;
 		option.setTargetServerId(targetServerId);
@@ -1345,7 +1352,7 @@ void test_getEventsWithIncidentInfoByAuthorizedUser(gconstpointer data)
 
 void test_addHostgroupInfo(void)
 {
-	DBTablesMonitoring dbMonitoring;
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	HostgroupInfoList hostgroupInfoList;
 	DBAgent *dbAgent = dbMonitoring.getDBAgent();
 	string statement = "select * from hostgroups;";
@@ -1361,7 +1368,7 @@ void test_addHostgroupInfo(void)
 
 void test_addHostgroupElement(void)
 {
-	DBTablesMonitoring dbMonitoring;
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	HostgroupElementList hostgroupElementList;
 	DBAgent *dbAgent = dbMonitoring.getDBAgent();
 	string statement = "select * from map_hosts_hostgroups";
@@ -1378,7 +1385,7 @@ void test_addHostgroupElement(void)
 
 void test_addHostInfo(void)
 {
-	DBTablesMonitoring dbMonitoring;
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	HostInfoList hostInfoList;
 	DBAgent *dbAgent = dbMonitoring.getDBAgent();
 	string statement = "select * from hosts;";
@@ -1394,7 +1401,7 @@ void test_addHostInfo(void)
 
 void test_addIncidentInfo(void)
 {
-	DBTablesMonitoring dbMonitoring;
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	DBAgent *dbAgent = dbMonitoring.getDBAgent();
 	string statement = "select * from incidents;";
 	string expect;
@@ -1409,7 +1416,7 @@ void test_addIncidentInfo(void)
 
 void test_updateIncidentInfo(void)
 {
-	DBTablesMonitoring dbMonitoring;
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	DBAgent *dbAgent = dbMonitoring.getDBAgent();
 
 	IncidentInfo incidentInfo = testIncidentInfo[0];
@@ -1427,7 +1434,7 @@ void test_updateIncidentInfo(void)
 
 void test_getIncidentInfo(void)
 {
-	DBTablesMonitoring dbMonitoring;
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	IncidentInfoVect incidents;
 	IncidentsQueryOption option(USER_ID_SYSTEM);
 	string expected, actual;
