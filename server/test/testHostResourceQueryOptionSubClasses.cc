@@ -154,7 +154,8 @@ cut_trace(_assertQueryOptionCopyConstructor<T>(D))
 void cut_setup(void)
 {
 	hatoholInit();
-	setupTestDBConfig(true, true);
+	setupTestDB();
+	loadTestDBTablesConfig();
 }
 
 // ---------------------------------------------------------------------------
@@ -540,7 +541,8 @@ void test_hostgroupsQueryOptionFromDataQueryContext(gconstpointer data)
 
 void test_hostgroupsQueryOptionCallGetConditionFromUserWithoutAllServers(void)
 {
-	setupTestDBUser(true, true);
+	loadTestDBTablesUser();
+
 	const UserIdType userId = findUserWithout(OPPRVLG_GET_ALL_SERVER);
 	HostgroupsQueryOption option(userId);
 	option.setFilterForDataOfDefunctServers(false);
