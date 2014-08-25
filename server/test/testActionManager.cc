@@ -847,7 +847,7 @@ static void clearEnvString(const string &envName, string &str)
 	str.clear();
 }
 
-void setup(void)
+void cut_setup(void)
 {
 	hatoholInit();
 	acquireDefaultContext();
@@ -859,7 +859,7 @@ void setup(void)
 	setupTestDBAction();
 }
 
-void teardown(void)
+void cut_teardown(void)
 {
 	delete g_execCommandCtx;
 	g_execCommandCtx = NULL;
