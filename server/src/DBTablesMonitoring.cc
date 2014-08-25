@@ -1752,7 +1752,7 @@ uint64_t DBTablesMonitoring::getLastEventId(const ServerIdType &serverId)
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupStream itemGroupStream(*grpList.begin());
 	EventIdType lastEventId = itemGroupStream.read<uint64_t>();
-	MLPL_DBG("Last event ID on DB side: %" FMT_EVENT_ID "\n", lastEventId);
+	MLPL_DBG("The last event ID on DB side: %" FMT_EVENT_ID "\n", lastEventId);
 	return lastEventId;
 }
 
