@@ -70,30 +70,6 @@ static string makeTriggerOutput(const TriggerInfo &triggerInfo)
 	return expectedOut;
 }
 
-static void addHostgroupInfo(HostgroupInfo *hostgroupInfo)
-{
-	DECLARE_DBTABLES_MONITORING(dbMonitoring);
-	dbMonitoring.addHostgroupInfo(hostgroupInfo);
-}
-#define assertAddHostgroupInfoToDB(X) \
-cut_trace(_assertAddToDB<HostgroupInfo>(X, addHostgroupInfo))
-
-static void addHostgroupElement(HostgroupElement *hostgroupElement)
-{
-	DECLARE_DBTABLES_MONITORING(dbMonitoring);
-	dbMonitoring.addHostgroupElement(hostgroupElement);
-}
-#define assertAddHostgroupElementToDB(X) \
-cut_trace(_assertAddToDB<HostgroupElement>(X, addHostgroupElement))
-
-static void addHostInfoList(HostInfo *hostInfo)
-{
-	DECLARE_DBTABLES_MONITORING(dbMonitoring);
-	dbMonitoring.addHostInfo(hostInfo);
-}
-#define assertAddHostInfoToDB(X) \
-cut_trace(_assertAddToDB<HostInfo>(X, addHostInfoList))
-
 struct AssertGetTriggersArg
   : public AssertGetHostResourceArg<TriggerInfo, TriggersQueryOption>
 {
@@ -134,33 +110,13 @@ static void _assertGetTriggersWithFilter(AssertGetTriggersArg &arg)
 #define assertGetTriggersWithFilter(ARG) \
 cut_trace(_assertGetTriggersWithFilter(ARG))
 
-static void _setupTestHostgroupInfoDB(void)
-{
-	for (size_t i = 0; i < NumTestHostgroupInfo; i++)
-		assertAddHostgroupInfoToDB(&testHostgroupInfo[i]);
-}
-#define setupTestHostgroupInfoDB() cut_trace(_setupTestHostgroupInfoDB())
-
-static void _setupTestHostgroupElementDB(void)
-{
-	for (size_t i = 0; i < NumTestHostgroupElement; i++)
-		assertAddHostgroupElementToDB(&testHostgroupElement[i]);
-}
-#define setupTestHostgroupElementDB() cut_trace(_setupTestHostgroupElementDB())
-
-static void _setupTestHostInfoDB(void)
-{
-	for (size_t i = 0; i < NumTestHostInfo; i++)
-		assertAddHostInfoToDB(&testHostInfo[i]);
-}
-#define setupTestHostInfoDB() cut_trace(_setupTestHostInfoDB())
-
 static void _assertGetTriggerInfoList(
   gconstpointer ddtParam, uint32_t serverId, uint64_t hostId = ALL_HOSTS)
 {
 	loadTestDBTriggers();
-	setupTestHostgroupElementDB();
-	setupTestHostgroupInfoDB();
+	loadTestDBHosts();
+	loadTestDBHostgroupElements();
+
 	AssertGetTriggersArg arg(ddtParam);
 	arg.targetServerId = serverId;
 	arg.targetHostId = hostId;
@@ -353,8 +309,8 @@ struct AssertGetHostsArg
 
 static void _assertGetHosts(AssertGetHostsArg &arg)
 {
-	setupTestHostInfoDB();
-	setupTestHostgroupElementDB();
+	loadTestDBHosts();
+	loadTestDBHostgroupElements();
 
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	arg.fixup();
@@ -508,8 +464,9 @@ void test_addTriggerInfo(void)
 void test_getTriggerInfo(void)
 {
 	loadTestDBTriggers();
-	setupTestHostgroupElementDB();
-	setupTestHostgroupInfoDB();
+	loadTestDBHosts();
+	loadTestDBHostgroupElements();
+
 	int targetIdx = 2;
 	TriggerInfo &targetTriggerInfo = testTriggerInfo[targetIdx];
 	TriggerInfo triggerInfo;
@@ -921,7 +878,7 @@ void data_getNumberOfTriggers(void)
 void test_getNumberOfTriggers(gconstpointer data)
 {
 	loadTestDBTriggers();
-	setupTestHostgroupElementDB();
+	loadTestDBHostgroupElements();
 
 	const ServerIdType targetServerId = testTriggerInfo[0].serverId;
 	const HostgroupIdType hostgroupId =
@@ -941,7 +898,7 @@ void test_getNumberOfTriggers(gconstpointer data)
 void test_getNumberOfTriggersForMultipleAuthorizedHostgroups(void)
 {
 	loadTestDBTriggers();
-	setupTestHostgroupElementDB();
+	loadTestDBHostgroupElements();
 
 	const ServerIdType targetServerId = testTriggerInfo[0].serverId;
 	const HostgroupIdType hostgroupId = ALL_HOST_GROUPS;
@@ -986,7 +943,7 @@ cut_trace(_assertGetNumberOfTriggers(D,S,H,V))
 void test_getNumberOfTriggersBySeverity(gconstpointer data)
 {
 	loadTestDBTriggers();
-	setupTestHostgroupElementDB();
+	loadTestDBHostgroupElements();
 
 	const ServerIdType targetServerId = testTriggerInfo[0].serverId;
 	const HostgroupIdType hostgroupId =
@@ -1009,7 +966,7 @@ void data_getNumberOfAllBadTriggers(void)
 void test_getNumberOfAllBadTriggers(gconstpointer data)
 {
 	loadTestDBTriggers();
-	setupTestHostgroupElementDB();
+	loadTestDBHostgroupElements();
 
 	const ServerIdType targetServerId = testTriggerInfo[0].serverId;
 	const HostgroupIdType hostgroupId =

@@ -198,6 +198,9 @@ void loadTestDBArmPlugin(void);
 void loadTestDBTriggers(void);
 void loadTestDBEvents(void);
 void loadTestDBItems(void);
+void loadTestDBHosts(void);
+void loadTestDBHostgroups(void);
+void loadTestDBHostgroupElements(void);
 
 void loadTestDBAction(void);
 void loadTestDBIncidents(void);
