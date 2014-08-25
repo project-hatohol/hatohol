@@ -464,8 +464,8 @@ static void prepareDataForAllHostgroupIds(void)
 void cut_setup(void)
 {
 	hatoholInit();
-	deleteDBClientHatoholDB();
-	setupTestDBConfig(true, true);
+	setupTestDB();
+	loadTestDBTablesConfig();
 }
 
 // ---------------------------------------------------------------------------
