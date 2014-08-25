@@ -37,7 +37,7 @@ static const char *TABLE_NAME_SERVERS = "servers";
 static const char *TABLE_NAME_ARM_PLUGINS = "arm_plugins";
 static const char *TABLE_NAME_INCIDENT_TRACKERS = "incident_trackers";
 
-int DBTablesConfig::CONFIG_DB_VERSION = 10;
+int DBTablesConfig::CONFIG_DB_VERSION = 11;
 const char *DBTablesConfig::DEFAULT_DB_NAME = "hatohol";
 const char *DBTablesConfig::DEFAULT_USER_NAME = "hatohol";
 const char *DBTablesConfig::DEFAULT_PASSWORD  = "hatohol";
@@ -461,6 +461,16 @@ static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
 		if (dbAgent->isTableExisting(oldTableName))
 			dbAgent->renameTable(oldTableName,
 					     TABLE_NAME_INCIDENT_TRACKERS);
+	}
+	if (oldVer < 11) {
+		DBAgent::AddColumnsArg addColumnsArg(tableProfileArmPlugins);
+		addColumnsArg.columnIndexes.push_back(
+			IDX_ARM_PLUGINS_TLS_CERTIFICATE_PATH);
+		addColumnsArg.columnIndexes.push_back(
+			IDX_ARM_PLUGINS_TLS_KEY_PATH);
+		addColumnsArg.columnIndexes.push_back(
+			IDX_ARM_PLUGINS_TLS_CA_CERTIFICATE_PATH);
+		dbAgent->addColumns(addColumnsArg);
 	}
 	return true;
 }
