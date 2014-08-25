@@ -1358,13 +1358,24 @@ void makeEventIncidentMap(map<string, IncidentInfo*> &eventIncidentMap)
 const char *TEST_DB_USER = "hatohol_test_user";
 const char *TEST_DB_PASSWORD = ""; // empty: No password is used
 
-void setupTestDBHatohol(void)
+void setupTestDB(void)
 {
 	static const char *TEST_DB_NAME = "test_db_hatohol";
 	DBHatohol::setDefaultDBParams(TEST_DB_NAME,
 	                              TEST_DB_USER, TEST_DB_PASSWORD);
 	const bool dbRecreate = true;
 	makeTestMySQLDBIfNeeded(TEST_DB_NAME, dbRecreate);
+
+	// These are removed after the DBTablseXXX inherits DBTables.
+	// CONFIG
+	DBClient::setDefaultDBParams(DB_DOMAIN_ID_CONFIG, TEST_DB_NAME,
+	                             TEST_DB_USER, TEST_DB_PASSWORD);
+
+	DBClient::setDefaultDBParams(DB_TABLES_ID_USER, TEST_DB_NAME,
+	                             TEST_DB_USER, TEST_DB_PASSWORD);
+
+	DBClient::setDefaultDBParams(DB_TABLES_ID_ACTION, TEST_DB_NAME,
+	                             TEST_DB_USER, TEST_DB_PASSWORD);
 
 	// Only when we use SQLite3 for DBTablesHatoho,
 	// the following line should be enabled.
@@ -1427,6 +1438,12 @@ void setupTestDBHost(const bool &dbRecreate, const bool &loadTestData)
 	makeTestMySQLDBIfNeeded(TEST_DB_NAME, dbRecreate);
 	if (loadTestData)
 		HATOHOL_ASSERT(false, "Not implemented yet");
+}
+
+void loadTestDBTablesConfig(void)
+{
+	loadTestDBServer();
+	loadTestDBIncidentTracker();
 }
 
 void loadTestDBServer(void)

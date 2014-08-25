@@ -400,16 +400,14 @@ void cut_setup(void)
 	else
 		g_apiEmulator.setOperationMode(OPE_MODE_NORMAL);
 
-	deleteDBClientHatoholDB();
-	setupTestDBConfig(true, true);
-	setupTestDBAction();
+	setupTestDB();
+	loadTestDBTablesConfig();
 }
 
 void cut_teardown(void)
 {
 	g_sync.reset();
 	g_apiEmulator.reset();
-	deleteDBClientHatoholDB();
 }
 
 // ---------------------------------------------------------------------------

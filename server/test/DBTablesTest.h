@@ -178,7 +178,7 @@ extern const MonitoringSystemType MONITORING_SYSTEM_HAPI_TEST_NOT_EXIST;
 extern const MonitoringSystemType MONITORING_SYSTEM_HAPI_TEST_PASSIVE;
 
 // setup methods
-void setupTestDBHatohol(void);
+void setupTestDB(void);
 std::string deleteDBClientHatoholDB(void);
 
 void setupTestDBConfig(bool dbRecreate = true, bool loadTestDat = false);
@@ -186,6 +186,8 @@ void setupTestDBUser(bool dbRecreate = true, bool loadTestDat = false);
 void setupTestDBAction(bool dbRecreate = true, bool loadTestDat = false);
 void setupTestDBHost(const bool &dbRecreate = true,
                      const bool &loadTestData = false);
+
+void loadTestDBTablesConfig(void);
 
 void loadTestDBServer(void);
 void loadTestDBUser(void);
