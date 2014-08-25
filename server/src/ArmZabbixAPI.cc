@@ -114,6 +114,7 @@ void ArmZabbixAPI::updateEvents(void)
 
 	const uint64_t dbLastEventId =
 	  m_impl->dbMonitoring.getLastEventId(m_impl->zabbixServerId);
+	MLPL_DBG("The last event ID on Hatohol DB side: %" FMT_EVENT_ID "\n", dbLastEventId);
 	uint64_t eventIdOffset = 0;
 
 	if (dbLastEventId == EVENT_NOT_FOUND) {

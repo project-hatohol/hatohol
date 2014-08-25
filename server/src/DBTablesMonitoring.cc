@@ -1751,9 +1751,7 @@ uint64_t DBTablesMonitoring::getLastEventId(const ServerIdType &serverId)
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupStream itemGroupStream(*grpList.begin());
-	EventIdType lastEventId = itemGroupStream.read<uint64_t>();
-	MLPL_DBG("The last event ID on Hatohol DB side: %" FMT_EVENT_ID "\n", lastEventId);
-	return lastEventId;
+	return itemGroupStream.read<uint64_t>();
 }
 
 void DBTablesMonitoring::addItemInfo(ItemInfo *itemInfo)
