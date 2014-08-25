@@ -41,8 +41,15 @@ public:
 	  m_channel(0),
 	  m_envelope()
 	{
-		MLPL_INFO("Broker URL: <%s://%s:%d>\n",
-			  getScheme(), getHost(), getPort());
+		const char *virtualHost = getVirtualHost();
+		if (string(virtualHost) == "/") {
+			virtualHost = "";
+		}
+		MLPL_INFO("Broker URL: <%s://%s:%d/%s>\n",
+			  getScheme(),
+			  getHost(),
+			  getPort(),
+			  virtualHost);
 	}
 
 	~AMQPConnection()
@@ -136,6 +143,11 @@ private:
 	const char *getPassword()
 	{
 		return m_info.getPassword();
+	}
+
+	const char *getVirtualHost(void)
+	{
+		return m_info.getVirtualHost();
 	}
 
 	const string &getQueueName()
@@ -310,11 +322,10 @@ private:
 
 	bool login()
 	{
-		const char *vhost = "/";
 		const int heartbeat = 1;
 		const amqp_rpc_reply_t reply =
 			amqp_login(m_connection,
-				   vhost,
+				   getVirtualHost(),
 				   AMQP_DEFAULT_MAX_CHANNELS,
 				   AMQP_DEFAULT_FRAME_SIZE,
 				   heartbeat,
