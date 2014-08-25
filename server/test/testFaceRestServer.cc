@@ -37,6 +37,8 @@ static JSONParserAgent *g_parser = NULL;
 void cut_setup(void)
 {
 	hatoholInit();
+	setupTestDB();
+	loadTestDBUser();
 }
 
 void cut_teardown(void)
@@ -97,8 +99,8 @@ static void assertServersInParser(
 
 static void _assertServers(const string &path, const string &callbackName = "")
 {
-	setupUserDB();
 	startFaceRest();
+
 	RequestArg arg(path, callbackName);
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
 	g_parser = getResponseAsJSONParser(arg);
@@ -113,9 +115,6 @@ cut_trace(_assertAddRecord(P, "/server", ##__VA_ARGS__))
 void _assertAddServerWithSetup(const StringMap &params,
 			       const HatoholErrorCode &expectCode)
 {
-	const bool dbRecreate = true;
-	const bool loadTestDat = true;
-	setupTestDBUser(dbRecreate, loadTestDat);
 	const UserIdType userId = findUserWith(OPPRVLG_CREATE_SERVER);
 	assertAddServer(params, userId, expectCode, NumTestServerInfo + 1);
 }
@@ -167,8 +166,8 @@ void test_serversJSONP(void)
 
 void test_serversWithoutUpdatePrivilege(void)
 {
-	setupUserDB();
 	startFaceRest();
+
 	RequestArg arg("/server");
 	OperationPrivilegeFlag excludeFlags =
 	  (1 << OPPRVLG_UPDATE_ALL_SERVER) | (1 << OPPRVLG_UPDATE_SERVER);
@@ -263,9 +262,6 @@ void data_updateServer(void)
 void test_updateServer(gconstpointer data)
 {
 	startFaceRest();
-	bool dbRecreate = true;
-	bool loadTestData = true;
-	setupTestDBUser(dbRecreate, loadTestData);
 
 	// a copy is necessary not to change the source.
 	const int serverIndex = gcut_data_get_int(data, "index");
@@ -309,9 +305,6 @@ void test_updateServer(gconstpointer data)
 void test_updateServerWithArmPlugin(void)
 {
 	startFaceRest();
-	const bool dbRecreate = true;
-	const bool loadTestData = true;
-	setupTestDBUser(dbRecreate, loadTestData);
 
 	// a copy is necessary not to change the source.
 	MonitoringServerInfo serverInfo;
@@ -365,9 +358,7 @@ void test_updateServerWithArmPlugin(void)
 void test_deleteServer(void)
 {
 	startFaceRest();
-	bool dbRecreate = true;
-	bool loadTestData = true;
-	setupTestDBUser(dbRecreate, loadTestData);
+
 	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
 	ArmPluginInfo *armPluginInfo = NULL;
 
@@ -399,8 +390,6 @@ void test_deleteServer(void)
 void test_getServerConnStat(void)
 {
 	startFaceRest();
-
-	setupUserDB();
 	UnifiedDataStore::getInstance()->start(false);
 
 	RequestArg arg("/server-conn-stat");
