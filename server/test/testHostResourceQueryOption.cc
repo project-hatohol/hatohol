@@ -460,6 +460,7 @@ void test_makeConditionWithTargetServerAndHost(void)
 
 void data_conditionForAdminWithTargetServerAndHost(void)
 {
+	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
 void test_conditionForAdminWithTargetServerAndHost(gconstpointer data)
@@ -467,7 +468,7 @@ void test_conditionForAdminWithTargetServerAndHost(gconstpointer data)
 	const bool filterForDataOfDefunctSv =
 	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
 	if (filterForDataOfDefunctSv)
-		cut_pend("To be implemented");
+		cut_omit("To be implemented");
 	HostResourceQueryOption option(TEST_SYNAPSE, USER_ID_SYSTEM);
 	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	option.setTargetServerId(26);
