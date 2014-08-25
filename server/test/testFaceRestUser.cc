@@ -31,6 +31,7 @@ using namespace mlpl;
 
 namespace testFaceRestUser {
 
+// Remove
 static JSONParserAgent *g_parser = NULL;
 
 void cut_setup(void)
@@ -131,21 +132,6 @@ void _assertUpdateUserWithSetup(const StringMap &params,
 }
 #define assertUpdateUserWithSetup(P,U,C) \
 cut_trace(_assertUpdateUserWithSetup(P,U,C))
-
-static void _assertUpdateAddUserMissing(
-  const StringMap &parameters,
-  const HatoholErrorCode expectErrorCode = HTERR_NOT_FOUND_PARAMETER)
-{
-	TestModeStone stone;
-	startFaceRest();
-	RequestArg arg("/test/user", "cbname");
-	arg.parameters = parameters;
-	arg.request = "POST";
-	g_parser = getResponseAsJSONParser(arg);
-	assertErrorCode(g_parser, expectErrorCode);
-}
-#define assertUpdateAddUserMissing(P,...) \
-cut_trace(_assertUpdateAddUserMissing(P, ##__VA_ARGS__))
 
 static void _assertUpdateOrAddUser(const string &name)
 {
@@ -610,30 +596,6 @@ void test_updateOrAddUserNotInTestMode(void)
 	assertErrorCode(g_parser, HTERR_NOT_TEST_MODE);
 }
 
-void test_updateOrAddUserMissingUser(void)
-{
-	StringMap parameters;
-	parameters["password"] = "foo";
-	parameters["flags"] = "0";
-	assertUpdateAddUserMissing(parameters);
-}
-
-void test_updateOrAddUserMissingPassword(void)
-{
-	StringMap parameters;
-	parameters["name"] = "ABC";
-	parameters["flags"] = "2";
-	assertUpdateAddUserMissing(parameters);
-}
-
-void test_updateOrAddUserMissingFlags(void)
-{
-	StringMap parameters;
-	parameters["name"] = "ABC";
-	parameters["password"] = "AR2c43fdsaf";
-	assertUpdateAddUserMissing(parameters);
-}
-
 void test_updateOrAddUserAdd(void)
 {
 	const string name = "Tux";
@@ -1009,3 +971,58 @@ void test_deleteUserRoleWithoutPrivilege(void)
 }
 
 } // namespace testFaceRestUser
+
+namespace testFaceRestUserWithoutLoadingUser {
+
+static void _assertUpdateAddUserMissing(
+  const StringMap &parameters,
+  const HatoholErrorCode expectErrorCode = HTERR_NOT_FOUND_PARAMETER)
+{
+	TestModeStone stone;
+	startFaceRest();
+	RequestArg arg("/test/user", "cbname");
+	arg.parameters = parameters;
+	arg.request = "POST";
+	JSONParserAgent *parser = getResponseAsJSONParser(arg);
+	unique_ptr<JSONParserAgent> parserPtr(parser);
+	assertErrorCode(parserPtr.get(), expectErrorCode);
+}
+#define assertUpdateAddUserMissing(P,...) \
+cut_trace(_assertUpdateAddUserMissing(P, ##__VA_ARGS__))
+
+void cut_setup(void)
+{
+	hatoholInit();
+	setupTestDB();
+}
+
+void cut_teardown(void)
+{
+	stopFaceRest();
+}
+
+void test_updateOrAddUserMissingUser(void)
+{
+	StringMap parameters;
+	parameters["password"] = "foo";
+	parameters["flags"] = "0";
+	assertUpdateAddUserMissing(parameters);
+}
+
+void test_updateOrAddUserMissingPassword(void)
+{
+	StringMap parameters;
+	parameters["name"] = "ABC";
+	parameters["flags"] = "2";
+	assertUpdateAddUserMissing(parameters);
+}
+
+void test_updateOrAddUserMissingFlags(void)
+{
+	StringMap parameters;
+	parameters["name"] = "ABC";
+	parameters["password"] = "AR2c43fdsaf";
+	assertUpdateAddUserMissing(parameters);
+}
+
+} // namespace testFaceRestUserWithoutLoadingUser
