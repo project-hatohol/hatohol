@@ -1751,7 +1751,9 @@ uint64_t DBTablesMonitoring::getLastEventId(const ServerIdType &serverId)
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupStream itemGroupStream(*grpList.begin());
-	return itemGroupStream.read<uint64_t>();
+	uint64_t lastEventId = itemGroupStream.read<uint64_t>();
+	MLPL_DBG("Last event ID on DB side: %"PRIu64"\n", lastEventId);
+	return lastEventId;
 }
 
 void DBTablesMonitoring::addItemInfo(ItemInfo *itemInfo)
