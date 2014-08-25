@@ -46,9 +46,10 @@ public:
 void cut_setup(void)
 {
 	hatoholInit();
+	setupTestDB();
+	loadTestDBTablesConfig();
 	if (!g_redmineEmulator.isRunning())
 		g_redmineEmulator.start(EMULATOR_PORT);
-	deleteDBClientHatoholDB();
 }
 
 void cut_teardown(void)
@@ -80,7 +81,6 @@ static void statusCallback(const EventInfo &info,
 
 void test_sendRedmineIncident(void)
 {
-	setupTestDBConfig(true, true);
 	IncidentTrackerIdType trackerId = 3;
 	IncidentTrackerInfo &tracker = testIncidentTrackerInfo[trackerId - 1];
 	g_redmineEmulator.addUser(tracker.userName, tracker.password);
@@ -97,7 +97,6 @@ void test_sendRedmineIncident(void)
 
 void test_createMultiThreads(void)
 {
-	setupTestDBConfig(true, true);
 	IncidentTrackerIdType trackerId1 = 3;
 	IncidentTrackerIdType trackerId2 = 4;
 	IncidentTrackerInfo &tracker1 = testIncidentTrackerInfo[trackerId1 - 1];
