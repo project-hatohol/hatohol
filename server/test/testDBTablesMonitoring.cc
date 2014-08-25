@@ -473,12 +473,8 @@ void cut_setup(void)
 // ---------------------------------------------------------------------------
 void test_createDB(void)
 {
-	// remove the DB that already exists
-	string dbPath = getDBPathForDBClientHatohol();
-
 	// create an instance (the database will be automatically created)
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
-	cut_assert_exist_path(dbPath.c_str());
 
 	// check the version
 	string statement = "select * from _dbclient_version";
