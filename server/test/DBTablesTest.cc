@@ -1358,6 +1358,19 @@ void makeEventIncidentMap(map<string, IncidentInfo*> &eventIncidentMap)
 const char *TEST_DB_USER = "hatohol_test_user";
 const char *TEST_DB_PASSWORD = ""; // empty: No password is used
 
+static void deleteFileAndCheck(const string &path)
+{
+	unlink(path.c_str());
+	cut_assert_not_exist_path(path.c_str());
+}
+
+static string deleteDBClientHatoholDB(void)
+{
+	string dbPath = getDBPathForDBClientHatohol();
+	deleteFileAndCheck(dbPath);
+	return dbPath;
+}
+
 void setupTestDB(void)
 {
 	static const char *TEST_DB_NAME = "test_db_hatohol";
@@ -1380,19 +1393,6 @@ void setupTestDB(void)
 	// Only when we use SQLite3 for DBTablesHatoho,
 	// the following line should be enabled.
 	deleteDBClientHatoholDB();
-}
-
-static void deleteFileAndCheck(const string &path)
-{
-	unlink(path.c_str());
-	cut_assert_not_exist_path(path.c_str());
-}
-
-string deleteDBClientHatoholDB(void)
-{
-	string dbPath = getDBPathForDBClientHatohol();
-	deleteFileAndCheck(dbPath);
-	return dbPath;
 }
 
 void setupTestDBConfig(bool dbRecreate, bool loadTestData)
