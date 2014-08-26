@@ -139,7 +139,7 @@ struct ZabbixAPIEmulator::PrivateContext {
 			setupEventRange();
 		if (id < firstId)
 			return false;
-	if (id > lastId)
+		if (id > lastId)
 			return false;
 		return paramEvent.isInRange(id, num);
 	}
