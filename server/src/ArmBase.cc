@@ -303,17 +303,7 @@ void ArmBase::setInitialTrrigerStaus(void)
 	for (int i = 0; i < NUM_COLLECT_NG_KIND; i++) {
 		ArmResultTriggerInfo &trgInfo = m_impl->ArmResultTriggerTable[i];
 		if (TRIGGER_STATUS_UNKNOWN == trgInfo.statusType) {
-			triggerInfo.serverId = svInfo.id; 
-			clock_gettime(CLOCK_REALTIME, &triggerInfo.lastChangeTime);
-			triggerInfo.hostId = MONITORING_SERVER_SELF_ID;
-			triggerInfo.hostName = 
-				StringUtils::sprintf("%s_SELF", svInfo.hostName.c_str());
-			triggerInfo.id = trgInfo.triggerId;
-			triggerInfo.status = TRIGGER_STATUS_UNKNOWN;
-			triggerInfo.severity = TRIGGER_SEVERITY_INFO;
-			triggerInfo.brief = trgInfo.msg;
-		
-			triggerInfoList.push_back(triggerInfo);
+			createTriggerInfo(trgInfo, triggerInfoList);
 		}
 	}
 	m_impl->dbClientHatohol.addTriggerInfoList(triggerInfoList);
