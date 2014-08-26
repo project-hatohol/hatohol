@@ -97,8 +97,7 @@ void _assertErrorCode(JSONParserAgent *parser,
 		      const HatoholErrorCode &expectCode = HTERR_OK);
 #define assertErrorCode(P, ...) cut_trace(_assertErrorCode(P, ##__VA_ARGS__))
 
-void _assertAddRecord(JSONParserAgent *parser,
-                      const StringMap &params, const std::string &url,
+void _assertAddRecord(const StringMap &params, const std::string &url,
                       const UserIdType &userId = INVALID_USER_ID,
                       const HatoholErrorCode &expectCode = HTERR_OK,
                       uint32_t expectedId = 1);

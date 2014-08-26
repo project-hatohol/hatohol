@@ -103,7 +103,7 @@ static void _assertUsers(const string &path, const UserIdType &userId,
 #define assertUsers(P, U, ...) cut_trace(_assertUsers(P, U, ##__VA_ARGS__))
 
 #define assertAddUser(P, ...) \
-cut_trace(_assertAddRecord(g_parser, P, "/user", ##__VA_ARGS__))
+cut_trace(_assertAddRecord(P, "/user", ##__VA_ARGS__))
 
 void _assertAddUserWithSetup(const StringMap &params,
                              const HatoholErrorCode &expectCode)
@@ -231,7 +231,7 @@ static void _assertAllowedServers(const string &path, const UserIdType &userId,
 #define assertAllowedServers(P,...) cut_trace(_assertAllowedServers(P,##__VA_ARGS__))
 
 #define assertAddAccessInfo(U, P, USER_ID, ...) \
-cut_trace(_assertAddRecord(g_parser, P, U, USER_ID, ##__VA_ARGS__))
+cut_trace(_assertAddRecord(P, U, USER_ID, ##__VA_ARGS__))
 
 void _assertAddAccessInfoWithCond(
   const string &serverId, const string &hostgroupId,
@@ -771,7 +771,7 @@ void test_getUserRole(void)
 }
 
 #define assertAddUserRole(P, ...) \
-cut_trace(_assertAddRecord(g_parser, P, "/user-role", ##__VA_ARGS__))
+cut_trace(_assertAddRecord(P, "/user-role", ##__VA_ARGS__))
 
 void _assertAddUserRoleWithSetup(const StringMap &params,
 				 const HatoholErrorCode &expectCode,

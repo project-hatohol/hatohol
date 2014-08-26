@@ -333,8 +333,7 @@ void _assertErrorCode(JSONParserAgent *parser,
 	cppcut_assert_equal((int64_t)expectCode, actualCode);
 }
 
-void _assertAddRecord(JSONParserAgent *parser,
-                      const StringMap &params, const string &url,
+void _assertAddRecord(const StringMap &params, const string &url,
                       const UserIdType &userId,
                       const HatoholErrorCode &expectCode,
                       uint32_t expectedId)
@@ -344,11 +343,11 @@ void _assertAddRecord(JSONParserAgent *parser,
 	arg.parameters = params;
 	arg.request = "POST";
 	arg.userId = userId;
-	parser = getResponseAsJSONParser(arg);
-	assertErrorCode(parser, expectCode);
+	unique_ptr<JSONParserAgent> parserPtr(getResponseAsJSONParser(arg));
+	assertErrorCode(parserPtr.get(), expectCode);
 	if (expectCode != HTERR_OK)
 		return;
-	assertValueInParser(parser, "id", expectedId);
+	assertValueInParser(parserPtr.get(), "id", expectedId);
 }
 
 void _assertUpdateRecord(JSONParserAgent *parser,

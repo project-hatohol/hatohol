@@ -108,7 +108,7 @@ static void _assertServers(const string &path, const string &callbackName = "")
 #define assertServers(P,...) cut_trace(_assertServers(P,##__VA_ARGS__))
 
 #define assertAddServer(P, ...) \
-cut_trace(_assertAddRecord(g_parser, P, "/server", ##__VA_ARGS__))
+cut_trace(_assertAddRecord(P, "/server", ##__VA_ARGS__))
 
 void _assertAddServerWithSetup(const StringMap &params,
 			       const HatoholErrorCode &expectCode)

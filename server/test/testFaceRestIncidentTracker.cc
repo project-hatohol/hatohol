@@ -83,7 +83,7 @@ static void _assertIncidentTrackers(
 cut_trace(_assertIncidentTrackers(P,##__VA_ARGS__))
 
 #define assertAddIncidentTracker(P, ...) \
-cut_trace(_assertAddRecord(g_parser, P, "/incident-tracker", ##__VA_ARGS__))
+cut_trace(_assertAddRecord(P, "/incident-tracker", ##__VA_ARGS__))
 
 #define assertUpdateIncidentTracker(P, ...) \
 cut_trace(_assertUpdateRecord(g_parser, P, "/incident-tracker", ##__VA_ARGS__))
