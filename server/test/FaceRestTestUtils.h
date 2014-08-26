@@ -55,7 +55,6 @@ struct RequestArg {
 	}
 };
 
-void setupUserDB(void);
 void startFaceRest(void);
 void stopFaceRest(void);
 std::string makeSessionIdHeader(const std::string &sessionId);
