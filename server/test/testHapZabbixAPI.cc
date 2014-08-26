@@ -180,7 +180,6 @@ void test_getEvents(void)
 	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
 	arg.serverIpAddr = "127.0.0.1";
 	arg.serverPort   = EMULATOR_PORT;
-	setupTestDBAction();
 	HatoholArmPluginTestPair<HapZabbixAPITest> pair(arg);
 
 	pair.plugin->assertWaitReady();
