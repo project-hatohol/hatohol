@@ -173,7 +173,7 @@ static void _assertActions(const string &path, const string &callbackName = "",
 #define assertActions(P,...) cut_trace(_assertActions(P,##__VA_ARGS__))
 
 #define assertAddAction(P, ...) \
-cut_trace(_assertAddRecord(g_parser, P, "/action", ##__VA_ARGS__))
+cut_trace(_assertAddRecord(P, "/action", ##__VA_ARGS__))
 
 void data_actionsJSONP(void)
 {
