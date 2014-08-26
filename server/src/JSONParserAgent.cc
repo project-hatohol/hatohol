@@ -138,11 +138,8 @@ bool JSONParserAgent::isMember(const string &member)
 	JsonObject *object;
 
 	object = json_node_get_object(m_impl->currentNode);
-	if(!json_object_has_member(object, member.c_str())) {
-		MLPL_DBG("The member '%s' is not defined in the current node.\n",
-				member.c_str());
+	if(!json_object_has_member(object, member.c_str()))
 		return false;
-	}
 
 	return true;
 }
@@ -151,8 +148,11 @@ bool JSONParserAgent::startObject(const string &member)
 {
 	JsonObject *object;
 
-	if (!isMember(member))
+	if (!isMember(member)) {
+		MLPL_DBG("The member '%s' is not defined in the current node.\n",
+			 member.c_str());
 		return false;
+	}
 
 	object = json_node_get_object(m_impl->currentNode);
 	m_impl->previousNode = m_impl->currentNode;
