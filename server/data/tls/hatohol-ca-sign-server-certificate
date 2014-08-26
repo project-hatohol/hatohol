@@ -80,5 +80,5 @@ run openssl ca \
 
 echo
 echo "The next action:"
-echo "Copy <${signed_certificate_file}> to client host and "
-echo "use it in your application such as Hatohol and Fluentd."
+echo "Copy <${signed_certificate_file}> to server host and "
+echo "use it in your application such as RabbitMQ."
