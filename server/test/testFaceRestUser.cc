@@ -117,7 +117,7 @@ void _assertAddUserWithSetup(const StringMap &params,
 #define assertAddUserWithSetup(P,C) cut_trace(_assertAddUserWithSetup(P,C))
 
 #define assertUpdateUser(P, ...) \
-cut_trace(_assertUpdateRecord(g_parser, P, "/user", ##__VA_ARGS__))
+cut_trace(_assertUpdateRecord(P, "/user", ##__VA_ARGS__))
 
 void _assertUpdateUserWithSetup(const StringMap &params,
                                 uint32_t targetUserId,
@@ -860,7 +860,7 @@ void test_addUserRoleWithInvalidFlags(void)
 }
 
 #define assertUpdateUserRole(P, ...) \
-cut_trace(_assertUpdateRecord(g_parser, P, "/user-role", ##__VA_ARGS__))
+cut_trace(_assertUpdateRecord(P, "/user-role", ##__VA_ARGS__))
 
 void _assertUpdateUserRoleWithSetup(const StringMap &params,
 				    uint32_t targetUserRoleId,
