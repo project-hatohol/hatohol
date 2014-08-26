@@ -38,18 +38,6 @@ static StringMap    emptyStringMap;
 static StringVector emptyStringVector;
 static FaceRest *g_faceRest = NULL;
 
-// TODO: remove
-void setupUserDB(void)
-{
-	const bool dbRecreate = true;
-	// If loadTestDat is true, not only the user DB but also
-	// the access info DB will be loaded. So we set false here
-	// and load the user DB later.
-	const bool loadTestDat = false;
-	setupTestDBUser(dbRecreate, loadTestDat);
-	loadTestDBUser();
-}
-
 void startFaceRest(void)
 {
 	struct : public FaceRestParam {
