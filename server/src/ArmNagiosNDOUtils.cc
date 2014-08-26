@@ -769,7 +769,7 @@ gpointer ArmNagiosNDOUtils::mainThread(HatoholThreadArg *arg)
 	return ArmBase::mainThread(arg);
 }
 
-ArmBase::OneProcEndType ArmNagiosNDOUtils::mainThreadOneProc(void)
+ArmBase::ArmPollingResult ArmNagiosNDOUtils::mainThreadOneProc(void)
 {
 	try {
 		if (getUpdateType() == UPDATE_ITEM_REQUEST) {

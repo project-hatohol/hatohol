@@ -269,7 +269,7 @@ void ArmBase::setCopyOnDemandEnabled(bool enable)
 	m_impl->isCopyOnDemandEnabled = enable;
 }
 
-void ArmBase::registerAvailableTrigger(OneProcEndType type,
+void ArmBase::registerAvailableTrigger(ArmPollingResult type,
 				       TriggerIdType  trrigerId,
 				       HatoholError   hatoholError)
 {
@@ -349,7 +349,7 @@ void ArmBase::createEventInfo(const ArmResultTriggerInfo &resTrigger,
 	eventInfoList.push_back(eventInfo);
 }
 
-void ArmBase::setServerConnectStaus(bool enable, OneProcEndType type)
+void ArmBase::setServerConnectStaus(bool enable, ArmPollingResult type)
 {
 	TriggerInfoList triggerInfoList;
 	EventInfoList eventInfoList;
@@ -408,7 +408,7 @@ gpointer ArmBase::mainThread(HatoholThreadArg *arg)
 	ArmWorkingStatus beforeFailureStatus = ARM_WORK_STAT_INIT;
 	while (!hasExitRequest()) {
 		int sleepTime = m_impl->getSecondsToNextPolling();
-		OneProcEndType oneProcEndType = mainThreadOneProc();
+		ArmPollingResult oneProcEndType = mainThreadOneProc();
 		if (oneProcEndType == COLLECT_OK) {
 			m_impl->armStatus.logSuccess();
 			m_impl->lastFailureStatus = ARM_WORK_STAT_OK;

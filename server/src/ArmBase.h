@@ -41,7 +41,7 @@ public:
 		COLLECT_NG_INTERNAL_ERROR,
 		NUM_COLLECT_NG_KIND,
 		COLLECT_OK,
-	} OneProcEndType;
+	} ArmPollingResult;
 
 	struct ArmResultTriggerInfo {
 		TriggerStatusType statusType;
@@ -72,9 +72,9 @@ public:
 
 	const std::string &getName(void) const;
 
-	void setServerConnectStaus(bool enable,OneProcEndType type);
+	void setServerConnectStaus(bool enable,ArmPollingResult type);
 
-	void registerAvailableTrigger(const OneProcEndType type,
+	void registerAvailableTrigger(const ArmPollingResult type,
 				      const TriggerIdType  trrigerId,
 				      const HatoholError   hatholError);
 protected:
@@ -96,7 +96,7 @@ protected:
 	gpointer mainThread(HatoholThreadArg *arg);
 
 	// virtual methods defined in this class
-	virtual OneProcEndType mainThreadOneProc(void) = 0;
+	virtual ArmPollingResult mainThreadOneProc(void) = 0;
 
 	UpdateType getUpdateType(void) const;
 	void       setUpdateType(UpdateType updateType);

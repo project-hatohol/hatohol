@@ -149,7 +149,7 @@ public:
 		// the thread of ArmZabbixAPI. The exit callback (that unlock
 		// mutex in ArmZabbixAPI) is never called. So we explicitly
 		// call exitCallbackFunc() here to unlock the mutex;
-		const OneProcEndType oneProcEndType = ArmZabbixAPI::mainThreadOneProc();
+		const ArmPollingResult oneProcEndType = ArmZabbixAPI::mainThreadOneProc();
 		return (oneProcEndType == COLLECT_OK);
 	}
 
@@ -312,7 +312,7 @@ protected:
 	}
 
 	// virtual function
-	OneProcEndType mainThreadOneProc(void)
+	ArmPollingResult mainThreadOneProc(void)
 	{
 		if (!openSession()) {
 			requestExit();

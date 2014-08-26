@@ -46,7 +46,7 @@ ArmCeilometer::~ArmCeilometer()
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-ArmBase::OneProcEndType ArmCeilometer::mainThreadOneProc(void)
+ArmBase::ArmPollingResult ArmCeilometer::mainThreadOneProc(void)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 	return COLLECT_OK;

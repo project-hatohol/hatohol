@@ -30,7 +30,7 @@ public:
 
 protected:
 	// virtual methods
-	virtual OneProcEndType mainThreadOneProc(void);
+	virtual ArmPollingResult mainThreadOneProc(void);
 
 private:
 	struct Impl;
