@@ -457,8 +457,9 @@ void ZabbixAPIEmulator::PrivateContext::makeEventsJSONAscend(string &contents)
 		}
 	} else {
 		int64_t numEvents = 0;
+		int64_t endId = zbxEventMap.rbegin()->first;
 		for (int64_t i = paramEvent.eventIdFrom;
-		     !paramEvent.isOutOfRange(i, numEvents + 1);
+		     i <= endId && !paramEvent.isOutOfRange(i, numEvents + 1);
 		     i++) {
 			if (zbxEventMap.find(i) == zbxEventMap.end())
 				continue;
@@ -483,8 +484,9 @@ void ZabbixAPIEmulator::PrivateContext::makeEventsJSONDescend(string &contents)
 		}
 	} else {
 		int64_t numEvents = 0;
+		int64_t endId = zbxEventMap.begin()->first;
 		for (int64_t i = paramEvent.eventIdTill;
-		     !paramEvent.isOutOfRange(i, numEvents + 1);
+		     i >= endId && !paramEvent.isOutOfRange(i, numEvents + 1);
 		     i--) {
 			if (zbxEventMap.find(i) == zbxEventMap.end())
 				continue;
