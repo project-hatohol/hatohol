@@ -139,7 +139,7 @@ struct ZabbixAPIEmulator::PrivateContext {
 			setupEventRange();
 		if (id < firstId)
 			return false;
-		if (id > lastId)
+	if (id > lastId)
 			return false;
 		return paramEvent.isInRange(id, num);
 	}
@@ -474,10 +474,10 @@ void ZabbixAPIEmulator::APIHandlerHostgroupGet(APIHandlerArg &arg)
 void ZabbixAPIEmulator::PrivateContext::makeEventsJSONAscend(string &contents)
 {
 	int64_t numEvents = 0;
-	for (int64_t i = firstId; isInRange(i, numEvents + 1); ++i) {
-		if (zbxEventMap.find(i) == zbxEventMap.end())
+	for (int64_t id = firstId; isInRange(id, numEvents + 1); ++id) {
+		if (zbxEventMap.find(id) == zbxEventMap.end())
 			continue;
-		contents += makeJSONString(zbxEventMap[i]);
+		contents += makeJSONString(zbxEventMap[id]);
 		++numEvents;
 	}
 }
@@ -485,10 +485,10 @@ void ZabbixAPIEmulator::PrivateContext::makeEventsJSONAscend(string &contents)
 void ZabbixAPIEmulator::PrivateContext::makeEventsJSONDescend(string &contents)
 {
 	int64_t numEvents = 0;
-	for (int64_t i = lastId; isInRange(i, numEvents + 1); --i) {
-		if (zbxEventMap.find(i) == zbxEventMap.end())
+	for (int64_t id = lastId; isInRange(id, numEvents + 1); --id) {
+		if (zbxEventMap.find(id) == zbxEventMap.end())
 			continue;
-		contents += makeJSONString(zbxEventMap[i]);
+		contents += makeJSONString(zbxEventMap[id]);
 		++numEvents;
 	}
 }
