@@ -1,0 +1,86 @@
+#!/bin/sh
+
+set -u
+
+run()
+{
+    "$@"
+    if test $? -ne 0; then
+	echo "Failed $@"
+	exit 1
+    fi
+}
+
+host_name="$(hostname)"
+output_directory="."
+
+show_usage()
+{
+    echo "Usage: $0 [options]"
+    echo
+    echo "Options:"
+    echo "  --host-name=NAME       Use HOST as client host name"
+    echo "                         (${host_name})"
+    echo "  --output-directory=DIR Output files to DIR"
+    echo "                         (${output_directory})"
+    echo
+    echo "  --help                 Show this message and exit"
+}
+
+options=$(getopt \
+    --longoptions "host-name:,output-directory:,help::" \
+    -- "" \
+    "$@")
+
+if [ $? != 0 ]; then
+    show_usage
+    exit 1
+fi
+
+eval set -- "$options"
+
+while true; do
+    case "$1" in
+        --host-name)
+            host_name="$2"
+            shift 2
+            ;;
+        --output-directory)
+            output_directory="$2"
+            shift 2
+            ;;
+        --help)
+            show_usage
+            exit
+            ;;
+        --)
+            shift
+            break
+            ;;
+    esac
+done
+
+
+run mkdir -p "${output_directory}"
+
+key_path="${output_directory}/key.pem"
+request_path="${output_directory}/req.pem"
+
+umask_old=$(umask)
+run umask 077
+run openssl genrsa -out "${key_path}" 2048
+run umask ${umask_old}
+
+run openssl req \
+    -new \
+    -key "${key_path}" \
+    -out "${request_path}" \
+    -outform PEM \
+    -subj "/CN=${host_name}/O=client/" \
+    -batch \
+    -nodes
+
+echo
+echo "The next action:"
+echo "Copy <${request_path}> to CA host and run the following command:"
+echo "  % hatohol-ca-sign-client-certificate $(basename "${request_path}")"

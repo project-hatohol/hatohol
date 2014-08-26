@@ -245,6 +245,7 @@ server/src/Makefile
 server/hap/Makefile
 server/tools/Makefile
 server/data/Makefile
+server/data/tls/Makefile
 server/test/Makefile
 server/test/fixtures/Makefile
 server/benchmark/Makefile
