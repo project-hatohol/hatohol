@@ -59,6 +59,17 @@ struct ZabbixAPIEmulator::ParameterEventGet {
 	  eventIdTill(0)
 	{
 	}
+
+	bool isOutOfRange(const int64_t &id, const int64_t &num = 0)
+	{
+		if (limit != 0 && num > limit)
+			return true;
+		if (id > eventIdTill)
+			return true;
+		if (id < eventIdFrom)
+			return true;
+		return false;
+	}
 };
 
 struct ZabbixAPIEmulator::ZabbixAPIEvent {
@@ -433,24 +444,13 @@ void ZabbixAPIEmulator::APIHandlerHostgroupGet(APIHandlerArg &arg)
 	APIHandlerGetWithFile(arg, dataFileName);
 }
 
-static bool isLimit(int64_t val, int64_t limit)
-{
-	if (limit == 0)
-		return false;
-	if (val < limit)
-		return false;
-	return true;
-}
-
 void ZabbixAPIEmulator::PrivateContext::makeEventsJSONAscend(string &contents)
 {
-	int64_t limit = paramEvent.limit;
-
 	if (paramEvent.eventIdFrom == 0 &&
 	    paramEvent.eventIdTill == 0) { // no range
 		ZabbixAPIEventMapIterator jit = zbxEventMap.begin();
 		for (int64_t i = 0;
-		     jit != zbxEventMap.end() && !isLimit(i, limit);
+		     jit != zbxEventMap.end() && !paramEvent.isOutOfRange(i);
 		     ++jit, i++) {
 			const ZabbixAPIEvent &data = jit->second;
 			contents += makeJSONString(data);
@@ -458,7 +458,7 @@ void ZabbixAPIEmulator::PrivateContext::makeEventsJSONAscend(string &contents)
 	} else {
 		int64_t numEvents = 0;
 		for (int64_t i = paramEvent.eventIdFrom;
-		     i <= paramEvent.eventIdTill && !isLimit(numEvents, limit);
+		     !paramEvent.isOutOfRange(i, numEvents + 1);
 		     i++) {
 			if (zbxEventMap.find(i) == zbxEventMap.end())
 				continue;
@@ -471,13 +471,11 @@ void ZabbixAPIEmulator::PrivateContext::makeEventsJSONAscend(string &contents)
 
 void ZabbixAPIEmulator::PrivateContext::makeEventsJSONDescend(string &contents)
 {
-	int64_t limit = paramEvent.limit;
-
 	if (paramEvent.eventIdFrom == 0 &&
 	    paramEvent.eventIdTill == 0) { // no range
 		ZabbixAPIEventMapReverseIterator rjit = zbxEventMap.rbegin();
 		for (int64_t i = 0;
-		     rjit != zbxEventMap.rend() && !isLimit(i, limit);
+		     rjit != zbxEventMap.rend() && !paramEvent.isOutOfRange(i);
 		     ++rjit, i++)
 		{
 			const ZabbixAPIEvent &data = rjit->second;
@@ -486,7 +484,7 @@ void ZabbixAPIEmulator::PrivateContext::makeEventsJSONDescend(string &contents)
 	} else {
 		int64_t numEvents = 0;
 		for (int64_t i = paramEvent.eventIdTill;
-		     i >= paramEvent.eventIdFrom && !isLimit(numEvents, limit);
+		     !paramEvent.isOutOfRange(i, numEvents + 1);
 		     i--) {
 			if (zbxEventMap.find(i) == zbxEventMap.end())
 				continue;
