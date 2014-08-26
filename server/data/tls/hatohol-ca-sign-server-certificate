@@ -67,6 +67,7 @@ fi
 
 csr="$1"
 
+cacert_file="${base_directory}/CA/cacert.pem"
 config_file="${base_directory}/openssl.cnf"
 
 run mkdir -p "$(dirname "${signed_certificate_file}")"
@@ -80,5 +81,5 @@ run openssl ca \
 
 echo
 echo "The next action:"
-echo "Copy <${signed_certificate_file}> to server host and "
+echo "Copy <${cacert_file}> and <${signed_certificate_file}> to server host and "
 echo "use it in your application such as RabbitMQ."
