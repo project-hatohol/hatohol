@@ -142,6 +142,8 @@ struct HatoholArmPluginGateJSON::Impl
 			armPluginInfo.tlsKeyPath);
 		m_connectionInfo.setTLSCACertificatePath(
 			armPluginInfo.tlsCACertificatePath);
+		m_connectionInfo.setTLSVerifyEnabled(
+			armPluginInfo.isTLSVerifyEnabled());
 
 		m_handler = new AMQPJSONMessageHandler(serverInfo);
 		m_consumer = new AMQPConsumer(m_connectionInfo, m_handler);

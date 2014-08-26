@@ -54,6 +54,9 @@ public:
 	const std::string &getTLSCACertificatePath(void) const;
 	void setTLSCACertificatePath(const std::string &path);
 
+	bool isTLSVerifyEnabled(void) const;
+	void setTLSVerifyEnabled(const bool &enabled);
+
 private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;

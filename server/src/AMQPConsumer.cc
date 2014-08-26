@@ -175,6 +175,11 @@ private:
 		return m_info.getTLSCACertificatePath();
 	}
 
+	bool isTLSVerifyEnabled(void)
+	{
+		return m_info.isTLSVerifyEnabled();
+	}
+
 	void logErrorResponse(const char *context, int status)
 	{
 		logErrorResponse(context, static_cast<amqp_status_enum>(status));
@@ -269,6 +274,9 @@ private:
 		if (!setTLSCACertificate()) {
 			return false;
 		}
+		if (!setTLSVerification()) {
+			return false;
+		}
 
 		return true;
 	}
@@ -307,6 +315,12 @@ private:
 			logErrorResponse(context.c_str(), status);
 			return false;
 		}
+		return true;
+	}
+
+	bool setTLSVerification(void)
+	{
+		amqp_ssl_socket_set_verify(m_socket, isTLSVerifyEnabled());
 		return true;
 	}
 
