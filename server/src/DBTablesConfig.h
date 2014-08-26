@@ -75,8 +75,11 @@ struct ArmPluginInfo {
 	std::string tlsCertificatePath;
 	std::string tlsKeyPath;
 	std::string tlsCACertificatePath;
+	int tlsEnableVerify;
 
 	static void initialize(ArmPluginInfo &armPluginInfo);
+
+	bool isTLSVerifyEnabled(void);
 };
 
 typedef std::vector<ArmPluginInfo>        ArmPluginInfoVect;

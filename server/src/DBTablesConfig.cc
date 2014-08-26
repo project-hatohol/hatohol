@@ -37,7 +37,7 @@ static const char *TABLE_NAME_SERVERS = "servers";
 static const char *TABLE_NAME_ARM_PLUGINS = "arm_plugins";
 static const char *TABLE_NAME_INCIDENT_TRACKERS = "incident_trackers";
 
-int DBTablesConfig::CONFIG_DB_VERSION = 11;
+int DBTablesConfig::CONFIG_DB_VERSION = 12;
 const char *DBTablesConfig::DEFAULT_DB_NAME = "hatohol";
 const char *DBTablesConfig::DEFAULT_USER_NAME = "hatohol";
 const char *DBTablesConfig::DEFAULT_PASSWORD  = "hatohol";
@@ -317,6 +317,15 @@ static const ColumnDef COLUMN_DEF_ARM_PLUGINS[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	"tls_enable_verify",               // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	1,                                 // columnLength
+	0,                                 // decFracLength
+	true,                              // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"1",                               // defaultValue
 },
 };
 
@@ -330,6 +339,7 @@ enum {
 	IDX_ARM_PLUGINS_TLS_CERTIFICATE_PATH,
 	IDX_ARM_PLUGINS_TLS_KEY_PATH,
 	IDX_ARM_PLUGINS_TLS_CA_CERTIFICATE_PATH,
+	IDX_ARM_PLUGINS_TLS_ENABLE_VERIFY,
 	NUM_IDX_ARM_PLUGINS,
 };
 
@@ -472,6 +482,12 @@ static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
 			IDX_ARM_PLUGINS_TLS_CA_CERTIFICATE_PATH);
 		dbAgent->addColumns(addColumnsArg);
 	}
+	if (oldVer < 12) {
+		DBAgent::AddColumnsArg addColumnsArg(tableProfileArmPlugins);
+		addColumnsArg.columnIndexes.push_back(
+			IDX_ARM_PLUGINS_TLS_ENABLE_VERIFY);
+		dbAgent->addColumns(addColumnsArg);
+	}
 	return true;
 }
 
@@ -483,6 +499,12 @@ void ArmPluginInfo::initialize(ArmPluginInfo &armPluginInfo)
 	armPluginInfo.id = INVALID_ARM_PLUGIN_INFO_ID;
 	armPluginInfo.type = MONITORING_SYSTEM_UNKNOWN;
 	armPluginInfo.serverId = INVALID_SERVER_ID;
+	armPluginInfo.tlsEnableVerify = 1;
+}
+
+bool ArmPluginInfo::isTLSVerifyEnabled(void)
+{
+	return tlsEnableVerify != 0;
 }
 
 // ---------------------------------------------------------------------------
@@ -1023,6 +1045,7 @@ void DBTablesConfig::getTargetServers(
 	builder.add(IDX_ARM_PLUGINS_TLS_CERTIFICATE_PATH);
 	builder.add(IDX_ARM_PLUGINS_TLS_KEY_PATH);
 	builder.add(IDX_ARM_PLUGINS_TLS_CA_CERTIFICATE_PATH);
+	builder.add(IDX_ARM_PLUGINS_TLS_ENABLE_VERIFY);
 
 	getDBAgent().runTransaction(builder.getSelectExArg());
 
@@ -1371,6 +1394,7 @@ void DBTablesConfig::selectArmPluginInfo(DBAgent::SelectExArg &arg)
 	arg.add(IDX_ARM_PLUGINS_TLS_CERTIFICATE_PATH);
 	arg.add(IDX_ARM_PLUGINS_TLS_KEY_PATH);
 	arg.add(IDX_ARM_PLUGINS_TLS_CA_CERTIFICATE_PATH);
+	arg.add(IDX_ARM_PLUGINS_TLS_ENABLE_VERIFY);
 
 	getDBAgent().runTransaction(arg);
 }
@@ -1387,6 +1411,7 @@ void DBTablesConfig::readArmPluginStream(
 	itemGroupStream >> armPluginInfo.tlsCertificatePath;
 	itemGroupStream >> armPluginInfo.tlsKeyPath;
 	itemGroupStream >> armPluginInfo.tlsCACertificatePath;
+	itemGroupStream >> armPluginInfo.tlsEnableVerify;
 }
 
 HatoholError DBTablesConfig::preprocForSaveArmPlguinInfo(
@@ -1440,6 +1465,8 @@ HatoholError DBTablesConfig::saveArmPluginInfoWithoutTransaction(
 		        armPluginInfo.tlsKeyPath);
 		arg.add(IDX_ARM_PLUGINS_TLS_CA_CERTIFICATE_PATH,
 		        armPluginInfo.tlsCACertificatePath);
+		arg.add(IDX_ARM_PLUGINS_TLS_ENABLE_VERIFY,
+		        armPluginInfo.tlsEnableVerify);
 		arg.condition = condition;
 		update(arg);
 	} else {
@@ -1453,6 +1480,7 @@ HatoholError DBTablesConfig::saveArmPluginInfoWithoutTransaction(
 		arg.add(armPluginInfo.tlsCertificatePath);
 		arg.add(armPluginInfo.tlsKeyPath);
 		arg.add(armPluginInfo.tlsCACertificatePath);
+		arg.add(armPluginInfo.tlsEnableVerify);
 		insert(arg);
 		armPluginInfo.id = getLastInsertId();
 	}

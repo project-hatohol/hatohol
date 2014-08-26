@@ -63,6 +63,7 @@ struct AMQPConnectionInfo::Impl {
 	string m_tlsCertificatePath;
 	string m_tlsKeyPath;
 	string m_tlsCACertificatePath;
+	bool m_isTLSVerifyEnabled;
 
 private:
 	string normalizeURL(const string &URL)
@@ -174,5 +175,15 @@ const string &AMQPConnectionInfo::getTLSCACertificatePath(void) const
 void AMQPConnectionInfo::setTLSCACertificatePath(const string &path)
 {
 	m_impl->m_tlsCACertificatePath = path;
+}
+
+bool AMQPConnectionInfo::isTLSVerifyEnabled(void) const
+{
+	return m_impl->m_isTLSVerifyEnabled;
+}
+
+void AMQPConnectionInfo::setTLSVerifyEnabled(const bool &enabled)
+{
+	m_impl->m_isTLSVerifyEnabled = enabled;
 }
 

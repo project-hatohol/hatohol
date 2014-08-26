@@ -58,6 +58,7 @@ static void setupArmPluginInfo(
 	armPluginInfo.brokerUrl = "abc.example.com:22222";
 	armPluginInfo.staticQueueAddress = "";
 	armPluginInfo.serverId = serverInfo.id;
+	armPluginInfo.tlsEnableVerify = 1;
 }
 
 static void assertServersInParser(

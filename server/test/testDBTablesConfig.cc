@@ -95,7 +95,7 @@ static string makeExpectedDBOutLine(
   const size_t &idx, const ArmPluginInfo &armPluginInfo)
 {
 	string s = StringUtils::sprintf(
-	  "%zd|%d|%s|%s|%s|%" FMT_SERVER_ID "|%s|%s|%s",
+	  "%zd|%d|%s|%s|%s|%" FMT_SERVER_ID "|%s|%s|%s|%d",
 	  (idx + 1), // armPluginInfo.id
 	  armPluginInfo.type,
 	  armPluginInfo.path.c_str(),
@@ -104,7 +104,8 @@ static string makeExpectedDBOutLine(
 	  armPluginInfo.serverId,
 	  armPluginInfo.tlsCertificatePath.c_str(),
 	  armPluginInfo.tlsKeyPath.c_str(),
-	  armPluginInfo.tlsCACertificatePath.c_str());
+	  armPluginInfo.tlsCACertificatePath.c_str(),
+	  armPluginInfo.tlsEnableVerify);
 	return s;
 }
 
