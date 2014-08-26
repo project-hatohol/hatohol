@@ -69,7 +69,7 @@ public:
 	}
 
 protected:
-	virtual OneProcEndType mainThreadOneProc(void) override
+	virtual ArmPollingResult mainThreadOneProc(void) override
 	{
 		if (m_oneProcHook) {
 			bool succeeded = (*m_oneProcHook)(m_oneProcHookData);

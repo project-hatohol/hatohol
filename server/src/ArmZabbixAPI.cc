@@ -237,7 +237,7 @@ uint64_t ArmZabbixAPI::getMaximumNumberGetEventPerOnce(void)
 //
 // This function just shows a warning if there is missing host ID.
 //
-ArmBase::OneProcEndType ArmZabbixAPI::mainThreadOneProc(void)
+ArmBase::ArmPollingResult ArmZabbixAPI::mainThreadOneProc(void)
 {
 	if (!updateAuthTokenIfNeeded())
 		return COLLECT_NG_DISCONNECT_ZABBIX;

@@ -57,7 +57,7 @@ public:
 	{
 	}
 
-	virtual OneProcEndType mainThreadOneProc(void) override
+	virtual ArmPollingResult mainThreadOneProc(void) override
 	{
 		// This method is never called because nobody calls start().
 		// Just written to pass the build.
