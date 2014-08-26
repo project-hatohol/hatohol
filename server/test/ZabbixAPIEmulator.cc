@@ -477,8 +477,7 @@ void ZabbixAPIEmulator::PrivateContext::makeEventsJSONAscend(string &contents)
 	for (int64_t i = firstId; isInRange(i, numEvents + 1); ++i) {
 		if (zbxEventMap.find(i) == zbxEventMap.end())
 			continue;
-		const ZabbixAPIEvent &data = zbxEventMap[i];
-		contents += makeJSONString(data);
+		contents += makeJSONString(zbxEventMap[i]);
 		++numEvents;
 	}
 }
@@ -489,8 +488,7 @@ void ZabbixAPIEmulator::PrivateContext::makeEventsJSONDescend(string &contents)
 	for (int64_t i = lastId; isInRange(i, numEvents + 1); --i) {
 		if (zbxEventMap.find(i) == zbxEventMap.end())
 			continue;
-		const ZabbixAPIEvent &data = zbxEventMap[i];
-		contents += makeJSONString(data);
+		contents += makeJSONString(zbxEventMap[i]);
 		++numEvents;
 	}
 }
