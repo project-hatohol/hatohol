@@ -74,11 +74,11 @@ certs			= \$dir/certs
 crl_dir         	= \$dir/crl
 database	        = \$dir/index.txt 
 new_certs_dir		= \$dir/newcerts
-certificate		= \$dir/cacert.pem
+certificate		= \$dir/ca-cert.pem
 serial			= \$dir/serial
 crlnumber		= \$dir/crlnumber
 crl			= \$dir/crl.pem
-private_key		= \$dir/private/cakey.pem
+private_key		= \$dir/private/ca-key.pem
 RANDFILE		= \$dir/private/.rand
 
 x509_extensions		= certificate_extensions
@@ -132,12 +132,12 @@ run openssl req \
     -x509 \
     -config "${config_file}" \
     -newkey rsa:2048 \
-    -keyout "${ca_dir}/private/cakey.pem" \
-    -out "${ca_dir}/cacert.pem" \
+    -keyout "${ca_dir}/private/ca-key.pem" \
+    -out "${ca_dir}/ca-cert.pem" \
     -outform PEM \
     -subj /CN=LocalCA/ \
     -nodes
 run openssl x509 \
-    -in "${ca_dir}/cacert.pem" \
-    -out "${ca_dir}/cacert.cer" \
+    -in "${ca_dir}/ca-cert.pem" \
+    -out "${ca_dir}/ca-cert.cer" \
     -outform DER
