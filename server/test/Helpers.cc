@@ -24,7 +24,7 @@
 #include "Helpers.h"
 #include "DBTablesConfig.h"
 #include "DBTablesAction.h"
-#include "DBClientTest.h"
+#include "DBTablesTest.h"
 #include "DBAgentSQLite3.h"
 #include "DBAgentMySQL.h"
 #include "ThreadLocalDBCache.h"
@@ -33,9 +33,6 @@
 #include "ConfigManager.h"
 using namespace std;
 using namespace mlpl;
-
-const char *TEST_DB_USER = "hatohol_test_user";
-const char *TEST_DB_PASSWORD = ""; // empty: No password is used
 
 static bool testMode = DBTablesUser::setTestMode();
 
@@ -291,12 +288,6 @@ bool isVerboseMode(void)
 	return verboseMode;
 }
 
-void deleteFileAndCheck(const string &path)
-{
-	unlink(path.c_str());
-	cut_assert_not_exist_path(path.c_str());
-}
-
 string getDBPathForDBClientHatohol(void)
 {
 	struct callgate : public DBTablesMonitoring, public DBAgentSQLite3 {
@@ -305,13 +296,6 @@ string getDBPathForDBClientHatohol(void)
 		}
 	};
 	return callgate::getDBPath();
-}
-
-string deleteDBClientHatoholDB(void)
-{
-	string dbPath = getDBPathForDBClientHatohol();
-	deleteFileAndCheck(dbPath);
-	return dbPath;
 }
 
 string execSqlite3ForDBClient(const string &dbPath, const string &statement)
@@ -792,155 +776,6 @@ exit:
 	mysql_close(&mysql);
 	cppcut_assert_equal(true, noError,
 	   cut_message("Failed to query: %s", errmsg.c_str()));
-}
-
-void loadTestDBServer(void)
-{
-	ThreadLocalDBCache cache;
-	DBTablesConfig &dbConfig = cache.getConfig();
-	OperationPrivilege privilege(ALL_PRIVILEGES);
-	for (size_t i = 0; i < NumTestServerInfo; i++)
-		dbConfig.addTargetServer(&testServerInfo[i], privilege);
-}
-
-void loadTestDBTriggers(void)
-{
-	ThreadLocalDBCache cache;
-	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	OperationPrivilege privilege(ALL_PRIVILEGES);
-	for (size_t i = 0; i < NumTestTriggerInfo; i++)
-		dbMonitoring.addTriggerInfo(&testTriggerInfo[i]);
-}
-
-void loadTestDBEvents(void)
-{
-	ThreadLocalDBCache cache;
-	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	OperationPrivilege privilege(ALL_PRIVILEGES);
-	for (size_t i = 0; i < NumTestEventInfo; i++)
-		dbMonitoring.addEventInfo(&testEventInfo[i]);
-}
-
-void loadTestDBIncidentTracker(void)
-{
-	ThreadLocalDBCache cache;
-	DBTablesConfig &dbConfig = cache.getConfig();
-	OperationPrivilege privilege(ALL_PRIVILEGES);
-	for (size_t i = 0; i < NumTestIncidentTrackerInfo; i++) {
-		dbConfig.addIncidentTracker(testIncidentTrackerInfo[i],
-		                            privilege);
-	}
-}
-
-void loadTestDBIncidents(void)
-{
-	ThreadLocalDBCache cache;
-	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	for (size_t i = 0; i < NumTestIncidentInfo; i++)
-		dbMonitoring.addIncidentInfo(&testIncidentInfo[i]);
-}
-
-void setupTestDBConfig(bool dbRecreate, bool loadTestData)
-{
-	static const char *TEST_DB_NAME = "test_config";
-	DBClient::setDefaultDBParams(DB_DOMAIN_ID_CONFIG, TEST_DB_NAME,
-	                             TEST_DB_USER, TEST_DB_PASSWORD);
-	makeTestMySQLDBIfNeeded(TEST_DB_NAME, dbRecreate);
-	if (loadTestData) {
-		loadTestDBServer();
-		loadTestDBIncidentTracker();
-	}
-}
-
-void setupTestDBAction(bool dbRecreate, bool loadTestData)
-{
-	static const char *TEST_DB_NAME = "test_action";
-	DBClient::setDefaultDBParams(DB_TABLES_ID_ACTION, TEST_DB_NAME,
-	                             TEST_DB_USER, TEST_DB_PASSWORD);
-	makeTestMySQLDBIfNeeded(TEST_DB_NAME, dbRecreate);
-	if (loadTestData)
-		loadTestDBAction();
-}
-
-void setupTestDBHost(const bool &dbRecreate, const bool &loadTestData)
-{
-	static const char *TEST_DB_NAME = "test_dbc_regular";
-	DBClient::setDefaultDBParams(DB_TABLES_ID_HOST, TEST_DB_NAME,
-	                             TEST_DB_USER, TEST_DB_PASSWORD);
-	makeTestMySQLDBIfNeeded(TEST_DB_NAME, dbRecreate);
-	if (loadTestData)
-		HATOHOL_ASSERT(false, "Not implemented yet");
-		//loadTestDBAction();
-}
-
-void loadTestDBUser(void)
-{
-	ThreadLocalDBCache cache;
-	DBTablesUser &dbUser = cache.getUser();
-	HatoholError err;
-	OperationPrivilege opePrivilege(ALL_PRIVILEGES);
-	for (size_t i = 0; i < NumTestUserInfo; i++) {
-		err = dbUser.addUserInfo(testUserInfo[i], opePrivilege);
-		assertHatoholError(HTERR_OK, err);
-	}
-}
-
-void loadTestDBAccessList(void)
-{
-	ThreadLocalDBCache cache;
-	DBTablesUser &dbUser = cache.getUser();
-	HatoholError err;
-	OperationPrivilege privilege(ALL_PRIVILEGES);
-	for (size_t i = 0; i < NumTestAccessInfo; i++) {
-		err = dbUser.addAccessInfo(testAccessInfo[i], privilege);
-		assertHatoholError(HTERR_OK, err);
-	}
-}
-
-void loadTestDBUserRole(void)
-{
-	ThreadLocalDBCache cache;
-	DBTablesUser &dbUser = cache.getUser();
-	HatoholError err;
-	OperationPrivilege privilege(ALL_PRIVILEGES);
-	for (size_t i = 0; i < NumTestUserRoleInfo; i++) {
-		err = dbUser.addUserRoleInfo(testUserRoleInfo[i], privilege);
-		assertHatoholError(HTERR_OK, err);
-	}
-}
-
-void setupTestDBUser(bool dbRecreate, bool loadTestData)
-{
-	static const char *TEST_DB_NAME = "test_db_user";
-	DBClient::setDefaultDBParams(DB_TABLES_ID_USER, TEST_DB_NAME,
-	                             TEST_DB_USER, TEST_DB_PASSWORD);
-	makeTestMySQLDBIfNeeded(TEST_DB_NAME, dbRecreate);
-	if (loadTestData) {
-		loadTestDBUser();
-		loadTestDBAccessList();
-		loadTestDBUserRole();
-	}
-}
-
-void loadTestDBArmPlugin(void)
-{
-	ThreadLocalDBCache cache;
-	DBTablesConfig &dbConfig = cache.getConfig();
-	for (size_t i = 0; i < NumTestArmPluginInfo; i++) {
-		// Make a copy since armPluginInfo.id will be set.
-		ArmPluginInfo armPluginInfo = testArmPluginInfo[i];
-		HatoholError err = dbConfig.saveArmPluginInfo(armPluginInfo);
-		assertHatoholError(HTERR_OK, err);
-	}
-}
-
-void loadTestDBAction(void)
-{
-	ThreadLocalDBCache cache;
-	DBTablesAction &dbAction = cache.getAction();
-	OperationPrivilege privilege(USER_ID_SYSTEM);
-	for (size_t i = 0; i < NumTestActionDef; i++)
-		dbAction.addAction(testActionDef[i], privilege);
 }
 
 string

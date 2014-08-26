@@ -22,7 +22,7 @@
 #include "Hatohol.h"
 #include "IncidentSenderRedmine.h"
 #include "LabelUtils.h"
-#include "DBClientTest.h"
+#include "DBTablesTest.h"
 #include "Helpers.h"
 #include "JSONParserAgent.h"
 #include "ThreadLocalDBCache.h"
@@ -75,9 +75,9 @@ void cut_setup(void)
 	                    cut_message("g_sync is locked."));
 
 	hatoholInit();
+	setupTestDB();
 	if (!g_redmineEmulator.isRunning())
 		g_redmineEmulator.start(EMULATOR_PORT);
-	deleteDBClientHatoholDB();
 }
 
 void cut_teardown(void)
@@ -149,7 +149,7 @@ string expectedJSON(const EventInfo &event, const IncidentTrackerInfo &tracker)
 
 void test_buildJSON(void)
 {
-	setupTestDBConfig(true, true);
+	loadTestDBTablesConfig();
 	IncidentTrackerInfo tracker;
 	tracker.projectId = "hatoholtest";
 	TestRedmineSender sender(tracker);
@@ -188,7 +188,7 @@ void _assertSend(const HatoholErrorCode &expected,
 		 const IncidentTrackerInfo &tracker,
 		 const EventInfo &event)
 {
-	setupTestDBConfig(true, true);
+	loadTestDBTablesConfig();
 	TestRedmineSender sender(tracker);
 	g_redmineEmulator.addUser(tracker.userName, tracker.password);
 	HatoholError result = sender.send(event);
@@ -301,7 +301,7 @@ static void statusCallback(const EventInfo &info,
 
 void _assertThread(size_t numErrors, bool shouldSuccess = true)
 {
-	setupTestDBConfig(true, true);
+	loadTestDBTablesConfig();
 	const IncidentTrackerInfo tracker = testIncidentTrackerInfo[2];
 	const EventInfo &event = testEventInfo[0];
 	TestRedmineSender sender(tracker);

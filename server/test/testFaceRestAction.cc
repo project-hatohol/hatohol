@@ -22,7 +22,7 @@
 #include "FaceRest.h"
 #include "Helpers.h"
 #include "JSONParserAgent.h"
-#include "DBClientTest.h"
+#include "DBTablesTest.h"
 #include "MultiLangTest.h"
 #include "testDBTablesMonitoring.h"
 #include "ThreadLocalDBCache.h"
@@ -63,6 +63,8 @@ static void changeLocale(const char *locale)
 void cut_setup(void)
 {
 	hatoholInit();
+	setupTestDB();
+	loadTestDBTablesUser();
 }
 
 void cut_teardown(void)
@@ -82,20 +84,6 @@ void cut_teardown(void)
 	}
 }
 
-static void setupPostAction(void)
-{
-	bool recreate = true;
-	bool loadData = false;
-	setupTestDBAction(recreate, loadData);
-}
-
-static void setupActionDB(void)
-{
-	bool recreate = true;
-	bool loadData = true;
-	setupTestDBAction(recreate, loadData);
-}
-
 template<typename T>
 static void _assertActionCondition(
   JSONParserAgent *parser, const ActionCondition &cond,
@@ -113,7 +101,6 @@ cut_trace(_assertActionCondition<T>(PARSER, COND, MEMBER, BIT, EXPECT))
 static void _assertActions(const string &path, const string &callbackName = "",
 			   const ActionType actionType = ACTION_USER_DEFINED)
 {
-	setupUserDB();
 	startFaceRest();
 	RequestArg arg(path, callbackName);
 	arg.parameters["type"]
@@ -190,19 +177,15 @@ void data_actionsJSONP(void)
 
 void test_actionsJSONP(gconstpointer data)
 {
+	loadTestDBAction();
+
 	const ActionType actionType
 	  = static_cast<ActionType>(gcut_data_get_int(data, "type"));
-	bool recreate = true;
-	bool loadData = true;
-	setupTestDBAction(recreate, loadData);
 	assertActions("/action", "foo", actionType);
 }
 
 void test_addAction(void)
 {
-	setupPostAction();
-	setupUserDB();
-
 	int type = ACTION_COMMAND;
 	const string command = "makan-kosappo";
 	StringMap params;
@@ -228,9 +211,6 @@ void test_addAction(void)
 
 void test_addActionParameterFull(void)
 {
-	setupPostAction();
-	setupUserDB();
-
 	const string command = "/usr/bin/pochi";
 	const string workingDir = "/usr/local/wani";
 	int type = ACTION_COMMAND;
@@ -281,9 +261,6 @@ void test_addActionParameterFull(void)
 
 void test_addActionParameterOver32bit(void)
 {
-	setupUserDB();
-	setupPostAction();
-
 	const string command = "/usr/bin/pochi";
 	uint64_t hostId = 0x89abcdef01234567;
 	uint64_t hostgroupId = 0xabcdef0123456789;
@@ -310,9 +287,6 @@ void test_addActionParameterOver32bit(void)
 
 void test_addActionComplicatedCommand(void)
 {
-	setupPostAction();
-	setupUserDB();
-
 	const string command =
 	   "/usr/bin/@hoge -l '?ABC+{[=:;|.,#*`!$%\\~]}FOX-' --X '$^' --name \"@'v'@\"'";
 	StringMap params;
@@ -329,8 +303,6 @@ void test_addActionComplicatedCommand(void)
 
 void test_addActionCommandWithJapanese(void)
 {
-	setupPostAction();
-	setupUserDB();
 	changeLocale("en.UTF-8");
 
 	const string command = COMMAND_EX_JP;
@@ -348,7 +320,6 @@ void test_addActionCommandWithJapanese(void)
 
 void test_addActionWithoutType(void)
 {
-	setupUserDB();
 	StringMap params;
 	assertAddAction(params, findUserWith(OPPRVLG_CREATE_ACTION),
 	                HTERR_NOT_FOUND_PARAMETER);
@@ -356,7 +327,6 @@ void test_addActionWithoutType(void)
 
 void test_addActionWithoutCommand(void)
 {
-	setupUserDB();
 	StringMap params;
 	params["type"] = StringUtils::sprintf("%d", ACTION_COMMAND);
 	assertAddAction(params, findUserWith(OPPRVLG_CREATE_ACTION),
@@ -365,7 +335,6 @@ void test_addActionWithoutCommand(void)
 
 void test_addActionInvalidType(void)
 {
-	setupUserDB();
 	StringMap params;
 	params["type"] = StringUtils::sprintf("%d", NUM_ACTION_TYPES);
 	assertAddAction(params, findUserWith(OPPRVLG_CREATE_ACTION),
@@ -374,9 +343,9 @@ void test_addActionInvalidType(void)
 
 void test_deleteAction(void)
 {
+	loadTestDBAction();
+
 	startFaceRest();
-	setupUserDB();
-	setupActionDB(); // make a test action DB.
 
 	int targetId = 2;
 	string url = StringUtils::sprintf("/action/%d", targetId);

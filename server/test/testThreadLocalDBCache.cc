@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -24,6 +24,7 @@
 #include "ThreadLocalDBCache.h"
 #include "HatoholThreadBase.h"
 #include "Helpers.h"
+#include "DBTablesTest.h"
 using namespace std;
 using namespace mlpl;
 
@@ -108,23 +109,10 @@ static void _assertType(DBClient *dbClient)
 
 static vector<TestCacheServiceThread *> g_threads;
 
-// This is temporary. We will make the same function in DBTablesTest. Then this
-// will be removed.
-static void setupTestDBHatohol(void)
-{
-	static const char *TEST_DB_NAME = "test_db_hatohol";
-	DBHatohol::setDefaultDBParams(TEST_DB_NAME,
-	                              TEST_DB_USER, TEST_DB_PASSWORD);
-	const bool dbRecreate = true;
-	makeTestMySQLDBIfNeeded(TEST_DB_NAME, dbRecreate);
-	setupTestDBConfig();
-}
-
 void cut_setup(void)
 {
 	hatoholInit();
-	setupTestDBUser(); // TODO: remove after setTestDBHatohol() implements the setup for DBTablesUser
-	setupTestDBHatohol();
+	setupTestDB();
 }
 
 void cut_teardown(void)

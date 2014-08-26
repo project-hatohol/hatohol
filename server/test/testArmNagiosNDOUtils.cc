@@ -21,6 +21,7 @@
 #include "Hatohol.h"
 #include "ArmNagiosNDOUtils.h"
 #include "Helpers.h"
+#include "DBTablesTest.h"
 using namespace std;
 
 namespace testArmNagiosNDOUtils {
@@ -83,7 +84,7 @@ static void createGlobalInstance(void)
 void cut_setup(void)
 {
 	hatoholInit();
-	setupTestDBAction();
+	setupTestDB();
 }
 
 void cut_teardown(void)

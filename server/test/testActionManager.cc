@@ -33,7 +33,7 @@
 #include "ResidentCommunicator.h"
 #include "NamedPipe.h"
 #include "residentTest.h"
-#include "DBClientTest.h"
+#include "DBTablesTest.h"
 #include "ConfigManager.h"
 #include "SessionManager.h"
 #include "IncidentSenderManager.h"
@@ -842,24 +842,25 @@ static void clearEnvString(const string &envName, string &str)
 		return;
 
 	const int overwrite = 1;
+	errno = 0;
 	setenv(envName.c_str(), str.c_str(), overwrite);
 	cut_assert_errno();
 	str.clear();
 }
 
-void setup(void)
+void cut_setup(void)
 {
 	hatoholInit();
+	setupTestDB();
 	acquireDefaultContext();
 	ConfigManager::getInstance()->setActionCommandDirectory(get_current_dir_name());
 
 	string residentYardDir = get_current_dir_name();
 	residentYardDir += "/../src/.libs";
 	ConfigManager::getInstance()->setResidentYardDirectory(residentYardDir);
-	setupTestDBAction();
 }
 
-void teardown(void)
+void cut_teardown(void)
 {
 	delete g_execCommandCtx;
 	g_execCommandCtx = NULL;
@@ -888,11 +889,9 @@ void test_setupPathForAction(void)
 {
 	// backup the original environemnt variables
 	char *env = getenv(ActionManager::ENV_NAME_PATH_FOR_ACTION);
-	cut_assert_errno();
 	if (env)
 		g_pathForAction = env;
 	env = getenv(ActionManager::ENV_NAME_LD_LIBRARY_PATH_FOR_ACTION);
-	cut_assert_errno();
 	if (env)
 		g_ldLibraryPathForAction = env;
 
@@ -901,6 +900,7 @@ void test_setupPathForAction(void)
 	const string testPath = "/usr/bin:/bin:/usr/sbin:/bin:/opt/bin";
 	const string testLdLibPath = "/usr/lib:/lib:/opt/lib";
 
+	errno = 0;
 	setenv(ActionManager::ENV_NAME_PATH_FOR_ACTION,
 	       testPath.c_str(), overwrite);
 	cut_assert_errno();
@@ -1322,8 +1322,8 @@ static void _assertRunAction(
  const HatoholErrorCode expectedErrorCode, const ActionDef &actDef,
  const EventInfo &eventInfo)
 {
-	setupTestDBUser(true, true);
-	setupTestDBConfig(true, true);
+	loadTestDBTablesConfig();
+	loadTestDBTablesUser();
 
 	ThreadLocalDBCache cache;
 	DBTablesAction &dbAction = cache.getAction();
@@ -1374,9 +1374,8 @@ void test_runIncidentSenderActionWithNonExistingUser(void)
 void test_checkEventsWithMultipleIncidentSender(void)
 {
 	// prepare two incident sender actions
-	setupTestDBConfig(true, true);
-	setupTestDBUser();
-	setupTestDBAction();
+	loadTestDBTablesConfig();
+
 	ActionDef actDef = {
 	  0,                      // id (this field is ignored)
 	  ActionCondition(

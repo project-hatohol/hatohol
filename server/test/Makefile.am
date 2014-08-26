@@ -96,11 +96,11 @@ libTest_la_SOURCES = \
 	DataSamples.cc DataSamples.h \
 	DBTest.cc DBTest.h \
 	FaceRestTestUtils.cc FaceRestTestUtils.h \
-	Helpers.cc DBAgentTest.cc DBClientTest.cc \
+	Helpers.cc DBAgentTest.cc DBTablesTest.cc \
 	ZabbixAPITestUtils.cc ZabbixAPITestUtils.h \
 	HttpServerStub.cc ZabbixAPIEmulator.cc RedmineAPIEmulator.cc \
 	Synchronizer.cc \
-	Helpers.h DBAgentTest.h DBClientTest.h \
+	Helpers.h DBAgentTest.h DBTablesTest.h \
 	HttpServerStub.h ZabbixAPIEmulator.h RedmineAPIEmulator.h \
 	Synchronizer.h \
 	ExceptionTestUtils.h AssertJoin.h \

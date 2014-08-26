@@ -22,7 +22,7 @@
 #include "FaceRest.h"
 #include "Helpers.h"
 #include "JSONParserAgent.h"
-#include "DBClientTest.h"
+#include "DBTablesTest.h"
 #include "MultiLangTest.h"
 #include "ThreadLocalDBCache.h"
 #include "FaceRestTestUtils.h"
@@ -36,10 +36,8 @@ static JSONParserAgent *g_parser = NULL;
 void cut_setup(void)
 {
 	hatoholInit();
-
-	const bool dbRecreate = true;
-	const bool loadTestDat = true;
-	setupTestDBUser(dbRecreate, loadTestDat);
+	setupTestDB();
+	loadTestDBTablesUser();
 }
 
 void cut_teardown(void)

@@ -26,7 +26,7 @@
 #include <SimpleSemaphore.h>
 #include "HatoholArmPluginGate.h"
 #include "HatoholArmPluginInterfaceTest.h"
-#include "DBClientTest.h"
+#include "DBTablesTest.h"
 
 struct HapgTestCtx {
 	// Set by test cases if needed

@@ -22,12 +22,45 @@
 #include <cutter.h>
 #include "Helpers.h"
 #include "DBTablesUser.h"
-#include "DBClientTest.h"
+#include "DBTablesTest.h"
 #include "Helpers.h"
 #include "Hatohol.h"
 #include "ThreadLocalDBCache.h"
 using namespace std;
 using namespace mlpl;
+
+template <class T> static void _assertQueryOptionFromDataQueryContext(void)
+{
+	DataQueryContextPtr dqCtxPtr =
+	  DataQueryContextPtr(new DataQueryContext(USER_ID_SYSTEM), false);
+	cppcut_assert_equal(1, dqCtxPtr->getUsedCount());
+	{
+		T option(dqCtxPtr);
+		cppcut_assert_equal((DataQueryContext *)dqCtxPtr,
+		                    &option.getDataQueryContext());
+		cppcut_assert_equal(2, dqCtxPtr->getUsedCount());
+	}
+	cppcut_assert_equal(1, dqCtxPtr->getUsedCount());
+}
+#define assertQueryOptionFromDataQueryContext(T) \
+cut_trace(_assertQueryOptionFromDataQueryContext<T>())
+
+static const UserInfo findFirstTestUserInfoByFlag(
+  const OperationPrivilegeFlag flags)
+{
+	UserInfo retUserInfo;
+	for (size_t i = 0; i < NumTestUserInfo; i++) {
+		const UserInfo &userInfo = testUserInfo[i];
+		if (userInfo.flags == flags) {
+			retUserInfo = userInfo;
+			retUserInfo.id = i + 1;
+			return retUserInfo;
+		}
+	}
+	cut_fail("Failed to find the user with flags: %" FMT_OPPRVLG, flags);
+	return retUserInfo;
+}
+
 
 namespace testDBTablesUser {
 
@@ -152,27 +185,10 @@ static void _assertServerHostGrpSetMap(
 #define assertServerHostGrpSetMap(E,A) \
 cut_trace(_assertServerHostGrpSetMap(E,A))
 
-static const UserInfo findFirstTestUserInfoByFlag(
-  const OperationPrivilegeFlag flags)
-{
-	UserInfo retUserInfo;
-	for (size_t i = 0; i < NumTestUserInfo; i++) {
-		const UserInfo &userInfo = testUserInfo[i];
-		if (userInfo.flags == flags) {
-			retUserInfo = userInfo;
-			retUserInfo.id = i + 1;
-			return retUserInfo;
-		}
-	}
-	cut_fail("Failed to find the user with flags: %" FMT_OPPRVLG, flags);
-	return retUserInfo;
-}
-
 static void _assertGetUserInfo(const OperationPrivilegeFlag flags,
                                const size_t expectedNumUser,
                                const bool expectAllUsers)
 {
-	loadTestDBUser();
 	UserInfoList userInfoList;
 	UserQueryOption option;
 	const UserInfo userInfo = findFirstTestUserInfoByFlag(flags);
@@ -197,8 +213,6 @@ void _assertGetUserInfoListWithTargetName(
   const OperationPrivilegeFlag callerFlags,
   const size_t expectNumList, const bool searchMySelf = true)
 {
-	loadTestDBUser();
-
 	// search the user who has all privileges.
 	size_t index = 1;
 	for (; index < NumTestUserInfo; index++) {
@@ -227,8 +241,8 @@ cut_trace(_assertGetUserInfoListWithTargetName(F,N, ##__VA_ARGS__))
 
 void _assertIsAccessible(const bool useAllServers = false)
 {
-	loadTestDBUser();
 	loadTestDBAccessList();
+
 	ThreadLocalDBCache cache;
 	DBTablesUser &dbUser = cache.getUser();
 
@@ -264,43 +278,8 @@ void _assertIsAccessible(const bool useAllServers = false)
 }
 #define assertIsAccessible(...) cut_trace(_assertIsAccessible(__VA_ARGS__))
 
-static void _assertGetUserRoleInfo(
-  const OperationPrivilegeFlag flags,
-  UserRoleIdType targetUserRoleId = INVALID_USER_ROLE_ID)
-{
-	loadTestDBUser();
-	loadTestDBUserRole();
-	UserRoleInfoList userRoleInfoList;
-	UserRoleQueryOption option;
-	const UserInfo userInfo = findFirstTestUserInfoByFlag(flags);
-	option.setUserId(userInfo.id);
-	if (targetUserRoleId != INVALID_USER_ROLE_ID)
-		option.setTargetUserRoleId(targetUserRoleId);
-	DECLARE_DBTABLES_USER(dbUser);
-	dbUser.getUserRoleInfoList(userRoleInfoList, option);
-	string expected, actual;
-	for (size_t i = 0; i < NumTestUserRoleInfo; i++) {
-		UserRoleInfo &userRoleInfo = testUserRoleInfo[i];
-		userRoleInfo.id = i + 1;
-		if (targetUserRoleId == INVALID_USER_ROLE_ID ||
-		    userRoleInfo.id == targetUserRoleId)
-		{
-			expected += makeUserRoleInfoOutput(userRoleInfo);
-		}
-	}
-	UserRoleInfoListIterator it = userRoleInfoList.begin();
-	for (; it != userRoleInfoList.end(); ++it) {
-		UserRoleInfo &userRoleInfo = *it;
-		actual += makeUserRoleInfoOutput(userRoleInfo);
-	}
-	cppcut_assert_equal(expected, actual);
-}
-#define assertGetUserRoleInfo(F, ...) \
-  cut_trace(_assertGetUserRoleInfo(F, ##__VA_ARGS__))
-
 static UserInfo setupForUpdate(size_t targetIndex = 1)
 {
-	loadTestDBUser();
 	UserInfo userInfo = testUserInfo[targetIndex];
 	userInfo.id = targetIndex + 1;
 	userInfo.password = ">=_=<3";
@@ -308,43 +287,18 @@ static UserInfo setupForUpdate(size_t targetIndex = 1)
 	return userInfo;
 }
 
-static UserRoleInfo setupUserRoleInfoForUpdate(size_t targetIndex = 1)
-{
-	loadTestDBUserRole();
-	UserRoleInfo userRoleInfo = testUserRoleInfo[targetIndex];
-	userRoleInfo.id = targetIndex + 1;
-	userRoleInfo.name = ">=_=<3";
-	userRoleInfo.flags =
-	  OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_SERVER);
-	return userRoleInfo;
-}
-
 static void setupWithUserIdIndexMap(UserIdIndexMap &userIdIndexMap)
 {
 	loadTestDBAccessList();
+
 	makeTestUserIdIndexMap(userIdIndexMap);
 }
-
-template <class T> static void _assertQueryOptionFromDataQueryContext(void)
-{
-	DataQueryContextPtr dqCtxPtr =
-	  DataQueryContextPtr(new DataQueryContext(USER_ID_SYSTEM), false);
-	cppcut_assert_equal(1, dqCtxPtr->getUsedCount());
-	{
-		T option(dqCtxPtr);
-		cppcut_assert_equal((DataQueryContext *)dqCtxPtr,
-		                    &option.getDataQueryContext());
-		cppcut_assert_equal(2, dqCtxPtr->getUsedCount());
-	}
-	cppcut_assert_equal(1, dqCtxPtr->getUsedCount());
-}
-#define assertQueryOptionFromDataQueryContext(T) \
-cut_trace(_assertQueryOptionFromDataQueryContext<T>())
 
 void cut_setup(void)
 {
 	hatoholInit();
-	setupTestDBUser();
+	setupTestDB();
+	loadTestDBUser();
 }
 
 void cut_teardown(void)
@@ -377,14 +331,12 @@ void test_createDB(void)
 
 void test_addUser(void)
 {
-	loadTestDBUser();
 	DECLARE_DBTABLES_USER(dbUser);
 	assertUsersInDB();
 }
 
 void test_addUserDuplicate(void)
 {
-	loadTestDBUser();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	DECLARE_DBTABLES_USER(dbUser);
 	UserInfo &userInfo = testUserInfo[1];
@@ -395,7 +347,6 @@ void test_addUserDuplicate(void)
 
 void test_addUserWithLongName(void)
 {
-	loadTestDBUser();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	DECLARE_DBTABLES_USER(dbUser);
 	const size_t limitLength = DBTablesUser::MAX_USER_NAME_LENGTH;
@@ -409,7 +360,6 @@ void test_addUserWithLongName(void)
 
 void test_addUserWithInvalidFlags(void)
 {
-	loadTestDBUser();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	DECLARE_DBTABLES_USER(dbUser);
 	UserInfo userInfo = testUserInfo[1];
@@ -422,7 +372,6 @@ void test_addUserWithInvalidFlags(void)
 
 void test_addUserWithoutPrivilege(void)
 {
-	loadTestDBUser();
 	OperationPrivilegeFlag flags = ALL_PRIVILEGES;
 	flags &= ~(1 << OPPRVLG_CREATE_USER);
 	OperationPrivilege privilege(flags);
@@ -449,7 +398,6 @@ void test_updateUser(void)
 
 void test_updateUserWithExistingUserName(void)
 {
-	loadTestDBUser();
 	size_t targetIdx = 1;
 	UserInfo userInfo = testUserInfo[targetIdx];
 	string expectedName = testUserInfo[targetIdx].name;
@@ -503,7 +451,6 @@ void test_updateUserWithoutPrivilege(void)
 
 void test_updateUserPasswordByOwner(void)
 {
-	loadTestDBUser();
 	DECLARE_DBTABLES_USER(dbUser);
 	const size_t targetIndex = 0;
 	const size_t targetUserId = targetIndex + 1;
@@ -522,7 +469,6 @@ void test_updateUserPasswordByOwner(void)
 
 void test_updateUserPasswordByNonOwner(void)
 {
-	loadTestDBUser();
 	DECLARE_DBTABLES_USER(dbUser);
 	const size_t targetIndex = 0;
 	const size_t targetUserId = targetIndex + 1;
@@ -552,7 +498,6 @@ void test_updateNonExistUser(void)
 
 void test_deleteUser(void)
 {
-	loadTestDBUser();
 	DECLARE_DBTABLES_USER(dbUser);
 	const UserIdType targetId = 2;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
@@ -567,7 +512,6 @@ void test_deleteUser(void)
 
 void test_deleteUserWithoutPrivilege(void)
 {
-	loadTestDBUser();
 	DECLARE_DBTABLES_USER(dbUser);
 	const UserIdType targetId = 2;
 	OperationPrivilege privilege;
@@ -580,7 +524,6 @@ void test_deleteUserWithoutPrivilege(void)
 
 void test_getUserId(void)
 {
-	loadTestDBUser();
 	const int targetIdx = 1;
 	DECLARE_DBTABLES_USER(dbUser);
 	UserIdType userId = dbUser.getUserId(testUserInfo[targetIdx].name,
@@ -590,7 +533,6 @@ void test_getUserId(void)
 
 void test_getUserIdWrongUserPassword(void)
 {
-	loadTestDBUser();
 	const int targetIdx = 1;
 	DECLARE_DBTABLES_USER(dbUser);
 	UserIdType userId = dbUser.getUserId(testUserInfo[targetIdx-1].name,
@@ -600,7 +542,6 @@ void test_getUserIdWrongUserPassword(void)
 
 void test_getUserIdWithSQLInjection(void)
 {
-	loadTestDBUser();
 	DECLARE_DBTABLES_USER(dbUser);
 	string name = "a' OR 1 OR name='a";
 	string password = testUserInfo[0].password;
@@ -608,18 +549,8 @@ void test_getUserIdWithSQLInjection(void)
 	cppcut_assert_equal(INVALID_USER_ID, userId);
 }
 
-void test_getUserIdFromEmptyDB(void)
-{
-	const int targetIdx = 1;
-	DECLARE_DBTABLES_USER(dbUser);
-	UserIdType userId = dbUser.getUserId(testUserInfo[targetIdx].name,
-	                                     testUserInfo[targetIdx].password);
-	cppcut_assert_equal(INVALID_USER_ID, userId);
-}
-
 void test_getUserIdWithEmptyUsername(void)
 {
-	loadTestDBUser();
 	DECLARE_DBTABLES_USER(dbUser);
 	UserIdType userId = dbUser.getUserId("", "foo");
 	cppcut_assert_equal(INVALID_USER_ID, userId);
@@ -627,7 +558,6 @@ void test_getUserIdWithEmptyUsername(void)
 
 void test_getUserIdWithEmptyPasword(void)
 {
-	loadTestDBUser();
 	DECLARE_DBTABLES_USER(dbUser);
 	UserIdType userId = dbUser.getUserId("fff", "");
 	cppcut_assert_equal(INVALID_USER_ID, userId);
@@ -636,6 +566,7 @@ void test_getUserIdWithEmptyPasword(void)
 void test_addAccessList(void)
 {
 	loadTestDBAccessList();
+
 	DECLARE_DBTABLES_USER(dbUser);
 	assertAccessInfoInDB();
 }
@@ -657,6 +588,7 @@ void test_addAccessListWithoutUpdateUserPrivilege(void)
 void test_deleteAccessInfo(void)
 {
 	loadTestDBAccessList();
+
 	DECLARE_DBTABLES_USER(dbUser);
 	const AccessInfoIdType targetId = 2;
 	OperationPrivilege privilege;
@@ -672,6 +604,7 @@ void test_deleteAccessInfo(void)
 void test_deleteAccessWithoutUpdateUserPrivilege(void)
 {
 	loadTestDBAccessList();
+
 	DECLARE_DBTABLES_USER(dbUser);
 	const AccessInfoIdType targetId = 2;
 	OperationPrivilege privilege;
@@ -683,7 +616,6 @@ void test_deleteAccessWithoutUpdateUserPrivilege(void)
 
 void test_getUserInfo(void)
 {
-	loadTestDBUser();
 	DECLARE_DBTABLES_USER(dbUser);
 
 	const size_t targetIdx = 2;
@@ -697,7 +629,6 @@ void test_getUserInfo(void)
 
 void test_getUserInfoWithNonExistId(void)
 {
-	loadTestDBUser();
 	DECLARE_DBTABLES_USER(dbUser);
 	UserInfo userInfo;
 	UserIdType nonexistId = NumTestUserInfo + 5;
@@ -763,7 +694,6 @@ void test_getUserInfoListWithOtherNameWithoutPrivileges(void)
 
 void test_getUserInfoListOnlyMyself(void)
 {
-	loadTestDBUser();
 	DECLARE_DBTABLES_USER(dbUser);
 	UserQueryOption option;
 	option.queryOnlyMyself();
@@ -797,7 +727,6 @@ void test_getServerAccessInfoMapByOwner(void)
 {
 	DECLARE_DBTABLES_USER(dbUser);
 	UserIdIndexMap userIdIndexMap;
-	loadTestDBUser();
 	setupWithUserIdIndexMap(userIdIndexMap);
 	UserIdIndexMapIterator it = userIdIndexMap.begin();
 	for (; it != userIdIndexMap.end(); ++it) {
@@ -816,7 +745,6 @@ void test_getServerAccessInfoMapByNonOwner(void)
 {
 	DECLARE_DBTABLES_USER(dbUser);
 	UserIdIndexMap userIdIndexMap;
-	loadTestDBUser();
 	setupWithUserIdIndexMap(userIdIndexMap);
 	UserIdIndexMapIterator it = userIdIndexMap.begin();
 	for (; it != userIdIndexMap.end(); ++it) {
@@ -838,7 +766,6 @@ void test_getServerAccessInfoMapByAdminUser(void)
 {
 	DECLARE_DBTABLES_USER(dbUser);
 	UserIdIndexMap userIdIndexMap;
-	loadTestDBUser();
 	setupWithUserIdIndexMap(userIdIndexMap);
 	UserIdIndexMapIterator it = userIdIndexMap.begin();
 	for (; it != userIdIndexMap.end(); ++it) {
@@ -972,8 +899,8 @@ void test_isAccessibleAllServers(void)
 
 void test_isAccessibleFalse(void)
 {
-	loadTestDBUser();
 	loadTestDBAccessList();
+
 	ThreadLocalDBCache cache;
 	DBTablesUser &dbUser = cache.getUser();
 
@@ -1003,6 +930,80 @@ void test_constructorOfAccessInfoQueryOptionFromDataQueryContext(void)
 	assertQueryOptionFromDataQueryContext(AccessInfoQueryOption);
 }
 
+} // namespace testDBTablesUser
+
+namespace testDBTablesUserWithoutLoadingUsers {
+
+void cut_setup(void)
+{
+	hatoholInit();
+	setupTestDB();
+}
+
+void test_getUserIdFromEmptyDB(void)
+{
+	const int targetIdx = 1;
+	DECLARE_DBTABLES_USER(dbUser);
+	UserIdType userId = dbUser.getUserId(testUserInfo[targetIdx].name,
+	                                     testUserInfo[targetIdx].password);
+	cppcut_assert_equal(INVALID_USER_ID, userId);
+}
+
+} // namespace testDBTablesUserWithoutLoadingUsers
+
+namespace testDBTablesUserRole {
+
+static UserRoleInfo setupUserRoleInfoForUpdate(size_t targetIndex = 1)
+{
+	UserRoleInfo userRoleInfo = testUserRoleInfo[targetIndex];
+	userRoleInfo.id = targetIndex + 1;
+	userRoleInfo.name = ">=_=<3";
+	userRoleInfo.flags =
+	  OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_SERVER);
+	return userRoleInfo;
+}
+
+static void _assertGetUserRoleInfo(
+  const OperationPrivilegeFlag flags,
+  UserRoleIdType targetUserRoleId = INVALID_USER_ROLE_ID)
+{
+	UserRoleInfoList userRoleInfoList;
+	UserRoleQueryOption option;
+	const UserInfo userInfo = findFirstTestUserInfoByFlag(flags);
+	option.setUserId(userInfo.id);
+	if (targetUserRoleId != INVALID_USER_ROLE_ID)
+		option.setTargetUserRoleId(targetUserRoleId);
+	DECLARE_DBTABLES_USER(dbUser);
+	dbUser.getUserRoleInfoList(userRoleInfoList, option);
+	string expected, actual;
+	for (size_t i = 0; i < NumTestUserRoleInfo; i++) {
+		UserRoleInfo &userRoleInfo = testUserRoleInfo[i];
+		userRoleInfo.id = i + 1;
+		if (targetUserRoleId == INVALID_USER_ROLE_ID ||
+		    userRoleInfo.id == targetUserRoleId)
+		{
+			expected += makeUserRoleInfoOutput(userRoleInfo);
+		}
+	}
+	UserRoleInfoListIterator it = userRoleInfoList.begin();
+	for (; it != userRoleInfoList.end(); ++it) {
+		UserRoleInfo &userRoleInfo = *it;
+		actual += makeUserRoleInfoOutput(userRoleInfo);
+	}
+	cppcut_assert_equal(expected, actual);
+}
+#define assertGetUserRoleInfo(F, ...) \
+  cut_trace(_assertGetUserRoleInfo(F, ##__VA_ARGS__))
+
+
+void cut_setup(void)
+{
+	hatoholInit();
+	setupTestDB();
+	loadTestDBUser();
+	loadTestDBUserRole();
+}
+
 void test_constructorOfUserRoleQueryOptionFromDataQueryContext(void)
 {
 	assertQueryOptionFromDataQueryContext(UserRoleQueryOption);
@@ -1010,14 +1011,12 @@ void test_constructorOfUserRoleQueryOptionFromDataQueryContext(void)
 
 void test_addUserRole(void)
 {
-	loadTestDBUserRole();
 	DECLARE_DBTABLES_USER(dbUser);
 	assertUserRolesInDB();
 }
 
 void test_addUserRoleWithDuplicatedName(void)
 {
-	loadTestDBUserRole();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	DECLARE_DBTABLES_USER(dbUser);
 	UserRoleInfo userRoleInfo = testUserRoleInfo[1];
@@ -1030,7 +1029,6 @@ void test_addUserRoleWithDuplicatedName(void)
 
 void test_addUserRoleWithDuplicatedFlags(void)
 {
-	loadTestDBUserRole();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	DECLARE_DBTABLES_USER(dbUser);
 	UserRoleInfo userRoleInfo = testUserRoleInfo[1];
@@ -1042,7 +1040,6 @@ void test_addUserRoleWithDuplicatedFlags(void)
 
 void test_addUserRoleWithAllPrivilegeFlags(void)
 {
-	loadTestDBUserRole();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	DECLARE_DBTABLES_USER(dbUser);
 	UserRoleInfo userRoleInfo = testUserRoleInfo[1];
@@ -1055,7 +1052,6 @@ void test_addUserRoleWithAllPrivilegeFlags(void)
 
 void test_addUserRoleWithNonePrivilegeFlags(void)
 {
-	loadTestDBUserRole();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	DECLARE_DBTABLES_USER(dbUser);
 	UserRoleInfo userRoleInfo = testUserRoleInfo[1];
@@ -1068,7 +1064,6 @@ void test_addUserRoleWithNonePrivilegeFlags(void)
 
 void test_addUserRoleWithLongName(void)
 {
-	loadTestDBUserRole();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	DECLARE_DBTABLES_USER(dbUser);
 	const size_t limitLength = DBTablesUser::MAX_USER_ROLE_NAME_LENGTH;
@@ -1082,7 +1077,6 @@ void test_addUserRoleWithLongName(void)
 
 void test_addUserRoleWithInvalidFlags(void)
 {
-	loadTestDBUserRole();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	DECLARE_DBTABLES_USER(dbUser);
 	UserRoleInfo userRoleInfo;
@@ -1096,7 +1090,6 @@ void test_addUserRoleWithInvalidFlags(void)
 
 void test_addUserRoleWithEmptyUserName(void)
 {
-	loadTestDBUserRole();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	DECLARE_DBTABLES_USER(dbUser);
 	UserRoleInfo userRoleInfo;
@@ -1109,7 +1102,6 @@ void test_addUserRoleWithEmptyUserName(void)
 
 void test_addUserRoleWithoutPrivilege(void)
 {
-	loadTestDBUserRole();
 	OperationPrivilegeFlag flags = ALL_PRIVILEGES;
 	flags &= ~(1 << OPPRVLG_CREATE_USER_ROLE);
 	OperationPrivilege privilege(flags);
@@ -1265,7 +1257,6 @@ void test_updateUserRoleWithInvalidFlags(void)
 
 void test_deleteUserRole(void)
 {
-	loadTestDBUserRole();
 	DECLARE_DBTABLES_USER(dbUser);
 	const UserRoleIdType targetId = 2;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
@@ -1279,7 +1270,6 @@ void test_deleteUserRole(void)
 
 void test_deleteUserRoleWithoutPrivilege(void)
 {
-	loadTestDBUserRole();
 	DECLARE_DBTABLES_USER(dbUser);
 	const UserRoleIdType targetId = 2;
 	OperationPrivilege privilege;
@@ -1289,4 +1279,4 @@ void test_deleteUserRoleWithoutPrivilege(void)
 	assertUserRolesInDB();
 }
 
-} // namespace testDBTablesUser
+} // namespace testDBTablesUserRole

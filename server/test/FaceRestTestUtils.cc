@@ -23,7 +23,7 @@
 #include "FaceRest.h"
 #include "Helpers.h"
 #include "JSONParserAgent.h"
-#include "DBClientTest.h"
+#include "DBTablesTest.h"
 #include "Params.h"
 #include "SessionManager.h"
 #include "FaceRestTestUtils.h"
@@ -38,6 +38,7 @@ static StringMap    emptyStringMap;
 static StringVector emptyStringVector;
 static FaceRest *g_faceRest = NULL;
 
+// TODO: remove
 void setupUserDB(void)
 {
 	const bool dbRecreate = true;

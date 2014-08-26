@@ -24,7 +24,7 @@
 #include "Params.h"
 #include "DBTablesUser.h"
 #include "DBTablesAction.h"
-#include "DBClientTest.h"
+#include "DBTablesTest.h"
 #include "Helpers.h"
 #include "ThreadLocalDBCache.h"
 using namespace std;
@@ -226,45 +226,12 @@ void _assertGetActionList(
 #define assertGetActionList(U, ...) \
 cut_trace(_assertGetActionList(U, ##__VA_ARGS__))
 
-static bool g_existTestDB = false;
-static void setupHelperForTestDBUser(void)
-{
-	const bool dbRecreate = true;
-	const bool loadTestData = true;
-	setupTestDBUser(dbRecreate, loadTestData);
-	g_existTestDB = true;
-}
-
-static void setupTestTriggerInfo(void)
-{
-	ThreadLocalDBCache cache;
-	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	for (size_t i = 0; i < NumTestTriggerInfo; i++)
-		dbMonitoring.addTriggerInfo(&testTriggerInfo[i]);
-}
-
-static void setupTestHostgroupElement(void)
-{
-	ThreadLocalDBCache cache;
-	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	for (size_t i = 0; i < NumTestHostgroupElement; i++)
-		dbMonitoring.addHostgroupElement(&testHostgroupElement[i]);
-}
-
-void test_addAction(void);
-
-static void setupTestDBUserAndDBAction(void)
-{
-	setupHelperForTestDBUser();
-	test_addAction(); // add all test actions
-}
-
 static void _assertDeleteActions(const bool &deleteMyActions,
                                  const OperationPrivilegeType &type)
 {
-	setupTestDBUserAndDBAction();
-	DECLARE_DBTABLES_ACTION(dbAction);
+	loadTestDBAction();
 
+	DECLARE_DBTABLES_ACTION(dbAction);
 	const UserIdType userId = findUserWith(type);
 	string expect;
 	ActionIdList idList;
@@ -321,19 +288,9 @@ static void assertActionIdsInDB(ActionIdList excludeIdList)
 void cut_setup(void)
 {
 	hatoholInit();
-	deleteDBClientHatoholDB();
-	setupTestDBConfig(true, true);
-	setupTestDBAction();
-}
-
-void cut_teardown(void)
-{
-	if (g_existTestDB) {
-		const bool dbRecreate = true;
-		const bool loadTestData = false;
-		setupTestDBUser(dbRecreate, loadTestData);
-		g_existTestDB = false;
-	}
+	setupTestDB();
+	loadTestDBTablesConfig();
+	loadTestDBTablesUser();
 }
 
 // ---------------------------------------------------------------------------
@@ -348,9 +305,6 @@ void test_dbDomainId(void)
 
 void test_addAction(void)
 {
-	setupTestTriggerInfo();
-	setupTestHostgroupElement();
-
 	DECLARE_DBTABLES_ACTION(dbAction);
 	string expect;
 	OperationPrivilege privilege(USER_ID_SYSTEM);
@@ -380,8 +334,6 @@ void test_addActionByInvalidUser(void)
 
 void test_addActionAndCheckOwner(void)
 {
-	setupHelperForTestDBUser();
-
 	const UserIdType userId = findUserWith(OPPRVLG_CREATE_ACTION);
 	DECLARE_DBTABLES_ACTION(dbAction);
 	OperationPrivilege privilege(userId);
@@ -399,8 +351,6 @@ void test_addActionAndCheckOwner(void)
 
 void test_addActionWithoutPrivilege(void)
 {
-	setupHelperForTestDBUser();
-
 	const UserIdType userId = findUserWithout(OPPRVLG_CREATE_ACTION);
 	DECLARE_DBTABLES_ACTION(dbAction);
 	OperationPrivilege privilege(userId);
@@ -420,8 +370,6 @@ static int findTestActionIdxByType(ActionType type)
 
 void test_addIncidentSenderActionByIncidentSettingsAdmin(void)
 {
-	setupHelperForTestDBUser();
-
 	const OperationPrivilegeFlag excludeFlags
 	  = OperationPrivilege::makeFlag(OPPRVLG_CREATE_ACTION);
 	const UserIdType userId
@@ -446,8 +394,6 @@ void test_addIncidentSenderActionByIncidentSettingsAdmin(void)
 
 void test_addIncidentSenderActionWithoutPrivilege(void)
 {
-	setupHelperForTestDBUser();
-
 	const OperationPrivilegeFlag excludeFlags
 	  = OperationPrivilege::makeFlag(OPPRVLG_CREATE_INCIDENT_SETTING);
 	const UserIdType userId
@@ -461,9 +407,9 @@ void test_addIncidentSenderActionWithoutPrivilege(void)
 
 void test_deleteAction(void)
 {
-	setupTestDBUserAndDBAction();
-	DECLARE_DBTABLES_ACTION(dbAction);
+	loadTestDBAction();
 
+	DECLARE_DBTABLES_ACTION(dbAction);
 	const UserIdType userId = findUserWith(OPPRVLG_DELETE_ACTION);
 	const size_t targetIdx = findIndexFromTestActionDef(userId);
 	ActionIdList idList;
@@ -476,9 +422,9 @@ void test_deleteAction(void)
 
 void test_deleteActionWithoutPrivilege(void)
 {
-	setupTestDBUserAndDBAction();
-	DECLARE_DBTABLES_ACTION(dbAction);
+	loadTestDBAction();
 
+	DECLARE_DBTABLES_ACTION(dbAction);
 	const UserIdType userId = findUserWithout(OPPRVLG_DELETE_ACTION);
 	const size_t targetIdx = findIndexFromTestActionDef(userId);
 	ActionIdList idList;
@@ -512,7 +458,7 @@ void test_deleteActionOfOthers(void)
 
 void test_deleteNoOwnerAction(void)
 {
-	setupTestDBUserAndDBAction();
+	loadTestDBAction();
 
 	const UserIdType targetId = 2;
 	ActionIdList excludeIdList;
@@ -536,7 +482,7 @@ void test_deleteNoOwnerAction(void)
 
 void test_deleteNoIncidentTrackerAction(void)
 {
-	setupTestDBUserAndDBAction();
+	loadTestDBAction();
 
 	const IncidentTrackerIdType targetId = 2;
 	ActionIdList excludeIdList;
@@ -565,9 +511,9 @@ void test_deleteNoIncidentTrackerAction(void)
 
 void test_deleteActionOfOthersWithoutPrivilege(void)
 {
-	setupTestDBUserAndDBAction();
-	DECLARE_DBTABLES_ACTION(dbAction);
+	loadTestDBAction();
 
+	DECLARE_DBTABLES_ACTION(dbAction);
 	const OperationPrivilegeFlag excludeFlags
 	  = OperationPrivilege::makeFlag(OPPRVLG_DELETE_ALL_ACTION);
 	const UserIdType userId =
@@ -588,9 +534,9 @@ void test_deleteActionOfOthersWithoutPrivilege(void)
 
 void test_deleteIncidentSenderActionByIncidentSettingsAdmin(void)
 {
-	setupTestDBUserAndDBAction();
-	DECLARE_DBTABLES_ACTION(dbAction);
+	loadTestDBAction();
 
+	DECLARE_DBTABLES_ACTION(dbAction);
 	const OperationPrivilegeFlag excludeFlags
 	  = OperationPrivilege::makeFlag(OPPRVLG_DELETE_ACTION);
 	const UserIdType userId
@@ -607,9 +553,9 @@ void test_deleteIncidentSenderActionByIncidentSettingsAdmin(void)
 
 void test_deleteIncidentSenderActionWithoutPrivilege(void)
 {
-	setupTestDBUserAndDBAction();
-	DECLARE_DBTABLES_ACTION(dbAction);
+	loadTestDBAction();
 
+	DECLARE_DBTABLES_ACTION(dbAction);
 	const OperationPrivilegeFlag excludeFlags
 	  = OperationPrivilege::makeFlag(OPPRVLG_DELETE_INCIDENT_SETTING);
 	const UserIdType userId
@@ -708,8 +654,7 @@ void test_endExecAction(void)
 
 void test_getTriggerActionList(void)
 {
-	setupHelperForTestDBUser();
-	test_addAction(); // save test data into DB.
+	loadTestDBAction();
 
 	// make an EventInfo instance for the test
 	int idxTarget = 1;
@@ -746,8 +691,8 @@ void test_getTriggerActionList(void)
 
 void test_getTriggerActionListWithAllCondition(void)
 {
-	setupHelperForTestDBUser();
-	test_addAction(); // save test data into DB.
+	loadTestDBAction();
+	loadTestDBHostgroupElements();
 
 	// make an EventInfo instance for the test
 	int idxTarget = 3;
@@ -783,9 +728,7 @@ void test_getTriggerActionListWithAllCondition(void)
 static void _assertGetActionWithSeverity(const TriggerSeverityType &severity,
 					 const int expectedActionIdx)
 {
-	setupHelperForTestDBUser();
-
-	test_addAction(); // save test data into DB.
+	loadTestDBAction();
 
 	// make an EventInfo instance for the test
 	EventInfo eventInfo;
@@ -884,14 +827,16 @@ void test_getActionWithGreaterSeverityAgainstCmpEq(void)
 
 void test_getActionListWithNormalUser(void)
 {
-	setupTestDBUserAndDBAction();
+	loadTestDBAction();
+
 	const UserIdType userId = findUserWithout(OPPRVLG_GET_ALL_ACTION);
 	assertGetActionList(userId);
 }
 
 void test_getActionListWithUserHavingGetAllFlag(void)
 {
-	setupTestDBUserAndDBAction();
+	loadTestDBAction();
+
 	const UserIdType userId = findUserWith(OPPRVLG_GET_ALL_ACTION);
 	assertGetActionList(userId);
 }
@@ -914,7 +859,8 @@ void data_getActionListWithActionType(void)
 
 void test_getActionListWithActionType(gconstpointer data)
 {
-	setupTestDBUserAndDBAction();
+	loadTestDBAction();
+
 	const UserIdType userId = findUserWith(OPPRVLG_GET_ALL_ACTION);
 	ActionType type = (ActionType)gcut_data_get_int(data, "type");
 	assertGetActionList(userId, type);
@@ -922,7 +868,7 @@ void test_getActionListWithActionType(gconstpointer data)
 
 void test_getActionListWithNoIncidentTracker(void)
 {
-	setupTestDBUserAndDBAction();
+	loadTestDBAction();
 
 	const IncidentTrackerIdType targetId = 2;
 	ActionIdSet excludeIdSet;
@@ -955,7 +901,8 @@ void data_getActionListByIncidentSettingsAdmin(void)
 
 void test_getActionListByIncidentSettingsAdmin(gconstpointer data)
 {
-	setupTestDBUserAndDBAction();
+	loadTestDBAction();
+
 	const OperationPrivilegeFlag excludeFlags
 	  = OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_ACTION);
 	const UserIdType userId
@@ -984,14 +931,14 @@ void test_parseInvalidIncidentSenderCommand(void)
 
 void test_incidentSenderIsEnabled(void)
 {
-	setupTestDBUserAndDBAction();
+	loadTestDBAction();
+
 	DECLARE_DBTABLES_ACTION(dbAction);
 	cppcut_assert_equal(true, dbAction.isIncidentSenderEnabled());
 }
 
 void test_incidentSenderIsNotEnabled(void)
 {
-	setupHelperForTestDBUser();
 	DECLARE_DBTABLES_ACTION(dbAction);
 	cppcut_assert_equal(false, dbAction.isIncidentSenderEnabled());
 }
@@ -1036,8 +983,8 @@ namespace testActionsQueryOption {
 void cut_setup(void)
 {
 	hatoholInit();
-	deleteDBClientHatoholDB();
-	setupTestDBConfig(true, true);
+	setupTestDB();
+	loadTestDBTablesConfig();
 }
 
 void test_withoutUser(void)
@@ -1058,7 +1005,8 @@ void test_withSystemUser(void)
 
 void test_withPrivilege(void)
 {
-	setupTestDBUser(true, true);
+	loadTestDBTablesUser();
+
 	UserIdType id = findUserWith(OPPRVLG_GET_ALL_ACTION);
 	ActionsQueryOption option(id);
 	cppcut_assert_equal(
@@ -1068,7 +1016,8 @@ void test_withPrivilege(void)
 
 void test_withoutPrivilege(void)
 {
-	setupTestDBUser(true, true);
+	loadTestDBTablesUser();
+
 	UserIdType id = findUserWithout(OPPRVLG_GET_ALL_ACTION);
 	ActionsQueryOption option(id);
 	string expected
@@ -1080,7 +1029,8 @@ void test_withoutPrivilege(void)
 
 void test_withEventInfo(void)
 {
-	setupTestDBUser(true, true);
+	loadTestDBTablesUser();
+
 	UserIdType id = findUserWithout(OPPRVLG_GET_ALL_ACTION);
 	EventInfo &event = testEventInfo[0];
 	ActionsQueryOption option(id);
@@ -1125,7 +1075,8 @@ void data_actionType(void)
 
 void test_actionType(gconstpointer data)
 {
-	setupTestDBUser(true, true);
+	loadTestDBTablesUser();
+
 	UserIdType id = findUserWith(OPPRVLG_GET_ALL_ACTION);
 	ActionsQueryOption option(id);
 	ActionType type = (ActionType)gcut_data_get_int(data, "type");

@@ -23,7 +23,7 @@
 #include <Mutex.h>
 #include <SimpleSemaphore.h>
 #include "HatoholArmPluginGate.h"
-#include "DBClientTest.h"
+#include "DBTablesTest.h"
 #include "Helpers.h"
 #include "Hatohol.h"
 #include "hapi-test-plugin.h"
@@ -41,9 +41,6 @@ static void _assertStartAndExit(HapgTestCtx &ctx)
 	if (ctx.checkMessage)
 		ctx.expectRcvMessage = testMessage;
 
-	setupTestDBConfig();
-	loadTestDBServer();
-	loadTestDBArmPlugin();
 	MonitoringServerInfo serverInfo;
 	initServerInfo(serverInfo);
 	serverInfo.type = ctx.monitoringSystemType;
@@ -80,6 +77,10 @@ static void _assertStartAndExit(HapgTestCtx &ctx)
 void cut_setup(void)
 {
 	hatoholInit();
+	setupTestDB();
+	loadTestDBTablesConfig();
+	loadTestDBServer();
+	loadTestDBArmPlugin();
 }
 
 // ---------------------------------------------------------------------------
@@ -87,7 +88,6 @@ void cut_setup(void)
 // ---------------------------------------------------------------------------
 void test_constructor(void)
 {
-	setupTestDBConfig();
 	MonitoringServerInfo serverInfo;
 	initServerInfo(serverInfo);
 	HatoholArmPluginGatePtr pluginGate(

@@ -21,16 +21,15 @@
 #include "Hatohol.h"
 #include "OperationPrivilege.h"
 #include "Helpers.h"
-#include "DBClientTest.h"
+#include "DBTablesTest.h"
 
 namespace testOperationPrivilege {
 
 static void initAndLoadTestUser(void)
 {
 	hatoholInit();
-	bool dbRecreate = true;
-	bool loadTestData = true;
-	setupTestDBUser(dbRecreate, loadTestData);
+	setupTestDB();
+	loadTestDBUser();
 }
 
 // ---------------------------------------------------------------------------

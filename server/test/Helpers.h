@@ -96,7 +96,6 @@ std::string executeCommand(const std::string &commandLine);
 std::string getFixturesDir(void);
 bool isVerboseMode(void);
 
-std::string deleteDBClientHatoholDB(void);
 std::string getDBPathForDBClientHatohol(void);
 
 std::string execSqlite3ForDBClientHatohol(const std::string &statement);
@@ -179,21 +178,6 @@ void _assertUserRolesInDB(const UserRoleIdSet &excludeUserRoleIdSet = EMPTY_USER
 #define assertUserRolesInDB(E) cut_trace(_assertUserRolesInDB(E))
 
 void makeTestMySQLDBIfNeeded(const std::string &dbName, bool recreate = false);
-void setupTestDBConfig(bool dbRecreate = true, bool loadTestDat = false);
-void setupTestDBAction(bool dbRecreate = true, bool loadTestDat = false);
-void setupTestDBUser(bool dbRecreate = true, bool loadTestDat = false);
-void setupTestDBHost(const bool &dbRecreate = true,
-                     const bool &loadTestData = false);
-void loadTestDBTriggers(void);
-void loadTestDBEvents(void);
-void loadTestDBIncidents(void);
-void loadTestDBIncidentTracker(void);
-void loadTestDBServer(void);
-void loadTestDBAction(void);
-void loadTestDBUser(void);
-void loadTestDBAccessList(void);
-void loadTestDBUserRole(void);
-void loadTestDBArmPlugin(void);
 std::string execSQL(DBAgent *agent, const std::string &statement,
                     bool showHeader = false);
 std::string joinStringVector(const mlpl::StringVector &strVect,

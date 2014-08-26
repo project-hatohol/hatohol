@@ -24,11 +24,9 @@
 #include "Hatohol.h"
 #include "DataQueryOption.h"
 #include "DBTablesUser.h"
-#include "DBClientTest.h"
+#include "DBTablesTest.h"
 #include "Helpers.h"
 using namespace std;;
-
-namespace testDataQueryOption {
 
 class TestQueryOption : public DataQueryOption {
 public:
@@ -105,6 +103,8 @@ public:
 
 };
 
+namespace testDataQueryOption {
+
 static void getTestSortOrderList(DataQueryOption::SortOrderList &sortOrderList)
 {
 	sortOrderList.push_back(DataQueryOption::SortOrder(
@@ -118,10 +118,6 @@ static void getTestSortOrderList(DataQueryOption::SortOrderList &sortOrderList)
 void cut_setup(void)
 {
 	hatoholInit();
-}
-
-void cut_teardown(void)
-{
 }
 
 // ---------------------------------------------------------------------------
@@ -183,17 +179,6 @@ void test_copyConstructor(void)
 	opt.setMaximumNumber(1234);
 	DataQueryOption copied(opt);
 	cppcut_assert_equal(true, opt == copied);
-}
-
-void test_setGetUserId(void)
-{
-	bool dbRecreate = true;
-	bool loadTestData = true;
-	setupTestDBUser(dbRecreate, loadTestData);
-	const UserIdType userId = testUserInfo[2].id;
-	TestQueryOption opt;
-	opt.setUserId(userId);
-	cppcut_assert_equal(userId, opt.getUserId());
 }
 
 void test_setGetMaximumNumber(void)
@@ -348,3 +333,22 @@ void test_setGetTableNameAlways(gconstpointer data)
 }
 
 } // namespace testDataQueryOption
+
+namespace testDataQueryOptionWithDB {
+
+void cut_setup(void)
+{
+	hatoholInit();
+	setupTestDB();
+	loadTestDBTablesUser();
+}
+
+void test_setGetUserId(void)
+{
+	const UserIdType userId = testUserInfo[2].id;
+	TestQueryOption opt;
+	opt.setUserId(userId);
+	cppcut_assert_equal(userId, opt.getUserId());
+}
+
+} // namespace testDataQueryOptionWithDB

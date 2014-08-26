@@ -2,7 +2,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include "Hatohol.h"
-#include "DBClientTest.h"
+#include "DBTablesTest.h"
 #include "DBAgentSQLite3.h"
 #include "DBTablesMonitoring.h"
 #include "ConfigManager.h"
