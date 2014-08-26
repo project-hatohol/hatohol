@@ -102,8 +102,7 @@ void _assertAddRecord(JSONParserAgent *parser,
                       const UserIdType &userId = INVALID_USER_ID,
                       const HatoholErrorCode &expectCode = HTERR_OK,
                       uint32_t expectedId = 1);
-void _assertUpdateRecord(JSONParserAgent *parser,
-                         const StringMap &params, const std::string &baseUrl,
+void _assertUpdateRecord(const StringMap &params, const std::string &baseUrl,
                          uint32_t targetId = 1,
                          const UserIdType &userId = INVALID_USER_ID,
                          const HatoholErrorCode &expectCode = HTERR_OK);

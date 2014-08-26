@@ -351,8 +351,7 @@ void _assertAddRecord(JSONParserAgent *parser,
 	assertValueInParser(parser, "id", expectedId);
 }
 
-void _assertUpdateRecord(JSONParserAgent *parser,
-                         const StringMap &params, const string &baseUrl,
+void _assertUpdateRecord(const StringMap &params, const string &baseUrl,
                          uint32_t targetId, const UserIdType &userId,
                          const HatoholErrorCode &expectCode)
 {
@@ -367,11 +366,11 @@ void _assertUpdateRecord(JSONParserAgent *parser,
 	arg.parameters = params;
 	arg.request = "PUT";
 	arg.userId = userId;
-	parser = getResponseAsJSONParser(arg);
-	assertErrorCode(parser, expectCode);
+	unique_ptr<JSONParserAgent> parserPtr(getResponseAsJSONParser(arg));
+	assertErrorCode(parserPtr.get(), expectCode);
 	if (expectCode != HTERR_OK)
 		return;
-	assertValueInParser(parser, "id", targetId);
+	assertValueInParser(parserPtr.get(), "id", targetId);
 }
 
 void assertServersIdNameHashInParser(JSONParserAgent *parser)
