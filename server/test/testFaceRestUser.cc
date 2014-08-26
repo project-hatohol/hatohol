@@ -298,7 +298,9 @@ static void _assertUserRoles(const string &path,
 #define assertUserRoles(P, U, ...) \
   cut_trace(_assertUserRoles(P, U, ##__VA_ARGS__))
 
-void _assertLogin(const string &user, const string &password)
+void _assertLogin(const string &user, const string &password,
+                  const HatoholErrorCode &expectCode = HTERR_OK,
+                  string *sessionId = NULL)
 {
 	setupTestDBUser(true, true);
 	startFaceRest();
@@ -310,15 +312,20 @@ void _assertLogin(const string &user, const string &password)
 	RequestArg arg("/login", "cbname");
 	arg.parameters = query;
 	g_parser = getResponseAsJSONParser(arg);
+	unique_ptr<JSONParserAgent> parserPtr(getResponseAsJSONParser(arg));
+	assertErrorCode(parserPtr.get(), expectCode);
+	if (sessionId) {
+		cppcut_assert_equal(true, parserPtr.get()->read("sessionId",
+		                                                *sessionId));
+	}
 }
-#define assertLogin(U,P) cut_trace(_assertLogin(U,P))
+#define assertLogin(U, P, ...) cut_trace(_assertLogin(U, P, ##__VA_ARGS__))
 
 void test_login(void)
 {
 	const int targetIdx = 1;
 	const UserInfo &userInfo = testUserInfo[targetIdx];
 	assertLogin(userInfo.name, userInfo.password);
-	assertErrorCode(g_parser);
 	string sessionId;
 	cppcut_assert_equal(true, g_parser->read("sessionId", sessionId));
 	cppcut_assert_equal(false, sessionId.empty());
@@ -333,26 +340,23 @@ void test_login(void)
 
 void test_loginFailure(void)
 {
-	assertLogin(testUserInfo[1].name, testUserInfo[0].password);
-	assertErrorCode(g_parser, HTERR_AUTH_FAILED);
+	assertLogin(testUserInfo[1].name, testUserInfo[0].password,
+	            HTERR_AUTH_FAILED);
 }
 
 void test_loginNoUserName(void)
 {
-	assertLogin("", testUserInfo[0].password);
-	assertErrorCode(g_parser, HTERR_AUTH_FAILED);
+	assertLogin("", testUserInfo[0].password, HTERR_AUTH_FAILED);
 }
 
 void test_loginNoPassword(void)
 {
-	assertLogin(testUserInfo[0].name, "");
-	assertErrorCode(g_parser, HTERR_AUTH_FAILED);
+	assertLogin(testUserInfo[0].name, "", HTERR_AUTH_FAILED);
 }
 
 void test_loginNoUserNameAndPassword(void)
 {
-	assertLogin("", "");
-	assertErrorCode(g_parser, HTERR_AUTH_FAILED);
+	assertLogin("", "", HTERR_AUTH_FAILED);
 }
 
 void test_logout(void)
@@ -383,12 +387,8 @@ void test_getUser(void)
 void test_getUserMe(void)
 {
 	const UserInfo &user = testUserInfo[1];
-	assertLogin(user.name, user.password);
-	assertErrorCode(g_parser);
 	string sessionId;
-	cppcut_assert_equal(true, g_parser->read("sessionId", sessionId));
-	delete g_parser;
-	g_parser = NULL;
+	assertLogin(user.name, user.password, HTERR_OK, &sessionId);
 
 	RequestArg arg("/user/me", "cbname");
 	arg.headers.push_back(makeSessionIdHeader(sessionId));
