@@ -27,6 +27,7 @@ LIBS = \
 testHatohol_la_SOURCES = \
 	testActionExecArgMaker.cc testActionManager.cc \
 	testActorCollector.cc \
+	testArmPluginInfo.cc \
 	testThreadLocalDBCache.cc \
 	testChildProcessManager.cc \
 	testConfigManager.cc \
