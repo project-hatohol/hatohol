@@ -29,6 +29,29 @@
 using namespace std;
 using namespace mlpl;
 
+void _assertLogin(
+  const string &user, const string &password,
+  const HatoholErrorCode &expectCode = HTERR_OK,
+  string *sessionId = NULL)
+{
+	startFaceRest();
+
+	StringMap query;
+	if (!user.empty())
+		query["user"] = user;
+	if (!password.empty())
+		query["password"] = password;
+	RequestArg arg("/login", "cbname");
+	arg.parameters = query;
+	unique_ptr<JSONParserAgent> parserPtr(getResponseAsJSONParser(arg));
+	assertErrorCode(parserPtr.get(), expectCode);
+	if (sessionId) {
+		cppcut_assert_equal(true, parserPtr.get()->read("sessionId",
+		                                                *sessionId));
+	}
+}
+#define assertLogin(U, P, ...) cut_trace(_assertLogin(U, P, ##__VA_ARGS__))
+
 namespace testFaceRestUser {
 
 // Remove
@@ -37,6 +60,8 @@ static JSONParserAgent *g_parser = NULL;
 void cut_setup(void)
 {
 	hatoholInit();
+	setupTestDB();
+	loadTestDBUser();
 }
 
 void cut_teardown(void)
@@ -47,71 +72,12 @@ void cut_teardown(void)
 	g_parser = NULL;
 }
 
-static void _assertUser(JSONParserAgent *parser, const UserInfo &userInfo,
-                        uint32_t expectUserId = 0)
-{
-	if (expectUserId)
-		assertValueInParser(parser, "userId", expectUserId);
-	assertValueInParser(parser, "name", userInfo.name);
-	assertValueInParser(parser, "flags", userInfo.flags);
-}
-#define assertUser(P,I,...) cut_trace(_assertUser(P,I,##__VA_ARGS__))
-
-static void assertUserRolesMapInParser(JSONParserAgent *parser)
-{
-	assertStartObject(parser, "userRoles");
-
-	string flagsStr =
-	  StringUtils::sprintf("%" FMT_OPPRVLG, NONE_PRIVILEGE);
-	assertStartObject(parser, flagsStr);
-	assertValueInParser(parser, "name", string("Guest"));
-	parser->endObject();
-
-	flagsStr = StringUtils::sprintf("%" FMT_OPPRVLG, ALL_PRIVILEGES);
-	assertStartObject(parser, flagsStr);
-	assertValueInParser(parser, "name", string("Admin"));
-	parser->endObject();
-
-	for (size_t i = 0; i < NumTestUserRoleInfo; i++) {
-		UserRoleInfo &userRoleInfo = testUserRoleInfo[i];
-		flagsStr = StringUtils::toString(userRoleInfo.flags);
-		assertStartObject(parser, flagsStr);
-		assertValueInParser(parser, "name", userRoleInfo.name);
-		parser->endObject();
-	}
-	parser->endObject();
-}
-
-static void _assertUsers(const string &path, const UserIdType &userId,
-                         const string &callbackName = "")
-{
-	startFaceRest();
-	RequestArg arg(path, callbackName);
-	arg.userId = userId;
-	g_parser = getResponseAsJSONParser(arg);
-	assertErrorCode(g_parser);
-	assertValueInParser(g_parser, "numberOfUsers", NumTestUserInfo);
-	assertStartObject(g_parser, "users");
-	for (size_t i = 0; i < NumTestUserInfo; i++) {
-		g_parser->startElement(i);
-		const UserInfo &userInfo = testUserInfo[i];
-		assertUser(g_parser, userInfo, i + 1);
-		g_parser->endElement();
-	}
-	g_parser->endObject();
-	assertUserRolesMapInParser(g_parser);
-}
-#define assertUsers(P, U, ...) cut_trace(_assertUsers(P, U, ##__VA_ARGS__))
-
 #define assertAddUser(P, ...) \
 cut_trace(_assertAddRecord(P, "/user", ##__VA_ARGS__))
 
 void _assertAddUserWithSetup(const StringMap &params,
                              const HatoholErrorCode &expectCode)
 {
-	const bool dbRecreate = true;
-	const bool loadTestDat = true;
-	setupTestDBUser(dbRecreate, loadTestDat);
 	const UserIdType userId = findUserWith(OPPRVLG_CREATE_USER);
 	assertAddUser(params, userId, expectCode, NumTestUserInfo + 1);
 }
@@ -124,9 +90,6 @@ void _assertUpdateUserWithSetup(const StringMap &params,
                                 uint32_t targetUserId,
                                 const HatoholErrorCode &expectCode)
 {
-	const bool dbRecreate = true;
-	const bool loadTestDat = true;
-	setupTestDBUser(dbRecreate, loadTestDat);
 	const UserIdType userId = findUserWith(OPPRVLG_UPDATE_USER);
 	assertUpdateUser(params, targetUserId, userId, expectCode);
 }
@@ -137,10 +100,6 @@ static void _assertUpdateOrAddUser(const string &name)
 {
 	TestModeStone stone;
 	startFaceRest();
-
-	const bool dbRecreate = true;
-	const bool loadTestDat = true;
-	setupTestDBUser(dbRecreate, loadTestDat);
 
 	StringMap parameters;
 	parameters["name"] = name;
@@ -166,65 +125,29 @@ static void _assertUpdateOrAddUser(const string &name)
 }
 #define assertUpdateOrAddUser(U) cut_trace(_assertUpdateOrAddUser(U))
 
-static void _assertServerAccessInfo(JSONParserAgent *parser, HostGrpAccessInfoMap &expected)
-{
-	assertStartObject(parser, "allowedHostgroups");
-	HostGrpAccessInfoMapIterator it = expected.begin();
-	for (size_t i = 0; i < expected.size(); i++) {
-		uint64_t hostgroupId = it->first;
-		string idStr;
-		if (hostgroupId == ALL_HOST_GROUPS)
-			idStr = "-1";
-		else
-			idStr = StringUtils::sprintf("%" PRIu64, hostgroupId);
-		assertStartObject(parser, idStr);
-		AccessInfo *info = it->second;
-		assertValueInParser(parser, "accessInfoId",
-				    static_cast<uint64_t>(info->id));
-		parser->endObject();
-	}
-	parser->endObject();
-}
-#define assertServerAccessInfo(P,I,...) cut_trace(_assertServerAccessInfo(P,I,##__VA_ARGS__))
-
-static void _assertAllowedServers(const string &path, const UserIdType &userId,
-                                  const string &callbackName = "")
-{
-	startFaceRest();
-	RequestArg arg(path, callbackName);
-	arg.userId = userId;
-	g_parser = getResponseAsJSONParser(arg);
-	assertErrorCode(g_parser);
-	ServerAccessInfoMap srvAccessInfoMap;
-	makeServerAccessInfoMap(srvAccessInfoMap, userId);
-	assertStartObject(g_parser, "allowedServers");
-	ServerAccessInfoMapIterator it = srvAccessInfoMap.begin();
-	for (; it != srvAccessInfoMap.end(); ++it) {
-		const ServerIdType &serverId = it->first;
-		string idStr;
-		if (serverId == ALL_SERVERS)
-			idStr = "-1";
-		else
-			idStr = StringUtils::toString(serverId);
-		assertStartObject(g_parser, idStr);
-		HostGrpAccessInfoMap *hostGrpAccessInfoMap = it->second;
-		assertServerAccessInfo(g_parser, *hostGrpAccessInfoMap);
-		g_parser->endObject();
-	}
-	g_parser->endObject();
-	DBTablesUser::destroyServerAccessInfoMap(srvAccessInfoMap);
-}
-#define assertAllowedServers(P,...) cut_trace(_assertAllowedServers(P,##__VA_ARGS__))
-
 #define assertAddAccessInfo(U, P, USER_ID, ...) \
 cut_trace(_assertAddRecord(P, U, USER_ID, ##__VA_ARGS__))
+
+static void _assertLoginAsTarget1(string &sessionId)
+{
+	const int targetIdx = 1;
+	const UserInfo &userInfo = testUserInfo[targetIdx];
+	assertLogin(userInfo.name, userInfo.password, HTERR_OK, &sessionId);
+	cppcut_assert_equal(false, sessionId.empty());
+
+	SessionManager *sessionMgr = SessionManager::getInstance();
+	const SessionPtr session = sessionMgr->getSession(sessionId);
+	cppcut_assert_equal(true, session.hasData());
+	cppcut_assert_equal(targetIdx + 1, session->userId);
+	assertTimeIsNow(session->loginTime);
+	assertTimeIsNow(session->lastAccessTime);
+}
+#define assertLoginAsTarget1(SID) cut_trace(_assertLoginAsTarget1(SID))
 
 void _assertAddAccessInfoWithCond(
   const string &serverId, const string &hostgroupId,
   string expectHostgroupId = "")
 {
-	setupUserDB();
-
 	const UserIdType userId = findUserWith(OPPRVLG_UPDATE_USER);
 	const UserIdType targetUserId = 1;
 
@@ -236,7 +159,6 @@ void _assertAddAccessInfoWithCond(
 	assertAddAccessInfo(url, params, userId, HTERR_OK);
 
 	// check the content in the DB
-	DBTablesUser dbUser;
 	string statement = "select * from ";
 	statement += DBTablesUser::TABLE_NAME_ACCESS_LIST;
 	int expectedId = 1;
@@ -246,82 +168,16 @@ void _assertAddAccessInfoWithCond(
 	  "%" FMT_ACCESS_INFO_ID "|%" FMT_USER_ID "|%s|%s\n",
 	  expectedId, targetUserId, serverId.c_str(),
 	  expectHostgroupId.c_str());
-	assertDBContent(&dbUser.getDBAgent(), statement, expect);
+	ThreadLocalDBCache cache;
+	assertDBContent(&cache.getUser().getDBAgent(), statement, expect);
 }
 #define assertAddAccessInfoWithCond(SVID, HGRP_ID, ...) \
 cut_trace(_assertAddAccessInfoWithCond(SVID, HGRP_ID, ##__VA_ARGS__))
 
-static void _assertUserRole(JSONParserAgent *parser,
-			    const UserRoleInfo &userRoleInfo,
-			    uint32_t expectUserRoleId = 0)
-{
-	if (expectUserRoleId)
-		assertValueInParser(parser, "userRoleId", expectUserRoleId);
-	assertValueInParser(parser, "name", userRoleInfo.name);
-	assertValueInParser(parser, "flags", userRoleInfo.flags);
-}
-#define assertUserRole(P,I,...) cut_trace(_assertUserRole(P,I,##__VA_ARGS__))
-
-static void _assertUserRoles(const string &path,
-			     const UserIdType &userId,
-			     const string &callbackName = "")
-{
-	startFaceRest();
-	RequestArg arg(path, callbackName);
-	arg.userId = userId;
-	g_parser = getResponseAsJSONParser(arg);
-	assertErrorCode(g_parser);
-	assertValueInParser(g_parser, "numberOfUserRoles", NumTestUserRoleInfo);
-	assertStartObject(g_parser, "userRoles");
-	for (size_t i = 0; i < NumTestUserRoleInfo; i++) {
-		g_parser->startElement(i);
-		const UserRoleInfo &userRoleInfo = testUserRoleInfo[i];
-		assertUserRole(g_parser, userRoleInfo, i + 1);
-		g_parser->endElement();
-	}
-	g_parser->endObject();
-}
-#define assertUserRoles(P, U, ...) \
-  cut_trace(_assertUserRoles(P, U, ##__VA_ARGS__))
-
-void _assertLogin(const string &user, const string &password,
-                  const HatoholErrorCode &expectCode = HTERR_OK,
-                  string *sessionId = NULL)
-{
-	setupTestDBUser(true, true);
-	startFaceRest();
-	StringMap query;
-	if (!user.empty())
-		query["user"] = user;
-	if (!password.empty())
-		query["password"] = password;
-	RequestArg arg("/login", "cbname");
-	arg.parameters = query;
-	g_parser = getResponseAsJSONParser(arg);
-	unique_ptr<JSONParserAgent> parserPtr(getResponseAsJSONParser(arg));
-	assertErrorCode(parserPtr.get(), expectCode);
-	if (sessionId) {
-		cppcut_assert_equal(true, parserPtr.get()->read("sessionId",
-		                                                *sessionId));
-	}
-}
-#define assertLogin(U, P, ...) cut_trace(_assertLogin(U, P, ##__VA_ARGS__))
-
 void test_login(void)
 {
-	const int targetIdx = 1;
-	const UserInfo &userInfo = testUserInfo[targetIdx];
-	assertLogin(userInfo.name, userInfo.password);
 	string sessionId;
-	cppcut_assert_equal(true, g_parser->read("sessionId", sessionId));
-	cppcut_assert_equal(false, sessionId.empty());
-
-	SessionManager *sessionMgr = SessionManager::getInstance();
-	const SessionPtr session = sessionMgr->getSession(sessionId);
-	cppcut_assert_equal(true, session.hasData());
-	cppcut_assert_equal(targetIdx + 1, session->userId);
-	assertTimeIsNow(session->loginTime);
-	assertTimeIsNow(session->lastAccessTime);
+	assertLoginAsTarget1(sessionId);
 }
 
 void test_loginFailure(void)
@@ -347,10 +203,8 @@ void test_loginNoUserNameAndPassword(void)
 
 void test_logout(void)
 {
-	test_login();
 	string sessionId;
-	cppcut_assert_equal(true, g_parser->read("sessionId", sessionId));
-	delete g_parser;
+	assertLoginAsTarget1(sessionId);
 
 	RequestArg arg("/logout", "cbname");
 	arg.headers.push_back(makeSessionIdHeader(sessionId));
@@ -359,31 +213,6 @@ void test_logout(void)
 	SessionManager *sessionMgr = SessionManager::getInstance();
 	const SessionPtr session = sessionMgr->getSession(sessionId);
 	cppcut_assert_equal(false, session.hasData());
-}
-
-void test_getUser(void)
-{
-	const bool dbRecreate = true;
-	const bool loadTestDat = true;
-	setupTestDBUser(dbRecreate, loadTestDat);
-	const UserIdType userId = findUserWith(OPPRVLG_GET_ALL_USER);
-	assertUsers("/user", userId, "cbname");
-}
-
-void test_getUserMe(void)
-{
-	const UserInfo &user = testUserInfo[1];
-	string sessionId;
-	assertLogin(user.name, user.password, HTERR_OK, &sessionId);
-
-	RequestArg arg("/user/me", "cbname");
-	arg.headers.push_back(makeSessionIdHeader(sessionId));
-	g_parser = getResponseAsJSONParser(arg);
-	assertErrorCode(g_parser);
-	assertValueInParser(g_parser, "numberOfUsers", 1);
-	assertStartObject(g_parser, "users");
-	g_parser->startElement(0);
-	assertUser(g_parser, user);
 }
 
 void test_addUser(void)
@@ -539,9 +368,6 @@ void test_addUserInvalidUserName(void)
 void test_deleteUser(void)
 {
 	startFaceRest();
-	bool dbRecreate = true;
-	bool loadTestData = true;
-	setupTestDBUser(dbRecreate, loadTestData);
 
 	const UserIdType userId = findUserWith(OPPRVLG_DELETE_USER);
 	string url = StringUtils::sprintf("/user/%" FMT_USER_ID, userId);
@@ -560,9 +386,6 @@ void test_deleteUser(void)
 void test_deleteUserWithoutId(void)
 {
 	startFaceRest();
-	bool dbRecreate = true;
-	bool loadTestData = true;
-	setupTestDBUser(dbRecreate, loadTestData);
 
 	RequestArg arg("/user", "cbname");
 	arg.request = "DELETE";
@@ -574,9 +397,6 @@ void test_deleteUserWithoutId(void)
 void test_deleteUserWithNonNumericId(void)
 {
 	startFaceRest();
-	bool dbRecreate = true;
-	bool loadTestData = true;
-	setupTestDBUser(dbRecreate, loadTestData);
 
 	RequestArg arg("/user/zoo", "cbname");
 	arg.request = "DELETE";
@@ -587,8 +407,8 @@ void test_deleteUserWithNonNumericId(void)
 
 void test_updateOrAddUserNotInTestMode(void)
 {
-	setupUserDB();
 	startFaceRest();
+
 	RequestArg arg("/test/user", "cbname");
 	arg.request = "POST";
 	arg.userId = findUserWith(OPPRVLG_CREATE_USER);
@@ -612,53 +432,6 @@ void test_updateOrAddUserUpdate(void)
 	assertUpdateOrAddUser(userInfo.name);
 }
 
-void test_getAccessInfo(void)
-{
-	const bool dbRecreate = true;
-	const bool loadTestDat = true;
-	setupTestDBUser(dbRecreate, loadTestDat);
-	assertAllowedServers("/user/1/access-info", 1, "cbname");
-}
-
-void test_getAccessInfoWithUserId3(void)
-{
-	const bool dbRecreate = true;
-	const bool loadTestDat = true;
-	setupTestDBUser(dbRecreate, loadTestDat);
-	assertAllowedServers("/user/3/access-info", 3, "cbname");
-}
-
-void test_addAccessInfo(void)
-{
-	const string serverId = "2";
-	const string hostgroupId = "3";
-	assertAddAccessInfoWithCond(serverId, hostgroupId);
-}
-
-void test_updateAccessInfo(void)
-{
-	setupUserDB();
-
-	const UserIdType userId = findUserWith(OPPRVLG_UPDATE_USER);
-	const UserIdType targetUserId = 1;
-	const string url = StringUtils::sprintf(
-	  "/user/%" FMT_USER_ID "/access-info/2", targetUserId);
-	StringMap params;
-	params["serverId"] = "2";
-	params["hostgroupId"] = "-1";
-
-	startFaceRest();
-
-	RequestArg arg(url);
-	arg.parameters = params;
-	arg.request = "PUT";
-	arg.userId = userId;
-	getServerResponse(arg);
-	cppcut_assert_equal(
-	  static_cast<int>(SOUP_STATUS_METHOD_NOT_ALLOWED),
-	  arg.httpStatusCode);
-}
-
 void test_addAccessInfoWithAllHostgroups(void)
 {
 	const string serverId = "2";
@@ -676,12 +449,286 @@ void test_addAccessInfoWithAllHostgroupsNegativeValue(void)
 	assertAddAccessInfoWithCond(serverId, hostgroupId, expectHostgroup);
 }
 
+void test_addAccessInfo(void)
+{
+	const string serverId = "2";
+	const string hostgroupId = "3";
+	assertAddAccessInfoWithCond(serverId, hostgroupId);
+}
+
+} // namespace testFaceRestUser
+
+// ----------------------------------------------------------------------------
+// testFaceRestUserWithTablesUser
+// ----------------------------------------------------------------------------
+namespace testFaceRestUserWithTablesUser {
+
+static void _assertUser(JSONParserAgent *parser, const UserInfo &userInfo,
+                        uint32_t expectUserId = 0)
+{
+	if (expectUserId)
+		assertValueInParser(parser, "userId", expectUserId);
+	assertValueInParser(parser, "name", userInfo.name);
+	assertValueInParser(parser, "flags", userInfo.flags);
+}
+#define assertUser(P, I, ...) cut_trace(_assertUser(P, I, ##__VA_ARGS__))
+
+static void assertUserRolesMapInParser(JSONParserAgent *parser)
+{
+	assertStartObject(parser, "userRoles");
+
+	string flagsStr =
+	  StringUtils::sprintf("%" FMT_OPPRVLG, NONE_PRIVILEGE);
+	assertStartObject(parser, flagsStr);
+	assertValueInParser(parser, "name", string("Guest"));
+	parser->endObject();
+
+	flagsStr = StringUtils::sprintf("%" FMT_OPPRVLG, ALL_PRIVILEGES);
+	assertStartObject(parser, flagsStr);
+	assertValueInParser(parser, "name", string("Admin"));
+	parser->endObject();
+
+	for (size_t i = 0; i < NumTestUserRoleInfo; i++) {
+		UserRoleInfo &userRoleInfo = testUserRoleInfo[i];
+		flagsStr = StringUtils::toString(userRoleInfo.flags);
+		assertStartObject(parser, flagsStr);
+		assertValueInParser(parser, "name", userRoleInfo.name);
+		parser->endObject();
+	}
+	parser->endObject();
+}
+
+static void _assertUsers(const string &path, const UserIdType &userId,
+                         const string &callbackName = "")
+{
+	startFaceRest();
+
+	RequestArg arg(path, callbackName);
+	arg.userId = userId;
+	unique_ptr<JSONParserAgent> parserPtr(getResponseAsJSONParser(arg));
+	JSONParserAgent *parser = parserPtr.get();
+	assertErrorCode(parser);
+	assertValueInParser(parser, "numberOfUsers", NumTestUserInfo);
+	assertStartObject(parser, "users");
+	for (size_t i = 0; i < NumTestUserInfo; i++) {
+		parser->startElement(i);
+		const UserInfo &userInfo = testUserInfo[i];
+		assertUser(parser, userInfo, i + 1);
+		parser->endElement();
+	}
+	parser->endObject();
+	assertUserRolesMapInParser(parser);
+}
+#define assertUsers(P, U, ...) cut_trace(_assertUsers(P, U, ##__VA_ARGS__))
+
+static void _assertServerAccessInfo(
+  JSONParserAgent *parser, HostGrpAccessInfoMap &expected)
+{
+	assertStartObject(parser, "allowedHostgroups");
+	HostGrpAccessInfoMapIterator it = expected.begin();
+	for (size_t i = 0; i < expected.size(); i++) {
+		uint64_t hostgroupId = it->first;
+		string idStr;
+		if (hostgroupId == ALL_HOST_GROUPS)
+			idStr = "-1";
+		else
+			idStr = StringUtils::sprintf("%" PRIu64, hostgroupId);
+		assertStartObject(parser, idStr);
+		AccessInfo *info = it->second;
+		assertValueInParser(parser, "accessInfoId",
+				    static_cast<uint64_t>(info->id));
+		parser->endObject();
+	}
+	parser->endObject();
+}
+#define assertServerAccessInfo(P, I, ...) \
+  cut_trace(_assertServerAccessInfo(P, I, ##__VA_ARGS__))
+
+static void _assertAllowedServers(const string &path, const UserIdType &userId,
+                                  const string &callbackName = "")
+{
+	startFaceRest();
+
+	RequestArg arg(path, callbackName);
+	arg.userId = userId;
+	unique_ptr<JSONParserAgent> parserPtr(getResponseAsJSONParser(arg));
+	JSONParserAgent *parser = parserPtr.get();
+	assertErrorCode(parser);
+	ServerAccessInfoMap srvAccessInfoMap;
+	makeServerAccessInfoMap(srvAccessInfoMap, userId);
+	assertStartObject(parser, "allowedServers");
+	ServerAccessInfoMapIterator it = srvAccessInfoMap.begin();
+	for (; it != srvAccessInfoMap.end(); ++it) {
+		const ServerIdType &serverId = it->first;
+		string idStr;
+		if (serverId == ALL_SERVERS)
+			idStr = "-1";
+		else
+			idStr = StringUtils::toString(serverId);
+		assertStartObject(parser, idStr);
+		HostGrpAccessInfoMap *hostGrpAccessInfoMap = it->second;
+		assertServerAccessInfo(parser, *hostGrpAccessInfoMap);
+		parserPtr->endObject();
+	}
+	parserPtr->endObject();
+	DBTablesUser::destroyServerAccessInfoMap(srvAccessInfoMap);
+}
+#define assertAllowedServers(P, ...) \
+  cut_trace(_assertAllowedServers(P, ##__VA_ARGS__))
+
+static void _assertUserRole(
+  JSONParserAgent *parser, const UserRoleInfo &userRoleInfo,
+  uint32_t expectUserRoleId = 0)
+{
+	if (expectUserRoleId)
+		assertValueInParser(parser, "userRoleId", expectUserRoleId);
+	assertValueInParser(parser, "name", userRoleInfo.name);
+	assertValueInParser(parser, "flags", userRoleInfo.flags);
+}
+#define assertUserRole(P, I, ...) \
+  cut_trace(_assertUserRole(P, I, ##__VA_ARGS__))
+
+static void _assertUserRoles(
+  const string &path, const UserIdType &userId,
+  const string &callbackName = "")
+{
+	startFaceRest();
+
+	RequestArg arg(path, callbackName);
+	arg.userId = userId;
+	unique_ptr<JSONParserAgent> parserPtr(getResponseAsJSONParser(arg));
+	JSONParserAgent *parser = parserPtr.get();
+	assertErrorCode(parser);
+	assertValueInParser(parser, "numberOfUserRoles",
+	                    NumTestUserRoleInfo);
+	assertStartObject(parser, "userRoles");
+	for (size_t i = 0; i < NumTestUserRoleInfo; i++) {
+		parser->startElement(i);
+		const UserRoleInfo &userRoleInfo = testUserRoleInfo[i];
+		assertUserRole(parser, userRoleInfo, i + 1);
+		parser->endElement();
+	}
+	parser->endObject();
+}
+#define assertUserRoles(P, U, ...) \
+  cut_trace(_assertUserRoles(P, U, ##__VA_ARGS__))
+
+static void _assertDeleteUserRoleWithSetup(
+  string url = "",
+  HatoholErrorCode expectedErrorCode = HTERR_OK,
+  bool operatorHasPrivilege = true,
+  const UserRoleIdType targetUserRoleId = 2)
+{
+	startFaceRest();
+
+	if (url.empty())
+		url = StringUtils::sprintf("/user-role/%" FMT_USER_ROLE_ID,
+					   targetUserRoleId);
+	RequestArg arg(url, "cbname");
+	arg.request = "DELETE";
+	if (operatorHasPrivilege)
+		arg.userId = findUserWith(OPPRVLG_DELETE_ALL_USER_ROLE);
+	else
+		arg.userId = findUserWithout(OPPRVLG_DELETE_ALL_USER_ROLE);
+	unique_ptr<JSONParserAgent> parserPtr(getResponseAsJSONParser(arg));
+
+	// check the reply
+	assertErrorCode(parserPtr.get(), expectedErrorCode);
+	UserRoleIdSet userRoleIdSet;
+	if (expectedErrorCode == HTERR_OK)
+		userRoleIdSet.insert(targetUserRoleId);
+	// check the version
+	assertUserRolesInDB(userRoleIdSet);
+}
+#define assertDeleteUserRoleWithSetup(...) \
+cut_trace(_assertDeleteUserRoleWithSetup(__VA_ARGS__))
+
+#define assertAddUserRole(P, ...) \
+cut_trace(_assertAddRecord(P, "/user-role", ##__VA_ARGS__))
+
+void _assertAddUserRoleWithSetup(const StringMap &params,
+				 const HatoholErrorCode &expectCode,
+				 bool operatorHasPrivilege = true)
+{
+	UserIdType userId;
+	if (operatorHasPrivilege)
+		userId = findUserWith(OPPRVLG_CREATE_USER_ROLE);
+	else
+		userId = findUserWithout(OPPRVLG_CREATE_USER_ROLE);
+	assertAddUserRole(params, userId, expectCode, NumTestUserRoleInfo + 1);
+}
+#define assertAddUserRoleWithSetup(P, C, ...) \
+cut_trace(_assertAddUserRoleWithSetup(P, C, ##__VA_ARGS__))
+
+void cut_setup(void)
+{
+	hatoholInit();
+	setupTestDB();
+	loadTestDBTablesUser();
+}
+
+void cut_teardown(void)
+{
+	stopFaceRest();
+}
+
+void test_getUser(void)
+{
+	const UserIdType userId = findUserWith(OPPRVLG_GET_ALL_USER);
+	assertUsers("/user", userId, "cbname");
+}
+
+void test_getUserMe(void)
+{
+	const UserInfo &user = testUserInfo[1];
+	string sessionId;
+	assertLogin(user.name, user.password, HTERR_OK, &sessionId);
+
+	RequestArg arg("/user/me", "cbname");
+	arg.headers.push_back(makeSessionIdHeader(sessionId));
+	unique_ptr<JSONParserAgent> parserPtr(getResponseAsJSONParser(arg));
+	JSONParserAgent *parser = parserPtr.get();
+	assertErrorCode(parser);
+	assertValueInParser(parser, "numberOfUsers", 1);
+	assertStartObject(parser, "users");
+	parser->startElement(0);
+	assertUser(parser, user);
+}
+
+void test_getAccessInfo(void)
+{
+	assertAllowedServers("/user/1/access-info", 1, "cbname");
+}
+
+void test_getAccessInfoWithUserId3(void)
+{
+	assertAllowedServers("/user/3/access-info", 3, "cbname");
+}
+
+void test_updateAccessInfo(void)
+{
+	startFaceRest();
+
+	const UserIdType userId = findUserWith(OPPRVLG_UPDATE_USER);
+	const UserIdType targetUserId = 1;
+	const string url = StringUtils::sprintf(
+	  "/user/%" FMT_USER_ID "/access-info/2", targetUserId);
+	StringMap params;
+	params["serverId"] = "2";
+	params["hostgroupId"] = "-1";
+
+	RequestArg arg(url);
+	arg.parameters = params;
+	arg.request = "PUT";
+	arg.userId = userId;
+	getServerResponse(arg);
+	cppcut_assert_equal(
+	  static_cast<int>(SOUP_STATUS_METHOD_NOT_ALLOWED),
+	  arg.httpStatusCode);
+}
+
 void test_addAccessInfoWithExistingData(void)
 {
-	const bool dbRecreate = true;
-	const bool loadTestData = true;
-	setupTestDBUser(dbRecreate, loadTestData);
-
 	const UserIdType userId = findUserWith(OPPRVLG_CREATE_USER);
 	const UserIdType targetUserId = 1;
 	const string serverId = "1";
@@ -703,9 +750,6 @@ void test_addAccessInfoWithExistingData(void)
 void test_deleteAccessInfo(void)
 {
 	startFaceRest();
-	bool dbRecreate = true;
-	bool loadTestData = true;
-	setupTestDBUser(dbRecreate, loadTestData);
 
 	const AccessInfoIdType targetId = 2;
 	string url = StringUtils::sprintf(
@@ -714,10 +758,10 @@ void test_deleteAccessInfo(void)
 	RequestArg arg(url, "cbname");
 	arg.request = "DELETE";
 	arg.userId = findUserWith(OPPRVLG_UPDATE_USER);
-	g_parser = getResponseAsJSONParser(arg);
+	unique_ptr<JSONParserAgent> parserPtr(getResponseAsJSONParser(arg));
 
 	// check the reply
-	assertErrorCode(g_parser);
+	assertErrorCode(parserPtr.get());
 	AccessInfoIdSet accessInfoIdSet;
 	accessInfoIdSet.insert(targetId);
 	assertAccessInfoInDB(accessInfoIdSet);
@@ -725,32 +769,8 @@ void test_deleteAccessInfo(void)
 
 void test_getUserRole(void)
 {
-	const bool dbRecreate = true;
-	const bool loadTestDat = false;
-	setupTestDBUser(dbRecreate, loadTestDat);
-	loadTestDBUserRole();
 	assertUserRoles("/user-role", USER_ID_SYSTEM, "cbname");
 }
-
-#define assertAddUserRole(P, ...) \
-cut_trace(_assertAddRecord(P, "/user-role", ##__VA_ARGS__))
-
-void _assertAddUserRoleWithSetup(const StringMap &params,
-				 const HatoholErrorCode &expectCode,
-				 bool operatorHasPrivilege = true)
-{
-	const bool dbRecreate = true;
-	const bool loadTestDat = true;
-	setupTestDBUser(dbRecreate, loadTestDat);
-	UserIdType userId;
-	if (operatorHasPrivilege)
-		userId = findUserWith(OPPRVLG_CREATE_USER_ROLE);
-	else
-		userId = findUserWithout(OPPRVLG_CREATE_USER_ROLE);
-	assertAddUserRole(params, userId, expectCode, NumTestUserRoleInfo + 1);
-}
-#define assertAddUserRoleWithSetup(P, C, ...) \
-cut_trace(_assertAddUserRoleWithSetup(P, C, ##__VA_ARGS__))
 
 void test_addUserRole(void)
 {
@@ -829,9 +849,6 @@ void _assertUpdateUserRoleWithSetup(const StringMap &params,
 				    const HatoholErrorCode &expectCode,
 				    bool operatorHasPrivilege = true)
 {
-	const bool dbRecreate = true;
-	const bool loadTestDat = true;
-	setupTestDBUser(dbRecreate, loadTestDat);
 	UserIdType userId;
 	if (operatorHasPrivilege)
 		userId = findUserWith(OPPRVLG_UPDATE_ALL_USER_ROLE);
@@ -855,7 +872,7 @@ void test_updateUserRole(void)
 	params["flags"] = StringUtils::sprintf(
 	  "%" FMT_OPPRVLG, expectedUserRoleInfo.flags);
 	assertUpdateUserRoleWithSetup(params, expectedUserRoleInfo.id,
-				      HTERR_OK);
+	                              HTERR_OK);
 
 	// check the content in the DB
 	assertUserRoleInfoInDB(expectedUserRoleInfo);
@@ -873,7 +890,7 @@ void test_updateUserRoleWithoutName(void)
 	params["flags"] = StringUtils::sprintf(
 	  "%" FMT_OPPRVLG, expectedUserRoleInfo.flags);
 	assertUpdateUserRoleWithSetup(params, expectedUserRoleInfo.id,
-				      HTERR_OK);
+	                              HTERR_OK);
 
 	// check the content in the DB
 	assertUserRoleInfoInDB(expectedUserRoleInfo);
@@ -889,7 +906,7 @@ void test_updateUserRoleWithoutFlags(void)
 	StringMap params;
 	params["name"] = expectedUserRoleInfo.name;
 	assertUpdateUserRoleWithSetup(params, expectedUserRoleInfo.id,
-				      HTERR_OK);
+	                              HTERR_OK);
 
 	// check the content in the DB
 	assertUserRoleInfoInDB(expectedUserRoleInfo);
@@ -912,38 +929,6 @@ void test_updateUserRoleWithoutPrivilege(void)
 	assertUserRolesInDB();
 }
 
-void _assertDeleteUserRoleWithSetup(
-  string url = "",
-  HatoholErrorCode expectedErrorCode = HTERR_OK,
-  bool operatorHasPrivilege = true,
-  const UserRoleIdType targetUserRoleId = 2)
-{
-	startFaceRest();
-	bool dbRecreate = true;
-	bool loadTestData = true;
-	setupTestDBUser(dbRecreate, loadTestData);
-
-	if (url.empty())
-		url = StringUtils::sprintf("/user-role/%" FMT_USER_ROLE_ID,
-					   targetUserRoleId);
-	RequestArg arg(url, "cbname");
-	arg.request = "DELETE";
-	if (operatorHasPrivilege)
-		arg.userId = findUserWith(OPPRVLG_DELETE_ALL_USER_ROLE);
-	else
-		arg.userId = findUserWithout(OPPRVLG_DELETE_ALL_USER_ROLE);
-	g_parser = getResponseAsJSONParser(arg);
-
-	// check the reply
-	assertErrorCode(g_parser, expectedErrorCode);
-	UserRoleIdSet userRoleIdSet;
-	if (expectedErrorCode == HTERR_OK)
-		userRoleIdSet.insert(targetUserRoleId);
-	// check the version
-	assertUserRolesInDB(userRoleIdSet);
-}
-#define assertDeleteUserRoleWithSetup(...) \
-cut_trace(_assertDeleteUserRoleWithSetup(__VA_ARGS__))
 
 void test_deleteUserRole(void)
 {
@@ -970,8 +955,11 @@ void test_deleteUserRoleWithoutPrivilege(void)
 				      !operatorHasPrivilege);
 }
 
-} // namespace testFaceRestUser
+} // namespace testFaceRestUserWithTablesUser
 
+// ----------------------------------------------------------------------------
+// testFaceRestUserWithoutLoadingUser
+// ----------------------------------------------------------------------------
 namespace testFaceRestUserWithoutLoadingUser {
 
 static void _assertUpdateAddUserMissing(
