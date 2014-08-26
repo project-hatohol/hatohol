@@ -28,9 +28,8 @@ namespace testOperationPrivilege {
 static void initAndLoadTestUser(void)
 {
 	hatoholInit();
-	bool dbRecreate = true;
-	bool loadTestData = true;
-	setupTestDBUser(dbRecreate, loadTestData);
+	setupTestDB();
+	loadTestDBUser();
 }
 
 // ---------------------------------------------------------------------------
