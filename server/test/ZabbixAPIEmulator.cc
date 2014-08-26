@@ -60,15 +60,15 @@ struct ZabbixAPIEmulator::ParameterEventGet {
 	{
 	}
 
-	bool isOutOfRange(const int64_t &id, const int64_t &num = 0)
+	bool isInRange(const int64_t &id, const int64_t &num = 0)
 	{
 		if (limit != 0 && num > limit)
-			return true;
+			return false;
 		if (eventIdFrom != 0 && id < eventIdFrom)
-			return true;
+			return false;
 		if (eventIdTill != 0 && id > eventIdTill)
-			return true;
-		return false;
+			return false;
+		return true;
 	}
 };
 
@@ -447,57 +447,36 @@ void ZabbixAPIEmulator::APIHandlerHostgroupGet(APIHandlerArg &arg)
 void ZabbixAPIEmulator::PrivateContext::makeEventsJSONAscend(string &contents)
 {
 	int64_t numEvents = 0;
-	if (paramEvent.eventIdFrom == 0 &&
-	    paramEvent.eventIdTill == 0) { // no range
-		ZabbixAPIEventMapIterator jit = zbxEventMap.begin();
-		for (;
-		     jit != zbxEventMap.end() &&
-		       !paramEvent.isOutOfRange(jit->first, numEvents + 1);
-		     ++jit) {
-			const ZabbixAPIEvent &data = jit->second;
-			contents += makeJSONString(data);
-			++numEvents;
-		}
-	} else {
-		int64_t endId = zbxEventMap.rbegin()->first;
-		for (int64_t i = paramEvent.eventIdFrom;
-		     i <= endId && !paramEvent.isOutOfRange(i, numEvents + 1);
-		     i++) {
-			if (zbxEventMap.find(i) == zbxEventMap.end())
-				continue;
-			const ZabbixAPIEvent &data = zbxEventMap[i];
-			contents += makeJSONString(data);
-			++numEvents;
-		}
+	int64_t firstId = zbxEventMap.begin()->first;
+	int64_t lastId = zbxEventMap.rbegin()->first;
+	if (paramEvent.eventIdFrom > firstId)
+		firstId = paramEvent.eventIdFrom;
+	for (int64_t i = firstId;
+	     i <= lastId && paramEvent.isInRange(i, numEvents + 1);
+	     ++i) {
+		if (zbxEventMap.find(i) == zbxEventMap.end())
+			continue;
+		const ZabbixAPIEvent &data = zbxEventMap[i];
+		contents += makeJSONString(data);
+		++numEvents;
 	}
 }
 
 void ZabbixAPIEmulator::PrivateContext::makeEventsJSONDescend(string &contents)
 {
 	int64_t numEvents = 0;
-	if (paramEvent.eventIdFrom == 0 &&
-	    paramEvent.eventIdTill == 0) { // no range
-		ZabbixAPIEventMapReverseIterator rjit = zbxEventMap.rbegin();
-		for (;
-		     rjit != zbxEventMap.rend() &&
-		       !paramEvent.isOutOfRange(rjit->first, numEvents + 1);
-		     ++rjit)
-		{
-			const ZabbixAPIEvent &data = rjit->second;
-			contents += makeJSONString(data);
-			++numEvents;
-		}
-	} else {
-		int64_t endId = zbxEventMap.begin()->first;
-		for (int64_t i = paramEvent.eventIdTill;
-		     i >= endId && !paramEvent.isOutOfRange(i, numEvents + 1);
-		     i--) {
-			if (zbxEventMap.find(i) == zbxEventMap.end())
-				continue;
-			const ZabbixAPIEvent &data = zbxEventMap[i];
-			contents += makeJSONString(data);
-			++numEvents;
-		}
+	int64_t firstId = zbxEventMap.rbegin()->first;
+	int64_t lastId = zbxEventMap.begin()->first;
+	if (paramEvent.eventIdTill > 0 && paramEvent.eventIdTill < firstId)
+		firstId = paramEvent.eventIdTill;
+	for (int64_t i = firstId;
+	     i >= lastId && paramEvent.isInRange(i, numEvents + 1);
+	     --i) {
+		if (zbxEventMap.find(i) == zbxEventMap.end())
+			continue;
+		const ZabbixAPIEvent &data = zbxEventMap[i];
+		contents += makeJSONString(data);
+		++numEvents;
 	}
 }
 
