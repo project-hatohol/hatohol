@@ -177,9 +177,20 @@ extern const MonitoringSystemType MONITORING_SYSTEM_HAPI_TEST;
 extern const MonitoringSystemType MONITORING_SYSTEM_HAPI_TEST_NOT_EXIST;
 extern const MonitoringSystemType MONITORING_SYSTEM_HAPI_TEST_PASSIVE;
 
-// setup methods
+/**
+ * Setup database for test.
+ *
+ * Guild line to use the following functions.
+ *
+ * - A test case that uses DBs shall call setupTestDB() only in
+ *   cut_setup() once. Dont' use it in the middle of the test.
+ * - cut_setup() and each test can call loadTestDBxxxx() if needed.
+ * - To simplify test code, it is recommended that loadTestDBxxxx() is
+ *   aggregated into cut_setup().
+ */
 void setupTestDB(void);
 
+// TODO: remove these setupTestDBxxxx()
 void setupTestDBConfig(bool dbRecreate = true, bool loadTestDat = false);
 void setupTestDBUser(bool dbRecreate = true, bool loadTestDat = false);
 void setupTestDBAction(bool dbRecreate = true, bool loadTestDat = false);
