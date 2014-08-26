@@ -1,0 +1,85 @@
+#!/bin/sh
+
+set -u
+
+run()
+{
+    "$@"
+    if test $? -ne 0; then
+	echo "Failed $@"
+	exit 1
+    fi
+}
+
+base_directory="."
+signed_certificate_file="server-cert.pem"
+
+show_usage()
+{
+    echo "Usage: $0 [options] SERVER_CERTIFICATE_REQUEST.pem"
+    echo
+    echo "Options:"
+    echo "  --base-directory=DIR           Use DIR as base directory"
+    echo "                                 (${base_directory})"
+    echo "  --signed-certificate-file=FILE Output signed certificate to PATH"
+    echo "                                 (${signed_certificate_file})"
+    echo
+    echo "  --help                         Show this message and exit"
+}
+
+options=$(getopt \
+    --longoptions "base-directory:,signed-certificate-file:,help::" \
+    -- "" \
+    "$@")
+
+if [ $? != 0 ]; then
+    show_usage
+    exit 1
+fi
+
+eval set -- "$options"
+
+while true; do
+    case "$1" in
+        --base-directory)
+            base_directory="$2"
+            shift 2
+            ;;
+        --signed-certificate-file)
+            signed_certificate_file="$2"
+            shift 2
+            ;;
+        --help)
+            show_usage
+            exit
+            ;;
+        --)
+            shift
+            break
+            ;;
+    esac
+done
+
+if [ $# -ne 1 ]; then
+    show_usage
+    exit 1
+fi
+
+csr="$1"
+
+ca_cert_file="${base_directory}/CA/ca-cert.pem"
+config_file="${base_directory}/openssl.cnf"
+
+run mkdir -p "$(dirname "${signed_certificate_file}")"
+run openssl ca \
+    -config "${config_file}" \
+    -in "${csr}" \
+    -out "${signed_certificate_file}" \
+    -notext \
+    -batch \
+    -extensions server_ca_extensions
+
+echo
+echo "The next action:"
+echo "Copy <${ca_cert_file}> and <${signed_certificate_file}> to server host and "
+echo "use it in your application such as RabbitMQ."
