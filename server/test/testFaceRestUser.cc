@@ -54,9 +54,6 @@ void _assertLogin(
 
 namespace testFaceRestUser {
 
-// Remove
-static JSONParserAgent *g_parser = NULL;
-
 void cut_setup(void)
 {
 	hatoholInit();
@@ -67,9 +64,6 @@ void cut_setup(void)
 void cut_teardown(void)
 {
 	stopFaceRest();
-
-	delete g_parser;
-	g_parser = NULL;
 }
 
 #define assertAddUser(P, ...) \
@@ -109,8 +103,8 @@ static void _assertUpdateOrAddUser(const string &name)
 	RequestArg arg("/test/user", "cbname");
 	arg.parameters = parameters;
 	arg.request = "POST";
-	g_parser = getResponseAsJSONParser(arg);
-	assertErrorCode(g_parser, HTERR_OK);
+	unique_ptr<JSONParserAgent> parserPtr(getResponseAsJSONParser(arg));
+	assertErrorCode(parserPtr.get());
 
 	// check the data in the DB
 	string statement = StringUtils::sprintf(
@@ -208,8 +202,8 @@ void test_logout(void)
 
 	RequestArg arg("/logout", "cbname");
 	arg.headers.push_back(makeSessionIdHeader(sessionId));
-	g_parser = getResponseAsJSONParser(arg);
-	assertErrorCode(g_parser);
+	unique_ptr<JSONParserAgent> parserPtr(getResponseAsJSONParser(arg));
+	assertErrorCode(parserPtr.get());
 	SessionManager *sessionMgr = SessionManager::getInstance();
 	const SessionPtr session = sessionMgr->getSession(sessionId);
 	cppcut_assert_equal(false, session.hasData());
@@ -374,10 +368,10 @@ void test_deleteUser(void)
 	RequestArg arg(url, "cbname");
 	arg.request = "DELETE";
 	arg.userId = userId;
-	g_parser = getResponseAsJSONParser(arg);
+	unique_ptr<JSONParserAgent> parserPtr(getResponseAsJSONParser(arg));
 
 	// check the reply
-	assertErrorCode(g_parser);
+	assertErrorCode(parserPtr.get());
 	UserIdSet userIdSet;
 	userIdSet.insert(userId);
 	assertUsersInDB(userIdSet);
@@ -390,8 +384,8 @@ void test_deleteUserWithoutId(void)
 	RequestArg arg("/user", "cbname");
 	arg.request = "DELETE";
 	arg.userId = findUserWith(OPPRVLG_DELETE_USER);
-	g_parser = getResponseAsJSONParser(arg);
-	assertErrorCode(g_parser, HTERR_NOT_FOUND_ID_IN_URL);
+	unique_ptr<JSONParserAgent> parserPtr(getResponseAsJSONParser(arg));
+	assertErrorCode(parserPtr.get(), HTERR_NOT_FOUND_ID_IN_URL);
 }
 
 void test_deleteUserWithNonNumericId(void)
@@ -401,8 +395,8 @@ void test_deleteUserWithNonNumericId(void)
 	RequestArg arg("/user/zoo", "cbname");
 	arg.request = "DELETE";
 	arg.userId = findUserWith(OPPRVLG_DELETE_USER);
-	g_parser = getResponseAsJSONParser(arg);
-	assertErrorCode(g_parser, HTERR_NOT_FOUND_ID_IN_URL);
+	unique_ptr<JSONParserAgent> parserPtr(getResponseAsJSONParser(arg));
+	assertErrorCode(parserPtr.get(), HTERR_NOT_FOUND_ID_IN_URL);
 }
 
 void test_updateOrAddUserNotInTestMode(void)
@@ -412,8 +406,8 @@ void test_updateOrAddUserNotInTestMode(void)
 	RequestArg arg("/test/user", "cbname");
 	arg.request = "POST";
 	arg.userId = findUserWith(OPPRVLG_CREATE_USER);
-	g_parser = getResponseAsJSONParser(arg);
-	assertErrorCode(g_parser, HTERR_NOT_TEST_MODE);
+	unique_ptr<JSONParserAgent> parserPtr(getResponseAsJSONParser(arg));
+	assertErrorCode(parserPtr.get(), HTERR_NOT_TEST_MODE);
 }
 
 void test_updateOrAddUserAdd(void)
