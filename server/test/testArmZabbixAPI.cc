@@ -461,15 +461,11 @@ void test_getHosts(void)
 
 void test_getEvents(void)
 {
-	// We expect empty data for the last two times.
-	g_apiEmulator.setNumberOfEventSlices(NUM_TEST_READ_TIMES-2);
 	assertReceiveData(ArmZabbixAPITestee::GET_TEST_TYPE_EVENTS, 0);
 }
 
 void test_getEvents_2_2_0(void)
 {
-	// We expect empty data for the last two times.
-	g_apiEmulator.setNumberOfEventSlices(NUM_TEST_READ_TIMES-2);
 	assertReceiveData(ArmZabbixAPITestee::GET_TEST_TYPE_EVENTS, 0,
 			  ZabbixAPIEmulator::API_VERSION_2_2_0);
 }

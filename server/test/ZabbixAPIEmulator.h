@@ -56,7 +56,6 @@ public:
 	ZabbixAPIEmulator(void);
 	virtual ~ZabbixAPIEmulator();
 	void reset(void);
-	void setNumberOfEventSlices(size_t numSlices);
 
 	void setOperationMode(OperationMode mode);
 	void setAPIVersion(APIVersion version);

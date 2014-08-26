@@ -89,9 +89,6 @@ struct ZabbixAPIEmulator::PrivateContext {
 	APIVersion    apiVersion;
 	set<string>   authTokens;
 	APIHandlerMap apiHandlerMap;
-	size_t        numEventSlices;
-	size_t        currEventSliceIndex;
-	vector<string> slicedEventVector;
 	struct ParameterEventGet paramEvent;
 	ZabbixAPIEventMap zbxEventMap;
 	int64_t       firstId;
@@ -101,8 +98,6 @@ struct ZabbixAPIEmulator::PrivateContext {
 	PrivateContext(void)
 	: operationMode(OPE_MODE_NORMAL),
 	  apiVersion(API_VERSION_2_0_4),
-	  numEventSlices(0),
-	  currEventSliceIndex(0),
 	  firstId(0),
 	  lastId(0)
 	{
@@ -115,9 +110,6 @@ struct ZabbixAPIEmulator::PrivateContext {
 	void reset(void)
 	{
 		apiVersion = API_VERSION_2_0_4;
-		numEventSlices = 0;
-		currEventSliceIndex = 0;
-		slicedEventVector.clear();
 	}
 
 	void setupEventRange(void)
@@ -181,11 +173,6 @@ ZabbixAPIEmulator::~ZabbixAPIEmulator()
 void ZabbixAPIEmulator::reset(void)
 {
 	m_ctx->reset();
-}
-
-void ZabbixAPIEmulator::setNumberOfEventSlices(size_t numSlices)
-{
-	m_ctx->numEventSlices = numSlices;
 }
 
 void ZabbixAPIEmulator::setOperationMode(OperationMode mode)
