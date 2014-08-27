@@ -91,15 +91,15 @@ struct ZabbixAPIEmulator::PrivateContext {
 	APIHandlerMap apiHandlerMap;
 	struct ParameterEventGet paramEvent;
 	ZabbixAPIEventMap zbxEventMap;
-	int64_t       firstId;
-	int64_t       lastId;
+	int64_t       firstEventId;
+	int64_t       lastEventId;
 	
 	// methods
 	PrivateContext(void)
 	: operationMode(OPE_MODE_NORMAL),
 	  apiVersion(API_VERSION_2_0_4),
-	  firstId(0),
-	  lastId(0)
+	  firstEventId(0),
+	  lastEventId(0)
 	{
 	}
 
@@ -114,24 +114,24 @@ struct ZabbixAPIEmulator::PrivateContext {
 
 	void setupEventRange(void)
 	{
-		firstId = zbxEventMap.begin()->first;
-		if (paramEvent.eventIdFrom > firstId)
-			firstId = paramEvent.eventIdFrom;
+		firstEventId = zbxEventMap.begin()->first;
+		if (paramEvent.eventIdFrom > firstEventId)
+			firstEventId = paramEvent.eventIdFrom;
 
-		lastId = zbxEventMap.rbegin()->first;
+		lastEventId = zbxEventMap.rbegin()->first;
 		if (paramEvent.eventIdTill > 0 &&
-		    paramEvent.eventIdTill < lastId) {
-			lastId = paramEvent.eventIdTill;
+		    paramEvent.eventIdTill < lastEventId) {
+			lastEventId = paramEvent.eventIdTill;
 		}
 	}
 
 	bool isInRange(const int64_t &id, const int64_t &num = 0)
 	{
-		if (firstId == 0 && lastId == 0)
+		if (firstEventId == 0 && lastEventId == 0)
 			setupEventRange();
-		if (id < firstId)
+		if (id < firstEventId)
 			return false;
-		if (id > lastId)
+		if (id > lastEventId)
 			return false;
 		return paramEvent.isInRange(id, num);
 	}
@@ -461,7 +461,7 @@ void ZabbixAPIEmulator::APIHandlerHostgroupGet(APIHandlerArg &arg)
 void ZabbixAPIEmulator::PrivateContext::makeEventsJSONAscend(string &contents)
 {
 	int64_t numEvents = 0;
-	for (int64_t id = firstId; isInRange(id, numEvents + 1); ++id) {
+	for (int64_t id = firstEventId; isInRange(id, numEvents + 1); ++id) {
 		ZabbixAPIEventMapIterator it = zbxEventMap.find(id);
 		if (it == zbxEventMap.end())
 			continue;
@@ -473,7 +473,7 @@ void ZabbixAPIEmulator::PrivateContext::makeEventsJSONAscend(string &contents)
 void ZabbixAPIEmulator::PrivateContext::makeEventsJSONDescend(string &contents)
 {
 	int64_t numEvents = 0;
-	for (int64_t id = lastId; isInRange(id, numEvents + 1); --id) {
+	for (int64_t id = lastEventId; isInRange(id, numEvents + 1); --id) {
 		ZabbixAPIEventMapIterator it = zbxEventMap.find(id);
 		if (it == zbxEventMap.end())
 			continue;
