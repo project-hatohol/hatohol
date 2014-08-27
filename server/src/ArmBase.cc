@@ -316,7 +316,8 @@ void ArmBase::createTriggerInfo(const ArmResultTriggerInfo &resTrigger,
 	TriggerInfo triggerInfo;
 
 	triggerInfo.serverId = svInfo.id;
-	clock_gettime(CLOCK_REALTIME, &triggerInfo.lastChangeTime);
+	triggerInfo.lastChangeTime.tv_sec = SmartTime(SmartTime::INIT_CURR_TIME).getAsSec();
+	triggerInfo.lastChangeTime.tv_nsec = 0;
 	triggerInfo.hostId = MONITORING_SERVER_SELF_ID;
 	triggerInfo.hostName = 
 		StringUtils::sprintf("%s%s", svInfo.hostName.c_str(), SERVER_SELF_CHARACTER);
@@ -336,7 +337,8 @@ void ArmBase::createEventInfo(const ArmResultTriggerInfo &resTrigger,
 
 	eventInfo.serverId = svInfo.id;
 	eventInfo.id = DISCONNECT_SERVER_EVENT_ID;
-	clock_gettime(CLOCK_REALTIME, &eventInfo.time);
+	eventInfo.time.tv_sec = SmartTime(SmartTime::INIT_CURR_TIME).getAsSec();
+	eventInfo.time.tv_nsec = 0;
 	eventInfo.hostId = MONITORING_SERVER_SELF_ID;
 	eventInfo.triggerId = resTrigger.triggerId;
 	eventInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
