@@ -34,8 +34,6 @@ using namespace mlpl;
 static const unsigned int TEST_PORT = 53194;
 static const char *TEST_DB_HATOHOL_NAME = "testDatabase-hatohol.db";
 
-static StringMap    emptyStringMap;
-static StringVector emptyStringVector;
 static FaceRest *g_faceRest = NULL;
 
 void startFaceRest(void)
