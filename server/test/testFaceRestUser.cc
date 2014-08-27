@@ -222,14 +222,14 @@ void test_addUser(void)
 	assertAddUserWithSetup(params, HTERR_OK);
 
 	// check the content in the DB
-	DBTablesUser dbUser;
 	string statement = "select * from ";
 	statement += DBTablesUser::TABLE_NAME_USERS;
 	statement += " order by id desc limit 1";
 	const int expectedId = NumTestUserInfo + 1;
 	string expect = StringUtils::sprintf("%d|%s|%s|%" FMT_OPPRVLG,
 	  expectedId, user.c_str(), Utils::sha256(password).c_str(), flags);
-	assertDBContent(&dbUser.getDBAgent(), statement, expect);
+	ThreadLocalDBCache cache;
+	assertDBContent(&cache.getUser().getDBAgent(), statement, expect);
 }
 
 void test_updateUser(void)
@@ -246,13 +246,13 @@ void test_updateUser(void)
 	assertUpdateUserWithSetup(params, targetId, HTERR_OK);
 
 	// check the content in the DB
-	DBTablesUser dbUser;
 	string statement = StringUtils::sprintf(
 	                     "select * from %s where id=%d",
 	                     DBTablesUser::TABLE_NAME_USERS, targetId);
 	string expect = StringUtils::sprintf("%d|%s|%s|%" FMT_OPPRVLG,
 	  targetId, user.c_str(), Utils::sha256(password).c_str(), flags);
-	assertDBContent(&dbUser.getDBAgent(), statement, expect);
+	ThreadLocalDBCache cache;
+	assertDBContent(&cache.getUser().getDBAgent(), statement, expect);
 }
 
 void test_updateUserWithoutFlags(void)
@@ -268,13 +268,13 @@ void test_updateUserWithoutFlags(void)
 	assertUpdateUserWithSetup(params, targetId, HTERR_OK);
 
 	// check the content in the DB
-	DBTablesUser dbUser;
 	string statement = StringUtils::sprintf(
 	                     "select * from %s where id=%d",
 	                     DBTablesUser::TABLE_NAME_USERS, targetId);
 	string expect = StringUtils::sprintf("%d|%s|%s|%" FMT_OPPRVLG,
 	  targetId, user.c_str(), Utils::sha256(password).c_str(), flags);
-	assertDBContent(&dbUser.getDBAgent(), statement, expect);
+	ThreadLocalDBCache cache;
+	assertDBContent(&cache.getUser().getDBAgent(), statement, expect);
 }
 
 void test_updateUserWithInvalidFlags(void)
@@ -303,14 +303,14 @@ void test_updateUserWithoutPassword(void)
 	assertUpdateUserWithSetup(params, targetId, HTERR_OK);
 
 	// check the content in the DB
-	DBTablesUser dbUser;
 	string statement = StringUtils::sprintf(
 	                     "select * from %s where id=%d",
 	                     DBTablesUser::TABLE_NAME_USERS, targetId);
 	string expect = StringUtils::sprintf("%d|%s|%s|%" FMT_OPPRVLG,
 	  targetId, user.c_str(),
 	  Utils::sha256(expectedPassword).c_str(), flags);
-	assertDBContent(&dbUser.getDBAgent(), statement, expect);
+	ThreadLocalDBCache cache;
+	assertDBContent(&cache.getUser().getDBAgent(), statement, expect);
 }
 
 void test_updateUserWithoutUserId(void)

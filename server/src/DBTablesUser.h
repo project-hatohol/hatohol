@@ -22,7 +22,7 @@
 
 #include <list>
 #include <map>
-#include "DBClient.h"
+#include "DBTables.h"
 #include "DataQueryOption.h"
 #include "OperationPrivilege.h"
 #include "HatoholError.h"
@@ -127,7 +127,7 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-class DBTablesUser : public DBClient {
+class DBTablesUser : public DBTables {
 public:
 	static const int   USER_DB_VERSION;
 	static const char *DEFAULT_DB_NAME;
@@ -141,14 +141,7 @@ public:
 	static void reset(void);
 	static bool setTestMode(bool enable = true);
 
-	// This is a temporary method. We'll repalce the base class with DBTables,
-	// which provides getDBAgent() that returns a reference.
-	DBAgent &getDBAgent(void)
-	{
-		return *DBClient::getDBAgent();
-	}
-
-	DBTablesUser(void);
+	DBTablesUser(DBAgent &dbAgent);
 	virtual ~DBTablesUser();
 
 	/**
@@ -266,6 +259,7 @@ public:
 	void getUserIdSet(UserIdSet &userIdSet);
 
 protected:
+	static SetupInfo &getSetupInfo(void);
 	void getUserInfoList(UserInfoList &userInfoList,
 	                     const std::string &condition);
 	HatoholError hasPrivilegeForUpdateUserInfo(

@@ -21,7 +21,7 @@
 #include "ConfigManager.h"
 #include "DBTablesConfig.h"
 #include "DBTablesHost.h" 
-// #include "DBTablesUser.h"
+#include "DBTablesUser.h"
 // #include "DBTablesAction.h"
 
 using namespace std;
@@ -42,14 +42,14 @@ struct DBHatohol::Impl {
 
 	//DBTablesConfig  dbTablesConfig;
 	DBTablesHost    dbTablesHost;
-	//DBTablesUser    dbTablesUser;
+	DBTablesUser    dbTablesUser;
 	DBTablesAction  dbTablesAction;
 	DBTablesMonitor dbTablesMonitor;
 
 	Impl(DBAgent &dbAgent)
 	: //dbTablesConfig(/*dbAgent*/),
 	  dbTablesHost(dbAgent),
-	  //dbTablesUser(/*dbAgent*/),
+	  dbTablesUser(dbAgent),
 	  dbTablesAction(/*dbAgent*/),
 	  dbTablesMonitor(/*dbAgent*/)
 	{
@@ -107,8 +107,7 @@ DBTablesHost &DBHatohol::getDBTablesHost(void)
 
 DBTablesUser &DBHatohol::getDBTablesUser(void)
 {
-	return *((DBTablesUser *)NULL); // Temporariliy disabled
-	//return m_impl->dbTablesUser;
+	return m_impl->dbTablesUser;
 }
 
 DBTablesAction &DBHatohol::getDBTablesAction(void)
