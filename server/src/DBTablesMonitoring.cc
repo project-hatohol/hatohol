@@ -1577,18 +1577,40 @@ int DBTablesMonitoring::getLastChangeTimeOfTrigger(const ServerIdType &serverId)
 
 void DBTablesMonitoring::addEventInfo(EventInfo *eventInfo)
 {
-	DBCLIENT_TRANSACTION_BEGIN() {
-		addEventInfoWithoutTransaction(*eventInfo);
-	} DBCLIENT_TRANSACTION_END();
+	struct TrxProc : public DBAgent::TransactionProc {
+		EventInfo *eventInfo;
+
+		TrxProc(EventInfo *_eventInfo)
+		: eventInfo(_eventInfo)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			addEventInfoWithoutTransaction(dbAgent, *eventInfo);
+		}
+	} trx(eventInfo);
+	getDBAgent().runTransaction(trx);
 }
 
 void DBTablesMonitoring::addEventInfoList(const EventInfoList &eventInfoList)
 {
-	EventInfoListConstIterator it = eventInfoList.begin();
-	DBCLIENT_TRANSACTION_BEGIN() {
-		for (; it != eventInfoList.end(); ++it)
-			addEventInfoWithoutTransaction(*it);
-	} DBCLIENT_TRANSACTION_END();
+	struct TrxProc : public DBAgent::TransactionProc {
+		const EventInfoList &eventInfoList;
+
+		TrxProc(const EventInfoList &_eventInfoList)
+		: eventInfoList(_eventInfoList)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			EventInfoListConstIterator it = eventInfoList.begin();
+			for (; it != eventInfoList.end(); ++it)
+				addEventInfoWithoutTransaction(dbAgent, *it);
+		}
+	} trx(eventInfoList);
+	getDBAgent().runTransaction(trx);
 }
 
 HatoholError DBTablesMonitoring::getEventInfoList(
@@ -1694,22 +1716,41 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 	return HatoholError(HTERR_OK);
 }
 
-void DBTablesMonitoring::setEventInfoList(const EventInfoList &eventInfoList,
-                                       const ServerIdType &serverId)
+// TODO: remove this fucntion (no longer used)
+void DBTablesMonitoring::setEventInfoList(
+  const EventInfoList &eventInfoList, const ServerIdType &serverId)
 {
-	const DBTermCodec *dbTermCodec = getDBAgent().getDBTermCodec();
-	DBAgent::DeleteArg deleteArg(tableProfileEvents);
-	deleteArg.condition =
-	  StringUtils::sprintf("%s=%s",
-	    COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName,
-	    dbTermCodec->enc(serverId).c_str());
+	struct TrxProc : public DBAgent::TransactionProc {
+		const EventInfoList &eventInfoList;
+		const ServerIdType &serverId;
+		DBAgent::DeleteArg deleteArg;
 
-	EventInfoListConstIterator it = eventInfoList.begin();
-	DBCLIENT_TRANSACTION_BEGIN() {
-		deleteRows(deleteArg);
-		for (; it != eventInfoList.end(); ++it)
-			addEventInfoWithoutTransaction(*it);
-	} DBCLIENT_TRANSACTION_END();
+		TrxProc(const EventInfoList &_eventInfoList,
+		        const ServerIdType &_serverId)
+		: eventInfoList(_eventInfoList),
+		  serverId(_serverId),
+		  deleteArg(tableProfileEvents)
+		{
+		}
+
+		virtual bool preproc(DBAgent &dbAgent) override
+		{
+			deleteArg.condition =
+			  StringUtils::sprintf("%s=%s",
+			    COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName,
+			    dbAgent.getDBTermCodec()->enc(serverId).c_str());
+			return true;
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			dbAgent.deleteRows(deleteArg);
+			EventInfoListConstIterator it = eventInfoList.begin();
+			for (; it != eventInfoList.end(); ++it)
+				addEventInfoWithoutTransaction(dbAgent, *it);
+		}
+	} trx(eventInfoList, serverId);
+	getDBAgent().runTransaction(trx);
 }
 
 void DBTablesMonitoring::addHostgroupInfo(HostgroupInfo *groupInfo)
@@ -2138,7 +2179,8 @@ void DBTablesMonitoring::addTriggerInfoWithoutTransaction(
 	dbAgent.insert(arg);
 }
 
-void DBTablesMonitoring::addEventInfoWithoutTransaction(const EventInfo &eventInfo)
+void DBTablesMonitoring::addEventInfoWithoutTransaction(
+  DBAgent &dbAgent, const EventInfo &eventInfo)
 {
 	DBAgent::InsertArg arg(tableProfileEvents);
 	arg.add(AUTO_INCREMENT_VALUE_U64);
@@ -2154,7 +2196,7 @@ void DBTablesMonitoring::addEventInfoWithoutTransaction(const EventInfo &eventIn
 	arg.add(eventInfo.hostName);
 	arg.add(eventInfo.brief);
 	arg.upsertOnDuplicate = true;
-	insert(arg);
+	dbAgent.insert(arg);
 }
 
 void DBTablesMonitoring::addItemInfoWithoutTransaction(const ItemInfo &itemInfo)

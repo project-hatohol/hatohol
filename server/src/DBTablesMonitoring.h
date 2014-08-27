@@ -407,7 +407,8 @@ public:
 protected:
 	static void addTriggerInfoWithoutTransaction(
 	  DBAgent &dbAgent, const TriggerInfo &triggerInfo);
-	void addEventInfoWithoutTransaction(const EventInfo &eventInfo);
+	static void addEventInfoWithoutTransaction(
+	  DBAgent &dbAgent, const EventInfo &eventInfo);
 	void addItemInfoWithoutTransaction(const ItemInfo &itemInfo);
 	void addHostgroupInfoWithoutTransaction(const HostgroupInfo &groupInfo);
 	void addHostgroupElementWithoutTransaction(
