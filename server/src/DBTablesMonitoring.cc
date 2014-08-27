@@ -1755,18 +1755,43 @@ void DBTablesMonitoring::setEventInfoList(
 
 void DBTablesMonitoring::addHostgroupInfo(HostgroupInfo *groupInfo)
 {
-	DBCLIENT_TRANSACTION_BEGIN() {
-		addHostgroupInfoWithoutTransaction(*groupInfo);
-	} DBCLIENT_TRANSACTION_END();
+	struct TrxProc : public DBAgent::TransactionProc {
+		HostgroupInfo *groupInfo;
+		
+		TrxProc(HostgroupInfo *_groupInfo)
+		: groupInfo(_groupInfo)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			addHostgroupInfoWithoutTransaction(dbAgent, *groupInfo);
+		}
+	} trx(groupInfo);
+	getDBAgent().runTransaction(trx);
 }
 
-void DBTablesMonitoring::addHostgroupInfoList(const HostgroupInfoList &groupInfoList)
+void DBTablesMonitoring::addHostgroupInfoList(
+  const HostgroupInfoList &groupInfoList)
 {
-	HostgroupInfoListConstIterator it = groupInfoList.begin();
-	DBCLIENT_TRANSACTION_BEGIN() {
-		for (; it != groupInfoList.end(); ++it)
-			addHostgroupInfoWithoutTransaction(*it);
-	} DBCLIENT_TRANSACTION_END();
+	struct TrxProc : public DBAgent::TransactionProc {
+		const HostgroupInfoList &groupInfoList;
+		
+		TrxProc(const HostgroupInfoList &_groupInfoList)
+		: groupInfoList(_groupInfoList)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			HostgroupInfoListConstIterator it =
+			  groupInfoList.begin();
+			for (; it != groupInfoList.end(); ++it)
+				addHostgroupInfoWithoutTransaction(dbAgent, *it);
+		}
+	} trx(groupInfoList);
+	getDBAgent().runTransaction(trx);
+
 }
 
 void DBTablesMonitoring::addHostgroupElement
@@ -2216,7 +2241,7 @@ void DBTablesMonitoring::addItemInfoWithoutTransaction(const ItemInfo &itemInfo)
 }
 
 void DBTablesMonitoring::addHostgroupInfoWithoutTransaction(
-  const HostgroupInfo &groupInfo)
+  DBAgent &dbAgent, const HostgroupInfo &groupInfo)
 {
 	DBAgent::InsertArg arg(tableProfileHostgroups);
 	arg.add(groupInfo.id);
@@ -2224,7 +2249,7 @@ void DBTablesMonitoring::addHostgroupInfoWithoutTransaction(
 	arg.add(groupInfo.groupId);
 	arg.add(groupInfo.groupName);
 	arg.upsertOnDuplicate = true;
-	insert(arg);
+	dbAgent.insert(arg);
 }
 
 void DBTablesMonitoring::addHostgroupElementWithoutTransaction(

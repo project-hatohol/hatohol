@@ -410,7 +410,8 @@ protected:
 	static void addEventInfoWithoutTransaction(
 	  DBAgent &dbAgent, const EventInfo &eventInfo);
 	void addItemInfoWithoutTransaction(const ItemInfo &itemInfo);
-	void addHostgroupInfoWithoutTransaction(const HostgroupInfo &groupInfo);
+	static void addHostgroupInfoWithoutTransaction(
+	  DBAgent &dbAgent, const HostgroupInfo &groupInfo);
 	void addHostgroupElementWithoutTransaction(
 	  const HostgroupElement &hostgroupElement);
 	void addHostInfoWithoutTransaction(const HostInfo &hostInfo);
