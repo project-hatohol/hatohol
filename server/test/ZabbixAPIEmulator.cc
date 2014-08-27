@@ -60,6 +60,14 @@ struct ZabbixAPIEmulator::ParameterEventGet {
 	{
 	}
 
+	void reset(void) {
+		output = "extend";
+		sortOrder = "ASC";
+		limit = 0;
+		eventIdFrom = 0;
+		eventIdTill = 0;
+	}
+
 	bool isInRange(const int64_t &id, const int64_t &num = 0)
 	{
 		if (limit != 0 && num > limit)
@@ -136,6 +144,7 @@ struct ZabbixAPIEmulator::PrivateContext {
 	{
 		operationMode = OPE_MODE_NORMAL;
 		apiVersion = API_VERSION_2_0_4;
+		paramEvent.reset();
 		firstEventId = 0;
 		lastEventId = 0;
 		expectedFirstEventId = 0;
@@ -595,6 +604,8 @@ void ZabbixAPIEmulator::setExpectedLastEventId(const EventIdType &id)
 
 void ZabbixAPIEmulator::parseEventGetParameter(APIHandlerArg &arg)
 {
+	m_ctx->paramEvent.reset();
+
 	JSONParserAgent parser(arg.msg->request_body->data);
 	if (parser.hasError()) {
 		THROW_HATOHOL_EXCEPTION("Error in parsing: %s",
