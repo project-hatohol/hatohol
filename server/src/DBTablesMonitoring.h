@@ -405,7 +405,8 @@ public:
 				      const IncidentsQueryOption &option);
 
 protected:
-	void addTriggerInfoWithoutTransaction(const TriggerInfo &triggerInfo);
+	static void addTriggerInfoWithoutTransaction(
+	  DBAgent &dbAgent, const TriggerInfo &triggerInfo);
 	void addEventInfoWithoutTransaction(const EventInfo &eventInfo);
 	void addItemInfoWithoutTransaction(const ItemInfo &itemInfo);
 	void addHostgroupInfoWithoutTransaction(const HostgroupInfo &groupInfo);

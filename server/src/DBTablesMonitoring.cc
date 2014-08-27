@@ -1400,18 +1400,41 @@ void DBTablesMonitoring::getHostInfoList(HostInfoList &hostInfoList,
 
 void DBTablesMonitoring::addTriggerInfo(TriggerInfo *triggerInfo)
 {
-	DBCLIENT_TRANSACTION_BEGIN() {
-		addTriggerInfoWithoutTransaction(*triggerInfo);
-	} DBCLIENT_TRANSACTION_END();
+	struct TrxProc : public DBAgent::TransactionProc {
+		TriggerInfo *triggerInfo;
+
+		TrxProc(TriggerInfo *_triggerInfo)
+		: triggerInfo(_triggerInfo)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			addTriggerInfoWithoutTransaction(dbAgent, *triggerInfo);
+		}
+	} trx(triggerInfo);
+	getDBAgent().runTransaction(trx);
 }
 
 void DBTablesMonitoring::addTriggerInfoList(const TriggerInfoList &triggerInfoList)
 {
-	TriggerInfoListConstIterator it = triggerInfoList.begin();
-	DBCLIENT_TRANSACTION_BEGIN() {
-		for (; it != triggerInfoList.end(); ++it)
-			addTriggerInfoWithoutTransaction(*it);
-	} DBCLIENT_TRANSACTION_END();
+	struct TrxProc : public DBAgent::TransactionProc {
+		const TriggerInfoList &triggerInfoList;
+
+		TrxProc(const TriggerInfoList &_triggerInfoList)
+		: triggerInfoList(_triggerInfoList)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			TriggerInfoListConstIterator it =
+			  triggerInfoList.begin();
+			for (; it != triggerInfoList.end(); ++it)
+				addTriggerInfoWithoutTransaction(dbAgent, *it);
+		}
+	} trx(triggerInfoList);
+	getDBAgent().runTransaction(trx);
 }
 
 bool DBTablesMonitoring::getTriggerInfo(TriggerInfo &triggerInfo,
@@ -1487,24 +1510,45 @@ void DBTablesMonitoring::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	}
 }
 
-void DBTablesMonitoring::setTriggerInfoList(const TriggerInfoList &triggerInfoList,
-                                         const ServerIdType &serverId)
+// TODO: remove This method is not used
+void DBTablesMonitoring::setTriggerInfoList(
+  const TriggerInfoList &triggerInfoList, const ServerIdType &serverId)
 {
-	// TODO: This way is too rough and inefficient.
-	//       We should update only the changed triggers.
-	const DBTermCodec *dbTermCodec = getDBAgent().getDBTermCodec();
-	DBAgent::DeleteArg deleteArg(tableProfileTriggers);
-	deleteArg.condition =
-	  StringUtils::sprintf("%s=%s",
-	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName,
-	    dbTermCodec->enc(serverId).c_str());
+	struct TrxProc : public DBAgent::TransactionProc {
+		const TriggerInfoList &triggerInfoList;
+		const ServerIdType &serverId;
+		DBAgent::DeleteArg deleteArg;
 
-	TriggerInfoListConstIterator it = triggerInfoList.begin();
-	DBCLIENT_TRANSACTION_BEGIN() {
-		deleteRows(deleteArg);
-		for (; it != triggerInfoList.end(); ++it)
-			addTriggerInfoWithoutTransaction(*it);
-	} DBCLIENT_TRANSACTION_END();
+		TrxProc(const TriggerInfoList &_triggerInfoList,
+		        const ServerIdType &_serverId)
+		: triggerInfoList(_triggerInfoList),
+		  serverId(_serverId),
+		  deleteArg(tableProfileTriggers)
+		{
+		}
+
+		virtual bool preproc(DBAgent &dbAgent) override
+		{
+			// TODO: This way is too rough and inefficient.
+			//       We should update only the changed triggers.
+			const DBTermCodec *dbTermCodec =
+			  dbAgent.getDBTermCodec();
+			deleteArg.condition = StringUtils::sprintf("%s=%s",
+			  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName,
+			  dbTermCodec->enc(serverId).c_str());
+			return true;
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			dbAgent.deleteRows(deleteArg);
+			TriggerInfoListConstIterator it =
+			  triggerInfoList.begin();
+			for (; it != triggerInfoList.end(); ++it)
+				addTriggerInfoWithoutTransaction(dbAgent, *it);
+		}
+	} trx(triggerInfoList, serverId);
+	getDBAgent().runTransaction(trx);
 }
 
 int DBTablesMonitoring::getLastChangeTimeOfTrigger(const ServerIdType &serverId)
@@ -2078,7 +2122,7 @@ HatoholError DBTablesMonitoring::getIncidentInfoVect(
 // Protected methods
 // ---------------------------------------------------------------------------
 void DBTablesMonitoring::addTriggerInfoWithoutTransaction(
-  const TriggerInfo &triggerInfo)
+  DBAgent &dbAgent, const TriggerInfo &triggerInfo)
 {
 	DBAgent::InsertArg arg(tableProfileTriggers);
 	arg.add(triggerInfo.serverId);
@@ -2091,7 +2135,7 @@ void DBTablesMonitoring::addTriggerInfoWithoutTransaction(
 	arg.add(triggerInfo.hostName);
 	arg.add(triggerInfo.brief);
 	arg.upsertOnDuplicate = true;
-	insert(arg);
+	dbAgent.insert(arg);
 }
 
 void DBTablesMonitoring::addEventInfoWithoutTransaction(const EventInfo &eventInfo)
