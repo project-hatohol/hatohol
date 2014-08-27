@@ -111,7 +111,6 @@ protected:
 	void createEventInfo(const ArmResultTriggerInfo &resTrigger,
 			     EventInfoList &eventInfoList);
 	void setInitialTrrigerStaus(void);
-	void setInitialTriggerTable(void);
 
 private:
 	struct Impl;
