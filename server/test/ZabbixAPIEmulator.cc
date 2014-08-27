@@ -585,7 +585,7 @@ string ZabbixAPIEmulator::addJSONResponse(const string &slice,
 
 void ZabbixAPIEmulator::setExpectedFirstEventId(const EventIdType &id)
 {
-	m_ctx->expectedLastEventId = id;
+	m_ctx->expectedFirstEventId = id;
 }
 
 void ZabbixAPIEmulator::setExpectedLastEventId(const EventIdType &id)
