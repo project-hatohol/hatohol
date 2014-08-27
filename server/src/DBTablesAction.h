@@ -22,7 +22,7 @@
 
 #include <string>
 #include "DBTablesMonitoring.h"
-#include "DBClient.h"
+#include "DBTables.h"
 #include "Params.h"
 
 const static uint64_t INVALID_ACTION_LOG_ID = -1;
@@ -258,7 +258,7 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-class DBTablesAction : public DBClient {
+class DBTablesAction : public DBTables {
 
 public:
 	struct LogEndExecActionArg {
@@ -281,14 +281,7 @@ public:
 	static const char *getTableNameActions(void);
 	static const char *getTableNameActionLogs(void);
 
-	// This is a temporary mesurement. We'll replace the base class with DBTables,
-	// which provides the method that returns a reference.
-	DBAgent &getDBAgent(void)
-	{
-		return *DBClient::getDBAgent();
-	}
-
-	DBTablesAction(void);
+	DBTablesAction(DBAgent &dbAgent);
 	virtual ~DBTablesAction();
 	HatoholError addAction(ActionDef &actionDef,
 	                       const OperationPrivilege &privilege);
@@ -375,6 +368,8 @@ public:
 	void deleteInvalidActions(void);
 
 protected:
+	static SetupInfo &getSetupInfo(void);
+
 	ItemDataNullFlagType getNullFlag(const ActionDef &actionDef,
 	                                 ActionConditionEnableFlag enableFlag);
 

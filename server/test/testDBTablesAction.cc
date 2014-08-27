@@ -33,11 +33,8 @@ using namespace mlpl;
 namespace testDBTablesAction {
 
 #define DECLARE_DBTABLES_ACTION(VAR_NAME) \
-	DBTablesAction VAR_NAME;
-	/*** After DBTablesAction inherits DBTables, we use the following way.
 	DBHatohol _dbHatohol; \
-	DBTablesAction &VAR_NAME = _dbHatohol.getAction();
-	***/
+	DBTablesAction &VAR_NAME = _dbHatohol.getDBTablesAction();
 
 static string makeExpectedString(const ActionDef &actDef, int expectedId)
 {
@@ -296,11 +293,14 @@ void cut_setup(void)
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
-void test_dbDomainId(void)
+void test_tablesVersion(void)
 {
+	// create an instance
+	// Tables in the DB will be automatically created.
 	DECLARE_DBTABLES_ACTION(dbAction);
-	cppcut_assert_equal(DB_TABLES_ID_ACTION,
-	                    dbAction.getDBAgent().getDBDomainId());
+	assertDBTablesVersion(
+	  dbAction.getDBAgent(),
+	  DB_TABLES_ID_ACTION, DBTablesAction::ACTION_DB_VERSION);
 }
 
 void test_addAction(void)
@@ -944,39 +944,6 @@ void test_incidentSenderIsNotEnabled(void)
 }
 
 } // namespace testDBTablesAction
-
-namespace testDBTablesActionDefault {
-
-void cut_setup(void)
-{
-	hatoholInit();
-}
-
-void test_databaseName(void)
-{
-	DBConnectInfo connInfo =
-	  DBClient::getDBConnectInfo(DB_TABLES_ID_ACTION);
-	cppcut_assert_equal(string(DBTablesConfig::DEFAULT_DB_NAME),
-	                    connInfo.dbName);
-}
-
-void test_databaseUser(void)
-{
-	DBConnectInfo connInfo =
-	  DBClient::getDBConnectInfo(DB_TABLES_ID_ACTION);
-	cppcut_assert_equal(string(DBTablesConfig::DEFAULT_USER_NAME),
-	                    connInfo.user);
-}
-
-void test_databasePassword(void)
-{
-	DBConnectInfo connInfo =
-	  DBClient::getDBConnectInfo(DB_TABLES_ID_ACTION);
-	cppcut_assert_equal(string(DBTablesConfig::DEFAULT_USER_NAME),
-	                    connInfo.user);
-}
-
-} // namespace testDBTablesActionDefault
 
 namespace testActionsQueryOption {
 

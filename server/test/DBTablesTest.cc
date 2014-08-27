@@ -1384,9 +1384,6 @@ void setupTestDB(void)
 	DBClient::setDefaultDBParams(DB_TABLES_ID_CONFIG, TEST_DB_NAME,
 	                             TEST_DB_USER, TEST_DB_PASSWORD);
 
-	DBClient::setDefaultDBParams(DB_TABLES_ID_ACTION, TEST_DB_NAME,
-	                             TEST_DB_USER, TEST_DB_PASSWORD);
-
 	// Only when we use SQLite3 for DBTablesHatoho,
 	// the following line should be enabled.
 	deleteDBClientHatoholDB();

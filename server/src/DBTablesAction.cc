@@ -23,7 +23,6 @@
 #include "ThreadLocalDBCache.h"
 #include "DBAgentFactory.h"
 #include "DBTablesAction.h"
-#include "DBTablesConfig.h"
 #include "DBTablesMonitoring.h"
 #include "Mutex.h"
 #include "ItemGroupStream.h"
@@ -332,16 +331,16 @@ static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
 static const size_t NUM_TABLE_INFO =
 sizeof(DB_TABLE_INFO) / sizeof(DBClient::DBSetupTableInfo);
 
-static bool addColumnOwnerUserId(DBAgent *dbAgent)
+static bool addColumnOwnerUserId(DBAgent &dbAgent)
 {
 	DBAgent::AddColumnsArg addColumnsArg(tableProfileActions);
 	addColumnsArg.columnIndexes.push_back(
 	  IDX_ACTIONS_OWNER_USER_ID);
-	dbAgent->addColumns(addColumnsArg);
+	dbAgent.addColumns(addColumnsArg);
 	return true;
 }
 
-static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
+static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
 {
 	if (oldVer <= 8) {
 		if (!addColumnOwnerUserId(dbAgent))
@@ -349,13 +348,6 @@ static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
 	}
 	return true;
 }
-
-static const DBClient::DBSetupFuncArg DB_ACTION_SETUP_FUNC_ARG = {
-	DBTablesAction::ACTION_DB_VERSION,
-	NUM_TABLE_INFO,
-	DB_TABLE_INFO,
-	&updateDB,
-};
 
 struct DBTablesAction::Impl
 {
@@ -391,9 +383,6 @@ DBTablesAction::LogEndExecActionArg::LogEndExecActionArg(void)
 // ---------------------------------------------------------------------------
 void DBTablesAction::init(void)
 {
-	registerSetupInfo(
-	  DB_TABLES_ID_ACTION, DEFAULT_DB_NAME, &DB_ACTION_SETUP_FUNC_ARG);
-
 	g_deleteActionCtx = new deleteInvalidActionsContext;
 	g_deleteActionCtx->idleEventId = INVALID_EVENT_ID;
 	g_deleteActionCtx->timerId = g_timeout_add(DEFAULT_ACTION_DELETE_INTERVAL_MSEC,
@@ -403,10 +392,7 @@ void DBTablesAction::init(void)
 
 void DBTablesAction::reset(void)
 {
-	// Now we assume that a DB server for this class is the same as that
-	// for DBTablesConfig. So we copy the connectInfo of it.
-	DBConnectInfo connInfo = getDBConnectInfo(DB_TABLES_ID_CONFIG);
-	setConnectInfo(DB_TABLES_ID_ACTION, connInfo);
+	getSetupInfo().initialized = false;
 }
 
 void DBTablesAction::stop(void)
@@ -424,8 +410,8 @@ const char *DBTablesAction::getTableNameActionLogs(void)
 	return TABLE_NAME_ACTION_LOGS;
 }
 
-DBTablesAction::DBTablesAction(void)
-: DBClient(DB_TABLES_ID_ACTION),
+DBTablesAction::DBTablesAction(DBAgent &dbAgent)
+: DBTables(dbAgent, getSetupInfo()),
   m_impl(new Impl())
 {
 }
@@ -816,6 +802,26 @@ bool DBTablesAction::isIncidentSenderEnabled(void)
 
 // ---------------------------------------------------------------------------
 // Protected methods
+DBTables::SetupInfo &DBTablesAction::getSetupInfo(void)
+{
+	static const TableSetupInfo DB_TABLE_INFO[] = {
+	{
+		&tableProfileActions,
+	}, {
+		&tableProfileActionLogs,
+	}
+	};
+
+	static SetupInfo setupInfo = {
+		DB_TABLES_ID_ACTION,
+		ACTION_DB_VERSION,
+		ARRAY_SIZE(DB_TABLE_INFO),
+		DB_TABLE_INFO,
+		updateDB,
+	};
+	return setupInfo;
+};
+
 // ---------------------------------------------------------------------------
 ItemDataNullFlagType DBTablesAction::getNullFlag
   (const ActionDef &actionDef, ActionConditionEnableFlag enableFlag)
@@ -1168,7 +1174,7 @@ string ActionsQueryOption::Impl::getActionTypeAndOwnerCondition(void)
 			return StringUtils::sprintf("action_type=%d",
 						    (int)type);
 		} else {
-			return DBTablesAction::getAlwaysFalseCondition();
+			return DBHatohol::getAlwaysFalseCondition();
 		}
 	default:
 		if (ownerCondition.empty()) {
