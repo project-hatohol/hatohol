@@ -133,6 +133,7 @@ static void assertHostsIdNameHashInParser(
 static void _assertHosts(const string &path, const string &callbackName = "",
                          const ServerIdType &serverId = ALL_SERVERS)
 {
+	loadTestDBHosts();
 	startFaceRest();
 
 	StringMap queryMap;
@@ -154,6 +155,8 @@ static void _assertTriggers(const string &path, const string &callbackName = "",
                             const ServerIdType &serverId = ALL_SERVERS,
                             uint64_t hostId = ALL_HOSTS)
 {
+	loadTestDBTriggers();
+	loadTestDBHosts();
 	startFaceRest();
 
 	RequestArg arg(path, callbackName);
@@ -222,6 +225,9 @@ static void _assertTriggers(const string &path, const string &callbackName = "",
 
 static void _assertEvents(const string &path, const string &callbackName = "")
 {
+	loadTestDBTriggers();
+	loadTestDBEvents();
+	loadTestDBHosts();
 	startFaceRest();
 
 	// build expected data
@@ -281,6 +287,7 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 
 static void _assertItems(const string &path, const string &callbackName = "")
 {
+	loadTestDBItems();
 	startFaceRest();
 
 	RequestArg arg(path, callbackName);
@@ -532,7 +539,7 @@ void test_events(void)
 void test_eventsWithIncidents(void)
 {
 	 // incident info will be added when a IncidentSender action exists
-	loadTestDBAction();
+	loadTestDBIncidents();
 
 	assertEvents("/event");
 }
@@ -574,6 +581,12 @@ void test_itemsJSONP(void)
 void test_overview(void)
 {
 	startFaceRest();
+	loadTestDBTriggers();
+	loadTestDBItems();
+	loadTestDBHosts();
+	loadTestDBHostgroups();
+	loadTestDBHostgroupElements();
+	loadTestDBServerStatus();
 
 	RequestArg arg("/overview");
 	// It's supposed to be a user with ID:2, who can access all hosts.

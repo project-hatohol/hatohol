@@ -212,6 +212,7 @@ void loadTestDBItems(void);
 void loadTestDBHosts(void);
 void loadTestDBHostgroups(void);
 void loadTestDBHostgroupElements(void);
+void loadTestDBServerStatus(void);
 
 void loadTestDBAction(void);
 void loadTestDBIncidents(void);

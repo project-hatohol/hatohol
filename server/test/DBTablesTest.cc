@@ -1570,6 +1570,16 @@ void loadTestDBAction(void)
 		dbAction.addAction(testActionDef[i], privilege);
 }
 
+void loadTestDBServerStatus(void)
+{
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	for (size_t i = 0; i < NumTestServerStatus; i++) {
+		MonitoringServerStatus *serverStatus = &testServerStatus[i];
+		dbMonitoring.addMonitoringServerStatus(serverStatus);
+	}
+}
+
 void loadTestDBIncidents(void)
 {
 	ThreadLocalDBCache cache;
