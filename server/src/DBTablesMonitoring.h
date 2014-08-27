@@ -286,6 +286,13 @@ public:
 	static const char *TABLE_NAME_SERVER_STATUS;
 	static const char *TABLE_NAME_INCIDENTS;
 
+	// This is a temporary mesurement. We'll replace the base class with
+	// DBTables, which provides the method that returns a reference.
+	DBAgent &getDBAgent(void)
+	{
+		return *DBClient::getDBAgent();
+	}
+
 	DBTablesMonitoring(void);
 	virtual ~DBTablesMonitoring();
 

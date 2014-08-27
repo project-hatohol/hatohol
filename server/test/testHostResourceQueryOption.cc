@@ -687,7 +687,7 @@ void test_getDBTermCodec(void)
 	HostResourceQueryOption option(TEST_SYNAPSE);
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	cppcut_assert_equal(typeid(*dbMonitoring.getDBAgent()->getDBTermCodec()),
+	cppcut_assert_equal(typeid(*dbMonitoring.getDBAgent().getDBTermCodec()),
 	                    typeid(*option.getDBTermCodec()));
 }
 

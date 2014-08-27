@@ -223,10 +223,10 @@ void _assertSend(const HatoholErrorCode &expected,
 	makeExpectedIncidentInfo(incident, tracker, event,
 				 g_redmineEmulator.getLastIssue());
 	ThreadLocalDBCache cache;
-	DBAgent *dbAgent = cache.getMonitoring().getDBAgent();
+	DBAgent &dbAgent = cache.getMonitoring().getDBAgent();
 	string statement = "select * from incidents;";
 	string expect = makeIncidentOutput(incident);
-	assertDBContent(dbAgent, statement, expect);
+	assertDBContent(&dbAgent, statement, expect);
 }
 #define assertSend(E,T,V) \
 cut_trace(_assertSend(E,T,V))
@@ -332,9 +332,9 @@ void _assertThread(size_t numErrors, bool shouldSuccess = true)
 		expect = makeIncidentOutput(incident);
 	}
 	ThreadLocalDBCache cache;
-	DBAgent *dbAgent = cache.getMonitoring().getDBAgent();
+	DBAgent &dbAgent = cache.getMonitoring().getDBAgent();
 	string statement = "select * from incidents;";
-	assertDBContent(dbAgent, statement, expect);
+	assertDBContent(&dbAgent, statement, expect);
 }
 #define assertThread(N, ...) \
 cut_trace(_assertThread(N, ##__VA_ARGS__))

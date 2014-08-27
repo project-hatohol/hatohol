@@ -1496,7 +1496,7 @@ void DBTablesMonitoring::setTriggerInfoList(const TriggerInfoList &triggerInfoLi
 {
 	// TODO: This way is too rough and inefficient.
 	//       We should update only the changed triggers.
-	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
+	const DBTermCodec *dbTermCodec = getDBAgent().getDBTermCodec();
 	DBAgent::DeleteArg deleteArg(tableProfileTriggers);
 	deleteArg.condition =
 	  StringUtils::sprintf("%s=%s",
@@ -1513,7 +1513,7 @@ void DBTablesMonitoring::setTriggerInfoList(const TriggerInfoList &triggerInfoLi
 
 int DBTablesMonitoring::getLastChangeTimeOfTrigger(const ServerIdType &serverId)
 {
-	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
+	const DBTermCodec *dbTermCodec = getDBAgent().getDBTermCodec();
 	DBAgent::SelectExArg arg(tableProfileTriggers);
 	string stmt = StringUtils::sprintf("coalesce(max(%s), 0)",
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC].columnName);
@@ -1661,7 +1661,7 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 void DBTablesMonitoring::setEventInfoList(const EventInfoList &eventInfoList,
                                        const ServerIdType &serverId)
 {
-	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
+	const DBTermCodec *dbTermCodec = getDBAgent().getDBTermCodec();
 	DBAgent::DeleteArg deleteArg(tableProfileEvents);
 	deleteArg.condition =
 	  StringUtils::sprintf("%s=%s",
@@ -1728,7 +1728,7 @@ void DBTablesMonitoring::addHostInfoList(const HostInfoList &hostInfoList)
 
 uint64_t DBTablesMonitoring::getLastEventId(const ServerIdType &serverId)
 {
-	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
+	const DBTermCodec *dbTermCodec = getDBAgent().getDBTermCodec();
 	DBAgent::SelectExArg arg(tableProfileEvents);
 	string stmt = StringUtils::sprintf("coalesce(max(%s), -1)",
 	    COLUMN_DEF_EVENTS[IDX_EVENTS_ID].columnName);
@@ -2168,7 +2168,7 @@ void DBTablesMonitoring::addHostgroupInfoWithoutTransaction(
 void DBTablesMonitoring::addHostgroupElementWithoutTransaction(
   const HostgroupElement &hostgroupElement)
 {
-	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
+	const DBTermCodec *dbTermCodec = getDBAgent().getDBTermCodec();
 	string condition = StringUtils::sprintf(
 	  "server_id=%s AND host_id=%s AND host_group_id=%s",
 	  dbTermCodec->enc(hostgroupElement.serverId).c_str(),
