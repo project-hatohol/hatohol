@@ -130,7 +130,10 @@ struct ZabbixAPIEmulator::PrivateContext {
 
 	void reset(void)
 	{
+		operationMode = OPE_MODE_NORMAL;
 		apiVersion = API_VERSION_2_0_4;
+		firstEventId = 0;
+		lastEventId = 0;
 	}
 
 	void setupEventRange(void)
