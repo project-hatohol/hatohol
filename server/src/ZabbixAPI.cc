@@ -243,15 +243,16 @@ ItemTablePtr ZabbixAPI::getTrigger(int requestSince)
 {
 	HatoholError queryRet;
 	SoupMessage *msg = queryTrigger(queryRet, requestSince);
-	if (!msg){
-		if ( queryRet == HTERR_FAILED_INTERNAL_ERROR )
+	if (!msg) {
+		if (queryRet == HTERR_FAILED_INTERNAL_ERROR) {
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
 			  HTERR_FAILED_INTERNAL_ERROR,
 			  "Failed to query triggers.");
-		else
+		} else {
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
 			  HTERR_FAILED_CONNECT_ZABBIX,
 			  "%s", queryRet.getMessage().c_str());
+		}
 	}
 	JSONParserAgent parser(msg->response_body->data);
 	if (parser.hasError()) {
@@ -281,15 +282,16 @@ ItemTablePtr ZabbixAPI::getItems(void)
 {
 	HatoholError queryRet;
 	SoupMessage *msg = queryItem(queryRet);
-	if (!msg){
-		if ( queryRet == HTERR_FAILED_INTERNAL_ERROR )
+	if (!msg) {
+		if (queryRet == HTERR_FAILED_INTERNAL_ERROR) {
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
 			  HTERR_FAILED_INTERNAL_ERROR,
 			  "Failed to query items.");
-		else
+		} else {
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
 			  HTERR_FAILED_CONNECT_ZABBIX,
 			  "%s", queryRet.getMessage().c_str());
+		}
 	}
 	JSONParserAgent parser(msg->response_body->data);
 	g_object_unref(msg);
@@ -316,15 +318,16 @@ void ZabbixAPI::getHosts(
 {
 	HatoholError queryRet;
 	SoupMessage *msg = queryHost(queryRet);
-	if (!msg){
-		if ( queryRet == HTERR_FAILED_INTERNAL_ERROR )
+	if (!msg) {
+		if (queryRet == HTERR_FAILED_INTERNAL_ERROR) {
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
 			  HTERR_FAILED_INTERNAL_ERROR,
 			  "Failed to query hosts.");
-		else
+		} else {
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
 			  HTERR_FAILED_CONNECT_ZABBIX,
 			  "%s", queryRet.getMessage().c_str());
+		}
 	}
 	JSONParserAgent parser(msg->response_body->data);
 	g_object_unref(msg);
@@ -354,15 +357,16 @@ void ZabbixAPI::getGroups(ItemTablePtr &groupsTablePtr)
 {
 	HatoholError queryRet;
 	SoupMessage *msg = queryGroup(queryRet);
-	if (!msg){
-		if ( queryRet == HTERR_FAILED_INTERNAL_ERROR )
+	if (!msg) {
+		if (queryRet == HTERR_FAILED_INTERNAL_ERROR) {
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
 			  HTERR_FAILED_INTERNAL_ERROR,
 			  "Failed to query groups.");
-		else
+		} else {
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
 			  HTERR_FAILED_CONNECT_ZABBIX,
 			  "%s", queryRet.getMessage().c_str());
+		}
 	}
 	JSONParserAgent parser(msg->response_body->data);
 	g_object_unref(msg);
@@ -387,15 +391,16 @@ ItemTablePtr ZabbixAPI::getApplications(const vector<uint64_t> &appIdVector)
 {
 	HatoholError queryRet;
 	SoupMessage *msg = queryApplication(appIdVector, queryRet);
-	if (!msg){
-		if ( queryRet == HTERR_FAILED_INTERNAL_ERROR )
+	if (!msg) {
+		if (queryRet == HTERR_FAILED_INTERNAL_ERROR) {
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
 			  HTERR_FAILED_INTERNAL_ERROR,
 			  "Failed to query application.");
-		else
+		} else {
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
 			  HTERR_FAILED_CONNECT_ZABBIX,
 			  "%s", queryRet.getMessage().c_str());
+		}
 	}
 	JSONParserAgent parser(msg->response_body->data);
 	g_object_unref(msg);
@@ -434,15 +439,16 @@ ItemTablePtr ZabbixAPI::getEvents(uint64_t eventIdOffset, uint64_t eventIdTill)
 {
 	HatoholError queryRet;
 	SoupMessage *msg = queryEvent(eventIdOffset, eventIdTill, queryRet);
-	if (!msg){
-		if ( queryRet == HTERR_FAILED_INTERNAL_ERROR )
+	if (!msg) {
+		if (queryRet == HTERR_FAILED_INTERNAL_ERROR) {
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
 			  HTERR_FAILED_INTERNAL_ERROR,
 			  "Failed to query events.");
-		else
+		} else {
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
 			  HTERR_FAILED_CONNECT_ZABBIX,
 			  "%s", queryRet.getMessage().c_str());
+		}
 	}
 	JSONParserAgent parser(msg->response_body->data);
 	g_object_unref(msg);
