@@ -25,7 +25,11 @@ AC_DEFINE_UNQUOTED(SYSCONFDIR, "`eval echo $sysconfdir`", "Data directory.")
 if test x"$localstatedir" = x"NONE"; then
     runstatedir=$ac_default_localstatedir
 fi
-AC_DEFINE_UNQUOTED(LOCALSTATEDIR, "`eval echo $localstatedir`", "Local state directory.")
+expanded_localstatedir="`eval echo $localstatedir`"
+AC_DEFINE_UNQUOTED(LOCALSTATEDIR, "$expanded_localstatedir", "Local state directory.")
+
+expanded_pkglocalstatedir="$expanded_localstatedir/$PACKAGE"
+AC_SUBST(expanded_pkglocalstatedir)
 
 if test x"$exec_prefix" = x"NONE"; then
     exec_prefix=$prefix
@@ -246,6 +250,9 @@ server/hap/Makefile
 server/tools/Makefile
 server/data/Makefile
 server/data/tls/Makefile
+server/data/tls/hatohol-ca-initialize
+server/data/tls/hatohol-ca-sign-client-certificate
+server/data/tls/hatohol-ca-sign-server-certificate
 server/test/Makefile
 server/test/fixtures/Makefile
 server/benchmark/Makefile

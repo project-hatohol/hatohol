@@ -8,7 +8,6 @@
 *.trs
 *.pyc
 *.pyo
-*.in
 *~
 .deps/
 .libs/
@@ -55,6 +54,9 @@ Makefile.in
 /server/tools/hatohol-def-src-file-generator
 /server/tools/hatohol/hatohol_def.py
 /server/tools/usr/
+/server/data/tls/hatohol-ca-initialize
+/server/data/tls/hatohol-ca-sign-client-certificate
+/server/data/tls/hatohol-ca-sign-server-certificate
 /server/benchmark/bench-string-join
 /stamp-h1
 /test-driver
