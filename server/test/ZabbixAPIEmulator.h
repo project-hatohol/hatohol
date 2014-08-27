@@ -60,6 +60,8 @@ public:
 	void setOperationMode(OperationMode mode);
 	void setAPIVersion(APIVersion version);
 	std::string getAPIVersionString(void);
+	void setExpectedFirstEventId(const EventIdType &id);
+	void setExpectedLastEventId(const EventIdType &id);
 
 	static std::string getAPIVersionString(APIVersion version);
 

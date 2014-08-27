@@ -732,4 +732,26 @@ void test_verifyEventsObtanedBySplitWay(void)
 		cppcut_assert_equal(true, *itr <= upperLimitOfEventsAtOneTime);
 }
 
+// for issue #447 (can't fetch one new event)
+void test_oneNewEvent(void)
+{
+	MonitoringServerInfo serverInfo = setupServer();
+	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
+	armZbxApiTestee.testOpenSession();
+
+	uint64_t expectedEventId = 8000;
+	g_apiEmulator.setExpectedLastEventId(expectedEventId);
+	armZbxApiTestee.callUpdateEvents();
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+        uint64_t actualEventId = dbMonitoring.getLastEventId(serverInfo.id);
+	cppcut_assert_equal(expectedEventId, actualEventId);
+
+	++expectedEventId;
+	g_apiEmulator.setExpectedLastEventId(expectedEventId);
+	armZbxApiTestee.callUpdateEvents();
+        actualEventId = dbMonitoring.getLastEventId(serverInfo.id);
+	cppcut_assert_equal(expectedEventId, actualEventId);
+}
+
 } // namespace testArmZabbixAPI

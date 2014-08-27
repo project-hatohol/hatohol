@@ -93,13 +93,17 @@ struct ZabbixAPIEmulator::PrivateContext {
 	ZabbixAPIEventMap zbxEventMap;
 	int64_t       firstEventId;
 	int64_t       lastEventId;
+	int64_t       expectedFirstEventId;
+	int64_t       expectedLastEventId;
 	
 	// methods
 	PrivateContext(void)
 	: operationMode(OPE_MODE_NORMAL),
 	  apiVersion(API_VERSION_2_0_4),
 	  firstEventId(0),
-	  lastEventId(0)
+	  lastEventId(0),
+	  expectedFirstEventId(0),
+	  expectedLastEventId(0)
 	{
 		initAPIHandlerMap();
 	}
@@ -134,15 +138,23 @@ struct ZabbixAPIEmulator::PrivateContext {
 		apiVersion = API_VERSION_2_0_4;
 		firstEventId = 0;
 		lastEventId = 0;
+		expectedFirstEventId = 0;
+		expectedLastEventId = 0;
 	}
 
 	void setupEventRange(void)
 	{
 		firstEventId = zbxEventMap.begin()->first;
+		if (expectedFirstEventId > firstEventId)
+			firstEventId = expectedFirstEventId;
 		if (paramEvent.eventIdFrom > firstEventId)
 			firstEventId = paramEvent.eventIdFrom;
 
 		lastEventId = zbxEventMap.rbegin()->first;
+		if (expectedLastEventId > 0 &&
+		    expectedLastEventId < lastEventId) {
+			lastEventId = expectedLastEventId;
+		}
 		if (paramEvent.eventIdTill > 0 &&
 		    paramEvent.eventIdTill < lastEventId) {
 			lastEventId = paramEvent.eventIdTill;
@@ -151,8 +163,6 @@ struct ZabbixAPIEmulator::PrivateContext {
 
 	bool isInRange(const int64_t &id, const int64_t &num = 0)
 	{
-		if (firstEventId == 0 && lastEventId == 0)
-			setupEventRange();
 		if (id < firstEventId)
 			return false;
 		if (id > lastEventId)
@@ -571,6 +581,16 @@ string ZabbixAPIEmulator::addJSONResponse(const string &slice,
 	const char *fmt = 
 	  "{\"jsonrpc\":\"2.0\",\"result\":[%s],\"id\":%" PRId64 "}";
 	return StringUtils::sprintf(fmt, slice.c_str(), arg.id);
+}
+
+void ZabbixAPIEmulator::setExpectedFirstEventId(const EventIdType &id)
+{
+	m_ctx->expectedLastEventId = id;
+}
+
+void ZabbixAPIEmulator::setExpectedLastEventId(const EventIdType &id)
+{
+	m_ctx->expectedLastEventId = id;
 }
 
 void ZabbixAPIEmulator::parseEventGetParameter(APIHandlerArg &arg)
