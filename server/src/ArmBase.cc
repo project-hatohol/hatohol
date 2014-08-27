@@ -279,7 +279,7 @@ void ArmBase::setCopyOnDemandEnabled(bool enable)
 
 void ArmBase::registerAvailableTrigger(const ArmPollingResult type,
 				       const TriggerIdType  trrigerId,
-				       const HatoholError   hatoholError)
+				       const HatoholError   &hatoholError)
 {
 	m_impl->ArmResultTriggerTable[type].statusType = TRIGGER_STATUS_UNKNOWN;
 	m_impl->ArmResultTriggerTable[type].triggerId = trrigerId;
