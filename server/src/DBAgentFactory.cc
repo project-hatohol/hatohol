@@ -30,7 +30,7 @@ DBAgent* DBAgentFactory::create(DBDomainId domainId,
                                 const string &dbName, bool skipSetup,
                                 const DBConnectInfo *connectInfo)
 {
-	if (domainId == DB_DOMAIN_ID_CONFIG ||
+	if (domainId == DB_TABLES_ID_CONFIG ||
 	    domainId == DB_TABLES_ID_ACTION ||
 	    domainId == DB_TABLES_ID_USER) {
 		HATOHOL_ASSERT(connectInfo, "connectInfo: NULL");

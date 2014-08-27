@@ -707,7 +707,7 @@ void DBTablesConfig::init(void)
 	};
 
 	registerSetupInfo(
-	  DB_DOMAIN_ID_CONFIG, DEFAULT_DB_NAME, &DB_SETUP_FUNC_ARG);
+	  DB_TABLES_ID_CONFIG, DEFAULT_DB_NAME, &DB_SETUP_FUNC_ARG);
 }
 
 void DBTablesConfig::reset(void)
@@ -731,7 +731,7 @@ void DBTablesConfig::reset(void)
 	          connInfo.host.c_str(), portStr.c_str(),
 	          connInfo.dbName.c_str(),
 	          connInfo.user.c_str(), usePassword ? "yes" : "no");
-	setConnectInfo(DB_DOMAIN_ID_CONFIG, connInfo);
+	setConnectInfo(DB_TABLES_ID_CONFIG, connInfo);
 }
 
 bool DBTablesConfig::isHatoholArmPlugin(const MonitoringSystemType &type)
@@ -746,7 +746,7 @@ bool DBTablesConfig::isHatoholArmPlugin(const MonitoringSystemType &type)
 }
 
 DBTablesConfig::DBTablesConfig(void)
-: DBClient(DB_DOMAIN_ID_CONFIG),
+: DBClient(DB_TABLES_ID_CONFIG),
   m_impl(new Impl())
 {
 }

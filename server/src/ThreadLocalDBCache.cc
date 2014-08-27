@@ -131,7 +131,7 @@ struct ThreadLocalDBCache::Impl {
 			dbClient = new DBTablesMonitoring();
 		else if (domainId == DB_TABLES_ID_USER)
 			dbClient = new DBTablesUser();
-		else if (domainId == DB_DOMAIN_ID_CONFIG)
+		else if (domainId == DB_TABLES_ID_CONFIG)
 			dbClient = new DBTablesConfig();
 		else if (domainId == DB_TABLES_ID_ACTION)
 			dbClient = new DBTablesAction();
@@ -268,7 +268,7 @@ DBHatohol &ThreadLocalDBCache::getDBHatohol(void)
 
 DBTablesConfig &ThreadLocalDBCache::getConfig(void)
 {
-	return *get<DBTablesConfig>(DB_DOMAIN_ID_CONFIG);
+	return *get<DBTablesConfig>(DB_TABLES_ID_CONFIG);
 }
 
 DBTablesUser &ThreadLocalDBCache::getUser(void)

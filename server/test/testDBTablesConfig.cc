@@ -121,14 +121,14 @@ void cut_setup(void)
 void test_dbDomainId(void)
 {
 	DECLARE_DBTABLES_CONFIG(dbConfig);
-	cppcut_assert_equal(DB_DOMAIN_ID_CONFIG,
+	cppcut_assert_equal(DB_TABLES_ID_CONFIG,
 	                    dbConfig.getDBAgent().getDBDomainId());
 }
 
 void test_setDefaultDBParams(void)
 {
 	DBConnectInfo connInfo =
-	  DBClient::getDBConnectInfo(DB_DOMAIN_ID_CONFIG);
+	  DBClient::getDBConnectInfo(DB_TABLES_ID_CONFIG);
 	cppcut_assert_equal(string(TEST_DB_USER), connInfo.user);
 	cppcut_assert_equal(string(TEST_DB_PASSWORD), connInfo.password);
 }
@@ -187,7 +187,7 @@ void test_createDB(void)
 	string statement = "select * from _dbclient_version";
 	string expect =
 	  StringUtils::sprintf(
-	    "%d|%d\n", DB_DOMAIN_ID_CONFIG,
+	    "%d|%d\n", DB_TABLES_ID_CONFIG,
 	               DBTablesConfig::CONFIG_DB_VERSION);
 	assertDBContent(&dbConfig.getDBAgent(), statement, expect);
 }
@@ -1094,7 +1094,7 @@ void cut_setup(void)
 void test_databaseName(void)
 {
 	DBConnectInfo connInfo =
-	  DBClient::getDBConnectInfo(DB_DOMAIN_ID_CONFIG);
+	  DBClient::getDBConnectInfo(DB_TABLES_ID_CONFIG);
 	cppcut_assert_equal(string(DBTablesConfig::DEFAULT_DB_NAME),
 	                    connInfo.dbName);
 }
@@ -1102,7 +1102,7 @@ void test_databaseName(void)
 void test_databaseUser(void)
 {
 	DBConnectInfo connInfo =
-	  DBClient::getDBConnectInfo(DB_DOMAIN_ID_CONFIG);
+	  DBClient::getDBConnectInfo(DB_TABLES_ID_CONFIG);
 	cppcut_assert_equal(string(DBTablesConfig::DEFAULT_USER_NAME),
 	                    connInfo.user);
 }
@@ -1110,7 +1110,7 @@ void test_databaseUser(void)
 void test_databasePassword(void)
 {
 	DBConnectInfo connInfo =
-	  DBClient::getDBConnectInfo(DB_DOMAIN_ID_CONFIG);
+	  DBClient::getDBConnectInfo(DB_TABLES_ID_CONFIG);
 	cppcut_assert_equal(string(DBTablesConfig::DEFAULT_USER_NAME),
 	                    connInfo.user);
 }
