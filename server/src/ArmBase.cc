@@ -405,7 +405,7 @@ void ArmBase::setServerConnectStaus(const bool status, const ArmPollingResult ty
 
 gpointer ArmBase::mainThread(HatoholThreadArg *arg)
 {
-	ArmWorkingStatus beforeFailureStatus = ARM_WORK_STAT_INIT;
+	ArmWorkingStatus previousArmWorkStatus = ARM_WORK_STAT_INIT;
 	while (!hasExitRequest()) {
 		int sleepTime = m_impl->getSecondsToNextPolling();
 		ArmPollingResult oneProcEndType = mainThreadOneProc();
@@ -419,16 +419,16 @@ gpointer ArmBase::mainThread(HatoholThreadArg *arg)
 			m_impl->lastFailureComment.clear();
 			m_impl->lastFailureStatus = ARM_WORK_STAT_FAILURE;
 		}
-		if (beforeFailureStatus == ARM_WORK_STAT_INIT) {
+		if (previousArmWorkStatus == ARM_WORK_STAT_INIT) {
 			setInitialTrrigerStaus();
 		}
 		if (m_impl->lastFailureStatus != ARM_WORK_STAT_OK) {
 			setServerConnectStaus(false, oneProcEndType);
 		} else {
-			if (beforeFailureStatus != m_impl->lastFailureStatus)
+			if (previousArmWorkStatus != m_impl->lastFailureStatus)
 				setServerConnectStaus(true, oneProcEndType);
 		}
-		beforeFailureStatus = m_impl->lastFailureStatus;
+		previousArmWorkStatus = m_impl->lastFailureStatus;
 
 		m_impl->stampLastPollingTime();
 		m_impl->setUpdateType(UPDATE_POLLING);
