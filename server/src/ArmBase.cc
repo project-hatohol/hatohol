@@ -30,6 +30,8 @@
 using namespace std;
 using namespace mlpl;
 
+const char *SERVER_SELF_CHARACTER = "_SELF";
+
 struct ArmBase::Impl
 {
 	string               name;
@@ -292,7 +294,7 @@ void ArmBase::setInitialTrrigerStaus(void)
 	hostInfo.serverId = svInfo.id;
 	hostInfo.id = MONITORING_SERVER_SELF_ID;
 	hostInfo.hostName = 
-		StringUtils::sprintf("%s_SELF", svInfo.hostName.c_str());
+		StringUtils::sprintf("%s%s", svInfo.hostName.c_str(), SERVER_SELF_CHARACTER);
 	m_impl->dbClientHatohol.addHostInfo(&hostInfo);
 
 	TriggerInfo triggerInfo;
@@ -317,7 +319,7 @@ void ArmBase::createTriggerInfo(const ArmResultTriggerInfo &resTrigger,
 	clock_gettime(CLOCK_REALTIME, &triggerInfo.lastChangeTime);
 	triggerInfo.hostId = MONITORING_SERVER_SELF_ID;
 	triggerInfo.hostName = 
-		StringUtils::sprintf("%s_SELF", svInfo.hostName.c_str());
+		StringUtils::sprintf("%s%s", svInfo.hostName.c_str(), SERVER_SELF_CHARACTER);
 	triggerInfo.id = resTrigger.triggerId;
 	triggerInfo.brief = resTrigger.msg;
 	triggerInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
