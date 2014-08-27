@@ -412,8 +412,8 @@ protected:
 	void addItemInfoWithoutTransaction(const ItemInfo &itemInfo);
 	static void addHostgroupInfoWithoutTransaction(
 	  DBAgent &dbAgent, const HostgroupInfo &groupInfo);
-	void addHostgroupElementWithoutTransaction(
-	  const HostgroupElement &hostgroupElement);
+	static void addHostgroupElementWithoutTransaction(
+	  DBAgent &dbAgent, const HostgroupElement &hostgroupElement);
 	void addHostInfoWithoutTransaction(const HostInfo &hostInfo);
 	void addMonitoringServerStatusWithoutTransaction(
 	  const MonitoringServerStatus &serverStatus);

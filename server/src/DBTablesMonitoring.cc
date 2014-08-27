@@ -1794,22 +1794,48 @@ void DBTablesMonitoring::addHostgroupInfoList(
 
 }
 
-void DBTablesMonitoring::addHostgroupElement
-  (HostgroupElement *hostgroupElement)
+void DBTablesMonitoring::addHostgroupElement(
+  HostgroupElement *hostgroupElement)
 {
-	DBCLIENT_TRANSACTION_BEGIN() {
-		addHostgroupElementWithoutTransaction(*hostgroupElement);
-	} DBCLIENT_TRANSACTION_END();
+	struct TrxProc : public DBAgent::TransactionProc {
+		HostgroupElement *hostgroupElement;
+		
+		TrxProc(HostgroupElement *_hostgroupElement)
+		: hostgroupElement(_hostgroupElement)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			addHostgroupElementWithoutTransaction(
+			  dbAgent, *hostgroupElement);
+		}
+	} trx(hostgroupElement);
+	getDBAgent().runTransaction(trx);
 }
 
-void DBTablesMonitoring::addHostgroupElementList
-  (const HostgroupElementList &hostgroupElementList)
+void DBTablesMonitoring::addHostgroupElementList(
+  const HostgroupElementList &hostgroupElementList)
 {
-	HostgroupElementListConstIterator it = hostgroupElementList.begin();
-	DBCLIENT_TRANSACTION_BEGIN() {
-		for (; it != hostgroupElementList.end(); ++it)
-			addHostgroupElementWithoutTransaction(*it);
-	} DBCLIENT_TRANSACTION_END();
+	struct TrxProc : public DBAgent::TransactionProc {
+		const HostgroupElementList &hostgroupElementList;
+		
+		TrxProc(const HostgroupElementList &_hostgroupElementList)
+		: hostgroupElementList(_hostgroupElementList)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			HostgroupElementListConstIterator it =
+			  hostgroupElementList.begin();
+			for (; it != hostgroupElementList.end(); ++it) {
+				addHostgroupElementWithoutTransaction(dbAgent,
+				                                      *it);
+			}
+		}
+	} trx(hostgroupElementList);
+	getDBAgent().runTransaction(trx);
 }
 
 void DBTablesMonitoring::addHostInfo(HostInfo *hostInfo)
@@ -2253,22 +2279,23 @@ void DBTablesMonitoring::addHostgroupInfoWithoutTransaction(
 }
 
 void DBTablesMonitoring::addHostgroupElementWithoutTransaction(
-  const HostgroupElement &hostgroupElement)
+  DBAgent &dbAgent, const HostgroupElement &hostgroupElement)
 {
-	const DBTermCodec *dbTermCodec = getDBAgent().getDBTermCodec();
+	const DBTermCodec *dbTermCodec = dbAgent.getDBTermCodec();
 	string condition = StringUtils::sprintf(
 	  "server_id=%s AND host_id=%s AND host_group_id=%s",
 	  dbTermCodec->enc(hostgroupElement.serverId).c_str(),
 	  dbTermCodec->enc(hostgroupElement.hostId).c_str(),
 	  dbTermCodec->enc(hostgroupElement.groupId).c_str());
 
-	if (!isRecordExisting(TABLE_NAME_MAP_HOSTS_HOSTGROUPS, condition)) {
+	if (!dbAgent.isRecordExisting(TABLE_NAME_MAP_HOSTS_HOSTGROUPS,
+	                              condition)) {
 		DBAgent::InsertArg arg(tableProfileMapHostsHostgroups);
 		arg.add(hostgroupElement.id);
 		arg.add(hostgroupElement.serverId);
 		arg.add(hostgroupElement.hostId);
 		arg.add(hostgroupElement.groupId);
-		insert(arg);
+		dbAgent.insert(arg);
 	}
 }
 
