@@ -478,6 +478,7 @@ void cut_setup(void)
 {
 	hatoholInit();
 	setupTestDB();
+	loadTestDBTablesConfig();
 	loadTestDBUser();
 }
 

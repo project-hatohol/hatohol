@@ -47,9 +47,6 @@ void startFaceRest(void)
 	} param;
 
 	string dbPathHatohol  = getFixturesDir() + TEST_DB_HATOHOL_NAME;
-	bool dbRecreate = true, loadTestData = true;
-	setupTestDBConfig(dbRecreate, loadTestData);
-
 	defineDBPath(DB_TABLES_ID_MONITORING, dbPathHatohol);
 
 	ConfigManager::getInstance()->setFaceRestPort(TEST_PORT);
