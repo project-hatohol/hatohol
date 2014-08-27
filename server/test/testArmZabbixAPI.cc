@@ -754,4 +754,26 @@ void test_oneNewEvent(void)
 	cppcut_assert_equal(expectedEventId, actualEventId);
 }
 
+// for issue #252
+// (can't get events when the first event ID is bigger than 1000)
+void test_getStubbedEventList(void)
+{
+	MonitoringServerInfo serverInfo = setupServer();
+	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
+	armZbxApiTestee.testOpenSession();
+
+	uint64_t expectedFirstEventId = 2014;
+	uint64_t expectedLastEventId = 5000;
+	g_apiEmulator.setExpectedFirstEventId(expectedFirstEventId);
+	g_apiEmulator.setExpectedLastEventId(expectedLastEventId);
+	armZbxApiTestee.callUpdateEvents();
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	EventInfoList eventList;
+	EventsQueryOption option(USER_ID_SYSTEM);
+	dbMonitoring.getEventInfoList(eventList, option);
+	cppcut_assert_equal(expectedLastEventId - expectedFirstEventId + 1,
+			    static_cast<uint64_t>(eventList.size()));
+}
+
 } // namespace testArmZabbixAPI
