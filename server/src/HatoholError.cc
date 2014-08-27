@@ -129,9 +129,9 @@ void HatoholError::init(void)
 
 	// ArmConnectionFailure
 	DEFINE_ERR(FAILED_CONNECT_ZABBIX,
-		   "Failed in connecting to zabbix.");
+		   "Failed in connecting to Zabbix.");
 	DEFINE_ERR(FAILED_CONNECT_MYSQL,
-		   "Failed in connecting to mysql.");
+		   "Failed in connecting to MySQL.");
 	DEFINE_ERR(FAILED_INTERNAL_ERROR,
 		   "Failed in executing of system call.");
 	DEFINE_ERR(FAILED_PARSER_ERROR,
