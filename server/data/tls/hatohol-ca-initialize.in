@@ -11,7 +11,7 @@ run()
     fi
 }
 
-base_directory="."
+base_directory="@expanded_pkglocalstatedir@"
 
 show_usage()
 {
